@@ -1906,6 +1906,29 @@ int main(int argc, const char **argv_) {
           { stream->config.cfg.g_input_bit_depth = input.bit_depth; });
     }
 
+#if CONFIG_VPX_HIGHBITDEPTH
+    /* Automatically set the codec bit depth to match the input bit depth.
+     * Upgrade the profile if required. */
+    FOREACH_STREAM({
+      if (stream->config.cfg.g_input_bit_depth >
+          (unsigned int)stream->config.cfg.g_bit_depth) {
+        stream->config.cfg.g_bit_depth = stream->config.cfg.g_input_bit_depth;
+      }
+      if (stream->config.cfg.g_bit_depth > 8) {
+        switch (stream->config.cfg.g_profile) {
+          case 0:
+            stream->config.cfg.g_profile = 2;
+            break;
+          case 1:
+            stream->config.cfg.g_profile = 3;
+            break;
+          default:
+            break;
+        }
+      }
+    });
+#endif
+
     FOREACH_STREAM(set_stream_dimensions(stream, input.width, input.height));
     FOREACH_STREAM(validate_stream_config(stream, &global));
 
