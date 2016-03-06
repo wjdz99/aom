@@ -31,11 +31,18 @@ int aom_reader_init(aom_reader *r, const uint8_t *buffer, size_t size,
     r->range = 255;
     r->decrypt_cb = decrypt_cb;
     r->decrypt_state = decrypt_state;
+#if CONFIG_DAALA_EC
+    // drop last byte because it's always zero
+    od_ec_dec_init(&r->ec, buffer, size - 1);
+    return 0;
+#else
     aom_reader_fill(r);
     return aom_read_bit(r) != 0;  // marker bit
+#endif
   }
 }
 
+#if !CONFIG_DAALA_EC
 void aom_reader_fill(aom_reader *r) {
   const uint8_t *const buffer_end = r->buffer_end;
   const uint8_t *buffer = r->buffer;
@@ -90,12 +97,17 @@ void aom_reader_fill(aom_reader *r) {
   r->value = value;
   r->count = count;
 }
+#endif
 
 const uint8_t *aom_reader_find_end(aom_reader *r) {
+#if CONFIG_DAALA_EC
+  return r->buffer_end;
+#else
   // Find the end of the coded buffer
   while (r->count > CHAR_BIT && r->count < BD_VALUE_SIZE) {
     r->count -= CHAR_BIT;
     r->buffer--;
   }
   return r->buffer;
+#endif
 }
