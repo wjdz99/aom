@@ -18,8 +18,17 @@
 
 #include "test/acm_random.h"
 #include "aom/aom_integer.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "aom_dsp/bitreader.h"
 #include "aom_dsp/bitwriter.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 using libaom_test::ACMRandom;
 
