@@ -138,9 +138,23 @@ static INLINE int aom_read_literal(aom_reader *r, int bits) {
 static INLINE int aom_read_tree(aom_reader *r, const aom_tree_index *tree,
                                 const aom_prob *probs) {
   aom_tree_index i = 0;
-
+#if CONFIG_DAALA_EC
+  do {
+    uint16_t cdf[16];
+    aom_tree_index index[16];
+    int path[16];
+    int dist[16];
+    int nsymbs;
+    int symb;
+    nsymbs = tree_to_cdf(tree, probs, i, cdf, index, path, dist);
+    symb = od_ec_decode_cdf_q15(&r->ec, cdf, nsymbs, "aom");
+    OD_ASSERT(symb >= 0 && symb < nsymbs);
+    i = index[symb];
+  }
+  while (i > 0);
+#else
   while ((i = tree[i + aom_read(r, probs[i >> 1])]) > 0) continue;
-
+#endif
   return -i;
 }
 
