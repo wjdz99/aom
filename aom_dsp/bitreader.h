@@ -20,6 +20,9 @@
 #include "aom/aomdx.h"
 #include "aom/aom_integer.h"
 #include "aom_dsp/prob.h"
+#if CONFIG_DAALA_EC
+#include "aom_dsp/entdec.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +47,9 @@ typedef struct {
   aom_decrypt_cb decrypt_cb;
   void *decrypt_state;
   uint8_t clear_buffer[sizeof(BD_VALUE) + 1];
+#if CONFIG_DAALA_EC
+  od_ec_dec ec;
+#endif
 } aom_reader;
 
 int aom_reader_init(aom_reader *r, const uint8_t *buffer, size_t size,
@@ -72,6 +78,15 @@ static INLINE int aom_reader_has_error(aom_reader *r) {
 }
 
 static INLINE int aom_read(aom_reader *r, int prob) {
+#if CONFIG_DAALA_EC
+  if (prob == 128) {
+    return od_ec_dec_bits(&r->ec, 1, "aom_bits");
+  }
+  else {
+    int p = (32768*prob + (256 - prob)) >> 8;
+    return od_ec_decode_bool_q15(&r->ec, p, "aom");
+  }
+#else
   unsigned int bit = 0;
   BD_VALUE value;
   BD_VALUE bigsplit;
@@ -105,6 +120,7 @@ static INLINE int aom_read(aom_reader *r, int prob) {
   r->range = range;
 
   return bit;
+#endif
 }
 
 static INLINE int aom_read_bit(aom_reader *r) {
