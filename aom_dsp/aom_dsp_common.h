@@ -12,6 +12,7 @@
 #ifndef AOM_DSP_COMMON_H_
 #define AOM_DSP_COMMON_H_
 
+#include <math.h>
 #include "./aom_config.h"
 #include "aom/aom_integer.h"
 #include "aom_dsp/aom_dsp_common.h"
@@ -23,6 +24,12 @@ extern "C" {
 
 #define AOMMIN(x, y) (((x) < (y)) ? (x) : (y))
 #define AOMMAX(x, y) (((x) > (y)) ? (x) : (y))
+
+#if !defined(M_LOG2E)
+#define M_LOG2E (1.4426950408889634073599246810019)
+#endif
+
+#define AOMLOG2(x) (M_LOG2E*log(x))
 
 #if CONFIG_AOM_QM
 typedef uint16_t qm_val_t;
