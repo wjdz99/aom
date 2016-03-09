@@ -12,9 +12,14 @@
 #ifndef AOM_DSP_BITWRITER_H_
 #define AOM_DSP_BITWRITER_H_
 
+#include <assert.h>
+
 #include "aom_ports/mem.h"
 
 #include "aom_dsp/prob.h"
+#include "aom_dsp/aom_dsp_common.h"
+
+#define AOM_MEASURE_EC_OVERHEAD 0
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,6 +31,10 @@ typedef struct aom_writer {
   int count;
   unsigned int pos;
   uint8_t *buffer;
+#if AOM_MEASURE_EC_OVERHEAD
+  double entropy;
+  int nb_symbols;
+#endif
 } aom_writer;
 
 void aom_start_encode(aom_writer *bc, uint8_t *buffer);
@@ -77,6 +86,11 @@ static INLINE void aom_write(aom_writer *br, int bit, int probability) {
   br->count = count;
   br->lowvalue = lowvalue;
   br->range = range;
+#if AOM_MEASURE_EC_OVERHEAD
+  assert(probability > 0 && probability < 256);
+  br->entropy -= AOM_LOG2((double)(bit ? 256 - probability : probability)/256.0);
+  br->nb_symbols++;
+#endif
 }
 
 static INLINE void aom_write_bit(aom_writer *w, int bit) {
