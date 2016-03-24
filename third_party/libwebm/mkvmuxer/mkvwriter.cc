@@ -7,14 +7,12 @@
 // obtain it at www.aomedia.org/license/software. If the Alliance for Open
 // Media Patent License 1.0 was not distributed with this source code in the
 // PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-//
-#include "mkvwriter.hpp"
+
+#include "mkvmuxer/mkvwriter.h"
 
 #ifdef _MSC_VER
 #include <share.h>  // for _SH_DENYWR
 #endif
-
-#include <new>
 
 namespace mkvmuxer {
 

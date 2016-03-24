@@ -9,12 +9,12 @@
 // PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 //
 
+#ifndef MKVPARSER_MKVREADER_H_
+#define MKVPARSER_MKVREADER_H_
 
-#ifndef MKVREADER_HPP
-#define MKVREADER_HPP
-
-#include "mkvparser.hpp"
 #include <cstdio>
+
+#include "mkvparser/mkvparser.h"
 
 namespace mkvparser {
 
@@ -44,6 +44,6 @@ class MkvReader : public IMkvReader {
   bool reader_owns_file_;
 };
 
-}  // end namespace mkvparser
+}  // namespace mkvparser
 
-#endif  // MKVREADER_HPP
+#endif  // MKVPARSER_MKVREADER_H_
