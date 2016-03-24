@@ -9,30 +9,30 @@
 // PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 //
 
+#ifndef MKVPARSER_MKVREADER_H_
+#define MKVPARSER_MKVREADER_H_
 
-#ifndef MKVREADER_HPP
-#define MKVREADER_HPP
-
-#include "mkvparser.hpp"
 #include <cstdio>
+
+#include "mkvparser/mkvparser.h"
 
 namespace mkvparser {
 
 class MkvReader : public IMkvReader {
  public:
   MkvReader();
-  explicit MkvReader(FILE* fp);
+  explicit MkvReader(FILE *fp);
   virtual ~MkvReader();
 
-  int Open(const char*);
+  int Open(const char *);
   void Close();
 
-  virtual int Read(long long position, long length, unsigned char* buffer);
-  virtual int Length(long long* total, long long* available);
+  virtual int Read(long long position, long length, unsigned char *buffer);
+  virtual int Length(long long *total, long long *available);
 
  private:
-  MkvReader(const MkvReader&);
-  MkvReader& operator=(const MkvReader&);
+  MkvReader(const MkvReader &);
+  MkvReader &operator=(const MkvReader &);
 
   // Determines the size of the file. This is called either by the constructor
   // or by the Open function depending on file ownership. Returns true on
@@ -40,10 +40,10 @@ class MkvReader : public IMkvReader {
   bool GetFileSize();
 
   long long m_length;
-  FILE* m_file;
+  FILE *m_file;
   bool reader_owns_file_;
 };
 
-}  // end namespace mkvparser
+}  // namespace mkvparser
 
-#endif  // MKVREADER_HPP
+#endif  // MKVPARSER_MKVREADER_H_
