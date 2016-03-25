@@ -29,7 +29,7 @@
 #include "aom_ports/mem_ops.h"
 #include "aom_ports/vpx_timer.h"
 
-#if CONFIG_VP10_DECODER
+#if CONFIG_AV1_DECODER
 #include "aom/vp8dx.h"
 #endif
 
@@ -561,7 +561,7 @@ static int main_loop(int argc, const char **argv_) {
       summary = 1;
     else if (arg_match(&arg, &threadsarg, argi))
       cfg.threads = arg_parse_uint(&arg);
-#if CONFIG_VP10_DECODER
+#if CONFIG_AV1_DECODER
     else if (arg_match(&arg, &frameparallelarg, argi))
       frame_parallel = 1;
 #endif

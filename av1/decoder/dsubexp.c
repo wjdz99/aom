@@ -69,7 +69,7 @@ static int decode_term_subexp(vpx_reader *r) {
   return decode_uniform(r) + 64;
 }
 
-void vp10_diff_update_prob(vpx_reader *r, vpx_prob *p) {
+void av1_diff_update_prob(vpx_reader *r, vpx_prob *p) {
   if (vpx_read(r, DIFF_UPDATE_PROB)) {
     const int delp = decode_term_subexp(r);
     *p = (vpx_prob)inv_remap_prob(delp, *p);
