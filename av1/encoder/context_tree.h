@@ -78,8 +78,8 @@ typedef struct PC_TREE {
   };
 } PC_TREE;
 
-void vp10_setup_pc_tree(struct VP10Common *cm, struct ThreadData *td);
-void vp10_free_pc_tree(struct ThreadData *td);
+void av1_setup_pc_tree(struct VP10Common *cm, struct ThreadData *td);
+void av1_free_pc_tree(struct ThreadData *td);
 
 #ifdef __cplusplus
 }  // extern "C"

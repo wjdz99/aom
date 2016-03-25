@@ -385,7 +385,7 @@ static INLINE int frame_is_intra_only(const VP10_COMMON *const cm) {
   return cm->frame_type == KEY_FRAME || cm->intra_only;
 }
 
-static INLINE void vp10_init_macroblockd(VP10_COMMON *cm, MACROBLOCKD *xd,
+static INLINE void av1_init_macroblockd(VP10_COMMON *cm, MACROBLOCKD *xd,
                                          tran_low_t *dqcoeff) {
   int i;
 
@@ -466,8 +466,8 @@ static INLINE const vpx_prob *get_y_mode_probs(const VP10_COMMON *cm,
                                                const MODE_INFO *above_mi,
                                                const MODE_INFO *left_mi,
                                                int block) {
-  const PREDICTION_MODE above = vp10_above_block_mode(mi, above_mi, block);
-  const PREDICTION_MODE left = vp10_left_block_mode(mi, left_mi, block);
+  const PREDICTION_MODE above = av1_above_block_mode(mi, above_mi, block);
+  const PREDICTION_MODE left = av1_left_block_mode(mi, left_mi, block);
   return cm->kf_y_prob[above][left];
 }
 

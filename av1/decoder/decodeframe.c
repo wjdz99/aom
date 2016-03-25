@@ -106,29 +106,29 @@ static void read_tx_mode_probs(struct tx_probs *tx_probs, vpx_reader *r) {
 
   for (i = 0; i < TX_SIZE_CONTEXTS; ++i)
     for (j = 0; j < TX_SIZES - 3; ++j)
-      vp10_diff_update_prob(r, &tx_probs->p8x8[i][j]);
+      av1_diff_update_prob(r, &tx_probs->p8x8[i][j]);
 
   for (i = 0; i < TX_SIZE_CONTEXTS; ++i)
     for (j = 0; j < TX_SIZES - 2; ++j)
-      vp10_diff_update_prob(r, &tx_probs->p16x16[i][j]);
+      av1_diff_update_prob(r, &tx_probs->p16x16[i][j]);
 
   for (i = 0; i < TX_SIZE_CONTEXTS; ++i)
     for (j = 0; j < TX_SIZES - 1; ++j)
-      vp10_diff_update_prob(r, &tx_probs->p32x32[i][j]);
+      av1_diff_update_prob(r, &tx_probs->p32x32[i][j]);
 }
 
 static void read_switchable_interp_probs(FRAME_CONTEXT *fc, vpx_reader *r) {
   int i, j;
   for (j = 0; j < SWITCHABLE_FILTER_CONTEXTS; ++j)
     for (i = 0; i < SWITCHABLE_FILTERS - 1; ++i)
-      vp10_diff_update_prob(r, &fc->switchable_interp_prob[j][i]);
+      av1_diff_update_prob(r, &fc->switchable_interp_prob[j][i]);
 }
 
 static void read_inter_mode_probs(FRAME_CONTEXT *fc, vpx_reader *r) {
   int i, j;
   for (i = 0; i < INTER_MODE_CONTEXTS; ++i)
     for (j = 0; j < INTER_MODES - 1; ++j)
-      vp10_diff_update_prob(r, &fc->inter_mode_probs[i][j]);
+      av1_diff_update_prob(r, &fc->inter_mode_probs[i][j]);
 }
 
 #if CONFIG_MISC_FIXES
@@ -161,24 +161,24 @@ static void read_frame_reference_mode_probs(VP10_COMMON *cm, vpx_reader *r) {
 
   if (cm->reference_mode == REFERENCE_MODE_SELECT)
     for (i = 0; i < COMP_INTER_CONTEXTS; ++i)
-      vp10_diff_update_prob(r, &fc->comp_inter_prob[i]);
+      av1_diff_update_prob(r, &fc->comp_inter_prob[i]);
 
   if (cm->reference_mode != COMPOUND_REFERENCE)
     for (i = 0; i < REF_CONTEXTS; ++i) {
-      vp10_diff_update_prob(r, &fc->single_ref_prob[i][0]);
-      vp10_diff_update_prob(r, &fc->single_ref_prob[i][1]);
+      av1_diff_update_prob(r, &fc->single_ref_prob[i][0]);
+      av1_diff_update_prob(r, &fc->single_ref_prob[i][1]);
     }
 
   if (cm->reference_mode != SINGLE_REFERENCE)
     for (i = 0; i < REF_CONTEXTS; ++i)
-      vp10_diff_update_prob(r, &fc->comp_ref_prob[i]);
+      av1_diff_update_prob(r, &fc->comp_ref_prob[i]);
 }
 
 static void update_mv_probs(vpx_prob *p, int n, vpx_reader *r) {
   int i;
   for (i = 0; i < n; ++i)
 #if CONFIG_MISC_FIXES
-    vp10_diff_update_prob(r, &p[i]);
+    av1_diff_update_prob(r, &p[i]);
 #else
     if (vpx_read(r, MV_UPDATE_PROB)) p[i] = (vpx_read_literal(r, 7) << 1) | 1;
 #endif
@@ -225,19 +225,19 @@ static void inverse_transform_block_inter(MACROBLOCKD *xd, int plane,
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       switch (tx_size) {
         case TX_4X4:
-          vp10_highbd_inv_txfm_add_4x4(dqcoeff, dst, stride, eob, xd->bd,
+          av1_highbd_inv_txfm_add_4x4(dqcoeff, dst, stride, eob, xd->bd,
                                        tx_type, xd->lossless[seg_id]);
           break;
         case TX_8X8:
-          vp10_highbd_inv_txfm_add_8x8(dqcoeff, dst, stride, eob, xd->bd,
+          av1_highbd_inv_txfm_add_8x8(dqcoeff, dst, stride, eob, xd->bd,
                                        tx_type);
           break;
         case TX_16X16:
-          vp10_highbd_inv_txfm_add_16x16(dqcoeff, dst, stride, eob, xd->bd,
+          av1_highbd_inv_txfm_add_16x16(dqcoeff, dst, stride, eob, xd->bd,
                                          tx_type);
           break;
         case TX_32X32:
-          vp10_highbd_inv_txfm_add_32x32(dqcoeff, dst, stride, eob, xd->bd,
+          av1_highbd_inv_txfm_add_32x32(dqcoeff, dst, stride, eob, xd->bd,
                                          tx_type);
           break;
         default: assert(0 && "Invalid transform size"); return;
@@ -246,17 +246,17 @@ static void inverse_transform_block_inter(MACROBLOCKD *xd, int plane,
 #endif  // CONFIG_VPX_HIGHBITDEPTH
       switch (tx_size) {
         case TX_4X4:
-          vp10_inv_txfm_add_4x4(dqcoeff, dst, stride, eob, tx_type,
+          av1_inv_txfm_add_4x4(dqcoeff, dst, stride, eob, tx_type,
                                 xd->lossless[seg_id]);
           break;
         case TX_8X8:
-          vp10_inv_txfm_add_8x8(dqcoeff, dst, stride, eob, tx_type);
+          av1_inv_txfm_add_8x8(dqcoeff, dst, stride, eob, tx_type);
           break;
         case TX_16X16:
-          vp10_inv_txfm_add_16x16(dqcoeff, dst, stride, eob, tx_type);
+          av1_inv_txfm_add_16x16(dqcoeff, dst, stride, eob, tx_type);
           break;
         case TX_32X32:
-          vp10_inv_txfm_add_32x32(dqcoeff, dst, stride, eob, tx_type);
+          av1_inv_txfm_add_32x32(dqcoeff, dst, stride, eob, tx_type);
           break;
         default: assert(0 && "Invalid transform size"); return;
       }
@@ -289,19 +289,19 @@ static void inverse_transform_block_intra(MACROBLOCKD *xd, int plane,
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       switch (tx_size) {
         case TX_4X4:
-          vp10_highbd_inv_txfm_add_4x4(dqcoeff, dst, stride, eob, xd->bd,
+          av1_highbd_inv_txfm_add_4x4(dqcoeff, dst, stride, eob, xd->bd,
                                        tx_type, xd->lossless[seg_id]);
           break;
         case TX_8X8:
-          vp10_highbd_inv_txfm_add_8x8(dqcoeff, dst, stride, eob, xd->bd,
+          av1_highbd_inv_txfm_add_8x8(dqcoeff, dst, stride, eob, xd->bd,
                                        tx_type);
           break;
         case TX_16X16:
-          vp10_highbd_inv_txfm_add_16x16(dqcoeff, dst, stride, eob, xd->bd,
+          av1_highbd_inv_txfm_add_16x16(dqcoeff, dst, stride, eob, xd->bd,
                                          tx_type);
           break;
         case TX_32X32:
-          vp10_highbd_inv_txfm_add_32x32(dqcoeff, dst, stride, eob, xd->bd,
+          av1_highbd_inv_txfm_add_32x32(dqcoeff, dst, stride, eob, xd->bd,
                                          tx_type);
           break;
         default: assert(0 && "Invalid transform size"); return;
@@ -310,17 +310,17 @@ static void inverse_transform_block_intra(MACROBLOCKD *xd, int plane,
 #endif  // CONFIG_VPX_HIGHBITDEPTH
       switch (tx_size) {
         case TX_4X4:
-          vp10_inv_txfm_add_4x4(dqcoeff, dst, stride, eob, tx_type,
+          av1_inv_txfm_add_4x4(dqcoeff, dst, stride, eob, tx_type,
                                 xd->lossless[seg_id]);
           break;
         case TX_8X8:
-          vp10_inv_txfm_add_8x8(dqcoeff, dst, stride, eob, tx_type);
+          av1_inv_txfm_add_8x8(dqcoeff, dst, stride, eob, tx_type);
           break;
         case TX_16X16:
-          vp10_inv_txfm_add_16x16(dqcoeff, dst, stride, eob, tx_type);
+          av1_inv_txfm_add_16x16(dqcoeff, dst, stride, eob, tx_type);
           break;
         case TX_32X32:
-          vp10_inv_txfm_add_32x32(dqcoeff, dst, stride, eob, tx_type);
+          av1_inv_txfm_add_32x32(dqcoeff, dst, stride, eob, tx_type);
           break;
         default: assert(0 && "Invalid transform size"); return;
       }
@@ -356,14 +356,14 @@ static void predict_and_reconstruct_intra_block(MACROBLOCKD *const xd,
   if (mbmi->sb_type < BLOCK_8X8)
     if (plane == 0) mode = xd->mi[0]->bmi[(row << 1) + col].as_mode;
 
-  vp10_predict_intra_block(xd, pd->n4_wl, pd->n4_hl, tx_size, mode, dst,
+  av1_predict_intra_block(xd, pd->n4_wl, pd->n4_hl, tx_size, mode, dst,
                            pd->dst.stride, dst, pd->dst.stride, col, row,
                            plane);
 
   if (!mbmi->skip) {
     TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx);
     const scan_order *sc = get_scan(tx_size, tx_type);
-    const int eob = vp10_decode_block_tokens(xd, plane, sc, col, row, tx_size,
+    const int eob = av1_decode_block_tokens(xd, plane, sc, col, row, tx_size,
                                              r, mbmi->segment_id);
     inverse_transform_block_intra(xd, plane, tx_type, tx_size, dst,
                                   pd->dst.stride, eob);
@@ -378,7 +378,7 @@ static int reconstruct_inter_block(MACROBLOCKD *const xd, vpx_reader *r,
   int block_idx = (row << 1) + col;
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx);
   const scan_order *sc = get_scan(tx_size, tx_type);
-  const int eob = vp10_decode_block_tokens(xd, plane, sc, col, row, tx_size, r,
+  const int eob = av1_decode_block_tokens(xd, plane, sc, col, row, tx_size, r,
                                            mbmi->segment_id);
 
   inverse_transform_block_inter(
@@ -561,7 +561,7 @@ static void dec_build_inter_predictors(
 
     // Scale the MV and incorporate the sub-pixel offset of the block
     // in the reference frame.
-    scaled_mv = vp10_scale_mv(&mv_q4, mi_x + x, mi_y + y, sf);
+    scaled_mv = av1_scale_mv(&mv_q4, mi_x + x, mi_y + y, sf);
     xs = sf->x_step_q4;
     ys = sf->y_step_q4;
   } else {
@@ -616,7 +616,7 @@ static void dec_build_inter_predictors(
     // Wait until reference block is ready. Pad 7 more pixels as last 7
     // pixels of each superblock row can be changed by next superblock row.
     if (cm->frame_parallel_decode)
-      vp10_frameworker_wait(pbi->frame_worker_owner, ref_frame_buf,
+      av1_frameworker_wait(pbi->frame_worker_owner, ref_frame_buf,
                             VPXMAX(0, (y1 + 7)) << (plane == 0 ? 0 : 1));
 
     // Skip border extension if block is inside the frame.
@@ -642,7 +642,7 @@ static void dec_build_inter_predictors(
     // pixels of each superblock row can be changed by next superblock row.
     if (cm->frame_parallel_decode) {
       const int y1 = (y0_16 + (h - 1) * ys) >> SUBPEL_BITS;
-      vp10_frameworker_wait(pbi->frame_worker_owner, ref_frame_buf,
+      av1_frameworker_wait(pbi->frame_worker_owner, ref_frame_buf,
                             VPXMAX(0, (y1 + 7)) << (plane == 0 ? 0 : 1));
     }
   }
@@ -667,7 +667,7 @@ static void dec_build_inter_predictors_sb(VP10Decoder *const pbi,
   const int mi_x = mi_col * MI_SIZE;
   const int mi_y = mi_row * MI_SIZE;
   const MODE_INFO *mi = xd->mi[0];
-  const InterpKernel *kernel = vp10_filter_kernels[mi->mbmi.interp_filter];
+  const InterpKernel *kernel = av1_filter_kernels[mi->mbmi.interp_filter];
   const BLOCK_SIZE sb_type = mi->mbmi.sb_type;
   const int is_compound = has_second_ref(&mi->mbmi);
 
@@ -687,7 +687,7 @@ static void dec_build_inter_predictors_sb(VP10Decoder *const pbi,
       const int idx = xd->block_refs[ref]->idx;
       BufferPool *const pool = pbi->common.buffer_pool;
       RefCntBuffer *const ref_frame_buf = &pool->frame_bufs[idx];
-      const int is_scaled = vp10_is_scaled(sf);
+      const int is_scaled = av1_is_scaled(sf);
 
       if (sb_type < BLOCK_8X8) {
         const PARTITION_TYPE bp = BLOCK_8X8 - sb_type;
@@ -770,7 +770,7 @@ static MB_MODE_INFO *set_offsets(VP10_COMMON *const cm, MACROBLOCKD *const xd,
   // as they are always compared to values that are in 1/8th pel units
   set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols);
 
-  vp10_setup_dst_planes(xd->plane, get_frame_new_buffer(cm), mi_row, mi_col);
+  av1_setup_dst_planes(xd->plane, get_frame_new_buffer(cm), mi_row, mi_col);
   return &xd->mi[0]->mbmi;
 }
 
@@ -795,7 +795,7 @@ static void decode_block(VP10Decoder *const pbi, MACROBLOCKD *const xd,
                          "Invalid block size.");
   }
 
-  vp10_read_mode_info(pbi, xd, mi_row, mi_col, r, x_mis, y_mis);
+  av1_read_mode_info(pbi, xd, mi_row, mi_col, r, x_mis, y_mis);
 
   if (mbmi->skip) {
     dec_reset_skip_context(xd);
@@ -904,7 +904,7 @@ static PARTITION_TYPE read_partition(VP10_COMMON *cm, MACROBLOCKD *xd,
   PARTITION_TYPE p;
 
   if (has_rows && has_cols)
-    p = (PARTITION_TYPE)vpx_read_tree(r, vp10_partition_tree, probs);
+    p = (PARTITION_TYPE)vpx_read_tree(r, av1_partition_tree, probs);
   else if (!has_rows && has_cols)
     p = vpx_read(r, probs[1]) ? PARTITION_SPLIT : PARTITION_HORZ;
   else if (has_rows && !has_cols)
@@ -1002,7 +1002,7 @@ static void setup_token_decoder(const uint8_t *data, const uint8_t *data_end,
                        "Failed to allocate bool decoder %d", 1);
 }
 
-static void read_coef_probs_common(vp10_coeff_probs_model *coef_probs,
+static void read_coef_probs_common(av1_coeff_probs_model *coef_probs,
                                    vpx_reader *r) {
   int i, j, k, l, m;
 
@@ -1012,7 +1012,7 @@ static void read_coef_probs_common(vp10_coeff_probs_model *coef_probs,
         for (k = 0; k < COEF_BANDS; ++k)
           for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l)
             for (m = 0; m < UNCONSTRAINED_NODES; ++m)
-              vp10_diff_update_prob(r, &coef_probs[i][j][k][l][m]);
+              av1_diff_update_prob(r, &coef_probs[i][j][k][l][m]);
 }
 
 static void read_coef_probs(FRAME_CONTEXT *fc, TX_MODE tx_mode, vpx_reader *r) {
@@ -1069,19 +1069,19 @@ static void setup_segmentation(VP10_COMMON *const cm,
   if (seg->update_data) {
     seg->abs_delta = vpx_rb_read_bit(rb);
 
-    vp10_clearall_segfeatures(seg);
+    av1_clearall_segfeatures(seg);
 
     for (i = 0; i < MAX_SEGMENTS; i++) {
       for (j = 0; j < SEG_LVL_MAX; j++) {
         int data = 0;
         const int feature_enabled = vpx_rb_read_bit(rb);
         if (feature_enabled) {
-          vp10_enable_segfeature(seg, i, j);
-          data = decode_unsigned_max(rb, vp10_seg_feature_data_max(j));
-          if (vp10_is_segfeature_signed(j))
+          av1_enable_segfeature(seg, i, j);
+          data = decode_unsigned_max(rb, av1_seg_feature_data_max(j));
+          if (av1_is_segfeature_signed(j))
             data = vpx_rb_read_bit(rb) ? -data : data;
         }
-        vp10_set_segdata(seg, i, j, data);
+        av1_set_segdata(seg, i, j, data);
       }
     }
   }
@@ -1163,14 +1163,14 @@ static void setup_segmentation_dequant(VP10_COMMON *const cm) {
 #endif
   if (cm->seg.enabled) {
     for (i = 0; i < MAX_SEGMENTS; ++i) {
-      const int qindex = vp10_get_qindex(&cm->seg, i, cm->base_qindex);
+      const int qindex = av1_get_qindex(&cm->seg, i, cm->base_qindex);
       cm->y_dequant[i][0] =
-          vp10_dc_quant(qindex, cm->y_dc_delta_q, cm->bit_depth);
-      cm->y_dequant[i][1] = vp10_ac_quant(qindex, 0, cm->bit_depth);
+          av1_dc_quant(qindex, cm->y_dc_delta_q, cm->bit_depth);
+      cm->y_dequant[i][1] = av1_ac_quant(qindex, 0, cm->bit_depth);
       cm->uv_dequant[i][0] =
-          vp10_dc_quant(qindex, cm->uv_dc_delta_q, cm->bit_depth);
+          av1_dc_quant(qindex, cm->uv_dc_delta_q, cm->bit_depth);
       cm->uv_dequant[i][1] =
-          vp10_ac_quant(qindex, cm->uv_ac_delta_q, cm->bit_depth);
+          av1_ac_quant(qindex, cm->uv_ac_delta_q, cm->bit_depth);
 #if CONFIG_AOM_QM
       lossless = qindex == 0 && cm->y_dc_delta_q == 0 &&
                  cm->uv_dc_delta_q == 0 && cm->uv_ac_delta_q == 0;
@@ -1192,12 +1192,12 @@ static void setup_segmentation_dequant(VP10_COMMON *const cm) {
     // When segmentation is disabled, only the first value is used.  The
     // remaining are don't cares.
     cm->y_dequant[0][0] =
-        vp10_dc_quant(qindex, cm->y_dc_delta_q, cm->bit_depth);
-    cm->y_dequant[0][1] = vp10_ac_quant(qindex, 0, cm->bit_depth);
+        av1_dc_quant(qindex, cm->y_dc_delta_q, cm->bit_depth);
+    cm->y_dequant[0][1] = av1_ac_quant(qindex, 0, cm->bit_depth);
     cm->uv_dequant[0][0] =
-        vp10_dc_quant(qindex, cm->uv_dc_delta_q, cm->bit_depth);
+        av1_dc_quant(qindex, cm->uv_dc_delta_q, cm->bit_depth);
     cm->uv_dequant[0][1] =
-        vp10_ac_quant(qindex, cm->uv_ac_delta_q, cm->bit_depth);
+        av1_ac_quant(qindex, cm->uv_ac_delta_q, cm->bit_depth);
 #if CONFIG_AOM_QM
     lossless = qindex == 0 && cm->y_dc_delta_q == 0 && cm->uv_dc_delta_q == 0 &&
                cm->uv_ac_delta_q == 0;
@@ -1223,7 +1223,7 @@ static void setup_render_size(VP10_COMMON *cm, struct vpx_read_bit_buffer *rb) {
   cm->render_width = cm->width;
   cm->render_height = cm->height;
   if (vpx_rb_read_bit(rb))
-    vp10_read_frame_size(rb, &cm->render_width, &cm->render_height);
+    av1_read_frame_size(rb, &cm->render_width, &cm->render_height);
 }
 
 static void resize_mv_buffer(VP10_COMMON *cm) {
@@ -1247,16 +1247,16 @@ static void resize_context_buffers(VP10_COMMON *cm, int width, int height) {
     const int new_mi_cols =
         ALIGN_POWER_OF_TWO(width, MI_SIZE_LOG2) >> MI_SIZE_LOG2;
 
-    // Allocations in vp10_alloc_context_buffers() depend on individual
+    // Allocations in av1_alloc_context_buffers() depend on individual
     // dimensions as well as the overall size.
     if (new_mi_cols > cm->mi_cols || new_mi_rows > cm->mi_rows) {
-      if (vp10_alloc_context_buffers(cm, width, height))
+      if (av1_alloc_context_buffers(cm, width, height))
         vpx_internal_error(&cm->error, VPX_CODEC_MEM_ERROR,
                            "Failed to allocate context buffers");
     } else {
-      vp10_set_mb_mi(cm, width, height);
+      av1_set_mb_mi(cm, width, height);
     }
-    vp10_init_context_buffers(cm);
+    av1_init_context_buffers(cm);
     cm->width = width;
     cm->height = height;
   }
@@ -1269,7 +1269,7 @@ static void resize_context_buffers(VP10_COMMON *cm, int width, int height) {
 static void setup_frame_size(VP10_COMMON *cm, struct vpx_read_bit_buffer *rb) {
   int width, height;
   BufferPool *const pool = cm->buffer_pool;
-  vp10_read_frame_size(rb, &width, &height);
+  av1_read_frame_size(rb, &width, &height);
   resize_context_buffers(cm, width, height);
   setup_render_size(cm, rb);
 
@@ -1327,7 +1327,7 @@ static void setup_frame_size_with_refs(VP10_COMMON *cm,
   }
 
   if (!found) {
-    vp10_read_frame_size(rb, &width, &height);
+    av1_read_frame_size(rb, &width, &height);
 #if CONFIG_MISC_FIXES
     setup_render_size(cm, rb);
 #endif
@@ -1390,7 +1390,7 @@ static void setup_frame_size_with_refs(VP10_COMMON *cm,
 
 static void setup_tile_info(VP10_COMMON *cm, struct vpx_read_bit_buffer *rb) {
   int min_log2_tile_cols, max_log2_tile_cols, max_ones;
-  vp10_get_tile_n_bits(cm->mi_cols, &min_log2_tile_cols, &max_log2_tile_cols);
+  av1_get_tile_n_bits(cm->mi_cols, &min_log2_tile_cols, &max_log2_tile_cols);
 
   // columns
   max_ones = max_log2_tile_cols - min_log2_tile_cols;
@@ -1504,7 +1504,7 @@ static const uint8_t *decode_tiles(VP10Decoder *pbi, const uint8_t *data,
       pbi->lf_worker.data1 == NULL) {
     CHECK_MEM_ERROR(cm, pbi->lf_worker.data1,
                     vpx_memalign(32, sizeof(LFWorkerData)));
-    pbi->lf_worker.hook = (VPxWorkerHook)vp10_loop_filter_worker;
+    pbi->lf_worker.hook = (VPxWorkerHook)av1_loop_filter_worker;
     if (pbi->max_threads > 1 && !winterface->reset(&pbi->lf_worker)) {
       vpx_internal_error(&cm->error, VPX_CODEC_ERROR,
                          "Loop filter thread creation failed");
@@ -1515,7 +1515,7 @@ static const uint8_t *decode_tiles(VP10Decoder *pbi, const uint8_t *data,
     LFWorkerData *const lf_data = (LFWorkerData *)pbi->lf_worker.data1;
     // Be sure to sync as we might be resuming after a failed frame decode.
     winterface->sync(&pbi->lf_worker);
-    vp10_loop_filter_data_reset(lf_data, get_frame_new_buffer(cm), cm,
+    av1_loop_filter_data_reset(lf_data, get_frame_new_buffer(cm), cm,
                                 pbi->mb.plane);
   }
 
@@ -1552,12 +1552,12 @@ static const uint8_t *decode_tiles(VP10Decoder *pbi, const uint8_t *data,
           cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD
               ? &cm->counts
               : NULL;
-      vp10_zero(tile_data->dqcoeff);
-      vp10_tile_init(&tile_data->xd.tile, tile_data->cm, tile_row, tile_col);
+      av1_zero(tile_data->dqcoeff);
+      av1_tile_init(&tile_data->xd.tile, tile_data->cm, tile_row, tile_col);
       setup_token_decoder(buf->data, data_end, buf->size, &cm->error,
                           &tile_data->bit_reader, pbi->decrypt_cb,
                           pbi->decrypt_state);
-      vp10_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff);
+      av1_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff);
       tile_data->xd.plane[0].color_index_map = tile_data->color_index_map[0];
       tile_data->xd.plane[1].color_index_map = tile_data->color_index_map[1];
     }
@@ -1565,16 +1565,16 @@ static const uint8_t *decode_tiles(VP10Decoder *pbi, const uint8_t *data,
 
   for (tile_row = 0; tile_row < tile_rows; ++tile_row) {
     TileInfo tile;
-    vp10_tile_set_row(&tile, cm, tile_row);
+    av1_tile_set_row(&tile, cm, tile_row);
     for (mi_row = tile.mi_row_start; mi_row < tile.mi_row_end;
          mi_row += MI_BLOCK_SIZE) {
       for (tile_col = 0; tile_col < tile_cols; ++tile_col) {
         const int col =
             pbi->inv_tile_order ? tile_cols - tile_col - 1 : tile_col;
         tile_data = pbi->tile_data + tile_cols * tile_row + col;
-        vp10_tile_set_col(&tile, tile_data->cm, col);
-        vp10_zero(tile_data->xd.left_context);
-        vp10_zero(tile_data->xd.left_seg_context);
+        av1_tile_set_col(&tile, tile_data->cm, col);
+        av1_zero(tile_data->xd.left_context);
+        av1_zero(tile_data->xd.left_seg_context);
         for (mi_col = tile.mi_col_start; mi_col < tile.mi_col_end;
              mi_col += MI_BLOCK_SIZE) {
           decode_partition(pbi, &tile_data->xd, mi_row, mi_col,
@@ -1609,7 +1609,7 @@ static const uint8_t *decode_tiles(VP10Decoder *pbi, const uint8_t *data,
       // still be changed by the longest loopfilter of the next superblock
       // row.
       if (cm->frame_parallel_decode)
-        vp10_frameworker_broadcast(pbi->cur_buf, mi_row << MI_BLOCK_SIZE_LOG2);
+        av1_frameworker_broadcast(pbi->cur_buf, mi_row << MI_BLOCK_SIZE_LOG2);
     }
   }
 
@@ -1623,11 +1623,11 @@ static const uint8_t *decode_tiles(VP10Decoder *pbi, const uint8_t *data,
   }
 #if CONFIG_CLPF
   if (cm->clpf && !cm->skip_loop_filter)
-    vp10_clpf_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
+    av1_clpf_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
 #endif
 #if CONFIG_DERING
   if (cm->dering_level && !cm->skip_loop_filter) {
-    vp10_dering_frame(&pbi->cur_buf->buf, cm, &pbi->mb, cm->dering_level);
+    av1_dering_frame(&pbi->cur_buf->buf, cm, &pbi->mb, cm->dering_level);
   }
 #endif  // CONFIG_DERING
 
@@ -1635,7 +1635,7 @@ static const uint8_t *decode_tiles(VP10Decoder *pbi, const uint8_t *data,
   tile_data = pbi->tile_data + tile_cols * tile_rows - 1;
 
   if (cm->frame_parallel_decode)
-    vp10_frameworker_broadcast(pbi->cur_buf, INT_MAX);
+    av1_frameworker_broadcast(pbi->cur_buf, INT_MAX);
   return vpx_reader_find_end(&tile_data->bit_reader);
 }
 
@@ -1654,8 +1654,8 @@ static int tile_worker_hook(TileWorkerData *const tile_data,
 
   for (mi_row = tile->mi_row_start; mi_row < tile->mi_row_end;
        mi_row += MI_BLOCK_SIZE) {
-    vp10_zero(tile_data->xd.left_context);
-    vp10_zero(tile_data->xd.left_seg_context);
+    av1_zero(tile_data->xd.left_context);
+    av1_zero(tile_data->xd.left_seg_context);
     for (mi_col = tile->mi_col_start; mi_col < tile->mi_col_end;
          mi_col += MI_BLOCK_SIZE) {
       decode_partition(tile_data->pbi, &tile_data->xd, mi_row, mi_col,
@@ -1762,7 +1762,7 @@ static const uint8_t *decode_tiles_mt(VP10Decoder *pbi, const uint8_t *data,
     for (i = 0; i < num_workers; ++i) {
       TileWorkerData *const tile_data =
           (TileWorkerData *)pbi->tile_workers[i].data1;
-      vp10_zero(tile_data->counts);
+      av1_zero(tile_data->counts);
     }
   }
 
@@ -1782,13 +1782,13 @@ static const uint8_t *decode_tiles_mt(VP10Decoder *pbi, const uint8_t *data,
           cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD
               ? &tile_data->counts
               : NULL;
-      vp10_zero(tile_data->dqcoeff);
-      vp10_tile_init(tile, cm, 0, buf->col);
-      vp10_tile_init(&tile_data->xd.tile, cm, 0, buf->col);
+      av1_zero(tile_data->dqcoeff);
+      av1_tile_init(tile, cm, 0, buf->col);
+      av1_tile_init(&tile_data->xd.tile, cm, 0, buf->col);
       setup_token_decoder(buf->data, data_end, buf->size, &cm->error,
                           &tile_data->bit_reader, pbi->decrypt_cb,
                           pbi->decrypt_state);
-      vp10_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff);
+      av1_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff);
       tile_data->xd.plane[0].color_index_map = tile_data->color_index_map[0];
       tile_data->xd.plane[1].color_index_map = tile_data->color_index_map[1];
 
@@ -1827,7 +1827,7 @@ static const uint8_t *decode_tiles_mt(VP10Decoder *pbi, const uint8_t *data,
       for (i = 0; i < num_workers; ++i) {
         TileWorkerData *const tile_data =
             (TileWorkerData *)pbi->tile_workers[i].data1;
-        vp10_accumulate_frame_counts(cm, &tile_data->counts, 1);
+        av1_accumulate_frame_counts(cm, &tile_data->counts, 1);
       }
     }
   }
@@ -1900,7 +1900,7 @@ static size_t read_uncompressed_header(VP10Decoder *pbi,
     vpx_internal_error(&cm->error, VPX_CODEC_UNSUP_BITSTREAM,
                        "Invalid frame marker");
 
-  cm->profile = vp10_read_profile(rb);
+  cm->profile = av1_read_profile(rb);
 #if CONFIG_VPX_HIGHBITDEPTH
   if (cm->profile >= MAX_PROFILES)
     vpx_internal_error(&cm->error, VPX_CODEC_UNSUP_BITSTREAM,
@@ -1941,7 +1941,7 @@ static size_t read_uncompressed_header(VP10Decoder *pbi,
   cm->error_resilient_mode = vpx_rb_read_bit(rb);
 
   if (cm->frame_type == KEY_FRAME) {
-    if (!vp10_read_sync_code(rb))
+    if (!av1_read_sync_code(rb))
       vpx_internal_error(&cm->error, VPX_CODEC_UNSUP_BITSTREAM,
                          "Invalid frame sync code");
 
@@ -1990,7 +1990,7 @@ static size_t read_uncompressed_header(VP10Decoder *pbi,
     }
 
     if (cm->intra_only) {
-      if (!vp10_read_sync_code(rb))
+      if (!av1_read_sync_code(rb))
         vpx_internal_error(&cm->error, VPX_CODEC_UNSUP_BITSTREAM,
                            "Invalid frame sync code");
 #if CONFIG_MISC_FIXES
@@ -2038,12 +2038,12 @@ static size_t read_uncompressed_header(VP10Decoder *pbi,
       for (i = 0; i < REFS_PER_FRAME; ++i) {
         RefBuffer *const ref_buf = &cm->frame_refs[i];
 #if CONFIG_VPX_HIGHBITDEPTH
-        vp10_setup_scale_factors_for_frame(
+        av1_setup_scale_factors_for_frame(
             &ref_buf->sf, ref_buf->buf->y_crop_width,
             ref_buf->buf->y_crop_height, cm->width, cm->height,
             cm->use_highbitdepth);
 #else
-        vp10_setup_scale_factors_for_frame(
+        av1_setup_scale_factors_for_frame(
             &ref_buf->sf, ref_buf->buf->y_crop_width,
             ref_buf->buf->y_crop_height, cm->width, cm->height);
 #endif
@@ -2081,7 +2081,7 @@ static size_t read_uncompressed_header(VP10Decoder *pbi,
     cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_OFF;
   }
 
-  // This flag will be overridden by the call to vp10_setup_past_independence
+  // This flag will be overridden by the call to av1_setup_past_independence
   // below, forcing the use of context 0 for those frame types.
   cm->frame_context_idx = vpx_rb_read_literal(rb, FRAME_CONTEXTS_LOG2);
 
@@ -2110,7 +2110,7 @@ static size_t read_uncompressed_header(VP10Decoder *pbi,
   pbi->hold_ref_buf = 1;
 
   if (frame_is_intra_only(cm) || cm->error_resilient_mode)
-    vp10_setup_past_independence(cm);
+    av1_setup_past_independence(cm);
 
   setup_loopfilter(&cm->lf, rb);
 #if CONFIG_CLPF
@@ -2130,7 +2130,7 @@ static size_t read_uncompressed_header(VP10Decoder *pbi,
     int i;
     for (i = 0; i < MAX_SEGMENTS; ++i) {
       const int qindex = CONFIG_MISC_FIXES && cm->seg.enabled
-                             ? vp10_get_qindex(&cm->seg, i, cm->base_qindex)
+                             ? av1_get_qindex(&cm->seg, i, cm->base_qindex)
                              : cm->base_qindex;
       xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
                         cm->uv_dc_delta_q == 0 && cm->uv_ac_delta_q == 0;
@@ -2160,13 +2160,13 @@ static void read_ext_tx_probs(FRAME_CONTEXT *fc, vpx_reader *r) {
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
       for (j = 0; j < TX_TYPES; ++j)
         for (k = 0; k < TX_TYPES - 1; ++k)
-          vp10_diff_update_prob(r, &fc->intra_ext_tx_prob[i][j][k]);
+          av1_diff_update_prob(r, &fc->intra_ext_tx_prob[i][j][k]);
     }
   }
   if (vpx_read(r, GROUP_DIFF_UPDATE_PROB)) {
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
       for (k = 0; k < TX_TYPES - 1; ++k)
-        vp10_diff_update_prob(r, &fc->inter_ext_tx_prob[i][k]);
+        av1_diff_update_prob(r, &fc->inter_ext_tx_prob[i][k]);
     }
   }
 }
@@ -2193,34 +2193,34 @@ static int read_compressed_header(VP10Decoder *pbi, const uint8_t *data,
   read_coef_probs(fc, cm->tx_mode, &r);
 
   for (k = 0; k < SKIP_CONTEXTS; ++k)
-    vp10_diff_update_prob(&r, &fc->skip_probs[k]);
+    av1_diff_update_prob(&r, &fc->skip_probs[k]);
 
 #if CONFIG_MISC_FIXES
   if (cm->seg.enabled) {
     if (cm->seg.temporal_update) {
       for (k = 0; k < PREDICTION_PROBS; k++)
-        vp10_diff_update_prob(&r, &cm->fc->seg.pred_probs[k]);
+        av1_diff_update_prob(&r, &cm->fc->seg.pred_probs[k]);
     }
     for (k = 0; k < MAX_SEGMENTS - 1; k++)
-      vp10_diff_update_prob(&r, &cm->fc->seg.tree_probs[k]);
+      av1_diff_update_prob(&r, &cm->fc->seg.tree_probs[k]);
   }
 
   for (j = 0; j < INTRA_MODES; j++)
     for (i = 0; i < INTRA_MODES - 1; ++i)
-      vp10_diff_update_prob(&r, &fc->uv_mode_prob[j][i]);
+      av1_diff_update_prob(&r, &fc->uv_mode_prob[j][i]);
 
   for (j = 0; j < PARTITION_CONTEXTS; ++j)
     for (i = 0; i < PARTITION_TYPES - 1; ++i)
-      vp10_diff_update_prob(&r, &fc->partition_prob[j][i]);
+      av1_diff_update_prob(&r, &fc->partition_prob[j][i]);
 #endif
 
   if (frame_is_intra_only(cm)) {
-    vp10_copy(cm->kf_y_prob, vp10_kf_y_mode_prob);
+    av1_copy(cm->kf_y_prob, av1_kf_y_mode_prob);
 #if CONFIG_MISC_FIXES
     for (k = 0; k < INTRA_MODES; k++)
       for (j = 0; j < INTRA_MODES; j++)
         for (i = 0; i < INTRA_MODES - 1; ++i)
-          vp10_diff_update_prob(&r, &cm->kf_y_prob[k][j][i]);
+          av1_diff_update_prob(&r, &cm->kf_y_prob[k][j][i]);
 #endif
   } else {
     nmv_context *const nmvc = &fc->nmvc;
@@ -2230,7 +2230,7 @@ static int read_compressed_header(VP10Decoder *pbi, const uint8_t *data,
     if (cm->interp_filter == SWITCHABLE) read_switchable_interp_probs(fc, &r);
 
     for (i = 0; i < INTRA_INTER_CONTEXTS; i++)
-      vp10_diff_update_prob(&r, &fc->intra_inter_prob[i]);
+      av1_diff_update_prob(&r, &fc->intra_inter_prob[i]);
 
 #if !CONFIG_MISC_FIXES
     cm->reference_mode = read_frame_reference_mode(cm, &r);
@@ -2241,12 +2241,12 @@ static int read_compressed_header(VP10Decoder *pbi, const uint8_t *data,
 
     for (j = 0; j < BLOCK_SIZE_GROUPS; j++)
       for (i = 0; i < INTRA_MODES - 1; ++i)
-        vp10_diff_update_prob(&r, &fc->y_mode_prob[j][i]);
+        av1_diff_update_prob(&r, &fc->y_mode_prob[j][i]);
 
 #if !CONFIG_MISC_FIXES
     for (j = 0; j < PARTITION_CONTEXTS; ++j)
       for (i = 0; i < PARTITION_TYPES - 1; ++i)
-        vp10_diff_update_prob(&r, &fc->partition_prob[j][i]);
+        av1_diff_update_prob(&r, &fc->partition_prob[j][i]);
 #endif
 
     read_mv_probs(nmvc, cm->allow_high_precision_mv, &r);
@@ -2263,7 +2263,7 @@ static int read_compressed_header(VP10Decoder *pbi, const uint8_t *data,
 // error_resilient_mode are disabled.
 static void debug_check_frame_counts(const VP10_COMMON *const cm) {
   FRAME_COUNTS zero_counts;
-  vp10_zero(zero_counts);
+  av1_zero(zero_counts);
   assert(cm->refresh_frame_context != REFRESH_FRAME_CONTEXT_BACKWARD ||
          cm->error_resilient_mode);
   assert(!memcmp(cm->counts.y_mode, zero_counts.y_mode,
@@ -2317,26 +2317,26 @@ static struct vpx_read_bit_buffer *init_read_bit_buffer(
 
 //------------------------------------------------------------------------------
 
-int vp10_read_sync_code(struct vpx_read_bit_buffer *const rb) {
+int av1_read_sync_code(struct vpx_read_bit_buffer *const rb) {
   return vpx_rb_read_literal(rb, 8) == VP10_SYNC_CODE_0 &&
          vpx_rb_read_literal(rb, 8) == VP10_SYNC_CODE_1 &&
          vpx_rb_read_literal(rb, 8) == VP10_SYNC_CODE_2;
 }
 
-void vp10_read_frame_size(struct vpx_read_bit_buffer *rb, int *width,
+void av1_read_frame_size(struct vpx_read_bit_buffer *rb, int *width,
                           int *height) {
   *width = vpx_rb_read_literal(rb, 16) + 1;
   *height = vpx_rb_read_literal(rb, 16) + 1;
 }
 
-BITSTREAM_PROFILE vp10_read_profile(struct vpx_read_bit_buffer *rb) {
+BITSTREAM_PROFILE av1_read_profile(struct vpx_read_bit_buffer *rb) {
   int profile = vpx_rb_read_bit(rb);
   profile |= vpx_rb_read_bit(rb) << 1;
   if (profile > 2) profile += vpx_rb_read_bit(rb);
   return (BITSTREAM_PROFILE)profile;
 }
 
-void vp10_decode_frame(VP10Decoder *pbi, const uint8_t *data,
+void av1_decode_frame(VP10Decoder *pbi, const uint8_t *data,
                        const uint8_t *data_end, const uint8_t **p_data_end) {
   VP10_COMMON *const cm = &pbi->common;
   MACROBLOCKD *const xd = &pbi->mb;
@@ -2366,14 +2366,14 @@ void vp10_decode_frame(VP10Decoder *pbi, const uint8_t *data,
       cm->height == cm->last_height && !cm->last_intra_only &&
       cm->last_show_frame && (cm->last_frame_type != KEY_FRAME);
 
-  vp10_setup_block_planes(xd, cm->subsampling_x, cm->subsampling_y);
+  av1_setup_block_planes(xd, cm->subsampling_x, cm->subsampling_y);
 
   *cm->fc = cm->frame_contexts[cm->frame_context_idx];
   if (!cm->fc->initialized)
     vpx_internal_error(&cm->error, VPX_CODEC_CORRUPT_FRAME,
                        "Uninitialized entropy context.");
 
-  vp10_zero(cm->counts);
+  av1_zero(cm->counts);
 
   xd->corrupted = 0;
   new_fb->corrupted = read_compressed_header(pbi, data, first_partition_size);
@@ -2382,7 +2382,7 @@ void vp10_decode_frame(VP10Decoder *pbi, const uint8_t *data,
                        "Decode failed. Frame data header is corrupted.");
 
   if (cm->lf.filter_level && !cm->skip_loop_filter) {
-    vp10_loop_filter_frame_init(cm, cm->lf.filter_level);
+    av1_loop_filter_frame_init(cm, cm->lf.filter_level);
   }
 
   // If encoded in frame parallel mode, frame context is ready after decoding
@@ -2395,13 +2395,13 @@ void vp10_decode_frame(VP10Decoder *pbi, const uint8_t *data,
       context_updated = 1;
       cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
     }
-    vp10_frameworker_lock_stats(worker);
+    av1_frameworker_lock_stats(worker);
     pbi->cur_buf->row = -1;
     pbi->cur_buf->col = -1;
     frame_worker_data->frame_context_ready = 1;
     // Signal the main thread that context is ready.
-    vp10_frameworker_signal_stats(worker);
-    vp10_frameworker_unlock_stats(worker);
+    av1_frameworker_signal_stats(worker);
+    av1_frameworker_unlock_stats(worker);
   }
 
   if (pbi->max_threads > 1 && tile_rows == 1 && tile_cols > 1) {
@@ -2411,7 +2411,7 @@ void vp10_decode_frame(VP10Decoder *pbi, const uint8_t *data,
       if (!cm->skip_loop_filter) {
         // If multiple threads are used to decode tiles, then we use those
         // threads to do parallel loopfiltering.
-        vp10_loop_filter_frame_mt(new_fb, cm, pbi->mb.plane,
+        av1_loop_filter_frame_mt(new_fb, cm, pbi->mb.plane,
                                   cm->lf.filter_level, 0, 0, pbi->tile_workers,
                                   pbi->num_tile_workers, &pbi->lf_row_sync);
       }
@@ -2425,17 +2425,17 @@ void vp10_decode_frame(VP10Decoder *pbi, const uint8_t *data,
 
   if (!xd->corrupted) {
     if (cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD) {
-      vp10_adapt_coef_probs(cm);
+      av1_adapt_coef_probs(cm);
 #if CONFIG_MISC_FIXES
-      vp10_adapt_intra_frame_probs(cm);
+      av1_adapt_intra_frame_probs(cm);
 #endif
 
       if (!frame_is_intra_only(cm)) {
 #if !CONFIG_MISC_FIXES
-        vp10_adapt_intra_frame_probs(cm);
+        av1_adapt_intra_frame_probs(cm);
 #endif
-        vp10_adapt_inter_frame_probs(cm);
-        vp10_adapt_mv_probs(cm, cm->allow_high_precision_mv);
+        av1_adapt_inter_frame_probs(cm);
+        av1_adapt_mv_probs(cm, cm->allow_high_precision_mv);
       }
     } else {
       debug_check_frame_counts(cm);

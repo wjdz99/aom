@@ -237,7 +237,7 @@ static uint8_t get_filter_level(const loop_filter_info_n *lfi_n,
       ->lvl[mbmi->segment_id][mbmi->ref_frame[0]][mode_lf_lut[mbmi->mode]];
 }
 
-void vp10_loop_filter_init(VP10_COMMON *cm) {
+void av1_loop_filter_init(VP10_COMMON *cm) {
   loop_filter_info_n *lfi = &cm->lf_info;
   struct loopfilter *lf = &cm->lf;
   int lvl;
@@ -251,7 +251,7 @@ void vp10_loop_filter_init(VP10_COMMON *cm) {
     memset(lfi->lfthr[lvl].hev_thr, (lvl >> 4), SIMD_WIDTH);
 }
 
-void vp10_loop_filter_frame_init(VP10_COMMON *cm, int default_filt_lvl) {
+void av1_loop_filter_frame_init(VP10_COMMON *cm, int default_filt_lvl) {
   int seg_id;
   // n_shift is the multiplier for lf_deltas
   // the multiplier is 1 for when filter_lvl is between 0 and 31;
@@ -825,7 +825,7 @@ static void build_y_mask(const loop_filter_info_n *const lfi_n,
 // This function sets up the bit masks for the entire 64x64 region represented
 // by mi_row, mi_col.
 // TODO(JBB): This function only works for yv12.
-void vp10_setup_mask(VP10_COMMON *const cm, const int mi_row, const int mi_col,
+void av1_setup_mask(VP10_COMMON *const cm, const int mi_row, const int mi_col,
                      MODE_INFO **mi, const int mode_info_stride,
                      LOOP_FILTER_MASK *lfm) {
   int idx_32, idx_16, idx_8;
@@ -860,7 +860,7 @@ void vp10_setup_mask(VP10_COMMON *const cm, const int mi_row, const int mi_col,
       (mi_col + MI_BLOCK_SIZE > cm->mi_cols ? cm->mi_cols - mi_col
                                             : MI_BLOCK_SIZE);
 
-  vp10_zero(*lfm);
+  av1_zero(*lfm);
   assert(mip[0] != NULL);
 
   // TODO(jimbankoski): Try moving most of the following code into decode
@@ -1151,7 +1151,7 @@ static void highbd_filter_selectively_vert(
 }
 #endif  // CONFIG_VPX_HIGHBITDEPTH
 
-void vp10_filter_block_plane_non420(VP10_COMMON *cm,
+void av1_filter_block_plane_non420(VP10_COMMON *cm,
                                     struct macroblockd_plane *plane,
                                     MODE_INFO **mi_8x8, int mi_row,
                                     int mi_col) {
@@ -1314,7 +1314,7 @@ void vp10_filter_block_plane_non420(VP10_COMMON *cm,
   }
 }
 
-void vp10_filter_block_plane_ss00(VP10_COMMON *const cm,
+void av1_filter_block_plane_ss00(VP10_COMMON *const cm,
                                   struct macroblockd_plane *const plane,
                                   int mi_row, LOOP_FILTER_MASK *lfm) {
   struct buf_2d *const dst = &plane->dst;
@@ -1405,7 +1405,7 @@ void vp10_filter_block_plane_ss00(VP10_COMMON *const cm,
   }
 }
 
-void vp10_filter_block_plane_ss11(VP10_COMMON *const cm,
+void av1_filter_block_plane_ss11(VP10_COMMON *const cm,
                                   struct macroblockd_plane *const plane,
                                   int mi_row, LOOP_FILTER_MASK *lfm) {
   struct buf_2d *const dst = &plane->dst;
@@ -1519,7 +1519,7 @@ void vp10_filter_block_plane_ss11(VP10_COMMON *const cm,
   }
 }
 
-void vp10_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, VP10_COMMON *cm,
+void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, VP10_COMMON *cm,
                            struct macroblockd_plane planes[MAX_MB_PLANE],
                            int start, int stop, int y_only) {
   const int num_planes = y_only ? 1 : MAX_MB_PLANE;
@@ -1542,22 +1542,22 @@ void vp10_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, VP10_COMMON *cm,
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MI_BLOCK_SIZE) {
       int plane;
 
-      vp10_setup_dst_planes(planes, frame_buffer, mi_row, mi_col);
+      av1_setup_dst_planes(planes, frame_buffer, mi_row, mi_col);
 
       // TODO(JBB): Make setup_mask work for non 420.
-      vp10_setup_mask(cm, mi_row, mi_col, mi + mi_col, cm->mi_stride, &lfm);
+      av1_setup_mask(cm, mi_row, mi_col, mi + mi_col, cm->mi_stride, &lfm);
 
-      vp10_filter_block_plane_ss00(cm, &planes[0], mi_row, &lfm);
+      av1_filter_block_plane_ss00(cm, &planes[0], mi_row, &lfm);
       for (plane = 1; plane < num_planes; ++plane) {
         switch (path) {
           case LF_PATH_420:
-            vp10_filter_block_plane_ss11(cm, &planes[plane], mi_row, &lfm);
+            av1_filter_block_plane_ss11(cm, &planes[plane], mi_row, &lfm);
             break;
           case LF_PATH_444:
-            vp10_filter_block_plane_ss00(cm, &planes[plane], mi_row, &lfm);
+            av1_filter_block_plane_ss00(cm, &planes[plane], mi_row, &lfm);
             break;
           case LF_PATH_SLOW:
-            vp10_filter_block_plane_non420(cm, &planes[plane], mi + mi_col,
+            av1_filter_block_plane_non420(cm, &planes[plane], mi + mi_col,
                                            mi_row, mi_col);
             break;
         }
@@ -1566,7 +1566,7 @@ void vp10_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, VP10_COMMON *cm,
   }
 }
 
-void vp10_loop_filter_frame(YV12_BUFFER_CONFIG *frame, VP10_COMMON *cm,
+void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, VP10_COMMON *cm,
                             MACROBLOCKD *xd, int frame_filter_level, int y_only,
                             int partial_frame) {
   int start_mi_row, end_mi_row, mi_rows_to_filter;
@@ -1579,11 +1579,11 @@ void vp10_loop_filter_frame(YV12_BUFFER_CONFIG *frame, VP10_COMMON *cm,
     mi_rows_to_filter = VPXMAX(cm->mi_rows / 8, 8);
   }
   end_mi_row = start_mi_row + mi_rows_to_filter;
-  vp10_loop_filter_frame_init(cm, frame_filter_level);
-  vp10_loop_filter_rows(frame, cm, xd->plane, start_mi_row, end_mi_row, y_only);
+  av1_loop_filter_frame_init(cm, frame_filter_level);
+  av1_loop_filter_rows(frame, cm, xd->plane, start_mi_row, end_mi_row, y_only);
 }
 
-void vp10_loop_filter_data_reset(
+void av1_loop_filter_data_reset(
     LFWorkerData *lf_data, YV12_BUFFER_CONFIG *frame_buffer,
     struct VP10Common *cm,
     const struct macroblockd_plane planes[MAX_MB_PLANE]) {
@@ -1595,9 +1595,9 @@ void vp10_loop_filter_data_reset(
   memcpy(lf_data->planes, planes, sizeof(lf_data->planes));
 }
 
-int vp10_loop_filter_worker(LFWorkerData *const lf_data, void *unused) {
+int av1_loop_filter_worker(LFWorkerData *const lf_data, void *unused) {
   (void)unused;
-  vp10_loop_filter_rows(lf_data->frame_buffer, lf_data->cm, lf_data->planes,
+  av1_loop_filter_rows(lf_data->frame_buffer, lf_data->cm, lf_data->planes,
                         lf_data->start, lf_data->stop, lf_data->y_only);
   return 1;
 }

@@ -22,11 +22,11 @@ struct VP10_COMP;
 
 // #define OUTPUT_YUV_SKINMAP
 
-int vp10_skin_pixel(const uint8_t y, const uint8_t cb, const uint8_t cr);
+int av1_skin_pixel(const uint8_t y, const uint8_t cb, const uint8_t cr);
 
 #ifdef OUTPUT_YUV_SKINMAP
 // For viewing skin map on input source.
-void vp10_compute_skin_map(VP10_COMP *const cpi, FILE *yuv_skinmap_file);
+void av1_compute_skin_map(VP10_COMP *const cpi, FILE *yuv_skinmap_file);
 #endif
 
 #ifdef __cplusplus

@@ -115,7 +115,7 @@ static void set_good_speed_feature_framesize_dependent(VP10_COMP *cpi,
   // Also if the image edge is internal to the coded area.
   if ((speed >= 1) && (cpi->oxcf.pass == 2) &&
       ((cpi->twopass.fr_content_type == FC_GRAPHICS_ANIMATION) ||
-       (vp10_internal_image_edge(cpi)))) {
+       (av1_internal_image_edge(cpi)))) {
     sf->disable_split_mask = DISABLE_COMPOUND_SPLIT;
   }
 
@@ -138,7 +138,7 @@ static void set_good_speed_feature(VP10_COMP *cpi, VP10_COMMON *cm,
 
   if (speed >= 1) {
     if ((cpi->twopass.fr_content_type == FC_GRAPHICS_ANIMATION) ||
-        vp10_internal_image_edge(cpi)) {
+        av1_internal_image_edge(cpi)) {
       sf->use_square_partition_only = !frame_is_boosted(cpi);
     } else {
       sf->use_square_partition_only = !frame_is_intra_only(cm);
@@ -411,7 +411,7 @@ static void set_rt_speed_feature(VP10_COMP *cpi, SPEED_FEATURES *sf, int speed,
   }
 }
 
-void vp10_set_speed_features_framesize_dependent(VP10_COMP *cpi) {
+void av1_set_speed_features_framesize_dependent(VP10_COMP *cpi) {
   SPEED_FEATURES *const sf = &cpi->sf;
   const VP10EncoderConfig *const oxcf = &cpi->oxcf;
   RD_OPT *const rd = &cpi->rd;
@@ -440,7 +440,7 @@ void vp10_set_speed_features_framesize_dependent(VP10_COMP *cpi) {
   }
 }
 
-void vp10_set_speed_features_framesize_independent(VP10_COMP *cpi) {
+void av1_set_speed_features_framesize_independent(VP10_COMP *cpi) {
   SPEED_FEATURES *const sf = &cpi->sf;
   VP10_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &cpi->td.mb;
@@ -520,8 +520,8 @@ void vp10_set_speed_features_framesize_independent(VP10_COMP *cpi) {
   else if (oxcf->mode == GOOD)
     set_good_speed_feature(cpi, cm, sf, oxcf->speed);
 
-  cpi->full_search_sad = vp10_full_search_sad;
-  cpi->diamond_search_sad = vp10_diamond_search_sad;
+  cpi->full_search_sad = av1_full_search_sad;
+  cpi->diamond_search_sad = av1_diamond_search_sad;
 
   sf->allow_exhaustive_searches = 1;
   if (oxcf->mode == BEST) {
@@ -562,14 +562,14 @@ void vp10_set_speed_features_framesize_independent(VP10_COMP *cpi) {
   }
 
   if (sf->mv.subpel_search_method == SUBPEL_TREE) {
-    cpi->find_fractional_mv_step = vp10_find_best_sub_pixel_tree;
+    cpi->find_fractional_mv_step = av1_find_best_sub_pixel_tree;
   } else if (sf->mv.subpel_search_method == SUBPEL_TREE_PRUNED) {
-    cpi->find_fractional_mv_step = vp10_find_best_sub_pixel_tree_pruned;
+    cpi->find_fractional_mv_step = av1_find_best_sub_pixel_tree_pruned;
   } else if (sf->mv.subpel_search_method == SUBPEL_TREE_PRUNED_MORE) {
-    cpi->find_fractional_mv_step = vp10_find_best_sub_pixel_tree_pruned_more;
+    cpi->find_fractional_mv_step = av1_find_best_sub_pixel_tree_pruned_more;
   } else if (sf->mv.subpel_search_method == SUBPEL_TREE_PRUNED_EVENMORE) {
     cpi->find_fractional_mv_step =
-        vp10_find_best_sub_pixel_tree_pruned_evenmore;
+        av1_find_best_sub_pixel_tree_pruned_evenmore;
   }
 
 #if !CONFIG_AOM_QM

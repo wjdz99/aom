@@ -33,8 +33,8 @@ extern "C" {
  * This interface provides the capability to decode VP10 streams.
  * @{
  */
-extern vpx_codec_iface_t vpx_codec_vp10_dx_algo;
-extern vpx_codec_iface_t *vpx_codec_vp10_dx(void);
+extern vpx_codec_iface_t vpx_codec_av1_dx_algo;
+extern vpx_codec_iface_t *vpx_codec_av1_dx(void);
 /*!@} - end algorithm interface member group*/
 
 /*!\enum vp8_dec_control_id

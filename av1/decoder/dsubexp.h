@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-void vp10_diff_update_prob(vpx_reader *r, vpx_prob *p);
+void av1_diff_update_prob(vpx_reader *r, vpx_prob *p);
 
 #ifdef __cplusplus
 }  // extern "C"

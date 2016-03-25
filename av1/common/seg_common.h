@@ -57,16 +57,16 @@ static INLINE int segfeature_active(const struct segmentation *seg,
   return seg->enabled && (seg->feature_mask[segment_id] & (1 << feature_id));
 }
 
-void vp10_clearall_segfeatures(struct segmentation *seg);
+void av1_clearall_segfeatures(struct segmentation *seg);
 
-void vp10_enable_segfeature(struct segmentation *seg, int segment_id,
+void av1_enable_segfeature(struct segmentation *seg, int segment_id,
                             SEG_LVL_FEATURES feature_id);
 
-int vp10_seg_feature_data_max(SEG_LVL_FEATURES feature_id);
+int av1_seg_feature_data_max(SEG_LVL_FEATURES feature_id);
 
-int vp10_is_segfeature_signed(SEG_LVL_FEATURES feature_id);
+int av1_is_segfeature_signed(SEG_LVL_FEATURES feature_id);
 
-void vp10_set_segdata(struct segmentation *seg, int segment_id,
+void av1_set_segdata(struct segmentation *seg, int segment_id,
                       SEG_LVL_FEATURES feature_id, int seg_data);
 
 static INLINE int get_segdata(const struct segmentation *seg, int segment_id,
@@ -74,7 +74,7 @@ static INLINE int get_segdata(const struct segmentation *seg, int segment_id,
   return seg->feature_data[segment_id][feature_id];
 }
 
-extern const vpx_tree_index vp10_segment_tree[TREE_SIZE(MAX_SEGMENTS)];
+extern const vpx_tree_index av1_segment_tree[TREE_SIZE(MAX_SEGMENTS)];
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -21,7 +21,7 @@ extern "C" {
 struct yv12_buffer_config;
 struct VP10_COMP;
 
-void vp10_pick_filter_level(const struct yv12_buffer_config *sd,
+void av1_pick_filter_level(const struct yv12_buffer_config *sd,
                             struct VP10_COMP *cpi, LPF_PICK_METHOD method);
 #ifdef __cplusplus
 }  // extern "C"

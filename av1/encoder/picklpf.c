@@ -42,21 +42,21 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
   int64_t filt_err;
 
   if (cpi->num_workers > 1)
-    vp10_loop_filter_frame_mt(cm->frame_to_show, cm, cpi->td.mb.e_mbd.plane,
+    av1_loop_filter_frame_mt(cm->frame_to_show, cm, cpi->td.mb.e_mbd.plane,
                               filt_level, 1, partial_frame, cpi->workers,
                               cpi->num_workers, &cpi->lf_row_sync);
   else
-    vp10_loop_filter_frame(cm->frame_to_show, cm, &cpi->td.mb.e_mbd, filt_level,
+    av1_loop_filter_frame(cm->frame_to_show, cm, &cpi->td.mb.e_mbd, filt_level,
                            1, partial_frame);
 
 #if CONFIG_VPX_HIGHBITDEPTH
   if (cm->use_highbitdepth) {
-    filt_err = vp10_highbd_get_y_sse(sd, cm->frame_to_show);
+    filt_err = av1_highbd_get_y_sse(sd, cm->frame_to_show);
   } else {
-    filt_err = vp10_get_y_sse(sd, cm->frame_to_show);
+    filt_err = av1_get_y_sse(sd, cm->frame_to_show);
   }
 #else
-  filt_err = vp10_get_y_sse(sd, cm->frame_to_show);
+  filt_err = av1_get_y_sse(sd, cm->frame_to_show);
 #endif  // CONFIG_VPX_HIGHBITDEPTH
 
   // Re-instate the unfiltered frame
@@ -145,7 +145,7 @@ static int search_filter_level(const YV12_BUFFER_CONFIG *sd, VP10_COMP *cpi,
   return filt_best;
 }
 
-void vp10_pick_filter_level(const YV12_BUFFER_CONFIG *sd, VP10_COMP *cpi,
+void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, VP10_COMP *cpi,
                             LPF_PICK_METHOD method) {
   VP10_COMMON *const cm = &cpi->common;
   struct loopfilter *const lf = &cm->lf;
@@ -157,7 +157,7 @@ void vp10_pick_filter_level(const YV12_BUFFER_CONFIG *sd, VP10_COMP *cpi,
   } else if (method >= LPF_PICK_FROM_Q) {
     const int min_filter_level = 0;
     const int max_filter_level = get_max_filter_level(cpi);
-    const int q = vp10_ac_quant(cm->base_qindex, 0, cm->bit_depth);
+    const int q = av1_ac_quant(cm->base_qindex, 0, cm->bit_depth);
 // These values were determined by linear fitting the result of the
 // searched level, filt_guess = q * 0.316206 + 3.87252
 #if CONFIG_VPX_HIGHBITDEPTH

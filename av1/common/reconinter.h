@@ -113,29 +113,29 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane, int block, int bw,
                             int bh, int x, int y, int w, int h, int mi_x,
                             int mi_y);
 
-void vp10_build_inter_predictor_sub8x8(MACROBLOCKD *xd, int plane, int i,
+void av1_build_inter_predictor_sub8x8(MACROBLOCKD *xd, int plane, int i,
                                        int ir, int ic, int mi_row, int mi_col);
 
-void vp10_build_inter_predictors_sby(MACROBLOCKD *xd, int mi_row, int mi_col,
+void av1_build_inter_predictors_sby(MACROBLOCKD *xd, int mi_row, int mi_col,
                                      BLOCK_SIZE bsize);
 
-void vp10_build_inter_predictors_sbp(MACROBLOCKD *xd, int mi_row, int mi_col,
+void av1_build_inter_predictors_sbp(MACROBLOCKD *xd, int mi_row, int mi_col,
                                      BLOCK_SIZE bsize, int plane);
 
-void vp10_build_inter_predictors_sbuv(MACROBLOCKD *xd, int mi_row, int mi_col,
+void av1_build_inter_predictors_sbuv(MACROBLOCKD *xd, int mi_row, int mi_col,
                                       BLOCK_SIZE bsize);
 
-void vp10_build_inter_predictors_sb(MACROBLOCKD *xd, int mi_row, int mi_col,
+void av1_build_inter_predictors_sb(MACROBLOCKD *xd, int mi_row, int mi_col,
                                     BLOCK_SIZE bsize);
 
-void vp10_build_inter_predictor(const uint8_t *src, int src_stride,
+void av1_build_inter_predictor(const uint8_t *src, int src_stride,
                                 uint8_t *dst, int dst_stride, const MV *mv_q3,
                                 const struct scale_factors *sf, int w, int h,
                                 int do_avg, const InterpKernel *kernel,
                                 enum mv_precision precision, int x, int y);
 
 #if CONFIG_VPX_HIGHBITDEPTH
-void vp10_highbd_build_inter_predictor(
+void av1_highbd_build_inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
     const MV *mv_q3, const struct scale_factors *sf, int w, int h, int do_avg,
     const InterpKernel *kernel, enum mv_precision precision, int x, int y,
@@ -159,11 +159,11 @@ static INLINE void setup_pred_plane(struct buf_2d *dst, uint8_t *src,
   dst->stride = stride;
 }
 
-void vp10_setup_dst_planes(struct macroblockd_plane planes[MAX_MB_PLANE],
+void av1_setup_dst_planes(struct macroblockd_plane planes[MAX_MB_PLANE],
                            const YV12_BUFFER_CONFIG *src, int mi_row,
                            int mi_col);
 
-void vp10_setup_pre_planes(MACROBLOCKD *xd, int idx,
+void av1_setup_pre_planes(MACROBLOCKD *xd, int idx,
                            const YV12_BUFFER_CONFIG *src, int mi_row,
                            int mi_col, const struct scale_factors *sf);
 

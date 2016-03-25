@@ -100,7 +100,7 @@ static const uint8_t *const orders[BLOCK_SIZES] = {
   orders_32x64, orders_64x32, orders_64x64,
 };
 
-static int vp10_has_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
+static int av1_has_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
                           int right_available, TX_SIZE txsz, int y, int x,
                           int ss_x) {
   if (y == 0) {
@@ -133,7 +133,7 @@ static int vp10_has_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
   }
 }
 
-static int vp10_has_bottom(BLOCK_SIZE bsize, int mi_row, int mi_col,
+static int av1_has_bottom(BLOCK_SIZE bsize, int mi_row, int mi_col,
                            int bottom_available, TX_SIZE txsz, int y, int x,
                            int ss_y) {
   if (x == 0) {
@@ -179,7 +179,7 @@ static intra_high_pred_fn pred_high[INTRA_MODES][4];
 static intra_high_pred_fn dc_pred_high[2][2][4];
 #endif  // CONFIG_VPX_HIGHBITDEPTH
 
-static void vp10_init_intra_predictors_internal(void) {
+static void av1_init_intra_predictors_internal(void) {
 #define INIT_NO_4X4(p, type)                  \
   p[TX_8X8] = vpx_##type##_predictor_8x8;     \
   p[TX_16X16] = vpx_##type##_predictor_16x16; \
@@ -675,7 +675,7 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   }
 }
 
-void vp10_predict_intra_block(const MACROBLOCKD *xd, int bwl_in, int bhl_in,
+void av1_predict_intra_block(const MACROBLOCKD *xd, int bwl_in, int bhl_in,
                               TX_SIZE tx_size, PREDICTION_MODE mode,
                               const uint8_t *ref, int ref_stride, uint8_t *dst,
                               int dst_stride, int aoff, int loff, int plane) {
@@ -693,10 +693,10 @@ void vp10_predict_intra_block(const MACROBLOCKD *xd, int bwl_in, int bhl_in,
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const int right_available =
       mi_col + (bw >> !pd->subsampling_x) < xd->tile.mi_col_end;
-  const int have_right = vp10_has_right(bsize, mi_row, mi_col, right_available,
+  const int have_right = av1_has_right(bsize, mi_row, mi_col, right_available,
                                         tx_size, loff, aoff, pd->subsampling_x);
   const int have_bottom =
-      vp10_has_bottom(bsize, mi_row, mi_col, xd->mb_to_bottom_edge > 0, tx_size,
+      av1_has_bottom(bsize, mi_row, mi_col, xd->mb_to_bottom_edge > 0, tx_size,
                       loff, aoff, pd->subsampling_y);
   const int wpx = 4 * bw;
   const int hpx = 4 * bh;
@@ -743,6 +743,6 @@ void vp10_predict_intra_block(const MACROBLOCKD *xd, int bwl_in, int bhl_in,
 #endif  // CONFIG_MISC_FIXES
 }
 
-void vp10_init_intra_predictors(void) {
-  once(vp10_init_intra_predictors_internal);
+void av1_init_intra_predictors(void) {
+  once(av1_init_intra_predictors_internal);
 }

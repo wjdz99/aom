@@ -104,10 +104,10 @@ TEST_P(Vp10InvTxfm, RunInvAccuracyCheck) { RunInvAccuracyCheck(); }
 
 INSTANTIATE_TEST_CASE_P(
     C, Vp10InvTxfm,
-    ::testing::Values(IdctParam(&vp10_idct4_c, &reference_idct_1d, 4, 1),
-                      IdctParam(&vp10_idct8_c, &reference_idct_1d, 8, 2),
-                      IdctParam(&vp10_idct16_c, &reference_idct_1d, 16, 4),
-                      IdctParam(&vp10_idct32_c, &reference_idct_1d, 32, 6)));
+    ::testing::Values(IdctParam(&av1_idct4_c, &reference_idct_1d, 4, 1),
+                      IdctParam(&av1_idct8_c, &reference_idct_1d, 8, 2),
+                      IdctParam(&av1_idct16_c, &reference_idct_1d, 16, 4),
+                      IdctParam(&av1_idct32_c, &reference_idct_1d, 32, 6)));
 
 typedef void (*FwdTxfmFunc)(const int16_t *in, tran_low_t *out, int stride);
 typedef void (*InvTxfmFunc)(const tran_low_t *in, uint8_t *out, int stride);
@@ -184,7 +184,7 @@ TEST_P(Vp10PartialIDctTest, RunQuantCheck) {
       // quantization with maximum allowed step sizes
       test_coef_block1[0] = (output_ref_block[0] / 1336) * 1336;
       for (int j = 1; j < last_nonzero_; ++j)
-        test_coef_block1[vp10_default_scan_orders[tx_size_].scan[j]] =
+        test_coef_block1[av1_default_scan_orders[tx_size_].scan[j]] =
             (output_ref_block[j] / 1828) * 1828;
     }
 
@@ -235,7 +235,7 @@ TEST_P(Vp10PartialIDctTest, ResultsMatch) {
         max_energy_leftover = 0;
         coef = 0;
       }
-      test_coef_block1[vp10_default_scan_orders[tx_size_].scan[j]] = coef;
+      test_coef_block1[av1_default_scan_orders[tx_size_].scan[j]] = coef;
     }
 
     memcpy(test_coef_block2, test_coef_block1,
@@ -258,18 +258,18 @@ using std::tr1::make_tuple;
 
 INSTANTIATE_TEST_CASE_P(
     C, Vp10PartialIDctTest,
-    ::testing::Values(make_tuple(&vpx_fdct32x32_c, &vp10_idct32x32_1024_add_c,
-                                 &vp10_idct32x32_34_add_c, TX_32X32, 34),
-                      make_tuple(&vpx_fdct32x32_c, &vp10_idct32x32_1024_add_c,
-                                 &vp10_idct32x32_1_add_c, TX_32X32, 1),
-                      make_tuple(&vpx_fdct16x16_c, &vp10_idct16x16_256_add_c,
-                                 &vp10_idct16x16_10_add_c, TX_16X16, 10),
-                      make_tuple(&vpx_fdct16x16_c, &vp10_idct16x16_256_add_c,
-                                 &vp10_idct16x16_1_add_c, TX_16X16, 1),
-                      make_tuple(&vpx_fdct8x8_c, &vp10_idct8x8_64_add_c,
-                                 &vp10_idct8x8_12_add_c, TX_8X8, 12),
-                      make_tuple(&vpx_fdct8x8_c, &vp10_idct8x8_64_add_c,
-                                 &vp10_idct8x8_1_add_c, TX_8X8, 1),
-                      make_tuple(&vpx_fdct4x4_c, &vp10_idct4x4_16_add_c,
-                                 &vp10_idct4x4_1_add_c, TX_4X4, 1)));
+    ::testing::Values(make_tuple(&vpx_fdct32x32_c, &av1_idct32x32_1024_add_c,
+                                 &av1_idct32x32_34_add_c, TX_32X32, 34),
+                      make_tuple(&vpx_fdct32x32_c, &av1_idct32x32_1024_add_c,
+                                 &av1_idct32x32_1_add_c, TX_32X32, 1),
+                      make_tuple(&vpx_fdct16x16_c, &av1_idct16x16_256_add_c,
+                                 &av1_idct16x16_10_add_c, TX_16X16, 10),
+                      make_tuple(&vpx_fdct16x16_c, &av1_idct16x16_256_add_c,
+                                 &av1_idct16x16_1_add_c, TX_16X16, 1),
+                      make_tuple(&vpx_fdct8x8_c, &av1_idct8x8_64_add_c,
+                                 &av1_idct8x8_12_add_c, TX_8X8, 12),
+                      make_tuple(&vpx_fdct8x8_c, &av1_idct8x8_64_add_c,
+                                 &av1_idct8x8_1_add_c, TX_8X8, 1),
+                      make_tuple(&vpx_fdct4x4_c, &av1_idct4x4_16_add_c,
+                                 &av1_idct4x4_1_add_c, TX_4X4, 1)));
 }  // namespace

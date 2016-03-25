@@ -33,10 +33,10 @@
 #include "./ivfenc.h"
 #include "./tools_common.h"
 
-#if CONFIG_VP10_ENCODER
+#if CONFIG_AV1_ENCODER
 #include "aom/vp8cx.h"
 #endif
-#if CONFIG_VP10_DECODER
+#if CONFIG_AV1_DECODER
 #include "aom/vp8dx.h"
 #endif
 
@@ -357,7 +357,7 @@ static const arg_def_t cq_level =
 static const arg_def_t max_intra_rate_pct =
     ARG_DEF(NULL, "max-intra-rate", 1, "Max I-frame bitrate (pct)");
 
-#if CONFIG_VP10_ENCODER
+#if CONFIG_AV1_ENCODER
 static const arg_def_t cpu_used_vp9 =
     ARG_DEF(NULL, "cpu-used", 1, "CPU Used (-8..8)");
 static const arg_def_t tile_cols =
@@ -434,9 +434,9 @@ static const arg_def_t tune_content = ARG_DEF_ENUM(
     NULL, "tune-content", 1, "Tune content type", tune_content_enum);
 #endif
 
-#if CONFIG_VP10_ENCODER
+#if CONFIG_AV1_ENCODER
 /* clang-format off */
-static const arg_def_t *vp10_args[] = {
+static const arg_def_t *av1_args[] = {
   &cpu_used_vp9,            &auto_altref,      &sharpness,
   &static_thresh,           &tile_cols,        &tile_rows,
   &arnr_maxframes,          &arnr_strength,    &arnr_type,
@@ -449,7 +449,7 @@ static const arg_def_t *vp10_args[] = {
   &noise_sens,              &tune_content,     &input_color_space,
   &min_gf_interval,         &max_gf_interval,  NULL
 };
-static const int vp10_arg_ctrl_map[] = {
+static const int av1_arg_ctrl_map[] = {
   VP8E_SET_CPUUSED,                 VP8E_SET_ENABLEAUTOALTREF,
   VP8E_SET_SHARPNESS,               VP8E_SET_STATIC_THRESHOLD,
   VP9E_SET_TILE_COLUMNS,            VP9E_SET_TILE_ROWS,
@@ -490,9 +490,9 @@ void usage_exit(void) {
   arg_show_usage(stderr, rc_twopass_args);
   fprintf(stderr, "\nKeyframe Placement Options:\n");
   arg_show_usage(stderr, kf_args);
-#if CONFIG_VP10_ENCODER
+#if CONFIG_AV1_ENCODER
   fprintf(stderr, "\nVP10 Specific Options:\n");
-  arg_show_usage(stderr, vp10_args);
+  arg_show_usage(stderr, av1_args);
 #endif
   fprintf(stderr,
           "\nStream timebase (--timebase):\n"
@@ -737,8 +737,8 @@ static int compare_img(const vpx_image_t *const img1,
 }
 
 #define NELEMENTS(x) (sizeof(x) / sizeof(x[0]))
-#if CONFIG_VP10_ENCODER
-#define ARG_CTRL_CNT_MAX NELEMENTS(vp10_arg_ctrl_map)
+#if CONFIG_AV1_ENCODER
+#define ARG_CTRL_CNT_MAX NELEMENTS(av1_arg_ctrl_map)
 #endif
 
 #if !CONFIG_WEBM_IO
@@ -898,7 +898,7 @@ static void parse_global_config(struct VpxEncoderConfig *global, char **argv) {
   }
   /* Validate global config */
   if (global->passes == 0) {
-#if CONFIG_VP10_ENCODER
+#if CONFIG_AV1_ENCODER
     // Make default VP9 passes = 2 until there is a better quality 1-pass
     // encoder
     if (global->codec != NULL && global->codec->name != NULL)
@@ -1038,12 +1038,12 @@ static int parse_stream_params(struct VpxEncoderConfig *global,
 
   // Handle codec specific options
   if (0) {
-#if CONFIG_VP10_ENCODER
-  } else if (strcmp(global->codec->name, "vp10") == 0) {
+#if CONFIG_AV1_ENCODER
+  } else if (strcmp(global->codec->name, "av1") == 0) {
     // TODO(jingning): Reuse VP9 specific encoder configuration parameters.
     // Consider to expand this set for VP10 encoder control.
-    ctrl_args = vp10_args;
-    ctrl_args_map = vp10_arg_ctrl_map;
+    ctrl_args = av1_args;
+    ctrl_args_map = av1_arg_ctrl_map;
 #endif
   }
 
@@ -1161,7 +1161,7 @@ static int parse_stream_params(struct VpxEncoderConfig *global,
 #if CONFIG_VPX_HIGHBITDEPTH
     } else if (arg_match(&arg, &test16bitinternalarg, argi)) {
       if (strcmp(global->codec->name, "vp9") == 0 ||
-          strcmp(global->codec->name, "vp10") == 0) {
+          strcmp(global->codec->name, "av1") == 0) {
         test_16bit_internal = 1;
       }
 #endif
@@ -1194,7 +1194,7 @@ static int parse_stream_params(struct VpxEncoderConfig *global,
   }
 #if CONFIG_VPX_HIGHBITDEPTH
   if (strcmp(global->codec->name, "vp9") == 0 ||
-      strcmp(global->codec->name, "vp10") == 0) {
+      strcmp(global->codec->name, "av1") == 0) {
     config->use_16bit_internal =
         test_16bit_internal | (config->cfg.g_profile > 1);
   }
@@ -1966,7 +1966,7 @@ int main(int argc, const char **argv_) {
 
 #if CONFIG_VPX_HIGHBITDEPTH
     if (strcmp(global.codec->name, "vp9") == 0 ||
-        strcmp(global.codec->name, "vp10") == 0) {
+        strcmp(global.codec->name, "av1") == 0) {
       // Check to see if at least one stream uses 16 bit internal.
       // Currently assume that the bit_depths for all streams using
       // highbitdepth are the same.

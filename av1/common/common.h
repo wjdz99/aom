@@ -27,21 +27,21 @@ extern "C" {
 #endif
 
 // Only need this for fixed-size arrays, for structs just assign.
-#define vp10_copy(dest, src)             \
+#define av1_copy(dest, src)             \
   {                                      \
     assert(sizeof(dest) == sizeof(src)); \
     memcpy(dest, src, sizeof(src));      \
   }
 
 // Use this for variably-sized arrays.
-#define vp10_copy_array(dest, src, n)      \
+#define av1_copy_array(dest, src, n)      \
   {                                        \
     assert(sizeof(*dest) == sizeof(*src)); \
     memcpy(dest, src, n * sizeof(*src));   \
   }
 
-#define vp10_zero(dest) memset(&(dest), 0, sizeof(dest))
-#define vp10_zero_array(dest, n) memset(dest, 0, n * sizeof(*dest))
+#define av1_zero(dest) memset(&(dest), 0, sizeof(dest))
+#define av1_zero_array(dest, n) memset(dest, 0, n * sizeof(*dest))
 
 static INLINE int get_unsigned_bits(unsigned int num_values) {
   return num_values > 0 ? get_msb(num_values) + 1 : 0;

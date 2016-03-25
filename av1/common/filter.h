@@ -33,7 +33,7 @@ extern "C" {
 
 typedef uint8_t INTERP_FILTER;
 
-extern const InterpKernel *vp10_filter_kernels[4];
+extern const InterpKernel *av1_filter_kernels[4];
 
 #ifdef __cplusplus
 }  // extern "C"

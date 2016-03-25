@@ -82,16 +82,16 @@ typedef struct VP10Decoder {
   int hold_ref_buf;  // hold the reference buffer.
 } VP10Decoder;
 
-int vp10_receive_compressed_data(struct VP10Decoder *pbi, size_t size,
+int av1_receive_compressed_data(struct VP10Decoder *pbi, size_t size,
                                  const uint8_t **dest);
 
-int vp10_get_raw_frame(struct VP10Decoder *pbi, YV12_BUFFER_CONFIG *sd);
+int av1_get_raw_frame(struct VP10Decoder *pbi, YV12_BUFFER_CONFIG *sd);
 
-vpx_codec_err_t vp10_copy_reference_dec(struct VP10Decoder *pbi,
+vpx_codec_err_t av1_copy_reference_dec(struct VP10Decoder *pbi,
                                         VPX_REFFRAME ref_frame_flag,
                                         YV12_BUFFER_CONFIG *sd);
 
-vpx_codec_err_t vp10_set_reference_dec(VP10_COMMON *cm,
+vpx_codec_err_t av1_set_reference_dec(VP10_COMMON *cm,
                                        VPX_REFFRAME ref_frame_flag,
                                        YV12_BUFFER_CONFIG *sd);
 
@@ -107,14 +107,14 @@ static INLINE uint8_t read_marker(vpx_decrypt_cb decrypt_cb,
 
 // This function is exposed for use in tests, as well as the inlined function
 // "read_marker".
-vpx_codec_err_t vp10_parse_superframe_index(const uint8_t *data, size_t data_sz,
+vpx_codec_err_t av1_parse_superframe_index(const uint8_t *data, size_t data_sz,
                                             uint32_t sizes[8], int *count,
                                             vpx_decrypt_cb decrypt_cb,
                                             void *decrypt_state);
 
-struct VP10Decoder *vp10_decoder_create(BufferPool *const pool);
+struct VP10Decoder *av1_decoder_create(BufferPool *const pool);
 
-void vp10_decoder_remove(struct VP10Decoder *pbi);
+void av1_decoder_remove(struct VP10Decoder *pbi);
 
 static INLINE void decrease_ref_count(int idx, RefCntBuffer *const frame_bufs,
                                       BufferPool *const pool) {

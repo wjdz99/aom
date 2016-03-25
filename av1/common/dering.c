@@ -46,7 +46,7 @@ int sb_all_skip(const VP10_COMMON *const cm, int mi_row, int mi_col) {
   return skip;
 }
 
-void vp10_dering_frame(YV12_BUFFER_CONFIG *frame, VP10_COMMON *cm,
+void av1_dering_frame(YV12_BUFFER_CONFIG *frame, VP10_COMMON *cm,
                        MACROBLOCKD *xd, int global_level) {
   int r, c;
   int sbr, sbc;
@@ -62,7 +62,7 @@ void vp10_dering_frame(YV12_BUFFER_CONFIG *frame, VP10_COMMON *cm,
   nvsb = (cm->mi_rows + MI_BLOCK_SIZE - 1)/MI_BLOCK_SIZE;
   nhsb = (cm->mi_cols + MI_BLOCK_SIZE - 1)/MI_BLOCK_SIZE;
   bskip = vpx_malloc(sizeof(*bskip)*cm->mi_rows*cm->mi_cols);
-  vp10_setup_dst_planes(xd->plane, frame, 0, 0);
+  av1_setup_dst_planes(xd->plane, frame, 0, 0);
   for (pli = 0; pli < 3; pli++) {
     dec[pli] = xd->plane[pli].subsampling_x;
     bsize[pli] = 8 >> dec[pli];

@@ -14,10 +14,10 @@
 #include "./vpx_config.h"
 #include "aom/vpx_decoder.h"
 #include "aom/vpx_encoder.h"
-#if CONFIG_VP10_ENCODER
+#if CONFIG_AV1_ENCODER
 #include "aom/vp8cx.h"
 #endif
-#if CONFIG_VP10_DECODER
+#if CONFIG_AV1_DECODER
 #include "aom/vp8dx.h"
 #endif
 
@@ -72,7 +72,7 @@ class CodecTestWith3Params
 /*
  * VP10 Codec Definitions
  */
-#if CONFIG_VP10
+#if CONFIG_AV1
 class VP10Decoder : public Decoder {
  public:
   VP10Decoder(vpx_codec_dec_cfg_t cfg, unsigned long deadline)
@@ -84,8 +84,8 @@ class VP10Decoder : public Decoder {
 
  protected:
   virtual vpx_codec_iface_t* CodecInterface() const {
-#if CONFIG_VP10_DECODER
-    return &vpx_codec_vp10_dx_algo;
+#if CONFIG_AV1_DECODER
+    return &vpx_codec_av1_dx_algo;
 #else
     return NULL;
 #endif
@@ -100,8 +100,8 @@ class VP10Encoder : public Encoder {
 
  protected:
   virtual vpx_codec_iface_t* CodecInterface() const {
-#if CONFIG_VP10_ENCODER
-    return &vpx_codec_vp10_cx_algo;
+#if CONFIG_AV1_ENCODER
+    return &vpx_codec_av1_cx_algo;
 #else
     return NULL;
 #endif
@@ -120,7 +120,7 @@ class VP10CodecFactory : public CodecFactory {
   virtual Decoder* CreateDecoder(vpx_codec_dec_cfg_t cfg,
                                  const vpx_codec_flags_t flags,
                                  unsigned long deadline) const {  // NOLINT
-#if CONFIG_VP10_DECODER
+#if CONFIG_AV1_DECODER
     return new VP10Decoder(cfg, flags, deadline);
 #else
     return NULL;
@@ -131,7 +131,7 @@ class VP10CodecFactory : public CodecFactory {
                                  unsigned long deadline,
                                  const unsigned long init_flags,
                                  TwopassStatsStore* stats) const {
-#if CONFIG_VP10_ENCODER
+#if CONFIG_AV1_ENCODER
     return new VP10Encoder(cfg, deadline, init_flags, stats);
 #else
     return NULL;
@@ -140,8 +140,8 @@ class VP10CodecFactory : public CodecFactory {
 
   virtual vpx_codec_err_t DefaultEncoderConfig(vpx_codec_enc_cfg_t* cfg,
                                                int usage) const {
-#if CONFIG_VP10_ENCODER
-    return vpx_codec_enc_config_default(&vpx_codec_vp10_cx_algo, cfg, usage);
+#if CONFIG_AV1_ENCODER
+    return vpx_codec_enc_config_default(&vpx_codec_av1_cx_algo, cfg, usage);
 #else
     return VPX_CODEC_INCAPABLE;
 #endif
@@ -159,7 +159,7 @@ const libaom_test::VP10CodecFactory kVP10;
           __VA_ARGS__))
 #else
 #define VP10_INSTANTIATE_TEST_CASE(test, ...)
-#endif  // CONFIG_VP10
+#endif  // CONFIG_AV1
 
 }  // namespace libaom_test
 #endif  // TEST_CODEC_FACTORY_H_

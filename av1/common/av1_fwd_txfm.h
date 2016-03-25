@@ -15,5 +15,5 @@
 #include "aom_dsp/txfm_common.h"
 #include "aom_dsp/fwd_txfm.h"
 
-void vp10_fdct32(const tran_high_t *input, tran_high_t *output, int round);
+void av1_fdct32(const tran_high_t *input, tran_high_t *output, int round);
 #endif  // VP10_COMMON_VP10_FWD_TXFM_H_

@@ -33,7 +33,7 @@ static double compute_dist(int16_t *x, int xstride, int16_t *y, int ystride,
   return sum/(double)(1 << 2*coeff_shift);
 }
 
-int vp10_dering_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
+int av1_dering_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
                        VP10_COMMON *cm,
                        MACROBLOCKD *xd) {
   int r, c;
@@ -58,7 +58,7 @@ int vp10_dering_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
   src = vpx_malloc(sizeof(*src)*cm->mi_rows*cm->mi_cols*64);
   ref_coeff = vpx_malloc(sizeof(*ref_coeff)*cm->mi_rows*cm->mi_cols*64);
   bskip = vpx_malloc(sizeof(*bskip)*cm->mi_rows*cm->mi_cols);
-  vp10_setup_dst_planes(xd->plane, frame, 0, 0);
+  av1_setup_dst_planes(xd->plane, frame, 0, 0);
   for (pli = 0; pli < 3; pli++) {
     dec[pli] = xd->plane[pli].subsampling_x;
     bsize[pli] = 8 >> dec[pli];

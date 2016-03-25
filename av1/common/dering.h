@@ -30,10 +30,10 @@ extern "C" {
 
 int compute_level_from_index(int global_level, int gi);
 int sb_all_skip(const VP10_COMMON *const cm, int mi_row, int mi_col);
-void vp10_dering_frame(YV12_BUFFER_CONFIG *frame, VP10_COMMON *cm,
+void av1_dering_frame(YV12_BUFFER_CONFIG *frame, VP10_COMMON *cm,
                        MACROBLOCKD *xd, int global_level);
 
-int vp10_dering_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
+int av1_dering_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
                       VP10_COMMON *cm,
                       MACROBLOCKD *xd);
 

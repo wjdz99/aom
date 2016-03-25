@@ -33,8 +33,8 @@ extern "C" {
  * This interface provides the capability to encode raw VP10 streams.
  * @{
  */
-extern vpx_codec_iface_t vpx_codec_vp10_cx_algo;
-extern vpx_codec_iface_t *vpx_codec_vp10_cx(void);
+extern vpx_codec_iface_t vpx_codec_av1_cx_algo;
+extern vpx_codec_iface_t *vpx_codec_av1_cx(void);
 /*!@} - end algorithm interface member group*/
 
 /*

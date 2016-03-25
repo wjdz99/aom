@@ -21,7 +21,7 @@
 #define CLPF_FILTER_ALL_PLANES \
   0  // 1 = filter both luma and chroma, 0 = filter only luma
 
-void vp10_clpf_frame(const YV12_BUFFER_CONFIG *frame, const VP10_COMMON *cm,
+void av1_clpf_frame(const YV12_BUFFER_CONFIG *frame, const VP10_COMMON *cm,
                      MACROBLOCKD *xd);
 
 #endif

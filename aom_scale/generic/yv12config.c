@@ -114,7 +114,7 @@ int vpx_yv12_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
   return -2;
 }
 
-#if CONFIG_VP10
+#if CONFIG_AV1
 // TODO(jkoleszar): Maybe replace this with struct vpx_image
 
 int vpx_free_frame_buffer(YV12_BUFFER_CONFIG *ybf) {

@@ -25,7 +25,7 @@ typedef struct EncWorkerData {
   int start;
 } EncWorkerData;
 
-void vp10_encode_tiles_mt(struct VP10_COMP *cpi);
+void av1_encode_tiles_mt(struct VP10_COMP *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"
