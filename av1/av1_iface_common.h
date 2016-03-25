@@ -8,8 +8,8 @@
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
-#ifndef VP10_VP10_IFACE_COMMON_H_
-#define VP10_VP10_IFACE_COMMON_H_
+#ifndef AV1_AV1_IFACE_COMMON_H_
+#define AV1_AV1_IFACE_COMMON_H_
 
 #include "aom_ports/mem.h"
 
@@ -134,4 +134,4 @@ static vpx_codec_err_t image2yuvconfig(const vpx_image_t *img,
   return VPX_CODEC_OK;
 }
 
-#endif  // VP10_VP10_IFACE_COMMON_H_
+#endif  // AV1_AV1_IFACE_COMMON_H_

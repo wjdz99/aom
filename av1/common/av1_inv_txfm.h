@@ -88,22 +88,22 @@ static INLINE tran_low_t highbd_dct_const_round_shift(tran_high_t input,
 #define WRAPLOW(x, bd) ((int32_t)(x))
 #endif  // CONFIG_EMULATE_HARDWARE
 
-void vp10_idct4_c(const tran_low_t *input, tran_low_t *output);
-void vp10_idct8_c(const tran_low_t *input, tran_low_t *output);
-void vp10_idct16_c(const tran_low_t *input, tran_low_t *output);
-void vp10_idct32_c(const tran_low_t *input, tran_low_t *output);
-void vp10_iadst4_c(const tran_low_t *input, tran_low_t *output);
-void vp10_iadst8_c(const tran_low_t *input, tran_low_t *output);
-void vp10_iadst16_c(const tran_low_t *input, tran_low_t *output);
+void av1_idct4_c(const tran_low_t *input, tran_low_t *output);
+void av1_idct8_c(const tran_low_t *input, tran_low_t *output);
+void av1_idct16_c(const tran_low_t *input, tran_low_t *output);
+void av1_idct32_c(const tran_low_t *input, tran_low_t *output);
+void av1_iadst4_c(const tran_low_t *input, tran_low_t *output);
+void av1_iadst8_c(const tran_low_t *input, tran_low_t *output);
+void av1_iadst16_c(const tran_low_t *input, tran_low_t *output);
 
 #if CONFIG_VPX_HIGHBITDEPTH
-void vp10_highbd_idct4_c(const tran_low_t *input, tran_low_t *output, int bd);
-void vp10_highbd_idct8_c(const tran_low_t *input, tran_low_t *output, int bd);
-void vp10_highbd_idct16_c(const tran_low_t *input, tran_low_t *output, int bd);
+void av1_highbd_idct4_c(const tran_low_t *input, tran_low_t *output, int bd);
+void av1_highbd_idct8_c(const tran_low_t *input, tran_low_t *output, int bd);
+void av1_highbd_idct16_c(const tran_low_t *input, tran_low_t *output, int bd);
 
-void vp10_highbd_iadst4_c(const tran_low_t *input, tran_low_t *output, int bd);
-void vp10_highbd_iadst8_c(const tran_low_t *input, tran_low_t *output, int bd);
-void vp10_highbd_iadst16_c(const tran_low_t *input, tran_low_t *output, int bd);
+void av1_highbd_iadst4_c(const tran_low_t *input, tran_low_t *output, int bd);
+void av1_highbd_iadst8_c(const tran_low_t *input, tran_low_t *output, int bd);
+void av1_highbd_iadst16_c(const tran_low_t *input, tran_low_t *output, int bd);
 
 static INLINE uint16_t highbd_clip_pixel_add(uint16_t dest, tran_high_t trans,
                                              int bd) {

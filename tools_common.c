@@ -17,11 +17,11 @@
 
 #include "./tools_common.h"
 
-#if CONFIG_VP10_ENCODER
+#if CONFIG_AV1_ENCODER
 #include "aom/vp8cx.h"
 #endif
 
-#if CONFIG_VP10_DECODER
+#if CONFIG_AV1_DECODER
 #include "aom/vp8dx.h"
 #endif
 
@@ -131,8 +131,8 @@ int read_yuv_frame(struct VpxInputContext *input_ctx, vpx_image_t *yuv_frame) {
 #if CONFIG_ENCODERS
 
 static const VpxInterface vpx_encoders[] = {
-#if CONFIG_VP10_ENCODER
-  { "vp10", VP10_FOURCC, &vpx_codec_vp10_cx },
+#if CONFIG_AV1_ENCODER
+  { "av1", AV1_FOURCC, &vpx_codec_av1_cx },
 #endif
 };
 
@@ -158,8 +158,8 @@ const VpxInterface *get_vpx_encoder_by_name(const char *name) {
 #if CONFIG_DECODERS
 
 static const VpxInterface vpx_decoders[] = {
-#if CONFIG_VP10_DECODER
-  { "vp10", VP10_FOURCC, &vpx_codec_vp10_dx },
+#if CONFIG_AV1_DECODER
+  { "av1", AV1_FOURCC, &vpx_codec_av1_dx },
 #endif
 };
 

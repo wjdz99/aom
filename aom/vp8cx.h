@@ -28,13 +28,13 @@
 extern "C" {
 #endif
 
-/*!\name Algorithm interface for VP10
+/*!\name Algorithm interface for AV1
  *
- * This interface provides the capability to encode raw VP10 streams.
+ * This interface provides the capability to encode raw AV1 streams.
  * @{
  */
-extern vpx_codec_iface_t vpx_codec_vp10_cx_algo;
-extern vpx_codec_iface_t *vpx_codec_vp10_cx(void);
+extern vpx_codec_iface_t vpx_codec_av1_cx_algo;
+extern vpx_codec_iface_t *vpx_codec_av1_cx(void);
 /*!@} - end algorithm interface member group*/
 
 /*

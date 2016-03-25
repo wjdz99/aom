@@ -170,19 +170,19 @@ TEST_P(EndToEndTestLarge, EndtoEndPSNRTest) {
 }
 
 #if CONFIG_VPX_HIGHBITDEPTH
-#if CONFIG_VP10_ENCODER
+#if CONFIG_AV1_ENCODER
 // TODO(angiebird): many fail in high bitdepth mode.
 INSTANTIATE_TEST_CASE_P(
-    DISABLED_VP10, EndToEndTestLarge,
+    DISABLED_AV1, EndToEndTestLarge,
     ::testing::Combine(
         ::testing::Values(static_cast<const libaom_test::CodecFactory *>(
-            &libaom_test::kVP10)),
+            &libaom_test::kAV1)),
         ::testing::ValuesIn(kEncodingModeVectors),
         ::testing::ValuesIn(kTestVectors),
         ::testing::ValuesIn(kCpuUsedVectors)));
-#endif  // CONFIG_VP10_ENCODER
+#endif  // CONFIG_AV1_ENCODER
 #else
-VP10_INSTANTIATE_TEST_CASE(EndToEndTestLarge,
+AV1_INSTANTIATE_TEST_CASE(EndToEndTestLarge,
                            ::testing::ValuesIn(kEncodingModeVectors),
                            ::testing::ValuesIn(kTestVectors),
                            ::testing::ValuesIn(kCpuUsedVectors));
