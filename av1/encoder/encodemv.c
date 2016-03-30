@@ -49,12 +49,12 @@ static void encode_mv_component(aom_writer *w, int comp,
 
   // Class
   av1_write_token(w, av1_mv_class_tree, mvcomp->classes,
-                   &mv_class_encodings[mv_class]);
+                  &mv_class_encodings[mv_class]);
 
   // Integer bits
   if (mv_class == MV_CLASS_0) {
     av1_write_token(w, av1_mv_class0_tree, mvcomp->class0,
-                     &mv_class0_encodings[d]);
+                    &mv_class0_encodings[d]);
   } else {
     int i;
     const int n = mv_class + CLASS0_BITS - 1;  // number of bits
@@ -63,8 +63,8 @@ static void encode_mv_component(aom_writer *w, int comp,
 
   // Fractional bits
   av1_write_token(w, av1_mv_fp_tree,
-                   mv_class == MV_CLASS_0 ? mvcomp->class0_fp[d] : mvcomp->fp,
-                   &mv_fp_encodings[fr]);
+                  mv_class == MV_CLASS_0 ? mvcomp->class0_fp[d] : mvcomp->fp,
+                  &mv_fp_encodings[fr]);
 
   // High precision bit
   if (usehp)
@@ -165,12 +165,11 @@ static void write_mv_update(const aom_tree_index *tree,
 }
 
 void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
-                          nmv_context_counts *const counts) {
+                         nmv_context_counts *const counts) {
   int i, j;
   nmv_context *const mvc = &cm->fc->nmvc;
 
-  write_mv_update(av1_mv_joint_tree, mvc->joints, counts->joints, MV_JOINTS,
-                  w);
+  write_mv_update(av1_mv_joint_tree, mvc->joints, counts->joints, MV_JOINTS, w);
 
   for (i = 0; i < 2; ++i) {
     nmv_component *comp = &mvc->comps[i];
@@ -204,13 +203,12 @@ void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
 }
 
 void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
-                    const nmv_context *mvctx, int usehp) {
-  const MV diff = { mv->row - ref->row, mv->col - ref->col };
+                   const nmv_context *mvctx, int usehp) {
+  const MV diff = {mv->row - ref->row, mv->col - ref->col};
   const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
   usehp = usehp && av1_use_mv_hp(ref);
 
-  av1_write_token(w, av1_mv_joint_tree, mvctx->joints,
-                   &mv_joint_encodings[j]);
+  av1_write_token(w, av1_mv_joint_tree, mvctx->joints, &mv_joint_encodings[j]);
   if (mv_joint_vertical(j))
     encode_mv_component(w, diff.row, &mvctx->comps[0], usehp);
 
@@ -226,7 +224,7 @@ void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
 }
 
 void av1_build_nmv_cost_table(int *mvjoint, int *mvcost[2],
-                               const nmv_context *ctx, int usehp) {
+                              const nmv_context *ctx, int usehp) {
   av1_cost_tokens(mvjoint, ctx->joints, av1_mv_joint_tree);
   build_nmv_component_cost_table(mvcost[0], &ctx->comps[0], usehp);
   build_nmv_component_cost_table(mvcost[1], &ctx->comps[1], usehp);
@@ -238,8 +236,7 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
 
   for (i = 0; i < 1 + has_second_ref(mbmi); ++i) {
     const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame[i]][0].as_mv;
-    const MV diff = { mvs[i].as_mv.row - ref->row,
-                      mvs[i].as_mv.col - ref->col };
+    const MV diff = {mvs[i].as_mv.row - ref->row, mvs[i].as_mv.col - ref->col};
     av1_inc_mv(&diff, counts, av1_use_mv_hp(ref));
   }
 }

@@ -152,7 +152,9 @@ static int decode_coefs(const MACROBLOCKD *xd, PLANE_TYPE type,
       switch (token) {
         case TWO_TOKEN:
         case THREE_TOKEN:
-        case FOUR_TOKEN: val = token; break;
+        case FOUR_TOKEN:
+          val = token;
+          break;
         case CATEGORY1_TOKEN:
           val = CAT1_MIN_VAL + read_coeff(cat1_prob, 1, r);
           break;
@@ -186,7 +188,9 @@ static int decode_coefs(const MACROBLOCKD *xd, PLANE_TYPE type,
             case AOM_BITS_12:
               val = CAT6_MIN_VAL + read_coeff(cat6p, 18 - skip_bits, r);
               break;
-            default: assert(0); return -1;
+            default:
+              assert(0);
+              return -1;
           }
 #else
           val = CAT6_MIN_VAL + read_coeff(cat6p, 14 - skip_bits, r);
@@ -259,8 +263,8 @@ static void dec_set_contexts(const MACROBLOCKD *xd,
 }
 
 int av1_decode_block_tokens(MACROBLOCKD *xd, int plane, const scan_order *sc,
-                             int x, int y, TX_SIZE tx_size, aom_reader *r,
-                             int seg_id) {
+                            int x, int y, TX_SIZE tx_size, aom_reader *r,
+                            int seg_id) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const int16_t *const dequant = pd->seg_dequant[seg_id];
   const int ctx =
@@ -276,5 +280,3 @@ int av1_decode_block_tokens(MACROBLOCKD *xd, int plane, const scan_order *sc,
   dec_set_contexts(xd, pd, tx_size, eob > 0, x, y);
   return eob;
 }
-
-

@@ -11,11 +11,11 @@
 
 #include <assert.h>
 
-#include "av1/common/enums.h"
 #include "aom_dsp/mips/inv_txfm_msa.h"
+#include "av1/common/enums.h"
 
 void av1_iht4x4_16_add_msa(const int16_t *input, uint8_t *dst,
-                            int32_t dst_stride, int32_t tx_type) {
+                           int32_t dst_stride, int32_t tx_type) {
   v8i16 in0, in1, in2, in3;
 
   /* load vector elements of 4x4 block */
@@ -51,7 +51,9 @@ void av1_iht4x4_16_add_msa(const int16_t *input, uint8_t *dst,
       TRANSPOSE4x4_SH_SH(in0, in1, in2, in3, in0, in1, in2, in3);
       AOM_IADST4x4(in0, in1, in2, in3, in0, in1, in2, in3);
       break;
-    default: assert(0); break;
+    default:
+      assert(0);
+      break;
   }
 
   /* final rounding (add 2^3, divide by 2^4) and shift */

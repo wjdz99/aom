@@ -15,9 +15,9 @@
 //  http://git.chromium.org/webm/libwebp.git
 //  100644 blob 264210ba2807e4da47eb5d18c04cf869d89b9784  src/utils/thread.c
 
+#include "./aom_thread.h"
 #include <assert.h>
 #include <string.h>  // for memset()
-#include "./aom_thread.h"
 #include "aom_mem/aom_mem.h"
 
 #if CONFIG_MULTITHREAD
@@ -163,8 +163,8 @@ static void end(AVxWorker *const worker) {
 
 //------------------------------------------------------------------------------
 
-static AVxWorkerInterface g_worker_interface = { init,   reset,   sync,
-                                                 launch, execute, end };
+static AVxWorkerInterface g_worker_interface = {init,   reset,   sync,
+                                                launch, execute, end};
 
 int aom_set_worker_interface(const AVxWorkerInterface *const winterface) {
   if (winterface == NULL || winterface->init == NULL ||

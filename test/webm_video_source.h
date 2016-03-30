@@ -26,8 +26,12 @@ namespace libaom_test {
 class WebMVideoSource : public CompressedVideoSource {
  public:
   explicit WebMVideoSource(const std::string &file_name)
-      : file_name_(file_name), aom_ctx_(new AvxInputContext()),
-        webm_ctx_(new WebmInputContext()), buf_(NULL), buf_sz_(0), frame_(0),
+      : file_name_(file_name),
+        aom_ctx_(new AvxInputContext()),
+        webm_ctx_(new WebmInputContext()),
+        buf_(NULL),
+        buf_sz_(0),
+        frame_(0),
         end_of_file_(false) {}
 
   virtual ~WebMVideoSource() {

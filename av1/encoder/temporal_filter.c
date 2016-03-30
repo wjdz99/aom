@@ -9,34 +9,34 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include <math.h>
 #include <limits.h>
+#include <math.h>
 
+#include "aom_dsp/aom_dsp_common.h"
+#include "aom_mem/aom_mem.h"
+#include "aom_ports/aom_timer.h"
+#include "aom_ports/mem.h"
+#include "aom_scale/aom_scale.h"
 #include "av1/common/alloccommon.h"
+#include "av1/common/odintrin.h"
 #include "av1/common/onyxc_int.h"
 #include "av1/common/quant_common.h"
 #include "av1/common/reconinter.h"
-#include "av1/common/odintrin.h"
+#include "av1/encoder/encoder.h"
 #include "av1/encoder/extend.h"
 #include "av1/encoder/firstpass.h"
 #include "av1/encoder/mcomp.h"
-#include "av1/encoder/encoder.h"
 #include "av1/encoder/quantize.h"
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/temporal_filter.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/mem.h"
-#include "aom_ports/aom_timer.h"
-#include "aom_scale/aom_scale.h"
 
 static void temporal_filter_predictors_mb_c(
     MACROBLOCKD *xd, uint8_t *y_mb_ptr, uint8_t *u_mb_ptr, uint8_t *v_mb_ptr,
     int stride, int uv_block_width, int uv_block_height, int mv_row, int mv_col,
     uint8_t *pred, struct scale_factors *scale, int x, int y) {
   const int which_mv = 0;
-  const MV mv = { mv_row, mv_col };
+  const MV mv = {mv_row, mv_col};
   const InterpKernel *const kernel =
       av1_filter_kernels[xd->mi[0]->mbmi.interp_filter];
 
@@ -52,39 +52,39 @@ static void temporal_filter_predictors_mb_c(
 
 #if CONFIG_AOM_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-    av1_highbd_build_inter_predictor(y_mb_ptr, stride, &pred[0], 16, &mv,
-                                      scale, 16, 16, which_mv, kernel,
-                                      MV_PRECISION_Q3, x, y, xd->bd);
+    av1_highbd_build_inter_predictor(y_mb_ptr, stride, &pred[0], 16, &mv, scale,
+                                     16, 16, which_mv, kernel, MV_PRECISION_Q3,
+                                     x, y, xd->bd);
 
     av1_highbd_build_inter_predictor(u_mb_ptr, uv_stride, &pred[256],
-                                      uv_block_width, &mv, scale,
-                                      uv_block_width, uv_block_height, which_mv,
-                                      kernel, mv_precision_uv, x, y, xd->bd);
+                                     uv_block_width, &mv, scale, uv_block_width,
+                                     uv_block_height, which_mv, kernel,
+                                     mv_precision_uv, x, y, xd->bd);
 
     av1_highbd_build_inter_predictor(v_mb_ptr, uv_stride, &pred[512],
-                                      uv_block_width, &mv, scale,
-                                      uv_block_width, uv_block_height, which_mv,
-                                      kernel, mv_precision_uv, x, y, xd->bd);
+                                     uv_block_width, &mv, scale, uv_block_width,
+                                     uv_block_height, which_mv, kernel,
+                                     mv_precision_uv, x, y, xd->bd);
     return;
   }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
   av1_build_inter_predictor(y_mb_ptr, stride, &pred[0], 16, &mv, scale, 16, 16,
-                             which_mv, kernel, MV_PRECISION_Q3, x, y);
+                            which_mv, kernel, MV_PRECISION_Q3, x, y);
 
   av1_build_inter_predictor(u_mb_ptr, uv_stride, &pred[256], uv_block_width,
-                             &mv, scale, uv_block_width, uv_block_height,
-                             which_mv, kernel, mv_precision_uv, x, y);
+                            &mv, scale, uv_block_width, uv_block_height,
+                            which_mv, kernel, mv_precision_uv, x, y);
 
   av1_build_inter_predictor(v_mb_ptr, uv_stride, &pred[512], uv_block_width,
-                             &mv, scale, uv_block_width, uv_block_height,
-                             which_mv, kernel, mv_precision_uv, x, y);
+                            &mv, scale, uv_block_width, uv_block_height,
+                            which_mv, kernel, mv_precision_uv, x, y);
 }
 
 void av1_temporal_filter_apply_c(uint8_t *frame1, unsigned int stride,
-                                  uint8_t *frame2, unsigned int block_width,
-                                  unsigned int block_height, int strength,
-                                  int filter_weight, unsigned int *accumulator,
-                                  uint16_t *count) {
+                                 uint8_t *frame2, unsigned int block_width,
+                                 unsigned int block_height, int strength,
+                                 int filter_weight, unsigned int *accumulator,
+                                 uint16_t *count) {
   unsigned int i, j, k;
   int modifier;
   int byte = 0;
@@ -175,7 +175,7 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
   unsigned int sse;
   int cost_list[5];
 
-  MV best_ref_mv1 = { 0, 0 };
+  MV best_ref_mv1 = {0, 0};
   MV best_ref_mv1_full; /* full-pixel value of best_ref_mv1 */
   MV *ref_mv = &x->e_mbd.mi[0]->bmi[0].as_mv[0].as_mv;
 
@@ -197,8 +197,8 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
 
   // Ignore mv costing by sending NULL pointer instead of cost arrays
   av1_hex_search(x, &best_ref_mv1_full, step_param, sadpb, 1,
-                  cond_cost_list(cpi, cost_list), &cpi->fn_ptr[BLOCK_16X16], 0,
-                  &best_ref_mv1, ref_mv);
+                 cond_cost_list(cpi, cost_list), &cpi->fn_ptr[BLOCK_16X16], 0,
+                 &best_ref_mv1, ref_mv);
 
   // Ignore mv costing by sending NULL pointer instead of cost array
   bestsme = cpi->find_fractional_mv_step(
@@ -333,30 +333,30 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
           } else {
             // Apply the filter (YUV)
             av1_temporal_filter_apply(f->y_buffer + mb_y_offset, f->y_stride,
-                                       predictor, 16, 16, strength,
-                                       filter_weight, accumulator, count);
+                                      predictor, 16, 16, strength,
+                                      filter_weight, accumulator, count);
             av1_temporal_filter_apply(f->u_buffer + mb_uv_offset, f->uv_stride,
-                                       predictor + 256, mb_uv_width,
-                                       mb_uv_height, strength, filter_weight,
-                                       accumulator + 256, count + 256);
+                                      predictor + 256, mb_uv_width,
+                                      mb_uv_height, strength, filter_weight,
+                                      accumulator + 256, count + 256);
             av1_temporal_filter_apply(f->v_buffer + mb_uv_offset, f->uv_stride,
-                                       predictor + 512, mb_uv_width,
-                                       mb_uv_height, strength, filter_weight,
-                                       accumulator + 512, count + 512);
+                                      predictor + 512, mb_uv_width,
+                                      mb_uv_height, strength, filter_weight,
+                                      accumulator + 512, count + 512);
           }
 #else
           // Apply the filter (YUV)
           av1_temporal_filter_apply(f->y_buffer + mb_y_offset, f->y_stride,
-                                     predictor, 16, 16, strength, filter_weight,
-                                     accumulator, count);
+                                    predictor, 16, 16, strength, filter_weight,
+                                    accumulator, count);
           av1_temporal_filter_apply(f->u_buffer + mb_uv_offset, f->uv_stride,
-                                     predictor + 256, mb_uv_width, mb_uv_height,
-                                     strength, filter_weight, accumulator + 256,
-                                     count + 256);
+                                    predictor + 256, mb_uv_width, mb_uv_height,
+                                    strength, filter_weight, accumulator + 256,
+                                    count + 256);
           av1_temporal_filter_apply(f->v_buffer + mb_uv_offset, f->uv_stride,
-                                     predictor + 512, mb_uv_width, mb_uv_height,
-                                     strength, filter_weight, accumulator + 512,
-                                     count + 512);
+                                    predictor + 512, mb_uv_width, mb_uv_height,
+                                    strength, filter_weight, accumulator + 512,
+                                    count + 512);
 #endif  // CONFIG_AOM_HIGHBITDEPTH
         }
       }
@@ -519,10 +519,10 @@ static void adjust_arnr_filter(AV1_COMP *cpi, int distance, int group_boost,
   // Adjust the strength based on active max q.
   if (cpi->common.current_video_frame > 1)
     q = ((int)av1_convert_qindex_to_q(cpi->rc.avg_frame_qindex[INTER_FRAME],
-                                       cpi->common.bit_depth));
+                                      cpi->common.bit_depth));
   else
     q = ((int)av1_convert_qindex_to_q(cpi->rc.avg_frame_qindex[KEY_FRAME],
-                                       cpi->common.bit_depth));
+                                      cpi->common.bit_depth));
   if (q > 16) {
     strength = oxcf->arnr_strength;
   } else {
@@ -561,7 +561,7 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
   int frames_to_blur_backward;
   int frames_to_blur_forward;
   struct scale_factors sf;
-  YV12_BUFFER_CONFIG *frames[MAX_LAG_BUFFERS] = { NULL };
+  YV12_BUFFER_CONFIG *frames[MAX_LAG_BUFFERS] = {NULL};
 
   // Apply context specific adjustments to the arnr filter parameters.
   adjust_arnr_filter(cpi, distance, rc->gfu_boost, &frames_to_blur, &strength);

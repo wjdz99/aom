@@ -12,19 +12,19 @@
 #ifndef AV1_ENCODER_EXTEND_H_
 #define AV1_ENCODER_EXTEND_H_
 
-#include "aom_scale/yv12config.h"
 #include "aom/aom_integer.h"
+#include "aom_scale/yv12config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void av1_copy_and_extend_frame(const YV12_BUFFER_CONFIG *src,
-                                YV12_BUFFER_CONFIG *dst);
+                               YV12_BUFFER_CONFIG *dst);
 
 void av1_copy_and_extend_frame_with_rect(const YV12_BUFFER_CONFIG *src,
-                                          YV12_BUFFER_CONFIG *dst, int srcy,
-                                          int srcx, int srch, int srcw);
+                                         YV12_BUFFER_CONFIG *dst, int srcy,
+                                         int srcx, int srch, int srcw);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

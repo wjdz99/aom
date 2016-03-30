@@ -15,8 +15,8 @@
 #include <cstdlib>
 #include <string>
 
-#include "test/video_source.h"
 #include "aom/aom_image.h"
+#include "test/video_source.h"
 
 namespace libaom_test {
 
@@ -28,9 +28,16 @@ class YUVVideoSource : public VideoSource {
   YUVVideoSource(const std::string &file_name, aom_img_fmt format,
                  unsigned int width, unsigned int height, int rate_numerator,
                  int rate_denominator, unsigned int start, int limit)
-      : file_name_(file_name), input_file_(NULL), img_(NULL), start_(start),
-        limit_(limit), frame_(0), width_(0), height_(0),
-        format_(AOM_IMG_FMT_NONE), framerate_numerator_(rate_numerator),
+      : file_name_(file_name),
+        input_file_(NULL),
+        img_(NULL),
+        start_(start),
+        limit_(limit),
+        frame_(0),
+        width_(0),
+        height_(0),
+        format_(AOM_IMG_FMT_NONE),
+        framerate_numerator_(rate_numerator),
         framerate_denominator_(rate_denominator) {
     // This initializes format_, raw_size_, width_, height_ and allocates img.
     SetSize(width, height, format);
@@ -66,7 +73,7 @@ class YUVVideoSource : public VideoSource {
   virtual unsigned long duration() const { return 1; }
 
   virtual aom_rational_t timebase() const {
-    const aom_rational_t t = { framerate_denominator_, framerate_numerator_ };
+    const aom_rational_t t = {framerate_denominator_, framerate_numerator_};
     return t;
   }
 
@@ -84,15 +91,32 @@ class YUVVideoSource : public VideoSource {
       height_ = height;
       format_ = format;
       switch (format) {
-        case AOM_IMG_FMT_I420: raw_size_ = width * height * 3 / 2; break;
-        case AOM_IMG_FMT_I422: raw_size_ = width * height * 2; break;
-        case AOM_IMG_FMT_I440: raw_size_ = width * height * 2; break;
-        case AOM_IMG_FMT_I444: raw_size_ = width * height * 3; break;
-        case AOM_IMG_FMT_I42016: raw_size_ = width * height * 3; break;
-        case AOM_IMG_FMT_I42216: raw_size_ = width * height * 4; break;
-        case AOM_IMG_FMT_I44016: raw_size_ = width * height * 4; break;
-        case AOM_IMG_FMT_I44416: raw_size_ = width * height * 6; break;
-        default: ASSERT_TRUE(0);
+        case AOM_IMG_FMT_I420:
+          raw_size_ = width * height * 3 / 2;
+          break;
+        case AOM_IMG_FMT_I422:
+          raw_size_ = width * height * 2;
+          break;
+        case AOM_IMG_FMT_I440:
+          raw_size_ = width * height * 2;
+          break;
+        case AOM_IMG_FMT_I444:
+          raw_size_ = width * height * 3;
+          break;
+        case AOM_IMG_FMT_I42016:
+          raw_size_ = width * height * 3;
+          break;
+        case AOM_IMG_FMT_I42216:
+          raw_size_ = width * height * 4;
+          break;
+        case AOM_IMG_FMT_I44016:
+          raw_size_ = width * height * 4;
+          break;
+        case AOM_IMG_FMT_I44416:
+          raw_size_ = width * height * 6;
+          break;
+        default:
+          ASSERT_TRUE(0);
       }
     }
   }

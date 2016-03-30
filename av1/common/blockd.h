@@ -111,10 +111,10 @@ static INLINE int has_second_ref(const MB_MODE_INFO *mbmi) {
 }
 
 PREDICTION_MODE av1_left_block_mode(const MODE_INFO *cur_mi,
-                                     const MODE_INFO *left_mi, int b);
+                                    const MODE_INFO *left_mi, int b);
 
 PREDICTION_MODE av1_above_block_mode(const MODE_INFO *cur_mi,
-                                      const MODE_INFO *above_mi, int b);
+                                     const MODE_INFO *above_mi, int b);
 
 enum mv_precision { MV_PRECISION_Q3, MV_PRECISION_Q4 };
 
@@ -218,16 +218,16 @@ static INLINE BLOCK_SIZE get_subsize(BLOCK_SIZE bsize,
 }
 
 static const TX_TYPE intra_mode_to_tx_type_context[INTRA_MODES] = {
-  DCT_DCT,    // DC
-  ADST_DCT,   // V
-  DCT_ADST,   // H
-  DCT_DCT,    // D45
-  ADST_ADST,  // D135
-  ADST_DCT,   // D117
-  DCT_ADST,   // D153
-  DCT_ADST,   // D207
-  ADST_DCT,   // D63
-  ADST_ADST,  // TM
+    DCT_DCT,    // DC
+    ADST_DCT,   // V
+    DCT_ADST,   // H
+    DCT_DCT,    // D45
+    ADST_ADST,  // D135
+    ADST_DCT,   // D117
+    DCT_ADST,   // D153
+    DCT_ADST,   // D207
+    ADST_DCT,   // D63
+    ADST_ADST,  // TM
 };
 
 static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
@@ -288,13 +288,13 @@ void av1_foreach_transformed_block_in_plane(
     foreach_transformed_block_visitor visit, void *arg);
 
 void av1_foreach_transformed_block(const MACROBLOCKD *const xd,
-                                    BLOCK_SIZE bsize,
-                                    foreach_transformed_block_visitor visit,
-                                    void *arg);
+                                   BLOCK_SIZE bsize,
+                                   foreach_transformed_block_visitor visit,
+                                   void *arg);
 
 void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
-                       BLOCK_SIZE plane_bsize, TX_SIZE tx_size, int has_eob,
-                       int aoff, int loff);
+                      BLOCK_SIZE plane_bsize, TX_SIZE tx_size, int has_eob,
+                      int aoff, int loff);
 
 #ifdef __cplusplus
 }  // extern "C"

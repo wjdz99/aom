@@ -20,8 +20,8 @@
 #include "av1/common/reconinter.h"
 #include "av1/common/seg_common.h"
 
-#include "av1/decoder/decodemv.h"
 #include "av1/decoder/decodeframe.h"
+#include "av1/decoder/decodemv.h"
 
 #include "aom_dsp/aom_dsp_common.h"
 
@@ -327,7 +327,7 @@ static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
   const MV_JOINT_TYPE joint_type =
       (MV_JOINT_TYPE)aom_read_tree(r, av1_mv_joint_tree, ctx->joints);
   const int use_hp = allow_hp && av1_use_mv_hp(ref);
-  MV diff = { 0, 0 };
+  MV diff = {0, 0};
 
   if (mv_joint_vertical(joint_type))
     diff.row = read_mv_component(r, &ctx->comps[0], use_hp);
@@ -501,7 +501,7 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 static void fpm_sync(void *const data, int mi_row) {
   AV1Decoder *const pbi = (AV1Decoder *)data;
   av1_frameworker_wait(pbi->frame_worker_owner, pbi->common.prev_frame,
-                        mi_row << MI_BLOCK_SIZE_LOG2);
+                       mi_row << MI_BLOCK_SIZE_LOG2);
 }
 
 static void read_inter_block_mode_info(AV1Decoder *const pbi,
@@ -530,7 +530,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                          "Reference frame has invalid dimensions");
     av1_setup_pre_planes(xd, ref, ref_buf->buf, mi_row, mi_col, &ref_buf->sf);
     av1_find_mv_refs(cm, xd, mi, frame, ref_mvs[frame], mi_row, mi_col,
-                      fpm_sync, (void *)pbi, inter_mode_ctx);
+                     fpm_sync, (void *)pbi, inter_mode_ctx);
   }
 
   if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
@@ -549,7 +549,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   if (bsize < BLOCK_8X8 || mbmi->mode != ZEROMV) {
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       av1_find_best_ref_mvs(allow_hp, ref_mvs[mbmi->ref_frame[ref]],
-                             &nearestmv[ref], &nearmv[ref]);
+                            &nearestmv[ref], &nearmv[ref]);
     }
   }
 
@@ -573,8 +573,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
           uint8_t dummy_mode_ctx[MAX_REF_FRAMES];
           for (ref = 0; ref < 1 + is_compound; ++ref)
             av1_append_sub8x8_mvs_for_idx(cm, xd, j, ref, mi_row, mi_col,
-                                           &nearest_sub8x8[ref],
-                                           &near_sub8x8[ref], dummy_mode_ctx);
+                                          &nearest_sub8x8[ref],
+                                          &near_sub8x8[ref], dummy_mode_ctx);
         }
 
         if (!assign_mv(cm, xd, b_mode, block, nearestmv, nearest_sub8x8,
@@ -642,7 +642,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 }
 
 void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd, int mi_row,
-                         int mi_col, aom_reader *r, int x_mis, int y_mis) {
+                        int mi_col, aom_reader *r, int x_mis, int y_mis) {
   AV1_COMMON *const cm = &pbi->common;
   MODE_INFO *const mi = xd->mi[0];
   MV_REF *frame_mvs = cm->cur_frame->mvs + mi_row * cm->mi_cols + mi_col;

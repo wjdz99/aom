@@ -16,11 +16,11 @@
 #include "aom_dsp/aom_dsp_common.h"
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 #include "aom_mem/aom_mem.h"
-#include "aom_ports/mem.h"
 #include "aom_ports/aom_once.h"
+#include "aom_ports/mem.h"
 
-#include "av1/common/reconintra.h"
 #include "av1/common/onyxc_int.h"
+#include "av1/common/reconintra.h"
 
 #if CONFIG_MISC_FIXES
 enum {
@@ -32,16 +32,16 @@ enum {
 };
 
 static const uint8_t extend_modes[INTRA_MODES] = {
-  NEED_ABOVE | NEED_LEFT,                   // DC
-  NEED_ABOVE,                               // V
-  NEED_LEFT,                                // H
-  NEED_ABOVE | NEED_ABOVERIGHT,             // D45
-  NEED_LEFT | NEED_ABOVE | NEED_ABOVELEFT,  // D135
-  NEED_LEFT | NEED_ABOVE | NEED_ABOVELEFT,  // D117
-  NEED_LEFT | NEED_ABOVE | NEED_ABOVELEFT,  // D153
-  NEED_LEFT | NEED_BOTTOMLEFT,              // D207
-  NEED_ABOVE | NEED_ABOVERIGHT,             // D63
-  NEED_LEFT | NEED_ABOVE | NEED_ABOVELEFT,  // TM
+    NEED_ABOVE | NEED_LEFT,                   // DC
+    NEED_ABOVE,                               // V
+    NEED_LEFT,                                // H
+    NEED_ABOVE | NEED_ABOVERIGHT,             // D45
+    NEED_LEFT | NEED_ABOVE | NEED_ABOVELEFT,  // D135
+    NEED_LEFT | NEED_ABOVE | NEED_ABOVELEFT,  // D117
+    NEED_LEFT | NEED_ABOVE | NEED_ABOVELEFT,  // D153
+    NEED_LEFT | NEED_BOTTOMLEFT,              // D207
+    NEED_ABOVE | NEED_ABOVERIGHT,             // D63
+    NEED_LEFT | NEED_ABOVE | NEED_ABOVELEFT,  // TM
 };
 #else
 enum {
@@ -51,58 +51,58 @@ enum {
 };
 
 static const uint8_t extend_modes[INTRA_MODES] = {
-  NEED_ABOVE | NEED_LEFT,  // DC
-  NEED_ABOVE,              // V
-  NEED_LEFT,               // H
-  NEED_ABOVERIGHT,         // D45
-  NEED_LEFT | NEED_ABOVE,  // D135
-  NEED_LEFT | NEED_ABOVE,  // D117
-  NEED_LEFT | NEED_ABOVE,  // D153
-  NEED_LEFT,               // D207
-  NEED_ABOVERIGHT,         // D63
-  NEED_LEFT | NEED_ABOVE,  // TM
+    NEED_ABOVE | NEED_LEFT,  // DC
+    NEED_ABOVE,              // V
+    NEED_LEFT,               // H
+    NEED_ABOVERIGHT,         // D45
+    NEED_LEFT | NEED_ABOVE,  // D135
+    NEED_LEFT | NEED_ABOVE,  // D117
+    NEED_LEFT | NEED_ABOVE,  // D153
+    NEED_LEFT,               // D207
+    NEED_ABOVERIGHT,         // D63
+    NEED_LEFT | NEED_ABOVE,  // TM
 };
 #endif
 
 #if CONFIG_MISC_FIXES
-static const uint8_t orders_64x64[1] = { 0 };
-static const uint8_t orders_64x32[2] = { 0, 1 };
-static const uint8_t orders_32x64[2] = { 0, 1 };
+static const uint8_t orders_64x64[1] = {0};
+static const uint8_t orders_64x32[2] = {0, 1};
+static const uint8_t orders_32x64[2] = {0, 1};
 static const uint8_t orders_32x32[4] = {
-  0, 1, 2, 3,
+    0, 1, 2, 3,
 };
 static const uint8_t orders_32x16[8] = {
-  0, 2, 1, 3, 4, 6, 5, 7,
+    0, 2, 1, 3, 4, 6, 5, 7,
 };
 static const uint8_t orders_16x32[8] = {
-  0, 1, 2, 3, 4, 5, 6, 7,
+    0, 1, 2, 3, 4, 5, 6, 7,
 };
 static const uint8_t orders_16x16[16] = {
-  0, 1, 4, 5, 2, 3, 6, 7, 8, 9, 12, 13, 10, 11, 14, 15,
+    0, 1, 4, 5, 2, 3, 6, 7, 8, 9, 12, 13, 10, 11, 14, 15,
 };
 static const uint8_t orders_16x8[32] = {
-  0,  2,  8,  10, 1,  3,  9,  11, 4,  6,  12, 14, 5,  7,  13, 15,
-  16, 18, 24, 26, 17, 19, 25, 27, 20, 22, 28, 30, 21, 23, 29, 31,
+    0,  2,  8,  10, 1,  3,  9,  11, 4,  6,  12, 14, 5,  7,  13, 15,
+    16, 18, 24, 26, 17, 19, 25, 27, 20, 22, 28, 30, 21, 23, 29, 31,
 };
 static const uint8_t orders_8x16[32] = {
-  0,  1,  2,  3,  8,  9,  10, 11, 4,  5,  6,  7,  12, 13, 14, 15,
-  16, 17, 18, 19, 24, 25, 26, 27, 20, 21, 22, 23, 28, 29, 30, 31,
+    0,  1,  2,  3,  8,  9,  10, 11, 4,  5,  6,  7,  12, 13, 14, 15,
+    16, 17, 18, 19, 24, 25, 26, 27, 20, 21, 22, 23, 28, 29, 30, 31,
 };
 static const uint8_t orders_8x8[64] = {
-  0,  1,  4,  5,  16, 17, 20, 21, 2,  3,  6,  7,  18, 19, 22, 23,
-  8,  9,  12, 13, 24, 25, 28, 29, 10, 11, 14, 15, 26, 27, 30, 31,
-  32, 33, 36, 37, 48, 49, 52, 53, 34, 35, 38, 39, 50, 51, 54, 55,
-  40, 41, 44, 45, 56, 57, 60, 61, 42, 43, 46, 47, 58, 59, 62, 63,
+    0,  1,  4,  5,  16, 17, 20, 21, 2,  3,  6,  7,  18, 19, 22, 23,
+    8,  9,  12, 13, 24, 25, 28, 29, 10, 11, 14, 15, 26, 27, 30, 31,
+    32, 33, 36, 37, 48, 49, 52, 53, 34, 35, 38, 39, 50, 51, 54, 55,
+    40, 41, 44, 45, 56, 57, 60, 61, 42, 43, 46, 47, 58, 59, 62, 63,
 };
 static const uint8_t *const orders[BLOCK_SIZES] = {
-  orders_8x8,   orders_8x8,   orders_8x8,   orders_8x8,   orders_8x16,
-  orders_16x8,  orders_16x16, orders_16x32, orders_32x16, orders_32x32,
-  orders_32x64, orders_64x32, orders_64x64,
+    orders_8x8,   orders_8x8,   orders_8x8,   orders_8x8,   orders_8x16,
+    orders_16x8,  orders_16x16, orders_16x32, orders_32x16, orders_32x32,
+    orders_32x64, orders_64x32, orders_64x64,
 };
 
 static int av1_has_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
-                          int right_available, TX_SIZE txsz, int y, int x,
-                          int ss_x) {
+                         int right_available, TX_SIZE txsz, int y, int x,
+                         int ss_x) {
   if (y == 0) {
     int wl = mi_width_log2_lookup[bsize];
     int hl = mi_height_log2_lookup[bsize];
@@ -134,8 +134,8 @@ static int av1_has_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
 }
 
 static int av1_has_bottom(BLOCK_SIZE bsize, int mi_row, int mi_col,
-                           int bottom_available, TX_SIZE txsz, int y, int x,
-                           int ss_y) {
+                          int bottom_available, TX_SIZE txsz, int y, int x,
+                          int ss_y) {
   if (x == 0) {
     int wl = mi_width_log2_lookup[bsize];
     int hl = mi_height_log2_lookup[bsize];
@@ -676,9 +676,9 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
 }
 
 void av1_predict_intra_block(const MACROBLOCKD *xd, int bwl_in, int bhl_in,
-                              TX_SIZE tx_size, PREDICTION_MODE mode,
-                              const uint8_t *ref, int ref_stride, uint8_t *dst,
-                              int dst_stride, int aoff, int loff, int plane) {
+                             TX_SIZE tx_size, PREDICTION_MODE mode,
+                             const uint8_t *ref, int ref_stride, uint8_t *dst,
+                             int dst_stride, int aoff, int loff, int plane) {
   const int txw = (1 << tx_size);
   const int have_top = loff || xd->up_available;
   const int have_left = aoff || xd->left_available;
@@ -694,10 +694,10 @@ void av1_predict_intra_block(const MACROBLOCKD *xd, int bwl_in, int bhl_in,
   const int right_available =
       mi_col + (bw >> !pd->subsampling_x) < xd->tile.mi_col_end;
   const int have_right = av1_has_right(bsize, mi_row, mi_col, right_available,
-                                        tx_size, loff, aoff, pd->subsampling_x);
+                                       tx_size, loff, aoff, pd->subsampling_x);
   const int have_bottom =
       av1_has_bottom(bsize, mi_row, mi_col, xd->mb_to_bottom_edge > 0, tx_size,
-                      loff, aoff, pd->subsampling_y);
+                     loff, aoff, pd->subsampling_y);
   const int wpx = 4 * bw;
   const int hpx = 4 * bh;
   const int txpx = 4 * txw;

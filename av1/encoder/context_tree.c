@@ -13,7 +13,7 @@
 #include "av1/encoder/encoder.h"
 
 static const BLOCK_SIZE square[] = {
-  BLOCK_8X8, BLOCK_16X16, BLOCK_32X32, BLOCK_64X64,
+    BLOCK_8X8, BLOCK_16X16, BLOCK_32X32, BLOCK_64X64,
 };
 
 static void alloc_mode_context(AV1_COMMON *cm, int num_4x4_blk,

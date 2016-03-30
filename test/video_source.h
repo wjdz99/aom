@@ -20,8 +20,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
-#include "test/acm_random.h"
 #include "aom/aom_encoder.h"
+#include "test/acm_random.h"
 
 namespace libaom_test {
 
@@ -132,7 +132,10 @@ class VideoSource {
 class DummyVideoSource : public VideoSource {
  public:
   DummyVideoSource()
-      : img_(NULL), limit_(100), width_(80), height_(64),
+      : img_(NULL),
+        limit_(100),
+        width_(80),
+        height_(64),
         format_(AOM_IMG_FMT_I420) {
     ReallocImage();
   }
@@ -157,7 +160,7 @@ class DummyVideoSource : public VideoSource {
   virtual unsigned long duration() const { return 1; }
 
   virtual aom_rational_t timebase() const {
-    const aom_rational_t t = { 1, 30 };
+    const aom_rational_t t = {1, 30};
     return t;
   }
 

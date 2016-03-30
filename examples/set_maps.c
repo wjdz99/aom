@@ -47,8 +47,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "aom/aomcx.h"
 #include "aom/aom_encoder.h"
+#include "aom/aomcx.h"
 
 #include "../tools_common.h"
 #include "../video_writer.h"
@@ -97,7 +97,7 @@ static void set_roi_map(const aom_codec_enc_cfg_t *cfg,
 static void set_active_map(const aom_codec_enc_cfg_t *cfg,
                            aom_codec_ctx_t *codec) {
   unsigned int i;
-  aom_active_map_t map = { 0, 0, 0 };
+  aom_active_map_t map = {0, 0, 0};
 
   map.rows = (cfg->g_h + 15) / 16;
   map.cols = (cfg->g_w + 15) / 16;
@@ -113,7 +113,7 @@ static void set_active_map(const aom_codec_enc_cfg_t *cfg,
 
 static void unset_active_map(const aom_codec_enc_cfg_t *cfg,
                              aom_codec_ctx_t *codec) {
-  aom_active_map_t map = { 0, 0, 0 };
+  aom_active_map_t map = {0, 0, 0};
 
   map.rows = (cfg->g_h + 15) / 16;
   map.cols = (cfg->g_w + 15) / 16;

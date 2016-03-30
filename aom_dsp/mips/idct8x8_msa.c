@@ -44,7 +44,7 @@ void aom_idct8x8_12_add_msa(const int16_t *input, uint8_t *dst,
   v8i16 in0, in1, in2, in3, in4, in5, in6, in7;
   v8i16 s0, s1, s2, s3, s4, s5, s6, s7, k0, k1, k2, k3, m0, m1, m2, m3;
   v4i32 tmp0, tmp1, tmp2, tmp3;
-  v8i16 zero = { 0 };
+  v8i16 zero = {0};
 
   /* load vector elements of 8x8 block */
   LD_SH8(input, 8, in0, in1, in2, in3, in4, in5, in6, in7);

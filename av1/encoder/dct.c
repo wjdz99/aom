@@ -12,14 +12,14 @@
 #include <assert.h>
 #include <math.h>
 
-#include "./av1_rtcd.h"
 #include "./aom_config.h"
 #include "./aom_dsp_rtcd.h"
+#include "./av1_rtcd.h"
 
-#include "av1/common/blockd.h"
-#include "av1/common/idct.h"
 #include "aom_dsp/fwd_txfm.h"
 #include "aom_ports/mem.h"
+#include "av1/common/blockd.h"
+#include "av1/common/idct.h"
 
 static INLINE void range_check(const tran_low_t *input, const int size,
                                const int bit) {
@@ -968,28 +968,28 @@ static void fadst16(const tran_low_t *input, tran_low_t *output) {
 }
 
 static const transform_2d FHT_4[] = {
-  { fdct4, fdct4 },   // DCT_DCT  = 0
-  { fadst4, fdct4 },  // ADST_DCT = 1
-  { fdct4, fadst4 },  // DCT_ADST = 2
-  { fadst4, fadst4 }  // ADST_ADST = 3
+    {fdct4, fdct4},   // DCT_DCT  = 0
+    {fadst4, fdct4},  // ADST_DCT = 1
+    {fdct4, fadst4},  // DCT_ADST = 2
+    {fadst4, fadst4}  // ADST_ADST = 3
 };
 
 static const transform_2d FHT_8[] = {
-  { fdct8, fdct8 },   // DCT_DCT  = 0
-  { fadst8, fdct8 },  // ADST_DCT = 1
-  { fdct8, fadst8 },  // DCT_ADST = 2
-  { fadst8, fadst8 }  // ADST_ADST = 3
+    {fdct8, fdct8},   // DCT_DCT  = 0
+    {fadst8, fdct8},  // ADST_DCT = 1
+    {fdct8, fadst8},  // DCT_ADST = 2
+    {fadst8, fadst8}  // ADST_ADST = 3
 };
 
 static const transform_2d FHT_16[] = {
-  { fdct16, fdct16 },   // DCT_DCT  = 0
-  { fadst16, fdct16 },  // ADST_DCT = 1
-  { fdct16, fadst16 },  // DCT_ADST = 2
-  { fadst16, fadst16 }  // ADST_ADST = 3
+    {fdct16, fdct16},   // DCT_DCT  = 0
+    {fadst16, fdct16},  // ADST_DCT = 1
+    {fdct16, fadst16},  // DCT_ADST = 2
+    {fadst16, fadst16}  // ADST_ADST = 3
 };
 
 void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
-                   int tx_type) {
+                  int tx_type) {
   if (tx_type == DCT_DCT) {
     aom_fdct4x4_c(input, output, stride);
   } else {
@@ -1016,18 +1016,18 @@ void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
 }
 
 void av1_fdct8x8_quant_c(const int16_t *input, int stride,
-                          tran_low_t *coeff_ptr, intptr_t n_coeffs,
-                          int skip_block, const int16_t *zbin_ptr,
-                          const int16_t *round_ptr, const int16_t *quant_ptr,
-                          const int16_t *quant_shift_ptr,
-                          tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr,
-                          const int16_t *dequant_ptr, uint16_t *eob_ptr,
-                          const int16_t *scan, const int16_t *iscan
+                         tran_low_t *coeff_ptr, intptr_t n_coeffs,
+                         int skip_block, const int16_t *zbin_ptr,
+                         const int16_t *round_ptr, const int16_t *quant_ptr,
+                         const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
+                         tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr,
+                         uint16_t *eob_ptr, const int16_t *scan,
+                         const int16_t *iscan
 #if CONFIG_AOM_QM
-                          ,
-                          const qm_val_t *qm_ptr, const qm_val_t *iqm_ptr
+                         ,
+                         const qm_val_t *qm_ptr, const qm_val_t *iqm_ptr
 #endif
-                          ) {
+                         ) {
   int eob = -1;
 
   int i, j;
@@ -1142,7 +1142,7 @@ void av1_fdct8x8_quant_c(const int16_t *input, int stride,
 }
 
 void av1_fht8x8_c(const int16_t *input, tran_low_t *output, int stride,
-                   int tx_type) {
+                  int tx_type) {
   if (tx_type == DCT_DCT) {
     aom_fdct8x8_c(input, output, stride);
   } else {
@@ -1225,7 +1225,7 @@ void av1_fwht4x4_c(const int16_t *input, tran_low_t *output, int stride) {
 }
 
 void av1_fht16x16_c(const int16_t *input, tran_low_t *output, int stride,
-                     int tx_type) {
+                    int tx_type) {
   if (tx_type == DCT_DCT) {
     aom_fdct16x16_c(input, output, stride);
   } else {
@@ -1253,22 +1253,22 @@ void av1_fht16x16_c(const int16_t *input, tran_low_t *output, int stride,
 
 #if CONFIG_AOM_HIGHBITDEPTH
 void av1_highbd_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
-                          int tx_type) {
+                         int tx_type) {
   av1_fht4x4_c(input, output, stride, tx_type);
 }
 
 void av1_highbd_fht8x8_c(const int16_t *input, tran_low_t *output, int stride,
-                          int tx_type) {
+                         int tx_type) {
   av1_fht8x8_c(input, output, stride, tx_type);
 }
 
 void av1_highbd_fwht4x4_c(const int16_t *input, tran_low_t *output,
-                           int stride) {
+                          int stride) {
   av1_fwht4x4_c(input, output, stride);
 }
 
-void av1_highbd_fht16x16_c(const int16_t *input, tran_low_t *output,
-                            int stride, int tx_type) {
+void av1_highbd_fht16x16_c(const int16_t *input, tran_low_t *output, int stride,
+                           int tx_type) {
   av1_fht16x16_c(input, output, stride, tx_type);
 }
 #endif  // CONFIG_AOM_HIGHBITDEPTH

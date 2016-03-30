@@ -18,8 +18,8 @@ static void temporal_filter_apply_8size_msa(uint8_t *frm1_ptr, uint32_t stride,
                                             uint16_t *cnt) {
   uint32_t row;
   uint64_t f0, f1, f2, f3;
-  v16i8 frm2, frm1 = { 0 };
-  v16i8 frm4, frm3 = { 0 };
+  v16i8 frm2, frm1 = {0};
+  v16i8 frm4, frm3 = {0};
   v16u8 frm_r, frm_l;
   v8i16 frm2_r, frm2_l;
   v8i16 diff0, diff1, mod0_h, mod1_h;
@@ -146,7 +146,7 @@ static void temporal_filter_apply_16size_msa(uint8_t *frm1_ptr, uint32_t stride,
   uint32_t row;
   v16i8 frm1, frm2, frm3, frm4;
   v16u8 frm_r, frm_l;
-  v16i8 zero = { 0 };
+  v16i8 zero = {0};
   v8u16 frm2_r, frm2_l;
   v8i16 diff0, diff1, mod0_h, mod1_h;
   v4i32 cnst3, cnst16, filt_wt, strength;
@@ -267,10 +267,10 @@ static void temporal_filter_apply_16size_msa(uint8_t *frm1_ptr, uint32_t stride,
 }
 
 void av1_temporal_filter_apply_msa(uint8_t *frame1_ptr, uint32_t stride,
-                                    uint8_t *frame2_ptr, uint32_t blk_w,
-                                    uint32_t blk_h, int32_t strength,
-                                    int32_t filt_wgt, uint32_t *accu,
-                                    uint16_t *cnt) {
+                                   uint8_t *frame2_ptr, uint32_t blk_w,
+                                   uint32_t blk_h, int32_t strength,
+                                   int32_t filt_wgt, uint32_t *accu,
+                                   uint16_t *cnt) {
   if (8 == (blk_w * blk_h)) {
     temporal_filter_apply_8size_msa(frame1_ptr, stride, frame2_ptr, strength,
                                     filt_wgt, accu, cnt);
@@ -279,6 +279,6 @@ void av1_temporal_filter_apply_msa(uint8_t *frame1_ptr, uint32_t stride,
                                      filt_wgt, accu, cnt);
   } else {
     av1_temporal_filter_apply_c(frame1_ptr, stride, frame2_ptr, blk_w, blk_h,
-                                 strength, filt_wgt, accu, cnt);
+                                strength, filt_wgt, accu, cnt);
   }
 }

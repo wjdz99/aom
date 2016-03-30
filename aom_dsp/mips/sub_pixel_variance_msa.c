@@ -10,13 +10,13 @@
  */
 
 #include "./aom_dsp_rtcd.h"
-#include "aom_ports/mem.h"
 #include "aom_dsp/mips/macros_msa.h"
 #include "aom_dsp/variance.h"
+#include "aom_ports/mem.h"
 
 static const uint8_t bilinear_filters_msa[8][2] = {
-  { 128, 0 }, { 112, 16 }, { 96, 32 }, { 80, 48 },
-  { 64, 64 }, { 48, 80 },  { 32, 96 }, { 16, 112 },
+    {128, 0}, {112, 16}, {96, 32}, {80, 48},
+    {64, 64}, {48, 80},  {32, 96}, {16, 112},
 };
 
 #define CALC_MSE_AVG_B(src, ref, var, sub)                          \
@@ -45,10 +45,10 @@ static uint32_t avg_sse_diff_4width_msa(const uint8_t *src_ptr,
   int32_t ht_cnt;
   uint32_t src0, src1, src2, src3;
   uint32_t ref0, ref1, ref2, ref3;
-  v16u8 pred, src = { 0 };
-  v16u8 ref = { 0 };
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v16u8 pred, src = {0};
+  v16u8 ref = {0};
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     pred = LD_UB(sec_pred);
@@ -81,8 +81,8 @@ static uint32_t avg_sse_diff_8width_msa(const uint8_t *src_ptr,
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref2, ref3;
   v16u8 pred0, pred1;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB2(sec_pred, 16, pred0, pred1);
@@ -113,8 +113,8 @@ static uint32_t avg_sse_diff_16width_msa(const uint8_t *src_ptr,
                                          int32_t height, int32_t *diff) {
   int32_t ht_cnt;
   v16u8 src, ref, pred;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     pred = LD_UB(sec_pred);
@@ -168,8 +168,8 @@ static uint32_t avg_sse_diff_32width_msa(const uint8_t *src_ptr,
                                          int32_t height, int32_t *diff) {
   int32_t ht_cnt;
   v16u8 src0, src1, ref0, ref1, pred0, pred1;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB2(sec_pred, 16, pred0, pred1);
@@ -226,9 +226,9 @@ static uint32_t avg_sse_diff_32x64_msa(const uint8_t *src_ptr,
                                        const uint8_t *sec_pred, int32_t *diff) {
   int32_t ht_cnt;
   v16u8 src0, src1, ref0, ref1, pred0, pred1;
-  v8i16 avg0 = { 0 };
-  v8i16 avg1 = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg0 = {0};
+  v8i16 avg1 = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = 16; ht_cnt--;) {
     LD_UB2(sec_pred, 16, pred0, pred1);
@@ -288,9 +288,9 @@ static uint32_t avg_sse_diff_64x32_msa(const uint8_t *src_ptr,
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref2, ref3;
   v16u8 pred0, pred1, pred2, pred3;
-  v8i16 avg0 = { 0 };
-  v8i16 avg1 = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg0 = {0};
+  v8i16 avg1 = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = 16; ht_cnt--;) {
     LD_UB4(sec_pred, 16, pred0, pred1, pred2, pred3);
@@ -337,11 +337,11 @@ static uint32_t avg_sse_diff_64x64_msa(const uint8_t *src_ptr,
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref2, ref3;
   v16u8 pred0, pred1, pred2, pred3;
-  v8i16 avg0 = { 0 };
-  v8i16 avg1 = { 0 };
-  v8i16 avg2 = { 0 };
-  v8i16 avg3 = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg0 = {0};
+  v8i16 avg1 = {0};
+  v8i16 avg2 = {0};
+  v8i16 avg3 = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = 32; ht_cnt--;) {
     LD_UB4(sec_pred, 16, pred0, pred1, pred2, pred3);
@@ -386,12 +386,12 @@ static uint32_t sub_pixel_sse_diff_4width_h_msa(
   int16_t filtval;
   uint32_t loop_cnt;
   uint32_t ref0, ref1, ref2, ref3;
-  v16u8 filt0, ref = { 0 };
+  v16u8 filt0, ref = {0};
   v16i8 src0, src1, src2, src3;
-  v16i8 mask = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8 };
+  v16i8 mask = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8};
   v8u16 vec0, vec1, vec2, vec3;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter);
   filt0 = (v16u8)__msa_fill_h(filtval);
@@ -427,10 +427,10 @@ static uint32_t sub_pixel_sse_diff_8width_h_msa(
   uint32_t loop_cnt;
   v16u8 filt0, out, ref0, ref1, ref2, ref3;
   v16i8 src0, src1, src2, src3;
-  v16i8 mask = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8 };
+  v16i8 mask = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8};
   v8u16 vec0, vec1, vec2, vec3;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter);
   filt0 = (v16u8)__msa_fill_h(filtval);
@@ -467,12 +467,12 @@ static uint32_t sub_pixel_sse_diff_16width_h_msa(
   int16_t filtval;
   uint32_t loop_cnt;
   v16i8 src0, src1, src2, src3, src4, src5, src6, src7;
-  v16i8 mask = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8 };
+  v16i8 mask = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8};
   v16u8 dst0, dst1, dst2, dst3, filt0;
   v8u16 vec0, vec1, vec2, vec3, vec4, vec5, vec6, vec7;
   v8u16 out0, out1, out2, out3, out4, out5, out6, out7;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter);
   filt0 = (v16u8)__msa_fill_h(filtval);
@@ -552,11 +552,11 @@ static uint32_t sub_pixel_sse_diff_4width_v_msa(
   uint32_t ref0, ref1, ref2, ref3;
   v16u8 src0, src1, src2, src3, src4, out;
   v16u8 src10_r, src32_r, src21_r, src43_r;
-  v16u8 ref = { 0 };
+  v16u8 ref = {0};
   v16u8 src2110, src4332;
   v16u8 filt0;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
   v8u16 tmp0, tmp1;
 
   filtval = LH(filter);
@@ -598,8 +598,8 @@ static uint32_t sub_pixel_sse_diff_8width_v_msa(
   v8u16 vec0, vec1, vec2, vec3;
   v8u16 tmp0, tmp1, tmp2, tmp3;
   v16u8 filt0;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter);
   filt0 = (v16u8)__msa_fill_h(filtval);
@@ -642,8 +642,8 @@ static uint32_t sub_pixel_sse_diff_16width_v_msa(
   v16u8 vec0, vec1, vec2, vec3, vec4, vec5, vec6, vec7;
   v8u16 tmp0, tmp1, tmp2, tmp3;
   v16u8 filt0;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter);
   filt0 = (v16u8)__msa_fill_h(filtval);
@@ -734,13 +734,13 @@ static uint32_t sub_pixel_sse_diff_4width_hv_msa(
   uint32_t loop_cnt;
   uint32_t ref0, ref1, ref2, ref3;
   v16u8 src0, src1, src2, src3, src4;
-  v16u8 out, ref = { 0 };
+  v16u8 out, ref = {0};
   v16u8 filt_vt, filt_hz, vec0, vec1;
-  v16u8 mask = { 0, 1, 1, 2, 2, 3, 3, 4, 16, 17, 17, 18, 18, 19, 19, 20 };
+  v16u8 mask = {0, 1, 1, 2, 2, 3, 3, 4, 16, 17, 17, 18, 18, 19, 19, 20};
   v8u16 hz_out0, hz_out1, hz_out2, hz_out3, hz_out4;
   v8u16 tmp0, tmp1;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter_horiz);
   filt_hz = (v16u8)__msa_fill_h(filtval);
@@ -784,12 +784,12 @@ static uint32_t sub_pixel_sse_diff_8width_hv_msa(
   v16u8 ref0, ref1, ref2, ref3;
   v16u8 src0, src1, src2, src3, src4;
   v16u8 out0, out1;
-  v16u8 mask = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8 };
+  v16u8 mask = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8};
   v8u16 hz_out0, hz_out1;
   v8u16 tmp0, tmp1, tmp2, tmp3;
   v16u8 filt_vt, filt_hz, vec0;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter_horiz);
   filt_hz = (v16u8)__msa_fill_h(filtval);
@@ -841,11 +841,11 @@ static uint32_t sub_pixel_sse_diff_16width_hv_msa(
   v16u8 src0, src1, src2, src3, src4, src5, src6, src7;
   v16u8 ref0, ref1, ref2, ref3;
   v16u8 filt_hz, filt_vt, vec0, vec1;
-  v16u8 mask = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8 };
+  v16u8 mask = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8};
   v8u16 hz_out0, hz_out1, hz_out2, hz_out3;
   v8u16 tmp0, tmp1;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter_horiz);
   filt_hz = (v16u8)__msa_fill_h(filtval);
@@ -952,12 +952,12 @@ static uint32_t sub_pixel_avg_sse_diff_4width_h_msa(
   int16_t filtval;
   uint32_t loop_cnt;
   uint32_t ref0, ref1, ref2, ref3;
-  v16u8 out, pred, filt0, ref = { 0 };
+  v16u8 out, pred, filt0, ref = {0};
   v16i8 src0, src1, src2, src3;
-  v16i8 mask = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8 };
+  v16i8 mask = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8};
   v8u16 vec0, vec1, vec2, vec3;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter);
   filt0 = (v16u8)__msa_fill_h(filtval);
@@ -999,10 +999,10 @@ static uint32_t sub_pixel_avg_sse_diff_8width_h_msa(
   v16u8 out, pred, filt0;
   v16u8 ref0, ref1, ref2, ref3;
   v16i8 src0, src1, src2, src3;
-  v16i8 mask = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8 };
+  v16i8 mask = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8};
   v8u16 vec0, vec1, vec2, vec3;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter);
   filt0 = (v16u8)__msa_fill_h(filtval);
@@ -1047,14 +1047,14 @@ static uint32_t subpel_avg_ssediff_16w_h_msa(
   int16_t filtval;
   uint32_t loop_cnt;
   v16i8 src0, src1, src2, src3, src4, src5, src6, src7;
-  v16i8 mask = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8 };
+  v16i8 mask = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8};
   v16u8 dst0, dst1, dst2, dst3;
   v16u8 tmp0, tmp1, tmp2, tmp3;
   v16u8 pred0, pred1, pred2, pred3, filt0;
   v8u16 vec0, vec1, vec2, vec3, vec4, vec5, vec6, vec7;
   v8u16 out0, out1, out2, out3, out4, out5, out6, out7;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter);
   filt0 = (v16u8)__msa_fill_h(filtval);
@@ -1154,10 +1154,10 @@ static uint32_t sub_pixel_avg_sse_diff_4width_v_msa(
   uint32_t ref0, ref1, ref2, ref3;
   v16u8 src0, src1, src2, src3, src4;
   v16u8 src10_r, src32_r, src21_r, src43_r;
-  v16u8 out, pred, ref = { 0 };
+  v16u8 out, pred, ref = {0};
   v16u8 src2110, src4332, filt0;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
   v8u16 tmp0, tmp1;
 
   filtval = LH(filter);
@@ -1204,8 +1204,8 @@ static uint32_t sub_pixel_avg_sse_diff_8width_v_msa(
   v16u8 pred0, pred1, filt0;
   v8u16 vec0, vec1, vec2, vec3;
   v8u16 tmp0, tmp1, tmp2, tmp3;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter);
   filt0 = (v16u8)__msa_fill_h(filtval);
@@ -1252,8 +1252,8 @@ static uint32_t subpel_avg_ssediff_16w_v_msa(
   v16u8 out0, out1, out2, out3, filt0;
   v8u16 vec0, vec1, vec2, vec3, vec4, vec5, vec6, vec7;
   v8u16 tmp0, tmp1, tmp2, tmp3;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter);
   filt0 = (v16u8)__msa_fill_h(filtval);
@@ -1364,12 +1364,12 @@ static uint32_t sub_pixel_avg_sse_diff_4width_hv_msa(
   uint32_t loop_cnt;
   uint32_t ref0, ref1, ref2, ref3;
   v16u8 src0, src1, src2, src3, src4;
-  v16u8 mask = { 0, 1, 1, 2, 2, 3, 3, 4, 16, 17, 17, 18, 18, 19, 19, 20 };
+  v16u8 mask = {0, 1, 1, 2, 2, 3, 3, 4, 16, 17, 17, 18, 18, 19, 19, 20};
   v16u8 filt_hz, filt_vt, vec0, vec1;
-  v16u8 out, pred, ref = { 0 };
+  v16u8 out, pred, ref = {0};
   v8u16 hz_out0, hz_out1, hz_out2, hz_out3, hz_out4, tmp0, tmp1;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter_horiz);
   filt_hz = (v16u8)__msa_fill_h(filtval);
@@ -1417,10 +1417,10 @@ static uint32_t sub_pixel_avg_sse_diff_8width_hv_msa(
   v16u8 src0, src1, src2, src3, src4;
   v16u8 pred0, pred1, out0, out1;
   v16u8 filt_hz, filt_vt, vec0;
-  v16u8 mask = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8 };
+  v16u8 mask = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8};
   v8u16 hz_out0, hz_out1, tmp0, tmp1, tmp2, tmp3;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter_horiz);
   filt_hz = (v16u8)__msa_fill_h(filtval);
@@ -1483,10 +1483,10 @@ static uint32_t subpel_avg_ssediff_16w_hv_msa(
   v16u8 pred0, pred1, pred2, pred3;
   v16u8 out0, out1, out2, out3;
   v16u8 filt_hz, filt_vt, vec0, vec1;
-  v16u8 mask = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8 };
+  v16u8 mask = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8};
   v8u16 hz_out0, hz_out1, hz_out2, hz_out3, tmp0, tmp1;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   filtval = LH(filter_horiz);
   filt_hz = (v16u8)__msa_fill_h(filtval);

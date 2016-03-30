@@ -9,10 +9,10 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "av1/encoder/encodeframe.h"
-#include "av1/encoder/encoder.h"
 #include "av1/encoder/ethread.h"
 #include "aom_dsp/aom_dsp_common.h"
+#include "av1/encoder/encodeframe.h"
+#include "av1/encoder/encoder.h"
 
 static void accumulate_rd_opt(ThreadData *td, ThreadData *td_t) {
   int i, j, k, l, m, n;

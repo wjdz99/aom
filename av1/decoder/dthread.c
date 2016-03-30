@@ -9,10 +9,10 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include "av1/decoder/dthread.h"
 #include "./aom_config.h"
 #include "aom_mem/aom_mem.h"
 #include "av1/common/reconinter.h"
-#include "av1/decoder/dthread.h"
 #include "av1/decoder/decoder.h"
 
 // #define DEBUG_THREAD
@@ -61,7 +61,7 @@ void av1_frameworker_signal_stats(AVxWorker *const worker) {
 
 // TODO(hkuang): Remove worker parameter as it is only used in debug code.
 void av1_frameworker_wait(AVxWorker *const worker, RefCntBuffer *const ref_buf,
-                           int row) {
+                          int row) {
 #if CONFIG_MULTITHREAD
   if (!ref_buf) return;
 
@@ -135,7 +135,7 @@ void av1_frameworker_broadcast(RefCntBuffer *const buf, int row) {
 }
 
 void av1_frameworker_copy_context(AVxWorker *const dst_worker,
-                                   AVxWorker *const src_worker) {
+                                  AVxWorker *const src_worker) {
 #if CONFIG_MULTITHREAD
   FrameWorkerData *const src_worker_data = (FrameWorkerData *)src_worker->data1;
   FrameWorkerData *const dst_worker_data = (FrameWorkerData *)dst_worker->data1;

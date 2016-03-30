@@ -12,9 +12,9 @@
 #include <emmintrin.h>  // SSE2
 
 #include "./av1_rtcd.h"
-#include "av1/common/av1_fwd_txfm.h"
 #include "aom_dsp/txfm_common.h"
 #include "aom_dsp/x86/txfm_common_sse2.h"
+#include "av1/common/av1_fwd_txfm.h"
 
 // TODO(jingning) The high bit-depth version needs re-work for performance.
 // The current SSE2 implementation also causes cross reference to the static

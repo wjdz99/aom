@@ -12,9 +12,9 @@
 #include <assert.h>
 
 #include "./aom_config.h"
-#include "aom_scale/yv12config.h"
 #include "aom_mem/aom_mem.h"
 #include "aom_scale/aom_scale.h"
+#include "aom_scale/yv12config.h"
 
 #if HAVE_DSPR2
 static void extend_plane(uint8_t *const src, int src_stride, int width,

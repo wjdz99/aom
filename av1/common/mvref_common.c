@@ -162,10 +162,10 @@ Done:
 }
 
 void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                       MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
-                       int_mv *mv_ref_list, int mi_row, int mi_col,
-                       find_mv_refs_sync sync, void *const data,
-                       uint8_t *mode_context) {
+                      MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
+                      int_mv *mv_ref_list, int mi_row, int mi_col,
+                      find_mv_refs_sync sync, void *const data,
+                      uint8_t *mode_context) {
   find_mv_refs_idx(cm, xd, mi, ref_frame, mv_ref_list, -1, mi_row, mi_col, sync,
                    data, mode_context);
 }
@@ -179,7 +179,7 @@ static void lower_mv_precision(MV *mv, int allow_hp) {
 }
 
 void av1_find_best_ref_mvs(int allow_hp, int_mv *mvlist, int_mv *nearest_mv,
-                            int_mv *near_mv) {
+                           int_mv *near_mv) {
   int i;
   // Make sure all the candidates are properly clamped etc
   for (i = 0; i < MAX_MV_REF_CANDIDATES; ++i) {
@@ -190,9 +190,9 @@ void av1_find_best_ref_mvs(int allow_hp, int_mv *mvlist, int_mv *nearest_mv,
 }
 
 void av1_append_sub8x8_mvs_for_idx(AV1_COMMON *cm, MACROBLOCKD *xd, int block,
-                                    int ref, int mi_row, int mi_col,
-                                    int_mv *nearest_mv, int_mv *near_mv,
-                                    uint8_t *mode_context) {
+                                   int ref, int mi_row, int mi_col,
+                                   int_mv *nearest_mv, int_mv *near_mv,
+                                   uint8_t *mode_context) {
   int_mv mv_list[MAX_MV_REF_CANDIDATES];
   MODE_INFO *const mi = xd->mi[0];
   b_mode_info *bmi = mi->bmi;
@@ -233,6 +233,7 @@ void av1_append_sub8x8_mvs_for_idx(AV1_COMMON *cm, MACROBLOCKD *xd, int block,
         }
       break;
     }
-    default: assert(0 && "Invalid block index.");
+    default:
+      assert(0 && "Invalid block index.");
   }
 }

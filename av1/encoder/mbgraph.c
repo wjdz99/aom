@@ -11,17 +11,17 @@
 
 #include <limits.h>
 
-#include "./av1_rtcd.h"
 #include "./aom_dsp_rtcd.h"
+#include "./av1_rtcd.h"
 
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/system_state.h"
-#include "av1/encoder/segmentation.h"
-#include "av1/encoder/mcomp.h"
 #include "av1/common/blockd.h"
 #include "av1/common/reconinter.h"
 #include "av1/common/reconintra.h"
+#include "av1/encoder/mcomp.h"
+#include "av1/encoder/segmentation.h"
 
 static unsigned int do_16x16_motion_iteration(AV1_COMP *cpi, const MV *ref_mv,
                                               MV *dst_mv, int mb_row,
@@ -49,7 +49,7 @@ static unsigned int do_16x16_motion_iteration(AV1_COMP *cpi, const MV *ref_mv,
 
   /*cpi->sf.search_method == HEX*/
   av1_hex_search(x, &ref_full, step_param, x->errorperbit, 0,
-                  cond_cost_list(cpi, cost_list), &v_fn_ptr, 0, ref_mv, dst_mv);
+                 cond_cost_list(cpi, cost_list), &v_fn_ptr, 0, ref_mv, dst_mv);
 
   // Try sub-pixel MC
   // if (bestsme > error_thresh && bestsme < INT_MAX)
@@ -103,7 +103,7 @@ static int do_16x16_motion_search(AV1_COMP *cpi, const MV *ref_mv,
   // based search as well.
   if (ref_mv->row != 0 || ref_mv->col != 0) {
     unsigned int tmp_err;
-    MV zero_ref_mv = { 0, 0 }, tmp_mv;
+    MV zero_ref_mv = {0, 0}, tmp_mv;
 
     tmp_err =
         do_16x16_motion_iteration(cpi, &zero_ref_mv, &tmp_mv, mb_row, mb_col);
@@ -143,8 +143,8 @@ static int find_best_16x16_intra(AV1_COMP *cpi, PREDICTION_MODE *pbest_mode) {
 
     xd->mi[0]->mbmi.mode = mode;
     av1_predict_intra_block(xd, 2, 2, TX_16X16, mode, x->plane[0].src.buf,
-                             x->plane[0].src.stride, xd->plane[0].dst.buf,
-                             xd->plane[0].dst.stride, 0, 0, 0);
+                            x->plane[0].src.stride, xd->plane[0].dst.buf,
+                            xd->plane[0].dst.stride, 0, 0, 0);
     err = aom_sad16x16(x->plane[0].src.buf, x->plane[0].src.stride,
                        xd->plane[0].dst.buf, xd->plane[0].dst.stride);
 
@@ -224,7 +224,7 @@ static void update_mbgraph_frame_stats(AV1_COMP *cpi,
 
   int mb_col, mb_row, offset = 0;
   int mb_y_offset = 0, arf_y_offset = 0, gld_y_offset = 0;
-  MV gld_top_mv = { 0, 0 };
+  MV gld_top_mv = {0, 0};
   MODE_INFO mi_local;
 
   av1_zero(mi_local);
@@ -284,7 +284,7 @@ static void separate_arf_mbs(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   int mb_col, mb_row, offset, i;
   int mi_row, mi_col;
-  int ncnt[4] = { 0 };
+  int ncnt[4] = {0};
   int n_frames = cpi->mbgraph_n_frames;
 
   int *arf_not_zz;

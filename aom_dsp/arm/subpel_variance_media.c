@@ -15,10 +15,9 @@
 #include "aom_ports/mem.h"
 
 #if HAVE_MEDIA
-static const int16_t bilinear_filters_media[8][2] = { { 128, 0 }, { 112, 16 },
-                                                      { 96, 32 }, { 80, 48 },
-                                                      { 64, 64 }, { 48, 80 },
-                                                      { 32, 96 }, { 16, 112 } };
+static const int16_t bilinear_filters_media[8][2] = {
+    {128, 0}, {112, 16}, {96, 32}, {80, 48},
+    {64, 64}, {48, 80},  {32, 96}, {16, 112}};
 
 extern void aom_filter_block2d_bil_first_pass_media(
     const uint8_t *src_ptr, uint16_t *dst_ptr, uint32_t src_pitch,

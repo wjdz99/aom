@@ -30,8 +30,12 @@ static unsigned int MemGetLe32(const uint8_t *mem) {
 class IVFVideoSource : public CompressedVideoSource {
  public:
   explicit IVFVideoSource(const std::string &file_name)
-      : file_name_(file_name), input_file_(NULL), compressed_frame_buf_(NULL),
-        frame_sz_(0), frame_(0), end_of_file_(false) {}
+      : file_name_(file_name),
+        input_file_(NULL),
+        compressed_frame_buf_(NULL),
+        frame_sz_(0),
+        frame_(0),
+        end_of_file_(false) {}
 
   virtual ~IVFVideoSource() {
     delete[] compressed_frame_buf_;

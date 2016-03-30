@@ -15,8 +15,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "include/aom_mem_intrnl.h"
 #include "aom/aom_integer.h"
+#include "include/aom_mem_intrnl.h"
 
 void *aom_memalign(size_t align, size_t size) {
   void *addr, *x = NULL;

@@ -14,13 +14,12 @@
 #include "aom_dsp/mips/aom_convolve_msa.h"
 
 const uint8_t mc_filt_mask_arr[16 * 3] = {
-  /* 8 width cases */
-  0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8,
-  /* 4 width cases */
-  0, 1, 1, 2, 2, 3, 3, 4, 16, 17, 17, 18, 18, 19, 19, 20,
-  /* 4 width cases */
-  8, 9, 9, 10, 10, 11, 11, 12, 24, 25, 25, 26, 26, 27, 27, 28
-};
+    /* 8 width cases */
+    0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8,
+    /* 4 width cases */
+    0, 1, 1, 2, 2, 3, 3, 4, 16, 17, 17, 18, 18, 19, 19, 20,
+    /* 4 width cases */
+    8, 9, 9, 10, 10, 11, 11, 12, 24, 25, 25, 26, 26, 27, 27, 28};
 
 static void common_hv_8ht_8vt_4w_msa(const uint8_t *src, int32_t src_stride,
                                      uint8_t *dst, int32_t dst_stride,

@@ -39,8 +39,8 @@
  */
 
 #if CONFIG_MULTITHREAD && defined(_WIN32)
-#include <windows.h>
 #include <stdlib.h>
+#include <windows.h>
 /* Declare a per-compilation-unit state variable to track the progress
  * of calling func() only once. This must be at global scope because
  * local initializers are not thread-safe in MSVC prior to Visual

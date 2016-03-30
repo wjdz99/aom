@@ -9,16 +9,16 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "./av1_rtcd.h"
 #include "./aom_config.h"
 #include "./aom_dsp_rtcd.h"
-#include "av1/common/common.h"
-#include "av1/common/filter.h"
+#include "./av1_rtcd.h"
 #include "aom/aom_integer.h"
 #include "aom_dsp/aom_convolve.h"
 #include "aom_dsp/aom_filter.h"
 #include "aom_ports/mem.h"
 #include "aom_ports/system_state.h"
+#include "av1/common/common.h"
+#include "av1/common/filter.h"
 
 static int horizontal_filter(const uint8_t *s) {
   return (s[1] - s[-2]) * 2 + (s[-1] - s[0]) * 6;
@@ -121,8 +121,8 @@ static int blockiness_horizontal(const uint8_t *s, int sp, const uint8_t *r,
 // This function returns the blockiness for the entire frame currently by
 // looking at all borders in steps of 4.
 double av1_get_blockiness(const unsigned char *img1, int img1_pitch,
-                           const unsigned char *img2, int img2_pitch, int width,
-                           int height) {
+                          const unsigned char *img2, int img2_pitch, int width,
+                          int height) {
   double blockiness = 0;
   int i, j;
   aom_clear_system_state();

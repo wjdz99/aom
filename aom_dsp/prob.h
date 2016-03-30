@@ -72,9 +72,8 @@ static INLINE aom_prob merge_probs(aom_prob pre_prob, const unsigned int ct[2],
 
 // MODE_MV_MAX_UPDATE_FACTOR (128) * count / MODE_MV_COUNT_SAT;
 static const int count_to_update_factor[MODE_MV_COUNT_SAT + 1] = {
-  0,  6,  12, 19, 25, 32,  38,  44,  51,  57, 64,
-  70, 76, 83, 89, 96, 102, 108, 115, 121, 128
-};
+    0,  6,  12, 19, 25, 32,  38,  44,  51,  57, 64,
+    70, 76, 83, 89, 96, 102, 108, 115, 121, 128};
 
 static INLINE aom_prob mode_mv_merge_probs(aom_prob pre_prob,
                                            const unsigned int ct[2]) {

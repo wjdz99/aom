@@ -12,14 +12,14 @@
 #ifndef AOM_DSP_BITREADER_H_
 #define AOM_DSP_BITREADER_H_
 
-#include <stddef.h>
 #include <limits.h>
+#include <stddef.h>
 
 #include "./aom_config.h"
-#include "aom_ports/mem.h"
-#include "aom/aomdx.h"
 #include "aom/aom_integer.h"
+#include "aom/aomdx.h"
 #include "aom_dsp/prob.h"
+#include "aom_ports/mem.h"
 
 #ifdef __cplusplus
 extern "C" {

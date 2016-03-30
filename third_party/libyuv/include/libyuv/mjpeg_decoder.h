@@ -66,10 +66,8 @@ struct SetJmpErrorMgr;
 // See http://tools.ietf.org/html/rfc2435
 class LIBYUV_API MJpegDecoder {
  public:
-  typedef void (*CallbackFunction)(void* opaque,
-                                   const uint8* const* data,
-                                   const int* strides,
-                                   int rows);
+  typedef void (*CallbackFunction)(void* opaque, const uint8* const* data,
+                                   const int* strides, int rows);
 
   static const int kColorSpaceUnknown;
   static const int kColorSpaceGrayscale;
@@ -146,12 +144,12 @@ class LIBYUV_API MJpegDecoder {
   // callback function. Each call will get the data for a whole number of
   // image scanlines.
   // TODO(fbarchard): Add dst_x, dst_y to allow specific rect to be decoded.
-  LIBYUV_BOOL DecodeToCallback(CallbackFunction fn, void* opaque,
-                        int dst_width, int dst_height);
+  LIBYUV_BOOL DecodeToCallback(CallbackFunction fn, void* opaque, int dst_width,
+                               int dst_height);
 
   // The helper function which recognizes the jpeg sub-sampling type.
   static JpegSubsamplingType JpegSubsamplingTypeHelper(
-     int* subsample_x, int* subsample_y, int number_of_components);
+      int* subsample_x, int* subsample_y, int number_of_components);
 
  private:
   void AllocOutputBuffers(int num_outbufs);

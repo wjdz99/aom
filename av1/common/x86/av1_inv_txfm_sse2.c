@@ -9,8 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "./av1_rtcd.h"
 #include "av1/common/x86/av1_inv_txfm_sse2.h"
+#include "./av1_rtcd.h"
 #include "aom_dsp/x86/txfm_common_sse2.h"
 
 #define RECON_AND_STORE4X4(dest, in_x)                    \
@@ -1160,7 +1160,7 @@ void av1_idct8x8_12_add_sse2(const int16_t *input, uint8_t *dest, int stride) {
   }
 
 void av1_idct16x16_256_add_sse2(const int16_t *input, uint8_t *dest,
-                                 int stride) {
+                                int stride) {
   const __m128i rounding = _mm_set1_epi32(DCT_CONST_ROUNDING);
   const __m128i final_rounding = _mm_set1_epi16(1 << 5);
   const __m128i zero = _mm_setzero_si128();
@@ -1284,8 +1284,7 @@ void av1_idct16x16_256_add_sse2(const int16_t *input, uint8_t *dest,
   }
 }
 
-void av1_idct16x16_1_add_sse2(const int16_t *input, uint8_t *dest,
-                               int stride) {
+void av1_idct16x16_1_add_sse2(const int16_t *input, uint8_t *dest, int stride) {
   __m128i dc_value;
   const __m128i zero = _mm_setzero_si128();
   int a, i;
@@ -2144,7 +2143,7 @@ void av1_iadst16_sse2(__m128i *in0, __m128i *in1) {
 }
 
 void av1_idct16x16_10_add_sse2(const int16_t *input, uint8_t *dest,
-                                int stride) {
+                               int stride) {
   const __m128i rounding = _mm_set1_epi32(DCT_CONST_ROUNDING);
   const __m128i final_rounding = _mm_set1_epi16(1 << 5);
   const __m128i zero = _mm_setzero_si128();
@@ -3018,7 +3017,7 @@ void av1_idct16x16_10_add_sse2(const int16_t *input, uint8_t *dest,
 
 // Only upper-left 8x8 has non-zero coeff
 void av1_idct32x32_34_add_sse2(const int16_t *input, uint8_t *dest,
-                                int stride) {
+                               int stride) {
   const __m128i rounding = _mm_set1_epi32(DCT_CONST_ROUNDING);
   const __m128i final_rounding = _mm_set1_epi16(1 << 5);
 
@@ -3175,7 +3174,7 @@ void av1_idct32x32_34_add_sse2(const int16_t *input, uint8_t *dest,
 }
 
 void av1_idct32x32_1024_add_sse2(const int16_t *input, uint8_t *dest,
-                                  int stride) {
+                                 int stride) {
   const __m128i rounding = _mm_set1_epi32(DCT_CONST_ROUNDING);
   const __m128i final_rounding = _mm_set1_epi16(1 << 5);
   const __m128i zero = _mm_setzero_si128();
@@ -3448,8 +3447,7 @@ void av1_idct32x32_1024_add_sse2(const int16_t *input, uint8_t *dest,
   }
 }
 
-void av1_idct32x32_1_add_sse2(const int16_t *input, uint8_t *dest,
-                               int stride) {
+void av1_idct32x32_1_add_sse2(const int16_t *input, uint8_t *dest, int stride) {
   __m128i dc_value;
   const __m128i zero = _mm_setzero_si128();
   int a, i;
@@ -3484,7 +3482,7 @@ static INLINE __m128i clamp_high_sse2(__m128i value, int bd) {
 }
 
 void av1_highbd_idct4x4_16_add_sse2(const tran_low_t *input, uint8_t *dest8,
-                                     int stride, int bd) {
+                                    int stride, int bd) {
   tran_low_t out[4 * 4];
   tran_low_t *outptr = out;
   int i, j;
@@ -3599,7 +3597,7 @@ void av1_highbd_idct4x4_16_add_sse2(const tran_low_t *input, uint8_t *dest8,
 }
 
 void av1_highbd_idct8x8_64_add_sse2(const tran_low_t *input, uint8_t *dest8,
-                                     int stride, int bd) {
+                                    int stride, int bd) {
   tran_low_t out[8 * 8];
   tran_low_t *outptr = out;
   int i, j, test;
@@ -3699,8 +3697,8 @@ void av1_highbd_idct8x8_64_add_sse2(const tran_low_t *input, uint8_t *dest8,
 }
 
 void av1_highbd_idct8x8_10_add_sse2(const tran_low_t *input, uint8_t *dest8,
-                                     int stride, int bd) {
-  tran_low_t out[8 * 8] = { 0 };
+                                    int stride, int bd) {
+  tran_low_t out[8 * 8] = {0};
   tran_low_t *outptr = out;
   int i, j, test;
   __m128i inptr[8];
@@ -3802,7 +3800,7 @@ void av1_highbd_idct8x8_10_add_sse2(const tran_low_t *input, uint8_t *dest8,
 }
 
 void av1_highbd_idct16x16_256_add_sse2(const tran_low_t *input, uint8_t *dest8,
-                                        int stride, int bd) {
+                                       int stride, int bd) {
   tran_low_t out[16 * 16];
   tran_low_t *outptr = out;
   int i, j, test;
@@ -3915,8 +3913,8 @@ void av1_highbd_idct16x16_256_add_sse2(const tran_low_t *input, uint8_t *dest8,
 }
 
 void av1_highbd_idct16x16_10_add_sse2(const tran_low_t *input, uint8_t *dest8,
-                                       int stride, int bd) {
-  tran_low_t out[16 * 16] = { 0 };
+                                      int stride, int bd) {
+  tran_low_t out[16 * 16] = {0};
   tran_low_t *outptr = out;
   int i, j, test;
   __m128i inptr[32];

@@ -332,7 +332,7 @@ void aom_iadst16_1d_columns_addblk_msa(int16_t *input, uint8_t *dst,
   v8i16 res8, res9, res10, res11, res12, res13, res14, res15;
   v16u8 dst0, dst1, dst2, dst3, dst4, dst5, dst6, dst7;
   v16u8 dst8, dst9, dst10, dst11, dst12, dst13, dst14, dst15;
-  v16i8 zero = { 0 };
+  v16i8 zero = {0};
 
   r0 = LD_SH(input + 0 * 16);
   r3 = LD_SH(input + 3 * 16);

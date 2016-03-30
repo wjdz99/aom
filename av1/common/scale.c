@@ -9,10 +9,10 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "./aom_dsp_rtcd.h"
-#include "av1/common/filter.h"
 #include "av1/common/scale.h"
+#include "./aom_dsp_rtcd.h"
 #include "aom_dsp/aom_filter.h"
+#include "av1/common/filter.h"
 
 static INLINE int scaled_x(int val, const struct scale_factors *sf) {
   return (int)((int64_t)val * sf->x_scale_fp >> REF_SCALE_SHIFT);
@@ -38,18 +38,18 @@ static int get_fixed_point_scale_factor(int other_size, int this_size) {
 MV32 av1_scale_mv(const MV *mv, int x, int y, const struct scale_factors *sf) {
   const int x_off_q4 = scaled_x(x << SUBPEL_BITS, sf) & SUBPEL_MASK;
   const int y_off_q4 = scaled_y(y << SUBPEL_BITS, sf) & SUBPEL_MASK;
-  const MV32 res = { scaled_y(mv->row, sf) + y_off_q4,
-                     scaled_x(mv->col, sf) + x_off_q4 };
+  const MV32 res = {scaled_y(mv->row, sf) + y_off_q4,
+                    scaled_x(mv->col, sf) + x_off_q4};
   return res;
 }
 
 #if CONFIG_AOM_HIGHBITDEPTH
 void av1_setup_scale_factors_for_frame(struct scale_factors *sf, int other_w,
-                                        int other_h, int this_w, int this_h,
-                                        int use_highbd) {
+                                       int other_h, int this_w, int this_h,
+                                       int use_highbd) {
 #else
 void av1_setup_scale_factors_for_frame(struct scale_factors *sf, int other_w,
-                                        int other_h, int this_w, int this_h) {
+                                       int other_h, int this_w, int this_h) {
 #endif
   if (!valid_ref_frame_size(other_w, other_h, this_w, this_h)) {
     sf->x_scale_fp = REF_INVALID_SCALE;

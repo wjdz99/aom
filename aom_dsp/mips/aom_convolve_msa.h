@@ -12,8 +12,8 @@
 #ifndef AOM_DSP_MIPS_AOM_CONVOLVE_MSA_H_
 #define AOM_DSP_MIPS_AOM_CONVOLVE_MSA_H_
 
-#include "aom_dsp/mips/macros_msa.h"
 #include "aom_dsp/aom_filter.h"
+#include "aom_dsp/mips/macros_msa.h"
 
 extern const uint8_t mc_filt_mask_arr[16 * 3];
 

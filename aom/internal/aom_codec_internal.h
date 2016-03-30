@@ -43,9 +43,9 @@
  */
 #ifndef AOM_INTERNAL_AOM_CODEC_INTERNAL_H_
 #define AOM_INTERNAL_AOM_CODEC_INTERNAL_H_
+#include <stdarg.h>
 #include "../aom_decoder.h"
 #include "../aom_encoder.h"
-#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -416,8 +416,8 @@ int aom_codec_pkt_list_add(struct aom_codec_pkt_list *,
 const aom_codec_cx_pkt_t *aom_codec_pkt_list_get(
     struct aom_codec_pkt_list *list, aom_codec_iter_t *iter);
 
-#include <stdio.h>
 #include <setjmp.h>
+#include <stdio.h>
 
 struct aom_internal_error_info {
   aom_codec_err_t error_code;

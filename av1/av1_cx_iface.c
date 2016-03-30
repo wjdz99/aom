@@ -13,14 +13,14 @@
 #include <string.h>
 
 #include "./aom_config.h"
-#include "aom/aom_encoder.h"
-#include "aom_ports/aom_once.h"
-#include "aom/internal/aom_codec_internal.h"
 #include "./aom_version.h"
-#include "av1/encoder/encoder.h"
+#include "aom/aom_encoder.h"
 #include "aom/aomcx.h"
-#include "av1/encoder/firstpass.h"
+#include "aom/internal/aom_codec_internal.h"
+#include "aom_ports/aom_once.h"
 #include "av1/av1_iface_common.h"
+#include "av1/encoder/encoder.h"
+#include "av1/encoder/firstpass.h"
 
 struct av1_extracfg {
   int cpu_used;  // available cpu percentage in 1/16
@@ -57,37 +57,37 @@ struct av1_extracfg {
 };
 
 static struct av1_extracfg default_extra_cfg = {
-  0,              // cpu_used
-  1,              // enable_auto_alt_ref
-  0,              // noise_sensitivity
-  0,              // sharpness
-  0,              // static_thresh
-  6,              // tile_columns
-  0,              // tile_rows
-  7,              // arnr_max_frames
-  5,              // arnr_strength
-  0,              // min_gf_interval; 0 -> default decision
-  0,              // max_gf_interval; 0 -> default decision
-  AOM_TUNE_PSNR,  // tuning
-  10,             // cq_level
-  0,              // rc_max_intra_bitrate_pct
-  0,              // rc_max_inter_bitrate_pct
-  0,              // gf_cbr_boost_pct
-  0,              // lossless
+    0,              // cpu_used
+    1,              // enable_auto_alt_ref
+    0,              // noise_sensitivity
+    0,              // sharpness
+    0,              // static_thresh
+    6,              // tile_columns
+    0,              // tile_rows
+    7,              // arnr_max_frames
+    5,              // arnr_strength
+    0,              // min_gf_interval; 0 -> default decision
+    0,              // max_gf_interval; 0 -> default decision
+    AOM_TUNE_PSNR,  // tuning
+    10,             // cq_level
+    0,              // rc_max_intra_bitrate_pct
+    0,              // rc_max_inter_bitrate_pct
+    0,              // gf_cbr_boost_pct
+    0,              // lossless
 #if CONFIG_AOM_QM
-  0,                 // enable_qm
-  DEFAULT_QM_FIRST,  // qm_min
-  DEFAULT_QM_LAST,   // qm_max
+    0,                 // enable_qm
+    DEFAULT_QM_FIRST,  // qm_min
+    DEFAULT_QM_LAST,   // qm_max
 #endif
-  1,                    // frame_parallel_decoding_mode
-  NO_AQ,                // aq_mode
-  0,                    // frame_periodic_delta_q
-  AOM_BITS_8,           // Bit depth
-  AOM_CONTENT_DEFAULT,  // content
-  AOM_CS_UNKNOWN,       // color space
-  0,                    // color range
-  0,                    // render width
-  0,                    // render height
+    1,                    // frame_parallel_decoding_mode
+    NO_AQ,                // aq_mode
+    0,                    // frame_periodic_delta_q
+    AOM_BITS_8,           // Bit depth
+    AOM_CONTENT_DEFAULT,  // content
+    AOM_CS_UNKNOWN,       // color space
+    0,                    // color range
+    0,                    // render width
+    0,                    // render height
 };
 
 struct aom_codec_alg_priv {
@@ -117,9 +117,12 @@ struct aom_codec_alg_priv {
 
 static AOM_REFFRAME ref_frame_to_av1_reframe(aom_ref_frame_type_t frame) {
   switch (frame) {
-    case AOM_LAST_FRAME: return AOM_LAST_FLAG;
-    case AOM_GOLD_FRAME: return AOM_GOLD_FLAG;
-    case AOM_ALTR_FRAME: return AOM_ALT_FLAG;
+    case AOM_LAST_FRAME:
+      return AOM_LAST_FLAG;
+    case AOM_GOLD_FRAME:
+      return AOM_GOLD_FLAG;
+    case AOM_ALTR_FRAME:
+      return AOM_ALT_FLAG;
   }
   assert(0 && "Invalid Reference Frame");
   return AOM_LAST_FLAG;
@@ -280,7 +283,8 @@ static aom_codec_err_t validate_img(aom_codec_alg_priv_t *ctx,
   switch (img->fmt) {
     case AOM_IMG_FMT_YV12:
     case AOM_IMG_FMT_I420:
-    case AOM_IMG_FMT_I42016: break;
+    case AOM_IMG_FMT_I42016:
+      break;
     case AOM_IMG_FMT_I422:
     case AOM_IMG_FMT_I444:
     case AOM_IMG_FMT_I440:
@@ -316,15 +320,25 @@ static aom_codec_err_t validate_img(aom_codec_alg_priv_t *ctx,
 static int get_image_bps(const aom_image_t *img) {
   switch (img->fmt) {
     case AOM_IMG_FMT_YV12:
-    case AOM_IMG_FMT_I420: return 12;
-    case AOM_IMG_FMT_I422: return 16;
-    case AOM_IMG_FMT_I444: return 24;
-    case AOM_IMG_FMT_I440: return 16;
-    case AOM_IMG_FMT_I42016: return 24;
-    case AOM_IMG_FMT_I42216: return 32;
-    case AOM_IMG_FMT_I44416: return 48;
-    case AOM_IMG_FMT_I44016: return 32;
-    default: assert(0 && "Invalid image format"); break;
+    case AOM_IMG_FMT_I420:
+      return 12;
+    case AOM_IMG_FMT_I422:
+      return 16;
+    case AOM_IMG_FMT_I444:
+      return 24;
+    case AOM_IMG_FMT_I440:
+      return 16;
+    case AOM_IMG_FMT_I42016:
+      return 24;
+    case AOM_IMG_FMT_I42216:
+      return 32;
+    case AOM_IMG_FMT_I44416:
+      return 48;
+    case AOM_IMG_FMT_I44016:
+      return 32;
+    default:
+      assert(0 && "Invalid image format");
+      break;
   }
   return 0;
 }
@@ -346,9 +360,15 @@ static aom_codec_err_t set_encoder_config(
   oxcf->mode = GOOD;
 
   switch (cfg->g_pass) {
-    case AOM_RC_ONE_PASS: oxcf->pass = 0; break;
-    case AOM_RC_FIRST_PASS: oxcf->pass = 1; break;
-    case AOM_RC_LAST_PASS: oxcf->pass = 2; break;
+    case AOM_RC_ONE_PASS:
+      oxcf->pass = 0;
+      break;
+    case AOM_RC_FIRST_PASS:
+      oxcf->pass = 1;
+      break;
+    case AOM_RC_LAST_PASS:
+      oxcf->pass = 2;
+      break;
   }
 
   oxcf->lag_in_frames =
@@ -651,7 +671,7 @@ static aom_codec_err_t ctrl_set_lossless(aom_codec_alg_priv_t *ctx,
 
 #if CONFIG_AOM_QM
 static aom_codec_err_t ctrl_set_enable_qm(aom_codec_alg_priv_t *ctx,
-                                         va_list args) {
+                                          va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.enable_qm = CAST(AV1E_SET_ENABLE_QM, args);
   return update_extra_cfg(ctx, &extra_cfg);
@@ -790,8 +810,11 @@ static void pick_quickcompress_mode(aom_codec_alg_priv_t *ctx,
         new_mode = BEST;
       }
       break;
-    case AOM_RC_FIRST_PASS: break;
-    case AOM_RC_LAST_PASS: new_mode = deadline > 0 ? GOOD : BEST; break;
+    case AOM_RC_FIRST_PASS:
+      break;
+    case AOM_RC_LAST_PASS:
+      new_mode = deadline > 0 ? GOOD : BEST;
+      break;
   }
 
   if (ctx->oxcf.mode != new_mode) {
@@ -972,7 +995,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       // Store the original flags in to the frame buffer. Will extract the
       // key frame flag when we actually encode this frame.
       if (av1_receive_raw_frame(cpi, flags | ctx->next_frame_flags, &sd,
-                                 dst_time_stamp, dst_end_time_stamp)) {
+                                dst_time_stamp, dst_end_time_stamp)) {
         res = update_error_state(ctx, &cpi->common.error);
       }
       ctx->next_frame_flags = 0;
@@ -999,8 +1022,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
     while (cx_data_sz >= ctx->cx_data_sz / 2 &&
            -1 != av1_get_compressed_data(cpi, &lib_flags, &size, cx_data,
-                                          &dst_time_stamp, &dst_end_time_stamp,
-                                          !img)) {
+                                         &dst_time_stamp, &dst_end_time_stamp,
+                                         !img)) {
       if (size) {
         aom_codec_cx_pkt_t pkt;
 
@@ -1094,8 +1117,8 @@ static aom_codec_err_t ctrl_set_reference(aom_codec_alg_priv_t *ctx,
     YV12_BUFFER_CONFIG sd;
 
     image2yuvconfig(&frame->img, &sd);
-    av1_set_reference_enc(ctx->cpi,
-                           ref_frame_to_av1_reframe(frame->frame_type), &sd);
+    av1_set_reference_enc(ctx->cpi, ref_frame_to_av1_reframe(frame->frame_type),
+                          &sd);
     return AOM_CODEC_OK;
   } else {
     return AOM_CODEC_INVALID_PARAM;
@@ -1111,7 +1134,7 @@ static aom_codec_err_t ctrl_copy_reference(aom_codec_alg_priv_t *ctx,
 
     image2yuvconfig(&frame->img, &sd);
     av1_copy_reference_enc(ctx->cpi,
-                            ref_frame_to_av1_reframe(frame->frame_type), &sd);
+                           ref_frame_to_av1_reframe(frame->frame_type), &sd);
     return AOM_CODEC_OK;
   } else {
     return AOM_CODEC_INVALID_PARAM;
@@ -1166,7 +1189,7 @@ static aom_codec_err_t ctrl_set_active_map(aom_codec_alg_priv_t *ctx,
 
   if (map) {
     if (!av1_set_active_map(ctx->cpi, map->active_map, (int)map->rows,
-                             (int)map->cols))
+                            (int)map->cols))
       return AOM_CODEC_OK;
     else
       return AOM_CODEC_INVALID_PARAM;
@@ -1181,7 +1204,7 @@ static aom_codec_err_t ctrl_get_active_map(aom_codec_alg_priv_t *ctx,
 
   if (map) {
     if (!av1_get_active_map(ctx->cpi, map->active_map, (int)map->rows,
-                             (int)map->cols))
+                            (int)map->cols))
       return AOM_CODEC_OK;
     else
       return AOM_CODEC_INVALID_PARAM;
@@ -1197,7 +1220,7 @@ static aom_codec_err_t ctrl_set_scale_mode(aom_codec_alg_priv_t *ctx,
   if (mode) {
     const int res =
         av1_set_internal_size(ctx->cpi, (AOM_SCALING)mode->h_scaling_mode,
-                               (AOM_SCALING)mode->v_scaling_mode);
+                              (AOM_SCALING)mode->v_scaling_mode);
     return (res == 0) ? AOM_CODEC_OK : AOM_CODEC_INVALID_PARAM;
   } else {
     return AOM_CODEC_INVALID_PARAM;
@@ -1245,151 +1268,150 @@ static aom_codec_err_t ctrl_set_render_size(aom_codec_alg_priv_t *ctx,
 }
 
 static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
-  { AOM_COPY_REFERENCE, ctrl_copy_reference },
+    {AOM_COPY_REFERENCE, ctrl_copy_reference},
 
-  // Setters
-  { AOM_SET_REFERENCE, ctrl_set_reference },
-  { AOM_SET_POSTPROC, ctrl_set_previewpp },
-  { AOME_SET_ROI_MAP, ctrl_set_roi_map },
-  { AOME_SET_ACTIVEMAP, ctrl_set_active_map },
-  { AOME_SET_SCALEMODE, ctrl_set_scale_mode },
-  { AOME_SET_CPUUSED, ctrl_set_cpuused },
-  { AOME_SET_ENABLEAUTOALTREF, ctrl_set_enable_auto_alt_ref },
-  { AOME_SET_SHARPNESS, ctrl_set_sharpness },
-  { AOME_SET_STATIC_THRESHOLD, ctrl_set_static_thresh },
-  { AV1E_SET_TILE_COLUMNS, ctrl_set_tile_columns },
-  { AV1E_SET_TILE_ROWS, ctrl_set_tile_rows },
-  { AOME_SET_ARNR_MAXFRAMES, ctrl_set_arnr_max_frames },
-  { AOME_SET_ARNR_STRENGTH, ctrl_set_arnr_strength },
-  { AOME_SET_ARNR_TYPE, ctrl_set_arnr_type },
-  { AOME_SET_TUNING, ctrl_set_tuning },
-  { AOME_SET_CQ_LEVEL, ctrl_set_cq_level },
-  { AOME_SET_MAX_INTRA_BITRATE_PCT, ctrl_set_rc_max_intra_bitrate_pct },
-  { AV1E_SET_MAX_INTER_BITRATE_PCT, ctrl_set_rc_max_inter_bitrate_pct },
-  { AV1E_SET_GF_CBR_BOOST_PCT, ctrl_set_rc_gf_cbr_boost_pct },
-  { AV1E_SET_LOSSLESS, ctrl_set_lossless },
+    // Setters
+    {AOM_SET_REFERENCE, ctrl_set_reference},
+    {AOM_SET_POSTPROC, ctrl_set_previewpp},
+    {AOME_SET_ROI_MAP, ctrl_set_roi_map},
+    {AOME_SET_ACTIVEMAP, ctrl_set_active_map},
+    {AOME_SET_SCALEMODE, ctrl_set_scale_mode},
+    {AOME_SET_CPUUSED, ctrl_set_cpuused},
+    {AOME_SET_ENABLEAUTOALTREF, ctrl_set_enable_auto_alt_ref},
+    {AOME_SET_SHARPNESS, ctrl_set_sharpness},
+    {AOME_SET_STATIC_THRESHOLD, ctrl_set_static_thresh},
+    {AV1E_SET_TILE_COLUMNS, ctrl_set_tile_columns},
+    {AV1E_SET_TILE_ROWS, ctrl_set_tile_rows},
+    {AOME_SET_ARNR_MAXFRAMES, ctrl_set_arnr_max_frames},
+    {AOME_SET_ARNR_STRENGTH, ctrl_set_arnr_strength},
+    {AOME_SET_ARNR_TYPE, ctrl_set_arnr_type},
+    {AOME_SET_TUNING, ctrl_set_tuning},
+    {AOME_SET_CQ_LEVEL, ctrl_set_cq_level},
+    {AOME_SET_MAX_INTRA_BITRATE_PCT, ctrl_set_rc_max_intra_bitrate_pct},
+    {AV1E_SET_MAX_INTER_BITRATE_PCT, ctrl_set_rc_max_inter_bitrate_pct},
+    {AV1E_SET_GF_CBR_BOOST_PCT, ctrl_set_rc_gf_cbr_boost_pct},
+    {AV1E_SET_LOSSLESS, ctrl_set_lossless},
 #if CONFIG_AOM_QM
-  { AV1E_SET_ENABLE_QM, ctrl_set_enable_qm },
-  { AV1E_SET_QM_MIN, ctrl_set_qm_min },
-  { AV1E_SET_QM_MAX, ctrl_set_qm_max },
+    {AV1E_SET_ENABLE_QM, ctrl_set_enable_qm},
+    {AV1E_SET_QM_MIN, ctrl_set_qm_min},
+    {AV1E_SET_QM_MAX, ctrl_set_qm_max},
 #endif
-  { AV1E_SET_FRAME_PARALLEL_DECODING, ctrl_set_frame_parallel_decoding_mode },
-  { AV1E_SET_AQ_MODE, ctrl_set_aq_mode },
-  { AV1E_SET_FRAME_PERIODIC_BOOST, ctrl_set_frame_periodic_boost },
-  { AV1E_REGISTER_CX_CALLBACK, ctrl_register_cx_callback },
-  { AV1E_SET_TUNE_CONTENT, ctrl_set_tune_content },
-  { AV1E_SET_COLOR_SPACE, ctrl_set_color_space },
-  { AV1E_SET_COLOR_RANGE, ctrl_set_color_range },
-  { AV1E_SET_NOISE_SENSITIVITY, ctrl_set_noise_sensitivity },
-  { AV1E_SET_MIN_GF_INTERVAL, ctrl_set_min_gf_interval },
-  { AV1E_SET_MAX_GF_INTERVAL, ctrl_set_max_gf_interval },
-  { AV1E_SET_RENDER_SIZE, ctrl_set_render_size },
+    {AV1E_SET_FRAME_PARALLEL_DECODING, ctrl_set_frame_parallel_decoding_mode},
+    {AV1E_SET_AQ_MODE, ctrl_set_aq_mode},
+    {AV1E_SET_FRAME_PERIODIC_BOOST, ctrl_set_frame_periodic_boost},
+    {AV1E_REGISTER_CX_CALLBACK, ctrl_register_cx_callback},
+    {AV1E_SET_TUNE_CONTENT, ctrl_set_tune_content},
+    {AV1E_SET_COLOR_SPACE, ctrl_set_color_space},
+    {AV1E_SET_COLOR_RANGE, ctrl_set_color_range},
+    {AV1E_SET_NOISE_SENSITIVITY, ctrl_set_noise_sensitivity},
+    {AV1E_SET_MIN_GF_INTERVAL, ctrl_set_min_gf_interval},
+    {AV1E_SET_MAX_GF_INTERVAL, ctrl_set_max_gf_interval},
+    {AV1E_SET_RENDER_SIZE, ctrl_set_render_size},
 
-  // Getters
-  { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },
-  { AOME_GET_LAST_QUANTIZER_64, ctrl_get_quantizer64 },
-  { AV1_GET_REFERENCE, ctrl_get_reference },
-  { AV1E_GET_ACTIVEMAP, ctrl_get_active_map },
+    // Getters
+    {AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer},
+    {AOME_GET_LAST_QUANTIZER_64, ctrl_get_quantizer64},
+    {AV1_GET_REFERENCE, ctrl_get_reference},
+    {AV1E_GET_ACTIVEMAP, ctrl_get_active_map},
 
-  { -1, NULL },
+    {-1, NULL},
 };
 
 static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
-  { 0,
-    {
-        // NOLINT
-        0,  // g_usage
-        8,  // g_threads
-        0,  // g_profile
+    {0,
+     {
+         // NOLINT
+         0,  // g_usage
+         8,  // g_threads
+         0,  // g_profile
 
-        320,         // g_width
-        240,         // g_height
-        AOM_BITS_8,  // g_bit_depth
-        8,           // g_input_bit_depth
+         320,         // g_width
+         240,         // g_height
+         AOM_BITS_8,  // g_bit_depth
+         8,           // g_input_bit_depth
 
-        { 1, 30 },  // g_timebase
+         {1, 30},  // g_timebase
 
-        0,  // g_error_resilient
+         0,  // g_error_resilient
 
-        AOM_RC_ONE_PASS,  // g_pass
+         AOM_RC_ONE_PASS,  // g_pass
 
-        25,  // g_lag_in_frames
+         25,  // g_lag_in_frames
 
-        0,   // rc_dropframe_thresh
-        0,   // rc_resize_allowed
-        0,   // rc_scaled_width
-        0,   // rc_scaled_height
-        60,  // rc_resize_down_thresold
-        30,  // rc_resize_up_thresold
+         0,   // rc_dropframe_thresh
+         0,   // rc_resize_allowed
+         0,   // rc_scaled_width
+         0,   // rc_scaled_height
+         60,  // rc_resize_down_thresold
+         30,  // rc_resize_up_thresold
 
-        AOM_VBR,      // rc_end_usage
-        { NULL, 0 },  // rc_twopass_stats_in
-        { NULL, 0 },  // rc_firstpass_mb_stats_in
-        256,          // rc_target_bandwidth
-        0,            // rc_min_quantizer
-        63,           // rc_max_quantizer
-        25,           // rc_undershoot_pct
-        25,           // rc_overshoot_pct
+         AOM_VBR,    // rc_end_usage
+         {NULL, 0},  // rc_twopass_stats_in
+         {NULL, 0},  // rc_firstpass_mb_stats_in
+         256,        // rc_target_bandwidth
+         0,          // rc_min_quantizer
+         63,         // rc_max_quantizer
+         25,         // rc_undershoot_pct
+         25,         // rc_overshoot_pct
 
-        6000,  // rc_max_buffer_size
-        4000,  // rc_buffer_initial_size
-        5000,  // rc_buffer_optimal_size
+         6000,  // rc_max_buffer_size
+         4000,  // rc_buffer_initial_size
+         5000,  // rc_buffer_optimal_size
 
-        50,    // rc_two_pass_vbrbias
-        0,     // rc_two_pass_vbrmin_section
-        2000,  // rc_two_pass_vbrmax_section
+         50,    // rc_two_pass_vbrbias
+         0,     // rc_two_pass_vbrmin_section
+         2000,  // rc_two_pass_vbrmax_section
 
-        // keyframing settings (kf)
-        AOM_KF_AUTO,  // g_kfmode
-        0,            // kf_min_dist
-        9999,         // kf_max_dist
+         // keyframing settings (kf)
+         AOM_KF_AUTO,  // g_kfmode
+         0,            // kf_min_dist
+         9999,         // kf_max_dist
 
-        // TODO(yunqingwang): Spatial/temporal scalability are not supported
-        // in AV1. The following 10 parameters are not used, which should
-        // be removed later.
-        1,  // ss_number_layers
-        { 0 },
-        { 0 },  // ss_target_bitrate
-        1,      // ts_number_layers
-        { 0 },  // ts_target_bitrate
-        { 0 },  // ts_rate_decimator
-        0,      // ts_periodicity
-        { 0 },  // ts_layer_id
-        { 0 },  // layer_taget_bitrate
-        0       // temporal_layering_mode
-    } },
+         // TODO(yunqingwang): Spatial/temporal scalability are not supported
+         // in AV1. The following 10 parameters are not used, which should
+         // be removed later.
+         1,  // ss_number_layers
+         {0},
+         {0},  // ss_target_bitrate
+         1,    // ts_number_layers
+         {0},  // ts_target_bitrate
+         {0},  // ts_rate_decimator
+         0,    // ts_periodicity
+         {0},  // ts_layer_id
+         {0},  // layer_taget_bitrate
+         0     // temporal_layering_mode
+     }},
 };
 
 #ifndef VERSION_STRING
 #define VERSION_STRING
 #endif
 CODEC_INTERFACE(aom_codec_av1_cx) = {
-  "AOMedia Project AV1 Encoder" VERSION_STRING,
-  AOM_CODEC_INTERNAL_ABI_VERSION,
+    "AOMedia Project AV1 Encoder" VERSION_STRING,
+    AOM_CODEC_INTERNAL_ABI_VERSION,
 #if CONFIG_AOM_HIGHBITDEPTH
-  AOM_CODEC_CAP_HIGHBITDEPTH |
+    AOM_CODEC_CAP_HIGHBITDEPTH |
 #endif
-      AOM_CODEC_CAP_ENCODER | AOM_CODEC_CAP_PSNR,  // aom_codec_caps_t
-  encoder_init,                                    // aom_codec_init_fn_t
-  encoder_destroy,                                 // aom_codec_destroy_fn_t
-  encoder_ctrl_maps,                               // aom_codec_ctrl_fn_map_t
-  {
-      // NOLINT
-      NULL,  // aom_codec_peek_si_fn_t
-      NULL,  // aom_codec_get_si_fn_t
-      NULL,  // aom_codec_decode_fn_t
-      NULL,  // aom_codec_frame_get_fn_t
-      NULL   // aom_codec_set_fb_fn_t
-  },
-  {
-      // NOLINT
-      1,                      // 1 cfg map
-      encoder_usage_cfg_map,  // aom_codec_enc_cfg_map_t
-      encoder_encode,         // aom_codec_encode_fn_t
-      encoder_get_cxdata,     // aom_codec_get_cx_data_fn_t
-      encoder_set_config,     // aom_codec_enc_config_set_fn_t
-      NULL,                   // aom_codec_get_global_headers_fn_t
-      encoder_get_preview,    // aom_codec_get_preview_frame_fn_t
-      NULL                    // aom_codec_enc_mr_get_mem_loc_fn_t
-  }
-};
+        AOM_CODEC_CAP_ENCODER | AOM_CODEC_CAP_PSNR,  // aom_codec_caps_t
+    encoder_init,                                    // aom_codec_init_fn_t
+    encoder_destroy,                                 // aom_codec_destroy_fn_t
+    encoder_ctrl_maps,                               // aom_codec_ctrl_fn_map_t
+    {
+        // NOLINT
+        NULL,  // aom_codec_peek_si_fn_t
+        NULL,  // aom_codec_get_si_fn_t
+        NULL,  // aom_codec_decode_fn_t
+        NULL,  // aom_codec_frame_get_fn_t
+        NULL   // aom_codec_set_fb_fn_t
+    },
+    {
+        // NOLINT
+        1,                      // 1 cfg map
+        encoder_usage_cfg_map,  // aom_codec_enc_cfg_map_t
+        encoder_encode,         // aom_codec_encode_fn_t
+        encoder_get_cxdata,     // aom_codec_get_cx_data_fn_t
+        encoder_set_config,     // aom_codec_enc_config_set_fn_t
+        NULL,                   // aom_codec_get_global_headers_fn_t
+        encoder_get_preview,    // aom_codec_get_preview_frame_fn_t
+        NULL                    // aom_codec_enc_mr_get_mem_loc_fn_t
+    }};

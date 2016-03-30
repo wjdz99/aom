@@ -12,8 +12,8 @@
 #include <emmintrin.h>  // SSE2
 
 #include "./aom_dsp_rtcd.h"
-#include "aom_ports/mem.h"
 #include "aom_ports/emmintrin_compat.h"
+#include "aom_ports/mem.h"
 
 static INLINE __m128i abs_diff(__m128i a, __m128i b) {
   return _mm_or_si128(_mm_subs_epu8(a, b), _mm_subs_epu8(b, a));

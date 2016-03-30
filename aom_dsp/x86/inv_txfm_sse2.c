@@ -9,8 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "./aom_dsp_rtcd.h"
 #include "aom_dsp/x86/inv_txfm_sse2.h"
+#include "./aom_dsp_rtcd.h"
 #include "aom_dsp/x86/txfm_common_sse2.h"
 
 #define RECON_AND_STORE4X4(dest, in_x)                    \
@@ -3704,7 +3704,7 @@ void aom_highbd_idct8x8_64_add_sse2(const tran_low_t *input, uint8_t *dest8,
 
 void aom_highbd_idct8x8_10_add_sse2(const tran_low_t *input, uint8_t *dest8,
                                     int stride, int bd) {
-  tran_low_t out[8 * 8] = { 0 };
+  tran_low_t out[8 * 8] = {0};
   tran_low_t *outptr = out;
   int i, j, test;
   __m128i inptr[8];
@@ -3920,7 +3920,7 @@ void aom_highbd_idct16x16_256_add_sse2(const tran_low_t *input, uint8_t *dest8,
 
 void aom_highbd_idct16x16_10_add_sse2(const tran_low_t *input, uint8_t *dest8,
                                       int stride, int bd) {
-  tran_low_t out[16 * 16] = { 0 };
+  tran_low_t out[16 * 16] = {0};
   tran_low_t *outptr = out;
   int i, j, test;
   __m128i inptr[32];

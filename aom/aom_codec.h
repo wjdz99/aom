@@ -43,8 +43,8 @@
 extern "C" {
 #endif
 
-#include "./aom_integer.h"
 #include "./aom_image.h"
+#include "./aom_integer.h"
 
 /*!\brief Decorator indicating a function is deprecated */
 #ifndef DEPRECATED

@@ -364,9 +364,8 @@ static void mb_lpf_horizontal_edge_w_avx2_8(unsigned char *s, int p,
 }
 
 DECLARE_ALIGNED(32, static const uint8_t, filt_loopfilter_avx2[32]) = {
-  0, 128, 1, 128, 2,  128, 3,  128, 4,  128, 5,  128, 6,  128, 7,  128,
-  8, 128, 9, 128, 10, 128, 11, 128, 12, 128, 13, 128, 14, 128, 15, 128
-};
+    0, 128, 1, 128, 2,  128, 3,  128, 4,  128, 5,  128, 6,  128, 7,  128,
+    8, 128, 9, 128, 10, 128, 11, 128, 12, 128, 13, 128, 14, 128, 15, 128};
 
 static void mb_lpf_horizontal_edge_w_avx2_16(unsigned char *s, int p,
                                              const unsigned char *_blimit,

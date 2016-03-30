@@ -15,17 +15,17 @@
  */
 
 #include <assert.h>
-#include <math.h>
 #include <limits.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #define AOM_DISABLE_CTRL_TYPECHECKS 1
 #include "./aom_config.h"
-#include "aom/svc_context.h"
-#include "aom/aomcx.h"
 #include "aom/aom_encoder.h"
+#include "aom/aomcx.h"
+#include "aom/svc_context.h"
 #include "aom_mem/aom_mem.h"
 #include "av1/common/onyxc_int.h"
 
@@ -48,11 +48,11 @@ _CRTIMP char *__cdecl strtok_s(char *str, const char *delim, char **context);
 
 #define MAX_QUANTIZER 63
 
-static const int DEFAULT_SCALE_FACTORS_NUM[AOM_SS_MAX_LAYERS] = { 4, 5, 7, 11,
-                                                                  16 };
+static const int DEFAULT_SCALE_FACTORS_NUM[AOM_SS_MAX_LAYERS] = {4, 5, 7, 11,
+                                                                 16};
 
-static const int DEFAULT_SCALE_FACTORS_DEN[AOM_SS_MAX_LAYERS] = { 16, 16, 16,
-                                                                  16, 16 };
+static const int DEFAULT_SCALE_FACTORS_DEN[AOM_SS_MAX_LAYERS] = {16, 16, 16, 16,
+                                                                 16};
 
 typedef enum {
   QUANTIZER = 0,
@@ -62,10 +62,10 @@ typedef enum {
   ALL_OPTION_TYPES
 } LAYER_OPTION_TYPE;
 
-static const int option_max_values[ALL_OPTION_TYPES] = { 63, INT_MAX, INT_MAX,
-                                                         1 };
+static const int option_max_values[ALL_OPTION_TYPES] = {63, INT_MAX, INT_MAX,
+                                                        1};
 
-static const int option_min_values[ALL_OPTION_TYPES] = { 0, 0, 1, 0 };
+static const int option_min_values[ALL_OPTION_TYPES] = {0, 0, 1, 0};
 
 // One encoded frame
 typedef struct FrameData {
@@ -308,7 +308,7 @@ void assign_layer_bitrates(const SvcContext *svc_ctx,
       }
     } else {
       float total = 0;
-      float alloc_ratio[AOM_MAX_LAYERS] = { 0 };
+      float alloc_ratio[AOM_MAX_LAYERS] = {0};
 
       for (sl = 0; sl < svc_ctx->spatial_layers; ++sl) {
         if (si->svc_params.scaling_factor_den[sl] > 0) {
@@ -351,7 +351,7 @@ void assign_layer_bitrates(const SvcContext *svc_ctx,
       }
     } else {
       float total = 0;
-      float alloc_ratio[AOM_MAX_LAYERS] = { 0 };
+      float alloc_ratio[AOM_MAX_LAYERS] = {0};
 
       for (i = 0; i < svc_ctx->spatial_layers; ++i) {
         if (si->svc_params.scaling_factor_den[i] > 0) {

@@ -70,7 +70,7 @@ class TwopassStatsStore {
   }
 
   aom_fixed_buf_t buf() {
-    const aom_fixed_buf_t buf = { &buffer_[0], buffer_.size() };
+    const aom_fixed_buf_t buf = {&buffer_[0], buffer_.size()};
     return buf;
   }
 
@@ -180,7 +180,10 @@ class Encoder {
 class EncoderTest {
  protected:
   explicit EncoderTest(const CodecFactory *codec)
-      : codec_(codec), abort_(false), init_flags_(0), frame_flags_(0),
+      : codec_(codec),
+        abort_(false),
+        init_flags_(0),
+        frame_flags_(0),
         last_pts_(0) {
     // Default to 1 thread.
     cfg_.g_threads = 1;

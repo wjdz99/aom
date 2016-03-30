@@ -12,8 +12,8 @@
 #ifndef AV1_ENCODER_COST_H_
 #define AV1_ENCODER_COST_H_
 
-#include "aom_dsp/prob.h"
 #include "aom/aom_integer.h"
+#include "aom_dsp/prob.h"
 
 #ifdef __cplusplus
 extern "C" {

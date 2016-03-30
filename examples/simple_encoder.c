@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
   int frame_count = 0;
   aom_image_t raw;
   aom_codec_err_t res;
-  AvxVideoInfo info = { 0 };
+  AvxVideoInfo info = {0};
   AvxVideoWriter *writer = NULL;
   const AvxInterface *encoder = NULL;
   const int fps = 30;       // TODO(dkovalev) add command line argument

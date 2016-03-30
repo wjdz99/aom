@@ -19,8 +19,8 @@
 
 #include "av1/common/alloccommon.h"
 #include "av1/common/entropymode.h"
-#include "av1/common/thread_common.h"
 #include "av1/common/onyxc_int.h"
+#include "av1/common/thread_common.h"
 
 #include "av1/encoder/aq_cyclicrefresh.h"
 #include "av1/encoder/context_tree.h"
@@ -38,8 +38,8 @@
 #if CONFIG_INTERNAL_STATS
 #include "aom_dsp/ssim.h"
 #endif
-#include "aom_dsp/variance.h"
 #include "aom/internal/aom_codec_internal.h"
+#include "aom_dsp/variance.h"
 #include "aom_util/aom_thread.h"
 
 #ifdef __cplusplus
@@ -490,7 +490,7 @@ typedef struct AV1_COMP {
 void av1_initialize_enc(void);
 
 struct AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
-                                         BufferPool *const pool);
+                                       BufferPool *const pool);
 void av1_remove_compressor(AV1_COMP *cpi);
 
 void av1_change_config(AV1_COMP *cpi, const AV1EncoderConfig *oxcf);
@@ -498,12 +498,12 @@ void av1_change_config(AV1_COMP *cpi, const AV1EncoderConfig *oxcf);
 // receive a frames worth of data. caller can assume that a copy of this
 // frame is made and not just a copy of the pointer..
 int av1_receive_raw_frame(AV1_COMP *cpi, unsigned int frame_flags,
-                           YV12_BUFFER_CONFIG *sd, int64_t time_stamp,
-                           int64_t end_time_stamp);
+                          YV12_BUFFER_CONFIG *sd, int64_t time_stamp,
+                          int64_t end_time_stamp);
 
 int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
-                             size_t *size, uint8_t *dest, int64_t *time_stamp,
-                             int64_t *time_end, int flush);
+                            size_t *size, uint8_t *dest, int64_t *time_stamp,
+                            int64_t *time_end, int flush);
 
 int av1_get_preview_raw_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *dest);
 
@@ -512,10 +512,10 @@ int av1_use_as_reference(AV1_COMP *cpi, int ref_frame_flags);
 void av1_update_reference(AV1_COMP *cpi, int ref_frame_flags);
 
 int av1_copy_reference_enc(AV1_COMP *cpi, AOM_REFFRAME ref_frame_flag,
-                            YV12_BUFFER_CONFIG *sd);
+                           YV12_BUFFER_CONFIG *sd);
 
 int av1_set_reference_enc(AV1_COMP *cpi, AOM_REFFRAME ref_frame_flag,
-                           YV12_BUFFER_CONFIG *sd);
+                          YV12_BUFFER_CONFIG *sd);
 
 int av1_update_entropy(AV1_COMP *cpi, int update);
 
@@ -524,10 +524,10 @@ int av1_set_active_map(AV1_COMP *cpi, unsigned char *map, int rows, int cols);
 int av1_get_active_map(AV1_COMP *cpi, unsigned char *map, int rows, int cols);
 
 int av1_set_internal_size(AV1_COMP *cpi, AOM_SCALING horiz_mode,
-                           AOM_SCALING vert_mode);
+                          AOM_SCALING vert_mode);
 
 int av1_set_size_literal(AV1_COMP *cpi, unsigned int width,
-                          unsigned int height);
+                         unsigned int height);
 
 int av1_get_quantizer(struct AV1_COMP *cpi);
 
@@ -580,11 +580,10 @@ static INLINE int allocated_tokens(TileInfo tile) {
   return get_token_alloc(tile_mb_rows, tile_mb_cols);
 }
 
-int64_t av1_get_y_sse(const YV12_BUFFER_CONFIG *a,
-                       const YV12_BUFFER_CONFIG *b);
+int64_t av1_get_y_sse(const YV12_BUFFER_CONFIG *a, const YV12_BUFFER_CONFIG *b);
 #if CONFIG_AOM_HIGHBITDEPTH
 int64_t av1_highbd_get_y_sse(const YV12_BUFFER_CONFIG *a,
-                              const YV12_BUFFER_CONFIG *b);
+                             const YV12_BUFFER_CONFIG *b);
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
 void av1_alloc_compressor_data(AV1_COMP *cpi);
@@ -596,12 +595,12 @@ void av1_update_reference_frames(AV1_COMP *cpi);
 void av1_set_high_precision_mv(AV1_COMP *cpi, int allow_high_precision_mv);
 
 YV12_BUFFER_CONFIG *av1_scale_if_required_fast(AV1_COMMON *cm,
-                                                YV12_BUFFER_CONFIG *unscaled,
-                                                YV12_BUFFER_CONFIG *scaled);
+                                               YV12_BUFFER_CONFIG *unscaled,
+                                               YV12_BUFFER_CONFIG *scaled);
 
 YV12_BUFFER_CONFIG *av1_scale_if_required(AV1_COMMON *cm,
-                                           YV12_BUFFER_CONFIG *unscaled,
-                                           YV12_BUFFER_CONFIG *scaled);
+                                          YV12_BUFFER_CONFIG *unscaled,
+                                          YV12_BUFFER_CONFIG *scaled);
 
 void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags);
 

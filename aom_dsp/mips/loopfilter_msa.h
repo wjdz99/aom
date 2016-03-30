@@ -126,7 +126,7 @@
 #define AOM_FLAT4(p3_in, p2_in, p0_in, q0_in, q2_in, q3_in, flat_out) \
   {                                                                   \
     v16u8 tmp, p2_a_sub_p0, q2_a_sub_q0, p3_a_sub_p0, q3_a_sub_q0;    \
-    v16u8 zero_in = { 0 };                                            \
+    v16u8 zero_in = {0};                                              \
                                                                       \
     tmp = __msa_ori_b(zero_in, 1);                                    \
     p2_a_sub_p0 = __msa_asub_u_b(p2_in, p0_in);                       \
@@ -147,7 +147,7 @@
 #define AOM_FLAT5(p7_in, p6_in, p5_in, p4_in, p0_in, q0_in, q4_in, q5_in, \
                   q6_in, q7_in, flat_in, flat2_out)                       \
   {                                                                       \
-    v16u8 tmp, zero_in = { 0 };                                           \
+    v16u8 tmp, zero_in = {0};                                             \
     v16u8 p4_a_sub_p0, q4_a_sub_q0, p5_a_sub_p0, q5_a_sub_q0;             \
     v16u8 p6_a_sub_p0, q6_a_sub_q0, p7_a_sub_p0, q7_a_sub_q0;             \
                                                                           \
