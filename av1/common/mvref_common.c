@@ -215,6 +215,8 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   int idx, nearest_refmv_count = 0;
   CANDIDATE_MV tmp_mv;
   int len, nr_len;
+  const MV_REF *const prev_frame_mvs = cm->use_prev_frame_mvs ?
+      cm->prev_frame->mvs + mi_row * cm->mi_cols + mi_col : NULL;
   const int bs = AOMMAX(xd->n8_w, xd->n8_h);
   const int has_tr = has_top_right(xd, mi_row, mi_col, bs);
 
@@ -235,6 +237,26 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                   -1, 1, ref_mv_stack, refmv_count);
 
   nearest_refmv_count = *refmv_count;
+
+  if (prev_frame_mvs && cm->show_frame && cm->last_show_frame) {
+    int ref;
+    for (ref = 0; ref < 2; ++ref) {
+      if (prev_frame_mvs->ref_frame[ref] == ref_frame) {
+        for (idx = 0; idx < nearest_refmv_count; ++idx)
+          if (prev_frame_mvs->mv[ref].as_int ==
+              ref_mv_stack[idx].this_mv.as_int)
+            break;
+
+        if (idx == nearest_refmv_count &&
+            nearest_refmv_count < MAX_REF_MV_STACK_SIZE) {
+          ref_mv_stack[idx].this_mv.as_int = prev_frame_mvs->mv[ref].as_int;
+          ref_mv_stack[idx].weight = 1;
+          ++(*refmv_count);
+          ++nearest_refmv_count;
+        }
+      }
+    }
+  }
 
   // Scan the second outer area.
   for (idx = 2; idx <= 4; ++idx) {
