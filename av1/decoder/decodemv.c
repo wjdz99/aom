@@ -597,6 +597,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_REF_MV
   mode_ctx = av1_mode_context_analyzer(inter_mode_ctx,
                                        mbmi->ref_frame, bsize, -1);
+  mbmi->ref_mv_idx = 0;
 #else
   mode_ctx = inter_mode_ctx[mbmi->ref_frame[0]];
 #endif
@@ -609,9 +610,14 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       return;
     }
   } else {
-    if (bsize >= BLOCK_8X8)
-      mbmi->mode =
-          read_inter_mode(cm, xd, r, mode_ctx);
+    if (bsize >= BLOCK_8X8) {
+      mbmi->mode = read_inter_mode(cm, xd, r, mode_ctx);
+#if CONFIG_REF_MV
+      if (mbmi->mode == NEARMV && !is_compound)
+        if (xd->ref_mv_count[mbmi->ref_frame[0]] > 2)
+          mbmi->ref_mv_idx = aom_read_bit(r);
+#endif
+    }
   }
 
   if (bsize < BLOCK_8X8 || mbmi->mode != ZEROMV) {
@@ -622,6 +628,12 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   }
 
 #if CONFIG_REF_MV
+  if (mbmi->ref_mv_idx == 1) {
+    int_mv cur_mv = xd->ref_mv_stack[mbmi->ref_frame[0]][2].this_mv;
+    lower_mv_precision(&cur_mv.as_mv, cm->allow_high_precision_mv);
+    nearmv[0] = cur_mv;
+  }
+
   if (is_compound && bsize >= BLOCK_8X8 && mbmi->mode != NEWMV &&
       mbmi->mode != ZEROMV) {
     uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
@@ -753,7 +765,6 @@ void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd, int mi_row,
     read_intra_frame_mode_info(cm, xd, mi_row, mi_col, r);
   } else {
     read_inter_frame_mode_info(pbi, xd, mi_row, mi_col, r);
-
     for (h = 0; h < y_mis; ++h) {
       MV_REF *const frame_mv = frame_mvs + h * cm->mi_cols;
       for (w = 0; w < x_mis; ++w) {
