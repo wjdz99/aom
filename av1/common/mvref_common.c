@@ -330,6 +330,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     int ref;
     int blk_row, blk_col;
     int coll_blk_count = 0;
+    int blk_count = 0;
 
     for (blk_row = 0; blk_row < xd->n8_h; ++blk_row) {
       for (blk_col = 0; blk_col < xd->n8_w; ++blk_col) {
@@ -343,6 +344,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         if (!is_inside(&xd->tile, mi_col, mi_row, cm->mi_rows, &mi_pos))
           continue;
 
+        ++blk_count;
         for (ref = 0; ref < 2; ++ref) {
           if (prev_frame_mvs->ref_frame[ref] == ref_frame) {
             if (abs(prev_frame_mvs->mv[ref].as_mv.row) >= 16 ||
@@ -374,6 +376,8 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   } else {
     mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
   }
+
+//  mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
 
   // Scan the second outer area.
   for (idx = 2; idx <= 4; ++idx) {
@@ -640,9 +644,13 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       int16_t *mode_context) {
 #if CONFIG_REF_MV
   int idx, all_zero = 1;
-#endif
+  if (ref_frame <= ALTREF_FRAME)
+    find_mv_refs_idx(cm, xd, mi, ref_frame, mv_ref_list, -1, mi_row, mi_col,
+                     sync, data, mode_context);
+#else
   find_mv_refs_idx(cm, xd, mi, ref_frame, mv_ref_list, -1, mi_row, mi_col, sync,
                    data, mode_context);
+#endif
 
 #if CONFIG_REF_MV
   setup_ref_mv_list(cm, xd, ref_frame,
@@ -654,12 +662,16 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     for (idx = 0; idx < AOMMIN(3, *ref_mv_count); ++idx) {
       if (ref_mv_stack[idx].this_mv.as_int != 0)
         all_zero = 0;
+      if (ref_frame > ALTREF_FRAME)
+        if (ref_mv_stack[idx].comp_mv.as_int != 0)
+          all_zero = 0;
     }
-  } else {
+  } else if (ref_frame <= ALTREF_FRAME) {
     for (idx = 0; idx < MAX_MV_REF_CANDIDATES; ++idx)
       if (mv_ref_list[idx].as_int != 0)
         all_zero = 0;
   }
+
 
   if (all_zero)
     mode_context[ref_frame] |= (1 << ALL_ZERO_FLAG_OFFSET);
