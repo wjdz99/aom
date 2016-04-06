@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ef00cde_b39b6292",
+        "filename": "av1/encoder/pickdering.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-04-06T23:14:57Z",
+      "side": 1,
+      "message": "move declaration up (this is not allowed by C90)",
+      "revId": "a5afb3a85fafb9c8c8642ace9c1a0ed17e15de17",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ef00cde_d396e66b",
+        "filename": "av1/encoder/pickdering.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-04-06T23:14:57Z",
+      "side": 1,
+      "message": "move declaration up (this is not allowed by C90)",
+      "revId": "a5afb3a85fafb9c8c8642ace9c1a0ed17e15de17",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
