@@ -265,24 +265,52 @@ static void handle_sec_rect_block(const MB_MODE_INFO * const candidate,
                                   CANDIDATE_MV *ref_mv_stack,
                                   MV_REFERENCE_FRAME ref_frame,
                                   int16_t *mode_context) {
-  int rf, idx;
+  int idx;
+  MV_REFERENCE_FRAME rf[2];
+  av1_set_ref_frame(rf, ref_frame);
 
-  for (rf = 0; rf < 2; ++rf) {
-    if (candidate->ref_frame[rf] == ref_frame) {
-      const int list_range = AOMMIN(refmv_count, MAX_MV_REF_CANDIDATES);
-      const int_mv pred_mv = candidate->mv[rf];
-      for (idx = 0; idx < list_range; ++idx)
-        if (pred_mv.as_int == ref_mv_stack[idx].this_mv.as_int)
-          break;
+  if (candidate->ref_frame[0] == rf[0] &&
+      candidate->ref_frame[1] == rf[1]) {
+    const int list_range = AOMMIN(refmv_count, MAX_MV_REF_CANDIDATES);
+    int_mv pred_mv[2];
 
-      if (idx < list_range) {
-        if (idx == 0)
-          mode_context[ref_frame] |= (1 << SKIP_NEARESTMV_OFFSET);
-        else if (idx == 1)
-          mode_context[ref_frame] |= (1 << SKIP_NEARMV_OFFSET);
-      }
+    pred_mv[0] = candidate->mv[0];
+    if (rf[1] > NONE)
+      pred_mv[1] = candidate->mv[1];
+
+    for (idx = 0; idx < list_range; ++idx)
+      if (pred_mv[0].as_int == ref_mv_stack[idx].this_mv.as_int &&
+          (rf[1] == NONE ||
+              (pred_mv[1].as_int == ref_mv_stack[idx].comp_mv.as_int)))
+        break;
+
+    if (idx < list_range) {
+      if (idx == 0)
+        mode_context[ref_frame] |= (1 << SKIP_NEARESTMV_OFFSET);
+      else if (idx == 1)
+        mode_context[ref_frame] |= (1 << SKIP_NEARMV_OFFSET);
     }
   }
+
+//  if (rf[1] == NONE) {
+//    int ref;
+//    for (ref = 0; ref < 2; ++ref) {
+//      if (candidate->ref_frame[ref] == ref_frame) {
+//        const int list_range = AOMMIN(refmv_count, MAX_MV_REF_CANDIDATES);
+//        const int_mv pred_mv = candidate->mv[ref];
+//        for (idx = 0; idx < list_range; ++idx)
+//          if (pred_mv.as_int == ref_mv_stack[idx].this_mv.as_int)
+//            break;
+//
+//        if (idx < list_range) {
+//          if (idx == 0)
+//            mode_context[ref_frame] |= (1 << SKIP_NEARESTMV_OFFSET);
+//          else if (idx == 1)
+//            mode_context[ref_frame] |= (1 << SKIP_NEARMV_OFFSET);
+//        }
+//      }
+//    }
+//  }
 }
 
 static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
@@ -325,18 +353,23 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   for (idx = 0; idx < nearest_refmv_count; ++idx)
     ref_mv_stack[idx].weight += REF_CAT_LEVEL;
 
-  if (prev_frame_mvs_base && cm->show_frame && cm->last_show_frame &&
-      rf[1] == NONE) {
+  // Scan the second outer area.
+  for (idx = 2; idx <= 4; ++idx) {
+    scan_row_mbmi(cm, xd, mi_row, mi_col, block, rf,
+                  -idx, ref_mv_stack, refmv_count);
+    scan_col_mbmi(cm, xd, mi_row, mi_col, block, rf,
+                  -idx, ref_mv_stack, refmv_count);
+  }
+
+  if (prev_frame_mvs_base && cm->show_frame && cm->last_show_frame) {
     int ref;
     int blk_row, blk_col;
     int coll_blk_count = 0;
-    int blk_count = 0;
 
     for (blk_row = 0; blk_row < xd->n8_h; ++blk_row) {
       for (blk_col = 0; blk_col < xd->n8_w; ++blk_col) {
         const MV_REF *prev_frame_mvs =
             prev_frame_mvs_base + blk_row * cm->mi_cols + blk_col;
-
         POSITION mi_pos;
         mi_pos.row = blk_row;
         mi_pos.col = blk_col;
@@ -344,16 +377,45 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         if (!is_inside(&xd->tile, mi_col, mi_row, cm->mi_rows, &mi_pos))
           continue;
 
-        ++blk_count;
-        for (ref = 0; ref < 2; ++ref) {
-          if (prev_frame_mvs->ref_frame[ref] == ref_frame) {
-            if (abs(prev_frame_mvs->mv[ref].as_mv.row) >= 16 ||
-                abs(prev_frame_mvs->mv[ref].as_mv.col) >= 16)
+        if (rf[1] == NONE) {
+          for (ref = 0; ref < 2; ++ref) {
+            if (prev_frame_mvs->ref_frame[ref] == ref_frame) {
+              if (abs(prev_frame_mvs->mv[ref].as_mv.row) >= 16 ||
+                  abs(prev_frame_mvs->mv[ref].as_mv.col) >= 16)
+                mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
+
+              for (idx = 0; idx < *refmv_count; ++idx)
+                if (prev_frame_mvs->mv[ref].as_int ==
+                    ref_mv_stack[idx].this_mv.as_int)
+                  break;
+
+              if (idx < *refmv_count)
+                ref_mv_stack[idx].weight += 2;
+
+              if (idx == *refmv_count &&
+                  *refmv_count < MAX_REF_MV_STACK_SIZE) {
+                ref_mv_stack[idx].this_mv.as_int =
+                    prev_frame_mvs->mv[ref].as_int;
+                ref_mv_stack[idx].weight = 2;
+                ++(*refmv_count);
+              }
+              ++coll_blk_count;
+            }
+          }
+        } else {
+          if (prev_frame_mvs->ref_frame[0] == rf[0] &&
+              prev_frame_mvs->ref_frame[1] == rf[1]) {
+            if (abs(prev_frame_mvs->mv[0].as_mv.row) >= 16 ||
+                abs(prev_frame_mvs->mv[0].as_mv.col) >= 16 ||
+                abs(prev_frame_mvs->mv[1].as_mv.row) >= 16 ||
+                abs(prev_frame_mvs->mv[1].as_mv.col) >= 16)
               mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
 
             for (idx = 0; idx < *refmv_count; ++idx)
-              if (prev_frame_mvs->mv[ref].as_int ==
-                  ref_mv_stack[idx].this_mv.as_int)
+              if (prev_frame_mvs->mv[0].as_int ==
+                      ref_mv_stack[idx].this_mv.as_int &&
+                  prev_frame_mvs->mv[1].as_int ==
+                      ref_mv_stack[idx].comp_mv.as_int)
                 break;
 
             if (idx < *refmv_count)
@@ -361,16 +423,16 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
             if (idx == *refmv_count &&
                 *refmv_count < MAX_REF_MV_STACK_SIZE) {
-              ref_mv_stack[idx].this_mv.as_int = prev_frame_mvs->mv[ref].as_int;
+              ref_mv_stack[idx].this_mv.as_int = prev_frame_mvs->mv[0].as_int;
+              ref_mv_stack[idx].comp_mv.as_int = prev_frame_mvs->mv[1].as_int;
               ref_mv_stack[idx].weight = 2;
               ++(*refmv_count);
             }
-
             ++coll_blk_count;
           }
         }
       }
-    }
+    }  // loop through collocated blocks.
     if (coll_blk_count == 0)
       mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
   } else {
@@ -379,13 +441,13 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
 //  mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
 
-  // Scan the second outer area.
-  for (idx = 2; idx <= 4; ++idx) {
-    scan_row_mbmi(cm, xd, mi_row, mi_col, block, rf,
-                  -idx, ref_mv_stack, refmv_count);
-    scan_col_mbmi(cm, xd, mi_row, mi_col, block, rf,
-                  -idx, ref_mv_stack, refmv_count);
-  }
+//  // Scan the second outer area.
+//  for (idx = 2; idx <= 4; ++idx) {
+//    scan_row_mbmi(cm, xd, mi_row, mi_col, block, rf,
+//                  -idx, ref_mv_stack, refmv_count);
+//    scan_col_mbmi(cm, xd, mi_row, mi_col, block, rf,
+//                  -idx, ref_mv_stack, refmv_count);
+//  }
 
   switch (nearest_refmv_count) {
     case 0:
