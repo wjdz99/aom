@@ -1038,6 +1038,10 @@ static void update_state(AV1_COMP *cpi, ThreadData *td, PICK_MODE_CONTEXT *ctx,
       mv->ref_frame[1] = mi->mbmi.ref_frame[1];
       mv->mv[0].as_int = mi->mbmi.mv[0].as_int;
       mv->mv[1].as_int = mi->mbmi.mv[1].as_int;
+#if CONFIG_REF_MV
+      mv->pred_mv[0].as_int = mi->mbmi.pred_mv[0].as_int;
+      mv->pred_mv[1].as_int = mi->mbmi.pred_mv[1].as_int;
+#endif
     }
   }
 }
