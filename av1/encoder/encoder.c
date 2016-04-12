@@ -3110,6 +3110,7 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
 
     aom_clear_system_state();
 
+    cpi->dummy_writing = 1;
     // Dummy pack of the bitstream using up to date stats to get an
     // accurate estimate of output frame size to determine if we need
     // to recode.
@@ -3494,6 +3495,7 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   // Pick the loop filter level for the frame.
   loopfilter_frame(cpi, cm);
 
+  cpi->dummy_writing = 0;
   // build the bitstream
   av1_pack_bitstream(cpi, dest, size);
 

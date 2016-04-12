@@ -503,6 +503,8 @@ typedef struct AV1_COMP {
   AVxWorker *workers;
   struct EncWorkerData *tile_thr_data;
   AV1LfSync lf_row_sync;
+
+  int dummy_writing;
 } AV1_COMP;
 
 void av1_initialize_enc(void);
