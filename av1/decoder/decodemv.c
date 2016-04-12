@@ -557,8 +557,10 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif
       for (i = 0; i < 1 + is_compound; ++i) {
 #if CONFIG_REF_MV
-        int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[mbmi->ref_frame[i]],
-                                  xd->ref_mv_stack[mbmi->ref_frame[i]]);
+        int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
+        int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
+                                  xd->ref_mv_stack[rf_type],
+                                  i, mbmi->ref_mv_idx);
         nmv_context_counts *const mv_counts =
             counts ? &counts->mv[nmv_ctx] : NULL;
         read_mv(r, &mv[i].as_mv, &ref_mv[i].as_mv, &cm->fc->nmvc[nmv_ctx],
@@ -886,4 +888,13 @@ void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd, int mi_row,
       }
     }
   }
+
+  {
+    FILE *pf = fopen("dec_modes.txt", "a");
+    fprintf(pf, "frame %d, show frame %d, pos (%d, %d), mode %d, bsize %d, range %d\n",
+            cm->current_video_frame, cm->show_frame, mi_row, mi_col,
+            mi->mbmi.mode, mi->mbmi.sb_type, r->range);
+    fclose(pf);
+  }
+
 }
