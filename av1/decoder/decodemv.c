@@ -574,7 +574,8 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       for (i = 0; i < 1 + is_compound; ++i) {
 #if CONFIG_REF_MV
         int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[mbmi->ref_frame[i]],
-                                  xd->ref_mv_stack[mbmi->ref_frame[i]]);
+                                  xd->ref_mv_stack[mbmi->ref_frame[i]],
+                                  mbmi->ref_mv_idx);
         nmv_context_counts *const mv_counts =
             counts ? &counts->mv[nmv_ctx] : NULL;
         read_mv(r, &mv[i].as_mv, &ref_mv[i].as_mv, &cm->fc->nmvc[nmv_ctx],
