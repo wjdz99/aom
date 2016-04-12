@@ -284,7 +284,8 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
                       mvs[i].as_mv.col - ref->col };
 #if CONFIG_REF_MV
     int nmv_ctx = av1_nmv_ctx(mbmi_ext->ref_mv_count[mbmi->ref_frame[i]],
-                              mbmi_ext->ref_mv_stack[mbmi->ref_frame[i]]);
+                              mbmi_ext->ref_mv_stack[mbmi->ref_frame[i]],
+                              mbmi->ref_mv_idx);
     nmv_context_counts *counts = &nmv_counts[nmv_ctx];
 #else
     nmv_context_counts *counts = nmv_counts;

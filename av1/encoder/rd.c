@@ -259,10 +259,12 @@ static void set_block_thresholds(const AV1_COMMON *cm, RD_OPT *rd) {
 }
 
 #if CONFIG_REF_MV
-void av1_set_mvcost(MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame) {
+void av1_set_mvcost(MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame,
+                    int ref_mv_idx) {
   MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
   int nmv_ctx = av1_nmv_ctx(mbmi_ext->ref_mv_count[ref_frame],
-                            mbmi_ext->ref_mv_stack[ref_frame]);
+                            mbmi_ext->ref_mv_stack[ref_frame],
+                            ref_mv_idx);
   x->mvcost = x->mv_cost_stack[nmv_ctx];
   x->nmvjointcost = x->nmv_vec_cost[nmv_ctx];
   x->mvsadcost = x->mvcost;

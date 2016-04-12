@@ -938,6 +938,7 @@ static void update_state(AV1_COMP *cpi, ThreadData *td, PICK_MODE_CONTEXT *ctx,
       lower_mv_precision(&this_mv.as_mv, cm->allow_high_precision_mv);
       x->mbmi_ext->ref_mvs[mbmi->ref_frame[i]][0] = this_mv;
       mbmi->pred_mv[i] = this_mv;
+      mi->mbmi.pred_mv[i] = this_mv;
     }
   }
 #endif
