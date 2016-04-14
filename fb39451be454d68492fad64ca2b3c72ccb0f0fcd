@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b39d2b4_907c3a90",
+        "filename": "aom_dsp/aom_dsp_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-04-14T21:35:30Z",
+      "side": 1,
+      "message": "I think this should be called AOM_LOG2() instead. Looking at the code, most macros have a AOM_ prefix (min and max being the exception).",
+      "revId": "fb39451be454d68492fad64ca2b3c72ccb0f0fcd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b39d2b4_b08136c5",
+        "filename": "aom_dsp/bitwriter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-04-14T21:35:30Z",
+      "side": 1,
+      "message": "I\u0027m not sure what the exact semantic is, but in some entropy coders it\u0027s valid (though stupid) to encode a symbol that has 100% probability. So either that assertion is redundant (it\u0027s already elsewhere or should be elsewhere), or it may actually break something. In either case, I don\u0027t think it should be here.",
+      "revId": "fb39451be454d68492fad64ca2b3c72ccb0f0fcd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
