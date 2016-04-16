@@ -574,5 +574,7 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
     memset(cm->prev_mip, 0,
            cm->mi_stride * (cm->mi_rows + 1) * sizeof(*cm->prev_mip));
 
+#if !CONFIG_MISC_FIXES
   cm->frame_context_idx = 0;
+#endif
 }
