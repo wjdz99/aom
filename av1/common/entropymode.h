@@ -91,6 +91,10 @@ typedef struct frame_contexts {
   aom_prob intra_ext_tx_prob[EXT_TX_SIZES][TX_TYPES][TX_TYPES - 1];
   aom_prob inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1];
   int initialized;
+#if CONFIG_DAALA_EC
+  uint16_t switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS]
+                                [SWITCHABLE_FILTERS];
+#endif
 } FRAME_CONTEXT;
 
 typedef struct FRAME_COUNTS {
