@@ -57,6 +57,10 @@ typedef struct frame_contexts {
   aom_prob
       switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS -
                                                          1];
+#if CONFIG_DAALA_EC
+  uint16_t switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS]
+                                [SWITCHABLE_FILTERS];
+#endif
 
 #if CONFIG_REF_MV
   aom_prob newmv_prob[NEWMV_MODE_CONTEXTS];
