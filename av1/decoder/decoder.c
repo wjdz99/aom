@@ -34,6 +34,9 @@
 #include "av1/decoder/decoder.h"
 #include "av1/decoder/detokenize.h"
 
+/* TODO Move the contents of treewriter.h into av1/common */
+#include "av1/encoder/treewriter.h"
+
 static void initialize_dec(void) {
   static volatile int init_done = 0;
 
@@ -43,6 +46,10 @@ static void initialize_dec(void) {
     aom_scale_rtcd();
     av1_init_intra_predictors();
     init_done = 1;
+#if CONFIG_DAALA_EC
+    av1_indices_from_tree(av1_ext_tx_ind, av1_ext_tx_inv, TX_TYPES,
+        av1_ext_tx_tree);
+#endif
   }
 }
 
