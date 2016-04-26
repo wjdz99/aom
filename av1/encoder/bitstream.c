@@ -275,9 +275,14 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
   aom_write(w, do_update, GROUP_DIFF_UPDATE_PROB);
   if (do_update) {
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-      for (j = 0; j < TX_TYPES; ++j)
+      for (j = 0; j < TX_TYPES; ++j) {
         prob_diff_update(av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
                          cm->counts.intra_ext_tx[i][j], TX_TYPES, w);
+#if CONFIG_DAALA_EC
+        av1_tree_to_cdf(av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
+                        cm->fc->intra_ext_tx_cdf[i][j]);
+#endif
+      }
     }
   }
   savings = 0;
@@ -581,11 +586,18 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
                        cm->fc->inter_ext_tx_prob[mbmi->tx_size],
                        &ext_tx_encodings[mbmi->tx_type]);
     } else {
+#if CONFIG_DAALA_EC
+      od_ec_encode_cdf_q15(&w->ec, mbmi->tx_type,
+          cm->fc->intra_ext_tx_cdf[mbmi->tx_size]
+                                  [intra_mode_to_tx_type_context[mbmi->mode]],
+          TX_TYPES);
+#else
       av1_write_token(
           w, av1_ext_tx_tree,
           cm->fc->intra_ext_tx_prob[mbmi->tx_size]
                                    [intra_mode_to_tx_type_context[mbmi->mode]],
           &ext_tx_encodings[mbmi->tx_type]);
+#endif
     }
   } else {
     if (!mbmi->skip) assert(mbmi->tx_type == DCT_DCT);
