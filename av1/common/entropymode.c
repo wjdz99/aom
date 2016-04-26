@@ -347,6 +347,9 @@ const aom_tree_index av1_ext_tx_tree[TREE_SIZE(TX_TYPES)] = {
   -DCT_DCT, 2, -ADST_ADST, 4, -ADST_DCT, -DCT_ADST
 };
 
+int av1_ext_tx_ind[TX_TYPES];
+int av1_ext_tx_inv[TX_TYPES];
+
 static const aom_prob
     default_intra_ext_tx_prob[EXT_TX_SIZES][TX_TYPES][TX_TYPES - 1] = {
       { { 240, 85, 128 }, { 4, 1, 248 }, { 4, 1, 8 }, { 4, 248, 128 } },
@@ -360,6 +363,7 @@ static const aom_prob default_inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1] = {
 
 static void init_mode_probs(FRAME_CONTEXT *fc) {
   int i;
+  int j;
   av1_copy(fc->uv_mode_prob, default_uv_probs);
   av1_copy(fc->y_mode_prob, default_if_y_probs);
   av1_copy(fc->switchable_interp_prob, default_switchable_interp_prob);
@@ -389,6 +393,13 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
   av1_copy(fc->intra_ext_tx_prob, default_intra_ext_tx_prob);
   av1_copy(fc->inter_ext_tx_prob, default_inter_ext_tx_prob);
+#if CONFIG_DAALA_EC
+  for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
+    for (j = 0; j < TX_TYPES; ++j)
+      av1_tree_to_cdf(av1_ext_tx_tree, fc->intra_ext_tx_prob[i][j],
+                      fc->intra_ext_tx_cdf[i][j]);
+  }
+#endif
 }
 
 const aom_tree_index av1_switchable_interp_tree[TREE_SIZE(
@@ -493,10 +504,15 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
 
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
     int j;
-    for (j = 0; j < TX_TYPES; ++j)
+    for (j = 0; j < TX_TYPES; ++j) {
       aom_tree_merge_probs(av1_ext_tx_tree, pre_fc->intra_ext_tx_prob[i][j],
                            counts->intra_ext_tx[i][j],
                            fc->intra_ext_tx_prob[i][j]);
+#if CONFIG_DAALA_EC
+      av1_tree_to_cdf(av1_ext_tx_tree, fc->intra_ext_tx_prob[i][j],
+                      fc->intra_ext_tx_cdf[i][j]);
+#endif
+    }
   }
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
     aom_tree_merge_probs(av1_ext_tx_tree, pre_fc->inter_ext_tx_prob[i],
