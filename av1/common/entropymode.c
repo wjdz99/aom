@@ -362,6 +362,15 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->uv_mode_prob, default_uv_probs);
   av1_copy(fc->y_mode_prob, default_if_y_probs);
   av1_copy(fc->switchable_interp_prob, default_switchable_interp_prob);
+#if CONFIG_DAALA_EC
+  {
+  int j;
+  for (j = 0; j < SWITCHABLE_FILTER_CONTEXTS; j++) {
+    av1_tree_to_cdf(av1_switchable_interp_tree, fc->switchable_interp_prob[j],
+                    fc->switchable_interp_cdf[j]);
+  }
+  }
+#endif
   av1_copy(fc->partition_prob, default_partition_probs);
   av1_copy(fc->intra_inter_prob, default_intra_inter_p);
   av1_copy(fc->comp_inter_prob, default_comp_inter_p);

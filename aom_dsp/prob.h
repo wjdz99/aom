@@ -97,6 +97,15 @@ void aom_tree_merge_probs(const aom_tree_index *tree, const aom_prob *pre_probs,
 int tree_to_cdf(const aom_tree_index *tree, const aom_prob *probs,
                 aom_tree_index root, uint16_t *cdf, aom_tree_index *ind,
                 int *pth, int *len);
+
+#define av1_tree_to_cdf(tree, probs, cdf) \
+  do { \
+    aom_tree_index index[16]; \
+    int path[16]; \
+    int dist[16]; \
+    tree_to_cdf(tree, probs, 0, cdf, index, path, dist); \
+  } \
+  while (0)
 #endif
 
 DECLARE_ALIGNED(16, extern const uint8_t, aom_norm[256]);
