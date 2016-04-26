@@ -855,9 +855,16 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
       if (counts) ++counts->inter_ext_tx[mbmi->tx_size][mbmi->tx_type];
     } else {
       const TX_TYPE tx_type_nom = intra_mode_to_tx_type_context[mbmi->mode];
+#if CONFIG_DAALA_EC
+      mbmi->tx_type = av1_ext_tx_inv[
+          od_ec_decode_cdf_q15(&r->ec,
+              cm->fc->intra_ext_tx_cdf[mbmi->tx_size][tx_type_nom], TX_TYPES,
+              "aom")];
+#else
       mbmi->tx_type =
           aom_read_tree(r, av1_ext_tx_tree,
                         cm->fc->intra_ext_tx_prob[mbmi->tx_size][tx_type_nom]);
+#endif
       if (counts)
         ++counts->intra_ext_tx[mbmi->tx_size][tx_type_nom][mbmi->tx_type];
     }
