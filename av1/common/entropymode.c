@@ -359,9 +359,16 @@ static const aom_prob default_inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1] = {
 };
 
 static void init_mode_probs(FRAME_CONTEXT *fc) {
+  int i;
   av1_copy(fc->uv_mode_prob, default_uv_probs);
   av1_copy(fc->y_mode_prob, default_if_y_probs);
   av1_copy(fc->switchable_interp_prob, default_switchable_interp_prob);
+#if CONFIG_DAALA_EC
+  for (i = 0; i < SWITCHABLE_FILTER_CONTEXTS; i++) {
+    av1_tree_to_cdf(av1_switchable_interp_tree, fc->switchable_interp_prob[i],
+                    fc->switchable_interp_cdf[i]);
+  }
+#endif
   av1_copy(fc->partition_prob, default_partition_probs);
   av1_copy(fc->intra_inter_prob, default_intra_inter_p);
   av1_copy(fc->comp_inter_prob, default_comp_inter_p);
