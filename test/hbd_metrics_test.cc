@@ -78,7 +78,7 @@ double compute_hbd_aomssim(const YV12_BUFFER_CONFIG *source,
                            const YV12_BUFFER_CONFIG *dest, uint32_t in_bd,
                            uint32_t bd) {
   double ssim, weight;
-  ssim = aom_highbd_calc_ssim(source, dest, &weight, bd);
+  ssim = aom_highbd_calc_ssim(source, dest, &weight, bd, in_bd);
   return 100 * pow(ssim / weight, 8.0);
 }
 
