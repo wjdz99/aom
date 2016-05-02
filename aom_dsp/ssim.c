@@ -86,6 +86,9 @@ static double similarity(uint32_t sum_s, uint32_t sum_r, uint32_t sum_sq_s,
   } else if (bd == 12) {
     c1 = (cc1_12 * count * count) >> 12;
     c2 = (cc2_12 * count * count) >> 12;
+  } else {
+    c1 = c2 = 0;
+    assert(0);
   }
 
   ssim_n = (2 * sum_s * sum_r + c1) *
@@ -109,11 +112,10 @@ static double ssim_8x8(const uint8_t *s, int sp, const uint8_t *r, int rp) {
 static double highbd_ssim_8x8(const uint16_t *s, int sp, const uint16_t *r,
                               int rp, uint32_t bd, uint32_t shift) {
   uint32_t sum_s = 0, sum_r = 0, sum_sq_s = 0, sum_sq_r = 0, sum_sxr = 0;
-  const int oshift = bd - 8;
   aom_highbd_ssim_parms_8x8(s, sp, r, rp, &sum_s, &sum_r, &sum_sq_s, &sum_sq_r,
                             &sum_sxr);
-  return similarity(sum_s >> oshift, sum_r >> oshift, sum_sq_s >> (2 * oshift),
-                    sum_sq_r >> (2 * oshift), sum_sxr >> (2 * oshift), 64, 8);
+  return similarity(sum_s >> shift, sum_r >> shift, sum_sq_s >> (2 * shift),
+                    sum_sq_r >> (2 * shift), sum_sxr >> (2 * shift), 64, bd);
 }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
@@ -185,27 +187,6 @@ double aom_calc_ssim(const YV12_BUFFER_CONFIG *source,
   return ssimv;
 }
 
-double aom_calc_ssimg(const YV12_BUFFER_CONFIG *source,
-                      const YV12_BUFFER_CONFIG *dest, double *ssim_y,
-                      double *ssim_u, double *ssim_v) {
-  double ssim_all = 0;
-  double a, b, c;
-
-  a = aom_ssim2(source->y_buffer, dest->y_buffer, source->y_stride,
-                dest->y_stride, source->y_crop_width, source->y_crop_height);
-
-  b = aom_ssim2(source->u_buffer, dest->u_buffer, source->uv_stride,
-                dest->uv_stride, source->uv_crop_width, source->uv_crop_height);
-
-  c = aom_ssim2(source->v_buffer, dest->v_buffer, source->uv_stride,
-                dest->uv_stride, source->uv_crop_width, source->uv_crop_height);
-  *ssim_y = a;
-  *ssim_u = b;
-  *ssim_v = c;
-  ssim_all = (a * 4 + b + c) / 6;
-
-  return ssim_all;
-}
 
 // traditional ssim as per: http://en.wikipedia.org/wiki/Structural_similarity
 //

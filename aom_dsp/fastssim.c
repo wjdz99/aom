@@ -24,7 +24,7 @@ typedef struct fs_ctx fs_ctx;
 
 #define SSIM_C1 (255 * 255 * 0.01 * 0.01)
 #define SSIM_C2 (255 * 255 * 0.03 * 0.03)
-#if CONFIG_VP9_HIGHBITDEPTH
+#if CONFIG_AOM_HIGHBITDEPTH
 #define SSIM_C1_10 (1023 * 1023 * 0.01 * 0.01)
 #define SSIM_C1_12 (4095 * 4095 * 0.01 * 0.01)
 #define SSIM_C2_10 (1023 * 1023 * 0.03 * 0.03)
@@ -197,7 +197,7 @@ static void fs_apply_luminance(fs_ctx *_ctx, int _l, int bit_depth) {
   int i;
   int j;
   double ssim_c1 = SSIM_C1;
-#if CONFIG_VP9_HIGHBITDEPTH
+#if CONFIG_AOM_HIGHBITDEPTH
   if (bit_depth == 10) ssim_c1 = SSIM_C1_10;
   if (bit_depth == 12) ssim_c1 = SSIM_C1_12;
 #else
@@ -321,7 +321,7 @@ static void fs_calc_structure(fs_ctx *_ctx, int _l, int bit_depth) {
   int i;
   int j;
   double ssim_c2 = SSIM_C2;
-#if CONFIG_VP9_HIGHBITDEPTH
+#if CONFIG_AOM_HIGHBITDEPTH
   if (bit_depth == 10) ssim_c2 = SSIM_C2_10;
   if (bit_depth == 12) ssim_c2 = SSIM_C2_12;
 #else
@@ -345,11 +345,11 @@ static void fs_calc_structure(fs_ctx *_ctx, int _l, int bit_depth) {
         unsigned g2;
         unsigned gx;
         unsigned gy;
-        g1 = abs(im1[(j + 1) * w + i + 1] - im1[j * w + i]);
-        g2 = abs(im1[(j + 1) * w + i] - im1[j * w + i + 1]);
+        g1 = abs((int)im1[(j + 1) * w + i + 1] - (int)im1[j * w + i]);
+        g2 = abs((int)im1[(j + 1) * w + i] - (int)im1[j * w + i + 1]);
         gx = 4 * FS_MAXI(g1, g2) + FS_MINI(g1, g2);
-        g1 = abs(im2[(j + 1) * w + i + 1] - im2[j * w + i]);
-        g2 = abs(im2[(j + 1) * w + i] - im2[j * w + i + 1]);
+        g1 = abs((int)im2[(j + 1) * w + i + 1] - (int)im2[j * w + i]);
+        g2 = abs((int)im2[(j + 1) * w + i] - (int)im2[j * w + i + 1]);
         gy = 4 * FS_MAXI(g1, g2) + FS_MINI(g1, g2);
         gx_buf[(j & 7) * stride + i + 4] = gx;
         gy_buf[(j & 7) * stride + i + 4] = gy;

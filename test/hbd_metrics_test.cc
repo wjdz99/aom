@@ -200,11 +200,11 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::Values(MetricTestTParam(&compute_aomssim, &compute_hbd_aomssim,
                                        8, 10, kSsim_thresh),
                       MetricTestTParam(&compute_aomssim, &compute_hbd_aomssim,
-                                       10, 10, kSsim_thresh),
+                                       10, 10, kPhvs_thresh),
                       MetricTestTParam(&compute_aomssim, &compute_hbd_aomssim,
                                        8, 12, kSsim_thresh),
                       MetricTestTParam(&compute_aomssim, &compute_hbd_aomssim,
-                                       12, 12, kSsim_thresh)));
+                                       12, 12, kPhvs_thresh)));
 INSTANTIATE_TEST_CASE_P(
     FASTSSIM, HBDMetricsTest,
     ::testing::Values(MetricTestTParam(&compute_fastssim, &compute_hbd_fastssim,
