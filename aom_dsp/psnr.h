@@ -48,6 +48,9 @@ int64_t highbd_get_sse_shift(const uint8_t *a8, int a_stride, const uint8_t *b8,
 #endif
 void calc_psnr(const YV12_BUFFER_CONFIG *a, const YV12_BUFFER_CONFIG *b,
                PSNR_STATS *psnr);
+double aom_psnrhvs(const YV12_BUFFER_CONFIG *source,
+                   const YV12_BUFFER_CONFIG *dest, double *phvs_y,
+                   double *phvs_u, double *phvs_v, uint32_t bit_depth);
 
 int64_t highbd_get_sse(const uint8_t *a, int a_stride, const uint8_t *b,
                        int b_stride, int width, int height);
