@@ -329,6 +329,12 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
                      fc->switchable_interp_cdf, SWITCHABLE_FILTER_CONTEXTS);
 #endif
   av1_copy(fc->partition_prob, default_partition_probs);
+#if CONFIG_DAALA_EC
+  for (i = 0; i < PARTITION_CONTEXTS; i++) {
+    av1_tree_to_cdf(av1_partition_tree, fc->partition_prob[i],
+                    fc->partition_cdf[i]);
+  }
+#endif
   av1_copy(fc->intra_inter_prob, default_intra_inter_p);
   av1_copy(fc->comp_inter_prob, default_comp_inter_p);
   av1_copy(fc->comp_ref_prob, default_comp_ref_p);
@@ -407,9 +413,14 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
     aom_tree_merge_probs(av1_intra_mode_tree, pre_fc->uv_mode_prob[i],
                          counts->uv_mode[i], fc->uv_mode_prob[i]);
 
-  for (i = 0; i < PARTITION_CONTEXTS; i++)
+  for (i = 0; i < PARTITION_CONTEXTS; i++) {
     aom_tree_merge_probs(av1_partition_tree, pre_fc->partition_prob[i],
                          counts->partition[i], fc->partition_prob[i]);
+#if CONFIG_DAALA_EC
+    av1_tree_to_cdf(av1_partition_tree, fc->partition_prob[i],
+                    fc->partition_cdf[i]);
+#endif
+  }
 #endif
 
   if (cm->interp_filter == SWITCHABLE) {
@@ -494,9 +505,14 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
     aom_tree_merge_probs(av1_intra_mode_tree, pre_fc->uv_mode_prob[i],
                          counts->uv_mode[i], fc->uv_mode_prob[i]);
 
-  for (i = 0; i < PARTITION_CONTEXTS; i++)
+  for (i = 0; i < PARTITION_CONTEXTS; i++) {
     aom_tree_merge_probs(av1_partition_tree, pre_fc->partition_prob[i],
                          counts->partition[i], fc->partition_prob[i]);
+#if CONFIG_DAALA_EC
+    av1_tree_to_cdf(av1_partition_tree, fc->partition_prob[i],
+                    fc->partition_cdf[i]);
+#endif
+  }
 #endif
 }
 
