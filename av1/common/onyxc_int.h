@@ -13,15 +13,15 @@
 #define AV1_COMMON_ONYXC_INT_H_
 
 #include "./aom_config.h"
+#include "./av1_rtcd.h"
 #include "aom/internal/aom_codec_internal.h"
 #include "aom_util/aom_thread.h"
-#include "./av1_rtcd.h"
 #include "av1/common/alloccommon.h"
-#include "av1/common/loopfilter.h"
-#include "av1/common/entropymv.h"
 #include "av1/common/entropy.h"
 #include "av1/common/entropymode.h"
+#include "av1/common/entropymv.h"
 #include "av1/common/frame_buffers.h"
+#include "av1/common/loopfilter.h"
 #include "av1/common/tile_common.h"
 
 #ifdef __cplusplus
@@ -389,7 +389,7 @@ static INLINE int frame_is_intra_only(const AV1_COMMON *const cm) {
 }
 
 static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
-                                         tran_low_t *dqcoeff) {
+                                        tran_low_t *dqcoeff) {
   int i;
 
   for (i = 0; i < MAX_MB_PLANE; ++i) {
@@ -469,12 +469,10 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
 #if CONFIG_REF_MV
   xd->is_sec_rect = 0;
   if (xd->n8_w < xd->n8_h)
-    if (mi_col & (xd->n8_h - 1))
-      xd->is_sec_rect = 1;
+    if (mi_col & (xd->n8_h - 1)) xd->is_sec_rect = 1;
 
   if (xd->n8_w > xd->n8_h)
-    if (mi_row & (xd->n8_w - 1))
-      xd->is_sec_rect = 1;
+    if (mi_row & (xd->n8_w - 1)) xd->is_sec_rect = 1;
 #endif
 }
 

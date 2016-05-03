@@ -155,7 +155,7 @@ static void intra_predict_dc_4x4_msa(const uint8_t *src_top,
                                      const uint8_t *src_left, uint8_t *dst,
                                      int32_t dst_stride) {
   uint32_t val0, val1;
-  v16i8 store, src = { 0 };
+  v16i8 store, src = {0};
   v8u16 sum_h;
   v4u32 sum_w;
   v2u64 sum_d;
@@ -176,7 +176,7 @@ static void intra_predict_dc_4x4_msa(const uint8_t *src_top,
 static void intra_predict_dc_tl_4x4_msa(const uint8_t *src, uint8_t *dst,
                                         int32_t dst_stride) {
   uint32_t val0;
-  v16i8 store, data = { 0 };
+  v16i8 store, data = {0};
   v8u16 sum_h;
   v4u32 sum_w;
 
@@ -205,7 +205,7 @@ static void intra_predict_dc_8x8_msa(const uint8_t *src_top,
                                      int32_t dst_stride) {
   uint64_t val0, val1;
   v16i8 store;
-  v16u8 src = { 0 };
+  v16u8 src = {0};
   v8u16 sum_h;
   v4u32 sum_w;
   v2u64 sum_d;
@@ -231,7 +231,7 @@ static void intra_predict_dc_tl_8x8_msa(const uint8_t *src, uint8_t *dst,
                                         int32_t dst_stride) {
   uint64_t val0;
   v16i8 store;
-  v16u8 data = { 0 };
+  v16u8 data = {0};
   v8u16 sum_h;
   v4u32 sum_w;
   v2u64 sum_d;
@@ -387,7 +387,7 @@ static void intra_predict_tm_4x4_msa(const uint8_t *src_top_ptr,
                                      int32_t dst_stride) {
   uint32_t val;
   uint8_t top_left = src_top_ptr[-1];
-  v16i8 src_left0, src_left1, src_left2, src_left3, tmp0, tmp1, src_top = { 0 };
+  v16i8 src_left0, src_left1, src_left2, src_left3, tmp0, tmp1, src_top = {0};
   v16u8 src0, src1, src2, src3;
   v8u16 src_top_left, vec0, vec1, vec2, vec3;
 
@@ -416,7 +416,7 @@ static void intra_predict_tm_8x8_msa(const uint8_t *src_top_ptr,
   uint64_t val;
   uint8_t top_left = src_top_ptr[-1];
   uint32_t loop_cnt;
-  v16i8 src_left0, src_left1, src_left2, src_left3, tmp0, tmp1, src_top = { 0 };
+  v16i8 src_left0, src_left1, src_left2, src_left3, tmp0, tmp1, src_top = {0};
   v8u16 src_top_left, vec0, vec1, vec2, vec3;
   v16u8 src0, src1, src2, src3;
 

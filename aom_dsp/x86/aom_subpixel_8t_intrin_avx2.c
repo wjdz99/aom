@@ -21,24 +21,20 @@
 
 // filters for 16_h8 and 16_v8
 DECLARE_ALIGNED(32, static const uint8_t, filt1_global_avx2[32]) = {
-  0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8,
-  0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8
-};
+    0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8,
+    0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8};
 
 DECLARE_ALIGNED(32, static const uint8_t, filt2_global_avx2[32]) = {
-  2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10,
-  2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10
-};
+    2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10,
+    2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10};
 
 DECLARE_ALIGNED(32, static const uint8_t, filt3_global_avx2[32]) = {
-  4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12,
-  4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12
-};
+    4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12,
+    4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12};
 
 DECLARE_ALIGNED(32, static const uint8_t, filt4_global_avx2[32]) = {
-  6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14,
-  6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14
-};
+    6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14,
+    6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14};
 
 #if defined(__clang__)
 #if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ <= 3) ||  \
@@ -46,14 +42,14 @@ DECLARE_ALIGNED(32, static const uint8_t, filt4_global_avx2[32]) = {
                             (__clang_major__ == 5 && __clang_minor__ == 0)))
 
 #define MM256_BROADCASTSI128_SI256(x) \
-  _mm_broadcastsi128_si256((__m128i const *) & (x))
+  _mm_broadcastsi128_si256((__m128i const *)&(x))
 #else  // clang > 3.3, and not 5.0 on macosx.
 #define MM256_BROADCASTSI128_SI256(x) _mm256_broadcastsi128_si256(x)
 #endif  // clang <= 3.3
 #elif defined(__GNUC__)
 #if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ <= 6)
 #define MM256_BROADCASTSI128_SI256(x) \
-  _mm_broadcastsi128_si256((__m128i const *) & (x))
+  _mm_broadcastsi128_si256((__m128i const *)&(x))
 #elif __GNUC__ == 4 && __GNUC_MINOR__ == 7
 #define MM256_BROADCASTSI128_SI256(x) _mm_broadcastsi128_si256(x)
 #else  // gcc > 4.7

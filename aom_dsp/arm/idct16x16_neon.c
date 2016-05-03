@@ -33,8 +33,8 @@ void aom_idct16x16_256_add_neon(const int16_t *input, uint8_t *dest,
 #if HAVE_NEON_ASM
   int64_t store_reg[8];
 #endif
-  int16_t pass1_output[16 * 16] = { 0 };
-  int16_t row_idct_output[16 * 16] = { 0 };
+  int16_t pass1_output[16 * 16] = {0};
+  int16_t row_idct_output[16 * 16] = {0};
 
 #if HAVE_NEON_ASM
   // save d8-d15 register values.
@@ -99,8 +99,8 @@ void aom_idct16x16_10_add_neon(const int16_t *input, uint8_t *dest,
 #if HAVE_NEON_ASM
   int64_t store_reg[8];
 #endif
-  int16_t pass1_output[16 * 16] = { 0 };
-  int16_t row_idct_output[16 * 16] = { 0 };
+  int16_t pass1_output[16 * 16] = {0};
+  int16_t row_idct_output[16 * 16] = {0};
 
 #if HAVE_NEON_ASM
   // save d8-d15 register values.

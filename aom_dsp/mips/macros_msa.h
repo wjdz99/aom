@@ -629,7 +629,7 @@
 */
 #define SLDI_B2_0(RTYPE, in0, in1, out0, out1, slide_val)             \
   {                                                                   \
-    v16i8 zero_m = { 0 };                                             \
+    v16i8 zero_m = {0};                                               \
     out0 = (RTYPE)__msa_sldi_b((v16i8)zero_m, (v16i8)in0, slide_val); \
     out1 = (RTYPE)__msa_sldi_b((v16i8)zero_m, (v16i8)in1, slide_val); \
   }
@@ -979,7 +979,7 @@
 #define SAD_UB2_UH(in0, in1, ref0, ref1)                     \
   ({                                                         \
     v16u8 diff0_m, diff1_m;                                  \
-    v8u16 sad_m = { 0 };                                     \
+    v8u16 sad_m = {0};                                       \
                                                              \
     diff0_m = __msa_asub_u_b((v16u8)in0, (v16u8)ref0);       \
     diff1_m = __msa_asub_u_b((v16u8)in1, (v16u8)ref1);       \
@@ -1705,7 +1705,7 @@
 */
 #define UNPCK_UB_SH(in, out0, out1)      \
   {                                      \
-    v16i8 zero_m = { 0 };                \
+    v16i8 zero_m = {0};                  \
                                          \
     ILVRL_B2_SH(zero_m, in, out0, out1); \
   }
@@ -1886,7 +1886,7 @@
   {                                                                            \
     v8i16 tmp0_m, tmp1_m, tmp2_m, tmp3_m;                                      \
     v8i16 tmp0_n, tmp1_n, tmp2_n, tmp3_n;                                      \
-    v8i16 zero_m = { 0 };                                                      \
+    v8i16 zero_m = {0};                                                        \
                                                                                \
     ILVR_H4_SH(in1, in0, in3, in2, in5, in4, in7, in6, tmp0_n, tmp1_n, tmp2_n, \
                tmp3_n);                                                        \
@@ -1975,9 +1975,9 @@
   {                                                              \
     uint32_t src0_m, src1_m, src2_m, src3_m;                     \
     v8i16 inp0_m, inp1_m, res0_m, res1_m;                        \
-    v16i8 dst0_m = { 0 };                                        \
-    v16i8 dst1_m = { 0 };                                        \
-    v16i8 zero_m = { 0 };                                        \
+    v16i8 dst0_m = {0};                                          \
+    v16i8 dst1_m = {0};                                          \
+    v16i8 zero_m = {0};                                          \
                                                                  \
     ILVR_D2_SH(in1, in0, in3, in2, inp0_m, inp1_m)               \
     LW4(pdst, stride, src0_m, src1_m, src2_m, src3_m);           \

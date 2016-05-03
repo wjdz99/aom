@@ -9,7 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,8 +16,8 @@
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
 #include "./aom_dsp_rtcd.h"
-#include "test/acm_random.h"
 #include "aom/aom_integer.h"
+#include "test/acm_random.h"
 
 using libaom_test::ACMRandom;
 

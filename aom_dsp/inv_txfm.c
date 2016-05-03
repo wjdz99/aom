@@ -358,7 +358,7 @@ void iadst8_c(const tran_low_t *input, tran_low_t *output) {
 }
 
 void aom_idct8x8_12_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
-  tran_low_t out[8 * 8] = { 0 };
+  tran_low_t out[8 * 8] = {0};
   tran_low_t *outptr = out;
   int i, j;
   tran_low_t temp_in[8], temp_out[8];
@@ -745,7 +745,7 @@ void iadst16_c(const tran_low_t *input, tran_low_t *output) {
 
 void aom_idct16x16_10_add_c(const tran_low_t *input, uint8_t *dest,
                             int stride) {
-  tran_low_t out[16 * 16] = { 0 };
+  tran_low_t out[16 * 16] = {0};
   tran_low_t *outptr = out;
   int i, j;
   tran_low_t temp_in[16], temp_out[16];
@@ -1187,7 +1187,7 @@ void aom_idct32x32_1024_add_c(const tran_low_t *input, uint8_t *dest,
 
 void aom_idct32x32_135_add_c(const tran_low_t *input, uint8_t *dest,
                              int stride) {
-  tran_low_t out[32 * 32] = { 0 };
+  tran_low_t out[32 * 32] = {0};
   tran_low_t *outptr = out;
   int i, j;
   tran_low_t temp_in[32], temp_out[32];
@@ -1213,7 +1213,7 @@ void aom_idct32x32_135_add_c(const tran_low_t *input, uint8_t *dest,
 
 void aom_idct32x32_34_add_c(const tran_low_t *input, uint8_t *dest,
                             int stride) {
-  tran_low_t out[32 * 32] = { 0 };
+  tran_low_t out[32 * 32] = {0};
   tran_low_t *outptr = out;
   int i, j;
   tran_low_t temp_in[32], temp_out[32];
@@ -1609,7 +1609,7 @@ void aom_highbd_iadst8_c(const tran_low_t *input, tran_low_t *output, int bd) {
 
 void aom_highbd_idct8x8_10_add_c(const tran_low_t *input, uint8_t *dest8,
                                  int stride, int bd) {
-  tran_low_t out[8 * 8] = { 0 };
+  tran_low_t out[8 * 8] = {0};
   tran_low_t *outptr = out;
   int i, j;
   tran_low_t temp_in[8], temp_out[8];
@@ -1997,7 +1997,7 @@ void aom_highbd_iadst16_c(const tran_low_t *input, tran_low_t *output, int bd) {
 
 void aom_highbd_idct16x16_10_add_c(const tran_low_t *input, uint8_t *dest8,
                                    int stride, int bd) {
-  tran_low_t out[16 * 16] = { 0 };
+  tran_low_t out[16 * 16] = {0};
   tran_low_t *outptr = out;
   int i, j;
   tran_low_t temp_in[16], temp_out[16];
@@ -2447,7 +2447,7 @@ void aom_highbd_idct32x32_1024_add_c(const tran_low_t *input, uint8_t *dest8,
 
 void aom_highbd_idct32x32_34_add_c(const tran_low_t *input, uint8_t *dest8,
                                    int stride, int bd) {
-  tran_low_t out[32 * 32] = { 0 };
+  tran_low_t out[32 * 32] = {0};
   tran_low_t *outptr = out;
   int i, j;
   tran_low_t temp_in[32], temp_out[32];

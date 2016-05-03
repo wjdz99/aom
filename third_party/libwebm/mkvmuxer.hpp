@@ -9,7 +9,6 @@
 // PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 //
 
-
 #ifndef MKVMUXER_HPP
 #define MKVMUXER_HPP
 

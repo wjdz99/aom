@@ -50,8 +50,12 @@ void write_webm_file_header(struct EbmlGlobal *glob,
   video_track->SetStereoMode(stereo_fmt);
   const char *codec_id;
   switch (fourcc) {
-    case AV1_FOURCC: codec_id = "V_AV1"; break;
-    default: codec_id = "V_AV1"; break;
+    case AV1_FOURCC:
+      codec_id = "V_AV1";
+      break;
+    default:
+      codec_id = "V_AV1";
+      break;
   }
   video_track->set_codec_id(codec_id);
   if (par->numerator > 1 || par->denominator > 1) {

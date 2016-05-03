@@ -12,32 +12,29 @@
 #include <limits.h>
 #include <math.h>
 
+#include "aom_dsp/aom_dsp_common.h"
+#include "aom_ports/system_state.h"
+#include "av1/common/seg_common.h"
 #include "av1/encoder/aq_complexity.h"
 #include "av1/encoder/aq_variance.h"
 #include "av1/encoder/encodeframe.h"
-#include "av1/common/seg_common.h"
 #include "av1/encoder/segmentation.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_ports/system_state.h"
 
 #define AQ_C_SEGMENTS 5
 #define DEFAULT_AQ2_SEG 3  // Neutral Q segment
 #define AQ_C_STRENGTHS 3
 static const double aq_c_q_adj_factor[AQ_C_STRENGTHS][AQ_C_SEGMENTS] = {
-  { 1.75, 1.25, 1.05, 1.00, 0.90 },
-  { 2.00, 1.50, 1.15, 1.00, 0.85 },
-  { 2.50, 1.75, 1.25, 1.00, 0.80 }
-};
+    {1.75, 1.25, 1.05, 1.00, 0.90},
+    {2.00, 1.50, 1.15, 1.00, 0.85},
+    {2.50, 1.75, 1.25, 1.00, 0.80}};
 static const double aq_c_transitions[AQ_C_STRENGTHS][AQ_C_SEGMENTS] = {
-  { 0.15, 0.30, 0.55, 2.00, 100.0 },
-  { 0.20, 0.40, 0.65, 2.00, 100.0 },
-  { 0.25, 0.50, 0.75, 2.00, 100.0 }
-};
+    {0.15, 0.30, 0.55, 2.00, 100.0},
+    {0.20, 0.40, 0.65, 2.00, 100.0},
+    {0.25, 0.50, 0.75, 2.00, 100.0}};
 static const double aq_c_var_thresholds[AQ_C_STRENGTHS][AQ_C_SEGMENTS] = {
-  { -4.0, -3.0, -2.0, 100.00, 100.0 },
-  { -3.5, -2.5, -1.5, 100.00, 100.0 },
-  { -3.0, -2.0, -1.0, 100.00, 100.0 }
-};
+    {-4.0, -3.0, -2.0, 100.00, 100.0},
+    {-3.5, -2.5, -1.5, 100.00, 100.0},
+    {-3.0, -2.0, -1.0, 100.00, 100.0}};
 
 #define DEFAULT_COMPLEXITY 64
 
@@ -112,7 +109,7 @@ void av1_setup_in_frame_q_adj(AV1_COMP *cpi) {
 // The choice of segment for a block depends on the ratio of the projected
 // bits for the block vs a target average and its spatial complexity.
 void av1_caq_select_segment(AV1_COMP *cpi, MACROBLOCK *mb, BLOCK_SIZE bs,
-                             int mi_row, int mi_col, int projected_rate) {
+                            int mi_row, int mi_col, int projected_rate) {
   AV1_COMMON *const cm = &cpi->common;
 
   const int mi_offset = mi_row * cm->mi_cols + mi_col;

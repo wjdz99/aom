@@ -9,7 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include "third_party/googletest/src/include/gtest/gtest.h"
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
@@ -193,7 +192,7 @@ class ErrorResilienceTestLarge
 };
 
 TEST_P(ErrorResilienceTestLarge, OnVersusOff) {
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const aom_rational timebase = {33333333, 1000000000};
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = 2000;
   cfg_.g_lag_in_frames = 10;
@@ -228,7 +227,7 @@ TEST_P(ErrorResilienceTestLarge, OnVersusOff) {
 // frames (i.e., frames that don't update any reference buffers).
 // Check both isolated and consecutive loss.
 TEST_P(ErrorResilienceTestLarge, DropFramesWithoutRecovery) {
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const aom_rational timebase = {33333333, 1000000000};
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = 500;
   // FIXME(debargha): Fix this to work for any lag.
@@ -290,7 +289,7 @@ TEST_P(ErrorResilienceTestLarge, 2LayersDropEnhancement) {
   // This test doesn't run if SVC is not supported.
   if (!svc_support_) return;
 
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const aom_rational timebase = {33333333, 1000000000};
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = 500;
   cfg_.g_lag_in_frames = 0;
@@ -337,7 +336,7 @@ TEST_P(ErrorResilienceTestLarge, 2LayersNoRefLast) {
   // This test doesn't run if SVC is not supported.
   if (!svc_support_) return;
 
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const aom_rational timebase = {33333333, 1000000000};
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = 500;
   cfg_.g_lag_in_frames = 0;
@@ -574,5 +573,5 @@ TEST_P(ErrorResilienceTestLargeCodecControls, CodecControl3TemporalLayers) {
 
 // SVC-related tests don't run for AV1 since SVC is not supported.
 AV1_INSTANTIATE_TEST_CASE(ErrorResilienceTestLarge, ONE_PASS_TEST_MODES,
-                           ::testing::Values(false));
+                          ::testing::Values(false));
 }  // namespace

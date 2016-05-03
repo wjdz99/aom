@@ -9,7 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
 #include "test/codec_factory.h"
@@ -42,26 +41,26 @@ typedef struct {
 } TestVideoParam;
 
 const TestVideoParam kTestVectors[] = {
-  { "park_joy_90p_8_420.y4m", 8, AOM_IMG_FMT_I420, AOM_BITS_8, 0 },
-  { "park_joy_90p_8_422.y4m", 8, AOM_IMG_FMT_I422, AOM_BITS_8, 1 },
-  { "park_joy_90p_8_444.y4m", 8, AOM_IMG_FMT_I444, AOM_BITS_8, 1 },
-  { "park_joy_90p_8_440.yuv", 8, AOM_IMG_FMT_I440, AOM_BITS_8, 1 },
+    {"park_joy_90p_8_420.y4m", 8, AOM_IMG_FMT_I420, AOM_BITS_8, 0},
+    {"park_joy_90p_8_422.y4m", 8, AOM_IMG_FMT_I422, AOM_BITS_8, 1},
+    {"park_joy_90p_8_444.y4m", 8, AOM_IMG_FMT_I444, AOM_BITS_8, 1},
+    {"park_joy_90p_8_440.yuv", 8, AOM_IMG_FMT_I440, AOM_BITS_8, 1},
 #if CONFIG_AOM_HIGHBITDEPTH
-  { "park_joy_90p_10_420.y4m", 10, AOM_IMG_FMT_I42016, AOM_BITS_10, 2 },
-  { "park_joy_90p_10_422.y4m", 10, AOM_IMG_FMT_I42216, AOM_BITS_10, 3 },
-  { "park_joy_90p_10_444.y4m", 10, AOM_IMG_FMT_I44416, AOM_BITS_10, 3 },
-  { "park_joy_90p_10_440.yuv", 10, AOM_IMG_FMT_I44016, AOM_BITS_10, 3 },
-  { "park_joy_90p_12_420.y4m", 12, AOM_IMG_FMT_I42016, AOM_BITS_12, 2 },
-  { "park_joy_90p_12_422.y4m", 12, AOM_IMG_FMT_I42216, AOM_BITS_12, 3 },
-  { "park_joy_90p_12_444.y4m", 12, AOM_IMG_FMT_I44416, AOM_BITS_12, 3 },
-  { "park_joy_90p_12_440.yuv", 12, AOM_IMG_FMT_I44016, AOM_BITS_12, 3 },
+    {"park_joy_90p_10_420.y4m", 10, AOM_IMG_FMT_I42016, AOM_BITS_10, 2},
+    {"park_joy_90p_10_422.y4m", 10, AOM_IMG_FMT_I42216, AOM_BITS_10, 3},
+    {"park_joy_90p_10_444.y4m", 10, AOM_IMG_FMT_I44416, AOM_BITS_10, 3},
+    {"park_joy_90p_10_440.yuv", 10, AOM_IMG_FMT_I44016, AOM_BITS_10, 3},
+    {"park_joy_90p_12_420.y4m", 12, AOM_IMG_FMT_I42016, AOM_BITS_12, 2},
+    {"park_joy_90p_12_422.y4m", 12, AOM_IMG_FMT_I42216, AOM_BITS_12, 3},
+    {"park_joy_90p_12_444.y4m", 12, AOM_IMG_FMT_I44416, AOM_BITS_12, 3},
+    {"park_joy_90p_12_440.yuv", 12, AOM_IMG_FMT_I44016, AOM_BITS_12, 3},
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 };
 
 // Encoding modes tested
 const libaom_test::TestMode kEncodingModeVectors[] = {
-  ::libaom_test::kTwoPassGood, ::libaom_test::kOnePassGood,
-  ::libaom_test::kRealTime,
+    ::libaom_test::kTwoPassGood, ::libaom_test::kOnePassGood,
+    ::libaom_test::kRealTime,
 };
 
 // Speed settings tested
@@ -177,16 +176,16 @@ TEST_P(EndToEndTestLarge, EndtoEndPSNRTest) {
 INSTANTIATE_TEST_CASE_P(
     DISABLED_AV1, EndToEndTestLarge,
     ::testing::Combine(
-        ::testing::Values(static_cast<const libaom_test::CodecFactory *>(
-            &libaom_test::kAV1)),
+        ::testing::Values(
+            static_cast<const libaom_test::CodecFactory *>(&libaom_test::kAV1)),
         ::testing::ValuesIn(kEncodingModeVectors),
         ::testing::ValuesIn(kTestVectors),
         ::testing::ValuesIn(kCpuUsedVectors)));
 #endif  // CONFIG_AV1_ENCODER
 #else
 AV1_INSTANTIATE_TEST_CASE(EndToEndTestLarge,
-                           ::testing::ValuesIn(kEncodingModeVectors),
-                           ::testing::ValuesIn(kTestVectors),
-                           ::testing::ValuesIn(kCpuUsedVectors));
+                          ::testing::ValuesIn(kEncodingModeVectors),
+                          ::testing::ValuesIn(kTestVectors),
+                          ::testing::ValuesIn(kCpuUsedVectors));
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 }  // namespace

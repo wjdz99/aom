@@ -9,15 +9,14 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
+#include "av1/encoder/ratectrl.h"
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
 #include "test/util.h"
 #include "test/y4m_video_source.h"
 #include "test/yuv_video_source.h"
-#include "av1/encoder/ratectrl.h"
 
 namespace {
 
@@ -45,28 +44,27 @@ typedef struct {
 } TestEncodeParam;
 
 const TestVideoParam kTestVectors[] = {
-  // artificially increase framerate to trigger default check
-  { "hantro_collage_w352h288.yuv", 352, 288, 5000, 1, 8, AOM_IMG_FMT_I420,
-    AOM_BITS_8, 0 },
-  { "hantro_collage_w352h288.yuv", 352, 288, 30, 1, 8, AOM_IMG_FMT_I420,
-    AOM_BITS_8, 0 },
-  { "rush_hour_444.y4m", 352, 288, 30, 1, 8, AOM_IMG_FMT_I444, AOM_BITS_8, 1 },
+    // artificially increase framerate to trigger default check
+    {"hantro_collage_w352h288.yuv", 352, 288, 5000, 1, 8, AOM_IMG_FMT_I420,
+     AOM_BITS_8, 0},
+    {"hantro_collage_w352h288.yuv", 352, 288, 30, 1, 8, AOM_IMG_FMT_I420,
+     AOM_BITS_8, 0},
+    {"rush_hour_444.y4m", 352, 288, 30, 1, 8, AOM_IMG_FMT_I444, AOM_BITS_8, 1},
 #if CONFIG_AOM_HIGHBITDEPTH
 // Add list of profile 2/3 test videos here ...
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 };
 
 const TestEncodeParam kEncodeVectors[] = {
-  { ::libaom_test::kOnePassGood, 2 }, { ::libaom_test::kOnePassGood, 5 },
-  { ::libaom_test::kTwoPassGood, 1 }, { ::libaom_test::kTwoPassGood, 2 },
-  { ::libaom_test::kTwoPassGood, 5 }, { ::libaom_test::kRealTime, 5 },
+    {::libaom_test::kOnePassGood, 2}, {::libaom_test::kOnePassGood, 5},
+    {::libaom_test::kTwoPassGood, 1}, {::libaom_test::kTwoPassGood, 2},
+    {::libaom_test::kTwoPassGood, 5}, {::libaom_test::kRealTime, 5},
 };
 
 const int kMinArfVectors[] = {
-  // NOTE: 0 refers to the default built-in logic in:
-  //       av1_rc_get_default_min_gf_interval(...)
-  0, 4, 8, 12, 15
-};
+    // NOTE: 0 refers to the default built-in logic in:
+    //       av1_rc_get_default_min_gf_interval(...)
+    0, 4, 8, 12, 15};
 
 int is_extension_y4m(const char *filename) {
   const char *dot = strrchr(filename, '.');
@@ -218,14 +216,14 @@ TEST_P(ArfFreqTest, MinArfFreqTest) {
 INSTANTIATE_TEST_CASE_P(
     DISABLED_AV1, ArfFreqTest,
     ::testing::Combine(
-        ::testing::Values(static_cast<const libaom_test::CodecFactory *>(
-            &libaom_test::kAV1)),
+        ::testing::Values(
+            static_cast<const libaom_test::CodecFactory *>(&libaom_test::kAV1)),
         ::testing::ValuesIn(kTestVectors), ::testing::ValuesIn(kEncodeVectors),
         ::testing::ValuesIn(kMinArfVectors)));
 #endif  // CONFIG_AV1_ENCODER
 #else
 AV1_INSTANTIATE_TEST_CASE(ArfFreqTest, ::testing::ValuesIn(kTestVectors),
-                           ::testing::ValuesIn(kEncodeVectors),
-                           ::testing::ValuesIn(kMinArfVectors));
+                          ::testing::ValuesIn(kEncodeVectors),
+                          ::testing::ValuesIn(kMinArfVectors));
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 }  // namespace

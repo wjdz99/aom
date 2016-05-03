@@ -8,8 +8,8 @@
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
-#include "av1/common/common.h"
 #include "av1/common/pred_common.h"
+#include "av1/common/common.h"
 #include "av1/common/seg_common.h"
 
 // Returns a context number for the given MB prediction signal
@@ -62,7 +62,7 @@ int av1_get_intra_inter_context(const MACROBLOCKD *xd) {
 }
 
 int av1_get_reference_mode_context(const AV1_COMMON *cm,
-                                    const MACROBLOCKD *xd) {
+                                   const MACROBLOCKD *xd) {
   int ctx;
   const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
   const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
@@ -105,7 +105,7 @@ int av1_get_reference_mode_context(const AV1_COMMON *cm,
 
 // Returns a context number for the given MB prediction signal
 int av1_get_pred_context_comp_ref_p(const AV1_COMMON *cm,
-                                     const MACROBLOCKD *xd) {
+                                    const MACROBLOCKD *xd) {
   int pred_context;
   const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
   const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;

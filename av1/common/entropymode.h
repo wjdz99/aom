@@ -12,11 +12,11 @@
 #ifndef AV1_COMMON_ENTROPYMODE_H_
 #define AV1_COMMON_ENTROPYMODE_H_
 
+#include "aom_dsp/aom_filter.h"
 #include "av1/common/entropy.h"
 #include "av1/common/entropymv.h"
 #include "av1/common/filter.h"
 #include "av1/common/seg_common.h"
-#include "aom_dsp/aom_filter.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,9 +54,8 @@ typedef struct frame_contexts {
   aom_prob uv_mode_prob[INTRA_MODES][INTRA_MODES - 1];
   aom_prob partition_prob[PARTITION_CONTEXTS][PARTITION_TYPES - 1];
   av1_coeff_probs_model coef_probs[TX_SIZES][PLANE_TYPES];
-  aom_prob
-      switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS]
-                            [SWITCHABLE_FILTERS - 1];
+  aom_prob switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS]
+                                 [SWITCHABLE_FILTERS - 1];
 
 #if CONFIG_REF_MV
   aom_prob newmv_prob[NEWMV_MODE_CONTEXTS];
@@ -91,10 +90,10 @@ typedef struct FRAME_COUNTS {
   unsigned int uv_mode[INTRA_MODES][INTRA_MODES];
   unsigned int partition[PARTITION_CONTEXTS][PARTITION_TYPES];
   av1_coeff_count_model coef[TX_SIZES][PLANE_TYPES];
-  unsigned int
-      eob_branch[TX_SIZES][PLANE_TYPES][REF_TYPES][COEF_BANDS][COEFF_CONTEXTS];
-  unsigned int
-      switchable_interp[SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS];
+  unsigned int eob_branch[TX_SIZES][PLANE_TYPES][REF_TYPES][COEF_BANDS]
+                         [COEFF_CONTEXTS];
+  unsigned int switchable_interp[SWITCHABLE_FILTER_CONTEXTS]
+                                [SWITCHABLE_FILTERS];
 
 #if CONFIG_REF_MV
   unsigned int newmv_mode[NEWMV_MODE_CONTEXTS][2];
@@ -122,12 +121,12 @@ typedef struct FRAME_COUNTS {
   unsigned int inter_ext_tx[EXT_TX_SIZES][TX_TYPES];
 } FRAME_COUNTS;
 
-extern const aom_prob
-    av1_kf_y_mode_prob[INTRA_MODES][INTRA_MODES][INTRA_MODES - 1];
+extern const aom_prob av1_kf_y_mode_prob[INTRA_MODES][INTRA_MODES]
+                                        [INTRA_MODES - 1];
 #if !CONFIG_MISC_FIXES
 extern const aom_prob av1_kf_uv_mode_prob[INTRA_MODES][INTRA_MODES - 1];
-extern const aom_prob
-    av1_kf_partition_probs[PARTITION_CONTEXTS][PARTITION_TYPES - 1];
+extern const aom_prob av1_kf_partition_probs[PARTITION_CONTEXTS]
+                                            [PARTITION_TYPES - 1];
 #endif
 
 extern const aom_tree_index av1_intra_mode_tree[TREE_SIZE(INTRA_MODES)];
@@ -142,11 +141,11 @@ void av1_adapt_intra_frame_probs(struct AV1Common *cm);
 void av1_adapt_inter_frame_probs(struct AV1Common *cm);
 
 void av1_tx_counts_to_branch_counts_32x32(const unsigned int *tx_count_32x32p,
-                                           unsigned int (*ct_32x32p)[2]);
+                                          unsigned int (*ct_32x32p)[2]);
 void av1_tx_counts_to_branch_counts_16x16(const unsigned int *tx_count_16x16p,
-                                           unsigned int (*ct_16x16p)[2]);
+                                          unsigned int (*ct_16x16p)[2]);
 void av1_tx_counts_to_branch_counts_8x8(const unsigned int *tx_count_8x8p,
-                                         unsigned int (*ct_8x8p)[2]);
+                                        unsigned int (*ct_8x8p)[2]);
 
 extern const aom_tree_index av1_ext_tx_tree[TREE_SIZE(TX_TYPES)];
 

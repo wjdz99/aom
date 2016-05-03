@@ -18,8 +18,8 @@
 
 #include "aom/aom_encoder.h"
 
-#include "./tools_common.h"
 #include "./aomenc.h"
+#include "./tools_common.h"
 
 static const char quantizer_warning_string[] =
     "Bad quantizer values. Quantizer values should not be equal, and should "

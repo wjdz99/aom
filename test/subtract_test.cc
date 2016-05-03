@@ -9,17 +9,16 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
-#include "./av1_rtcd.h"
 #include "./aom_config.h"
 #include "./aom_dsp_rtcd.h"
+#include "./av1_rtcd.h"
+#include "aom_mem/aom_mem.h"
+#include "av1/common/blockd.h"
 #include "test/acm_random.h"
 #include "test/clear_system_state.h"
 #include "test/register_state_check.h"
-#include "av1/common/blockd.h"
-#include "aom_mem/aom_mem.h"
 
 typedef void (*SubtractFunc)(int rows, int cols, int16_t *diff_ptr,
                              ptrdiff_t diff_stride, const uint8_t *src_ptr,

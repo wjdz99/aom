@@ -9,17 +9,16 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include <cstdio>
 #include <cstdlib>
 #include <string>
-#include "third_party/googletest/src/include/gtest/gtest.h"
+#include "aom_mem/aom_mem.h"
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
 #include "test/i420_video_source.h"
-#include "test/util.h"
 #include "test/md5_helper.h"
-#include "aom_mem/aom_mem.h"
+#include "test/util.h"
+#include "third_party/googletest/src/include/gtest/gtest.h"
 
 namespace {
 class TileIndependenceTest : public ::libaom_test::EncoderTest,
@@ -83,7 +82,7 @@ class TileIndependenceTest : public ::libaom_test::EncoderTest,
 // inverted tile ordering. Ensure that the MD5 of the output in both cases
 // is identical. If so, tiles are considered independent and the test passes.
 TEST_P(TileIndependenceTest, MD5Match) {
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const aom_rational timebase = {33333333, 1000000000};
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = 500;
   cfg_.g_lag_in_frames = 25;

@@ -51,7 +51,7 @@ void aom_iwht4x4_16_add_msa(const int16_t *input, uint8_t *dst,
 void aom_iwht4x4_1_add_msa(const int16_t *input, uint8_t *dst,
                            int32_t dst_stride) {
   int16_t a1, e1;
-  v8i16 in1, in0 = { 0 };
+  v8i16 in1, in0 = {0};
 
   a1 = input[0] >> UNIT_QUANT_SHIFT;
   e1 = a1 >> 1;

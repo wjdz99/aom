@@ -10,15 +10,15 @@
 */
 
 #include <string>
-#include "third_party/googletest/src/include/gtest/gtest.h"
 #include "./aom_config.h"
 #include "./aom_version.h"
+#include "aom_ports/aom_timer.h"
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
 #include "test/i420_video_source.h"
 #include "test/util.h"
 #include "test/y4m_video_source.h"
-#include "aom_ports/aom_timer.h"
+#include "third_party/googletest/src/include/gtest/gtest.h"
 
 namespace {
 
@@ -38,16 +38,17 @@ struct EncodePerfTestVideo {
 };
 
 const EncodePerfTestVideo kAV1EncodePerfTestVectors[] = {
-  EncodePerfTestVideo("desktop_640_360_30.yuv", 640, 360, 200, 2484),
-  EncodePerfTestVideo("kirland_640_480_30.yuv", 640, 480, 200, 300),
-  EncodePerfTestVideo("macmarcomoving_640_480_30.yuv", 640, 480, 200, 987),
-  EncodePerfTestVideo("macmarcostationary_640_480_30.yuv", 640, 480, 200, 718),
-  EncodePerfTestVideo("niklas_640_480_30.yuv", 640, 480, 200, 471),
-  EncodePerfTestVideo("tacomanarrows_640_480_30.yuv", 640, 480, 200, 300),
-  EncodePerfTestVideo("tacomasmallcameramovement_640_480_30.yuv", 640, 480, 200,
-                      300),
-  EncodePerfTestVideo("thaloundeskmtg_640_480_30.yuv", 640, 480, 200, 300),
-  EncodePerfTestVideo("niklas_1280_720_30.yuv", 1280, 720, 600, 470),
+    EncodePerfTestVideo("desktop_640_360_30.yuv", 640, 360, 200, 2484),
+    EncodePerfTestVideo("kirland_640_480_30.yuv", 640, 480, 200, 300),
+    EncodePerfTestVideo("macmarcomoving_640_480_30.yuv", 640, 480, 200, 987),
+    EncodePerfTestVideo("macmarcostationary_640_480_30.yuv", 640, 480, 200,
+                        718),
+    EncodePerfTestVideo("niklas_640_480_30.yuv", 640, 480, 200, 471),
+    EncodePerfTestVideo("tacomanarrows_640_480_30.yuv", 640, 480, 200, 300),
+    EncodePerfTestVideo("tacomasmallcameramovement_640_480_30.yuv", 640, 480,
+                        200, 300),
+    EncodePerfTestVideo("thaloundeskmtg_640_480_30.yuv", 640, 480, 200, 300),
+    EncodePerfTestVideo("niklas_1280_720_30.yuv", 1280, 720, 600, 470),
 };
 
 const int kEncodePerfTestSpeeds[] = { 5, 6, 7, 8 };
@@ -60,8 +61,12 @@ class AV1EncodePerfTest
       public ::libaom_test::CodecTestWithParam<libaom_test::TestMode> {
  protected:
   AV1EncodePerfTest()
-      : EncoderTest(GET_PARAM(0)), min_psnr_(kMaxPsnr), nframes_(0),
-        encoding_mode_(GET_PARAM(1)), speed_(0), threads_(1) {}
+      : EncoderTest(GET_PARAM(0)),
+        min_psnr_(kMaxPsnr),
+        nframes_(0),
+        encoding_mode_(GET_PARAM(1)),
+        speed_(0),
+        threads_(1) {}
 
   virtual ~AV1EncodePerfTest() {}
 
@@ -137,7 +142,7 @@ TEST_P(AV1EncodePerfTest, PerfTest) {
         set_threads(kEncodePerfTestThreads[k]);
         SetUp();
 
-        const aom_rational timebase = { 33333333, 1000000000 };
+        const aom_rational timebase = {33333333, 1000000000};
         cfg_.g_timebase = timebase;
         cfg_.rc_target_bitrate = kAV1EncodePerfTestVectors[i].bitrate;
 
@@ -185,5 +190,5 @@ TEST_P(AV1EncodePerfTest, PerfTest) {
 }
 
 AV1_INSTANTIATE_TEST_CASE(AV1EncodePerfTest,
-                           ::testing::Values(::libaom_test::kRealTime));
+                          ::testing::Values(::libaom_test::kRealTime));
 }  // namespace

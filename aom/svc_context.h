@@ -17,8 +17,8 @@
 #ifndef AOM_SVC_CONTEXT_H_
 #define AOM_SVC_CONTEXT_H_
 
-#include "./aomcx.h"
 #include "./aom_encoder.h"
+#include "./aomcx.h"
 
 #ifdef __cplusplus
 extern "C" {

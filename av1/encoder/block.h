@@ -12,8 +12,8 @@
 #ifndef AV1_ENCODER_BLOCK_H_
 #define AV1_ENCODER_BLOCK_H_
 
-#include "av1/common/entropymv.h"
 #include "av1/common/entropy.h"
+#include "av1/common/entropymv.h"
 #if CONFIG_REF_MV
 #include "av1/common/mvref_common.h"
 #endif
@@ -49,7 +49,7 @@ struct macroblock_plane {
 /* The [2] dimension is for whether we skip the EOB node (i.e. if previous
  * coefficient in this block was zero) or not. */
 typedef unsigned int av1_coeff_cost[PLANE_TYPES][REF_TYPES][COEF_BANDS][2]
-                                    [COEFF_CONTEXTS][ENTROPY_TOKENS];
+                                   [COEFF_CONTEXTS][ENTROPY_TOKENS];
 
 typedef struct {
   int_mv ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES];

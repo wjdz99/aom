@@ -23,9 +23,15 @@ namespace libaom_test {
 class Y4mVideoSource : public VideoSource {
  public:
   Y4mVideoSource(const std::string &file_name, unsigned int start, int limit)
-      : file_name_(file_name), input_file_(NULL), img_(new aom_image_t()),
-        start_(start), limit_(limit), frame_(0), framerate_numerator_(0),
-        framerate_denominator_(0), y4m_() {}
+      : file_name_(file_name),
+        input_file_(NULL),
+        img_(new aom_image_t()),
+        start_(start),
+        limit_(limit),
+        frame_(0),
+        framerate_numerator_(0),
+        framerate_denominator_(0),
+        y4m_() {}
 
   virtual ~Y4mVideoSource() {
     aom_img_free(img_.get());
@@ -71,7 +77,7 @@ class Y4mVideoSource : public VideoSource {
   virtual unsigned long duration() const { return 1; }
 
   virtual aom_rational_t timebase() const {
-    const aom_rational_t t = { framerate_denominator_, framerate_numerator_ };
+    const aom_rational_t t = {framerate_denominator_, framerate_numerator_};
     return t;
   }
 

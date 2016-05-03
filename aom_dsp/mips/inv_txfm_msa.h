@@ -16,68 +16,68 @@
 #include "aom_dsp/mips/txfm_macros_msa.h"
 #include "aom_dsp/txfm_common.h"
 
-#define AV1_ADST8(in0, in1, in2, in3, in4, in5, in6, in7, out0, out1, out2,  \
-                  out3, out4, out5, out6, out7)                              \
-  {                                                                          \
-    v8i16 cnst0_m, cnst1_m, cnst2_m, cnst3_m, cnst4_m;                       \
-    v8i16 vec0_m, vec1_m, vec2_m, vec3_m, s0_m, s1_m;                        \
-    v8i16 coeff0_m = { cospi_2_64,  cospi_6_64,  cospi_10_64, cospi_14_64,   \
-                       cospi_18_64, cospi_22_64, cospi_26_64, cospi_30_64 }; \
-    v8i16 coeff1_m = { cospi_8_64,  -cospi_8_64,  cospi_16_64, -cospi_16_64, \
-                       cospi_24_64, -cospi_24_64, 0,           0 };          \
-                                                                             \
-    SPLATI_H2_SH(coeff0_m, 0, 7, cnst0_m, cnst1_m);                          \
-    cnst2_m = -cnst0_m;                                                      \
-    ILVEV_H2_SH(cnst0_m, cnst1_m, cnst1_m, cnst2_m, cnst0_m, cnst1_m);       \
-    SPLATI_H2_SH(coeff0_m, 4, 3, cnst2_m, cnst3_m);                          \
-    cnst4_m = -cnst2_m;                                                      \
-    ILVEV_H2_SH(cnst2_m, cnst3_m, cnst3_m, cnst4_m, cnst2_m, cnst3_m);       \
-                                                                             \
-    ILVRL_H2_SH(in0, in7, vec1_m, vec0_m);                                   \
-    ILVRL_H2_SH(in4, in3, vec3_m, vec2_m);                                   \
-    DOT_ADD_SUB_SRARI_PCK(vec0_m, vec1_m, vec2_m, vec3_m, cnst0_m, cnst1_m,  \
-                          cnst2_m, cnst3_m, in7, in0, in4, in3);             \
-                                                                             \
-    SPLATI_H2_SH(coeff0_m, 2, 5, cnst0_m, cnst1_m);                          \
-    cnst2_m = -cnst0_m;                                                      \
-    ILVEV_H2_SH(cnst0_m, cnst1_m, cnst1_m, cnst2_m, cnst0_m, cnst1_m);       \
-    SPLATI_H2_SH(coeff0_m, 6, 1, cnst2_m, cnst3_m);                          \
-    cnst4_m = -cnst2_m;                                                      \
-    ILVEV_H2_SH(cnst2_m, cnst3_m, cnst3_m, cnst4_m, cnst2_m, cnst3_m);       \
-                                                                             \
-    ILVRL_H2_SH(in2, in5, vec1_m, vec0_m);                                   \
-    ILVRL_H2_SH(in6, in1, vec3_m, vec2_m);                                   \
-                                                                             \
-    DOT_ADD_SUB_SRARI_PCK(vec0_m, vec1_m, vec2_m, vec3_m, cnst0_m, cnst1_m,  \
-                          cnst2_m, cnst3_m, in5, in2, in6, in1);             \
-    BUTTERFLY_4(in7, in0, in2, in5, s1_m, s0_m, in2, in5);                   \
-    out7 = -s0_m;                                                            \
-    out0 = s1_m;                                                             \
-                                                                             \
-    SPLATI_H4_SH(coeff1_m, 0, 4, 1, 5, cnst0_m, cnst1_m, cnst2_m, cnst3_m);  \
-                                                                             \
-    ILVEV_H2_SH(cnst3_m, cnst0_m, cnst1_m, cnst2_m, cnst3_m, cnst2_m);       \
-    cnst0_m = __msa_ilvev_h(cnst1_m, cnst0_m);                               \
-    cnst1_m = cnst0_m;                                                       \
-                                                                             \
-    ILVRL_H2_SH(in4, in3, vec1_m, vec0_m);                                   \
-    ILVRL_H2_SH(in6, in1, vec3_m, vec2_m);                                   \
-    DOT_ADD_SUB_SRARI_PCK(vec0_m, vec1_m, vec2_m, vec3_m, cnst0_m, cnst2_m,  \
-                          cnst3_m, cnst1_m, out1, out6, s0_m, s1_m);         \
-                                                                             \
-    SPLATI_H2_SH(coeff1_m, 2, 3, cnst0_m, cnst1_m);                          \
-    cnst1_m = __msa_ilvev_h(cnst1_m, cnst0_m);                               \
-                                                                             \
-    ILVRL_H2_SH(in2, in5, vec1_m, vec0_m);                                   \
-    ILVRL_H2_SH(s0_m, s1_m, vec3_m, vec2_m);                                 \
-    out3 = DOT_SHIFT_RIGHT_PCK_H(vec0_m, vec1_m, cnst0_m);                   \
-    out4 = DOT_SHIFT_RIGHT_PCK_H(vec0_m, vec1_m, cnst1_m);                   \
-    out2 = DOT_SHIFT_RIGHT_PCK_H(vec2_m, vec3_m, cnst0_m);                   \
-    out5 = DOT_SHIFT_RIGHT_PCK_H(vec2_m, vec3_m, cnst1_m);                   \
-                                                                             \
-    out1 = -out1;                                                            \
-    out3 = -out3;                                                            \
-    out5 = -out5;                                                            \
+#define AV1_ADST8(in0, in1, in2, in3, in4, in5, in6, in7, out0, out1, out2, \
+                  out3, out4, out5, out6, out7)                             \
+  {                                                                         \
+    v8i16 cnst0_m, cnst1_m, cnst2_m, cnst3_m, cnst4_m;                      \
+    v8i16 vec0_m, vec1_m, vec2_m, vec3_m, s0_m, s1_m;                       \
+    v8i16 coeff0_m = {cospi_2_64,  cospi_6_64,  cospi_10_64, cospi_14_64,   \
+                      cospi_18_64, cospi_22_64, cospi_26_64, cospi_30_64};  \
+    v8i16 coeff1_m = {cospi_8_64,  -cospi_8_64,  cospi_16_64, -cospi_16_64, \
+                      cospi_24_64, -cospi_24_64, 0,           0};           \
+                                                                            \
+    SPLATI_H2_SH(coeff0_m, 0, 7, cnst0_m, cnst1_m);                         \
+    cnst2_m = -cnst0_m;                                                     \
+    ILVEV_H2_SH(cnst0_m, cnst1_m, cnst1_m, cnst2_m, cnst0_m, cnst1_m);      \
+    SPLATI_H2_SH(coeff0_m, 4, 3, cnst2_m, cnst3_m);                         \
+    cnst4_m = -cnst2_m;                                                     \
+    ILVEV_H2_SH(cnst2_m, cnst3_m, cnst3_m, cnst4_m, cnst2_m, cnst3_m);      \
+                                                                            \
+    ILVRL_H2_SH(in0, in7, vec1_m, vec0_m);                                  \
+    ILVRL_H2_SH(in4, in3, vec3_m, vec2_m);                                  \
+    DOT_ADD_SUB_SRARI_PCK(vec0_m, vec1_m, vec2_m, vec3_m, cnst0_m, cnst1_m, \
+                          cnst2_m, cnst3_m, in7, in0, in4, in3);            \
+                                                                            \
+    SPLATI_H2_SH(coeff0_m, 2, 5, cnst0_m, cnst1_m);                         \
+    cnst2_m = -cnst0_m;                                                     \
+    ILVEV_H2_SH(cnst0_m, cnst1_m, cnst1_m, cnst2_m, cnst0_m, cnst1_m);      \
+    SPLATI_H2_SH(coeff0_m, 6, 1, cnst2_m, cnst3_m);                         \
+    cnst4_m = -cnst2_m;                                                     \
+    ILVEV_H2_SH(cnst2_m, cnst3_m, cnst3_m, cnst4_m, cnst2_m, cnst3_m);      \
+                                                                            \
+    ILVRL_H2_SH(in2, in5, vec1_m, vec0_m);                                  \
+    ILVRL_H2_SH(in6, in1, vec3_m, vec2_m);                                  \
+                                                                            \
+    DOT_ADD_SUB_SRARI_PCK(vec0_m, vec1_m, vec2_m, vec3_m, cnst0_m, cnst1_m, \
+                          cnst2_m, cnst3_m, in5, in2, in6, in1);            \
+    BUTTERFLY_4(in7, in0, in2, in5, s1_m, s0_m, in2, in5);                  \
+    out7 = -s0_m;                                                           \
+    out0 = s1_m;                                                            \
+                                                                            \
+    SPLATI_H4_SH(coeff1_m, 0, 4, 1, 5, cnst0_m, cnst1_m, cnst2_m, cnst3_m); \
+                                                                            \
+    ILVEV_H2_SH(cnst3_m, cnst0_m, cnst1_m, cnst2_m, cnst3_m, cnst2_m);      \
+    cnst0_m = __msa_ilvev_h(cnst1_m, cnst0_m);                              \
+    cnst1_m = cnst0_m;                                                      \
+                                                                            \
+    ILVRL_H2_SH(in4, in3, vec1_m, vec0_m);                                  \
+    ILVRL_H2_SH(in6, in1, vec3_m, vec2_m);                                  \
+    DOT_ADD_SUB_SRARI_PCK(vec0_m, vec1_m, vec2_m, vec3_m, cnst0_m, cnst2_m, \
+                          cnst3_m, cnst1_m, out1, out6, s0_m, s1_m);        \
+                                                                            \
+    SPLATI_H2_SH(coeff1_m, 2, 3, cnst0_m, cnst1_m);                         \
+    cnst1_m = __msa_ilvev_h(cnst1_m, cnst0_m);                              \
+                                                                            \
+    ILVRL_H2_SH(in2, in5, vec1_m, vec0_m);                                  \
+    ILVRL_H2_SH(s0_m, s1_m, vec3_m, vec2_m);                                \
+    out3 = DOT_SHIFT_RIGHT_PCK_H(vec0_m, vec1_m, cnst0_m);                  \
+    out4 = DOT_SHIFT_RIGHT_PCK_H(vec0_m, vec1_m, cnst1_m);                  \
+    out2 = DOT_SHIFT_RIGHT_PCK_H(vec2_m, vec3_m, cnst0_m);                  \
+    out5 = DOT_SHIFT_RIGHT_PCK_H(vec2_m, vec3_m, cnst1_m);                  \
+                                                                            \
+    out1 = -out1;                                                           \
+    out3 = -out3;                                                           \
+    out5 = -out5;                                                           \
   }
 
 #define AOM_SET_COSPI_PAIR(c0_h, c1_h)  \
@@ -96,7 +96,7 @@
     uint8_t *dst_m = (uint8_t *)(dst);                                         \
     v16u8 dst0_m, dst1_m, dst2_m, dst3_m;                                      \
     v16i8 tmp0_m, tmp1_m;                                                      \
-    v16i8 zero_m = { 0 };                                                      \
+    v16i8 zero_m = {0};                                                        \
     v8i16 res0_m, res1_m, res2_m, res3_m;                                      \
                                                                                \
     LD_UB4(dst_m, dst_stride, dst0_m, dst1_m, dst2_m, dst3_m);                 \
@@ -132,54 +132,54 @@
                 out0, out1, out2, out3);                                    \
   }
 
-#define AOM_IADST4x4(in0, in1, in2, in3, out0, out1, out2, out3)       \
-  {                                                                    \
-    v8i16 res0_m, res1_m, c0_m, c1_m;                                  \
-    v8i16 k1_m, k2_m, k3_m, k4_m;                                      \
-    v8i16 zero_m = { 0 };                                              \
-    v4i32 tmp0_m, tmp1_m, tmp2_m, tmp3_m;                              \
-    v4i32 int0_m, int1_m, int2_m, int3_m;                              \
-    v8i16 mask_m = { sinpi_1_9,  sinpi_2_9,  sinpi_3_9,  sinpi_4_9,    \
-                     -sinpi_1_9, -sinpi_2_9, -sinpi_3_9, -sinpi_4_9 }; \
-                                                                       \
-    SPLATI_H4_SH(mask_m, 3, 0, 1, 2, c0_m, c1_m, k1_m, k2_m);          \
-    ILVEV_H2_SH(c0_m, c1_m, k1_m, k2_m, c0_m, c1_m);                   \
-    ILVR_H2_SH(in0, in2, in1, in3, res0_m, res1_m);                    \
-    DOTP_SH2_SW(res0_m, res1_m, c0_m, c1_m, tmp2_m, tmp1_m);           \
-    int0_m = tmp2_m + tmp1_m;                                          \
-                                                                       \
-    SPLATI_H2_SH(mask_m, 4, 7, k4_m, k3_m);                            \
-    ILVEV_H2_SH(k4_m, k1_m, k3_m, k2_m, c0_m, c1_m);                   \
-    DOTP_SH2_SW(res0_m, res1_m, c0_m, c1_m, tmp0_m, tmp1_m);           \
-    int1_m = tmp0_m + tmp1_m;                                          \
-                                                                       \
-    c0_m = __msa_splati_h(mask_m, 6);                                  \
-    ILVL_H2_SH(k2_m, c0_m, zero_m, k2_m, c0_m, c1_m);                  \
-    ILVR_H2_SH(in0, in2, in1, in3, res0_m, res1_m);                    \
-    DOTP_SH2_SW(res0_m, res1_m, c0_m, c1_m, tmp0_m, tmp1_m);           \
-    int2_m = tmp0_m + tmp1_m;                                          \
-                                                                       \
-    c0_m = __msa_splati_h(mask_m, 6);                                  \
-    c0_m = __msa_ilvev_h(c0_m, k1_m);                                  \
-                                                                       \
-    res0_m = __msa_ilvr_h((in1), (in3));                               \
-    tmp0_m = __msa_dotp_s_w(res0_m, c0_m);                             \
-    int3_m = tmp2_m + tmp0_m;                                          \
-                                                                       \
-    res0_m = __msa_ilvr_h((in2), (in3));                               \
-    c1_m = __msa_ilvev_h(k4_m, k3_m);                                  \
-                                                                       \
-    tmp2_m = __msa_dotp_s_w(res0_m, c1_m);                             \
-    res1_m = __msa_ilvr_h((in0), (in2));                               \
-    c1_m = __msa_ilvev_h(k1_m, zero_m);                                \
-                                                                       \
-    tmp3_m = __msa_dotp_s_w(res1_m, c1_m);                             \
-    int3_m += tmp2_m;                                                  \
-    int3_m += tmp3_m;                                                  \
-                                                                       \
-    SRARI_W4_SW(int0_m, int1_m, int2_m, int3_m, DCT_CONST_BITS);       \
-    PCKEV_H2_SH(int0_m, int0_m, int1_m, int1_m, out0, out1);           \
-    PCKEV_H2_SH(int2_m, int2_m, int3_m, int3_m, out2, out3);           \
+#define AOM_IADST4x4(in0, in1, in2, in3, out0, out1, out2, out3)     \
+  {                                                                  \
+    v8i16 res0_m, res1_m, c0_m, c1_m;                                \
+    v8i16 k1_m, k2_m, k3_m, k4_m;                                    \
+    v8i16 zero_m = {0};                                              \
+    v4i32 tmp0_m, tmp1_m, tmp2_m, tmp3_m;                            \
+    v4i32 int0_m, int1_m, int2_m, int3_m;                            \
+    v8i16 mask_m = {sinpi_1_9,  sinpi_2_9,  sinpi_3_9,  sinpi_4_9,   \
+                    -sinpi_1_9, -sinpi_2_9, -sinpi_3_9, -sinpi_4_9}; \
+                                                                     \
+    SPLATI_H4_SH(mask_m, 3, 0, 1, 2, c0_m, c1_m, k1_m, k2_m);        \
+    ILVEV_H2_SH(c0_m, c1_m, k1_m, k2_m, c0_m, c1_m);                 \
+    ILVR_H2_SH(in0, in2, in1, in3, res0_m, res1_m);                  \
+    DOTP_SH2_SW(res0_m, res1_m, c0_m, c1_m, tmp2_m, tmp1_m);         \
+    int0_m = tmp2_m + tmp1_m;                                        \
+                                                                     \
+    SPLATI_H2_SH(mask_m, 4, 7, k4_m, k3_m);                          \
+    ILVEV_H2_SH(k4_m, k1_m, k3_m, k2_m, c0_m, c1_m);                 \
+    DOTP_SH2_SW(res0_m, res1_m, c0_m, c1_m, tmp0_m, tmp1_m);         \
+    int1_m = tmp0_m + tmp1_m;                                        \
+                                                                     \
+    c0_m = __msa_splati_h(mask_m, 6);                                \
+    ILVL_H2_SH(k2_m, c0_m, zero_m, k2_m, c0_m, c1_m);                \
+    ILVR_H2_SH(in0, in2, in1, in3, res0_m, res1_m);                  \
+    DOTP_SH2_SW(res0_m, res1_m, c0_m, c1_m, tmp0_m, tmp1_m);         \
+    int2_m = tmp0_m + tmp1_m;                                        \
+                                                                     \
+    c0_m = __msa_splati_h(mask_m, 6);                                \
+    c0_m = __msa_ilvev_h(c0_m, k1_m);                                \
+                                                                     \
+    res0_m = __msa_ilvr_h((in1), (in3));                             \
+    tmp0_m = __msa_dotp_s_w(res0_m, c0_m);                           \
+    int3_m = tmp2_m + tmp0_m;                                        \
+                                                                     \
+    res0_m = __msa_ilvr_h((in2), (in3));                             \
+    c1_m = __msa_ilvev_h(k4_m, k3_m);                                \
+                                                                     \
+    tmp2_m = __msa_dotp_s_w(res0_m, c1_m);                           \
+    res1_m = __msa_ilvr_h((in0), (in2));                             \
+    c1_m = __msa_ilvev_h(k1_m, zero_m);                              \
+                                                                     \
+    tmp3_m = __msa_dotp_s_w(res1_m, c1_m);                           \
+    int3_m += tmp2_m;                                                \
+    int3_m += tmp3_m;                                                \
+                                                                     \
+    SRARI_W4_SW(int0_m, int1_m, int2_m, int3_m, DCT_CONST_BITS);     \
+    PCKEV_H2_SH(int0_m, int0_m, int1_m, int1_m, out0, out1);         \
+    PCKEV_H2_SH(int2_m, int2_m, int3_m, int3_m, out2, out3);         \
   }
 
 #define AV1_SET_CONST_PAIR(mask_h, idx1_h, idx2_h)    \
@@ -218,8 +218,8 @@
     v8i16 tp0_m, tp1_m, tp2_m, tp3_m, tp4_m, tp5_m, tp6_m, tp7_m;             \
     v8i16 k0_m, k1_m, k2_m, k3_m, res0_m, res1_m, res2_m, res3_m;             \
     v4i32 tmp0_m, tmp1_m, tmp2_m, tmp3_m;                                     \
-    v8i16 mask_m = { cospi_28_64, cospi_4_64,  cospi_20_64,  cospi_12_64,     \
-                     cospi_16_64, -cospi_4_64, -cospi_20_64, -cospi_16_64 };  \
+    v8i16 mask_m = {cospi_28_64, cospi_4_64,  cospi_20_64,  cospi_12_64,      \
+                    cospi_16_64, -cospi_4_64, -cospi_20_64, -cospi_16_64};    \
                                                                               \
     k0_m = AV1_SET_CONST_PAIR(mask_m, 0, 5);                                  \
     k1_m = AV1_SET_CONST_PAIR(mask_m, 1, 0);                                  \
@@ -245,91 +245,90 @@
                 out1, out2, out3, out4, out5, out6, out7);                    \
   }
 
-#define AV1_IADST8x8_1D(in0, in1, in2, in3, in4, in5, in6, in7, out0, out1,   \
-                        out2, out3, out4, out5, out6, out7)                   \
-  {                                                                           \
-    v4i32 r0_m, r1_m, r2_m, r3_m, r4_m, r5_m, r6_m, r7_m;                     \
-    v4i32 m0_m, m1_m, m2_m, m3_m, t0_m, t1_m;                                 \
-    v8i16 res0_m, res1_m, res2_m, res3_m, k0_m, k1_m, in_s0, in_s1;           \
-    v8i16 mask1_m = { cospi_2_64,  cospi_30_64,  -cospi_2_64, cospi_10_64,    \
-                      cospi_22_64, -cospi_10_64, cospi_18_64, cospi_14_64 };  \
-    v8i16 mask2_m = { cospi_14_64,  -cospi_18_64, cospi_26_64, cospi_6_64,    \
-                      -cospi_26_64, cospi_8_64,   cospi_24_64, -cospi_8_64 }; \
-    v8i16 mask3_m = {                                                         \
-      -cospi_24_64, cospi_8_64, cospi_16_64, -cospi_16_64, 0, 0, 0, 0         \
-    };                                                                        \
-                                                                              \
-    k0_m = AV1_SET_CONST_PAIR(mask1_m, 0, 1);                                 \
-    k1_m = AV1_SET_CONST_PAIR(mask1_m, 1, 2);                                 \
-    ILVRL_H2_SH(in1, in0, in_s1, in_s0);                                      \
-    DOTP_SH4_SW(in_s1, in_s0, in_s1, in_s0, k0_m, k0_m, k1_m, k1_m, r0_m,     \
-                r1_m, r2_m, r3_m);                                            \
-    k0_m = AV1_SET_CONST_PAIR(mask1_m, 6, 7);                                 \
-    k1_m = AV1_SET_CONST_PAIR(mask2_m, 0, 1);                                 \
-    ILVRL_H2_SH(in5, in4, in_s1, in_s0);                                      \
-    DOTP_SH4_SW(in_s1, in_s0, in_s1, in_s0, k0_m, k0_m, k1_m, k1_m, r4_m,     \
-                r5_m, r6_m, r7_m);                                            \
-    ADD4(r0_m, r4_m, r1_m, r5_m, r2_m, r6_m, r3_m, r7_m, m0_m, m1_m, m2_m,    \
-         m3_m);                                                               \
-    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                      \
-    PCKEV_H2_SH(m1_m, m0_m, m3_m, m2_m, res0_m, res1_m);                      \
-    SUB4(r0_m, r4_m, r1_m, r5_m, r2_m, r6_m, r3_m, r7_m, m0_m, m1_m, m2_m,    \
-         m3_m);                                                               \
-    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                      \
-    PCKEV_H2_SW(m1_m, m0_m, m3_m, m2_m, t0_m, t1_m);                          \
-    k0_m = AV1_SET_CONST_PAIR(mask1_m, 3, 4);                                 \
-    k1_m = AV1_SET_CONST_PAIR(mask1_m, 4, 5);                                 \
-    ILVRL_H2_SH(in3, in2, in_s1, in_s0);                                      \
-    DOTP_SH4_SW(in_s1, in_s0, in_s1, in_s0, k0_m, k0_m, k1_m, k1_m, r0_m,     \
-                r1_m, r2_m, r3_m);                                            \
-    k0_m = AV1_SET_CONST_PAIR(mask2_m, 2, 3);                                 \
-    k1_m = AV1_SET_CONST_PAIR(mask2_m, 3, 4);                                 \
-    ILVRL_H2_SH(in7, in6, in_s1, in_s0);                                      \
-    DOTP_SH4_SW(in_s1, in_s0, in_s1, in_s0, k0_m, k0_m, k1_m, k1_m, r4_m,     \
-                r5_m, r6_m, r7_m);                                            \
-    ADD4(r0_m, r4_m, r1_m, r5_m, r2_m, r6_m, r3_m, r7_m, m0_m, m1_m, m2_m,    \
-         m3_m);                                                               \
-    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                      \
-    PCKEV_H2_SH(m1_m, m0_m, m3_m, m2_m, res2_m, res3_m);                      \
-    SUB4(r0_m, r4_m, r1_m, r5_m, r2_m, r6_m, r3_m, r7_m, m0_m, m1_m, m2_m,    \
-         m3_m);                                                               \
-    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                      \
-    PCKEV_H2_SW(m1_m, m0_m, m3_m, m2_m, r2_m, r3_m);                          \
-    ILVRL_H2_SW(r3_m, r2_m, m2_m, m3_m);                                      \
-    BUTTERFLY_4(res0_m, res1_m, res3_m, res2_m, out0, in7, in4, in3);         \
-    k0_m = AV1_SET_CONST_PAIR(mask2_m, 5, 6);                                 \
-    k1_m = AV1_SET_CONST_PAIR(mask2_m, 6, 7);                                 \
-    ILVRL_H2_SH(t1_m, t0_m, in_s1, in_s0);                                    \
-    DOTP_SH4_SW(in_s1, in_s0, in_s1, in_s0, k0_m, k0_m, k1_m, k1_m, r0_m,     \
-                r1_m, r2_m, r3_m);                                            \
-    k1_m = AV1_SET_CONST_PAIR(mask3_m, 0, 1);                                 \
-    DOTP_SH4_SW(m2_m, m3_m, m2_m, m3_m, k0_m, k0_m, k1_m, k1_m, r4_m, r5_m,   \
-                r6_m, r7_m);                                                  \
-    ADD4(r0_m, r6_m, r1_m, r7_m, r2_m, r4_m, r3_m, r5_m, m0_m, m1_m, m2_m,    \
-         m3_m);                                                               \
-    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                      \
-    PCKEV_H2_SH(m1_m, m0_m, m3_m, m2_m, in1, out6);                           \
-    SUB4(r0_m, r6_m, r1_m, r7_m, r2_m, r4_m, r3_m, r5_m, m0_m, m1_m, m2_m,    \
-         m3_m);                                                               \
-    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                      \
-    PCKEV_H2_SH(m1_m, m0_m, m3_m, m2_m, in2, in5);                            \
-    k0_m = AV1_SET_CONST_PAIR(mask3_m, 2, 2);                                 \
-    k1_m = AV1_SET_CONST_PAIR(mask3_m, 2, 3);                                 \
-    ILVRL_H2_SH(in4, in3, in_s1, in_s0);                                      \
-    DOTP_SH4_SW(in_s1, in_s0, in_s1, in_s0, k0_m, k0_m, k1_m, k1_m, m0_m,     \
-                m1_m, m2_m, m3_m);                                            \
-    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                      \
-    PCKEV_H2_SH(m1_m, m0_m, m3_m, m2_m, in3, out4);                           \
-    ILVRL_H2_SW(in5, in2, m2_m, m3_m);                                        \
-    DOTP_SH4_SW(m2_m, m3_m, m2_m, m3_m, k0_m, k0_m, k1_m, k1_m, m0_m, m1_m,   \
-                m2_m, m3_m);                                                  \
-    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                      \
-    PCKEV_H2_SH(m1_m, m0_m, m3_m, m2_m, out2, in5);                           \
-                                                                              \
-    out1 = -in1;                                                              \
-    out3 = -in3;                                                              \
-    out5 = -in5;                                                              \
-    out7 = -in7;                                                              \
+#define AV1_IADST8x8_1D(in0, in1, in2, in3, in4, in5, in6, in7, out0, out1, \
+                        out2, out3, out4, out5, out6, out7)                 \
+  {                                                                         \
+    v4i32 r0_m, r1_m, r2_m, r3_m, r4_m, r5_m, r6_m, r7_m;                   \
+    v4i32 m0_m, m1_m, m2_m, m3_m, t0_m, t1_m;                               \
+    v8i16 res0_m, res1_m, res2_m, res3_m, k0_m, k1_m, in_s0, in_s1;         \
+    v8i16 mask1_m = {cospi_2_64,  cospi_30_64,  -cospi_2_64, cospi_10_64,   \
+                     cospi_22_64, -cospi_10_64, cospi_18_64, cospi_14_64};  \
+    v8i16 mask2_m = {cospi_14_64,  -cospi_18_64, cospi_26_64, cospi_6_64,   \
+                     -cospi_26_64, cospi_8_64,   cospi_24_64, -cospi_8_64}; \
+    v8i16 mask3_m = {                                                       \
+        -cospi_24_64, cospi_8_64, cospi_16_64, -cospi_16_64, 0, 0, 0, 0};   \
+                                                                            \
+    k0_m = AV1_SET_CONST_PAIR(mask1_m, 0, 1);                               \
+    k1_m = AV1_SET_CONST_PAIR(mask1_m, 1, 2);                               \
+    ILVRL_H2_SH(in1, in0, in_s1, in_s0);                                    \
+    DOTP_SH4_SW(in_s1, in_s0, in_s1, in_s0, k0_m, k0_m, k1_m, k1_m, r0_m,   \
+                r1_m, r2_m, r3_m);                                          \
+    k0_m = AV1_SET_CONST_PAIR(mask1_m, 6, 7);                               \
+    k1_m = AV1_SET_CONST_PAIR(mask2_m, 0, 1);                               \
+    ILVRL_H2_SH(in5, in4, in_s1, in_s0);                                    \
+    DOTP_SH4_SW(in_s1, in_s0, in_s1, in_s0, k0_m, k0_m, k1_m, k1_m, r4_m,   \
+                r5_m, r6_m, r7_m);                                          \
+    ADD4(r0_m, r4_m, r1_m, r5_m, r2_m, r6_m, r3_m, r7_m, m0_m, m1_m, m2_m,  \
+         m3_m);                                                             \
+    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                    \
+    PCKEV_H2_SH(m1_m, m0_m, m3_m, m2_m, res0_m, res1_m);                    \
+    SUB4(r0_m, r4_m, r1_m, r5_m, r2_m, r6_m, r3_m, r7_m, m0_m, m1_m, m2_m,  \
+         m3_m);                                                             \
+    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                    \
+    PCKEV_H2_SW(m1_m, m0_m, m3_m, m2_m, t0_m, t1_m);                        \
+    k0_m = AV1_SET_CONST_PAIR(mask1_m, 3, 4);                               \
+    k1_m = AV1_SET_CONST_PAIR(mask1_m, 4, 5);                               \
+    ILVRL_H2_SH(in3, in2, in_s1, in_s0);                                    \
+    DOTP_SH4_SW(in_s1, in_s0, in_s1, in_s0, k0_m, k0_m, k1_m, k1_m, r0_m,   \
+                r1_m, r2_m, r3_m);                                          \
+    k0_m = AV1_SET_CONST_PAIR(mask2_m, 2, 3);                               \
+    k1_m = AV1_SET_CONST_PAIR(mask2_m, 3, 4);                               \
+    ILVRL_H2_SH(in7, in6, in_s1, in_s0);                                    \
+    DOTP_SH4_SW(in_s1, in_s0, in_s1, in_s0, k0_m, k0_m, k1_m, k1_m, r4_m,   \
+                r5_m, r6_m, r7_m);                                          \
+    ADD4(r0_m, r4_m, r1_m, r5_m, r2_m, r6_m, r3_m, r7_m, m0_m, m1_m, m2_m,  \
+         m3_m);                                                             \
+    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                    \
+    PCKEV_H2_SH(m1_m, m0_m, m3_m, m2_m, res2_m, res3_m);                    \
+    SUB4(r0_m, r4_m, r1_m, r5_m, r2_m, r6_m, r3_m, r7_m, m0_m, m1_m, m2_m,  \
+         m3_m);                                                             \
+    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                    \
+    PCKEV_H2_SW(m1_m, m0_m, m3_m, m2_m, r2_m, r3_m);                        \
+    ILVRL_H2_SW(r3_m, r2_m, m2_m, m3_m);                                    \
+    BUTTERFLY_4(res0_m, res1_m, res3_m, res2_m, out0, in7, in4, in3);       \
+    k0_m = AV1_SET_CONST_PAIR(mask2_m, 5, 6);                               \
+    k1_m = AV1_SET_CONST_PAIR(mask2_m, 6, 7);                               \
+    ILVRL_H2_SH(t1_m, t0_m, in_s1, in_s0);                                  \
+    DOTP_SH4_SW(in_s1, in_s0, in_s1, in_s0, k0_m, k0_m, k1_m, k1_m, r0_m,   \
+                r1_m, r2_m, r3_m);                                          \
+    k1_m = AV1_SET_CONST_PAIR(mask3_m, 0, 1);                               \
+    DOTP_SH4_SW(m2_m, m3_m, m2_m, m3_m, k0_m, k0_m, k1_m, k1_m, r4_m, r5_m, \
+                r6_m, r7_m);                                                \
+    ADD4(r0_m, r6_m, r1_m, r7_m, r2_m, r4_m, r3_m, r5_m, m0_m, m1_m, m2_m,  \
+         m3_m);                                                             \
+    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                    \
+    PCKEV_H2_SH(m1_m, m0_m, m3_m, m2_m, in1, out6);                         \
+    SUB4(r0_m, r6_m, r1_m, r7_m, r2_m, r4_m, r3_m, r5_m, m0_m, m1_m, m2_m,  \
+         m3_m);                                                             \
+    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                    \
+    PCKEV_H2_SH(m1_m, m0_m, m3_m, m2_m, in2, in5);                          \
+    k0_m = AV1_SET_CONST_PAIR(mask3_m, 2, 2);                               \
+    k1_m = AV1_SET_CONST_PAIR(mask3_m, 2, 3);                               \
+    ILVRL_H2_SH(in4, in3, in_s1, in_s0);                                    \
+    DOTP_SH4_SW(in_s1, in_s0, in_s1, in_s0, k0_m, k0_m, k1_m, k1_m, m0_m,   \
+                m1_m, m2_m, m3_m);                                          \
+    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                    \
+    PCKEV_H2_SH(m1_m, m0_m, m3_m, m2_m, in3, out4);                         \
+    ILVRL_H2_SW(in5, in2, m2_m, m3_m);                                      \
+    DOTP_SH4_SW(m2_m, m3_m, m2_m, m3_m, k0_m, k0_m, k1_m, k1_m, m0_m, m1_m, \
+                m2_m, m3_m);                                                \
+    SRARI_W4_SW(m0_m, m1_m, m2_m, m3_m, DCT_CONST_BITS);                    \
+    PCKEV_H2_SH(m1_m, m0_m, m3_m, m2_m, out2, in5);                         \
+                                                                            \
+    out1 = -in1;                                                            \
+    out3 = -in3;                                                            \
+    out5 = -in5;                                                            \
+    out7 = -in7;                                                            \
   }
 
 #define AOM_IADST8x16_1D(r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11,     \

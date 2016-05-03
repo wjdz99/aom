@@ -9,7 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include <string>
 
 #include "third_party/googletest/src/include/gtest/gtest.h"
@@ -100,13 +99,19 @@ void EncoderTest::InitializeConfig() {
 
 void EncoderTest::SetMode(TestMode mode) {
   switch (mode) {
-    case kRealTime: deadline_ = AOM_DL_REALTIME; break;
+    case kRealTime:
+      deadline_ = AOM_DL_REALTIME;
+      break;
 
     case kOnePassGood:
-    case kTwoPassGood: deadline_ = AOM_DL_GOOD_QUALITY; break;
+    case kTwoPassGood:
+      deadline_ = AOM_DL_GOOD_QUALITY;
+      break;
 
     case kOnePassBest:
-    case kTwoPassBest: deadline_ = AOM_DL_BEST_QUALITY; break;
+    case kTwoPassBest:
+      deadline_ = AOM_DL_BEST_QUALITY;
+      break;
 
     default: ASSERT_TRUE(false) << "Unexpected mode " << mode;
   }
@@ -212,7 +217,9 @@ void EncoderTest::RunLoop(VideoSource *video) {
             FramePktHook(pkt);
             break;
 
-          case AOM_CODEC_PSNR_PKT: PSNRPktHook(pkt); break;
+          case AOM_CODEC_PSNR_PKT:
+            PSNRPktHook(pkt);
+            break;
 
           default: break;
         }

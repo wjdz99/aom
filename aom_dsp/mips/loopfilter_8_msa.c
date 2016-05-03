@@ -21,7 +21,7 @@ void aom_lpf_horizontal_8_msa(uint8_t *src, int32_t pitch,
   v16u8 p2_out, p1_out, p0_out, q0_out, q1_out, q2_out;
   v8i16 p2_filter8, p1_filter8, p0_filter8, q0_filter8, q1_filter8, q2_filter8;
   v8u16 p3_r, p2_r, p1_r, p0_r, q3_r, q2_r, q1_r, q0_r;
-  v16i8 zero = { 0 };
+  v16i8 zero = {0};
 
   (void)count;
 
@@ -92,7 +92,7 @@ void aom_lpf_horizontal_8_dual_msa(
   v8u16 p3_l, p2_l, p1_l, p0_l, q0_l, q1_l, q2_l, q3_l;
   v8i16 p2_filt8_r, p1_filt8_r, p0_filt8_r, q0_filt8_r, q1_filt8_r, q2_filt8_r;
   v8i16 p2_filt8_l, p1_filt8_l, p0_filt8_l, q0_filt8_l, q1_filt8_l, q2_filt8_l;
-  v16u8 zero = { 0 };
+  v16u8 zero = {0};
 
   /* load vector elements */
   LD_UB8(src - (4 * pitch), pitch, p3, p2, p1, p0, q0, q1, q2, q3);
@@ -161,7 +161,7 @@ void aom_lpf_vertical_8_msa(uint8_t *src, int32_t pitch,
   v16u8 flat, mask, hev, thresh, b_limit, limit;
   v8u16 p3_r, p2_r, p1_r, p0_r, q0_r, q1_r, q2_r, q3_r;
   v8i16 p2_filt8_r, p1_filt8_r, p0_filt8_r, q0_filt8_r, q1_filt8_r, q2_filt8_r;
-  v16u8 zero = { 0 };
+  v16u8 zero = {0};
   v8i16 vec0, vec1, vec2, vec3, vec4;
 
   (void)count;
@@ -243,7 +243,7 @@ void aom_lpf_vertical_8_dual_msa(uint8_t *src, int32_t pitch,
   v8u16 p3_l, p2_l, p1_l, p0_l, q0_l, q1_l, q2_l, q3_l;
   v8i16 p2_filt8_r, p1_filt8_r, p0_filt8_r, q0_filt8_r, q1_filt8_r, q2_filt8_r;
   v8i16 p2_filt8_l, p1_filt8_l, p0_filt8_l, q0_filt8_l, q1_filt8_l, q2_filt8_l;
-  v16u8 zero = { 0 };
+  v16u8 zero = {0};
   v8i16 vec0, vec1, vec2, vec3, vec4, vec5, vec6, vec7;
 
   temp_src = src - 4;

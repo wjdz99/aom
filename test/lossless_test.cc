@@ -9,7 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
 #include "./aom_config.h"
@@ -67,7 +66,7 @@ class LosslessTest
 };
 
 TEST_P(LosslessTest, TestLossLessEncoding) {
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const aom_rational timebase = {33333333, 1000000000};
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = 2000;
   cfg_.g_lag_in_frames = 25;
@@ -102,7 +101,7 @@ TEST_P(LosslessTest, TestLossLessEncoding444) {
 }
 
 TEST_P(LosslessTest, TestLossLessEncodingCtrl) {
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const aom_rational timebase = {33333333, 1000000000};
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = 2000;
   cfg_.g_lag_in_frames = 25;
@@ -121,6 +120,6 @@ TEST_P(LosslessTest, TestLossLessEncodingCtrl) {
 }
 
 AV1_INSTANTIATE_TEST_CASE(LosslessTest,
-                           ::testing::Values(::libaom_test::kOnePassGood,
-                                             ::libaom_test::kTwoPassGood));
+                          ::testing::Values(::libaom_test::kOnePassGood,
+                                            ::libaom_test::kTwoPassGood));
 }  // namespace

@@ -193,22 +193,22 @@ class ResizeInternalTest : public ResizeTest {
     if (change_config_) {
       int new_q = 60;
       if (video->frame() == 0) {
-        struct aom_scaling_mode mode = { AOME_ONETWO, AOME_ONETWO };
+        struct aom_scaling_mode mode = {AOME_ONETWO, AOME_ONETWO};
         encoder->Control(AOME_SET_SCALEMODE, &mode);
       }
       if (video->frame() == 1) {
-        struct aom_scaling_mode mode = { AOME_NORMAL, AOME_NORMAL };
+        struct aom_scaling_mode mode = {AOME_NORMAL, AOME_NORMAL};
         encoder->Control(AOME_SET_SCALEMODE, &mode);
         cfg_.rc_min_quantizer = cfg_.rc_max_quantizer = new_q;
         encoder->Config(&cfg_);
       }
     } else {
       if (video->frame() == kStepDownFrame) {
-        struct aom_scaling_mode mode = { AOME_FOURFIVE, AOME_THREEFIVE };
+        struct aom_scaling_mode mode = {AOME_FOURFIVE, AOME_THREEFIVE};
         encoder->Control(AOME_SET_SCALEMODE, &mode);
       }
       if (video->frame() == kStepUpFrame) {
-        struct aom_scaling_mode mode = { AOME_NORMAL, AOME_NORMAL };
+        struct aom_scaling_mode mode = {AOME_NORMAL, AOME_NORMAL};
         encoder->Control(AOME_SET_SCALEMODE, &mode);
       }
     }
@@ -527,12 +527,12 @@ TEST_P(ResizeCspTest, TestResizeCspWorks) {
 }
 
 AV1_INSTANTIATE_TEST_CASE(ResizeTest,
-                           ::testing::Values(::libaom_test::kRealTime));
+                          ::testing::Values(::libaom_test::kRealTime));
 AV1_INSTANTIATE_TEST_CASE(ResizeInternalTest,
-                           ::testing::Values(::libaom_test::kOnePassBest));
+                          ::testing::Values(::libaom_test::kOnePassBest));
 AV1_INSTANTIATE_TEST_CASE(ResizeRealtimeTest,
-                           ::testing::Values(::libaom_test::kRealTime),
-                           ::testing::Range(5, 9));
+                          ::testing::Values(::libaom_test::kRealTime),
+                          ::testing::Range(5, 9));
 AV1_INSTANTIATE_TEST_CASE(ResizeCspTest,
-                           ::testing::Values(::libaom_test::kRealTime));
+                          ::testing::Values(::libaom_test::kRealTime));
 }  // namespace

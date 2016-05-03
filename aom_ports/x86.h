@@ -12,8 +12,8 @@
 #ifndef AOM_PORTS_X86_H_
 #define AOM_PORTS_X86_H_
 #include <stdlib.h>
-#include "aom_config.h"
 #include "aom/aom_integer.h"
+#include "aom_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -126,7 +126,7 @@ static INLINE uint64_t xgetbv(void) {
                    : "c"(ecx));
   return ((uint64_t)edx << 32) | eax;
 }
-#elif(defined(_M_X64) || defined(_M_IX86)) && defined(_MSC_FULL_VER) && \
+#elif (defined(_M_X64) || defined(_M_IX86)) && defined(_MSC_FULL_VER) && \
     _MSC_FULL_VER >= 160040219  // >= VS2010 SP1
 #include <immintrin.h>
 #define xgetbv() _xgetbv(0)

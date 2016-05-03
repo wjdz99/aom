@@ -9,24 +9,23 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
-#include "./av1_rtcd.h"
 #include "./aom_dsp_rtcd.h"
+#include "./av1_rtcd.h"
+#include "aom/aom_codec.h"
+#include "aom/aom_integer.h"
+#include "aom_ports/mem.h"
+#include "av1/common/entropy.h"
+#include "av1/common/scan.h"
 #include "test/acm_random.h"
 #include "test/clear_system_state.h"
 #include "test/register_state_check.h"
 #include "test/util.h"
-#include "av1/common/entropy.h"
-#include "av1/common/scan.h"
-#include "aom/aom_codec.h"
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
 
 using libaom_test::ACMRandom;
 
@@ -634,8 +633,12 @@ class Trans16x16DCT : public Trans16x16TestBase,
     mask_ = (1 << bit_depth_) - 1;
 #if CONFIG_AOM_HIGHBITDEPTH
     switch (bit_depth_) {
-      case AOM_BITS_10: inv_txfm_ref = idct16x16_10_ref; break;
-      case AOM_BITS_12: inv_txfm_ref = idct16x16_12_ref; break;
+      case AOM_BITS_10:
+        inv_txfm_ref = idct16x16_10_ref;
+        break;
+      case AOM_BITS_12:
+        inv_txfm_ref = idct16x16_12_ref;
+        break;
       default: inv_txfm_ref = idct16x16_ref; break;
     }
 #else
@@ -686,8 +689,12 @@ class Trans16x16HT : public Trans16x16TestBase,
     mask_ = (1 << bit_depth_) - 1;
 #if CONFIG_AOM_HIGHBITDEPTH
     switch (bit_depth_) {
-      case AOM_BITS_10: inv_txfm_ref = iht16x16_10; break;
-      case AOM_BITS_12: inv_txfm_ref = iht16x16_12; break;
+      case AOM_BITS_10:
+        inv_txfm_ref = iht16x16_10;
+        break;
+      case AOM_BITS_12:
+        inv_txfm_ref = iht16x16_12;
+        break;
       default: inv_txfm_ref = iht16x16_ref; break;
     }
 #else
@@ -806,14 +813,14 @@ INSTANTIATE_TEST_CASE_P(
                                  &aom_idct16x16_256_add_sse2, 0, AOM_BITS_8)));
 INSTANTIATE_TEST_CASE_P(
     SSE2, Trans16x16HT,
-    ::testing::Values(make_tuple(&av1_fht16x16_sse2,
-                                 &av1_iht16x16_256_add_sse2, 0, AOM_BITS_8),
-                      make_tuple(&av1_fht16x16_sse2,
-                                 &av1_iht16x16_256_add_sse2, 1, AOM_BITS_8),
-                      make_tuple(&av1_fht16x16_sse2,
-                                 &av1_iht16x16_256_add_sse2, 2, AOM_BITS_8),
-                      make_tuple(&av1_fht16x16_sse2,
-                                 &av1_iht16x16_256_add_sse2, 3, AOM_BITS_8)));
+    ::testing::Values(make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_sse2,
+                                 0, AOM_BITS_8),
+                      make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_sse2,
+                                 1, AOM_BITS_8),
+                      make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_sse2,
+                                 2, AOM_BITS_8),
+                      make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_sse2,
+                                 3, AOM_BITS_8)));
 #endif  // HAVE_SSE2 && !CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
 
 #if HAVE_SSE2 && CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
@@ -830,14 +837,12 @@ INSTANTIATE_TEST_CASE_P(
                    AOM_BITS_8)));
 INSTANTIATE_TEST_CASE_P(
     SSE2, Trans16x16HT,
-    ::testing::Values(make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_c,
-                                 0, AOM_BITS_8),
-                      make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_c,
-                                 1, AOM_BITS_8),
-                      make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_c,
-                                 2, AOM_BITS_8),
-                      make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_c,
-                                 3, AOM_BITS_8)));
+    ::testing::Values(
+        make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_c, 0, AOM_BITS_8),
+        make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_c, 1, AOM_BITS_8),
+        make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_c, 2, AOM_BITS_8),
+        make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_c, 3,
+                   AOM_BITS_8)));
 // Optimizations take effect at a threshold of 3155, so we use a value close to
 // that to test both branches.
 INSTANTIATE_TEST_CASE_P(
@@ -859,13 +864,11 @@ INSTANTIATE_TEST_CASE_P(MSA, Trans16x16DCT,
                                                      0, AOM_BITS_8)));
 INSTANTIATE_TEST_CASE_P(
     MSA, Trans16x16HT,
-    ::testing::Values(make_tuple(&av1_fht16x16_msa, &av1_iht16x16_256_add_msa,
-                                 0, AOM_BITS_8),
-                      make_tuple(&av1_fht16x16_msa, &av1_iht16x16_256_add_msa,
-                                 1, AOM_BITS_8),
-                      make_tuple(&av1_fht16x16_msa, &av1_iht16x16_256_add_msa,
-                                 2, AOM_BITS_8),
-                      make_tuple(&av1_fht16x16_msa, &av1_iht16x16_256_add_msa,
-                                 3, AOM_BITS_8)));
+    ::testing::Values(
+        make_tuple(&av1_fht16x16_msa, &av1_iht16x16_256_add_msa, 0, AOM_BITS_8),
+        make_tuple(&av1_fht16x16_msa, &av1_iht16x16_256_add_msa, 1, AOM_BITS_8),
+        make_tuple(&av1_fht16x16_msa, &av1_iht16x16_256_add_msa, 2, AOM_BITS_8),
+        make_tuple(&av1_fht16x16_msa, &av1_iht16x16_256_add_msa, 3,
+                   AOM_BITS_8)));
 #endif  // HAVE_MSA && !CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
 }  // namespace

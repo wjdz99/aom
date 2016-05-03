@@ -57,8 +57,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "aom/aomdx.h"
 #include "aom/aom_decoder.h"
+#include "aom/aomdx.h"
 
 #include "../tools_common.h"
 #include "../video_reader.h"

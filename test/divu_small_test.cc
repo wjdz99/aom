@@ -26,16 +26,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.*/
 
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
-#include "test/acm_random.h"
 #include "av1/common/odintrin.h"
+#include "test/acm_random.h"
 
 using libaom_test::ACMRandom;
 
 TEST(Daala, TestDIVUuptoMAX) {
   for (int d = 1; d <= OD_DIVU_DMAX; d++) {
     for (uint32_t x = 1; x <= 1000000; x++) {
-      GTEST_ASSERT_EQ(x/d, OD_DIVU_SMALL(x, d)) << "x=" << x << " d=" << d <<
-       " x/d=" << (x/d) << " != " << OD_DIVU_SMALL(x, d);
+      GTEST_ASSERT_EQ(x / d, OD_DIVU_SMALL(x, d))
+          << "x=" << x << " d=" << d << " x/d=" << (x / d)
+          << " != " << OD_DIVU_SMALL(x, d);
     }
   }
 }
@@ -45,8 +46,9 @@ TEST(Daala, TestDIVUrandI31) {
   for (int d = 1; d < OD_DIVU_DMAX; d++) {
     for (int i = 0; i < 1000000; i++) {
       uint32_t x = rnd.Rand31();
-      GTEST_ASSERT_EQ(x/d, OD_DIVU_SMALL(x, d)) << "x=" << x << " d=" << d <<
-       " x/d=" << (x/d) << " != " << OD_DIVU_SMALL(x, d);
+      GTEST_ASSERT_EQ(x / d, OD_DIVU_SMALL(x, d))
+          << "x=" << x << " d=" << d << " x/d=" << (x / d)
+          << " != " << OD_DIVU_SMALL(x, d);
     }
   }
 }

@@ -14,8 +14,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "tools_common.h"
 #include "aom/aom_encoder.h"
+#include "tools_common.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -9,7 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include <cmath>
 #include <cstdlib>
 #include <string>
@@ -18,13 +17,13 @@
 
 #include "./aom_config.h"
 #include "./aom_dsp_rtcd.h"
+#include "aom/aom_integer.h"
+#include "av1/common/entropy.h"
+#include "av1/common/loopfilter.h"
 #include "test/acm_random.h"
 #include "test/clear_system_state.h"
 #include "test/register_state_check.h"
 #include "test/util.h"
-#include "av1/common/entropy.h"
-#include "av1/common/loopfilter.h"
-#include "aom/aom_integer.h"
 
 using libaom_test::ACMRandom;
 

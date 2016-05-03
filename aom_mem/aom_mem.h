@@ -17,8 +17,8 @@
 #include <lddk.h>
 #endif
 
-#include <stdlib.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 #if defined(__cplusplus)
 extern "C" {

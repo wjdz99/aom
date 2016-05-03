@@ -9,7 +9,6 @@
 // PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 //
 
-
 #ifndef MKVMUXERTYPES_HPP
 #define MKVMUXERTYPES_HPP
 

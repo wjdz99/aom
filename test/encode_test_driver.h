@@ -70,7 +70,7 @@ class TwopassStatsStore {
   }
 
   aom_fixed_buf_t buf() {
-    const aom_fixed_buf_t buf = { &buffer_[0], buffer_.size() };
+    const aom_fixed_buf_t buf = {&buffer_[0], buffer_.size()};
     return buf;
   }
 

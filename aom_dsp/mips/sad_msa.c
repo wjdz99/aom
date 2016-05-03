@@ -26,10 +26,10 @@ static uint32_t sad_4width_msa(const uint8_t *src_ptr, int32_t src_stride,
                                int32_t height) {
   int32_t ht_cnt;
   uint32_t src0, src1, src2, src3, ref0, ref1, ref2, ref3;
-  v16u8 src = { 0 };
-  v16u8 ref = { 0 };
+  v16u8 src = {0};
+  v16u8 ref = {0};
   v16u8 diff;
-  v8u16 sad = { 0 };
+  v8u16 sad = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LW4(src_ptr, src_stride, src0, src1, src2, src3);
@@ -52,7 +52,7 @@ static uint32_t sad_8width_msa(const uint8_t *src, int32_t src_stride,
                                int32_t height) {
   int32_t ht_cnt;
   v16u8 src0, src1, src2, src3, ref0, ref1, ref2, ref3;
-  v8u16 sad = { 0 };
+  v8u16 sad = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB4(src, src_stride, src0, src1, src2, src3);
@@ -73,7 +73,7 @@ static uint32_t sad_16width_msa(const uint8_t *src, int32_t src_stride,
                                 int32_t height) {
   int32_t ht_cnt;
   v16u8 src0, src1, ref0, ref1;
-  v8u16 sad = { 0 };
+  v8u16 sad = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB2(src, src_stride, src0, src1);
@@ -97,7 +97,7 @@ static uint32_t sad_32width_msa(const uint8_t *src, int32_t src_stride,
                                 int32_t height) {
   int32_t ht_cnt;
   v16u8 src0, src1, ref0, ref1;
-  v8u16 sad = { 0 };
+  v8u16 sad = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB2(src, 16, src0, src1);
@@ -135,8 +135,8 @@ static uint32_t sad_64width_msa(const uint8_t *src, int32_t src_stride,
   uint32_t sad = 0;
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref2, ref3;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
 
   for (ht_cnt = (height >> 1); ht_cnt--;) {
     LD_UB4(src, 16, src0, src1, src2, src3);
@@ -165,12 +165,12 @@ static void sad_4width_x3_msa(const uint8_t *src_ptr, int32_t src_stride,
                               int32_t height, uint32_t *sad_array) {
   int32_t ht_cnt;
   uint32_t src0, src1, src2, src3;
-  v16u8 src = { 0 };
-  v16u8 ref = { 0 };
+  v16u8 src = {0};
+  v16u8 ref = {0};
   v16u8 ref0, ref1, ref2, ref3, diff;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
-  v8u16 sad2 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
+  v8u16 sad2 = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LW4(src_ptr, src_stride, src0, src1, src2, src3);
@@ -207,9 +207,9 @@ static void sad_8width_x3_msa(const uint8_t *src, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref00, ref11, ref22, ref33;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
-  v8u16 sad2 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
+  v8u16 sad2 = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB4(src, src_stride, src0, src1, src2, src3);
@@ -241,9 +241,9 @@ static void sad_16width_x3_msa(const uint8_t *src_ptr, int32_t src_stride,
                                int32_t height, uint32_t *sad_array) {
   int32_t ht_cnt;
   v16u8 src, ref, ref0, ref1, diff;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
-  v8u16 sad2 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
+  v8u16 sad2 = {0};
 
   for (ht_cnt = (height >> 1); ht_cnt--;) {
     src = LD_UB(src_ptr);
@@ -289,9 +289,9 @@ static void sad_32width_x3_msa(const uint8_t *src, int32_t src_stride,
                                int32_t height, uint32_t *sad_array) {
   int32_t ht_cnt;
   v16u8 src0, src1, ref0_0, ref0_1, ref0_2, ref0, ref1;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
-  v8u16 sad2 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
+  v8u16 sad2 = {0};
 
   for (ht_cnt = height >> 1; ht_cnt--;) {
     LD_UB2(src, 16, src0, src1);
@@ -332,12 +332,12 @@ static void sad_64width_x3_msa(const uint8_t *src, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src0, src1, src2, src3;
   v16u8 ref0_0, ref0_1, ref0_2, ref0_3, ref0_4, ref0, ref1, ref2, ref3;
-  v8u16 sad0_0 = { 0 };
-  v8u16 sad0_1 = { 0 };
-  v8u16 sad1_0 = { 0 };
-  v8u16 sad1_1 = { 0 };
-  v8u16 sad2_0 = { 0 };
-  v8u16 sad2_1 = { 0 };
+  v8u16 sad0_0 = {0};
+  v8u16 sad0_1 = {0};
+  v8u16 sad1_0 = {0};
+  v8u16 sad1_1 = {0};
+  v8u16 sad2_0 = {0};
+  v8u16 sad2_1 = {0};
   v4u32 sad;
 
   for (ht_cnt = height; ht_cnt--;) {
@@ -380,16 +380,16 @@ static void sad_4width_x8_msa(const uint8_t *src_ptr, int32_t src_stride,
   int32_t ht_cnt;
   uint32_t src0, src1, src2, src3;
   v16u8 ref0, ref1, ref2, ref3, diff;
-  v16u8 src = { 0 };
-  v16u8 ref = { 0 };
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
-  v8u16 sad2 = { 0 };
-  v8u16 sad3 = { 0 };
-  v8u16 sad4 = { 0 };
-  v8u16 sad5 = { 0 };
-  v8u16 sad6 = { 0 };
-  v8u16 sad7 = { 0 };
+  v16u8 src = {0};
+  v16u8 ref = {0};
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
+  v8u16 sad2 = {0};
+  v8u16 sad3 = {0};
+  v8u16 sad4 = {0};
+  v8u16 sad5 = {0};
+  v8u16 sad6 = {0};
+  v8u16 sad7 = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LW4(src_ptr, src_stride, src0, src1, src2, src3);
@@ -461,14 +461,14 @@ static void sad_8width_x8_msa(const uint8_t *src, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref00, ref11, ref22, ref33;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
-  v8u16 sad2 = { 0 };
-  v8u16 sad3 = { 0 };
-  v8u16 sad4 = { 0 };
-  v8u16 sad5 = { 0 };
-  v8u16 sad6 = { 0 };
-  v8u16 sad7 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
+  v8u16 sad2 = {0};
+  v8u16 sad3 = {0};
+  v8u16 sad4 = {0};
+  v8u16 sad5 = {0};
+  v8u16 sad6 = {0};
+  v8u16 sad7 = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB4(src, src_stride, src0, src1, src2, src3);
@@ -531,14 +531,14 @@ static void sad_16width_x8_msa(const uint8_t *src_ptr, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src, ref0, ref1, ref;
   v16u8 diff;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
-  v8u16 sad2 = { 0 };
-  v8u16 sad3 = { 0 };
-  v8u16 sad4 = { 0 };
-  v8u16 sad5 = { 0 };
-  v8u16 sad6 = { 0 };
-  v8u16 sad7 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
+  v8u16 sad2 = {0};
+  v8u16 sad3 = {0};
+  v8u16 sad4 = {0};
+  v8u16 sad5 = {0};
+  v8u16 sad6 = {0};
+  v8u16 sad7 = {0};
 
   for (ht_cnt = (height >> 1); ht_cnt--;) {
     src = LD_UB(src_ptr);
@@ -630,14 +630,14 @@ static void sad_32width_x8_msa(const uint8_t *src, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src0, src1;
   v16u8 ref0, ref1, ref0_0, ref0_1, ref0_2;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
-  v8u16 sad2 = { 0 };
-  v8u16 sad3 = { 0 };
-  v8u16 sad4 = { 0 };
-  v8u16 sad5 = { 0 };
-  v8u16 sad6 = { 0 };
-  v8u16 sad7 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
+  v8u16 sad2 = {0};
+  v8u16 sad3 = {0};
+  v8u16 sad4 = {0};
+  v8u16 sad5 = {0};
+  v8u16 sad6 = {0};
+  v8u16 sad7 = {0};
 
   for (ht_cnt = height; ht_cnt--;) {
     LD_UB2(src, 16, src0, src1);
@@ -687,14 +687,14 @@ static void sad_64width_x8_msa(const uint8_t *src, int32_t src_stride,
   v16u8 src0, src1, src2, src3;
   v16u8 ref0_0, ref0_1, ref0_2, ref0_3, ref0_4;
   v16u8 ref0, ref1, ref2, ref3;
-  v8u16 sad0_0 = { 0 };
-  v8u16 sad0_1 = { 0 };
-  v8u16 sad1_0 = { 0 };
-  v8u16 sad1_1 = { 0 };
-  v8u16 sad2_0 = { 0 };
-  v8u16 sad2_1 = { 0 };
-  v8u16 sad3_0 = { 0 };
-  v8u16 sad3_1 = { 0 };
+  v8u16 sad0_0 = {0};
+  v8u16 sad0_1 = {0};
+  v8u16 sad1_0 = {0};
+  v8u16 sad1_1 = {0};
+  v8u16 sad2_0 = {0};
+  v8u16 sad2_1 = {0};
+  v8u16 sad3_0 = {0};
+  v8u16 sad3_1 = {0};
   v4u32 sad;
 
   src_dup = src;
@@ -802,13 +802,13 @@ static void sad_4width_x4d_msa(const uint8_t *src_ptr, int32_t src_stride,
   int32_t ht_cnt;
   uint32_t src0, src1, src2, src3;
   uint32_t ref0, ref1, ref2, ref3;
-  v16u8 src = { 0 };
-  v16u8 ref = { 0 };
+  v16u8 src = {0};
+  v16u8 ref = {0};
   v16u8 diff;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
-  v8u16 sad2 = { 0 };
-  v8u16 sad3 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
+  v8u16 sad2 = {0};
+  v8u16 sad3 = {0};
 
   ref0_ptr = aref_ptr[0];
   ref1_ptr = aref_ptr[1];
@@ -864,10 +864,10 @@ static void sad_8width_x4d_msa(const uint8_t *src_ptr, int32_t src_stride,
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref2, ref3, ref4, ref5, ref6, ref7;
   v16u8 ref8, ref9, ref10, ref11, ref12, ref13, ref14, ref15;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
-  v8u16 sad2 = { 0 };
-  v8u16 sad3 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
+  v8u16 sad2 = {0};
+  v8u16 sad3 = {0};
 
   ref0_ptr = aref_ptr[0];
   ref1_ptr = aref_ptr[1];
@@ -913,10 +913,10 @@ static void sad_16width_x4d_msa(const uint8_t *src_ptr, int32_t src_stride,
   int32_t ht_cnt;
   const uint8_t *ref0_ptr, *ref1_ptr, *ref2_ptr, *ref3_ptr;
   v16u8 src, ref0, ref1, ref2, ref3, diff;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
-  v8u16 sad2 = { 0 };
-  v8u16 sad3 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
+  v8u16 sad2 = {0};
+  v8u16 sad3 = {0};
 
   ref0_ptr = aref_ptr[0];
   ref1_ptr = aref_ptr[1];
@@ -978,10 +978,10 @@ static void sad_32width_x4d_msa(const uint8_t *src, int32_t src_stride,
   const uint8_t *ref0_ptr, *ref1_ptr, *ref2_ptr, *ref3_ptr;
   int32_t ht_cnt;
   v16u8 src0, src1, ref0, ref1;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
-  v8u16 sad2 = { 0 };
-  v8u16 sad3 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
+  v8u16 sad2 = {0};
+  v8u16 sad3 = {0};
 
   ref0_ptr = aref_ptr[0];
   ref1_ptr = aref_ptr[1];
@@ -1023,14 +1023,14 @@ static void sad_64width_x4d_msa(const uint8_t *src, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref2, ref3;
-  v8u16 sad0_0 = { 0 };
-  v8u16 sad0_1 = { 0 };
-  v8u16 sad1_0 = { 0 };
-  v8u16 sad1_1 = { 0 };
-  v8u16 sad2_0 = { 0 };
-  v8u16 sad2_1 = { 0 };
-  v8u16 sad3_0 = { 0 };
-  v8u16 sad3_1 = { 0 };
+  v8u16 sad0_0 = {0};
+  v8u16 sad0_1 = {0};
+  v8u16 sad1_0 = {0};
+  v8u16 sad1_1 = {0};
+  v8u16 sad2_0 = {0};
+  v8u16 sad2_1 = {0};
+  v8u16 sad3_0 = {0};
+  v8u16 sad3_1 = {0};
 
   ref0_ptr = aref_ptr[0];
   ref1_ptr = aref_ptr[1];
@@ -1077,10 +1077,10 @@ static uint32_t avgsad_4width_msa(const uint8_t *src_ptr, int32_t src_stride,
                                   int32_t height, const uint8_t *sec_pred) {
   int32_t ht_cnt;
   uint32_t src0, src1, src2, src3, ref0, ref1, ref2, ref3;
-  v16u8 src = { 0 };
-  v16u8 ref = { 0 };
+  v16u8 src = {0};
+  v16u8 ref = {0};
   v16u8 diff, pred, comp;
-  v8u16 sad = { 0 };
+  v8u16 sad = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LW4(src_ptr, src_stride, src0, src1, src2, src3);
@@ -1107,7 +1107,7 @@ static uint32_t avgsad_8width_msa(const uint8_t *src, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src0, src1, src2, src3, ref0, ref1, ref2, ref3;
   v16u8 diff0, diff1, pred0, pred1;
-  v8u16 sad = { 0 };
+  v8u16 sad = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB4(src, src_stride, src0, src1, src2, src3);
@@ -1131,7 +1131,7 @@ static uint32_t avgsad_16width_msa(const uint8_t *src, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src0, src1, src2, src3, ref0, ref1, ref2, ref3;
   v16u8 pred0, pred1, pred2, pred3, comp0, comp1;
-  v8u16 sad = { 0 };
+  v8u16 sad = {0};
 
   for (ht_cnt = (height >> 3); ht_cnt--;) {
     LD_UB4(src, src_stride, src0, src1, src2, src3);
@@ -1168,7 +1168,7 @@ static uint32_t avgsad_32width_msa(const uint8_t *src, int32_t src_stride,
   v16u8 ref0, ref1, ref2, ref3, ref4, ref5, ref6, ref7;
   v16u8 pred0, pred1, pred2, pred3, pred4, pred5, pred6, pred7;
   v16u8 comp0, comp1;
-  v8u16 sad = { 0 };
+  v8u16 sad = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB4(src, src_stride, src0, src2, src4, src6);
@@ -1204,8 +1204,8 @@ static uint32_t avgsad_64width_msa(const uint8_t *src, int32_t src_stride,
   v16u8 ref0, ref1, ref2, ref3;
   v16u8 comp0, comp1, comp2, comp3;
   v16u8 pred0, pred1, pred2, pred3;
-  v8u16 sad0 = { 0 };
-  v8u16 sad1 = { 0 };
+  v8u16 sad0 = {0};
+  v8u16 sad1 = {0};
   v4u32 sad;
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {

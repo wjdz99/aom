@@ -19,10 +19,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "./aom_config.h"
 #include "../aom_ports/aom_timer.h"
-#include "aom/aomcx.h"
+#include "./aom_config.h"
 #include "aom/aom_encoder.h"
+#include "aom/aomcx.h"
 
 #include "../tools_common.h"
 #include "../video_writer.h"
@@ -40,7 +40,7 @@ enum denoiserState {
   kDenoiserOnAdaptive
 };
 
-static int mode_to_num_layers[12] = { 1, 2, 2, 3, 3, 3, 3, 5, 2, 3, 3, 3 };
+static int mode_to_num_layers[12] = {1, 2, 2, 3, 3, 3, 3, 5, 2, 3, 3, 3};
 
 // For rate control encoding stats.
 struct RateControlMetrics {
@@ -167,7 +167,7 @@ static void set_temporal_layer_pattern(int layering_mode,
   switch (layering_mode) {
     case 0: {
       // 1-layer.
-      int ids[1] = { 0 };
+      int ids[1] = {0};
       cfg->ts_periodicity = 1;
       *flag_periodicity = 1;
       cfg->ts_number_layers = 1;
@@ -180,7 +180,7 @@ static void set_temporal_layer_pattern(int layering_mode,
     }
     case 1: {
       // 2-layers, 2-frame period.
-      int ids[2] = { 0, 1 };
+      int ids[2] = {0, 1};
       cfg->ts_periodicity = 2;
       *flag_periodicity = 2;
       cfg->ts_number_layers = 2;
@@ -206,7 +206,7 @@ static void set_temporal_layer_pattern(int layering_mode,
     }
     case 2: {
       // 2-layers, 3-frame period.
-      int ids[3] = { 0, 1, 1 };
+      int ids[3] = {0, 1, 1};
       cfg->ts_periodicity = 3;
       *flag_periodicity = 3;
       cfg->ts_number_layers = 2;
@@ -224,7 +224,7 @@ static void set_temporal_layer_pattern(int layering_mode,
     }
     case 3: {
       // 3-layers, 6-frame period.
-      int ids[6] = { 0, 2, 2, 1, 2, 2 };
+      int ids[6] = {0, 2, 2, 1, 2, 2};
       cfg->ts_periodicity = 6;
       *flag_periodicity = 6;
       cfg->ts_number_layers = 3;
@@ -244,7 +244,7 @@ static void set_temporal_layer_pattern(int layering_mode,
     }
     case 4: {
       // 3-layers, 4-frame period.
-      int ids[4] = { 0, 2, 1, 2 };
+      int ids[4] = {0, 2, 1, 2};
       cfg->ts_periodicity = 4;
       *flag_periodicity = 4;
       cfg->ts_number_layers = 3;
@@ -265,7 +265,7 @@ static void set_temporal_layer_pattern(int layering_mode,
     }
     case 5: {
       // 3-layers, 4-frame period.
-      int ids[4] = { 0, 2, 1, 2 };
+      int ids[4] = {0, 2, 1, 2};
       cfg->ts_periodicity = 4;
       *flag_periodicity = 4;
       cfg->ts_number_layers = 3;
@@ -287,7 +287,7 @@ static void set_temporal_layer_pattern(int layering_mode,
     }
     case 6: {
       // 3-layers, 4-frame period.
-      int ids[4] = { 0, 2, 1, 2 };
+      int ids[4] = {0, 2, 1, 2};
       cfg->ts_periodicity = 4;
       *flag_periodicity = 4;
       cfg->ts_number_layers = 3;
@@ -308,7 +308,7 @@ static void set_temporal_layer_pattern(int layering_mode,
     case 7: {
       // NOTE: Probably of academic interest only.
       // 5-layers, 16-frame period.
-      int ids[16] = { 0, 4, 3, 4, 2, 4, 3, 4, 1, 4, 3, 4, 2, 4, 3, 4 };
+      int ids[16] = {0, 4, 3, 4, 2, 4, 3, 4, 1, 4, 3, 4, 2, 4, 3, 4};
       cfg->ts_periodicity = 16;
       *flag_periodicity = 16;
       cfg->ts_number_layers = 5;
@@ -332,7 +332,7 @@ static void set_temporal_layer_pattern(int layering_mode,
     }
     case 8: {
       // 2-layers, with sync point at first frame of layer 1.
-      int ids[2] = { 0, 1 };
+      int ids[2] = {0, 1};
       cfg->ts_periodicity = 2;
       *flag_periodicity = 8;
       cfg->ts_number_layers = 2;
@@ -367,7 +367,7 @@ static void set_temporal_layer_pattern(int layering_mode,
     }
     case 9: {
       // 3-layers: Sync points for layer 1 and 2 every 8 frames.
-      int ids[4] = { 0, 2, 1, 2 };
+      int ids[4] = {0, 2, 1, 2};
       cfg->ts_periodicity = 4;
       *flag_periodicity = 8;
       cfg->ts_number_layers = 3;
@@ -398,7 +398,7 @@ static void set_temporal_layer_pattern(int layering_mode,
       // and is only updated on key frame.
       // Sync points for layer 1 and 2 every 8 frames.
 
-      int ids[4] = { 0, 2, 1, 2 };
+      int ids[4] = {0, 2, 1, 2};
       cfg->ts_periodicity = 4;
       *flag_periodicity = 8;
       cfg->ts_number_layers = 3;
@@ -435,7 +435,7 @@ static void set_temporal_layer_pattern(int layering_mode,
     default: {
       // 3-layers structure as in case 10, but no sync/refresh points for
       // layer 1 and 2.
-      int ids[4] = { 0, 2, 1, 2 };
+      int ids[4] = {0, 2, 1, 2};
       cfg->ts_periodicity = 4;
       *flag_periodicity = 8;
       cfg->ts_number_layers = 3;
@@ -463,7 +463,7 @@ static void set_temporal_layer_pattern(int layering_mode,
 }
 
 int main(int argc, char **argv) {
-  AvxVideoWriter *outfile[AOM_TS_MAX_LAYERS] = { NULL };
+  AvxVideoWriter *outfile[AOM_TS_MAX_LAYERS] = {NULL};
   aom_codec_ctx_t codec;
   aom_codec_enc_cfg_t cfg;
   int frame_cnt = 0;
@@ -479,12 +479,12 @@ int main(int argc, char **argv) {
   int pts = 0;             // PTS starts at 0.
   int frame_duration = 1;  // 1 timebase tick per frame.
   int layering_mode = 0;
-  int layer_flags[AOM_TS_MAX_PERIODICITY] = { 0 };
+  int layer_flags[AOM_TS_MAX_PERIODICITY] = {0};
   int flag_periodicity = 1;
 #if AOM_ENCODER_ABI_VERSION > (4 + AOM_CODEC_ABI_VERSION)
-  aom_svc_layer_id_t layer_id = { 0, 0 };
+  aom_svc_layer_id_t layer_id = {0, 0};
 #else
-  aom_svc_layer_id_t layer_id = { 0 };
+  aom_svc_layer_id_t layer_id = {0};
 #endif
   const AvxInterface *encoder = NULL;
   FILE *infile = NULL;
@@ -506,14 +506,12 @@ int main(int argc, char **argv) {
   // Check usage and arguments.
   if (argc < min_args) {
 #if CONFIG_AOM_HIGHBITDEPTH
-    die(
-        "Usage: %s <infile> <outfile> <codec_type(aom/av1)> <width> <height> "
+    die("Usage: %s <infile> <outfile> <codec_type(aom/av1)> <width> <height> "
         "<rate_num> <rate_den> <speed> <frame_drop_threshold> <mode> "
         "<Rate_0> ... <Rate_nlayers-1> <bit-depth> \n",
         argv[0]);
 #else
-    die(
-        "Usage: %s <infile> <outfile> <codec_type(aom/av1)> <width> <height> "
+    die("Usage: %s <infile> <outfile> <codec_type(aom/av1)> <width> <height> "
         "<rate_num> <rate_den> <speed> <frame_drop_threshold> <mode> "
         "<Rate_0> ... <Rate_nlayers-1> \n",
         argv[0]);
@@ -554,7 +552,8 @@ int main(int argc, char **argv) {
       bit_depth = AOM_BITS_12;
       input_bit_depth = 12;
       break;
-    default: die("Invalid bit depth (8, 10, 12) %s", argv[argc - 1]);
+    default:
+      die("Invalid bit depth (8, 10, 12) %s", argv[argc - 1]);
   }
   if (!aom_img_alloc(
           &raw, bit_depth == AOM_BITS_8 ? AOM_IMG_FMT_I420 : AOM_IMG_FMT_I42016,
@@ -793,7 +792,8 @@ int main(int argc, char **argv) {
             }
           }
           break;
-        default: break;
+        default:
+          break;
       }
     }
     ++frame_cnt;

@@ -10,17 +10,17 @@
  */
 
 #include <arm_neon.h>
-#include "./aom_dsp_rtcd.h"
 #include "./aom_config.h"
+#include "./aom_dsp_rtcd.h"
 
-#include "aom_ports/mem.h"
 #include "aom/aom_integer.h"
+#include "aom_ports/mem.h"
 
 #include "aom_dsp/variance.h"
 
 static const uint8_t bilinear_filters[8][2] = {
-  { 128, 0 }, { 112, 16 }, { 96, 32 }, { 80, 48 },
-  { 64, 64 }, { 48, 80 },  { 32, 96 }, { 16, 112 },
+    {128, 0}, {112, 16}, {96, 32}, {80, 48},
+    {64, 64}, {48, 80},  {32, 96}, {16, 112},
 };
 
 static void var_filter_block2d_bil_w8(const uint8_t *src_ptr,

@@ -9,14 +9,13 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
+#include "av1/av1_dx_iface.c"
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
 #include "test/util.h"
 #include "test/y4m_video_source.h"
-#include "av1/av1_dx_iface.c"
 
 namespace {
 
@@ -31,7 +30,7 @@ struct EncodePerfTestVideo {
 };
 
 const EncodePerfTestVideo kAV1EncodePerfTestVectors[] = {
-  { "niklas_1280_720_30.y4m", 1280, 720, 600, 10 },
+    {"niklas_1280_720_30.y4m", 1280, 720, 600, 10},
 };
 
 struct EncodeParameters {
@@ -47,11 +46,11 @@ struct EncodeParameters {
 };
 
 const EncodeParameters kAV1EncodeParameterSet[] = {
-  { 0, 0, 0, 1, 0, AOM_CR_STUDIO_RANGE, AOM_CS_BT_601 },
-  { 0, 0, 0, 0, 0, AOM_CR_FULL_RANGE, AOM_CS_BT_709 },
-  { 0, 0, 1, 0, 0, AOM_CR_FULL_RANGE, AOM_CS_BT_2020 },
-  { 0, 2, 0, 0, 1, AOM_CR_STUDIO_RANGE, AOM_CS_UNKNOWN, { 640, 480 } },
-  // TODO(JBB): Test profiles (requires more work).
+    {0, 0, 0, 1, 0, AOM_CR_STUDIO_RANGE, AOM_CS_BT_601},
+    {0, 0, 0, 0, 0, AOM_CR_FULL_RANGE, AOM_CS_BT_709},
+    {0, 0, 1, 0, 0, AOM_CR_FULL_RANGE, AOM_CS_BT_2020},
+    {0, 2, 0, 0, 1, AOM_CR_STUDIO_RANGE, AOM_CS_UNKNOWN, {640, 480}},
+    // TODO(JBB): Test profiles (requires more work).
 };
 
 class AvxEncoderParmsGetToDecoder
@@ -146,6 +145,6 @@ TEST_P(AvxEncoderParmsGetToDecoder, BitstreamParms) {
 }
 
 AV1_INSTANTIATE_TEST_CASE(AvxEncoderParmsGetToDecoder,
-                           ::testing::ValuesIn(kAV1EncodeParameterSet),
-                           ::testing::ValuesIn(kAV1EncodePerfTestVectors));
+                          ::testing::ValuesIn(kAV1EncodeParameterSet),
+                          ::testing::ValuesIn(kAV1EncodePerfTestVectors));
 }  // namespace

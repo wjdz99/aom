@@ -10,13 +10,13 @@
 */
 
 #include "./aom_config.h"
-#include "third_party/googletest/src/include/gtest/gtest.h"
+#include "aom/aom_codec.h"
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
 #include "test/i420_video_source.h"
 #include "test/util.h"
 #include "test/y4m_video_source.h"
-#include "aom/aom_codec.h"
+#include "third_party/googletest/src/include/gtest/gtest.h"
 
 namespace {
 
@@ -788,7 +788,7 @@ static void assign_layer_bitrates(aom_codec_enc_cfg_t *const enc_cfg,
                                   unsigned int total_rate) {
   int sl, spatial_layer_target;
   float total = 0;
-  float alloc_ratio[AOM_MAX_LAYERS] = { 0 };
+  float alloc_ratio[AOM_MAX_LAYERS] = {0};
   for (sl = 0; sl < spatial_layers; ++sl) {
     if (svc_params->scaling_factor_den[sl] > 0) {
       alloc_ratio[sl] = (float)(svc_params->scaling_factor_num[sl] * 1.0 /
@@ -897,9 +897,9 @@ TEST_P(DatarateOnePassCbrSvc, OnePassCbrSvc4threads) {
 }
 
 AV1_INSTANTIATE_TEST_CASE(DatarateTestAV1Large,
-                           ::testing::Values(::libaom_test::kOnePassGood,
-                                             ::libaom_test::kRealTime),
-                           ::testing::Range(2, 7));
+                          ::testing::Values(::libaom_test::kOnePassGood,
+                                            ::libaom_test::kRealTime),
+                          ::testing::Range(2, 7));
 
 /* AV1 does not support multiple layers yet.
 AV1_INSTANTIATE_TEST_CASE(DatarateOnePassCbrSvc,

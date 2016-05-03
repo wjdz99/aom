@@ -339,8 +339,8 @@ void aom_d45_predictor_4x4_neon(uint8_t *dst, ptrdiff_t stride,
 
 void aom_d45_predictor_8x8_neon(uint8_t *dst, ptrdiff_t stride,
                                 const uint8_t *above, const uint8_t *left) {
-  static const uint8_t shuffle1[8] = { 1, 2, 3, 4, 5, 6, 7, 7 };
-  static const uint8_t shuffle2[8] = { 2, 3, 4, 5, 6, 7, 7, 7 };
+  static const uint8_t shuffle1[8] = {1, 2, 3, 4, 5, 6, 7, 7};
+  static const uint8_t shuffle2[8] = {2, 3, 4, 5, 6, 7, 7, 7};
   const uint8x8_t sh_12345677 = vld1_u8(shuffle1);
   const uint8x8_t sh_23456777 = vld1_u8(shuffle2);
   const uint8x8_t A0 = vld1_u8(above);  // top row

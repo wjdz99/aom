@@ -9,14 +9,14 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include "av1/common/loopfilter.h"
 #include "./aom_config.h"
 #include "./aom_dsp_rtcd.h"
-#include "av1/common/loopfilter.h"
-#include "av1/common/onyxc_int.h"
-#include "av1/common/reconinter.h"
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem.h"
+#include "av1/common/onyxc_int.h"
+#include "av1/common/reconinter.h"
 
 #include "av1/common/seg_common.h"
 
@@ -38,10 +38,10 @@
 //
 // A loopfilter should be applied to every other 8x8 horizontally.
 static const uint64_t left_64x64_txform_mask[TX_SIZES] = {
-  0xffffffffffffffffULL,  // TX_4X4
-  0xffffffffffffffffULL,  // TX_8x8
-  0x5555555555555555ULL,  // TX_16x16
-  0x1111111111111111ULL,  // TX_32x32
+    0xffffffffffffffffULL,  // TX_4X4
+    0xffffffffffffffffULL,  // TX_8x8
+    0x5555555555555555ULL,  // TX_16x16
+    0x1111111111111111ULL,  // TX_32x32
 };
 
 // 64 bit masks for above transform size. Each 1 represents a position where
@@ -62,10 +62,10 @@ static const uint64_t left_64x64_txform_mask[TX_SIZES] = {
 //
 // A loopfilter should be applied to every other 4 the row vertically.
 static const uint64_t above_64x64_txform_mask[TX_SIZES] = {
-  0xffffffffffffffffULL,  // TX_4X4
-  0xffffffffffffffffULL,  // TX_8x8
-  0x00ff00ff00ff00ffULL,  // TX_16x16
-  0x000000ff000000ffULL,  // TX_32x32
+    0xffffffffffffffffULL,  // TX_4X4
+    0xffffffffffffffffULL,  // TX_8x8
+    0x00ff00ff00ff00ffULL,  // TX_16x16
+    0x000000ff000000ffULL,  // TX_32x32
 };
 
 // 64 bit masks for prediction sizes (left). Each 1 represents a position
@@ -84,54 +84,54 @@ static const uint64_t above_64x64_txform_mask[TX_SIZES] = {
 //  00000000
 //  00000000
 static const uint64_t left_prediction_mask[BLOCK_SIZES] = {
-  0x0000000000000001ULL,  // BLOCK_4X4,
-  0x0000000000000001ULL,  // BLOCK_4X8,
-  0x0000000000000001ULL,  // BLOCK_8X4,
-  0x0000000000000001ULL,  // BLOCK_8X8,
-  0x0000000000000101ULL,  // BLOCK_8X16,
-  0x0000000000000001ULL,  // BLOCK_16X8,
-  0x0000000000000101ULL,  // BLOCK_16X16,
-  0x0000000001010101ULL,  // BLOCK_16X32,
-  0x0000000000000101ULL,  // BLOCK_32X16,
-  0x0000000001010101ULL,  // BLOCK_32X32,
-  0x0101010101010101ULL,  // BLOCK_32X64,
-  0x0000000001010101ULL,  // BLOCK_64X32,
-  0x0101010101010101ULL,  // BLOCK_64X64
+    0x0000000000000001ULL,  // BLOCK_4X4,
+    0x0000000000000001ULL,  // BLOCK_4X8,
+    0x0000000000000001ULL,  // BLOCK_8X4,
+    0x0000000000000001ULL,  // BLOCK_8X8,
+    0x0000000000000101ULL,  // BLOCK_8X16,
+    0x0000000000000001ULL,  // BLOCK_16X8,
+    0x0000000000000101ULL,  // BLOCK_16X16,
+    0x0000000001010101ULL,  // BLOCK_16X32,
+    0x0000000000000101ULL,  // BLOCK_32X16,
+    0x0000000001010101ULL,  // BLOCK_32X32,
+    0x0101010101010101ULL,  // BLOCK_32X64,
+    0x0000000001010101ULL,  // BLOCK_64X32,
+    0x0101010101010101ULL,  // BLOCK_64X64
 };
 
 // 64 bit mask to shift and set for each prediction size.
 static const uint64_t above_prediction_mask[BLOCK_SIZES] = {
-  0x0000000000000001ULL,  // BLOCK_4X4
-  0x0000000000000001ULL,  // BLOCK_4X8
-  0x0000000000000001ULL,  // BLOCK_8X4
-  0x0000000000000001ULL,  // BLOCK_8X8
-  0x0000000000000001ULL,  // BLOCK_8X16,
-  0x0000000000000003ULL,  // BLOCK_16X8
-  0x0000000000000003ULL,  // BLOCK_16X16
-  0x0000000000000003ULL,  // BLOCK_16X32,
-  0x000000000000000fULL,  // BLOCK_32X16,
-  0x000000000000000fULL,  // BLOCK_32X32,
-  0x000000000000000fULL,  // BLOCK_32X64,
-  0x00000000000000ffULL,  // BLOCK_64X32,
-  0x00000000000000ffULL,  // BLOCK_64X64
+    0x0000000000000001ULL,  // BLOCK_4X4
+    0x0000000000000001ULL,  // BLOCK_4X8
+    0x0000000000000001ULL,  // BLOCK_8X4
+    0x0000000000000001ULL,  // BLOCK_8X8
+    0x0000000000000001ULL,  // BLOCK_8X16,
+    0x0000000000000003ULL,  // BLOCK_16X8
+    0x0000000000000003ULL,  // BLOCK_16X16
+    0x0000000000000003ULL,  // BLOCK_16X32,
+    0x000000000000000fULL,  // BLOCK_32X16,
+    0x000000000000000fULL,  // BLOCK_32X32,
+    0x000000000000000fULL,  // BLOCK_32X64,
+    0x00000000000000ffULL,  // BLOCK_64X32,
+    0x00000000000000ffULL,  // BLOCK_64X64
 };
 // 64 bit mask to shift and set for each prediction size. A bit is set for
 // each 8x8 block that would be in the left most block of the given block
 // size in the 64x64 block.
 static const uint64_t size_mask[BLOCK_SIZES] = {
-  0x0000000000000001ULL,  // BLOCK_4X4
-  0x0000000000000001ULL,  // BLOCK_4X8
-  0x0000000000000001ULL,  // BLOCK_8X4
-  0x0000000000000001ULL,  // BLOCK_8X8
-  0x0000000000000101ULL,  // BLOCK_8X16,
-  0x0000000000000003ULL,  // BLOCK_16X8
-  0x0000000000000303ULL,  // BLOCK_16X16
-  0x0000000003030303ULL,  // BLOCK_16X32,
-  0x0000000000000f0fULL,  // BLOCK_32X16,
-  0x000000000f0f0f0fULL,  // BLOCK_32X32,
-  0x0f0f0f0f0f0f0f0fULL,  // BLOCK_32X64,
-  0x00000000ffffffffULL,  // BLOCK_64X32,
-  0xffffffffffffffffULL,  // BLOCK_64X64
+    0x0000000000000001ULL,  // BLOCK_4X4
+    0x0000000000000001ULL,  // BLOCK_4X8
+    0x0000000000000001ULL,  // BLOCK_8X4
+    0x0000000000000001ULL,  // BLOCK_8X8
+    0x0000000000000101ULL,  // BLOCK_8X16,
+    0x0000000000000003ULL,  // BLOCK_16X8
+    0x0000000000000303ULL,  // BLOCK_16X16
+    0x0000000003030303ULL,  // BLOCK_16X32,
+    0x0000000000000f0fULL,  // BLOCK_32X16,
+    0x000000000f0f0f0fULL,  // BLOCK_32X32,
+    0x0f0f0f0f0f0f0f0fULL,  // BLOCK_32X64,
+    0x00000000ffffffffULL,  // BLOCK_64X32,
+    0xffffffffffffffffULL,  // BLOCK_64X64
 };
 
 // These are used for masking the left and above borders.
@@ -140,74 +140,74 @@ static const uint64_t above_border = 0x000000ff000000ffULL;
 
 // 16 bit masks for uv transform sizes.
 static const uint16_t left_64x64_txform_mask_uv[TX_SIZES] = {
-  0xffff,  // TX_4X4
-  0xffff,  // TX_8x8
-  0x5555,  // TX_16x16
-  0x1111,  // TX_32x32
+    0xffff,  // TX_4X4
+    0xffff,  // TX_8x8
+    0x5555,  // TX_16x16
+    0x1111,  // TX_32x32
 };
 
 static const uint16_t above_64x64_txform_mask_uv[TX_SIZES] = {
-  0xffff,  // TX_4X4
-  0xffff,  // TX_8x8
-  0x0f0f,  // TX_16x16
-  0x000f,  // TX_32x32
+    0xffff,  // TX_4X4
+    0xffff,  // TX_8x8
+    0x0f0f,  // TX_16x16
+    0x000f,  // TX_32x32
 };
 
 // 16 bit left mask to shift and set for each uv prediction size.
 static const uint16_t left_prediction_mask_uv[BLOCK_SIZES] = {
-  0x0001,  // BLOCK_4X4,
-  0x0001,  // BLOCK_4X8,
-  0x0001,  // BLOCK_8X4,
-  0x0001,  // BLOCK_8X8,
-  0x0001,  // BLOCK_8X16,
-  0x0001,  // BLOCK_16X8,
-  0x0001,  // BLOCK_16X16,
-  0x0011,  // BLOCK_16X32,
-  0x0001,  // BLOCK_32X16,
-  0x0011,  // BLOCK_32X32,
-  0x1111,  // BLOCK_32X64
-  0x0011,  // BLOCK_64X32,
-  0x1111,  // BLOCK_64X64
+    0x0001,  // BLOCK_4X4,
+    0x0001,  // BLOCK_4X8,
+    0x0001,  // BLOCK_8X4,
+    0x0001,  // BLOCK_8X8,
+    0x0001,  // BLOCK_8X16,
+    0x0001,  // BLOCK_16X8,
+    0x0001,  // BLOCK_16X16,
+    0x0011,  // BLOCK_16X32,
+    0x0001,  // BLOCK_32X16,
+    0x0011,  // BLOCK_32X32,
+    0x1111,  // BLOCK_32X64
+    0x0011,  // BLOCK_64X32,
+    0x1111,  // BLOCK_64X64
 };
 // 16 bit above mask to shift and set for uv each prediction size.
 static const uint16_t above_prediction_mask_uv[BLOCK_SIZES] = {
-  0x0001,  // BLOCK_4X4
-  0x0001,  // BLOCK_4X8
-  0x0001,  // BLOCK_8X4
-  0x0001,  // BLOCK_8X8
-  0x0001,  // BLOCK_8X16,
-  0x0001,  // BLOCK_16X8
-  0x0001,  // BLOCK_16X16
-  0x0001,  // BLOCK_16X32,
-  0x0003,  // BLOCK_32X16,
-  0x0003,  // BLOCK_32X32,
-  0x0003,  // BLOCK_32X64,
-  0x000f,  // BLOCK_64X32,
-  0x000f,  // BLOCK_64X64
+    0x0001,  // BLOCK_4X4
+    0x0001,  // BLOCK_4X8
+    0x0001,  // BLOCK_8X4
+    0x0001,  // BLOCK_8X8
+    0x0001,  // BLOCK_8X16,
+    0x0001,  // BLOCK_16X8
+    0x0001,  // BLOCK_16X16
+    0x0001,  // BLOCK_16X32,
+    0x0003,  // BLOCK_32X16,
+    0x0003,  // BLOCK_32X32,
+    0x0003,  // BLOCK_32X64,
+    0x000f,  // BLOCK_64X32,
+    0x000f,  // BLOCK_64X64
 };
 
 // 64 bit mask to shift and set for each uv prediction size
 static const uint16_t size_mask_uv[BLOCK_SIZES] = {
-  0x0001,  // BLOCK_4X4
-  0x0001,  // BLOCK_4X8
-  0x0001,  // BLOCK_8X4
-  0x0001,  // BLOCK_8X8
-  0x0001,  // BLOCK_8X16,
-  0x0001,  // BLOCK_16X8
-  0x0001,  // BLOCK_16X16
-  0x0011,  // BLOCK_16X32,
-  0x0003,  // BLOCK_32X16,
-  0x0033,  // BLOCK_32X32,
-  0x3333,  // BLOCK_32X64,
-  0x00ff,  // BLOCK_64X32,
-  0xffff,  // BLOCK_64X64
+    0x0001,  // BLOCK_4X4
+    0x0001,  // BLOCK_4X8
+    0x0001,  // BLOCK_8X4
+    0x0001,  // BLOCK_8X8
+    0x0001,  // BLOCK_8X16,
+    0x0001,  // BLOCK_16X8
+    0x0001,  // BLOCK_16X16
+    0x0011,  // BLOCK_16X32,
+    0x0003,  // BLOCK_32X16,
+    0x0033,  // BLOCK_32X32,
+    0x3333,  // BLOCK_32X64,
+    0x00ff,  // BLOCK_64X32,
+    0xffff,  // BLOCK_64X64
 };
 static const uint16_t left_border_uv = 0x1111;
 static const uint16_t above_border_uv = 0x000f;
 
 static const int mode_lf_lut[MB_MODE_COUNT] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // INTRA_MODES
-  1, 1, 0, 1                     // INTER_MODES (ZEROMV == 0)
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // INTRA_MODES
+    1, 1, 0, 1                     // INTER_MODES (ZEROMV == 0)
 };
 
 static void update_sharpness(loop_filter_info_n *lfi, int sharpness_lvl) {
@@ -826,8 +826,8 @@ static void build_y_mask(const loop_filter_info_n *const lfi_n,
 // by mi_row, mi_col.
 // TODO(JBB): This function only works for yv12.
 void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
-                     MODE_INFO **mi, const int mode_info_stride,
-                     LOOP_FILTER_MASK *lfm) {
+                    MODE_INFO **mi, const int mode_info_stride,
+                    LOOP_FILTER_MASK *lfm) {
   int idx_32, idx_16, idx_8;
   const loop_filter_info_n *const lfi_n = &cm->lf_info;
   MODE_INFO **mip = mi;
@@ -837,21 +837,21 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
   // added to the mi ptr as we go through each loop. It helps us to avoid
   // setting up special row and column counters for each index. The last step
   // brings us out back to the starting position.
-  const int offset_32[] = { 4, (mode_info_stride << 2) - 4, 4,
-                            -(mode_info_stride << 2) - 4 };
-  const int offset_16[] = { 2, (mode_info_stride << 1) - 2, 2,
-                            -(mode_info_stride << 1) - 2 };
-  const int offset[] = { 1, mode_info_stride - 1, 1, -mode_info_stride - 1 };
+  const int offset_32[] = {4, (mode_info_stride << 2) - 4, 4,
+                           -(mode_info_stride << 2) - 4};
+  const int offset_16[] = {2, (mode_info_stride << 1) - 2, 2,
+                           -(mode_info_stride << 1) - 2};
+  const int offset[] = {1, mode_info_stride - 1, 1, -mode_info_stride - 1};
 
   // Following variables represent shifts to position the current block
   // mask over the appropriate block. A shift of 36 to the left will move
   // the bits for the final 32 by 32 block in the 64x64 up 4 rows and left
   // 4 rows to the appropriate spot.
-  const int shift_32_y[] = { 0, 4, 32, 36 };
-  const int shift_16_y[] = { 0, 2, 16, 18 };
-  const int shift_8_y[] = { 0, 1, 8, 9 };
-  const int shift_32_uv[] = { 0, 2, 8, 10 };
-  const int shift_16_uv[] = { 0, 1, 4, 5 };
+  const int shift_32_y[] = {0, 4, 32, 36};
+  const int shift_16_y[] = {0, 2, 16, 18};
+  const int shift_8_y[] = {0, 1, 8, 9};
+  const int shift_32_uv[] = {0, 2, 8, 10};
+  const int shift_16_uv[] = {0, 1, 4, 5};
   int i;
   const int max_rows =
       (mi_row + MI_BLOCK_SIZE > cm->mi_rows ? cm->mi_rows - mi_row
@@ -867,7 +867,9 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
   // loop and storing lfm in the mbmi structure so that we don't have to go
   // through the recursive loop structure multiple times.
   switch (mip[0]->mbmi.sb_type) {
-    case BLOCK_64X64: build_masks(lfi_n, mip[0], 0, 0, lfm); break;
+    case BLOCK_64X64:
+      build_masks(lfi_n, mip[0], 0, 0, lfm);
+      break;
     case BLOCK_64X32:
       build_masks(lfi_n, mip[0], 0, 0, lfm);
       mip2 = mip + mode_info_stride * 4;
@@ -1152,9 +1154,8 @@ static void highbd_filter_selectively_vert(
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
 void av1_filter_block_plane_non420(AV1_COMMON *cm,
-                                    struct macroblockd_plane *plane,
-                                    MODE_INFO **mi_8x8, int mi_row,
-                                    int mi_col) {
+                                   struct macroblockd_plane *plane,
+                                   MODE_INFO **mi_8x8, int mi_row, int mi_col) {
   const int ss_x = plane->subsampling_x;
   const int ss_y = plane->subsampling_y;
   const int row_step = 1 << ss_y;
@@ -1162,10 +1163,10 @@ void av1_filter_block_plane_non420(AV1_COMMON *cm,
   const int row_step_stride = cm->mi_stride * row_step;
   struct buf_2d *const dst = &plane->dst;
   uint8_t *const dst0 = dst->buf;
-  unsigned int mask_16x16[MI_BLOCK_SIZE] = { 0 };
-  unsigned int mask_8x8[MI_BLOCK_SIZE] = { 0 };
-  unsigned int mask_4x4[MI_BLOCK_SIZE] = { 0 };
-  unsigned int mask_4x4_int[MI_BLOCK_SIZE] = { 0 };
+  unsigned int mask_16x16[MI_BLOCK_SIZE] = {0};
+  unsigned int mask_8x8[MI_BLOCK_SIZE] = {0};
+  unsigned int mask_4x4[MI_BLOCK_SIZE] = {0};
+  unsigned int mask_4x4_int[MI_BLOCK_SIZE] = {0};
   uint8_t lfl[MI_BLOCK_SIZE * MI_BLOCK_SIZE];
   int r, c;
 
@@ -1315,8 +1316,8 @@ void av1_filter_block_plane_non420(AV1_COMMON *cm,
 }
 
 void av1_filter_block_plane_ss00(AV1_COMMON *const cm,
-                                  struct macroblockd_plane *const plane,
-                                  int mi_row, LOOP_FILTER_MASK *lfm) {
+                                 struct macroblockd_plane *const plane,
+                                 int mi_row, LOOP_FILTER_MASK *lfm) {
   struct buf_2d *const dst = &plane->dst;
   uint8_t *const dst0 = dst->buf;
   int r;
@@ -1406,8 +1407,8 @@ void av1_filter_block_plane_ss00(AV1_COMMON *const cm,
 }
 
 void av1_filter_block_plane_ss11(AV1_COMMON *const cm,
-                                  struct macroblockd_plane *const plane,
-                                  int mi_row, LOOP_FILTER_MASK *lfm) {
+                                 struct macroblockd_plane *const plane,
+                                 int mi_row, LOOP_FILTER_MASK *lfm) {
   struct buf_2d *const dst = &plane->dst;
   uint8_t *const dst0 = dst->buf;
   int r, c;
@@ -1520,8 +1521,8 @@ void av1_filter_block_plane_ss11(AV1_COMMON *const cm,
 }
 
 void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
-                           struct macroblockd_plane planes[MAX_MB_PLANE],
-                           int start, int stop, int y_only) {
+                          struct macroblockd_plane planes[MAX_MB_PLANE],
+                          int start, int stop, int y_only) {
   const int num_planes = y_only ? 1 : MAX_MB_PLANE;
   enum lf_path path;
   LOOP_FILTER_MASK lfm;
@@ -1558,7 +1559,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
             break;
           case LF_PATH_SLOW:
             av1_filter_block_plane_non420(cm, &planes[plane], mi + mi_col,
-                                           mi_row, mi_col);
+                                          mi_row, mi_col);
             break;
         }
       }
@@ -1567,8 +1568,8 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
 }
 
 void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
-                            MACROBLOCKD *xd, int frame_filter_level, int y_only,
-                            int partial_frame) {
+                           MACROBLOCKD *xd, int frame_filter_level, int y_only,
+                           int partial_frame) {
   int start_mi_row, end_mi_row, mi_rows_to_filter;
   if (!frame_filter_level) return;
   start_mi_row = 0;
@@ -1585,8 +1586,7 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 
 void av1_loop_filter_data_reset(
     LFWorkerData *lf_data, YV12_BUFFER_CONFIG *frame_buffer,
-    struct AV1Common *cm,
-    const struct macroblockd_plane planes[MAX_MB_PLANE]) {
+    struct AV1Common *cm, const struct macroblockd_plane planes[MAX_MB_PLANE]) {
   lf_data->frame_buffer = frame_buffer;
   lf_data->cm = cm;
   lf_data->start = 0;
@@ -1598,6 +1598,6 @@ void av1_loop_filter_data_reset(
 int av1_loop_filter_worker(LFWorkerData *const lf_data, void *unused) {
   (void)unused;
   av1_loop_filter_rows(lf_data->frame_buffer, lf_data->cm, lf_data->planes,
-                        lf_data->start, lf_data->stop, lf_data->y_only);
+                       lf_data->start, lf_data->stop, lf_data->y_only);
   return 1;
 }

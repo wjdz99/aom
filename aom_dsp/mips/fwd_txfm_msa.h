@@ -31,33 +31,34 @@
     HADD_SW_S32(vec_w_m);                                                      \
   })
 
-#define AOM_FDCT4(in0, in1, in2, in3, out0, out1, out2, out3)                  \
-  {                                                                            \
-    v8i16 cnst0_m, cnst1_m, cnst2_m, cnst3_m;                                  \
-    v8i16 vec0_m, vec1_m, vec2_m, vec3_m;                                      \
-    v4i32 vec4_m, vec5_m, vec6_m, vec7_m;                                      \
-    v8i16 coeff_m = {                                                          \
-      cospi_16_64, -cospi_16_64, cospi_8_64, cospi_24_64, -cospi_8_64, 0, 0, 0 \
-    };                                                                         \
-                                                                               \
-    BUTTERFLY_4(in0, in1, in2, in3, vec0_m, vec1_m, vec2_m, vec3_m);           \
-    ILVR_H2_SH(vec1_m, vec0_m, vec3_m, vec2_m, vec0_m, vec2_m);                \
-    SPLATI_H2_SH(coeff_m, 0, 1, cnst0_m, cnst1_m);                             \
-    cnst1_m = __msa_ilvev_h(cnst1_m, cnst0_m);                                 \
-    vec5_m = __msa_dotp_s_w(vec0_m, cnst1_m);                                  \
-                                                                               \
-    SPLATI_H2_SH(coeff_m, 4, 3, cnst2_m, cnst3_m);                             \
-    cnst2_m = __msa_ilvev_h(cnst3_m, cnst2_m);                                 \
-    vec7_m = __msa_dotp_s_w(vec2_m, cnst2_m);                                  \
-                                                                               \
-    vec4_m = __msa_dotp_s_w(vec0_m, cnst0_m);                                  \
-    cnst2_m = __msa_splati_h(coeff_m, 2);                                      \
-    cnst2_m = __msa_ilvev_h(cnst2_m, cnst3_m);                                 \
-    vec6_m = __msa_dotp_s_w(vec2_m, cnst2_m);                                  \
-                                                                               \
-    SRARI_W4_SW(vec4_m, vec5_m, vec6_m, vec7_m, DCT_CONST_BITS);               \
-    PCKEV_H4_SH(vec4_m, vec4_m, vec5_m, vec5_m, vec6_m, vec6_m, vec7_m,        \
-                vec7_m, out0, out2, out1, out3);                               \
+#define AOM_FDCT4(in0, in1, in2, in3, out0, out1, out2, out3)           \
+  {                                                                     \
+    v8i16 cnst0_m, cnst1_m, cnst2_m, cnst3_m;                           \
+    v8i16 vec0_m, vec1_m, vec2_m, vec3_m;                               \
+    v4i32 vec4_m, vec5_m, vec6_m, vec7_m;                               \
+    v8i16 coeff_m = {cospi_16_64, -cospi_16_64,                         \
+                     cospi_8_64,  cospi_24_64,                          \
+                     -cospi_8_64, 0,                                    \
+                     0,           0};                                   \
+                                                                        \
+    BUTTERFLY_4(in0, in1, in2, in3, vec0_m, vec1_m, vec2_m, vec3_m);    \
+    ILVR_H2_SH(vec1_m, vec0_m, vec3_m, vec2_m, vec0_m, vec2_m);         \
+    SPLATI_H2_SH(coeff_m, 0, 1, cnst0_m, cnst1_m);                      \
+    cnst1_m = __msa_ilvev_h(cnst1_m, cnst0_m);                          \
+    vec5_m = __msa_dotp_s_w(vec0_m, cnst1_m);                           \
+                                                                        \
+    SPLATI_H2_SH(coeff_m, 4, 3, cnst2_m, cnst3_m);                      \
+    cnst2_m = __msa_ilvev_h(cnst3_m, cnst2_m);                          \
+    vec7_m = __msa_dotp_s_w(vec2_m, cnst2_m);                           \
+                                                                        \
+    vec4_m = __msa_dotp_s_w(vec0_m, cnst0_m);                           \
+    cnst2_m = __msa_splati_h(coeff_m, 2);                               \
+    cnst2_m = __msa_ilvev_h(cnst2_m, cnst3_m);                          \
+    vec6_m = __msa_dotp_s_w(vec2_m, cnst2_m);                           \
+                                                                        \
+    SRARI_W4_SW(vec4_m, vec5_m, vec6_m, vec7_m, DCT_CONST_BITS);        \
+    PCKEV_H4_SH(vec4_m, vec4_m, vec5_m, vec5_m, vec6_m, vec6_m, vec7_m, \
+                vec7_m, out0, out2, out1, out3);                        \
   }
 
 #define SRLI_AVE_S_4V_H(in0, in1, in2, in3, in4, in5, in6, in7)              \
@@ -72,124 +73,124 @@
                in6, in7);                                                    \
   }
 
-#define AOM_FDCT8(in0, in1, in2, in3, in4, in5, in6, in7, out0, out1, out2,  \
-                  out3, out4, out5, out6, out7)                              \
-  {                                                                          \
-    v8i16 s0_m, s1_m, s2_m, s3_m, s4_m, s5_m, s6_m;                          \
-    v8i16 s7_m, x0_m, x1_m, x2_m, x3_m;                                      \
-    v8i16 coeff_m = { cospi_16_64, -cospi_16_64, cospi_8_64,  cospi_24_64,   \
-                      cospi_4_64,  cospi_28_64,  cospi_12_64, cospi_20_64 }; \
-                                                                             \
-    /* FDCT stage1 */                                                        \
-    BUTTERFLY_8(in0, in1, in2, in3, in4, in5, in6, in7, s0_m, s1_m, s2_m,    \
-                s3_m, s4_m, s5_m, s6_m, s7_m);                               \
-    BUTTERFLY_4(s0_m, s1_m, s2_m, s3_m, x0_m, x1_m, x2_m, x3_m);             \
-    ILVL_H2_SH(x1_m, x0_m, x3_m, x2_m, s0_m, s2_m);                          \
-    ILVR_H2_SH(x1_m, x0_m, x3_m, x2_m, s1_m, s3_m);                          \
-    SPLATI_H2_SH(coeff_m, 0, 1, x0_m, x1_m);                                 \
-    x1_m = __msa_ilvev_h(x1_m, x0_m);                                        \
-    out4 = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x1_m);                          \
-                                                                             \
-    SPLATI_H2_SH(coeff_m, 2, 3, x2_m, x3_m);                                 \
-    x2_m = -x2_m;                                                            \
-    x2_m = __msa_ilvev_h(x3_m, x2_m);                                        \
-    out6 = DOT_SHIFT_RIGHT_PCK_H(s2_m, s3_m, x2_m);                          \
-                                                                             \
-    out0 = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x0_m);                          \
-    x2_m = __msa_splati_h(coeff_m, 2);                                       \
-    x2_m = __msa_ilvev_h(x2_m, x3_m);                                        \
-    out2 = DOT_SHIFT_RIGHT_PCK_H(s2_m, s3_m, x2_m);                          \
-                                                                             \
-    /* stage2 */                                                             \
-    ILVRL_H2_SH(s5_m, s6_m, s1_m, s0_m);                                     \
-                                                                             \
-    s6_m = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x0_m);                          \
-    s5_m = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x1_m);                          \
-                                                                             \
-    /* stage3 */                                                             \
-    BUTTERFLY_4(s4_m, s7_m, s6_m, s5_m, x0_m, x3_m, x2_m, x1_m);             \
-                                                                             \
-    /* stage4 */                                                             \
-    ILVL_H2_SH(x3_m, x0_m, x2_m, x1_m, s4_m, s6_m);                          \
-    ILVR_H2_SH(x3_m, x0_m, x2_m, x1_m, s5_m, s7_m);                          \
-                                                                             \
-    SPLATI_H2_SH(coeff_m, 4, 5, x0_m, x1_m);                                 \
-    x1_m = __msa_ilvev_h(x0_m, x1_m);                                        \
-    out1 = DOT_SHIFT_RIGHT_PCK_H(s4_m, s5_m, x1_m);                          \
-                                                                             \
-    SPLATI_H2_SH(coeff_m, 6, 7, x2_m, x3_m);                                 \
-    x2_m = __msa_ilvev_h(x3_m, x2_m);                                        \
-    out5 = DOT_SHIFT_RIGHT_PCK_H(s6_m, s7_m, x2_m);                          \
-                                                                             \
-    x1_m = __msa_splati_h(coeff_m, 5);                                       \
-    x0_m = -x0_m;                                                            \
-    x0_m = __msa_ilvev_h(x1_m, x0_m);                                        \
-    out7 = DOT_SHIFT_RIGHT_PCK_H(s4_m, s5_m, x0_m);                          \
-                                                                             \
-    x2_m = __msa_splati_h(coeff_m, 6);                                       \
-    x3_m = -x3_m;                                                            \
-    x2_m = __msa_ilvev_h(x2_m, x3_m);                                        \
-    out3 = DOT_SHIFT_RIGHT_PCK_H(s6_m, s7_m, x2_m);                          \
+#define AOM_FDCT8(in0, in1, in2, in3, in4, in5, in6, in7, out0, out1, out2, \
+                  out3, out4, out5, out6, out7)                             \
+  {                                                                         \
+    v8i16 s0_m, s1_m, s2_m, s3_m, s4_m, s5_m, s6_m;                         \
+    v8i16 s7_m, x0_m, x1_m, x2_m, x3_m;                                     \
+    v8i16 coeff_m = {cospi_16_64, -cospi_16_64, cospi_8_64,  cospi_24_64,   \
+                     cospi_4_64,  cospi_28_64,  cospi_12_64, cospi_20_64};  \
+                                                                            \
+    /* FDCT stage1 */                                                       \
+    BUTTERFLY_8(in0, in1, in2, in3, in4, in5, in6, in7, s0_m, s1_m, s2_m,   \
+                s3_m, s4_m, s5_m, s6_m, s7_m);                              \
+    BUTTERFLY_4(s0_m, s1_m, s2_m, s3_m, x0_m, x1_m, x2_m, x3_m);            \
+    ILVL_H2_SH(x1_m, x0_m, x3_m, x2_m, s0_m, s2_m);                         \
+    ILVR_H2_SH(x1_m, x0_m, x3_m, x2_m, s1_m, s3_m);                         \
+    SPLATI_H2_SH(coeff_m, 0, 1, x0_m, x1_m);                                \
+    x1_m = __msa_ilvev_h(x1_m, x0_m);                                       \
+    out4 = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x1_m);                         \
+                                                                            \
+    SPLATI_H2_SH(coeff_m, 2, 3, x2_m, x3_m);                                \
+    x2_m = -x2_m;                                                           \
+    x2_m = __msa_ilvev_h(x3_m, x2_m);                                       \
+    out6 = DOT_SHIFT_RIGHT_PCK_H(s2_m, s3_m, x2_m);                         \
+                                                                            \
+    out0 = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x0_m);                         \
+    x2_m = __msa_splati_h(coeff_m, 2);                                      \
+    x2_m = __msa_ilvev_h(x2_m, x3_m);                                       \
+    out2 = DOT_SHIFT_RIGHT_PCK_H(s2_m, s3_m, x2_m);                         \
+                                                                            \
+    /* stage2 */                                                            \
+    ILVRL_H2_SH(s5_m, s6_m, s1_m, s0_m);                                    \
+                                                                            \
+    s6_m = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x0_m);                         \
+    s5_m = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x1_m);                         \
+                                                                            \
+    /* stage3 */                                                            \
+    BUTTERFLY_4(s4_m, s7_m, s6_m, s5_m, x0_m, x3_m, x2_m, x1_m);            \
+                                                                            \
+    /* stage4 */                                                            \
+    ILVL_H2_SH(x3_m, x0_m, x2_m, x1_m, s4_m, s6_m);                         \
+    ILVR_H2_SH(x3_m, x0_m, x2_m, x1_m, s5_m, s7_m);                         \
+                                                                            \
+    SPLATI_H2_SH(coeff_m, 4, 5, x0_m, x1_m);                                \
+    x1_m = __msa_ilvev_h(x0_m, x1_m);                                       \
+    out1 = DOT_SHIFT_RIGHT_PCK_H(s4_m, s5_m, x1_m);                         \
+                                                                            \
+    SPLATI_H2_SH(coeff_m, 6, 7, x2_m, x3_m);                                \
+    x2_m = __msa_ilvev_h(x3_m, x2_m);                                       \
+    out5 = DOT_SHIFT_RIGHT_PCK_H(s6_m, s7_m, x2_m);                         \
+                                                                            \
+    x1_m = __msa_splati_h(coeff_m, 5);                                      \
+    x0_m = -x0_m;                                                           \
+    x0_m = __msa_ilvev_h(x1_m, x0_m);                                       \
+    out7 = DOT_SHIFT_RIGHT_PCK_H(s4_m, s5_m, x0_m);                         \
+                                                                            \
+    x2_m = __msa_splati_h(coeff_m, 6);                                      \
+    x3_m = -x3_m;                                                           \
+    x2_m = __msa_ilvev_h(x2_m, x3_m);                                       \
+    out3 = DOT_SHIFT_RIGHT_PCK_H(s6_m, s7_m, x2_m);                         \
   }
 
-#define FDCT8x16_EVEN(in0, in1, in2, in3, in4, in5, in6, in7, out0, out1,    \
-                      out2, out3, out4, out5, out6, out7)                    \
-  {                                                                          \
-    v8i16 s0_m, s1_m, s2_m, s3_m, s4_m, s5_m, s6_m, s7_m;                    \
-    v8i16 x0_m, x1_m, x2_m, x3_m;                                            \
-    v8i16 coeff_m = { cospi_16_64, -cospi_16_64, cospi_8_64,  cospi_24_64,   \
-                      cospi_4_64,  cospi_28_64,  cospi_12_64, cospi_20_64 }; \
-                                                                             \
-    /* FDCT stage1 */                                                        \
-    BUTTERFLY_8(in0, in1, in2, in3, in4, in5, in6, in7, s0_m, s1_m, s2_m,    \
-                s3_m, s4_m, s5_m, s6_m, s7_m);                               \
-    BUTTERFLY_4(s0_m, s1_m, s2_m, s3_m, x0_m, x1_m, x2_m, x3_m);             \
-    ILVL_H2_SH(x1_m, x0_m, x3_m, x2_m, s0_m, s2_m);                          \
-    ILVR_H2_SH(x1_m, x0_m, x3_m, x2_m, s1_m, s3_m);                          \
-    SPLATI_H2_SH(coeff_m, 0, 1, x0_m, x1_m);                                 \
-    x1_m = __msa_ilvev_h(x1_m, x0_m);                                        \
-    out4 = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x1_m);                          \
-                                                                             \
-    SPLATI_H2_SH(coeff_m, 2, 3, x2_m, x3_m);                                 \
-    x2_m = -x2_m;                                                            \
-    x2_m = __msa_ilvev_h(x3_m, x2_m);                                        \
-    out6 = DOT_SHIFT_RIGHT_PCK_H(s2_m, s3_m, x2_m);                          \
-                                                                             \
-    out0 = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x0_m);                          \
-    x2_m = __msa_splati_h(coeff_m, 2);                                       \
-    x2_m = __msa_ilvev_h(x2_m, x3_m);                                        \
-    out2 = DOT_SHIFT_RIGHT_PCK_H(s2_m, s3_m, x2_m);                          \
-                                                                             \
-    /* stage2 */                                                             \
-    ILVRL_H2_SH(s5_m, s6_m, s1_m, s0_m);                                     \
-                                                                             \
-    s6_m = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x0_m);                          \
-    s5_m = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x1_m);                          \
-                                                                             \
-    /* stage3 */                                                             \
-    BUTTERFLY_4(s4_m, s7_m, s6_m, s5_m, x0_m, x3_m, x2_m, x1_m);             \
-                                                                             \
-    /* stage4 */                                                             \
-    ILVL_H2_SH(x3_m, x0_m, x2_m, x1_m, s4_m, s6_m);                          \
-    ILVR_H2_SH(x3_m, x0_m, x2_m, x1_m, s5_m, s7_m);                          \
-                                                                             \
-    SPLATI_H2_SH(coeff_m, 4, 5, x0_m, x1_m);                                 \
-    x1_m = __msa_ilvev_h(x0_m, x1_m);                                        \
-    out1 = DOT_SHIFT_RIGHT_PCK_H(s4_m, s5_m, x1_m);                          \
-                                                                             \
-    SPLATI_H2_SH(coeff_m, 6, 7, x2_m, x3_m);                                 \
-    x2_m = __msa_ilvev_h(x3_m, x2_m);                                        \
-    out5 = DOT_SHIFT_RIGHT_PCK_H(s6_m, s7_m, x2_m);                          \
-                                                                             \
-    x1_m = __msa_splati_h(coeff_m, 5);                                       \
-    x0_m = -x0_m;                                                            \
-    x0_m = __msa_ilvev_h(x1_m, x0_m);                                        \
-    out7 = DOT_SHIFT_RIGHT_PCK_H(s4_m, s5_m, x0_m);                          \
-                                                                             \
-    x2_m = __msa_splati_h(coeff_m, 6);                                       \
-    x3_m = -x3_m;                                                            \
-    x2_m = __msa_ilvev_h(x2_m, x3_m);                                        \
-    out3 = DOT_SHIFT_RIGHT_PCK_H(s6_m, s7_m, x2_m);                          \
+#define FDCT8x16_EVEN(in0, in1, in2, in3, in4, in5, in6, in7, out0, out1,  \
+                      out2, out3, out4, out5, out6, out7)                  \
+  {                                                                        \
+    v8i16 s0_m, s1_m, s2_m, s3_m, s4_m, s5_m, s6_m, s7_m;                  \
+    v8i16 x0_m, x1_m, x2_m, x3_m;                                          \
+    v8i16 coeff_m = {cospi_16_64, -cospi_16_64, cospi_8_64,  cospi_24_64,  \
+                     cospi_4_64,  cospi_28_64,  cospi_12_64, cospi_20_64}; \
+                                                                           \
+    /* FDCT stage1 */                                                      \
+    BUTTERFLY_8(in0, in1, in2, in3, in4, in5, in6, in7, s0_m, s1_m, s2_m,  \
+                s3_m, s4_m, s5_m, s6_m, s7_m);                             \
+    BUTTERFLY_4(s0_m, s1_m, s2_m, s3_m, x0_m, x1_m, x2_m, x3_m);           \
+    ILVL_H2_SH(x1_m, x0_m, x3_m, x2_m, s0_m, s2_m);                        \
+    ILVR_H2_SH(x1_m, x0_m, x3_m, x2_m, s1_m, s3_m);                        \
+    SPLATI_H2_SH(coeff_m, 0, 1, x0_m, x1_m);                               \
+    x1_m = __msa_ilvev_h(x1_m, x0_m);                                      \
+    out4 = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x1_m);                        \
+                                                                           \
+    SPLATI_H2_SH(coeff_m, 2, 3, x2_m, x3_m);                               \
+    x2_m = -x2_m;                                                          \
+    x2_m = __msa_ilvev_h(x3_m, x2_m);                                      \
+    out6 = DOT_SHIFT_RIGHT_PCK_H(s2_m, s3_m, x2_m);                        \
+                                                                           \
+    out0 = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x0_m);                        \
+    x2_m = __msa_splati_h(coeff_m, 2);                                     \
+    x2_m = __msa_ilvev_h(x2_m, x3_m);                                      \
+    out2 = DOT_SHIFT_RIGHT_PCK_H(s2_m, s3_m, x2_m);                        \
+                                                                           \
+    /* stage2 */                                                           \
+    ILVRL_H2_SH(s5_m, s6_m, s1_m, s0_m);                                   \
+                                                                           \
+    s6_m = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x0_m);                        \
+    s5_m = DOT_SHIFT_RIGHT_PCK_H(s0_m, s1_m, x1_m);                        \
+                                                                           \
+    /* stage3 */                                                           \
+    BUTTERFLY_4(s4_m, s7_m, s6_m, s5_m, x0_m, x3_m, x2_m, x1_m);           \
+                                                                           \
+    /* stage4 */                                                           \
+    ILVL_H2_SH(x3_m, x0_m, x2_m, x1_m, s4_m, s6_m);                        \
+    ILVR_H2_SH(x3_m, x0_m, x2_m, x1_m, s5_m, s7_m);                        \
+                                                                           \
+    SPLATI_H2_SH(coeff_m, 4, 5, x0_m, x1_m);                               \
+    x1_m = __msa_ilvev_h(x0_m, x1_m);                                      \
+    out1 = DOT_SHIFT_RIGHT_PCK_H(s4_m, s5_m, x1_m);                        \
+                                                                           \
+    SPLATI_H2_SH(coeff_m, 6, 7, x2_m, x3_m);                               \
+    x2_m = __msa_ilvev_h(x3_m, x2_m);                                      \
+    out5 = DOT_SHIFT_RIGHT_PCK_H(s6_m, s7_m, x2_m);                        \
+                                                                           \
+    x1_m = __msa_splati_h(coeff_m, 5);                                     \
+    x0_m = -x0_m;                                                          \
+    x0_m = __msa_ilvev_h(x1_m, x0_m);                                      \
+    out7 = DOT_SHIFT_RIGHT_PCK_H(s4_m, s5_m, x0_m);                        \
+                                                                           \
+    x2_m = __msa_splati_h(coeff_m, 6);                                     \
+    x3_m = -x3_m;                                                          \
+    x2_m = __msa_ilvev_h(x2_m, x3_m);                                      \
+    out3 = DOT_SHIFT_RIGHT_PCK_H(s6_m, s7_m, x2_m);                        \
   }
 
 #define FDCT8x16_ODD(input0, input1, input2, input3, input4, input5, input6,   \
@@ -201,13 +202,12 @@
     v8i16 stp36_m, stp37_m, vec0_m, vec1_m;                                    \
     v8i16 vec2_m, vec3_m, vec4_m, vec5_m, vec6_m;                              \
     v8i16 cnst0_m, cnst1_m, cnst4_m, cnst5_m;                                  \
-    v8i16 coeff_m = { cospi_16_64, -cospi_16_64, cospi_8_64,  cospi_24_64,     \
-                      -cospi_8_64, -cospi_24_64, cospi_12_64, cospi_20_64 };   \
-    v8i16 coeff1_m = { cospi_2_64,  cospi_30_64, cospi_14_64, cospi_18_64,     \
-                       cospi_10_64, cospi_22_64, cospi_6_64,  cospi_26_64 };   \
+    v8i16 coeff_m = {cospi_16_64, -cospi_16_64, cospi_8_64,  cospi_24_64,      \
+                     -cospi_8_64, -cospi_24_64, cospi_12_64, cospi_20_64};     \
+    v8i16 coeff1_m = {cospi_2_64,  cospi_30_64, cospi_14_64, cospi_18_64,      \
+                      cospi_10_64, cospi_22_64, cospi_6_64,  cospi_26_64};     \
     v8i16 coeff2_m = {                                                         \
-      -cospi_2_64, -cospi_10_64, -cospi_18_64, -cospi_26_64, 0, 0, 0, 0        \
-    };                                                                         \
+        -cospi_2_64, -cospi_10_64, -cospi_18_64, -cospi_26_64, 0, 0, 0, 0};    \
                                                                                \
     /* stp 1 */                                                                \
     ILVL_H2_SH(input2, input5, input3, input4, vec2_m, vec4_m);                \

@@ -9,16 +9,15 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include <math.h>
 #include <stdlib.h>
 #include <new>
 
-#include "third_party/googletest/src/include/gtest/gtest.h"
-#include "test/acm_random.h"
-#include "test/util.h"
 #include "./aom_config.h"
 #include "aom_ports/msvc.h"
+#include "test/acm_random.h"
+#include "test/util.h"
+#include "third_party/googletest/src/include/gtest/gtest.h"
 
 #undef CONFIG_COEFFICIENT_RANGE_CHECKING
 #define CONFIG_COEFFICIENT_RANGE_CHECKING 1
@@ -87,7 +86,7 @@ class TransTestBase {
 
 typedef std::tr1::tuple<FdctFunc, FdctFuncRef, int, int> FdctParam;
 class AV1FwdTxfm : public TransTestBase,
-                    public ::testing::TestWithParam<FdctParam> {
+                   public ::testing::TestWithParam<FdctParam> {
  public:
   virtual void SetUp() {
     fwd_txfm_ = GET_PARAM(0);

@@ -10,11 +10,11 @@
  */
 
 #include <assert.h>
+#include <limits.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
-#include <limits.h>
 
 #include "./aom_config.h"
 
@@ -26,8 +26,8 @@
 #include "./ivfdec.h"
 
 #include "aom/aom_decoder.h"
-#include "aom_ports/mem_ops.h"
 #include "aom_ports/aom_timer.h"
+#include "aom_ports/mem_ops.h"
 
 #if CONFIG_AV1_DECODER
 #include "aom/aomdx.h"
@@ -227,7 +227,8 @@ static int read_frame(struct AvxDecInputContext *input, uint8_t **buf,
     case FILE_TYPE_IVF:
       return ivf_read_frame(input->aom_input_ctx->file, buf, bytes_in_buffer,
                             buffer_size);
-    default: return 1;
+    default:
+      return 1;
   }
 }
 
@@ -384,18 +385,42 @@ static void generate_filename(const char *pattern, char *out, size_t q_len,
       /* parse the pattern */
       q[q_len - 1] = '\0';
       switch (p[1]) {
-        case 'w': snprintf(q, q_len - 1, "%d", d_w); break;
-        case 'h': snprintf(q, q_len - 1, "%d", d_h); break;
-        case '1': snprintf(q, q_len - 1, "%d", frame_in); break;
-        case '2': snprintf(q, q_len - 1, "%02d", frame_in); break;
-        case '3': snprintf(q, q_len - 1, "%03d", frame_in); break;
-        case '4': snprintf(q, q_len - 1, "%04d", frame_in); break;
-        case '5': snprintf(q, q_len - 1, "%05d", frame_in); break;
-        case '6': snprintf(q, q_len - 1, "%06d", frame_in); break;
-        case '7': snprintf(q, q_len - 1, "%07d", frame_in); break;
-        case '8': snprintf(q, q_len - 1, "%08d", frame_in); break;
-        case '9': snprintf(q, q_len - 1, "%09d", frame_in); break;
-        default: die("Unrecognized pattern %%%c\n", p[1]); break;
+        case 'w':
+          snprintf(q, q_len - 1, "%d", d_w);
+          break;
+        case 'h':
+          snprintf(q, q_len - 1, "%d", d_h);
+          break;
+        case '1':
+          snprintf(q, q_len - 1, "%d", frame_in);
+          break;
+        case '2':
+          snprintf(q, q_len - 1, "%02d", frame_in);
+          break;
+        case '3':
+          snprintf(q, q_len - 1, "%03d", frame_in);
+          break;
+        case '4':
+          snprintf(q, q_len - 1, "%04d", frame_in);
+          break;
+        case '5':
+          snprintf(q, q_len - 1, "%05d", frame_in);
+          break;
+        case '6':
+          snprintf(q, q_len - 1, "%06d", frame_in);
+          break;
+        case '7':
+          snprintf(q, q_len - 1, "%07d", frame_in);
+          break;
+        case '8':
+          snprintf(q, q_len - 1, "%08d", frame_in);
+          break;
+        case '9':
+          snprintf(q, q_len - 1, "%09d", frame_in);
+          break;
+        default:
+          die("Unrecognized pattern %%%c\n", p[1]);
+          break;
       }
 
       pat_len = strlen(q);
@@ -486,7 +511,7 @@ static int main_loop(int argc, const char **argv_) {
   int use_y4m = 1;
   int opt_yv12 = 0;
   int opt_i420 = 0;
-  aom_codec_dec_cfg_t cfg = { 0, 0, 0 };
+  aom_codec_dec_cfg_t cfg = {0, 0, 0};
 #if CONFIG_AOM_HIGHBITDEPTH
   unsigned int output_bit_depth = 0;
 #endif
@@ -499,16 +524,16 @@ static int main_loop(int argc, const char **argv_) {
 #endif
   int frame_avail, got_data, flush_decoder = 0;
   int num_external_frame_buffers = 0;
-  struct ExternalFrameBufferList ext_fb_list = { 0, NULL };
+  struct ExternalFrameBufferList ext_fb_list = {0, NULL};
 
   const char *outfile_pattern = NULL;
-  char outfile_name[PATH_MAX] = { 0 };
+  char outfile_name[PATH_MAX] = {0};
   FILE *outfile = NULL;
 
   MD5Context md5_ctx;
   unsigned char md5_digest[16];
 
-  struct AvxDecInputContext input = { NULL, NULL };
+  struct AvxDecInputContext input = {NULL, NULL};
   struct AvxInputContext aom_input_ctx;
 #if CONFIG_WEBM_IO
   struct WebmInputContext webm_ctx;
@@ -762,8 +787,8 @@ static int main_loop(int argc, const char **argv_) {
     if (progress) show_progress(frame_in, frame_out, dx_time);
 
     if (!noblit && img) {
-      const int PLANES_YUV[] = { AOM_PLANE_Y, AOM_PLANE_U, AOM_PLANE_V };
-      const int PLANES_YVU[] = { AOM_PLANE_Y, AOM_PLANE_V, AOM_PLANE_U };
+      const int PLANES_YUV[] = {AOM_PLANE_Y, AOM_PLANE_U, AOM_PLANE_V};
+      const int PLANES_YVU[] = {AOM_PLANE_Y, AOM_PLANE_V, AOM_PLANE_U};
       const int *planes = flipuv ? PLANES_YVU : PLANES_YUV;
 
       if (do_scale) {
@@ -839,7 +864,7 @@ static int main_loop(int argc, const char **argv_) {
 
       if (single_file) {
         if (use_y4m) {
-          char buf[Y4M_BUFFER_SIZE] = { 0 };
+          char buf[Y4M_BUFFER_SIZE] = {0};
           size_t len = 0;
           if (img->fmt == AOM_IMG_FMT_I440 || img->fmt == AOM_IMG_FMT_I44016) {
             fprintf(stderr, "Cannot produce y4m output for 440 sampling.\n");

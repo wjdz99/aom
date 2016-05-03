@@ -10,8 +10,8 @@
  */
 
 #include "av1/common/tile_common.h"
-#include "av1/common/onyxc_int.h"
 #include "aom_dsp/aom_dsp_common.h"
+#include "av1/common/onyxc_int.h"
 
 #define MIN_TILE_WIDTH_B64 4
 #define MAX_TILE_WIDTH_B64 64
@@ -50,7 +50,7 @@ static int get_max_log2_tile_cols(const int sb64_cols) {
 }
 
 void av1_get_tile_n_bits(int mi_cols, int *min_log2_tile_cols,
-                          int *max_log2_tile_cols) {
+                         int *max_log2_tile_cols) {
   const int sb64_cols = mi_cols_aligned_to_sb(mi_cols) >> MI_BLOCK_SIZE_LOG2;
   *min_log2_tile_cols = get_min_log2_tile_cols(sb64_cols);
   *max_log2_tile_cols = get_max_log2_tile_cols(sb64_cols);

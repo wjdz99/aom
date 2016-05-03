@@ -9,13 +9,12 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
 #include "./aom_config.h"
-#include "test/ivf_video_source.h"
-#include "aom/aomdx.h"
 #include "aom/aom_decoder.h"
+#include "aom/aomdx.h"
+#include "test/ivf_video_source.h"
 
 namespace {
 

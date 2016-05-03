@@ -40,12 +40,12 @@
 #include "aom/aomdx.h"
 #endif
 
-#include "aom/aom_integer.h"
-#include "aom_ports/mem_ops.h"
-#include "aom_ports/aom_timer.h"
-#include "./rate_hist.h"
 #include "./aomstats.h"
+#include "./rate_hist.h"
 #include "./warnings.h"
+#include "aom/aom_integer.h"
+#include "aom_ports/aom_timer.h"
+#include "aom_ports/mem_ops.h"
 #if CONFIG_WEBM_IO
 #include "./webmenc.h"
 #endif
@@ -169,11 +169,10 @@ static const arg_def_t psnrarg =
     ARG_DEF(NULL, "psnr", 0, "Show PSNR in status line");
 
 static const struct arg_enum_list test_decode_enum[] = {
-  { "off", TEST_DECODE_OFF },
-  { "fatal", TEST_DECODE_FATAL },
-  { "warn", TEST_DECODE_WARN },
-  { NULL, 0 }
-};
+    {"off", TEST_DECODE_OFF},
+    {"fatal", TEST_DECODE_FATAL},
+    {"warn", TEST_DECODE_WARN},
+    {NULL, 0}};
 static const arg_def_t recontest = ARG_DEF_ENUM(
     NULL, "test-decode", 1, "Test encode/decode mismatch", test_decode_enum);
 static const arg_def_t framerate =
@@ -200,30 +199,30 @@ static const arg_def_t test16bitinternalarg = ARG_DEF(
     NULL, "test-16bit-internal", 0, "Force use of 16 bit internal buffer");
 #endif
 
-static const arg_def_t *main_args[] = { &debugmode,
-                                        &outputfile,
-                                        &codecarg,
-                                        &passes,
-                                        &pass_arg,
-                                        &fpf_name,
-                                        &limit,
-                                        &skip,
-                                        &deadline,
-                                        &best_dl,
-                                        &good_dl,
-                                        &rt_dl,
-                                        &quietarg,
-                                        &verbosearg,
-                                        &psnrarg,
-                                        &use_webm,
-                                        &use_ivf,
-                                        &out_part,
-                                        &q_hist_n,
-                                        &rate_hist_n,
-                                        &disable_warnings,
-                                        &disable_warning_prompt,
-                                        &recontest,
-                                        NULL };
+static const arg_def_t *main_args[] = {&debugmode,
+                                       &outputfile,
+                                       &codecarg,
+                                       &passes,
+                                       &pass_arg,
+                                       &fpf_name,
+                                       &limit,
+                                       &skip,
+                                       &deadline,
+                                       &best_dl,
+                                       &good_dl,
+                                       &rt_dl,
+                                       &quietarg,
+                                       &verbosearg,
+                                       &psnrarg,
+                                       &use_webm,
+                                       &use_ivf,
+                                       &out_part,
+                                       &q_hist_n,
+                                       &rate_hist_n,
+                                       &disable_warnings,
+                                       &disable_warning_prompt,
+                                       &recontest,
+                                       NULL};
 
 static const arg_def_t usage =
     ARG_DEF("u", "usage", 1, "Usage profile number to use");
@@ -235,13 +234,12 @@ static const arg_def_t width = ARG_DEF("w", "width", 1, "Frame width");
 static const arg_def_t height = ARG_DEF("h", "height", 1, "Frame height");
 #if CONFIG_WEBM_IO
 static const struct arg_enum_list stereo_mode_enum[] = {
-  { "mono", STEREO_FORMAT_MONO },
-  { "left-right", STEREO_FORMAT_LEFT_RIGHT },
-  { "bottom-top", STEREO_FORMAT_BOTTOM_TOP },
-  { "top-bottom", STEREO_FORMAT_TOP_BOTTOM },
-  { "right-left", STEREO_FORMAT_RIGHT_LEFT },
-  { NULL, 0 }
-};
+    {"mono", STEREO_FORMAT_MONO},
+    {"left-right", STEREO_FORMAT_LEFT_RIGHT},
+    {"bottom-top", STEREO_FORMAT_BOTTOM_TOP},
+    {"top-bottom", STEREO_FORMAT_TOP_BOTTOM},
+    {"right-left", STEREO_FORMAT_RIGHT_LEFT},
+    {NULL, 0}};
 static const arg_def_t stereo_mode = ARG_DEF_ENUM(
     NULL, "stereo-mode", 1, "Stereo 3D video format", stereo_mode_enum);
 #endif
@@ -252,27 +250,27 @@ static const arg_def_t error_resilient =
 static const arg_def_t lag_in_frames =
     ARG_DEF(NULL, "lag-in-frames", 1, "Max number of frames to lag");
 
-static const arg_def_t *global_args[] = { &use_yv12,
-                                          &use_i420,
-                                          &use_i422,
-                                          &use_i444,
-                                          &use_i440,
-                                          &usage,
-                                          &threads,
-                                          &profile,
-                                          &width,
-                                          &height,
+static const arg_def_t *global_args[] = {&use_yv12,
+                                         &use_i420,
+                                         &use_i422,
+                                         &use_i444,
+                                         &use_i440,
+                                         &usage,
+                                         &threads,
+                                         &profile,
+                                         &width,
+                                         &height,
 #if CONFIG_WEBM_IO
-                                          &stereo_mode,
+                                         &stereo_mode,
 #endif
-                                          &timebase,
-                                          &framerate,
-                                          &error_resilient,
+                                         &timebase,
+                                         &framerate,
+                                         &error_resilient,
 #if CONFIG_AOM_HIGHBITDEPTH
-                                          &test16bitinternalarg,
+                                         &test16bitinternalarg,
 #endif
-                                          &lag_in_frames,
-                                          NULL };
+                                         &lag_in_frames,
+                                         NULL};
 
 static const arg_def_t dropframe_thresh =
     ARG_DEF(NULL, "drop-frame", 1, "Temporal resampling threshold (buf %)");
@@ -286,11 +284,11 @@ static const arg_def_t resize_up_thresh =
     ARG_DEF(NULL, "resize-up", 1, "Upscale threshold (buf %)");
 static const arg_def_t resize_down_thresh =
     ARG_DEF(NULL, "resize-down", 1, "Downscale threshold (buf %)");
-static const struct arg_enum_list end_usage_enum[] = { { "vbr", AOM_VBR },
-                                                       { "cbr", AOM_CBR },
-                                                       { "cq", AOM_CQ },
-                                                       { "q", AOM_Q },
-                                                       { NULL, 0 } };
+static const struct arg_enum_list end_usage_enum[] = {{"vbr", AOM_VBR},
+                                                      {"cbr", AOM_CBR},
+                                                      {"cq", AOM_CQ},
+                                                      {"q", AOM_Q},
+                                                      {NULL, 0}};
 static const arg_def_t end_usage =
     ARG_DEF_ENUM(NULL, "end-usage", 1, "Rate control mode", end_usage_enum);
 static const arg_def_t target_bitrate =
@@ -310,11 +308,10 @@ static const arg_def_t buf_initial_sz =
 static const arg_def_t buf_optimal_sz =
     ARG_DEF(NULL, "buf-optimal-sz", 1, "Client optimal buffer size (ms)");
 static const arg_def_t *rc_args[] = {
-  &dropframe_thresh, &resize_allowed,     &resize_width,   &resize_height,
-  &resize_up_thresh, &resize_down_thresh, &end_usage,      &target_bitrate,
-  &min_quantizer,    &max_quantizer,      &undershoot_pct, &overshoot_pct,
-  &buf_sz,           &buf_initial_sz,     &buf_optimal_sz, NULL
-};
+    &dropframe_thresh, &resize_allowed,     &resize_width,   &resize_height,
+    &resize_up_thresh, &resize_down_thresh, &end_usage,      &target_bitrate,
+    &min_quantizer,    &max_quantizer,      &undershoot_pct, &overshoot_pct,
+    &buf_sz,           &buf_initial_sz,     &buf_optimal_sz, NULL};
 
 static const arg_def_t bias_pct =
     ARG_DEF(NULL, "bias-pct", 1, "CBR/VBR bias (0=CBR, 100=VBR)");
@@ -322,8 +319,8 @@ static const arg_def_t minsection_pct =
     ARG_DEF(NULL, "minsection-pct", 1, "GOP min bitrate (% of target)");
 static const arg_def_t maxsection_pct =
     ARG_DEF(NULL, "maxsection-pct", 1, "GOP max bitrate (% of target)");
-static const arg_def_t *rc_twopass_args[] = { &bias_pct, &minsection_pct,
-                                              &maxsection_pct, NULL };
+static const arg_def_t *rc_twopass_args[] = {&bias_pct, &minsection_pct,
+                                             &maxsection_pct, NULL};
 
 static const arg_def_t kf_min_dist =
     ARG_DEF(NULL, "kf-min-dist", 1, "Minimum keyframe interval (frames)");
@@ -331,8 +328,8 @@ static const arg_def_t kf_max_dist =
     ARG_DEF(NULL, "kf-max-dist", 1, "Maximum keyframe interval (frames)");
 static const arg_def_t kf_disabled =
     ARG_DEF(NULL, "disable-kf", 0, "Disable keyframe placement");
-static const arg_def_t *kf_args[] = { &kf_min_dist, &kf_max_dist, &kf_disabled,
-                                      NULL };
+static const arg_def_t *kf_args[] = {&kf_min_dist, &kf_max_dist, &kf_disabled,
+                                     NULL};
 
 static const arg_def_t noise_sens =
     ARG_DEF(NULL, "noise-sensitivity", 1, "Noise sensitivity (frames to blur)");
@@ -348,8 +345,7 @@ static const arg_def_t arnr_strength =
     ARG_DEF(NULL, "arnr-strength", 1, "AltRef filter strength (0..6)");
 static const arg_def_t arnr_type = ARG_DEF(NULL, "arnr-type", 1, "AltRef type");
 static const struct arg_enum_list tuning_enum[] = {
-  { "psnr", AOM_TUNE_PSNR }, { "ssim", AOM_TUNE_SSIM }, { NULL, 0 }
-};
+    {"psnr", AOM_TUNE_PSNR}, {"ssim", AOM_TUNE_SSIM}, {NULL, 0}};
 static const arg_def_t tune_ssim =
     ARG_DEF_ENUM(NULL, "tune", 1, "Material to favor", tuning_enum);
 static const arg_def_t cq_level =
@@ -369,7 +365,7 @@ static const arg_def_t lossless =
 #if CONFIG_AOM_QM
 static const arg_def_t enable_qm =
     ARG_DEF(NULL, "enable_qm", 1,
-        "Enable quantisation matrices (0: false (default), 1: true)");
+            "Enable quantisation matrices (0: false (default), 1: true)");
 static const arg_def_t qm_min = ARG_DEF(
     NULL, "qm_min", 1, "Min quant matrix flatness (0..15), default is 8");
 static const arg_def_t qm_max = ARG_DEF(
@@ -396,16 +392,15 @@ static const arg_def_t max_gf_interval = ARG_DEF(
     "max gf/arf frame interval (default 0, indicating in-built behavior)");
 
 static const struct arg_enum_list color_space_enum[] = {
-  { "unknown", AOM_CS_UNKNOWN },
-  { "bt601", AOM_CS_BT_601 },
-  { "bt709", AOM_CS_BT_709 },
-  { "smpte170", AOM_CS_SMPTE_170 },
-  { "smpte240", AOM_CS_SMPTE_240 },
-  { "bt2020", AOM_CS_BT_2020 },
-  { "reserved", AOM_CS_RESERVED },
-  { "sRGB", AOM_CS_SRGB },
-  { NULL, 0 }
-};
+    {"unknown", AOM_CS_UNKNOWN},
+    {"bt601", AOM_CS_BT_601},
+    {"bt709", AOM_CS_BT_709},
+    {"smpte170", AOM_CS_SMPTE_170},
+    {"smpte240", AOM_CS_SMPTE_240},
+    {"bt2020", AOM_CS_BT_2020},
+    {"reserved", AOM_CS_RESERVED},
+    {"sRGB", AOM_CS_SRGB},
+    {NULL, 0}};
 
 static const arg_def_t input_color_space =
     ARG_DEF_ENUM(NULL, "color-space", 1, "The color space of input content:",
@@ -413,8 +408,7 @@ static const arg_def_t input_color_space =
 
 #if CONFIG_AOM_HIGHBITDEPTH
 static const struct arg_enum_list bitdepth_enum[] = {
-  { "8", AOM_BITS_8 }, { "10", AOM_BITS_10 }, { "12", AOM_BITS_12 }, { NULL, 0 }
-};
+    {"8", AOM_BITS_8}, {"10", AOM_BITS_10}, {"12", AOM_BITS_12}, {NULL, 0}};
 
 static const arg_def_t bitdeptharg = ARG_DEF_ENUM(
     "b", "bit-depth", 1,
@@ -425,10 +419,9 @@ static const arg_def_t inbitdeptharg =
 #endif
 
 static const struct arg_enum_list tune_content_enum[] = {
-  { "default", AOM_CONTENT_DEFAULT },
-  { "screen", AOM_CONTENT_SCREEN },
-  { NULL, 0 }
-};
+    {"default", AOM_CONTENT_DEFAULT},
+    {"screen", AOM_CONTENT_SCREEN},
+    {NULL, 0}};
 
 static const arg_def_t tune_content = ARG_DEF_ENUM(
     NULL, "tune-content", 1, "Tune content type", tune_content_enum);
@@ -471,7 +464,7 @@ static const int av1_arg_ctrl_map[] = {
 /* clang-format on */
 #endif
 
-static const arg_def_t *no_args[] = { NULL };
+static const arg_def_t *no_args[] = {NULL};
 
 void usage_exit(void) {
   int i;
@@ -1293,24 +1286,37 @@ static void set_default_kf_interval(struct stream_state *stream,
 
 static const char *file_type_to_string(enum VideoFileType t) {
   switch (t) {
-    case FILE_TYPE_RAW: return "RAW";
-    case FILE_TYPE_Y4M: return "Y4M";
-    default: return "Other";
+    case FILE_TYPE_RAW:
+      return "RAW";
+    case FILE_TYPE_Y4M:
+      return "Y4M";
+    default:
+      return "Other";
   }
 }
 
 static const char *image_format_to_string(aom_img_fmt_t f) {
   switch (f) {
-    case AOM_IMG_FMT_I420: return "I420";
-    case AOM_IMG_FMT_I422: return "I422";
-    case AOM_IMG_FMT_I444: return "I444";
-    case AOM_IMG_FMT_I440: return "I440";
-    case AOM_IMG_FMT_YV12: return "YV12";
-    case AOM_IMG_FMT_I42016: return "I42016";
-    case AOM_IMG_FMT_I42216: return "I42216";
-    case AOM_IMG_FMT_I44416: return "I44416";
-    case AOM_IMG_FMT_I44016: return "I44016";
-    default: return "Other";
+    case AOM_IMG_FMT_I420:
+      return "I420";
+    case AOM_IMG_FMT_I422:
+      return "I422";
+    case AOM_IMG_FMT_I444:
+      return "I444";
+    case AOM_IMG_FMT_I440:
+      return "I440";
+    case AOM_IMG_FMT_YV12:
+      return "YV12";
+    case AOM_IMG_FMT_I42016:
+      return "I42016";
+    case AOM_IMG_FMT_I42216:
+      return "I42216";
+    case AOM_IMG_FMT_I44416:
+      return "I44416";
+    case AOM_IMG_FMT_I44016:
+      return "I44016";
+    default:
+      return "Other";
   }
 }
 
@@ -1681,7 +1687,8 @@ static void get_cx_data(struct stream_state *stream,
         }
 
         break;
-      default: break;
+      default:
+        break;
     }
   }
 }
@@ -1822,11 +1829,21 @@ int main(int argc, const char **argv_) {
   parse_global_config(&global, argv);
 
   switch (global.color_type) {
-    case I420: input.fmt = AOM_IMG_FMT_I420; break;
-    case I422: input.fmt = AOM_IMG_FMT_I422; break;
-    case I444: input.fmt = AOM_IMG_FMT_I444; break;
-    case I440: input.fmt = AOM_IMG_FMT_I440; break;
-    case YV12: input.fmt = AOM_IMG_FMT_YV12; break;
+    case I420:
+      input.fmt = AOM_IMG_FMT_I420;
+      break;
+    case I422:
+      input.fmt = AOM_IMG_FMT_I422;
+      break;
+    case I444:
+      input.fmt = AOM_IMG_FMT_I444;
+      break;
+    case I440:
+      input.fmt = AOM_IMG_FMT_I440;
+      break;
+    case YV12:
+      input.fmt = AOM_IMG_FMT_YV12;
+      break;
   }
 
   {
@@ -1857,8 +1874,7 @@ int main(int argc, const char **argv_) {
   if (!input.filename) usage_exit();
 
   /* Decide if other chroma subsamplings than 4:2:0 are supported */
-  if (global.codec->fourcc == AV1_FOURCC)
-    input.only_i420 = 0;
+  if (global.codec->fourcc == AV1_FOURCC) input.only_i420 = 0;
 
   for (pass = global.pass ? global.pass - 1 : 0; pass < global.passes; pass++) {
     int frames_in = 0, seen_frames = 0;
@@ -1915,8 +1931,7 @@ int main(int argc, const char **argv_) {
     if (global.pass && global.passes == 2)
       FOREACH_STREAM({
         if (!stream->config.stats_fn)
-          die(
-              "Stream %d: Must specify --fpf when --pass=%d"
+          die("Stream %d: Must specify --fpf when --pass=%d"
               " and --passes=2\n",
               stream->index, global.pass);
       });

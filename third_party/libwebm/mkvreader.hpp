@@ -9,7 +9,6 @@
 // PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 //
 
-
 #ifndef MKVREADER_HPP
 #define MKVREADER_HPP
 

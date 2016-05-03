@@ -9,20 +9,19 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include <string>
 
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
 #include "./aom_config.h"
 #include "./aom_dsp_rtcd.h"
+#include "aom_mem/aom_mem.h"
+#include "av1/common/blockd.h"
+#include "av1/common/pred_common.h"
 #include "test/acm_random.h"
 #include "test/clear_system_state.h"
 #include "test/register_state_check.h"
 #include "test/util.h"
-#include "av1/common/blockd.h"
-#include "av1/common/pred_common.h"
-#include "aom_mem/aom_mem.h"
 
 namespace {
 

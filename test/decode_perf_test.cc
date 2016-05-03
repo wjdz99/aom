@@ -9,8 +9,10 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include <string>
+#include "./aom_version.h"
+#include "./ivfenc.h"
+#include "aom_ports/aom_timer.h"
 #include "test/codec_factory.h"
 #include "test/decode_test_driver.h"
 #include "test/encode_test_driver.h"
@@ -19,9 +21,6 @@
 #include "test/md5_helper.h"
 #include "test/util.h"
 #include "test/webm_video_source.h"
-#include "aom_ports/aom_timer.h"
-#include "./ivfenc.h"
-#include "./aom_version.h"
 
 using std::tr1::make_tuple;
 
@@ -40,25 +39,25 @@ const char kNewEncodeOutputFile[] = "new_encode.ivf";
 typedef std::tr1::tuple<const char *, unsigned> DecodePerfParam;
 
 const DecodePerfParam kAV1DecodePerfVectors[] = {
-  make_tuple("av10-2-bbb_426x240_tile_1x1_180kbps.webm", 1),
-  make_tuple("av10-2-bbb_640x360_tile_1x2_337kbps.webm", 2),
-  make_tuple("av10-2-bbb_854x480_tile_1x2_651kbps.webm", 2),
-  make_tuple("av10-2-bbb_1280x720_tile_1x4_1310kbps.webm", 4),
-  make_tuple("av10-2-bbb_1920x1080_tile_1x1_2581kbps.webm", 1),
-  make_tuple("av10-2-bbb_1920x1080_tile_1x4_2586kbps.webm", 4),
-  make_tuple("av10-2-bbb_1920x1080_tile_1x4_fpm_2304kbps.webm", 4),
-  make_tuple("av10-2-sintel_426x182_tile_1x1_171kbps.webm", 1),
-  make_tuple("av10-2-sintel_640x272_tile_1x2_318kbps.webm", 2),
-  make_tuple("av10-2-sintel_854x364_tile_1x2_621kbps.webm", 2),
-  make_tuple("av10-2-sintel_1280x546_tile_1x4_1257kbps.webm", 4),
-  make_tuple("av10-2-sintel_1920x818_tile_1x4_fpm_2279kbps.webm", 4),
-  make_tuple("av10-2-tos_426x178_tile_1x1_181kbps.webm", 1),
-  make_tuple("av10-2-tos_640x266_tile_1x2_336kbps.webm", 2),
-  make_tuple("av10-2-tos_854x356_tile_1x2_656kbps.webm", 2),
-  make_tuple("av10-2-tos_854x356_tile_1x2_fpm_546kbps.webm", 2),
-  make_tuple("av10-2-tos_1280x534_tile_1x4_1306kbps.webm", 4),
-  make_tuple("av10-2-tos_1280x534_tile_1x4_fpm_952kbps.webm", 4),
-  make_tuple("av10-2-tos_1920x800_tile_1x4_fpm_2335kbps.webm", 4),
+    make_tuple("av10-2-bbb_426x240_tile_1x1_180kbps.webm", 1),
+    make_tuple("av10-2-bbb_640x360_tile_1x2_337kbps.webm", 2),
+    make_tuple("av10-2-bbb_854x480_tile_1x2_651kbps.webm", 2),
+    make_tuple("av10-2-bbb_1280x720_tile_1x4_1310kbps.webm", 4),
+    make_tuple("av10-2-bbb_1920x1080_tile_1x1_2581kbps.webm", 1),
+    make_tuple("av10-2-bbb_1920x1080_tile_1x4_2586kbps.webm", 4),
+    make_tuple("av10-2-bbb_1920x1080_tile_1x4_fpm_2304kbps.webm", 4),
+    make_tuple("av10-2-sintel_426x182_tile_1x1_171kbps.webm", 1),
+    make_tuple("av10-2-sintel_640x272_tile_1x2_318kbps.webm", 2),
+    make_tuple("av10-2-sintel_854x364_tile_1x2_621kbps.webm", 2),
+    make_tuple("av10-2-sintel_1280x546_tile_1x4_1257kbps.webm", 4),
+    make_tuple("av10-2-sintel_1920x818_tile_1x4_fpm_2279kbps.webm", 4),
+    make_tuple("av10-2-tos_426x178_tile_1x1_181kbps.webm", 1),
+    make_tuple("av10-2-tos_640x266_tile_1x2_336kbps.webm", 2),
+    make_tuple("av10-2-tos_854x356_tile_1x2_656kbps.webm", 2),
+    make_tuple("av10-2-tos_854x356_tile_1x2_fpm_546kbps.webm", 2),
+    make_tuple("av10-2-tos_1280x534_tile_1x4_1306kbps.webm", 4),
+    make_tuple("av10-2-tos_1280x534_tile_1x4_fpm_952kbps.webm", 4),
+    make_tuple("av10-2-tos_1920x800_tile_1x4_fpm_2335kbps.webm", 4),
 };
 
 /*
@@ -116,8 +115,11 @@ class AV1NewEncodeDecodePerfTest
       public ::libaom_test::CodecTestWithParam<libaom_test::TestMode> {
  protected:
   AV1NewEncodeDecodePerfTest()
-      : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)), speed_(0),
-        outfile_(0), out_frames_(0) {}
+      : EncoderTest(GET_PARAM(0)),
+        encoding_mode_(GET_PARAM(1)),
+        speed_(0),
+        outfile_(0),
+        out_frames_(0) {}
 
   virtual ~AV1NewEncodeDecodePerfTest() {}
 
@@ -200,7 +202,7 @@ struct EncodePerfTestVideo {
 };
 
 const EncodePerfTestVideo kAV1EncodePerfTestVectors[] = {
-  EncodePerfTestVideo("niklas_1280_720_30.yuv", 1280, 720, 600, 470),
+    EncodePerfTestVideo("niklas_1280_720_30.yuv", 1280, 720, 600, 470),
 };
 
 TEST_P(AV1NewEncodeDecodePerfTest, PerfTest) {
@@ -208,7 +210,7 @@ TEST_P(AV1NewEncodeDecodePerfTest, PerfTest) {
 
   // TODO(JBB): Make this work by going through the set of given files.
   const int i = 0;
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const aom_rational timebase = {33333333, 1000000000};
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = kAV1EncodePerfTestVectors[i].bitrate;
 
@@ -258,5 +260,5 @@ TEST_P(AV1NewEncodeDecodePerfTest, PerfTest) {
 }
 
 AV1_INSTANTIATE_TEST_CASE(AV1NewEncodeDecodePerfTest,
-                           ::testing::Values(::libaom_test::kTwoPassGood));
+                          ::testing::Values(::libaom_test::kTwoPassGood));
 }  // namespace

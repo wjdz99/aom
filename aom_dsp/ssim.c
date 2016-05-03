@@ -64,8 +64,8 @@ void aom_highbd_ssim_parms_8x8_c(const uint16_t *s, int sp, const uint16_t *r,
 }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
-static const int64_t cc1 = 26634;   // (64^2*(.01*255)^2
-static const int64_t cc2 = 239708;  // (64^2*(.03*255)^2
+static const int64_t cc1 = 26634;        // (64^2*(.01*255)^2
+static const int64_t cc2 = 239708;       // (64^2*(.03*255)^2
 static const int64_t cc1_10 = 428658;    // (64^2*(.01*1023)^2
 static const int64_t cc2_10 = 3857925;   // (64^2*(.03*1023)^2
 static const int64_t cc1_12 = 6868593;   // (64^2*(.01*4095)^2
@@ -187,7 +187,6 @@ double aom_calc_ssim(const YV12_BUFFER_CONFIG *source,
   return ssimv;
 }
 
-
 // traditional ssim as per: http://en.wikipedia.org/wiki/Structural_similarity
 //
 // Re working out the math ->
@@ -286,7 +285,7 @@ double aom_get_ssim_metrics(uint8_t *img1, int img1_pitch, uint8_t *img2,
   for (i = 0; i < height;
        i += 4, img1 += img1_pitch * 4, img2 += img2_pitch * 4) {
     for (j = 0; j < width; j += 4, ++c) {
-      Ssimv sv = { 0 };
+      Ssimv sv = {0};
       double ssim;
       double ssim2;
       double dssim;

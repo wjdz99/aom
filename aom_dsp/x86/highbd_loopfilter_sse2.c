@@ -12,8 +12,8 @@
 #include <emmintrin.h>  // SSE2
 
 #include "./aom_dsp_rtcd.h"
-#include "aom_ports/mem.h"
 #include "aom_ports/emmintrin_compat.h"
+#include "aom_ports/mem.h"
 
 static INLINE __m128i signed_char_clamp_bd_sse2(__m128i value, int bd) {
   __m128i ubounded;

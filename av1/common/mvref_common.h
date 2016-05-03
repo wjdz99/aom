@@ -11,8 +11,8 @@
 #ifndef AV1_COMMON_MVREF_COMMON_H_
 #define AV1_COMMON_MVREF_COMMON_H_
 
-#include "av1/common/onyxc_int.h"
 #include "av1/common/blockd.h"
+#include "av1/common/onyxc_int.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,170 +42,105 @@ typedef enum {
 // motion vector. This single number is then converted into a context
 // with a single lookup ( counter_to_context ).
 static const int mode_2_counter[MB_MODE_COUNT] = {
-  9,  // DC_PRED
-  9,  // V_PRED
-  9,  // H_PRED
-  9,  // D45_PRED
-  9,  // D135_PRED
-  9,  // D117_PRED
-  9,  // D153_PRED
-  9,  // D207_PRED
-  9,  // D63_PRED
-  9,  // TM_PRED
-  0,  // NEARESTMV
-  0,  // NEARMV
-  3,  // ZEROMV
-  1,  // NEWMV
+    9,  // DC_PRED
+    9,  // V_PRED
+    9,  // H_PRED
+    9,  // D45_PRED
+    9,  // D135_PRED
+    9,  // D117_PRED
+    9,  // D153_PRED
+    9,  // D207_PRED
+    9,  // D63_PRED
+    9,  // TM_PRED
+    0,  // NEARESTMV
+    0,  // NEARMV
+    3,  // ZEROMV
+    1,  // NEWMV
 };
 
 // There are 3^3 different combinations of 3 counts that can be either 0,1 or
 // 2. However the actual count can never be greater than 2 so the highest
 // counter we need is 18. 9 is an invalid counter that's never used.
 static const int counter_to_context[19] = {
-  BOTH_PREDICTED,        // 0
-  NEW_PLUS_NON_INTRA,    // 1
-  BOTH_NEW,              // 2
-  ZERO_PLUS_PREDICTED,   // 3
-  NEW_PLUS_NON_INTRA,    // 4
-  INVALID_CASE,          // 5
-  BOTH_ZERO,             // 6
-  INVALID_CASE,          // 7
-  INVALID_CASE,          // 8
-  INTRA_PLUS_NON_INTRA,  // 9
-  INTRA_PLUS_NON_INTRA,  // 10
-  INVALID_CASE,          // 11
-  INTRA_PLUS_NON_INTRA,  // 12
-  INVALID_CASE,          // 13
-  INVALID_CASE,          // 14
-  INVALID_CASE,          // 15
-  INVALID_CASE,          // 16
-  INVALID_CASE,          // 17
-  BOTH_INTRA             // 18
+    BOTH_PREDICTED,        // 0
+    NEW_PLUS_NON_INTRA,    // 1
+    BOTH_NEW,              // 2
+    ZERO_PLUS_PREDICTED,   // 3
+    NEW_PLUS_NON_INTRA,    // 4
+    INVALID_CASE,          // 5
+    BOTH_ZERO,             // 6
+    INVALID_CASE,          // 7
+    INVALID_CASE,          // 8
+    INTRA_PLUS_NON_INTRA,  // 9
+    INTRA_PLUS_NON_INTRA,  // 10
+    INVALID_CASE,          // 11
+    INTRA_PLUS_NON_INTRA,  // 12
+    INVALID_CASE,          // 13
+    INVALID_CASE,          // 14
+    INVALID_CASE,          // 15
+    INVALID_CASE,          // 16
+    INVALID_CASE,          // 17
+    BOTH_INTRA             // 18
 };
 
 static const POSITION mv_ref_blocks[BLOCK_SIZES][MVREF_NEIGHBOURS] = {
-  // 4X4
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, -1 },
-    { -2, 0 },
-    { 0, -2 },
-    { -2, -1 },
-    { -1, -2 },
-    { -2, -2 } },
-  // 4X8
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, -1 },
-    { -2, 0 },
-    { 0, -2 },
-    { -2, -1 },
-    { -1, -2 },
-    { -2, -2 } },
-  // 8X4
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, -1 },
-    { -2, 0 },
-    { 0, -2 },
-    { -2, -1 },
-    { -1, -2 },
-    { -2, -2 } },
-  // 8X8
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, -1 },
-    { -2, 0 },
-    { 0, -2 },
-    { -2, -1 },
-    { -1, -2 },
-    { -2, -2 } },
-  // 8X16
-  { { 0, -1 },
-    { -1, 0 },
-    { 1, -1 },
-    { -1, -1 },
-    { 0, -2 },
-    { -2, 0 },
-    { -2, -1 },
-    { -1, -2 } },
-  // 16X8
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, 1 },
-    { -1, -1 },
-    { -2, 0 },
-    { 0, -2 },
-    { -1, -2 },
-    { -2, -1 } },
-  // 16X16
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, 1 },
-    { 1, -1 },
-    { -1, -1 },
-    { -3, 0 },
-    { 0, -3 },
-    { -3, -3 } },
-  // 16X32
-  { { 0, -1 },
-    { -1, 0 },
-    { 2, -1 },
-    { -1, -1 },
-    { -1, 1 },
-    { 0, -3 },
-    { -3, 0 },
-    { -3, -3 } },
-  // 32X16
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, 2 },
-    { -1, -1 },
-    { 1, -1 },
-    { -3, 0 },
-    { 0, -3 },
-    { -3, -3 } },
-  // 32X32
-  { { -1, 1 },
-    { 1, -1 },
-    { -1, 2 },
-    { 2, -1 },
-    { -1, -1 },
-    { -3, 0 },
-    { 0, -3 },
-    { -3, -3 } },
-  // 32X64
-  { { 0, -1 },
-    { -1, 0 },
-    { 4, -1 },
-    { -1, 2 },
-    { -1, -1 },
-    { 0, -3 },
-    { -3, 0 },
-    { 2, -1 } },
-  // 64X32
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, 4 },
-    { 2, -1 },
-    { -1, -1 },
-    { -3, 0 },
-    { 0, -3 },
-    { -1, 2 } },
-  // 64X64
-  { { -1, 3 },
-    { 3, -1 },
-    { -1, 4 },
-    { 4, -1 },
-    { -1, -1 },
-    { -1, 0 },
-    { 0, -1 },
-    { -1, 6 } }
-};
+    // 4X4
+    {{-1, 0},
+     {0, -1},
+     {-1, -1},
+     {-2, 0},
+     {0, -2},
+     {-2, -1},
+     {-1, -2},
+     {-2, -2}},
+    // 4X8
+    {{-1, 0},
+     {0, -1},
+     {-1, -1},
+     {-2, 0},
+     {0, -2},
+     {-2, -1},
+     {-1, -2},
+     {-2, -2}},
+    // 8X4
+    {{-1, 0},
+     {0, -1},
+     {-1, -1},
+     {-2, 0},
+     {0, -2},
+     {-2, -1},
+     {-1, -2},
+     {-2, -2}},
+    // 8X8
+    {{-1, 0},
+     {0, -1},
+     {-1, -1},
+     {-2, 0},
+     {0, -2},
+     {-2, -1},
+     {-1, -2},
+     {-2, -2}},
+    // 8X16
+    {{0, -1}, {-1, 0}, {1, -1}, {-1, -1}, {0, -2}, {-2, 0}, {-2, -1}, {-1, -2}},
+    // 16X8
+    {{-1, 0}, {0, -1}, {-1, 1}, {-1, -1}, {-2, 0}, {0, -2}, {-1, -2}, {-2, -1}},
+    // 16X16
+    {{-1, 0}, {0, -1}, {-1, 1}, {1, -1}, {-1, -1}, {-3, 0}, {0, -3}, {-3, -3}},
+    // 16X32
+    {{0, -1}, {-1, 0}, {2, -1}, {-1, -1}, {-1, 1}, {0, -3}, {-3, 0}, {-3, -3}},
+    // 32X16
+    {{-1, 0}, {0, -1}, {-1, 2}, {-1, -1}, {1, -1}, {-3, 0}, {0, -3}, {-3, -3}},
+    // 32X32
+    {{-1, 1}, {1, -1}, {-1, 2}, {2, -1}, {-1, -1}, {-3, 0}, {0, -3}, {-3, -3}},
+    // 32X64
+    {{0, -1}, {-1, 0}, {4, -1}, {-1, 2}, {-1, -1}, {0, -3}, {-3, 0}, {2, -1}},
+    // 64X32
+    {{-1, 0}, {0, -1}, {-1, 4}, {2, -1}, {-1, -1}, {-3, 0}, {0, -3}, {-1, 2}},
+    // 64X64
+    {{-1, 3}, {3, -1}, {-1, 4}, {4, -1}, {-1, -1}, {-1, 0}, {0, -1}, {-1, 6}}};
 
 static const int idx_n_column_to_subblock[4][2] = {
-  { 1, 2 }, { 1, 3 }, { 3, 2 }, { 3, 3 }
-};
+    {1, 2}, {1, 3}, {3, 2}, {3, 3}};
 
 // clamp_mv_ref
 #if CONFIG_MISC_FIXES
@@ -242,12 +177,13 @@ static INLINE int_mv get_sub_block_mv(const MODE_INFO *candidate, int which_mv,
 
 #if CONFIG_REF_MV
 static INLINE int_mv get_sub_block_pred_mv(const MODE_INFO *candidate,
-                                           int which_mv,
-                                           int search_col, int block_idx) {
-  return block_idx >= 0 && candidate->mbmi.sb_type < BLOCK_8X8 ?
-      candidate->bmi[idx_n_column_to_subblock[block_idx]
-                    [search_col == 0]].pred_mv[which_mv] :
-      candidate->mbmi.pred_mv[which_mv];
+                                           int which_mv, int search_col,
+                                           int block_idx) {
+  return block_idx >= 0 && candidate->mbmi.sb_type < BLOCK_8X8
+             ? candidate
+                   ->bmi[idx_n_column_to_subblock[block_idx][search_col == 0]]
+                   .pred_mv[which_mv]
+             : candidate->mbmi.pred_mv[which_mv];
 }
 #endif
 
@@ -316,18 +252,15 @@ static INLINE int is_inside(const TileInfo *const tile, int mi_col, int mi_row,
 static INLINE void lower_mv_precision(MV *mv, int allow_hp) {
   const int use_hp = allow_hp && av1_use_mv_hp(mv);
   if (!use_hp) {
-    if (mv->row & 1)
-      mv->row += (mv->row > 0 ? -1 : 1);
-    if (mv->col & 1)
-      mv->col += (mv->col > 0 ? -1 : 1);
+    if (mv->row & 1) mv->row += (mv->row > 0 ? -1 : 1);
+    if (mv->col & 1) mv->col += (mv->col > 0 ? -1 : 1);
   }
 }
 
 #if CONFIG_REF_MV
 static INLINE int av1_nmv_ctx(const uint8_t ref_mv_count,
                               const CANDIDATE_MV *ref_mv_stack) {
-  if (ref_mv_stack[0].weight >= REF_CAT_LEVEL &&
-      ref_mv_count > 0) {
+  if (ref_mv_stack[0].weight >= REF_CAT_LEVEL && ref_mv_count > 0) {
     if (abs(ref_mv_stack[0].this_mv.as_mv.row -
             ref_mv_stack[0].pred_mv.as_mv.row) <= 4 &&
         abs(ref_mv_stack[0].this_mv.as_mv.col -
@@ -340,8 +273,7 @@ static INLINE int av1_nmv_ctx(const uint8_t ref_mv_count,
 }
 
 static int8_t av1_ref_frame_type(const MV_REFERENCE_FRAME *const rf) {
-  if (rf[1] > INTRA_FRAME)
-    return rf[0] + ALTREF_FRAME;
+  if (rf[1] > INTRA_FRAME) return rf[0] + ALTREF_FRAME;
 
   return rf[0];
 }
@@ -376,7 +308,7 @@ static int16_t av1_mode_context_analyzer(const int16_t *const mode_context,
 }
 
 static INLINE uint8_t av1_drl_ctx(const CANDIDATE_MV *ref_mv_stack,
-                                   int ref_idx) {
+                                  int ref_idx) {
   if (ref_mv_stack[ref_idx].weight >= REF_CAT_LEVEL &&
       ref_mv_stack[ref_idx + 1].weight >= REF_CAT_LEVEL) {
     if (ref_mv_stack[ref_idx].weight == ref_mv_stack[ref_idx + 1].weight)
@@ -406,8 +338,7 @@ typedef void (*find_mv_refs_sync)(void *const data, int mi_row);
 void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
 #if CONFIG_REF_MV
-                      uint8_t *ref_mv_count,
-                      CANDIDATE_MV *ref_mv_stack,
+                      uint8_t *ref_mv_count, CANDIDATE_MV *ref_mv_stack,
 #endif
                       int_mv *mv_ref_list, int mi_row, int mi_col,
                       find_mv_refs_sync sync, void *const data,
@@ -417,7 +348,7 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 // above and a number cols of pixels in the left to select the one with best
 // score to use as ref motion vector
 void av1_find_best_ref_mvs(int allow_hp, int_mv *mvlist, int_mv *nearest_mv,
-                            int_mv *near_mv);
+                           int_mv *near_mv);
 
 void av1_append_sub8x8_mvs_for_idx(AV1_COMMON *cm, MACROBLOCKD *xd, int block,
                                    int ref, int mi_row, int mi_col,

@@ -13,9 +13,9 @@
 #include <stdio.h>
 
 #include "./aom_dsp_rtcd.h"
-#include "aom_dsp/mips/convolve_common_dspr2.h"
 #include "aom_dsp/aom_convolve.h"
 #include "aom_dsp/aom_dsp_common.h"
+#include "aom_dsp/mips/convolve_common_dspr2.h"
 #include "aom_ports/mem.h"
 
 #if HAVE_DSPR2

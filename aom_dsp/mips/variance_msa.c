@@ -45,10 +45,10 @@ static uint32_t sse_diff_4width_msa(const uint8_t *src_ptr, int32_t src_stride,
   uint32_t src0, src1, src2, src3;
   uint32_t ref0, ref1, ref2, ref3;
   int32_t ht_cnt;
-  v16u8 src = { 0 };
-  v16u8 ref = { 0 };
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v16u8 src = {0};
+  v16u8 ref = {0};
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LW4(src_ptr, src_stride, src0, src1, src2, src3);
@@ -73,8 +73,8 @@ static uint32_t sse_diff_8width_msa(const uint8_t *src_ptr, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref2, ref3;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB4(src_ptr, src_stride, src0, src1, src2, src3);
@@ -99,8 +99,8 @@ static uint32_t sse_diff_16width_msa(const uint8_t *src_ptr, int32_t src_stride,
                                      int32_t height, int32_t *diff) {
   int32_t ht_cnt;
   v16u8 src, ref;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     src = LD_UB(src_ptr);
@@ -139,8 +139,8 @@ static uint32_t sse_diff_32width_msa(const uint8_t *src_ptr, int32_t src_stride,
                                      int32_t height, int32_t *diff) {
   int32_t ht_cnt;
   v16u8 src0, src1, ref0, ref1;
-  v8i16 avg = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB2(src_ptr, 16, src0, src1);
@@ -183,9 +183,9 @@ static uint32_t sse_diff_32x64_msa(const uint8_t *src_ptr, int32_t src_stride,
                                    int32_t *diff) {
   int32_t ht_cnt;
   v16u8 src0, src1, ref0, ref1;
-  v8i16 avg0 = { 0 };
-  v8i16 avg1 = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg0 = {0};
+  v8i16 avg1 = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = 16; ht_cnt--;) {
     LD_UB2(src_ptr, 16, src0, src1);
@@ -230,9 +230,9 @@ static uint32_t sse_diff_64x32_msa(const uint8_t *src_ptr, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref2, ref3;
-  v8i16 avg0 = { 0 };
-  v8i16 avg1 = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg0 = {0};
+  v8i16 avg1 = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = 16; ht_cnt--;) {
     LD_UB4(src_ptr, 16, src0, src1, src2, src3);
@@ -267,11 +267,11 @@ static uint32_t sse_diff_64x64_msa(const uint8_t *src_ptr, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref2, ref3;
-  v8i16 avg0 = { 0 };
-  v8i16 avg1 = { 0 };
-  v8i16 avg2 = { 0 };
-  v8i16 avg3 = { 0 };
-  v4i32 vec, var = { 0 };
+  v8i16 avg0 = {0};
+  v8i16 avg1 = {0};
+  v8i16 avg2 = {0};
+  v8i16 avg3 = {0};
+  v4i32 vec, var = {0};
 
   for (ht_cnt = 32; ht_cnt--;) {
     LD_UB4(src_ptr, 16, src0, src1, src2, src3);
@@ -307,8 +307,8 @@ static uint32_t get_mb_ss_msa(const int16_t *src) {
   v8i16 src0, src1, src2, src3;
   v4i32 src0_l, src1_l, src2_l, src3_l;
   v4i32 src0_r, src1_r, src2_r, src3_r;
-  v2i64 sq_src_l = { 0 };
-  v2i64 sq_src_r = { 0 };
+  v2i64 sq_src_l = {0};
+  v2i64 sq_src_r = {0};
 
   for (cnt = 8; cnt--;) {
     LD_SH4(src, 8, src0, src1, src2, src3);
@@ -340,9 +340,9 @@ static uint32_t sse_4width_msa(const uint8_t *src_ptr, int32_t src_stride,
   int32_t ht_cnt;
   uint32_t src0, src1, src2, src3;
   uint32_t ref0, ref1, ref2, ref3;
-  v16u8 src = { 0 };
-  v16u8 ref = { 0 };
-  v4i32 var = { 0 };
+  v16u8 src = {0};
+  v16u8 ref = {0};
+  v4i32 var = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LW4(src_ptr, src_stride, src0, src1, src2, src3);
@@ -364,7 +364,7 @@ static uint32_t sse_8width_msa(const uint8_t *src_ptr, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref2, ref3;
-  v4i32 var = { 0 };
+  v4i32 var = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB4(src_ptr, src_stride, src0, src1, src2, src3);
@@ -386,7 +386,7 @@ static uint32_t sse_16width_msa(const uint8_t *src_ptr, int32_t src_stride,
                                 int32_t height) {
   int32_t ht_cnt;
   v16u8 src, ref;
-  v4i32 var = { 0 };
+  v4i32 var = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     src = LD_UB(src_ptr);
@@ -422,7 +422,7 @@ static uint32_t sse_32width_msa(const uint8_t *src_ptr, int32_t src_stride,
                                 int32_t height) {
   int32_t ht_cnt;
   v16u8 src0, src1, ref0, ref1;
-  v4i32 var = { 0 };
+  v4i32 var = {0};
 
   for (ht_cnt = (height >> 2); ht_cnt--;) {
     LD_UB2(src_ptr, 16, src0, src1);
@@ -463,7 +463,7 @@ static uint32_t sse_64width_msa(const uint8_t *src_ptr, int32_t src_stride,
   int32_t ht_cnt;
   v16u8 src0, src1, src2, src3;
   v16u8 ref0, ref1, ref2, ref3;
-  v4i32 var = { 0 };
+  v4i32 var = {0};
 
   for (ht_cnt = height >> 1; ht_cnt--;) {
     LD_UB4(src_ptr, 16, src0, src1, src2, src3);
@@ -493,12 +493,12 @@ uint32_t aom_get4x4sse_cs_msa(const uint8_t *src_ptr, int32_t src_stride,
   uint32_t err = 0;
   uint32_t src0, src1, src2, src3;
   uint32_t ref0, ref1, ref2, ref3;
-  v16i8 src = { 0 };
-  v16i8 ref = { 0 };
+  v16i8 src = {0};
+  v16i8 ref = {0};
   v16u8 src_vec0, src_vec1;
   v8i16 diff0, diff1;
-  v4i32 err0 = { 0 };
-  v4i32 err1 = { 0 };
+  v4i32 err0 = {0};
+  v4i32 err1 = {0};
 
   LW4(src_ptr, src_stride, src0, src1, src2, src3);
   LW4(ref_ptr, ref_stride, ref0, ref1, ref2, ref3);

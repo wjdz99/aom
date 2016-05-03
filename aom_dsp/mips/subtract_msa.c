@@ -17,8 +17,8 @@ static void sub_blk_4x4_msa(const uint8_t *src_ptr, int32_t src_stride,
                             int16_t *diff_ptr, int32_t diff_stride) {
   uint32_t src0, src1, src2, src3;
   uint32_t pred0, pred1, pred2, pred3;
-  v16i8 src = { 0 };
-  v16i8 pred = { 0 };
+  v16i8 src = {0};
+  v16i8 pred = {0};
   v16u8 src_l0, src_l1;
   v8i16 diff0, diff1;
 
@@ -36,8 +36,8 @@ static void sub_blk_8x8_msa(const uint8_t *src_ptr, int32_t src_stride,
                             int16_t *diff_ptr, int32_t diff_stride) {
   uint32_t loop_cnt;
   uint64_t src0, src1, pred0, pred1;
-  v16i8 src = { 0 };
-  v16i8 pred = { 0 };
+  v16i8 src = {0};
+  v16i8 pred = {0};
   v16u8 src_l0, src_l1;
   v8i16 diff0, diff1;
 

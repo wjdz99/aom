@@ -9,15 +9,14 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include "./aom_config.h"
 #include "./aom_rtcd.h"
 
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
+#include "aom/aom_integer.h"
 #include "test/clear_system_state.h"
 #include "test/register_state_check.h"
-#include "aom/aom_integer.h"
 
 typedef void (*IdctFunc)(int16_t *input, unsigned char *pred_ptr,
                          int pred_stride, unsigned char *dst_ptr,

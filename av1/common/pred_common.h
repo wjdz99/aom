@@ -12,9 +12,9 @@
 #ifndef AV1_COMMON_PRED_COMMON_H_
 #define AV1_COMMON_PRED_COMMON_H_
 
+#include "aom_dsp/aom_dsp_common.h"
 #include "av1/common/blockd.h"
 #include "av1/common/onyxc_int.h"
-#include "aom_dsp/aom_dsp_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,7 +63,7 @@ static INLINE int av1_get_skip_context(const MACROBLOCKD *xd) {
 }
 
 static INLINE aom_prob av1_get_skip_prob(const AV1_COMMON *cm,
-                                          const MACROBLOCKD *xd) {
+                                         const MACROBLOCKD *xd) {
   return cm->fc->skip_probs[av1_get_skip_context(xd)];
 }
 
@@ -72,23 +72,22 @@ int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd);
 int av1_get_intra_inter_context(const MACROBLOCKD *xd);
 
 static INLINE aom_prob av1_get_intra_inter_prob(const AV1_COMMON *cm,
-                                                 const MACROBLOCKD *xd) {
+                                                const MACROBLOCKD *xd) {
   return cm->fc->intra_inter_prob[av1_get_intra_inter_context(xd)];
 }
 
-int av1_get_reference_mode_context(const AV1_COMMON *cm,
-                                    const MACROBLOCKD *xd);
+int av1_get_reference_mode_context(const AV1_COMMON *cm, const MACROBLOCKD *xd);
 
 static INLINE aom_prob av1_get_reference_mode_prob(const AV1_COMMON *cm,
-                                                    const MACROBLOCKD *xd) {
+                                                   const MACROBLOCKD *xd) {
   return cm->fc->comp_inter_prob[av1_get_reference_mode_context(cm, xd)];
 }
 
 int av1_get_pred_context_comp_ref_p(const AV1_COMMON *cm,
-                                     const MACROBLOCKD *xd);
+                                    const MACROBLOCKD *xd);
 
 static INLINE aom_prob av1_get_pred_prob_comp_ref_p(const AV1_COMMON *cm,
-                                                     const MACROBLOCKD *xd) {
+                                                    const MACROBLOCKD *xd) {
   const int pred_context = av1_get_pred_context_comp_ref_p(cm, xd);
   return cm->fc->comp_ref_prob[pred_context];
 }
@@ -96,14 +95,14 @@ static INLINE aom_prob av1_get_pred_prob_comp_ref_p(const AV1_COMMON *cm,
 int av1_get_pred_context_single_ref_p1(const MACROBLOCKD *xd);
 
 static INLINE aom_prob av1_get_pred_prob_single_ref_p1(const AV1_COMMON *cm,
-                                                        const MACROBLOCKD *xd) {
+                                                       const MACROBLOCKD *xd) {
   return cm->fc->single_ref_prob[av1_get_pred_context_single_ref_p1(xd)][0];
 }
 
 int av1_get_pred_context_single_ref_p2(const MACROBLOCKD *xd);
 
 static INLINE aom_prob av1_get_pred_prob_single_ref_p2(const AV1_COMMON *cm,
-                                                        const MACROBLOCKD *xd) {
+                                                       const MACROBLOCKD *xd) {
   return cm->fc->single_ref_prob[av1_get_pred_context_single_ref_p2(xd)][1];
 }
 
@@ -131,10 +130,15 @@ static INLINE int get_tx_size_context(const MACROBLOCKD *xd) {
 static INLINE const aom_prob *get_tx_probs(TX_SIZE max_tx_size, int ctx,
                                            const struct tx_probs *tx_probs) {
   switch (max_tx_size) {
-    case TX_8X8: return tx_probs->p8x8[ctx];
-    case TX_16X16: return tx_probs->p16x16[ctx];
-    case TX_32X32: return tx_probs->p32x32[ctx];
-    default: assert(0 && "Invalid max_tx_size."); return NULL;
+    case TX_8X8:
+      return tx_probs->p8x8[ctx];
+    case TX_16X16:
+      return tx_probs->p16x16[ctx];
+    case TX_32X32:
+      return tx_probs->p32x32[ctx];
+    default:
+      assert(0 && "Invalid max_tx_size.");
+      return NULL;
   }
 }
 
@@ -147,10 +151,15 @@ static INLINE const aom_prob *get_tx_probs2(TX_SIZE max_tx_size,
 static INLINE unsigned int *get_tx_counts(TX_SIZE max_tx_size, int ctx,
                                           struct tx_counts *tx_counts) {
   switch (max_tx_size) {
-    case TX_8X8: return tx_counts->p8x8[ctx];
-    case TX_16X16: return tx_counts->p16x16[ctx];
-    case TX_32X32: return tx_counts->p32x32[ctx];
-    default: assert(0 && "Invalid max_tx_size."); return NULL;
+    case TX_8X8:
+      return tx_counts->p8x8[ctx];
+    case TX_16X16:
+      return tx_counts->p16x16[ctx];
+    case TX_32X32:
+      return tx_counts->p32x32[ctx];
+    default:
+      assert(0 && "Invalid max_tx_size.");
+      return NULL;
   }
 }
 

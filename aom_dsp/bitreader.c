@@ -12,11 +12,11 @@
 
 #include "./aom_config.h"
 
+#include "aom_dsp/aom_dsp_common.h"
 #include "aom_dsp/bitreader.h"
 #include "aom_dsp/prob.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_ports/mem.h"
 #include "aom_mem/aom_mem.h"
+#include "aom_ports/mem.h"
 #include "aom_util/endian_inl.h"
 
 int aom_reader_init(aom_reader *r, const uint8_t *buffer, size_t size,

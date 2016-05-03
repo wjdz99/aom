@@ -17,9 +17,9 @@
 #include "av1/encoder/skin_detection.h"
 
 // Fixed-point skin color model parameters.
-static const int skin_mean[2] = { 7463, 9614 };                 // q6
-static const int skin_inv_cov[4] = { 4107, 1663, 1663, 2157 };  // q16
-static const int skin_threshold = 1570636;                      // q18
+static const int skin_mean[2] = {7463, 9614};                 // q6
+static const int skin_inv_cov[4] = {4107, 1663, 1663, 2157};  // q16
+static const int skin_threshold = 1570636;                    // q18
 
 // Thresholds on luminance.
 static const int y_low = 20;

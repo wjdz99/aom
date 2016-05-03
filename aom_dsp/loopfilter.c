@@ -22,10 +22,13 @@ static INLINE int8_t signed_char_clamp(int t) {
 #if CONFIG_AOM_HIGHBITDEPTH
 static INLINE int16_t signed_char_clamp_high(int t, int bd) {
   switch (bd) {
-    case 10: return (int16_t)clamp(t, -128 * 4, 128 * 4 - 1);
-    case 12: return (int16_t)clamp(t, -128 * 16, 128 * 16 - 1);
+    case 10:
+      return (int16_t)clamp(t, -128 * 4, 128 * 4 - 1);
+    case 12:
+      return (int16_t)clamp(t, -128 * 16, 128 * 16 - 1);
     case 8:
-    default: return (int16_t)clamp(t, -128, 128 - 1);
+    default:
+      return (int16_t)clamp(t, -128, 128 - 1);
   }
 }
 #endif

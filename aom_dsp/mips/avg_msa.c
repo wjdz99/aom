@@ -16,7 +16,7 @@ uint32_t aom_avg_8x8_msa(const uint8_t *src, int32_t src_stride) {
   uint32_t sum_out;
   v16u8 src0, src1, src2, src3, src4, src5, src6, src7;
   v8u16 sum0, sum1, sum2, sum3, sum4, sum5, sum6, sum7;
-  v4u32 sum = { 0 };
+  v4u32 sum = {0};
 
   LD_UB8(src, src_stride, src0, src1, src2, src3, src4, src5, src6, src7);
   HADD_UB4_UH(src0, src1, src2, src3, sum0, sum1, sum2, sum3);
@@ -37,7 +37,7 @@ uint32_t aom_avg_8x8_msa(const uint8_t *src, int32_t src_stride) {
 uint32_t aom_avg_4x4_msa(const uint8_t *src, int32_t src_stride) {
   uint32_t sum_out;
   uint32_t src0, src1, src2, src3;
-  v16u8 vec = { 0 };
+  v16u8 vec = {0};
   v8u16 sum0;
   v4u32 sum1;
   v2u64 sum2;

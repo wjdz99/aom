@@ -9,8 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "aom_ports/mem.h"
 #include "aom_dsp/mips/loopfilter_msa.h"
+#include "aom_ports/mem.h"
 
 int32_t aom_hz_lpf_t4_and_t8_16w(uint8_t *src, int32_t pitch, uint8_t *filter48,
                                  const uint8_t *b_limit_ptr,
@@ -23,7 +23,7 @@ int32_t aom_hz_lpf_t4_and_t8_16w(uint8_t *src, int32_t pitch, uint8_t *filter48,
   v8u16 p3_l, p2_l, p1_l, p0_l, q0_l, q1_l, q2_l, q3_l;
   v8i16 p2_filt8_r, p1_filt8_r, p0_filt8_r, q0_filt8_r, q1_filt8_r, q2_filt8_r;
   v8i16 p2_filt8_l, p1_filt8_l, p0_filt8_l, q0_filt8_l, q1_filt8_l, q2_filt8_l;
-  v16u8 zero = { 0 };
+  v16u8 zero = {0};
 
   /* load vector elements */
   LD_UB8(src - (4 * pitch), pitch, p3, p2, p1, p0, q0, q1, q2, q3);
@@ -80,7 +80,7 @@ int32_t aom_hz_lpf_t4_and_t8_16w(uint8_t *src, int32_t pitch, uint8_t *filter48,
 
 void aom_hz_lpf_t16_16w(uint8_t *src, int32_t pitch, uint8_t *filter48) {
   v16u8 flat, flat2, filter8;
-  v16i8 zero = { 0 };
+  v16i8 zero = {0};
   v16u8 p7, p6, p5, p4, p3, p2, p1, p0, q0, q1, q2, q3, q4, q5, q6, q7;
   v8u16 p7_r_in, p6_r_in, p5_r_in, p4_r_in, p3_r_in, p2_r_in, p1_r_in, p0_r_in;
   v8u16 q7_r_in, q6_r_in, q5_r_in, q4_r_in, q3_r_in, q2_r_in, q1_r_in, q0_r_in;
@@ -436,7 +436,7 @@ void aom_lpf_horizontal_16_msa(uint8_t *src, int32_t pitch,
     v8i16 q0_filter8, q1_filter8, q2_filter8;
     v8u16 p7_r, p6_r, p5_r, p4_r, q7_r, q6_r, q5_r, q4_r;
     v8u16 p3_r, p2_r, p1_r, p0_r, q3_r, q2_r, q1_r, q0_r;
-    v16i8 zero = { 0 };
+    v16i8 zero = {0};
     v8u16 tmp0, tmp1, tmp2;
 
     /* load vector elements */
@@ -749,7 +749,7 @@ int32_t aom_vt_lpf_t4_and_t8_8w(uint8_t *src, uint8_t *filter48,
   v16u8 flat, mask, hev, thresh, b_limit, limit;
   v8u16 p3_r, p2_r, p1_r, p0_r, q0_r, q1_r, q2_r, q3_r;
   v8i16 p2_filt8_r, p1_filt8_r, p0_filt8_r, q0_filt8_r, q1_filt8_r, q2_filt8_r;
-  v16i8 zero = { 0 };
+  v16i8 zero = {0};
   v8i16 vec0, vec1, vec2, vec3;
 
   /* load vector elements */
@@ -808,7 +808,7 @@ int32_t aom_vt_lpf_t4_and_t8_8w(uint8_t *src, uint8_t *filter48,
 
 int32_t aom_vt_lpf_t16_8w(uint8_t *src, uint8_t *src_org, int32_t pitch,
                           uint8_t *filter48) {
-  v16i8 zero = { 0 };
+  v16i8 zero = {0};
   v16u8 filter8, flat, flat2;
   v16u8 p7, p6, p5, p4, p3, p2, p1, p0, q0, q1, q2, q3, q4, q5, q6, q7;
   v8u16 p7_r_in, p6_r_in, p5_r_in, p4_r_in, p3_r_in, p2_r_in, p1_r_in, p0_r_in;
@@ -1062,7 +1062,7 @@ int32_t aom_vt_lpf_t4_and_t8_16w(uint8_t *src, uint8_t *filter48,
   v8u16 p3_l, p2_l, p1_l, p0_l, q0_l, q1_l, q2_l, q3_l;
   v8i16 p2_filt8_r, p1_filt8_r, p0_filt8_r, q0_filt8_r, q1_filt8_r, q2_filt8_r;
   v8i16 p2_filt8_l, p1_filt8_l, p0_filt8_l, q0_filt8_l, q1_filt8_l, q2_filt8_l;
-  v16i8 zero = { 0 };
+  v16i8 zero = {0};
   v8i16 vec0, vec1, vec2, vec3, vec4, vec5;
 
   /* load vector elements */
@@ -1130,7 +1130,7 @@ int32_t aom_vt_lpf_t4_and_t8_16w(uint8_t *src, uint8_t *filter48,
 int32_t aom_vt_lpf_t16_16w(uint8_t *src, uint8_t *src_org, int32_t pitch,
                            uint8_t *filter48) {
   v16u8 flat, flat2, filter8;
-  v16i8 zero = { 0 };
+  v16i8 zero = {0};
   v16u8 p7, p6, p5, p4, p3, p2, p1, p0, q0, q1, q2, q3, q4, q5, q6, q7;
   v8u16 p7_r_in, p6_r_in, p5_r_in, p4_r_in, p3_r_in, p2_r_in, p1_r_in, p0_r_in;
   v8u16 q7_r_in, q6_r_in, q5_r_in, q4_r_in, q3_r_in, q2_r_in, q1_r_in, q0_r_in;

@@ -12,10 +12,10 @@
 #ifndef TEST_UTIL_H_
 #define TEST_UTIL_H_
 
-#include <stdio.h>
 #include <math.h>
-#include "third_party/googletest/src/include/gtest/gtest.h"
+#include <stdio.h>
 #include "aom/aom_image.h"
+#include "third_party/googletest/src/include/gtest/gtest.h"
 
 // Macros
 #define GET_PARAM(k) std::tr1::get<k>(GetParam())

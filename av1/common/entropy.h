@@ -126,10 +126,10 @@ extern const av1_extra_bit av1_extra_bits_high12[ENTROPY_TOKENS];
 
 // #define ENTROPY_STATS
 
-typedef unsigned int
-    av1_coeff_count[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS][ENTROPY_TOKENS];
-typedef unsigned int
-    av1_coeff_stats[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS][ENTROPY_NODES][2];
+typedef unsigned int av1_coeff_count[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
+                                    [ENTROPY_TOKENS];
+typedef unsigned int av1_coeff_stats[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
+                                    [ENTROPY_NODES][2];
 
 #define SUBEXP_PARAM 4   /* Subexponential code parameter */
 #define MODULUS_PARAM 13 /* Modulus parameter */
@@ -166,10 +166,11 @@ extern const aom_tree_index av1_coef_con_tree[TREE_SIZE(ENTROPY_TOKENS)];
 extern const aom_prob av1_pareto8_full[COEFF_PROB_MODELS][MODEL_NODES];
 
 typedef aom_prob av1_coeff_probs_model[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
-                                       [UNCONSTRAINED_NODES];
+                                      [UNCONSTRAINED_NODES];
 
-typedef unsigned int av1_coeff_count_model
-    [REF_TYPES][COEF_BANDS][COEFF_CONTEXTS][UNCONSTRAINED_NODES + 1];
+typedef unsigned int av1_coeff_count_model[REF_TYPES][COEF_BANDS]
+                                          [COEFF_CONTEXTS]
+                                          [UNCONSTRAINED_NODES + 1];
 
 void av1_model_to_full_probs(const aom_prob *model, aom_prob *full);
 
@@ -201,7 +202,9 @@ static INLINE int get_entropy_context(TX_SIZE tx_size, const ENTROPY_CONTEXT *a,
       above_ec = !!*(const uint64_t *)a;
       left_ec = !!*(const uint64_t *)l;
       break;
-    default: assert(0 && "Invalid transform size."); break;
+    default:
+      assert(0 && "Invalid transform size.");
+      break;
   }
 
   return combine_entropy_contexts(above_ec, left_ec);

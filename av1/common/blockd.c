@@ -12,7 +12,7 @@
 #include "av1/common/blockd.h"
 
 PREDICTION_MODE av1_left_block_mode(const MODE_INFO *cur_mi,
-                                     const MODE_INFO *left_mi, int b) {
+                                    const MODE_INFO *left_mi, int b) {
   if (b == 0 || b == 2) {
     if (!left_mi || is_inter_block(&left_mi->mbmi)) return DC_PRED;
 
@@ -24,7 +24,7 @@ PREDICTION_MODE av1_left_block_mode(const MODE_INFO *cur_mi,
 }
 
 PREDICTION_MODE av1_above_block_mode(const MODE_INFO *cur_mi,
-                                      const MODE_INFO *above_mi, int b) {
+                                     const MODE_INFO *above_mi, int b) {
   if (b == 0 || b == 1) {
     if (!above_mi || is_inter_block(&above_mi->mbmi)) return DC_PRED;
 
@@ -54,8 +54,9 @@ void av1_foreach_transformed_block_in_plane(
   // the current block size extends into the UMV and we won't
   // visit the sub blocks that are wholly within the UMV.
   const int max_blocks_wide =
-      num_4x4_w + (xd->mb_to_right_edge >= 0 ? 0 : xd->mb_to_right_edge >>
-                                                       (5 + pd->subsampling_x));
+      num_4x4_w + (xd->mb_to_right_edge >= 0
+                       ? 0
+                       : xd->mb_to_right_edge >> (5 + pd->subsampling_x));
   const int max_blocks_high =
       num_4x4_h + (xd->mb_to_bottom_edge >= 0
                        ? 0
@@ -75,9 +76,9 @@ void av1_foreach_transformed_block_in_plane(
 }
 
 void av1_foreach_transformed_block(const MACROBLOCKD *const xd,
-                                    BLOCK_SIZE bsize,
-                                    foreach_transformed_block_visitor visit,
-                                    void *arg) {
+                                   BLOCK_SIZE bsize,
+                                   foreach_transformed_block_visitor visit,
+                                   void *arg) {
   int plane;
 
   for (plane = 0; plane < MAX_MB_PLANE; ++plane)
@@ -85,8 +86,8 @@ void av1_foreach_transformed_block(const MACROBLOCKD *const xd,
 }
 
 void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
-                       BLOCK_SIZE plane_bsize, TX_SIZE tx_size, int has_eob,
-                       int aoff, int loff) {
+                      BLOCK_SIZE plane_bsize, TX_SIZE tx_size, int has_eob,
+                      int aoff, int loff) {
   ENTROPY_CONTEXT *const a = pd->above_context + aoff;
   ENTROPY_CONTEXT *const l = pd->left_context + loff;
   const int tx_size_in_blocks = 1 << tx_size;

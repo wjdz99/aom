@@ -17,9 +17,9 @@
 #include <assert.h>
 
 #include "./aom_config.h"
+#include "aom/aom_integer.h"
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_mem/aom_mem.h"
-#include "aom/aom_integer.h"
 #include "aom_ports/bitops.h"
 
 #ifdef __cplusplus
@@ -27,14 +27,14 @@ extern "C" {
 #endif
 
 // Only need this for fixed-size arrays, for structs just assign.
-#define av1_copy(dest, src)             \
+#define av1_copy(dest, src)              \
   {                                      \
     assert(sizeof(dest) == sizeof(src)); \
     memcpy(dest, src, sizeof(src));      \
   }
 
 // Use this for variably-sized arrays.
-#define av1_copy_array(dest, src, n)      \
+#define av1_copy_array(dest, src, n)       \
   {                                        \
     assert(sizeof(*dest) == sizeof(*src)); \
     memcpy(dest, src, n * sizeof(*src));   \

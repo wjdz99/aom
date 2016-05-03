@@ -42,28 +42,48 @@ static aom_image_t *img_alloc_helper(aom_image_t *img, aom_img_fmt_t fmt,
     case AOM_IMG_FMT_RGB32:
     case AOM_IMG_FMT_RGB32_LE:
     case AOM_IMG_FMT_ARGB:
-    case AOM_IMG_FMT_ARGB_LE: bps = 32; break;
+    case AOM_IMG_FMT_ARGB_LE:
+      bps = 32;
+      break;
     case AOM_IMG_FMT_RGB24:
-    case AOM_IMG_FMT_BGR24: bps = 24; break;
+    case AOM_IMG_FMT_BGR24:
+      bps = 24;
+      break;
     case AOM_IMG_FMT_RGB565:
     case AOM_IMG_FMT_RGB565_LE:
     case AOM_IMG_FMT_RGB555:
     case AOM_IMG_FMT_RGB555_LE:
     case AOM_IMG_FMT_UYVY:
     case AOM_IMG_FMT_YUY2:
-    case AOM_IMG_FMT_YVYU: bps = 16; break;
+    case AOM_IMG_FMT_YVYU:
+      bps = 16;
+      break;
     case AOM_IMG_FMT_I420:
     case AOM_IMG_FMT_YV12:
     case AOM_IMG_FMT_AOMI420:
-    case AOM_IMG_FMT_AOMYV12: bps = 12; break;
+    case AOM_IMG_FMT_AOMYV12:
+      bps = 12;
+      break;
     case AOM_IMG_FMT_I422:
-    case AOM_IMG_FMT_I440: bps = 16; break;
-    case AOM_IMG_FMT_I444: bps = 24; break;
-    case AOM_IMG_FMT_I42016: bps = 24; break;
+    case AOM_IMG_FMT_I440:
+      bps = 16;
+      break;
+    case AOM_IMG_FMT_I444:
+      bps = 24;
+      break;
+    case AOM_IMG_FMT_I42016:
+      bps = 24;
+      break;
     case AOM_IMG_FMT_I42216:
-    case AOM_IMG_FMT_I44016: bps = 32; break;
-    case AOM_IMG_FMT_I44416: bps = 48; break;
-    default: bps = 16; break;
+    case AOM_IMG_FMT_I44016:
+      bps = 32;
+      break;
+    case AOM_IMG_FMT_I44416:
+      bps = 48;
+      break;
+    default:
+      bps = 16;
+      break;
   }
 
   /* Get chroma shift values for this format */
@@ -74,8 +94,12 @@ static aom_image_t *img_alloc_helper(aom_image_t *img, aom_img_fmt_t fmt,
     case AOM_IMG_FMT_AOMYV12:
     case AOM_IMG_FMT_I422:
     case AOM_IMG_FMT_I42016:
-    case AOM_IMG_FMT_I42216: xcs = 1; break;
-    default: xcs = 0; break;
+    case AOM_IMG_FMT_I42216:
+      xcs = 1;
+      break;
+    default:
+      xcs = 0;
+      break;
   }
 
   switch (fmt) {
@@ -85,8 +109,12 @@ static aom_image_t *img_alloc_helper(aom_image_t *img, aom_img_fmt_t fmt,
     case AOM_IMG_FMT_AOMI420:
     case AOM_IMG_FMT_AOMYV12:
     case AOM_IMG_FMT_I42016:
-    case AOM_IMG_FMT_I44016: ycs = 1; break;
-    default: ycs = 0; break;
+    case AOM_IMG_FMT_I44016:
+      ycs = 1;
+      break;
+    default:
+      ycs = 0;
+      break;
   }
 
   /* Calculate storage sizes given the chroma subsampling */

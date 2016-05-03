@@ -9,7 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include <string>
 #include <vector>
 #include "third_party/googletest/src/include/gtest/gtest.h"
@@ -25,8 +24,11 @@ class AVxEncoderThreadTest
       public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode, int> {
  protected:
   AVxEncoderThreadTest()
-      : EncoderTest(GET_PARAM(0)), encoder_initialized_(false), tiles_(2),
-        encoding_mode_(GET_PARAM(1)), set_cpu_used_(GET_PARAM(2)) {
+      : EncoderTest(GET_PARAM(0)),
+        encoder_initialized_(false),
+        tiles_(2),
+        encoding_mode_(GET_PARAM(1)),
+        set_cpu_used_(GET_PARAM(2)) {
     init_flags_ = AOM_CODEC_USE_PSNR;
     aom_codec_dec_cfg_t cfg = aom_codec_dec_cfg_t();
     cfg.w = 1280;
@@ -127,7 +129,7 @@ TEST_P(AVxEncoderThreadTest, EncoderResultTest) {
 }
 
 AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadTest,
-                           ::testing::Values(::libaom_test::kTwoPassGood,
-                                             ::libaom_test::kOnePassGood),
-                           ::testing::Range(1, 3));
+                          ::testing::Values(::libaom_test::kTwoPassGood,
+                                            ::libaom_test::kOnePassGood),
+                          ::testing::Range(1, 3));
 }  // namespace

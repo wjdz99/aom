@@ -124,7 +124,7 @@ static aom_fixed_buf_t pass0(aom_image_t *raw, FILE *infile,
                              const aom_codec_enc_cfg_t *cfg) {
   aom_codec_ctx_t codec;
   int frame_count = 0;
-  aom_fixed_buf_t stats = { NULL, 0 };
+  aom_fixed_buf_t stats = {NULL, 0};
 
   if (aom_codec_enc_init(&codec, encoder->codec_interface(), cfg, 0))
     die_codec(&codec, "Failed to initialize encoder");
@@ -149,10 +149,10 @@ static aom_fixed_buf_t pass0(aom_image_t *raw, FILE *infile,
 
 static void pass1(aom_image_t *raw, FILE *infile, const char *outfile_name,
                   const AvxInterface *encoder, const aom_codec_enc_cfg_t *cfg) {
-  AvxVideoInfo info = { encoder->fourcc,
-                        cfg->g_w,
-                        cfg->g_h,
-                        { cfg->g_timebase.num, cfg->g_timebase.den } };
+  AvxVideoInfo info = {encoder->fourcc,
+                       cfg->g_w,
+                       cfg->g_h,
+                       {cfg->g_timebase.num, cfg->g_timebase.den}};
   AvxVideoWriter *writer = NULL;
   aom_codec_ctx_t codec;
   int frame_count = 0;

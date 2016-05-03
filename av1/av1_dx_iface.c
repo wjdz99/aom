@@ -15,18 +15,18 @@
 #include "./aom_config.h"
 #include "./aom_version.h"
 
-#include "aom/internal/aom_codec_internal.h"
-#include "aom/aomdx.h"
 #include "aom/aom_decoder.h"
-#include "aom_dsp/bitreader_buffer.h"
+#include "aom/aomdx.h"
+#include "aom/internal/aom_codec_internal.h"
 #include "aom_dsp/aom_dsp_common.h"
+#include "aom_dsp/bitreader_buffer.h"
 #include "aom_util/aom_thread.h"
 
 #include "av1/common/alloccommon.h"
 #include "av1/common/frame_buffers.h"
 
-#include "av1/decoder/decoder.h"
 #include "av1/decoder/decodeframe.h"
+#include "av1/decoder/decoder.h"
 
 #include "av1/av1_iface_common.h"
 
@@ -185,7 +185,7 @@ static aom_codec_err_t decoder_peek_si_internal(
   {
     int show_frame;
     int error_resilient;
-    struct aom_read_bit_buffer rb = { data, data + data_sz, 0, NULL, NULL };
+    struct aom_read_bit_buffer rb = {data, data + data_sz, 0, NULL, NULL};
     const int frame_marker = aom_rb_read_literal(&rb, 2);
     const BITSTREAM_PROFILE profile = av1_read_profile(&rb);
 
@@ -574,7 +574,7 @@ static aom_codec_err_t decoder_decode(aom_codec_alg_priv_t *ctx,
   }
 
   res = av1_parse_superframe_index(data, data_sz, frame_sizes, &frame_count,
-                                    ctx->decrypt_cb, ctx->decrypt_state);
+                                   ctx->decrypt_cb, ctx->decrypt_state);
   if (res != AOM_CODEC_OK) return res;
 
   if (ctx->frame_parallel_decode) {
@@ -778,7 +778,7 @@ static aom_codec_err_t ctrl_set_reference(aom_codec_alg_priv_t *ctx,
     FrameWorkerData *const frame_worker_data = (FrameWorkerData *)worker->data1;
     image2yuvconfig(&frame->img, &sd);
     return av1_set_reference_dec(&frame_worker_data->pbi->common,
-                                  (AOM_REFFRAME)frame->frame_type, &sd);
+                                 (AOM_REFFRAME)frame->frame_type, &sd);
   } else {
     return AOM_CODEC_INVALID_PARAM;
   }
@@ -801,7 +801,7 @@ static aom_codec_err_t ctrl_copy_reference(aom_codec_alg_priv_t *ctx,
     FrameWorkerData *const frame_worker_data = (FrameWorkerData *)worker->data1;
     image2yuvconfig(&frame->img, &sd);
     return av1_copy_reference_dec(frame_worker_data->pbi,
-                                   (AOM_REFFRAME)frame->frame_type, &sd);
+                                  (AOM_REFFRAME)frame->frame_type, &sd);
   } else {
     return AOM_CODEC_INVALID_PARAM;
   }
@@ -1017,59 +1017,58 @@ static aom_codec_err_t ctrl_set_skip_loop_filter(aom_codec_alg_priv_t *ctx,
 }
 
 static aom_codec_ctrl_fn_map_t decoder_ctrl_maps[] = {
-  { AOM_COPY_REFERENCE, ctrl_copy_reference },
+    {AOM_COPY_REFERENCE, ctrl_copy_reference},
 
-  // Setters
-  { AOM_SET_REFERENCE, ctrl_set_reference },
-  { AOM_SET_POSTPROC, ctrl_set_postproc },
-  { AOM_SET_DBG_COLOR_REF_FRAME, ctrl_set_dbg_options },
-  { AOM_SET_DBG_COLOR_MB_MODES, ctrl_set_dbg_options },
-  { AOM_SET_DBG_COLOR_B_MODES, ctrl_set_dbg_options },
-  { AOM_SET_DBG_DISPLAY_MV, ctrl_set_dbg_options },
-  { AV1_INVERT_TILE_DECODE_ORDER, ctrl_set_invert_tile_order },
-  { AOMD_SET_DECRYPTOR, ctrl_set_decryptor },
-  { AV1_SET_BYTE_ALIGNMENT, ctrl_set_byte_alignment },
-  { AV1_SET_SKIP_LOOP_FILTER, ctrl_set_skip_loop_filter },
+    // Setters
+    {AOM_SET_REFERENCE, ctrl_set_reference},
+    {AOM_SET_POSTPROC, ctrl_set_postproc},
+    {AOM_SET_DBG_COLOR_REF_FRAME, ctrl_set_dbg_options},
+    {AOM_SET_DBG_COLOR_MB_MODES, ctrl_set_dbg_options},
+    {AOM_SET_DBG_COLOR_B_MODES, ctrl_set_dbg_options},
+    {AOM_SET_DBG_DISPLAY_MV, ctrl_set_dbg_options},
+    {AV1_INVERT_TILE_DECODE_ORDER, ctrl_set_invert_tile_order},
+    {AOMD_SET_DECRYPTOR, ctrl_set_decryptor},
+    {AV1_SET_BYTE_ALIGNMENT, ctrl_set_byte_alignment},
+    {AV1_SET_SKIP_LOOP_FILTER, ctrl_set_skip_loop_filter},
 
-  // Getters
-  { AOMD_GET_LAST_REF_UPDATES, ctrl_get_last_ref_updates },
-  { AOMD_GET_FRAME_CORRUPTED, ctrl_get_frame_corrupted },
-  { AV1_GET_REFERENCE, ctrl_get_reference },
-  { AV1D_GET_DISPLAY_SIZE, ctrl_get_render_size },
-  { AV1D_GET_BIT_DEPTH, ctrl_get_bit_depth },
-  { AV1D_GET_FRAME_SIZE, ctrl_get_frame_size },
+    // Getters
+    {AOMD_GET_LAST_REF_UPDATES, ctrl_get_last_ref_updates},
+    {AOMD_GET_FRAME_CORRUPTED, ctrl_get_frame_corrupted},
+    {AV1_GET_REFERENCE, ctrl_get_reference},
+    {AV1D_GET_DISPLAY_SIZE, ctrl_get_render_size},
+    {AV1D_GET_BIT_DEPTH, ctrl_get_bit_depth},
+    {AV1D_GET_FRAME_SIZE, ctrl_get_frame_size},
 
-  { -1, NULL },
+    {-1, NULL},
 };
 
 #ifndef VERSION_STRING
 #define VERSION_STRING
 #endif
 CODEC_INTERFACE(aom_codec_av1_dx) = {
-  "AOMedia Project AV1 Decoder" VERSION_STRING,
-  AOM_CODEC_INTERNAL_ABI_VERSION,
-  AOM_CODEC_CAP_DECODER |
-      AOM_CODEC_CAP_EXTERNAL_FRAME_BUFFER,  // aom_codec_caps_t
-  decoder_init,                             // aom_codec_init_fn_t
-  decoder_destroy,                          // aom_codec_destroy_fn_t
-  decoder_ctrl_maps,                        // aom_codec_ctrl_fn_map_t
-  {
-      // NOLINT
-      decoder_peek_si,    // aom_codec_peek_si_fn_t
-      decoder_get_si,     // aom_codec_get_si_fn_t
-      decoder_decode,     // aom_codec_decode_fn_t
-      decoder_get_frame,  // aom_codec_frame_get_fn_t
-      decoder_set_fb_fn,  // aom_codec_set_fb_fn_t
-  },
-  {
-      // NOLINT
-      0,
-      NULL,  // aom_codec_enc_cfg_map_t
-      NULL,  // aom_codec_encode_fn_t
-      NULL,  // aom_codec_get_cx_data_fn_t
-      NULL,  // aom_codec_enc_config_set_fn_t
-      NULL,  // aom_codec_get_global_headers_fn_t
-      NULL,  // aom_codec_get_preview_frame_fn_t
-      NULL   // aom_codec_enc_mr_get_mem_loc_fn_t
-  }
-};
+    "AOMedia Project AV1 Decoder" VERSION_STRING,
+    AOM_CODEC_INTERNAL_ABI_VERSION,
+    AOM_CODEC_CAP_DECODER |
+        AOM_CODEC_CAP_EXTERNAL_FRAME_BUFFER,  // aom_codec_caps_t
+    decoder_init,                             // aom_codec_init_fn_t
+    decoder_destroy,                          // aom_codec_destroy_fn_t
+    decoder_ctrl_maps,                        // aom_codec_ctrl_fn_map_t
+    {
+        // NOLINT
+        decoder_peek_si,    // aom_codec_peek_si_fn_t
+        decoder_get_si,     // aom_codec_get_si_fn_t
+        decoder_decode,     // aom_codec_decode_fn_t
+        decoder_get_frame,  // aom_codec_frame_get_fn_t
+        decoder_set_fb_fn,  // aom_codec_set_fb_fn_t
+    },
+    {
+        // NOLINT
+        0,
+        NULL,  // aom_codec_enc_cfg_map_t
+        NULL,  // aom_codec_encode_fn_t
+        NULL,  // aom_codec_get_cx_data_fn_t
+        NULL,  // aom_codec_enc_config_set_fn_t
+        NULL,  // aom_codec_get_global_headers_fn_t
+        NULL,  // aom_codec_get_preview_frame_fn_t
+        NULL   // aom_codec_enc_mr_get_mem_loc_fn_t
+    }};

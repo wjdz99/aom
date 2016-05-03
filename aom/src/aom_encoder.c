@@ -15,8 +15,8 @@
  */
 #include <limits.h>
 #include <string.h>
-#include "aom_config.h"
 #include "aom/internal/aom_codec_internal.h"
+#include "aom_config.h"
 
 #define SAVE_STATUS(ctx, var) (ctx ? (ctx->err = var) : var)
 

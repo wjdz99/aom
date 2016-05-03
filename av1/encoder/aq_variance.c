@@ -15,11 +15,11 @@
 
 #include "av1/encoder/aq_variance.h"
 
+#include "aom_ports/system_state.h"
 #include "av1/common/seg_common.h"
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/segmentation.h"
-#include "aom_ports/system_state.h"
 
 #define ENERGY_MIN (-4)
 #define ENERGY_MAX (1)
@@ -27,15 +27,15 @@
 #define ENERGY_IN_BOUNDS(energy) \
   assert((energy) >= ENERGY_MIN && (energy) <= ENERGY_MAX)
 
-static const double rate_ratio[MAX_SEGMENTS] = { 2.5,  2.0, 1.5, 1.0,
-                                                 0.75, 1.0, 1.0, 1.0 };
-static const int segment_id[ENERGY_SPAN] = { 0, 1, 1, 2, 3, 4 };
+static const double rate_ratio[MAX_SEGMENTS] = {2.5,  2.0, 1.5, 1.0,
+                                                0.75, 1.0, 1.0, 1.0};
+static const int segment_id[ENERGY_SPAN] = {0, 1, 1, 2, 3, 4};
 
 #define SEGMENT_ID(i) segment_id[(i)-ENERGY_MIN]
 
-DECLARE_ALIGNED(16, static const uint8_t, av1_64_zeros[64]) = { 0 };
+DECLARE_ALIGNED(16, static const uint8_t, av1_64_zeros[64]) = {0};
 #if CONFIG_AOM_HIGHBITDEPTH
-DECLARE_ALIGNED(16, static const uint16_t, av1_highbd_64_zeros[64]) = { 0 };
+DECLARE_ALIGNED(16, static const uint16_t, av1_highbd_64_zeros[64]) = {0};
 #endif
 
 unsigned int av1_vaq_segment_id(int energy) {
@@ -61,7 +61,7 @@ void av1_vaq_frame_setup(AV1_COMP *cpi) {
     for (i = 0; i < MAX_SEGMENTS; ++i) {
       int qindex_delta =
           av1_compute_qdelta_by_rate(&cpi->rc, cm->frame_type, cm->base_qindex,
-                                      rate_ratio[i], cm->bit_depth);
+                                     rate_ratio[i], cm->bit_depth);
 
       // We don't allow qindex 0 in a segment if the base value is not 0.
       // Q index 0 (lossless) implies 4x4 encoding only and in AQ mode a segment

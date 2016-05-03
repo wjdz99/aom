@@ -9,7 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 */
 
-
 #include <string>
 #include "third_party/googletest/src/include/gtest/gtest.h"
 #include "test/codec_factory.h"
@@ -18,9 +17,9 @@
 
 #include "av1/decoder/decoder.h"
 
-#include "aom/svc_context.h"
-#include "aom/aomcx.h"
 #include "aom/aom_encoder.h"
+#include "aom/aomcx.h"
+#include "aom/svc_context.h"
 
 namespace {
 
@@ -440,7 +439,7 @@ TEST_F(SvcTest, SetAutoAltRefOption) {
 // Test that decoder can handle an SVC frame as the first frame in a sequence.
 TEST_F(SvcTest, OnePassEncodeOneFrame) {
   codec_enc_.g_pass = AOM_RC_ONE_PASS;
-  aom_fixed_buf output = { 0 };
+  aom_fixed_buf output = {0};
   Pass2EncodeNFrames(NULL, 1, 2, &output);
   DecodeNFrames(&output, 1);
   FreeBitstreamBuffers(&output, 1);

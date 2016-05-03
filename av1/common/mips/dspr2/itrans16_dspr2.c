@@ -14,16 +14,16 @@
 
 #include "./aom_config.h"
 #include "./av1_rtcd.h"
-#include "av1/common/common.h"
-#include "av1/common/blockd.h"
-#include "av1/common/idct.h"
 #include "aom_dsp/mips/inv_txfm_dspr2.h"
 #include "aom_dsp/txfm_common.h"
 #include "aom_ports/mem.h"
+#include "av1/common/blockd.h"
+#include "av1/common/common.h"
+#include "av1/common/idct.h"
 
 #if HAVE_DSPR2
 void av1_iht16x16_256_add_dspr2(const int16_t *input, uint8_t *dest, int pitch,
-                                 int tx_type) {
+                                int tx_type) {
   int i, j;
   DECLARE_ALIGNED(32, int16_t, out[16 * 16]);
   int16_t *outptr = out;
@@ -91,7 +91,9 @@ void av1_iht16x16_256_add_dspr2(const int16_t *input, uint8_t *dest, int pitch,
                                            dest[j * pitch + i]);
       }
     } break;
-    default: printf("av1_short_iht16x16_add_dspr2 : Invalid tx_type\n"); break;
+    default:
+      printf("av1_short_iht16x16_add_dspr2 : Invalid tx_type\n");
+      break;
   }
 }
 #endif  // #if HAVE_DSPR2

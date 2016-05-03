@@ -33,18 +33,18 @@ void av1_disable_segmentation(struct segmentation *seg) {
 }
 
 void av1_set_segment_data(struct segmentation *seg, signed char *feature_data,
-                           unsigned char abs_delta) {
+                          unsigned char abs_delta) {
   seg->abs_delta = abs_delta;
 
   memcpy(seg->feature_data, feature_data, sizeof(seg->feature_data));
 }
 void av1_disable_segfeature(struct segmentation *seg, int segment_id,
-                             SEG_LVL_FEATURES feature_id) {
+                            SEG_LVL_FEATURES feature_id) {
   seg->feature_mask[segment_id] &= ~(1 << feature_id);
 }
 
 void av1_clear_segdata(struct segmentation *seg, int segment_id,
-                        SEG_LVL_FEATURES feature_id) {
+                       SEG_LVL_FEATURES feature_id) {
   seg->feature_data[segment_id][feature_id] = 0;
 }
 
@@ -53,11 +53,10 @@ static void calc_segtree_probs(unsigned *segcounts,
                                aom_prob *segment_tree_probs,
                                const aom_prob *cur_tree_probs) {
   // Work out probabilities of each segment
-  const unsigned cc[4] = { segcounts[0] + segcounts[1],
-                           segcounts[2] + segcounts[3],
-                           segcounts[4] + segcounts[5],
-                           segcounts[6] + segcounts[7] };
-  const unsigned ccc[2] = { cc[0] + cc[1], cc[2] + cc[3] };
+  const unsigned cc[4] = {
+      segcounts[0] + segcounts[1], segcounts[2] + segcounts[3],
+      segcounts[4] + segcounts[5], segcounts[6] + segcounts[7]};
+  const unsigned ccc[2] = {cc[0] + cc[1], cc[2] + cc[3]};
 #if CONFIG_MISC_FIXES
   int i;
 #endif
@@ -222,9 +221,9 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
   unsigned *no_pred_segcounts = cm->counts.seg.tree_total;
   unsigned *t_unpred_seg_counts = cm->counts.seg.tree_mispred;
 #else
-  unsigned temporal_predictor_count[PREDICTION_PROBS][2] = { { 0 } };
-  unsigned no_pred_segcounts[MAX_SEGMENTS] = { 0 };
-  unsigned t_unpred_seg_counts[MAX_SEGMENTS] = { 0 };
+  unsigned temporal_predictor_count[PREDICTION_PROBS][2] = {{0}};
+  unsigned no_pred_segcounts[MAX_SEGMENTS] = {0};
+  unsigned t_unpred_seg_counts[MAX_SEGMENTS] = {0};
 #endif
 
   aom_prob no_pred_tree[SEG_TREE_PROBS];
@@ -278,8 +277,8 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
 
 #if CONFIG_MISC_FIXES
       av1_prob_diff_update_savings_search(temporal_predictor_count[i],
-                                           segp->pred_probs[i],
-                                           &t_nopred_prob[i], DIFF_UPDATE_PROB);
+                                          segp->pred_probs[i],
+                                          &t_nopred_prob[i], DIFF_UPDATE_PROB);
 #else
       t_nopred_prob[i] = get_binary_prob(count0, count1);
 #endif
