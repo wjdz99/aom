@@ -88,6 +88,7 @@ typedef struct frame_contexts {
   aom_prob inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1];
 #if CONFIG_DAALA_EC
   uint16_t intra_ext_tx_cdf[EXT_TX_SIZES][TX_TYPES][TX_TYPES];
+  uint16_t inter_ext_tx_cdf[EXT_TX_SIZES][TX_TYPES];
 #endif
   int initialized;
 } FRAME_CONTEXT;
