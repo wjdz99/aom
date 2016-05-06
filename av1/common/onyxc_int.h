@@ -148,6 +148,9 @@ typedef struct AV1Common {
 
 #if CONFIG_CLPF
   int clpf;
+  int clpf_size;
+  int clpf_strength;
+  char *clpf_blocks;
 #endif
 
   YV12_BUFFER_CONFIG *frame_to_show;

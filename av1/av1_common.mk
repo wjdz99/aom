@@ -62,8 +62,10 @@ AV1_COMMON_SRCS-yes += common/scan.c
 AV1_COMMON_SRCS-yes += common/scan.h
 AV1_COMMON_SRCS-yes += common/av1_fwd_txfm.h
 AV1_COMMON_SRCS-yes += common/av1_fwd_txfm.c
+ifeq ($(CONFIG_CLPF),yes)
 AV1_COMMON_SRCS-yes += common/clpf.c
 AV1_COMMON_SRCS-yes += common/clpf.h
+endif
 ifeq ($(CONFIG_DERING),yes)
 AV1_COMMON_SRCS-yes += common/od_dering.c
 AV1_COMMON_SRCS-yes += common/od_dering.h

@@ -10,95 +10,191 @@
  */
 #include "av1/common/clpf.h"
 
-// Apply the filter on a single block
-static void clpf_block(const uint8_t *src, uint8_t *dst, int sstride,
-                       int dstride, int has_top, int has_left, int has_bottom,
-                       int has_right, int width, int height) {
-  int x, y;
+int clpf_maxbits(const AV1_COMMON *cm) {
+  int bsm1 = (1 << (cm->clpf_size + 4)) - 1;
+  return log2i(((cm->mi_cols * MI_BLOCK_SIZE + bsm1) & ~bsm1) *
+                   ((cm->mi_rows * MI_BLOCK_SIZE + bsm1) & ~bsm1) >>
+               (cm->clpf_size * 2 + 8)) +
+         1;
+}
 
-  for (y = 0; y < height; y++) {
-    for (x = 0; x < width; x++) {
-      int X = src[(y + 0) * sstride + x + 0];
-      int A = has_top ? src[(y - 1) * sstride + x + 0] : X;
-      int B = has_left ? src[(y + 0) * sstride + x - 1] : X;
-      int C = has_right ? src[(y + 0) * sstride + x + 1] : X;
-      int D = has_bottom ? src[(y + 1) * sstride + x + 0] : X;
-      int delta = ((A > X) + (B > X) + (C > X) + (D > X) > 2) -
-                  ((A < X) + (B < X) + (C < X) + (D < X) > 2);
-      dst[y * dstride + x] = X + delta;
+int clpf_sample(int X, int A, int B, int C, int D, int E, int F, int b) {
+  int delta = 4 * clip(A - X, -b, b) + clip(B - X, -b, b) +
+              3 * clip(C - X, -b, b) + 3 * clip(D - X, -b, b) +
+              clip(E - X, -b, b) + 4 * clip(F - X, -b, b);
+  return (8 + delta - (delta < 0)) >> 4;
+}
+
+void clpf_block(const uint8_t *src, uint8_t *dst, int stride, int x0, int y0,
+                int sizex, int sizey, int width, int height,
+                unsigned int strength) {
+  int x, y;
+  for (y = y0; y < y0 + sizey; y++) {
+    for (x = x0; x < x0 + sizex; x++) {
+      int X = src[y * stride + x];
+      int A = src[max(0, y - 1) * stride + x];
+      int B = src[y * stride + max(0, x - 2)];
+      int C = src[y * stride + max(0, x - 1)];
+      int D = src[y * stride + min(width - 1, x + 1)];
+      int E = src[y * stride + min(width - 1, x + 2)];
+      int F = src[min(height - 1, y + 1) * stride + x];
+      int delta;
+      delta = clpf_sample(X, A, B, C, D, E, F, strength);
+      dst[y * stride + x] = X + delta;
     }
   }
 }
 
-#define BS MI_SIZE *MI_BLOCK_SIZE
+// Return number of filtered blocks
+int av1_clpf_frame(const YV12_BUFFER_CONFIG *dst, const YV12_BUFFER_CONFIG *rec,
+                   const YV12_BUFFER_CONFIG *org, const AV1_COMMON *cm,
+                   int enable_fb_flag, unsigned int strength,
+                   unsigned int fb_size_log2, char *blocks,
+                   int (*decision)(int, int, const YV12_BUFFER_CONFIG *,
+                                   const YV12_BUFFER_CONFIG *,
+                                   const AV1_COMMON *cm, int, int, int,
+                                   unsigned int, unsigned int, char *)) {
+  /* Constrained low-pass filter (CLPF) */
+  int c, k, l, m, n;
+  int width = rec->y_crop_width;
+  int height = rec->y_crop_height;
+  int xpos, ypos;
+  int stride_y = rec->y_stride;
+  int stride_c = rec->uv_stride;
+  int subx = rec->subsampling_x;
+  int suby = rec->subsampling_y;
+  const int bs = 8;  // MI_BLOCK_SIZE;
+  int num_fb_hor = (width + (1 << fb_size_log2) - bs) >> fb_size_log2;
+  int num_fb_ver = (height + (1 << fb_size_log2) - bs) >> fb_size_log2;
+  int block_index = 0;
+  const YV12_BUFFER_CONFIG *old_dst = 0;
+  YV12_BUFFER_CONFIG tmp;
 
-// Iterate over blocks within a superblock
-static void av1_clpf_sb(const YV12_BUFFER_CONFIG *frame_buffer,
-                         const AV1_COMMON *cm, MACROBLOCKD *xd,
-                         MODE_INFO *const *mi_8x8, int xpos, int ypos) {
-  // Temporary buffer (to allow SIMD parallelism)
-  uint8_t buf_unaligned[BS * BS + 15];
-  uint8_t *buf = (uint8_t *)(((intptr_t)buf_unaligned + 15) & ~15);
-  int x, y, p;
-
-  for (p = 0; p < (CLPF_FILTER_ALL_PLANES ? MAX_MB_PLANE : 1); p++) {
-    for (y = 0; y < MI_BLOCK_SIZE && ypos + y < cm->mi_rows; y++) {
-      for (x = 0; x < MI_BLOCK_SIZE && xpos + x < cm->mi_cols; x++) {
-        const MB_MODE_INFO *mbmi =
-            &mi_8x8[(ypos + y) * cm->mi_stride + xpos + x]->mbmi;
-
-        // Do not filter if there is no residual
-        if (!mbmi->skip) {
-          // Do not filter frame edges
-          int has_top = ypos + y > 0;
-          int has_left = xpos + x > 0;
-          int has_bottom = ypos + y < cm->mi_rows - 1;
-          int has_right = xpos + x < cm->mi_cols - 1;
-#if CLPF_ALLOW_BLOCK_PARALLELISM
-          // Do not filter superblock edges
-          has_top &= !!y;
-          has_left &= !!x;
-          has_bottom &= y != MI_BLOCK_SIZE - 1;
-          has_right &= x != MI_BLOCK_SIZE - 1;
-#endif
-          av1_setup_dst_planes(xd->plane, frame_buffer, ypos + y, xpos + x);
-          clpf_block(
-              xd->plane[p].dst.buf, CLPF_ALLOW_PIXEL_PARALLELISM
-                                        ? buf + y * MI_SIZE * BS + x * MI_SIZE
-                                        : xd->plane[p].dst.buf,
-              xd->plane[p].dst.stride,
-              CLPF_ALLOW_PIXEL_PARALLELISM ? BS : xd->plane[p].dst.stride,
-              has_top, has_left, has_bottom, has_right,
-              MI_SIZE >> xd->plane[p].subsampling_x,
-              MI_SIZE >> xd->plane[p].subsampling_y);
-        }
-      }
-    }
-#if CLPF_ALLOW_PIXEL_PARALLELISM
-    for (y = 0; y < MI_BLOCK_SIZE && ypos + y < cm->mi_rows; y++) {
-      for (x = 0; x < MI_BLOCK_SIZE && xpos + x < cm->mi_cols; x++) {
-        const MB_MODE_INFO *mbmi =
-            &mi_8x8[(ypos + y) * cm->mi_stride + xpos + x]->mbmi;
-        av1_setup_dst_planes(xd->plane, frame_buffer, ypos + y, xpos + x);
-        if (!mbmi->skip) {
-          int i = 0;
-          for (i = 0; i<MI_SIZE>> xd->plane[p].subsampling_y; i++)
-            memcpy(xd->plane[p].dst.buf + i * xd->plane[p].dst.stride,
-                   buf + (y * MI_SIZE + i) * BS + x * MI_SIZE,
-                   MI_SIZE >> xd->plane[p].subsampling_x);
-        }
-      }
-    }
-#endif
+  // In-place filtering?
+  if (rec == dst) {
+    tmp = *dst;
+    tmp.y_buffer = aom_malloc(dst->y_height * dst->y_stride);
+    tmp.u_buffer = aom_malloc(dst->uv_height * dst->uv_stride);
+    tmp.v_buffer = aom_malloc(dst->uv_height * dst->uv_stride);
+    old_dst = dst;
+    dst = &tmp;
   }
-}
 
-// Iterate over the superblocks of an entire frame
-void av1_clpf_frame(const YV12_BUFFER_CONFIG *frame, const AV1_COMMON *cm,
-                     MACROBLOCKD *xd) {
-  int x, y;
+  // Iterate over all filter blocks
+  for (k = 0; k < num_fb_ver; k++) {
+    for (l = 0; l < num_fb_hor; l++) {
+      int h, w;
+      int allskip = 1;
+      for (m = 0; allskip && m < (1 << fb_size_log2) / bs; m++) {
+        for (n = 0; allskip && n < (1 << fb_size_log2) / bs; n++) {
+          xpos = (l << fb_size_log2) + n * bs;
+          ypos = (k << fb_size_log2) + m * bs;
+          if (xpos < width && ypos < height) {
+            allskip &=
+                cm->mi_grid_visible[ypos / bs * cm->mi_stride + xpos / bs]
+                    ->mbmi.skip;
+          }
+        }
+      }
 
-  for (y = 0; y < cm->mi_rows; y += MI_BLOCK_SIZE)
-    for (x = 0; x < cm->mi_cols; x += MI_BLOCK_SIZE)
-      av1_clpf_sb(frame, cm, xd, cm->mi_grid_visible, x, y);
+      // Calculate the actual filter block size near frame edges
+      h = min(height, (k + 1) << fb_size_log2) & ((1 << fb_size_log2) - 1);
+      w = min(width, (l + 1) << fb_size_log2) & ((1 << fb_size_log2) - 1);
+      h += !h << fb_size_log2;
+      w += !w << fb_size_log2;
+      if (!allskip &&  // Do not filter the block if all is skip encoded
+          (!enable_fb_flag ||
+           decision(k, l, rec, org, cm, bs, w / bs, h / bs, strength,
+                    fb_size_log2, blocks + block_index))) {
+        // Iterate over all smaller blocks inside the filter block
+        for (m = 0; m < (h + bs - 1) / bs; m++) {
+          for (n = 0; n < (w + bs - 1) / bs; n++) {
+            xpos = (l << fb_size_log2) + n * bs;
+            ypos = (k << fb_size_log2) + m * bs;
+            if (!cm->mi_grid_visible[ypos / bs * cm->mi_stride + xpos / bs]
+                     ->mbmi.skip) {
+              // Not skip block, apply the filter
+              clpf_block(rec->y_buffer, dst->y_buffer, stride_y, xpos, ypos, bs,
+                         bs, width, height, strength);
+              clpf_block(rec->u_buffer, dst->u_buffer, stride_c, xpos >> subx,
+                         ypos >> suby, bs >> subx, bs >> suby, width >> subx,
+                         height >> suby, strength);
+              clpf_block(rec->v_buffer, dst->v_buffer, stride_c, xpos >> subx,
+                         ypos >> suby, bs >> subx, bs >> suby, width >> subx,
+                         height >> suby, strength);
+            } else {  // Skip block, copy instead
+              for (c = 0; c < bs; c++)
+                *(uint64_t *)(dst->y_buffer + (ypos + c) * stride_y + xpos) =
+                    *(uint64_t *)(rec->y_buffer + (ypos + c) * stride_y + xpos);
+              if (subx) {
+                for (c = 0; c < (bs >> suby); c++) {
+                  *(uint32_t *)(dst->u_buffer +
+                                ((ypos >> suby) + c) * stride_c +
+                                (xpos >> subx)) =
+                      *(uint32_t *)(rec->u_buffer +
+                                    ((ypos >> suby) + c) * stride_c +
+                                    (xpos >> subx));
+                  *(uint32_t *)(dst->v_buffer +
+                                ((ypos >> suby) + c) * stride_c +
+                                (xpos >> subx)) =
+                      *(uint32_t *)(rec->v_buffer +
+                                    ((ypos >> suby) + c) * stride_c +
+                                    (xpos >> subx));
+                }
+              } else {
+                for (c = 0; c < (bs >> suby); c++) {
+                  *(uint64_t *)(dst->u_buffer +
+                                ((ypos >> suby) + c) * stride_c +
+                                (xpos >> subx)) =
+                      *(uint64_t *)(rec->u_buffer +
+                                    ((ypos >> suby) + c) * stride_c +
+                                    (xpos >> subx));
+                  *(uint64_t *)(dst->v_buffer +
+                                ((ypos >> suby) + c) * stride_c +
+                                (xpos >> subx)) =
+                      *(uint64_t *)(rec->v_buffer +
+                                    ((ypos >> suby) + c) * stride_c +
+                                    (xpos >> subx));
+                }
+              }
+            }
+          }
+        }
+      } else {  // Entire filter block is skip, copy
+        for (m = 0; m < h; m++)
+          memcpy(dst->y_buffer + ((k << fb_size_log2) + m) * stride_y +
+                     (l << fb_size_log2),
+                 rec->y_buffer + ((k << fb_size_log2) + m) * stride_y +
+                     (l << fb_size_log2),
+                 w);
+        for (m = 0; m < (h >> suby); m++) {
+          memcpy(
+              dst->u_buffer + (((k << fb_size_log2) >> suby) + m) * stride_c +
+                  ((l << fb_size_log2) >> subx),
+              rec->u_buffer + (((k << fb_size_log2) >> suby) + m) * stride_c +
+                  ((l << fb_size_log2) >> subx),
+              w >> subx);
+          memcpy(
+              dst->v_buffer + (((k << fb_size_log2) >> suby) + m) * stride_c +
+                  ((l << fb_size_log2) >> subx),
+              rec->v_buffer + (((k << fb_size_log2) >> suby) + m) * stride_c +
+                  ((l << fb_size_log2) >> subx),
+              w >> subx);
+        }
+      }
+      block_index += !allskip;  // Count number of blocks filtered
+    }
+  }
+
+  // Needed for in-place filtering.  The frame copy can be avoided if the caller
+  // provides a fresh destination frame and then update the original's pointers.
+  if (old_dst) {
+    memcpy(old_dst->y_buffer, tmp.y_buffer, dst->y_height * dst->y_stride);
+    memcpy(old_dst->u_buffer, tmp.u_buffer, dst->uv_height * dst->uv_stride);
+    memcpy(old_dst->v_buffer, tmp.v_buffer, dst->uv_height * dst->uv_stride);
+    aom_free(tmp.y_buffer);
+    aom_free(tmp.u_buffer);
+    aom_free(tmp.v_buffer);
+  }
+  return block_index;
 }
