@@ -1127,7 +1127,26 @@ static void setup_loopfilter(struct loopfilter *lf,
 
 #if CONFIG_CLPF
 static void setup_clpf(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
-  cm->clpf = aom_rb_read_literal(rb, 1);
+  cm->clpf_blocks = 0;
+  cm->clpf_strength = aom_rb_read_literal(rb, 2);
+  if (cm->clpf_strength) {
+    cm->clpf_size = aom_rb_read_literal(rb, 2);
+    if (cm->clpf_size) {
+      int i;
+      cm->clpf = aom_rb_read_literal(rb, clpf_maxbits(cm));
+      CHECK_MEM_ERROR(cm, cm->clpf_blocks, aom_malloc(cm->clpf));
+      for (i = 0; i < cm->clpf; i++) {
+        cm->clpf_blocks[i] = aom_rb_read_literal(rb, 1);
+      }
+    }
+  }
+}
+
+static int clpf_bit(int k, int l, const YV12_BUFFER_CONFIG *rec,
+                    const YV12_BUFFER_CONFIG *org, const AV1_COMMON *cm,
+                    int block_size, int w, int h, unsigned int strength,
+                    unsigned int fb_size_log2, char *bit) {
+  return *bit;
 }
 #endif
 
@@ -1634,8 +1653,13 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     winterface->execute(&pbi->lf_worker);
   }
 #if CONFIG_CLPF
-  if (cm->clpf && !cm->skip_loop_filter)
-    av1_clpf_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
+  if (cm->clpf_strength && !cm->skip_loop_filter) {
+    av1_clpf_frame(&pbi->cur_buf->buf, &pbi->cur_buf->buf, 0, cm,
+                   !!cm->clpf_size,
+                   cm->clpf_strength + (cm->clpf_strength == 3),
+                   4 + cm->clpf_size, cm->clpf_blocks, clpf_bit);
+  }
+  if (cm->clpf_blocks) aom_free(cm->clpf_blocks);
 #endif
 #if CONFIG_DERING
   if (cm->dering_level && !cm->skip_loop_filter) {
