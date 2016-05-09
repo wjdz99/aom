@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d261d020_f9698f7f",
+        "filename": "av1/common/clpf.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-05-09T16:37:20Z",
+      "side": 1,
+      "message": "Could you re-use clamp() or fclamp() defined in aom_dsp_common.h?",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 65
+      },
+      "revId": "ee1ea9cea0c82a1e55d7d38836e29d429e92ef6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d261d020_5916c3ec",
+        "filename": "av1/common/clpf.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-05-09T16:37:20Z",
+      "side": 1,
+      "message": "similarly, could please take a look at AOMMAX(x,y)?",
+      "range": {
+        "startLine": 18,
+        "startChar": 8,
+        "endLine": 18,
+        "endChar": 11
+      },
+      "revId": "ee1ea9cea0c82a1e55d7d38836e29d429e92ef6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d261d020_190c4bdf",
+        "filename": "av1/common/clpf.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-05-09T16:37:20Z",
+      "side": 1,
+      "message": "similarly, could please take a look at AOMMIN(x,y)?",
+      "range": {
+        "startLine": 19,
+        "startChar": 8,
+        "endLine": 19,
+        "endChar": 11
+      },
+      "revId": "ee1ea9cea0c82a1e55d7d38836e29d429e92ef6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
