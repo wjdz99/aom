@@ -86,7 +86,7 @@ static INLINE void sync_write(AV1LfSync *const lf_sync, int r, int c,
 }
 
 // Implement row loopfiltering for each thread.
-static INLINE void thread_loop_filter_rows(
+static INLINE void thread_loop_filter_rows_ver(
     const YV12_BUFFER_CONFIG *const frame_buffer, AV1_COMMON *const cm,
     struct macroblockd_plane planes[MAX_MB_PLANE], int start, int stop,
     int y_only, AV1LfSync *const lf_sync) {
@@ -120,18 +120,73 @@ static INLINE void thread_loop_filter_rows(
       // TODO(JBB): Make setup_mask work for non 420.
       av1_setup_mask(cm, mi_row, mi_col, mi + mi_col, cm->mi_stride, &lfm);
 
-      av1_filter_block_plane_ss00(cm, &planes[0], mi_row, &lfm);
+      av1_filter_block_plane_ver_ss00(cm, &planes[0], mi_row, &lfm);
       for (plane = 1; plane < num_planes; ++plane) {
         switch (path) {
           case LF_PATH_420:
-            av1_filter_block_plane_ss11(cm, &planes[plane], mi_row, &lfm);
+            av1_filter_block_plane_ver_ss11(cm, &planes[plane], mi_row, &lfm);
             break;
           case LF_PATH_444:
-            av1_filter_block_plane_ss00(cm, &planes[plane], mi_row, &lfm);
+            av1_filter_block_plane_ver_ss00(cm, &planes[plane], mi_row, &lfm);
             break;
           case LF_PATH_SLOW:
-            av1_filter_block_plane_non420(cm, &planes[plane], mi + mi_col,
-                                          mi_row, mi_col);
+            av1_filter_block_plane_ver_non420(cm, &planes[plane], mi + mi_col,
+                                              mi_row, mi_col);
+            break;
+        }
+      }
+
+      sync_write(lf_sync, r, c, sb_cols);
+    }
+  }
+}
+
+static INLINE void thread_loop_filter_rows_hor(
+    const YV12_BUFFER_CONFIG *const frame_buffer, AV1_COMMON *const cm,
+    struct macroblockd_plane planes[MAX_MB_PLANE], int start, int stop,
+    int y_only, AV1LfSync *const lf_sync) {
+  const int num_planes = y_only ? 1 : MAX_MB_PLANE;
+  const int sb_cols = mi_cols_aligned_to_sb(cm->mi_cols) >> MI_BLOCK_SIZE_LOG2;
+  int mi_row, mi_col;
+  enum lf_path path;
+  if (y_only)
+    path = LF_PATH_444;
+  else if (planes[1].subsampling_y == 1 && planes[1].subsampling_x == 1)
+    path = LF_PATH_420;
+  else if (planes[1].subsampling_y == 0 && planes[1].subsampling_x == 0)
+    path = LF_PATH_444;
+  else
+    path = LF_PATH_SLOW;
+
+  for (mi_row = start; mi_row < stop;
+       mi_row += lf_sync->num_workers * MI_BLOCK_SIZE) {
+    MODE_INFO **const mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
+
+    for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MI_BLOCK_SIZE) {
+      const int r = mi_row >> MI_BLOCK_SIZE_LOG2;
+      const int c = mi_col >> MI_BLOCK_SIZE_LOG2;
+      LOOP_FILTER_MASK lfm;
+      int plane;
+
+      sync_read(lf_sync, r, c);
+
+      av1_setup_dst_planes(planes, frame_buffer, mi_row, mi_col);
+
+      // TODO(JBB): Make setup_mask work for non 420.
+      av1_setup_mask(cm, mi_row, mi_col, mi + mi_col, cm->mi_stride, &lfm);
+
+      av1_filter_block_plane_hor_ss00(cm, &planes[0], mi_row, &lfm);
+      for (plane = 1; plane < num_planes; ++plane) {
+        switch (path) {
+          case LF_PATH_420:
+            av1_filter_block_plane_hor_ss11(cm, &planes[plane], mi_row, &lfm);
+            break;
+          case LF_PATH_444:
+            av1_filter_block_plane_hor_ss00(cm, &planes[plane], mi_row, &lfm);
+            break;
+          case LF_PATH_SLOW:
+            av1_filter_block_plane_hor_non420(cm, &planes[plane], mi + mi_col,
+                                              mi_row, mi_col);
             break;
         }
       }
@@ -142,11 +197,19 @@ static INLINE void thread_loop_filter_rows(
 }
 
 // Row-based multi-threaded loopfilter hook
-static int loop_filter_row_worker(AV1LfSync *const lf_sync,
-                                  LFWorkerData *const lf_data) {
-  thread_loop_filter_rows(lf_data->frame_buffer, lf_data->cm, lf_data->planes,
-                          lf_data->start, lf_data->stop, lf_data->y_only,
-                          lf_sync);
+static int loop_filter_row_ver_worker(AV1LfSync *const lf_sync,
+                                      LFWorkerData *const lf_data) {
+  thread_loop_filter_rows_ver(lf_data->frame_buffer, lf_data->cm,
+                              lf_data->planes, lf_data->start, lf_data->stop,
+                              lf_data->y_only, lf_sync);
+  return 1;
+}
+
+static int loop_filter_row_hor_worker(AV1LfSync *const lf_sync,
+                                      LFWorkerData *const lf_data) {
+  thread_loop_filter_rows_hor(lf_data->frame_buffer, lf_data->cm,
+                              lf_data->planes, lf_data->start, lf_data->stop,
+                              lf_data->y_only, lf_sync);
   return 1;
 }
 
@@ -181,11 +244,42 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   // tries to use more threads for the loopfilter, it will hurt performance
   // because of contention. If the multithreading code changes in the future
   // then the number of workers used by the loopfilter should be revisited.
+
+  // Filter all the vertical edges in the whole frame
   for (i = 0; i < num_workers; ++i) {
     AVxWorker *const worker = &workers[i];
     LFWorkerData *const lf_data = &lf_sync->lfdata[i];
 
-    worker->hook = (AVxWorkerHook)loop_filter_row_worker;
+    worker->hook = (AVxWorkerHook)loop_filter_row_ver_worker;
+    worker->data1 = lf_sync;
+    worker->data2 = lf_data;
+
+    // Loopfilter data
+    av1_loop_filter_data_reset(lf_data, frame, cm, planes);
+    lf_data->start = start + i * MI_BLOCK_SIZE;
+    lf_data->stop = stop;
+    lf_data->y_only = y_only;
+
+    // Start loopfiltering
+    if (i == num_workers - 1) {
+      winterface->execute(worker);
+    } else {
+      winterface->launch(worker);
+    }
+  }
+
+  // Wait till all rows are finished
+  for (i = 0; i < num_workers; ++i) {
+    winterface->sync(&workers[i]);
+  }
+
+  memset(lf_sync->cur_sb_col, -1, sizeof(*lf_sync->cur_sb_col) * sb_rows);
+  // Filter all the horizontal edges in the whole frame
+  for (i = 0; i < num_workers; ++i) {
+    AVxWorker *const worker = &workers[i];
+    LFWorkerData *const lf_data = &lf_sync->lfdata[i];
+
+    worker->hook = (AVxWorkerHook)loop_filter_row_hor_worker;
     worker->data1 = lf_sync;
     worker->data2 = lf_data;
 
