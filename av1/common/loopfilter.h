@@ -102,6 +102,33 @@ void av1_setup_mask(struct AV1Common *const cm, const int mi_row,
                     const int mi_col, MODE_INFO **mi_8x8,
                     const int mode_info_stride, LOOP_FILTER_MASK *lfm);
 
+#if CONFIG_PARALLEL_DEBLOCKING
+void av1_filter_block_plane_ver_ss00(struct AV1Common *const cm,
+                                     struct macroblockd_plane *const plane,
+                                     int mi_row, LOOP_FILTER_MASK *lfm);
+
+void av1_filter_block_plane_ver_ss11(struct AV1Common *const cm,
+                                     struct macroblockd_plane *const plane,
+                                     int mi_row, LOOP_FILTER_MASK *lfm);
+
+void av1_filter_block_plane_ver_non420(struct AV1Common *cm,
+                                       struct macroblockd_plane *plane,
+                                       MODE_INFO **mi_8x8, int mi_row,
+                                       int mi_col);
+
+void av1_filter_block_plane_hor_ss00(struct AV1Common *const cm,
+                                     struct macroblockd_plane *const plane,
+                                     int mi_row, LOOP_FILTER_MASK *lfm);
+
+void av1_filter_block_plane_hor_ss11(struct AV1Common *const cm,
+                                     struct macroblockd_plane *const plane,
+                                     int mi_row, LOOP_FILTER_MASK *lfm);
+
+void av1_filter_block_plane_hor_non420(struct AV1Common *cm,
+                                       struct macroblockd_plane *plane,
+                                       MODE_INFO **mi_8x8, int mi_row,
+                                       int mi_col);
+#else   // CONFIG_PARALLEL_DEBLOCKING
 void av1_filter_block_plane_ss00(struct AV1Common *const cm,
                                  struct macroblockd_plane *const plane,
                                  int mi_row, LOOP_FILTER_MASK *lfm);
@@ -113,6 +140,7 @@ void av1_filter_block_plane_ss11(struct AV1Common *const cm,
 void av1_filter_block_plane_non420(struct AV1Common *cm,
                                    struct macroblockd_plane *plane,
                                    MODE_INFO **mi_8x8, int mi_row, int mi_col);
+#endif  // CONFIG_PARALLEL_DEBLOCKING
 
 void av1_loop_filter_init(struct AV1Common *cm);
 
