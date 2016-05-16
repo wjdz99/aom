@@ -1,0 +1,349 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "924d985c_d37b0815",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "This looks like ALIGN_POWER_OF_TWO from mem.h",
+      "range": {
+        "startLine": 16,
+        "startChar": 16,
+        "endLine": 16,
+        "endChar": 61
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_33d2946b",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "Do you need this fp here? You only seem to be using one function ever.",
+      "range": {
+        "startLine": 54,
+        "startChar": 19,
+        "endLine": 57,
+        "endChar": 70
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_73cc1ccf",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "Why not use this?",
+      "range": {
+        "startLine": 67,
+        "startChar": 17,
+        "endLine": 67,
+        "endChar": 37
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_b3220443",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "At this point this is really in place in name only. Why not force the separate dest buffer and let the caller try to elide the copy, rather than hide the copy.",
+      "range": {
+        "startLine": 74,
+        "startChar": 5,
+        "endLine": 74,
+        "endChar": 23
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_d3f868d4",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "check the mallocs. Better yet use a pre-allocated buffer (like cpi-\u003elast_frame_uf).",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 63
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_33761493",
+        "filename": "av1/common/clpf.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "This already exists in aom_ports/bitops.h",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 71
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_93e0a00e",
+        "filename": "av1/common/clpf.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "Needs av1_ prefix",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 72
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_f31c8c02",
+        "filename": "av1/common/clpf.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "Not used outside of clpf.c",
+      "range": {
+        "startLine": 31,
+        "startChar": 5,
+        "endLine": 31,
+        "endChar": 15
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_f3c64c79",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "Can this become more descriptive. Before it was just an boolean controlling the clpf. Now it seems to carry the length of clpf_blocks.",
+      "range": {
+        "startLine": 150,
+        "startChar": 6,
+        "endLine": 150,
+        "endChar": 10
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_d394e852",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "It looks like there are at most 32 of these, maybe less? Just max this array rather than another pointer.",
+      "range": {
+        "startLine": 153,
+        "startChar": 7,
+        "endLine": 153,
+        "endChar": 8
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_53bd58e4",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "We tend to favor uint8_t here.",
+      "range": {
+        "startLine": 153,
+        "startChar": 2,
+        "endLine": 153,
+        "endChar": 6
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_33eb7427",
+        "filename": "av1/encoder/clpf_rdo.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "aom/aom_integer.h",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 19
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_937fc053",
+        "filename": "av1/encoder/clpf_rdo.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "AOMMIN, AOMMAX already exist",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 41
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_13b5903e",
+        "filename": "av1/encoder/clpf_rdo.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "This is hard to read. Maybe a few more locals would help.",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 78
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "924d985c_3399b4df",
+        "filename": "av1/encoder/clpf_rdo.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-05-16T19:10:00Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 190,
+        "startChar": 18,
+        "endLine": 190,
+        "endChar": 31
+      },
+      "revId": "cc6797163ddfb30b0fb82dda8927ea9fd17b0395",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
