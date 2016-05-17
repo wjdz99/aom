@@ -163,6 +163,14 @@ set_maps.SRCS                      += video_writer.h video_writer.c
 set_maps.SRCS                      += aom_ports/msvc.h
 set_maps.GUID                       = ECB2D24D-98B8-4015-A465-A4AF3DCC145F
 set_maps.DESCRIPTION                = Set active and ROI maps
+EXAMPLES-$(CONFIG_ENCODERS)        += aom_cx_set_ref.c
+aom_cx_set_ref.SRCS                += ivfenc.h ivfenc.c
+aom_cx_set_ref.SRCS                += tools_common.h tools_common.c
+aom_cx_set_ref.SRCS                += video_common.h
+aom_cx_set_ref.SRCS                += video_writer.h video_writer.c
+aom_cx_set_ref.SRCS                += vpx_ports/msvc.h
+aom_cx_set_ref.GUID                 = C5E31F7F-96F6-48BD-BD3E-10EBF6E8057A
+aom_cx_set_ref.DESCRIPTION          = VP8 set encoder reference frame
 
 
 # Handle extra library flags depending on codec configuration
