@@ -89,7 +89,7 @@ static INLINE void sync_write(AV1LfSync *const lf_sync, int r, int c,
 static INLINE void thread_loop_filter_rows(
     const YV12_BUFFER_CONFIG *const frame_buffer, AV1_COMMON *const cm,
     struct macroblockd_plane planes[MAX_MB_PLANE], int start, int stop,
-    int y_only, AV1LfSync *const lf_sync) {
+    int y_only, AV1LfSync *const lf_sync, int type) {
   const int num_planes = y_only ? 1 : MAX_MB_PLANE;
   const int sb_cols = mi_cols_aligned_to_sb(cm->mi_cols) >> MI_BLOCK_SIZE_LOG2;
   int mi_row, mi_col;
@@ -116,22 +116,33 @@ static INLINE void thread_loop_filter_rows(
       sync_read(lf_sync, r, c);
 
       av1_setup_dst_planes(planes, frame_buffer, mi_row, mi_col);
-
-      // TODO(JBB): Make setup_mask work for non 420.
       av1_setup_mask(cm, mi_row, mi_col, mi + mi_col, cm->mi_stride, &lfm);
 
-      av1_filter_block_plane_ss00(cm, &planes[0], mi_row, &lfm);
+      if (type == 0 || type == 2)
+        av1_filter_block_plane_ss00_ver(cm, &planes[0], mi_row, &lfm);
+      if (type == 1 || type == 2)
+        av1_filter_block_plane_ss00_hor(cm, &planes[0], mi_row, &lfm);
+
       for (plane = 1; plane < num_planes; ++plane) {
         switch (path) {
           case LF_PATH_420:
-            av1_filter_block_plane_ss11(cm, &planes[plane], mi_row, &lfm);
+            if (type == 0 || type == 2)
+              av1_filter_block_plane_ss11_ver(cm, &planes[plane], mi_row, &lfm);
+            if (type == 1 || type == 2)
+              av1_filter_block_plane_ss11_hor(cm, &planes[plane], mi_row, &lfm);
             break;
           case LF_PATH_444:
-            av1_filter_block_plane_ss00(cm, &planes[plane], mi_row, &lfm);
+            if (type == 0 || type == 2)
+              av1_filter_block_plane_ss00_ver(cm, &planes[plane], mi_row, &lfm);
+            if (type == 1 || type == 2)
+              av1_filter_block_plane_ss00_hor(cm, &planes[plane], mi_row, &lfm);
             break;
           case LF_PATH_SLOW:
-            av1_filter_block_plane_non420(cm, &planes[plane], mi + mi_col,
-                                          mi_row, mi_col);
+            if (type == 0 || type == 2)
+              av1_filter_block_plane_non420_ver(cm, &planes[plane], mi + mi_col,
+                                                mi_row, mi_col);
+            if (type == 1 || type == 2)
+              av1_filter_block_plane_non420_hor(cm, &planes[plane], mi_row);
             break;
         }
       }
@@ -142,11 +153,27 @@ static INLINE void thread_loop_filter_rows(
 }
 
 // Row-based multi-threaded loopfilter hook
+static int loop_filter_ver_row_worker(AV1LfSync *const lf_sync,
+                                      LFWorkerData *const lf_data) {
+  thread_loop_filter_rows(lf_data->frame_buffer, lf_data->cm, lf_data->planes,
+                          lf_data->start, lf_data->stop, lf_data->y_only,
+                          lf_sync, 0);
+  return 1;
+}
+
+static int loop_filter_hor_row_worker(AV1LfSync *const lf_sync,
+                                      LFWorkerData *const lf_data) {
+  thread_loop_filter_rows(lf_data->frame_buffer, lf_data->cm, lf_data->planes,
+                          lf_data->start, lf_data->stop, lf_data->y_only,
+                          lf_sync, 1);
+  return 1;
+}
+
 static int loop_filter_row_worker(AV1LfSync *const lf_sync,
                                   LFWorkerData *const lf_data) {
   thread_loop_filter_rows(lf_data->frame_buffer, lf_data->cm, lf_data->planes,
                           lf_data->start, lf_data->stop, lf_data->y_only,
-                          lf_sync);
+                          lf_sync, 2);
   return 1;
 }
 
@@ -170,9 +197,6 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     av1_loop_filter_alloc(lf_sync, cm, sb_rows, cm->width, num_workers);
   }
 
-  // Initialize cur_sb_col to -1 for all SB rows.
-  memset(lf_sync->cur_sb_col, -1, sizeof(*lf_sync->cur_sb_col) * sb_rows);
-
   // Set up loopfilter thread data.
   // The decoder is capping num_workers because it has been observed that using
   // more threads on the loopfilter than there are cores will hurt performance
@@ -181,6 +205,71 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   // tries to use more threads for the loopfilter, it will hurt performance
   // because of contention. If the multithreading code changes in the future
   // then the number of workers used by the loopfilter should be revisited.
+
+#if CONFIG_PARALLEL_DEBLOCKING
+  // Initialize cur_sb_col to -1 for all SB rows.
+  memset(lf_sync->cur_sb_col, -1, sizeof(*lf_sync->cur_sb_col) * sb_rows);
+
+  // Filter all the vertical edges in the whole frame
+  for (i = 0; i < num_workers; ++i) {
+    AVxWorker *const worker = &workers[i];
+    LFWorkerData *const lf_data = &lf_sync->lfdata[i];
+
+    worker->hook = (AVxWorkerHook)loop_filter_ver_row_worker;
+    worker->data1 = lf_sync;
+    worker->data2 = lf_data;
+
+    // Loopfilter data
+    av1_loop_filter_data_reset(lf_data, frame, cm, planes);
+    lf_data->start = start + i * MI_BLOCK_SIZE;
+    lf_data->stop = stop;
+    lf_data->y_only = y_only;
+
+    // Start loopfiltering
+    if (i == num_workers - 1) {
+      winterface->execute(worker);
+    } else {
+      winterface->launch(worker);
+    }
+  }
+
+  // Wait till all rows are finished
+  for (i = 0; i < num_workers; ++i) {
+    winterface->sync(&workers[i]);
+  }
+
+  memset(lf_sync->cur_sb_col, -1, sizeof(*lf_sync->cur_sb_col) * sb_rows);
+  // Filter all the horizontal edges in the whole frame
+  for (i = 0; i < num_workers; ++i) {
+    AVxWorker *const worker = &workers[i];
+    LFWorkerData *const lf_data = &lf_sync->lfdata[i];
+
+    worker->hook = (AVxWorkerHook)loop_filter_hor_row_worker;
+    worker->data1 = lf_sync;
+    worker->data2 = lf_data;
+
+    // Loopfilter data
+    av1_loop_filter_data_reset(lf_data, frame, cm, planes);
+    lf_data->start = start + i * MI_BLOCK_SIZE;
+    lf_data->stop = stop;
+    lf_data->y_only = y_only;
+
+    // Start loopfiltering
+    if (i == num_workers - 1) {
+      winterface->execute(worker);
+    } else {
+      winterface->launch(worker);
+    }
+  }
+
+  // Wait till all rows are finished
+  for (i = 0; i < num_workers; ++i) {
+    winterface->sync(&workers[i]);
+  }
+#else   // CONFIG_PARALLEL_DEBLOCKING
+  // Initialize cur_sb_col to -1 for all SB rows.
+  memset(lf_sync->cur_sb_col, -1, sizeof(*lf_sync->cur_sb_col) * sb_rows);
+
   for (i = 0; i < num_workers; ++i) {
     AVxWorker *const worker = &workers[i];
     LFWorkerData *const lf_data = &lf_sync->lfdata[i];
@@ -207,6 +296,7 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   for (i = 0; i < num_workers; ++i) {
     winterface->sync(&workers[i]);
   }
+#endif  // CONFIG_PARALLEL_DEBLOCKING
 }
 
 void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
