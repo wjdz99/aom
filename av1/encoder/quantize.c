@@ -296,7 +296,7 @@ void av1_regular_quantize_b_4x4(MACROBLOCK *x, int plane, int block,
 }
 
 static void invert_quant(int16_t *quant, int16_t *shift, int d) {
-  unsigned t;
+  int t;
   int l;
   t = d;
   for (l = 0; t > 1; l++) t >>= 1;
