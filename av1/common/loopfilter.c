@@ -1151,6 +1151,478 @@ static void highbd_filter_selectively_vert(
 }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
+#if CONFIG_PARALLEL_DEBLOCKING
+void av1_filter_block_plane_ver_non420(AV1_COMMON *cm,
+                                       struct macroblockd_plane *plane,
+                                       MODE_INFO **mi_8x8, int mi_row,
+                                       int mi_col) {
+  const int ss_x = plane->subsampling_x;
+  const int ss_y = plane->subsampling_y;
+  const int row_step = 1 << ss_y;
+  const int col_step = 1 << ss_x;
+  const int row_step_stride = cm->mi_stride * row_step;
+  struct buf_2d *const dst = &plane->dst;
+  unsigned int mask_16x16[MI_BLOCK_SIZE] = { 0 };
+  unsigned int mask_8x8[MI_BLOCK_SIZE] = { 0 };
+  unsigned int mask_4x4[MI_BLOCK_SIZE] = { 0 };
+  unsigned int mask_4x4_int[MI_BLOCK_SIZE] = { 0 };
+  uint8_t lfl[MI_BLOCK_SIZE * MI_BLOCK_SIZE];
+  int r, c;
+
+  for (r = 0; r < MI_BLOCK_SIZE && mi_row + r < cm->mi_rows; r += row_step) {
+    unsigned int mask_16x16_c = 0;
+    unsigned int mask_8x8_c = 0;
+    unsigned int mask_4x4_c = 0;
+    unsigned int border_mask;
+
+    // Determine the vertical edges that need filtering
+    for (c = 0; c < MI_BLOCK_SIZE && mi_col + c < cm->mi_cols; c += col_step) {
+      const MODE_INFO *mi = mi_8x8[c];
+      const BLOCK_SIZE sb_type = mi[0].mbmi.sb_type;
+      const int skip_this = mi[0].mbmi.skip && is_inter_block(&mi[0].mbmi);
+      // left edge of current unit is block/partition edge -> no skip
+      const int block_edge_left =
+          (num_4x4_blocks_wide_lookup[sb_type] > 1)
+              ? !(c & (num_8x8_blocks_wide_lookup[sb_type] - 1))
+              : 1;
+      const int skip_this_c = skip_this && !block_edge_left;
+      // top edge of current unit is block/partition edge -> no skip
+      const int block_edge_above =
+          (num_4x4_blocks_high_lookup[sb_type] > 1)
+              ? !(r & (num_8x8_blocks_high_lookup[sb_type] - 1))
+              : 1;
+      const int skip_this_r = skip_this && !block_edge_above;
+      const TX_SIZE tx_size = (plane->plane_type == PLANE_TYPE_UV)
+                                  ? get_uv_tx_size(&mi[0].mbmi, plane)
+                                  : mi[0].mbmi.tx_size;
+      const int skip_border_4x4_c = ss_x && mi_col + c == cm->mi_cols - 1;
+      const int skip_border_4x4_r = ss_y && mi_row + r == cm->mi_rows - 1;
+
+      // Filter level can vary per MI
+      if (!(lfl[(r << 3) + (c >> ss_x)] =
+                get_filter_level(&cm->lf_info, &mi[0].mbmi)))
+        continue;
+
+      // Build masks based on the transform size of each block
+      if (tx_size == TX_32X32) {
+        if (!skip_this_c && ((c >> ss_x) & 3) == 0) {
+          if (!skip_border_4x4_c)
+            mask_16x16_c |= 1 << (c >> ss_x);
+          else
+            mask_8x8_c |= 1 << (c >> ss_x);
+        }
+        if (!skip_this_r && ((r >> ss_y) & 3) == 0) {
+          if (!skip_border_4x4_r)
+            mask_16x16[r] |= 1 << (c >> ss_x);
+          else
+            mask_8x8[r] |= 1 << (c >> ss_x);
+        }
+      } else if (tx_size == TX_16X16) {
+        if (!skip_this_c && ((c >> ss_x) & 1) == 0) {
+          if (!skip_border_4x4_c)
+            mask_16x16_c |= 1 << (c >> ss_x);
+          else
+            mask_8x8_c |= 1 << (c >> ss_x);
+        }
+        if (!skip_this_r && ((r >> ss_y) & 1) == 0) {
+          if (!skip_border_4x4_r)
+            mask_16x16[r] |= 1 << (c >> ss_x);
+          else
+            mask_8x8[r] |= 1 << (c >> ss_x);
+        }
+      } else {
+        // force 8x8 filtering on 32x32 boundaries
+        if (!skip_this_c) {
+          if (tx_size == TX_8X8 || ((c >> ss_x) & 3) == 0)
+            mask_8x8_c |= 1 << (c >> ss_x);
+          else
+            mask_4x4_c |= 1 << (c >> ss_x);
+        }
+
+        if (!skip_this_r) {
+          if (tx_size == TX_8X8 || ((r >> ss_y) & 3) == 0)
+            mask_8x8[r] |= 1 << (c >> ss_x);
+          else
+            mask_4x4[r] |= 1 << (c >> ss_x);
+        }
+
+        if (!skip_this && tx_size < TX_8X8 && !skip_border_4x4_c)
+          mask_4x4_int[r] |= 1 << (c >> ss_x);
+      }
+    }
+
+    // Disable filtering on the leftmost column
+    border_mask = ~(mi_col == 0);
+#if CONFIG_VPX_HIGHBITDEPTH
+    if (cm->use_highbitdepth) {
+      highbd_filter_selectively_vert(
+          CONVERT_TO_SHORTPTR(dst->buf), dst->stride,
+          mask_16x16_c & border_mask, mask_8x8_c & border_mask,
+          mask_4x4_c & border_mask, mask_4x4_int[r], &cm->lf_info, &lfl[r << 3],
+          (int)cm->bit_depth);
+    } else {
+      filter_selectively_vert(dst->buf, dst->stride, mask_16x16_c & border_mask,
+                              mask_8x8_c & border_mask,
+                              mask_4x4_c & border_mask, mask_4x4_int[r],
+                              &cm->lf_info, &lfl[r << 3]);
+    }
+#else
+    filter_selectively_vert(dst->buf, dst->stride, mask_16x16_c & border_mask,
+                            mask_8x8_c & border_mask, mask_4x4_c & border_mask,
+                            mask_4x4_int[r], &cm->lf_info, &lfl[r << 3]);
+#endif  // CONFIG_VPX_HIGHBITDEPTH
+    dst->buf += 8 * dst->stride;
+    mi_8x8 += row_step_stride;
+  }
+}
+
+void av1_filter_block_plane_hor_non420(AV1_COMMON *cm,
+                                       struct macroblockd_plane *plane,
+                                       MODE_INFO **mi_8x8, int mi_row,
+                                       int mi_col) {
+  const int ss_x = plane->subsampling_x;
+  const int ss_y = plane->subsampling_y;
+  const int row_step = 1 << ss_y;
+  const int col_step = 1 << ss_x;
+  const int row_step_stride = cm->mi_stride * row_step;
+  struct buf_2d *const dst = &plane->dst;
+  unsigned int mask_16x16[MI_BLOCK_SIZE] = { 0 };
+  unsigned int mask_8x8[MI_BLOCK_SIZE] = { 0 };
+  unsigned int mask_4x4[MI_BLOCK_SIZE] = { 0 };
+  unsigned int mask_4x4_int[MI_BLOCK_SIZE] = { 0 };
+  uint8_t lfl[MI_BLOCK_SIZE * MI_BLOCK_SIZE];
+  int r;
+
+  for (r = 0; r < MI_BLOCK_SIZE && mi_row + r < cm->mi_rows; r += row_step) {
+    const int skip_border_4x4_r = ss_y && mi_row + r == cm->mi_rows - 1;
+    const unsigned int mask_4x4_int_r = skip_border_4x4_r ? 0 : mask_4x4_int[r];
+
+    unsigned int mask_16x16_r;
+    unsigned int mask_8x8_r;
+    unsigned int mask_4x4_r;
+
+    if (mi_row + r == 0) {
+      mask_16x16_r = 0;
+      mask_8x8_r = 0;
+      mask_4x4_r = 0;
+    } else {
+      mask_16x16_r = mask_16x16[r];
+      mask_8x8_r = mask_8x8[r];
+      mask_4x4_r = mask_4x4[r];
+    }
+#if CONFIG_VPX_HIGHBITDEPTH
+    if (cm->use_highbitdepth) {
+      highbd_filter_selectively_horiz(CONVERT_TO_SHORTPTR(dst->buf),
+                                      dst->stride, mask_16x16_r, mask_8x8_r,
+                                      mask_4x4_r, mask_4x4_int_r, &cm->lf_info,
+                                      &lfl[r << 3], (int)cm->bit_depth);
+    } else {
+      filter_selectively_horiz(dst->buf, dst->stride, mask_16x16_r, mask_8x8_r,
+                               mask_4x4_r, mask_4x4_int_r, &cm->lf_info,
+                               &lfl[r << 3]);
+    }
+#else
+    filter_selectively_horiz(dst->buf, dst->stride, mask_16x16_r, mask_8x8_r,
+                             mask_4x4_r, mask_4x4_int_r, &cm->lf_info,
+                             &lfl[r << 3]);
+#endif  // CONFIG_VPX_HIGHBITDEPTH
+    dst->buf += 8 * dst->stride;
+  }
+}
+
+void av1_filter_block_plane_ver_ss00(AV1_COMMON *const cm,
+                                     struct macroblockd_plane *const plane,
+                                     int mi_row, LOOP_FILTER_MASK *lfm) {
+  struct buf_2d *const dst = &plane->dst;
+  int r;
+  uint64_t mask_16x16 = lfm->left_y[TX_16X16];
+  uint64_t mask_8x8 = lfm->left_y[TX_8X8];
+  uint64_t mask_4x4 = lfm->left_y[TX_4X4];
+  uint64_t mask_4x4_int = lfm->int_4x4_y;
+
+  assert(plane->subsampling_x == 0 && plane->subsampling_y == 0);
+
+  // Vertical pass: do 2 rows at one time
+  for (r = 0; r < MI_BLOCK_SIZE && mi_row + r < cm->mi_rows; r += 2) {
+    unsigned int mask_16x16_l = mask_16x16 & 0xffff;
+    unsigned int mask_8x8_l = mask_8x8 & 0xffff;
+    unsigned int mask_4x4_l = mask_4x4 & 0xffff;
+    unsigned int mask_4x4_int_l = mask_4x4_int & 0xffff;
+
+// Disable filtering on the leftmost column.
+#if CONFIG_VPX_HIGHBITDEPTH
+    if (cm->use_highbitdepth) {
+      highbd_filter_selectively_vert_row2(
+          plane->subsampling_x, CONVERT_TO_SHORTPTR(dst->buf), dst->stride,
+          mask_16x16_l, mask_8x8_l, mask_4x4_l, mask_4x4_int_l, &cm->lf_info,
+          &lfm->lfl_y[r << 3], (int)cm->bit_depth);
+    } else {
+      filter_selectively_vert_row2(
+          plane->subsampling_x, dst->buf, dst->stride, mask_16x16_l, mask_8x8_l,
+          mask_4x4_l, mask_4x4_int_l, &cm->lf_info, &lfm->lfl_y[r << 3]);
+    }
+#else
+    filter_selectively_vert_row2(
+        plane->subsampling_x, dst->buf, dst->stride, mask_16x16_l, mask_8x8_l,
+        mask_4x4_l, mask_4x4_int_l, &cm->lf_info, &lfm->lfl_y[r << 3]);
+#endif  // CONFIG_VPX_HIGHBITDEPTH
+    dst->buf += 16 * dst->stride;
+    mask_16x16 >>= 16;
+    mask_8x8 >>= 16;
+    mask_4x4 >>= 16;
+    mask_4x4_int >>= 16;
+  }
+}
+
+void av1_filter_block_plane_hor_ss00(AV1_COMMON *const cm,
+                                     struct macroblockd_plane *const plane,
+                                     int mi_row, LOOP_FILTER_MASK *lfm) {
+  struct buf_2d *const dst = &plane->dst;
+  int r;
+  uint64_t mask_16x16 = lfm->above_y[TX_16X16];
+  uint64_t mask_8x8 = lfm->above_y[TX_8X8];
+  uint64_t mask_4x4 = lfm->above_y[TX_4X4];
+  uint64_t mask_4x4_int = lfm->int_4x4_y;
+
+  assert(plane->subsampling_x == 0 && plane->subsampling_y == 0);
+
+  for (r = 0; r < MI_BLOCK_SIZE && mi_row + r < cm->mi_rows; r++) {
+    unsigned int mask_16x16_r;
+    unsigned int mask_8x8_r;
+    unsigned int mask_4x4_r;
+
+    if (mi_row + r == 0) {
+      mask_16x16_r = 0;
+      mask_8x8_r = 0;
+      mask_4x4_r = 0;
+    } else {
+      mask_16x16_r = mask_16x16 & 0xff;
+      mask_8x8_r = mask_8x8 & 0xff;
+      mask_4x4_r = mask_4x4 & 0xff;
+    }
+
+#if CONFIG_VPX_HIGHBITDEPTH
+    if (cm->use_highbitdepth) {
+      highbd_filter_selectively_horiz(
+          CONVERT_TO_SHORTPTR(dst->buf), dst->stride, mask_16x16_r, mask_8x8_r,
+          mask_4x4_r, mask_4x4_int & 0xff, &cm->lf_info, &lfm->lfl_y[r << 3],
+          (int)cm->bit_depth);
+    } else {
+      filter_selectively_horiz(dst->buf, dst->stride, mask_16x16_r, mask_8x8_r,
+                               mask_4x4_r, mask_4x4_int & 0xff, &cm->lf_info,
+                               &lfm->lfl_y[r << 3]);
+    }
+#else
+    filter_selectively_horiz(dst->buf, dst->stride, mask_16x16_r, mask_8x8_r,
+                             mask_4x4_r, mask_4x4_int & 0xff, &cm->lf_info,
+                             &lfm->lfl_y[r << 3]);
+#endif  // CONFIG_VPX_HIGHBITDEPTH
+
+    dst->buf += 8 * dst->stride;
+    mask_16x16 >>= 8;
+    mask_8x8 >>= 8;
+    mask_4x4 >>= 8;
+    mask_4x4_int >>= 8;
+  }
+}
+
+void av1_filter_block_plane_ver_ss11(AV1_COMMON *const cm,
+                                     struct macroblockd_plane *const plane,
+                                     int mi_row, LOOP_FILTER_MASK *lfm) {
+  struct buf_2d *const dst = &plane->dst;
+  int r, c;
+
+  uint16_t mask_16x16 = lfm->left_uv[TX_16X16];
+  uint16_t mask_8x8 = lfm->left_uv[TX_8X8];
+  uint16_t mask_4x4 = lfm->left_uv[TX_4X4];
+#if CONFIG_MISC_FIXES
+  uint16_t mask_4x4_int = lfm->left_int_4x4_uv;
+#else
+  uint16_t mask_4x4_int = lfm->int_4x4_uv;
+#endif
+
+  assert(plane->subsampling_x == 1 && plane->subsampling_y == 1);
+
+  // Vertical pass: do 2 rows at one time
+  for (r = 0; r < MI_BLOCK_SIZE && mi_row + r < cm->mi_rows; r += 4) {
+    if (plane->plane_type == 1) {
+      for (c = 0; c < (MI_BLOCK_SIZE >> 1); c++) {
+        lfm->lfl_uv[(r << 1) + c] = lfm->lfl_y[(r << 3) + (c << 1)];
+        lfm->lfl_uv[((r + 2) << 1) + c] = lfm->lfl_y[((r + 2) << 3) + (c << 1)];
+      }
+    }
+
+    {
+      unsigned int mask_16x16_l = mask_16x16 & 0xff;
+      unsigned int mask_8x8_l = mask_8x8 & 0xff;
+      unsigned int mask_4x4_l = mask_4x4 & 0xff;
+      unsigned int mask_4x4_int_l = mask_4x4_int & 0xff;
+
+// Disable filtering on the leftmost column.
+#if CONFIG_VPX_HIGHBITDEPTH
+      if (cm->use_highbitdepth) {
+        highbd_filter_selectively_vert_row2(
+            plane->subsampling_x, CONVERT_TO_SHORTPTR(dst->buf), dst->stride,
+            mask_16x16_l, mask_8x8_l, mask_4x4_l, mask_4x4_int_l, &cm->lf_info,
+            &lfm->lfl_uv[r << 1], (int)cm->bit_depth);
+      } else {
+        filter_selectively_vert_row2(plane->subsampling_x, dst->buf,
+                                     dst->stride, mask_16x16_l, mask_8x8_l,
+                                     mask_4x4_l, mask_4x4_int_l, &cm->lf_info,
+                                     &lfm->lfl_uv[r << 1]);
+      }
+#else
+      filter_selectively_vert_row2(
+          plane->subsampling_x, dst->buf, dst->stride, mask_16x16_l, mask_8x8_l,
+          mask_4x4_l, mask_4x4_int_l, &cm->lf_info, &lfm->lfl_uv[r << 1]);
+#endif  // CONFIG_VPX_HIGHBITDEPTH
+
+      dst->buf += 16 * dst->stride;
+      mask_16x16 >>= 8;
+      mask_8x8 >>= 8;
+      mask_4x4 >>= 8;
+      mask_4x4_int >>= 8;
+    }
+  }
+}
+
+void av1_filter_block_plane_hor_ss11(AV1_COMMON *const cm,
+                                     struct macroblockd_plane *const plane,
+                                     int mi_row, LOOP_FILTER_MASK *lfm) {
+  struct buf_2d *const dst = &plane->dst;
+  int r;
+  uint64_t mask_16x16 = lfm->above_uv[TX_16X16];
+  uint64_t mask_8x8 = lfm->above_uv[TX_8X8];
+  uint64_t mask_4x4 = lfm->above_uv[TX_4X4];
+#if CONFIG_MISC_FIXES
+  uint64_t mask_4x4_int = lfm->above_int_4x4_uv;
+#else
+  uint64_t mask_4x4_int = lfm->int_4x4_uv;
+#endif
+
+  assert(plane->subsampling_x == 1 && plane->subsampling_y == 1);
+
+  for (r = 0; r < MI_BLOCK_SIZE && mi_row + r < cm->mi_rows; r += 2) {
+    const int skip_border_4x4_r = mi_row + r == cm->mi_rows - 1;
+    const unsigned int mask_4x4_int_r =
+        skip_border_4x4_r ? 0 : (mask_4x4_int & 0xf);
+    unsigned int mask_16x16_r;
+    unsigned int mask_8x8_r;
+    unsigned int mask_4x4_r;
+
+    if (mi_row + r == 0) {
+      mask_16x16_r = 0;
+      mask_8x8_r = 0;
+      mask_4x4_r = 0;
+    } else {
+      mask_16x16_r = mask_16x16 & 0xf;
+      mask_8x8_r = mask_8x8 & 0xf;
+      mask_4x4_r = mask_4x4 & 0xf;
+    }
+
+#if CONFIG_VPX_HIGHBITDEPTH
+    if (cm->use_highbitdepth) {
+      highbd_filter_selectively_horiz(CONVERT_TO_SHORTPTR(dst->buf),
+                                      dst->stride, mask_16x16_r, mask_8x8_r,
+                                      mask_4x4_r, mask_4x4_int_r, &cm->lf_info,
+                                      &lfm->lfl_uv[r << 1], (int)cm->bit_depth);
+    } else {
+      filter_selectively_horiz(dst->buf, dst->stride, mask_16x16_r, mask_8x8_r,
+                               mask_4x4_r, mask_4x4_int_r, &cm->lf_info,
+                               &lfm->lfl_uv[r << 1]);
+    }
+#else
+    filter_selectively_horiz(dst->buf, dst->stride, mask_16x16_r, mask_8x8_r,
+                             mask_4x4_r, mask_4x4_int_r, &cm->lf_info,
+                             &lfm->lfl_uv[r << 1]);
+#endif  // CONFIG_VPX_HIGHBITDEPTH
+
+    dst->buf += 8 * dst->stride;
+    mask_16x16 >>= 4;
+    mask_8x8 >>= 4;
+    mask_4x4 >>= 4;
+    mask_4x4_int >>= 4;
+  }
+}
+
+void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
+                          struct macroblockd_plane planes[MAX_MB_PLANE],
+                          int start, int stop, int y_only) {
+  const int num_planes = y_only ? 1 : MAX_MB_PLANE;
+  enum lf_path path;
+  LOOP_FILTER_MASK lfm;
+  int mi_row, mi_col;
+
+  if (y_only)
+    path = LF_PATH_444;
+  else if (planes[1].subsampling_y == 1 && planes[1].subsampling_x == 1)
+    path = LF_PATH_420;
+  else if (planes[1].subsampling_y == 0 && planes[1].subsampling_x == 0)
+    path = LF_PATH_444;
+  else
+    path = LF_PATH_SLOW;
+
+  // Filter all the vertical edges in the whole frame
+  for (mi_row = start; mi_row < stop; mi_row += MI_BLOCK_SIZE) {
+    MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
+
+    for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MI_BLOCK_SIZE) {
+      int plane;
+
+      av1_setup_dst_planes(planes, frame_buffer, mi_row, mi_col);
+
+      // TODO(JBB): Make setup_mask work for non 420.
+      av1_setup_mask(cm, mi_row, mi_col, mi + mi_col, cm->mi_stride, &lfm);
+
+      av1_filter_block_plane_ver_ss00(cm, &planes[0], mi_row, &lfm);
+      for (plane = 1; plane < num_planes; ++plane) {
+        switch (path) {
+          case LF_PATH_420:
+            av1_filter_block_plane_ver_ss11(cm, &planes[plane], mi_row, &lfm);
+            break;
+          case LF_PATH_444:
+            av1_filter_block_plane_ver_ss00(cm, &planes[plane], mi_row, &lfm);
+            break;
+          case LF_PATH_SLOW:
+            av1_filter_block_plane_ver_non420(cm, &planes[plane], mi + mi_col,
+                                              mi_row, mi_col);
+            break;
+        }
+      }
+    }
+  }
+
+  // Filter all the horizontal edges in the whole frame
+  for (mi_row = start; mi_row < stop; mi_row += MI_BLOCK_SIZE) {
+    MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
+
+    for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MI_BLOCK_SIZE) {
+      int plane;
+
+      av1_setup_dst_planes(planes, frame_buffer, mi_row, mi_col);
+
+      // TODO(JBB): Make setup_mask work for non 420.
+      av1_setup_mask(cm, mi_row, mi_col, mi + mi_col, cm->mi_stride, &lfm);
+
+      av1_filter_block_plane_hor_ss00(cm, &planes[0], mi_row, &lfm);
+      for (plane = 1; plane < num_planes; ++plane) {
+        switch (path) {
+          case LF_PATH_420:
+            av1_filter_block_plane_hor_ss11(cm, &planes[plane], mi_row, &lfm);
+            break;
+          case LF_PATH_444:
+            av1_filter_block_plane_hor_ss00(cm, &planes[plane], mi_row, &lfm);
+            break;
+          case LF_PATH_SLOW:
+            av1_filter_block_plane_hor_non420(cm, &planes[plane], mi + mi_col,
+                                              mi_row, mi_col);
+            break;
+        }
+      }
+    }
+  }
+}
+#else  // CONFIG_PARALLEL_DEBLOCKING
 void av1_filter_block_plane_non420(AV1_COMMON *cm,
                                    struct macroblockd_plane *plane,
                                    MODE_INFO **mi_8x8, int mi_row, int mi_col) {
@@ -1564,6 +2036,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     }
   }
 }
+#endif  // CONFIG_PARALLEL_DEBLOCKING
 
 void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                            MACROBLOCKD *xd, int frame_filter_level, int y_only,
