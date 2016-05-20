@@ -110,7 +110,7 @@ static const char *exec_name;
 void usage_exit(void) {
   fprintf(stderr,
           "Usage: %s <codec> <width> <height> <infile> <outfile> "
-          "<keyframe-interval> [<error-resilient>]\nSee comments in "
+          "<keyframe-interval> [<limit>] [<error-resilient>]\nSee comments in "
           "simple_encoder.c for more information.\n",
           exec_name);
   exit(EXIT_FAILURE);
@@ -165,6 +165,7 @@ int main(int argc, char **argv) {
   const char *infile_arg = NULL;
   const char *outfile_arg = NULL;
   const char *keyframe_interval_arg = NULL;
+  int limit = 0;
 
   exec_name = argv[0];
 
@@ -204,12 +205,16 @@ int main(int argc, char **argv) {
   res = aom_codec_enc_config_default(encoder->codec_interface(), &cfg, 0);
   if (res) die_codec(&codec, "Failed to get default codec config.");
 
+  limit = argc > 7 ? strtol(argv[7], NULL, 0) : 0;
+
+  if (limit == 0) limit = 100;
+
   cfg.g_w = info.frame_width;
   cfg.g_h = info.frame_height;
   cfg.g_timebase.num = info.time_base.numerator;
   cfg.g_timebase.den = info.time_base.denominator;
   cfg.rc_target_bitrate = bitrate;
-  cfg.g_error_resilient = argc > 7 ? strtol(argv[7], NULL, 0) : 0;
+  cfg.g_error_resilient = argc > 8 ? strtol(argv[8], NULL, 0) : 0;
 
   writer = aom_video_writer_open(outfile_arg, kContainerIVF, &info);
   if (!writer) die("Failed to open %s for writing.", outfile_arg);
@@ -221,7 +226,7 @@ int main(int argc, char **argv) {
     die_codec(&codec, "Failed to initialize encoder");
 
   // Encode frames.
-  while (aom_img_read(&raw, infile)) {
+  while (aom_img_read(&raw, infile) && frame_count < limit) {
     int flags = 0;
     if (keyframe_interval > 0 && frame_count % keyframe_interval == 0)
       flags |= AOM_EFLAG_FORCE_KF;
