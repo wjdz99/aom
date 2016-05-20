@@ -18,6 +18,7 @@ DSP_SRCS-$(HAVE_MSA)    += mips/macros_msa.h
 # bit reader
 DSP_SRCS-yes += prob.h
 DSP_SRCS-yes += prob.c
+DSP_SRCS-$(CONFIG_ANS) += ans.h
 
 ifeq ($(CONFIG_ENCODERS),yes)
 DSP_SRCS-yes += bitwriter.h
