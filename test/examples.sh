@@ -15,7 +15,7 @@
 example_tests=$(ls $(dirname $0)/*.sh)
 
 # List of script names to exclude.
-exclude_list="examples tools_common"
+exclude_list="examples tools_common decode_to_md5 decode_with_drops simple_decoder aomdec"
 
 # Filter out the scripts in $exclude_list.
 for word in ${exclude_list}; do
@@ -23,6 +23,7 @@ for word in ${exclude_list}; do
 done
 
 for test in ${example_tests}; do
+  echo ${test}
   # Source each test script so that exporting variables can be avoided.
   AOM_TEST_NAME="$(basename ${test%.*})"
   . "${test}"
