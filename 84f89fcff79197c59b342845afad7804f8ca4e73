@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c84cfcd_366a50a2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-05-23T20:10:40Z",
+      "side": 1,
+      "message": "I don\u0027t like this commit message anymore. Maybe I\u0027m just a spiteful pedant. Anyway, would prefer this:\n\nSupport encoding in decode test scripts.\n\nAdding AV1 input files to the test set is not feasible because the\nbitstream is in constant flux. Add test input encoding and hook\nit up in simple_decoder.sh to start.",
+      "revId": "84f89fcff79197c59b342845afad7804f8ca4e73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c84cfcd_7649b859",
+        "filename": "test/aomenc.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-05-23T20:10:40Z",
+      "side": 1,
+      "message": "Restore (part of) old comment:\n# Utilities that echo aomenc input file parameters.",
+      "revId": "84f89fcff79197c59b342845afad7804f8ca4e73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c84cfcd_769f78ca",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-05-23T20:10:40Z",
+      "side": 1,
+      "message": "nit: encode_decoder_input ?\n\nnaming sucks (I mean naming things in general, this name isn\u0027t really bad, I just feel the need to nitpick).",
+      "range": {
+        "startLine": 319,
+        "startChar": 0,
+        "endLine": 319,
+        "endChar": 21
+      },
+      "revId": "84f89fcff79197c59b342845afad7804f8ca4e73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c84cfcd_b618a06b",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-05-23T20:10:40Z",
+      "side": 1,
+      "message": "quote $1",
+      "revId": "84f89fcff79197c59b342845afad7804f8ca4e73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
