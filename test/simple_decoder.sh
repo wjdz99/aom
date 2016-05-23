@@ -15,11 +15,35 @@
 ##
 . $(dirname $0)/tools_common.sh
 
+# Echo aomenc command line parameters allowing use of
+# hantro_collage_w352h288.yuv as input.
+yuv_input_hantro_collage() {
+  echo ""${YUV_RAW_INPUT}"
+       --width="${YUV_RAW_INPUT_WIDTH}"
+       --height="${YUV_RAW_INPUT_HEIGHT}""
+}
+
+aomenc() {
+  if [ "$(av1_encode_available)" = "yes" ]; then
+    local readonly output=$1
+    local readonly encoder="$(aom_tool_path aomenc)"
+
+    eval "${encoder}" $(yuv_input_hantro_collage) \
+      --codec=av1 \
+      --ivf \
+      --limit=5 \
+      --output="${output}"
+
+    if [ ! -e "${output}" ]; then
+      elog "Output file does not exist."
+      return 1
+    fi
+  fi
+}
+
 # Environment check: Make sure input is available:
-#   $AOM_IVF_FILE and $AV1_IVF_FILE are required.
 simple_decoder_verify_environment() {
-  if [ ! -e "${AOM_IVF_FILE}" ] || [ ! -e "${AV1_IVF_FILE}" ]; then
-    echo "Libaom test data must exist in LIBAOM_TEST_DATA_PATH."
+  if [ ! $(av1_encode_available) = "yes" ] && [ ! -e "${AV1_IVF_FILE}" ]; then
     return 1
   fi
 }
@@ -43,19 +67,19 @@ simple_decoder() {
   [ -e "${output_file}" ] || return 1
 }
 
-simple_decoder_aom() {
-  if [ "$(aom_decode_available)" = "yes" ]; then
-    simple_decoder "${AOM_IVF_FILE}" aom || return 1
-  fi
-}
-
 simple_decoder_av1() {
   if [ "$(av1_decode_available)" = "yes" ]; then
-    simple_decoder "${AV1_IVF_FILE}" av1 || return 1
+    if [ ! -e "${AV1_IVF_FILE}" ]; then
+      local file=${AOM_TEST_OUTPUT_DIR}/"test_encode.ivf"
+      aomenc ${file}
+      simple_decoder "${file}" av1 || return 1
+    else
+      simple_decoder "${AV1_IVF_FILE}" av1 || return 1
+    fi
+
   fi
 }
 
-simple_decoder_tests="simple_decoder_aom
-                      simple_decoder_av1"
+simple_decoder_tests="simple_decoder_av1"
 
 run_tests simple_decoder_verify_environment "${simple_decoder_tests}"
