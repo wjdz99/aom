@@ -307,6 +307,35 @@ aom_test_check_environment() {
   fi
 }
 
+# Echo aomenc command line parameters allowing use of
+# hantro_collage_w352h288.yuv as input.
+yuv_input_hantro_collage() {
+  echo ""${YUV_RAW_INPUT}"
+       --width="${YUV_RAW_INPUT_WIDTH}"
+       --height="${YUV_RAW_INPUT_HEIGHT}""
+}
+
+# Do a small encode for testing decoders.
+encode_to_test_decode() {
+  if [ "$(av1_encode_available)" = "yes" ]; then
+    local readonly output=$1
+    local readonly encoder="$(aom_tool_path aomenc)"
+
+    eval "${encoder}" $(yuv_input_hantro_collage) \
+      --codec=av1 \
+      --ivf \
+      --limit=5 \
+      --output="${output}" \
+      ${devnull}
+
+    if [ ! -e "${output}" ]; then
+      elog "Output file does not exist."
+      return 1
+    fi
+  fi
+}
+
+
 # Parse the command line.
 while [ -n "$1" ]; do
   case "$1" in
