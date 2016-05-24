@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c2177e1_0ebd2f74",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-05-24T19:22:14Z",
+      "side": 1,
+      "message": "that\u0027s dependent on YUV_RAW_INPUT and the rest, this should be given a more generic name",
+      "revId": "821037850e48d4915723c2fc027523c66f7a5334",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c2177e1_4eb72792",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-05-24T19:22:14Z",
+      "side": 1,
+      "message": "delete this line",
+      "revId": "821037850e48d4915723c2fc027523c66f7a5334",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
