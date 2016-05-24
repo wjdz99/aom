@@ -48,14 +48,7 @@ aomenc_can_encode_av1() {
   fi
 }
 
-# Echo aomenc command line parameters allowing use of
-# hantro_collage_w352h288.yuv as input.
-yuv_input_hantro_collage() {
-  echo ""${YUV_RAW_INPUT}"
-       --width="${YUV_RAW_INPUT_WIDTH}"
-       --height="${YUV_RAW_INPUT_HEIGHT}""
-}
-
+# Utilities that echo aomenc input file parameters.
 y4m_input_non_square_par() {
   echo ""${Y4M_NOSQ_PAR_INPUT}""
 }
