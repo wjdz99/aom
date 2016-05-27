@@ -16,6 +16,57 @@
       "revId": "dd080c0ceb5116be9abb8eb4d95d6e0ba987c687",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c0977ae_5a86687b",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-05-27T15:55:31Z",
+      "side": 1,
+      "message": "A couple things here:\n- You need to replace the shift before the aomdec call, as things are you\u0027re passing $1 as the first arg beyond the \u0027-\u0027\n- ${file} is empty when executing the else branch (pretty sure you meant \u0027local file\u0027, and not \u0027local_file\u0027)",
+      "revId": "dd080c0ceb5116be9abb8eb4d95d6e0ba987c687",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c0977ae_da9a58cd",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-05-27T15:55:31Z",
+      "side": 1,
+      "message": "please prepend DISABLED_ to this function name (disabled tests can be run via use of command line flag, but the real function name must match the DISABLED form in aomdec_tests)",
+      "revId": "dd080c0ceb5116be9abb8eb4d95d6e0ba987c687",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c0977ae_9a94e09e",
+        "filename": "test/simple_decoder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-05-27T15:55:31Z",
+      "side": 1,
+      "message": "--ivf shouldn\u0027t need quotes",
+      "revId": "dd080c0ceb5116be9abb8eb4d95d6e0ba987c687",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
