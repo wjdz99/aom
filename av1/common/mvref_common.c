@@ -10,7 +10,6 @@
  */
 #include "av1/common/mvref_common.h"
 
-#if CONFIG_REF_MV
 static uint8_t add_ref_mv_candidate(
     const MACROBLOCKD *xd, const MODE_INFO *const candidate_mi,
     const MB_MODE_INFO *const candidate, const MV_REFERENCE_FRAME rf[2],
@@ -472,7 +471,6 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
   }
 }
-#endif
 
 // This function searches the neighbourhood of a given MB/SB
 // to try and find candidate reference vectors.
@@ -627,23 +625,15 @@ Done:
 
 void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
-#if CONFIG_REF_MV
                       uint8_t *ref_mv_count, CANDIDATE_MV *ref_mv_stack,
-#endif
                       int_mv *mv_ref_list, int mi_row, int mi_col,
                       find_mv_refs_sync sync, void *const data,
                       int16_t *mode_context) {
-#if CONFIG_REF_MV
   int idx, all_zero = 1;
   if (ref_frame <= ALTREF_FRAME)
     find_mv_refs_idx(cm, xd, mi, ref_frame, mv_ref_list, -1, mi_row, mi_col,
                      sync, data, mode_context);
-#else
-  find_mv_refs_idx(cm, xd, mi, ref_frame, mv_ref_list, -1, mi_row, mi_col, sync,
-                   data, mode_context);
-#endif
 
-#if CONFIG_REF_MV
   setup_ref_mv_list(cm, xd, ref_frame, ref_mv_count, ref_mv_stack, mv_ref_list,
                     -1, mi_row, mi_col, mode_context);
 
@@ -659,7 +649,6 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 
   if (all_zero) mode_context[ref_frame] |= (1 << ALL_ZERO_FLAG_OFFSET);
-#endif
 }
 
 void av1_find_best_ref_mvs(int allow_hp, int_mv *mvlist, int_mv *nearest_mv,
@@ -681,20 +670,17 @@ void av1_append_sub8x8_mvs_for_idx(AV1_COMMON *cm, MACROBLOCKD *xd, int block,
   b_mode_info *bmi = mi->bmi;
   int n;
 
-#if CONFIG_REF_MV
   CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE];
   CANDIDATE_MV tmp_mv;
   uint8_t ref_mv_count = 0, idx;
   uint8_t above_count = 0, left_count = 0;
   MV_REFERENCE_FRAME rf[2] = { mi->mbmi.ref_frame[ref], NONE };
-#endif
 
   assert(MAX_MV_REF_CANDIDATES == 2);
 
   find_mv_refs_idx(cm, xd, mi, mi->mbmi.ref_frame[ref], mv_list, block, mi_row,
                    mi_col, NULL, NULL, NULL);
 
-#if CONFIG_REF_MV
   scan_blk_mbmi(cm, xd, mi_row, mi_col, block, rf, -1, 0, ref_mv_stack,
                 &ref_mv_count);
   above_count = ref_mv_count;
@@ -713,7 +699,6 @@ void av1_append_sub8x8_mvs_for_idx(AV1_COMMON *cm, MACROBLOCKD *xd, int block,
     mv_list[idx].as_int = ref_mv_stack[idx].this_mv.as_int;
     clamp_mv_ref(&mv_list[idx].as_mv, xd->n8_w << 3, xd->n8_h << 3, xd);
   }
-#endif
 
   near_mv->as_int = 0;
   switch (block) {

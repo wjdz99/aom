@@ -52,9 +52,7 @@ static INLINE int is_inter_mode(PREDICTION_MODE mode) {
 typedef struct {
   PREDICTION_MODE as_mode;
   int_mv as_mv[2];  // first, second inter predictor motion vectors
-#if CONFIG_REF_MV
   int_mv pred_mv[2];
-#endif
 } b_mode_info;
 
 // Note that the rate-distortion optimization loop, bit-stream writer, and
@@ -68,12 +66,7 @@ typedef struct {
 #define ALTREF_FRAME 3
 #define MAX_REF_FRAMES 4
 typedef int8_t MV_REFERENCE_FRAME;
-
-#if CONFIG_REF_MV
 #define MODE_CTX_REF_FRAMES (MAX_REF_FRAMES + (ALTREF_FRAME - LAST_FRAME))
-#else
-#define MODE_CTX_REF_FRAMES MAX_REF_FRAMES
-#endif
 
 // This structure now relates to 8x8 block regions.
 typedef struct {
@@ -96,10 +89,9 @@ typedef struct {
   MV_REFERENCE_FRAME ref_frame[2];
   TX_TYPE tx_type;
 
-#if CONFIG_REF_MV
   int_mv pred_mv[2];
   uint8_t ref_mv_idx;
-#endif
+
   // TODO(slavarnway): Delete and use bmi[3].as_mv[] instead.
   int_mv mv[2];
   /* deringing gain *per-superblock* */
@@ -208,11 +200,9 @@ typedef struct macroblockd {
   /* pointer to current frame */
   const YV12_BUFFER_CONFIG *cur_buf;
 
-#if CONFIG_REF_MV
   uint8_t ref_mv_count[MODE_CTX_REF_FRAMES];
   CANDIDATE_MV ref_mv_stack[MODE_CTX_REF_FRAMES][MAX_REF_MV_STACK_SIZE];
   uint8_t is_sec_rect;
-#endif
 
   ENTROPY_CONTEXT *above_context[MAX_MB_PLANE];
   ENTROPY_CONTEXT left_context[MAX_MB_PLANE][16];
