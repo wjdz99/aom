@@ -252,7 +252,6 @@ EXPERIMENT_LIST="
     misc_fixes
     clpf
     dering
-    ref_mv
 "
 CONFIG_LIST="
     dependency_tracking
