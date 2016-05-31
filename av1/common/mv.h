@@ -35,14 +35,12 @@ typedef struct mv32 {
   int32_t col;
 } MV32;
 
-#if CONFIG_REF_MV
 typedef struct candidate_mv {
   int_mv this_mv;
   int_mv comp_mv;
   int_mv pred_mv[2];
   int weight;
 } CANDIDATE_MV;
-#endif
 
 static INLINE int is_zero_mv(const MV *mv) {
   return *((const uint32_t *)mv) == 0;
