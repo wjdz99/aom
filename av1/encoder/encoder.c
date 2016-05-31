@@ -220,7 +220,6 @@ void av1_set_high_precision_mv(AV1_COMP *cpi, int allow_high_precision_mv) {
   MACROBLOCK *const mb = &cpi->td.mb;
   cpi->common.allow_high_precision_mv = allow_high_precision_mv;
 
-#if CONFIG_REF_MV
   if (cpi->common.allow_high_precision_mv) {
     int i;
     for (i = 0; i < NMV_CONTEXTS; ++i) {
@@ -234,15 +233,6 @@ void av1_set_high_precision_mv(AV1_COMP *cpi, int allow_high_precision_mv) {
       mb->mvsadcost = mb->nmvsadcost;
     }
   }
-#else
-  if (cpi->common.allow_high_precision_mv) {
-    mb->mvcost = mb->nmvcost_hp;
-    mb->mvsadcost = mb->nmvsadcost_hp;
-  } else {
-    mb->mvcost = mb->nmvcost;
-    mb->mvsadcost = mb->nmvsadcost;
-  }
-#endif
 }
 
 static void setup_frame(AV1_COMP *cpi) {
@@ -348,9 +338,7 @@ void av1_initialize_enc(void) {
 
 static void dealloc_compressor_data(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
-#if CONFIG_REF_MV
   int i;
-#endif
 
   aom_free(cpi->mbmi_ext_base);
   cpi->mbmi_ext_base = NULL;
@@ -364,7 +352,6 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   aom_free(cpi->coding_context.last_frame_seg_map_copy);
   cpi->coding_context.last_frame_seg_map_copy = NULL;
 
-#if CONFIG_REF_MV
   for (i = 0; i < NMV_CONTEXTS; ++i) {
     aom_free(cpi->nmv_costs[i][0]);
     aom_free(cpi->nmv_costs[i][1]);
@@ -375,7 +362,6 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
     cpi->nmv_costs_hp[i][0] = NULL;
     cpi->nmv_costs_hp[i][1] = NULL;
   }
-#endif
 
   aom_free(cpi->nmvcosts[0]);
   aom_free(cpi->nmvcosts[1]);
@@ -426,15 +412,12 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
 static void save_coding_context(AV1_COMP *cpi) {
   CODING_CONTEXT *const cc = &cpi->coding_context;
   AV1_COMMON *cm = &cpi->common;
-#if CONFIG_REF_MV
   int i;
-#endif
 
 // Stores a snapshot of key state variables which can subsequently be
 // restored with a call to av1_restore_coding_context. These functions are
 // intended for use in a re-code loop in av1_compress_frame where the
 // quantizer value is adjusted between loop iterations.
-#if CONFIG_REF_MV
   for (i = 0; i < NMV_CONTEXTS; ++i) {
     av1_copy(cc->nmv_vec_cost[i], cpi->td.mb.nmv_vec_cost[i]);
     memcpy(cc->nmv_costs[i][0], cpi->nmv_costs[i][0],
@@ -446,9 +429,6 @@ static void save_coding_context(AV1_COMP *cpi) {
     memcpy(cc->nmv_costs_hp[i][1], cpi->nmv_costs_hp[i][1],
            MV_VALS * sizeof(*cpi->nmv_costs_hp[i][1]));
   }
-#else
-  av1_copy(cc->nmvjointcost, cpi->td.mb.nmvjointcost);
-#endif
 
   memcpy(cc->nmvcosts[0], cpi->nmvcosts[0],
          MV_VALS * sizeof(*cpi->nmvcosts[0]));
@@ -475,13 +455,10 @@ static void save_coding_context(AV1_COMP *cpi) {
 static void restore_coding_context(AV1_COMP *cpi) {
   CODING_CONTEXT *const cc = &cpi->coding_context;
   AV1_COMMON *cm = &cpi->common;
-#if CONFIG_REF_MV
   int i;
-#endif
 
 // Restore key state variables to the snapshot state stored in the
 // previous call to av1_save_coding_context.
-#if CONFIG_REF_MV
   for (i = 0; i < NMV_CONTEXTS; ++i) {
     av1_copy(cpi->td.mb.nmv_vec_cost[i], cc->nmv_vec_cost[i]);
     memcpy(cpi->nmv_costs[i][0], cc->nmv_costs[i][0],
@@ -493,9 +470,6 @@ static void restore_coding_context(AV1_COMP *cpi) {
     memcpy(cpi->nmv_costs_hp[i][1], cc->nmv_costs_hp[i][1],
            MV_VALS * sizeof(*cc->nmv_costs_hp[i][1]));
   }
-#else
-  av1_copy(cpi->td.mb.nmvjointcost, cc->nmvjointcost);
-#endif
 
   memcpy(cpi->nmvcosts[0], cc->nmvcosts[0], MV_VALS * sizeof(*cc->nmvcosts[0]));
   memcpy(cpi->nmvcosts[1], cc->nmvcosts[1], MV_VALS * sizeof(*cc->nmvcosts[1]));
@@ -1387,15 +1361,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 #endif
 #define log2f(x) (log(x) / (float)M_LOG2_E)
 
-#if !CONFIG_REF_MV
-static void cal_nmvjointsadcost(int *mvjointsadcost) {
-  mvjointsadcost[0] = 600;
-  mvjointsadcost[1] = 300;
-  mvjointsadcost[2] = 300;
-  mvjointsadcost[3] = 300;
-}
-#endif
-
 static void cal_nmvsadcosts(int *mvsadcost[2]) {
   int i = 1;
 
@@ -1465,7 +1430,6 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cpi->tile_data = NULL;
 
   realloc_segmentation_maps(cpi);
-#if CONFIG_REF_MV
   for (i = 0; i < NMV_CONTEXTS; ++i) {
     CHECK_MEM_ERROR(cm, cpi->nmv_costs[i][0],
                     aom_calloc(MV_VALS, sizeof(*cpi->nmv_costs[i][0])));
@@ -1476,7 +1440,6 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
     CHECK_MEM_ERROR(cm, cpi->nmv_costs_hp[i][1],
                     aom_calloc(MV_VALS, sizeof(*cpi->nmv_costs_hp[i][1])));
   }
-#endif
 
   CHECK_MEM_ERROR(cm, cpi->nmvcosts[0],
                   aom_calloc(MV_VALS, sizeof(*cpi->nmvcosts[0])));
@@ -1553,20 +1516,12 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   cpi->first_time_stamp_ever = INT64_MAX;
 
-#if CONFIG_REF_MV
   for (i = 0; i < NMV_CONTEXTS; ++i) {
     cpi->td.mb.nmvcost[i][0] = &cpi->nmv_costs[i][0][MV_MAX];
     cpi->td.mb.nmvcost[i][1] = &cpi->nmv_costs[i][1][MV_MAX];
     cpi->td.mb.nmvcost_hp[i][0] = &cpi->nmv_costs_hp[i][0][MV_MAX];
     cpi->td.mb.nmvcost_hp[i][1] = &cpi->nmv_costs_hp[i][1][MV_MAX];
   }
-#else
-  cal_nmvjointsadcost(cpi->td.mb.nmvjointsadcost);
-  cpi->td.mb.nmvcost[0] = &cpi->nmvcosts[0][MV_MAX];
-  cpi->td.mb.nmvcost[1] = &cpi->nmvcosts[1][MV_MAX];
-  cpi->td.mb.nmvcost_hp[0] = &cpi->nmvcosts_hp[0][MV_MAX];
-  cpi->td.mb.nmvcost_hp[1] = &cpi->nmvcosts_hp[1][MV_MAX];
-#endif
 
   cpi->td.mb.nmvsadcost[0] = &cpi->nmvsadcosts[0][MV_MAX];
   cpi->td.mb.nmvsadcost[1] = &cpi->nmvsadcosts[1][MV_MAX];
