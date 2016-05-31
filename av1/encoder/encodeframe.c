@@ -915,16 +915,13 @@ static void update_state(AV1_COMP *cpi, ThreadData *td, PICK_MODE_CONTEXT *ctx,
   const int mi_width = num_8x8_blocks_wide_lookup[bsize];
   const int mi_height = num_8x8_blocks_high_lookup[bsize];
   int max_plane;
-#if CONFIG_REF_MV
   int8_t rf_type;
-#endif
 
   assert(mi->mbmi.sb_type == bsize);
 
   *mi_addr = *mi;
   *x->mbmi_ext = ctx->mbmi_ext;
 
-#if CONFIG_REF_MV
   rf_type = av1_ref_frame_type(mbmi->ref_frame);
   if (x->mbmi_ext->ref_mv_count[rf_type] > 1 && mbmi->sb_type >= BLOCK_8X8 &&
       mbmi->mode == NEWMV) {
@@ -940,7 +937,6 @@ static void update_state(AV1_COMP *cpi, ThreadData *td, PICK_MODE_CONTEXT *ctx,
       mi->mbmi.pred_mv[i] = this_mv;
     }
   }
-#endif
 
   // If segmentation in use
   if (seg->enabled) {
@@ -1038,10 +1034,8 @@ static void update_state(AV1_COMP *cpi, ThreadData *td, PICK_MODE_CONTEXT *ctx,
       mv->ref_frame[1] = mi->mbmi.ref_frame[1];
       mv->mv[0].as_int = mi->mbmi.mv[0].as_int;
       mv->mv[1].as_int = mi->mbmi.mv[1].as_int;
-#if CONFIG_REF_MV
       mv->pred_mv[0].as_int = mi->mbmi.pred_mv[0].as_int;
       mv->pred_mv[1].as_int = mi->mbmi.pred_mv[1].as_int;
-#endif
     }
   }
 }
@@ -1185,7 +1179,6 @@ static void rd_pick_sb_modes(AV1_COMP *cpi, TileDataEnc *tile_data,
   ctx->dist = rd_cost->dist;
 }
 
-#if CONFIG_REF_MV
 static void update_inter_mode_stats(FRAME_COUNTS *counts, PREDICTION_MODE mode,
                                     const int16_t mode_context) {
   int16_t mode_ctx = mode_context & NEWMV_CTX_MASK;
@@ -1213,7 +1206,6 @@ static void update_inter_mode_stats(FRAME_COUNTS *counts, PREDICTION_MODE mode,
     }
   }
 }
-#endif
 
 static void update_stats(AV1_COMMON *cm, ThreadData *td) {
   const MACROBLOCK *x = &td->mb;
@@ -1256,7 +1248,6 @@ static void update_stats(AV1_COMMON *cm, ThreadData *td) {
       int16_t mode_ctx = mbmi_ext->mode_context[mbmi->ref_frame[0]];
       if (bsize >= BLOCK_8X8) {
         const PREDICTION_MODE mode = mbmi->mode;
-#if CONFIG_REF_MV
         mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
                                              mbmi->ref_frame, bsize, -1);
         update_inter_mode_stats(counts, mode, mode_ctx);
@@ -1289,9 +1280,6 @@ static void update_stats(AV1_COMMON *cm, ThreadData *td) {
             }
           }
         }
-#else
-        ++counts->inter_mode[mode_ctx][INTER_OFFSET(mode)];
-#endif
       } else {
         const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
         const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
@@ -1300,13 +1288,9 @@ static void update_stats(AV1_COMMON *cm, ThreadData *td) {
           for (idx = 0; idx < 2; idx += num_4x4_w) {
             const int j = idy * 2 + idx;
             const PREDICTION_MODE b_mode = mi->bmi[j].as_mode;
-#if CONFIG_REF_MV
             mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
                                                  mbmi->ref_frame, bsize, j);
             update_inter_mode_stats(counts, b_mode, mode_ctx);
-#else
-            ++counts->inter_mode[mode_ctx][INTER_OFFSET(b_mode)];
-#endif
           }
         }
       }

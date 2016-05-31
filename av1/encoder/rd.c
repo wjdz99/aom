@@ -257,7 +257,6 @@ static void set_block_thresholds(const AV1_COMMON *cm, RD_OPT *rd) {
   }
 }
 
-#if CONFIG_REF_MV
 void av1_set_mvcost(MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame,
                     int ref, int ref_mv_idx) {
   MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
@@ -271,7 +270,6 @@ void av1_set_mvcost(MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame,
   x->mvsadcost = x->mvcost;
   x->nmvjointsadcost = x->nmvjointcost;
 }
-#endif
 
 void av1_initialize_rd_consts(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
@@ -305,7 +303,6 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
   fill_mode_costs(cpi);
 
   if (!frame_is_intra_only(cm)) {
-#if CONFIG_REF_MV
     int nmv_ctx;
     for (nmv_ctx = 0; nmv_ctx < NMV_CONTEXTS; ++nmv_ctx) {
       av1_build_nmv_cost_table(
@@ -318,14 +315,7 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
     x->nmvjointcost = x->nmv_vec_cost[0];
     x->mvsadcost = x->mvcost;
     x->nmvjointsadcost = x->nmvjointcost;
-#else
-    av1_build_nmv_cost_table(
-        x->nmvjointcost,
-        cm->allow_high_precision_mv ? x->nmvcost_hp : x->nmvcost, &cm->fc->nmvc,
-        cm->allow_high_precision_mv);
-#endif
 
-#if CONFIG_REF_MV
     for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i) {
       cpi->newmv_mode_cost[i][0] = av1_cost_bit(cm->fc->newmv_prob[i], 0);
       cpi->newmv_mode_cost[i][1] = av1_cost_bit(cm->fc->newmv_prob[i], 1);
@@ -344,11 +334,6 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
       cpi->drl_mode_cost[i][0] = av1_cost_bit(cm->fc->drl_prob[i], 0);
       cpi->drl_mode_cost[i][1] = av1_cost_bit(cm->fc->drl_prob[i], 1);
     }
-#else
-    for (i = 0; i < INTER_MODE_CONTEXTS; ++i)
-      av1_cost_tokens((int *)cpi->inter_mode_cost[i],
-                      cm->fc->inter_mode_probs[i], av1_inter_mode_tree);
-#endif
   }
 }
 

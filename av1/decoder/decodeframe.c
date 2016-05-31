@@ -126,7 +126,6 @@ static void read_switchable_interp_probs(FRAME_CONTEXT *fc, aom_reader *r) {
 
 static void read_inter_mode_probs(FRAME_CONTEXT *fc, aom_reader *r) {
   int i;
-#if CONFIG_REF_MV
   for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i)
     av1_diff_update_prob(r, &fc->newmv_prob[i]);
   for (i = 0; i < ZEROMV_MODE_CONTEXTS; ++i)
@@ -135,12 +134,6 @@ static void read_inter_mode_probs(FRAME_CONTEXT *fc, aom_reader *r) {
     av1_diff_update_prob(r, &fc->refmv_prob[i]);
   for (i = 0; i < DRL_MODE_CONTEXTS; ++i)
     av1_diff_update_prob(r, &fc->drl_prob[i]);
-#else
-  int j;
-  for (i = 0; i < INTER_MODE_CONTEXTS; ++i)
-    for (j = 0; j < INTER_MODES - 1; ++j)
-      av1_diff_update_prob(r, &fc->inter_mode_probs[i][j]);
-#endif
 }
 
 #if CONFIG_MISC_FIXES
@@ -2225,9 +2218,6 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
           av1_diff_update_prob(&r, &cm->kf_y_prob[k][j][i]);
 #endif
   } else {
-#if !CONFIG_REF_MV
-    nmv_context *const nmvc = &fc->nmvc;
-#endif
     read_inter_mode_probs(fc, &r);
 
     if (cm->interp_filter == SWITCHABLE) read_switchable_interp_probs(fc, &r);
@@ -2252,12 +2242,8 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
         av1_diff_update_prob(&r, &fc->partition_prob[j][i]);
 #endif
 
-#if CONFIG_REF_MV
     for (i = 0; i < NMV_CONTEXTS; ++i)
       read_mv_probs(&fc->nmvc[i], cm->allow_high_precision_mv, &r);
-#else
-    read_mv_probs(nmvc, cm->allow_high_precision_mv, &r);
-#endif
     read_ext_tx_probs(fc, &r);
   }
 
@@ -2297,14 +2283,10 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
                  sizeof(cm->counts.comp_ref)));
   assert(!memcmp(&cm->counts.tx, &zero_counts.tx, sizeof(cm->counts.tx)));
   assert(!memcmp(cm->counts.skip, zero_counts.skip, sizeof(cm->counts.skip)));
-#if CONFIG_REF_MV
   assert(
       !memcmp(&cm->counts.mv[0], &zero_counts.mv[0], sizeof(cm->counts.mv[0])));
   assert(
       !memcmp(&cm->counts.mv[1], &zero_counts.mv[1], sizeof(cm->counts.mv[0])));
-#else
-  assert(!memcmp(&cm->counts.mv, &zero_counts.mv, sizeof(cm->counts.mv)));
-#endif
   assert(!memcmp(cm->counts.intra_ext_tx, zero_counts.intra_ext_tx,
                  sizeof(cm->counts.intra_ext_tx)));
   assert(!memcmp(cm->counts.inter_ext_tx, zero_counts.inter_ext_tx,
