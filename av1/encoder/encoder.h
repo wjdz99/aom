@@ -51,11 +51,9 @@ typedef struct {
   int nmvcosts[2][MV_VALS];
   int nmvcosts_hp[2][MV_VALS];
 
-#if CONFIG_REF_MV
   int nmv_vec_cost[NMV_CONTEXTS][MV_JOINTS];
   int nmv_costs[NMV_CONTEXTS][2][MV_VALS];
   int nmv_costs_hp[NMV_CONTEXTS][2][MV_VALS];
-#endif
 
 #if !CONFIG_MISC_FIXES
   aom_prob segment_pred_probs[PREDICTION_PROBS];
@@ -338,10 +336,8 @@ typedef struct AV1_COMP {
 
   CODING_CONTEXT coding_context;
 
-#if CONFIG_REF_MV
   int *nmv_costs[NMV_CONTEXTS][2];
   int *nmv_costs_hp[NMV_CONTEXTS][2];
-#endif
 
   int *nmvcosts[2];
   int *nmvcosts_hp[2];
@@ -452,12 +448,10 @@ typedef struct AV1_COMP {
 
   search_site_config ss_cfg;
 
-#if CONFIG_REF_MV
   int newmv_mode_cost[NEWMV_MODE_CONTEXTS][2];
   int zeromv_mode_cost[ZEROMV_MODE_CONTEXTS][2];
   int refmv_mode_cost[REFMV_MODE_CONTEXTS][2];
   int drl_mode_cost[DRL_MODE_CONTEXTS][2];
-#endif
 
   int mbmode_cost[INTRA_MODES];
   unsigned int inter_mode_cost[INTER_MODE_CONTEXTS][INTER_MODES];

@@ -57,13 +57,10 @@ typedef struct frame_contexts {
   aom_prob
       switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS -
                                                          1];
-
-#if CONFIG_REF_MV
   aom_prob newmv_prob[NEWMV_MODE_CONTEXTS];
   aom_prob zeromv_prob[ZEROMV_MODE_CONTEXTS];
   aom_prob refmv_prob[REFMV_MODE_CONTEXTS];
   aom_prob drl_prob[DRL_MODE_CONTEXTS];
-#endif
 
   aom_prob inter_mode_probs[INTER_MODE_CONTEXTS][INTER_MODES - 1];
   aom_prob intra_inter_prob[INTRA_INTER_CONTEXTS];
@@ -72,11 +69,7 @@ typedef struct frame_contexts {
   aom_prob comp_ref_prob[REF_CONTEXTS];
   struct tx_probs tx_probs;
   aom_prob skip_probs[SKIP_CONTEXTS];
-#if CONFIG_REF_MV
   nmv_context nmvc[NMV_CONTEXTS];
-#else
-  nmv_context nmvc;
-#endif
 #if CONFIG_MISC_FIXES
   struct segmentation_probs seg;
 #endif
@@ -95,13 +88,10 @@ typedef struct FRAME_COUNTS {
       eob_branch[TX_SIZES][PLANE_TYPES][REF_TYPES][COEF_BANDS][COEFF_CONTEXTS];
   unsigned int
       switchable_interp[SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS];
-
-#if CONFIG_REF_MV
   unsigned int newmv_mode[NEWMV_MODE_CONTEXTS][2];
   unsigned int zeromv_mode[ZEROMV_MODE_CONTEXTS][2];
   unsigned int refmv_mode[REFMV_MODE_CONTEXTS][2];
   unsigned int drl_mode[DRL_MODE_CONTEXTS][2];
-#endif
 
   unsigned int inter_mode[INTER_MODE_CONTEXTS][INTER_MODES];
   unsigned int intra_inter[INTRA_INTER_CONTEXTS][2];
@@ -110,11 +100,7 @@ typedef struct FRAME_COUNTS {
   unsigned int comp_ref[REF_CONTEXTS][2];
   struct tx_counts tx;
   unsigned int skip[SKIP_CONTEXTS][2];
-#if CONFIG_REF_MV
   nmv_context_counts mv[NMV_CONTEXTS];
-#else
-  nmv_context_counts mv;
-#endif
 #if CONFIG_MISC_FIXES
   struct seg_counts seg;
 #endif
