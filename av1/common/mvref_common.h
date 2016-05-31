@@ -240,7 +240,6 @@ static INLINE int_mv get_sub_block_mv(const MODE_INFO *candidate, int which_mv,
              : candidate->mbmi.mv[which_mv];
 }
 
-#if CONFIG_REF_MV
 static INLINE int_mv get_sub_block_pred_mv(const MODE_INFO *candidate,
                                            int which_mv, int search_col,
                                            int block_idx) {
@@ -250,7 +249,6 @@ static INLINE int_mv get_sub_block_pred_mv(const MODE_INFO *candidate,
                    .pred_mv[which_mv]
              : candidate->mbmi.pred_mv[which_mv];
 }
-#endif
 
 // Performs mv sign inversion if indicated by the reference frame combination.
 static INLINE int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
@@ -322,7 +320,6 @@ static INLINE void lower_mv_precision(MV *mv, int allow_hp) {
   }
 }
 
-#if CONFIG_REF_MV
 static INLINE int av1_nmv_ctx(const uint8_t ref_mv_count,
                               const CANDIDATE_MV *ref_mv_stack,
                               int ref, int ref_mv_idx) {
@@ -402,14 +399,11 @@ static INLINE uint8_t av1_drl_ctx(const CANDIDATE_MV *ref_mv_stack,
   assert(0);
   return 0;
 }
-#endif
 
 typedef void (*find_mv_refs_sync)(void *const data, int mi_row);
 void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
-#if CONFIG_REF_MV
                       uint8_t *ref_mv_count, CANDIDATE_MV *ref_mv_stack,
-#endif
                       int_mv *mv_ref_list, int mi_row, int mi_col,
                       find_mv_refs_sync sync, void *const data,
                       int16_t *mode_context);
