@@ -167,7 +167,6 @@ static void write_mv_update(const aom_tree_index *tree,
 void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
                          nmv_context_counts *const nmv_counts) {
   int i, j;
-#if CONFIG_REF_MV
   int nmv_ctx = 0;
   for (nmv_ctx = 0; nmv_ctx < NMV_CONTEXTS; ++nmv_ctx) {
     nmv_context *const mvc = &cm->fc->nmvc[nmv_ctx];
@@ -205,42 +204,6 @@ void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
       }
     }
   }
-#else
-  nmv_context *const mvc = &cm->fc->nmvc;
-  nmv_context_counts *const counts = nmv_counts;
-
-  write_mv_update(av1_mv_joint_tree, mvc->joints, counts->joints, MV_JOINTS, w);
-
-  for (i = 0; i < 2; ++i) {
-    nmv_component *comp = &mvc->comps[i];
-    nmv_component_counts *comp_counts = &counts->comps[i];
-
-    update_mv(w, comp_counts->sign, &comp->sign, MV_UPDATE_PROB);
-    write_mv_update(av1_mv_class_tree, comp->classes, comp_counts->classes,
-                    MV_CLASSES, w);
-    write_mv_update(av1_mv_class0_tree, comp->class0, comp_counts->class0,
-                    CLASS0_SIZE, w);
-    for (j = 0; j < MV_OFFSET_BITS; ++j)
-      update_mv(w, comp_counts->bits[j], &comp->bits[j], MV_UPDATE_PROB);
-  }
-
-  for (i = 0; i < 2; ++i) {
-    for (j = 0; j < CLASS0_SIZE; ++j)
-      write_mv_update(av1_mv_fp_tree, mvc->comps[i].class0_fp[j],
-                      counts->comps[i].class0_fp[j], MV_FP_SIZE, w);
-
-    write_mv_update(av1_mv_fp_tree, mvc->comps[i].fp, counts->comps[i].fp,
-                    MV_FP_SIZE, w);
-  }
-
-  if (usehp) {
-    for (i = 0; i < 2; ++i) {
-      update_mv(w, counts->comps[i].class0_hp, &mvc->comps[i].class0_hp,
-                MV_UPDATE_PROB);
-      update_mv(w, counts->comps[i].hp, &mvc->comps[i].hp, MV_UPDATE_PROB);
-    }
-  }
-#endif
 }
 
 void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
@@ -279,15 +242,11 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
     const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame[i]][0].as_mv;
     const MV diff = { mvs[i].as_mv.row - ref->row,
                       mvs[i].as_mv.col - ref->col };
-#if CONFIG_REF_MV
     int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
     int nmv_ctx = av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
                               mbmi_ext->ref_mv_stack[rf_type],
                               i, mbmi->ref_mv_idx);
     nmv_context_counts *counts = &nmv_counts[nmv_ctx];
-#else
-    nmv_context_counts *counts = nmv_counts;
-#endif
     av1_inc_mv(&diff, counts, av1_use_mv_hp(ref));
   }
 }
@@ -308,20 +267,12 @@ void av1_update_mv_count(ThreadData *td) {
         const int i = idy * 2 + idx;
         if (mi->bmi[i].as_mode == NEWMV)
           inc_mvs(mbmi, mbmi_ext, mi->bmi[i].as_mv,
-#if CONFIG_REF_MV
                   td->counts->mv);
-#else
-                  &td->counts->mv);
-#endif
       }
     }
   } else {
     if (mbmi->mode == NEWMV)
       inc_mvs(mbmi, mbmi_ext, mbmi->mv,
-#if CONFIG_REF_MV
               td->counts->mv);
-#else
-              &td->counts->mv);
-#endif
   }
 }

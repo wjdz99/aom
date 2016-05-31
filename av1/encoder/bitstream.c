@@ -45,18 +45,12 @@
 static struct av1_token intra_mode_encodings[INTRA_MODES];
 static struct av1_token switchable_interp_encodings[SWITCHABLE_FILTERS];
 static struct av1_token partition_encodings[PARTITION_TYPES];
-#if !CONFIG_REF_MV
-static struct av1_token inter_mode_encodings[INTER_MODES];
-#endif
 static struct av1_token ext_tx_encodings[TX_TYPES];
 
 void av1_encode_token_init() {
   av1_tokens_from_tree(intra_mode_encodings, av1_intra_mode_tree);
   av1_tokens_from_tree(switchable_interp_encodings, av1_switchable_interp_tree);
   av1_tokens_from_tree(partition_encodings, av1_partition_tree);
-#if !CONFIG_REF_MV
-  av1_tokens_from_tree(inter_mode_encodings, av1_inter_mode_tree);
-#endif
   av1_tokens_from_tree(ext_tx_encodings, av1_ext_tx_tree);
 }
 
@@ -67,7 +61,6 @@ static void write_intra_mode(aom_writer *w, PREDICTION_MODE mode,
 
 static void write_inter_mode(AV1_COMMON *cm, aom_writer *w,
                              PREDICTION_MODE mode, const int16_t mode_ctx) {
-#if CONFIG_REF_MV
   const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
   const aom_prob newmv_prob = cm->fc->newmv_prob[newmv_ctx];
   aom_write(w, mode != NEWMV, newmv_prob);
@@ -94,15 +87,8 @@ static void write_inter_mode(AV1_COMMON *cm, aom_writer *w,
       aom_write(w, mode != NEARESTMV, refmv_prob);
     }
   }
-#else
-  const aom_prob *const inter_probs = cm->fc->inter_mode_probs[mode_ctx];
-  assert(is_inter_mode(mode));
-  av1_write_token(w, av1_inter_mode_tree, inter_probs,
-                  &inter_mode_encodings[INTER_OFFSET(mode)]);
-#endif
 }
 
-#if CONFIG_REF_MV
 static void write_drl_idx(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
                           const MB_MODE_INFO_EXT *mbmi_ext, aom_writer *w) {
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
@@ -140,7 +126,6 @@ static void write_drl_idx(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
     return;
   }
 }
-#endif
 
 static void encode_unsigned_max(struct aom_write_bit_buffer *wb, int data,
                                 int max) {
@@ -194,7 +179,6 @@ static void write_selected_tx_size(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
-#if CONFIG_REF_MV
 static void update_inter_mode_probs(AV1_COMMON *cm, aom_writer *w,
                                     FRAME_COUNTS *counts) {
   int i;
@@ -208,7 +192,6 @@ static void update_inter_mode_probs(AV1_COMMON *cm, aom_writer *w,
   for (i = 0; i < DRL_MODE_CONTEXTS; ++i)
     av1_cond_prob_diff_update(w, &cm->fc->drl_prob[i], counts->drl_mode[i]);
 }
-#endif
 
 static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       int segment_id, const MODE_INFO *mi, aom_writer *w) {
@@ -408,9 +391,6 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
                                 aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
-#if !CONFIG_REF_MV
-  const nmv_context *nmvc = &cm->fc->nmvc;
-#endif
   const MACROBLOCK *const x = &cpi->td.mb;
   const MACROBLOCKD *const xd = &x->e_mbd;
   const struct segmentation *const seg = &cm->seg;
@@ -468,20 +448,15 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
   } else {
     int16_t mode_ctx = mbmi_ext->mode_context[mbmi->ref_frame[0]];
     write_ref_frames(cm, xd, w);
-
-#if CONFIG_REF_MV
     mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
                                          mbmi->ref_frame, bsize, -1);
-#endif
 
     // If segment skip is not enabled code the mode.
     if (!segfeature_active(seg, segment_id, SEG_LVL_SKIP)) {
       if (bsize >= BLOCK_8X8) {
         write_inter_mode(cm, w, mode, mode_ctx);
-#if CONFIG_REF_MV
         if (mode == NEARMV || mode == NEWMV)
           write_drl_idx(cm, mbmi, mbmi_ext, w);
-#endif
       }
     }
 
@@ -503,21 +478,17 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
         for (idx = 0; idx < 2; idx += num_4x4_w) {
           const int j = idy * 2 + idx;
           const PREDICTION_MODE b_mode = mi->bmi[j].as_mode;
-#if CONFIG_REF_MV
           mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
                                                mbmi->ref_frame, bsize, j);
-#endif
           write_inter_mode(cm, w, b_mode, mode_ctx);
           if (b_mode == NEWMV) {
             for (ref = 0; ref < 1 + is_compound; ++ref) {
-#if CONFIG_REF_MV
               int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
               int nmv_ctx =
                   av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
                               mbmi_ext->ref_mv_stack[rf_type],
                               ref, mbmi->ref_mv_idx);
               const nmv_context *nmvc = &cm->fc->nmvc[nmv_ctx];
-#endif
               av1_encode_mv(cpi, w, &mi->bmi[j].as_mv[ref].as_mv,
                             &mbmi_ext->ref_mvs[mbmi->ref_frame[ref]][0].as_mv,
                             nmvc, allow_hp);
@@ -529,14 +500,12 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
       if (mode == NEWMV) {
         int_mv ref_mv;
         for (ref = 0; ref < 1 + is_compound; ++ref) {
-#if CONFIG_REF_MV
           int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
           int nmv_ctx =
               av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
                           mbmi_ext->ref_mv_stack[rf_type],
                           ref, mbmi->ref_mv_idx);
           const nmv_context *nmvc = &cm->fc->nmvc[nmv_ctx];
-#endif
           ref_mv = mbmi_ext->ref_mvs[mbmi->ref_frame[ref]][0];
           av1_encode_mv(cpi, w, &mbmi->mv[ref].as_mv, &ref_mv.as_mv, nmvc,
                         allow_hp);
@@ -1522,13 +1491,7 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                          counts->kf_y_mode[i][j], INTRA_MODES, &header_bc);
 #endif
   } else {
-#if CONFIG_REF_MV
     update_inter_mode_probs(cm, &header_bc, counts);
-#else
-    for (i = 0; i < INTER_MODE_CONTEXTS; ++i)
-      prob_diff_update(av1_inter_mode_tree, cm->fc->inter_mode_probs[i],
-                       counts->inter_mode[i], INTER_MODES, &header_bc);
-#endif
     if (cm->interp_filter == SWITCHABLE)
       update_switchable_interp_probs(cm, &header_bc, counts);
 
@@ -1582,11 +1545,7 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #endif
 
     av1_write_nmv_probs(cm, cm->allow_high_precision_mv, &header_bc,
-#if CONFIG_REF_MV
                         counts->mv);
-#else
-                        &counts->mv);
-#endif
     update_ext_tx_probs(cm, &header_bc);
   }
 
