@@ -179,52 +179,52 @@ static void set_good_speed_feature(AV1_COMP *cpi, AV1_COMMON *cm,
     sf->allow_partition_search_skip = 1;
   }
 
-  if (speed >= 3) {
-    sf->use_square_partition_only = !frame_is_intra_only(cm);
-    sf->tx_size_search_method =
-        frame_is_intra_only(cm) ? USE_FULL_RD : USE_LARGESTALL;
-    sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
-    sf->adaptive_pred_interp_filter = 0;
-    sf->adaptive_mode_search = 1;
-    sf->cb_partition_search = !boosted;
-    sf->cb_pred_filter_search = 1;
-    sf->alt_ref_search_fp = 1;
-    sf->recode_loop = ALLOW_RECODE_KFMAXBW;
-    sf->adaptive_rd_thresh = 3;
-    sf->mode_skip_start = 6;
-    sf->intra_y_mode_mask[TX_32X32] = INTRA_DC;
-    sf->intra_uv_mode_mask[TX_32X32] = INTRA_DC;
-    sf->adaptive_interp_filter_search = 1;
-  }
+//  if (speed >= 3) {
+//    sf->use_square_partition_only = !frame_is_intra_only(cm);
+//    sf->tx_size_search_method =
+//        frame_is_intra_only(cm) ? USE_FULL_RD : USE_LARGESTALL;
+//    sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
+//    sf->adaptive_pred_interp_filter = 0;
+//    sf->adaptive_mode_search = 1;
+//    sf->cb_partition_search = !boosted;
+//    sf->cb_pred_filter_search = 1;
+//    sf->alt_ref_search_fp = 1;
+//    sf->recode_loop = ALLOW_RECODE_KFMAXBW;
+//    sf->adaptive_rd_thresh = 3;
+//    sf->mode_skip_start = 6;
+//    sf->intra_y_mode_mask[TX_32X32] = INTRA_DC;
+//    sf->intra_uv_mode_mask[TX_32X32] = INTRA_DC;
+//    sf->adaptive_interp_filter_search = 1;
+//  }
 
-  if (speed >= 4) {
-    sf->use_square_partition_only = 1;
-    sf->tx_size_search_method = USE_LARGESTALL;
-    sf->mv.search_method = BIGDIA;
-    sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
-    sf->adaptive_rd_thresh = 4;
-    if (cm->frame_type != KEY_FRAME)
-      sf->mode_search_skip_flags |= FLAG_EARLY_TERMINATE;
-    sf->disable_filter_search_var_thresh = 200;
-    sf->use_lp32x32fdct = 1;
-    sf->use_fast_coef_updates = ONE_LOOP_REDUCED;
-    sf->use_fast_coef_costing = 1;
-    sf->partition_search_breakout_rate_thr = 300;
-  }
+//  if (speed >= 4) {
+//    sf->use_square_partition_only = 1;
+//    sf->tx_size_search_method = USE_LARGESTALL;
+//    sf->mv.search_method = BIGDIA;
+//    sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
+//    sf->adaptive_rd_thresh = 4;
+//    if (cm->frame_type != KEY_FRAME)
+//      sf->mode_search_skip_flags |= FLAG_EARLY_TERMINATE;
+//    sf->disable_filter_search_var_thresh = 200;
+//    sf->use_lp32x32fdct = 1;
+//    sf->use_fast_coef_updates = ONE_LOOP_REDUCED;
+//    sf->use_fast_coef_costing = 1;
+//    sf->partition_search_breakout_rate_thr = 300;
+//  }
 
-  if (speed >= 5) {
-    int i;
-    sf->optimize_coefficients = 0;
-    sf->mv.search_method = HEX;
-    sf->disable_filter_search_var_thresh = 500;
-    for (i = 0; i < TX_SIZES; ++i) {
-      sf->intra_y_mode_mask[i] = INTRA_DC;
-      sf->intra_uv_mode_mask[i] = INTRA_DC;
-    }
-    sf->partition_search_breakout_rate_thr = 500;
-    sf->mv.reduce_first_step_size = 1;
-    sf->simple_model_rd_from_var = 1;
-  }
+//  if (speed >= 5) {
+//    int i;
+//    sf->optimize_coefficients = 0;
+//    sf->mv.search_method = HEX;
+//    sf->disable_filter_search_var_thresh = 500;
+//    for (i = 0; i < TX_SIZES; ++i) {
+//      sf->intra_y_mode_mask[i] = INTRA_DC;
+//      sf->intra_uv_mode_mask[i] = INTRA_DC;
+//    }
+//    sf->partition_search_breakout_rate_thr = 500;
+//    sf->mv.reduce_first_step_size = 1;
+//    sf->simple_model_rd_from_var = 1;
+//  }
 }
 
 static void set_rt_speed_feature_framesize_dependent(AV1_COMP *cpi,

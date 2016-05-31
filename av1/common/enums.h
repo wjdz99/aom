@@ -131,7 +131,6 @@ typedef uint8_t PREDICTION_MODE;
 
 #define SKIP_CONTEXTS 3
 
-#if CONFIG_REF_MV
 #define NMV_CONTEXTS 3
 
 #define NEWMV_MODE_CONTEXTS 7
@@ -150,17 +149,14 @@ typedef uint8_t PREDICTION_MODE;
 #define SKIP_NEARESTMV_OFFSET 9
 #define SKIP_NEARMV_OFFSET 10
 #define SKIP_NEARESTMV_SUB8X8_OFFSET 11
-#endif
 
 #define INTER_MODE_CONTEXTS 7
 
 /* Segment Feature Masks */
 #define MAX_MV_REF_CANDIDATES 2
 
-#if CONFIG_REF_MV
 #define MAX_REF_MV_STACK_SIZE 16
 #define REF_CAT_LEVEL 160
-#endif
 
 #define INTRA_INTER_CONTEXTS 4
 #define COMP_INTER_CONTEXTS 5
