@@ -21,7 +21,7 @@
 
 #define SAVE_STATUS(ctx, var) (ctx ? (ctx->err = var) : var)
 
-int aom_codec_version(void) { return VERSION_PACKED; }
+int64_t aom_codec_version(void) { return VERSION_PACKED; }
 
 const char *aom_codec_version_str(void) { return VERSION_STRING_NOSP; }
 

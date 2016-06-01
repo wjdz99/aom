@@ -235,7 +235,7 @@ typedef enum aom_bit_depth {
  * in the future.
  *
  */
-int aom_codec_version(void);
+int64_t aom_codec_version(void);
 #define AOM_VERSION_MAJOR(v) \
   ((v >> 16) & 0xff) /**< extract major from packed version */
 #define AOM_VERSION_MINOR(v) \
