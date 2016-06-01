@@ -16,6 +16,24 @@
       "revId": "f5230cf6691ce78877ed3a5eddfc0e92371ab64a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9936a1dd_86341aea",
+        "filename": "aom/src/aom_codec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2016-06-01T19:36:59Z",
+      "side": 1,
+      "message": "need 40 bits here",
+      "parentUuid": "9936a1dd_66bed671",
+      "revId": "f5230cf6691ce78877ed3a5eddfc0e92371ab64a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
