@@ -52,6 +52,24 @@
       "revId": "f5230cf6691ce78877ed3a5eddfc0e92371ab64a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "799bad8d_616cf688",
+        "filename": "aom/src/aom_codec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-06-02T00:45:01Z",
+      "side": 1,
+      "message": "actually that would only be in config.mk and part of the string define. what does your aom_version.h look like and where are you seeing the warning?",
+      "parentUuid": "9936a1dd_81d88438",
+      "revId": "f5230cf6691ce78877ed3a5eddfc0e92371ab64a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
