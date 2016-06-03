@@ -245,7 +245,7 @@ void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
 
 void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
                    const nmv_context *mvctx, int usehp) {
-  const MV diff = { mv->row - ref->row, mv->col - ref->col };
+  const MV diff = {mv->row - ref->row, mv->col - ref->col};
   const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
   usehp = usehp && av1_use_mv_hp(ref);
 
@@ -277,8 +277,7 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
 
   for (i = 0; i < 1 + has_second_ref(mbmi); ++i) {
     const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame[i]][0].as_mv;
-    const MV diff = { mvs[i].as_mv.row - ref->row,
-                      mvs[i].as_mv.col - ref->col };
+    const MV diff = {mvs[i].as_mv.row - ref->row, mvs[i].as_mv.col - ref->col};
 #if CONFIG_REF_MV
     int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
     int nmv_ctx =

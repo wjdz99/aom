@@ -20,8 +20,8 @@
 #include "av1/common/reconinter.h"
 #include "av1/common/seg_common.h"
 
-#include "av1/decoder/decodemv.h"
 #include "av1/decoder/decodeframe.h"
+#include "av1/decoder/decodemv.h"
 
 #include "aom_dsp/aom_dsp_common.h"
 
@@ -413,7 +413,7 @@ static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
   const MV_JOINT_TYPE joint_type =
       (MV_JOINT_TYPE)aom_read_tree(r, av1_mv_joint_tree, ctx->joints);
   const int use_hp = allow_hp && av1_use_mv_hp(ref);
-  MV diff = { 0, 0 };
+  MV diff = {0, 0};
 
   if (mv_joint_vertical(joint_type))
     diff.row = read_mv_component(r, &ctx->comps[0], use_hp);

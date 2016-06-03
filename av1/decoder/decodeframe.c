@@ -12,14 +12,14 @@
 #include <assert.h>
 #include <stdlib.h>  // qsort()
 
-#include "./av1_rtcd.h"
+#include "./aom_config.h"
 #include "./aom_dsp_rtcd.h"
 #include "./aom_scale_rtcd.h"
-#include "./aom_config.h"
+#include "./av1_rtcd.h"
 
-#include "aom_dsp/bitreader_buffer.h"
-#include "aom_dsp/bitreader.h"
 #include "aom_dsp/aom_dsp_common.h"
+#include "aom_dsp/bitreader.h"
+#include "aom_dsp/bitreader_buffer.h"
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem.h"
 #include "aom_ports/mem_ops.h"
@@ -37,18 +37,18 @@
 #include "av1/common/entropy.h"
 #include "av1/common/entropymode.h"
 #include "av1/common/idct.h"
-#include "av1/common/thread_common.h"
 #include "av1/common/pred_common.h"
 #include "av1/common/quant_common.h"
-#include "av1/common/reconintra.h"
 #include "av1/common/reconinter.h"
+#include "av1/common/reconintra.h"
 #include "av1/common/seg_common.h"
+#include "av1/common/thread_common.h"
 #include "av1/common/tile_common.h"
 
 #include "av1/decoder/decodeframe.h"
-#include "av1/decoder/detokenize.h"
 #include "av1/decoder/decodemv.h"
 #include "av1/decoder/decoder.h"
+#include "av1/decoder/detokenize.h"
 #include "av1/decoder/dsubexp.h"
 
 #define MAX_AV1_HEADER_SIZE 80
@@ -252,7 +252,9 @@ static void inverse_transform_block_inter(MACROBLOCKD *xd, int plane,
           av1_highbd_inv_txfm_add_32x32(dqcoeff, dst, stride, eob, xd->bd,
                                         tx_type);
           break;
-        default: assert(0 && "Invalid transform size"); return;
+        default:
+          assert(0 && "Invalid transform size");
+          return;
       }
     } else {
 #endif  // CONFIG_AOM_HIGHBITDEPTH
@@ -270,7 +272,9 @@ static void inverse_transform_block_inter(MACROBLOCKD *xd, int plane,
         case TX_32X32:
           av1_inv_txfm_add_32x32(dqcoeff, dst, stride, eob, tx_type);
           break;
-        default: assert(0 && "Invalid transform size"); return;
+        default:
+          assert(0 && "Invalid transform size");
+          return;
       }
 #if CONFIG_AOM_HIGHBITDEPTH
     }
@@ -316,7 +320,9 @@ static void inverse_transform_block_intra(MACROBLOCKD *xd, int plane,
           av1_highbd_inv_txfm_add_32x32(dqcoeff, dst, stride, eob, xd->bd,
                                         tx_type);
           break;
-        default: assert(0 && "Invalid transform size"); return;
+        default:
+          assert(0 && "Invalid transform size");
+          return;
       }
     } else {
 #endif  // CONFIG_AOM_HIGHBITDEPTH
@@ -334,7 +340,9 @@ static void inverse_transform_block_intra(MACROBLOCKD *xd, int plane,
         case TX_32X32:
           av1_inv_txfm_add_32x32(dqcoeff, dst, stride, eob, tx_type);
           break;
-        default: assert(0 && "Invalid transform size"); return;
+        default:
+          assert(0 && "Invalid transform size");
+          return;
       }
 #if CONFIG_AOM_HIGHBITDEPTH
     }
@@ -861,8 +869,9 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                              : xd->mb_to_right_edge >> (5 + pd->subsampling_x));
         const int max_blocks_high =
             num_4x4_h +
-            (xd->mb_to_bottom_edge >= 0 ? 0 : xd->mb_to_bottom_edge >>
-                                                  (5 + pd->subsampling_y));
+            (xd->mb_to_bottom_edge >= 0
+                 ? 0
+                 : xd->mb_to_bottom_edge >> (5 + pd->subsampling_y));
 
         for (row = 0; row < max_blocks_high; row += step)
           for (col = 0; col < max_blocks_wide; col += step)
@@ -975,7 +984,8 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
         decode_partition(pbi, xd, mi_row + hbs, mi_col + hbs, r, subsize,
                          n8x8_l2);
         break;
-      default: assert(0 && "Invalid partition type");
+      default:
+        assert(0 && "Invalid partition type");
     }
   }
 
@@ -1434,10 +1444,14 @@ typedef struct TileBuffer {
 
 static int mem_get_varsize(const uint8_t *data, const int mag) {
   switch (mag) {
-    case 0: return data[0];
-    case 1: return mem_get_le16(data);
-    case 2: return mem_get_le24(data);
-    case 3: return mem_get_le32(data);
+    case 0:
+      return data[0];
+    case 1:
+      return mem_get_le16(data);
+    case 2:
+      return mem_get_le24(data);
+    case 3:
+      return mem_get_le32(data);
   }
 
   assert("Invalid tile size marker value" && 0);
@@ -1982,9 +1996,8 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
       }
 #else
       static const RESET_FRAME_CONTEXT_MODE reset_frame_context_conv_tbl[4] = {
-        RESET_FRAME_CONTEXT_NONE, RESET_FRAME_CONTEXT_NONE,
-        RESET_FRAME_CONTEXT_CURRENT, RESET_FRAME_CONTEXT_ALL
-      };
+          RESET_FRAME_CONTEXT_NONE, RESET_FRAME_CONTEXT_NONE,
+          RESET_FRAME_CONTEXT_CURRENT, RESET_FRAME_CONTEXT_ALL};
 
       cm->reset_frame_context =
           reset_frame_context_conv_tbl[aom_rb_read_literal(rb, 2)];

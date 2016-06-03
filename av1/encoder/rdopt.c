@@ -12,8 +12,8 @@
 #include <assert.h>
 #include <math.h>
 
-#include "./av1_rtcd.h"
 #include "./aom_dsp_rtcd.h"
+#include "./av1_rtcd.h"
 
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_mem/aom_mem.h"
@@ -32,6 +32,7 @@
 #include "av1/common/scan.h"
 #include "av1/common/seg_common.h"
 
+#include "av1/encoder/aq_variance.h"
 #include "av1/encoder/cost.h"
 #include "av1/encoder/encodemb.h"
 #include "av1/encoder/encodemv.h"
@@ -41,7 +42,6 @@
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
-#include "av1/encoder/aq_variance.h"
 
 #define LAST_FRAME_MODE_MASK \
   ((1 << GOLDEN_FRAME) | (1 << ALTREF_FRAME) | (1 << INTRA_FRAME))
@@ -81,51 +81,51 @@ struct rdcost_block_args {
 
 #define LAST_NEW_MV_INDEX 6
 static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
-  { NEARESTMV, { LAST_FRAME, NONE } },
-  { NEARESTMV, { ALTREF_FRAME, NONE } },
-  { NEARESTMV, { GOLDEN_FRAME, NONE } },
+    {NEARESTMV, {LAST_FRAME, NONE}},
+    {NEARESTMV, {ALTREF_FRAME, NONE}},
+    {NEARESTMV, {GOLDEN_FRAME, NONE}},
 
-  { DC_PRED, { INTRA_FRAME, NONE } },
+    {DC_PRED, {INTRA_FRAME, NONE}},
 
-  { NEWMV, { LAST_FRAME, NONE } },
-  { NEWMV, { ALTREF_FRAME, NONE } },
-  { NEWMV, { GOLDEN_FRAME, NONE } },
+    {NEWMV, {LAST_FRAME, NONE}},
+    {NEWMV, {ALTREF_FRAME, NONE}},
+    {NEWMV, {GOLDEN_FRAME, NONE}},
 
-  { NEARMV, { LAST_FRAME, NONE } },
-  { NEARMV, { ALTREF_FRAME, NONE } },
-  { NEARMV, { GOLDEN_FRAME, NONE } },
+    {NEARMV, {LAST_FRAME, NONE}},
+    {NEARMV, {ALTREF_FRAME, NONE}},
+    {NEARMV, {GOLDEN_FRAME, NONE}},
 
-  { ZEROMV, { LAST_FRAME, NONE } },
-  { ZEROMV, { GOLDEN_FRAME, NONE } },
-  { ZEROMV, { ALTREF_FRAME, NONE } },
+    {ZEROMV, {LAST_FRAME, NONE}},
+    {ZEROMV, {GOLDEN_FRAME, NONE}},
+    {ZEROMV, {ALTREF_FRAME, NONE}},
 
-  { NEARESTMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEARESTMV, { GOLDEN_FRAME, ALTREF_FRAME } },
+    {NEARESTMV, {LAST_FRAME, ALTREF_FRAME}},
+    {NEARESTMV, {GOLDEN_FRAME, ALTREF_FRAME}},
 
-  { TM_PRED, { INTRA_FRAME, NONE } },
+    {TM_PRED, {INTRA_FRAME, NONE}},
 
-  { NEARMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEWMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEARMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEWMV, { GOLDEN_FRAME, ALTREF_FRAME } },
+    {NEARMV, {LAST_FRAME, ALTREF_FRAME}},
+    {NEWMV, {LAST_FRAME, ALTREF_FRAME}},
+    {NEARMV, {GOLDEN_FRAME, ALTREF_FRAME}},
+    {NEWMV, {GOLDEN_FRAME, ALTREF_FRAME}},
 
-  { ZEROMV, { LAST_FRAME, ALTREF_FRAME } },
-  { ZEROMV, { GOLDEN_FRAME, ALTREF_FRAME } },
+    {ZEROMV, {LAST_FRAME, ALTREF_FRAME}},
+    {ZEROMV, {GOLDEN_FRAME, ALTREF_FRAME}},
 
-  { H_PRED, { INTRA_FRAME, NONE } },
-  { V_PRED, { INTRA_FRAME, NONE } },
-  { D135_PRED, { INTRA_FRAME, NONE } },
-  { D207_PRED, { INTRA_FRAME, NONE } },
-  { D153_PRED, { INTRA_FRAME, NONE } },
-  { D63_PRED, { INTRA_FRAME, NONE } },
-  { D117_PRED, { INTRA_FRAME, NONE } },
-  { D45_PRED, { INTRA_FRAME, NONE } },
+    {H_PRED, {INTRA_FRAME, NONE}},
+    {V_PRED, {INTRA_FRAME, NONE}},
+    {D135_PRED, {INTRA_FRAME, NONE}},
+    {D207_PRED, {INTRA_FRAME, NONE}},
+    {D153_PRED, {INTRA_FRAME, NONE}},
+    {D63_PRED, {INTRA_FRAME, NONE}},
+    {D117_PRED, {INTRA_FRAME, NONE}},
+    {D45_PRED, {INTRA_FRAME, NONE}},
 };
 
 static const REF_DEFINITION av1_ref_order[MAX_REFS] = {
-  { { LAST_FRAME, NONE } },           { { GOLDEN_FRAME, NONE } },
-  { { ALTREF_FRAME, NONE } },         { { LAST_FRAME, ALTREF_FRAME } },
-  { { GOLDEN_FRAME, ALTREF_FRAME } }, { { INTRA_FRAME, NONE } },
+    {{LAST_FRAME, NONE}},           {{GOLDEN_FRAME, NONE}},
+    {{ALTREF_FRAME, NONE}},         {{LAST_FRAME, ALTREF_FRAME}},
+    {{GOLDEN_FRAME, ALTREF_FRAME}}, {{INTRA_FRAME, NONE}},
 };
 
 static void swap_block_ptr(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx, int m, int n,
@@ -321,10 +321,10 @@ int64_t av1_highbd_block_error_c(const tran_low_t *coeff,
  * 16th coefficient in a 4x4 block or the 64th coefficient in a 8x8 block,
  * were non-zero). */
 static const int16_t band_counts[TX_SIZES][8] = {
-  { 1, 2, 3, 4, 3, 16 - 13, 0 },
-  { 1, 2, 3, 4, 11, 64 - 21, 0 },
-  { 1, 2, 3, 4, 11, 256 - 21, 0 },
-  { 1, 2, 3, 4, 11, 1024 - 21, 0 },
+    {1, 2, 3, 4, 3, 16 - 13, 0},
+    {1, 2, 3, 4, 11, 64 - 21, 0},
+    {1, 2, 3, 4, 11, 256 - 21, 0},
+    {1, 2, 3, 4, 11, 1024 - 21, 0},
 };
 static int cost_coeffs(MACROBLOCK *x, int plane, int block, ENTROPY_CONTEXT *A,
                        ENTROPY_CONTEXT *L, TX_SIZE tx_size, const int16_t *scan,
@@ -453,7 +453,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   if (args->exit_early) return;
 
   if (!is_inter_block(mbmi)) {
-    struct encode_b_args arg = { x, NULL, &mbmi->skip };
+    struct encode_b_args arg = {x, NULL, &mbmi->skip};
     av1_encode_block_intra(plane, block, blk_row, blk_col, plane_bsize, tx_size,
                            &arg);
     dist_block(x, plane, block, tx_size, &dist, &sse);
@@ -613,9 +613,10 @@ static void choose_largest_tx_size(AV1_COMP *cpi, MACROBLOCK *x, int *rate,
     if (is_inter)
       *rate += cpi->inter_tx_type_costs[mbmi->tx_size][mbmi->tx_type];
     else
-      *rate += cpi->intra_tx_type_costs
-                   [mbmi->tx_size][intra_mode_to_tx_type_context[mbmi->mode]]
-                   [mbmi->tx_type];
+      *rate +=
+          cpi->intra_tx_type_costs[mbmi->tx_size]
+                                  [intra_mode_to_tx_type_context[mbmi->mode]]
+                                  [mbmi->tx_type];
   }
 }
 
@@ -1317,7 +1318,8 @@ static int set_and_cost_bmi_mvs(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
       this_mv[0].as_int = 0;
       if (is_compound) this_mv[1].as_int = 0;
       break;
-    default: break;
+    default:
+      break;
   }
 
   mic->bmi[i].as_mv[0].as_int = this_mv[0].as_int;
@@ -1561,8 +1563,8 @@ static void joint_motion_search(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   const int ph = 4 * num_4x4_blocks_high_lookup[bsize];
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  const int refs[2] = { mbmi->ref_frame[0],
-                        mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1] };
+  const int refs[2] = {mbmi->ref_frame[0],
+                       mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]};
   int_mv ref_mv[2];
   int ite, ref;
   const InterpKernel *kernel = av1_filter_kernels[mbmi->interp_filter];
@@ -1570,11 +1572,10 @@ static void joint_motion_search(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
 
   // Do joint motion search in compound mode to get more accurate mv.
   struct buf_2d backup_yv12[2][MAX_MB_PLANE];
-  int last_besterr[2] = { INT_MAX, INT_MAX };
+  int last_besterr[2] = {INT_MAX, INT_MAX};
   const YV12_BUFFER_CONFIG *const scaled_ref_frame[2] = {
-    av1_get_scaled_ref_frame(cpi, mbmi->ref_frame[0]),
-    av1_get_scaled_ref_frame(cpi, mbmi->ref_frame[1])
-  };
+      av1_get_scaled_ref_frame(cpi, mbmi->ref_frame[0]),
+      av1_get_scaled_ref_frame(cpi, mbmi->ref_frame[1])};
 
 // Prediction buffer from second frame.
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -2184,7 +2185,7 @@ static void single_motion_search(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   MACROBLOCKD *xd = &x->e_mbd;
   const AV1_COMMON *cm = &cpi->common;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  struct buf_2d backup_yv12[MAX_MB_PLANE] = { { 0, 0 } };
+  struct buf_2d backup_yv12[MAX_MB_PLANE] = {{0, 0}};
   int bestsme = INT_MAX;
   int step_param;
   int sadpb = x->sadperbit16;
@@ -2359,8 +2360,8 @@ static int64_t handle_inter_mode(
   const int this_mode = mbmi->mode;
   int_mv *frame_mv = mode_mv[this_mode];
   int i;
-  int refs[2] = { mbmi->ref_frame[0],
-                  (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]) };
+  int refs[2] = {mbmi->ref_frame[0],
+                 (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1])};
   int_mv cur_mv[2];
 #if CONFIG_AOM_HIGHBITDEPTH
   DECLARE_ALIGNED(16, uint16_t, tmp_buf16[MAX_MB_PLANE * 64 * 64]);
@@ -2376,8 +2377,8 @@ static int64_t handle_inter_mode(
   int orig_dst_stride[MAX_MB_PLANE];
   int rs = 0;
   InterpFilter best_filter = SWITCHABLE;
-  uint8_t skip_txfm[MAX_MB_PLANE << 2] = { 0 };
-  int64_t bsse[MAX_MB_PLANE << 2] = { 0 };
+  uint8_t skip_txfm[MAX_MB_PLANE << 2] = {0};
+  int64_t bsse[MAX_MB_PLANE << 2] = {0};
 
   int bsl = mi_width_log2_lookup[bsize];
   int pred_filter_search =
@@ -2926,11 +2927,11 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int comp_pred, i, k;
   int_mv frame_mv[MB_MODE_COUNT][MAX_REF_FRAMES];
   struct buf_2d yv12_mb[4][MAX_MB_PLANE];
-  int_mv single_newmv[MAX_REF_FRAMES] = { { 0 } };
+  int_mv single_newmv[MAX_REF_FRAMES] = {{0}};
   InterpFilter single_inter_filter[MB_MODE_COUNT][MAX_REF_FRAMES];
   int single_skippable[MB_MODE_COUNT][MAX_REF_FRAMES];
-  static const int flag_list[4] = { 0, AOM_LAST_FLAG, AOM_GOLD_FLAG,
-                                    AOM_ALT_FLAG };
+  static const int flag_list[4] = {0, AOM_LAST_FLAG, AOM_GOLD_FLAG,
+                                   AOM_ALT_FLAG};
   int64_t best_rd = best_rd_so_far;
   int64_t best_pred_diff[REFERENCE_MODES];
   int64_t best_pred_rd[REFERENCE_MODES];
@@ -2955,8 +2956,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   const int intra_cost_penalty = av1_get_intra_cost_penalty(
       cm->base_qindex, cm->y_dc_delta_q, cm->bit_depth);
   int best_skip2 = 0;
-  uint8_t ref_frame_skip_mask[2] = { 0 };
-  uint16_t mode_skip_mask[MAX_REF_FRAMES] = { 0 };
+  uint8_t ref_frame_skip_mask[2] = {0};
+  uint16_t mode_skip_mask[MAX_REF_FRAMES] = {0};
   int mode_skip_start = sf->mode_skip_start + 1;
   const int *const rd_threshes = rd_opt->threshes[segment_id][bsize];
   const int *const rd_thresh_freq_fact = tile_data->thresh_freq_fact[bsize];
@@ -3137,7 +3138,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     // skip mask to look at a subset of the remaining modes.
     if (midx == mode_skip_start && best_mode_index >= 0) {
       switch (best_mbmode.ref_frame[0]) {
-        case INTRA_FRAME: break;
+        case INTRA_FRAME:
+          break;
         case LAST_FRAME:
           ref_frame_skip_mask[0] |= LAST_FRAME_MODE_MASK;
           ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
@@ -3146,9 +3148,13 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
           ref_frame_skip_mask[0] |= GOLDEN_FRAME_MODE_MASK;
           ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
           break;
-        case ALTREF_FRAME: ref_frame_skip_mask[0] |= ALT_REF_MODE_MASK; break;
+        case ALTREF_FRAME:
+          ref_frame_skip_mask[0] |= ALT_REF_MODE_MASK;
+          break;
         case NONE:
-        case MAX_REF_FRAMES: assert(0 && "Invalid Reference frame"); break;
+        case MAX_REF_FRAMES:
+          assert(0 && "Invalid Reference frame");
+          break;
       }
     }
 
@@ -3210,7 +3216,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         }
       }
     } else {
-      const MV_REFERENCE_FRAME ref_frames[2] = { ref_frame, second_ref_frame };
+      const MV_REFERENCE_FRAME ref_frames[2] = {ref_frame, second_ref_frame};
       if (!check_best_zero_mv(cpi, mbmi_ext->mode_context, frame_mv, this_mode,
                               ref_frames, bsize, -1))
         continue;
@@ -3357,11 +3363,11 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
           if (!mv_check_bounds(x, &cur_mv.as_mv)) {
             int64_t dummy_filter_cache[SWITCHABLE_FILTER_CONTEXTS];
-            InterpFilter
-                dummy_single_inter_filter[MB_MODE_COUNT][MAX_REF_FRAMES];
+            InterpFilter dummy_single_inter_filter[MB_MODE_COUNT]
+                                                  [MAX_REF_FRAMES];
             int dummy_single_skippable[MB_MODE_COUNT][MAX_REF_FRAMES];
             int64_t dummy_mask_filter = 0;
-            int_mv dummy_single_newmv[MAX_REF_FRAMES] = { { 0 } };
+            int_mv dummy_single_newmv[MAX_REF_FRAMES] = {{0}};
 
             frame_mv[NEARMV][ref_frame] = cur_mv;
             tmp_alt_rd = handle_inter_mode(
@@ -3611,8 +3617,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // ZEROMV. Here, checks are added for those cases, and the mode decisions
   // are corrected.
   if (best_mbmode.mode == NEWMV) {
-    const MV_REFERENCE_FRAME refs[2] = { best_mbmode.ref_frame[0],
-                                         best_mbmode.ref_frame[1] };
+    const MV_REFERENCE_FRAME refs[2] = {best_mbmode.ref_frame[0],
+                                        best_mbmode.ref_frame[1]};
     int comp_pred_mode = refs[1] > INTRA_FRAME;
 #if CONFIG_REF_MV
     const uint8_t rf_type = av1_ref_frame_type(best_mbmode.ref_frame);
@@ -3638,11 +3644,10 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     } else {
       int i;
       const int allow_hp = cm->allow_high_precision_mv;
-      int_mv nearestmv[2] = { frame_mv[NEARESTMV][refs[0]],
-                              frame_mv[NEARESTMV][refs[1]] };
+      int_mv nearestmv[2] = {frame_mv[NEARESTMV][refs[0]],
+                             frame_mv[NEARESTMV][refs[1]]};
 
-      int_mv nearmv[2] = { frame_mv[NEARMV][refs[0]],
-                           frame_mv[NEARMV][refs[1]] };
+      int_mv nearmv[2] = {frame_mv[NEARMV][refs[0]], frame_mv[NEARMV][refs[1]]};
 
       int ref_set = (mbmi_ext->ref_mv_count[rf_type] >= 2)
                         ? AOMMIN(2, mbmi_ext->ref_mv_count[rf_type] - 2)
@@ -3901,8 +3906,8 @@ void av1_rd_pick_inter_mode_sub8x8(AV1_COMP *cpi, TileDataEnc *tile_data,
   int comp_pred, i;
   int_mv frame_mv[MB_MODE_COUNT][MAX_REF_FRAMES];
   struct buf_2d yv12_mb[4][MAX_MB_PLANE];
-  static const int flag_list[4] = { 0, AOM_LAST_FLAG, AOM_GOLD_FLAG,
-                                    AOM_ALT_FLAG };
+  static const int flag_list[4] = {0, AOM_LAST_FLAG, AOM_GOLD_FLAG,
+                                   AOM_ALT_FLAG};
   int64_t best_rd = best_rd_so_far;
   int64_t best_yrd = best_rd_so_far;  // FIXME(rbultje) more precise
   int64_t best_pred_diff[REFERENCE_MODES];
@@ -3923,7 +3928,7 @@ void av1_rd_pick_inter_mode_sub8x8(AV1_COMP *cpi, TileDataEnc *tile_data,
   int_mv seg_mvs[4][MAX_REF_FRAMES];
   b_mode_info best_bmodes[4];
   int best_skip2 = 0;
-  int ref_frame_skip_mask[2] = { 0 };
+  int ref_frame_skip_mask[2] = {0};
   int64_t mask_filter = 0;
   int64_t filter_cache[SWITCHABLE_FILTER_CONTEXTS];
   int internal_active_edge =
@@ -3987,7 +3992,8 @@ void av1_rd_pick_inter_mode_sub8x8(AV1_COMP *cpi, TileDataEnc *tile_data,
     if (ref_index > 2 && sf->mode_skip_start < MAX_MODES) {
       if (ref_index == 3) {
         switch (best_mbmode.ref_frame[0]) {
-          case INTRA_FRAME: break;
+          case INTRA_FRAME:
+            break;
           case LAST_FRAME:
             ref_frame_skip_mask[0] |= (1 << GOLDEN_FRAME) | (1 << ALTREF_FRAME);
             ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
@@ -4000,7 +4006,9 @@ void av1_rd_pick_inter_mode_sub8x8(AV1_COMP *cpi, TileDataEnc *tile_data,
             ref_frame_skip_mask[0] |= (1 << GOLDEN_FRAME) | (1 << LAST_FRAME);
             break;
           case NONE:
-          case MAX_REF_FRAMES: assert(0 && "Invalid Reference frame"); break;
+          case MAX_REF_FRAMES:
+            assert(0 && "Invalid Reference frame");
+            break;
         }
       }
     }

@@ -9,9 +9,9 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
-#include <limits.h>
 
 #include "./aom_config.h"
 
@@ -57,9 +57,9 @@
 #endif
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_dsp/aom_filter.h"
+#include "aom_ports/aom_timer.h"
 #include "aom_ports/mem.h"
 #include "aom_ports/system_state.h"
-#include "aom_ports/aom_timer.h"
 #include "aom_scale/aom_scale.h"
 
 #define AM_SEGMENT_ID_INACTIVE 7
@@ -1724,8 +1724,8 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     aom_clear_system_state();
 
     if (cpi->oxcf.pass != 1) {
-      char headings[512] = { 0 };
-      char results[512] = { 0 };
+      char headings[512] = {0};
+      char results[512] = {0};
       FILE *f = fopen("opsnr.stt", "a");
       double time_encoded =
           (cpi->last_end_time_stamp_seen - cpi->first_time_stamp_ever) /
@@ -2029,19 +2029,18 @@ static void scale_and_extend_frame_nonnormative(const YV12_BUFFER_CONFIG *src,
 #endif  // CONFIG_AOM_HIGHBITDEPTH
   // TODO(dkovalev): replace YV12_BUFFER_CONFIG with aom_image_t
   int i;
-  const uint8_t *const srcs[3] = { src->y_buffer, src->u_buffer,
-                                   src->v_buffer };
-  const int src_strides[3] = { src->y_stride, src->uv_stride, src->uv_stride };
-  const int src_widths[3] = { src->y_crop_width, src->uv_crop_width,
-                              src->uv_crop_width };
-  const int src_heights[3] = { src->y_crop_height, src->uv_crop_height,
-                               src->uv_crop_height };
-  uint8_t *const dsts[3] = { dst->y_buffer, dst->u_buffer, dst->v_buffer };
-  const int dst_strides[3] = { dst->y_stride, dst->uv_stride, dst->uv_stride };
-  const int dst_widths[3] = { dst->y_crop_width, dst->uv_crop_width,
-                              dst->uv_crop_width };
-  const int dst_heights[3] = { dst->y_crop_height, dst->uv_crop_height,
-                               dst->uv_crop_height };
+  const uint8_t *const srcs[3] = {src->y_buffer, src->u_buffer, src->v_buffer};
+  const int src_strides[3] = {src->y_stride, src->uv_stride, src->uv_stride};
+  const int src_widths[3] = {src->y_crop_width, src->uv_crop_width,
+                             src->uv_crop_width};
+  const int src_heights[3] = {src->y_crop_height, src->uv_crop_height,
+                              src->uv_crop_height};
+  uint8_t *const dsts[3] = {dst->y_buffer, dst->u_buffer, dst->v_buffer};
+  const int dst_strides[3] = {dst->y_stride, dst->uv_stride, dst->uv_stride};
+  const int dst_widths[3] = {dst->y_crop_width, dst->uv_crop_width,
+                             dst->uv_crop_width};
+  const int dst_heights[3] = {dst->y_crop_height, dst->uv_crop_height,
+                              dst->uv_crop_height};
 
   for (i = 0; i < MAX_MB_PLANE; ++i) {
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -2072,11 +2071,10 @@ static void scale_and_extend_frame(const YV12_BUFFER_CONFIG *src,
   const int src_h = src->y_crop_height;
   const int dst_w = dst->y_crop_width;
   const int dst_h = dst->y_crop_height;
-  const uint8_t *const srcs[3] = { src->y_buffer, src->u_buffer,
-                                   src->v_buffer };
-  const int src_strides[3] = { src->y_stride, src->uv_stride, src->uv_stride };
-  uint8_t *const dsts[3] = { dst->y_buffer, dst->u_buffer, dst->v_buffer };
-  const int dst_strides[3] = { dst->y_stride, dst->uv_stride, dst->uv_stride };
+  const uint8_t *const srcs[3] = {src->y_buffer, src->u_buffer, src->v_buffer};
+  const int src_strides[3] = {src->y_stride, src->uv_stride, src->uv_stride};
+  uint8_t *const dsts[3] = {dst->y_buffer, dst->u_buffer, dst->v_buffer};
+  const int dst_strides[3] = {dst->y_stride, dst->uv_stride, dst->uv_stride};
   const InterpKernel *const kernel = av1_filter_kernels[EIGHTTAP];
   int x, y, i;
 
@@ -2349,8 +2347,7 @@ static INLINE void alloc_frame_mvs(const AV1_COMMON *cm, int buffer_idx) {
 void av1_scale_references(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
   MV_REFERENCE_FRAME ref_frame;
-  const AOM_REFFRAME ref_mask[3] = { AOM_LAST_FLAG, AOM_GOLD_FLAG,
-                                     AOM_ALT_FLAG };
+  const AOM_REFFRAME ref_mask[3] = {AOM_LAST_FLAG, AOM_GOLD_FLAG, AOM_ALT_FLAG};
 
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     // Need to convert from AOM_REFFRAME to index into ref_mask (subtract 1).
@@ -3103,7 +3100,7 @@ static void set_arf_sign_bias(AV1_COMP *cpi) {
 
 static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
   InterpFilter ifilter;
-  int ref_total[MAX_REF_FRAMES] = { 0 };
+  int ref_total[MAX_REF_FRAMES] = {0};
   MV_REFERENCE_FRAME ref;
   int mask = 0;
   if (cpi->common.last_frame_type == KEY_FRAME || cpi->refresh_alt_ref_frame)
