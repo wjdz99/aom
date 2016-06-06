@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 
+#define CONFIG_EXT_INTRA 1
+
 // Only need this for fixed-size arrays, for structs just assign.
 #define av1_copy(dest, src)              \
   {                                      \
