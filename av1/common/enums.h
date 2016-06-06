@@ -131,6 +131,11 @@ typedef uint8_t PREDICTION_MODE;
 
 #define INTER_MODES (1 + NEWMV - NEARESTMV)
 
+#if CONFIG_EXT_INTRA
+// all intra modes except DC and TM
+#define DIRECTIONAL_MODES (INTRA_MODES - 2)
+#endif  // CONFIG_EXT_INTRA
+
 #define SKIP_CONTEXTS 3
 
 #if CONFIG_REF_MV
