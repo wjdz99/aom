@@ -405,6 +405,41 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
+#if CONFIG_EXT_INTRA
+static INLINE void write_uniform(aom_writer *w, int n, int v) {
+  int l = get_unsigned_bits(n);
+  int m = (1 << l) - n;
+  if (l == 0)
+    return;
+  if (v < m) {
+    aom_write_literal(w, v, l - 1);
+  } else {
+    aom_write_literal(w, m + ((v - m) >> 1), l - 1);
+    aom_write_literal(w, (v - m) & 1, 1);
+  }
+}
+
+static void write_intra_angle_info(const MB_MODE_INFO *const mbmi,
+                                   aom_writer *w) {
+  if (mbmi->sb_type < BLOCK_8X8)
+    return;
+
+  if (mbmi->mode != DC_PRED && mbmi->mode != TM_PRED) {
+    write_uniform(w, 2 * CONFIG_EXT_INTRA + 1,
+                  CONFIG_EXT_INTRA + mbmi->intra_angle_delta[0]);
+  }
+
+#if 0
+  if (mbmi->uv_mode != DC_PRED && mbmi->uv_mode != TM_PRED) {
+    const TX_SIZE uv_tx_size = get_uv_tx_size(mbmi, &xd->plane[1]);
+    max_angle_delta = vp10_max_angle_delta_uv[uv_tx_size];
+    write_uniform(w, 2 * max_angle_delta + 1,
+                  max_angle_delta + mbmi->angle_delta[1]);
+  }
+#endif
+}
+#endif  // CONFIG_EXT_INTRA
+
 static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
                                 aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
@@ -634,6 +669,14 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   } else {
     pack_inter_mode_mvs(cpi, m, w);
   }
+
+#if 0
+  if (m->mbmi.intra_angle_delta[0] || m->mbmi.intra_angle_delta[1])
+    printf("error %2d %2d\n",
+           m->mbmi.intra_angle_delta[0], m->mbmi.intra_angle_delta[1]);
+  else
+    printf("0k\n");
+#endif
 
   if (!m->mbmi.skip) {
     assert(*tok < tok_end);

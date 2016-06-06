@@ -1021,6 +1021,10 @@ static int64_t rd_pick_intra_sub_8x8_y_mode(AV1_COMP *cpi, MACROBLOCK *mb,
   int64_t total_rd = 0;
   const int *bmode_costs = cpi->mbmode_cost;
 
+#if CONFIG_EXT_INTRA
+  mic->mbmi.intra_angle_delta[0] = 0;
+#endif  // CONFIG_EXT_INTRA
+
   // Pick modes for each sub-block (of size 4x4, 4x8, or 8x4) in an 8x8 block.
   for (idy = 0; idy < 2; idy += num_4x4_blocks_high) {
     for (idx = 0; idx < 2; idx += num_4x4_blocks_wide) {
@@ -1072,23 +1076,27 @@ static int64_t rd_pick_intra_sby_mode(AV1_COMP *cpi, MACROBLOCK *x, int *rate,
   PREDICTION_MODE mode;
   PREDICTION_MODE mode_selected = DC_PRED;
   MACROBLOCKD *const xd = &x->e_mbd;
-  MODE_INFO *const mic = xd->mi[0];
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   int this_rate, this_rate_tokenonly, s;
   int64_t this_distortion, this_rd;
+  int8_t best_angle_delta = 0;
   TX_SIZE best_tx = TX_4X4;
   TX_TYPE best_tx_type = DCT_DCT;
   int *bmode_costs;
   const MODE_INFO *above_mi = xd->above_mi;
   const MODE_INFO *left_mi = xd->left_mi;
-  const PREDICTION_MODE A = av1_above_block_mode(mic, above_mi, 0);
-  const PREDICTION_MODE L = av1_left_block_mode(mic, left_mi, 0);
+  const PREDICTION_MODE A = av1_above_block_mode(xd->mi[0], above_mi, 0);
+  const PREDICTION_MODE L = av1_left_block_mode(xd->mi[0], left_mi, 0);
   bmode_costs = cpi->y_mode_costs[A][L];
 
   memset(x->skip_txfm, SKIP_TXFM_NONE, sizeof(x->skip_txfm));
 
   /* Y Search for intra prediction mode */
   for (mode = DC_PRED; mode <= TM_PRED; mode++) {
-    mic->mbmi.mode = mode;
+    mbmi->mode = mode;
+#if CONFIG_EXT_INTRA
+    mbmi->intra_angle_delta[0] = 0;
+#endif  // CONFIG_EXT_INTRA
 
     super_block_yrd(cpi, x, &this_rate_tokenonly, &this_distortion, &s, NULL,
                     bsize, best_rd);
@@ -1101,8 +1109,9 @@ static int64_t rd_pick_intra_sby_mode(AV1_COMP *cpi, MACROBLOCK *x, int *rate,
     if (this_rd < best_rd) {
       mode_selected = mode;
       best_rd = this_rd;
-      best_tx = mic->mbmi.tx_size;
-      best_tx_type = mic->mbmi.tx_type;
+      best_tx = mbmi->tx_size;
+      best_tx_type = mbmi->tx_type;
+      best_angle_delta = mbmi->intra_angle_delta[0];
       *rate = this_rate;
       *rate_tokenonly = this_rate_tokenonly;
       *distortion = this_distortion;
@@ -1110,9 +1119,10 @@ static int64_t rd_pick_intra_sby_mode(AV1_COMP *cpi, MACROBLOCK *x, int *rate,
     }
   }
 
-  mic->mbmi.mode = mode_selected;
-  mic->mbmi.tx_size = best_tx;
-  mic->mbmi.tx_type = best_tx_type;
+  mbmi->mode = mode_selected;
+  mbmi->tx_size = best_tx;
+  mbmi->tx_type = best_tx_type;
+  mbmi->intra_angle_delta[0] = best_angle_delta;
 
   return best_rd;
 }
@@ -1172,9 +1182,12 @@ static int64_t rd_pick_intra_sbuv_mode(AV1_COMP *cpi, MACROBLOCK *x,
                                        int *rate_tokenonly, int64_t *distortion,
                                        int *skippable, BLOCK_SIZE bsize,
                                        TX_SIZE max_tx_size) {
-  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &x->e_mbd.mi[0]->mbmi;
   PREDICTION_MODE mode;
   PREDICTION_MODE mode_selected = DC_PRED;
+#if CONFIG_EXT_INTRA
+  int8_t angle_delta_selected = 0;
+#endif  // CONFIG_EXT_INTRA
   int64_t best_rd = INT64_MAX, this_rd;
   int this_rate_tokenonly, this_rate, s;
   int64_t this_distortion, this_sse;
@@ -1183,17 +1196,23 @@ static int64_t rd_pick_intra_sbuv_mode(AV1_COMP *cpi, MACROBLOCK *x,
   for (mode = DC_PRED; mode <= TM_PRED; ++mode) {
     if (!(cpi->sf.intra_uv_mode_mask[max_tx_size] & (1 << mode))) continue;
 
-    xd->mi[0]->mbmi.uv_mode = mode;
+    mbmi->uv_mode = mode;
+#if CONFIG_EXT_INTRA
+    mbmi->intra_angle_delta[1] = 0;
+#endif  // CONFIG_EXT_INTRA
 
     if (!super_block_uvrd(cpi, x, &this_rate_tokenonly, &this_distortion, &s,
                           &this_sse, bsize, best_rd))
       continue;
     this_rate = this_rate_tokenonly +
-                cpi->intra_uv_mode_cost[xd->mi[0]->mbmi.mode][mode];
+                cpi->intra_uv_mode_cost[mbmi->mode][mode];
     this_rd = RDCOST(x->rdmult, x->rddiv, this_rate, this_distortion);
 
     if (this_rd < best_rd) {
       mode_selected = mode;
+#if CONFIG_EXT_INTRA
+      angle_delta_selected = mbmi->intra_angle_delta[1];
+#endif  // CONFIG_EXT_INTRA
       best_rd = this_rd;
       *rate = this_rate;
       *rate_tokenonly = this_rate_tokenonly;
@@ -1203,7 +1222,10 @@ static int64_t rd_pick_intra_sbuv_mode(AV1_COMP *cpi, MACROBLOCK *x,
     }
   }
 
-  xd->mi[0]->mbmi.uv_mode = mode_selected;
+  mbmi->uv_mode = mode_selected;
+#if CONFIG_EXT_INTRA
+  mbmi->intra_angle_delta[1] = angle_delta_selected;
+#endif  // CONFIG_EXT_INTRA
   return best_rd;
 }
 
@@ -3239,6 +3261,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       TX_SIZE uv_tx;
       struct macroblockd_plane *const pd = &xd->plane[1];
       memset(x->skip_txfm, 0, sizeof(x->skip_txfm));
+#if CONFIG_EXT_INTRA
+      mbmi->intra_angle_delta[0] = 0;
+#endif  // CONFIG_EXT_INTRA
       super_block_yrd(cpi, x, &rate_y, &distortion_y, &skippable, NULL, bsize,
                       best_rd);
       if (rate_y == INT_MAX) continue;
@@ -4085,6 +4110,9 @@ void av1_rd_pick_inter_mode_sub8x8(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     if (ref_frame == INTRA_FRAME) {
       int rate;
+#if CONFIG_EXT_INTRA
+      mbmi->intra_angle_delta[0] = 0;
+#endif  // CONFIG_EXT_INTRA
       if (rd_pick_intra_sub_8x8_y_mode(cpi, x, &rate, &rate_y, &distortion_y,
                                        best_rd) >= best_rd)
         continue;

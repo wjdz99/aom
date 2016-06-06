@@ -35,6 +35,10 @@ extern "C" {
 
 #define MAX_MB_PLANE 3
 
+#if CONFIG_EXT_INTRA
+#define MAX_ANGLE_DELTA 3
+#endif  // CONFIG_EXT_INTRA
+
 typedef enum {
   KEY_FRAME = 0,
   INTER_FRAME = 1,
@@ -90,6 +94,9 @@ typedef struct {
 
   // Only for INTRA blocks
   PREDICTION_MODE uv_mode;
+#if CONFIG_EXT_INTRA
+  int8_t intra_angle_delta[2];
+#endif  // CONFIG_EXT_INTRA
 
   // Only for INTER blocks
   InterpFilter interp_filter;
