@@ -674,8 +674,8 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   if (m->mbmi.intra_angle_delta[0] || m->mbmi.intra_angle_delta[1])
     printf("error %2d %2d\n",
            m->mbmi.intra_angle_delta[0], m->mbmi.intra_angle_delta[1]);
-  else
-    printf("0k\n");
+  //else
+    //printf("0k\n");
 #endif
 
   if (!m->mbmi.skip) {

@@ -37,6 +37,7 @@ extern "C" {
 
 #if CONFIG_EXT_INTRA
 #define MAX_ANGLE_DELTA 3
+#define ANGLE_STEP 3
 #endif  // CONFIG_EXT_INTRA
 
 typedef enum {
