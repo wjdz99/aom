@@ -479,7 +479,7 @@ static void extend_and_predict(const uint8_t *buf_ptr1, int pre_buf_stride,
                                int frame_width, int frame_height,
                                int border_offset, uint8_t *const dst,
                                int dst_buf_stride, int subpel_x, int subpel_y,
-                               const InterpKernel *kernel,
+                               const InterpFilter *interp_filter,
                                const struct scale_factors *sf, MACROBLOCKD *xd,
                                int w, int h, int ref, int xs, int ys) {
   DECLARE_ALIGNED(16, uint16_t, mc_buf_high[80 * 2 * 80 * 2]);
@@ -497,10 +497,10 @@ static void extend_and_predict(const uint8_t *buf_ptr1, int pre_buf_stride,
 
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     high_inter_predictor(buf_ptr, b_w, dst, dst_buf_stride, subpel_x, subpel_y,
-                         sf, w, h, ref, kernel, xs, ys, xd->bd);
+                         sf, w, h, ref, interp_filter, xs, ys, xd->bd);
   } else {
     inter_predictor(buf_ptr, b_w, dst, dst_buf_stride, subpel_x, subpel_y, sf,
-                    w, h, ref, kernel, xs, ys);
+                    w, h, ref, interp_filter, xs, ys);
   }
 }
 #else
@@ -509,7 +509,7 @@ static void extend_and_predict(const uint8_t *buf_ptr1, int pre_buf_stride,
                                int frame_width, int frame_height,
                                int border_offset, uint8_t *const dst,
                                int dst_buf_stride, int subpel_x, int subpel_y,
-                               const InterpKernel *kernel,
+                               const InterpFilter *interp_filter,
                                const struct scale_factors *sf, int w, int h,
                                int ref, int xs, int ys) {
   DECLARE_ALIGNED(16, uint8_t, mc_buf[80 * 2 * 80 * 2]);
@@ -520,13 +520,13 @@ static void extend_and_predict(const uint8_t *buf_ptr1, int pre_buf_stride,
   buf_ptr = mc_buf + border_offset;
 
   inter_predictor(buf_ptr, b_w, dst, dst_buf_stride, subpel_x, subpel_y, sf, w,
-                  h, ref, kernel, xs, ys);
+                  h, ref, interp_filter, xs, ys);
 }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
 static void dec_build_inter_predictors(
     AV1Decoder *const pbi, MACROBLOCKD *xd, int plane, int bw, int bh, int x,
-    int y, int w, int h, int mi_x, int mi_y, const InterpKernel *kernel,
+    int y, int w, int h, int mi_x, int mi_y, const InterpFilter *interp_filter,
     const struct scale_factors *sf, struct buf_2d *pre_buf,
     struct buf_2d *dst_buf, const MV *mv, RefCntBuffer *ref_frame_buf,
     int is_scaled, int ref) {
@@ -641,7 +641,7 @@ static void dec_build_inter_predictors(
 
       extend_and_predict(buf_ptr1, buf_stride, x0, y0, b_w, b_h, frame_width,
                          frame_height, border_offset, dst, dst_buf->stride,
-                         subpel_x, subpel_y, kernel, sf,
+                         subpel_x, subpel_y, interp_filter, sf,
 #if CONFIG_AOM_HIGHBITDEPTH
                          xd,
 #endif
@@ -660,14 +660,15 @@ static void dec_build_inter_predictors(
 #if CONFIG_AOM_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     high_inter_predictor(buf_ptr, buf_stride, dst, dst_buf->stride, subpel_x,
-                         subpel_y, sf, w, h, ref, kernel, xs, ys, xd->bd);
+                         subpel_y, sf, w, h, ref, interp_filter, xs, ys,
+                         xd->bd);
   } else {
     inter_predictor(buf_ptr, buf_stride, dst, dst_buf->stride, subpel_x,
-                    subpel_y, sf, w, h, ref, kernel, xs, ys);
+                    subpel_y, sf, w, h, ref, interp_filter, xs, ys);
   }
 #else
   inter_predictor(buf_ptr, buf_stride, dst, dst_buf->stride, subpel_x, subpel_y,
-                  sf, w, h, ref, kernel, xs, ys);
+                  sf, w, h, ref, interp_filter, xs, ys);
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 }
 
@@ -678,7 +679,6 @@ static void dec_build_inter_predictors_sb(AV1Decoder *const pbi,
   const int mi_x = mi_col * MI_SIZE;
   const int mi_y = mi_row * MI_SIZE;
   const MODE_INFO *mi = xd->mi[0];
-  const InterpKernel *kernel = av1_filter_kernels[mi->mbmi.interp_filter];
   const BLOCK_SIZE sb_type = mi->mbmi.sb_type;
   const int is_compound = has_second_ref(&mi->mbmi);
 
@@ -712,17 +712,18 @@ static void dec_build_inter_predictors_sb(AV1Decoder *const pbi,
         for (y = 0; y < num_4x4_h; ++y) {
           for (x = 0; x < num_4x4_w; ++x) {
             const MV mv = average_split_mvs(pd, mi, ref, y * 2 + x);
-            dec_build_inter_predictors(pbi, xd, plane, n4w_x4, n4h_x4, 4 * x,
-                                       4 * y, pw, ph, mi_x, mi_y, kernel, sf,
-                                       pre_buf, dst_buf, &mv, ref_frame_buf,
-                                       is_scaled, ref);
+            dec_build_inter_predictors(
+                pbi, xd, plane, n4w_x4, n4h_x4, 4 * x, 4 * y, pw, ph, mi_x,
+                mi_y, &mi->mbmi.interp_filter, sf, pre_buf, dst_buf, &mv,
+                ref_frame_buf, is_scaled, ref);
           }
         }
       } else {
         const MV mv = mi->mbmi.mv[ref].as_mv;
         dec_build_inter_predictors(pbi, xd, plane, n4w_x4, n4h_x4, 0, 0, n4w_x4,
-                                   n4h_x4, mi_x, mi_y, kernel, sf, pre_buf,
-                                   dst_buf, &mv, ref_frame_buf, is_scaled, ref);
+                                   n4h_x4, mi_x, mi_y, &mi->mbmi.interp_filter,
+                                   sf, pre_buf, dst_buf, &mv, ref_frame_buf,
+                                   is_scaled, ref);
       }
     }
   }
