@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <assert.h>
 #include <limits.h>
 #include <stdlib.h>
 
@@ -34,6 +35,7 @@ void aom_wb_write_bit(struct aom_write_bit_buffer *wb, int bit) {
 
 void aom_wb_write_literal(struct aom_write_bit_buffer *wb, int data, int bits) {
   int bit;
+  assert(data >> bits == 0);
   for (bit = bits - 1; bit >= 0; bit--) aom_wb_write_bit(wb, (data >> bit) & 1);
 }
 
