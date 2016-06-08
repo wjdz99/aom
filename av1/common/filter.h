@@ -25,6 +25,7 @@ extern "C" {
 #define EIGHTTAP 0
 #define EIGHTTAP_SMOOTH 1
 #define EIGHTTAP_SHARP 2
+#define MULTITAP_SHARP EIGHTTAP_SHARP
 #define EIGHTTAP_SMOOTH2 3
 #define MULTITAP_SHARP2 4
 #define SWITCHABLE_FILTERS 5 /* Number of switchable filters */
@@ -39,7 +40,7 @@ extern "C" {
 // The codec can operate in four possible inter prediction filter mode:
 // 8-tap, 8-tap-smooth, 8-tap-sharp, and switching between the three.
 #define SWITCHABLE_FILTER_CONTEXTS (SWITCHABLE_FILTERS + 1)
-#define SWITCHABLE 4 /* should be the last one */
+#define SWITCHABLE (SWITCHABLE_FILTERS + 1) /* should be the last one */
 
 typedef uint8_t InterpFilter;
 
