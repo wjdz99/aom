@@ -59,9 +59,9 @@ void av1_build_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
                   h, ref, interp_filter, sf->x_step_q4, sf->y_step_q4);
 }
 
-void build_inter_predictors(MACROBLOCKD *xd, int plane, int block, int bw,
-                            int bh, int x, int y, int w, int h, int mi_x,
-                            int mi_y) {
+static void build_inter_predictors(MACROBLOCKD *xd, int plane, int block,
+                                   int bw, int bh, int x, int y, int w, int h,
+                                   int mi_x, int mi_y) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const MODE_INFO *mi = xd->mi[0];
   const int is_compound = has_second_ref(&mi->mbmi);
