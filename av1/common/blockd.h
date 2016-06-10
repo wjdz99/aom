@@ -100,6 +100,8 @@ typedef struct {
   int_mv pred_mv[2];
   uint8_t ref_mv_idx;
 #endif
+#if CONFIG_MOTION_VAR
+#endif  // CONFIG_MOTION_VAR
   // TODO(slavarnway): Delete and use bmi[3].as_mv[] instead.
   int_mv mv[2];
   /* deringing gain *per-superblock* */
