@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c31bc859_753de613",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1155,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-06-10T14:24:11Z",
+      "side": 1,
+      "message": "The way this was done makes the review a lot bigger than it has to be. \n\nI suggest instead splitting the code into 2 separate functions as is done here but having these to replace the original code outside the CONFIG_PARALLEL_DEBLOCKING CODE as a non bitstream change. \n\nand then the diff would be just in the lines making the calls in av1_loop_filter_rows. Which I believe is where the real changes occur.",
+      "range": {
+        "startLine": 1155,
+        "startChar": 0,
+        "endLine": 1155,
+        "endChar": 4
+      },
+      "revId": "a58d3c95f3796b83b9c1880c98c0612be49a94d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c31bc859_d514da94",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1333,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-06-10T14:24:11Z",
+      "side": 1,
+      "message": "The way this is done makes the code review a lot bigger as per the discussion above.   Basically the split here could be done in a non bitstream way.. so that the reviewer can just look at the changes to the calling function.",
+      "range": {
+        "startLine": 1333,
+        "startChar": 0,
+        "endLine": 1333,
+        "endChar": 4
+      },
+      "revId": "a58d3c95f3796b83b9c1880c98c0612be49a94d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c31bc859_f519d6c9",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1429,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-06-10T14:24:11Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "a58d3c95f3796b83b9c1880c98c0612be49a94d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c31bc859_957c22d1",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1550,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-06-10T14:24:11Z",
+      "side": 1,
+      "message": "Personally would prefer the config_parallel_decode embedded in this function rather than the whole thing wrapped. So that I could review it easier.",
+      "revId": "a58d3c95f3796b83b9c1880c98c0612be49a94d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c31bc859_35144e8f",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1574,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-06-10T14:24:11Z",
+      "side": 1,
+      "message": "this todo is no longer relevant.   ;)",
+      "revId": "a58d3c95f3796b83b9c1880c98c0612be49a94d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c31bc859_f582b6df",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1604,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-06-10T14:24:11Z",
+      "side": 1,
+      "message": "this todo has clearly been done.",
+      "revId": "a58d3c95f3796b83b9c1880c98c0612be49a94d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
