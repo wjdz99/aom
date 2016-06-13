@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fe0143e_f11bf21c",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-06-13T19:05:36Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 317,
+        "startChar": 2,
+        "endLine": 317,
+        "endChar": 5
+      },
+      "revId": "7e98a8db11299f96b704765383954061a26ce2ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8fe0143e_5101fea8",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-06-13T19:05:36Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 318,
+        "startChar": 2,
+        "endLine": 318,
+        "endChar": 5
+      },
+      "revId": "7e98a8db11299f96b704765383954061a26ce2ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8fe0143e_910b86c9",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-06-13T19:05:36Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 319,
+        "startChar": 2,
+        "endLine": 319,
+        "endChar": 5
+      },
+      "revId": "7e98a8db11299f96b704765383954061a26ce2ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8fe0143e_d1334ea3",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-06-13T19:05:36Z",
+      "side": 1,
+      "message": "removed if not being used.",
+      "range": {
+        "startLine": 338,
+        "startChar": 0,
+        "endLine": 345,
+        "endChar": 6
+      },
+      "revId": "7e98a8db11299f96b704765383954061a26ce2ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8fe0143e_5128de2a",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-06-13T19:05:36Z",
+      "side": 1,
+      "message": "same as the reader side, if not changed in the function, mark them as const.",
+      "range": {
+        "startLine": 410,
+        "startChar": 0,
+        "endLine": 411,
+        "endChar": 23
+      },
+      "revId": "7e98a8db11299f96b704765383954061a26ce2ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8fe0143e_11bc96f1",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-06-13T19:05:36Z",
+      "side": 1,
+      "message": "once l is read, could the rest of the code be conditioned under\n if (l!\u003d0) { \n    const int m \u003d (1 \u003c\u003c l) - n;\n    .... \n\n }",
+      "range": {
+        "startLine": 411,
+        "startChar": 1,
+        "endLine": 420,
+        "endChar": 1
+      },
+      "revId": "7e98a8db11299f96b704765383954061a26ce2ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8fe0143e_31d39a35",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-06-13T19:05:36Z",
+      "side": 1,
+      "message": "remove if not being used currently.",
+      "range": {
+        "startLine": 432,
+        "startChar": 0,
+        "endLine": 439,
+        "endChar": 6
+      },
+      "revId": "7e98a8db11299f96b704765383954061a26ce2ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8fe0143e_91d0a627",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-06-13T19:05:36Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 673,
+        "startChar": 0,
+        "endLine": 679,
+        "endChar": 6
+      },
+      "revId": "7e98a8db11299f96b704765383954061a26ce2ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
