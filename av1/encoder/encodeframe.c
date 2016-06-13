@@ -1309,6 +1309,10 @@ static void update_stats(AV1_COMMON *cm, ThreadData *td) {
           }
         }
       }
+#if CONFIG_MOTION_VAR
+      if (is_motion_variation_allowed(mbmi))
+        ++counts->motion_mode[bsize][mbmi->motion_mode];
+#endif  // CONFIG_MOTION_VAR
     }
   }
 }
