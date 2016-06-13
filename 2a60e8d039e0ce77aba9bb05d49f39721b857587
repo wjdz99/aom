@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8fe0143e_eb314152",
+        "filename": "test/decode_to_md5.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-06-13T14:17:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fe920fa_542f8282",
+      "revId": "2a60e8d039e0ce77aba9bb05d49f39721b857587",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2f0ba862_4366e6ab",
         "filename": "test/decode_to_md5.sh",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "8fe0143e_ab0e1984",
+        "filename": "test/decode_to_md5.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-06-13T14:17:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f0ba862_4366e6ab",
+      "revId": "2a60e8d039e0ce77aba9bb05d49f39721b857587",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2f0ba862_6365ea9a",
         "filename": "test/decode_to_md5.sh",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2016-06-10T22:15:27Z",
       "side": 1,
       "message": "remove the else, move the decode_to_md5 call down and use ${file}",
+      "revId": "2a60e8d039e0ce77aba9bb05d49f39721b857587",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8fe0143e_0b046562",
+        "filename": "test/decode_to_md5.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-06-13T14:17:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f0ba862_6365ea9a",
       "revId": "2a60e8d039e0ce77aba9bb05d49f39721b857587",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
