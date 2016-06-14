@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f42409af_903e9aac",
+        "filename": "test/decode_with_drops.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-06-14T13:52:39Z",
+      "side": 1,
+      "message": "I don\u0027t think we want this echo. bash -x decode_with_drops.sh will show commands, and passing --show-program-output will remove output suppression. Just debugging here, no?",
+      "revId": "cc06c18ce69b82bed6dccc5f7dde7f7fc127ab4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f42409af_106ceab5",
+        "filename": "test/decode_with_drops.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-06-14T13:52:39Z",
+      "side": 1,
+      "message": "Just remove the last two lines of comment here. I don\u0027t think they help, and I have no idea how many frames are in the new test file... I\u0027m guessing !\u003d 20, though.",
+      "range": {
+        "startLine": 52,
+        "startChar": 1,
+        "endLine": 53,
+        "endChar": 32
+      },
+      "revId": "cc06c18ce69b82bed6dccc5f7dde7f7fc127ab4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f42409af_f0603ebc",
+        "filename": "test/decode_with_drops.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-06-14T13:52:39Z",
+      "side": 1,
+      "message": "nits: \n1) s/d/D/\n2) period",
+      "revId": "cc06c18ce69b82bed6dccc5f7dde7f7fc127ab4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
