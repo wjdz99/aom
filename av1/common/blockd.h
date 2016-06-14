@@ -35,6 +35,10 @@ extern "C" {
 
 #define MAX_MB_PLANE 3
 
+#define MAX_SB_SIZE_LOG2 6
+#define MAX_SB_SIZE (1 << MAX_SB_SIZE_LOG2)
+#define MAX_SB_SQUARE (MAX_SB_SIZE * MAX_SB_SIZE)
+
 typedef enum {
   KEY_FRAME = 0,
   INTER_FRAME = 1,
