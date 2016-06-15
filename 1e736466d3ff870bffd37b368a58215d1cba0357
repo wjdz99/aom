@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "545f95f9_9852b524",
+        "filename": "aom_dsp/ans.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-06-15T13:24:05Z",
+      "side": 1,
+      "message": "This is the same code that is in aom_dk_read_literal() from aom_dsp/dkboolreader.h file.  Why not put this code in aom_read_literal() in aom_dsp/bitreader.h and have it call aom_read()?",
+      "revId": "1e736466d3ff870bffd37b368a58215d1cba0357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "545f95f9_7885e1b2",
+        "filename": "aom_dsp/ans.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-06-15T13:24:05Z",
+      "side": 1,
+      "message": "This is the same code that is in aom_dk_read_tree() from aom_dsp/dkboolreader.h file.  Why not put this code in aom_read_tree() in aom_dsp/bitreader.h and have it call aom_read()?",
+      "range": {
+        "startLine": 131,
+        "startChar": 18,
+        "endLine": 131,
+        "endChar": 32
+      },
+      "revId": "1e736466d3ff870bffd37b368a58215d1cba0357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
