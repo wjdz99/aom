@@ -375,7 +375,8 @@ class ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
   void CopyOutputToRef() {
     memcpy(output_ref_, output_, kOutputBufferSize);
 #if CONFIG_AOM_HIGHBITDEPTH
-    memcpy(output16_ref_, output16_, kOutputBufferSize);
+    for (int i = 0; i < kOutputBufferSize; ++i)
+      output16_ref_[i] = output16_[i];
 #endif
   }
 
@@ -390,8 +391,8 @@ class ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
     if (UUT_->use_highbd_ == 0) {
       return input_ + BorderTop() * kOuterBlockSize + BorderLeft();
     } else {
-      return CONVERT_TO_BYTEPTR(input16_ + BorderTop() * kOuterBlockSize +
-                                BorderLeft());
+      return CONVERT_TO_BYTEPTR(input16_) +
+          BorderTop() * kOuterBlockSize + BorderLeft();
     }
 #else
     return input_ + BorderTop() * kOuterBlockSize + BorderLeft();
@@ -403,8 +404,8 @@ class ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
     if (UUT_->use_highbd_ == 0) {
       return output_ + BorderTop() * kOuterBlockSize + BorderLeft();
     } else {
-      return CONVERT_TO_BYTEPTR(output16_ + BorderTop() * kOuterBlockSize +
-                                BorderLeft());
+      return CONVERT_TO_BYTEPTR(output16_) +
+          BorderTop() * kOuterBlockSize + BorderLeft();
     }
 #else
     return output_ + BorderTop() * kOuterBlockSize + BorderLeft();
@@ -416,8 +417,8 @@ class ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
     if (UUT_->use_highbd_ == 0) {
       return output_ref_ + BorderTop() * kOuterBlockSize + BorderLeft();
     } else {
-      return CONVERT_TO_BYTEPTR(output16_ref_ + BorderTop() * kOuterBlockSize +
-                                BorderLeft());
+      return CONVERT_TO_BYTEPTR(output16_ref_) +
+          BorderTop() * kOuterBlockSize + BorderLeft();
     }
 #else
     return output_ref_ + BorderTop() * kOuterBlockSize + BorderLeft();
@@ -546,8 +547,7 @@ TEST_P(ConvolveTest, Avg) {
     for (int x = 0; x < Width(); ++x)
       ASSERT_EQ(lookup(out, y * kOutputStride + x),
                 ROUND_POWER_OF_TWO(lookup(in, y * kInputStride + x) +
-                                       lookup(out_ref, y * kOutputStride + x),
-                                   1))
+                                   lookup(out_ref, y * kOutputStride + x), 1))
           << "(" << x << "," << y << ")";
 }
 
