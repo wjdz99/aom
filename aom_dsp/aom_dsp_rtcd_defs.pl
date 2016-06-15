@@ -451,6 +451,19 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
 }  # CONFIG_AOM_HIGHBITDEPTH
 
 #
+# Weighting functions
+#
+if (aom_config("CONFIG_MOTION_VAR") eq "yes") {
+  add_proto qw/void aom_blend_mask6/, "uint8_t *dst, uint32_t dst_stride,  uint8_t *src0, uint32_t src0_stride, uint8_t *src1, uint32_t src1_stride, const uint8_t *mask, uint32_t mask_stride, int h, int w, int suby, int subx";
+  specialize "aom_blend_mask6", qw/sse4_1/;
+
+  if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
+    add_proto qw/void aom_highbd_blend_mask6/, "uint8_t *dst, uint32_t dst_stride,  uint8_t *src0, uint32_t src0_stride, uint8_t *src1, uint32_t src1_stride, const uint8_t *mask, uint32_t mask_stride, int h, int w, int suby, int subx, int bd";
+    specialize "aom_highbd_blend_mask6", qw/sse4_1/;
+  }
+}
+
+#
 # Sub Pixel Filters
 #
 add_proto qw/void aom_convolve_copy/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h";

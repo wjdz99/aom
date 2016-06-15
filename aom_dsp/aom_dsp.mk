@@ -81,6 +81,12 @@ DSP_SRCS-$(HAVE_DSPR2)  += mips/intrapred16_dspr2.c
 DSP_SRCS-$(HAVE_DSPR2)  += mips/common_dspr2.h
 DSP_SRCS-$(HAVE_DSPR2)  += mips/common_dspr2.c
 
+# weighting functions
+ifeq ($(CONFIG_MOTION_VAR),yes)
+DSP_SRCS-yes            += blend_mask6.c
+DSP_SRCS-$(HAVE_SSE4_1) += x86/blend_mask6_sse4.c
+endif  #CONFIG_MOTION_VAR
+
 # interpolation filters
 DSP_SRCS-yes += aom_convolve.c
 DSP_SRCS-yes += aom_convolve.h
