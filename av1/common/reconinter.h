@@ -212,6 +212,8 @@ void av1_build_prediction_by_left_preds(AV1_COMMON *cm, MACROBLOCKD *xd,
                                         int mi_row, int mi_col,
                                         uint8_t *tmp_buf[MAX_MB_PLANE],
                                         int tmp_stride[MAX_MB_PLANE]);
+void av1_build_obmc_inter_predictors_sb(AV1_COMMON *cm, MACROBLOCKD *xd,
+                                        int mi_row, int mi_col);
 #endif  // CONFIG_MOTION_VAR
 #ifdef __cplusplus
 }  // extern "C"
