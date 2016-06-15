@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b4bff131_e3a8328e",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-06-15T17:22:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "940f4db1_ea7a0760",
+      "revId": "047be988d2f12c02cfce06766fbfa23edc9d582e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "940f4db1_6a8f378f",
         "filename": "av1/common/reconintra.c",
         "patchSetId": 8
@@ -30,6 +48,30 @@
       "writtenOn": "2016-06-14T23:50:17Z",
       "side": 1,
       "message": "this is not consistent with the rest z2 parameters.",
+      "range": {
+        "startLine": 239,
+        "startChar": 2,
+        "endLine": 239,
+        "endChar": 11
+      },
+      "revId": "047be988d2f12c02cfce06766fbfa23edc9d582e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4bff131_c3e256dc",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-06-15T17:22:40Z",
+      "side": 1,
+      "message": "these are not applicable for angle 0, 90, and 180. we can put any values here since they are not going to be used.",
+      "parentUuid": "940f4db1_6a8f378f",
       "range": {
         "startLine": 239,
         "startChar": 2,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "b4bff131_23c88a55",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-06-15T17:22:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b47a9131_31b0a8a1",
+      "revId": "047be988d2f12c02cfce06766fbfa23edc9d582e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b47a9131_d16924e3",
         "filename": "av1/common/reconintra.c",
         "patchSetId": 8
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "b4bff131_03c58e3d",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-06-15T17:22:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b47a9131_d16924e3",
+      "revId": "047be988d2f12c02cfce06766fbfa23edc9d582e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b47a9131_f16ea0e8",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 8
@@ -87,6 +165,24 @@
       "writtenOn": "2016-06-15T13:54:25Z",
       "side": 1,
       "message": "Maybe it could be shortened to one line code:\n\nreturn (v \u003c m) ? v : (v \u003c\u003c 1) - m + aom_read_literal(r, 1);",
+      "revId": "047be988d2f12c02cfce06766fbfa23edc9d582e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4bff131_43cf865b",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-06-15T17:22:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b47a9131_f16ea0e8",
       "revId": "047be988d2f12c02cfce06766fbfa23edc9d582e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
