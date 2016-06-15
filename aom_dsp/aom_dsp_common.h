@@ -24,6 +24,8 @@ extern "C" {
 #define AOMMIN(x, y) (((x) < (y)) ? (x) : (y))
 #define AOMMAX(x, y) (((x) > (y)) ? (x) : (y))
 
+#define IS_POWER_OF_TWO(x) (((x) & ((x)-1)) == 0)
+
 #if CONFIG_AOM_QM
 typedef uint16_t qm_val_t;
 #define AOM_QM_BITS 6
