@@ -343,8 +343,8 @@ void av1_build_obmc_inter_prediction(
   if (use_tmp_dst_buf) {
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       const struct macroblockd_plane *pd = &xd->plane[plane];
-      int bw = (xd->n8_w << 3) >> pd->subsampling_x;
-      int bh = (xd->n8_h << 3) >> pd->subsampling_y;
+      const int bw = (xd->n8_w << 3) >> pd->subsampling_x;
+      const int bh = (xd->n8_h << 3) >> pd->subsampling_y;
       int row;
 #if CONFIG_AOM_HIGHBITDEPTH
       if (is_hbd) {
@@ -381,8 +381,8 @@ void av1_build_obmc_inter_prediction(
 
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       const struct macroblockd_plane *pd = &xd->plane[plane];
-      int bw = (mi_step << 3) >> pd->subsampling_x;
-      int bh = overlap >> pd->subsampling_y;
+      const int bw = (mi_step << 3) >> pd->subsampling_x;
+      const int bh = overlap >> pd->subsampling_y;
       int row, col;
       int dst_stride = use_tmp_dst_buf ? final_stride[plane] : pd->dst.stride;
       uint8_t *dst = use_tmp_dst_buf
@@ -442,8 +442,8 @@ void av1_build_obmc_inter_prediction(
 
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       const struct macroblockd_plane *pd = &xd->plane[plane];
-      int bw = overlap >> pd->subsampling_x;
-      int bh = (mi_step << 3) >> pd->subsampling_y;
+      const int bw = overlap >> pd->subsampling_x;
+      const int bh = (mi_step << 3) >> pd->subsampling_y;
       int row, col;
       int dst_stride = use_tmp_dst_buf ? final_stride[plane] : pd->dst.stride;
       uint8_t *dst =
@@ -637,5 +637,48 @@ void av1_build_prediction_by_left_preds(AV1_COMMON *cm, MACROBLOCKD *xd,
     }
   }
   xd->mb_to_top_edge = -((mi_row * MI_SIZE) * 8);
+}
+
+void av1_build_obmc_inter_predictors_sb(AV1_COMMON *cm, MACROBLOCKD *xd,
+                                        int mi_row, int mi_col) {
+#if CONFIG_AOM_HIGHBITDEPTH
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf1[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf2[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+#else
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf1[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf2[MAX_MB_PLANE * MAX_SB_SQUARE]);
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+  uint8_t *dst_buf1[MAX_MB_PLANE], *dst_buf2[MAX_MB_PLANE];
+  int dst_stride1[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
+  int dst_stride2[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
+
+#if CONFIG_AOM_HIGHBITDEPTH
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    int len = sizeof(uint16_t);
+    dst_buf1[0] = CONVERT_TO_BYTEPTR(tmp_buf1);
+    dst_buf1[1] = CONVERT_TO_BYTEPTR(tmp_buf1 + MAX_SB_SQUARE * len);
+    dst_buf1[2] = CONVERT_TO_BYTEPTR(tmp_buf1 + MAX_SB_SQUARE * 2 * len);
+    dst_buf2[0] = CONVERT_TO_BYTEPTR(tmp_buf2);
+    dst_buf2[1] = CONVERT_TO_BYTEPTR(tmp_buf2 + MAX_SB_SQUARE * len);
+    dst_buf2[2] = CONVERT_TO_BYTEPTR(tmp_buf2 + MAX_SB_SQUARE * 2 * len);
+  } else {
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+    dst_buf1[0] = tmp_buf1;
+    dst_buf1[1] = tmp_buf1 + MAX_SB_SQUARE;
+    dst_buf1[2] = tmp_buf1 + MAX_SB_SQUARE * 2;
+    dst_buf2[0] = tmp_buf2;
+    dst_buf2[1] = tmp_buf2 + MAX_SB_SQUARE;
+    dst_buf2[2] = tmp_buf2 + MAX_SB_SQUARE * 2;
+#if CONFIG_AOM_HIGHBITDEPTH
+  }
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+  av1_build_prediction_by_above_preds(cm, xd, mi_row, mi_col, dst_buf1,
+                                      dst_stride1);
+  av1_build_prediction_by_left_preds(cm, xd, mi_row, mi_col, dst_buf2,
+                                     dst_stride2);
+  av1_setup_dst_planes(xd->plane, get_frame_new_buffer(cm), mi_row, mi_col);
+  av1_build_obmc_inter_prediction(cm, xd, mi_row, mi_col, 0, NULL, NULL,
+                                  dst_buf1, dst_stride1, dst_buf2,
+                                  dst_stride2);
 }
 #endif  // CONFIG_MOTION_VAR
