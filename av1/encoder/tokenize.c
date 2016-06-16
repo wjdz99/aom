@@ -452,6 +452,91 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   av1_set_contexts(xd, pd, plane_bsize, tx_size, c > 0, blk_col, blk_row);
 }
 
+#if CONFIG_COEF_INTERLEAVE
+static void tokenize_b_interleave(int plane, int block, int blk_row,
+                                  int blk_col, BLOCK_SIZE plane_bsize,
+                                  TX_SIZE tx_size, void *arg) {
+  struct tokenize_b_args *const args = arg;
+  AV1_COMP *cpi = args->cpi;
+  ThreadData *const td = args->td;
+  MACROBLOCK *const x = &td->mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  TOKENEXTRA **tp = args->tp;
+  uint8_t token_cache[32 * 32];
+  struct macroblock_plane *p = &x->plane[plane];
+  struct macroblockd_plane *pd = &xd->plane[plane];
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  int pt; /* near block/prev token context index */
+  int c;
+  TOKENEXTRA *t = *tp; /* store tokens starting here */
+
+  int eob = p->eobs[block];
+  const PLANE_TYPE type = pd->plane_type;
+  const tran_low_t *qcoeff = BLOCK_OFFSET(p->qcoeff, block);
+  const int segment_id = mbmi->segment_id;
+  const int16_t *scan, *nb;
+  const TX_TYPE tx_type = get_tx_type(type, xd, block);
+  const scan_order *const so = get_scan(tx_size, tx_type);
+  const int ref = is_inter_block(mbmi);
+  unsigned int (*const counts)[COEFF_CONTEXTS][ENTROPY_TOKENS] =
+      td->rd_counts.coef_counts[tx_size][type][ref];
+  aom_prob (*const coef_probs)[COEFF_CONTEXTS][UNCONSTRAINED_NODES] =
+      cpi->common.fc->coef_probs[tx_size][type][ref];
+  unsigned int (*const eob_branch)[COEFF_CONTEXTS] =
+      td->counts->eob_branch[tx_size][type][ref];
+  const uint8_t *const band = get_band_translate(tx_size);
+  const int seg_eob = get_tx_eob(&cpi->common.seg, segment_id, tx_size);
+  int16_t token;
+  EXTRABIT extra;
+  pt = get_entropy_context(tx_size, pd->above_context + blk_col,
+                           pd->left_context + blk_row);
+  scan = so->scan;
+  nb = so->neighbors;
+  c = 0;
+
+  while (c < eob) {
+    int v = 0;
+    int skip_eob = 0;
+    v = qcoeff[scan[c]];
+
+    while (!v) {
+      add_token_no_extra(&t, coef_probs[band[c]][pt], ZERO_TOKEN, skip_eob,
+                         counts[band[c]][pt]);
+      eob_branch[band[c]][pt] += !skip_eob;
+
+      skip_eob = 1;
+      token_cache[scan[c]] = 0;
+      ++c;
+      pt = get_coef_context(nb, token_cache, c);
+      v = qcoeff[scan[c]];
+    }
+
+    av1_get_token_extra(v, &token, &extra);
+
+    add_token(&t, coef_probs[band[c]][pt], extra, (uint8_t)token,
+              (uint8_t)skip_eob, counts[band[c]][pt]);
+    eob_branch[band[c]][pt] += !skip_eob;
+
+    token_cache[scan[c]] = av1_pt_energy_class[token];
+    ++c;
+    pt = get_coef_context(nb, token_cache, c);
+  }
+  if (c < seg_eob) {
+    add_token_no_extra(&t, coef_probs[band[c]][pt], EOB_TOKEN, 0,
+                       counts[band[c]][pt]);
+    ++eob_branch[band[c]][pt];
+  }
+
+  t->token = EOSB_TOKEN;  // add this encoder-only token to finish each each
+                          // transform block
+  t++;
+
+  *tp = t;
+
+  av1_set_contexts(xd, pd, plane_bsize, tx_size, c > 0, blk_col, blk_row);
+}
+#endif  // CONFIG_COEF_INTERLEAVE
+
 struct is_skippable_args {
   uint16_t *eobs;
   int *skippable;
@@ -515,6 +600,11 @@ void av1_tokenize_sb(AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t, int dry_run,
   }
 
   if (!dry_run) {
+#if CONFIG_COEF_INTERLEAVE
+    td->counts->skip[ctx][0] += skip_inc;
+    av1_foreach_transformed_block_interleave(xd, bsize, tokenize_b_interleave,
+                                             &arg);
+#else   // CONFIG_COEF_INTERLEAVE
     int plane;
 
     td->counts->skip[ctx][0] += skip_inc;
@@ -525,6 +615,7 @@ void av1_tokenize_sb(AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t, int dry_run,
       (*t)->token = EOSB_TOKEN;
       (*t)++;
     }
+#endif  // CONFIG_COEF_INTERLEAVE
   } else {
     av1_foreach_transformed_block(xd, bsize, set_entropy_context_b, &arg);
   }

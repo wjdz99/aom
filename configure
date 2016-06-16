@@ -259,6 +259,7 @@ EXPERIMENT_LIST="
     ext_compound
     supertx
     ans
+    coef_interleave
 "
 CONFIG_LIST="
     dependency_tracking

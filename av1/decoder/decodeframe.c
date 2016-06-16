@@ -455,6 +455,158 @@ static MB_MODE_INFO *set_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   return &xd->mi[0]->mbmi;
 }
 
+#if CONFIG_COEF_INTERLEAVE
+static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
+                         int mi_row, int mi_col, aom_reader *r,
+                         BLOCK_SIZE bsize, int bwl, int bhl) {
+  AV1_COMMON *const cm = &pbi->common;
+  const int less8x8 = bsize < BLOCK_8X8;
+  const int bw = 1 << (bwl - 1);
+  const int bh = 1 << (bhl - 1);
+  const int x_mis = AOMMIN(bw, cm->mi_cols - mi_col);
+  const int y_mis = AOMMIN(bh, cm->mi_rows - mi_row);
+
+  MB_MODE_INFO *mbmi = set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis,
+                                   y_mis, bwl, bhl);
+
+  if (bsize >= BLOCK_8X8 && (cm->subsampling_x || cm->subsampling_y)) {
+    const BLOCK_SIZE uv_subsize =
+        ss_size_lookup[bsize][cm->subsampling_x][cm->subsampling_y];
+    if (uv_subsize == BLOCK_INVALID)
+      aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
+                         "Invalid block size.");
+  }
+
+  av1_read_mode_info(pbi, xd, mi_row, mi_col, r, x_mis, y_mis);
+
+  if (mbmi->skip) {
+    dec_reset_skip_context(xd);
+  }
+
+  {
+    const struct macroblockd_plane *const pd_y = &xd->plane[0];
+    const struct macroblockd_plane *const pd_c = &xd->plane[1];
+    const TX_SIZE tx_log2_y = mbmi->tx_size;
+    const TX_SIZE tx_log2_c =
+        dec_get_uv_tx_size(mbmi, pd_c->n4_wl, pd_c->n4_hl);
+    const int tx_sz_y = (1 << tx_log2_y);
+    const int tx_sz_c = (1 << tx_log2_c);
+    const int num_4x4_y_w = pd_y->n4_w;
+    const int num_4x4_y_h = pd_y->n4_h;
+    const int num_4x4_c_w = pd_c->n4_w;
+    const int num_4x4_c_h = pd_c->n4_h;
+    const int max_4x4_w_y =
+        num_4x4_y_w + (xd->mb_to_right_edge >= 0
+                           ? 0
+                           : xd->mb_to_right_edge >> (5 + pd_y->subsampling_x));
+    const int max_4x4_h_y =
+        num_4x4_y_h +
+        (xd->mb_to_bottom_edge >= 0 ? 0 : xd->mb_to_bottom_edge >>
+                                              (5 + pd_y->subsampling_y));
+    const int max_4x4_w_c =
+        num_4x4_c_w + (xd->mb_to_right_edge >= 0
+                           ? 0
+                           : xd->mb_to_right_edge >> (5 + pd_c->subsampling_x));
+    const int max_4x4_h_c =
+        num_4x4_c_h +
+        (xd->mb_to_bottom_edge >= 0 ? 0 : xd->mb_to_bottom_edge >>
+                                              (5 + pd_c->subsampling_y));
+    // The max_4x4_w/h may be smaller than tx_sz under some corner cases,
+    // i.e. when the SB is splitted by tile boundaries.
+    const int tu_num_w_y =
+        max_4x4_w_y < tx_sz_y ? 1 : (max_4x4_w_y + (tx_sz_y >> 1)) / tx_sz_y;
+    const int tu_num_h_y =
+        max_4x4_h_y < tx_sz_y ? 1 : (max_4x4_h_y + (tx_sz_y >> 1)) / tx_sz_y;
+    const int tu_num_w_c =
+        max_4x4_w_c < tx_sz_c ? 1 : (max_4x4_w_c + (tx_sz_c >> 1)) / tx_sz_c;
+    const int tu_num_h_c =
+        max_4x4_h_c < tx_sz_c ? 1 : (max_4x4_h_c + (tx_sz_c >> 1)) / tx_sz_c;
+    const int tu_num_y = tu_num_w_y * tu_num_h_y;
+    const int tu_num_c = tu_num_w_c * tu_num_h_c;
+
+    if (!is_inter_block(mbmi)) {
+      int tu_idx_y = 0, tu_idx_c = 0;
+      int row_y, col_y, row_c, col_c;
+      while (tu_idx_y < tu_num_y) {
+        row_y = (tu_idx_y / tu_num_w_y) * tx_sz_y;
+        col_y = (tu_idx_y % tu_num_w_y) * tx_sz_y;
+        predict_and_reconstruct_intra_block(xd, r, mbmi, 0, row_y, col_y,
+                                            tx_log2_y);
+        tu_idx_y++;
+
+        if (tu_idx_c < tu_num_c) {
+          row_c = (tu_idx_c / tu_num_w_c) * tx_sz_c;
+          col_c = (tu_idx_c % tu_num_w_c) * tx_sz_c;
+          predict_and_reconstruct_intra_block(xd, r, mbmi, 1, row_c, col_c,
+                                              tx_log2_c);
+          predict_and_reconstruct_intra_block(xd, r, mbmi, 2, row_c, col_c,
+                                              tx_log2_c);
+          tu_idx_c++;
+        }
+      }
+
+      // In 422 case, it's possilbe that Chroma has more TUs than Luma
+      while (tu_idx_c < tu_num_c) {
+        row_c = (tu_idx_c / tu_num_w_c) * tx_sz_c;
+        col_c = (tu_idx_c % tu_num_w_c) * tx_sz_c;
+        predict_and_reconstruct_intra_block(xd, r, mbmi, 1, row_c, col_c,
+                                            tx_log2_c);
+        predict_and_reconstruct_intra_block(xd, r, mbmi, 2, row_c, col_c,
+                                            tx_log2_c);
+        tu_idx_c++;
+      }
+    } else {
+      // Prediction
+      av1_build_inter_predictors_sb(xd, mi_row, mi_col,
+                                    AOMMAX(bsize, BLOCK_8X8));
+
+      // Reconstruction
+      if (!mbmi->skip) {
+        int eobtotal = 0;
+        int tu_idx_y = 0, tu_idx_c = 0;
+        int row_y, col_y, row_c, col_c;
+
+        while (tu_idx_y < tu_num_y) {
+          row_y = (tu_idx_y / tu_num_w_y) * tx_sz_y;
+          col_y = (tu_idx_y % tu_num_w_y) * tx_sz_y;
+          eobtotal +=
+              reconstruct_inter_block(xd, r, mbmi, 0, row_y, col_y, tx_log2_y);
+          tu_idx_y++;
+
+          if (tu_idx_c < tu_num_c) {
+            row_c = (tu_idx_c / tu_num_w_c) * tx_sz_c;
+            col_c = (tu_idx_c % tu_num_w_c) * tx_sz_c;
+            eobtotal += reconstruct_inter_block(xd, r, mbmi, 1, row_c, col_c,
+                                                tx_log2_c);
+            eobtotal += reconstruct_inter_block(xd, r, mbmi, 2, row_c, col_c,
+                                                tx_log2_c);
+            tu_idx_c++;
+          }
+        }
+
+        // In 422 case, it's possilbe that Chroma has more TUs than Luma
+        while (tu_idx_c < tu_num_c) {
+          row_c = (tu_idx_c / tu_num_w_c) * tx_sz_c;
+          col_c = (tu_idx_c % tu_num_w_c) * tx_sz_c;
+          eobtotal +=
+              reconstruct_inter_block(xd, r, mbmi, 1, row_c, col_c, tx_log2_c);
+          eobtotal +=
+              reconstruct_inter_block(xd, r, mbmi, 2, row_c, col_c, tx_log2_c);
+          tu_idx_c++;
+        }
+
+        if (!less8x8 && eobtotal == 0)
+#if CONFIG_MISC_FIXES
+          mbmi->has_no_coeffs = 1;  // skip loopfilter
+#else
+          mbmi->skip = 1;  // skip loopfilter
+#endif
+      }
+    }
+  }
+  xd->corrupted |= aom_reader_has_error(r);
+}
+#else  // CONFIG_COEF_INTERLEAVE
 static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                          int mi_row, int mi_col, aom_reader *r,
                          BLOCK_SIZE bsize, int bwl, int bhl) {
@@ -550,6 +702,7 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 
   xd->corrupted |= aom_reader_has_error(r);
 }
+#endif  // CONFIG_COEF_INTERLEAVE
 
 static INLINE int dec_partition_plane_context(const MACROBLOCKD *xd, int mi_row,
                                               int mi_col, int bsl) {
