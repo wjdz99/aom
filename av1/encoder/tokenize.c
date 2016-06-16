@@ -447,6 +447,12 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
     ++eob_branch[band[c]][pt];
   }
 
+#if CONFIG_COEF_INTERLEAVE
+  t->token = EOSB_TOKEN;  // add this encoder-only token to finish each each
+                          // transform block
+  t++;
+#endif  // CONFIG_COEF_INTERLEAVE
+
   *tp = t;
 
   av1_set_contexts(xd, pd, plane_bsize, tx_size, c > 0, blk_col, blk_row);
@@ -515,6 +521,10 @@ void av1_tokenize_sb(AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t, int dry_run,
   }
 
   if (!dry_run) {
+#if CONFIG_COEF_INTERLEAVE
+    td->counts->skip[ctx][0] += skip_inc;
+    av1_foreach_transformed_block_interleave(xd, bsize, tokenize_b, &arg);
+#else   // CONFIG_COEF_INTERLEAVE
     int plane;
 
     td->counts->skip[ctx][0] += skip_inc;
@@ -525,6 +535,7 @@ void av1_tokenize_sb(AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t, int dry_run,
       (*t)->token = EOSB_TOKEN;
       (*t)++;
     }
+#endif  // CONFIG_COEF_INTERLEAVE
   } else {
     av1_foreach_transformed_block(xd, bsize, set_entropy_context_b, &arg);
   }
