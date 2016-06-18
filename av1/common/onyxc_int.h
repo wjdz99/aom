@@ -176,6 +176,10 @@ typedef struct AV1Common {
   int show_frame;
   int last_show_frame;
   int show_existing_frame;
+#if CONFIG_EXT_REFS
+  // Flag for a frame used as a reference - not written to the bitstream
+  int is_reference_frame;
+#endif  // CONFIG_EXT_REFS
 
   // Flag signaling that the frame is encoded using only INTRA modes.
   uint8_t intra_only;
@@ -274,8 +278,13 @@ typedef struct AV1Common {
   int frame_parallel_decode;  // frame-based threading.
 
   // Context probabilities for reference frame prediction
+#if CONFIG_EXT_REFS
+  MV_REFERENCE_FRAME comp_fwd_ref[FWD_REFS];
+  MV_REFERENCE_FRAME comp_bwd_ref[BWD_REFS];
+#else
   MV_REFERENCE_FRAME comp_fixed_ref;
   MV_REFERENCE_FRAME comp_var_ref[2];
+#endif  // CONFIG_EXT_REFS
   REFERENCE_MODE reference_mode;
 
   FRAME_CONTEXT *fc;              /* this frame entropy */
