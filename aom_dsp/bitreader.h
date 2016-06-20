@@ -102,6 +102,15 @@ static INLINE int aom_read_tree(aom_reader *r, const aom_tree_index *tree,
 #endif
 }
 
+static INLINE int aom_read_tree_cdf(aom_reader *r, const uint16_t *cdf,
+                                    int nsymbs) {
+#if CONFIG_DAALA_EC
+  return daala_read_tree_cdf(r, cdf, nsymbs);
+#else
+# error "Unsupported bitreader operation"
+#endif
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
