@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4909bcae_c8f98f23",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-06-20T15:42:29Z",
+      "side": 1,
+      "message": "Do we need to synchronize? Vertical doesn\u0027t cut across a boundary right?",
+      "range": {
+        "startLine": 163,
+        "startChar": 6,
+        "endLine": 163,
+        "endChar": 15
+      },
+      "revId": "3e814330c31d444d9f1dda44f2f3e3167ed24fd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4909bcae_a8fe5b07",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-06-20T15:42:29Z",
+      "side": 1,
+      "message": "Do we need to synchronize this at all?",
+      "range": {
+        "startLine": 174,
+        "startChar": 6,
+        "endLine": 174,
+        "endChar": 16
+      },
+      "revId": "3e814330c31d444d9f1dda44f2f3e3167ed24fd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
