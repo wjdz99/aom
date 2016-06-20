@@ -1,5 +1,5 @@
 /*Daala video codec
-Copyright (c) 2001-2012 Daala project contributors.  All rights reserved.
+Copyright (c) 2001-2013 Daala project contributors.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -22,70 +22,97 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.*/
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
+#if !defined(_entcode_H)
+#define _entcode_H (1)
+#include <limits.h>
+#include <stddef.h>
+#include "av1/common/odintrin.h"
+
+/*Set this flag 1 to enable a "reduced overhead" version of the entropy coder.
+  This uses a partition function that more accurately follows the input
+   probability estimates at the expense of some additional CPU cost (though
+   still an order of magnitude less than a full division).
+
+  In classic arithmetic coding, the partition function maps a value x in the
+   range [0, ft] to a value in y in [0, r] with 0 < ft <= r via
+    y = x*r/ft.
+  Any deviation from this value increases coding inefficiency.
+
+  To avoid divisions, we require ft <= r < 2*ft (enforcing it by shifting up
+   ft if necessary), and replace that function with
+    y = x + OD_MINI(x, r - ft).
+  This counts values of x smaller than r - ft double compared to values larger
+   than r - ft, which over-estimates the probability of symbols at the start of
+   the alphabet, and under-estimates the probability of symbols at the end of
+   the alphabet.
+  The overall coding inefficiency assuming accurate probability models and
+   independent symbols is in the 1% range, which is similar to that of CABAC.
+
+  To reduce overhead even further, we split this into two cases:
+  1) r - ft > ft - (r - ft).
+     That is, we have more values of x that are double-counted than
+      single-counted.
+     In this case, we still double-count the first 2*r - 3*ft values of x, but
+      after that we alternate between single-counting and double-counting for
+      the rest.
+  2) r - ft < ft - (r - ft).
+     That is, we have more values of x that are single-counted than
+      double-counted.
+     In this case, we alternate between single-counting and double-counting for
+      the first 2*(r - ft) values of x, and single-count the rest.
+  For two equiprobable symbols in different places in the alphabet, this
+   reduces the maximum ratio of over-estimation to under-estimation from 2:1
+   for the previous partition function to either 4:3 or 3:2 (for each of the
+   two cases above, respectively), assuming symbol probabilities significantly
+   greater than 1/32768.
+  That reduces the worst-case per-symbol overhead from 1 bit to 0.58 bits.
+
+  The resulting function is
+    e = OD_MAXI(2*r - 3*ft, 0);
+    y = x + OD_MINI(x, e) + OD_MINI(OD_MAXI(x - e, 0) >> 1, r - ft).
+  Here, e is a value that is greater than 0 in case 1, and 0 in case 2.
+  This function is about 3 times as expensive to evaluate as the high-overhead
+   version, but still an order of magnitude cheaper than a division, since it
+   is composed only of very simple operations.
+  Because we want to fit in 16-bit registers and must use unsigned values to do
+   so, we use saturating subtraction to enforce the maximums with 0.
+
+  Enabling this reduces the measured overhead in ectest from 0.805% to 0.621%
+   (vs. 0.022% for the division-based partition function with r much greater
+   than ft).
+  It improves performance on ntt-short-1 by about 0.3%.*/
+#define OD_EC_REDUCED_OVERHEAD (1)
+
+/*OPT: od_ec_window must be at least 32 bits, but if you have fast arithmetic
+   on a larger type, you can speed up the decoder by using it here.*/
+typedef uint32_t od_ec_window;
+
+#define OD_EC_WINDOW_SIZE ((int)sizeof(od_ec_window) * CHAR_BIT)
+
+/*Unsigned subtraction with unsigned saturation.
+  This implementation of the macro is intentionally chosen to increase the
+   number of common subexpressions in the reduced-overhead partition function.
+  This matters for C code, but it would not for hardware with a saturating
+   subtraction instruction.*/
+#define OD_SUBSATU(a, b) ((a)-OD_MINI(a, b))
+
+/*The number of bits to use for the range-coded part of unsigned integers.*/
+#define OD_EC_UINT_BITS (4)
+
+/*The resolution of fractional-precision bit usage measurements, i.e.,
+   3 => 1/8th bits.*/
+#define OD_BITRES (3)
+
+extern const uint16_t OD_UNIFORM_CDFS_Q15[135];
+
+/*Returns a Q15 CDF for a uniform probability distribution of the given size.
+  n: The size of the distribution.
+     This must be at least 2, and no more than 16.*/
+#define OD_UNIFORM_CDF_Q15(n) (OD_UNIFORM_CDFS_Q15 + ((n) * ((n)-1) >> 1) - 1)
+
+/*See entcode.c for further documentation.*/
+
+OD_WARN_UNUSED_RESULT uint32_t od_ec_tell_frac(uint32_t nbits_total,
+                                               uint32_t rng);
+
 #endif
-
-#include "entcode.h"
-
-/*CDFs for uniform probability distributions of small sizes (2 through 16,
-   inclusive).*/
-const uint16_t OD_UNIFORM_CDFS_Q15[135] = {
-  16384, 32768,
-  10923, 21845, 32768,
-   8192, 16384, 24576, 32768,
-   6554, 13107, 19661, 26214, 32768,
-   5461, 10923, 16384, 21845, 27307, 32768,
-   4681,  9362, 14043, 18725, 23406, 28087, 32768,
-   4096,  8192, 12288, 16384, 20480, 24576, 28672, 32768,
-   3641,  7282, 10923, 14564, 18204, 21845, 25486, 29127, 32768,
-   3277,  6554,  9830, 13107, 16384, 19661, 22938, 26214, 29491, 32768,
-   2979,  5958,  8937, 11916, 14895, 17873, 20852, 23831, 26810, 29789, 32768,
-   2731,  5461,  8192, 10923, 13653, 16384, 19115, 21845, 24576, 27307, 30037,
-  32768,
-   2521,  5041,  7562, 10082, 12603, 15124, 17644, 20165, 22686, 25206, 27727,
-  30247, 32768,
-   2341,  4681,  7022,  9362, 11703, 14043, 16384, 18725, 21065, 23406, 25746,
-  28087, 30427, 32768,
-   2185,  4369,  6554,  8738, 10923, 13107, 15292, 17476, 19661, 21845, 24030,
-  26214, 28399, 30583, 32768,
-   2048,  4096,  6144,  8192, 10240, 12288, 14336, 16384, 18432, 20480, 22528,
-  24576, 26624, 28672, 30720, 32768
-};
-
-/*Given the current total integer number of bits used and the current value of
-   rng, computes the fraction number of bits used to OD_BITRES precision.
-  This is used by od_ec_enc_tell_frac() and od_ec_dec_tell_frac().
-  nbits_total: The number of whole bits currently used, i.e., the value
-                returned by od_ec_enc_tell() or od_ec_dec_tell().
-  rng: The current value of rng from either the encoder or decoder state.
-  Return: The number of bits scaled by 2**OD_BITRES.
-          This will always be slightly larger than the exact value (e.g., all
-           rounding error is in the positive direction).*/
-uint32_t od_ec_tell_frac(uint32_t nbits_total, uint32_t rng) {
-  uint32_t nbits;
-  int l;
-  int i;
-  /*To handle the non-integral number of bits still left in the encoder/decoder
-     state, we compute the worst-case number of bits of val that must be
-     encoded to ensure that the value is inside the range for any possible
-     subsequent bits.
-    The computation here is independent of val itself (the decoder does not
-     even track that value), even though the real number of bits used after
-     od_ec_enc_done() may be 1 smaller if rng is a power of two and the
-     corresponding trailing bits of val are all zeros.
-    If we did try to track that special case, then coding a value with a
-     probability of 1/(1 << n) might sometimes appear to use more than n bits.
-    This may help explain the surprising result that a newly initialized
-     encoder or decoder claims to have used 1 bit.*/
-  nbits = nbits_total << OD_BITRES;
-  l = 0;
-  for (i = OD_BITRES; i-- > 0;) {
-    int b;
-    rng = rng*rng >> 15;
-    b = (int)(rng >> 16);
-    l = l << 1 | b;
-    rng >>= b;
-  }
-  return nbits - l;
-}
