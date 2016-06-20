@@ -84,6 +84,15 @@ static INLINE void aom_write_tree(aom_writer *w, const aom_tree_index *tree,
 #endif
 }
 
+static INLINE void aom_write_tree_cdf(aom_writer *w, int symb,
+                                      const uint16_t *cdf, int nsymbs) {
+#if CONFIG_DAALA_EC
+  daala_write_tree_cdf(w, symb, cdf, nsymbs);
+#else
+# error "Unsupported bitwriter operation"
+#endif
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
