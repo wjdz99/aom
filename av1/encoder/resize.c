@@ -724,14 +724,14 @@ void av1_highbd_resize_plane(const uint8_t *const input, int height, int width,
       (uint16_t *)malloc(sizeof(uint16_t) * (width < height ? height : width));
   uint16_t *arrbuf = (uint16_t *)malloc(sizeof(uint16_t) * (height + height2));
   for (i = 0; i < height; ++i) {
-    highbd_resize_multistep(CONVERT_TO_SHORTPTR(input + in_stride * i), width,
+    highbd_resize_multistep(CONVERT_TO_SHORTPTR(input) + in_stride * i, width,
                             intbuf + width2 * i, width2, tmpbuf, bd);
   }
   for (i = 0; i < width2; ++i) {
     highbd_fill_col_to_arr(intbuf + i, width2, height, arrbuf);
     highbd_resize_multistep(arrbuf, height, arrbuf + height, height2, tmpbuf,
                             bd);
-    highbd_fill_arr_to_col(CONVERT_TO_SHORTPTR(output + i), out_stride, height2,
+    highbd_fill_arr_to_col(CONVERT_TO_SHORTPTR(output) + i, out_stride, height2,
                            arrbuf + height);
   }
   free(intbuf);
