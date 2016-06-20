@@ -896,8 +896,8 @@ static int64_t rd_pick_intra4x4block(AV1_COMP *cpi, MACROBLOCK *x, int row,
         memcpy(l, templ, num_4x4_blocks_high * sizeof(templ[0]));
         for (idy = 0; idy < num_4x4_blocks_high * 4; ++idy) {
           memcpy(best_dst16 + idy * 8,
-                 CONVERT_TO_SHORTPTR(dst_init + idy * dst_stride),
-                 num_4x4_blocks_wide * 4 * sizeof(uint16_t));
+                 CONVERT_TO_SHORTPTR(dst_init) + idy * dst_stride,
+                 num_4x4_blocks_wide * 4 * sizeof(best_dst16[0]));
         }
       }
     next_highbd : {}
@@ -905,8 +905,9 @@ static int64_t rd_pick_intra4x4block(AV1_COMP *cpi, MACROBLOCK *x, int row,
     if (best_rd >= rd_thresh) return best_rd;
 
     for (idy = 0; idy < num_4x4_blocks_high * 4; ++idy) {
-      memcpy(CONVERT_TO_SHORTPTR(dst_init + idy * dst_stride),
-             best_dst16 + idy * 8, num_4x4_blocks_wide * 4 * sizeof(uint16_t));
+      memcpy(CONVERT_TO_SHORTPTR(dst_init) + idy * dst_stride,
+             best_dst16 + idy * 8,
+             num_4x4_blocks_wide * 4 * sizeof(best_dst16[0]));
     }
 
     return best_rd;
