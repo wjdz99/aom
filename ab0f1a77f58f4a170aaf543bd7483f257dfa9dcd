@@ -16,6 +16,24 @@
       "revId": "ab0f1a77f58f4a170aaf543bd7483f257dfa9dcd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e98a709e_467a08a4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 2981,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-06-21T20:32:54Z",
+      "side": 1,
+      "message": "In case assign_filter \u003d\u003d SWITCHABLE, it will set mbmi-\u003einterp_filter to EIGHTTAP and then calculate interpolation results. After this, it will check whether there is subpixel. If there is, it will do filter search in the for loop, where the for loop will skip EIGHTTAP. Hence, there won\u0027t be an extra run.",
+      "parentUuid": "0990a4c9_c1f8c458",
+      "revId": "ab0f1a77f58f4a170aaf543bd7483f257dfa9dcd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
