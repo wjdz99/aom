@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09f42401_c74f147c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 900,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-06-21T01:22:50Z",
+      "side": 1,
+      "message": "It seems to me these changes do not actually do anything different, does it?",
+      "revId": "cba5bed539fc938f90478402d8a3e5e7b72f3413",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09f42401_a754880d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 910,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-06-21T01:22:50Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "cba5bed539fc938f90478402d8a3e5e7b72f3413",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09f42401_07ee1c93",
+        "filename": "av1/encoder/resize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 735,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-06-21T01:22:50Z",
+      "side": 1,
+      "message": "not clear why this would be necessary, since they do the same thing.",
+      "revId": "cba5bed539fc938f90478402d8a3e5e7b72f3413",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
