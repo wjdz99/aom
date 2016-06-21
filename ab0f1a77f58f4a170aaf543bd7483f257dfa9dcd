@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0990a4c9_c1f8c458",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 2981,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2016-06-21T18:23:17Z",
+      "side": 1,
+      "message": "if mbmi-\u003einterp_filter \u003d\u003d SWITCHABLE and assign_filter \u003d\u003d SWITCHABLE, would this cause you run an additional round of build_inter_predictor?",
+      "revId": "ab0f1a77f58f4a170aaf543bd7483f257dfa9dcd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
