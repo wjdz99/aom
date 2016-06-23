@@ -341,7 +341,9 @@ static const arg_def_t sharpness =
 static const arg_def_t static_thresh =
     ARG_DEF(NULL, "static-thresh", 1, "Motion detection threshold");
 static const arg_def_t auto_altref =
-    ARG_DEF(NULL, "auto-alt-ref", 1, "Enable automatic alt reference frames");
+    ARG_DEF(NULL, "auto-alt-ref", 1,
+            "Enable automatic alt reference frames "
+            "(0: off, 1: single, 2: multiple (default))");
 static const arg_def_t arnr_maxframes =
     ARG_DEF(NULL, "arnr-maxframes", 1, "AltRef max frames (0..15)");
 static const arg_def_t arnr_strength =
