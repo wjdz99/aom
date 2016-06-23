@@ -411,9 +411,9 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
     if (is_compound) {
 #if CONFIG_EXT_REFS
+      // Write forward references.
       const int bit_fwd = (mbmi->ref_frame[0] == GOLDEN_FRAME ||
                            mbmi->ref_frame[0] == LAST3_FRAME);
-      const int bit_bwd = mbmi->ref_frame[1] == ALTREF_FRAME;
       aom_write(w, bit_fwd, av1_get_pred_prob_comp_fwdref_p(cm, xd));
       if (!bit_fwd) {
         const int bit1_fwd = mbmi->ref_frame[0] == LAST_FRAME;
@@ -422,7 +422,11 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         const int bit2_fwd = mbmi->ref_frame[0] == GOLDEN_FRAME;
         aom_write(w, bit2_fwd, av1_get_pred_prob_comp_fwdref_p2(cm, xd));
       }
-      aom_write(w, bit_bwd, av1_get_pred_prob_comp_bwdref_p(cm, xd));
+      // Write forward references.
+      {
+        const int bit_bwd = mbmi->ref_frame[1] == ALTREF_FRAME;
+        aom_write(w, bit_bwd, av1_get_pred_prob_comp_bwdref_p(cm, xd));
+      }
 #else
       aom_write(w, mbmi->ref_frame[0] == GOLDEN_FRAME,
                 av1_get_pred_prob_comp_ref_p(cm, xd));
@@ -432,7 +436,6 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       const int bit0 = (mbmi->ref_frame[0] == ALTREF_FRAME ||
                         mbmi->ref_frame[0] == BWDREF_FRAME);
       aom_write(w, bit0, av1_get_pred_prob_single_ref_p1(cm, xd));
-
       if (bit0) {
         const int bit1 = mbmi->ref_frame[0] == ALTREF_FRAME;
         aom_write(w, bit1, av1_get_pred_prob_single_ref_p2(cm, xd));
@@ -440,7 +443,6 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         const int bit2 = (mbmi->ref_frame[0] == LAST3_FRAME ||
                           mbmi->ref_frame[0] == GOLDEN_FRAME);
         aom_write(w, bit2, av1_get_pred_prob_single_ref_p3(cm, xd));
-
         if (!bit2) {
           const int bit3 = mbmi->ref_frame[0] != LAST_FRAME;
           aom_write(w, bit3, av1_get_pred_prob_single_ref_p4(cm, xd));
@@ -748,6 +750,44 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   if (frame_is_intra_only(cm)) {
     write_mb_modes_kf(cm, xd, xd->mi, w);
   } else {
+#if 0
+    if (cm->current_video_frame == 1 && cm->show_frame == 0 &&
+        mi_row == 12 && mi_col == 6) {
+      fprintf(stdout, "********ENCODER********\n");
+      fflush(stdout);
+    }
+    if (cm->current_video_frame == 1 && cm->show_frame == 0) {
+      int mv_row[2], mv_col[2];
+      if (m->mbmi.sb_type < BLOCK_8X8) {
+        mv_row[0] = m->bmi[0].as_mv[0].as_mv.row;
+        mv_col[0] = m->bmi[0].as_mv[0].as_mv.col;
+        if (m->mbmi.ref_frame[1] > 0) {
+          mv_row[1] = m->bmi[0].as_mv[1].as_mv.row;
+          mv_col[1] = m->bmi[0].as_mv[1].as_mv.col;
+        } else {
+          mv_row[1] = -1;
+          mv_col[1] = -1;
+        }
+      } else {
+        mv_row[0] = m->mbmi.mv[0].as_mv.row;
+        mv_col[0] = m->mbmi.mv[0].as_mv.col;
+        if (m->mbmi.ref_frame[1] > 0) {
+          mv_row[1] = m->mbmi.mv[1].as_mv.row;
+          mv_col[1] = m->mbmi.mv[1].as_mv.col;
+        } else {
+          mv_row[1] = -1;
+          mv_col[1] = -1;
+        }
+      }
+      fprintf(stdout, "Frame=%d, (mi_row,mi_col)=(%d,%d), bsize=%d, mode=%d, "
+              "ref_frame=(%d,%d), mv[0]=(%d,%d), mv[1]=(%d,%d), "
+              "aom_writer->range=%d, aom_writer->count=%d\n",
+              cm->current_video_frame, mi_row, mi_col, m->mbmi.sb_type,
+              m->mbmi.mode, m->mbmi.ref_frame[0], m->mbmi.ref_frame[1],
+              mv_row[0], mv_col[0], mv_row[1], mv_col[1], w->range, w->count);
+      fflush(stdout);
+    }
+#endif  // 0
     pack_inter_mode_mvs(cpi, m, w);
   }
 
