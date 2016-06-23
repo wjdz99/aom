@@ -43,6 +43,29 @@
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
 
+#if CONFIG_EXT_REFS
+
+#define LAST_FRAME_MODE_MASK                                      \
+  ((1 << INTRA_FRAME) | (1 << LAST2_FRAME) | (1 << LAST3_FRAME) | \
+   (1 << GOLDEN_FRAME) | (1 << BWDREF_FRAME) | (1 << ALTREF_FRAME))
+#define LAST2_FRAME_MODE_MASK                                    \
+  ((1 << INTRA_FRAME) | (1 << LAST_FRAME) | (1 << LAST3_FRAME) | \
+   (1 << GOLDEN_FRAME) | (1 << BWDREF_FRAME) | (1 << ALTREF_FRAME))
+#define LAST3_FRAME_MODE_MASK                                    \
+  ((1 << INTRA_FRAME) | (1 << LAST_FRAME) | (1 << LAST2_FRAME) | \
+   (1 << GOLDEN_FRAME) | (1 << BWDREF_FRAME) | (1 << ALTREF_FRAME))
+#define GOLDEN_FRAME_MODE_MASK                                   \
+  ((1 << INTRA_FRAME) | (1 << LAST_FRAME) | (1 << LAST2_FRAME) | \
+   (1 << LAST3_FRAME) | (1 << BWDREF_FRAME) | (1 << ALTREF_FRAME))
+#define BWDREF_FRAME_MODE_MASK                                   \
+  ((1 << INTRA_FRAME) | (1 << LAST_FRAME) | (1 << LAST2_FRAME) | \
+   (1 << LAST3_FRAME) | (1 << GOLDEN_FRAME) | (1 << ALTREF_FRAME))
+#define ALTREF_FRAME_MODE_MASK                                   \
+  ((1 << INTRA_FRAME) | (1 << LAST_FRAME) | (1 << LAST2_FRAME) | \
+   (1 << LAST3_FRAME) | (1 << GOLDEN_FRAME) | (1 << BWDREF_FRAME))
+
+#else
+
 #define LAST_FRAME_MODE_MASK \
   ((1 << GOLDEN_FRAME) | (1 << ALTREF_FRAME) | (1 << INTRA_FRAME))
 #define GOLDEN_FRAME_MODE_MASK \
@@ -50,7 +73,13 @@
 #define ALT_REF_MODE_MASK \
   ((1 << LAST_FRAME) | (1 << GOLDEN_FRAME) | (1 << INTRA_FRAME))
 
+#endif  // CONFIG_EXT_REFS
+
+#if CONFIG_EXT_REFS
+#define SECOND_REF_FRAME_MASK ((1 << ALTREF_FRAME) | (1 << BWDREF_FRAME) | 0x01)
+#else
 #define SECOND_REF_FRAME_MASK ((1 << ALTREF_FRAME) | 0x01)
+#endif  // CONFIG_EXT_REFS
 
 #define MIN_EARLY_TERM_INDEX 3
 #define NEW_MV_DISCOUNT_FACTOR 8
@@ -82,35 +111,94 @@ struct rdcost_block_args {
 #define LAST_NEW_MV_INDEX 6
 static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { NEARESTMV, { LAST_FRAME, NONE } },
+#if CONFIG_EXT_REFS
+  { NEARESTMV, { LAST2_FRAME, NONE } },
+  { NEARESTMV, { LAST3_FRAME, NONE } },
+  { NEARESTMV, { BWDREF_FRAME, NONE } },
+#endif  // CONFIG_EXT_REFS
   { NEARESTMV, { ALTREF_FRAME, NONE } },
   { NEARESTMV, { GOLDEN_FRAME, NONE } },
 
   { DC_PRED, { INTRA_FRAME, NONE } },
 
   { NEWMV, { LAST_FRAME, NONE } },
+#if CONFIG_EXT_REFS
+  { NEWMV, { LAST2_FRAME, NONE } },
+  { NEWMV, { LAST3_FRAME, NONE } },
+  { NEWMV, { BWDREF_FRAME, NONE } },
+#endif  // CONFIG_EXT_REFS
   { NEWMV, { ALTREF_FRAME, NONE } },
   { NEWMV, { GOLDEN_FRAME, NONE } },
 
   { NEARMV, { LAST_FRAME, NONE } },
+#if CONFIG_EXT_REFS
+  { NEARMV, { LAST2_FRAME, NONE } },
+  { NEARMV, { LAST3_FRAME, NONE } },
+  { NEARMV, { BWDREF_FRAME, NONE } },
+#endif  // CONFIG_EXT_REFS
   { NEARMV, { ALTREF_FRAME, NONE } },
   { NEARMV, { GOLDEN_FRAME, NONE } },
 
   { ZEROMV, { LAST_FRAME, NONE } },
+#if CONFIG_EXT_REFS
+  { ZEROMV, { LAST2_FRAME, NONE } },
+  { ZEROMV, { LAST3_FRAME, NONE } },
+  { ZEROMV, { BWDREF_FRAME, NONE } },
+#endif  // CONFIG_EXT_REFS
   { ZEROMV, { GOLDEN_FRAME, NONE } },
   { ZEROMV, { ALTREF_FRAME, NONE } },
 
+  // TODO(zoeliu): May need to reconsider the order on the modes to check
+
   { NEARESTMV, { LAST_FRAME, ALTREF_FRAME } },
+#if CONFIG_EXT_REFS
+  { NEARESTMV, { LAST2_FRAME, ALTREF_FRAME } },
+  { NEARESTMV, { LAST3_FRAME, ALTREF_FRAME } },
+#endif  // CONFIG_EXT_REFS
   { NEARESTMV, { GOLDEN_FRAME, ALTREF_FRAME } },
+#if CONFIG_EXT_REFS
+  { NEARESTMV, { LAST_FRAME, BWDREF_FRAME } },
+  { NEARESTMV, { LAST2_FRAME, BWDREF_FRAME } },
+  { NEARESTMV, { LAST3_FRAME, BWDREF_FRAME } },
+  { NEARESTMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+#endif  // CONFIG_EXT_REFS
 
   { TM_PRED, { INTRA_FRAME, NONE } },
 
   { NEARMV, { LAST_FRAME, ALTREF_FRAME } },
   { NEWMV, { LAST_FRAME, ALTREF_FRAME } },
+#if CONFIG_EXT_REFS
+  { NEARMV, { LAST2_FRAME, ALTREF_FRAME } },
+  { NEWMV, { LAST2_FRAME, ALTREF_FRAME } },
+  { NEARMV, { LAST3_FRAME, ALTREF_FRAME } },
+  { NEWMV, { LAST3_FRAME, ALTREF_FRAME } },
+#endif  // CONFIG_EXT_REFS
   { NEARMV, { GOLDEN_FRAME, ALTREF_FRAME } },
   { NEWMV, { GOLDEN_FRAME, ALTREF_FRAME } },
 
+#if CONFIG_EXT_REFS
+  { NEARMV, { LAST_FRAME, BWDREF_FRAME } },
+  { NEWMV, { LAST_FRAME, BWDREF_FRAME } },
+  { NEARMV, { LAST2_FRAME, BWDREF_FRAME } },
+  { NEWMV, { LAST2_FRAME, BWDREF_FRAME } },
+  { NEARMV, { LAST3_FRAME, BWDREF_FRAME } },
+  { NEWMV, { LAST3_FRAME, BWDREF_FRAME } },
+  { NEARMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+  { NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+#endif  // CONFIG_EXT_REFS
+
   { ZEROMV, { LAST_FRAME, ALTREF_FRAME } },
+#if CONFIG_EXT_REFS
+  { ZEROMV, { LAST2_FRAME, ALTREF_FRAME } },
+  { ZEROMV, { LAST3_FRAME, ALTREF_FRAME } },
+#endif  // CONFIG_EXT_REFS
   { ZEROMV, { GOLDEN_FRAME, ALTREF_FRAME } },
+#if CONFIG_EXT_REFS
+  { ZEROMV, { LAST_FRAME, BWDREF_FRAME } },
+  { ZEROMV, { LAST2_FRAME, BWDREF_FRAME } },
+  { ZEROMV, { LAST3_FRAME, BWDREF_FRAME } },
+  { ZEROMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+#endif  // CONFIG_EXT_REFS
 
   { H_PRED, { INTRA_FRAME, NONE } },
   { V_PRED, { INTRA_FRAME, NONE } },
@@ -123,9 +211,24 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
 };
 
 static const REF_DEFINITION av1_ref_order[MAX_REFS] = {
-  { { LAST_FRAME, NONE } },           { { GOLDEN_FRAME, NONE } },
+  { { LAST_FRAME, NONE } },
+#if CONFIG_EXT_REFS
+  { { LAST2_FRAME, NONE } },          { { LAST3_FRAME, NONE } },
+#endif  // CONFIG_EXT_REFS
+  { { GOLDEN_FRAME, NONE } },
+#if CONFIG_EXT_REFS
+  { { BWDREF_FRAME, NONE } },
+#endif  // CONFIG_EXT_REFS
   { { ALTREF_FRAME, NONE } },         { { LAST_FRAME, ALTREF_FRAME } },
-  { { GOLDEN_FRAME, ALTREF_FRAME } }, { { INTRA_FRAME, NONE } },
+#if CONFIG_EXT_REFS
+  { { LAST2_FRAME, ALTREF_FRAME } },  { { LAST3_FRAME, ALTREF_FRAME } },
+#endif  // CONFIG_EXT_REFS
+  { { GOLDEN_FRAME, ALTREF_FRAME } },
+#if CONFIG_EXT_REFS
+  { { LAST_FRAME, BWDREF_FRAME } },   { { LAST2_FRAME, BWDREF_FRAME } },
+  { { LAST3_FRAME, BWDREF_FRAME } },  { { GOLDEN_FRAME, BWDREF_FRAME } },
+#endif  // CONFIG_EXT_REFS
+  { { INTRA_FRAME, NONE } },
 };
 
 static void swap_block_ptr(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx, int m, int n,
