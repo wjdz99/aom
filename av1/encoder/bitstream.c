@@ -303,10 +303,12 @@ static void pack_mb_tokens(aom_writer *w, TOKENEXTRA **tp,
 
   while (p < stop && p->token != EOSB_TOKEN) {
     const int t = p->token;
+#if !CONFIG_RANS
     const struct av1_token *const a = &av1_coef_encodings[t];
     int i = 0;
     int v = a->value;
     int n = a->len;
+#endif  // !CONFIG_RANS
 #if CONFIG_AOM_HIGHBITDEPTH
     const av1_extra_bit *b;
     if (bit_depth == AOM_BITS_12)
@@ -320,6 +322,21 @@ static void pack_mb_tokens(aom_writer *w, TOKENEXTRA **tp,
     (void)bit_depth;
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
+#if CONFIG_RANS
+    if (!p->skip_eob_node) aom_write(w, t != EOB_TOKEN, p->context_tree[0]);
+
+    if (t != EOB_TOKEN) {
+      aom_write(w, t != ZERO_TOKEN, p->context_tree[1]);
+      if (t != ZERO_TOKEN) {
+        struct rans_sym s;
+        const rans_lut *token_cdf = p->token_cdf;
+        assert(token_cdf);
+        s.cum_prob = (*token_cdf)[t - ONE_TOKEN];
+        s.prob = (*token_cdf)[t - ONE_TOKEN + 1] - s.cum_prob;
+        buf_rans_write(w, &s);
+      }
+    }
+#else
     /* skip one or two nodes */
     if (p->skip_eob_node) {
       n -= p->skip_eob_node;
@@ -345,6 +362,7 @@ static void pack_mb_tokens(aom_writer *w, TOKENEXTRA **tp,
     } else {
       aom_write_tree_bits(w, av1_coef_tree, p->context_tree, v, n, i);
     }
+#endif  // CONFIG_RANS
 
     if (b->base_val) {
       const int e = p->extra, l = b->len;
@@ -940,7 +958,7 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
       /* Is coef updated at all */
       if (update[1] == 0 || savings < 0) {
         aom_write_bit(bc, 0);
-        return;
+        break;
       }
       aom_write_bit(bc, 1);
       for (i = 0; i < PLANE_TYPES; ++i) {
@@ -973,7 +991,7 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
           }
         }
       }
-      return;
+      break;
     }
 
     case ONE_LOOP_REDUCED: {
@@ -1026,10 +1044,13 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
       if (updates == 0) {
         aom_write_bit(bc, 0);  // no updates
       }
-      return;
+      break;
     }
     default: assert(0);
   }
+#if CONFIG_RANS
+  av1_coef_pareto_cdfs(cpi->common.fc);
+#endif  // CONFIG_RANS
 }
 
 static void update_coef_probs(AV1_COMP *cpi, aom_writer *w) {
