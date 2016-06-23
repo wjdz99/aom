@@ -46,6 +46,8 @@
 extern "C" {
 #endif
 
+#define MAX_UPSAMPLED_BUFS (MAX_REF_FRAMES + 1)
+
 typedef struct {
   int nmvjointcost[MV_JOINTS];
   int nmvcosts[2][MV_VALS];
@@ -308,8 +310,8 @@ typedef struct AV1_COMP {
   YV12_BUFFER_CONFIG scaled_last_source;
 
   // Up-sampled reference buffers
-  EncRefCntBuffer upsampled_ref_bufs[MAX_REF_FRAMES];
-  int upsampled_ref_idx[MAX_REF_FRAMES];
+  EncRefCntBuffer upsampled_ref_bufs[MAX_UPSAMPLED_BUFS];
+  int upsampled_ref_idx[MAX_UPSAMPLED_BUFS];
 
   TileDataEnc *tile_data;
   int allocated_tiles;  // Keep track of memory allocated for tiles.
