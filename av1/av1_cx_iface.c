@@ -58,7 +58,7 @@ struct av1_extracfg {
 
 static struct av1_extracfg default_extra_cfg = {
   0,              // cpu_used
-  1,              // enable_auto_alt_ref
+  2,              // enable_auto_alt_ref
   0,              // noise_sensitivity
   0,              // sharpness
   0,              // static_thresh
