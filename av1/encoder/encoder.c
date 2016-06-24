@@ -3498,6 +3498,61 @@ static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
   return mask;
 }
 
+#define DUMP_RECON_FRAMES 0
+
+#if DUMP_RECON_FRAMES == 1
+// NOTE(zoeliu): For debug - Output the filtered reconstructed video.
+static void dump_filtered_recon_frames(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  const YV12_BUFFER_CONFIG *recon_buf = cm->frame_to_show;
+  int h;
+  char file_name[256] = "/tmp/enc_filtered_recon.yuv";
+  FILE *f_recon = NULL;
+
+  if (recon_buf == NULL || !cm->show_frame) {
+    printf("Frame %d is not ready or no show to dump.\n",
+           cm->current_video_frame);
+    return;
+  }
+
+  if (cm->current_video_frame == 0) {
+    if ((f_recon = fopen(file_name, "wb")) == NULL) {
+      printf("Unable to open file %s to write.\n", file_name);
+      return;
+    }
+  } else {
+    if ((f_recon = fopen(file_name, "ab")) == NULL) {
+      printf("Unable to open file %s to append.\n", file_name);
+      return;
+    }
+  }
+  printf("\nFrame=%5d, encode_update_type[%5d]=%1d, show_existing_frame=%d, "
+         "y_stride=%4d, uv_stride=%4d, width=%4d, height=%4d\n",
+         cm->current_video_frame, cpi->twopass.gf_group.index,
+         cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index],
+         cm->show_existing_frame,
+         recon_buf->y_stride, recon_buf->uv_stride, cm->width, cm->height);
+
+  // --- Y ---
+  for (h = 0; h < cm->height; ++h) {
+    fwrite(&recon_buf->y_buffer[h*recon_buf->y_stride],
+           1, cm->width, f_recon);
+  }
+  // --- U ---
+  for (h = 0; h < (cm->height >> 1); ++h) {
+    fwrite(&recon_buf->u_buffer[h*recon_buf->uv_stride],
+           1, (cm->width >> 1), f_recon);
+  }
+  // --- V ---
+  for (h = 0; h < (cm->height >> 1); ++h) {
+    fwrite(&recon_buf->v_buffer[h*recon_buf->uv_stride],
+           1, (cm->width >> 1), f_recon);
+  }
+
+  fclose(f_recon);
+}
+#endif  // DUMP_RECON_FRAMES
+
 static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
                                       uint8_t *dest,
                                       unsigned int *frame_flags) {
@@ -3543,6 +3598,11 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
     // Set up frame to show to get ready for stats collection.
     cm->frame_to_show = get_frame_new_buffer(cm);
+
+#if DUMP_RECON_FRAMES == 1
+    // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
+    dump_filtered_recon_frames(cpi);
+#endif  // DUMP_RECON_FRAMES
 
     // Update the LAST_FRAME in the reference frame buffer.
     av1_update_reference_frames(cpi);
@@ -3663,6 +3723,12 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   // build the bitstream
   av1_pack_bitstream(cpi, dest, size);
+
+#if DUMP_RECON_FRAMES == 1
+  // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
+  if (cm->show_frame)
+    dump_filtered_recon_frames(cpi);
+#endif  // DUMP_RECON_FRAMES
 
 #if CONFIG_EXT_REFS
   if (cpi->rc.is_last_bipred_frame) {
