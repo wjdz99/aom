@@ -14,6 +14,7 @@
 
 #include <assert.h>
 #include "./aom_config.h"
+#include "aom_util/debug_util.h"
 #if CONFIG_DAALA_EC
 #include "aom_dsp/daalaboolwriter.h"
 #else
@@ -48,6 +49,9 @@ static INLINE void aom_stop_encode(aom_writer *bc) {
 }
 
 static INLINE void aom_write(aom_writer *br, int bit, int probability) {
+#if CONFIG_BITSTREAM_DEBUG
+  bitstream_queue_push(bit, probability);
+#endif
 #if CONFIG_DAALA_EC
   aom_daala_write(br, bit, probability);
 #else

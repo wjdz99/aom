@@ -263,6 +263,7 @@ EXPERIMENT_LIST="
     supertx
     ans
     daala_ec
+    bitstream_debug
 "
 CONFIG_LIST="
     dependency_tracking
