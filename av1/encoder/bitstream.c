@@ -16,6 +16,7 @@
 #include "aom/aom_encoder.h"
 #include "aom_dsp/bitwriter_buffer.h"
 #include "aom_dsp/aom_dsp_common.h"
+#include "aom_util/debug_util.h"
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem_ops.h"
 #include "aom_ports/system_state.h"
@@ -1752,6 +1753,10 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dest, size_t *size) {
                              // tile size marker in the header
 #endif
 
+#if CONFIG_BITSTREAM_DEBUG
+  AV1_COMMON *const cm = &cpi->common;
+  bitstream_queue_reset();
+#endif
   write_uncompressed_header(cpi, &wb);
   saved_wb = wb;
   // don't know in advance first part. size

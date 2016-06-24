@@ -24,6 +24,7 @@
 #include "aom_dsp/dkboolreader.h"
 #endif
 #include "aom_dsp/prob.h"
+#include "aom_util/debug_util.h"
 #include "av1/common/odintrin.h"
 
 #ifdef __cplusplus
@@ -65,11 +66,29 @@ static INLINE int aom_reader_has_error(aom_reader *r) {
 }
 
 static INLINE int aom_read(aom_reader *r, int prob) {
-#if CONFIG_DAALA_EC
-  return aom_daala_read(r, prob);
-#else
-  return aom_dk_read(r, prob);
+  int result;
+#if CONFIG_BITSTREAM_DEBUG
+  int ref_result, ref_prob;
 #endif
+
+#if CONFIG_DAALA_EC
+  result = aom_daala_read(r, prob);
+#else
+  result = aom_dk_read(r, prob);
+#endif
+
+#if CONFIG_BITSTREAM_DEBUG
+  bitstream_queue_pop(&ref_result, &ref_prob);
+  if (prob != ref_prob) {
+    printf("prob error prob %d ref_prob %d\n", prob, ref_prob);
+    assert(0);
+  }
+  if (result != ref_result) {
+    printf("result error result %d ref_result %d\n", result, ref_result);
+    assert(0);
+  }
+#endif
+  return result;
 }
 
 static INLINE int aom_read_bit(aom_reader *r) {
