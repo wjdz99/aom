@@ -61,6 +61,7 @@
 #include "aom_ports/mem.h"
 #include "aom_ports/system_state.h"
 #include "aom_scale/aom_scale.h"
+#include "aom_util/debug_util.h"
 
 #define AM_SEGMENT_ID_INACTIVE 7
 #define AM_SEGMENT_ID_ACTIVE 0
@@ -3783,6 +3784,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   int arf_src_index;
   int i;
 
+#if CONFIG_BITSTREAM_DEBUG
+  bitstream_queue_record();
+#endif
   aom_usec_timer_start(&cmptimer);
 
   av1_set_high_precision_mv(cpi, ALTREF_HIGH_PRECISION_MV);
