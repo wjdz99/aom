@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03c96579_8aa9fb8d",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1337,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-06-24T01:01:36Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 1337,
+        "startChar": 6,
+        "endLine": 1337,
+        "endChar": 18
+      },
+      "revId": "28a86d8e1fae64256b2b2aa94e0517bc2d5edfcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03c96579_caba13d0",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1338,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-06-24T01:01:36Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 1338,
+        "startChar": 6,
+        "endLine": 1338,
+        "endChar": 22
+      },
+      "revId": "28a86d8e1fae64256b2b2aa94e0517bc2d5edfcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
