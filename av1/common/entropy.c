@@ -1336,12 +1336,14 @@ void av1_model_to_full_probs(const aom_prob *model, aom_prob *full) {
 
 #if CONFIG_RANS
 static void build_token_cdfs(const aom_prob *pdf_model, rans_lut cdf) {
-  int i;
+  AnsP10 pdf_tab[ENTROPY_TOKENS - 1];
   assert(pdf_model[2] != 0);
-  cdf[0] = 0;
-  for (i = 0; i < ENTROPY_TOKENS - 2; ++i) {
-    cdf[i + 1] = cdf[i] + av1_pareto8_token_probs[pdf_model[2] - 1][i];
-  }
+  // TODO(aconverse): Investigate making the precision of the zero and EOB tree
+  // nodes 10-bits.
+  aom_rans_merge_prob8_pdf(pdf_tab, pdf_model[1],
+                           av1_pareto8_token_probs[pdf_model[2] - 1],
+                           ENTROPY_TOKENS - 2);
+  aom_rans_build_cdf_from_pdf(pdf_tab, cdf);
 }
 
 void av1_coef_pareto_cdfs(FRAME_CONTEXT *fc) {

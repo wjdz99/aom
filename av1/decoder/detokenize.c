@@ -53,7 +53,7 @@ static int decode_coefs(const MACROBLOCKD *xd, PLANE_TYPE type,
 static int decode_coefs(const MACROBLOCKD *xd, PLANE_TYPE type,
                         tran_low_t *dqcoeff, TX_SIZE tx_size, const int16_t *dq,
                         int ctx, const int16_t *scan, const int16_t *nb,
-                        aom_reader *r)
+                        aom_reader *__restrict r)
 #endif
 {
   FRAME_COUNTS *counts = xd->counts;
@@ -129,13 +129,15 @@ static int decode_coefs(const MACROBLOCKD *xd, PLANE_TYPE type,
     int val = -1;
     band = *band_translate++;
     prob = coef_probs[band][ctx];
+
+#if CONFIG_RANS
     if (counts) ++eob_branch_count[band][ctx];
     if (!aom_read(r, prob[EOB_CONTEXT_NODE])) {
       INCREMENT_COUNT(EOB_MODEL_TOKEN);
       break;
     }
-
-    while (!aom_read(r, prob[ZERO_CONTEXT_NODE])) {
+    cdf = &coef_cdfs[band][ctx];
+    while ((token = ZERO_TOKEN + rans_read(r, *cdf)) == ZERO_TOKEN) {
       INCREMENT_COUNT(ZERO_TOKEN);
       dqv = dq[1];
       token_cache[scan[c]] = 0;
@@ -144,12 +146,8 @@ static int decode_coefs(const MACROBLOCKD *xd, PLANE_TYPE type,
       ctx = get_coef_context(nb, token_cache, c);
       band = *band_translate++;
       prob = coef_probs[band][ctx];
+      cdf = &coef_cdfs[band][ctx];
     }
-
-#if CONFIG_RANS
-    cdf = &coef_cdfs[band][ctx];
-    token =
-        ONE_TOKEN + aom_read_tree_cdf(r, *cdf, CATEGORY6_TOKEN - ONE_TOKEN + 1);
     INCREMENT_COUNT(ONE_TOKEN + (token > ONE_TOKEN));
     switch (token) {
       case ONE_TOKEN:
@@ -173,31 +171,48 @@ static int decode_coefs(const MACROBLOCKD *xd, PLANE_TYPE type,
         break;
       case CATEGORY6_TOKEN: {
 #if CONFIG_MISC_FIXES
-        const int skip_bits = TX_SIZES - 1 - tx_size;
+      const int skip_bits = TX_SIZES - 1 - tx_size;
 #else
-        const int skip_bits = 0;
+      const int skip_bits = 0;
 #endif
-        const uint8_t *cat6p = cat6_prob + skip_bits;
+      const uint8_t *cat6p = cat6_prob + skip_bits;
 #if CONFIG_AOM_HIGHBITDEPTH
-        switch (xd->bd) {
-          case AOM_BITS_8:
-            val = CAT6_MIN_VAL + read_coeff(cat6p, 14 - skip_bits, r);
-            break;
-          case AOM_BITS_10:
-            val = CAT6_MIN_VAL + read_coeff(cat6p, 16 - skip_bits, r);
-            break;
-          case AOM_BITS_12:
-            val = CAT6_MIN_VAL + read_coeff(cat6p, 18 - skip_bits, r);
-            break;
-          default: assert(0); return -1;
-        }
-#else
-        val = CAT6_MIN_VAL + read_coeff(cat6p, 14 - skip_bits, r);
-#endif
-        break;
+      switch (xd->bd) {
+        case AOM_BITS_8:
+          val = CAT6_MIN_VAL + read_coeff(cat6p, 14 - skip_bits, r);
+          break;
+        case AOM_BITS_10:
+          val = CAT6_MIN_VAL + read_coeff(cat6p, 16 - skip_bits, r);
+          break;
+        case AOM_BITS_12:
+          val = CAT6_MIN_VAL + read_coeff(cat6p, 18 - skip_bits, r);
+          break;
+        default: assert(0); return -1;
       }
+#else
+      val = CAT6_MIN_VAL + read_coeff(cat6p, 14 - skip_bits, r);
+#endif
+      }
+      break;
     }
 #else  // CONFIG_RANS
+    if (counts) ++eob_branch_count[band][ctx];
+    if (!aom_read(r, prob[EOB_CONTEXT_NODE])) {
+      INCREMENT_COUNT(EOB_MODEL_TOKEN);
+      break;
+    }
+
+    while (!aom_read(r, prob[ZERO_CONTEXT_NODE])) {
+      INCREMENT_COUNT(ZERO_TOKEN);
+      dqv = dq[1];
+      token_cache[scan[c]] = 0;
+      ++c;
+      if (c >= max_eob) return c;  // zero tokens at the end (no eob token)
+      ctx = get_coef_context(nb, token_cache, c);
+      band = *band_translate++;
+      prob = coef_probs[band][ctx];
+    }
+
     if (!aom_read(r, prob[ONE_CONTEXT_NODE])) {
       INCREMENT_COUNT(ONE_TOKEN);
       token = ONE_TOKEN;
