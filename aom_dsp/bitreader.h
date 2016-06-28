@@ -81,7 +81,8 @@ static INLINE int aom_reader_has_error(aom_reader *r) {
 
 static INLINE int aom_read(aom_reader *r, int prob) {
 #if CONFIG_ANS
-  return uabs_read(r, prob);
+  //return uabs_read(r, prob);
+  return rabs_desc_read(r, prob);
 #elif CONFIG_DAALA_EC
   return aom_daala_read(r, prob);
 #else
@@ -91,7 +92,8 @@ static INLINE int aom_read(aom_reader *r, int prob) {
 
 static INLINE int aom_read_bit(aom_reader *r) {
 #if CONFIG_ANS
-  return uabs_read_bit(r);  // Non trivial optimization at half probability
+  //return uabs_read_bit(r);  // Non trivial optimization at half probability
+  return aom_read(r, 128);
 #else
   return aom_read(r, 128);  // aom_prob_half
 #endif

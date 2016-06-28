@@ -49,6 +49,40 @@ static INLINE int uabs_read(struct AnsDecoder *ans, AnsP8 p0) {
   return s;
 }
 
+#define ANS_IMPL1 0
+#define UNPREDICTABLE(x) x
+static INLINE int rabs_desc_read(struct AnsDecoder *ans, AnsP8 p0) {
+  int val;
+#if ANS_IMPL1
+  unsigned l_s;
+#else
+  unsigned quot, rem, x, xn;
+#endif
+  const AnsP8 p = ANS_P8_PRECISION - p0;
+  while (ans->state < L_BASE) {
+    ans->state = ans->state * IO_BASE + ans->buf[--ans->buf_offset];
+  }
+#if ANS_IMPL1
+  val = ans->state % ANS_P8_PRECISION < p;
+  l_s = val ? p : p0;
+  ans->state = (ans->state / ANS_P8_PRECISION) * l_s +
+               ans->state % ANS_P8_PRECISION - (!val * p);
+#else
+  x = ans->state;
+  quot = x / ANS_P8_PRECISION;
+  rem = x % ANS_P8_PRECISION;
+  xn = quot * p;
+  val = rem < p;
+  if (UNPREDICTABLE(val)) {
+    ans->state = xn + rem;
+  } else {
+    // ans->state = quot * p0 + rem - p;
+    ans->state = x - xn - p;
+  }
+#endif
+  return val;
+}
+
 static INLINE int uabs_read_bit(struct AnsDecoder *ans) {
   int s;
   unsigned state = ans->state;

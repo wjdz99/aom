@@ -92,6 +92,21 @@ static INLINE void uabs_write(struct AnsCoder *ans, int val, AnsP8 p0) {
     ans->state = ANS_DIV8((ans->state + 1) * ANS_P8_PRECISION + p - 1, p) - 1;
 }
 
+// rABS with descending spread
+// p or p0 takes the place of l_s from the paper
+// ANS_P8_PRECISION is m
+static INLINE void rabs_desc_write(struct AnsCoder *ans, int val, AnsP8 p0) {
+  const AnsP8 p = ANS_P8_PRECISION - p0;
+  const unsigned l_s = val ? p : p0;
+  unsigned quot, rem;
+  while (ans->state >= L_BASE / ANS_P8_PRECISION * IO_BASE * l_s) {
+    ans->buf[ans->buf_offset++] = ans->state % IO_BASE;
+    ans->state /= IO_BASE;
+  }
+  ANS_DIVREM(quot, rem, ans->state, l_s);
+  ans->state = quot * ANS_P8_PRECISION + rem + (val ? 0 : p);
+}
+
 struct rans_sym {
   AnsP10 prob;
   AnsP10 cum_prob;  // not-inclusive
