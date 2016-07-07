@@ -1403,7 +1403,7 @@ static size_t encode_tiles(AV1_COMP *cpi, uint8_t *data_ptr,
         total_size += 4;
       }
 
-      total_size += tile_size;
+      total_size += residual_bc.pos;
     }
   }
   *max_tile_sz = max_tile;
