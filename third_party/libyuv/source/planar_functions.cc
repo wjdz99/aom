@@ -533,17 +533,16 @@ int ARGBMirror(const uint8* src_argb, int src_stride_argb,
 // the same blend function for all pixels if possible.
 LIBYUV_API
 ARGBBlendRow GetARGBBlend() {
-  void (*ARGBBlendRow)(const uint8* src_argb, const uint8* src_argb1,
-                       uint8* dst_argb, int width) = ARGBBlendRow_C;
+  ARGBBlendRow func = ARGBBlendRow_C;
 #if defined(HAS_ARGBBLENDROW_SSSE3)
   if (TestCpuFlag(kCpuHasSSSE3)) {
-    ARGBBlendRow = ARGBBlendRow_SSSE3;
-    return ARGBBlendRow;
+    func = ARGBBlendRow_SSSE3;
+    return func;
   }
 #endif
 #if defined(HAS_ARGBBLENDROW_SSE2)
   if (TestCpuFlag(kCpuHasSSE2)) {
-    ARGBBlendRow = ARGBBlendRow_SSE2;
+    func = ARGBBlendRow_SSE2;
   }
 #endif
 #if defined(HAS_ARGBBLENDROW_NEON)
@@ -551,7 +550,7 @@ ARGBBlendRow GetARGBBlend() {
     ARGBBlendRow = ARGBBlendRow_NEON;
   }
 #endif
-  return ARGBBlendRow;
+  return func;
 }
 
 // Alpha Blend 2 ARGB images and store to destination.
@@ -561,8 +560,7 @@ int ARGBBlend(const uint8* src_argb0, int src_stride_argb0,
               uint8* dst_argb, int dst_stride_argb,
               int width, int height) {
   int y;
-  void (*ARGBBlendRow)(const uint8* src_argb, const uint8* src_argb1,
-                       uint8* dst_argb, int width) = GetARGBBlend();
+  ARGBBlendRow blend_row_func = GetARGBBlend();
   if (!src_argb0 || !src_argb1 || !dst_argb || width <= 0 || height == 0) {
     return -1;
   }
@@ -582,7 +580,7 @@ int ARGBBlend(const uint8* src_argb0, int src_stride_argb0,
   }
 
   for (y = 0; y < height; ++y) {
-    ARGBBlendRow(src_argb0, src_argb1, dst_argb, width);
+    blend_row_func(src_argb0, src_argb1, dst_argb, width);
     src_argb0 += src_stride_argb0;
     src_argb1 += src_stride_argb1;
     dst_argb += dst_stride_argb;

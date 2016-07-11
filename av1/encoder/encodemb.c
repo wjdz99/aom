@@ -342,7 +342,7 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block);
-  const scan_order *const scan_order = get_scan(tx_size, tx_type);
+  const scan_order *const tx_scan_order = get_scan(tx_size, tx_type);
   tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
   tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
@@ -372,35 +372,36 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
     switch (tx_size) {
       case TX_32X32:
         highbd_fdct32x32(x->use_lp32x32fdct, src_diff, coeff, diff_stride);
-        av1_highbd_quantize_fp_32x32(
-            coeff, 1024, x->skip_block, p->zbin, p->round_fp, p->quant_fp,
-            p->quant_shift, qcoeff, dqcoeff, pd->dequant, eob, scan_order->scan,
+        av1_highbd_quantize_fp_32x32(coeff, 1024, x->skip_block, p->zbin,
+                                     p->round_fp, p->quant_fp, p->quant_shift,
+                                     qcoeff, dqcoeff, pd->dequant, eob,
+                                     tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-            scan_order->iscan);
+                                     tx_scan_order->iscan);
 #else
-            scan_order->iscan, qmatrix, iqmatrix);
+                                     tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
         break;
       case TX_16X16:
         aom_highbd_fdct16x16(src_diff, coeff, diff_stride);
         av1_highbd_quantize_fp(coeff, 256, x->skip_block, p->zbin, p->round_fp,
                                p->quant_fp, p->quant_shift, qcoeff, dqcoeff,
-                               pd->dequant, eob, scan_order->scan,
+                               pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                               scan_order->iscan);
+                               tx_scan_order->iscan);
 #else
-                               scan_order->iscan, qmatrix, iqmatrix);
+                               tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
         break;
       case TX_8X8:
         aom_highbd_fdct8x8(src_diff, coeff, diff_stride);
         av1_highbd_quantize_fp(coeff, 64, x->skip_block, p->zbin, p->round_fp,
                                p->quant_fp, p->quant_shift, qcoeff, dqcoeff,
-                               pd->dequant, eob, scan_order->scan,
+                               pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                               scan_order->iscan);
+                               tx_scan_order->iscan);
 #else
-                               scan_order->iscan, qmatrix, iqmatrix);
+                               tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
         break;
       case TX_4X4:
@@ -411,14 +412,15 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
         }
         av1_highbd_quantize_fp(coeff, 16, x->skip_block, p->zbin, p->round_fp,
                                p->quant_fp, p->quant_shift, qcoeff, dqcoeff,
-                               pd->dequant, eob, scan_order->scan,
+                               pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                               scan_order->iscan);
+                               tx_scan_order->iscan);
 #else
-                               scan_order->iscan, qmatrix, iqmatrix);
+                               tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
         break;
-      default: assert(0);
+      default:
+        assert(0);
     }
     return;
   }
@@ -429,32 +431,32 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
       fdct32x32(x->use_lp32x32fdct, src_diff, coeff, diff_stride);
       av1_quantize_fp_32x32(coeff, 1024, x->skip_block, p->zbin, p->round_fp,
                             p->quant_fp, p->quant_shift, qcoeff, dqcoeff,
-                            pd->dequant, eob, scan_order->scan,
+                            pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                            scan_order->iscan);
+                            tx_scan_order->iscan);
 #else
-                            scan_order->iscan, qmatrix, iqmatrix);
+                            tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
       break;
     case TX_16X16:
       aom_fdct16x16(src_diff, coeff, diff_stride);
       av1_quantize_fp(coeff, 256, x->skip_block, p->zbin, p->round_fp,
                       p->quant_fp, p->quant_shift, qcoeff, dqcoeff, pd->dequant,
-                      eob, scan_order->scan,
+                      eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                      scan_order->iscan);
+                      tx_scan_order->iscan);
 #else
-                      scan_order->iscan, qmatrix, iqmatrix);
+                      tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
       break;
     case TX_8X8:
       av1_fdct8x8_quant(src_diff, diff_stride, coeff, 64, x->skip_block,
                         p->zbin, p->round_fp, p->quant_fp, p->quant_shift,
-                        qcoeff, dqcoeff, pd->dequant, eob, scan_order->scan,
+                        qcoeff, dqcoeff, pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                        scan_order->iscan);
+                        tx_scan_order->iscan);
 #else
-                        scan_order->iscan, qmatrix, iqmatrix);
+                        tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
       break;
     case TX_4X4:
@@ -465,14 +467,16 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
       }
       av1_quantize_fp(coeff, 16, x->skip_block, p->zbin, p->round_fp,
                       p->quant_fp, p->quant_shift, qcoeff, dqcoeff, pd->dequant,
-                      eob, scan_order->scan,
+                      eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                      scan_order->iscan);
+                      tx_scan_order->iscan);
 #else
-                      scan_order->iscan, qmatrix, iqmatrix);
+                      tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
       break;
-    default: assert(0); break;
+    default:
+      assert(0);
+      break;
   }
 }
 
@@ -599,7 +603,7 @@ void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block);
-  const scan_order *const scan_order = get_scan(tx_size, tx_type);
+  const scan_order *const tx_scan_order = get_scan(tx_size, tx_type);
   tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
   tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
@@ -629,44 +633,46 @@ void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
       case TX_32X32:
         aom_highbd_quantize_b_32x32(coeff, 1024, x->skip_block, p->zbin,
                                     p->round, p->quant, p->quant_shift, qcoeff,
-                                    dqcoeff, pd->dequant, eob, scan_order->scan,
+                                    dqcoeff, pd->dequant, eob,
+                                    tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                                    scan_order->iscan);
+                                    tx_scan_order->iscan);
 #else
-                                    scan_order->iscan, qmatrix, iqmatrix);
+                                    tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
         break;
       case TX_16X16:
         aom_highbd_quantize_b(coeff, 256, x->skip_block, p->zbin, p->round,
                               p->quant, p->quant_shift, qcoeff, dqcoeff,
-                              pd->dequant, eob, scan_order->scan,
+                              pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                              scan_order->iscan);
+                              tx_scan_order->iscan);
 #else
-                              scan_order->iscan, qmatrix, iqmatrix);
+                              tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
         break;
       case TX_8X8:
         aom_highbd_quantize_b(coeff, 64, x->skip_block, p->zbin, p->round,
                               p->quant, p->quant_shift, qcoeff, dqcoeff,
-                              pd->dequant, eob, scan_order->scan,
+                              pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                              scan_order->iscan);
+                              tx_scan_order->iscan);
 #else
-                              scan_order->iscan, qmatrix, iqmatrix);
+                              tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
         break;
       case TX_4X4:
         aom_highbd_quantize_b(coeff, 16, x->skip_block, p->zbin, p->round,
                               p->quant, p->quant_shift, qcoeff, dqcoeff,
-                              pd->dequant, eob, scan_order->scan,
+                              pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                              scan_order->iscan);
+                              tx_scan_order->iscan);
 #else
-                              scan_order->iscan, qmatrix, iqmatrix);
+                              tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
         break;
-      default: assert(0);
+      default:
+        assert(0);
     }
     return;
   }
@@ -677,44 +683,46 @@ void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
     case TX_32X32:
       aom_quantize_b_32x32(coeff, 1024, x->skip_block, p->zbin, p->round,
                            p->quant, p->quant_shift, qcoeff, dqcoeff,
-                           pd->dequant, eob, scan_order->scan,
+                           pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                           scan_order->iscan);
+                           tx_scan_order->iscan);
 #else
-                           scan_order->iscan, qmatrix, iqmatrix);
+                           tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
       break;
     case TX_16X16:
       aom_quantize_b(coeff, 256, x->skip_block, p->zbin, p->round, p->quant,
                      p->quant_shift, qcoeff, dqcoeff, pd->dequant, eob,
-                     scan_order->scan,
+                     tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                     scan_order->iscan);
+                     tx_scan_order->iscan);
 #else
-                     scan_order->iscan, qmatrix, iqmatrix);
+                     tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
       break;
     case TX_8X8:
       aom_quantize_b(coeff, 64, x->skip_block, p->zbin, p->round, p->quant,
                      p->quant_shift, qcoeff, dqcoeff, pd->dequant, eob,
-                     scan_order->scan,
+                     tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                     scan_order->iscan);
+                     tx_scan_order->iscan);
 #else
-                     scan_order->iscan, qmatrix, iqmatrix);
+                     tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
       break;
     case TX_4X4:
       aom_quantize_b(coeff, 16, x->skip_block, p->zbin, p->round, p->quant,
                      p->quant_shift, qcoeff, dqcoeff, pd->dequant, eob,
-                     scan_order->scan,
+                     tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                     scan_order->iscan);
+                     tx_scan_order->iscan);
 #else
-                     scan_order->iscan, qmatrix, iqmatrix);
+                     tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
       break;
-    default: assert(0); break;
+    default:
+      assert(0);
+      break;
   }
 }
 
@@ -776,8 +784,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   }
 
   if (x->optimize) {
-    const int ctx = combine_entropy_contexts(*a, *l);
-    *a = *l = optimize_b(x, plane, block, tx_size, ctx) > 0;
+    const int combined_ctx = combine_entropy_contexts(*a, *l);
+    *a = *l = optimize_b(x, plane, block, tx_size, combined_ctx) > 0;
   } else {
     *a = *l = p->eobs[block] > 0;
   }
@@ -919,7 +927,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block);
-  const scan_order *const scan_order = get_scan(tx_size, tx_type);
+  const scan_order *const tx_scan_order = get_scan(tx_size, tx_type);
   PREDICTION_MODE mode;
   const int bwl = b_width_log2_lookup[plane_bsize];
   const int bhl = b_height_log2_lookup[plane_bsize];
@@ -963,11 +971,11 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
       case TX_32X32:
         aom_highbd_quantize_b_32x32(coeff, 1024, x->skip_block, p->zbin,
                                     p->round, p->quant, p->quant_shift, qcoeff,
-                                    dqcoeff, pd->dequant, eob, scan_order->scan,
+                                    dqcoeff, pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                                    scan_order->iscan);
+                                    tx_scan_order->iscan);
 #else
-                                    scan_order->iscan, qmatrix, iqmatrix);
+                                    tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
         if (*eob)
           av1_highbd_inv_txfm_add_32x32(dqcoeff, dst, dst_stride, *eob, xd->bd,
@@ -976,11 +984,11 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
       case TX_16X16:
         aom_highbd_quantize_b(coeff, 256, x->skip_block, p->zbin, p->round,
                               p->quant, p->quant_shift, qcoeff, dqcoeff,
-                              pd->dequant, eob, scan_order->scan,
+                              pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                              scan_order->iscan);
+                              tx_scan_order->iscan);
 #else
-                              scan_order->iscan, qmatrix, iqmatrix);
+                              tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
         if (*eob)
           av1_highbd_inv_txfm_add_16x16(dqcoeff, dst, dst_stride, *eob, xd->bd,
@@ -989,11 +997,11 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
       case TX_8X8:
         aom_highbd_quantize_b(coeff, 64, x->skip_block, p->zbin, p->round,
                               p->quant, p->quant_shift, qcoeff, dqcoeff,
-                              pd->dequant, eob, scan_order->scan,
+                              pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                              scan_order->iscan);
+                              tx_scan_order->iscan);
 #else
-                              scan_order->iscan, qmatrix, iqmatrix);
+                              tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
         if (*eob)
           av1_highbd_inv_txfm_add_8x8(dqcoeff, dst, dst_stride, *eob, xd->bd,
@@ -1002,11 +1010,11 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
       case TX_4X4:
         aom_highbd_quantize_b(coeff, 16, x->skip_block, p->zbin, p->round,
                               p->quant, p->quant_shift, qcoeff, dqcoeff,
-                              pd->dequant, eob, scan_order->scan,
+                              pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                              scan_order->iscan);
+                              tx_scan_order->iscan);
 #else
-                              scan_order->iscan, qmatrix, iqmatrix);
+                              tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
         if (*eob)
           // this is like av1_short_idct4x4 but has a special case around
@@ -1029,44 +1037,44 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
     case TX_32X32:
       aom_quantize_b_32x32(coeff, 1024, x->skip_block, p->zbin, p->round,
                            p->quant, p->quant_shift, qcoeff, dqcoeff,
-                           pd->dequant, eob, scan_order->scan,
+                           pd->dequant, eob, tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                           scan_order->iscan);
+                           tx_scan_order->iscan);
 #else
-                           scan_order->iscan, qmatrix, iqmatrix);
+                           tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
       if (*eob) av1_inv_txfm_add_32x32(dqcoeff, dst, dst_stride, *eob, tx_type);
       break;
     case TX_16X16:
       aom_quantize_b(coeff, 256, x->skip_block, p->zbin, p->round, p->quant,
                      p->quant_shift, qcoeff, dqcoeff, pd->dequant, eob,
-                     scan_order->scan,
+                     tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                     scan_order->iscan);
+                     tx_scan_order->iscan);
 #else
-                     scan_order->iscan, qmatrix, iqmatrix);
+                     tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
       if (*eob) av1_inv_txfm_add_16x16(dqcoeff, dst, dst_stride, *eob, tx_type);
       break;
     case TX_8X8:
       aom_quantize_b(coeff, 64, x->skip_block, p->zbin, p->round, p->quant,
                      p->quant_shift, qcoeff, dqcoeff, pd->dequant, eob,
-                     scan_order->scan,
+                     tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                     scan_order->iscan);
+                     tx_scan_order->iscan);
 #else
-                     scan_order->iscan, qmatrix, iqmatrix);
+                     tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
       if (*eob) av1_inv_txfm_add_8x8(dqcoeff, dst, dst_stride, *eob, tx_type);
       break;
     case TX_4X4:
       aom_quantize_b(coeff, 16, x->skip_block, p->zbin, p->round, p->quant,
                      p->quant_shift, qcoeff, dqcoeff, pd->dequant, eob,
-                     scan_order->scan,
+                     tx_scan_order->scan,
 #if !CONFIG_AOM_QM
-                     scan_order->iscan);
+                     tx_scan_order->iscan);
 #else
-                     scan_order->iscan, qmatrix, iqmatrix);
+                     tx_scan_order->iscan, qmatrix, iqmatrix);
 #endif
 
       if (*eob) {
