@@ -81,6 +81,8 @@ static const uint8_t *const orders[BLOCK_SIZES] = {
 static int av1_has_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
                          int right_available, TX_SIZE txsz, int y, int x,
                          int ss_x) {
+  if (!right_available) return 0;
+
   if (y == 0) {
     int wl = mi_width_log2_lookup[bsize];
     int hl = mi_height_log2_lookup[bsize];
@@ -94,14 +96,14 @@ static int av1_has_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
     mi_row = (mi_row & 7) >> hl;
     mi_col = (mi_col & 7) >> wl;
 
-    if (mi_row == 0) return right_available;
+    if (mi_row == 0) return 1;
 
     if (((mi_col + 1) << wl) >= 8) return 0;
 
     my_order = order[((mi_row + 0) << (3 - wl)) + mi_col + 0];
     tr_order = order[((mi_row - 1) << (3 - wl)) + mi_col + 1];
 
-    return my_order > tr_order && right_available;
+    return my_order > tr_order;
   } else {
     int wl = mi_width_log2_lookup[bsize];
     int w = 1 << (wl + 1 - ss_x);
@@ -114,7 +116,9 @@ static int av1_has_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
 static int av1_has_bottom(BLOCK_SIZE bsize, int mi_row, int mi_col,
                           int bottom_available, TX_SIZE txsz, int y, int x,
                           int ss_y) {
-  if (x == 0) {
+  if (!bottom_available || x != 0) {
+    return 0;
+  } else {
     int wl = mi_width_log2_lookup[bsize];
     int hl = mi_height_log2_lookup[bsize];
     int h = 1 << (hl + 1 - ss_y);
@@ -137,8 +141,6 @@ static int av1_has_bottom(BLOCK_SIZE bsize, int mi_row, int mi_col,
     bl_order = order[((mi_row + 1) << (3 - wl)) + mi_col - 1];
 
     return bl_order < my_order && bottom_available;
-  } else {
-    return 0;
   }
 }
 
@@ -720,6 +722,9 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   (void)x;
   (void)y;
   (void)plane;
+
+  if (n_topright_px < 0) printf("n_topright_px is %d\n", n_topright_px);
+
   assert(n_top_px >= 0);
   assert(n_topright_px >= 0);
   assert(n_left_px >= 0);
@@ -851,6 +856,14 @@ void av1_predict_intra_block(const MACROBLOCKD *xd, int bwl_in, int bhl_in,
     return;
   }
 #endif
+
+  if (have_top && have_right && AOMMIN(txpx, xr) < 0) {
+    printf("txpx is %d, xr is %d\n",
+           txpx, xr);
+    printf("right_available is %d\n",
+           right_available);
+  }
+
   build_intra_predictors(xd, ref, ref_stride, dst, dst_stride, mode, tx_size,
                          have_top ? AOMMIN(txpx, xr + txpx) : 0,
                          have_top && have_right ? AOMMIN(txpx, xr) : 0,
