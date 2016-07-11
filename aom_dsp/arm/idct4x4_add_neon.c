@@ -11,6 +11,8 @@
 
 #include <arm_neon.h>
 
+#include "aom_dsp/txfm_common.h"
+
 void aom_idct4x4_16_add_neon(int16_t *input, uint8_t *dest, int dest_stride) {
   uint8x8_t d26u8, d27u8;
   uint32x2_t d26u32, d27u32;
@@ -22,9 +24,6 @@ void aom_idct4x4_16_add_neon(int16_t *input, uint8_t *dest, int dest_stride) {
   int16x4x2_t d0x2s16, d1x2s16;
   int32x4x2_t q0x2s32;
   uint8_t *d;
-  int16_t cospi_8_64 = 15137;
-  int16_t cospi_16_64 = 11585;
-  int16_t cospi_24_64 = 6270;
 
   d26u32 = d27u32 = vdup_n_u32(0);
 
