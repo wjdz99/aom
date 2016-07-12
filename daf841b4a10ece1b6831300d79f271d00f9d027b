@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fa1a38b3_5a1eb75a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-07-12T23:37:11Z",
+      "side": 1,
+      "message": "Though it does not cause any crashes or change the final results, I meet the case that this \"mbmi-\u003etx_size \u003d best_tx\" has the TX_SIZES (4), which I think is unstable intermediate states anyway.\nThis seems happens when txfm_rd_in_plane() early exits with returning distortion \u003d INT64_MAX. Then, \u0027rd\u0027 is not updated, so best_tx cannot be updated as well.\n\nI used following options.\n-o test_debug.ivf --ivf -t 1 -v   /home/yushin/sequences/subset1-y4m/White_Dune_-_Mui_Ne.y4m --end-usage\u003dq --cq-level\u003d20 --good --cpu-used\u003d0 --tile-columns\u003d0 --tile-rows\u003d0 -p 1",
+      "range": {
+        "startLine": 748,
+        "startChar": 25,
+        "endLine": 748,
+        "endChar": 26
+      },
+      "revId": "daf841b4a10ece1b6831300d79f271d00f9d027b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa1a38b3_cc3cc3b1",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 3
