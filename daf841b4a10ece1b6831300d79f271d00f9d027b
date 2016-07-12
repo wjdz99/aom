@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fa1a38b3_dabf470c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-07-12T23:46:26Z",
+      "side": 1,
+      "message": "In fact, whenever new rd_cost calculated by block_rd_txfm() is worse than ref_best_rd, then \"if (r \u003d\u003d INT_MAX) continue;\" is triggered, which gives no chace to goto if (rd \u003c ... best_rd) block.",
+      "parentUuid": "fa1a38b3_5a1eb75a",
+      "range": {
+        "startLine": 748,
+        "startChar": 25,
+        "endLine": 748,
+        "endChar": 26
+      },
+      "revId": "daf841b4a10ece1b6831300d79f271d00f9d027b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa1a38b3_cc3cc3b1",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 3
