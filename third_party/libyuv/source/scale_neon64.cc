@@ -38,6 +38,7 @@ void ScaleRowDown2_NEON(const uint8* src_ptr, ptrdiff_t src_stride,
   :
   : "v0", "v1"              // Clobber List
   );
+  (void)src_stride;
 }
 
 // Read 32x1 average down and write 16x1.
@@ -61,6 +62,7 @@ void ScaleRowDown2Linear_NEON(const uint8* src_ptr, ptrdiff_t src_stride,
   :
   : "v0", "v1"     // Clobber List
   );
+  (void)src_stride;
 }
 
 // Read 32x2 average down and write 16x1.
@@ -109,6 +111,7 @@ void ScaleRowDown4_NEON(const uint8* src_ptr, ptrdiff_t src_stride,
   :
   : "v0", "v1", "v2", "v3", "memory", "cc"
   );
+  (void)src_stride;
 }
 
 void ScaleRowDown4Box_NEON(const uint8* src_ptr, ptrdiff_t src_stride,
@@ -168,6 +171,7 @@ void ScaleRowDown34_NEON(const uint8* src_ptr,
   :
   : "v0", "v1", "v2", "v3", "memory", "cc"
   );
+  (void)src_stride;
 }
 
 void ScaleRowDown34_0_Box_NEON(const uint8* src_ptr,
@@ -307,6 +311,7 @@ void ScaleRowDown38_NEON(const uint8* src_ptr,
   : "r"(&kShuf38)           // %3
   : "v0", "v1", "v2", "v3", "memory", "cc"
   );
+  (void)src_stride;
 }
 
 // 32x3 -> 12x1
@@ -773,6 +778,7 @@ void ScaleARGBRowDown2_NEON(const uint8* src_ptr, ptrdiff_t src_stride,
   :
   : "memory", "cc", "v0", "v1", "v2", "v3"  // Clobber List
   );
+  (void)src_stride;
 }
 
 void ScaleARGBRowDown2Linear_NEON(const uint8* src_argb, ptrdiff_t src_stride,
@@ -800,6 +806,7 @@ void ScaleARGBRowDown2Linear_NEON(const uint8* src_argb, ptrdiff_t src_stride,
   :
   : "memory", "cc", "v0", "v1", "v2", "v3"    // Clobber List
   );
+  (void)src_stride;
 }
 
 void ScaleARGBRowDown2Box_NEON(const uint8* src_ptr, ptrdiff_t src_stride,
@@ -861,6 +868,7 @@ void ScaleARGBRowDownEven_NEON(const uint8* src_argb,  ptrdiff_t src_stride,
   : "r"((int64)(src_stepx * 4)) // %3
   : "memory", "cc", "v0"
   );
+  (void)src_stride;
 }
 
 // Reads 4 pixels at a time.

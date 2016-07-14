@@ -14,3 +14,4 @@ in order to encode multiple resolution bit streams.
 
 Local Modifications:
 * source/planar_functions.cc: fix -wshadow warnings
+* source/*.cc: fix -wextra / -wunused warnings
