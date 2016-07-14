@@ -76,20 +76,18 @@ TEST_P(PartialIDctTest, RunQuantCheck) {
   DECLARE_ALIGNED(16, tran_low_t, output_ref_block[kMaxNumCoeffs]);
 
   int max_error = 0;
-  for (int i = 0; i < count_test_block; ++i) {
+  for (int m = 0; m < count_test_block; ++m) {
     // clear out destination buffer
     memset(dst1, 0, sizeof(*dst1) * block_size);
     memset(dst2, 0, sizeof(*dst2) * block_size);
     memset(test_coef_block1, 0, sizeof(*test_coef_block1) * block_size);
     memset(test_coef_block2, 0, sizeof(*test_coef_block2) * block_size);
 
-    ACMRandom rnd(ACMRandom::DeterministicSeed());
-
-    for (int i = 0; i < count_test_block; ++i) {
+    for (int n = 0; n < count_test_block; ++n) {
       // Initialize a test block with input range [-255, 255].
-      if (i == 0) {
+      if (n == 0) {
         for (int j = 0; j < block_size; ++j) input_extreme_block[j] = 255;
-      } else if (i == 1) {
+      } else if (n == 1) {
         for (int j = 0; j < block_size; ++j) input_extreme_block[j] = -255;
       } else {
         for (int j = 0; j < block_size; ++j) {
