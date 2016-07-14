@@ -390,9 +390,9 @@ static void predict_and_reconstruct_intra_block(MACROBLOCKD *const xd,
 
   if (!mbmi->skip) {
     TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx);
-    const scan_order *sc = get_scan(tx_size, tx_type);
-    const int eob = av1_decode_block_tokens(xd, plane, sc, col, row, tx_size, r,
-                                            mbmi->segment_id);
+    const SCAN_ORDER *scan_order = get_scan(tx_size, tx_type);
+    const int eob = av1_decode_block_tokens(xd, plane, scan_order, col, row,
+                                            tx_size, r, mbmi->segment_id);
     inverse_transform_block_intra(xd, plane, tx_type, tx_size, dst,
                                   pd->dst.stride, eob);
   }
@@ -405,9 +405,9 @@ static int reconstruct_inter_block(MACROBLOCKD *const xd, aom_reader *r,
   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
   int block_idx = (row << 1) + col;
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx);
-  const scan_order *sc = get_scan(tx_size, tx_type);
-  const int eob = av1_decode_block_tokens(xd, plane, sc, col, row, tx_size, r,
-                                          mbmi->segment_id);
+  const SCAN_ORDER *scan_order = get_scan(tx_size, tx_type);
+  const int eob = av1_decode_block_tokens(xd, plane, scan_order, col, row,
+                                          tx_size, r, mbmi->segment_id);
 
   inverse_transform_block_inter(
       xd, plane, tx_size, &pd->dst.buf[4 * row * pd->dst.stride + 4 * col],
@@ -1896,15 +1896,12 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 
   setup_segmentation(cm, rb);
 
-  {
-    int i;
-    for (i = 0; i < MAX_SEGMENTS; ++i) {
-      const int qindex = CONFIG_MISC_FIXES && cm->seg.enabled
-                             ? av1_get_qindex(&cm->seg, i, cm->base_qindex)
-                             : cm->base_qindex;
-      xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
-                        cm->uv_dc_delta_q == 0 && cm->uv_ac_delta_q == 0;
-    }
+  for (i = 0; i < MAX_SEGMENTS; ++i) {
+    const int qindex = CONFIG_MISC_FIXES && cm->seg.enabled
+                           ? av1_get_qindex(&cm->seg, i, cm->base_qindex)
+                           : cm->base_qindex;
+    xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
+                      cm->uv_dc_delta_q == 0 && cm->uv_ac_delta_q == 0;
   }
 
   setup_segmentation_dequant(cm);
