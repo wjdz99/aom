@@ -116,6 +116,7 @@ void ScaleRowDown2_SSE2(const uint8* src_ptr, ptrdiff_t src_stride,
     "+r"(dst_width)   // %2
   :: "memory", "cc", "xmm0", "xmm1"
   );
+  (void)src_stride;
 }
 
 void ScaleRowDown2Linear_SSE2(const uint8* src_ptr, ptrdiff_t src_stride,
@@ -147,6 +148,7 @@ void ScaleRowDown2Linear_SSE2(const uint8* src_ptr, ptrdiff_t src_stride,
     "+r"(dst_width)   // %2
   :: "memory", "cc", "xmm0", "xmm1", "xmm5"
   );
+  (void)src_stride;
 }
 
 void ScaleRowDown2Box_SSE2(const uint8* src_ptr, ptrdiff_t src_stride,
@@ -212,6 +214,7 @@ void ScaleRowDown4_SSE2(const uint8* src_ptr, ptrdiff_t src_stride,
     "+r"(dst_width)   // %2
   :: "memory", "cc", "xmm0", "xmm1", "xmm5"
   );
+  (void)src_stride;
 }
 
 void ScaleRowDown4Box_SSE2(const uint8* src_ptr, ptrdiff_t src_stride,
@@ -300,6 +303,7 @@ void ScaleRowDown34_SSSE3(const uint8* src_ptr, ptrdiff_t src_stride,
     "+r"(dst_width)  // %2
   :: "memory", "cc", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5"
   );
+  (void)src_stride;
 }
 
 void ScaleRowDown34_1_Box_SSSE3(const uint8* src_ptr,
@@ -463,6 +467,7 @@ void ScaleRowDown38_SSSE3(const uint8* src_ptr, ptrdiff_t src_stride,
     "m"(kShuf38b)    // %4
   : "memory", "cc", "xmm0", "xmm1", "xmm4", "xmm5"
   );
+  (void)src_stride;
 }
 
 void ScaleRowDown38_2_Box_SSSE3(const uint8* src_ptr,
@@ -713,6 +718,8 @@ void ScaleColsUp2_SSE2(uint8* dst_ptr, const uint8* src_ptr,
     "+r"(dst_width)    // %2
   :: "memory", "cc", "xmm0", "xmm1"
   );
+  (void)x;
+  (void)dx;
 }
 
 void ScaleARGBRowDown2_SSE2(const uint8* src_argb,
@@ -734,6 +741,7 @@ void ScaleARGBRowDown2_SSE2(const uint8* src_argb,
     "+r"(dst_width)  // %2
   :: "memory", "cc", "xmm0", "xmm1"
   );
+  (void)src_stride;
 }
 
 void ScaleARGBRowDown2Linear_SSE2(const uint8* src_argb,
@@ -758,6 +766,7 @@ void ScaleARGBRowDown2Linear_SSE2(const uint8* src_argb,
     "+r"(dst_width)  // %2
   :: "memory", "cc", "xmm0", "xmm1"
   );
+  (void)src_stride;
 }
 
 void ScaleARGBRowDown2Box_SSE2(const uint8* src_argb,
@@ -821,6 +830,7 @@ void ScaleARGBRowDownEven_SSE2(const uint8* src_argb, ptrdiff_t src_stride,
   :: "memory", "cc", NACL_R14
     "xmm0", "xmm1", "xmm2", "xmm3"
   );
+  (void)src_stride;
 }
 
 // Blends four 2x2 to 4x1.
@@ -960,6 +970,8 @@ void ScaleARGBColsUp2_SSE2(uint8* dst_argb, const uint8* src_argb,
   :: "memory", "cc", NACL_R14
     "xmm0", "xmm1"
   );
+  (void)x;
+  (void)dx;
 }
 
 // Shuffle table for arranging 2 pixels into pairs for pmaddubsw
