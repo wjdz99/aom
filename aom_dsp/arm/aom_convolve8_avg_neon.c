@@ -63,6 +63,10 @@ void aom_convolve8_avg_horiz_neon(const uint8_t *src, ptrdiff_t src_stride,
   uint16x4x2_t d0x2u16, d1x2u16;
   uint32x4x2_t q0x2u32;
 
+  (void)x_step_q4;
+  (void)y_step_q4;
+  (void)filter_y;
+
   assert(x_step_q4 == 16);
 
   q0s16 = vld1q_s16(filter_x);
@@ -238,6 +242,10 @@ void aom_convolve8_avg_vert_neon(const uint8_t *src, ptrdiff_t src_stride,
   int16x8_t q0s16;
   uint16x8_t q1u16, q2u16, q8u16, q9u16, q10u16, q11u16, q12u16, q13u16;
   int32x4_t q1s32, q2s32, q14s32, q15s32;
+
+  (void)x_step_q4;
+  (void)y_step_q4;
+  (void)filter_x;
 
   assert(y_step_q4 == 16);
 
