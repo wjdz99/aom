@@ -111,9 +111,9 @@ static int optimize_b(MACROBLOCK *mb, int plane, int block, TX_SIZE tx_size,
   const int16_t *dequant_ptr = pd->dequant;
   const uint8_t *const band_translate = get_band_translate(tx_size);
   TX_TYPE tx_type = get_tx_type(type, xd, block);
-  const scan_order *const so = get_scan(tx_size, tx_type);
-  const int16_t *const scan = so->scan;
-  const int16_t *const nb = so->neighbors;
+  const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
+  const int16_t *const scan = scan_order->scan;
+  const int16_t *const nb = scan_order->neighbors;
   int next = eob, sz = 0;
   int64_t rdmult = mb->rdmult * plane_rd_mult[type], rddiv = mb->rddiv;
   int64_t rd_cost0, rd_cost1;
@@ -342,7 +342,7 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block);
-  const scan_order *const scan_order = get_scan(tx_size, tx_type);
+  const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
   tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
   tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
@@ -372,13 +372,14 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
     switch (tx_size) {
       case TX_32X32:
         highbd_fdct32x32(x->use_lp32x32fdct, src_diff, coeff, diff_stride);
-        av1_highbd_quantize_fp_32x32(
-            coeff, 1024, x->skip_block, p->zbin, p->round_fp, p->quant_fp,
-            p->quant_shift, qcoeff, dqcoeff, pd->dequant, eob, scan_order->scan,
+        av1_highbd_quantize_fp_32x32(coeff, 1024, x->skip_block, p->zbin,
+                                     p->round_fp, p->quant_fp, p->quant_shift,
+                                     qcoeff, dqcoeff, pd->dequant, eob,
+                                     scan_order->scan,
 #if !CONFIG_AOM_QM
-            scan_order->iscan);
+                                     scan_order->iscan);
 #else
-            scan_order->iscan, qmatrix, iqmatrix);
+                                     scan_order->iscan, qmatrix, iqmatrix);
 #endif
         break;
       case TX_16X16:
@@ -599,7 +600,7 @@ void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block);
-  const scan_order *const scan_order = get_scan(tx_size, tx_type);
+  const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
   tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
   tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
@@ -629,7 +630,8 @@ void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
       case TX_32X32:
         aom_highbd_quantize_b_32x32(coeff, 1024, x->skip_block, p->zbin,
                                     p->round, p->quant, p->quant_shift, qcoeff,
-                                    dqcoeff, pd->dequant, eob, scan_order->scan,
+                                    dqcoeff, pd->dequant, eob,
+                                    scan_order->scan,
 #if !CONFIG_AOM_QM
                                     scan_order->iscan);
 #else
@@ -776,8 +778,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   }
 
   if (x->optimize) {
-    const int ctx = combine_entropy_contexts(*a, *l);
-    *a = *l = optimize_b(x, plane, block, tx_size, ctx) > 0;
+    const int combined_ctx = combine_entropy_contexts(*a, *l);
+    *a = *l = optimize_b(x, plane, block, tx_size, combined_ctx) > 0;
   } else {
     *a = *l = p->eobs[block] > 0;
   }
@@ -919,7 +921,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block);
-  const scan_order *const scan_order = get_scan(tx_size, tx_type);
+  const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
   PREDICTION_MODE mode;
   const int bwl = b_width_log2_lookup[plane_bsize];
   const int bhl = b_height_log2_lookup[plane_bsize];
@@ -963,7 +965,8 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
       case TX_32X32:
         aom_highbd_quantize_b_32x32(coeff, 1024, x->skip_block, p->zbin,
                                     p->round, p->quant, p->quant_shift, qcoeff,
-                                    dqcoeff, pd->dequant, eob, scan_order->scan,
+                                    dqcoeff, pd->dequant, eob,
+                                    scan_order->scan,
 #if !CONFIG_AOM_QM
                                     scan_order->iscan);
 #else
