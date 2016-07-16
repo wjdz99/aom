@@ -62,12 +62,14 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   nhsb = (cm->mi_cols + MI_BLOCK_SIZE - 1) / MI_BLOCK_SIZE;
   bskip = aom_malloc(sizeof(*bskip) * cm->mi_rows * cm->mi_cols);
   av1_setup_dst_planes(xd->plane, frame, 0, 0);
-  for (pli = 0; pli < 3; pli++) {
+  
+  for (pli = 0; pli < 1; pli++) {
     dec[pli] = xd->plane[pli].subsampling_x;
     bsize[pli] = 8 >> dec[pli];
   }
+  
   stride = bsize[0] * cm->mi_cols;
-  for (pli = 0; pli < 3; pli++) {
+  for (pli = 0; pli < 1; pli++) {
     src[pli] = aom_malloc(sizeof(*src) * cm->mi_rows * cm->mi_cols * 64);
     for (r = 0; r < bsize[pli] * cm->mi_rows; ++r) {
       for (c = 0; c < bsize[pli] * cm->mi_cols; ++c) {
@@ -98,7 +100,7 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
       int nhb, nvb;
       nhb = AOMMIN(MI_BLOCK_SIZE, cm->mi_cols - MI_BLOCK_SIZE * sbc);
       nvb = AOMMIN(MI_BLOCK_SIZE, cm->mi_rows - MI_BLOCK_SIZE * sbr);
-      for (pli = 0; pli < 3; pli++) {
+      for (pli = 0; pli < 1; pli++) {
         int16_t dst[MI_BLOCK_SIZE * MI_BLOCK_SIZE * 8 * 8];
         int threshold;
 #if DERING_REFINEMENT
@@ -147,7 +149,7 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
       }
     }
   }
-  for (pli = 0; pli < 3; pli++) {
+  for (pli = 0; pli < 1; pli++) {
     aom_free(src[pli]);
   }
   aom_free(bskip);
