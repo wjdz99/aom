@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5ab18456_99826d19",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-07-18T22:14:09Z",
+      "side": 1,
+      "message": "This was part of \"Rename some variables to more meaningful names while we are at it\" as mentioned in the description.\nSingle-letter vars were making this function very hard to parse.",
+      "parentUuid": "5ab18456_93f7eec3",
+      "range": {
+        "startLine": 311,
+        "startChar": 41,
+        "endLine": 311,
+        "endChar": 45
+      },
+      "revId": "d1f3b7deb243abd73f8921e3905040268a44c29e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ab18456_b3d31235",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2016-07-18T18:02:31Z",
       "side": 1,
       "message": "Id.",
+      "range": {
+        "startLine": 354,
+        "startChar": 26,
+        "endLine": 354,
+        "endChar": 30
+      },
+      "revId": "d1f3b7deb243abd73f8921e3905040268a44c29e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ab18456_f47580e3",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-07-18T22:14:09Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "5ab18456_b3d31235",
       "range": {
         "startLine": 354,
         "startChar": 26,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "5ab18456_08474441",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-07-18T22:14:09Z",
+      "side": 1,
+      "message": "I would strongly prefer full names instead of short-forms, which make the code hard to read. How about:\n(1) Using the name \u0027tx_scan_order\u0027 everywhere instead of \u0027so\u0027? OR\n(2) Even better, rename the struct\u0027s name to SCAN_ORDER (to match every other typedef\u0027ed struct which is in all caps) and then name the struct objects/pointers \u0027scan_order\u0027 throughout?",
+      "parentUuid": "5ab18456_13193e27",
+      "range": {
+        "startLine": 345,
+        "startChar": 26,
+        "endLine": 345,
+        "endChar": 39
+      },
+      "revId": "d1f3b7deb243abd73f8921e3905040268a44c29e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ab18456_73fecab3",
         "filename": "av1/encoder/encodemb.c",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2016-07-18T18:02:31Z",
       "side": 1,
       "message": "Id.",
+      "range": {
+        "startLine": 603,
+        "startChar": 26,
+        "endLine": 603,
+        "endChar": 39
+      },
+      "revId": "d1f3b7deb243abd73f8921e3905040268a44c29e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ab18456_a836f8d0",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-07-18T22:14:09Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "5ab18456_73fecab3",
       "range": {
         "startLine": 603,
         "startChar": 26,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "5ab18456_883334e2",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-07-18T22:14:09Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "5ab18456_931ece01",
+      "range": {
+        "startLine": 924,
+        "startChar": 26,
+        "endLine": 924,
+        "endChar": 39
+      },
+      "revId": "d1f3b7deb243abd73f8921e3905040268a44c29e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ab18456_936c0e82",
         "filename": "av1/encoder/mcomp.c",
         "patchSetId": 2
@@ -128,6 +248,30 @@
       "writtenOn": "2016-07-18T18:02:31Z",
       "side": 1,
       "message": "Can we be locally consistent about which spelling of neighbor we are using.",
+      "range": {
+        "startLine": 889,
+        "startChar": 15,
+        "endLine": 889,
+        "endChar": 46
+      },
+      "revId": "d1f3b7deb243abd73f8921e3905040268a44c29e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ab18456_5491ec5c",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 889,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-07-18T22:14:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ab18456_936c0e82",
       "range": {
         "startLine": 889,
         "startChar": 15,
