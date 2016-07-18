@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5ab18456_1932fd98",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-07-18T22:14:09Z",
+      "side": 1,
+      "message": "Actually, all the \u0027typedef\u0027ed structs seem to be in all caps in this file. That\u0027s what I was trying to be consistent with.",
+      "parentUuid": "5ab18456_5f662d05",
+      "revId": "69a29ea0e03ab93dd85f9d5ebe6b3ac542fcfdf5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ab18456_df421d50",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 1
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "5ab18456_b9d3f134",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1662,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-07-18T22:14:09Z",
+      "side": 1,
+      "message": "Done.\nNote: I had kept the original code earlier, but yes, we might as well clean this up while we\u0027re at it.",
+      "parentUuid": "5ab18456_df421d50",
+      "range": {
+        "startLine": 1662,
+        "startChar": 71,
+        "endLine": 1662,
+        "endChar": 75
+      },
+      "revId": "69a29ea0e03ab93dd85f9d5ebe6b3ac542fcfdf5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ab18456_1f4dc57c",
         "filename": "av1/encoder/mcomp.c",
         "patchSetId": 1
@@ -53,6 +95,30 @@
       "writtenOn": "2016-07-16T01:26:36Z",
       "side": 1,
       "message": "neighbor, though I know some British spellings are around",
+      "range": {
+        "startLine": 889,
+        "startChar": 15,
+        "endLine": 889,
+        "endChar": 24
+      },
+      "revId": "69a29ea0e03ab93dd85f9d5ebe6b3ac542fcfdf5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ab18456_19bdddde",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 889,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-07-18T22:14:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ab18456_1f4dc57c",
       "range": {
         "startLine": 889,
         "startChar": 15,
