@@ -46,6 +46,30 @@
       "revId": "09eea2193d3d18bba82ad018a603af06c5e051c6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ab18456_8b884e3c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-07-18T22:19:28Z",
+      "side": 0,
+      "message": "No, I mean that in the outer scope rate is an \u0027int\u0027 and this is variable is an int64_t.",
+      "parentUuid": "5ab18456_54c3ac40",
+      "range": {
+        "startLine": 345,
+        "startChar": 6,
+        "endLine": 345,
+        "endChar": 18
+      },
+      "revId": "09eea2193d3d18bba82ad018a603af06c5e051c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
