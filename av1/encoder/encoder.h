@@ -23,7 +23,6 @@
 #include "av1/common/onyxc_int.h"
 
 #include "av1/encoder/aq_cyclicrefresh.h"
-#include "av1/encoder/context_tree.h"
 #include "av1/encoder/encodemb.h"
 #include "av1/encoder/firstpass.h"
 #include "av1/encoder/lookahead.h"
@@ -54,6 +53,10 @@ extern "C" {
 // Therefore when multi arf mode is enabled, 1 more buffer is required then
 // MAX_REF_FRAMES.
 #define MAX_UPSAMPLED_BUFS (MAX_REF_FRAMES + 1)
+
+// The number of partition contexts that need to be retained per thread:
+// 64 -> 32 -> 16 -> 8
+#define MAX_PARTITION_LEVELS (4)
 
 typedef struct {
   int nmvjointcost[MV_JOINTS];
@@ -274,13 +277,6 @@ static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {
   return cfg->best_allowed_q == 0 && cfg->worst_allowed_q == 0;
 }
 
-// TODO(jingning) All spatially adaptive variables should go to TileDataEnc.
-typedef struct TileDataEnc {
-  TileInfo tile_info;
-  int thresh_freq_fact[BLOCK_SIZES][MAX_MODES];
-  int mode_map[BLOCK_SIZES][MAX_MODES];
-} TileDataEnc;
-
 typedef struct RD_COUNTS {
   av1_coeff_count coef_counts[TX_SIZES][PLANE_TYPES];
   int64_t comp_pred_diff[REFERENCE_MODES];
@@ -288,14 +284,40 @@ typedef struct RD_COUNTS {
   int ex_search_count;
 } RD_COUNTS;
 
+typedef struct RDContext {
+  uint8_t best_buf[MAX_MB_PLANE][MAX_SB_SQUARE];
+
+  MODE_INFO best_mi[MAX_SB_SQUARE / 8];
+  MODE_INFO *best_mi_ptrs[MAX_SB_SQUARE / 8];
+  MB_MODE_INFO_EXT best_mbmi_exts[MI_BLOCK_SIZE * MI_BLOCK_SIZE];
+
+  tran_low_t best_qcoeff[MAX_MB_PLANE][MAX_SB_SQUARE];
+  uint16_t best_eobs[MAX_MB_PLANE][MAX_SB_SQUARE / 16];
+
+  ENTROPY_CONTEXT a[16 * MAX_MB_PLANE];
+  ENTROPY_CONTEXT l[16 * MAX_MB_PLANE];
+  PARTITION_CONTEXT sa[8];
+  PARTITION_CONTEXT sl[8];
+} RDContext;
+
+// TODO(jingning) All spatially adaptive variables should go to TileDataEnc.
+typedef struct TileDataEnc {
+  TileInfo tile_info;
+  RDContext rd_ctx[MAX_PARTITION_LEVELS];
+  int thresh_freq_fact[BLOCK_SIZES][MAX_MODES];
+  int mode_map[BLOCK_SIZES][MAX_MODES];
+} TileDataEnc;
+
 typedef struct ThreadData {
   MACROBLOCK mb;
   RD_COUNTS rd_counts;
   FRAME_COUNTS *counts;
 
-  PICK_MODE_CONTEXT *leaf_tree;
-  PC_TREE *pc_tree;
-  PC_TREE *pc_root;
+  // Per thread coefficient storage
+  DECLARE_ALIGNED(32, tran_low_t, coeff[MAX_MB_PLANE][MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, tran_low_t, dqcoeff[MAX_MB_PLANE][MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, tran_low_t, qcoeff[MAX_MB_PLANE][MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, uint16_t, eobs[MAX_MB_PLANE][MAX_SB_SQUARE]);
 } ThreadData;
 
 struct EncWorkerData;

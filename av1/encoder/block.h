@@ -58,6 +58,12 @@ typedef struct {
   uint8_t ref_mv_count[MODE_CTX_REF_FRAMES];
   CANDIDATE_MV ref_mv_stack[MODE_CTX_REF_FRAMES][MAX_REF_MV_STACK_SIZE];
 #endif
+
+  // Used for stats and counts
+  int single_pred_diff;
+  int comp_pred_diff;
+  int hybrid_pred_diff;
+  int mode_index;
 } MB_MODE_INFO_EXT;
 
 typedef struct macroblock MACROBLOCK;
@@ -126,6 +132,10 @@ struct macroblock {
   int mv_row_min;
   int mv_row_max;
 
+  // Quantized coefficients and eob needs to be saved for tokenizing
+  tran_low_t *qcoeff_pbuf[MAX_MB_PLANE];
+  uint16_t *eobs_pbuf[MAX_MB_PLANE];
+
   // Notes transform blocks where no coefficents are coded.
   // Set during mode selection. Read during block encoding.
   uint8_t zcoeff_blk[TX_SIZES][256];
@@ -155,6 +165,12 @@ struct macroblock {
 
   // Used to store sub partition's choices.
   MV pred_mv[MAX_REF_FRAMES];
+
+  // Used to determine if early breakout is possible
+  int inter_skippable;
+
+  // Which filter should be considered the best at the start of the RD search?
+  InterpFilter start_interp_filter;
 };
 
 #ifdef __cplusplus
