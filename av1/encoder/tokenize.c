@@ -464,6 +464,7 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
     ++c;
     pt = get_coef_context(nb, token_cache, c);
   }
+
   if (c < seg_eob) {
     add_token_no_extra(&t, coef_probs[band[c]][pt],
 #if CONFIG_RANS
@@ -534,6 +535,7 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
   const int skip_inc =
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
   struct tokenize_b_args arg = { cpi, td, t };
+
   if (mbmi->skip) {
     if (!dry_run) td->counts->skip[ctx][1] += skip_inc;
     reset_skip_context(xd, bsize);
