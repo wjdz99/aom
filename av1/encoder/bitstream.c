@@ -536,9 +536,9 @@ static void write_switchable_interp_filter(AV1_COMP *const cpi,
                          cm->fc->switchable_interp_cdf[ctx],
                          SWITCHABLE_FILTERS);
 #else
-      av1_write_token(w, av1_switchable_interp_tree,
-                      cm->fc->switchable_interp_prob[ctx],
-                      &switchable_interp_encodings[mbmi->interp_filter]);
+    av1_write_token(w, av1_switchable_interp_tree,
+                    cm->fc->switchable_interp_prob[ctx],
+                    &switchable_interp_encodings[mbmi->interp_filter]);
 #endif
       ++cpi->interp_filter_selected[0][mbmi->interp_filter];
 #if CONFIG_EXT_INTERP
