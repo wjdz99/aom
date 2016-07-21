@@ -75,7 +75,12 @@ static void calc_segtree_probs(unsigned *segcounts,
     const unsigned *ct =
         i == 0 ? ccc : i < 3 ? cc + (i & 2) : segcounts + (i - 3) * 2;
     av1_prob_diff_update_savings_search(
+#if CONFIG_TILE_GROUPS
+        ct, cur_tree_probs[i], &segment_tree_probs[i], DIFF_UPDATE_PROB,
+        MAX_NUM_TG);
+#else
         ct, cur_tree_probs[i], &segment_tree_probs[i], DIFF_UPDATE_PROB);
+#endif
   }
 #else
   (void)cur_tree_probs;
@@ -279,9 +284,13 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
 
       t_nopred_prob[i] = get_binary_prob(count0, count1);
 #if CONFIG_MISC_FIXES
-      av1_prob_diff_update_savings_search(temporal_predictor_count[i],
-                                          segp->pred_probs[i],
-                                          &t_nopred_prob[i], DIFF_UPDATE_PROB);
+      av1_prob_diff_update_savings_search(
+          temporal_predictor_count[i], segp->pred_probs[i],
+#if CONFIG_TILE_GROUPS
+          &t_nopred_prob[i], DIFF_UPDATE_PROB, MAX_NUM_TG);
+#else
+          &t_nopred_prob[i], DIFF_UPDATE_PROB);
+#endif
 #endif
 
       // Add in the predictor signaling cost
