@@ -453,7 +453,6 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
   TileInfo tile;
   struct macroblock_plane *const p = x->plane;
   struct macroblockd_plane *const pd = xd->plane;
-  const PICK_MODE_CONTEXT *ctx = &cpi->td.pc_root->none;
   int i;
 
   int recon_yoffset, recon_uvoffset;
@@ -520,10 +519,14 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
   av1_frame_init_quantizer(cpi);
 
   for (i = 0; i < MAX_MB_PLANE; ++i) {
-    p[i].coeff = ctx->coeff_pbuf[i][1];
-    p[i].qcoeff = ctx->qcoeff_pbuf[i][1];
-    pd[i].dqcoeff = ctx->dqcoeff_pbuf[i][1];
-    p[i].eobs = ctx->eobs_pbuf[i][1];
+    CHECK_MEM_ERROR(cm, p[i].coeff,
+                    aom_memalign(32, MAX_SB_SQUARE * sizeof(*p[i].coeff)));
+    CHECK_MEM_ERROR(cm, p[i].qcoeff,
+                    aom_memalign(32, MAX_SB_SQUARE * sizeof(*p[i].qcoeff)));
+    CHECK_MEM_ERROR(cm, pd[i].dqcoeff,
+                    aom_memalign(32, MAX_SB_SQUARE * sizeof(*pd[i].dqcoeff)));
+    CHECK_MEM_ERROR(cm, p[i].eobs,
+                    aom_memalign(32, MAX_SB_SQUARE * sizeof(*p[i].eobs)));
   }
 
   av1_init_mv_probs(cm);
@@ -1033,6 +1036,13 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
     ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->gld_fb_idx],
                cm->ref_frame_map[cpi->lst_fb_idx]);
 #endif  // CONFIG_EXT_REFS
+  }
+
+  for (i = 0; i < MAX_MB_PLANE; ++i) {
+    aom_free(p[i].coeff);
+    aom_free(p[i].qcoeff);
+    aom_free(pd[i].dqcoeff);
+    aom_free(p[i].eobs);
   }
 
   // Use this to see what the first pass reconstruction looks like.
