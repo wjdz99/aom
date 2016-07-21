@@ -54,6 +54,13 @@ static struct av1_token motion_mode_encodings[MOTION_MODES];
 #endif  // CONFIG_MOTION_VAR
 static struct av1_token ext_tx_encodings[TX_TYPES];
 
+static void write_uncompressed_header(AV1_COMP *cpi,
+                                      struct aom_write_bit_buffer *wb);
+static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data);
+#if CONFIG_TILE_GROUPS
+static void copy_compressed_header(uint8_t *src, uint8_t *dest, int size);
+#endif
+
 void av1_encode_token_init() {
   av1_tokens_from_tree(intra_mode_encodings, av1_intra_mode_tree);
   av1_tokens_from_tree(switchable_interp_encodings, av1_switchable_interp_tree);
@@ -176,10 +183,18 @@ static void encode_unsigned_max(struct aom_write_bit_buffer *wb, int data,
   aom_wb_write_literal(wb, data, get_unsigned_bits(max));
 }
 
+#if CONFIG_TILE_GROUPS
 static void prob_diff_update(const aom_tree_index *tree,
                              aom_prob probs[/*n - 1*/],
                              const unsigned int counts[/*n - 1*/], int n,
-                             aom_writer *w) {
+                             int probwt, aom_writer *w)
+#else
+static void prob_diff_update(const aom_tree_index *tree,
+                             aom_prob probs[/*n - 1*/],
+                             const unsigned int counts[/*n - 1*/], int n,
+                             aom_writer *w)
+#endif
+{
   int i;
   unsigned int branch_ct[32][2];
 
@@ -188,13 +203,24 @@ static void prob_diff_update(const aom_tree_index *tree,
 
   av1_tree_probs_from_distribution(tree, branch_ct, counts);
   for (i = 0; i < n - 1; ++i)
+#if CONFIG_TILE_GROUPS
+    av1_cond_prob_diff_update(w, &probs[i], branch_ct[i], probwt);
+#else
     av1_cond_prob_diff_update(w, &probs[i], branch_ct[i]);
+#endif
 }
 
+#if CONFIG_TILE_GROUPS
 static int prob_diff_update_savings(const aom_tree_index *tree,
                                     aom_prob probs[/*n - 1*/],
-                                    const unsigned int counts[/*n - 1*/],
-                                    int n) {
+                                    const unsigned int counts[/*n - 1*/], int n,
+                                    int probwt)
+#else
+static int prob_diff_update_savings(const aom_tree_index *tree,
+                                    aom_prob probs[/*n - 1*/],
+                                    const unsigned int counts[/*n - 1*/], int n)
+#endif
+{
   int i;
   unsigned int branch_ct[32][2];
   int savings = 0;
@@ -203,7 +229,12 @@ static int prob_diff_update_savings(const aom_tree_index *tree,
   assert(n <= 32);
   av1_tree_probs_from_distribution(tree, branch_ct, counts);
   for (i = 0; i < n - 1; ++i) {
+#if CONFIG_TILE_GROUPS
+    savings +=
+        av1_cond_prob_diff_update_savings(&probs[i], branch_ct[i], probwt);
+#else
     savings += av1_cond_prob_diff_update_savings(&probs[i], branch_ct[i]);
+#endif
   }
   return savings;
 }
@@ -225,8 +256,24 @@ static void write_selected_tx_size(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
 #if CONFIG_REF_MV
 static void update_inter_mode_probs(AV1_COMMON *cm, aom_writer *w,
-                                    FRAME_COUNTS *counts) {
+                                    FRAME_COUNTS *counts, int probwt) {
   int i;
+#if CONFIG_TILE_GROUPS
+  const int probwt = cm->num_tg;
+  for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i)
+    av1_cond_prob_diff_update(w, &cm->fc->newmv_prob[i], counts->newmv_mode[i],
+                              probwt);
+  for (i = 0; i < ZEROMV_MODE_CONTEXTS; ++i)
+    av1_cond_prob_diff_update(w, &cm->fc->zeromv_prob[i],
+                              counts->zeromv_mode[i], probwt);
+  for (i = 0; i < REFMV_MODE_CONTEXTS; ++i)
+    av1_cond_prob_diff_update(w, &cm->fc->refmv_prob[i], counts->refmv_mode[i],
+                              probwt);
+  for (i = 0; i < DRL_MODE_CONTEXTS; ++i)
+    av1_cond_prob_diff_update(w, &cm->fc->drl_prob[i], counts->drl_mode[i],
+                              probwt);
+#else
+  const int probwt = cm->num_tg;
   for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i)
     av1_cond_prob_diff_update(w, &cm->fc->newmv_prob[i], counts->newmv_mode[i]);
   for (i = 0; i < ZEROMV_MODE_CONTEXTS; ++i)
@@ -236,6 +283,8 @@ static void update_inter_mode_probs(AV1_COMMON *cm, aom_writer *w,
     av1_cond_prob_diff_update(w, &cm->fc->refmv_prob[i], counts->refmv_mode[i]);
   for (i = 0; i < DRL_MODE_CONTEXTS; ++i)
     av1_cond_prob_diff_update(w, &cm->fc->drl_prob[i], counts->drl_mode[i]);
+
+#endif
 }
 #endif
 
@@ -253,18 +302,31 @@ static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 static void update_skip_probs(AV1_COMMON *cm, aom_writer *w,
                               FRAME_COUNTS *counts) {
   int k;
-
-  for (k = 0; k < SKIP_CONTEXTS; ++k)
+  for (k = 0; k < SKIP_CONTEXTS; ++k) {
+#if CONFIG_TILE_GROUPS
+    const int probwt = cm->num_tg;
+    av1_cond_prob_diff_update(w, &cm->fc->skip_probs[k], counts->skip[k],
+                              probwt);
+#else
     av1_cond_prob_diff_update(w, &cm->fc->skip_probs[k], counts->skip[k]);
+#endif
+  }
 }
 
 static void update_switchable_interp_probs(AV1_COMMON *cm, aom_writer *w,
                                            FRAME_COUNTS *counts) {
   int j;
   for (j = 0; j < SWITCHABLE_FILTER_CONTEXTS; ++j) {
+#if CONFIG_TILE_GROUPS
+    const int probwt = cm->num_tg;
+    prob_diff_update(
+        av1_switchable_interp_tree, cm->fc->switchable_interp_prob[j],
+        counts->switchable_interp[j], SWITCHABLE_FILTERS, probwt, w);
+#else
     prob_diff_update(av1_switchable_interp_tree,
                      cm->fc->switchable_interp_prob[j],
                      counts->switchable_interp[j], SWITCHABLE_FILTERS, w);
+#endif
 #if CONFIG_DAALA_EC
     av1_tree_to_cdf(av1_switchable_interp_tree,
                     cm->fc->switchable_interp_prob[j],
@@ -280,38 +342,62 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
 
   int savings = 0;
   int do_update = 0;
+#if CONFIG_TILE_GROUPS
+  const int probwt = cm->num_tg;
+#endif
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
     for (j = 0; j < TX_TYPES; ++j)
+#if CONFIG_TILE_GROUPS
+      savings += prob_diff_update_savings(
+          av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
+          cm->counts.intra_ext_tx[i][j], TX_TYPES, probwt);
+#else
       savings += prob_diff_update_savings(
           av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
           cm->counts.intra_ext_tx[i][j], TX_TYPES);
+#endif
   }
   do_update = savings > savings_thresh;
   aom_write(w, do_update, GROUP_DIFF_UPDATE_PROB);
   if (do_update) {
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-      for (j = 0; j < TX_TYPES; ++j) {
+      for (j = 0; j < TX_TYPES; ++j)
+#if CONFIG_TILE_GROUPS
+        prob_diff_update(av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
+                         cm->counts.intra_ext_tx[i][j], TX_TYPES, probwt, w);
+#else
         prob_diff_update(av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
                          cm->counts.intra_ext_tx[i][j], TX_TYPES, w);
+#endif
 #if CONFIG_DAALA_EC
         av1_tree_to_cdf(av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
                         cm->fc->intra_ext_tx_cdf[i][j]);
 #endif
-      }
     }
   }
   savings = 0;
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
+#if CONFIG_TILE_GROUPS
+    savings +=
+        prob_diff_update_savings(av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[i],
+                                 cm->counts.inter_ext_tx[i], TX_TYPES, probwt);
+#else
     savings +=
         prob_diff_update_savings(av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[i],
                                  cm->counts.inter_ext_tx[i], TX_TYPES);
+#endif
   }
   do_update = savings > savings_thresh;
   aom_write(w, do_update, GROUP_DIFF_UPDATE_PROB);
   if (do_update) {
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
+#if CONFIG_TILE_GROUPS
+      prob_diff_update(av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[i],
+                       cm->counts.inter_ext_tx[i], TX_TYPES, probwt, w);
+#else
       prob_diff_update(av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[i],
                        cm->counts.inter_ext_tx[i], TX_TYPES, w);
+#endif
 #if CONFIG_DAALA_EC
       av1_tree_to_cdf(av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[i],
                       cm->fc->inter_ext_tx_cdf[i]);
@@ -970,6 +1056,9 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
   const int entropy_nodes_update = UNCONSTRAINED_NODES;
   int i, j, k, l, t;
   int stepsize = cpi->sf.coeff_prob_appx_step;
+#if CONFIG_TILE_GROUPS
+  const int probwt = cpi->common.num_tg;
+#endif
 
   switch (cpi->sf.use_fast_coef_updates) {
     case TWO_LOOP: {
@@ -985,6 +1074,15 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
                 const aom_prob oldp = old_coef_probs[i][j][k][l][t];
                 int s;
                 int u = 0;
+#if CONFIG_TILE_GROUPS
+                if (t == PIVOT_NODE)
+                  s = av1_prob_diff_update_savings_search_model(
+                      frame_branch_ct[i][j][k][l][0],
+                      old_coef_probs[i][j][k][l], &newp, upd, stepsize, probwt);
+                else
+                  s = av1_prob_diff_update_savings_search(
+                      frame_branch_ct[i][j][k][l][t], oldp, &newp, upd, probwt);
+#else
                 if (t == PIVOT_NODE)
                   s = av1_prob_diff_update_savings_search_model(
                       frame_branch_ct[i][j][k][l][0],
@@ -992,6 +1090,8 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
                 else
                   s = av1_prob_diff_update_savings_search(
                       frame_branch_ct[i][j][k][l][t], oldp, &newp, upd);
+#endif
+
                 if (s > 0 && newp != oldp) u = 1;
                 if (u)
                   savings += s - (int)(av1_cost_zero(upd));
@@ -1021,6 +1121,16 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
                 aom_prob *oldp = old_coef_probs[i][j][k][l] + t;
                 int s;
                 int u = 0;
+#if CONFIG_TILE_GROUPS
+                if (t == PIVOT_NODE)
+                  s = av1_prob_diff_update_savings_search_model(
+                      frame_branch_ct[i][j][k][l][0],
+                      old_coef_probs[i][j][k][l], &newp, upd, stepsize, probwt);
+                else
+                  s = av1_prob_diff_update_savings_search(
+                      frame_branch_ct[i][j][k][l][t], *oldp, &newp, upd,
+                      probwt);
+#else
                 if (t == PIVOT_NODE)
                   s = av1_prob_diff_update_savings_search_model(
                       frame_branch_ct[i][j][k][l][0],
@@ -1028,6 +1138,7 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
                 else
                   s = av1_prob_diff_update_savings_search(
                       frame_branch_ct[i][j][k][l][t], *oldp, &newp, upd);
+#endif
                 if (s > 0 && newp != *oldp) u = 1;
                 aom_write(bc, u, upd);
                 if (u) {
@@ -1056,7 +1167,17 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
                 aom_prob *oldp = old_coef_probs[i][j][k][l] + t;
                 int s;
                 int u = 0;
-
+#if CONFIG_TILE_GROUPS
+                if (t == PIVOT_NODE) {
+                  s = av1_prob_diff_update_savings_search_model(
+                      frame_branch_ct[i][j][k][l][0],
+                      old_coef_probs[i][j][k][l], &newp, upd, stepsize, probwt);
+                } else {
+                  s = av1_prob_diff_update_savings_search(
+                      frame_branch_ct[i][j][k][l][t], *oldp, &newp, upd,
+                      probwt);
+                }
+#else
                 if (t == PIVOT_NODE) {
                   s = av1_prob_diff_update_savings_search_model(
                       frame_branch_ct[i][j][k][l][0],
@@ -1065,6 +1186,7 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
                   s = av1_prob_diff_update_savings_search(
                       frame_branch_ct[i][j][k][l][t], *oldp, &newp, upd);
                 }
+#endif
 
                 if (s > 0 && newp != *oldp) u = 1;
                 updates += u;
@@ -1287,9 +1409,27 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_MISC_FIXES
 static void update_seg_probs(AV1_COMP *cpi, aom_writer *w) {
   AV1_COMMON *cm = &cpi->common;
+#if CONFIG_TILE_GROUPS
+  const int probwt = cm->num_tg;
+#endif
 
   if (!cpi->common.seg.enabled) return;
 
+#if CONFIG_TILE_GROUPS
+  if (cpi->common.seg.temporal_update) {
+    int i;
+
+    for (i = 0; i < PREDICTION_PROBS; i++)
+      av1_cond_prob_diff_update(w, &cm->fc->seg.pred_probs[i],
+                                cm->counts.seg.pred[i], probwt);
+
+    prob_diff_update(av1_segment_tree, cm->fc->seg.tree_probs,
+                     cm->counts.seg.tree_mispred, MAX_SEGMENTS, probwt, w);
+  } else {
+    prob_diff_update(av1_segment_tree, cm->fc->seg.tree_probs,
+                     cm->counts.seg.tree_total, MAX_SEGMENTS, probwt, w);
+  }
+#else
   if (cpi->common.seg.temporal_update) {
     int i;
 
@@ -1303,6 +1443,7 @@ static void update_seg_probs(AV1_COMP *cpi, aom_writer *w) {
     prob_diff_update(av1_segment_tree, cm->fc->seg.tree_probs,
                      cm->counts.seg.tree_total, MAX_SEGMENTS, w);
   }
+#endif
 }
 
 static void write_txfm_mode(TX_MODE mode, struct aom_write_bit_buffer *wb) {
@@ -1318,6 +1459,9 @@ static void write_txfm_mode(TX_MODE mode, aom_writer *wb) {
 
 static void update_txfm_probs(AV1_COMMON *cm, aom_writer *w,
                               FRAME_COUNTS *counts) {
+#if CONFIG_TILE_GROUPS
+  const int probwt = cm->num_tg;
+#endif
   if (cm->tx_mode == TX_MODE_SELECT) {
     int i, j;
     unsigned int ct_8x8p[TX_SIZES - 3][2];
@@ -1327,21 +1471,36 @@ static void update_txfm_probs(AV1_COMMON *cm, aom_writer *w,
     for (i = 0; i < TX_SIZE_CONTEXTS; i++) {
       av1_tx_counts_to_branch_counts_8x8(counts->tx.p8x8[i], ct_8x8p);
       for (j = 0; j < TX_SIZES - 3; j++)
+#if CONFIG_TILE_GROUPS
+        av1_cond_prob_diff_update(w, &cm->fc->tx_probs.p8x8[i][j], ct_8x8p[j],
+                                  probwt);
+#else
         av1_cond_prob_diff_update(w, &cm->fc->tx_probs.p8x8[i][j], ct_8x8p[j]);
+#endif
     }
 
     for (i = 0; i < TX_SIZE_CONTEXTS; i++) {
       av1_tx_counts_to_branch_counts_16x16(counts->tx.p16x16[i], ct_16x16p);
       for (j = 0; j < TX_SIZES - 2; j++)
+#if CONFIG_TILE_GROUPS
+        av1_cond_prob_diff_update(w, &cm->fc->tx_probs.p16x16[i][j],
+                                  ct_16x16p[j], probwt);
+#else
         av1_cond_prob_diff_update(w, &cm->fc->tx_probs.p16x16[i][j],
                                   ct_16x16p[j]);
+#endif
     }
 
     for (i = 0; i < TX_SIZE_CONTEXTS; i++) {
       av1_tx_counts_to_branch_counts_32x32(counts->tx.p32x32[i], ct_32x32p);
       for (j = 0; j < TX_SIZES - 1; j++)
+#if CONFIG_TILE_GROUPS
+        av1_cond_prob_diff_update(w, &cm->fc->tx_probs.p32x32[i][j],
+                                  ct_32x32p[j], probwt);
+#else
         av1_cond_prob_diff_update(w, &cm->fc->tx_probs.p32x32[i][j],
                                   ct_32x32p[j]);
+#endif
     }
   }
 }
@@ -1434,8 +1593,15 @@ static int get_refresh_mask(AV1_COMP *cpi) {
   }
 }
 
+#if CONFIG_TILE_GROUPS
+static size_t encode_tiles(AV1_COMP *cpi, struct aom_write_bit_buffer *wb,
+                           unsigned int *max_tile_sz)
+#else
 static size_t encode_tiles(AV1_COMP *cpi, uint8_t *data_ptr,
-                           unsigned int *max_tile_sz) {
+                           unsigned int *max_tile_sz)
+#endif
+{
+
   AV1_COMMON *const cm = &cpi->common;
 #if CONFIG_ANS
   struct AnsCoder ans;
@@ -1445,10 +1611,30 @@ static size_t encode_tiles(AV1_COMP *cpi, uint8_t *data_ptr,
 #endif  // CONFIG_ANS
   int tile_row, tile_col;
   TOKENEXTRA *tok_end;
-  size_t total_size = 0;
   const int tile_cols = 1 << cm->log2_tile_cols;
   const int tile_rows = 1 << cm->log2_tile_rows;
   unsigned int max_tile = 0;
+#if CONFIG_TILE_GROUPS
+#if CONFIG_MISC_FIXES
+  const int n_log2_tiles = cm->log2_tile_rows + cm->log2_tile_cols;
+  const int have_tiles = n_log2_tiles > 0;
+#else
+  const int have_tiles = 0;  // we have tiles, but we don't want to write a
+                             // tile size marker in the header
+#endif
+
+  size_t comp_hdr_size;
+  int first_hdr = 1;
+  const int num_tg_hdrs = cm->num_tg;
+  const int tg_size = (tile_rows * tile_cols + num_tg_hdrs - 1) / num_tg_hdrs;
+  int tile_count = 0;
+  int first_tile = 0;
+  int last_tile = tg_size;
+  int uncompressed_hdr_size = 0;
+  uint8_t *data_ptr = NULL;
+  struct aom_write_bit_buffer saved_wb;
+#endif
+  size_t total_size = 0;
 
   memset(cm->above_seg_context, 0,
          sizeof(*cm->above_seg_context) * mi_cols_aligned_to_sb(cm->mi_cols));
@@ -1458,7 +1644,33 @@ static size_t encode_tiles(AV1_COMP *cpi, uint8_t *data_ptr,
       const int tile_idx = tile_row * tile_cols + tile_col;
       const int is_last_tile = tile_idx == tile_rows * tile_cols - 1;
       unsigned int tile_size;
+      int diff;
       TOKENEXTRA *tok = cpi->tile_tok[tile_row][tile_col];
+
+#if CONFIG_TILE_GROUPS
+      aom_clear_system_state();
+      if (tile_count++ >= first_tile) {
+        first_tile = first_tile + tg_size;
+        last_tile = AOMMIN(last_tile + tg_size, tile_rows * tile_cols);
+        if (first_hdr) {
+          write_uncompressed_header(cpi, wb);
+          saved_wb = *wb;
+          aom_wb_write_literal(wb, 0, 16 + have_tiles * 2);
+          uncompressed_hdr_size = aom_wb_bytes_written(wb);
+          data_ptr = wb->bit_buffer;
+          comp_hdr_size =
+              write_compressed_header(cpi, data_ptr + uncompressed_hdr_size);
+          aom_wb_write_literal(&saved_wb, (int)(comp_hdr_size), 16);
+          total_size += comp_hdr_size + uncompressed_hdr_size;
+          first_hdr = 0;
+        } else {
+          // Copy compressed header
+          memcpy(data_ptr + total_size, data_ptr,
+                 (comp_hdr_size + uncompressed_hdr_size) * sizeof(uint8_t));
+          total_size += comp_hdr_size + uncompressed_hdr_size;
+        }
+      }
+#endif
 
       tok_end = cpi->tile_tok[tile_row][tile_col] +
                 cpi->tok_count[tile_row][tile_col];
@@ -1481,14 +1693,15 @@ static size_t encode_tiles(AV1_COMP *cpi, uint8_t *data_ptr,
       tile_size = residual_bc.pos - CONFIG_MISC_FIXES;
 #endif
       assert(tile_size > 0);
+      diff = -total_size;
       if (!is_last_tile) {
         // size of this tile
         mem_put_le32(data_ptr + total_size, tile_size);
         max_tile = max_tile > tile_size ? max_tile : tile_size;
         total_size += 4;
       }
-
       total_size += tile_size + CONFIG_MISC_FIXES;
+      diff += total_size;
     }
   }
   *max_tile_sz = max_tile;
@@ -1763,12 +1976,21 @@ static void write_uncompressed_header(AV1_COMP *cpi,
   write_tile_info(cm, wb);
 }
 
+#if CONFIG_TILE_GROUPS
+static void copy_compressed_header(uint8_t *src, uint8_t *dest, int size) {
+  memcpy(dest, src, sizeof(uint8_t) * size);
+}
+#endif
+
 static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
   AV1_COMMON *const cm = &cpi->common;
   FRAME_CONTEXT *const fc = cm->fc;
   FRAME_COUNTS *counts = cpi->td.counts;
   aom_writer *header_bc;
   int i, j;
+#if CONFIG_TILE_GROUPS
+  const int probwt = cm->num_tg;
+#endif
 
 #if CONFIG_ANS
   struct AnsCoder header_ans;
@@ -1798,11 +2020,18 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 
   for (i = 0; i < INTRA_MODES; ++i)
     prob_diff_update(av1_intra_mode_tree, fc->uv_mode_prob[i],
+#if CONFIG_TILE_GROUPS
+                     counts->uv_mode[i], INTRA_MODES, header_bc, probwt);
+#else
                      counts->uv_mode[i], INTRA_MODES, header_bc);
-
+#endif
   for (i = 0; i < PARTITION_CONTEXTS; ++i) {
     prob_diff_update(av1_partition_tree, fc->partition_prob[i],
+#if CONFIG_TILE_GROUPS
+                     counts->partition[i], PARTITION_TYPES, header_bc, probwt);
+#else
                      counts->partition[i], PARTITION_TYPES, header_bc);
+#endif
 #if CONFIG_DAALA_EC
     av1_tree_to_cdf(av1_partition_tree, cm->fc->partition_prob[i],
                     cm->fc->partition_cdf[i]);
@@ -1816,7 +2045,12 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     for (i = 0; i < INTRA_MODES; ++i)
       for (j = 0; j < INTRA_MODES; ++j)
         prob_diff_update(av1_intra_mode_tree, cm->kf_y_prob[i][j],
+#if CONFIG_TILE_GROUPS
+                         counts->kf_y_mode[i][j], INTRA_MODES, header_bc,
+                         probwt);
+#else
                          counts->kf_y_mode[i][j], INTRA_MODES, header_bc);
+#endif
 #endif
   } else {
 #if CONFIG_REF_MV
@@ -1824,20 +2058,33 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #else
     for (i = 0; i < INTER_MODE_CONTEXTS; ++i)
       prob_diff_update(av1_inter_mode_tree, cm->fc->inter_mode_probs[i],
+#if CONFIG_TILE_GROUPS
+                       counts->inter_mode[i], INTER_MODES, probwt, header_bc);
+#else
                        counts->inter_mode[i], INTER_MODES, header_bc);
+#endif
 #endif
 #if CONFIG_MOTION_VAR
     for (i = 0; i < BLOCK_SIZES; ++i)
       if (is_motion_variation_allowed_bsize(i))
         prob_diff_update(av1_motion_mode_tree, cm->fc->motion_mode_prob[i],
+#if CONFIG_TILE_GROUPS
+                         counts->motion_mode[i], MOTION_MODES, probwt,
+                         header_bc);
+#else
                          counts->motion_mode[i], MOTION_MODES, header_bc);
+#endif
 #endif  // CONFIG_MOTION_VAR
     if (cm->interp_filter == SWITCHABLE)
       update_switchable_interp_probs(cm, header_bc, counts);
 
     for (i = 0; i < INTRA_INTER_CONTEXTS; i++)
       av1_cond_prob_diff_update(header_bc, &fc->intra_inter_prob[i],
+#if CONFIG_TILE_GROUPS
+                                counts->intra_inter[i], probwt);
+#else
                                 counts->intra_inter[i]);
+#endif
 
     if (cpi->allow_comp_inter_inter) {
       const int use_hybrid_pred = cm->reference_mode == REFERENCE_MODE_SELECT;
@@ -1850,13 +2097,21 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
         if (use_hybrid_pred)
           for (i = 0; i < COMP_INTER_CONTEXTS; i++)
             av1_cond_prob_diff_update(header_bc, &fc->comp_inter_prob[i],
+#if CONFIG_TILE_GROUPS
+                                      counts->comp_inter[i], probwt);
+#else
                                       counts->comp_inter[i]);
+#endif
       }
 #else
       if (use_hybrid_pred)
         for (i = 0; i < COMP_INTER_CONTEXTS; i++)
           av1_cond_prob_diff_update(header_bc, &fc->comp_inter_prob[i],
+#if CONFIG_TILE_GROUPS
+                                    counts->comp_inter[i], probwt);
+#else
                                     counts->comp_inter[i]);
+#endif
 #endif
     }
 
@@ -1864,32 +2119,60 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
       for (i = 0; i < REF_CONTEXTS; i++)
         for (j = 0; j < (SINGLE_REFS - 1); j++)
           av1_cond_prob_diff_update(header_bc, &fc->single_ref_prob[i][j],
+#if CONFIG_TILE_GROUPS
+                                    counts->single_ref[i][j], probwt);
+#else
                                     counts->single_ref[i][j]);
+#endif
 
     if (cm->reference_mode != SINGLE_REFERENCE)
 #if CONFIG_EXT_REFS
       for (i = 0; i < REF_CONTEXTS; i++) {
         for (j = 0; j < (FWD_REFS - 1); j++)
           av1_cond_prob_diff_update(header_bc, &fc->comp_fwdref_prob[i][j],
+#if CONFIG_TILE_GROUPS
+                                    counts->comp_fwdref[i][j], probwt);
+#else
                                     counts->comp_fwdref[i][j]);
+#endif
         for (j = 0; j < (BWD_REFS - 1); j++)
           av1_cond_prob_diff_update(header_bc, &fc->comp_bwdref_prob[i][j],
+#if CONFIG_TILE_GROUPS
+                                    counts->comp_bwdref[i][j], probwt);
+#else
                                     counts->comp_bwdref[i][j]);
+#endif
       }
 #else
       for (i = 0; i < REF_CONTEXTS; i++)
+#if CONFIG_TILE_GROUPS
+        av1_cond_prob_diff_update(header_bc, &fc->comp_ref_prob[i],
+                                  counts->comp_ref[i], probwt);
+#else
         av1_cond_prob_diff_update(header_bc, &fc->comp_ref_prob[i],
                                   counts->comp_ref[i]);
+#endif
 #endif  // CONFIG_EXT_REFS
 
     for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
+#if CONFIG_TILE_GROUPS
+      prob_diff_update(av1_intra_mode_tree, cm->fc->y_mode_prob[i],
+                       counts->y_mode[i], INTRA_MODES, probwt, header_bc);
+#else
       prob_diff_update(av1_intra_mode_tree, cm->fc->y_mode_prob[i],
                        counts->y_mode[i], INTRA_MODES, header_bc);
+#endif
 
 #if !CONFIG_MISC_FIXES
     for (i = 0; i < PARTITION_CONTEXTS; ++i) {
+#if CONFIG_TILE_GROUPS
+      prob_diff_update(av1_partition_tree, fc->partition_prob[i],
+                       counts->partition[i], PARTITION_TYPES, probwt,
+                       header_bc);
+#else
       prob_diff_update(av1_partition_tree, fc->partition_prob[i],
                        counts->partition[i], PARTITION_TYPES, header_bc);
+#endif
 #if CONFIG_DAALA_EC
       av1_tree_to_cdf(av1_partition_tree, cm->fc->partition_prob[i],
                       cm->fc->partition_cdf[i]);
@@ -1956,13 +2239,19 @@ static int remux_tiles(uint8_t *dest, const int sz, const int n_tiles,
 
 void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dest, size_t *size) {
   uint8_t *data = dest;
-  size_t first_part_size, uncompressed_hdr_size, data_sz;
-  struct aom_write_bit_buffer wb = { data, 0 };
+#if !CONFIG_TILE_GROUPS
+  size_t first_part_size = 0;
   struct aom_write_bit_buffer saved_wb;
+#endif
+  size_t data_sz;
+  struct aom_write_bit_buffer wb = { data, 0 };
   unsigned int max_tile;
 #if CONFIG_MISC_FIXES || CONFIG_EXT_REFS
   AV1_COMMON *const cm = &cpi->common;
 #endif  // CONFIG_MISC_FIXES || CONFIG_EXT_REFS
+
+#if !CONFIG_TILE_GROUPS
+  size_t uncompressed_hdr_size;
 #if CONFIG_MISC_FIXES
   const int n_log2_tiles = cm->log2_tile_rows + cm->log2_tile_cols;
   const int have_tiles = n_log2_tiles > 0;
@@ -1988,12 +2277,13 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dest, size_t *size) {
   data += uncompressed_hdr_size;
 
   aom_clear_system_state();
-
   first_part_size = write_compressed_header(cpi, data);
   data += first_part_size;
-
   data_sz = encode_tiles(cpi, data, &max_tile);
-#if CONFIG_MISC_FIXES
+#else
+  data_sz = encode_tiles(cpi, &wb, &max_tile);
+#endif
+#if CONFIG_MISC_FIXES  // FIXME broken for tile groups
   if (max_tile > 0) {
     int mag;
     unsigned int mask;
@@ -2014,8 +2304,10 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dest, size_t *size) {
 #endif
   data += data_sz;
 
+#if !CONFIG_TILE_GROUPS
   // TODO(jbb): Figure out what to do if first_part_size > 16 bits.
   aom_wb_write_literal(&saved_wb, (int)first_part_size, 16);
+#endif
 
   *size = data - dest;
 }

@@ -3779,9 +3779,15 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     if (cm->error_resilient_mode) {
       cm->reset_frame_context = RESET_FRAME_CONTEXT_NONE;
       cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_OFF;
+#if CONFIG_TILE_GROUPS
+      cm->num_tg = MAX_NUM_TG;
+#endif
     } else if (cm->intra_only) {
       // Only reset the current context.
       cm->reset_frame_context = RESET_FRAME_CONTEXT_CURRENT;
+#if CONFIG_TILE_GROUPS
+      cm->num_tg = 1;
+#endif
     }
   }
 
