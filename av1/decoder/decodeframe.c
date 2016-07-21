@@ -56,6 +56,14 @@
 #define MAX_AV1_HEADER_SIZE 80
 #define ACCT_STR __func__
 
+static struct aom_read_bit_buffer *init_read_bit_buffer(
+    AV1Decoder *pbi, struct aom_read_bit_buffer *rb, const uint8_t *data,
+    const uint8_t *data_end, uint8_t clear_data[MAX_AV1_HEADER_SIZE]);
+static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
+                                  size_t partition_size);
+static size_t read_uncompressed_header(AV1Decoder *pbi,
+                                       struct aom_read_bit_buffer *rb);
+
 static int is_compound_reference_allowed(const AV1_COMMON *cm) {
   int i;
   if (frame_is_intra_only(cm)) return 0;
@@ -1190,6 +1198,40 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
                              const uint8_t *data_end, int tile_cols,
                              int tile_rows,
                              TileBuffer (*tile_buffers)[1 << 6]) {
+#if CONFIG_TILE_GROUPS
+  int r, c;
+  int tc = 0;
+  int first_tile_in_tg = 0;
+  int hdr_offset;
+  struct aom_read_bit_buffer rb;
+  uint8_t clear_data[MAX_AV1_HEADER_SIZE];
+  const int num_tiles = tile_rows * tile_cols;
+  const int num_bits = OD_ILOG(num_tiles) - 1;
+  const int hdr_size = pbi->uncomp_hdr_size + pbi->first_partition_size;
+  const int tg_size_bit_offset = pbi->tg_size_bit_offset;
+
+  for (r = 0; r < tile_rows; ++r) {
+    for (c = 0; c < tile_cols; ++c, ++tc) {
+      const int is_last = (r == tile_rows - 1) && (c == tile_cols - 1);
+      TileBuffer *const buf = &tile_buffers[r][c];
+      hdr_offset = (tc && tc == first_tile_in_tg) ? hdr_size : 0;
+
+      buf->col = c;
+      if (hdr_offset) {
+        init_read_bit_buffer(pbi, &rb, data, data_end, clear_data);
+        rb.bit_offset = tg_size_bit_offset;
+        if (num_tiles) {
+          pbi->tg_size = aom_rb_read_literal(&rb, num_bits);
+        }
+      }
+      first_tile_in_tg += tc == first_tile_in_tg ? pbi->tg_size : 0;
+      data += hdr_offset;
+      get_tile_buffer(data_end, pbi->common.tile_sz_mag, is_last,
+                      &pbi->common.error, &data, pbi->decrypt_cb,
+                      pbi->decrypt_state, buf);
+    }
+  }
+#else
   int r, c;
 
   for (r = 0; r < tile_rows; ++r) {
@@ -1202,6 +1244,7 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
                       pbi->decrypt_state, buf);
     }
   }
+#endif
 }
 
 static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
@@ -1262,6 +1305,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
   for (tile_row = 0; tile_row < tile_rows; ++tile_row) {
     for (tile_col = 0; tile_col < tile_cols; ++tile_col) {
       const TileBuffer *const buf = &tile_buffers[tile_row][tile_col];
+
       tile_data = pbi->tile_data + tile_cols * tile_row + tile_col;
       tile_data->cm = cm;
       tile_data->xd = pbi->mb;
@@ -1975,6 +2019,15 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   if (sz == 0)
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "Invalid header size");
+#if CONFIG_TILE_GROUPS
+  // Store an index to the location of the tile group information
+  pbi->tg_size_bit_offset = rb->bit_offset;
+  pbi->tg_size = 1 << (cm->log2_tile_rows + cm->log2_tile_cols);
+  if (cm->log2_tile_rows + cm->log2_tile_cols > 0) {
+    pbi->tg_size =
+        1 + aom_rb_read_literal(rb, cm->log2_tile_rows + cm->log2_tile_cols);
+  }
+#endif
 
   return sz;
 }
@@ -2239,6 +2292,52 @@ BITSTREAM_PROFILE av1_read_profile(struct aom_read_bit_buffer *rb) {
   return (BITSTREAM_PROFILE)profile;
 }
 
+static int read_all_headers(AV1Decoder *pbi, struct aom_read_bit_buffer *rb,
+                            const uint8_t **p_data,
+                            const uint8_t **p_data_end) {
+  AV1_COMMON *const cm = &pbi->common;
+  MACROBLOCKD *const xd = &pbi->mb;
+  YV12_BUFFER_CONFIG *fb = (YV12_BUFFER_CONFIG *)xd->cur_buf;
+
+  pbi->first_partition_size = read_uncompressed_header(pbi, rb);
+  pbi->uncomp_hdr_size = aom_rb_bytes_read(rb);
+
+  if (!pbi->first_partition_size) {
+// showing a frame directly
+#if CONFIG_EXT_REFS
+    if (cm->show_existing_frame)
+      *p_data_end = *p_data + pbi->uncomp_hdr_size;
+    else
+#endif  // CONFIG_EXT_REFS
+      *p_data_end = *p_data + (cm->profile <= PROFILE_2 ? 1 : 2);
+    return 1;
+  }
+
+  *p_data += pbi->uncomp_hdr_size;
+
+  if (!read_is_valid(*p_data, pbi->first_partition_size, *p_data_end))
+    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                       "Truncated packet or corrupt header length");
+
+  *cm->fc = cm->frame_contexts[cm->frame_context_idx];
+  if (!cm->fc->initialized)
+    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                       "Uninitialized entropy context.");
+
+  av1_zero(cm->counts);
+
+  xd->corrupted = 0;
+  fb->corrupted =
+      read_compressed_header(pbi, *p_data, pbi->first_partition_size);
+  if (fb->corrupted)
+    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                       "Decode failed. Frame data header is corrupted.");
+
+  *p_data += pbi->first_partition_size;
+
+  return 0;
+}
+
 void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
                       const uint8_t *data_end, const uint8_t **p_data_end) {
   AV1_COMMON *const cm = &pbi->common;
@@ -2246,28 +2345,17 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
   struct aom_read_bit_buffer rb;
   int context_updated = 0;
   uint8_t clear_data[MAX_AV1_HEADER_SIZE];
-  const size_t first_partition_size = read_uncompressed_header(
-      pbi, init_read_bit_buffer(pbi, &rb, data, data_end, clear_data));
   const int tile_rows = 1 << cm->log2_tile_rows;
   const int tile_cols = 1 << cm->log2_tile_cols;
+  int early_terminate;
   YV12_BUFFER_CONFIG *const new_fb = get_frame_new_buffer(cm);
   xd->cur_buf = new_fb;
 
-  if (!first_partition_size) {
-// showing a frame directly
-#if CONFIG_EXT_REFS
-    if (cm->show_existing_frame)
-      *p_data_end = data + aom_rb_bytes_read(&rb);
-    else
-#endif  // CONFIG_EXT_REFS
-      *p_data_end = data + (cm->profile <= PROFILE_2 ? 1 : 2);
-    return;
-  }
+  early_terminate = read_all_headers(
+      pbi, init_read_bit_buffer(pbi, &rb, data, data_end, clear_data), &data,
+      &data_end);
 
-  data += aom_rb_bytes_read(&rb);
-  if (!read_is_valid(data, first_partition_size, data_end))
-    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                       "Truncated packet or corrupt header length");
+  if (early_terminate) return;
 
   cm->use_prev_frame_mvs =
       !cm->error_resilient_mode && cm->width == cm->last_width &&
@@ -2293,23 +2381,6 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
 
   av1_setup_block_planes(xd, cm->subsampling_x, cm->subsampling_y);
 
-  *cm->fc = cm->frame_contexts[cm->frame_context_idx];
-  if (!cm->fc->initialized)
-    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                       "Uninitialized entropy context.");
-
-  av1_zero(cm->counts);
-
-  xd->corrupted = 0;
-  new_fb->corrupted = read_compressed_header(pbi, data, first_partition_size);
-  if (new_fb->corrupted)
-    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                       "Decode failed. Frame data header is corrupted.");
-
-  if (cm->lf.filter_level && !cm->skip_loop_filter) {
-    av1_loop_filter_frame_init(cm, cm->lf.filter_level);
-  }
-
   // If encoded in frame parallel mode, frame context is ready after decoding
   // the frame header.
   if (cm->frame_parallel_decode &&
@@ -2329,9 +2400,13 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
     av1_frameworker_unlock_stats(worker);
   }
 
+  if (cm->lf.filter_level && !cm->skip_loop_filter) {
+    av1_loop_filter_frame_init(cm, cm->lf.filter_level);
+  }
+
   if (pbi->max_threads > 1 && tile_rows == 1 && tile_cols > 1) {
     // Multi-threaded tile decoder
-    *p_data_end = decode_tiles_mt(pbi, data + first_partition_size, data_end);
+    *p_data_end = decode_tiles_mt(pbi, data, data_end);
     if (!xd->corrupted) {
       if (!cm->skip_loop_filter) {
         // If multiple threads are used to decode tiles, then we use those
@@ -2345,7 +2420,7 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
                          "Decode failed. Frame data is corrupted.");
     }
   } else {
-    *p_data_end = decode_tiles(pbi, data + first_partition_size, data_end);
+    *p_data_end = decode_tiles(pbi, data, data_end);
   }
 
 #if CONFIG_CLPF
