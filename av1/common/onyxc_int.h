@@ -336,6 +336,9 @@ typedef struct AV1Common {
 #if CONFIG_DERING
   int dering_level;
 #endif
+#if CONFIG_TILE_GROUPS
+  int num_tg;
+#endif
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic
