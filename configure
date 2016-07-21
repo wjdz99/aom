@@ -272,6 +272,7 @@ EXPERIMENT_LIST="
     filter_7bit
     delta_q
     adapt_scan
+    tile_groups
 "
 CONFIG_LIST="
     dependency_tracking
@@ -380,6 +381,7 @@ CMDLINE_SELECT="
     aom_highbitdepth
     experimental
     aom_qm
+    tile_groups
 "
 
 process_cmdline() {
