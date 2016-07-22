@@ -2168,6 +2168,10 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
     return;
   }
 
+#if CONFIG_SIMP_MV_PRED
+  cm->setup_mi(cm);
+#endif
+
   data += aom_rb_bytes_read(&rb);
   if (!read_is_valid(data, first_partition_size, data_end))
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
