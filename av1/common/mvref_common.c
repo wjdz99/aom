@@ -375,8 +375,10 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
   // Scan the second outer area.
   for (idx = 2; idx <= 4; ++idx) {
+#if !CONFIG_SIMP_MV_PRED
     scan_row_mbmi(cm, xd, mi_row, mi_col, block, rf, -idx, ref_mv_stack,
                   refmv_count);
+#endif
     scan_col_mbmi(cm, xd, mi_row, mi_col, block, rf, -idx, ref_mv_stack,
                   refmv_count);
   }
@@ -483,7 +485,9 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                              void *const data, int16_t *mode_context) {
   const int *ref_sign_bias = cm->ref_frame_sign_bias;
   int i, refmv_count = 0;
+#if !CONFIG_SIMP_MV_PRED
   const POSITION *const mv_ref_search = mv_ref_blocks[mi->mbmi.sb_type];
+#endif
   int different_ref_found = 0;
   int context_counter = 0;
   const MV_REF *const prev_frame_mvs =
@@ -493,6 +497,29 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const TileInfo *const tile = &xd->tile;
   const int bw = num_8x8_blocks_wide_lookup[mi->mbmi.sb_type] << 3;
   const int bh = num_8x8_blocks_high_lookup[mi->mbmi.sb_type] << 3;
+#if CONFIG_SIMP_MV_PRED
+  POSITION mv_ref_search[MVREF_NEIGHBOURS];
+  const int num_8x8_blocks_wide = bw >> 3;
+  const int num_8x8_blocks_high = bh >> 3;
+  mv_ref_search[0].row = num_8x8_blocks_high - 1;
+  mv_ref_search[0].col = -1;
+  mv_ref_search[1].row = -1;
+  mv_ref_search[1].col = num_8x8_blocks_wide - 1;
+  mv_ref_search[2].row = -1;
+  mv_ref_search[2].col = (num_8x8_blocks_wide - 1) >> 1;
+  mv_ref_search[3].row = (num_8x8_blocks_high - 1) >> 1;
+  mv_ref_search[3].col = -1;
+  mv_ref_search[4].row = -1;
+  mv_ref_search[4].col = -1;
+  mv_ref_search[5].row = -1;
+  mv_ref_search[5].col = num_8x8_blocks_wide;
+  mv_ref_search[6].row = num_8x8_blocks_high;
+  mv_ref_search[6].col = -1;
+  mv_ref_search[7].row = -1;
+  mv_ref_search[7].col = -3;
+  mv_ref_search[8].row = num_8x8_blocks_high - 1;
+  mv_ref_search[8].col = -3;
+#endif
 
 #if !CONFIG_MISC_FIXES
   // Blank the reference vector list
@@ -529,6 +556,11 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     if (is_inside(tile, mi_col, mi_row, cm->mi_rows, mv_ref)) {
       const MB_MODE_INFO *const candidate =
           &xd->mi[mv_ref->col + mv_ref->row * xd->mi_stride]->mbmi;
+#if CONFIG_SIMP_MV_PRED
+      if (candidate == NULL) continue;
+      if ((mi_row % 8) + mv_ref->row >= 8 || (mi_col % 8) + mv_ref->col >= 8)
+        continue;
+#endif
       different_ref_found = 1;
 
       if (candidate->ref_frame[0] == ref_frame)
@@ -575,7 +607,11 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       if (is_inside(tile, mi_col, mi_row, cm->mi_rows, mv_ref)) {
         const MB_MODE_INFO *const candidate =
             &xd->mi[mv_ref->col + mv_ref->row * xd->mi_stride]->mbmi;
-
+#if CONFIG_SIMP_MV_PRED
+        if (candidate == NULL) continue;
+        if ((mi_row % 8) + mv_ref->row >= 8 || (mi_col % 8) + mv_ref->col >= 8)
+          continue;
+#endif
         // If the candidate is INTRA we don't want to consider its mv.
         IF_DIFF_REF_FRAME_ADD_MV(candidate, ref_frame, ref_sign_bias,
                                  refmv_count, mv_ref_list, bw, bh, xd, Done);
@@ -619,6 +655,10 @@ Done:
   for (i = refmv_count; i < MAX_MV_REF_CANDIDATES; ++i)
     mv_ref_list[i].as_int = 0;
 #else
+#if CONFIG_SIMP_MV_PRED
+  for (i = refmv_count; i < MAX_MV_REF_CANDIDATES; ++i)
+    mv_ref_list[i].as_int = 0;
+#endif
   // Clamp vectors
   for (i = 0; i < MAX_MV_REF_CANDIDATES; ++i)
     clamp_mv_ref(&mv_ref_list[i].as_mv, bw, bh, xd);
