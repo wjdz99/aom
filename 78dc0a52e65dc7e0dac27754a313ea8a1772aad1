@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4a3a9356_8abccf20",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2564,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-07-22T19:28:09Z",
+      "side": 1,
+      "message": "Yeah these counts were in a different function, didn\u0027t realize the same thing was already defined.",
+      "parentUuid": "4a3a9356_27137e0c",
+      "range": {
+        "startLine": 2564,
+        "startChar": 7,
+        "endLine": 2564,
+        "endChar": 66
+      },
+      "revId": "78dc0a52e65dc7e0dac27754a313ea8a1772aad1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a3a9356_a7ec6ef9",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "4a3a9356_0a899f85",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2867,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-07-22T19:28:09Z",
+      "side": 1,
+      "message": "No, I\u0027ll move these to be members of TileDataEnc or ThreadData instead. Do you have a preference which?",
+      "parentUuid": "4a3a9356_a7ec6ef9",
+      "range": {
+        "startLine": 2855,
+        "startChar": 0,
+        "endLine": 2867,
+        "endChar": 3
+      },
+      "revId": "78dc0a52e65dc7e0dac27754a313ea8a1772aad1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a3a9356_67de6637",
         "filename": "av1/encoder/tokenize.c",
         "patchSetId": 2
@@ -59,6 +107,24 @@
       "writtenOn": "2016-07-22T18:49:51Z",
       "side": 1,
       "message": "Please revert this file. If you want to play with whitespace in an area of the codebase you otherwise aren\u0027t touching, do it in a separate patch.",
+      "revId": "78dc0a52e65dc7e0dac27754a313ea8a1772aad1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a3a9356_8a4b6f82",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-07-22T19:28:09Z",
+      "side": 1,
+      "message": "Oops, non intentional leftover from debugging.",
+      "parentUuid": "4a3a9356_67de6637",
       "revId": "78dc0a52e65dc7e0dac27754a313ea8a1772aad1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
