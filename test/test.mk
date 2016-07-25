@@ -114,6 +114,8 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += fdct8x8_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += variance_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += quantize_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += subtract_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += blend_a64_mask_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += blend_a64_mask_1d_test.cc
 
 ifeq ($(CONFIG_AV1_ENCODER)$(CONFIG_AV1_TEMPORAL_DENOISING),yesyes)
 LIBAOM_TEST_SRCS-$(HAVE_SSE2) += denoiser_sse2_test.cc
