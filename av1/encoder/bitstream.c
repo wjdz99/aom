@@ -399,9 +399,9 @@ static void pack_mb_tokens(aom_writer *w, TOKENEXTRA **tp,
             --skip_bits;
             assert(!bb);
           } else {
-            aom_write(w, bb, pb[index >> 1]);
+            aom_write(w, bb, pb[index]);
           }
-          index = extra_bits_av1->tree[index + bb];
+          ++index;
         } while (num_bits);
       }
 
