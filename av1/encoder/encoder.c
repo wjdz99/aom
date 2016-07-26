@@ -692,12 +692,11 @@ void av1_alloc_compressor_data(AV1_COMP *cpi) {
 
   alloc_context_buffers_ext(cpi);
 
-  aom_free(cpi->tile_tok[0][0]);
-
   {
     unsigned int tokens = get_token_alloc(cm->mb_rows, cm->mb_cols);
     CHECK_MEM_ERROR(cm, cpi->tile_tok[0][0],
-                    aom_calloc(tokens, sizeof(*cpi->tile_tok[0][0])));
+                    aom_recalloc(cpi->tile_tok[0][0], tokens,
+                                 sizeof(*cpi->tile_tok[0][0])));
 #if CONFIG_ANS
     aom_buf_ans_alloc(&cpi->buf_ans, &cm->error, tokens);
 #endif  // CONFIG_ANS
@@ -1394,20 +1393,20 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
 static void realloc_segmentation_maps(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
 
-  // Create the encoder segmentation map and set all entries to 0
-  aom_free(cpi->segmentation_map);
+  // Re-create the encoder segmentation map.
   CHECK_MEM_ERROR(cm, cpi->segmentation_map,
-                  aom_calloc(cm->mi_rows * cm->mi_cols, 1));
+                  aom_recalloc(cpi->segmentation_map, cm->mi_rows * cm->mi_cols,
+                               sizeof(*cpi->segmentation_map)));
 
-  // Create a map used for cyclic background refresh.
+  // Re-create a map used for cyclic background refresh.
   if (cpi->cyclic_refresh) av1_cyclic_refresh_free(cpi->cyclic_refresh);
   CHECK_MEM_ERROR(cm, cpi->cyclic_refresh,
                   av1_cyclic_refresh_alloc(cm->mi_rows, cm->mi_cols));
 
-  // Create a map used to mark inactive areas.
-  aom_free(cpi->active_map.map);
+  // Re-create a map used to mark inactive areas.
   CHECK_MEM_ERROR(cm, cpi->active_map.map,
-                  aom_calloc(cm->mi_rows * cm->mi_cols, 1));
+                  aom_recalloc(cpi->active_map.map, cm->mi_rows * cm->mi_cols,
+                               sizeof(*cpi->active_map.map)));
 }
 
 void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
@@ -2653,9 +2652,8 @@ static INLINE void alloc_frame_mvs(const AV1_COMMON *cm, int buffer_idx) {
   RefCntBuffer *const new_fb_ptr = &cm->buffer_pool->frame_bufs[buffer_idx];
   if (new_fb_ptr->mvs == NULL || new_fb_ptr->mi_rows < cm->mi_rows ||
       new_fb_ptr->mi_cols < cm->mi_cols) {
-    aom_free(new_fb_ptr->mvs);
-    new_fb_ptr->mvs = (MV_REF *)aom_calloc(cm->mi_rows * cm->mi_cols,
-                                           sizeof(*new_fb_ptr->mvs));
+    new_fb_ptr->mvs = (MV_REF *)aom_recalloc(
+        new_fb_ptr->mvs, cm->mi_rows * cm->mi_cols, sizeof(*new_fb_ptr->mvs));
     new_fb_ptr->mi_rows = cm->mi_rows;
     new_fb_ptr->mi_cols = cm->mi_cols;
   }

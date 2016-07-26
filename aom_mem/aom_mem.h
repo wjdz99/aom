@@ -28,6 +28,7 @@ void *aom_memalign(size_t align, size_t size);
 void *aom_malloc(size_t size);
 void *aom_calloc(size_t num, size_t size);
 void *aom_realloc(void *memblk, size_t size);
+void *aom_recalloc(void *memblk, size_t num, size_t size);
 void aom_free(void *memblk);
 
 #if CONFIG_AOM_HIGHBITDEPTH

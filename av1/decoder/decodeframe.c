@@ -949,11 +949,11 @@ static void setup_render_size(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 }
 
 static void resize_mv_buffer(AV1_COMMON *cm) {
-  aom_free(cm->cur_frame->mvs);
   cm->cur_frame->mi_rows = cm->mi_rows;
   cm->cur_frame->mi_cols = cm->mi_cols;
-  cm->cur_frame->mvs = (MV_REF *)aom_calloc(cm->mi_rows * cm->mi_cols,
-                                            sizeof(*cm->cur_frame->mvs));
+  cm->cur_frame->mvs =
+      (MV_REF *)aom_recalloc(cm->cur_frame->mvs, cm->mi_rows * cm->mi_cols,
+                             sizeof(*cm->cur_frame->mvs));
 }
 
 static void resize_context_buffers(AV1_COMMON *cm, int width, int height) {

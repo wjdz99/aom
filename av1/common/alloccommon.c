@@ -107,15 +107,15 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
   }
 
   if (cm->above_context_alloc_cols < cm->mi_cols) {
-    aom_free(cm->above_context);
-    cm->above_context = (ENTROPY_CONTEXT *)aom_calloc(
+    cm->above_context = (ENTROPY_CONTEXT *)aom_recalloc(
+        cm->above_context,
         2 * mi_cols_aligned_to_sb(cm->mi_cols) * MAX_MB_PLANE,
         sizeof(*cm->above_context));
     if (!cm->above_context) goto fail;
 
-    aom_free(cm->above_seg_context);
-    cm->above_seg_context = (PARTITION_CONTEXT *)aom_calloc(
-        mi_cols_aligned_to_sb(cm->mi_cols), sizeof(*cm->above_seg_context));
+    cm->above_seg_context = (PARTITION_CONTEXT *)aom_recalloc(
+        cm->above_seg_context, mi_cols_aligned_to_sb(cm->mi_cols),
+        sizeof(*cm->above_seg_context));
     if (!cm->above_seg_context) goto fail;
     cm->above_context_alloc_cols = cm->mi_cols;
   }

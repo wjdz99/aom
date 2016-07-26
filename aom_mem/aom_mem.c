@@ -87,6 +87,13 @@ void *aom_realloc(void *memblk, size_t size) {
   return new_addr;
 }
 
+void *aom_recalloc(void *memblk, size_t num, size_t size) {
+  const size_t total_size = num * size;
+  void *const x = aom_realloc(memblk, total_size);
+  if (x) memset(x, 0, total_size);
+  return x;
+}
+
 void aom_free(void *memblk) {
   if (memblk) {
     void *addr = GetActualMallocAddress(memblk);

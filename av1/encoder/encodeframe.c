@@ -2625,9 +2625,9 @@ void av1_init_tile_data(AV1_COMP *cpi) {
   int tile_tok = 0;
 
   if (cpi->tile_data == NULL || cpi->allocated_tiles < tile_cols * tile_rows) {
-    if (cpi->tile_data != NULL) aom_free(cpi->tile_data);
-    CHECK_MEM_ERROR(cm, cpi->tile_data, aom_malloc(tile_cols * tile_rows *
-                                                   sizeof(*cpi->tile_data)));
+    CHECK_MEM_ERROR(cm, cpi->tile_data,
+                    aom_realloc(cpi->tile_data, tile_cols * tile_rows *
+                                                    sizeof(*cpi->tile_data)));
     cpi->allocated_tiles = tile_cols * tile_rows;
 
     for (tile_row = 0; tile_row < tile_rows; ++tile_row)
