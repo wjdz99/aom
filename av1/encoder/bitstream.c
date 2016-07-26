@@ -393,16 +393,16 @@ static void pack_mb_tokens(aom_writer *w, TOKENEXTRA **tp,
         assert(num_bits > 0);
 
         index = 0;
-        do {
-          const int bb = (value >> --num_bits) & 1;
+        for (index = 0; index < num_bits; ++index) {
+          const int shift = num_bits - index - 1;
+          const int bb = (value >> shift) & 1;
           if (skip_bits) {
             --skip_bits;
             assert(!bb);
           } else {
-            aom_write(w, bb, pb[index >> 1]);
+            aom_write(w, bb, pb[index]);
           }
-          index = extra_bits_av1->tree[index + bb];
-        } while (num_bits);
+        }
       }
 
       aom_write_bit(w, extra_bits & 1);
