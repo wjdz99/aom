@@ -261,6 +261,10 @@ static void setup_frame(AV1_COMP *cpi) {
     av1_setup_past_independence(cm);
   } else {
     cm->frame_context_idx = cpi->refresh_alt_ref_frame;
+    if (cpi->rc.is_src_frame_alt_ref) cm->frame_context_idx = 2;
+#if CONFIG_EXT_REFS
+    if (cpi->refresh_bwd_ref_frame) cm->frame_context_idx = 3;
+#endif
   }
 
   if (cm->frame_type == KEY_FRAME) {
