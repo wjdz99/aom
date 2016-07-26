@@ -102,12 +102,10 @@ void av1_setup_pc_tree(AV1_COMMON *cm, ThreadData *td) {
   int square_index = 1;
   int nodes;
 
-  aom_free(td->leaf_tree);
-  CHECK_MEM_ERROR(cm, td->leaf_tree,
-                  aom_calloc(leaf_nodes, sizeof(*td->leaf_tree)));
-  aom_free(td->pc_tree);
+  CHECK_MEM_ERROR(cm, td->leaf_tree, aom_recalloc(td->leaf_tree, leaf_nodes,
+                                                  sizeof(*td->leaf_tree)));
   CHECK_MEM_ERROR(cm, td->pc_tree,
-                  aom_calloc(tree_nodes, sizeof(*td->pc_tree)));
+                  aom_recalloc(td->pc_tree, tree_nodes, sizeof(*td->pc_tree)));
 
   this_pc = &td->pc_tree[0];
   this_leaf = &td->leaf_tree[0];

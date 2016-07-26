@@ -53,14 +53,13 @@ int av1_get_frame_buffer(void *cb_priv, size_t min_size,
   if (i == int_fb_list->num_internal_frame_buffers) return -1;
 
   if (int_fb_list->int_fb[i].size < min_size) {
-    int_fb_list->int_fb[i].data =
-        (uint8_t *)aom_realloc(int_fb_list->int_fb[i].data, min_size);
-    if (!int_fb_list->int_fb[i].data) return -1;
-
-    // This memset is needed for fixing valgrind error from C loop filter
-    // due to access uninitialized memory in frame border. It could be
+    // calloc() is needed for fixing valgrind error from C loop filter
+    // due to access of uninitialized memory in frame border. It could be
     // removed if border is totally removed.
-    memset(int_fb_list->int_fb[i].data, 0, min_size);
+    int_fb_list->int_fb[i].data =
+        (uint8_t *)aom_recalloc(int_fb_list->int_fb[i].data, min_size,
+                                sizeof(*int_fb_list->int_fb[i].data));
+    if (!int_fb_list->int_fb[i].data) return -1;
     int_fb_list->int_fb[i].size = min_size;
   }
 
