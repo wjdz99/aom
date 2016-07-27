@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef6d1912_cc2a08e1",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-07-27T18:57:41Z",
+      "side": 1,
+      "message": "It seems like it would make more sense to only do this copy if you don\u0027t dering. I don\u0027t care about the speed impact, but it reduces readability because my assumption after seeing this would be that dering is in-place, when it isn\u0027t.",
+      "revId": "849bdf133fc1fedc408faacfb6ac2862181f2fae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
