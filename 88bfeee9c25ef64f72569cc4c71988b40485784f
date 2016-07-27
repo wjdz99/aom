@@ -16,6 +16,24 @@
       "revId": "88bfeee9c25ef64f72569cc4c71988b40485784f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef6d1912_53f85be7",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2016-07-27T16:07:10Z",
+      "side": 1,
+      "message": "\u003e Should we assign another frame_context_idx value to\n \u003e \"cpi-\u003erefresh_golden_frame\"? It may not have any benefit manifested\n \u003e in our own encoder, as we simply either update a KEY_FRAME or an\n \u003e OVERLAY frame to golden, but for code complete.\n\nDone\n\n \u003e \n \u003e Further, in the experiment of ext-refs, there is another frame\n \u003e type, which is indicated by cpi-\u003erc.is_last_bipred_frame. This type\n \u003e of frames are different from the other normal Inter frames as they\n \u003e will not be used as reference for the encoding of any other frames.\n \u003e \n\nMaking this same as regular frame seems to be sufficient. I did experiments to further separate this frame type, the performance slightly dropped. So probably no need to do so.\n\n \u003e Lastly, I prefer to use if-else if-else here, instead of assign a\n \u003e common value to cm-\u003eframe_context_idx first - would think it would\n \u003e be more legible. Up to you.\n\nDone",
+      "parentUuid": "ef6d1912_e541e040",
+      "revId": "88bfeee9c25ef64f72569cc4c71988b40485784f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
