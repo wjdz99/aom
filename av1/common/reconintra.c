@@ -86,7 +86,7 @@ static int av1_has_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
   if (y == 0) {
     int wl = mi_width_log2_lookup[bsize];
     int hl = mi_height_log2_lookup[bsize];
-    int w = 1 << (wl + 1 - ss_x);
+    int w = num_4x4_blocks_wide_lookup[bsize] >> ss_x;
     int step = 1 << txsz;
     const uint8_t *order = orders[bsize];
     int my_order, tr_order;
@@ -105,8 +105,7 @@ static int av1_has_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
 
     return my_order > tr_order;
   } else {
-    int wl = mi_width_log2_lookup[bsize];
-    int w = 1 << (wl + 1 - ss_x);
+    int w = num_4x4_blocks_wide_lookup[bsize] >> ss_x;
     int step = 1 << txsz;
 
     return x + step < w;
@@ -121,7 +120,7 @@ static int av1_has_bottom(BLOCK_SIZE bsize, int mi_row, int mi_col,
   } else {
     int wl = mi_width_log2_lookup[bsize];
     int hl = mi_height_log2_lookup[bsize];
-    int h = 1 << (hl + 1 - ss_y);
+    int h = num_4x4_blocks_wide_lookup[bsize] >> ss_y;
     int step = 1 << txsz;
     const uint8_t *order = orders[bsize];
     int my_order, bl_order;
