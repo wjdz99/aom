@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf8db5b7_6c9b630b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-08-01T17:10:13Z",
+      "side": 1,
+      "message": "Using both \"sub8x8 blocks\" and \"8x8 subblocks\" is confusing. Just say, \"blocks smaller than 8x8\".",
+      "range": {
+        "startLine": 11,
+        "startChar": 53,
+        "endLine": 11,
+        "endChar": 59
+      },
+      "revId": "233c58f55ab4de80dbe9fb1d944749e65da0f57e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf8db5b7_ac1f2b73",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-08-01T17:10:13Z",
+      "side": 1,
+      "message": "Are you sure you won\u0027t have both ss_x \u003e 0 and num_4x4_blocks_wide_lokup_bsize] \u003d\u003d 1? Can we assert for that case?",
+      "range": {
+        "startLine": 89,
+        "startChar": 39,
+        "endLine": 89,
+        "endChar": 44
+      },
+      "revId": "233c58f55ab4de80dbe9fb1d944749e65da0f57e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf8db5b7_cc3f17de",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-08-01T17:10:13Z",
+      "side": 1,
+      "message": "Everything used for this case still appears to be based on 8x8 MODEINFO blocks. Why doesn\u0027t something need to change for this case, also?",
+      "range": {
+        "startLine": 106,
+        "startChar": 20,
+        "endLine": 106,
+        "endChar": 21
+      },
+      "revId": "233c58f55ab4de80dbe9fb1d944749e65da0f57e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
