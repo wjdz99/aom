@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf8db5b7_52bba227",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-08-01T18:42:21Z",
+      "side": 1,
+      "message": "This is actually intended. Sub-8x8 blocks are handled a little differently from regular (8x8 and larger) blocks. Take 4x4 sub-blocks in a 8x8 partition block as an example: w\u003d2(instead of 1), step\u003d1. For block 0 and 2, x\u003d0, x+step\u003d1\u003cw\u003d2, so has_right\u003dtrue; for blocks 1 and 3, x\u003d1, x+step\u003d2\u003dw, so has_right\u003dfalse. If we do the way as in this CL, has_right will always be false for 4x4 blocks.",
+      "range": {
+        "startLine": 11,
+        "startChar": 25,
+        "endLine": 13,
+        "endChar": 12
+      },
+      "revId": "dbd1a8bd3ff6f31420b779a0986fc7b9d7e1de38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
