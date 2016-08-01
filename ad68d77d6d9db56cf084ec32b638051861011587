@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf8db5b7_6ccfe3ac",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-08-01T17:40:34Z",
+      "side": 1,
+      "message": "This change is irrelevant to this patch, correct?",
+      "revId": "ad68d77d6d9db56cf084ec32b638051861011587",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf8db5b7_0c557fc9",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 977,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-08-01T17:40:34Z",
+      "side": 1,
+      "message": "This could be constified.",
+      "revId": "ad68d77d6d9db56cf084ec32b638051861011587",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf8db5b7_4c806726",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1325,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-08-01T17:40:34Z",
+      "side": 1,
+      "message": "Couldn\u0027t this be a call to your save/restore qcoeff functions?",
+      "revId": "ad68d77d6d9db56cf084ec32b638051861011587",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf8db5b7_cce6371a",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1545,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-08-01T17:40:34Z",
+      "side": 1,
+      "message": "all of the renames in this function could have been a separate patch",
+      "revId": "ad68d77d6d9db56cf084ec32b638051861011587",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf8db5b7_6c2b632d",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1588,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-08-01T17:40:34Z",
+      "side": 1,
+      "message": "this looks like a failed attempt to prevent overflow? don\u0027t address it in this patch though.",
+      "revId": "ad68d77d6d9db56cf084ec32b638051861011587",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
