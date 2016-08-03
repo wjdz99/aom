@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "741e62f5_bd080b33",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-03T23:51:14Z",
+      "side": 1,
+      "message": "This looks like a third party library. Where is it from? Keeping it under third_party would make it easier to get updates and keep in sync without all the \u0027aom\u0027 renaming (although there doesn\u0027t appear to be much of that)",
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "741e62f5_fd38c3d7",
+        "filename": "aom_dsp/aom_simd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-03T23:51:14Z",
+      "side": 1,
+      "message": "Could you integrate this into the existing RTCD system? It doesn\u0027t require setting up each function call with (aom_use_smd ? simd_func : c_func)",
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "741e62f5_bd6d6bd7",
+        "filename": "aom_dsp/aom_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-03T23:51:14Z",
+      "side": 1,
+      "message": "This seems incredibly restrictive. Do you have plans for this to support higher X86 optimizations? Do you have benchmarks between native intrinsics and these functions?",
+      "range": {
+        "startLine": 36,
+        "startChar": 14,
+        "endLine": 36,
+        "endChar": 22
+      },
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "741e62f5_1d425747",
+        "filename": "aom_dsp/aom_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-03T23:51:14Z",
+      "side": 1,
+      "message": "Why not use your big_endian() function here?",
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
