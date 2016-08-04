@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "34830a89_008c662c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-04T08:06:59Z",
+      "side": 1,
+      "message": "It has been written from scratch within Tandberg (acquired by Cisco), supporting various architectures, and cleaned up (with support only for x86 and arm) for the Thor codec.  There is no canonical source for this library.  Projects using it tend to add functionality as needed, possibly borrowing from other projects.",
+      "parentUuid": "741e62f5_bd080b33",
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "741e62f5_fd38c3d7",
         "filename": "aom_dsp/aom_simd.c",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "34830a89_60b292e2",
+        "filename": "aom_dsp/aom_simd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-04T08:06:59Z",
+      "side": 1,
+      "message": "The objective must be to write a function once, and compile it several times with different defines enabled, so we get an SSE2 version, an SSSE3 version, etc.  I think it\u0027s possible by editing the makefiles and having these functions in a separate file (which is compiled multiple times) and using the HAVE_SSSE3 type defines to add a postfix to the function name.  So I don\u0027t think there\u0027s a need to change the library to support this, perhaps apart from using the HAVE_SSSE3 type defines instead of the compiler defines in the v64_ and v128_ functions.",
+      "parentUuid": "741e62f5_fd38c3d7",
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "741e62f5_bd6d6bd7",
         "filename": "aom_dsp/aom_simd.h",
         "patchSetId": 3
@@ -47,6 +83,30 @@
       "writtenOn": "2016-08-03T23:51:14Z",
       "side": 1,
       "message": "This seems incredibly restrictive. Do you have plans for this to support higher X86 optimizations? Do you have benchmarks between native intrinsics and these functions?",
+      "range": {
+        "startLine": 36,
+        "startChar": 14,
+        "endLine": 36,
+        "endChar": 22
+      },
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34830a89_c0819ef8",
+        "filename": "aom_dsp/aom_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-04T08:06:59Z",
+      "side": 1,
+      "message": "Only a few functions benefit from higher optimisations (see other comment).  But if support for a v256 type is to be added, AVX becomes essential.",
+      "parentUuid": "741e62f5_bd6d6bd7",
       "range": {
         "startLine": 36,
         "startChar": 14,
@@ -87,6 +147,24 @@
       "writtenOn": "2016-08-04T00:10:21Z",
       "side": 1,
       "message": "Ah, I see how it allows for higher optimization levels here. While this makes sense when one builds on a given target and only runs on that target, it makes it difficult to distribute a single binary supporting multiple targets.\n\nThere are also existing defines in AOM for these, such as HAVE_SSSE3, which can be turned off (--disable-ssse3) at compile time if you plan on running on a device without them. Is there a way to do that with this library?",
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34830a89_609b7262",
+        "filename": "aom_dsp/simd/v128_intrinsics_x86.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-04T08:06:59Z",
+      "side": 1,
+      "message": "Yes, I see your point.  But it also means that every kernel function needing higher optimisation levels would have to be duplicated, or is there a cleaner way to do this?\n\nSSE4 is 10 years old now, are we addressing an actual problem?\n\nThe library depends on compiler defines (so you must pass compiler options to switch them off, if possible), but we could use aom defines (it then becomes dependent on aom, though).  If you think it makes more sense, I\u0027m happy with switching to HAVE_SSSE3.",
+      "parentUuid": "741e62f5_4098e263",
       "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
