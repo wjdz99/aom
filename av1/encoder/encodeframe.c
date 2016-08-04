@@ -3128,6 +3128,7 @@ static void rd_encode_block(const AV1_COMP *const cpi, ThreadData *const td,
   MODE_INFO **mi_8x8 = xd->mi;
   MODE_INFO *mi = mi_8x8[0];
   MB_MODE_INFO *mbmi = &mi->mbmi;
+  MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
 #if CONFIG_REF_MV
   int8_t rf_type;
   int i;
@@ -3175,7 +3176,7 @@ static void rd_encode_block(const AV1_COMP *const cpi, ThreadData *const td,
     // and then update the quantizer.
     if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ) {
       av1_cyclic_refresh_update_segment(cpi, mbmi, mi_row, mi_col, bsize,
-                                        rd_cost->rate, rd_cost->dist, x->skip);
+                                        rd_cost->rate, rd_cost->dist, mbmi_ext->force_skip);
     }
   }
   if (cpi->oxcf.aq_mode) av1_init_plane_quantizers(cpi, x);

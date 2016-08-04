@@ -723,6 +723,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   struct encode_b_args *const args = arg;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
+  const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   struct optimize_ctx *const ctx = args->ctx;
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -736,7 +737,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
   // TODO(jingning): per transformed block zero forcing only enabled for
   // luma component. will integrate chroma components as well.
-  if (x->zcoeff_blk[tx_size][block] && plane == 0) {
+  if (mbmi_ext->zcoeff_blk[tx_size][block] && plane == 0) {
     p->eobs[block] = 0;
     *a = *l = 0;
     return;
@@ -883,12 +884,13 @@ void av1_encode_sb(MACROBLOCK *x, BLOCK_SIZE bsize) {
   MACROBLOCKD *const xd = &x->e_mbd;
   struct optimize_ctx ctx;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  const MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
   struct encode_b_args arg = { x, &ctx, &mbmi->skip };
   int plane;
 
   mbmi->skip = 1;
 
-  if (x->skip) return;
+  if (mbmi_ext->force_skip) return;
 
   for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
     av1_subtract_plane(x, bsize, plane);
