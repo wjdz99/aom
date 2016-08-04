@@ -64,6 +64,13 @@ typedef struct {
   int comp_pred_diff;
   int hybrid_pred_diff;
   int mode_index;
+
+  // Notes transform blocks where no coefficents are coded.
+  // Set during mode selection. Read during block encoding.
+  uint8_t zcoeff_blk[TX_SIZES][256];
+
+  // Skip this block
+  int force_skip;
 } MB_MODE_INFO_EXT;
 
 typedef struct macroblock MACROBLOCK;
@@ -135,12 +142,6 @@ struct macroblock {
   // Quantized coefficients and eob needs to be saved for tokenizing
   tran_low_t *qcoeff_pbuf[MAX_MB_PLANE];
   uint16_t *eobs_pbuf[MAX_MB_PLANE];
-
-  // Notes transform blocks where no coefficents are coded.
-  // Set during mode selection. Read during block encoding.
-  uint8_t zcoeff_blk[TX_SIZES][256];
-
-  int skip;
 
   int encode_breakout;
 
