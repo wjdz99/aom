@@ -1785,11 +1785,13 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   cm->show_frame = aom_rb_read_bit(rb);
   cm->error_resilient_mode = aom_rb_read_bit(rb);
 
-#if CONFIG_TILE_GROUPS
+#if CONFIG_TILE_GROUPS && (COPY_COMP_HDR || COPY_UNCOMP_HDR)
   if (cm->error_resilient_mode)
     cm->num_tg = MAX_NUM_TG;
   else
     cm->num_tg = 1;
+#else
+  cm->num_tg = 1;
 #endif
 
   if (cm->frame_type == KEY_FRAME) {
