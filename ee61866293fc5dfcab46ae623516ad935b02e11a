@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "79373bdb_12a4eca0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-05T07:30:54Z",
+      "side": 1,
+      "message": "This is a kind of library which is hard to define a canon for, since every project using it tends to have very specialised needs.  Trying to bring all that together will quickly make the library explode in size.\nI think a canon would have to be a simple form with a relatively small set of function, perhaps very close to its current form.",
+      "parentUuid": "f4797274_aae1d72d",
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "741e62f5_fd38c3d7",
         "filename": "aom_dsp/aom_simd.c",
         "patchSetId": 3
@@ -179,6 +197,30 @@
     },
     {
       "key": {
+        "uuid": "79373bdb_329ff04a",
+        "filename": "aom_dsp/aom_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-05T07:30:54Z",
+      "side": 1,
+      "message": "It\u0027s not a big problem.  One would just have to write a v256 version for neon, which in most cases would use pairs of v128 instructions.  Look how much of v128_intrinsics_c.h has been implemented.  We have written v128 implementations for dsp\u0027s with only 64 bit wide and even just 32 bit wide registers, and it worked well enough to release products running quite a bit of v128 code.  The possible downside is that if you write code using v256, it\u0027s kind of like doing explicit unrolling if the underlying architectures doesn\u0027t have that wide registers, which may or may not be a good thing.",
+      "parentUuid": "f4797274_8acdfbb7",
+      "range": {
+        "startLine": 36,
+        "startChar": 14,
+        "endLine": 36,
+        "endChar": 22
+      },
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "741e62f5_1d425747",
         "filename": "aom_dsp/aom_simd.h",
         "patchSetId": 3
@@ -207,6 +249,24 @@
       "writtenOn": "2016-08-05T00:57:34Z",
       "side": 1,
       "message": "vzipq for a transpose is substantially less effective that vtrnq.",
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79373bdb_72a578a0",
+        "filename": "aom_dsp/simd/v128_intrinsics_arm.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-05T07:30:54Z",
+      "side": 1,
+      "message": "Yes, this library doesn\u0027t exploit all nice instructions in all architectures.  The approach to that problem so far has been that if this causes a significant performance drop for one architecture, we have two choices: Write a special version for that architecture only, or add a new intrinsic, in this case perhaps void v128_transpose_8(v128 *x, v128 *y) which gets a trivial implementation for arm and a compound implementation on x86 using unpack instructions, which I think in this case will allow shared, optimal code for both x86 and arm.  A balance between usefulness and the size of the library must be maintained.",
+      "parentUuid": "f4797274_4a5683d2",
       "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -278,6 +338,24 @@
       "side": 1,
       "message": "Ah sorry it sounds like you are working on adding the clpf functions as examples? I\u0027m not familiar with that function but I\u0027ll take a look through vp10/common/clpf.c and look forward to your example. Thanks!",
       "parentUuid": "34830a89_a0865abe",
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79373bdb_92969c37",
+        "filename": "aom_dsp/simd/v128_intrinsics_x86.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-05T07:30:54Z",
+      "side": 1,
+      "message": "Yes, I\u0027m proposing this library to avoid multiple versions of SIMD optimised functions for CLPF (and possibly other future contributions).  In my opinion, to maintain and test versions for sse2, ssse3, sse4.1 and neon will be an unneccesary pain.  I\u0027m not proposing that existing optimisations should be converted, unless somebody sees any benefits for doing so.\nI\u0027ll look into the RTCD system and work out how things will look for CLPF within that framework.",
+      "parentUuid": "f4797274_cacc5392",
       "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
