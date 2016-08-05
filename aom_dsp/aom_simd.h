@@ -34,11 +34,6 @@
 
 static const int simd_check = 1;
 
-SIMD_INLINE int big_endian() {
-  const uint16_t t = 0x100;
-  return *(const uint8_t *)&t;
-}
-
 #if HAVE_NEON
 static const int simd_available = 1;
 #include "simd/v128_intrinsics_arm.h"
@@ -49,11 +44,5 @@ static const int simd_available = 1;
 static const int simd_available = 0;
 #include "simd/v128_intrinsics.h"
 #endif
-
-extern int aom_use_simd;
-SIMD_INLINE void aom_init_use_simd() {
-  /* SIMD optimisations supported only for little endian architectures */
-  aom_use_simd = simd_available && !big_endian();
-}
 
 #endif /* _AOM_SIMD_H */
