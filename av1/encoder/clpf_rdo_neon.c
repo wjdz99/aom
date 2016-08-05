@@ -9,4 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-int aom_use_simd = 0;
+#include "aom_dsp/aom_simd.h"
+#define SIMD_FUNC(name) name##_neon
+#include "./clpf_rdo_simd.c"

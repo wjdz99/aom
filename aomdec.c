@@ -18,10 +18,6 @@
 
 #include "./aom_config.h"
 
-#if CONFIG_GENERIC_SIMD
-#include "aom_dsp/aom_simd.h"
-#endif
-
 #if CONFIG_LIBYUV
 #include "third_party/libyuv/include/libyuv/scale.h"
 #endif
@@ -965,10 +961,6 @@ int main(int argc, const char **argv_) {
   char **argv, **argi, **argj;
   struct arg arg;
   int error = 0;
-
-#if CONFIG_GENERIC_SIMD
-  aom_init_use_simd();
-#endif
 
   argv = argv_dup(argc - 1, argv_ + 1);
   for (argi = argj = argv; (*argj = *argi); argi += arg.argv_step) {
