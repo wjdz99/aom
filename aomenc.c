@@ -19,9 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if CONFIG_GENERIC_SIMD
-#include "aom_dsp/aom_simd.h"
-#endif
 
 #if CONFIG_LIBYUV
 #include "third_party/libyuv/include/libyuv/scale.h"
@@ -1808,10 +1805,6 @@ int main(int argc, const char **argv_) {
   int res = 0;
 #if CONFIG_AOM_HIGHBITDEPTH
   int profile_updated = 0;
-#endif
-
-#if CONFIG_GENERIC_SIMD
-  aom_init_use_simd();
 #endif
 
   memset(&input, 0, sizeof(input));

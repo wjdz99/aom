@@ -72,10 +72,6 @@ DSP_SRCS-$(HAVE_SSSE3) += x86/intrapred_ssse3.asm
 DSP_SRCS-$(HAVE_SSSE3) += x86/aom_subpixel_8t_ssse3.asm
 endif  # CONFIG_USE_X86INC
 
-ifeq ($(CONFIG_GENERIC_SIMD),yes)
-DSP_SRCS-yes += aom_simd.c
-endif  # CONFIG_GENERIC_SIMD
-
 ifeq ($(CONFIG_AOM_HIGHBITDEPTH),yes)
 ifeq ($(CONFIG_USE_X86INC),yes)
 DSP_SRCS-$(HAVE_SSE)  += x86/highbd_intrapred_sse2.asm

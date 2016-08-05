@@ -10,13 +10,14 @@
  */
 
 #include "av1/common/clpf.h"
+#include "./aom_dsp_rtcd.h"
 #include "aom/aom_integer.h"
 #include "av1/common/quant_common.h"
 
 // Calculate the error of a filtered and unfiltered block
-static void detect_clpf(const uint8_t *rec, const uint8_t *org, int x0, int y0,
-                        int width, int height, int so, int stride, int *sum0,
-                        int *sum1, unsigned int strength) {
+void aom_detect_clpf_c(const uint8_t *rec, const uint8_t *org, int x0, int y0,
+                       int width, int height, int so, int stride, int *sum0,
+                       int *sum1, unsigned int strength) {
   int x, y;
   for (y = y0; y < y0 + 8; y++) {
     for (x = x0; x < x0 + 8; x++) {
@@ -36,9 +37,9 @@ static void detect_clpf(const uint8_t *rec, const uint8_t *org, int x0, int y0,
   }
 }
 
-static void detect_multi_clpf(const uint8_t *rec, const uint8_t *org, int x0,
-                              int y0, int width, int height, int so, int stride,
-                              int *sum) {
+void aom_detect_multi_clpf_c(const uint8_t *rec, const uint8_t *org, int x0,
+                             int y0, int width, int height, int so, int stride,
+                             int *sum) {
   int x, y;
 
   for (y = y0; y < y0 + 8; y++) {
@@ -77,9 +78,9 @@ int av1_clpf_decision(int k, int l, const YV12_BUFFER_CONFIG *rec,
       const int bs = MI_BLOCK_SIZE;
       if (!cm->mi_grid_visible[ypos / bs * cm->mi_stride + xpos / bs]
                ->mbmi.skip)
-        detect_clpf(rec->y_buffer, org->y_buffer, xpos, ypos, rec->y_crop_width,
-                    rec->y_crop_height, org->y_stride, rec->y_stride, &sum0,
-                    &sum1, strength);
+        aom_detect_clpf(rec->y_buffer, org->y_buffer, xpos, ypos,
+                        rec->y_crop_width, rec->y_crop_height, org->y_stride,
+                        rec->y_stride, &sum0, &sum1, strength);
     }
   }
   *res = sum1 < sum0;
@@ -144,9 +145,9 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
       if (!cm->mi_grid_visible[ypos / MI_BLOCK_SIZE * cm->mi_stride +
                                xpos / MI_BLOCK_SIZE]
                ->mbmi.skip) {
-        detect_multi_clpf(rec->y_buffer, org->y_buffer, xpos, ypos,
-                          rec->y_crop_width, rec->y_crop_height, org->y_stride,
-                          rec->y_stride, sum);
+        aom_detect_multi_clpf(rec->y_buffer, org->y_buffer, xpos, ypos,
+                              rec->y_crop_width, rec->y_crop_height,
+                              org->y_stride, rec->y_stride, sum);
         filtered = 1;
       }
     }
