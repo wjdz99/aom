@@ -1661,13 +1661,21 @@ static size_t encode_tiles(AV1_COMP *cpi, uint8_t *data_ptr,
           comp_hdr_size =
               write_compressed_header(cpi, data_ptr + uncompressed_hdr_size);
           aom_wb_write_literal(&saved_wb, (int)(comp_hdr_size), 16);
-          total_size += comp_hdr_size + uncompressed_hdr_size;
+          total_size += uncompressed_hdr_size + comp_hdr_size;
           first_hdr = 0;
         } else {
           // Copy compressed header
+#if COPY_UNCOMP_HDR
           memcpy(data_ptr + total_size, data_ptr,
-                 (comp_hdr_size + uncompressed_hdr_size) * sizeof(uint8_t));
-          total_size += comp_hdr_size + uncompressed_hdr_size;
+                 uncompressed_hdr_size * sizeof(uint8_t));
+          total_size += uncompressed_hdr_size;
+#endif
+#if COPY_COMP_HDR
+          memcpy(data_ptr + total_size + uncompressed_hdr_size,
+                 data_ptr + uncompressed_hdr_size,
+                 comp_hdr_size * sizeof(uint8_t));
+          total_size += comp_hdr_size;
+#endif
         }
       }
 #endif

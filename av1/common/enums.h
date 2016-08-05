@@ -241,10 +241,6 @@ typedef enum {
 #define SINGLE_REFS (FWD_REFS + BWD_REFS)
 #define COMP_REFS (FWD_REFS * BWD_REFS)
 
-#if CONFIG_TILE_GROUPS
-#define MAX_NUM_TG 3
-#endif
-
 #ifdef __cplusplus
 }  // extern "C"
 #endif

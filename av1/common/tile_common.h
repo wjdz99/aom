@@ -18,6 +18,12 @@ extern "C" {
 
 struct AV1Common;
 
+#if CONFIG_TILE_GROUPS
+#define MAX_NUM_TG 3
+#define COPY_COMP_HDR 1
+#define COPY_UNCOMP_HDR 1
+#endif
+
 typedef struct TileInfo {
   int mi_row_start, mi_row_end;
   int mi_col_start, mi_col_end;

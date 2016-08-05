@@ -1316,7 +1316,13 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
           data_group += comp_hdr_size;
           first_hdr = 0;
         } else {
-          data_group += uncomp_hdr_size + comp_hdr_size;
+// FIXME: Ignore repeated headers for the moment
+#if COPY_UNCOMP_HDR
+          data_group += uncomp_hdr_size;
+#endif
+#if COPY_COMP_HDR
+          data_group += comp_hdr_size;
+#endif
         }
         if (*corrupted) return 0;
         data_group = get_tile_buffers(pbi, data_group, data_end, first_tile,
