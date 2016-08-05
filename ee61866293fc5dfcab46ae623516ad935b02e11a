@@ -263,6 +263,24 @@
       "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4797274_cacc5392",
+        "filename": "aom_dsp/simd/v128_intrinsics_x86.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-05T00:59:43Z",
+      "side": 1,
+      "message": "Ah sorry it sounds like you are working on adding the clpf functions as examples? I\u0027m not familiar with that function but I\u0027ll take a look through vp10/common/clpf.c and look forward to your example. Thanks!",
+      "parentUuid": "34830a89_a0865abe",
+      "revId": "ee61866293fc5dfcab46ae623516ad935b02e11a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
