@@ -1253,8 +1253,8 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
   int tile_row, tile_col;
   int mi_row, mi_col;
   TileData *tile_data = NULL;
-  const uint8_t *data_group = data;
 #if CONFIG_TILE_GROUPS
+  const uint8_t *data_tg = data;
   int first_hdr = 1;
   const int num_tg_hdrs = cm->num_tg;
   const int tg_size = (tile_rows * tile_cols + num_tg_hdrs - 1) / num_tg_hdrs;
@@ -1312,22 +1312,22 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_TILE_GROUPS
       if (tile_count++ >= first_tile) {
         if (first_hdr == 1) {
-          *corrupted = read_compressed_header(pbi, data_group, comp_hdr_size);
-          data_group += comp_hdr_size;
+          *corrupted = read_compressed_header(pbi, data_tg, comp_hdr_size);
+          data_tg += comp_hdr_size;
           first_hdr = 0;
         } else {
 // FIXME: Ignore repeated headers for the moment
 #if COPY_UNCOMP_HDR
-          data_group += uncomp_hdr_size;
+          data_tg += uncomp_hdr_size;
 #endif
 #if COPY_COMP_HDR
-          data_group += comp_hdr_size;
+          data_tg += comp_hdr_size;
 #endif
         }
         if (*corrupted) return 0;
-        data_group = get_tile_buffers(pbi, data_group, data_end, first_tile,
-                                      last_tile, tile_cols,
-                                      tile_rows * tile_cols - 1, tile_buffers);
+        data_tg = get_tile_buffers(pbi, data_tg, data_end, first_tile,
+                                   last_tile, tile_cols,
+                                   tile_rows * tile_cols - 1, tile_buffers);
         first_tile = first_tile + tg_size;
         last_tile = AOMMIN(last_tile + tg_size, tile_rows * tile_cols);
       }
