@@ -31,6 +31,11 @@ typedef union {
   int64_t s64;
 } c_v64;
 
+SIMD_INLINE int big_endian() {
+  const uint16_t t = 0x100;
+  return *(const uint8_t *)&t;
+}
+
 SIMD_INLINE uint32_t c_v64_low_u32(c_v64 a) { return a.u32[big_endian()]; }
 
 SIMD_INLINE uint32_t c_v64_high_u32(c_v64 a) { return a.u32[!big_endian()]; }
