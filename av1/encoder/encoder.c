@@ -3779,17 +3779,17 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     if (cm->error_resilient_mode) {
       cm->reset_frame_context = RESET_FRAME_CONTEXT_NONE;
       cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_OFF;
-#if CONFIG_TILE_GROUPS
-      cm->num_tg = MAX_NUM_TG;
-#endif
     } else if (cm->intra_only) {
       // Only reset the current context.
       cm->reset_frame_context = RESET_FRAME_CONTEXT_CURRENT;
-#if CONFIG_TILE_GROUPS
-      cm->num_tg = 1;
-#endif
     }
   }
+#if CONFIG_TILE_GROUPS && (COPY_COMP_HDR || COPY_UNCOMP_HDR)
+  if (cm->error_resilient_mode)
+    cm->num_tg = MAX_NUM_TG;
+  else
+    cm->num_tg = 1;
+#endif
 
   // For 1 pass CBR, check if we are dropping this frame.
   // Never drop on key frame.

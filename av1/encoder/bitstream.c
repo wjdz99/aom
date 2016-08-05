@@ -370,8 +370,8 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
                          cm->counts.intra_ext_tx[i][j], TX_TYPES, w);
 #endif
 #if CONFIG_DAALA_EC
-        av1_tree_to_cdf(av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
-                        cm->fc->intra_ext_tx_cdf[i][j]);
+      av1_tree_to_cdf(av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
+                      cm->fc->intra_ext_tx_cdf[i][j]);
 #endif
     }
   }
@@ -1664,7 +1664,7 @@ static size_t encode_tiles(AV1_COMP *cpi, uint8_t *data_ptr,
           total_size += uncompressed_hdr_size + comp_hdr_size;
           first_hdr = 0;
         } else {
-          // Copy compressed header
+// Copy compressed header
 #if COPY_UNCOMP_HDR
           memcpy(data_ptr + total_size, data_ptr,
                  uncompressed_hdr_size * sizeof(uint8_t));

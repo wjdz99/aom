@@ -1516,7 +1516,7 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
   memset(cm->above_seg_context, 0,
          sizeof(*cm->above_seg_context) * aligned_mi_cols);
 
-  // Load tile data into tile_buffers
+// Load tile data into tile_buffers
 #if CONFIG_TILE_GROUPS
   get_tile_buffers(pbi, data, data_end, 0, tile_cols * tile_rows, tile_cols,
                    tile_cols * tile_rows - 1, tile_buffers);
@@ -1785,7 +1785,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   cm->show_frame = aom_rb_read_bit(rb);
   cm->error_resilient_mode = aom_rb_read_bit(rb);
 
-#if CONFIG_TILE_GROUPS
+#if CONFIG_TILE_GROUPS && (COPY_COMP_HDR || COPY_UNCOMP_HDR)
   if (cm->error_resilient_mode)
     cm->num_tg = MAX_NUM_TG;
   else
