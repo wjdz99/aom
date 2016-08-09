@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "197f1fe8_aa4eaf69",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-08-09T18:00:26Z",
+      "side": 1,
+      "message": "This big chunk seems identical, perhaps it would make sense to lower the ifdef",
+      "range": {
+        "startLine": 459,
+        "startChar": 0,
+        "endLine": 484,
+        "endChar": 3
+      },
+      "revId": "4549132f7a32f01cbc7c20344330fa4c5e218abe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "197f1fe8_8ad64b4a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-08-09T18:00:26Z",
+      "side": 1,
+      "message": "Is this necessary?\nIf 0 \u003c max_4x4_w_y \u0026\u0026 max_4x4_w_y \u003c\u003d tx_sz_y\nthe result of the second expression should always be 1, right?",
+      "range": {
+        "startLine": 517,
+        "startChar": 8,
+        "endLine": 517,
+        "endChar": 36
+      },
+      "revId": "4549132f7a32f01cbc7c20344330fa4c5e218abe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "197f1fe8_8abbab25",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-08-09T18:00:26Z",
+      "side": 1,
+      "message": "The prevailing style is to do these with nested row/column loops, that also avoids the divide.",
+      "range": {
+        "startLine": 530,
+        "startChar": 0,
+        "endLine": 532,
+        "endChar": 50
+      },
+      "revId": "4549132f7a32f01cbc7c20344330fa4c5e218abe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "197f1fe8_ca9e83a8",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-08-09T18:00:26Z",
+      "side": 1,
+      "message": "It would be great to put this idiom in an inline function. It\u0027s repeated a lot and the formatter turns it into a mess.",
+      "range": {
+        "startLine": 679,
+        "startChar": 8,
+        "endLine": 681,
+        "endChar": 80
+      },
+      "revId": "4549132f7a32f01cbc7c20344330fa4c5e218abe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "197f1fe8_aa2f8f3a",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-08-09T18:00:26Z",
+      "side": 1,
+      "message": "It\u0027s hard for me to tell exactly what has changed in this function, it looks like this part is new at least. Is it possible to merge this with the non-interleaved function to make the differences more clear.",
+      "range": {
+        "startLine": 530,
+        "startChar": 0,
+        "endLine": 532,
+        "endChar": 6
+      },
+      "revId": "4549132f7a32f01cbc7c20344330fa4c5e218abe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
