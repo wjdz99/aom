@@ -14,6 +14,9 @@
 
 #include "aom_dsp/entdec.h"
 #include "aom_dsp/prob.h"
+#if CONFIG_ACCOUNTING
+#include "av1/common/accounting.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,6 +26,9 @@ struct daala_reader {
   const uint8_t *buffer;
   const uint8_t *buffer_end;
   od_ec_dec ec;
+#if CONFIG_ACCOUNTING
+  AOMAccounting *accounting;
+#endif
 };
 
 typedef struct daala_reader daala_reader;
@@ -30,6 +36,7 @@ typedef struct daala_reader daala_reader;
 int aom_daala_reader_init(daala_reader *r, const uint8_t *buffer, int size);
 const uint8_t *aom_daala_reader_find_end(daala_reader *r);
 ptrdiff_t aom_daala_reader_tell(const daala_reader *r);
+ptrdiff_t aom_daala_reader_tell_frac(const daala_reader *r);
 
 static INLINE int aom_daala_read(daala_reader *r, int prob) {
   if (prob == 128) {
