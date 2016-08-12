@@ -47,9 +47,10 @@
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/tokenize.h"
 
-static void rd_encode_block(const AV1_COMP *const cpi, ThreadData *const td,
-                            MACROBLOCK *const x, int mi_row, int mi_col,
-                            BLOCK_SIZE bsize, RD_COST *rd_cost);
+static void rd_reencode_block(const AV1_COMP *const cpi, ThreadData *const td,
+                              const TileInfo *const tile_data,
+                              MACROBLOCK *const x, int mi_row, int mi_col,
+                              BLOCK_SIZE bsize);
 
 // This is used as a reference when computing the source variance for the
 //  purposes of activity masking.
@@ -965,14 +966,16 @@ static int set_segment_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   return av1_compute_rd_mult(cpi, segment_qindex + cm->y_dc_delta_q);
 }
 
-static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
-                             MACROBLOCK *const x, int mi_row, int mi_col,
-                             RD_COST *rd_cost, BLOCK_SIZE bsize,
-                             int64_t best_rd) {
+static void rd_pick_block_mode(const AV1_COMP *const cpi,
+                               TileDataEnc *tile_data, MACROBLOCK *const x,
+                               int mi_row, int mi_col, RD_COST *rd_cost,
+                               BLOCK_SIZE bsize, int64_t best_rd) {
   const AV1_COMMON *const cm = &cpi->common;
+  const struct segmentation *seg = &cm->seg;
   TileInfo *const tile_info = &tile_data->tile_info;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi;
+  MB_MODE_INFO_EXT *mbmi_ext;
   const AQ_MODE aq_mode = cpi->oxcf.aq_mode;
   int orig_rdmult;
 
@@ -984,6 +987,7 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   set_offsets(cpi, tile_info, x, mi_row, mi_col, bsize);
   mbmi = &xd->mi[0]->mbmi;
   mbmi->sb_type = bsize;
+  mbmi_ext = x->mbmi_ext;
 
   // Set to zero to make sure we do not use the previous encoded frame stats
   mbmi->skip = 0;
@@ -1051,6 +1055,26 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       (cm->frame_type == KEY_FRAME || cpi->refresh_alt_ref_frame ||
        (cpi->refresh_golden_frame && !cpi->rc.is_src_frame_alt_ref))) {
     av1_caq_select_segment(cpi, x, bsize, mi_row, mi_col, rd_cost->rate);
+  }
+
+  // TODO(xormask): refactor the AQ modes so modifying the segment after
+  // the RD decision isn't necessary
+
+  // If segmentation in use
+  if (seg->enabled) {
+    // For in frame complexity AQ copy the segment id from the segment map.
+    if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
+      const uint8_t *const map =
+          seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
+      mbmi->segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
+    }
+    // Else for cyclic refresh mode update the segment map, set the segment id
+    // and then update the quantizer.
+    if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ) {
+      av1_cyclic_refresh_update_segment(cpi, mbmi, mi_row, mi_col, bsize,
+                                        rd_cost->rate, rd_cost->dist,
+                                        mbmi_ext->force_skip);
+    }
   }
 
   x->rdmult = orig_rdmult;
@@ -1416,36 +1440,6 @@ void restore_rd_results(const AV1_COMP *const cpi, const RDContext *const rdctx,
                           rdctx->sl, bsize);
 }
 
-static void rd_block_pick_mode_encode(const AV1_COMP *const cpi,
-                                      ThreadData *const td,
-                                      TileDataEnc *const tile_data,
-                                      MACROBLOCK *const x, int mi_row,
-                                      int mi_col, RD_COST *rd_cost,
-                                      BLOCK_SIZE bsize, int64_t best_rd) {
-  ENTROPY_CONTEXT l[16 * MAX_MB_PLANE], a[16 * MAX_MB_PLANE];
-  PARTITION_CONTEXT sl[8], sa[8];
-  save_entropy_context(x, mi_row, mi_col, a, l, sa, sl,
-                       AOMMAX(bsize, BLOCK_8X8));
-
-  rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, rd_cost, bsize, best_rd);
-
-  /* Restore entropy state for reencode. */
-  restore_entropy_context(x, mi_row, mi_col, a, l, sa, sl,
-                          AOMMAX(bsize, BLOCK_8X8));
-
-  if (rd_cost->rate == INT_MAX) return;
-
-  // Set all the mi grid pointers for this block before doing a full encode
-  set_mode_info_grid(cpi, &x->e_mbd, mi_row, mi_col, AOMMAX(bsize, BLOCK_8X8));
-
-  rd_encode_block(cpi, td, x, mi_row, mi_col, bsize, rd_cost);
-
-  if (rd_cost->rate == INT_MAX) {
-    av1_rd_cost_reset(rd_cost);
-    return;
-  }
-}
-
 // Check to see if the given partition size is allowed for a specified number
 // of 8x8 block rows and columns remaining in the image.
 // If not then return the largest allowed partition size
@@ -1535,12 +1529,16 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
   const int bss = (1 << bsl) / 4;
   int i, pl;
   PARTITION_TYPE partition = PARTITION_NONE;
+  int full_vert = mi_col + (mi_step >> 1) < cm->mi_cols && bsize > BLOCK_8X8;
+  int full_horz = mi_row + (mi_step >> 1) < cm->mi_rows && bsize > BLOCK_8X8;
   BLOCK_SIZE subsize;
   ENTROPY_CONTEXT l[16 * MAX_MB_PLANE], a[16 * MAX_MB_PLANE];
   PARTITION_CONTEXT sl[8], sa[8];
   RD_COST current_rdc, chosen_rdc;
   BLOCK_SIZE sub_subsize = BLOCK_4X4;
   int splits_below = 0;
+  int force_none_best = 0;
+  int force_split_best = 0;
   BLOCK_SIZE bs_type = mi_8x8[0]->mbmi.sb_type;
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
@@ -1558,11 +1556,11 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
 
   save_global_qcoeff_offsets(x, qcoeff_orig, eobs_orig);
   set_global_qcoeff_offsets(x, part_idx, bsize);
+  set_qcoeff_bufs(x, 0, bsize);
 
   set_offsets(cpi, tile_info, x, mi_row, mi_col, bsize);
 
   save_entropy_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
-  save_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
 
   if (bsize == BLOCK_16X16 && cpi->oxcf.aq_mode) {
     x->mb_energy = av1_block_energy(cpi, x, bsize);
@@ -1588,8 +1586,8 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
     if (partition != PARTITION_NONE && !splits_below &&
         mi_row + (mi_step >> 1) < cm->mi_rows &&
         mi_col + (mi_step >> 1) < cm->mi_cols) {
-      rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row, mi_col,
-                                &current_rdc, bsize, INT64_MAX);
+      rd_pick_block_mode(cpi, tile_data, x, mi_row, mi_col, &current_rdc, bsize,
+                         INT64_MAX);
 
       pl = partition_plane_context(xd, mi_row, mi_col, bsize);
 
@@ -1599,7 +1597,8 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
             RDCOST(x->rdmult, x->rddiv, current_rdc.rate, current_rdc.dist);
 
         chosen_rdc = current_rdc;
-        save_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
+        save_mode_info(cpi, xd, rdctx, mi_row, mi_col, 0, 0);
+        force_none_best = 1;
       }
 
       restore_entropy_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
@@ -1609,20 +1608,18 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
 
   switch (partition) {
     case PARTITION_NONE:
-      rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row, mi_col,
-                                &current_rdc, bsize, INT64_MAX);
+      rd_pick_block_mode(cpi, tile_data, x, mi_row, mi_col, &current_rdc, bsize,
+                         INT64_MAX);
       break;
     case PARTITION_HORZ:
-      rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row, mi_col,
-                                &current_rdc, subsize, INT64_MAX);
-      if (current_rdc.rate != INT_MAX && bsize >= BLOCK_8X8 &&
-          mi_row + (mi_step >> 1) < cm->mi_rows) {
+      rd_pick_block_mode(cpi, tile_data, x, mi_row, mi_col, &current_rdc,
+                         subsize, INT64_MAX);
+      if (current_rdc.rate != INT_MAX && full_horz) {
         RD_COST tmp_rdc;
         av1_rd_cost_init(&tmp_rdc);
-        set_qcoeff_bufs(x, 1, subsize);
-        rd_block_pick_mode_encode(cpi, td, tile_data, x,
-                                  mi_row + (mi_step >> 1), mi_col, &tmp_rdc,
-                                  subsize, INT64_MAX);
+        rd_reencode_block(cpi, td, tile_info, x, mi_row, mi_col, subsize);
+        rd_pick_block_mode(cpi, tile_data, x, mi_row + (mi_step >> 1), mi_col,
+                           &tmp_rdc, subsize, INT64_MAX);
         if (tmp_rdc.rate == INT_MAX || tmp_rdc.dist == INT64_MAX) {
           av1_rd_cost_reset(&current_rdc);
           break;
@@ -1633,16 +1630,14 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
       }
       break;
     case PARTITION_VERT:
-      rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row, mi_col,
-                                &current_rdc, subsize, INT64_MAX);
-      if (current_rdc.rate != INT_MAX && bsize >= BLOCK_8X8 &&
-          mi_col + (mi_step >> 1) < cm->mi_cols) {
+      rd_pick_block_mode(cpi, tile_data, x, mi_row, mi_col, &current_rdc,
+                         subsize, INT64_MAX);
+      if (current_rdc.rate != INT_MAX && full_vert) {
         RD_COST tmp_rdc;
         av1_rd_cost_init(&tmp_rdc);
-        set_qcoeff_bufs(x, 1, subsize);
-        rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row,
-                                  mi_col + (mi_step >> 1), &tmp_rdc, subsize,
-                                  INT64_MAX);
+        rd_reencode_block(cpi, td, tile_info, x, mi_row, mi_col, subsize);
+        rd_pick_block_mode(cpi, tile_data, x, mi_row, mi_col + (mi_step >> 1),
+                           &tmp_rdc, subsize, INT64_MAX);
         if (tmp_rdc.rate == INT_MAX || tmp_rdc.dist == INT64_MAX) {
           av1_rd_cost_reset(&current_rdc);
           break;
@@ -1654,8 +1649,8 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
       break;
     case PARTITION_SPLIT:
       if (bsize == BLOCK_8X8) {
-        rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row, mi_col,
-                                  &current_rdc, subsize, INT64_MAX);
+        rd_pick_block_mode(cpi, tile_data, x, mi_row, mi_col, &current_rdc,
+                           subsize, INT64_MAX);
         break;
       }
       current_rdc.rate = 0;
@@ -1691,9 +1686,19 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
         RDCOST(x->rdmult, x->rddiv, current_rdc.rate, current_rdc.dist);
 
     if (current_rdc.rdcost < chosen_rdc.rdcost) {
-      save_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
+      if (partition == PARTITION_SPLIT && bsize > BLOCK_8X8) {
+        save_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
+      } else {
+        save_mode_info(cpi, xd, rdctx, mi_row, mi_col, 0, 0);
+        if (partition == PARTITION_VERT && full_vert) {
+          save_mode_info(cpi, xd, rdctx, mi_row, mi_col, 0, mi_step >> 1);
+        } else if (partition == PARTITION_HORZ && full_horz) {
+          save_mode_info(cpi, xd, rdctx, mi_row, mi_col, mi_step >> 1, 0);
+        }
+      }
 
       chosen_rdc = current_rdc;
+      force_none_best = 0;
     }
   }
 
@@ -1720,17 +1725,20 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
       if ((mi_row + y_idx >= cm->mi_rows) || (mi_col + x_idx >= cm->mi_cols))
         continue;
 
-      save_entropy_context(x, mi_row, mi_col, a2, l2, sa2, sl2, bsize);
-      rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row + y_idx,
-                                mi_col + x_idx, &tmp_rdc, split_subsize,
-                                INT64_MAX);
+      set_qcoeff_bufs(x, i, split_subsize);
 
+      save_entropy_context(x, mi_row, mi_col, a2, l2, sa2, sl2, bsize);
+      rd_pick_block_mode(cpi, tile_data, x, mi_row + y_idx, mi_col + x_idx,
+                         &tmp_rdc, split_subsize, INT64_MAX);
       restore_entropy_context(x, mi_row, mi_col, a2, l2, sa2, sl2, bsize);
 
       if (tmp_rdc.rate == INT_MAX || tmp_rdc.dist == INT64_MAX) {
         av1_rd_cost_reset(&current_rdc);
         break;
       }
+
+      rd_reencode_block(cpi, td, tile_info, x, mi_row + y_idx, mi_col + x_idx,
+                        split_subsize);
 
       current_rdc.rate += tmp_rdc.rate;
       current_rdc.dist += tmp_rdc.dist;
@@ -1744,13 +1752,40 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
       current_rdc.rate += cpi->partition_cost[pl][PARTITION_SPLIT];
       current_rdc.rdcost =
           RDCOST(x->rdmult, x->rddiv, current_rdc.rate, current_rdc.dist);
+      if (current_rdc.rdcost < chosen_rdc.rdcost) force_split_best = 1;
     }
   }
 
-  if (current_rdc.rdcost < chosen_rdc.rdcost)
+  if (force_split_best) {
+    // Don't need to reencode since it is left in place by above code
     chosen_rdc = current_rdc;
-  else if (chosen_rdc.rate < INT_MAX)  // Restore the previous selection
-    restore_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
+  } else if (chosen_rdc.rate < INT_MAX) {
+    // Restore the previous selection
+    if (!force_none_best && partition == PARTITION_SPLIT && bsize > BLOCK_8X8) {
+      restore_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
+    } else {
+      restore_entropy_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
+      restore_mode_info(cpi, xd, rdctx, mi_row, mi_col, 0, 0);
+
+      set_qcoeff_bufs(x, 0, bsize);
+      if (force_none_best) {
+        rd_reencode_block(cpi, td, tile_info, x, mi_row, mi_col, bsize);
+      } else {
+        rd_reencode_block(cpi, td, tile_info, x, mi_row, mi_col, subsize);
+
+        set_qcoeff_bufs(x, 1, subsize);
+        if (partition == PARTITION_VERT && full_vert) {
+          restore_mode_info(cpi, xd, rdctx, mi_row, mi_col, 0, mi_step >> 1);
+          rd_reencode_block(cpi, td, tile_info, x, mi_row,
+                            mi_col + (mi_step >> 1), subsize);
+        } else if (partition == PARTITION_HORZ && full_horz) {
+          restore_mode_info(cpi, xd, rdctx, mi_row, mi_col, mi_step >> 1, 0);
+          rd_reencode_block(cpi, td, tile_info, x, mi_row + (mi_step >> 1),
+                            mi_col, subsize);
+        }
+      }
+    }
+  }
 
   restore_global_qcoeff_offsets(x, qcoeff_orig, eobs_orig);
 
@@ -2149,8 +2184,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
   // PARTITION_NONE
   if (partition_none_allowed) {
-    rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row, mi_col, &this_rdc,
-                              bsize, best_rdc.rdcost);
+    rd_pick_block_mode(cpi, tile_data, x, mi_row, mi_col, &this_rdc, bsize,
+                       best_rdc.rdcost);
     if (this_rdc.rate != INT_MAX) {
       if (cpi->sf.adaptive_pred_interp_filter && bsize == BLOCK_8X8)
         none_interp_filter = xd->mi[0]->mbmi.interp_filter;
@@ -2174,6 +2209,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
         best_rdc = this_rdc;
         best_partition = PARTITION_NONE;
+        save_mode_info(cpi, xd, rdctx, mi_row, mi_col, 0, 0);
 
         // If all y, u, v transform blocks in this partition are skippable, and
         // the dist & rate are within the thresholds, the partition search is
@@ -2186,8 +2222,6 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
           do_square_split = 0;
           do_rectangular_split = 0;
         }
-
-        save_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
 
 #if CONFIG_FP_MB_STATS
         // Check if every 16x16 first pass block statistics has zero
@@ -2252,8 +2286,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     if (bsize == BLOCK_8X8) {
       if (cpi->sf.adaptive_pred_interp_filter)
         x->start_interp_filter = none_interp_filter;
-      rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row, mi_col, &sum_rdc,
-                                subsize, best_rdc.rdcost);
+      rd_pick_block_mode(cpi, tile_data, x, mi_row, mi_col, &sum_rdc, subsize,
+                         best_rdc.rdcost);
       if (sum_rdc.rate == INT_MAX) sum_rdc.rdcost = INT64_MAX;
       reached_last_index = 1;
     } else {
@@ -2293,7 +2327,10 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
         best_partition = PARTITION_SPLIT;
         best_rdc = sum_rdc;
 
-        save_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
+        if (bsize == BLOCK_8X8)
+          save_mode_info(cpi, xd, rdctx, mi_row, mi_col, 0, 0);
+        else
+          save_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
       }
     } else if (cpi->sf.less_rectangular_check) {
       // skip rectangular partition test when larger block size
@@ -2306,23 +2343,22 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   if (partition_horz_allowed &&
       (do_rectangular_split || av1_active_h_edge(cpi, mi_row, mi_step))) {
     restore_entropy_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
+    set_qcoeff_bufs(x, 0, bsize);
+
     subsize = get_subsize(bsize, PARTITION_HORZ);
     if (cpi->sf.adaptive_motion_search) load_pred_mv(x, predmv_backup);
     if (cpi->sf.adaptive_pred_interp_filter && bsize == BLOCK_8X8)
       x->start_interp_filter = none_interp_filter;
 
-    set_qcoeff_bufs(x, 0, bsize);
-    rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row, mi_col, &sum_rdc,
-                              subsize, best_rdc.rdcost);
+    rd_pick_block_mode(cpi, tile_data, x, mi_row, mi_col, &sum_rdc, subsize,
+                       best_rdc.rdcost);
 
     if (sum_rdc.rdcost < best_rdc.rdcost && !force_horz_split &&
         bsize > BLOCK_8X8) {
       if (cpi->sf.adaptive_motion_search) load_pred_mv(x, predmv_backup);
-
-      set_qcoeff_bufs(x, 1, subsize);
-      rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row + mi_step, mi_col,
-                                &this_rdc, subsize,
-                                best_rdc.rdcost - sum_rdc.rdcost);
+      rd_reencode_block(cpi, td, tile_info, x, mi_row, mi_col, subsize);
+      rd_pick_block_mode(cpi, tile_data, x, mi_row + mi_step, mi_col, &this_rdc,
+                         subsize, best_rdc.rdcost - sum_rdc.rdcost);
       if (this_rdc.rate == INT_MAX) {
         sum_rdc.rdcost = INT64_MAX;
       } else {
@@ -2340,7 +2376,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       if (sum_rdc.rdcost < best_rdc.rdcost) {
         best_rdc = sum_rdc;
         best_partition = PARTITION_HORZ;
-        save_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
+        save_mode_info(cpi, xd, rdctx, mi_row, mi_col, 0, 0);
+        if (bsize > BLOCK_8X8 && !force_horz_split)
+          save_mode_info(cpi, xd, rdctx, mi_row, mi_col, mi_step, 0);
       }
     }
   }
@@ -2348,24 +2386,21 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   if (partition_vert_allowed &&
       (do_rectangular_split || av1_active_v_edge(cpi, mi_col, mi_step))) {
     restore_entropy_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
+    set_qcoeff_bufs(x, 0, bsize);
 
     subsize = get_subsize(bsize, PARTITION_VERT);
-
     if (cpi->sf.adaptive_motion_search) load_pred_mv(x, predmv_backup);
     if (cpi->sf.adaptive_pred_interp_filter && bsize == BLOCK_8X8)
       x->start_interp_filter = none_interp_filter;
 
-    set_qcoeff_bufs(x, 0, bsize);
-    rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row, mi_col, &sum_rdc,
-                              subsize, best_rdc.rdcost);
+    rd_pick_block_mode(cpi, tile_data, x, mi_row, mi_col, &sum_rdc, subsize,
+                       best_rdc.rdcost);
     if (sum_rdc.rdcost < best_rdc.rdcost && !force_vert_split &&
         bsize > BLOCK_8X8) {
       if (cpi->sf.adaptive_motion_search) load_pred_mv(x, predmv_backup);
-
-      set_qcoeff_bufs(x, 1, subsize);
-      rd_block_pick_mode_encode(cpi, td, tile_data, x, mi_row, mi_col + mi_step,
-                                &this_rdc, subsize,
-                                best_rdc.rdcost - sum_rdc.rdcost);
+      rd_reencode_block(cpi, td, tile_info, x, mi_row, mi_col, subsize);
+      rd_pick_block_mode(cpi, tile_data, x, mi_row, mi_col + mi_step, &this_rdc,
+                         subsize, best_rdc.rdcost - sum_rdc.rdcost);
       if (this_rdc.rate == INT_MAX) {
         sum_rdc.rdcost = INT64_MAX;
       } else {
@@ -2383,7 +2418,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       if (sum_rdc.rdcost < best_rdc.rdcost) {
         best_rdc = sum_rdc;
         best_partition = PARTITION_VERT;
-        save_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
+        save_mode_info(cpi, xd, rdctx, mi_row, mi_col, 0, 0);
+        if (bsize > BLOCK_8X8 && !force_vert_split)
+          save_mode_info(cpi, xd, rdctx, mi_row, mi_col, 0, mi_step);
       }
     }
   }
@@ -2396,11 +2433,33 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   *rd_cost = best_rdc;
 
   if (best_rdc.rate < INT_MAX && best_rdc.dist < INT64_MAX) {
-    restore_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
+    int need_reencode = best_partition != PARTITION_SPLIT || bsize == BLOCK_8X8;
+    subsize = get_subsize(bsize, best_partition);
+    if (need_reencode) {
+      set_qcoeff_bufs(x, 0, bsize);
 
-    if (best_partition != PARTITION_SPLIT || bsize == BLOCK_8X8)
-      update_partition_context(xd, mi_row, mi_col,
-                               get_subsize(bsize, best_partition), bsize);
+      restore_entropy_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
+      restore_mode_info(cpi, xd, rdctx, mi_row, mi_col, 0, 0);
+      rd_reencode_block(cpi, td, tile_info, x, mi_row, mi_col, subsize);
+
+      if (bsize > BLOCK_8X8) {
+        set_qcoeff_bufs(x, 1, subsize);
+
+        if (best_partition == PARTITION_VERT && !force_vert_split) {
+          restore_mode_info(cpi, xd, rdctx, mi_row, mi_col, 0, mi_step);
+          rd_reencode_block(cpi, td, tile_info, x, mi_row, mi_col + mi_step,
+                            subsize);
+        } else if (best_partition == PARTITION_HORZ && !force_horz_split) {
+          restore_mode_info(cpi, xd, rdctx, mi_row, mi_col, mi_step, 0);
+          rd_reencode_block(cpi, td, tile_info, x, mi_row + mi_step, mi_col,
+                            subsize);
+        }
+      }
+
+      update_partition_context(xd, mi_row, mi_col, subsize, bsize);
+    } else {
+      restore_rd_results(cpi, rdctx, td, mi_row, mi_col, bsize);
+    }
   }
 
   restore_global_qcoeff_offsets(x, qcoeff_orig, eobs_orig);
@@ -3127,20 +3186,23 @@ void av1_encode_frame(AV1_COMP *cpi) {
   }
 }
 
-static void rd_encode_block(const AV1_COMP *const cpi, ThreadData *const td,
-                            MACROBLOCK *const x, int mi_row, int mi_col,
-                            BLOCK_SIZE bsize, RD_COST *rd_cost) {
+static void rd_reencode_block(const AV1_COMP *const cpi, ThreadData *const td,
+                              const TileInfo *const tile, MACROBLOCK *const x,
+                              int mi_row, int mi_col, BLOCK_SIZE bsize) {
   const AV1_COMMON *const cm = &cpi->common;
-  const struct segmentation *seg = &cm->seg;
   MACROBLOCKD *const xd = &x->e_mbd;
-  MODE_INFO **mi_8x8 = xd->mi;
-  MODE_INFO *mi = mi_8x8[0];
-  MB_MODE_INFO *mbmi = &mi->mbmi;
-  MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
+  MB_MODE_INFO *mbmi;
 #if CONFIG_REF_MV
   int8_t rf_type;
   int i;
 #endif
+
+  set_offsets(cpi, tile, x, mi_row, mi_col, bsize);
+  mbmi = &xd->mi[0]->mbmi;
+
+  // Fill out the mode info grid for this block so future blocks have correct
+  // above_mi and left_mi.
+  set_mode_info_grid(cpi, xd, mi_row, mi_col, bsize);
 
   memset(x->skip_txfm, 0, sizeof(x->skip_txfm));
 
@@ -3161,33 +3223,10 @@ static void rd_encode_block(const AV1_COMP *const cpi, ThreadData *const td,
       lower_mv_precision(&this_mv.as_mv, cm->allow_high_precision_mv);
       x->mbmi_ext->ref_mvs[mbmi->ref_frame[i]][0] = this_mv;
       mbmi->pred_mv[i] = this_mv;
-      mi->mbmi.pred_mv[i] = this_mv;
     }
   }
 #endif
 
-  // TODO(xormask): Use the more precise results from encoding in this function
-  // to update rd_cost
-  (void)rd_cost;
-
-  // TODO(xormask): refactor the AQ modes so modifying the segment after
-  // the RD decision isn't necessary
-  // If segmentation in use
-  if (seg->enabled) {
-    // For in frame complexity AQ copy the segment id from the segment map.
-    if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
-      const uint8_t *const map =
-          seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
-      mbmi->segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
-    }
-    // Else for cyclic refresh mode update the segment map, set the segment id
-    // and then update the quantizer.
-    if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ) {
-      av1_cyclic_refresh_update_segment(cpi, mbmi, mi_row, mi_col, bsize,
-                                        rd_cost->rate, rd_cost->dist,
-                                        mbmi_ext->force_skip);
-    }
-  }
   if (cpi->oxcf.aq_mode) av1_init_plane_quantizers(cpi, x);
 
   if (!is_inter_block(mbmi)) {
