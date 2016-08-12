@@ -1288,18 +1288,50 @@ static void save_entropy_context(MACROBLOCK *const x, int mi_row, int mi_col,
          sizeof(xd->left_seg_context[0]) * mi_height);
 }
 
+void save_mode_info(const AV1_COMP *const cpi, const MACROBLOCKD *const xd,
+                    RDContext *const rdctx, int base_mi_row, int base_mi_col,
+                    int y_idx, int x_idx) {
+  const AV1_COMMON *cm = &cpi->common;
+  int mi_row = base_mi_row + y_idx;
+  int mi_col = base_mi_col + x_idx;
+  int offset = x_idx + y_idx * MI_BLOCK_SIZE;
+  MODE_INFO *mi = cm->mi_grid_visible[xd->mi_stride * mi_row + mi_col];
+  MB_MODE_INFO_EXT *mbmi_ext =
+      cpi->mbmi_ext_base + mi_row * cm->mi_cols + mi_col;
+
+  rdctx->best_mi_ptrs[offset] = mi;
+  if (mi) rdctx->best_mi[offset] = *mi;
+  rdctx->best_mbmi_exts[offset] = *mbmi_ext;
+}
+
+void restore_mode_info(const AV1_COMP *const cpi, const MACROBLOCKD *const xd,
+                       const RDContext *const rdctx, int base_mi_row,
+                       int base_mi_col, int y_idx, int x_idx) {
+  const AV1_COMMON *cm = &cpi->common;
+  int mi_row = base_mi_row + y_idx;
+  int mi_col = base_mi_col + x_idx;
+  int offset = x_idx + y_idx * MI_BLOCK_SIZE;
+  MODE_INFO **mi = cm->mi_grid_visible + xd->mi_stride * mi_row + mi_col;
+  MB_MODE_INFO_EXT *mbmi_ext =
+      cpi->mbmi_ext_base + mi_row * cm->mi_cols + mi_col;
+
+  *mi = rdctx->best_mi_ptrs[offset];
+  if (*mi) **mi = rdctx->best_mi[offset];
+
+  *mbmi_ext = rdctx->best_mbmi_exts[offset];
+}
+
 void save_rd_results(const AV1_COMP *const cpi, RDContext *const rdctx,
                      ThreadData *const td, int mi_row, int mi_col,
                      BLOCK_SIZE bsize) {
-  int i, r, x_idx, y;
-  const AV1_COMMON *const cm = &cpi->common;
+  int i, r, x_idx, y_idx;
+  const AV1_COMMON *cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  const int mi_width = num_8x8_blocks_wide_lookup[bsize];
-  const int mi_height = num_8x8_blocks_high_lookup[bsize];
-  MODE_INFO **mi_base = cm->mi_grid_visible + xd->mi_stride * mi_row + mi_col;
-  MB_MODE_INFO_EXT *mbmi_ext_base =
-      cpi->mbmi_ext_base + mi_row * cm->mi_cols + mi_col;
+  const int mi_width =
+      AOMMIN(num_8x8_blocks_wide_lookup[bsize], cm->mi_cols - mi_col);
+  const int mi_height =
+      AOMMIN(num_8x8_blocks_high_lookup[bsize], cm->mi_rows - mi_row);
 
   // TODO(xormask): there wind up being several unnecessary calls to
   // setup_dst_planes, (here and set_offsets), work out way to avoid this
@@ -1328,21 +1360,9 @@ void save_rd_results(const AV1_COMP *const cpi, RDContext *const rdctx,
            (1 << (num_pels_log2_lookup[bs] - 4)) * sizeof(*p->eobs));
   }
 
-  // Save the MODE_INFO for the entire region covered by bsize. This ensures
-  // that any different MODE_INFOs within this bsize caused by split partition
-  // will be saved
-  for (y = 0; y < mi_height; y++) {
+  for (y_idx = 0; y_idx < mi_height; y_idx++) {
     for (x_idx = 0; x_idx < mi_width; x_idx++) {
-      MODE_INFO *mi_cur = mi_base[x_idx + y * xd->mi_stride];
-
-      rdctx->best_mi_ptrs[x_idx + y * mi_width] = mi_cur;
-      if (mi_cur) rdctx->best_mi[x_idx + y * mi_width] = *mi_cur;
-
-      if (mi_row + y < cm->mi_rows && mi_col + x_idx < cm->mi_cols) {
-        MB_MODE_INFO_EXT *mbmi_ext_cur =
-            mbmi_ext_base + y * cm->mi_cols + x_idx;
-        rdctx->best_mbmi_exts[x_idx + y * mi_width] = *mbmi_ext_cur;
-      }
+      save_mode_info(cpi, xd, rdctx, mi_row, mi_col, y_idx, x_idx);
     }
   }
 
@@ -1353,15 +1373,14 @@ void save_rd_results(const AV1_COMP *const cpi, RDContext *const rdctx,
 void restore_rd_results(const AV1_COMP *const cpi, const RDContext *const rdctx,
                         ThreadData *const td, int mi_row, int mi_col,
                         BLOCK_SIZE bsize) {
-  int i, r, x_idx, y;
+  int i, r, x_idx, y_idx;
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  const int mi_width = num_8x8_blocks_wide_lookup[bsize];
-  const int mi_height = num_8x8_blocks_high_lookup[bsize];
-  MODE_INFO **mi_base = cm->mi_grid_visible + xd->mi_stride * mi_row + mi_col;
-  MB_MODE_INFO_EXT *mbmi_ext_base =
-      cpi->mbmi_ext_base + mi_row * cm->mi_cols + mi_col;
+  const int mi_width =
+      AOMMIN(num_8x8_blocks_wide_lookup[bsize], cm->mi_cols - mi_col);
+  const int mi_height =
+      AOMMIN(num_8x8_blocks_high_lookup[bsize], cm->mi_rows - mi_row);
 
   av1_setup_dst_planes(xd->plane, get_frame_new_buffer(cm), mi_row, mi_col);
   set_qcoeff_bufs(x, 0, bsize);
@@ -1387,20 +1406,9 @@ void restore_rd_results(const AV1_COMP *const cpi, const RDContext *const rdctx,
            (1 << (num_pels_log2_lookup[bs] - 4)) * sizeof(*p->eobs));
   }
 
-  // Restore the coding context of the MB to that that was in place
-  // when the mode was picked for it
-  for (y = 0; y < mi_height; y++) {
+  for (y_idx = 0; y_idx < mi_height; y_idx++) {
     for (x_idx = 0; x_idx < mi_width; x_idx++) {
-      MODE_INFO **mi_cur = &mi_base[x_idx + y * xd->mi_stride];
-
-      *mi_cur = rdctx->best_mi_ptrs[x_idx + y * mi_width];
-      if (*mi_cur) **mi_cur = rdctx->best_mi[x_idx + y * mi_width];
-
-      if (mi_row + y < cm->mi_rows && mi_col + x_idx < cm->mi_cols) {
-        MB_MODE_INFO_EXT *mbmi_ext_cur =
-            mbmi_ext_base + y * cm->mi_cols + x_idx;
-        *mbmi_ext_cur = rdctx->best_mbmi_exts[x_idx + y * mi_width];
-      }
+      restore_mode_info(cpi, xd, rdctx, mi_row, mi_col, y_idx, x_idx);
     }
   }
 
