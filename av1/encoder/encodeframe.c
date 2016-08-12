@@ -1114,19 +1114,126 @@ static void update_inter_mode_stats(FRAME_COUNTS *counts, PREDICTION_MODE mode,
 }
 #endif
 
-static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
+static void sum_intra_stats(FRAME_COUNTS *counts, const MODE_INFO *mi,
+                            const MODE_INFO *above_mi, const MODE_INFO *left_mi,
+                            const int intraonly) {
+  const PREDICTION_MODE y_mode = mi->mbmi.mode;
+  const PREDICTION_MODE uv_mode = mi->mbmi.uv_mode;
+  const BLOCK_SIZE bsize = mi->mbmi.sb_type;
+
+  if (bsize < BLOCK_8X8) {
+    int idx, idy;
+    const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
+    const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
+    for (idy = 0; idy < 2; idy += num_4x4_h)
+      for (idx = 0; idx < 2; idx += num_4x4_w) {
+        const int bidx = idy * 2 + idx;
+        const PREDICTION_MODE bmode = mi->bmi[bidx].as_mode;
+        if (intraonly) {
+          const PREDICTION_MODE a = av1_above_block_mode(mi, above_mi, bidx);
+          const PREDICTION_MODE l = av1_left_block_mode(mi, left_mi, bidx);
+          ++counts->kf_y_mode[a][l][bmode];
+        } else {
+          ++counts->y_mode[0][bmode];
+        }
+      }
+  } else {
+    if (intraonly) {
+      const PREDICTION_MODE above = av1_above_block_mode(mi, above_mi, 0);
+      const PREDICTION_MODE left = av1_left_block_mode(mi, left_mi, 0);
+      ++counts->kf_y_mode[above][left][y_mode];
+    } else {
+      ++counts->y_mode[size_group_lookup[bsize]][y_mode];
+    }
+  }
+
+  ++counts->uv_mode[y_mode][uv_mode];
+}
+
+static void update_stats(const AV1_COMP *const cpi, ThreadData *td, int mi_row,
+                         int mi_col, BLOCK_SIZE bsize) {
+  const AV1_COMMON *const cm = &cpi->common;
   const MACROBLOCK *x = &td->mb;
   const MACROBLOCKD *const xd = &x->e_mbd;
-  const MODE_INFO *const mi = xd->mi[0];
-  const MB_MODE_INFO *const mbmi = &mi->mbmi;
+  MODE_INFO *const mi = xd->mi[0];
+  MB_MODE_INFO *const mbmi = &mi->mbmi;
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
-  const BLOCK_SIZE bsize = mbmi->sb_type;
+  const struct segmentation *seg = &cm->seg;
+  int seg_skip = segfeature_active(seg, mbmi->segment_id, SEG_LVL_SKIP);
+  const int mi_width = num_8x8_blocks_wide_lookup[bsize];
+  const int mi_height = num_8x8_blocks_high_lookup[bsize];
+
+#if CONFIG_INTERNAL_STATS
+  {
+    unsigned int *const mode_chosen_counts =
+        (unsigned int *)cpi->mode_chosen_counts;  // Cast const away.
+    if (frame_is_intra_only(cm)) {
+      static const int kf_mode_index[] = {
+        THR_DC /*DC_PRED*/,          THR_V_PRED /*V_PRED*/,
+        THR_H_PRED /*H_PRED*/,       THR_D45_PRED /*D45_PRED*/,
+        THR_D135_PRED /*D135_PRED*/, THR_D117_PRED /*D117_PRED*/,
+        THR_D153_PRED /*D153_PRED*/, THR_D207_PRED /*D207_PRED*/,
+        THR_D63_PRED /*D63_PRED*/,   THR_TM /*TM_PRED*/,
+      };
+      ++mode_chosen_counts[kf_mode_index[mbmi->mode]];
+    } else {
+      // Note how often each mode chosen as best
+      ++mode_chosen_counts[x->mbmi_ext->mode_index];
+    }
+  }
+#endif
+
+  if (!is_inter_block(mbmi)) {
+    sum_intra_stats(td->counts, mi, xd->above_mi, xd->left_mi,
+                    frame_is_intra_only(cm));
+  }
+
+  if (cm->tx_mode == TX_MODE_SELECT && mbmi->sb_type >= BLOCK_8X8 &&
+      !(is_inter_block(mbmi) && (mbmi->skip || seg_skip))) {
+    ++get_tx_counts(max_txsize_lookup[bsize], get_tx_size_context(xd),
+                    &td->counts->tx)[mbmi->tx_size];
+  } else {
+    int x_idx, y_idx;
+    TX_SIZE tx_size;
+    // The new intra coding scheme requires no change of transform size
+    if (is_inter_block(&mi->mbmi)) {
+      tx_size = AOMMIN(tx_mode_to_biggest_tx_size[cm->tx_mode],
+                       max_txsize_lookup[bsize]);
+    } else {
+      tx_size = (bsize >= BLOCK_8X8) ? mbmi->tx_size : TX_4X4;
+    }
+
+    for (y_idx = 0; y_idx < mi_height; y_idx++)
+      for (x_idx = 0; x_idx < mi_width; x_idx++)
+        if (mi_col + x_idx < cm->mi_cols && mi_row + y_idx < cm->mi_rows)
+          mi[cm->mi_stride * y_idx + x_idx].mbmi.tx_size = tx_size;
+  }
+  ++td->counts->tx.tx_totals[mbmi->tx_size];
+  ++td->counts->tx.tx_totals[get_uv_tx_size(mbmi, &xd->plane[1])];
+  if (mbmi->tx_size < TX_32X32 && cm->base_qindex > 0 && !mbmi->skip &&
+      !seg_skip) {
+    if (is_inter_block(mbmi)) {
+      ++td->counts->inter_ext_tx[mbmi->tx_size][mbmi->tx_type];
+    } else {
+      ++td->counts->intra_ext_tx[mbmi->tx_size]
+                                [intra_mode_to_tx_type_context[mbmi->mode]]
+                                [mbmi->tx_type];
+    }
+  }
 
   if (!frame_is_intra_only(cm)) {
     FRAME_COUNTS *const counts = td->counts;
     const int inter_block = is_inter_block(mbmi);
     const int seg_ref_active =
         segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_REF_FRAME);
+
+    td->rd_counts.comp_pred_diff[SINGLE_REFERENCE] +=
+        x->mbmi_ext->single_pred_diff;
+    td->rd_counts.comp_pred_diff[COMPOUND_REFERENCE] +=
+        x->mbmi_ext->comp_pred_diff;
+    td->rd_counts.comp_pred_diff[REFERENCE_MODE_SELECT] +=
+        x->mbmi_ext->hybrid_pred_diff;
+
     if (!seg_ref_active) {
       counts->intra_inter[av1_get_intra_inter_context(xd)][inter_block]++;
       // If the segment reference feature is enabled we have only a single
@@ -1190,62 +1297,78 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
         }
       }
     }
-    if (inter_block &&
-        !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
-      int16_t mode_ctx = mbmi_ext->mode_context[mbmi->ref_frame[0]];
-      if (bsize >= BLOCK_8X8) {
-        const PREDICTION_MODE mode = mbmi->mode;
+    if (inter_block) {
+      av1_update_mv_count(td);
+
+      if (cm->interp_filter == SWITCHABLE) {
+#if CONFIG_EXT_INTERP
+        if (is_interp_needed(xd))
+#endif
+        {
+          const int ctx = av1_get_pred_context_switchable_interp(xd);
+          ++td->counts->switchable_interp[ctx][mbmi->interp_filter];
+        }
+      }
+#if CONFIG_MOTION_VAR
+      if (is_motion_variation_allowed(mbmi))
+        ++td->counts->motion_mode[bsize][mbmi->motion_mode];
+#endif  // CONFIG_MOTION_VAR
+      if (!segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
+        int16_t mode_ctx = mbmi_ext->mode_context[mbmi->ref_frame[0]];
+        if (bsize >= BLOCK_8X8) {
+          const PREDICTION_MODE mode = mbmi->mode;
 #if CONFIG_REF_MV
-        mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
-                                             mbmi->ref_frame, bsize, -1);
-        update_inter_mode_stats(counts, mode, mode_ctx);
-        if (mode == NEWMV) {
-          uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
-          int idx;
+          mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
+                                               mbmi->ref_frame, bsize, -1);
+          update_inter_mode_stats(counts, mode, mode_ctx);
+          if (mode == NEWMV) {
+            uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+            int idx;
 
-          for (idx = 0; idx < 2; ++idx) {
-            if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
-              uint8_t drl_ctx =
-                  av1_drl_ctx(mbmi_ext->ref_mv_stack[ref_frame_type], idx);
-              ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx];
+            for (idx = 0; idx < 2; ++idx) {
+              if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
+                uint8_t drl_ctx =
+                    av1_drl_ctx(mbmi_ext->ref_mv_stack[ref_frame_type], idx);
+                ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx];
 
-              if (mbmi->ref_mv_idx == idx) break;
+                if (mbmi->ref_mv_idx == idx) break;
+              }
             }
           }
-        }
 
-        if (mode == NEARMV) {
-          uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
-          int idx;
+          if (mode == NEARMV) {
+            uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+            int idx;
 
-          for (idx = 1; idx < 3; ++idx) {
-            if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
-              uint8_t drl_ctx =
-                  av1_drl_ctx(mbmi_ext->ref_mv_stack[ref_frame_type], idx);
-              ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx - 1];
+            for (idx = 1; idx < 3; ++idx) {
+              if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
+                uint8_t drl_ctx =
+                    av1_drl_ctx(mbmi_ext->ref_mv_stack[ref_frame_type], idx);
+                ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx - 1];
 
-              if (mbmi->ref_mv_idx == idx - 1) break;
+                if (mbmi->ref_mv_idx == idx - 1) break;
+              }
             }
           }
-        }
 #else
-        ++counts->inter_mode[mode_ctx][INTER_OFFSET(mode)];
+          ++counts->inter_mode[mode_ctx][INTER_OFFSET(mode)];
 #endif
-      } else {
-        const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
-        const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
-        int idx, idy;
-        for (idy = 0; idy < 2; idy += num_4x4_h) {
-          for (idx = 0; idx < 2; idx += num_4x4_w) {
-            const int j = idy * 2 + idx;
-            const PREDICTION_MODE b_mode = mi->bmi[j].as_mode;
+        } else {
+          const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
+          const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
+          int idx, idy;
+          for (idy = 0; idy < 2; idy += num_4x4_h) {
+            for (idx = 0; idx < 2; idx += num_4x4_w) {
+              const int j = idy * 2 + idx;
+              const PREDICTION_MODE b_mode = mi->bmi[j].as_mode;
 #if CONFIG_REF_MV
-            mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
-                                                 mbmi->ref_frame, bsize, j);
-            update_inter_mode_stats(counts, b_mode, mode_ctx);
+              mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
+                                                   mbmi->ref_frame, bsize, j);
+              update_inter_mode_stats(counts, b_mode, mode_ctx);
 #else
-            ++counts->inter_mode[mode_ctx][INTER_OFFSET(b_mode)];
+              ++counts->inter_mode[mode_ctx][INTER_OFFSET(b_mode)];
 #endif
+            }
           }
         }
       }
@@ -2470,54 +2593,14 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 }
 
-static void sum_intra_stats(FRAME_COUNTS *counts, const MODE_INFO *mi,
-                            const MODE_INFO *above_mi, const MODE_INFO *left_mi,
-                            const int intraonly) {
-  const PREDICTION_MODE y_mode = mi->mbmi.mode;
-  const PREDICTION_MODE uv_mode = mi->mbmi.uv_mode;
-  const BLOCK_SIZE bsize = mi->mbmi.sb_type;
-
-  if (bsize < BLOCK_8X8) {
-    int idx, idy;
-    const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
-    const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
-    for (idy = 0; idy < 2; idy += num_4x4_h)
-      for (idx = 0; idx < 2; idx += num_4x4_w) {
-        const int bidx = idy * 2 + idx;
-        const PREDICTION_MODE bmode = mi->bmi[bidx].as_mode;
-        if (intraonly) {
-          const PREDICTION_MODE a = av1_above_block_mode(mi, above_mi, bidx);
-          const PREDICTION_MODE l = av1_left_block_mode(mi, left_mi, bidx);
-          ++counts->kf_y_mode[a][l][bmode];
-        } else {
-          ++counts->y_mode[0][bmode];
-        }
-      }
-  } else {
-    if (intraonly) {
-      const PREDICTION_MODE above = av1_above_block_mode(mi, above_mi, 0);
-      const PREDICTION_MODE left = av1_left_block_mode(mi, left_mi, 0);
-      ++counts->kf_y_mode[above][left][y_mode];
-    } else {
-      ++counts->y_mode[size_group_lookup[bsize]][y_mode];
-    }
-  }
-
-  ++counts->uv_mode[y_mode][uv_mode];
-}
-
 static void tokenize_block(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                            ThreadData *td, TOKENEXTRA **t, MACROBLOCK *const x,
                            int mi_row, int mi_col, BLOCK_SIZE bsize) {
   int w, h;
   const AV1_COMMON *const cm = &cpi->common;
   TileInfo *const tile_info = &tile_data->tile_info;
-  const struct segmentation *seg = &cm->seg;
   MACROBLOCKD *const xd = &x->e_mbd;
   MODE_INFO *mi;
-  MB_MODE_INFO *mbmi;
-  int seg_skip;
-  const int mis = cm->mi_stride;
   const int mi_width = num_8x8_blocks_wide_lookup[bsize];
   const int mi_height = num_8x8_blocks_high_lookup[bsize];
   const int x_mis = AOMMIN(mi_width, cm->mi_cols - mi_col);
@@ -2526,57 +2609,10 @@ static void tokenize_block(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
   set_offsets(cpi, tile_info, x, mi_row, mi_col, bsize);
   mi = xd->mi[0];
-  mbmi = &mi->mbmi;
-  seg_skip = segfeature_active(seg, mbmi->segment_id, SEG_LVL_SKIP);
 
   assert(bsize == mbmi->sb_type);
 
-#if CONFIG_INTERNAL_STATS
-  {
-    unsigned int *const mode_chosen_counts =
-        (unsigned int *)cpi->mode_chosen_counts;  // Cast const away.
-    if (frame_is_intra_only(cm)) {
-      static const int kf_mode_index[] = {
-        THR_DC /*DC_PRED*/,          THR_V_PRED /*V_PRED*/,
-        THR_H_PRED /*H_PRED*/,       THR_D45_PRED /*D45_PRED*/,
-        THR_D135_PRED /*D135_PRED*/, THR_D117_PRED /*D117_PRED*/,
-        THR_D153_PRED /*D153_PRED*/, THR_D207_PRED /*D207_PRED*/,
-        THR_D63_PRED /*D63_PRED*/,   THR_TM /*TM_PRED*/,
-      };
-      ++mode_chosen_counts[kf_mode_index[mbmi->mode]];
-    } else {
-      // Note how often each mode chosen as best
-      ++mode_chosen_counts[x->mbmi_ext->mode_index];
-    }
-  }
-#endif
-  if (!frame_is_intra_only(cm)) {
-    if (is_inter_block(mbmi)) {
-      av1_update_mv_count(td);
-
-      if (cm->interp_filter == SWITCHABLE) {
-#if CONFIG_EXT_INTERP
-        if (is_interp_needed(xd))
-#endif
-        {
-          const int ctx = av1_get_pred_context_switchable_interp(xd);
-          ++td->counts->switchable_interp[ctx][mbmi->interp_filter];
-        }
-      }
-
-#if CONFIG_MOTION_VAR
-      if (is_motion_variation_allowed(mbmi))
-        ++td->counts->motion_mode[bsize][mbmi->motion_mode];
-#endif  // CONFIG_MOTION_VAR
-    }
-
-    td->rd_counts.comp_pred_diff[SINGLE_REFERENCE] +=
-        x->mbmi_ext->single_pred_diff;
-    td->rd_counts.comp_pred_diff[COMPOUND_REFERENCE] +=
-        x->mbmi_ext->comp_pred_diff;
-    td->rd_counts.comp_pred_diff[REFERENCE_MODE_SELECT] +=
-        x->mbmi_ext->hybrid_pred_diff;
-  }
+  av1_tokenize_sb(cpi, td, t, 0, AOMMAX(bsize, BLOCK_8X8));
 
   for (h = 0; h < y_mis; ++h) {
     MV_REF *const frame_mv = frame_mvs + h * cm->mi_cols;
@@ -2593,49 +2629,7 @@ static void tokenize_block(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     }
   }
 
-  if (!is_inter_block(mbmi)) {
-    sum_intra_stats(td->counts, mi, xd->above_mi, xd->left_mi,
-                    frame_is_intra_only(cm));
-    av1_tokenize_sb(cpi, td, t, 0, AOMMAX(bsize, BLOCK_8X8));
-  } else {
-    av1_tokenize_sb(cpi, td, t, 0, AOMMAX(bsize, BLOCK_8X8));
-  }
-
-  // Counts below
-  if (cm->tx_mode == TX_MODE_SELECT && mbmi->sb_type >= BLOCK_8X8 &&
-      !(is_inter_block(mbmi) && (mbmi->skip || seg_skip))) {
-    ++get_tx_counts(max_txsize_lookup[bsize], get_tx_size_context(xd),
-                    &td->counts->tx)[mbmi->tx_size];
-  } else {
-    int x_idx, y_idx;
-    TX_SIZE tx_size;
-    // The new intra coding scheme requires no change of transform size
-    if (is_inter_block(&mi->mbmi)) {
-      tx_size = AOMMIN(tx_mode_to_biggest_tx_size[cm->tx_mode],
-                       max_txsize_lookup[bsize]);
-    } else {
-      tx_size = (bsize >= BLOCK_8X8) ? mbmi->tx_size : TX_4X4;
-    }
-
-    for (y_idx = 0; y_idx < mi_height; y_idx++)
-      for (x_idx = 0; x_idx < mi_width; x_idx++)
-        if (mi_col + x_idx < cm->mi_cols && mi_row + y_idx < cm->mi_rows)
-          mi[mis * y_idx + x_idx].mbmi.tx_size = tx_size;
-  }
-  ++td->counts->tx.tx_totals[mbmi->tx_size];
-  ++td->counts->tx.tx_totals[get_uv_tx_size(mbmi, &xd->plane[1])];
-  if (mbmi->tx_size < TX_32X32 && cm->base_qindex > 0 && !mbmi->skip &&
-      !seg_skip) {
-    if (is_inter_block(mbmi)) {
-      ++td->counts->inter_ext_tx[mbmi->tx_size][mbmi->tx_type];
-    } else {
-      ++td->counts
-            ->intra_ext_tx[mbmi->tx_size][intra_mode_to_tx_type_context
-                                              [mbmi->mode]][mbmi->tx_type];
-    }
-  }
-
-  update_stats(&cpi->common, td);
+  update_stats(cpi, td, mi_row, mi_col, bsize);
 }
 
 static void tokenize_superblock(const AV1_COMP *cpi, TileDataEnc *tile_data,
