@@ -34,6 +34,24 @@
       "revId": "bd2755842739d717294be6fa8e0c36427cdc8228",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7bd3b3eb_18b8ad28",
+        "filename": "configure",
+        "patchSetId": 6
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-08-16T01:23:42Z",
+      "side": 1,
+      "message": "it should be marked inline if it\u0027s in a header. in all cases you\u0027re ending up with a version in each module that includes this header, but inline will control the reporting of the warning",
+      "parentUuid": "9b186770_5cf6f191",
+      "revId": "bd2755842739d717294be6fa8e0c36427cdc8228",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
