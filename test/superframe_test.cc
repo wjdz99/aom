@@ -18,14 +18,9 @@
 
 namespace {
 
-const int kTestMode = 0;
-const int kSuperframeSyntax = 1;
-
-typedef std::tr1::tuple<libaom_test::TestMode, int> SuperframeTestParam;
-
 class SuperframeTest
     : public ::libaom_test::EncoderTest,
-      public ::libaom_test::CodecTestWithParam<SuperframeTestParam> {
+      public ::libaom_test::CodecTestWithParam<libaom_test::TestMode> {
  protected:
   SuperframeTest()
       : EncoderTest(GET_PARAM(0)), modified_buf_(NULL), last_sf_pts_(0) {}
@@ -33,13 +28,10 @@ class SuperframeTest
 
   virtual void SetUp() {
     InitializeConfig();
-    const SuperframeTestParam input = GET_PARAM(1);
-    const libaom_test::TestMode mode = std::tr1::get<kTestMode>(input);
-    const int syntax = std::tr1::get<kSuperframeSyntax>(input);
+    const libaom_test::TestMode mode = GET_PARAM(1);
     SetMode(mode);
     sf_count_ = 0;
     sf_count_max_ = INT_MAX;
-    is_av1_style_superframe_ = syntax;
   }
 
   virtual void TearDown() { delete[] modified_buf_; }
@@ -59,7 +51,7 @@ class SuperframeTest
     const uint8_t marker = buffer[pkt->data.frame.sz - 1];
     const int frames = (marker & 0x7) + 1;
     const int mag = ((marker >> 3) & 3) + 1;
-    const unsigned int index_sz = 2 + mag * (frames - is_av1_style_superframe_);
+    const unsigned int index_sz = 2 + mag * (frames - 1);
     if ((marker & 0xe0) == 0xc0 && pkt->data.frame.sz >= index_sz &&
         buffer[pkt->data.frame.sz - index_sz] == marker) {
       // frame is a superframe. strip off the index.
@@ -81,7 +73,6 @@ class SuperframeTest
     return pkt;
   }
 
-  int is_av1_style_superframe_;
   int sf_count_;
   int sf_count_max_;
   aom_codec_cx_pkt_t modified_pkt_;
@@ -115,12 +106,9 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::Combine(
         ::testing::Values(
             static_cast<const libaom_test::CodecFactory *>(&libaom_test::kAV1)),
-        ::testing::Combine(::testing::Values(::libaom_test::kTwoPassGood),
-                           ::testing::Values(CONFIG_MISC_FIXES))));
+        ::testing::Values(::libaom_test::kTwoPassGood)));
 #else
-AV1_INSTANTIATE_TEST_CASE(
-    SuperframeTest,
-    ::testing::Combine(::testing::Values(::libaom_test::kTwoPassGood),
-                       ::testing::Values(CONFIG_MISC_FIXES)));
+AV1_INSTANTIATE_TEST_CASE(SuperframeTest,
+                          ::testing::Values(::libaom_test::kTwoPassGood));
 #endif
 }  // namespace
