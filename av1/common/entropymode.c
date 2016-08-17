@@ -342,12 +342,10 @@ static const aom_prob default_switchable_interp_prob
     };
 #endif  // CONFIG_EXT_INTERP
 
-#if CONFIG_MISC_FIXES
 // FIXME(someone) need real defaults here
 static const struct segmentation_probs default_seg_probs = {
   { 128, 128, 128, 128, 128, 128, 128 }, { 128, 128, 128 },
 };
-#endif
 
 const aom_tree_index av1_ext_tx_tree[TREE_SIZE(TX_TYPES)] = {
   -DCT_DCT, 2, -ADST_ADST, 4, -ADST_DCT, -DCT_ADST
@@ -393,10 +391,8 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_MOTION_VAR
   av1_copy(fc->motion_mode_prob, default_motion_mode_prob);
 #endif  // CONFIG_MOTION_VAR
-#if CONFIG_MISC_FIXES
   av1_copy(fc->seg.tree_probs, default_seg_probs.tree_probs);
   av1_copy(fc->seg.pred_probs, default_seg_probs.pred_probs);
-#endif
   av1_copy(fc->intra_ext_tx_prob, default_intra_ext_tx_prob);
   av1_copy(fc->inter_ext_tx_prob, default_inter_ext_tx_prob);
 #if CONFIG_DAALA_EC
@@ -494,20 +490,6 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
     aom_tree_merge_probs(av1_intra_mode_tree, pre_fc->y_mode_prob[i],
                          counts->y_mode[i], fc->y_mode_prob[i]);
 
-#if !CONFIG_MISC_FIXES
-  for (i = 0; i < INTRA_MODES; ++i)
-    aom_tree_merge_probs(av1_intra_mode_tree, pre_fc->uv_mode_prob[i],
-                         counts->uv_mode[i], fc->uv_mode_prob[i]);
-
-  for (i = 0; i < PARTITION_CONTEXTS; i++) {
-    aom_tree_merge_probs(av1_partition_tree, pre_fc->partition_prob[i],
-                         counts->partition[i], fc->partition_prob[i]);
-#if CONFIG_DAALA_EC
-    av1_tree_to_cdf(av1_partition_tree, fc->partition_prob[i],
-                    fc->partition_cdf[i]);
-#endif
-  }
-#endif
 
   if (cm->interp_filter == SWITCHABLE) {
     for (i = 0; i < SWITCHABLE_FILTER_CONTEXTS; i++)
@@ -574,7 +556,6 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
 #endif
   }
 
-#if CONFIG_MISC_FIXES
   if (cm->seg.temporal_update) {
     for (i = 0; i < PREDICTION_PROBS; i++)
       fc->seg.pred_probs[i] =
@@ -599,7 +580,6 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
                     fc->partition_cdf[i]);
 #endif
   }
-#endif
 }
 
 static void set_default_lf_deltas(struct loopfilter *lf) {

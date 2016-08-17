@@ -705,11 +705,7 @@ static void build_masks(const loop_filter_info_n *const lfi_n,
   uint64_t *const int_4x4_y = &lfm->int_4x4_y;
   uint16_t *const left_uv = &lfm->left_uv[tx_size_uv];
   uint16_t *const above_uv = &lfm->above_uv[tx_size_uv];
-#if CONFIG_MISC_FIXES
   uint16_t *const int_4x4_uv = &lfm->left_int_4x4_uv;
-#else
-  uint16_t *const int_4x4_uv = &lfm->int_4x4_uv;
-#endif
   int i;
 
   // If filter level is 0 we don't loop filter.
@@ -744,11 +740,7 @@ static void build_masks(const loop_filter_info_n *const lfi_n,
 
 // If the block has no coefficients and is not intra we skip applying
 // the loop filter on block edges.
-#if CONFIG_MISC_FIXES
   if ((mbmi->skip || mbmi->has_no_coeffs) && is_inter_block(mbmi)) return;
-#else
-  if (mbmi->skip && is_inter_block(mbmi)) return;
-#endif
 
   // Here we are adding a mask for the transform size. The transform
   // size mask is set to be correct for a 64x64 prediction block size. We
@@ -806,11 +798,7 @@ static void build_y_mask(const loop_filter_info_n *const lfi_n,
   *above_y |= above_prediction_mask[block_size] << shift_y;
   *left_y |= left_prediction_mask[block_size] << shift_y;
 
-#if CONFIG_MISC_FIXES
   if ((mbmi->skip || mbmi->has_no_coeffs) && is_inter_block(mbmi)) return;
-#else
-  if (mbmi->skip && is_inter_block(mbmi)) return;
-#endif
 
   *above_y |= (size_mask[block_size] & above_64x64_txform_mask[tx_size_y])
               << shift_y;
@@ -997,11 +985,7 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
       lfm->above_uv[i] &= mask_uv;
     }
     lfm->int_4x4_y &= mask_y;
-#if CONFIG_MISC_FIXES
     lfm->above_int_4x4_uv = lfm->left_int_4x4_uv & mask_uv;
-#else
-    lfm->int_4x4_uv &= mask_uv;
-#endif
 
     // We don't apply a wide loop filter on the last uv block row. If set
     // apply the shorter one instead.
@@ -1035,11 +1019,7 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
       lfm->above_uv[i] &= mask_uv;
     }
     lfm->int_4x4_y &= mask_y;
-#if CONFIG_MISC_FIXES
     lfm->left_int_4x4_uv &= mask_uv_int;
-#else
-    lfm->int_4x4_uv &= mask_uv_int;
-#endif
 
     // We don't apply a wide loop filter on the last uv column. If set
     // apply the shorter one instead.
@@ -1069,11 +1049,7 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
   assert(!(lfm->left_uv[TX_16X16] & lfm->left_uv[TX_8X8]));
   assert(!(lfm->left_uv[TX_16X16] & lfm->left_uv[TX_4X4]));
   assert(!(lfm->left_uv[TX_8X8] & lfm->left_uv[TX_4X4]));
-#if CONFIG_MISC_FIXES
   assert(!(lfm->left_int_4x4_uv & lfm->left_uv[TX_16X16]));
-#else
-  assert(!(lfm->int_4x4_uv & lfm->left_uv[TX_16X16]));
-#endif
   assert(!(lfm->above_y[TX_16X16] & lfm->above_y[TX_8X8]));
   assert(!(lfm->above_y[TX_16X16] & lfm->above_y[TX_4X4]));
   assert(!(lfm->above_y[TX_8X8] & lfm->above_y[TX_4X4]));
@@ -1081,11 +1057,7 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
   assert(!(lfm->above_uv[TX_16X16] & lfm->above_uv[TX_8X8]));
   assert(!(lfm->above_uv[TX_16X16] & lfm->above_uv[TX_4X4]));
   assert(!(lfm->above_uv[TX_8X8] & lfm->above_uv[TX_4X4]));
-#if CONFIG_MISC_FIXES
   assert(!(lfm->above_int_4x4_uv & lfm->above_uv[TX_16X16]));
-#else
-  assert(!(lfm->int_4x4_uv & lfm->above_uv[TX_16X16]));
-#endif
 }
 
 static void filter_selectively_vert(
@@ -1449,11 +1421,7 @@ void av1_filter_block_plane_ss11_ver(AV1_COMMON *const cm,
   uint16_t mask_16x16 = lfm->left_uv[TX_16X16];
   uint16_t mask_8x8 = lfm->left_uv[TX_8X8];
   uint16_t mask_4x4 = lfm->left_uv[TX_4X4];
-#if CONFIG_MISC_FIXES
   uint16_t mask_4x4_int = lfm->left_int_4x4_uv;
-#else
-  uint16_t mask_4x4_int = lfm->int_4x4_uv;
-#endif
 
   assert(plane->subsampling_x == 1 && plane->subsampling_y == 1);
 
@@ -1512,11 +1480,7 @@ void av1_filter_block_plane_ss11_hor(AV1_COMMON *const cm,
   uint64_t mask_16x16 = lfm->above_uv[TX_16X16];
   uint64_t mask_8x8 = lfm->above_uv[TX_8X8];
   uint64_t mask_4x4 = lfm->above_uv[TX_4X4];
-#if CONFIG_MISC_FIXES
   uint64_t mask_4x4_int = lfm->above_int_4x4_uv;
-#else
-  uint64_t mask_4x4_int = lfm->int_4x4_uv;
-#endif
 
   assert(plane->subsampling_x == 1 && plane->subsampling_y == 1);
 
