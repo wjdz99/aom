@@ -53,6 +53,18 @@
 
 #define MAX_AV1_HEADER_SIZE 80
 
+#if !CONFIG_PVQ
+#include "av1/decoder/detokenize.h"
+#else
+#include "av1/decoder/pvq_decoder.h"
+#include "av1/encoder/encodemb.h"
+
+#include "aom_dsp/entdec.h"
+#include "av1/common/partition.h"
+#include "av1/decoder/decint.h"
+#include "av1/encoder/hybrid_fwd_txfm.h"
+#endif
+
 static int is_compound_reference_allowed(const AV1_COMMON *cm) {
   int i;
   if (frame_is_intra_only(cm)) return 0;
@@ -253,6 +265,7 @@ static void inverse_transform_block_inter(MACROBLOCKD *xd, int plane,
   struct macroblockd_plane *const pd = &xd->plane[plane];
   TX_TYPE tx_type = get_tx_type(pd->plane_type, xd, block);
   const int seg_id = xd->mi[0]->mbmi.segment_id;
+
   if (eob > 0) {
     tran_low_t *const dqcoeff = pd->dqcoeff;
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -317,6 +330,7 @@ static void inverse_transform_block_intra(MACROBLOCKD *xd, int plane,
                                           int stride, int eob) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const int seg_id = xd->mi[0]->mbmi.segment_id;
+
   if (eob > 0) {
     tran_low_t *const dqcoeff = pd->dqcoeff;
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -362,6 +376,7 @@ static void inverse_transform_block_intra(MACROBLOCKD *xd, int plane,
     }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
+#if !CONFIG_PVQ
     if (eob == 1) {
       dqcoeff[0] = 0;
     } else {
@@ -372,8 +387,82 @@ static void inverse_transform_block_intra(MACROBLOCKD *xd, int plane,
       else
         memset(dqcoeff, 0, (16 << (tx_size << 1)) * sizeof(dqcoeff[0]));
     }
+#endif
   }
 }
+
+#if CONFIG_PVQ
+static int pvq_decode_helper(od_dec_ctx *dec, int16_t *ref_coeff,
+                             int16_t *dqcoeff, int16_t *quant, int pli, int bs,
+                             TX_TYPE tx_type, int xdec, int ac_dc_coded) {
+  unsigned int flags;  // used for daala's stream analyzer.
+  int off;
+  const int is_keyframe = 0;
+  const int has_dc_skip = 1;
+  int quant_shift = bs == TX_32X32 ? 1 : 0;
+  int pvq_dc_quant;
+  int lossless = (quant[0] == 0);
+  const int blk_size = 1 << (bs + 2);
+  int eob = 0;
+  int i;
+  // int use_activity_masking = dec->use_activity_masking;
+  int use_activity_masking = 0;
+
+  DECLARE_ALIGNED(16, int16_t, dqcoeff_pvq[64 * 64]);
+  DECLARE_ALIGNED(16, int16_t, ref_coeff_pvq[64 * 64]);
+
+  od_coeff ref_int32[64 * 64];
+  od_coeff out_int32[64 * 64];
+
+  /*Safely initialize d since some coeffs are skipped by PVQ.*/
+  // od_init_skipped_coeffs(dqcoeff, ref_coeff, 0, 0, blk_size, blk_size);
+  od_raster_to_coding_order(ref_coeff_pvq, blk_size, tx_type, ref_coeff,
+                            blk_size);
+
+  if (lossless)
+    pvq_dc_quant = 1;
+  else {
+    // TODO: Enable this later, if pvq_qm_q4 is available in AOM.
+    // pvq_dc_quant = OD_MAXI(1, quant*
+    // dec->state.pvq_qm_q4[pli][od_qm_get_index(bs, 0)] >> 4);
+    pvq_dc_quant = OD_MAXI(1, quant[0] >> quant_shift);
+  }
+
+  off = od_qm_offset(bs, xdec);
+
+  // copy int16 inputs to int32
+  for (i = 0; i < blk_size * blk_size; i++) ref_int32[i] = ref_coeff_pvq[i];
+
+  od_pvq_decode(dec, ref_int32, out_int32, (int)quant[1] >> quant_shift, pli,
+                bs, OD_PVQ_BETA[use_activity_masking][pli][bs],
+                1,  // OD_ROBUST_STREAM
+                is_keyframe, &flags, ac_dc_coded, dec->state.qm + off,
+                dec->state.qm_inv + off);
+
+  // copy int32 result back to int16
+  for (i = 0; i < blk_size * blk_size; i++) dqcoeff_pvq[i] = out_int32[i];
+
+  if (!has_dc_skip || dqcoeff_pvq[0]) {
+    dqcoeff_pvq[0] =
+        has_dc_skip + generic_decode(dec->ec, &dec->state.adapt.model_dc[pli],
+                                     -1, &dec->state.adapt.ex_dc[pli][bs][0], 2,
+                                     "dc:mag");
+    if (dqcoeff_pvq[0])
+      dqcoeff_pvq[0] *= od_ec_dec_bits(dec->ec, 1, "dc:sign") ? -1 : 1;
+  }
+  dqcoeff_pvq[0] = dqcoeff_pvq[0] * pvq_dc_quant + ref_coeff_pvq[0];
+
+  od_coding_order_to_raster(dqcoeff, blk_size, tx_type, dqcoeff_pvq, blk_size);
+
+  // Mark last nonzero coeff position.
+  // for (j = 0; j < blk_size * blk_size; j++)
+  //  if (dqcoeff[j]) eob = j + 1;
+
+  eob = blk_size * blk_size;
+
+  return eob;
+}
+#endif
 
 static void predict_and_reconstruct_intra_block(MACROBLOCKD *const xd,
                                                 aom_reader *r,
@@ -385,6 +474,9 @@ static void predict_and_reconstruct_intra_block(MACROBLOCKD *const xd,
   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
   uint8_t *dst;
   int block_idx = (row << 1) + col;
+#if CONFIG_PVQ
+  (void)r;
+#endif
   dst = &pd->dst.buf[4 * row * pd->dst.stride + 4 * col];
 
   if (mbmi->sb_type < BLOCK_8X8)
@@ -395,12 +487,70 @@ static void predict_and_reconstruct_intra_block(MACROBLOCKD *const xd,
 
   if (!mbmi->skip) {
     TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx);
+#if !CONFIG_PVQ
     const SCAN_ORDER *scan_order = get_scan(tx_size, tx_type);
     const int eob = av1_decode_block_tokens(xd, plane, scan_order, col, row,
                                             tx_size, r, mbmi->segment_id);
+#else
+    // pvq_decode() for intra block runs here.
+    // transform block size in pixels
+    int tx_blk_size = 1 << (tx_size + 2);
+    int i, j;
+    tran_low_t *pvq_ref_coeff = pd->pvq_ref_coeff;
+    const int diff_stride = tx_blk_size;
+    int16_t *pred = pd->pred;
+    tran_low_t *const dqcoeff = pd->dqcoeff;
+    int ac_dc_coded;  // bit0: DC coded, bit1 : AC coded
+
+    // decode ac/dc coded flag. bit0: DC coded, bit1 : AC coded
+    // NOTE : we don't use 5 symbols for luma here in aom codebase,
+    // since block partition is taken care of by aom.
+    // So, only AC/DC skip info is coded
+    ac_dc_coded = od_decode_cdf_adapt(
+        xd->daala_dec.ec,
+        xd->daala_dec.state.adapt.skip_cdf[2 * tx_size + (plane != 0)], 4,
+        xd->daala_dec.state.adapt.skip_increment, "skip");
+
+    if (ac_dc_coded) {
+      int eob = 0;
+      int xdec = pd->subsampling_x;
+      int seg_id = mbmi->segment_id;
+      int16_t *quant;
+      FWD_TXFM_PARAM fwd_txfm_param;
+
+      for (j = 0; j < tx_blk_size; j++)
+        for (i = 0; i < tx_blk_size; i++) {
+          pred[diff_stride * j + i] = dst[pd->dst.stride * j + i];
+        }
+
+      fwd_txfm_param.tx_type = tx_type;
+      fwd_txfm_param.tx_size = tx_size;
+      fwd_txfm_param.fwd_txfm_opt = FWD_TXFM_OPT_NORMAL;
+      fwd_txfm_param.rd_transform = 0;
+      fwd_txfm_param.lossless = xd->lossless[seg_id];
+
+      fwd_txfm(pred, pvq_ref_coeff, diff_stride, &fwd_txfm_param);
+
+      quant = &pd->seg_dequant[seg_id][0];  // aom's quantizer
+
+      eob = pvq_decode_helper(&xd->daala_dec, pvq_ref_coeff, dqcoeff, quant,
+                              plane, tx_size, tx_type, xdec, ac_dc_coded);
+
+      // Since av1 does not have separate inverse transform
+      // but also contains adding to predicted image,
+      // pass blank dummy image to av1_inv_txfm_add_*x*(), i.e. set dst as zeros
+      if (eob > 0) {
+        for (j = 0; j < tx_blk_size; j++)
+          for (i = 0; i < tx_blk_size; i++)
+            dst[j * pd->dst.stride + i] -= dst[j * pd->dst.stride + i];
+#endif
     inverse_transform_block_intra(xd, plane, tx_type, tx_size, dst,
                                   pd->dst.stride, eob);
-  }
+#if CONFIG_PVQ
+      }
+    }
+#endif
+}
 }
 
 static int reconstruct_inter_block(MACROBLOCKD *const xd, aom_reader *r,
@@ -410,14 +560,78 @@ static int reconstruct_inter_block(MACROBLOCKD *const xd, aom_reader *r,
   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
   int block_idx = (row << 1) + col;
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx);
+#if !CONFIG_PVQ
   const SCAN_ORDER *scan_order = get_scan(tx_size, tx_type);
   const int eob = av1_decode_block_tokens(xd, plane, scan_order, col, row,
                                           tx_size, r, mbmi->segment_id);
+#else
+      int ac_dc_coded;
+      int eob = 0;
 
+      (void)r;
+
+      // pvq_decode() for inter block runs here.
+
+      // decode ac/dc skip flag. bit0: 0 : DC skipped, bit1 : 0: AC skipped
+      // NOTE : we don't use 5 symbols for luma here in aom codebase,
+      // since block partition is taken care of by aom.
+      // So, only AC/DC skip info is coded
+      ac_dc_coded = od_decode_cdf_adapt(
+          xd->daala_dec.ec,
+          xd->daala_dec.state.adapt.skip_cdf[2 * tx_size + (plane != 0)], 4,
+          xd->daala_dec.state.adapt.skip_increment, "skip");
+
+      if (ac_dc_coded) {
+        // transform block size in pixels
+        int tx_blk_size = 1 << (tx_size + 2);
+        int i, j;
+        tran_low_t *pvq_ref_coeff = pd->pvq_ref_coeff;
+        const int diff_stride = tx_blk_size;
+        int16_t *pred = pd->pred;
+        uint8_t *dst;
+        tran_low_t *const dqcoeff = pd->dqcoeff;
+        int xdec = pd->subsampling_x;
+        int seg_id = mbmi->segment_id;
+        int16_t *quant;
+        FWD_TXFM_PARAM fwd_txfm_param;
+
+        dst = &pd->dst.buf[4 * row * pd->dst.stride + 4 * col];
+
+        for (j = 0; j < tx_blk_size; j++)
+          for (i = 0; i < tx_blk_size; i++) {
+            pred[diff_stride * j + i] = dst[pd->dst.stride * j + i];
+          }
+
+        fwd_txfm_param.tx_type = tx_type;
+        fwd_txfm_param.tx_size = tx_size;
+        fwd_txfm_param.fwd_txfm_opt = FWD_TXFM_OPT_NORMAL;
+        fwd_txfm_param.rd_transform = 0;
+        fwd_txfm_param.lossless = xd->lossless[seg_id];
+
+        fwd_txfm(pred, pvq_ref_coeff, diff_stride, &fwd_txfm_param);
+
+        quant = &pd->seg_dequant[seg_id][0];  // aom's DC quantizer
+
+        eob = pvq_decode_helper(&xd->daala_dec, pvq_ref_coeff, dqcoeff, quant,
+                                plane, tx_size, tx_type, xdec, ac_dc_coded);
+
+        // Since av1 does not have separate inverse transform
+        // but also contains adding to predicted image,
+        // pass blank dummy image to av1_inv_txfm_add_*x*(), i.e. set dst as
+        // zeros
+        if (eob > 0) {
+          for (j = 0; j < tx_blk_size; j++)
+            for (i = 0; i < tx_blk_size; i++)
+              dst[j * pd->dst.stride + i] -= dst[j * pd->dst.stride + i];
+#endif
   inverse_transform_block_inter(
       xd, plane, tx_size, &pd->dst.buf[4 * row * pd->dst.stride + 4 * col],
       pd->dst.stride, eob, block_idx);
-  return eob;
+#if CONFIG_PVQ
+        }
+      }
+#endif
+return eob;
 }
 
 static INLINE TX_SIZE dec_get_uv_tx_size(const MB_MODE_INFO *mbmi, int n4_wl,
@@ -555,7 +769,7 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #if CONFIG_MISC_FIXES
         mbmi->has_no_coeffs = 1;  // skip loopfilter
 #else
-        mbmi->skip = 1;  // skip loopfilter
+                mbmi->skip = 1;  // skip loopfilter
 #endif
     }
   }
@@ -602,7 +816,7 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
     p = (PARTITION_TYPE)aom_read_symbol(r, cm->fc->partition_cdf[ctx],
                                         PARTITION_TYPES);
 #else
-    p = (PARTITION_TYPE)aom_read_tree(r, av1_partition_tree, probs);
+            p = (PARTITION_TYPE)aom_read_tree(r, av1_partition_tree, probs);
 #endif
   else if (!has_rows && has_cols)
     p = aom_read(r, probs[1]) ? PARTITION_SPLIT : PARTITION_HORZ;
@@ -634,6 +848,11 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   partition =
       read_partition(cm, xd, mi_row, mi_col, r, has_rows, has_cols, n8x8_l2);
   subsize = subsize_lookup[partition][bsize];  // get_subsize(bsize, partition);
+
+#if CONFIG_PVQ
+  assert(partition < PARTITION_TYPES);
+  assert(subsize < BLOCK_SIZES);
+#endif
   if (!hbs) {
     // calculate bmode block dimensions (log 2)
     xd->bmode_blocks_wl = 1 >> !!(partition & PARTITION_VERT);
@@ -702,6 +921,7 @@ static void setup_token_decoder(const uint8_t *data, const uint8_t *data_end,
                        "Failed to allocate bool decoder %d", 1);
 }
 
+#if !CONFIG_PVQ
 static void read_coef_probs_common(av1_coeff_probs_model *coef_probs,
                                    aom_reader *r) {
   int i, j, k, l, m;
@@ -724,6 +944,7 @@ static void read_coef_probs(FRAME_CONTEXT *fc, TX_MODE tx_mode, aom_reader *r) {
   av1_coef_pareto_cdfs(fc);
 #endif  // CONFIG_RANS
 }
+#endif
 
 static void setup_segmentation(AV1_COMMON *const cm,
                                struct aom_read_bit_buffer *rb) {
@@ -1133,7 +1354,7 @@ static void setup_tile_info(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
     cm->tile_sz_mag = aom_rb_read_literal(rb, 2);
   }
 #else
-  cm->tile_sz_mag = 3;
+          cm->tile_sz_mag = 3;
 #endif
 }
 
@@ -1210,6 +1431,27 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
   }
 }
 
+#if CONFIG_PVQ
+static void daala_dec_init(daala_dec_ctx *daala_dec, od_ec_dec *ec) {
+  daala_dec->ec = ec;
+  od_adapt_ctx_reset(&daala_dec->state.adapt, 0);
+
+  daala_dec->state.qm =
+      aom_calloc(OD_QM_BUFFER_SIZE, sizeof(daala_dec->state.qm[0]));
+  daala_dec->state.qm_inv =
+      aom_calloc(OD_QM_BUFFER_SIZE, sizeof(daala_dec->state.qm_inv[0]));
+  daala_dec->qm = OD_FLAT_QM;
+
+  od_init_qm(daala_dec->state.qm, daala_dec->state.qm_inv,
+             daala_dec->qm == OD_HVS_QM ? OD_QM8_Q4_HVS : OD_QM8_Q4_FLAT);
+}
+
+static void daala_dec_free(daala_dec_ctx *daala_dec) {
+  aom_free(daala_dec->state.qm);
+  aom_free(daala_dec->state.qm_inv);
+}
+#endif
+
 static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
                                    const uint8_t *data_end) {
   AV1_COMMON *const cm = &pbi->common;
@@ -1275,11 +1517,21 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
               ? &cm->counts
               : NULL;
       av1_zero(tile_data->dqcoeff);
+#if CONFIG_PVQ
+      av1_zero(tile_data->pvq_ref_coeff);
+#endif
       av1_tile_init(&tile_data->xd.tile, tile_data->cm, tile_row, tile_col);
       setup_token_decoder(buf->data, data_end, buf->size, &cm->error,
                           &tile_data->bit_reader, pbi->decrypt_cb,
                           pbi->decrypt_state);
+#if !CONFIG_PVQ
       av1_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff);
+#else
+              av1_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff,
+                                   tile_data->pvq_ref_coeff);
+              daala_dec_init(&tile_data->xd.daala_dec,
+                             &tile_data->bit_reader.ec);
+#endif
       tile_data->xd.plane[0].color_index_map = tile_data->color_index_map[0];
       tile_data->xd.plane[1].color_index_map = tile_data->color_index_map[1];
     }
@@ -1347,12 +1599,22 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
   // Get last tile data.
   tile_data = pbi->tile_data + tile_cols * tile_rows - 1;
 
+#if CONFIG_PVQ
+  // Deallocate tile-local data
+  for (tile_row = 0; tile_row < tile_rows; ++tile_row) {
+    for (tile_col = 0; tile_col < tile_cols; ++tile_col) {
+      tile_data = pbi->tile_data + tile_cols * tile_row + tile_col;
+      daala_dec_free(&tile_data->xd.daala_dec);
+    }
+  }
+#endif
+
   if (cm->frame_parallel_decode)
     av1_frameworker_broadcast(pbi->cur_buf, INT_MAX);
 #if CONFIG_ANS
   return data_end;
 #else
-  return aom_reader_find_end(&tile_data->bit_reader);
+          return aom_reader_find_end(&tile_data->bit_reader);
 #endif
 }
 
@@ -1505,7 +1767,14 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
       setup_token_decoder(buf->data, data_end, buf->size, &cm->error,
                           &tile_data->bit_reader, pbi->decrypt_cb,
                           pbi->decrypt_state);
+#if !CONFIG_PVQ
       av1_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff);
+#else
+              av1_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff,
+                                   tile_data->pvq_ref_coeff);
+              daala_dec_init(&tile_data->xd.daala_dec,
+                             &tile_data->bit_reader.ec);
+#endif
       tile_data->xd.plane[0].color_index_map = tile_data->color_index_map[0];
       tile_data->xd.plane[1].color_index_map = tile_data->color_index_map[1];
 
@@ -1530,6 +1799,13 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
       // in cm. Additionally once the threads have been synced and an error is
       // detected, there's no point in continuing to decode tiles.
       pbi->mb.corrupted |= !winterface->sync(worker);
+
+#if CONFIG_PVQ
+      {
+        TileWorkerData *tile_data = (TileWorkerData *)worker->data1;
+        daala_dec_free(&tile_data->xd.daala_dec);
+      }
+#endif
     }
     if (final_worker > -1) {
       TileWorkerData *const tile_data =
@@ -1628,9 +1904,9 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
     aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                        "Unsupported bitstream profile");
 #else
-  if (cm->profile >= PROFILE_2)
-    aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                       "Unsupported bitstream profile");
+          if (cm->profile >= PROFILE_2)
+            aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                               "Unsupported bitstream profile");
 #endif
 
   cm->show_existing_frame = aom_rb_read_bit(rb);
@@ -1700,11 +1976,11 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
     unlock_buffer_pool(pool);
     pbi->hold_ref_buf = 1;
 #else
-    pbi->refresh_frame_flags = 0;
-    if (cm->frame_parallel_decode) {
-      for (i = 0; i < REF_FRAMES; ++i)
-        cm->next_ref_frame_map[i] = cm->ref_frame_map[i];
-    }
+            pbi->refresh_frame_flags = 0;
+            if (cm->frame_parallel_decode) {
+              for (i = 0; i < REF_FRAMES; ++i)
+                cm->next_ref_frame_map[i] = cm->ref_frame_map[i];
+            }
 #endif  // CONFIG_EXT_REFS
     return 0;
   }
@@ -1752,13 +2028,14 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
                                         : RESET_FRAME_CONTEXT_CURRENT;
       }
 #else
-      static const RESET_FRAME_CONTEXT_MODE reset_frame_context_conv_tbl[4] = {
-        RESET_FRAME_CONTEXT_NONE, RESET_FRAME_CONTEXT_NONE,
-        RESET_FRAME_CONTEXT_CURRENT, RESET_FRAME_CONTEXT_ALL
-      };
+              static const RESET_FRAME_CONTEXT_MODE
+                  reset_frame_context_conv_tbl[4] = {
+                    RESET_FRAME_CONTEXT_NONE, RESET_FRAME_CONTEXT_NONE,
+                    RESET_FRAME_CONTEXT_CURRENT, RESET_FRAME_CONTEXT_ALL
+                  };
 
-      cm->reset_frame_context =
-          reset_frame_context_conv_tbl[aom_rb_read_literal(rb, 2)];
+              cm->reset_frame_context =
+                  reset_frame_context_conv_tbl[aom_rb_read_literal(rb, 2)];
 #endif
     }
 
@@ -1769,21 +2046,24 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #if CONFIG_MISC_FIXES
       read_bitdepth_colorspace_sampling(cm, rb);
 #else
-      if (cm->profile > PROFILE_0) {
-        read_bitdepth_colorspace_sampling(cm, rb);
-      } else {
-        // NOTE: The intra-only frame header does not include the specification
-        // of either the color format or color sub-sampling in profile 0. AV1
-        // specifies that the default color format should be YUV 4:2:0 in this
-        // case (normative).
-        cm->color_space = AOM_CS_BT_601;
-        cm->color_range = 0;
-        cm->subsampling_y = cm->subsampling_x = 1;
-        cm->bit_depth = AOM_BITS_8;
+              if (cm->profile > PROFILE_0) {
+                read_bitdepth_colorspace_sampling(cm, rb);
+              } else {
+                // NOTE: The intra-only frame header does not include the
+                // specification
+                // of either the color format or color sub-sampling in profile
+                // 0. AV1
+                // specifies that the default color format should be YUV 4:2:0
+                // in this
+                // case (normative).
+                cm->color_space = AOM_CS_BT_601;
+                cm->color_range = 0;
+                cm->subsampling_y = cm->subsampling_x = 1;
+                cm->bit_depth = AOM_BITS_8;
 #if CONFIG_AOM_HIGHBITDEPTH
-        cm->use_highbitdepth = 0;
+                cm->use_highbitdepth = 0;
 #endif
-      }
+              }
 #endif
 
       pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
@@ -1825,9 +2105,9 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
             ref_buf->buf->y_crop_height, cm->width, cm->height,
             cm->use_highbitdepth);
 #else
-        av1_setup_scale_factors_for_frame(
-            &ref_buf->sf, ref_buf->buf->y_crop_width,
-            ref_buf->buf->y_crop_height, cm->width, cm->height);
+                av1_setup_scale_factors_for_frame(
+                    &ref_buf->sf, ref_buf->buf->y_crop_width,
+                    ref_buf->buf->y_crop_height, cm->width, cm->height);
 #endif
       }
     }
@@ -1978,7 +2258,9 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
   cm->tx_mode = xd->lossless[0] ? ONLY_4X4 : read_tx_mode(&r);
 #endif
   if (cm->tx_mode == TX_MODE_SELECT) read_tx_mode_probs(&fc->tx_probs, &r);
+#if !CONFIG_PVQ
   read_coef_probs(fc, cm->tx_mode, &r);
+#endif
 
   for (k = 0; k < SKIP_CONTEXTS; ++k)
     av1_diff_update_prob(&r, &fc->skip_probs[k]);
@@ -2060,7 +2342,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     for (i = 0; i < NMV_CONTEXTS; ++i)
       read_mv_probs(&fc->nmvc[i], cm->allow_high_precision_mv, &r);
 #else
-    read_mv_probs(nmvc, cm->allow_high_precision_mv, &r);
+            read_mv_probs(nmvc, cm->allow_high_precision_mv, &r);
 #endif
     read_ext_tx_probs(fc, &r);
   }
@@ -2071,60 +2353,66 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 #ifdef NDEBUG
 #define debug_check_frame_counts(cm) (void)0
 #else  // !NDEBUG
-// Counts should only be incremented when frame_parallel_decoding_mode and
-// error_resilient_mode are disabled.
-static void debug_check_frame_counts(const AV1_COMMON *const cm) {
-  FRAME_COUNTS zero_counts;
-  av1_zero(zero_counts);
-  assert(cm->refresh_frame_context != REFRESH_FRAME_CONTEXT_BACKWARD ||
-         cm->error_resilient_mode);
-  assert(!memcmp(cm->counts.y_mode, zero_counts.y_mode,
-                 sizeof(cm->counts.y_mode)));
-  assert(!memcmp(cm->counts.uv_mode, zero_counts.uv_mode,
-                 sizeof(cm->counts.uv_mode)));
-  assert(!memcmp(cm->counts.partition, zero_counts.partition,
-                 sizeof(cm->counts.partition)));
-  assert(!memcmp(cm->counts.coef, zero_counts.coef, sizeof(cm->counts.coef)));
-  assert(!memcmp(cm->counts.eob_branch, zero_counts.eob_branch,
-                 sizeof(cm->counts.eob_branch)));
-  assert(!memcmp(cm->counts.switchable_interp, zero_counts.switchable_interp,
-                 sizeof(cm->counts.switchable_interp)));
-  assert(!memcmp(cm->counts.inter_mode, zero_counts.inter_mode,
-                 sizeof(cm->counts.inter_mode)));
+        // Counts should only be incremented when frame_parallel_decoding_mode
+        // and
+        // error_resilient_mode are disabled.
+        static void debug_check_frame_counts(const AV1_COMMON *const cm) {
+          FRAME_COUNTS zero_counts;
+          av1_zero(zero_counts);
+          assert(cm->refresh_frame_context != REFRESH_FRAME_CONTEXT_BACKWARD ||
+                 cm->error_resilient_mode);
+          assert(!memcmp(cm->counts.y_mode, zero_counts.y_mode,
+                         sizeof(cm->counts.y_mode)));
+          assert(!memcmp(cm->counts.uv_mode, zero_counts.uv_mode,
+                         sizeof(cm->counts.uv_mode)));
+          assert(!memcmp(cm->counts.partition, zero_counts.partition,
+                         sizeof(cm->counts.partition)));
+          assert(!memcmp(cm->counts.coef, zero_counts.coef,
+                         sizeof(cm->counts.coef)));
+          assert(!memcmp(cm->counts.eob_branch, zero_counts.eob_branch,
+                         sizeof(cm->counts.eob_branch)));
+          assert(!memcmp(cm->counts.switchable_interp,
+                         zero_counts.switchable_interp,
+                         sizeof(cm->counts.switchable_interp)));
+          assert(!memcmp(cm->counts.inter_mode, zero_counts.inter_mode,
+                         sizeof(cm->counts.inter_mode)));
 #if CONFIG_MOTION_VAR
-  assert(!memcmp(cm->counts.motion_mode, zero_counts.motion_mode,
-                 sizeof(cm->counts.motion_mode)));
+          assert(!memcmp(cm->counts.motion_mode, zero_counts.motion_mode,
+                         sizeof(cm->counts.motion_mode)));
 #endif  // CONFIG_MOTION_VAR
-  assert(!memcmp(cm->counts.intra_inter, zero_counts.intra_inter,
-                 sizeof(cm->counts.intra_inter)));
-  assert(!memcmp(cm->counts.comp_inter, zero_counts.comp_inter,
-                 sizeof(cm->counts.comp_inter)));
-  assert(!memcmp(cm->counts.single_ref, zero_counts.single_ref,
-                 sizeof(cm->counts.single_ref)));
+          assert(!memcmp(cm->counts.intra_inter, zero_counts.intra_inter,
+                         sizeof(cm->counts.intra_inter)));
+          assert(!memcmp(cm->counts.comp_inter, zero_counts.comp_inter,
+                         sizeof(cm->counts.comp_inter)));
+          assert(!memcmp(cm->counts.single_ref, zero_counts.single_ref,
+                         sizeof(cm->counts.single_ref)));
 #if CONFIG_EXT_REFS
-  assert(!memcmp(cm->counts.comp_fwdref, zero_counts.comp_fwdref,
-                 sizeof(cm->counts.comp_fwdref)));
-  assert(!memcmp(cm->counts.comp_bwdref, zero_counts.comp_bwdref,
-                 sizeof(cm->counts.comp_bwdref)));
+          assert(!memcmp(cm->counts.comp_fwdref, zero_counts.comp_fwdref,
+                         sizeof(cm->counts.comp_fwdref)));
+          assert(!memcmp(cm->counts.comp_bwdref, zero_counts.comp_bwdref,
+                         sizeof(cm->counts.comp_bwdref)));
 #else
-  assert(!memcmp(cm->counts.comp_ref, zero_counts.comp_ref,
-                 sizeof(cm->counts.comp_ref)));
+          assert(!memcmp(cm->counts.comp_ref, zero_counts.comp_ref,
+                         sizeof(cm->counts.comp_ref)));
 #endif  // CONFIG_EXT_REFS
-  assert(!memcmp(&cm->counts.tx, &zero_counts.tx, sizeof(cm->counts.tx)));
-  assert(!memcmp(cm->counts.skip, zero_counts.skip, sizeof(cm->counts.skip)));
+          assert(
+              !memcmp(&cm->counts.tx, &zero_counts.tx, sizeof(cm->counts.tx)));
+          assert(!memcmp(cm->counts.skip, zero_counts.skip,
+                         sizeof(cm->counts.skip)));
 #if CONFIG_REF_MV
-  assert(
-      !memcmp(&cm->counts.mv[0], &zero_counts.mv[0], sizeof(cm->counts.mv[0])));
-  assert(
-      !memcmp(&cm->counts.mv[1], &zero_counts.mv[1], sizeof(cm->counts.mv[0])));
+          assert(!memcmp(&cm->counts.mv[0], &zero_counts.mv[0],
+                         sizeof(cm->counts.mv[0])));
+          assert(!memcmp(&cm->counts.mv[1], &zero_counts.mv[1],
+                         sizeof(cm->counts.mv[0])));
 #else
-  assert(!memcmp(&cm->counts.mv, &zero_counts.mv, sizeof(cm->counts.mv)));
+          assert(
+              !memcmp(&cm->counts.mv, &zero_counts.mv, sizeof(cm->counts.mv)));
 #endif
-  assert(!memcmp(cm->counts.intra_ext_tx, zero_counts.intra_ext_tx,
-                 sizeof(cm->counts.intra_ext_tx)));
-  assert(!memcmp(cm->counts.inter_ext_tx, zero_counts.inter_ext_tx,
-                 sizeof(cm->counts.inter_ext_tx)));
-}
+          assert(!memcmp(cm->counts.intra_ext_tx, zero_counts.intra_ext_tx,
+                         sizeof(cm->counts.intra_ext_tx)));
+          assert(!memcmp(cm->counts.inter_ext_tx, zero_counts.inter_ext_tx,
+                         sizeof(cm->counts.inter_ext_tx)));
+        }
 #endif  // NDEBUG
 
 static struct aom_read_bit_buffer *init_read_bit_buffer(
