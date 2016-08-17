@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b0ea77b_b78d502c",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1668,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-08-17T01:18:34Z",
+      "side": 1,
+      "message": "Can od_encode_rollback be moved into restore_context, and od_encode_checkpoint be moved into save_context? They seem to be called in the exactly same places.",
+      "revId": "3008e13d84508fb3bd7e0b2b1459283e97faef21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b0ea77b_37c84055",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2773,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-08-17T01:18:34Z",
+      "side": 1,
+      "message": "Can all this be moved to av1_init_plane_quantizers? It would catch changes in rdmult from AQ modes that way and much of this info would probably be available",
+      "revId": "3008e13d84508fb3bd7e0b2b1459283e97faef21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b0ea77b_57d7bcf6",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-08-17T01:18:34Z",
+      "side": 1,
+      "message": "this should be removed.",
+      "revId": "3008e13d84508fb3bd7e0b2b1459283e97faef21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b0ea77b_37f16099",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-08-17T01:18:34Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "3008e13d84508fb3bd7e0b2b1459283e97faef21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b0ea77b_77ebd8a4",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 970,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-08-17T01:18:34Z",
+      "side": 1,
+      "message": "Could this just be a memset?",
+      "revId": "3008e13d84508fb3bd7e0b2b1459283e97faef21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
