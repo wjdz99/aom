@@ -20,6 +20,7 @@
 #include "aom/aomdx.h"
 #include "aom/aom_integer.h"
 #include "aom_dsp/prob.h"
+#include "av1/common/accounting.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,6 +46,9 @@ struct aom_dk_reader {
   aom_decrypt_cb decrypt_cb;
   void *decrypt_state;
   uint8_t clear_buffer[sizeof(BD_VALUE) + 1];
+#if CONFIG_ACCOUNTING
+  AOMAccounting *accounting;
+#endif
 };
 
 int aom_dk_reader_init(struct aom_dk_reader *r, const uint8_t *buffer,
@@ -60,6 +64,24 @@ static INLINE ptrdiff_t aom_dk_reader_tell(const struct aom_dk_reader *r) {
   const int count =
       (r->count < LOTS_OF_BITS) ? r->count : r->count - LOTS_OF_BITS;
   return bits_read + BD_VALUE_SIZE - (count + CHAR_BIT);
+}
+
+static INLINE ptrdiff_t aom_dk_reader_tell_frac(const struct aom_dk_reader *r) {
+  uint32_t num_bits;
+  uint32_t range;
+  int l;
+  int i;
+  num_bits = aom_dk_reader_tell(r) << AOM_ACCT_BITRES;
+  range = r->range;
+  l = 0;
+  for (i = AOM_ACCT_BITRES; i-- > 0;) {
+    int b;
+    range = range * range >> 7;
+    b = (int)(range >> 8);
+    l = l << 1 | b;
+    range >>= b;
+  }
+  return num_bits - l;
 }
 
 static INLINE int aom_dk_reader_has_error(struct aom_dk_reader *r) {

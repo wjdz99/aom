@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.*/
 #endif
 
 #include "aom_dsp/entcode.h"
+#include "av1/common/accounting.h"
 
 /*CDFs for uniform probability distributions of small sizes (2 through 16,
    inclusive).*/
@@ -47,12 +48,12 @@ const uint16_t OD_UNIFORM_CDFS_Q15[135] = {
 };
 
 /*Given the current total integer number of bits used and the current value of
-   rng, computes the fraction number of bits used to OD_BITRES precision.
+   rng, computes the fraction number of bits used to AOM_ACCT_BITRES precision.
   This is used by od_ec_enc_tell_frac() and od_ec_dec_tell_frac().
   nbits_total: The number of whole bits currently used, i.e., the value
                 returned by od_ec_enc_tell() or od_ec_dec_tell().
   rng: The current value of rng from either the encoder or decoder state.
-  Return: The number of bits scaled by 2**OD_BITRES.
+  Return: The number of bits scaled by 2**AOM_ACCT_BITRES.
           This will always be slightly larger than the exact value (e.g., all
            rounding error is in the positive direction).*/
 uint32_t od_ec_tell_frac(uint32_t nbits_total, uint32_t rng) {
@@ -71,9 +72,9 @@ uint32_t od_ec_tell_frac(uint32_t nbits_total, uint32_t rng) {
      probability of 1/(1 << n) might sometimes appear to use more than n bits.
     This may help explain the surprising result that a newly initialized
      encoder or decoder claims to have used 1 bit.*/
-  nbits = nbits_total << OD_BITRES;
+  nbits = nbits_total << AOM_ACCT_BITRES;
   l = 0;
-  for (i = OD_BITRES; i-- > 0;) {
+  for (i = AOM_ACCT_BITRES; i-- > 0;) {
     int b;
     rng = rng * rng >> 15;
     b = (int)(rng >> 16);
