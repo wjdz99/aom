@@ -20,6 +20,7 @@ AV1_COMMON_SRCS-yes += common/entropymode.c
 AV1_COMMON_SRCS-yes += common/entropymv.c
 AV1_COMMON_SRCS-yes += common/frame_buffers.c
 AV1_COMMON_SRCS-yes += common/frame_buffers.h
+AV1_COMMON_SRCS-yes += common/accounting.h
 AV1_COMMON_SRCS-yes += common/alloccommon.h
 AV1_COMMON_SRCS-yes += common/blockd.h
 AV1_COMMON_SRCS-yes += common/common.h
@@ -81,6 +82,9 @@ AV1_COMMON_SRCS-yes += common/od_dering.c
 AV1_COMMON_SRCS-yes += common/od_dering.h
 AV1_COMMON_SRCS-yes += common/dering.c
 AV1_COMMON_SRCS-yes += common/dering.h
+endif
+ifeq ($(CONFIG_ACCOUNTING),yes)
+AV1_COMMON_SRCS-yes += common/accounting.c
 endif
 AV1_COMMON_SRCS-yes += common/odintrin.c
 AV1_COMMON_SRCS-yes += common/odintrin.h

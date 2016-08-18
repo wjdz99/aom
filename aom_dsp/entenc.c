@@ -659,7 +659,7 @@ int od_ec_enc_tell(const od_ec_enc *enc) {
   Warning: The value returned by this function can decrease compared to an
    earlier call, even after encoding more data, if there is an encoding error
    (i.e., a failure to allocate enough space for the output buffer).
-  Return: The number of bits scaled by 2**OD_BITRES.
+  Return: The number of bits scaled by 2**AOM_ACCT_BITRES.
           This will always be slightly larger than the exact value (e.g., all
            rounding error is in the positive direction).*/
 uint32_t od_ec_enc_tell_frac(const od_ec_enc *enc) {
