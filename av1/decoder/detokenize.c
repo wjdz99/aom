@@ -40,7 +40,8 @@
 
 static INLINE int read_coeff(const aom_prob *probs, int n, aom_reader *r) {
   int i, val = 0;
-  for (i = 0; i < n; ++i) val = (val << 1) | aom_read(r, probs[i]);
+  for (i = 0; i < n; ++i)
+    val = (val << 1) | aom_read(r, probs[i], AOM_ACCT_STR);
   return val;
 }
 
@@ -130,12 +131,12 @@ static int decode_coefs(const MACROBLOCKD *xd, PLANE_TYPE type,
     band = *band_translate++;
     prob = coef_probs[band][ctx];
     if (counts) ++eob_branch_count[band][ctx];
-    if (!aom_read(r, prob[EOB_CONTEXT_NODE])) {
+    if (!aom_read(r, prob[EOB_CONTEXT_NODE], AOM_ACCT_STR)) {
       INCREMENT_COUNT(EOB_MODEL_TOKEN);
       break;
     }
 
-    while (!aom_read(r, prob[ZERO_CONTEXT_NODE])) {
+    while (!aom_read(r, prob[ZERO_CONTEXT_NODE], AOM_ACCT_STR)) {
       INCREMENT_COUNT(ZERO_TOKEN);
       dqv = dq[1];
       token_cache[scan[c]] = 0;
@@ -149,7 +150,8 @@ static int decode_coefs(const MACROBLOCKD *xd, PLANE_TYPE type,
 #if CONFIG_RANS
     cdf = &coef_cdfs[band][ctx];
     token =
-        ONE_TOKEN + aom_read_symbol(r, *cdf, CATEGORY6_TOKEN - ONE_TOKEN + 1);
+        ONE_TOKEN +
+        aom_read_symbol(r, *cdf, CATEGORY6_TOKEN - ONE_TOKEN + 1, AOM_ACCT_STR);
     INCREMENT_COUNT(ONE_TOKEN + (token > ONE_TOKEN));
     switch (token) {
       case ONE_TOKEN:
@@ -198,14 +200,15 @@ static int decode_coefs(const MACROBLOCKD *xd, PLANE_TYPE type,
       }
     }
 #else  // CONFIG_RANS
-    if (!aom_read(r, prob[ONE_CONTEXT_NODE])) {
+    if (!aom_read(r, prob[ONE_CONTEXT_NODE], AOM_ACCT_STR)) {
       INCREMENT_COUNT(ONE_TOKEN);
       token = ONE_TOKEN;
       val = 1;
     } else {
       INCREMENT_COUNT(TWO_TOKEN);
-      token = aom_read_tree(r, av1_coef_con_tree,
-                            av1_pareto8_full[prob[PIVOT_NODE] - 1]);
+      token =
+          aom_read_tree(r, av1_coef_con_tree,
+                        av1_pareto8_full[prob[PIVOT_NODE] - 1], AOM_ACCT_STR);
       switch (token) {
         case TWO_TOKEN:
         case THREE_TOKEN:
@@ -260,12 +263,13 @@ static int decode_coefs(const MACROBLOCKD *xd, PLANE_TYPE type,
     v = (val * dqv) >> dq_shift;
 #if CONFIG_COEFFICIENT_RANGE_CHECKING
 #if CONFIG_AOM_HIGHBITDEPTH
-    dqcoeff[scan[c]] = highbd_check_range((aom_read_bit(r) ? -v : v), xd->bd);
+    dqcoeff[scan[c]] =
+        highbd_check_range((aom_read_bit(r, AOM_ACCT_STR) ? -v : v), xd->bd);
 #else
-    dqcoeff[scan[c]] = check_range(aom_read_bit(r) ? -v : v);
+    dqcoeff[scan[c]] = check_range(aom_read_bit(r, AOM_ACCT_STR) ? -v : v);
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 #else
-    dqcoeff[scan[c]] = aom_read_bit(r) ? -v : v;
+    dqcoeff[scan[c]] = aom_read_bit(r, AOM_ACCT_STR) ? -v : v;
 #endif  // CONFIG_COEFFICIENT_RANGE_CHECKING
     token_cache[scan[c]] = av1_pt_energy_class[token];
     ++c;

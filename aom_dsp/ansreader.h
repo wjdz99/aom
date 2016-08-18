@@ -20,6 +20,7 @@
 #include "aom_dsp/prob.h"
 #include "aom_dsp/ans.h"
 #include "aom_ports/mem_ops.h"
+#include "av1/common/accounting.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,9 +28,21 @@ extern "C" {
 
 struct AnsDecoder {
   const uint8_t *buf;
+  int buf_start_offset;
   int buf_offset;
   uint32_t state;
+#if CONFIG_ACCOUNTING
+  AOMAccounting *accounting;
+#endif
 };
+
+static INLINE int uabs_tell(const struct AnsDecoder *ans) {
+  return ans->buf_start_offset - ans->buf_offset;
+}
+
+static INLINE int uabs_tell_frac(const struct AnsDecoder *ans) {
+  return uabs_tell(ans) << AOM_ACCT_BITRES;
+}
 
 static INLINE int uabs_read(struct AnsDecoder *ans, AnsP8 p0) {
   AnsP8 p = ANS_P8_PRECISION - p0;
@@ -98,6 +111,10 @@ static INLINE int ans_read_init(struct AnsDecoder *const ans,
   unsigned x;
   if (offset < 1) return 1;
   ans->buf = buf;
+  ans->buf_start_offset = offset;
+#if CONFIG_ACCOUNTING
+  ans->accounting = NULL;
+#endif
   x = buf[offset - 1] >> 6;
   if (x == 0) {
     ans->buf_offset = offset - 1;
