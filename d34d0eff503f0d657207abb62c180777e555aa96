@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "db249f97_8bda51e7",
+        "filename": "test/avg_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-08-19T01:46:22Z",
+      "side": 1,
+      "message": "\u003e The alternate would be to send \u0027source_stride_\u0027 argument for the\n \u003e \u0027pitch\u0027 parameter.\n \u003e But wouldn\u0027t it be odd to send a class member variable as an\n \u003e argument to the class member function?\n\nThey\u0027re both a bit weird, yes. If you were to just pass the parameters though the function could become static which might make it a bit more understandable. The same goes for removing all parameters and operating on class members.",
+      "parentUuid": "db2e5f26_f47f71ba",
+      "revId": "d34d0eff503f0d657207abb62c180777e555aa96",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db2e5f26_fe9bd5c1",
         "filename": "test/lpf_8_test.cc",
         "patchSetId": 8
