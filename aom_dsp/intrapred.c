@@ -799,27 +799,27 @@ static INLINE void highbd_dc_predictor(uint16_t *dst, ptrdiff_t stride, int bs,
               intra_pred_highbd_sized(type, 32)
 
 #else
-#define intra_pred_allsizes(type)                     \
-  intra_pred_sized(type, 4) intra_pred_sized(type, 8) \
-      intra_pred_sized(type, 16) intra_pred_sized(type, 32)
+#define intra_pred_allsizes(type)                                       \
+  intra_pred_sized(type, 2) intra_pred_sized(type, 4) intra_pred_sized( \
+      type, 8) intra_pred_sized(type, 16) intra_pred_sized(type, 32)
 
-#define intra_pred_no_4x4(type)                        \
+#define intra_pred_above_4x4(type)                     \
   intra_pred_sized(type, 8) intra_pred_sized(type, 16) \
       intra_pred_sized(type, 32)
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
 /* clang-format off */
-intra_pred_no_4x4(d207)
-intra_pred_no_4x4(d63)
-intra_pred_no_4x4(d45)
+intra_pred_above_4x4(d207)
+intra_pred_above_4x4(d63)
+intra_pred_above_4x4(d45)
 #if CONFIG_MISC_FIXES
 intra_pred_allsizes(d207e)
 intra_pred_allsizes(d63e)
-intra_pred_no_4x4(d45e)
+intra_pred_above_4x4(d45e)
 #endif
-intra_pred_no_4x4(d117)
-intra_pred_no_4x4(d135)
-intra_pred_no_4x4(d153)
+intra_pred_above_4x4(d117)
+intra_pred_above_4x4(d135)
+intra_pred_above_4x4(d153)
 intra_pred_allsizes(v)
 intra_pred_allsizes(h)
 intra_pred_allsizes(tm)
