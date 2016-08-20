@@ -76,7 +76,6 @@
                                        // mv. Choose a very high value for
                                        // now so that HIGH_PRECISION is always
                                        // chosen.
-// #define OUTPUT_YUV_REC
 
 #ifdef OUTPUT_YUV_DENOISED
 FILE *yuv_denoised_file = NULL;
@@ -369,6 +368,20 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   aom_free(cpi->mbmi_ext_base);
   cpi->mbmi_ext_base = NULL;
 
+#if CONFIG_PVQ
+  if (cpi->oxcf.pass != 1) {
+    const int tile_cols = 1 << cm->log2_tile_cols;
+    const int tile_rows = 1 << cm->log2_tile_rows;
+    int tile_col, tile_row;
+
+    for (tile_row = 0; tile_row < tile_rows; ++tile_row)
+      for (tile_col = 0; tile_col < tile_cols; ++tile_col) {
+        TileDataEnc *tile_data =
+            &cpi->tile_data[tile_row * tile_cols + tile_col];
+        aom_free(tile_data->pvq_q.buf);
+      }
+  }
+#endif
   aom_free(cpi->tile_data);
   cpi->tile_data = NULL;
 
@@ -783,7 +796,11 @@ static void update_frame_size(AV1_COMP *cpi) {
 
   av1_set_mb_mi(cm, cm->width, cm->height);
   av1_init_context_buffers(cm);
+#if !CONFIG_PVQ
   av1_init_macroblockd(cm, xd, NULL);
+#else
+  av1_init_macroblockd(cm, xd, NULL, NULL);
+#endif
   memset(cpi->mbmi_ext_base, 0,
          cm->mi_rows * cm->mi_cols * sizeof(*cpi->mbmi_ext_base));
 
@@ -1505,14 +1522,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   av1_reset_segment_features(cm);
   av1_set_high_precision_mv(cpi, 0);
 
-  {
-    int i;
-
-    for (i = 0; i < MAX_SEGMENTS; i++)
-      cpi->segment_encode_breakout[i] = cpi->oxcf.encode_breakout;
-  }
-  cpi->encode_breakout = cpi->oxcf.encode_breakout;
-
   set_rc_buffer_sizes(rc, &cpi->oxcf);
 
   // Under a configuration change, where maximum_buffer_size may change,
@@ -1789,8 +1798,6 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   framepsnr = fopen("framepsnr.stt", "a");
   kf_list = fopen("kf_list.stt", "w");
 #endif
-
-  cpi->allow_encode_breakout = ENCODE_BREAKOUT_ENABLED;
 
   if (oxcf->pass == 1) {
     av1_init_first_pass(cpi);
@@ -3951,6 +3958,10 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   if (cm->is_reference_frame)
 #endif  // CONFIG_EXT_REFS
     cm->prev_frame = cm->cur_frame;
+
+#ifdef OUTPUT_YUV_REC
+  av1_write_yuv_rec_frame(cm);
+#endif
 }
 
 static void Pass0Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
@@ -3965,7 +3976,6 @@ static void Pass0Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
 static void Pass2Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
                         unsigned int *frame_flags) {
-  cpi->allow_encode_breakout = ENCODE_BREAKOUT_ENABLED;
   encode_frame_to_data_rate(cpi, size, dest, frame_flags);
 
 #if CONFIG_EXT_REFS
