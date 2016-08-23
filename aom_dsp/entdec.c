@@ -419,30 +419,6 @@ int od_ec_decode_cdf_q15(od_ec_dec *dec, const uint16_t *cdf, int nsyms) {
   return od_ec_decode_cdf_unscaled_dyadic(dec, cdf, nsyms, 15);
 }
 
-/*Extracts a raw unsigned integer with a non-power-of-2 range from the stream.
-  The integer must have been encoded with od_ec_enc_uint().
-  ft: The number of integers that can be decoded (one more than the max).
-      This must be at least 2, and no more than 2**29.
-  Return: The decoded bits.*/
-uint32_t od_ec_dec_uint_(od_ec_dec *dec, uint32_t ft) {
-  OD_ASSERT(ft >= 2);
-  OD_ASSERT(ft <= (uint32_t)1 << (25 + OD_EC_UINT_BITS));
-  if (ft > 1U << OD_EC_UINT_BITS) {
-    uint32_t t;
-    int ft1;
-    int ftb;
-    ft--;
-    ftb = OD_ILOG_NZ(ft) - OD_EC_UINT_BITS;
-    ft1 = (int)(ft >> ftb) + 1;
-    t = od_ec_decode_cdf_q15(dec, OD_UNIFORM_CDF_Q15(ft1), ft1);
-    t = t << ftb | od_ec_dec_bits(dec, ftb);
-    if (t <= ft) return t;
-    dec->error = 1;
-    return ft;
-  }
-  return od_ec_decode_cdf_q15(dec, OD_UNIFORM_CDF_Q15(ft), (int)ft);
-}
-
 /*Extracts a sequence of raw bits from the stream.
   The bits must have been encoded with od_ec_enc_bits().
   ftb: The number of bits to extract.
