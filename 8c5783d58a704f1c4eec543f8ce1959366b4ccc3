@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a8af9fab_5e8af115",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 6
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-24T12:52:45Z",
+      "side": 1,
+      "message": "The 0 just indicate the 0,0 position of the block.  x and y are used within the function for the position within the block.\n\nFully populated with const we get:\n\nconst uint8_t *const src, uint8_t *const dst, const int sstride, const int dstride, const int x0, const int y0, const const int sizex, const int sizey, const int width, const int height, const unsigned int strength\n\n(none of the arguments are modified within the function)\n\nbut the added consts are irrelevant for the caller.  That would be a coding style that I find distracting, and for the most part the rest of the codebase doesn\u0027t follow that style either.  In my opinion pointer to const data is the only mandatory use for const.\n\nThe argument names aren\u0027t very verbose, since this function is not to be called from outside the CLPF code.",
+      "parentUuid": "a8dddf5f_da59596b",
+      "revId": "8c5783d58a704f1c4eec543f8ce1959366b4ccc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8dddf5f_fa3bf5ed",
         "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2016-08-23T21:14:30Z",
       "side": 1,
       "message": "detect_clpf or clpf_detect? Existing style seems to prefer general_specialization\n\nSame comments about const and names. What is so?",
+      "revId": "8c5783d58a704f1c4eec543f8ce1959366b4ccc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a8af9fab_3bb5f7db",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 6
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-24T12:52:45Z",
+      "side": 1,
+      "message": "so is the stride for org.\n\nMost functions are exact copies from the Thor codec, so apart from the aom_ prefix, names are the same.  I have no specific preference for order in the naming.",
+      "parentUuid": "a8dddf5f_fa3bf5ed",
       "revId": "8c5783d58a704f1c4eec543f8ce1959366b4ccc3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "88c2db6f_5d9b0f0f",
+        "filename": "av1/av1_common.mk",
+        "patchSetId": 6
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-24T12:52:45Z",
+      "side": 1,
+      "message": "No, clpf_simd.c gets included from clpf_sse2.c, clpf_ssse3.c, etc.  This is the trick to get functions written once instantiated for each architecture.",
+      "parentUuid": "a8dddf5f_1af92118",
+      "revId": "8c5783d58a704f1c4eec543f8ce1959366b4ccc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8dddf5f_fa089532",
         "filename": "av1/av1_cx.mk",
         "patchSetId": 6
@@ -104,6 +158,24 @@
     },
     {
       "key": {
+        "uuid": "a8c87f99_d3ea7404",
+        "filename": "av1/common/clpf_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-24T12:52:45Z",
+      "side": 1,
+      "message": "I prefer including a .c file rather than having it as a .h file, since it\u0027s effectively a .c file, the only thing special about it is that it gets instantiated several times.",
+      "parentUuid": "a8dddf5f_1a3b61ca",
+      "revId": "8c5783d58a704f1c4eec543f8ce1959366b4ccc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8dddf5f_da86f97a",
         "filename": "av1/common/clpf_simd.c",
         "patchSetId": 6
@@ -115,6 +187,24 @@
       "writtenOn": "2016-08-23T21:14:30Z",
       "side": 1,
       "message": "Is there a guarantee 32 bit alignment of src?",
+      "revId": "8c5783d58a704f1c4eec543f8ce1959366b4ccc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e8a997a7_9d388381",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-24T12:52:45Z",
+      "side": 1,
+      "message": "I was wondering about the same thing.  The memory was allocated with aom_malloc().  Does it guarantee aligned memory.  If not, does the code provide something that does, or do I have to provide that myself.",
+      "parentUuid": "a8dddf5f_da86f97a",
       "revId": "8c5783d58a704f1c4eec543f8ce1959366b4ccc3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
