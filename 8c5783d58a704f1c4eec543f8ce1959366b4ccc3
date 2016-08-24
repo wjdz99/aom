@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "88e1fb42_28ffafff",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 6
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-24T20:03:47Z",
+      "side": 1,
+      "message": "Apologies. I\u0027m not familiar with the AOM process in gereral or with this function in particular. In trying to understand it so that I can understand the optimizations, the names are difficult to follow. Even the switch between src/dst and rec/org doesn\u0027t really make sense to me. In one case it was using sstride for src_stride, but below (for the same sort of value) it uses \u0027so\u0027 for stride_org?\n\nI was overzealous with the \u0027const\u0027 request. Indeed it\u0027s only required for pointers.",
+      "parentUuid": "a8af9fab_5e8af115",
+      "revId": "8c5783d58a704f1c4eec543f8ce1959366b4ccc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8dddf5f_fa3bf5ed",
         "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
         "patchSetId": 6
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "so is the stride for org.\n\nMost functions are exact copies from the Thor codec, so apart from the aom_ prefix, names are the same.  I have no specific preference for order in the naming.",
       "parentUuid": "a8dddf5f_fa3bf5ed",
+      "revId": "8c5783d58a704f1c4eec543f8ce1959366b4ccc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "88e1fb42_e86947c7",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 6
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-24T20:03:47Z",
+      "side": 1,
+      "message": "Consistency would be good.",
+      "parentUuid": "a8af9fab_3bb5f7db",
       "revId": "8c5783d58a704f1c4eec543f8ce1959366b4ccc3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -205,6 +241,24 @@
       "side": 1,
       "message": "I was wondering about the same thing.  The memory was allocated with aom_malloc().  Does it guarantee aligned memory.  If not, does the code provide something that does, or do I have to provide that myself.",
       "parentUuid": "a8dddf5f_da86f97a",
+      "revId": "8c5783d58a704f1c4eec543f8ce1959366b4ccc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "88e1fb42_6bc891c2",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-24T20:03:47Z",
+      "side": 1,
+      "message": "aom_malloc requests alignment of 32. See the definition in aom_mem/aom_mem.c - DEFAULT_ALIGNMENT is declared in aom_mem/include/aom_mem_internal.h\n\nMy question was whether the function can be called on block edges, for lack of a better term, where src is perhaps straddling an edge (2 on each side) giving a potential alignment of only 16.",
+      "parentUuid": "e8a997a7_9d388381",
       "revId": "8c5783d58a704f1c4eec543f8ce1959366b4ccc3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
