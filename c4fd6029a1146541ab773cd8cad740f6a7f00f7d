@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88e1fb42_0bbbc586",
+        "filename": "aom_dsp/aom_simd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-24T19:36:27Z",
+      "side": 1,
+      "message": "the library provides INLINE (#include aom_config.h) - is that sufficient for this? It doesn\u0027t add always_inline, but we\u0027ve found it\u0027s best to give the hint but let the compiler decide the last bit.\n\nIn what case is SIMD_INLINE already defined?\n\nThis should move to third_party/ at which point I\u0027m not concerned about this, but if it\u0027s under the main tree it should use the existing options.",
+      "revId": "c4fd6029a1146541ab773cd8cad740f6a7f00f7d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "88e1fb42_28a5eff6",
+        "filename": "aom_dsp/simd/v64_intrinsics_c.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-24T19:36:27Z",
+      "side": 1,
+      "message": "Need to #include \"vpx_config.h\" for CONFIG_* values\n\nAlso need to include the simd header in all of these for SIMD_INLINE",
+      "revId": "c4fd6029a1146541ab773cd8cad740f6a7f00f7d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
