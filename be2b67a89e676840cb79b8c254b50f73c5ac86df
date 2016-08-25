@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "c5775ebf_b4c4203f",
+        "filename": "av1/av1_common.mk",
+        "patchSetId": 9
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T16:13:46Z",
+      "side": 1,
+      "message": "There have been many discussions about changing the build system in libvpx. What exists \"works\" for the multitude of platforms it supports. libaom may diverge and start it\u0027s own thing, I have no insight there. In either case, having a .c file that is not compiled on its own seems like a tricky thing.",
+      "parentUuid": "a59b4a32_9b390b3a",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48b54343_b682f0ae",
         "filename": "av1/common/clpf.c",
         "patchSetId": 9
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "I disagree, because the absolute position is needed to test against the borders.",
       "parentUuid": "48b54343_b682f0ae",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5775ebf_74f8c878",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T16:13:46Z",
+      "side": 1,
+      "message": "Having the low level function need to know about the borders seems like part of the problem to me. It introduces calculations at the point where you really don\u0027t want them.",
+      "parentUuid": "858566ca_a2393e39",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -107,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "c5775ebf_f415b89a",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T16:13:46Z",
+      "side": 1,
+      "message": "Well the filter isn\u0027t being applied across boundaries - it\u0027s just using reference values across them.\n\nIn practice at least A and F are effectively discarded at their respective borders - given X at 1,0:\n\nA \u003d max(0, y-1) \u003d 0  * stride\nso A \u003d X\nA-X \u003d 0\n*4 \u003d 0\nclamped (-s, s) \u003d 0\n\nB, C, D, and E are partially discarded\ngiven X at (2, 0)\nB \u003d C \u003d X and all values are discarded\nat (1, 0)\nB \u003d C\nclamp(C - X, -b, b) + 3 * clamp(C - X, -b, b)\nthat gets weird since it just does a *4 but preserves the sign",
+      "parentUuid": "858566ca_c236c248",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88e1fb42_2b668923",
         "filename": "av1/common/clpf_neon.c",
         "patchSetId": 9
@@ -142,6 +196,24 @@
     },
     {
       "key": {
+        "uuid": "c5775ebf_b40f4089",
+        "filename": "av1/common/clpf_neon.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T16:13:46Z",
+      "side": 1,
+      "message": "Sure, but you don\u0027t necessarily want people cluttering up the tree and build times with extraneous files. sse4 and neon?",
+      "parentUuid": "255bda40_e79e42fe",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48b54343_f6df5863",
         "filename": "av1/common/clpf_simd.c",
         "patchSetId": 9
@@ -171,6 +243,24 @@
       "side": 1,
       "message": "I\u0027m taking advantage of the nature of two-complement arithmetics and intentionally shifting the range from 0-255 to -128-127, so that I can use signed saturated subtraction later and avoid having to expand to 16 bit.",
       "parentUuid": "48b54343_f6df5863",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5775ebf_946b241a",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T16:13:46Z",
+      "side": 1,
+      "message": "Is there any distinction to the simd framework between signed and unsigned values? I feel like you\u0027re relying on undefined overflow behavior here.",
+      "parentUuid": "e59542fc_bdcabf17",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -248,6 +338,24 @@
     },
     {
       "key": {
+        "uuid": "c5775ebf_14515468",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T16:13:46Z",
+      "side": 1,
+      "message": "The framework also had a 32 bit aligned load. Why not use that instead of casting to uint32?",
+      "parentUuid": "858566ca_025fca7a",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48b54343_b612f00c",
         "filename": "av1/common/clpf_simd.c",
         "patchSetId": 9
@@ -312,6 +420,24 @@
       "side": 1,
       "message": "I don\u0027t see what you mean here.",
       "parentUuid": "48b54343_995a7f85",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5775ebf_b4418097",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T16:13:46Z",
+      "side": 1,
+      "message": "min(abd(A, F), s) * 4 is equivalent because whether A-F is positive or negative, * 4 makes it positive. Then you only need to compare it to s, not -s",
+      "parentUuid": "0554160d_a6e606aa",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
