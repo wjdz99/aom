@@ -32,6 +32,8 @@ static void alloc_mode_context(AV1_COMMON *cm, int num_4x4_blk,
                     aom_memalign(32, num_pix * sizeof(*ctx->dqcoeff[i])));
     CHECK_MEM_ERROR(cm, ctx->eobs[i],
                     aom_memalign(32, num_blk * sizeof(*ctx->eobs[i])));
+    CHECK_MEM_ERROR(cm, ctx->recon_pix[i],
+                    aom_memalign(32, num_pix * sizeof(*ctx->recon_pix[i])));
   }
 }
 
@@ -46,6 +48,8 @@ static void free_mode_context(PICK_MODE_CONTEXT *ctx) {
     ctx->dqcoeff[i] = 0;
     aom_free(ctx->eobs[i]);
     ctx->eobs[i] = 0;
+    aom_free(ctx->recon_pix[i]);
+    ctx->recon_pix[i] = 0;
   }
 }
 

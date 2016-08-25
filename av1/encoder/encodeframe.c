@@ -1450,6 +1450,51 @@ static void save_context(MACROBLOCK *const x, int mi_row, int mi_col,
          sizeof(xd->left_seg_context[0]) * mi_height);
 }
 
+void save_results(MACROBLOCK *const x, BLOCK_SIZE bsize,
+                  PICK_MODE_CONTEXT *const ctx) {
+  int i, r;
+  MACROBLOCKD *const xd = &x->e_mbd;
+
+  for (i = 0; i < MAX_MB_PLANE; i++) {
+    const struct macroblockd_plane *pd = &xd->plane[i];
+    const BLOCK_SIZE bs = get_plane_block_size(bsize, pd);
+    const int width = 4 * num_4x4_blocks_wide_lookup[bs];
+    const int height = 4 * num_4x4_blocks_high_lookup[bs];
+    const uint8_t *src = pd->dst.buf;
+    uint8_t *dst = ctx->recon_pix[i];
+
+    for (r = 0; r < height; r++) {
+      memcpy(dst, src, width);
+      dst += width;
+      src += pd->dst.stride;
+    }
+  }
+
+  // The skip flag is set by reencoding, so save it here
+  ctx->mic.mbmi.skip = xd->mi[0]->mbmi.skip;
+}
+
+void restore_results(MACROBLOCK *const x, BLOCK_SIZE bsize,
+                     PICK_MODE_CONTEXT *const ctx) {
+  int i, r;
+  MACROBLOCKD *const xd = &x->e_mbd;
+
+  for (i = 0; i < MAX_MB_PLANE; i++) {
+    const struct macroblockd_plane *pd = &xd->plane[i];
+    const BLOCK_SIZE bs = get_plane_block_size(bsize, pd);
+    const int width = 4 * num_4x4_blocks_wide_lookup[bs];
+    const int height = 4 * num_4x4_blocks_high_lookup[bs];
+    const uint8_t *src = ctx->recon_pix[i];
+    uint8_t *dst = pd->dst.buf;
+
+    for (r = 0; r < height; r++) {
+      memcpy(dst, src, width);
+      src += width;
+      dst += pd->dst.stride;
+    }
+  }
+}
+
 static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
                      ThreadData *td, TOKENEXTRA **tp, int mi_row, int mi_col,
                      int output_enabled, BLOCK_SIZE bsize,
@@ -2531,15 +2576,25 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     const int idx_str = cm->mi_stride * mi_row + mi_col;
     MODE_INFO **mi = cm->mi_grid_visible + idx_str;
 
-    if (sf->adaptive_pred_interp_filter) {
-      for (i = 0; i < 64; ++i) td->leaf_tree[i].pred_interp_filter = SWITCHABLE;
+    for (i = 0; i < 64; ++i) {
+      if (sf->adaptive_pred_interp_filter)
+        td->leaf_tree[i].pred_interp_filter = SWITCHABLE;
 
-      for (i = 0; i < 64; ++i) {
+      td->leaf_tree[i].reencoded = 0;
+    }
+
+    for (i = 0; i < 64 + 16 + 4 + 1; ++i) {
+      if (sf->adaptive_pred_interp_filter) {
         td->pc_tree[i].vertical[0].pred_interp_filter = SWITCHABLE;
         td->pc_tree[i].vertical[1].pred_interp_filter = SWITCHABLE;
         td->pc_tree[i].horizontal[0].pred_interp_filter = SWITCHABLE;
         td->pc_tree[i].horizontal[1].pred_interp_filter = SWITCHABLE;
       }
+      td->pc_tree[i].none.reencoded = 0;
+      td->pc_tree[i].vertical[0].reencoded = 0;
+      td->pc_tree[i].vertical[1].reencoded = 0;
+      td->pc_tree[i].horizontal[0].reencoded = 0;
+      td->pc_tree[i].horizontal[1].reencoded = 0;
     }
 
     av1_zero(x->pred_mv);
@@ -2992,38 +3047,48 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
 
   x->use_lp32x32fdct = cpi->sf.use_lp32x32fdct;
 
-  if (!is_inter_block(mbmi)) {
-    int plane;
-    mbmi->skip = 1;
-    for (plane = 0; plane < MAX_MB_PLANE; ++plane)
-      av1_encode_intra_block_plane(x, AOMMAX(bsize, BLOCK_8X8), plane);
+  if (!ctx->reencoded) {
+    if (!is_inter_block(mbmi)) {
+      int plane;
+      mbmi->skip = 1;
+      for (plane = 0; plane < MAX_MB_PLANE; ++plane)
+        av1_encode_intra_block_plane(x, AOMMAX(bsize, BLOCK_8X8), plane);
+    } else {
+      int ref;
+      const int is_compound = has_second_ref(mbmi);
+      set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+      for (ref = 0; ref < 1 + is_compound; ++ref) {
+        YV12_BUFFER_CONFIG *cfg =
+            get_ref_frame_buffer(cpi, mbmi->ref_frame[ref]);
+        assert(cfg != NULL);
+        av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
+                             &xd->block_refs[ref]->sf);
+      }
+      if (!(cpi->sf.reuse_inter_pred_sby && ctx->pred_pixel_ready) || seg_skip)
+        av1_build_inter_predictors_sby(xd, mi_row, mi_col,
+                                       AOMMAX(bsize, BLOCK_8X8));
 
-    av1_tokenize_sb(cpi, td, t, !output_enabled, AOMMAX(bsize, BLOCK_8X8));
-  } else {
-    int ref;
-    const int is_compound = has_second_ref(mbmi);
-    set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
-    for (ref = 0; ref < 1 + is_compound; ++ref) {
-      YV12_BUFFER_CONFIG *cfg = get_ref_frame_buffer(cpi, mbmi->ref_frame[ref]);
-      assert(cfg != NULL);
-      av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
-                           &xd->block_refs[ref]->sf);
-    }
-    if (!(cpi->sf.reuse_inter_pred_sby && ctx->pred_pixel_ready) || seg_skip)
-      av1_build_inter_predictors_sby(xd, mi_row, mi_col,
-                                     AOMMAX(bsize, BLOCK_8X8));
-
-    av1_build_inter_predictors_sbuv(xd, mi_row, mi_col,
-                                    AOMMAX(bsize, BLOCK_8X8));
+      av1_build_inter_predictors_sbuv(xd, mi_row, mi_col,
+                                      AOMMAX(bsize, BLOCK_8X8));
 
 #if CONFIG_MOTION_VAR
-    if (mbmi->motion_mode == OBMC_CAUSAL)
-      av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
+      if (mbmi->motion_mode == OBMC_CAUSAL)
+        av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
 #endif  // CONFIG_MOTION_VAR
 
-    av1_encode_sb(x, AOMMAX(bsize, BLOCK_8X8));
-    av1_tokenize_sb(cpi, td, t, !output_enabled, AOMMAX(bsize, BLOCK_8X8));
+      av1_encode_sb(x, AOMMAX(bsize, BLOCK_8X8));
+    }
+
+    save_results(x, AOMMAX(bsize, BLOCK_8X8), ctx);
+
+    if (cpi->oxcf.aq_mode != COMPLEXITY_AQ &&
+        cpi->oxcf.aq_mode != CYCLIC_REFRESH_AQ)
+      ctx->reencoded = 1;
+  } else {
+    restore_results(x, AOMMAX(bsize, BLOCK_8X8), ctx);
   }
+
+  av1_tokenize_sb(cpi, td, t, !output_enabled, AOMMAX(bsize, BLOCK_8X8));
 
   if (output_enabled) {
     update_stats(cpi, td, ctx, mi_row, mi_col, bsize);
