@@ -19,6 +19,40 @@
     },
     {
       "key": {
+        "uuid": "48b54343_b682f0ae",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T00:06:03Z",
+      "side": 1,
+      "message": "It appears x0 and y0 are the starting coordinates of the filter. These should be added to src when calling the function:\nclpf_block(rec-\u003ey_buffer + xpos + stride_y * ypos, ...)\n\nThis reduces the number of arguments and simplifies the calculations inside clpf_block(), which makes it easier to implement and test.",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48b54343_16c2dc03",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T00:06:03Z",
+      "side": 1,
+      "message": "Looking at your design document:\n\"If an input pixel is outside the frame border, the nearest pixel inside the frame is used.\"\n\nThe frame should have a border to allow over-reading. Is that not an option in this case? It would make a massive improvement to the number of arguments and the number of branches inside the function.",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88e1fb42_2b668923",
         "filename": "av1/common/clpf_neon.c",
         "patchSetId": 9
@@ -36,6 +70,23 @@
     },
     {
       "key": {
+        "uuid": "48b54343_f6df5863",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T00:06:03Z",
+      "side": 1,
+      "message": "This appears to load an 8 bit value, and add 128. What happens if the value is already over 128? Should it expand to 16 to prevent overflow?",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88e1fb42_eb6661bc",
         "filename": "av1/common/clpf_simd.c",
         "patchSetId": 9
@@ -47,6 +98,75 @@
       "writtenOn": "2016-08-24T20:03:47Z",
       "side": 1,
       "message": "I\u0027m not familiar with this usage of !! and having difficulty understanding this. What are the possible values of x0?\n\nCasting to uint32_t here seems more problematic than above because you are subtracting 2 (or 0, I think?).\n\nSee this issue in clang:\nhttps://bugs.chromium.org/p/webm/issues/detail?id\u003d892\nhttps://llvm.org/bugs/show_bug.cgi?id\u003d24421",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48b54343_f66118a7",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T00:06:03Z",
+      "side": 1,
+      "message": "Suppose x0 \u003d 1 (please assert() somewhere if this is not possible). This would load invalid data.\n\nSuppose x0 \u003d 0. This will load incorrect data for all X except the column next to the edge. The \u0027B\u0027 value for 1,[0-3] will be \u0027X\u0027 where it should be \u0027C\u0027",
+      "parentUuid": "88e1fb42_eb6661bc",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48b54343_b612f00c",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T00:06:03Z",
+      "side": 1,
+      "message": "Ah, does this duplicate the first 2 values and shuffle the rest to the right?",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48b54343_995a7f85",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T00:06:03Z",
+      "side": 1,
+      "message": "Since A and F are both:\nclip(A-F, -s, s) * 4 (and therefore positive), you can do absolute difference and just max (skip min) ... except the simd framework only appears to do so for 16 bits?",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48b54343_56474479",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-25T00:06:03Z",
+      "side": 1,
+      "message": "What are the possible sizex/sizey values? They should be assert()\u0027d. Ideally in the C version.\n\nDoes it matter than chroma is 4x4 or 4x8 and luma is 8x8? Would be more useful to indicate the size of the block being filtered in the comment than whether it is chroma or luma.",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
