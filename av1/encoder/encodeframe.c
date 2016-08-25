@@ -220,7 +220,7 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
 
   // Setup segment ID.
   if (seg->enabled) {
-    if (cpi->oxcf.aq_mode != VARIANCE_AQ) {
+    if (!cpi->oxcf.aq_mode) {
       const uint8_t *const map =
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
       mbmi->segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
@@ -878,8 +878,7 @@ static int choose_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
 }
 
 static void update_state(const AV1_COMP *const cpi, ThreadData *td,
-                         PICK_MODE_CONTEXT *ctx, int mi_row, int mi_col,
-                         BLOCK_SIZE bsize) {
+                         PICK_MODE_CONTEXT *ctx, BLOCK_SIZE bsize) {
   int i, x_idx, y;
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
@@ -889,7 +888,6 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
   MODE_INFO *mi = &ctx->mic;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   MODE_INFO *mi_addr = xd->mi[0];
-  const struct segmentation *const seg = &cm->seg;
 
   const int mis = cm->mi_stride;
   const int mi_width = num_8x8_blocks_wide_lookup[bsize];
@@ -921,22 +919,6 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
   }
 #endif
 
-  // If segmentation in use
-  if (seg->enabled) {
-    // For in frame complexity AQ copy the segment id from the segment map.
-    if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
-      const uint8_t *const map =
-          seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
-      mi_addr->mbmi.segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
-    }
-    // Else for cyclic refresh mode update the segment map, set the segment id
-    // and then update the quantizer.
-    if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ) {
-      av1_cyclic_refresh_update_segment(cpi, &xd->mi[0]->mbmi, mi_row, mi_col,
-                                        bsize, ctx->rate, ctx->dist, x->skip);
-    }
-  }
-
   for (i = 0; i < MAX_MB_PLANE; ++i) {
     p[i].coeff = ctx->coeff[i];
     p[i].qcoeff = ctx->qcoeff[i];
@@ -952,8 +934,6 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
           (xd->mb_to_bottom_edge >> (3 + MI_SIZE_LOG2)) + mi_height > y) {
         xd->mi[x_idx + y * mis] = mi_addr;
       }
-
-  if (cpi->oxcf.aq_mode) av1_init_plane_quantizers(cpi, x);
 
   if (is_inter_block(mbmi) && mbmi->sb_type < BLOCK_8X8) {
     mbmi->mv[0].as_int = mi->bmi[3].as_mv[0].as_int;
@@ -1052,10 +1032,16 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     }
     x->rdmult = set_segment_rdmult(cpi, x, mbmi->segment_id);
   } else if (aq_mode == COMPLEXITY_AQ) {
+    const uint8_t *const map =
+        cm->seg.update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
+    mbmi->segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
+
     x->rdmult = set_segment_rdmult(cpi, x, mbmi->segment_id);
   } else if (aq_mode == CYCLIC_REFRESH_AQ) {
     const uint8_t *const map =
         cm->seg.update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
+    mbmi->segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
+
     // If segment is boosted, use rdmult for that segment.
     if (cyclic_refresh_segment_id_boosted(
             get_segment_id(cm, map, bsize, mi_row, mi_col)))
@@ -1472,6 +1458,8 @@ void save_results(MACROBLOCK *const x, BLOCK_SIZE bsize,
 
   // The skip flag is set by reencoding, so save it here
   ctx->mic.mbmi.skip = xd->mi[0]->mbmi.skip;
+  // AQ modes 2 and 3 change the segment id before reencoding
+  ctx->mic.mbmi.segment_id = xd->mi[0]->mbmi.segment_id;
 }
 
 void restore_results(MACROBLOCK *const x, BLOCK_SIZE bsize,
@@ -1501,7 +1489,7 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
                      PICK_MODE_CONTEXT *ctx) {
   MACROBLOCK *const x = &td->mb;
   set_offsets(cpi, tile, x, mi_row, mi_col, bsize);
-  update_state(cpi, td, ctx, mi_row, mi_col, bsize);
+  update_state(cpi, td, ctx, bsize);
   encode_superblock(cpi, td, tp, output_enabled, mi_row, mi_col, bsize, ctx);
 }
 
@@ -1744,7 +1732,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
         RD_COST tmp_rdc;
         PICK_MODE_CONTEXT *ctx_h = &pc_tree->horizontal[0];
         av1_rd_cost_init(&tmp_rdc);
-        update_state(cpi, td, ctx_h, mi_row, mi_col, subsize);
+        update_state(cpi, td, ctx_h, subsize);
         encode_superblock(cpi, td, tp, 0, mi_row, mi_col, subsize, ctx_h);
         rd_pick_sb_modes(cpi, tile_data, x, mi_row + (mi_step >> 1), mi_col,
                          &tmp_rdc, subsize, &pc_tree->horizontal[1], INT64_MAX);
@@ -1765,7 +1753,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
         RD_COST tmp_rdc;
         PICK_MODE_CONTEXT *ctx_v = &pc_tree->vertical[0];
         av1_rd_cost_init(&tmp_rdc);
-        update_state(cpi, td, ctx_v, mi_row, mi_col, subsize);
+        update_state(cpi, td, ctx_v, subsize);
         encode_superblock(cpi, td, tp, 0, mi_row, mi_col, subsize, ctx_v);
         rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col + (mi_step >> 1),
                          &tmp_rdc, subsize,
@@ -2446,7 +2434,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     if (sum_rdc.rdcost < best_rdc.rdcost && !force_horz_split &&
         bsize > BLOCK_8X8) {
       PICK_MODE_CONTEXT *ctx_h = &pc_tree->horizontal[0];
-      update_state(cpi, td, ctx_h, mi_row, mi_col, subsize);
+      update_state(cpi, td, ctx_h, subsize);
       encode_superblock(cpi, td, tp, 0, mi_row, mi_col, subsize, ctx_h);
 
       if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_h);
@@ -2492,7 +2480,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                      &pc_tree->vertical[0], best_rdc.rdcost);
     if (sum_rdc.rdcost < best_rdc.rdcost && !force_vert_split &&
         bsize > BLOCK_8X8) {
-      update_state(cpi, td, &pc_tree->vertical[0], mi_row, mi_col, subsize);
+      update_state(cpi, td, &pc_tree->vertical[0], subsize);
       encode_superblock(cpi, td, tp, 0, mi_row, mi_col, subsize,
                         &pc_tree->vertical[0]);
 
@@ -3039,6 +3027,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
   const int bh = num_8x8_blocks_high_lookup[mi->mbmi.sb_type];
   const int x_mis = AOMMIN(bw, cm->mi_cols - mi_col);
   const int y_mis = AOMMIN(bh, cm->mi_rows - mi_row);
+  const struct segmentation *const seg = &cm->seg;
   const int seg_skip =
       segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
   int w, h;
@@ -3048,6 +3037,24 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
   x->use_lp32x32fdct = cpi->sf.use_lp32x32fdct;
 
   if (!ctx->reencoded) {
+    // If segmentation in use
+    if (seg->enabled) {
+      // For in frame complexity AQ copy the segment id from the segment map.
+      if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
+        const uint8_t *const map =
+            seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
+        mbmi->segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
+      }
+      // Else for cyclic refresh mode update the segment map, set the segment id
+      // and then update the quantizer.
+      if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ) {
+        av1_cyclic_refresh_update_segment(cpi, mbmi, mi_row, mi_col, bsize,
+                                          ctx->rate, ctx->dist, x->skip);
+      }
+    }
+
+    if (cpi->oxcf.aq_mode) av1_init_plane_quantizers(cpi, x);
+
     if (!is_inter_block(mbmi)) {
       int plane;
       mbmi->skip = 1;
@@ -3080,10 +3087,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     }
 
     save_results(x, AOMMAX(bsize, BLOCK_8X8), ctx);
-
-    if (cpi->oxcf.aq_mode != COMPLEXITY_AQ &&
-        cpi->oxcf.aq_mode != CYCLIC_REFRESH_AQ)
-      ctx->reencoded = 1;
+    ctx->reencoded = 1;
   } else {
     restore_results(x, AOMMAX(bsize, BLOCK_8X8), ctx);
   }
