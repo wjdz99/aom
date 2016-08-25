@@ -89,7 +89,7 @@ TEST(AV1, TestBitIO) {
           } else if (bit_method == 3) {
             bit = bit_rnd(2);
           }
-          GTEST_ASSERT_EQ(aom_read(&br, probas[i]), bit)
+          GTEST_ASSERT_EQ(aom_read(&br, probas[i], NULL), bit)
               << "pos: " << i << " / " << kBitsToTest
               << " bit_method: " << bit_method << " method: " << method;
         }
@@ -122,7 +122,7 @@ TEST(AV1, TestTell) {
     for (int i = 0; i < kSymbols; i++) {
       ptrdiff_t tell = aom_reader_tell(&br);
       ptrdiff_t tell_frac = aom_reader_tell_frac(&br);
-      aom_read(&br, p);
+      aom_read(&br, p, NULL);
       GTEST_ASSERT_GE(tell, last_tell) << "tell: " << tell
                                        << ", last_tell: " << last_tell;
       GTEST_ASSERT_GE(tell_frac, last_tell_frac)
