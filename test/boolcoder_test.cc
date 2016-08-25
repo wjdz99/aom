@@ -97,3 +97,50 @@ TEST(AV1, TestBitIO) {
     }
   }
 }
+
+#if !CONFIG_ANS
+TEST(AV1, TestTell) {
+  const int kBufferSize = 10000;
+  aom_writer bw;
+  uint8_t bw_buffer[kBufferSize];
+  const int kSymbols = 1024;
+  // Coders are noisier at low probabilities, so we start at p = 128.
+  for (int p = 128; p <= 256; p++) {
+    double probability = p / 256.;
+    aom_start_encode(&bw, bw_buffer);
+    for (int i = 0; i < kSymbols; i++) {
+      aom_write(&bw, 0, p);
+    }
+    aom_stop_encode(&bw);
+    aom_reader br;
+    aom_reader_init(&br, bw_buffer, kBufferSize, NULL, NULL);
+    ptrdiff_t last_tell = 0;
+    ptrdiff_t last_tell_frac = 0;
+    double frac_diff_total = 0;
+    GTEST_ASSERT_GE(aom_reader_tell(&br), 0);
+    GTEST_ASSERT_LE(aom_reader_tell(&br), 1);
+    for (int i = 0; i < kSymbols; i++) {
+      ptrdiff_t tell = aom_reader_tell(&br);
+      ptrdiff_t tell_frac = aom_reader_tell_frac(&br);
+      aom_read(&br, p);
+      GTEST_ASSERT_GE(tell, last_tell) << "tell: " << tell
+                                       << ", last_tell: " << last_tell;
+      GTEST_ASSERT_GE(tell_frac, last_tell_frac)
+          << "tell_frac: " << tell_frac
+          << ", last_tell_frac: " << last_tell_frac;
+      // Frac tell should round up to tell.
+      GTEST_ASSERT_EQ(tell, (tell_frac + 7) >> 3);
+      last_tell = tell;
+      frac_diff_total +=
+          fabs(((tell_frac - last_tell_frac) / 8.0) + log2(probability));
+      last_tell_frac = tell_frac;
+    }
+    const int expected = -kSymbols * log2(probability);
+    // Last tell should be close to the expected value.
+    GTEST_ASSERT_LE(last_tell - expected, 20) << " last_tell: " << last_tell;
+    // The average frac_diif error should be pretty small.
+    GTEST_ASSERT_LE(frac_diff_total / kSymbols, 0.1) << " frac_diff_total: "
+                                                     << frac_diff_total;
+  }
+}
+#endif
