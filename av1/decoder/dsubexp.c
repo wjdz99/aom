@@ -21,11 +21,15 @@ static int inv_recenter_nonneg(int v, int m) {
   return (v & 1) ? m - ((v + 1) >> 1) : m + (v >> 1);
 }
 
-static int decode_uniform(aom_reader *r) {
+#define decode_uniform(r, acct_str) decode_uniform_(r ACCT_STR_ARG(acct_str))
+#define decode_term_subexp(r, acct_str) \
+  decode_term_subexp_(r ACCT_STR_ARG(acct_str))
+
+static int decode_uniform_(aom_reader *r ACCT_STR_PARAM) {
   const int l = 8;
   const int m = (1 << l) - 191 + CONFIG_MISC_FIXES;
-  const int v = aom_read_literal(r, l - 1);
-  return v < m ? v : (v << 1) - m + aom_read_bit(r);
+  const int v = aom_read_literal(r, l - 1, acct_str);
+  return v < m ? v : (v << 1) - m + aom_read_bit(r, acct_str);
 }
 
 static int inv_remap_prob(int v, int m) {
@@ -62,16 +66,16 @@ static int inv_remap_prob(int v, int m) {
   }
 }
 
-static int decode_term_subexp(aom_reader *r) {
-  if (!aom_read_bit(r)) return aom_read_literal(r, 4);
-  if (!aom_read_bit(r)) return aom_read_literal(r, 4) + 16;
-  if (!aom_read_bit(r)) return aom_read_literal(r, 5) + 32;
-  return decode_uniform(r) + 64;
+static int decode_term_subexp_(aom_reader *r ACCT_STR_PARAM) {
+  if (!aom_read_bit(r, acct_str)) return aom_read_literal(r, 4, acct_str);
+  if (!aom_read_bit(r, acct_str)) return aom_read_literal(r, 4, acct_str) + 16;
+  if (!aom_read_bit(r, acct_str)) return aom_read_literal(r, 5, acct_str) + 32;
+  return decode_uniform(r, acct_str) + 64;
 }
 
-void av1_diff_update_prob(aom_reader *r, aom_prob *p) {
-  if (aom_read(r, DIFF_UPDATE_PROB)) {
-    const int delp = decode_term_subexp(r);
+void av1_diff_update_prob_(aom_reader *r, aom_prob *p ACCT_STR_PARAM) {
+  if (aom_read(r, DIFF_UPDATE_PROB, acct_str)) {
+    const int delp = decode_term_subexp(r, acct_str);
     *p = (aom_prob)inv_remap_prob(delp, *p);
   }
 }
