@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a59b4a32_9b390b3a",
+        "filename": "av1/av1_common.mk",
+        "patchSetId": 9
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-25T13:02:27Z",
+      "side": 1,
+      "message": "Sounds like something else needs fixing, but I\u0027ll happily accommodate.",
+      "parentUuid": "88e1fb42_ab40d967",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48b54343_b682f0ae",
         "filename": "av1/common/clpf.c",
         "patchSetId": 9
@@ -30,6 +48,24 @@
       "writtenOn": "2016-08-25T00:06:03Z",
       "side": 1,
       "message": "It appears x0 and y0 are the starting coordinates of the filter. These should be added to src when calling the function:\nclpf_block(rec-\u003ey_buffer + xpos + stride_y * ypos, ...)\n\nThis reduces the number of arguments and simplifies the calculations inside clpf_block(), which makes it easier to implement and test.",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "858566ca_a2393e39",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-25T13:02:27Z",
+      "side": 1,
+      "message": "I disagree, because the absolute position is needed to test against the borders.",
+      "parentUuid": "48b54343_b682f0ae",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "858566ca_c236c248",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-25T13:02:27Z",
+      "side": 1,
+      "message": "That is not assumed, since the filter is applied to the reconstructed frame and not on the reference frame.  I wouldn\u0027t expect the encoder or decoder to add the padding until the frame is actually used as a reference frame.\n\nMoreover, we likely don\u0027t want to filter across some tile boundaries.  I think it\u0027s still under debate whether this only applies to vertical boundaries or horizontal as well.  CLPF will have to be updated to support whatever is agreed upon concerning tiles, and the current way borders are handled will require the least changes.  I expect even less that tiles will have borders to allow over-reading.\n\nIn the SIMD code the border testing is efficiently handled through shuffle instructions.",
+      "parentUuid": "48b54343_16c2dc03",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88e1fb42_2b668923",
         "filename": "av1/common/clpf_neon.c",
         "patchSetId": 9
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "255bda40_e79e42fe",
+        "filename": "av1/common/clpf_neon.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-25T13:02:27Z",
+      "side": 1,
+      "message": "But the rest comes for free and I though an important point of an example was to show how to instantiate single SIMD functions for several architectures.",
+      "parentUuid": "88e1fb42_2b668923",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48b54343_f6df5863",
         "filename": "av1/common/clpf_simd.c",
         "patchSetId": 9
@@ -81,6 +153,24 @@
       "writtenOn": "2016-08-25T00:06:03Z",
       "side": 1,
       "message": "This appears to load an 8 bit value, and add 128. What happens if the value is already over 128? Should it expand to 16 to prevent overflow?",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e59542fc_bdcabf17",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-25T13:02:27Z",
+      "side": 1,
+      "message": "I\u0027m taking advantage of the nature of two-complement arithmetics and intentionally shifting the range from 0-255 to -128-127, so that I can use signed saturated subtraction later and avoid having to expand to 16 bit.",
+      "parentUuid": "48b54343_f6df5863",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -122,6 +212,42 @@
     },
     {
       "key": {
+        "uuid": "255bda40_e7676220",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-25T13:02:27Z",
+      "side": 1,
+      "message": "See below.",
+      "parentUuid": "48b54343_f66118a7",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "858566ca_025fca7a",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-25T13:02:27Z",
+      "side": 1,
+      "message": "!!x is more convenient way to express (x ? 1 : 0) or (bool)x in C99, and possibly a safe-guard against compilers stupid enough to generate a branch for the expression.\n\nThe 32 bit load is intended to be unaligned.  It should be replaced with u32_load_unaligned(), which has a proper implementation on arm for unaligned access.",
+      "parentUuid": "88e1fb42_eb6661bc",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48b54343_b612f00c",
         "filename": "av1/common/clpf_simd.c",
         "patchSetId": 9
@@ -133,6 +259,24 @@
       "writtenOn": "2016-08-25T00:06:03Z",
       "side": 1,
       "message": "Ah, does this duplicate the first 2 values and shuffle the rest to the right?",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0554160d_e6ecfe8d",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-25T13:02:27Z",
+      "side": 1,
+      "message": "Yes, correcting the invalid load above.",
+      "parentUuid": "48b54343_b612f00c",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -156,6 +300,24 @@
     },
     {
       "key": {
+        "uuid": "0554160d_a6e606aa",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-25T13:02:27Z",
+      "side": 1,
+      "message": "I don\u0027t see what you mean here.",
+      "parentUuid": "48b54343_995a7f85",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48b54343_56474479",
         "filename": "av1/common/clpf_simd.c",
         "patchSetId": 9
@@ -167,6 +329,24 @@
       "writtenOn": "2016-08-25T00:06:03Z",
       "side": 1,
       "message": "What are the possible sizex/sizey values? They should be assert()\u0027d. Ideally in the C version.\n\nDoes it matter than chroma is 4x4 or 4x8 and luma is 8x8? Would be more useful to indicate the size of the block being filtered in the comment than whether it is chroma or luma.",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "45560e16_2878abee",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-25T13:02:27Z",
+      "side": 1,
+      "message": "Currently this is not an issue since the filter is only applied on luma, but I don\u0027t wish to burn the chroma bridge quite yet, so the code is there.  So right now sizex and sizey can only be 8, but chroma filtering is enabled, the values can be 4 or 8 (independently) if the frame/tile width or height is not a multiple of 8.\n\nThe C version supports any sizes, but 8x8 is hard coded for now.\n\nI\u0027ll fix the comments, and also add a TODO about non-8x8 which still needs to be decided on.",
+      "parentUuid": "48b54343_56474479",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
