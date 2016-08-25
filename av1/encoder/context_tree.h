@@ -31,10 +31,12 @@ typedef struct {
   tran_low_t *qcoeff[MAX_MB_PLANE];
   tran_low_t *dqcoeff[MAX_MB_PLANE];
   uint16_t *eobs[MAX_MB_PLANE];
+  uint8_t *recon_pix[MAX_MB_PLANE];
 
   int num_4x4_blk;
   int skip;
   int pred_pixel_ready;
+  int reencoded;
   // For current partition, only if all Y, U, and V transform blocks'
   // coefficients are quantized to 0, skippable is set to 0.
   int skippable;
