@@ -374,7 +374,7 @@ static INLINE void av1_set_ref_frame(MV_REFERENCE_FRAME *rf,
   }
 }
 
-static int16_t av1_mode_context_analyzer(const int16_t *const mode_context,
+static INLINE int16_t av1_mode_context_analyzer(const int16_t *const mode_context,
                                          const MV_REFERENCE_FRAME *const rf,
                                          BLOCK_SIZE bsize, int block) {
   int16_t mode_ctx = 0;

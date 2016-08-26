@@ -108,7 +108,7 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                                 MAX_MIB_SIZE * sbc]
                 ->mbmi.dering_gain);
 #else
-          level = global_level;
+        level = global_level;
 #endif
         /* FIXME: This is a temporary hack that uses more conservative
            deringing for chroma. */
