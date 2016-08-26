@@ -179,6 +179,24 @@
     },
     {
       "key": {
+        "uuid": "c5b2fe10_c5bf50bf",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-26T23:24:04Z",
+      "side": 1,
+      "message": "I was thinking of power functions not multiplication. Sorry about the sign nonsense.\n\nI think there is a way to discard some calculations instead of shuffling/conditional loads.",
+      "parentUuid": "255bda40_87254658",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88e1fb42_2b668923",
         "filename": "av1/common/clpf_neon.c",
         "patchSetId": 9
@@ -244,6 +262,24 @@
       "side": 1,
       "message": "People decide that themselves with --enable/disable-sse3 etc - isn\u0027t such things what configure is for?\n\nAnyway, I compiled the entire codec 80 times and then 80 times again with your suggestion on my 2 (3?) year old computer.  Sure, the average compile time went down, from 18.111\" to 17.959\", a 0.8% decrease, a 152 ms extra wait.  This is well below my \"don\u0027t care\" threshold.\n\nThe clutter is 2845 bytes, most of which is the copyright notice, an 0.006% increase in code size.",
       "parentUuid": "c5775ebf_b40f4089",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5b2fe10_05e4180f",
+        "filename": "av1/common/clpf_neon.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-26T23:24:04Z",
+      "side": 1,
+      "message": "--disable-ssse3 also disables sse4. It used to only disable ssse3 but then people started sharing code between files and it got tricky.\n\nSure, adding a single implementation isn\u0027t a big deal. I\u0027m concerned about people following suit when they add other optimizations. There is also binary size and test run time to consider.",
+      "parentUuid": "255bda40_870c26ee",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -546,6 +582,24 @@
       "side": 1,
       "message": "Negative * 4 -\u003e negative\nPositive * 4 -\u003e positive",
       "parentUuid": "c5775ebf_b4418097",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5b2fe10_059f785f",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-26T23:24:04Z",
+      "side": 1,
+      "message": "Of course. Sorry about that.",
+      "parentUuid": "255bda40_87d78618",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
