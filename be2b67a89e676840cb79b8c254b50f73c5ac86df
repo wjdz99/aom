@@ -321,6 +321,24 @@
     },
     {
       "key": {
+        "uuid": "e5ef02c1_8db121dc",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-26T07:47:05Z",
+      "side": 1,
+      "message": "The simd framework makes a distinction, but only when it matters.  _s8, _s16, _s32 for signed, _u8, _u16, _u32 for unsigned, and _8, _16, _32 when it doesn\u0027t matter.\n\nFor regular two\u0027s complement add and sub the sign doesn\u0027t matter and the overflow behaviour is always defined.  Two\u0027s complement subtraction guarantees for any i, j and k: i - j \u003d\u003d (i+k) - (j+k).  So overflow doesn\u0027t matter, nothing is undefined and nothing gets lost by adding 128.\n\nThe frame content is uint8_t, and in order to get the subtractions right, we need 9 bits.  The difference between any unsigned numbers between 0 to 255 is a signed 9 bit value which can be anything from -255 to +255.  But we would like to do 16 pixels at a time using 128 bit vectors.  So I add 128 (equivalent to subtracting 128) to all the values, so I get values between -128 and 127.  Then the trick is to do a signed _saturated_ subtraction which takes precisely [-128, 127] input and clamps the result to [-128, 127], and this is fine since the maximum strength is +/- 4.",
+      "parentUuid": "255bda40_67b6d2f1",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88e1fb42_eb6661bc",
         "filename": "av1/common/clpf_simd.c",
         "patchSetId": 9
