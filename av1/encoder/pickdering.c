@@ -162,10 +162,10 @@ int av1_dering_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
     }
   }
 #else
-    best_level = 0;
-    for (level = 0; level < MAX_DERING_LEVEL; level++) {
-      if (tot_mse[level] < tot_mse[best_level]) best_level = level;
-    }
+  best_level = 0;
+  for (level = 0; level < MAX_DERING_LEVEL; level++) {
+    if (tot_mse[level] < tot_mse[best_level]) best_level = level;
+  }
 #endif
   aom_free(src);
   aom_free(ref_coeff);
