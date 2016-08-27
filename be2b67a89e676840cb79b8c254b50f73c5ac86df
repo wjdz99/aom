@@ -197,6 +197,24 @@
     },
     {
       "key": {
+        "uuid": "250bdaaa_0793164e",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-27T07:02:33Z",
+      "side": 1,
+      "message": "For the left/right case you can of course break the vectorisation to avoid those unnecessary calculations, but that\u0027s throwing the baby out with the bath water.  Also, this only happens in the 8x8 blocks along the edges, \u003c1% of an HD frame.  I wouldn\u0027t spend too much time looking for something more efficient (for most architectures I believe what I do likely is the most efficient way anyway).\n\nFor the top/bottom case it is of course unnecessary to test even when we\u0027re not near the top or bottom, but the clipping is so trivial in this case, just a matter of an optional pointer add, so small that for what we know it might just fill empty gaps in the instruction scheduling.  I don\u0027t want to make special cases and double the amount of code for such trifles.  It\u0027s not an oversight that I did it this way.  I\u0027m intentionally pragmatic.",
+      "parentUuid": "c5b2fe10_c5bf50bf",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88e1fb42_2b668923",
         "filename": "av1/common/clpf_neon.c",
         "patchSetId": 9
@@ -280,6 +298,24 @@
       "side": 1,
       "message": "--disable-ssse3 also disables sse4. It used to only disable ssse3 but then people started sharing code between files and it got tricky.\n\nSure, adding a single implementation isn\u0027t a big deal. I\u0027m concerned about people following suit when they add other optimizations. There is also binary size and test run time to consider.",
       "parentUuid": "255bda40_870c26ee",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "851006d0_4a16b3a7",
+        "filename": "av1/common/clpf_neon.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-27T07:02:33Z",
+      "side": 1,
+      "message": "--disable-ssse3 --enable-sse4_1?",
+      "parentUuid": "c5b2fe10_05e4180f",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -600,6 +636,24 @@
       "side": 1,
       "message": "Of course. Sorry about that.",
       "parentUuid": "255bda40_87d78618",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "851006d0_2a137fb7",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-27T07:02:33Z",
+      "side": 1,
+      "message": "Just sign of this patchset and we\u0027ll never talk about it again. ;)\n\nSeriously, we\u0027re mostly discussing tiny aesthetical details now, like argument order and names far away from any API.  Thanks for pointing out the unnecessary c128 add, though.  I don\u0027t think it\u0027s measurable in speed since it only concerns the edges, but extra instructions serving absolutely no purpose keep me awake at night.",
+      "parentUuid": "c5b2fe10_059f785f",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
