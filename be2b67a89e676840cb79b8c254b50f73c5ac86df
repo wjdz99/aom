@@ -215,6 +215,24 @@
     },
     {
       "key": {
+        "uuid": "c5fafef1_3c453155",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-29T19:30:41Z",
+      "side": 1,
+      "message": "If the clipped edges are such a small part of the expected runtime (\u003c1% of an HD frame) then why triple the size of the function to account for them? You also mentioned investigating this for internal edges, so the \u003c1% estimate may not hold.\n\nvp9 is pretty close to usable at 1080p in software on a surprising number of devices. Having the design of the algorithm allow for good optimization is critical.",
+      "parentUuid": "250bdaaa_0793164e",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88e1fb42_2b668923",
         "filename": "av1/common/clpf_neon.c",
         "patchSetId": 9
@@ -316,6 +334,24 @@
       "side": 1,
       "message": "--disable-ssse3 --enable-sse4_1?",
       "parentUuid": "c5b2fe10_05e4180f",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5fafef1_bc82e167",
+        "filename": "av1/common/clpf_neon.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-29T19:30:41Z",
+      "side": 1,
+      "message": "I don\u0027t believe that works, but --disable-ssse3 removes all ssse3 code, including code that does not have a 4_1 version.\n\nCode size, build time, test time, etc are all real costs. I\u0027ve seen the estimated bill for libvpx Jenkins (per-commit builds and tests, more extensive overnight tests) and it is astonishing. I imagine the AWCY runs are on a similar scale. Lots of people will pay a penalty for example code.",
+      "parentUuid": "851006d0_4a16b3a7",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -654,6 +690,24 @@
       "side": 1,
       "message": "Just sign of this patchset and we\u0027ll never talk about it again. ;)\n\nSeriously, we\u0027re mostly discussing tiny aesthetical details now, like argument order and names far away from any API.  Thanks for pointing out the unnecessary c128 add, though.  I don\u0027t think it\u0027s measurable in speed since it only concerns the edges, but extra instructions serving absolutely no purpose keep me awake at night.",
       "parentUuid": "c5b2fe10_059f785f",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5fafef1_1cef9518",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-08-29T19:30:41Z",
+      "side": 1,
+      "message": "My apologies for dragging this out but if you didn\u0027t want the code reviewed then I never should have been added to this.\n\nInitially I was trying to figure out the purpose for the clipping, which I consider to be a really bad thing at this level. It makes optimization really difficult.\n\nNow that I realize that is not part of this review, I\u0027m doing my best to understand the code, point out inconsistencies that make it difficult for me to read, and bring up anything that seems like it could be improved. As someone who ends up optimizing code ~years after it was written, being able to easily read and understand the code is really important to me. Being able to notice that the values already have +128 means that I feel like I understand what the code is doing. Not pointing it out would be pointless.",
+      "parentUuid": "851006d0_2a137fb7",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
