@@ -125,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "d11ba568_14705403",
+        "filename": "av1/common/clpf_simd.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-30T13:12:15Z",
+      "side": 1,
+      "message": "Ok.  A fallback to generic C code will cost no more than an assert(), so I\u0027ll make the code robust instead.  It\u0027s not even a one-liner to do.",
+      "parentUuid": "c5fafef1_bc68218d",
+      "revId": "7d69b94af2eeac9b78cb96aeedae03443e4e0fe1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c5b2fe10_503f7cb4",
         "filename": "av1/common/clpf_simd.h",
         "patchSetId": 15
