@@ -233,6 +233,24 @@
     },
     {
       "key": {
+        "uuid": "310de12c_778d50e2",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-30T13:12:15Z",
+      "side": 1,
+      "message": "Tiles will increase the clipping burden, yes.  Increased code size will also have an icache penalty and it\u0027s not obvious to me that the extra shuffle instructions are worse (quite possible though).  Though I love dissecting machine code to save cycles (which I\u0027ve done for the past 30 years), I also like to be pragmatic and turn down a 10.1x speed-up over a 10.0x speed-up if it clutters the code or makes it more difficult to maintain.  I fine with having it pointed out that it may not be optimal, but in this case it was a conscious decision.",
+      "parentUuid": "c5fafef1_3c453155",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88e1fb42_2b668923",
         "filename": "av1/common/clpf_neon.c",
         "patchSetId": 9
@@ -352,6 +370,24 @@
       "side": 1,
       "message": "I don\u0027t believe that works, but --disable-ssse3 removes all ssse3 code, including code that does not have a 4_1 version.\n\nCode size, build time, test time, etc are all real costs. I\u0027ve seen the estimated bill for libvpx Jenkins (per-commit builds and tests, more extensive overnight tests) and it is astonishing. I imagine the AWCY runs are on a similar scale. Lots of people will pay a penalty for example code.",
       "parentUuid": "851006d0_4a16b3a7",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91120d46_da7d65bd",
+        "filename": "av1/common/clpf_neon.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-30T13:12:15Z",
+      "side": 1,
+      "message": "It would be a useful feature if configure allows you to compile just for the architecture(s) that you need, but that must go into a different patch.",
+      "parentUuid": "c5fafef1_bc82e167",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -708,6 +744,24 @@
       "side": 1,
       "message": "My apologies for dragging this out but if you didn\u0027t want the code reviewed then I never should have been added to this.\n\nInitially I was trying to figure out the purpose for the clipping, which I consider to be a really bad thing at this level. It makes optimization really difficult.\n\nNow that I realize that is not part of this review, I\u0027m doing my best to understand the code, point out inconsistencies that make it difficult for me to read, and bring up anything that seems like it could be improved. As someone who ends up optimizing code ~years after it was written, being able to easily read and understand the code is really important to me. Being able to notice that the values already have +128 means that I feel like I understand what the code is doing. Not pointing it out would be pointless.",
       "parentUuid": "851006d0_2a137fb7",
+      "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "11261dad_d60ae47d",
+        "filename": "av1/common/clpf_simd.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-30T13:12:15Z",
+      "side": 1,
+      "message": "I\u0027m impressed that you went into such details to understand the code. SIMD code isn\u0027t always intuitive. For which reason a fresh look is good. I\u0027m thankful for that. And the discussions are interesting. I just meant to suggest that we should wrap it up and move on. :)",
+      "parentUuid": "c5fafef1_1cef9518",
       "revId": "be2b67a89e676840cb79b8c254b50f73c5ac86df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
