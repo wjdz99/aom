@@ -16,6 +16,24 @@
       "revId": "e64dcf486245ccaaee565a00ea4ef1d88e428de4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "312321ee_a7ac0aa8",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-31T20:00:55Z",
+      "side": 1,
+      "message": "You saying that clang aligns the address when you do a vget_lane_u8() though the architecture supports unaligned stores?  I checked what gcc is doing with unaligned stores through vget_lane_u8() and the assembly looked good and the memory was correctly written to.\n\nWould something like this work?:\n#if __clang__\n  *((__attribute__((aligned(1))) uint32_t *)p) \u003d a;\n#elif __CC_ARM\n...\n\nI have tested the code with arm-gcc only.  Which compilers should be supported?",
+      "parentUuid": "51ac159b_de30155c",
+      "revId": "e64dcf486245ccaaee565a00ea4ef1d88e428de4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
