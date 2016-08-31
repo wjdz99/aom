@@ -400,6 +400,11 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
 
   av1_free_pc_tree(&cpi->td);
 
+#if CONFIG_PALETTE
+  if (cpi->common.allow_screen_content_tools)
+    aom_free(cpi->td.mb.palette_buffer);
+#endif  // CONFIG_PALETTE
+
   if (cpi->source_diff_var != NULL) {
     aom_free(cpi->source_diff_var);
     cpi->source_diff_var = NULL;
@@ -1447,6 +1452,21 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
                                         : REFRESH_FRAME_CONTEXT_BACKWARD;
   cm->reset_frame_context = RESET_FRAME_CONTEXT_NONE;
 
+#if CONFIG_PALETTE
+  cm->allow_screen_content_tools = (cpi->oxcf.content == AOM_CONTENT_SCREEN);
+  if (cm->allow_screen_content_tools) {
+    MACROBLOCK *x = &cpi->td.mb;
+    if (x->palette_buffer == NULL) {
+      CHECK_MEM_ERROR(cm, x->palette_buffer,
+                      aom_memalign(16, sizeof(*x->palette_buffer)));
+    }
+    // Reallocate the pc_tree, as it's contents depends on
+    // the state of cm->allow_screen_content_tools
+    av1_free_pc_tree(&cpi->td);
+    av1_setup_pc_tree(&cpi->common, &cpi->td);
+  }
+#endif  // CONFIG_PALETTE
+
   av1_reset_segment_features(cm);
   av1_set_high_precision_mv(cpi, 0);
 
@@ -1957,6 +1977,10 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 
     // Deallocate allocated thread data.
     if (t < cpi->num_workers - 1) {
+#if CONFIG_PALETTE
+      if (cpi->common.allow_screen_content_tools)
+        aom_free(thread_data->td->mb.palette_buffer);
+#endif  // CONFIG_PALETTE
       aom_free(thread_data->td->counts);
       av1_free_pc_tree(thread_data->td);
       aom_free(thread_data->td);
@@ -2596,7 +2620,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   }
 
 #if CONFIG_CLPF
-  cm->clpf_strength = 0;
+  cm->clpf_strength_y = cm->clpf_strength_u = cm->clpf_strength_v = 0;
   cm->clpf_size = 2;
   CHECK_MEM_ERROR(
       cm, cm->clpf_blocks,
@@ -2604,35 +2628,38 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                      ((cm->frame_to_show->y_crop_height + 31) & ~31) >>
                  10));
   if (!is_lossless_requested(&cpi->oxcf)) {
-    // Test CLPF
-    int i, hq = 1;
-    // TODO(yaowu): investigate per-segment CLPF decision and
-    // an optimal threshold, use 80 for now.
-    for (i = 0; i < MAX_SEGMENTS; i++)
-      hq &= av1_get_qindex(&cm->seg, i, cm->base_qindex) < 80;
+    // Find the best strength and block size for the entire frame
+    int fb_size_log2, strength_y, strength_u, strength_v;
+    av1_clpf_test_frame(cm->frame_to_show, cpi->Source, cm, &strength_u,
+                        &fb_size_log2, 1);
+    av1_clpf_test_frame(cm->frame_to_show, cpi->Source, cm, &strength_v,
+                        &fb_size_log2, 2);
+    av1_clpf_test_frame(cm->frame_to_show, cpi->Source, cm, &strength_y,
+                        &fb_size_log2, 0);
 
-    // Don't try filter if the entire image is nearly losslessly encoded
-    if (!hq) {
-      // Find the best strength and block size for the entire frame
-      int fb_size_log2, strength;
-      av1_clpf_test_frame(&cpi->last_frame_uf, cpi->Source, cm, &strength,
-                          &fb_size_log2);
+    if (!fb_size_log2) fb_size_log2 = get_msb(MAX_FB_SIZE);
+    if (strength_y || strength_u || strength_v)
+      aom_yv12_copy_frame(cm->frame_to_show, &cpi->last_frame_uf);
 
-      if (!fb_size_log2) fb_size_log2 = get_msb(MAX_FB_SIZE);
-
-      if (!strength) {  // Better to disable for the whole frame?
-        cm->clpf_strength = 0;
-      } else {
-        // Apply the filter using the chosen strength
-        cm->clpf_strength = strength - (strength == 4);
-        cm->clpf_size =
-            fb_size_log2 ? fb_size_log2 - get_msb(MAX_FB_SIZE) + 3 : 0;
-        aom_yv12_copy_frame(cm->frame_to_show, &cpi->last_frame_uf);
-        cm->clpf_numblocks =
-            av1_clpf_frame(cm->frame_to_show, &cpi->last_frame_uf, cpi->Source,
-                           cm, !!cm->clpf_size, strength, 4 + cm->clpf_size,
-                           cm->clpf_blocks, av1_clpf_decision);
-      }
+    if (strength_y) {
+      // Apply the filter using the chosen strength
+      cm->clpf_strength_y = strength_y - (strength_y == 4);
+      cm->clpf_size =
+        fb_size_log2 ? fb_size_log2 - get_msb(MAX_FB_SIZE) + 3 : 0;
+      cm->clpf_numblocks =
+          av1_clpf_frame(cm->frame_to_show, &cpi->last_frame_uf, cpi->Source,
+                         cm, !!cm->clpf_size, strength_y, 4 + cm->clpf_size,
+                         cm->clpf_blocks, 0, av1_clpf_decision);
+    }
+    if (strength_u) {
+      cm->clpf_strength_u = strength_u - (strength_u == 4);
+      av1_clpf_frame(cm->frame_to_show, &cpi->last_frame_uf, 0, cm, 0,
+                     strength_u, 4, 0, 1, 0);
+    }
+    if (strength_v) {
+      cm->clpf_strength_v = strength_v - (strength_v == 4);
+      av1_clpf_frame(cm->frame_to_show, &cpi->last_frame_uf, 0, cm, 0,
+                     strength_v, 4, 0, 2, 0);
     }
   }
 #endif

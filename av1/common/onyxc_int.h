@@ -154,7 +154,9 @@ typedef struct AV1Common {
 #if CONFIG_CLPF
   int clpf_numblocks;
   int clpf_size;
-  int clpf_strength;
+  int clpf_strength_y;
+  int clpf_strength_u;
+  int clpf_strength_v;
   uint8_t *clpf_blocks;
 #endif
 
@@ -194,6 +196,10 @@ typedef struct AV1Common {
   uint8_t last_intra_only;
 
   int allow_high_precision_mv;
+
+#if CONFIG_PALETTE
+  int allow_screen_content_tools;
+#endif  // CONFIG_PALETTE
 
   // Flag signaling which frame contexts should be reset to default values.
   RESET_FRAME_CONTEXT_MODE reset_frame_context;
