@@ -48,39 +48,42 @@ static void clpf_block(const uint8_t *src, uint8_t *dst, int stride, int x0,
 }
 
 // Return number of filtered blocks
-int av1_clpf_frame(const YV12_BUFFER_CONFIG *dst, const YV12_BUFFER_CONFIG *rec,
-                   const YV12_BUFFER_CONFIG *org, const AV1_COMMON *cm,
-                   int enable_fb_flag, unsigned int strength,
-                   unsigned int fb_size_log2, uint8_t *blocks,
-                   int (*decision)(int, int, const YV12_BUFFER_CONFIG *,
-                                   const YV12_BUFFER_CONFIG *,
-                                   const AV1_COMMON *cm, int, int, int,
-                                   unsigned int, unsigned int, uint8_t *)) {
+int av1_clpf_frame(
+    const YV12_BUFFER_CONFIG *dst, const YV12_BUFFER_CONFIG *rec,
+    const YV12_BUFFER_CONFIG *org, const AV1_COMMON *cm, int enable_fb_flag,
+    unsigned int strength, unsigned int fb_size_log2, uint8_t *blocks, int comp,
+    int (*decision)(int, int, const YV12_BUFFER_CONFIG *,
+                    const YV12_BUFFER_CONFIG *, const AV1_COMMON *cm, int, int,
+                    int, unsigned int, unsigned int, uint8_t *, int)) {
   /* Constrained low-pass filter (CLPF) */
   int c, k, l, m, n;
-  int width = rec->y_crop_width;
-  int height = rec->y_crop_height;
+  int width = comp ? rec->uv_crop_width : rec->y_crop_width;
+  int height = comp ? rec->uv_crop_height : rec->y_crop_height;
   int xpos, ypos;
-  int stride_y = rec->y_stride;
-  int stride_c = rec->uv_stride;
-  const int bs = MAX_MIB_SIZE;
+  int stride = comp ? rec->uv_stride : rec->y_stride;
+  const int bs = comp && (rec->subsampling_x || rec->subsampling_y) ? 4 : 8;
+  const int bslog = get_msb(bs);
   int num_fb_hor = (width + (1 << fb_size_log2) - bs) >> fb_size_log2;
   int num_fb_ver = (height + (1 << fb_size_log2) - bs) >> fb_size_log2;
   int block_index = 0;
+  uint8_t *rec_buffer =
+      comp ? (comp == 1 ? rec->u_buffer : rec->v_buffer) : rec->y_buffer;
+  uint8_t *dst_buffer =
+      comp ? (comp == 1 ? dst->u_buffer : dst->v_buffer) : dst->y_buffer;
 
   // Iterate over all filter blocks
   for (k = 0; k < num_fb_ver; k++) {
     for (l = 0; l < num_fb_hor; l++) {
       int h, w;
       int allskip = 1;
-      for (m = 0; allskip && m < (1 << fb_size_log2) / bs; m++) {
-        for (n = 0; allskip && n < (1 << fb_size_log2) / bs; n++) {
-          xpos = (l << fb_size_log2) + n * bs;
-          ypos = (k << fb_size_log2) + m * bs;
+      for (m = 0; allskip && m < (1 << fb_size_log2) / MAX_MIB_SIZE; m++) {
+        for (n = 0; allskip && n < (1 << fb_size_log2) / MAX_MIB_SIZE; n++) {
+          xpos = (l << fb_size_log2) + n * MAX_MIB_SIZE;
+          ypos = (k << fb_size_log2) + m * MAX_MIB_SIZE;
           if (xpos < width && ypos < height) {
-            allskip &=
-                cm->mi_grid_visible[ypos / bs * cm->mi_stride + xpos / bs]
-                    ->mbmi.skip;
+            allskip &= cm->mi_grid_visible[ypos / MAX_MIB_SIZE * cm->mi_stride +
+                                           xpos / MAX_MIB_SIZE]
+                           ->mbmi.skip;
           }
         }
       }
@@ -92,30 +95,35 @@ int av1_clpf_frame(const YV12_BUFFER_CONFIG *dst, const YV12_BUFFER_CONFIG *rec,
       w += !w << fb_size_log2;
       if (!allskip &&  // Do not filter the block if all is skip encoded
           (!enable_fb_flag ||
-           decision(k, l, rec, org, cm, bs, w / bs, h / bs, strength,
-                    fb_size_log2, blocks + block_index))) {
+           decision(k, l, rec, org, cm, bs, w >> bslog, h >> bslog, strength,
+                    fb_size_log2, blocks + block_index, comp))) {
         // Iterate over all smaller blocks inside the filter block
-        for (m = 0; m < (h + bs - 1) / bs; m++) {
-          for (n = 0; n < (w + bs - 1) / bs; n++) {
+        for (m = 0; m<(h + bs - 1)>> bslog; m++) {
+          for (n = 0; n<(w + bs - 1)>> bslog; n++) {
             xpos = (l << fb_size_log2) + n * bs;
             ypos = (k << fb_size_log2) + m * bs;
-            if (!cm->mi_grid_visible[ypos / bs * cm->mi_stride + xpos / bs]
+            if (!cm->mi_grid_visible[ypos / MAX_MIB_SIZE * cm->mi_stride +
+                                     xpos / MAX_MIB_SIZE]
                      ->mbmi.skip) {
               // Not skip block, apply the filter
-              clpf_block(rec->y_buffer, dst->y_buffer, stride_y, xpos, ypos, bs,
-                         bs, width, height, strength);
+              clpf_block(rec_buffer, dst_buffer, stride, xpos, ypos, bs, bs,
+                         width, height, strength);
             } else {  // Skip block, copy instead
               for (c = 0; c < bs; c++)
-                *(uint64_t *)(dst->y_buffer + (ypos + c) * stride_y + xpos) =
-                    *(uint64_t *)(rec->y_buffer + (ypos + c) * stride_y + xpos);
+                if (bs == 4)
+                  *(uint32_t *)(dst_buffer + (ypos + c) * stride + xpos) =
+                      *(uint32_t *)(rec_buffer + (ypos + c) * stride + xpos);
+                else
+                  *(uint64_t *)(dst_buffer + (ypos + c) * stride + xpos) =
+                      *(uint64_t *)(rec_buffer + (ypos + c) * stride + xpos);
             }
           }
         }
       } else {  // Entire filter block is skip, copy
         for (m = 0; m < h; m++)
-          memcpy(dst->y_buffer + ((k << fb_size_log2) + m) * stride_y +
+          memcpy(dst_buffer + ((k << fb_size_log2) + m) * stride +
                      (l << fb_size_log2),
-                 rec->y_buffer + ((k << fb_size_log2) + m) * stride_y +
+                 rec_buffer + ((k << fb_size_log2) + m) * stride +
                      (l << fb_size_log2),
                  w);
       }
