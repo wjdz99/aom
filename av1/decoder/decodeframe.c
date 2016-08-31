@@ -492,6 +492,12 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 
   if (!is_inter_block(mbmi)) {
     int plane;
+#if CONFIG_PALETTE
+    for (plane = 0; plane <= 1; ++plane) {
+      if (mbmi->palette_mode_info.palette_size[plane])
+        av1_decode_palette_tokens(xd, plane, r);
+    }
+#endif  // CONFIG_PALETTE
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       const struct macroblockd_plane *const pd = &xd->plane[plane];
       const TX_SIZE tx_size =
@@ -819,8 +825,10 @@ static void setup_loopfilter(struct loopfilter *lf,
 #if CONFIG_CLPF
 static void setup_clpf(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   cm->clpf_blocks = 0;
-  cm->clpf_strength = aom_rb_read_literal(rb, 2);
-  if (cm->clpf_strength) {
+  cm->clpf_strength_y = aom_rb_read_literal(rb, 2);
+  cm->clpf_strength_u = aom_rb_read_literal(rb, 2);
+  cm->clpf_strength_v = aom_rb_read_literal(rb, 2);
+  if (cm->clpf_strength_y) {
     cm->clpf_size = aom_rb_read_literal(rb, 2);
     if (cm->clpf_size) {
       int i;
@@ -836,7 +844,7 @@ static void setup_clpf(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 static int clpf_bit(int k, int l, const YV12_BUFFER_CONFIG *rec,
                     const YV12_BUFFER_CONFIG *org, const AV1_COMMON *cm,
                     int block_size, int w, int h, unsigned int strength,
-                    unsigned int fb_size_log2, uint8_t *bit) {
+                    unsigned int fb_size_log2, uint8_t *bit, int comp) {
   return *bit;
 }
 #endif
@@ -1280,6 +1288,10 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
                           &tile_data->bit_reader, pbi->decrypt_cb,
                           pbi->decrypt_state);
       av1_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff);
+#if CONFIG_PALETTE
+      tile_data->xd.plane[0].color_index_map = tile_data->color_index_map[0];
+      tile_data->xd.plane[1].color_index_map = tile_data->color_index_map[1];
+#endif  // CONFIG_PALETTE
     }
   }
 
@@ -1504,6 +1516,10 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
                           &tile_data->bit_reader, pbi->decrypt_cb,
                           pbi->decrypt_state);
       av1_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff);
+#if CONFIG_PALETTE
+      tile_data->xd.plane[0].color_index_map = tile_data->color_index_map[0];
+      tile_data->xd.plane[1].color_index_map = tile_data->color_index_map[1];
+#endif  // CONFIG_PALETTE
 
       worker->had_error = 0;
       if (i == num_workers - 1 || n == tile_cols - 1) {
@@ -1727,6 +1743,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
       memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
       pbi->need_resync = 0;
     }
+#if CONFIG_PALETTE
+    if (frame_is_intra_only(cm))
+      cm->allow_screen_content_tools = aom_rb_read_bit(rb);
+#endif  // CONFIG_PALETTE
   } else {
     cm->intra_only = cm->show_frame ? 0 : aom_rb_read_bit(rb);
 
@@ -2272,20 +2292,47 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
   }
 
 #if CONFIG_CLPF
-  if (cm->clpf_strength && !cm->skip_loop_filter) {
-    YV12_BUFFER_CONFIG dst;  // Buffer for the result
+  if (!cm->skip_loop_filter) {
+    YV12_BUFFER_CONFIG dst = pbi->cur_buf->buf;  // Buffer for the result
+    if (cm->clpf_strength_y) {
+      CHECK_MEM_ERROR(cm, dst.y_buffer,
+                      aom_malloc(dst.y_stride * dst.y_height));
 
-    dst = pbi->cur_buf->buf;
-    CHECK_MEM_ERROR(cm, dst.y_buffer, aom_malloc(dst.y_stride * dst.y_height));
+      av1_clpf_frame(&dst, &pbi->cur_buf->buf, 0, cm, !!cm->clpf_size,
+                     cm->clpf_strength_y + (cm->clpf_strength_y == 3),
+                     4 + cm->clpf_size, cm->clpf_blocks, 0, clpf_bit);
 
-    av1_clpf_frame(&dst, &pbi->cur_buf->buf, 0, cm, !!cm->clpf_size,
-                   cm->clpf_strength + (cm->clpf_strength == 3),
-                   4 + cm->clpf_size, cm->clpf_blocks, clpf_bit);
+      // Copy result
+      memcpy(pbi->cur_buf->buf.y_buffer, dst.y_buffer,
+             dst.y_height * dst.y_stride);
+      aom_free(dst.y_buffer);
+    }
+    if (cm->clpf_strength_u) {
+      CHECK_MEM_ERROR(cm, dst.u_buffer,
+                      aom_malloc(dst.uv_stride * dst.uv_height));
 
-    // Copy result
-    memcpy(pbi->cur_buf->buf.y_buffer, dst.y_buffer,
-           dst.y_height * dst.y_stride);
-    aom_free(dst.y_buffer);
+      av1_clpf_frame(&dst, &pbi->cur_buf->buf, 0, cm, 0,
+                     cm->clpf_strength_u + (cm->clpf_strength_u == 3), 4,
+                     cm->clpf_blocks, 1, clpf_bit);
+
+      // Copy result
+      memcpy(pbi->cur_buf->buf.u_buffer, dst.u_buffer,
+             dst.uv_height * dst.uv_stride);
+      aom_free(dst.u_buffer);
+    }
+    if (cm->clpf_strength_v) {
+      CHECK_MEM_ERROR(cm, dst.v_buffer,
+                      aom_malloc(dst.uv_stride * dst.uv_height));
+
+      av1_clpf_frame(&dst, &pbi->cur_buf->buf, 0, cm, 0,
+                     cm->clpf_strength_v + (cm->clpf_strength_v == 3), 4,
+                     cm->clpf_blocks, 2, clpf_bit);
+
+      // Copy result
+      memcpy(pbi->cur_buf->buf.v_buffer, dst.v_buffer,
+             dst.uv_height * dst.uv_stride);
+      aom_free(dst.v_buffer);
+    }
   }
   if (cm->clpf_blocks) aom_free(cm->clpf_blocks);
 #endif
