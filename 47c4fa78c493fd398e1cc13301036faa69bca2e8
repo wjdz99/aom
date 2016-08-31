@@ -16,6 +16,24 @@
       "revId": "47c4fa78c493fd398e1cc13301036faa69bca2e8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91ff6d6b_12a38ca2",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-08-31T06:27:28Z",
+      "side": 1,
+      "message": "Your head is right.  This will cause an overrun and things will only be ok (on little-endian) as long as things are written sequentially (and if there are four superfluous bytes at the end), so this bug could easily pass undetected.\n\nLooks like a cut\u0026paste bug, because an earlier version has the correct vst1_lane_u32().  Alternatively, leaving the implementation choice to the compiler:\n\n *(__packed uint32_t *)p) \u003d a;  (ARM CC)\n *((__attribute((packed)) uint32_t *)p) \u003d a; (GCC)",
+      "parentUuid": "7173d9d0_7ca3d5a1",
+      "revId": "47c4fa78c493fd398e1cc13301036faa69bca2e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
