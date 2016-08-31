@@ -16,10 +16,10 @@
 // Calculate the error of a filtered and unfiltered block
 static void detect_clpf(const uint8_t *rec, const uint8_t *org, int x0, int y0,
                         int width, int height, int so, int stride, int *sum0,
-                        int *sum1, unsigned int strength) {
+                        int *sum1, unsigned int strength, int size) {
   int x, y;
-  for (y = y0; y < y0 + 8; y++) {
-    for (x = x0; x < x0 + 8; x++) {
+  for (y = y0; y < y0 + size; y++) {
+    for (x = x0; x < x0 + size; x++) {
       int O = org[y * so + x];
       int X = rec[y * stride + x];
       int A = rec[AOMMAX(0, y - 1) * stride + x];
@@ -38,11 +38,11 @@ static void detect_clpf(const uint8_t *rec, const uint8_t *org, int x0, int y0,
 
 static void detect_multi_clpf(const uint8_t *rec, const uint8_t *org, int x0,
                               int y0, int width, int height, int so, int stride,
-                              int *sum) {
+                              int *sum, int size) {
   int x, y;
 
-  for (y = y0; y < y0 + 8; y++) {
-    for (x = x0; x < x0 + 8; x++) {
+  for (y = y0; y < y0 + size; y++) {
+    for (x = x0; x < x0 + size; x++) {
       int O = org[y * so + x];
       int X = rec[y * stride + x];
       int A = rec[AOMMAX(0, y - 1) * stride + x];
@@ -68,18 +68,27 @@ static void detect_multi_clpf(const uint8_t *rec, const uint8_t *org, int x0,
 int av1_clpf_decision(int k, int l, const YV12_BUFFER_CONFIG *rec,
                       const YV12_BUFFER_CONFIG *org, const AV1_COMMON *cm,
                       int block_size, int w, int h, unsigned int strength,
-                      unsigned int fb_size_log2, uint8_t *res) {
+                      unsigned int fb_size_log2, uint8_t *res, int comp) {
   int m, n, sum0 = 0, sum1 = 0;
+  int size = 8 >> (comp && (rec->subsampling_x || rec->subsampling_x));
+  uint8_t *rec_buffer =
+      comp ? (comp == 1 ? rec->u_buffer : rec->v_buffer) : rec->y_buffer;
+  uint8_t *org_buffer =
+      comp ? (comp == 1 ? org->u_buffer : org->v_buffer) : org->y_buffer;
+  int rec_width = comp ? rec->uv_crop_width : rec->y_crop_width;
+  int rec_height = comp ? rec->uv_crop_height : rec->y_crop_height;
+  int rec_stride = comp ? rec->uv_stride : rec->y_stride;
+  int org_stride = comp ? org->uv_stride : org->y_stride;
+
   for (m = 0; m < h; m++) {
     for (n = 0; n < w; n++) {
       int xpos = (l << fb_size_log2) + n * block_size;
       int ypos = (k << fb_size_log2) + m * block_size;
-      const int bs = MAX_MIB_SIZE;
-      if (!cm->mi_grid_visible[ypos / bs * cm->mi_stride + xpos / bs]
+      if (!cm->mi_grid_visible[ypos / MAX_MIB_SIZE * cm->mi_stride +
+                               xpos / MAX_MIB_SIZE]
                ->mbmi.skip)
-        detect_clpf(rec->y_buffer, org->y_buffer, xpos, ypos, rec->y_crop_width,
-                    rec->y_crop_height, org->y_stride, rec->y_stride, &sum0,
-                    &sum1, strength);
+        detect_clpf(rec_buffer, org_buffer, xpos, ypos, rec_width, rec_height,
+                    org_stride, rec_stride, &sum0, &sum1, strength, size);
     }
   }
   *res = sum1 < sum0;
@@ -89,6 +98,7 @@ int av1_clpf_decision(int k, int l, const YV12_BUFFER_CONFIG *rec,
 // Calculate the square error of all filter settings.  Result:
 // res[0][0]   : unfiltered
 // res[0][1-3] : strength=1,2,4, no signals
+// (Only for luma:)
 // res[1][0]   : (bit count, fb size = 128)
 // res[1][1-3] : strength=1,2,4, fb size = 128
 // res[2][0]   : (bit count, fb size = 64)
@@ -98,12 +108,21 @@ int av1_clpf_decision(int k, int l, const YV12_BUFFER_CONFIG *rec,
 static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
                     const YV12_BUFFER_CONFIG *org, const AV1_COMMON *cm,
                     unsigned int block_size, unsigned int fb_size_log2, int w,
-                    int h, int64_t res[4][4]) {
-  int i, m, n, filtered = 0;
+                    int h, int64_t res[4][4], int comp) {
+  int c, m, n, filtered = 0;
+  int size = 8 >> (comp && (rec->subsampling_x || rec->subsampling_x));
   int sum[4];
   int bslog = get_msb(block_size);
+  uint8_t *rec_buffer =
+      comp ? (comp == 1 ? rec->u_buffer : rec->v_buffer) : rec->y_buffer;
+  uint8_t *org_buffer =
+      comp ? (comp == 1 ? org->u_buffer : org->v_buffer) : org->y_buffer;
+  int rec_width = comp ? rec->uv_crop_width : rec->y_crop_width;
+  int rec_height = comp ? rec->uv_crop_height : rec->y_crop_height;
+  int rec_stride = comp ? rec->uv_stride : rec->y_stride;
+  int org_stride = comp ? org->uv_stride : org->y_stride;
   sum[0] = sum[1] = sum[2] = sum[3] = 0;
-  if (fb_size_log2 > (unsigned int)get_msb(MAX_FB_SIZE) - 3) {
+  if (!comp && fb_size_log2 > (unsigned int)get_msb(MAX_FB_SIZE) - 3) {
     int w1, h1, w2, h2, i, sum1, sum2, sum3, oldfiltered;
 
     fb_size_log2--;
@@ -118,16 +137,17 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
     oldfiltered = res[i][0];
     res[i][0] = 0;
 
-    filtered =
-        clpf_rdo(y, x, rec, org, cm, block_size, fb_size_log2, w1, h1, res);
+    filtered = clpf_rdo(y, x, rec, org, cm, block_size, fb_size_log2, w1, h1,
+                        res, comp);
     if (1 << (fb_size_log2 - bslog) < w)
       filtered |= clpf_rdo(y, x + (1 << fb_size_log2), rec, org, cm, block_size,
-                           fb_size_log2, w2, h1, res);
+                           fb_size_log2, w2, h1, res, comp);
     if (1 << (fb_size_log2 - bslog) < h) {
       filtered |= clpf_rdo(y + (1 << fb_size_log2), x, rec, org, cm, block_size,
-                           fb_size_log2, w1, h2, res);
-      filtered |= clpf_rdo(y + (1 << fb_size_log2), x + (1 << fb_size_log2),
-                           rec, org, cm, block_size, fb_size_log2, w2, h2, res);
+                           fb_size_log2, w1, h2, res, comp);
+      filtered |=
+          clpf_rdo(y + (1 << fb_size_log2), x + (1 << fb_size_log2), rec, org,
+                   cm, block_size, fb_size_log2, w2, h2, res, comp);
     }
 
     res[i][1] = AOMMIN(sum1 + res[i][0], res[i][1]);
@@ -144,30 +164,31 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
       if (!cm->mi_grid_visible[ypos / MAX_MIB_SIZE * cm->mi_stride +
                                xpos / MAX_MIB_SIZE]
                ->mbmi.skip) {
-        detect_multi_clpf(rec->y_buffer, org->y_buffer, xpos, ypos,
-                          rec->y_crop_width, rec->y_crop_height, org->y_stride,
-                          rec->y_stride, sum);
+        detect_multi_clpf(rec_buffer, org_buffer, xpos, ypos, rec_width,
+                          rec_height, org_stride, rec_stride, sum, size);
         filtered = 1;
       }
     }
   }
 
-  for (i = 0; i < 4; i++) {
-    res[i][0] += sum[0];
-    res[i][1] += sum[1];
-    res[i][2] += sum[2];
-    res[i][3] += sum[3];
+  for (c = 0; c < (comp ? 1 : 4); c++) {
+    res[c][0] += sum[0];
+    res[c][1] += sum[1];
+    res[c][2] += sum[2];
+    res[c][3] += sum[3];
   }
   return filtered;
 }
 
 void av1_clpf_test_frame(const YV12_BUFFER_CONFIG *rec,
                          const YV12_BUFFER_CONFIG *org, const AV1_COMMON *cm,
-                         int *best_strength, int *best_bs) {
+                         int *best_strength, int *best_bs, int comp) {
   int i, j, k, l;
   int64_t best, sums[4][4];
-  int width = rec->y_crop_width, height = rec->y_crop_height;
-  const int bs = MAX_MIB_SIZE;
+  int width = comp ? rec->uv_crop_width : rec->y_crop_width;
+  int height = comp ? rec->uv_crop_height : rec->y_crop_height;
+  const int bs = 8 >> (comp && (rec->subsampling_x || rec->subsampling_x));
+  const int bslog = get_msb(bs);
   int fb_size_log2 = get_msb(MAX_FB_SIZE);
   int num_fb_ver = (height + (1 << fb_size_log2) - bs) >> fb_size_log2;
   int num_fb_hor = (width + (1 << fb_size_log2) - bs) >> fb_size_log2;
@@ -184,7 +205,7 @@ void av1_clpf_test_frame(const YV12_BUFFER_CONFIG *rec,
       h += !h << fb_size_log2;
       w += !w << fb_size_log2;
       clpf_rdo(k << fb_size_log2, l << fb_size_log2, rec, org, cm, bs,
-               fb_size_log2, w / bs, h / bs, sums);
+               fb_size_log2, w >> bslog, h >> bslog, sums, comp);
     }
   }
 
@@ -206,13 +227,13 @@ void av1_clpf_test_frame(const YV12_BUFFER_CONFIG *rec,
     // Estimate the bit costs and adjust the square errors
     double lambda =
         lambda_square[av1_get_qindex(&cm->seg, 0, cm->base_qindex) >> 2];
-    int i, cost = (int)((1.2 * lambda * (sums[j][0] + 2 + 2 * (j > 0)) + 0.5));
-    for (i = 0; i < 4; i++)
-      sums[j][i] = ((sums[j][i] + (i && j) * cost) << 4) + j * 4 + i;
+    int c, cost = (int)((1.2 * lambda * (sums[j][0] + 2 + 2 * (j > 0)) + 0.5));
+    for (c = 0; c < 4; c++)
+      sums[j][c] = ((sums[j][c] + (j && c) * cost) << 4) + j * 4 + c;
   }
 
   best = (int64_t)1 << 62;
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < (comp ? 1 : 4); i++)
     for (j = 0; j < 4; j++)
       if ((!i || j) && sums[i][j] < best) best = sums[i][j];
   best &= 15;
