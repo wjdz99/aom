@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "312321ee_caa8237a",
+        "filename": "aom_dsp/dkboolreader.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-09-01T07:07:29Z",
+      "side": 1,
+      "message": "It seems strange to define it locally, as all of the code that calls aom_reader_tell_frac() depends on it returning 1/8th bit resolution.  Maybe there should be a comment in aom_dsp/bitreader.h on aom_reader_tell_frac() saying that this function must return 1/8th bits?",
+      "parentUuid": "91e76d24_1c7c7a7b",
+      "revId": "a22f54f6a3d17b040c3fc1f4b02ca5fa725f9ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1efc9c0_90dc9a05",
         "filename": "test/boolcoder_test.cc",
         "patchSetId": 6
