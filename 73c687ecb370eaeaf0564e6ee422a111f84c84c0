@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d15565ad_e47b3a1b",
+        "filename": "aom_dsp/simd/v128_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-01T19:55:24Z",
+      "side": 1,
+      "message": "vextq_s8() requires an immediate.  So if we write v128_align(a, b, 3) gcc will, if optimisation is enable, figure out that the third parameter isn\u0027t a variable, so vextq_s8() will work.  If we don\u0027t optimise, v128_align() wont be inlined, and then of course this wont work.  But clang complains even when optimisation is enabled.",
+      "parentUuid": "318ec181_921cfad7",
+      "revId": "73c687ecb370eaeaf0564e6ee422a111f84c84c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "318ec181_7224f61c",
         "filename": "aom_dsp/simd/v128_intrinsics_arm.h",
         "patchSetId": 2
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "51e7b556_e085e207",
+        "filename": "aom_dsp/simd/v128_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-01T19:55:24Z",
+      "side": 1,
+      "message": "Yes.",
+      "parentUuid": "318ec181_f2fea653",
+      "revId": "73c687ecb370eaeaf0564e6ee422a111f84c84c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "318ec181_f2c306fc",
         "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
         "patchSetId": 2
@@ -64,6 +100,24 @@
       "writtenOn": "2016-09-01T18:28:02Z",
       "side": 1,
       "message": "I\u0027d remove this whole stanza. Trying to use 4.6 for arm intrinsics is unacceptable.\n\nYou can #include aom_ports/arm.h and use AOM_INCOMPATIBLE_GCC which checks \u003c\u003d 4.6\n\nWe used it to check some things in vp8. I could probably remove those things because it\u0027s really not necessary to have a fallback for a compiler that old.",
+      "revId": "73c687ecb370eaeaf0564e6ee422a111f84c84c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51e7b556_0098c669",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-01T19:55:24Z",
+      "side": 1,
+      "message": "Ok.  Yes, if there already is a check for \u003c\u003d 4.6, then it\u0027s better to use that.\n\nThe compiler \"that old\" is only from 2011, yet C99 is too recent...",
+      "parentUuid": "318ec181_f2c306fc",
       "revId": "73c687ecb370eaeaf0564e6ee422a111f84c84c0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
