@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "91e76d24_dc5832fd",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2016-09-01T06:37:11Z",
+      "side": 1,
+      "message": "When I added _tell support, I was asked by a reviewer to change the return type to ptrdiff_t.",
+      "parentUuid": "111c5dae_2655b6f4",
+      "revId": "a22f54f6a3d17b040c3fc1f4b02ca5fa725f9ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "111c5dae_863e2ac7",
         "filename": "aom_dsp/bitreader.h",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2016-09-01T06:16:18Z",
       "side": 1,
       "message": "Perhaps we should add Alex Converse as reviewer to this issue so he can provide support for this function.",
+      "revId": "a22f54f6a3d17b040c3fc1f4b02ca5fa725f9ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91e76d24_7c9b86c5",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2016-09-01T06:37:11Z",
+      "side": 1,
+      "message": "ANS needs tell support first. I can add support for that in a follow up patch.",
+      "parentUuid": "111c5dae_863e2ac7",
       "revId": "a22f54f6a3d17b040c3fc1f4b02ca5fa725f9ba5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "91e76d24_1c7c7a7b",
+        "filename": "aom_dsp/dkboolreader.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2016-09-01T06:37:11Z",
+      "side": 1,
+      "message": "In the previous patch set I had defined it globally. There was a comment to remove it.",
+      "parentUuid": "d163a525_74f588b5",
+      "revId": "a22f54f6a3d17b040c3fc1f4b02ca5fa725f9ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1efc9c0_90dc9a05",
         "filename": "test/boolcoder_test.cc",
         "patchSetId": 6
@@ -64,6 +118,24 @@
       "writtenOn": "2016-09-01T06:16:18Z",
       "side": 1,
       "message": "This test only checks that the aom_reader_tell_frac() function returns the correct number of fractional bits when calling the aom_write() / aom_read() functions on the aom_reader struct.\n\nWe should add a separate test that runs only when CONFIG_ANS or CONFIG_DAALA_EC is enabled that does a similar test of aom_reader_tell_frac() but codes with CDFs via the aom_write_symbol() / aom_read_symbol() functions.",
+      "revId": "a22f54f6a3d17b040c3fc1f4b02ca5fa725f9ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91e76d24_1c4fda34",
+        "filename": "test/boolcoder_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2016-09-01T06:37:11Z",
+      "side": 1,
+      "message": "This test is not configured to run CONFIG_ANS. I have not looked at write_symbol() yet, I\u0027ll try to add a test for it.",
+      "parentUuid": "f1efc9c0_90dc9a05",
       "revId": "a22f54f6a3d17b040c3fc1f4b02ca5fa725f9ba5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
