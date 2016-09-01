@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "111c5dae_863e2ac7",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-09-01T06:16:18Z",
+      "side": 1,
+      "message": "Perhaps we should add Alex Converse as reviewer to this issue so he can provide support for this function.",
+      "revId": "a22f54f6a3d17b040c3fc1f4b02ca5fa725f9ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d163a525_74f588b5",
+        "filename": "aom_dsp/dkboolreader.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-09-01T06:16:18Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be globally defined so that all of the reader implementations of aom_reader_tell_frac() return fractional bits with the same resolution, e.g., 1/8th bits, regardless of what their internal resolution supports?",
+      "revId": "a22f54f6a3d17b040c3fc1f4b02ca5fa725f9ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1efc9c0_90dc9a05",
+        "filename": "test/boolcoder_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-09-01T06:16:18Z",
+      "side": 1,
+      "message": "This test only checks that the aom_reader_tell_frac() function returns the correct number of fractional bits when calling the aom_write() / aom_read() functions on the aom_reader struct.\n\nWe should add a separate test that runs only when CONFIG_ANS or CONFIG_DAALA_EC is enabled that does a similar test of aom_reader_tell_frac() but codes with CDFs via the aom_write_symbol() / aom_read_symbol() functions.",
+      "revId": "a22f54f6a3d17b040c3fc1f4b02ca5fa725f9ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
