@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "312321ee_6afbf7db",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-01T18:06:55Z",
+      "side": 1,
+      "message": "Most of the changes are explicit casts that gcc didn\u0027t bother about.",
+      "revId": "41d9074457bf506137e6405ef588e7d957e6351d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "312321ee_2af1fffb",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-01T18:06:55Z",
+      "side": 1,
+      "message": "Both ways above produce correct code and identical code in my test.  So does simply *((uint32_t *)p \u003d a.\n\nThis might not be important.  u32_store_unaligned would be rarely used.  Johann, you mention a use in 4x4 transforms?  But would you use 32 bit operations at all for that?  And why the need for unaligned access?",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 1
+      },
+      "revId": "41d9074457bf506137e6405ef588e7d957e6351d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "312321ee_0af6bbf3",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-01T18:06:55Z",
+      "side": 1,
+      "message": "gcc, when optimisation is enable, will figure out that if you call for instance v64_align(a, 4) that 4 is an immediate value, not a variable and it will allow it in intrinsics requiring immediate values.  Clang apparently isn\u0027t that clever, so we must revert to suboptimal solutions.  I really don\u0027t want to use macros instead.  Neither one function for each value.\n\nSome compilers produce better code than others, which is something we always have to live with.  If it turns out to be critical, code using v64_align() and other functions with the same problem could always test for clang and add special code.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 2
+      },
+      "revId": "41d9074457bf506137e6405ef588e7d957e6351d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
