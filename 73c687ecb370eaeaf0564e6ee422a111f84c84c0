@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "318ec181_921cfad7",
+        "filename": "aom_dsp/simd/v128_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-01T18:28:02Z",
+      "side": 1,
+      "message": "What makes this problematic for clang?",
+      "revId": "73c687ecb370eaeaf0564e6ee422a111f84c84c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "318ec181_7224f61c",
+        "filename": "aom_dsp/simd/v128_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-01T18:28:02Z",
+      "side": 1,
+      "message": "tab -\u003e space",
+      "revId": "73c687ecb370eaeaf0564e6ee422a111f84c84c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "318ec181_f2fea653",
+        "filename": "aom_dsp/simd/v128_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-01T18:28:02Z",
+      "side": 1,
+      "message": "Same. Would be good to at least add a comment why it\u0027s problematic in case someone else goes looking.",
+      "revId": "73c687ecb370eaeaf0564e6ee422a111f84c84c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "318ec181_f2c306fc",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-01T18:28:02Z",
+      "side": 1,
+      "message": "I\u0027d remove this whole stanza. Trying to use 4.6 for arm intrinsics is unacceptable.\n\nYou can #include aom_ports/arm.h and use AOM_INCOMPATIBLE_GCC which checks \u003c\u003d 4.6\n\nWe used it to check some things in vp8. I could probably remove those things because it\u0027s really not necessary to have a fallback for a compiler that old.",
+      "revId": "73c687ecb370eaeaf0564e6ee422a111f84c84c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "318ec181_d2e5a29e",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-01T18:28:02Z",
+      "side": 1,
+      "message": "Comment.",
+      "revId": "73c687ecb370eaeaf0564e6ee422a111f84c84c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
