@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "11f37dac_8e347b98",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-09-01T06:37:45Z",
+      "side": 1,
+      "message": "I like this approach to defining the parameter so that we do not repeat the definition of all of the aom_read* functions.  \n\nHowever, it seems strange to parameterize the ACCT_STR_ARG macro and not the ACCT_STR_PARAM macro.  I don\u0027t see any place where you are using a different parameter than \u0027acct_str\u0027 with ACCT_StR_ARG().  Why not just do\n\n#define ACCT_STR acct_str\n#define ACCT_STR_PARAM , const char *ACCT_STR\n#define ACCT_STR_ARG , ACCT_STR\n\nThen for the #define functions below:\n\n#define aom_read(r, prob, ACCT_STR) aom_read_(r, prob, ACCT_STR_ARG)\n\nThat way it is impossible to have a mismatch in any of the definitions.",
+      "revId": "e935e798a4f6715da7ebcfc1d03b4bfbe2abd7f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b160f11c_53fa24a7",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-09-01T06:37:45Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be:\n\n                                          ACCT_STR_PARAM) {",
+      "revId": "e935e798a4f6715da7ebcfc1d03b4bfbe2abd7f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d163a525_54fa0ca7",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-09-01T06:37:45Z",
+      "side": 1,
+      "message": "Following the convention above, these would be ACCT_STR.",
+      "revId": "e935e798a4f6715da7ebcfc1d03b4bfbe2abd7f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "91ff6d6b_b50d4a99",
         "filename": "test/boolcoder_test.cc",
         "patchSetId": 3
