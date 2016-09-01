@@ -108,6 +108,30 @@
     },
     {
       "key": {
+        "uuid": "3105e1c3_7727d0d0",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-01T20:04:49Z",
+      "side": 1,
+      "message": "Ok, if you\u0027re getting str.w for all of them then it\u0027s not using a neon register and presumably that particular bug does not apply.",
+      "parentUuid": "51e7b556_20886a1d",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 1
+      },
+      "revId": "41d9074457bf506137e6405ef588e7d957e6351d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "312321ee_0af6bbf3",
         "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
         "patchSetId": 1
