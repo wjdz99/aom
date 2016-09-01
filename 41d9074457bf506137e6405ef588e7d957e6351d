@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "318ec181_b29b3e1e",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-01T18:28:02Z",
+      "side": 1,
+      "message": "Yeah, clang is much stricter about conversions. We\u0027re working to enable more conversion warnings in libvpx because we frequently get new warnings because people don\u0027t test with MSVC, which is even stricter, but we have a nightly run that catches them.",
+      "parentUuid": "312321ee_6afbf7db",
+      "revId": "41d9074457bf506137e6405ef588e7d957e6351d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "312321ee_2af1fffb",
         "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
         "patchSetId": 1
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "318ec181_52045221",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-01T18:28:02Z",
+      "side": 1,
+      "message": "Did anything in your test trigger the alignment hint? I would expect that else condition to. But again, moving a uint32_t from a GP register to a neon register so that it can be stored seems ... weird? Maybe I\u0027m misunderstanding it.\n\nI\u0027m looking at one of the functions we disabled, vp8_sixtap_predict4x4, because there was some perf impact that WebRTC noticed (previously it had a armv6 fallback, but I removed that too). Indeed it\u0027s a rare function, and we don\u0027t have any such functions in vp9 (yet? moving down the perf list maybe I\u0027ll find something as other optimization options are exhasted)\n\nThe data is not contiguous so I need to load/store 4 bytes at a time. I guess the 4x4 filter is not limited to 4x4 blocks? I don\u0027t know exactly how it\u0027s used, just that we get crashes on unaligned accesses.\n\nBut no, once it\u0027s loaded, it gets paired up into a d register (sometimes q) so we can do 64/128 bit operations. Even if it didn\u0027t though, I wouldn\u0027t care about 32 bit issues in neon registers. It\u0027s easy to ignore the other half.\n\nThe other option is to #error or something if the u32_load/store_unaligned is used on neon. If you don\u0027t expect it to be used, you can leave implementing it to whomever decides they want it.",
+      "parentUuid": "312321ee_2af1fffb",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 1
+      },
+      "revId": "41d9074457bf506137e6405ef588e7d957e6351d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "312321ee_0af6bbf3",
         "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
         "patchSetId": 1
@@ -53,6 +95,30 @@
       "writtenOn": "2016-09-01T18:06:55Z",
       "side": 1,
       "message": "gcc, when optimisation is enable, will figure out that if you call for instance v64_align(a, 4) that 4 is an immediate value, not a variable and it will allow it in intrinsics requiring immediate values.  Clang apparently isn\u0027t that clever, so we must revert to suboptimal solutions.  I really don\u0027t want to use macros instead.  Neither one function for each value.\n\nSome compilers produce better code than others, which is something we always have to live with.  If it turns out to be critical, code using v64_align() and other functions with the same problem could always test for clang and add special code.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 2
+      },
+      "revId": "41d9074457bf506137e6405ef588e7d957e6351d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "318ec181_521bf27d",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-01T18:28:02Z",
+      "side": 1,
+      "message": "Oh yeah, I\u0027ve seen that sort of behavior before. Would be good to add a comment to the file about that. Ideal would be an llvm bug. But I\u0027m not sure where I would use v64_align(), so it\u0027s probably fine, as long as whomever does use it understands the issue.",
+      "parentUuid": "312321ee_0af6bbf3",
       "range": {
         "startLine": 103,
         "startChar": 0,
