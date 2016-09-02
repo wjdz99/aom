@@ -196,6 +196,9 @@ static INLINE int get_entropy_context(TX_SIZE tx_size, const ENTROPY_CONTEXT *a,
                                       const ENTROPY_CONTEXT *l) {
   ENTROPY_CONTEXT above_ec = 0, left_ec = 0;
 
+  if (tx_size == 0)
+    assert(0);
+
   switch (tx_size) {
     case TX_4X4:
       above_ec = a[0] != 0;
