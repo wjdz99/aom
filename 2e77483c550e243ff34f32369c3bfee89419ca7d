@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "318881a4_9f2d33a1",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-02T17:52:09Z",
+      "side": 1,
+      "message": "Actually, it was git clang-format which moved this down.  I had put it at the top.  Don\u0027t ask why.  I\u0027ll fix.\n\n$ git clang-format-3.8 -f -p\ndiff --git b/aom_dsp/simd/v64_intrinsics_arm.h a/aom_dsp/simd/v64_intrinsics_arm.h\nindex bf92167..20685c9 100644\n--- b/aom_dsp/simd/v64_intrinsics_arm.h\n+++ a/aom_dsp/simd/v64_intrinsics_arm.h\n@@ -12,9 +12,9 @@\n #ifndef _V64_INTRINSICS_H\n #define _V64_INTRINSICS_H\n \n-#include \u003carm_neon.h\u003e\n #include \"./v64_intrinsics_arm.h\"\n #include \"aom_ports/arm.h\"\n+#include \u003carm_neon.h\u003e\n \n #ifdef AOM_INCOMPATIBLE_GCC\n #error Incompatible gcc\nApply this hunk to index and worktree [y,n,q,a,d,/,s,e,?]?",
+      "parentUuid": "71dd999f_55b28fed",
+      "revId": "2e77483c550e243ff34f32369c3bfee89419ca7d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71dd999f_75a9937b",
         "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
         "patchSetId": 5
@@ -47,6 +65,24 @@
       "writtenOn": "2016-09-02T16:28:07Z",
       "side": 1,
       "message": "Identical to the #else, yeah?",
+      "revId": "2e77483c550e243ff34f32369c3bfee89419ca7d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "318881a4_bf32f7fd",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-02T17:52:09Z",
+      "side": 1,
+      "message": "Yes, I removed the #if 0 ... #else.",
+      "parentUuid": "71dd999f_75a9937b",
       "revId": "2e77483c550e243ff34f32369c3bfee89419ca7d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -81,6 +117,24 @@
       "writtenOn": "2016-09-02T16:28:07Z",
       "side": 1,
       "message": "But you don\u0027t need the __clang__ condition?",
+      "revId": "2e77483c550e243ff34f32369c3bfee89419ca7d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "318881a4_df27bbba",
+        "filename": "aom_dsp/simd/v64_intrinsics_x86.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-02T17:52:09Z",
+      "side": 1,
+      "message": "No, in this case I resorted to a macro.  Fortunately, this is the only problematic function.",
+      "parentUuid": "71dd999f_55b9efc7",
       "revId": "2e77483c550e243ff34f32369c3bfee89419ca7d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
