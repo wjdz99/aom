@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71dd999f_1598176a",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-02T16:28:07Z",
+      "side": 1,
+      "message": "This only provides the AOM_INCOMPATIBLE_GCC definition. You still need to check it if you want the #error. I think it\u0027s fine without it though.",
+      "revId": "2e77483c550e243ff34f32369c3bfee89419ca7d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71dd999f_55b28fed",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-02T16:28:07Z",
+      "side": 1,
+      "message": "This needs to go to the top to quiet the warnings. Otherwise every patchset uploaded after this will get that warning (until it\u0027s fixed)",
+      "revId": "2e77483c550e243ff34f32369c3bfee89419ca7d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71dd999f_75a9937b",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-02T16:28:07Z",
+      "side": 1,
+      "message": "Identical to the #else, yeah?",
+      "revId": "2e77483c550e243ff34f32369c3bfee89419ca7d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71dd999f_b5c94b50",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-02T16:28:07Z",
+      "side": 1,
+      "message": "\u0026\u0026 !__clang__? I feel like compilers are like browser user agents.",
+      "revId": "2e77483c550e243ff34f32369c3bfee89419ca7d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71dd999f_55b9efc7",
+        "filename": "aom_dsp/simd/v64_intrinsics_x86.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-02T16:28:07Z",
+      "side": 1,
+      "message": "But you don\u0027t need the __clang__ condition?",
+      "revId": "2e77483c550e243ff34f32369c3bfee89419ca7d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
