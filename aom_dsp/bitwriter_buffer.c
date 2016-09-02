@@ -14,6 +14,9 @@
 
 #include "./aom_config.h"
 #include "./bitwriter_buffer.h"
+#if CONFIG_REFERENCE_BUFFER
+#include "aom_ports/bitops.h"
+#endif
 
 size_t aom_wb_bytes_written(const struct aom_write_bit_buffer *wb) {
   return wb->bit_offset / CHAR_BIT + (wb->bit_offset % CHAR_BIT > 0);
@@ -46,3 +49,12 @@ void aom_wb_write_inv_signed_literal(struct aom_write_bit_buffer *wb, int data,
   aom_wb_write_bit(wb, data < 0);
 #endif
 }
+
+#if CONFIG_REFERENCE_BUFFER
+void aom_wb_write_exp_golomb(struct aom_write_bit_buffer *wb, int n) {
+  int code, length;
+  code = n + 1;
+  length = 1 + 2 * get_msb(code);
+  aom_wb_write_literal(wb, code, length);
+}
+#endif

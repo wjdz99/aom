@@ -41,6 +41,11 @@ extern "C" {
 // normal reference pool.
 #define FRAME_BUFFERS (REF_FRAMES + 7)
 
+#if CONFIG_REFERENCE_BUFFER
+#define FRAME_NUM_BITS 16
+#define MAX_FRAME_NUM ((1 << FRAME_NUM_BITS) - 1)
+#endif
+
 #if CONFIG_EXT_REFS
 #define FRAME_CONTEXTS_LOG2 3
 #else
@@ -339,6 +344,10 @@ typedef struct AV1Common {
   aom_prob kf_y_prob[INTRA_MODES][INTRA_MODES][INTRA_MODES - 1];
 #if CONFIG_DERING
   int dering_level;
+#endif
+#if CONFIG_REFERENCE_BUFFER
+  int frame_num;
+  int ref_frame_num[REF_FRAMES];
 #endif
 } AV1_COMMON;
 

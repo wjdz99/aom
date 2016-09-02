@@ -1720,6 +1720,35 @@ static void write_bitdepth_colorspace_sampling(
   }
 }
 
+#if CONFIG_REFERENCE_BUFFER
+static void write_ref_frame_num(AV1_COMP *cpi,
+                                struct aom_write_bit_buffer *wb) {
+  AV1_COMMON *const cm = &cpi->common;
+  int i, refresh_frame_mask, delta_frame_num_flag, delta_frame_num;
+  refresh_frame_mask = get_refresh_mask(cpi);
+  for (i = 0; i < REF_FRAMES; i++) {
+    if ((refresh_frame_mask >> i) & 1) {
+      /* The current frame goes into this reference slot */
+      cm->ref_frame_num[i] = cm->frame_num;
+    }
+
+    // This rule is non-normative:
+    // Use delta coding unless the slot contains the last key frame
+    delta_frame_num_flag = cm->ref_frame_num[i] > 0;
+
+    aom_wb_write_bit(wb, delta_frame_num_flag);
+    if (delta_frame_num_flag) {
+      delta_frame_num =
+          (cm->frame_num - cm->ref_frame_num[i] + MAX_FRAME_NUM + 1) &
+          MAX_FRAME_NUM;
+      aom_wb_write_exp_golomb(wb, delta_frame_num);
+    } else {
+      aom_wb_write_exp_golomb(wb, cm->ref_frame_num[i]);
+    }
+  }
+}
+#endif
+
 static void write_uncompressed_header(AV1_COMP *cpi,
                                       struct aom_write_bit_buffer *wb) {
   AV1_COMMON *const cm = &cpi->common;
@@ -1779,6 +1808,9 @@ static void write_uncompressed_header(AV1_COMP *cpi,
       aom_wb_write_bit(wb, cm->allow_screen_content_tools);
 #endif  // CONFIG_PALETTE
   } else {
+#if CONFIG_REFERENCE_BUFFER
+    aom_wb_write_literal(wb, cm->frame_num, FRAME_NUM_BITS);
+#endif
     if (!cm->show_frame) aom_wb_write_bit(wb, cm->intra_only);
 
     if (!cm->error_resilient_mode) {
@@ -1817,20 +1849,28 @@ static void write_uncompressed_header(AV1_COMP *cpi,
       }
 #endif
 
+#if CONFIG_REFERENCE_BUFFER
+      write_ref_frame_num(cpi, wb);
+#else
 #if CONFIG_EXT_REFS
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
 #else
       aom_wb_write_literal(wb, get_refresh_mask(cpi), REF_FRAMES);
 #endif  // CONFIG_EXT_REFS
+#endif
       write_frame_size(cm, wb);
     } else {
       MV_REFERENCE_FRAME ref_frame;
 
+#if CONFIG_REFERENCE_BUFFER
+      write_ref_frame_num(cpi, wb);
+#else
 #if CONFIG_EXT_REFS
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
 #else
       aom_wb_write_literal(wb, get_refresh_mask(cpi), REF_FRAMES);
 #endif  // CONFIG_EXT_REFS
+#endif
 
 #if CONFIG_EXT_REFS
       if (!cpi->refresh_frame_mask) {

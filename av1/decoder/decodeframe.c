@@ -1613,6 +1613,26 @@ static void read_bitdepth_colorspace_sampling(AV1_COMMON *cm,
   }
 }
 
+#if CONFIG_REFERENCE_BUFFER
+int read_ref_frame_num(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
+  int i, refresh_frame_flags, delta_frame_num_flag, ref_frame_num,
+      delta_frame_num;
+  refresh_frame_flags = 0;
+  for (i = 0; i < REF_FRAMES; i++) {
+    delta_frame_num_flag = aom_rb_read_bit(rb);
+    if (delta_frame_num_flag) {
+      delta_frame_num = aom_rb_read_exp_golomb(rb);
+      ref_frame_num =
+          (cm->frame_num - delta_frame_num + MAX_FRAME_NUM + 1) & MAX_FRAME_NUM;
+    } else {
+      ref_frame_num = aom_rb_read_exp_golomb(rb);
+    }
+    refresh_frame_flags |= ((ref_frame_num == cm->frame_num) << i);
+  }
+  return refresh_frame_flags;
+}
+#endif
+
 static size_t read_uncompressed_header(AV1Decoder *pbi,
                                        struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
@@ -1747,7 +1767,13 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
     if (frame_is_intra_only(cm))
       cm->allow_screen_content_tools = aom_rb_read_bit(rb);
 #endif  // CONFIG_PALETTE
+#if CONFIG_REFERENCE_BUFFER
+    cm->frame_num = 0;
+#endif
   } else {
+#if CONFIG_REFERENCE_BUFFER
+    cm->frame_num = aom_rb_read_literal(rb, FRAME_NUM_BITS);
+#endif
     cm->intra_only = cm->show_frame ? 0 : aom_rb_read_bit(rb);
 
     if (cm->error_resilient_mode) {
@@ -1801,16 +1827,22 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #endif
       }
 #endif
-
+#if CONFIG_REFERENCE_BUFFER
+      pbi->refresh_frame_flags = read_ref_frame_num(cm, rb);
+#else
       pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+#endif
       setup_frame_size(cm, rb);
       if (pbi->need_resync) {
         memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
         pbi->need_resync = 0;
       }
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
+#if CONFIG_REFERENCE_BUFFER
+      pbi->refresh_frame_flags = read_ref_frame_num(cm, rb);
+#else
       pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
-
+#endif
 #if CONFIG_EXT_REFS
       if (!pbi->refresh_frame_flags) {
         // NOTE: "pbi->refresh_frame_flags == 0" indicates that the coded frame

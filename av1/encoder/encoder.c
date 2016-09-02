@@ -3729,6 +3729,18 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
          MAX_MODES * sizeof(*cpi->mode_chosen_counts));
 #endif
 
+#if CONFIG_REFERENCE_BUFFER
+  if (cm->frame_type == KEY_FRAME) {
+    int i;
+    cm->frame_num = 0;
+    for (i = 0; i < 8; i++) {
+      cm->ref_frame_num[i] = 0;
+    }
+  } else {
+    cm->frame_num = (cm->frame_num + 1 + MAX_FRAME_NUM + 1) & MAX_FRAME_NUM;
+  }
+#endif
+
   if (cpi->sf.recode_loop == DISALLOW_RECODE) {
     encode_without_recode_loop(cpi);
   } else {

@@ -14,6 +14,7 @@
 
 #include <limits.h>
 
+#include "./aom_config.h"
 #include "aom/aom_integer.h"
 
 #ifdef __cplusplus
@@ -40,6 +41,10 @@ int aom_rb_read_literal(struct aom_read_bit_buffer *rb, int bits);
 int aom_rb_read_signed_literal(struct aom_read_bit_buffer *rb, int bits);
 
 int aom_rb_read_inv_signed_literal(struct aom_read_bit_buffer *rb, int bits);
+
+#if CONFIG_REFERENCE_BUFFER
+int aom_rb_read_exp_golomb(struct aom_read_bit_buffer *rb);
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"

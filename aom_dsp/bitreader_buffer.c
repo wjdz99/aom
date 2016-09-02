@@ -49,3 +49,14 @@ int aom_rb_read_inv_signed_literal(struct aom_read_bit_buffer *rb, int bits) {
   return aom_rb_read_signed_literal(rb, bits);
 #endif
 }
+
+#if CONFIG_REFERENCE_BUFFER
+int aom_rb_read_exp_golomb(struct aom_read_bit_buffer *rb) {
+  int val = 0;
+  while (!aom_rb_read_bit(rb)) val++;
+  if (val) {
+    val = (1 << val) - 1 + aom_rb_read_literal(rb, val);
+  }
+  return val;
+}
+#endif
