@@ -39,6 +39,14 @@ void update_scan_prob(AV1_COMMON *cm, TX_SIZE tx_size, TX_TYPE tx_type,
                       int rate_16);
 void update_scan_count_facade(AV1_COMMON *cm, TX_SIZE tx_size, TX_TYPE tx_type,
                               tran_low_t *dqcoeffs, int max_scan);
+void augment_prob(uint32_t *prob, int size, int tx1d_size);
+void sort_prob(uint32_t *prob, int start, int end);
+void update_sort_order(TX_SIZE tx_size, uint32_t *non_zero_prob,
+                       int16_t *sort_order);
+void update_scan_order(TX_SIZE tx_size, int16_t *sort_order, int16_t *scan,
+                       int16_t *iscan);
+void update_neighbors(int tx_size, int16_t *scan, int16_t *iscan,
+                      int16_t *neighbors);
 #endif
 
 static INLINE int get_coef_context(const int16_t *neighbors,
