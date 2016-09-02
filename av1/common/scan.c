@@ -820,4 +820,141 @@ void update_scan_count_facade(AV1_COMMON *cm, TX_SIZE tx_size, TX_TYPE tx_type,
   uint32_t *non_zero_count = get_non_zero_counts(&cm->counts, tx_size, tx_type);
   update_scan_count(scan, max_scan, dqcoeffs, non_zero_count);
 }
+
+INLINE void swap(uint32_t *a, uint32_t *b) {
+  int temp = *a;
+  *a = *b;
+  *b = temp;
+}
+
+int partition(uint32_t *prob, int start, int end) {
+  int p = (start + end) / 2;
+  uint32_t pv = prob[p];
+  int chk = start;
+  int middle = start;
+  swap(&prob[p], &prob[end - 1]);
+  for (chk = start; chk < end; ++chk) {
+    if (prob[chk] >= pv) {
+      swap(&prob[chk], &prob[middle]);
+      ++middle;
+    }
+  }
+  return middle - 1;
+}
+
+// quick sort
+void sort_prob(uint32_t *prob, int start, int end) {
+  int middle;
+  if (start + 1 >= end) return;
+  middle = partition(prob, start, end);
+  sort_prob(prob, start, middle);
+  sort_prob(prob, middle + 1, end);
+}
+
+// embed r + c and coeff_idx info with nonzero probabilities. When sorting the
+// nonzero probabilities, if there is a tie, the coefficient with smaller r + c
+// will be scanned first
+void augment_prob(uint32_t *prob, int size, int tx1d_size) {
+  int r, c;
+  for (r = 0; r < size; r++) {
+    for (c = 0; c < size; c++) {
+      int coeff_idx = r * tx1d_size + c;
+      int idx = r * size + c;
+      // prob[idx]: 16 bits  r+c: 6 bits  idx: 10 bits
+      prob[idx] =
+          (prob[idx] << 16) + (((1 << 16) - 1) ^ (((r + c) << 10) + coeff_idx));
+    }
+  }
+}
+
+// topological sort
+void dfs_scan(int tx1d_size, int *scan_idx, int coeff_idx, int16_t *scan,
+              int16_t *iscan) {
+  int r = coeff_idx / tx1d_size;
+  int c = coeff_idx % tx1d_size;
+
+  if (iscan[coeff_idx] != -1) return;
+
+  if (r > 0) dfs_scan(tx1d_size, scan_idx, coeff_idx - tx1d_size, scan, iscan);
+
+  if (c > 0) dfs_scan(tx1d_size, scan_idx, coeff_idx - 1, scan, iscan);
+
+  scan[*scan_idx] = coeff_idx;
+  iscan[coeff_idx] = *scan_idx;
+  ++(*scan_idx);
+}
+
+void update_neighbors(int tx_size, int16_t *scan, int16_t *iscan,
+                      int16_t *neighbors) {
+  int tx1d_size = get_tx1d_size(tx_size);
+  int tx2d_size = get_tx2d_size(tx_size);
+  int scan_idx;
+  for (scan_idx = 0; scan_idx < tx2d_size; ++scan_idx) {
+    int coeff_idx = scan[scan_idx];
+    int r = coeff_idx / tx1d_size;
+    int c = coeff_idx % tx1d_size;
+    int has_left = 0;
+    int has_above = 0;
+    // left neighbor
+    if (c > 0 && iscan[coeff_idx - 1] < scan_idx) has_left = 1;
+    // above neighbor
+    if (r > 0 && iscan[coeff_idx - tx1d_size] < scan_idx) has_above = 1;
+
+    if (has_left && has_above) {
+      neighbors[scan_idx * MAX_NEIGHBORS + 0] = coeff_idx - 1;
+      neighbors[scan_idx * MAX_NEIGHBORS + 1] = coeff_idx - tx1d_size;
+    } else if (has_left) {
+      neighbors[scan_idx * MAX_NEIGHBORS + 0] = coeff_idx - 1;
+      neighbors[scan_idx * MAX_NEIGHBORS + 1] = coeff_idx - 1;
+    } else if (has_above) {
+      neighbors[scan_idx * MAX_NEIGHBORS + 0] = coeff_idx - tx1d_size;
+      neighbors[scan_idx * MAX_NEIGHBORS + 1] = coeff_idx - tx1d_size;
+    } else {
+      neighbors[scan_idx * MAX_NEIGHBORS + 0] = scan[0];
+      neighbors[scan_idx * MAX_NEIGHBORS + 1] = scan[0];
+    }
+  }
+  neighbors[tx2d_size * MAX_NEIGHBORS + 0] = scan[0];
+  neighbors[tx2d_size * MAX_NEIGHBORS + 1] = scan[0];
+}
+
+// apply quick sort on nonzero probabilities to obtain a sort order
+void update_sort_order(TX_SIZE tx_size, uint32_t *non_zero_prob,
+                       int16_t *sort_order) {
+  uint32_t temp[1024];
+  int tx1d_size = get_tx1d_size(tx_size);
+  int tx2d_size = get_tx2d_size(tx_size);
+  int sort_idx;
+  assert(tx2d_size <= 1024);
+  memcpy(temp, non_zero_prob, tx2d_size * sizeof(*non_zero_prob));
+  augment_prob(temp, tx1d_size, tx1d_size);
+  sort_prob(temp, 0, tx2d_size);
+  for (sort_idx = 0; sort_idx < tx2d_size; ++sort_idx) {
+    int mask = (1 << 10) - 1;
+    int coeff_idx = (temp[sort_idx] & mask) ^ mask;
+    sort_order[sort_idx] = coeff_idx;
+  }
+}
+
+// apply topological sort on the nonzero probabilities sorting order to
+// guarantee each to-be-scanned coefficient's upper and left coefficient will be
+// scanned before the to-be-scanned coefficient.
+void update_scan_order(TX_SIZE tx_size, int16_t *sort_order, int16_t *scan,
+                       int16_t *iscan) {
+  int coeff_idx;
+  int scan_idx;
+  int sort_idx;
+  int tx1d_size = get_tx1d_size(tx_size);
+  int tx2d_size = get_tx2d_size(tx_size);
+
+  for (coeff_idx = 0; coeff_idx < tx2d_size; ++coeff_idx) {
+    iscan[coeff_idx] = -1;
+  }
+
+  scan_idx = 0;
+  for (sort_idx = 0; sort_idx < tx2d_size; ++sort_idx) {
+    coeff_idx = sort_order[sort_idx];
+    dfs_scan(tx1d_size, &scan_idx, coeff_idx, scan, iscan);
+  }
+}
 #endif
