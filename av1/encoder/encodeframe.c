@@ -2590,6 +2590,8 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, BLOCK_64X64,
                         &dummy_rdc, INT64_MAX, td->pc_root);
     }
+
+    if (cm->profile != 0) assert(0);
   }
 }
 
