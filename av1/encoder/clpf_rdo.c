@@ -77,7 +77,8 @@ int av1_clpf_decision(int k, int l, const YV12_BUFFER_CONFIG *rec,
       int ypos = (k << fb_size_log2) + m * block_size;
       const int bs = MAX_MIB_SIZE;
       if (!cm->mi_grid_visible[ypos / bs * cm->mi_stride + xpos / bs]
-               ->mbmi.skip)
+               ->mbmi.skip ||
+          fb_size_log2 == 7)
         aom_clpf_detect(rec->y_buffer, org->y_buffer, rec->y_stride,
                         org->y_stride, xpos, ypos, rec->y_crop_width,
                         rec->y_crop_height, &sum0, &sum1, strength);
@@ -131,9 +132,9 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
                            rec, org, cm, block_size, fb_size_log2, w2, h2, res);
     }
 
-    res[i][1] = AOMMIN(sum1 + res[i][0], res[i][1]);
-    res[i][2] = AOMMIN(sum2 + res[i][0], res[i][2]);
-    res[i][3] = AOMMIN(sum3 + res[i][0], res[i][3]);
+    res[i][1] = !i ? res[i][1] : AOMMIN(sum1 + res[i][0], res[i][1]);
+    res[i][2] = !i ? res[i][2] : AOMMIN(sum2 + res[i][0], res[i][2]);
+    res[i][3] = !i ? res[i][3] : AOMMIN(sum3 + res[i][0], res[i][3]);
     res[i][0] = oldfiltered + filtered;  // Number of signal bits
     return filtered;
   }
@@ -144,7 +145,8 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
       int ypos = y + m * block_size;
       if (!cm->mi_grid_visible[ypos / MAX_MIB_SIZE * cm->mi_stride +
                                xpos / MAX_MIB_SIZE]
-               ->mbmi.skip) {
+               ->mbmi.skip ||
+          fb_size_log2 == 7) {
         aom_clpf_detect_multi(rec->y_buffer, org->y_buffer, rec->y_stride,
                               org->y_stride, xpos, ypos, rec->y_crop_width,
                               rec->y_crop_height, sum);
