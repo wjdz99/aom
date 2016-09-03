@@ -77,7 +77,8 @@ int av1_clpf_decision(int k, int l, const YV12_BUFFER_CONFIG *rec,
       int ypos = (k << fb_size_log2) + m * block_size;
       const int bs = MAX_MIB_SIZE;
       if (!cm->mi_grid_visible[ypos / bs * cm->mi_stride + xpos / bs]
-               ->mbmi.skip)
+               ->mbmi.skip ||
+          1 || fb_size_log2 == 7)
         aom_clpf_detect(rec->y_buffer, org->y_buffer, rec->y_stride,
                         org->y_stride, xpos, ypos, rec->y_crop_width,
                         rec->y_crop_height, &sum0, &sum1, strength);
@@ -138,17 +139,25 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
     return filtered;
   }
 
+  int allskip = fb_size_log2 != 7;
   for (m = 0; m < h; m++) {
     for (n = 0; n < w; n++) {
       int xpos = x + n * block_size;
       int ypos = y + m * block_size;
-      if (!cm->mi_grid_visible[ypos / MAX_MIB_SIZE * cm->mi_stride +
-                               xpos / MAX_MIB_SIZE]
-               ->mbmi.skip) {
+      allskip &= cm->mi_grid_visible[ypos / MAX_MIB_SIZE * cm->mi_stride +
+                                     xpos / MAX_MIB_SIZE]
+                     ->mbmi.skip;
+    }
+  }
+
+  if (!allskip) {
+    for (m = 0; m < h; m++) {
+      for (n = 0; n < w; n++) {
+        int xpos = x + n * block_size;
+        int ypos = y + m * block_size;
         aom_clpf_detect_multi(rec->y_buffer, org->y_buffer, rec->y_stride,
                               org->y_stride, xpos, ypos, rec->y_crop_width,
                               rec->y_crop_height, sum);
-        filtered = 1;
       }
     }
   }
@@ -159,7 +168,7 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
     res[i][2] += sum[2];
     res[i][3] += sum[3];
   }
-  return filtered;
+  return !allskip;
 }
 
 void av1_clpf_test_frame(const YV12_BUFFER_CONFIG *rec,

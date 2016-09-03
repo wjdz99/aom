@@ -73,7 +73,7 @@ int av1_clpf_frame(const YV12_BUFFER_CONFIG *dst, const YV12_BUFFER_CONFIG *rec,
   for (k = 0; k < num_fb_ver; k++) {
     for (l = 0; l < num_fb_hor; l++) {
       int h, w;
-      int allskip = 1;
+      int allskip = fb_size_log2 != 7;
       for (m = 0; allskip && m < (1 << fb_size_log2) / bs; m++) {
         for (n = 0; allskip && n < (1 << fb_size_log2) / bs; n++) {
           xpos = (l << fb_size_log2) + n * bs;
@@ -100,16 +100,9 @@ int av1_clpf_frame(const YV12_BUFFER_CONFIG *dst, const YV12_BUFFER_CONFIG *rec,
           for (n = 0; n < (w + bs - 1) / bs; n++) {
             xpos = (l << fb_size_log2) + n * bs;
             ypos = (k << fb_size_log2) + m * bs;
-            if (!cm->mi_grid_visible[ypos / bs * cm->mi_stride + xpos / bs]
-                     ->mbmi.skip) {
-              // Not skip block, apply the filter
-              aom_clpf_block(rec->y_buffer, dst->y_buffer, stride_y, xpos, ypos,
-                             bs, bs, width, height, strength);
-            } else {  // Skip block, copy instead
-              for (c = 0; c < bs; c++)
-                *(uint64_t *)(dst->y_buffer + (ypos + c) * stride_y + xpos) =
-                    *(uint64_t *)(rec->y_buffer + (ypos + c) * stride_y + xpos);
-            }
+            // Apply the filter
+            aom_clpf_block(rec->y_buffer, dst->y_buffer, stride_y, xpos, ypos,
+                           bs, bs, width, height, strength);
           }
         }
       } else {  // Entire filter block is skip, copy
