@@ -76,16 +76,15 @@ bool check_uabs(const PvVec &pv_vec, uint8_t *buf) {
 
 // TODO(aconverse@google.com): replace this with a more representative
 // distribution from the codec.
-const rans_sym rans_sym_tab[] = {
+#define kRansSymbols 4
+const rans_sym rans_sym_tab[kRansSymbols] = {
   { 67, 0 }, { 99, 67 }, { 575, 166 }, { 283, 741 },
 };
 
 std::vector<int> ans_encode_build_vals(const rans_sym *tab, int iters) {
   std::vector<int> p_to_sym;
-  int i = 0;
-  while (p_to_sym.size() < RANS_PRECISION) {
+  for (int i = 0; i < kRansSymbols; ++i) {
     p_to_sym.insert(p_to_sym.end(), tab[i].prob, i);
-    ++i;
   }
   assert(p_to_sym.size() == RANS_PRECISION);
   std::vector<int> ret;
@@ -97,7 +96,8 @@ std::vector<int> ans_encode_build_vals(const rans_sym *tab, int iters) {
   return ret;
 }
 
-void rans_build_dec_tab(const struct rans_sym sym_tab[], rans_lut dec_tab) {
+void rans_build_dec_tab(const struct rans_sym sym_tab[],
+                        aom_cdf_prob *dec_tab) {
   unsigned int sum = 0;
   for (int i = 0; sum < RANS_PRECISION; ++i) {
     dec_tab[i] = sum += sym_tab[i].prob;
@@ -108,7 +108,7 @@ bool check_rans(const std::vector<int> &sym_vec, const rans_sym *const tab,
                 uint8_t *buf) {
   AnsCoder a;
   ans_write_init(&a, buf);
-  rans_lut dec_tab;
+  aom_cdf_prob dec_tab[kRansSymbols];
   rans_build_dec_tab(tab, dec_tab);
 
   std::clock_t start = std::clock();
