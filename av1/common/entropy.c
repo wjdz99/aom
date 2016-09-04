@@ -1687,6 +1687,7 @@ void av1_adapt_coef_probs(AV1_COMMON *cm) {
   for (tx_size = 0; tx_size < TX_SIZES; ++tx_size) {
     for (tx_type = 0; tx_type < TX_TYPES; ++tx_type) {
       update_scan_prob(cm, tx_size, tx_type, scan_update_rate_16);
+      update_scan_order_facade(cm, tx_size, tx_type);
     }
   }
 #endif
