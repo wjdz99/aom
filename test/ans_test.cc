@@ -97,7 +97,8 @@ std::vector<int> ans_encode_build_vals(const rans_sym *tab, int iters) {
   return ret;
 }
 
-void rans_build_dec_tab(const struct rans_sym sym_tab[], rans_lut dec_tab) {
+void rans_build_dec_tab(const struct rans_sym sym_tab[],
+                        aom_cdf_prob *dec_tab) {
   unsigned int sum = 0;
   for (int i = 0; sum < RANS_PRECISION; ++i) {
     dec_tab[i] = sum += sym_tab[i].prob;
@@ -108,7 +109,7 @@ bool check_rans(const std::vector<int> &sym_vec, const rans_sym *const tab,
                 uint8_t *buf) {
   AnsCoder a;
   ans_write_init(&a, buf);
-  rans_lut dec_tab;
+  aom_cdf_prob dec_tab[4];
   rans_build_dec_tab(tab, dec_tab);
 
   std::clock_t start = std::clock();
