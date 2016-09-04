@@ -99,7 +99,7 @@ typedef struct {
 typedef struct { MV_REFERENCE_FRAME ref_frame[2]; } REF_DEFINITION;
 
 struct rdcost_block_args {
-  AV1_COMMON *cm;
+  const AV1_COMMON *cm;
   MACROBLOCK *x;
   ENTROPY_CONTEXT t_above[16];
   ENTROPY_CONTEXT t_left[16];
@@ -513,6 +513,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  const AV1_COMMON *const cm = args->cm;
   int64_t rd1, rd2, rd;
   int rate;
   int64_t dist;
@@ -521,7 +522,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   if (args->exit_early) return;
 
   if (!is_inter_block(mbmi)) {
-    struct encode_b_args b_args = { x, NULL, &mbmi->skip };
+    struct encode_b_args b_args = { (AV1_COMMON *)cm, x, NULL, &mbmi->skip };
     av1_encode_block_intra(plane, block, blk_row, blk_col, plane_bsize, tx_size,
                            &b_args);
     dist_block(x, plane, block, tx_size, &dist, &sse);
@@ -530,7 +531,8 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
                      (block >> (tx_size_1d_in_unit_log2[tx_size] * 2))] ==
         SKIP_TXFM_NONE) {
       // full forward transform and quantization
-      av1_xform_quant(x, plane, block, blk_row, blk_col, plane_bsize, tx_size);
+      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
+                      tx_size);
       dist_block(x, plane, block, tx_size, &dist, &sse);
     } else if (x->skip_txfm[(plane << 2) +
                             (block >> (tx_size_1d_in_unit_log2[tx_size] *
@@ -566,7 +568,8 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
     }
   } else {
     // full forward transform and quantization
-    av1_xform_quant(x, plane, block, blk_row, blk_col, plane_bsize, tx_size);
+    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
+                    tx_size);
     dist_block(x, plane, block, tx_size, &dist, &sse);
   }
 
@@ -610,7 +613,7 @@ static void txfm_rd_in_plane(const AV1_COMMON *const cm, MACROBLOCK *x,
   args.best_rd = ref_best_rd;
   args.use_fast_coef_costing = use_fast_coef_casting;
   args.skippable = 1;
-  args.cm = (AV1_COMMON *)cm;
+  args.cm = cm;
 
   if (plane == 0) xd->mi[0]->mbmi.tx_size = tx_size;
 
@@ -4699,7 +4702,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       }
 #endif  // CONFIG_EXT_INTRA
       distortion2 = distortion_y + distortion_uv;
-      av1_encode_intra_block_plane(x, bsize, 0);
+      av1_encode_intra_block_plane((AV1_COMMON *)cm, x, bsize, 0);
     } else {
 #if CONFIG_REF_MV
       int_mv backup_ref_mv[2];
