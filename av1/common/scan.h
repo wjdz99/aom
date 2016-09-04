@@ -59,6 +59,7 @@ void update_scan_order(TX_SIZE tx_size, int16_t *sort_order, int16_t *scan,
 // neighbors[] accordingly.
 void update_neighbors(int tx_size, const int16_t *scan, const int16_t *iscan,
                       int16_t *neighbors);
+void update_scan_order_facade(AV1_COMMON *cm, TX_SIZE tx_size, TX_TYPE tx_type);
 void init_scan_order(AV1_COMMON *cm);
 #endif
 
