@@ -1044,7 +1044,7 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
                           aom_writer *w, TOKENEXTRA **tok,
                           const TOKENEXTRA *const tok_end, int mi_row,
                           int mi_col) {
-  const AV1_COMMON *const cm = &cpi->common;
+  AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
   MODE_INFO *m;
   int plane;

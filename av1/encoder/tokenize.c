@@ -377,7 +377,7 @@ void av1_tokenize_palette_sb(const struct ThreadData *const td,
 static void tokenize_b(int plane, int block, int blk_row, int blk_col,
                        BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
   struct tokenize_b_args *const args = arg;
-  const AV1_COMP *cpi = args->cpi;
+  AV1_COMP *cpi = (AV1_COMP *)args->cpi;
   AV1_COMMON *cm = &cpi->common;
   ThreadData *const td = args->td;
   MACROBLOCK *const x = &td->mb;
