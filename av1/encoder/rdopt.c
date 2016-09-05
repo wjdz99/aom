@@ -615,7 +615,7 @@ static void txfm_rd_in_plane(const AV1_COMMON *const cm, MACROBLOCK *x,
   av1_get_entropy_contexts(bsize, tx_size, pd, args.t_above, args.t_left);
 
   tx_type = get_tx_type(pd->plane_type, xd, 0);
-  args.scan_order = get_scan(tx_size, tx_type);
+  args.scan_order = get_scan(cm, tx_size, tx_type);
 
   av1_foreach_transformed_block_in_plane(xd, bsize, plane, block_rd_txfm,
                                          &args);
@@ -1072,7 +1072,7 @@ static int64_t rd_pick_intra4x4block(const AV1_COMP *const cpi, MACROBLOCK *x,
                                     dst_stride, xd->bd);
           if (xd->lossless[xd->mi[0]->mbmi.segment_id]) {
             TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block);
-            const SCAN_ORDER *scan_order = get_scan(TX_4X4, tx_type);
+            const SCAN_ORDER *scan_order = get_scan(cm, TX_4X4, tx_type);
             av1_highbd_fwd_txfm_4x4(src_diff, coeff, 8, DCT_DCT, 1);
             av1_regular_quantize_b_4x4(x, 0, block, scan_order->scan,
                                        scan_order->iscan);
@@ -1088,7 +1088,7 @@ static int64_t rd_pick_intra4x4block(const AV1_COMP *const cpi, MACROBLOCK *x,
           } else {
             int64_t unused;
             TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block);
-            const SCAN_ORDER *scan_order = get_scan(TX_4X4, tx_type);
+            const SCAN_ORDER *scan_order = get_scan(cm, TX_4X4, tx_type);
             av1_highbd_fwd_txfm_4x4(src_diff, coeff, 8, tx_type, 0);
             av1_regular_quantize_b_4x4(x, 0, block, scan_order->scan,
                                        scan_order->iscan);
@@ -1171,7 +1171,7 @@ static int64_t rd_pick_intra4x4block(const AV1_COMP *const cpi, MACROBLOCK *x,
 
         if (xd->lossless[xd->mi[0]->mbmi.segment_id]) {
           TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block);
-          const SCAN_ORDER *scan_order = get_scan(TX_4X4, tx_type);
+          const SCAN_ORDER *scan_order = get_scan(cm, TX_4X4, tx_type);
           av1_fwd_txfm_4x4(src_diff, coeff, 8, DCT_DCT, 1);
           av1_regular_quantize_b_4x4(x, 0, block, scan_order->scan,
                                      scan_order->iscan);
@@ -1185,7 +1185,7 @@ static int64_t rd_pick_intra4x4block(const AV1_COMP *const cpi, MACROBLOCK *x,
         } else {
           int64_t unused;
           TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block);
-          const SCAN_ORDER *scan_order = get_scan(TX_4X4, tx_type);
+          const SCAN_ORDER *scan_order = get_scan(cm, TX_4X4, tx_type);
           av1_fwd_txfm_4x4(src_diff, coeff, 8, tx_type, 0);
           av1_regular_quantize_b_4x4(x, 0, block, scan_order->scan,
                                      scan_order->iscan);
@@ -2244,7 +2244,7 @@ static int64_t encode_inter_mb_segment(const AV1_COMP *const cpi, MACROBLOCK *x,
   int64_t thisdistortion = 0, thissse = 0;
   int thisrate = 0;
   TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, i);
-  const SCAN_ORDER *scan_order = get_scan(TX_4X4, tx_type);
+  const SCAN_ORDER *scan_order = get_scan(cm, TX_4X4, tx_type);
 
   av1_build_inter_predictor_sub8x8(xd, 0, i, ir, ic, mi_row, mi_col);
 
