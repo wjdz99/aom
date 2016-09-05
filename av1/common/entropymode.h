@@ -109,6 +109,9 @@ typedef struct frame_contexts {
   aom_cdf_prob intra_ext_tx_cdf[EXT_TX_SIZES][TX_TYPES][TX_TYPES];
   aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SIZES][TX_TYPES];
 #endif
+#if CONFIG_DELTA_Q
+  aom_prob delta_q_prob[DELTA_Q_CONTEXTS];
+#endif
 } FRAME_CONTEXT;
 
 typedef struct FRAME_COUNTS {
@@ -152,6 +155,9 @@ typedef struct FRAME_COUNTS {
 #if CONFIG_MISC_FIXES
   struct seg_counts seg;
 #endif
+#if CONFIG_DELTA_Q
+  unsigned int delta_q[DELTA_Q_CONTEXTS][2];
+#endif
   unsigned int intra_ext_tx[EXT_TX_SIZES][TX_TYPES][TX_TYPES];
   unsigned int inter_ext_tx[EXT_TX_SIZES][TX_TYPES];
 } FRAME_COUNTS;
@@ -175,6 +181,9 @@ extern const aom_prob av1_default_palette_uv_color_prob
 
 extern const aom_tree_index av1_intra_mode_tree[TREE_SIZE(INTRA_MODES)];
 extern const aom_tree_index av1_inter_mode_tree[TREE_SIZE(INTER_MODES)];
+#if CONFIG_DELTA_Q
+extern const aom_tree_index av1_delta_q_tree[TREE_SIZE(DELTA_Q_SMALL)];
+#endif
 #if CONFIG_MOTION_VAR
 extern const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)];
 #endif  // CONFIG_MOTION_VAR
