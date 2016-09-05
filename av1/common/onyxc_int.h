@@ -342,6 +342,8 @@ typedef struct AV1Common {
 #endif
 #if CONFIG_DELTA_Q
   int delta_q_present_flag;
+  // Resolution of delta quant
+  int delta_q_res;
 #endif
 } AV1_COMMON;
 
@@ -437,7 +439,6 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
     }
     xd->fc = cm->fc;
   }
-
   xd->above_seg_context = cm->above_seg_context;
   xd->mi_stride = cm->mi_stride;
   xd->error_info = &cm->error;
