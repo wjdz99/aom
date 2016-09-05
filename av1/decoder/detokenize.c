@@ -88,6 +88,11 @@ static int decode_coefs(const MACROBLOCKD *xd, PLANE_TYPE type,
   const uint8_t *cat5_prob;
   const uint8_t *cat6_prob;
 
+#if CONFIG_ADAPT_SCAN
+  // TODO(angiebird): Investigate why dqcoeff is not init properly
+  memset(dqcoeff, 0, max_eob * sizeof(dqcoeff[0]));
+#endif
+
   if (counts) {
     coef_counts = counts->coef[tx_size][type][ref];
     eob_branch_count = counts->eob_branch[tx_size][type][ref];
