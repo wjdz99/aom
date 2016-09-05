@@ -99,7 +99,7 @@ typedef struct {
 typedef struct { MV_REFERENCE_FRAME ref_frame[2]; } REF_DEFINITION;
 
 struct rdcost_block_args {
-  AV1_COMMON *cm;
+  const AV1_COMMON *cm;
   MACROBLOCK *x;
   ENTROPY_CONTEXT t_above[16];
   ENTROPY_CONTEXT t_left[16];
@@ -508,7 +508,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  AV1_COMMON *cm = args->cm;
+  const AV1_COMMON *cm = args->cm;
   int64_t rd1, rd2, rd;
   int rate;
   int64_t dist;
@@ -517,7 +517,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   if (args->exit_early) return;
 
   if (!is_inter_block(mbmi)) {
-    struct encode_b_args b_args = { cm, x, NULL, &mbmi->skip };
+    struct encode_b_args b_args = { (AV1_COMMON *)cm, x, NULL, &mbmi->skip };
     av1_encode_block_intra(plane, block, blk_row, blk_col, plane_bsize, tx_size,
                            &b_args);
     dist_block(x, plane, block, tx_size, &dist, &sse);
@@ -4696,7 +4696,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       }
 #endif  // CONFIG_EXT_INTRA
       distortion2 = distortion_y + distortion_uv;
-      av1_encode_intra_block_plane(cm, x, bsize, 0);
+      av1_encode_intra_block_plane((AV1_COMMON *)cm, x, bsize, 0);
     } else {
 #if CONFIG_REF_MV
       int_mv backup_ref_mv[2];

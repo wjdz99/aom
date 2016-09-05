@@ -28,14 +28,14 @@ struct encode_b_args {
 };
 void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize);
 void av1_encode_sby_pass1(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize);
-void av1_xform_quant_fp(AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
-                        int blk_row, int blk_col, BLOCK_SIZE plane_bsize,
-                        TX_SIZE tx_size);
+void av1_xform_quant_fp(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
+                        int block, int blk_row, int blk_col,
+                        BLOCK_SIZE plane_bsize, TX_SIZE tx_size);
 void av1_xform_quant_dc(MACROBLOCK *x, int plane, int block, int blk_row,
                         int blk_col, BLOCK_SIZE plane_bsize, TX_SIZE tx_size);
-void av1_xform_quant(AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
-                     int blk_row, int blk_col, BLOCK_SIZE plane_bsize,
-                     TX_SIZE tx_size);
+void av1_xform_quant(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
+                     int block, int blk_row, int blk_col,
+                     BLOCK_SIZE plane_bsize, TX_SIZE tx_size);
 
 void av1_subtract_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane);
 

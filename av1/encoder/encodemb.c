@@ -331,9 +331,9 @@ static int optimize_b(AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
 
 // TODO(sarahparker) refactor fwd quant functions to use fwd_txfm fns in
 // hybrid_fwd_txfm.c
-void av1_xform_quant_fp(AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
-                        int blk_row, int blk_col, BLOCK_SIZE plane_bsize,
-                        TX_SIZE tx_size) {
+void av1_xform_quant_fp(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
+                        int block, int blk_row, int blk_col,
+                        BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
   MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblock_plane *const p = &x->plane[plane];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -590,9 +590,9 @@ void av1_xform_quant_dc(MACROBLOCK *x, int plane, int block, int blk_row,
   }
 }
 
-void av1_xform_quant(AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
-                     int blk_row, int blk_col, BLOCK_SIZE plane_bsize,
-                     TX_SIZE tx_size) {
+void av1_xform_quant(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
+                     int block, int blk_row, int blk_col,
+                     BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
   MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblock_plane *const p = &x->plane[plane];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
