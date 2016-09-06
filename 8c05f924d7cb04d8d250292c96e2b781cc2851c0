@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "360a375e_127b8a1c",
+        "filename": "aom_dsp/x86/variance_impl_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-06T19:28:10Z",
+      "side": 1,
+      "message": "Optional suggestion:\nIf we are turning off clang-format, then we might as well align the commas in all lines to make it even more readable?",
+      "range": {
+        "startLine": 27,
+        "startChar": 2,
+        "endLine": 28,
+        "endChar": 49
+      },
+      "revId": "8c05f924d7cb04d8d250292c96e2b781cc2851c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
