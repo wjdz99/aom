@@ -1,0 +1,222 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "360a375e_434ee637",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-06T23:37:58Z",
+      "side": 1,
+      "message": "Both can be const",
+      "range": {
+        "startLine": 63,
+        "startChar": 6,
+        "endLine": 63,
+        "endChar": 12
+      },
+      "revId": "41808b754d99f578393bda739e127f0bf99cd887",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360a375e_e39f1afc",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-06T23:37:58Z",
+      "side": 1,
+      "message": "const (this and 3 more variables below)",
+      "range": {
+        "startLine": 65,
+        "startChar": 6,
+        "endLine": 65,
+        "endChar": 13
+      },
+      "revId": "41808b754d99f578393bda739e127f0bf99cd887",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360a375e_63420a62",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-06T23:37:58Z",
+      "side": 1,
+      "message": "NULL (this and below)",
+      "range": {
+        "startLine": 70,
+        "startChar": 19,
+        "endLine": 70,
+        "endChar": 20
+      },
+      "revId": "41808b754d99f578393bda739e127f0bf99cd887",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360a375e_03517e2a",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-06T23:37:58Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 74,
+        "startChar": 6,
+        "endLine": 74,
+        "endChar": 16
+      },
+      "revId": "41808b754d99f578393bda739e127f0bf99cd887",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360a375e_23212262",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-06T23:37:58Z",
+      "side": 1,
+      "message": "We probably don\u0027t need all 3 variables \"dst\", \"dst2\" and \"cache_block\" if I understand correctly.\nWhy not just \"orig_dst\" as parameter and then\n\"YV12_BUFFER_CONFIG dst \u003d *orig_dst;\"?",
+      "revId": "41808b754d99f578393bda739e127f0bf99cd887",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360a375e_4328a6a5",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-06T23:37:58Z",
+      "side": 1,
+      "message": "\"cache_size / (bs * bs)\" is used a lot in this function: can be refactored into a const.",
+      "range": {
+        "startLine": 82,
+        "startChar": 31,
+        "endLine": 82,
+        "endChar": 53
+      },
+      "revId": "41808b754d99f578393bda739e127f0bf99cd887",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360a375e_a318728f",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-06T23:37:58Z",
+      "side": 1,
+      "message": "\"++c\" format is generally preferred: https://google.github.io/styleguide/cppguide.html#Preincrement_and_Predecrement\n(comment applies to a number of places in this file)",
+      "range": {
+        "startLine": 127,
+        "startChar": 38,
+        "endLine": 127,
+        "endChar": 41
+      },
+      "revId": "41808b754d99f578393bda739e127f0bf99cd887",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360a375e_43a26608",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-06T23:37:58Z",
+      "side": 1,
+      "message": "\"(l \u003c\u003c fb_size_log2)\" and \"(k \u003c\u003c fb_size_log2)\" can be refactored into consts inside the \"for (l \u003d 0 ....\" loop.",
+      "revId": "41808b754d99f578393bda739e127f0bf99cd887",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360a375e_239002a3",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-06T23:37:58Z",
+      "side": 1,
+      "message": "Why not a for loop, given you are initializing \u0027cache_idx\u0027 above and also incrementing it?",
+      "range": {
+        "startLine": 167,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 9
+      },
+      "revId": "41808b754d99f578393bda739e127f0bf99cd887",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360a375e_6344cafc",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2297,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-06T23:37:58Z",
+      "side": 1,
+      "message": "Refactor \u0027\u0026pbi-\u003ecur_buf-\u003ebuf\u0027 to a local var.",
+      "range": {
+        "startLine": 2297,
+        "startChar": 19,
+        "endLine": 2297,
+        "endChar": 37
+      },
+      "revId": "41808b754d99f578393bda739e127f0bf99cd887",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
