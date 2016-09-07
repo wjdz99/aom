@@ -55,8 +55,8 @@ void aom_dk_reader_fill(struct aom_dk_reader *r);
 
 const uint8_t *aom_dk_reader_find_end(struct aom_dk_reader *r);
 
-static INLINE ptrdiff_t aom_dk_reader_tell(const struct aom_dk_reader *r) {
-  const size_t bits_read = (r->buffer - r->buffer_start) * CHAR_BIT;
+static INLINE uint32_t aom_dk_reader_tell(const struct aom_dk_reader *r) {
+  const uint32_t bits_read = (r->buffer - r->buffer_start) * CHAR_BIT;
   const int count =
       (r->count < LOTS_OF_BITS) ? r->count : r->count - LOTS_OF_BITS;
   return bits_read - (count + CHAR_BIT);
@@ -66,7 +66,7 @@ static INLINE ptrdiff_t aom_dk_reader_tell(const struct aom_dk_reader *r) {
    3 => 1/8th bits.*/
 #define DK_BITRES (3)
 
-static INLINE ptrdiff_t aom_dk_reader_tell_frac(const struct aom_dk_reader *r) {
+static INLINE uint32_t aom_dk_reader_tell_frac(const struct aom_dk_reader *r) {
   uint32_t num_bits;
   uint32_t range;
   int l;
