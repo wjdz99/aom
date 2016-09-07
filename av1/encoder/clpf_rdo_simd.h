@@ -9,12 +9,14 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include "./aom_dsp_rtcd.h"
 #include "aom_dsp/aom_simd.h"
+#include <assert.h>
 
 void SIMD_FUNC(aom_clpf_detect)(const uint8_t *rec, const uint8_t *org,
                                 int rstride, int ostride, int x0, int y0,
                                 int width, int height, int *sum0, int *sum1,
-                                unsigned int strength) {
+                                unsigned int strength, int size) {
   ssd128_internal ssd0 = v128_ssd_u8_init();
   ssd128_internal ssd1 = v128_ssd_u8_init();
   const v128 c128 = v128_dup_8(128);
@@ -22,6 +24,7 @@ void SIMD_FUNC(aom_clpf_detect)(const uint8_t *rec, const uint8_t *org,
   const v128 sm = v128_dup_8(-(int)strength);
   const int bottom = height - 2 - y0;
 
+  assert(size == 8);  // This function is only used for luma
   rec += x0 + y0 * rstride;
   org += x0 + y0 * ostride;
 
@@ -191,7 +194,8 @@ void SIMD_FUNC(aom_clpf_detect)(const uint8_t *rec, const uint8_t *org,
 // second line).
 void SIMD_FUNC(aom_clpf_detect_multi)(const uint8_t *rec, const uint8_t *org,
                                       int rstride, int ostride, int x0, int y0,
-                                      int width, int height, int *sum) {
+                                      int width, int height, int *sum,
+                                      int size) {
   const v128 c128 = v128_dup_8(128);
   const v128 cp1 = v128_dup_8(1);
   const v128 cm1 = v128_dup_8(-1);
@@ -206,6 +210,12 @@ void SIMD_FUNC(aom_clpf_detect_multi)(const uint8_t *rec, const uint8_t *org,
   ssd128_internal ssd2 = v128_ssd_u8_init();
   ssd128_internal ssd3 = v128_ssd_u8_init();
 
+  if (size != 8) {  // Fallback to plain C
+    aom_clpf_detect_multi_c(rec, org, rstride, ostride, x0, y0, width, height,
+                            sum, size);
+    return;
+  }
+
   rec += x0 + y0 * rstride;
   org += x0 + y0 * ostride;
 
@@ -216,7 +226,7 @@ void SIMD_FUNC(aom_clpf_detect_multi)(const uint8_t *rec, const uint8_t *org,
                                        v64_from_64(0x0605040302010000LL));
     int y;
 
-    for (y = 0; y < 8; y += 2) {
+    for (y = 0; y < size; y += 2) {
       const v64 k1 = v64_load_aligned(org);
       const v64 k2 = v64_load_aligned(org + ostride);
       const v64 l1 = v64_load_aligned(rec);
@@ -312,7 +322,7 @@ void SIMD_FUNC(aom_clpf_detect_multi)(const uint8_t *rec, const uint8_t *org,
                                        v64_from_64(0x0707070605040302LL));
     int y;
 
-    for (y = 0; y < 8; y += 2) {
+    for (y = 0; y < size; y += 2) {
       const v64 k1 = v64_load_aligned(org);
       const v64 k2 = v64_load_aligned(org + ostride);
       const v64 l1 = v64_load_aligned(rec);
@@ -403,7 +413,7 @@ void SIMD_FUNC(aom_clpf_detect_multi)(const uint8_t *rec, const uint8_t *org,
     }
   } else {  // No left/right clipping
     int y;
-    for (y = 0; y < 8; y += 2) {
+    for (y = 0; y < size; y += 2) {
       const v64 k1 = v64_load_aligned(org);
       const v64 k2 = v64_load_aligned(org + ostride);
       const v64 l1 = v64_load_aligned(rec);

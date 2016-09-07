@@ -2620,7 +2620,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   }
 
 #if CONFIG_CLPF
-  cm->clpf_strength = 0;
+  cm->clpf_strength_y = cm->clpf_strength_u = cm->clpf_strength_v = 0;
   cm->clpf_size = 2;
   CHECK_MEM_ERROR(
       cm, cm->clpf_blocks,
@@ -2629,22 +2629,37 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                  10));
   if (!is_lossless_requested(&cpi->oxcf)) {
     // Find the best strength and block size for the entire frame
-    int fb_size_log2, strength;
-    av1_clpf_test_frame(cm->frame_to_show, cpi->Source, cm, &strength,
-                        &fb_size_log2);
+    int fb_size_log2, strength_y, strength_u, strength_v;
+    av1_clpf_test_frame(cm->frame_to_show, cpi->Source, cm, &strength_u,
+                        &fb_size_log2, 1);
+    av1_clpf_test_frame(cm->frame_to_show, cpi->Source, cm, &strength_v,
+                        &fb_size_log2, 2);
+    av1_clpf_test_frame(cm->frame_to_show, cpi->Source, cm, &strength_y,
+                        &fb_size_log2, 0);
 
     if (!fb_size_log2) fb_size_log2 = get_msb(MAX_FB_SIZE);
+    if (strength_y || strength_u || strength_v)
+      aom_yv12_copy_frame(cm->frame_to_show, &cpi->last_frame_uf);
 
-    if (strength) {
+    if (strength_y) {
       // Apply the filter using the chosen strength
-      cm->clpf_strength = strength - (strength == 4);
+      cm->clpf_strength_y = strength_y - (strength_y == 4);
       cm->clpf_size =
           fb_size_log2 ? fb_size_log2 - get_msb(MAX_FB_SIZE) + 3 : 0;
-      aom_yv12_copy_frame(cm->frame_to_show, &cpi->last_frame_uf);
       cm->clpf_numblocks =
           av1_clpf_frame(cm->frame_to_show, &cpi->last_frame_uf, cpi->Source,
-                         cm, !!cm->clpf_size, strength, 4 + cm->clpf_size,
-                         cm->clpf_blocks, av1_clpf_decision);
+                         cm, !!cm->clpf_size, strength_y, 4 + cm->clpf_size,
+                         cm->clpf_blocks, 0, av1_clpf_decision);
+    }
+    if (strength_u) {
+      cm->clpf_strength_u = strength_u - (strength_u == 4);
+      av1_clpf_frame(cm->frame_to_show, &cpi->last_frame_uf, 0, cm, 0,
+                     strength_u, 4, 0, 1, 0);
+    }
+    if (strength_v) {
+      cm->clpf_strength_v = strength_v - (strength_v == 4);
+      av1_clpf_frame(cm->frame_to_show, &cpi->last_frame_uf, 0, cm, 0,
+                     strength_v, 4, 0, 2, 0);
     }
   }
 #endif
