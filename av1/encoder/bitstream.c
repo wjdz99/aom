@@ -1391,10 +1391,6 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
       }
     }
 
-#if !CONFIG_EXT_INTERP && !CONFIG_DUAL_FILTER
-    write_switchable_interp_filter(cpi, xd, w);
-#endif  // !CONFIG_EXT_INTERP
-
     if (bsize < BLOCK_8X8) {
       const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
       const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
@@ -1610,9 +1606,11 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
     }
 #endif  // CONFIG_EXT_INTER
 
-#if CONFIG_EXT_INTERP || CONFIG_DUAL_FILTER
-    write_switchable_interp_filter(cpi, xd, w);
-#endif  // CONFIG_EXT_INTERP
+#if CONFIG_WARPED_MOTION
+    if (!is_motion_variation_allowed(mbmi) ||
+        mbmi->motion_mode != WARPED_CAUSAL)
+#endif  // CONFIG_WARPED_MOTION
+      write_switchable_interp_filter(cpi, xd, w);
   }
 
   write_tx_type(cm, mbmi,
