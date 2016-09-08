@@ -66,6 +66,8 @@ static const int n_trans_model_params[TRANS_TYPES] = { 9, 6, 4, 2 };
 typedef struct {
   TransformationType wmtype;
   int32_t wmmat[8];  // For homography wmmat[9] is assumed to be 1
+  double H[9];
+  int HI[9];
 } WarpedMotionParams;
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
