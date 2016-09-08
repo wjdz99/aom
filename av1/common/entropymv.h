@@ -95,8 +95,16 @@ typedef struct {
 
 typedef struct {
   aom_prob joints[MV_JOINTS - 1];
+#if CONFIG_DAALA_EC
+  aom_cdf_prob joint_cdf[MV_JOINTS];
+#endif
   nmv_component comps[2];
 } nmv_context;
+
+#if CONFIG_DAALA_EC
+extern int av1_mv_joint_ind[MV_JOINTS];
+extern int av1_mv_joint_inv[MV_JOINTS];
+#endif
 
 static INLINE MV_JOINT_TYPE av1_get_mv_joint(const MV *mv) {
   if (mv->row == 0) {
