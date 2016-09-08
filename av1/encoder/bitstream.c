@@ -117,6 +117,8 @@ void av1_encode_token_init() {
                         av1_inter_mode_tree);
   av1_indices_from_tree(av1_mv_joint_ind, av1_mv_joint_inv, MV_JOINTS,
                         av1_mv_joint_tree);
+  av1_indices_from_tree(av1_mv_class_ind, av1_mv_class_inv, MV_CLASSES,
+                        av1_mv_class_tree);
 #endif
 }
 

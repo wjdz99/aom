@@ -85,6 +85,9 @@ extern const aom_tree_index av1_mv_fp_tree[];
 typedef struct {
   aom_prob sign;
   aom_prob classes[MV_CLASSES - 1];
+#if CONFIG_DAALA_EC
+  aom_cdf_prob class_cdf[MV_CLASSES];
+#endif
   aom_prob class0[CLASS0_SIZE - 1];
   aom_prob bits[MV_OFFSET_BITS];
   aom_prob class0_fp[CLASS0_SIZE][MV_FP_SIZE - 1];
@@ -104,6 +107,8 @@ typedef struct {
 #if CONFIG_DAALA_EC
 extern int av1_mv_joint_ind[MV_JOINTS];
 extern int av1_mv_joint_inv[MV_JOINTS];
+extern int av1_mv_class_ind[MV_CLASSES];
+extern int av1_mv_class_inv[MV_CLASSES];
 #endif
 
 static INLINE MV_JOINT_TYPE av1_get_mv_joint(const MV *mv) {
