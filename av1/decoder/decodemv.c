@@ -579,8 +579,12 @@ static int read_mv_component(aom_reader *r, const nmv_component *mvcomp,
 static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
                            const nmv_context *ctx, nmv_context_counts *counts,
                            int allow_hp) {
-  const MV_JOINT_TYPE joint_type =
-      (MV_JOINT_TYPE)aom_read_tree(r, av1_mv_joint_tree, ctx->joints, ACCT_STR);
+  const MV_JOINT_TYPE joint_type = (MV_JOINT_TYPE)
+#if CONFIG_DAALA_EC
+      av1_mv_joint_inv[aom_read_symbol(r, ctx->joint_cdf, MV_JOINTS, ACCT_STR)];
+#else
+      aom_read_tree(r, av1_mv_joint_tree, ctx->joints, ACCT_STR);
+#endif
   const int use_hp = allow_hp && av1_use_mv_hp(ref);
   MV diff = { 0, 0 };
 
