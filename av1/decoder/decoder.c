@@ -52,6 +52,8 @@ static void initialize_dec(void) {
                           av1_intra_mode_tree);
     av1_indices_from_tree(av1_inter_mode_ind, av1_inter_mode_inv, INTER_MODES,
                           av1_inter_mode_tree);
+    av1_indices_from_tree(av1_mv_joint_ind, av1_mv_joint_inv, MV_JOINTS,
+                          av1_mv_joint_tree);
 #endif
   }
 }
