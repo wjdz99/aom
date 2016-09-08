@@ -307,6 +307,10 @@ typedef struct {
   int mi_row;
   int mi_col;
 #endif
+#if CONFIG_WARPED_MOTION
+  int num_proj_ref[2];
+  WarpedMotionParams wm_params[2];
+#endif  // CONFIG_WARPED_MOTION
 } MB_MODE_INFO;
 
 typedef struct MODE_INFO {
@@ -868,7 +872,12 @@ static INLINE int is_motion_variation_allowed(const MB_MODE_INFO *mbmi) {
   return is_motion_variation_allowed_bsize(mbmi->sb_type) &&
          mbmi->ref_frame[1] != INTRA_FRAME;
 #else
+#if CONFIG_WARPED_MOTION
+  return (mbmi->sb_type >= BLOCK_8X8 && !has_second_ref(mbmi) &&
+          mbmi->num_proj_ref[0] >= 3);
+#else
   return is_motion_variation_allowed_bsize(mbmi->sb_type);
+#endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_EXT_INTER
 }
 

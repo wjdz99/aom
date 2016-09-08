@@ -340,6 +340,7 @@ static const aom_prob default_motion_mode_prob[BLOCK_SIZES]
 const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
   -SIMPLE_TRANSLATION, -WARPED_CAUSAL
 };
+
 static const aom_prob default_motion_mode_prob[BLOCK_SIZES]
                                               [MOTION_MODES - 1] = {
                                                 { 255 }, { 255 }, { 255 },
