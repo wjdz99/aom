@@ -46,6 +46,8 @@ int av1_mv_joint_ind[MV_JOINTS];
 int av1_mv_joint_inv[MV_JOINTS];
 int av1_mv_class_ind[MV_CLASSES];
 int av1_mv_class_inv[MV_CLASSES];
+int av1_mv_fp_ind[MV_FP_SIZE];
+int av1_mv_fp_inv[MV_FP_SIZE];
 #endif
 
 static const nmv_context default_nmv_context = {
@@ -64,6 +66,10 @@ static const nmv_context default_nmv_context = {
         { 136, 140, 148, 160, 176, 192, 224, 234, 234, 240 },  // bits
         { { 128, 128, 64 }, { 96, 112, 64 } },                 // class0_fp
         { 64, 96, 64 },                                        // fp
+#if CONFIG_DAALA_EC
+        { { 0 }, { 0 } },
+        { 0 },
+#endif
         160,                                                   // class0_hp bit
         128,                                                   // hp
     },
@@ -78,6 +84,10 @@ static const nmv_context default_nmv_context = {
         { 136, 140, 148, 160, 176, 192, 224, 234, 234, 240 },  // bits
         { { 128, 128, 64 }, { 96, 112, 64 } },                 // class0_fp
         { 64, 96, 64 },                                        // fp
+#if CONFIG_DAALA_EC
+        { { 0 }, { 0 } },
+        { 0 },
+#endif
         160,                                                   // class0_hp bit
         128,                                                   // hp
     } },
@@ -270,18 +280,24 @@ void av1_adapt_mv_probs(AV1_COMMON *cm, int allow_hp) {
 }
 
 void av1_init_mv_probs(AV1_COMMON *cm) {
+  int i, j;
 #if CONFIG_REF_MV
-  int i;
   for (i = 0; i < NMV_CONTEXTS; ++i) cm->fc->nmvc[i] = default_nmv_context;
 #else
   cm->fc->nmvc = default_nmv_context;
 #if CONFIG_DAALA_EC
   av1_tree_to_cdf(av1_mv_joint_tree, cm->fc->nmvc.joints,
                   cm->fc->nmvc.joint_cdf);
-  av1_tree_to_cdf(av1_mv_class_tree, cm->fc->nmvc.comps[0].classes,
-                  cm->fc->nmvc.comps[0].class_cdf);
-  av1_tree_to_cdf(av1_mv_class_tree, cm->fc->nmvc.comps[1].classes,
-                  cm->fc->nmvc.comps[1].class_cdf);
+  for (i = 0; i < 2; i++) {
+    av1_tree_to_cdf(av1_mv_class_tree, cm->fc->nmvc.comps[i].classes,
+                    cm->fc->nmvc.comps[i].class_cdf);
+    av1_tree_to_cdf(av1_mv_fp_tree, cm->fc->nmvc.comps[i].fp,
+                    cm->fc->nmvc.comps[i].fp_cdf);
+    for (j = 0; j < CLASS0_SIZE; j++) {
+      av1_tree_to_cdf(av1_mv_fp_tree, cm->fc->nmvc.comps[i].class0_fp[j],
+                      cm->fc->nmvc.comps[i].class0_fp_cdf[j]);
+    }
+  }
 #endif
 #endif
 }

@@ -92,6 +92,10 @@ typedef struct {
   aom_prob bits[MV_OFFSET_BITS];
   aom_prob class0_fp[CLASS0_SIZE][MV_FP_SIZE - 1];
   aom_prob fp[MV_FP_SIZE - 1];
+#if CONFIG_DAALA_EC
+  aom_cdf_prob class0_fp_cdf[CLASS0_SIZE][MV_FP_SIZE];
+  aom_cdf_prob fp_cdf[MV_FP_SIZE];
+#endif
   aom_prob class0_hp;
   aom_prob hp;
 } nmv_component;
@@ -109,6 +113,8 @@ extern int av1_mv_joint_ind[MV_JOINTS];
 extern int av1_mv_joint_inv[MV_JOINTS];
 extern int av1_mv_class_ind[MV_CLASSES];
 extern int av1_mv_class_inv[MV_CLASSES];
+extern int av1_mv_fp_ind[MV_FP_SIZE];
+extern int av1_mv_fp_inv[MV_FP_SIZE];
 #endif
 
 static INLINE MV_JOINT_TYPE av1_get_mv_joint(const MV *mv) {
