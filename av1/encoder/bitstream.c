@@ -115,6 +115,8 @@ void av1_encode_token_init() {
                         av1_intra_mode_tree);
   av1_indices_from_tree(av1_inter_mode_ind, av1_inter_mode_inv, INTER_MODES,
                         av1_inter_mode_tree);
+  av1_indices_from_tree(av1_mv_joint_ind, av1_mv_joint_inv, MV_JOINTS,
+                        av1_mv_joint_tree);
 #endif
 }
 
@@ -2121,6 +2123,10 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                         counts->mv);
 #else
                         &counts->mv);
+#endif
+#if CONFIG_DAALA_EC
+    av1_tree_to_cdf(av1_mv_joint_tree, cm->fc->nmvc.joints,
+                    cm->fc->nmvc.joint_cdf);
 #endif
     update_ext_tx_probs(cm, header_bc);
   }
