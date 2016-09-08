@@ -55,7 +55,11 @@ static PREDICTION_MODE read_intra_mode_uv(AV1_COMMON *cm, MACROBLOCKD *xd,
                                           aom_reader *r,
                                           PREDICTION_MODE y_mode) {
   const PREDICTION_MODE uv_mode =
+#if CONFIG_DAALA_EC
+      read_intra_mode_cdf(r, cm->fc->uv_mode_cdf[y_mode]);
+#else
       read_intra_mode(r, cm->fc->uv_mode_prob[y_mode]);
+#endif
   FRAME_COUNTS *counts = xd->counts;
   if (counts) ++counts->uv_mode[y_mode][uv_mode];
   return uv_mode;
