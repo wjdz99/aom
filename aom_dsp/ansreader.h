@@ -31,33 +31,24 @@ struct AnsDecoder {
   uint32_t state;
 };
 
-static INLINE int uabs_read(struct AnsDecoder *ans, AnsP8 p0) {
-  AnsP8 p = ANS_P8_PRECISION - p0;
-  int s;
-  unsigned xp, sp;
-  unsigned state = ans->state;
-  while (state < L_BASE && ans->buf_offset > 0) {
-    state = state * IO_BASE + ans->buf[--ans->buf_offset];
+static INLINE int rabs_read(struct AnsDecoder *ans, AnsP8 p0) {
+  int val;
+  unsigned quot, rem, x, xn;
+  const AnsP8 p = ANS_P8_PRECISION - p0;
+  while (ans->state < L_BASE) {
+    ans->state = ans->state * IO_BASE + ans->buf[--ans->buf_offset];
   }
-  sp = state * p;
-  xp = sp / ANS_P8_PRECISION;
-  s = (sp & 0xFF) >= p0;
-  if (s)
-    ans->state = xp;
-  else
-    ans->state = state - xp;
-  return s;
-}
-
-static INLINE int uabs_read_bit(struct AnsDecoder *ans) {
-  int s;
-  unsigned state = ans->state;
-  while (state < L_BASE && ans->buf_offset > 0) {
-    state = state * IO_BASE + ans->buf[--ans->buf_offset];
+  x = ans->state;
+  quot = x / ANS_P8_PRECISION;
+  rem = x % ANS_P8_PRECISION;
+  xn = quot * p;
+  val = rem < p;
+  if (val) {
+    ans->state = xn + rem;
+  } else {
+    ans->state = x - xn - p;
   }
-  s = (int)(state & 1);
-  ans->state = state >> 1;
-  return s;
+  return val;
 }
 
 struct rans_dec_sym {

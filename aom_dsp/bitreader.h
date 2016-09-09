@@ -143,7 +143,7 @@ static INLINE void aom_process_accounting(const aom_reader *r ACCT_STR_PARAM) {
 static INLINE int aom_read_(aom_reader *r, int prob ACCT_STR_PARAM) {
   int ret;
 #if CONFIG_ANS
-  ret = uabs_read(r, prob);
+  ret = rabs_read(r, prob);
 #elif CONFIG_DAALA_EC
   ret = aom_daala_read(r, prob);
 #else
@@ -158,7 +158,7 @@ static INLINE int aom_read_(aom_reader *r, int prob ACCT_STR_PARAM) {
 static INLINE int aom_read_bit_(aom_reader *r ACCT_STR_PARAM) {
   int ret;
 #if CONFIG_ANS
-  ret = uabs_read_bit(r);  // Non trivial optimization at half probability
+  ret = rabs_read(r, 128);  // Non trivial optimization at half probability
 #else
   ret = aom_read(r, 128, NULL);  // aom_prob_half
 #endif
