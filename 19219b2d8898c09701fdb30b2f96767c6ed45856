@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b1e22a7_4b49d9b4",
+        "filename": "av1/common/entropymv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-09-09T17:07:00Z",
+      "side": 1,
+      "message": "Do we really need both if we are coding with CDFs?",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 6
+      },
+      "revId": "19219b2d8898c09701fdb30b2f96767c6ed45856",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
