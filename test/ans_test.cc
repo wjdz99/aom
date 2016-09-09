@@ -47,14 +47,14 @@ PvVec abs_encode_build_vals(int iters) {
   return ret;
 }
 
-bool check_uabs(const PvVec &pv_vec, uint8_t *buf) {
+bool check_rabs(const PvVec &pv_vec, uint8_t *buf) {
   AnsCoder a;
   ans_write_init(&a, buf);
 
   std::clock_t start = std::clock();
   for (PvVec::const_reverse_iterator it = pv_vec.rbegin(); it != pv_vec.rend();
        ++it) {
-    uabs_write(&a, it->second, 256 - it->first);
+    rabs_write(&a, it->second, 256 - it->first);
   }
   std::clock_t enc_time = std::clock() - start;
   int offset = ans_write_end(&a);
@@ -63,7 +63,7 @@ bool check_uabs(const PvVec &pv_vec, uint8_t *buf) {
   if (ans_read_init(&d, buf, offset)) return false;
   start = std::clock();
   for (PvVec::const_iterator it = pv_vec.begin(); it != pv_vec.end(); ++it) {
-    okay &= uabs_read(&d, 256 - it->first) == it->second;
+    okay &= rabs_read(&d, 256 - it->first) == it->second;
   }
   std::clock_t dec_time = std::clock() - start;
   if (!okay) return false;
@@ -167,7 +167,7 @@ class AnsTest : public ::testing::Test {
 std::vector<int> AnsTest::sym_vec_;
 rans_sym AnsTest::rans_sym_tab_[kRansSymbols];
 
-TEST_F(AbsTest, Uabs) { EXPECT_TRUE(check_uabs(pv_vec_, buf_)); }
+TEST_F(AbsTest, Rabs) { EXPECT_TRUE(check_rabs(pv_vec_, buf_)); }
 TEST_F(AnsTest, Rans) {
   EXPECT_TRUE(check_rans(sym_vec_, rans_sym_tab_, buf_));
 }

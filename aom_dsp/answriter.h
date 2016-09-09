@@ -60,17 +60,17 @@ static INLINE int ans_write_end(struct AnsCoder *const ans) {
   assert(ans->state >= L_BASE);
   assert(ans->state < L_BASE * IO_BASE);
   state = ans->state - L_BASE;
-  if (state < (1 << 6)) {
-    ans->buf[ans->buf_offset] = (0x00 << 6) + state;
+  if (state < (1u << 6)) {
+    ans->buf[ans->buf_offset] = (0x00u << 6) + state;
     return ans->buf_offset + 1;
-  } else if (state < (1 << 14)) {
-    mem_put_le16(ans->buf + ans->buf_offset, (0x01 << 14) + state);
+  } else if (state < (1u << 14)) {
+    mem_put_le16(ans->buf + ans->buf_offset, (0x01u << 14) + state);
     return ans->buf_offset + 2;
-  } else if (state < (1 << 22)) {
-    mem_put_le24(ans->buf + ans->buf_offset, (0x02 << 22) + state);
+  } else if (state < (1u << 22)) {
+    mem_put_le24(ans->buf + ans->buf_offset, (0x02u << 22) + state);
     return ans->buf_offset + 3;
-  } else if (state < (1 << 29)) {
-    mem_put_le32(ans->buf + ans->buf_offset, (0x07 << 29) + state);
+  } else if (state < (1u << 29)) {
+    mem_put_le32(ans->buf + ans->buf_offset, (0x07u << 29) + state);
     return ans->buf_offset + 4;
   } else {
     assert(0 && "State is too large to be serialized");
@@ -78,18 +78,19 @@ static INLINE int ans_write_end(struct AnsCoder *const ans) {
   }
 }
 
-// uABS with normalization
-static INLINE void uabs_write(struct AnsCoder *ans, int val, AnsP8 p0) {
-  AnsP8 p = ANS_P8_PRECISION - p0;
+// rABS with descending spread
+// p or p0 takes the place of l_s from the paper
+// ANS_P8_PRECISION is m
+static INLINE void rabs_write(struct AnsCoder *ans, int val, AnsP8 p0) {
+  const AnsP8 p = ANS_P8_PRECISION - p0;
   const unsigned l_s = val ? p : p0;
+  unsigned quot, rem;
   while (ans->state >= L_BASE / ANS_P8_PRECISION * IO_BASE * l_s) {
     ans->buf[ans->buf_offset++] = ans->state % IO_BASE;
     ans->state /= IO_BASE;
   }
-  if (!val)
-    ans->state = ANS_DIV8(ans->state * ANS_P8_PRECISION, p0);
-  else
-    ans->state = ANS_DIV8((ans->state + 1) * ANS_P8_PRECISION + p - 1, p) - 1;
+  ANS_DIVREM(quot, rem, ans->state, l_s);
+  ans->state = quot * ANS_P8_PRECISION + rem + (val ? 0 : p);
 }
 
 struct rans_sym {

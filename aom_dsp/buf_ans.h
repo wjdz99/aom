@@ -88,7 +88,7 @@ static INLINE void buf_ans_flush(const struct BufAnsCoder *const c,
       sym.cum_prob = c->buf[offset].val_start;
       rans_write(ans, &sym);
     } else {
-      uabs_write(ans, (uint8_t)c->buf[offset].val_start,
+      rabs_write(ans, (uint8_t)c->buf[offset].val_start,
                  (AnsP8)c->buf[offset].prob);
     }
   }
