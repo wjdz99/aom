@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4b1e22a7_7c0c614f",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-09T19:55:18Z",
+      "side": 1,
+      "message": "How come this specifies the _c version but the else uses the RTCD version?",
+      "range": {
+        "startLine": 206,
+        "startChar": 34,
+        "endLine": 206,
+        "endChar": 36
+      },
+      "revId": "61049c6d24a88020de416e08ffeec6cc0f62ba6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab607e1c_b3e6183f",
         "filename": "av1/common/clpf.c",
         "patchSetId": 3
@@ -25,6 +48,23 @@
     },
     {
       "key": {
+        "uuid": "8bcd7a7b_cbacdd92",
+        "filename": "av1/encoder/clpf_rdo_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-09T19:55:18Z",
+      "side": 1,
+      "message": "Nice. This makes it a lot easier to read.",
+      "revId": "61049c6d24a88020de416e08ffeec6cc0f62ba6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2b556e39_b7a9e832",
         "filename": "test/clpf_test.cc",
         "patchSetId": 3
@@ -42,6 +82,40 @@
         "endLine": 134,
         "endChar": 8
       },
+      "revId": "61049c6d24a88020de416e08ffeec6cc0f62ba6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bbbe6d1_591b43dd",
+        "filename": "test/clpf_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-09T19:55:18Z",
+      "side": 1,
+      "message": "Could factor out this logic and share it.",
+      "revId": "61049c6d24a88020de416e08ffeec6cc0f62ba6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bbbe6d1_59f26385",
+        "filename": "test/clpf_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-09T19:55:18Z",
+      "side": 1,
+      "message": "likewise",
       "revId": "61049c6d24a88020de416e08ffeec6cc0f62ba6a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
