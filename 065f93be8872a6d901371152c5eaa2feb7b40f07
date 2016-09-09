@@ -16,6 +16,24 @@
       "revId": "065f93be8872a6d901371152c5eaa2feb7b40f07",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f68dffb6_b5c4cb88",
+        "filename": "third_party/libwebm/common/hdr_util.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-09-09T00:28:16Z",
+      "side": 1,
+      "message": "restored.",
+      "parentUuid": "f68dffb6_c047e070",
+      "revId": "065f93be8872a6d901371152c5eaa2feb7b40f07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
