@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "eb74360d_c5059a6f",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-11T13:11:59Z",
+      "side": 1,
+      "message": "Lingering test code, apparently...  Fixed.  Thanks.\n\nYes, the code duplication is bad.  C++ templates would be handy here.  There are ways this could me mimicked and I would have designed AV1 differently.  For CLPF the duplication is modest, though, so I leave it as it is.\n\nMy solution would be something like this:\n\n1. Let pixels, either 8 or 16 bit, have their own type, for instance PIXEL or SAMPLE or whatever.\n2. Define functions working on pixels something like this: PIXEL_FUNC(aom_clpf_block)(PIXEL *src, PIXEL *dst, ...)\nSuch functions could test sizeof(PIXEL) to do different things for low and high bit-depth if needed.\n3. Instantiate through #include and #define.  E.g.:\nclpf_pixel.c\n#define PIXEL uint8_t\n#define PIXEL_FUNC(name) name\n#include \"./clpf_pixel.h\"\n#undef PIXEL\n#define PIXEL uint16_t\n#undef PIXEL_FUNC\n#define PIXEL_FUNC(name) name##_hbd\n#include \"./clpf_pixel.h\"\n4. Elsewhere PIXEL_FUNC could be a macro which checks which version to call, so it would always appear as one call, not three depending on a define and a runtime setting.\n\nThis is not thought completely through so I don\u0027t guarantee that this would not cause other problems, and I don\u0027t volunteer to change the entire codebase... :)\n\nI\u0027m not particularly fond of preprocessor magic, but I don\u0027t see better options.  AV1 already uses some magic in CONVERT_TO_SHORTPTR and CONVERT_TO_BYTEPTR whose intention took some thinking to work out.  I suppose the idea is that \"CONVERT_TO_SHORTPTR(p) + y * stride + x\" will be equivalent to \"CONVERT_TO_SHORTPTR(p + y * stride x)\".  I\u0027m not sure if this is clever or not, since not only must you not forget to use these macros, and you have to know what these macros do, since they\u0027re not just ordinary casts.\n\nAnyway, this is a different discussion.",
+      "parentUuid": "4b1e22a7_7c0c614f",
+      "range": {
+        "startLine": 206,
+        "startChar": 34,
+        "endLine": 206,
+        "endChar": 36
+      },
+      "revId": "61049c6d24a88020de416e08ffeec6cc0f62ba6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab607e1c_b3e6183f",
         "filename": "av1/common/clpf.c",
         "patchSetId": 3
@@ -99,6 +123,24 @@
       "writtenOn": "2016-09-09T19:55:18Z",
       "side": 1,
       "message": "Could factor out this logic and share it.",
+      "revId": "61049c6d24a88020de416e08ffeec6cc0f62ba6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb74360d_25302e0c",
+        "filename": "test/clpf_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-11T13:11:59Z",
+      "side": 1,
+      "message": "Ok.  C++ templates become handy here.",
+      "parentUuid": "6bbbe6d1_591b43dd",
       "revId": "61049c6d24a88020de416e08ffeec6cc0f62ba6a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
