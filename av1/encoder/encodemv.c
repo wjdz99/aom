@@ -45,7 +45,7 @@ static void encode_mv_component(aom_writer *w, int comp,
   // Sign
   aom_write(w, sign, mvcomp->sign);
 
-  // Class
+// Class
 #if CONFIG_DAALA_EC
   aom_write_symbol(w, mv_class, mvcomp->class_cdf, MV_CLASSES);
 #else
