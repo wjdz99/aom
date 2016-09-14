@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include "./aom_dsp_rtcd.h"
 #include "aom_dsp/aom_simd.h"
 
 SIMD_INLINE v128 calc_delta(v128 x, v128 a, v128 b, v128 c, v128 d, v128 e,
@@ -35,13 +36,19 @@ SIMD_INLINE v128 calc_delta(v128 x, v128 a, v128 b, v128 c, v128 d, v128 e,
 void SIMD_FUNC(aom_clpf_detect)(const uint8_t *rec, const uint8_t *org,
                                 int rstride, int ostride, int x0, int y0,
                                 int width, int height, int *sum0, int *sum1,
-                                unsigned int strength) {
+                                unsigned int strength, int size) {
   ssd128_internal ssd0 = v128_ssd_u8_init();
   ssd128_internal ssd1 = v128_ssd_u8_init();
   const v128 c128 = v128_dup_8(128);
   const v128 sp = v128_dup_8(strength);
   const v128 sm = v128_dup_8(-(int)strength);
   const int bottom = height - 2 - y0;
+
+  if (size != 8) {  // Fallback to plain C
+    aom_clpf_detect_c(rec, org, rstride, ostride, x0, y0, width, height, sum0,
+                      sum1, strength, size);
+    return;
+  }
 
   rec += x0 + y0 * rstride;
   org += x0 + y0 * ostride;
@@ -224,7 +231,8 @@ SIMD_INLINE void calc_delta_multi(v128 x, v128 q, v128 o, v128 a, v128 b,
 // Test multiple filter strengths at once.
 void SIMD_FUNC(aom_clpf_detect_multi)(const uint8_t *rec, const uint8_t *org,
                                       int rstride, int ostride, int x0, int y0,
-                                      int width, int height, int *sum) {
+                                      int width, int height, int *sum,
+                                      int size) {
   const v128 c128 = v128_dup_8(128);
   const v128 cp1 = v128_dup_8(1);
   const v128 cm1 = v128_dup_8(-1);
@@ -237,6 +245,12 @@ void SIMD_FUNC(aom_clpf_detect_multi)(const uint8_t *rec, const uint8_t *org,
   ssd128_internal ssd1 = v128_ssd_u8_init();
   ssd128_internal ssd2 = v128_ssd_u8_init();
   ssd128_internal ssd3 = v128_ssd_u8_init();
+
+  if (size != 8) {  // Fallback to plain C
+    aom_clpf_detect_multi_c(rec, org, rstride, ostride, x0, y0, width, height,
+                            sum, size);
+    return;
+  }
 
   rec += x0 + y0 * rstride;
   org += x0 + y0 * ostride;
@@ -356,13 +370,20 @@ void SIMD_FUNC(aom_clpf_detect_multi)(const uint8_t *rec, const uint8_t *org,
 void SIMD_FUNC(aom_clpf_detect_hbd)(const uint16_t *rec, const uint16_t *org,
                                     int rstride, int ostride, int x0, int y0,
                                     int width, int height, int *sum0, int *sum1,
-                                    unsigned int strength, int shift) {
+                                    unsigned int strength, int shift,
+                                    int size) {
   ssd128_internal ssd0 = v128_ssd_u8_init();
   ssd128_internal ssd1 = v128_ssd_u8_init();
   const v128 c128 = v128_dup_8(128);
   const v128 sp = v128_dup_8(strength >> shift);
   const v128 sm = v128_dup_8(-(int)(strength >> shift));
   const int bottom = height - 2 - y0;
+
+  if (size != 8) {  // Fallback to plain C
+    aom_clpf_detect_hbd_c(rec, org, rstride, ostride, x0, y0, width, height,
+                          sum0, sum1, strength, shift, size);
+    return;
+  }
 
   rec += x0 + y0 * rstride;
   org += x0 + y0 * ostride;
@@ -510,7 +531,7 @@ void SIMD_FUNC(aom_clpf_detect_multi_hbd)(const uint16_t *rec,
                                           const uint16_t *org, int rstride,
                                           int ostride, int x0, int y0,
                                           int width, int height, int *sum,
-                                          int shift) {
+                                          int shift, int size) {
   const v128 c128 = v128_dup_8(128);
   const v128 cp1 = v128_dup_8(1);
   const v128 cm1 = v128_dup_8(-1);
@@ -523,6 +544,12 @@ void SIMD_FUNC(aom_clpf_detect_multi_hbd)(const uint16_t *rec,
   ssd128_internal ssd1 = v128_ssd_u8_init();
   ssd128_internal ssd2 = v128_ssd_u8_init();
   ssd128_internal ssd3 = v128_ssd_u8_init();
+
+  if (size != 8) {  // Fallback to plain C
+    aom_clpf_detect_multi_hbd_c(rec, org, rstride, ostride, x0, y0, width,
+                                height, sum, shift, size);
+    return;
+  }
 
   rec += x0 + y0 * rstride;
   org += x0 + y0 * ostride;
