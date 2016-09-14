@@ -1,0 +1,176 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b6be69b_b9cbff47",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-14T10:22:39Z",
+      "side": 1,
+      "message": "Could delta_q_present_flag be set when there are several segments?\n\nGoogle\u0027s coding style prefers const int seg_id \u003d 0.",
+      "range": {
+        "startLine": 492,
+        "startChar": 4,
+        "endLine": 492,
+        "endChar": 18
+      },
+      "revId": "7e353b40035056726615b177d97b7c4f7edcbe32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb9692c8_1cf85542",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-14T10:22:39Z",
+      "side": 1,
+      "message": "It\u0027s more future proof to use MAX_MIB_MASK in case the SB size changes.",
+      "range": {
+        "startLine": 446,
+        "startChar": 25,
+        "endLine": 446,
+        "endChar": 26
+      },
+      "revId": "7e353b40035056726615b177d97b7c4f7edcbe32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb9692c8_3cf51149",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-14T10:22:39Z",
+      "side": 1,
+      "message": "The code is identical to the code above and could be factored out as a separate function.",
+      "revId": "7e353b40035056726615b177d97b7c4f7edcbe32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb9692c8_fce2c994",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1087,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-14T10:22:39Z",
+      "side": 1,
+      "message": "MAX_MIB_MASK",
+      "range": {
+        "startLine": 1087,
+        "startChar": 25,
+        "endLine": 1087,
+        "endChar": 26
+      },
+      "revId": "7e353b40035056726615b177d97b7c4f7edcbe32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb9692c8_5cf2dd61",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 738,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-14T10:22:39Z",
+      "side": 1,
+      "message": "MI_SIZE",
+      "range": {
+        "startLine": 738,
+        "startChar": 43,
+        "endLine": 738,
+        "endChar": 44
+      },
+      "revId": "7e353b40035056726615b177d97b7c4f7edcbe32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb9692c8_7cef997a",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 739,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-14T10:22:39Z",
+      "side": 1,
+      "message": "MAX_MIB_MASK",
+      "range": {
+        "startLine": 739,
+        "startChar": 44,
+        "endLine": 739,
+        "endChar": 45
+      },
+      "revId": "7e353b40035056726615b177d97b7c4f7edcbe32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb9692c8_9c8e25e0",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-14T10:22:39Z",
+      "side": 1,
+      "message": "Factor out as a separate function?",
+      "revId": "7e353b40035056726615b177d97b7c4f7edcbe32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb9692c8_bc93e104",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2571,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-14T10:22:39Z",
+      "side": 1,
+      "message": "MAX_MIB_SIZE_LOG2",
+      "range": {
+        "startLine": 2571,
+        "startChar": 29,
+        "endLine": 2571,
+        "endChar": 30
+      },
+      "revId": "7e353b40035056726615b177d97b7c4f7edcbe32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
