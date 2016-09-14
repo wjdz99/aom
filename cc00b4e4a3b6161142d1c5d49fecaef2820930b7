@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6b712657_b7ceca22",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-09-14T21:27:35Z",
+      "side": 1,
+      "message": "Done. Thx for suggested fix!",
+      "parentUuid": "6b712657_b8100560",
+      "range": {
+        "startLine": 418,
+        "startChar": 0,
+        "endLine": 423,
+        "endChar": 6
+      },
+      "revId": "cc00b4e4a3b6161142d1c5d49fecaef2820930b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b712657_f893dd03",
         "filename": "av1/common/state.c",
         "patchSetId": 25
@@ -36,6 +60,30 @@
       "writtenOn": "2016-09-13T22:41:10Z",
       "side": 1,
       "message": "This is missing a copyright header.\nstate.c is a very generic name, can you come up with something more specific?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 29
+      },
+      "revId": "cc00b4e4a3b6161142d1c5d49fecaef2820930b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b712657_5738ae28",
+        "filename": "av1/common/state.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-09-14T21:27:35Z",
+      "side": 1,
+      "message": "- Added AOM copyright every missed place (many files for entopry code and pvq, directly imported from daala code base).\n- Renamed state.c/h --\u003e pvq_state.c/h",
+      "parentUuid": "6b712657_f893dd03",
       "range": {
         "startLine": 1,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "6b712657_57f2ee61",
+        "filename": "av1/decoder/pvq_decoder.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-09-14T21:27:35Z",
+      "side": 1,
+      "message": "Though \u0027av1_\u0027 is evetually correct prefix we should use, for now I\u0027d like to use \u0027od_\u0027 for all the files directly imported from daala codebase (I know that derining in AV1 is using \u0027av1_\u0027 though same functions exist in daala codebase)",
+      "parentUuid": "6b712657_588309b5",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 70
+      },
+      "revId": "cc00b4e4a3b6161142d1c5d49fecaef2820930b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b712657_98af4137",
         "filename": "av1/encoder/encodemb.h",
         "patchSetId": 25
@@ -82,6 +154,30 @@
       "writtenOn": "2016-09-13T22:41:10Z",
       "side": 1,
       "message": "These should have an av1 prefix",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 72
+      },
+      "revId": "cc00b4e4a3b6161142d1c5d49fecaef2820930b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b712657_178f96de",
+        "filename": "av1/encoder/encodemb.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-09-14T21:27:35Z",
+      "side": 1,
+      "message": "Fixed here and same fixe for decoder side.",
+      "parentUuid": "6b712657_98af4137",
       "range": {
         "startLine": 44,
         "startChar": 0,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "6b712657_57a42e55",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-09-14T21:27:35Z",
+      "side": 1,
+      "message": "I used CHECK_MEM_ERROR().",
+      "parentUuid": "6b712657_f8443d70",
+      "range": {
+        "startLine": 531,
+        "startChar": 16,
+        "endLine": 531,
+        "endChar": 26
+      },
+      "revId": "cc00b4e4a3b6161142d1c5d49fecaef2820930b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b712657_b8e24594",
         "filename": "av1/encoder/quantize.c",
         "patchSetId": 25
@@ -128,6 +248,30 @@
       "writtenOn": "2016-09-13T22:41:10Z",
       "side": 1,
       "message": "This seems suspicious",
+      "range": {
+        "startLine": 389,
+        "startChar": 0,
+        "endLine": 389,
+        "endChar": 48
+      },
+      "revId": "cc00b4e4a3b6161142d1c5d49fecaef2820930b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b712657_375e5a47",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-09-14T21:27:35Z",
+      "side": 1,
+      "message": "Yes, deleted. It is not in current av1 master.",
+      "parentUuid": "6b712657_b8e24594",
       "range": {
         "startLine": 389,
         "startChar": 0,
