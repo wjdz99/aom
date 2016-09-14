@@ -1,0 +1,3280 @@
+diff --git a/aom_dsp/daalaboolreader.h b/aom_dsp/daalaboolreader.h
+index 9d6cebd..8977995 100644
+--- a/aom_dsp/daalaboolreader.h
++++ b/aom_dsp/daalaboolreader.h
+@@ -41,7 +41,7 @@ uint32_t aom_daala_reader_tell_frac(const daala_reader *r);
+ 
+ static INLINE int aom_daala_read(daala_reader *r, int prob) {
+   if (prob == 128) {
+-    return od_ec_dec_bits(&r->ec, 1);
++    return od_ec_dec_bits(&r->ec, 1, "aom_bits");
+   } else {
+     int p = ((prob << 15) + (256 - prob)) >> 8;
+     return od_ec_decode_bool_q15(&r->ec, p);
+diff --git a/aom_dsp/entdec.c b/aom_dsp/entdec.c
+index 18563b2..b9925e3 100644
+--- a/aom_dsp/entdec.c
++++ b/aom_dsp/entdec.c
+@@ -440,7 +440,7 @@ uint32_t od_ec_dec_uint(od_ec_dec *dec, uint32_t ft) {
+     ftb = OD_ILOG_NZ(ft) - OD_EC_UINT_BITS;
+     ft1 = (int)(ft >> ftb) + 1;
+     t = od_ec_decode_cdf_q15(dec, OD_UNIFORM_CDF_Q15(ft1), ft1);
+-    t = t << ftb | od_ec_dec_bits(dec, ftb);
++    t = t << ftb | od_ec_dec_bits(dec, ftb, "");
+     if (t <= ft) return t;
+     dec->error = 1;
+     return ft;
+@@ -453,7 +453,7 @@ uint32_t od_ec_dec_uint(od_ec_dec *dec, uint32_t ft) {
+   ftb: The number of bits to extract.
+        This must be between 0 and 25, inclusive.
+   Return: The decoded bits.*/
+-uint32_t od_ec_dec_bits(od_ec_dec *dec, unsigned ftb) {
++uint32_t od_ec_dec_bits_(od_ec_dec *dec, unsigned ftb) {
+   od_ec_window window;
+   int available;
+   uint32_t ret;
+diff --git a/aom_dsp/entdec.h b/aom_dsp/entdec.h
+index 80363b5..4878ca4 100644
+--- a/aom_dsp/entdec.h
++++ b/aom_dsp/entdec.h
+@@ -33,6 +33,14 @@ extern "C" {
+ 
+ typedef struct od_ec_dec od_ec_dec;
+ 
++#if OD_ACCOUNTING
++#define OD_ACC_STR , char *acc_str
++#define od_ec_dec_bits(dec, ftb, str) od_ec_dec_bits_(dec, ftb, str)
++#else
++#define OD_ACC_STR
++#define od_ec_dec_bits(dec, ftb, str) od_ec_dec_bits_(dec, ftb)
++#endif
++
+ /*The entropy decoder context.*/
+ struct od_ec_dec {
+   /*The start of the current input buffer.*/
+@@ -91,7 +99,7 @@ OD_WARN_UNUSED_RESULT int od_ec_decode_cdf_unscaled_dyadic(od_ec_dec *dec,
+ OD_WARN_UNUSED_RESULT uint32_t od_ec_dec_uint(od_ec_dec *dec, uint32_t ft)
+     OD_ARG_NONNULL(1);
+ 
+-OD_WARN_UNUSED_RESULT uint32_t od_ec_dec_bits(od_ec_dec *dec, unsigned ftb)
++OD_WARN_UNUSED_RESULT uint32_t od_ec_dec_bits_(od_ec_dec *dec, unsigned ftb)
+     OD_ARG_NONNULL(1);
+ 
+ OD_WARN_UNUSED_RESULT int od_ec_dec_tell(const od_ec_dec *dec)
+diff --git a/av1/av1_common.mk b/av1/av1_common.mk
+index 7517f7f..b2f41bf 100644
+--- a/av1/av1_common.mk
++++ b/av1/av1_common.mk
+@@ -94,6 +94,25 @@ endif
+ AV1_COMMON_SRCS-yes += common/odintrin.c
+ AV1_COMMON_SRCS-yes += common/odintrin.h
+ 
++ifeq ($(CONFIG_PVQ),yes)
++# PVQ from daala
++AV1_COMMON_SRCS-yes += common/pvq.c
++AV1_COMMON_SRCS-yes += common/pvq.h
++AV1_COMMON_SRCS-yes += common/partition.c
++AV1_COMMON_SRCS-yes += common/partition.h
++AV1_COMMON_SRCS-yes += common/zigzag4.c
++AV1_COMMON_SRCS-yes += common/zigzag8.c
++AV1_COMMON_SRCS-yes += common/zigzag16.c
++AV1_COMMON_SRCS-yes += common/zigzag32.c
++AV1_COMMON_SRCS-yes += common/zigzag64.c
++AV1_COMMON_SRCS-yes += common/zigzag.h
++AV1_COMMON_SRCS-yes += common/generic_code.c
++AV1_COMMON_SRCS-yes += common/generic_code.h
++AV1_COMMON_SRCS-yes += common/state.c
++AV1_COMMON_SRCS-yes += common/state.h
++AV1_COMMON_SRCS-yes += common/laplace_tables.c
++endif
++
+ ifneq ($(CONFIG_AOM_HIGHBITDEPTH),yes)
+ AV1_COMMON_SRCS-$(HAVE_DSPR2)  += common/mips/dspr2/itrans4_dspr2.c
+ AV1_COMMON_SRCS-$(HAVE_DSPR2)  += common/mips/dspr2/itrans8_dspr2.c
+diff --git a/av1/av1_cx.mk b/av1/av1_cx.mk
+index 67e4021..b7b3df7 100644
+--- a/av1/av1_cx.mk
++++ b/av1/av1_cx.mk
+@@ -96,6 +96,16 @@ AV1_CX_SRCS-$(HAVE_SSE4_1) += encoder/clpf_rdo_sse4_1.c
+ AV1_CX_SRCS-$(HAVE_NEON) += encoder/clpf_rdo_neon.c
+ endif
+ 
++ifeq ($(CONFIG_PVQ),yes)
++# PVQ from daala
++AV1_CX_SRCS-yes += encoder/daala_compat_enc.c
++AV1_CX_SRCS-yes += encoder/pvq_encoder.c
++AV1_CX_SRCS-yes += encoder/pvq_encoder.h
++AV1_CX_SRCS-yes += encoder/encint.h
++AV1_CX_SRCS-yes += encoder/generic_encoder.c
++AV1_CX_SRCS-yes += encoder/laplace_encoder.c
++endif
++
+ AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/temporal_filter_apply_sse2.asm
+ AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/quantize_sse2.c
+ ifeq ($(CONFIG_AOM_HIGHBITDEPTH),yes)
+diff --git a/av1/av1_dx.mk b/av1/av1_dx.mk
+index 362e7c6..574481a 100644
+--- a/av1/av1_dx.mk
++++ b/av1/av1_dx.mk
+@@ -32,4 +32,13 @@ AV1_DX_SRCS-yes += decoder/decoder.h
+ AV1_DX_SRCS-yes += decoder/dsubexp.c
+ AV1_DX_SRCS-yes += decoder/dsubexp.h
+ 
++ifeq ($(CONFIG_PVQ),yes)
++# PVQ from daala
++AV1_DX_SRCS-yes += decoder/pvq_decoder.c
++AV1_DX_SRCS-yes += decoder/pvq_decoder.h
++AV1_DX_SRCS-yes += decoder/decint.h
++AV1_DX_SRCS-yes += decoder/generic_decoder.c
++AV1_DX_SRCS-yes += decoder/laplace_decoder.c
++endif
++
+ AV1_DX_SRCS-yes := $(filter-out $(AV1_DX_SRCS_REMOVE-yes),$(AV1_DX_SRCS-yes))
+diff --git a/av1/common/blockd.h b/av1/common/blockd.h
+index 87d4a52..f2c72ef 100644
+--- a/av1/common/blockd.h
++++ b/av1/common/blockd.h
+@@ -28,6 +28,11 @@
+ #include "av1/common/scale.h"
+ #include "av1/common/seg_common.h"
+ #include "av1/common/tile_common.h"
++#if CONFIG_PVQ
++#include "av1/common/pvq.h"
++#include "av1/common/state.h"
++#include "av1/decoder/decint.h"
++#endif
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -87,6 +92,33 @@ static INLINE int is_inter_mode(PREDICTION_MODE mode) {
+   return mode >= NEARESTMV && mode <= NEWMV;
+ }
+ 
++#if CONFIG_PVQ
++typedef struct PVQ_INFO {
++  int theta[PVQ_MAX_PARTITIONS];
++  int max_theta[PVQ_MAX_PARTITIONS];
++  int qg[PVQ_MAX_PARTITIONS];
++  int k[PVQ_MAX_PARTITIONS];
++  od_coeff y[OD_BSIZE_MAX * OD_BSIZE_MAX];
++  int nb_bands;
++  int off[PVQ_MAX_PARTITIONS];
++  int size[PVQ_MAX_PARTITIONS];
++  int skip_rest;
++  int skip_dir;
++  int bs;           // log of the block size minus two,
++                    // i.e. equivalent to aom's TX_SIZE
++  int ac_dc_coded;  // block skip info, indicating whether DC/AC is coded.
++                    // bit0: DC coded, bit1 : AC coded (1 means coded)
++  tran_low_t dq_dc_residue;
++} PVQ_INFO;
++
++typedef struct PVQ_QUEUE {
++  PVQ_INFO *buf;  // buffer for pvq info, stored in encoding order
++  int curr_pos;   // curr position to write PVQ_INFO
++  int buf_len;    // allocated buffer length
++  int last_pos;   // last written position of PVQ_INFO in a tile
++} PVQ_QUEUE;
++#endif
++
+ /* For keyframes, intra block modes are predicted by the (already decoded)
+    modes for the Y blocks to the left and above us; for interframes, there
+    is a single probability table. */
+@@ -219,9 +251,16 @@ struct macroblockd_plane {
+ #endif
+   // encoder
+   const int16_t *dequant;
++
+ #if CONFIG_AOM_QM
+   const qm_val_t *seg_qmatrix[MAX_SEGMENTS][2][TX_SIZES];
+ #endif
++
++#if CONFIG_PVQ
++  DECLARE_ALIGNED(16, int16_t, pred[64 * 64]);
++  // PVQ: forward transformed predicted image, a reference for PVQ.
++  tran_low_t *pvq_ref_coeff;
++#endif
+ };
+ 
+ #define BLOCK_OFFSET(x, i) ((x) + (i)*16)
+@@ -281,6 +320,9 @@ typedef struct macroblockd {
+   PARTITION_CONTEXT *above_seg_context;
+   PARTITION_CONTEXT left_seg_context[8];
+ 
++#if CONFIG_PVQ
++  daala_dec_ctx daala_dec;
++#endif
+ #if CONFIG_AOM_HIGHBITDEPTH
+   /* Bit depth: 8, 10, 12 */
+   int bd;
+diff --git a/av1/common/odintrin.c b/av1/common/odintrin.c
+index bb36104..c7676f4 100644
+--- a/av1/common/odintrin.c
++++ b/av1/common/odintrin.c
+@@ -8,8 +8,21 @@
+  * Media Patent License 1.0 was not distributed with this source code in the
+  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
+  */
++
++/* clang-format off */
++
+ #include "av1/common/odintrin.h"
+ 
++#if defined(OD_ENABLE_ASSERTIONS)
++# include <stdio.h>
++
++void od_fatal_impl(const char *_str, const char *_file, int _line) {
++  fprintf(stderr, "Fatal (internal) error in %s, line %d: %s\n",
++   _file, _line, _str);
++  abort();
++}
++#endif
++
+ /*Constants for use with OD_DIVU_SMALL().
+   See \cite{Rob05} for details on computing these constants.
+   @INPROCEEDINGS{Rob05,
+diff --git a/av1/common/odintrin.h b/av1/common/odintrin.h
+index a5e36cf..cca8bce 100644
+--- a/av1/common/odintrin.h
++++ b/av1/common/odintrin.h
+@@ -8,9 +8,16 @@
+  * Media Patent License 1.0 was not distributed with this source code in the
+  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
+  */
++
++/* clang-format off */
++
+ #ifndef AV1_COMMON_ODINTRIN_H_
+ #define AV1_COMMON_ODINTRIN_H_
+ 
++#include <math.h>
++#include <stdlib.h>
++#include <string.h>
++
+ #include "aom/aom_integer.h"
+ #include "aom_dsp/aom_dsp_common.h"
+ #include "aom_ports/bitops.h"
+@@ -20,6 +27,14 @@
+ extern "C" {
+ #endif
+ 
++# if !defined(M_LOG2E)
++#  define M_LOG2E (1.4426950408889634073599246810019)
++# endif
++
++# if !defined(M_LN2)
++#  define M_LN2 (0.69314718055994530941723212145818)
++# endif
++
+ /*Smallest blocks are 4x4*/
+ #define OD_LOG_BSIZE0 (2)
+ /*There are 5 block sizes total (4x4, 8x8, 16x16, 32x32 and 64x64).*/
+@@ -29,6 +44,30 @@ extern "C" {
+ /*The maximum length of the side of a block.*/
+ #define OD_BSIZE_MAX (1 << OD_LOG_BSIZE_MAX)
+ 
++/**The maximum number of color planes allowed in a single frame.*/
++# define OD_NPLANES_MAX (4)
++
++# define OD_COEFF_SHIFT (4)
++
++# define OD_DISABLE_CFL (1)
++# define OD_DISABLE_FILTER (1)
++
++# define OD_ENABLE_ASSERTIONS (1)
++
++# define OD_LOG(a)
++# define OD_LOG_PARTIAL(a)
++
++/*Possible block sizes, note that OD_BLOCK_NXN = log2(N) - 2.*/
++#define OD_BLOCK_4X4 (0)
++#define OD_BLOCK_8X8 (1)
++#define OD_BLOCK_16X16 (2)
++#define OD_BLOCK_32X32 (3)
++#define OD_BLOCK_64X64 (4)
++#define OD_BLOCK_SIZES (OD_BLOCK_64X64 + 1)
++
++# define OD_LIMIT_BSIZE_MIN (OD_BLOCK_4X4)
++# define OD_LIMIT_BSIZE_MAX (OD_BLOCK_64X64)
++
+ typedef int od_coeff;
+ 
+ typedef int16_t od_dering_in;
+@@ -60,7 +99,8 @@ extern uint32_t OD_DIVU_SMALL_CONSTS[OD_DIVU_DMAX][2];
+   We define a special version of the macro to use when x can be zero.*/
+ #define OD_ILOG(x) ((x) ? OD_ILOG_NZ(x) : 0)
+ 
+-#define OD_LOG2 AOMLOG2
++#define OD_LOG2(x) (M_LOG2E*log(x))
++#define OD_EXP2(x) (exp(M_LN2*(x)))
+ 
+ /*Enable special features for gcc and compatible compilers.*/
+ #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+@@ -123,10 +163,92 @@ void od_fatal_impl(const char *_str, const char *_file, int _line);
+ /** Copy n elements of memory from src to dst, allowing overlapping regions.
+     The 0* term provides compile-time type checking */
+ #if !defined(OVERRIDE_OD_MOVE)
+-#define OD_MOVE(dst, src, n) \
+-  (memmove((dst), (src), sizeof(*(dst)) * (n) + 0 * ((dst) - (src))))
++# define OD_MOVE(dst, src, n) \
++ (memmove((dst), (src), sizeof(*(dst))*(n) + 0*((dst) - (src)) ))
++#endif
++
++/** Linkage will break without this if using a C++ compiler, and will issue
++ * warnings without this for a C compiler*/
++#if defined(__cplusplus)
++# define OD_EXTERN extern
++#else
++# define OD_EXTERN
++#endif
++
++/** Set n elements of dst to zero */
++#if !defined(OVERRIDE_OD_CLEAR)
++# define OD_CLEAR(dst, n) (memset((dst), 0, sizeof(*(dst))*(n)))
+ #endif
+ 
++/** Silence unused parameter/variable warnings */
++# define OD_UNUSED(expr) (void)(expr)
++
++#if defined(OD_FLOAT_PVQ)
++typedef double od_val16;
++typedef double od_val32;
++# define OD_QCONST32(x, bits) (x)
++# define OD_ROUND16(x) (x)
++# define OD_ROUND32(x) (x)
++# define OD_SHL(x, shift) (x)
++# define OD_SHR(x, shift) (x)
++# define OD_SHR_ROUND(x, shift) (x)
++# define OD_ABS(x) (fabs(x))
++# define OD_MULT16_16(a, b) ((a)*(b))
++# define OD_MULT16_32_Q16(a, b) ((a)*(b))
++#else
++typedef int16_t od_val16;
++typedef int32_t od_val32;
++/** Compile-time conversion of float constant to 32-bit value */
++# define OD_QCONST32(x, bits) ((od_val32)(.5 + (x)*(((od_val32)1) << (bits))))
++# define OD_ROUND16(x) (int16_t)(floor(.5 + (x)))
++# define OD_ROUND32(x) (int32_t)(floor(.5 + (x)))
++/*Shift x left by shift*/
++# define OD_SHL(a, shift) ((int32_t)((uint32_t)(a) << (shift)))
++/*Shift x right by shift (without rounding)*/
++# define OD_SHR(x, shift) \
++  ((int32_t)((x) >> (shift)))
++/*Shift x right by shift (with rounding)*/
++# define OD_SHR_ROUND(x, shift) \
++  ((int32_t)(((x) + (1 << (shift) >> 1)) >> (shift)))
++/*Shift x right by shift (without rounding) or left by -shift if shift
++  is negative.*/
++# define OD_VSHR(x, shift) \
++  (((shift) > 0) ? OD_SHR(x, shift) : OD_SHL(x, -(shift)))
++/*Shift x right by shift (with rounding) or left by -shift if shift
++  is negative.*/
++# define OD_VSHR_ROUND(x, shift) \
++  (((shift) > 0) ? OD_SHR_ROUND(x, shift) : OD_SHL(x, -(shift)))
++# define OD_ABS(x) (abs(x))
++/* (od_val32)(od_val16) gives TI compiler a hint that it's 16x16->32 multiply */
++/** 16x16 multiplication where the result fits in 32 bits */
++# define OD_MULT16_16(a, b) \
++ (((od_val32)(od_val16)(a))*((od_val32)(od_val16)(b)))
++/* Multiplies 16-bit a by 32-bit b and keeps bits [16:47]. */
++# define OD_MULT16_32_Q16(a, b) ((int16_t)(a)*(int64_t)(int32_t)(b) >> 16)
++/*16x16 multiplication where the result fits in 16 bits, without rounding.*/
++# define OD_MULT16_16_Q15(a,b) \
++  (((int16_t)(a)*((int32_t)(int16_t)(b))) >> 15)
++/*16x16 multiplication where the result fits in 16 bits, without rounding.*/
++# define OD_MULT16_16_Q16(a,b) \
++  ((((int16_t)(a))*((int32_t)(int16_t)(b))) >> 16)
++#endif
++
++/*All of these macros should expect floats as arguments.*/
++/*These two should compile as a single SSE instruction.*/
++# define OD_MINF(a, b) ((a) < (b) ? (a) : (b))
++# define OD_MAXF(a, b) ((a) > (b) ? (a) : (b))
++
++# define OD_DIV_R0(x, y) (((x) + OD_FLIPSIGNI((((y) + 1) >> 1) - 1, (x)))/(y))
++
++# define OD_SIGNMASK(a) (-((a) < 0))
++# define OD_FLIPSIGNI(a, b) (((a) + OD_SIGNMASK(b)) ^ OD_SIGNMASK(b))
++
++# define OD_MULT16_16_Q15(a,b) \
++  (((int16_t)(a)*((int32_t)(int16_t)(b))) >> 15)
++
++/* Multiplies 16-bit a by 32-bit b and keeps bits [16:47]. */
++# define OD_MULT16_32_Q16(a, b) ((int16_t)(a)*(int64_t)(int32_t)(b) >> 16)
++
+ #ifdef __cplusplus
+ }  // extern "C"
+ #endif
+diff --git a/av1/common/onyxc_int.h b/av1/common/onyxc_int.h
+index 7d388a1..13e935b 100644
+--- a/av1/common/onyxc_int.h
++++ b/av1/common/onyxc_int.h
+@@ -23,6 +23,10 @@
+ #include "av1/common/frame_buffers.h"
+ #include "av1/common/loopfilter.h"
+ #include "av1/common/tile_common.h"
++#include "odintrin.h"
++#if CONFIG_PVQ
++#include "pvq.h"
++#endif
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -411,11 +415,19 @@ static INLINE int frame_is_intra_only(const AV1_COMMON *const cm) {
+ }
+ 
+ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
++#if !CONFIG_PVQ
+                                         tran_low_t *dqcoeff) {
++#else
++                                        tran_low_t *dqcoeff,
++                                        tran_low_t *pvq_ref_coeff) {
++#endif
+   int i;
+ 
+   for (i = 0; i < MAX_MB_PLANE; ++i) {
+     xd->plane[i].dqcoeff = dqcoeff;
++#if CONFIG_PVQ
++    xd->plane[i].pvq_ref_coeff = pvq_ref_coeff;
++#endif
+     xd->above_context[i] =
+         cm->above_context +
+         i * sizeof(*cm->above_context) * 2 * mi_cols_aligned_to_sb(cm->mi_cols);
+diff --git a/av1/decoder/decodeframe.c b/av1/decoder/decodeframe.c
+index 67f327b..7128dee 100644
+--- a/av1/decoder/decodeframe.c
++++ b/av1/decoder/decodeframe.c
+@@ -55,6 +55,18 @@
+ #define MAX_AV1_HEADER_SIZE 80
+ #define ACCT_STR __func__
+ 
++#if !CONFIG_PVQ
++#include "av1/decoder/detokenize.h"
++#else
++#include "av1/decoder/pvq_decoder.h"
++#include "av1/encoder/encodemb.h"
++
++#include "aom_dsp/entdec.h"
++#include "av1/common/partition.h"
++#include "av1/decoder/decint.h"
++#include "av1/encoder/hybrid_fwd_txfm.h"
++#endif
++
+ static int is_compound_reference_allowed(const AV1_COMMON *cm) {
+   int i;
+   if (frame_is_intra_only(cm)) return 0;
+@@ -366,6 +378,7 @@ static void inverse_transform_block_intra(MACROBLOCKD *xd, int plane,
+     }
+ #endif  // CONFIG_AOM_HIGHBITDEPTH
+ 
++#if !CONFIG_PVQ
+     if (eob == 1) {
+       dqcoeff[0] = 0;
+     } else {
+@@ -377,9 +390,83 @@ static void inverse_transform_block_intra(MACROBLOCKD *xd, int plane,
+         memset(dqcoeff, 0,
+                (1 << (tx_size_1d_log2[tx_size] * 2)) * sizeof(dqcoeff[0]));
+     }
++#endif
+   }
+ }
+ 
++#if CONFIG_PVQ
++static int pvq_decode_helper(od_dec_ctx *dec, int16_t *ref_coeff,
++                             int16_t *dqcoeff, int16_t *quant, int pli, int bs,
++                             TX_TYPE tx_type, int xdec, int ac_dc_coded) {
++  unsigned int flags;  // used for daala's stream analyzer.
++  int off;
++  const int is_keyframe = 0;
++  const int has_dc_skip = 1;
++  int quant_shift = bs == TX_32X32 ? 1 : 0;
++  int pvq_dc_quant;
++  int lossless = (quant[0] == 0);
++  const int blk_size = 1 << (bs + 2);
++  int eob = 0;
++  int i;
++  // int use_activity_masking = dec->use_activity_masking;
++  int use_activity_masking = 0;
++
++  DECLARE_ALIGNED(16, int16_t, dqcoeff_pvq[64 * 64]);
++  DECLARE_ALIGNED(16, int16_t, ref_coeff_pvq[64 * 64]);
++
++  od_coeff ref_int32[64 * 64];
++  od_coeff out_int32[64 * 64];
++
++  /*Safely initialize d since some coeffs are skipped by PVQ.*/
++  // od_init_skipped_coeffs(dqcoeff, ref_coeff, 0, 0, blk_size, blk_size);
++  od_raster_to_coding_order(ref_coeff_pvq, blk_size, tx_type, ref_coeff,
++                            blk_size);
++
++  if (lossless)
++    pvq_dc_quant = 1;
++  else {
++    // TODO: Enable this later, if pvq_qm_q4 is available in AOM.
++    // pvq_dc_quant = OD_MAXI(1, quant*
++    // dec->state.pvq_qm_q4[pli][od_qm_get_index(bs, 0)] >> 4);
++    pvq_dc_quant = OD_MAXI(1, quant[0] >> quant_shift);
++  }
++
++  off = od_qm_offset(bs, xdec);
++
++  // copy int16 inputs to int32
++  for (i = 0; i < blk_size * blk_size; i++) ref_int32[i] = ref_coeff_pvq[i];
++
++  od_pvq_decode(dec, ref_int32, out_int32, (int)quant[1] >> quant_shift, pli,
++                bs, OD_PVQ_BETA[use_activity_masking][pli][bs],
++                1,  // OD_ROBUST_STREAM
++                is_keyframe, &flags, ac_dc_coded, dec->state.qm + off,
++                dec->state.qm_inv + off);
++
++  // copy int32 result back to int16
++  for (i = 0; i < blk_size * blk_size; i++) dqcoeff_pvq[i] = out_int32[i];
++
++  if (!has_dc_skip || dqcoeff_pvq[0]) {
++    dqcoeff_pvq[0] =
++        has_dc_skip + generic_decode(dec->ec, &dec->state.adapt.model_dc[pli],
++                                     -1, &dec->state.adapt.ex_dc[pli][bs][0], 2,
++                                     "dc:mag");
++    if (dqcoeff_pvq[0])
++      dqcoeff_pvq[0] *= od_ec_dec_bits(dec->ec, 1, "dc:sign") ? -1 : 1;
++  }
++  dqcoeff_pvq[0] = dqcoeff_pvq[0] * pvq_dc_quant + ref_coeff_pvq[0];
++
++  od_coding_order_to_raster(dqcoeff, blk_size, tx_type, dqcoeff_pvq, blk_size);
++
++  // Mark last nonzero coeff position.
++  // for (j = 0; j < blk_size * blk_size; j++)
++  //  if (dqcoeff[j]) eob = j + 1;
++
++  eob = blk_size * blk_size;
++
++  return eob;
++}
++#endif
++
+ static void predict_and_reconstruct_intra_block(MACROBLOCKD *const xd,
+                                                 aom_reader *r,
+                                                 MB_MODE_INFO *const mbmi,
+@@ -390,6 +477,9 @@ static void predict_and_reconstruct_intra_block(MACROBLOCKD *const xd,
+   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
+   uint8_t *dst;
+   int block_idx = (row << 1) + col;
++#if CONFIG_PVQ
++  (void)r;
++#endif
+   dst = &pd->dst.buf[4 * row * pd->dst.stride + 4 * col];
+ 
+   if (mbmi->sb_type < BLOCK_8X8)
+@@ -400,11 +490,69 @@ static void predict_and_reconstruct_intra_block(MACROBLOCKD *const xd,
+ 
+   if (!mbmi->skip) {
+     TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx);
++#if !CONFIG_PVQ
+     const SCAN_ORDER *scan_order = get_scan(tx_size, tx_type);
+     const int eob = av1_decode_block_tokens(xd, plane, scan_order, col, row,
+                                             tx_size, r, mbmi->segment_id);
++#else
++    // pvq_decode() for intra block runs here.
++    // transform block size in pixels
++    int tx_blk_size = 1 << (tx_size + 2);
++    int i, j;
++    tran_low_t *pvq_ref_coeff = pd->pvq_ref_coeff;
++    const int diff_stride = tx_blk_size;
++    int16_t *pred = pd->pred;
++    tran_low_t *const dqcoeff = pd->dqcoeff;
++    int ac_dc_coded;  // bit0: DC coded, bit1 : AC coded
++
++    // decode ac/dc coded flag. bit0: DC coded, bit1 : AC coded
++    // NOTE : we don't use 5 symbols for luma here in aom codebase,
++    // since block partition is taken care of by aom.
++    // So, only AC/DC skip info is coded
++    ac_dc_coded = od_decode_cdf_adapt(
++        xd->daala_dec.ec,
++        xd->daala_dec.state.adapt.skip_cdf[2 * tx_size + (plane != 0)], 4,
++        xd->daala_dec.state.adapt.skip_increment, "skip");
++
++    if (ac_dc_coded) {
++      int eob = 0;
++      int xdec = pd->subsampling_x;
++      int seg_id = mbmi->segment_id;
++      int16_t *quant;
++      FWD_TXFM_PARAM fwd_txfm_param;
++
++      for (j = 0; j < tx_blk_size; j++)
++        for (i = 0; i < tx_blk_size; i++) {
++          pred[diff_stride * j + i] = dst[pd->dst.stride * j + i];
++        }
++
++      fwd_txfm_param.tx_type = tx_type;
++      fwd_txfm_param.tx_size = tx_size;
++      fwd_txfm_param.fwd_txfm_opt = FWD_TXFM_OPT_NORMAL;
++      fwd_txfm_param.rd_transform = 0;
++      fwd_txfm_param.lossless = xd->lossless[seg_id];
++
++      fwd_txfm(pred, pvq_ref_coeff, diff_stride, &fwd_txfm_param);
++
++      quant = &pd->seg_dequant[seg_id][0];  // aom's quantizer
++
++      eob = pvq_decode_helper(&xd->daala_dec, pvq_ref_coeff, dqcoeff, quant,
++                              plane, tx_size, tx_type, xdec, ac_dc_coded);
++
++      // Since av1 does not have separate inverse transform
++      // but also contains adding to predicted image,
++      // pass blank dummy image to av1_inv_txfm_add_*x*(), i.e. set dst as zeros
++      if (eob > 0) {
++        for (j = 0; j < tx_blk_size; j++)
++          for (i = 0; i < tx_blk_size; i++)
++            dst[j * pd->dst.stride + i] = 0;
++#endif
+     inverse_transform_block_intra(xd, plane, tx_type, tx_size, dst,
+                                   pd->dst.stride, eob);
++#if CONFIG_PVQ
++      }
++    }
++#endif
+   }
+ }
+ 
+@@ -415,13 +563,77 @@ static int reconstruct_inter_block(MACROBLOCKD *const xd, aom_reader *r,
+   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
+   int block_idx = (row << 1) + col;
+   TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx);
++#if !CONFIG_PVQ
+   const SCAN_ORDER *scan_order = get_scan(tx_size, tx_type);
+   const int eob = av1_decode_block_tokens(xd, plane, scan_order, col, row,
+                                           tx_size, r, mbmi->segment_id);
++#else
++  int ac_dc_coded;
++  int eob = 0;
++
++  (void)r;
++
++  // pvq_decode() for inter block runs here.
++
++  // decode ac/dc skip flag. bit0: 0 : DC skipped, bit1 : 0: AC skipped
++  // NOTE : we don't use 5 symbols for luma here in aom codebase,
++  // since block partition is taken care of by aom.
++  // So, only AC/DC skip info is coded
++  ac_dc_coded = od_decode_cdf_adapt(
++      xd->daala_dec.ec,
++      xd->daala_dec.state.adapt.skip_cdf[2 * tx_size + (plane != 0)], 4,
++      xd->daala_dec.state.adapt.skip_increment, "skip");
++
++  if (ac_dc_coded) {
++    // transform block size in pixels
++    int tx_blk_size = 1 << (tx_size + 2);
++    int i, j;
++    tran_low_t *pvq_ref_coeff = pd->pvq_ref_coeff;
++    const int diff_stride = tx_blk_size;
++    int16_t *pred = pd->pred;
++    uint8_t *dst;
++    tran_low_t *const dqcoeff = pd->dqcoeff;
++    int xdec = pd->subsampling_x;
++    int seg_id = mbmi->segment_id;
++    int16_t *quant;
++    FWD_TXFM_PARAM fwd_txfm_param;
++
++    dst = &pd->dst.buf[4 * row * pd->dst.stride + 4 * col];
++
++    for (j = 0; j < tx_blk_size; j++)
++      for (i = 0; i < tx_blk_size; i++) {
++        pred[diff_stride * j + i] = dst[pd->dst.stride * j + i];
++      }
+ 
++    fwd_txfm_param.tx_type = tx_type;
++    fwd_txfm_param.tx_size = tx_size;
++    fwd_txfm_param.fwd_txfm_opt = FWD_TXFM_OPT_NORMAL;
++    fwd_txfm_param.rd_transform = 0;
++    fwd_txfm_param.lossless = xd->lossless[seg_id];
++
++    fwd_txfm(pred, pvq_ref_coeff, diff_stride, &fwd_txfm_param);
++
++    quant = &pd->seg_dequant[seg_id][0];  // aom's DC quantizer
++
++    eob = pvq_decode_helper(&xd->daala_dec, pvq_ref_coeff, dqcoeff, quant,
++                            plane, tx_size, tx_type, xdec, ac_dc_coded);
++
++    // Since av1 does not have separate inverse transform
++    // but also contains adding to predicted image,
++    // pass blank dummy image to av1_inv_txfm_add_*x*(), i.e. set dst as
++    // zeros
++    if (eob > 0) {
++      for (j = 0; j < tx_blk_size; j++)
++        for (i = 0; i < tx_blk_size; i++)
++          dst[j * pd->dst.stride + i] = 0;
++#endif
+   inverse_transform_block_inter(
+       xd, plane, tx_size, &pd->dst.buf[4 * row * pd->dst.stride + 4 * col],
+       pd->dst.stride, eob, block_idx);
++#if CONFIG_PVQ
++    }
++  }
++#endif
+   return eob;
+ }
+ 
+@@ -638,6 +850,11 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
+   partition =
+       read_partition(cm, xd, mi_row, mi_col, r, has_rows, has_cols, n8x8_l2);
+   subsize = subsize_lookup[partition][bsize];  // get_subsize(bsize, partition);
++
++#if CONFIG_PVQ
++  assert(partition < PARTITION_TYPES);
++  assert(subsize < BLOCK_SIZES);
++#endif
+   if (!hbs) {
+     // calculate bmode block dimensions (log 2)
+     xd->bmode_blocks_wl = 1 >> !!(partition & PARTITION_VERT);
+@@ -706,6 +923,7 @@ static void setup_token_decoder(const uint8_t *data, const uint8_t *data_end,
+                        "Failed to allocate bool decoder %d", 1);
+ }
+ 
++#if !CONFIG_PVQ
+ static void read_coef_probs_common(av1_coeff_probs_model *coef_probs,
+                                    aom_reader *r) {
+   int i, j, k, l, m;
+@@ -728,6 +946,7 @@ static void read_coef_probs(FRAME_CONTEXT *fc, TX_MODE tx_mode, aom_reader *r) {
+   av1_coef_pareto_cdfs(fc);
+ #endif  // CONFIG_RANS
+ }
++#endif
+ 
+ static void setup_segmentation(AV1_COMMON *const cm,
+                                struct aom_read_bit_buffer *rb) {
+@@ -1220,6 +1439,27 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
+   }
+ }
+ 
++#if CONFIG_PVQ
++static void daala_dec_init(daala_dec_ctx *daala_dec, od_ec_dec *ec) {
++  daala_dec->ec = ec;
++  od_adapt_ctx_reset(&daala_dec->state.adapt, 0);
++
++  daala_dec->state.qm =
++      aom_calloc(OD_QM_BUFFER_SIZE, sizeof(daala_dec->state.qm[0]));
++  daala_dec->state.qm_inv =
++      aom_calloc(OD_QM_BUFFER_SIZE, sizeof(daala_dec->state.qm_inv[0]));
++  daala_dec->qm = OD_FLAT_QM;
++
++  od_init_qm(daala_dec->state.qm, daala_dec->state.qm_inv,
++             daala_dec->qm == OD_HVS_QM ? OD_QM8_Q4_HVS : OD_QM8_Q4_FLAT);
++}
++
++static void daala_dec_free(daala_dec_ctx *daala_dec) {
++  aom_free(daala_dec->state.qm);
++  aom_free(daala_dec->state.qm_inv);
++}
++#endif
++
+ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
+                                    const uint8_t *data_end) {
+   AV1_COMMON *const cm = &pbi->common;
+@@ -1287,6 +1527,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
+               ? &cm->counts
+               : NULL;
+       av1_zero(tile_data->dqcoeff);
++#if CONFIG_PVQ
++      av1_zero(tile_data->pvq_ref_coeff);
++#endif
+       av1_tile_init(&tile_data->xd.tile, tile_data->cm, tile_row, tile_col);
+       setup_token_decoder(buf->data, data_end, buf->size, &cm->error,
+                           &tile_data->bit_reader, pbi->decrypt_cb,
+@@ -1294,7 +1537,13 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
+ #if CONFIG_ACCOUNTING
+       tile_data->bit_reader.accounting = &pbi->accounting;
+ #endif
++#if !CONFIG_PVQ
+       av1_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff);
++#else
++      av1_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff,
++                           tile_data->pvq_ref_coeff);
++      daala_dec_init(&tile_data->xd.daala_dec, &tile_data->bit_reader.ec);
++#endif
+ #if CONFIG_PALETTE
+       tile_data->xd.plane[0].color_index_map = tile_data->color_index_map[0];
+       tile_data->xd.plane[1].color_index_map = tile_data->color_index_map[1];
+@@ -1372,6 +1621,16 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
+   // Get last tile data.
+   tile_data = pbi->tile_data + tile_cols * tile_rows - 1;
+ 
++#if CONFIG_PVQ
++  // Deallocate tile-local data
++  for (tile_row = 0; tile_row < tile_rows; ++tile_row) {
++    for (tile_col = 0; tile_col < tile_cols; ++tile_col) {
++      tile_data = pbi->tile_data + tile_cols * tile_row + tile_col;
++      daala_dec_free(&tile_data->xd.daala_dec);
++    }
++  }
++#endif
++
+   if (cm->frame_parallel_decode)
+     av1_frameworker_broadcast(pbi->cur_buf, INT_MAX);
+ #if CONFIG_ANS
+@@ -1530,7 +1789,13 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
+       setup_token_decoder(buf->data, data_end, buf->size, &cm->error,
+                           &tile_data->bit_reader, pbi->decrypt_cb,
+                           pbi->decrypt_state);
++#if !CONFIG_PVQ
+       av1_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff);
++#else
++      av1_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff,
++                           tile_data->pvq_ref_coeff);
++      daala_dec_init(&tile_data->xd.daala_dec, &tile_data->bit_reader.ec);
++#endif
+ #if CONFIG_PALETTE
+       tile_data->xd.plane[0].color_index_map = tile_data->color_index_map[0];
+       tile_data->xd.plane[1].color_index_map = tile_data->color_index_map[1];
+@@ -1557,6 +1822,13 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
+       // in cm. Additionally once the threads have been synced and an error is
+       // detected, there's no point in continuing to decode tiles.
+       pbi->mb.corrupted |= !winterface->sync(worker);
++
++#if CONFIG_PVQ
++      {
++        TileWorkerData *tile_data = (TileWorkerData *)worker->data1;
++        daala_dec_free(&tile_data->xd.daala_dec);
++      }
++#endif
+     }
+     if (final_worker > -1) {
+       TileWorkerData *const tile_data =
+@@ -2017,7 +2289,9 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
+   cm->tx_mode = xd->lossless[0] ? ONLY_4X4 : read_tx_mode(&r);
+ #endif
+   if (cm->tx_mode == TX_MODE_SELECT) read_tx_mode_probs(&fc->tx_probs, &r);
++#if !CONFIG_PVQ
+   read_coef_probs(fc, cm->tx_mode, &r);
++#endif
+ 
+   for (k = 0; k < SKIP_CONTEXTS; ++k)
+     av1_diff_update_prob(&r, &fc->skip_probs[k], ACCT_STR);
+diff --git a/av1/decoder/decoder.c b/av1/decoder/decoder.c
+index a259641..9133eed 100644
+--- a/av1/decoder/decoder.c
++++ b/av1/decoder/decoder.c
+@@ -32,7 +32,12 @@
+ 
+ #include "av1/decoder/decodeframe.h"
+ #include "av1/decoder/decoder.h"
++
++#if !CONFIG_PVQ
+ #include "av1/decoder/detokenize.h"
++#else
++#include "av1/decoder/decint.h"
++#endif
+ 
+ static void initialize_dec(void) {
+   static volatile int init_done = 0;
+diff --git a/av1/decoder/decoder.h b/av1/decoder/decoder.h
+index 01d2792..901001a 100644
+--- a/av1/decoder/decoder.h
++++ b/av1/decoder/decoder.h
+@@ -26,6 +26,12 @@
+ #include "av1/common/accounting.h"
+ #endif
+ 
++#if CONFIG_PVQ
++#include "aom_dsp/entdec.h"
++#include "av1/decoder/decint.h"
++#include "av1/encoder/encodemb.h"
++#endif
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+@@ -37,6 +43,10 @@ typedef struct TileData {
+   DECLARE_ALIGNED(16, MACROBLOCKD, xd);
+   /* dqcoeff are shared by all the planes. So planes must be decoded serially */
+   DECLARE_ALIGNED(16, tran_low_t, dqcoeff[32 * 32]);
++#if CONFIG_PVQ
++  /* forward transformed predicted image, a reference for PVQ */
++  DECLARE_ALIGNED(16, tran_low_t, pvq_ref_coeff[32 * 32]);
++#endif
+ #if CONFIG_PALETTE
+   DECLARE_ALIGNED(16, uint8_t, color_index_map[2][64 * 64]);
+ #endif  // CONFIG_PALETTE
+@@ -49,6 +59,10 @@ typedef struct TileWorkerData {
+   DECLARE_ALIGNED(16, MACROBLOCKD, xd);
+   /* dqcoeff are shared by all the planes. So planes must be decoded serially */
+   DECLARE_ALIGNED(16, tran_low_t, dqcoeff[32 * 32]);
++#if CONFIG_PVQ
++  /* forward transformed predicted image, a reference for PVQ */
++  DECLARE_ALIGNED(16, tran_low_t, pvq_ref_coeff[32 * 32]);
++#endif
+ #if CONFIG_PALETTE
+   DECLARE_ALIGNED(16, uint8_t, color_index_map[2][64 * 64]);
+ #endif  // CONFIG_PALETTE
+diff --git a/av1/encoder/bitstream.c b/av1/encoder/bitstream.c
+index bb0e12a..f44f289 100644
+--- a/av1/encoder/bitstream.c
++++ b/av1/encoder/bitstream.c
+@@ -42,6 +42,9 @@
+ #include "av1/encoder/segmentation.h"
+ #include "av1/encoder/subexp.h"
+ #include "av1/encoder/tokenize.h"
++#if CONFIG_PVQ
++#include "av1/encoder/pvq_encoder.c"
++#endif
+ 
+ static struct av1_token intra_mode_encodings[INTRA_MODES];
+ static struct av1_token switchable_interp_encodings[SWITCHABLE_FILTERS];
+@@ -371,6 +374,7 @@ static void pack_palette_tokens(aom_writer *w, TOKENEXTRA **tp, int n,
+ }
+ #endif  // CONFIG_PALETTE
+ 
++#if !CONFIG_PVQ
+ static void pack_mb_tokens(aom_writer *w, TOKENEXTRA **tp,
+                            const TOKENEXTRA *const stop,
+                            aom_bit_depth_t bit_depth, const TX_SIZE tx) {
+@@ -478,6 +482,7 @@ static void pack_mb_tokens(aom_writer *w, TOKENEXTRA **tp,
+ 
+   *tp = p;
+ }
++#endif
+ 
+ static void write_segment_id(aom_writer *w, const struct segmentation *seg,
+                              const struct segmentation_probs *segp,
+@@ -909,6 +914,16 @@ static void write_mb_modes_kf(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+   }
+ }
+ 
++#if CONFIG_PVQ
++PVQ_INFO *get_pvq_block(PVQ_QUEUE *pvq_q) {
++  PVQ_INFO *pvq;
++
++  pvq = pvq_q->buf + pvq_q->curr_pos;
++  ++pvq_q->curr_pos;
++  return pvq;
++}
++#endif
++
+ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
+                           aom_writer *w, TOKENEXTRA **tok,
+                           const TOKENEXTRA *const tok_end, int mi_row,
+@@ -917,7 +932,14 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
+   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
+   MODE_INFO *m;
+   int plane;
++#if CONFIG_PVQ
++  MB_MODE_INFO *mbmi;
++  BLOCK_SIZE bsize;
++  od_adapt_ctx *adapt;
+ 
++  (void)tok;
++  (void)tok_end;
++#endif
+   xd->mi = cm->mi_grid_visible + (mi_row * cm->mi_stride + mi_col);
+   m = xd->mi[0];
+ 
+@@ -926,6 +948,12 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
+   set_mi_row_col(xd, tile, mi_row, num_8x8_blocks_high_lookup[m->mbmi.sb_type],
+                  mi_col, num_8x8_blocks_wide_lookup[m->mbmi.sb_type],
+                  cm->mi_rows, cm->mi_cols);
++#if CONFIG_PVQ
++  mbmi = &m->mbmi;
++  bsize = mbmi->sb_type;
++  adapt = &cpi->td.mb.daala_enc.state.adapt;
++#endif
++
+   if (frame_is_intra_only(cm)) {
+     write_mb_modes_kf(cm, xd, xd->mi, w);
+   } else {
+@@ -947,6 +975,7 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
+   }
+ #endif  // CONFIG_PALETTE
+ 
++#if !CONFIG_PVQ
+   if (!m->mbmi.skip) {
+     assert(*tok < tok_end);
+     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+@@ -957,6 +986,100 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
+       (*tok)++;
+     }
+   }
++#else
++  // PVQ writes its tokens (i.e. symbols) here.
++  if (!m->mbmi.skip) {
++    for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
++      PVQ_INFO *pvq;
++      TX_SIZE tx_size =
++          plane ? get_uv_tx_size(&m->mbmi, &xd->plane[plane]) : m->mbmi.tx_size;
++      int idx, idy;
++      const struct macroblockd_plane *const pd = &xd->plane[plane];
++      int num_4x4_w;
++      int num_4x4_h;
++      int max_blocks_wide;
++      int max_blocks_high;
++      int step = (1 << tx_size);
++      const int step_xy = 1 << (tx_size << 1);
++      int block = 0;
++
++      if (tx_size == TX_4X4 && bsize <= BLOCK_8X8) {
++        num_4x4_w = 2 >> xd->plane[plane].subsampling_x;
++        num_4x4_h = 2 >> xd->plane[plane].subsampling_y;
++      } else {
++        num_4x4_w =
++            num_4x4_blocks_wide_lookup[bsize] >> xd->plane[plane].subsampling_x;
++        num_4x4_h =
++            num_4x4_blocks_high_lookup[bsize] >> xd->plane[plane].subsampling_y;
++      }
++      // TODO: Do we need below for 4x4,4x8,8x4 cases as well?
++      max_blocks_wide =
++          num_4x4_w + (xd->mb_to_right_edge >= 0
++                           ? 0
++                           : xd->mb_to_right_edge >> (5 + pd->subsampling_x));
++      max_blocks_high =
++          num_4x4_h + (xd->mb_to_bottom_edge >= 0
++                           ? 0
++                           : xd->mb_to_bottom_edge >> (5 + pd->subsampling_y));
++
++      for (idy = 0; idy < max_blocks_high; idy += step) {
++        for (idx = 0; idx < max_blocks_wide; idx += step) {
++          const int is_keyframe = 0;
++          const int encode_flip = 0;
++          const int flip = 0;
++          const int robust = 1;
++          int i;
++          const int has_dc_skip = 1;
++          int *exg = &adapt->pvq.pvq_exg[plane][tx_size][0];
++          int *ext = adapt->pvq.pvq_ext + tx_size * PVQ_MAX_PARTITIONS;
++          generic_encoder *model = adapt->pvq.pvq_param_model;
++
++          pvq = get_pvq_block(cpi->td.mb.pvq_q);
++
++          // encode block skip info
++          od_encode_cdf_adapt(&w->ec, pvq->ac_dc_coded,
++                              adapt->skip_cdf[2 * tx_size + (plane != 0)], 4,
++                              adapt->skip_increment);
++
++          // AC coeffs coded?
++          if (pvq->ac_dc_coded & 0x02) {
++            assert(pvq->bs <= tx_size);
++            for (i = 0; i < pvq->nb_bands; i++) {
++              if (i == 0 || (!pvq->skip_rest &&
++                             !(pvq->skip_dir & (1 << ((i - 1) % 3))))) {
++                pvq_encode_partition(
++                    &w->ec, pvq->qg[i], pvq->theta[i], pvq->max_theta[i],
++                    pvq->y + pvq->off[i], pvq->size[i], pvq->k[i], model, adapt,
++                    exg + i, ext + i, robust || is_keyframe,
++                    (plane != 0) * OD_NBSIZES * PVQ_MAX_PARTITIONS +
++                        pvq->bs * PVQ_MAX_PARTITIONS + i,
++                    is_keyframe, i == 0 && (i < pvq->nb_bands - 1),
++                    pvq->skip_rest, encode_flip, flip);
++              }
++              if (i == 0 && !pvq->skip_rest && pvq->bs > 0) {
++                od_encode_cdf_adapt(
++                    &w->ec, pvq->skip_dir,
++                    &adapt->pvq
++                         .pvq_skip_dir_cdf[(plane != 0) + 2 * (pvq->bs - 1)][0],
++                    7, adapt->pvq.pvq_skip_dir_increment);
++              }
++            }
++          }
++          // Encode residue of DC coeff, if exist.
++          if (!has_dc_skip || (pvq->ac_dc_coded & 1)) {  // DC coded?
++            generic_encode(&w->ec, &adapt->model_dc[plane],
++                           abs(pvq->dq_dc_residue) - has_dc_skip, -1,
++                           &adapt->ex_dc[plane][pvq->bs][0], 2);
++          }
++          if ((pvq->ac_dc_coded & 1)) {  // DC coded?
++            od_ec_enc_bits(&w->ec, pvq->dq_dc_residue < 0, 1);
++          }
++          block += step_xy;
++        }
++      }  // for (idy = 0;
++    }    // for (plane =
++  }      // if (!m->mbmi.skip)
++#endif
+ }
+ 
+ static void write_partition(const AV1_COMMON *const cm,
+@@ -1057,6 +1180,10 @@ static void write_modes(AV1_COMP *cpi, const TileInfo *const tile,
+   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
+   int mi_row, mi_col;
+ 
++#if CONFIG_PVQ
++  assert(cpi->td.mb.pvq_q->curr_pos == 0);
++#endif
++
+   for (mi_row = tile->mi_row_start; mi_row < tile->mi_row_end;
+        mi_row += MAX_MIB_SIZE) {
+     av1_zero(xd->left_seg_context);
+@@ -1064,8 +1191,16 @@ static void write_modes(AV1_COMP *cpi, const TileInfo *const tile,
+          mi_col += MAX_MIB_SIZE)
+       write_modes_sb(cpi, tile, w, tok, tok_end, mi_row, mi_col, BLOCK_64X64);
+   }
++#if CONFIG_PVQ
++  // Check that the number of PVQ blocks encoded and written to the bitstream
++  // are the same
++  assert(cpi->td.mb.pvq_q->curr_pos == cpi->td.mb.pvq_q->last_pos);
++  // Reset curr_pos in case we repack the bitstream
++  cpi->td.mb.pvq_q->curr_pos = 0;
++#endif
+ }
+ 
++#if !CONFIG_PVQ
+ static void build_tree_distribution(AV1_COMP *cpi, TX_SIZE tx_size,
+                                     av1_coeff_stats *coef_branch_ct,
+                                     av1_coeff_probs_model *coef_probs) {
+@@ -1251,6 +1386,7 @@ static void update_coef_probs(AV1_COMP *cpi, aom_writer *w) {
+     }
+   }
+ }
++#endif
+ 
+ static void encode_loopfilter(struct loopfilter *lf,
+                               struct aom_write_bit_buffer *wb) {
+@@ -1594,6 +1730,9 @@ static size_t encode_tiles(AV1_COMP *cpi, uint8_t *data_ptr,
+       const int tile_idx = tile_row * tile_cols + tile_col;
+       const int is_last_tile = tile_idx == tile_rows * tile_cols - 1;
+       unsigned int tile_size;
++#if CONFIG_PVQ
++      TileDataEnc *this_tile = &cpi->tile_data[tile_idx];
++#endif
+       TOKENEXTRA *tok = cpi->tile_tok[tile_row][tile_col];
+ 
+       tok_end = cpi->tile_tok[tile_row][tile_col] +
+@@ -1610,12 +1749,20 @@ static size_t encode_tiles(AV1_COMP *cpi, uint8_t *data_ptr,
+ #else
+       aom_start_encode(&residual_bc, data_ptr + total_size + 4 * !is_last_tile);
+ 
++#if CONFIG_PVQ
++      // NOTE: This will not work with CONFIG_ANS turned on.
++      od_adapt_ctx_reset(&cpi->td.mb.daala_enc.state.adapt, 0);
++      cpi->td.mb.pvq_q = &this_tile->pvq_q;
++#endif
+       write_modes(cpi, &cpi->tile_data[tile_idx].tile_info, &residual_bc, &tok,
+                   tok_end);
+       assert(tok == tok_end);
+       aom_stop_encode(&residual_bc);
+       tile_size = residual_bc.pos - CONFIG_MISC_FIXES;
+ #endif
++#if CONFIG_PVQ
++      cpi->td.mb.pvq_q = NULL;
++#endif
+       assert(tile_size > 0);
+       if (!is_last_tile) {
+         // size of this tile
+@@ -1939,7 +2086,10 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
+ #else
+   update_txfm_probs(cm, header_bc, counts);
+ #endif
++
++#if !CONFIG_PVQ
+   update_coef_probs(cpi, header_bc);
++#endif
+   update_skip_probs(cm, header_bc, counts);
+ #if CONFIG_MISC_FIXES
+   update_seg_probs(cpi, header_bc);
+diff --git a/av1/encoder/block.h b/av1/encoder/block.h
+index ed914b2..826860c 100644
+--- a/av1/encoder/block.h
++++ b/av1/encoder/block.h
+@@ -14,6 +14,9 @@
+ 
+ #include "av1/common/entropymv.h"
+ #include "av1/common/entropy.h"
++#if CONFIG_PVQ
++#include "av1/encoder/encint.h"
++#endif
+ #if CONFIG_REF_MV
+ #include "av1/common/mvref_common.h"
+ #endif
+@@ -30,6 +33,7 @@ typedef struct {
+ 
+ struct macroblock_plane {
+   DECLARE_ALIGNED(16, int16_t, src_diff[64 * 64]);
++  DECLARE_ALIGNED(16, int16_t, src_int16[64 * 64]);
+   tran_low_t *qcoeff;
+   tran_low_t *coeff;
+   uint16_t *eobs;
+@@ -159,6 +163,16 @@ struct macroblock {
+ 
+   // Used to store sub partition's choices.
+   MV pred_mv[MAX_REF_FRAMES];
++
++#if CONFIG_PVQ
++  int rate;
++  // 1 if neither AC nor DC is coded. Only used during RDO.
++  int pvq_skip[MAX_MB_PLANE];
++  PVQ_QUEUE *pvq_q;
++  PVQ_INFO pvq[256][3];  // 16x16 of 4x4 blocks, YUV
++  daala_enc_ctx daala_enc;
++  int pvq_speed;
++#endif
+ };
+ 
+ #ifdef __cplusplus
+diff --git a/av1/encoder/context_tree.c b/av1/encoder/context_tree.c
+index 9b21a1d..b7b5cbe 100644
+--- a/av1/encoder/context_tree.c
++++ b/av1/encoder/context_tree.c
+@@ -30,6 +30,10 @@ static void alloc_mode_context(AV1_COMMON *cm, int num_4x4_blk,
+                     aom_memalign(32, num_pix * sizeof(*ctx->qcoeff[i])));
+     CHECK_MEM_ERROR(cm, ctx->dqcoeff[i],
+                     aom_memalign(32, num_pix * sizeof(*ctx->dqcoeff[i])));
++#if CONFIG_PVQ
++    CHECK_MEM_ERROR(cm, ctx->pvq_ref_coeff[i],
++                    aom_memalign(32, num_pix * sizeof(*ctx->pvq_ref_coeff[i])));
++#endif
+     CHECK_MEM_ERROR(cm, ctx->eobs[i],
+                     aom_memalign(32, num_blk * sizeof(*ctx->eobs[i])));
+   }
+@@ -54,6 +58,10 @@ static void free_mode_context(PICK_MODE_CONTEXT *ctx) {
+     ctx->qcoeff[i] = 0;
+     aom_free(ctx->dqcoeff[i]);
+     ctx->dqcoeff[i] = 0;
++#if CONFIG_PVQ
++    aom_free(ctx->pvq_ref_coeff[i]);
++    ctx->pvq_ref_coeff[i] = 0;
++#endif
+     aom_free(ctx->eobs[i]);
+     ctx->eobs[i] = 0;
+   }
+diff --git a/av1/encoder/context_tree.h b/av1/encoder/context_tree.h
+index c482e13..6239585 100644
+--- a/av1/encoder/context_tree.h
++++ b/av1/encoder/context_tree.h
+@@ -33,8 +33,10 @@ typedef struct {
+   tran_low_t *coeff[MAX_MB_PLANE];
+   tran_low_t *qcoeff[MAX_MB_PLANE];
+   tran_low_t *dqcoeff[MAX_MB_PLANE];
++#if CONFIG_PVQ
++  tran_low_t *pvq_ref_coeff[MAX_MB_PLANE];
++#endif
+   uint16_t *eobs[MAX_MB_PLANE];
+-
+   int num_4x4_blk;
+   int skip;
+   int pred_pixel_ready;
+diff --git a/av1/encoder/encodeframe.c b/av1/encoder/encodeframe.c
+index db039d4..1d254dc 100644
+--- a/av1/encoder/encodeframe.c
++++ b/av1/encoder/encodeframe.c
+@@ -47,6 +47,10 @@
+ #include "av1/encoder/segmentation.h"
+ #include "av1/encoder/tokenize.h"
+ 
++#if CONFIG_PVQ
++#include "av1/encoder/pvq_encoder.h"
++#endif
++
+ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
+                               TOKENEXTRA **t, int output_enabled, int mi_row,
+                               int mi_col, BLOCK_SIZE bsize,
+@@ -941,6 +945,9 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
+     p[i].coeff = ctx->coeff[i];
+     p[i].qcoeff = ctx->qcoeff[i];
+     pd[i].dqcoeff = ctx->dqcoeff[i];
++#if CONFIG_PVQ
++    pd[i].pvq_ref_coeff = ctx->pvq_ref_coeff[i];
++#endif
+     p[i].eobs = ctx->eobs[i];
+   }
+ 
+@@ -1010,6 +1017,10 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
+   // Use the lower precision, but faster, 32x32 fdct for mode selection.
+   x->use_lp32x32fdct = 1;
+ 
++#if CONFIG_PVQ
++  x->pvq_speed = 1;
++#endif
++
+   set_offsets(cpi, tile_info, x, mi_row, mi_col, bsize);
+   mbmi = &xd->mi[0]->mbmi;
+   mbmi->sb_type = bsize;
+@@ -1018,6 +1029,9 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
+     p[i].coeff = ctx->coeff[i];
+     p[i].qcoeff = ctx->qcoeff[i];
+     pd[i].dqcoeff = ctx->dqcoeff[i];
++#if CONFIG_PVQ
++    pd[i].pvq_ref_coeff = ctx->pvq_ref_coeff[i];
++#endif
+     p[i].eobs = ctx->eobs[i];
+   }
+ 
+@@ -1634,6 +1648,9 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
+   BLOCK_SIZE bs_type = mi_8x8[0]->mbmi.sb_type;
+   int do_partition_search = 1;
+   PICK_MODE_CONTEXT *ctx_none = &pc_tree->none;
++#if CONFIG_PVQ
++  od_rollback_buffer pre_rdo_buf;
++#endif
+ 
+   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
+ 
+@@ -1649,7 +1666,9 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
+ 
+   pc_tree->partitioning = partition;
+   save_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
+-
++#if CONFIG_PVQ
++  od_encode_checkpoint(&x->daala_enc, &pre_rdo_buf);
++#endif
+   if (bsize == BLOCK_16X16 && cpi->oxcf.aq_mode) {
+     set_offsets(cpi, tile_info, x, mi_row, mi_col, bsize);
+     x->mb_energy = av1_block_energy(cpi, x, bsize);
+@@ -1689,6 +1708,9 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
+       }
+ 
+       restore_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
++#if CONFIG_PVQ
++      od_encode_rollback(&x->daala_enc, &pre_rdo_buf);
++#endif
+       mi_8x8[0]->mbmi.sb_type = bs_type;
+       pc_tree->partitioning = partition;
+     }
+@@ -1793,6 +1815,9 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
+     chosen_rdc.rate = 0;
+     chosen_rdc.dist = 0;
+     restore_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
++#if CONFIG_PVQ
++    od_encode_rollback(&x->daala_enc, &pre_rdo_buf);
++#endif
+     pc_tree->partitioning = PARTITION_SPLIT;
+ 
+     // Split partition.
+@@ -1802,18 +1827,25 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
+       RD_COST tmp_rdc;
+       ENTROPY_CONTEXT l2[16 * MAX_MB_PLANE], a2[16 * MAX_MB_PLANE];
+       PARTITION_CONTEXT sl2[8], sa2[8];
+-
++#if CONFIG_PVQ
++      od_rollback_buffer buf;
++#endif
+       if ((mi_row + y_idx >= cm->mi_rows) || (mi_col + x_idx >= cm->mi_cols))
+         continue;
+ 
+       save_context(x, mi_row, mi_col, a2, l2, sa2, sl2, bsize);
++#if CONFIG_PVQ
++      od_encode_checkpoint(&x->daala_enc, &buf);
++#endif
+       pc_tree->split[i]->partitioning = PARTITION_NONE;
+       rd_pick_sb_modes(cpi, tile_data, x, mi_row + y_idx, mi_col + x_idx,
+                        &tmp_rdc, split_subsize, &pc_tree->split[i]->none,
+                        INT64_MAX);
+ 
+       restore_context(x, mi_row, mi_col, a2, l2, sa2, sl2, bsize);
+-
++#if CONFIG_PVQ
++      od_encode_rollback(&x->daala_enc, &buf);
++#endif
+       if (tmp_rdc.rate == INT_MAX || tmp_rdc.dist == INT64_MAX) {
+         av1_rd_cost_reset(&chosen_rdc);
+         break;
+@@ -1830,6 +1862,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
+                                    split_subsize);
+       chosen_rdc.rate += cpi->partition_cost[pl][PARTITION_NONE];
+     }
++
+     pl = partition_plane_context(xd, mi_row, mi_col, bsize);
+     if (chosen_rdc.rate < INT_MAX) {
+       chosen_rdc.rate += cpi->partition_cost[pl][PARTITION_SPLIT];
+@@ -1851,6 +1884,10 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
+   }
+ 
+   restore_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
++#if CONFIG_PVQ
++  // if partitioning rdo is done, rollback to pre rdo state.
++  od_encode_rollback(&x->daala_enc, &pre_rdo_buf);
++#endif
+ 
+   // We must have chosen a partitioning and encoding or we'll fail later on.
+   // No other opportunities for success.
+@@ -2142,6 +2179,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
+       !force_vert_split && yss <= xss && bsize_at_least_8x8;
+   int partition_vert_allowed =
+       !force_horz_split && xss <= yss && bsize_at_least_8x8;
++
++#if CONFIG_PVQ
++  od_rollback_buffer pre_rdo_buf;
++#endif
++
+   (void)*tp_orig;
+ 
+   assert(num_8x8_blocks_wide_lookup[bsize] ==
+@@ -2184,6 +2226,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
+   }
+ 
+   save_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
++#if CONFIG_PVQ
++  od_encode_checkpoint(&x->daala_enc, &pre_rdo_buf);
++#endif
+ 
+ #if CONFIG_FP_MB_STATS
+   if (cpi->use_fp_mb_stats) {
+@@ -2329,6 +2374,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
+       }
+     }
+     restore_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
++#if CONFIG_PVQ
++    od_encode_rollback(&x->daala_enc, &pre_rdo_buf);
++#endif
+   }
+ 
+   // store estimated motion vector
+@@ -2392,6 +2440,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
+       do_rectangular_split &= !partition_none_allowed;
+     }
+     restore_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
++#if CONFIG_PVQ
++    od_encode_rollback(&x->daala_enc, &pre_rdo_buf);
++#endif
+   }
+ 
+   // PARTITION_HORZ
+@@ -2440,7 +2491,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
+       }
+     }
+     restore_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
++#if CONFIG_PVQ
++    od_encode_rollback(&x->daala_enc, &pre_rdo_buf);
++#endif
+   }
++
+   // PARTITION_VERT
+   if (partition_vert_allowed &&
+       (do_rectangular_split || av1_active_v_edge(cpi, mi_col, mi_step))) {
+@@ -2487,6 +2542,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
+       }
+     }
+     restore_context(x, mi_row, mi_col, a, l, sa, sl, bsize);
++#if CONFIG_PVQ
++    od_encode_rollback(&x->daala_enc, &pre_rdo_buf);
++#endif
+   }
+ 
+   // TODO(jbb): This code added so that we avoid static analysis
+@@ -2499,12 +2557,19 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
+   if (best_rdc.rate < INT_MAX && best_rdc.dist < INT64_MAX &&
+       pc_tree->index != 3) {
+     int output_enabled = (bsize == BLOCK_64X64);
++
+     encode_sb(cpi, td, tile_info, tp, mi_row, mi_col, output_enabled, bsize,
+               pc_tree);
+   }
+ 
+   if (bsize == BLOCK_64X64) {
++#if !CONFIG_PVQ
++    // TODO: Can enable this later, if pvq actually generates tokens
++    // in aom format, otherwise pvq don't really need to use aom's token format
++    // but directly writes to bitstream in packing and keep below assert
++    // disabled.
+     assert(tp_orig < *tp || (tp_orig == *tp && xd->mi[0]->mbmi.skip));
++#endif
+     assert(best_rdc.rate < INT_MAX);
+     assert(best_rdc.dist < INT64_MAX);
+   } else {
+@@ -2687,6 +2752,13 @@ void av1_init_tile_data(AV1_COMP *cpi) {
+             tile_data->mode_map[i][j] = j;
+           }
+         }
++#if CONFIG_PVQ
++        // This will be dynamically increased as more pvq block is encoded.
++        tile_data->pvq_q.buf_len = 5000;
++        tile_data->pvq_q.buf =
++            aom_calloc(tile_data->pvq_q.buf_len, sizeof(PVQ_INFO));
++        tile_data->pvq_q.curr_pos = 0;
++#endif
+       }
+   }
+ 
+@@ -2699,6 +2771,9 @@ void av1_init_tile_data(AV1_COMP *cpi) {
+       cpi->tile_tok[tile_row][tile_col] = pre_tok + tile_tok;
+       pre_tok = cpi->tile_tok[tile_row][tile_col];
+       tile_tok = allocated_tokens(*tile_info);
++#if CONFIG_PVQ
++      cpi->tile_data[tile_row * tile_cols + tile_col].pvq_q.curr_pos = 0;
++#endif
+     }
+   }
+ }
+@@ -2711,11 +2786,46 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
+   const TileInfo *const tile_info = &this_tile->tile_info;
+   TOKENEXTRA *tok = cpi->tile_tok[tile_row][tile_col];
+   int mi_row;
++#if CONFIG_PVQ
++  od_adapt_ctx *adapt;
++#endif
+ 
+   // Set up pointers to per thread motion search counters.
+   td->mb.m_search_count_ptr = &td->rd_counts.m_search_count;
+   td->mb.ex_search_count_ptr = &td->rd_counts.ex_search_count;
+ 
++#if CONFIG_PVQ
++  td->mb.pvq_q = &this_tile->pvq_q;
++
++  td->mb.daala_enc.state.qm = (int16_t *)aom_calloc(
++      OD_QM_BUFFER_SIZE, sizeof(td->mb.daala_enc.state.qm[0]));
++  td->mb.daala_enc.state.qm_inv = (int16_t *)aom_calloc(
++      OD_QM_BUFFER_SIZE, sizeof(td->mb.daala_enc.state.qm_inv[0]));
++  td->mb.daala_enc.qm = OD_FLAT_QM;  // Hard coded. Enc/dec required to sync.
++  {
++    // FIXME: Multiple segments support
++    int segment_id = 0;
++    int rdmult = set_segment_rdmult(cpi, &td->mb, segment_id);
++    int qindex = av1_get_qindex(&cm->seg, segment_id, cm->base_qindex);
++    int64_t q_ac = av1_ac_quant(qindex, 0, cpi->common.bit_depth);
++    int64_t q_dc = av1_dc_quant(qindex, 0, cpi->common.bit_depth);
++    /* td->mb.daala_enc.pvq_norm_lambda = OD_PVQ_LAMBDA; */
++    td->mb.daala_enc.pvq_norm_lambda =
++        (double)rdmult * (64 / 16) / (q_ac * q_ac * (1 << RDDIV_BITS));
++    td->mb.daala_enc.pvq_norm_lambda_dc =
++        (double)rdmult * (64 / 16) / (q_dc * q_dc * (1 << RDDIV_BITS));
++    // printf("%f\n", td->mb.daala_enc.pvq_norm_lambda);
++  }
++
++  od_init_qm(td->mb.daala_enc.state.qm, td->mb.daala_enc.state.qm_inv,
++             td->mb.daala_enc.qm == OD_HVS_QM ? OD_QM8_Q4_HVS : OD_QM8_Q4_FLAT);
++  od_ec_enc_init(&td->mb.daala_enc.ec, 65025);
++
++  adapt = &td->mb.daala_enc.state.adapt;
++  od_ec_enc_reset(&td->mb.daala_enc.ec);
++  od_adapt_ctx_reset(adapt, 0);
++#endif
++
+   for (mi_row = tile_info->mi_row_start; mi_row < tile_info->mi_row_end;
+        mi_row += MAX_MIB_SIZE) {
+     encode_rd_sb_row(cpi, td, this_tile, mi_row, &tok);
+@@ -2724,6 +2834,18 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
+       (unsigned int)(tok - cpi->tile_tok[tile_row][tile_col]);
+   assert(tok - cpi->tile_tok[tile_row][tile_col] <=
+          allocated_tokens(*tile_info));
++#if CONFIG_PVQ
++  aom_free(td->mb.daala_enc.state.qm);
++  aom_free(td->mb.daala_enc.state.qm_inv);
++  od_ec_enc_clear(&td->mb.daala_enc.ec);
++
++  td->mb.pvq_q->last_pos = td->mb.pvq_q->curr_pos;
++  // rewind current position so that bitstream can be written
++  // from the 1st pvq block
++  td->mb.pvq_q->curr_pos = 0;
++
++  td->mb.pvq_q = NULL;
++#endif
+ }
+ 
+ static void encode_tiles(AV1_COMP *cpi) {
+@@ -3000,6 +3122,10 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
+ 
+   x->use_lp32x32fdct = cpi->sf.use_lp32x32fdct;
+ 
++#if CONFIG_PVQ
++  x->pvq_speed = 0;
++#endif
++
+   if (!is_inter_block(mbmi)) {
+     int plane;
+     mbmi->skip = 1;
+diff --git a/av1/encoder/encodemb.c b/av1/encoder/encodemb.c
+index 9682bb6..75094f4 100644
+--- a/av1/encoder/encodemb.c
++++ b/av1/encoder/encodemb.c
+@@ -27,6 +27,12 @@
+ #include "av1/encoder/rd.h"
+ #include "av1/encoder/tokenize.h"
+ 
++#if CONFIG_PVQ
++#include "av1/encoder/encint.h"
++#include "av1/common/partition.h"
++#include "av1/encoder/pvq_encoder.h"
++#endif
++
+ struct optimize_ctx {
+   ENTROPY_CONTEXT ta[MAX_MB_PLANE][16];
+   ENTROPY_CONTEXT tl[MAX_MB_PLANE][16];
+@@ -63,6 +69,7 @@ typedef struct av1_token_state {
+   short qc;
+ } av1_token_state;
+ 
++#if !CONFIG_PVQ
+ // TODO(jimbankoski): experiment to find optimal RD numbers.
+ static const int plane_rd_mult[PLANE_TYPES] = { 4, 2 };
+ 
+@@ -332,14 +339,20 @@ static int optimize_b(MACROBLOCK *mb, int plane, int block, TX_SIZE tx_size,
+   mb->plane[plane].eobs[block] = final_eob;
+   return final_eob;
+ }
++#endif
+ 
+ // TODO(sarahparker) refactor fwd quant functions to use fwd_txfm fns in
+ // hybrid_fwd_txfm.c
+ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
+                         int blk_col, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
+   MACROBLOCKD *const xd = &x->e_mbd;
++#if !CONFIG_PVQ
+   const struct macroblock_plane *const p = &x->plane[plane];
+   const struct macroblockd_plane *const pd = &xd->plane[plane];
++#else
++  struct macroblock_plane *const p = &x->plane[plane];
++  struct macroblockd_plane *const pd = &xd->plane[plane];
++#endif
+   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
+   TX_TYPE tx_type = get_tx_type(plane_type, xd, block);
+   const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
+@@ -348,12 +361,14 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
+   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
+   uint16_t *const eob = &p->eobs[block];
+   const int diff_stride = 4 * num_4x4_blocks_wide_lookup[plane_bsize];
+-#if CONFIG_AOM_QM
+   int seg_id = xd->mi[0]->mbmi.segment_id;
++#if CONFIG_AOM_QM
+   int is_intra = !is_inter_block(&xd->mi[0]->mbmi);
+   const qm_val_t *qmatrix = pd->seg_qmatrix[seg_id][is_intra][tx_size];
+   const qm_val_t *iqmatrix = pd->seg_iqmatrix[seg_id][is_intra][tx_size];
+ #endif
++
++#if !CONFIG_PVQ
+   const int16_t *src_diff;
+ 
+   /*
+@@ -366,6 +381,36 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
+   */
+ 
+   src_diff = &p->src_diff[4 * (blk_row * diff_stride + blk_col)];
++#else
++  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
++  tran_low_t *ref_coeff = BLOCK_OFFSET(pd->pvq_ref_coeff, block);
++  uint8_t *src, *dst;
++  int16_t *src_int16, *pred;
++  const int src_stride = p->src.stride;
++  const int dst_stride = pd->dst.stride;
++  int tx_blk_size;
++  int i, j;
++  int skip = 1;
++  PVQ_INFO *pvq_info;
++
++  (void)scan_order;
++  (void)qcoeff;
++  pvq_info = &x->pvq[block][plane];
++  dst = &pd->dst.buf[4 * (blk_row * dst_stride + blk_col)];
++  src = &p->src.buf[4 * (blk_row * src_stride + blk_col)];
++  src_int16 = &p->src_int16[4 * (blk_row * diff_stride + blk_col)];
++  pred = &pd->pred[4 * (blk_row * diff_stride + blk_col)];
++  // transform block size in pixels
++  tx_blk_size = 1 << (tx_size + 2);
++
++  // copy uint8 orig and predicted block to int16 buffer
++  // in order to use existing VP10 transform functions
++  for (j = 0; j < tx_blk_size; j++)
++    for (i = 0; i < tx_blk_size; i++) {
++      src_int16[diff_stride * j + i] = src[src_stride * j + i];
++      pred[diff_stride * j + i] = dst[dst_stride * j + i];
++    }
++#endif
+ 
+ #if CONFIG_AOM_HIGHBITDEPTH
+   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+@@ -404,7 +449,7 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
+ #endif
+         break;
+       case TX_4X4:
+-        if (xd->lossless[xd->mi[0]->mbmi.segment_id]) {
++        if (xd->lossless[seg_id]) {
+           av1_highbd_fwht4x4(src_diff, coeff, diff_stride);
+         } else {
+           aom_highbd_fdct4x4(src_diff, coeff, diff_stride);
+@@ -424,6 +469,7 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
+   }
+ #endif  // CONFIG_AOM_HIGHBITDEPTH
+ 
++#if !CONFIG_PVQ
+   switch (tx_size) {
+     case TX_32X32:
+       fdct32x32(x->use_lp32x32fdct, src_diff, coeff, diff_stride);
+@@ -458,7 +504,7 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
+ #endif
+       break;
+     case TX_4X4:
+-      if (xd->lossless[xd->mi[0]->mbmi.segment_id]) {
++      if (xd->lossless[seg_id]) {
+         av1_fwht4x4(src_diff, coeff, diff_stride);
+       } else {
+         aom_fdct4x4(src_diff, coeff, diff_stride);
+@@ -474,6 +520,55 @@ void av1_xform_quant_fp(MACROBLOCK *x, int plane, int block, int blk_row,
+       break;
+     default: assert(0); break;
+   }
++#else   // #if !CONFIG_PVQ
++  switch (tx_size) {
++    case TX_32X32:
++      // NOTE: Using x->use_lp32x32fdct == 1 will makes enc and dec mismatched,
++      // because decoder always uses x->use_lp32x32fdct == 0,
++      // forward transform of predicted image.
++      fdct32x32(0, pred, ref_coeff, diff_stride);
++      // forward transform of original image.
++      fdct32x32(0, src_int16, coeff, diff_stride);
++      break;
++    case TX_16X16:
++      aom_fdct16x16(pred, ref_coeff, diff_stride);
++      aom_fdct16x16(src_int16, coeff, diff_stride);
++      break;
++    case TX_8X8:
++      aom_fdct8x8(pred, ref_coeff, diff_stride);
++      aom_fdct8x8(src_int16, coeff, diff_stride);
++      break;
++    case TX_4X4:
++      if (xd->lossless[seg_id]) {
++        av1_fwht4x4(pred, ref_coeff, diff_stride);
++        av1_fwht4x4(src_int16, coeff, diff_stride);
++      } else {
++        aom_fdct4x4(pred, ref_coeff, diff_stride);
++        aom_fdct4x4(src_int16, coeff, diff_stride);
++      }
++      break;
++    default: assert(0); break;
++  }
++
++  // PVQ for inter mode block
++  if (!x->skip_block)
++    skip = pvq_encode_helper(&x->daala_enc,
++                             coeff,        // target original vector
++                             ref_coeff,    // reference vector
++                             dqcoeff,      // de-quantized vector
++                             eob,          // End of Block marker
++                             pd->dequant,  // aom's quantizers
++                             plane,        // image plane
++                             tx_size,      // block size in log_2 - 2
++                             tx_type,
++                             &x->rate,  // rate measured
++                             x->pvq_speed,
++                             pvq_info);  // PVQ info for a block
++
++  x->pvq_skip[plane] = skip;
++
++  if (!skip) mbmi->skip = 0;
++#endif  // #if !CONFIG_PVQ
+ }
+ 
+ void av1_xform_quant_dc(MACROBLOCK *x, int plane, int block, int blk_row,
+@@ -493,6 +588,7 @@ void av1_xform_quant_dc(MACROBLOCK *x, int plane, int block, int blk_row,
+   const qm_val_t *qmatrix = pd->seg_qmatrix[seg_id][is_intra][tx_size];
+   const qm_val_t *iqmatrix = pd->seg_iqmatrix[seg_id][is_intra][tx_size];
+ #endif
++
+   const int16_t *src_diff;
+ 
+   FWD_TXFM_PARAM fwd_txfm_param;
+@@ -595,8 +691,13 @@ void av1_xform_quant_dc(MACROBLOCK *x, int plane, int block, int blk_row,
+ void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
+                      int blk_col, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
+   MACROBLOCKD *const xd = &x->e_mbd;
++#if !CONFIG_PVQ
+   const struct macroblock_plane *const p = &x->plane[plane];
+   const struct macroblockd_plane *const pd = &xd->plane[plane];
++#else
++  struct macroblock_plane *const p = &x->plane[plane];
++  struct macroblockd_plane *const pd = &xd->plane[plane];
++#endif
+   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
+   TX_TYPE tx_type = get_tx_type(plane_type, xd, block);
+   const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
+@@ -606,22 +707,56 @@ void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
+   uint16_t *const eob = &p->eobs[block];
+   const int diff_stride = 4 * num_4x4_blocks_wide_lookup[plane_bsize];
+   int seg_id = xd->mi[0]->mbmi.segment_id;
++  FWD_TXFM_PARAM fwd_txfm_param;
++
+ #if CONFIG_AOM_QM
+   int is_intra = !is_inter_block(&xd->mi[0]->mbmi);
+   const qm_val_t *qmatrix = pd->seg_qmatrix[seg_id][is_intra][tx_size];
+   const qm_val_t *iqmatrix = pd->seg_iqmatrix[seg_id][is_intra][tx_size];
+ #endif
++
++#if !CONFIG_PVQ
+   const int16_t *src_diff;
+ 
+-  FWD_TXFM_PARAM fwd_txfm_param;
++  src_diff = &p->src_diff[4 * (blk_row * diff_stride + blk_col)];
++#else
++  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
++  tran_low_t *ref_coeff = BLOCK_OFFSET(pd->pvq_ref_coeff, block);
++  uint8_t *src, *dst;
++  int16_t *src_int16, *pred;
++  const int src_stride = p->src.stride;
++  const int dst_stride = pd->dst.stride;
++  int tx_blk_size;
++  int i, j;
++  int skip = 1;
++  PVQ_INFO *pvq_info;
++
++  (void)scan_order;
++  (void)qcoeff;
++  pvq_info = &x->pvq[block][plane];
++  dst = &pd->dst.buf[4 * (blk_row * dst_stride + blk_col)];
++  src = &p->src.buf[4 * (blk_row * src_stride + blk_col)];
++  src_int16 = &p->src_int16[4 * (blk_row * diff_stride + blk_col)];
++  pred = &pd->pred[4 * (blk_row * diff_stride + blk_col)];
++
++  // transform block size in pixels
++  tx_blk_size = 1 << (tx_size + 2);
++
++  // copy uint8 orig and predicted block to int16 buffer
++  // in order to use existing VP10 transform functions
++  for (j = 0; j < tx_blk_size; j++)
++    for (i = 0; i < tx_blk_size; i++) {
++      src_int16[diff_stride * j + i] = src[src_stride * j + i];
++      pred[diff_stride * j + i] = dst[dst_stride * j + i];
++    }
++#endif
++
+   fwd_txfm_param.tx_type = tx_type;
+   fwd_txfm_param.tx_size = tx_size;
+   fwd_txfm_param.fwd_txfm_opt = FWD_TXFM_OPT_NORMAL;
+   fwd_txfm_param.rd_transform = x->use_lp32x32fdct;
+   fwd_txfm_param.lossless = xd->lossless[seg_id];
+ 
+-  src_diff = &p->src_diff[4 * (blk_row * diff_stride + blk_col)];
+-
+ #if CONFIG_AOM_HIGHBITDEPTH
+   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+     highbd_fwd_txfm(src_diff, coeff, diff_stride, &fwd_txfm_param);
+@@ -672,6 +807,7 @@ void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
+   }
+ #endif  // CONFIG_AOM_HIGHBITDEPTH
+ 
++#if !CONFIG_PVQ
+   fwd_txfm(src_diff, coeff, diff_stride, &fwd_txfm_param);
+   switch (tx_size) {
+     case TX_32X32:
+@@ -716,6 +852,31 @@ void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
+       break;
+     default: assert(0); break;
+   }
++#else   // #if !CONFIG_PVQ
++  fwd_txfm_param.rd_transform = 0;
++
++  fwd_txfm(src_int16, coeff, diff_stride, &fwd_txfm_param);
++  fwd_txfm(pred, ref_coeff, diff_stride, &fwd_txfm_param);
++
++  // PVQ for inter mode block
++  if (!x->skip_block)
++    skip = pvq_encode_helper(&x->daala_enc,
++                             coeff,        // target original vector
++                             ref_coeff,    // reference vector
++                             dqcoeff,      // de-quantized vector
++                             eob,          // End of Block marker
++                             pd->dequant,  // aom's quantizers
++                             plane,        // image plane
++                             tx_size,      // block size in log_2 - 2
++                             tx_type,
++                             &x->rate,  // rate measured
++                             x->pvq_speed,
++                             pvq_info);  // PVQ info for a block
++
++  x->pvq_skip[plane] = skip;
++
++  if (!skip) mbmi->skip = 0;
++#endif  // #if !CONFIG_PVQ
+ }
+ 
+ static void encode_block(int plane, int block, int blk_row, int blk_col,
+@@ -730,6 +891,12 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
+   uint8_t *dst;
+   ENTROPY_CONTEXT *a, *l;
+   TX_TYPE tx_type = get_tx_type(pd->plane_type, xd, block);
++#if CONFIG_PVQ
++  int tx_blk_size;
++  int i, j;
++  PVQ_INFO *pvq_info = &x->pvq[block][plane];
++#endif
++
+   dst = &pd->dst.buf[4 * blk_row * pd->dst.stride + 4 * blk_col];
+   a = &ctx->ta[plane][blk_col];
+   l = &ctx->tl[plane][blk_row];
+@@ -768,6 +935,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
+     }
+   }
+ 
++#if !CONFIG_PVQ
+   if (x->optimize) {
+     const int combined_ctx = combine_entropy_contexts(*a, *l);
+     *a = *l = optimize_b(x, plane, block, tx_size, combined_ctx) > 0;
+@@ -778,6 +946,25 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
+   if (p->eobs[block]) *(args->skip) = 0;
+ 
+   if (p->eobs[block] == 0) return;
++#else
++  *a = *l = pvq_info->ac_dc_coded > 0;
++
++  if (pvq_info->ac_dc_coded) *(args->skip) = 0;
++
++  if (!pvq_info->ac_dc_coded) return;
++
++  // transform block size in pixels
++  tx_blk_size = 1 << (tx_size + 2);
++
++  // Since av1 does not have separate function which does inverse transform
++  // but av1_inv_txfm_add_*x*() also does addition of predicted image to
++  // inverse transformed image,
++  // pass blank dummy image to av1_inv_txfm_add_*x*(), i.e. set dst as zeros
++  for (j = 0; j < tx_blk_size; j++)
++    for (i = 0; i < tx_blk_size; i++)
++      dst[j * pd->dst.stride + i] = 0;
++#endif
++
+ #if CONFIG_AOM_HIGHBITDEPTH
+   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+     switch (tx_size) {
+@@ -807,7 +994,6 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
+     return;
+   }
+ #endif  // CONFIG_AOM_HIGHBITDEPTH
+-
+   switch (tx_size) {
+     case TX_32X32:
+       av1_inv_txfm_add_32x32(dqcoeff, dst, pd->dst.stride, p->eobs[block],
+@@ -884,8 +1070,9 @@ void av1_encode_sb(MACROBLOCK *x, BLOCK_SIZE bsize) {
+   if (x->skip) return;
+ 
+   for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
++#if !CONFIG_PVQ
+     av1_subtract_plane(x, bsize, plane);
+-
++#endif
+     if (x->optimize) {
+       const struct macroblockd_plane *const pd = &xd->plane[plane];
+       const TX_SIZE tx_size = plane ? get_uv_tx_size(mbmi, pd) : mbmi->tx_size;
+@@ -918,7 +1105,6 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
+   const int bhl = b_height_log2_lookup[plane_bsize];
+   const int diff_stride = 4 * (1 << bwl);
+   uint8_t *src, *dst;
+-  int16_t *src_diff;
+   uint16_t *eob = &p->eobs[block];
+   int seg_id = xd->mi[0]->mbmi.segment_id;
+ #if CONFIG_AOM_QM
+@@ -928,10 +1114,27 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
+ #endif
+   const int src_stride = p->src.stride;
+   const int dst_stride = pd->dst.stride;
++  FWD_TXFM_PARAM fwd_txfm_param;
+ 
++#if !CONFIG_PVQ
++  int16_t *src_diff;
+   int tx1d_size = tx_size_1d[tx_size];
+ 
+-  FWD_TXFM_PARAM fwd_txfm_param;
++  src_diff = &p->src_diff[4 * (blk_row * diff_stride + blk_col)];
++#else
++  tran_low_t *ref_coeff = BLOCK_OFFSET(pd->pvq_ref_coeff, block);
++  int16_t *src_int16;
++  int tx_blk_size;
++  int i, j;
++  int16_t *pred = &pd->pred[4 * (blk_row * diff_stride + blk_col)];
++  int skip = 1;
++  PVQ_INFO *pvq_info = &x->pvq[block][plane];
++
++  (void)scan_order;
++  (void)qcoeff;
++  src_int16 = &p->src_int16[4 * (blk_row * diff_stride + blk_col)];
++#endif
++
+   fwd_txfm_param.tx_type = tx_type;
+   fwd_txfm_param.tx_size = tx_size;
+   fwd_txfm_param.fwd_txfm_opt = FWD_TXFM_OPT_NORMAL;
+@@ -940,8 +1143,6 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
+ 
+   dst = &pd->dst.buf[4 * (blk_row * dst_stride + blk_col)];
+   src = &p->src.buf[4 * (blk_row * src_stride + blk_col)];
+-  src_diff = &p->src_diff[4 * (blk_row * diff_stride + blk_col)];
+-
+   mode = plane == 0 ? get_y_mode(xd->mi[0], block) : mbmi->uv_mode;
+   av1_predict_intra_block(xd, bwl, bhl, tx_size, mode, dst, dst_stride, dst,
+                           dst_stride, blk_col, blk_row, plane);
+@@ -1015,6 +1216,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
+   }
+ #endif  // CONFIG_AOM_HIGHBITDEPTH
+ 
++#if !CONFIG_PVQ
+   aom_subtract_block(tx1d_size, tx1d_size, src_diff, diff_stride, src,
+                      src_stride, dst, dst_stride);
+   fwd_txfm(src_diff, coeff, diff_stride, &fwd_txfm_param);
+@@ -1072,7 +1274,79 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
+       break;
+     default: assert(0); break;
+   }
++#else   // #if !CONFIG_PVQ
++  // transform block size in pixels
++  tx_blk_size = 1 << (tx_size + 2);
++
++  // copy uint8 orig and predicted block to int16 buffer
++  // in order to use existing VP10 transform functions
++  for (j = 0; j < tx_blk_size; j++)
++    for (i = 0; i < tx_blk_size; i++) {
++      src_int16[diff_stride * j + i] = src[src_stride * j + i];
++      pred[diff_stride * j + i] = dst[dst_stride * j + i];
++    }
++
++  fwd_txfm_param.rd_transform = 0;
++
++  fwd_txfm(src_int16, coeff, diff_stride, &fwd_txfm_param);
++  fwd_txfm(pred, ref_coeff, diff_stride, &fwd_txfm_param);
++
++  // PVQ for intra mode block
++  if (!x->skip_block)
++    skip = pvq_encode_helper(&x->daala_enc,
++                             coeff,        // target original vector
++                             ref_coeff,    // reference vector
++                             dqcoeff,      // de-quantized vector
++                             eob,          // End of Block marker
++                             pd->dequant,  // aom's quantizers
++                             plane,        // image plane
++                             tx_size,      // block size in log_2 - 2
++                             tx_type,
++                             &x->rate,  // rate measured
++                             x->pvq_speed,
++                             pvq_info);  // PVQ info for a block
++
++  x->pvq_skip[plane] = skip;
++
++  if (!skip) mbmi->skip = 0;
++
++  // Since av1 does not have separate function which does inverse transform
++  // but av1_inv_txfm_add_*x*() also does addition of predicted image to
++  // inverse transformed image,
++  // pass blank dummy image to av1_inv_txfm_add_*x*(), i.e. set dst as zeros
++
++  if (!skip) {
++    for (j = 0; j < tx_blk_size; j++)
++      for (i = 0; i < tx_blk_size; i++)
++        dst[j * dst_stride + i] = 0;
++
++    switch (tx_size) {
++      case TX_32X32:
++        av1_inv_txfm_add_32x32(dqcoeff, dst, dst_stride, *eob, tx_type);
++        break;
++      case TX_16X16:
++        av1_inv_txfm_add_16x16(dqcoeff, dst, dst_stride, *eob, tx_type);
++        break;
++      case TX_8X8:
++        av1_inv_txfm_add_8x8(dqcoeff, dst, dst_stride, *eob, tx_type);
++        break;
++      case TX_4X4:
++        // this is like av1_short_idct4x4 but has a special case around eob<=1
++        // which is significant (not just an optimization) for the lossless
++        // case.
++        av1_inv_txfm_add_4x4(dqcoeff, dst, dst_stride, *eob, tx_type,
++                             xd->lossless[seg_id]);
++        break;
++      default: assert(0); break;
++    }
++  }
++#endif  // #if !CONFIG_PVQ
++
++#if !CONFIG_PVQ
+   if (*eob) *(args->skip) = 0;
++#else
++// Note : *(args->skip) == mbmi->skip
++#endif
+ }
+ 
+ void av1_encode_intra_block_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane) {
+@@ -1082,3 +1356,130 @@ void av1_encode_intra_block_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane) {
+   av1_foreach_transformed_block_in_plane(xd, bsize, plane,
+                                          av1_encode_block_intra, &arg);
+ }
++
++#if CONFIG_PVQ
++int pvq_encode_helper(daala_enc_ctx *daala_enc, tran_low_t *const coeff,
++                      tran_low_t *ref_coeff, tran_low_t *const dqcoeff,
++                      uint16_t *eob, const int16_t *quant, int plane,
++                      int tx_size, TX_TYPE tx_type, int *rate,
++                      int speed, PVQ_INFO *pvq_info) {
++  const int tx_blk_size = 1 << (tx_size + 2);
++  int skip;
++  // TODO(yushin): Enable this later, if pvq_qm_q4 is available in AOM.
++  // int pvq_dc_quant = OD_MAXI(1,
++  //  quant * daala_enc->state.pvq_qm_q4[plane][od_qm_get_index(tx_size, 0)] >>
++  //  4);
++  int quant_shift = tx_size == TX_32X32 ? 1 : 0;
++  int pvq_dc_quant = OD_MAXI(1, quant[0] >> quant_shift);
++  int tell;
++  int has_dc_skip = 1;
++  int i;
++  int off = od_qm_offset(tx_size, plane ? 1 : 0);
++
++  DECLARE_ALIGNED(16, int16_t, coeff_pvq[64 * 64]);
++  DECLARE_ALIGNED(16, int16_t, ref_coeff_pvq[64 * 64]);
++  DECLARE_ALIGNED(16, int16_t, dqcoeff_pvq[64 * 64]);
++
++  DECLARE_ALIGNED(16, int32_t, in_int32[64 * 64]);
++  DECLARE_ALIGNED(16, int32_t, ref_int32[64 * 64]);
++  DECLARE_ALIGNED(16, int32_t, out_int32[64 * 64]);
++
++  *eob = 0;
++
++  tell = od_ec_enc_tell_frac(&daala_enc->ec);
++
++  // Change coefficient ordering for pvq encoding.
++  od_raster_to_coding_order(coeff_pvq, tx_blk_size, tx_type, coeff,
++                            tx_blk_size);
++  od_raster_to_coding_order(ref_coeff_pvq, tx_blk_size, tx_type, ref_coeff,
++                            tx_blk_size);
++
++  // copy int16 inputs to int32
++  for (i = 0; i < tx_blk_size * tx_blk_size; i++) {
++    ref_int32[i] = ref_coeff_pvq[i];
++    in_int32[i] = coeff_pvq[i];
++  }
++
++  if (abs(in_int32[0] - ref_int32[0]) < pvq_dc_quant * 141 / 256) { /* 0.55 */
++    out_int32[0] = 0;
++  } else {
++    out_int32[0] = OD_DIV_R0(in_int32[0] - ref_int32[0], pvq_dc_quant);
++  }
++
++  skip = od_pvq_encode(
++      daala_enc, ref_int32, in_int32, out_int32,
++      (int)quant[0] >> quant_shift,  // scale/quantizer
++      (int)quant[1] >> quant_shift,  // scale/quantizer
++      plane, tx_size, OD_PVQ_BETA[0 /*use_activity_masking*/][plane][tx_size],
++      1,        // OD_ROBUST_STREAM
++      0,        // is_keyframe,
++      0, 0, 0,  // q_scaling, bx, by,
++      daala_enc->state.qm + off, daala_enc->state.qm_inv + off,
++      speed, // speed
++      pvq_info);
++
++  if (skip && pvq_info) assert(pvq_info->ac_dc_coded == 0);
++
++  if (!skip && pvq_info) assert(pvq_info->ac_dc_coded > 0);
++
++  // Encode residue of DC coeff, if required.
++  if (!has_dc_skip || out_int32[0]) {
++    generic_encode(&daala_enc->ec, &daala_enc->state.adapt.model_dc[plane],
++                   abs(out_int32[0]) - has_dc_skip, -1,
++                   &daala_enc->state.adapt.ex_dc[plane][tx_size][0], 2);
++  }
++  if (out_int32[0]) {
++    od_ec_enc_bits(&daala_enc->ec, out_int32[0] < 0, 1);
++    skip = 0;
++  }
++
++  // need to save quantized residue of DC coeff
++  // so that final pvq bitstream writing can know whether DC is coded.
++  if (pvq_info) pvq_info->dq_dc_residue = out_int32[0];
++
++  out_int32[0] = out_int32[0] * pvq_dc_quant;
++  out_int32[0] += ref_int32[0];
++
++  // copy int32 result back to int16
++  for (i = 0; i < tx_blk_size * tx_blk_size; i++) dqcoeff_pvq[i] = out_int32[i];
++
++  // Safely initialize dqcoeff since some coeffs (band size > 128 coeffs)
++  // are skipped by PVQ.
++  // od_init_skipped_coeffs(dqcoeff, ref_coeff, 0, 0, tx_blk_size, tx_blk_size);
++
++  // Back to original coefficient order
++  od_coding_order_to_raster(dqcoeff, tx_blk_size, tx_type, dqcoeff_pvq,
++                            tx_blk_size);
++
++  *eob = tx_blk_size * tx_blk_size;
++
++  *rate = (od_ec_enc_tell_frac(&daala_enc->ec) - tell) << (AV1_PROB_COST_SHIFT - OD_BITRES);
++  assert(*rate >= 0);
++
++  return skip;
++}
++
++void store_pvq_enc_info(PVQ_INFO *pvq_info, int *qg, int *theta, int *max_theta,
++                        int *k, od_coeff *y, int nb_bands, const int *off,
++                        int *size, int skip_rest, int skip_dir,
++                        int bs) {  // block size in log_2 -2
++  int i;
++  const int tx_blk_size = 1 << (bs + 2);
++
++  for (i = 0; i < nb_bands; i++) {
++    pvq_info->qg[i] = qg[i];
++    pvq_info->theta[i] = theta[i];
++    pvq_info->max_theta[i] = max_theta[i];
++    pvq_info->k[i] = k[i];
++    pvq_info->off[i] = off[i];
++    pvq_info->size[i] = size[i];
++  }
++
++  memcpy(pvq_info->y, y, tx_blk_size * tx_blk_size * sizeof(od_coeff));
++
++  pvq_info->nb_bands = nb_bands;
++  pvq_info->skip_rest = skip_rest;
++  pvq_info->skip_dir = skip_dir;
++  pvq_info->bs = bs;
++}
++#endif
+diff --git a/av1/encoder/encodemb.h b/av1/encoder/encodemb.h
+index c79f68e..59523fa 100644
+--- a/av1/encoder/encodemb.h
++++ b/av1/encoder/encodemb.h
+@@ -40,6 +40,18 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
+ 
+ void av1_encode_intra_block_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane);
+ 
++#if CONFIG_PVQ
++int pvq_encode_helper(daala_enc_ctx *daala_enc, tran_low_t *const coeff,
++                      tran_low_t *ref_coeff, tran_low_t *const dqcoeff,
++                      uint16_t *eob, const int16_t *quant, int plane,
++                      int tx_size, TX_TYPE tx_type, int *rate,
++                      int speed, PVQ_INFO *pvq_info);
++
++void store_pvq_enc_info(PVQ_INFO *pvq_info, int *qg, int *theta, int *max_theta,
++                        int *k, od_coeff *y, int nb_bands, const int *off,
++                        int *size, int skip_rest, int skip_dir, int bs);
++#endif
++
+ #ifdef __cplusplus
+ }  // extern "C"
+ #endif
+diff --git a/av1/encoder/encoder.c b/av1/encoder/encoder.c
+index 0706090..5ebed32 100644
+--- a/av1/encoder/encoder.c
++++ b/av1/encoder/encoder.c
+@@ -369,6 +369,20 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
+   aom_free(cpi->mbmi_ext_base);
+   cpi->mbmi_ext_base = NULL;
+ 
++#if CONFIG_PVQ
++  if (cpi->oxcf.pass != 1) {
++    const int tile_cols = 1 << cm->log2_tile_cols;
++    const int tile_rows = 1 << cm->log2_tile_rows;
++    int tile_col, tile_row;
++
++    for (tile_row = 0; tile_row < tile_rows; ++tile_row)
++      for (tile_col = 0; tile_col < tile_cols; ++tile_col) {
++        TileDataEnc *tile_data =
++            &cpi->tile_data[tile_row * tile_cols + tile_col];
++        aom_free(tile_data->pvq_q.buf);
++      }
++  }
++#endif
+   aom_free(cpi->tile_data);
+   cpi->tile_data = NULL;
+ 
+@@ -733,7 +747,11 @@ static void update_frame_size(AV1_COMP *cpi) {
+ 
+   av1_set_mb_mi(cm, cm->width, cm->height);
+   av1_init_context_buffers(cm);
++#if !CONFIG_PVQ
+   av1_init_macroblockd(cm, xd, NULL);
++#else
++  av1_init_macroblockd(cm, xd, NULL, NULL);
++#endif
+   memset(cpi->mbmi_ext_base, 0,
+          cm->mi_rows * cm->mi_cols * sizeof(*cpi->mbmi_ext_base));
+ 
+diff --git a/av1/encoder/encoder.h b/av1/encoder/encoder.h
+index 48525fa..aeab556 100644
+--- a/av1/encoder/encoder.h
++++ b/av1/encoder/encoder.h
+@@ -266,6 +266,9 @@ typedef struct TileDataEnc {
+   TileInfo tile_info;
+   int thresh_freq_fact[BLOCK_SIZES][MAX_MODES];
+   int mode_map[BLOCK_SIZES][MAX_MODES];
++#if CONFIG_PVQ
++  PVQ_QUEUE pvq_q;
++#endif
+ } TileDataEnc;
+ 
+ typedef struct RD_COUNTS {
+diff --git a/av1/encoder/firstpass.c b/av1/encoder/firstpass.c
+index 1f5aef7..d973cc8 100644
+--- a/av1/encoder/firstpass.c
++++ b/av1/encoder/firstpass.c
+@@ -485,6 +485,9 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
+   double intra_factor;
+   double brightness_factor;
+   BufferPool *const pool = cm->buffer_pool;
++#if CONFIG_PVQ
++  PVQ_QUEUE pvq_q;
++#endif
+ 
+   // First pass code requires valid last and new frame buffers.
+   assert(new_yv12 != NULL);
+@@ -519,10 +522,41 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
+ 
+   av1_frame_init_quantizer(cpi);
+ 
++#if CONFIG_PVQ
++  // For pass 1 of 2-pass encoding, init here for PVQ for now.
++  {
++    od_adapt_ctx *adapt;
++
++    pvq_q.buf_len = 5000;
++    pvq_q.buf = aom_calloc(pvq_q.buf_len, sizeof(PVQ_INFO));
++    pvq_q.curr_pos = 0;
++
++    x->pvq_q = &pvq_q;
++
++    x->daala_enc.state.qm = (int16_t *)aom_calloc(
++        OD_QM_BUFFER_SIZE, sizeof(x->daala_enc.state.qm[0]));
++    x->daala_enc.state.qm_inv = (int16_t *)aom_calloc(
++        OD_QM_BUFFER_SIZE, sizeof(x->daala_enc.state.qm_inv[0]));
++    x->daala_enc.qm = OD_FLAT_QM;  // Hard coded. Enc/dec required to sync.
++    x->daala_enc.pvq_norm_lambda = OD_PVQ_LAMBDA;
++
++    od_init_qm(x->daala_enc.state.qm, x->daala_enc.state.qm_inv,
++               x->daala_enc.qm == OD_HVS_QM ? OD_QM8_Q4_HVS : OD_QM8_Q4_FLAT);
++    od_ec_enc_init(&x->daala_enc.ec, 65025);
++
++    adapt = &x->daala_enc.state.adapt;
++    od_ec_enc_reset(&x->daala_enc.ec);
++    od_adapt_ctx_reset(adapt, 0);
++  }
++#endif
++
+   for (i = 0; i < MAX_MB_PLANE; ++i) {
+     p[i].coeff = ctx->coeff[i];
+     p[i].qcoeff = ctx->qcoeff[i];
+     pd[i].dqcoeff = ctx->dqcoeff[i];
++#if CONFIG_PVQ
++    pd[i].pvq_ref_coeff = ctx->pvq_ref_coeff[i];
++#endif
+     p[i].eobs = ctx->eobs[i];
+   }
+ 
+@@ -908,6 +942,18 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
+     aom_clear_system_state();
+   }
+ 
++#if CONFIG_PVQ
++  aom_free(x->daala_enc.state.qm);
++  aom_free(x->daala_enc.state.qm_inv);
++  od_ec_enc_clear(&x->daala_enc.ec);
++
++  x->pvq_q->last_pos = x->pvq_q->curr_pos;
++  x->pvq_q->curr_pos = 0;
++  x->pvq_q = NULL;
++
++  aom_free(pvq_q.buf);
++#endif
++
+   // Clamp the image start to rows/2. This number of rows is discarded top
+   // and bottom as dead data so rows / 2 means the frame is blank.
+   if ((image_data_start_row > cm->mb_rows / 2) ||
+diff --git a/av1/encoder/quantize.c b/av1/encoder/quantize.c
+index 98b351b..c581f54 100644
+--- a/av1/encoder/quantize.c
++++ b/av1/encoder/quantize.c
+@@ -386,6 +386,7 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x) {
+   const int rdmult = av1_compute_rd_mult(cpi, qindex + cm->y_dc_delta_q);
+   int i;
+ #if CONFIG_AOM_QM
++  const int lossless = xd->lossless[segment_id];
+   int minqm = cm->min_qmlevel;
+   int maxqm = cm->max_qmlevel;
+   // Quant matrix only depends on the base QP so there is only one set per frame
+diff --git a/av1/encoder/rdopt.c b/av1/encoder/rdopt.c
+index d863ea7..6d5b911 100644
+--- a/av1/encoder/rdopt.c
++++ b/av1/encoder/rdopt.c
+@@ -48,6 +48,10 @@
+ #include "av1/encoder/rd.h"
+ #include "av1/encoder/rdopt.h"
+ 
++#if CONFIG_PVQ
++#include "av1/encoder/pvq_encoder.h"
++#endif
++
+ #if CONFIG_EXT_REFS
+ 
+ #define LAST_FRAME_MODE_MASK                                      \
+@@ -323,6 +327,23 @@ static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
+   *out_dist_sum = dist_sum << 4;
+ }
+ 
++#if CONFIG_PVQ
++int64_t av1_block_error2_c(const tran_low_t *coeff, const tran_low_t *dqcoeff,
++                           const tran_low_t *ref, intptr_t block_size,
++                           int64_t *ssz) {
++    int64_t error = 0;
++  int64_t pred_error = 0;
++
++  // Use the existing sse codes for calculating distortion of decoded signal:
++  // i.e. (orig - decoded)^2
++  error = av1_block_error_fp(coeff, dqcoeff, block_size);
++  // prediction residue^2 = (orig - ref)^2
++  *ssz = av1_block_error_fp(coeff, ref, block_size);
++
++  return error;
++}
++#endif
++
+ int64_t av1_block_error_c(const tran_low_t *coeff, const tran_low_t *dqcoeff,
+                           intptr_t block_size, int64_t *ssz) {
+   int i;
+@@ -374,6 +395,7 @@ int64_t av1_highbd_block_error_c(const tran_low_t *coeff,
+ }
+ #endif  // CONFIG_AOM_HIGHBITDEPTH
+ 
++#if !CONFIG_PVQ
+ /* The trailing '0' is a terminator which is used inside cost_coeffs() to
+  * decide whether to include cost of a trailing EOB node or not (i.e. we
+  * can skip this if the last coefficient in this transform block, e.g. the
+@@ -468,6 +490,7 @@ static int cost_coeffs(MACROBLOCK *x, int plane, int block, ENTROPY_CONTEXT *A,
+ 
+   return cost;
+ }
++#endif
+ 
+ static void dist_block(MACROBLOCK *x, int plane, int block, TX_SIZE tx_size,
+                        int64_t *out_dist, int64_t *out_sse) {
+@@ -479,11 +502,17 @@ static void dist_block(MACROBLOCK *x, int plane, int block, TX_SIZE tx_size,
+   int shift = tx_size == TX_32X32 ? 0 : 2;
+   tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
+   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
++#if CONFIG_PVQ
++  tran_low_t *ref_coeff = BLOCK_OFFSET(pd->pvq_ref_coeff, block);
++#endif
+ #if CONFIG_AOM_HIGHBITDEPTH
+   const int bd = (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ? xd->bd : 8;
+-  *out_dist =
+-      av1_highbd_block_error(coeff, dqcoeff, ss_txfrm_size, &this_sse, bd) >>
+-      shift;
++    *out_dist =
++        av1_highbd_block_error(coeff, dqcoeff, ss_txfrm_size, &this_sse, bd) >>
++        shift;
++#elif CONFIG_PVQ
++  *out_dist = av1_block_error2_c(coeff, dqcoeff, ref_coeff, ss_txfrm_size,
++                                 &this_sse) >> shift;
+ #else
+   *out_dist =
+       av1_block_error(coeff, dqcoeff, ss_txfrm_size, &this_sse) >> shift;
+@@ -491,12 +520,14 @@ static void dist_block(MACROBLOCK *x, int plane, int block, TX_SIZE tx_size,
+   *out_sse = this_sse >> shift;
+ }
+ 
++#if !CONFIG_PVQ
+ static int rate_block(int plane, int block, int blk_row, int blk_col,
+                       TX_SIZE tx_size, struct rdcost_block_args *args) {
+   return cost_coeffs(args->x, plane, block, args->t_above + blk_col,
+                      args->t_left + blk_row, tx_size, args->scan_order->scan,
+                      args->scan_order->neighbors, args->use_fast_coef_costing);
+ }
++#endif
+ 
+ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
+                           BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
+@@ -566,8 +597,11 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
+     args->exit_early = 1;
+     return;
+   }
+-
++#if !CONFIG_PVQ
+   rate = rate_block(plane, block, blk_row, blk_col, tx_size, args);
++#else
++  rate = x->rate;
++#endif
+   rd1 = RDCOST(x->rdmult, x->rddiv, rate, dist);
+   rd2 = RDCOST(x->rdmult, x->rddiv, 0, sse);
+ 
+@@ -583,8 +617,11 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
+     args->exit_early = 1;
+     return;
+   }
+-
++#if !CONFIG_PVQ
+   args->skippable &= !x->plane[plane].eobs[block];
++#else
++  args->skippable &= x->pvq_skip[plane];
++#endif
+ }
+ 
+ static void txfm_rd_in_plane(MACROBLOCK *x, int *rate, int64_t *distortion,
+@@ -647,11 +684,22 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
+   *sse = INT64_MAX;
+ 
+   mbmi->tx_size = AOMMIN(max_tx_size, largest_tx_size);
++
+   if (mbmi->tx_size < TX_32X32 && !xd->lossless[mbmi->segment_id]) {
+-    for (tx_type = 0; tx_type < TX_TYPES; ++tx_type) {
++#if CONFIG_PVQ
++    od_rollback_buffer pre_buf, post_buf;
++
++    od_encode_checkpoint(&x->daala_enc, &pre_buf);
++    od_encode_checkpoint(&x->daala_enc, &post_buf);
++#endif
++
++    for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
+       mbmi->tx_type = tx_type;
+       txfm_rd_in_plane(x, &r, &d, &s, &psse, ref_best_rd, 0, bs, mbmi->tx_size,
+                        cpi->sf.use_fast_coef_costing);
++#if CONFIG_PVQ
++      od_encode_rollback(&x->daala_enc, &pre_buf);
++#endif
+       if (r == INT_MAX) continue;
+       if (is_inter)
+         r += cpi->inter_tx_type_costs[mbmi->tx_size][mbmi->tx_type];
+@@ -673,8 +721,14 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
+         *rate = r;
+         *skip = s;
+         *sse = psse;
++#if CONFIG_PVQ
++        od_encode_checkpoint(&x->daala_enc, &post_buf);
++#endif
+       }
+     }
++#if CONFIG_PVQ
++    od_encode_rollback(&x->daala_enc, &post_buf);
++#endif
+   } else {
+     txfm_rd_in_plane(x, rate, distortion, skip, sse, ref_best_rd, 0, bs,
+                      mbmi->tx_size, cpi->sf.use_fast_coef_costing);
+@@ -717,6 +771,9 @@ static void choose_tx_size_from_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
+   const int is_inter = is_inter_block(mbmi);
+   const aom_prob *tx_probs = get_tx_probs2(max_tx_size, xd, &cm->fc->tx_probs);
+ 
++#if CONFIG_PVQ
++  od_rollback_buffer buf;
++#endif
+   assert(skip_prob > 0);
+   s0 = av1_cost_bit(skip_prob, 0);
+   s1 = av1_cost_bit(skip_prob, 1);
+@@ -736,11 +793,14 @@ static void choose_tx_size_from_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
+   *skip = 0;
+   *psse = INT64_MAX;
+ 
++#if CONFIG_PVQ
++  if (end_tx < TX_32X32) od_encode_checkpoint(&x->daala_enc, &buf);
++#endif
++
+   for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
+ #if CONFIG_REF_MV
+     if (mbmi->ref_mv_idx > 0 && tx_type != DCT_DCT) continue;
+ #endif
+-
+     last_rd = INT64_MAX;
+     for (n = start_tx; n >= end_tx; --n) {
+       int r_tx_size = 0;
+@@ -755,8 +815,12 @@ static void choose_tx_size_from_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
+         continue;
+       }
+       mbmi->tx_type = tx_type;
++
+       txfm_rd_in_plane(x, &r, &d, &s, &sse, ref_best_rd, 0, bs, n,
+                        cpi->sf.use_fast_coef_costing);
++#if CONFIG_PVQ
++      od_encode_rollback(&x->daala_enc, &buf);
++#endif
+       if (n < TX_32X32 && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
+           r != INT_MAX) {
+         if (is_inter)
+@@ -808,6 +872,11 @@ static void choose_tx_size_from_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
+   mbmi->tx_type = best_tx_type;
+ 
+   if (mbmi->tx_size >= TX_32X32) assert(mbmi->tx_type == DCT_DCT);
++#if CONFIG_PVQ
++  if (best_tx < TX_SIZES)
++    txfm_rd_in_plane(x, &r, &d, &s, &sse, ref_best_rd, 0, bs, best_tx,
++                     cpi->sf.use_fast_coef_costing);
++#endif
+ }
+ 
+ static void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x, int *rate,
+@@ -1020,6 +1089,12 @@ static int64_t rd_pick_intra4x4block(const AV1_COMP *const cpi, MACROBLOCK *x,
+   uint16_t best_dst16[8 * 8];
+ #endif
+ 
++#if CONFIG_PVQ
++  od_rollback_buffer pre_buf, post_buf;
++  od_encode_checkpoint(&x->daala_enc, &pre_buf);
++  od_encode_checkpoint(&x->daala_enc, &post_buf);
++#endif
++
+   memcpy(ta, a, num_4x4_blocks_wide * sizeof(a[0]));
+   memcpy(tl, l, num_4x4_blocks_high * sizeof(l[0]));
+   xd->mi[0]->mbmi.tx_size = TX_4X4;
+@@ -1126,6 +1201,10 @@ static int64_t rd_pick_intra4x4block(const AV1_COMP *const cpi, MACROBLOCK *x,
+   }
+ #endif  // CONFIG_AOM_HIGHBITDEPTH
+ 
++#if CONFIG_PVQ
++  od_encode_checkpoint(&x->daala_enc, &pre_buf);
++#endif
++
+   for (mode = DC_PRED; mode <= TM_PRED; ++mode) {
+     int64_t this_rd;
+     int ratey = 0;
+@@ -1148,15 +1227,45 @@ static int64_t rd_pick_intra4x4block(const AV1_COMP *const cpi, MACROBLOCK *x,
+         const int block = (row + idy) * 2 + (col + idx);
+         const uint8_t *const src = &src_init[idx * 4 + idy * 4 * src_stride];
+         uint8_t *const dst = &dst_init[idx * 4 + idy * 4 * dst_stride];
++        tran_low_t *const coeff = BLOCK_OFFSET(x->plane[0].coeff, block);
++#if !CONFIG_PVQ
+         int16_t *const src_diff =
+             av1_raster_block_offset_int16(BLOCK_8X8, block, p->src_diff);
+-        tran_low_t *const coeff = BLOCK_OFFSET(x->plane[0].coeff, block);
++#else
++        int lossless = xd->lossless[xd->mi[0]->mbmi.segment_id];
++        const int diff_stride = 8;
++        tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
++        tran_low_t *ref_coeff = BLOCK_OFFSET(pd->pvq_ref_coeff, block);
++        int16_t *pred = &pd->pred[4 * (row * diff_stride + col)];
++        int16_t *src_int16 = &p->src_int16[4 * (row * diff_stride + col)];
++        int i, j, tx_blk_size;
++        TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block);
++        int rate_pvq;
++        int skip;
++#endif
+         xd->mi[0]->bmi[block].as_mode = mode;
+         av1_predict_intra_block(xd, 1, 1, TX_4X4, mode, dst, dst_stride, dst,
+                                 dst_stride, col + idx, row + idy, 0);
++#if !CONFIG_PVQ
+         aom_subtract_block(4, 4, src_diff, 8, src, src_stride, dst, dst_stride);
++#else
++        if (lossless) tx_type = DCT_DCT;
++        // transform block size in pixels
++        tx_blk_size = 4;
++
++        // copy uint8 orig and predicted block to int16 buffer
++        // in order to use existing VP10 transform functions
++        for (j = 0; j < tx_blk_size; j++)
++          for (i = 0; i < tx_blk_size; i++) {
++            src_int16[diff_stride * j + i] = src[src_stride * j + i];
++            pred[diff_stride * j + i] = dst[dst_stride * j + i];
++          }
++        av1_fwd_txfm_4x4(src_int16, coeff, diff_stride, tx_type, lossless);
++        av1_fwd_txfm_4x4(pred, ref_coeff, diff_stride, tx_type, lossless);
++#endif
+ 
+         if (xd->lossless[xd->mi[0]->mbmi.segment_id]) {
++#if !CONFIG_PVQ
+           TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block);
+           const SCAN_ORDER *scan_order = get_scan(TX_4X4, tx_type);
+           av1_fwd_txfm_4x4(src_diff, coeff, 8, DCT_DCT, 1);
+@@ -1165,12 +1274,28 @@ static int64_t rd_pick_intra4x4block(const AV1_COMP *const cpi, MACROBLOCK *x,
+           ratey += cost_coeffs(x, 0, block, tempa + idx, templ + idy, TX_4X4,
+                                scan_order->scan, scan_order->neighbors,
+                                cpi->sf.use_fast_coef_costing);
++#else
++          skip = pvq_encode_helper(&x->daala_enc, coeff, ref_coeff, dqcoeff,
++                                   &p->eobs[block], pd->dequant, 0, TX_4X4,
++                                   tx_type, &rate_pvq, x->pvq_speed, NULL);
++          ratey += rate_pvq;
++#endif
+           if (RDCOST(x->rdmult, x->rddiv, ratey, distortion) >= best_rd)
+             goto next;
+-          av1_inv_txfm_add_4x4(BLOCK_OFFSET(pd->dqcoeff, block), dst,
+-                               dst_stride, p->eobs[block], DCT_DCT, 1);
++#if CONFIG_PVQ
++          if (!skip) {
++            for (j = 0; j < tx_blk_size; j++)
++              for (i = 0; i < tx_blk_size; i++)
++                dst[j * dst_stride + i] = 0;
++#endif
++            av1_inv_txfm_add_4x4(BLOCK_OFFSET(pd->dqcoeff, block), dst,
++                                 dst_stride, p->eobs[block], DCT_DCT, 1);
++#if CONFIG_PVQ
++          }
++#endif
+         } else {
+           int64_t unused;
++#if !CONFIG_PVQ
+           TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block);
+           const SCAN_ORDER *scan_order = get_scan(TX_4X4, tx_type);
+           av1_fwd_txfm_4x4(src_diff, coeff, 8, tx_type, 0);
+@@ -1179,16 +1304,32 @@ static int64_t rd_pick_intra4x4block(const AV1_COMP *const cpi, MACROBLOCK *x,
+           ratey += cost_coeffs(x, 0, block, tempa + idx, templ + idy, TX_4X4,
+                                scan_order->scan, scan_order->neighbors,
+                                cpi->sf.use_fast_coef_costing);
++#else
++          skip = pvq_encode_helper(&x->daala_enc, coeff, ref_coeff, dqcoeff,
++                                   &p->eobs[block], pd->dequant, 0, TX_4X4,
++                                   tx_type, &rate_pvq, x->pvq_speed, NULL);
++          ratey += rate_pvq;
++#endif
++          // No need for av1_block_error2_c because the ssz is unused
+           distortion += av1_block_error(coeff, BLOCK_OFFSET(pd->dqcoeff, block),
+                                         16, &unused) >>
+                         2;
+           if (RDCOST(x->rdmult, x->rddiv, ratey, distortion) >= best_rd)
+             goto next;
+-          av1_inv_txfm_add_4x4(BLOCK_OFFSET(pd->dqcoeff, block), dst,
+-                               dst_stride, p->eobs[block], tx_type, 0);
++#if CONFIG_PVQ
++          if (!skip) {
++            for (j = 0; j < tx_blk_size; j++)
++              for (i = 0; i < tx_blk_size; i++)
++                dst[j * dst_stride + i] = 0;
++#endif
++            av1_inv_txfm_add_4x4(BLOCK_OFFSET(pd->dqcoeff, block), dst,
++                                 dst_stride, p->eobs[block], tx_type, 0);
++#if CONFIG_PVQ
++          }
++#endif
+         }
+       }
+-    }
++    }  // for (idy =
+ 
+     rate += ratey;
+     this_rd = RDCOST(x->rdmult, x->rddiv, rate, distortion);
+@@ -1201,15 +1342,25 @@ static int64_t rd_pick_intra4x4block(const AV1_COMP *const cpi, MACROBLOCK *x,
+       *best_mode = mode;
+       memcpy(a, tempa, num_4x4_blocks_wide * sizeof(tempa[0]));
+       memcpy(l, templ, num_4x4_blocks_high * sizeof(templ[0]));
++#if CONFIG_PVQ
++      od_encode_checkpoint(&x->daala_enc, &post_buf);
++#endif
+       for (idy = 0; idy < num_4x4_blocks_high * 4; ++idy)
+         memcpy(best_dst + idy * 8, dst_init + idy * dst_stride,
+                num_4x4_blocks_wide * 4);
+     }
+   next : {}
+-  }
++#if CONFIG_PVQ
++    od_encode_rollback(&x->daala_enc, &pre_buf);
++#endif
++  }  // for (mode =
+ 
+   if (best_rd >= rd_thresh) return best_rd;
+ 
++#if CONFIG_PVQ
++  od_encode_rollback(&x->daala_enc, &post_buf);
++#endif
++
+   for (idy = 0; idy < num_4x4_blocks_high * 4; ++idy)
+     memcpy(dst_init + idy * dst_stride, best_dst + idy * 8,
+            num_4x4_blocks_wide * 4);
+@@ -1581,6 +1732,12 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
+   const MODE_INFO *left_mi = xd->left_mi;
+   const PREDICTION_MODE A = av1_above_block_mode(xd->mi[0], above_mi, 0);
+   const PREDICTION_MODE L = av1_left_block_mode(xd->mi[0], left_mi, 0);
++#if CONFIG_PVQ
++  od_rollback_buffer pre_buf, post_buf;
++
++  od_encode_checkpoint(&x->daala_enc, &pre_buf);
++  od_encode_checkpoint(&x->daala_enc, &post_buf);
++#endif
+ 
+   bmode_costs = cpi->y_mode_costs[A][L];
+   memset(x->skip_txfm, SKIP_TXFM_NONE, sizeof(x->skip_txfm));
+@@ -1609,6 +1766,9 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
+   for (mode = DC_PRED; mode <= TM_PRED; mode++) {
+     mbmi->mode = mode;
+ 
++#if CONFIG_PVQ
++    od_encode_rollback(&x->daala_enc, &pre_buf);
++#endif
+ #if CONFIG_EXT_INTRA
+     if (is_directional_mode(mbmi->mode)) {
+       if (directional_mode_skip_mask[mbmi->mode]) continue;
+@@ -1625,7 +1785,6 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
+     super_block_yrd(cpi, x, &this_rate_tokenonly, &this_distortion, &s, NULL,
+                     bsize, best_rd);
+ #endif  // CONFIG_EXT_INTRA
+-
+     if (this_rate_tokenonly == INT_MAX) continue;
+ 
+     this_rate = this_rate_tokenonly + bmode_costs[mode];
+@@ -1647,6 +1806,9 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
+     this_rd = RDCOST(x->rdmult, x->rddiv, this_rate, this_distortion);
+ 
+     if (this_rd < best_rd) {
++#if CONFIG_PVQ
++      od_encode_checkpoint(&x->daala_enc, &post_buf);
++#endif
+       mode_selected = mode;
+       best_rd = this_rd;
+       best_tx = mbmi->tx_size;
+@@ -1661,6 +1823,10 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
+     }
+   }
+ 
++#if CONFIG_PVQ
++  od_encode_rollback(&x->daala_enc, &post_buf);
++#endif
++
+ #if CONFIG_PALETTE
+   if (cpi->common.allow_screen_content_tools)
+     rd_pick_palette_intra_sby(cpi, x, bsize, palette_ctx, bmode_costs[DC_PRED],
+@@ -1703,12 +1869,12 @@ static int super_block_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x, int *rate,
+   int is_cost_valid = 1;
+ 
+   if (ref_best_rd < 0) is_cost_valid = 0;
+-
++#if !CONFIG_PVQ
+   if (is_inter_block(mbmi) && is_cost_valid) {
+     for (plane = 1; plane < MAX_MB_PLANE; ++plane)
+       av1_subtract_plane(x, bsize, plane);
+   }
+-
++#endif
+   *rate = 0;
+   *distortion = 0;
+   *sse = 0;
+@@ -1992,6 +2158,15 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
+   int64_t best_rd = INT64_MAX, this_rd;
+   int this_rate_tokenonly, this_rate, s;
+   int64_t this_distortion, this_sse;
++#if CONFIG_PVQ
++  od_rollback_buffer buf;
++#endif
++
++  memset(x->skip_txfm, SKIP_TXFM_NONE, sizeof(x->skip_txfm));
++
++#if CONFIG_PVQ
++  od_encode_checkpoint(&x->daala_enc, &buf);
++#endif
+ #if CONFIG_PALETTE
+   MACROBLOCKD *const xd = &x->e_mbd;
+   const int rows =
+@@ -2028,15 +2203,23 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
+     } else {
+       mbmi->intra_angle_delta[1] = 0;
+       if (!super_block_uvrd(cpi, x, &this_rate_tokenonly, &this_distortion, &s,
+-                            &this_sse, bsize, best_rd))
++                            &this_sse, bsize, best_rd)) {
++#if CONFIG_PVQ
++        od_encode_rollback(&x->daala_enc, &buf);
++#endif
+         continue;
++      }
+       rate_overhead = cpi->intra_uv_mode_cost[mbmi->mode][mode];
+     }
+     this_rate = this_rate_tokenonly + rate_overhead;
+ #else
+     if (!super_block_uvrd(cpi, x, &this_rate_tokenonly, &this_distortion, &s,
+-                          &this_sse, bsize, best_rd))
++                          &this_sse, bsize, best_rd)) {
++#if CONFIG_PVQ
++      od_encode_rollback(&x->daala_enc, &buf);
++#endif
+       continue;
++    }
+     this_rate = this_rate_tokenonly + cpi->intra_uv_mode_cost[mbmi->mode][mode];
+ #endif  // CONFIG_EXT_INTRA
+ 
+@@ -2048,6 +2231,10 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
+ #endif  // CONFIG_PALETTE
+     this_rd = RDCOST(x->rdmult, x->rddiv, this_rate, this_distortion);
+ 
++#if CONFIG_PVQ
++    od_encode_rollback(&x->daala_enc, &buf);
++#endif
++
+     if (this_rd < best_rd) {
+       mode_selected = mode;
+ #if CONFIG_EXT_INTRA
+@@ -2207,7 +2394,7 @@ static int set_and_cost_bmi_mvs(const AV1_COMP *const cpi, MACROBLOCK *x,
+ }
+ 
+ static int64_t encode_inter_mb_segment(const AV1_COMP *const cpi, MACROBLOCK *x,
+-                                       int64_t best_yrd, int i, int *labelyrate,
++                                       int64_t best_yrd, int block, int *labelyrate,
+                                        int64_t *distortion, int64_t *sse,
+                                        ENTROPY_CONTEXT *ta, ENTROPY_CONTEXT *tl,
+                                        int ir, int ic, int mi_row, int mi_col) {
+@@ -2221,17 +2408,22 @@ static int64_t encode_inter_mb_segment(const AV1_COMP *const cpi, MACROBLOCK *x,
+   const int height = 4 * num_4x4_blocks_high_lookup[plane_bsize];
+   int idx, idy;
+   void (*fwd_txm4x4)(const int16_t *input, tran_low_t *output, int stride);
+-
+   const uint8_t *const src =
+-      &p->src.buf[av1_raster_block_offset(BLOCK_8X8, i, p->src.stride)];
++      &p->src.buf[av1_raster_block_offset(BLOCK_8X8, block, p->src.stride)];
+   uint8_t *const dst =
+-      &pd->dst.buf[av1_raster_block_offset(BLOCK_8X8, i, pd->dst.stride)];
++      &pd->dst.buf[av1_raster_block_offset(BLOCK_8X8, block, pd->dst.stride)];
+   int64_t thisdistortion = 0, thissse = 0;
+   int thisrate = 0;
+-  TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, i);
++  TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block);
++#if !CONFIG_PVQ
+   const SCAN_ORDER *scan_order = get_scan(TX_4X4, tx_type);
++#else
++  (void)cpi;
++  (void)ta;
++  (void)tl;
++#endif
+ 
+-  av1_build_inter_predictor_sub8x8(xd, 0, i, ir, ic, mi_row, mi_col);
++  av1_build_inter_predictor_sub8x8(xd, 0, block, ir, ic, mi_row, mi_col);
+ 
+ #if CONFIG_AOM_HIGHBITDEPTH
+   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+@@ -2244,33 +2436,71 @@ static int64_t encode_inter_mb_segment(const AV1_COMP *const cpi, MACROBLOCK *x,
+   fwd_txm4x4 = xd->lossless[mi->mbmi.segment_id] ? av1_fwht4x4 : aom_fdct4x4;
+ #endif  // CONFIG_AOM_HIGHBITDEPTH
+ 
++#if !CONFIG_PVQ
+ #if CONFIG_AOM_HIGHBITDEPTH
+   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+     aom_highbd_subtract_block(
+-        height, width, av1_raster_block_offset_int16(BLOCK_8X8, i, p->src_diff),
++        height, width, av1_raster_block_offset_int16(BLOCK_8X8, block, p->src_diff),
+         8, src, p->src.stride, dst, pd->dst.stride, xd->bd);
+   } else {
+     aom_subtract_block(height, width,
+-                       av1_raster_block_offset_int16(BLOCK_8X8, i, p->src_diff),
++                       av1_raster_block_offset_int16(BLOCK_8X8, block, p->src_diff),
+                        8, src, p->src.stride, dst, pd->dst.stride);
+   }
+ #else
+   aom_subtract_block(height, width,
+-                     av1_raster_block_offset_int16(BLOCK_8X8, i, p->src_diff),
++                     av1_raster_block_offset_int16(BLOCK_8X8, block, p->src_diff),
+                      8, src, p->src.stride, dst, pd->dst.stride);
+ #endif  // CONFIG_AOM_HIGHBITDEPTH
++#endif  // !CONFIG_PVQ
+ 
+-  k = i;
++  k = block;
+   for (idy = 0; idy < height / 4; ++idy) {
+     for (idx = 0; idx < width / 4; ++idx) {
+       int64_t ssz, rd, rd1, rd2;
+       tran_low_t *coeff;
+-
++#if CONFIG_PVQ
++      const int src_stride = p->src.stride;
++      const int dst_stride = pd->dst.stride;
++      const int diff_stride = 8;
++      tran_low_t *dqcoeff;
++      tran_low_t *ref_coeff;
++      int16_t *pred = &pd->pred[4 * (ir * diff_stride + ic)];
++      int16_t *src_int16 = &p->src_int16[4 * (ir * diff_stride + ic)];
++      int i, j, tx_blk_size;
++      int rate_pvq;
++#endif
+       k += (idy * 2 + idx);
+       coeff = BLOCK_OFFSET(p->coeff, k);
++#if !CONFIG_PVQ
+       fwd_txm4x4(av1_raster_block_offset_int16(BLOCK_8X8, k, p->src_diff),
+                  coeff, 8);
+       av1_regular_quantize_b_4x4(x, 0, k, scan_order->scan, scan_order->iscan);
++#else
++      dqcoeff = BLOCK_OFFSET(pd->dqcoeff, k);
++      ref_coeff = BLOCK_OFFSET(pd->pvq_ref_coeff, k);
++
++      // transform block size in pixels
++      tx_blk_size = 4;
++
++      // copy uint8 orig and predicted block to int16 buffer
++      // in order to use existing VP10 transform functions
++      for (j = 0; j < tx_blk_size; j++)
++        for (i = 0; i < tx_blk_size; i++) {
++          src_int16[diff_stride * j + i] =
++              src[src_stride * (j + 4 * idy) + (i + 4 * idx)];
++          pred[diff_stride * j + i] =
++              dst[dst_stride * (j + 4 * idy) + (i + 4 * idx)];
++        }
++
++      fwd_txm4x4(src_int16, coeff, diff_stride);
++      fwd_txm4x4(pred, ref_coeff, diff_stride);
++
++      pvq_encode_helper(&x->daala_enc, coeff, ref_coeff, dqcoeff, &p->eobs[k],
++                        pd->dequant, 0, TX_4X4, tx_type, &rate_pvq,
++                        x->pvq_speed, NULL);
++#endif
++
+ #if CONFIG_AOM_HIGHBITDEPTH
+       if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+         thisdistortion += av1_highbd_block_error(
+@@ -2279,14 +2509,21 @@ static int64_t encode_inter_mb_segment(const AV1_COMP *const cpi, MACROBLOCK *x,
+         thisdistortion +=
+             av1_block_error(coeff, BLOCK_OFFSET(pd->dqcoeff, k), 16, &ssz);
+       }
++#elif CONFIG_PVQ
++      thisdistortion += av1_block_error2_c(coeff, BLOCK_OFFSET(pd->dqcoeff, k),
++                                           ref_coeff, 16, &ssz);
+ #else
+       thisdistortion +=
+           av1_block_error(coeff, BLOCK_OFFSET(pd->dqcoeff, k), 16, &ssz);
+ #endif  // CONFIG_AOM_HIGHBITDEPTH
+       thissse += ssz;
++#if !CONFIG_PVQ
+       thisrate += cost_coeffs(x, 0, k, ta + (k & 1), tl + (k >> 1), TX_4X4,
+                               scan_order->scan, scan_order->neighbors,
+                               cpi->sf.use_fast_coef_costing);
++#else
++      thisrate += rate_pvq;
++#endif
+       rd1 = RDCOST(x->rdmult, x->rddiv, thisrate, thisdistortion >> 2);
+       rd2 = RDCOST(x->rdmult, x->rddiv, 0, thissse >> 2);
+       rd = AOMMIN(rd1, rd2);
+@@ -2633,6 +2870,11 @@ static int64_t rd_pick_best_sub8x8_mode(
+   const int has_second_rf = has_second_ref(mbmi);
+   const int inter_mode_mask = cpi->sf.inter_mode_mask[bsize];
+   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
++#if CONFIG_PVQ
++  od_rollback_buffer pre_buf;
++
++  od_encode_checkpoint(&x->daala_enc, &pre_buf);
++#endif
+ 
+   av1_zero(*bsi);
+ 
+@@ -2664,6 +2906,11 @@ static int64_t rd_pick_best_sub8x8_mode(
+       int64_t new_best_rd = INT64_MAX;
+       const int index = idy * 2 + idx;
+       int ref;
++#if CONFIG_PVQ
++      od_rollback_buffer idx_buf, post_buf;
++      od_encode_checkpoint(&x->daala_enc, &idx_buf);
++      od_encode_checkpoint(&x->daala_enc, &post_buf);
++#endif
+ 
+       for (ref = 0; ref < 1 + has_second_rf; ++ref) {
+         const MV_REFERENCE_FRAME frame = mbmi->ref_frame[ref];
+@@ -2691,6 +2938,9 @@ static int64_t rd_pick_best_sub8x8_mode(
+                sizeof(bsi->rdstat[index][mode_idx].ta));
+         memcpy(bsi->rdstat[index][mode_idx].tl, t_left,
+                sizeof(bsi->rdstat[index][mode_idx].tl));
++#if CONFIG_PVQ
++        od_encode_rollback(&x->daala_enc, &idx_buf);
++#endif
+ 
+         // motion search for newmv (single predictor case only)
+         if (!has_second_rf && this_mode == NEWMV &&
+@@ -2892,6 +3142,9 @@ static int64_t rd_pick_best_sub8x8_mode(
+             if (bsi->rdstat[index][mode_idx].brdcost < new_best_rd) {
+               mode_selected = this_mode;
+               new_best_rd = bsi->rdstat[index][mode_idx].brdcost;
++#if CONFIG_PVQ
++              od_encode_checkpoint(&x->daala_enc, &post_buf);
++#endif
+             }
+             continue;
+           }
+@@ -2918,6 +3171,10 @@ static int64_t rd_pick_best_sub8x8_mode(
+         if (bsi->rdstat[index][mode_idx].brdcost < new_best_rd) {
+           mode_selected = this_mode;
+           new_best_rd = bsi->rdstat[index][mode_idx].brdcost;
++
++#if CONFIG_PVQ
++          od_encode_checkpoint(&x->daala_enc, &post_buf);
++#endif
+         }
+       } /*for each 4x4 mode*/
+ 
+@@ -2927,12 +3184,18 @@ static int64_t rd_pick_best_sub8x8_mode(
+           for (midx = 0; midx < INTER_MODES; ++midx)
+             bsi->rdstat[iy][midx].brdcost = INT64_MAX;
+         bsi->segment_rd = INT64_MAX;
++#if CONFIG_PVQ
++        od_encode_rollback(&x->daala_enc, &pre_buf);
++#endif
+         return INT64_MAX;
+       }
+ 
+       mode_idx = INTER_OFFSET(mode_selected);
+       memcpy(t_above, bsi->rdstat[index][mode_idx].ta, sizeof(t_above));
+       memcpy(t_left, bsi->rdstat[index][mode_idx].tl, sizeof(t_left));
++#if CONFIG_PVQ
++      od_encode_rollback(&x->daala_enc, &post_buf);
++#endif
+ 
+       set_and_cost_bmi_mvs(cpi, x, xd, index, mode_selected,
+                            mode_mv[mode_selected], frame_mv, seg_mvs[index],
+@@ -2950,10 +3213,16 @@ static int64_t rd_pick_best_sub8x8_mode(
+           for (midx = 0; midx < INTER_MODES; ++midx)
+             bsi->rdstat[iy][midx].brdcost = INT64_MAX;
+         bsi->segment_rd = INT64_MAX;
++#if CONFIG_PVQ
++        od_encode_rollback(&x->daala_enc, &pre_buf);
++#endif
+         return INT64_MAX;
+       }
+     }
+   } /* for each label */
++#if CONFIG_PVQ
++  od_encode_rollback(&x->daala_enc, &pre_buf);
++#endif
+ 
+   bsi->r = br;
+   bsi->d = bd;
+@@ -3717,13 +3986,13 @@ static int64_t handle_inter_mode(
+     assert(cm->interp_filter == mbmi->interp_filter);
+ 
+   if (!is_comp_pred) single_filter[this_mode][refs[0]] = mbmi->interp_filter;
+-
++#if !CONFIG_PVQ
+   if (cpi->sf.adaptive_mode_search)
+     if (is_comp_pred)
+       if (single_skippable[this_mode][refs[0]] &&
+           single_skippable[this_mode][refs[1]])
+         memset(skip_txfm, SKIP_TXFM_AC_DC, sizeof(skip_txfm));
+-
++#endif
+   if (cpi->sf.use_rd_breakout && ref_best_rd < INT64_MAX) {
+     // if current pred_error modeled rd is substantially more than the best
+     // so far, do not bother doing full rd
+@@ -3790,7 +4059,9 @@ static int64_t handle_inter_mode(
+       int64_t rdcosty = INT64_MAX;
+ 
+       // Y cost and distortion
++#if !CONFIG_PVQ
+       av1_subtract_plane(x, bsize, 0);
++#endif
+       super_block_yrd(cpi, x, rate_y, &distortion_y, &skippable_y, psse, bsize,
+                       ref_best_rd);
+ 
+@@ -3918,6 +4189,7 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
+   int y_skip = 0, uv_skip = 0;
+   int64_t dist_y = 0, dist_uv = 0;
+   TX_SIZE max_uv_tx_size;
++
+   ctx->skip = 0;
+   xd->mi[0]->mbmi.ref_frame[0] = INTRA_FRAME;
+   xd->mi[0]->mbmi.ref_frame[1] = NONE;
+@@ -4209,6 +4481,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
+   int64_t mode_threshold[MAX_MODES];
+   int *mode_map = tile_data->mode_map[bsize];
+   const int mode_search_skip_flags = sf->mode_search_skip_flags;
++#if CONFIG_PVQ
++  od_rollback_buffer pre_buf;
++#endif
++
+ #if CONFIG_PALETTE || CONFIG_EXT_INTRA
+   const int rows = 4 * num_4x4_blocks_high_lookup[bsize];
+   const int cols = 4 * num_4x4_blocks_wide_lookup[bsize];
+@@ -4440,6 +4716,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
+     midx = end_pos;
+   }
+ 
++#if CONFIG_PVQ
++  od_encode_checkpoint(&x->daala_enc, &pre_buf);
++#endif
+   for (midx = 0; midx < MAX_MODES; ++midx) {
+     int mode_index = mode_map[midx];
+     int mode_excluded = 0;
+@@ -4454,6 +4733,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
+ #if CONFIG_REF_MV
+     uint8_t ref_frame_type;
+ #endif
++#if CONFIG_PVQ
++    od_encode_rollback(&x->daala_enc, &pre_buf);
++#endif
+     this_mode = av1_mode_order[mode_index].mode;
+     ref_frame = av1_mode_order[mode_index].ref_frame[0];
+     second_ref_frame = av1_mode_order[mode_index].ref_frame[1];
+@@ -4680,7 +4962,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
+       }
+ #endif  // CONFIG_EXT_INTRA
+       distortion2 = distortion_y + distortion_uv;
++#if !CONFIG_PVQ
+       av1_encode_intra_block_plane(x, bsize, 0);
++#endif
+     } else {
+ #if CONFIG_REF_MV
+       int_mv backup_ref_mv[2];
+@@ -5361,6 +5645,11 @@ void av1_rd_pick_inter_mode_sub8x8(const AV1_COMP *cpi, TileDataEnc *tile_data,
+   int ref_frame_skip_mask[2] = { 0 };
+   int internal_active_edge =
+       av1_active_edge_sb(cpi, mi_row, mi_col) && av1_internal_image_edge(cpi);
++#if CONFIG_PVQ
++  od_rollback_buffer pre_buf;
++
++  od_encode_checkpoint(&x->daala_enc, &pre_buf);
++#endif
+ 
+   av1_zero(best_mbmode);
+ 
+@@ -5408,6 +5697,10 @@ void av1_rd_pick_inter_mode_sub8x8(const AV1_COMP *cpi, TileDataEnc *tile_data,
+     int this_skip2 = 0;
+     int64_t total_sse = INT_MAX;
+ 
++#if CONFIG_PVQ
++    od_encode_rollback(&x->daala_enc, &pre_buf);
++#endif
++
+     ref_frame = av1_ref_order[ref_index].ref_frame[0];
+     second_ref_frame = av1_ref_order[ref_index].ref_frame[1];
+ 
+diff --git a/av1/encoder/tokenize.c b/av1/encoder/tokenize.c
+index fdb19c6..d3d9748 100644
+--- a/av1/encoder/tokenize.c
++++ b/av1/encoder/tokenize.c
+@@ -304,6 +304,7 @@ struct tokenize_b_args {
+   TOKENEXTRA **tp;
+ };
+ 
++#if !CONFIG_PVQ
+ static void set_entropy_context_b(int plane, int block, int blk_row,
+                                   int blk_col, BLOCK_SIZE plane_bsize,
+                                   TX_SIZE tx_size, void *arg) {
+@@ -465,6 +466,7 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
+ 
+   av1_set_contexts(xd, pd, tx_size, c > 0, blk_col, blk_row);
+ }
++#endif
+ 
+ struct is_skippable_args {
+   uint16_t *eobs;
+@@ -512,6 +514,38 @@ int av1_has_high_freq_in_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane) {
+   return result;
+ }
+ 
++#if CONFIG_PVQ
++void add_pvq_block(MACROBLOCK *const x, PVQ_INFO *pvq) {
++  PVQ_QUEUE *q = x->pvq_q;
++  if (q->curr_pos >= q->buf_len) {
++    q->buf_len *= 2;
++    q->buf = aom_realloc(q->buf, q->buf_len * sizeof(PVQ_INFO));
++  }
++  memcpy(q->buf + q->curr_pos, pvq, sizeof(PVQ_INFO));
++  ++q->curr_pos;
++}
++
++// NOTE: This does not actually generate tokens, instead we store the encoding
++// decisions made for PVQ in a queue that we will read from when
++// actually writing the bitstream in write_modes_b
++static void tokenize_pvq(int plane, int block, int blk_row, int blk_col,
++                         BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
++  struct tokenize_b_args *const args = arg;
++  ThreadData *const td = args->td;
++  MACROBLOCK *const x = &td->mb;
++  PVQ_INFO *pvq_info;
++
++  (void)block;
++  (void)blk_row;
++  (void)blk_col;
++  (void)plane_bsize;
++  (void)tx_size;
++
++  pvq_info = &x->pvq[block][plane];
++  add_pvq_block(x, pvq_info);
++}
++#endif
++
+ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
+                      int dry_run, BLOCK_SIZE bsize) {
+   const AV1_COMMON *const cm = &cpi->common;
+@@ -528,11 +562,11 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
+     return;
+   }
+ 
++#if !CONFIG_PVQ
+   if (!dry_run) {
+     int plane;
+ 
+     td->counts->skip[ctx][0] += skip_inc;
+-
+     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+       av1_foreach_transformed_block_in_plane(xd, bsize, plane, tokenize_b,
+                                              &arg);
+@@ -542,4 +576,15 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
+   } else {
+     av1_foreach_transformed_block(xd, bsize, set_entropy_context_b, &arg);
+   }
++#else
++  if (!dry_run) {
++    int plane;
++
++    td->counts->skip[ctx][0] += skip_inc;
++
++    for (plane = 0; plane < MAX_MB_PLANE; ++plane)
++      av1_foreach_transformed_block_in_plane(xd, bsize, plane, tokenize_pvq,
++                                             &arg);
++  }
++#endif
+ }
+diff --git a/configure b/configure
+index 1e716d2..ff9b215 100755
+--- a/configure
++++ b/configure
+@@ -265,6 +265,7 @@ EXPERIMENT_LIST="
+     ans
+     rans
+     daala_ec
++    pvq
+     parallel_deblocking
+     cb4x4
+     palette
