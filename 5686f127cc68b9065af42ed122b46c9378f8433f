@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "d049e37c_649daa59",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T19:52:21Z",
+      "side": 1,
+      "message": "Ah.  I see what you mean now.  Perhaps the compiler can compute b \u003d\u003d 8 just once, so yes it looks prettier.",
+      "parentUuid": "ab415e2d_ce954331",
+      "range": {
+        "startLine": 171,
+        "startChar": 30,
+        "endLine": 171,
+        "endChar": 31
+      },
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b712657_e686d76c",
         "filename": "av1/common/clpf.c",
         "patchSetId": 8
@@ -190,6 +214,24 @@
       "side": 1,
       "message": "memcpy does super clever inlining, especially when you give it a constant number of bytes, and will avoid any alignment issues you might get from casting up. i\u0027m not aware of any that takes a stride though.",
       "parentUuid": "eb76f682_f572d872",
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d049e37c_44a2aea1",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T19:52:21Z",
+      "side": 1,
+      "message": "I tried using memcpy and at least with gcc the callgrind reports more instructions if I use memcpy, even when using if (bs \u003d\u003d 8) memcpy(..., ..., 8) else memcpy(..., ..., 4).  memcpy(..., ..., bs) was even worse (though the compiler could figure out that it\u0027s either 4 or 8).",
+      "parentUuid": "ab415e2d_8e9b3b67",
       "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -408,6 +450,30 @@
     },
     {
       "key": {
+        "uuid": "f050a71d_a5915e4a",
+        "filename": "av1/common/clpf_simd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T19:52:21Z",
+      "side": 1,
+      "message": "I didn\u0027t investigate carefully, but \"make test\" fails without these tests for a sequences with odd dimensions (I think the frame height was 90).  I would think the reference frames are padded, but since this filter takes the deblocked filtered frame as input, it\u0027s likely not padded.  Clpf does not pad its result for the convenience for a possible future filter to be applied after clpf.",
+      "parentUuid": "ab415e2d_6ed9af0f",
+      "range": {
+        "startLine": 248,
+        "startChar": 25,
+        "endLine": 248,
+        "endChar": 26
+      },
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b712657_466b2388",
         "filename": "av1/common/clpf_simd.h",
         "patchSetId": 8
@@ -542,6 +608,24 @@
       "side": 1,
       "message": "what do you mean you didn\u0027t measure any loss doing size \u003d\u003d 8? you called the 8x8 on the 4x4 chroma?",
       "parentUuid": "cb9692c8_1cfdb59a",
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "708af7dc_419cf25a",
+        "filename": "av1/encoder/clpf_rdo_simd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T19:52:21Z",
+      "side": 1,
+      "message": "Yes, 8x8 is called for 4x4 which means that it will filter some 4x4 skip blocks that shouldn\u0027t be filtered, that\u0027s all.  But this is not the real filter, the filtered frame is not stored.  It only computes the improvement to determine the best filter strength, and for this purpose it didn\u0027t have an impact on the objective-fast test set.  This is all non-normative and the encoder can choose to be slightly inaccurate in its decisions.  Once the strength has been determined, the frame will be filtered in the correct way.",
+      "parentUuid": "ab415e2d_ce1aa3d9",
       "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
