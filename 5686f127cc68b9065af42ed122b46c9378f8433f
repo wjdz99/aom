@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "6bdda69f_e9281549",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T12:41:53Z",
+      "side": 1,
+      "message": "I can clean up a bit here since the function doesn\u0027t have separate src and dst arguments any more.  But in the hbd case I either need both cache and dst_buffer to save the original cache pointer so it can be freed, or I would have to test for hbd again and use CONVERT_TO_SHORTPTR when freed.  The former gives less code.",
+      "parentUuid": "6b712657_6652e705",
+      "range": {
+        "startLine": 118,
+        "startChar": 15,
+        "endLine": 118,
+        "endChar": 20
+      },
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b712657_86191b85",
         "filename": "av1/common/clpf.c",
         "patchSetId": 8
@@ -59,6 +83,30 @@
       "writtenOn": "2016-09-14T17:05:16Z",
       "side": 1,
       "message": "I\u0027m not 100% on what is going on here, but the logic is flipped for non-hbd. Is it possible to always make the if condition \u003d\u003d 8 or \u003d\u003d 4?",
+      "range": {
+        "startLine": 171,
+        "startChar": 30,
+        "endLine": 171,
+        "endChar": 31
+      },
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bdda69f_c92d5157",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T12:41:53Z",
+      "side": 1,
+      "message": "The for loop copies an 8x8 or 4x4 block.  If it\u0027s 8x8 16 bit, we need to copy 16 bytes per line.  It\u0027s not flipped, just an extra 8 bytes per line here, where in the non-hbd case we copy either 4 bytes or 8 bytes per line.",
+      "parentUuid": "6b712657_86191b85",
       "range": {
         "startLine": 171,
         "startChar": 30,
@@ -88,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "eb76f682_f572d872",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T12:41:53Z",
+      "side": 1,
+      "message": "Unless memcpy does something clever inlining, memcpy just 4, 8 or 16 bytes isn\u0027t very efficient.  Is there an efficient 2D implementation of memcpy somewhere?",
+      "parentUuid": "6b712657_e686d76c",
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b712657_06b68b92",
         "filename": "av1/common/clpf.h",
         "patchSetId": 8
@@ -111,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "cb9692c8_fcf729b9",
+        "filename": "av1/common/clpf.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T12:41:53Z",
+      "side": 1,
+      "message": "comp \u003d component (0 \u003d Y, 1 \u003d U \u0026 V \u003d 2).  Size must be derived from subsampling_x/y for comp !\u003d 0.  I think \"plane\" is used elsewhere, so I\u0027m changing to that.",
+      "parentUuid": "6b712657_06b68b92",
+      "range": {
+        "startLine": 23,
+        "startChar": 67,
+        "endLine": 23,
+        "endChar": 71
+      },
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b712657_26f86fdd",
         "filename": "av1/common/clpf_simd.h",
         "patchSetId": 8
@@ -122,6 +212,24 @@
       "writtenOn": "2016-09-14T17:05:16Z",
       "side": 1,
       "message": "block2?",
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b4bba45_d2d084f2",
+        "filename": "av1/common/clpf_simd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T12:41:53Z",
+      "side": 1,
+      "message": "Rather block8 for a block of width 8.  When I added block4 I didn\u0027t change the name.  But just a number is a bit ambiguous anyway.  Is the number width, bits or lines?.  I mean width.",
+      "parentUuid": "6b712657_26f86fdd",
       "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -168,6 +276,30 @@
     },
     {
       "key": {
+        "uuid": "8b7d7a55_a2049e20",
+        "filename": "av1/common/clpf_simd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T12:41:53Z",
+      "side": 1,
+      "message": "No, the fallback is needed for frames of widths like 8 or 642, which must be supported, but are so exotic that it\u0027s not worthwhile to write SIMD code for.  Note that if the width is 642, the C code only gets called near the edge.\n\nI actually forgot a case sizey \u0026 3 \u0026\u0026 sizex \u003d\u003d 4 here, since sizex means that four lines will be processed in one go but sizey isn\u0027t a multiple of 4 along the bottom edge of a frame whose height is not a multiple of 4.",
+      "parentUuid": "6b712657_86cefbab",
+      "range": {
+        "startLine": 248,
+        "startChar": 25,
+        "endLine": 248,
+        "endChar": 26
+      },
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b712657_466b2388",
         "filename": "av1/common/clpf_simd.h",
         "patchSetId": 8
@@ -179,6 +311,24 @@
       "writtenOn": "2016-09-14T17:05:16Z",
       "side": 1,
       "message": "comment is a little misleading - i assume this is like the non-hbd, and this is only calculating half as many values?\n\notherwise if the only difference is the store at the end, that part should be factored out.",
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b7d7a55_c209a239",
+        "filename": "av1/common/clpf_simd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T12:41:53Z",
+      "side": 1,
+      "message": "Both calculate 8 and apply 16 bits deltas, but the first must store them as two lines separated by dstride (as part of a 4x4 block), and the second store them as a single line (as part of an 8x8 block).",
+      "parentUuid": "6b712657_466b2388",
       "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -219,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "8b4bba45_f2d588df",
+        "filename": "av1/encoder/clpf_rdo.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T12:41:53Z",
+      "side": 1,
+      "message": "width is the frame (or tile) width, needed so we don\u0027t read past the right edge.",
+      "parentUuid": "6b712657_461d631b",
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b712657_a6377f98",
         "filename": "av1/encoder/clpf_rdo_simd.h",
         "patchSetId": 8
@@ -230,6 +398,24 @@
       "writtenOn": "2016-09-14T17:05:16Z",
       "side": 1,
       "message": "TODO for size \u003d\u003d 4? Or unsupported?\n\nComment is unnecessary unless it explains why it is falling back to C (other than !\u003d 8)",
+      "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb9692c8_1cfdb59a",
+        "filename": "av1/encoder/clpf_rdo_simd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-15T12:41:53Z",
+      "side": 1,
+      "message": "Currently size will never be 4.  Accurate RDO for chroma requires 4, but I didn\u0027t measure any loss for doing size \u003d\u003d 8.  Right now there could be an assert here, but it\u0027s convenient as it is now, in case size \u003d\u003d 4 is revisited.  There\u0027s a comment in the calling code warning against no SIMD optimisations.",
+      "parentUuid": "6b712657_a6377f98",
       "revId": "5686f127cc68b9065af42ed122b46c9378f8433f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
