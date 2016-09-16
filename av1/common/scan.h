@@ -38,7 +38,7 @@ extern const SCAN_ORDER av1_scan_orders[TX_SIZES][TX_TYPES];
 void update_scan_prob(AV1_COMMON *cm, TX_SIZE tx_size, TX_TYPE tx_type,
                       int rate_16);
 void update_scan_count_facade(AV1_COMMON *cm, TX_SIZE tx_size, TX_TYPE tx_type,
-                              tran_low_t *dqcoeffs, int max_scan);
+                              const tran_low_t *dqcoeffs, int max_scan);
 void augment_prob(uint32_t *prob, int size, int tx1d_size);
 void sort_prob(uint32_t *prob, int start, int end);
 void update_sort_order(TX_SIZE tx_size, uint32_t *non_zero_prob,
