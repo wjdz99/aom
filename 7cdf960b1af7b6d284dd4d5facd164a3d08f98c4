@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab415e2d_ddb5e986",
+        "filename": "av1/common/odintrin.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-09-16T22:16:09Z",
+      "side": 1,
+      "message": "It would be better to implement this with existing asserts.",
+      "revId": "7cdf960b1af7b6d284dd4d5facd164a3d08f98c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_7d6a35e6",
+        "filename": "av1/common/pvq.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-09-16T22:16:09Z",
+      "side": 1,
+      "message": "These are no longer used, correct?",
+      "revId": "7cdf960b1af7b6d284dd4d5facd164a3d08f98c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_dd3fa9e5",
+        "filename": "av1/common/pvq.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-09-16T22:16:09Z",
+      "side": 1,
+      "message": "If these are still used, they should be merged with the AOM QM experiment. That can probably happen later, but should be noted.",
+      "revId": "7cdf960b1af7b6d284dd4d5facd164a3d08f98c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_dd116967",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-09-16T22:16:09Z",
+      "side": 1,
+      "message": "is this a TODO?",
+      "revId": "7cdf960b1af7b6d284dd4d5facd164a3d08f98c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_7d16b552",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-09-16T22:16:09Z",
+      "side": 1,
+      "message": "kinda weird, might be better just to have two inverse_transform_block_intra calls, one in the PVQ block and one in the !PVQ block",
+      "revId": "7cdf960b1af7b6d284dd4d5facd164a3d08f98c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_3d2b4d8c",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-09-16T22:16:09Z",
+      "side": 1,
+      "message": "same",
+      "revId": "7cdf960b1af7b6d284dd4d5facd164a3d08f98c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_bdbc9d24",
+        "filename": "av1/encoder/encint.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-09-16T22:16:09Z",
+      "side": 1,
+      "message": "I really don\u0027t like that we have this... what\u0027s the plan to fix it? Put this all inside MACROBLOCK?",
+      "revId": "7cdf960b1af7b6d284dd4d5facd164a3d08f98c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_1d82115b",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 2378,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-09-16T22:16:09Z",
+      "side": 1,
+      "message": "any reason we can\u0027t call this from within restore_context?",
+      "revId": "7cdf960b1af7b6d284dd4d5facd164a3d08f98c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_5d13b912",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-09-16T22:16:09Z",
+      "side": 1,
+      "message": "Would be nice to explain why this is needed (PVQ not having a residual)",
+      "revId": "7cdf960b1af7b6d284dd4d5facd164a3d08f98c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_1d9cd16b",
+        "filename": "patch_part1.txt",
+        "patchSetId": 26
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-09-16T22:16:09Z",
+      "side": 1,
+      "message": "this file looks like it was accidentally included",
+      "revId": "7cdf960b1af7b6d284dd4d5facd164a3d08f98c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_3da18da9",
+        "filename": "patch_part2.txt",
+        "patchSetId": 26
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2016-09-16T22:16:09Z",
+      "side": 1,
+      "message": "same",
+      "revId": "7cdf960b1af7b6d284dd4d5facd164a3d08f98c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
