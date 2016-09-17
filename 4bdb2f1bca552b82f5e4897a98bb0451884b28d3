@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab415e2d_ac370de6",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-09-17T17:45:01Z",
+      "side": 1,
+      "message": "Somewhere (not sure where is the best place) you should document what this function returns.",
+      "revId": "4bdb2f1bca552b82f5e4897a98bb0451884b28d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_8c3a51d0",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-09-17T17:45:01Z",
+      "side": 1,
+      "message": "Is this comment still relevant?",
+      "revId": "4bdb2f1bca552b82f5e4897a98bb0451884b28d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
