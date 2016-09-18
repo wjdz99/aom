@@ -13,4 +13,6 @@
 UTIL_SRCS-yes += aom_util.mk
 UTIL_SRCS-yes += aom_thread.c
 UTIL_SRCS-yes += aom_thread.h
+UTIL_SRCS-yes += debug_util.c
+UTIL_SRCS-yes += debug_util.h
 UTIL_SRCS-yes += endian_inl.h
