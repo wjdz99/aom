@@ -11,6 +11,7 @@
 
 #include <assert.h>
 
+#include "av1/common/common_data.h"
 #include "av1/common/scan.h"
 
 DECLARE_ALIGNED(16, static const int16_t, default_scan_4x4[16]) = {
@@ -738,10 +739,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES][TX_TYPES] = {
 };
 
 #if CONFIG_ADAPT_SCAN
-int get_tx1d_size(TX_SIZE tx_size) { return 1 << (tx_size + 2); }
-
-int get_tx2d_size(TX_SIZE tx_size) { return 1 << ((tx_size + 2) * 2); }
-
 uint32_t *get_non_zero_prob(FRAME_CONTEXT *fc, TX_SIZE tx_size,
                             TX_TYPE tx_type) {
   switch (tx_size) {
@@ -800,7 +797,7 @@ void update_scan_prob(AV1_COMMON *cm, TX_SIZE tx_size, TX_TYPE tx_type,
   uint32_t *prev_non_zero_prob = get_non_zero_prob(pre_fc, tx_size, tx_type);
   uint32_t *non_zero_prob = get_non_zero_prob(cm->fc, tx_size, tx_type);
   uint32_t *non_zero_count = get_non_zero_counts(&cm->counts, tx_size, tx_type);
-  int tx2d_size = get_tx2d_size(tx_size);
+  int tx2d_size = tx_size_2d[tx_size];
   unsigned int block_num = cm->counts.txb_count[tx_size][tx_type];
   int i;
   for (i = 0; i < tx2d_size; i++) {
@@ -895,8 +892,8 @@ void dfs_scan(int tx1d_size, int *scan_idx, int coeff_idx, int16_t *scan,
 
 void update_neighbors(int tx_size, int16_t *scan, int16_t *iscan,
                       int16_t *neighbors) {
-  int tx1d_size = get_tx1d_size(tx_size);
-  int tx2d_size = get_tx2d_size(tx_size);
+  int tx1d_size = tx_size_1d[tx_size];
+  int tx2d_size = tx_size_2d[tx_size];
   int scan_idx;
   for (scan_idx = 0; scan_idx < tx2d_size; ++scan_idx) {
     int coeff_idx = scan[scan_idx];
@@ -931,8 +928,8 @@ void update_neighbors(int tx_size, int16_t *scan, int16_t *iscan,
 void update_sort_order(TX_SIZE tx_size, uint32_t *non_zero_prob,
                        int16_t *sort_order) {
   uint32_t temp[1024];
-  int tx1d_size = get_tx1d_size(tx_size);
-  int tx2d_size = get_tx2d_size(tx_size);
+  int tx1d_size = tx_size_1d[tx_size];
+  int tx2d_size = tx_size_2d[tx_size];
   int sort_idx;
   assert(tx2d_size <= 1024);
   memcpy(temp, non_zero_prob, tx2d_size * sizeof(*non_zero_prob));
@@ -953,8 +950,8 @@ void update_scan_order(TX_SIZE tx_size, int16_t *sort_order, int16_t *scan,
   int coeff_idx;
   int scan_idx;
   int sort_idx;
-  int tx1d_size = get_tx1d_size(tx_size);
-  int tx2d_size = get_tx2d_size(tx_size);
+  int tx1d_size = tx_size_1d[tx_size];
+  int tx2d_size = tx_size_2d[tx_size];
 
   for (coeff_idx = 0; coeff_idx < tx2d_size; ++coeff_idx) {
     iscan[coeff_idx] = -1;
@@ -974,7 +971,7 @@ void update_scan_order_facade(AV1_COMMON *cm, TX_SIZE tx_size,
   int16_t *scan = get_adapt_scan(cm->fc, tx_size, tx_type);
   int16_t *iscan = get_adapt_iscan(cm->fc, tx_size, tx_type);
   int16_t *nb = get_adapt_nb(cm->fc, tx_size, tx_type);
-  int tx2d_size = get_tx2d_size(tx_size);
+  int tx2d_size = tx_size_2d[tx_size];
   assert(tx2d_size <= 1024);
   update_sort_order(tx_size, non_zero_prob, sort_order);
   update_scan_order(tx_size, sort_order, scan, iscan);
@@ -987,7 +984,7 @@ void init_scan_order(AV1_COMMON *cm) {
   for (tx_size = TX_4X4; tx_size < TX_SIZES; ++tx_size) {
     for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
       uint32_t *non_zero_prob = get_non_zero_prob(cm->fc, tx_size, tx_type);
-      int tx2d_size = get_tx2d_size(tx_size);
+      int tx2d_size = tx_size_2d[tx_size];
       int i;
       SCAN_ORDER *sc = &cm->fc->sc[tx_size][tx_type];
       for (i = 0; i < tx2d_size; ++i) {
