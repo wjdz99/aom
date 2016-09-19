@@ -22,6 +22,30 @@
       "revId": "e0d9d1f4283a77b369ad3cceae4f6b37aa2787d4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_3ce8a6a6",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-19T17:49:46Z",
+      "side": 0,
+      "message": "This change is removed.",
+      "parentUuid": "ab415e2d_29ccea5e",
+      "range": {
+        "startLine": 1047,
+        "startChar": 20,
+        "endLine": 1047,
+        "endChar": 26
+      },
+      "revId": "e0d9d1f4283a77b369ad3cceae4f6b37aa2787d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
