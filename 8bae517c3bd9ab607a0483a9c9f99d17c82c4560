@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "ab415e2d_f049dfb9",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-19T23:22:10Z",
+      "side": 1,
+      "message": "I will add av1_ prefix in a new CL.",
+      "parentUuid": "ab415e2d_107aeb16",
+      "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab415e2d_95f5ed4a",
         "filename": "av1/common/scan.c",
         "patchSetId": 6
@@ -48,6 +66,24 @@
       "writtenOn": "2016-09-19T21:34:42Z",
       "side": 1,
       "message": "For functions declared in .h file, I\u0027d move this function level comment there.",
+      "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_301b67df",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-19T23:22:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab415e2d_95f5ed4a",
       "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -77,6 +113,30 @@
     },
     {
       "key": {
+        "uuid": "ab415e2d_5020f30c",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-19T23:22:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab415e2d_f558f15c",
+      "range": {
+        "startLine": 850,
+        "startChar": 6,
+        "endLine": 850,
+        "endChar": 9
+      },
+      "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab415e2d_553f05e4",
         "filename": "av1/common/scan.c",
         "patchSetId": 6
@@ -88,6 +148,24 @@
       "writtenOn": "2016-09-19T21:34:42Z",
       "side": 1,
       "message": "Maybe I\u0027m missing something, but wouldn\u0027t just bitwise OR work?\nprob[idx] \u003d (prob[idx] \u003c\u003c 16) | (r + c) \u003c\u003c 10) | coeff_idx;\n\nOR, if you want to be safe:\n\nprob[idx] \u003d ((prob[idx] \u0026 0xffff) \u003c\u003c 16)\n            | ((r + c) \u0026 0x3f) \u003c\u003c 10)\n            | (coeff_idx \u0026 0x3ff);",
+      "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_d0030368",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-19T23:22:10Z",
+      "side": 1,
+      "message": "The ^ is for tie result in sorting. When there is tie, those coefficients with smaller r + c will be scanned first.",
+      "parentUuid": "ab415e2d_553f05e4",
       "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -140,6 +218,30 @@
     },
     {
       "key": {
+        "uuid": "ab415e2d_f062bf3f",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 876,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-19T23:22:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab415e2d_f511d166",
+      "range": {
+        "startLine": 876,
+        "startChar": 35,
+        "endLine": 876,
+        "endChar": 64
+      },
+      "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab415e2d_553aa5ed",
         "filename": "av1/common/scan.c",
         "patchSetId": 6
@@ -151,6 +253,30 @@
       "writtenOn": "2016-09-19T21:34:42Z",
       "side": 1,
       "message": "const",
+      "range": {
+        "startLine": 878,
+        "startChar": 2,
+        "endLine": 878,
+        "endChar": 5
+      },
+      "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_10682b1f",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 878,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-19T23:22:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab415e2d_553aa5ed",
       "range": {
         "startLine": 878,
         "startChar": 2,
@@ -186,6 +312,30 @@
     },
     {
       "key": {
+        "uuid": "ab415e2d_306d272f",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-19T23:22:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab415e2d_95032d1b",
+      "range": {
+        "startLine": 882,
+        "startChar": 4,
+        "endLine": 882,
+        "endChar": 7
+      },
+      "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab415e2d_95808da8",
         "filename": "av1/common/scan.c",
         "patchSetId": 6
@@ -197,6 +347,30 @@
       "writtenOn": "2016-09-19T21:34:42Z",
       "side": 1,
       "message": "\u0027const uint32_t *const non_zero_prob\u0027",
+      "range": {
+        "startLine": 911,
+        "startChar": 50,
+        "endLine": 911,
+        "endChar": 63
+      },
+      "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_5072b30c",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-19T23:22:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab415e2d_95808da8",
       "range": {
         "startLine": 911,
         "startChar": 50,
@@ -304,6 +478,30 @@
     },
     {
       "key": {
+        "uuid": "ab415e2d_7057af56",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 920,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-19T23:22:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab415e2d_7525e11a",
+      "range": {
+        "startLine": 920,
+        "startChar": 2,
+        "endLine": 920,
+        "endChar": 32
+      },
+      "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab415e2d_3526f9c2",
         "filename": "av1/common/scan.c",
         "patchSetId": 6
@@ -315,6 +513,24 @@
       "writtenOn": "2016-09-19T21:34:42Z",
       "side": 1,
       "message": "Move comment to \u0027.h\u0027 file.",
+      "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab415e2d_b0611738",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-19T23:22:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab415e2d_3526f9c2",
       "revId": "8bae517c3bd9ab607a0483a9c9f99d17c82c4560",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
