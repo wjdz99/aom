@@ -101,17 +101,9 @@ static int decode_unsigned_max(struct aom_read_bit_buffer *rb, int max) {
   return data > max ? max : data;
 }
 
-#if CONFIG_MISC_FIXES
 static TX_MODE read_tx_mode(struct aom_read_bit_buffer *rb) {
   return aom_rb_read_bit(rb) ? TX_MODE_SELECT : aom_rb_read_literal(rb, 2);
 }
-#else
-static TX_MODE read_tx_mode(aom_reader *r) {
-  TX_MODE tx_mode = aom_read_literal(r, 2, ACCT_STR);
-  if (tx_mode == ALLOW_32X32) tx_mode += aom_read_bit(r, ACCT_STR);
-  return tx_mode;
-}
-#endif
 
 static void read_tx_mode_probs(struct tx_probs *tx_probs, aom_reader *r) {
   int i, j;
@@ -165,7 +157,6 @@ static void read_inter_mode_probs(FRAME_CONTEXT *fc, aom_reader *r) {
 #endif
 }
 
-#if CONFIG_MISC_FIXES
 static REFERENCE_MODE read_frame_reference_mode(
     const AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   if (is_compound_reference_allowed(cm)) {
@@ -176,19 +167,6 @@ static REFERENCE_MODE read_frame_reference_mode(
     return SINGLE_REFERENCE;
   }
 }
-#else
-static REFERENCE_MODE read_frame_reference_mode(const AV1_COMMON *cm,
-                                                aom_reader *r) {
-  if (is_compound_reference_allowed(cm)) {
-    return aom_read_bit(r, ACCT_STR)
-               ? (aom_read_bit(r, ACCT_STR) ? REFERENCE_MODE_SELECT
-                                            : COMPOUND_REFERENCE)
-               : SINGLE_REFERENCE;
-  } else {
-    return SINGLE_REFERENCE;
-  }
-}
-#endif
 
 static void read_frame_reference_mode_probs(AV1_COMMON *cm, aom_reader *r) {
   FRAME_CONTEXT *const fc = cm->fc;
@@ -218,13 +196,7 @@ static void read_frame_reference_mode_probs(AV1_COMMON *cm, aom_reader *r) {
 
 static void update_mv_probs(aom_prob *p, int n, aom_reader *r) {
   int i;
-  for (i = 0; i < n; ++i)
-#if CONFIG_MISC_FIXES
-    av1_diff_update_prob(r, &p[i], ACCT_STR);
-#else
-    if (aom_read(r, MV_UPDATE_PROB, ACCT_STR))
-      p[i] = (aom_read_literal(r, 7, ACCT_STR) << 1) | 1;
-#endif
+  for (i = 0; i < n; ++i) av1_diff_update_prob(r, &p[i], ACCT_STR);
 }
 
 static void read_mv_probs(nmv_context *ctx, int allow_hp, aom_reader *r) {
@@ -596,11 +568,7 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
       }
 
       if (!less8x8 && eobtotal == 0)
-#if CONFIG_MISC_FIXES
         mbmi->has_no_coeffs = 1;  // skip loopfilter
-#else
-        mbmi->skip = 1;  // skip loopfilter
-#endif
     }
   }
 
@@ -772,9 +740,6 @@ static void read_coef_probs(FRAME_CONTEXT *fc, TX_MODE tx_mode, aom_reader *r) {
 static void setup_segmentation(AV1_COMMON *const cm,
                                struct aom_read_bit_buffer *rb) {
   struct segmentation *const seg = &cm->seg;
-#if !CONFIG_MISC_FIXES
-  struct segmentation_probs *const segp = &cm->segp;
-#endif
   int i, j;
 
   seg->update_map = 0;
@@ -790,29 +755,11 @@ static void setup_segmentation(AV1_COMMON *const cm,
     seg->update_map = aom_rb_read_bit(rb);
   }
   if (seg->update_map) {
-#if !CONFIG_MISC_FIXES
-    for (i = 0; i < SEG_TREE_PROBS; i++) {
-      segp->tree_probs[i] =
-          aom_rb_read_bit(rb) ? aom_rb_read_literal(rb, 8) : MAX_PROB;
-    }
-#if CONFIG_DAALA_EC
-    av1_tree_to_cdf(av1_segment_tree, segp->tree_probs, segp->tree_cdf);
-#endif
-#endif
     if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
       seg->temporal_update = 0;
     } else {
       seg->temporal_update = aom_rb_read_bit(rb);
     }
-#if !CONFIG_MISC_FIXES
-    if (seg->temporal_update) {
-      for (i = 0; i < PREDICTION_PROBS; i++)
-        segp->pred_probs[i] =
-            aom_rb_read_bit(rb) ? aom_rb_read_literal(rb, 8) : MAX_PROB;
-    } else {
-      for (i = 0; i < PREDICTION_PROBS; i++) segp->pred_probs[i] = MAX_PROB;
-    }
-#endif
   }
 
   // Segmentation data update
@@ -901,9 +848,7 @@ static void setup_dering(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 #endif  // CONFIG_DERING
 
 static INLINE int read_delta_q(struct aom_read_bit_buffer *rb) {
-  return aom_rb_read_bit(rb)
-             ? aom_rb_read_inv_signed_literal(rb, CONFIG_MISC_FIXES ? 6 : 4)
-             : 0;
+  return aom_rb_read_bit(rb) ? aom_rb_read_inv_signed_literal(rb, 6) : 0;
 }
 
 static void setup_quantization(AV1_COMMON *const cm,
@@ -1092,10 +1037,8 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
       YV12_BUFFER_CONFIG *const buf = cm->frame_refs[i].buf;
       width = buf->y_crop_width;
       height = buf->y_crop_height;
-#if CONFIG_MISC_FIXES
       cm->render_width = buf->render_width;
       cm->render_height = buf->render_height;
-#endif
       found = 1;
       break;
     }
@@ -1103,9 +1046,7 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
 
   if (!found) {
     av1_read_frame_size(rb, &width, &height);
-#if CONFIG_MISC_FIXES
     setup_render_size(cm, rb);
-#endif
   }
 
   if (width <= 0 || height <= 0)
@@ -1134,9 +1075,6 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
   }
 
   resize_context_buffers(cm, width, height);
-#if !CONFIG_MISC_FIXES
-  setup_render_size(cm, rb);
-#endif
 
   lock_buffer_pool(pool);
   if (aom_realloc_frame_buffer(
@@ -1180,14 +1118,10 @@ static void setup_tile_info(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   cm->log2_tile_rows = aom_rb_read_bit(rb);
   if (cm->log2_tile_rows) cm->log2_tile_rows += aom_rb_read_bit(rb);
 
-#if CONFIG_MISC_FIXES
   // tile size magnitude
   if (cm->log2_tile_rows > 0 || cm->log2_tile_cols > 0) {
     cm->tile_sz_mag = aom_rb_read_literal(rb, 2);
   }
-#else
-  cm->tile_sz_mag = 3;
-#endif
 }
 
 typedef struct TileBuffer {
@@ -1226,9 +1160,9 @@ static void get_tile_buffer(const uint8_t *const data_end,
     if (decrypt_cb) {
       uint8_t be_data[4];
       decrypt_cb(decrypt_state, *data, be_data, tile_sz_mag + 1);
-      size = mem_get_varsize(be_data, tile_sz_mag) + CONFIG_MISC_FIXES;
+      size = mem_get_varsize(be_data, tile_sz_mag) + 1;
     } else {
-      size = mem_get_varsize(*data, tile_sz_mag) + CONFIG_MISC_FIXES;
+      size = mem_get_varsize(*data, tile_sz_mag) + 1;
     }
     *data += tile_sz_mag + 1;
 
@@ -1811,7 +1745,6 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
     if (cm->error_resilient_mode) {
       cm->reset_frame_context = RESET_FRAME_CONTEXT_ALL;
     } else {
-#if CONFIG_MISC_FIXES
       if (cm->intra_only) {
         cm->reset_frame_context = aom_rb_read_bit(rb)
                                       ? RESET_FRAME_CONTEXT_ALL
@@ -1825,40 +1758,13 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
                                         ? RESET_FRAME_CONTEXT_ALL
                                         : RESET_FRAME_CONTEXT_CURRENT;
       }
-#else
-      static const RESET_FRAME_CONTEXT_MODE reset_frame_context_conv_tbl[4] = {
-        RESET_FRAME_CONTEXT_NONE, RESET_FRAME_CONTEXT_NONE,
-        RESET_FRAME_CONTEXT_CURRENT, RESET_FRAME_CONTEXT_ALL
-      };
-
-      cm->reset_frame_context =
-          reset_frame_context_conv_tbl[aom_rb_read_literal(rb, 2)];
-#endif
     }
 
     if (cm->intra_only) {
       if (!av1_read_sync_code(rb))
         aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                            "Invalid frame sync code");
-#if CONFIG_MISC_FIXES
       read_bitdepth_colorspace_sampling(cm, rb);
-#else
-      if (cm->profile > PROFILE_0) {
-        read_bitdepth_colorspace_sampling(cm, rb);
-      } else {
-        // NOTE: The intra-only frame header does not include the specification
-        // of either the color format or color sub-sampling in profile 0. AV1
-        // specifies that the default color format should be YUV 4:2:0 in this
-        // case (normative).
-        cm->color_space = AOM_CS_BT_601;
-        cm->color_range = 0;
-        cm->subsampling_y = cm->subsampling_x = 1;
-        cm->bit_depth = AOM_BITS_8;
-#if CONFIG_AOM_HIGHBITDEPTH
-        cm->use_highbitdepth = 0;
-#endif
-      }
-#endif
 
       pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
       setup_frame_size(cm, rb);
@@ -1936,10 +1842,6 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
       cm->refresh_frame_context = aom_rb_read_bit(rb)
                                       ? REFRESH_FRAME_CONTEXT_FORWARD
                                       : REFRESH_FRAME_CONTEXT_BACKWARD;
-#if !CONFIG_MISC_FIXES
-    } else {
-      aom_rb_read_bit(rb);  // parallel decoding mode flag
-#endif
     }
   } else {
     cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_OFF;
@@ -2014,7 +1916,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #endif
 
   for (i = 0; i < MAX_SEGMENTS; ++i) {
-    const int qindex = CONFIG_MISC_FIXES && cm->seg.enabled
+    const int qindex = cm->seg.enabled
                            ? av1_get_qindex(&cm->seg, i, cm->base_qindex)
                            : cm->base_qindex;
     xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
@@ -2022,11 +1924,9 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   }
 
   setup_segmentation_dequant(cm);
-#if CONFIG_MISC_FIXES
   cm->tx_mode =
       (!cm->seg.enabled && xd->lossless[0]) ? ONLY_4X4 : read_tx_mode(rb);
   cm->reference_mode = read_frame_reference_mode(cm, rb);
-#endif
 
   setup_tile_info(cm, rb);
   sz = aom_rb_read_literal(rb, 16);
@@ -2067,9 +1967,6 @@ static void read_ext_tx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
 static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
                                   size_t partition_size) {
   AV1_COMMON *const cm = &pbi->common;
-#if !CONFIG_MISC_FIXES
-  MACROBLOCKD *const xd = &pbi->mb;
-#endif
   FRAME_CONTEXT *const fc = cm->fc;
   aom_reader r;
   int k, i, j;
@@ -2079,9 +1976,6 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate bool decoder 0");
 
-#if !CONFIG_MISC_FIXES
-  cm->tx_mode = xd->lossless[0] ? ONLY_4X4 : read_tx_mode(&r);
-#endif
   if (cm->tx_mode == TX_MODE_SELECT) read_tx_mode_probs(&fc->tx_probs, &r);
   read_coef_probs(fc, cm->tx_mode, &r);
 
@@ -2093,7 +1987,6 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     av1_diff_update_prob(&r, &fc->delta_q_prob[k], ACCT_STR);
 #endif
 
-#if CONFIG_MISC_FIXES
   if (cm->seg.enabled && cm->seg.update_map) {
     if (cm->seg.temporal_update) {
       for (k = 0; k < PREDICTION_PROBS; k++)
@@ -2124,14 +2017,12 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
                     fc->partition_cdf[j]);
 #endif
   }
-#endif
 
   if (frame_is_intra_only(cm)) {
     av1_copy(cm->kf_y_prob, av1_kf_y_mode_prob);
 #if CONFIG_DAALA_EC
     av1_copy(cm->kf_y_cdf, av1_kf_y_mode_cdf);
 #endif
-#if CONFIG_MISC_FIXES
     for (k = 0; k < INTRA_MODES; k++)
       for (j = 0; j < INTRA_MODES; j++) {
         for (i = 0; i < INTRA_MODES - 1; ++i)
@@ -2141,7 +2032,6 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
                         cm->kf_y_cdf[k][j]);
 #endif
       }
-#endif
   } else {
 #if !CONFIG_REF_MV
     nmv_context *const nmvc = &fc->nmvc;
@@ -2161,9 +2051,6 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     for (i = 0; i < INTRA_INTER_CONTEXTS; i++)
       av1_diff_update_prob(&r, &fc->intra_inter_prob[i], ACCT_STR);
 
-#if !CONFIG_MISC_FIXES
-    cm->reference_mode = read_frame_reference_mode(cm, &r);
-#endif
     if (cm->reference_mode != SINGLE_REFERENCE)
       setup_compound_reference_mode(cm);
     read_frame_reference_mode_probs(cm, &r);
@@ -2176,17 +2063,6 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
                       fc->y_mode_cdf[j]);
 #endif
     }
-
-#if !CONFIG_MISC_FIXES
-    for (j = 0; j < PARTITION_CONTEXTS; ++j) {
-      for (i = 0; i < PARTITION_TYPES - 1; ++i)
-        av1_diff_update_prob(&r, &fc->partition_prob[j][i], ACCT_STR);
-#if CONFIG_DAALA_EC
-      av1_tree_to_cdf(av1_partition_tree, fc->partition_prob[j],
-                      fc->partition_cdf[j]);
-#endif
-    }
-#endif
 
 #if CONFIG_REF_MV
     for (i = 0; i < NMV_CONTEXTS; ++i)
@@ -2437,14 +2313,9 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
   if (!xd->corrupted) {
     if (cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD) {
       av1_adapt_coef_probs(cm);
-#if CONFIG_MISC_FIXES
       av1_adapt_intra_frame_probs(cm);
-#endif
 
       if (!frame_is_intra_only(cm)) {
-#if !CONFIG_MISC_FIXES
-        av1_adapt_intra_frame_probs(cm);
-#endif
         av1_adapt_inter_frame_probs(cm);
         av1_adapt_mv_probs(cm, cm->allow_high_precision_mv);
       }
