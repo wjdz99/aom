@@ -16,6 +16,24 @@
       "revId": "b720088b186533dc65af832da3eaff0233d8dae1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0c34720_5c8e29e2",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-20T16:33:53Z",
+      "side": 1,
+      "message": "I tend to put functions belongs to one feature in one file. In this way, I could understand this feature by just reading one file.\n\nMoreover, since this function is only called once, inline may not provide much speed benefit.",
+      "parentUuid": "f0c34720_412de253",
+      "revId": "b720088b186533dc65af832da3eaff0233d8dae1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
