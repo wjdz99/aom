@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f0c34720_ec407e3a",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-20T22:06:12Z",
+      "side": 1,
+      "message": "No. We use r + c and coeff_idx as tie breaker.",
+      "parentUuid": "f0c34720_4cd512df",
+      "revId": "2e85b0a88388add0e3054e292a9c890e5430cd52",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0c34720_8cf45a83",
         "filename": "av1/common/scan.c",
         "patchSetId": 12
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "f0c34720_ac3a76ce",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-20T22:06:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0c34720_8cf45a83",
+      "range": {
+        "startLine": 831,
+        "startChar": 40,
+        "endLine": 831,
+        "endChar": 49
+      },
+      "revId": "2e85b0a88388add0e3054e292a9c890e5430cd52",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0c34720_0c538a6b",
         "filename": "av1/common/scan.c",
         "patchSetId": 12
@@ -53,6 +95,30 @@
       "writtenOn": "2016-09-20T21:30:08Z",
       "side": 1,
       "message": "Optional suggestion:\nAlternately, you can store the result of \"~tie_breaker\" in a uint16_t, and you will not need the mask.\n\ne.g. replace the line #830 with:\nconst uint16_t tie_breaker \u003d ~(((r + c) \u003c\u003c COEFF_IDX_BITS) | coeff_idx);\nthen, here you can just write:\nprob[idx] \u003d (prob[idx] \u003c\u003c 16) | tie_breaker;",
+      "range": {
+        "startLine": 833,
+        "startChar": 53,
+        "endLine": 833,
+        "endChar": 65
+      },
+      "revId": "2e85b0a88388add0e3054e292a9c890e5430cd52",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0c34720_0c9aaabd",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-09-20T22:06:12Z",
+      "side": 1,
+      "message": "In your solution,\nit has to be\nprob[idx] \u003d (prob[idx] \u003c\u003c 16) | (mask_16 \u0026 tie_breaker);\nOtherwise, it\u0027s not equivalent.",
+      "parentUuid": "f0c34720_0c538a6b",
       "range": {
         "startLine": 833,
         "startChar": 53,
