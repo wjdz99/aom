@@ -108,12 +108,9 @@ int av1_clpf_frame(const YV12_BUFFER_CONFIG *frame,
           : frame->y_buffer;
   uint8_t *dst_buffer;
 
-#if CONFIG_AOM_HIGHBITDEPTH
-  strength <<= (cm->bit_depth - 8);
-#endif
-
 // Make buffer space for in-place filtering
 #if CONFIG_AOM_HIGHBITDEPTH
+  strength <<= (cm->bit_depth - 8);
   CHECK_MEM_ERROR(cm, cache, aom_malloc(cache_size << !!cm->use_highbitdepth));
   dst_buffer = cm->use_highbitdepth ? CONVERT_TO_BYTEPTR(cache) : cache;
 #else
@@ -160,8 +157,8 @@ int av1_clpf_frame(const YV12_BUFFER_CONFIG *frame,
             ypos = yoff + m * bs;
             if (!cm->mi_grid_visible[(ypos << suby) / MI_SIZE * cm->mi_stride +
                                      (xpos << subx) / MI_SIZE]
-                     ->mbmi.skip) {  // Not skip block
-              // Temporary buffering needed if filtering in-place
+                ->mbmi.skip) {  // Not skip block
+              // Temporary buffering needed for in-place filtering
               if (cache_ptr[cache_idx]) {
 // Copy filtered block back into the frame
 #if CONFIG_AOM_HIGHBITDEPTH
