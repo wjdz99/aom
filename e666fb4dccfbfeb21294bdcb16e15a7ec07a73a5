@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0c34720_ca21e2af",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-20T23:44:00Z",
+      "side": 1,
+      "message": "Not related to this patch, but to be done in a later patch:\nAll these functions without the \u0027av1_\u0027 prefix should be \u0027static\u0027",
+      "range": {
+        "startLine": 747,
+        "startChar": 4,
+        "endLine": 747,
+        "endChar": 17
+      },
+      "revId": "e666fb4dccfbfeb21294bdcb16e15a7ec07a73a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0c34720_ea1e1e67",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-20T23:44:00Z",
+      "side": 1,
+      "message": "this should also be static",
+      "range": {
+        "startLine": 940,
+        "startChar": 5,
+        "endLine": 940,
+        "endChar": 29
+      },
+      "revId": "e666fb4dccfbfeb21294bdcb16e15a7ec07a73a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
