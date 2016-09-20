@@ -48,6 +48,78 @@
     },
     {
       "key": {
+        "uuid": "f0c34720_70678e51",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-20T00:11:04Z",
+      "side": 1,
+      "message": "Given that the decoder knows the number of colors, it will never read any of these invalid (filler) values.",
+      "parentUuid": "4b1e22a7_68c5c351",
+      "range": {
+        "startLine": 409,
+        "startChar": 17,
+        "endLine": 409,
+        "endChar": 20
+      },
+      "revId": "764d1266a67c9364091a432ee959a52115dbb72a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0c34720_f0529e65",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-20T00:11:04Z",
+      "side": 1,
+      "message": "Indeed. Perhaps, we should make all the filler values 0 (because none of the actual values will be 0).",
+      "parentUuid": "4b1e22a7_a8ae9b9f",
+      "range": {
+        "startLine": 409,
+        "startChar": 22,
+        "endLine": 409,
+        "endChar": 45
+      },
+      "revId": "764d1266a67c9364091a432ee959a52115dbb72a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0c34720_30710608",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-20T00:11:04Z",
+      "side": 1,
+      "message": "Given that decoder knows the number of colors, it should never read any of these unused (filler) values.",
+      "parentUuid": "4b1e22a7_68c5c351",
+      "range": {
+        "startLine": 409,
+        "startChar": 17,
+        "endLine": 409,
+        "endChar": 20
+      },
+      "revId": "764d1266a67c9364091a432ee959a52115dbb72a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b1e22a7_c8b5cfe8",
         "filename": "av1/common/entropymode.c",
         "patchSetId": 7
@@ -71,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "f0c34720_9038fa28",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 739,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-20T00:11:04Z",
+      "side": 1,
+      "message": "Yes, I think 16 should be better performance-wise. Let me check.",
+      "parentUuid": "4b1e22a7_c8b5cfe8",
+      "range": {
+        "startLine": 739,
+        "startChar": 47,
+        "endLine": 739,
+        "endChar": 52
+      },
+      "revId": "764d1266a67c9364091a432ee959a52115dbb72a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b1e22a7_8892b753",
         "filename": "av1/common/entropymode.c",
         "patchSetId": 7
@@ -82,6 +178,30 @@
       "writtenOn": "2016-09-09T16:52:20Z",
       "side": 1,
       "message": "Alternatively if we used the weights (1, 4, 6, 2) we could have a 34 entry O(1) LUT.",
+      "range": {
+        "startLine": 740,
+        "startChar": 0,
+        "endLine": 744,
+        "endChar": 5
+      },
+      "revId": "764d1266a67c9364091a432ee959a52115dbb72a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0c34720_f03b7e23",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-20T00:11:04Z",
+      "side": 1,
+      "message": "The weighted sum is actually used for ranking, and we want to give certain weight to certain neighbors. So, arbitrary weights wouldn\u0027t work, unfortunately.\n\nHowever, Hui hasn\u0027t tried alternate weights before, so this can potentially be tuned.",
+      "parentUuid": "4b1e22a7_8892b753",
       "range": {
         "startLine": 740,
         "startChar": 0,
