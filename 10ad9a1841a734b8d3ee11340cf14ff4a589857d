@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b28aa68_5bcad663",
+        "filename": "av1/common/zigzag64.c",
+        "patchSetId": 28
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-09-20T05:00:32Z",
+      "side": 1,
+      "message": "Since AV1 currently does not use 64x64 transform, we can remove 64x64 scan order for PVQ.\nThis also needs redefine the max blocks sizes in odintrin.h",
+      "range": {
+        "startLine": 1,
+        "startChar": 29,
+        "endLine": 1,
+        "endChar": 41
+      },
+      "revId": "10ad9a1841a734b8d3ee11340cf14ff4a589857d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
