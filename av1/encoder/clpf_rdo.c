@@ -135,7 +135,7 @@ int av1_clpf_decision(int k, int l, const YV12_BUFFER_CONFIG *rec,
       int xpos = (l << fb_size_log2) + n * block_size;
       int ypos = (k << fb_size_log2) + m * block_size;
       if (!cm->mi_grid_visible[ypos / MI_SIZE * cm->mi_stride + xpos / MI_SIZE]
-               ->mbmi.skip) {
+          ->mbmi.skip) {
 #if CONFIG_AOM_HIGHBITDEPTH
         if (cm->use_highbitdepth) {
           aom_clpf_detect_hbd(CONVERT_TO_SHORTPTR(rec->y_buffer),
@@ -236,7 +236,7 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
       int ypos = y + m * block_size;
       if (!cm->mi_grid_visible[(ypos << suby) / MI_SIZE * cm->mi_stride +
                                (xpos << subx) / MI_SIZE]
-               ->mbmi.skip) {
+          ->mbmi.skip) {
 #if CONFIG_AOM_HIGHBITDEPTH
         if (cm->use_highbitdepth) {
           aom_clpf_detect_multi_hbd(
@@ -332,6 +332,7 @@ void av1_clpf_test_frame(const YV12_BUFFER_CONFIG *rec,
     for (j = 0; j < 4; j++)
       if ((!c || j) && sums[c][j] < best) best = sums[c][j];
   best &= 15;
-  *best_bs = (best > 3) * (5 + (best < 12) + (best < 8));
+  if (best_bs)
+    *best_bs = (best > 3) * (5 + (best < 12) + (best < 8));
   *best_strength = best ? 1 << ((best - 1) & 3) : 0;
 }
