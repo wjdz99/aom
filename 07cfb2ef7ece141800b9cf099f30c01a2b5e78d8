@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10e1bbe4_3e93c907",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-21T22:38:55Z",
+      "side": 1,
+      "message": "\"const MODE_INFO ...\"",
+      "revId": "07cfb2ef7ece141800b9cf099f30c01a2b5e78d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f018a7be_459d4a0e",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1303,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-21T22:38:55Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 1303,
+        "startChar": 2,
+        "endLine": 1303,
+        "endChar": 11
+      },
+      "revId": "07cfb2ef7ece141800b9cf099f30c01a2b5e78d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "70d2f719_e1d9c6e8",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1344,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-21T22:38:55Z",
+      "side": 1,
+      "message": "I see a large number of \"1 \u003c\u003c (c \u003e\u003e ss_x)\". Should be refactored to a const inside \"for (c \u003d 0 ...\" loop.",
+      "range": {
+        "startLine": 1344,
+        "startChar": 28,
+        "endLine": 1344,
+        "endChar": 44
+      },
+      "revId": "07cfb2ef7ece141800b9cf099f30c01a2b5e78d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f018a7be_25b76e91",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1348,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-21T22:38:55Z",
+      "side": 1,
+      "message": "\"r \u003e\u003e ss_y\" could be refactored to a const too",
+      "range": {
+        "startLine": 1348,
+        "startChar": 30,
+        "endLine": 1348,
+        "endChar": 39
+      },
+      "revId": "07cfb2ef7ece141800b9cf099f30c01a2b5e78d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d011e399_4440ae59",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1355,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-21T22:38:55Z",
+      "side": 1,
+      "message": "\"c \u003e\u003e ss_x\" too",
+      "range": {
+        "startLine": 1355,
+        "startChar": 29,
+        "endLine": 1355,
+        "endChar": 40
+      },
+      "revId": "07cfb2ef7ece141800b9cf099f30c01a2b5e78d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0e38fef_bba7e75b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1336,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-21T22:38:55Z",
+      "side": 1,
+      "message": "... // !CONFIG_PARALLEL_DEBLOCKING",
+      "range": {
+        "startLine": 1336,
+        "startChar": 1,
+        "endLine": 1336,
+        "endChar": 6
+      },
+      "revId": "07cfb2ef7ece141800b9cf099f30c01a2b5e78d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0e38fef_fba16f46",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1360,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-09-21T22:38:55Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 1360,
+        "startChar": 1,
+        "endLine": 1360,
+        "endChar": 6
+      },
+      "revId": "07cfb2ef7ece141800b9cf099f30c01a2b5e78d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
