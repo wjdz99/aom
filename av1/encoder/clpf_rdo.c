@@ -135,7 +135,7 @@ int av1_clpf_decision(int k, int l, const YV12_BUFFER_CONFIG *rec,
       int xpos = (l << fb_size_log2) + n * block_size;
       int ypos = (k << fb_size_log2) + m * block_size;
       if (!cm->mi_grid_visible[ypos / MI_SIZE * cm->mi_stride + xpos / MI_SIZE]
-               ->mbmi.skip) {
+          ->mbmi.skip/* || fb_size_log2 == 7*/) {
 #if CONFIG_AOM_HIGHBITDEPTH
         if (cm->use_highbitdepth) {
           aom_clpf_detect_hbd(CONVERT_TO_SHORTPTR(rec->y_buffer),
@@ -223,9 +223,11 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
                    cm, block_size, fb_size_log2, w2, h2, res, plane);
     }
 
-    res[i][1] = AOMMIN(sum1 + res[i][0], res[i][1]);
-    res[i][2] = AOMMIN(sum2 + res[i][0], res[i][2]);
-    res[i][3] = AOMMIN(sum3 + res[i][0], res[i][3]);
+    if (i > 1||1) {
+      res[i][1] = AOMMIN(sum1 + res[i][0], res[i][1]);
+      res[i][2] = AOMMIN(sum2 + res[i][0], res[i][2]);
+      res[i][3] = AOMMIN(sum3 + res[i][0], res[i][3]);
+    }
     res[i][0] = oldfiltered + filtered;  // Number of signal bits
     return filtered;
   }
@@ -264,7 +266,7 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
     res[c][2] += sum[2];
     res[c][3] += sum[3];
   }
-  return filtered;
+  return filtered || fb_size_log2 == 7;
 }
 
 void av1_clpf_test_frame(const YV12_BUFFER_CONFIG *rec,

@@ -125,7 +125,7 @@ int av1_clpf_frame(const YV12_BUFFER_CONFIG *frame,
   for (k = 0; k < num_fb_ver; k++) {
     for (l = 0; l < num_fb_hor; l++) {
       int h, w;
-      int allskip = 1;
+      int allskip = !(enable_fb_flag && fb_size_log2 == 7);
       const int xoff = l << fb_size_log2;
       const int yoff = k << fb_size_log2;
       for (m = 0; allskip && m < (1 << fb_size_log2) / bs; m++) {
@@ -157,8 +157,8 @@ int av1_clpf_frame(const YV12_BUFFER_CONFIG *frame,
             ypos = yoff + m * bs;
             if (!cm->mi_grid_visible[(ypos << suby) / MI_SIZE * cm->mi_stride +
                                      (xpos << subx) / MI_SIZE]
-                     ->mbmi.skip) {  // Not skip block
-              // Temporary buffering needed if filtering in-place
+                ->mbmi.skip) {// || (enable_fb_flag && fb_size_log2 == 7)) {
+              // Temporary buffering needed for in-place filtering
               if (cache_ptr[cache_idx]) {
 // Copy filtered block back into the frame
 #if CONFIG_AOM_HIGHBITDEPTH
