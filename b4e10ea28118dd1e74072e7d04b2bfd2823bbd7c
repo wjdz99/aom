@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0c34720_211e887b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2016-09-21T16:11:19Z",
+      "side": 1,
+      "message": "this should remain constant in the rd search (?)\n\nwe only need to update the count in the encoding stage.",
+      "revId": "b4e10ea28118dd1e74072e7d04b2bfd2823bbd7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
