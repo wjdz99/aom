@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "f076e782_f8d9ed73",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-09-22T22:14:20Z",
+      "side": 1,
+      "message": "I don\u0027t follow. If each tile group has its own header then shouldn\u0027t each tile group have its own counts and the update costs would remain the same?",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 29
+      },
+      "revId": "f3c83e2255a91f1f0425625684c408953ae1cc01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f076e782_35cc50b2",
         "filename": "av1/common/idct.c",
         "patchSetId": 10
@@ -13,6 +36,24 @@
       "writtenOn": "2016-09-22T21:57:15Z",
       "side": 1,
       "message": "stray change",
+      "revId": "f3c83e2255a91f1f0425625684c408953ae1cc01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f076e782_d83a71f4",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-09-22T22:14:20Z",
+      "side": 1,
+      "message": "Rebase and this will disappear.",
+      "parentUuid": "f076e782_35cc50b2",
       "revId": "f3c83e2255a91f1f0425625684c408953ae1cc01",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -104,6 +145,29 @@
     },
     {
       "key": {
+        "uuid": "f076e782_1807892a",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1913,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-09-22T22:14:20Z",
+      "side": 1,
+      "message": "Do we need this here? I don\u0027t see any floating point or MMX.",
+      "range": {
+        "startLine": 1913,
+        "startChar": 2,
+        "endLine": 1913,
+        "endChar": 24
+      },
+      "revId": "f3c83e2255a91f1f0425625684c408953ae1cc01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f076e782_38ae0588",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 10
@@ -132,6 +196,29 @@
       "writtenOn": "2016-09-22T21:57:15Z",
       "side": 1,
       "message": "Please name these based on what you\u0027re saving. like tile_length_wb",
+      "revId": "f3c83e2255a91f1f0425625684c408953ae1cc01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f076e782_9812b96a",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1943,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-09-22T22:14:20Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 1943,
+        "startChar": 6,
+        "endLine": 1943,
+        "endChar": 28
+      },
       "revId": "f3c83e2255a91f1f0425625684c408953ae1cc01",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
