@@ -1,0 +1,170 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5006d39f_ee57bb29",
+        "filename": "aom_mem/aom_mem.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "This change is mainly to fix window build error. no logic change.",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 1
+      },
+      "revId": "7939bd7b3d7702e9ed5f96b28e9ef4d6112413a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5006d39f_ce175759",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "have to use an internal pointer to get the starting address of the mi_8x8 structure list. only increment the internal temp pointer so the starting address of mi_8x8 won\u0027t be changed inside the function.",
+      "range": {
+        "startLine": 1174,
+        "startChar": 2,
+        "endLine": 1174,
+        "endChar": 3
+      },
+      "revId": "7939bd7b3d7702e9ed5f96b28e9ef4d6112413a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5006d39f_ee033b18",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1205,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "refactor the code to pre-calculate few constants. so we don\u0027t have to recalculate them in the below code. no functional change.",
+      "range": {
+        "startLine": 1205,
+        "startChar": 6,
+        "endLine": 1205,
+        "endChar": 7
+      },
+      "revId": "7939bd7b3d7702e9ed5f96b28e9ef4d6112413a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5006d39f_ae2663c1",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1309,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "since vertical edge filtering and horizontal edge filtering are separated into two function and two stages, in the horizontal edge filtering stage, we have to recalculate the filter mask. the code is similar as what in the vertical edge filtering function.",
+      "range": {
+        "startLine": 1309,
+        "startChar": 2,
+        "endLine": 1309,
+        "endChar": 3
+      },
+      "revId": "7939bd7b3d7702e9ed5f96b28e9ef4d6112413a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5006d39f_ce5ab721",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1624,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "for 422 chroma plane filtering, also need to recalculate the filter level for uv plane when filtering horizontal edge.",
+      "range": {
+        "startLine": 1623,
+        "startChar": 0,
+        "endLine": 1624,
+        "endChar": 3
+      },
+      "revId": "7939bd7b3d7702e9ed5f96b28e9ef4d6112413a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5006d39f_ae61c30c",
+        "filename": "av1/common/loopfilter.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "function header change. the reason is explained in the function body.",
+      "revId": "7939bd7b3d7702e9ed5f96b28e9ef4d6112413a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5006d39f_4e524730",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "main change in this file is caused by the loop filter function header change.",
+      "revId": "7939bd7b3d7702e9ed5f96b28e9ef4d6112413a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5006d39f_ee40db5e",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "reason for the change is explained in the code comment",
+      "revId": "7939bd7b3d7702e9ed5f96b28e9ef4d6112413a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
