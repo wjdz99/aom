@@ -22,6 +22,30 @@
       "revId": "9d3d81d7aa11123b373c0c777f4449ab5467b16e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f076e782_5ee004bc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "will remove it.\nyour comment in patch 4 for the const usage will cause build error with some build configurations. I submit it in patch 5 or 6 but got build failure, so have to revert it. other comment about refactoring the code has been implemented.",
+      "parentUuid": "f076e782_aab63391",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 49
+      },
+      "revId": "9d3d81d7aa11123b373c0c777f4449ab5467b16e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
