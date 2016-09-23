@@ -274,6 +274,7 @@ EXPERIMENT_LIST="
     adapt_scan
     bitstream_debug
     tile_groups
+    ec_adapt
 "
 CONFIG_LIST="
     dependency_tracking
