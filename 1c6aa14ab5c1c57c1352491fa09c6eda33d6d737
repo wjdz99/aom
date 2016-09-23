@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5006d39f_cb086935",
+        "filename": "aom_mem/aom_mem.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "this change is mainly to fix the windows build. no logic changes",
+      "range": {
+        "startLine": 21,
+        "startChar": 7,
+        "endLine": 21,
+        "endChar": 13
+      },
+      "revId": "1c6aa14ab5c1c57c1352491fa09c6eda33d6d737",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5006d39f_eb2c4da5",
+        "filename": "av1/common/loopfilter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "this is the function header change. the reason will be explained in the actual function body.",
+      "revId": "1c6aa14ab5c1c57c1352491fa09c6eda33d6d737",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5006d39f_6b417d3c",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "reason for the change is added in the code comment",
+      "revId": "1c6aa14ab5c1c57c1352491fa09c6eda33d6d737",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
