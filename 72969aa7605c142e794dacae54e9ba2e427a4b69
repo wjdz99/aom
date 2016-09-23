@@ -19,6 +19,47 @@
     },
     {
       "key": {
+        "uuid": "b6a5471d_2b8059a6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d45#c2\nhttps://bugs.chromium.org/p/aomedia/issues/detail?id\u003d53#c1\nshort description is provided in each individual file at where the code is changed.",
+      "parentUuid": "360a375e_9e7ca1c0",
+      "revId": "72969aa7605c142e794dacae54e9ba2e427a4b69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360dd72c_7728b0a5",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "There is a bug in the original code on the left side. the pointer value mi_8x8 is modified inside the function. if the vertical edge filtering and horizontal edge filtering are done together for each SB, it is fine. but since we want to separate the loop filtering into two stages (vertical edge filtering first for the whole frame followed by horizontal edge filtering for the whole frame), then for each stage, we need to make sure when calling av1_filter_block_plane_non420_ver and av1_filter_block_plane_non420_hor function, the same mi_8x8 pointer value is used. if the vertical filtering stage internally changes the mi_8x8 pointer value, horizontal filter stage will get wrong mi structures for each SB. so here the change is mainly to assign the input mi_8x8 pointer value to a local variable tmp_mi, and we only modify the local variable inside the vertical filtering function and horizontal filtering function.",
+      "range": {
+        "startLine": 1174,
+        "startChar": 2,
+        "endLine": 1174,
+        "endChar": 30
+      },
+      "revId": "72969aa7605c142e794dacae54e9ba2e427a4b69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "360a375e_1eec3188",
         "filename": "av1/common/loopfilter.c",
         "patchSetId": 1
@@ -35,6 +76,52 @@
         "startChar": 0,
         "endLine": 1290,
         "endChar": 12
+      },
+      "revId": "72969aa7605c142e794dacae54e9ba2e427a4b69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360dd72c_d701bc12",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1306,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "the original code has a bug for 422 case. for each SB, we need to calculate the filtering mask. if vertical filtering and horizontal filter are done together for each SB, then the mask only need to be calculated once. however, since we want to separate the vertical edge filtering and horizontal filtering into two stage, then we need to calculate the mask for each SB in both stages. The original code only calculate the mask for vertical edge filtering stage, for horizontal filtering stage, the mask is always zero, so horizontal edge in uv plane is not filtered. the code change inside this function is to recalculate the mask for each SB in the horizontal filtering function using the same code as in the vertical filtering function.",
+      "range": {
+        "startLine": 1306,
+        "startChar": 1,
+        "endLine": 1306,
+        "endChar": 37
+      },
+      "revId": "72969aa7605c142e794dacae54e9ba2e427a4b69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360dd72c_97fb440d",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1306,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "the original code has a bug for 422 case. for each SB, we need to calculate the filtering mask. if vertical filtering and horizontal filter are done together for each SB, then the mask only need to be calculated once. however, since we want to separate the vertical edge filtering and horizontal filtering into two stage, then we need to calculate the mask for each SB in both stages. The original code only calculate the mask for vertical edge filtering stage, for horizontal filtering stage, the mask is always zero, so horizontal edge in uv plane is not filtered. the code change inside this function is to recalculate the mask for each SB in the horizontal filtering function using the same code as in the vertical filtering function.",
+      "range": {
+        "startLine": 1306,
+        "startChar": 1,
+        "endLine": 1306,
+        "endChar": 37
       },
       "revId": "72969aa7605c142e794dacae54e9ba2e427a4b69",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
@@ -59,6 +146,23 @@
         "endLine": 1390,
         "endChar": 1
       },
+      "revId": "72969aa7605c142e794dacae54e9ba2e427a4b69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "360dd72c_17ecd4b5",
+        "filename": "av1/common/loopfilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-09-23T14:39:09Z",
+      "side": 1,
+      "message": "this is the function header change. the reason will be explained in the actual function body.",
       "revId": "72969aa7605c142e794dacae54e9ba2e427a4b69",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
