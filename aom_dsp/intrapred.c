@@ -43,7 +43,6 @@ static INLINE void d207_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
       dst[r * stride + c] = dst[(r + 1) * stride + c - 2];
 }
 
-#if CONFIG_MISC_FIXES
 static INLINE void d207e_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
                                    const uint8_t *above, const uint8_t *left) {
   int r, c;
@@ -58,7 +57,6 @@ static INLINE void d207e_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
     dst += stride;
   }
 }
-#endif  // CONFIG_MISC_FIXES
 
 static INLINE void d63_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
                                  const uint8_t *above, const uint8_t *left) {
@@ -77,7 +75,6 @@ static INLINE void d63_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
   }
 }
 
-#if CONFIG_MISC_FIXES
 static INLINE void d63e_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
                                   const uint8_t *above, const uint8_t *left) {
   int r, c;
@@ -91,7 +88,6 @@ static INLINE void d63e_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
     dst += stride;
   }
 }
-#endif  // CONFIG_MISC_FIXES
 
 static INLINE void d45_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
                                  const uint8_t *above, const uint8_t *left) {
@@ -112,7 +108,6 @@ static INLINE void d45_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
   }
 }
 
-#if CONFIG_MISC_FIXES
 static INLINE void d45e_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
                                   const uint8_t *above, const uint8_t *left) {
   int r, c;
@@ -125,7 +120,6 @@ static INLINE void d45e_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
     dst += stride;
   }
 }
-#endif  // CONFIG_MISC_FIXES
 
 static INLINE void d117_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
                                   const uint8_t *above, const uint8_t *left) {
@@ -309,8 +303,8 @@ void aom_ve_predictor_2x2_c(uint8_t *dst, ptrdiff_t stride,
   memcpy(dst + stride * 1, dst, 2);
 }
 
-void aom_d207_predictor_2x2_c(uint8_t *dst, ptrdiff_t stride,
-                              const uint8_t *above, const uint8_t *left) {
+void aom_predictor_2x2_c(uint8_t *dst, ptrdiff_t stride, const uint8_t *above,
+                         const uint8_t *left) {
   const int I = left[0];
   const int J = left[1];
   const int K = left[2];
@@ -652,7 +646,6 @@ static INLINE void highbd_d207_predictor(uint16_t *dst, ptrdiff_t stride,
   }
 }
 
-#if CONFIG_MISC_FIXES
 static INLINE void highbd_d207e_predictor(uint16_t *dst, ptrdiff_t stride,
                                           int bs, const uint16_t *above,
                                           const uint16_t *left, int bd) {
@@ -669,7 +662,6 @@ static INLINE void highbd_d207e_predictor(uint16_t *dst, ptrdiff_t stride,
     dst += stride;
   }
 }
-#endif  // CONFIG_MISC_FIXES
 
 static INLINE void highbd_d63_predictor(uint16_t *dst, ptrdiff_t stride, int bs,
                                         const uint16_t *above,
@@ -705,7 +697,6 @@ static INLINE void highbd_d45_predictor(uint16_t *dst, ptrdiff_t stride, int bs,
   }
 }
 
-#if CONFIG_MISC_FIXES
 static INLINE void highbd_d45e_predictor(uint16_t *dst, ptrdiff_t stride,
                                          int bs, const uint16_t *above,
                                          const uint16_t *left, int bd) {
@@ -720,7 +711,6 @@ static INLINE void highbd_d45e_predictor(uint16_t *dst, ptrdiff_t stride,
     dst += stride;
   }
 }
-#endif  // CONFIG_MISC_FIXES
 
 static INLINE void highbd_d117_predictor(uint16_t *dst, ptrdiff_t stride,
                                          int bs, const uint16_t *above,
@@ -938,14 +928,9 @@ static INLINE void highbd_dc_predictor(uint16_t *dst, ptrdiff_t stride, int bs,
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
 /* clang-format off */
-intra_pred_above_4x4(d207)    // NOLINT
-intra_pred_above_4x4(d63)     // NOLINT
-intra_pred_above_4x4(d45)     // NOLINT
-#if CONFIG_MISC_FIXES
 intra_pred_allsizes(d207e)    // NOLINT
 intra_pred_allsizes(d63e)     // NOLINT
 intra_pred_above_4x4(d45e)    // NOLINT
-#endif
 intra_pred_above_4x4(d117)    // NOLINT
 intra_pred_above_4x4(d135)    // NOLINT
 intra_pred_above_4x4(d153)    // NOLINT
