@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "850f2be2_99929bae",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-27T20:58:24Z",
+      "side": 1,
+      "message": "If sizex \u003d\u003d 8, then bs will also be 8.  But in the last else branch the stride must be bs to match dstride given to clpf_block.  Technically, it could be sizex in both places, but that would break the alignment.",
+      "parentUuid": "25d67f37_eb77b129",
+      "range": {
+        "startLine": 204,
+        "startChar": 65,
+        "endLine": 204,
+        "endChar": 67
+      },
+      "revId": "86698296ac0f390896b1857e7b83278ce0e9ff75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "25d67f37_90eaacc6",
         "filename": "av1/common/clpf_simd.h",
         "patchSetId": 3
@@ -36,6 +60,24 @@
       "writtenOn": "2016-09-27T17:10:20Z",
       "side": 1,
       "message": "How does this prevent having left and right clipping? The else conditions are separate and the source (o) would be identical in both cases. It seems like it should work?",
+      "revId": "86698296ac0f390896b1857e7b83278ce0e9ff75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "850f2be2_f987576a",
+        "filename": "av1/common/clpf_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-27T20:58:24Z",
+      "side": 1,
+      "message": "You\u0027re right.  I somehow imagined that if we do left clipping and then want to do right clipping, the right clipping would depend on the result of the left clipping, and \"o\" couldn\u0027t be used for the right clipping.  That\u0027s wrong.",
+      "parentUuid": "25d67f37_90eaacc6",
       "revId": "86698296ac0f390896b1857e7b83278ce0e9ff75",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "850f2be2_d98c1392",
+        "filename": "av1/common/clpf_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-27T20:58:24Z",
+      "side": 1,
+      "message": "Correct.  If the width is, say, 258, the caller will now pass sizex \u003d 2 along the right edge.  Likewise for sizey.\n\nIn clpf.c: sizex \u003d AOMMIN(width - xpos, bs);\n\nsizex and sizey used to be bs always.",
+      "parentUuid": "25d67f37_10bd7cd4",
+      "revId": "86698296ac0f390896b1857e7b83278ce0e9ff75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "25d67f37_50bbf4db",
         "filename": "av1/common/clpf_simd.h",
         "patchSetId": 3
@@ -70,6 +130,24 @@
       "writtenOn": "2016-09-27T17:10:20Z",
       "side": 1,
       "message": "\"block heights not a multiple of 4 if the block width is 4\" is not an issue here?",
+      "revId": "86698296ac0f390896b1857e7b83278ce0e9ff75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c55203c6_23c2aa98",
+        "filename": "av1/common/clpf_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-27T20:58:24Z",
+      "side": 1,
+      "message": "For hdb we process at most two lines at once (the resolution of the line loop), so the test should be \"not a muliple of 2 if the block with is 4\".  So \"not a multiple of 4\" is not an issue, but \"not a mulitple of 2\" is if the height is 258 and chroma height is 129!",
+      "parentUuid": "25d67f37_50bbf4db",
       "revId": "86698296ac0f390896b1857e7b83278ce0e9ff75",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
