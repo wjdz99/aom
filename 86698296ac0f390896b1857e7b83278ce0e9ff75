@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25d67f37_eb77b129",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-27T17:10:20Z",
+      "side": 1,
+      "message": "Should these be using bs or sizex?",
+      "range": {
+        "startLine": 204,
+        "startChar": 65,
+        "endLine": 204,
+        "endChar": 67
+      },
+      "revId": "86698296ac0f390896b1857e7b83278ce0e9ff75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25d67f37_90eaacc6",
+        "filename": "av1/common/clpf_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-27T17:10:20Z",
+      "side": 1,
+      "message": "How does this prevent having left and right clipping? The else conditions are separate and the source (o) would be identical in both cases. It seems like it should work?",
+      "revId": "86698296ac0f390896b1857e7b83278ce0e9ff75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25d67f37_10bd7cd4",
+        "filename": "av1/common/clpf_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-27T17:10:20Z",
+      "side": 1,
+      "message": "Dropped the x/y0 + 4 \u003e height/width conditions? No longer an issue?",
+      "revId": "86698296ac0f390896b1857e7b83278ce0e9ff75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25d67f37_50bbf4db",
+        "filename": "av1/common/clpf_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2016-09-27T17:10:20Z",
+      "side": 1,
+      "message": "\"block heights not a multiple of 4 if the block width is 4\" is not an issue here?",
+      "revId": "86698296ac0f390896b1857e7b83278ce0e9ff75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
