@@ -16,6 +16,24 @@
       "revId": "fb42c04853d6c89b70adcebc1d57beac57f2ad7a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c54be3fb_9b7c2b10",
+        "filename": "av1/common/clpf_simd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-09-27T04:36:25Z",
+      "side": 1,
+      "message": "I had to add the width \u003c 16 because the change of clipping strategy means that clipping both left and right in the same 8x8 block wont work (it previously did work).",
+      "parentUuid": "258f5f3f_8ebadb27",
+      "revId": "fb42c04853d6c89b70adcebc1d57beac57f2ad7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
