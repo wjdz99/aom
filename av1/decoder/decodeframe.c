@@ -850,8 +850,7 @@ static void setup_dering(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 
 static INLINE int read_delta_q(struct aom_read_bit_buffer *rb) {
   return aom_rb_read_bit(rb)
-             ? aom_rb_read_inv_signed_literal(rb, CONFIG_MISC_FIXES ? 6 : 4)
-             : 0;
+             ? aom_rb_read_inv_signed_literal(rb, 6) : 0;
 }
 
 static void setup_quantization(AV1_COMMON *const cm,
