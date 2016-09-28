@@ -1279,9 +1279,26 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
                                        int64_t *distortion, int *skippable,
                                        BLOCK_SIZE bsize, int mode_cost,
                                        int64_t best_rd) {
+  MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &x->e_mbd.mi[0]->mbmi;
   const int max_angle_delta =
       av1_max_angle_delta_y[max_txsize_lookup[bsize]][mbmi->mode];
+  const struct macroblockd_plane *const pd = &xd->plane[0];
+  const TX_SIZE tx_size =
+      AOMMIN(max_txsize_lookup[bsize],
+             tx_mode_to_biggest_tx_size[cpi->common.tx_mode]);
+  const int step = tx_size_1d_in_unit[tx_size];
+  const int max_blocks_wide =
+      num_4x4_blocks_wide_lookup[bsize] + (xd->mb_to_right_edge >= 0 ? 0
+          : xd->mb_to_right_edge >> (5 + pd->subsampling_x));
+  const int max_blocks_high =
+      num_4x4_blocks_high_lookup[bsize] + (xd->mb_to_bottom_edge >= 0 ? 0
+          : xd->mb_to_bottom_edge >> (5 + pd->subsampling_y));
+  uint8_t *const dst = pd->dst.buf;
+  const uint8_t *const src = x->plane[0].src.buf;
+  const int dst_stride = pd->dst.stride;
+  const int src_stride = x->plane[0].src.stride;
+  unsigned int best_sse = UINT32_MAX;
   int i;
   int8_t angle_delta, best_angle_delta = 0;
   int64_t this_rd, best_rd_in, rd_cost[2 * (MAX_ANGLE_DELTA + 2)];
@@ -1293,9 +1310,33 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   for (angle_delta = 0; angle_delta <= MAX_ANGLE_DELTA; angle_delta += 2) {
     if (angle_delta > max_angle_delta) continue;
     for (i = 0; i < 2; ++i) {
-      best_rd_in = (best_rd == INT64_MAX)
-                       ? INT64_MAX
-                       : (best_rd + (best_rd >> ((angle_delta == 0) ? 3 : 5)));
+        int row, col;
+        unsigned int this_sse = 0;
+
+        // Intra prediction.
+        mbmi->intra_angle_delta[0] = (1 - 2 * i) * angle_delta;
+        for (row = 0; row < max_blocks_high; row += step) {
+          for (col = 0; col < max_blocks_wide; col += step) {
+            uint8_t *const this_dst = &dst[4 * row * dst_stride + 4 * col];
+            av1_predict_intra_block(
+                xd, pd->n4_wl, pd->n4_hl, tx_size, mbmi->mode, this_dst,
+                dst_stride, this_dst, dst_stride, col, row, 0);
+          }
+        }
+
+        // Skip RD search if SSE is too large.
+        // Note we do not use this technique for angle search of UV blocks.
+        // For UV, the RD search is much lighter because tx_size and tx_type
+        // are pre-determined for UV blocks.
+        cpi->fn_ptr[bsize].vf(src, src_stride, dst, dst_stride, &this_sse);
+        if (this_sse < best_sse)
+          best_sse = this_sse;
+        else if (this_sse > best_sse + (best_sse >> 4))
+          continue;
+
+      best_rd_in =
+          (best_rd == INT64_MAX) ? INT64_MAX
+              : (best_rd + (best_rd >> ((angle_delta == 0) ? 3 : 5)));
       this_rd = pick_intra_angle_routine_sby(
           cpi, x, (1 - 2 * i) * angle_delta, max_angle_delta, rate,
           rate_tokenonly, distortion, skippable, &best_angle_delta,
