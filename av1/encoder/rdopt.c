@@ -239,8 +239,7 @@ static const REF_DEFINITION av1_ref_order[MAX_REFS] = {
 
 static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
                             MACROBLOCK *x, MACROBLOCKD *xd, int *out_rate_sum,
-                            int64_t *out_dist_sum, int *skip_txfm_sb,
-                            int64_t *skip_sse_sb) {
+                            int64_t *out_dist_sum) {
   // Note our transform coeffs are 8 times an orthogonal transform.
   // Hence quantizer step is also 8 times. To get effective quantizer
   // we need to divide by 8 before sending to modeling function.
@@ -249,7 +248,6 @@ static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
 
   int64_t rate_sum = 0;
   int64_t dist_sum = 0;
-  int64_t total_sse = 0;
   const int dequant_shift =
 #if CONFIG_AOM_HIGHBITDEPTH
       (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ? xd->bd - 5 :
@@ -274,8 +272,6 @@ static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
 
     if (plane == 0) x->pred_sse[ref] = sse;
 
-    total_sse += sse;
-
     // Fast approximate the modelling function.
     if (cpi->sf.simple_model_rd_from_var) {
       const int64_t square_error = sse;
@@ -296,8 +292,6 @@ static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
     dist_sum += dist;
   }
 
-  *skip_txfm_sb = total_sse == 0;
-  *skip_sse_sb = total_sse << 4;
   *out_rate_sum = (int)rate_sum;
   *out_dist_sum = dist_sum << 4;
 }
@@ -3421,8 +3415,6 @@ static int64_t handle_inter_mode(
                 0x1
           : 0;
 
-  int skip_txfm_sb = 0;
-  int64_t skip_sse_sb = INT64_MAX;
   int64_t distortion_y = 0, distortion_uv = 0;
   int16_t mode_ctx = mbmi_ext->mode_context[refs[0]];
 #if CONFIG_MOTION_VAR
@@ -3602,8 +3594,7 @@ static int64_t handle_inter_mode(
   mbmi->interp_filter = assign_filter == SWITCHABLE ? EIGHTTAP : assign_filter;
   rs = av1_get_switchable_rate(cpi, xd);
   av1_build_inter_predictors_sb(xd, mi_row, mi_col, bsize);
-  model_rd_for_sb(cpi, bsize, x, xd, &tmp_rate, &tmp_dist, &skip_txfm_sb,
-                  &skip_sse_sb);
+  model_rd_for_sb(cpi, bsize, x, xd, &tmp_rate, &tmp_dist);
   rd = RDCOST(x->rdmult, x->rddiv, rs + tmp_rate, tmp_dist);
 
   if (assign_filter == SWITCHABLE) {
@@ -3613,22 +3604,17 @@ static int64_t handle_inter_mode(
       int best_in_temp = 0;
       restore_dst_buf(xd, tmp_dst, tmp_dst_stride);
       for (i = EIGHTTAP + 1; i < SWITCHABLE_FILTERS; ++i) {
-        int tmp_skip_sb = 0;
-        int64_t tmp_skip_sse = INT64_MAX;
         int64_t tmp_rd;
         int tmp_rs;
         mbmi->interp_filter = i;
         tmp_rs = av1_get_switchable_rate(cpi, xd);
         av1_build_inter_predictors_sb(xd, mi_row, mi_col, bsize);
-        model_rd_for_sb(cpi, bsize, x, xd, &tmp_rate, &tmp_dist, &tmp_skip_sb,
-                        &tmp_skip_sse);
+        model_rd_for_sb(cpi, bsize, x, xd, &tmp_rate, &tmp_dist);
         tmp_rd = RDCOST(x->rdmult, x->rddiv, tmp_rs + tmp_rate, tmp_dist);
 
         if (tmp_rd < rd) {
           rd = tmp_rd;
           best_filter = mbmi->interp_filter;
-          skip_txfm_sb = tmp_skip_sb;
-          skip_sse_sb = tmp_skip_sse;
           best_in_temp = !best_in_temp;
           if (best_in_temp) {
             restore_dst_buf(xd, orig_dst, orig_dst_stride);
@@ -3713,8 +3699,7 @@ static int64_t handle_inter_mode(
       av1_build_obmc_inter_prediction(cm, xd, mi_row, mi_col, above_pred_buf,
                                       above_pred_stride, left_pred_buf,
                                       left_pred_stride);
-      model_rd_for_sb(cpi, bsize, x, xd, &tmp_rate, &tmp_dist, &skip_txfm_sb,
-                      &skip_sse_sb);
+      model_rd_for_sb(cpi, bsize, x, xd, &tmp_rate, &tmp_dist);
     }
 
     x->skip = 0;
@@ -3725,7 +3710,7 @@ static int64_t handle_inter_mode(
     *distortion = 0;
 #endif  // CONFIG_MOTION_VAR
 
-    if (!skip_txfm_sb) {
+    {
       int skippable_y, skippable_uv;
       int64_t sseuv = INT64_MAX;
       int64_t rdcosty = INT64_MAX;
@@ -3799,17 +3784,6 @@ static int64_t handle_inter_mode(
       }
       *disable_skip = 0;
 #endif  // CONFIG_MOTION_VAR
-    } else {
-      x->skip = 1;
-      *disable_skip = 1;
-#if CONFIG_MOTION_VAR
-      mbmi->skip = 0;
-#endif  // CONFIG_MOTION_VAR
-
-      // The cost of skip bit needs to be added.
-      *rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd), 1);
-
-      *distortion = skip_sse_sb;
     }
 
 #if CONFIG_MOTION_VAR
@@ -4875,7 +4849,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     mbmi->uv_mode = DC_PRED;
     mbmi->ref_frame[0] = INTRA_FRAME;
     mbmi->ref_frame[1] = NONE;
-    memset(x->skip_txfm, SKIP_TXFM_NONE, sizeof(x->skip_txfm));
     palette_mode_info.palette_size[0] = 0;
     rate_overhead = rd_pick_palette_intra_sby(
         cpi, x, bsize, palette_ctx, cpi->mbmode_cost[DC_PRED],
