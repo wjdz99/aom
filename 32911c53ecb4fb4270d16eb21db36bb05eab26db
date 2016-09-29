@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "826561f7_83dd326a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-09-29T23:29:15Z",
+      "side": 0,
+      "message": "Oops, is this currently being used by handle_inter_mode(), to skip a block?",
+      "range": {
+        "startLine": 299,
+        "startChar": 32,
+        "endLine": 299,
+        "endChar": 33
+      },
+      "revId": "32911c53ecb4fb4270d16eb21db36bb05eab26db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "826561f7_63e23e24",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3802,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-09-29T23:29:15Z",
+      "side": 0,
+      "message": "Maybe possible, this else block is active...",
+      "range": {
+        "startLine": 3802,
+        "startChar": 11,
+        "endLine": 3802,
+        "endChar": 12
+      },
+      "revId": "32911c53ecb4fb4270d16eb21db36bb05eab26db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
