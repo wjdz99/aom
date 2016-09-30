@@ -109,6 +109,7 @@ struct macroblock {
   int *nmvcost_hp[NMV_CONTEXTS][2];
   int **mv_cost_stack[NMV_CONTEXTS];
   int *nmvjointsadcost;
+  int zero_rmv_cost[NMV_CONTEXTS][2];
 #else
   int nmvjointcost[MV_JOINTS];
   int *nmvcost[2];

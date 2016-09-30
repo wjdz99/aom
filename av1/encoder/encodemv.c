@@ -180,13 +180,18 @@ void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
                          nmv_context_counts *const nmv_counts) {
   int i, j;
 #if CONFIG_REF_MV
+#if CONFIG_TILE_GROUPS
+  const int probwt = cm->num_tg;
+#else
+  const int probwt = 1;
+#endif  // CONFIG_TILE_GROPUS
   int nmv_ctx = 0;
   for (nmv_ctx = 0; nmv_ctx < NMV_CONTEXTS; ++nmv_ctx) {
     nmv_context *const mvc = &cm->fc->nmvc[nmv_ctx];
     nmv_context_counts *const counts = &nmv_counts[nmv_ctx];
     write_mv_update(av1_mv_joint_tree, mvc->joints, counts->joints, MV_JOINTS,
                     w);
-
+    av1_cond_prob_diff_update(w, &mvc->zero_rmv, counts->zero_rmv, probwt);
     for (i = 0; i < 2; ++i) {
       nmv_component *comp = &mvc->comps[i];
       nmv_component_counts *comp_counts = &counts->comps[i];
@@ -265,11 +270,22 @@ void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
 #endif
 }
 
-void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
-                   const nmv_context *mvctx, int usehp) {
+void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, int is_compound,
+                   const MV *ref, const nmv_context *mvctx, int usehp) {
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
   const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
   usehp = usehp && av1_use_mv_hp(ref);
+
+#if CONFIG_REF_MV
+  if (is_compound) {
+    aom_write(w, (j == MV_JOINT_ZERO), mvctx->zero_rmv);
+    if (j == MV_JOINT_ZERO) return;
+  } else {
+    if (j == MV_JOINT_ZERO) assert(0);
+  }
+#else
+  (void)is_compound;
+#endif  // CONFIG_REF_MV
 
 #if CONFIG_DAALA_EC
   aom_write_symbol(w, j, mvctx->joint_cdf, MV_JOINTS);
