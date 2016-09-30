@@ -903,7 +903,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
                                         mbmi->ref_mv_idx);
               const nmv_context *nmvc = &cm->fc->nmvc[nmv_ctx];
 #endif
-              av1_encode_mv(cpi, w, &mi->bmi[j].as_mv[ref].as_mv,
+              av1_encode_mv(cpi, w, &mi->bmi[j].as_mv[ref].as_mv, is_compound,
                             &mbmi_ext->ref_mvs[mbmi->ref_frame[ref]][0].as_mv,
                             nmvc, allow_hp);
             }
@@ -922,8 +922,8 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
           const nmv_context *nmvc = &cm->fc->nmvc[nmv_ctx];
 #endif
           ref_mv = mbmi_ext->ref_mvs[mbmi->ref_frame[ref]][0];
-          av1_encode_mv(cpi, w, &mbmi->mv[ref].as_mv, &ref_mv.as_mv, nmvc,
-                        allow_hp);
+          av1_encode_mv(cpi, w, &mbmi->mv[ref].as_mv, is_compound,
+                        &ref_mv.as_mv, nmvc, allow_hp);
         }
       }
     }

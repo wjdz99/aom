@@ -42,7 +42,12 @@ const aom_tree_index av1_mv_fp_tree[TREE_SIZE(MV_FP_SIZE)] = { -0, 2,  -1,
                                                                4,  -2, -3 };
 
 static const nmv_context default_nmv_context = {
+#if CONFIG_REF_MV
+  { 1, 64, 96 },
+  128,
+#else
   { 32, 64, 96 },  // joints
+#endif
 #if CONFIG_DAALA_EC
   { 0, 0, 0, 0 },  // joint_cdf is computed from joints in av1_init_mv_probs()
 #endif
@@ -59,7 +64,7 @@ static const nmv_context default_nmv_context = {
         { 64, 96, 64 },                                        // fp
 #if CONFIG_DAALA_EC
         { { 0 }, { 0 } },  // class0_fp_cdf is computed in av1_init_mv_probs()
-        { 0 },             // fp_cdf is computed from fp in av1_init_mv_probs()
+        { 0 },  // fp_cdf is computed from fp in av1_init_mv_probs()
 #endif
         160,  // class0_hp bit
         128,  // hp
@@ -77,7 +82,7 @@ static const nmv_context default_nmv_context = {
         { 64, 96, 64 },                                        // fp
 #if CONFIG_DAALA_EC
         { { 0 }, { 0 } },  // class0_fp_cdf is computed in av1_init_mv_probs()
-        { 0 },             // fp_cdf is computed from fp in av1_init_mv_probs()
+        { 0 },  // fp_cdf is computed from fp in av1_init_mv_probs()
 #endif
         160,  // class0_hp bit
         128,  // hp
@@ -175,6 +180,10 @@ static void inc_mv_component(int v, nmv_component_counts *comp_counts, int incr,
 void av1_inc_mv(const MV *mv, nmv_context_counts *counts, const int usehp) {
   if (counts != NULL) {
     const MV_JOINT_TYPE j = av1_get_mv_joint(mv);
+#if CONFIG_REF_MV
+    ++counts->zero_rmv[j == MV_JOINT_ZERO];
+    if (j == MV_JOINT_ZERO) return;
+#endif
     ++counts->joints[j];
 
     if (mv_joint_vertical(j))
@@ -197,6 +206,7 @@ void av1_adapt_mv_probs(AV1_COMMON *cm, int allow_hp) {
 
     aom_tree_merge_probs(av1_mv_joint_tree, pre_fc->joints, counts->joints,
                          fc->joints);
+    fc->zero_rmv = mode_mv_merge_probs(pre_fc->zero_rmv, counts->zero_rmv);
 
     for (i = 0; i < 2; ++i) {
       nmv_component *comp = &fc->comps[i];

@@ -102,6 +102,9 @@ typedef struct {
 
 typedef struct {
   aom_prob joints[MV_JOINTS - 1];
+#if CONFIG_REF_MV
+  aom_prob zero_rmv;
+#endif
 #if CONFIG_DAALA_EC
   aom_cdf_prob joint_cdf[MV_JOINTS];
 #endif
@@ -131,6 +134,9 @@ typedef struct {
 
 typedef struct {
   unsigned int joints[MV_JOINTS];
+#if CONFIG_REF_MV
+  unsigned int zero_rmv[2];
+#endif
   nmv_component_counts comps[2];
 } nmv_context_counts;
 
