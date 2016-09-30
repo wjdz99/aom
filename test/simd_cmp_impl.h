@@ -438,6 +438,8 @@ int CompareSimd2Args(const void *store, const void *load1, const void *load2,
   return memcmp(ref_d, d, sizeof(CRet));
 }
 
+}  // namespace
+
 template <typename CRet, typename CArg>
 void TestSimd1Arg(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
                   const char *name) {
@@ -612,5 +614,4 @@ template void TestSimd2Args<int64_t, c_v64, c_v64>(uint32_t, uint32_t, uint32_t,
 template void TestSimd2Args<uint32_t, c_v64, c_v64>(uint32_t, uint32_t,
                                                     uint32_t, const char *);
 
-}  // namespace
 }  // namespace SIMD_NAMESPACE
