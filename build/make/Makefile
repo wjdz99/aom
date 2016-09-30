@@ -141,6 +141,20 @@ $(BUILD_PFX)%_avx2.c.d: CFLAGS += -mavx2 $(STACKREALIGN)
 $(BUILD_PFX)%_avx2.c.o: CFLAGS += -mavx2 $(STACKREALIGN)
 $(BUILD_PFX)%av1_reconintra.c.d: CFLAGS += $(STACKREALIGN)
 $(BUILD_PFX)%av1_reconintra.c.o: CFLAGS += $(STACKREALIGN)
+$(BUILD_PFX)%_mmx.cc.d: CXXFLAGS += -mmmx
+$(BUILD_PFX)%_mmx.cc.o: CXXFLAGS += -mmmx
+$(BUILD_PFX)%_sse2.cc.d: CXXFLAGS += -msse2 $(STACKREALIGN)
+$(BUILD_PFX)%_sse2.cc.o: CXXFLAGS += -msse2 $(STACKREALIGN)
+$(BUILD_PFX)%_sse3.cc.d: CXXFLAGS += -msse3 $(STACKREALIGN)
+$(BUILD_PFX)%_sse3.cc.o: CXXFLAGS += -msse3 $(STACKREALIGN)
+$(BUILD_PFX)%_ssse3.cc.d: CXXFLAGS += -mssse3 $(STACKREALIGN)
+$(BUILD_PFX)%_ssse3.cc.o: CXXFLAGS += -mssse3 $(STACKREALIGN)
+$(BUILD_PFX)%_sse4.cc.d: CXXFLAGS += -msse4.1 $(STACKREALIGN)
+$(BUILD_PFX)%_sse4.cc.o: CXXFLAGS += -msse4.1 $(STACKREALIGN)
+$(BUILD_PFX)%_avx.cc.d: CXXFLAGS += -mavx $(STACKREALIGN)
+$(BUILD_PFX)%_avx.cc.o: CXXFLAGS += -mavx $(STACKREALIGN)
+$(BUILD_PFX)%_avx2.cc.d: CXXFLAGS += -mavx2 $(STACKREALIGN)
+$(BUILD_PFX)%_avx2.cc.o: CXXFLAGS += -mavx2 $(STACKREALIGN)
 
 $(BUILD_PFX)%.c.d: %.c
 	$(if $(quiet),@echo "    [DEP] $@")

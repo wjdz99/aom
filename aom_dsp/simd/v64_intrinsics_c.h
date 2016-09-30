@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "./aom_config.h"
+#include "aom_dsp/aom_simd_inline.h"
 
 extern const int simd_check;
 
