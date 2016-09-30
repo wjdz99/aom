@@ -9,24 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef _AOM_SIMD_H
-#define _AOM_SIMD_H
-
-#include <stdint.h>
-
-#if defined(_WIN32)
-#include <intrin.h>
-#endif
-
-#include "./aom_config.h"
-#include "./aom_simd_inline.h"
-
-#if HAVE_NEON
-#include "simd/v128_intrinsics_arm.h"
-#elif HAVE_SSE2
-#include "simd/v128_intrinsics_x86.h"
-#else
-#include "simd/v128_intrinsics.h"
-#endif
-
-#endif /* _AOM_SIMD_H */
+#define ARCH SSSE3
+#define ARCH_POSTFIX(name) name##_ssse3
+#define SIMD_NAMESPACE simd_test_ssse3
+#include "./simd_impl.h"
