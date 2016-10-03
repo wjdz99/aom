@@ -8,7 +8,20 @@
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
+
+/* clang-format off */
+
 #include "av1/common/odintrin.h"
+
+#if defined(OD_ENABLE_ASSERTIONS)
+# include <stdio.h>
+
+void od_fatal_impl(const char *_str, const char *_file, int _line) {
+  fprintf(stderr, "Fatal (internal) error in %s, line %d: %s\n",
+   _file, _line, _str);
+  abort();
+}
+#endif
 
 /*Constants for use with OD_DIVU_SMALL().
   See \cite{Rob05} for details on computing these constants.
