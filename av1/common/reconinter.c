@@ -480,6 +480,7 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
   if (mi_row <= tile->mi_row_start) return;
 
+  xd->mb_to_bottom_edge += xd->n8_h * 32;
   for (i = 0; i < AOMMIN(xd->n8_w, cm->mi_cols - mi_col); i += mi_step) {
     int mi_row_offset = -1;
     int mi_col_offset = i;
@@ -544,6 +545,7 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
     }
   }
   xd->mb_to_left_edge = -((mi_col * MI_SIZE) * 8);
+  xd->mb_to_bottom_edge -= xd->n8_h * 32;
 }
 
 void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
@@ -556,6 +558,7 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
   if (mi_col - 1 < tile->mi_col_start) return;
 
+  xd->mb_to_right_edge += xd->n8_w * 32;
   for (i = 0; i < AOMMIN(xd->n8_h, cm->mi_rows - mi_row); i += mi_step) {
     int mi_row_offset = i;
     int mi_col_offset = -1;
@@ -620,6 +623,7 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
     }
   }
   xd->mb_to_top_edge = -((mi_row * MI_SIZE) * 8);
+  xd->mb_to_right_edge -= xd->n8_w * 32;
 }
 
 void av1_build_obmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
