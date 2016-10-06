@@ -335,7 +335,6 @@ unsigned int aom_mse16x16_sse2(const uint8_t *src, int src_stride,
   return *sse;
 }
 
-#if CONFIG_USE_X86INC
 // The 2 unused parameters are place holders for PIC enabled build.
 // These definitions are for functions defined in subpel_variance.asm
 #define DECL(w, opt)                                                           \
@@ -476,7 +475,6 @@ FNS(ssse3, ssse3);
 
 #undef FNS
 #undef FN
-#endif  // CONFIG_USE_X86INC
 
 void aom_upsampled_pred_sse2(uint8_t *pred, int width, int height,
                              const uint8_t *ref, const int ref_stride) {
