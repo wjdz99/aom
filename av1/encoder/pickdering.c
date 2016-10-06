@@ -90,8 +90,10 @@ int av1_dering_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
      adjusted on a 64x64 basis. We use a threshold of the form T = a*Q^b,
      where a and b are derived empirically trying to optimize rate-distortion
      at different quantizer settings. */
-  best_level = (int)floor(
-      .5 + .45 * pow(av1_ac_quant(cm->base_qindex, 0, cm->bit_depth), 0.6));
+  best_level = AOMMIN(
+      255, (int)floor(.5 +
+                      .45 * pow(av1_ac_quant(cm->base_qindex, 0, cm->bit_depth),
+                                0.6)));
   for (sbr = 0; sbr < nvsb; sbr++) {
     for (sbc = 0; sbc < nhsb; sbc++) {
       int nvb, nhb;

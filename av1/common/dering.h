@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-#define DERING_LEVEL_BITS 6
+#define DERING_LEVEL_BITS 8
 #define MAX_DERING_LEVEL (1 << DERING_LEVEL_BITS)
 
 #define DERING_REFINEMENT_BITS 2
