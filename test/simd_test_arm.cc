@@ -9,5 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#define ARCH NEON
 #define ARCH_PREFIX(name) NEON_##name
 #include "./simd_test.h"

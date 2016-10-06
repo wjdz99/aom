@@ -9,5 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#define ARCH SSSE3
 #define ARCH_PREFIX(name) SSSE3_##name
 #include "./simd_test.h"
