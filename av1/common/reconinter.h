@@ -255,19 +255,8 @@ static INLINE int has_subpel_mv_component(const MODE_INFO *const mi,
 }
 
 static INLINE int is_interp_needed(const MACROBLOCKD *const xd) {
-  MODE_INFO *const mi = xd->mi[0];
-  const int is_compound = has_second_ref(&mi->mbmi);
-  int ref;
-  for (ref = 0; ref < 1 + is_compound; ++ref) {
-    int row_col;
-    for (row_col = 0; row_col < 2; ++row_col) {
-      const int dir = (ref << 1) + row_col;
-      if (has_subpel_mv_component(mi, xd, dir)) {
-        return 1;
-      }
-    }
-  }
-  return 0;
+  (void)xd;
+  return 1;
 }
 
 #ifdef __cplusplus
