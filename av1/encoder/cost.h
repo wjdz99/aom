@@ -30,6 +30,11 @@ extern const uint16_t av1_prob_cost[257];
 
 #define av1_cost_bit(prob, bit) av1_cost_zero((bit) ? 256 - (prob) : (prob))
 
+#ifdef CONFIG_EC_ADAPT
+// R-D optimal weight for forward update costs with adaptation
+#define ADAPT_PWT 3
+#endif
+
 static INLINE unsigned int cost_branch256(const unsigned int ct[2],
                                           aom_prob p) {
   return ct[0] * av1_cost_zero(p) + ct[1] * av1_cost_one(p);
