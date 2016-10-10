@@ -241,7 +241,6 @@ static void update_mv_probs(aom_prob *p, int n, aom_reader *r) {
 static void read_mv_probs(nmv_context *ctx, int allow_hp, aom_reader *r) {
   int i;
 
-#if !CONFIG_EC_ADAPT || !CONFIG_DAALA_EC
   int j;
   update_mv_probs(ctx->joints, MV_JOINTS - 1, r);
 #if CONFIG_DAALA_EC || CONFIG_RANS
@@ -272,7 +271,6 @@ static void read_mv_probs(nmv_context *ctx, int allow_hp, aom_reader *r) {
     av1_tree_to_cdf(av1_mv_fp_tree, comp_ctx->fp, comp_ctx->fp_cdf);
 #endif
   }
-#endif  // CONFIG_EC_ADAPT, CONFIG_DAALA_EC
 
   if (allow_hp) {
     for (i = 0; i < 2; ++i) {
@@ -755,11 +753,7 @@ static void setup_token_decoder(const uint8_t *data, const uint8_t *data_end,
 static void read_coef_probs_common(av1_coeff_probs_model *coef_probs,
                                    aom_reader *r) {
   int i, j, k, l, m;
-#if CONFIG_EC_ADAPT
-  const int node_limit = ONE_TOKEN;
-#else
   const int node_limit = UNCONSTRAINED_NODES;
-#endif
 
   if (aom_read_bit(r, ACCT_STR))
     for (i = 0; i < PLANE_TYPES; ++i)
