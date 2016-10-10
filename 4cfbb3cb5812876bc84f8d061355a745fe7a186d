@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f49cc01_a1d77843",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-10T19:11:18Z",
+      "side": 1,
+      "message": "Not sure why this is renamed to adjust (the comment still says it computes the filter threshold).  Now that all it does is do a table look up, it may make more sense to create a #define macro for this (which is essentially what INLINE does).",
+      "revId": "4cfbb3cb5812876bc84f8d061355a745fe7a186d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f49cc01_c1dc046a",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-10T19:11:18Z",
+      "side": 1,
+      "message": "Maybe you should rename this to just thresh[] as there is no longer a second array that captures the skip information.",
+      "revId": "4cfbb3cb5812876bc84f8d061355a745fe7a186d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f49cc01_e14100f5",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-10T19:11:18Z",
+      "side": 1,
+      "message": "It is confusing as to why there are two loops here that do nearly the same thing.  After reading this code for a while, I realized it was because subsequent calls to od_dering (for the other color planes (pli !\u003d 0) assume that dir[][] has been computed through a side effect of the first call!\n\nThis has a serious consequence that in the encoder search, looking for the optimal deringing threshold actually calls the directional search, od_dir_find8(), over and over again for each level.\n\nPlease separate these concerns and require that calls to od_dering() have a fully initialized dir[][] array.  It will you to simplify this code, and the encoder search will be much faster.",
+      "revId": "4cfbb3cb5812876bc84f8d061355a745fe7a186d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
