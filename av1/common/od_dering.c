@@ -269,11 +269,26 @@ static void od_compute_thresh(int thresh[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS],
   }
 }
 
+void od_compute_dir(const od_dering_in *x, int xstride,
+                    int nhb, int nvb,
+                    int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS],
+                    int32_t var[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS],
+                    int coeff_shift) {
+  int by;
+  int bx;
+  for (by = 0; by < nvb; by++) {
+    for (bx = 0; bx < nhb; bx++) {
+      dir[by][bx] = od_dir_find8(&x[8 * by * xstride + 8 * bx], xstride,
+                                 &var[by][bx], coeff_shift);
+    }
+  }
+}
+
 void od_dering(int16_t *y, int ystride, const od_dering_in *x, int xstride,
                int nhb, int nvb, int sbx, int sby, int nhsb, int nvsb, int xdec,
-               int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS], int pli,
-               unsigned char *bskip, int skip_stride, int threshold,
-               int coeff_shift) {
+               int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS],
+               int32_t var[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS],
+               int pli, unsigned char *bskip, int skip_stride, int threshold) {
   int i;
   int j;
   int bx;
@@ -281,7 +296,6 @@ void od_dering(int16_t *y, int ystride, const od_dering_in *x, int xstride,
   int16_t inbuf[OD_DERING_INBUF_SIZE];
   int16_t *in;
   int bsize;
-  int32_t var[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS];
   int thresh[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS];
   int thresh2[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS];
   od_filter_dering_direction_func filter_dering_direction[OD_DERINGSIZES] = {
@@ -311,12 +325,6 @@ void od_dering(int16_t *y, int ystride, const od_dering_in *x, int xstride,
     }
   }
   if (pli == 0) {
-    for (by = 0; by < nvb; by++) {
-      for (bx = 0; bx < nhb; bx++) {
-        dir[by][bx] = od_dir_find8(&x[8 * by * xstride + 8 * bx], xstride,
-                                   &var[by][bx], coeff_shift);
-      }
-    }
     od_compute_thresh(thresh, threshold, var, nhb, nvb);
   } else {
     for (by = 0; by < nvb; by++) {

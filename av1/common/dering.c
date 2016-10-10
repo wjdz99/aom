@@ -52,7 +52,6 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   int nhsb, nvsb;
   od_dering_in *src[3];
   unsigned char *bskip;
-  int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS] = { { 0 } };
   int stride;
   int bsize[3];
   int dec[3];
@@ -96,6 +95,8 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     for (sbc = 0; sbc < nhsb; sbc++) {
       int level;
       int nhb, nvb;
+      int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS];
+      int32_t var[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS];
       nhb = AOMMIN(MAX_MIB_SIZE, cm->mi_cols - MAX_MIB_SIZE * sbc);
       nvb = AOMMIN(MAX_MIB_SIZE, cm->mi_rows - MAX_MIB_SIZE * sbr);
       level = compute_level_from_index(
@@ -114,12 +115,24 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
         else
           threshold = level << coeff_shift;
         if (threshold == 0) continue;
+        /* This code assumes that for a given block, the luma plane (pli == 0)
+            will have threshold > 0 whenever any chroma plan (pli !=0) has
+            threshold > 0.
+           This assumption holds because (level * 5 + 4) > 8 for any level > 0.
+           If the FIXME above is changed, this assumption needs to be
+            reconsidered. */
+        if (pli == 0) {
+          od_compute_dir(&src[pli][sbr * stride * bsize[pli] * MAX_MIB_SIZE +
+                                   sbc * bsize[pli] * MAX_MIB_SIZE],
+                         stride,
+                         nhb, nvb, dir, var, coeff_shift);
+        }
         od_dering(dst, MAX_MIB_SIZE * bsize[pli],
                   &src[pli][sbr * stride * bsize[pli] * MAX_MIB_SIZE +
-                            sbc * bsize[pli] * MAX_MIB_SIZE],
-                  stride, nhb, nvb, sbc, sbr, nhsb, nvsb, dec[pli], dir, pli,
+                            sbc * bsize[pli] * MAX_MIB_SIZE], stride,
+                  nhb, nvb, sbc, sbr, nhsb, nvsb, dec[pli], dir, var, pli,
                   &bskip[MAX_MIB_SIZE * sbr * cm->mi_cols + MAX_MIB_SIZE * sbc],
-                  cm->mi_cols, threshold, coeff_shift);
+                  cm->mi_cols, threshold);
         for (r = 0; r < bsize[pli] * nvb; ++r) {
           for (c = 0; c < bsize[pli] * nhb; ++c) {
 #if CONFIG_AOM_HIGHBITDEPTH
