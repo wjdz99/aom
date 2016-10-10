@@ -140,17 +140,20 @@ static void build_nmv_component_cost_table(int *mvcost,
 
 static void update_mv(aom_writer *w, const unsigned int ct[2], aom_prob *cur_p,
                       aom_prob upd_p) {
-  (void)upd_p;
 #if CONFIG_TILE_GROUPS
   // Just use the maximum number of tile groups to avoid passing in the actual
   // number
-  av1_cond_prob_diff_update(w, cur_p, ct, MAX_NUM_TG);
+  int probwt = MAX_NUM_TG;
 #else
-  av1_cond_prob_diff_update(w, cur_p, ct, 1);
+  int probwt = 1;
 #endif
+  (void)upd_p;
+#if CONFIG_EC_ADAPT
+  probwt *= 3;
+#endif
+  av1_cond_prob_diff_update(w, cur_p, ct, probwt);
 }
 
-#if !CONFIG_EC_ADAPT || !CONFIG_DAALA_EC
 static void write_mv_update(const aom_tree_index *tree,
                             aom_prob probs[/*n - 1*/],
                             const unsigned int counts[/*n - 1*/], int n,
@@ -165,7 +168,6 @@ static void write_mv_update(const aom_tree_index *tree,
   for (i = 0; i < n - 1; ++i)
     update_mv(w, branch_ct[i], &probs[i], MV_UPDATE_PROB);
 }
-#endif
 
 void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
                          nmv_context_counts *const nmv_counts) {
@@ -219,7 +221,6 @@ void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
   nmv_context_counts *const counts = nmv_counts;
 
   int j;
-#if !CONFIG_EC_ADAPT || !(CONFIG_DAALA_EC || CONFIG_RANS)
   write_mv_update(av1_mv_joint_tree, mvc->joints, counts->joints, MV_JOINTS, w);
 #if CONFIG_DAALA_EC || CONFIG_RANS
   av1_tree_to_cdf(av1_mv_joint_tree, cm->fc->nmvc.joints,
@@ -257,7 +258,6 @@ void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
     av1_tree_to_cdf(av1_mv_fp_tree, mvc->comps[i].fp, mvc->comps[i].fp_cdf);
 #endif
   }
-#endif  // !CONFIG_EC_ADAPT || !(CONFIG_DAALA_EC || CONFIG_RANS)
 
   if (usehp) {
     for (i = 0; i < 2; ++i) {
