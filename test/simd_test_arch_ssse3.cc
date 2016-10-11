@@ -10,5 +10,5 @@
  */
 
 #define ARCH SSSE3
-#define ARCH_PREFIX(name) SSSE3_##name
-#include "./simd_test.h"
+#define ARCH_POSTFIX(name) name##_ssse3
+#include "./simd_test_arch.h"
