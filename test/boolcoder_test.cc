@@ -26,7 +26,13 @@ namespace {
 const int num_tests = 10;
 }  // namespace
 
-TEST(AV1, TestBitIO) {
+#if CONFIG_DAALA_EC
+// https://bugs.chromium.org/p/aomedia/issues/detail?id=72
+TEST(DISABLED_AV1, TestBitIO)
+#else
+TEST(AV1, TestBitIO)
+#endif
+{
   ACMRandom rnd(ACMRandom::DeterministicSeed());
   for (int n = 0; n < num_tests; ++n) {
     for (int method = 0; method <= 7; ++method) {  // we generate various proba
