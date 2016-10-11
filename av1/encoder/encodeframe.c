@@ -5700,6 +5700,29 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     set_txfm_ctxs(tx_size, xd->n8_w, xd->n8_h, (mbmi->skip || seg_skip), xd);
   }
 #endif  // CONFIG_VAR_TX
+  // Print block size, selected mode and palette sizes for Y/UV.
+  if (!dry_run && !is_inter_block(mbmi)) {
+    const int block_width = block_size_wide[bsize];
+    const int block_height = block_size_high[bsize];
+    const int tx_width = tx_size_wide[mbmi->tx_size];
+    const int tx_height = tx_size_high[mbmi->tx_size];
+    const int y_mode = mbmi->mode;
+    const int uv_mode = mbmi->uv_mode;
+#if CONFIG_PALETTE
+    const int palette_allowed_y = (bsize >= BLOCK_8X8 && y_mode == DC_PRED);
+    const uint8_t palette_size_y =
+        palette_allowed_y ? mbmi->palette_mode_info.palette_size[0] : 0;
+    const int palette_allowed_uv = (bsize >= BLOCK_8X8 && uv_mode == DC_PRED);
+    const uint8_t palette_size_uv =
+        palette_allowed_uv ? mbmi->palette_mode_info.palette_size[1] : 0;
+#endif  // CONFIG_PALETTE
+    fprintf(stderr, "%dx%d %dx%d %d %d", block_width, block_height, tx_width,
+            tx_height, y_mode, uv_mode);
+#if CONFIG_PALETTE
+    fprintf(stderr, " %u %u", palette_size_y, palette_size_uv);
+#endif  // CONFIG_PALETTE
+    fprintf(stderr, "\n");
+  }
 }
 
 #if CONFIG_SUPERTX
