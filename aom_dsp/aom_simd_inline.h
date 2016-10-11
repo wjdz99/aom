@@ -9,6 +9,19 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#define ARCH SSSE3
-#define ARCH_PREFIX(name) SSSE3_##name
-#include "./simd_test.h"
+#ifndef _AOM_SIMD_INLINE_H
+#define _AOM_SIMD_INLINE_H
+
+#ifndef SIMD_INLINE
+#ifdef __GNUC__
+#define SIMD_INLINE static inline __attribute__((always_inline))
+#elif __STDC_VERSION__ >= 199901L
+#define SIMD_INLINE static inline
+#elif defined(_MSC_VER)
+#define SIMD_INLINE static __inline
+#else
+#define SIMD_INLINE static
+#endif
+#endif
+
+#endif /* _AOM_SIMD_INLINE_H */
