@@ -241,6 +241,7 @@ HAVE_LIST="
     aom_ports
     pthread_h
     unistd_h
+    wxwidgets
 "
 EXPERIMENT_LIST="
     spatial_svc
@@ -571,6 +572,13 @@ EOF
     check_header unistd.h # for sysconf(3) and friends.
 
     check_header aom/aom_integer.h -I${source_path} && enable_feature aom_ports
+    if enabled analyzer && command -v wx-config >/dev/null 2>&1; then
+        soft_enable wxwidgets
+    fi
+    if enabled wxwidgets; then
+      WX_CXXFLAGS=$(wx-config --cppflags)
+      WX_LDFLAGS=$(wx-config --libs)
+    fi
 }
 
 process_toolchain() {
