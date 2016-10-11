@@ -16,7 +16,7 @@
 #include "./aom_dsp_rtcd.h"
 #include "test/acm_random.h"
 #include "aom_dsp/aom_simd.h"
-#include "aom_dsp/simd/v128_intrinsics_c.h"
+#include "aom_dsp/simd/v256_intrinsics_c.h"
 
 using libaom_test::ACMRandom;
 
@@ -63,26 +63,37 @@ typedef int64_t c_int64_t;
 
 TYPEDEF_SIMD1(V64_V64, v64, v64);
 TYPEDEF_SIMD1(V128_V64, v128, v64);
+TYPEDEF_SIMD1(V256_V128, v256, v128);
 TYPEDEF_SIMD1(S64_V64, int64_t, v64);
 TYPEDEF_SIMD1(V128_V128, v128, v128);
+TYPEDEF_SIMD1(V256_V256, v256, v256);
 TYPEDEF_SIMD1(U64_V64, uint64_t, v64);
 TYPEDEF_SIMD1(U64_V128, uint64_t, v128);
+TYPEDEF_SIMD1(U64_V256, uint64_t, v256);
 TYPEDEF_SIMD2(V64_V64V64, v64, v64, v64);
 TYPEDEF_SIMD2(V128_V64V64, v128, v64, v64);
 TYPEDEF_SIMD2(S64_V64V64, int64_t, v64, v64);
 TYPEDEF_SIMD2(V64_V64U32, v64, v64, uint32_t);
 TYPEDEF_SIMD2(U32_V64V64, uint32_t, v64, v64);
+TYPEDEF_SIMD2(V256_V128V128, v256, v128, v128);
 TYPEDEF_SIMD2(V128_V128V128, v128, v128, v128);
+TYPEDEF_SIMD2(V256_V256V256, v256, v256, v256);
 TYPEDEF_SIMD2(S64_V128V128, int64_t, v128, v128);
+TYPEDEF_SIMD2(S64_V256V256, int64_t, v256, v256);
+TYPEDEF_SIMD2(V256_V256U32, v256, v256, uint32_t);
 TYPEDEF_SIMD2(V128_V128U32, v128, v128, uint32_t);
 TYPEDEF_SIMD2(U32_V128V128, uint32_t, v128, v128);
+TYPEDEF_SIMD2(U32_V256V256, uint32_t, v256, v256);
 
 // Google Test allows up to 50 tests per case, so split the largest
 typedef ARCH_PREFIX(V64_V64) ARCH_PREFIX(V64_V64_Part2);
 typedef ARCH_PREFIX(V128_V128) ARCH_PREFIX(V128_V128_Part2);
+typedef ARCH_PREFIX(V256_V256) ARCH_PREFIX(V256_V256_Part2);
 typedef ARCH_PREFIX(V128_V128) ARCH_PREFIX(V128_V128_Part3);
+typedef ARCH_PREFIX(V256_V256) ARCH_PREFIX(V256_V256_Part3);
 typedef ARCH_PREFIX(V64_V64V64) ARCH_PREFIX(V64_V64V64_Part2);
 typedef ARCH_PREFIX(V128_V128V128) ARCH_PREFIX(V128_V128V128_Part2);
+typedef ARCH_PREFIX(V256_V256V256) ARCH_PREFIX(V256_V256V256_Part2);
 
 std::string print(uint8_t *a, int size) {
   std::string text = "0x";
@@ -226,6 +237,13 @@ void test_simd1(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           (void *)u64_store_aligned, (void *)v64_load_aligned, (void *)simd, d,
           (void *)c_v64_store_aligned, (void *)c_v64_load_aligned,
           (void *)ref_simd, ref_d, s);
+      // U64_V256
+    } else if (is_same<c_ret, uint64_t>::value &&
+               is_same<c_arg, c_v256>::value) {
+      error = compare_simd1<ret, arg, c_ret, c_arg>(
+          (void *)u64_store_aligned, (void *)v256_load_aligned, (void *)simd, d,
+          (void *)c_u64_store_aligned, (void *)c_v256_load_aligned,
+          (void *)ref_simd, ref_d, s);
       // U64_V128
     } else if (is_same<c_ret, uint64_t>::value &&
                is_same<c_arg, c_v128>::value) {
@@ -238,6 +256,18 @@ void test_simd1(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
       error = compare_simd1<ret, arg, c_ret, c_arg>(
           (void *)v128_store_aligned, (void *)v128_load_aligned, (void *)simd,
           d, (void *)c_v128_store_aligned, (void *)c_v128_load_aligned,
+          (void *)ref_simd, ref_d, s);
+      // V256_V256
+    } else if (is_same<c_ret, c_v256>::value && is_same<c_arg, c_v256>::value) {
+      error = compare_simd1<ret, arg, c_ret, c_arg>(
+          (void *)v256_store_aligned, (void *)v256_load_aligned, (void *)simd,
+          d, (void *)c_v256_store_aligned, (void *)c_v256_load_aligned,
+          (void *)ref_simd, ref_d, s);
+      // V256_V128
+    } else if (is_same<c_ret, c_v256>::value && is_same<c_arg, c_v128>::value) {
+      error = compare_simd1<ret, arg, c_ret, c_arg>(
+          (void *)v256_store_aligned, (void *)v128_load_aligned, (void *)simd,
+          d, (void *)c_v256_store_aligned, (void *)c_v128_load_aligned,
           (void *)ref_simd, ref_d, s);
       // V128_V64
     } else if (is_same<c_ret, c_v128>::value && is_same<c_arg, c_v64>::value) {
@@ -299,6 +329,15 @@ void test_simd2(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           (void *)v128_load_aligned, (void *)simd, d,
           (void *)c_v128_store_aligned, (void *)c_v128_load_aligned,
           (void *)c_v128_load_aligned, (void *)ref_simd, ref_d, s1, s2);
+      // V256_V256V256
+    } else if (is_same<c_ret, c_v256>::value &&
+               is_same<c_arg1, c_v256>::value &&
+               is_same<c_arg2, c_v256>::value) {
+      error = compare_simd2<ret, arg1, arg2, c_ret, c_arg1, c_arg2>(
+          (void *)v256_store_aligned, (void *)v256_load_aligned,
+          (void *)v256_load_aligned, (void *)simd, d,
+          (void *)c_v256_store_aligned, (void *)c_v256_load_aligned,
+          (void *)c_v256_load_aligned, (void *)ref_simd, ref_d, s1, s2);
       // U32_V64V64
     } else if (is_same<c_ret, uint32_t>::value &&
                is_same<c_arg1, c_v64>::value && is_same<c_arg2, c_v64>::value) {
@@ -333,6 +372,33 @@ void test_simd2(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           (void *)v128_load_aligned, (void *)simd, d,
           (void *)c_u64_store_aligned, (void *)c_v128_load_aligned,
           (void *)c_v128_load_aligned, (void *)ref_simd, ref_d, s1, s2);
+      // S64_V256V256
+    } else if (is_same<c_ret, int64_t>::value &&
+               is_same<c_arg1, c_v256>::value &&
+               is_same<c_arg2, c_v256>::value) {
+      error = compare_simd2<ret, arg1, arg2, c_ret, c_arg1, c_arg2>(
+          (void *)u64_store_aligned, (void *)v256_load_aligned,
+          (void *)v256_load_aligned, (void *)simd, d,
+          (void *)c_u64_store_aligned, (void *)c_v256_load_aligned,
+          (void *)c_v256_load_aligned, (void *)ref_simd, ref_d, s1, s2);
+      // U32_V256V256
+    } else if (is_same<c_ret, uint32_t>::value &&
+               is_same<c_arg1, c_v256>::value &&
+               is_same<c_arg2, c_v256>::value) {
+      error = compare_simd2<ret, arg1, arg2, c_ret, c_arg1, c_arg2>(
+          (void *)u32_store_aligned, (void *)v256_load_aligned,
+          (void *)v256_load_aligned, (void *)simd, d,
+          (void *)c_u32_store_aligned, (void *)c_v256_load_aligned,
+          (void *)c_v256_load_aligned, (void *)ref_simd, ref_d, s1, s2);
+      // V256_V128V128
+    } else if (is_same<c_ret, c_v256>::value &&
+               is_same<c_arg1, c_v128>::value &&
+               is_same<c_arg2, c_v128>::value) {
+      error = compare_simd2<ret, arg1, arg2, c_ret, c_arg1, c_arg2>(
+          (void *)v256_store_aligned, (void *)v128_load_aligned,
+          (void *)v128_load_aligned, (void *)simd, d,
+          (void *)c_v256_store_aligned, (void *)c_v128_load_aligned,
+          (void *)c_v128_load_aligned, (void *)ref_simd, ref_d, s1, s2);
       // V128_V64V64
     } else if (is_same<c_ret, c_v128>::value && is_same<c_arg1, c_v64>::value &&
                is_same<c_arg2, c_v64>::value) {
@@ -341,6 +407,15 @@ void test_simd2(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           (void *)v64_load_aligned, (void *)simd, d,
           (void *)c_v128_store_aligned, (void *)c_v64_load_aligned,
           (void *)c_v64_load_aligned, (void *)ref_simd, ref_d, s1, s2);
+      // V256_V256U32
+    } else if (is_same<c_ret, c_v256>::value &&
+               is_same<c_arg1, c_v256>::value &&
+               is_same<c_arg2, uint32_t>::value) {
+      error = compare_simd2<ret, arg1, arg2, c_ret, c_arg1, c_arg2>(
+          (void *)v256_store_aligned, (void *)v256_load_aligned,
+          (void *)u32_load_aligned, (void *)simd, d,
+          (void *)c_v256_store_aligned, (void *)c_v256_load_aligned,
+          (void *)c_u32_load_aligned, (void *)ref_simd, ref_d, s1, s2);
       // V128_V128U32
     } else if (is_same<c_ret, c_v128>::value &&
                is_same<c_arg1, c_v128>::value &&
@@ -395,7 +470,19 @@ MY_TEST_P(ARCH_PREFIX(U64_V128), TestIntrinsics) {
   test_simd1(iterations, mask, maskwidth, name, simd, ref_simd);
 }
 
+MY_TEST_P(ARCH_PREFIX(U64_V256), TestIntrinsics) {
+  test_simd1(iterations, mask, maskwidth, name, simd, ref_simd);
+}
+
 MY_TEST_P(ARCH_PREFIX(V128_V128), TestIntrinsics) {
+  test_simd1(iterations, mask, maskwidth, name, simd, ref_simd);
+}
+
+MY_TEST_P(ARCH_PREFIX(V256_V256), TestIntrinsics) {
+  test_simd1(iterations, mask, maskwidth, name, simd, ref_simd);
+}
+
+MY_TEST_P(ARCH_PREFIX(V256_V128), TestIntrinsics) {
   test_simd1(iterations, mask, maskwidth, name, simd, ref_simd);
 }
 
@@ -415,7 +502,19 @@ MY_TEST_P(ARCH_PREFIX(S64_V64V64), TestIntrinsics) {
   test_simd2(iterations, mask, maskwidth, name, simd, ref_simd);
 }
 
+MY_TEST_P(ARCH_PREFIX(V256_V256V256), TestIntrinsics) {
+  test_simd2(iterations, mask, maskwidth, name, simd, ref_simd);
+}
+
+MY_TEST_P(ARCH_PREFIX(V256_V128V128), TestIntrinsics) {
+  test_simd2(iterations, mask, maskwidth, name, simd, ref_simd);
+}
+
 MY_TEST_P(ARCH_PREFIX(U32_V64V64), TestIntrinsics) {
+  test_simd2(iterations, mask, maskwidth, name, simd, ref_simd);
+}
+
+MY_TEST_P(ARCH_PREFIX(U32_V256V256), TestIntrinsics) {
   test_simd2(iterations, mask, maskwidth, name, simd, ref_simd);
 }
 
@@ -424,6 +523,10 @@ MY_TEST_P(ARCH_PREFIX(U32_V128V128), TestIntrinsics) {
 }
 
 MY_TEST_P(ARCH_PREFIX(S64_V128V128), TestIntrinsics) {
+  test_simd2(iterations, mask, maskwidth, name, simd, ref_simd);
+}
+
+MY_TEST_P(ARCH_PREFIX(S64_V256V256), TestIntrinsics) {
   test_simd2(iterations, mask, maskwidth, name, simd, ref_simd);
 }
 
@@ -452,11 +555,27 @@ MY_TEST_P(ARCH_PREFIX(V128_V128V128_Part2), TestIntrinsics) {
   test_simd2(iterations, mask, maskwidth, name, simd, ref_simd);
 }
 
+MY_TEST_P(ARCH_PREFIX(V256_V256V256_Part2), TestIntrinsics) {
+  test_simd2(iterations, mask, maskwidth, name, simd, ref_simd);
+}
+
+MY_TEST_P(ARCH_PREFIX(V256_V256U32), TestIntrinsics) {
+  test_simd2(iterations, mask, maskwidth, name, simd, ref_simd);
+}
+
 MY_TEST_P(ARCH_PREFIX(V128_V128_Part2), TestIntrinsics) {
   test_simd1(iterations, mask, maskwidth, name, simd, ref_simd);
 }
 
 MY_TEST_P(ARCH_PREFIX(V128_V128_Part3), TestIntrinsics) {
+  test_simd1(iterations, mask, maskwidth, name, simd, ref_simd);
+}
+
+MY_TEST_P(ARCH_PREFIX(V256_V256_Part2), TestIntrinsics) {
+  test_simd1(iterations, mask, maskwidth, name, simd, ref_simd);
+}
+
+MY_TEST_P(ARCH_PREFIX(V256_V256_Part3), TestIntrinsics) {
   test_simd1(iterations, mask, maskwidth, name, simd, ref_simd);
 }
 
@@ -560,6 +679,55 @@ v128 imm_v128_align(v128 a, v128 b) {
 }
 
 template <int shift>
+v256 imm_v256_shl_n_byte(v256 a) {
+  return v256_shl_n_byte(a, shift);
+}
+template <int shift>
+v256 imm_v256_shr_n_byte(v256 a) {
+  return v256_shr_n_byte(a, shift);
+}
+template <int shift>
+v256 imm_v256_shl_n_8(v256 a) {
+  return v256_shl_n_8(a, shift);
+}
+template <int shift>
+v256 imm_v256_shr_n_u8(v256 a) {
+  return v256_shr_n_u8(a, shift);
+}
+template <int shift>
+v256 imm_v256_shr_n_s8(v256 a) {
+  return v256_shr_n_s8(a, shift);
+}
+template <int shift>
+v256 imm_v256_shl_n_16(v256 a) {
+  return v256_shl_n_16(a, shift);
+}
+template <int shift>
+v256 imm_v256_shr_n_u16(v256 a) {
+  return v256_shr_n_u16(a, shift);
+}
+template <int shift>
+v256 imm_v256_shr_n_s16(v256 a) {
+  return v256_shr_n_s16(a, shift);
+}
+template <int shift>
+v256 imm_v256_shl_n_32(v256 a) {
+  return v256_shl_n_32(a, shift);
+}
+template <int shift>
+v256 imm_v256_shr_n_u32(v256 a) {
+  return v256_shr_n_u32(a, shift);
+}
+template <int shift>
+v256 imm_v256_shr_n_s32(v256 a) {
+  return v256_shr_n_s32(a, shift);
+}
+template <int shift>
+v256 imm_v256_align(v256 a, v256 b) {
+  return v256_align(a, b, shift);
+}
+
+template <int shift>
 c_v64 c_imm_v64_shl_n_byte(c_v64 a) {
   return c_v64_shl_n_byte(a, shift);
 }
@@ -657,6 +825,55 @@ c_v128 c_imm_v128_align(c_v128 a, c_v128 b) {
   return c_v128_align(a, b, shift);
 }
 
+template <int shift>
+c_v256 c_imm_v256_shl_n_byte(c_v256 a) {
+  return c_v256_shl_n_byte(a, shift);
+}
+template <int shift>
+c_v256 c_imm_v256_shr_n_byte(c_v256 a) {
+  return c_v256_shr_n_byte(a, shift);
+}
+template <int shift>
+c_v256 c_imm_v256_shl_n_8(c_v256 a) {
+  return c_v256_shl_n_8(a, shift);
+}
+template <int shift>
+c_v256 c_imm_v256_shr_n_u8(c_v256 a) {
+  return c_v256_shr_n_u8(a, shift);
+}
+template <int shift>
+c_v256 c_imm_v256_shr_n_s8(c_v256 a) {
+  return c_v256_shr_n_s8(a, shift);
+}
+template <int shift>
+c_v256 c_imm_v256_shl_n_16(c_v256 a) {
+  return c_v256_shl_n_16(a, shift);
+}
+template <int shift>
+c_v256 c_imm_v256_shr_n_u16(c_v256 a) {
+  return c_v256_shr_n_u16(a, shift);
+}
+template <int shift>
+c_v256 c_imm_v256_shr_n_s16(c_v256 a) {
+  return c_v256_shr_n_s16(a, shift);
+}
+template <int shift>
+c_v256 c_imm_v256_shl_n_32(c_v256 a) {
+  return c_v256_shl_n_32(a, shift);
+}
+template <int shift>
+c_v256 c_imm_v256_shr_n_u32(c_v256 a) {
+  return c_v256_shr_n_u32(a, shift);
+}
+template <int shift>
+c_v256 c_imm_v256_shr_n_s32(c_v256 a) {
+  return c_v256_shr_n_s32(a, shift);
+}
+template <int shift>
+c_v256 c_imm_v256_align(c_v256 a, c_v256 b) {
+  return c_v256_align(a, b, shift);
+}
+
 // Wrappers around the the SAD and SSD functions
 uint32_t v64_sad_u8(v64 a, v64 b) {
   return v64_sad_u8_sum(::v64_sad_u8(v64_sad_u8_init(), a, b));
@@ -670,6 +887,12 @@ uint32_t v128_sad_u8(v128 a, v128 b) {
 uint32_t v128_ssd_u8(v128 a, v128 b) {
   return v128_ssd_u8_sum(::v128_ssd_u8(v128_ssd_u8_init(), a, b));
 }
+uint32_t v256_sad_u8(v256 a, v256 b) {
+  return v256_sad_u8_sum(::v256_sad_u8(v256_sad_u8_init(), a, b));
+}
+uint32_t v256_ssd_u8(v256 a, v256 b) {
+  return v256_ssd_u8_sum(::v256_ssd_u8(v256_ssd_u8_init(), a, b));
+}
 
 uint32_t c_v64_sad_u8(c_v64 a, c_v64 b) {
   return c_v64_sad_u8_sum(::c_v64_sad_u8(c_v64_sad_u8_init(), a, b));
@@ -682,6 +905,12 @@ uint32_t c_v128_sad_u8(c_v128 a, c_v128 b) {
 }
 uint32_t c_v128_ssd_u8(c_v128 a, c_v128 b) {
   return c_v128_ssd_u8_sum(::c_v128_ssd_u8(c_v128_ssd_u8_init(), a, b));
+}
+uint32_t c_v256_sad_u8(c_v256 a, c_v256 b) {
+  return c_v256_sad_u8_sum(::c_v256_sad_u8(c_v256_sad_u8_init(), a, b));
+}
+uint32_t c_v256_ssd_u8(c_v256 a, c_v256 b) {
+  return c_v256_ssd_u8_sum(::c_v256_ssd_u8(c_v256_ssd_u8_init(), a, b));
 }
 
 // Add a macro layer since INSTANTIATE_TEST_CASE_P will quote the name
@@ -700,6 +929,9 @@ INSTANTIATE(ARCH, ARCH_PREFIX(U32_V64V64),
 
 INSTANTIATE(ARCH, ARCH_PREFIX(U32_V128V128), SIMD_TUPLE(v128_sad_u8, 0U, 0U),
             SIMD_TUPLE(v128_ssd_u8, 0U, 0U));
+
+INSTANTIATE(ARCH, ARCH_PREFIX(U32_V256V256), SIMD_TUPLE(v256_sad_u8, 0U, 0U),
+            SIMD_TUPLE(v256_ssd_u8, 0U, 0U));
 
 INSTANTIATE(
     ARCH, ARCH_PREFIX(V128_V128V128), SIMD_TUPLE(v128_add_8, 0U, 0U),
@@ -922,4 +1154,157 @@ INSTANTIATE(ARCH, ARCH_PREFIX(S64_V64V64), SIMD_TUPLE(v64_dotp_s16, 0U, 0U));
 
 INSTANTIATE(ARCH, ARCH_PREFIX(S64_V128V128), SIMD_TUPLE(v128_dotp_s16, 0U, 0U));
 
+#if 0
+
+INSTANTIATE(ARCH, ARCH_PREFIX(U64_V256), SIMD_TUPLE(v256_hadd_u8, 0U, 0U));
+
+INSTANTIATE(ARCH, ARCH_PREFIX(S64_V256V256), SIMD_TUPLE(v256_dotp_s16, 0U, 0U));
+
+INSTANTIATE(
+    ARCH, ARCH_PREFIX(V256_V256V256), SIMD_TUPLE(v256_add_8, 0U, 0U),
+    SIMD_TUPLE(v256_add_16, 0U, 0U), SIMD_TUPLE(v256_sadd_s16, 0U, 0U),
+    SIMD_TUPLE(v256_add_32, 0U, 0U), SIMD_TUPLE(v256_sub_8, 0U, 0U),
+    SIMD_TUPLE(v256_ssub_u8, 0U, 0U), SIMD_TUPLE(v256_ssub_s8, 0U, 0U),
+    SIMD_TUPLE(v256_sub_16, 0U, 0U), SIMD_TUPLE(v256_ssub_s16, 0U, 0U),
+    SIMD_TUPLE(v256_sub_32, 0U, 0U), SIMD_TUPLE(v256_ziplo_8, 0U, 0U),
+    SIMD_TUPLE(v256_ziphi_8, 0U, 0U), SIMD_TUPLE(v256_ziplo_16, 0U, 0U),
+    SIMD_TUPLE(v256_ziphi_16, 0U, 0U), SIMD_TUPLE(v256_ziplo_32, 0U, 0U),
+    SIMD_TUPLE(v256_ziphi_32, 0U, 0U), SIMD_TUPLE(v256_ziplo_64, 0U, 0U),
+    SIMD_TUPLE(v256_ziphi_64, 0U, 0U), SIMD_TUPLE(v256_unziphi_8, 0U, 0U),
+    SIMD_TUPLE(v256_unziplo_8, 0U, 0U), SIMD_TUPLE(v256_unziphi_16, 0U, 0U),
+    SIMD_TUPLE(v256_unziplo_16, 0U, 0U), SIMD_TUPLE(v256_unziphi_32, 0U, 0U),
+    SIMD_TUPLE(v256_unziplo_32, 0U, 0U), SIMD_TUPLE(v256_pack_s32_s16, 0U, 0U),
+    SIMD_TUPLE(v256_pack_s16_u8, 0U, 0U), SIMD_TUPLE(v256_pack_s16_s8, 0U, 0U),
+    SIMD_TUPLE(v256_or, 0U, 0U), SIMD_TUPLE(v256_xor, 0U, 0U),
+    SIMD_TUPLE(v256_and, 0U, 0U), SIMD_TUPLE(v256_andn, 0U, 0U),
+    SIMD_TUPLE(v256_mullo_s16, 0U, 0U), SIMD_TUPLE(v256_mulhi_s16, 0U, 0U),
+    SIMD_TUPLE(v256_mullo_s32, 0U, 0U), SIMD_TUPLE(v256_madd_s16, 0U, 0U),
+    SIMD_TUPLE(v256_madd_us8, 0U, 0U), SIMD_TUPLE(v256_avg_u8, 0U, 0U),
+    SIMD_TUPLE(v256_rdavg_u8, 0U, 0U), SIMD_TUPLE(v256_avg_u16, 0U, 0U),
+    SIMD_TUPLE(v256_min_u8, 0U, 0U), SIMD_TUPLE(v256_max_u8, 0U, 0U),
+    SIMD_TUPLE(v256_min_s8, 0U, 0U), SIMD_TUPLE(v256_max_s8, 0U, 0U),
+    SIMD_TUPLE(v256_min_s16, 0U, 0U), SIMD_TUPLE(v256_max_s16, 0U, 0U),
+    SIMD_TUPLE(v256_cmpgt_s8, 0U, 0U), SIMD_TUPLE(v256_cmplt_s8, 0U, 0U),
+    SIMD_TUPLE(v256_cmpeq_8, 0U, 0U), SIMD_TUPLE(v256_cmpgt_s16, 0U, 0U),
+    SIMD_TUPLE(v256_cmplt_s16, 0U, 0U));
+
+INSTANTIATE(ARCH, ARCH_PREFIX(V256_V256V256_Part2),
+            SIMD_TUPLE(v256_cmpeq_16, 0U, 0U),
+            SIMD_TUPLE(v256_shuffle_8, 15U, 8U),
+            SIMD_TUPLE(v256_pshuffle_8, 15U, 8U), IMM_SIMD_TUPLE(v256_align, 1),
+            IMM_SIMD_TUPLE(v256_align, 2), IMM_SIMD_TUPLE(v256_align, 3),
+            IMM_SIMD_TUPLE(v256_align, 4), IMM_SIMD_TUPLE(v256_align, 5),
+            IMM_SIMD_TUPLE(v256_align, 6), IMM_SIMD_TUPLE(v256_align, 7),
+            IMM_SIMD_TUPLE(v256_align, 8), IMM_SIMD_TUPLE(v256_align, 9),
+            IMM_SIMD_TUPLE(v256_align, 10), IMM_SIMD_TUPLE(v256_align, 11),
+            IMM_SIMD_TUPLE(v256_align, 12), IMM_SIMD_TUPLE(v256_align, 13),
+            IMM_SIMD_TUPLE(v256_align, 14), IMM_SIMD_TUPLE(v256_align, 15),
+            IMM_SIMD_TUPLE(v256_align, 16), IMM_SIMD_TUPLE(v256_align, 17),
+            IMM_SIMD_TUPLE(v256_align, 18), IMM_SIMD_TUPLE(v256_align, 19),
+            IMM_SIMD_TUPLE(v256_align, 20), IMM_SIMD_TUPLE(v256_align, 21),
+            IMM_SIMD_TUPLE(v256_align, 22), IMM_SIMD_TUPLE(v256_align, 23),
+            IMM_SIMD_TUPLE(v256_align, 24), IMM_SIMD_TUPLE(v256_align, 25),
+            IMM_SIMD_TUPLE(v256_align, 26), IMM_SIMD_TUPLE(v256_align, 27),
+            IMM_SIMD_TUPLE(v256_align, 28), IMM_SIMD_TUPLE(v256_align, 29),
+            IMM_SIMD_TUPLE(v256_align, 30), IMM_SIMD_TUPLE(v256_align, 31));
+
+INSTANTIATE(ARCH, ARCH_PREFIX(V256_V128V128),
+            SIMD_TUPLE(v256_from_v128, 0U, 0U), SIMD_TUPLE(v256_zip_8, 0U, 0U),
+            SIMD_TUPLE(v256_zip_16, 0U, 0U), SIMD_TUPLE(v256_zip_32, 0U, 0U),
+            SIMD_TUPLE(v256_mul_s16, 0U, 0U));
+
+INSTANTIATE(ARCH, ARCH_PREFIX(V256_V128),
+            SIMD_TUPLE(v256_unpack_u8_s16, 0U, 0U),
+            SIMD_TUPLE(v256_unpack_u16_s32, 0U, 0U),
+            SIMD_TUPLE(v256_unpack_s16_s32, 0U, 0U));
+
+INSTANTIATE(ARCH, ARCH_PREFIX(V256_V256U32), SIMD_TUPLE(v256_shl_8, 7U, 32U),
+            SIMD_TUPLE(v256_shr_u8, 7U, 32U), SIMD_TUPLE(v256_shr_s8, 7U, 32U),
+            SIMD_TUPLE(v256_shl_16, 15U, 32U),
+            SIMD_TUPLE(v256_shr_u16, 15U, 32U),
+            SIMD_TUPLE(v256_shr_s16, 15U, 32U),
+            SIMD_TUPLE(v256_shl_32, 31U, 32U),
+            SIMD_TUPLE(v256_shr_u32, 31U, 32U),
+            SIMD_TUPLE(v256_shr_s32, 31U, 32U));
+
+INSTANTIATE(
+    ARCH, ARCH_PREFIX(V256_V256), SIMD_TUPLE(v256_abs_s16, 0U, 0U),
+    SIMD_TUPLE(v256_padd_s16, 0U, 0U),
+    SIMD_TUPLE(v256_unpacklo_u16_s32, 0U, 0U),
+    SIMD_TUPLE(v256_unpacklo_s16_s32, 0U, 0U),
+    SIMD_TUPLE(v256_unpackhi_u16_s32, 0U, 0U),
+    SIMD_TUPLE(v256_unpackhi_s16_s32, 0U, 0U),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 1), IMM_SIMD_TUPLE(v256_shr_n_byte, 2),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 3), IMM_SIMD_TUPLE(v256_shr_n_byte, 4),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 5), IMM_SIMD_TUPLE(v256_shr_n_byte, 6),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 7), IMM_SIMD_TUPLE(v256_shr_n_byte, 8),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 9), IMM_SIMD_TUPLE(v256_shr_n_byte, 10),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 11), IMM_SIMD_TUPLE(v256_shr_n_byte, 12),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 13), IMM_SIMD_TUPLE(v256_shr_n_byte, 14),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 15), IMM_SIMD_TUPLE(v256_shr_n_byte, 16),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 17), IMM_SIMD_TUPLE(v256_shr_n_byte, 18),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 19), IMM_SIMD_TUPLE(v256_shr_n_byte, 20),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 21), IMM_SIMD_TUPLE(v256_shr_n_byte, 22),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 23), IMM_SIMD_TUPLE(v256_shr_n_byte, 24),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 25), IMM_SIMD_TUPLE(v256_shr_n_byte, 26),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 27), IMM_SIMD_TUPLE(v256_shr_n_byte, 28),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 29), IMM_SIMD_TUPLE(v256_shr_n_byte, 30),
+    IMM_SIMD_TUPLE(v256_shr_n_byte, 31), IMM_SIMD_TUPLE(v256_shl_n_byte, 1),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 2), IMM_SIMD_TUPLE(v256_shl_n_byte, 3),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 4), IMM_SIMD_TUPLE(v256_shl_n_byte, 5),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 6), IMM_SIMD_TUPLE(v256_shl_n_byte, 7),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 8), IMM_SIMD_TUPLE(v256_shl_n_byte, 9),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 10), IMM_SIMD_TUPLE(v256_shl_n_byte, 11),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 12), IMM_SIMD_TUPLE(v256_shl_n_byte, 13));
+
+INSTANTIATE(
+    ARCH, ARCH_PREFIX(V256_V256_Part2), IMM_SIMD_TUPLE(v256_shl_n_byte, 14),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 15), IMM_SIMD_TUPLE(v256_shl_n_byte, 16),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 17), IMM_SIMD_TUPLE(v256_shl_n_byte, 18),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 19), IMM_SIMD_TUPLE(v256_shl_n_byte, 20),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 21), IMM_SIMD_TUPLE(v256_shl_n_byte, 22),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 23), IMM_SIMD_TUPLE(v256_shl_n_byte, 24),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 25), IMM_SIMD_TUPLE(v256_shl_n_byte, 26),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 27), IMM_SIMD_TUPLE(v256_shl_n_byte, 28),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 29), IMM_SIMD_TUPLE(v256_shl_n_byte, 30),
+    IMM_SIMD_TUPLE(v256_shl_n_byte, 31), IMM_SIMD_TUPLE(v256_shl_n_8, 1),
+    IMM_SIMD_TUPLE(v256_shl_n_8, 2), IMM_SIMD_TUPLE(v256_shl_n_8, 3),
+    IMM_SIMD_TUPLE(v256_shl_n_8, 4), IMM_SIMD_TUPLE(v256_shl_n_8, 5),
+    IMM_SIMD_TUPLE(v256_shl_n_8, 6), IMM_SIMD_TUPLE(v256_shl_n_8, 7),
+    IMM_SIMD_TUPLE(v256_shr_n_u8, 1), IMM_SIMD_TUPLE(v256_shr_n_u8, 2),
+    IMM_SIMD_TUPLE(v256_shr_n_u8, 3), IMM_SIMD_TUPLE(v256_shr_n_u8, 4),
+    IMM_SIMD_TUPLE(v256_shr_n_u8, 5), IMM_SIMD_TUPLE(v256_shr_n_u8, 6),
+    IMM_SIMD_TUPLE(v256_shr_n_u8, 7), IMM_SIMD_TUPLE(v256_shr_n_s8, 1),
+    IMM_SIMD_TUPLE(v256_shr_n_s8, 2), IMM_SIMD_TUPLE(v256_shr_n_s8, 3),
+    IMM_SIMD_TUPLE(v256_shr_n_s8, 4), IMM_SIMD_TUPLE(v256_shr_n_s8, 5),
+    IMM_SIMD_TUPLE(v256_shr_n_s8, 6), IMM_SIMD_TUPLE(v256_shr_n_s8, 7),
+    IMM_SIMD_TUPLE(v256_shl_n_16, 1), IMM_SIMD_TUPLE(v256_shl_n_16, 2),
+    IMM_SIMD_TUPLE(v256_shl_n_16, 4), IMM_SIMD_TUPLE(v256_shl_n_16, 6),
+    IMM_SIMD_TUPLE(v256_shl_n_16, 8), IMM_SIMD_TUPLE(v256_shl_n_16, 10),
+    IMM_SIMD_TUPLE(v256_shl_n_16, 12), IMM_SIMD_TUPLE(v256_shl_n_16, 14),
+    IMM_SIMD_TUPLE(v256_shr_n_u16, 1), IMM_SIMD_TUPLE(v256_shr_n_u16, 2),
+    IMM_SIMD_TUPLE(v256_shr_n_u16, 4));
+
+INSTANTIATE(
+    ARCH, ARCH_PREFIX(V256_V256_Part3), IMM_SIMD_TUPLE(v256_shr_n_u16, 6),
+    IMM_SIMD_TUPLE(v256_shr_n_u16, 8), IMM_SIMD_TUPLE(v256_shr_n_u16, 10),
+    IMM_SIMD_TUPLE(v256_shr_n_u16, 12), IMM_SIMD_TUPLE(v256_shr_n_u16, 14),
+    IMM_SIMD_TUPLE(v256_shr_n_s16, 1), IMM_SIMD_TUPLE(v256_shr_n_s16, 2),
+    IMM_SIMD_TUPLE(v256_shr_n_s16, 4), IMM_SIMD_TUPLE(v256_shr_n_s16, 6),
+    IMM_SIMD_TUPLE(v256_shr_n_s16, 8), IMM_SIMD_TUPLE(v256_shr_n_s16, 10),
+    IMM_SIMD_TUPLE(v256_shr_n_s16, 12), IMM_SIMD_TUPLE(v256_shr_n_s16, 14),
+    IMM_SIMD_TUPLE(v256_shl_n_32, 1), IMM_SIMD_TUPLE(v256_shl_n_32, 4),
+    IMM_SIMD_TUPLE(v256_shl_n_32, 8), IMM_SIMD_TUPLE(v256_shl_n_32, 12),
+    IMM_SIMD_TUPLE(v256_shl_n_32, 16), IMM_SIMD_TUPLE(v256_shl_n_32, 20),
+    IMM_SIMD_TUPLE(v256_shl_n_32, 24), IMM_SIMD_TUPLE(v256_shl_n_32, 28),
+    IMM_SIMD_TUPLE(v256_shr_n_u32, 1), IMM_SIMD_TUPLE(v256_shr_n_u32, 4),
+    IMM_SIMD_TUPLE(v256_shr_n_u32, 8), IMM_SIMD_TUPLE(v256_shr_n_u32, 12),
+    IMM_SIMD_TUPLE(v256_shr_n_u32, 16), IMM_SIMD_TUPLE(v256_shr_n_u32, 20),
+    IMM_SIMD_TUPLE(v256_shr_n_u32, 24), IMM_SIMD_TUPLE(v256_shr_n_u32, 28),
+    IMM_SIMD_TUPLE(v256_shr_n_s32, 1), IMM_SIMD_TUPLE(v256_shr_n_s32, 4),
+    IMM_SIMD_TUPLE(v256_shr_n_s32, 8), IMM_SIMD_TUPLE(v256_shr_n_s32, 12),
+    IMM_SIMD_TUPLE(v256_shr_n_s32, 16), IMM_SIMD_TUPLE(v256_shr_n_s32, 20),
+    IMM_SIMD_TUPLE(v256_shr_n_s32, 24), IMM_SIMD_TUPLE(v256_shr_n_s32, 28));
+
+#endif
 }  // namespace
