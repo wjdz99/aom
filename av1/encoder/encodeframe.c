@@ -5700,6 +5700,39 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     set_txfm_ctxs(tx_size, xd->n8_w, xd->n8_h, (mbmi->skip || seg_skip), xd);
   }
 #endif  // CONFIG_VAR_TX
+  // Print block size, selected mode and palette sizes for Y/UV.
+  if (!dry_run && !is_inter_block(mbmi)) {
+    const int block_width = block_size_wide[bsize];
+    const int block_height = block_size_high[bsize];
+    const int block_size_group = size_group_lookup[bsize];
+    const MODE_INFO *const above_mi = xd->above_mi;
+    const MODE_INFO *const left_mi = xd->left_mi;
+    const int overall_y_mode = mbmi->mode;
+    const int overall_uv_mode = mbmi->uv_mode;
+    const int intra_only = frame_is_intra_only(cm);
+    if (bsize < BLOCK_8X8 && !unify_bsize) {
+      int idx, idy;
+      const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
+      const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
+      for (idy = 0; idy < 2; idy += num_4x4_h) {
+        for (idx = 0; idx < 2; idx += num_4x4_w) {
+          const int bidx = idy * 2 + idx;
+          const PREDICTION_MODE subblock_y_mode = mi->bmi[bidx].as_mode;
+          const PREDICTION_MODE a = av1_above_block_mode(mi, above_mi, bidx);
+          const PREDICTION_MODE l = av1_left_block_mode(mi, left_mi, bidx);
+          fprintf(stderr, "%d %d %d %d %d %d %d %d\n", block_width,
+                  block_height, block_size_group, subblock_y_mode,
+                  overall_uv_mode, a, l, intra_only);
+        }
+      }
+    } else {
+      const PREDICTION_MODE above = av1_above_block_mode(mi, above_mi, 0);
+      const PREDICTION_MODE left = av1_left_block_mode(mi, left_mi, 0);
+      fprintf(stderr, "%d %d %d %d %d %d %d %d\n", block_width, block_height,
+              block_size_group, overall_y_mode, overall_uv_mode, above, left,
+              intra_only);
+    }
+  }
 }
 
 #if CONFIG_SUPERTX
