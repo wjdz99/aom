@@ -2824,11 +2824,17 @@ static void encode_restoration_mode(AV1_COMMON *cm,
       aom_wb_write_bit(wb, 0);
       aom_wb_write_bit(wb, 1);
       break;
+    case RESTORE_SGRPROJ:
+      aom_wb_write_bit(wb, 1);
+      aom_wb_write_bit(wb, 0);
+      break;
     case RESTORE_BILATERAL:
+      aom_wb_write_bit(wb, 1);
       aom_wb_write_bit(wb, 1);
       aom_wb_write_bit(wb, 0);
       break;
     case RESTORE_WIENER:
+      aom_wb_write_bit(wb, 1);
       aom_wb_write_bit(wb, 1);
       aom_wb_write_bit(wb, 1);
       break;
@@ -2880,6 +2886,12 @@ static void encode_restoration(AV1_COMMON *cm, aom_writer *wb) {
           aom_write_literal(
               wb, rsi->wiener_info[i].hfilter[2] - WIENER_FILT_TAP2_MINV,
               WIENER_FILT_TAP2_BITS);
+        } else if (rsi->restoration_type[i] == RESTORE_SGRPROJ) {
+          aom_write_literal(wb, rsi->sgrproj_info[i].ep, SGRPROJ_PARAMS_BITS);
+          aom_write_literal(wb, rsi->sgrproj_info[i].xqd[0] - SGRPROJ_PRJ_MIN0,
+                            SGRPROJ_PRJ_BITS);
+          aom_write_literal(wb, rsi->sgrproj_info[i].xqd[1] - SGRPROJ_PRJ_MIN1,
+                            SGRPROJ_PRJ_BITS);
         }
       }
     } else if (rsi->frame_restoration_type == RESTORE_BILATERAL) {
@@ -2916,6 +2928,18 @@ static void encode_restoration(AV1_COMMON *cm, aom_writer *wb) {
           aom_write_literal(
               wb, rsi->wiener_info[i].hfilter[2] - WIENER_FILT_TAP2_MINV,
               WIENER_FILT_TAP2_BITS);
+        }
+      }
+    } else if (rsi->frame_restoration_type == RESTORE_SGRPROJ) {
+      for (i = 0; i < cm->rst_internal.ntiles; ++i) {
+        aom_write(wb, rsi->sgrproj_info[i].level != 0,
+                  RESTORE_NONE_SGRPROJ_PROB);
+        if (rsi->sgrproj_info[i].level) {
+          aom_write_literal(wb, rsi->sgrproj_info[i].ep, SGRPROJ_PARAMS_BITS);
+          aom_write_literal(wb, rsi->sgrproj_info[i].xqd[0] - SGRPROJ_PRJ_MIN0,
+                            SGRPROJ_PRJ_BITS);
+          aom_write_literal(wb, rsi->sgrproj_info[i].xqd[1] - SGRPROJ_PRJ_MIN1,
+                            SGRPROJ_PRJ_BITS);
         }
       }
     }

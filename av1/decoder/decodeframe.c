@@ -2149,8 +2149,11 @@ static void decode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_read_bit_buffer *rb) {
   RestorationInfo *rsi = &cm->rst_info;
   if (aom_rb_read_bit(rb)) {
-    rsi->frame_restoration_type =
-        aom_rb_read_bit(rb) ? RESTORE_WIENER : RESTORE_BILATERAL;
+    if (aom_rb_read_bit(rb))
+      rsi->frame_restoration_type =
+          (aom_rb_read_bit(rb) ? RESTORE_WIENER : RESTORE_BILATERAL);
+    else
+      rsi->frame_restoration_type = RESTORE_SGRPROJ;
   } else {
     rsi->frame_restoration_type =
         aom_rb_read_bit(rb) ? RESTORE_SWITCHABLE : RESTORE_NONE;
@@ -2172,6 +2175,9 @@ static void decode_restoration(AV1_COMMON *cm, aom_reader *rb) {
       rsi->wiener_info = (WienerInfo *)aom_realloc(
           rsi->wiener_info, sizeof(*rsi->wiener_info) * ntiles);
       assert(rsi->wiener_info != NULL);
+      rsi->sgrproj_info = (SgrprojInfo *)aom_realloc(
+          rsi->sgrproj_info, sizeof(*rsi->sgrproj_info) * ntiles);
+      assert(rsi->sgrproj_info != NULL);
       for (i = 0; i < ntiles; ++i) {
         rsi->restoration_type[i] =
             aom_read_tree(rb, av1_switchable_restore_tree,
@@ -2211,6 +2217,13 @@ static void decode_restoration(AV1_COMMON *cm, aom_reader *rb) {
             }
 #endif
           }
+        } else if (rsi->restoration_type[i] == RESTORE_SGRPROJ) {
+          rsi->sgrproj_info[i].level = 1;
+          rsi->sgrproj_info[i].ep = aom_read_literal(rb, SGRPROJ_PARAMS_BITS);
+          rsi->sgrproj_info[i].xqd[0] =
+              aom_read_literal(rb, SGRPROJ_PRJ_BITS) + SGRPROJ_PRJ_MIN0;
+          rsi->sgrproj_info[i].xqd[1] =
+              aom_read_literal(rb, SGRPROJ_PRJ_BITS) + SGRPROJ_PRJ_MIN1;
         }
       }
     } else if (rsi->frame_restoration_type == RESTORE_WIENER) {
@@ -2244,7 +2257,7 @@ static void decode_restoration(AV1_COMMON *cm, aom_reader *rb) {
           rsi->restoration_type[i] = RESTORE_NONE;
         }
       }
-    } else {
+    } else if (rsi->frame_restoration_type == RESTORE_BILATERAL) {
       rsi->bilateral_info = (BilateralInfo *)aom_realloc(
           rsi->bilateral_info, sizeof(*rsi->bilateral_info) * ntiles);
       assert(rsi->bilateral_info != NULL);
@@ -2258,6 +2271,24 @@ static void decode_restoration(AV1_COMMON *cm, aom_reader *rb) {
           } else {
             rsi->bilateral_info[i].level[s] = -1;
           }
+        }
+      }
+    } else if (rsi->frame_restoration_type == RESTORE_SGRPROJ) {
+      rsi->sgrproj_info = (SgrprojInfo *)aom_realloc(
+          rsi->sgrproj_info, sizeof(*rsi->sgrproj_info) * ntiles);
+      assert(rsi->sgrproj_info != NULL);
+      for (i = 0; i < ntiles; ++i) {
+        if (aom_read(rb, RESTORE_NONE_SGRPROJ_PROB)) {
+          rsi->sgrproj_info[i].level = 1;
+          rsi->restoration_type[i] = RESTORE_SGRPROJ;
+          rsi->sgrproj_info[i].ep = aom_read_literal(rb, SGRPROJ_PARAMS_BITS);
+          rsi->sgrproj_info[i].xqd[0] =
+              aom_read_literal(rb, SGRPROJ_PRJ_BITS) + SGRPROJ_PRJ_MIN0;
+          rsi->sgrproj_info[i].xqd[1] =
+              aom_read_literal(rb, SGRPROJ_PRJ_BITS) + SGRPROJ_PRJ_MIN1;
+        } else {
+          rsi->sgrproj_info[i].level = 0;
+          rsi->restoration_type[i] = RESTORE_NONE;
         }
       }
     }
