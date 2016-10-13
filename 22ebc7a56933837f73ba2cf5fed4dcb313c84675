@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc91ae63_e50a9a81",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1326,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-10-13T15:01:00Z",
+      "side": 1,
+      "message": "This still seems off because now you are using the adaptive penalty on the unadapted tree nodes.\n\nWhat seems correct would be to set: \nADAPT_PWT to 1 when EC_ADAPT is off\nThen on the pivot node (and anywhere else we are adapting) use probwt*ADAPT_PWT, places where we aren\u0027t adpating can continue to use probwt",
+      "range": {
+        "startLine": 1326,
+        "startChar": 72,
+        "endLine": 1326,
+        "endChar": 78
+      },
+      "revId": "22ebc7a56933837f73ba2cf5fed4dcb313c84675",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
