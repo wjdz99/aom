@@ -9,6 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#define ARCH NEON
-#define ARCH_POSTFIX(name) name##_neon
-#include "./simd_test_arch.h"
+#define ARCH SSSE3
+#define ARCH_POSTFIX(name) name##_ssse3
+#include "./simd_cmp_inst.h"
