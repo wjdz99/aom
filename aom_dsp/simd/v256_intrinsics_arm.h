@@ -9,24 +9,9 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef _AOM_SIMD_H
-#define _AOM_SIMD_H
+#ifndef _V256_INTRINSICS_H
+#define _V256_INTRINSICS_H
 
-#include <stdint.h>
+#include "./v256_intrinsics_v128.h"
 
-#if defined(_WIN32)
-#include <intrin.h>
-#endif
-
-#include "./aom_config.h"
-#include "./aom_simd_inline.h"
-
-#if HAVE_NEON
-#include "simd/v256_intrinsics_arm.h"
-#elif HAVE_SSE2
-#include "simd/v256_intrinsics_x86.h"
-#else
-#include "simd/v256_intrinsics.h"
-#endif
-
-#endif /* _AOM_SIMD_H */
+#endif /* _V256_INTRINSICS_H */
