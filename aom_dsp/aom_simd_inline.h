@@ -9,8 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef _AOM_SIMD_INLINE_H
-#define _AOM_SIMD_INLINE_H
+#ifndef AOM_DSP_AOM_SIMD_INLINE_H_
+#define AOM_DSP_AOM_SIMD_INLINE_H_
 
 #ifndef SIMD_INLINE
 #ifdef __GNUC__
@@ -24,4 +24,4 @@
 #endif
 #endif
 
-#endif /* _AOM_SIMD_INLINE_H */
+#endif /* _AOM_DSP_AOM_SIMD_INLINE_H_ */

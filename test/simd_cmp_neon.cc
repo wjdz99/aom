@@ -11,4 +11,4 @@
 
 #define ARCH NEON
 #define ARCH_POSTFIX(name) name##_neon
-#include "./simd_test_arch.h"
+#include "./simd_cmp_impl.h"

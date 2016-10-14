@@ -22,11 +22,11 @@
 #include "./aom_simd_inline.h"
 
 #if HAVE_NEON
-#include "simd/v128_intrinsics_arm.h"
+#include "simd/v256_intrinsics_arm.h"
 #elif HAVE_SSE2
-#include "simd/v128_intrinsics_x86.h"
+#include "simd/v256_intrinsics_x86.h"
 #else
-#include "simd/v128_intrinsics.h"
+#include "simd/v256_intrinsics.h"
 #endif
 
 #endif /* _AOM_SIMD_H */

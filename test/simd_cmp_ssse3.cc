@@ -9,6 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#define ARCH SSE4_1
-#define ARCH_POSTFIX(name) name##_sse4_1
-#include "./simd_impl.h"
+#define ARCH SSSE3
+#define ARCH_POSTFIX(name) name##_ssse3
+#include "./simd_cmp_impl.h"
