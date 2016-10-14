@@ -11,4 +11,5 @@
 
 #define ARCH SSE2
 #define ARCH_POSTFIX(name) name##_sse2
-#include "./simd_test.h"
+#define SIMD_NAMESPACE simd_test_sse2
+#include "./simd_impl.h"

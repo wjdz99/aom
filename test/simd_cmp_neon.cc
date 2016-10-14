@@ -11,4 +11,5 @@
 
 #define ARCH NEON
 #define ARCH_POSTFIX(name) name##_neon
-#include "./simd_test_arch.h"
+#define SIMD_NAMESPACE simd_test_neon
+#include "./simd_cmp_impl.h"
