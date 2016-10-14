@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc44a23c_2cdc1304",
+        "filename": "aom_dsp/aom_simd_inline.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-14T18:44:55Z",
+      "side": 1,
+      "message": "this should be AOM_DSP_AOM_SIMD_INLINE_H_\n\nhttps://google.github.io/styleguide/cppguide.html#The__define_Guard",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 26
+      },
+      "revId": "28de5681313906c15a6b5f019d03f190cdafab63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c7aba68_7607b0c2",
+        "filename": "aom_dsp/aom_simd_inline.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-14T18:44:55Z",
+      "side": 1,
+      "message": "this could probably be merged with the AOM_FORCE_INLINE define in aom_integer.h",
+      "revId": "28de5681313906c15a6b5f019d03f190cdafab63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc44a23c_ccf62f75",
+        "filename": "test/simd_arm_test.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-14T18:44:55Z",
+      "side": 1,
+      "message": "this could be a .inc; in the past we\u0027ve used _impl.h which preserved the normal association with a c++ file.\n\nhttps://google.github.io/styleguide/cppguide.html#Self_contained_Headers",
+      "revId": "28de5681313906c15a6b5f019d03f190cdafab63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc44a23c_ec74cbf5",
+        "filename": "test/simd_test.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-14T18:44:55Z",
+      "side": 1,
+      "message": "namespaces aren\u0027t indented, not sure why this didn\u0027t get clang-formatted properly unless the macro as part of the name is confusing things\n\nhttps://google.github.io/styleguide/cppguide.html#Namespaces",
+      "revId": "28de5681313906c15a6b5f019d03f190cdafab63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc44a23c_cc938f08",
+        "filename": "test/simd_test.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-14T18:44:55Z",
+      "side": 1,
+      "message": "a simple struct would work as well. I think the tuple is a bit overused in the tests and doesn\u0027t add much benefit. named member references are usually better for readability",
+      "revId": "28de5681313906c15a6b5f019d03f190cdafab63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c7aba68_f6fae09e",
+        "filename": "test/test.mk",
+        "patchSetId": 33
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-14T18:44:55Z",
+      "side": 1,
+      "message": "neon would be a better choice",
+      "range": {
+        "startLine": 121,
+        "startChar": 57,
+        "endLine": 121,
+        "endChar": 60
+      },
+      "revId": "28de5681313906c15a6b5f019d03f190cdafab63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
