@@ -76,6 +76,24 @@
     },
     {
       "key": {
+        "uuid": "7cdd769f_e9adb5f2",
+        "filename": "test/simd_test.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-10-14T20:05:32Z",
+      "side": 1,
+      "message": "I think the function like macro confuses it.  Do you think it\u0027s better to define a macro NAMESPACE in simd_sse2_test.h, simd_test_arch_sse2.h, sind_ssse3_test.h etc and use \"namespace NAMESPACE {\" instead?",
+      "parentUuid": "dc44a23c_ec74cbf5",
+      "revId": "28de5681313906c15a6b5f019d03f190cdafab63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc44a23c_cc938f08",
         "filename": "test/simd_test.h",
         "patchSetId": 33
