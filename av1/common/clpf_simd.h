@@ -49,68 +49,45 @@ SIMD_INLINE v128 calc_delta(v128 o, v128 a, v128 b, v128 c, v128 d, v128 e,
           4));
 }
 
-// Process blocks of width 8, two lines at a time, 8 bit.
-static void clpf_block8(const uint8_t *src, uint8_t *dst, int sstride,
-                        int dstride, int x0, int y0, int sizey, int width,
-                        int height, unsigned int strength) {
-  const int bottom = height - 2 - y0;
-  const int right = width - 8 - x0;
-  const v128 sp = v128_dup_8(strength);
-  const v128 sm = v128_dup_8(-(int)strength);
-  DECLARE_ALIGNED(16, static const uint64_t,
-                  b_shuff[]) = { 0x0504030201000000LL, 0x0d0c0b0a09080808LL };
-  DECLARE_ALIGNED(16, static const uint64_t,
-                  c_shuff[]) = { 0x0605040302010000LL, 0x0e0d0c0b0a090808LL };
-  DECLARE_ALIGNED(16, static const uint64_t,
-                  d_shuff[]) = { 0x0707060504030201LL, 0x0f0f0e0d0c0b0a09LL };
-  DECLARE_ALIGNED(16, static const uint64_t,
-                  e_shuff[]) = { 0x0707070605040302LL, 0x0f0f0f0e0d0c0b0aLL };
-  int y;
-
-  dst += x0 + y0 * dstride;
-  src += x0 + y0 * sstride;
-
-  for (y = 0; y < sizey; y += 2) {
-    const v64 l1 = v64_load_aligned(src);
-    const v64 l2 = v64_load_aligned(src + sstride);
-    v128 o = v128_from_v64(l1, l2);
-    const v128 a =
-        v128_from_v64(v64_load_aligned(src - (y != -y0) * sstride), l1);
-    const v128 f = v128_from_v64(
-        l2, v64_load_aligned(src + ((y != bottom) + 1) * sstride));
-    v128 b, c, d, e;
-
-    if (x0) {
-      b = v128_from_v64(v64_load_unaligned(src - 2),
-                        v64_load_unaligned(src - 2 + sstride));
-      c = v128_from_v64(v64_load_unaligned(src - 1),
-                        v64_load_unaligned(src - 1 + sstride));
-    } else {  // Left clipping
-      b = v128_shuffle_8(o, v128_load_aligned(b_shuff));
-      c = v128_shuffle_8(o, v128_load_aligned(c_shuff));
-    }
-    if (right) {
-      d = v128_from_v64(v64_load_unaligned(src + 1),
-                        v64_load_unaligned(src + 1 + sstride));
-      e = v128_from_v64(v64_load_unaligned(src + 2),
-                        v64_load_unaligned(src + 2 + sstride));
-    } else {  // Right clipping
-      d = v128_shuffle_8(o, v128_load_aligned(d_shuff));
-      e = v128_shuffle_8(o, v128_load_aligned(e_shuff));
-    }
-
-    o = calc_delta(o, a, b, c, d, e, f, sp, sm);
-    v64_store_aligned(dst, v128_high_v64(o));
-    v64_store_aligned(dst + dstride, v128_low_v64(o));
-    src += sstride * 2;
-    dst += dstride * 2;
-  }
+// v256 version of calc_delta()
+SIMD_INLINE v256 calc_delta256(v256 o, v256 a, v256 b, v256 c, v256 d, v256 e,
+                               v256 f, v256 sp, v256 sm) {
+  // The difference will be 9 bit, offset by 128 so we can use saturated
+  // sub to avoid going to 16 bit temporarily before "strength" clipping.
+  const v256 c128 = v256_dup_8(128);
+  const v256 x = v256_add_8(c128, o);
+  const v256 c8 = v256_dup_8(8);
+  const v256 tmp = v256_add_8(
+      v256_max_s8(v256_min_s8(v256_ssub_s8(v256_add_8(c128, c), x), sp), sm),
+      v256_max_s8(v256_min_s8(v256_ssub_s8(v256_add_8(c128, d), x), sp), sm));
+  const v256 delta = v256_add_8(
+      v256_add_8(
+          v256_shl_8(
+              v256_add_8(
+                  v256_max_s8(
+                      v256_min_s8(v256_ssub_s8(v256_add_8(c128, a), x), sp),
+                      sm),
+                  v256_max_s8(
+                      v256_min_s8(v256_ssub_s8(v256_add_8(c128, f), x), sp),
+                      sm)),
+              2),
+          v256_add_8(
+              v256_max_s8(v256_min_s8(v256_ssub_s8(v256_add_8(c128, b), x), sp),
+                          sm),
+              v256_max_s8(v256_min_s8(v256_ssub_s8(v256_add_8(c128, e), x), sp),
+                          sm))),
+      v256_add_8(v256_add_8(tmp, tmp), tmp));
+  return v256_add_8(
+      o,
+      v256_shr_s8(
+          v256_add_8(c8, v256_add_8(delta, v256_cmplt_s8(delta, v256_zero()))),
+          4));
 }
 
 // Process blocks of width 4, four lines at a time, 8 bit.
-static void clpf_block4(const uint8_t *src, uint8_t *dst, int sstride,
-                        int dstride, int x0, int y0, int sizey, int width,
-                        int height, unsigned int strength) {
+static void clpf_block4x4(const uint8_t *src, uint8_t *dst, int sstride,
+                          int dstride, int x0, int y0, int sizey, int width,
+                          int height, unsigned int strength) {
   const v128 sp = v128_dup_8(strength);
   const v128 sm = v128_dup_8(-(int)strength);
   const int right = width - 4 - x0;
@@ -178,6 +155,78 @@ static void clpf_block4(const uint8_t *src, uint8_t *dst, int sstride,
   }
 }
 
+// Process blocks of width 8, four lines at a time, 8 bit.
+static void clpf_block8x4(const uint8_t *src, uint8_t *dst, int sstride,
+                          int dstride, int x0, int y0, int sizey, int width,
+                          int height, unsigned int strength) {
+  const v256 sp = v256_dup_8(strength);
+  const v256 sm = v256_dup_8(-(int)strength);
+  const int right = width - 8 - x0;
+  const int bottom = height - 4 - y0;
+  DECLARE_ALIGNED(32, static const uint64_t,
+                  b_shuff[]) = { 0x0504030201000000LL, 0x0d0c0b0a09080808LL,
+                                 0x0504030201000000LL, 0x0d0c0b0a09080808LL };
+  DECLARE_ALIGNED(32, static const uint64_t,
+                  c_shuff[]) = { 0x0605040302010000LL, 0x0e0d0c0b0a090808LL,
+                                 0x0605040302010000LL, 0x0e0d0c0b0a090808LL };
+  DECLARE_ALIGNED(32, static const uint64_t,
+                  d_shuff[]) = { 0x0707060504030201LL, 0x0f0f0e0d0c0b0a09LL,
+                                 0x0707060504030201LL, 0x0f0f0e0d0c0b0a09LL };
+  DECLARE_ALIGNED(32, static const uint64_t,
+                  e_shuff[]) = { 0x0707070605040302LL, 0x0f0f0f0e0d0c0b0aLL,
+                                 0x0707070605040302LL, 0x0f0f0f0e0d0c0b0aLL };
+  int y;
+
+  dst += x0 + y0 * dstride;
+  src += x0 + y0 * sstride;
+
+  for (y = 0; y < sizey; y += 4) {
+    const v64 l0 = v64_load_aligned(src - (y != -y0) * sstride);
+    const v64 l1 = v64_load_aligned(src);
+    const v64 l2 = v64_load_aligned(src + sstride);
+    const v64 l3 = v64_load_aligned(src + 2 * sstride);
+    const v64 l4 = v64_load_aligned(src + 3 * sstride);
+    const v64 l5 = v64_load_aligned(src + ((y != bottom) + 3) * sstride);
+    v256 o = v256_from_v64(l1, l2, l3, l4);
+    const v256 a = v256_from_v64(l0, l1, l2, l3);
+    v256 b = v256_from_v64(v64_load_unaligned(src - 2 * !!x0),
+                           v64_load_unaligned(src + sstride - 2 * !!x0),
+                           v64_load_unaligned(src + 2 * sstride - 2 * !!x0),
+                           v64_load_unaligned(src + 3 * sstride - 2 * !!x0));
+    v256 c = v256_from_v64(v64_load_unaligned(src - !!x0),
+                           v64_load_unaligned(src + sstride - !!x0),
+                           v64_load_unaligned(src + 2 * sstride - !!x0),
+                           v64_load_unaligned(src + 3 * sstride - !!x0));
+    v256 d = v256_from_v64(v64_load_unaligned(src + !!right),
+                           v64_load_unaligned(src + sstride + !!right),
+                           v64_load_unaligned(src + 2 * sstride + !!right),
+                           v64_load_unaligned(src + 3 * sstride + !!right));
+    v256 e = v256_from_v64(v64_load_unaligned(src + 2 * !!right),
+                           v64_load_unaligned(src + sstride + 2 * !!right),
+                           v64_load_unaligned(src + 2 * sstride + 2 * !!right),
+                           v64_load_unaligned(src + 3 * sstride + 2 * !!right));
+    const v256 f = v256_from_v64(l2, l3, l4, l5);
+
+    if (!x0) {  // Left clipping
+      b = v256_pshuffle_8(b, v256_load_aligned(b_shuff));
+      c = v256_pshuffle_8(c, v256_load_aligned(c_shuff));
+    }
+    if (!right) {  // Right clipping
+      d = v256_pshuffle_8(d, v256_load_aligned(d_shuff));
+      e = v256_pshuffle_8(e, v256_load_aligned(e_shuff));
+    }
+
+    o = calc_delta256(o, a, b, c, d, e, f, sp, sm);
+    v64_store_aligned(dst, v256_low_v64(v256_shr_n_byte(o, 24)));
+    v64_store_aligned(dst + dstride, v256_low_v64(v256_shr_n_byte(o, 16)));
+    v64_store_aligned(dst + 2 * dstride, v256_low_v64(v256_shr_n_byte(o, 8)));
+    v64_store_aligned(dst + 3 * dstride, v256_low_v64(o));
+
+    dst += 4 * dstride;
+    src += 4 * sstride;
+  }
+}
+
 void SIMD_FUNC(aom_clpf_block)(const uint8_t *src, uint8_t *dst, int sstride,
                                int dstride, int x0, int y0, int sizex,
                                int sizey, int width, int height,
@@ -189,8 +238,8 @@ void SIMD_FUNC(aom_clpf_block)(const uint8_t *src, uint8_t *dst, int sstride,
     aom_clpf_block_c(src, dst, sstride, dstride, x0, y0, sizex, sizey, width,
                      height, strength);
   } else {
-    (sizex == 4 ? clpf_block4 : clpf_block8)(src, dst, sstride, dstride, x0, y0,
-                                             sizey, width, height, strength);
+    (sizex == 4 ? clpf_block4x4 : clpf_block8x4)(
+        src, dst, sstride, dstride, x0, y0, sizey, width, height, strength);
   }
 }
 
@@ -221,123 +270,164 @@ SIMD_INLINE v128 calc_delta_hbd(v128 o, v128 a, v128 b, v128 c, v128 d, v128 e,
              4));
 }
 
-static void calc_delta_hbd4(v128 o, v128 a, v128 b, v128 c, v128 d, v128 e,
-                            v128 f, uint16_t *dst, v128 sp, v128 sm,
-                            int dstride) {
-  o = calc_delta_hbd(o, a, b, c, d, e, f, sp, sm);
-  v64_store_aligned(dst, v128_high_v64(o));
-  v64_store_aligned(dst + dstride, v128_low_v64(o));
+// 256 bit version
+SIMD_INLINE v256 calc_delta256_hbd(v256 o, v256 a, v256 b, v256 c, v256 d,
+                                   v256 e, v256 f, v256 sp, v256 sm) {
+  const v256 c8 = v256_dup_16(8);
+  const v256 tmp =
+      v256_add_16(v256_max_s16(v256_min_s16(v256_sub_16(c, o), sp), sm),
+                  v256_max_s16(v256_min_s16(v256_sub_16(d, o), sp), sm));
+  const v256 delta = v256_add_16(
+      v256_add_16(
+          v256_shl_16(
+              v256_add_16(
+                  v256_max_s16(v256_min_s16(v256_sub_16(a, o), sp), sm),
+                  v256_max_s16(v256_min_s16(v256_sub_16(f, o), sp), sm)),
+              2),
+          v256_add_16(v256_max_s16(v256_min_s16(v256_sub_16(b, o), sp), sm),
+                      v256_max_s16(v256_min_s16(v256_sub_16(e, o), sp), sm))),
+      v256_add_16(v256_add_16(tmp, tmp), tmp));
+  return v256_add_16(
+      o, v256_shr_s16(
+             v256_add_16(
+                 c8, v256_add_16(delta, v256_cmplt_s16(delta, v256_zero()))),
+             4));
 }
 
-static void calc_delta_hbd8(v128 o, v128 a, v128 b, v128 c, v128 d, v128 e,
-                            v128 f, uint16_t *dst, v128 sp, v128 sm) {
-  v128_store_aligned(dst, calc_delta_hbd(o, a, b, c, d, e, f, sp, sm));
-}
-
-// Process blocks of width 4, two lines at time.
-SIMD_INLINE void clpf_block_hbd4(const uint16_t *src, uint16_t *dst,
-                                 int sstride, int dstride, int x0, int y0,
-                                 int sizey, int width, int height,
-                                 unsigned int strength) {
-  const v128 sp = v128_dup_16(strength);
-  const v128 sm = v128_dup_16(-(int)strength);
+// Process blocks of width 4, four lines at a time.
+static void clpf_block4x4_hbd(const uint16_t *src, uint16_t *dst, int sstride,
+                              int dstride, int x0, int y0, int sizey, int width,
+                              int height, unsigned int strength) {
+  const v256 sp = v256_dup_16(strength);
+  const v256 sm = v256_dup_16(-(int)strength);
   const int right = width - 4 - x0;
+  const int bottom = height - 4 - y0;
+  DECLARE_ALIGNED(32, static const uint64_t,
+                  b_shuff[]) = { 0x0302010001000100LL, 0x0b0a090809080908LL,
+                                 0x0302010001000100LL, 0x0b0a090809080908LL };
+  DECLARE_ALIGNED(32, static const uint64_t,
+                  c_shuff[]) = { 0x0504030201000100LL, 0x0d0c0b0a09080908LL,
+                                 0x0504030201000100LL, 0x0d0c0b0a09080908LL };
+  DECLARE_ALIGNED(32, static const uint64_t,
+                  d_shuff[]) = { 0x0706070605040302LL, 0x0f0e0f0e0d0c0b0aLL,
+                                 0x0706070605040302LL, 0x0f0e0f0e0d0c0b0aLL };
+  DECLARE_ALIGNED(32, static const uint64_t,
+                  e_shuff[]) = { 0x0706070607060504LL, 0x0f0e0f0e0f0e0d0cLL,
+                                 0x0706070607060504LL, 0x0f0e0f0e0f0e0d0cLL };
+  int y;
+
+  dst += x0 + y0 * dstride;
+  src += x0 + y0 * sstride;
+
+  for (y = 0; y < sizey; y += 4) {
+    const v64 l0 = v64_load_aligned(src - (y != -y0) * sstride);
+    const v64 l1 = v64_load_aligned(src);
+    const v64 l2 = v64_load_aligned(src + sstride);
+    const v64 l3 = v64_load_aligned(src + 2 * sstride);
+    const v64 l4 = v64_load_aligned(src + 3 * sstride);
+    const v64 l5 = v64_load_aligned(src + ((y != bottom) + 3) * sstride);
+    v256 o = v256_from_v64(l1, l2, l3, l4);
+    const v256 a = v256_from_v64(l0, l1, l2, l3);
+    const v256 f = v256_from_v64(l2, l3, l4, l5);
+    v256 b, c, d, e;
+
+    if (x0) {
+      b = v256_from_v64(v64_load_unaligned(src - 2),
+                        v64_load_unaligned(src + sstride - 2),
+                        v64_load_unaligned(src + 2 * sstride - 2),
+                        v64_load_unaligned(src + 3 * sstride - 2));
+      c = v256_from_v64(v64_load_unaligned(src - 1),
+                        v64_load_unaligned(src + sstride - 1),
+                        v64_load_unaligned(src + 2 * sstride - 1),
+                        v64_load_unaligned(src + 3 * sstride - 1));
+    } else {  // Left clipping
+      b = v256_pshuffle_8(o, v256_load_aligned(b_shuff));
+      c = v256_pshuffle_8(o, v256_load_aligned(c_shuff));
+    }
+    if (right) {
+      d = v256_from_v64(v64_load_unaligned(src + 1),
+                        v64_load_unaligned(src + sstride + 1),
+                        v64_load_unaligned(src + 2 * sstride + 1),
+                        v64_load_unaligned(src + 3 * sstride + 1));
+      e = v256_from_v64(v64_load_unaligned(src + 2 * !!right),
+                        v64_load_unaligned(src + sstride + 2),
+                        v64_load_unaligned(src + 2 * sstride + 2),
+                        v64_load_unaligned(src + 3 * sstride + 2));
+    } else {  // Right clipping
+      d = v256_pshuffle_8(o, v256_load_aligned(d_shuff));
+      e = v256_pshuffle_8(o, v256_load_aligned(e_shuff));
+    }
+
+    o = calc_delta256_hbd(o, a, b, c, d, e, f, sp, sm);
+    v64_store_aligned(dst, v256_low_v64(v256_shr_n_byte(o, 24)));
+    v64_store_aligned(dst + dstride, v256_low_v64(v256_shr_n_byte(o, 16)));
+    v64_store_aligned(dst + 2 * dstride, v256_low_v64(v256_shr_n_byte(o, 8)));
+    v64_store_aligned(dst + 3 * dstride, v256_low_v64(o));
+
+    dst += 4 * dstride;
+    src += 4 * sstride;
+  }
+}
+
+// Process blocks of width 8, two lines at a time.
+static void clpf_block8x2_hbd(const uint16_t *src, uint16_t *dst, int sstride,
+                              int dstride, int x0, int y0, int sizey, int width,
+                              int height, unsigned int strength) {
+  const int right = width - 8 - x0;
   const int bottom = height - 2 - y0;
-  DECLARE_ALIGNED(16, static const uint64_t,
-                  b_shuff[]) = { 0x0302010001000100LL, 0x0b0a090809080908LL };
-  DECLARE_ALIGNED(16, static const uint64_t,
-                  c_shuff[]) = { 0x0504030201000100LL, 0x0d0c0b0a09080908LL };
-  DECLARE_ALIGNED(16, static const uint64_t,
-                  d_shuff[]) = { 0x0706070605040302LL, 0x0f0e0f0e0d0c0b0aLL };
-  DECLARE_ALIGNED(16, static const uint64_t,
-                  e_shuff[]) = { 0x0706070607060504LL, 0x0f0e0f0e0f0e0d0cLL };
+  const v256 sp = v256_dup_16(strength);
+  const v256 sm = v256_dup_16(-(int)strength);
+  DECLARE_ALIGNED(32, static const uint64_t,
+                  b_shuff[]) = { 0x0302010001000100LL, 0x0b0a090807060504LL,
+                                 0x0302010001000100LL, 0x0b0a090807060504LL };
+  DECLARE_ALIGNED(32, static const uint64_t,
+                  c_shuff[]) = { 0x0504030201000100LL, 0x0d0c0b0a09080706LL,
+                                 0x0504030201000100LL, 0x0d0c0b0a09080706LL };
+  DECLARE_ALIGNED(32, static const uint64_t,
+                  d_shuff[]) = { 0x0908070605040302LL, 0x0f0e0f0e0d0c0b0aLL,
+                                 0x0908070605040302LL, 0x0f0e0f0e0d0c0b0aLL };
+  DECLARE_ALIGNED(32, static const uint64_t,
+                  e_shuff[]) = { 0x0b0a090807060504LL, 0x0f0e0f0e0f0e0d0cLL,
+                                 0x0b0a090807060504LL, 0x0f0e0f0e0f0e0d0cLL };
   int y;
 
   dst += x0 + y0 * dstride;
   src += x0 + y0 * sstride;
 
   for (y = 0; y < sizey; y += 2) {
-    const v64 l1 = v64_load_aligned(src);
-    const v64 l2 = v64_load_aligned(src + sstride);
-    v128 o = v128_from_v64(l1, l2);
-    const v128 a =
-        v128_from_v64(v64_load_aligned(src - (y != -y0) * sstride), l1);
-    const v128 f = v128_from_v64(
-        l2, v64_load_aligned(src + ((y != bottom) + 1) * sstride));
-    v128 b, c, d, e;
+    const v128 l1 = v128_load_aligned(src);
+    const v128 l2 = v128_load_aligned(src + sstride);
+    v256 o = v256_from_v128(l1, l2);
+    const v256 a =
+        v256_from_v128(v128_load_aligned(src - (y != -y0) * sstride), l1);
+    const v256 f = v256_from_v128(
+        l2, v128_load_aligned(src + ((y != bottom) + 1) * sstride));
+    v256 b, c, d, e;
 
     if (x0) {
-      b = v128_from_v64(v64_load_unaligned(src - 2),
-                        v64_load_unaligned(src - 2 + sstride));
-      c = v128_from_v64(v64_load_unaligned(src - 1),
-                        v64_load_unaligned(src - 1 + sstride));
+      b = v256_from_v128(v128_load_unaligned(src - 2),
+                         v128_load_unaligned(src - 2 + sstride));
+      c = v256_from_v128(v128_load_unaligned(src - 1),
+                         v128_load_unaligned(src - 1 + sstride));
     } else {  // Left clipping
-      b = v128_shuffle_8(o, v128_load_aligned(b_shuff));
-      c = v128_shuffle_8(o, v128_load_aligned(c_shuff));
+      b = v256_pshuffle_8(o, v256_load_aligned(b_shuff));
+      c = v256_pshuffle_8(o, v256_load_aligned(c_shuff));
     }
     if (right) {
-      d = v128_from_v64(v64_load_unaligned(src + 1),
-                        v64_load_unaligned(src + 1 + sstride));
-      e = v128_from_v64(v64_load_unaligned(src + 2),
-                        v64_load_unaligned(src + 2 + sstride));
+      d = v256_from_v128(v128_load_unaligned(src + 1),
+                         v128_load_unaligned(src + 1 + sstride));
+      e = v256_from_v128(v128_load_unaligned(src + 2),
+                         v128_load_unaligned(src + 2 + sstride));
     } else {  // Right clipping
-      d = v128_shuffle_8(o, v128_load_aligned(d_shuff));
-      e = v128_shuffle_8(o, v128_load_aligned(e_shuff));
+      d = v256_pshuffle_8(o, v256_load_aligned(d_shuff));
+      e = v256_pshuffle_8(o, v256_load_aligned(e_shuff));
     }
-    calc_delta_hbd4(o, a, b, c, d, e, f, dst, sp, sm, dstride);
+
+    o = calc_delta256_hbd(o, a, b, c, d, e, f, sp, sm);
+    v128_store_aligned(dst, v256_high_v128(o));
+    v128_store_aligned(dst + dstride, v256_low_v128(o));
     src += sstride * 2;
     dst += dstride * 2;
-  }
-}
-
-// The most simple case.  Start here if you need to understand the functions.
-SIMD_INLINE void clpf_block_hbd(const uint16_t *src, uint16_t *dst, int sstride,
-                                int dstride, int x0, int y0, int sizey,
-                                int width, int height, unsigned int strength) {
-  const v128 sp = v128_dup_16(strength);
-  const v128 sm = v128_dup_16(-(int)strength);
-  const int right = width - 8 - x0;
-  const int bottom = height - 2 - y0;
-  DECLARE_ALIGNED(16, static const uint64_t,
-                  b_shuff[]) = { 0x0302010001000100LL, 0x0b0a090807060504LL };
-  DECLARE_ALIGNED(16, static const uint64_t,
-                  c_shuff[]) = { 0x0504030201000100LL, 0x0d0c0b0a09080706LL };
-  DECLARE_ALIGNED(16, static const uint64_t,
-                  d_shuff[]) = { 0x0908070605040302LL, 0x0f0e0f0e0d0c0b0aLL };
-  DECLARE_ALIGNED(16, static const uint64_t,
-                  e_shuff[]) = { 0x0b0a090807060504LL, 0x0f0e0f0e0f0e0d0cLL };
-  int y;
-
-  dst += x0 + y0 * dstride;
-  src += x0 + y0 * sstride;
-
-  // Read 8 set of pixels at a time.  Clipping along upper and lower
-  // edges is handled by reading the upper or lower line twice.
-  // Clipping along the left and right edges is handled by shuffle
-  // instructions doing shift and pad.
-  for (y = 0; y < sizey; y++) {
-    const v128 o = v128_load_aligned(src);
-    const v128 a = v128_load_aligned(src - (y != -y0) * sstride);
-    const v128 f = v128_load_aligned(src + (y - 1 != bottom) * sstride);
-    v128 b, c, d, e;
-
-    if (x0) {
-      b = v128_load_unaligned(src - 2);
-      c = v128_load_unaligned(src - 1);
-    } else {  // Left clipping
-      b = v128_shuffle_8(o, v128_load_aligned(b_shuff));
-      c = v128_shuffle_8(o, v128_load_aligned(c_shuff));
-    }
-    if (right) {
-      d = v128_load_unaligned(src + 1);
-      e = v128_load_unaligned(src + 2);
-    } else {  // Right clipping
-      d = v128_shuffle_8(o, v128_load_aligned(d_shuff));
-      e = v128_shuffle_8(o, v128_load_aligned(e_shuff));
-    }
-    calc_delta_hbd8(o, a, b, c, d, e, f, dst, sp, sm);
-    src += sstride;
-    dst += dstride;
   }
 }
 
@@ -352,7 +442,7 @@ void SIMD_FUNC(aom_clpf_block_hbd)(const uint16_t *src, uint16_t *dst,
     aom_clpf_block_hbd_c(src, dst, sstride, dstride, x0, y0, sizex, sizey,
                          width, height, strength);
   } else {
-    (sizex == 4 ? clpf_block_hbd4 : clpf_block_hbd)(
+    (sizex == 4 ? clpf_block4x4_hbd : clpf_block8x2_hbd)(
         src, dst, sstride, dstride, x0, y0, sizey, width, height, strength);
   }
 }
