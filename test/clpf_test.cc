@@ -244,6 +244,16 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(&aom_clpf_block_sse4_1, &aom_clpf_block_c, 4, 4)));
 #endif
 
+#if HAVE_AVX2
+INSTANTIATE_TEST_CASE_P(
+    AVX2, ClpfBlockTest,
+    ::testing::Values(make_tuple(&aom_clpf_block_avx2, &aom_clpf_block_c, 8, 8),
+                      make_tuple(&aom_clpf_block_avx2, &aom_clpf_block_c, 8, 4),
+                      make_tuple(&aom_clpf_block_avx2, &aom_clpf_block_c, 4, 8),
+                      make_tuple(&aom_clpf_block_avx2, &aom_clpf_block_c, 4,
+                                 4)));
+#endif
+
 #if HAVE_NEON
 INSTANTIATE_TEST_CASE_P(
     NEON, ClpfBlockTest,
@@ -285,6 +295,16 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(&aom_clpf_block_hbd_sse4_1, &aom_clpf_block_hbd_c, 4, 4)));
 #endif
 
+#if HAVE_AVX2
+INSTANTIATE_TEST_CASE_P(
+    AVX2, ClpfBlockHbdTest,
+    ::testing::Values(
+        make_tuple(&aom_clpf_block_hbd_avx2, &aom_clpf_block_hbd_c, 8, 8),
+        make_tuple(&aom_clpf_block_hbd_avx2, &aom_clpf_block_hbd_c, 8, 4),
+        make_tuple(&aom_clpf_block_hbd_avx2, &aom_clpf_block_hbd_c, 4, 8),
+        make_tuple(&aom_clpf_block_hbd_avx2, &aom_clpf_block_hbd_c, 4, 4)));
+#endif
+
 #if HAVE_NEON
 INSTANTIATE_TEST_CASE_P(
     NEON, ClpfBlockHbdTest,
@@ -311,7 +331,13 @@ INSTANTIATE_TEST_CASE_P(SSSE3, ClpfSpeedTest,
 
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_CASE_P(SSSE4_1, ClpfSpeedTest,
-                        ::testing::Values(make_tuple(&aom_clpf_block_ssse3,
+                        ::testing::Values(make_tuple(&aom_clpf_block_sse4_1,
+                                                     &aom_clpf_block_c, 8, 8)));
+#endif
+
+#if HAVE_AVX2
+INSTANTIATE_TEST_CASE_P(AVX2, ClpfSpeedTest,
+                        ::testing::Values(make_tuple(&aom_clpf_block_avx2,
                                                      &aom_clpf_block_c, 8, 8)));
 #endif
 
@@ -338,7 +364,14 @@ INSTANTIATE_TEST_CASE_P(SSSE3, ClpfHbdSpeedTest,
 
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_CASE_P(SSSE4_1, ClpfHbdSpeedTest,
-                        ::testing::Values(make_tuple(&aom_clpf_block_hbd_ssse3,
+                        ::testing::Values(make_tuple(&aom_clpf_block_hbd_sse4_1,
+                                                     &aom_clpf_block_hbd_c, 8,
+                                                     8)));
+#endif
+
+#if HAVE_AVX2
+INSTANTIATE_TEST_CASE_P(AVX2, ClpfHbdSpeedTest,
+                        ::testing::Values(make_tuple(&aom_clpf_block_hbd_avx2,
                                                      &aom_clpf_block_hbd_c, 8,
                                                      8)));
 #endif
