@@ -60,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "3c993f38_e503c5e5",
+        "filename": "aom_dsp/aom_simd_inline.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-17T19:41:05Z",
+      "side": 1,
+      "message": "\u003e Yes, but I get errors if I use AOM_FORCE_INLINE:\n \u003e ./aom/aom_integer.h:22:51: error: expected ‘(’ before\n \u003e ‘always_inline’\n \u003e #define AOM_FORCE_INLINE __inline__ __attribute__(always_inline)\n \u003e \n \u003e I think the correct syntax is __attribute__((always_inline))\n\n\nsounds like a typo, nothing a quick change can\u0027t fix\nhttps://aomedia-review.googlesource.com/5144",
+      "parentUuid": "bcbe0e35_e3231266",
+      "revId": "28de5681313906c15a6b5f019d03f190cdafab63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc44a23c_ccf62f75",
         "filename": "test/simd_arm_test.cc",
         "patchSetId": 33
