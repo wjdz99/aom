@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c04eb4e_85ec52a2",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-17T23:52:15Z",
+      "side": 1,
+      "message": "the 2 impl files would have been a simple place to split this.",
+      "revId": "92cc0bcdf06a14d9ab17cca2cc120a2997ddfe70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c04eb4e_3a25c576",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-17T23:52:15Z",
+      "side": 1,
+      "message": "functions + 1 space after a period is enough",
+      "range": {
+        "startLine": 253,
+        "startChar": 17,
+        "endLine": 253,
+        "endChar": 25
+      },
+      "revId": "92cc0bcdf06a14d9ab17cca2cc120a2997ddfe70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c04eb4e_9ab151e9",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-17T23:52:15Z",
+      "side": 1,
+      "message": "You can use FAIL() or other gtest\u0027isms within the tests",
+      "range": {
+        "startLine": 655,
+        "startChar": 13,
+        "endLine": 655,
+        "endChar": 23
+      },
+      "revId": "92cc0bcdf06a14d9ab17cca2cc120a2997ddfe70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c04eb4e_fabe9db6",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-17T23:52:15Z",
+      "side": 1,
+      "message": "these should use ASM_REGISTER_STATE_CHECK",
+      "revId": "92cc0bcdf06a14d9ab17cca2cc120a2997ddfe70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c04eb4e_25c2c621",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-17T23:52:15Z",
+      "side": 1,
+      "message": "you probably want to do memcmp as I don\u0027t think you\u0027re guaranteeing alignment of these buffers in all cases",
+      "revId": "92cc0bcdf06a14d9ab17cca2cc120a2997ddfe70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c04eb4e_052982fc",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-17T23:52:15Z",
+      "side": 1,
+      "message": "for better balance you could put these in the blocks themselves",
+      "revId": "92cc0bcdf06a14d9ab17cca2cc120a2997ddfe70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
