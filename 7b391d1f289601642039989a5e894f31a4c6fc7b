@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ca6f3c4_12ce0a18",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-18T16:01:33Z",
+      "side": 1,
+      "message": "It seems strange to pass bsize here, when really you are using this as a flag to indicate if you should do the copy for 8x8 blocks or 4x4 blocks.\n\nInstead of 3 functions, why not just make two functions:\n\ncopy_4x4_blocks_16bit(int16_t *dst, int dstride, int16_t *src, int sstride, dering_list *dering, int dering_count);\n\ncopy_8x8_blocks_16bit(int16_t *dst, int dstride, int16_t *src, int sstride, dering_list *dering, int dering_count);\n\nAnd move the check into the calling function.  This has the same effect but prevents burying a hardcoded value inside an auxiliary function.\n\nif (bsize \u003d\u003d 3)\n\ninside a function that is way easier to read.",
+      "revId": "7b391d1f289601642039989a5e894f31a4c6fc7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
