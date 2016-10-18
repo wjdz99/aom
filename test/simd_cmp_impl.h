@@ -14,7 +14,7 @@
 #include "test/acm_random.h"
 #include "test/register_state_check.h"
 #include "aom_dsp/aom_simd.h"
-#include "aom_dsp/simd/v64_intrinsics_c.h"
+#include "aom_dsp/simd/v128_intrinsics_c.h"
 
 // Machine tuned code goes into this file. This file is included from
 // simd_cmp_sse2.cc, simd_cmp_ssse3.cc etc which define the macros
@@ -123,6 +123,103 @@ c_v64 c_imm_v64_align(c_v64 a, c_v64 b) {
   return c_v64_align(a, b, shift);
 }
 
+template <int shift>
+v128 imm_v128_shl_n_byte(v128 a) {
+  return v128_shl_n_byte(a, shift);
+}
+template <int shift>
+v128 imm_v128_shr_n_byte(v128 a) {
+  return v128_shr_n_byte(a, shift);
+}
+template <int shift>
+v128 imm_v128_shl_n_8(v128 a) {
+  return v128_shl_n_8(a, shift);
+}
+template <int shift>
+v128 imm_v128_shr_n_u8(v128 a) {
+  return v128_shr_n_u8(a, shift);
+}
+template <int shift>
+v128 imm_v128_shr_n_s8(v128 a) {
+  return v128_shr_n_s8(a, shift);
+}
+template <int shift>
+v128 imm_v128_shl_n_16(v128 a) {
+  return v128_shl_n_16(a, shift);
+}
+template <int shift>
+v128 imm_v128_shr_n_u16(v128 a) {
+  return v128_shr_n_u16(a, shift);
+}
+template <int shift>
+v128 imm_v128_shr_n_s16(v128 a) {
+  return v128_shr_n_s16(a, shift);
+}
+template <int shift>
+v128 imm_v128_shl_n_32(v128 a) {
+  return v128_shl_n_32(a, shift);
+}
+template <int shift>
+v128 imm_v128_shr_n_u32(v128 a) {
+  return v128_shr_n_u32(a, shift);
+}
+template <int shift>
+v128 imm_v128_shr_n_s32(v128 a) {
+  return v128_shr_n_s32(a, shift);
+}
+template <int shift>
+v128 imm_v128_align(v128 a, v128 b) {
+  return v128_align(a, b, shift);
+}
+
+template <int shift>
+c_v128 c_imm_v128_shl_n_byte(c_v128 a) {
+  return c_v128_shl_n_byte(a, shift);
+}
+template <int shift>
+c_v128 c_imm_v128_shr_n_byte(c_v128 a) {
+  return c_v128_shr_n_byte(a, shift);
+}
+template <int shift>
+c_v128 c_imm_v128_shl_n_8(c_v128 a) {
+  return c_v128_shl_n_8(a, shift);
+}
+template <int shift>
+c_v128 c_imm_v128_shr_n_u8(c_v128 a) {
+  return c_v128_shr_n_u8(a, shift);
+}
+template <int shift>
+c_v128 c_imm_v128_shr_n_s8(c_v128 a) {
+  return c_v128_shr_n_s8(a, shift);
+}
+template <int shift>
+c_v128 c_imm_v128_shl_n_16(c_v128 a) {
+  return c_v128_shl_n_16(a, shift);
+}
+template <int shift>
+c_v128 c_imm_v128_shr_n_u16(c_v128 a) {
+  return c_v128_shr_n_u16(a, shift);
+}
+template <int shift>
+c_v128 c_imm_v128_shr_n_s16(c_v128 a) {
+  return c_v128_shr_n_s16(a, shift);
+}
+template <int shift>
+c_v128 c_imm_v128_shl_n_32(c_v128 a) {
+  return c_v128_shl_n_32(a, shift);
+}
+template <int shift>
+c_v128 c_imm_v128_shr_n_u32(c_v128 a) {
+  return c_v128_shr_n_u32(a, shift);
+}
+template <int shift>
+c_v128 c_imm_v128_shr_n_s32(c_v128 a) {
+  return c_v128_shr_n_s32(a, shift);
+}
+template <int shift>
+c_v128 c_imm_v128_align(c_v128 a, c_v128 b) {
+  return c_v128_align(a, b, shift);
+}
 
 // Wrappers around the the SAD and SSD functions
 uint32_t v64_sad_u8(v64 a, v64 b) {
@@ -137,6 +234,18 @@ uint32_t c_v64_sad_u8(c_v64 a, c_v64 b) {
 }
 uint32_t c_v64_ssd_u8(c_v64 a, c_v64 b) {
   return c_v64_ssd_u8_sum(::c_v64_ssd_u8(c_v64_ssd_u8_init(), a, b));
+}
+uint32_t v128_sad_u8(v128 a, v128 b) {
+  return v128_sad_u8_sum(::v128_sad_u8(v128_sad_u8_init(), a, b));
+}
+uint32_t v128_ssd_u8(v128 a, v128 b) {
+  return v128_ssd_u8_sum(::v128_ssd_u8(v128_ssd_u8_init(), a, b));
+}
+uint32_t c_v128_sad_u8(c_v128 a, c_v128 b) {
+  return c_v128_sad_u8_sum(::c_v128_sad_u8(c_v128_sad_u8_init(), a, b));
+}
+uint32_t c_v128_ssd_u8(c_v128 a, c_v128 b) {
+  return c_v128_ssd_u8_sum(::c_v128_ssd_u8(c_v128_ssd_u8_init(), a, b));
 }
 
 #define MAP(name) \
@@ -306,6 +415,199 @@ void map(const char *name, void **ref, void **simd) {
                           MAP(v64_hadd_u8),
                           MAP(v64_hadd_s16),
                           MAP(v64_dotp_s16),
+                          MAP(v128_sad_u8),
+                          MAP(v128_ssd_u8),
+                          MAP(v128_add_8),
+                          MAP(v128_add_16),
+                          MAP(v128_sadd_s16),
+                          MAP(v128_add_32),
+                          MAP(v128_sub_8),
+                          MAP(v128_ssub_u8),
+                          MAP(v128_ssub_s8),
+                          MAP(v128_sub_16),
+                          MAP(v128_ssub_s16),
+                          MAP(v128_sub_32),
+                          MAP(v128_ziplo_8),
+                          MAP(v128_ziphi_8),
+                          MAP(v128_ziplo_16),
+                          MAP(v128_ziphi_16),
+                          MAP(v128_ziplo_32),
+                          MAP(v128_ziphi_32),
+                          MAP(v128_ziplo_64),
+                          MAP(v128_ziphi_64),
+                          MAP(v128_unziphi_8),
+                          MAP(v128_unziplo_8),
+                          MAP(v128_unziphi_16),
+                          MAP(v128_unziplo_16),
+                          MAP(v128_unziphi_32),
+                          MAP(v128_unziplo_32),
+                          MAP(v128_pack_s32_s16),
+                          MAP(v128_pack_s16_u8),
+                          MAP(v128_pack_s16_s8),
+                          MAP(v128_or),
+                          MAP(v128_xor),
+                          MAP(v128_and),
+                          MAP(v128_andn),
+                          MAP(v128_mullo_s16),
+                          MAP(v128_mulhi_s16),
+                          MAP(v128_mullo_s32),
+                          MAP(v128_madd_s16),
+                          MAP(v128_madd_us8),
+                          MAP(v128_avg_u8),
+                          MAP(v128_rdavg_u8),
+                          MAP(v128_avg_u16),
+                          MAP(v128_min_u8),
+                          MAP(v128_max_u8),
+                          MAP(v128_min_s8),
+                          MAP(v128_max_s8),
+                          MAP(v128_min_s16),
+                          MAP(v128_max_s16),
+                          MAP(v128_cmpgt_s8),
+                          MAP(v128_cmplt_s8),
+                          MAP(v128_cmpeq_8),
+                          MAP(v128_cmpgt_s16),
+                          MAP(v128_cmpeq_16),
+                          MAP(v128_cmplt_s16),
+                          MAP(v128_shuffle_8),
+                          MAP(imm_v128_align<1>),
+                          MAP(imm_v128_align<2>),
+                          MAP(imm_v128_align<3>),
+                          MAP(imm_v128_align<4>),
+                          MAP(imm_v128_align<5>),
+                          MAP(imm_v128_align<6>),
+                          MAP(imm_v128_align<7>),
+                          MAP(imm_v128_align<8>),
+                          MAP(imm_v128_align<9>),
+                          MAP(imm_v128_align<10>),
+                          MAP(imm_v128_align<11>),
+                          MAP(imm_v128_align<12>),
+                          MAP(imm_v128_align<13>),
+                          MAP(imm_v128_align<14>),
+                          MAP(imm_v128_align<15>),
+                          MAP(v128_abs_s16),
+                          MAP(v128_padd_s16),
+                          MAP(v128_unpacklo_u16_s32),
+                          MAP(v128_unpacklo_s16_s32),
+                          MAP(v128_unpackhi_u16_s32),
+                          MAP(v128_unpackhi_s16_s32),
+                          MAP(imm_v128_shr_n_byte<1>),
+                          MAP(imm_v128_shr_n_byte<2>),
+                          MAP(imm_v128_shr_n_byte<3>),
+                          MAP(imm_v128_shr_n_byte<4>),
+                          MAP(imm_v128_shr_n_byte<5>),
+                          MAP(imm_v128_shr_n_byte<6>),
+                          MAP(imm_v128_shr_n_byte<7>),
+                          MAP(imm_v128_shr_n_byte<8>),
+                          MAP(imm_v128_shr_n_byte<9>),
+                          MAP(imm_v128_shr_n_byte<10>),
+                          MAP(imm_v128_shr_n_byte<11>),
+                          MAP(imm_v128_shr_n_byte<12>),
+                          MAP(imm_v128_shr_n_byte<13>),
+                          MAP(imm_v128_shr_n_byte<14>),
+                          MAP(imm_v128_shr_n_byte<15>),
+                          MAP(imm_v128_shl_n_byte<1>),
+                          MAP(imm_v128_shl_n_byte<2>),
+                          MAP(imm_v128_shl_n_byte<3>),
+                          MAP(imm_v128_shl_n_byte<4>),
+                          MAP(imm_v128_shl_n_byte<5>),
+                          MAP(imm_v128_shl_n_byte<6>),
+                          MAP(imm_v128_shl_n_byte<7>),
+                          MAP(imm_v128_shl_n_byte<8>),
+                          MAP(imm_v128_shl_n_byte<9>),
+                          MAP(imm_v128_shl_n_byte<10>),
+                          MAP(imm_v128_shl_n_byte<11>),
+                          MAP(imm_v128_shl_n_byte<12>),
+                          MAP(imm_v128_shl_n_byte<13>),
+                          MAP(imm_v128_shl_n_byte<14>),
+                          MAP(imm_v128_shl_n_byte<15>),
+                          MAP(imm_v128_shl_n_8<1>),
+                          MAP(imm_v128_shl_n_8<2>),
+                          MAP(imm_v128_shl_n_8<3>),
+                          MAP(imm_v128_shl_n_8<4>),
+                          MAP(imm_v128_shl_n_8<5>),
+                          MAP(imm_v128_shl_n_8<6>),
+                          MAP(imm_v128_shl_n_8<7>),
+                          MAP(imm_v128_shr_n_u8<1>),
+                          MAP(imm_v128_shr_n_u8<2>),
+                          MAP(imm_v128_shr_n_u8<3>),
+                          MAP(imm_v128_shr_n_u8<4>),
+                          MAP(imm_v128_shr_n_u8<5>),
+                          MAP(imm_v128_shr_n_u8<6>),
+                          MAP(imm_v128_shr_n_u8<7>),
+                          MAP(imm_v128_shr_n_s8<1>),
+                          MAP(imm_v128_shr_n_s8<2>),
+                          MAP(imm_v128_shr_n_s8<3>),
+                          MAP(imm_v128_shr_n_s8<4>),
+                          MAP(imm_v128_shr_n_s8<5>),
+                          MAP(imm_v128_shr_n_s8<6>),
+                          MAP(imm_v128_shr_n_s8<7>),
+                          MAP(imm_v128_shl_n_16<1>),
+                          MAP(imm_v128_shl_n_16<2>),
+                          MAP(imm_v128_shl_n_16<4>),
+                          MAP(imm_v128_shl_n_16<6>),
+                          MAP(imm_v128_shl_n_16<8>),
+                          MAP(imm_v128_shl_n_16<10>),
+                          MAP(imm_v128_shl_n_16<12>),
+                          MAP(imm_v128_shl_n_16<14>),
+                          MAP(imm_v128_shr_n_u16<1>),
+                          MAP(imm_v128_shr_n_u16<2>),
+                          MAP(imm_v128_shr_n_u16<4>),
+                          MAP(imm_v128_shr_n_u16<6>),
+                          MAP(imm_v128_shr_n_u16<8>),
+                          MAP(imm_v128_shr_n_u16<10>),
+                          MAP(imm_v128_shr_n_u16<12>),
+                          MAP(imm_v128_shr_n_u16<14>),
+                          MAP(imm_v128_shr_n_s16<1>),
+                          MAP(imm_v128_shr_n_s16<2>),
+                          MAP(imm_v128_shr_n_s16<4>),
+                          MAP(imm_v128_shr_n_s16<6>),
+                          MAP(imm_v128_shr_n_s16<8>),
+                          MAP(imm_v128_shr_n_s16<10>),
+                          MAP(imm_v128_shr_n_s16<12>),
+                          MAP(imm_v128_shr_n_s16<14>),
+                          MAP(imm_v128_shl_n_32<1>),
+                          MAP(imm_v128_shl_n_32<4>),
+                          MAP(imm_v128_shl_n_32<8>),
+                          MAP(imm_v128_shl_n_32<12>),
+                          MAP(imm_v128_shl_n_32<16>),
+                          MAP(imm_v128_shl_n_32<20>),
+                          MAP(imm_v128_shl_n_32<24>),
+                          MAP(imm_v128_shl_n_32<28>),
+                          MAP(imm_v128_shr_n_u32<1>),
+                          MAP(imm_v128_shr_n_u32<4>),
+                          MAP(imm_v128_shr_n_u32<8>),
+                          MAP(imm_v128_shr_n_u32<12>),
+                          MAP(imm_v128_shr_n_u32<16>),
+                          MAP(imm_v128_shr_n_u32<20>),
+                          MAP(imm_v128_shr_n_u32<24>),
+                          MAP(imm_v128_shr_n_u32<28>),
+                          MAP(imm_v128_shr_n_s32<1>),
+                          MAP(imm_v128_shr_n_s32<4>),
+                          MAP(imm_v128_shr_n_s32<8>),
+                          MAP(imm_v128_shr_n_s32<12>),
+                          MAP(imm_v128_shr_n_s32<16>),
+                          MAP(imm_v128_shr_n_s32<20>),
+                          MAP(imm_v128_shr_n_s32<24>),
+                          MAP(imm_v128_shr_n_s32<28>),
+                          MAP(v128_from_v64),
+                          MAP(v128_zip_8),
+                          MAP(v128_zip_16),
+                          MAP(v128_zip_32),
+                          MAP(v128_mul_s16),
+                          MAP(v128_unpack_u8_s16),
+                          MAP(v128_unpack_u16_s32),
+                          MAP(v128_unpack_s16_s32),
+                          MAP(v128_shl_8),
+                          MAP(v128_shr_u8),
+                          MAP(v128_shr_s8),
+                          MAP(v128_shl_16),
+                          MAP(v128_shr_u16),
+                          MAP(v128_shr_s16),
+                          MAP(v128_shl_32),
+                          MAP(v128_shr_u32),
+                          MAP(v128_shr_s32),
+                          MAP(v128_hadd_u8),
+                          MAP(v128_dotp_s16),
                           { NULL, NULL, NULL } };
 
   unsigned int i;
@@ -468,6 +770,25 @@ void test_simd1(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           (void *)u64_store_aligned, (void *)v64_load_aligned, simd, d,
           (void *)c_v64_store_aligned, (void *)c_v64_load_aligned, ref_simd,
           ref_d, s);
+    } else if (is_same<c_ret, uint64_t>::value &&
+               is_same<c_arg, c_v128>::value) {
+      // U64_V128
+      error = compare_simd1<uint64_t, v128, c_ret, c_arg>(
+          (void *)u64_store_aligned, (void *)v128_load_aligned, simd, d,
+          (void *)c_u64_store_aligned, (void *)c_v128_load_aligned, ref_simd,
+          ref_d, s);
+    } else if (is_same<c_ret, c_v128>::value && is_same<c_arg, c_v128>::value) {
+      // V128_V128
+      error = compare_simd1<v128, v128, c_ret, c_arg>(
+          (void *)v128_store_aligned, (void *)v128_load_aligned, simd, d,
+          (void *)c_v128_store_aligned, (void *)c_v128_load_aligned, ref_simd,
+          ref_d, s);
+    } else if (is_same<c_ret, c_v128>::value && is_same<c_arg, c_v64>::value) {
+      // V128_V64
+      error = compare_simd1<v128, v64, c_ret, c_arg>(
+          (void *)v128_store_aligned, (void *)v64_load_aligned, simd, d,
+          (void *)c_v128_store_aligned, (void *)c_v64_load_aligned, ref_simd,
+          ref_d, s);
     } else {
       FAIL() << "Internal errer: Unknown intrinsic function "
              << typeid(c_ret).name() << " " << name << "("
@@ -543,6 +864,50 @@ void test_simd2(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           (void *)u32_load_aligned, simd, d, (void *)c_v64_store_aligned,
           (void *)c_v64_load_aligned, (void *)c_u32_load_aligned,
           (void *)ref_simd, ref_d, s1, s2);
+    } else if (is_same<c_ret, c_v128>::value &&
+               is_same<c_arg1, c_v128>::value &&
+               is_same<c_arg2, c_v128>::value) {
+      // V128_V128V128
+      error = compare_simd2<v128, v128, v128, c_ret, c_arg1, c_arg2>(
+          (void *)v128_store_aligned, (void *)v128_load_aligned,
+          (void *)v128_load_aligned, simd, d, (void *)c_v128_store_aligned,
+          (void *)c_v128_load_aligned, (void *)c_v128_load_aligned,
+          (void *)ref_simd, ref_d, s1, s2);
+    } else if (is_same<c_ret, uint32_t>::value &&
+               is_same<c_arg1, c_v128>::value &&
+               is_same<c_arg2, c_v128>::value) {
+      // U32_V128V128
+      error = compare_simd2<uint32_t, v128, v128, c_ret, c_arg1, c_arg2>(
+          (void *)u32_store_aligned, (void *)v128_load_aligned,
+          (void *)v128_load_aligned, simd, d, (void *)c_u32_store_aligned,
+          (void *)c_v128_load_aligned, (void *)c_v128_load_aligned,
+          (void *)ref_simd, ref_d, s1, s2);
+    } else if (is_same<c_ret, int64_t>::value &&
+               is_same<c_arg1, c_v128>::value &&
+               is_same<c_arg2, c_v128>::value) {
+      // S64_V128V128
+      error = compare_simd2<int64_t, v128, v128, c_ret, c_arg1, c_arg2>(
+          (void *)u64_store_aligned, (void *)v128_load_aligned,
+          (void *)v128_load_aligned, simd, d, (void *)c_u64_store_aligned,
+          (void *)c_v128_load_aligned, (void *)c_v128_load_aligned,
+          (void *)ref_simd, ref_d, s1, s2);
+    } else if (is_same<c_ret, c_v128>::value && is_same<c_arg1, c_v64>::value &&
+               is_same<c_arg2, c_v64>::value) {
+      // V128_V64V64
+      error = compare_simd2<v128, v64, v64, c_ret, c_arg1, c_arg2>(
+          (void *)v128_store_aligned, (void *)v64_load_aligned,
+          (void *)v64_load_aligned, simd, d, (void *)c_v128_store_aligned,
+          (void *)c_v64_load_aligned, (void *)c_v64_load_aligned,
+          (void *)ref_simd, ref_d, s1, s2);
+    } else if (is_same<c_ret, c_v128>::value &&
+               is_same<c_arg1, c_v128>::value &&
+               is_same<c_arg2, uint32_t>::value) {
+      // V128_V128U32
+      error = compare_simd2<v128, v128, uint32_t, c_ret, c_arg1, c_arg2>(
+          (void *)v128_store_aligned, (void *)v128_load_aligned,
+          (void *)u32_load_aligned, simd, d, (void *)c_v128_store_aligned,
+          (void *)c_v128_load_aligned, (void *)c_u32_load_aligned,
+          (void *)ref_simd, ref_d, s1, s2);
     } else {
       FAIL() << "Internal errer: Unknown intrinsic function "
              << typeid(c_ret).name() << " " << name << "("
@@ -572,5 +937,20 @@ template void test_simd2<int64_t, c_v64, c_v64>(uint32_t, uint32_t, uint32_t,
                                                 const char *);
 template void test_simd2<uint32_t, c_v64, c_v64>(uint32_t, uint32_t, uint32_t,
                                                  const char *);
-
+template void test_simd1<c_v128, c_v128>(uint32_t, uint32_t, uint32_t,
+                                         const char *);
+template void test_simd1<c_v128, c_v64>(uint32_t, uint32_t, uint32_t,
+                                        const char *);
+template void test_simd1<uint64_t, c_v128>(uint32_t, uint32_t, uint32_t,
+                                           const char *);
+template void test_simd2<c_v128, c_v128, c_v128>(uint32_t, uint32_t, uint32_t,
+                                                 const char *);
+template void test_simd2<c_v128, c_v128, uint32_t>(uint32_t, uint32_t, uint32_t,
+                                                   const char *);
+template void test_simd2<c_v128, c_v64, c_v64>(uint32_t, uint32_t, uint32_t,
+                                               const char *);
+template void test_simd2<int64_t, c_v128, c_v128>(uint32_t, uint32_t, uint32_t,
+                                                  const char *);
+template void test_simd2<uint32_t, c_v128, c_v128>(uint32_t, uint32_t, uint32_t,
+                                                   const char *);
 }  // namespace SIMD_NAMESPACE
