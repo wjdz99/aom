@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "5ca6f3c4_d2564272",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-18T14:28:08Z",
+      "side": 1,
+      "message": "\u003e Why not just return the number of skipped blocks.\n\nThis is a typo, I meant return the number of dering\u0027ed blocks.",
+      "parentUuid": "5ca6f3c4_d2ff2242",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ca6f3c4_325eae91",
         "filename": "av1/common/dering.c",
         "patchSetId": 1
