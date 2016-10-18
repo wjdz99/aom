@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ca6f3c4_b2029e6b",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-18T14:24:48Z",
+      "side": 1,
+      "message": "Renaming this function to something more meaningful like:\n\nint sb_compute_dering_list()\n\nwould help.",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ca6f3c4_32f78e71",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-18T14:24:48Z",
+      "side": 1,
+      "message": "Formatting.",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ca6f3c4_d2ff2242",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-18T14:24:48Z",
+      "side": 1,
+      "message": "Why not just return the number of skipped blocks.  It seems strange to pass a pointer to an int when you can test if the superblock contains any skipped blocks by testing for 0.\n\nYou are already holding on to this value with dering_count, skip \u003d dering_count \u003d\u003d 0.",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ca6f3c4_325eae91",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-18T14:24:48Z",
+      "side": 1,
+      "message": "This is no longer an array of flags of skipped blocks but a list of blocks to dering.  This name doesn\u0027t make sense anymore.",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ca6f3c4_1259aaa8",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-18T14:24:48Z",
+      "side": 1,
+      "message": "Obviously this changes to:\n\n  dering_count \u003d\n    sb_compute_dering_list(cm, sbr * MAX_MIB_SIZE, sbc * MAX_MIB_SIZE, dering);\n  if (level \u003d\u003d 0 || dering_count \u003d\u003d 0) continue;",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ca6f3c4_92059a78",
+        "filename": "av1/common/dering.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-18T14:24:48Z",
+      "side": 1,
+      "message": "You are actually creating a list of x,y positions for skipped blocks to dering.  Adding a simple:\n\ntypedef struct {\n  unsigned char x;\n  unsigned char y;\n} dering_list;\n\nand passing a pointer to a dering_list would go a long way toward making this code readable.",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ca6f3c4_52633258",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-18T14:24:48Z",
+      "side": 1,
+      "message": "Same thing here, this name is misleading.",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ca6f3c4_924cbae4",
+        "filename": "av1/encoder/pickdering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-18T14:24:48Z",
+      "side": 1,
+      "message": "Same thing applies to this function.",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
