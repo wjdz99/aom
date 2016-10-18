@@ -427,6 +427,8 @@ post_process_cmdline() {
         enabled ${c} && enable_feature ${c##*_}s
     done
 
+    soft_enable dering
+
     # Fix up experiment dependencies
     enabled ec_adapt && ! enabled rans && soft_enable daala_ec
     enabled ec_adapt && ! enabled daala_ec && soft_enable rans
