@@ -157,6 +157,12 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   int pli;
   int last_sbc;
   int coeff_shift = AOMMAX(cm->bit_depth - 8, 0);
+  int nplanes;
+  if (xd->plane[1].subsampling_x == xd->plane[1].subsampling_y &&
+      xd->plane[2].subsampling_x == xd->plane[2].subsampling_y)
+    nplanes = 3;
+  else
+    nplanes = 1;
   nvsb = (cm->mi_rows + MAX_MIB_SIZE - 1) / MAX_MIB_SIZE;
   nhsb = (cm->mi_cols + MAX_MIB_SIZE - 1) / MAX_MIB_SIZE;
   av1_setup_dst_planes(xd->plane, frame, 0, 0);
@@ -164,17 +170,17 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   memset(row_dering, 1, sizeof(*row_dering) * (nhsb + 2) * 2);
   prev_row_dering = row_dering + 1;
   curr_row_dering = prev_row_dering + nhsb + 2;
-  for (pli = 0; pli < 3; pli++) {
+  for (pli = 0; pli < nplanes; pli++) {
     dec[pli] = xd->plane[pli].subsampling_x;
     bsize[pli] = 3 - dec[pli];
   }
   stride = (cm->mi_cols << bsize[0]) + 2*OD_FILT_HBORDER;
-  for (pli = 0; pli < 3; pli++) {
+  for (pli = 0; pli < nplanes; pli++) {
     linebuf[pli] = aom_malloc(sizeof(*linebuf) * OD_FILT_VBORDER * stride);
   }
   for (sbr = 0; sbr < nvsb; sbr++) {
     last_sbc = -1;
-    for (pli = 0; pli < 3; pli++) {
+    for (pli = 0; pli < nplanes; pli++) {
       for (r = 0; r < (MAX_MIB_SIZE << bsize[pli]) + 2*OD_FILT_VBORDER; r++) {
         for (c = 0; c < OD_FILT_HBORDER; c++) {
           colbuf[pli][r][c] = OD_DERING_VERY_LARGE;
@@ -199,7 +205,7 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
               sbc * MAX_MIB_SIZE, dlist)) == 0)
         continue;
       curr_row_dering[sbc] = 1;
-      for (pli = 0; pli < 3; pli++) {
+      for (pli = 0; pli < nplanes; pli++) {
         int16_t dst[MAX_MIB_SIZE * MAX_MIB_SIZE * 8 * 8];
         int threshold;
         int coffset;
@@ -367,7 +373,7 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     }
   }
   aom_free(row_dering);
-  for (pli = 0; pli < 3; pli++) {
+  for (pli = 0; pli < nplanes; pli++) {
     aom_free(linebuf[pli]);
   }
 }
