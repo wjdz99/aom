@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ca6f3c4_d8390198",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-19T13:30:10Z",
+      "side": 1,
+      "message": "This works, but only because AV1 takes Cmono input and gives it two empty color planes.  At the very least you should put a TODO and a comment here saying this must be fixed when we have proper mono support.",
+      "revId": "924cb31ed554358a6fa624d790a531ef93773e55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
