@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c2353ec_0ac07b87",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-19T19:55:21Z",
+      "side": 1,
+      "message": "I don\u0027t understand why these are functions are not in the same location as copy_blocks_16bit() from od_dering.c.  They essentially serve the same purpose and have confusingly similar names.\n\nI would call this copy_blocks_16bit_to_8bit() and the other copy_blocks_16bit_to_16bit().\n\nAlso, since the calling function knows if it is 8x8 or 4x4, why not just have two publicly exposed functions:\n\ncopy_8x8_blocks_16bit_to_8bit()\ncopy_4x4_blocks_16bit_to_8bit()\n\nand remove the test for the hard coded value 3 inside?",
+      "revId": "f1a63905f64a7bc1898fdf7b4f2dcd45258c2049",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c2353ec_8a846b5a",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-19T19:55:21Z",
+      "side": 1,
+      "message": "Same complaint here, changing the last parameter (of this newly created function) to take a boolean value that indicates if it is 8x8 or 4x4 would be way less confusing than: 3 - dec[pli].",
+      "range": {
+        "startLine": 198,
+        "startChar": 14,
+        "endLine": 198,
+        "endChar": 39
+      },
+      "revId": "f1a63905f64a7bc1898fdf7b4f2dcd45258c2049",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c2353ec_4aca73a9",
+        "filename": "av1/common/od_dering.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-19T19:55:21Z",
+      "side": 1,
+      "message": "Use an dering struct instead of bskip, maybe call this function something more specific, like copy_dering instead of copy_blocks.",
+      "revId": "f1a63905f64a7bc1898fdf7b4f2dcd45258c2049",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
