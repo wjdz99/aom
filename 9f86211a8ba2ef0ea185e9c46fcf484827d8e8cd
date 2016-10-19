@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c2353ec_e70e0251",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-19T19:55:21Z",
+      "side": 1,
+      "message": "These functions are similar to the copy_8x8_16bit() and copy_4x4_16bit().  Is there a reason they are defined here and not in od_dering.c?\n\nCan you please put them in the same C file (e.g., od_dering.c) and expose copy_blocks_16_8bit() through the header file, exactly like you did for copy_blocks_16bit().",
+      "revId": "9f86211a8ba2ef0ea185e9c46fcf484827d8e8cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c2353ec_87e8e63a",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-19T19:55:21Z",
+      "side": 1,
+      "message": "Please change the suffix from \u0027_16_8bit\u0027 to the more readable \u0027_16bit_to_8bit\u0027?",
+      "revId": "9f86211a8ba2ef0ea185e9c46fcf484827d8e8cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c2353ec_c7e2de56",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-19T19:55:21Z",
+      "side": 1,
+      "message": "Consider renaming this copy_blocks_16bit_to_16bit() for consistency.",
+      "revId": "9f86211a8ba2ef0ea185e9c46fcf484827d8e8cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c2353ec_0724f6c7",
+        "filename": "av1/common/od_dering.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-19T19:55:21Z",
+      "side": 1,
+      "message": "Use a dering_list struct for this.",
+      "revId": "9f86211a8ba2ef0ea185e9c46fcf484827d8e8cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
