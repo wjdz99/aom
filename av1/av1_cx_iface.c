@@ -209,6 +209,20 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
         "kf_min_dist not supported in auto mode, use 0 "
         "or kf_max_dist instead.");
 
+#if CONFIG_REFERENCE_BUFFER
+  if (FRAME_ID_NUMBERS_PRESENT_FLAG) {
+    /* TODO: When auto-alt-ref=0, it seems like the key frame is kept
+       in the alt-ref slot until a new key frame. This could result
+       in a temporal distance larger than 2^DiffLen. An alternative fix
+       is to update the alt-ref slot with a P-frame when the existing frame
+       in the alt-ref slot is too old (> 2^DiffLen). */
+    int DiffLen = DELTA_FRAME_ID_LENGTH_MINUS2 + 2;
+    if (cfg->kf_max_dist >= (1 << DiffLen)) {
+      ERROR("kf_max_dist need to be >= 2^DiffLen");
+    }
+  }
+#endif
+
   RANGE_CHECK(extra_cfg, enable_auto_alt_ref, 0, 2);
   RANGE_CHECK(extra_cfg, cpu_used, -8, 8);
   RANGE_CHECK_HI(extra_cfg, noise_sensitivity, 6);
