@@ -26,6 +26,10 @@ static INLINE int av1_preserve_existing_gf(AV1_COMP *cpi) {
          cpi->rc.is_src_frame_alt_ref;
 }
 
+#if CONFIG_REFERENCE_BUFFER
+void write_sequence_header(SequenceHeader *seq_params);
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
