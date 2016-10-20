@@ -206,6 +206,16 @@ static aom_codec_err_t decoder_peek_si_internal(
     si->is_kf = !aom_rb_read_bit(&rb);
     show_frame = aom_rb_read_bit(&rb);
     error_resilient = aom_rb_read_bit(&rb);
+#if CONFIG_REFERENCE_BUFFER
+    {
+      /* TODO: Move outside frame loop or inside key-frame branch */
+      int FidLen;
+      SequenceHeader seq_params;
+      read_sequence_header(&seq_params);
+      FidLen = seq_params.frame_id_length_minus7 + 7;
+      aom_rb_read_literal(&rb, FidLen);
+    }
+#endif
 
     if (si->is_kf) {
       if (!av1_read_sync_code(&rb)) return AOM_CODEC_UNSUP_BITSTREAM;

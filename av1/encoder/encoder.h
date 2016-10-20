@@ -537,6 +537,9 @@ typedef struct AV1_COMP {
 #if CONFIG_ANS
   struct BufAnsCoder buf_ans;
 #endif  // CONFIG_ANS
+#if CONFIG_REFERENCE_BUFFER
+  SequenceHeader seq_params;
+#endif
 } AV1_COMP;
 
 void av1_initialize_enc(void);

@@ -1723,6 +1723,15 @@ static void read_bitdepth_colorspace_sampling(AV1_COMMON *cm,
   }
 }
 
+#if CONFIG_REFERENCE_BUFFER
+void read_sequence_header(SequenceHeader *seq_params) {
+  /* Placeholder for actually reading from the bitstream */
+  seq_params->frame_id_numbers_present_flag = FRAME_ID_NUMBERS_PRESENT_FLAG;
+  seq_params->frame_id_length_minus7 = FRAME_ID_LENGTH_MINUS7;
+  seq_params->frame_id_diff_length_minus2 = DELTA_FRAME_ID_LENGTH_MINUS2;
+}
+#endif
+
 static size_t read_uncompressed_header(AV1Decoder *pbi,
                                        struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
@@ -1731,6 +1740,11 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   RefCntBuffer *const frame_bufs = pool->frame_bufs;
   int i, mask, ref_index = 0;
   size_t sz;
+
+#if CONFIG_REFERENCE_BUFFER
+  /* TODO: Move outside frame loop or inside key-frame branch */
+  read_sequence_header(&pbi->seq_params);
+#endif
 
   cm->last_frame_type = cm->frame_type;
   cm->last_intra_only = cm->intra_only;
@@ -1835,6 +1849,13 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   cm->show_frame = aom_rb_read_bit(rb);
   cm->error_resilient_mode = aom_rb_read_bit(rb);
 
+#if CONFIG_REFERENCE_BUFFER
+  if (pbi->seq_params.frame_id_numbers_present_flag) {
+    int FidLen = pbi->seq_params.frame_id_length_minus7 + 7;
+    cm->current_frame_id = aom_rb_read_literal(rb, FidLen);
+  }
+#endif
+
   if (cm->frame_type == KEY_FRAME) {
     if (!av1_read_sync_code(rb))
       aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
@@ -1910,6 +1931,21 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
         ref_frame->idx = idx;
         ref_frame->buf = &frame_bufs[idx].buf;
         cm->ref_frame_sign_bias[LAST_FRAME + i] = aom_rb_read_bit(rb);
+#if CONFIG_REFERENCE_BUFFER
+        if (pbi->seq_params.frame_id_numbers_present_flag) {
+          int FidLen = pbi->seq_params.frame_id_length_minus7 + 7;
+          int DiffLen = pbi->seq_params.frame_id_diff_length_minus2 + 2;
+          int delta_frame_id_minus1 = aom_rb_read_literal(rb, DiffLen);
+          int refFrameId = ((cm->current_frame_id -
+                             (delta_frame_id_minus1 + 1) + (1 << FidLen)) %
+                            (1 << FidLen));
+          /* Compare values derived from delta_frame_id_minus1 and
+           * refresh_frame_flags */
+          if (refFrameId != cm->ref_frame_id[ref])
+            aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                               "Reference buffer frame ID mismatch");
+        }
+#endif
       }
 
 #if CONFIG_FRAME_SIZE
@@ -1940,6 +1976,21 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
       }
     }
   }
+
+#if CONFIG_REFERENCE_BUFFER
+  {
+    /* Update reference frame id values based on the value of
+     * refresh_frame_flags */
+    int refresh_frame_flags =
+        cm->frame_type == KEY_FRAME ? 0xFF : pbi->refresh_frame_flags;
+    for (i = 0; i < REF_FRAMES; i++) {
+      if ((refresh_frame_flags >> i) & 1) {
+        cm->ref_frame_id[i] = cm->current_frame_id;
+      }
+    }
+  }
+#endif
+
 #if CONFIG_AOM_HIGHBITDEPTH
   get_frame_new_buffer(cm)->bit_depth = cm->bit_depth;
 #endif
