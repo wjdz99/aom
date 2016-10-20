@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcf74308_3eb525d4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-20T21:59:41Z",
+      "side": 1,
+      "message": "Wrong flag, should be CONFIG_EC_MULTISYMBOL.",
+      "revId": "88e43e8be35ac8f319ddf08ca6189418aeac7777",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
