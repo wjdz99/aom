@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fca887f5_6cd27be8",
+        "filename": "aom_dsp/simd/v256_intrinsics_c.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-20T09:31:18Z",
+      "side": 1,
+      "message": "x86 shuffle intrinsics have the rule that if the top bit 0x80 is set in the pattern the corresponding value is set to 0.",
+      "revId": "4f72b483054176a50104732675bc7fe74e392769",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dcdd835f_4e54933a",
+        "filename": "aom_dsp/simd/v256_intrinsics_x86.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-20T09:31:18Z",
+      "side": 1,
+      "message": "I think this will obey the \"zero if top bit set\" rule if the v128 shuffles are implemented right, so will disagree with the c code",
+      "revId": "4f72b483054176a50104732675bc7fe74e392769",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
