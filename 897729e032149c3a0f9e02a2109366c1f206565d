@@ -46,6 +46,54 @@
       "revId": "897729e032149c3a0f9e02a2109366c1f206565d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dcf663e5_e3423282",
+        "filename": "test/simd_impl.h",
+        "patchSetId": 46
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-10-20T04:54:46Z",
+      "side": 1,
+      "message": "Yes, gtest somehow (through its magic macros?) ignores the namespace, so attempting to remove this postfix gives a runtime error like:\n\nAttempted redefinition of test case V64_V64. All tests in the same test case must use the same test fixture class.  However, in test case V64_V64, you tried to define a test using a fixture class different from the one used earlier. This can happen if the two fixture classes are from different namespaces and have the same name. You should probably rename one of the classes to put the tests into different test cases.",
+      "parentUuid": "9c04eb4e_48755179",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 50
+      },
+      "revId": "897729e032149c3a0f9e02a2109366c1f206565d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c15cbc1_693e25f3",
+        "filename": "test/simd_impl.h",
+        "patchSetId": 46
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-10-20T04:54:46Z",
+      "side": 1,
+      "message": "My use of TEST_P() follows the pattern of the other tests in test/, but TEST_P() provides a useful way to feed the functions with good testing input tailored for each function profile.  I suspect using TEST() would mean reimplementing gtest functionality in wrappers.",
+      "parentUuid": "dc790340_8bca8d58",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 50
+      },
+      "revId": "897729e032149c3a0f9e02a2109366c1f206565d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
