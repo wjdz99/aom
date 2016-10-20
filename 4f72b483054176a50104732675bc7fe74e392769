@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "dca5831c_6b8d4114",
+        "filename": "aom_dsp/simd/v256_intrinsics_c.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-10-20T11:44:49Z",
+      "side": 1,
+      "message": "I\u0027m inclined to leave indices out of range as undefined in order to ease implementation on different platforms.  Neon states that all indices out of range return 0, so if either behaviour is defined, the other architecture would need extra instructions probably not worthwhile the odd cases when such indices would be useful (I haven\u0027t ever had use for it).",
+      "parentUuid": "fca887f5_6cd27be8",
+      "revId": "4f72b483054176a50104732675bc7fe74e392769",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fca887f5_ec14abb7",
         "filename": "aom_dsp/simd/v256_intrinsics_c.h",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-20T09:45:58Z",
       "side": 1,
       "message": "This is a case where the underlying AVX2 is clearly dual-lane v128, and your approach here is to treat a v256 as a single-lane double-width vector.\n\nPerhaps use \"dshuffle\" for \"dual-lane\"? And maybe add a comment too. It will be more efficient for users to use the dual lane approach where possible.",
+      "revId": "4f72b483054176a50104732675bc7fe74e392769",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fca887f5_ec7e6bd2",
+        "filename": "aom_dsp/simd/v256_intrinsics_c.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-10-20T11:44:49Z",
+      "side": 1,
+      "message": "I named it pshuffle for pairwise shuffle.  I\u0027ll add a comment.\n\nYes, I added this because it has a use in CLPF.  Likely useful for transforms as well.",
+      "parentUuid": "fca887f5_ec14abb7",
       "revId": "4f72b483054176a50104732675bc7fe74e392769",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
