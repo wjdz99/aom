@@ -132,7 +132,7 @@ static void read_tx_mode_probs(struct tx_probs *tx_probs, aom_reader *r) {
       av1_diff_update_prob(r, &tx_probs->p32x32[i][j], ACCT_STR);
 }
 
-#if !CONFIG_EC_ADAPT || !CONFIG_DAALA_EC
+#if !CONFIG_EC_ADAPT
 static void read_switchable_interp_probs(FRAME_CONTEXT *fc, aom_reader *r) {
   int i, j;
   for (j = 0; j < SWITCHABLE_FILTER_CONTEXTS; ++j) {
@@ -2081,7 +2081,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     av1_diff_update_prob(&r, &fc->delta_q_prob[k], ACCT_STR);
 #endif
 
-#if !CONFIG_EC_ADAPT || !CONFIG_DAALA_EC
+#if !CONFIG_EC_ADAPT
   if (cm->seg.enabled && cm->seg.update_map) {
     if (cm->seg.temporal_update) {
       for (k = 0; k < PREDICTION_PROBS; k++)
@@ -2112,14 +2112,14 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
                     fc->partition_cdf[j]);
 #endif
   }
-#endif  // EC_ADAPT, DAALA_EC
+#endif  // EC_ADAPT
 
   if (frame_is_intra_only(cm)) {
     av1_copy(cm->kf_y_prob, av1_kf_y_mode_prob);
 #if CONFIG_DAALA_EC
     av1_copy(cm->kf_y_cdf, av1_kf_y_mode_cdf);
 #endif
-#if !CONFIG_EC_ADAPT || !CONFIG_DAALA_EC
+#if !CONFIG_EC_ADAPT
     for (k = 0; k < INTRA_MODES; k++)
       for (j = 0; j < INTRA_MODES; j++) {
         for (i = 0; i < INTRA_MODES - 1; ++i)
@@ -2129,12 +2129,12 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
                         cm->kf_y_cdf[k][j]);
 #endif
       }
-#endif  // EC_ADAPT, DAALA_EC
+#endif  // EC_ADAPT
   } else {
 #if !CONFIG_REF_MV
     nmv_context *const nmvc = &fc->nmvc;
 #endif
-#if !CONFIG_EC_ADAPT || !CONFIG_DAALA_EC
+#if !CONFIG_EC_ADAPT
     read_inter_mode_probs(fc, &r);
 #endif
 
@@ -2146,7 +2146,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
       }
 #endif  // CONFIG_MOTION_VAR
 
-#if !CONFIG_EC_ADAPT || !CONFIG_DAALA_EC
+#if !CONFIG_EC_ADAPT
     if (cm->interp_filter == SWITCHABLE) read_switchable_interp_probs(fc, &r);
 #endif
 
@@ -2157,7 +2157,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
       setup_compound_reference_mode(cm);
     read_frame_reference_mode_probs(cm, &r);
 
-#if !CONFIG_EC_ADAPT || !CONFIG_DAALA_EC
+#if !CONFIG_EC_ADAPT
     for (j = 0; j < BLOCK_SIZE_GROUPS; j++) {
       for (i = 0; i < INTRA_MODES - 1; ++i)
         av1_diff_update_prob(&r, &fc->y_mode_prob[j][i], ACCT_STR);
@@ -2174,9 +2174,9 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 #else
     read_mv_probs(nmvc, cm->allow_high_precision_mv, &r);
 #endif
-#if !CONFIG_EC_ADAPT || !CONFIG_DAALA_EC
+#if !CONFIG_EC_ADAPT
     read_ext_tx_probs(fc, &r);
-#endif  // EC_ADAPT, DAALA_EC
+#endif  // EC_ADAPT
   }
 
   return aom_reader_has_error(&r);
