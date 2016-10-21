@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fca887f5_eff13d2b",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-21T16:13:23Z",
+      "side": 1,
+      "message": "/* clang-format off */ is needed I think",
+      "revId": "ba3169d27568c77a3976e94a5feab5b1ec6a19b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
