@@ -179,7 +179,7 @@ void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
 
     write_mv_update(av1_mv_joint_tree, mvc->joints, counts->joints, MV_JOINTS,
                     w);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_tree_to_cdf(av1_mv_joint_tree, cm->fc->nmvc.joints,
                     cm->fc->nmvc.joint_cdf);
 #endif

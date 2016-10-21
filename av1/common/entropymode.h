@@ -130,7 +130,7 @@ typedef struct frame_contexts {
   aom_prob intra_ext_tx_prob[EXT_TX_SIZES][TX_TYPES][TX_TYPES - 1];
   aom_prob inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1];
   int initialized;
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   aom_cdf_prob y_mode_cdf[BLOCK_SIZE_GROUPS][INTRA_MODES];
   aom_cdf_prob uv_mode_cdf[INTRA_MODES][INTRA_MODES];
   aom_cdf_prob partition_cdf[PARTITION_CONTEXTS][PARTITION_TYPES];
@@ -201,7 +201,7 @@ typedef struct FRAME_COUNTS {
 
 extern const aom_prob av1_kf_y_mode_prob[INTRA_MODES][INTRA_MODES]
                                         [INTRA_MODES - 1];
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
 extern aom_cdf_prob av1_kf_y_mode_cdf[INTRA_MODES][INTRA_MODES][INTRA_MODES];
 #endif
 
@@ -223,7 +223,7 @@ extern const aom_prob av1_default_palette_uv_color_prob[PALETTE_MAX_SIZE - 1]
 
 extern const aom_tree_index av1_intra_mode_tree[TREE_SIZE(INTRA_MODES)];
 extern const aom_tree_index av1_inter_mode_tree[TREE_SIZE(INTER_MODES)];
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
 extern int av1_intra_mode_ind[INTRA_MODES];
 extern int av1_intra_mode_inv[INTRA_MODES];
 extern int av1_inter_mode_ind[INTER_MODES];
@@ -242,7 +242,7 @@ extern const aom_tree_index av1_palette_color_tree[PALETTE_MAX_SIZE - 1]
                                                   [TREE_SIZE(PALETTE_COLORS)];
 #endif  // CONFIG_PALETTE
 
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
 extern int av1_switchable_interp_ind[SWITCHABLE_FILTERS];
 extern int av1_switchable_interp_inv[SWITCHABLE_FILTERS];
 #endif
@@ -260,7 +260,7 @@ void av1_tx_counts_to_branch_counts_8x8(const unsigned int *tx_count_8x8p,
                                         unsigned int (*ct_8x8p)[2]);
 
 extern const aom_tree_index av1_ext_tx_tree[TREE_SIZE(TX_TYPES)];
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
 extern int av1_ext_tx_ind[TX_TYPES];
 extern int av1_ext_tx_inv[TX_TYPES];
 #endif

@@ -138,7 +138,7 @@ static void read_switchable_interp_probs(FRAME_CONTEXT *fc, aom_reader *r) {
   for (j = 0; j < SWITCHABLE_FILTER_CONTEXTS; ++j) {
     for (i = 0; i < SWITCHABLE_FILTERS - 1; ++i)
       av1_diff_update_prob(r, &fc->switchable_interp_prob[j][i], ACCT_STR);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_tree_to_cdf(av1_switchable_interp_tree, fc->switchable_interp_prob[j],
                     fc->switchable_interp_cdf[j]);
 #endif
@@ -161,7 +161,7 @@ static void read_inter_mode_probs(FRAME_CONTEXT *fc, aom_reader *r) {
   for (i = 0; i < INTER_MODE_CONTEXTS; ++i) {
     for (j = 0; j < INTER_MODES - 1; ++j)
       av1_diff_update_prob(r, &fc->inter_mode_probs[i][j], ACCT_STR);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_tree_to_cdf(av1_inter_mode_tree, fc->inter_mode_probs[i],
                     fc->inter_mode_cdf[i]);
 #endif
@@ -176,7 +176,7 @@ static void read_ext_tx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
       for (j = 0; j < TX_TYPES; ++j) {
         for (k = 0; k < TX_TYPES - 1; ++k)
           av1_diff_update_prob(r, &fc->intra_ext_tx_prob[i][j][k], ACCT_STR);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
         av1_tree_to_cdf(av1_ext_tx_tree, fc->intra_ext_tx_prob[i][j],
                         fc->intra_ext_tx_cdf[i][j]);
 #endif
@@ -187,7 +187,7 @@ static void read_ext_tx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
       for (k = 0; k < TX_TYPES - 1; ++k)
         av1_diff_update_prob(r, &fc->inter_ext_tx_prob[i][k], ACCT_STR);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       av1_tree_to_cdf(av1_ext_tx_tree, fc->inter_ext_tx_prob[i],
                       fc->inter_ext_tx_cdf[i]);
 #endif
@@ -594,7 +594,7 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
   PARTITION_TYPE p;
 
   if (has_rows && has_cols)
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     p = (PARTITION_TYPE)aom_read_symbol(r, cm->fc->partition_cdf[ctx],
                                         PARTITION_TYPES, ACCT_STR);
 #else
@@ -2089,7 +2089,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     }
     for (k = 0; k < MAX_SEGMENTS - 1; k++)
       av1_diff_update_prob(&r, &cm->fc->seg.tree_probs[k], ACCT_STR);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_tree_to_cdf(av1_segment_tree, cm->fc->seg.tree_probs,
                     cm->fc->seg.tree_cdf);
 #endif
@@ -2098,7 +2098,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
   for (j = 0; j < INTRA_MODES; j++) {
     for (i = 0; i < INTRA_MODES - 1; ++i)
       av1_diff_update_prob(&r, &fc->uv_mode_prob[j][i], ACCT_STR);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_tree_to_cdf(av1_intra_mode_tree, fc->uv_mode_prob[j],
                     fc->uv_mode_cdf[j]);
 #endif
@@ -2107,7 +2107,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
   for (j = 0; j < PARTITION_CONTEXTS; ++j) {
     for (i = 0; i < PARTITION_TYPES - 1; ++i)
       av1_diff_update_prob(&r, &fc->partition_prob[j][i], ACCT_STR);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_tree_to_cdf(av1_partition_tree, fc->partition_prob[j],
                     fc->partition_cdf[j]);
 #endif
@@ -2116,7 +2116,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 
   if (frame_is_intra_only(cm)) {
     av1_copy(cm->kf_y_prob, av1_kf_y_mode_prob);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_copy(cm->kf_y_cdf, av1_kf_y_mode_cdf);
 #endif
 #if !CONFIG_EC_ADAPT
@@ -2124,7 +2124,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
       for (j = 0; j < INTRA_MODES; j++) {
         for (i = 0; i < INTRA_MODES - 1; ++i)
           av1_diff_update_prob(&r, &cm->kf_y_prob[k][j][i], ACCT_STR);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
         av1_tree_to_cdf(av1_intra_mode_tree, cm->kf_y_prob[k][j],
                         cm->kf_y_cdf[k][j]);
 #endif
@@ -2161,7 +2161,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     for (j = 0; j < BLOCK_SIZE_GROUPS; j++) {
       for (i = 0; i < INTRA_MODES - 1; ++i)
         av1_diff_update_prob(&r, &fc->y_mode_prob[j][i], ACCT_STR);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       av1_tree_to_cdf(av1_intra_mode_tree, fc->y_mode_prob[j],
                       fc->y_mode_cdf[j]);
 #endif

@@ -147,7 +147,7 @@ const aom_prob av1_kf_y_mode_prob[INTRA_MODES][INTRA_MODES][INTRA_MODES - 1] = {
       { 43, 81, 53, 140, 169, 204, 68, 84, 72 }     // left = tm
   }
 };
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
 aom_cdf_prob av1_kf_y_mode_cdf[INTRA_MODES][INTRA_MODES][INTRA_MODES];
 #endif
 
@@ -898,7 +898,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->seg.pred_probs, default_segment_pred_probs);
   av1_copy(fc->intra_ext_tx_prob, default_intra_ext_tx_prob);
   av1_copy(fc->inter_ext_tx_prob, default_inter_ext_tx_prob);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   av1_tree_to_cdf_1D(av1_intra_mode_tree, fc->y_mode_prob, fc->y_mode_cdf,
                      BLOCK_SIZE_GROUPS);
   av1_tree_to_cdf_1D(av1_intra_mode_tree, fc->uv_mode_prob, fc->uv_mode_cdf,
@@ -922,7 +922,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
 }
 
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
 int av1_switchable_interp_ind[SWITCHABLE_FILTERS];
 int av1_switchable_interp_inv[SWITCHABLE_FILTERS];
 #endif
@@ -1061,7 +1061,7 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
       aom_tree_merge_probs(av1_ext_tx_tree, pre_fc->intra_ext_tx_prob[i][j],
                            counts->intra_ext_tx[i][j],
                            fc->intra_ext_tx_prob[i][j]);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       av1_tree_to_cdf(av1_ext_tx_tree, fc->intra_ext_tx_prob[i][j],
                       fc->intra_ext_tx_cdf[i][j]);
 #endif
@@ -1070,7 +1070,7 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
     aom_tree_merge_probs(av1_ext_tx_tree, pre_fc->inter_ext_tx_prob[i],
                          counts->inter_ext_tx[i], fc->inter_ext_tx_prob[i]);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_tree_to_cdf(av1_ext_tx_tree, fc->inter_ext_tx_prob[i],
                     fc->inter_ext_tx_cdf[i]);
 #endif
@@ -1095,7 +1095,7 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
   for (i = 0; i < PARTITION_CONTEXTS; i++) {
     aom_tree_merge_probs(av1_partition_tree, pre_fc->partition_prob[i],
                          counts->partition[i], fc->partition_prob[i]);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_tree_to_cdf(av1_partition_tree, fc->partition_prob[i],
                     fc->partition_cdf[i]);
 #endif

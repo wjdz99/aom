@@ -108,7 +108,7 @@ void av1_encode_token_init() {
   av1_tokens_from_tree(motion_mode_encodings, av1_motion_mode_tree);
 #endif  // CONFIG_MOTION_VAR
   av1_tokens_from_tree(ext_tx_encodings, av1_ext_tx_tree);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   /* This hack is necessary when CONFIG_EXT_INTERP is enabled because the five
       SWITCHABLE_FILTERS are not consecutive, e.g., 0, 1, 2, 3, 4, when doing
       an in-order traversal of the av1_switchable_interp_tree structure. */
@@ -126,7 +126,7 @@ void av1_encode_token_init() {
 #endif
 }
 
-#if !CONFIG_DAALA_EC
+#if !CONFIG_EC_MULTISYMBOL
 static void write_intra_mode(aom_writer *w, PREDICTION_MODE mode,
                              const aom_prob *probs) {
   av1_write_token(w, av1_intra_mode_tree, probs, &intra_mode_encodings[mode]);
@@ -164,7 +164,7 @@ static void write_inter_mode(AV1_COMMON *cm, aom_writer *w,
   }
 #else
   assert(is_inter_mode(mode));
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   aom_write_symbol(w, av1_inter_mode_ind[INTER_OFFSET(mode)],
                    cm->fc->inter_mode_cdf[mode_ctx], INTER_MODES);
 #else
@@ -384,7 +384,7 @@ static void update_switchable_interp_probs(AV1_COMMON *cm, aom_writer *w,
     prob_diff_update(
         av1_switchable_interp_tree, cm->fc->switchable_interp_prob[j],
         counts->switchable_interp[j], SWITCHABLE_FILTERS, probwt, w);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_tree_to_cdf(av1_switchable_interp_tree,
                     cm->fc->switchable_interp_prob[j],
                     cm->fc->switchable_interp_cdf[j]);
@@ -417,7 +417,7 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
       for (j = 0; j < TX_TYPES; ++j) {
         prob_diff_update(av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
                          cm->counts.intra_ext_tx[i][j], TX_TYPES, probwt, w);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
         av1_tree_to_cdf(av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
                         cm->fc->intra_ext_tx_cdf[i][j]);
 #endif
@@ -436,7 +436,7 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
       prob_diff_update(av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[i],
                        cm->counts.inter_ext_tx[i], TX_TYPES, probwt, w);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       av1_tree_to_cdf(av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[i],
                       cm->fc->inter_ext_tx_cdf[i]);
 #endif
@@ -565,7 +565,7 @@ static void pack_mb_tokens(aom_writer *w, TOKENEXTRA **tp,
 static void write_segment_id(aom_writer *w, const struct segmentation *seg,
                              struct segmentation_probs *segp, int segment_id) {
   if (seg->enabled && seg->update_map) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, segment_id, segp->tree_cdf, MAX_SEGMENTS);
 #else
     aom_write_tree(w, av1_segment_tree, segp->tree_probs, segment_id, 3, 0);
@@ -696,7 +696,7 @@ static void write_switchable_interp_filter(AV1_COMP *const cpi,
     }
 #endif
     ctx = av1_get_pred_context_switchable_interp(xd);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, av1_switchable_interp_ind[mbmi->interp_filter],
                      cm->fc->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS);
 #else
@@ -819,7 +819,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 
   if (!is_inter) {
     if (bsize >= BLOCK_8X8) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       aom_write_symbol(w, av1_intra_mode_ind[mode],
                        cm->fc->y_mode_cdf[size_group_lookup[bsize]],
                        INTRA_MODES);
@@ -833,7 +833,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
       for (idy = 0; idy < 2; idy += num_4x4_h) {
         for (idx = 0; idx < 2; idx += num_4x4_w) {
           const PREDICTION_MODE b_mode = mi->bmi[idy * 2 + idx].as_mode;
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
           aom_write_symbol(w, av1_intra_mode_ind[b_mode], cm->fc->y_mode_cdf[0],
                            INTRA_MODES);
 #else
@@ -842,7 +842,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
         }
       }
     }
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
                      cm->fc->uv_mode_cdf[mode], INTRA_MODES);
 #else
@@ -937,7 +937,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
   if (mbmi->tx_size < TX_32X32 && cm->base_qindex > 0 && !mbmi->skip &&
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
     if (is_inter) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       aom_write_symbol(w, av1_ext_tx_ind[mbmi->tx_type],
                        cm->fc->inter_ext_tx_cdf[mbmi->tx_size], TX_TYPES);
 #else
@@ -946,7 +946,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
                       &ext_tx_encodings[mbmi->tx_type]);
 #endif
     } else {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       aom_write_symbol(
           w, av1_ext_tx_ind[mbmi->tx_type],
           cm->fc->intra_ext_tx_cdf[mbmi->tx_size]
@@ -1005,7 +1005,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
     write_selected_tx_size(cm, xd, w);
 
   if (bsize >= BLOCK_8X8) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, av1_intra_mode_ind[mbmi->mode],
                      get_y_mode_cdf(cm, mi, above_mi, left_mi, 0), INTRA_MODES);
 #else
@@ -1020,7 +1020,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
     for (idy = 0; idy < 2; idy += num_4x4_h) {
       for (idx = 0; idx < 2; idx += num_4x4_w) {
         const int block = idy * 2 + idx;
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
         aom_write_symbol(w, av1_intra_mode_ind[mi->bmi[block].as_mode],
                          get_y_mode_cdf(cm, mi, above_mi, left_mi, block),
                          INTRA_MODES);
@@ -1031,7 +1031,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
     }
   }
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
                    cm->fc->uv_mode_cdf[mbmi->mode], INTRA_MODES);
 #else
@@ -1048,7 +1048,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
 
   if (mbmi->tx_size < TX_32X32 && cm->base_qindex > 0 && !mbmi->skip &&
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(
         w, av1_ext_tx_ind[mbmi->tx_type],
         cm->fc->intra_ext_tx_cdf[mbmi->tx_size]
@@ -1124,7 +1124,7 @@ static void write_partition(const AV1_COMMON *const cm,
   const int has_cols = (mi_col + hbs) < cm->mi_cols;
 
   if (has_rows && has_cols) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, p, cm->fc->partition_cdf[ctx], PARTITION_TYPES);
 #else
     av1_write_token(w, av1_partition_tree, probs, &partition_encodings[p]);
@@ -1610,7 +1610,7 @@ static void update_seg_probs(AV1_COMP *cpi, aom_writer *w) {
     prob_diff_update(av1_segment_tree, cm->fc->seg.tree_probs,
                      cm->counts.seg.tree_total, MAX_SEGMENTS, probwt, w);
   }
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   av1_tree_to_cdf(av1_segment_tree, cm->fc->seg.tree_probs,
                   cm->fc->seg.tree_cdf);
 #endif
@@ -2194,7 +2194,7 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
   for (i = 0; i < INTRA_MODES; ++i) {
     prob_diff_update(av1_intra_mode_tree, fc->uv_mode_prob[i],
                      counts->uv_mode[i], INTRA_MODES, probwt, header_bc);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_tree_to_cdf(av1_intra_mode_tree, fc->uv_mode_prob[i],
                     fc->uv_mode_cdf[i]);
 #endif
@@ -2203,7 +2203,7 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
   for (i = 0; i < PARTITION_CONTEXTS; ++i) {
     prob_diff_update(av1_partition_tree, fc->partition_prob[i],
                      counts->partition[i], PARTITION_TYPES, probwt, header_bc);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_tree_to_cdf(av1_partition_tree, cm->fc->partition_prob[i],
                     cm->fc->partition_cdf[i]);
 #endif
@@ -2212,7 +2212,7 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 
   if (frame_is_intra_only(cm)) {
     av1_copy(cm->kf_y_prob, av1_kf_y_mode_prob);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_copy(cm->kf_y_cdf, av1_kf_y_mode_cdf);
 #endif
 
@@ -2222,7 +2222,7 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
         prob_diff_update(av1_intra_mode_tree, cm->kf_y_prob[i][j],
                          counts->kf_y_mode[i][j], INTRA_MODES, probwt,
                          header_bc);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
         av1_tree_to_cdf(av1_intra_mode_tree, cm->kf_y_prob[i][j],
                         cm->kf_y_cdf[i][j]);
 #endif
@@ -2236,7 +2236,7 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     for (i = 0; i < INTER_MODE_CONTEXTS; ++i) {
       prob_diff_update(av1_inter_mode_tree, cm->fc->inter_mode_probs[i],
                        counts->inter_mode[i], INTER_MODES, probwt, header_bc);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       av1_tree_to_cdf(av1_inter_mode_tree, cm->fc->inter_mode_probs[i],
                       cm->fc->inter_mode_cdf[i]);
 #endif
@@ -2292,7 +2292,7 @@ static size_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     for (i = 0; i < BLOCK_SIZE_GROUPS; ++i) {
       prob_diff_update(av1_intra_mode_tree, cm->fc->y_mode_prob[i],
                        counts->y_mode[i], INTRA_MODES, probwt, header_bc);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       av1_tree_to_cdf(av1_intra_mode_tree, cm->fc->y_mode_prob[i],
                       cm->fc->y_mode_cdf[i]);
 #endif
