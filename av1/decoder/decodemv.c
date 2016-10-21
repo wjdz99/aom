@@ -47,7 +47,7 @@ static INLINE int read_uniform(aom_reader *r, int n) {
 }
 #endif  // CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
 
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
 static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
   return (PREDICTION_MODE)
       av1_intra_mode_inv[aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR)];
@@ -97,7 +97,7 @@ static int read_delta_qindex(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
 static PREDICTION_MODE read_intra_mode_y(AV1_COMMON *cm, MACROBLOCKD *xd,
                                          aom_reader *r, int size_group) {
   const PREDICTION_MODE y_mode =
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       read_intra_mode(r, cm->fc->y_mode_cdf[size_group]);
 #else
       read_intra_mode(r, cm->fc->y_mode_prob[size_group]);
@@ -111,7 +111,7 @@ static PREDICTION_MODE read_intra_mode_uv(AV1_COMMON *cm, MACROBLOCKD *xd,
                                           aom_reader *r,
                                           PREDICTION_MODE y_mode) {
   const PREDICTION_MODE uv_mode =
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       read_intra_mode(r, cm->fc->uv_mode_cdf[y_mode]);
 #else
       read_intra_mode(r, cm->fc->uv_mode_prob[y_mode]);
@@ -196,7 +196,7 @@ static PREDICTION_MODE read_inter_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   // Invalid prediction mode.
   assert(0);
 #else
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   const int mode = av1_inter_mode_inv[aom_read_symbol(
       r, cm->fc->inter_mode_cdf[ctx], INTER_MODES, ACCT_STR)];
 #else
@@ -297,7 +297,7 @@ static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_INTER
 
 static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   return aom_read_symbol(r, segp->tree_cdf, MAX_SEGMENTS, ACCT_STR);
 #else
   return aom_read_tree(r, av1_segment_tree, segp->tree_probs, ACCT_STR);
@@ -742,7 +742,7 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
       FRAME_COUNTS *counts = xd->counts;
       if (inter_block) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
         mbmi->tx_type = av1_ext_tx_inv[aom_read_symbol(
             r, cm->fc->inter_ext_tx_cdf[tx_size], TX_TYPES, ACCT_STR)];
 #else
@@ -752,7 +752,7 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         if (counts) ++counts->inter_ext_tx[tx_size][mbmi->tx_type];
       } else {
         const TX_TYPE tx_type_nom = intra_mode_to_tx_type_context[mbmi->mode];
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
         mbmi->tx_type = av1_ext_tx_inv[aom_read_symbol(
             r, cm->fc->intra_ext_tx_cdf[tx_size][tx_type_nom], TX_TYPES,
             ACCT_STR)];
@@ -806,17 +806,17 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 #if CONFIG_CB4X4
   (void)i;
   mbmi->mode =
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, 0));
 #else
       read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, 0));
-#endif  // CONFIG_DAALA_EC
+#endif  // CONFIG_EC_MULTISYMBOL
 #else
   switch (bsize) {
     case BLOCK_4X4:
       for (i = 0; i < 4; ++i)
         mi->bmi[i].as_mode =
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
             read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, i));
 #else
             read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, i));
@@ -825,13 +825,13 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
       break;
     case BLOCK_4X8:
       mi->bmi[0].as_mode = mi->bmi[2].as_mode =
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
           read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, 0));
 #else
           read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, 0));
 #endif
       mi->bmi[1].as_mode = mi->bmi[3].as_mode = mbmi->mode =
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
           read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, 1));
 #else
           read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, 1));
@@ -839,13 +839,13 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
       break;
     case BLOCK_8X4:
       mi->bmi[0].as_mode = mi->bmi[1].as_mode =
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
           read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, 0));
 #else
           read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, 0));
 #endif
       mi->bmi[2].as_mode = mi->bmi[3].as_mode = mbmi->mode =
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
           read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, 2));
 #else
           read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, 2));
@@ -853,7 +853,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
       break;
     default:
       mbmi->mode =
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
           read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, 0));
 #else
           read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, 0));
@@ -1082,7 +1082,7 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
       if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
           (mbmi->ref_frame[1] > INTRA_FRAME &&
            has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
         mbmi->interp_filter[dir] =
             (InterpFilter)av1_switchable_interp_inv[aom_read_symbol(
                 r, cm->fc->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
@@ -1112,7 +1112,7 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
     mbmi->interp_filter = cm->interp_filter;
   } else {
     const int ctx = av1_get_pred_context_switchable_interp(xd);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     mbmi->interp_filter =
         (InterpFilter)av1_switchable_interp_inv[aom_read_symbol(
             r, cm->fc->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,

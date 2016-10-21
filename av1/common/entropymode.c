@@ -16,7 +16,7 @@
 #include "av1/common/onyxc_int.h"
 #include "av1/common/seg_common.h"
 
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
 aom_cdf_prob av1_kf_y_mode_cdf[INTRA_MODES][INTRA_MODES][INTRA_MODES];
 #endif
 
@@ -1748,7 +1748,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_LOOP_RESTORATION
   av1_copy(fc->switchable_restore_prob, default_switchable_restore_prob);
 #endif  // CONFIG_LOOP_RESTORATION
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   av1_tree_to_cdf_1D(av1_intra_mode_tree, fc->y_mode_prob, fc->y_mode_cdf,
                      BLOCK_SIZE_GROUPS);
   av1_tree_to_cdf_1D(av1_intra_mode_tree, fc->uv_mode_prob, fc->uv_mode_cdf,
@@ -1774,7 +1774,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
 }
 
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
 int av1_switchable_interp_ind[SWITCHABLE_FILTERS];
 int av1_switchable_interp_inv[SWITCHABLE_FILTERS];
 

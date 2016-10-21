@@ -195,8 +195,35 @@ static void read_inter_compound_mode_probs(FRAME_CONTEXT *fc, aom_reader *r) {
   }
 }
 #endif  // CONFIG_EXT_INTER
+
 #if !CONFIG_EC_ADAPT
-#if !CONFIG_EXT_TX
+#if CONFIG_EXT_TX
+static void read_ext_tx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
+  int i, j, k;
+  int s;
+  for (s = 1; s < EXT_TX_SETS_INTER; ++s) {
+    if (aom_read(r, GROUP_DIFF_UPDATE_PROB, ACCT_STR)) {
+      for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
+        if (!use_inter_ext_tx_for_txsize[s][i]) continue;
+        for (j = 0; j < num_ext_tx_set_inter[s] - 1; ++j)
+          av1_diff_update_prob(r, &fc->inter_ext_tx_prob[s][i][j], ACCT_STR);
+      }
+    }
+  }
+
+  for (s = 1; s < EXT_TX_SETS_INTRA; ++s) {
+    if (aom_read(r, GROUP_DIFF_UPDATE_PROB, ACCT_STR)) {
+      for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
+        if (!use_intra_ext_tx_for_txsize[s][i]) continue;
+        for (j = 0; j < INTRA_MODES; ++j)
+          for (k = 0; k < num_ext_tx_set_intra[s] - 1; ++k)
+            av1_diff_update_prob(r, &fc->intra_ext_tx_prob[s][i][j][k],
+                                 ACCT_STR);
+      }
+    }
+  }
+}
+#else
 static void read_ext_tx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
   int i, j, k;
   if (aom_read(r, GROUP_DIFF_UPDATE_PROB, ACCT_STR)) {
@@ -214,8 +241,8 @@ static void read_ext_tx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
     }
   }
 }
-#endif
-#endif
+#endif  // CONFIG_EXT_TX
+#endif  // !CONFIG_EC_ADAPT
 
 static REFERENCE_MODE read_frame_reference_mode(
     const AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
@@ -1681,7 +1708,7 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
       p = (PARTITION_TYPE)aom_read_tree(r, av1_ext_partition_tree, probs,
                                         ACCT_STR);
 #else
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     p = (PARTITION_TYPE)aom_read_symbol(r, cm->fc->partition_cdf[ctx],
                                         PARTITION_TYPES, ACCT_STR);
 #else
@@ -4033,37 +4060,6 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   return sz;
 }
 
-#if CONFIG_EXT_TX
-#if !CONFIG_EC_ADAPT || !CONFIG_DAALA_EC
-static void read_ext_tx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
-  int i, j, k;
-  int s;
-  for (s = 1; s < EXT_TX_SETS_INTER; ++s) {
-    if (aom_read(r, GROUP_DIFF_UPDATE_PROB, ACCT_STR)) {
-      for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-        if (!use_inter_ext_tx_for_txsize[s][i]) continue;
-        for (j = 0; j < num_ext_tx_set_inter[s] - 1; ++j)
-          av1_diff_update_prob(r, &fc->inter_ext_tx_prob[s][i][j], ACCT_STR);
-      }
-    }
-  }
-
-  for (s = 1; s < EXT_TX_SETS_INTRA; ++s) {
-    if (aom_read(r, GROUP_DIFF_UPDATE_PROB, ACCT_STR)) {
-      for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-        if (!use_intra_ext_tx_for_txsize[s][i]) continue;
-        for (j = 0; j < INTRA_MODES; ++j)
-          for (k = 0; k < num_ext_tx_set_intra[s] - 1; ++k)
-            av1_diff_update_prob(r, &fc->intra_ext_tx_prob[s][i][j][k],
-                                 ACCT_STR);
-      }
-    }
-  }
-}
-#endif  // !CONFIG_EC_ADAPT || !CONFIG_DAALA_EC
-#else
-
-#endif  // CONFIG_EXT_TX
 #if CONFIG_SUPERTX
 static void read_supertx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
   int i, j;
@@ -4202,18 +4198,18 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     for (i = 0; i < PARTITION_TYPES - 1; ++i)
       av1_diff_update_prob(&r, &fc->partition_prob[j][i], ACCT_STR);
 #endif  // CONFIG_EXT_PARTITION_TYPES
-#endif  // EC_ADAPT, DAALA_EC
+#endif  // !CONFIG_EC_ADAPT
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
   for (i = 0; i < INTRA_FILTERS + 1; ++i)
     for (j = 0; j < INTRA_FILTERS - 1; ++j)
       av1_diff_update_prob(&r, &fc->intra_filter_probs[i][j], ACCT_STR);
 #endif  // CONFIG_INTRA_INTERP
-#endif  // EC_ADAPT, DAALA_EC
+#endif  // CONFIG_EXT_INTRA
 
   if (frame_is_intra_only(cm)) {
     av1_copy(cm->kf_y_prob, av1_kf_y_mode_prob);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_copy(cm->kf_y_cdf, av1_kf_y_mode_cdf);
 #endif
 #if !CONFIG_EC_ADAPT
@@ -4288,13 +4284,13 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 #endif
 #if !CONFIG_EC_ADAPT
     read_ext_tx_probs(fc, &r);
-#endif  // EC_ADAPT, DAALA_EC
+#endif
 #if CONFIG_SUPERTX
     if (!xd->lossless[0]) read_supertx_probs(fc, &r);
 #endif
 #if CONFIG_GLOBAL_MOTION
     read_global_motion(cm, &r);
-#endif  // EC_ADAPT, DAALA_EC
+#endif  // CONFIG_GLOBAL_MOTION
   }
 #if CONFIG_EC_MULTISYMBOL
   av1_coef_pareto_cdfs(fc);
@@ -4303,9 +4299,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 #else
   av1_set_mv_cdfs(&fc->nmvc);
 #endif
-#if CONFIG_DAALA_EC
   av1_set_mode_cdfs(cm);
-#endif
 #endif
 
   return aom_reader_has_error(&r);

@@ -180,7 +180,7 @@ void av1_encode_token_init(void) {
                        av1_switchable_restore_tree);
 #endif  // CONFIG_LOOP_RESTORATION
 
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   /* This hack is necessary when CONFIG_EXT_INTERP is enabled because the five
       SWITCHABLE_FILTERS are not consecutive, e.g., 0, 1, 2, 3, 4, when doing
       an in-order traversal of the av1_switchable_interp_tree structure. */
@@ -200,7 +200,7 @@ void av1_encode_token_init(void) {
 #endif
 }
 
-#if !CONFIG_DAALA_EC
+#if !CONFIG_EC_MULTISYMBOL
 static void write_intra_mode(aom_writer *w, PREDICTION_MODE mode,
                              const aom_prob *probs) {
   av1_write_token(w, av1_intra_mode_tree, probs, &intra_mode_encodings[mode]);
@@ -260,7 +260,7 @@ static void write_inter_mode(AV1_COMMON *cm, aom_writer *w,
   }
 #else
   assert(is_inter_mode(mode));
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   aom_write_symbol(w, av1_inter_mode_ind[INTER_OFFSET(mode)],
                    cm->fc->inter_mode_cdf[mode_ctx], INTER_MODES);
 #else
@@ -605,6 +605,7 @@ static void update_switchable_interp_probs(AV1_COMMON *cm, aom_writer *w,
 }
 #endif
 
+#if !CONFIG_EC_ADAPT
 #if CONFIG_EXT_TX
 static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
   const int savings_thresh = av1_cost_one(GROUP_DIFF_UPDATE_PROB) -
@@ -661,9 +662,7 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
     }
   }
 }
-
 #else
-#if !CONFIG_EC_ADAPT
 static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
   const int savings_thresh = av1_cost_one(GROUP_DIFF_UPDATE_PROB) -
                              av1_cost_zero(GROUP_DIFF_UPDATE_PROB);
@@ -709,7 +708,8 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
   }
 }
 #endif  // CONFIG_EXT_TX
-#endif
+#endif  // CONFIG_EC_ADAPT
+
 #if CONFIG_PALETTE
 static void pack_palette_tokens(aom_writer *w, const TOKENEXTRA **tp, int n,
                                 int num) {
@@ -913,7 +913,7 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 static void write_segment_id(aom_writer *w, const struct segmentation *seg,
                              struct segmentation_probs *segp, int segment_id) {
   if (seg->enabled && seg->update_map) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, segment_id, segp->tree_cdf, MAX_SEGMENTS);
 #else
     aom_write_tree(w, av1_segment_tree, segp->tree_probs, segment_id, 3, 0);
@@ -1109,7 +1109,7 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
 #else
     {
       const int ctx = av1_get_pred_context_switchable_interp(xd);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       aom_write_symbol(w, av1_switchable_interp_ind[mbmi->interp_filter],
                        cm->fc->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS);
 #else
@@ -1215,7 +1215,7 @@ static void write_tx_type(const AV1_COMMON *const cm,
 #endif  // CONFIG_SUPERTX
         !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
       if (is_inter) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
         aom_write_symbol(w, av1_ext_tx_ind[mbmi->tx_type],
                          cm->fc->inter_ext_tx_cdf[tx_size], TX_TYPES);
 #else
@@ -1223,7 +1223,7 @@ static void write_tx_type(const AV1_COMMON *const cm,
                         &ext_tx_encodings[mbmi->tx_type]);
 #endif
       } else {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
         aom_write_symbol(
             w, av1_ext_tx_ind[mbmi->tx_type],
             cm->fc->intra_ext_tx_cdf[tx_size]
@@ -1347,7 +1347,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 
   if (!is_inter) {
     if (bsize >= BLOCK_8X8 || unify_bsize) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
       aom_write_symbol(w, av1_intra_mode_ind[mode],
                        cm->fc->y_mode_cdf[size_group_lookup[bsize]],
                        INTRA_MODES);
@@ -1361,7 +1361,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
       for (idy = 0; idy < 2; idy += num_4x4_h) {
         for (idx = 0; idx < 2; idx += num_4x4_w) {
           const PREDICTION_MODE b_mode = mi->bmi[idy * 2 + idx].as_mode;
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
           aom_write_symbol(w, av1_intra_mode_ind[b_mode], cm->fc->y_mode_cdf[0],
                            INTRA_MODES);
 #else
@@ -1370,7 +1370,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
         }
       }
     }
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
                      cm->fc->uv_mode_cdf[mode], INTRA_MODES);
 #else
@@ -1694,7 +1694,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
     write_selected_tx_size(cm, xd, w);
 
   if (bsize >= BLOCK_8X8 || unify_bsize) {
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, av1_intra_mode_ind[mbmi->mode],
                      get_y_mode_cdf(cm, mi, above_mi, left_mi, 0), INTRA_MODES);
 #else
@@ -1709,7 +1709,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
     for (idy = 0; idy < 2; idy += num_4x4_h) {
       for (idx = 0; idx < 2; idx += num_4x4_w) {
         const int block = idy * 2 + idx;
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
         aom_write_symbol(w, av1_intra_mode_ind[mi->bmi[block].as_mode],
                          get_y_mode_cdf(cm, mi, above_mi, left_mi, block),
                          INTRA_MODES);
@@ -1720,7 +1720,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
     }
   }
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
                    cm->fc->uv_mode_cdf[mbmi->mode], INTRA_MODES);
 #else
@@ -2181,7 +2181,7 @@ static void write_partition(const AV1_COMMON *const cm,
       av1_write_token(w, av1_ext_partition_tree, probs,
                       &ext_partition_encodings[p]);
 #else
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, p, cm->fc->partition_cdf[ctx], PARTITION_TYPES);
 #else
     av1_write_token(w, av1_partition_tree, probs, &partition_encodings[p]);
@@ -4198,7 +4198,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     prob_diff_update(av1_partition_tree, fc->partition_prob[i],
                      counts->partition[i], PARTITION_TYPES, probwt, header_bc);
   }
-#endif  // CONFIG_EC_ADAPT, CONFIG_DAALA_EC
+#endif
 
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
@@ -4207,10 +4207,10 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                      counts->intra_filter[i], INTRA_FILTERS, probwt, header_bc);
 #endif  // CONFIG_INTRA_INTERP
 #endif  // CONFIG_EXT_INTRA
-#endif  // CONFIG_EC_ADAPT, CONFIG_DAALA_EC
+#endif  // CONFIG_EC_ADAPT
   if (frame_is_intra_only(cm)) {
     av1_copy(cm->kf_y_prob, av1_kf_y_mode_prob);
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
     av1_copy(cm->kf_y_cdf, av1_kf_y_mode_cdf);
 #endif
 
@@ -4324,7 +4324,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #else
                         &counts->mv);
 #endif
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
 #if CONFIG_REF_MV
     for (i = 0; i < NMV_CONTEXTS; ++i)
       av1_tree_to_cdf(av1_mv_joint_tree, cm->fc->nmvc[i].joints,
@@ -4351,7 +4351,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #else
   av1_set_mv_cdfs(&fc->nmvc);
 #endif
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
   av1_set_mode_cdfs(cm);
 #endif
 #endif
