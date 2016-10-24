@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6142304e_4f0d2d18",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-24T14:51:45Z",
+      "side": 1,
+      "message": "I don\u0027t know if it has a big impact on performance, but this could be done by adding a constant (1 \u003c\u003c 2*bsize) to src on each pass of the loop.",
+      "revId": "8c78e57be7b82aa8f8dc80e790652fa8b5a7671d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6142304e_2f12e93b",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-24T14:51:45Z",
+      "side": 1,
+      "message": "Same thing here.",
+      "revId": "8c78e57be7b82aa8f8dc80e790652fa8b5a7671d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
