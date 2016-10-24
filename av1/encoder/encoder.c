@@ -3194,12 +3194,6 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
 
   set_size_independent_vars(cpi);
 
-  // cpi->sf.use_upsampled_references can be different from frame to frame.
-  // Every time when cpi->sf.use_upsampled_references is changed from 0 to 1.
-  // The reference frames for this frame have to be up-sampled before encoding.
-  if (!use_upsampled_ref && cpi->sf.use_upsampled_references)
-    reset_use_upsampled_references(cpi);
-
   do {
     aom_clear_system_state();
 
@@ -3223,6 +3217,12 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
 
       loop_at_this_size = 0;
     }
+
+    // cpi->sf.use_upsampled_references can be different from frame to frame.
+    // Every time when cpi->sf.use_upsampled_references is changed from 0 to 1.
+    // The reference frames for this frame have to be up-sampled before encoding.
+    if (!use_upsampled_ref && cpi->sf.use_upsampled_references)
+      reset_use_upsampled_references(cpi);
 
     // Decide frame size bounds first time through.
     if (loop_count == 0) {
