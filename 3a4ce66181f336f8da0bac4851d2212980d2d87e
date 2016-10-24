@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6142304e_afbdb9bb",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-24T16:13:57Z",
+      "side": 1,
+      "message": "Please don\u0027t use hard coded constants.  Don\u0027t we already have a #define for this in av1/common/enums.h:\n\n#define MI_SIZE_LOG2 3",
+      "revId": "3a4ce66181f336f8da0bac4851d2212980d2d87e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6142304e_8fbaf5bf",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-24T16:13:57Z",
+      "side": 1,
+      "message": "More hard coded constants.  Shouldn\u0027t this 64 instead be MAX_MIB_SIZE*MAX_MIB_SIZE based on the way it is used on line 186?",
+      "revId": "3a4ce66181f336f8da0bac4851d2212980d2d87e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6142304e_6fa91179",
+        "filename": "av1/encoder/pickdering.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-10-24T16:13:57Z",
+      "side": 1,
+      "message": "Same thing here.",
+      "revId": "3a4ce66181f336f8da0bac4851d2212980d2d87e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
