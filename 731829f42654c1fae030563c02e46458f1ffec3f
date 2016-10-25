@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "216bd800_d5ad7cd0",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5865
+      },
+      "writtenOn": "2016-10-25T00:33:02Z",
+      "side": 1,
+      "message": "let\u0027s change to delta_frame_id_length_minus2 as per proposal.",
+      "range": {
+        "startLine": 388,
+        "startChar": 6,
+        "endLine": 388,
+        "endChar": 33
+      },
+      "revId": "731829f42654c1fae030563c02e46458f1ffec3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "216bd800_7512a83c",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1731,
+      "author": {
+        "id": 5865
+      },
+      "writtenOn": "2016-10-25T00:33:02Z",
+      "side": 1,
+      "message": "this new function and it is too much to ask, but ultimately all incoming parameters should be checked to obey bitstream conformance.",
+      "range": {
+        "startLine": 1730,
+        "startChar": 0,
+        "endLine": 1731,
+        "endChar": 73
+      },
+      "revId": "731829f42654c1fae030563c02e46458f1ffec3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "216bd800_55f04ce5",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1944,
+      "author": {
+        "id": 5865
+      },
+      "writtenOn": "2016-10-25T00:33:02Z",
+      "side": 1,
+      "message": "\u0026\u0026 \"not valid for referencing\" !\u003d true",
+      "range": {
+        "startLine": 1944,
+        "startChar": 10,
+        "endLine": 1944,
+        "endChar": 50
+      },
+      "revId": "731829f42654c1fae030563c02e46458f1ffec3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "216bd800_15f6d4e4",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1991,
+      "author": {
+        "id": 5865
+      },
+      "writtenOn": "2016-10-25T00:33:02Z",
+      "side": 1,
+      "message": "we should add a parameter to each frame buffer \"not valid for referencing\" to identify frames which must not be used as reference frames in a conformant bitstream. (p.11)",
+      "range": {
+        "startLine": 1986,
+        "startChar": 0,
+        "endLine": 1991,
+        "endChar": 3
+      },
+      "revId": "731829f42654c1fae030563c02e46458f1ffec3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "216bd800_955ca434",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1979,
+      "author": {
+        "id": 5865
+      },
+      "writtenOn": "2016-10-25T00:33:02Z",
+      "side": 1,
+      "message": "ultimately we\u0027d want to add a check for valid range of these parameters.\nPlease refer to p.10, line:5 of proposal\n\nThere should be a function to validate encoder parameters passed through the API. The check should be added there (if it exists)",
+      "range": {
+        "startLine": 1978,
+        "startChar": 0,
+        "endLine": 1979,
+        "endChar": 73
+      },
+      "revId": "731829f42654c1fae030563c02e46458f1ffec3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "216bd800_1547f493",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3752,
+      "author": {
+        "id": 5865
+      },
+      "writtenOn": "2016-10-25T00:33:02Z",
+      "side": 1,
+      "message": "frame ID shouldn\u0027t reset on key frames, otherwise it may be impossible to distinguish a loss in case of 2 close enough key frames. Let\u0027s remove this.\n\nI\u0027d rather prefer \"current_frame_id\" to start from random number (as in RTP with sequence numbers) such that decoder doesn\u0027t have dependency on any specific initial value, and to make it easier to validate wrap around case.",
+      "range": {
+        "startLine": 3752,
+        "startChar": 0,
+        "endLine": 3752,
+        "endChar": 31
+      },
+      "revId": "731829f42654c1fae030563c02e46458f1ffec3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "216bd800_351e7079",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3817,
+      "author": {
+        "id": 5865
+      },
+      "writtenOn": "2016-10-25T00:33:02Z",
+      "side": 1,
+      "message": "we probably want to add conditions on p.11 of proposal to push out very old frames from the frame buffer.",
+      "range": {
+        "startLine": 3809,
+        "startChar": 1,
+        "endLine": 3817,
+        "endChar": 3
+      },
+      "revId": "731829f42654c1fae030563c02e46458f1ffec3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
