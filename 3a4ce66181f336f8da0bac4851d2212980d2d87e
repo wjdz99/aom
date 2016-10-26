@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "61ba3039_6fb1d12e",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-26T05:37:07Z",
+      "side": 1,
+      "message": "Introduced OD_DERING_SIZE_LOG2",
+      "parentUuid": "6142304e_afbdb9bb",
+      "revId": "3a4ce66181f336f8da0bac4851d2212980d2d87e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6142304e_8fbaf5bf",
         "filename": "av1/common/dering.c",
         "patchSetId": 5
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "61ba3039_4fae8dcc",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-26T05:37:07Z",
+      "side": 1,
+      "message": "That code is now gone",
+      "parentUuid": "6142304e_8fbaf5bf",
+      "revId": "3a4ce66181f336f8da0bac4851d2212980d2d87e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6142304e_6fa91179",
         "filename": "av1/encoder/pickdering.c",
         "patchSetId": 5
@@ -47,6 +83,24 @@
       "writtenOn": "2016-10-24T16:13:57Z",
       "side": 1,
       "message": "Same thing here.",
+      "revId": "3a4ce66181f336f8da0bac4851d2212980d2d87e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61ba3039_af0739fa",
+        "filename": "av1/encoder/pickdering.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-26T05:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6142304e_6fa91179",
       "revId": "3a4ce66181f336f8da0bac4851d2212980d2d87e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
