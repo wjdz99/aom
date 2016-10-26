@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "41a36c15_94c08c1b",
+        "filename": "build/cmake/aom_config.c.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-10-26T18:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41a36c15_4e521328",
+      "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "41a36c15_ae6bb7d1",
         "filename": "build/cmake/aom_config.h.cmake",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2016-10-26T02:34:11Z",
       "side": 1,
       "message": "AOM_CONFIG_H_",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 20
+      },
+      "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41a36c15_d4ca1437",
+        "filename": "build/cmake/aom_config.h.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-10-26T18:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41a36c15_ae6bb7d1",
       "range": {
         "startLine": 12,
         "startChar": 8,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "41a36c15_94e9aca3",
+        "filename": "build/cmake/aom_config.h.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-10-26T18:43:29Z",
+      "side": 1,
+      "message": "added a TODO in aom_configure.cmake ... Shouldn\u0027t be that big a deal to clean up the file post population of values.",
+      "parentUuid": "41a36c15_8e707bc1",
+      "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "41a36c15_ee75bfaf",
         "filename": "build/cmake/aom_config.h.cmake",
         "patchSetId": 1
@@ -70,6 +130,30 @@
       "writtenOn": "2016-10-26T02:34:11Z",
       "side": 1,
       "message": "any way to build these programmatically out of lists of arch/arch extensions/configs?",
+      "range": {
+        "startLine": 16,
+        "startChar": 8,
+        "endLine": 16,
+        "endChar": 28
+      },
+      "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41a36c15_d4e334bf",
+        "filename": "build/cmake/aom_config.h.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-10-26T18:43:29Z",
+      "side": 1,
+      "message": "ARCH_* values should be controlled by target specified at cmake run time and then the toolchain files that are used by the target, so: yes, that\u0027s the end goal. I don\u0027t really know if it\u0027ll work out that way in the end, but it\u0027s what I\u0027m shooting for at this point.",
+      "parentUuid": "41a36c15_ee75bfaf",
       "range": {
         "startLine": 16,
         "startChar": 8,
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "41a36c15_b494a891",
+        "filename": "build/cmake/compiler_flags.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-10-26T18:43:29Z",
+      "side": 1,
+      "message": "yeah, i was thinking about that but couldn\u0027t actually come up with a scenario where we\u0027d want it. Anyway, now we have add_{c,cxx}_flag_if_supported and add_flag_if_supported, which calls both.",
+      "parentUuid": "41a36c15_ce7a839d",
+      "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "41a36c15_2e6067ea",
         "filename": "build/cmake/compiler_flags.cmake",
         "patchSetId": 1
@@ -110,6 +212,24 @@
       "writtenOn": "2016-10-26T02:34:11Z",
       "side": 1,
       "message": "/W3 might be a safer place to start",
+      "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41a36c15_f42750cb",
+        "filename": "build/cmake/compiler_flags.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-10-26T18:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41a36c15_2e6067ea",
       "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
