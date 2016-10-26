@@ -142,6 +142,30 @@
       "revId": "897729e032149c3a0f9e02a2109366c1f206565d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41a36c15_8e287b4e",
+        "filename": "test/simd_impl.h",
+        "patchSetId": 46
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-26T05:32:01Z",
+      "side": 1,
+      "message": "\u003e Every function still needs to associated with a profile and any\n \u003e input restrictions.  It\u0027s possible to make such a list and write a\n \u003e test for it, but I don\u0027t see why not use gtest\u0027s parameterisation\n \u003e when there are things to parameterise, and thereby mainly reduce\n \u003e gtest to a hook for my own test framework. Besides, if a test\n \u003e fails, gtest will print a summary in the end identifying the\n \u003e parameters of the failing test.  The failing test can of course\n \u003e also write this, but it\u0027s convenient to have it in the summary to\n \u003e quickly identify what exactly has failed.\n \u003e \n\nAn index to the function list or pairing them with the name is simple enough.\n\n \u003e Gtest\u0027s macro quoting magic circumventing namespaces did force me\n \u003e to reduntantly parameterise the architecture by name mangling,\n \u003e which can be avoided by using TEST() instead, but that would be\n \u003e very much throwing the baby out with the bathwater.\n \u003e\n\nRight, I\u0027m just trying to simplify the implementation, avoiding the macro and tuple with:\n\nTEST() {\n  Func funcs[] \u003d {\n    ...\n  }\n}",
+      "parentUuid": "9c15cbc1_29238d6e",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 50
+      },
+      "revId": "897729e032149c3a0f9e02a2109366c1f206565d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
