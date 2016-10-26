@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41a36c15_4e521328",
+        "filename": "build/cmake/aom_config.c.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-26T02:34:11Z",
+      "side": 1,
+      "message": "can you just join this to 1 comment here to match the rest of the code?",
+      "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41a36c15_ae6bb7d1",
+        "filename": "build/cmake/aom_config.h.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-26T02:34:11Z",
+      "side": 1,
+      "message": "AOM_CONFIG_H_",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 20
+      },
+      "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41a36c15_8e707bc1",
+        "filename": "build/cmake/aom_config.h.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-26T02:34:11Z",
+      "side": 1,
+      "message": "one annoying thing when importing these to another code base is that this often has trailing whitespace. might be nice to add a cleanup step",
+      "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41a36c15_ee75bfaf",
+        "filename": "build/cmake/aom_config.h.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-26T02:34:11Z",
+      "side": 1,
+      "message": "any way to build these programmatically out of lists of arch/arch extensions/configs?",
+      "range": {
+        "startLine": 16,
+        "startChar": 8,
+        "endLine": 16,
+        "endChar": 28
+      },
+      "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41a36c15_ce7a839d",
+        "filename": "build/cmake/compiler_flags.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-26T02:34:11Z",
+      "side": 1,
+      "message": "there might be cases where we want to check/add c/c++ only flags",
+      "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41a36c15_2e6067ea",
+        "filename": "build/cmake/compiler_flags.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-10-26T02:34:11Z",
+      "side": 1,
+      "message": "/W3 might be a safer place to start",
+      "revId": "1643f2a7042111fea6fda90c1ebd07cd5dd6ebe3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
