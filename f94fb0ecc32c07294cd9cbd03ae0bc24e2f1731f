@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a13a6853_c1664268",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-26T01:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ca6f3c4_b2029e6b",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ca6f3c4_32f78e71",
         "filename": "av1/common/dering.c",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-18T14:24:48Z",
       "side": 1,
       "message": "Formatting.",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a13a6853_614c16e2",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-26T01:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ca6f3c4_32f78e71",
       "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -71,6 +107,42 @@
     },
     {
       "key": {
+        "uuid": "81ed6409_30b1a82f",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-26T01:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ca6f3c4_d2564272",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a13a6853_81491ad3",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-26T01:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ca6f3c4_d2ff2242",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ca6f3c4_325eae91",
         "filename": "av1/common/dering.c",
         "patchSetId": 1
@@ -82,6 +154,24 @@
       "writtenOn": "2016-10-18T14:24:48Z",
       "side": 1,
       "message": "This is no longer an array of flags of skipped blocks but a list of blocks to dering.  This name doesn\u0027t make sense anymore.",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a13a6853_21560e74",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-26T01:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ca6f3c4_325eae91",
       "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -105,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "5c2353ec_c7dade5d",
+        "filename": "av1/common/dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-26T01:33:36Z",
+      "side": 1,
+      "message": "Sure, though it\u0027s a little messier since we don\u0027t want to call sb_compute_dering_list() when level \u003d\u003d 0",
+      "parentUuid": "5ca6f3c4_1259aaa8",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ca6f3c4_92059a78",
         "filename": "av1/common/dering.h",
         "patchSetId": 1
@@ -116,6 +224,24 @@
       "writtenOn": "2016-10-18T14:24:48Z",
       "side": 1,
       "message": "You are actually creating a list of x,y positions for skipped blocks to dering.  Adding a simple:\n\ntypedef struct {\n  unsigned char x;\n  unsigned char y;\n} dering_list;\n\nand passing a pointer to a dering_list would go a long way toward making this code readable.",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a13a6853_21c4cef7",
+        "filename": "av1/common/dering.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-26T01:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ca6f3c4_92059a78",
       "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -139,6 +265,24 @@
     },
     {
       "key": {
+        "uuid": "a13a6853_41c1d2e6",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-26T01:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ca6f3c4_52633258",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ca6f3c4_924cbae4",
         "filename": "av1/encoder/pickdering.c",
         "patchSetId": 1
@@ -150,6 +294,24 @@
       "writtenOn": "2016-10-18T14:24:48Z",
       "side": 1,
       "message": "Same thing applies to this function.",
+      "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a13a6853_61bad676",
+        "filename": "av1/encoder/pickdering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-26T01:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ca6f3c4_924cbae4",
       "revId": "f94fb0ecc32c07294cd9cbd03ae0bc24e2f1731f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
