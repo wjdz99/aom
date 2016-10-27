@@ -13,6 +13,9 @@ project(AOM C CXX)
 
 set(AOM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 set(AOM_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+
+# TODO(tomfinegan): Host auto detect goes here when $AOM_TARGET is empty.
+set(AOM_TARGET "generic")
 include("${AOM_ROOT}/build/cmake/aom_configure.cmake")
 
 set(AOM_SRCS
@@ -38,6 +41,7 @@ set(AOM_DSP_SRCS
     "${AOM_ROOT}/aom_dsp/aom_convolve.h"
     "${AOM_ROOT}/aom_dsp/aom_dsp_common.h"
     "${AOM_ROOT}/aom_dsp/aom_dsp_rtcd.c"
+    "${AOM_CONFIG_DIR}/aom_dsp_rtcd.h"
     "${AOM_ROOT}/aom_dsp/aom_filter.h"
     "${AOM_ROOT}/aom_dsp/aom_simd.c"
     "${AOM_ROOT}/aom_dsp/aom_simd.h"
@@ -89,6 +93,7 @@ set(AOM_MEM_SRCS
 set(AOM_SCALE_SRCS
     "${AOM_ROOT}/aom_scale/aom_scale.h"
     "${AOM_ROOT}/aom_scale/aom_scale_rtcd.c"
+    "${AOM_CONFIG_DIR}/aom_scale_rtcd.h"
     "${AOM_ROOT}/aom_scale/generic/aom_scale.c"
     "${AOM_ROOT}/aom_scale/generic/gen_scalers.c"
     "${AOM_ROOT}/aom_scale/generic/yv12config.c"
@@ -96,6 +101,8 @@ set(AOM_SCALE_SRCS
     "${AOM_ROOT}/aom_scale/yv12config.h")
 
 # TODO(tomfinegan): Extract aom_ports from aom_util if possible.
+# TODO(tomfinegan): aom_ports has some target specific source files.
+# aom_configure will need to set a var that gets picked up here.
 set(AOM_UTIL_SRCS
     "${AOM_ROOT}/aom_ports/aom_once.h"
     "${AOM_ROOT}/aom_ports/aom_timer.h"
@@ -119,6 +126,7 @@ set(AOM_AV1_COMMON_SRCS
     "${AOM_ROOT}/av1/common/av1_inv_txfm.c"
     "${AOM_ROOT}/av1/common/av1_inv_txfm.h"
     "${AOM_ROOT}/av1/common/av1_rtcd.c"
+    "${AOM_CONFIG_DIR}/av1_rtcd.h"
     "${AOM_ROOT}/av1/common/blockd.c"
     "${AOM_ROOT}/av1/common/blockd.h"
     "${AOM_ROOT}/av1/common/common.h"
