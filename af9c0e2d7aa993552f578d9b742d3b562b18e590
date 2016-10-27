@@ -16,6 +16,24 @@
       "revId": "af9c0e2d7aa993552f578d9b742d3b562b18e590",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41a36c15_d19b46fc",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-10-27T14:29:31Z",
+      "side": 1,
+      "message": "It should not, but one of my TODOs is research into link order and any controls afforded by cmake. Hopefully there are some controls, or we can just set linker flags explicitly... though that would be rather lame.\n\nThere is a notion of source collections (instead of libs) if we run into trouble or the above doesn\u0027t pan out. The differences ends up something like the following.\n\n    # Now we have\n    add_libary(output_name $srcs)\n\n    # What we\u0027d end up with\n    add_library(output_name OBJECT $srcs)\n\nThe consequence is that the OBJECT targets are private within the AOM project. Users that want to just pull in libaom via cmake laziness would only see our libaom target... which might be exactly what we want.\n\nAnyway, cmake is pretty flexible, and this is here only because I need to hook the source list vars up to targets to actually see them in the IDE.",
+      "parentUuid": "41a36c15_ce456361",
+      "revId": "af9c0e2d7aa993552f578d9b742d3b562b18e590",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
