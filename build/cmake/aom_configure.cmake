@@ -11,8 +11,14 @@
 cmake_minimum_required(VERSION 3.2)
 
 include("${AOM_ROOT}/build/cmake/compiler_flags.cmake")
+include("${AOM_ROOT}/build/cmake/targets/${AOM_TARGET}.cmake")
+
+# TODO(tomfinegan): For some ${AOM_TARGET} values a toolchain can be
+# inferred, and we could include it here instead of forcing users to
+# remember to explicitly specify ${AOM_TARGET} and the cmake toolchain.
 
 include(FindGit)
+include(FindPerl)
 
 # Defaults for every libaom configuration variable.
 set(RESTRICT)
@@ -119,7 +125,7 @@ set(CONFIG_EC_ADAPT 0)
 
 # TODO(tomfinegan): consume trailing whitespace after configure_file().
 configure_file("${AOM_ROOT}/build/cmake/aom_config.h.cmake"
-               "${CMAKE_CURRENT_BINARY_DIR}/aom_config.h")
+               "${AOM_CONFIG_DIR}/aom_config.h")
 
 # Read the current git hash.
 find_package(Git)
@@ -149,4 +155,31 @@ EndIf ()
 # information available.
 set(AOM_CMAKE_CONFIG "cmake")
 configure_file("${AOM_ROOT}/build/cmake/aom_config.c.cmake"
-               "${CMAKE_CURRENT_BINARY_DIR}/aom_config.c")
+               "${AOM_CONFIG_DIR}/aom_config.c")
+
+# Find Perl and generate the RTCD sources.
+find_package(Perl)
+if (NOT PERL_FOUND)
+  message(FATAL_ERROR "Perl is required to build libaom.")
+endif ()
+configure_file(
+  "${AOM_ROOT}/build/cmake/targets/rtcd_templates/${AOM_ARCH}.rtcd.cmake"
+  "${AOM_CONFIG_DIR}/${AOM_ARCH}.rtcd")
+EXECUTE_PROCESS(
+  COMMAND ${PERL_EXECUTABLE} "${AOM_ROOT}/build/make/rtcd.pl"
+  --arch=${AOM_ARCH} --sym=aom_dsp_rtcd
+  --config=${AOM_CONFIG_DIR}/${AOM_ARCH}.rtcd
+  "${AOM_ROOT}/aom_dsp/aom_dsp_rtcd_defs.pl"
+  OUTPUT_FILE "${AOM_CONFIG_DIR}/aom_dsp_rtcd.h")
+EXECUTE_PROCESS(
+  COMMAND ${PERL_EXECUTABLE} "${AOM_ROOT}/build/make/rtcd.pl"
+  --arch=${AOM_ARCH} --sym=aom_scale_rtcd
+  --config=${AOM_CONFIG_DIR}/${AOM_ARCH}.rtcd
+  "${AOM_ROOT}/aom_scale/aom_scale_rtcd.pl"
+  OUTPUT_FILE "${AOM_CONFIG_DIR}/aom_scale_rtcd.h")
+EXECUTE_PROCESS(
+  COMMAND ${PERL_EXECUTABLE} "${AOM_ROOT}/build/make/rtcd.pl"
+  --arch=${AOM_ARCH} --sym=aom_av1_rtcd
+  --config=${AOM_CONFIG_DIR}/${AOM_ARCH}.rtcd
+  "${AOM_ROOT}/av1/common/av1_rtcd_defs.pl"
+  OUTPUT_FILE "${AOM_CONFIG_DIR}/av1_rtcd.h")
