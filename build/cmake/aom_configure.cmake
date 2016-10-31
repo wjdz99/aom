@@ -129,6 +129,8 @@ configure_file("${AOM_ROOT}/build/cmake/aom_config.h.cmake"
 
 # Read the current git hash.
 find_package(Git)
+set(AOM_GIT_DESCRIPTION)
+set(AOM_GIT_HASH)
 if (GIT_FOUND)
   # TODO(tomfinegan): Make this smart enough to write a proper version string
   # when in a repo that is on a label and clean.
@@ -138,11 +140,12 @@ if (GIT_FOUND)
   EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE}
                   --git-dir=${AOM_ROOT}/.git rev-parse HEAD
                   OUTPUT_VARIABLE AOM_GIT_HASH)
+  EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE} --git-dir=${AOM_ROOT}/.git describe
+                  OUTPUT_VARIABLE AOM_GIT_DESCRIPTION)
   # Consume the newline at the end of the git output.
   string(STRIP ${AOM_GIT_HASH} AOM_GIT_HASH)
-Else ()
-  set(AOM_GIT_HASH)
-EndIf ()
+  string(STRIP ${AOM_GIT_DESCRIPTION} AOM_GIT_DESCRIPTION)
+endif ()
 
 # TODO(tomfinegan): An alternative to dumping the configure command line to
 # aom_config.c is needed in cmake. Normal cmake generation runs do not make the
@@ -183,3 +186,16 @@ EXECUTE_PROCESS(
   --config=${AOM_CONFIG_DIR}/${AOM_ARCH}.rtcd
   "${AOM_ROOT}/av1/common/av1_rtcd_defs.pl"
   OUTPUT_FILE "${AOM_CONFIG_DIR}/av1_rtcd.h")
+
+# Generate aom_version.h.
+if (${AOM_GIT_DESCRIPTION} STREQUAL "")
+  EXECUTE_PROCESS(
+    COMMAND ${PERL_EXECUTABLE} "${AOM_ROOT}/build/cmake/aom_version.pl"
+    --changelog_filename=${AOM_ROOT}/CHANGELOG
+    --version_filename=${AOM_CONFIG_DIR}/aom_version.h)
+else ()
+  EXECUTE_PROCESS(
+    COMMAND ${PERL_EXECUTABLE} "${AOM_ROOT}/build/cmake/aom_version.pl"
+    --git_description=${AOM_GIT_DESCRIPTION}
+    --version_filename=${AOM_CONFIG_DIR}/aom_version.h)
+endif ()
