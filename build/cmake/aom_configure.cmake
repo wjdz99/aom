@@ -183,3 +183,10 @@ EXECUTE_PROCESS(
   --config=${AOM_CONFIG_DIR}/${AOM_ARCH}.rtcd
   "${AOM_ROOT}/av1/common/av1_rtcd_defs.pl"
   OUTPUT_FILE "${AOM_CONFIG_DIR}/av1_rtcd.h")
+
+# Generate aom_version.h.
+EXECUTE_PROCESS(
+  COMMAND ${PERL_EXECUTABLE} "${AOM_ROOT}/build/cmake/changelog_version.pl"
+  --changelog_filename=${AOM_ROOT}/CHANGELOG
+  --version_filename=${AOM_CONFIG_DIR}/aom_version.h)
+
