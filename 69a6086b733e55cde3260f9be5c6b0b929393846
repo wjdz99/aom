@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6e77223_55b41ed4",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-01T03:07:48Z",
+      "side": 1,
+      "message": "why not just a \u003cmap\u003e? if we decide to move the tests to c++11 unordered_map might not be a bad choice",
+      "revId": "69a6086b733e55cde3260f9be5c6b0b929393846",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
