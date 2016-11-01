@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "c6e77223_e1c7d051",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-01T20:23:40Z",
+      "side": 1,
+      "message": "actually... mind if this just stays until the aom_version commit gets in? I think that one\u0027s almost there, and fixing if/Else/EndIf can wait until that one... probably. OK with you?",
+      "parentUuid": "c6e77223_a1ff888b",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 5
+      },
+      "revId": "a0b69d1cecbf0322fd9043aeda7707df44c76c88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c6e77223_78b399cf",
         "filename": "build/cmake/compiler_flags.cmake",
         "patchSetId": 3
