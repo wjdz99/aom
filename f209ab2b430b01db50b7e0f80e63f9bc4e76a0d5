@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c6e77223_01c3f449",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-01T20:23:50Z",
+      "side": 1,
+      "message": "yeah; this is what I meant about needing a custom rule. The EXECUTE_PROCESS calls will move into the custom rule, and the rule(s) will depend on all rtcd input and the rtcd generation script itself.",
+      "parentUuid": "c6e77223_f8e549c8",
+      "revId": "f209ab2b430b01db50b7e0f80e63f9bc4e76a0d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c6e77223_d8ea8598",
         "filename": "build/cmake/aom_configure.cmake",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-01T03:54:31Z",
       "side": 1,
       "message": "can this be condensed into a loop?",
+      "revId": "f209ab2b430b01db50b7e0f80e63f9bc4e76a0d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6e77223_01d89439",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-01T20:23:50Z",
+      "side": 1,
+      "message": "not really because:\n\n- the av1/codec being in av1/common is the first problem: can\u0027t just concat a name on ${AOM_ROOT} a couple times and stick .pl on it\n-  aom_dsp_rtcd_defs.pl and aom_scale_rtcd.pl; no defs in latter name; same as first problem, really\n\nAnyway, if rtcd input was always in aom/sub_component_dir/sub_component.pl that would be one thing... but it\u0027s not. Maybe fix later if things work out, but this nasty appears to be required.",
+      "parentUuid": "c6e77223_d8ea8598",
       "revId": "f209ab2b430b01db50b7e0f80e63f9bc4e76a0d5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
