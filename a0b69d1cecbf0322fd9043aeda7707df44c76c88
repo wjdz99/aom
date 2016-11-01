@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6e77223_d8c3a526",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-01T03:48:29Z",
+      "side": 1,
+      "message": "if cmake doesn\u0027t offer anything and you want to avoid a coreutils dep: perl -pi -e \u0027s/\\s+$//\u0027",
+      "revId": "a0b69d1cecbf0322fd9043aeda7707df44c76c88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6e77223_98cd1d54",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-01T03:48:29Z",
+      "side": 1,
+      "message": "there\u0027s a mix of casing with this block; is one more common in the cmake docs? otherwise I\u0027d say lowercase",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 5
+      },
+      "revId": "a0b69d1cecbf0322fd9043aeda7707df44c76c88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6e77223_78b399cf",
+        "filename": "build/cmake/compiler_flags.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-01T03:48:29Z",
+      "side": 1,
+      "message": "it\u0027d be good to match what\u0027s in configure now to avoid forgetting later",
+      "revId": "a0b69d1cecbf0322fd9043aeda7707df44c76c88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
