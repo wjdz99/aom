@@ -33,7 +33,11 @@ typedef uint16_t aom_cdf_prob;
 
 typedef int8_t aom_tree_index;
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 #define TREE_SIZE(leaf_count) (2 * (leaf_count)-2)
+=======
+#define TREE_SIZE(leaf_count) (-2 + 2 * (leaf_count))
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 
 #define aom_complement(x) (255 - x)
 

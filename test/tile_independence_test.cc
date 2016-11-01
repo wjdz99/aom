@@ -21,13 +21,22 @@
 #include "aom_mem/aom_mem.h"
 
 namespace {
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 class TileIndependenceTest
     : public ::libaom_test::EncoderTest,
       public ::libaom_test::CodecTestWith2Params<int, int> {
+=======
+class TileIndependenceTest : public ::libaom_test::EncoderTest,
+                             public ::libaom_test::CodecTestWithParam<int> {
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
  protected:
   TileIndependenceTest()
       : EncoderTest(GET_PARAM(0)), md5_fw_order_(), md5_inv_order_(),
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
         n_tile_cols_(GET_PARAM(1)), n_tile_rows_(GET_PARAM(2)) {
+=======
+        n_tiles_(GET_PARAM(1)) {
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
     init_flags_ = AOM_CODEC_USE_PSNR;
     aom_codec_dec_cfg_t cfg = aom_codec_dec_cfg_t();
     cfg.w = 704;
@@ -36,6 +45,7 @@ class TileIndependenceTest
     fw_dec_ = codec_->CreateDecoder(cfg, 0);
     inv_dec_ = codec_->CreateDecoder(cfg, 0);
     inv_dec_->Control(AV1_INVERT_TILE_DECODE_ORDER, 1);
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 
 #if CONFIG_AV1 && CONFIG_EXT_TILE
     if (fw_dec_->IsAV1() && inv_dec_->IsAV1()) {
@@ -45,6 +55,8 @@ class TileIndependenceTest
       inv_dec_->Control(AV1_SET_DECODE_TILE_COL, -1);
     }
 #endif
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
   }
 
   virtual ~TileIndependenceTest() {
@@ -60,17 +72,24 @@ class TileIndependenceTest
   virtual void PreEncodeFrameHook(libaom_test::VideoSource *video,
                                   libaom_test::Encoder *encoder) {
     if (video->frame() == 1) {
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
       encoder->Control(AV1E_SET_TILE_COLUMNS, n_tile_cols_);
       encoder->Control(AV1E_SET_TILE_ROWS, n_tile_rows_);
       SetCpuUsed(encoder);
+=======
+      encoder->Control(AV1E_SET_TILE_COLUMNS, n_tiles_);
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
     }
   }
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
   virtual void SetCpuUsed(libaom_test::Encoder *encoder) {
     static const int kCpuUsed = 3;
     encoder->Control(AOME_SET_CPUUSED, kCpuUsed);
   }
 
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
   void UpdateMD5(::libaom_test::Decoder *dec, const aom_codec_cx_pkt_t *pkt,
                  ::libaom_test::MD5 *md5) {
     const aom_codec_err_t res = dec->DecodeFrame(
@@ -88,6 +107,7 @@ class TileIndependenceTest
     UpdateMD5(inv_dec_, pkt, &md5_inv_order_);
   }
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
   void DoTest() {
     const aom_rational timebase = { 33333333, 1000000000 };
     cfg_.g_timebase = timebase;
@@ -104,6 +124,8 @@ class TileIndependenceTest
     ASSERT_STREQ(md5_fw_str, md5_inv_str);
   }
 
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
   ::libaom_test::MD5 md5_fw_order_, md5_inv_order_;
   ::libaom_test::Decoder *fw_dec_, *inv_dec_;
 
@@ -115,17 +137,33 @@ class TileIndependenceTest
 // run an encode with 2 or 4 tiles, and do the decode both in normal and
 // inverted tile ordering. Ensure that the MD5 of the output in both cases
 // is identical. If so, tiles are considered independent and the test passes.
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 TEST_P(TileIndependenceTest, MD5Match) { DoTest(); }
+=======
+TEST_P(TileIndependenceTest, MD5Match) {
+  const aom_rational timebase = { 33333333, 1000000000 };
+  cfg_.g_timebase = timebase;
+  cfg_.rc_target_bitrate = 500;
+  cfg_.g_lag_in_frames = 25;
+  cfg_.rc_end_usage = AOM_VBR;
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 class TileIndependenceTestLarge : public TileIndependenceTest {
   virtual void SetCpuUsed(libaom_test::Encoder *encoder) {
     static const int kCpuUsed = 0;
     encoder->Control(AOME_SET_CPUUSED, kCpuUsed);
   }
 };
+=======
+  libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 704, 144,
+                                     timebase.den, timebase.num, 0, 30);
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 
 TEST_P(TileIndependenceTestLarge, MD5Match) { DoTest(); }
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 #if CONFIG_EC_ADAPT
 // TODO(thdavies): EC_ADAPT does not support tiles
 #else
@@ -142,4 +180,23 @@ AV1_INSTANTIATE_TEST_CASE(TileIndependenceTestLarge, ::testing::Values(0, 1),
                           ::testing::Values(0, 1));
 #endif  // CONFIG_EXT_TILE
 #endif  // CONFIG_EC_ADAPT
+=======
+  // could use ASSERT_EQ(!memcmp(.., .., 16) here, but this gives nicer
+  // output if it fails. Not sure if it's helpful since it's really just
+  // a MD5...
+  ASSERT_STREQ(md5_fw_str, md5_inv_str);
+}
+#if CONFIG_EC_ADAPT
+// TODO(thdavies): EC_ADAPT does not support tiles
+INSTANTIATE_TEST_CASE_P(
+    DISABLED_AV1, TileIndependenceTest,
+    ::testing::Combine(
+        ::testing::Values(
+            static_cast<const libaom_test::CodecFactory *>(&libaom_test::kAV1)),
+        ::testing::Range(0, 2, 1)));
+#else
+AV1_INSTANTIATE_TEST_CASE(TileIndependenceTest, ::testing::Range(0, 2, 1));
+#endif
+
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 }  // namespace

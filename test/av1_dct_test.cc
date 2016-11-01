@@ -102,6 +102,10 @@ INSTANTIATE_TEST_CASE_P(
     C, AV1FwdTxfm,
     ::testing::Values(FdctParam(&fdct4, &reference_dct_1d, 4, 1),
                       FdctParam(&fdct8, &reference_dct_1d, 8, 1),
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
                       FdctParam(&fdct16, &reference_dct_1d, 16, 2),
                       FdctParam(&fdct32, &reference_dct_1d, 32, 3)));
+=======
+                      FdctParam(&fdct16, &reference_dct_1d, 16, 2)));
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 }  // namespace

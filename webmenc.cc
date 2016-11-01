@@ -24,6 +24,10 @@ const int kVideoTrackNumber = 1;
 
 void write_webm_file_header(struct WebmOutputContext *webm_ctx,
                             const aom_codec_enc_cfg_t *cfg,
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
+=======
+                            const struct aom_rational *fps,
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
                             stereo_format_t stereo_fmt, unsigned int fourcc,
                             const struct AvxRational *par) {
   mkvmuxer::MkvWriter *const writer = new mkvmuxer::MkvWriter(webm_ctx->stream);

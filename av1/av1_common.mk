@@ -9,6 +9,7 @@
 ## PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 ##
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 AV1_COMMON_SRCS-yes += av1_common.mk
 AV1_COMMON_SRCS-yes += av1_iface_common.h
 AV1_COMMON_SRCS-yes += common/alloccommon.c
@@ -141,6 +142,116 @@ endif
 
 ifeq ($(CONFIG_FILTER_INTRA),yes)
 AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/filterintra_sse4.c
+=======
+
+AV1_COMMON_SRCS-yes += av1_common.mk
+AV1_COMMON_SRCS-yes += av1_iface_common.h
+AV1_COMMON_SRCS-yes += common/alloccommon.c
+AV1_COMMON_SRCS-yes += common/blockd.c
+AV1_COMMON_SRCS-yes += common/debugmodes.c
+AV1_COMMON_SRCS-yes += common/entropy.c
+AV1_COMMON_SRCS-yes += common/entropymode.c
+AV1_COMMON_SRCS-yes += common/entropymv.c
+AV1_COMMON_SRCS-yes += common/frame_buffers.c
+AV1_COMMON_SRCS-yes += common/frame_buffers.h
+AV1_COMMON_SRCS-yes += common/alloccommon.h
+AV1_COMMON_SRCS-yes += common/blockd.h
+AV1_COMMON_SRCS-yes += common/common.h
+AV1_COMMON_SRCS-yes += common/entropy.h
+AV1_COMMON_SRCS-yes += common/entropymode.h
+AV1_COMMON_SRCS-yes += common/entropymv.h
+AV1_COMMON_SRCS-yes += common/enums.h
+AV1_COMMON_SRCS-yes += common/filter.h
+AV1_COMMON_SRCS-yes += common/filter.c
+AV1_COMMON_SRCS-yes += common/convolve.c
+AV1_COMMON_SRCS-yes += common/convolve.h
+AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/x86/av1_convolve_ssse3.c
+AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/x86/av1_convolve_filters_ssse3.h
+ifeq ($(CONFIG_AOM_HIGHBITDEPTH),yes)
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/av1_highbd_convolve_sse4.c
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/av1_highbd_convolve_filters_sse4.h
+endif
+
+AV1_COMMON_SRCS-yes += common/idct.h
+AV1_COMMON_SRCS-yes += common/idct.c
+AV1_COMMON_SRCS-yes += common/av1_inv_txfm.h
+AV1_COMMON_SRCS-yes += common/av1_inv_txfm.c
+AV1_COMMON_SRCS-yes += common/loopfilter.h
+AV1_COMMON_SRCS-yes += common/thread_common.h
+AV1_COMMON_SRCS-yes += common/mv.h
+AV1_COMMON_SRCS-yes += common/onyxc_int.h
+AV1_COMMON_SRCS-yes += common/pred_common.h
+AV1_COMMON_SRCS-yes += common/pred_common.c
+AV1_COMMON_SRCS-yes += common/quant_common.h
+AV1_COMMON_SRCS-yes += common/reconinter.h
+AV1_COMMON_SRCS-yes += common/reconintra.h
+AV1_COMMON_SRCS-yes += common/av1_rtcd.c
+AV1_COMMON_SRCS-yes += common/av1_rtcd_defs.pl
+AV1_COMMON_SRCS-yes += common/scale.h
+AV1_COMMON_SRCS-yes += common/scale.c
+AV1_COMMON_SRCS-yes += common/seg_common.h
+AV1_COMMON_SRCS-yes += common/seg_common.c
+AV1_COMMON_SRCS-yes += common/tile_common.h
+AV1_COMMON_SRCS-yes += common/tile_common.c
+AV1_COMMON_SRCS-yes += common/loopfilter.c
+AV1_COMMON_SRCS-yes += common/thread_common.c
+AV1_COMMON_SRCS-yes += common/mvref_common.c
+AV1_COMMON_SRCS-yes += common/mvref_common.h
+AV1_COMMON_SRCS-yes += common/quant_common.c
+AV1_COMMON_SRCS-yes += common/reconinter.c
+AV1_COMMON_SRCS-yes += common/reconintra.c
+AV1_COMMON_SRCS-yes += common/common_data.h
+AV1_COMMON_SRCS-yes += common/scan.c
+AV1_COMMON_SRCS-yes += common/scan.h
+# TODO(angiebird) the forward transform belongs under encoder/
+AV1_COMMON_SRCS-$(CONFIG_AV1_ENCODER) += common/av1_fwd_txfm.h
+AV1_COMMON_SRCS-$(CONFIG_AV1_ENCODER) += common/av1_fwd_txfm.c
+ifeq ($(CONFIG_CLPF),yes)
+AV1_COMMON_SRCS-yes += common/clpf.c
+AV1_COMMON_SRCS-yes += common/clpf.h
+AV1_COMMON_SRCS-yes += common/clpf_simd.h
+AV1_COMMON_SRCS-$(HAVE_SSE2) += common/clpf_sse2.c
+AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/clpf_ssse3.c
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/clpf_sse4.c
+AV1_COMMON_SRCS-$(HAVE_NEON) += common/clpf_neon.c
+endif
+ifeq ($(CONFIG_DERING),yes)
+AV1_COMMON_SRCS-yes += common/od_dering.c
+AV1_COMMON_SRCS-yes += common/od_dering.h
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/od_dering_sse4.c
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/od_dering_sse4.h
+AV1_COMMON_SRCS-yes += common/dering.c
+AV1_COMMON_SRCS-yes += common/dering.h
+endif
+ifeq ($(CONFIG_ACCOUNTING),yes)
+AV1_COMMON_SRCS-yes += common/accounting.h
+AV1_COMMON_SRCS-yes += common/accounting.c
+endif
+AV1_COMMON_SRCS-yes += common/odintrin.c
+AV1_COMMON_SRCS-yes += common/odintrin.h
+
+ifneq ($(CONFIG_AOM_HIGHBITDEPTH),yes)
+AV1_COMMON_SRCS-$(HAVE_DSPR2)  += common/mips/dspr2/itrans4_dspr2.c
+AV1_COMMON_SRCS-$(HAVE_DSPR2)  += common/mips/dspr2/itrans8_dspr2.c
+AV1_COMMON_SRCS-$(HAVE_DSPR2)  += common/mips/dspr2/itrans16_dspr2.c
+endif
+
+# common (msa)
+AV1_COMMON_SRCS-$(HAVE_MSA) += common/mips/msa/idct4x4_msa.c
+AV1_COMMON_SRCS-$(HAVE_MSA) += common/mips/msa/idct8x8_msa.c
+AV1_COMMON_SRCS-$(HAVE_MSA) += common/mips/msa/idct16x16_msa.c
+
+AV1_COMMON_SRCS-$(HAVE_SSE2) += common/x86/idct_intrin_sse2.c
+ifeq ($(CONFIG_AV1_ENCODER),yes)
+AV1_COMMON_SRCS-$(HAVE_SSE2) += common/x86/av1_fwd_txfm_sse2.c
+AV1_COMMON_SRCS-$(HAVE_SSE2) += common/x86/av1_fwd_dct32x32_impl_sse2.h
+AV1_COMMON_SRCS-$(HAVE_SSE2) += common/x86/av1_fwd_txfm_impl_sse2.h
+endif
+
+ifneq ($(CONFIG_AOM_HIGHBITDEPTH),yes)
+AV1_COMMON_SRCS-$(HAVE_NEON) += common/arm/neon/iht4x4_add_neon.c
+AV1_COMMON_SRCS-$(HAVE_NEON) += common/arm/neon/iht8x8_add_neon.c
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 endif
 
 AV1_COMMON_SRCS-$(HAVE_SSE2) += common/x86/av1_inv_txfm_sse2.c

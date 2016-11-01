@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 /*
  *  Copyright (c) 2012 The WebM project authors. All Rights Reserved.
  *
@@ -93,3 +94,5 @@ AV1_INSTANTIATE_TEST_CASE(AltRefForcedKeyTestLarge,
                           ::testing::Range(0, 9));
 
 }  // namespace
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)

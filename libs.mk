@@ -10,6 +10,7 @@
 ##
 
 
+
 # ARM assembly files are written in RVCT-style. We use some make magic to
 # filter those files to allow GCC compilation
 ifeq ($(ARCH_ARM),yes)
@@ -67,6 +68,10 @@ ifeq ($(CONFIG_AV1_ENCODER),yes)
   CODEC_EXPORTS-yes += $(addprefix $(AV1_PREFIX),$(AV1_CX_EXPORTS))
   CODEC_SRCS-yes += $(AV1_PREFIX)av1_cx.mk aom/aom.h aom/aomcx.h
   INSTALL-LIBS-yes += include/aom/aom.h include/aom/aomcx.h
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
+=======
+  INSTALL-LIBS-$(CONFIG_SPATIAL_SVC) += include/aom/svc_context.h
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
   INSTALL_MAPS += include/aom/% $(SRC_PATH_BARE)/$(AV1_PREFIX)/%
   CODEC_DOC_SRCS += aom/aom.h aom/aomcx.h
   CODEC_DOC_SECTIONS += av1 av1_encoder
@@ -213,12 +218,15 @@ SHARED_LIB_SUF          := .dylib
 EXPORT_FILE             := libaom.syms
 LIBAOM_SO_SYMLINKS      := $(addprefix $(LIBSUBDIR)/, \
                              libaom.dylib  )
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 else
 ifeq ($(filter iphonesimulator%,$(TGT_OS)),$(TGT_OS))
 LIBAOM_SO               := libaom.$(SO_VERSION_MAJOR).dylib
 SHARED_LIB_SUF          := .dylib
 EXPORT_FILE             := libaom.syms
 LIBAOM_SO_SYMLINKS      := $(addprefix $(LIBSUBDIR)/, libaom.dylib)
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 else
 ifeq ($(filter os2%,$(TGT_OS)),$(TGT_OS))
 LIBAOM_SO               := libaom$(SO_VERSION_MAJOR).dll
@@ -233,7 +241,10 @@ EXPORT_FILE             := libaom.ver
 LIBAOM_SO_SYMLINKS      := $(addprefix $(LIBSUBDIR)/, \
                              libaom.so libaom.so.$(SO_VERSION_MAJOR) \
                              libaom.so.$(SO_VERSION_MAJOR).$(SO_VERSION_MINOR))
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 endif
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 endif
 endif
 
@@ -262,7 +273,11 @@ libaom.def: $(call enabled,CODEC_EXPORTS)
 	$(qexec)echo LIBRARY $(LIBAOM_SO:.dll=) INITINSTANCE TERMINSTANCE > $@
 	$(qexec)echo "DATA MULTIPLE NONSHARED" >> $@
 	$(qexec)echo "EXPORTS" >> $@
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 	$(qexec)awk '{print "_"$$2}' $^ >>$@
+=======
+	$(qexec)awk '!/aom_svc_*/ {print "_"$$2}' $^ >>$@
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 CLEAN-OBJS += libaom.def
 
 libaom_dll.a: $(LIBAOM_SO)
@@ -300,7 +315,11 @@ aom.pc: config.mk libs.mk
 	$(qexec)echo 'includedir=$${prefix}/include' >> $@
 	$(qexec)echo '' >> $@
 	$(qexec)echo 'Name: aom' >> $@
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 	$(qexec)echo 'Description: WebM Project AVx codec implementation' >> $@
+=======
+	$(qexec)echo 'Description: AOMedia Project AVx codec implementation' >> $@
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 	$(qexec)echo 'Version: $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)' >> $@
 	$(qexec)echo 'Requires:' >> $@
 	$(qexec)echo 'Conflicts:' >> $@

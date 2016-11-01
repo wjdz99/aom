@@ -18,6 +18,7 @@
 extern "C" {
 #endif
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 // Note: Fixed size intermediate buffers, place limits on parameters
 // of some functions. 2d filtering proceeds in 2 steps:
 //   (1) Interpolate horizontally into an intermediate buffer, temp.
@@ -36,6 +37,8 @@ extern "C" {
 #define MAX_EXT_SIZE 135
 #endif  // CONFIG_AV1 && CONFIG_EXT_PARTITION
 
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 typedef void (*convolve_fn_t)(const uint8_t *src, ptrdiff_t src_stride,
                               uint8_t *dst, ptrdiff_t dst_stride,
                               const int16_t *filter_x, int x_step_q4,

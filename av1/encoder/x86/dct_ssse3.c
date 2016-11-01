@@ -10,11 +10,14 @@
  */
 
 #include <assert.h>
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 #if defined(_MSC_VER) && _MSC_VER <= 1500
 // Need to include math.h before calling tmmintrin.h/intrin.h
 // in certain versions of MSVS.
 #include <math.h>
 #endif
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 #include <tmmintrin.h>  // SSSE3
 
 #include "./av1_rtcd.h"

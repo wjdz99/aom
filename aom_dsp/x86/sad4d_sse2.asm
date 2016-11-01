@@ -233,11 +233,14 @@ cglobal sad%1x%2x4d, 4, 7, 8, src, src_stride, ref1, ref_stride, \
 %endmacro
 
 INIT_XMM sse2
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 %if CONFIG_EXT_PARTITION
 SADNXN4D 128, 128
 SADNXN4D 128, 64
 SADNXN4D 64,  128
 %endif
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 SADNXN4D 64, 64
 SADNXN4D 64, 32
 SADNXN4D 32, 64

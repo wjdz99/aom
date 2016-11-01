@@ -20,9 +20,13 @@ extern "C" {
 
 struct yv12_buffer_config;
 struct AV1_COMP;
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 int av1_get_max_filter_level(const AV1_COMP *cpi);
 int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
                             int partial_frame, double *err);
+=======
+
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 void av1_pick_filter_level(const struct yv12_buffer_config *sd,
                            struct AV1_COMP *cpi, LPF_PICK_METHOD method);
 #ifdef __cplusplus

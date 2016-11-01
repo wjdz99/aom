@@ -183,6 +183,7 @@ int od_filter_dering_direction_4x4_c(int16_t *y, int ystride, const int16_t *in,
   return (total_abs + 2) >> 2;
 }
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 int od_filter_dering_direction_4x8(int16_t *y, int ystride, const int16_t *in,
                                      int threshold, int dir) {
   return od_filter_dering_direction_4x4(y, ystride, in, threshold, dir)
@@ -376,6 +377,170 @@ void od_dering(int16_t *y, int ystride, const od_dering_in *x, int xstride,
           &y[(by * ystride << bsize_y) + (bx << bsize_x)], ystride,
           &in[(by * OD_FILT_BSTRIDE << bsize_y) + (bx << bsize_x)],
           filter2_thresh[by][bx], dir[by][bx]);
+=======
+/* Smooth in the direction orthogonal to what was detected. */
+void od_filter_dering_orthogonal_8x8_c(int16_t *y, int ystride,
+                                       const int16_t *in, int threshold,
+                                       int dir) {
+  int i;
+  int j;
+  int offset;
+  if (dir > 0 && dir < 4)
+    offset = OD_FILT_BSTRIDE;
+  else
+    offset = 1;
+  for (i = 0; i < 8; i++) {
+    for (j = 0; j < 8; j++) {
+      int16_t yy;
+      int16_t sum;
+      int16_t p;
+      yy = in[i * OD_FILT_BSTRIDE + j];
+      sum = 0;
+      p = in[i * OD_FILT_BSTRIDE + j + offset] - yy;
+      if (abs(p) < threshold) sum += p;
+      p = in[i * OD_FILT_BSTRIDE + j - offset] - yy;
+      if (abs(p) < threshold) sum += p;
+      p = in[i * OD_FILT_BSTRIDE + j + 2 * offset] - yy;
+      if (abs(p) < threshold) sum += p;
+      p = in[i * OD_FILT_BSTRIDE + j - 2 * offset] - yy;
+      if (abs(p) < threshold) sum += p;
+      y[i * ystride + j] = yy + ((3 * sum + 8) >> 4);
+    }
+  }
+}
+
+/* Smooth in the direction orthogonal to what was detected. */
+void od_filter_dering_orthogonal_4x4_c(int16_t *y, int ystride,
+                                       const int16_t *in, int threshold,
+                                       int dir) {
+  int i;
+  int j;
+  int offset;
+  if (dir > 0 && dir < 4)
+    offset = OD_FILT_BSTRIDE;
+  else
+    offset = 1;
+  for (i = 0; i < 4; i++) {
+    for (j = 0; j < 4; j++) {
+      int16_t yy;
+      int16_t sum;
+      int16_t p;
+      yy = in[i * OD_FILT_BSTRIDE + j];
+      sum = 0;
+      p = in[i * OD_FILT_BSTRIDE + j + offset] - yy;
+      if (abs(p) < threshold) sum += p;
+      p = in[i * OD_FILT_BSTRIDE + j - offset] - yy;
+      if (abs(p) < threshold) sum += p;
+      y[i * ystride + j] = yy + ((5 * sum + 8) >> 4);
+    }
+  }
+}
+
+/* This table approximates x^0.16 with the index being log2(x). It is clamped
+   to [-.5, 3]. The table is computed as:
+   round(256*min(3, max(.5, 1.08*(sqrt(2)*2.^([0:17]+8)/256/256).^.16))) */
+static const int16_t OD_THRESH_TABLE_Q8[18] = {
+  128, 134, 150, 168, 188, 210, 234, 262, 292,
+  327, 365, 408, 455, 509, 569, 635, 710, 768,
+};
+
+/* Compute deringing filter threshold for an 8x8 block based on the
+   directional variance difference. A high variance difference means that we
+   have a highly directional pattern (e.g. a high contrast edge), so we can
+   apply more deringing. A low variance means that we either have a low
+   contrast edge, or a non-directional texture, so we want to be careful not
+   to blur. */
+static INLINE int od_adjust_thresh(int threshold, int32_t var) {
+  int v1;
+  /* We use the variance of 8x8 blocks to adjust the threshold. */
+  v1 = OD_MINI(32767, var >> 6);
+  return (threshold * OD_THRESH_TABLE_Q8[OD_ILOG(v1)] + 128) >> 8;
+}
+
+void od_dering(int16_t *y, int ystride, const od_dering_in *x, int xstride,
+               int nhb, int nvb, int sbx, int sby, int nhsb, int nvsb, int xdec,
+               int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS], int pli,
+               unsigned char *bskip, int skip_stride, int threshold,
+               int coeff_shift) {
+  int i;
+  int j;
+  int bx;
+  int by;
+  int16_t inbuf[OD_DERING_INBUF_SIZE];
+  int16_t *in;
+  int bsize;
+  int32_t var[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS];
+  int filter2_thresh[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS];
+  od_filter_dering_direction_func filter_dering_direction[OD_DERINGSIZES] = {
+    od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
+  };
+  od_filter_dering_orthogonal_func filter_dering_orthogonal[OD_DERINGSIZES] = {
+    od_filter_dering_orthogonal_4x4, od_filter_dering_orthogonal_8x8
+  };
+  bsize = 3 - xdec;
+  in = inbuf + OD_FILT_BORDER * OD_FILT_BSTRIDE + OD_FILT_BORDER;
+  /* We avoid filtering the pixels for which some of the pixels to average
+     are outside the frame. We could change the filter instead, but it would
+     add special cases for any future vectorization. */
+  for (i = 0; i < OD_DERING_INBUF_SIZE; i++) inbuf[i] = OD_DERING_VERY_LARGE;
+  for (i = -OD_FILT_BORDER * (sby != 0);
+       i < (nvb << bsize) + OD_FILT_BORDER * (sby != nvsb - 1); i++) {
+    for (j = -OD_FILT_BORDER * (sbx != 0);
+         j < (nhb << bsize) + OD_FILT_BORDER * (sbx != nhsb - 1); j++) {
+      in[i * OD_FILT_BSTRIDE + j] = x[i * xstride + j];
+    }
+  }
+  /* Assume deringing filter is sparsely applied, so do one large copy rather
+     than small copies later if deringing is skipped. */
+  for (i = 0; i < nvb << bsize; i++) {
+    for (j = 0; j < nhb << bsize; j++) {
+      y[i * ystride + j] = in[i * OD_FILT_BSTRIDE + j];
+    }
+  }
+  if (pli == 0) {
+    for (by = 0; by < nvb; by++) {
+      for (bx = 0; bx < nhb; bx++) {
+        if (bskip[by * skip_stride + bx]) continue;
+        dir[by][bx] = od_dir_find8(&x[8 * by * xstride + 8 * bx], xstride,
+                                   &var[by][bx], coeff_shift);
+        /* Deringing orthogonal to the direction uses a tighter threshold
+           because we want to be conservative. We've presumably already
+           achieved some deringing, so the amount of change is expected
+           to be low. Also, since we might be filtering across an edge, we
+           want to make sure not to blur it. That being said, we might want
+           to be a little bit more aggressive on pure horizontal/vertical
+           since the ringing there tends to be directional, so it doesn't
+           get removed by the directional filtering. */
+        filter2_thresh[by][bx] = (filter_dering_direction[bsize - OD_LOG_BSIZE0])(
+            &y[(by * ystride << bsize) + (bx << bsize)], ystride,
+            &in[(by * OD_FILT_BSTRIDE << bsize) + (bx << bsize)],
+            od_adjust_thresh(threshold, var[by][bx]), dir[by][bx]);
+      }
+    }
+  } else {
+    for (by = 0; by < nvb; by++) {
+      for (bx = 0; bx < nhb; bx++) {
+        if (bskip[by * skip_stride + bx]) continue;
+        filter2_thresh[by][bx] = (filter_dering_direction[bsize - OD_LOG_BSIZE0])(
+            &y[(by * ystride << bsize) + (bx << bsize)], ystride,
+            &in[(by * OD_FILT_BSTRIDE << bsize) + (bx << bsize)], threshold,
+            dir[by][bx]);
+      }
+    }
+  }
+  for (i = 0; i < nvb << bsize; i++) {
+    for (j = 0; j < nhb << bsize; j++) {
+      in[i * OD_FILT_BSTRIDE + j] = y[i * ystride + j];
+    }
+  }
+  for (by = 0; by < nvb; by++) {
+    for (bx = 0; bx < nhb; bx++) {
+      if (bskip[by * skip_stride + bx] || filter2_thresh[by][bx] == 0) continue;
+      (filter_dering_orthogonal[bsize - OD_LOG_BSIZE0])(
+          &y[(by * ystride << bsize) + (bx << bsize)], ystride,
+          &in[(by * OD_FILT_BSTRIDE << bsize) + (bx << bsize)], filter2_thresh[by][bx],
+          dir[by][bx]);
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
     }
   }
 }

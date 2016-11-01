@@ -131,4 +131,8 @@ void od_fatal_impl(const char *_str, const char *_file, int _line);
 }  // extern "C"
 #endif
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 #endif  // AV1_COMMON_ODINTRIN_H_
+=======
+#endif
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)

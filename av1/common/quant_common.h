@@ -15,6 +15,7 @@
 #include "aom/aom_codec.h"
 #include "av1/common/seg_common.h"
 #include "av1/common/enums.h"
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 #include "av1/common/entropy.h"
 
 #ifdef __cplusplus
@@ -97,6 +98,49 @@ static INLINE int get_dq_profile_from_ctx(int qindex, int q_ctx, int is_inter,
                               [qindex_to_qrange(qindex)];
 }
 #endif  // CONFIG_NEW_QUANT
+=======
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define MINQ 0
+#define MAXQ 255
+#define QINDEX_RANGE (MAXQ - MINQ + 1)
+#define QINDEX_BITS 8
+#if CONFIG_AOM_QM
+// Total number of QM sets stored
+#define QM_LEVEL_BITS 4
+#define NUM_QM_LEVELS (1 << QM_LEVEL_BITS)
+/* Offset into the list of QMs. Actual number of levels used is
+   (NUM_QM_LEVELS-AOM_QM_OFFSET)
+   Lower value of AOM_QM_OFFSET implies more heavily weighted matrices.*/
+#define DEFAULT_QM_FIRST (NUM_QM_LEVELS / 2)
+#define DEFAULT_QM_LAST (NUM_QM_LEVELS - 1)
+#endif
+
+struct AV1Common;
+
+int16_t av1_dc_quant(int qindex, int delta, aom_bit_depth_t bit_depth);
+int16_t av1_ac_quant(int qindex, int delta, aom_bit_depth_t bit_depth);
+
+int av1_get_qindex(const struct segmentation *seg, int segment_id,
+                   int base_qindex);
+#if CONFIG_AOM_QM
+// Reduce the large number of quantizers to a smaller number of levels for which
+// different matrices may be defined
+static inline int aom_get_qmlevel(int qindex, int first, int last) {
+  int qmlevel = (qindex * (last + 1 - first) + QINDEX_RANGE / 2) / QINDEX_RANGE;
+  qmlevel = AOMMIN(qmlevel + first, NUM_QM_LEVELS - 1);
+  return qmlevel;
+}
+void aom_qm_init(struct AV1Common *cm);
+qm_val_t *aom_iqmatrix(struct AV1Common *cm, int qindex, int comp,
+                       int log2sizem2, int is_intra);
+qm_val_t *aom_qmatrix(struct AV1Common *cm, int qindex, int comp,
+                      int log2sizem2, int is_intra);
+#endif
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -37,10 +37,22 @@
 #include <windows.h>
 #include <winnt.h>
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
+=======
+namespace testing {
+namespace internal {
+
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 inline bool operator==(const M128A &lhs, const M128A &rhs) {
   return (lhs.Low == rhs.Low && lhs.High == rhs.High);
 }
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
+=======
+}  // namespace internal
+}  // namespace testing
+
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 namespace libaom_test {
 
 // Compares the state of xmm[6-15] at construction with their state at

@@ -55,7 +55,11 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
                               int num_workers, AV1LfSync *lf_sync);
 
 void av1_accumulate_frame_counts(struct AV1Common *cm,
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
                                  struct FRAME_COUNTS *counts);
+=======
+                                 struct FRAME_COUNTS *counts, int is_dec);
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 
 #ifdef __cplusplus
 }  // extern "C"

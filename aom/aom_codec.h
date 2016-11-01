@@ -61,6 +61,7 @@ extern "C" {
 #if defined(__GNUC__) && __GNUC__
 #define DECLSPEC_DEPRECATED /**< \copydoc #DEPRECATED */
 #elif defined(_MSC_VER)
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 /*!\brief \copydoc #DEPRECATED */
 #define DECLSPEC_DEPRECATED __declspec(deprecated)
 #else
@@ -238,6 +239,162 @@ typedef enum aom_superblock_size {
   AOM_SUPERBLOCK_SIZE_128X128, /**< Always use 128x128 superblocks. */
   AOM_SUPERBLOCK_SIZE_DYNAMIC  /**< Select superblock size dynamically. */
 } aom_superblock_size_t;
+=======
+#define DECLSPEC_DEPRECATED __declspec(deprecated)
+/**< \copydoc #DEPRECATED */
+#else
+#define DECLSPEC_DEPRECATED /**< \copydoc #DEPRECATED */
+#endif
+#endif /* DECLSPEC_DEPRECATED */
+
+/*!\brief Decorator indicating a function is potentially unused */
+#ifdef UNUSED
+#elif defined(__GNUC__) || defined(__clang__)
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED
+#endif
+
+/*!\brief Current ABI version number
+ *
+ * \internal
+ * If this file is altered in any way that changes the ABI, this value
+ * must be bumped.  Examples include, but are not limited to, changing
+ * types, removing or reassigning enums, adding/removing/rearranging
+ * fields to structures
+ */
+#define AOM_CODEC_ABI_VERSION (3 + AOM_IMAGE_ABI_VERSION) /**<\hideinitializer*/
+
+/*!\brief Algorithm return codes */
+typedef enum {
+  /*!\brief Operation completed without error */
+  AOM_CODEC_OK,
+
+  /*!\brief Unspecified error */
+  AOM_CODEC_ERROR,
+
+  /*!\brief Memory operation failed */
+  AOM_CODEC_MEM_ERROR,
+
+  /*!\brief ABI version mismatch */
+  AOM_CODEC_ABI_MISMATCH,
+
+  /*!\brief Algorithm does not have required capability */
+  AOM_CODEC_INCAPABLE,
+
+  /*!\brief The given bitstream is not supported.
+   *
+   * The bitstream was unable to be parsed at the highest level. The decoder
+   * is unable to proceed. This error \ref SHOULD be treated as fatal to the
+   * stream. */
+  AOM_CODEC_UNSUP_BITSTREAM,
+
+  /*!\brief Encoded bitstream uses an unsupported feature
+   *
+   * The decoder does not implement a feature required by the encoder. This
+   * return code should only be used for features that prevent future
+   * pictures from being properly decoded. This error \ref MAY be treated as
+   * fatal to the stream or \ref MAY be treated as fatal to the current GOP.
+   */
+  AOM_CODEC_UNSUP_FEATURE,
+
+  /*!\brief The coded data for this stream is corrupt or incomplete
+   *
+   * There was a problem decoding the current frame.  This return code
+   * should only be used for failures that prevent future pictures from
+   * being properly decoded. This error \ref MAY be treated as fatal to the
+   * stream or \ref MAY be treated as fatal to the current GOP. If decoding
+   * is continued for the current GOP, artifacts may be present.
+   */
+  AOM_CODEC_CORRUPT_FRAME,
+
+  /*!\brief An application-supplied parameter is not valid.
+   *
+   */
+  AOM_CODEC_INVALID_PARAM,
+
+  /*!\brief An iterator reached the end of list.
+   *
+   */
+  AOM_CODEC_LIST_END
+
+} aom_codec_err_t;
+
+/*! \brief Codec capabilities bitfield
+ *
+ *  Each codec advertises the capabilities it supports as part of its
+ *  ::aom_codec_iface_t interface structure. Capabilities are extra interfaces
+ *  or functionality, and are not required to be supported.
+ *
+ *  The available flags are specified by AOM_CODEC_CAP_* defines.
+ */
+typedef long aom_codec_caps_t;
+#define AOM_CODEC_CAP_DECODER 0x1 /**< Is a decoder */
+#define AOM_CODEC_CAP_ENCODER 0x2 /**< Is an encoder */
+
+/*! \brief Initialization-time Feature Enabling
+ *
+ *  Certain codec features must be known at initialization time, to allow for
+ *  proper memory allocation.
+ *
+ *  The available flags are specified by AOM_CODEC_USE_* defines.
+ */
+typedef long aom_codec_flags_t;
+
+/*!\brief Codec interface structure.
+ *
+ * Contains function pointers and other data private to the codec
+ * implementation. This structure is opaque to the application.
+ */
+typedef const struct aom_codec_iface aom_codec_iface_t;
+
+/*!\brief Codec private data structure.
+ *
+ * Contains data private to the codec implementation. This structure is opaque
+ * to the application.
+ */
+typedef struct aom_codec_priv aom_codec_priv_t;
+
+/*!\brief Iterator
+ *
+ * Opaque storage used for iterating over lists.
+ */
+typedef const void *aom_codec_iter_t;
+
+/*!\brief Codec context structure
+ *
+ * All codecs \ref MUST support this context structure fully. In general,
+ * this data should be considered private to the codec algorithm, and
+ * not be manipulated or examined by the calling application. Applications
+ * may reference the 'name' member to get a printable description of the
+ * algorithm.
+ */
+typedef struct aom_codec_ctx {
+  const char *name;             /**< Printable interface name */
+  aom_codec_iface_t *iface;     /**< Interface pointers */
+  aom_codec_err_t err;          /**< Last returned error */
+  const char *err_detail;       /**< Detailed info, if available */
+  aom_codec_flags_t init_flags; /**< Flags passed at init time */
+  union {
+    /**< Decoder Configuration Pointer */
+    const struct aom_codec_dec_cfg *dec;
+    /**< Encoder Configuration Pointer */
+    const struct aom_codec_enc_cfg *enc;
+    const void *raw;
+  } config;               /**< Configuration pointer aliasing union */
+  aom_codec_priv_t *priv; /**< Algorithm private storage */
+} aom_codec_ctx_t;
+
+/*!\brief Bit depth for codec
+ * *
+ * This enumeration determines the bit depth of the codec.
+ */
+typedef enum aom_bit_depth {
+  AOM_BITS_8 = 8,   /**<  8 bits */
+  AOM_BITS_10 = 10, /**< 10 bits */
+  AOM_BITS_12 = 12, /**< 12 bits */
+} aom_bit_depth_t;
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 
 /*
  * Library Version Number Interface

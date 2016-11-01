@@ -198,6 +198,7 @@ int aom_vector_var_neon(int16_t const *ref, int16_t const *src, const int bwl) {
     return s - ((t * t) >> shift_factor);
   }
 }
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 
 void aom_minmax_8x8_neon(const uint8_t *a, int a_stride, const uint8_t *b,
                          int b_stride, int *min, int *max) {
@@ -252,3 +253,5 @@ void aom_minmax_8x8_neon(const uint8_t *a, int a_stride, const uint8_t *b,
   vst1_lane_u8((uint8_t *)max, ab_max, 0);
   vst1_lane_u8((uint8_t *)min, ab_min, 0);
 }
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)

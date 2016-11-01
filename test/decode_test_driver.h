@@ -99,10 +99,13 @@ class Decoder {
     return aom_codec_iface_name(CodecInterface());
   }
 
-  bool IsVP8() const;
+  bool IsAOM() const;
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
   bool IsAV1() const;
 
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
   aom_codec_ctx_t *GetDecoder() { return &decoder_; }
 
  protected:

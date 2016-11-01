@@ -9,9 +9,14 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 #include "av1/common/av1_fwd_txfm.h"
 #include <assert.h>
 #include "./av1_rtcd.h"
+=======
+#include <assert.h>
+#include "av1/common/av1_fwd_txfm.h"
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 
 void av1_fdct4x4_c(const int16_t *input, tran_low_t *output, int stride) {
   // The 2D transform is done with two passes which are actually pretty

@@ -27,6 +27,7 @@ extern "C" {
 
 typedef int16_t InterpKernel[SUBPEL_TAPS];
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 #define BIL_SUBPEL_BITS 3
 #define BIL_SUBPEL_SHIFTS (1 << BIL_SUBPEL_BITS)
 
@@ -36,6 +37,8 @@ static const uint8_t bilinear_filters_2t[BIL_SUBPEL_SHIFTS][2] = {
   { 64, 64 }, { 48, 80 },  { 32, 96 }, { 16, 112 },
 };
 
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 #ifdef __cplusplus
 }  // extern "C"
 #endif

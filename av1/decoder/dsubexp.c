@@ -80,6 +80,7 @@ void av1_diff_update_prob_(aom_reader *r, aom_prob *p ACCT_STR_PARAM) {
     *p = (aom_prob)inv_remap_prob(delp, *p);
   }
 }
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 
 #if CONFIG_GLOBAL_MOTION
 int aom_read_primitive_symmetric(aom_reader *r, unsigned int mag_bits) {
@@ -92,3 +93,5 @@ int aom_read_primitive_symmetric(aom_reader *r, unsigned int mag_bits) {
   }
 }
 #endif  // CONFIG_GLOBAL_MOTION
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)

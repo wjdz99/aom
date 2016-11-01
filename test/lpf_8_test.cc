@@ -324,7 +324,11 @@ TEST_P(Loop8Test9Param, OperationCheck) {
     ASM_REGISTER_STATE_CHECK(loopfilter_op_(s + 8 + p * 8, p, blimit0, limit0,
                                             thresh0, blimit1, limit1, thresh1));
 #endif  // CONFIG_AOM_HIGHBITDEPTH
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
     for (j = 0; j < kNumCoeffs; ++j) {
+=======
+    for (int j = 0; j < kNumCoeffs; ++j) {
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
       err_count += ref_s[j] != s[j];
     }
     if (err_count && !err_count_total) {

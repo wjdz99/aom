@@ -9,6 +9,10 @@
 # PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 #
 # This make file builds aom_test app for android.
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
+=======
+
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 # The test app itself runs on the command line through adb shell
 # The paths are really messed up as the libaom make file
 # expects to be made from a parent directory.
@@ -18,13 +22,21 @@ LOCAL_PATH := $(CUR_WD)/../../..
 
 #libwebm
 include $(CLEAR_VARS)
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 include $(BINDINGS_DIR)/libaom/third_party/libwebm/Android.mk
+=======
+include $(BINDINGS_DIR)/aom/third_party/libwebm/Android.mk
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 LOCAL_PATH := $(CUR_WD)/../../..
 
 #libaom
 include $(CLEAR_VARS)
 LOCAL_STATIC_LIBRARIES := libwebm
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 include $(BINDINGS_DIR)/libaom/build/make/Android.mk
+=======
+include $(BINDINGS_DIR)/aom/build/make/Android.mk
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 LOCAL_PATH := $(CUR_WD)/../..
 
 #libgtest

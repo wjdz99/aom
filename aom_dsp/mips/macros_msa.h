@@ -1119,6 +1119,7 @@
     ILVL_B2(RTYPE, in4, in5, in6, in7, out2, out3);                        \
   }
 #define ILVL_B4_SB(...) ILVL_B4(v16i8, __VA_ARGS__)
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 #define ILVL_B4_SH(...) ILVL_B4(v8i16, __VA_ARGS__)
 #define ILVL_B4_UH(...) ILVL_B4(v8u16, __VA_ARGS__)
 
@@ -1293,6 +1294,178 @@
     out1 = (RTYPE)__msa_ilvl_w((v4i32)in0, (v4i32)in1); \
   }
 #define ILVRL_W2_UB(...) ILVRL_W2(v16u8, __VA_ARGS__)
+=======
+#define ILVL_B4_UH(...) ILVL_B4(v8u16, __VA_ARGS__)
+
+/* Description : Interleave left half of halfword elements from vectors
+   Arguments   : Inputs  - in0, in1, in2, in3
+                 Outputs - out0, out1
+                 Return Type - as per RTYPE
+   Details     : Left half of halfword elements of 'in0' and 'in1' are
+                 interleaved and written to 'out0'.
+*/
+#define ILVL_H2(RTYPE, in0, in1, in2, in3, out0, out1)  \
+  {                                                     \
+    out0 = (RTYPE)__msa_ilvl_h((v8i16)in0, (v8i16)in1); \
+    out1 = (RTYPE)__msa_ilvl_h((v8i16)in2, (v8i16)in3); \
+  }
+#define ILVL_H2_SH(...) ILVL_H2(v8i16, __VA_ARGS__)
+
+/* Description : Interleave left half of word elements from vectors
+   Arguments   : Inputs  - in0, in1, in2, in3
+                 Outputs - out0, out1
+                 Return Type - as per RTYPE
+   Details     : Left half of word elements of 'in0' and 'in1' are interleaved
+                 and written to 'out0'.
+*/
+#define ILVL_W2(RTYPE, in0, in1, in2, in3, out0, out1)  \
+  {                                                     \
+    out0 = (RTYPE)__msa_ilvl_w((v4i32)in0, (v4i32)in1); \
+    out1 = (RTYPE)__msa_ilvl_w((v4i32)in2, (v4i32)in3); \
+  }
+#define ILVL_W2_UB(...) ILVL_W2(v16u8, __VA_ARGS__)
+#define ILVL_W2_SH(...) ILVL_W2(v8i16, __VA_ARGS__)
+
+/* Description : Interleave right half of byte elements from vectors
+   Arguments   : Inputs  - in0, in1, in2, in3
+                 Outputs - out0, out1
+                 Return Type - as per RTYPE
+   Details     : Right half of byte elements of 'in0' and 'in1' are interleaved
+                 and written to out0.
+*/
+#define ILVR_B2(RTYPE, in0, in1, in2, in3, out0, out1)  \
+  {                                                     \
+    out0 = (RTYPE)__msa_ilvr_b((v16i8)in0, (v16i8)in1); \
+    out1 = (RTYPE)__msa_ilvr_b((v16i8)in2, (v16i8)in3); \
+  }
+#define ILVR_B2_UB(...) ILVR_B2(v16u8, __VA_ARGS__)
+#define ILVR_B2_SB(...) ILVR_B2(v16i8, __VA_ARGS__)
+#define ILVR_B2_UH(...) ILVR_B2(v8u16, __VA_ARGS__)
+#define ILVR_B2_SH(...) ILVR_B2(v8i16, __VA_ARGS__)
+
+#define ILVR_B4(RTYPE, in0, in1, in2, in3, in4, in5, in6, in7, out0, out1, \
+                out2, out3)                                                \
+  {                                                                        \
+    ILVR_B2(RTYPE, in0, in1, in2, in3, out0, out1);                        \
+    ILVR_B2(RTYPE, in4, in5, in6, in7, out2, out3);                        \
+  }
+#define ILVR_B4_UB(...) ILVR_B4(v16u8, __VA_ARGS__)
+#define ILVR_B4_SB(...) ILVR_B4(v16i8, __VA_ARGS__)
+#define ILVR_B4_UH(...) ILVR_B4(v8u16, __VA_ARGS__)
+#define ILVR_B4_SH(...) ILVR_B4(v8i16, __VA_ARGS__)
+
+#define ILVR_B8(RTYPE, in0, in1, in2, in3, in4, in5, in6, in7, in8, in9, in10, \
+                in11, in12, in13, in14, in15, out0, out1, out2, out3, out4,    \
+                out5, out6, out7)                                              \
+  {                                                                            \
+    ILVR_B4(RTYPE, in0, in1, in2, in3, in4, in5, in6, in7, out0, out1, out2,   \
+            out3);                                                             \
+    ILVR_B4(RTYPE, in8, in9, in10, in11, in12, in13, in14, in15, out4, out5,   \
+            out6, out7);                                                       \
+  }
+#define ILVR_B8_UH(...) ILVR_B8(v8u16, __VA_ARGS__)
+
+/* Description : Interleave right half of halfword elements from vectors
+   Arguments   : Inputs  - in0, in1, in2, in3
+                 Outputs - out0, out1
+                 Return Type - as per RTYPE
+   Details     : Right half of halfword elements of 'in0' and 'in1' are
+                 interleaved and written to 'out0'.
+*/
+#define ILVR_H2(RTYPE, in0, in1, in2, in3, out0, out1)  \
+  {                                                     \
+    out0 = (RTYPE)__msa_ilvr_h((v8i16)in0, (v8i16)in1); \
+    out1 = (RTYPE)__msa_ilvr_h((v8i16)in2, (v8i16)in3); \
+  }
+#define ILVR_H2_SH(...) ILVR_H2(v8i16, __VA_ARGS__)
+
+#define ILVR_H4(RTYPE, in0, in1, in2, in3, in4, in5, in6, in7, out0, out1, \
+                out2, out3)                                                \
+  {                                                                        \
+    ILVR_H2(RTYPE, in0, in1, in2, in3, out0, out1);                        \
+    ILVR_H2(RTYPE, in4, in5, in6, in7, out2, out3);                        \
+  }
+#define ILVR_H4_SH(...) ILVR_H4(v8i16, __VA_ARGS__)
+
+#define ILVR_W2(RTYPE, in0, in1, in2, in3, out0, out1)  \
+  {                                                     \
+    out0 = (RTYPE)__msa_ilvr_w((v4i32)in0, (v4i32)in1); \
+    out1 = (RTYPE)__msa_ilvr_w((v4i32)in2, (v4i32)in3); \
+  }
+#define ILVR_W2_UB(...) ILVR_W2(v16u8, __VA_ARGS__)
+#define ILVR_W2_SH(...) ILVR_W2(v8i16, __VA_ARGS__)
+
+#define ILVR_W4(RTYPE, in0, in1, in2, in3, in4, in5, in6, in7, out0, out1, \
+                out2, out3)                                                \
+  {                                                                        \
+    ILVR_W2(RTYPE, in0, in1, in2, in3, out0, out1);                        \
+    ILVR_W2(RTYPE, in4, in5, in6, in7, out2, out3);                        \
+  }
+#define ILVR_W4_UB(...) ILVR_W4(v16u8, __VA_ARGS__)
+
+/* Description : Interleave right half of double word elements from vectors
+   Arguments   : Inputs  - in0, in1, in2, in3
+                 Outputs - out0, out1
+                 Return Type - as per RTYPE
+   Details     : Right half of double word elements of 'in0' and 'in1' are
+                 interleaved and written to 'out0'.
+*/
+#define ILVR_D2(RTYPE, in0, in1, in2, in3, out0, out1)      \
+  {                                                         \
+    out0 = (RTYPE)__msa_ilvr_d((v2i64)(in0), (v2i64)(in1)); \
+    out1 = (RTYPE)__msa_ilvr_d((v2i64)(in2), (v2i64)(in3)); \
+  }
+#define ILVR_D2_UB(...) ILVR_D2(v16u8, __VA_ARGS__)
+#define ILVR_D2_SB(...) ILVR_D2(v16i8, __VA_ARGS__)
+#define ILVR_D2_SH(...) ILVR_D2(v8i16, __VA_ARGS__)
+
+#define ILVR_D3(RTYPE, in0, in1, in2, in3, in4, in5, out0, out1, out2) \
+  {                                                                    \
+    ILVR_D2(RTYPE, in0, in1, in2, in3, out0, out1);                    \
+    out2 = (RTYPE)__msa_ilvr_d((v2i64)(in4), (v2i64)(in5));            \
+  }
+#define ILVR_D3_SB(...) ILVR_D3(v16i8, __VA_ARGS__)
+
+#define ILVR_D4(RTYPE, in0, in1, in2, in3, in4, in5, in6, in7, out0, out1, \
+                out2, out3)                                                \
+  {                                                                        \
+    ILVR_D2(RTYPE, in0, in1, in2, in3, out0, out1);                        \
+    ILVR_D2(RTYPE, in4, in5, in6, in7, out2, out3);                        \
+  }
+#define ILVR_D4_SB(...) ILVR_D4(v16i8, __VA_ARGS__)
+#define ILVR_D4_UB(...) ILVR_D4(v16u8, __VA_ARGS__)
+
+/* Description : Interleave both left and right half of input vectors
+   Arguments   : Inputs  - in0, in1
+                 Outputs - out0, out1
+                 Return Type - as per RTYPE
+   Details     : Right half of byte elements from 'in0' and 'in1' are
+                 interleaved and written to 'out0'
+*/
+#define ILVRL_B2(RTYPE, in0, in1, out0, out1)           \
+  {                                                     \
+    out0 = (RTYPE)__msa_ilvr_b((v16i8)in0, (v16i8)in1); \
+    out1 = (RTYPE)__msa_ilvl_b((v16i8)in0, (v16i8)in1); \
+  }
+#define ILVRL_B2_UB(...) ILVRL_B2(v16u8, __VA_ARGS__)
+#define ILVRL_B2_SB(...) ILVRL_B2(v16i8, __VA_ARGS__)
+#define ILVRL_B2_UH(...) ILVRL_B2(v8u16, __VA_ARGS__)
+#define ILVRL_B2_SH(...) ILVRL_B2(v8i16, __VA_ARGS__)
+
+#define ILVRL_H2(RTYPE, in0, in1, out0, out1)           \
+  {                                                     \
+    out0 = (RTYPE)__msa_ilvr_h((v8i16)in0, (v8i16)in1); \
+    out1 = (RTYPE)__msa_ilvl_h((v8i16)in0, (v8i16)in1); \
+  }
+#define ILVRL_H2_SH(...) ILVRL_H2(v8i16, __VA_ARGS__)
+#define ILVRL_H2_SW(...) ILVRL_H2(v4i32, __VA_ARGS__)
+
+#define ILVRL_W2(RTYPE, in0, in1, out0, out1)           \
+  {                                                     \
+    out0 = (RTYPE)__msa_ilvr_w((v4i32)in0, (v4i32)in1); \
+    out1 = (RTYPE)__msa_ilvl_w((v4i32)in0, (v4i32)in1); \
+  }
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 #define ILVRL_W2_SH(...) ILVRL_W2(v8i16, __VA_ARGS__)
 #define ILVRL_W2_SW(...) ILVRL_W2(v4i32, __VA_ARGS__)
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 /*
  *  Copyright (c) 2013 The WebM project authors. All Rights Reserved.
  *
@@ -98,3 +99,5 @@ TEST(UserPrivTest, VideoDecode) {
 #endif  // CONFIG_WEBM_IO
 
 }  // namespace
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)

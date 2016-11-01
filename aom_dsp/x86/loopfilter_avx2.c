@@ -911,5 +911,8 @@ void aom_lpf_horizontal_edge_16_avx2(unsigned char *s, int p,
     q6 = _mm_or_si128(flat2_q6, q6);
     _mm_storeu_si128((__m128i *)(s + 6 * p), q6);
   }
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
   _mm256_zeroupper();
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 }

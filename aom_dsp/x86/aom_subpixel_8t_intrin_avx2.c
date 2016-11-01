@@ -37,10 +37,16 @@ DECLARE_ALIGNED(32, static const uint8_t, filt4_global_avx2[32]) = {
 };
 
 #if defined(__clang__)
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 #if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ <= 3) || \
     (defined(__APPLE__) && defined(__apple_build_version__) &&               \
      ((__clang_major__ == 4 && __clang_minor__ <= 2) ||                      \
       (__clang_major__ == 5 && __clang_minor__ == 0)))
+=======
+#if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ <= 3) ||  \
+    (defined(__APPLE__) && ((__clang_major__ == 4 && __clang_minor__ <= 2) || \
+                            (__clang_major__ == 5 && __clang_minor__ == 0)))
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 
 #define MM256_BROADCASTSI128_SI256(x) \
   _mm_broadcastsi128_si256((__m128i const *)&(x))

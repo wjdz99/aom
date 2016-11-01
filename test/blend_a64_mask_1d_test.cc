@@ -93,6 +93,7 @@ class BlendA64Mask1DTest : public FunctionEquivalenceTest<F> {
 
   T dst_ref_[kBufSize];
   T dst_tst_[kBufSize];
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
   uint32_t dst_stride_;
   uint32_t dst_offset_;
 
@@ -103,6 +104,18 @@ class BlendA64Mask1DTest : public FunctionEquivalenceTest<F> {
   T src1_[kBufSize];
   uint32_t src1_stride_;
   uint32_t src1_offset_;
+=======
+  size_t dst_stride_;
+  size_t dst_offset_;
+
+  T src0_[kBufSize];
+  size_t src0_stride_;
+  size_t src0_offset_;
+
+  T src1_[kBufSize];
+  size_t src1_stride_;
+  size_t src1_offset_;
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 
   uint8_t mask_[kMaxMaskSize];
 

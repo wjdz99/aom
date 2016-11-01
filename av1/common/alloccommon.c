@@ -81,6 +81,7 @@ void av1_free_ref_frame_buffers(BufferPool *pool) {
   }
 }
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 #if CONFIG_LOOP_RESTORATION
 void av1_free_restoration_buffers(AV1_COMMON *cm) {
   aom_free(cm->rst_info.restoration_type);
@@ -159,6 +160,50 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
 fail:
   // clear the mi_* values to force a realloc on resync
   av1_set_mb_mi(cm, 0, 0);
+=======
+void av1_free_context_buffers(AV1_COMMON *cm) {
+  cm->free_mi(cm);
+  free_seg_map(cm);
+  aom_free(cm->above_context);
+  cm->above_context = NULL;
+  aom_free(cm->above_seg_context);
+  cm->above_seg_context = NULL;
+}
+
+int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
+  int new_mi_size;
+
+  av1_set_mb_mi(cm, width, height);
+  new_mi_size = cm->mi_stride * calc_mi_size(cm->mi_rows);
+  if (cm->mi_alloc_size < new_mi_size) {
+    cm->free_mi(cm);
+    if (cm->alloc_mi(cm, new_mi_size)) goto fail;
+  }
+
+  if (cm->seg_map_alloc_size < cm->mi_rows * cm->mi_cols) {
+    // Create the segmentation map structure and set to 0.
+    free_seg_map(cm);
+    if (alloc_seg_map(cm, cm->mi_rows * cm->mi_cols)) goto fail;
+  }
+
+  if (cm->above_context_alloc_cols < cm->mi_cols) {
+    aom_free(cm->above_context);
+    cm->above_context = (ENTROPY_CONTEXT *)aom_calloc(
+        2 * mi_cols_aligned_to_sb(cm->mi_cols) * MAX_MB_PLANE,
+        sizeof(*cm->above_context));
+    if (!cm->above_context) goto fail;
+
+    aom_free(cm->above_seg_context);
+    cm->above_seg_context = (PARTITION_CONTEXT *)aom_calloc(
+        mi_cols_aligned_to_sb(cm->mi_cols), sizeof(*cm->above_seg_context));
+    if (!cm->above_seg_context) goto fail;
+    cm->above_context_alloc_cols = cm->mi_cols;
+  }
+
+  return 0;
+
+fail:
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
   av1_free_context_buffers(cm);
   return 1;
 }

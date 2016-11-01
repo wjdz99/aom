@@ -9,6 +9,10 @@
 ## PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 ##
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
+=======
+
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 AV1_DX_EXPORTS += exports_dec
 
 AV1_DX_SRCS-yes += $(AV1_COMMON_SRCS-yes)

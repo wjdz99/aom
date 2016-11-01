@@ -68,6 +68,9 @@ int64_t av1_block_error_avx2(const int16_t *coeff, const int16_t *dqcoeff,
   _mm_storel_epi64((__m128i *)(&sse), sse_reg128);
 
   _mm_storel_epi64((__m128i *)(ssz), ssz_reg128);
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
   _mm256_zeroupper();
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
   return sse;
 }

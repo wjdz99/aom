@@ -19,6 +19,7 @@
 typedef int16_t od_dering_in;
 #endif
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 #define OD_DERINGSIZES (4)
 
 #define OD_DERING_NBLOCKS (OD_BSIZE_MAX / 8)
@@ -54,6 +55,35 @@ void od_filter_dering_orthogonal_4x8(int16_t *y, int ystride, const int16_t *in,
                                      int threshold, int dir);
 void od_filter_dering_orthogonal_8x4(int16_t *y, int ystride, const int16_t *in,
                                      int threshold, int dir);
+=======
+#define OD_DERINGSIZES (2)
+
+#define OD_DERING_NBLOCKS (OD_BSIZE_MAX / 8)
+
+#define OD_FILT_BORDER (3)
+#define OD_FILT_BSTRIDE (OD_BSIZE_MAX + 2 * OD_FILT_BORDER)
+
+extern const int OD_DIRECTION_OFFSETS_TABLE[8][3];
+
+typedef int (*od_filter_dering_direction_func)(int16_t *y, int ystride,
+                                               const int16_t *in, int threshold,
+                                               int dir);
+typedef void (*od_filter_dering_orthogonal_func)(int16_t *y, int ystride,
+                                                 const int16_t *in,
+                                                 int threshold, int dir);
+void od_dering(int16_t *y, int ystride, const od_dering_in *x, int xstride,
+               int nvb, int nhb, int sbx, int sby, int nhsb, int nvsb, int xdec,
+               int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS], int pli,
+               unsigned char *bskip, int skip_stride, int threshold,
+               int coeff_shift);
+int od_filter_dering_direction_4x4_c(int16_t *y, int ystride, const int16_t *in,
+                                     int threshold, int dir);
+int od_filter_dering_direction_8x8_c(int16_t *y, int ystride, const int16_t *in,
+                                     int threshold, int dir);
+void od_filter_dering_orthogonal_4x4_c(int16_t *y, int ystride,
+                                       const int16_t *in, int threshold,
+                                       int dir);
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 void od_filter_dering_orthogonal_8x8_c(int16_t *y, int ystride,
                                        const int16_t *in, int threshold,
                                        int dir);

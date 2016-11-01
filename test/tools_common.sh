@@ -183,8 +183,11 @@ av1_decode_available() {
 av1_encode_available() {
   [ "$(aom_config_option_enabled CONFIG_AV1_ENCODER)" = "yes" ] && echo yes
 }
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 
 # Echoes yes to stdout when aom_config_option_enabled() reports yes for
+=======
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 # CONFIG_WEBM_IO.
 webm_io_available() {
   [ "$(aom_config_option_enabled CONFIG_WEBM_IO)" = "yes" ] && echo yes
@@ -413,12 +416,23 @@ if [ "$(is_windows_target)" = "yes" ]; then
 fi
 
 # Variables shared by tests.
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 VP8_IVF_FILE="${LIBAOM_TEST_DATA_PATH}/vp80-00-comprehensive-001.ivf"
 AV1_IVF_FILE="${LIBAOM_TEST_DATA_PATH}/vp90-2-09-subpixel-00.ivf"
+=======
+AOM_IVF_FILE="${LIBAOM_TEST_DATA_PATH}/aom0-00-comprehensive-001.ivf"
+AV1_IVF_FILE="${LIBAOM_TEST_DATA_PATH}/av10-2-09-subpixel-00.ivf"
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 AV1_WEBM_FILE="${LIBAOM_TEST_DATA_PATH}/vp90-2-00-quantizer-00.webm"
 AV1_FPM_WEBM_FILE="${LIBAOM_TEST_DATA_PATH}/vp90-2-07-frame_parallel-1.webm"
 AV1_LT_50_FRAMES_WEBM_FILE="${LIBAOM_TEST_DATA_PATH}/vp90-2-02-size-32x08.webm"
+=======
+AV1_WEBM_FILE="${LIBAOM_TEST_DATA_PATH}/av10-2-00-quantizer-00.webm"
+AV1_FPM_WEBM_FILE="${LIBAOM_TEST_DATA_PATH}/av10-2-07-frame_parallel-1.webm"
+AV1_LT_50_FRAMES_WEBM_FILE="${LIBAOM_TEST_DATA_PATH}/av10-2-02-size-32x08.webm"
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
 
 YUV_RAW_INPUT="${LIBAOM_TEST_DATA_PATH}/hantro_collage_w352h288.yuv"
 YUV_RAW_INPUT_WIDTH=352

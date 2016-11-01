@@ -35,7 +35,11 @@ void av1_tile_init(TileInfo *tile, const struct AV1Common *cm, int row,
 void av1_tile_set_row(TileInfo *tile, const struct AV1Common *cm, int row);
 void av1_tile_set_col(TileInfo *tile, const struct AV1Common *cm, int col);
 
+<<<<<<< HEAD   (fd601e Merge "Rename av1_convolve.[hc] to convolve.[hc]" into nextg)
 void av1_get_tile_n_bits(const int mi_cols, int *min_log2_tile_cols,
+=======
+void av1_get_tile_n_bits(int mi_cols, int *min_log2_tile_cols,
+>>>>>>> BRANCH (0fcd3e cmake support: A starting point.)
                          int *max_log2_tile_cols);
 
 #ifdef __cplusplus
