@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6e77223_587e951f",
+        "filename": "build/cmake/aom_version.pl",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-01T03:42:38Z",
+      "side": 1,
+      "message": "you can add \u0027or die\u0027 to test for parse error; \u0027\u003ds\u0027 indicates a required parameter",
+      "revId": "f733b3fa3e44d637e1d7558bac292df0ebf60f04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6e77223_18880d05",
+        "filename": "build/cmake/aom_version.pl",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-01T03:42:38Z",
+      "side": 1,
+      "message": "length() works",
+      "range": {
+        "startLine": 25,
+        "startChar": 37,
+        "endLine": 25,
+        "endChar": 60
+      },
+      "revId": "f733b3fa3e44d637e1d7558bac292df0ebf60f04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6e77223_f8930935",
+        "filename": "build/cmake/aom_version.pl",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-01T03:42:38Z",
+      "side": 1,
+      "message": "! works here too",
+      "range": {
+        "startLine": 28,
+        "startChar": 5,
+        "endLine": 28,
+        "endChar": 8
+      },
+      "revId": "f733b3fa3e44d637e1d7558bac292df0ebf60f04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6e77223_388bd105",
+        "filename": "build/cmake/aom_version.pl",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-01T03:42:38Z",
+      "side": 1,
+      "message": "this is no better than just accessing the (possibly undef) value. you\u0027ll get a warning either way, which is harmless, but if you want to avoid the noise just check the size of the array: next if @split_line \u003c 2",
+      "revId": "f733b3fa3e44d637e1d7558bac292df0ebf60f04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6e77223_d8984554",
+        "filename": "build/cmake/aom_version.pl",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-01T03:42:38Z",
+      "side": 1,
+      "message": "\u0027EOF\u0027 works here, you don\u0027t need variable interpolation",
+      "range": {
+        "startLine": 64,
+        "startChar": 19,
+        "endLine": 64,
+        "endChar": 25
+      },
+      "revId": "f733b3fa3e44d637e1d7558bac292df0ebf60f04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6e77223_b88d8114",
+        "filename": "build/cmake/aom_version.pl",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-01T03:42:38Z",
+      "side": 1,
+      "message": "escaping these isn\u0027t necessary",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 1
+      },
+      "revId": "f733b3fa3e44d637e1d7558bac292df0ebf60f04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
