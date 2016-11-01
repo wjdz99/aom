@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c6e77223_8105a4c1",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-01T20:13:48Z",
+      "side": 1,
+      "message": "thx",
+      "parentUuid": "c6e77223_d8c3a526",
+      "revId": "a0b69d1cecbf0322fd9043aeda7707df44c76c88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c6e77223_98cd1d54",
         "filename": "build/cmake/aom_configure.cmake",
         "patchSetId": 3
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "c6e77223_a1ff888b",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-01T20:13:48Z",
+      "side": 1,
+      "message": "I\u0027ll back the fix to here: I noticed this in a later commit in this series and fixed it.",
+      "parentUuid": "c6e77223_98cd1d54",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 5
+      },
+      "revId": "a0b69d1cecbf0322fd9043aeda7707df44c76c88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c6e77223_78b399cf",
         "filename": "build/cmake/compiler_flags.cmake",
         "patchSetId": 3
@@ -53,6 +95,24 @@
       "writtenOn": "2016-11-01T03:48:29Z",
       "side": 1,
       "message": "it\u0027d be good to match what\u0027s in configure now to avoid forgetting later",
+      "revId": "a0b69d1cecbf0322fd9043aeda7707df44c76c88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6e77223_c1fa8c9d",
+        "filename": "build/cmake/compiler_flags.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-01T20:13:48Z",
+      "side": 1,
+      "message": "ok: need to look. this is just copy/paste from libwebm",
+      "parentUuid": "c6e77223_78b399cf",
       "revId": "a0b69d1cecbf0322fd9043aeda7707df44c76c88",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
