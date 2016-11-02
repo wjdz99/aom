@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "26a04e09_21b6b68d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 35
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5041
+      },
+      "writtenOn": "2016-11-02T21:47:02Z",
+      "side": 1,
+      "message": "It would be good to sync with commit https://git.xiph.org/?p\u003ddaala.git;a\u003dcommit;h\u003dc774e25ecd051357e95f850520c61ba82dca3180\nas this is the full fixed-point version (assuming non-lapping).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_53c0fce4",
         "filename": "aom_dsp/entcode.h",
         "patchSetId": 35
@@ -342,6 +359,29 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_dec8c5b0",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5041
+      },
+      "writtenOn": "2016-11-02T21:47:02Z",
+      "side": 1,
+      "message": "nit: This could be merged into the #else block below (as you do in the next function).",
+      "range": {
+        "startLine": 427,
+        "startChar": 1,
+        "endLine": 427,
+        "endChar": 6
+      },
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_738c18c3",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 35
@@ -421,6 +461,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Generally, if you allocate something and aren\u0027t intentionally allowing it to be used with a simple initialization of 0, you should use malloc() instead of calloc(). That way any failure to initialize somthing properly (e.g., a bug in od_init_qm) becomes visible with tools like valgrind. That said, is there any reason qm[] and qm_inv[] can\u0027t just be static arrays? OD_QM_BUFFER_SIZE is a constant. Then you wouldn\u0027t even need either of these functions.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_1ea06ddc",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1494,
+      "author": {
+        "id": 5041
+      },
+      "writtenOn": "2016-11-02T21:47:02Z",
+      "side": 1,
+      "message": "qm and qm_inv depend on whether or not OD_HVS_QM is in use, which can change every macroblock (I think). In practice, this is fixed for a given encoding but the current API doesn\u0027t enforce that restriction.",
+      "parentUuid": "26a04e09_735ff855",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -937,6 +995,29 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_7ed9b13c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5041
+      },
+      "writtenOn": "2016-11-02T21:47:02Z",
+      "side": 1,
+      "message": "nit: This is a write-only initialization, since you immediately overwrite error in the next line.",
+      "range": {
+        "startLine": 321,
+        "startChar": 19,
+        "endLine": 321,
+        "endChar": 20
+      },
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_f38f6879",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 35
@@ -1050,6 +1131,29 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Elsewhere you do the checkpoint at the end of these blocks. Maybe it\u0027s better to do that here, too, for consistency?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_3ea5699f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 2192,
+      "author": {
+        "id": 5041
+      },
+      "writtenOn": "2016-11-02T21:47:02Z",
+      "side": 1,
+      "message": "I think you want \"multiply lambda by 0.5 during...\"",
+      "range": {
+        "startLine": 2192,
+        "startChar": 37,
+        "endLine": 2192,
+        "endChar": 38
+      },
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
