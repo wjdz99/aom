@@ -255,10 +255,31 @@ set(AOM_AV1_ENCODER_SRCS
 # Targets
 add_library(aom_dsp ${AOM_DSP_SRCS})
 include_directories(${AOM_ROOT} ${AOM_CONFIG_DIR})
+AomAddRtcdGenerationCommand(${AOM_ROOT}/aom_dsp/aom_dsp_rtcd_defs.pl
+                            ${AOM_CONFIG_DIR}/aom_dsp_rtcd.h
+                            ${AOM_CONFIG_DIR}/aom_dsp/aom_dsp_rtcd.c
+                            aom_dsp_rtcd)
+
+
 add_library(aom_mem ${AOM_MEM_SRCS})
+
 add_library(aom_scale ${AOM_SCALE_SRCS})
 include_directories(${AOM_ROOT} ${AOM_CONFIG_DIR})
+AomAddRtcdGenerationCommand(${AOM_ROOT}/aom_scale/aom_scale_rtcd.pl
+                            ${AOM_CONFIG_DIR}/aom_scale_rtcd.h
+                            ${AOM_CONFIG_DIR}/aom_scale/aom_scale_rtcd.c
+                            aom_scale_rtcd)
+
+
 add_library(aom_util ${AOM_UTIL_SRCS})
+
+add_library(aom_av1_common ${AOM_AV1_COMMON_SRCS})
+include_directories(${AOM_ROOT} ${AOM_CONFIG_DIR})
+AomAddRtcdGenerationCommand(${AOM_ROOT}/av1/common/av1_rtcd_defs.pl
+                            ${AOM_CONFIG_DIR}/av1_rtcd.h
+                            ${AOM_CONFIG_DIR}/av1/common/av1_rtcd.c
+                            aom_av1_rtcd)
+
 add_library(aom_av1_decoder ${AOM_AV1_DECODER_SRCS})
 add_library(aom_av1_encoder ${AOM_AV1_ENCODER_SRCS})
 add_library(aom ${AOM_SRCS})
@@ -267,6 +288,7 @@ target_link_libraries(aom LINK_PUBLIC
                       aom_mem
                       aom_scale
                       aom_util
+                      aom_av1_common
                       aom_av1_decoder
                       aom_av1_encoder)
 add_executable(simple_decoder examples/simple_decoder.c)
