@@ -1,0 +1,1143 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26a04e09_53c0fce4",
+        "filename": "aom_dsp/entcode.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "The years in the copyright notices should match those of the original file (optionally updating to include 2016).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_b3cb2009",
+        "filename": "aom_dsp/entdec.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Why aren\u0027t we passing through an OD_ACC_STR like we do in Daala?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_f3c5a8f2",
+        "filename": "aom_dsp/entdec.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Shouldn\u0027t there be a call to od_process_accounting() here, like in Daala? This is especially important because aom_daala_read() can choose to invoke od_ec_dec_bits() depending on whether or not the probability is 128 (i.e., arbitrarily, for any symbol).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_d3ca2c02",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Was 64 * 64 supposed to be MAX_SB_SQUARE?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_33e0d083",
+        "filename": "av1/common/odintrin.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Don\u0027t forget to update the comment to remove 64x64.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_13ddd4c5",
+        "filename": "av1/common/odintrin.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "This should be 3, right? AV1 doesn\u0027t support alpha. Perhaps it would be better to just set it to MAX_MB_PLANE to make it clear these are the same.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_73da58cf",
+        "filename": "av1/common/partition.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "I think this should also include \"av1/common/enums.h\", since it uses TX_TYPE (include-what-you-use).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_53d75ca3",
+        "filename": "av1/common/pvq_state.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "I don\u0027t think you should include \u003cstdio.h\u003e, since nothing in this header uses anything it defines (include-what-you-use).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_937b84e2",
+        "filename": "av1/common/pvq_state.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Please don\u0027t leave in commented-out code.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_f3800894",
+        "filename": "av1/common/zigzag16.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Is this comment still true? The DCT_DCT tables do not match what we have in Daala (in particular the scans for 8 and 16 start off in the opposite direction of the scan for 32). Is there a modified version somewhere that generates the ADST versions? If so, it should be checked in somewhere. Otherwise we should document somewhere how these were actually created.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_13683413",
+        "filename": "av1/decoder/decint.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "I think this should also include \"aom_dsp/entdec.h\". Even though it gets pulled in via the chain pvq_state.h -\u003e pvq.h -\u003e generic_code.h -\u003e entdec.h, that\u0027s somewhat fragile, since it is only used for the adaptation function declarations in generic_code.h, not the generic_coder type (which is what pvq.h includes generic_code.h for) (include-what-you-use).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_d3850ca2",
+        "filename": "av1/decoder/decint.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Is this used anywhere? If not, we should not include it.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_336bb013",
+        "filename": "av1/decoder/decint.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "It would be good to have some comments saying what these fields are, especially \"qm\", which is not at all obvious from the type or the name.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_737538e7",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "I think the proper thing to do here is to move these things to \"common\" instead of leaving them in the encoder. That is likely a big change, so it can be done in a separate patch series. By the way, I didn\u0027t see any changes to include forward transform code in av1_dx.mk. Are you sure there is no linking problem if you disable the encoder?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_5372bc00",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this use tx_size_1d[]? Otherwise it will be wrong if CONFIG_CB4X4 is enabled (well, many other things will be wrong, but this is one we can fix now).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_b39de0f4",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Are these buffers for a whole SB or just a transform block? I think if the latter you only need OD_BSIZE_MAX*OD_BSIZE_MAX, not MAX_SB_SQUARE here, right?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_93a26436",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "If this commented-out code is not necessary, it should just be removed.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_d39cecf5",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "These are at least helpful for the next guy, but I\u0027m not sure what is meant by \"quant*\"",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_339290df",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Any reason not to just port over these #defines?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_138f94b9",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Why is this commented out? I remember there were problems where the reference vector might have more non-zero coefficients than the decoded PVQ codeword, but the output of od_pvq_decode() has already been combined with the reference, hasn\u0027t it? If this is not correct for some reason, you should remove this code, and put a comment on the line below saying why that is necessary.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_738c18c3",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_53891cb1",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_b340407d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "This is a pointer to both quantizers, so it\u0027s a bit misleading to say \"DC\" (see the comment at line 512... they should at least match)",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_d34fcca8",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "But really all the code starting from copying dst into pred up to here is identical in the inter and intra case. Maybe this should be factored into av1_pvq_decode_helper(), or into another wrapper around that one?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_735ff855",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1494,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Generally, if you allocate something and aren\u0027t intentionally allowing it to be used with a simple initialization of 0, you should use malloc() instead of calloc(). That way any failure to initialize somthing properly (e.g., a bug in od_init_qm) becomes visible with tools like valgrind. That said, is there any reason qm[] and qm_inv[] can\u0027t just be static arrays? OD_QM_BUFFER_SIZE is a constant. Then you wouldn\u0027t even need either of these functions.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_f32128d3",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "What is decint.h used for? I don\u0027t see any other changes in this file that require it, and you already included it in decoder.h, so you should probably remove this here (include-what-you-use).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_535c7c5f",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "AV1 doesn\u0027t appear to have a constant for this, but you should at least use OD_BSIZE_MAX*OD_BSIZE_MAX.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_b327a0e7",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "OD_BSIZE_MAX*OD_BSIZE_MAX",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_333c50f6",
+        "filename": "av1/decoder/pvq_decoder.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "The correct order is libc/system includes, then local project includes. That\u0027s the order that was in the original Daala pvq_decoder.c.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_13395406",
+        "filename": "av1/decoder/pvq_decoder.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Should have a TODO here also, right?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_7336d815",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Could we assert against buf_len and/or last_pos here?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_5333dc23",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1168,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "It seems like we could get rid of a lot of this code by just using av1_foreach_transformed_block_in_plane(). Logic like the mb_to_right_edge/mb_to_bottom_edge stuff should really be centralized in one place. That\u0027s something that can be done in a follow-up patch, though.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_b3120079",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Perhaps better to write this as [MAX_SB_SQUARE \u003e\u003e 2*OD_LOG_BSIZE0][MAX_MB_PLANE]? Sadly AV1 appears to have no define for the minimum transform size, despite having an experiment that changes what it is, but at least odintrin.h does. The memory usage could be improved a lot, since this has storage for 10 bands and 128 coefficients for every 4x4 block, but if it\u0027s only in macroblock_plane, that\u0027s not that bad, and it\u0027s something that can be addressed in a follow-on patch.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_f31c888e",
+        "filename": "av1/encoder/encint.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Again, a comment about what this is would be good.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_d3218cca",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1911,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Extraneous whitespace change.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_1304b431",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 2610,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Extraneous whitespace change.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_7311b86f",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 2834,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "This is over 20 MB of data. Maybe we should start with somtehing more conservative, or make it based on the video resolution?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_530e3c53",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 2836,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "aom_malloc()",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_b3432060",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "If we\u0027re going to use this constant in multiple places, perhaps it should have a name.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_5338fce7",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_9348a47d",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_f33da8d5",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_d3422c59",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1026,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Named constant.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_1355d40c",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1176,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_736d38e2",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_73525826",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1321,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Just use the #define",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_3363b0fa",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1355,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Again, keep the code or delete it, but don\u0027t leave it here commented-out.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_937384c9",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1378,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_53e59c5f",
+        "filename": "av1/encoder/encodemb.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Can this just be made static?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_3331f006",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Another 20+ MB...",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_132e74a8",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Same comments as earlier.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_733b78e6",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "In fact, all of this initialization should probably be factored out, if we\u0027re now doing it in multiple places.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_536abccb",
+        "filename": "av1/encoder/pvq_encoder.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "libc/system includes, then project includes.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_939a64b9",
+        "filename": "av1/encoder/pvq_encoder.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 803,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Should have a TODO here also, right?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_b395e08b",
+        "filename": "av1/encoder/pvq_encoder.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Should have a TODO here also, right?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_f38f6879",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Should there be an #else/#endif wrapper around av1_block_error_c? It\u0027s never safe to call this function with PVQ enabled is it? That way we generate a compiler error if we try (e.g., when CONFIG_AOM_HIGHBITDEPTH is enabled).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_d394ec8c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Why is end_tx \u003c TX_32X32 the correct condition here? It seems like the call to od_encode_rollback() will be executed so long as tx_type \u003d\u003d DCT_DCT and start_tx \u003e\u003d end_tx, which seems like it will always be true at least once?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_13879460",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 779,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Extraneous whitespace change.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_53811c48",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Elsewhere you use both a pre_buf and post_buf to avoid an extra re-encode for the best choice. Is there some reason that\u0027s not worth it or does not work here?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_93bd4410",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1296,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "This comment looks like an erroneous fragment of half-written code (my first thought was to tell you to delete it before I figured out what it was). Suggest using words like \"idy loop\" instead of quoting code.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_d3c7cc9f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1320,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Same thing.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_73d7f84c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1774,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Elsewhere you do the checkpoint at the end of these blocks. Maybe it\u0027s better to do that here, too, for consistency?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_93a424f4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 2208,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "So, this function returns rate and distortion to its caller, but NOT best_rd, which is the value calculated with your modified lambda. That seems like it means that this lambda modification is only used locally for intra mode selection, but NOT used for any other RDO decisions. Is that intentional? If so, it seems like it needs some kind of explanatory comment.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_d39eac9b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 4136,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Extraneous whitespace change.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_33b4501d",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "The usual pattern is buf_len \u003d 2*buf_len + 1. That way it works even if buf_len is initialized to 0, and doesn\u0027t produce exact powers of two, which are pessimal with some allocators (because there\u0027s no room for them to store their bookeeping information).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_13b1542d",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "Should this allocation be checked like the others? It can fail, and you\u0027ll leak the pointer and then write to some offset relative to NULL if it does.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_73aed8d0",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-02T06:55:29Z",
+      "side": 1,
+      "message": "OD_COPY?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
