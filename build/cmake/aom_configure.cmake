@@ -136,9 +136,10 @@ set(AOM_GIT_HASH)
 if (GIT_FOUND)
   # TODO(tomfinegan): Add build rule so users don't have to re-run cmake to
   # create accurately versioned cmake builds.
+  execute_process(COMMAND ${GIT_EXECUTABLE}
                   --git-dir=${AOM_ROOT}/.git rev-parse HEAD
                   OUTPUT_VARIABLE AOM_GIT_HASH)
-  EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE} --git-dir=${AOM_ROOT}/.git describe
+  execute_process(COMMAND ${GIT_EXECUTABLE} --git-dir=${AOM_ROOT}/.git describe
                   OUTPUT_VARIABLE AOM_GIT_DESCRIPTION ERROR_QUIET)
   # Consume the newline at the end of the git output.
   string(STRIP "${AOM_GIT_HASH}" AOM_GIT_HASH)
@@ -166,19 +167,19 @@ endif ()
 configure_file(
   "${AOM_ROOT}/build/cmake/targets/rtcd_templates/${AOM_ARCH}.rtcd.cmake"
   "${AOM_CONFIG_DIR}/${AOM_ARCH}.rtcd")
-EXECUTE_PROCESS(
+execute_process(
   COMMAND ${PERL_EXECUTABLE} "${AOM_ROOT}/build/make/rtcd.pl"
   --arch=${AOM_ARCH} --sym=aom_dsp_rtcd
   --config=${AOM_CONFIG_DIR}/${AOM_ARCH}.rtcd
   "${AOM_ROOT}/aom_dsp/aom_dsp_rtcd_defs.pl"
   OUTPUT_FILE "${AOM_CONFIG_DIR}/aom_dsp_rtcd.h")
-EXECUTE_PROCESS(
+execute_process(
   COMMAND ${PERL_EXECUTABLE} "${AOM_ROOT}/build/make/rtcd.pl"
   --arch=${AOM_ARCH} --sym=aom_scale_rtcd
   --config=${AOM_CONFIG_DIR}/${AOM_ARCH}.rtcd
   "${AOM_ROOT}/aom_scale/aom_scale_rtcd.pl"
   OUTPUT_FILE "${AOM_CONFIG_DIR}/aom_scale_rtcd.h")
-EXECUTE_PROCESS(
+execute_process(
   COMMAND ${PERL_EXECUTABLE} "${AOM_ROOT}/build/make/rtcd.pl"
   --arch=${AOM_ARCH} --sym=aom_av1_rtcd
   --config=${AOM_CONFIG_DIR}/${AOM_ARCH}.rtcd
@@ -189,7 +190,7 @@ EXECUTE_PROCESS(
 if ("${AOM_GIT_DESCRIPTION}" STREQUAL "")
   set(AOM_GIT_DESCRIPTION "${AOM_ROOT}/CHANGELOG")
 endif ()
-EXECUTE_PROCESS(
+execute_process(
   COMMAND ${PERL_EXECUTABLE} "${AOM_ROOT}/build/cmake/aom_version.pl"
   --version_data=${AOM_GIT_DESCRIPTION}
   --version_filename=${AOM_CONFIG_DIR}/aom_version.h)
