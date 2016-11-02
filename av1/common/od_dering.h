@@ -12,8 +12,6 @@
 #if !defined(_dering_H)
 #define _dering_H (1)
 
-// clang-format off
-
 #include "odintrin.h"
 
 #define OD_DERINGSIZES (2)

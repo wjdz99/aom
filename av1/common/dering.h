@@ -11,8 +11,6 @@
 #ifndef AV1_COMMON_DERING_H_
 #define AV1_COMMON_DERING_H_
 
-// clang-format off
-
 #include "av1/common/od_dering.h"
 #include "av1/common/onyxc_int.h"
 #include "aom/aom_integer.h"

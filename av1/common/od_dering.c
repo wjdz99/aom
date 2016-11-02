@@ -12,8 +12,6 @@
 #include "config.h"
 #endif
 
-// clang-format off
-
 #include <stdlib.h>
 #include <math.h>
 #include "dering.h"
