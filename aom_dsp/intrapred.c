@@ -9,6 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <math.h>
+
 #include "./aom_config.h"
 #include "./aom_dsp_rtcd.h"
 
@@ -253,6 +255,69 @@ static INLINE void paeth_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
   for (r = 0; r < bs; r++) {
     for (c = 0; c < bs; c++)
       dst[c] = (uint8_t)paeth_predictor_single(left[r], above[c], ytop_left);
+    dst += stride;
+  }
+}
+
+// Weights are cosine from 'bs' to '1'.
+// Scale is same as 'bs'.
+static const double sm_weights_fwd[5][32] = {
+  // bs = 2
+  { 2, 1 },
+  // bs = 4
+  { 4, 2.33333, 1.33333, 1 },
+  // bs = 8
+  { 8, 6.14286, 4.57143, 3.28571, 2.28571, 1.57143, 1.14286, 1 },
+  // bs = 16
+  { 16, 14.0667, 12.2667, 10.6, 9.06667, 7.66667, 6.4, 5.26667, 4.26667, 3.4,
+    2.66667, 2.06667, 1.6, 1.26667, 1.06667, 1 },
+  // bs = 32
+  { 32,      30.0323, 28.129,  26.2903, 24.5161, 22.8065, 21.1613, 19.5806,
+    18.0645, 16.6129, 15.2258, 13.9032, 12.6452, 11.4516, 10.3226, 9.25806,
+    8.25806, 7.32258, 6.45161, 5.64516, 4.90323, 4.22581, 3.6129,  3.06452,
+    2.58065, 2.16129, 1.80645, 1.51613, 1.29032, 1.12903, 1.03226, 1 },
+};
+
+// Scale is same as 'bs'.
+static const double sm_weights_rev[5][32] = {
+  // bs = 2
+  { 0, 1 },
+  // bs = 4
+  { 0, 1.66667, 2.66667, 3 },
+  // bs = 8
+  { 0, 1.85714, 3.42857, 4.71429, 5.71429, 6.42857, 6.85714, 7 },
+  // bs = 16
+  { 0, 1.93333, 3.73333, 5.4, 6.93333, 8.33333, 9.6, 10.7333, 11.7333, 12.6,
+    13.3333, 13.9333, 14.4, 14.7333, 14.9333, 15 },
+  // bs = 32
+  { 0,       1.96774, 3.87097, 5.70968, 7.48387, 9.19355, 10.8387, 12.4194,
+    13.9355, 15.3871, 16.7742, 18.0968, 19.3548, 20.5484, 21.6774, 22.7419,
+    23.7419, 24.6774, 25.5484, 26.3548, 27.0968, 27.7742, 28.3871, 28.9355,
+    29.4194, 29.8387, 30.1935, 30.4839, 30.7097, 30.871,  30.9677, 31 },
+};
+
+static INLINE void smooth_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
+                                    const uint8_t *above, const uint8_t *left) {
+  const uint8_t below_pred = left[bs - 1];   // estimated by bottom-left pixel
+  const uint8_t right_pred = above[bs - 1];  // estimated by top-right pixel
+  const int arr_index = (int)lround(log2(bs)) - 1;
+  const double *const fwd_weights = sm_weights_fwd[arr_index];
+  const double *const rev_weights = sm_weights_rev[arr_index];
+  const double scale = 2.0 * bs;
+  int r;
+  for (r = 0; r < bs; ++r) {
+    int c;
+    for (c = 0; c < bs; ++c) {
+      const int pixels[] = { above[c], below_pred, left[r], right_pred };
+      const double weights[] = { fwd_weights[r], rev_weights[r], fwd_weights[c],
+                                 rev_weights[c] };
+      double this_pred = 0;
+      int i;
+      for (i = 0; i < 4; ++i) {
+        this_pred += weights[i] * pixels[i];
+      }
+      dst[c] = clip_pixel(lround(this_pred / scale));
+    }
     dst += stride;
   }
 }
@@ -874,6 +939,33 @@ static INLINE void highbd_paeth_predictor(uint16_t *dst, ptrdiff_t stride,
   }
 }
 
+static INLINE void highbd_smooth_predictor(uint16_t *dst, ptrdiff_t stride,
+                                           int bs, const uint16_t *above,
+                                           const uint16_t *left, int bd) {
+  const uint16_t below_pred = left[bs - 1];   // estimated by bottom-left pixel
+  const uint16_t right_pred = above[bs - 1];  // estimated by top-right pixel
+  const int arr_index = (int)lround(log2(bs)) - 1;
+  const double *const fwd_weights = sm_weights_fwd[arr_index];
+  const double *const rev_weights = sm_weights_rev[arr_index];
+  const double scale = 2.0 * bs;
+  int r;
+  for (r = 0; r < bs; ++r) {
+    int c;
+    for (c = 0; c < bs; ++c) {
+      const int pixels[] = { above[c], below_pred, left[r], right_pred };
+      const double weights[] = { fwd_weights[r], rev_weights[r], fwd_weights[c],
+                                 rev_weights[c] };
+      double this_pred = 0;
+      int i;
+      for (i = 0; i < 4; ++i) {
+        this_pred += weights[i] * pixels[i];
+      }
+      dst[c] = clip_pixel_highbd(lround(this_pred / scale), bd);
+    }
+    dst += stride;
+  }
+}
+
 #else
 static INLINE void highbd_tm_predictor(uint16_t *dst, ptrdiff_t stride, int bs,
                                        const uint16_t *above,
@@ -1065,6 +1157,7 @@ intra_pred_allsizes(v)
 intra_pred_allsizes(h)
 #if CONFIG_ALT_INTRA
 intra_pred_allsizes(paeth)
+intra_pred_allsizes(smooth)
 #else
 intra_pred_allsizes(tm)
 #endif  // CONFIG_ALT_INTRA
