@@ -290,7 +290,10 @@ typedef enum ATTRIBUTE_PACKED {
   D153_PRED,  // Directional 153 deg = 180 - 27
   D207_PRED,  // Directional 207 deg = 180 + 27
   D63_PRED,   // Directional 63  deg = round(arctan(2/1) * 180/pi)
-  TM_PRED,    // True-motion
+#if CONFIG_ALT_INTRA
+  SMOOTH_PRED,  // Combination of horizontal and vertical interpolation
+#endif          // CONFIG_ALT_INTRA
+  TM_PRED,      // True-motion
   NEARESTMV,
   NEARMV,
   ZEROMV,
