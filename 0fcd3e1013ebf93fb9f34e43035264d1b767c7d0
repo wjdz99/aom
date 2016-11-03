@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_0db6fddf",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "26a04e09_338a906a",
+      "revId": "0fcd3e1013ebf93fb9f34e43035264d1b767c7d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_13caf4a8",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 35
@@ -65,6 +83,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 0,
       "message": "Extraneous whitespace change.",
+      "revId": "0fcd3e1013ebf93fb9f34e43035264d1b767c7d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_985a4d99",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1583,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "26a04e09_13caf4a8",
       "revId": "0fcd3e1013ebf93fb9f34e43035264d1b767c7d0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false

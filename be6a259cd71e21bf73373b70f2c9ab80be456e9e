@@ -1319,6 +1319,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_ed8f51b6",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 2834,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Let\u0027s use 1/5 (so, buf_len \u003d 1000) of current inital length for now, then in the separate patch we can consider the length decided by image frame size, target rate/QP (if available).",
+      "parentUuid": "26a04e09_7311b86f",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_530e3c53",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 35
@@ -1371,6 +1389,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_0d8b9d6d",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Added: #define MAX_PVQ_BLOCKS_IN_SB (MAX_SB_SQUARE \u003e\u003e 2 * OD_LOG_BSIZE0),\nthen replace every 256 in \"...\u003c 256\" with it.",
+      "parentUuid": "26a04e09_b3432060",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_5338fce7",
         "filename": "av1/encoder/encodemb.c",
         "patchSetId": 35
@@ -1382,6 +1418,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_ed399105",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_5338fce7",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -1405,6 +1459,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_ed87515f",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_9348a47d",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_f33da8d5",
         "filename": "av1/encoder/encodemb.c",
         "patchSetId": 35
@@ -1416,6 +1488,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_cd84955d",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_f33da8d5",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -1439,6 +1529,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_ad81494b",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1026,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_d3422c59",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_1355d40c",
         "filename": "av1/encoder/encodemb.c",
         "patchSetId": 35
@@ -1450,6 +1558,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_8db8cd1e",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1176,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_1355d40c",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -1473,6 +1599,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_4dc2c594",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_736d38e2",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_73525826",
         "filename": "av1/encoder/encodemb.c",
         "patchSetId": 35
@@ -1484,6 +1628,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Just use the #define",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_2dc779a4",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1321,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_73525826",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -1507,6 +1669,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_0dccbdc2",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1355,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Deleted.",
+      "parentUuid": "26a04e09_3363b0fa",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_937384c9",
         "filename": "av1/encoder/encodemb.c",
         "patchSetId": 35
@@ -1518,6 +1698,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_edc871b0",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1378,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_937384c9",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -1541,6 +1739,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_cd8c95c4",
+        "filename": "av1/encoder/encodemb.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "It cannot since it is also called in rdopt.c during RDO.",
+      "parentUuid": "26a04e09_53e59c5f",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_3331f006",
         "filename": "av1/encoder/firstpass.c",
         "patchSetId": 35
@@ -1552,6 +1768,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Another 20+ MB...",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_4d9be5ac",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Same fix applied as in encodeframe.c. Used 1/5 of current length for now.",
+      "parentUuid": "26a04e09_3331f006",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -1575,6 +1809,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_2d19b95a",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Changed to static array as in decoder.",
+      "parentUuid": "26a04e09_132e74a8",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_733b78e6",
         "filename": "av1/encoder/firstpass.c",
         "patchSetId": 35
@@ -1592,6 +1844,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_cd23756e",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Yes, let\u0027s do it in separate patch as well! I left it as a TODO.",
+      "parentUuid": "26a04e09_733b78e6",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_536abccb",
         "filename": "av1/encoder/pvq_encoder.c",
         "patchSetId": 35
@@ -1603,6 +1873,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "libc/system includes, then project includes.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_2d4e5936",
+        "filename": "av1/encoder/pvq_encoder.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_536abccb",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -1666,6 +1954,30 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_8df0cdbf",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4bfd4b26_7ed9b13c",
+      "range": {
+        "startLine": 321,
+        "startChar": 19,
+        "endLine": 321,
+        "endChar": 20
+      },
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_f38f6879",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 35
@@ -1677,6 +1989,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Should there be an #else/#endif wrapper around av1_block_error_c? It\u0027s never safe to call this function with PVQ enabled is it? That way we generate a compiler error if we try (e.g., when CONFIG_AOM_HIGHBITDEPTH is enabled).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_8dd9ed3f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "I believe you meant it is not safe to call this fuction with PVQ DISABLED. That is right.\nCurrrently, this function is only called when PVQ is enabled.\n(i.e if PVQ is disabled nowhere this function is called)\nAlso, PVQ is not ready yet for CONFIG_AOM_HIGHBITDEPTH.",
+      "parentUuid": "26a04e09_f38f6879",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -1700,6 +2030,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_9895ad1d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Because, the inner loop for tx_size has decreasing loop-control-variable (n) then if end_tx is TX_32X32 that means start_tx \u003d TX_32X32 as well, there is only DCT_DCT for 32X32 size. Hence, only one iteration of for { for {..} } is performed so no chance to call od_encode_rollback() becaues no need to save pvq\u0027s context.",
+      "parentUuid": "26a04e09_d394ec8c",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_13879460",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 35
@@ -1711,6 +2059,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Extraneous whitespace change.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_f8a5d18c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 779,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_13879460",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -1751,6 +2117,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_f801516c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1296,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Changed. (In fact, quoting actual code is my personal convention to leave comment to easier finding of end of block.\nBecause I can search by \u0027code\u0027,  in case the editor does not have a feature to find matching pair of braces, sth like \u0027shift-%\u0027 or ctrl-shift-P in eclipse!)",
+      "parentUuid": "26a04e09_93bd4410",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_d3c7cc9f",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 35
@@ -1768,6 +2152,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_b8fbc952",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1320,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Changed it to \"mode decision loop\".",
+      "parentUuid": "26a04e09_d3c7cc9f",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_73d7f84c",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 35
@@ -1779,6 +2181,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Elsewhere you do the checkpoint at the end of these blocks. Maybe it\u0027s better to do that here, too, for consistency?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_7800a11b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1774,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "So, we have two different mode of restoring the pvq context.\n1) Resotre the context to pre-condition when the mode decision function is not called.\n2) Restore the context of best mode.\nIn this funcion, rd_pick_intra_sby_mode(), since its results is the condition of following rd_pick_intra_sbuv_mode(), the context of best mode searched should be restored.\nSo in the codes, whenever pre and post buffers are used, it tried to restore the context of best mode (post_buf).\nOtherwise, if only one buff is used, then it just needs to restore pre condition when the mode search functoin is finished.",
+      "parentUuid": "26a04e09_73d7f84c",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -1808,6 +2228,30 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_58f5e513",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 2192,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4bfd4b26_3ea5699f",
+      "range": {
+        "startLine": 2192,
+        "startChar": 37,
+        "endLine": 2192,
+        "endChar": 38
+      },
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_93a424f4",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 35
@@ -1819,6 +2263,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "So, this function returns rate and distortion to its caller, but NOT best_rd, which is the value calculated with your modified lambda. That seems like it means that this lambda modification is only used locally for intra mode selection, but NOT used for any other RDO decisions. Is that intentional? If so, it seems like it needs some kind of explanatory comment.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_d839f5ec",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 2208,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Yes, it is indeed intended. Chroma intra prediction itself has a separate RDO, though final chroma intra mode\u0027s D and R is simply added to those of luma then global RDO is performed to decide the modes of SB. Also, for chroma, the RDO cannot decide tx_size (follow luma\u0027s decision) or tx_type (DCT only), then only the intra prediction is chroma\u0027s own mode decision based on separate RDO.\nI added the same comment as a NOTE, not sure if it does not come verbose.",
+      "parentUuid": "26a04e09_93a424f4",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -1842,6 +2304,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_38445965",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 4136,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_d39eac9b",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_33b4501d",
         "filename": "av1/encoder/tokenize.c",
         "patchSetId": 35
@@ -1853,6 +2333,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "The usual pattern is buf_len \u003d 2*buf_len + 1. That way it works even if buf_len is initialized to 0, and doesn\u0027t produce exact powers of two, which are pessimal with some allocators (because there\u0027s no room for them to store their bookeeping information).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_98b80d1f",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Nice idea!",
+      "parentUuid": "26a04e09_33b4501d",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -1876,6 +2374,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_38c7b9a4",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "CHECK_MEM_ERROR() is used to give system level errors if sth gets wrong.",
+      "parentUuid": "26a04e09_13b1542d",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_73aed8d0",
         "filename": "av1/encoder/tokenize.c",
         "patchSetId": 35
@@ -1887,6 +2403,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "OD_COPY?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_f80031b1",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T20:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_73aed8d0",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
