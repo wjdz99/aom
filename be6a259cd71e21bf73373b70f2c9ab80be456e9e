@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "c67db254_56047432",
+        "filename": "aom_dsp/entcode.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_53c0fce4",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_b3cb2009",
         "filename": "aom_dsp/entdec.c",
         "patchSetId": 35
@@ -47,6 +65,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Why aren\u0027t we passing through an OD_ACC_STR like we do in Daala?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c67db254_1622eccd",
+        "filename": "aom_dsp/entdec.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "This function is not supported for accounting in AV1 after Michael\u0027s revision where only aom_read_*() functions can be provided with strings.",
+      "parentUuid": "26a04e09_b3cb2009",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "c67db254_3607f039",
+        "filename": "aom_dsp/entdec.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "With same reason as responded in above, this function is not supported by accounting function in AV1 yet.",
+      "parentUuid": "26a04e09_f3c5a8f2",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_d3ca2c02",
         "filename": "av1/common/blockd.h",
         "patchSetId": 35
@@ -81,6 +135,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Was 64 * 64 supposed to be MAX_SB_SQUARE?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_d694da8c",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "That is right, I followed convention they define array inside struct as like in:\n\nstruct macroblock_plane {\n  DECLARE_ALIGNED(16, int16_t, src_diff[64 * 64]);\n\nand now seeing that they start to use MAX_SB_SQUARE recently, for example, the CONFIG_MOTION_VAR experiment.",
+      "parentUuid": "26a04e09_d3ca2c02",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "26a04e09_a1c3c626",
+        "filename": "av1/common/odintrin.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_33e0d083",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_13ddd4c5",
         "filename": "av1/common/odintrin.h",
         "patchSetId": 35
@@ -115,6 +205,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "This should be 3, right? AV1 doesn\u0027t support alpha. Perhaps it would be better to just set it to MAX_MB_PLANE to make it clear these are the same.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_614f1e7f",
+        "filename": "av1/common/odintrin.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Yes, changed it to 3, since using MAX_MB_PLANE needs including blockd.h which caueses pages of compile errors.\nI will try re-address whehter I can use MAX_MB_PLANE.",
+      "parentUuid": "26a04e09_13ddd4c5",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -138,6 +246,24 @@
     },
     {
       "key": {
+        "uuid": "26a04e09_41cdc2bf",
+        "filename": "av1/common/partition.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_73da58cf",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_53d75ca3",
         "filename": "av1/common/pvq_state.h",
         "patchSetId": 35
@@ -149,6 +275,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "I don\u0027t think you should include \u003cstdio.h\u003e, since nothing in this header uses anything it defines (include-what-you-use).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_c19ff299",
+        "filename": "av1/common/pvq_state.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Right, removed.",
+      "parentUuid": "26a04e09_53d75ca3",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -172,6 +316,24 @@
     },
     {
       "key": {
+        "uuid": "26a04e09_c10a5205",
+        "filename": "av1/common/pvq_state.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "I marked it as \u0027TODO\u0027, since it is needed for enabling activity masking.",
+      "parentUuid": "26a04e09_937b84e2",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_f3800894",
         "filename": "av1/common/zigzag16.c",
         "patchSetId": 35
@@ -183,6 +345,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Is this comment still true? The DCT_DCT tables do not match what we have in Daala (in particular the scans for 8 and 16 start off in the opposite direction of the scan for 32). Is there a modified version somewhere that generates the ADST versions? If so, it should be checked in somewhere. Otherwise we should document somewhere how these were actually created.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_01d29a18",
+        "filename": "av1/common/zigzag16.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Not really- I modified those existing gen_zigzag*.m to convert the scan orders of AV1, i.e.\nconst SCAN_ORDER av1_scan_orders[TX_SIZES][TX_TYPES],\nto the format (i.e. band by band) required by pvq.\nThe DCT_DCT scan order is indeed different from that of Daala since it is newly produced from the DCT_DCT scan order of AV1.\nRegarding the modified *.m converting tools, tools are commited to av1_pvq branch then reverted : https://github.com/ycho/aom/commit/04cd6584607adc891e8a48742fdb9b0c7d0c61c2\nI will clean up them and try to check in as a separate commit in av1.",
+      "parentUuid": "26a04e09_f3800894",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -206,6 +386,24 @@
     },
     {
       "key": {
+        "uuid": "26a04e09_dcf8790e",
+        "filename": "av1/decoder/decint.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_13683413",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_d3850ca2",
         "filename": "av1/decoder/decint.h",
         "patchSetId": 35
@@ -217,6 +415,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Is this used anywhere? If not, we should not include it.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a04e09_3ceedd49",
+        "filename": "av1/decoder/decint.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_d3850ca2",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -240,6 +456,24 @@
     },
     {
       "key": {
+        "uuid": "46cc62f9_fa2611d1",
+        "filename": "av1/decoder/decint.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_336bb013",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_737538e7",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 35
@@ -251,6 +485,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "I think the proper thing to do here is to move these things to \"common\" instead of leaving them in the encoder. That is likely a big change, so it can be done in a separate patch series. By the way, I didn\u0027t see any changes to include forward transform code in av1_dx.mk. Are you sure there is no linking problem if you disable the encoder?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_21442865",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Indeed the linking error of : undefined reference to `fwd_txfm\u0027, if I build decoder only.\nI\u0027ve fixed this, but the its patch is quite big since not just decoder side .mk needs txm c/h files but also c-to-sse mapping file (./av1/common/av1_rtcd_defs.pl) needed large additional lines.\nPutting fwd tx in common, conditioned on pvq experiment, can make codebase less readible, so not sure that is the best way.",
+      "parentUuid": "26a04e09_737538e7",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -274,6 +526,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_01624cf5",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_5372bc00",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_b39de0f4",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 35
@@ -285,6 +555,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Are these buffers for a whole SB or just a transform block? I think if the latter you only need OD_BSIZE_MAX*OD_BSIZE_MAX, not MAX_SB_SQUARE here, right?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_81977c93",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Nice point! It is for just one tx block. You are exactly right.",
+      "parentUuid": "26a04e09_b39de0f4",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -308,6 +596,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_a1ab98bc",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_93a26436",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_d39cecf5",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 35
@@ -319,6 +625,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "These are at least helpful for the next guy, but I\u0027m not sure what is meant by \"quant*\"",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_2119c85a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "I meant actual \u0027quantizer\u0027 used for quantization, by \u0027quant\u0027.\nI added comments explaining what \u0027pvq_dc_quant\u0027 variable is for.",
+      "parentUuid": "26a04e09_d39cecf5",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -342,6 +666,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_41edf40c",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Added define then used it for both enc and dec side pvq call.",
+      "parentUuid": "26a04e09_339290df",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_138f94b9",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 35
@@ -353,6 +695,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Why is this commented out? I remember there were problems where the reference vector might have more non-zero coefficients than the decoded PVQ codeword, but the output of od_pvq_decode() has already been combined with the reference, hasn\u0027t it? If this is not correct for some reason, you should remove this code, and put a comment on the line below saying why that is necessary.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_a1395894",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "\"output of od_pvq_decode() has already been combined with the reference\", this is true. And the commented lines are entirely wrong causing a bug. \nIf you see carefully eob is not decided by real scan order defined by av1 (during its quantization), but just raster scan order (i.e. row by row) in my 1d for loop, which is wrong because some last non-zero dequantized coeffs  (I think I shared this with you) can be simply skipped by invere transform which uses eom to optimize spee. \nSo as a sure fix, I always set eob as # the tx block size.",
+      "parentUuid": "26a04e09_138f94b9",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -399,6 +759,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_a10a78cb",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_738c18c3",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_53891cb1",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 35
@@ -410,6 +788,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "tx_size_1d[]",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_81d9bc3f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_53891cb1",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -444,6 +840,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "But really all the code starting from copying dst into pred up to here is identical in the inter and intra case. Maybe this should be factored into av1_pvq_decode_helper(), or into another wrapper around that one?",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_e4c88eb0",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Refactored. Added pvq_decode_helper2() to minize any duplicaed codes!",
+      "parentUuid": "26a04e09_d34fcca8",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -485,6 +899,42 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_64a6befe",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1494,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Changeed it as static array.",
+      "parentUuid": "26a04e09_735ff855",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c67db254_d617a467",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1494,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Right- if OD_FLAG_QM is used, qm and qm_inv has simply the same values in it.",
+      "parentUuid": "4bfd4b26_1ea06ddc",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_f32128d3",
         "filename": "av1/decoder/decoder.c",
         "patchSetId": 35
@@ -496,6 +946,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "What is decint.h used for? I don\u0027t see any other changes in this file that require it, and you already included it in decoder.h, so you should probably remove this here (include-what-you-use).",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_a7e5e863",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_f32128d3",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -519,6 +987,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_e7ebf035",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_535c7c5f",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_b327a0e7",
         "filename": "av1/decoder/decoder.h",
         "patchSetId": 35
@@ -536,6 +1022,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_c7e8f43b",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_b327a0e7",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_333c50f6",
         "filename": "av1/decoder/pvq_decoder.c",
         "patchSetId": 35
@@ -547,6 +1051,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "The correct order is libc/system includes, then local project includes. That\u0027s the order that was in the original Daala pvq_decoder.c.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c67db254_b6430060",
+        "filename": "av1/decoder/pvq_decoder.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_333c50f6",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -587,6 +1109,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_07301c01",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_7336d815",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_5333dc23",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 35
@@ -598,6 +1138,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "It seems like we could get rid of a lot of this code by just using av1_foreach_transformed_block_in_plane(). Logic like the mb_to_right_edge/mb_to_bottom_edge stuff should really be centralized in one place. That\u0027s something that can be done in a follow-up patch, though.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_a73608fb",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1168,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Agree. Left a TODO there, so that I/we can try using av1_foreach_transformed_block_in_plane() here.",
+      "parentUuid": "26a04e09_5333dc23",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -621,6 +1179,24 @@
     },
     {
       "key": {
+        "uuid": "4bfd4b26_674a4075",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_b3120079",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_f31c888e",
         "filename": "av1/encoder/encint.h",
         "patchSetId": 35
@@ -632,6 +1208,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Again, a comment about what this is would be good.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c67db254_366370fa",
+        "filename": "av1/encoder/encint.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_f31c888e",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -655,6 +1249,24 @@
     },
     {
       "key": {
+        "uuid": "c67db254_966a7cc9",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1911,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_d3218cca",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_1304b431",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 35
@@ -666,6 +1278,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "Extraneous whitespace change.",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c67db254_b695c08b",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 2610,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_1304b431",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -700,6 +1330,24 @@
       "writtenOn": "2016-11-02T06:55:29Z",
       "side": 1,
       "message": "aom_malloc()",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bfd4b26_e75e5029",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 2836,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-03T06:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26a04e09_530e3c53",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
