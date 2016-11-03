@@ -35,7 +35,11 @@ void av1_tile_init(TileInfo *tile, const struct AV1Common *cm, int row,
 void av1_tile_set_row(TileInfo *tile, const struct AV1Common *cm, int row);
 void av1_tile_set_col(TileInfo *tile, const struct AV1Common *cm, int col);
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 void av1_get_tile_n_bits(const int mi_cols, int *min_log2_tile_cols,
+=======
+void av1_get_tile_n_bits(int mi_cols, int *min_log2_tile_cols,
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
                          int *max_log2_tile_cols);
 
 #ifdef __cplusplus

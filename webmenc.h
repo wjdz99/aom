@@ -40,6 +40,10 @@ typedef enum stereo_format {
 
 void write_webm_file_header(struct WebmOutputContext *webm_ctx,
                             const aom_codec_enc_cfg_t *cfg,
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
+=======
+                            const struct aom_rational *fps,
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
                             stereo_format_t stereo_fmt, unsigned int fourcc,
                             const struct AvxRational *par);
 

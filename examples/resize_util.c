@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 /*
  *  Copyright (c) 2014 The WebM project authors. All Rights Reserved.
  *
@@ -121,3 +122,5 @@ int main(int argc, char *argv[]) {
   free(outbuf);
   return 0;
 }
+=======
+>>>>>>> BRANCH (749267 Fix clang-format issues.)

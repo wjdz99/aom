@@ -14,11 +14,20 @@
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
 #include "./aom_config.h"
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
+=======
+#include "./av1_rtcd.h"
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 #include "./aom_dsp_rtcd.h"
 #include "test/acm_random.h"
 #include "test/clear_system_state.h"
 #include "test/register_state_check.h"
 #include "test/util.h"
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
+=======
+#include "av1/common/common.h"
+#include "av1/common/filter.h"
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_dsp/aom_filter.h"
 #include "aom_mem/aom_mem.h"
@@ -65,6 +74,7 @@ struct ConvolveFunctions {
 
 typedef std::tr1::tuple<int, int, const ConvolveFunctions *> ConvolveParam;
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 #if CONFIG_AV1 && CONFIG_EXT_PARTITION
 #define ALL_SIZES(convolve_fn)                                            \
   make_tuple(128, 64, &convolve_fn), make_tuple(64, 128, &convolve_fn),   \
@@ -85,12 +95,21 @@ typedef std::tr1::tuple<int, int, const ConvolveFunctions *> ConvolveParam;
       make_tuple(64, 32, &convolve_fn), make_tuple(32, 64, &convolve_fn), \
       make_tuple(64, 64, &convolve_fn)
 #endif  // CONFIG_AV1 && CONFIG_EXT_PARTITION
+=======
+// Reference 8-tap subpixel filter, slightly modified to fit into this test.
+#define AV1_FILTER_WEIGHT 128
+#define AV1_FILTER_SHIFT 7
+uint8_t clip_pixel(int x) { return x < 0 ? 0 : x > 255 ? 255 : x; }
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 // Reference 8-tap subpixel filter, slightly modified to fit into this test.
 #define AV1_FILTER_WEIGHT 128
 #define AV1_FILTER_SHIFT 7
 uint8_t clip_pixel(int x) { return x < 0 ? 0 : x > 255 ? 255 : x; }
 
+=======
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 void filter_block2d_8_c(const uint8_t *src_ptr, const unsigned int src_stride,
                         const int16_t *HFilter, const int16_t *VFilter,
                         uint8_t *dst_ptr, unsigned int dst_stride,
@@ -111,7 +130,11 @@ void filter_block2d_8_c(const uint8_t *src_ptr, const unsigned int src_stride,
   //                               = 23
   // and filter_max_width          = 16
   //
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
   uint8_t intermediate_buffer[(kMaxDimension + 8) * kMaxDimension];
+=======
+  uint8_t intermediate_buffer[71 * kMaxDimension];
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
   const int intermediate_next_stride =
       1 - static_cast<int>(intermediate_height * output_width);
 
@@ -182,8 +205,12 @@ void filter_average_block2d_8_c(const uint8_t *src_ptr,
   assert(output_height <= kMaxDimension);
   filter_block2d_8_c(src_ptr, src_stride, HFilter, VFilter, tmp, kMaxDimension,
                      output_width, output_height);
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
   block2d_average_c(tmp, kMaxDimension, dst_ptr, dst_stride, output_width,
                     output_height);
+=======
+  block2d_average_c(tmp, 64, dst_ptr, dst_stride, output_width, output_height);
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 }
 
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -208,7 +235,11 @@ void highbd_filter_block2d_8_c(const uint16_t *src_ptr,
    *                               = 23
    * and filter_max_width = 16
    */
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
   uint16_t intermediate_buffer[(kMaxDimension + 8) * kMaxDimension];
+=======
+  uint16_t intermediate_buffer[71 * kMaxDimension];
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
   const int intermediate_next_stride =
       1 - static_cast<int>(intermediate_height * output_width);
 
@@ -284,10 +315,17 @@ void highbd_filter_average_block2d_8_c(
 
   assert(output_width <= kMaxDimension);
   assert(output_height <= kMaxDimension);
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
   highbd_filter_block2d_8_c(src_ptr, src_stride, HFilter, VFilter, tmp,
                             kMaxDimension, output_width, output_height, bd);
   highbd_block2d_average_c(tmp, kMaxDimension, dst_ptr, dst_stride,
                            output_width, output_height);
+=======
+  highbd_filter_block2d_8_c(src_ptr, src_stride, HFilter, VFilter, tmp, 64,
+                            output_width, output_height, bd);
+  highbd_block2d_average_c(tmp, 64, dst_ptr, dst_stride, output_width,
+                           output_height);
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
@@ -409,12 +447,20 @@ class ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
   }
 
   uint8_t *input() const {
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
     const int offset = BorderTop() * kOuterBlockSize + BorderLeft();
+=======
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 #if CONFIG_AOM_HIGHBITDEPTH
     if (UUT_->use_highbd_ == 0) {
       return input_ + offset;
     } else {
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
       return CONVERT_TO_BYTEPTR(input16_) + offset;
+=======
+      return CONVERT_TO_BYTEPTR(input16_) + BorderTop() * kOuterBlockSize +
+             BorderLeft();
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
     }
 #else
     return input_ + offset;
@@ -422,12 +468,20 @@ class ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
   }
 
   uint8_t *output() const {
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
     const int offset = BorderTop() * kOuterBlockSize + BorderLeft();
+=======
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 #if CONFIG_AOM_HIGHBITDEPTH
     if (UUT_->use_highbd_ == 0) {
       return output_ + offset;
     } else {
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
       return CONVERT_TO_BYTEPTR(output16_) + offset;
+=======
+      return CONVERT_TO_BYTEPTR(output16_) + BorderTop() * kOuterBlockSize +
+             BorderLeft();
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
     }
 #else
     return output_ + offset;
@@ -435,12 +489,20 @@ class ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
   }
 
   uint8_t *output_ref() const {
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
     const int offset = BorderTop() * kOuterBlockSize + BorderLeft();
+=======
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 #if CONFIG_AOM_HIGHBITDEPTH
     if (UUT_->use_highbd_ == 0) {
       return output_ref_ + offset;
     } else {
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
       return CONVERT_TO_BYTEPTR(output16_ref_) + offset;
+=======
+      return CONVERT_TO_BYTEPTR(output16_ref_) + BorderTop() * kOuterBlockSize +
+             BorderLeft();
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
     }
 #else
     return output_ref_ + offset;
@@ -987,6 +1049,19 @@ const ConvolveFunctions convolve8_c(
     wrap_convolve8_horiz_c_8, wrap_convolve8_avg_horiz_c_8,
     wrap_convolve8_vert_c_8, wrap_convolve8_avg_vert_c_8, wrap_convolve8_c_8,
     wrap_convolve8_avg_c_8, 8);
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
+=======
+INSTANTIATE_TEST_CASE_P(
+    C_8, ConvolveTest,
+    ::testing::Values(
+        make_tuple(4, 4, &convolve8_c), make_tuple(8, 4, &convolve8_c),
+        make_tuple(4, 8, &convolve8_c), make_tuple(8, 8, &convolve8_c),
+        make_tuple(16, 8, &convolve8_c), make_tuple(8, 16, &convolve8_c),
+        make_tuple(16, 16, &convolve8_c), make_tuple(32, 16, &convolve8_c),
+        make_tuple(16, 32, &convolve8_c), make_tuple(32, 32, &convolve8_c),
+        make_tuple(64, 32, &convolve8_c), make_tuple(32, 64, &convolve8_c),
+        make_tuple(64, 64, &convolve8_c)));
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 const ConvolveFunctions convolve10_c(
     wrap_convolve_copy_c_10, wrap_convolve_avg_c_10, wrap_convolve8_horiz_c_10,
     wrap_convolve8_avg_horiz_c_10, wrap_convolve8_vert_c_10,
@@ -994,6 +1069,19 @@ const ConvolveFunctions convolve10_c(
     wrap_convolve8_horiz_c_10, wrap_convolve8_avg_horiz_c_10,
     wrap_convolve8_vert_c_10, wrap_convolve8_avg_vert_c_10, wrap_convolve8_c_10,
     wrap_convolve8_avg_c_10, 10);
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
+=======
+INSTANTIATE_TEST_CASE_P(
+    C_10, ConvolveTest,
+    ::testing::Values(
+        make_tuple(4, 4, &convolve10_c), make_tuple(8, 4, &convolve10_c),
+        make_tuple(4, 8, &convolve10_c), make_tuple(8, 8, &convolve10_c),
+        make_tuple(16, 8, &convolve10_c), make_tuple(8, 16, &convolve10_c),
+        make_tuple(16, 16, &convolve10_c), make_tuple(32, 16, &convolve10_c),
+        make_tuple(16, 32, &convolve10_c), make_tuple(32, 32, &convolve10_c),
+        make_tuple(64, 32, &convolve10_c), make_tuple(32, 64, &convolve10_c),
+        make_tuple(64, 64, &convolve10_c)));
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 const ConvolveFunctions convolve12_c(
     wrap_convolve_copy_c_12, wrap_convolve_avg_c_12, wrap_convolve8_horiz_c_12,
     wrap_convolve8_avg_horiz_c_12, wrap_convolve8_vert_c_12,
@@ -1001,9 +1089,22 @@ const ConvolveFunctions convolve12_c(
     wrap_convolve8_horiz_c_12, wrap_convolve8_avg_horiz_c_12,
     wrap_convolve8_vert_c_12, wrap_convolve8_avg_vert_c_12, wrap_convolve8_c_12,
     wrap_convolve8_avg_c_12, 12);
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 const ConvolveParam kArrayConvolve_c[] = {
   ALL_SIZES(convolve8_c), ALL_SIZES(convolve10_c), ALL_SIZES(convolve12_c)
 };
+=======
+INSTANTIATE_TEST_CASE_P(
+    C_12, ConvolveTest,
+    ::testing::Values(
+        make_tuple(4, 4, &convolve12_c), make_tuple(8, 4, &convolve12_c),
+        make_tuple(4, 8, &convolve12_c), make_tuple(8, 8, &convolve12_c),
+        make_tuple(16, 8, &convolve12_c), make_tuple(8, 16, &convolve12_c),
+        make_tuple(16, 16, &convolve12_c), make_tuple(32, 16, &convolve12_c),
+        make_tuple(16, 32, &convolve12_c), make_tuple(32, 32, &convolve12_c),
+        make_tuple(64, 32, &convolve12_c), make_tuple(32, 64, &convolve12_c),
+        make_tuple(64, 64, &convolve12_c)));
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
 #else
 const ConvolveFunctions convolve8_c(
@@ -1012,7 +1113,21 @@ const ConvolveFunctions convolve8_c(
     aom_convolve8_c, aom_convolve8_avg_c, aom_scaled_horiz_c,
     aom_scaled_avg_horiz_c, aom_scaled_vert_c, aom_scaled_avg_vert_c,
     aom_scaled_2d_c, aom_scaled_avg_2d_c, 0);
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 const ConvolveParam kArrayConvolve_c[] = { ALL_SIZES(convolve8_c) };
+=======
+
+INSTANTIATE_TEST_CASE_P(
+    C, ConvolveTest,
+    ::testing::Values(
+        make_tuple(4, 4, &convolve8_c), make_tuple(8, 4, &convolve8_c),
+        make_tuple(4, 8, &convolve8_c), make_tuple(8, 8, &convolve8_c),
+        make_tuple(16, 8, &convolve8_c), make_tuple(8, 16, &convolve8_c),
+        make_tuple(16, 16, &convolve8_c), make_tuple(32, 16, &convolve8_c),
+        make_tuple(16, 32, &convolve8_c), make_tuple(32, 32, &convolve8_c),
+        make_tuple(64, 32, &convolve8_c), make_tuple(32, 64, &convolve8_c),
+        make_tuple(64, 64, &convolve8_c)));
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 #endif
 INSTANTIATE_TEST_CASE_P(C, ConvolveTest, ::testing::ValuesIn(kArrayConvolve_c));
 
@@ -1042,9 +1157,46 @@ const ConvolveFunctions convolve12_sse2(
     wrap_convolve8_horiz_sse2_12, wrap_convolve8_avg_horiz_sse2_12,
     wrap_convolve8_vert_sse2_12, wrap_convolve8_avg_vert_sse2_12,
     wrap_convolve8_sse2_12, wrap_convolve8_avg_sse2_12, 12);
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 const ConvolveParam kArrayConvolve_sse2[] = { ALL_SIZES(convolve8_sse2),
                                               ALL_SIZES(convolve10_sse2),
                                               ALL_SIZES(convolve12_sse2) };
+=======
+INSTANTIATE_TEST_CASE_P(
+    SSE2, ConvolveTest,
+    ::testing::Values(
+        make_tuple(4, 4, &convolve8_sse2), make_tuple(8, 4, &convolve8_sse2),
+        make_tuple(4, 8, &convolve8_sse2), make_tuple(8, 8, &convolve8_sse2),
+        make_tuple(16, 8, &convolve8_sse2), make_tuple(8, 16, &convolve8_sse2),
+        make_tuple(16, 16, &convolve8_sse2),
+        make_tuple(32, 16, &convolve8_sse2),
+        make_tuple(16, 32, &convolve8_sse2),
+        make_tuple(32, 32, &convolve8_sse2),
+        make_tuple(64, 32, &convolve8_sse2),
+        make_tuple(32, 64, &convolve8_sse2),
+        make_tuple(64, 64, &convolve8_sse2), make_tuple(4, 4, &convolve10_sse2),
+        make_tuple(8, 4, &convolve10_sse2), make_tuple(4, 8, &convolve10_sse2),
+        make_tuple(8, 8, &convolve10_sse2), make_tuple(16, 8, &convolve10_sse2),
+        make_tuple(8, 16, &convolve10_sse2),
+        make_tuple(16, 16, &convolve10_sse2),
+        make_tuple(32, 16, &convolve10_sse2),
+        make_tuple(16, 32, &convolve10_sse2),
+        make_tuple(32, 32, &convolve10_sse2),
+        make_tuple(64, 32, &convolve10_sse2),
+        make_tuple(32, 64, &convolve10_sse2),
+        make_tuple(64, 64, &convolve10_sse2),
+        make_tuple(4, 4, &convolve12_sse2), make_tuple(8, 4, &convolve12_sse2),
+        make_tuple(4, 8, &convolve12_sse2), make_tuple(8, 8, &convolve12_sse2),
+        make_tuple(16, 8, &convolve12_sse2),
+        make_tuple(8, 16, &convolve12_sse2),
+        make_tuple(16, 16, &convolve12_sse2),
+        make_tuple(32, 16, &convolve12_sse2),
+        make_tuple(16, 32, &convolve12_sse2),
+        make_tuple(32, 32, &convolve12_sse2),
+        make_tuple(64, 32, &convolve12_sse2),
+        make_tuple(32, 64, &convolve12_sse2),
+        make_tuple(64, 64, &convolve12_sse2)));
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 #else
 const ConvolveFunctions convolve8_sse2(
     aom_convolve_copy_sse2, aom_convolve_avg_sse2, aom_convolve8_horiz_sse2,
@@ -1053,10 +1205,28 @@ const ConvolveFunctions convolve8_sse2(
     aom_scaled_horiz_c, aom_scaled_avg_horiz_c, aom_scaled_vert_c,
     aom_scaled_avg_vert_c, aom_scaled_2d_c, aom_scaled_avg_2d_c, 0);
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 const ConvolveParam kArrayConvolve_sse2[] = { ALL_SIZES(convolve8_sse2) };
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 INSTANTIATE_TEST_CASE_P(SSE2, ConvolveTest,
                         ::testing::ValuesIn(kArrayConvolve_sse2));
+=======
+INSTANTIATE_TEST_CASE_P(SSE2, ConvolveTest,
+                        ::testing::Values(make_tuple(4, 4, &convolve8_sse2),
+                                          make_tuple(8, 4, &convolve8_sse2),
+                                          make_tuple(4, 8, &convolve8_sse2),
+                                          make_tuple(8, 8, &convolve8_sse2),
+                                          make_tuple(16, 8, &convolve8_sse2),
+                                          make_tuple(8, 16, &convolve8_sse2),
+                                          make_tuple(16, 16, &convolve8_sse2),
+                                          make_tuple(32, 16, &convolve8_sse2),
+                                          make_tuple(16, 32, &convolve8_sse2),
+                                          make_tuple(32, 32, &convolve8_sse2),
+                                          make_tuple(64, 32, &convolve8_sse2),
+                                          make_tuple(32, 64, &convolve8_sse2),
+                                          make_tuple(64, 64, &convolve8_sse2)));
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 #endif
 
 #if HAVE_SSSE3
@@ -1065,11 +1235,33 @@ const ConvolveFunctions convolve8_ssse3(
     aom_convolve8_avg_horiz_ssse3, aom_convolve8_vert_ssse3,
     aom_convolve8_avg_vert_ssse3, aom_convolve8_ssse3, aom_convolve8_avg_ssse3,
     aom_scaled_horiz_c, aom_scaled_avg_horiz_c, aom_scaled_vert_c,
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
     aom_scaled_avg_vert_c, aom_scaled_2d_ssse3, aom_scaled_avg_2d_c, 0);
+=======
+    aom_scaled_avg_vert_c, aom_scaled_2d_c, aom_scaled_avg_2d_c, 0);
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 const ConvolveParam kArrayConvolve8_ssse3[] = { ALL_SIZES(convolve8_ssse3) };
 INSTANTIATE_TEST_CASE_P(SSSE3, ConvolveTest,
                         ::testing::ValuesIn(kArrayConvolve8_ssse3));
+=======
+INSTANTIATE_TEST_CASE_P(SSSE3, ConvolveTest,
+                        ::testing::Values(make_tuple(4, 4, &convolve8_ssse3),
+                                          make_tuple(8, 4, &convolve8_ssse3),
+                                          make_tuple(4, 8, &convolve8_ssse3),
+                                          make_tuple(8, 8, &convolve8_ssse3),
+                                          make_tuple(16, 8, &convolve8_ssse3),
+                                          make_tuple(8, 16, &convolve8_ssse3),
+                                          make_tuple(16, 16, &convolve8_ssse3),
+                                          make_tuple(32, 16, &convolve8_ssse3),
+                                          make_tuple(16, 32, &convolve8_ssse3),
+                                          make_tuple(32, 32, &convolve8_ssse3),
+                                          make_tuple(64, 32, &convolve8_ssse3),
+                                          make_tuple(32, 64, &convolve8_ssse3),
+                                          make_tuple(64, 64,
+                                                     &convolve8_ssse3)));
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 #endif
 
 #if HAVE_AVX2 && HAVE_SSSE3
@@ -1080,9 +1272,26 @@ const ConvolveFunctions convolve8_avx2(
     aom_scaled_horiz_c, aom_scaled_avg_horiz_c, aom_scaled_vert_c,
     aom_scaled_avg_vert_c, aom_scaled_2d_c, aom_scaled_avg_2d_c, 0);
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 const ConvolveParam kArrayConvolve8_avx2[] = { ALL_SIZES(convolve8_avx2) };
 INSTANTIATE_TEST_CASE_P(AVX2, ConvolveTest,
                         ::testing::ValuesIn(kArrayConvolve8_avx2));
+=======
+INSTANTIATE_TEST_CASE_P(AVX2, ConvolveTest,
+                        ::testing::Values(make_tuple(4, 4, &convolve8_avx2),
+                                          make_tuple(8, 4, &convolve8_avx2),
+                                          make_tuple(4, 8, &convolve8_avx2),
+                                          make_tuple(8, 8, &convolve8_avx2),
+                                          make_tuple(8, 16, &convolve8_avx2),
+                                          make_tuple(16, 8, &convolve8_avx2),
+                                          make_tuple(16, 16, &convolve8_avx2),
+                                          make_tuple(32, 16, &convolve8_avx2),
+                                          make_tuple(16, 32, &convolve8_avx2),
+                                          make_tuple(32, 32, &convolve8_avx2),
+                                          make_tuple(64, 32, &convolve8_avx2),
+                                          make_tuple(32, 64, &convolve8_avx2),
+                                          make_tuple(64, 64, &convolve8_avx2)));
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 #endif  // HAVE_AVX2 && HAVE_SSSE3
 
 // TODO(any): Make NEON versions support 128x128 128x64 64x128 block sizes
@@ -1103,9 +1312,26 @@ const ConvolveFunctions convolve8_neon(
     aom_scaled_avg_vert_c, aom_scaled_2d_c, aom_scaled_avg_2d_c, 0);
 #endif  // HAVE_NEON_ASM
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 const ConvolveParam kArrayConvolve8_neon[] = { ALL_SIZES(convolve8_neon) };
 INSTANTIATE_TEST_CASE_P(NEON, ConvolveTest,
                         ::testing::ValuesIn(kArrayConvolve8_neon));
+=======
+INSTANTIATE_TEST_CASE_P(NEON, ConvolveTest,
+                        ::testing::Values(make_tuple(4, 4, &convolve8_neon),
+                                          make_tuple(8, 4, &convolve8_neon),
+                                          make_tuple(4, 8, &convolve8_neon),
+                                          make_tuple(8, 8, &convolve8_neon),
+                                          make_tuple(16, 8, &convolve8_neon),
+                                          make_tuple(8, 16, &convolve8_neon),
+                                          make_tuple(16, 16, &convolve8_neon),
+                                          make_tuple(32, 16, &convolve8_neon),
+                                          make_tuple(16, 32, &convolve8_neon),
+                                          make_tuple(32, 32, &convolve8_neon),
+                                          make_tuple(64, 32, &convolve8_neon),
+                                          make_tuple(32, 64, &convolve8_neon),
+                                          make_tuple(64, 64, &convolve8_neon)));
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 #endif  // HAVE_NEON
 
 // TODO(any): Make DSPR2 versions support 128x128 128x64 64x128 block sizes
@@ -1117,10 +1343,29 @@ const ConvolveFunctions convolve8_dspr2(
     aom_scaled_horiz_c, aom_scaled_avg_horiz_c, aom_scaled_vert_c,
     aom_scaled_avg_vert_c, aom_scaled_2d_c, aom_scaled_avg_2d_c, 0);
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 const ConvolveParam kArrayConvolve8_dspr2[] = { ALL_SIZES(convolve8_dspr2) };
 INSTANTIATE_TEST_CASE_P(DSPR2, ConvolveTest,
                         ::testing::ValuesIn(kArrayConvolve8_dspr2));
 #endif  // HAVE_DSPR2
+=======
+INSTANTIATE_TEST_CASE_P(DSPR2, ConvolveTest,
+                        ::testing::Values(make_tuple(4, 4, &convolve8_dspr2),
+                                          make_tuple(8, 4, &convolve8_dspr2),
+                                          make_tuple(4, 8, &convolve8_dspr2),
+                                          make_tuple(8, 8, &convolve8_dspr2),
+                                          make_tuple(16, 8, &convolve8_dspr2),
+                                          make_tuple(8, 16, &convolve8_dspr2),
+                                          make_tuple(16, 16, &convolve8_dspr2),
+                                          make_tuple(32, 16, &convolve8_dspr2),
+                                          make_tuple(16, 32, &convolve8_dspr2),
+                                          make_tuple(32, 32, &convolve8_dspr2),
+                                          make_tuple(64, 32, &convolve8_dspr2),
+                                          make_tuple(32, 64, &convolve8_dspr2),
+                                          make_tuple(64, 64,
+                                                     &convolve8_dspr2)));
+#endif
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
 // TODO(any): Make MSA versions support 128x128 128x64 64x128 block sizes
 #if HAVE_MSA && !(CONFIG_AV1 && CONFIG_EXT_PARTITION)
@@ -1131,8 +1376,21 @@ const ConvolveFunctions convolve8_msa(
     aom_scaled_horiz_c, aom_scaled_avg_horiz_c, aom_scaled_vert_c,
     aom_scaled_avg_vert_c, aom_scaled_2d_c, aom_scaled_avg_2d_c, 0);
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 const ConvolveParam kArrayConvolve8_msa[] = { ALL_SIZES(convolve8_msa) };
 INSTANTIATE_TEST_CASE_P(MSA, ConvolveTest,
                         ::testing::ValuesIn(kArrayConvolve8_msa));
+=======
+INSTANTIATE_TEST_CASE_P(
+    MSA, ConvolveTest,
+    ::testing::Values(
+        make_tuple(4, 4, &convolve8_msa), make_tuple(8, 4, &convolve8_msa),
+        make_tuple(4, 8, &convolve8_msa), make_tuple(8, 8, &convolve8_msa),
+        make_tuple(16, 8, &convolve8_msa), make_tuple(8, 16, &convolve8_msa),
+        make_tuple(16, 16, &convolve8_msa), make_tuple(32, 16, &convolve8_msa),
+        make_tuple(16, 32, &convolve8_msa), make_tuple(32, 32, &convolve8_msa),
+        make_tuple(64, 32, &convolve8_msa), make_tuple(32, 64, &convolve8_msa),
+        make_tuple(64, 64, &convolve8_msa)));
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 #endif  // HAVE_MSA
 }  // namespace

@@ -37,10 +37,22 @@
 #include <windows.h>
 #include <winnt.h>
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
+=======
+namespace testing {
+namespace internal {
+
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 inline bool operator==(const M128A &lhs, const M128A &rhs) {
   return (lhs.Low == rhs.Low && lhs.High == rhs.High);
 }
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
+=======
+}  // namespace internal
+}  // namespace testing
+
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 namespace libaom_test {
 
 // Compares the state of xmm[6-15] at construction with their state at

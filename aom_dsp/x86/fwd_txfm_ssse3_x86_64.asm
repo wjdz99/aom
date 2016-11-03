@@ -130,6 +130,7 @@ SECTION .text
   psraw              m%2, 1
 %endmacro
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 %macro STORE_OUTPUT 2 ; index, result
 %if CONFIG_AOM_HIGHBITDEPTH
   ; const __m128i sign_bits = _mm_cmplt_epi16(*poutput, zero);
@@ -199,6 +200,59 @@ cglobal fdct8x8, 3, 5, 13, input, output, stride
   STORE_OUTPUT      40, 5
   STORE_OUTPUT      48, 6
   STORE_OUTPUT      56, 7
+=======
+INIT_XMM ssse3
+cglobal fdct8x8, 3, 5, 13, input, output, stride
+
+  mova               m8, [pd_8192]
+  mova              m12, [pw_11585x2]
+  pxor              m11, m11
+
+  lea                r3, [2 * strideq]
+  lea                r4, [4 * strideq]
+  mova               m0, [inputq]
+  mova               m1, [inputq + r3]
+  lea                inputq, [inputq + r4]
+  mova               m2, [inputq]
+  mova               m3, [inputq + r3]
+  lea                inputq, [inputq + r4]
+  mova               m4, [inputq]
+  mova               m5, [inputq + r3]
+  lea                inputq, [inputq + r4]
+  mova               m6, [inputq]
+  mova               m7, [inputq + r3]
+
+  ; left shift by 2 to increase forward transformation precision
+  psllw              m0, 2
+  psllw              m1, 2
+  psllw              m2, 2
+  psllw              m3, 2
+  psllw              m4, 2
+  psllw              m5, 2
+  psllw              m6, 2
+  psllw              m7, 2
+
+  ; column transform
+  FDCT8_1D  0
+  TRANSPOSE8X8 0, 1, 2, 3, 4, 5, 6, 7, 9
+
+  FDCT8_1D  1
+  TRANSPOSE8X8 0, 1, 2, 3, 4, 5, 6, 7, 9
+
+  DIVIDE_ROUND_2X   0, 1, 9, 10
+  DIVIDE_ROUND_2X   2, 3, 9, 10
+  DIVIDE_ROUND_2X   4, 5, 9, 10
+  DIVIDE_ROUND_2X   6, 7, 9, 10
+
+  mova              [outputq +   0], m0
+  mova              [outputq +  16], m1
+  mova              [outputq +  32], m2
+  mova              [outputq +  48], m3
+  mova              [outputq +  64], m4
+  mova              [outputq +  80], m5
+  mova              [outputq +  96], m6
+  mova              [outputq + 112], m7
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
   RET
 %endif

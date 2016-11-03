@@ -9,6 +9,10 @@
 # PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 #
 # This make file builds aom_test app for android.
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
+=======
+
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 # The test app itself runs on the command line through adb shell
 # The paths are really messed up as the libaom make file
 # expects to be made from a parent directory.
@@ -18,13 +22,21 @@ LOCAL_PATH := $(CUR_WD)/../../..
 
 #libwebm
 include $(CLEAR_VARS)
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 include $(BINDINGS_DIR)/libaom/third_party/libwebm/Android.mk
+=======
+include $(BINDINGS_DIR)/aom/third_party/libwebm/Android.mk
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 LOCAL_PATH := $(CUR_WD)/../../..
 
 #libaom
 include $(CLEAR_VARS)
 LOCAL_STATIC_LIBRARIES := libwebm
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 include $(BINDINGS_DIR)/libaom/build/make/Android.mk
+=======
+include $(BINDINGS_DIR)/aom/build/make/Android.mk
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 LOCAL_PATH := $(CUR_WD)/../..
 
 #libgtest

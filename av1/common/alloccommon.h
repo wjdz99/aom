@@ -28,9 +28,12 @@ void av1_init_context_buffers(struct AV1Common *cm);
 void av1_free_context_buffers(struct AV1Common *cm);
 
 void av1_free_ref_frame_buffers(struct BufferPool *pool);
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 #if CONFIG_LOOP_RESTORATION
 void av1_free_restoration_buffers(struct AV1Common *cm);
 #endif  // CONFIG_LOOP_RESTORATION
+=======
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
 int av1_alloc_state_buffers(struct AV1Common *cm, int width, int height);
 void av1_free_state_buffers(struct AV1Common *cm);

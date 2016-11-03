@@ -12,6 +12,7 @@
 #ifndef AOM_DSP_DKBOOLWRITER_H_
 #define AOM_DSP_DKBOOLWRITER_H_
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 #include "./aom_config.h"
 
 #if CONFIG_BITSTREAM_DEBUG
@@ -55,6 +56,33 @@ static INLINE void aom_dk_write(aom_dk_writer *br, int bit, int probability) {
   // }
   bitstream_queue_push(bit, probability);
 #endif  // CONFIG_BITSTREAM_DEBUG
+=======
+#include "aom_ports/mem.h"
+
+#include "aom_dsp/prob.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct aom_dk_writer {
+  unsigned int lowvalue;
+  unsigned int range;
+  int count;
+  unsigned int pos;
+  uint8_t *buffer;
+} aom_dk_writer;
+
+void aom_dk_start_encode(aom_dk_writer *bc, uint8_t *buffer);
+void aom_dk_stop_encode(aom_dk_writer *bc);
+
+static INLINE void aom_dk_write(aom_dk_writer *br, int bit, int probability) {
+  unsigned int split;
+  int count = br->count;
+  unsigned int range = br->range;
+  unsigned int lowvalue = br->lowvalue;
+  register int shift;
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
   split = 1 + (((range - 1) * probability) >> 8);
 

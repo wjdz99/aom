@@ -99,10 +99,13 @@ class Decoder {
     return aom_codec_iface_name(CodecInterface());
   }
 
-  bool IsVP8() const;
+  bool IsAOM() const;
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
   bool IsAV1() const;
 
+=======
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
   aom_codec_ctx_t *GetDecoder() { return &decoder_; }
 
  protected:

@@ -324,7 +324,11 @@ TEST_P(Loop8Test9Param, OperationCheck) {
     ASM_REGISTER_STATE_CHECK(loopfilter_op_(s + 8 + p * 8, p, blimit0, limit0,
                                             thresh0, blimit1, limit1, thresh1));
 #endif  // CONFIG_AOM_HIGHBITDEPTH
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
     for (j = 0; j < kNumCoeffs; ++j) {
+=======
+    for (int j = 0; j < kNumCoeffs; ++j) {
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
       err_count += ref_s[j] != s[j];
     }
     if (err_count && !err_count_total) {

@@ -20,9 +20,13 @@ extern "C" {
 
 struct yv12_buffer_config;
 struct AV1_COMP;
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 int av1_get_max_filter_level(const AV1_COMP *cpi);
 int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
                             int partial_frame, double *err);
+=======
+
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 void av1_pick_filter_level(const struct yv12_buffer_config *sd,
                            struct AV1_COMP *cpi, LPF_PICK_METHOD method);
 #ifdef __cplusplus

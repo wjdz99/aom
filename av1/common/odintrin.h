@@ -129,4 +129,8 @@ void od_fatal_impl(const char *_str, const char *_file, int _line);
 }  // extern "C"
 #endif
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 #endif  // AV1_COMMON_ODINTRIN_H_
+=======
+#endif
+>>>>>>> BRANCH (749267 Fix clang-format issues.)

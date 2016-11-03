@@ -160,6 +160,7 @@ static void count_segs_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                           unsigned *t_unpred_seg_counts, int mi_row, int mi_col,
                           BLOCK_SIZE bsize) {
   const int mis = cm->mi_stride;
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
   const int bs = num_8x8_blocks_wide_lookup[bsize], hbs = bs / 2;
 #if CONFIG_EXT_PARTITION_TYPES
   PARTITION_TYPE partition;
@@ -335,6 +336,85 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
                         mi_col, cm->sb_size);
         }
       }
+=======
+  int bw, bh;
+  const int bs = num_8x8_blocks_wide_lookup[bsize], hbs = bs / 2;
+
+  if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
+
+  bw = num_8x8_blocks_wide_lookup[mi[0]->mbmi.sb_type];
+  bh = num_8x8_blocks_high_lookup[mi[0]->mbmi.sb_type];
+
+  if (bw == bs && bh == bs) {
+    count_segs(cm, xd, tile, mi, no_pred_segcounts, temporal_predictor_count,
+               t_unpred_seg_counts, bs, bs, mi_row, mi_col);
+  } else if (bw == bs && bh < bs) {
+    count_segs(cm, xd, tile, mi, no_pred_segcounts, temporal_predictor_count,
+               t_unpred_seg_counts, bs, hbs, mi_row, mi_col);
+    count_segs(cm, xd, tile, mi + hbs * mis, no_pred_segcounts,
+               temporal_predictor_count, t_unpred_seg_counts, bs, hbs,
+               mi_row + hbs, mi_col);
+  } else if (bw < bs && bh == bs) {
+    count_segs(cm, xd, tile, mi, no_pred_segcounts, temporal_predictor_count,
+               t_unpred_seg_counts, hbs, bs, mi_row, mi_col);
+    count_segs(cm, xd, tile, mi + hbs, no_pred_segcounts,
+               temporal_predictor_count, t_unpred_seg_counts, hbs, bs, mi_row,
+               mi_col + hbs);
+  } else {
+    const BLOCK_SIZE subsize = subsize_lookup[PARTITION_SPLIT][bsize];
+    int n;
+
+    assert(bw < bs && bh < bs);
+
+    for (n = 0; n < 4; n++) {
+      const int mi_dc = hbs * (n & 1);
+      const int mi_dr = hbs * (n >> 1);
+
+      count_segs_sb(cm, xd, tile, &mi[mi_dr * mis + mi_dc], no_pred_segcounts,
+                    temporal_predictor_count, t_unpred_seg_counts,
+                    mi_row + mi_dr, mi_col + mi_dc, subsize);
+    }
+  }
+}
+
+void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
+  struct segmentation *seg = &cm->seg;
+  struct segmentation_probs *segp = &cm->fc->seg;
+  int no_pred_cost;
+  int t_pred_cost = INT_MAX;
+
+  int i, tile_col, mi_row, mi_col;
+#if CONFIG_TILE_GROUPS
+  const int probwt = cm->num_tg;
+#else
+  const int probwt = 1;
+#endif
+  unsigned(*temporal_predictor_count)[2] = cm->counts.seg.pred;
+  unsigned *no_pred_segcounts = cm->counts.seg.tree_total;
+  unsigned *t_unpred_seg_counts = cm->counts.seg.tree_mispred;
+  aom_prob no_pred_tree[SEG_TREE_PROBS];
+  aom_prob t_pred_tree[SEG_TREE_PROBS];
+  aom_prob t_nopred_prob[PREDICTION_PROBS];
+  (void)xd;
+  av1_zero(cm->counts.seg);
+
+  // First of all generate stats regarding how well the last segment map
+  // predicts this one
+  for (tile_col = 0; tile_col < 1 << cm->log2_tile_cols; tile_col++) {
+    TileInfo tile;
+    MODE_INFO **mi_ptr;
+    av1_tile_init(&tile, cm, 0, tile_col);
+
+    mi_ptr = cm->mi_grid_visible + tile.mi_col_start;
+    for (mi_row = 0; mi_row < cm->mi_rows;
+         mi_row += 8, mi_ptr += 8 * cm->mi_stride) {
+      MODE_INFO **mi = mi_ptr;
+      for (mi_col = tile.mi_col_start; mi_col < tile.mi_col_end;
+           mi_col += 8, mi += 8)
+        count_segs_sb(cm, xd, &tile, mi, no_pred_segcounts,
+                      temporal_predictor_count, t_unpred_seg_counts, mi_row,
+                      mi_col, BLOCK_64X64);
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
     }
   }
 

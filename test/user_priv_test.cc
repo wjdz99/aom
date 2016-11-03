@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 /*
  *  Copyright (c) 2013 The WebM project authors. All Rights Reserved.
  *
@@ -98,3 +99,5 @@ TEST(UserPrivTest, VideoDecode) {
 #endif  // CONFIG_WEBM_IO
 
 }  // namespace
+=======
+>>>>>>> BRANCH (749267 Fix clang-format issues.)

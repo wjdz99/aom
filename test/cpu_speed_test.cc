@@ -26,8 +26,12 @@ class CpuSpeedTest
  protected:
   CpuSpeedTest()
       : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
         set_cpu_used_(GET_PARAM(2)), min_psnr_(kMaxPSNR),
         tune_content_(AOM_CONTENT_DEFAULT) {}
+=======
+        set_cpu_used_(GET_PARAM(2)), min_psnr_(kMaxPSNR) {}
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
   virtual ~CpuSpeedTest() {}
 
   virtual void SetUp() {
@@ -48,7 +52,10 @@ class CpuSpeedTest
                                   ::libaom_test::Encoder *encoder) {
     if (video->frame() == 1) {
       encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
       encoder->Control(AV1E_SET_TUNE_CONTENT, tune_content_);
+=======
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
       if (encoding_mode_ != ::libaom_test::kRealTime) {
         encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
         encoder->Control(AOME_SET_ARNR_MAXFRAMES, 7);
@@ -62,12 +69,15 @@ class CpuSpeedTest
     if (pkt->data.psnr.psnr[0] < min_psnr_) min_psnr_ = pkt->data.psnr.psnr[0];
   }
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
   void TestQ0();
   void TestScreencastQ0();
   void TestTuneScreen();
   void TestEncodeHighBitrate();
   void TestLowBitrate();
 
+=======
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
   ::libaom_test::TestMode encoding_mode_;
   int set_cpu_used_;
   double min_psnr_;
@@ -86,7 +96,11 @@ void CpuSpeedTest::TestQ0() {
   cfg_.rc_min_quantizer = 0;
 
   ::libaom_test::I420VideoSource video("hantro_odd.yuv", 208, 144, 30, 1, 0,
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
                                        10);
+=======
+                                       20);
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
   init_flags_ = AOM_CODEC_USE_PSNR;
 
@@ -94,6 +108,7 @@ void CpuSpeedTest::TestQ0() {
   EXPECT_GE(min_psnr_, kMaxPSNR);
 }
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 void CpuSpeedTest::TestScreencastQ0() {
   ::libaom_test::Y4mVideoSource video("screendata.y4m", 0, 10);
   cfg_.g_timebase = video.timebase();
@@ -111,6 +126,10 @@ void CpuSpeedTest::TestScreencastQ0() {
 
 void CpuSpeedTest::TestTuneScreen() {
   ::libaom_test::Y4mVideoSource video("screendata.y4m", 0, 10);
+=======
+TEST_P(CpuSpeedTest, TestScreencastQ0) {
+  ::libaom_test::Y4mVideoSource video("screendata.y4m", 0, 25);
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
   cfg_.g_timebase = video.timebase();
   cfg_.rc_2pass_vbr_minsection_pct = 5;
   cfg_.rc_2pass_vbr_minsection_pct = 2000;
@@ -136,7 +155,11 @@ void CpuSpeedTest::TestEncodeHighBitrate() {
   cfg_.rc_min_quantizer = 0;
 
   ::libaom_test::I420VideoSource video("hantro_odd.yuv", 208, 144, 30, 1, 0,
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
                                        10);
+=======
+                                       20);
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 }
@@ -151,11 +174,16 @@ void CpuSpeedTest::TestLowBitrate() {
   cfg_.rc_min_quantizer = 40;
 
   ::libaom_test::I420VideoSource video("hantro_odd.yuv", 208, 144, 30, 1, 0,
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
                                        10);
+=======
+                                       20);
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 }
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 TEST_P(CpuSpeedTest, TestQ0) { TestQ0(); }
 TEST_P(CpuSpeedTest, TestScreencastQ0) { TestScreencastQ0(); }
 TEST_P(CpuSpeedTest, TestTuneScreen) { TestTuneScreen(); }
@@ -178,4 +206,10 @@ AV1_INSTANTIATE_TEST_CASE(CpuSpeedTestLarge,
                           ::testing::Values(::libaom_test::kTwoPassGood,
                                             ::libaom_test::kOnePassGood),
                           ::testing::Range(0, 1));
+=======
+AV1_INSTANTIATE_TEST_CASE(CpuSpeedTest,
+                          ::testing::Values(::libaom_test::kTwoPassGood,
+                                            ::libaom_test::kOnePassGood),
+                          ::testing::Range(0, 3));
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 }  // namespace

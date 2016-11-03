@@ -93,6 +93,7 @@ class BlendA64Mask1DTest : public FunctionEquivalenceTest<F> {
 
   T dst_ref_[kBufSize];
   T dst_tst_[kBufSize];
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
   uint32_t dst_stride_;
   uint32_t dst_offset_;
 
@@ -103,6 +104,18 @@ class BlendA64Mask1DTest : public FunctionEquivalenceTest<F> {
   T src1_[kBufSize];
   uint32_t src1_stride_;
   uint32_t src1_offset_;
+=======
+  size_t dst_stride_;
+  size_t dst_offset_;
+
+  T src0_[kBufSize];
+  size_t src0_stride_;
+  size_t src0_offset_;
+
+  T src1_[kBufSize];
+  size_t src1_stride_;
+  size_t src1_offset_;
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
   uint8_t mask_[kMaxMaskSize];
 

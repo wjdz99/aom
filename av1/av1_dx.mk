@@ -9,6 +9,10 @@
 ## PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 ##
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
+=======
+
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 AV1_DX_EXPORTS += exports_dec
 
 AV1_DX_SRCS-yes += $(AV1_COMMON_SRCS-yes)

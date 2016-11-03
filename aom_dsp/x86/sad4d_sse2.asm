@@ -233,11 +233,14 @@ cglobal sad%1x%2x4d, 4, 7, 8, src, src_stride, ref1, ref_stride, \
 %endmacro
 
 INIT_XMM sse2
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 %if CONFIG_EXT_PARTITION
 SADNXN4D 128, 128
 SADNXN4D 128, 64
 SADNXN4D 64,  128
 %endif
+=======
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 SADNXN4D 64, 64
 SADNXN4D 64, 32
 SADNXN4D 32, 64

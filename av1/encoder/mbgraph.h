@@ -23,7 +23,11 @@ typedef struct {
       int_mv mv;
       PREDICTION_MODE mode;
     } m;
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
   } ref[TOTAL_REFS_PER_FRAME];
+=======
+  } ref[MAX_REF_FRAMES];
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 } MBGRAPH_MB_STATS;
 
 typedef struct { MBGRAPH_MB_STATS *mb_stats; } MBGRAPH_FRAME_STATS;

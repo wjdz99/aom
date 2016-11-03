@@ -21,6 +21,7 @@ extern "C" {
 
 void av1_init_intra_predictors(void);
 
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 void av1_predict_intra_block(const MACROBLOCKD *xd, int bw, int bh,
                              TX_SIZE tx_size, PREDICTION_MODE mode,
                              const uint8_t *ref, int ref_stride, uint8_t *dst,
@@ -47,5 +48,14 @@ static const INTERINTRA_MODE intra_to_interintra_mode[INTRA_MODES] = {
 #define FILTER_INTRA_PREC_BITS 10
 extern int av1_filter_intra_taps_4[TX_SIZES][INTRA_MODES][4];
 #endif  // CONFIG_FILTER_INTRA
+=======
+void av1_predict_intra_block(const MACROBLOCKD *xd, int bwl_in, int bhl_in,
+                             TX_SIZE tx_size, PREDICTION_MODE mode,
+                             const uint8_t *ref, int ref_stride, uint8_t *dst,
+                             int dst_stride, int aoff, int loff, int plane);
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
 #endif  // AV1_COMMON_RECONINTRA_H_

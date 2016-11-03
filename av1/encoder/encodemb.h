@@ -13,6 +13,7 @@
 #define AV1_ENCODER_ENCODEMB_H_
 
 #include "./aom_config.h"
+<<<<<<< HEAD   (c1ca94 Merge changes from topic 'update_dering' into nextgenv2)
 #include "av1/encoder/block.h"
 
 #ifdef __cplusplus
@@ -76,6 +77,37 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
                                   BLOCK_SIZE bsize, int plane,
                                   int enable_optimize_b);
+=======
+#include "av1/common/onyxc_int.h"
+#include "av1/encoder/block.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+struct encode_b_args {
+  AV1_COMMON *cm;
+  MACROBLOCK *x;
+  struct optimize_ctx *ctx;
+  int8_t *skip;
+};
+void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize);
+void av1_encode_sby_pass1(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize);
+void av1_xform_quant_fp(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
+                        int block, int blk_row, int blk_col,
+                        BLOCK_SIZE plane_bsize, TX_SIZE tx_size);
+void av1_xform_quant(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
+                     int block, int blk_row, int blk_col,
+                     BLOCK_SIZE plane_bsize, TX_SIZE tx_size);
+
+void av1_subtract_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane);
+
+void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
+                            BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg);
+
+void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
+                                  BLOCK_SIZE bsize, int plane);
+>>>>>>> BRANCH (749267 Fix clang-format issues.)
 
 #ifdef __cplusplus
 }  // extern "C"
