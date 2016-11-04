@@ -527,6 +527,24 @@
     },
     {
       "key": {
+        "uuid": "8b05834c_533516a3",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-04T19:47:10Z",
+      "side": 1,
+      "message": "Yes, we should discuss with Google. I\u0027m sure they\u0027ll have opinions.",
+      "parentUuid": "4bfd4b26_21442865",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_5372bc00",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 35
@@ -2055,6 +2073,24 @@
     },
     {
       "key": {
+        "uuid": "8b05834c_534eb636",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-04T19:47:10Z",
+      "side": 1,
+      "message": "Actually, I missed that it is called for 4x4 intra, where we don\u0027t look at the ssz return value. It\u0027s probably better to refactor into a separate function that does not do the extra computations, but we can defer that until a separate patch.",
+      "parentUuid": "4bfd4b26_8dd9ed3f",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a04e09_d394ec8c",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 35
@@ -2084,6 +2120,24 @@
       "side": 1,
       "message": "Because, the inner loop for tx_size has decreasing loop-control-variable (n) then if end_tx is TX_32X32 that means start_tx \u003d TX_32X32 as well, there is only DCT_DCT for 32X32 size. Hence, only one iteration of for { for {..} } is performed so no chance to call od_encode_rollback() becaues no need to save pvq\u0027s context.",
       "parentUuid": "26a04e09_d394ec8c",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b05834c_56fa2404",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-04T19:47:10Z",
+      "side": 1,
+      "message": "But it really does call od_encode_rollback() during that one iteration, when tx_type \u003d\u003d DCT_DCT. I think this really does need to be fixed before landing this.",
+      "parentUuid": "4bfd4b26_9895ad1d",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -2247,6 +2301,24 @@
     },
     {
       "key": {
+        "uuid": "8b05834c_562864b4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1774,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-04T19:47:10Z",
+      "side": 1,
+      "message": "I just meant it should be moved to the bottom of the current local block. It doesn\u0027t matter at all functionally, but it\u0027s more consistent that way, so I don\u0027t have to wonder why this one is different.",
+      "parentUuid": "4bfd4b26_7800a11b",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4bfd4b26_3ea5699f",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 35
@@ -2323,6 +2395,24 @@
       "side": 1,
       "message": "Yes, it is indeed intended. Chroma intra prediction itself has a separate RDO, though final chroma intra mode\u0027s D and R is simply added to those of luma then global RDO is performed to decide the modes of SB. Also, for chroma, the RDO cannot decide tx_size (follow luma\u0027s decision) or tx_type (DCT only), then only the intra prediction is chroma\u0027s own mode decision based on separate RDO.\nI added the same comment as a NOTE, not sure if it does not come verbose.",
       "parentUuid": "26a04e09_93a424f4",
+      "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b05834c_f60fd84c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 2208,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-04T19:47:10Z",
+      "side": 1,
+      "message": "Well, I think this is a bad idea because it means that the partition size RDO is fighting your chroma intra mode RDO, but we can investigate in a separate patch. I think the comment you added is fine. It\u0027s enough to ensure that people understand what is going on.",
+      "parentUuid": "4bfd4b26_d839f5ec",
       "revId": "be6a259cd71e21bf73373b70f2c9ab80be456e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
