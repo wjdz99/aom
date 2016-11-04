@@ -3694,8 +3694,8 @@ static int64_t handle_inter_mode(
         }
         tmp_rate2 = rate2_nocoeff - rate_mv + tmp_rate_mv;
 #if CONFIG_EXT_INTERP
-        if (cm->interp_filter = SWITCHABLE && !is_interp_needed(xd)) {
-          tmp_rate2 -= rs;
+        if (!is_interp_needed(xd)) {
+          tmp_rate2 -= av1_get_switchable_rate(cpi, xd);
           mbmi->interp_filter = EIGHT_TAP;
         }
 #endif  // CONFIG_EXT_INTERP
