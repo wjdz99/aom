@@ -387,6 +387,13 @@ static const arg_def_t qm_min = ARG_DEF(
 static const arg_def_t qm_max = ARG_DEF(
     NULL, "qm_max", 1, "Max quant matrix flatness (0..15), default is 16");
 #endif
+#if CONFIG_TILE_GROUPS
+static const arg_def_t num_tg =
+    ARG_DEF(NULL, "num-tile-groups", 1, "Number of tile groups, default is 1");
+static const arg_def_t mtu_size =
+    ARG_DEF(NULL, "mtu-size", 1,
+            "MTU size for a tile group, default is 0, implying a fixed number");
+#endif
 static const arg_def_t frame_parallel_decoding =
     ARG_DEF(NULL, "frame-parallel", 1,
             "Enable frame parallel decodability features "
@@ -453,6 +460,9 @@ static const arg_def_t *av1_args[] = {
 #if CONFIG_AOM_QM
   &enable_qm,               &qm_min,           &qm_max,
 #endif
+#if CONFIG_TILE_GROUPS
+  &num_tg,                  &mtu_size,
+#endif
   &frame_parallel_decoding, &aq_mode,          &frame_periodic_boost,
   &noise_sens,              &tune_content,     &input_color_space,
   &min_gf_interval,         &max_gf_interval,  NULL
@@ -469,6 +479,9 @@ static const int av1_arg_ctrl_map[] = {
 #if CONFIG_AOM_QM
   AV1E_SET_ENABLE_QM,               AV1E_SET_QM_MIN,
   AV1E_SET_QM_MAX,
+#endif
+#if CONFIG_TILE_GROUPS
+  AV1E_SET_NUM_TG,                  AV1E_SET_MTU,
 #endif
   AV1E_SET_FRAME_PARALLEL_DECODING, AV1E_SET_AQ_MODE,
   AV1E_SET_FRAME_PERIODIC_BOOST,    AV1E_SET_NOISE_SENSITIVITY,

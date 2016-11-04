@@ -198,6 +198,11 @@ typedef struct AV1EncoderConfig {
   int qm_maxlevel;
 #endif
 
+#if CONFIG_TILE_GROUPS
+  unsigned int num_tile_groups;
+  unsigned int mtu;
+#endif
+
   // Internal frame size scaling.
   RESIZE_TYPE resize_mode;
   int scaled_frame_width;
