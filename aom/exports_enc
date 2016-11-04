@@ -7,3 +7,12 @@ text aom_codec_get_cx_data
 text aom_codec_get_global_headers
 text aom_codec_get_preview_frame
 text aom_codec_set_cx_data_buf
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
+=======
+text aom_svc_dump_statistics
+text aom_svc_encode
+text aom_svc_get_message
+text aom_svc_init
+text aom_svc_release
+text aom_svc_set_options
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)

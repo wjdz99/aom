@@ -55,7 +55,11 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
                               int num_workers, AV1LfSync *lf_sync);
 
 void av1_accumulate_frame_counts(struct AV1Common *cm,
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
                                  struct FRAME_COUNTS *counts);
+=======
+                                 struct FRAME_COUNTS *counts, int is_dec);
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -182,7 +182,11 @@ void av1_frameworker_copy_context(AVxWorker *const dst_worker,
          (MAX_LOOP_FILTER + 1) * sizeof(loop_filter_thresh));
   dst_cm->lf.last_sharpness_level = src_cm->lf.sharpness_level;
   dst_cm->lf.filter_level = src_cm->lf.filter_level;
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
   memcpy(dst_cm->lf.ref_deltas, src_cm->lf.ref_deltas, TOTAL_REFS_PER_FRAME);
+=======
+  memcpy(dst_cm->lf.ref_deltas, src_cm->lf.ref_deltas, MAX_REF_FRAMES);
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
   memcpy(dst_cm->lf.mode_deltas, src_cm->lf.mode_deltas, MAX_MODE_LF_DELTAS);
   dst_cm->seg = src_cm->seg;
   memcpy(dst_cm->frame_contexts, src_cm->frame_contexts,

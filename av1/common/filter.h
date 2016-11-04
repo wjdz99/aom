@@ -21,6 +21,7 @@
 extern "C" {
 #endif
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 #define EIGHTTAP_REGULAR 0
 #define EIGHTTAP_SMOOTH 1
 #define MULTITAP_SHARP 2
@@ -95,6 +96,52 @@ static INLINE int av1_is_interpolating_filter(
   const InterpFilterParams ip = av1_get_interp_filter_params(interp_filter);
   return (ip.filter_ptr[ip.taps / 2 - 1] == 128);
 }
+=======
+#if CONFIG_EXT_INTERP
+#define EIGHTTAP 0
+#define EIGHTTAP_SMOOTH 1
+#define EIGHTTAP_SHARP 2
+#define MULTITAP_SHARP EIGHTTAP_SHARP
+#define EIGHTTAP_SMOOTH2 3
+#define MULTITAP_SHARP2 4
+#define SWITCHABLE_FILTERS 5 /* Number of switchable filters */
+
+// (1 << LOG_SWITCHABLE_FILTERS) > SWITCHABLE_FILTERS
+#define LOG_SWITCHABLE_FILTERS 3
+
+#else
+#define EIGHTTAP 0
+#define EIGHTTAP_SMOOTH 1
+#define EIGHTTAP_SHARP 2
+#define SWITCHABLE_FILTERS 3 /* Number of switchable filters */
+
+// (1 << LOG_SWITCHABLE_FILTERS) > SWITCHABLE_FILTERS
+#define LOG_SWITCHABLE_FILTERS 2
+
+#endif  // CONFIG_EXT_INTERP
+#define BILINEAR SWITCHABLE_FILTERS
+
+// The codec can operate in four possible inter prediction filter mode:
+// 8-tap, 8-tap-smooth, 8-tap-sharp, and switching between the three.
+#define SWITCHABLE_FILTER_CONTEXTS (SWITCHABLE_FILTERS + 1)
+#define SWITCHABLE (SWITCHABLE_FILTERS + 1) /* should be the last one */
+
+typedef uint8_t InterpFilter;
+
+extern const InterpKernel *av1_filter_kernels[4];
+typedef struct InterpFilterParams {
+  const int16_t *filter_ptr;
+  uint16_t taps;
+  uint16_t subpel_shifts;
+  InterpFilter interp_filter;
+} InterpFilterParams;
+
+static INLINE const int16_t *get_interp_filter_subpel_kernel(
+    const InterpFilterParams filter_params, const int subpel) {
+  return filter_params.filter_ptr + filter_params.taps * subpel;
+}
+InterpFilterParams get_interp_filter_params(InterpFilter interp_filter);
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 
 #ifdef __cplusplus
 }  // extern "C"

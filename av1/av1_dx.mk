@@ -9,6 +9,10 @@
 ## PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 ##
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
+=======
+
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 AV1_DX_EXPORTS += exports_dec
 
 AV1_DX_SRCS-yes += $(AV1_COMMON_SRCS-yes)

@@ -91,6 +91,7 @@ struct FrameInfo {
   unsigned int h;
 };
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 void ScaleForFrameNumber(unsigned int frame, unsigned int initial_w,
                          unsigned int initial_h, unsigned int *w,
                          unsigned int *h, int flag_codec) {
@@ -241,6 +242,15 @@ void ScaleForFrameNumber(unsigned int frame, unsigned int initial_w,
   }
   *w = initial_w;
   *h = initial_h;
+=======
+unsigned int ScaleForFrameNumber(unsigned int frame, unsigned int val) {
+  if (frame < 10) return val;
+  if (frame < 20) return val / 2;
+  if (frame < 30) return val * 2 / 3;
+  if (frame < 40) return val / 4;
+  if (frame < 50) return val * 7 / 8;
+  return val;
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 }
 
 class ResizingVideoSource : public ::libaom_test::DummyVideoSource {
@@ -294,10 +304,16 @@ TEST_P(ResizeTest, TestExternalResizeWorks) {
   for (std::vector<FrameInfo>::const_iterator info = frame_info_list_.begin();
        info != frame_info_list_.end(); ++info) {
     const unsigned int frame = static_cast<unsigned>(info->pts);
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
     unsigned int expected_w;
     unsigned int expected_h;
     ScaleForFrameNumber(frame, kInitialWidth, kInitialHeight, &expected_w,
                         &expected_h, 0);
+=======
+    const unsigned int expected_w = ScaleForFrameNumber(frame, kInitialWidth);
+    const unsigned int expected_h = ScaleForFrameNumber(frame, kInitialHeight);
+
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
     EXPECT_EQ(expected_w, info->w) << "Frame " << frame
                                    << " had unexpected width";
     EXPECT_EQ(expected_h, info->h) << "Frame " << frame
@@ -363,7 +379,11 @@ class ResizeInternalTest : public ResizeTest {
   }
 
   virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
     if (frame0_psnr_ == 0.) frame0_psnr_ = pkt->data.psnr.psnr[0];
+=======
+    if (!frame0_psnr_) frame0_psnr_ = pkt->data.psnr.psnr[0];
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
     EXPECT_NEAR(pkt->data.psnr.psnr[0], frame0_psnr_, 2.0);
   }
 
@@ -509,6 +529,7 @@ TEST_P(ResizeRealtimeTest, TestExternalResizeWorks) {
   for (std::vector<FrameInfo>::const_iterator info = frame_info_list_.begin();
        info != frame_info_list_.end(); ++info) {
     const unsigned int frame = static_cast<unsigned>(info->pts);
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
     unsigned int expected_w;
     unsigned int expected_h;
     ScaleForFrameNumber(frame, kInitialWidth, kInitialHeight, &expected_w,
@@ -518,6 +539,15 @@ TEST_P(ResizeRealtimeTest, TestExternalResizeWorks) {
     EXPECT_EQ(expected_h, info->h) << "Frame " << frame
                                    << " had unexpected height";
     EXPECT_EQ(static_cast<unsigned int>(0), GetMismatchFrames());
+=======
+    const unsigned int expected_w = ScaleForFrameNumber(frame, kInitialWidth);
+    const unsigned int expected_h = ScaleForFrameNumber(frame, kInitialHeight);
+
+    EXPECT_EQ(expected_w, info->w) << "Frame " << frame
+                                   << " had unexpected width";
+    EXPECT_EQ(expected_h, info->h) << "Frame " << frame
+                                   << " had unexpected height";
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
   }
 }
 
@@ -656,7 +686,11 @@ class ResizeCspTest : public ResizeTest {
   }
 
   virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
     if (frame0_psnr_ == 0.) frame0_psnr_ = pkt->data.psnr.psnr[0];
+=======
+    if (!frame0_psnr_) frame0_psnr_ = pkt->data.psnr.psnr[0];
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
     EXPECT_NEAR(pkt->data.psnr.psnr[0], frame0_psnr_, 2.0);
   }
 

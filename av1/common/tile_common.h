@@ -35,7 +35,11 @@ void av1_tile_init(TileInfo *tile, const struct AV1Common *cm, int row,
 void av1_tile_set_row(TileInfo *tile, const struct AV1Common *cm, int row);
 void av1_tile_set_col(TileInfo *tile, const struct AV1Common *cm, int col);
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 void av1_get_tile_n_bits(const int mi_cols, int *min_log2_tile_cols,
+=======
+void av1_get_tile_n_bits(int mi_cols, int *min_log2_tile_cols,
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
                          int *max_log2_tile_cols);
 
 #ifdef __cplusplus

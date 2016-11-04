@@ -129,4 +129,8 @@ void od_fatal_impl(const char *_str, const char *_file, int _line);
 }  // extern "C"
 #endif
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 #endif  // AV1_COMMON_ODINTRIN_H_
+=======
+#endif
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)

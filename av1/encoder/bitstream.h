@@ -18,6 +18,7 @@ extern "C" {
 
 #include "av1/encoder/encoder.h"
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dest, size_t *size);
 
 void av1_encode_token_init(void);
@@ -31,6 +32,14 @@ static INLINE int av1_preserve_existing_gf(AV1_COMP *cpi) {
   return !cpi->multi_arf_allowed && cpi->refresh_golden_frame &&
          cpi->rc.is_src_frame_alt_ref;
 #endif  // CONFIG_EXT_REFS
+=======
+void av1_encode_token_init();
+void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dest, size_t *size);
+
+static INLINE int av1_preserve_existing_gf(AV1_COMP *cpi) {
+  return !cpi->multi_arf_allowed && cpi->refresh_golden_frame &&
+         cpi->rc.is_src_frame_alt_ref;
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 }
 
 #ifdef __cplusplus

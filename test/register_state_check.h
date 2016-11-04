@@ -37,10 +37,22 @@
 #include <windows.h>
 #include <winnt.h>
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
+=======
+namespace testing {
+namespace internal {
+
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 inline bool operator==(const M128A &lhs, const M128A &rhs) {
   return (lhs.Low == rhs.Low && lhs.High == rhs.High);
 }
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
+=======
+}  // namespace internal
+}  // namespace testing
+
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 namespace libaom_test {
 
 // Compares the state of xmm[6-15] at construction with their state at

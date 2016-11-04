@@ -23,7 +23,11 @@ typedef struct {
       int_mv mv;
       PREDICTION_MODE mode;
     } m;
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
   } ref[TOTAL_REFS_PER_FRAME];
+=======
+  } ref[MAX_REF_FRAMES];
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 } MBGRAPH_MB_STATS;
 
 typedef struct { MBGRAPH_MB_STATS *mb_stats; } MBGRAPH_FRAME_STATS;

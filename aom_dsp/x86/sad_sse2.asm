@@ -47,6 +47,7 @@ cglobal sad%1x%2_avg, 5, ARCH_X86_64 + %3, 6, src, src_stride, \
 %endif ; %3 == 7
 %endmacro
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 %if CONFIG_EXT_PARTITION
 ; unsigned int aom_sad128x128_sse2(uint8_t *src, int src_stride,
 ;                                  uint8_t *ref, int ref_stride);
@@ -159,6 +160,46 @@ INIT_XMM sse2
 SAD64XN 128     ; sad64x128_sse2
 SAD64XN 128, 1  ; sad64x128_avg_sse2
 %endif
+=======
+; unsigned int aom_sad64x64_sse2(uint8_t *src, int src_stride,
+;                                uint8_t *ref, int ref_stride);
+%macro SAD64XN 1-2 0
+  SAD_FN 64, %1, 5, %2
+  mov              n_rowsd, %1
+  pxor                  m0, m0
+.loop:
+  movu                  m1, [refq]
+  movu                  m2, [refq+16]
+  movu                  m3, [refq+32]
+  movu                  m4, [refq+48]
+%if %2 == 1
+  pavgb                 m1, [second_predq+mmsize*0]
+  pavgb                 m2, [second_predq+mmsize*1]
+  pavgb                 m3, [second_predq+mmsize*2]
+  pavgb                 m4, [second_predq+mmsize*3]
+  lea         second_predq, [second_predq+mmsize*4]
+%endif
+  psadbw                m1, [srcq]
+  psadbw                m2, [srcq+16]
+  psadbw                m3, [srcq+32]
+  psadbw                m4, [srcq+48]
+  paddd                 m1, m2
+  paddd                 m3, m4
+  add                 refq, ref_strideq
+  paddd                 m0, m1
+  add                 srcq, src_strideq
+  paddd                 m0, m3
+  dec              n_rowsd
+  jg .loop
+
+  movhlps               m1, m0
+  paddd                 m0, m1
+  movd                 eax, m0
+  RET
+%endmacro
+
+INIT_XMM sse2
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 SAD64XN 64 ; sad64x64_sse2
 SAD64XN 32 ; sad64x32_sse2
 SAD64XN 64, 1 ; sad64x64_avg_sse2

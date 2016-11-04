@@ -99,10 +99,13 @@ class Decoder {
     return aom_codec_iface_name(CodecInterface());
   }
 
-  bool IsVP8() const;
+  bool IsAOM() const;
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
   bool IsAV1() const;
 
+=======
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
   aom_codec_ctx_t *GetDecoder() { return &decoder_; }
 
  protected:

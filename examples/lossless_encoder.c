@@ -63,6 +63,7 @@ int main(int argc, char **argv) {
   int frame_count = 0;
   aom_image_t raw;
   aom_codec_err_t res;
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
   AvxVideoInfo info;
   AvxVideoWriter *writer = NULL;
   const AvxInterface *encoder = NULL;
@@ -73,6 +74,14 @@ int main(int argc, char **argv) {
   // Clear explicitly, as simply assigning "{ 0 }" generates
   // "missing-field-initializers" warning in some compilers.
   memset(&info, 0, sizeof(info));
+=======
+  AvxVideoInfo info = { 0 };
+  AvxVideoWriter *writer = NULL;
+  const AvxInterface *encoder = NULL;
+  const int fps = 30;
+
+  exec_name = argv[0];
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 
   if (argc < 5) die("Invalid number of arguments");
 

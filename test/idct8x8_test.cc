@@ -71,8 +71,12 @@ TEST(AV1Idct8x8Test, AccuracyCheck) {
     for (int j = 0; j < 64; ++j) input[j] = src[j] - dst[j];
 
     reference_dct_2d(input, output_r);
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
     for (int j = 0; j < 64; ++j)
       coeff[j] = static_cast<tran_low_t>(round(output_r[j]));
+=======
+    for (int j = 0; j < 64; ++j) coeff[j] = round(output_r[j]);
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
     aom_idct8x8_64_add_c(coeff, dst, 8);
     for (int j = 0; j < 64; ++j) {
       const int diff = dst[j] - src[j];

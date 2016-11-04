@@ -27,6 +27,7 @@ extern "C" {
 
 typedef int16_t InterpKernel[SUBPEL_TAPS];
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 #define BIL_SUBPEL_BITS 3
 #define BIL_SUBPEL_SHIFTS (1 << BIL_SUBPEL_BITS)
 
@@ -36,6 +37,8 @@ static const uint8_t bilinear_filters_2t[BIL_SUBPEL_SHIFTS][2] = {
   { 64, 64 }, { 48, 80 },  { 32, 96 }, { 16, 112 },
 };
 
+=======
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 #ifdef __cplusplus
 }  // extern "C"
 #endif

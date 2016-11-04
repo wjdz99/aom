@@ -34,6 +34,7 @@ typedef enum {
   INTER_LOW = 1,
   INTER_HIGH = 2,
   GF_ARF_LOW = 3,
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
   GF_ARF_STD = 4,
   KF_STD = 5,
   RATE_FACTOR_LEVELS = 6
@@ -112,6 +113,85 @@ typedef struct {
   int is_last_bipred_frame;
   int is_bipred_frame;
   int is_src_frame_ext_arf;
+=======
+  GF_ARF_STD = 5,
+  KF_STD = 6,
+  RATE_FACTOR_LEVELS = 7
+} RATE_FACTOR_LEVEL;
+#else
+typedef enum {
+  INTER_NORMAL = 0,
+  INTER_HIGH = 1,
+  GF_ARF_LOW = 2,
+  GF_ARF_STD = 3,
+  KF_STD = 4,
+  RATE_FACTOR_LEVELS = 5
+} RATE_FACTOR_LEVEL;
+#endif  // CONFIG_EXT_REFS
+
+// Internal frame scaling level.
+typedef enum {
+  UNSCALED = 0,     // Frame is unscaled.
+  SCALE_STEP1 = 1,  // First-level down-scaling.
+  FRAME_SCALE_STEPS
+} FRAME_SCALE_LEVEL;
+
+// Frame dimensions multiplier wrt the native frame size, in 1/16ths,
+// specified for the scale-up case.
+// e.g. 24 => 16/24 = 2/3 of native size. The restriction to 1/16th is
+// intended to match the capabilities of the normative scaling filters,
+// giving precedence to the up-scaling accuracy.
+static const int frame_scale_factor[FRAME_SCALE_STEPS] = { 16, 24 };
+
+// Multiplier of the target rate to be used as threshold for triggering scaling.
+static const double rate_thresh_mult[FRAME_SCALE_STEPS] = { 1.0, 2.0 };
+
+// Scale dependent Rate Correction Factor multipliers. Compensates for the
+// greater number of bits per pixel generated in down-scaled frames.
+static const double rcf_mult[FRAME_SCALE_STEPS] = { 1.0, 2.0 };
+
+typedef struct {
+  // Rate targetting variables
+  int base_frame_target;  // A baseline frame target before adjustment
+                          // for previous under or over shoot.
+  int this_frame_target;  // Actual frame target after rc adjustment.
+  int projected_frame_size;
+  int sb64_target_rate;
+  int last_q[FRAME_TYPES];  // Separate values for Intra/Inter
+  int last_boosted_qindex;  // Last boosted GF/KF/ARF q
+  int last_kf_qindex;       // Q index of the last key frame coded.
+
+  int gfu_boost;
+  int last_boost;
+  int kf_boost;
+
+  double rate_correction_factors[RATE_FACTOR_LEVELS];
+
+  int frames_since_golden;
+  int frames_till_gf_update_due;
+  int min_gf_interval;
+  int max_gf_interval;
+  int static_scene_max_gf_interval;
+  int baseline_gf_interval;
+  int constrained_gf_group;
+  int frames_to_key;
+  int frames_since_key;
+  int this_key_frame_forced;
+  int next_key_frame_forced;
+  int source_alt_ref_pending;
+  int source_alt_ref_active;
+  int is_src_frame_alt_ref;
+
+#if CONFIG_EXT_REFS
+  // Length of the bi-predictive frame group interval
+  int bipred_group_interval;
+
+  // NOTE: Different types of frames may have different bits allocated
+  //       accordingly, aiming to achieve the overall optimal RD performance.
+  int is_bwd_ref_frame;
+  int is_last_bipred_frame;
+  int is_bipred_frame;
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 #endif  // CONFIG_EXT_REFS
 
   int avg_frame_bandwidth;  // Average frame size target for clip

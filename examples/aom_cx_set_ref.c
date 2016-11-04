@@ -278,6 +278,7 @@ static int encode_frame(aom_codec_ctx_t *ecodec, aom_image_t *img,
 int main(int argc, char **argv) {
   FILE *infile = NULL;
   // Encoder
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
   aom_codec_ctx_t ecodec;
   aom_codec_enc_cfg_t cfg;
   unsigned int frame_in = 0;
@@ -314,6 +315,38 @@ int main(int argc, char **argv) {
   memset(&ecodec, 0, sizeof(ecodec));
   memset(&cfg, 0, sizeof(cfg));
   memset(&info, 0, sizeof(info));
+=======
+  aom_codec_ctx_t ecodec = { 0 };
+  aom_codec_enc_cfg_t cfg = { 0 };
+  unsigned int frame_in = 0;
+  aom_image_t raw;
+  aom_codec_err_t res;
+  AvxVideoInfo info = { 0 };
+  AvxVideoWriter *writer = NULL;
+  const AvxInterface *encoder = NULL;
+
+  // Test encoder/decoder mismatch.
+  int test_decode = 1;
+  // Decoder
+  aom_codec_ctx_t dcodec;
+  unsigned int frame_out = 0;
+
+  // The frame number to set reference frame on
+  unsigned int update_frame_num = 0;
+  int mismatch_seen = 0;
+
+  const int fps = 30;
+  const int bitrate = 500;
+
+  const char *codec_arg = NULL;
+  const char *width_arg = NULL;
+  const char *height_arg = NULL;
+  const char *infile_arg = NULL;
+  const char *outfile_arg = NULL;
+  const char *update_frame_num_arg = NULL;
+  unsigned int limit = 0;
+  exec_name = argv[0];
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 
   if (argc < 7) die("Invalid number of arguments");
 

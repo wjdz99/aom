@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 /*
  *  Copyright (c) 2013 The WebM project authors. All Rights Reserved.
  *
@@ -98,3 +99,5 @@ TEST(UserPrivTest, VideoDecode) {
 #endif  // CONFIG_WEBM_IO
 
 }  // namespace
+=======
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)

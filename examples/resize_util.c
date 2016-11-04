@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 /*
  *  Copyright (c) 2014 The WebM project authors. All Rights Reserved.
  *
@@ -121,3 +122,5 @@ int main(int argc, char *argv[]) {
   free(outbuf);
   return 0;
 }
+=======
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)

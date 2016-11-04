@@ -911,5 +911,8 @@ void aom_lpf_horizontal_edge_16_avx2(unsigned char *s, int p,
     q6 = _mm_or_si128(flat2_q6, q6);
     _mm_storeu_si128((__m128i *)(s + 6 * p), q6);
   }
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
   _mm256_zeroupper();
+=======
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 }

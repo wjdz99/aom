@@ -10,11 +10,14 @@
  */
 
 #include <assert.h>
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 #if defined(_MSC_VER) && _MSC_VER <= 1500
 // Need to include math.h before calling tmmintrin.h/intrin.h
 // in certain versions of MSVS.
 #include <math.h>
 #endif
+=======
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 #include <tmmintrin.h>  // SSSE3
 
 #include "./av1_rtcd.h"

@@ -28,9 +28,12 @@ void av1_init_context_buffers(struct AV1Common *cm);
 void av1_free_context_buffers(struct AV1Common *cm);
 
 void av1_free_ref_frame_buffers(struct BufferPool *pool);
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 #if CONFIG_LOOP_RESTORATION
 void av1_free_restoration_buffers(struct AV1Common *cm);
 #endif  // CONFIG_LOOP_RESTORATION
+=======
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 
 int av1_alloc_state_buffers(struct AV1Common *cm, int width, int height);
 void av1_free_state_buffers(struct AV1Common *cm);

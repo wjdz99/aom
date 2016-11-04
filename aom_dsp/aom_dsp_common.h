@@ -21,6 +21,7 @@ extern "C" {
 #endif
 
 #ifndef MAX_SB_SIZE
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 #if CONFIG_AV1 && CONFIG_EXT_PARTITION
 #define MAX_SB_SIZE 128
 #else
@@ -71,6 +72,48 @@ typedef int32_t tran_low_t;
 typedef int32_t tran_high_t;
 typedef int16_t tran_low_t;
 #endif  // CONFIG_AOM_HIGHBITDEPTH
+=======
+#define MAX_SB_SIZE 64
+#endif
+
+#define AOMMIN(x, y) (((x) < (y)) ? (x) : (y))
+#define AOMMAX(x, y) (((x) > (y)) ? (x) : (y))
+
+#if CONFIG_AOM_QM
+typedef uint16_t qm_val_t;
+#define AOM_QM_BITS 6
+#endif
+
+#if CONFIG_AOM_HIGHBITDEPTH
+// Note:
+// tran_low_t  is the datatype used for final transform coefficients.
+// tran_high_t is the datatype used for intermediate transform stages.
+typedef int64_t tran_high_t;
+typedef int32_t tran_low_t;
+#else
+// Note:
+// tran_low_t  is the datatype used for final transform coefficients.
+// tran_high_t is the datatype used for intermediate transform stages.
+typedef int32_t tran_high_t;
+typedef int16_t tran_low_t;
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+
+#define IMPLIES(a, b) (!(a) || (b))  //  Logical 'a implies b' (or 'a -> b')
+
+#define IS_POWER_OF_TWO(x) (((x) & ((x)-1)) == 0)
+
+// These can be used to give a hint about branch outcomes.
+// This can have an effect, even if your target processor has a
+// good branch predictor, as these hints can affect basic block
+// ordering by the compiler.
+#ifdef __GNUC__
+#define LIKELY(v) __builtin_expect(v, 1)
+#define UNLIKELY(v) __builtin_expect(v, 0)
+#else
+#define LIKELY(v) (v)
+#define UNLIKELY(v) (v)
+#endif
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 
 static INLINE uint8_t clip_pixel(int val) {
   return (val > 255) ? 255 : (val < 0) ? 0 : val;

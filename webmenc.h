@@ -40,6 +40,10 @@ typedef enum stereo_format {
 
 void write_webm_file_header(struct WebmOutputContext *webm_ctx,
                             const aom_codec_enc_cfg_t *cfg,
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
+=======
+                            const struct aom_rational *fps,
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
                             stereo_format_t stereo_fmt, unsigned int fourcc,
                             const struct AvxRational *par);
 

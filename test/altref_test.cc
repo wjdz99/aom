@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 /*
  *  Copyright (c) 2012 The WebM project authors. All Rights Reserved.
  *
@@ -93,3 +94,5 @@ AV1_INSTANTIATE_TEST_CASE(AltRefForcedKeyTestLarge,
                           ::testing::Range(0, 9));
 
 }  // namespace
+=======
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)

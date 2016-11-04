@@ -41,17 +41,16 @@ class ActiveMapTest
       encoder->Control(AOME_SET_CPUUSED, cpu_used_);
     } else if (video->frame() == 3) {
       aom_active_map_t map = aom_active_map_t();
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
       /* clang-format off */
+=======
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
       uint8_t active_map[9 * 13] = {
-        1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0,
-        1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0,
-        1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0,
-        1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0,
-        0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1,
-        0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1,
-        0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1,
-        0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1,
-        1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0,
+        1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0,
+        0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0,
+        0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0,
+        0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0,
       };
       /* clang-format on */
       map.cols = (kWidth + 15) / 16;
@@ -86,12 +85,29 @@ class ActiveMapTest
   int cpu_used_;
 };
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 TEST_P(ActiveMapTest, Test) { DoTest(); }
+=======
+TEST_P(ActiveMapTest, Test) {
+  // Validate that this non multiple of 64 wide clip encodes
+  cfg_.g_lag_in_frames = 0;
+  cfg_.rc_target_bitrate = 400;
+  cfg_.rc_resize_allowed = 0;
+  cfg_.g_pass = AOM_RC_ONE_PASS;
+  cfg_.rc_end_usage = AOM_CBR;
+  cfg_.kf_max_dist = 90000;
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 class ActiveMapTestLarge : public ActiveMapTest {};
+=======
+  ::libaom_test::I420VideoSource video("hantro_odd.yuv", kWidth, kHeight, 30, 1,
+                                       0, 20);
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 
 TEST_P(ActiveMapTestLarge, Test) { DoTest(); }
 
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
 AV1_INSTANTIATE_TEST_CASE(ActiveMapTestLarge,
                           ::testing::Values(::libaom_test::kRealTime),
                           ::testing::Range(0, 5));
@@ -100,4 +116,9 @@ AV1_INSTANTIATE_TEST_CASE(ActiveMapTest,
                           ::testing::Values(::libaom_test::kRealTime),
                           ::testing::Range(5, 9));
 
+=======
+AV1_INSTANTIATE_TEST_CASE(ActiveMapTest,
+                          ::testing::Values(::libaom_test::kRealTime),
+                          ::testing::Range(0, 6));
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 }  // namespace

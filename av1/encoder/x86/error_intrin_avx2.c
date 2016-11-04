@@ -68,6 +68,9 @@ int64_t av1_block_error_avx2(const int16_t *coeff, const int16_t *dqcoeff,
   _mm_storel_epi64((__m128i *)(&sse), sse_reg128);
 
   _mm_storel_epi64((__m128i *)(ssz), ssz_reg128);
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
   _mm256_zeroupper();
+=======
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
   return sse;
 }

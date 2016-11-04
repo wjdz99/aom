@@ -238,9 +238,19 @@ void aom_fdct16x16_msa(const int16_t *input, int16_t *output,
 }
 
 void aom_fdct16x16_1_msa(const int16_t *input, int16_t *out, int32_t stride) {
+<<<<<<< HEAD   (005ff8 Merge "warped_motion: Fix ubsan warning for signed integer o)
   int sum = LD_HADD(input, stride);
   sum += LD_HADD(input + 8, stride);
   sum += LD_HADD(input + 16 * 8, stride);
   sum += LD_HADD(input + 16 * 8 + 8, stride);
   out[0] = (int16_t)(sum >> 1);
+=======
+  out[1] = 0;
+
+  out[0] = LD_HADD(input, stride);
+  out[0] += LD_HADD(input + 8, stride);
+  out[0] += LD_HADD(input + 16 * 8, stride);
+  out[0] += LD_HADD(input + 16 * 8 + 8, stride);
+  out[0] >>= 1;
+>>>>>>> BRANCH (5bf37c Use --enable-daala_ec by default.)
 }
