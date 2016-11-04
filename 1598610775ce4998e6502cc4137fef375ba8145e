@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8b05834c_100f0415",
+        "filename": "build/cmake/compiler_flags.cmake",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-04T15:37:39Z",
+      "side": 1,
+      "message": "hah, this pissed me off yesterday... fixed it in the compiler_flags patch that\u0027s further down the branch.",
+      "parentUuid": "8b05834c_7012d0ca",
+      "revId": "1598610775ce4998e6502cc4137fef375ba8145e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b05834c_100d44ab",
         "filename": "build/cmake/compiler_flags.cmake",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-04T04:55:01Z",
       "side": 1,
       "message": "I guess failed flags aren\u0027t cached:\n\nChecking CXX compiler flag support for: -Wimplicit-function-declaration\n-- Performing Test CXX_FLAG_SUPPORTED\n-- Performing Test CXX_FLAG_SUPPORTED - Failed",
+      "revId": "1598610775ce4998e6502cc4137fef375ba8145e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b05834c_b0fd58c4",
+        "filename": "build/cmake/compiler_flags.cmake",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-04T15:37:39Z",
+      "side": 1,
+      "message": "flags weren\u0027t cached at all. the changes in compiler_flags.cmake just looks at the current flags-- a failed flag will always be retested. let\u0027s discuss this situation in the compiler_flags update patch.",
+      "parentUuid": "8b05834c_100d44ab",
       "revId": "1598610775ce4998e6502cc4137fef375ba8145e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
