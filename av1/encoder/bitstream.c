@@ -1916,12 +1916,12 @@ static size_t encode_tiles(AV1_COMP *cpi, uint8_t *data_ptr,
   write_uncompressed_header(cpi, wb);
 
   // Write the tile length code. Use full 32 bit length fields for the moment
-  if (have_tiles) aom_wb_write_literal(wb, 3, 2);
+  aom_wb_write_literal(wb, 3, 2);
 
   /* Write a placeholder for the number of tiles in each tile group */
   tg_params_wb = *wb;
   saved_offset = wb->bit_offset;
-  if (n_log2_tiles) aom_wb_write_literal(wb, 0, n_log2_tiles * 2);
+  if (have_tiles) aom_wb_write_literal(wb, 0, n_log2_tiles * 2);
 
   /* Write a placeholder for the compressed header length */
   comp_hdr_len_wb = *wb;

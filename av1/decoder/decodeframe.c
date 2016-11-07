@@ -1309,9 +1309,11 @@ static void setup_tile_info(AV1Decoder *pbi, struct aom_read_bit_buffer *rb) {
   cm->log2_tile_rows = aom_rb_read_bit(rb);
   if (cm->log2_tile_rows) cm->log2_tile_rows += aom_rb_read_bit(rb);
   // tile size magnitude
-  if (cm->log2_tile_rows > 0 || cm->log2_tile_cols > 0) {
+#if !CONFIG_TILE_GROUPS
+  if (cm->log2_tile_rows > 0 || cm->log2_tile_cols > 0)
+#endif
     cm->tile_sz_mag = aom_rb_read_literal(rb, 2);
-  }
+
 #if CONFIG_TILE_GROUPS
   // Store an index to the location of the tile group information
   pbi->tg_size_bit_offset = rb->bit_offset;
