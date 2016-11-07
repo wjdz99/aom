@@ -12,6 +12,7 @@ cmake_minimum_required(VERSION 3.2)
 
 include("${AOM_ROOT}/build/cmake/aom_config_defaults.cmake")
 include("${AOM_ROOT}/build/cmake/compiler_flags.cmake")
+include("${AOM_ROOT}/build/cmake/compiler_tests.cmake")
 include("${AOM_ROOT}/build/cmake/targets/${AOM_TARGET}.cmake")
 
 # TODO(tomfinegan): For some ${AOM_TARGET} values a toolchain can be
@@ -49,6 +50,20 @@ else ()
   # to the existing configure/make build system.
   add_compiler_flag_if_supported("-Wno-unused-function")
 endif ()
+
+# Test compiler support.
+if (MSVC)
+else ()
+  # Check inline.
+  AomCheckCCompiles("inline_check" "static inline void function() {}"
+                    HAVE_C_INLINE)
+  AomCheckCxxCompiles("inline_check" "static inline void function() {}"
+                      HAVE_CXX_INLINE)
+  if (HAVE_C_INLINE AND HAVE_CXX_INLINE)
+    set(INLINE "inline" CACHE STRING "" FORCE)
+  endif ()
+endif ()
+
 
 # TODO(tomfinegan): consume trailing whitespace after configure_file() when
 # target platform check produces empty INLINE and RESTRICT values (aka empty
