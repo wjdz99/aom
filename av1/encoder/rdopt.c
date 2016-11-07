@@ -4298,6 +4298,18 @@ static int get_gmbitcost(const Global_Motion_Params *gm,
   int gmtype_cost[GLOBAL_MOTION_TYPES];
   int bits;
   av1_cost_tokens(gmtype_cost, probs, av1_global_motion_types_tree);
+  switch (gm->gmtype) {
+    case GLOBAL_AFFINE:
+      bits = (GM_ABS_TRANS_BITS + 1) * 2 + 4 * GM_ABS_ALPHA_BITS + 4;
+      break;
+    case GLOBAL_ROTZOOM:
+      bits = (GM_ABS_TRANS_BITS + 1) * 2 + 2 * GM_ABS_ALPHA_BITS + 2;
+      break;
+    case GLOBAL_TRANSLATION: bits = (GM_ABS_TRANS_BITS + 1) * 2; break;
+    case GLOBAL_ZERO: bits = 0; break;
+    default: assert(0); return 0;
+  }
+  /*
   if (gm->motion_params.wmmat[5] || gm->motion_params.wmmat[4]) {
     bits = (GM_ABS_TRANS_BITS + 1) * 2 + 4 * GM_ABS_ALPHA_BITS + 4;
   } else if (gm->motion_params.wmmat[3] || gm->motion_params.wmmat[2]) {
@@ -4307,6 +4319,7 @@ static int get_gmbitcost(const Global_Motion_Params *gm,
                 ? ((GM_ABS_TRANS_BITS + 1) * 2)
                 : 0);
   }
+  */
   return bits ? (bits << AV1_PROB_COST_SHIFT) + gmtype_cost[gm->gmtype] : 0;
 }
 
