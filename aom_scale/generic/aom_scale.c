@@ -68,6 +68,7 @@ static void scale1d_2t1_i(const unsigned char *source, int source_step,
                           unsigned int source_scale, unsigned int source_length,
                           unsigned char *dest, int dest_step,
                           unsigned int dest_scale, unsigned int dest_length) {
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
   const unsigned char *const dest_end = dest + dest_length * dest_step;
   (void)source_length;
   (void)source_scale;
@@ -254,6 +255,195 @@ static void Scale2D(
                            unsigned int) = NULL;
   void (*vert_band_scale)(unsigned char *, int, unsigned char *, int,
                           unsigned int) = NULL;
+=======
+  const unsigned int source_pitch = source_step;
+  const unsigned char *const dest_end = dest + dest_length * dest_step;
+  (void)source_length;
+  (void)source_scale;
+  (void)dest_scale;
+
+  source_step *= 2;  // Every other row.
+
+  dest[0] = source[0];  // Special case: 1st pixel.
+  source += source_step;
+  dest += dest_step;
+
+  while (dest < dest_end) {
+    const unsigned int a = 3 * source[-source_pitch];
+    const unsigned int b = 10 * source[0];
+    const unsigned int c = 3 * source[source_pitch];
+    *dest = (unsigned char)((8 + a + b + c) >> 4);
+    source += source_step;
+    dest += dest_step;
+  }
+}
+
+/****************************************************************************
+ *
+ *  ROUTINE       : scale1d_2t1_ps
+ *
+ *  INPUTS        : const unsigned char *source : Pointer to data to be scaled.
+ *                  int source_step             : Number of pixels to step on
+ *                                                in source.
+ *                  unsigned int source_scale   : Scale for source (UNUSED).
+ *                  unsigned int source_length  : Length of source (UNUSED).
+ *                  unsigned char *dest         : Pointer to output data array.
+ *                  int dest_step               : Number of pixels to step on
+ *                                                in destination.
+ *                  unsigned int dest_scale     : Scale for destination
+ *                                                (UNUSED).
+ *                  unsigned int dest_length    : Length of destination.
+ *
+ *  OUTPUTS       : None.
+ *
+ *  RETURNS       : void
+ *
+ *  FUNCTION      : Performs 2-to-1 point subsampled scaling.
+ *
+ *  SPECIAL NOTES : None.
+ *
+ ****************************************************************************/
+static void scale1d_2t1_ps(const unsigned char *source, int source_step,
+                           unsigned int source_scale,
+                           unsigned int source_length, unsigned char *dest,
+                           int dest_step, unsigned int dest_scale,
+                           unsigned int dest_length) {
+  const unsigned char *const dest_end = dest + dest_length * dest_step;
+  (void)source_length;
+  (void)source_scale;
+  (void)dest_scale;
+
+  source_step *= 2;  // Every other row.
+
+  while (dest < dest_end) {
+    *dest = *source;
+    source += source_step;
+    dest += dest_step;
+  }
+}
+/****************************************************************************
+ *
+ *  ROUTINE       : scale1d_c
+ *
+ *  INPUTS        : const unsigned char *source : Pointer to data to be scaled.
+ *                  int source_step             : Number of pixels to step on
+ *                                                in source.
+ *                  unsigned int source_scale   : Scale for source.
+ *                  unsigned int source_length  : Length of source (UNUSED).
+ *                  unsigned char *dest         : Pointer to output data array.
+ *                  int dest_step               : Number of pixels to step on
+ *                                                in destination.
+ *                  unsigned int dest_scale     : Scale for destination.
+ *                  unsigned int dest_length    : Length of destination.
+ *
+ *  OUTPUTS       : None.
+ *
+ *  RETURNS       : void
+ *
+ *  FUNCTION      : Performs linear interpolation in one dimension.
+ *
+ *  SPECIAL NOTES : None.
+ *
+ ****************************************************************************/
+static void scale1d_c(const unsigned char *source, int source_step,
+                      unsigned int source_scale, unsigned int source_length,
+                      unsigned char *dest, int dest_step,
+                      unsigned int dest_scale, unsigned int dest_length) {
+  const unsigned char *const dest_end = dest + dest_length * dest_step;
+  const unsigned int round_value = dest_scale / 2;
+  unsigned int left_modifier = dest_scale;
+  unsigned int right_modifier = 0;
+  unsigned char left_pixel = source[0];
+  unsigned char right_pixel = source[source_step];
+
+  (void)source_length;
+
+  /* These asserts are needed if there are boundary issues... */
+  /* assert ( dest_scale > source_scale );*/
+  /* assert ( (source_length - 1) * dest_scale >= (dest_length - 1) *
+   * source_scale);*/
+
+  while (dest < dest_end) {
+    *dest = (unsigned char)((left_modifier * left_pixel +
+                             right_modifier * right_pixel + round_value) /
+                            dest_scale);
+
+    right_modifier += source_scale;
+
+    while (right_modifier > dest_scale) {
+      right_modifier -= dest_scale;
+      source += source_step;
+      left_pixel = source[0];
+      right_pixel = source[source_step];
+    }
+
+    left_modifier = dest_scale - right_modifier;
+  }
+}
+
+/****************************************************************************
+ *
+ *  ROUTINE       : Scale2D
+ *
+ *  INPUTS        : const unsigned char *source    : Pointer to data to be
+ *                                                   scaled.
+ *                  int source_pitch               : Stride of source image.
+ *                  unsigned int source_width      : Width of input image.
+ *                  unsigned int source_height     : Height of input image.
+ *                  unsigned char *dest            : Pointer to output data
+ *                                                   array.
+ *                  int dest_pitch                 : Stride of destination
+ *                                                   image.
+ *                  unsigned int dest_width        : Width of destination image.
+ *                  unsigned int dest_height       : Height of destination
+ *                                                   image.
+ *                  unsigned char *temp_area       : Pointer to temp work area.
+ *                  unsigned char temp_area_height : Height of temp work area.
+ *                  unsigned int hscale            : Horizontal scale factor
+ *                                                   numerator.
+ *                  unsigned int hratio            : Horizontal scale factor
+ *                                                   denominator.
+ *                  unsigned int vscale            : Vertical scale factor
+ *                                                   numerator.
+ *                  unsigned int vratio            : Vertical scale factor
+ *                                                   denominator.
+ *                  unsigned int interlaced        : Interlace flag.
+ *
+ *  OUTPUTS       : None.
+ *
+ *  RETURNS       : void
+ *
+ *  FUNCTION      : Performs 2-tap linear interpolation in two dimensions.
+ *
+ *  SPECIAL NOTES : Expansion is performed one band at a time to help with
+ *                  caching.
+ *
+ ****************************************************************************/
+static void Scale2D(
+    /*const*/
+    unsigned char *source, int source_pitch, unsigned int source_width,
+    unsigned int source_height, unsigned char *dest, int dest_pitch,
+    unsigned int dest_width, unsigned int dest_height, unsigned char *temp_area,
+    unsigned char temp_area_height, unsigned int hscale, unsigned int hratio,
+    unsigned int vscale, unsigned int vratio, unsigned int interlaced) {
+  unsigned int i, j, k;
+  unsigned int bands;
+  unsigned int dest_band_height;
+  unsigned int source_band_height;
+
+  typedef void (*Scale1D)(const unsigned char *source, int source_step,
+                          unsigned int source_scale, unsigned int source_length,
+                          unsigned char *dest, int dest_step,
+                          unsigned int dest_scale, unsigned int dest_length);
+
+  Scale1D Scale1Dv = scale1d_c;
+  Scale1D Scale1Dh = scale1d_c;
+
+  void (*horiz_line_scale)(const unsigned char *, unsigned int, unsigned char *,
+                           unsigned int) = NULL;
+  void (*vert_band_scale)(unsigned char *, unsigned int, unsigned char *,
+                          unsigned int, unsigned int) = NULL;
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
   int ratio_scalable = 1;
   int interpolation = 0;

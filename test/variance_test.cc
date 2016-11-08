@@ -42,6 +42,12 @@ typedef unsigned int (*Get4x4SseFunc)(const uint8_t *a, int a_stride,
                                       const uint8_t *b, int b_stride);
 typedef unsigned int (*SumOfSquaresFunction)(const int16_t *src);
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+=======
+using ::std::tr1::get;
+using ::std::tr1::make_tuple;
+using ::std::tr1::tuple;
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 using libaom_test::ACMRandom;
 
 // Truncate high bit depth results by downshifting (with rounding) by:
@@ -70,6 +76,7 @@ static unsigned int mb_ss_ref(const int16_t *src) {
   return res;
 }
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 /* Note:
  *  Our codebase calculates the "diff" value in the variance algorithm by
  *  (src - ref).
@@ -77,6 +84,12 @@ static unsigned int mb_ss_ref(const int16_t *src) {
 static uint32_t variance_ref(const uint8_t *src, const uint8_t *ref, int l2w,
                              int l2h, int src_stride, int ref_stride,
                              uint32_t *sse_ptr, bool use_high_bit_depth_,
+=======
+static uint32_t variance_ref(const uint8_t *src, const uint8_t *ref, int l2w,
+                             int l2h, int src_stride_coeff,
+                             int ref_stride_coeff, uint32_t *sse_ptr,
+                             bool use_high_bit_depth_,
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
                              aom_bit_depth_t bit_depth) {
   int64_t se = 0;
   uint64_t sse = 0;
@@ -108,7 +121,7 @@ static uint32_t variance_ref(const uint8_t *src, const uint8_t *ref, int l2w,
  * they calculate the bilinear factors directly instead of using a lookup table
  * and therefore upshift xoff and yoff by 1. Only every other calculated value
  * is used so the codec version shrinks the table to save space and maintain
- * compatibility with vp8.
+ * compatibility with aom.
  */
 static uint32_t subpel_variance_ref(const uint8_t *ref, const uint8_t *src,
                                     int l2w, int l2h, int xoff, int yoff,
@@ -254,6 +267,7 @@ void SumOfSquaresTest::RefTest() {
   }
 }
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 ////////////////////////////////////////////////////////////////////////////////
 // Encapsulating struct to store the function to test along with
 // some testing context.
@@ -296,8 +310,14 @@ std::ostream &operator<<(std::ostream &os, const TestParams<Func> &p) {
 template <typename FunctionType>
 class MainTestClass
     : public ::testing::TestWithParam<TestParams<FunctionType> > {
+=======
+template <typename VarianceFunctionType>
+class VarianceTest : public ::testing::TestWithParam<
+                         tuple<int, int, VarianceFunctionType, int> > {
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
  public:
   virtual void SetUp() {
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     params_ = this->GetParam();
 
     rnd_.Reset(ACMRandom::DeterministicSeed());
@@ -539,6 +559,347 @@ class SubpelVarianceTest
   virtual void SetUp() {
     const tuple<int, int, SubpelVarianceFunctionType, int> &params =
         this->GetParam();
+=======
+    const tuple<int, int, VarianceFunctionType, int> &params = this->GetParam();
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
+    log2width_ = get<0>(params);
+    width_ = 1 << log2width_;
+    log2height_ = get<1>(params);
+    height_ = 1 << log2height_;
+    subpel_variance_ = get<2>(params);
+    if (get<3>(params)) {
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+      bit_depth_ = (aom_bit_depth_t)get<3>(params);
+=======
+      bit_depth_ = static_cast<aom_bit_depth_t>(get<3>(params));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
+      use_high_bit_depth_ = true;
+    } else {
+      bit_depth_ = AOM_BITS_8;
+      use_high_bit_depth_ = false;
+    }
+    mask_ = (1 << bit_depth_) - 1;
+
+    rnd_.Reset(ACMRandom::DeterministicSeed());
+    block_size_ = width_ * height_;
+    if (!use_high_bit_depth_) {
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+      src_ = reinterpret_cast<uint8_t *>(aom_memalign(16, block_size_));
+      sec_ = reinterpret_cast<uint8_t *>(aom_memalign(16, block_size_));
+      ref_ = new uint8_t[block_size_ + width_ + height_ + 1];
+=======
+      src_ = reinterpret_cast<uint8_t *>(aom_memalign(16, block_size_ * 2));
+      ref_ = new uint8_t[block_size_ * 2];
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
+#if CONFIG_AOM_HIGHBITDEPTH
+    } else {
+      src_ = CONVERT_TO_BYTEPTR(reinterpret_cast<uint16_t *>(
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+=======
+          aom_memalign(16, block_size_ * 2 * sizeof(uint16_t))));
+      ref_ = CONVERT_TO_BYTEPTR(new uint16_t[block_size_ * 2]);
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+    }
+    ASSERT_TRUE(src_ != NULL);
+    ASSERT_TRUE(ref_ != NULL);
+  }
+
+  virtual void TearDown() {
+    if (!use_high_bit_depth_) {
+      aom_free(src_);
+      delete[] ref_;
+#if CONFIG_AOM_HIGHBITDEPTH
+    } else {
+      aom_free(CONVERT_TO_SHORTPTR(src_));
+      delete[] CONVERT_TO_SHORTPTR(ref_);
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+    }
+    libaom_test::ClearSystemState();
+  }
+
+ protected:
+  void ZeroTest();
+  void RefTest();
+  void RefStrideTest();
+  void OneQuarterTest();
+
+  ACMRandom rnd_;
+  uint8_t *src_;
+  uint8_t *ref_;
+  int width_, log2width_;
+  int height_, log2height_;
+  aom_bit_depth_t bit_depth_;
+  int mask_;
+  bool use_high_bit_depth_;
+  int block_size_;
+  VarianceFunctionType variance_;
+};
+
+template <typename VarianceFunctionType>
+void VarianceTest<VarianceFunctionType>::ZeroTest() {
+  for (int i = 0; i <= 255; ++i) {
+    if (!use_high_bit_depth_) {
+      memset(src_, i, block_size_);
+#if CONFIG_AOM_HIGHBITDEPTH
+    } else {
+      aom_memset16(CONVERT_TO_SHORTPTR(src_), i << (bit_depth_ - 8),
+                   block_size_);
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+    }
+    for (int j = 0; j <= 255; ++j) {
+      if (!use_high_bit_depth_) {
+        memset(ref_, j, block_size_);
+#if CONFIG_AOM_HIGHBITDEPTH
+      } else {
+        aom_memset16(CONVERT_TO_SHORTPTR(ref_), j << (bit_depth_ - 8),
+                     block_size_);
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+      }
+      unsigned int sse;
+      unsigned int var;
+      ASM_REGISTER_STATE_CHECK(var =
+                                   variance_(src_, width_, ref_, width_, &sse));
+      EXPECT_EQ(0u, var) << "src values: " << i << " ref values: " << j;
+    }
+  }
+}
+
+template <typename VarianceFunctionType>
+void VarianceTest<VarianceFunctionType>::RefTest() {
+  for (int i = 0; i < 10; ++i) {
+    for (int j = 0; j < block_size_; j++) {
+      if (!use_high_bit_depth_) {
+        src_[j] = rnd_.Rand8();
+        ref_[j] = rnd_.Rand8();
+#if CONFIG_AOM_HIGHBITDEPTH
+      } else {
+        CONVERT_TO_SHORTPTR(src_)[j] = rnd_.Rand16() && mask_;
+        CONVERT_TO_SHORTPTR(ref_)[j] = rnd_.Rand16() && mask_;
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+      }
+    }
+    unsigned int sse1, sse2;
+    unsigned int var1;
+    const int stride_coeff = 1;
+    ASM_REGISTER_STATE_CHECK(var1 =
+                                 variance_(src_, width_, ref_, width_, &sse1));
+    const unsigned int var2 =
+        variance_ref(src_, ref_, log2width_, log2height_, stride_coeff,
+                     stride_coeff, &sse2, use_high_bit_depth_, bit_depth_);
+    EXPECT_EQ(sse1, sse2);
+    EXPECT_EQ(var1, var2);
+  }
+}
+
+template <typename VarianceFunctionType>
+void VarianceTest<VarianceFunctionType>::RefStrideTest() {
+  for (int i = 0; i < 10; ++i) {
+    int ref_stride_coeff = i % 2;
+    int src_stride_coeff = (i >> 1) % 2;
+    for (int j = 0; j < block_size_; j++) {
+      int ref_ind = (j / width_) * ref_stride_coeff * width_ + j % width_;
+      int src_ind = (j / width_) * src_stride_coeff * width_ + j % width_;
+      if (!use_high_bit_depth_) {
+        src_[src_ind] = rnd_.Rand8();
+        ref_[ref_ind] = rnd_.Rand8();
+#if CONFIG_AOM_HIGHBITDEPTH
+      } else {
+        CONVERT_TO_SHORTPTR(src_)[src_ind] = rnd_.Rand16() && mask_;
+        CONVERT_TO_SHORTPTR(ref_)[ref_ind] = rnd_.Rand16() && mask_;
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+      }
+    }
+    unsigned int sse1, sse2;
+    unsigned int var1;
+
+    ASM_REGISTER_STATE_CHECK(var1 = variance_(src_, width_ * src_stride_coeff,
+                                              ref_, width_ * ref_stride_coeff,
+                                              &sse1));
+    const unsigned int var2 =
+        variance_ref(src_, ref_, log2width_, log2height_, src_stride_coeff,
+                     ref_stride_coeff, &sse2, use_high_bit_depth_, bit_depth_);
+    EXPECT_EQ(sse1, sse2);
+    EXPECT_EQ(var1, var2);
+  }
+}
+
+template <typename VarianceFunctionType>
+void VarianceTest<VarianceFunctionType>::OneQuarterTest() {
+  const int half = block_size_ / 2;
+  if (!use_high_bit_depth_) {
+    memset(src_, 255, block_size_);
+    memset(ref_, 255, half);
+    memset(ref_ + half, 0, half);
+#if CONFIG_AOM_HIGHBITDEPTH
+  } else {
+    aom_memset16(CONVERT_TO_SHORTPTR(src_), 255 << (bit_depth_ - 8),
+                 block_size_);
+    aom_memset16(CONVERT_TO_SHORTPTR(ref_), 255 << (bit_depth_ - 8), half);
+    aom_memset16(CONVERT_TO_SHORTPTR(ref_) + half, 0, half);
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+  }
+  unsigned int sse;
+  unsigned int var;
+  ASM_REGISTER_STATE_CHECK(var = variance_(src_, width_, ref_, width_, &sse));
+  const unsigned int expected = block_size_ * 255 * 255 / 4;
+  EXPECT_EQ(expected, var);
+}
+
+template <typename MseFunctionType>
+class MseTest
+    : public ::testing::TestWithParam<tuple<int, int, MseFunctionType> > {
+ public:
+  virtual void SetUp() {
+    const tuple<int, int, MseFunctionType> &params = this->GetParam();
+    log2width_ = get<0>(params);
+    width_ = 1 << log2width_;
+    log2height_ = get<1>(params);
+    height_ = 1 << log2height_;
+    mse_ = get<2>(params);
+
+    rnd(ACMRandom::DeterministicSeed());
+    block_size_ = width_ * height_;
+    src_ = reinterpret_cast<uint8_t *>(aom_memalign(16, block_size_));
+    ref_ = new uint8_t[block_size_];
+    ASSERT_TRUE(src_ != NULL);
+    ASSERT_TRUE(ref_ != NULL);
+  }
+
+  virtual void TearDown() {
+    aom_free(src_);
+    delete[] ref_;
+    libaom_test::ClearSystemState();
+  }
+
+ protected:
+  void RefTest_mse();
+  void RefTest_sse();
+  void MaxTest_mse();
+  void MaxTest_sse();
+
+  ACMRandom rnd;
+  uint8_t *src_;
+  uint8_t *ref_;
+  int width_, log2width_;
+  int height_, log2height_;
+  int block_size_;
+  MseFunctionType mse_;
+};
+
+template <typename MseFunctionType>
+void MseTest<MseFunctionType>::RefTest_mse() {
+  for (int i = 0; i < 10; ++i) {
+    for (int j = 0; j < block_size_; j++) {
+      src_[j] = rnd.Rand8();
+      ref_[j] = rnd.Rand8();
+    }
+    unsigned int sse1, sse2;
+    const int stride_coeff = 1;
+    ASM_REGISTER_STATE_CHECK(mse_(src_, width_, ref_, width_, &sse1));
+    variance_ref(src_, ref_, log2width_, log2height_, stride_coeff,
+                 stride_coeff, &sse2, false, AOM_BITS_8);
+    EXPECT_EQ(sse1, sse2);
+  }
+}
+
+template <typename MseFunctionType>
+void MseTest<MseFunctionType>::RefTest_sse() {
+  for (int i = 0; i < 10; ++i) {
+    for (int j = 0; j < block_size_; j++) {
+      src_[j] = rnd.Rand8();
+      ref_[j] = rnd.Rand8();
+    }
+    unsigned int sse2;
+    unsigned int var1;
+    const int stride_coeff = 1;
+    ASM_REGISTER_STATE_CHECK(var1 = mse_(src_, width_, ref_, width_));
+    variance_ref(src_, ref_, log2width_, log2height_, stride_coeff,
+                 stride_coeff, &sse2, false, AOM_BITS_8);
+    EXPECT_EQ(var1, sse2);
+  }
+}
+
+template <typename MseFunctionType>
+void MseTest<MseFunctionType>::MaxTest_mse() {
+  memset(src_, 255, block_size_);
+  memset(ref_, 0, block_size_);
+  unsigned int sse;
+  ASM_REGISTER_STATE_CHECK(mse_(src_, width_, ref_, width_, &sse));
+  const unsigned int expected = block_size_ * 255 * 255;
+  EXPECT_EQ(expected, sse);
+}
+
+template <typename MseFunctionType>
+void MseTest<MseFunctionType>::MaxTest_sse() {
+  memset(src_, 255, block_size_);
+  memset(ref_, 0, block_size_);
+  unsigned int var;
+  ASM_REGISTER_STATE_CHECK(var = mse_(src_, width_, ref_, width_));
+  const unsigned int expected = block_size_ * 255 * 255;
+  EXPECT_EQ(expected, var);
+}
+
+static uint32_t subpel_avg_variance_ref(const uint8_t *ref, const uint8_t *src,
+                                        const uint8_t *second_pred, int l2w,
+                                        int l2h, int xoff, int yoff,
+                                        uint32_t *sse_ptr,
+                                        bool use_high_bit_depth,
+                                        aom_bit_depth_t bit_depth) {
+  int64_t se = 0;
+  uint64_t sse = 0;
+  const int w = 1 << l2w;
+  const int h = 1 << l2h;
+
+  xoff <<= 1;
+  yoff <<= 1;
+
+  for (int y = 0; y < h; y++) {
+    for (int x = 0; x < w; x++) {
+      // bilinear interpolation at a 16th pel step
+      if (!use_high_bit_depth) {
+        const int a1 = ref[(w + 1) * (y + 0) + x + 0];
+        const int a2 = ref[(w + 1) * (y + 0) + x + 1];
+        const int b1 = ref[(w + 1) * (y + 1) + x + 0];
+        const int b2 = ref[(w + 1) * (y + 1) + x + 1];
+        const int a = a1 + (((a2 - a1) * xoff + 8) >> 4);
+        const int b = b1 + (((b2 - b1) * xoff + 8) >> 4);
+        const int r = a + (((b - a) * yoff + 8) >> 4);
+        const int diff =
+            ((r + second_pred[w * y + x] + 1) >> 1) - src[w * y + x];
+        se += diff;
+        sse += diff * diff;
+#if CONFIG_AOM_HIGHBITDEPTH
+      } else {
+        uint16_t *ref16 = CONVERT_TO_SHORTPTR(ref);
+        uint16_t *src16 = CONVERT_TO_SHORTPTR(src);
+        uint16_t *sec16 = CONVERT_TO_SHORTPTR(second_pred);
+        const int a1 = ref16[(w + 1) * (y + 0) + x + 0];
+        const int a2 = ref16[(w + 1) * (y + 0) + x + 1];
+        const int b1 = ref16[(w + 1) * (y + 1) + x + 0];
+        const int b2 = ref16[(w + 1) * (y + 1) + x + 1];
+        const int a = a1 + (((a2 - a1) * xoff + 8) >> 4);
+        const int b = b1 + (((b2 - b1) * xoff + 8) >> 4);
+        const int r = a + (((b - a) * yoff + 8) >> 4);
+        const int diff = ((r + sec16[w * y + x] + 1) >> 1) - src16[w * y + x];
+        se += diff;
+        sse += diff * diff;
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+      }
+    }
+  }
+  RoundHighBitDepth(bit_depth, &se, &sse);
+  *sse_ptr = static_cast<uint32_t>(sse);
+  return static_cast<uint32_t>(sse - ((se * se) >> (l2w + l2h)));
+}
+
+template <typename SubpelVarianceFunctionType>
+class SubpelVarianceTest
+    : public ::testing::TestWithParam<
+          tuple<int, int, SubpelVarianceFunctionType, int> > {
+ public:
+  virtual void SetUp() {
+    const tuple<int, int, SubpelVarianceFunctionType, int> &params =
+        this->GetParam();
     log2width_ = get<0>(params);
     width_ = 1 << log2width_;
     log2height_ = get<1>(params);
@@ -562,6 +923,7 @@ class SubpelVarianceTest
 #if CONFIG_AOM_HIGHBITDEPTH
     } else {
       src_ = CONVERT_TO_BYTEPTR(reinterpret_cast<uint16_t *>(
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
           aom_memalign(16, block_size_ * sizeof(uint16_t))));
       sec_ = CONVERT_TO_BYTEPTR(reinterpret_cast<uint16_t *>(
           aom_memalign(16, block_size_ * sizeof(uint16_t))));
@@ -697,6 +1059,7 @@ void SubpelVarianceTest<SubpixAvgVarMxNFunc>::RefTest() {
         }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
       }
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
       uint32_t sse1, sse2;
       uint32_t var1, var2;
       ASM_REGISTER_STATE_CHECK(var1 =
@@ -705,22 +1068,45 @@ void SubpelVarianceTest<SubpixAvgVarMxNFunc>::RefTest() {
       var2 = subpel_avg_variance_ref(ref_, src_, sec_, log2width_, log2height_,
                                      x, y, &sse2, use_high_bit_depth_,
                                      static_cast<aom_bit_depth_t>(bit_depth_));
+=======
+      unsigned int sse1, sse2;
+      unsigned int var1;
+      ASM_REGISTER_STATE_CHECK(var1 =
+                                   subpel_variance_(ref_, width_ + 1, x, y,
+                                                    src_, width_, &sse1, sec_));
+      const unsigned int var2 =
+          subpel_avg_variance_ref(ref_, src_, sec_, log2width_, log2height_, x,
+                                  y, &sse2, use_high_bit_depth_, bit_depth_);
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
       EXPECT_EQ(sse1, sse2) << "at position " << x << ", " << y;
       EXPECT_EQ(var1, var2) << "at position " << x << ", " << y;
     }
   }
 }
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 typedef MainTestClass<Get4x4SseFunc> AvxSseTest;
 typedef MainTestClass<VarianceMxNFunc> AvxMseTest;
 typedef MainTestClass<VarianceMxNFunc> AvxVarianceTest;
+=======
+typedef MseTest<Get4x4SseFunc> AvxSseTest;
+typedef MseTest<VarianceMxNFunc> AvxMseTest;
+typedef VarianceTest<VarianceMxNFunc> AvxVarianceTest;
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 typedef SubpelVarianceTest<SubpixVarMxNFunc> AvxSubpelVarianceTest;
 typedef SubpelVarianceTest<SubpixAvgVarMxNFunc> AvxSubpelAvgVarianceTest;
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 TEST_P(AvxSseTest, RefSse) { RefTestSse(); }
 TEST_P(AvxSseTest, MaxSse) { MaxTestSse(); }
 TEST_P(AvxMseTest, RefMse) { RefTestMse(); }
 TEST_P(AvxMseTest, MaxMse) { MaxTestMse(); }
+=======
+TEST_P(AvxSseTest, Ref_sse) { RefTest_sse(); }
+TEST_P(AvxSseTest, Max_sse) { MaxTest_sse(); }
+TEST_P(AvxMseTest, Ref_mse) { RefTest_mse(); }
+TEST_P(AvxMseTest, Max_mse) { MaxTest_mse(); }
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 TEST_P(AvxVarianceTest, Zero) { ZeroTest(); }
 TEST_P(AvxVarianceTest, Ref) { RefTest(); }
 TEST_P(AvxVarianceTest, RefStride) { RefStrideTest(); }
@@ -734,11 +1120,18 @@ TEST_P(AvxSubpelAvgVarianceTest, Ref) { RefTest(); }
 INSTANTIATE_TEST_CASE_P(C, SumOfSquaresTest,
                         ::testing::Values(aom_get_mb_ss_c));
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 typedef TestParams<Get4x4SseFunc> SseParams;
 INSTANTIATE_TEST_CASE_P(C, AvxSseTest,
                         ::testing::Values(SseParams(2, 2,
                                                     &aom_get4x4sse_cs_c)));
+=======
+INSTANTIATE_TEST_CASE_P(C, AvxSseTest,
+                        ::testing::Values(make_tuple(2, 2,
+                                                     &aom_get4x4sse_cs_c)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 typedef TestParams<VarianceMxNFunc> MseParams;
 INSTANTIATE_TEST_CASE_P(C, AvxMseTest,
                         ::testing::Values(MseParams(4, 4, &aom_mse16x16_c),
@@ -762,8 +1155,16 @@ INSTANTIATE_TEST_CASE_P(
                       VarianceParams(3, 2, &aom_variance8x4_c),
                       VarianceParams(2, 3, &aom_variance4x8_c),
                       VarianceParams(2, 2, &aom_variance4x4_c)));
+=======
+INSTANTIATE_TEST_CASE_P(C, AvxMseTest,
+                        ::testing::Values(make_tuple(4, 4, &aom_mse16x16_c),
+                                          make_tuple(4, 3, &aom_mse16x8_c),
+                                          make_tuple(3, 4, &aom_mse8x16_c),
+                                          make_tuple(3, 3, &aom_mse8x8_c)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     C, AvxSubpelVarianceTest,
     ::testing::Values(make_tuple(6, 6, &aom_sub_pixel_variance64x64_c, 0),
                       make_tuple(6, 5, &aom_sub_pixel_variance64x32_c, 0),
@@ -778,7 +1179,63 @@ INSTANTIATE_TEST_CASE_P(
                       make_tuple(3, 2, &aom_sub_pixel_variance8x4_c, 0),
                       make_tuple(2, 3, &aom_sub_pixel_variance4x8_c, 0),
                       make_tuple(2, 2, &aom_sub_pixel_variance4x4_c, 0)));
+=======
+    C, AvxVarianceTest,
+    ::testing::Values(make_tuple(6, 6, &aom_variance64x64_c, 0),
+                      make_tuple(6, 5, &aom_variance64x32_c, 0),
+                      make_tuple(5, 6, &aom_variance32x64_c, 0),
+                      make_tuple(5, 5, &aom_variance32x32_c, 0),
+                      make_tuple(5, 4, &aom_variance32x16_c, 0),
+                      make_tuple(4, 5, &aom_variance16x32_c, 0),
+                      make_tuple(4, 4, &aom_variance16x16_c, 0),
+                      make_tuple(4, 3, &aom_variance16x8_c, 0),
+                      make_tuple(3, 4, &aom_variance8x16_c, 0),
+                      make_tuple(3, 3, &aom_variance8x8_c, 0),
+                      make_tuple(3, 2, &aom_variance8x4_c, 0),
+                      make_tuple(2, 3, &aom_variance4x8_c, 0),
+                      make_tuple(2, 2, &aom_variance4x4_c, 0)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
+INSTANTIATE_TEST_CASE_P(
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+    C, AvxSubpelAvgVarianceTest,
+    ::testing::Values(make_tuple(6, 6, &aom_sub_pixel_avg_variance64x64_c, 0),
+                      make_tuple(6, 5, &aom_sub_pixel_avg_variance64x32_c, 0),
+                      make_tuple(5, 6, &aom_sub_pixel_avg_variance32x64_c, 0),
+                      make_tuple(5, 5, &aom_sub_pixel_avg_variance32x32_c, 0),
+                      make_tuple(5, 4, &aom_sub_pixel_avg_variance32x16_c, 0),
+                      make_tuple(4, 5, &aom_sub_pixel_avg_variance16x32_c, 0),
+                      make_tuple(4, 4, &aom_sub_pixel_avg_variance16x16_c, 0),
+                      make_tuple(4, 3, &aom_sub_pixel_avg_variance16x8_c, 0),
+                      make_tuple(3, 4, &aom_sub_pixel_avg_variance8x16_c, 0),
+                      make_tuple(3, 3, &aom_sub_pixel_avg_variance8x8_c, 0),
+                      make_tuple(3, 2, &aom_sub_pixel_avg_variance8x4_c, 0),
+                      make_tuple(2, 3, &aom_sub_pixel_avg_variance4x8_c, 0),
+                      make_tuple(2, 2, &aom_sub_pixel_avg_variance4x4_c, 0)));
+=======
+    C, AvxSubpelVarianceTest,
+    ::testing::Values(make_tuple(6, 6, &aom_sub_pixel_variance64x64_c, 0),
+                      make_tuple(6, 5, &aom_sub_pixel_variance64x32_c, 0),
+                      make_tuple(5, 6, &aom_sub_pixel_variance32x64_c, 0),
+                      make_tuple(5, 5, &aom_sub_pixel_variance32x32_c, 0),
+                      make_tuple(5, 4, &aom_sub_pixel_variance32x16_c, 0),
+                      make_tuple(4, 5, &aom_sub_pixel_variance16x32_c, 0),
+                      make_tuple(4, 4, &aom_sub_pixel_variance16x16_c, 0),
+                      make_tuple(4, 3, &aom_sub_pixel_variance16x8_c, 0),
+                      make_tuple(3, 4, &aom_sub_pixel_variance8x16_c, 0),
+                      make_tuple(3, 3, &aom_sub_pixel_variance8x8_c, 0),
+                      make_tuple(3, 2, &aom_sub_pixel_variance8x4_c, 0),
+                      make_tuple(2, 3, &aom_sub_pixel_variance4x8_c, 0),
+                      make_tuple(2, 2, &aom_sub_pixel_variance4x4_c, 0)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
+
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+#if CONFIG_AOM_HIGHBITDEPTH
+typedef MainTestClass<VarianceMxNFunc> AvxHBDMseTest;
+typedef MainTestClass<VarianceMxNFunc> AvxHBDVarianceTest;
+typedef SubpelVarianceTest<SubpixVarMxNFunc> AvxHBDSubpelVarianceTest;
+typedef SubpelVarianceTest<SubpixAvgVarMxNFunc> AvxHBDSubpelAvgVarianceTest;
+=======
 INSTANTIATE_TEST_CASE_P(
     C, AvxSubpelAvgVarianceTest,
     ::testing::Values(make_tuple(6, 6, &aom_sub_pixel_avg_variance64x64_c, 0),
@@ -794,15 +1251,21 @@ INSTANTIATE_TEST_CASE_P(
                       make_tuple(3, 2, &aom_sub_pixel_avg_variance8x4_c, 0),
                       make_tuple(2, 3, &aom_sub_pixel_avg_variance4x8_c, 0),
                       make_tuple(2, 2, &aom_sub_pixel_avg_variance4x4_c, 0)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+TEST_P(AvxHBDMseTest, RefMse) { RefTestMse(); }
+TEST_P(AvxHBDMseTest, MaxMse) { MaxTestMse(); }
+=======
 #if CONFIG_AOM_HIGHBITDEPTH
-typedef MainTestClass<VarianceMxNFunc> AvxHBDMseTest;
-typedef MainTestClass<VarianceMxNFunc> AvxHBDVarianceTest;
+typedef MseTest<VarianceMxNFunc> AvxHBDMseTest;
+typedef VarianceTest<VarianceMxNFunc> AvxHBDVarianceTest;
 typedef SubpelVarianceTest<SubpixVarMxNFunc> AvxHBDSubpelVarianceTest;
 typedef SubpelVarianceTest<SubpixAvgVarMxNFunc> AvxHBDSubpelAvgVarianceTest;
 
-TEST_P(AvxHBDMseTest, RefMse) { RefTestMse(); }
-TEST_P(AvxHBDMseTest, MaxMse) { MaxTestMse(); }
+TEST_P(AvxHBDMseTest, Ref_mse) { RefTest_mse(); }
+TEST_P(AvxHBDMseTest, Max_mse) { MaxTest_mse(); }
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 TEST_P(AvxHBDVarianceTest, Zero) { ZeroTest(); }
 TEST_P(AvxHBDVarianceTest, Ref) { RefTest(); }
 TEST_P(AvxHBDVarianceTest, RefStride) { RefStrideTest(); }
@@ -828,6 +1291,7 @@ INSTANTIATE_TEST_CASE_P(
                       make_tuple(4, 4, &aom_highbd_8_mse8x8_c)));
 */
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 const VarianceParams kArrayHBDVariance_c[] = {
 #if CONFIG_AV1 && CONFIG_EXT_PARTITION
   VarianceParams(7, 7, &aom_highbd_12_variance128x128_c, 12),
@@ -886,16 +1350,106 @@ const VarianceParams kArrayHBDVariance_c[] = {
 };
 INSTANTIATE_TEST_CASE_P(C, AvxHBDVarianceTest,
                         ::testing::ValuesIn(kArrayHBDVariance_c));
+=======
+INSTANTIATE_TEST_CASE_P(
+    C, AvxHBDVarianceTest,
+    ::testing::Values(make_tuple(6, 6, &aom_highbd_12_variance64x64_c, 12),
+                      make_tuple(6, 5, &aom_highbd_12_variance64x32_c, 12),
+                      make_tuple(5, 6, &aom_highbd_12_variance32x64_c, 12),
+                      make_tuple(5, 5, &aom_highbd_12_variance32x32_c, 12),
+                      make_tuple(5, 4, &aom_highbd_12_variance32x16_c, 12),
+                      make_tuple(4, 5, &aom_highbd_12_variance16x32_c, 12),
+                      make_tuple(4, 4, &aom_highbd_12_variance16x16_c, 12),
+                      make_tuple(4, 3, &aom_highbd_12_variance16x8_c, 12),
+                      make_tuple(3, 4, &aom_highbd_12_variance8x16_c, 12),
+                      make_tuple(3, 3, &aom_highbd_12_variance8x8_c, 12),
+                      make_tuple(3, 2, &aom_highbd_12_variance8x4_c, 12),
+                      make_tuple(2, 3, &aom_highbd_12_variance4x8_c, 12),
+                      make_tuple(2, 2, &aom_highbd_12_variance4x4_c, 12),
+                      make_tuple(6, 6, &aom_highbd_10_variance64x64_c, 10),
+                      make_tuple(6, 5, &aom_highbd_10_variance64x32_c, 10),
+                      make_tuple(5, 6, &aom_highbd_10_variance32x64_c, 10),
+                      make_tuple(5, 5, &aom_highbd_10_variance32x32_c, 10),
+                      make_tuple(5, 4, &aom_highbd_10_variance32x16_c, 10),
+                      make_tuple(4, 5, &aom_highbd_10_variance16x32_c, 10),
+                      make_tuple(4, 4, &aom_highbd_10_variance16x16_c, 10),
+                      make_tuple(4, 3, &aom_highbd_10_variance16x8_c, 10),
+                      make_tuple(3, 4, &aom_highbd_10_variance8x16_c, 10),
+                      make_tuple(3, 3, &aom_highbd_10_variance8x8_c, 10),
+                      make_tuple(3, 2, &aom_highbd_10_variance8x4_c, 10),
+                      make_tuple(2, 3, &aom_highbd_10_variance4x8_c, 10),
+                      make_tuple(2, 2, &aom_highbd_10_variance4x4_c, 10),
+                      make_tuple(6, 6, &aom_highbd_8_variance64x64_c, 8),
+                      make_tuple(6, 5, &aom_highbd_8_variance64x32_c, 8),
+                      make_tuple(5, 6, &aom_highbd_8_variance32x64_c, 8),
+                      make_tuple(5, 5, &aom_highbd_8_variance32x32_c, 8),
+                      make_tuple(5, 4, &aom_highbd_8_variance32x16_c, 8),
+                      make_tuple(4, 5, &aom_highbd_8_variance16x32_c, 8),
+                      make_tuple(4, 4, &aom_highbd_8_variance16x16_c, 8),
+                      make_tuple(4, 3, &aom_highbd_8_variance16x8_c, 8),
+                      make_tuple(3, 4, &aom_highbd_8_variance8x16_c, 8),
+                      make_tuple(3, 3, &aom_highbd_8_variance8x8_c, 8),
+                      make_tuple(3, 2, &aom_highbd_8_variance8x4_c, 8),
+                      make_tuple(2, 3, &aom_highbd_8_variance4x8_c, 8),
+                      make_tuple(2, 2, &aom_highbd_8_variance4x4_c, 8)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 #if HAVE_SSE4_1 && CONFIG_AOM_HIGHBITDEPTH
 INSTANTIATE_TEST_CASE_P(
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     SSE4_1, AvxHBDVarianceTest,
+=======
+    C, AvxHBDSubpelVarianceTest,
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
     ::testing::Values(
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
         VarianceParams(2, 2, &aom_highbd_8_variance4x4_sse4_1, 8),
         VarianceParams(2, 2, &aom_highbd_10_variance4x4_sse4_1, 10),
         VarianceParams(2, 2, &aom_highbd_12_variance4x4_sse4_1, 12)));
 #endif  // HAVE_SSE4_1 && CONFIG_AOM_HIGHBITDEPTH
+=======
+        make_tuple(6, 6, &aom_highbd_8_sub_pixel_variance64x64_c, 8),
+        make_tuple(6, 5, &aom_highbd_8_sub_pixel_variance64x32_c, 8),
+        make_tuple(5, 6, &aom_highbd_8_sub_pixel_variance32x64_c, 8),
+        make_tuple(5, 5, &aom_highbd_8_sub_pixel_variance32x32_c, 8),
+        make_tuple(5, 4, &aom_highbd_8_sub_pixel_variance32x16_c, 8),
+        make_tuple(4, 5, &aom_highbd_8_sub_pixel_variance16x32_c, 8),
+        make_tuple(4, 4, &aom_highbd_8_sub_pixel_variance16x16_c, 8),
+        make_tuple(4, 3, &aom_highbd_8_sub_pixel_variance16x8_c, 8),
+        make_tuple(3, 4, &aom_highbd_8_sub_pixel_variance8x16_c, 8),
+        make_tuple(3, 3, &aom_highbd_8_sub_pixel_variance8x8_c, 8),
+        make_tuple(3, 2, &aom_highbd_8_sub_pixel_variance8x4_c, 8),
+        make_tuple(2, 3, &aom_highbd_8_sub_pixel_variance4x8_c, 8),
+        make_tuple(2, 2, &aom_highbd_8_sub_pixel_variance4x4_c, 8),
+        make_tuple(6, 6, &aom_highbd_10_sub_pixel_variance64x64_c, 10),
+        make_tuple(6, 5, &aom_highbd_10_sub_pixel_variance64x32_c, 10),
+        make_tuple(5, 6, &aom_highbd_10_sub_pixel_variance32x64_c, 10),
+        make_tuple(5, 5, &aom_highbd_10_sub_pixel_variance32x32_c, 10),
+        make_tuple(5, 4, &aom_highbd_10_sub_pixel_variance32x16_c, 10),
+        make_tuple(4, 5, &aom_highbd_10_sub_pixel_variance16x32_c, 10),
+        make_tuple(4, 4, &aom_highbd_10_sub_pixel_variance16x16_c, 10),
+        make_tuple(4, 3, &aom_highbd_10_sub_pixel_variance16x8_c, 10),
+        make_tuple(3, 4, &aom_highbd_10_sub_pixel_variance8x16_c, 10),
+        make_tuple(3, 3, &aom_highbd_10_sub_pixel_variance8x8_c, 10),
+        make_tuple(3, 2, &aom_highbd_10_sub_pixel_variance8x4_c, 10),
+        make_tuple(2, 3, &aom_highbd_10_sub_pixel_variance4x8_c, 10),
+        make_tuple(2, 2, &aom_highbd_10_sub_pixel_variance4x4_c, 10),
+        make_tuple(6, 6, &aom_highbd_12_sub_pixel_variance64x64_c, 12),
+        make_tuple(6, 5, &aom_highbd_12_sub_pixel_variance64x32_c, 12),
+        make_tuple(5, 6, &aom_highbd_12_sub_pixel_variance32x64_c, 12),
+        make_tuple(5, 5, &aom_highbd_12_sub_pixel_variance32x32_c, 12),
+        make_tuple(5, 4, &aom_highbd_12_sub_pixel_variance32x16_c, 12),
+        make_tuple(4, 5, &aom_highbd_12_sub_pixel_variance16x32_c, 12),
+        make_tuple(4, 4, &aom_highbd_12_sub_pixel_variance16x16_c, 12),
+        make_tuple(4, 3, &aom_highbd_12_sub_pixel_variance16x8_c, 12),
+        make_tuple(3, 4, &aom_highbd_12_sub_pixel_variance8x16_c, 12),
+        make_tuple(3, 3, &aom_highbd_12_sub_pixel_variance8x8_c, 12),
+        make_tuple(3, 2, &aom_highbd_12_sub_pixel_variance8x4_c, 12),
+        make_tuple(2, 3, &aom_highbd_12_sub_pixel_variance4x8_c, 12),
+        make_tuple(2, 2, &aom_highbd_12_sub_pixel_variance4x4_c, 12)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 const AvxHBDSubpelVarianceTest::ParamType kArrayHBDSubpelVariance_c[] = {
 #if CONFIG_AV1 && CONFIG_EXT_PARTITION
   make_tuple(7, 7, &aom_highbd_8_sub_pixel_variance128x128_c, 8),
@@ -1013,6 +1567,50 @@ const AvxHBDSubpelAvgVarianceTest::ParamType kArrayHBDSubpelAvgVariance_c[] = {
 };
 INSTANTIATE_TEST_CASE_P(C, AvxHBDSubpelAvgVarianceTest,
                         ::testing::ValuesIn(kArrayHBDSubpelAvgVariance_c));
+=======
+INSTANTIATE_TEST_CASE_P(
+    C, AvxHBDSubpelAvgVarianceTest,
+    ::testing::Values(
+        make_tuple(6, 6, &aom_highbd_8_sub_pixel_avg_variance64x64_c, 8),
+        make_tuple(6, 5, &aom_highbd_8_sub_pixel_avg_variance64x32_c, 8),
+        make_tuple(5, 6, &aom_highbd_8_sub_pixel_avg_variance32x64_c, 8),
+        make_tuple(5, 5, &aom_highbd_8_sub_pixel_avg_variance32x32_c, 8),
+        make_tuple(5, 4, &aom_highbd_8_sub_pixel_avg_variance32x16_c, 8),
+        make_tuple(4, 5, &aom_highbd_8_sub_pixel_avg_variance16x32_c, 8),
+        make_tuple(4, 4, &aom_highbd_8_sub_pixel_avg_variance16x16_c, 8),
+        make_tuple(4, 3, &aom_highbd_8_sub_pixel_avg_variance16x8_c, 8),
+        make_tuple(3, 4, &aom_highbd_8_sub_pixel_avg_variance8x16_c, 8),
+        make_tuple(3, 3, &aom_highbd_8_sub_pixel_avg_variance8x8_c, 8),
+        make_tuple(3, 2, &aom_highbd_8_sub_pixel_avg_variance8x4_c, 8),
+        make_tuple(2, 3, &aom_highbd_8_sub_pixel_avg_variance4x8_c, 8),
+        make_tuple(2, 2, &aom_highbd_8_sub_pixel_avg_variance4x4_c, 8),
+        make_tuple(6, 6, &aom_highbd_10_sub_pixel_avg_variance64x64_c, 10),
+        make_tuple(6, 5, &aom_highbd_10_sub_pixel_avg_variance64x32_c, 10),
+        make_tuple(5, 6, &aom_highbd_10_sub_pixel_avg_variance32x64_c, 10),
+        make_tuple(5, 5, &aom_highbd_10_sub_pixel_avg_variance32x32_c, 10),
+        make_tuple(5, 4, &aom_highbd_10_sub_pixel_avg_variance32x16_c, 10),
+        make_tuple(4, 5, &aom_highbd_10_sub_pixel_avg_variance16x32_c, 10),
+        make_tuple(4, 4, &aom_highbd_10_sub_pixel_avg_variance16x16_c, 10),
+        make_tuple(4, 3, &aom_highbd_10_sub_pixel_avg_variance16x8_c, 10),
+        make_tuple(3, 4, &aom_highbd_10_sub_pixel_avg_variance8x16_c, 10),
+        make_tuple(3, 3, &aom_highbd_10_sub_pixel_avg_variance8x8_c, 10),
+        make_tuple(3, 2, &aom_highbd_10_sub_pixel_avg_variance8x4_c, 10),
+        make_tuple(2, 3, &aom_highbd_10_sub_pixel_avg_variance4x8_c, 10),
+        make_tuple(2, 2, &aom_highbd_10_sub_pixel_avg_variance4x4_c, 10),
+        make_tuple(6, 6, &aom_highbd_12_sub_pixel_avg_variance64x64_c, 12),
+        make_tuple(6, 5, &aom_highbd_12_sub_pixel_avg_variance64x32_c, 12),
+        make_tuple(5, 6, &aom_highbd_12_sub_pixel_avg_variance32x64_c, 12),
+        make_tuple(5, 5, &aom_highbd_12_sub_pixel_avg_variance32x32_c, 12),
+        make_tuple(5, 4, &aom_highbd_12_sub_pixel_avg_variance32x16_c, 12),
+        make_tuple(4, 5, &aom_highbd_12_sub_pixel_avg_variance16x32_c, 12),
+        make_tuple(4, 4, &aom_highbd_12_sub_pixel_avg_variance16x16_c, 12),
+        make_tuple(4, 3, &aom_highbd_12_sub_pixel_avg_variance16x8_c, 12),
+        make_tuple(3, 4, &aom_highbd_12_sub_pixel_avg_variance8x16_c, 12),
+        make_tuple(3, 3, &aom_highbd_12_sub_pixel_avg_variance8x8_c, 12),
+        make_tuple(3, 2, &aom_highbd_12_sub_pixel_avg_variance8x4_c, 12),
+        make_tuple(2, 3, &aom_highbd_12_sub_pixel_avg_variance4x8_c, 12),
+        make_tuple(2, 2, &aom_highbd_12_sub_pixel_avg_variance4x4_c, 12)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
 #if HAVE_SSE2
@@ -1020,13 +1618,21 @@ INSTANTIATE_TEST_CASE_P(SSE2, SumOfSquaresTest,
                         ::testing::Values(aom_get_mb_ss_sse2));
 
 INSTANTIATE_TEST_CASE_P(SSE2, AvxMseTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
                         ::testing::Values(MseParams(4, 4, &aom_mse16x16_sse2),
                                           MseParams(4, 3, &aom_mse16x8_sse2),
                                           MseParams(3, 4, &aom_mse8x16_sse2),
                                           MseParams(3, 3, &aom_mse8x8_sse2)));
+=======
+                        ::testing::Values(make_tuple(4, 4, &aom_mse16x16_sse2),
+                                          make_tuple(4, 3, &aom_mse16x8_sse2),
+                                          make_tuple(3, 4, &aom_mse8x16_sse2),
+                                          make_tuple(3, 3, &aom_mse8x8_sse2)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(
     SSE2, AvxVarianceTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     ::testing::Values(VarianceParams(6, 6, &aom_variance64x64_sse2),
                       VarianceParams(6, 5, &aom_variance64x32_sse2),
                       VarianceParams(5, 6, &aom_variance32x64_sse2),
@@ -1040,6 +1646,21 @@ INSTANTIATE_TEST_CASE_P(
                       VarianceParams(3, 2, &aom_variance8x4_sse2),
                       VarianceParams(2, 3, &aom_variance4x8_sse2),
                       VarianceParams(2, 2, &aom_variance4x4_sse2)));
+=======
+    ::testing::Values(make_tuple(6, 6, &aom_variance64x64_sse2, 0),
+                      make_tuple(6, 5, &aom_variance64x32_sse2, 0),
+                      make_tuple(5, 6, &aom_variance32x64_sse2, 0),
+                      make_tuple(5, 5, &aom_variance32x32_sse2, 0),
+                      make_tuple(5, 4, &aom_variance32x16_sse2, 0),
+                      make_tuple(4, 5, &aom_variance16x32_sse2, 0),
+                      make_tuple(4, 4, &aom_variance16x16_sse2, 0),
+                      make_tuple(4, 3, &aom_variance16x8_sse2, 0),
+                      make_tuple(3, 4, &aom_variance8x16_sse2, 0),
+                      make_tuple(3, 3, &aom_variance8x8_sse2, 0),
+                      make_tuple(3, 2, &aom_variance8x4_sse2, 0),
+                      make_tuple(2, 3, &aom_variance4x8_sse2, 0),
+                      make_tuple(2, 2, &aom_variance4x4_sse2, 0)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(
     SSE2, AvxSubpelVarianceTest,
@@ -1074,6 +1695,7 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(2, 3, &aom_sub_pixel_avg_variance4x8_sse2, 0),
         make_tuple(2, 2, &aom_sub_pixel_avg_variance4x4_sse2, 0)));
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 #if HAVE_SSE4_1 && CONFIG_AOM_HIGHBITDEPTH
 INSTANTIATE_TEST_CASE_P(
     SSE4_1, AvxSubpelVarianceTest,
@@ -1090,10 +1712,13 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(2, 2, &aom_highbd_12_sub_pixel_avg_variance4x4_sse4_1, 12)));
 #endif  // HAVE_SSE4_1 && CONFIG_AOM_HIGHBITDEPTH
 
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 #if CONFIG_AOM_HIGHBITDEPTH
 /* TODO(debargha): This test does not support the highbd version
 INSTANTIATE_TEST_CASE_P(
     SSE2, AvxHBDMseTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     ::testing::Values(MseParams(4, 4, &aom_highbd_12_mse16x16_sse2),
                       MseParams(4, 3, &aom_highbd_12_mse16x8_sse2),
                       MseParams(3, 4, &aom_highbd_12_mse8x16_sse2),
@@ -1106,10 +1731,25 @@ INSTANTIATE_TEST_CASE_P(
                       MseParams(4, 3, &aom_highbd_8_mse16x8_sse2),
                       MseParams(3, 4, &aom_highbd_8_mse8x16_sse2),
                       MseParams(3, 3, &aom_highbd_8_mse8x8_sse2)));
+=======
+    ::testing::Values(make_tuple(4, 4, &aom_highbd_12_mse16x16_sse2),
+                      make_tuple(4, 3, &aom_highbd_12_mse16x8_sse2),
+                      make_tuple(3, 4, &aom_highbd_12_mse8x16_sse2),
+                      make_tuple(3, 3, &aom_highbd_12_mse8x8_sse2),
+                      make_tuple(4, 4, &aom_highbd_10_mse16x16_sse2),
+                      make_tuple(4, 3, &aom_highbd_10_mse16x8_sse2),
+                      make_tuple(3, 4, &aom_highbd_10_mse8x16_sse2),
+                      make_tuple(3, 3, &aom_highbd_10_mse8x8_sse2),
+                      make_tuple(4, 4, &aom_highbd_8_mse16x16_sse2),
+                      make_tuple(4, 3, &aom_highbd_8_mse16x8_sse2),
+                      make_tuple(3, 4, &aom_highbd_8_mse8x16_sse2),
+                      make_tuple(3, 3, &aom_highbd_8_mse8x8_sse2)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 */
 
 INSTANTIATE_TEST_CASE_P(
     SSE2, AvxHBDVarianceTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     ::testing::Values(
         VarianceParams(6, 6, &aom_highbd_12_variance64x64_sse2, 12),
         VarianceParams(6, 5, &aom_highbd_12_variance64x32_sse2, 12),
@@ -1141,6 +1781,38 @@ INSTANTIATE_TEST_CASE_P(
         VarianceParams(4, 3, &aom_highbd_8_variance16x8_sse2, 8),
         VarianceParams(3, 4, &aom_highbd_8_variance8x16_sse2, 8),
         VarianceParams(3, 3, &aom_highbd_8_variance8x8_sse2, 8)));
+=======
+    ::testing::Values(make_tuple(6, 6, &aom_highbd_12_variance64x64_sse2, 12),
+                      make_tuple(6, 5, &aom_highbd_12_variance64x32_sse2, 12),
+                      make_tuple(5, 6, &aom_highbd_12_variance32x64_sse2, 12),
+                      make_tuple(5, 5, &aom_highbd_12_variance32x32_sse2, 12),
+                      make_tuple(5, 4, &aom_highbd_12_variance32x16_sse2, 12),
+                      make_tuple(4, 5, &aom_highbd_12_variance16x32_sse2, 12),
+                      make_tuple(4, 4, &aom_highbd_12_variance16x16_sse2, 12),
+                      make_tuple(4, 3, &aom_highbd_12_variance16x8_sse2, 12),
+                      make_tuple(3, 4, &aom_highbd_12_variance8x16_sse2, 12),
+                      make_tuple(3, 3, &aom_highbd_12_variance8x8_sse2, 12),
+                      make_tuple(6, 6, &aom_highbd_10_variance64x64_sse2, 10),
+                      make_tuple(6, 5, &aom_highbd_10_variance64x32_sse2, 10),
+                      make_tuple(5, 6, &aom_highbd_10_variance32x64_sse2, 10),
+                      make_tuple(5, 5, &aom_highbd_10_variance32x32_sse2, 10),
+                      make_tuple(5, 4, &aom_highbd_10_variance32x16_sse2, 10),
+                      make_tuple(4, 5, &aom_highbd_10_variance16x32_sse2, 10),
+                      make_tuple(4, 4, &aom_highbd_10_variance16x16_sse2, 10),
+                      make_tuple(4, 3, &aom_highbd_10_variance16x8_sse2, 10),
+                      make_tuple(3, 4, &aom_highbd_10_variance8x16_sse2, 10),
+                      make_tuple(3, 3, &aom_highbd_10_variance8x8_sse2, 10),
+                      make_tuple(6, 6, &aom_highbd_8_variance64x64_sse2, 8),
+                      make_tuple(6, 5, &aom_highbd_8_variance64x32_sse2, 8),
+                      make_tuple(5, 6, &aom_highbd_8_variance32x64_sse2, 8),
+                      make_tuple(5, 5, &aom_highbd_8_variance32x32_sse2, 8),
+                      make_tuple(5, 4, &aom_highbd_8_variance32x16_sse2, 8),
+                      make_tuple(4, 5, &aom_highbd_8_variance16x32_sse2, 8),
+                      make_tuple(4, 4, &aom_highbd_8_variance16x16_sse2, 8),
+                      make_tuple(4, 3, &aom_highbd_8_variance16x8_sse2, 8),
+                      make_tuple(3, 4, &aom_highbd_8_variance8x16_sse2, 8),
+                      make_tuple(3, 3, &aom_highbd_8_variance8x8_sse2, 8)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(
     SSE2, AvxHBDSubpelVarianceTest,
@@ -1255,15 +1927,28 @@ INSTANTIATE_TEST_CASE_P(
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_CASE_P(AVX2, AvxMseTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
                         ::testing::Values(MseParams(4, 4, &aom_mse16x16_avx2)));
+=======
+                        ::testing::Values(make_tuple(4, 4,
+                                                     &aom_mse16x16_avx2)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(
     AVX2, AvxVarianceTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     ::testing::Values(VarianceParams(6, 6, &aom_variance64x64_avx2),
                       VarianceParams(6, 5, &aom_variance64x32_avx2),
                       VarianceParams(5, 5, &aom_variance32x32_avx2),
                       VarianceParams(5, 4, &aom_variance32x16_avx2),
                       VarianceParams(4, 4, &aom_variance16x16_avx2)));
+=======
+    ::testing::Values(make_tuple(6, 6, &aom_variance64x64_avx2, 0),
+                      make_tuple(6, 5, &aom_variance64x32_avx2, 0),
+                      make_tuple(5, 5, &aom_variance32x32_avx2, 0),
+                      make_tuple(5, 4, &aom_variance32x16_avx2, 0),
+                      make_tuple(4, 4, &aom_variance16x16_avx2, 0)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(
     AVX2, AvxSubpelVarianceTest,
@@ -1279,13 +1964,23 @@ INSTANTIATE_TEST_CASE_P(
 
 #if HAVE_MEDIA
 INSTANTIATE_TEST_CASE_P(MEDIA, AvxMseTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
                         ::testing::Values(MseParams(4, 4,
                                                     &aom_mse16x16_media)));
+=======
+                        ::testing::Values(make_tuple(4, 4,
+                                                     &aom_mse16x16_media)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(
     MEDIA, AvxVarianceTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     ::testing::Values(VarianceParams(4, 4, &aom_variance16x16_media),
                       VarianceParams(3, 3, &aom_variance8x8_media)));
+=======
+    ::testing::Values(make_tuple(4, 4, &aom_variance16x16_media, 0),
+                      make_tuple(3, 3, &aom_variance8x8_media, 0)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(
     MEDIA, AvxSubpelVarianceTest,
@@ -1295,14 +1990,25 @@ INSTANTIATE_TEST_CASE_P(
 
 #if HAVE_NEON
 INSTANTIATE_TEST_CASE_P(NEON, AvxSseTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
                         ::testing::Values(SseParams(2, 2,
                                                     &aom_get4x4sse_cs_neon)));
+=======
+                        ::testing::Values(make_tuple(2, 2,
+                                                     &aom_get4x4sse_cs_neon)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(NEON, AvxMseTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
                         ::testing::Values(MseParams(4, 4, &aom_mse16x16_neon)));
+=======
+                        ::testing::Values(make_tuple(4, 4,
+                                                     &aom_mse16x16_neon)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(
     NEON, AvxVarianceTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     ::testing::Values(VarianceParams(6, 6, &aom_variance64x64_neon),
                       VarianceParams(6, 5, &aom_variance64x32_neon),
                       VarianceParams(5, 6, &aom_variance32x64_neon),
@@ -1311,6 +2017,16 @@ INSTANTIATE_TEST_CASE_P(
                       VarianceParams(4, 3, &aom_variance16x8_neon),
                       VarianceParams(3, 4, &aom_variance8x16_neon),
                       VarianceParams(3, 3, &aom_variance8x8_neon)));
+=======
+    ::testing::Values(make_tuple(6, 6, &aom_variance64x64_neon, 0),
+                      make_tuple(6, 5, &aom_variance64x32_neon, 0),
+                      make_tuple(5, 6, &aom_variance32x64_neon, 0),
+                      make_tuple(5, 5, &aom_variance32x32_neon, 0),
+                      make_tuple(4, 4, &aom_variance16x16_neon, 0),
+                      make_tuple(4, 3, &aom_variance16x8_neon, 0),
+                      make_tuple(3, 4, &aom_variance8x16_neon, 0),
+                      make_tuple(3, 3, &aom_variance8x8_neon, 0)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(
     NEON, AvxSubpelVarianceTest,
@@ -1325,17 +2041,30 @@ INSTANTIATE_TEST_CASE_P(MSA, SumOfSquaresTest,
                         ::testing::Values(aom_get_mb_ss_msa));
 
 INSTANTIATE_TEST_CASE_P(MSA, AvxSseTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
                         ::testing::Values(SseParams(2, 2,
                                                     &aom_get4x4sse_cs_msa)));
+=======
+                        ::testing::Values(make_tuple(2, 2,
+                                                     &aom_get4x4sse_cs_msa)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(MSA, AvxMseTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
                         ::testing::Values(MseParams(4, 4, &aom_mse16x16_msa),
                                           MseParams(4, 3, &aom_mse16x8_msa),
                                           MseParams(3, 4, &aom_mse8x16_msa),
                                           MseParams(3, 3, &aom_mse8x8_msa)));
+=======
+                        ::testing::Values(make_tuple(4, 4, &aom_mse16x16_msa),
+                                          make_tuple(4, 3, &aom_mse16x8_msa),
+                                          make_tuple(3, 4, &aom_mse8x16_msa),
+                                          make_tuple(3, 3, &aom_mse8x8_msa)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(
     MSA, AvxVarianceTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     ::testing::Values(VarianceParams(6, 6, &aom_variance64x64_msa),
                       VarianceParams(6, 5, &aom_variance64x32_msa),
                       VarianceParams(5, 6, &aom_variance32x64_msa),
@@ -1349,6 +2078,21 @@ INSTANTIATE_TEST_CASE_P(
                       VarianceParams(3, 2, &aom_variance8x4_msa),
                       VarianceParams(2, 3, &aom_variance4x8_msa),
                       VarianceParams(2, 2, &aom_variance4x4_msa)));
+=======
+    ::testing::Values(make_tuple(6, 6, &aom_variance64x64_msa, 0),
+                      make_tuple(6, 5, &aom_variance64x32_msa, 0),
+                      make_tuple(5, 6, &aom_variance32x64_msa, 0),
+                      make_tuple(5, 5, &aom_variance32x32_msa, 0),
+                      make_tuple(5, 4, &aom_variance32x16_msa, 0),
+                      make_tuple(4, 5, &aom_variance16x32_msa, 0),
+                      make_tuple(4, 4, &aom_variance16x16_msa, 0),
+                      make_tuple(4, 3, &aom_variance16x8_msa, 0),
+                      make_tuple(3, 4, &aom_variance8x16_msa, 0),
+                      make_tuple(3, 3, &aom_variance8x8_msa, 0),
+                      make_tuple(3, 2, &aom_variance8x4_msa, 0),
+                      make_tuple(2, 3, &aom_variance4x8_msa, 0),
+                      make_tuple(2, 2, &aom_variance4x4_msa, 0)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 INSTANTIATE_TEST_CASE_P(
     MSA, AvxSubpelVarianceTest,

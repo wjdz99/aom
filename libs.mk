@@ -10,6 +10,7 @@
 ##
 
 
+
 # ARM assembly files are written in RVCT-style. We use some make magic to
 # filter those files to allow GCC compilation
 ifeq ($(ARCH_ARM),yes)
@@ -67,6 +68,10 @@ ifeq ($(CONFIG_AV1_ENCODER),yes)
   CODEC_EXPORTS-yes += $(addprefix $(AV1_PREFIX),$(AV1_CX_EXPORTS))
   CODEC_SRCS-yes += $(AV1_PREFIX)av1_cx.mk aom/aom.h aom/aomcx.h
   INSTALL-LIBS-yes += include/aom/aom.h include/aom/aomcx.h
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+=======
+  INSTALL-LIBS-$(CONFIG_SPATIAL_SVC) += include/aom/svc_context.h
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
   INSTALL_MAPS += include/aom/% $(SRC_PATH_BARE)/$(AV1_PREFIX)/%
   CODEC_DOC_SRCS += aom/aom.h aom/aomcx.h
   CODEC_DOC_SECTIONS += av1 av1_encoder
@@ -213,12 +218,15 @@ SHARED_LIB_SUF          := .dylib
 EXPORT_FILE             := libaom.syms
 LIBAOM_SO_SYMLINKS      := $(addprefix $(LIBSUBDIR)/, \
                              libaom.dylib  )
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 else
 ifeq ($(filter iphonesimulator%,$(TGT_OS)),$(TGT_OS))
 LIBAOM_SO               := libaom.$(SO_VERSION_MAJOR).dylib
 SHARED_LIB_SUF          := .dylib
 EXPORT_FILE             := libaom.syms
 LIBAOM_SO_SYMLINKS      := $(addprefix $(LIBSUBDIR)/, libaom.dylib)
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 else
 ifeq ($(filter os2%,$(TGT_OS)),$(TGT_OS))
 LIBAOM_SO               := libaom$(SO_VERSION_MAJOR).dll
@@ -233,7 +241,10 @@ EXPORT_FILE             := libaom.ver
 LIBAOM_SO_SYMLINKS      := $(addprefix $(LIBSUBDIR)/, \
                              libaom.so libaom.so.$(SO_VERSION_MAJOR) \
                              libaom.so.$(SO_VERSION_MAJOR).$(SO_VERSION_MINOR))
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 endif
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 endif
 endif
 
@@ -262,7 +273,11 @@ libaom.def: $(call enabled,CODEC_EXPORTS)
 	$(qexec)echo LIBRARY $(LIBAOM_SO:.dll=) INITINSTANCE TERMINSTANCE > $@
 	$(qexec)echo "DATA MULTIPLE NONSHARED" >> $@
 	$(qexec)echo "EXPORTS" >> $@
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 	$(qexec)awk '{print "_"$$2}' $^ >>$@
+=======
+	$(qexec)awk '!/aom_svc_*/ {print "_"$$2}' $^ >>$@
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 CLEAN-OBJS += libaom.def
 
 libaom_dll.a: $(LIBAOM_SO)
@@ -300,7 +315,11 @@ aom.pc: config.mk libs.mk
 	$(qexec)echo 'includedir=$${prefix}/include' >> $@
 	$(qexec)echo '' >> $@
 	$(qexec)echo 'Name: aom' >> $@
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 	$(qexec)echo 'Description: WebM Project AVx codec implementation' >> $@
+=======
+	$(qexec)echo 'Description: AOMedia Project AVx codec implementation' >> $@
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 	$(qexec)echo 'Version: $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)' >> $@
 	$(qexec)echo 'Requires:' >> $@
 	$(qexec)echo 'Conflicts:' >> $@

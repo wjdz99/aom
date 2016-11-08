@@ -728,7 +728,12 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(&idct8x8_12, &idct8x8_64_add_12_sse2, 6225, AOM_BITS_12)));
 #endif  // HAVE_SSE2 && CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 #if HAVE_SSSE3 && ARCH_X86_64 && !CONFIG_EMULATE_HARDWARE
+=======
+#if HAVE_SSSE3 && ARCH_X86_64 && !CONFIG_AOM_HIGHBITDEPTH && \
+    !CONFIG_EMULATE_HARDWARE
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 INSTANTIATE_TEST_CASE_P(SSSE3, FwdTrans8x8DCT,
                         ::testing::Values(make_tuple(&aom_fdct8x8_ssse3,
                                                      &aom_idct8x8_64_add_ssse3,
@@ -740,7 +745,10 @@ INSTANTIATE_TEST_CASE_P(MSA, FwdTrans8x8DCT,
                         ::testing::Values(make_tuple(&aom_fdct8x8_msa,
                                                      &aom_idct8x8_64_add_msa, 0,
                                                      AOM_BITS_8)));
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 #if !CONFIG_EXT_TX
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 INSTANTIATE_TEST_CASE_P(
     MSA, FwdTrans8x8HT,
     ::testing::Values(
@@ -748,6 +756,9 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(&av1_fht8x8_msa, &av1_iht8x8_64_add_msa, 1, AOM_BITS_8),
         make_tuple(&av1_fht8x8_msa, &av1_iht8x8_64_add_msa, 2, AOM_BITS_8),
         make_tuple(&av1_fht8x8_msa, &av1_iht8x8_64_add_msa, 3, AOM_BITS_8)));
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 #endif  // !CONFIG_EXT_TX
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 #endif  // HAVE_MSA && !CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
 }  // namespace

@@ -102,6 +102,10 @@ INSTANTIATE_TEST_CASE_P(
     C, AV1FwdTxfm,
     ::testing::Values(FdctParam(&fdct4, &reference_dct_1d, 4, 1),
                       FdctParam(&fdct8, &reference_dct_1d, 8, 1),
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
                       FdctParam(&fdct16, &reference_dct_1d, 16, 2),
                       FdctParam(&fdct32, &reference_dct_1d, 32, 3)));
+=======
+                      FdctParam(&fdct16, &reference_dct_1d, 16, 2)));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 }  // namespace

@@ -68,6 +68,9 @@ int64_t av1_block_error_avx2(const int16_t *coeff, const int16_t *dqcoeff,
   _mm_storel_epi64((__m128i *)(&sse), sse_reg128);
 
   _mm_storel_epi64((__m128i *)(ssz), ssz_reg128);
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
   _mm256_zeroupper();
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
   return sse;
 }
