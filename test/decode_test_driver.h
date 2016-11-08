@@ -99,10 +99,13 @@ class Decoder {
     return aom_codec_iface_name(CodecInterface());
   }
 
-  bool IsVP8() const;
+  bool IsAOM() const;
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
   bool IsAV1() const;
 
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   aom_codec_ctx_t *GetDecoder() { return &decoder_; }
 
  protected:

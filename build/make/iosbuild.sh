@@ -23,7 +23,10 @@ CONFIGURE_ARGS="--disable-docs
                 --disable-unit-tests"
 DIST_DIR="_dist"
 FRAMEWORK_DIR="AOM.framework"
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 FRAMEWORK_LIB="AOM.framework/AOM"
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 HEADER_DIR="${FRAMEWORK_DIR}/Headers/aom"
 SCRIPT_DIR=$(dirname "$0")
 LIBAOM_SOURCE_DIR=$(cd ${SCRIPT_DIR}/../..; pwd)
@@ -103,13 +106,14 @@ create_aom_framework_config_shim() {
   local include_guard="AOM_FRAMEWORK_HEADERS_AOM_AOM_CONFIG_H_"
 
   local file_header="/*
- *  Copyright (c) $(date +%Y) The WebM project authors. All Rights Reserved.
+ * Copyright (c) $(date +%Y) Alliance for Open Media. All rights reserved
  *
- *  Use of this source code is governed by a BSD-style license
- *  that can be found in the LICENSE file in the root of the source
- *  tree. An additional intellectual property rights grant can be found
- *  in the file PATENTS.  All contributing project authors may
- *  be found in the AUTHORS file in the root of the source tree.
+ * This source code is subject to the terms of the BSD 2 Clause License and
+ * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
+ * was not distributed with this source code in the LICENSE file, you can
+ * obtain it at www.aomedia.org/license/software. If the Alliance for Open
+ * Media Patent License 1.0 was not distributed with this source code in the
+ * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
 /* GENERATED FILE: DO NOT EDIT! */
@@ -195,12 +199,16 @@ build_framework() {
   for target in ${targets}; do
     build_target "${target}"
     target_dist_dir="${BUILD_ROOT}/${target}/${DIST_DIR}"
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
     if [ "${ENABLE_SHARED}" = "yes" ]; then
       local suffix="dylib"
     else
       local suffix="a"
     fi
     lib_list="${lib_list} ${target_dist_dir}/lib/libaom.${suffix}"
+=======
+    lib_list="${lib_list} ${target_dist_dir}/lib/libaom.a"
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   done
 
   cd "${ORIG_PWD}"
@@ -219,6 +227,7 @@ build_framework() {
   # Copy in aom_version.h.
   cp -p "${BUILD_ROOT}/${target}/aom_version.h" "${HEADER_DIR}"
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
   if [ "${ENABLE_SHARED}" = "yes" ]; then
     # Adjust the dylib's name so dynamic linking in apps works as expected.
     install_name_tool -id '@rpath/AOM.framework/AOM' ${FRAMEWORK_DIR}/AOM
@@ -235,9 +244,18 @@ build_framework() {
   verify_framework_targets ${targets}
 
   vlog "Created fat library ${FRAMEWORK_LIB} containing:"
+=======
+  vlog "Created fat library ${FRAMEWORK_DIR}/AOM containing:"
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   for lib in ${lib_list}; do
     vlog "  $(echo ${lib} | awk -F / '{print $2, $NF}')"
   done
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
+=======
+
+  # TODO(tomfinegan): Verify that expected targets are included within
+  # AOM.framework/AOM via lipo -info.
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 }
 
 # Trap function. Cleans up the subtree used to build all targets contained in
@@ -268,7 +286,10 @@ iosbuild_usage() {
 cat << EOF
   Usage: ${0##*/} [arguments]
     --help: Display this message and exit.
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
     --enable-shared: Build a dynamic framework for use on iOS 8 or later.
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
     --extra-configure-args <args>: Extra args to pass when configuring libaom.
     --macosx: Uses darwin15 targets instead of iphonesimulator targets for x86
               and x86_64. Allows linking to framework when builds target MacOSX

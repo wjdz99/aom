@@ -9,6 +9,10 @@
 ## PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 ##
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
+=======
+
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 AV1_DX_EXPORTS += exports_dec
 
 AV1_DX_SRCS-yes += $(AV1_COMMON_SRCS-yes)

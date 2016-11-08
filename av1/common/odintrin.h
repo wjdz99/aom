@@ -257,4 +257,8 @@ typedef int32_t od_val32;
 }  // extern "C"
 #endif
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #endif  // AV1_COMMON_ODINTRIN_H_
+=======
+#endif
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)

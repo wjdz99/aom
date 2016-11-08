@@ -23,7 +23,11 @@ typedef struct {
       int_mv mv;
       PREDICTION_MODE mode;
     } m;
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
   } ref[TOTAL_REFS_PER_FRAME];
+=======
+  } ref[MAX_REF_FRAMES];
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 } MBGRAPH_MB_STATS;
 
 typedef struct { MBGRAPH_MB_STATS *mb_stats; } MBGRAPH_FRAME_STATS;

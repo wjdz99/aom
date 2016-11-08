@@ -35,7 +35,11 @@ void av1_tile_init(TileInfo *tile, const struct AV1Common *cm, int row,
 void av1_tile_set_row(TileInfo *tile, const struct AV1Common *cm, int row);
 void av1_tile_set_col(TileInfo *tile, const struct AV1Common *cm, int col);
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 void av1_get_tile_n_bits(const int mi_cols, int *min_log2_tile_cols,
+=======
+void av1_get_tile_n_bits(int mi_cols, int *min_log2_tile_cols,
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
                          int *max_log2_tile_cols);
 
 #ifdef __cplusplus

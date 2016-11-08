@@ -55,7 +55,11 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
                               int num_workers, AV1LfSync *lf_sync);
 
 void av1_accumulate_frame_counts(struct AV1Common *cm,
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
                                  struct FRAME_COUNTS *counts);
+=======
+                                 struct FRAME_COUNTS *counts, int is_dec);
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 
 #ifdef __cplusplus
 }  // extern "C"

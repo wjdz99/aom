@@ -68,6 +68,9 @@ int64_t av1_block_error_avx2(const int16_t *coeff, const int16_t *dqcoeff,
   _mm_storel_epi64((__m128i *)(&sse), sse_reg128);
 
   _mm_storel_epi64((__m128i *)(ssz), ssz_reg128);
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
   _mm256_zeroupper();
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   return sse;
 }

@@ -17,6 +17,7 @@
     mov         rdx, arg(5)                 ;filter ptr
     mov         rsi, arg(0)                 ;src_ptr
     mov         rdi, arg(2)                 ;output_ptr
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
     mov         ecx, 0x01000100
 
     movdqa      xmm3, [rdx]                 ;load filters
@@ -95,6 +96,90 @@
 
     pmulhrsw    xmm0, xmm6                  ;rounding(+64)+shift(>>7)
     pmulhrsw    xmm2, xmm6
+=======
+    mov         rcx, 0x0400040
+
+    movdqa      xmm3, [rdx]                 ;load filters
+    psrldq      xmm3, 6
+    packsswb    xmm3, xmm3
+    pshuflw     xmm3, xmm3, 0b              ;k3_k4
+
+    movq        xmm2, rcx                   ;rounding
+    pshufd      xmm2, xmm2, 0
+
+    movsxd      rax, DWORD PTR arg(1)       ;pixels_per_line
+    movsxd      rdx, DWORD PTR arg(3)       ;out_pitch
+    movsxd      rcx, DWORD PTR arg(4)       ;output_height
+%endm
+
+%macro APPLY_FILTER_4 1
+    punpcklbw   xmm0, xmm1
+    pmaddubsw   xmm0, xmm3
+
+    paddsw      xmm0, xmm2                  ;rounding
+    psraw       xmm0, 7                     ;shift
+    packuswb    xmm0, xmm0                  ;pack to byte
+
+%if %1
+    movd        xmm1, [rdi]
+    pavgb       xmm0, xmm1
+%endif
+    movd        [rdi], xmm0
+    lea         rsi, [rsi + rax]
+    lea         rdi, [rdi + rdx]
+    dec         rcx
+%endm
+
+%macro GET_PARAM 0
+    mov         rdx, arg(5)                 ;filter ptr
+    mov         rsi, arg(0)                 ;src_ptr
+    mov         rdi, arg(2)                 ;output_ptr
+    mov         rcx, 0x0400040
+
+    movdqa      xmm7, [rdx]                 ;load filters
+    psrldq      xmm7, 6
+    packsswb    xmm7, xmm7
+    pshuflw     xmm7, xmm7, 0b              ;k3_k4
+    punpcklwd   xmm7, xmm7
+
+    movq        xmm6, rcx                   ;rounding
+    pshufd      xmm6, xmm6, 0
+
+    movsxd      rax, DWORD PTR arg(1)       ;pixels_per_line
+    movsxd      rdx, DWORD PTR arg(3)       ;out_pitch
+    movsxd      rcx, DWORD PTR arg(4)       ;output_height
+%endm
+
+%macro APPLY_FILTER_8 1
+    punpcklbw   xmm0, xmm1
+    pmaddubsw   xmm0, xmm7
+
+    paddsw      xmm0, xmm6                  ;rounding
+    psraw       xmm0, 7                     ;shift
+    packuswb    xmm0, xmm0                  ;pack back to byte
+
+%if %1
+    movq        xmm1, [rdi]
+    pavgb       xmm0, xmm1
+%endif
+    movq        [rdi], xmm0                 ;store the result
+
+    lea         rsi, [rsi + rax]
+    lea         rdi, [rdi + rdx]
+    dec         rcx
+%endm
+
+%macro APPLY_FILTER_16 1
+    punpcklbw   xmm0, xmm1
+    punpckhbw   xmm2, xmm1
+    pmaddubsw   xmm0, xmm7
+    pmaddubsw   xmm2, xmm7
+
+    paddsw      xmm0, xmm6                  ;rounding
+    paddsw      xmm2, xmm6
+    psraw       xmm0, 7                     ;shift
+    psraw       xmm2, 7
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
     packuswb    xmm0, xmm2                  ;pack back to byte
 
 %if %1

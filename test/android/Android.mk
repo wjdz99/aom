@@ -9,6 +9,10 @@
 # PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 #
 # This make file builds aom_test app for android.
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
+=======
+
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 # The test app itself runs on the command line through adb shell
 # The paths are really messed up as the libaom make file
 # expects to be made from a parent directory.
@@ -18,13 +22,21 @@ LOCAL_PATH := $(CUR_WD)/../../..
 
 #libwebm
 include $(CLEAR_VARS)
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 include $(BINDINGS_DIR)/libaom/third_party/libwebm/Android.mk
+=======
+include $(BINDINGS_DIR)/aom/third_party/libwebm/Android.mk
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 LOCAL_PATH := $(CUR_WD)/../../..
 
 #libaom
 include $(CLEAR_VARS)
 LOCAL_STATIC_LIBRARIES := libwebm
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 include $(BINDINGS_DIR)/libaom/build/make/Android.mk
+=======
+include $(BINDINGS_DIR)/aom/build/make/Android.mk
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 LOCAL_PATH := $(CUR_WD)/../..
 
 #libgtest

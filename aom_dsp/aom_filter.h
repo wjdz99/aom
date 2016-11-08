@@ -27,6 +27,7 @@ extern "C" {
 
 typedef int16_t InterpKernel[SUBPEL_TAPS];
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #define BIL_SUBPEL_BITS 3
 #define BIL_SUBPEL_SHIFTS (1 << BIL_SUBPEL_BITS)
 
@@ -36,6 +37,8 @@ static const uint8_t bilinear_filters_2t[BIL_SUBPEL_SHIFTS][2] = {
   { 64, 64 }, { 48, 80 },  { 32, 96 }, { 16, 112 },
 };
 
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 #ifdef __cplusplus
 }  // extern "C"
 #endif

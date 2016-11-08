@@ -37,10 +37,22 @@
 #include <windows.h>
 #include <winnt.h>
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
+=======
+namespace testing {
+namespace internal {
+
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 inline bool operator==(const M128A &lhs, const M128A &rhs) {
   return (lhs.Low == rhs.Low && lhs.High == rhs.High);
 }
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
+=======
+}  // namespace internal
+}  // namespace testing
+
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 namespace libaom_test {
 
 // Compares the state of xmm[6-15] at construction with their state at

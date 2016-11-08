@@ -29,6 +29,7 @@ void aom_dk_start_encode(aom_dk_writer *br, uint8_t *source) {
 void aom_dk_stop_encode(aom_dk_writer *br) {
   int i;
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #if CONFIG_BITSTREAM_DEBUG
   bitstream_queue_set_skip_write(1);
 #endif  // CONFIG_BITSTREAM_DEBUG
@@ -38,6 +39,9 @@ void aom_dk_stop_encode(aom_dk_writer *br) {
 #if CONFIG_BITSTREAM_DEBUG
   bitstream_queue_set_skip_write(0);
 #endif  // CONFIG_BITSTREAM_DEBUG
+=======
+  for (i = 0; i < 32; i++) aom_dk_write_bit(br, 0);
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 
   // Ensure there's no ambigous collision with any index marker bytes
   if ((br->buffer[br->pos - 1] & 0xe0) == 0xc0) br->buffer[br->pos++] = 0;

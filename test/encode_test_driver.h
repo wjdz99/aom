@@ -124,6 +124,14 @@ class Encoder {
     ASSERT_EQ(AOM_CODEC_OK, res) << EncoderError();
   }
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
+=======
+  void Control(int ctrl_id, struct aom_svc_layer_id *arg) {
+    const aom_codec_err_t res = aom_codec_control_(&encoder_, ctrl_id, arg);
+    ASSERT_EQ(AOM_CODEC_OK, res) << EncoderError();
+  }
+
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 #if CONFIG_AV1_ENCODER
   void Control(int ctrl_id, aom_active_map_t *arg) {
     const aom_codec_err_t res = aom_codec_control_(&encoder_, ctrl_id, arg);

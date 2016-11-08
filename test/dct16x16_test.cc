@@ -282,6 +282,10 @@ void iht16x16_12(const tran_low_t *in, uint8_t *out, int stride, int tx_type) {
 }
 
 #if HAVE_SSE2
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
+=======
+
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 void idct16x16_10_add_10_c(const tran_low_t *in, uint8_t *out, int stride) {
   aom_highbd_idct16x16_10_add_c(in, out, stride, 10);
 }
@@ -533,10 +537,18 @@ class Trans16x16TestBase {
 
       for (int j = 0; j < kNumCoeffs; ++j) {
 #if CONFIG_AOM_HIGHBITDEPTH
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
         const int diff =
+=======
+        const uint32_t diff =
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
             bit_depth_ == AOM_BITS_8 ? dst[j] - src[j] : dst16[j] - src16[j];
 #else
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
         const int diff = dst[j] - src[j];
+=======
+        const uint32_t diff = dst[j] - src[j];
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 #endif  // CONFIG_AOM_HIGHBITDEPTH
         const uint32_t error = diff * diff;
         EXPECT_GE(1u, error) << "Error: 16x16 IDCT has error " << error
@@ -589,10 +601,18 @@ class Trans16x16TestBase {
 
       for (int j = 0; j < kNumCoeffs; ++j) {
 #if CONFIG_AOM_HIGHBITDEPTH
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
         const int diff =
+=======
+        const uint32_t diff =
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
             bit_depth_ == AOM_BITS_8 ? dst[j] - ref[j] : dst16[j] - ref16[j];
 #else
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
         const int diff = dst[j] - ref[j];
+=======
+        const uint32_t diff = dst[j] - ref[j];
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 #endif  // CONFIG_AOM_HIGHBITDEPTH
         const uint32_t error = diff * diff;
         EXPECT_EQ(0u, error) << "Error: 16x16 IDCT Comparison has error "
@@ -833,11 +853,14 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(&av1_fht16x16_c, &av1_iht16x16_256_add_c, 1, AOM_BITS_8),
         make_tuple(&av1_fht16x16_c, &av1_iht16x16_256_add_c, 2, AOM_BITS_8),
         make_tuple(&av1_fht16x16_c, &av1_iht16x16_256_add_c, 3, AOM_BITS_8)));
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 INSTANTIATE_TEST_CASE_P(
     C, PartialTrans16x16Test,
     ::testing::Values(make_tuple(&aom_highbd_fdct16x16_1_c, AOM_BITS_8),
                       make_tuple(&aom_highbd_fdct16x16_1_c, AOM_BITS_10),
                       make_tuple(&aom_highbd_fdct16x16_1_c, AOM_BITS_12)));
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 #else
 INSTANTIATE_TEST_CASE_P(
     C, Trans16x16HT,
@@ -846,9 +869,12 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(&av1_fht16x16_c, &av1_iht16x16_256_add_c, 1, AOM_BITS_8),
         make_tuple(&av1_fht16x16_c, &av1_iht16x16_256_add_c, 2, AOM_BITS_8),
         make_tuple(&av1_fht16x16_c, &av1_iht16x16_256_add_c, 3, AOM_BITS_8)));
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 INSTANTIATE_TEST_CASE_P(C, PartialTrans16x16Test,
                         ::testing::Values(make_tuple(&aom_fdct16x16_1_c,
                                                      AOM_BITS_8)));
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
 #if HAVE_NEON_ASM && !CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
@@ -873,17 +899,23 @@ INSTANTIATE_TEST_CASE_P(
                                  2, AOM_BITS_8),
                       make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_sse2,
                                  3, AOM_BITS_8)));
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 INSTANTIATE_TEST_CASE_P(SSE2, PartialTrans16x16Test,
                         ::testing::Values(make_tuple(&aom_fdct16x16_1_sse2,
                                                      AOM_BITS_8)));
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 #endif  // HAVE_SSE2 && !CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #if HAVE_AVX2 && !CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
 INSTANTIATE_TEST_CASE_P(AVX2, PartialTrans16x16Test,
                         ::testing::Values(make_tuple(&aom_fdct16x16_1_avx2,
                                                      AOM_BITS_8)));
 #endif  // HAVE_AVX2 && !CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
 
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 #if HAVE_SSE2 && CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
 INSTANTIATE_TEST_CASE_P(
     SSE2, Trans16x16DCT,
@@ -916,6 +948,7 @@ INSTANTIATE_TEST_CASE_P(
                                  &idct16x16_10_add_12_sse2, 3167, AOM_BITS_12),
                       make_tuple(&idct16x16_12, &idct16x16_256_add_12_sse2,
                                  3167, AOM_BITS_12)));
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 // TODO(luoyi):
 // For this test case, we should test function: aom_highbd_fdct16x16_1_sse2.
 // However this function is not available yet. if we mistakely test
@@ -924,6 +957,8 @@ INSTANTIATE_TEST_CASE_P(
 INSTANTIATE_TEST_CASE_P(SSE2, PartialTrans16x16Test,
                         ::testing::Values(make_tuple(&aom_fdct16x16_1_sse2,
                                                      AOM_BITS_8)));
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 #endif  // HAVE_SSE2 && CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
 
 #if HAVE_MSA && !CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
@@ -931,7 +966,10 @@ INSTANTIATE_TEST_CASE_P(MSA, Trans16x16DCT,
                         ::testing::Values(make_tuple(&aom_fdct16x16_msa,
                                                      &aom_idct16x16_256_add_msa,
                                                      0, AOM_BITS_8)));
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #if !CONFIG_EXT_TX
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 INSTANTIATE_TEST_CASE_P(
     MSA, Trans16x16HT,
     ::testing::Values(
@@ -940,9 +978,12 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(&av1_fht16x16_msa, &av1_iht16x16_256_add_msa, 2, AOM_BITS_8),
         make_tuple(&av1_fht16x16_msa, &av1_iht16x16_256_add_msa, 3,
                    AOM_BITS_8)));
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #endif  // !CONFIG_EXT_TX
 INSTANTIATE_TEST_CASE_P(MSA, PartialTrans16x16Test,
                         ::testing::Values(make_tuple(&aom_fdct16x16_1_msa,
                                                      AOM_BITS_8)));
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 #endif  // HAVE_MSA && !CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
 }  // namespace

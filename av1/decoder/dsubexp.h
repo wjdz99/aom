@@ -29,6 +29,7 @@ void av1_diff_update_prob_(aom_reader *r, aom_prob *p ACCT_STR_PARAM);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #if CONFIG_GLOBAL_MOTION
 // mag_bits is number of bits for magnitude. The alphabet is of size
 // 2 * 2^mag_bits + 1, symmetric around 0, where one bit is used to
@@ -36,4 +37,7 @@ void av1_diff_update_prob_(aom_reader *r, aom_prob *p ACCT_STR_PARAM);
 // and 1 more bit for the sign if non-zero.
 int aom_read_primitive_symmetric(aom_reader *r, unsigned int mag_bits);
 #endif  // CONFIG_GLOBAL_MOTION
+=======
+
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 #endif  // AV1_DECODER_DSUBEXP_H_
