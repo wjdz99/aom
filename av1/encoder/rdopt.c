@@ -7835,7 +7835,7 @@ static int64_t handle_inter_mode(
 
       rdcosty = RDCOST(x->rdmult, x->rddiv, *rate2, *distortion);
       rdcosty = AOMMIN(rdcosty, RDCOST(x->rdmult, x->rddiv, 0, *psse));
-
+/* clang-format off */
 #if CONFIG_VAR_TX
       is_cost_valid_uv =
           inter_block_uvrd(cpi, x, &rd_stats_uv, bsize, ref_best_rd - rdcosty);
@@ -7852,6 +7852,7 @@ static int64_t handle_inter_mode(
           super_block_uvrd(cpi, x, rate_uv, &distortion_uv, &skippable_uv,
                            &sseuv, bsize, ref_best_rd - rdcosty);
 #endif  // CONFIG_VAR_TX
+
       if (!is_cost_valid_uv) {
         *rate2 = INT_MAX;
         *distortion = INT64_MAX;
@@ -7862,7 +7863,7 @@ static int64_t handle_inter_mode(
         return INT64_MAX;
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       }
-
+      /* clang-format on */
       *psse += sseuv;
       *rate2 += *rate_uv;
       *distortion += distortion_uv;
