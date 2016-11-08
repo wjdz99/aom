@@ -9,6 +9,10 @@
 ## PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 ##
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+=======
+
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 AV1_DX_EXPORTS += exports_dec
 
 AV1_DX_SRCS-yes += $(AV1_COMMON_SRCS-yes)

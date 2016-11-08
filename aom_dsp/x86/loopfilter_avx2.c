@@ -911,5 +911,8 @@ void aom_lpf_horizontal_edge_16_avx2(unsigned char *s, int p,
     q6 = _mm_or_si128(flat2_q6, q6);
     _mm_storeu_si128((__m128i *)(s + 6 * p), q6);
   }
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
   _mm256_zeroupper();
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 }

@@ -35,13 +35,19 @@ Advanced options:
   ${toggle_debug_libs}            in/exclude debug version of libraries
   ${toggle_static_msvcrt}         use static MSVCRT (VS builds only)
   ${toggle_aom_highbitdepth}      use high bit depth (10/12) profiles
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
   ${toggle_better_hw_compatibility}
                                   enable encoder to produce streams with better
                                   hardware decoder compatibility
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
   ${toggle_av1}                  AV1 codec support
   ${toggle_internal_stats}        output of encoder internal stats for debug, if supported (encoders)
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
   ${toggle_postproc}              postprocessing
   ${toggle_av1_postproc}          av1 specific postprocessing
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
   ${toggle_multithread}           multithreaded encoding and decoding
   ${toggle_spatial_resampling}    spatial sampling (scaling) support
   ${toggle_realtime_only}         enable this option while building for real-time encoding
@@ -54,11 +60,13 @@ Advanced options:
   ${toggle_shared}                shared library support
   ${toggle_static}                static library support
   ${toggle_small}                 favor smaller size over speed
-  ${toggle_postproc_visualizer}   macro block / block level visualizers
   ${toggle_multi_res_encoding}    enable multiple-resolution encoding
   ${toggle_temporal_denoising}    enable temporal denoising and disable the spatial denoiser
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
   ${toggle_av1_temporal_denoising}
                                   enable av1 temporal denoising
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
   ${toggle_webm_io}               enable input from and output to WebM container
   ${toggle_libyuv}                enable libyuv
   ${toggle_accounting}            enable bit accounting
@@ -190,7 +198,11 @@ if [ ${doxy_major:-0} -ge 1 ]; then
 fi
 
 # disable codecs when their source directory does not exist
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 [ -d "${source_path}/av1" ] || disable_codec av1
+=======
+[ -d "${source_path}/av1" ] || disable_feature av1
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 # install everything except the sources, by default. sources will have
 # to be enabled when doing dist builds, since that's no longer a common
@@ -255,6 +267,7 @@ EXPERIMENT_LIST="
     emulate_hardware
     clpf
     dering
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     var_tx
     rect_tx
     ref_mv
@@ -296,6 +309,32 @@ EXPERIMENT_LIST="
     ec_adapt
     simp_mv_pred
     rd_debug
+=======
+    ref_mv
+    sub8x8_mc
+    ext_intra
+    ext_interp
+    ext_tx
+    motion_var
+    ext_refs
+    ext_compound
+    supertx
+    ans
+    ec_multisymbol
+    daala_ec
+    pvq
+    parallel_deblocking
+    cb4x4
+    palette
+    frame_size
+    filter_7bit
+    delta_q
+    adapt_scan
+    bitstream_debug
+    tile_groups
+    ec_adapt
+    simp_mv_pred
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 "
 CONFIG_LIST="
     dependency_tracking
@@ -319,8 +358,11 @@ CONFIG_LIST="
     dequant_tokens
     dc_recon
     runtime_cpu_detect
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     postproc
     av1_postproc
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
     multithread
     internal_stats
     ${CODECS}
@@ -335,7 +377,6 @@ CONFIG_LIST="
     shared
     static
     small
-    postproc_visualizer
     os_support
     unit_tests
     webm_io
@@ -345,10 +386,16 @@ CONFIG_LIST="
     encode_perf_tests
     multi_res_encoding
     temporal_denoising
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     av1_temporal_denoising
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
     coefficient_range_checking
     aom_highbitdepth
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     better_hw_compatibility
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
     experimental
     size_limit
     aom_qm
@@ -383,8 +430,11 @@ CMDLINE_SELECT="
 
     dequant_tokens
     dc_recon
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     postproc
     av1_postproc
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
     multithread
     internal_stats
     ${CODECS}
@@ -397,7 +447,6 @@ CMDLINE_SELECT="
     shared
     static
     small
-    postproc_visualizer
     unit_tests
     webm_io
     libyuv
@@ -406,9 +455,15 @@ CMDLINE_SELECT="
     encode_perf_tests
     multi_res_encoding
     temporal_denoising
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     av1_temporal_denoising
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
     coefficient_range_checking
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     better_hw_compatibility
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
     aom_highbitdepth
     experimental
     aom_qm
@@ -466,11 +521,14 @@ post_process_cmdline() {
     enabled ec_multisymbol && ! enabled ans && soft_enable daala_ec
     enabled ec_multisymbol && ! enabled daala_ec && soft_enable ans
     enabled daala_ec && enable_feature ec_multisymbol
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     if enabled global_motion && (enabled ext_inter || enabled dual_filter); then
       log_echo "global_motion currently not compatible with ext_inter"
       log_echo "and dual_filter. Disabling global_motion."
       disable_feature global_motion
     fi
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 }
 
 
@@ -493,7 +551,10 @@ process_targets() {
     done
     enabled debug_libs && DIST_DIR="${DIST_DIR}-debug"
     enabled codec_srcs && DIST_DIR="${DIST_DIR}-src"
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
     ! enabled postproc && ! enabled av1_postproc && DIST_DIR="${DIST_DIR}-nopost"
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
     ! enabled multithread && DIST_DIR="${DIST_DIR}-nomt"
     ! enabled install_docs && DIST_DIR="${DIST_DIR}-nodocs"
     DIST_DIR="${DIST_DIR}-${tgt_isa}-${tgt_os}"
@@ -635,6 +696,7 @@ process_toolchain() {
         check_add_cflags -Wuninitialized
         check_add_cflags -Wunused
         check_add_cflags -Wsign-compare
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
         check_add_cflags -Wlogical-op
         # Enabling the following warning (in combination with -Wunused above)
         # for C++ generates errors in third_party code including googletest and
@@ -644,6 +706,24 @@ process_toolchain() {
         # about some function parameters shadowing class member function names.
         # So, only enable this warning for C code.
         check_cflags "-Wshadow" && add_cflags_only "-Wshadow"
+=======
+        # Enabling the following warning (in combination with -Wunused above)
+        # for C++ generates errors in third_party code including googletest and
+        # libyuv. So enable it only for C code.
+        check_cflags "-Wextra" && add_cflags_only "-Wextra"
+        # Enabling the following warning for C++ generates some useless warnings
+        # about some function parameters shadowing class member function names.
+        # So, only enable this warning for C code.
+        check_cflags "-Wshadow" && add_cflags_only "-Wshadow"
+        case ${CC} in
+          *clang*)
+              # libaom and/or clang have issues with aliasing:
+              # https://code.google.com/p/webm/issues/detail?id=603
+              # work around them until they are fixed
+              check_add_cflags -fno-strict-aliasing
+          ;;
+        esac
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
         if enabled mips || [ -z "${INLINE}" ]; then
           enabled extra_warnings || check_add_cflags -Wno-unused-function
         fi
@@ -697,13 +777,6 @@ process_toolchain() {
              INLINE="__forceinline"
         ;;
     esac
-
-    # Other toolchain specific defaults
-    case $toolchain in x86*) soft_enable postproc;; esac
-
-    if enabled postproc_visualizer; then
-        enabled postproc || die "postproc_visualizer requires postproc to be enabled"
-    fi
 
     # Enable unit tests by default if we have a working C++ compiler.
     case "$toolchain" in
@@ -771,7 +844,11 @@ EOF
 ##
 CONFIGURE_ARGS="$@"
 process "$@"
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 print_webm_license ${BUILD_PFX}aom_config.c "/*" " */"
+=======
+print_aomedia_license ${BUILD_PFX}aom_config.c "/*" " */"
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 cat <<EOF >> ${BUILD_PFX}aom_config.c
 #include "aom/aom_codec.h"
 static const char* const cfg = "$CONFIGURE_ARGS";

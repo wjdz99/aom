@@ -134,6 +134,7 @@ static aom_codec_err_t image2yuvconfig(const aom_image_t *img,
   return AOM_CODEC_OK;
 }
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 static AOM_REFFRAME ref_frame_to_av1_reframe(aom_ref_frame_type_t frame) {
   switch (frame) {
     case AOM_LAST_FRAME: return AOM_LAST_FLAG;
@@ -143,4 +144,6 @@ static AOM_REFFRAME ref_frame_to_av1_reframe(aom_ref_frame_type_t frame) {
   assert(0 && "Invalid Reference Frame");
   return AOM_LAST_FLAG;
 }
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 #endif  // AV1_AV1_IFACE_COMMON_H_

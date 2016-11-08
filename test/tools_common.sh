@@ -183,8 +183,11 @@ av1_decode_available() {
 av1_encode_available() {
   [ "$(aom_config_option_enabled CONFIG_AV1_ENCODER)" = "yes" ] && echo yes
 }
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 
 # Echoes yes to stdout when aom_config_option_enabled() reports yes for
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 # CONFIG_WEBM_IO.
 webm_io_available() {
   [ "$(aom_config_option_enabled CONFIG_WEBM_IO)" = "yes" ] && echo yes
@@ -413,12 +416,23 @@ if [ "$(is_windows_target)" = "yes" ]; then
 fi
 
 # Variables shared by tests.
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 VP8_IVF_FILE="${LIBAOM_TEST_DATA_PATH}/vp80-00-comprehensive-001.ivf"
 AV1_IVF_FILE="${LIBAOM_TEST_DATA_PATH}/vp90-2-09-subpixel-00.ivf"
+=======
+AOM_IVF_FILE="${LIBAOM_TEST_DATA_PATH}/aom0-00-comprehensive-001.ivf"
+AV1_IVF_FILE="${LIBAOM_TEST_DATA_PATH}/av10-2-09-subpixel-00.ivf"
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 AV1_WEBM_FILE="${LIBAOM_TEST_DATA_PATH}/vp90-2-00-quantizer-00.webm"
 AV1_FPM_WEBM_FILE="${LIBAOM_TEST_DATA_PATH}/vp90-2-07-frame_parallel-1.webm"
 AV1_LT_50_FRAMES_WEBM_FILE="${LIBAOM_TEST_DATA_PATH}/vp90-2-02-size-32x08.webm"
+=======
+AV1_WEBM_FILE="${LIBAOM_TEST_DATA_PATH}/av10-2-00-quantizer-00.webm"
+AV1_FPM_WEBM_FILE="${LIBAOM_TEST_DATA_PATH}/av10-2-07-frame_parallel-1.webm"
+AV1_LT_50_FRAMES_WEBM_FILE="${LIBAOM_TEST_DATA_PATH}/av10-2-02-size-32x08.webm"
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 YUV_RAW_INPUT="${LIBAOM_TEST_DATA_PATH}/hantro_collage_w352h288.yuv"
 YUV_RAW_INPUT_WIDTH=352

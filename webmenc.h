@@ -40,6 +40,10 @@ typedef enum stereo_format {
 
 void write_webm_file_header(struct WebmOutputContext *webm_ctx,
                             const aom_codec_enc_cfg_t *cfg,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+=======
+                            const struct aom_rational *fps,
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
                             stereo_format_t stereo_fmt, unsigned int fourcc,
                             const struct AvxRational *par);
 

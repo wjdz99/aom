@@ -30,6 +30,7 @@ typedef struct {
 #if CONFIG_PALETTE
   uint8_t *color_index_map[2];
 #endif  // CONFIG_PALETTE
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 #if CONFIG_VAR_TX
   uint8_t *blk_skip[MAX_MB_PLANE];
 #endif
@@ -96,6 +97,49 @@ typedef struct PC_TREE {
   PICK_MODE_CONTEXT verticalb_supertx;
 #endif
 #endif
+=======
+  tran_low_t *coeff[MAX_MB_PLANE];
+  tran_low_t *qcoeff[MAX_MB_PLANE];
+  tran_low_t *dqcoeff[MAX_MB_PLANE];
+#if CONFIG_PVQ
+  tran_low_t *pvq_ref_coeff[MAX_MB_PLANE];
+#endif
+  uint16_t *eobs[MAX_MB_PLANE];
+
+  int num_4x4_blk;
+  int skip;
+  int pred_pixel_ready;
+  // For current partition, only if all Y, U, and V transform blocks'
+  // coefficients are quantized to 0, skippable is set to 0.
+  int skippable;
+  int best_mode_index;
+  int hybrid_pred_diff;
+  int comp_pred_diff;
+  int single_pred_diff;
+
+  // TODO(jingning) Use RD_COST struct here instead. This involves a boarder
+  // scope of refactoring.
+  int rate;
+  int64_t dist;
+
+  // motion vector cache for adaptive motion search control in partition
+  // search loop
+  MV pred_mv[MAX_REF_FRAMES];
+  InterpFilter pred_interp_filter;
+} PICK_MODE_CONTEXT;
+
+typedef struct PC_TREE {
+  int index;
+  PARTITION_TYPE partitioning;
+  BLOCK_SIZE block_size;
+  PICK_MODE_CONTEXT none;
+  PICK_MODE_CONTEXT horizontal[2];
+  PICK_MODE_CONTEXT vertical[2];
+  union {
+    struct PC_TREE *split[4];
+    PICK_MODE_CONTEXT *leaf_split[4];
+  };
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 } PC_TREE;
 
 void av1_setup_pc_tree(struct AV1Common *cm, struct ThreadData *td);

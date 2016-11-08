@@ -27,6 +27,7 @@
   _mm_setr_epi16((int16_t)(a), (int16_t)(b), (int16_t)(c), (int16_t)(d), \
                  (int16_t)(e), (int16_t)(f), (int16_t)(g), (int16_t)(h))
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 // Reverse the 8 16 bit words in __m128i
 static INLINE __m128i mm_reverse_epi16(const __m128i x) {
   const __m128i a = _mm_shufflelo_epi16(x, 0x1b);
@@ -34,4 +35,6 @@ static INLINE __m128i mm_reverse_epi16(const __m128i x) {
   return _mm_shuffle_epi32(b, 0x4e);
 }
 
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 #endif  // AOM_DSP_X86_TXFM_COMMON_SSE2_H_

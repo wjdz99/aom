@@ -37,10 +37,22 @@
 #include <windows.h>
 #include <winnt.h>
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+=======
+namespace testing {
+namespace internal {
+
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 inline bool operator==(const M128A &lhs, const M128A &rhs) {
   return (lhs.Low == rhs.Low && lhs.High == rhs.High);
 }
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+=======
+}  // namespace internal
+}  // namespace testing
+
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 namespace libaom_test {
 
 // Compares the state of xmm[6-15] at construction with their state at

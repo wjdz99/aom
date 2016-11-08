@@ -22,7 +22,11 @@ const int kMaxDroppableFrames = 12;
 
 class ErrorResilienceTestLarge
     : public ::libaom_test::EncoderTest,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
       public ::libaom_test::CodecTestWithParam<libaom_test::TestMode> {
+=======
+      public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode, bool> {
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
  protected:
   ErrorResilienceTestLarge()
       : EncoderTest(GET_PARAM(0)), psnr_(0.0), nframes_(0), mismatch_psnr_(0.0),
@@ -58,6 +62,10 @@ class ErrorResilienceTestLarge
   virtual void PreEncodeFrameHook(libaom_test::VideoSource *video) {
     frame_flags_ &=
         ~(AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF | AOM_EFLAG_NO_UPD_ARF);
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
+=======
+    // For temporal layer case.
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
     if (droppable_nframes_ > 0 &&
         (cfg_.g_pass == AOM_RC_LAST_PASS || cfg_.g_pass == AOM_RC_ONE_PASS)) {
       for (unsigned int i = 0; i < droppable_nframes_; ++i) {
@@ -231,5 +239,61 @@ TEST_P(ErrorResilienceTestLarge, DropFramesWithoutRecovery) {
 #endif
 }
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 AV1_INSTANTIATE_TEST_CASE(ErrorResilienceTestLarge, ONE_PASS_TEST_MODES);
+=======
+class ErrorResilienceTestLargeCodecControls
+    : public ::libaom_test::EncoderTest,
+      public ::libaom_test::CodecTestWithParam<libaom_test::TestMode> {
+ protected:
+  ErrorResilienceTestLargeCodecControls()
+      : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)) {
+    Reset();
+  }
+
+  virtual ~ErrorResilienceTestLargeCodecControls() {}
+
+  void Reset() {
+    last_pts_ = 0;
+    tot_frame_number_ = 0;
+    bits_total_ = 0;
+    duration_ = 0.0;
+  }
+
+  virtual void SetUp() {
+    InitializeConfig();
+    SetMode(encoding_mode_);
+  }
+
+  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+    // Time since last timestamp = duration.
+    aom_codec_pts_t duration = pkt->data.frame.pts - last_pts_;
+    if (duration > 1) {
+      // Update counter for total number of frames (#frames input to encoder).
+      // Needed for setting the proper layer_id below.
+      tot_frame_number_ += static_cast<int>(duration - 1);
+    }
+    const size_t frame_size_in_bits = pkt->data.frame.sz * 8;
+    // Update the total encoded bits. For temporal layers, update the cumulative
+    // encoded bits per layer.
+    bits_total_ += frame_size_in_bits;
+    // Update the most recent pts.
+    last_pts_ = pkt->data.frame.pts;
+    ++tot_frame_number_;
+  }
+
+  virtual void EndPassHook(void) { duration_ = (last_pts_ + 1) * timebase_; }
+
+ private:
+  libaom_test::TestMode encoding_mode_;
+  aom_codec_pts_t last_pts_;
+  double timebase_;
+  int64_t bits_total_;
+  double duration_;
+  int tot_frame_number_;
+};
+
+AV1_INSTANTIATE_TEST_CASE(ErrorResilienceTestLarge, ONE_PASS_TEST_MODES,
+                          ::testing::Values(false));
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 }  // namespace

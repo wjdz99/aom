@@ -35,7 +35,11 @@ void av1_tile_init(TileInfo *tile, const struct AV1Common *cm, int row,
 void av1_tile_set_row(TileInfo *tile, const struct AV1Common *cm, int row);
 void av1_tile_set_col(TileInfo *tile, const struct AV1Common *cm, int col);
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 void av1_get_tile_n_bits(const int mi_cols, int *min_log2_tile_cols,
+=======
+void av1_get_tile_n_bits(int mi_cols, int *min_log2_tile_cols,
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
                          int *max_log2_tile_cols);
 
 #ifdef __cplusplus

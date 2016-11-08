@@ -257,4 +257,8 @@ typedef int32_t od_val32;
 }  // extern "C"
 #endif
 
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
 #endif  // AV1_COMMON_ODINTRIN_H_
+=======
+#endif
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)

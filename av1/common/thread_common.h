@@ -55,7 +55,11 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
                               int num_workers, AV1LfSync *lf_sync);
 
 void av1_accumulate_frame_counts(struct AV1Common *cm,
+<<<<<<< HEAD   (f6e958 Merge "Fix the bug that PVQ commit broke dering" into nextge)
                                  struct FRAME_COUNTS *counts);
+=======
+                                 struct FRAME_COUNTS *counts, int is_dec);
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 #ifdef __cplusplus
 }  // extern "C"
