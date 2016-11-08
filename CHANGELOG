@@ -1,9 +1,15 @@
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 Next Release
   - Incompatible changes:
     The AV1 encoder's default keyframe interval changed to 128 from 9999.
 
 2016-04-07 v0.1.0 "AOMedia Codec 1"
   This release is the first Alliance for Open Media codec.
+=======
+2016-04-07 v0.1.0 "AOMedia Codec 1"
+  This release is the first Alliance for Open Media codec.
+
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 2015-11-09 v1.5.0 "Javan Whistling Duck"
   This release improves upon the VP9 encoder and speeds up the encoding and
   decoding processes.

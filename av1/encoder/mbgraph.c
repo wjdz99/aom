@@ -24,6 +24,7 @@
 #include "av1/common/reconintra.h"
 
 static unsigned int do_16x16_motion_iteration(AV1_COMP *cpi, const MV *ref_mv,
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
                                               int mb_row, int mb_col) {
   MACROBLOCK *const x = &cpi->td.mb;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -198,6 +199,173 @@ static void update_mbgraph_mb_stats(AV1_COMP *cpi, MBGRAPH_MB_STATS *stats,
     g_motion_error =
         do_16x16_motion_search(cpi, prev_golden_ref_mv, mb_row, mb_col);
     stats->ref[GOLDEN_FRAME].m.mv = x->best_mv;
+=======
+                                              MV *dst_mv, int mb_row,
+                                              int mb_col) {
+  MACROBLOCK *const x = &cpi->td.mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const MV_SPEED_FEATURES *const mv_sf = &cpi->sf.mv;
+  const aom_variance_fn_ptr_t v_fn_ptr = cpi->fn_ptr[BLOCK_16X16];
+
+  const int tmp_col_min = x->mv_col_min;
+  const int tmp_col_max = x->mv_col_max;
+  const int tmp_row_min = x->mv_row_min;
+  const int tmp_row_max = x->mv_row_max;
+  MV ref_full;
+  int cost_list[5];
+
+  // Further step/diamond searches as necessary
+  int step_param = mv_sf->reduce_first_step_size;
+  step_param = AOMMIN(step_param, MAX_MVSEARCH_STEPS - 2);
+
+  av1_set_mv_search_range(x, ref_mv);
+
+  ref_full.col = ref_mv->col >> 3;
+  ref_full.row = ref_mv->row >> 3;
+
+  /*cpi->sf.search_method == HEX*/
+  av1_hex_search(x, &ref_full, step_param, x->errorperbit, 0,
+                 cond_cost_list(cpi, cost_list), &v_fn_ptr, 0, ref_mv, dst_mv);
+
+  // Try sub-pixel MC
+  // if (bestsme > error_thresh && bestsme < INT_MAX)
+  {
+    int distortion;
+    unsigned int sse;
+    cpi->find_fractional_mv_step(
+        x, dst_mv, ref_mv, cpi->common.allow_high_precision_mv, x->errorperbit,
+        &v_fn_ptr, 0, mv_sf->subpel_iters_per_step,
+        cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL, 0,
+        0, 0);
+  }
+
+  xd->mi[0]->mbmi.mode = NEWMV;
+  xd->mi[0]->mbmi.mv[0].as_mv = *dst_mv;
+
+  av1_build_inter_predictors_sby(xd, mb_row, mb_col, BLOCK_16X16);
+
+  /* restore UMV window */
+  x->mv_col_min = tmp_col_min;
+  x->mv_col_max = tmp_col_max;
+  x->mv_row_min = tmp_row_min;
+  x->mv_row_max = tmp_row_max;
+
+  return aom_sad16x16(x->plane[0].src.buf, x->plane[0].src.stride,
+                      xd->plane[0].dst.buf, xd->plane[0].dst.stride);
+}
+
+static int do_16x16_motion_search(AV1_COMP *cpi, const MV *ref_mv,
+                                  int_mv *dst_mv, int mb_row, int mb_col) {
+  MACROBLOCK *const x = &cpi->td.mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  unsigned int err, tmp_err;
+  MV tmp_mv;
+
+  // Try zero MV first
+  // FIXME should really use something like near/nearest MV and/or MV prediction
+  err = aom_sad16x16(x->plane[0].src.buf, x->plane[0].src.stride,
+                     xd->plane[0].pre[0].buf, xd->plane[0].pre[0].stride);
+  dst_mv->as_int = 0;
+
+  // Test last reference frame using the previous best mv as the
+  // starting point (best reference) for the search
+  tmp_err = do_16x16_motion_iteration(cpi, ref_mv, &tmp_mv, mb_row, mb_col);
+  if (tmp_err < err) {
+    err = tmp_err;
+    dst_mv->as_mv = tmp_mv;
+  }
+
+  // If the current best reference mv is not centered on 0,0 then do a 0,0
+  // based search as well.
+  if (ref_mv->row != 0 || ref_mv->col != 0) {
+    MV zero_ref_mv = { 0, 0 };
+    tmp_err =
+        do_16x16_motion_iteration(cpi, &zero_ref_mv, &tmp_mv, mb_row, mb_col);
+    if (tmp_err < err) {
+      dst_mv->as_mv = tmp_mv;
+      err = tmp_err;
+    }
+  }
+
+  return err;
+}
+
+static int do_16x16_zerozero_search(AV1_COMP *cpi, int_mv *dst_mv) {
+  MACROBLOCK *const x = &cpi->td.mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  unsigned int err;
+
+  // Try zero MV first
+  // FIXME should really use something like near/nearest MV and/or MV prediction
+  err = aom_sad16x16(x->plane[0].src.buf, x->plane[0].src.stride,
+                     xd->plane[0].pre[0].buf, xd->plane[0].pre[0].stride);
+
+  dst_mv->as_int = 0;
+
+  return err;
+}
+static int find_best_16x16_intra(AV1_COMP *cpi, PREDICTION_MODE *pbest_mode) {
+  MACROBLOCK *const x = &cpi->td.mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  PREDICTION_MODE best_mode = -1, mode;
+  unsigned int best_err = INT_MAX;
+
+  // calculate SATD for each intra prediction mode;
+  // we're intentionally not doing 4x4, we just want a rough estimate
+  for (mode = DC_PRED; mode <= TM_PRED; mode++) {
+    unsigned int err;
+
+    xd->mi[0]->mbmi.mode = mode;
+    av1_predict_intra_block(xd, 2, 2, TX_16X16, mode, x->plane[0].src.buf,
+                            x->plane[0].src.stride, xd->plane[0].dst.buf,
+                            xd->plane[0].dst.stride, 0, 0, 0);
+    err = aom_sad16x16(x->plane[0].src.buf, x->plane[0].src.stride,
+                       xd->plane[0].dst.buf, xd->plane[0].dst.stride);
+
+    // find best
+    if (err < best_err) {
+      best_err = err;
+      best_mode = mode;
+    }
+  }
+
+  if (pbest_mode) *pbest_mode = best_mode;
+
+  return best_err;
+}
+
+static void update_mbgraph_mb_stats(AV1_COMP *cpi, MBGRAPH_MB_STATS *stats,
+                                    YV12_BUFFER_CONFIG *buf, int mb_y_offset,
+                                    YV12_BUFFER_CONFIG *golden_ref,
+                                    const MV *prev_golden_ref_mv,
+                                    YV12_BUFFER_CONFIG *alt_ref, int mb_row,
+                                    int mb_col) {
+  MACROBLOCK *const x = &cpi->td.mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  int intra_error;
+  AV1_COMMON *cm = &cpi->common;
+
+  // FIXME in practice we're completely ignoring chroma here
+  x->plane[0].src.buf = buf->y_buffer + mb_y_offset;
+  x->plane[0].src.stride = buf->y_stride;
+
+  xd->plane[0].dst.buf = get_frame_new_buffer(cm)->y_buffer + mb_y_offset;
+  xd->plane[0].dst.stride = get_frame_new_buffer(cm)->y_stride;
+
+  // do intra 16x16 prediction
+  intra_error = find_best_16x16_intra(cpi, &stats->ref[INTRA_FRAME].m.mode);
+  if (intra_error <= 0) intra_error = 1;
+  stats->ref[INTRA_FRAME].err = intra_error;
+
+  // Golden frame MV search, if it exists and is different than last frame
+  if (golden_ref) {
+    int g_motion_error;
+    xd->plane[0].pre[0].buf = golden_ref->y_buffer + mb_y_offset;
+    xd->plane[0].pre[0].stride = golden_ref->y_stride;
+    g_motion_error =
+        do_16x16_motion_search(cpi, prev_golden_ref_mv,
+                               &stats->ref[GOLDEN_FRAME].m.mv, mb_row, mb_col);
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
     stats->ref[GOLDEN_FRAME].err = g_motion_error;
   } else {
     stats->ref[GOLDEN_FRAME].err = INT_MAX;

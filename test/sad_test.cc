@@ -53,6 +53,7 @@ class SADTestBase : public ::testing::Test {
     reference_data8_ = reinterpret_cast<uint8_t *>(
         aom_memalign(kDataAlignment, kDataBufferSize));
     second_pred8_ =
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
         reinterpret_cast<uint8_t *>(aom_memalign(kDataAlignment, 128 * 128));
     source_data16_ = reinterpret_cast<uint16_t *>(
         aom_memalign(kDataAlignment, kDataBlockSize * sizeof(uint16_t)));
@@ -60,6 +61,15 @@ class SADTestBase : public ::testing::Test {
         aom_memalign(kDataAlignment, kDataBufferSize * sizeof(uint16_t)));
     second_pred16_ = reinterpret_cast<uint16_t *>(
         aom_memalign(kDataAlignment, 128 * 128 * sizeof(uint16_t)));
+=======
+        reinterpret_cast<uint8_t *>(aom_memalign(kDataAlignment, 64 * 64));
+    source_data16_ = reinterpret_cast<uint16_t *>(
+        aom_memalign(kDataAlignment, kDataBlockSize * sizeof(uint16_t)));
+    reference_data16_ = reinterpret_cast<uint16_t *>(
+        aom_memalign(kDataAlignment, kDataBufferSize * sizeof(uint16_t)));
+    second_pred16_ = reinterpret_cast<uint16_t *>(
+        aom_memalign(kDataAlignment, 64 * 64 * sizeof(uint16_t)));
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   }
 
   static void TearDownTestCase() {
@@ -473,6 +483,7 @@ using std::tr1::make_tuple;
 //------------------------------------------------------------------------------
 // C functions
 const SadMxNParam c_tests[] = {
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #if CONFIG_AV1 && CONFIG_EXT_PARTITION
   make_tuple(128, 128, &aom_sad128x128_c, -1),
   make_tuple(128, 64, &aom_sad128x64_c, -1),
@@ -533,6 +544,48 @@ const SadMxNParam c_tests[] = {
   make_tuple(128, 64, &aom_highbd_sad128x64_c, 12),
   make_tuple(64, 128, &aom_highbd_sad64x128_c, 12),
 #endif  // CONFIG_AV1 && CONFIG_EXT_PARTITION
+=======
+  make_tuple(64, 64, &aom_sad64x64_c, -1),
+  make_tuple(64, 32, &aom_sad64x32_c, -1),
+  make_tuple(32, 64, &aom_sad32x64_c, -1),
+  make_tuple(32, 32, &aom_sad32x32_c, -1),
+  make_tuple(32, 16, &aom_sad32x16_c, -1),
+  make_tuple(16, 32, &aom_sad16x32_c, -1),
+  make_tuple(16, 16, &aom_sad16x16_c, -1),
+  make_tuple(16, 8, &aom_sad16x8_c, -1),
+  make_tuple(8, 16, &aom_sad8x16_c, -1),
+  make_tuple(8, 8, &aom_sad8x8_c, -1),
+  make_tuple(8, 4, &aom_sad8x4_c, -1),
+  make_tuple(4, 8, &aom_sad4x8_c, -1),
+  make_tuple(4, 4, &aom_sad4x4_c, -1),
+#if CONFIG_AOM_HIGHBITDEPTH
+  make_tuple(64, 64, &aom_highbd_sad64x64_c, 8),
+  make_tuple(64, 32, &aom_highbd_sad64x32_c, 8),
+  make_tuple(32, 64, &aom_highbd_sad32x64_c, 8),
+  make_tuple(32, 32, &aom_highbd_sad32x32_c, 8),
+  make_tuple(32, 16, &aom_highbd_sad32x16_c, 8),
+  make_tuple(16, 32, &aom_highbd_sad16x32_c, 8),
+  make_tuple(16, 16, &aom_highbd_sad16x16_c, 8),
+  make_tuple(16, 8, &aom_highbd_sad16x8_c, 8),
+  make_tuple(8, 16, &aom_highbd_sad8x16_c, 8),
+  make_tuple(8, 8, &aom_highbd_sad8x8_c, 8),
+  make_tuple(8, 4, &aom_highbd_sad8x4_c, 8),
+  make_tuple(4, 8, &aom_highbd_sad4x8_c, 8),
+  make_tuple(4, 4, &aom_highbd_sad4x4_c, 8),
+  make_tuple(64, 64, &aom_highbd_sad64x64_c, 10),
+  make_tuple(64, 32, &aom_highbd_sad64x32_c, 10),
+  make_tuple(32, 64, &aom_highbd_sad32x64_c, 10),
+  make_tuple(32, 32, &aom_highbd_sad32x32_c, 10),
+  make_tuple(32, 16, &aom_highbd_sad32x16_c, 10),
+  make_tuple(16, 32, &aom_highbd_sad16x32_c, 10),
+  make_tuple(16, 16, &aom_highbd_sad16x16_c, 10),
+  make_tuple(16, 8, &aom_highbd_sad16x8_c, 10),
+  make_tuple(8, 16, &aom_highbd_sad8x16_c, 10),
+  make_tuple(8, 8, &aom_highbd_sad8x8_c, 10),
+  make_tuple(8, 4, &aom_highbd_sad8x4_c, 10),
+  make_tuple(4, 8, &aom_highbd_sad4x8_c, 10),
+  make_tuple(4, 4, &aom_highbd_sad4x4_c, 10),
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   make_tuple(64, 64, &aom_highbd_sad64x64_c, 12),
   make_tuple(64, 32, &aom_highbd_sad64x32_c, 12),
   make_tuple(32, 64, &aom_highbd_sad32x64_c, 12),
@@ -551,6 +604,7 @@ const SadMxNParam c_tests[] = {
 INSTANTIATE_TEST_CASE_P(C, SADTest, ::testing::ValuesIn(c_tests));
 
 const SadMxNAvgParam avg_c_tests[] = {
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #if CONFIG_AV1 && CONFIG_EXT_PARTITION
   make_tuple(128, 128, &aom_sad128x128_avg_c, -1),
   make_tuple(128, 64, &aom_sad128x64_avg_c, -1),
@@ -611,6 +665,48 @@ const SadMxNAvgParam avg_c_tests[] = {
   make_tuple(128, 64, &aom_highbd_sad128x64_avg_c, 12),
   make_tuple(64, 128, &aom_highbd_sad64x128_avg_c, 12),
 #endif  // CONFIG_AV1 && CONFIG_EXT_PARTITION
+=======
+  make_tuple(64, 64, &aom_sad64x64_avg_c, -1),
+  make_tuple(64, 32, &aom_sad64x32_avg_c, -1),
+  make_tuple(32, 64, &aom_sad32x64_avg_c, -1),
+  make_tuple(32, 32, &aom_sad32x32_avg_c, -1),
+  make_tuple(32, 16, &aom_sad32x16_avg_c, -1),
+  make_tuple(16, 32, &aom_sad16x32_avg_c, -1),
+  make_tuple(16, 16, &aom_sad16x16_avg_c, -1),
+  make_tuple(16, 8, &aom_sad16x8_avg_c, -1),
+  make_tuple(8, 16, &aom_sad8x16_avg_c, -1),
+  make_tuple(8, 8, &aom_sad8x8_avg_c, -1),
+  make_tuple(8, 4, &aom_sad8x4_avg_c, -1),
+  make_tuple(4, 8, &aom_sad4x8_avg_c, -1),
+  make_tuple(4, 4, &aom_sad4x4_avg_c, -1),
+#if CONFIG_AOM_HIGHBITDEPTH
+  make_tuple(64, 64, &aom_highbd_sad64x64_avg_c, 8),
+  make_tuple(64, 32, &aom_highbd_sad64x32_avg_c, 8),
+  make_tuple(32, 64, &aom_highbd_sad32x64_avg_c, 8),
+  make_tuple(32, 32, &aom_highbd_sad32x32_avg_c, 8),
+  make_tuple(32, 16, &aom_highbd_sad32x16_avg_c, 8),
+  make_tuple(16, 32, &aom_highbd_sad16x32_avg_c, 8),
+  make_tuple(16, 16, &aom_highbd_sad16x16_avg_c, 8),
+  make_tuple(16, 8, &aom_highbd_sad16x8_avg_c, 8),
+  make_tuple(8, 16, &aom_highbd_sad8x16_avg_c, 8),
+  make_tuple(8, 8, &aom_highbd_sad8x8_avg_c, 8),
+  make_tuple(8, 4, &aom_highbd_sad8x4_avg_c, 8),
+  make_tuple(4, 8, &aom_highbd_sad4x8_avg_c, 8),
+  make_tuple(4, 4, &aom_highbd_sad4x4_avg_c, 8),
+  make_tuple(64, 64, &aom_highbd_sad64x64_avg_c, 10),
+  make_tuple(64, 32, &aom_highbd_sad64x32_avg_c, 10),
+  make_tuple(32, 64, &aom_highbd_sad32x64_avg_c, 10),
+  make_tuple(32, 32, &aom_highbd_sad32x32_avg_c, 10),
+  make_tuple(32, 16, &aom_highbd_sad32x16_avg_c, 10),
+  make_tuple(16, 32, &aom_highbd_sad16x32_avg_c, 10),
+  make_tuple(16, 16, &aom_highbd_sad16x16_avg_c, 10),
+  make_tuple(16, 8, &aom_highbd_sad16x8_avg_c, 10),
+  make_tuple(8, 16, &aom_highbd_sad8x16_avg_c, 10),
+  make_tuple(8, 8, &aom_highbd_sad8x8_avg_c, 10),
+  make_tuple(8, 4, &aom_highbd_sad8x4_avg_c, 10),
+  make_tuple(4, 8, &aom_highbd_sad4x8_avg_c, 10),
+  make_tuple(4, 4, &aom_highbd_sad4x4_avg_c, 10),
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   make_tuple(64, 64, &aom_highbd_sad64x64_avg_c, 12),
   make_tuple(64, 32, &aom_highbd_sad64x32_avg_c, 12),
   make_tuple(32, 64, &aom_highbd_sad32x64_avg_c, 12),
@@ -629,6 +725,7 @@ const SadMxNAvgParam avg_c_tests[] = {
 INSTANTIATE_TEST_CASE_P(C, SADavgTest, ::testing::ValuesIn(avg_c_tests));
 
 const SadMxNx4Param x4d_c_tests[] = {
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #if CONFIG_AV1 && CONFIG_EXT_PARTITION
   make_tuple(128, 128, &aom_sad128x128x4d_c, -1),
   make_tuple(128, 64, &aom_sad128x64x4d_c, -1),
@@ -689,6 +786,48 @@ const SadMxNx4Param x4d_c_tests[] = {
   make_tuple(128, 64, &aom_highbd_sad128x64x4d_c, 12),
   make_tuple(64, 128, &aom_highbd_sad64x128x4d_c, 12),
 #endif  // CONFIG_AV1 && CONFIG_EXT_PARTITION
+=======
+  make_tuple(64, 64, &aom_sad64x64x4d_c, -1),
+  make_tuple(64, 32, &aom_sad64x32x4d_c, -1),
+  make_tuple(32, 64, &aom_sad32x64x4d_c, -1),
+  make_tuple(32, 32, &aom_sad32x32x4d_c, -1),
+  make_tuple(32, 16, &aom_sad32x16x4d_c, -1),
+  make_tuple(16, 32, &aom_sad16x32x4d_c, -1),
+  make_tuple(16, 16, &aom_sad16x16x4d_c, -1),
+  make_tuple(16, 8, &aom_sad16x8x4d_c, -1),
+  make_tuple(8, 16, &aom_sad8x16x4d_c, -1),
+  make_tuple(8, 8, &aom_sad8x8x4d_c, -1),
+  make_tuple(8, 4, &aom_sad8x4x4d_c, -1),
+  make_tuple(4, 8, &aom_sad4x8x4d_c, -1),
+  make_tuple(4, 4, &aom_sad4x4x4d_c, -1),
+#if CONFIG_AOM_HIGHBITDEPTH
+  make_tuple(64, 64, &aom_highbd_sad64x64x4d_c, 8),
+  make_tuple(64, 32, &aom_highbd_sad64x32x4d_c, 8),
+  make_tuple(32, 64, &aom_highbd_sad32x64x4d_c, 8),
+  make_tuple(32, 32, &aom_highbd_sad32x32x4d_c, 8),
+  make_tuple(32, 16, &aom_highbd_sad32x16x4d_c, 8),
+  make_tuple(16, 32, &aom_highbd_sad16x32x4d_c, 8),
+  make_tuple(16, 16, &aom_highbd_sad16x16x4d_c, 8),
+  make_tuple(16, 8, &aom_highbd_sad16x8x4d_c, 8),
+  make_tuple(8, 16, &aom_highbd_sad8x16x4d_c, 8),
+  make_tuple(8, 8, &aom_highbd_sad8x8x4d_c, 8),
+  make_tuple(8, 4, &aom_highbd_sad8x4x4d_c, 8),
+  make_tuple(4, 8, &aom_highbd_sad4x8x4d_c, 8),
+  make_tuple(4, 4, &aom_highbd_sad4x4x4d_c, 8),
+  make_tuple(64, 64, &aom_highbd_sad64x64x4d_c, 10),
+  make_tuple(64, 32, &aom_highbd_sad64x32x4d_c, 10),
+  make_tuple(32, 64, &aom_highbd_sad32x64x4d_c, 10),
+  make_tuple(32, 32, &aom_highbd_sad32x32x4d_c, 10),
+  make_tuple(32, 16, &aom_highbd_sad32x16x4d_c, 10),
+  make_tuple(16, 32, &aom_highbd_sad16x32x4d_c, 10),
+  make_tuple(16, 16, &aom_highbd_sad16x16x4d_c, 10),
+  make_tuple(16, 8, &aom_highbd_sad16x8x4d_c, 10),
+  make_tuple(8, 16, &aom_highbd_sad8x16x4d_c, 10),
+  make_tuple(8, 8, &aom_highbd_sad8x8x4d_c, 10),
+  make_tuple(8, 4, &aom_highbd_sad8x4x4d_c, 10),
+  make_tuple(4, 8, &aom_highbd_sad4x8x4d_c, 10),
+  make_tuple(4, 4, &aom_highbd_sad4x4x4d_c, 10),
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   make_tuple(64, 64, &aom_highbd_sad64x64x4d_c, 12),
   make_tuple(64, 32, &aom_highbd_sad64x32x4d_c, 12),
   make_tuple(32, 64, &aom_highbd_sad32x64x4d_c, 12),
@@ -737,13 +876,20 @@ INSTANTIATE_TEST_CASE_P(NEON, SADx4Test, ::testing::ValuesIn(x4d_neon_tests));
 
 //------------------------------------------------------------------------------
 // x86 functions
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
+=======
+
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 #if HAVE_SSE2
 const SadMxNParam sse2_tests[] = {
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #if CONFIG_AV1 && CONFIG_EXT_PARTITION
   make_tuple(128, 128, &aom_sad128x128_sse2, -1),
   make_tuple(128, 64, &aom_sad128x64_sse2, -1),
   make_tuple(64, 128, &aom_sad64x128_sse2, -1),
 #endif  // CONFIG_AV1 && CONFIG_EXT_PARTITION
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   make_tuple(64, 64, &aom_sad64x64_sse2, -1),
   make_tuple(64, 32, &aom_sad64x32_sse2, -1),
   make_tuple(32, 64, &aom_sad32x64_sse2, -1),
@@ -796,11 +942,14 @@ const SadMxNParam sse2_tests[] = {
 INSTANTIATE_TEST_CASE_P(SSE2, SADTest, ::testing::ValuesIn(sse2_tests));
 
 const SadMxNAvgParam avg_sse2_tests[] = {
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #if CONFIG_AV1 && CONFIG_EXT_PARTITION
   make_tuple(128, 128, &aom_sad128x128_avg_sse2, -1),
   make_tuple(128, 64, &aom_sad128x64_avg_sse2, -1),
   make_tuple(64, 128, &aom_sad64x128_avg_sse2, -1),
 #endif  // CONFIG_AV1 && CONFIG_EXT_PARTITION
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   make_tuple(64, 64, &aom_sad64x64_avg_sse2, -1),
   make_tuple(64, 32, &aom_sad64x32_avg_sse2, -1),
   make_tuple(32, 64, &aom_sad32x64_avg_sse2, -1),
@@ -853,11 +1002,14 @@ const SadMxNAvgParam avg_sse2_tests[] = {
 INSTANTIATE_TEST_CASE_P(SSE2, SADavgTest, ::testing::ValuesIn(avg_sse2_tests));
 
 const SadMxNx4Param x4d_sse2_tests[] = {
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #if CONFIG_AV1 && CONFIG_EXT_PARTITION
   make_tuple(128, 128, &aom_sad128x128x4d_sse2, -1),
   make_tuple(128, 64, &aom_sad128x64x4d_sse2, -1),
   make_tuple(64, 128, &aom_sad64x128x4d_sse2, -1),
 #endif  // CONFIG_AV1 && CONFIG_EXT_PARTITION
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   make_tuple(64, 64, &aom_sad64x64x4d_sse2, -1),
   make_tuple(64, 32, &aom_sad64x32x4d_sse2, -1),
   make_tuple(32, 64, &aom_sad32x64x4d_sse2, -1),

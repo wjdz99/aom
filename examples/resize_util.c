@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 /*
  *  Copyright (c) 2014 The WebM project authors. All Rights Reserved.
  *
@@ -121,3 +122,5 @@ int main(int argc, char *argv[]) {
   free(outbuf);
   return 0;
 }
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)

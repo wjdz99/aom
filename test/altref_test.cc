@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 /*
  *  Copyright (c) 2012 The WebM project authors. All Rights Reserved.
  *
@@ -93,3 +94,5 @@ AV1_INSTANTIATE_TEST_CASE(AltRefForcedKeyTestLarge,
                           ::testing::Range(0, 9));
 
 }  // namespace
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)

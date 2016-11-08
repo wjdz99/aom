@@ -75,6 +75,7 @@ int is_extension_y4m(const char *filename) {
     return !strcmp(dot, ".y4m");
 }
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 class ArfFreqTestLarge
     : public ::libaom_test::EncoderTest,
       public ::libaom_test::CodecTestWith3Params<TestVideoParam,
@@ -227,6 +228,161 @@ INSTANTIATE_TEST_CASE_P(
 #endif  // CONFIG_AV1_ENCODER
 #else
 AV1_INSTANTIATE_TEST_CASE(ArfFreqTestLarge, ::testing::ValuesIn(kTestVectors),
+=======
+class ArfFreqTest
+    : public ::libaom_test::EncoderTest,
+      public ::libaom_test::CodecTestWith3Params<TestVideoParam,
+                                                 TestEncodeParam, int> {
+ protected:
+  ArfFreqTest()
+      : EncoderTest(GET_PARAM(0)), test_video_param_(GET_PARAM(1)),
+        test_encode_param_(GET_PARAM(2)), min_arf_requested_(GET_PARAM(3)) {}
+
+  virtual ~ArfFreqTest() {}
+
+  virtual void SetUp() {
+    InitializeConfig();
+    SetMode(test_encode_param_.mode);
+    if (test_encode_param_.mode != ::libaom_test::kRealTime) {
+      cfg_.g_lag_in_frames = 25;
+      cfg_.rc_end_usage = AOM_VBR;
+    } else {
+      cfg_.g_lag_in_frames = 0;
+      cfg_.rc_end_usage = AOM_CBR;
+      cfg_.rc_buf_sz = 1000;
+      cfg_.rc_buf_initial_sz = 500;
+      cfg_.rc_buf_optimal_sz = 600;
+    }
+    dec_cfg_.threads = 4;
+  }
+
+  virtual void BeginPassHook(unsigned int) {
+    min_run_ = ARF_NOT_SEEN;
+    run_of_visible_frames_ = 0;
+  }
+
+  int GetNumFramesInPkt(const aom_codec_cx_pkt_t *pkt) {
+    const uint8_t *buffer = reinterpret_cast<uint8_t *>(pkt->data.frame.buf);
+    const uint8_t marker = buffer[pkt->data.frame.sz - 1];
+    const int mag = ((marker >> 3) & 3) + 1;
+    int frames = (marker & 0x7) + 1;
+    const unsigned int index_sz = 2 + mag * frames;
+    // Check for superframe or not.
+    // Assume superframe has only one visible frame, the rest being
+    // invisible. If superframe index is not found, then there is only
+    // one frame.
+    if (!((marker & 0xe0) == 0xc0 && pkt->data.frame.sz >= index_sz &&
+          buffer[pkt->data.frame.sz - index_sz] == marker)) {
+      frames = 1;
+    }
+    return frames;
+  }
+
+  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+    if (pkt->kind != AOM_CODEC_CX_FRAME_PKT) return;
+    const int frames = GetNumFramesInPkt(pkt);
+    if (frames == 1) {
+      run_of_visible_frames_++;
+    } else if (frames == 2) {
+      if (min_run_ == ARF_NOT_SEEN) {
+        min_run_ = ARF_SEEN_ONCE;
+      } else if (min_run_ == ARF_SEEN_ONCE ||
+                 run_of_visible_frames_ < min_run_) {
+        min_run_ = run_of_visible_frames_;
+      }
+      run_of_visible_frames_ = 1;
+    } else {
+      min_run_ = 0;
+      run_of_visible_frames_ = 1;
+    }
+  }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    if (video->frame() == 0) {
+      encoder->Control(AV1E_SET_FRAME_PARALLEL_DECODING, 1);
+      encoder->Control(AV1E_SET_TILE_COLUMNS, 4);
+      encoder->Control(AOME_SET_CPUUSED, test_encode_param_.cpu_used);
+      encoder->Control(AV1E_SET_MIN_GF_INTERVAL, min_arf_requested_);
+      if (test_encode_param_.mode != ::libaom_test::kRealTime) {
+        encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
+        encoder->Control(AOME_SET_ARNR_MAXFRAMES, 7);
+        encoder->Control(AOME_SET_ARNR_STRENGTH, 5);
+        encoder->Control(AOME_SET_ARNR_TYPE, 3);
+      }
+    }
+  }
+
+  int GetMinVisibleRun() const { return min_run_; }
+
+  int GetMinArfDistanceRequested() const {
+    if (min_arf_requested_)
+      return min_arf_requested_;
+    else
+      return av1_rc_get_default_min_gf_interval(
+          test_video_param_.width, test_video_param_.height,
+          (double)test_video_param_.framerate_num /
+              test_video_param_.framerate_den);
+  }
+
+  TestVideoParam test_video_param_;
+  TestEncodeParam test_encode_param_;
+
+ private:
+  int min_arf_requested_;
+  int min_run_;
+  int run_of_visible_frames_;
+};
+
+TEST_P(ArfFreqTest, MinArfFreqTest) {
+  cfg_.rc_target_bitrate = kBitrate;
+  cfg_.g_error_resilient = 0;
+  cfg_.g_profile = test_video_param_.profile;
+  cfg_.g_input_bit_depth = test_video_param_.input_bit_depth;
+  cfg_.g_bit_depth = test_video_param_.bit_depth;
+  init_flags_ = AOM_CODEC_USE_PSNR;
+  if (cfg_.g_bit_depth > 8) init_flags_ |= AOM_CODEC_USE_HIGHBITDEPTH;
+
+  libaom_test::VideoSource *video;
+  if (is_extension_y4m(test_video_param_.filename)) {
+    video =
+        new libaom_test::Y4mVideoSource(test_video_param_.filename, 0, kFrames);
+  } else {
+    video = new libaom_test::YUVVideoSource(
+        test_video_param_.filename, test_video_param_.fmt,
+        test_video_param_.width, test_video_param_.height,
+        test_video_param_.framerate_num, test_video_param_.framerate_den, 0,
+        kFrames);
+  }
+
+  ASSERT_NO_FATAL_FAILURE(RunLoop(video));
+  const int min_run = GetMinVisibleRun();
+  const int min_arf_dist_requested = GetMinArfDistanceRequested();
+  if (min_run != ARF_NOT_SEEN && min_run != ARF_SEEN_ONCE) {
+    const int min_arf_dist = min_run + 1;
+    EXPECT_GE(min_arf_dist, min_arf_dist_requested);
+  }
+  delete (video);
+}
+
+#if CONFIG_AOM_HIGHBITDEPTH || CONFIG_EXT_REFS
+#if CONFIG_AV1_ENCODER
+// TODO(angiebird): 25-29 fail in high bitdepth mode.
+// TODO(zoeliu): This ArfFreqTest does not work with BWDREF_FRAME, as
+// BWDREF_FRAME is also a non-show frame, and the minimum run between two
+// consecutive BWDREF_FRAME's may vary between 1 and any arbitrary positive
+// number as long as it does not exceed the gf_group interval.
+INSTANTIATE_TEST_CASE_P(
+    DISABLED_AV1, ArfFreqTest,
+    ::testing::Combine(
+        ::testing::Values(
+            static_cast<const libaom_test::CodecFactory *>(&libaom_test::kAV1)),
+        ::testing::ValuesIn(kTestVectors), ::testing::ValuesIn(kEncodeVectors),
+        ::testing::ValuesIn(kMinArfVectors)));
+#endif  // CONFIG_AV1_ENCODER
+#else
+AV1_INSTANTIATE_TEST_CASE(ArfFreqTest, ::testing::ValuesIn(kTestVectors),
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
                           ::testing::ValuesIn(kEncodeVectors),
                           ::testing::ValuesIn(kMinArfVectors));
 #endif  // CONFIG_AOM_HIGHBITDEPTH || CONFIG_EXT_REFS

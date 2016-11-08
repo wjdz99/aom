@@ -24,9 +24,12 @@ void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
                          nmv_context_counts *const counts);
 
 void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #if CONFIG_REF_MV
                    int is_compound,
 #endif
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
                    nmv_context *mvctx, int usehp);
 
 void av1_build_nmv_cost_table(int *mvjoint, int *mvcost[2],

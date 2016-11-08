@@ -7,8 +7,11 @@ LIBAOM_TEST_SRCS-yes += test.mk
 LIBAOM_TEST_SRCS-yes += test_libaom.cc
 LIBAOM_TEST_SRCS-yes += util.h
 LIBAOM_TEST_SRCS-yes += video_source.h
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 LIBAOM_TEST_SRCS-yes += transform_test_base.h
 LIBAOM_TEST_SRCS-yes += function_equivalence_test.h
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 
 ##
 ## BLACK BOX TESTS
@@ -18,6 +21,7 @@ LIBAOM_TEST_SRCS-yes += function_equivalence_test.h
 LIBAOM_TEST_SRCS-yes                   += ../md5_utils.h ../md5_utils.c
 LIBAOM_TEST_SRCS-$(CONFIG_DECODERS)    += ivf_video_source.h
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += ../y4minput.h ../y4minput.c
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += altref_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += aq_segment_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += datarate_test.cc
@@ -26,9 +30,19 @@ LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += error_resilience_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += i420_video_source.h
 #LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += realtime_test.cc
 #LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += resize_test.cc
+=======
+LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += aq_segment_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += datarate_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += encode_api_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += error_resilience_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += i420_video_source.h
+##TODO(jimbankoski): Figure out why resize is failing.
+##LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += resize_test.cc
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += y4m_video_source.h
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += yuv_video_source.h
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += level_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += active_map_refresh_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += active_map_test.cc
@@ -36,6 +50,15 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += borders_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += cpu_speed_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += frame_size_tests.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += lossless_test.cc
+=======
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += active_map_refresh_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += active_map_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += borders_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += cpu_speed_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += frame_size_tests.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += lossless_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += end_to_end_test.cc
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += ethread_test.cc
 
 LIBAOM_TEST_SRCS-yes                   += decode_test_driver.cc
@@ -74,6 +97,7 @@ endif
 # encode perf tests are av1 only
 ifeq ($(CONFIG_ENCODE_PERF_TESTS)$(CONFIG_AV1_ENCODER), yesyes)
 LIBAOM_TEST_SRCS-yes += encode_perf_test.cc
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 endif
 
 ## Multi-codec / unconditional black box tests.
@@ -81,6 +105,8 @@ ifeq ($(findstring yes,$(CONFIG_AV1_ENCODER)),yes)
 LIBAOM_TEST_SRCS-yes += active_map_refresh_test.cc
 LIBAOM_TEST_SRCS-yes += active_map_test.cc
 LIBAOM_TEST_SRCS-yes += end_to_end_test.cc
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 endif
 
 ##
@@ -110,10 +136,15 @@ LIBAOM_TEST_SRCS-yes                   += accounting_test.cc
 endif
 endif
 LIBAOM_TEST_SRCS-yes                   += divu_small_test.cc
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #LIBAOM_TEST_SRCS-yes                   += encoder_parms_get_to_decoder.cc
+=======
+LIBAOM_TEST_SRCS-yes                   += encoder_parms_get_to_decoder.cc
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 endif
 
 LIBAOM_TEST_SRCS-$(CONFIG_ADAPT_SCAN)  += scan_test.cc
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #LIBAOM_TEST_SRCS-yes                   += convolve_test.cc
 LIBAOM_TEST_SRCS-yes                   += lpf_8_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_CLPF)        += clpf_test.cc
@@ -161,32 +192,77 @@ ifeq ($(CONFIG_EXT_INTER),yes)
 LIBAOM_TEST_SRCS-$(HAVE_SSSE3) += masked_variance_test.cc
 LIBAOM_TEST_SRCS-$(HAVE_SSSE3) += masked_sad_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_wedge_utils_test.cc
+=======
+LIBAOM_TEST_SRCS-yes                   += convolve_test.cc
+LIBAOM_TEST_SRCS-yes                   += convolve_test.cc
+LIBAOM_TEST_SRCS-yes                   += av1_convolve_test.cc
+LIBAOM_TEST_SRCS-yes                   += lpf_8_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_CLPF)        += clpf_test.cc
+LIBAOM_TEST_SRCS-yes                   += intrapred_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += dct16x16_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += dct32x32_test.cc
+LIBAOM_TEST_SRCS-yes                   += convolve_test.cc
+LIBAOM_TEST_SRCS-yes                   += av1_convolve_optimz_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += fdct4x4_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += fdct8x8_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += variance_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += quantize_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += subtract_test.cc
+LIBAOM_TEST_SRCS-yes += function_equivalence_test.h
+LIBAOM_TEST_SRCS-yes += blend_a64_mask_test.cc
+LIBAOM_TEST_SRCS-yes += blend_a64_mask_1d_test.cc
+ifeq ($(CONFIG_MOTION_VAR),yes)
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += obmc_sad_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += obmc_variance_test.cc
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 endif
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 ifeq ($(CONFIG_FILTER_INTRA),yes)
 LIBAOM_TEST_SRCS-$(HAVE_SSE4_1) += filterintra_predictors_test.cc
+=======
+ifeq ($(CONFIG_AV1_ENCODER)$(CONFIG_AV1_TEMPORAL_DENOISING),yesyes)
+LIBAOM_TEST_SRCS-$(HAVE_SSE2) += denoiser_sse2_test.cc
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 endif
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
+=======
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += arf_freq_test.cc
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 ifeq ($(CONFIG_MOTION_VAR),yes)
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += obmc_sad_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += obmc_variance_test.cc
 endif
+=======
+LIBAOM_TEST_SRCS-yes                    += av1_inv_txfm_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_dct_test.cc
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 ifeq ($(CONFIG_AOM_HIGHBITDEPTH),yes)
 LIBAOM_TEST_SRCS-$(HAVE_SSE4_1) += av1_quantize_test.cc
 LIBAOM_TEST_SRCS-$(HAVE_SSE4_1) += av1_highbd_iht_test.cc
 endif # CONFIG_AOM_HIGHBITDEPTH
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 endif # AV1
 
 ## Multi-codec / unconditional whitebox tests.
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 ifeq ($(CONFIG_AV1_ENCODER),yes)
+=======
+ifeq ($(findstring yes,$(CONFIG_AV1_ENCODER)$(CONFIG_AV1_ENCODER)),yes)
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 LIBAOM_TEST_SRCS-yes += avg_test.cc
 endif
 ifeq ($(CONFIG_INTERNAL_STATS),yes)
 LIBAOM_TEST_SRCS-$(CONFIG_AOM_HIGHBITDEPTH) += hbd_metrics_test.cc
 endif
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS) += sad_test.cc
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 LIBAOM_TEST_SRCS-$(CONFIG_AV1) += av1_txfm_test.h
 LIBAOM_TEST_SRCS-$(CONFIG_AV1) += av1_txfm_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1) += av1_fwd_txfm1d_test.cc
@@ -195,6 +271,8 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1) += av1_fwd_txfm2d_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1) += av1_inv_txfm2d_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1) += av1_convolve_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1) += av1_convolve_optimz_test.cc
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 
 TEST_INTRA_PRED_SPEED_SRCS-yes := test_intra_pred_speed.cc
 TEST_INTRA_PRED_SPEED_SRCS-yes += ../md5_utils.h ../md5_utils.c

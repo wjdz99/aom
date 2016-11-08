@@ -20,6 +20,7 @@
 extern "C" {
 #endif
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd,
 #if CONFIG_SUPERTX
                         int supertx_enabled,
@@ -27,6 +28,10 @@ void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd,
 
                         int mi_row, int mi_col, aom_reader *r, int x_mis,
                         int y_mis);
+=======
+void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd, int mi_row,
+                        int mi_col, aom_reader *r, int x_mis, int y_mis);
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 
 #ifdef __cplusplus
 }  // extern "C"

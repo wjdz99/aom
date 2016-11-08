@@ -71,8 +71,12 @@ TEST(AV1Idct8x8Test, AccuracyCheck) {
     for (int j = 0; j < 64; ++j) input[j] = src[j] - dst[j];
 
     reference_dct_2d(input, output_r);
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
     for (int j = 0; j < 64; ++j)
       coeff[j] = static_cast<tran_low_t>(round(output_r[j]));
+=======
+    for (int j = 0; j < 64; ++j) coeff[j] = round(output_r[j]);
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
     aom_idct8x8_64_add_c(coeff, dst, 8);
     for (int j = 0; j < 64; ++j) {
       const int diff = dst[j] - src[j];

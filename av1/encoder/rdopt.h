@@ -26,6 +26,7 @@ struct AV1_COMP;
 struct macroblock;
 struct RD_COST;
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #if CONFIG_VAR_TX
 static INLINE void av1_init_rd_stats(RD_STATS *rd_stats) {
 #if CONFIG_RD_DEBUG
@@ -152,6 +153,43 @@ void av1_txfm_rd_in_plane_supertx(MACROBLOCK *x, const AV1_COMP *cpi, int *rate,
                                   BLOCK_SIZE bsize, TX_SIZE tx_size,
                                   int use_fast_coef_casting);
 #endif  // CONFIG_SUPERTX
+=======
+void av1_rd_pick_intra_mode_sb(const struct AV1_COMP *cpi, struct macroblock *x,
+                               struct RD_COST *rd_cost, BLOCK_SIZE bsize,
+                               PICK_MODE_CONTEXT *ctx, int64_t best_rd);
+
+unsigned int av1_get_sby_perpixel_variance(const struct AV1_COMP *cpi,
+                                           const struct buf_2d *ref,
+                                           BLOCK_SIZE bs);
+#if CONFIG_AOM_HIGHBITDEPTH
+unsigned int av1_high_get_sby_perpixel_variance(const struct AV1_COMP *cpi,
+                                                const struct buf_2d *ref,
+                                                BLOCK_SIZE bs, int bd);
+#endif
+
+void av1_rd_pick_inter_mode_sb(const struct AV1_COMP *cpi,
+                               struct TileDataEnc *tile_data,
+                               struct macroblock *x, int mi_row, int mi_col,
+                               struct RD_COST *rd_cost, BLOCK_SIZE bsize,
+                               PICK_MODE_CONTEXT *ctx, int64_t best_rd_so_far);
+
+void av1_rd_pick_inter_mode_sb_seg_skip(
+    const struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
+    struct macroblock *x, struct RD_COST *rd_cost, BLOCK_SIZE bsize,
+    PICK_MODE_CONTEXT *ctx, int64_t best_rd_so_far);
+
+int av1_internal_image_edge(const struct AV1_COMP *cpi);
+int av1_active_h_edge(const struct AV1_COMP *cpi, int mi_row, int mi_step);
+int av1_active_v_edge(const struct AV1_COMP *cpi, int mi_col, int mi_step);
+int av1_active_edge_sb(const struct AV1_COMP *cpi, int mi_row, int mi_col);
+
+void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
+                                   struct TileDataEnc *tile_data,
+                                   struct macroblock *x, int mi_row, int mi_col,
+                                   struct RD_COST *rd_cost, BLOCK_SIZE bsize,
+                                   PICK_MODE_CONTEXT *ctx,
+                                   int64_t best_rd_so_far);
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -46,6 +46,7 @@ struct loopfilter {
 
   // 0 = Intra, Last, Last2+Last3(CONFIG_EXT_REFS),
   // GF, BRF(CONFIG_EXT_REFS), ARF
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
   signed char ref_deltas[TOTAL_REFS_PER_FRAME];
   signed char last_ref_deltas[TOTAL_REFS_PER_FRAME];
 
@@ -105,6 +106,68 @@ void av1_filter_block_plane_ss00_ver(struct AV1Common *const cm,
 void av1_filter_block_plane_ss00_hor(struct AV1Common *const cm,
                                      struct macroblockd_plane *const plane,
                                      int mi_row, LOOP_FILTER_MASK *lfm);
+=======
+  signed char ref_deltas[MAX_REF_FRAMES];
+  signed char last_ref_deltas[MAX_REF_FRAMES];
+
+  // 0 = ZERO_MV, MV
+  signed char mode_deltas[MAX_MODE_LF_DELTAS];
+  signed char last_mode_deltas[MAX_MODE_LF_DELTAS];
+};
+
+// Need to align this structure so when it is declared and
+// passed it can be loaded into vector registers.
+typedef struct {
+  DECLARE_ALIGNED(SIMD_WIDTH, uint8_t, mblim[SIMD_WIDTH]);
+  DECLARE_ALIGNED(SIMD_WIDTH, uint8_t, lim[SIMD_WIDTH]);
+  DECLARE_ALIGNED(SIMD_WIDTH, uint8_t, hev_thr[SIMD_WIDTH]);
+} loop_filter_thresh;
+
+typedef struct {
+  loop_filter_thresh lfthr[MAX_LOOP_FILTER + 1];
+  uint8_t lvl[MAX_SEGMENTS][MAX_REF_FRAMES][MAX_MODE_LF_DELTAS];
+} loop_filter_info_n;
+
+// This structure holds bit masks for all 8x8 blocks in a 64x64 region.
+// Each 1 bit represents a position in which we want to apply the loop filter.
+// Left_ entries refer to whether we apply a filter on the border to the
+// left of the block.   Above_ entries refer to whether or not to apply a
+// filter on the above border.   Int_ entries refer to whether or not to
+// apply borders on the 4x4 edges within the 8x8 block that each bit
+// represents.
+// Since each transform is accompanied by a potentially different type of
+// loop filter there is a different entry in the array for each transform size.
+typedef struct {
+  uint64_t left_y[TX_SIZES];
+  uint64_t above_y[TX_SIZES];
+  uint64_t int_4x4_y;
+  uint16_t left_uv[TX_SIZES];
+  uint16_t above_uv[TX_SIZES];
+  uint16_t left_int_4x4_uv;
+  uint16_t above_int_4x4_uv;
+  uint8_t lfl_y[64];
+  uint8_t lfl_uv[16];
+} LOOP_FILTER_MASK;
+
+/* assorted loopfilter functions which get used elsewhere */
+struct AV1Common;
+struct macroblockd;
+struct AV1LfSyncData;
+
+// This function sets up the bit masks for the entire 64x64 region represented
+// by mi_row, mi_col.
+void av1_setup_mask(struct AV1Common *const cm, const int mi_row,
+                    const int mi_col, MODE_INFO **mi_8x8,
+                    const int mode_info_stride, LOOP_FILTER_MASK *lfm);
+
+void av1_filter_block_plane_ss00_ver(struct AV1Common *const cm,
+                                     struct macroblockd_plane *const plane,
+                                     int mi_row, LOOP_FILTER_MASK *lfm);
+void av1_filter_block_plane_ss00_hor(struct AV1Common *const cm,
+                                     struct macroblockd_plane *const plane,
+                                     int mi_row, LOOP_FILTER_MASK *lfm);
+
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 void av1_filter_block_plane_ss11_ver(struct AV1Common *const cm,
                                      struct macroblockd_plane *const plane,
                                      int mi_row, LOOP_FILTER_MASK *lfm);

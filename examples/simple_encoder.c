@@ -151,7 +151,11 @@ int main(int argc, char **argv) {
   int frame_count = 0;
   aom_image_t raw;
   aom_codec_err_t res;
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
   AvxVideoInfo info;
+=======
+  AvxVideoInfo info = { 0 };
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   AvxVideoWriter *writer = NULL;
   const AvxInterface *encoder = NULL;
   const int fps = 30;
@@ -168,10 +172,13 @@ int main(int argc, char **argv) {
 
   exec_name = argv[0];
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
   // Clear explicitly, as simply assigning "{ 0 }" generates
   // "missing-field-initializers" warning in some compilers.
   memset(&info, 0, sizeof(info));
 
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
   if (argc != 9) die("Invalid number of arguments");
 
   codec_arg = argv[1];

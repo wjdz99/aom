@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 /*
  *  Copyright (c) 2013 The WebM project authors. All Rights Reserved.
  *
@@ -98,3 +99,5 @@ TEST(UserPrivTest, VideoDecode) {
 #endif  // CONFIG_WEBM_IO
 
 }  // namespace
+=======
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)

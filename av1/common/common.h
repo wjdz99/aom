@@ -16,6 +16,7 @@
 
 #include <assert.h>
 
+<<<<<<< HEAD   (6515af Merge "Add min_tx_size variable to recursive transform block)
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_mem/aom_mem.h"
 #include "aom/aom_integer.h"
@@ -43,6 +44,36 @@ extern "C" {
 
 #define av1_zero(dest) memset(&(dest), 0, sizeof(dest))
 #define av1_zero_array(dest, n) memset(dest, 0, n * sizeof(*(dest)))
+=======
+#include "./aom_config.h"
+#include "aom_dsp/aom_dsp_common.h"
+#include "aom_mem/aom_mem.h"
+#include "aom/aom_integer.h"
+#include "aom_ports/bitops.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define PI 3.141592653589793238462643383279502884
+
+// Only need this for fixed-size arrays, for structs just assign.
+#define av1_copy(dest, src)              \
+  {                                      \
+    assert(sizeof(dest) == sizeof(src)); \
+    memcpy(dest, src, sizeof(src));      \
+  }
+
+// Use this for variably-sized arrays.
+#define av1_copy_array(dest, src, n)       \
+  {                                        \
+    assert(sizeof(*dest) == sizeof(*src)); \
+    memcpy(dest, src, n * sizeof(*src));   \
+  }
+
+#define av1_zero(dest) memset(&(dest), 0, sizeof(dest))
+#define av1_zero_array(dest, n) memset(dest, 0, n * sizeof(*dest))
+>>>>>>> BRANCH (8b0f63 Fix clang-format issues.)
 
 static INLINE int get_unsigned_bits(unsigned int num_values) {
   return num_values > 0 ? get_msb(num_values) + 1 : 0;
