@@ -34,6 +34,24 @@
       "revId": "8620c987df459108127da51b54729901fc1c1b40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bd84f3b_2b82a44e",
+        "filename": "av1/common/odintrin.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2016-11-08T06:18:36Z",
+      "side": 1,
+      "message": "Ah, I missed that you hadn\u0027t added a new OD_LOG_TXSIZE0 instead. Well, up to you if you want to rename that one, too.",
+      "parentUuid": "6bd84f3b_4b97e893",
+      "revId": "8620c987df459108127da51b54729901fc1c1b40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
