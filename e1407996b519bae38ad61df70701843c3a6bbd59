@@ -16,6 +16,29 @@
       "revId": "e1407996b519bae38ad61df70701843c3a6bbd59",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bd84f3b_088de6bd",
+        "filename": "build/cmake/aom_version.pl",
+        "patchSetId": 14
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-08T01:58:06Z",
+      "side": 1,
+      "message": "I would use logical || in if statments; the () grouping isn\u0027t necessary",
+      "range": {
+        "startLine": 23,
+        "startChar": 59,
+        "endLine": 23,
+        "endChar": 61
+      },
+      "revId": "e1407996b519bae38ad61df70701843c3a6bbd59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
