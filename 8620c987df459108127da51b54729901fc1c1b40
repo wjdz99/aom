@@ -52,6 +52,24 @@
       "revId": "8620c987df459108127da51b54729901fc1c1b40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bd84f3b_2bd38461",
+        "filename": "av1/common/odintrin.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-08T06:26:14Z",
+      "side": 1,
+      "message": "Regarding TX_SIZES replacing OD_NBSIZES,\nWe might have tourble later if CONFIG_CB4X4 is enabled,\nsince that experiemnt makes TX_SIZES \u003d 5, and current PVQ codes is hard coded to have 4x4 as smallest size. \nEsp. all those band and scan order conversion are only defined\nfor blocks, 4x4 to 32x32.\n\n#if CONFIG_CB4X4\n#define TX_2X2 ((TX_SIZE)0)    // 2x2 transform\n#define TX_4X4 ((TX_SIZE)1)    // 4x4 transform\n#define TX_8X8 ((TX_SIZE)2)    // 8x8 transform\n#define TX_16X16 ((TX_SIZE)3)  // 16x16 transform\n#define TX_32X32 ((TX_SIZE)4)  // 32x32 transform\n#define TX_SIZES ((TX_SIZE)5)\n#else\n#define TX_4X4 ((TX_SIZE)0)    // 4x4 transform\n#define TX_8X8 ((TX_SIZE)1)    // 8x8 transform\n#define TX_16X16 ((TX_SIZE)2)  // 16x16 transform\n#define TX_32X32 ((TX_SIZE)3)  // 32x32 transform\n#define TX_SIZES ((TX_SIZE)4)\n#endif\n\nLet\u0027s review this patch back again later.",
+      "parentUuid": "6bd84f3b_2b82a44e",
+      "revId": "8620c987df459108127da51b54729901fc1c1b40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
