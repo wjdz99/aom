@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4be1cbe3_2f53832a",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1045,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-11-08T23:44:34Z",
+      "side": 1,
+      "message": "Then, CONFIG_AOM_HIGHBITDEPTH block will not be called if PVQ is not enabled?",
+      "range": {
+        "startLine": 1045,
+        "startChar": 4,
+        "endLine": 1045,
+        "endChar": 27
+      },
+      "revId": "bd4f0c457d8c213eff2839764a44448605b386e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
