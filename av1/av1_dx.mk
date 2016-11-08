@@ -9,6 +9,10 @@
 ## PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 ##
 
+<<<<<<< HEAD   (0908f8 Remove multiple coefficient buffers from PICK_MODE_CONTEXT)
+=======
+
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 AV1_DX_EXPORTS += exports_dec
 
 AV1_DX_SRCS-yes += $(AV1_COMMON_SRCS-yes)

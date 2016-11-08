@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (0908f8 Remove multiple coefficient buffers from PICK_MODE_CONTEXT)
 /*
  *  Copyright (c) 2012 The WebM project authors. All Rights Reserved.
  *
@@ -93,3 +94,5 @@ AV1_INSTANTIATE_TEST_CASE(AltRefForcedKeyTestLarge,
                           ::testing::Range(0, 9));
 
 }  // namespace
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)

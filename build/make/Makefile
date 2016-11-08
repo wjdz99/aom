@@ -7,7 +7,10 @@
 ## Media Patent License 1.0 was not distributed with this source code in the
 ## PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 ##
+<<<<<<< HEAD   (0908f8 Remove multiple coefficient buffers from PICK_MODE_CONTEXT)
 
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 
 include config.mk
 quiet?=true
@@ -126,6 +129,7 @@ endif
 
 $(BUILD_PFX)%_mmx.c.d: CFLAGS += -mmmx
 $(BUILD_PFX)%_mmx.c.o: CFLAGS += -mmmx
+<<<<<<< HEAD   (0908f8 Remove multiple coefficient buffers from PICK_MODE_CONTEXT)
 $(BUILD_PFX)%_sse2.c.d: CFLAGS += -msse2
 $(BUILD_PFX)%_sse2.c.o: CFLAGS += -msse2
 $(BUILD_PFX)%_sse3.c.d: CFLAGS += -msse3
@@ -138,6 +142,22 @@ $(BUILD_PFX)%_avx.c.d: CFLAGS += -mavx
 $(BUILD_PFX)%_avx.c.o: CFLAGS += -mavx
 $(BUILD_PFX)%_avx2.c.d: CFLAGS += -mavx2
 $(BUILD_PFX)%_avx2.c.o: CFLAGS += -mavx2
+=======
+$(BUILD_PFX)%_sse2.c.d: CFLAGS += -msse2 $(STACKREALIGN)
+$(BUILD_PFX)%_sse2.c.o: CFLAGS += -msse2 $(STACKREALIGN)
+$(BUILD_PFX)%_sse3.c.d: CFLAGS += -msse3 $(STACKREALIGN)
+$(BUILD_PFX)%_sse3.c.o: CFLAGS += -msse3 $(STACKREALIGN)
+$(BUILD_PFX)%_ssse3.c.d: CFLAGS += -mssse3 $(STACKREALIGN)
+$(BUILD_PFX)%_ssse3.c.o: CFLAGS += -mssse3 $(STACKREALIGN)
+$(BUILD_PFX)%_sse4.c.d: CFLAGS += -msse4.1 $(STACKREALIGN)
+$(BUILD_PFX)%_sse4.c.o: CFLAGS += -msse4.1 $(STACKREALIGN)
+$(BUILD_PFX)%_avx.c.d: CFLAGS += -mavx $(STACKREALIGN)
+$(BUILD_PFX)%_avx.c.o: CFLAGS += -mavx $(STACKREALIGN)
+$(BUILD_PFX)%_avx2.c.d: CFLAGS += -mavx2 $(STACKREALIGN)
+$(BUILD_PFX)%_avx2.c.o: CFLAGS += -mavx2 $(STACKREALIGN)
+$(BUILD_PFX)%av1_reconintra.c.d: CFLAGS += $(STACKREALIGN)
+$(BUILD_PFX)%av1_reconintra.c.o: CFLAGS += $(STACKREALIGN)
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 
 $(BUILD_PFX)%.c.d: %.c
 	$(if $(quiet),@echo "    [DEP] $@")

@@ -102,6 +102,10 @@ INSTANTIATE_TEST_CASE_P(
     C, AV1FwdTxfm,
     ::testing::Values(FdctParam(&fdct4, &reference_dct_1d, 4, 1),
                       FdctParam(&fdct8, &reference_dct_1d, 8, 1),
+<<<<<<< HEAD   (0908f8 Remove multiple coefficient buffers from PICK_MODE_CONTEXT)
                       FdctParam(&fdct16, &reference_dct_1d, 16, 2),
                       FdctParam(&fdct32, &reference_dct_1d, 32, 3)));
+=======
+                      FdctParam(&fdct16, &reference_dct_1d, 16, 2)));
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 }  // namespace

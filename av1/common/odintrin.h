@@ -252,4 +252,8 @@ typedef int32_t od_val32;
 }  // extern "C"
 #endif
 
+<<<<<<< HEAD   (0908f8 Remove multiple coefficient buffers from PICK_MODE_CONTEXT)
 #endif  // AV1_COMMON_ODINTRIN_H_
+=======
+#endif
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)

@@ -10,11 +10,14 @@
  */
 
 #include <assert.h>
+<<<<<<< HEAD   (0908f8 Remove multiple coefficient buffers from PICK_MODE_CONTEXT)
 #if defined(_MSC_VER) && _MSC_VER <= 1500
 // Need to include math.h before calling tmmintrin.h/intrin.h
 // in certain versions of MSVS.
 #include <math.h>
 #endif
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 #include <tmmintrin.h>  // SSSE3
 
 #include "./av1_rtcd.h"

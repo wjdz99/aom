@@ -37,10 +37,16 @@ DECLARE_ALIGNED(32, static const uint8_t, filt4_global_avx2[32]) = {
 };
 
 #if defined(__clang__)
+<<<<<<< HEAD   (0908f8 Remove multiple coefficient buffers from PICK_MODE_CONTEXT)
 #if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ <= 3) || \
     (defined(__APPLE__) && defined(__apple_build_version__) &&               \
      ((__clang_major__ == 4 && __clang_minor__ <= 2) ||                      \
       (__clang_major__ == 5 && __clang_minor__ == 0)))
+=======
+#if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ <= 3) ||  \
+    (defined(__APPLE__) && ((__clang_major__ == 4 && __clang_minor__ <= 2) || \
+                            (__clang_major__ == 5 && __clang_minor__ == 0)))
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 
 #define MM256_BROADCASTSI128_SI256(x) \
   _mm_broadcastsi128_si256((__m128i const *)&(x))

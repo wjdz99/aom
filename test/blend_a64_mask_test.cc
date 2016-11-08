@@ -99,6 +99,7 @@ class BlendA64MaskTest : public FunctionEquivalenceTest<F> {
 
   T dst_ref_[kBufSize];
   T dst_tst_[kBufSize];
+<<<<<<< HEAD   (0908f8 Remove multiple coefficient buffers from PICK_MODE_CONTEXT)
   uint32_t dst_stride_;
   uint32_t dst_offset_;
 
@@ -118,6 +119,27 @@ class BlendA64MaskTest : public FunctionEquivalenceTest<F> {
 
   int suby_;
   int subx_;
+=======
+  size_t dst_stride_;
+  size_t dst_offset_;
+
+  T src0_[kBufSize];
+  size_t src0_stride_;
+  size_t src0_offset_;
+
+  T src1_[kBufSize];
+  size_t src1_stride_;
+  size_t src1_offset_;
+
+  uint8_t mask_[kMaxMaskSize];
+  size_t mask_stride_;
+
+  int w_;
+  int h_;
+
+  bool suby_;
+  bool subx_;
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 };
 
 //////////////////////////////////////////////////////////////////////////////

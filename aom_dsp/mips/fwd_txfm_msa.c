@@ -238,9 +238,19 @@ void aom_fdct16x16_msa(const int16_t *input, int16_t *output,
 }
 
 void aom_fdct16x16_1_msa(const int16_t *input, int16_t *out, int32_t stride) {
+<<<<<<< HEAD   (0908f8 Remove multiple coefficient buffers from PICK_MODE_CONTEXT)
   int sum = LD_HADD(input, stride);
   sum += LD_HADD(input + 8, stride);
   sum += LD_HADD(input + 16 * 8, stride);
   sum += LD_HADD(input + 16 * 8 + 8, stride);
   out[0] = (int16_t)(sum >> 1);
+=======
+  out[1] = 0;
+
+  out[0] = LD_HADD(input, stride);
+  out[0] += LD_HADD(input + 8, stride);
+  out[0] += LD_HADD(input + 16 * 8, stride);
+  out[0] += LD_HADD(input + 16 * 8 + 8, stride);
+  out[0] >>= 1;
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 }

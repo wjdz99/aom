@@ -92,7 +92,12 @@ TEST_P(AV1DenoiserTest, BitexactCheck) {
 
 // Test for all block size.
 INSTANTIATE_TEST_CASE_P(SSE2, AV1DenoiserTest,
+<<<<<<< HEAD   (0908f8 Remove multiple coefficient buffers from PICK_MODE_CONTEXT)
                         ::testing::Values(BLOCK_8X8, BLOCK_8X16, BLOCK_16X8,
+=======
+                        ::testing::Values(BLOCK_4X4, BLOCK_4X8, BLOCK_8X4,
+                                          BLOCK_8X8, BLOCK_8X16, BLOCK_16X8,
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
                                           BLOCK_16X16, BLOCK_16X32, BLOCK_32X16,
                                           BLOCK_32X32, BLOCK_32X64, BLOCK_64X32,
                                           BLOCK_64X64));
