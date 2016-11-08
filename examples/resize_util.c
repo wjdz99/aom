@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 /*
  *  Copyright (c) 2014 The WebM project authors. All Rights Reserved.
  *
@@ -121,3 +122,5 @@ int main(int argc, char *argv[]) {
   free(outbuf);
   return 0;
 }
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)

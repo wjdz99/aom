@@ -1,6 +1,10 @@
-README - 23 March 2015
+README - 22 March 2016
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 Welcome to the WebM VP8/AV1 Codec SDK!
+=======
+Welcome to the AOM Codec SDK!
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 
 COMPILING THE APPLICATIONS/LIBRARIES:
   The build system used is similar to autotools. Building generally consists of
@@ -119,12 +123,17 @@ COMPILING THE APPLICATIONS/LIBRARIES:
   This defaults to config.log. This should give a good indication of what went
   wrong. If not, contact us for support.
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 VP8/AV1 TEST VECTORS:
+=======
+AOM TEST VECTORS:
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
   The test vectors can be downloaded and verified using the build system after
   running configure. To specify an alternate directory the
   LIBAOM_TEST_DATA_PATH environment variable can be used.
 
   $ ./configure --enable-unit-tests
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
   $ LIBAOM_TEST_DATA_PATH=../-test-data make testdata
 
 CODE STYLE:
@@ -141,8 +150,11 @@ CODE STYLE:
   any difference between your local formatting and the review system.
 
   See also: http://clang.llvm.org/docs/ClangFormat.html
+=======
+  $ LIBAOM_TEST_DATA_PATH=../libaom-test-data make testdata
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 
 SUPPORT
   This library is an open source project supported by its community. Please
-  please email webm-discuss@webmproject.org for help.
+  please email aomediacodec-chair@jointdevelopment.kavi.com for help.
 

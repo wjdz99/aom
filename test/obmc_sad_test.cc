@@ -85,6 +85,7 @@ TEST_P(ObmcSadTest, ExtremeValues) {
 
 #if HAVE_SSE4_1
 const ObmcSadTest::ParamType sse4_functions[] = {
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 #if CONFIG_EXT_PARTITION
   TestFuncs(aom_obmc_sad128x128_c, aom_obmc_sad128x128_sse4_1),
   TestFuncs(aom_obmc_sad128x64_c, aom_obmc_sad128x64_sse4_1),
@@ -173,6 +174,86 @@ ObmcSadHBDTest::ParamType sse4_functions_hbd[] = {
   TestFuncs(aom_highbd_obmc_sad128x64_c, aom_highbd_obmc_sad128x64_sse4_1),
   TestFuncs(aom_highbd_obmc_sad64x128_c, aom_highbd_obmc_sad64x128_sse4_1),
 #endif  // CONFIG_EXT_PARTITION
+=======
+  TestFuncs(aom_obmc_sad64x64_c, aom_obmc_sad64x64_sse4_1),
+  TestFuncs(aom_obmc_sad64x32_c, aom_obmc_sad64x32_sse4_1),
+  TestFuncs(aom_obmc_sad32x64_c, aom_obmc_sad32x64_sse4_1),
+  TestFuncs(aom_obmc_sad32x32_c, aom_obmc_sad32x32_sse4_1),
+  TestFuncs(aom_obmc_sad32x16_c, aom_obmc_sad32x16_sse4_1),
+  TestFuncs(aom_obmc_sad16x32_c, aom_obmc_sad16x32_sse4_1),
+  TestFuncs(aom_obmc_sad16x16_c, aom_obmc_sad16x16_sse4_1),
+  TestFuncs(aom_obmc_sad16x8_c, aom_obmc_sad16x8_sse4_1),
+  TestFuncs(aom_obmc_sad8x16_c, aom_obmc_sad8x16_sse4_1),
+  TestFuncs(aom_obmc_sad8x8_c, aom_obmc_sad8x8_sse4_1),
+  TestFuncs(aom_obmc_sad8x4_c, aom_obmc_sad8x4_sse4_1),
+  TestFuncs(aom_obmc_sad4x8_c, aom_obmc_sad4x8_sse4_1),
+  TestFuncs(aom_obmc_sad4x4_c, aom_obmc_sad4x4_sse4_1)
+};
+
+INSTANTIATE_TEST_CASE_P(SSE4_1_C_COMPARE, ObmcSadTest,
+                        ::testing::ValuesIn(sse4_functions));
+#endif  // HAVE_SSE4_1
+
+////////////////////////////////////////////////////////////////////////////////
+// High bit-depth
+////////////////////////////////////////////////////////////////////////////////
+
+#if CONFIG_AOM_HIGHBITDEPTH
+class ObmcSadHBDTest : public FunctionEquivalenceTest<ObmcSadF> {};
+
+TEST_P(ObmcSadHBDTest, RandomValues) {
+  DECLARE_ALIGNED(32, uint16_t, pre[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, int32_t, wsrc[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, int32_t, mask[MAX_SB_SQUARE]);
+
+  for (int iter = 0; iter < kIterations && !HasFatalFailure(); ++iter) {
+    const int pre_stride = rng_(MAX_SB_SIZE + 1);
+
+    for (int i = 0; i < MAX_SB_SQUARE; ++i) {
+      pre[i] = rng_(1 << 12);
+      wsrc[i] = rng_(1 << 12) * rng_(kMaskMax * kMaskMax + 1);
+      mask[i] = rng_(kMaskMax * kMaskMax + 1);
+    }
+
+    const unsigned int ref_res =
+        params_.ref_func(CONVERT_TO_BYTEPTR(pre), pre_stride, wsrc, mask);
+    unsigned int tst_res;
+    ASM_REGISTER_STATE_CHECK(
+        tst_res =
+            params_.tst_func(CONVERT_TO_BYTEPTR(pre), pre_stride, wsrc, mask));
+
+    ASSERT_EQ(ref_res, tst_res);
+  }
+}
+
+TEST_P(ObmcSadHBDTest, ExtremeValues) {
+  DECLARE_ALIGNED(32, uint16_t, pre[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, int32_t, wsrc[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, int32_t, mask[MAX_SB_SQUARE]);
+
+  for (int iter = 0; iter < MAX_SB_SIZE && !HasFatalFailure(); ++iter) {
+    const int pre_stride = iter;
+
+    for (int i = 0; i < MAX_SB_SQUARE; ++i) {
+      pre[i] = (1 << 12) - 1;
+      wsrc[i] = ((1 << 12) - 1) * kMaskMax * kMaskMax;
+      mask[i] = kMaskMax * kMaskMax;
+    }
+
+    const unsigned int ref_res =
+        params_.ref_func(CONVERT_TO_BYTEPTR(pre), pre_stride, wsrc, mask);
+    unsigned int tst_res;
+    ASM_REGISTER_STATE_CHECK(
+        tst_res =
+            params_.tst_func(CONVERT_TO_BYTEPTR(pre), pre_stride, wsrc, mask));
+
+    ASSERT_EQ(ref_res, tst_res);
+  }
+}
+
+#if HAVE_SSE4_1
+ObmcSadHBDTest::ParamType sse4_functions_hbd[] = {
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
   TestFuncs(aom_highbd_obmc_sad64x64_c, aom_highbd_obmc_sad64x64_sse4_1),
   TestFuncs(aom_highbd_obmc_sad64x32_c, aom_highbd_obmc_sad64x32_sse4_1),
   TestFuncs(aom_highbd_obmc_sad32x64_c, aom_highbd_obmc_sad32x64_sse4_1),

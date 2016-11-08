@@ -23,8 +23,12 @@ const int kSuperframeSyntax = 1;
 const int kTileCols = 2;
 const int kTileRows = 3;
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 typedef std::tr1::tuple<libaom_test::TestMode, int, int, int>
     SuperframeTestParam;
+=======
+typedef std::tr1::tuple<libaom_test::TestMode, int> SuperframeTestParam;
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 
 class SuperframeTest
     : public ::libaom_test::EncoderTest,
@@ -43,8 +47,11 @@ class SuperframeTest
     sf_count_ = 0;
     sf_count_max_ = INT_MAX;
     is_av1_style_superframe_ = syntax;
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
     n_tile_cols_ = std::tr1::get<kTileCols>(input);
     n_tile_rows_ = std::tr1::get<kTileRows>(input);
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
   }
 
   virtual void TearDown() { delete[] modified_buf_; }
@@ -53,9 +60,12 @@ class SuperframeTest
                                   libaom_test::Encoder *encoder) {
     if (video->frame() == 1) {
       encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
       encoder->Control(AOME_SET_CPUUSED, 2);
       encoder->Control(AV1E_SET_TILE_COLUMNS, n_tile_cols_);
       encoder->Control(AV1E_SET_TILE_ROWS, n_tile_rows_);
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
     }
   }
 
@@ -95,10 +105,13 @@ class SuperframeTest
   aom_codec_cx_pkt_t modified_pkt_;
   uint8_t *modified_buf_;
   aom_codec_pts_t last_sf_pts_;
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 
  private:
   int n_tile_cols_;
   int n_tile_rows_;
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 };
 
 TEST_P(SuperframeTest, TestSuperframeIndexIsOptional) {
@@ -117,6 +130,7 @@ TEST_P(SuperframeTest, TestSuperframeIndexIsOptional) {
 #endif  // CONFIG_EXT_REFS
 }
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 // The superframe index is currently mandatory with ANS due to the decoder
 // starting at the end of the buffer.
 #if CONFIG_EXT_TILE
@@ -142,4 +156,36 @@ AV1_INSTANTIATE_TEST_CASE(
                        ::testing::Values(0)));
 #endif  // !CONFIG_ANS
 #endif  // CONFIG_EXT_TILE
+=======
+#if CONFIG_ANS
+// TODO(aconverse@google.com): Because the ANS decoder starts reading from the
+// end of the buffer, it can't find the end of the first frame of the
+// superframe. This can be ameliorated by reversing the order of the frames in
+// the superframe or reversing the bytes of each ANS buffer.
+INSTANTIATE_TEST_CASE_P(
+    DISABLED_AV1, SuperframeTest,
+    ::testing::Combine(
+        ::testing::Values(
+            static_cast<const libaom_test::CodecFactory *>(&libaom_test::kAV1)),
+        ::testing::Combine(::testing::Values(::libaom_test::kTwoPassGood),
+                           ::testing::Values(1))));
+#elif CONFIG_DAALA_EC
+// TODO(negge@mozilla.com): Because the Daala EC decoder reads raw bits in
+// reverse order from the rear of the entropy coder buffer, it cannot decode
+// a superframe without knowing the length of the frame.  This should be
+// handled by some higher level syntax that does not exist yet.
+INSTANTIATE_TEST_CASE_P(
+    DISABLED_AV1, SuperframeTest,
+    ::testing::Combine(
+        ::testing::Values(
+            static_cast<const libaom_test::CodecFactory *>(&libaom_test::kAV1)),
+        ::testing::Combine(::testing::Values(::libaom_test::kTwoPassGood),
+                           ::testing::Values(1))));
+#else
+AV1_INSTANTIATE_TEST_CASE(
+    SuperframeTest,
+    ::testing::Combine(::testing::Values(::libaom_test::kTwoPassGood),
+                       ::testing::Values(1)));
+#endif
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 }  // namespace

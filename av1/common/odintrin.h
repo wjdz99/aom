@@ -252,4 +252,8 @@ typedef int32_t od_val32;
 }  // extern "C"
 #endif
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 #endif  // AV1_COMMON_ODINTRIN_H_
+=======
+#endif
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)

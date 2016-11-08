@@ -176,6 +176,7 @@ int av1_prob_diff_update_savings_search_model(const unsigned int *ct,
   return bestsavings;
 }
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 #if CONFIG_ENTROPY
 static int get_cost(unsigned int ct[][2], aom_prob p, int n) {
   int i, p0 = p;
@@ -289,4 +290,29 @@ void aom_write_primitive_symmetric(aom_writer *w, int word,
     aom_write_bit(w, s);
     aom_write_literal(w, x - 1, abs_bits);
   }
+=======
+void av1_cond_prob_diff_update(aom_writer *w, aom_prob *oldp,
+                               const unsigned int ct[2], int probwt) {
+  const aom_prob upd = DIFF_UPDATE_PROB;
+  aom_prob newp = get_binary_prob(ct[0], ct[1]);
+  const int savings =
+      av1_prob_diff_update_savings_search(ct, *oldp, &newp, upd, probwt);
+  assert(newp >= 1);
+  if (savings > 0) {
+    aom_write(w, 1, upd);
+    av1_write_prob_diff_update(w, newp, *oldp);
+    *oldp = newp;
+  } else {
+    aom_write(w, 0, upd);
+  }
+}
+
+int av1_cond_prob_diff_update_savings(aom_prob *oldp, const unsigned int ct[2],
+                                      int probwt) {
+  const aom_prob upd = DIFF_UPDATE_PROB;
+  aom_prob newp = get_binary_prob(ct[0], ct[1]);
+  const int savings =
+      av1_prob_diff_update_savings_search(ct, *oldp, &newp, upd, probwt);
+  return savings;
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 }

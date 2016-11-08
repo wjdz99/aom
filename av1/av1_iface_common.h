@@ -134,6 +134,7 @@ static aom_codec_err_t image2yuvconfig(const aom_image_t *img,
   return AOM_CODEC_OK;
 }
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 static AOM_REFFRAME ref_frame_to_av1_reframe(aom_ref_frame_type_t frame) {
   switch (frame) {
     case AOM_LAST_FRAME: return AOM_LAST_FLAG;
@@ -143,4 +144,6 @@ static AOM_REFFRAME ref_frame_to_av1_reframe(aom_ref_frame_type_t frame) {
   assert(0 && "Invalid Reference Frame");
   return AOM_LAST_FLAG;
 }
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 #endif  // AV1_AV1_IFACE_COMMON_H_

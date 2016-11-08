@@ -68,6 +68,7 @@ static INLINE __m128i xx_roundn_epu16(__m128i v_val_w, int bits) {
 }
 
 static INLINE __m128i xx_roundn_epu32(__m128i v_val_d, int bits) {
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
   const __m128i v_bias_d = _mm_set1_epi32((1 << bits) >> 1);
   const __m128i v_tmp_d = _mm_add_epi32(v_val_d, v_bias_d);
   return _mm_srli_epi32(v_tmp_d, bits);
@@ -83,6 +84,15 @@ static INLINE __m128i xx_roundn_epi32_unsigned(__m128i v_val_d, int bits) {
 // This is equivalent to ROUND_POWER_OF_TWO_SIGNED(v_val_d, bits)
 static INLINE __m128i xx_roundn_epi32(__m128i v_val_d, int bits) {
   const __m128i v_bias_d = _mm_set1_epi32((1 << bits) >> 1);
+=======
+  const __m128i v_bias_d = _mm_set1_epi32(1 << (bits - 1));
+  const __m128i v_tmp_d = _mm_add_epi32(v_val_d, v_bias_d);
+  return _mm_srli_epi32(v_tmp_d, bits);
+}
+
+static INLINE __m128i xx_roundn_epi32(__m128i v_val_d, int bits) {
+  const __m128i v_bias_d = _mm_set1_epi32(1 << (bits - 1));
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
   const __m128i v_sign_d = _mm_srai_epi32(v_val_d, 31);
   const __m128i v_tmp_d =
       _mm_add_epi32(_mm_add_epi32(v_val_d, v_bias_d), v_sign_d);

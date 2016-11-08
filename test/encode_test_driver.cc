@@ -14,7 +14,10 @@
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
 #include "./aom_config.h"
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 #include "aom_ports/mem.h"
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 #include "test/codec_factory.h"
 #include "test/decode_test_driver.h"
 #include "test/encode_test_driver.h"
@@ -37,18 +40,26 @@ void Encoder::InitEncoder(VideoSource *video) {
 
 #if CONFIG_AV1_ENCODER
     if (CodecInterface() == &aom_codec_av1_cx_algo) {
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 // Default to 1 tile column for AV1. With CONFIG_EXT_TILE, the
 // default is already the largest possible tile size
 #if !CONFIG_EXT_TILE
+=======
+      // Default to 1 tile column for AV1.
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
       const int log2_tile_columns = 0;
       res = aom_codec_control_(&encoder_, AV1E_SET_TILE_COLUMNS,
                                log2_tile_columns);
       ASSERT_EQ(AOM_CODEC_OK, res) << EncoderError();
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 #endif  // !CONFIG_EXT_TILE
     } else
 #endif
     {
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
     }
+#endif
   }
 }
 
@@ -121,7 +132,16 @@ void EncoderTest::SetMode(TestMode mode) {
   else
     passes_ = 1;
 }
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
+=======
+// The function should return "true" most of the time, therefore no early
+// break-out is implemented within the match checking process.
+static bool compare_img(const aom_image_t *img1, const aom_image_t *img2) {
+  bool match = (img1->fmt == img2->fmt) && (img1->cs == img2->cs) &&
+               (img1->d_w == img2->d_w) && (img1->d_h == img2->d_h);
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 static bool compare_plane(const uint8_t *const buf1, const int stride1,
                           const uint8_t *const buf2, const int stride2,
                           const int w, const int h, int *const mismatch_row,
@@ -145,8 +165,32 @@ static bool compare_plane(const uint8_t *const buf1, const int stride1,
   }
 
   return true;
+=======
+  const unsigned int width_y = img1->d_w;
+  const unsigned int height_y = img1->d_h;
+  unsigned int i;
+  for (i = 0; i < height_y; ++i)
+    match = (memcmp(img1->planes[AOM_PLANE_Y] + i * img1->stride[AOM_PLANE_Y],
+                    img2->planes[AOM_PLANE_Y] + i * img2->stride[AOM_PLANE_Y],
+                    width_y) == 0) &&
+            match;
+  const unsigned int width_uv = (img1->d_w + 1) >> 1;
+  const unsigned int height_uv = (img1->d_h + 1) >> 1;
+  for (i = 0; i < height_uv; ++i)
+    match = (memcmp(img1->planes[AOM_PLANE_U] + i * img1->stride[AOM_PLANE_U],
+                    img2->planes[AOM_PLANE_U] + i * img2->stride[AOM_PLANE_U],
+                    width_uv) == 0) &&
+            match;
+  for (i = 0; i < height_uv; ++i)
+    match = (memcmp(img1->planes[AOM_PLANE_V] + i * img1->stride[AOM_PLANE_V],
+                    img2->planes[AOM_PLANE_V] + i * img2->stride[AOM_PLANE_V],
+                    width_uv) == 0) &&
+            match;
+  return match;
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 }
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 // The function should return "true" most of the time, therefore no early
 // break-out is implemented within the match checking process.
 static bool compare_img(const aom_image_t *img1, const aom_image_t *img2,
@@ -210,6 +254,11 @@ void EncoderTest::MismatchHook(const aom_image_t *img_enc,
                << "                plane: " << mismatch_plane << std::endl
                << "              row/col: " << mismatch_row << "/"
                << mismatch_col << std::endl;
+=======
+void EncoderTest::MismatchHook(const aom_image_t * /*img1*/,
+                               const aom_image_t * /*img2*/) {
+  ASSERT_TRUE(0) << "Encode/Decode mismatch found";
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 }
 
 void EncoderTest::RunLoop(VideoSource *video) {
@@ -229,9 +278,15 @@ void EncoderTest::RunLoop(VideoSource *video) {
       cfg_.g_pass = AOM_RC_LAST_PASS;
 
     BeginPassHook(pass);
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
     testing::internal::scoped_ptr<Encoder> encoder(
         codec_->CreateEncoder(cfg_, deadline_, init_flags_, &stats_));
     ASSERT_TRUE(encoder.get() != NULL);
+=======
+    Encoder *const encoder =
+        codec_->CreateEncoder(cfg_, deadline_, init_flags_, &stats_);
+    ASSERT_TRUE(encoder != NULL);
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 
     ASSERT_NO_FATAL_FAILURE(video->Begin());
     encoder->InitEncoder(video);
@@ -239,6 +294,7 @@ void EncoderTest::RunLoop(VideoSource *video) {
 
     unsigned long dec_init_flags = 0;  // NOLINT
     // Use fragment decoder if encoder outputs partitions.
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
     // NOTE: fragment decoder and partition encoder are only supported by VP8.
     if (init_flags_ & AOM_CODEC_USE_OUTPUT_PARTITION)
       dec_init_flags |= AOM_CODEC_USE_INPUT_FRAGMENTS;
@@ -253,6 +309,12 @@ void EncoderTest::RunLoop(VideoSource *video) {
     }
 #endif
 
+=======
+    // NOTE: fragment decoder and partition encoder are only supported by AOM.
+    if (init_flags_ & AOM_CODEC_USE_OUTPUT_PARTITION)
+      dec_init_flags |= AOM_CODEC_USE_INPUT_FRAGMENTS;
+    Decoder *const decoder = codec_->CreateDecoder(dec_cfg, dec_init_flags, 0);
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
     bool again;
     for (again = true; again; video->Next()) {
       again = (video->img() != NULL);
@@ -271,11 +333,19 @@ void EncoderTest::RunLoop(VideoSource *video) {
         switch (pkt->kind) {
           case AOM_CODEC_CX_FRAME_PKT:
             has_cxdata = true;
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
             if (decoder.get() != NULL && DoDecode()) {
+=======
+            if (decoder && DoDecode()) {
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
               aom_codec_err_t res_dec = decoder->DecodeFrame(
                   (const uint8_t *)pkt->data.frame.buf, pkt->data.frame.sz);
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
               if (!HandleDecodeResult(res_dec, decoder.get())) break;
+=======
+              if (!HandleDecodeResult(res_dec, decoder)) break;
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 
               has_dxdata = true;
             }
@@ -293,7 +363,11 @@ void EncoderTest::RunLoop(VideoSource *video) {
       // Flush the decoder when there are no more fragments.
       if ((init_flags_ & AOM_CODEC_USE_OUTPUT_PARTITION) && has_dxdata) {
         const aom_codec_err_t res_dec = decoder->DecodeFrame(NULL, 0);
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
         if (!HandleDecodeResult(res_dec, decoder.get())) break;
+=======
+        if (!HandleDecodeResult(res_dec, decoder)) break;
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
       }
 
       if (has_dxdata && has_cxdata) {
@@ -314,6 +388,12 @@ void EncoderTest::RunLoop(VideoSource *video) {
 
     EndPassHook();
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
+=======
+    if (decoder) delete decoder;
+    delete encoder;
+
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
     if (!Continue()) break;
   }
 }

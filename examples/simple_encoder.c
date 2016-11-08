@@ -151,7 +151,11 @@ int main(int argc, char **argv) {
   int frame_count = 0;
   aom_image_t raw;
   aom_codec_err_t res;
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
   AvxVideoInfo info;
+=======
+  AvxVideoInfo info = { 0 };
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
   AvxVideoWriter *writer = NULL;
   const AvxInterface *encoder = NULL;
   const int fps = 30;
@@ -168,10 +172,13 @@ int main(int argc, char **argv) {
 
   exec_name = argv[0];
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
   // Clear explicitly, as simply assigning "{ 0 }" generates
   // "missing-field-initializers" warning in some compilers.
   memset(&info, 0, sizeof(info));
 
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
   if (argc != 9) die("Invalid number of arguments");
 
   codec_arg = argv[1];

@@ -63,24 +63,104 @@ class AqSegmentTest
 
 // Validate that this AQ segmentation mode (AQ=1, variance_ap)
 // encodes and decodes without a mismatch.
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 TEST_P(AqSegmentTest, TestNoMisMatchAQ1) { DoTest(1); }
+=======
+TEST_P(AqSegmentTest, TestNoMisMatchAQ1) {
+  cfg_.rc_min_quantizer = 8;
+  cfg_.rc_max_quantizer = 56;
+  cfg_.rc_end_usage = AOM_CBR;
+  cfg_.g_lag_in_frames = 0;
+  cfg_.rc_buf_initial_sz = 500;
+  cfg_.rc_buf_optimal_sz = 500;
+  cfg_.rc_buf_sz = 1000;
+  cfg_.rc_target_bitrate = 300;
+
+  aq_mode_ = 1;
+
+  ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                       30, 1, 0, 100);
+
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+}
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 
 // Validate that this AQ segmentation mode (AQ=2, complexity_aq)
 // encodes and decodes without a mismatch.
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 TEST_P(AqSegmentTest, TestNoMisMatchAQ2) { DoTest(2); }
+=======
+TEST_P(AqSegmentTest, TestNoMisMatchAQ2) {
+  cfg_.rc_min_quantizer = 8;
+  cfg_.rc_max_quantizer = 56;
+  cfg_.rc_end_usage = AOM_CBR;
+  cfg_.g_lag_in_frames = 0;
+  cfg_.rc_buf_initial_sz = 500;
+  cfg_.rc_buf_optimal_sz = 500;
+  cfg_.rc_buf_sz = 1000;
+  cfg_.rc_target_bitrate = 300;
+
+  aq_mode_ = 2;
+
+  ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                       30, 1, 0, 100);
+
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+}
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 
 // Validate that this AQ segmentation mode (AQ=3, cyclic_refresh_aq)
 // encodes and decodes without a mismatch.
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 TEST_P(AqSegmentTest, TestNoMisMatchAQ3) { DoTest(3); }
+=======
+TEST_P(AqSegmentTest, TestNoMisMatchAQ3) {
+  cfg_.rc_min_quantizer = 8;
+  cfg_.rc_max_quantizer = 56;
+  cfg_.rc_end_usage = AOM_CBR;
+  cfg_.g_lag_in_frames = 0;
+  cfg_.rc_buf_initial_sz = 500;
+  cfg_.rc_buf_optimal_sz = 500;
+  cfg_.rc_buf_sz = 1000;
+  cfg_.rc_target_bitrate = 300;
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 
 class AqSegmentTestLarge : public AqSegmentTest {};
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 TEST_P(AqSegmentTestLarge, TestNoMisMatchAQ1) { DoTest(1); }
 
 TEST_P(AqSegmentTestLarge, TestNoMisMatchAQ2) { DoTest(2); }
 
 TEST_P(AqSegmentTestLarge, TestNoMisMatchAQ3) { DoTest(3); }
 
+#if CONFIG_DELTA_Q
+// Validate that this AQ mode (AQ=4, delta q)
+// encodes and decodes without a mismatch.
+TEST_P(AqSegmentTest, TestNoMisMatchAQ4) {
+  cfg_.rc_end_usage = AOM_CQ;
+
+  aq_mode_ = 4;
+
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
+  ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                       30, 1, 0, 100);
+
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+}
+#endif
+
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
+AV1_INSTANTIATE_TEST_CASE(AqSegmentTest,
+                          ::testing::Values(::libaom_test::kRealTime,
+                                            ::libaom_test::kOnePassGood),
+                          ::testing::Range(5, 9));
+AV1_INSTANTIATE_TEST_CASE(AqSegmentTestLarge,
+                          ::testing::Values(::libaom_test::kRealTime,
+                                            ::libaom_test::kOnePassGood),
+                          ::testing::Range(3, 5));
+=======
 #if CONFIG_DELTA_Q
 // Validate that this AQ mode (AQ=4, delta q)
 // encodes and decodes without a mismatch.
@@ -99,9 +179,6 @@ TEST_P(AqSegmentTest, TestNoMisMatchAQ4) {
 AV1_INSTANTIATE_TEST_CASE(AqSegmentTest,
                           ::testing::Values(::libaom_test::kRealTime,
                                             ::libaom_test::kOnePassGood),
-                          ::testing::Range(5, 9));
-AV1_INSTANTIATE_TEST_CASE(AqSegmentTestLarge,
-                          ::testing::Values(::libaom_test::kRealTime,
-                                            ::libaom_test::kOnePassGood),
-                          ::testing::Range(3, 5));
+                          ::testing::Range(3, 9));
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 }  // namespace

@@ -37,10 +37,22 @@
 #include <windows.h>
 #include <winnt.h>
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
+=======
+namespace testing {
+namespace internal {
+
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 inline bool operator==(const M128A &lhs, const M128A &rhs) {
   return (lhs.Low == rhs.Low && lhs.High == rhs.High);
 }
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
+=======
+}  // namespace internal
+}  // namespace testing
+
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
 namespace libaom_test {
 
 // Compares the state of xmm[6-15] at construction with their state at

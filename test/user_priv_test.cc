@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
 /*
  *  Copyright (c) 2013 The WebM project authors. All Rights Reserved.
  *
@@ -98,3 +99,5 @@ TEST(UserPrivTest, VideoDecode) {
 #endif  // CONFIG_WEBM_IO
 
 }  // namespace
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)

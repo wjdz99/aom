@@ -99,10 +99,13 @@ class Decoder {
     return aom_codec_iface_name(CodecInterface());
   }
 
-  bool IsVP8() const;
+  bool IsAOM() const;
 
+<<<<<<< HEAD   (f0481a Use --enable-daala_ec by default.)
   bool IsAV1() const;
 
+=======
+>>>>>>> BRANCH (c4863f cmake: Add partial configure.)
   aom_codec_ctx_t *GetDecoder() { return &decoder_; }
 
  protected:
