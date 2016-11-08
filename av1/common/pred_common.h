@@ -67,6 +67,7 @@ static INLINE aom_prob av1_get_skip_prob(const AV1_COMMON *cm,
   return cm->fc->skip_probs[av1_get_skip_context(xd)];
 }
 
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
 #if CONFIG_DUAL_FILTER
 int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir);
 #else
@@ -248,6 +249,162 @@ static INLINE void inter_block_tx_count_update(AV1_COMMON *cm, MACROBLOCKD *xd,
                        max_tx_size, ctx);
 }
 #endif
+=======
+int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd);
+
+int av1_get_intra_inter_context(const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_intra_inter_prob(const AV1_COMMON *cm,
+                                                const MACROBLOCKD *xd) {
+  return cm->fc->intra_inter_prob[av1_get_intra_inter_context(xd)];
+}
+
+int av1_get_reference_mode_context(const AV1_COMMON *cm, const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_reference_mode_prob(const AV1_COMMON *cm,
+                                                   const MACROBLOCKD *xd) {
+  return cm->fc->comp_inter_prob[av1_get_reference_mode_context(cm, xd)];
+}
+
+#if CONFIG_EXT_REFS
+int av1_get_pred_context_comp_fwdref_p(const AV1_COMMON *cm,
+                                       const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_pred_prob_comp_fwdref_p(const AV1_COMMON *cm,
+                                                       const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_comp_fwdref_p(cm, xd);
+  return cm->fc->comp_fwdref_prob[pred_context][0];
+}
+
+int av1_get_pred_context_comp_fwdref_p1(const AV1_COMMON *cm,
+                                        const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_pred_prob_comp_fwdref_p1(const AV1_COMMON *cm,
+                                                        const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_comp_fwdref_p1(cm, xd);
+  return cm->fc->comp_fwdref_prob[pred_context][1];
+}
+
+int av1_get_pred_context_comp_fwdref_p2(const AV1_COMMON *cm,
+                                        const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_pred_prob_comp_fwdref_p2(const AV1_COMMON *cm,
+                                                        const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_comp_fwdref_p2(cm, xd);
+  return cm->fc->comp_fwdref_prob[pred_context][2];
+}
+
+int av1_get_pred_context_comp_bwdref_p(const AV1_COMMON *cm,
+                                       const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_pred_prob_comp_bwdref_p(const AV1_COMMON *cm,
+                                                       const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_comp_bwdref_p(cm, xd);
+  return cm->fc->comp_bwdref_prob[pred_context][0];
+}
+
+#else
+
+int av1_get_pred_context_comp_ref_p(const AV1_COMMON *cm,
+                                    const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_pred_prob_comp_ref_p(const AV1_COMMON *cm,
+                                                    const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_comp_ref_p(cm, xd);
+  return cm->fc->comp_ref_prob[pred_context];
+}
+#endif  // CONFIG_EXT_REFS
+
+int av1_get_pred_context_single_ref_p1(const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_pred_prob_single_ref_p1(const AV1_COMMON *cm,
+                                                       const MACROBLOCKD *xd) {
+  return cm->fc->single_ref_prob[av1_get_pred_context_single_ref_p1(xd)][0];
+}
+
+int av1_get_pred_context_single_ref_p2(const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_pred_prob_single_ref_p2(const AV1_COMMON *cm,
+                                                       const MACROBLOCKD *xd) {
+  return cm->fc->single_ref_prob[av1_get_pred_context_single_ref_p2(xd)][1];
+}
+
+#if CONFIG_EXT_REFS
+int av1_get_pred_context_single_ref_p3(const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_pred_prob_single_ref_p3(const AV1_COMMON *cm,
+                                                       const MACROBLOCKD *xd) {
+  return cm->fc->single_ref_prob[av1_get_pred_context_single_ref_p3(xd)][2];
+}
+
+int av1_get_pred_context_single_ref_p4(const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_pred_prob_single_ref_p4(const AV1_COMMON *cm,
+                                                       const MACROBLOCKD *xd) {
+  return cm->fc->single_ref_prob[av1_get_pred_context_single_ref_p4(xd)][3];
+}
+
+int av1_get_pred_context_single_ref_p5(const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_pred_prob_single_ref_p5(const AV1_COMMON *cm,
+                                                       const MACROBLOCKD *xd) {
+  return cm->fc->single_ref_prob[av1_get_pred_context_single_ref_p5(xd)][4];
+}
+#endif  // CONFIG_EXT_REFS
+
+// Returns a context number for the given MB prediction signal
+// The mode info data structure has a one element border above and to the
+// left of the entries corresponding to real blocks.
+// The prediction flags in these dummy entries are initialized to 0.
+static INLINE int get_tx_size_context(const MACROBLOCKD *xd) {
+  const int max_tx_size = max_txsize_lookup[xd->mi[0]->mbmi.sb_type];
+  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+  const int has_above = xd->up_available;
+  const int has_left = xd->left_available;
+  int above_ctx =
+      (has_above && !above_mbmi->skip) ? (int)above_mbmi->tx_size : max_tx_size;
+  int left_ctx =
+      (has_left && !left_mbmi->skip) ? (int)left_mbmi->tx_size : max_tx_size;
+  if (!has_left) left_ctx = above_ctx;
+
+  if (!has_above) above_ctx = left_ctx;
+
+#if CONFIG_CB4X4
+  // TODO(jingning): Temporary setup. Will rework this after the cb4x4
+  // framework is up running.
+  return (above_ctx + left_ctx) > max_tx_size + 1;
+#else
+  return (above_ctx + left_ctx) > max_tx_size;
+#endif
+}
+
+static INLINE const aom_prob *get_tx_probs(TX_SIZE max_tx_size, int ctx,
+                                           const struct tx_probs *tx_probs) {
+  switch (max_tx_size) {
+    case TX_8X8: return tx_probs->p8x8[ctx];
+    case TX_16X16: return tx_probs->p16x16[ctx];
+    case TX_32X32: return tx_probs->p32x32[ctx];
+    default: assert(0 && "Invalid max_tx_size."); return NULL;
+  }
+}
+
+static INLINE const aom_prob *get_tx_probs2(TX_SIZE max_tx_size,
+                                            const MACROBLOCKD *xd,
+                                            const struct tx_probs *tx_probs) {
+  return get_tx_probs(max_tx_size, get_tx_size_context(xd), tx_probs);
+}
+
+static INLINE unsigned int *get_tx_counts(TX_SIZE max_tx_size, int ctx,
+                                          struct tx_counts *tx_counts) {
+  switch (max_tx_size) {
+    case TX_8X8: return tx_counts->p8x8[ctx];
+    case TX_16X16: return tx_counts->p16x16[ctx];
+    case TX_32X32: return tx_counts->p32x32[ctx];
+    default: assert(0 && "Invalid max_tx_size."); return NULL;
+  }
+}
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 #ifdef __cplusplus
 }  // extern "C"

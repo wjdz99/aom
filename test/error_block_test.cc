@@ -156,6 +156,7 @@ TEST_P(ErrorBlockTest, ExtremeValues) {
       << "First failed at test case " << first_failure;
 }
 
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
 #if HAVE_SSE2 || HAVE_AVX
 using std::tr1::make_tuple;
 
@@ -169,5 +170,53 @@ INSTANTIATE_TEST_CASE_P(
                                  &av1_highbd_block_error_c, AOM_BITS_8)));
 #endif  // HAVE_SSE2
 
+=======
+using std::tr1::make_tuple;
+
+int64_t wrap_av1_highbd_block_error_8bit_c(const tran_low_t *coeff,
+                                           const tran_low_t *dqcoeff,
+                                           intptr_t block_size, int64_t *ssz,
+                                           int bps) {
+  assert(bps == 8);
+  return av1_highbd_block_error_8bit_c(coeff, dqcoeff, block_size, ssz);
+}
+
+#if HAVE_SSE2
+int64_t wrap_av1_highbd_block_error_8bit_sse2(const tran_low_t *coeff,
+                                              const tran_low_t *dqcoeff,
+                                              intptr_t block_size, int64_t *ssz,
+                                              int bps) {
+  assert(bps == 8);
+  return av1_highbd_block_error_8bit_sse2(coeff, dqcoeff, block_size, ssz);
+}
+
+INSTANTIATE_TEST_CASE_P(
+    SSE2, ErrorBlockTest,
+    ::testing::Values(make_tuple(&av1_highbd_block_error_sse2,
+                                 &av1_highbd_block_error_c, AOM_BITS_10),
+                      make_tuple(&av1_highbd_block_error_sse2,
+                                 &av1_highbd_block_error_c, AOM_BITS_12),
+                      make_tuple(&av1_highbd_block_error_sse2,
+                                 &av1_highbd_block_error_c, AOM_BITS_8),
+                      make_tuple(&wrap_av1_highbd_block_error_8bit_sse2,
+                                 &wrap_av1_highbd_block_error_8bit_c,
+                                 AOM_BITS_8)));
+#endif  // HAVE_SSE2
+
+#if HAVE_AVX
+int64_t wrap_av1_highbd_block_error_8bit_avx(const tran_low_t *coeff,
+                                             const tran_low_t *dqcoeff,
+                                             intptr_t block_size, int64_t *ssz,
+                                             int bps) {
+  assert(bps == 8);
+  return av1_highbd_block_error_8bit_avx(coeff, dqcoeff, block_size, ssz);
+}
+
+INSTANTIATE_TEST_CASE_P(AVX, ErrorBlockTest,
+                        ::testing::Values(make_tuple(
+                            &wrap_av1_highbd_block_error_8bit_avx,
+                            &wrap_av1_highbd_block_error_8bit_c, AOM_BITS_8)));
+#endif  // HAVE_AVX
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 }  // namespace

@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
 /*
  *  Copyright (c) 2014 The WebM project authors. All Rights Reserved.
  *
@@ -121,3 +122,5 @@ int main(int argc, char *argv[]) {
   free(outbuf);
   return 0;
 }
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)

@@ -116,6 +116,7 @@ void av1_caq_select_segment(const AV1_COMP *cpi, MACROBLOCK *mb, BLOCK_SIZE bs,
   const AV1_COMMON *const cm = &cpi->common;
 
   const int mi_offset = mi_row * cm->mi_cols + mi_col;
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
   const int xmis = AOMMIN(cm->mi_cols - mi_col, num_8x8_blocks_wide_lookup[bs]);
   const int ymis = AOMMIN(cm->mi_rows - mi_row, num_8x8_blocks_high_lookup[bs]);
   int x, y;
@@ -129,6 +130,23 @@ void av1_caq_select_segment(const AV1_COMP *cpi, MACROBLOCK *mb, BLOCK_SIZE bs,
     // It is converted to bits * 256 units.
     const int target_rate = (cpi->rc.sb64_target_rate * xmis * ymis * 256) /
                             (cm->mib_size * cm->mib_size);
+=======
+  const int bw = num_8x8_blocks_wide_lookup[BLOCK_64X64];
+  const int bh = num_8x8_blocks_high_lookup[BLOCK_64X64];
+  const int xmis = AOMMIN(cm->mi_cols - mi_col, num_8x8_blocks_wide_lookup[bs]);
+  const int ymis = AOMMIN(cm->mi_rows - mi_row, num_8x8_blocks_high_lookup[bs]);
+  int x, y;
+  int i;
+  unsigned char segment;
+
+  if (0) {
+    segment = DEFAULT_AQ2_SEG;
+  } else {
+    // Rate depends on fraction of a SB64 in frame (xmis * ymis / bw * bh).
+    // It is converted to bits * 256 units.
+    const int target_rate =
+        (cpi->rc.sb64_target_rate * xmis * ymis * 256) / (bw * bh);
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
     double logvar;
     double low_var_thresh;
     const int aq_strength = get_aq_c_strength(cm->base_qindex, cm->bit_depth);

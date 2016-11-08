@@ -11,6 +11,7 @@
 
 #include "av1/common/common.h"
 #include "av1/common/onyxc_int.h"
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
 #include "av1/common/entropy.h"
 #include "av1/common/quant_common.h"
 #include "av1/common/seg_common.h"
@@ -119,6 +120,15 @@ tran_low_t av1_dequant_coeff_nuq(int v, int q, const tran_low_t *dq) {
   return (v < 0 ? -dqmag : dqmag);
 }
 #endif  // CONFIG_NEW_QUANT
+=======
+#include "av1/common/quant_common.h"
+#include "av1/common/seg_common.h"
+
+#if CONFIG_AOM_QM
+static void make_qmatrices(qm_val_t *wmatrix[NUM_QM_LEVELS][2][2][TX_SIZES],
+                           qm_val_t *iwmatrix[NUM_QM_LEVELS][2][2][TX_SIZES]);
+#endif
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 static const int16_t dc_qlookup[QINDEX_RANGE] = {
   4,    8,    8,    9,    10,  11,  12,  12,  13,  14,  15,   16,   17,   18,

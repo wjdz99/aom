@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
 /*
  *  Copyright (c) 2013 The WebM project authors. All Rights Reserved.
  *
@@ -98,3 +99,5 @@ TEST(UserPrivTest, VideoDecode) {
 #endif  // CONFIG_WEBM_IO
 
 }  // namespace
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)

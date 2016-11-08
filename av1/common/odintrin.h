@@ -257,4 +257,8 @@ typedef int32_t od_val32;
 }  // extern "C"
 #endif
 
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
 #endif  // AV1_COMMON_ODINTRIN_H_
+=======
+#endif
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)

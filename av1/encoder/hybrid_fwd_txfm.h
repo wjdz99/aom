@@ -22,6 +22,7 @@ typedef struct FWD_TXFM_PARAM {
   FWD_TXFM_OPT fwd_txfm_opt;
   int rd_transform;
   int lossless;
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
 #if CONFIG_AOM_HIGHBITDEPTH
   int bd;
 #endif  // CONFIG_AOM_HIGHBITDEPTH
@@ -44,3 +45,48 @@ void highbd_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff,
 #endif
 
 #endif  // AV1_ENCODER_HYBRID_FWD_TXFM_H_
+=======
+} FWD_TXFM_PARAM;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void av1_fwd_txfm_4x4(const int16_t *src_diff, tran_low_t *coeff,
+                      int diff_stride, TX_TYPE tx_type, int lossless);
+
+void fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
+              FWD_TXFM_PARAM *fwd_txfm_param);
+
+#if CONFIG_AOM_HIGHBITDEPTH
+void av1_highbd_fwd_txfm_4x4(const int16_t *src_diff, tran_low_t *coeff,
+                             int diff_stride, TX_TYPE tx_type, int lossless);
+
+void highbd_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff,
+                     int diff_stride, FWD_TXFM_PARAM *fwd_txfm_param);
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+
+static INLINE void fdct32x32(int rd_transform, const int16_t *src,
+                             tran_low_t *dst, int src_stride) {
+  if (rd_transform)
+    aom_fdct32x32_rd(src, dst, src_stride);
+  else
+    aom_fdct32x32(src, dst, src_stride);
+}
+
+#if CONFIG_AOM_HIGHBITDEPTH
+static INLINE void highbd_fdct32x32(int rd_transform, const int16_t *src,
+                                    tran_low_t *dst, int src_stride) {
+  if (rd_transform)
+    aom_highbd_fdct32x32_rd(src, dst, src_stride);
+  else
+    aom_highbd_fdct32x32(src, dst, src_stride);
+}
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+
+#endif  // AV1_ENCODER_ENCODEMB_H_
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)

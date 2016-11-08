@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
 /*
  *  Copyright (c) 2012 The WebM project authors. All Rights Reserved.
  *
@@ -93,3 +94,5 @@ AV1_INSTANTIATE_TEST_CASE(AltRefForcedKeyTestLarge,
                           ::testing::Range(0, 9));
 
 }  // namespace
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)

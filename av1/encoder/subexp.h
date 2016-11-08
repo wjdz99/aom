@@ -35,6 +35,7 @@ int av1_prob_diff_update_savings_search_model(const unsigned int *ct,
 
 int av1_cond_prob_diff_update_savings(aom_prob *oldp, const unsigned int ct[2],
                                       int probwt);
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
 #if CONFIG_ENTROPY
 int av1_prob_update_search_subframe(unsigned int ct[][2], aom_prob oldp,
                                     aom_prob *bestp, aom_prob upd, int n);
@@ -51,6 +52,9 @@ int av1_prob_update_search_model_subframe(unsigned int ct[ENTROPY_NODES]
 // and 1 more bit for the sign if non-zero.
 void aom_write_primitive_symmetric(aom_writer *w, int word,
                                    unsigned int mag_bits);
+=======
+
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 #ifdef __cplusplus
 }  // extern "C"
 #endif

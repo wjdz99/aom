@@ -23,7 +23,11 @@ typedef struct {
       int_mv mv;
       PREDICTION_MODE mode;
     } m;
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
   } ref[TOTAL_REFS_PER_FRAME];
+=======
+  } ref[MAX_REF_FRAMES];
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 } MBGRAPH_MB_STATS;
 
 typedef struct { MBGRAPH_MB_STATS *mb_stats; } MBGRAPH_FRAME_STATS;

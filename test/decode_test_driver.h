@@ -99,10 +99,13 @@ class Decoder {
     return aom_codec_iface_name(CodecInterface());
   }
 
-  bool IsVP8() const;
+  bool IsAOM() const;
 
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
   bool IsAV1() const;
 
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
   aom_codec_ctx_t *GetDecoder() { return &decoder_; }
 
  protected:

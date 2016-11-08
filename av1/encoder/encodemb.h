@@ -20,6 +20,7 @@
 extern "C" {
 #endif
 
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
 struct optimize_ctx {
   ENTROPY_CONTEXT ta[MAX_MB_PLANE][2 * MAX_MIB_SIZE];
   ENTROPY_CONTEXT tl[MAX_MB_PLANE][2 * MAX_MIB_SIZE];
@@ -77,6 +78,30 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
                                   BLOCK_SIZE bsize, int plane,
                                   int enable_optimize_b);
+=======
+struct encode_b_args {
+  AV1_COMMON *cm;
+  MACROBLOCK *x;
+  struct optimize_ctx *ctx;
+  int8_t *skip;
+};
+void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize);
+void av1_encode_sby_pass1(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize);
+void av1_xform_quant_fp(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
+                        int block, int blk_row, int blk_col,
+                        BLOCK_SIZE plane_bsize, TX_SIZE tx_size);
+void av1_xform_quant(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
+                     int block, int blk_row, int blk_col,
+                     BLOCK_SIZE plane_bsize, TX_SIZE tx_size);
+
+void av1_subtract_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane);
+
+void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
+                            BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg);
+
+void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
+                                  BLOCK_SIZE bsize, int plane);
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 
 #if CONFIG_PVQ
 int av1_pvq_encode_helper(daala_enc_ctx *daala_enc, tran_low_t *const coeff,

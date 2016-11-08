@@ -182,7 +182,11 @@ void av1_frameworker_copy_context(AVxWorker *const dst_worker,
          (MAX_LOOP_FILTER + 1) * sizeof(loop_filter_thresh));
   dst_cm->lf.last_sharpness_level = src_cm->lf.sharpness_level;
   dst_cm->lf.filter_level = src_cm->lf.filter_level;
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
   memcpy(dst_cm->lf.ref_deltas, src_cm->lf.ref_deltas, TOTAL_REFS_PER_FRAME);
+=======
+  memcpy(dst_cm->lf.ref_deltas, src_cm->lf.ref_deltas, MAX_REF_FRAMES);
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
   memcpy(dst_cm->lf.mode_deltas, src_cm->lf.mode_deltas, MAX_MODE_LF_DELTAS);
   dst_cm->seg = src_cm->seg;
   memcpy(dst_cm->frame_contexts, src_cm->frame_contexts,

@@ -10,11 +10,14 @@
  */
 
 #include <assert.h>
+<<<<<<< HEAD   (48f84d Fix the bug that PVQ commit broke dering)
 #if defined(_MSC_VER) && _MSC_VER <= 1500
 // Need to include math.h before calling tmmintrin.h/intrin.h
 // in certain versions of MSVS.
 #include <math.h>
 #endif
+=======
+>>>>>>> BRANCH (7d208d Fix the bug that PVQ commit broke dering)
 #include <tmmintrin.h>  // SSSE3
 
 #include "./av1_rtcd.h"
