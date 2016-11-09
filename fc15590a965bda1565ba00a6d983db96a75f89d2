@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2bd3b749_bb490fa8",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 10
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-09T16:06:21Z",
+      "side": 1,
+      "message": "it won\u0027t hurt anything if someone decides to move it. the only impact is grouping in the IDE, but that doesn\u0027t really happen anyway because the generators split things into \"Source Files\" and \"Header Files\" groups.",
+      "parentUuid": "6bd84f3b_518a32a6",
+      "revId": "fc15590a965bda1565ba00a6d983db96a75f89d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6bd84f3b_91459a8e",
         "filename": "CMakeLists.txt",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-08T21:22:50Z",
       "side": 1,
       "message": "this line can go",
+      "revId": "fc15590a965bda1565ba00a6d983db96a75f89d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbc21b71_a3932834",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 10
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-09T16:06:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6bd84f3b_91459a8e",
       "revId": "fc15590a965bda1565ba00a6d983db96a75f89d2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "0bb35316_e5492c80",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 10
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-09T16:06:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6bd84f3b_b14a9e98",
+      "revId": "fc15590a965bda1565ba00a6d983db96a75f89d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6bd84f3b_b11c5e8d",
         "filename": "build/cmake/aom_configure.cmake",
         "patchSetId": 10
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "ebafdfaa_844eecda",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-09T16:06:21Z",
+      "side": 1,
+      "message": "That\u0027s kind of what I\u0027m doing... maybe I\u0027m not understanding the comment. This foreach is very similar to the one in webp.\n\nAnyway, the answer is yes, but I don\u0027t think it\u0027s worth bothering. This is going to be nasty because lib{aom,vpx} don\u0027t do simple little things like, ya know, following a common file naming pattern and storage location for obviously similar things:\n\n- input pl files: defs or no defs\n- input pl files 2: subdir, or subdir/subdir\n- symbol does not match input pl name\n- c files also doing the subdir or subdir/subdir nonsense\n\nIt\u0027s going to be a mess of stupid if index equal nonsense or special casing based on string being operated on. This is big and bad in a verbose sense, but it\u0027s drop dead stupid simple. And when I can get away from being compatible with the existing heap of nasty, I can rename/relocate those pl/c files and make most of this go away in favor of one list of symbols that works throughout using the same rule.\n\nAnyway... that\u0027s kind of a wall of text as far as comments go. Concerned I\u0027m not following and wasting time on both our sides. Will come and nag you in person at some point.",
+      "parentUuid": "6bd84f3b_b11c5e8d",
+      "revId": "fc15590a965bda1565ba00a6d983db96a75f89d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6bd84f3b_11034a2d",
         "filename": "build/cmake/aom_configure.cmake",
         "patchSetId": 10
@@ -81,6 +153,24 @@
       "writtenOn": "2016-11-08T21:22:50Z",
       "side": 1,
       "message": "macro vs. function use here?",
+      "revId": "fc15590a965bda1565ba00a6d983db96a75f89d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebe35fee_d3cbafaa",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-09T16:06:21Z",
+      "side": 1,
+      "message": "macro because I don\u0027t need a new scope... in fact, every place I\u0027ve used function can likely be macro. clean up pass probably coming.",
+      "parentUuid": "6bd84f3b_11034a2d",
       "revId": "fc15590a965bda1565ba00a6d983db96a75f89d2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
