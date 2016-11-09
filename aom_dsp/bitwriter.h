@@ -111,7 +111,11 @@ static INLINE void aom_write_record(aom_writer *br, int bit, int probability,
 }
 
 static INLINE void aom_write_bit(aom_writer *w, int bit) {
+#if CONFIG_DAALA_EC
+  aom_daala_write_bit(w, bit);
+#else
   aom_write(w, bit, 128);  // aom_prob_half
+#endif
 }
 
 static INLINE void aom_write_bit_record(aom_writer *w, int bit,
