@@ -1,0 +1,349 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebafdfaa_bb1b4794",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be 4096?\nCan we use tx_size_2d[tx_size] as well?",
+      "range": {
+        "startLine": 652,
+        "startChar": 32,
+        "endLine": 652,
+        "endChar": 36
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebafdfaa_1b347b0a",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Can we use tx_size_2d[tx_size] here as well?",
+      "range": {
+        "startLine": 660,
+        "startChar": 32,
+        "endLine": 660,
+        "endChar": 36
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbc21b71_daff25f4",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 208,
+        "startChar": 46,
+        "endLine": 208,
+        "endChar": 47
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0bb35316_bcec6112",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 228,
+        "startChar": 49,
+        "endLine": 228,
+        "endChar": 50
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0bb35316_7ce7f92d",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 249,
+        "startChar": 46,
+        "endLine": 249,
+        "endChar": 47
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8bb823f7_f8faf105",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 269,
+        "startChar": 49,
+        "endLine": 269,
+        "endChar": 50
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bad4bb0_1e6fcdaa",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 370,
+        "startChar": 31,
+        "endLine": 370,
+        "endChar": 33
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bd62b38_16345c0a",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 397,
+        "startChar": 71,
+        "endLine": 397,
+        "endChar": 72
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebafdfaa_fb966f96",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 422,
+        "startChar": 32,
+        "endLine": 422,
+        "endChar": 33
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8bb823f7_38e9893e",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 923,
+        "startChar": 71,
+        "endLine": 923,
+        "endChar": 72
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbc21b71_fa1b0985",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 949,
+        "startChar": 32,
+        "endLine": 949,
+        "endChar": 33
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab9ec77a_445ea059",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 994,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 994,
+        "startChar": 65,
+        "endLine": 994,
+        "endChar": 66
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbc21b71_ba2591c8",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 1012,
+        "startChar": 68,
+        "endLine": 1012,
+        "endChar": 69
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "abc7a780_593a03fb",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1031,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 1031,
+        "startChar": 65,
+        "endLine": 1031,
+        "endChar": 66
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bd62b38_5603f42c",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1049,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-11-09T01:50:59Z",
+      "side": 1,
+      "message": "Where does this number comes out? Is it related to get_tx_scale()? If so please use it.",
+      "range": {
+        "startLine": 1049,
+        "startChar": 68,
+        "endLine": 1049,
+        "endChar": 69
+      },
+      "revId": "7503908e136f40adde1190e7934911daec53a55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
