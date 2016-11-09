@@ -16,6 +16,24 @@
       "revId": "69a6086b733e55cde3260f9be5c6b0b929393846",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86ac9a9c_fbb96bac",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-11-09T10:14:07Z",
+      "side": 1,
+      "message": "Mainly because I\u0027m not very familiar with the library and that it\u0027s 20 years since I did any C++ to speak of.  I need to associate a string with a pair of pointers, so I tried:\n\nstd::map\u003cstd::string, std::pair\u003cvoid*, void*\u003e \u003e map;\nmymap[\"v64_sad_u8\"] \u003d std::make_pair\u003c(void*)v64_sad_u8, (void*)c_v64_sad_u8\u003e;\n\nThat didn\u0027t work (one function pointer works fine if I avoid std::pair).  But, even if work out the proper C++ way, I don\u0027t think it can match the C way, which will leave everythink to the linker and generate zero code.  The only benefit from C++ is that the library would provide the lookup code, which is trivial in this case (4 lines of code).  Also, I think the clang style checker complain about the function becoming too long due to all the initialisation, while this can be avoided by initialising the table in the global space if done the C way.  Unfortunately, clang still insists on only one function per line.",
+      "parentUuid": "c6e77223_55b41ed4",
+      "revId": "69a6086b733e55cde3260f9be5c6b0b929393846",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
