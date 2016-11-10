@@ -125,71 +125,35 @@ typedef struct {
 #define GM_ALPHA_MIN -GM_ALPHA_MAX
 #define GM_ROW3HOMO_MIN -GM_ROW3HOMO_MAX
 
-typedef enum {
-  GLOBAL_ZERO = 0,
-  GLOBAL_TRANSLATION = 1,
-  GLOBAL_ROTZOOM = 2,
-  GLOBAL_AFFINE = 3,
-  // GLOBAL_HOMOGRAPHY = 4,
-  GLOBAL_MOTION_TYPES
-} GLOBAL_MOTION_TYPE;
-
-typedef struct {
-  GLOBAL_MOTION_TYPE gmtype;
-  WarpedMotionParams motion_params;
-} Global_Motion_Params;
-
 // Convert a global motion translation vector (which may have more bits than a
 // regular motion vector) into a motion vector
-static INLINE int_mv gm_get_motion_vector(const Global_Motion_Params *gm) {
+static INLINE int_mv gm_get_motion_vector(const WarpedMotionParams *gm) {
   int_mv res;
-  res.as_mv.row = (int16_t)ROUND_POWER_OF_TWO_SIGNED(gm->motion_params.wmmat[1],
+  res.as_mv.row = (int16_t)ROUND_POWER_OF_TWO_SIGNED(gm->wmmat[1],
                                                      WARPEDMODEL_PREC_BITS - 3);
-  res.as_mv.col = (int16_t)ROUND_POWER_OF_TWO_SIGNED(gm->motion_params.wmmat[0],
+  res.as_mv.col = (int16_t)ROUND_POWER_OF_TWO_SIGNED(gm->wmmat[0],
                                                      WARPEDMODEL_PREC_BITS - 3);
   return res;
 }
 
-static INLINE TransformationType gm_to_trans_type(GLOBAL_MOTION_TYPE gmtype) {
-  switch (gmtype) {
-    case GLOBAL_ZERO: return IDENTITY; break;
-    case GLOBAL_TRANSLATION: return TRANSLATION; break;
-    case GLOBAL_ROTZOOM: return ROTZOOM; break;
-    case GLOBAL_AFFINE:
-      return AFFINE;
-      break;
-    // case GLOBAL_HOMOGRAPHY: return HOMOGRAPHY; break;
-    default: assert(0);
+static INLINE TransformationType get_gmtype(const WarpedMotionParams *gm) {
+  // if (gm->wmmat[6] != 0 || gm->wmmat[7] != 0) return HOMOGRAPHY;
+  if (gm->wmmat[5] == (1 << WARPEDMODEL_PREC_BITS) && !gm->wmmat[4] &&
+      gm->wmmat[2] == (1 << WARPEDMODEL_PREC_BITS) && !gm->wmmat[3]) {
+    return ((!gm->wmmat[1] && !gm->wmmat[0]) ? IDENTITY : TRANSLATION);
   }
-  return UNKNOWN_TRANSFORM;
-}
-
-static INLINE GLOBAL_MOTION_TYPE get_gmtype(const Global_Motion_Params *gm) {
-  // if (gm->motion_params.wmmat[6] != 0 || gm->motion_params.wmmat[7] != 0)
-  //   return GLOBAL_HOMOGRAPHY;
-  if (gm->motion_params.wmmat[5] == (1 << WARPEDMODEL_PREC_BITS) &&
-      !gm->motion_params.wmmat[4] &&
-      gm->motion_params.wmmat[2] == (1 << WARPEDMODEL_PREC_BITS) &&
-      !gm->motion_params.wmmat[3]) {
-    return ((!gm->motion_params.wmmat[1] && !gm->motion_params.wmmat[0])
-                ? GLOBAL_ZERO
-                : GLOBAL_TRANSLATION);
-  }
-  if (gm->motion_params.wmmat[2] == gm->motion_params.wmmat[5] &&
-      gm->motion_params.wmmat[3] == -gm->motion_params.wmmat[4])
-    return GLOBAL_ROTZOOM;
+  if (gm->wmmat[2] == gm->wmmat[5] && gm->wmmat[3] == -gm->wmmat[4])
+    return ROTZOOM;
   else
-    return GLOBAL_AFFINE;
+    return AFFINE;
 }
 
-static INLINE void set_default_gmparams(Global_Motion_Params *gm) {
+static INLINE void set_default_gmparams(WarpedMotionParams *gm) {
   static const int32_t default_gm_params[8] = {
     0, 0, (1 << WARPEDMODEL_PREC_BITS), 0, 0, (1 << WARPEDMODEL_PREC_BITS), 0, 0
   };
-  memcpy(gm->motion_params.wmmat, default_gm_params,
-         sizeof(gm->motion_params.wmmat));
-  gm->gmtype = GLOBAL_ZERO;
-  gm->motion_params.wmtype = IDENTITY;
+  memcpy(gm->wmmat, default_gm_params, sizeof(gm->wmmat));
+  gm->wmtype = IDENTITY;
 }
 #endif  // CONFIG_GLOBAL_MOTION
 
