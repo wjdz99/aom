@@ -4179,7 +4179,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
   }
 #if CONFIG_EC_MULTISYMBOL
   av1_coef_pareto_cdfs(fc);
-  av1_set_mv_cdfs(&fc->nmvc);
+  for (i = 0; i < NMV_CONTEXTS; ++i) av1_set_mv_cdfs(&fc->nmvc[i]);
 #if CONFIG_DAALA_EC
   av1_set_mode_cdfs(cm);
 #endif
