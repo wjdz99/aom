@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b89037a_2bc3522a",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 12
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-10T06:37:41Z",
+      "side": 1,
+      "message": "these could be broken out to a example_util lib or even further to dec/enc",
+      "revId": "dee80237d77e7c47b079f78003bafc65693e8dd9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
