@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b89037a_6bd2bae6",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 12
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-10T06:53:27Z",
+      "side": 1,
+      "message": "this doesn\u0027t use the tested warning flags right? might get unused function or so + Werror might be an issue",
+      "range": {
+        "startLine": 57,
+        "startChar": 2,
+        "endLine": 57,
+        "endChar": 24
+      },
+      "revId": "cb1379e94782bb4aa67097c2e0c6fa16f9d6dc25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b89037a_2b0d92aa",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 12
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-10T06:53:27Z",
+      "side": 1,
+      "message": "will this be dropped when a more complete pthread test is added?",
+      "revId": "cb1379e94782bb4aa67097c2e0c6fa16f9d6dc25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b89037a_0b08ce9a",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 12
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-10T06:53:27Z",
+      "side": 1,
+      "message": "delete this line",
+      "revId": "cb1379e94782bb4aa67097c2e0c6fa16f9d6dc25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b89037a_8b1cbeda",
+        "filename": "build/cmake/compiler_tests.cmake",
+        "patchSetId": 12
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-10T06:53:27Z",
+      "side": 1,
+      "message": "this is probably enough for now. autoconf allows for providing a body to get link checking (AC_LINK_IFELSE)",
+      "revId": "cb1379e94782bb4aa67097c2e0c6fa16f9d6dc25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
