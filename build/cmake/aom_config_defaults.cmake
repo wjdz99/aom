@@ -10,8 +10,8 @@
 ##
 
 # Defaults for every libaom configuration variable.
-set(RESTRICT)
-set(INLINE)
+set(RESTRICT "" CACHE STRING "Sets RESTRICT value for current target.")
+set(INLINE "" CACHE STRING "Sets INLINE value for current target."
 set(ARCH_ARM 0)
 set(ARCH_MIPS 0)
 set(ARCH_X86 0)
