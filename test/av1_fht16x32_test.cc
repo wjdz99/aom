@@ -70,6 +70,7 @@ class AV1Trans16x32HT : public libaom_test::TransformTestBase,
 };
 
 TEST_P(AV1Trans16x32HT, CoeffCheck) { RunCoeffCheck(); }
+TEST_P(AV1Trans16x32HT, MemCheck) { RunMemCheck(); }
 TEST_P(AV1Trans16x32HT, InvCoeffCheck) { RunInvCoeffCheck(); }
 
 using std::tr1::make_tuple;
