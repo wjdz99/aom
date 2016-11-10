@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b8e57b3_ac09eb11",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-11-10T23:01:30Z",
+      "side": 1,
+      "message": "The correct fix here seems to be to change the prototype instead",
+      "range": {
+        "startLine": 336,
+        "startChar": 0,
+        "endLine": 340,
+        "endChar": 21
+      },
+      "revId": "32dbdff1b3e0acc863c57db8b11530f923b5a974",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
