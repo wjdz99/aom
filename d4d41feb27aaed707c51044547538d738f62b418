@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b89037a_4bbc969b",
+        "filename": "build/cmake/aom_config.h.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-10T06:41:05Z",
+      "side": 1,
+      "message": "these are odd given there\u0027s only one codec here (TODO(later))",
+      "revId": "d4d41feb27aaed707c51044547538d738f62b418",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b89037a_8bb27eca",
+        "filename": "build/cmake/aom_config.h.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-10T06:41:05Z",
+      "side": 1,
+      "message": "that was deleted in master (TODO(later) here I guess)",
+      "revId": "d4d41feb27aaed707c51044547538d738f62b418",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
