@@ -4008,15 +4008,14 @@ static void read_supertx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
 #if CONFIG_GLOBAL_MOTION
 static void read_global_motion_params(Global_Motion_Params *params,
                                       aom_prob *probs, aom_reader *r) {
-  GLOBAL_MOTION_TYPE gmtype =
+  TransformationType type =
       aom_read_tree(r, av1_global_motion_types_tree, probs, ACCT_STR);
   set_default_gmparams(params);
-  params->gmtype = gmtype;
-  params->motion_params.wmtype = gm_to_trans_type(gmtype);
-  switch (gmtype) {
-    case GLOBAL_ZERO: break;
-    case GLOBAL_AFFINE:
-    case GLOBAL_ROTZOOM:
+  params->motion_params.wmtype = type;
+  switch (type) {
+    case IDENTITY: break;
+    case AFFINE:
+    case ROTZOOM:
       params->motion_params.wmmat[2] =
           (aom_read_primitive_symmetric(r, GM_ABS_ALPHA_BITS) *
            GM_ALPHA_DECODE_FACTOR) +
@@ -4024,7 +4023,7 @@ static void read_global_motion_params(Global_Motion_Params *params,
       params->motion_params.wmmat[3] =
           aom_read_primitive_symmetric(r, GM_ABS_ALPHA_BITS) *
           GM_ALPHA_DECODE_FACTOR;
-      if (gmtype == GLOBAL_AFFINE) {
+      if (type == AFFINE) {
         params->motion_params.wmmat[4] =
             (aom_read_primitive_symmetric(r, GM_ABS_ALPHA_BITS) *
              GM_ALPHA_DECODE_FACTOR);
@@ -4037,7 +4036,7 @@ static void read_global_motion_params(Global_Motion_Params *params,
         params->motion_params.wmmat[5] = params->motion_params.wmmat[2];
       }
     // fallthrough intended
-    case GLOBAL_TRANSLATION:
+    case TRANSLATION:
       params->motion_params.wmmat[0] =
           aom_read_primitive_symmetric(r, GM_ABS_TRANS_BITS) *
           GM_TRANS_DECODE_FACTOR;
