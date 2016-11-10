@@ -4295,21 +4295,22 @@ static int cost_mv_ref(const AV1_COMP *const cpi, PREDICTION_MODE mode,
 #if CONFIG_GLOBAL_MOTION
 static int get_gmbitcost(const Global_Motion_Params *gm,
                          const aom_prob *probs) {
-  int gmtype_cost[GLOBAL_MOTION_TYPES];
+  int gmtype_cost[TRANS_TYPES];
   int bits;
+  TransformationType type = get_gmtype(gm);
   av1_cost_tokens(gmtype_cost, probs, av1_global_motion_types_tree);
-  switch (gm->gmtype) {
-    case GLOBAL_AFFINE:
+  switch (type) {
+    case AFFINE:
       bits = (GM_ABS_TRANS_BITS + 1) * 2 + 4 * GM_ABS_ALPHA_BITS + 4;
       break;
-    case GLOBAL_ROTZOOM:
+    case ROTZOOM:
       bits = (GM_ABS_TRANS_BITS + 1) * 2 + 2 * GM_ABS_ALPHA_BITS + 2;
       break;
-    case GLOBAL_TRANSLATION: bits = (GM_ABS_TRANS_BITS + 1) * 2; break;
-    case GLOBAL_ZERO: bits = 0; break;
+    case TRANSLATION: bits = (GM_ABS_TRANS_BITS + 1) * 2; break;
+    case IDENTITY: bits = 0; break;
     default: assert(0); return 0;
   }
-  return bits ? (bits << AV1_PROB_COST_SHIFT) + gmtype_cost[gm->gmtype] : 0;
+  return bits ? (bits << AV1_PROB_COST_SHIFT) + gmtype_cost[type] : 0;
 }
 
 #define GLOBAL_MOTION_RATE(ref)                            \
@@ -5318,9 +5319,9 @@ static int64_t rd_pick_best_sub8x8_mode(
 #endif  // CONFIG_REF_MV
 
 #if CONFIG_GLOBAL_MOTION
-        if (get_gmtype(&cm->global_motion[mbmi->ref_frame[0]]) == GLOBAL_ZERO &&
+        if (get_gmtype(&cm->global_motion[mbmi->ref_frame[0]]) == IDENTITY &&
             (!has_second_rf ||
-             get_gmtype(&cm->global_motion[mbmi->ref_frame[1]]) == GLOBAL_ZERO))
+             get_gmtype(&cm->global_motion[mbmi->ref_frame[1]]) == IDENTITY))
 #endif  // CONFIG_GLOBAL_MOTION
 
           if (!check_best_zero_mv(cpi, mbmi_ext->mode_context,
@@ -8870,10 +8871,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         }
       }
 #if CONFIG_GLOBAL_MOTION
-    } else if (get_gmtype(&cm->global_motion[ref_frame]) == GLOBAL_ZERO &&
+    } else if (get_gmtype(&cm->global_motion[ref_frame]) == IDENTITY &&
                (!comp_pred ||
                 get_gmtype(&cm->global_motion[second_ref_frame]) ==
-                    GLOBAL_ZERO)) {
+                    IDENTITY)) {
 #else   // CONFIG_GLOBAL_MOTION
     } else {
 #endif  // CONFIG_GLOBAL_MOTION

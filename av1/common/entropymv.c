@@ -129,12 +129,12 @@ static const uint8_t log_in_base_2[] = {
 
 #if CONFIG_GLOBAL_MOTION
 const aom_tree_index
-    av1_global_motion_types_tree[TREE_SIZE(GLOBAL_MOTION_TYPES)] = {
-      -GLOBAL_ZERO, 2, -GLOBAL_TRANSLATION, 4, -GLOBAL_ROTZOOM, -GLOBAL_AFFINE
+    av1_global_motion_types_tree[TREE_SIZE(TRANS_TYPES)] = {
+      -IDENTITY, 2, -TRANSLATION, 4, -ROTZOOM, 6, -AFFINE, -HOMOGRAPHY
     };
 
-static const aom_prob default_global_motion_types_prob[GLOBAL_MOTION_TYPES -
-                                                       1] = { 224, 128, 128 };
+static const aom_prob default_global_motion_types_prob[TRANS_TYPES -
+                                                       1] = { 224, 128, 128, 128 };
 #endif  // CONFIG_GLOBAL_MOTION
 
 static INLINE int mv_class_base(MV_CLASS_TYPE c) {
