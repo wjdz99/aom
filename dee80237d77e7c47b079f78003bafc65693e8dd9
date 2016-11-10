@@ -16,6 +16,24 @@
       "revId": "dee80237d77e7c47b079f78003bafc65693e8dd9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b8e57b3_467da81f",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 12
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-10T21:08:03Z",
+      "side": 1,
+      "message": "done: common/decoder/encoder string vars and object lib targets added. exe targets updated for same. thanks, btw: this will make things suck less later.",
+      "parentUuid": "8b89037a_2bc3522a",
+      "revId": "dee80237d77e7c47b079f78003bafc65693e8dd9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
