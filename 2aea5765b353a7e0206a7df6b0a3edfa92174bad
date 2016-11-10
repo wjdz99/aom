@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b89037a_fa251679",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4627,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2016-11-10T02:04:46Z",
+      "side": 1,
+      "message": "Maybe add a comment saying what this is, the name doesn\u0027t make it clear",
+      "range": {
+        "startLine": 4627,
+        "startChar": 12,
+        "endLine": 4627,
+        "endChar": 22
+      },
+      "revId": "2aea5765b353a7e0206a7df6b0a3edfa92174bad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b89037a_da6292c6",
+        "filename": "av1/encoder/ransac.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2016-11-10T02:04:46Z",
+      "side": 1,
+      "message": "Just fyi this is being addressed in another patch already",
+      "range": {
+        "startLine": 276,
+        "startChar": 11,
+        "endLine": 276,
+        "endChar": 52
+      },
+      "revId": "2aea5765b353a7e0206a7df6b0a3edfa92174bad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b89037a_fa53d6f5",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4322,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2016-11-10T02:04:46Z",
+      "side": 1,
+      "message": "Maybe just remove this stuff",
+      "range": {
+        "startLine": 4312,
+        "startChar": 1,
+        "endLine": 4322,
+        "endChar": 4
+      },
+      "revId": "2aea5765b353a7e0206a7df6b0a3edfa92174bad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
