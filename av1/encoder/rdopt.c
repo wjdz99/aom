@@ -3281,8 +3281,6 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
     if (tx_size == TX_32X32 && mbmi->tx_type != DCT_DCT &&
         rd_stats_stack[block32].rate != INT_MAX) {
-      av1_tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block,
-                        plane_bsize, coeff_ctx, rd_stats);
       *rd_stats = rd_stats_stack[block32];
       p->eobs[block] = !rd_stats->skip;
       x->blk_skip[plane][blk_row * bw + blk_col] = rd_stats->skip;
@@ -3384,7 +3382,7 @@ static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
     const int mi_width = num_4x4_blocks_wide_lookup[plane_bsize];
     const int mi_height = num_4x4_blocks_high_lookup[plane_bsize];
-    const TX_SIZE max_tx_size = max_txsize_lookup[plane_bsize];
+    const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
     const int bh = tx_size_high_unit[max_tx_size];
     const int bw = tx_size_wide_unit[max_tx_size];
     int idx, idy;
@@ -3724,7 +3722,7 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
     const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
     const int mi_width = num_4x4_blocks_wide_lookup[plane_bsize];
     const int mi_height = num_4x4_blocks_high_lookup[plane_bsize];
-    const TX_SIZE max_tx_size = max_txsize_lookup[plane_bsize];
+    const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
     const int bh = tx_size_high_unit[max_tx_size];
     const int bw = tx_size_wide_unit[max_tx_size];
     int idx, idy;
