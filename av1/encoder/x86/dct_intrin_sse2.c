@@ -740,8 +740,10 @@ void av1_fdct8x8_quant_sse2(const int16_t *input, int stride,
 }
 
 // load 8x8 array
-static INLINE void load_buffer_8x8(const int16_t *input, __m128i *in,
-                                   int stride, int flipud, int fliplr) {
+static INLINE void load_buffer_8x8_with_scale(const int16_t *input,
+                                              __m128i *in, int stride,
+                                              int flipud, int fliplr,
+                                              int shift) {
   if (!flipud) {
     in[0] = _mm_load_si128((const __m128i *)(input + 0 * stride));
     in[1] = _mm_load_si128((const __m128i *)(input + 1 * stride));
@@ -773,14 +775,19 @@ static INLINE void load_buffer_8x8(const int16_t *input, __m128i *in,
     in[7] = mm_reverse_epi16(in[7]);
   }
 
-  in[0] = _mm_slli_epi16(in[0], 2);
-  in[1] = _mm_slli_epi16(in[1], 2);
-  in[2] = _mm_slli_epi16(in[2], 2);
-  in[3] = _mm_slli_epi16(in[3], 2);
-  in[4] = _mm_slli_epi16(in[4], 2);
-  in[5] = _mm_slli_epi16(in[5], 2);
-  in[6] = _mm_slli_epi16(in[6], 2);
-  in[7] = _mm_slli_epi16(in[7], 2);
+  in[0] = _mm_slli_epi16(in[0], shift);
+  in[1] = _mm_slli_epi16(in[1], shift);
+  in[2] = _mm_slli_epi16(in[2], shift);
+  in[3] = _mm_slli_epi16(in[3], shift);
+  in[4] = _mm_slli_epi16(in[4], shift);
+  in[5] = _mm_slli_epi16(in[5], shift);
+  in[6] = _mm_slli_epi16(in[6], shift);
+  in[7] = _mm_slli_epi16(in[7], shift);
+}
+
+static INLINE void load_buffer_8x8(const int16_t *input, __m128i *in,
+                                   int stride, int flipud, int fliplr) {
+  load_buffer_8x8_with_scale(input, in, stride, flipud, fliplr, 2);
 }
 
 // right shift and rounding
@@ -2695,6 +2702,7 @@ static INLINE void scale_sqrt2_8x16(__m128i *in) {
 // treated as being filled with "don't care" values.
 static INLINE void load_buffer_4x8(const int16_t *input, __m128i *in,
                                    int stride, int flipud, int fliplr) {
+  const int shift = 2;
   if (!flipud) {
     in[0] = _mm_loadl_epi64((const __m128i *)(input + 0 * stride));
     in[1] = _mm_loadl_epi64((const __m128i *)(input + 1 * stride));
@@ -2726,14 +2734,14 @@ static INLINE void load_buffer_4x8(const int16_t *input, __m128i *in,
     in[7] = _mm_shufflelo_epi16(in[7], 0x1b);
   }
 
-  in[0] = _mm_slli_epi16(in[0], 3);
-  in[1] = _mm_slli_epi16(in[1], 3);
-  in[2] = _mm_slli_epi16(in[2], 3);
-  in[3] = _mm_slli_epi16(in[3], 3);
-  in[4] = _mm_slli_epi16(in[4], 3);
-  in[5] = _mm_slli_epi16(in[5], 3);
-  in[6] = _mm_slli_epi16(in[6], 3);
-  in[7] = _mm_slli_epi16(in[7], 3);
+  in[0] = _mm_slli_epi16(in[0], shift);
+  in[1] = _mm_slli_epi16(in[1], shift);
+  in[2] = _mm_slli_epi16(in[2], shift);
+  in[3] = _mm_slli_epi16(in[3], shift);
+  in[4] = _mm_slli_epi16(in[4], shift);
+  in[5] = _mm_slli_epi16(in[5], shift);
+  in[6] = _mm_slli_epi16(in[6], shift);
+  in[7] = _mm_slli_epi16(in[7], shift);
 
   scale_sqrt2_8x4(in);
   scale_sqrt2_8x4(in + 4);
@@ -2942,6 +2950,7 @@ void av1_fht4x8_sse2(const int16_t *input, tran_low_t *output, int stride,
 // This is to allow us to reuse 4x4 transforms.
 static INLINE void load_buffer_8x4(const int16_t *input, __m128i *in,
                                    int stride, int flipud, int fliplr) {
+  const int shift = 2;
   if (!flipud) {
     in[0] = _mm_loadu_si128((const __m128i *)(input + 0 * stride));
     in[1] = _mm_loadu_si128((const __m128i *)(input + 1 * stride));
@@ -2961,10 +2970,10 @@ static INLINE void load_buffer_8x4(const int16_t *input, __m128i *in,
     in[3] = mm_reverse_epi16(in[3]);
   }
 
-  in[0] = _mm_slli_epi16(in[0], 3);
-  in[1] = _mm_slli_epi16(in[1], 3);
-  in[2] = _mm_slli_epi16(in[2], 3);
-  in[3] = _mm_slli_epi16(in[3], 3);
+  in[0] = _mm_slli_epi16(in[0], shift);
+  in[1] = _mm_slli_epi16(in[1], shift);
+  in[2] = _mm_slli_epi16(in[2], shift);
+  in[3] = _mm_slli_epi16(in[3], shift);
 
   scale_sqrt2_8x4(in);
 
@@ -3112,9 +3121,9 @@ static INLINE void load_buffer_8x16(const int16_t *input, __m128i *in,
     b = tmp;
   }
 
-  load_buffer_8x8(t, in, stride, flipud, fliplr);
+  load_buffer_8x8_with_scale(t, in, stride, flipud, fliplr, 0);
   scale_sqrt2_8x8_signed(in);
-  load_buffer_8x8(b, in + 8, stride, flipud, fliplr);
+  load_buffer_8x8_with_scale(b, in + 8, stride, flipud, fliplr, 0);
   scale_sqrt2_8x8_signed(in + 8);
 }
 
@@ -3277,9 +3286,9 @@ static INLINE void load_buffer_16x8(const int16_t *input, __m128i *in,
   }
 
   // load first 8 columns
-  load_buffer_8x8(l, in, stride, flipud, fliplr);
+  load_buffer_8x8_with_scale(l, in, stride, flipud, fliplr, 0);
   scale_sqrt2_8x8_signed(in);
-  load_buffer_8x8(r, in + 8, stride, flipud, fliplr);
+  load_buffer_8x8_with_scale(r, in + 8, stride, flipud, fliplr, 0);
   scale_sqrt2_8x8_signed(in + 8);
 }
 

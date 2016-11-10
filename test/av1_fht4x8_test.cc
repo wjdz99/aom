@@ -70,6 +70,7 @@ class AV1Trans4x8HT : public libaom_test::TransformTestBase,
 };
 
 TEST_P(AV1Trans4x8HT, CoeffCheck) { RunCoeffCheck(); }
+TEST_P(AV1Trans4x8HT, MemCheck) { RunMemCheck(); }
 TEST_P(AV1Trans4x8HT, InvCoeffCheck) { RunInvCoeffCheck(); }
 
 using std::tr1::make_tuple;
