@@ -4759,8 +4759,7 @@ static void convert_to_params(const double *params, int32_t *model) {
 static void convert_model_to_params(const double *params,
                                     Global_Motion_Params *model) {
   convert_to_params(params, model->motion_params.wmmat);
-  model->gmtype = get_gmtype(model);
-  model->motion_params.wmtype = gm_to_trans_type(model->gmtype);
+  model->motion_params.wmtype = get_gmtype(model);
 }
 #endif  // CONFIG_GLOBAL_MOTION
 
@@ -4802,7 +4801,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
         if (compute_global_motion_feature_based(GLOBAL_MOTION_MODEL,
                                                 cpi->Source, ref_buf, params)) {
           convert_model_to_params(params, &cm->global_motion[frame]);
-          if (get_gmtype(&cm->global_motion[frame]) > GLOBAL_ZERO) {
+          if (get_gmtype(&cm->global_motion[frame]) != IDENTITY) {
             refine_integerized_param(
                 &cm->global_motion[frame].motion_params,
 #if CONFIG_AOM_HIGHBITDEPTH
