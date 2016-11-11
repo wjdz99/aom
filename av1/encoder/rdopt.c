@@ -1441,6 +1441,10 @@ static int64_t choose_tx_size_fix_type(const AV1_COMP *const cpi, BLOCK_SIZE bs,
   int ext_tx_set;
 #endif  // CONFIG_EXT_TX
 
+#if CONFIG_PVQ
+  od_rollback_buffer buf;
+#endif
+
   if (tx_select) {
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
     evaluate_rect_tx = is_rect_tx_allowed(xd, mbmi);
@@ -1477,6 +1481,10 @@ static int64_t choose_tx_size_fix_type(const AV1_COMP *const cpi, BLOCK_SIZE bs,
   }
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
 
+#if CONFIG_PVQ
+  od_encode_checkpoint(&x->daala_enc, &buf);
+#endif
+
   last_rd = INT64_MAX;
   for (n = start_tx; n >= end_tx; --n) {
     RD_STATS this_rd_stats;
@@ -1512,7 +1520,9 @@ static int64_t choose_tx_size_fix_type(const AV1_COMP *const cpi, BLOCK_SIZE bs,
 #endif  // CONFIG_EXT_TX
 
     rd = txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs, tx_type, n);
-
+#if CONFIG_PVQ
+    od_encode_rollback(&x->daala_enc, &buf);
+#endif
     // Early termination in transform size search.
     if (cpi->sf.tx_size_search_breakout &&
         (rd == INT64_MAX ||
@@ -1757,6 +1767,9 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 #endif
     rd = choose_tx_size_fix_type(cpi, bs, x, &this_rd_stats, ref_best_rd,
                                  tx_type, prune);
+#if CONFIG_PVQ
+    od_encode_rollback(&x->daala_enc, &buf);
+#endif
     if (rd < best_rd) {
       best_rd = rd;
       *rd_stats = this_rd_stats;
