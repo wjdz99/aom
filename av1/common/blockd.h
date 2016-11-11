@@ -225,8 +225,10 @@ typedef struct RD_STATS {
   int skip;
 #if CONFIG_RD_DEBUG
   int txb_coeff_cost[MAX_MB_PLANE];
+#if CONFIG_VAR_TX
   int txb_coeff_cost_map[MAX_MB_PLANE][TXB_COEFF_COST_MAP_SIZE]
                         [TXB_COEFF_COST_MAP_SIZE];
+#endif
 #endif
 } RD_STATS;
 
