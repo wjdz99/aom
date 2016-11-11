@@ -1739,7 +1739,9 @@ static void dump_mode_info(MODE_INFO *mi) {
 static int rd_token_stats_mismatch(RD_STATS *rd_stats, TOKEN_STATS *token_stats,
                                    int plane) {
   if (rd_stats->txb_coeff_cost[plane] != token_stats->cost) {
+#if CONFIG_VAR_TX
     int r, c;
+#endif
     printf("\nplane %d rd_stats->txb_coeff_cost %d token_stats->cost %d\n",
            plane, rd_stats->txb_coeff_cost[plane], token_stats->cost);
 #if CONFIG_VAR_TX
@@ -1791,9 +1793,6 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   MODE_INFO *m;
   int plane;
   int bh, bw;
-#if CONFIG_RD_DEBUG
-  int64_t txb_coeff_cost[MAX_MB_PLANE] = { 0 };
-#endif
 #if CONFIG_PVQ
   MB_MODE_INFO *mbmi;
   BLOCK_SIZE bsize;
@@ -1885,9 +1884,9 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   if (!m->mbmi.skip) {
     assert(*tok < tok_end);
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+      MB_MODE_INFO *mbmi = &m->mbmi;
 #if CONFIG_VAR_TX
       const struct macroblockd_plane *const pd = &xd->plane[plane];
-      MB_MODE_INFO *mbmi = &m->mbmi;
       BLOCK_SIZE bsize = mbmi->sb_type;
       const BLOCK_SIZE plane_bsize =
           get_plane_block_size(AOMMAX(bsize, BLOCK_8X8), pd);
@@ -1927,7 +1926,8 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
           }
         }
 #if CONFIG_RD_DEBUG
-        if (rd_token_stats_mismatch(&m->mbmi.rd_stats, &token_stats, plane)) {
+        if (mbmi->sb_type >= BLOCK_8X8 &&
+            rd_token_stats_mismatch(&m->mbmi.rd_stats, &token_stats, plane)) {
           dump_mode_info(m);
           assert(0);
         }
@@ -1946,8 +1946,17 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
       TX_SIZE tx =
           plane ? get_uv_tx_size(&m->mbmi, &xd->plane[plane]) : m->mbmi.tx_size;
       TOKEN_STATS token_stats;
-      token_stats.cost = 0;
+      init_token_stats(&token_stats);
       pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx, &token_stats);
+#if CONFIG_RD_DEBUG
+      if (is_inter_block(mbmi) && mbmi->sb_type >= BLOCK_8X8 &&
+          rd_token_stats_mismatch(&m->mbmi.rd_stats, &token_stats, plane)) {
+        dump_mode_info(m);
+        assert(0);
+      }
+#else
+      (void)mbmi;
+#endif
 #endif  // CONFIG_VAR_TX
 
       assert(*tok < tok_end && (*tok)->token == EOSB_TOKEN);
