@@ -291,6 +291,15 @@ static const aom_prob default_inter_compound_mode_probs
       { 25, 29, 50, 192, 64, 192, 128, 180, 180 },   // 6 = two intra neighbours
     };
 
+static const aom_prob
+    default_compound_type_probs[BLOCK_SIZES][COMPOUND_TYPES - 1] = {
+      { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 216 },
+      { 216 }, { 216 }, { 224 }, { 224 }, { 240 }, { 240 },
+#if CONFIG_EXT_PARTITION
+      { 255 }, { 255 }, { 255 },
+#endif  // CONFIG_EXT_PARTITION
+    };
+
 static const aom_prob default_interintra_prob[BLOCK_SIZE_GROUPS] = {
   208, 208, 208, 208,
 };
@@ -309,13 +318,6 @@ static const aom_prob default_wedge_interintra_prob[BLOCK_SIZES] = {
   208, 208, 208
 #endif  // CONFIG_EXT_PARTITION
 };
-
-static const aom_prob default_wedge_interinter_prob[BLOCK_SIZES] = {
-  208, 208, 208, 208, 208, 208, 216, 216, 216, 224, 224, 224, 240,
-#if CONFIG_EXT_PARTITION
-  255, 255, 255
-#endif  // CONFIG_EXT_PARTITION
-};
 #endif  // CONFIG_EXT_INTER
 
 // Change this section appropriately once warped motion is supported
@@ -323,34 +325,28 @@ static const aom_prob default_wedge_interinter_prob[BLOCK_SIZES] = {
 const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
   -SIMPLE_TRANSLATION, -OBMC_CAUSAL
 };
-static const aom_prob default_motion_mode_prob[BLOCK_SIZES]
-                                              [MOTION_MODES - 1] = {
-                                                { 255 }, { 255 }, { 255 },
-                                                { 151 }, { 153 }, { 144 },
-                                                { 178 }, { 165 }, { 160 },
-                                                { 207 }, { 195 }, { 168 },
-                                                { 244 },
+static const aom_prob default_motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1] =
+    {
+      { 255 }, { 255 }, { 255 }, { 151 }, { 153 }, { 144 }, { 178 },
+      { 165 }, { 160 }, { 207 }, { 195 }, { 168 }, { 244 },
 #if CONFIG_EXT_PARTITION
-                                                { 252 }, { 252 }, { 252 },
+      { 252 }, { 252 }, { 252 },
 #endif  // CONFIG_EXT_PARTITION
-                                              };
+    };
 
 #elif !CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 
 const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
   -SIMPLE_TRANSLATION, -WARPED_CAUSAL
 };
-static const aom_prob default_motion_mode_prob[BLOCK_SIZES]
-                                              [MOTION_MODES - 1] = {
-                                                { 255 }, { 255 }, { 255 },
-                                                { 151 }, { 153 }, { 144 },
-                                                { 178 }, { 165 }, { 160 },
-                                                { 207 }, { 195 }, { 168 },
-                                                { 244 },
+static const aom_prob default_motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1] =
+    {
+      { 255 }, { 255 }, { 255 }, { 151 }, { 153 }, { 144 }, { 178 },
+      { 165 }, { 160 }, { 207 }, { 195 }, { 168 }, { 244 },
 #if CONFIG_EXT_PARTITION
-                                                { 252 }, { 252 }, { 252 },
+      { 252 }, { 252 }, { 252 },
 #endif  // CONFIG_EXT_PARTITION
-                                              };
+    };
 
 #elif CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 
@@ -427,6 +423,10 @@ const aom_tree_index av1_inter_compound_mode_tree
   14, 16,
   -INTER_COMPOUND_OFFSET(NEAREST_NEWMV), -INTER_COMPOUND_OFFSET(NEW_NEARESTMV),
   -INTER_COMPOUND_OFFSET(NEAR_NEWMV), -INTER_COMPOUND_OFFSET(NEW_NEARMV)
+};
+
+const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)] = {
+  -AVERAGE, -WEDGE
 };
 /* clang-format on */
 #endif  // CONFIG_EXT_INTER
@@ -520,19 +520,16 @@ const aom_prob
 #endif  // CONFIG_EXT_PARTITION
     };
 
-const aom_prob
-    av1_default_palette_y_mode_prob[PALETTE_BLOCK_SIZES]
-                                   [PALETTE_Y_MODE_CONTEXTS] = {
-                                     { 240, 180, 100 }, { 240, 180, 100 },
-                                     { 240, 180, 100 }, { 240, 180, 100 },
-                                     { 240, 180, 100 }, { 240, 180, 100 },
-                                     { 240, 180, 100 }, { 240, 180, 100 },
-                                     { 240, 180, 100 }, { 240, 180, 100 },
+const aom_prob av1_default_palette_y_mode_prob
+    [PALETTE_BLOCK_SIZES][PALETTE_Y_MODE_CONTEXTS] = {
+      { 240, 180, 100 }, { 240, 180, 100 }, { 240, 180, 100 },
+      { 240, 180, 100 }, { 240, 180, 100 }, { 240, 180, 100 },
+      { 240, 180, 100 }, { 240, 180, 100 }, { 240, 180, 100 },
+      { 240, 180, 100 },
 #if CONFIG_EXT_PARTITION
-                                     { 240, 180, 100 }, { 240, 180, 100 },
-                                     { 240, 180, 100 },
+      { 240, 180, 100 }, { 240, 180, 100 }, { 240, 180, 100 },
 #endif  // CONFIG_EXT_PARTITION
-                                   };
+    };
 
 const aom_prob av1_default_palette_uv_mode_prob[2] = { 253, 229 };
 
@@ -1077,21 +1074,16 @@ static const aom_prob default_switchable_interp_prob
     };
 #else  // CONFIG_EXT_INTERP
 #if CONFIG_DUAL_FILTER
-static const aom_prob
-    default_switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS]
-                                  [SWITCHABLE_FILTERS - 1] = {
-                                    { 235, 162 }, { 36, 255 },
-                                    { 34, 3 },    { 149, 144 },
+static const aom_prob default_switchable_interp_prob
+    [SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS - 1] = {
+      { 235, 162 }, { 36, 255 }, { 34, 3 }, { 149, 144 },
 
-                                    { 235, 162 }, { 36, 255 },
-                                    { 34, 3 },    { 10, 3 },
+      { 235, 162 }, { 36, 255 }, { 34, 3 }, { 10, 3 },
 
-                                    { 235, 162 }, { 36, 255 },
-                                    { 34, 3 },    { 149, 144 },
+      { 235, 162 }, { 36, 255 }, { 34, 3 }, { 149, 144 },
 
-                                    { 235, 162 }, { 36, 255 },
-                                    { 34, 3 },    { 10, 3 },
-                                  };
+      { 235, 162 }, { 36, 255 }, { 34, 3 }, { 10, 3 },
+    };
 #else
 static const aom_prob default_switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS]
                                                     [SWITCHABLE_FILTERS - 1] = {
@@ -1399,14 +1391,11 @@ static const aom_prob default_inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1] = {
 #endif  // CONFIG_EXT_TX
 
 #if CONFIG_EXT_INTRA
-static const aom_prob default_intra_filter_probs[INTRA_FILTERS + 1]
-                                                [INTRA_FILTERS - 1] = {
-                                                  { 98, 63, 60 },
-                                                  { 98, 82, 80 },
-                                                  { 94, 65, 103 },
-                                                  { 49, 25, 24 },
-                                                  { 72, 38, 50 },
-                                                };
+static const aom_prob
+    default_intra_filter_probs[INTRA_FILTERS + 1][INTRA_FILTERS - 1] = {
+      { 98, 63, 60 }, { 98, 82, 80 }, { 94, 65, 103 },
+      { 49, 25, 24 }, { 72, 38, 50 },
+    };
 const aom_tree_index av1_intra_filter_tree[TREE_SIZE(INTRA_FILTERS)] = {
   -INTRA_FILTER_LINEAR,      2, -INTRA_FILTER_8TAP, 4, -INTRA_FILTER_8TAP_SHARP,
   -INTRA_FILTER_8TAP_SMOOTH,
@@ -1418,11 +1407,10 @@ static const aom_prob default_filter_intra_probs[2] = { 230, 230 };
 #endif  // CONFIG_FILTER_INTRA
 
 #if CONFIG_SUPERTX
-static const aom_prob default_supertx_prob[PARTITION_SUPERTX_CONTEXTS]
-                                          [TX_SIZES] = {
-                                            { 1, 160, 160, 170 },
-                                            { 1, 200, 200, 210 },
-                                          };
+static const aom_prob
+    default_supertx_prob[PARTITION_SUPERTX_CONTEXTS][TX_SIZES] = {
+      { 1, 160, 160, 170 }, { 1, 200, 200, 210 },
+    };
 #endif  // CONFIG_SUPERTX
 
 // FIXME(someone) need real defaults here
@@ -1470,10 +1458,10 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_EXT_INTER
   av1_copy(fc->inter_compound_mode_probs, default_inter_compound_mode_probs);
+  av1_copy(fc->compound_type_prob, default_compound_type_probs);
   av1_copy(fc->interintra_prob, default_interintra_prob);
   av1_copy(fc->interintra_mode_prob, default_interintra_mode_prob);
   av1_copy(fc->wedge_interintra_prob, default_wedge_interintra_prob);
-  av1_copy(fc->wedge_interinter_prob, default_wedge_interinter_prob);
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_SUPERTX
   av1_copy(fc->supertx_prob, default_supertx_prob);
@@ -1676,10 +1664,12 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
       fc->wedge_interintra_prob[i] = av1_mode_mv_merge_probs(
           pre_fc->wedge_interintra_prob[i], counts->wedge_interintra[i]);
   }
+
   for (i = 0; i < BLOCK_SIZES; ++i) {
     if (is_interinter_wedge_used(i))
-      fc->wedge_interinter_prob[i] = av1_mode_mv_merge_probs(
-          pre_fc->wedge_interinter_prob[i], counts->wedge_interinter[i]);
+      aom_tree_merge_probs(
+          av1_compound_type_tree, pre_fc->compound_type_prob[i],
+          counts->compound_interinter[i], fc->compound_type_prob[i]);
   }
 #endif  // CONFIG_EXT_INTER
 
