@@ -512,8 +512,10 @@ static double warp_erroradv(WarpedMotionParams *wm, uint8_t *ref, int width,
                warp_interpolate(ref, out[0], out[1], width, height, stride);
       no_gm_err = dst[(j - p_col) + (i - p_row) * p_stride] -
                   ref[(j - p_col) + (i - p_row) * stride];
-      gm_sumerr += abs(gm_err);
-      no_gm_sumerr += abs(no_gm_err);
+      gm_err = abs(gm_err);
+      no_gm_sumerr = abs(no_gm_sumerr);
+      gm_sumerr += AOMMIN(gm_err, 128);
+      no_gm_sumerr += AOMMIN(no_gm_err, 128);
     }
   }
   return (double)gm_sumerr / no_gm_sumerr;
