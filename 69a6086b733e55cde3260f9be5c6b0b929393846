@@ -34,6 +34,24 @@
       "revId": "69a6086b733e55cde3260f9be5c6b0b929393846",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b8e57b3_896c1ce7",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-11T07:50:31Z",
+      "side": 1,
+      "message": "\u003e std::map\u003cstd::string, std::pair\u003cvoid*, void*\u003e \u003e map;\n \u003e map[\"v64_sad_u8\"] \u003d std::make_pair\u003c(void*)v64_sad_u8, (void*)c_v64_sad_u8\u003e;\n\nyou\u0027d spell that reinterpret_cast\u003c\u003e\n\n \u003e [...]\n \u003e Also, I think the clang style checker\n \u003e complain about the function becoming too long due to all the\n \u003e initialisation,\n\nthat\u0027s probably cpplint.py not clang, mostly that\u0027s meant as an fyi to make sure the code is as intended.\n\n \u003e while this can be avoided by initialising the table\n \u003e in the global space if done the C way.  Unfortunately, clang still\n \u003e insists on only one function per line.\n\nclang-format, to be precise, which we influence with .clang-format.",
+      "parentUuid": "86ac9a9c_fbb96bac",
+      "revId": "69a6086b733e55cde3260f9be5c6b0b929393846",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
