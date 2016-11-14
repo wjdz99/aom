@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "2b8e57b3_ca6c44e8",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-14T19:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b8e57b3_ebb74f2d",
+      "revId": "9f8dac9a808e33fc146a4e10c9edcc8d74caff71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2b8e57b3_cbac53d7",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 9
@@ -36,6 +54,24 @@
       "writtenOn": "2016-11-11T22:46:53Z",
       "side": 1,
       "message": "I guess these replace --target\u003dxxx in the end. it might be nice to set defaults for the optimizations based on the target/platform",
+      "revId": "9f8dac9a808e33fc146a4e10c9edcc8d74caff71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b8e57b3_ea6900d6",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 9
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2016-11-14T19:39:29Z",
+      "side": 1,
+      "message": "That\u0027s the plan: just need a starting point for the rest of the configure to modify.",
+      "parentUuid": "2b8e57b3_cbac53d7",
       "revId": "9f8dac9a808e33fc146a4e10c9edcc8d74caff71",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
