@@ -471,6 +471,7 @@ post_process_cmdline() {
       log_echo "and dual_filter. Disabling global_motion."
       disable_feature global_motion
     fi
+    enabled rect_tx && soft_enable ext_tx
 }
 
 
