@@ -4761,6 +4761,179 @@ static void convert_model_to_params(const double *params,
   convert_to_params(params, model->wmmat);
   model->wmtype = get_gmtype(model);
 }
+
+static int get_gmbitcost(const WarpedMotionParams *gm, const aom_prob *probs) {
+  int gmtype_cost[TRANS_TYPES];
+  int bits;
+  TransformationType type = gm->wmtype;
+  av1_cost_tokens(gmtype_cost, probs, av1_global_motion_types_tree);
+  switch (type) {
+    case AFFINE:
+      bits = (GM_ABS_TRANS_BITS + 1) * 2 + (GM_ABS_ALPHA_BITS + 1) * 4;
+      break;
+    case ROTZOOM:
+      bits = (GM_ABS_TRANS_BITS + 1) * 2 + (GM_ABS_ALPHA_BITS + 1) * 2;
+      break;
+    case TRANSLATION: bits = (GM_ABS_TRANS_BITS + 1) * 2; break;
+    case IDENTITY: bits = 0; break;
+    default: assert(0); return 0;
+  }
+  return bits ? (bits << AV1_PROB_COST_SHIFT) + gmtype_cost[type] : 0;
+}
+
+#define GM_BLOCK_SHIFT 4
+#define GM_BLOCK_SIZE (1 << GM_BLOCK_SHIFT)
+#define MIN3(x, y, z) AOMMIN(AOMMIN((x), (y)), (z))
+
+// Select global motion models for the current frame
+static void choose_global_motion(AV1_COMP *cpi) {
+  ThreadData *const td = &cpi->td;
+  MACROBLOCK *const x = &td->mb;
+  AV1_COMMON *const cm = &cpi->common;
+
+  int i, j, k, l;
+  uint8_t *warp_buf;  // TODO: Make this work with HIGHBITDEPTH
+  int width, height, stride;
+  int blocks_w, blocks_h, num_blocks;
+  int64_t *dist_gm, *dist_zeromv;
+  int a, b, c;
+  int min_a = -1, min_b = -1, min_c = -1;
+  int64_t min_rd = INT64_MAX;
+
+  YV12_BUFFER_CONFIG *ref_buf;
+  int frame;
+  double params[8] = { 0, 0, 1, 0, 0, 1, 0, 0 };
+  width = cpi->Source->y_width;
+  height = cpi->Source->y_height;
+  stride = cpi->Source->y_stride;
+
+  // Pick initial global motion models
+  for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    ref_buf = get_ref_frame_buffer(cpi, frame);
+    if (ref_buf) {
+      // Note: This currently doesn't support references which aren't the same
+      // size as the frame to encode
+      assert(width == ref_buf->y_width);
+      assert(height == ref_buf->y_height);
+      assert(stride == ref_buf->y_stride);
+      if (compute_global_motion_feature_based(GLOBAL_MOTION_MODEL, cpi->Source,
+                                              ref_buf, params)) {
+        convert_model_to_params(params, &cm->global_motion[frame]);
+        if (cm->global_motion[frame].wmtype != IDENTITY) {
+          refine_integerized_param(
+              &cm->global_motion[frame],
+#if CONFIG_AOM_HIGHBITDEPTH
+              xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+              ref_buf->y_buffer, ref_buf->y_width, ref_buf->y_height,
+              ref_buf->y_stride, cpi->Source->y_buffer, cpi->Source->y_width,
+              cpi->Source->y_height, cpi->Source->y_stride, 3);
+          // Update type information if needed
+          cm->global_motion[frame].wmtype =
+              get_gmtype(&cm->global_motion[frame]);
+        }
+      }
+    }
+  }
+
+  // Split the frame into blocks and compute the distortion for each block
+  // with global motion and with ZEROMV. Note that we don't have to calculate
+  // rates here, as the bit cost *at the block level* is the same either way.
+  blocks_w = (width + GM_BLOCK_SIZE - 1) >> GM_BLOCK_SHIFT;
+  blocks_h = (height + GM_BLOCK_SIZE - 1) >> GM_BLOCK_SHIFT;
+  num_blocks = blocks_w * blocks_h;
+  // Array of distortion for {gm, zeromv} per block per ref frame
+  dist_gm = malloc(INTER_REFS_PER_FRAME * num_blocks * sizeof(int64_t));
+  dist_zeromv = malloc(INTER_REFS_PER_FRAME * num_blocks * sizeof(int64_t));
+  for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    // Get the reference frame and its warped version
+    ref_buf = get_ref_frame_buffer(cpi, frame);
+
+    // TODO: If a reference isn't present, it shouldn't affect to
+    // the rate or distortion calculations.
+    if (!ref_buf) {
+      assert(0);
+      continue;
+    }
+
+    assert(width == ref_buf->y_width);
+    assert(height == ref_buf->y_height);
+    assert(stride == ref_buf->y_stride);
+    warp_buf = malloc(width * height);
+    av1_warp_plane(&cm->global_motion[frame], ref_buf->y_buffer, width, height,
+                   stride, warp_buf, 0, 0, width, height, width, 0, 0, 16, 16,
+                   0);
+
+    for (i = 0; i < blocks_h; ++i)
+      for (j = 0; j < blocks_w; ++j) {
+        const int index = (frame - LAST_FRAME) * num_blocks + i * blocks_w + j;
+        int64_t sse_gm = 0, sse_zeromv = 0;
+        for (k = i * GM_BLOCK_SIZE; k < AOMMIN((i + 1) * GM_BLOCK_SIZE, height);
+             ++k)
+          for (l = j * GM_BLOCK_SIZE;
+               l < AOMMIN((j + 1) * GM_BLOCK_SIZE, width); ++l) {
+            int err_gm =
+                warp_buf[k * width + l] - cpi->Source->y_buffer[k * stride + l];
+            int err_zeromv = ref_buf->y_buffer[k * stride + l] -
+                             cpi->Source->y_buffer[k * stride + l];
+            sse_gm += err_gm * err_gm;
+            sse_zeromv += err_zeromv * err_zeromv;
+          }
+        dist_gm[index] = sse_gm;
+        dist_zeromv[index] = sse_zeromv;
+      }
+
+    free(warp_buf);
+  }
+
+  // Estimate the rd cost for each possible combination of which reference
+  // frames use global motion and which ones don't.
+  // The advantage to doing this over deciding for each reference frame
+  // separately is that often (particularly just after an intra frame)
+  // two reference frames are individually better with global motion
+  // than without, but the overall better decision is to pick global motion
+  // on just one of them and disable it on the other.
+  // TODO: Make this work with EXT_REFS
+  for (a = 0; a < 2; ++a)
+    for (b = 0; b < 2; ++b)
+      for (c = 0; c < 2; ++c) {
+        int64_t rd;
+        int rate = (a ? get_gmbitcost(&cm->global_motion[1],
+                                      cm->fc->global_motion_types_prob)
+                      : 0) +
+                   (b ? get_gmbitcost(&cm->global_motion[2],
+                                      cm->fc->global_motion_types_prob)
+                      : 0) +
+                   (c ? get_gmbitcost(&cm->global_motion[3],
+                                      cm->fc->global_motion_types_prob)
+                      : 0);
+        int64_t dist = 0;
+        for (i = 0; i < blocks_h; ++i)
+          for (j = 0; j < blocks_w; ++j) {
+            dist += MIN3(a ? dist_gm[0 * num_blocks + i * blocks_w + j]
+                           : dist_zeromv[0 * num_blocks + i * blocks_w + j],
+                         b ? dist_gm[1 * num_blocks + i * blocks_w + j]
+                           : dist_zeromv[1 * num_blocks + i * blocks_w + j],
+                         c ? dist_gm[2 * num_blocks + i * blocks_w + j]
+                           : dist_zeromv[2 * num_blocks + i * blocks_w + j]);
+          }
+        rd = RDCOST(x->rdmult, x->rddiv, rate, dist);
+        if (rd < min_rd) {
+          min_rd = rd;
+          min_a = a;
+          min_b = b;
+          min_c = c;
+        }
+      }
+
+  // Set up the chosen combination of global motion models
+  assert(min_a != -1);
+  assert(min_b != -1);
+  assert(min_c != -1);
+  if (!min_a) set_default_gmparams(&cm->global_motion[1]);
+  if (!min_b) set_default_gmparams(&cm->global_motion[2]);
+  if (!min_c) set_default_gmparams(&cm->global_motion[3]);
+}
 #endif  // CONFIG_GLOBAL_MOTION
 
 static void encode_frame_internal(AV1_COMP *cpi) {
@@ -4791,42 +4964,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     set_default_gmparams(&cm->global_motion[i]);
   }
   if (cpi->common.frame_type == INTER_FRAME && cpi->Source) {
-    YV12_BUFFER_CONFIG *ref_buf;
-    int frame;
-    double erroradvantage = 0;
-    double params[8] = { 0, 0, 1, 0, 0, 1, 0, 0 };
-    for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
-      ref_buf = get_ref_frame_buffer(cpi, frame);
-      if (ref_buf) {
-        if (compute_global_motion_feature_based(GLOBAL_MOTION_MODEL,
-                                                cpi->Source, ref_buf, params)) {
-          convert_model_to_params(params, &cm->global_motion[frame]);
-          if (cm->global_motion[frame].wmtype != IDENTITY) {
-            refine_integerized_param(
-                &cm->global_motion[frame],
-#if CONFIG_AOM_HIGHBITDEPTH
-                xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
-#endif  // CONFIG_AOM_HIGHBITDEPTH
-                ref_buf->y_buffer, ref_buf->y_width, ref_buf->y_height,
-                ref_buf->y_stride, cpi->Source->y_buffer, cpi->Source->y_width,
-                cpi->Source->y_height, cpi->Source->y_stride, 3);
-            // compute the advantage of using gm parameters over 0 motion
-            erroradvantage = av1_warp_erroradv(
-                &cm->global_motion[frame],
-#if CONFIG_AOM_HIGHBITDEPTH
-                xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
-#endif  // CONFIG_AOM_HIGHBITDEPTH
-                ref_buf->y_buffer, ref_buf->y_width, ref_buf->y_height,
-                ref_buf->y_stride, cpi->Source->y_buffer, 0, 0,
-                cpi->Source->y_width, cpi->Source->y_height,
-                cpi->Source->y_stride, 0, 0, 16, 16);
-            if (erroradvantage > GLOBAL_MOTION_ADVANTAGE_THRESH)
-              // Not enough advantage in using a global model. Make identity.
-              set_default_gmparams(&cm->global_motion[frame]);
-          }
-        }
-      }
-    }
+    choose_global_motion(cpi);
   }
 #endif  // CONFIG_GLOBAL_MOTION
 
