@@ -22,6 +22,30 @@
       "revId": "5114b7bf71ca827d5496895718749a7de1604ba7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500a5c5e_8fd0f5e3",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3564,
+      "author": {
+        "id": 5500
+      },
+      "writtenOn": "2016-11-15T08:09:02Z",
+      "side": 1,
+      "message": "It seems like the show_existing_frame\u003d1 feature is not implemented in the baseline encoder. In fact, this flag is always hard coded to 0: \n\naom_wb_write_bit(wb, 0);  // show_existing_frame)\n\nI suspect proper support of this feature requires substantial changes outside the write_compressed_header() function.",
+      "parentUuid": "30b088be_b5d96a87",
+      "range": {
+        "startLine": 3564,
+        "startChar": 6,
+        "endLine": 3564,
+        "endChar": 61
+      },
+      "revId": "5114b7bf71ca827d5496895718749a7de1604ba7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
