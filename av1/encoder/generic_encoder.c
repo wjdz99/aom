@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 
+#include "aom_dsp/bitwriter.h"
 #include "aom_dsp/entdec.h"
 #include "aom_dsp/entenc.h"
 #include "av1/common/generic_code.h"
@@ -33,7 +34,7 @@
  * @param [in,out] count number of symbols encoded with that cdf so far
  * @param [in]     rate  adaptation rate shift (smaller is faster)
  */
-void od_encode_cdf_adapt_q15(od_ec_enc *ec, int val, uint16_t *cdf, int n,
+void aom_encode_cdf_adapt_q15(aom_writer *w, int val, uint16_t *cdf, int n,
  int *count, int rate) {
   int i;
   if (*count == 0) {
@@ -46,7 +47,7 @@ void od_encode_cdf_adapt_q15(od_ec_enc *ec, int val, uint16_t *cdf, int n,
       cdf[i] = cdf[i]*32768/ft;
     }
   }
-  od_ec_encode_cdf_q15(ec, val, cdf, n);
+  aom_write_symbol(w, val, cdf, n);
   aom_cdf_adapt_q15(val, cdf, n, count, rate);
 }
 
