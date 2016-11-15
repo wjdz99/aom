@@ -46,6 +46,53 @@
       "revId": "5114b7bf71ca827d5496895718749a7de1604ba7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30b088be_06392f93",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3564,
+      "author": {
+        "id": 5865
+      },
+      "writtenOn": "2016-11-15T17:57:58Z",
+      "side": 1,
+      "message": "just above the line you posted in write_uncompressed_header() there is a handling of show_existent_frame. It is under CONFIG_EXT_REFS macro.\nI left a comment there for you.",
+      "parentUuid": "500a5c5e_8fd0f5e3",
+      "range": {
+        "startLine": 3564,
+        "startChar": 6,
+        "endLine": 3564,
+        "endChar": 61
+      },
+      "revId": "5114b7bf71ca827d5496895718749a7de1604ba7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30b088be_06084fd8",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3674,
+      "author": {
+        "id": 5865
+      },
+      "writtenOn": "2016-11-15T17:57:58Z",
+      "side": 1,
+      "message": "Arild, please add display_frame_id right after this line. Thanks.",
+      "range": {
+        "startLine": 3674,
+        "startChar": 4,
+        "endLine": 3674,
+        "endChar": 62
+      },
+      "revId": "5114b7bf71ca827d5496895718749a7de1604ba7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
