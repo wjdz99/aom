@@ -499,6 +499,7 @@ static uint16_t highbd_warp_interpolate(uint16_t *ref, int x, int y, int width,
 static INLINE int highbd_error_measure(int err, int bd) {
   const int b = bd - 8;
   const int bmask = (1 << b) - 1;
+  const int v = (1 << b);
   int e1, e2;
   err = abs(err);
   e1 = err >> b;
