@@ -1549,7 +1549,7 @@ static int64_t choose_tx_size_fix_type(const AV1_COMP *const cpi, BLOCK_SIZE bs,
   return best_rd;
 }
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 static int64_t estimate_yrd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bs,
                                    MACROBLOCK *x, int *r, int64_t *d, int *s,
                                    int64_t *sse, int64_t ref_best_rd) {
@@ -1562,7 +1562,7 @@ static int64_t estimate_yrd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bs,
   *sse = rd_stats.sse;
   return rd;
 }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
                                    RD_STATS *rd_stats, int64_t ref_best_rd,
@@ -6526,6 +6526,179 @@ static void do_masked_motion_search_indexed(const AV1_COMP *const cpi,
 }
 #endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+static void do_tripred_masked_motion_search(
+    const AV1_COMP *const cpi, MACROBLOCK *x, const uint8_t *tripred_mask,
+    int tripred_mask_stride, BLOCK_SIZE bsize, int mi_row, int mi_col,
+    int_mv *third_mv, int *rate_third_mv, MV_REFERENCE_FRAME ref_frame,
+    struct buf_2d yv12_mb_per_ref[MAX_MB_PLANE]) {
+  const AV1_COMMON *cm = &cpi->common;
+  MACROBLOCKD *xd = &x->e_mbd;
+
+  struct buf_2d backup_yv12[MAX_MB_PLANE] = { { 0, 0, 0, 0, 0 } };
+  const RefBuffer *backup_block_refs[2];
+
+  int bestsme = INT_MAX;
+  int step_param;
+  int sadpb = x->sadperbit16;
+  MV mvp_full;
+  MV ref_mv = x->mbmi_ext->ref_mvs[ref_frame][0].as_mv;
+
+  // MV info backup
+  int tmp_col_min = x->mv_col_min;
+  int tmp_col_max = x->mv_col_max;
+  int tmp_row_min = x->mv_row_min;
+  int tmp_row_max = x->mv_row_max;
+
+  const YV12_BUFFER_CONFIG *scaled_ref_frame =
+      av1_get_scaled_ref_frame(cpi, ref_frame);
+  int plane;
+
+  MV pred_mv[3];
+
+  // TODO(zoeliu): Reuse the masked inter prediction implementation and assume
+  //               the inter prediction using the third ref/mv is for the
+  //               second_ref_frame.
+  const int ref_idx = 1;
+
+  // === Loop over all the reference frames ===
+  // Default mode: single ref NEWMV
+
+  // TODO(zoeliu): To work with the following experiments
+  // (a) CONFIG_REF_MV
+  // (b) CONFIG_EXT_INTER
+  // (c) CONFIG_MOTION_VAR
+  // (d) CONFIG_GLOBAL_MOTION
+  // (e) CONFIG_DUAL_FILTER
+
+  pred_mv[0] = x->mbmi_ext->ref_mvs[ref_frame][0].as_mv;
+  pred_mv[1] = x->mbmi_ext->ref_mvs[ref_frame][1].as_mv;
+  pred_mv[2] = x->pred_mv[ref_frame];
+
+  // Set xd->block_refs[0/1]
+  backup_block_refs[0] = xd->block_refs[0];
+  backup_block_refs[1] = xd->block_refs[1];
+  if (ref_idx == 0)
+    set_ref_ptrs(cm, xd, ref_frame, NONE);
+  else
+    set_ref_ptrs(cm, xd, NONE, ref_frame);
+
+  // Select prediction reference frames.
+  for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    backup_yv12[plane] = xd->plane[plane].pre[ref_idx];
+    xd->plane[plane].pre[ref_idx] = yv12_mb_per_ref[plane];
+  }
+
+  // Check reference scaling.
+  if (scaled_ref_frame) {
+    // Swap out the reference frame for a version that's been scaled to
+    // match the resolution of the current frame, allowing the existing
+    // motion search code to be used without additional modifications.
+    av1_setup_pre_planes(xd, ref_idx, scaled_ref_frame, mi_row, mi_col, NULL);
+  }
+
+  // Set up mv search range
+  av1_set_mv_search_range(x, &ref_mv);
+
+  // Work out the size of the first step in the mv step search.
+  // 0 here is maximum length first step. 1 is MAX >> 1 etc.
+  if (cpi->sf.mv.auto_mv_step_size && cm->show_frame) {
+    // Take wtd average of the step_params based on the last frame's
+    // max mv magnitude and that based on the best ref mvs of the current
+    // block for the given reference.
+    step_param = (av1_init_search_range(x->max_mv_context[ref_frame]) +
+                  cpi->mv_step_param) /
+                 2;
+  } else {
+    step_param = cpi->mv_step_param;
+  }
+
+  // Further work out on the size of the first step in the mv step search.
+  // TODO(zoeliu): is show_frame needed here?
+  if (cpi->sf.adaptive_motion_search && bsize < cm->sb_size && cm->show_frame) {
+    int boffset =
+        2 * (b_width_log2_lookup[cm->sb_size] -
+             AOMMIN(b_height_log2_lookup[bsize], b_width_log2_lookup[bsize]));
+    step_param = AOMMAX(step_param, boffset);
+  }
+
+  // adaptive_motion_search
+  if (cpi->sf.adaptive_motion_search) {
+    int bwl = b_width_log2_lookup[bsize];
+    int bhl = b_height_log2_lookup[bsize];
+    int tlevel = x->pred_mv_sad[ref_idx] >> (bwl + bhl + 4);
+
+    if (tlevel < 5) step_param += 2;
+
+    // prev_mv_sad is not setup for dynamically scaled frames.
+    if (cpi->oxcf.resize_mode != RESIZE_DYNAMIC) {
+      int i;
+      for (i = LAST_FRAME; i <= ALTREF_FRAME && cm->show_frame; ++i) {
+        if ((x->pred_mv_sad[ref_frame] >> 3) > x->pred_mv_sad[i]) {
+          x->pred_mv[ref_frame].row = 0;
+          x->pred_mv[ref_frame].col = 0;
+          third_mv->as_int = INVALID_MV;
+
+          xd->block_refs[0] = backup_block_refs[0];
+          xd->block_refs[1] = backup_block_refs[1];
+          for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+            xd->plane[i].pre[ref_idx] = backup_yv12[i];
+          }
+
+          // TODO(zoeliu): There should be a followup for this "return".
+          return;
+        }
+      }
+    }
+  }
+
+  // Set up mvp's.
+  mvp_full = pred_mv[x->mv_best_ref_index[ref_frame]];
+
+  mvp_full.col >>= 3;
+  mvp_full.row >>= 3;
+
+  // Full motion search with mask
+  bestsme = av1_masked_full_pixel_diamond(
+      cpi, x, tripred_mask, tripred_mask_stride, &mvp_full, step_param, sadpb,
+      MAX_MVSEARCH_STEPS - 1 - step_param, 1, &cpi->fn_ptr[bsize], &ref_mv,
+      &third_mv->as_mv, ref_idx);
+
+  // Restore the backup values
+  x->mv_col_min = tmp_col_min;
+  x->mv_col_max = tmp_col_max;
+  x->mv_row_min = tmp_row_min;
+  x->mv_row_max = tmp_row_max;
+
+  // Fractional motion search (through the use of upsampled references)
+  if (bestsme < INT_MAX) {
+    int dis;  // TODO(zoeliu): use dis in distortion calculation later.
+    av1_find_best_masked_sub_pixel_tree_up(
+        cpi, x, tripred_mask, tripred_mask_stride, mi_row, mi_col,
+        &third_mv->as_mv, &ref_mv, cm->allow_high_precision_mv, x->errorperbit,
+        &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
+        cpi->sf.mv.subpel_iters_per_step, x->nmvjointcost, x->mvcost, &dis,
+        &x->pred_sse[ref_frame], ref_idx, cpi->sf.use_upsampled_references);
+  }
+
+  // Calculate the mv rate cost
+  *rate_third_mv = av1_mv_bit_cost(&third_mv->as_mv, &ref_mv, x->nmvjointcost,
+                                   x->mvcost, MV_COST_WEIGHT);
+
+  // Set up pred_mv
+  // TODO(zoeliu): We may apply following for non-show frames as well
+  if (cpi->sf.adaptive_motion_search && cm->show_frame)
+    x->pred_mv[ref_frame] = third_mv->as_mv;
+
+  // Restore the predictor setup
+  xd->block_refs[0] = backup_block_refs[0];
+  xd->block_refs[1] = backup_block_refs[1];
+  for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    xd->plane[plane].pre[ref_idx] = backup_yv12[plane];
+  }
+}
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
+
 // In some situations we want to discount tha pparent cost of a new motion
 // vector. Where there is a subtle motion field and especially where there is
 // low spatial complexity then it can be hard to cover the cost of a new motion
@@ -6705,7 +6878,7 @@ static InterpFilter predict_interp_filter(
 }
 #endif
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 // Choose the best wedge index and sign
 static int64_t pick_wedge(const AV1_COMP *const cpi, const MACROBLOCK *const x,
                           const BLOCK_SIZE bsize, const uint8_t *const p0,
@@ -6780,7 +6953,9 @@ static int64_t pick_wedge(const AV1_COMP *const cpi, const MACROBLOCK *const x,
 
   return best_rd;
 }
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
+#if CONFIG_EXT_INTER
 // Choose the best wedge index the specified sign
 static int64_t pick_wedge_fixed_sign(
     const AV1_COMP *const cpi, const MACROBLOCK *const x,
@@ -6886,6 +7061,110 @@ static int64_t pick_interintra_wedge(const AV1_COMP *const cpi,
 }
 #endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+// TODO(zoeliu): Further work on the mask design is needed, e.g. to incorporate
+//               the morphological operator(s) to identify connected areas and
+//               generate certain segmentation.
+// This function needs to move to a file under the av1/common folder.
+#define TRIPRED_MASK_THRESHOLD 5
+// #define TRIPRED_MASK_THRESHOLD 1
+void av1_get_contiguous_tripred_mask(int rows, int cols, uint8_t *mask,
+                                     ptrdiff_t mask_stride,
+                                     const uint8_t *pred1,
+                                     ptrdiff_t pred1_stride,
+                                     const uint8_t *pred0,
+                                     ptrdiff_t pred0_stride) {
+  int r, c;
+
+  for (r = 0; r < rows; r++) {
+    for (c = 0; c < cols; c++) {
+      // NOTE: Soft masked blending will be conducted, hence all masking
+      //       elements are valued between 0 and 64.
+      mask[c] =
+          (abs(pred1[c] - pred0[c]) >= TRIPRED_MASK_THRESHOLD) ? (1 << 6) : 0;
+    }
+
+    mask += mask_stride;
+    pred0 += pred0_stride;
+    pred1 += pred1_stride;
+  }
+}
+
+static int64_t pick_interinter_tripred_wedge(
+    const AV1_COMP *const cpi, const MACROBLOCK *const x,
+    const BLOCK_SIZE bsize, const uint8_t *const pred0, uint8_t *pred1,
+    int mi_row, int mi_col, int_mv *frame_mv,
+    struct buf_2d yv12_mb[TOTAL_REFS_PER_FRAME][MAX_MB_PLANE],
+    unsigned int ref_costs_single[TOTAL_REFS_PER_FRAME]) {
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+
+  const int bw = 4 * num_4x4_blocks_wide_lookup[bsize];
+
+  uint8_t *preds1[1] = { pred1 };
+  int strides[1] = { bw };
+
+  static const int flag_list[TOTAL_REFS_PER_FRAME] = { 0,
+                                                       AOM_LAST_FLAG,
+                                                       AOM_LAST2_FLAG,
+                                                       AOM_LAST3_FLAG,
+                                                       AOM_GOLD_FLAG,
+                                                       AOM_BWD_FLAG,
+                                                       AOM_ALT_FLAG };
+
+  int64_t best_rd = INT64_MAX;
+  MV_REFERENCE_FRAME ref_frame;
+
+  assert(is_interinter_wedge_used(bsize) && is_interinter_tripred_used(xd));
+
+  // Tri-prediction: Two predictors:
+  // 1st predictor (pred0): Compound predictor - has been passed in
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    int64_t rd;
+    int wedge_index = -1;
+    int wedge_sign = 0;
+    int rate3 = 0;
+
+    if (cpi->ref_frame_flags & flag_list[ref_frame]) continue;
+
+    assert(get_ref_frame_buffer(cpi, ref_frame) != NULL);
+
+    // 2nd predictor (pred1): A third single ref/mv predictor - to be decided
+    av1_build_single_inter_predictor_for_planes_from_any_ref(
+        &cpi->common, xd, bsize, 0, 0, mi_row, mi_col, ref_frame,
+        frame_mv[ref_frame], yv12_mb[ref_frame], preds1, strides);
+
+    // Choose the best tri-prediction wedge
+    // TODO(zoeliu): To further explore the fixed wedge sign option
+    rd = pick_wedge(cpi, x, bsize, pred0, pred1, &wedge_sign, &wedge_index);
+
+    // Add the RD cost for the 3rd reference + the 3rd mv
+    // TODO(zoeliu): The rate cost for mv needs to be recalculated when REF_MV
+    //               is on.
+    rate3 += ref_costs_single[ref_frame] +
+             av1_mv_bit_cost(&frame_mv[ref_frame].as_mv,
+                             &mbmi_ext->ref_mvs[ref_frame][0].as_mv,
+                             x->nmvjointcost, x->mvcost, MV_COST_WEIGHT);
+    rd += RDCOST(x->rdmult, x->rddiv, rate3, 0);
+
+    if (rd < best_rd) {
+      best_rd = rd;
+      mbmi->interinter_tripred_wedge_sign = wedge_sign;
+      mbmi->interinter_tripred_wedge_index = wedge_index;
+
+      mbmi->ref_frame_third = ref_frame;
+      mbmi->mv_third.as_mv = frame_mv[ref_frame].as_mv;
+    }
+  }
+
+  return best_rd;
+}
+
+// TODO(zoeliu): To implement the inter/intra combination for the wedge-based
+//               tri-prediction - compound prediction + intra prediction.
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
+
 static int64_t handle_inter_mode(
     const AV1_COMP *const cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     RD_STATS *rd_stats, RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv,
@@ -6898,10 +7177,17 @@ static int64_t handle_inter_mode(
 #if CONFIG_EXT_INTER
     int_mv single_newmvs[2][TOTAL_REFS_PER_FRAME],
     int single_newmvs_rate[2][TOTAL_REFS_PER_FRAME],
-    int *compmode_interintra_cost, int *compmode_wedge_cost,
-    int64_t (*const modelled_rd)[TOTAL_REFS_PER_FRAME],
 #else
     int_mv single_newmv[TOTAL_REFS_PER_FRAME],
+#endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER
+    int *compmode_interintra_cost,
+#endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+    int *compmode_wedge_cost,
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+#if CONFIG_EXT_INTER
+    int64_t (*const modelled_rd)[TOTAL_REFS_PER_FRAME],
 #endif  // CONFIG_EXT_INTER
     InterpFilter (*single_filter)[TOTAL_REFS_PER_FRAME],
     int (*single_skippable)[TOTAL_REFS_PER_FRAME], const int64_t ref_best_rd) {
@@ -6917,8 +7203,11 @@ static int64_t handle_inter_mode(
                   (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]) };
   int_mv cur_mv[2];
   int rate_mv = 0;
-#if CONFIG_EXT_INTER
+
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
   int pred_exists = 1;
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+#if CONFIG_EXT_INTER
   const int bw = 4 * num_4x4_blocks_wide_lookup[bsize];
   int mv_idx = (this_mode == NEWFROMNEARMV) ? 1 : 0;
   int_mv single_newmv[TOTAL_REFS_PER_FRAME];
@@ -6927,8 +7216,9 @@ static int64_t handle_inter_mode(
   const int is_comp_interintra_pred = (mbmi->ref_frame[1] == INTRA_FRAME);
 #if CONFIG_REF_MV
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
-#endif
+#endif  // CONFIG_REF_MV
 #endif  // CONFIG_EXT_INTER
+
 #if CONFIG_AOM_HIGHBITDEPTH
   DECLARE_ALIGNED(16, uint8_t, tmp_buf_[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
 #else
@@ -6973,9 +7263,14 @@ static int64_t handle_inter_mode(
 #if CONFIG_EXT_INTER
   *compmode_interintra_cost = 0;
   mbmi->use_wedge_interintra = 0;
+#endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
   *compmode_wedge_cost = 0;
   mbmi->interinter_compound = COMPOUND_AVERAGE;
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
+#if CONFIG_EXT_INTER
   // is_comp_interintra_pred implies !is_comp_pred
   assert(!is_comp_interintra_pred || (!is_comp_pred));
   // is_comp_interintra_pred implies is_interintra_allowed(mbmi->sb_type)
@@ -7663,6 +7958,7 @@ static int64_t handle_inter_mode(
     pred_exists = 0;
   }
 #endif  // CONFIG_EXT_INTERP
+
   if (pred_exists == 0) {
     int tmp_rate;
     int64_t tmp_dist;
@@ -7672,6 +7968,276 @@ static int64_t handle_inter_mode(
     rd = RDCOST(x->rdmult, x->rddiv, rs + tmp_rate, tmp_dist);
   }
 #endif  // CONFIG_EXT_INTER
+
+// ========== CONFIG_TRIPRED ==========
+
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+  // TODO(zoeliu): Currently following scheme only applies to the bi-predictive
+  //               frame that uses the pair of LAST/BWDREF as references, which
+  //               needs to be further extended to more general compound
+  //               reference cases.
+  if (is_comp_pred && is_interinter_wedge_used(bsize) &&
+      is_interinter_tripred_used(xd)) {
+    int rate_sum, rs2;
+    int64_t dist_sum;
+    int64_t best_rd_bipred = INT64_MAX;
+    int64_t best_rd_tripred = INT64_MAX;
+
+    int tmp_skip_txfm_sb;
+    int64_t tmp_skip_sse_sb;
+    int compound_type_cost[COMPOUND_TYPES];
+
+    unsigned int ref_costs_single[TOTAL_REFS_PER_FRAME];
+    unsigned int ref_costs_comp[TOTAL_REFS_PER_FRAME];
+    aom_prob comp_mode_p;
+
+    // Summary on tri-prediction:
+    // 1. Obtain the pair of predictors;
+    // 2. Obtain the mask;
+    // 3. Obtain the masked area and do the masked inter prediction;
+    // 4. Blend the compound inter predictors with the masked inter predictor;
+    // 5. Calculate the RD value and make the RD optimization decision.
+
+    // NOTE(zoeliu): An alternative version is being implemented as follows:
+    //  - Reuse the wedge prediction idea, and for each bi-predictive frame, one
+    //    side of the wedge a compound prediction is applied that uses the
+    //    implicit pair of compound references (LAST/BWDREF currently), and the
+    //    other side a single prediction or Intra is applied. The extra cost for
+    //    such wedge based inter-inter would be one more motion vector but
+    //    saving the coding of one reference - the total cost is the coding of
+    //    1 reference + 3 mvs
+
+    // TODO(zoeliu): Reference frame costs have been calculated but not passed
+    //               down here. Further code cleaning is needed.
+    estimate_ref_frame_costs(cm, xd, mbmi->segment_id, ref_costs_single,
+                             ref_costs_comp, &comp_mode_p);
+
+    mbmi->interinter_compound = COMPOUND_AVERAGE;
+    av1_cost_tokens(compound_type_cost, cm->fc->compound_type_prob[bsize],
+                    av1_compound_type_tree);
+    rs2 = compound_type_cost[mbmi->interinter_compound];
+
+    av1_build_inter_predictors_sby(xd, mi_row, mi_col, bsize);
+    av1_subtract_plane(x, bsize, 0);
+    rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
+                             &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
+    if (rd != INT64_MAX) {
+      // NOTE: The costs of the pair of references are included to calculate the
+      //       RD cost for the bi-prediction mode, as such costs would not be
+      //       incurred in the tri-prediction mode.
+      rd = RDCOST(x->rdmult, x->rddiv, rs2 + rate_mv + rate_sum +
+                                           ref_costs_comp[mbmi->ref_frame[0]] +
+                                           ref_costs_comp[mbmi->ref_frame[1]],
+                  dist_sum);
+    }
+    best_rd_bipred = rd;
+
+    // Disbale tri-predition search if source variance is small.
+    // TODO(zoeliu): To further evaluate the following criteria
+    if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh &&
+        best_rd_bipred / 4 < ref_best_rd) {
+      // (zoeliu)best_rd_bipred / 3 < ref_best_rd) {
+      const int bw = 4 * num_4x4_blocks_wide_lookup[bsize];
+      const int bh = 4 * num_4x4_blocks_high_lookup[bsize];
+
+      uint8_t pred0[2 * MAX_SB_SQUARE];
+      uint8_t pred1[2 * MAX_SB_SQUARE];
+
+      uint8_t *preds0[1] = { pred0 };
+      uint8_t *preds1[1] = { pred1 };
+      int strides[1] = { bw };
+
+      int_mv third_mv;
+      int rate_third_mv = 0;
+
+      MV_REFERENCE_FRAME ref_frame;
+      struct buf_2d yv12_mb[TOTAL_REFS_PER_FRAME][MAX_MB_PLANE];
+      static const int flag_list[TOTAL_REFS_PER_FRAME] = { 0,
+                                                           AOM_LAST_FLAG,
+                                                           AOM_LAST2_FLAG,
+                                                           AOM_LAST3_FLAG,
+                                                           AOM_GOLD_FLAG,
+                                                           AOM_BWD_FLAG,
+                                                           AOM_ALT_FLAG };
+
+      const uint8_t *tripred_mask;
+
+      // Set up the compound type
+      mbmi->interinter_compound = COMPOUND_TRIPRED;
+
+      // TODO(zoeliu): Calculate the extra bit cost incurred by tri-prediction
+      rs2 = av1_cost_literal(get_interinter_wedge_bits(bsize)) +
+            compound_type_cost[mbmi->interinter_compound];
+
+      // Obtain the pair of compound predictors
+      // NOTE: The compound predictor has been obtained above when the RD cost
+      //       for bi-prediction is being calculated.
+
+      // 1st predictor (pred0): Compound predictor (same as the no-wedge case)
+      // NOTE: The bi-predictor has been calculated as above.
+      memcpy(pred0, xd->plane[0].dst.buf, bw * bh);
+
+      // Prepare all the single predictors.
+      for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+        if (cpi->ref_frame_flags & flag_list[ref_frame]) {
+          const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_buffer(cpi, ref_frame);
+          const struct scale_factors *const sf =
+              &cm->frame_refs[ref_frame - LAST_FRAME].sf;
+
+          assert(yv12 != NULL);
+          // TODO(jkoleszar): Is the UV buffer ever used here? If so, need to
+          // make this use the UV scaling factors.
+          av1_setup_pred_block(xd, yv12_mb[ref_frame], yv12, mi_row, mi_col, sf,
+                               sf);
+        }
+      }
+
+      /*
+      av1_build_inter_predictors_for_planes_single_buf(
+          xd, bsize, 0, 0, mi_row, mi_col, 0, preds0, strides);
+      av1_build_inter_predictors_for_planes_single_buf(
+          xd, bsize, 0, 0, mi_row, mi_col, 1, preds1, strides);*/
+
+      // Obtain the tri-prediction mask
+      /*
+      av1_get_contiguous_tripred_mask(
+          bh, bw, tripred_mask, bw, pred1, bw, pred0, bw);
+
+#if 1
+      {
+        int r, c;
+        const uint8_t *mask_ptr = tripred_mask;
+
+        for (r = 0; r < bh; r++) {
+          for (c = 0; c < bw; c++)
+            fprintf(stdout, "%2d ", mask_ptr[c]);
+          fprintf(stdout, "\n");
+          mask_ptr += bw;
+        }
+      }
+#endif  // 1
+     */
+
+      // === Choose the best wedge ===
+      // NOTE: (1) pred0 is given, and pred1 is to be obtained;
+      //       (2) best_rd_tripred includes the RD cost of the residual, the
+      //           third mv, and the third reference;
+      //       (3) The best wedge will be determined and saved inside mbmi.
+      best_rd_tripred = pick_interinter_tripred_wedge(
+          cpi, x, bsize, pred0, pred1, mi_row, mi_col, frame_mv, yv12_mb,
+          ref_costs_single);
+      best_rd_tripred += RDCOST(x->rdmult, x->rddiv, rs2 + rate_mv, 0);
+
+      // === Choose the best third mv ===
+      // Using the best wedge and the third reference frame, re-do the single
+      // motion estimation to identify the best third mv.
+      tripred_mask = av1_get_contiguous_soft_mask(
+          mbmi->interinter_tripred_wedge_index,
+          mbmi->interinter_tripred_wedge_sign, bsize);
+      do_tripred_masked_motion_search(cpi, x, tripred_mask, bw, bsize, mi_row,
+                                      mi_col, &third_mv, &rate_third_mv,
+                                      mbmi->ref_frame_third,
+                                      yv12_mb[mbmi->ref_frame_third]);
+
+      // Recalculate the RD cost using the newly obtained third mv
+      // TODO(zoeliu): Optimization may be made to further improve the speed.
+
+      // 2nd predictor (pred1): A third single ref/mv predictor - to be decided
+      av1_build_single_inter_predictor_for_planes_from_any_ref(
+          &cpi->common, xd, bsize, 0, 0, mi_row, mi_col, mbmi->ref_frame_third,
+          third_mv, yv12_mb[mbmi->ref_frame_third], preds1, strides);
+      av1_build_wedge_tripredictor_from_bufs(xd, bsize, 0, 0, preds0, strides,
+                                             preds1, strides);
+      av1_subtract_plane(x, bsize, 0);
+      rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
+                               &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
+      if (rd != INT64_MAX) {
+        int rate3 = ref_costs_single[mbmi->ref_frame_third] + rate_third_mv;
+        rd += RDCOST(x->rdmult, x->rddiv, rs2 + rate_mv + rate3 + rate_sum,
+                     dist_sum);
+      }
+
+      // === Final decision on third mv and the compound mode ===
+      if (rd < best_rd_tripred) {
+        mbmi->mv_third.as_mv = third_mv.as_mv;
+      } else {
+        // 2nd predictor (pred1): Restore the previous third mv and recalculate
+        // the predictor to obtain the accurate rd performance
+        av1_build_single_inter_predictor_for_planes_from_any_ref(
+            &cpi->common, xd, bsize, 0, 0, mi_row, mi_col,
+            mbmi->ref_frame_third, mbmi->mv_third,
+            yv12_mb[mbmi->ref_frame_third], preds1, strides);
+        av1_build_wedge_tripredictor_from_bufs(xd, bsize, 0, 0, preds0, strides,
+                                               preds1, strides);
+        av1_subtract_plane(x, bsize, 0);
+        rd =
+            estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
+                                &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
+        if (rd != INT64_MAX) {
+          int rate3;
+
+          // Recalculate the rate cost for the third mv
+          rate_third_mv = av1_mv_bit_cost(
+              &mbmi->mv_third.as_mv,
+              &mbmi_ext->ref_mvs[mbmi->ref_frame_third][0].as_mv,
+              x->nmvjointcost, x->mvcost, MV_COST_WEIGHT);
+          rate3 = ref_costs_single[mbmi->ref_frame_third] + rate_third_mv;
+          rd += RDCOST(x->rdmult, x->rddiv, rs2 + rate_mv + rate3 + rate_sum,
+                       dist_sum);
+        }
+      }
+      best_rd_tripred = rd;
+
+      if (best_rd_tripred < best_rd_bipred) {
+        mbmi->interinter_compound = COMPOUND_TRIPRED;
+        xd->mi[0]->bmi[0].as_mv[0].as_int = mbmi->mv[0].as_int;
+        xd->mi[0]->bmi[0].as_mv[1].as_int = mbmi->mv[1].as_int;
+        // TODO(zoeliu): rd_stats does not include the rate for reference frames
+        rd_stats->rate += rate_third_mv;
+        rate_mv += rate_third_mv;
+      } else {
+        mbmi->interinter_compound = COMPOUND_AVERAGE;
+        mbmi->mv[0].as_int = cur_mv[0].as_int;
+        mbmi->mv[1].as_int = cur_mv[1].as_int;
+        xd->mi[0]->bmi[0].as_mv[0].as_int = mbmi->mv[0].as_int;
+        xd->mi[0]->bmi[0].as_mv[1].as_int = mbmi->mv[1].as_int;
+      }
+    }
+
+    if (ref_best_rd < INT64_MAX &&
+        AOMMIN(best_rd_tripred, best_rd_bipred) / 4 > ref_best_rd)
+      return INT64_MAX;
+
+    pred_exists = 0;
+
+    *compmode_wedge_cost = compound_type_cost[mbmi->interinter_compound];
+
+    // TODO(zoeliu): Following cost is not sufficient to return to compare this
+    //               prediction mode/refs/mvs with other choices.
+    if (mbmi->interinter_compound)
+      *compmode_wedge_cost +=
+          av1_cost_literal(get_interinter_wedge_bits(bsize));
+  }
+
+  // TODO(zoeliu): To have CONFIG_TRIPRED work with CONFIG_EXT_INTERP
+  /*
+#if CONFIG_EXT_INTERP
+  pred_exists = 0;
+#endif  // CONFIG_EXT_INTERP
+   */
+
+  if (pred_exists == 0) {
+    int tmp_rate;
+    int64_t tmp_dist;
+    av1_build_inter_predictors_sb(xd, mi_row, mi_col, bsize);
+    model_rd_for_sb(cpi, bsize, x, xd, 0, MAX_MB_PLANE - 1, &tmp_rate,
+                    &tmp_dist, &skip_txfm_sb, &skip_sse_sb);
+    // TODO(zoeliu): This needs to be recalculated
+    rd = RDCOST(x->rdmult, x->rddiv, rs + tmp_rate, tmp_dist);
+  }
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
+
+// ======= END =======
 
 #if CONFIG_DUAL_FILTER
   if (!is_comp_pred) single_filter[this_mode][refs[0]] = mbmi->interp_filter[0];
@@ -8745,8 +9311,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     int compmode_cost = 0;
 #if CONFIG_EXT_INTER
     int compmode_interintra_cost = 0;
-    int compmode_wedge_cost = 0;
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+    int compmode_wedge_cost = 0;
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
     int rate2 = 0, rate_y = 0, rate_uv = 0;
     int64_t distortion2 = 0, distortion_y = 0, distortion_uv = 0;
     int skippable = 0;
@@ -9146,10 +9714,18 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
             dst_buf1, dst_stride1, dst_buf2, dst_stride2,
 #endif  // CONFIG_MOTION_VAR
 #if CONFIG_EXT_INTER
-            single_newmvs, single_newmvs_rate, &compmode_interintra_cost,
-            &compmode_wedge_cost, modelled_rd,
+            single_newmvs, single_newmvs_rate,
 #else
             single_newmv,
+#endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER
+            &compmode_interintra_cost,
+#endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+            &compmode_wedge_cost,
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+#if CONFIG_EXT_INTER
+            modelled_rd,
 #endif  // CONFIG_EXT_INTER
             single_inter_filter, single_skippable, best_rd);
 
@@ -9256,11 +9832,18 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_MOTION_VAR
 #if CONFIG_EXT_INTER
                 dummy_single_newmvs, dummy_single_newmvs_rate,
-                &dummy_compmode_interintra_cost, &dummy_compmode_wedge_cost,
-                NULL,
 #else
                 dummy_single_newmv,
-#endif
+#endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER
+                &dummy_compmode_interintra_cost,
+#endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+                &dummy_compmode_wedge_cost,
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+#if CONFIG_EXT_INTER
+                NULL,
+#endif  // CONFIG_EXT_INTER
                 single_inter_filter, dummy_single_skippable, best_rd);
           }
 
@@ -9358,16 +9941,29 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         rate2 += compmode_wedge_cost;
 #endif  // CONFIG_EXT_INTER
 
-    // Estimate the reference frame signaling cost and add it
-    // to the rolling cost variable.
-    if (comp_pred) {
-      rate2 += ref_costs_comp[ref_frame];
-#if CONFIG_EXT_REFS
-      rate2 += ref_costs_comp[second_ref_frame];
-#endif  // CONFIG_EXT_REFS
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+    // ==================================
+    if (cm->reference_mode != SINGLE_REFERENCE && comp_pred &&
+        mbmi->interinter_compound == COMPOUND_TRIPRED) {
+      rate2 += compmode_wedge_cost;
+      rate2 += ref_costs_single[mbmi->ref_frame_third];
     } else {
-      rate2 += ref_costs_single[ref_frame];
+#endif  // CONFG_EXT_REFS && CONFIG_TRIPRED
+
+      // Estimate the reference frame signaling cost and add it
+      // to the rolling cost variable.
+      if (comp_pred) {
+        rate2 += ref_costs_comp[ref_frame];
+#if CONFIG_EXT_REFS
+        rate2 += ref_costs_comp[second_ref_frame];
+#endif  // CONFIG_EXT_REFS
+      } else {
+        rate2 += ref_costs_single[ref_frame];
+      }
+
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
     }
+#endif  // CONFG_EXT_REFS && CONFIG_TRIPRED
 
 #if CONFIG_MOTION_VAR
     if (ref_frame == INTRA_FRAME) {

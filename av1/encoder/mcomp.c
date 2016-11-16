@@ -2332,7 +2332,7 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   return var;
 }
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 /* returns subpixel variance error function */
 #define DIST(r, c)                                                         \
   vfp->msvf(pre(y, y_stride, r, c), y_stride, sp(c), sp(r), z, src_stride, \
@@ -2928,7 +2928,7 @@ int av1_masked_full_pixel_diamond(const AV1_COMP *cpi, MACROBLOCK *x,
   }
   return bestsme;
 }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 #if CONFIG_MOTION_VAR
 /* returns subpixel variance error function */
