@@ -4795,7 +4795,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     double params[8] = { 0, 0, 1, 0, 0, 1, 0, 0 };
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
       ref_buf = get_ref_frame_buffer(cpi, frame);
-      if (ref_buf) {
+      if (ref_buf && !cpi->disable_global_motion[frame]) {
         aom_clear_system_state();
         if (compute_global_motion_feature_based(GLOBAL_TRANS_TYPES - 1,
                                                 cpi->Source, ref_buf, params)) {

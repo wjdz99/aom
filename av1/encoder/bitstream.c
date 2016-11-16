@@ -3971,12 +3971,10 @@ static void write_global_motion_params(WarpedMotionParams *params,
                   &global_motion_types_encodings[type]);
   switch (type) {
     case HOMOGRAPHY:
-        aom_write_primitive_symmetric(
-            w, (params->wmmat[6] >> GM_ROW3HOMO_PREC_DIFF),
-            GM_ABS_ROW3HOMO_BITS);
-        aom_write_primitive_symmetric(
-            w, (params->wmmat[7] >> GM_ROW3HOMO_PREC_DIFF),
-            GM_ABS_ROW3HOMO_BITS);
+      aom_write_primitive_symmetric(
+          w, (params->wmmat[6] >> GM_ROW3HOMO_PREC_DIFF), GM_ABS_ROW3HOMO_BITS);
+      aom_write_primitive_symmetric(
+          w, (params->wmmat[7] >> GM_ROW3HOMO_PREC_DIFF), GM_ABS_ROW3HOMO_BITS);
     // fallthrough intended
     case AFFINE:
     case ROTZOOM:
@@ -4015,15 +4013,11 @@ static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
     }
     write_global_motion_params(&cm->global_motion[frame],
                                cm->fc->global_motion_types_prob, w);
-    /*
-    printf("Enc Ref %d [%d/%d] (used %d): %d %d %d %d\n",
-           frame, cm->current_video_frame, cm->show_frame,
-           cpi->global_motion_used[frame],
-           cm->global_motion[frame].wmmat[0],
-           cm->global_motion[frame].wmmat[1],
-           cm->global_motion[frame].wmmat[2],
+    printf("Frame %d/%d: Enc Ref %d (used %d): %d %d %d %d\n",
+           cm->current_video_frame, cm->show_frame, frame,
+           cpi->global_motion_used[frame], cm->global_motion[frame].wmmat[0],
+           cm->global_motion[frame].wmmat[1], cm->global_motion[frame].wmmat[2],
            cm->global_motion[frame].wmmat[3]);
-           */
   }
 }
 #endif
