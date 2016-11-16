@@ -112,9 +112,9 @@ static struct av1_token intra_filter_encodings[INTRA_FILTERS];
 #if CONFIG_EXT_INTER
 static struct av1_token interintra_mode_encodings[INTERINTRA_MODES];
 #endif  // CONFIG_EXT_INTER
-#if CONFIG_EXT_INTER || CONFIG_TRIPRED
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 static struct av1_token compound_type_encodings[COMPOUND_TYPES];
-#endif  // CONFIG_EXT_INTER || CONFIG_TRIPRED
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 static struct av1_token motion_mode_encodings[MOTION_MODES];
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -159,9 +159,9 @@ void av1_encode_token_init(void) {
 #if CONFIG_EXT_INTER
   av1_tokens_from_tree(interintra_mode_encodings, av1_interintra_mode_tree);
 #endif  // CONFIG_EXT_INTER
-#if CONFIG_EXT_INTER || CONFIG_TRIPRED
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
   av1_tokens_from_tree(compound_type_encodings, av1_compound_type_tree);
-#endif  // CONFIG_EXT_INTER || CONFIG_TRIPRED
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   av1_tokens_from_tree(motion_mode_encodings, av1_motion_mode_tree);
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -916,7 +916,6 @@ static void write_comp_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     const int bit2 = ref_frame[0] == GOLDEN_FRAME;
     aom_write(w, bit2, av1_get_pred_prob_comp_ref_p2(cm, xd));
   }
-
   aom_write(w, bit_bwd, av1_get_pred_prob_comp_bwdref_p(cm, xd));
 #endif  // CONFIG_EXT_REFS
 }
@@ -979,29 +978,26 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
 
     if (is_compound) {
-#if CONFIG_TRIPRED
-      if (is_interinter_wedge_used(mbmi->sb_type))
+      write_comp_ref_frames(cm, xd, mbmi->ref_frame, w);
+
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+      if (is_interinter_wedge_used(mbmi->sb_type) &&
+          is_interinter_tripred_used(xd)) {
         av1_write_token(w, av1_compound_type_tree,
                         cm->fc->compound_type_prob[mbmi->sb_type],
                         &compound_type_encodings[mbmi->interinter_compound]);
 
-      if (is_interinter_wedge_used(mbmi->sb_type) &&
-          mbmi->interinter_compound == COMPOUND_TRIPRED) {
-        assert(is_interinter_tripred_used(mbmi));
+        if (mbmi->interinter_compound == COMPOUND_TRIPRED) {
+          // Write wedge index and sign
+          aom_write_literal(w, mbmi->interinter_tripred_wedge_index,
+                            get_wedge_bits_lookup(mbmi->sb_type));
+          aom_write_bit(w, mbmi->interinter_tripred_wedge_sign);
 
-        // Write wedge index and sign
-        aom_write_literal(w, mbmi->interinter_tripred_wedge_index,
-                          get_wedge_bits_lookup(mbmi->sb_type));
-        aom_write_bit(w, mbmi->interinter_tripred_wedge_sign);
-
-        // Write the third reference
-        write_single_ref_frames(cm, xd, mbmi->ref_frame_third, w);
-      } else {
-#endif  // CONFIG_TRIPRED
-        write_comp_ref_frames(cm, xd, mbmi->ref_frame, w);
-#if CONFIG_TRIPRED
+          // Write the third reference
+          write_single_ref_frames(cm, xd, mbmi->ref_frame_third, w);
+        }
       }
-#endif  // CONFIG_TRIPRED
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
     } else {
       write_single_ref_frames(cm, xd, mbmi->ref_frame[0], w);
     }
@@ -1885,9 +1881,11 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
     // write_switchable_interp_filter, which is called by pack_inter_mode_mvs.
     set_ref_ptrs(cm, xd, m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
 #endif  // CONFIG_EXT_INTERP
-#if 0
+#if 1
     // NOTE(zoeliu): For debug
-    if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
+    if (/*cm->current_video_frame == FRAME_TO_CHECK && */cm->show_frame == 1 &&
+        has_second_ref(&m->mbmi) && is_interinter_wedge_used(m->mbmi.sb_type) &&
+        is_interinter_tripred_used(xd)) {
       const PREDICTION_MODE mode = m->mbmi.mode;
       const int segment_id = m->mbmi.segment_id;
       const BLOCK_SIZE bsize = m->mbmi.sb_type;
@@ -1903,10 +1901,13 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
       printf("Before pack_inter_mode_mvs(): "
              "Frame=%d, (mi_row,mi_col)=(%d,%d), "
              "mode=%d, segment_id=%d, bsize=%d, b_mode=%d, "
-             "mv[0]=(%d, %d), ref[0]=%d, ref[1]=%d\n",
+             "mv[0]=(%d, %d), ref[0]=%d, ref[1]=%d, "
+             "interinter_compound=%d, mv_3rd=(%d, %d), ref_3rd=%d\n",
              cm->current_video_frame, mi_row, mi_col,
              mode, segment_id, bsize, b_mode, mv_x, mv_y,
-             m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
+             m->mbmi.ref_frame[0], m->mbmi.ref_frame[1],
+             m->mbmi.interinter_compound, m->mbmi.mv_third.as_mv.row,
+             m->mbmi.mv_third.as_mv.col, m->mbmi.ref_frame_third);
     }
 #endif  // 0
     pack_inter_mode_mvs(cpi, m,
@@ -4196,7 +4197,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     }
 #endif  // CONFIG_EXT_INTER
 
-#if CONFIG_EXT_INTER || (CONFIG_TRIPRED)
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
     if (cm->reference_mode != SINGLE_REFERENCE) {
       for (i = 0; i < BLOCK_SIZES; i++)
         if (is_interinter_wedge_used(i))
@@ -4204,7 +4205,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                            cm->counts.compound_interinter[i], COMPOUND_TYPES,
                            probwt, header_bc);
     }
-#endif  // CONFIG_EXT_INTER || (CONFIG_TRIPRED)
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     for (i = BLOCK_8X8; i < BLOCK_SIZES; ++i)
