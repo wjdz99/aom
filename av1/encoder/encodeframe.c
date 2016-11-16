@@ -1958,6 +1958,14 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
           counts->compound_interinter[bsize][mbmi->interinter_compound]++;
         }
 #endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+        if (cm->reference_mode != SINGLE_REFERENCE &&
+            has_second_ref(mbmi) && is_interinter_wedge_used(bsize) &&
+            is_interinter_tripred_used(xd)) {
+          counts->compound_interinter[bsize][mbmi->interinter_compound]++;
+        }
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
       }
     }
 
@@ -5343,6 +5351,22 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
                            &xd->block_refs[ref]->sf);
     }
+
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+    if (is_compound && is_interinter_wedge_used(bsize) &&
+        is_interinter_tripred_used(xd) &&
+        mbmi->interinter_compound == COMPOUND_TRIPRED){
+      set_third_ref_ptr(cm, xd, mbmi->ref_frame_third);
+      {
+        YV12_BUFFER_CONFIG *cfg = get_ref_frame_buffer(cpi,
+                                                       mbmi->ref_frame_third);
+        assert(cfg != NULL);
+        av1_setup_pre_third_planes(xd, cfg, mi_row, mi_col,
+                                   &xd->block_ref_third->sf);
+      }
+    }
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
+
     if (!(cpi->sf.reuse_inter_pred_sby && ctx->pred_pixel_ready) || seg_skip)
       av1_build_inter_predictors_sby(xd, mi_row, mi_col,
                                      AOMMAX(bsize, BLOCK_8X8));
