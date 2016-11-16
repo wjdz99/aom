@@ -614,7 +614,7 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
 }
 # End av1_high encoder functions
 
-if (aom_config("CONFIG_EXT_INTER") eq "yes") {
+if (aom_config("CONFIG_EXT_INTER") eq "yes" || (aom_config("CONFIG_EXT_REFS") eq "yes" && aom_config("CONFIG_TRIPRED") eq "yes")) {
   add_proto qw/uint64_t av1_wedge_sse_from_residuals/, "const int16_t *r1, const int16_t *d, const uint8_t *m, int N";
   specialize qw/av1_wedge_sse_from_residuals sse2/;
   add_proto qw/int av1_wedge_sign_from_residuals/, "const int16_t *ds, const uint8_t *m, int N, int64_t limit";
