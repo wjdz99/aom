@@ -649,7 +649,7 @@ void aom_highbd_comp_avg_upsampled_pred_c(uint16_t *comp_pred,
 }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
-#if CONFIG_AV1 && CONFIG_EXT_INTER
+#if CONFIG_AV1 && (CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED))
 void masked_variance(const uint8_t *a, int a_stride, const uint8_t *b,
                      int b_stride, const uint8_t *m, int m_stride, int w, int h,
                      unsigned int *sse, int *sum) {
@@ -940,7 +940,8 @@ HIGHBD_MASK_VAR(128, 128)
 HIGHBD_MASK_SUBPIX_VAR(128, 128)
 #endif  // CONFIG_EXT_PARTITION
 #endif  // CONFIG_AOM_HIGHBITDEPTH
-#endif  // CONFIG_AV1 && CONFIG_EXT_INTER
+#endif  // CONFIG_AV1 && (CONFIG_EXT_INTER ||
+        // (CONFIG_EXT_REFS && CONFIG_TRIPRED))
 
 #if CONFIG_AV1 && CONFIG_MOTION_VAR
 static INLINE void obmc_variance(const uint8_t *pre, int pre_stride,
