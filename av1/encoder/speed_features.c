@@ -173,8 +173,10 @@ static void set_good_speed_feature(AV1_COMP *cpi, AV1_COMMON *cm,
     // Use transform domain distortion.
     // Note var-tx expt always uses pixel domain distortion.
     sf->use_transform_domain_distortion = 1;
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
     sf->disable_wedge_search_var_thresh = 100;
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+#if CONFIG_EXT_INTER
     sf->fast_wedge_sign_estimate = 1;
 #endif  // CONFIG_EXT_INTER
   }
@@ -288,8 +290,10 @@ static void set_rt_speed_feature(AV1_COMP *cpi, SPEED_FEATURES *sf, int speed,
   sf->allow_exhaustive_searches = 0;
   sf->exhaustive_searches_thresh = INT_MAX;
   sf->use_upsampled_references = 0;
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
   sf->disable_wedge_search_var_thresh = 100;
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+#if CONFIG_EXT_INTER
   sf->fast_wedge_sign_estimate = 1;
 #endif  // CONFIG_EXT_INTER
 
@@ -515,8 +519,10 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
 #else
   sf->use_upsampled_references = 1;
 #endif  // CONFIG_EXT_TILE
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
   sf->disable_wedge_search_var_thresh = 0;
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+#if CONFIG_EXT_INTER
   sf->fast_wedge_sign_estimate = 0;
 #endif  // CONFIG_EXT_INTER
 
