@@ -4331,6 +4331,10 @@ static int cost_mv_ref(const AV1_COMP *const cpi, PREDICTION_MODE mode,
 }
 
 #if CONFIG_GLOBAL_MOTION
+
+#define GLOBAL_MOTION_COST_AMORTIZATION_BLKS 0
+
+#if GLOBAL_MOTION_COST_AMORTIZATION_BLKS > 0
 static int get_gmbitcost(const WarpedMotionParams *gm, const aom_prob *probs) {
   int gmtype_cost[TRANS_TYPES];
   int bits;
@@ -4355,9 +4359,6 @@ static int get_gmbitcost(const WarpedMotionParams *gm, const aom_prob *probs) {
   return bits ? (bits << AV1_PROB_COST_SHIFT) + gmtype_cost[type] : 0;
 }
 
-#define GLOBAL_MOTION_COST_AMORTIZATION_BLKS 8
-
-#if GLOBAL_MOTION_COST_AMORTIZATION_BLKS > 0
 #define GLOBAL_MOTION_RATE(ref)                                         \
   (cpi->global_motion_used[ref] >= GLOBAL_MOTION_COST_AMORTIZATION_BLKS \
        ? 0                                                              \
@@ -4380,9 +4381,9 @@ static int set_and_cost_bmi_mvs(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_EXT_INTER
                                 int_mv *best_ref_mv[2], const int *mvjcost,
                                 int *mvcost[2]) {
-#if CONFIG_GLOBAL_MOTION
+#if CONFIG_GLOBAL_MOTION && GLOBAL_MOTION_COST_AMORTIZATION_BLKS > 0
   const AV1_COMMON *cm = &cpi->common;
-#endif  // CONFIG_GLOBAL_MOTION
+#endif  // CONFIG_GLOBAL_MOTION && GLOBAL_MOTION_COST_AMORTIZATION_BLKS > 0
   MODE_INFO *const mic = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mic->mbmi;
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
