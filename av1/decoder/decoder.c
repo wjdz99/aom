@@ -46,9 +46,9 @@ static void initialize_dec(void) {
     aom_dsp_rtcd();
     aom_scale_rtcd();
     av1_init_intra_predictors();
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
     av1_init_wedge_masks();
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
     init_done = 1;
 #if CONFIG_DAALA_EC
     av1_indices_from_tree(av1_switchable_interp_ind, av1_switchable_interp_inv,

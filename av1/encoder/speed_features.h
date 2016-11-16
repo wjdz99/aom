@@ -388,10 +388,12 @@ typedef struct SPEED_FEATURES {
   // Choose a very large value (UINT_MAX) to use 8-tap always
   unsigned int disable_filter_search_var_thresh;
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
   // A source variance threshold below which wedge search is disabled
   unsigned int disable_wedge_search_var_thresh;
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
+#if CONFIG_EXT_INTER
   // Whether fast wedge sign estimate is used
   int fast_wedge_sign_estimate;
 #endif  // CONFIG_EXT_INTER

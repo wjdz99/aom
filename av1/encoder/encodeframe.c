@@ -1869,10 +1869,17 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
           counts->comp_inter[av1_get_reference_mode_context(cm, xd)]
                             [has_second_ref(mbmi)]++;
 
+#if CONFIG_TRIPRED
+        if (cm->reference_mode != SINGLE_REFERENCE && has_second_ref(mbmi) &&
+            is_interinter_wedge_used(bsize))
+          counts->compound_interinter[bsize][mbmi->interinter_compound]++;
+#endif  // CONFIG_TRIPRED
+
         if (has_second_ref(mbmi)) {
 #if CONFIG_EXT_REFS
-          const int bit = (ref0 == GOLDEN_FRAME || ref0 == LAST3_FRAME);
+          int bit;
 
+          bit = ref0 == GOLDEN_FRAME || ref0 == LAST3_FRAME;
           counts->comp_ref[av1_get_pred_context_comp_ref_p(cm, xd)][0][bit]++;
           if (!bit) {
             counts->comp_ref[av1_get_pred_context_comp_ref_p1(cm, xd)][1]
@@ -1884,7 +1891,37 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 
           counts->comp_bwdref[av1_get_pred_context_comp_bwdref_p(cm, xd)][0]
                              [ref1 == ALTREF_FRAME]++;
-#else
+
+#if CONFIG_TRIPRED
+          if (is_interinter_wedge_used(bsize) &&
+              mbmi->interinter_compound == COMPOUND_TRIPRED) {
+            // Update the single ref stats due to the use of the third reference
+            const MV_REFERENCE_FRAME ref_third = mbmi->ref_frame_third;
+
+            assert(is_interinter_tripred_used(mbmi));
+
+            bit = ref_third == ALTREF_FRAME || ref_third == BWDREF_FRAME;
+            counts->single_ref[av1_get_pred_context_single_ref_p1(xd)][0]
+                              [bit]++;
+            if (bit) {
+              counts->single_ref[av1_get_pred_context_single_ref_p2(xd)][1]
+                                [ref_third != BWDREF_FRAME]++;
+            } else {
+              const int bit1 =
+                  !(ref_third == LAST2_FRAME || ref_third == LAST_FRAME);
+              counts->single_ref[av1_get_pred_context_single_ref_p3(xd)][2]
+                                [bit1]++;
+              if (!bit1) {
+                counts->single_ref[av1_get_pred_context_single_ref_p4(xd)][3]
+                                  [ref_third != LAST_FRAME]++;
+              } else {
+                counts->single_ref[av1_get_pred_context_single_ref_p5(xd)][4]
+                                  [ref_third != LAST3_FRAME]++;
+              }
+            }
+          }
+#endif  // CONFIG_TRIPRED
+#else   // CONFIG_EXT_REFS
           counts->comp_ref[av1_get_pred_context_comp_ref_p(cm, xd)][0]
                           [ref0 == GOLDEN_FRAME]++;
 #endif  // CONFIG_EXT_REFS
@@ -5343,6 +5380,22 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
                            &xd->block_refs[ref]->sf);
     }
+
+#if CONFIG_TRIPRED
+    if (is_compound && is_interinter_wedge_used(bsize) &&
+        is_interinter_tripred_used(mbmi) &&
+        mbmi->interinter_compound == COMPOUND_TRIPRED) {
+      set_third_ref_ptr(cm, xd, mbmi->ref_frame_third);
+      {
+        YV12_BUFFER_CONFIG *cfg =
+            get_ref_frame_buffer(cpi, mbmi->ref_frame_third);
+        assert(cfg != NULL);
+        av1_setup_pre_third_planes(xd, cfg, mi_row, mi_col,
+                                   &xd->block_ref_third->sf);
+      }
+    }
+#endif  // CONFIG_TRIPRED
+
     if (!(cpi->sf.reuse_inter_pred_sby && ctx->pred_pixel_ready) || seg_skip)
       av1_build_inter_predictors_sby(xd, mi_row, mi_col,
                                      AOMMAX(bsize, BLOCK_8X8));

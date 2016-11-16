@@ -309,7 +309,7 @@ highbd_sadMxNx4D(4, 4)
 /* clang-format on */
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
-#if CONFIG_AV1 && CONFIG_EXT_INTER
+#if CONFIG_AV1 && (CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED))
             static INLINE
     unsigned int masked_sad(const uint8_t *a, int a_stride, const uint8_t *b,
                             int b_stride, const uint8_t *m, int m_stride,
@@ -408,7 +408,8 @@ HIGHBD_MASKSADMXN(8, 4)
 HIGHBD_MASKSADMXN(4, 8)
 HIGHBD_MASKSADMXN(4, 4)
 #endif  // CONFIG_AOM_HIGHBITDEPTH
-#endif  // CONFIG_AV1 && CONFIG_EXT_INTER
+#endif  // CONFIG_AV1 && (CONFIG_EXT_INTER || (CONFIG_EXT_REFS &&
+        // CONFIG_TRIPRED))
 
 #if CONFIG_AV1 && CONFIG_MOTION_VAR
 // pre: predictor being evaluated

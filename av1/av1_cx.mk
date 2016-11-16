@@ -147,7 +147,13 @@ endif
 ifeq ($(CONFIG_EXT_INTER),yes)
 AV1_CX_SRCS-yes += encoder/wedge_utils.c
 AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/wedge_utils_sse2.c
-endif
+endif  # CONFIG_EXT_INTER
+ifeq ($(CONFIG_EXT_REFS),yes)
+ifeq ($(CONFIG_TRIPRED),yes)
+AV1_CX_SRCS-yes += encoder/wedge_utils.c
+AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/wedge_utils_sse2.c
+endif  # CONFIG_TRIPRED
+endif  # CONFIG_EXT_REFS
 
 AV1_CX_SRCS-$(HAVE_AVX2) += encoder/x86/error_intrin_avx2.c
 
