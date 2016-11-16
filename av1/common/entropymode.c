@@ -1767,6 +1767,8 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
   av1_tree_to_cdf_2D(av1_intra_mode_tree, av1_kf_y_mode_prob, av1_kf_y_mode_cdf,
                      INTRA_MODES, INTRA_MODES);
+#endif
+#if CONFIG_EC_MULTISYMBOL
   av1_tree_to_cdf(av1_segment_tree, fc->seg.tree_probs, fc->seg.tree_cdf);
 #endif
 #if CONFIG_DELTA_Q
@@ -1774,7 +1776,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
 }
 
-#if CONFIG_DAALA_EC
+#if CONFIG_EC_MULTISYMBOL
 int av1_switchable_interp_ind[SWITCHABLE_FILTERS];
 int av1_switchable_interp_inv[SWITCHABLE_FILTERS];
 
@@ -1785,7 +1787,7 @@ void av1_set_mode_cdfs(struct AV1Common *cm) {
     av1_tree_to_cdf(av1_segment_tree, cm->fc->seg.tree_probs,
                     cm->fc->seg.tree_cdf);
   }
-
+#if CONFIG_DAALA_EC
   for (i = 0; i < INTRA_MODES; ++i)
     av1_tree_to_cdf(av1_intra_mode_tree, fc->uv_mode_prob[i],
                     fc->uv_mode_cdf[i]);
@@ -1819,6 +1821,7 @@ void av1_set_mode_cdfs(struct AV1Common *cm) {
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i)
     av1_tree_to_cdf(av1_ext_tx_tree, fc->inter_ext_tx_prob[i],
                     fc->inter_ext_tx_cdf[i]);
+#endif
 #endif
 }
 #endif
