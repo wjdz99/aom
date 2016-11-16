@@ -103,9 +103,10 @@ TEST(AV1ConvolveTest, av1_convolve) {
   int subpel_x_q4;
   int subpel_y_q4;
 
+  ASSERT_LE(filter_size, 12);
   setup_convolve();
 
-  for (int i = 0; i < filter_size * filter_size; i++) {
+  for (int i = 0; i < 12 * 12; i++) {
     src[i] = rnd.Rand16() % (1 << 8);
   }
 
