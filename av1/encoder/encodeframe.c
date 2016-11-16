@@ -1958,6 +1958,14 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
           counts->compound_interinter[bsize][mbmi->interinter_compound]++;
         }
 #endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+        if (cm->reference_mode != SINGLE_REFERENCE &&
+            has_second_ref(mbmi) && is_interinter_wedge_used(bsize) &&
+            is_interinter_tripred_used(xd)) {
+          counts->compound_interinter[bsize][mbmi->interinter_compound]++;
+        }
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
       }
     }
 
