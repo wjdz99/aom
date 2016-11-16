@@ -141,7 +141,8 @@ static INLINE void highbd_inter_predictor(const uint8_t *src, int src_stride,
 }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+
 // Set to one to use larger codebooks
 #define USE_LARGE_WEDGE_CODEBOOK 0
 
@@ -203,6 +204,9 @@ static INLINE int get_interinter_wedge_bits(BLOCK_SIZE sb_type) {
   return (wbits > 0) ? wbits + 1 : 0;
 }
 
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+
+#if CONFIG_EXT_INTER
 static INLINE int is_interintra_wedge_used(BLOCK_SIZE sb_type) {
   (void)sb_type;
   return wedge_params_lookup[sb_type].bits > 0;
@@ -212,6 +216,18 @@ static INLINE int get_interintra_wedge_bits(BLOCK_SIZE sb_type) {
   return wedge_params_lookup[sb_type].bits;
 }
 #endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+static INLINE int is_interinter_tripred_used(const MACROBLOCKD *const xd) {
+  const MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+
+  // TODO(zoeliu): To further write a function to identify the most recent
+  // forward predictive reference and the most recent backward predictive
+  // reference.
+  return (has_second_ref(mbmi) && mbmi->ref_frame[0] == LAST_FRAME &&
+          mbmi->ref_frame[1] == BWDREF_FRAME);
+}
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
 
 void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #if CONFIG_MOTION_VAR
@@ -506,7 +522,7 @@ void av1_build_obmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                         int mi_row, int mi_col);
 #endif  // CONFIG_MOTION_VAR
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #define MASK_MASTER_SIZE (2 * MAX_SB_SIZE)
 #define MASK_MASTER_STRIDE (2 * MAX_SB_SIZE)
 
@@ -521,7 +537,9 @@ static INLINE const uint8_t *av1_get_contiguous_soft_mask(int wedge_index,
 const uint8_t *av1_get_soft_mask(int wedge_index, int wedge_sign,
                                  BLOCK_SIZE sb_type, int wedge_offset_x,
                                  int wedge_offset_y);
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
+#if CONFIG_EXT_INTER
 void av1_build_interintra_predictors(MACROBLOCKD *xd, uint8_t *ypred,
                                      uint8_t *upred, uint8_t *vpred,
                                      int ystride, int ustride, int vstride,
@@ -559,6 +577,22 @@ void av1_build_wedge_inter_predictor_from_buf(MACROBLOCKD *xd, BLOCK_SIZE bsize,
                                               uint8_t *ext_dst1[3],
                                               int ext_dst_stride1[3]);
 #endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+void av1_build_single_inter_predictor_for_planes_from_any_ref(
+    const AV1_COMMON *cm, const MACROBLOCKD *xd, BLOCK_SIZE bsize,
+    int plane_from, int plane_to, int mi_row, int mi_col,
+    MV_REFERENCE_FRAME ref_frame, int_mv frame_mv,
+    const struct buf_2d yv12_mb_per_ref[MAX_MB_PLANE], uint8_t *ext_dst[3],
+    int ext_dst_stride[3]);
+
+void av1_build_wedge_tripredictor_from_bufs(MACROBLOCKD *xd, BLOCK_SIZE bsize,
+                                            int plane_from, int plane_to,
+                                            uint8_t *ext_dst0[3],
+                                            int ext_dst_stride0[3],
+                                            uint8_t *ext_dst1[3],
+                                            int ext_dst_stride1[3]);
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
 
 #ifdef __cplusplus
 }  // extern "C"
