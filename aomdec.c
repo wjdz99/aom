@@ -976,6 +976,7 @@ fail:
   if (aom_codec_destroy(&decoder)) {
     fprintf(stderr, "Failed to destroy decoder: %s\n",
             aom_codec_error(&decoder));
+    free(buf);
     return EXIT_FAILURE;
   }
 
