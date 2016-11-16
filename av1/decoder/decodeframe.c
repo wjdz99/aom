@@ -4193,6 +4193,10 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
         }
       }
     }
+#endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_INTER || CONFIG_TRIPRED
+#if 1
     if (cm->reference_mode != SINGLE_REFERENCE) {
       for (i = 0; i < BLOCK_SIZES; i++) {
         if (is_interinter_wedge_used(i)) {
@@ -4202,7 +4206,8 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
         }
       }
     }
-#endif  // CONFIG_EXT_INTER
+#endif  // 0
+#endif  // CONFIG_EXT_INTER || CONFIG_TRIPRED
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     for (i = BLOCK_8X8; i < BLOCK_SIZES; ++i) {
@@ -4220,7 +4225,10 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 
     if (cm->reference_mode != SINGLE_REFERENCE)
       setup_compound_reference_mode(cm);
+
+#if 1
     read_frame_reference_mode_probs(cm, &r);
+#endif  // 0
 
 #if !CONFIG_EC_ADAPT
     for (j = 0; j < BLOCK_SIZE_GROUPS; j++) {
@@ -4547,10 +4555,14 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
       av1_adapt_coef_probs(cm);
       av1_adapt_intra_frame_probs(cm);
 
+#if 1
       if (!frame_is_intra_only(cm)) {
         av1_adapt_inter_frame_probs(cm);
+#if 0
         av1_adapt_mv_probs(cm, cm->allow_high_precision_mv);
+#endif  // 0
       }
+#endif  // 0
     } else {
       debug_check_frame_counts(cm);
     }
