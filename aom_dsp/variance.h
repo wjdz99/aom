@@ -54,7 +54,7 @@ typedef unsigned int (*aom_subp_avg_variance_fn_t)(
     const uint8_t *a, int a_stride, int xoffset, int yoffset, const uint8_t *b,
     int b_stride, unsigned int *sse, const uint8_t *second_pred);
 
-#if CONFIG_AV1 && CONFIG_EXT_INTER
+#if CONFIG_AV1 && (CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED))
 typedef unsigned int (*aom_masked_sad_fn_t)(const uint8_t *src, int src_stride,
                                             const uint8_t *ref, int ref_stride,
                                             const uint8_t *msk_ptr,
@@ -66,7 +66,8 @@ typedef unsigned int (*aom_masked_subpixvariance_fn_t)(
     const uint8_t *src, int src_stride, int xoffset, int yoffset,
     const uint8_t *ref, int ref_stride, const uint8_t *msk, int msk_stride,
     unsigned int *sse);
-#endif  // CONFIG_AV1 && CONFIG_EXT_INTER
+#endif  // CONFIG_AV1 && (CONFIG_EXT_INTER || (CONFIG_EXT_REFS &&
+        // CONFIG_TRIPRED))
 
 #if CONFIG_AV1 && CONFIG_MOTION_VAR
 typedef unsigned int (*aom_obmc_sad_fn_t)(const uint8_t *pred, int pred_stride,
@@ -92,11 +93,11 @@ typedef struct aom_variance_vtable {
   aom_sad_multi_fn_t sdx3f;
   aom_sad_multi_fn_t sdx8f;
   aom_sad_multi_d_fn_t sdx4df;
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
   aom_masked_sad_fn_t msdf;
   aom_masked_variance_fn_t mvf;
   aom_masked_subpixvariance_fn_t msvf;
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #if CONFIG_MOTION_VAR
   aom_obmc_sad_fn_t osdf;
   aom_obmc_variance_fn_t ovf;
