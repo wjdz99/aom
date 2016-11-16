@@ -1216,7 +1216,7 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
 #
 # Masked SAD
 #
-if (aom_config("CONFIG_EXT_INTER") eq "yes") {
+if ((aom_config("CONFIG_EXT_INTER") eq "yes") || ((aom_config("CONFIG_EXT_REFS") eq "yes") && (aom_config("CONFIG_TRIPRED") eq "yes"))) {
   foreach (@block_sizes) {
     ($w, $h) = @$_;
     add_proto qw/unsigned int/, "aom_masked_sad${w}x${h}", "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, const uint8_t *mask, int mask_stride";
@@ -1497,7 +1497,7 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
   }
 }  # CONFIG_AOM_HIGHBITDEPTH
 
-if (aom_config("CONFIG_EXT_INTER") eq "yes") {
+if ((aom_config("CONFIG_EXT_INTER") eq "yes") || ((aom_config("CONFIG_EXT_REFS") eq "yes") && (aom_config("CONFIG_TRIPRED") eq "yes"))) {
 #
 # Masked Variance / Masked Subpixel Variance
 #
