@@ -296,6 +296,7 @@ EXPERIMENT_LIST="
     simp_mv_pred
     rd_debug
     reference_buffer
+    tripred
 "
 CONFIG_LIST="
     dependency_tracking
@@ -466,6 +467,7 @@ post_process_cmdline() {
     enabled ec_multisymbol && ! enabled ans && soft_enable daala_ec
     enabled ec_multisymbol && ! enabled daala_ec && soft_enable ans
     enabled daala_ec && enable_feature ec_multisymbol
+    enabled tripred && enable_feature ext_refs
     if enabled global_motion && (enabled ext_inter || enabled dual_filter); then
       log_echo "global_motion currently not compatible with ext_inter"
       log_echo "and dual_filter. Disabling global_motion."

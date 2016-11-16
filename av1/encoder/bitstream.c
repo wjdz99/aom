@@ -111,8 +111,10 @@ static struct av1_token intra_filter_encodings[INTRA_FILTERS];
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_EXT_INTER
 static struct av1_token interintra_mode_encodings[INTERINTRA_MODES];
-static struct av1_token compound_type_encodings[COMPOUND_TYPES];
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_TRIPRED
+static struct av1_token compound_type_encodings[COMPOUND_TYPES];
+#endif  // CONFIG_EXT_INTER || CONFIG_TRIPRED
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 static struct av1_token motion_mode_encodings[MOTION_MODES];
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -156,8 +158,10 @@ void av1_encode_token_init(void) {
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_EXT_INTER
   av1_tokens_from_tree(interintra_mode_encodings, av1_interintra_mode_tree);
-  av1_tokens_from_tree(compound_type_encodings, av1_compound_type_tree);
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_TRIPRED
+  av1_tokens_from_tree(compound_type_encodings, av1_compound_type_tree);
+#endif  // CONFIG_EXT_INTER || CONFIG_TRIPRED
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   av1_tokens_from_tree(motion_mode_encodings, av1_motion_mode_tree);
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -891,6 +895,64 @@ static void write_segment_id(aom_writer *w, const struct segmentation *seg,
   }
 }
 
+static void write_comp_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                                  const MV_REFERENCE_FRAME ref_frame[2],
+                                  aom_writer *w) {
+#if CONFIG_EXT_REFS
+  const int bit = (ref_frame[0] == GOLDEN_FRAME || ref_frame[0] == LAST3_FRAME);
+  const int bit_bwd = ref_frame[1] == ALTREF_FRAME;
+#else   // CONFIG_EXT_REFS
+  const int bit = ref_frame[0] == GOLDEN_FRAME;
+#endif  // CONFIG_EXT_REFS
+
+  aom_write(w, bit, av1_get_pred_prob_comp_ref_p(cm, xd));
+
+#if CONFIG_EXT_REFS
+  if (!bit) {
+    const int bit1 = ref_frame[0] == LAST_FRAME;
+    aom_write(w, bit1, av1_get_pred_prob_comp_ref_p1(cm, xd));
+  } else {
+    const int bit2 = ref_frame[0] == GOLDEN_FRAME;
+    aom_write(w, bit2, av1_get_pred_prob_comp_ref_p2(cm, xd));
+  }
+
+  aom_write(w, bit_bwd, av1_get_pred_prob_comp_bwdref_p(cm, xd));
+#endif  // CONFIG_EXT_REFS
+}
+
+static void write_single_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                                    const MV_REFERENCE_FRAME ref_frame,
+                                    aom_writer *w) {
+#if CONFIG_EXT_REFS
+  const int bit0 = (ref_frame == ALTREF_FRAME || ref_frame == BWDREF_FRAME);
+  aom_write(w, bit0, av1_get_pred_prob_single_ref_p1(cm, xd));
+
+  if (bit0) {
+    const int bit1 = ref_frame == ALTREF_FRAME;
+    aom_write(w, bit1, av1_get_pred_prob_single_ref_p2(cm, xd));
+  } else {
+    const int bit2 = (ref_frame == LAST3_FRAME || ref_frame == GOLDEN_FRAME);
+    aom_write(w, bit2, av1_get_pred_prob_single_ref_p3(cm, xd));
+
+    if (!bit2) {
+      const int bit3 = ref_frame != LAST_FRAME;
+      aom_write(w, bit3, av1_get_pred_prob_single_ref_p4(cm, xd));
+    } else {
+      const int bit4 = ref_frame != LAST3_FRAME;
+      aom_write(w, bit4, av1_get_pred_prob_single_ref_p5(cm, xd));
+    }
+  }
+#else   // CONFIG_EXT_REFS
+  const int bit0 = ref_frame != LAST_FRAME;
+  aom_write(w, bit0, av1_get_pred_prob_single_ref_p1(cm, xd));
+
+  if (bit0) {
+    const int bit1 = ref_frame != GOLDEN_FRAME;
+    aom_write(w, bit1, av1_get_pred_prob_single_ref_p2(cm, xd));
+  }
+#endif  // CONFIG_EXT_REFS
+}
+
 // This function encodes the reference frame
 static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                              aom_writer *w) {
@@ -914,57 +976,31 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
 
     if (is_compound) {
-#if CONFIG_EXT_REFS
-      const int bit = (mbmi->ref_frame[0] == GOLDEN_FRAME ||
-                       mbmi->ref_frame[0] == LAST3_FRAME);
-      const int bit_bwd = mbmi->ref_frame[1] == ALTREF_FRAME;
-#else  // CONFIG_EXT_REFS
-      const int bit = mbmi->ref_frame[0] == GOLDEN_FRAME;
-#endif  // CONFIG_EXT_REFS
+#if CONFIG_TRIPRED
+      if (is_interinter_wedge_used(mbmi->sb_type))
+        av1_write_token(w, av1_compound_type_tree,
+                        cm->fc->compound_type_prob[mbmi->sb_type],
+                        &compound_type_encodings[mbmi->interinter_compound]);
 
-      aom_write(w, bit, av1_get_pred_prob_comp_ref_p(cm, xd));
+      if (is_interinter_wedge_used(mbmi->sb_type) &&
+          mbmi->interinter_compound == COMPOUND_TRIPRED) {
+        assert(is_interinter_tripred_used(mbmi));
 
-#if CONFIG_EXT_REFS
-      if (!bit) {
-        const int bit1 = mbmi->ref_frame[0] == LAST_FRAME;
-        aom_write(w, bit1, av1_get_pred_prob_comp_ref_p1(cm, xd));
+        // Write wedge index and sign
+        aom_write_literal(w, mbmi->interinter_tripred_wedge_index,
+                          get_wedge_bits_lookup(mbmi->sb_type));
+        aom_write_bit(w, mbmi->interinter_tripred_wedge_sign);
+
+        // Write the third reference
+        write_single_ref_frames(cm, xd, mbmi->ref_frame_third, w);
       } else {
-        const int bit2 = mbmi->ref_frame[0] == GOLDEN_FRAME;
-        aom_write(w, bit2, av1_get_pred_prob_comp_ref_p2(cm, xd));
+#endif  // CONFIG_TRIPRED
+        write_comp_ref_frames(cm, xd, mbmi->ref_frame, w);
+#if CONFIG_TRIPRED
       }
-      aom_write(w, bit_bwd, av1_get_pred_prob_comp_bwdref_p(cm, xd));
-#endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_TRIPRED
     } else {
-#if CONFIG_EXT_REFS
-      const int bit0 = (mbmi->ref_frame[0] == ALTREF_FRAME ||
-                        mbmi->ref_frame[0] == BWDREF_FRAME);
-      aom_write(w, bit0, av1_get_pred_prob_single_ref_p1(cm, xd));
-
-      if (bit0) {
-        const int bit1 = mbmi->ref_frame[0] == ALTREF_FRAME;
-        aom_write(w, bit1, av1_get_pred_prob_single_ref_p2(cm, xd));
-      } else {
-        const int bit2 = (mbmi->ref_frame[0] == LAST3_FRAME ||
-                          mbmi->ref_frame[0] == GOLDEN_FRAME);
-        aom_write(w, bit2, av1_get_pred_prob_single_ref_p3(cm, xd));
-
-        if (!bit2) {
-          const int bit3 = mbmi->ref_frame[0] != LAST_FRAME;
-          aom_write(w, bit3, av1_get_pred_prob_single_ref_p4(cm, xd));
-        } else {
-          const int bit4 = mbmi->ref_frame[0] != LAST3_FRAME;
-          aom_write(w, bit4, av1_get_pred_prob_single_ref_p5(cm, xd));
-        }
-      }
-#else   // CONFIG_EXT_REFS
-      const int bit0 = mbmi->ref_frame[0] != LAST_FRAME;
-      aom_write(w, bit0, av1_get_pred_prob_single_ref_p1(cm, xd));
-
-      if (bit0) {
-        const int bit1 = mbmi->ref_frame[0] != GOLDEN_FRAME;
-        aom_write(w, bit1, av1_get_pred_prob_single_ref_p2(cm, xd));
-      }
-#endif  // CONFIG_EXT_REFS
+      write_single_ref_frames(cm, xd, mbmi->ref_frame[0], w);
     }
   }
 }
@@ -1362,6 +1398,45 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #endif  // CONFIG_FILTER_INTRA
   } else {
     int16_t mode_ctx = mbmi_ext->mode_context[mbmi->ref_frame[0]];
+
+#if 0
+    // NOTE(zoeliu): For debug
+    if (cm->current_video_frame == FRAME_TO_CHECK &&
+        // m->mbmi.interinter_compound == COMPOUND_TRIPRED &&
+        cm->show_frame == 1) {
+      // For sub8x8, simply dump out the first sub8x8 block info
+      const PREDICTION_MODE b_mode =
+          (bsize < BLOCK_8X8) ? mi->bmi[0].as_mode : -1;
+      const int mv_x = (bsize < BLOCK_8X8) ? mi->bmi[0].as_mv[0].as_mv.row
+                                           : mbmi->mv[0].as_mv.row;
+      const int mv_y = (bsize < BLOCK_8X8) ? mi->bmi[0].as_mv[0].as_mv.col
+                                           : mbmi->mv[0].as_mv.col;
+
+      // static int first_compound_tripred = 0;
+      // if (mbmi->interinter_compound == COMPOUND_TRIPRED &&
+      //     !first_compound_tripred) {
+      printf(
+          "=== ENCODER ===: pack_inter_mode_mvs(): "
+          "Frame=%d, (mi_row,mi_col)=(%d,%d), "
+          "mode=%d, segment_id=%d, bsize=%d, b_mode=%d, "
+          "mv[0]=(%d, %d), ref[0]=%d, ref[1]=%d, "
+          "interinter_compound=%d, mv_3rd=(%d, %d), ref_3rd=%d, "
+          "is_last_bipred_frame=%d, is_bipred_frame=%d\n",
+          cm->current_video_frame, mi_row, mi_col, mode, segment_id, bsize,
+          b_mode, mv_x, mv_y, mbmi->ref_frame[0], mbmi->ref_frame[1],
+          mbmi->interinter_compound,
+          mbmi->interinter_compound == COMPOUND_TRIPRED ?
+          mbmi->mv_third.as_mv.row : 0,
+          mbmi->interinter_compound == COMPOUND_TRIPRED ?
+          mbmi->mv_third.as_mv.col : 0,
+          mbmi->interinter_compound == COMPOUND_TRIPRED ?
+          mbmi->ref_frame_third : 0,
+          cpi->rc.is_last_bipred_frame, cpi->rc.is_bipred_frame);
+      // first_compound_tripred = 1;
+      // }
+    }
+#endif  // 0
+
     write_ref_frames(cm, xd, w);
 
 #if CONFIG_REF_MV
@@ -1551,6 +1626,19 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
                       nmvc, allow_hp);
 #endif  // CONFIG_EXT_INTER
       }
+
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+      // TODO(zoeliu): Currently assume COMOUND_TRIPRED only applies to
+      //               non-sub8x8 blocks
+      if (is_compound && mbmi->interinter_compound == COMPOUND_TRIPRED) {
+        // TODO(zoeliu): To work with the following experiments:
+        //               1. CONFIG_EXT_INTER
+        //               2. CONFIG_REF_MV
+        int_mv ref_mv = mbmi_ext->ref_mvs[mbmi->ref_frame_third][0];
+        av1_encode_mv(cpi, w, &mbmi->mv_third.as_mv, &ref_mv.as_mv, nmvc,
+                      allow_hp);
+      }
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
     }
 
 #if CONFIG_EXT_INTER
@@ -1834,30 +1922,6 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
     // write_switchable_interp_filter, which is called by pack_inter_mode_mvs.
     set_ref_ptrs(cm, xd, m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
 #endif  // CONFIG_EXT_INTERP
-#if 0
-    // NOTE(zoeliu): For debug
-    if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
-      const PREDICTION_MODE mode = m->mbmi.mode;
-      const int segment_id = m->mbmi.segment_id;
-      const BLOCK_SIZE bsize = m->mbmi.sb_type;
-
-      // For sub8x8, simply dump out the first sub8x8 block info
-      const PREDICTION_MODE b_mode =
-          (bsize < BLOCK_8X8) ? m->bmi[0].as_mode : -1;
-      const int mv_x = (bsize < BLOCK_8X8) ?
-          m->bmi[0].as_mv[0].as_mv.row : m->mbmi.mv[0].as_mv.row;
-      const int mv_y = (bsize < BLOCK_8X8) ?
-          m->bmi[0].as_mv[0].as_mv.col : m->mbmi.mv[0].as_mv.col;
-
-      printf("Before pack_inter_mode_mvs(): "
-             "Frame=%d, (mi_row,mi_col)=(%d,%d), "
-             "mode=%d, segment_id=%d, bsize=%d, b_mode=%d, "
-             "mv[0]=(%d, %d), ref[0]=%d, ref[1]=%d\n",
-             cm->current_video_frame, mi_row, mi_col,
-             mode, segment_id, bsize, b_mode, mv_x, mv_y,
-             m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
-    }
-#endif  // 0
     pack_inter_mode_mvs(cpi, m,
 #if CONFIG_SUPERTX
                         supertx_enabled,
@@ -4121,6 +4185,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     }
 #endif
 #endif
+
 #if CONFIG_EXT_INTER
     update_inter_compound_mode_probs(cm, probwt, header_bc);
 
@@ -4142,6 +4207,9 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                                     cm->counts.wedge_interintra[i], probwt);
       }
     }
+#endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_INTER || CONFIG_TRIPRED
     if (cm->reference_mode != SINGLE_REFERENCE) {
       for (i = 0; i < BLOCK_SIZES; i++)
         if (is_interinter_wedge_used(i))
@@ -4149,13 +4217,14 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                            cm->counts.compound_interinter[i], COMPOUND_TYPES,
                            probwt, header_bc);
     }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_TRIPRED
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     for (i = BLOCK_8X8; i < BLOCK_SIZES; ++i)
       prob_diff_update(av1_motion_mode_tree, fc->motion_mode_prob[i],
                        counts->motion_mode[i], MOTION_MODES, probwt, header_bc);
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+
 #if !CONFIG_EC_ADAPT
     if (cm->interp_filter == SWITCHABLE)
       update_switchable_interp_probs(cm, header_bc, counts);
@@ -4165,6 +4234,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
       av1_cond_prob_diff_update(header_bc, &fc->intra_inter_prob[i],
                                 counts->intra_inter[i], probwt);
 
+#if 1
     if (cpi->allow_comp_inter_inter) {
       const int use_hybrid_pred = cm->reference_mode == REFERENCE_MODE_SELECT;
       if (use_hybrid_pred)
@@ -4200,6 +4270,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #endif  // CONFIG_EXT_REFS
       }
     }
+#endif  // 0
 
 #if !CONFIG_EC_ADAPT
     for (i = 0; i < BLOCK_SIZE_GROUPS; ++i) {
