@@ -119,7 +119,7 @@ int av1_full_pixel_search(const struct AV1_COMP *cpi, MACROBLOCK *x,
                           int error_per_bit, int *cost_list, const MV *ref_mv,
                           int var_max, int rd);
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 int av1_find_best_masked_sub_pixel_tree(
     const MACROBLOCK *x, const uint8_t *mask, int mask_stride, MV *bestmv,
     const MV *ref_mv, int allow_hp, int error_per_bit,
@@ -138,7 +138,7 @@ int av1_masked_full_pixel_diamond(const struct AV1_COMP *cpi, MACROBLOCK *x,
                                   int further_steps, int do_refine,
                                   const aom_variance_fn_ptr_t *fn_ptr,
                                   const MV *ref_mv, MV *dst_mv, int is_second);
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 #if CONFIG_MOTION_VAR
 int av1_obmc_full_pixel_diamond(const struct AV1_COMP *cpi, MACROBLOCK *x,
