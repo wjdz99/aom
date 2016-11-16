@@ -213,6 +213,18 @@ static INLINE int get_interintra_wedge_bits(BLOCK_SIZE sb_type) {
 }
 #endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+static INLINE int is_interinter_tripred_used(MACROBLOCKD *xd) {
+  const MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+
+  // TODO(zoeliu): To further write a function to identify the most recent
+  // forward predictive reference and the most recent backward predictive
+  // reference.
+  return (has_second_ref(mbmi) && mbmi->ref_frame[0] == LAST_FRAME &&
+          mbmi->ref_frame[1] == BWDREF_FRAME);
+}
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
+
 void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #if CONFIG_MOTION_VAR
                             int mi_col_offset, int mi_row_offset,
@@ -559,6 +571,15 @@ void av1_build_wedge_inter_predictor_from_buf(MACROBLOCKD *xd, BLOCK_SIZE bsize,
                                               uint8_t *ext_dst1[3],
                                               int ext_dst_stride1[3]);
 #endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_REFS && CONFIG_TRIPRED
+void av1_build_inter_predictors_for_planes_single_buf_from_any_ref(
+    const AV1_COMMON *cm, MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane_from,
+    int plane_to, int mi_row, int mi_col, MV_REFERENCE_FRAME ref_frame,
+    int_mv ref_frame_mv,
+    struct buf_2d yv12_mb[TOTAL_REFS_PER_FRAME][MAX_MB_PLANE],
+    uint8_t *ext_dst[3], int ext_dst_stride[3]);
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
 
 #ifdef __cplusplus
 }  // extern "C"
