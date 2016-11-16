@@ -291,18 +291,6 @@ static const aom_prob default_inter_compound_mode_probs
       { 25, 29, 50, 192, 64, 192, 128, 180, 180 },   // 6 = two intra neighbours
     };
 
-static const aom_prob default_compound_type_probs[BLOCK_SIZES]
-                                                 [COMPOUND_TYPES - 1] = {
-                                                   { 208 }, { 208 }, { 208 },
-                                                   { 208 }, { 208 }, { 208 },
-                                                   { 216 }, { 216 }, { 216 },
-                                                   { 224 }, { 224 }, { 240 },
-                                                   { 240 },
-#if CONFIG_EXT_PARTITION
-                                                   { 255 }, { 255 }, { 255 },
-#endif  // CONFIG_EXT_PARTITION
-                                                 };
-
 static const aom_prob default_interintra_prob[BLOCK_SIZE_GROUPS] = {
   208, 208, 208, 208,
 };
@@ -322,6 +310,20 @@ static const aom_prob default_wedge_interintra_prob[BLOCK_SIZES] = {
 #endif  // CONFIG_EXT_PARTITION
 };
 #endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+static const aom_prob default_compound_type_probs[BLOCK_SIZES]
+                                                 [COMPOUND_TYPES - 1] = {
+                                                   { 208 }, { 208 }, { 208 },
+                                                   { 208 }, { 208 }, { 208 },
+                                                   { 216 }, { 216 }, { 216 },
+                                                   { 224 }, { 224 }, { 240 },
+                                                   { 240 },
+#if CONFIG_EXT_PARTITION
+                                                   { 255 }, { 255 }, { 255 },
+#endif  // CONFIG_EXT_PARTITION
+                                                 };
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 // Change this section appropriately once warped motion is supported
 #if CONFIG_MOTION_VAR && !CONFIG_WARPED_MOTION
@@ -434,11 +436,16 @@ const aom_tree_index av1_inter_compound_mode_tree
   -INTER_COMPOUND_OFFSET(NEAR_NEWMV), -INTER_COMPOUND_OFFSET(NEW_NEARMV)
 };
 
+/* clang-format on */
+#endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+/* clang-format off */
 const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)] = {
   -COMPOUND_AVERAGE, -COMPOUND_WEDGE
 };
 /* clang-format on */
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 const aom_tree_index av1_partition_tree[TREE_SIZE(PARTITION_TYPES)] = {
   -PARTITION_NONE, 2, -PARTITION_HORZ, 4, -PARTITION_VERT, -PARTITION_SPLIT
@@ -1479,11 +1486,13 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_EXT_INTER
   av1_copy(fc->inter_compound_mode_probs, default_inter_compound_mode_probs);
-  av1_copy(fc->compound_type_prob, default_compound_type_probs);
   av1_copy(fc->interintra_prob, default_interintra_prob);
   av1_copy(fc->interintra_mode_prob, default_interintra_mode_prob);
   av1_copy(fc->wedge_interintra_prob, default_wedge_interintra_prob);
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+  av1_copy(fc->compound_type_prob, default_compound_type_probs);
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #if CONFIG_SUPERTX
   av1_copy(fc->supertx_prob, default_supertx_prob);
 #endif  // CONFIG_SUPERTX
@@ -1685,14 +1694,16 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
       fc->wedge_interintra_prob[i] = av1_mode_mv_merge_probs(
           pre_fc->wedge_interintra_prob[i], counts->wedge_interintra[i]);
   }
+#endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
   for (i = 0; i < BLOCK_SIZES; ++i) {
     if (is_interinter_wedge_used(i))
       aom_tree_merge_probs(
           av1_compound_type_tree, pre_fc->compound_type_prob[i],
           counts->compound_interinter[i], fc->compound_type_prob[i]);
   }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 #if CONFIG_VAR_TX && CONFIG_EXT_TX && CONFIG_RECT_TX
   if (cm->tx_mode == TX_MODE_SELECT) {

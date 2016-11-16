@@ -401,7 +401,7 @@ void av1_initialize_enc(void) {
     av1_rc_init_minq_luts();
     av1_entropy_mv_init();
     av1_encode_token_init();
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
     av1_init_wedge_masks();
 #endif
     init_done = 1;
