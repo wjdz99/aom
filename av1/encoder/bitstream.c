@@ -1606,11 +1606,12 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
         is_interinter_wedge_used(bsize)) {
       av1_write_token(w, av1_compound_type_tree,
                       cm->fc->compound_type_prob[bsize],
-                      &compound_type_encodings[mbmi->interinter_compound]);
-      if (mbmi->interinter_compound == COMPOUND_WEDGE) {
-        aom_write_literal(w, mbmi->interinter_wedge_index,
+                      &compound_type_encodings[mbmi->interinter_compound_data
+                                               .type]);
+      if (mbmi->interinter_compound_data.type == COMPOUND_WEDGE) {
+        aom_write_literal(w, mbmi->interinter_compound_data.wedge_index,
                           get_wedge_bits_lookup(bsize));
-        aom_write_bit(w, mbmi->interinter_wedge_sign);
+        aom_write_bit(w, mbmi->interinter_compound_data.wedge_sign);
       }
     }
 #endif  // CONFIG_EXT_INTER
