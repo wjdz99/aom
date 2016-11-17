@@ -22,6 +22,30 @@
       "revId": "9759b774224b7bd826b936bcb2fc9f35e9cf7159",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30b088be_8adae405",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4794,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-17T16:24:19Z",
+      "side": 1,
+      "message": "When we search say rotzoom, in the process of the search we do generate model offsets that are not really rotzom but actually affine but because wm-\u003ewmtype says rotzoom, we actually do a correct rotzoom search. However at the end of the search we want the model to be really a rotzoom one. The final force_ call simply enforces that. The best_error remains correct.\nThe last call: wm-\u003ewmtype \u003d get_gmtype(wm)\ncan further step the model down, but best_error is still unchanged.",
+      "parentUuid": "30b088be_14a05d72",
+      "range": {
+        "startLine": 4794,
+        "startChar": 9,
+        "endLine": 4794,
+        "endChar": 19
+      },
+      "revId": "9759b774224b7bd826b936bcb2fc9f35e9cf7159",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
