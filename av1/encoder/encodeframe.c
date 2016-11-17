@@ -1975,8 +1975,9 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
             !(is_motion_variation_allowed(mbmi) &&
               mbmi->motion_mode != SIMPLE_TRANSLATION) &&
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-            is_interinter_wedge_used(bsize)) {
-          counts->compound_interinter[bsize][mbmi->interinter_compound]++;
+            ) {
+          counts->compound_interinter[bsize]
+                                     [mbmi->interinter_compound_data.type]++;
         }
 #endif  // CONFIG_EXT_INTER
       }
