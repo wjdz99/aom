@@ -1583,19 +1583,19 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 
 #if CONFIG_EXT_INTER
     if (cpi->common.reference_mode != SINGLE_REFERENCE &&
-        is_inter_compound_mode(mbmi->mode) &&
+        is_inter_compound_mode(mbmi->mode)
 #if CONFIG_MOTION_VAR
-        !(is_motion_variation_allowed(mbmi) &&
-          mbmi->motion_mode != SIMPLE_TRANSLATION) &&
+        && !(is_motion_variation_allowed(mbmi) &&
+          mbmi->motion_mode != SIMPLE_TRANSLATION)
 #endif  // CONFIG_MOTION_VAR
-        is_interinter_wedge_used(bsize)) {
-      av1_write_token(w, av1_compound_type_tree,
-                      cm->fc->compound_type_prob[bsize],
-                      &compound_type_encodings[mbmi->interinter_compound]);
-      if (mbmi->interinter_compound == COMPOUND_WEDGE) {
-        aom_write_literal(w, mbmi->interinter_wedge_index,
+        ) {
+      av1_write_token(
+          w, av1_compound_type_tree, cm->fc->compound_type_prob[bsize],
+          &compound_type_encodings[mbmi->interinter_compound_data.type]);
+      if (mbmi->interinter_compound_data.type == COMPOUND_WEDGE) {
+        aom_write_literal(w, mbmi->interinter_compound_data.wedge_index,
                           get_wedge_bits_lookup(bsize));
-        aom_write_bit(w, mbmi->interinter_wedge_sign);
+        aom_write_bit(w, mbmi->interinter_compound_data.wedge_sign);
       }
     }
 #endif  // CONFIG_EXT_INTER
@@ -4209,10 +4209,9 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     }
     if (cm->reference_mode != SINGLE_REFERENCE) {
       for (i = 0; i < BLOCK_SIZES; i++)
-        if (is_interinter_wedge_used(i))
-          prob_diff_update(av1_compound_type_tree, fc->compound_type_prob[i],
-                           cm->counts.compound_interinter[i], COMPOUND_TYPES,
-                           probwt, header_bc);
+        prob_diff_update(av1_compound_type_tree, fc->compound_type_prob[i],
+                         cm->counts.compound_interinter[i], COMPOUND_TYPES,
+                         probwt, header_bc);
     }
 #endif  // CONFIG_EXT_INTER
 
