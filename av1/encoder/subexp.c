@@ -15,6 +15,8 @@
 #include "av1/encoder/cost.h"
 #include "av1/encoder/subexp.h"
 
+#define av1_cost_upd256 ((int)(av1_cost_one(upd) - av1_cost_zero(upd)))
+
 static const uint8_t update_bits[255] = {
   5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  6,  6,  6,
   6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  8,  8,  8,  8,  8,  8,
