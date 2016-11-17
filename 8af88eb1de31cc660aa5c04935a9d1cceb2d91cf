@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30b088be_b9514753",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-17T00:21:03Z",
+      "side": 1,
+      "message": "DISABLED_",
+      "range": {
+        "startLine": 7,
+        "startChar": 15,
+        "endLine": 7,
+        "endChar": 23
+      },
+      "revId": "8af88eb1de31cc660aa5c04935a9d1cceb2d91cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30b088be_99d00b5c",
+        "filename": "test/dct16x16_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 935,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-17T00:21:03Z",
+      "side": 1,
+      "message": "you could file a bug and mark it available for this to capture the failure detail",
+      "revId": "8af88eb1de31cc660aa5c04935a9d1cceb2d91cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
