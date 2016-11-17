@@ -19,25 +19,6 @@
 
 static const char *IVF_SIGNATURE = "DKIF";
 
-static void fix_framerate(int *num, int *den) {
-  // Some versions of aomenc used 1/(2*fps) for the timebase, so
-  // we can guess the framerate using only the timebase in this
-  // case. Other files would require reading ahead to guess the
-  // timebase, like we do for webm.
-  if (*den > 0 && *den < 1000000000 && *num > 0 && *num < 1000) {
-    // Correct for the factor of 2 applied to the timebase in the encoder.
-    if (*num & 1)
-      *den *= 2;
-    else
-      *num /= 2;
-  } else {
-    // Don't know FPS for sure, and don't have readahead code
-    // (yet?), so just default to 30fps.
-    *num = 30;
-    *den = 1;
-  }
-}
-
 int file_is_ivf(struct AvxInputContext *input_ctx) {
   char raw_hdr[32];
   int is_ivf = 0;
@@ -57,8 +38,6 @@ int file_is_ivf(struct AvxInputContext *input_ctx) {
       input_ctx->height = mem_get_le16(raw_hdr + 14);
       input_ctx->framerate.numerator = mem_get_le32(raw_hdr + 16);
       input_ctx->framerate.denominator = mem_get_le32(raw_hdr + 20);
-      fix_framerate(&input_ctx->framerate.numerator,
-                    &input_ctx->framerate.denominator);
     }
   }
 
