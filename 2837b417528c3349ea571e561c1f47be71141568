@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30ca486f_f04fc07f",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-17T22:33:36Z",
+      "side": 1,
+      "message": "When mi_row \u003d\u003d 8, mi_col \u003d\u003d 8, and bs \u003d\u003d 8, this expression gives no top-right. Because this function mainly judges the situation within an SB (is_inside() works on outside) we probably need to mask mi_row and mi_col and use only the lowest 3 bits, if SB size is 64x64.",
+      "revId": "2837b417528c3349ea571e561c1f47be71141568",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
