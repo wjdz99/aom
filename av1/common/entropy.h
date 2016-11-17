@@ -152,9 +152,14 @@ void av1_partial_adapt_probs(struct AV1Common *cm, int mi_row, int mi_col);
 // This is the index in the scan order beyond which all coefficients for
 // 8x8 transform and above are in the top band.
 // This macro is currently unused but may be used by certain implementations
+#if CONFIG_TX64X64
+#define MAXBAND_INDEX 28
+#else
 #define MAXBAND_INDEX 21
+#endif  // CONFIG_TX64X64
 
-DECLARE_ALIGNED(16, extern const uint8_t, av1_coefband_trans_8x8plus[1024]);
+DECLARE_ALIGNED(16, extern const uint8_t,
+                av1_coefband_trans_8x8plus[MAX_TX_SQUARE]);
 #if CONFIG_EXT_TX
 DECLARE_ALIGNED(16, extern const uint8_t, av1_coefband_trans_4x8_8x4[32]);
 #endif  // CONFIG_EXT_TX
