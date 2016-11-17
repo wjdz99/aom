@@ -1413,22 +1413,19 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       aom_internal_error(xd->error_info, AOM_CODEC_UNSUP_BITSTREAM,
                          "Reference frame has invalid dimensions");
     av1_setup_pre_planes(xd, ref, ref_buf->buf, mi_row, mi_col, &ref_buf->sf);
-  }
-
-  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
-    av1_find_mv_refs(cm, xd, mi, ref_frame,
+    av1_find_mv_refs(cm, xd, mi, frame,
 #if CONFIG_REF_MV
-                     &xd->ref_mv_count[ref_frame], xd->ref_mv_stack[ref_frame],
+                     &xd->ref_mv_count[frame], xd->ref_mv_stack[frame],
 #if CONFIG_EXT_INTER
                      compound_inter_mode_ctx,
 #endif  // CONFIG_EXT_INTER
 #endif
-                     ref_mvs[ref_frame], mi_row, mi_col, fpm_sync, (void *)pbi,
+                     ref_mvs[frame], mi_row, mi_col, fpm_sync, (void *)pbi,
                      inter_mode_ctx);
   }
 
-#if CONFIG_REF_MV
-  for (; ref_frame < MODE_CTX_REF_FRAMES; ++ref_frame) {
+  if (is_compound) {
+    ref_frame = av1_ref_frame_type(mbmi->ref_frame);
     av1_find_mv_refs(cm, xd, mi, ref_frame, &xd->ref_mv_count[ref_frame],
                      xd->ref_mv_stack[ref_frame],
 #if CONFIG_EXT_INTER
@@ -1451,6 +1448,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
   }
 
+#if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
   if (is_compound)
     mode_ctx = compound_inter_mode_ctx[mbmi->ref_frame[0]];
