@@ -18,11 +18,7 @@
 extern "C" {
 #endif
 
-#if CONFIG_SIMP_MV_PRED
 #define MVREF_NEIGHBOURS 9
-#else
-#define MVREF_NEIGHBOURS 8
-#endif
 
 typedef struct position {
   int row;
@@ -100,158 +96,6 @@ static const int counter_to_context[19] = {
   BOTH_INTRA             // 18
 };
 
-#if !CONFIG_SIMP_MV_PRED
-static const POSITION mv_ref_blocks[BLOCK_SIZES][MVREF_NEIGHBOURS] = {
-  // 4X4
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, -1 },
-    { -2, 0 },
-    { 0, -2 },
-    { -2, -1 },
-    { -1, -2 },
-    { -2, -2 } },
-  // 4X8
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, -1 },
-    { -2, 0 },
-    { 0, -2 },
-    { -2, -1 },
-    { -1, -2 },
-    { -2, -2 } },
-  // 8X4
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, -1 },
-    { -2, 0 },
-    { 0, -2 },
-    { -2, -1 },
-    { -1, -2 },
-    { -2, -2 } },
-  // 8X8
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, -1 },
-    { -2, 0 },
-    { 0, -2 },
-    { -2, -1 },
-    { -1, -2 },
-    { -2, -2 } },
-  // 8X16
-  { { 0, -1 },
-    { -1, 0 },
-    { 1, -1 },
-    { -1, -1 },
-    { 0, -2 },
-    { -2, 0 },
-    { -2, -1 },
-    { -1, -2 } },
-  // 16X8
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, 1 },
-    { -1, -1 },
-    { -2, 0 },
-    { 0, -2 },
-    { -1, -2 },
-    { -2, -1 } },
-  // 16X16
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, 1 },
-    { 1, -1 },
-    { -1, -1 },
-    { -3, 0 },
-    { 0, -3 },
-    { -3, -3 } },
-  // 16X32
-  { { 0, -1 },
-    { -1, 0 },
-    { 2, -1 },
-    { -1, -1 },
-    { -1, 1 },
-    { 0, -3 },
-    { -3, 0 },
-    { -3, -3 } },
-  // 32X16
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, 2 },
-    { -1, -1 },
-    { 1, -1 },
-    { -3, 0 },
-    { 0, -3 },
-    { -3, -3 } },
-  // 32X32
-  { { -1, 1 },
-    { 1, -1 },
-    { -1, 2 },
-    { 2, -1 },
-    { -1, -1 },
-    { -3, 0 },
-    { 0, -3 },
-    { -3, -3 } },
-  // 32X64
-  { { 0, -1 },
-    { -1, 0 },
-    { 4, -1 },
-    { -1, 2 },
-    { -1, -1 },
-    { 0, -3 },
-    { -3, 0 },
-    { 2, -1 } },
-  // 64X32
-  { { -1, 0 },
-    { 0, -1 },
-    { -1, 4 },
-    { 2, -1 },
-    { -1, -1 },
-    { -3, 0 },
-    { 0, -3 },
-    { -1, 2 } },
-  // 64X64
-  { { -1, 3 },
-    { 3, -1 },
-    { -1, 4 },
-    { 4, -1 },
-    { -1, -1 },
-    { -1, 0 },
-    { 0, -1 },
-    { -1, 6 } },
-#if CONFIG_EXT_PARTITION
-  // TODO(debargha/jingning) Making them twice the 32x64, .. ones above
-  // 64x128
-  { { 0, -2 },
-    { -2, 0 },
-    { 8, -2 },
-    { -2, 4 },
-    { -2, -2 },
-    { 0, -6 },
-    { -6, 0 },
-    { 4, -2 } },
-  // 128x64
-  { { -2, 0 },
-    { 0, -2 },
-    { -2, 8 },
-    { 4, -2 },
-    { -2, -2 },
-    { -6, 0 },
-    { 0, -6 },
-    { -2, 4 } },
-  // 128x128
-  { { -2, 6 },
-    { 6, -2 },
-    { -2, 8 },
-    { 8, -2 },
-    { -2, -2 },
-    { -2, 0 },
-    { 0, -2 },
-    { -2, 12 } },
-#endif  // CONFIG_EXT_PARTITION
-};
-#endif
-
 static const int idx_n_column_to_subblock[4][2] = {
   { 1, 2 }, { 1, 3 }, { 3, 2 }, { 3, 3 }
 };
@@ -274,15 +118,9 @@ static INLINE void clamp_mv_ref(MV *mv, int bw, int bh, const MACROBLOCKD *xd) {
 // on whether the block_size < 8x8 and we have check_sub_blocks set.
 static INLINE int_mv get_sub_block_mv(const MODE_INFO *candidate, int which_mv,
                                       int search_col, int block_idx) {
-#if CONFIG_SIMP_MV_PRED
+  (void)search_col;
+  (void)block_idx;
   return candidate->mbmi.mv[which_mv];
-#else
-  return block_idx >= 0 && candidate->mbmi.sb_type < BLOCK_8X8
-             ? candidate
-                   ->bmi[idx_n_column_to_subblock[block_idx][search_col == 0]]
-                   .as_mv[which_mv]
-             : candidate->mbmi.mv[which_mv];
-#endif
 }
 
 #if CONFIG_REF_MV
