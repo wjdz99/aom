@@ -200,6 +200,8 @@ typedef aom_cdf_prob coeff_cdf_model[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
                                     [ENTROPY_TOKENS];
 extern const aom_cdf_prob av1_pareto8_token_probs[COEFF_PROB_MODELS]
                                                  [ENTROPY_TOKENS - 2];
+extern const aom_cdf_prob av1_pareto8_tail_cdfs[COEFF_PROB_MODELS]
+                                               [ENTROPY_TOKENS - 3];
 struct frame_contexts;
 void av1_coef_pareto_cdfs(struct frame_contexts *fc);
 #endif  // CONFIG_EC_MULTISYMBOL
