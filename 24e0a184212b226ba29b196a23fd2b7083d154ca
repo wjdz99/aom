@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "700680a0_3e1cd62c",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-21T18:55:50Z",
+      "side": 1,
+      "message": "Can we make the top and left scans symmetric? According to the old REF_MV experiment, we currently have 4 top rows and 4 left columns implemented in hardware, and use the same bus to transfer the neighbor MV data. For performance purpose, the bus width and SRAM word size need to accommodate for the worst case, and thus 3 top rows and 4 left columns does not help save the bus width or SRAM bits for our hardware design.",
+      "revId": "24e0a184212b226ba29b196a23fd2b7083d154ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b010f8cf_db270cdf",
         "filename": "av1/common/mvref_common.h",
         "patchSetId": 1
