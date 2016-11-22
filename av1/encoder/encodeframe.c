@@ -2282,7 +2282,8 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
         update_partition_context(xd, mi_row, mi_col, subsize, bsize);
 #endif
 #if CONFIG_VAR_TX
-      set_txfm_ctxs(supertx_size, mi_width, mi_height, xd);
+      set_txfm_ctxs(supertx_size, mi_width, mi_height,
+                    xd->mi[0]->mbmi.skip, xd);
 #endif  // CONFIG_VAR_TX
       return;
     } else {
@@ -5467,7 +5468,8 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       !(mbmi->skip || seg_skip)) {
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
     if (is_rect_tx(mbmi->tx_size)) {
-      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, xd);
+      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h,
+                    (mbmi->skip || seg_skip), xd);
     } else {
       if (dry_run) tx_partition_set_contexts(cm, xd, bsize, mi_row, mi_col);
     }
