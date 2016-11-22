@@ -4640,7 +4640,7 @@ static int input_fpmb_stats(FIRSTPASS_MB_STATS *firstpass_mb_stats,
 #define MIN_TRANS_THRESH (1 * GM_TRANS_DECODE_FACTOR)
 
 // Border over which to compute the global motion
-#define ERRORADV_BORDER 0
+#define ERRORADV_BORDER 16
 
 static const double gm_advantage_thresh[TRANS_TYPES] = {
   1.00,  // Identity (not used)
@@ -4762,12 +4762,13 @@ static double refine_integerized_param(WarpedMotionParams *wm,
                                  dst + border * d_stride + border, border,
                                  border, d_width - 2 * border,
                                  d_height - 2 * border, d_stride, 0, 0, 16, 16);
-  for (p = 0; p < n_params; ++p) {
-    param = param_mat + p;
-    step = 1 << (n_refinements + 1);
-    curr_param = *param;
-    best_param = curr_param;
-    for (i = 0; i < n_refinements; i++) {
+  step = 1 << (n_refinements + 1);
+  for (i = 0; i < n_refinements; i++, step >>= 1) {
+    for (p = 0; p < n_params; ++p) {
+      int step_dir = 0;
+      param = param_mat + p;
+      curr_param = *param;
+      best_param = curr_param;
       // look to the left
       *param = add_param_offset(p, curr_param, -step);
       step_error = av1_warp_erroradv(
@@ -4779,11 +4780,9 @@ static double refine_integerized_param(WarpedMotionParams *wm,
           border, border, d_width - 2 * border, d_height - 2 * border, d_stride,
           0, 0, 16, 16);
       if (step_error < best_error) {
-        step >>= 1;
         best_error = step_error;
         best_param = *param;
-        curr_param = best_param;
-        continue;
+        step_dir = -1;
       }
 
       // look to the right
@@ -4797,18 +4796,32 @@ static double refine_integerized_param(WarpedMotionParams *wm,
           border, border, d_width - 2 * border, d_height - 2 * border, d_stride,
           0, 0, 16, 16);
       if (step_error < best_error) {
-        step >>= 1;
         best_error = step_error;
         best_param = *param;
-        curr_param = best_param;
-        continue;
+        step_dir = 1;
       }
+      *param = best_param;
 
-      // no improvement found-> means we're either already at a minimum or
-      // step is too wide
-      step >>= 1;
+      // look to the direction chosen above repeatedly until error increases
+      while (step_dir) {
+        *param = add_param_offset(p, best_param, step * step_dir);
+        step_error = av1_warp_erroradv(
+            wm,
+#if CONFIG_AOM_HIGHBITDEPTH
+            use_hbd, bd,
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+            ref, r_width, r_height, r_stride, dst + border * d_stride + border,
+            border, border, d_width - 2 * border, d_height - 2 * border,
+            d_stride, 0, 0, 16, 16);
+        if (step_error < best_error) {
+          best_error = step_error;
+          best_param = *param;
+        } else {
+          *param = best_param;
+          step_dir = 0;
+        }
+      }
     }
-    *param = best_param;
   }
   force_wmtype(wm, wmtype);
   wm->wmtype = get_gmtype(wm);
