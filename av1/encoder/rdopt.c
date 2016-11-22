@@ -4285,7 +4285,7 @@ static int cost_mv_ref(const AV1_COMP *const cpi, PREDICTION_MODE mode,
 }
 
 #if CONFIG_GLOBAL_MOTION
-#define GLOBAL_MOTION_COST_AMORTIZATION_BLKS 8
+#define GLOBAL_MOTION_COST_AMORTIZATION_BLKS 12
 
 #if GLOBAL_MOTION_COST_AMORTIZATION_BLKS > 0
 static int get_gmbitcost(const WarpedMotionParams *gm, const aom_prob *probs) {
