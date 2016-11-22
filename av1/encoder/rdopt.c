@@ -3122,9 +3122,6 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
   const int diff_stride = max_blocks_wide;
   const int16_t *diff = &p->src_diff[4 * (blk_row * diff_stride + blk_col)];
   int txb_coeff_cost;
-#if CONFIG_EXT_TX
-  assert(tx_size < TX_SIZES);
-#endif  // CONFIG_EXT_TX
 
   if (xd->mb_to_bottom_edge < 0)
     max_blocks_high += xd->mb_to_bottom_edge >> (3 + pd->subsampling_y);
@@ -3268,9 +3265,6 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   const int tx_size_ctx = txsize_sqr_map[tx_size];
 
   av1_init_rd_stats(&sum_rd_stats);
-#if CONFIG_EXT_TX
-  assert(tx_size < TX_SIZES);
-#endif  // CONFIG_EXT_TX
 
   if (ref_best_rd < 0) {
     *is_cost_valid = 0;
@@ -3333,9 +3327,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
     sum_rd_stats.rate =
         av1_cost_bit(cpi->common.fc->txfm_partition_prob[ctx], 1);
-#if CONFIG_EXT_TX
-    assert(tx_size < TX_SIZES);
-#endif  // CONFIG_EXT_TX
+
     for (i = 0; i < 4 && this_cost_valid; ++i) {
       int offsetr = blk_row + (i >> 1) * bsl;
       int offsetc = blk_col + (i & 0x01) * bsl;
@@ -3458,57 +3450,6 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
   mbmi->tx_type = tx_type;
   mbmi->min_tx_size = TX_SIZES_ALL;
   inter_block_yrd(cpi, x, rd_stats, bsize, ref_best_rd, rd_stats_stack);
-#if CONFIG_EXT_TX && CONFIG_RECT_TX
-  if (is_rect_tx_allowed(xd, mbmi)) {
-    RD_STATS rect_rd_stats;
-    int64_t rd_rect_tx;
-    int tx_size_cat = inter_tx_size_cat_lookup[bsize];
-    TX_SIZE tx_size = max_txsize_rect_lookup[bsize];
-    TX_SIZE var_tx_size = mbmi->tx_size;
-
-    txfm_rd_in_plane(x, cpi, &rect_rd_stats, ref_best_rd, 0, bsize, tx_size,
-                     cpi->sf.use_fast_coef_costing);
-
-    if (rd_stats->rate != INT_MAX) {
-      rd_stats->rate += av1_cost_bit(cm->fc->rect_tx_prob[tx_size_cat], 0);
-      if (rd_stats->skip) {
-        rd = RDCOST(x->rdmult, x->rddiv, s1, rd_stats->sse);
-      } else {
-        rd = RDCOST(x->rdmult, x->rddiv, rd_stats->rate + s0, rd_stats->dist);
-        if (is_inter && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
-            !rd_stats->skip)
-          rd = AOMMIN(rd, RDCOST(x->rdmult, x->rddiv, s1, rd_stats->sse));
-      }
-    } else {
-      rd = INT64_MAX;
-    }
-
-    if (rect_rd_stats.rate != INT_MAX) {
-      rect_rd_stats.rate += av1_cost_bit(cm->fc->rect_tx_prob[tx_size_cat], 1);
-      if (rect_rd_stats.skip) {
-        rd_rect_tx = RDCOST(x->rdmult, x->rddiv, s1, rect_rd_stats.sse);
-      } else {
-        rd_rect_tx = RDCOST(x->rdmult, x->rddiv, rect_rd_stats.rate + s0,
-                            rect_rd_stats.dist);
-        if (is_inter && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
-            !(rect_rd_stats.skip))
-          rd_rect_tx = AOMMIN(
-              rd_rect_tx, RDCOST(x->rdmult, x->rddiv, s1, rect_rd_stats.sse));
-      }
-    } else {
-      rd_rect_tx = INT64_MAX;
-    }
-
-    if (rd_rect_tx < rd) {
-      *rd_stats = rect_rd_stats;
-      if (!xd->lossless[mbmi->segment_id]) x->blk_skip[0][0] = rd_stats->skip;
-      mbmi->tx_size = tx_size;
-      mbmi->inter_tx_size[0][0] = mbmi->tx_size;
-    } else {
-      mbmi->tx_size = var_tx_size;
-    }
-  }
-#endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
 
   if (rd_stats->rate == INT_MAX) return INT64_MAX;
 
@@ -3651,10 +3592,6 @@ static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   TX_SIZE plane_tx_size;
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
-
-#if CONFIG_EXT_TX
-  assert(tx_size < TX_SIZES);
-#endif  // CONFIG_EXT_TX
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
@@ -10898,9 +10835,9 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
 
   // macroblock modes
   *mbmi = best_mbmode;
-#if CONFIG_VAR_TX && CONFIG_EXT_TX && CONFIG_RECT_TX
+#if CONFIG_VAR_TX
   mbmi->inter_tx_size[0][0] = mbmi->tx_size;
-#endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
+#endif
 
   x->skip |= best_skip2;
   if (!is_inter_block(&best_mbmode)) {
