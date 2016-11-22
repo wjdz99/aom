@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f07c302f_acb1a396",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1393,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2016-11-22T17:26:19Z",
+      "side": 1,
+      "message": "Here if value \u003d 0x7FFF, then (value + 1) \u003e\u003e 2 \u003d 0x2000. But in intrinsics it would be 0xE000. C and intrinsics behaves not the same. \n\nThe MemCheck test fails here:\n\n./test_libaom --gtest_filter\u003d*SSE2/AV1Trans16x8HT*Mem*\n[\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d] 16 tests from 1 test case ran. (269 ms total)\n[  PASSED  ] 7 tests.\n[  FAILED  ] 9 tests, listed below:\n[  FAILED  ] SSE2/AV1Trans16x8HT.MemCheck/0, where GetParam() \u003d (0x64ad80, 0x5e1c60, 0, 8, 128)\n[  FAILED  ] SSE2/AV1Trans16x8HT.MemCheck/1, where GetParam() \u003d (0x64ad80, 0x5e1c60, 1, 8, 128)\n[  FAILED  ] SSE2/AV1Trans16x8HT.MemCheck/2, where GetParam() \u003d (0x64ad80, 0x5e1c60, 2, 8, 128)\n[  FAILED  ] SSE2/AV1Trans16x8HT.MemCheck/3, where GetParam() \u003d (0x64ad80, 0x5e1c60, 3, 8, 128)\n[  FAILED  ] SSE2/AV1Trans16x8HT.MemCheck/4, where GetParam() \u003d (0x64ad80, 0x5e1c60, 4, 8, 128)\n[  FAILED  ] SSE2/AV1Trans16x8HT.MemCheck/5, where GetParam() \u003d (0x64ad80, 0x5e1c60, 5, 8, 128)\n[  FAILED  ] SSE2/AV1Trans16x8HT.MemCheck/6, where GetParam() \u003d (0x64ad80, 0x5e1c60, 6, 8, 128)\n[  FAILED  ] SSE2/AV1Trans16x8HT.MemCheck/7, where GetParam() \u003d (0x64ad80, 0x5e1c60, 7, 8, 128)\n[  FAILED  ] SSE2/AV1Trans16x8HT.MemCheck/8, where GetParam() \u003d (0x64ad80, 0x5e1c60, 8, 8, 128)\n\nMy configure:\n\n../aom/configure --target\u003dx86_64-linux-gcc --enable-av1 --enable-experimental --enable-ext-tx --enable-rect-tx --disable-daala-ec",
+      "range": {
+        "startLine": 1393,
+        "startChar": 39,
+        "endLine": 1393,
+        "endChar": 43
+      },
+      "revId": "6359b0c9ab5975b61a69fca1f5caea68fd4376ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
