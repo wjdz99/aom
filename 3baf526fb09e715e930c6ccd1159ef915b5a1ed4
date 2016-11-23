@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50197c0d_e379fd36",
+        "filename": "ivfdec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-23T01:08:33Z",
+      "side": 0,
+      "message": "this portion does seem to be legacy code.",
+      "revId": "3baf526fb09e715e930c6ccd1159ef915b5a1ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50197c0d_a37c6524",
+        "filename": "ivfdec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-23T01:08:33Z",
+      "side": 0,
+      "message": "I\u0027d leave this branch to avoid any overflows later in the code from e.g., fuzzed files",
+      "revId": "3baf526fb09e715e930c6ccd1159ef915b5a1ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}

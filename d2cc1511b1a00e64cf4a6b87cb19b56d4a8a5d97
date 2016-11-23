@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50197c0d_4389c90b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-23T01:08:33Z",
+      "side": 1,
+      "message": "BUG\u003daomedia:85",
+      "revId": "d2cc1511b1a00e64cf4a6b87cb19b56d4a8a5d97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
