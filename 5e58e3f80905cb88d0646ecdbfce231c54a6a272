@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50197c0d_204ccbb8",
+        "filename": "aom_dsp/intrapred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-23T00:23:36Z",
+      "side": 1,
+      "message": "could you extend the weights to also cover 64x64 under\n#if CONFIG_TX64X64\n...\n#endif",
+      "revId": "5e58e3f80905cb88d0646ecdbfce231c54a6a272",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50197c0d_002e67bf",
+        "filename": "aom_dsp/intrapred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-23T00:23:36Z",
+      "side": 1,
+      "message": "You also need to integerize the weights at a suitable precision. You can add a TODO and do that in a subsequent patch.",
+      "revId": "5e58e3f80905cb88d0646ecdbfce231c54a6a272",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50197c0d_e055733d",
+        "filename": "aom_dsp/intrapred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-23T00:23:36Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "5e58e3f80905cb88d0646ecdbfce231c54a6a272",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
