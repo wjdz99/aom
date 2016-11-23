@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad125f45_9a100d03",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1797,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-23T19:08:11Z",
+      "side": 1,
+      "message": "this structure is fairly prevalent, but often it can be simpler to break these out to a few \u0027const int\u0027s to keep the if() a bit more readable",
+      "revId": "b7540506209bb4d7c4be7ce86bc6f9af81a5955c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_ba9ab158",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 7492,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-23T19:08:11Z",
+      "side": 1,
+      "message": "drop this line",
+      "revId": "b7540506209bb4d7c4be7ce86bc6f9af81a5955c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_3d745b3e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 7505,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-23T19:08:11Z",
+      "side": 1,
+      "message": "prefer sizeof(var), here and elsewhere",
+      "range": {
+        "startLine": 7505,
+        "startChar": 28,
+        "endLine": 7505,
+        "endChar": 52
+      },
+      "revId": "b7540506209bb4d7c4be7ce86bc6f9af81a5955c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_9a97ed32",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 7516,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-23T19:08:11Z",
+      "side": 1,
+      "message": "drop this line",
+      "revId": "b7540506209bb4d7c4be7ce86bc6f9af81a5955c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_5d6f0f6a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 7518,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-23T19:08:11Z",
+      "side": 1,
+      "message": "drop this line",
+      "revId": "b7540506209bb4d7c4be7ce86bc6f9af81a5955c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
