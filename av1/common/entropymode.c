@@ -492,6 +492,16 @@ static const aom_prob default_interintra_prob[BLOCK_SIZE_GROUPS] = {
   208, 208, 208, 208,
 };
 
+#if CONFIG_ALT_INTRA
+// TODO(urvang): Tune these default probs.
+static const aom_prob
+    default_interintra_mode_prob[BLOCK_SIZE_GROUPS][INTERINTRA_MODES - 1] = {
+      { 128, 128, 128, 128, 128, 128, 128, 128, 128, 128 },  // bsize < 8x8
+      { 128, 128, 128, 128, 128, 128, 128, 128, 128, 128 },  // bsize < 16x16
+      { 128, 128, 128, 128, 128, 128, 128, 128, 128, 128 },  // bsize < 32x32
+      { 128, 128, 128, 128, 128, 128, 128, 128, 128, 128 }   // bsize >= 32x32
+    };
+#else
 static const aom_prob
     default_interintra_mode_prob[BLOCK_SIZE_GROUPS][INTERINTRA_MODES - 1] = {
       { 65, 32, 18, 144, 162, 194, 41, 51, 98 },   // block_size < 8x8
@@ -499,6 +509,7 @@ static const aom_prob
       { 173, 80, 19, 176, 240, 193, 64, 35, 46 },  // block_size < 32x32
       { 221, 135, 38, 194, 248, 121, 96, 85, 29 }  // block_size >= 32x32
     };
+#endif  // CONFIG_ALT_INTRA
 
 static const aom_prob default_wedge_interintra_prob[BLOCK_SIZES] = {
   208, 208, 208, 208, 208, 208, 216, 216, 216, 224, 224, 224, 240,
@@ -608,6 +619,20 @@ const aom_tree_index av1_inter_mode_tree[TREE_SIZE(INTER_MODES)] = {
 
 #if CONFIG_EXT_INTER
 /* clang-format off */
+#if CONFIG_ALT_INTRA
+const aom_tree_index av1_interintra_mode_tree[TREE_SIZE(INTERINTRA_MODES)] = {
+  -II_DC_PRED,   2,                /* 0 = II_DC_NODE */
+  -II_TM_PRED,   4,                /* 1 = II_TM_NODE */
+  -II_V_PRED,    6,                /* 2 = II_V_NODE */
+  8,             12,               /* 3 = II_COM_NODE */
+  -II_H_PRED,    10,               /* 4 = II_H_NODE */
+  -II_D135_PRED, -II_D117_PRED,    /* 5 = II_D135_NODE */
+  -II_D45_PRED,  14,               /* 6 = II_D45_NODE */
+  -II_D63_PRED,  16,               /* 7 = II_D63_NODE */
+  -II_D153_PRED, 18,               /* 8 = II_D153_NODE */
+  -II_D207_PRED, -II_SMOOTH_PRED,  /* 9 = II_D207_NODE */
+};
+#else
 const aom_tree_index av1_interintra_mode_tree[TREE_SIZE(INTERINTRA_MODES)] = {
   -II_DC_PRED, 2,                   /* 0 = II_DC_NODE     */
   -II_TM_PRED, 4,                   /* 1 = II_TM_NODE     */
@@ -619,6 +644,7 @@ const aom_tree_index av1_interintra_mode_tree[TREE_SIZE(INTERINTRA_MODES)] = {
   -II_D63_PRED, 16,                 /* 7 = II_D63_NODE    */
   -II_D153_PRED, -II_D207_PRED      /* 8 = II_D153_NODE   */
 };
+#endif  // CONFIG_ALT_INTRA
 
 const aom_tree_index av1_inter_compound_mode_tree
     [TREE_SIZE(INTER_COMPOUND_MODES)] = {
