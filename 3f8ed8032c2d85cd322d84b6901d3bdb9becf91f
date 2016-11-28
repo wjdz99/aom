@@ -1,0 +1,215 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad125f45_8b7aefd8",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-28T23:38:33Z",
+      "side": 1,
+      "message": "maybe add a comment to give a visual hint to the grouping; //-------...(80 cols)\n\ncan help when scanning through",
+      "revId": "3f8ed8032c2d85cd322d84b6901d3bdb9becf91f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_6b92fb37",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-28T23:38:33Z",
+      "side": 1,
+      "message": "put this in an anonymous namespace (you can drop the static then) and make it const",
+      "revId": "3f8ed8032c2d85cd322d84b6901d3bdb9becf91f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_2ba40389",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-28T23:38:33Z",
+      "side": 1,
+      "message": "#undef MAP can make it clear that you\u0027re done with the macro",
+      "revId": "3f8ed8032c2d85cd322d84b6901d3bdb9becf91f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_0ba13f78",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-28T23:38:33Z",
+      "side": 1,
+      "message": "use c++ style casts when possible; reinterpret_cast\u003c\u003e should work here",
+      "range": {
+        "startLine": 311,
+        "startChar": 38,
+        "endLine": 311,
+        "endChar": 52
+      },
+      "revId": "3f8ed8032c2d85cd322d84b6901d3bdb9becf91f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_2bdc03ce",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-28T23:38:33Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 319,
+        "startChar": 18,
+        "endLine": 319,
+        "endChar": 28
+      },
+      "revId": "3f8ed8032c2d85cd322d84b6901d3bdb9becf91f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_cbe107b8",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-28T23:38:33Z",
+      "side": 1,
+      "message": "when one case has braces they all should:\n\nhttps://google.github.io/styleguide/cppguide.html#Loops_and_Switch_Statements",
+      "revId": "3f8ed8032c2d85cd322d84b6901d3bdb9becf91f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_6bf67b70",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-28T23:38:33Z",
+      "side": 1,
+      "message": "can you use typeid()?",
+      "revId": "3f8ed8032c2d85cd322d84b6901d3bdb9becf91f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_8b3f8f1a",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-28T23:38:33Z",
+      "side": 1,
+      "message": "you could build this into the parameter list I think",
+      "revId": "3f8ed8032c2d85cd322d84b6901d3bdb9becf91f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_eb560b76",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-28T23:38:33Z",
+      "side": 1,
+      "message": "normally sizeof(var) is preferred. if you could work the type into the parameter list this may be possible:\n\nhttps://google.github.io/styleguide/cppguide.html#sizeof",
+      "revId": "3f8ed8032c2d85cd322d84b6901d3bdb9becf91f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_cba2274b",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-28T23:38:33Z",
+      "side": 1,
+      "message": "typename template parameters should follow type naming\n\nhttps://google.github.io/styleguide/cppguide.html#General_Naming_Rules",
+      "range": {
+        "startLine": 404,
+        "startChar": 11,
+        "endLine": 404,
+        "endChar": 22
+      },
+      "revId": "3f8ed8032c2d85cd322d84b6901d3bdb9becf91f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad125f45_cbcb4709",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-28T23:38:33Z",
+      "side": 1,
+      "message": "c++ functions are typically camelcase with leading uppercase. it\u0027s not clear what the difference between test_simd1/2 are based on the names, can you be a bit more explicit?",
+      "range": {
+        "startLine": 484,
+        "startChar": 5,
+        "endLine": 484,
+        "endChar": 15
+      },
+      "revId": "3f8ed8032c2d85cd322d84b6901d3bdb9becf91f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
