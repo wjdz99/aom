@@ -326,8 +326,6 @@ typedef enum {
   MOTION_MODES
 } MOTION_MODE;
 
-// TODO(urvang): Make "CONFIG_ALT_INTRA" work with "CONFIG_EXT_INTER".
-
 #if CONFIG_EXT_INTER
 typedef enum {
   II_DC_PRED = 0,
