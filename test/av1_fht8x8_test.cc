@@ -1,12 +1,13 @@
 /*
- *  Copyright (c) 2016 The WebM project authors. All Rights Reserved.
+ * Copyright (c) 2016, Alliance for Open Media. All rights reserved
  *
- *  Use of this source code is governed by a BSD-style license
- *  that can be found in the LICENSE file in the root of the source
- *  tree. An additional intellectual property rights grant can be found
- *  in the file PATENTS.  All contributing project authors may
- *  be found in the AUTHORS file in the root of the source tree.
- */
+ * This source code is subject to the terms of the BSD 2 Clause License and
+ * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
+ * was not distributed with this source code in the LICENSE file, you can
+ * obtain it at www.aomedia.org/license/software. If the Alliance for Open
+ * Media Patent License 1.0 was not distributed with this source code in the
+ * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
+*/
 
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
@@ -164,7 +165,7 @@ TEST_P(AV1HighbdTrans8x8HT, HighbdCoeffCheck) { RunBitexactCheck(); }
 
 using std::tr1::make_tuple;
 
-#if HAVE_SSE2
+#if HAVE_SSE2 && !CONFIG_EMULATE_HARDWARE
 const Ht8x8Param kArrayHt8x8Param_sse2[] = {
   make_tuple(&av1_fht8x8_sse2, &av1_iht8x8_64_add_sse2, 0, AOM_BITS_8, 64),
   make_tuple(&av1_fht8x8_sse2, &av1_iht8x8_64_add_sse2, 1, AOM_BITS_8, 64),
@@ -188,7 +189,7 @@ INSTANTIATE_TEST_CASE_P(SSE2, AV1Trans8x8HT,
                         ::testing::ValuesIn(kArrayHt8x8Param_sse2));
 #endif  // HAVE_SSE2
 
-#if HAVE_SSE4_1 && CONFIG_AOM_HIGHBITDEPTH
+#if HAVE_SSE4_1 && CONFIG_AOM_HIGHBITDEPTH && !CONFIG_EMULATE_HARDWARE
 const HighbdHt8x8Param kArrayHBDHt8x8Param_sse4_1[] = {
   make_tuple(&av1_fwd_txfm2d_8x8_sse4_1, 0, 10),
   make_tuple(&av1_fwd_txfm2d_8x8_sse4_1, 0, 12),
