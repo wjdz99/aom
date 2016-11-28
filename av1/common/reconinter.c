@@ -1669,6 +1669,9 @@ static void combine_interintra(INTERINTRA_MODE mode, int use_wedge_interintra,
 
     case II_TM_PRED:
     case II_DC_PRED:
+#if CONFIG_ALT_INTRA
+    case II_SMOOTH_PRED:
+#endif  // CONFIG_ALT_INTRA
     default:
       for (i = 0; i < bh; ++i) {
         for (j = 0; j < bw; ++j) {
@@ -1785,6 +1788,9 @@ static void combine_interintra_highbd(
 
     case II_TM_PRED:
     case II_DC_PRED:
+#if CONFIG_ALT_INTRA
+    case II_SMOOTH_PRED:
+#endif  // CONFIG_ALT_INTRA
     default:
       for (i = 0; i < bh; ++i) {
         for (j = 0; j < bw; ++j) {
