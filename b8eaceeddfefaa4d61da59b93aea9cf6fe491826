@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "702a0062_ce8fe57d",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 781,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2016-11-29T23:23:50Z",
+      "side": 1,
+      "message": "It is possible that ref_frame \u003e ALTREF_FRAME (compound mode) and all_zero is 1. In such case, this condition will be false. Is this intended? Like global motion is not enabled in compound mode?",
+      "revId": "b8eaceeddfefaa4d61da59b93aea9cf6fe491826",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "702a0062_0e281db0",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 2
