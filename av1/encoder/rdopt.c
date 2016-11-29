@@ -8563,10 +8563,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     if (mbmi_ext->ref_mv_count[ref_frame] < 2) {
       MV_REFERENCE_FRAME rf[2];
       av1_set_ref_frame(rf, ref_frame);
-      if (mbmi_ext->ref_mvs[rf[0]][0].as_int != 0 ||
-          mbmi_ext->ref_mvs[rf[0]][1].as_int != 0 ||
-          mbmi_ext->ref_mvs[rf[1]][0].as_int != 0 ||
-          mbmi_ext->ref_mvs[rf[1]][1].as_int != 0)
+      if (mbmi_ext->ref_mvs[rf[0]][0].as_int !=
+              frame_mv[ZEROMV][rf[0]].as_int ||
+          mbmi_ext->ref_mvs[rf[0]][1].as_int !=
+              frame_mv[ZEROMV][rf[0]].as_int ||
+          mbmi_ext->ref_mvs[rf[1]][0].as_int !=
+              frame_mv[ZEROMV][rf[1]].as_int ||
+          mbmi_ext->ref_mvs[rf[1]][1].as_int != frame_mv[ZEROMV][rf[1]].as_int)
         mbmi_ext->mode_context[ref_frame] &= ~(1 << ALL_ZERO_FLAG_OFFSET);
     }
   }
@@ -8743,6 +8746,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     int64_t total_sse = INT64_MAX;
 #if CONFIG_REF_MV
     uint8_t ref_frame_type;
+    int16_t mode_ctx;
 #endif
 #if CONFIG_PVQ
     od_encode_rollback(&x->daala_enc, &pre_buf);
@@ -8817,6 +8821,15 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       continue;
 
     if (mode_skip_mask[ref_frame] & (1 << this_mode)) continue;
+#if CONFIG_REF_MV
+    // If the ALL_ZERO flag is set for this combination of reference
+    // frames, we can't encode NEARMV or NEARESTMV, so skip over them
+    ref_frame_type = av1_ref_frame_type(av1_mode_order[mode_index].ref_frame);
+    mode_ctx = mbmi_ext->mode_context[ref_frame_type];
+    if ((mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) &&
+        ((this_mode == NEARMV) || (this_mode == NEARESTMV)))
+      continue;
+#endif
 
     // Test best rd so far against threshold for trying this mode.
     if (best_mode_skippable && sf->schedule_mode_search)
@@ -9749,6 +9762,7 @@ PALETTE_EXIT:
     int_mv zeromv[2];
 #if CONFIG_REF_MV
     const uint8_t rf_type = av1_ref_frame_type(best_mbmode.ref_frame);
+    const int mode_ctx = mbmi_ext->mode_context[rf_type];
 #endif  // CONFIG_REF_MV
 #if CONFIG_GLOBAL_MOTION
     zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]]).as_int;
@@ -9762,22 +9776,23 @@ PALETTE_EXIT:
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_REF_MV
     if (!comp_pred_mode) {
-      int ref_set = (mbmi_ext->ref_mv_count[rf_type] >= 2)
-                        ? AOMMIN(2, mbmi_ext->ref_mv_count[rf_type] - 2)
-                        : INT_MAX;
-
-      for (i = 0; i <= ref_set && ref_set != INT_MAX; ++i) {
-        int_mv cur_mv = mbmi_ext->ref_mv_stack[rf_type][i + 1].this_mv;
-        if (cur_mv.as_int == best_mbmode.mv[0].as_int) {
-          best_mbmode.mode = NEARMV;
-          best_mbmode.ref_mv_idx = i;
-        }
-      }
-
-      if (frame_mv[NEARESTMV][refs[0]].as_int == best_mbmode.mv[0].as_int)
+      if (!(mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) &&
+          frame_mv[NEARESTMV][refs[0]].as_int == best_mbmode.mv[0].as_int)
         best_mbmode.mode = NEARESTMV;
       else if (best_mbmode.mv[0].as_int == zeromv[0].as_int)
         best_mbmode.mode = ZEROMV;
+      else if (!(mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET))) {
+        int ref_set = (mbmi_ext->ref_mv_count[rf_type] >= 2)
+                          ? AOMMIN(2, mbmi_ext->ref_mv_count[rf_type] - 2)
+                          : INT_MAX;
+        for (i = 0; i <= ref_set && ref_set != INT_MAX; ++i) {
+          int_mv cur_mv = mbmi_ext->ref_mv_stack[rf_type][i + 1].this_mv;
+          if (cur_mv.as_int == best_mbmode.mv[0].as_int) {
+            best_mbmode.mode = NEARMV;
+            best_mbmode.ref_mv_idx = i;
+          }
+        }
+      }
     } else {
       int_mv nearestmv[2];
       int_mv nearmv[2];
@@ -9791,18 +9806,19 @@ PALETTE_EXIT:
         nearmv[1] = frame_mv[NEARMV][refs[1]];
       }
 #else
-      int ref_set = (mbmi_ext->ref_mv_count[rf_type] >= 2)
-                        ? AOMMIN(2, mbmi_ext->ref_mv_count[rf_type] - 2)
-                        : INT_MAX;
+      if (!(mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET))) {
+        int ref_set = (mbmi_ext->ref_mv_count[rf_type] >= 2)
+                          ? AOMMIN(2, mbmi_ext->ref_mv_count[rf_type] - 2)
+                          : INT_MAX;
+        for (i = 0; i <= ref_set && ref_set != INT_MAX; ++i) {
+          nearmv[0] = mbmi_ext->ref_mv_stack[rf_type][i + 1].this_mv;
+          nearmv[1] = mbmi_ext->ref_mv_stack[rf_type][i + 1].comp_mv;
 
-      for (i = 0; i <= ref_set && ref_set != INT_MAX; ++i) {
-        nearmv[0] = mbmi_ext->ref_mv_stack[rf_type][i + 1].this_mv;
-        nearmv[1] = mbmi_ext->ref_mv_stack[rf_type][i + 1].comp_mv;
-
-        if (nearmv[0].as_int == best_mbmode.mv[0].as_int &&
-            nearmv[1].as_int == best_mbmode.mv[1].as_int) {
-          best_mbmode.mode = NEARMV;
-          best_mbmode.ref_mv_idx = i;
+          if (nearmv[0].as_int == best_mbmode.mv[0].as_int &&
+              nearmv[1].as_int == best_mbmode.mv[1].as_int) {
+            best_mbmode.mode = NEARMV;
+            best_mbmode.ref_mv_idx = i;
+          }
         }
       }
 #endif
@@ -9814,9 +9830,9 @@ PALETTE_EXIT:
         nearestmv[1] = frame_mv[NEARESTMV][refs[1]];
       }
 
+#if CONFIG_EXT_INTER
       if (nearestmv[0].as_int == best_mbmode.mv[0].as_int &&
           nearestmv[1].as_int == best_mbmode.mv[1].as_int)
-#if CONFIG_EXT_INTER
         best_mbmode.mode = NEAREST_NEARESTMV;
       else if (nearestmv[0].as_int == best_mbmode.mv[0].as_int &&
                nearmv[1].as_int == best_mbmode.mv[1].as_int)
@@ -9830,22 +9846,28 @@ PALETTE_EXIT:
       else if (best_mbmode.mv[0].as_int == 0 && best_mbmode.mv[1].as_int == 0)
         best_mbmode.mode = ZERO_ZEROMV;
 #else
+      if (!(mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) &&
+          nearestmv[0].as_int == best_mbmode.mv[0].as_int &&
+          nearestmv[1].as_int == best_mbmode.mv[1].as_int) {
         best_mbmode.mode = NEARESTMV;
-      else if (best_mbmode.mv[0].as_int == zeromv[0].as_int &&
-               best_mbmode.mv[1].as_int == zeromv[1].as_int)
+      } else if (best_mbmode.mv[0].as_int == zeromv[0].as_int &&
+                 best_mbmode.mv[1].as_int == zeromv[1].as_int) {
         best_mbmode.mode = ZEROMV;
+      }
 #endif  // CONFIG_EXT_INTER
     }
 #else
 #if CONFIG_EXT_INTER
     if (!comp_pred_mode) {
 #endif  // CONFIG_EXT_INTER
-      if (frame_mv[NEARESTMV][refs[0]].as_int == best_mbmode.mv[0].as_int &&
+      if (!(mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) &&
+          frame_mv[NEARESTMV][refs[0]].as_int == best_mbmode.mv[0].as_int &&
           ((comp_pred_mode &&
             frame_mv[NEARESTMV][refs[1]].as_int == best_mbmode.mv[1].as_int) ||
            !comp_pred_mode))
         best_mbmode.mode = NEARESTMV;
-      else if (frame_mv[NEARMV][refs[0]].as_int == best_mbmode.mv[0].as_int &&
+      else if (!(mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) &&
+               frame_mv[NEARMV][refs[0]].as_int == best_mbmode.mv[0].as_int &&
                ((comp_pred_mode &&
                  frame_mv[NEARMV][refs[1]].as_int ==
                      best_mbmode.mv[1].as_int) ||
@@ -9884,32 +9906,6 @@ PALETTE_EXIT:
 #endif  // CONFIG_EXT_INTER
 #endif
   }
-
-#if CONFIG_REF_MV
-  if (best_mbmode.ref_frame[0] > INTRA_FRAME && best_mbmode.mv[0].as_int == 0 &&
-#if CONFIG_EXT_INTER
-      (best_mbmode.ref_frame[1] <= INTRA_FRAME)
-#else
-      (best_mbmode.ref_frame[1] == NONE || best_mbmode.mv[1].as_int == 0)
-#endif  // CONFIG_EXT_INTER
-          ) {
-    int8_t ref_frame_type = av1_ref_frame_type(best_mbmode.ref_frame);
-    int16_t mode_ctx = mbmi_ext->mode_context[ref_frame_type];
-
-    if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) {
-      best_mbmode.mode = ZEROMV;
-#if CONFIG_GLOBAL_MOTION
-      best_mbmode.mv[0].as_int =
-          gm_get_motion_vector(&cm->global_motion[best_mbmode.ref_frame[0]])
-              .as_int;
-      if (best_mbmode.ref_frame[1] != NONE)
-        best_mbmode.mv[1].as_int =
-            gm_get_motion_vector(&cm->global_motion[best_mbmode.ref_frame[1]])
-                .as_int;
-#endif
-    }
-  }
-#endif
 
   if (best_mode_index < 0 || best_rd >= best_rd_so_far) {
     rd_cost->rate = INT_MAX;
