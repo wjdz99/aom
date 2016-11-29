@@ -4079,9 +4079,11 @@ static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
   int frame;
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    /*
     if (!cpi->global_motion_used[frame]) {
       set_default_gmparams(&cm->global_motion[frame]);
     }
+    */
     write_global_motion_params(&cm->global_motion[frame],
                                cm->fc->global_motion_types_prob, w);
     /*
