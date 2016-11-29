@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "702a0062_a8f55065",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_e885f128",
+      "range": {
+        "startLine": 600,
+        "startChar": 31,
+        "endLine": 600,
+        "endChar": 78
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad125f45_a825b973",
         "filename": "av1/encoder/quantize.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2016-11-28T23:16:35Z",
       "side": 1,
       "message": "Same as above",
+      "range": {
+        "startLine": 648,
+        "startChar": 32,
+        "endLine": 648,
+        "endChar": 79
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "702a0062_c8fa8454",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_a825b973",
       "range": {
         "startLine": 648,
         "startChar": 32,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "702a0062_e8ef488f",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_2811a917",
+      "range": {
+        "startLine": 695,
+        "startChar": 32,
+        "endLine": 695,
+        "endChar": 79
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad125f45_e81a9130",
         "filename": "av1/encoder/quantize.c",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2016-11-28T23:16:35Z",
       "side": 1,
       "message": "same as above",
+      "range": {
+        "startLine": 741,
+        "startChar": 4,
+        "endLine": 741,
+        "endChar": 51
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "702a0062_08f57c60",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_e81a9130",
       "range": {
         "startLine": 741,
         "startChar": 4,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "702a0062_280a408c",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_083705a1",
+      "range": {
+        "startLine": 763,
+        "startChar": 4,
+        "endLine": 763,
+        "endChar": 51
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad125f45_a8fb799e",
         "filename": "av1/encoder/quantize.c",
         "patchSetId": 2
@@ -128,6 +248,30 @@
       "writtenOn": "2016-11-28T23:16:35Z",
       "side": 1,
       "message": "Can we merge this two parameters into qparam",
+      "range": {
+        "startLine": 1210,
+        "startChar": 4,
+        "endLine": 1210,
+        "endChar": 51
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "702a0062_48077481",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1210,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_a8fb799e",
       "range": {
         "startLine": 1210,
         "startChar": 4,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "702a0062_6804387c",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1257,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_680561c3",
+      "range": {
+        "startLine": 1257,
+        "startChar": 4,
+        "endLine": 1257,
+        "endChar": 51
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad125f45_280769cc",
         "filename": "av1/encoder/quantize.c",
         "patchSetId": 2
@@ -174,6 +342,30 @@
       "writtenOn": "2016-11-28T23:16:35Z",
       "side": 1,
       "message": "Same as above",
+      "range": {
+        "startLine": 1304,
+        "startChar": 4,
+        "endLine": 1304,
+        "endChar": 51
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "702a0062_88016c6d",
+        "filename": "av1/encoder/quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_280769cc",
       "range": {
         "startLine": 1304,
         "startChar": 4,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "702a0062_a85c709d",
+        "filename": "av1/encoder/quantize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_a8c9396a",
+      "range": {
+        "startLine": 96,
+        "startChar": 10,
+        "endLine": 97,
+        "endChar": 6
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad125f45_88ce756f",
         "filename": "av1/encoder/quantize.h",
         "patchSetId": 2
@@ -220,6 +436,30 @@
       "writtenOn": "2016-11-28T23:16:35Z",
       "side": 1,
       "message": "Can we merge this two parameter into qparam?",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 6
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "702a0062_c861a44e",
+        "filename": "av1/encoder/quantize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_88ce756f",
       "range": {
         "startLine": 105,
         "startChar": 0,
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "702a0062_e8666863",
+        "filename": "av1/encoder/quantize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_68d3211b",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 6
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad125f45_08b5c516",
         "filename": "av1/encoder/quantize.h",
         "patchSetId": 2
@@ -266,6 +530,30 @@
       "writtenOn": "2016-11-28T23:16:35Z",
       "side": 1,
       "message": "Can we merge this two parameter into qparam?",
+      "range": {
+        "startLine": 129,
+        "startChar": 0,
+        "endLine": 132,
+        "endChar": 6
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "702a0062_086c9c42",
+        "filename": "av1/encoder/quantize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_08b5c516",
       "range": {
         "startLine": 129,
         "startChar": 0,
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "702a0062_28516080",
+        "filename": "av1/encoder/quantize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_c80c6d24",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 6
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad125f45_28fd29bf",
         "filename": "av1/encoder/quantize.h",
         "patchSetId": 2
@@ -312,6 +624,30 @@
       "writtenOn": "2016-11-28T23:16:35Z",
       "side": 1,
       "message": "Same as above",
+      "range": {
+        "startLine": 210,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 6
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "702a0062_484e94df",
+        "filename": "av1/encoder/quantize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_28fd29bf",
       "range": {
         "startLine": 210,
         "startChar": 0,
@@ -347,6 +683,30 @@
     },
     {
       "key": {
+        "uuid": "702a0062_88588ca3",
+        "filename": "av1/encoder/quantize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_080a6500",
+      "range": {
+        "startLine": 221,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 6
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad125f45_a8fa59c1",
         "filename": "av1/encoder/quantize.h",
         "patchSetId": 2
@@ -358,6 +718,30 @@
       "writtenOn": "2016-11-28T23:16:35Z",
       "side": 1,
       "message": "Same as above",
+      "range": {
+        "startLine": 232,
+        "startChar": 0,
+        "endLine": 235,
+        "endChar": 6
+      },
+      "revId": "fd54841964f258b27684e4dd4cf086fd1254ad87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "702a0062_a84390b1",
+        "filename": "av1/encoder/quantize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2016-11-29T10:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad125f45_a8fa59c1",
       "range": {
         "startLine": 232,
         "startChar": 0,
