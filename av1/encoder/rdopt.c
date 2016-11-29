@@ -7699,19 +7699,6 @@ static int64_t handle_inter_mode(
 #else
     int tmp_rate2 = rate2_nocoeff;
 #endif  // CONFIG_EXT_INTER
-#if CONFIG_EXT_INTERP
-#if CONFIG_DUAL_FILTER
-    InterpFilter obmc_interp_filter[2][2] = {
-      { mbmi->interp_filter[0], mbmi->interp_filter[1] },  // obmc == 0
-      { mbmi->interp_filter[0], mbmi->interp_filter[1] }   // obmc == 1
-    };
-#else
-    InterpFilter obmc_interp_filter[2] = {
-      mbmi->interp_filter,  // obmc == 0
-      mbmi->interp_filter   // obmc == 1
-    };
-#endif  // CONFIG_DUAL_FILTER
-#endif  // CONFIG_EXT_INTERP
 
 #if CONFIG_MOTION_VAR
     int tmp_rate;
@@ -7742,12 +7729,11 @@ static int64_t handle_inter_mode(
 #if CONFIG_EXT_INTERP
 #if CONFIG_DUAL_FILTER
         if (!has_subpel_mv_component(xd->mi[0], xd, 0))
-          obmc_interp_filter[1][0] = mbmi->interp_filter[0] = EIGHTTAP_REGULAR;
+          mbmi->interp_filter[0] = EIGHTTAP_REGULAR;
         if (!has_subpel_mv_component(xd->mi[0], xd, 1))
-          obmc_interp_filter[1][1] = mbmi->interp_filter[1] = EIGHTTAP_REGULAR;
+          mbmi->interp_filter[1] = EIGHTTAP_REGULAR;
 #else
-        if (!av1_is_interp_needed(xd))
-          obmc_interp_filter[1] = mbmi->interp_filter = EIGHTTAP_REGULAR;
+        if (!av1_is_interp_needed(xd)) mbmi->interp_filter = EIGHTTAP_REGULAR;
 #endif  // CONFIG_DUAL_FILTER
         // This is not quite correct with CONFIG_DUAL_FILTER when a filter
         // is needed in only one direction
@@ -7909,14 +7895,6 @@ static int64_t handle_inter_mode(
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     tmp_rd = RDCOST(x->rdmult, x->rddiv, rd_stats->rate, rd_stats->dist);
     if (mbmi->motion_mode == SIMPLE_TRANSLATION || (tmp_rd < best_rd)) {
-#if CONFIG_EXT_INTERP
-#if CONFIG_DUAL_FILTER
-      mbmi->interp_filter[0] = obmc_interp_filter[mbmi->motion_mode][0];
-      mbmi->interp_filter[1] = obmc_interp_filter[mbmi->motion_mode][1];
-#else
-      mbmi->interp_filter = obmc_interp_filter[mbmi->motion_mode];
-#endif  // CONFIG_DUAL_FILTER
-#endif  // CONFIG_EXT_INTERP
       best_mbmi = *mbmi;
       best_rd = tmp_rd;
       best_rd_stats = *rd_stats;
