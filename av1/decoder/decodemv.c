@@ -1115,11 +1115,29 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
 
+#if CONFIG_GLOBAL_MOTION
+  if (is_nontrans_global_motion(xd)) {
 #if CONFIG_DUAL_FILTER
-  int dir;
+    mbmi->interp_filter[0] =
+        cm->interp_filter == SWITCHABLE ? EIGHTTAP_REGULAR : cm->interp_filter;
+    mbmi->interp_filter[1] =
+        cm->interp_filter == SWITCHABLE ? EIGHTTAP_REGULAR : cm->interp_filter;
+#else
+    mbmi->interp_filter =
+        cm->interp_filter == SWITCHABLE ? EIGHTTAP_REGULAR : cm->interp_filter;
+#endif  // CONFIG_DUAL_FILTER
+    return;
+  }
+#endif  // CONFIG_GLOBAL_MOTION
+
+#if CONFIG_DUAL_FILTER
   if (cm->interp_filter != SWITCHABLE) {
+    int dir;
+
     for (dir = 0; dir < 4; ++dir) mbmi->interp_filter[dir] = cm->interp_filter;
   } else {
+    int dir;
+
     for (dir = 0; dir < 2; ++dir) {
       const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
       mbmi->interp_filter[dir] = EIGHTTAP_REGULAR;
