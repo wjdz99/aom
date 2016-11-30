@@ -952,6 +952,19 @@ static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi) {
 #endif  // CONFIG_MOTION_VAR
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
+#if CONFIG_GLOBAL_MOTION
+static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  int ref;
+
+  if (mbmi->sb_type < BLOCK_8X8 || mbmi->mode != ZEROMV) return 0;
+  for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
+    if (xd->global_motion[mbmi->ref_frame[ref]].wmtype <= TRANSLATION) return 0;
+  }
+  return 1;
+}
+#endif  // CONFIG_GLOBAL_MOTION
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
