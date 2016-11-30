@@ -3331,6 +3331,16 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
           }
         }
 #endif  // CONFIG_ENTROPY
+#if CONFIG_ANS && ANS_SUB_TILE
+        if (mi_row + cm->mib_size < tile_info.mi_row_end) {
+          int ret = ans_read_reinit(&td->bit_reader);
+          td->xd.corrupted |= ret;
+          pbi->mb.corrupted |= td->xd.corrupted;
+          if (pbi->mb.corrupted)
+            aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                               "Failed to reset ANS decoder");
+        }
+#endif
       }
     }
 
