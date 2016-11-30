@@ -1148,6 +1148,9 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
 
+#if CONFIG_GLOBAL_MOTION
+  if (is_nontrans_global_motion(xd)) return;
+#endif  // CONFIG_GLOBAL_MOTION
   if (cm->interp_filter == SWITCHABLE) {
 #if CONFIG_DUAL_FILTER
     int dir;

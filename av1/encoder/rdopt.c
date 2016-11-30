@@ -8894,6 +8894,7 @@ static int64_t handle_inter_mode(
     if (!is_comp_pred && mbmi->motion_mode == SIMPLE_TRANSLATION)
       single_skippable[this_mode][refs[0]] = rd_stats->skip;
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+
 #if CONFIG_GLOBAL_MOTION
     if (this_mode == ZEROMV
 #if CONFIG_EXT_INTER
@@ -8903,6 +8904,21 @@ static int64_t handle_inter_mode(
       rd_stats->rate += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[0]);
       if (is_comp_pred)
         rd_stats->rate += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[1]);
+      if (is_nontrans_global_motion(xd)) {
+        rd_stats -= rs;
+#if CONFIG_DUAL_FILTER
+        mbmi->interp_filter[0] = cm->interp_filter == SWITCHABLE
+                                     ? EIGHTTAP_REGULAR
+                                     : cm->interp_filter;
+        mbmi->interp_filter[1] = cm->interp_filter == SWITCHABLE
+                                     ? EIGHTTAP_REGULAR
+                                     : cm->interp_filter;
+#else
+        mbmi->interp_filter = cm->interp_filter == SWITCHABLE
+                                  ? EIGHTTAP_REGULAR
+                                  : cm->interp_filter;
+#endif  // CONFIG_DUAL_FILTER
+      }
     }
 #endif  // CONFIG_GLOBAL_MOTION
 
