@@ -23,6 +23,8 @@
 extern "C" {
 #endif  // __cplusplus
 
+// Some ANS design decisions that need to be settled
+#define ANS_SUB_TILE 1
 #define ANS_REVERSE 1
 
 typedef uint8_t AnsP8;
