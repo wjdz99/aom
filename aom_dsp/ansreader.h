@@ -153,6 +153,12 @@ static INLINE int ans_read_init(struct AnsDecoder *const ans,
   return 0;
 }
 
+#if ANS_REVERSE
+static INLINE int ans_read_reinit(struct AnsDecoder *const ans) {
+  return ans_read_init(ans, ans->buf + ans->buf_offset, -ans->buf_offset);
+}
+#endif
+
 static INLINE int ans_read_end(struct AnsDecoder *const ans) {
   return ans->state == L_BASE;
 }

@@ -3330,6 +3330,11 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
             ++cm->coef_probs_update_idx;
           }
         }
+#if CONFIG_ANS && ANS_SUB_TILE
+      if (mi_row + MAX_MIB_SIZE < tile.mi_row_end) {
+        ans_read_reinit(&tile_data->bit_reader);  // TODO(handle error)
+      }
+#endif
 #endif  // CONFIG_ENTROPY
       }
     }
