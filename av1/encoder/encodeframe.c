@@ -3645,6 +3645,11 @@ static void rd_test_partition3(
 }
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
+#if CONFIG_RD_DEBUG2
+extern RD_DEBUG_DATA rd_debug;
+int critical = 0;
+#endif
+
 // TODO(jingning,jimbankoski,rbultje): properly skip partition types that are
 // unlikely to be selected depending on previous rate-distortion optimization
 // results, for encoding speed-up.
@@ -3878,6 +3883,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
   // PARTITION_NONE
   if (partition_none_allowed) {
+#if CONFIG_RD_DEBUG2
+    critical = mi_row == 16 && mi_col == 24 && bsize == BLOCK_64X64 &&
+               cm->current_video_frame == 2;
+#endif
+
     rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
 #if CONFIG_SUPERTX
                      &this_rate_nocoef,
@@ -3886,6 +3896,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                      PARTITION_NONE,
 #endif
                      bsize, ctx_none, best_rdc.rdcost);
+#if CONFIG_RD_DEBUG2
+    critical = 0;
+#endif
     if (this_rdc.rate != INT_MAX) {
       if (bsize_at_least_8x8) {
         this_rdc.rate += partition_cost[PARTITION_NONE];
@@ -3905,7 +3918,6 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
         const int rate_breakout_thr =
             cpi->sf.partition_search_breakout_rate_thr *
             num_pels_log2_lookup[bsize];
-
         best_rdc = this_rdc;
 #if CONFIG_SUPERTX
         best_rate_nocoef = this_rate_nocoef;
@@ -4192,7 +4204,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                      PARTITION_HORZ,
 #endif
                      subsize, &pc_tree->horizontal[0], best_rdc.rdcost);
-
+#if CONFIG_RD_DEBUG2
+    rd_debug.rd[subsize][mi_row][mi_col] = sum_rdc;
+#endif
 #if CONFIG_SUPERTX
     abort_flag =
         (sum_rdc.rdcost >= best_rd && (bsize > BLOCK_8X8 || unify_bsize)) ||
@@ -4235,6 +4249,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                        subsize, &pc_tree->horizontal[1],
                        best_rdc.rdcost - sum_rdc.rdcost);
 #endif  // CONFIG_SUPERTX
+#if CONFIG_RD_DEBUG2
+      rd_debug.rd[subsize][mi_row + mi_step][mi_col] = this_rdc;
+#endif
       if (this_rdc.rate == INT_MAX) {
         sum_rdc.rdcost = INT64_MAX;
 #if CONFIG_SUPERTX
@@ -4330,6 +4347,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       pc_tree->vertical[0].pred_interp_filter =
           ctx_none->mic.mbmi.interp_filter;
 #endif
+#if CONFIG_RD_DEBUG2
+// critical = mi_row==8 && mi_col==37 && bsize==3 && cm->current_video_frame==1;
+#endif
     rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &sum_rdc,
 #if CONFIG_SUPERTX
                      &sum_rate_nocoef,
@@ -4338,6 +4358,10 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                      PARTITION_VERT,
 #endif
                      subsize, &pc_tree->vertical[0], best_rdc.rdcost);
+#if CONFIG_RD_DEBUG2
+    critical = 0;
+    rd_debug.rd[subsize][mi_row][mi_col] = sum_rdc;
+#endif
 #if CONFIG_SUPERTX
     abort_flag =
         (sum_rdc.rdcost >= best_rd && (bsize > BLOCK_8X8 || unify_bsize)) ||
@@ -4380,6 +4404,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                        subsize, &pc_tree->vertical[1],
                        best_rdc.rdcost - sum_rdc.rdcost);
 #endif  // CONFIG_SUPERTX
+#if CONFIG_RD_DEBUG2
+      rd_debug.rd[subsize][mi_row][mi_col + mi_step] = this_rdc;
+#endif
       if (this_rdc.rate == INT_MAX) {
         sum_rdc.rdcost = INT64_MAX;
 #if CONFIG_SUPERTX
@@ -4548,6 +4575,17 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   } else {
     assert(tp_orig == *tp);
   }
+
+#if CONFIG_RD_DEBUG2
+  assert(IMPLIES(best_rdc.rate != INT_MAX || best_rdc.dist != INT64_MAX,
+                 best_rdc.rdcost == RDCOST(x->rdmult, x->rddiv, best_rdc.rate,
+                                           best_rdc.dist)));
+
+  assert(rd_debug.rd_mult == x->rdmult);
+  assert(rd_debug.rd_div == x->rddiv);
+  rd_debug.rd[bsize][mi_row][mi_col] = best_rdc;
+  rd_debug.partition[bsize][mi_row][mi_col] = pc_tree->partitioning;
+#endif
 }
 
 static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
@@ -5138,6 +5176,10 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   av1_frame_init_quantizer(cpi);
 
   av1_initialize_rd_consts(cpi);
+#if CONFIG_RD_DEBUG2
+  rd_debug.rd_mult = cpi->rd.RDMULT;
+  rd_debug.rd_div = cpi->rd.RDDIV;
+#endif
   av1_initialize_me_consts(cpi, x, cm->base_qindex);
   init_encode_frame_mb_context(cpi);
 #if CONFIG_TEMPMV_SIGNALING
@@ -5649,6 +5691,11 @@ static void tx_partition_set_contexts(const AV1_COMMON *const cm,
   xd->above_txfm_context = cm->above_txfm_context + mi_col;
   xd->left_txfm_context =
       xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
+
+  MODE_INFO **mi_8x8 = xd->mi;
+  MODE_INFO *mi = mi_8x8[0];
+  MB_MODE_INFO *mbmi = &mi->mbmi;
+  assert(!(is_rect_tx(mbmi->tx_size)));
 
   for (idy = 0; idy < mi_height; idy += bh)
     for (idx = 0; idx < mi_width; idx += bw)

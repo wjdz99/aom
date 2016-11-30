@@ -34,6 +34,7 @@ Advanced options:
   --sdk-path=PATH                 path to root of sdk (android builds only)
   ${toggle_codec_srcs}            in/exclude codec library source code
   ${toggle_debug_libs}            in/exclude debug version of libraries
+  ${toggle_rd_debug2}              in/exclude RD verification code
   ${toggle_static_msvcrt}         use static MSVCRT (VS builds only)
   ${toggle_aom_highbitdepth}      enable 16-bit generic pixel pipeline (used by high bitdepth profiles)
   ${toggle_lowbitdepth}           enable 8-bit optimized pixel pipeline
@@ -333,6 +334,8 @@ CONFIG_LIST="
     codec_srcs
     debug_libs
 
+    rd_debug2
+
     runtime_cpu_detect
     postproc
     multithread
@@ -394,6 +397,8 @@ CMDLINE_SELECT="
     size_limit
     codec_srcs
     debug_libs
+
+    rd_debug2
 
     postproc
     multithread

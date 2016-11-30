@@ -260,8 +260,13 @@ void av1_cond_prob_diff_update(aom_writer *w, aom_prob *oldp,
                                const unsigned int ct[2], int probwt) {
   const aom_prob upd = DIFF_UPDATE_PROB;
   aom_prob newp = get_binary_prob(ct[0], ct[1]);
+#if !CONFIG_RD_DEBUG2
   const int savings =
       av1_prob_diff_update_savings_search(ct, *oldp, &newp, upd, probwt);
+#else
+  const int savings = 0;
+  (void)probwt;
+#endif
   assert(newp >= 1);
   if (savings > 0) {
     aom_write(w, 1, upd);

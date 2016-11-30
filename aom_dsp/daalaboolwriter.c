@@ -18,6 +18,11 @@ void aom_daala_start_encode(daala_writer *br, uint8_t *source) {
   od_ec_enc_init(&br->ec, 62025);
 }
 
+#if CONFIG_RD_DEBUG2
+uint64_t bits_written = 0;
+uint64_t rate_cost = 0;
+#endif
+
 void aom_daala_stop_encode(daala_writer *br) {
   uint32_t daala_bytes;
   unsigned char *daala_data;

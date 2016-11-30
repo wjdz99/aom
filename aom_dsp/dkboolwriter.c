@@ -26,6 +26,11 @@ void aom_dk_start_encode(aom_dk_writer *br, uint8_t *source) {
   aom_dk_write_bit(br, 0);
 }
 
+#if CONFIG_RD_DEBUG2
+uint64_t bits_written = 0;
+uint64_t rate_cost = 0;
+#endif
+
 void aom_dk_stop_encode(aom_dk_writer *br) {
   int i;
 

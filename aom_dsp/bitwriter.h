@@ -27,7 +27,7 @@
 #endif
 #include "aom_dsp/prob.h"
 
-#if CONFIG_RD_DEBUG
+#if CONFIG_RD_DEBUG || CONFIG_RD_DEBUG2
 #include "av1/common/blockd.h"
 #include "av1/encoder/cost.h"
 #endif
@@ -90,7 +90,13 @@ static INLINE void aom_stop_encode(aom_writer *bc) {
 #endif
 }
 
+extern uint64_t bits_written;
+extern uint64_t rate_cost;
+
 static INLINE void aom_write(aom_writer *br, int bit, int probability) {
+#if CONFIG_RD_DEBUG2
+  rate_cost += av1_cost_bit(probability, bit);
+#endif
 #if CONFIG_ANS
   buf_rabs_write(br, bit, probability);
 #elif CONFIG_DAALA_EC

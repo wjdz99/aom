@@ -39,8 +39,13 @@ extern "C" {
 
 #define QIDX_SKIP_THRESH 115
 
+#if CONFIG_RD_DEBUG2
+#define MV_COST_WEIGHT 128
+#define MV_COST_WEIGHT_SUB 128
+#else
 #define MV_COST_WEIGHT 108
 #define MV_COST_WEIGHT_SUB 120
+#endif
 
 #define INVALID_MV 0x80008000
 

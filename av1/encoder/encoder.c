@@ -4600,6 +4600,10 @@ static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
   return mask;
 }
 
+#if CONFIG_RD_DEBUG2
+RD_DEBUG_DATA rd_debug;
+#endif
+
 #define DUMP_RECON_FRAMES 0
 
 #if DUMP_RECON_FRAMES == 1
@@ -4681,6 +4685,13 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   int frame_type;
   int drop_this_frame = 0;
 #endif
+
+#if CONFIG_RD_DEBUG2
+  memset(&rd_debug, 0x7d, sizeof(rd_debug));
+  rd_debug.output_enabled = 0;
+  av1_zero(rd_debug.diff);
+#endif
+
   set_ext_overrides(cpi);
   aom_clear_system_state();
 
@@ -4897,6 +4908,40 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     cpi->refresh_last_frame = 1;
   }
 
+#if CONFIG_RD_DEBUG2
+  {
+#define Y_AT(b, r, c) ((b)->y_buffer[(r) * (b)->y_stride + (c)])
+#define U_AT(b, r, c) ((b)->u_buffer[(r) * (b)->uv_stride + (c)])
+#define V_AT(b, r, c) ((b)->v_buffer[(r) * (b)->uv_stride + (c)])
+#define ABS(a) ((a) > 0 ? (a) : -(a))
+
+    int r, c;
+    const YV12_BUFFER_CONFIG *src = cpi->Source;
+    const YV12_BUFFER_CONFIG *rec = get_frame_new_buffer(cm);
+    YV12_BUFFER_CONFIG *diff = &rd_debug.diff;
+    if (aom_alloc_frame_buffer(diff, src->y_crop_width, src->y_crop_height,
+                               src->subsampling_x, src->subsampling_y, 0, 32)) {
+      assert(0 && "Failed to allocate diff buffer\n");
+    }
+
+    for (r = 0; r < src->y_height; r++) {
+      for (c = 0; c < src->y_width; c++) {
+        int y_diff = Y_AT(src, r, c) - Y_AT(rec, r, c);
+        Y_AT(diff, r, c) = (uint8_t)ABS(y_diff);
+      }
+    }
+
+    for (r = 0; r < src->uv_height; r++) {
+      for (c = 0; c < src->uv_width; c++) {
+        int u_diff = U_AT(src, r, c) - U_AT(rec, r, c);
+        int v_diff = V_AT(src, r, c) - V_AT(rec, r, c);
+        U_AT(diff, r, c) = (uint8_t)ABS(u_diff);
+        V_AT(diff, r, c) = (uint8_t)ABS(v_diff);
+      }
+    }
+  }
+#endif
+
   cm->frame_to_show = get_frame_new_buffer(cm);
   cm->frame_to_show->color_space = cm->color_space;
   cm->frame_to_show->color_range = cm->color_range;
@@ -4910,6 +4955,10 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   // Pick the loop filter level for the frame.
   loopfilter_frame(cpi, cm);
+
+#if CONFIG_RD_DEBUG2
+  rd_debug.output_enabled = 1;
+#endif
 
   // Build the bitstream
   av1_pack_bitstream(cpi, dest, size);
@@ -4932,6 +4981,11 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
   if (cm->show_frame) dump_filtered_recon_frames(cpi);
 #endif  // DUMP_RECON_FRAMES
+
+#if CONFIG_RD_DEBUG2
+  rd_debug.output_enabled = 0;
+  aom_free_frame_buffer(&rd_debug.diff);
+#endif
 
   if (cm->seg.update_map) update_reference_segmentation_map(cpi);
 

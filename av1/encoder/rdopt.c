@@ -1275,7 +1275,8 @@ static void dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
 #endif  // CONFIG_PVQ
 #endif  // CONFIG_DAALA_DIST
 
-  if (cpi->sf.use_transform_domain_distortion && !CONFIG_DAALA_DIST) {
+  if (cpi->sf.use_transform_domain_distortion && !CONFIG_DAALA_DIST &&
+      !CONFIG_RD_DEBUG2) {
     // Transform domain distortion computation is more accurate as it does
     // not involve an inverse transform, but it is less accurate.
     const int buffer_length = tx_size_2d[tx_size];
@@ -2896,6 +2897,12 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
     int64_t distortion = 0;
     int rate = bmode_costs[mode];
     int can_skip = 1;
+#if CONFIG_RD_DEBUG2
+    extern int critical;
+    if (critical) {
+      printf("Stop\n");
+    }
+#endif
 
     if (!(cpi->sf.intra_y_mode_mask[txsize_sqr_up_map[tx_size]] &
           (1 << mode))) {
@@ -3710,6 +3717,12 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     RD_STATS this_rd_stats;
     int this_rate, this_rate_tokenonly, s;
     int64_t this_distortion, this_rd, this_model_rd;
+#if CONFIG_RD_DEBUG2
+    extern int critical;
+    if (critical) {
+      printf("Stop\n");
+    }
+#endif
     if (mode_idx == FINAL_MODE_SEARCH) {
       if (x->use_default_intra_tx_type == 0) break;
       mbmi->mode = best_mbmi.mode;
@@ -5086,9 +5099,15 @@ static int get_interinter_compound_type_bits(BLOCK_SIZE bsize,
 
 #if CONFIG_GLOBAL_MOTION
 static int GLOBAL_MOTION_RATE(const AV1_COMP *const cpi, int ref) {
+#if !CONFIG_RD_DEBUG2
   static const int gm_amortization_blks[TRANS_TYPES] = {
     4, 6, 8, 10, 10, 10, 12
   };
+#else
+  static const int gm_amortization_blks[TRANS_TYPES] = {
+    0, 0, 0, 0, 0, 0, 0
+  };
+#endif
   static const int gm_params_cost[TRANS_TYPES] = {
     GM_IDENTITY_BITS,   GM_TRANSLATION_BITS,  GM_ROTZOOM_BITS,
     GM_AFFINE_BITS,     GM_HORTRAPEZOID_BITS, GM_VERTRAPEZOID_BITS,
@@ -5335,6 +5354,13 @@ static int64_t encode_inter_mb_segment_sub8x8(
 
   assert(tx_type == DCT_DCT);
 
+#if CONFIG_RD_DEBUG2
+  extern int critical;
+  if (critical) {
+    printf("Predicting\n");
+  }
+#endif
+
   av1_build_inter_predictor_sub8x8(xd, 0, i, ir, ic, mi_row, mi_col);
 
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -5406,6 +5432,11 @@ static int64_t encode_inter_mb_segment_sub8x8(
     }
   }
 
+#if CONFIG_RD_DEBUG2
+  if (critical) {
+    printf("TRate=%d\n", thisrate);
+  }
+#endif
   *distortion = thisdistortion;
   *labelyrate = thisrate;
   *sse = thissse;
@@ -7415,12 +7446,21 @@ static int discount_newmv_test(const AV1_COMP *const cpi, int this_mode,
                                int_mv this_mv,
                                int_mv (*mode_mv)[TOTAL_REFS_PER_FRAME],
                                int ref_frame) {
+#if CONFIG_RD_DEBUG2
+  (void)cpi;
+  (void)this_mode;
+  (void)this_mv;
+  (void)mode_mv;
+  (void)ref_frame;
+  return 0;
+#else
   return (!cpi->rc.is_src_frame_alt_ref && (this_mode == NEWMV) &&
           (this_mv.as_int != 0) &&
           ((mode_mv[NEARESTMV][ref_frame].as_int == 0) ||
            (mode_mv[NEARESTMV][ref_frame].as_int == INVALID_MV)) &&
           ((mode_mv[NEARMV][ref_frame].as_int == 0) ||
            (mode_mv[NEARMV][ref_frame].as_int == INVALID_MV)));
+#endif
 }
 
 #define LEFT_TOP_MARGIN ((AOM_BORDER_IN_PIXELS - AOM_INTERP_EXTEND) << 3)
@@ -9716,8 +9756,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   int8_t dc_skipped = 1;
   FILTER_INTRA_MODE_INFO filter_intra_mode_info_uv[TX_SIZES_ALL];
 #endif  // CONFIG_FILTER_INTRA
+#if CONFIG_RD_DEBUG2
+  const int intra_cost_penalty = 0;
+#else
   const int intra_cost_penalty = av1_get_intra_cost_penalty(
       cm->base_qindex, cm->y_dc_delta_q, cm->bit_depth);
+#endif  // CONFIG_RD_DEBUG2
   const int *const intra_mode_cost = cpi->mbmode_cost[size_group_lookup[bsize]];
   int best_skip2 = 0;
   uint8_t ref_frame_skip_mask[2] = { 0 };
@@ -10063,6 +10107,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     for (ref_frame = 0; ref_frame < TOTAL_REFS_PER_FRAME; ++ref_frame)
       modelled_rd[i][ref_frame] = INT64_MAX;
 #endif  // CONFIG_EXT_INTER
+
+#if CONFIG_RD_DEBUG2
+  extern int critical;
+  if (critical) {
+    printf("Predicting\n");
+  }
+#endif
 
   for (midx = 0; midx < MAX_MODES; ++midx) {
     int mode_index;
@@ -11150,11 +11201,16 @@ PALETTE_EXIT:
   // Therefore, sometimes, NEWMV is chosen instead of NEARESTMV, NEARMV, and
   // ZEROMV. Here, checks are added for those cases, and the mode decisions
   // are corrected.
+#if CONFIG_RD_DEBUG2
+  if (0)
+#else
   if (best_mbmode.mode == NEWMV
 #if CONFIG_EXT_INTER
       || best_mbmode.mode == NEWFROMNEARMV || best_mbmode.mode == NEW_NEWMV
 #endif  // CONFIG_EXT_INTER
-      ) {
+      )
+#endif
+  {
     const MV_REFERENCE_FRAME refs[2] = { best_mbmode.ref_frame[0],
                                          best_mbmode.ref_frame[1] };
     int comp_pred_mode = refs[1] > INTRA_FRAME;
@@ -11658,8 +11714,12 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
   int64_t dist_uv = INT64_MAX;
   int skip_uv;
   PREDICTION_MODE mode_uv = DC_PRED;
+#if CONFIG_RD_DEBUG2
+  const int intra_cost_penalty = 0;
+#else
   const int intra_cost_penalty = av1_get_intra_cost_penalty(
       cm->base_qindex, cm->y_dc_delta_q, cm->bit_depth);
+#endif  // CONFIG_RD_DEBUG2
 #if CONFIG_EXT_INTER
   int_mv seg_mvs[4][2][TOTAL_REFS_PER_FRAME];
 #else

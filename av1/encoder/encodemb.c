@@ -110,6 +110,13 @@ static inline int64_t get_token_bit_costs(
 
 int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
                    TX_SIZE tx_size, int ctx) {
+#if CONFIG_RD_DEBUG2
+  struct macroblock_plane *const p = &mb->plane[plane];
+  (void)cm;
+  (void)tx_size;
+  (void)ctx;
+  return p->eobs[block];
+#else
   MACROBLOCKD *const xd = &mb->e_mbd;
   struct macroblock_plane *const p = &mb->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -451,6 +458,7 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
   mb->plane[plane].eobs[block] = final_eob;
   assert(final_eob <= default_eob);
   return final_eob;
+#endif
 }
 
 #if !CONFIG_PVQ
@@ -615,6 +623,10 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   (void)ctx;
 
+#if CONFIG_RD_DEBUG2
+  xform_quant_idx = AV1_XFORM_QUANT_FP;
+#endif
+
   fwd_txfm_param.tx_type = tx_type;
   fwd_txfm_param.tx_size = tx_size;
   fwd_txfm_param.lossless = xd->lossless[mbmi->segment_id];
@@ -735,7 +747,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   }
 #endif
 #if !CONFIG_PVQ
-  if (p->eobs[block] && !xd->lossless[xd->mi[0]->mbmi.segment_id])
+  if (p->eobs[block] && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
+      !CONFIG_RD_DEBUG2)
     av1_optimize_b(cm, x, plane, block, tx_size, ctx);
 #endif
 
@@ -1109,7 +1122,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   const ENTROPY_CONTEXT *l = &args->tl[blk_row];
   ctx = combine_entropy_contexts(*a, *l);
 
-  if (args->enable_optimize_b) {
+  if (args->enable_optimize_b && !CONFIG_RD_DEBUG2) {
 #if CONFIG_NEW_QUANT
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     ctx, AV1_XFORM_QUANT_FP_NUQ);

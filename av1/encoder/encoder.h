@@ -865,6 +865,21 @@ static INLINE void uref_cnt_fb(EncRefCntBuffer *ubufs, int *uidx,
   ubufs[new_uidx].ref_count++;
 }
 
+#ifdef CONFIG_RD_DEBUG2
+typedef struct RD_DEBUG_DATA {
+  int output_enabled;
+  YV12_BUFFER_CONFIG diff;
+  int rd_mult;
+  int rd_div;
+  RD_COST rd[BLOCK_SIZES][1024][1024];
+  RD_COST wr[BLOCK_SIZES][1024][1024];
+  uint32_t wr_bits[BLOCK_SIZES][1024][1024];
+  char supertx[BLOCK_SIZES][1024][1024];
+  char supertx_root[BLOCK_SIZES][1024][1024];
+  PARTITION_TYPE partition[BLOCK_SIZES][1024][1024];
+} RD_DEBUG_DATA;
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

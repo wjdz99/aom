@@ -2041,6 +2041,61 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
                 w);
 }
 
+#if CONFIG_RD_DEBUG2
+extern RD_DEBUG_DATA rd_debug;
+
+typedef struct {
+  uint64_t y;
+  uint64_t u;
+  uint64_t v;
+} YUVSSE;
+
+static YUVSSE sum_squares(const YV12_BUFFER_CONFIG *fb, const int mi_row,
+                          const int mi_col, const BLOCK_SIZE bsize) {
+#define Y_AT(b, r, c) ((b)->y_buffer[(r) * (b)->y_stride + (c)])
+#define U_AT(b, r, c) ((b)->u_buffer[(r) * (b)->uv_stride + (c)])
+#define V_AT(b, r, c) ((b)->v_buffer[(r) * (b)->uv_stride + (c)])
+
+  const int bw = num_4x4_blocks_wide_lookup[bsize] * 4;
+  const int bh = num_4x4_blocks_high_lookup[bsize] * 4;
+
+  const int y_rs = mi_row * 8;
+  const int y_cs = mi_col * 8;
+  const int y_re = AOMMIN(y_rs + bh, fb->y_height);
+  const int y_ce = AOMMIN(y_cs + bw, fb->y_width);
+
+  const int uv_rs = y_rs >> fb->subsampling_y;
+  const int uv_cs = y_cs >> fb->subsampling_x;
+  const int uv_re = y_re >> fb->subsampling_y;
+  const int uv_ce = y_ce >> fb->subsampling_x;
+
+  int r, c;
+
+  YUVSSE sse = { 0, 0, 0 };
+
+  assert(uv_re <= fb->uv_height);
+  assert(uv_ce <= fb->uv_width);
+
+  for (r = y_rs; r < y_re; r++) {
+    for (c = y_cs; c < y_ce; c++) {
+      const uint64_t y = Y_AT(fb, r, c);
+      sse.y += y * y;
+    }
+  }
+
+  for (r = uv_rs; r < uv_re; r++) {
+    for (c = uv_cs; c < uv_ce; c++) {
+      const uint64_t u = U_AT(fb, r, c);
+      const uint64_t v = V_AT(fb, r, c);
+      sse.u += u * u;
+      sse.v += v * v;
+    }
+  }
+
+  return sse;
+}
+#endif
+
 #if CONFIG_SUPERTX
 #define write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled, \
                               mi_row, mi_col)                              \
@@ -2475,6 +2530,15 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
                           int supertx_enabled,
 #endif
                           int mi_row, int mi_col) {
+#if CONFIG_RD_DEBUG2
+  const uint64_t start_rate_cost = rate_cost;
+  AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
+  MODE_INFO *m;
+  xd->mi = cm->mi_grid_visible + (mi_row * cm->mi_stride + mi_col);
+  m = xd->mi[0];
+#endif
+
   write_mbmi_b(cpi, tile, w,
 #if CONFIG_SUPERTX
                supertx_enabled,
@@ -2488,6 +2552,44 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   if (!supertx_enabled)
 #endif
     write_tokens_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
+#endif
+
+#if CONFIG_RD_DEBUG2
+  if (rd_debug.output_enabled && m->mbmi.sb_type >= BLOCK_8X8) {
+    const int intra_only_frame = frame_is_intra_only(&cpi->common);
+    const BLOCK_SIZE bsize = m->mbmi.sb_type;
+#if CONFIG_SUPERTX
+    const unsigned char supertx = supertx_enabled;
+#else
+    const unsigned char supertx = 0;
+#endif
+    const RD_COST rd = rd_debug.rd[bsize][mi_row][mi_col];
+    RD_COST wr;
+    const YUVSSE wr_sse = sum_squares(&rd_debug.diff, mi_row, mi_col, bsize);
+    const int rd_mult = rd_debug.rd_mult;
+    const int rd_div = rd_debug.rd_div;
+
+    wr.rate = rate_cost - start_rate_cost;
+    wr.dist = (wr_sse.y + wr_sse.u + wr_sse.v) * 16;
+    wr.rdcost = RDCOST(rd_mult, rd_div, wr.rate, wr.dist);
+    rd_debug.wr[bsize][mi_row][mi_col] = wr;
+
+    rd_debug.supertx[bsize][mi_row][mi_col] = supertx;
+
+    if (!supertx) {
+      printf(
+          "f=%2d, r=%2d, c=%2d, %2dx%2d, p=%s, iof=%d, supertx=%s, "
+          "rd_r=%6d, wr_r=%6d, wr_r/rd_r=%5.4f, "
+          "rd_d=%7ld, wr_d=%7ld, wr_d/rd_d=%5.4f, "
+          "rd_c=%9ld, wr_c=%9ld, wr_c/rd_c=%5.4f\n",
+          cm->current_video_frame, mi_row, mi_col,
+          num_4x4_blocks_wide_lookup[bsize] * 4,
+          num_4x4_blocks_high_lookup[bsize] * 4, "_", intra_only_frame, "0",
+          rd.rate, wr.rate, (double)wr.rate / (double)rd.rate, rd.dist, wr.dist,
+          (double)wr.dist / (double)rd.dist, rd.rdcost, wr.rdcost,
+          (double)wr.rdcost / (double)rd.rdcost);
+    }
+  }
 #endif
 }
 
@@ -2582,19 +2684,26 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
   const int unify_bsize = 0;
 #endif
 
-#if CONFIG_SUPERTX
+#if CONFIG_SUPERTX || CONFIG_RD_DEBUG2
   const int mi_offset = mi_row * cm->mi_stride + mi_col;
-  MB_MODE_INFO *mbmi;
+  MB_MODE_INFO *mbmi = &cm->mi_grid_visible[mi_offset]->mbmi;
+#endif
+#if CONFIG_SUPERTX
   const int pack_token = !supertx_enabled;
   TX_SIZE supertx_size;
   int plane;
+#endif
+#if CONFIG_RD_DEBUG2
+  const uint64_t start_rate_cost = rate_cost;
+#if CONFIG_SUPERTX
+  const int supertx_begin = !supertx_enabled;
+#endif
 #endif
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
   write_partition(cm, xd, hbs, mi_row, mi_col, partition, bsize, w);
 #if CONFIG_SUPERTX
-  mbmi = &cm->mi_grid_visible[mi_offset]->mbmi;
   xd->mi = cm->mi_grid_visible + mi_offset;
 #if CONFIG_DEPENDENT_HORZTILES
   set_mi_row_col(xd, tile, mi_row, mi_size_high[bsize], mi_col,
@@ -2614,6 +2723,11 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
     supertx_enabled = (xd->mi[0]->mbmi.tx_size == supertx_size);
     aom_write(w, supertx_enabled, prob);
   }
+#if CONFIG_RD_DEBUG2
+  rd_debug.supertx[bsize][mi_row][mi_col] = supertx_enabled;
+  rd_debug.supertx_root[bsize][mi_row][mi_col] =
+      supertx_enabled && supertx_begin;
+#endif
 #endif  // CONFIG_SUPERTX
   if (subsize < BLOCK_8X8 && !unify_bsize) {
     write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled, mi_row,
@@ -2797,6 +2911,148 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
                         cm->cdef_bits);
   }
 #endif
+
+#if CONFIG_RD_DEBUG2
+  if (rd_debug.output_enabled) {
+    const int intra_only_frame = frame_is_intra_only(&cpi->common);
+#if CONFIG_SUPERTX
+    const unsigned char supertx = rd_debug.supertx[bsize][mi_row][mi_col];
+    const unsigned char supertx_root =
+        rd_debug.supertx_root[bsize][mi_row][mi_col];
+#else
+    const unsigned char supertx = 0;
+    const unsigned char supertx_root = 0;
+#endif
+    const RD_COST rd = rd_debug.rd[bsize][mi_row][mi_col];
+    RD_COST wr;
+    const YUVSSE wr_sse = sum_squares(&rd_debug.diff, mi_row, mi_col, bsize);
+    const int rd_mult = rd_debug.rd_mult;
+    const int rd_div = rd_debug.rd_div;
+    const PARTITION_TYPE part = rd_debug.partition[bsize][mi_row][mi_col];
+    const char *strpart =
+        part == PARTITION_NONE
+            ? "N"
+            : part == PARTITION_HORZ
+                  ? "H"
+                  : part == PARTITION_VERT
+                        ? "V"
+                        : part == PARTITION_SPLIT
+                              ? "S"
+                              :
+#if CONFIG_EXT_PARTITION_TYPES
+                              part == PARTITION_HORZ_A
+                                  ? "HA"
+                                  : part == PARTITION_HORZ_B
+                                        ? "HB"
+                                        : part == PARTITION_VERT_A
+                                              ? "VA"
+                                              : part == PARTITION_VERT_B ? "VB"
+                                                                         :
+#endif  // CONFIG_EXT_PARTITION_TYPES
+                                                                         "?";
+
+    const char *strintra =
+        !(partition == PARTITION_NONE || mbmi->sb_type <= BLOCK_8X8)
+            ? "?"
+            : is_inter_block(mbmi) ? "1" : "0";
+
+    assert(part == partition);
+    assert(strpart[0] != '?');
+
+    wr.rate = rate_cost - start_rate_cost;
+    wr.dist = (wr_sse.y + wr_sse.u + wr_sse.v) * 16;
+    wr.rdcost = RDCOST(rd_mult, rd_div, wr.rate, wr.dist);
+
+    rd_debug.wr[bsize][mi_row][mi_col] = wr;
+
+    if (!supertx || supertx_root) {
+      printf(
+          "f=%2d, r=%2d, c=%2d, %2dx%2d, p=%s, iof=%d, inter=%s, supertx=%s, "
+          "rd_r=%6d, wr_r=%6d, wr_r/rd_r=%5.4f, "
+          "rd_d=%7ld, wr_d=%7ld, wr_d/rd_d=%5.4f, "
+          "rd_c=%9ld, wr_c=%9ld, wr_c/rd_c=%5.4f\n",
+          cm->current_video_frame, mi_row, mi_col,
+          num_4x4_blocks_wide_lookup[bsize] * 4,
+          num_4x4_blocks_high_lookup[bsize] * 4, strpart, intra_only_frame,
+          strintra, supertx ? "1" : "0", rd.rate, wr.rate,
+          (double)wr.rate / (double)rd.rate, rd.dist, wr.dist,
+          (double)wr.dist / (double)rd.dist, rd.rdcost, wr.rdcost,
+          (double)wr.rdcost / (double)rd.rdcost);
+    }
+
+// Assert that distortions sum as expected
+#ifndef NDEBUG
+    if (bsize > BLOCK_8X8) {
+      const int sbw = num_8x8_blocks_wide_lookup[subsize];
+      const int sbh = num_8x8_blocks_high_lookup[subsize];
+      const int ss = subsize;
+      switch (part) {
+        case PARTITION_HORZ: {
+          const int64_t rd_d_t = rd_debug.rd[ss][mi_row][mi_col].dist;
+          const int64_t rd_d_b = rd_debug.rd[ss][mi_row + sbh][mi_col].dist;
+
+          const int64_t wr_d_t = rd_debug.wr[ss][mi_row][mi_col].dist;
+          const int64_t wr_d_b = rd_debug.wr[ss][mi_row + sbh][mi_col].dist;
+
+          if (mi_row + sbh < cm->mi_rows) {
+            assert(rd.dist == rd_d_t + rd_d_b || supertx);
+            assert(wr.dist == wr_d_t + wr_d_b);
+          } else {
+            assert(rd.dist == rd_d_t);
+            assert(wr.dist == wr_d_t);
+          }
+          break;
+        }
+        case PARTITION_VERT: {
+          const int64_t rd_d_l = rd_debug.rd[ss][mi_row][mi_col].dist;
+          const int64_t rd_d_r = rd_debug.rd[ss][mi_row][mi_col + sbw].dist;
+
+          const int64_t wr_d_l = rd_debug.wr[ss][mi_row][mi_col].dist;
+          const int64_t wr_d_r = rd_debug.wr[ss][mi_row][mi_col + sbw].dist;
+
+          if (mi_col + sbw < cm->mi_cols) {
+            assert(rd.dist == rd_d_l + rd_d_r || supertx);
+            assert(wr.dist == wr_d_l + wr_d_r);
+          } else {
+            assert(rd.dist == rd_d_l);
+            assert(wr.dist == wr_d_l);
+          }
+          break;
+        }
+        case PARTITION_SPLIT: {
+          const int64_t rd_d_tl = rd_debug.rd[ss][mi_row][mi_col].dist;
+          const int64_t rd_d_tr = rd_debug.rd[ss][mi_row][mi_col + sbw].dist;
+          const int64_t rd_d_bl = rd_debug.rd[ss][mi_row + sbh][mi_col].dist;
+          const int64_t rd_d_br =
+              rd_debug.rd[ss][mi_row + sbh][mi_col + sbw].dist;
+
+          const int64_t wr_d_tl = rd_debug.wr[ss][mi_row][mi_col].dist;
+          const int64_t wr_d_tr = rd_debug.wr[ss][mi_row][mi_col + sbw].dist;
+          const int64_t wr_d_bl = rd_debug.wr[ss][mi_row + sbh][mi_col].dist;
+          const int64_t wr_d_br =
+              rd_debug.wr[ss][mi_row + sbh][mi_col + sbw].dist;
+
+          if (mi_row + sbh < cm->mi_rows && mi_col + sbw < cm->mi_cols) {
+            assert(rd.dist == rd_d_tl + rd_d_tr + rd_d_bl + rd_d_br || supertx);
+            assert(wr.dist == wr_d_tl + wr_d_tr + wr_d_bl + wr_d_br);
+          } else if (mi_col + sbw < cm->mi_cols) {
+            assert(rd.dist == rd_d_tl + rd_d_tr || supertx);
+            assert(wr.dist == wr_d_tl + wr_d_tr);
+          } else if (mi_row + sbh < cm->mi_rows) {
+            assert(rd.dist == rd_d_tl + rd_d_bl || supertx);
+            assert(wr.dist == wr_d_tl + wr_d_bl);
+          } else {
+            assert(rd.dist == rd_d_tl);
+            assert(wr.dist == wr_d_tl);
+          }
+          break;
+        }
+        default: { break; }
+      }
+    }
+#endif  // NDEBUG
+  }
+#endif // RD_DEBUG2
 }
 
 static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
@@ -3269,6 +3525,7 @@ static void update_coef_probs(AV1_COMP *cpi, aom_writer *w) {
     av1_coeff_stats frame_branch_ct[PLANE_TYPES];
     av1_coeff_probs_model frame_coef_probs[PLANE_TYPES];
     if (cpi->td.counts->tx_size_totals[tx_size] <= 20 || CONFIG_RD_DEBUG ||
+        CONFIG_RD_DEBUG2 ||
         (tx_size >= TX_16X16 && cpi->sf.tx_size_search_method == USE_TX_8X8)) {
       aom_write_bit(w, 0);
     } else {
@@ -3664,6 +3921,7 @@ static void write_frame_interp_filter(InterpFilter filter,
     aom_wb_write_literal(wb, filter, LOG_SWITCHABLE_FILTERS);
 }
 
+#if !CONFIG_RD_DEBUG2
 static void fix_interp_filter(AV1_COMMON *cm, FRAME_COUNTS *counts) {
   if (cm->interp_filter == SWITCHABLE) {
     // Check to see if only one of the filters is actually used
@@ -3686,6 +3944,7 @@ static void fix_interp_filter(AV1_COMMON *cm, FRAME_COUNTS *counts) {
     }
   }
 }
+#endif
 
 static void write_tile_info(const AV1_COMMON *const cm,
                             struct aom_write_bit_buffer *wb) {
@@ -4418,7 +4677,9 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 
       aom_wb_write_bit(wb, cm->allow_high_precision_mv);
 
+#if !CONFIG_RD_DEBUG2
       fix_interp_filter(cm, cpi->td.counts);
+#endif  // !CONFIG_RD_DEBUG2
       write_frame_interp_filter(cm->interp_filter, wb);
 #if CONFIG_TEMPMV_SIGNALING
       if (!cm->error_resilient_mode) {
