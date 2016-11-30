@@ -2480,6 +2480,9 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
       write_modes_sb_wrapper(cpi, tile, w, tok, tok_end, 0, mi_row, mi_col,
                              cm->sb_size);
     }
+#if CONFIG_ANS && ANS_SUB_TILE
+    if (mi_row + cm->mib_size < mi_row_end) aom_buf_ans_flush(w);
+#endif
   }
 #if CONFIG_PVQ
   // Check that the number of PVQ blocks encoded and written to the bitstream
