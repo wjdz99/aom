@@ -130,6 +130,12 @@ typedef void (*F8B)(uint8_t *dst, uint32_t dst_stride, const uint8_t *src0,
                     uint32_t mask_stride, int h, int w, int suby, int subx);
 typedef libaom_test::FuncParam<F8B> TestFuncs;
 
+std::ostream &operator<<(std::ostream &os, const TestFuncs &p) {
+  return os << "bit_depth:" << p.bit_depth
+            << " function:" << reinterpret_cast<const void *>(p.ref_func)
+            << " function:" << reinterpret_cast<const void *>(p.tst_func);
+}
+
 class BlendA64MaskTest8B : public BlendA64MaskTest<F8B, uint8_t> {
  protected:
   void Execute(const uint8_t *p_src0, const uint8_t *p_src1) {
@@ -193,6 +199,12 @@ typedef void (*FHBD)(uint8_t *dst, uint32_t dst_stride, const uint8_t *src0,
                      uint32_t mask_stride, int h, int w, int suby, int subx,
                      int bd);
 typedef libaom_test::FuncParam<FHBD> TestFuncsHBD;
+
+std::ostream &operator<<(std::ostream &os, const TestFuncsHBD &p) {
+  return os << "bit_depth:" << p.bit_depth
+            << " function:" << reinterpret_cast<const void *>(p.ref_func)
+            << " function:" << reinterpret_cast<const void *>(p.tst_func);
+}
 
 class BlendA64MaskTestHBD : public BlendA64MaskTest<FHBD, uint16_t> {
  protected:

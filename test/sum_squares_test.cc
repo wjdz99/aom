@@ -35,6 +35,12 @@ static const int16_t kInt13Max = (1 << 12) - 1;
 typedef uint64_t (*SSI16Func)(const int16_t *src, int stride, int size);
 typedef libaom_test::FuncParam<SSI16Func> TestFuncs;
 
+std::ostream &operator<<(std::ostream &os, const TestFuncs &p) {
+  return os << "bit_depth:" << p.bit_depth
+            << " function:" << reinterpret_cast<const void *>(p.ref_func)
+            << " function:" << reinterpret_cast<const void *>(p.tst_func);
+}
+
 class SumSquaresTest : public ::testing::TestWithParam<TestFuncs> {
  public:
   virtual ~SumSquaresTest() {}
@@ -132,6 +138,12 @@ INSTANTIATE_TEST_CASE_P(
 
 typedef uint64_t (*F1D)(const int16_t *src, uint32_t N);
 typedef libaom_test::FuncParam<F1D> TestFuncs1D;
+
+std::ostream &operator<<(std::ostream &os, const TestFuncs1D &p) {
+  return os << "bit_depth:" << p.bit_depth
+            << " function:" << reinterpret_cast<const void *>(p.ref_func)
+            << " function:" << reinterpret_cast<const void *>(p.tst_func);
+}
 
 class SumSquares1DTest : public FunctionEquivalenceTest<F1D> {
  protected:
