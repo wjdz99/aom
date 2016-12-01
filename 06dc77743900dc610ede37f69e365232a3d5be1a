@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8d5f5b58_65a791f4",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-12-01T20:02:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d5f5b58_0864ef27",
+      "revId": "06dc77743900dc610ede37f69e365232a3d5be1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d5f5b58_6855ab3d",
         "filename": "av1/common/convolve.c",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-01T05:24:00Z",
       "side": 1,
       "message": "is this (void) needed?",
+      "revId": "06dc77743900dc610ede37f69e365232a3d5be1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d5f5b58_c5fc9dc5",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2016-12-01T20:02:40Z",
+      "side": 1,
+      "message": "Yes because max_intermediate_size is only used in assert function but assert function is hidden in non-debugging mode. Therefore max_intermediate_size will be reported as non-used variable.",
+      "parentUuid": "8d5f5b58_6855ab3d",
       "revId": "06dc77743900dc610ede37f69e365232a3d5be1a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
