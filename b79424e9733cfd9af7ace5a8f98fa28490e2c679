@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d5f5b58_2202b426",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2016-12-01T01:40:21Z",
+      "side": 1,
+      "message": "Since CONFIG_DUAL_FILTER\u003d1, line 173,174 won\u0027t be compiled always.",
+      "range": {
+        "startLine": 173,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 6
+      },
+      "revId": "b79424e9733cfd9af7ace5a8f98fa28490e2c679",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d5f5b58_62fcacfd",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2016-12-01T01:40:21Z",
+      "side": 1,
+      "message": "Line 189 is the same as above.",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 189,
+        "endChar": 6
+      },
+      "revId": "b79424e9733cfd9af7ace5a8f98fa28490e2c679",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
