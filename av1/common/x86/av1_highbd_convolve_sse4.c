@@ -29,11 +29,6 @@ hbd_get_subpel_filter_ver_signal_dir(const InterpFilterParams p, int index) {
     return &sub_pel_filters_12sharp_highbd_ver_signal_dir[index][0];
   }
 #endif
-#if USE_TEMPORALFILTER_12TAP
-  if (p.interp_filter == TEMPORALFILTER_12TAP) {
-    return &sub_pel_filters_temporalfilter_12_highbd_ver_signal_dir[index][0];
-  }
-#endif
   (void)p;
   (void)index;
   return NULL;
