@@ -145,8 +145,6 @@ specialize qw/aom_ve_predictor_4x4/;
 
 if ((aom_config("CONFIG_ALT_INTRA") eq "yes")) {
   add_proto qw/void aom_paeth_predictor_4x4/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
-  
-  add_proto qw/void aom_smooth_predictor_4x4/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
 } else {
   add_proto qw/void aom_tm_predictor_4x4/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
   specialize qw/aom_tm_predictor_4x4 neon dspr2 msa sse2/;
@@ -199,8 +197,6 @@ specialize qw/aom_v_predictor_8x8 neon msa sse2/;
 
 if ((aom_config("CONFIG_ALT_INTRA") eq "yes")) {
   add_proto qw/void aom_paeth_predictor_8x8/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
-  
-  add_proto qw/void aom_smooth_predictor_8x8/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
 } else {
   add_proto qw/void aom_tm_predictor_8x8/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
   specialize qw/aom_tm_predictor_8x8 neon dspr2 msa sse2/;
@@ -253,12 +249,11 @@ specialize qw/aom_v_predictor_16x16 neon msa sse2/;
 
 if ((aom_config("CONFIG_ALT_INTRA") eq "yes")) {
   add_proto qw/void aom_paeth_predictor_16x16/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
-  
-  add_proto qw/void aom_smooth_predictor_16x16/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
 } else {
   add_proto qw/void aom_tm_predictor_16x16/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
   specialize qw/aom_tm_predictor_16x16 neon msa sse2/;
 }  # CONFIG_ALT_INTRA
+
 
 add_proto qw/void aom_dc_predictor_16x16/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
 specialize qw/aom_dc_predictor_16x16 dspr2 neon msa sse2/;
@@ -307,12 +302,11 @@ specialize qw/aom_v_predictor_32x32 neon msa sse2/;
 
 if ((aom_config("CONFIG_ALT_INTRA") eq "yes")) {
   add_proto qw/void aom_paeth_predictor_32x32/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
-  
-  add_proto qw/void aom_smooth_predictor_32x32/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
 } else {
   add_proto qw/void aom_tm_predictor_32x32/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
   specialize qw/aom_tm_predictor_32x32 neon msa sse2/;
 }  # CONFIG_ALT_INTRA
+
 
 add_proto qw/void aom_dc_predictor_32x32/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
 specialize qw/aom_dc_predictor_32x32 msa neon sse2/;
@@ -363,7 +357,6 @@ if ((aom_config("CONFIG_TX64X64") eq "yes")) {
   if ((aom_config("CONFIG_ALT_INTRA") eq "yes")) {
     add_proto qw/void aom_paeth_predictor_64x64/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
     specialize qw/aom_paeth_predictor_64x64/;
-    add_proto qw/void aom_smooth_predictor_64x64/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
   } else {
     add_proto qw/void aom_tm_predictor_64x64/, "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
     specialize qw/aom_tm_predictor_64x64/;
@@ -469,12 +462,11 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
 
   if ((aom_config("CONFIG_ALT_INTRA") eq "yes")) {
     add_proto qw/void aom_highbd_paeth_predictor_4x4/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
-    
-    add_proto qw/void aom_highbd_smooth_predictor_4x4/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
   } else {
     add_proto qw/void aom_highbd_tm_predictor_4x4/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
     specialize qw/aom_highbd_tm_predictor_4x4 sse2/;
   }  # CONFIG_ALT_INTRA
+
 
   add_proto qw/void aom_highbd_dc_predictor_4x4/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
   specialize qw/aom_highbd_dc_predictor_4x4 sse2/;
@@ -523,8 +515,6 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
 
   if ((aom_config("CONFIG_ALT_INTRA") eq "yes")) {
     add_proto qw/void aom_highbd_paeth_predictor_8x8/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
-    
-    add_proto qw/void aom_highbd_smooth_predictor_8x8/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
   } else {
     add_proto qw/void aom_highbd_tm_predictor_8x8/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
     specialize qw/aom_highbd_tm_predictor_8x8 sse2/;
@@ -577,8 +567,6 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
 
   if ((aom_config("CONFIG_ALT_INTRA") eq "yes")) {
     add_proto qw/void aom_highbd_paeth_predictor_16x16/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
-    
-    add_proto qw/void aom_highbd_smooth_predictor_16x16/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
   } else {
     add_proto qw/void aom_highbd_tm_predictor_16x16/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
     specialize qw/aom_highbd_tm_predictor_16x16 sse2/;
@@ -631,8 +619,6 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
 
   if ((aom_config("CONFIG_ALT_INTRA") eq "yes")) {
     add_proto qw/void aom_highbd_paeth_predictor_32x32/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
-    
-    add_proto qw/void aom_highbd_smooth_predictor_32x32/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
   } else {
     add_proto qw/void aom_highbd_tm_predictor_32x32/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
     specialize qw/aom_highbd_tm_predictor_32x32 sse2/;
@@ -686,7 +672,6 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
 
     if ((aom_config("CONFIG_ALT_INTRA") eq "yes")) {
       add_proto qw/void aom_highbd_paeth_predictor_64x64/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
-      add_proto qw/void aom_highbd_smooth_predictor_64x64/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
     } else {
       add_proto qw/void aom_highbd_tm_predictor_64x64/, "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
       specialize qw/aom_highbd_tm_predictor_64x64/;
