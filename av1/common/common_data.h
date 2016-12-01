@@ -744,7 +744,7 @@ static const TX_SIZE tx_mode_to_biggest_tx_size[TX_MODES] = {
   TX_64X64,  // ALLOW_64X64
   TX_64X64,  // TX_MODE_SELECT
 #else
-  TX_32X32,    // TX_MODE_SELECT
+  TX_32X32,  // TX_MODE_SELECT
 #endif  // CONFIG_TX64X64
 };
 
