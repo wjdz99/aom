@@ -42,10 +42,10 @@ static void temporal_filter_predictors_mb_c(
 
 #if USE_TEMPORALFILTER_12TAP
 #if CONFIG_DUAL_FILTER
-  const InterpFilter interp_filter[4] = { TEMPORALFILTER_12TAP,
-                                          TEMPORALFILTER_12TAP,
-                                          TEMPORALFILTER_12TAP,
-                                          TEMPORALFILTER_12TAP };
+  const InterpFilter interp_filter[4] = { EIGHTTAP_SHARP,
+                                          EIGHTTAP_SHARP,
+                                          EIGHTTAP_SHARP,
+                                          EIGHTTAP_SHARP };
 #else
   const InterpFilter interp_filter = TEMPORALFILTER_12TAP;
 #endif
