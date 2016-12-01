@@ -139,10 +139,6 @@ typedef enum {
 
   THR_TM,
 
-#if CONFIG_ALT_INTRA
-  THR_SMOOTH,
-#endif  // CONFIG_ALT_INTRA
-
 #if CONFIG_EXT_INTER
 
   THR_COMP_NEAR_NEARESTLA,
