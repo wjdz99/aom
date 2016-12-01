@@ -1230,11 +1230,13 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     }
     case ZEROMV: {
 #if CONFIG_GLOBAL_MOTION
-      mv[0].as_int =
-          gm_get_motion_vector(&cm->global_motion[ref_frame[0]]).as_int;
+      mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
+                                          cm->allow_high_precision_mv)
+                         .as_int;
       if (is_compound)
-        mv[1].as_int =
-            gm_get_motion_vector(&cm->global_motion[ref_frame[1]]).as_int;
+        mv[1].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[1]],
+                                            cm->allow_high_precision_mv)
+                           .as_int;
 #else
       mv[0].as_int = 0;
       if (is_compound) mv[1].as_int = 0;
@@ -1482,11 +1484,14 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       int_mv zeromv[2];
       av1_set_ref_frame(rf, ref_frame);
 #if CONFIG_GLOBAL_MOTION
-      zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[rf[0]]).as_int;
-      zeromv[1].as_int =
-          (rf[1] != NONE)
-              ? gm_get_motion_vector(&cm->global_motion[rf[1]]).as_int
-              : 0;
+      zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[rf[0]],
+                                              cm->allow_high_precision_mv)
+                             .as_int;
+      zeromv[1].as_int = (rf[1] != NONE)
+                             ? gm_get_motion_vector(&cm->global_motion[rf[1]],
+                                                    cm->allow_high_precision_mv)
+                                   .as_int
+                             : 0;
 #else
       zeromv[0].as_int = zeromv[1].as_int = 0;
 #endif
