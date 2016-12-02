@@ -74,7 +74,11 @@ static unsigned int do_16x16_motion_iteration(AV1_COMP *cpi, const MV *ref_mv,
   xd->mi[0]->mbmi.ref_frame[1] = NONE;
 #endif  // CONFIG_EXT_INTER
 
-  av1_build_inter_predictors_sby(xd, mb_row, mb_col, BLOCK_16X16);
+  av1_build_inter_predictors_sby(xd, mb_row, mb_col,
+#if CONFIG_EXT_INTER
+                                 xd->plane[0].dst.buf, xd->plane[0].dst.stride,
+#endif
+                                 BLOCK_16X16);
 
   /* restore UMV window */
   x->mv_col_min = tmp_col_min;
