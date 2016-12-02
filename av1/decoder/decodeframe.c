@@ -1512,8 +1512,14 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
       }
     } else {
       // Prediction
-      av1_build_inter_predictors_sb(xd, mi_row, mi_col,
-                                    AOMMAX(bsize, BLOCK_8X8));
+      av1_build_inter_predictors_sb(
+          xd, mi_row, mi_col,
+#if CONFIG_EXT_INTER
+          xd->plane[0].dst.buf, xd->plane[1].dst.buf, xd->plane[2].dst.buf,
+          xd->plane[0].dst.stride, xd->plane[1].dst.stride,
+          xd->plane[2].dst.stride,
+#endif
+          AOMMAX(bsize, BLOCK_8X8));
 
       // Reconstruction
       if (!mbmi->skip) {
@@ -1617,8 +1623,14 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
       }
     } else {
 #endif  // CONFIG_WARPED_MOTION
-      av1_build_inter_predictors_sb(xd, mi_row, mi_col,
-                                    AOMMAX(bsize, BLOCK_8X8));
+      av1_build_inter_predictors_sb(
+          xd, mi_row, mi_col,
+#if CONFIG_EXT_INTER
+          xd->plane[0].dst.buf, xd->plane[1].dst.buf, xd->plane[2].dst.buf,
+          xd->plane[0].dst.stride, xd->plane[1].dst.stride,
+          xd->plane[2].dst.stride,
+#endif
+          AOMMAX(bsize, BLOCK_8X8));
 #if CONFIG_WARPED_MOTION
     }
 #endif  // CONFIG_WARPED_MOTION
