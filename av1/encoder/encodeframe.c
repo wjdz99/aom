@@ -4897,8 +4897,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       ref_buf = get_ref_frame_buffer(cpi, frame);
       if (ref_buf) {
         aom_clear_system_state();
-        if (compute_global_motion_feature_based(GLOBAL_TRANS_TYPES - 1,
-                                                cpi->Source, ref_buf,
+#if GLOBAL_TRANS_TYPES >= 3
+        // First try ROTZOOM model
+        if (compute_global_motion_feature_based(ROTZOOM, cpi->Source, ref_buf,
 #if CONFIG_AOM_HIGHBITDEPTH
                                                 cpi->common.bit_depth,
 #endif  // CONFIG_AOM_HIGHBITDEPTH
@@ -4919,6 +4920,58 @@ static void encode_frame_internal(AV1_COMP *cpi) {
             }
           }
         }
+        if (cm->global_motion[frame].wmtype != IDENTITY) continue;
+#endif  // GLOBAL_TRANS_TYPES >= 3
+#if GLOBAL_TRANS_TYPES >= 4
+        // Try the affine model next
+        if (compute_global_motion_feature_based(AFFINE, cpi->Source, ref_buf,
+#if CONFIG_AOM_HIGHBITDEPTH
+                                                cpi->common.bit_depth,
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+                                                params)) {
+          convert_model_to_params(params, &cm->global_motion[frame]);
+          if (cm->global_motion[frame].wmtype != IDENTITY) {
+            erroradvantage = refine_integerized_param(
+                &cm->global_motion[frame], cm->global_motion[frame].wmtype,
+#if CONFIG_AOM_HIGHBITDEPTH
+                xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+                ref_buf->y_buffer, ref_buf->y_width, ref_buf->y_height,
+                ref_buf->y_stride, cpi->Source->y_buffer, cpi->Source->y_width,
+                cpi->Source->y_height, cpi->Source->y_stride, 3);
+            if (erroradvantage >
+                gm_advantage_thresh[cm->global_motion[frame].wmtype]) {
+              set_default_gmparams(&cm->global_motion[frame]);
+            }
+          }
+        }
+        if (cm->global_motion[frame].wmtype != IDENTITY) continue;
+#endif  // GLOBAL_TRANS_TYPES >= 4
+#if GLOBAL_TRANS_TYPES >= 5
+        // Finally try the homography model
+        if (compute_global_motion_feature_based(HOMOGRAPHY, cpi->Source,
+                                                ref_buf,
+#if CONFIG_AOM_HIGHBITDEPTH
+                                                cpi->common.bit_depth,
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+                                                params)) {
+          convert_model_to_params(params, &cm->global_motion[frame]);
+          if (cm->global_motion[frame].wmtype != IDENTITY) {
+            erroradvantage = refine_integerized_param(
+                &cm->global_motion[frame], cm->global_motion[frame].wmtype,
+#if CONFIG_AOM_HIGHBITDEPTH
+                xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+                ref_buf->y_buffer, ref_buf->y_width, ref_buf->y_height,
+                ref_buf->y_stride, cpi->Source->y_buffer, cpi->Source->y_width,
+                cpi->Source->y_height, cpi->Source->y_stride, 3);
+            if (erroradvantage >
+                gm_advantage_thresh[cm->global_motion[frame].wmtype]) {
+              set_default_gmparams(&cm->global_motion[frame]);
+            }
+          }
+        }
+#endif  // GLOBAL_TRANS_TYPES >= 5
         aom_clear_system_state();
       }
     }
