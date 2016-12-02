@@ -8936,13 +8936,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       // Mode must by compatible
       assert(is_interintra_allowed_mode(this_mode));
 
-      // TODO(david.barker): When we have unequal subsampling, we cannot
-      // support any interintra modes, since they do not support rectangular
-      // blocks. Re-enable once we have rectangular intra predictors.
-      if (xd->plane[1].subsampling_x != xd->plane[1].subsampling_y ||
-          xd->plane[2].subsampling_x != xd->plane[2].subsampling_y)
-        continue;
-
       if (!is_interintra_allowed_bsize(bsize)) continue;
     }
 

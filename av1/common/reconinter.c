@@ -1874,15 +1874,80 @@ static void build_intra_predictors_for_interintra(MACROBLOCKD *xd, uint8_t *ref,
   BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, &xd->plane[plane]);
   const int bwl = b_width_log2_lookup[plane_bsize];
   const int bhl = b_height_log2_lookup[plane_bsize];
+  const int pxbw = 4 << bwl;
+  const int pxbh = 4 << bhl;
   TX_SIZE max_tx_size = max_txsize_lookup[plane_bsize];
+#if CONFIG_AOM_HIGHBITDEPTH
+  uint16_t tmp16[MAX_SB_SIZE];
+#endif
+  uint8_t tmp[MAX_SB_SIZE];
 
   if (bwl == bhl) {
     av1_predict_intra_block(xd, pd->width, pd->height, max_tx_size, mode, ref,
                             ref_stride, dst, dst_stride, 0, 0, plane);
-  } else {
-    // TODO(david.barker): Rectangular intra predictions are not currently
-    // supported
-    assert(0);
+
+  } else if (bwl < bhl) {
+    uint8_t *src_2 = ref + pxbw * ref_stride;
+    uint8_t *dst_2 = dst + pxbw * dst_stride;
+    av1_predict_intra_block(xd, pd->width, pd->height, max_tx_size, mode, ref,
+                            ref_stride, dst, dst_stride, 0, 0, plane);
+#if CONFIG_AOM_HIGHBITDEPTH
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      uint16_t *src_216 = CONVERT_TO_SHORTPTR(src_2);
+      uint16_t *dst_216 = CONVERT_TO_SHORTPTR(dst_2);
+      memcpy(tmp16, src_216 - ref_stride, sizeof(*src_216) * pxbw);
+      memcpy(src_216 - ref_stride, dst_216 - dst_stride,
+             sizeof(*src_216) * pxbw);
+    } else
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+    {
+      memcpy(tmp, src_2 - ref_stride, sizeof(*src_2) * pxbw);
+      memcpy(src_2 - ref_stride, dst_2 - dst_stride, sizeof(*src_2) * pxbw);
+    }
+    av1_predict_intra_block(xd, pd->width, pd->height, max_tx_size, mode, src_2,
+                            ref_stride, dst_2, dst_stride, 0, 1 << bwl, plane);
+#if CONFIG_AOM_HIGHBITDEPTH
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      uint16_t *src_216 = CONVERT_TO_SHORTPTR(src_2);
+      memcpy(src_216 - ref_stride, tmp16, sizeof(*src_216) * pxbw);
+    } else
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+    {
+      memcpy(src_2 - ref_stride, tmp, sizeof(*src_2) * pxbw);
+    }
+  } else {  // bwl > bhl
+    int i;
+    uint8_t *src_2 = ref + pxbh;
+    uint8_t *dst_2 = dst + pxbh;
+    av1_predict_intra_block(xd, pd->width, pd->height, max_tx_size, mode, ref,
+                            ref_stride, dst, dst_stride, 0, 0, plane);
+#if CONFIG_AOM_HIGHBITDEPTH
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      uint16_t *src_216 = CONVERT_TO_SHORTPTR(src_2);
+      uint16_t *dst_216 = CONVERT_TO_SHORTPTR(dst_2);
+      for (i = 0; i < pxbh; ++i) {
+        tmp16[i] = src_216[i * ref_stride - 1];
+        src_216[i * ref_stride - 1] = dst_216[i * dst_stride - 1];
+      }
+    } else
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+    {
+      for (i = 0; i < pxbh; ++i) {
+        tmp[i] = src_2[i * ref_stride - 1];
+        src_2[i * ref_stride - 1] = dst_2[i * dst_stride - 1];
+      }
+    }
+    av1_predict_intra_block(xd, pd->width, pd->height, max_tx_size, mode, src_2,
+                            ref_stride, dst_2, dst_stride, 1 << bhl, 0, plane);
+#if CONFIG_AOM_HIGHBITDEPTH
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      uint16_t *src_216 = CONVERT_TO_SHORTPTR(src_2);
+      for (i = 0; i < pxbh; ++i) src_216[i * ref_stride - 1] = tmp16[i];
+    } else
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+    {
+      for (i = 0; i < pxbh; ++i) src_2[i * ref_stride - 1] = tmp[i];
+    }
   }
 }
 

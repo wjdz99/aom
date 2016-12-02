@@ -883,9 +883,6 @@ void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
 
 #if CONFIG_EXT_INTER
 static INLINE int is_interintra_allowed_bsize(const BLOCK_SIZE bsize) {
-  // TODO(david.barker): Rectangular interintra modes are currently
-  // disabled. Re-enable them once we have rectangular intra predictors.
-  if (block_size_wide[bsize] != block_size_high[bsize]) return 0;
   // TODO(debargha): Should this be bsize < BLOCK_LARGEST?
   return (bsize >= BLOCK_8X8) && (bsize < BLOCK_64X64);
 }
