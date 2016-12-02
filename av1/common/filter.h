@@ -40,11 +40,6 @@ extern "C" {
   2     /* (1 << LOG_SWITCHABLE_FILTERS) > SWITCHABLE_FILTERS */
 #endif  // CONFIG_EXT_INTERP
 
-#define USE_TEMPORALFILTER_12TAP 1
-#if USE_TEMPORALFILTER_12TAP
-#define TEMPORALFILTER_12TAP (SWITCHABLE_FILTERS + 2)
-#endif
-
 // The codec can operate in four possible inter prediction filter mode:
 // 8-tap, 8-tap-smooth, 8-tap-sharp, and switching between the three.
 

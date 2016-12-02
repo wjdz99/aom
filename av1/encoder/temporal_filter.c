@@ -40,18 +40,24 @@ static void temporal_filter_predictors_mb_c(
   enum mv_precision mv_precision_uv;
   int uv_stride;
 
-#if USE_TEMPORALFILTER_12TAP
+#if CONFIG_EXT_INTERP
 #if CONFIG_DUAL_FILTER
-  const InterpFilter interp_filter[4] = { EIGHTTAP_SHARP,
-                                          EIGHTTAP_SHARP,
-                                          EIGHTTAP_SHARP,
-                                          EIGHTTAP_SHARP };
+  const InterpFilter interp_filter[4] = {
+    MULTITAP_SHARP, MULTITAP_SHARP, MULTITAP_SHARP, MULTITAP_SHARP,
+  };
 #else
-  const InterpFilter interp_filter = TEMPORALFILTER_12TAP;
+  const InterpFilter interp_filter = MULTITAP_SHARP;
 #endif
   (void)xd;
 #else
+#if CONFIG_DUAL_FILTER
+  const InterpFilter interp_filter[4] = { xd->mi[0]->mbmi.interp_filter[0],
+                                          xd->mi[0]->mbmi.interp_filter[1],
+                                          xd->mi[0]->mbmi.interp_filter[2],
+                                          xd->mi[0]->mbmi.interp_filter[3] };
+#else
   const InterpFilter interp_filter = xd->mi[0]->mbmi.interp_filter;
+#endif
 #endif  // USE_TEMPORALFILTER_12TAP
 
   if (uv_block_width == 8) {
