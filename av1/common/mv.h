@@ -63,7 +63,7 @@ typedef enum {
 /* clang-format on */
 
 // Number of types used for global motion (must be <= TRANS_TYPES)
-#define GLOBAL_TRANS_TYPES 3
+#define GLOBAL_TRANS_TYPES 4
 
 // number of parameters used by each transformation in TransformationTypes
 static const int n_trans_model_params[TRANS_TYPES] = { 0, 2, 4, 6, 8 };
