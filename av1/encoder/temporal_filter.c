@@ -43,7 +43,7 @@ static void temporal_filter_predictors_mb_c(
 #if CONFIG_EXT_INTERP
 #if CONFIG_DUAL_FILTER
   const InterpFilter interp_filter[4] = {
-    MULTITAP_SHARP, MULTITAP_SHARP, MULTITAP_SHARP, MULTITAP_SHARP,
+    MULTITAP_SHARP, EIGHTTAP_SHARP, MULTITAP_SHARP, EIGHTTAP_SHARP,
   };
 #else
   const InterpFilter interp_filter = MULTITAP_SHARP;
