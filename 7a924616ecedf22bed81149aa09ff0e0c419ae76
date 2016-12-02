@@ -16,6 +16,24 @@
       "revId": "7a924616ecedf22bed81149aa09ff0e0c419ae76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d5f5b58_474b6da1",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2016-12-02T01:38:02Z",
+      "side": 1,
+      "message": "I take them as primitive functions same as other block sizes. The experimental flag can control whether to use such operating blocks, but no need to exclude them from the library for codebase cleanness.",
+      "parentUuid": "8d5f5b58_2c645e28",
+      "revId": "7a924616ecedf22bed81149aa09ff0e0c419ae76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
