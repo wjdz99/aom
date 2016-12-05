@@ -387,38 +387,22 @@ static TX_SIZE read_selected_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd,
   int depth = aom_read_tree(r, av1_tx_size_tree[tx_size_cat],
                             cm->fc->tx_size_probs[tx_size_cat][ctx], ACCT_STR);
   TX_SIZE tx_size = depth_to_tx_size(depth);
+  assert(!is_rect_tx(depth));
   if (counts) ++counts->tx_size[tx_size_cat][ctx][depth];
   return tx_size;
 }
 
-static TX_SIZE read_tx_size_intra(AV1_COMMON *cm, MACROBLOCKD *xd,
-                                  aom_reader *r) {
+static TX_SIZE read_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd, int is_inter,
+                            int allow_select_inter, aom_reader *r) {
   TX_MODE tx_mode = cm->tx_mode;
   BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
   if (xd->lossless[xd->mi[0]->mbmi.segment_id]) return TX_4X4;
   if (bsize >= BLOCK_8X8) {
-    if (tx_mode == TX_MODE_SELECT) {
-      const TX_SIZE tx_size =
-          read_selected_tx_size(cm, xd, intra_tx_size_cat_lookup[bsize], r);
-      assert(tx_size <= max_txsize_lookup[bsize]);
-      return tx_size;
-    } else {
-      return tx_size_from_tx_mode(bsize, cm->tx_mode, 0);
-    }
-  } else {
-    return TX_4X4;
-  }
-}
-
-static TX_SIZE read_tx_size_inter(AV1_COMMON *cm, MACROBLOCKD *xd,
-                                  int allow_select, aom_reader *r) {
-  TX_MODE tx_mode = cm->tx_mode;
-  BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
-  if (xd->lossless[xd->mi[0]->mbmi.segment_id]) return TX_4X4;
-  if (bsize >= BLOCK_8X8) {
-    if (allow_select && tx_mode == TX_MODE_SELECT) {
+    if ((!is_inter || allow_select_inter) && tx_mode == TX_MODE_SELECT) {
+      const int32_t tx_size_cat = is_inter ? inter_tx_size_cat_lookup[bsize]
+                                           : intra_tx_size_cat_lookup[bsize];
       const TX_SIZE coded_tx_size =
-          read_selected_tx_size(cm, xd, inter_tx_size_cat_lookup[bsize], r);
+          read_selected_tx_size(cm, xd, tx_size_cat, r);
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
       if (coded_tx_size > max_txsize_lookup[bsize]) {
         assert(coded_tx_size == max_txsize_lookup[bsize] + 1);
@@ -429,7 +413,7 @@ static TX_SIZE read_tx_size_inter(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
       return coded_tx_size;
     } else {
-      return tx_size_from_tx_mode(bsize, cm->tx_mode, 1);
+      return tx_size_from_tx_mode(bsize, cm->tx_mode, is_inter);
     }
   } else {
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
@@ -707,6 +691,7 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 #endif
   if (!FIXED_TX_TYPE) {
 #if CONFIG_EXT_TX
+    const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
     if (get_ext_tx_types(tx_size, mbmi->sb_type, inter_block) > 1 &&
         cm->base_qindex > 0 && !mbmi->skip &&
 #if CONFIG_SUPERTX
@@ -720,19 +705,19 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         if (eset > 0) {
           mbmi->tx_type = aom_read_tree(
               r, av1_ext_tx_inter_tree[eset],
-              cm->fc->inter_ext_tx_prob[eset][txsize_sqr_map[tx_size]],
-              ACCT_STR);
+              cm->fc->inter_ext_tx_prob[eset][square_tx_size], ACCT_STR);
           if (counts)
-            ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]]
-                                  [mbmi->tx_type];
+            ++counts->inter_ext_tx[eset][square_tx_size][mbmi->tx_type];
         }
       } else if (ALLOW_INTRA_EXT_TX) {
         if (eset > 0) {
           mbmi->tx_type = aom_read_tree(
               r, av1_ext_tx_intra_tree[eset],
-              cm->fc->intra_ext_tx_prob[eset][tx_size][mbmi->mode], ACCT_STR);
+              cm->fc->intra_ext_tx_prob[eset][square_tx_size][mbmi->mode],
+              ACCT_STR);
           if (counts)
-            ++counts->intra_ext_tx[eset][tx_size][mbmi->mode][mbmi->tx_type];
+            ++counts->intra_ext_tx[eset][square_tx_size][mbmi->mode]
+                                  [mbmi->tx_type];
         }
       }
     } else {
@@ -803,7 +788,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   }
 #endif
 
-  mbmi->tx_size = read_tx_size_intra(cm, xd, r);
+  mbmi->tx_size = read_tx_size(cm, xd, 0, 1, r);
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE;
 
@@ -1974,10 +1959,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
           read_tx_size_vartx(cm, xd, mbmi, xd->counts, max_tx_size,
                              height != width, idy, idx, r);
     } else {
-      if (inter_block)
-        mbmi->tx_size = read_tx_size_inter(cm, xd, !mbmi->skip, r);
-      else
-        mbmi->tx_size = read_tx_size_intra(cm, xd, r);
+      mbmi->tx_size = read_tx_size(cm, xd, inter_block, !mbmi->skip, r);
 
       if (inter_block) {
         const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
@@ -1991,10 +1973,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
       set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
     }
 #else
-  if (inter_block)
-    mbmi->tx_size = read_tx_size_inter(cm, xd, !mbmi->skip, r);
-  else
-    mbmi->tx_size = read_tx_size_intra(cm, xd, r);
+  mbmi->tx_size = read_tx_size(cm, xd, inter_block, !mbmi->skip, r);
 #endif  // CONFIG_VAR_TX
 #if CONFIG_SUPERTX
   }
