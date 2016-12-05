@@ -387,6 +387,7 @@ static TX_SIZE read_selected_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd,
   return tx_size;
 }
 
+// TODO(now): Is this change correct?
 static TX_SIZE read_tx_size_intra(AV1_COMMON *cm, MACROBLOCKD *xd,
                                   aom_reader *r) {
   TX_MODE tx_mode = cm->tx_mode;
@@ -394,15 +395,27 @@ static TX_SIZE read_tx_size_intra(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (xd->lossless[xd->mi[0]->mbmi.segment_id]) return TX_4X4;
   if (bsize >= BLOCK_8X8) {
     if (tx_mode == TX_MODE_SELECT) {
-      const TX_SIZE tx_size =
+      const TX_SIZE coded_tx_size =
           read_selected_tx_size(cm, xd, intra_tx_size_cat_lookup[bsize], r);
+#if CONFIG_EXT_TX && CONFIG_RECT_TX
+      if (coded_tx_size > max_txsize_lookup[bsize]) {
+        assert(coded_tx_size == max_txsize_lookup[bsize] + 1);
+        return max_txsize_rect_lookup[bsize];
+      }
+#else
       assert(tx_size <= max_txsize_lookup[bsize]);
-      return tx_size;
+#endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
+      return coded_tx_size;
     } else {
       return tx_size_from_tx_mode(bsize, cm->tx_mode, 0);
     }
   } else {
+#if CONFIG_EXT_TX && CONFIG_RECT_TX
+    assert(IMPLIES(tx_mode == ONLY_4X4, bsize == BLOCK_4X4));
+    return max_txsize_rect_lookup[bsize];
+#else
     return TX_4X4;
+#endif
   }
 }
 

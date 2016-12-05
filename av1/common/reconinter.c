@@ -1895,6 +1895,7 @@ static void combine_interintra_highbd(
 }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
+// TODO(now): Call 'av1_predict_intra_block' instead, or refactor part of it.
 static void build_intra_predictors_for_interintra(MACROBLOCKD *xd, uint8_t *ref,
                                                   int ref_stride, uint8_t *dst,
                                                   int dst_stride,
@@ -1915,8 +1916,8 @@ static void build_intra_predictors_for_interintra(MACROBLOCKD *xd, uint8_t *ref,
 #endif
 
   if (bwl == bhl) {
-    av1_predict_intra_block(xd, pd->width, pd->height, max_tx_size, mode, ref,
-                            ref_stride, dst, dst_stride, 0, 0, plane);
+    predict_square_intra_block(xd, pd->width, pd->height, max_tx_size, mode,
+                               ref, ref_stride, dst, dst_stride, 0, 0, plane);
 #if !USE_RECT_INTERINTRA
   } else {
     assert(0);
@@ -1925,8 +1926,8 @@ static void build_intra_predictors_for_interintra(MACROBLOCKD *xd, uint8_t *ref,
   } else if (bwl < bhl) {
     uint8_t *src_2 = ref + pxbw * ref_stride;
     uint8_t *dst_2 = dst + pxbw * dst_stride;
-    av1_predict_intra_block(xd, pd->width, pd->height, max_tx_size, mode, ref,
-                            ref_stride, dst, dst_stride, 0, 0, plane);
+    predict_square_intra_block(xd, pd->width, pd->height, max_tx_size, mode,
+                               ref, ref_stride, dst, dst_stride, 0, 0, plane);
 #if CONFIG_AOM_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       uint16_t *src_216 = CONVERT_TO_SHORTPTR(src_2);
@@ -1941,8 +1942,9 @@ static void build_intra_predictors_for_interintra(MACROBLOCKD *xd, uint8_t *ref,
 #if CONFIG_AOM_HIGHBITDEPTH
     }
 #endif
-    av1_predict_intra_block(xd, pd->width, pd->height, max_tx_size, mode, src_2,
-                            ref_stride, dst_2, dst_stride, 0, 1 << bwl, plane);
+    predict_square_intra_block(xd, pd->width, pd->height, max_tx_size, mode,
+                               src_2, ref_stride, dst_2, dst_stride, 0,
+                               1 << bwl, plane);
 #if CONFIG_AOM_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       uint16_t *src_216 = CONVERT_TO_SHORTPTR(src_2);
@@ -1957,8 +1959,8 @@ static void build_intra_predictors_for_interintra(MACROBLOCKD *xd, uint8_t *ref,
     int i;
     uint8_t *src_2 = ref + pxbh;
     uint8_t *dst_2 = dst + pxbh;
-    av1_predict_intra_block(xd, pd->width, pd->height, max_tx_size, mode, ref,
-                            ref_stride, dst, dst_stride, 0, 0, plane);
+    predict_square_intra_block(xd, pd->width, pd->height, max_tx_size, mode,
+                               ref, ref_stride, dst, dst_stride, 0, 0, plane);
 #if CONFIG_AOM_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       uint16_t *src_216 = CONVERT_TO_SHORTPTR(src_2);
@@ -1976,8 +1978,9 @@ static void build_intra_predictors_for_interintra(MACROBLOCKD *xd, uint8_t *ref,
 #if CONFIG_AOM_HIGHBITDEPTH
     }
 #endif
-    av1_predict_intra_block(xd, pd->width, pd->height, max_tx_size, mode, src_2,
-                            ref_stride, dst_2, dst_stride, 1 << bhl, 0, plane);
+    predict_square_intra_block(xd, pd->width, pd->height, max_tx_size, mode,
+                               src_2, ref_stride, dst_2, dst_stride, 1 << bhl,
+                               0, plane);
 #if CONFIG_AOM_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       uint16_t *src_216 = CONVERT_TO_SHORTPTR(src_2);

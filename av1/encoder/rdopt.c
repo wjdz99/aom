@@ -1498,8 +1498,9 @@ static int64_t choose_tx_size_fix_type(const AV1_COMP *const cpi, BLOCK_SIZE bs,
   if (evaluate_rect_tx) {
     const TX_SIZE rect_tx_size = max_txsize_rect_lookup[bs];
     RD_STATS this_rd_stats;
-    ext_tx_set = get_ext_tx_set(rect_tx_size, bs, 1);
-    if (ext_tx_used_inter[ext_tx_set][tx_type]) {
+    ext_tx_set = get_ext_tx_set(rect_tx_size, bs, is_inter);
+    if ((is_inter && ext_tx_used_inter[ext_tx_set][tx_type]) ||
+        (!is_inter && ext_tx_used_intra[ext_tx_set][tx_type])) {
       rd = txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs, tx_type,
                     rect_tx_size);
       best_tx_size = rect_tx_size;
@@ -3709,6 +3710,7 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   av1_init_rd_stats(rd_stats);
 
+// TODO(now): Something similar on Intra side too?
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
   if (is_rect_tx(mbmi->tx_size)) {
     return super_block_uvrd(cpi, x, rd_stats, bsize, ref_best_rd);
@@ -8564,21 +8566,21 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   int64_t best_intra_rd = INT64_MAX;
   unsigned int best_pred_sse = UINT_MAX;
   PREDICTION_MODE best_intra_mode = DC_PRED;
-  int rate_uv_intra[TX_SIZES], rate_uv_tokenonly[TX_SIZES];
-  int64_t dist_uvs[TX_SIZES];
-  int skip_uvs[TX_SIZES];
-  PREDICTION_MODE mode_uv[TX_SIZES];
+  int rate_uv_intra[TX_SIZES_ALL], rate_uv_tokenonly[TX_SIZES_ALL];
+  int64_t dist_uvs[TX_SIZES_ALL];
+  int skip_uvs[TX_SIZES_ALL];
+  PREDICTION_MODE mode_uv[TX_SIZES_ALL];
 #if CONFIG_PALETTE
-  PALETTE_MODE_INFO pmi_uv[TX_SIZES];
+  PALETTE_MODE_INFO pmi_uv[TX_SIZES_ALL];
 #endif  // CONFIG_PALETTE
 #if CONFIG_EXT_INTRA
-  int8_t uv_angle_delta[TX_SIZES];
+  int8_t uv_angle_delta[TX_SIZES_ALL];
   int is_directional_mode, angle_stats_ready = 0;
   uint8_t directional_mode_skip_mask[INTRA_MODES];
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
   int8_t dc_skipped = 1;
-  FILTER_INTRA_MODE_INFO filter_intra_mode_info_uv[TX_SIZES];
+  FILTER_INTRA_MODE_INFO filter_intra_mode_info_uv[TX_SIZES_ALL];
 #endif  // CONFIG_FILTER_INTRA
   const int intra_cost_penalty = av1_get_intra_cost_penalty(
       cm->base_qindex, cm->y_dc_delta_q, cm->bit_depth);
@@ -8673,7 +8675,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                            &comp_mode_p);
 
   for (i = 0; i < REFERENCE_MODES; ++i) best_pred_rd[i] = INT64_MAX;
-  for (i = 0; i < TX_SIZES; i++) rate_uv_intra[i] = INT_MAX;
+  for (i = 0; i < TX_SIZES_ALL; i++) rate_uv_intra[i] = INT_MAX;
   for (i = 0; i < TOTAL_REFS_PER_FRAME; ++i) x->pred_sse[i] = INT_MAX;
   for (i = 0; i < MB_MODE_COUNT; ++i) {
     for (k = 0; k < TOTAL_REFS_PER_FRAME; ++k) {

@@ -1202,6 +1202,7 @@ static void write_tx_type(const AV1_COMMON *const cm,
               cm->fc->inter_ext_tx_prob[eset][txsize_sqr_map[tx_size]],
               &ext_tx_inter_encodings[eset][mbmi->tx_type]);
       } else if (ALLOW_INTRA_EXT_TX) {
+        assert(ext_tx_used_intra[eset][mbmi->tx_type]);
         if (eset > 0)
           av1_write_token(w, av1_ext_tx_intra_tree[eset],
                           cm->fc->intra_ext_tx_prob[eset][tx_size][mbmi->mode],
@@ -1321,6 +1322,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #if CONFIG_SUPERTX
       !supertx_enabled &&
 #endif  // CONFIG_SUPERTX
+      // TODO(now): Should this be just "!skip" (both intra & inter allowed)?
       !(is_inter && skip) && !xd->lossless[segment_id]) {
 #if CONFIG_VAR_TX
     if (is_inter) {  // This implies skip flag is 0.

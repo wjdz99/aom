@@ -5476,6 +5476,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
                                      [txsize_sqr_up_map[tx_size]];
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
       } else {
+        // TODO(now): Should we call tx_size_from_tx_mode() here too?
         intra_tx_size = (bsize >= BLOCK_8X8) ? tx_size : TX_4X4;
       }
 
@@ -5503,7 +5504,9 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
           ++td->counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]]
                                     [mbmi->tx_type];
         } else {
-          ++td->counts->intra_ext_tx[eset][tx_size][mbmi->mode][mbmi->tx_type];
+          // TODO(now): Is this change correct?
+          ++td->counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
+                                    [mbmi->tx_type];
         }
       }
     }

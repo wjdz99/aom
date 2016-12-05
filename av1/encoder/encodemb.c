@@ -954,8 +954,6 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   int i, j;
 #endif
 
-  assert(tx1d_width == tx1d_height);
-
   dst = &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
   src = &p->src.buf[(blk_row * src_stride + blk_col) << tx_size_wide_log2[0]];
   src_diff =
