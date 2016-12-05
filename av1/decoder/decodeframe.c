@@ -479,7 +479,7 @@ static void predict_and_reconstruct_intra_block(AV1_COMMON *cm,
 
 #if !CONFIG_CB4X4
   if (mbmi->sb_type < BLOCK_8X8)
-    if (plane == 0) mode = xd->mi[0]->bmi[(row << 1) + col].as_mode;
+    if (plane == 0) mode = xd->mi[0]->bmi[block_idx].as_mode;
 #endif
 
   av1_predict_intra_block(xd, pd->width, pd->height, tx_size, mode, dst,

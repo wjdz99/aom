@@ -5515,13 +5515,15 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
         } else {
           intra_tx_size = tx_size_from_tx_mode(bsize, cm->tx_mode, 1);
         }
-#if CONFIG_EXT_TX && CONFIG_RECT_TX
-        ++td->counts->tx_size_implied[max_txsize_lookup[bsize]]
-                                     [txsize_sqr_up_map[tx_size]];
-#endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
       } else {
-        intra_tx_size = (bsize >= BLOCK_8X8) ? tx_size : TX_4X4;
+        // TODO(now): Correct?
+        intra_tx_size = tx_size;
       }
+// TODO(now): Moved to be common. Correct?
+#if CONFIG_EXT_TX && CONFIG_RECT_TX
+      ++td->counts->tx_size_implied[max_txsize_lookup[bsize]]
+                                   [txsize_sqr_up_map[tx_size]];
+#endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
 
       for (j = 0; j < mi_height; j++)
         for (i = 0; i < mi_width; i++)
@@ -5547,7 +5549,8 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
           ++td->counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]]
                                     [mbmi->tx_type];
         } else {
-          ++td->counts->intra_ext_tx[eset][tx_size][mbmi->mode][mbmi->tx_type];
+          ++td->counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
+                                    [mbmi->tx_type];
         }
       }
     }

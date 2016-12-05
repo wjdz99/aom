@@ -645,7 +645,7 @@ static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
 
 static INLINE int is_rect_tx_allowed(const MACROBLOCKD *xd,
                                      const MB_MODE_INFO *mbmi) {
-  return is_inter_block(mbmi) && is_rect_tx_allowed_bsize(mbmi->sb_type) &&
+  return is_rect_tx_allowed_bsize(mbmi->sb_type) &&
          !xd->lossless[mbmi->segment_id];
 }
 
@@ -667,13 +667,11 @@ static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
   else
     return largest_tx_size;
 #else
-  const TX_SIZE max_tx_size = max_txsize_lookup[bsize];
+  (void)is_inter;
 #endif
 
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
-  if (!is_inter) {
-    return AOMMIN(max_tx_size, largest_tx_size);
-  } else {
+  {
     const TX_SIZE max_rect_tx_size = max_txsize_rect_lookup[bsize];
     if (txsize_sqr_up_map[max_rect_tx_size] <= largest_tx_size) {
       return max_rect_tx_size;
@@ -682,7 +680,6 @@ static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
     }
   }
 #else
-  (void)is_inter;
   return AOMMIN(max_tx_size, largest_tx_size);
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
 }

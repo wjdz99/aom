@@ -383,10 +383,12 @@ static TX_SIZE read_selected_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd,
   int depth = aom_read_tree(r, av1_tx_size_tree[tx_size_cat],
                             cm->fc->tx_size_probs[tx_size_cat][ctx], ACCT_STR);
   TX_SIZE tx_size = depth_to_tx_size(depth);
+  assert(!is_rect_tx(depth));
   if (counts) ++counts->tx_size[tx_size_cat][ctx][depth];
   return tx_size;
 }
 
+// TODO(now): Combine the two into one?
 static TX_SIZE read_tx_size_intra(AV1_COMMON *cm, MACROBLOCKD *xd,
                                   aom_reader *r) {
   TX_MODE tx_mode = cm->tx_mode;
@@ -394,15 +396,27 @@ static TX_SIZE read_tx_size_intra(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (xd->lossless[xd->mi[0]->mbmi.segment_id]) return TX_4X4;
   if (bsize >= BLOCK_8X8) {
     if (tx_mode == TX_MODE_SELECT) {
-      const TX_SIZE tx_size =
+      const TX_SIZE coded_tx_size =
           read_selected_tx_size(cm, xd, intra_tx_size_cat_lookup[bsize], r);
-      assert(tx_size <= max_txsize_lookup[bsize]);
-      return tx_size;
+#if CONFIG_EXT_TX && CONFIG_RECT_TX
+      if (coded_tx_size > max_txsize_lookup[bsize]) {
+        assert(coded_tx_size == max_txsize_lookup[bsize] + 1);
+        return max_txsize_rect_lookup[bsize];
+      }
+#else
+      assert(coded_tx_size <= max_txsize_lookup[bsize]);
+#endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
+      return coded_tx_size;
     } else {
       return tx_size_from_tx_mode(bsize, cm->tx_mode, 0);
     }
   } else {
+#if CONFIG_EXT_TX && CONFIG_RECT_TX
+    assert(IMPLIES(tx_mode == ONLY_4X4, bsize == BLOCK_4X4));
+    return max_txsize_rect_lookup[bsize];
+#else
     return TX_4X4;
+#endif
   }
 }
 
@@ -700,6 +714,7 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   const TX_SIZE tx_size = inter_block ? mbmi->min_tx_size : mbmi->tx_size;
 #else
   const TX_SIZE tx_size = mbmi->tx_size;
+  const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
 #endif
   if (!FIXED_TX_TYPE) {
 #if CONFIG_EXT_TX
@@ -716,19 +731,19 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         if (eset > 0) {
           mbmi->tx_type = aom_read_tree(
               r, av1_ext_tx_inter_tree[eset],
-              cm->fc->inter_ext_tx_prob[eset][txsize_sqr_map[tx_size]],
-              ACCT_STR);
+              cm->fc->inter_ext_tx_prob[eset][square_tx_size], ACCT_STR);
           if (counts)
-            ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]]
-                                  [mbmi->tx_type];
+            ++counts->inter_ext_tx[eset][square_tx_size][mbmi->tx_type];
         }
       } else if (ALLOW_INTRA_EXT_TX) {
         if (eset > 0) {
           mbmi->tx_type = aom_read_tree(
               r, av1_ext_tx_intra_tree[eset],
-              cm->fc->intra_ext_tx_prob[eset][tx_size][mbmi->mode], ACCT_STR);
+              cm->fc->intra_ext_tx_prob[eset][square_tx_size][mbmi->mode],
+              ACCT_STR);
           if (counts)
-            ++counts->intra_ext_tx[eset][tx_size][mbmi->mode][mbmi->tx_type];
+            ++counts->intra_ext_tx[eset][square_tx_size][mbmi->mode]
+                                  [mbmi->tx_type];
         }
       }
     } else {
