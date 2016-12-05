@@ -622,11 +622,11 @@ static const int tx_size_high[TX_SIZES_ALL] = {
 // Transform block width in unit
 static const int tx_size_wide_unit[TX_SIZES_ALL] = {
 #if CONFIG_CB4X4
-  1, 2, 4, 8, 16,
+  1,  2, 4, 8, 16,
 #if CONFIG_TX64X64
   32,
 #endif  // CONFIG_TX64X64
-  2, 4, 4, 8, 8, 16,
+  2,  4, 4, 8, 8,  16,
 #else  // CONFIG_CB4X4
   1,  2, 4, 8,
 #if CONFIG_TX64X64
@@ -639,11 +639,11 @@ static const int tx_size_wide_unit[TX_SIZES_ALL] = {
 // Transform block height in unit
 static const int tx_size_high_unit[TX_SIZES_ALL] = {
 #if CONFIG_CB4X4
-  1, 2, 4, 8, 16,
+  1,  2, 4, 8, 16,
 #if CONFIG_TX64X64
   32,
 #endif  // CONFIG_TX64X64
-  4, 2, 8, 4, 16, 8,
+  4,  2, 8, 4, 16, 8,
 #else  // CONFIG_CB4X4
   1,  2, 4, 8,
 #if CONFIG_TX64X64
