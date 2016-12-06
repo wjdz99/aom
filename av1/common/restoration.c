@@ -317,43 +317,44 @@ uint8_t ver_sym_filter(uint8_t *d, int stride, int *vfilter) {
 
 static void loop_wiener_filter_tile(uint8_t *data, int tile_idx, int width,
                                     int height, int stride,
-                                    RestorationInternal *rst, uint8_t *tmpdata,
-                                    int tmpstride) {
+                                    RestorationInternal *rst, uint8_t *buffer,
+                                    int buffer_stride) {
   const int tile_width = rst->tile_width >> rst->subsampling_x;
   const int tile_height = rst->tile_height >> rst->subsampling_y;
   int i, j;
   int h_start, h_end, v_start, v_end;
-  uint8_t *data_p, *tmpdata_p;
+  DECLARE_ALIGNED(16, InterpKernel, hkernel);
+  DECLARE_ALIGNED(16, InterpKernel, vkernel);
 
   if (rst->rsi->wiener_info[tile_idx].level == 0) return;
-  // Filter row-wise
-  av1_get_rest_tile_limits(tile_idx, 0, 0, rst->nhtiles, rst->nvtiles,
-                           tile_width, tile_height, width, height, 1, 0,
-                           &h_start, &h_end, &v_start, &v_end);
-  data_p = data + h_start + v_start * stride;
-  tmpdata_p = tmpdata + h_start + v_start * tmpstride;
-  for (i = 0; i < (v_end - v_start); ++i) {
-    for (j = 0; j < (h_end - h_start); ++j) {
-      *tmpdata_p++ =
-          hor_sym_filter(data_p++, rst->rsi->wiener_info[tile_idx].hfilter);
-    }
-    data_p += stride - (h_end - h_start);
-    tmpdata_p += tmpstride - (h_end - h_start);
+
+  // TODO(david.barker): Store hfilter/vfilter as an InterpKernel
+  // instead of the current format. Then this can be removed.
+  assert(RESTORATION_WIN == SUBPEL_TAPS - 1);
+  for (i = 0; i < RESTORATION_WIN; ++i) {
+    hkernel[i] = rst->rsi->wiener_info[tile_idx].hfilter[i];
+    vkernel[i] = rst->rsi->wiener_info[tile_idx].vfilter[i];
   }
-  // Filter col-wise
+  hkernel[RESTORATION_WIN] = 0;
+  vkernel[RESTORATION_WIN] = 0;
+
   av1_get_rest_tile_limits(tile_idx, 0, 0, rst->nhtiles, rst->nvtiles,
-                           tile_width, tile_height, width, height, 0, 1,
+                           tile_width, tile_height, width, height, 0, 0,
                            &h_start, &h_end, &v_start, &v_end);
-  data_p = data + h_start + v_start * stride;
-  tmpdata_p = tmpdata + h_start + v_start * tmpstride;
-  for (i = 0; i < (v_end - v_start); ++i) {
-    for (j = 0; j < (h_end - h_start); ++j) {
-      *data_p++ = ver_sym_filter(tmpdata_p++, tmpstride,
-                                 rst->rsi->wiener_info[tile_idx].vfilter);
+
+  // Note: The frame always has a border of at least 16 pixels allocated
+  // on each side (even if subsampling is applied), so we can do the convolve
+  // in blocks of at least 16x16. But aom_convolve8 limits us to 64x64 blocks
+  // at most.
+  for (i = v_start; i < v_end; i += 64)
+    for (j = h_start; j < h_end; j += 64) {
+      int w = AOMMIN(64, (h_end - j + 15) & ~15);
+      int h = AOMMIN(64, (v_end - i + 15) & ~15);
+      uint8_t *buffer_p = buffer + (i + 3) * buffer_stride + (j + 3);
+      uint8_t *data_p = data + i * stride + j;
+      aom_convolve8(buffer_p, buffer_stride, data_p, stride, hkernel, 16,
+                    vkernel, 16, w, h);
     }
-    data_p += stride - (h_end - h_start);
-    tmpdata_p += tmpstride - (h_end - h_start);
-  }
 }
 
 static void loop_wiener_filter(uint8_t *data, int width, int height, int stride,
@@ -361,19 +362,37 @@ static void loop_wiener_filter(uint8_t *data, int width, int height, int stride,
                                int tmpstride) {
   int tile_idx;
   int i;
-  uint8_t *data_p, *tmpdata_p;
-  // Initialize tmp buffer
-  data_p = data;
-  tmpdata_p = tmpdata;
-  for (i = 0; i < height; ++i) {
-    memcpy(tmpdata_p, data_p, sizeof(*data_p) * width);
+
+  // Add a border to the frame (3 pixels on each side + 1 unfilled pixel on
+  // the bottom and right, as aom_convolve8 expects an 8-tap filter but we
+  // always set the last coefficient to 0)
+  int buffer_stride = (width + 7 + 15) & ~15;
+  int buffer_height = (height + 7 + 15) & ~15;
+  uint8_t *buffer = aom_malloc(buffer_height * buffer_stride);
+  uint8_t *buffer_p = buffer + 3 * buffer_stride;
+  uint8_t *data_p = data;
+  for (i = 3; i < height + 3; ++i) {
+    memset(buffer_p, data_p[0], 3);
+    memcpy(buffer_p + 3, data_p, width);
+    memset(buffer_p + width + 3, data_p[width - 1], 3);
+    buffer_p += buffer_stride;
     data_p += stride;
-    tmpdata_p += tmpstride;
   }
+  for (i = 0; i < 3; ++i)
+    memcpy(buffer + i * buffer_stride, buffer + 3 * buffer_stride,
+           buffer_stride);
+  for (i = height + 3; i < height + 6; ++i)
+    memcpy(buffer + i * buffer_stride, buffer + (height + 2) * buffer_stride,
+           buffer_stride);
+
   for (tile_idx = 0; tile_idx < rst->ntiles; ++tile_idx) {
-    loop_wiener_filter_tile(data, tile_idx, width, height, stride, rst, tmpdata,
-                            tmpstride);
+    loop_wiener_filter_tile(data, tile_idx, width, height, stride, rst, buffer,
+                            buffer_stride);
   }
+
+  (void)tmpdata;
+  (void)tmpstride;
+  aom_free(buffer);
 }
 
 static void boxsum(int64_t *src, int width, int height, int src_stride, int r,
@@ -842,6 +861,25 @@ static void loop_switchable_filter(uint8_t *data, int width, int height,
   uint8_t *data_p, *tmpdata_p;
   uint8_t *tmpbuf = aom_malloc(SGRPROJ_TMPBUF_SIZE);
 
+  // Set up buffer for Wiener filter
+  int buffer_stride = (width + 7 + 15) & ~15;
+  int buffer_height = (height + 7 + 15) & ~15;
+  uint8_t *buffer = aom_malloc(buffer_height * buffer_stride);
+  uint8_t *buffer_p = buffer + 3 * buffer_stride;
+  data_p = data;
+  for (i = 3; i < height + 3; ++i) {
+    memset(buffer_p, data_p[0], 3);
+    memcpy(buffer_p + 3, data_p, width);
+    memset(buffer_p + width + 3, data_p[width - 1], 3);
+    buffer_p += buffer_stride;
+    data_p += stride;
+  }
+  for (i = 0; i < 3; ++i)
+    memcpy(buffer + i * buffer_stride, buffer + 3 * buffer_stride,
+           buffer_stride);
+  for (i = height + 3; i < height + 6; ++i)
+    memcpy(buffer + i * buffer_stride, buffer + (height + 2) * buffer_stride,
+           buffer_stride);
   // Initialize tmp buffer
   data_p = data;
   tmpdata_p = tmpdata;
@@ -856,7 +894,7 @@ static void loop_switchable_filter(uint8_t *data, int width, int height,
                                  tmpdata, tmpstride);
     } else if (rst->rsi->restoration_type[tile_idx] == RESTORE_WIENER) {
       loop_wiener_filter_tile(data, tile_idx, width, height, stride, rst,
-                              tmpdata, tmpstride);
+                              buffer, buffer_stride);
     } else if (rst->rsi->restoration_type[tile_idx] == RESTORE_SGRPROJ) {
       loop_sgrproj_filter_tile(data, tile_idx, width, height, stride, rst,
                                tmpbuf);
@@ -866,6 +904,7 @@ static void loop_switchable_filter(uint8_t *data, int width, int height,
     }
   }
   aom_free(tmpbuf);
+  aom_free(buffer);
 }
 
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -962,70 +1001,88 @@ uint16_t ver_sym_filter_highbd(uint16_t *d, int stride, int *vfilter, int bd) {
   return clip_pixel_highbd(s >> RESTORATION_FILT_BITS, bd);
 }
 
-static void loop_wiener_filter_tile_highbd(uint16_t *data, int tile_idx,
+static void loop_wiener_filter_tile_highbd(uint8_t *data8, int tile_idx,
                                            int width, int height, int stride,
                                            RestorationInternal *rst,
-                                           uint16_t *tmpdata, int tmpstride,
+                                           uint8_t *buffer8, int buffer_stride,
                                            int bit_depth) {
   const int tile_width = rst->tile_width >> rst->subsampling_x;
   const int tile_height = rst->tile_height >> rst->subsampling_y;
   int h_start, h_end, v_start, v_end;
   int i, j;
-  uint16_t *data_p, *tmpdata_p;
+  DECLARE_ALIGNED(16, InterpKernel, hkernel);
+  DECLARE_ALIGNED(16, InterpKernel, vkernel);
 
   if (rst->rsi->wiener_info[tile_idx].level == 0) return;
-  // Filter row-wise
-  av1_get_rest_tile_limits(tile_idx, 0, 0, rst->nhtiles, rst->nvtiles,
-                           tile_width, tile_height, width, height, 1, 0,
-                           &h_start, &h_end, &v_start, &v_end);
-  data_p = data + h_start + v_start * stride;
-  tmpdata_p = tmpdata + h_start + v_start * tmpstride;
-  for (i = 0; i < (v_end - v_start); ++i) {
-    for (j = 0; j < (h_end - h_start); ++j) {
-      *tmpdata_p++ = hor_sym_filter_highbd(
-          data_p++, rst->rsi->wiener_info[tile_idx].hfilter, bit_depth);
-    }
-    data_p += stride - (h_end - h_start);
-    tmpdata_p += tmpstride - (h_end - h_start);
+
+  // TODO(david.barker): Store hfilter/vfilter as an InterpKernel
+  // instead of the current format. Then this can be removed.
+  assert(RESTORATION_WIN == SUBPEL_TAPS - 1);
+  for (i = 0; i < RESTORATION_WIN; ++i) {
+    hkernel[i] = rst->rsi->wiener_info[tile_idx].hfilter[i];
+    vkernel[i] = rst->rsi->wiener_info[tile_idx].vfilter[i];
   }
-  // Filter col-wise
+  hkernel[RESTORATION_WIN] = 0;
+  vkernel[RESTORATION_WIN] = 0;
+
   av1_get_rest_tile_limits(tile_idx, 0, 0, rst->nhtiles, rst->nvtiles,
-                           tile_width, tile_height, width, height, 0, 1,
+                           tile_width, tile_height, width, height, 0, 0,
                            &h_start, &h_end, &v_start, &v_end);
-  data_p = data + h_start + v_start * stride;
-  tmpdata_p = tmpdata + h_start + v_start * tmpstride;
-  for (i = 0; i < (v_end - v_start); ++i) {
-    for (j = 0; j < (h_end - h_start); ++j) {
-      *data_p++ = ver_sym_filter_highbd(tmpdata_p++, tmpstride,
-                                        rst->rsi->wiener_info[tile_idx].vfilter,
-                                        bit_depth);
+
+  // Note: The frame always has a border of at least 16 pixels allocated
+  // on each side (even if subsampling is applied), so we can do the convolve
+  // in blocks of at least 16x16. But aom_convolve8 limits us to 64x64 blocks
+  // at most.
+  for (i = v_start; i < v_end; i += 64)
+    for (j = h_start; j < h_end; j += 64) {
+      int w = AOMMIN(64, (h_end - j + 15) & ~15);
+      int h = AOMMIN(64, (v_end - i + 15) & ~15);
+      uint8_t *buffer8_p = buffer8 + (i + 3) * buffer_stride + (j + 3);
+      uint8_t *data8_p = data8 + i * stride + j;
+      aom_highbd_convolve8(buffer8_p, buffer_stride, data8_p, stride, hkernel,
+                           16, vkernel, 16, w, h, bit_depth);
     }
-    data_p += stride - (h_end - h_start);
-    tmpdata_p += tmpstride - (h_end - h_start);
-  }
 }
 
 static void loop_wiener_filter_highbd(uint8_t *data8, int width, int height,
                                       int stride, RestorationInternal *rst,
                                       uint8_t *tmpdata8, int tmpstride,
                                       int bit_depth) {
-  uint16_t *data = CONVERT_TO_SHORTPTR(data8);
-  uint16_t *tmpdata = CONVERT_TO_SHORTPTR(tmpdata8);
-  int tile_idx, i;
-  uint16_t *data_p, *tmpdata_p;
+  int tile_idx;
+  int i;
 
-  // Initialize tmp buffer
-  data_p = data;
-  tmpdata_p = tmpdata;
-  for (i = 0; i < height; ++i) {
-    memcpy(tmpdata_p, data_p, sizeof(*data_p) * width);
+  // Add a border to the frame (3 pixels on each side + 1 unfilled pixel on
+  // the bottom and right, as aom_convolve8 expects an 8-tap filter but we
+  // always set the last coefficient to 0)
+  int buffer_stride = (width + 7 + 15) & ~15;
+  int buffer_height = (height + 7 + 15) & ~15;
+  uint16_t *buffer = aom_malloc(2 * buffer_height * buffer_stride);
+  uint16_t *buffer_p = buffer + 3 * buffer_stride;
+  uint16_t *data_p = CONVERT_TO_SHORTPTR(data8);
+  for (i = 3; i < height + 3; ++i) {
+    buffer_p[0] = buffer_p[1] = buffer_p[2] = data_p[0];
+    memcpy(buffer_p + 3, data_p, 2 * width);
+    buffer_p[width + 3] = buffer_p[width + 4] = buffer_p[width + 5] =
+        data_p[width - 1];
+    buffer_p += buffer_stride;
     data_p += stride;
-    tmpdata_p += tmpstride;
   }
+  for (i = 0; i < 3; ++i)
+    memcpy(buffer + i * buffer_stride, buffer + 3 * buffer_stride,
+           2 * buffer_stride);
+  for (i = height + 3; i < height + 6; ++i)
+    memcpy(buffer + i * buffer_stride, buffer + (height + 2) * buffer_stride,
+           2 * buffer_stride);
+
   for (tile_idx = 0; tile_idx < rst->ntiles; ++tile_idx) {
-    loop_wiener_filter_tile_highbd(data, tile_idx, width, height, stride, rst,
-                                   tmpdata, tmpstride, bit_depth);
+    loop_wiener_filter_tile_highbd(data8, tile_idx, width, height, stride, rst,
+                                   CONVERT_TO_BYTEPTR(buffer), buffer_stride,
+                                   bit_depth);
   }
+
+  (void)tmpdata8;
+  (void)tmpstride;
+  aom_free(buffer);
 }
 
 static void loop_sgrproj_filter_tile_highbd(uint16_t *data, int tile_idx,
@@ -1212,6 +1269,26 @@ static void loop_switchable_filter_highbd(uint8_t *data8, int width, int height,
   int i, tile_idx;
   uint16_t *data_p, *tmpdata_p;
 
+  // Set up buffer for Wiener filter
+  int buffer_stride = (width + 7 + 15) & ~15;
+  int buffer_height = (height + 7 + 15) & ~15;
+  uint16_t *buffer = aom_malloc(2 * buffer_height * buffer_stride);
+  uint16_t *buffer_p = buffer + 3 * buffer_stride;
+  data_p = data;
+  for (i = 3; i < height + 3; ++i) {
+    buffer_p[0] = buffer_p[1] = buffer_p[2] = data_p[0];
+    memcpy(buffer_p + 3, data_p, 2 * width);
+    buffer_p[width + 3] = buffer_p[width + 4] = buffer_p[width + 5] =
+        data_p[width - 1];
+    buffer_p += buffer_stride;
+    data_p += stride;
+  }
+  for (i = 0; i < 3; ++i)
+    memcpy(buffer + i * buffer_stride, buffer + 3 * buffer_stride,
+           2 * buffer_stride);
+  for (i = height + 3; i < height + 6; ++i)
+    memcpy(buffer + i * buffer_stride, buffer + (height + 2) * buffer_stride,
+           2 * buffer_stride);
   // Initialize tmp buffer
   data_p = data;
   tmpdata_p = tmpdata;
@@ -1225,8 +1302,9 @@ static void loop_switchable_filter_highbd(uint8_t *data8, int width, int height,
       loop_bilateral_filter_tile_highbd(data, tile_idx, width, height, stride,
                                         rst, tmpdata, tmpstride, bit_depth);
     } else if (rst->rsi->restoration_type[tile_idx] == RESTORE_WIENER) {
-      loop_wiener_filter_tile_highbd(data, tile_idx, width, height, stride, rst,
-                                     tmpdata, tmpstride, bit_depth);
+      loop_wiener_filter_tile_highbd(data8, tile_idx, width, height, stride,
+                                     rst, CONVERT_TO_BYTEPTR(buffer),
+                                     buffer_stride, bit_depth);
     } else if (rst->rsi->restoration_type[tile_idx] == RESTORE_SGRPROJ) {
       loop_sgrproj_filter_tile_highbd(data, tile_idx, width, height, stride,
                                       rst, bit_depth, tmpbuf);
@@ -1236,6 +1314,7 @@ static void loop_switchable_filter_highbd(uint8_t *data8, int width, int height,
     }
   }
   aom_free(tmpbuf);
+  aom_free(buffer);
 }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
