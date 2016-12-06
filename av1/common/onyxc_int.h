@@ -649,7 +649,7 @@ static INLINE void update_partition_context(MACROBLOCKD *xd, int mi_row,
   memset(left_ctx, partition_context_lookup[subsize].left, bh);
 #else
   // num_4x4_blocks_wide_lookup[bsize] / 2
-  const int bs = num_8x8_blocks_wide_lookup[bsize];
+  const int bs = mi_size_wide[bsize];
 
   // update the partition context at the end notes. set partition bits
   // of block sizes larger than the current one to be one, and partition
