@@ -30,6 +30,7 @@ static const int domaintxfmrf_params[DOMAINTXFMRF_PARAMS] = {
   136, 138, 140, 142, 146, 150, 154, 158, 162, 166, 170, 174
 };
 
+/*
 #define BILATERAL_PARAM_PRECISION 16
 #define BILATERAL_AMP_RANGE 256
 #define BILATERAL_AMP_RANGE_SYM (2 * BILATERAL_AMP_RANGE + 1)
@@ -63,6 +64,7 @@ static BilateralParamsType
       { 36, 36, 48 }, { 42, 42, 48 }, { 48, 48, 48 }, { 48, 48, 56 },
       { 56, 56, 48 }, { 56, 56, 56 }, { 56, 56, 64 }, { 64, 64, 48 },
     };
+    */
 
 const sgr_params_type sgr_params[SGRPROJ_PARAMS] = {
   // r1, eps1, r2, eps2
@@ -80,11 +82,13 @@ typedef void (*restore_func_highbd_type)(uint8_t *data8, int width, int height,
                                          int bit_depth);
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
+/*
 static INLINE BilateralParamsType av1_bilateral_level_to_params(int index,
                                                                 int kf) {
   return kf ? bilateral_level_to_params_arr_kf[index]
             : bilateral_level_to_params_arr[index];
 }
+*/
 
 static void GenDomainTxfmRFVtable() {
   int i, j;
@@ -105,6 +109,7 @@ static void GenDomainTxfmRFVtable() {
   }
 }
 
+/*
 static void GenBilateralTables() {
   int i;
   for (i = 0; i < BILATERAL_LEVELS_KF; i++) {
@@ -168,16 +173,19 @@ static void GenBilateralTables() {
     }
   }
 }
+*/
 
 void av1_loop_restoration_precal() {
-  GenBilateralTables();
+  // GenBilateralTables();
   GenDomainTxfmRFVtable();
 }
 
+/*
 int av1_bilateral_level_bits(const AV1_COMMON *const cm) {
   return cm->frame_type == KEY_FRAME ? BILATERAL_LEVEL_BITS_KF
                                      : BILATERAL_LEVEL_BITS;
 }
+*/
 
 void av1_loop_restoration_init(RestorationInternal *rst, RestorationInfo *rsi,
                                int kf, int width, int height) {
@@ -228,6 +236,7 @@ void av1_loop_restoration_init(RestorationInternal *rst, RestorationInfo *rsi,
   }
 }
 
+/*
 static void loop_bilateral_filter_tile(uint8_t *data, int tile_idx, int width,
                                        int height, int stride,
                                        RestorationInternal *rst,
@@ -296,6 +305,7 @@ static void loop_bilateral_filter(uint8_t *data, int width, int height,
                                tmpdata, tmpstride);
   }
 }
+*/
 
 uint8_t hor_sym_filter(uint8_t *d, int *hfilter) {
   int32_t s =
@@ -853,12 +863,14 @@ static void loop_switchable_filter(uint8_t *data, int width, int height,
     tmpdata_p += tmpstride;
   }
   for (tile_idx = 0; tile_idx < rst->ntiles; ++tile_idx) {
-    if (rst->rsi->restoration_type[tile_idx] == RESTORE_BILATERAL) {
-      loop_bilateral_filter_tile(data, tile_idx, width, height, stride, rst,
-                                 tmpdata, tmpstride);
-    } else if (rst->rsi->restoration_type[tile_idx] == RESTORE_WIENER) {
+    if (rst->rsi->restoration_type[tile_idx] == RESTORE_WIENER) {
       loop_wiener_filter_tile(data, tile_idx, width, height, stride, rst,
                               tmpdata, tmpstride);
+      /*
+    } else if (rst->rsi->restoration_type[tile_idx] == RESTORE_BILATERAL) {
+      loop_bilateral_filter_tile(data, tile_idx, width, height, stride, rst,
+                                 tmpdata, tmpstride);
+                                 */
     } else if (rst->rsi->restoration_type[tile_idx] == RESTORE_SGRPROJ) {
       loop_sgrproj_filter_tile(data, tile_idx, width, height, stride, rst,
                                tmpbuf);
@@ -871,6 +883,7 @@ static void loop_switchable_filter(uint8_t *data, int width, int height,
 }
 
 #if CONFIG_AOM_HIGHBITDEPTH
+/*
 static void loop_bilateral_filter_tile_highbd(uint16_t *data, int tile_idx,
                                               int width, int height, int stride,
                                               RestorationInternal *rst,
@@ -945,6 +958,7 @@ static void loop_bilateral_filter_highbd(uint8_t *data8, int width, int height,
                                       rst, tmpdata, tmpstride, bit_depth);
   }
 }
+*/
 
 uint16_t hor_sym_filter_highbd(uint16_t *d, int *hfilter, int bd) {
   int32_t s =
@@ -1223,12 +1237,14 @@ static void loop_switchable_filter_highbd(uint8_t *data8, int width, int height,
     tmpdata_p += tmpstride;
   }
   for (tile_idx = 0; tile_idx < rst->ntiles; ++tile_idx) {
-    if (rst->rsi->restoration_type[tile_idx] == RESTORE_BILATERAL) {
-      loop_bilateral_filter_tile_highbd(data, tile_idx, width, height, stride,
-                                        rst, tmpdata, tmpstride, bit_depth);
-    } else if (rst->rsi->restoration_type[tile_idx] == RESTORE_WIENER) {
+    if (rst->rsi->restoration_type[tile_idx] == RESTORE_WIENER) {
       loop_wiener_filter_tile_highbd(data, tile_idx, width, height, stride, rst,
                                      tmpdata, tmpstride, bit_depth);
+      /*
+    } else if (rst->rsi->restoration_type[tile_idx] == RESTORE_BILATERAL) {
+      loop_bilateral_filter_tile_highbd(data, tile_idx, width, height, stride,
+                                        rst, tmpdata, tmpstride, bit_depth);
+                                        */
     } else if (rst->rsi->restoration_type[tile_idx] == RESTORE_SGRPROJ) {
       loop_sgrproj_filter_tile_highbd(data, tile_idx, width, height, stride,
                                       rst, bit_depth, tmpbuf);
@@ -1252,17 +1268,15 @@ void av1_loop_restoration_rows(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   int yend = end_mi_row << MI_SIZE_LOG2;
   int uvend = yend >> cm->subsampling_y;
   restore_func_type restore_funcs[RESTORE_TYPES] = { NULL,
-                                                     loop_sgrproj_filter,
-                                                     loop_bilateral_filter,
                                                      loop_wiener_filter,
+                                                     loop_sgrproj_filter,
                                                      loop_domaintxfmrf_filter,
                                                      loop_switchable_filter };
 #if CONFIG_AOM_HIGHBITDEPTH
   restore_func_highbd_type restore_funcs_highbd[RESTORE_TYPES] = {
     NULL,
-    loop_sgrproj_filter_highbd,
-    loop_bilateral_filter_highbd,
     loop_wiener_filter_highbd,
+    loop_sgrproj_filter_highbd,
     loop_domaintxfmrf_filter_highbd,
     loop_switchable_filter_highbd
   };

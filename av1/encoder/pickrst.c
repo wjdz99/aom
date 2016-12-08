@@ -34,8 +34,7 @@ typedef double (*search_restore_type)(const YV12_BUFFER_CONFIG *src,
                                       int partial_frame, RestorationInfo *info,
                                       double *best_tile_cost);
 
-// const int frame_level_restore_bits[RESTORE_TYPES] = { 2, 2, 3, 3, 2 };
-const int frame_level_restore_bits[RESTORE_TYPES] = { 2, 3, 3, 3, 3, 2 };
+const int frame_level_restore_bits[RESTORE_TYPES] = { 2, 2, 3, 3, 2 };
 
 static int64_t sse_restoration_tile(const YV12_BUFFER_CONFIG *src,
                                     AV1_COMMON *const cm, int h_start,
@@ -561,6 +560,7 @@ static double search_domaintxfmrf(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   return cost_domaintxfmrf;
 }
 
+/*
 static double search_bilateral(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                                int filter_level, int partial_frame,
                                RestorationInfo *info, double *best_tile_cost) {
@@ -670,6 +670,7 @@ static double search_bilateral(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   aom_yv12_copy_y(&cpi->last_frame_uf, cm->frame_to_show);
   return cost_bilateral;
 }
+*/
 
 static double find_average(uint8_t *src, int h_start, int h_end, int v_start,
                            int v_end, int stride) {
@@ -1173,8 +1174,7 @@ static double search_switchable_restoration(
 void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                                  LPF_PICK_METHOD method) {
   static search_restore_type search_restore_fun[RESTORE_SWITCHABLE_TYPES] = {
-    search_norestore, search_sgrproj,      search_bilateral,
-    search_wiener,    search_domaintxfmrf,
+    search_norestore, search_wiener, search_sgrproj, search_domaintxfmrf,
   };
   AV1_COMMON *const cm = &cpi->common;
   struct loopfilter *const lf = &cm->lf;
@@ -1188,10 +1188,12 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   cm->rst_info.restoration_type = (RestorationType *)aom_realloc(
       cm->rst_info.restoration_type,
       sizeof(*cm->rst_info.restoration_type) * ntiles);
+  /*
   cm->rst_info.bilateral_info = (BilateralInfo *)aom_realloc(
       cm->rst_info.bilateral_info,
       sizeof(*cm->rst_info.bilateral_info) * ntiles);
   assert(cm->rst_info.bilateral_info != NULL);
+  */
   cm->rst_info.wiener_info = (WienerInfo *)aom_realloc(
       cm->rst_info.wiener_info, sizeof(*cm->rst_info.wiener_info) * ntiles);
   assert(cm->rst_info.wiener_info != NULL);

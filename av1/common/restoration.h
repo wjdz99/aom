@@ -60,6 +60,7 @@ extern "C" {
 
 #define SGRPROJ_BITS (SGRPROJ_PRJ_BITS * 2 + SGRPROJ_PARAMS_BITS)
 
+/*
 #define BILATERAL_LEVEL_BITS_KF 4
 #define BILATERAL_LEVELS_KF (1 << BILATERAL_LEVEL_BITS_KF)
 #define BILATERAL_LEVEL_BITS 3
@@ -67,6 +68,7 @@ extern "C" {
 
 #define BILATERAL_SUBTILE_BITS 1
 #define BILATERAL_SUBTILES (1 << (2 * BILATERAL_SUBTILE_BITS))
+*/
 
 #define RESTORATION_HALFWIN 3
 #define RESTORATION_HALFWIN1 (RESTORATION_HALFWIN + 1)
@@ -94,7 +96,7 @@ extern "C" {
 #define WIENER_FILT_TAP2_MAXV \
   (WIENER_FILT_TAP2_MINV - 1 + (1 << WIENER_FILT_TAP2_BITS))
 
-typedef struct { int level[BILATERAL_SUBTILES]; } BilateralInfo;
+// typedef struct { int level[BILATERAL_SUBTILES]; } BilateralInfo;
 
 typedef struct {
   int level;
@@ -123,7 +125,7 @@ typedef struct {
   RestorationType frame_restoration_type;
   RestorationType *restoration_type;
   // Bilateral filter
-  BilateralInfo *bilateral_info;
+  // BilateralInfo *bilateral_info;
   // Wiener filter
   WienerInfo *wiener_info;
   // Selfguided proj filter

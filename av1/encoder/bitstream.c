@@ -2982,34 +2982,22 @@ static void encode_restoration_mode(AV1_COMMON *cm,
       aom_wb_write_bit(wb, 0);
       aom_wb_write_bit(wb, 0);
       break;
-    case RESTORE_SWITCHABLE:
-      aom_wb_write_bit(wb, 0);
+    case RESTORE_WIENER:
       aom_wb_write_bit(wb, 1);
+      aom_wb_write_bit(wb, 0);
       break;
-    /*
-  case RESTORE_SGRPROJ:
-    aom_wb_write_bit(wb, 1);
-    aom_wb_write_bit(wb, 0);
-    break;
-    */
     case RESTORE_SGRPROJ:
       aom_wb_write_bit(wb, 1);
-      aom_wb_write_bit(wb, 0);
+      aom_wb_write_bit(wb, 1);
       aom_wb_write_bit(wb, 0);
       break;
     case RESTORE_DOMAINTXFMRF:
       aom_wb_write_bit(wb, 1);
-      aom_wb_write_bit(wb, 0);
+      aom_wb_write_bit(wb, 1);
       aom_wb_write_bit(wb, 1);
       break;
-    case RESTORE_BILATERAL:
-      aom_wb_write_bit(wb, 1);
-      aom_wb_write_bit(wb, 1);
+    case RESTORE_SWITCHABLE:
       aom_wb_write_bit(wb, 0);
-      break;
-    case RESTORE_WIENER:
-      aom_wb_write_bit(wb, 1);
-      aom_wb_write_bit(wb, 1);
       aom_wb_write_bit(wb, 1);
       break;
     default: assert(0);
@@ -3044,6 +3032,7 @@ static void write_domaintxfmrf_filter(DomaintxfmrfInfo *domaintxfmrf_info,
   aom_write_literal(wb, domaintxfmrf_info->sigma_r, DOMAINTXFMRF_PARAMS_BITS);
 }
 
+/*
 static void write_bilateral_filter(const AV1_COMMON *cm,
                                    BilateralInfo *bilateral_info,
                                    aom_writer *wb) {
@@ -3056,6 +3045,7 @@ static void write_bilateral_filter(const AV1_COMMON *cm,
     }
   }
 }
+*/
 
 static void encode_restoration(AV1_COMMON *cm, aom_writer *wb) {
   int i;
@@ -3067,25 +3057,29 @@ static void encode_restoration(AV1_COMMON *cm, aom_writer *wb) {
         av1_write_token(
             wb, av1_switchable_restore_tree, cm->fc->switchable_restore_prob,
             &switchable_restore_encodings[rsi->restoration_type[i]]);
-        if (rsi->restoration_type[i] == RESTORE_BILATERAL) {
+        if (rsi->restoration_type[i] == RESTORE_WIENER) {
+          write_wiener_filter(&rsi->wiener_info[i], wb);
+          /*
+        } else if (rsi->restoration_type[i] == RESTORE_BILATERAL) {
 #if BILATERAL_SUBTILES == 0
           aom_write_literal(wb, rsi->bilateral_info[i].level[0],
                             av1_bilateral_level_bits(cm));
 #else
           write_bilateral_filter(cm, &rsi->bilateral_info[i], wb);
 #endif
-        } else if (rsi->restoration_type[i] == RESTORE_WIENER) {
-          write_wiener_filter(&rsi->wiener_info[i], wb);
+          */
         } else if (rsi->restoration_type[i] == RESTORE_SGRPROJ) {
           write_sgrproj_filter(&rsi->sgrproj_info[i], wb);
         } else if (rsi->restoration_type[i] == RESTORE_DOMAINTXFMRF) {
           write_domaintxfmrf_filter(&rsi->domaintxfmrf_info[i], wb);
         }
       }
+      /*
     } else if (rsi->frame_restoration_type == RESTORE_BILATERAL) {
       for (i = 0; i < cm->rst_internal.ntiles; ++i) {
         write_bilateral_filter(cm, &rsi->bilateral_info[i], wb);
       }
+      */
     } else if (rsi->frame_restoration_type == RESTORE_WIENER) {
       for (i = 0; i < cm->rst_internal.ntiles; ++i) {
         aom_write(wb, rsi->wiener_info[i].level != 0, RESTORE_NONE_WIENER_PROB);
