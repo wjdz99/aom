@@ -5303,8 +5303,9 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       if (mbmi->mode != DC_PRED && mbmi->mode != TM_PRED) {
         int p_angle;
         const int intra_filter_ctx = av1_get_pred_context_intra_interp(xd);
-        p_angle =
-            mode_to_angle_map[mbmi->mode] + mbmi->angle_delta[0] * ANGLE_STEP;
+        const TX_SIZE max_tx_size = max_txsize_lookup[mbmi->sb_type];
+        p_angle = mode_to_angle_map[mbmi->mode] +
+                  mbmi->angle_delta[0] * av1_angle_step_y[max_tx_size];
         if (av1_is_intra_filter_switchable(p_angle))
           ++counts->intra_filter[intra_filter_ctx][mbmi->intra_filter];
       }
