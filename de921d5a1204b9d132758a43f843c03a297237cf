@@ -22,6 +22,30 @@
       "revId": "de921d5a1204b9d132758a43f843c03a297237cf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1afac331_dd4fabdb",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2016-12-09T10:13:09Z",
+      "side": 1,
+      "message": "This patch does affect the decoded pixels - but, as with the previous patch, it should only affect pixels near tile boundaries.\n\nNote that we\u0027re currently seeing an unexpected BDRATE loss on this patch, so this patch will not be merged as-is.",
+      "parentUuid": "6d14e7d4_74c91368",
+      "range": {
+        "startLine": 395,
+        "startChar": 0,
+        "endLine": 403,
+        "endChar": 5
+      },
+      "revId": "de921d5a1204b9d132758a43f843c03a297237cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
