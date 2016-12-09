@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a3cf3c1_10597d76",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2016-12-09T21:45:01Z",
+      "side": 1,
+      "message": "yes. cb4x4 experiment aims to reduce mode_info size down to 4x4 and remove special handle on sub8x8 blocks.",
+      "parentUuid": "9a3cf3c1_103a9d27",
+      "revId": "95c1cd8a382e81914dea337a36c3346e11ff5edb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3cf3c1_90c8cd11",
         "filename": "av1/common/mvref_common.c",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-09T21:41:56Z",
       "side": 1,
       "message": "Do we also need to make changes to this function for CONFIG_CB4X4?",
+      "revId": "95c1cd8a382e81914dea337a36c3346e11ff5edb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_302b61b0",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2016-12-09T21:45:01Z",
+      "side": 1,
+      "message": "mi_row, mi_col, and bs are all scaled accordingly outside this function. Nothing needs to be changed inside.",
+      "parentUuid": "9a3cf3c1_90c8cd11",
       "revId": "95c1cd8a382e81914dea337a36c3346e11ff5edb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
