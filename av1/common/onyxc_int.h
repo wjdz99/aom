@@ -362,6 +362,7 @@ typedef struct AV1Common {
 #endif  // !CONFIG_EXT_TILE
   int tile_cols, tile_rows;
   int tile_width, tile_height;  // In MI units
+  int loop_filter_across_tiles_enabled;
 
   int byte_alignment;
   int skip_loop_filter;

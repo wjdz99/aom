@@ -840,6 +840,9 @@ static void set_tile_info(AV1_COMP *cpi) {
   cm->tile_width = ALIGN_POWER_OF_TWO(cm->tile_width, MAX_MIB_SIZE_LOG2);
   cm->tile_height = ALIGN_POWER_OF_TWO(cm->tile_height, MAX_MIB_SIZE_LOG2);
 #endif  // CONFIG_EXT_TILE
+
+  cm->loop_filter_across_tiles_enabled =
+      cpi->oxcf.loop_filter_across_tiles_enabled;
 }
 
 static void update_frame_size(AV1_COMP *cpi) {
