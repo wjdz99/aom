@@ -693,8 +693,17 @@ static const TX_TYPE filter_intra_mode_to_tx_type_lookup[FILTER_INTRA_MODES] = {
 #endif  // CONFIG_FILTER_INTRA
 
 #if CONFIG_EXT_INTRA
-#define ANGLE_STEP 3
-#define MAX_ANGLE_DELTAS 3
+#define MAX_ANGLE_DELTA 3
+#define MAX_ANGLE_DELTA_UV 2
+#define ANGLE_STEP_UV 4
+
+static const uint8_t av1_angle_step_y[TX_SIZES] = {
+  0, 4, 3, 3,
+};
+static const uint8_t av1_max_angle_delta_y[TX_SIZES] = {
+  0, 2, 3, 3,
+};
+
 extern const int16_t dr_intra_derivative[90];
 static const uint8_t mode_to_angle_map[INTRA_MODES] = {
   0, 90, 180, 45, 135, 111, 157, 203, 67, 0,
@@ -763,14 +772,18 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
       return filter_intra_mode_to_tx_type_lookup[filter_intra_mode];
 #endif  // CONFIG_FILTER_INTRA
 #if CONFIG_EXT_INTRA
-    if (mode == DC_PRED) {
-      return DCT_DCT;
-    } else if (mode == TM_PRED) {
-      return ADST_ADST;
-    } else {
+#if CONFIG_ALT_INTRA
+    if (mode == SMOOTH_PRED) return ADST_ADST;
+#endif  // CONFIG_ALT_INTRA
+    if (mode == DC_PRED) return DCT_DCT;
+    if (mode == TM_PRED) return ADST_ADST;
+    {
       int angle = mode_to_angle_map[mode];
+      const TX_SIZE max_tx_size = max_txsize_lookup[mbmi->sb_type];
+      const int angle_step =
+          plane_type ? ANGLE_STEP_UV : av1_angle_step_y[max_tx_size];
       if (mbmi->sb_type >= BLOCK_8X8)
-        angle += mbmi->angle_delta[plane_type] * ANGLE_STEP;
+        angle += mbmi->angle_delta[plane_type] * angle_step;
       assert(angle > 0 && angle < 270);
       if (angle == 135)
         return ADST_ADST;
