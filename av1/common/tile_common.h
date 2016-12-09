@@ -38,6 +38,10 @@ void av1_tile_set_col(TileInfo *tile, const struct AV1Common *cm, int col);
 void av1_get_tile_n_bits(const int mi_cols, int *min_log2_tile_cols,
                          int *max_log2_tile_cols);
 
+void update_tile_boundary_info(const struct AV1Common *cm,
+                               const TileInfo *const tile_info, int mi_row,
+                               int mi_col);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

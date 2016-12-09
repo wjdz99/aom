@@ -377,6 +377,8 @@ static const arg_def_t tile_cols =
 static const arg_def_t tile_rows =
     ARG_DEF(NULL, "tile-rows", 1,
             "Number of tile rows to use, log2 (set to 0 while threads > 1)");
+static const arg_def_t tile_loopfilter = ARG_DEF(
+    NULL, "tile-loopfilter", 1, "Enable loop filter across tile boundary");
 static const arg_def_t lossless =
     ARG_DEF(NULL, "lossless", 1, "Lossless mode (0: false (default), 1: true)");
 #if CONFIG_AOM_QM
@@ -463,82 +465,84 @@ static const arg_def_t superblock_size = ARG_DEF_ENUM(
     NULL, "sb-size", 1, "Superblock size to use", superblock_size_enum);
 #endif  // CONFIG_EXT_PARTITION
 
-static const arg_def_t *av1_args[] = { &cpu_used_av1,
-                                       &auto_altref,
-                                       &sharpness,
-                                       &static_thresh,
-                                       &tile_cols,
-                                       &tile_rows,
-                                       &arnr_maxframes,
-                                       &arnr_strength,
-                                       &arnr_type,
-                                       &tune_ssim,
-                                       &cq_level,
-                                       &max_intra_rate_pct,
-                                       &max_inter_rate_pct,
-                                       &gf_cbr_boost_pct,
-                                       &lossless,
+static const arg_def_t *av1_args[] = {&cpu_used_av1,
+                                      &auto_altref,
+                                      &sharpness,
+                                      &static_thresh,
+                                      &tile_cols,
+                                      &tile_rows,
+                                      &tile_loopfilter,
+                                      &arnr_maxframes,
+                                      &arnr_strength,
+                                      &arnr_type,
+                                      &tune_ssim,
+                                      &cq_level,
+                                      &max_intra_rate_pct,
+                                      &max_inter_rate_pct,
+                                      &gf_cbr_boost_pct,
+                                      &lossless,
 #if CONFIG_AOM_QM
-                                       &enable_qm,
-                                       &qm_min,
-                                       &qm_max,
+                                      &enable_qm,
+                                      &qm_min,
+                                      &qm_max,
 #endif
-                                       &frame_parallel_decoding,
-                                       &aq_mode,
-                                       &frame_periodic_boost,
-                                       &noise_sens,
-                                       &tune_content,
-                                       &input_color_space,
-                                       &min_gf_interval,
-                                       &max_gf_interval,
+                                      &frame_parallel_decoding,
+                                      &aq_mode,
+                                      &frame_periodic_boost,
+                                      &noise_sens,
+                                      &tune_content,
+                                      &input_color_space,
+                                      &min_gf_interval,
+                                      &max_gf_interval,
 #if CONFIG_EXT_PARTITION
-                                       &superblock_size,
+                                      &superblock_size,
 #endif  // CONFIG_EXT_PARTITION
 #if CONFIG_TILE_GROUPS
-                                       &num_tg,
-                                       &mtu_size,
+                                      &num_tg,
+                                      &mtu_size,
 #endif
 #if CONFIG_AOM_HIGHBITDEPTH
-                                       &bitdeptharg,
-                                       &inbitdeptharg,
+                                      &bitdeptharg,
+                                      &inbitdeptharg,
 #endif  // CONFIG_AOM_HIGHBITDEPTH
-                                       NULL };
-static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
-                                        AOME_SET_ENABLEAUTOALTREF,
-                                        AOME_SET_SHARPNESS,
-                                        AOME_SET_STATIC_THRESHOLD,
-                                        AV1E_SET_TILE_COLUMNS,
-                                        AV1E_SET_TILE_ROWS,
-                                        AOME_SET_ARNR_MAXFRAMES,
-                                        AOME_SET_ARNR_STRENGTH,
-                                        AOME_SET_ARNR_TYPE,
-                                        AOME_SET_TUNING,
-                                        AOME_SET_CQ_LEVEL,
-                                        AOME_SET_MAX_INTRA_BITRATE_PCT,
-                                        AV1E_SET_MAX_INTER_BITRATE_PCT,
-                                        AV1E_SET_GF_CBR_BOOST_PCT,
-                                        AV1E_SET_LOSSLESS,
+                                      NULL};
+static const int av1_arg_ctrl_map[] = {AOME_SET_CPUUSED,
+                                       AOME_SET_ENABLEAUTOALTREF,
+                                       AOME_SET_SHARPNESS,
+                                       AOME_SET_STATIC_THRESHOLD,
+                                       AV1E_SET_TILE_COLUMNS,
+                                       AV1E_SET_TILE_ROWS,
+                                       AV1E_SET_TILE_LOOPFILTER,
+                                       AOME_SET_ARNR_MAXFRAMES,
+                                       AOME_SET_ARNR_STRENGTH,
+                                       AOME_SET_ARNR_TYPE,
+                                       AOME_SET_TUNING,
+                                       AOME_SET_CQ_LEVEL,
+                                       AOME_SET_MAX_INTRA_BITRATE_PCT,
+                                       AV1E_SET_MAX_INTER_BITRATE_PCT,
+                                       AV1E_SET_GF_CBR_BOOST_PCT,
+                                       AV1E_SET_LOSSLESS,
 #if CONFIG_AOM_QM
-                                        AV1E_SET_ENABLE_QM,
-                                        AV1E_SET_QM_MIN,
-                                        AV1E_SET_QM_MAX,
+                                       AV1E_SET_ENABLE_QM,
+                                       AV1E_SET_QM_MIN,
+                                       AV1E_SET_QM_MAX,
 #endif
-                                        AV1E_SET_FRAME_PARALLEL_DECODING,
-                                        AV1E_SET_AQ_MODE,
-                                        AV1E_SET_FRAME_PERIODIC_BOOST,
-                                        AV1E_SET_NOISE_SENSITIVITY,
-                                        AV1E_SET_TUNE_CONTENT,
-                                        AV1E_SET_COLOR_SPACE,
-                                        AV1E_SET_MIN_GF_INTERVAL,
-                                        AV1E_SET_MAX_GF_INTERVAL,
+                                       AV1E_SET_FRAME_PARALLEL_DECODING,
+                                       AV1E_SET_AQ_MODE,
+                                       AV1E_SET_FRAME_PERIODIC_BOOST,
+                                       AV1E_SET_NOISE_SENSITIVITY,
+                                       AV1E_SET_TUNE_CONTENT,
+                                       AV1E_SET_COLOR_SPACE,
+                                       AV1E_SET_MIN_GF_INTERVAL,
+                                       AV1E_SET_MAX_GF_INTERVAL,
 #if CONFIG_EXT_PARTITION
-                                        AV1E_SET_SUPERBLOCK_SIZE,
+                                       AV1E_SET_SUPERBLOCK_SIZE,
 #endif  // CONFIG_EXT_PARTITION
 #if CONFIG_TILE_GROUPS
-                                        AV1E_SET_NUM_TG,
-                                        AV1E_SET_MTU,
+                                       AV1E_SET_NUM_TG,
+                                       AV1E_SET_MTU,
 #endif
-                                        0 };
+                                       0};
 #endif
 
 static const arg_def_t *no_args[] = { NULL };
