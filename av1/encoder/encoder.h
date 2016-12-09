@@ -238,6 +238,7 @@ typedef struct AV1EncoderConfig {
 
   int tile_columns;
   int tile_rows;
+  int loop_filter_across_tiles_enabled;
 
   int max_threads;
 

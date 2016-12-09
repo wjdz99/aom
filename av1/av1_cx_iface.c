@@ -34,6 +34,7 @@ struct av1_extracfg {
   unsigned int static_thresh;
   unsigned int tile_columns;
   unsigned int tile_rows;
+  unsigned int loop_filter_across_tiles_enabled;
   unsigned int arnr_max_frames;
   unsigned int arnr_strength;
   unsigned int min_gf_interval;
@@ -66,50 +67,51 @@ struct av1_extracfg {
 };
 
 static struct av1_extracfg default_extra_cfg = {
-  0,  // cpu_used
-  1,  // enable_auto_alt_ref
+    0,  // cpu_used
+    1,  // enable_auto_alt_ref
 #if CONFIG_EXT_REFS
-  0,    // enable_auto_bwd_ref
+    0,  // enable_auto_bwd_ref
 #endif  // CONFIG_EXT_REFS
-  0,    // noise_sensitivity
-  0,    // sharpness
-  0,    // static_thresh
+    0,  // noise_sensitivity
+    0,  // sharpness
+    0,  // static_thresh
 #if CONFIG_EXT_TILE
-  UINT_MAX,  // tile_columns
-  UINT_MAX,  // tile_rows
+    UINT_MAX, // tile_columns
+    UINT_MAX, // tile_rows
 #else
-  0,  // tile_columns
-  0,  // tile_rows
-#endif            // CONFIG_EXT_TILE
-  7,              // arnr_max_frames
-  5,              // arnr_strength
-  0,              // min_gf_interval; 0 -> default decision
-  0,              // max_gf_interval; 0 -> default decision
-  AOM_TUNE_PSNR,  // tuning
-  10,             // cq_level
-  0,              // rc_max_intra_bitrate_pct
-  0,              // rc_max_inter_bitrate_pct
-  0,              // gf_cbr_boost_pct
-  0,              // lossless
+    0,  // tile_columns
+    0,  // tile_rows
+#endif             // CONFIG_EXT_TILE
+    0,             // loop_filter_across_tiles_enabled
+    7,             // arnr_max_frames
+    5,             // arnr_strength
+    0,             // min_gf_interval; 0 -> default decision
+    0,             // max_gf_interval; 0 -> default decision
+    AOM_TUNE_PSNR,  // tuning
+    10,            // cq_level
+    0,             // rc_max_intra_bitrate_pct
+    0,             // rc_max_inter_bitrate_pct
+    0,             // gf_cbr_boost_pct
+    0,             // lossless
 #if CONFIG_AOM_QM
-  0,                 // enable_qm
-  DEFAULT_QM_FIRST,  // qm_min
-  DEFAULT_QM_LAST,   // qm_max
+    0,                 // enable_qm
+    DEFAULT_QM_FIRST,  // qm_min
+    DEFAULT_QM_LAST,   // qm_max
 #endif
 #if CONFIG_TILE_GROUPS
-  1,  // max number of tile groups
-  0,  // mtu_size
+    1,  // max number of tile groups
+    0,  // mtu_size
 #endif
-  1,                           // frame_parallel_decoding_mode
-  NO_AQ,                       // aq_mode
-  0,                           // frame_periodic_delta_q
-  AOM_BITS_8,                  // Bit depth
-  AOM_CONTENT_DEFAULT,         // content
-  AOM_CS_UNKNOWN,              // color space
-  0,                           // color range
-  0,                           // render width
-  0,                           // render height
-  AOM_SUPERBLOCK_SIZE_DYNAMIC  // superblock_size
+    1,                           // frame_parallel_decoding_mode
+    NO_AQ,                       // aq_mode
+    0,                           // frame_periodic_delta_q
+    AOM_BITS_8,                  // Bit depth
+    AOM_CONTENT_DEFAULT,         // content
+    AOM_CS_UNKNOWN,              // color space
+    0,                           // color range
+    0,                           // render width
+    0,                           // render height
+    AOM_SUPERBLOCK_SIZE_DYNAMIC  // superblock_size
 };
 
 struct aom_codec_alg_priv {
@@ -250,6 +252,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(extra_cfg, tile_columns, 6);
   RANGE_CHECK_HI(extra_cfg, tile_rows, 2);
 #endif  // CONFIG_EXT_TILE
+  RANGE_CHECK_HI(extra_cfg, loop_filter_across_tiles_enabled, 1);
   RANGE_CHECK_HI(extra_cfg, sharpness, 7);
   RANGE_CHECK_HI(extra_cfg, arnr_max_frames, 15);
   RANGE_CHECK_HI(extra_cfg, arnr_strength, 6);
@@ -483,6 +486,8 @@ static aom_codec_err_t set_encoder_config(
   oxcf->tile_rows = extra_cfg->tile_rows;
 #endif  // CONFIG_EXT_TILE
 
+  oxcf->loop_filter_across_tiles_enabled =
+      extra_cfg->loop_filter_across_tiles_enabled;
   oxcf->error_resilient_mode = cfg->g_error_resilient;
   oxcf->frame_parallel_decoding_mode = extra_cfg->frame_parallel_decoding_mode;
 
@@ -642,6 +647,14 @@ static aom_codec_err_t ctrl_set_tile_rows(aom_codec_alg_priv_t *ctx,
                                           va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.tile_rows = CAST(AV1E_SET_TILE_ROWS, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_tile_loopfilter(aom_codec_alg_priv_t *ctx,
+                                                va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.loop_filter_across_tiles_enabled =
+      CAST(AV1E_SET_TILE_LOOPFILTER, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
@@ -1318,62 +1331,63 @@ static aom_codec_err_t ctrl_set_superblock_size(aom_codec_alg_priv_t *ctx,
 }
 
 static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
-  { AOM_COPY_REFERENCE, ctrl_copy_reference },
-  { AOME_USE_REFERENCE, ctrl_use_reference },
+    {AOM_COPY_REFERENCE, ctrl_copy_reference},
+    {AOME_USE_REFERENCE, ctrl_use_reference},
 
-  // Setters
-  { AOM_SET_REFERENCE, ctrl_set_reference },
-  { AOM_SET_POSTPROC, ctrl_set_previewpp },
-  { AOME_SET_ROI_MAP, ctrl_set_roi_map },
-  { AOME_SET_ACTIVEMAP, ctrl_set_active_map },
-  { AOME_SET_SCALEMODE, ctrl_set_scale_mode },
-  { AOME_SET_CPUUSED, ctrl_set_cpuused },
-  { AOME_SET_ENABLEAUTOALTREF, ctrl_set_enable_auto_alt_ref },
+    // Setters
+    {AOM_SET_REFERENCE, ctrl_set_reference},
+    {AOM_SET_POSTPROC, ctrl_set_previewpp},
+    {AOME_SET_ROI_MAP, ctrl_set_roi_map},
+    {AOME_SET_ACTIVEMAP, ctrl_set_active_map},
+    {AOME_SET_SCALEMODE, ctrl_set_scale_mode},
+    {AOME_SET_CPUUSED, ctrl_set_cpuused},
+    {AOME_SET_ENABLEAUTOALTREF, ctrl_set_enable_auto_alt_ref},
 #if CONFIG_EXT_REFS
-  { AOME_SET_ENABLEAUTOBWDREF, ctrl_set_enable_auto_bwd_ref },
+    {AOME_SET_ENABLEAUTOBWDREF, ctrl_set_enable_auto_bwd_ref},
 #endif  // CONFIG_EXT_REFS
-  { AOME_SET_SHARPNESS, ctrl_set_sharpness },
-  { AOME_SET_STATIC_THRESHOLD, ctrl_set_static_thresh },
-  { AV1E_SET_TILE_COLUMNS, ctrl_set_tile_columns },
-  { AV1E_SET_TILE_ROWS, ctrl_set_tile_rows },
-  { AOME_SET_ARNR_MAXFRAMES, ctrl_set_arnr_max_frames },
-  { AOME_SET_ARNR_STRENGTH, ctrl_set_arnr_strength },
-  { AOME_SET_ARNR_TYPE, ctrl_set_arnr_type },
-  { AOME_SET_TUNING, ctrl_set_tuning },
-  { AOME_SET_CQ_LEVEL, ctrl_set_cq_level },
-  { AOME_SET_MAX_INTRA_BITRATE_PCT, ctrl_set_rc_max_intra_bitrate_pct },
-  { AV1E_SET_MAX_INTER_BITRATE_PCT, ctrl_set_rc_max_inter_bitrate_pct },
-  { AV1E_SET_GF_CBR_BOOST_PCT, ctrl_set_rc_gf_cbr_boost_pct },
-  { AV1E_SET_LOSSLESS, ctrl_set_lossless },
+    {AOME_SET_SHARPNESS, ctrl_set_sharpness},
+    {AOME_SET_STATIC_THRESHOLD, ctrl_set_static_thresh},
+    {AV1E_SET_TILE_COLUMNS, ctrl_set_tile_columns},
+    {AV1E_SET_TILE_ROWS, ctrl_set_tile_rows},
+    {AV1E_SET_TILE_LOOPFILTER, ctrl_set_tile_loopfilter},
+    {AOME_SET_ARNR_MAXFRAMES, ctrl_set_arnr_max_frames},
+    {AOME_SET_ARNR_STRENGTH, ctrl_set_arnr_strength},
+    {AOME_SET_ARNR_TYPE, ctrl_set_arnr_type},
+    {AOME_SET_TUNING, ctrl_set_tuning},
+    {AOME_SET_CQ_LEVEL, ctrl_set_cq_level},
+    {AOME_SET_MAX_INTRA_BITRATE_PCT, ctrl_set_rc_max_intra_bitrate_pct},
+    {AV1E_SET_MAX_INTER_BITRATE_PCT, ctrl_set_rc_max_inter_bitrate_pct},
+    {AV1E_SET_GF_CBR_BOOST_PCT, ctrl_set_rc_gf_cbr_boost_pct},
+    {AV1E_SET_LOSSLESS, ctrl_set_lossless},
 #if CONFIG_AOM_QM
-  { AV1E_SET_ENABLE_QM, ctrl_set_enable_qm },
-  { AV1E_SET_QM_MIN, ctrl_set_qm_min },
-  { AV1E_SET_QM_MAX, ctrl_set_qm_max },
+    {AV1E_SET_ENABLE_QM, ctrl_set_enable_qm},
+    {AV1E_SET_QM_MIN, ctrl_set_qm_min},
+    {AV1E_SET_QM_MAX, ctrl_set_qm_max},
 #endif
 #if CONFIG_TILE_GROUPS
-  { AV1E_SET_NUM_TG, ctrl_set_num_tg },
-  { AV1E_SET_MTU, ctrl_set_mtu },
+    {AV1E_SET_NUM_TG, ctrl_set_num_tg},
+    {AV1E_SET_MTU, ctrl_set_mtu},
 #endif
-  { AV1E_SET_FRAME_PARALLEL_DECODING, ctrl_set_frame_parallel_decoding_mode },
-  { AV1E_SET_AQ_MODE, ctrl_set_aq_mode },
-  { AV1E_SET_FRAME_PERIODIC_BOOST, ctrl_set_frame_periodic_boost },
-  { AV1E_SET_TUNE_CONTENT, ctrl_set_tune_content },
-  { AV1E_SET_COLOR_SPACE, ctrl_set_color_space },
-  { AV1E_SET_COLOR_RANGE, ctrl_set_color_range },
-  { AV1E_SET_NOISE_SENSITIVITY, ctrl_set_noise_sensitivity },
-  { AV1E_SET_MIN_GF_INTERVAL, ctrl_set_min_gf_interval },
-  { AV1E_SET_MAX_GF_INTERVAL, ctrl_set_max_gf_interval },
-  { AV1E_SET_RENDER_SIZE, ctrl_set_render_size },
-  { AV1E_SET_SUPERBLOCK_SIZE, ctrl_set_superblock_size },
+    {AV1E_SET_FRAME_PARALLEL_DECODING, ctrl_set_frame_parallel_decoding_mode},
+    {AV1E_SET_AQ_MODE, ctrl_set_aq_mode},
+    {AV1E_SET_FRAME_PERIODIC_BOOST, ctrl_set_frame_periodic_boost},
+    {AV1E_SET_TUNE_CONTENT, ctrl_set_tune_content},
+    {AV1E_SET_COLOR_SPACE, ctrl_set_color_space},
+    {AV1E_SET_COLOR_RANGE, ctrl_set_color_range},
+    {AV1E_SET_NOISE_SENSITIVITY, ctrl_set_noise_sensitivity},
+    {AV1E_SET_MIN_GF_INTERVAL, ctrl_set_min_gf_interval},
+    {AV1E_SET_MAX_GF_INTERVAL, ctrl_set_max_gf_interval},
+    {AV1E_SET_RENDER_SIZE, ctrl_set_render_size},
+    {AV1E_SET_SUPERBLOCK_SIZE, ctrl_set_superblock_size},
 
-  // Getters
-  { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },
-  { AOME_GET_LAST_QUANTIZER_64, ctrl_get_quantizer64 },
-  { AV1_GET_REFERENCE, ctrl_get_reference },
-  { AV1E_GET_ACTIVEMAP, ctrl_get_active_map },
-  { AV1_GET_NEW_FRAME_IMAGE, ctrl_get_new_frame_image },
+    // Getters
+    {AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer},
+    {AOME_GET_LAST_QUANTIZER_64, ctrl_get_quantizer64},
+    {AV1_GET_REFERENCE, ctrl_get_reference},
+    {AV1E_GET_ACTIVEMAP, ctrl_get_active_map},
+    {AV1_GET_NEW_FRAME_IMAGE, ctrl_get_new_frame_image},
 
-  { -1, NULL },
+    {-1, NULL},
 };
 
 static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
