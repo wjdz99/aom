@@ -4329,6 +4329,13 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     MODE_INFO **mi = cm->mi_grid_visible + idx_str;
     PC_TREE *const pc_root = td->pc_root[cm->mib_size_log2 - MIN_MIB_SIZE_LOG2];
 
+#if CONFIG_DEBLOCKING_ACROSS_TILES 
+    if ((cm->loop_filter_across_tiles_enabled == 0) &&
+        (cpi->allocated_tiles > 1)) {
+      update_tile_boundary_info(cm, tile_info, mi_row, mi_col);
+    }
+#endif  // CONFIG_DEBLOCKING_ACROSS_TILES
+    
     if (sf->adaptive_pred_interp_filter) {
       for (i = 0; i < leaf_nodes; ++i)
         td->leaf_tree[i].pred_interp_filter = SWITCHABLE;
