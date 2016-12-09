@@ -2870,6 +2870,10 @@ static void read_tile_info(AV1Decoder *const pbi,
   cm->log2_tile_rows = aom_rb_read_bit(rb);
   if (cm->log2_tile_rows) cm->log2_tile_rows += aom_rb_read_bit(rb);
 
+#if CONFIG_DEBLOCKING_ACROSS_TILES
+  cm->loop_filter_across_tiles_enabled = aom_rb_read_bit(rb);
+#endif  // CONFIG_DEBLOCKING_ACROSS_TILES
+
   cm->tile_cols = 1 << cm->log2_tile_cols;
   cm->tile_rows = 1 << cm->log2_tile_rows;
 
@@ -3305,6 +3309,12 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 
         for (mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->mib_size) {
+#if CONFIG_DEBLOCKING_ACROSS_TILES
+          if (av1_disable_loopfilter_on_tile_boundary(cm)) {
+            av1_update_tile_boundary_info(cm, &tile_info, mi_row, mi_col);
+          }
+#endif  // CONFIG_DEBLOCKING_ACROSS_TILES
+
           decode_partition(pbi, &td->xd,
 #if CONFIG_SUPERTX
                            0,
