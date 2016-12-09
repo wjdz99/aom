@@ -17,6 +17,7 @@
 
 #include "aom_ports/bitops.h"
 #include "aom_ports/mem.h"
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -138,7 +139,17 @@ DECLARE_ALIGNED(16, extern const uint8_t, aom_norm[256]);
 #if CONFIG_EC_ADAPT
 static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
   const int rate = 4 + get_msb(nsymbs);
-  int i, diff, tmp;
+  const int rate2 = 12 - rate;
+  const int tmp0 = 1 << rate2;
+  int i, tmp = tmp0;
+  const int diff = ((32768 - (nsymbs << rate2)) >> rate) << rate;
+#if 1
+  // Single loop (faster)
+  for (i = 0; i < nsymbs - 1; ++i, tmp += tmp0) {
+    tmp += (i == val ? diff : 0);
+    cdf[i] -= ((cdf[i] - tmp) >> rate);
+  }
+#else
   for (i = 0; i < nsymbs; ++i) {
     tmp = (i + 1) << (12 - rate);
     cdf[i] -= ((cdf[i] - tmp) >> rate);
@@ -148,6 +159,7 @@ static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
   for (i = val; i < nsymbs; ++i) {
     cdf[i] += diff;
   }
+#endif
 }
 #endif
 
