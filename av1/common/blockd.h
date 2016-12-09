@@ -332,6 +332,8 @@ typedef struct {
   int num_proj_ref[2];
   WarpedMotionParams wm_params[2];
 #endif  // CONFIG_WARPED_MOTION
+
+  TILE_BOUNDARY_TYPE tile_boundary_info;
 } MB_MODE_INFO;
 
 typedef struct MODE_INFO {
