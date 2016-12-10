@@ -9,14 +9,18 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include "./aom_config.h"  // NOLINT
+
+#if CONFIG_OS_SUPPORT && !defined(_POSIX_C_SOURCE)
+#define _POSIX_C_SOURCE 1  // for fileno()
+#endif
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <limits.h>
-
-#include "./aom_config.h"
 
 #if CONFIG_LIBYUV
 #include "third_party/libyuv/include/libyuv/scale.h"
