@@ -213,13 +213,8 @@ void av1_convolve(const uint8_t *src, int src_stride, uint8_t *dst,
     if (filter_params_y.taps < filter_params_x.taps) {
       int intermediate_width;
       int temp_stride = max_intermediate_size;
-#if CONFIG_DUAL_FILTER
       filter_params = filter_params_y;
       filter_size = filter_params_x.taps;
-#else
-      filter_params = av1_get_interp_filter_params(interp_filter);
-      filter_size = filter_params.taps;
-#endif
       intermediate_width =
           (((w - 1) * x_step_q4 + subpel_x_q4) >> SUBPEL_BITS) + filter_size;
       assert(intermediate_width <= max_intermediate_size);
@@ -230,18 +225,14 @@ void av1_convolve(const uint8_t *src, int src_stride, uint8_t *dst,
                                temp_stride, intermediate_width, h,
                                filter_params, subpel_y_q4, y_step_q4, 0);
 
-#if CONFIG_DUAL_FILTER
       filter_params = filter_params_x;
-#else
-      filter_params = av1_get_interp_filter_params(interp_filter);
-#endif
       assert(filter_params.taps <= MAX_FILTER_TAP);
 
       av1_convolve_horiz_facade(temp + (filter_size / 2 - 1), temp_stride, dst,
                                 dst_stride, w, h, filter_params, subpel_x_q4,
                                 x_step_q4, ref_idx);
     } else
-#endif
+#endif  // CONFIG_DUAL_FILTER
     {
       int intermediate_height;
       int temp_stride = MAX_SB_SIZE;
