@@ -1483,8 +1483,7 @@ static void build_intra_predictors_high(
   if (is_dr_mode) {
 #if CONFIG_INTRA_INTERP
     INTRA_FILTER filter = INTRA_FILTER_LINEAR;
-    if (plane == 0 && av1_is_intra_filter_switchable(p_angle))
-      filter = xd->mi[0]->mbmi.intra_filter;
+    if (plane == 0) filter = xd->mi[0]->mbmi.intra_filter;
 #endif  // CONFIG_INTRA_INTERP
     highbd_dr_predictor(dst, dst_stride, bs, const_above_row, left_col,
 #if CONFIG_INTRA_INTERP
@@ -1649,8 +1648,7 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   if (is_dr_mode) {
 #if CONFIG_INTRA_INTERP
     INTRA_FILTER filter = INTRA_FILTER_LINEAR;
-    if (plane == 0 && av1_is_intra_filter_switchable(p_angle))
-      filter = xd->mi[0]->mbmi.intra_filter;
+    if (plane == 0) filter = xd->mi[0]->mbmi.intra_filter;
 #endif  // CONFIG_INTRA_INTERP
     dr_predictor(dst, dst_stride, tx_size, const_above_row, left_col,
 #if CONFIG_INTRA_INTERP

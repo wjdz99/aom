@@ -116,15 +116,8 @@ static INTRA_FILTER get_ref_intra_filter(const MB_MODE_INFO *ref_mbmi) {
         default: break;
       }
     } else {
-      if (av1_is_directional_mode(mode, ref_mbmi->sb_type)) {
-        const TX_SIZE max_tx_size = max_txsize_lookup[ref_mbmi->sb_type];
-        const int angle_step = av1_angle_step_y[max_tx_size];
-        int p_angle =
-            mode_to_angle_map[mode] + ref_mbmi->angle_delta[0] * angle_step;
-        if (av1_is_intra_filter_switchable(p_angle)) {
-          ref_type = ref_mbmi->intra_filter;
-        }
-      }
+      if (av1_is_directional_mode(mode, ref_mbmi->sb_type))
+        ref_type = ref_mbmi->intra_filter;
     }
   }
   return ref_type;

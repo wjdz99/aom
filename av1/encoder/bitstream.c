@@ -1040,7 +1040,6 @@ static void write_intra_angle_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const BLOCK_SIZE bsize = mbmi->sb_type;
 #if CONFIG_INTRA_INTERP
   const int intra_filter_ctx = av1_get_pred_context_intra_interp(xd);
-  int p_angle;
 #endif  // CONFIG_INTRA_INTERP
 
   (void)cm;
@@ -1052,13 +1051,9 @@ static void write_intra_angle_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     write_uniform(w, 2 * max_angle_delta + 1,
                   max_angle_delta + mbmi->angle_delta[0]);
 #if CONFIG_INTRA_INTERP
-    p_angle = mode_to_angle_map[mbmi->mode] +
-              mbmi->angle_delta[0] * av1_angle_step_y[max_tx_size];
-    if (av1_is_intra_filter_switchable(p_angle)) {
-      av1_write_token(w, av1_intra_filter_tree,
-                      cm->fc->intra_filter_probs[intra_filter_ctx],
-                      &intra_filter_encodings[mbmi->intra_filter]);
-    }
+    av1_write_token(w, av1_intra_filter_tree,
+                    cm->fc->intra_filter_probs[intra_filter_ctx],
+                    &intra_filter_encodings[mbmi->intra_filter]);
 #endif  // CONFIG_INTRA_INTERP
   }
 

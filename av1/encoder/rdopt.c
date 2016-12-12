@@ -2604,7 +2604,6 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int max_angle_delta = av1_max_angle_delta_y[max_tx_size];
   int first_try = 1;
 #if CONFIG_INTRA_INTERP
-  int p_angle;
   const int intra_filter_ctx = av1_get_pred_context_intra_interp(xd);
   INTRA_FILTER filter, best_filter = INTRA_FILTER_LINEAR;
 #endif  // CONFIG_INTRA_INTERP
@@ -2687,17 +2686,13 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
 
 #if CONFIG_INTRA_INTERP
   if (FILTER_FAST_SEARCH && rd_stats->rate < INT_MAX) {
-    p_angle = mode_to_angle_map[mbmi->mode] +
-              best_angle_delta * av1_angle_step_y[max_tx_size];
-    if (av1_is_intra_filter_switchable(p_angle)) {
-      for (filter = INTRA_FILTER_LINEAR + 1; filter < INTRA_FILTERS; ++filter) {
-        mic->mbmi.intra_filter = filter;
-        this_rd = pick_intra_angle_routine_sby(
-            cpi, x, best_angle_delta, max_angle_delta, rate, rd_stats,
-            &best_angle_delta, &best_tx_size, &best_tx_type, &best_filter,
-            bsize, mode_cost + cpi->intra_filter_cost[intra_filter_ctx][filter],
-            &best_rd, best_rd);
-      }
+    for (filter = INTRA_FILTER_LINEAR + 1; filter < INTRA_FILTERS; ++filter) {
+      mic->mbmi.intra_filter = filter;
+      this_rd = pick_intra_angle_routine_sby(
+          cpi, x, best_angle_delta, max_angle_delta, rate, rd_stats,
+          &best_angle_delta, &best_tx_size, &best_tx_type, &best_filter, bsize,
+          mode_cost + cpi->intra_filter_cost[intra_filter_ctx][filter],
+          &best_rd, best_rd);
     }
   }
 #endif  // CONFIG_INTRA_INTERP
@@ -2985,12 +2980,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (is_directional_mode) {
       const int max_angle_delta = av1_max_angle_delta_y[max_tx_size];
 #if CONFIG_INTRA_INTERP
-      const int p_angle =
-          mode_to_angle_map[mic->mbmi.mode] +
-          mic->mbmi.angle_delta[0] * av1_angle_step_y[max_tx_size];
-      if (av1_is_intra_filter_switchable(p_angle))
-        this_rate +=
-            cpi->intra_filter_cost[intra_filter_ctx][mic->mbmi.intra_filter];
+      this_rate +=
+          cpi->intra_filter_cost[intra_filter_ctx][mic->mbmi.intra_filter];
 #endif  // CONFIG_INTRA_INTERP
       this_rate += write_uniform_cost(
           2 * max_angle_delta + 1, max_angle_delta + mic->mbmi.angle_delta[0]);
@@ -9184,12 +9175,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       if (is_directional_mode) {
         const int max_angle_delta = av1_max_angle_delta_y[max_tx_size];
 #if CONFIG_INTRA_INTERP
-        int p_angle;
         const int intra_filter_ctx = av1_get_pred_context_intra_interp(xd);
-        p_angle = mode_to_angle_map[mbmi->mode] +
-                  mbmi->angle_delta[0] * av1_angle_step_y[max_tx_size];
-        if (av1_is_intra_filter_switchable(p_angle))
-          rate2 += cpi->intra_filter_cost[intra_filter_ctx][mbmi->intra_filter];
+        rate2 += cpi->intra_filter_cost[intra_filter_ctx][mbmi->intra_filter];
 #endif  // CONFIG_INTRA_INTERP
         rate2 += write_uniform_cost(2 * max_angle_delta + 1,
                                     max_angle_delta + mbmi->angle_delta[0]);

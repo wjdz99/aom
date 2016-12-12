@@ -708,12 +708,6 @@ extern const int16_t dr_intra_derivative[90];
 static const uint8_t mode_to_angle_map[INTRA_MODES] = {
   0, 90, 180, 45, 135, 111, 157, 203, 67, 0,
 };
-
-#if CONFIG_INTRA_INTERP
-// Returns whether filter selection is needed for a given
-// intra prediction angle.
-int av1_is_intra_filter_switchable(int angle);
-#endif  // CONFIG_INTRA_INTERP
 #endif  // CONFIG_EXT_INTRA
 
 #if CONFIG_EXT_TILE
