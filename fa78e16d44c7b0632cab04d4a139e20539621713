@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3cf3c1_62db5639",
+        "filename": "aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-12-12T17:41:55Z",
+      "side": 1,
+      "message": "added a encoder command line parameter to turn on/off this flag",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 380,
+        "endChar": 2
+      },
+      "revId": "fa78e16d44c7b0632cab04d4a139e20539621713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_22b8aec4",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-12-12T17:41:55Z",
+      "side": 1,
+      "message": "added a flag in per 8x8 MI structure to indicate the tile boundary information for each 8x8 block",
+      "range": {
+        "startLine": 335,
+        "startChar": 0,
+        "endLine": 335,
+        "endChar": 2
+      },
+      "revId": "fa78e16d44c7b0632cab04d4a139e20539621713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_82a87a73",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-12-12T17:41:55Z",
+      "side": 1,
+      "message": "add enum type to indicate whether the left/above/right/bottom edge of a 8x8 is on tile boundary or not.",
+      "range": {
+        "startLine": 226,
+        "startChar": 0,
+        "endLine": 226,
+        "endChar": 1
+      },
+      "revId": "fa78e16d44c7b0632cab04d4a139e20539621713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_e2986661",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1441,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-12-12T17:41:55Z",
+      "side": 1,
+      "message": "for chroma plane in non 420 format, disable loop filtering for left edge if it is a tile boundary",
+      "range": {
+        "startLine": 1441,
+        "startChar": 1,
+        "endLine": 1441,
+        "endChar": 3
+      },
+      "revId": "fa78e16d44c7b0632cab04d4a139e20539621713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_a56ee86e",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1629,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-12-12T17:41:55Z",
+      "side": 1,
+      "message": "for chroma plane in non 420 format, disable loop filtering for above edges that are tile boundary.",
+      "range": {
+        "startLine": 1629,
+        "startChar": 1,
+        "endLine": 1629,
+        "endChar": 3
+      },
+      "revId": "fa78e16d44c7b0632cab04d4a139e20539621713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_e583d0eb",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-12-12T17:41:55Z",
+      "side": 1,
+      "message": "update the tile boundary flag for every 8x8 block in a super block. even though loop filter itself only checks the boundary info for the above and left edges, but here this function also set the bottom and right edges to make the function to be generic.",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 2
+      },
+      "revId": "fa78e16d44c7b0632cab04d4a139e20539621713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_25a1d87a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2873,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-12-12T17:41:55Z",
+      "side": 1,
+      "message": "read the loop_filter_across_tile_boundary flag from tile info structure in the uncompressed header.",
+      "range": {
+        "startLine": 2873,
+        "startChar": 1,
+        "endLine": 2873,
+        "endChar": 2
+      },
+      "revId": "fa78e16d44c7b0632cab04d4a139e20539621713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_059ed43d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3312,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-12-12T17:41:55Z",
+      "side": 1,
+      "message": "update tile boundary info for a super block before decoding",
+      "range": {
+        "startLine": 3312,
+        "startChar": 1,
+        "endLine": 3312,
+        "endChar": 2
+      },
+      "revId": "fa78e16d44c7b0632cab04d4a139e20539621713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_c5bb2ca6",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3376,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-12-12T17:41:55Z",
+      "side": 1,
+      "message": "write the flag into uncompressed header",
+      "range": {
+        "startLine": 3376,
+        "startChar": 0,
+        "endLine": 3376,
+        "endChar": 1
+      },
+      "revId": "fa78e16d44c7b0632cab04d4a139e20539621713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_85dc0402",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 4332,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-12-12T17:41:55Z",
+      "side": 1,
+      "message": "update tile boundary info for a super block before encoding",
+      "range": {
+        "startLine": 4332,
+        "startChar": 0,
+        "endLine": 4332,
+        "endChar": 2
+      },
+      "revId": "fa78e16d44c7b0632cab04d4a139e20539621713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_e5ccf04f",
+        "filename": "configure",
+        "patchSetId": 11
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-12-12T17:41:55Z",
+      "side": 1,
+      "message": "add a new experiment flag in configure file",
+      "range": {
+        "startLine": 294,
+        "startChar": 1,
+        "endLine": 294,
+        "endChar": 2
+      },
+      "revId": "fa78e16d44c7b0632cab04d4a139e20539621713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_851764bc",
+        "filename": "test/ethread_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2016-12-12T17:41:55Z",
+      "side": 1,
+      "message": "updated test code to set this new argument. not sure if it is needed to change the tests. please advice.",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 1
+      },
+      "revId": "fa78e16d44c7b0632cab04d4a139e20539621713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
