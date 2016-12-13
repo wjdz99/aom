@@ -261,6 +261,9 @@ typedef struct AV1EncoderConfig {
 #if CONFIG_EXT_PARTITION
   aom_superblock_size_t superblock_size;
 #endif  // CONFIG_EXT_PARTITION
+#if CONFIG_ANS
+  int ans_window_size_log2;
+#endif  // CONFIG_ANS
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {

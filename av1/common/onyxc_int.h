@@ -418,6 +418,9 @@ typedef struct AV1Common {
   int refresh_mask;
   int invalid_delta_frame_id_minus1;
 #endif
+#if CONFIG_ANS
+  int ans_window_size_log2;  // Used by ANS_MAX_SYMBOLS
+#endif
 } AV1_COMMON;
 
 #if CONFIG_REFERENCE_BUFFER

@@ -180,6 +180,7 @@ static INLINE int ans_read_init(struct AnsDecoder *const ans,
   ans->state += L_BASE;
   if (ans->state >= L_BASE * IO_BASE) return 1;
 #if ANS_MAX_SYMBOLS
+  assert(window_size > 1);
   ans->window_size = window_size;
   ans->symbols_left = window_size;
 #endif

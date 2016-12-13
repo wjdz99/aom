@@ -4062,6 +4062,12 @@ static void write_uncompressed_header(AV1_COMP *cpi,
     if (!use_hybrid_pred) aom_wb_write_bit(wb, use_compound_pred);
   }
 
+#if CONFIG_ANS && ANS_MAX_SYMBOLS
+  assert(cpi->common.ans_window_size_log2 >= 8);
+  assert(cpi->common.ans_window_size_log2 < 24);
+  aom_wb_write_literal(wb, cpi->common.ans_window_size_log2 - 8, 4);
+#endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
+
   write_tile_info(cm, wb);
 }
 
