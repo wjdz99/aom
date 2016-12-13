@@ -16,6 +16,24 @@
       "revId": "0f4bcda7dcfddb93929cd402c3b5509bbd97b802",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_a87598a9",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-12-13T00:24:32Z",
+      "side": 1,
+      "message": "Maybe we can come up with some way of mechanically enforcing this like a .c file that includes only the public headers with Werror\u003dundef?",
+      "parentUuid": "9a3cf3c1_08d384bc",
+      "revId": "0f4bcda7dcfddb93929cd402c3b5509bbd97b802",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
