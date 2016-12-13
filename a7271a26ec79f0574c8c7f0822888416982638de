@@ -1,0 +1,239 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3cf3c1_8db89d0f",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-13T20:46:00Z",
+      "side": 1,
+      "message": "I\u0027d put a brief note of what \u0027max_angle_delta\u0027 and \u0027angle_step\u0027 mean.",
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_2dd8917e",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-13T20:46:00Z",
+      "side": 1,
+      "message": "Is this #define used anywhere now?",
+      "range": {
+        "startLine": 696,
+        "startChar": 24,
+        "endLine": 696,
+        "endChar": 25
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_0d182d9d",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-13T20:46:00Z",
+      "side": 1,
+      "message": "This looks like a bugfix: can you mention it explicitly in commit msg pls?",
+      "range": {
+        "startLine": 775,
+        "startChar": 4,
+        "endLine": 775,
+        "endChar": 20
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_cd9ea5a1",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 780,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-13T20:46:00Z",
+      "side": 1,
+      "message": "Can we assert(mode \u003d\u003d \u003csomething\u003e) here maybe?",
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_ad28019a",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 783,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-13T20:46:00Z",
+      "side": 1,
+      "message": "Earlier, \"ANGLE_STEP\" was a constant value \u00273\u0027. It is variable based on mbmi-\u003esb_type now? If so, isn\u0027t this a functional change?",
+      "range": {
+        "startLine": 783,
+        "startChar": 16,
+        "endLine": 783,
+        "endChar": 26
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_edc28996",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1362,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-13T20:46:00Z",
+      "side": 1,
+      "message": "I see these two lines together almost everywhere. Maybe we need a helper function that takes \u0027sb_type\u0027 and \u0027plane\u0027 and returns the angle_step?",
+      "range": {
+        "startLine": 1361,
+        "startChar": 1,
+        "endLine": 1362,
+        "endChar": 79
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_6d51f923",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-13T20:46:00Z",
+      "side": 1,
+      "message": "Again, \u0027max_angle_delta\u0027 is a variable now, and so this is a functional change, right?",
+      "range": {
+        "startLine": 669,
+        "startChar": 14,
+        "endLine": 669,
+        "endChar": 29
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_2d0ad102",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2557,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-13T20:46:00Z",
+      "side": 1,
+      "message": "What does the function return?\nAlso, what does the function do?\n\nGiven that there are two methods (this one and the one below) picking intra angle, I can\u0027t tell what\u0027s the purpose of both. That\u0027s why I\u0027m recommending a comment here.",
+      "range": {
+        "startLine": 2557,
+        "startChar": 7,
+        "endLine": 2557,
+        "endChar": 14
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_4d0d151a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2560,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-13T20:46:00Z",
+      "side": 1,
+      "message": "I can\u0027t tell which of these are input and which are output, given none of them are const.\nIs it possible to make some of them const (this can be a separate patch of course, if it triggers a chain a other functions which need a signature update).",
+      "range": {
+        "startLine": 2559,
+        "startChar": 25,
+        "endLine": 2560,
+        "endChar": 49
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_cd190562",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2564,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-13T20:46:00Z",
+      "side": 1,
+      "message": "The usual practice is:\n- All input parameters, followed by\n- All output parameters\nSo, \"best_rd_in\" followed by \"*best_rd\" (assuming that\u0027s output)",
+      "range": {
+        "startLine": 2564,
+        "startChar": 37,
+        "endLine": 2564,
+        "endChar": 73
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3cf3c1_2de1b110",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3985,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-13T20:46:00Z",
+      "side": 1,
+      "message": "Same recommendation to add a comment about this function, and the order of parameters.",
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
