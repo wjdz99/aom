@@ -25,7 +25,7 @@
 
 #if HAVE_NEON
 #include "simd/v256_intrinsics_arm.h"
-#elif HAVE_SSE2
+#elif HAVE_SSE2 && (defined(_WIN64) || !defined(_MSC_VER))
 #include "simd/v256_intrinsics_x86.h"
 #else
 #include "simd/v256_intrinsics.h"
