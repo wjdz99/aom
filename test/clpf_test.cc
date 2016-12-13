@@ -213,6 +213,7 @@ TEST_P(ClpfHbdSpeedTest, TestSpeed) {
 
 using std::tr1::make_tuple;
 
+#if defined(_WIN64) || !defined(_MSC_VER)
 // Test all supported architectures and block sizes
 #if HAVE_SSE2
 INSTANTIATE_TEST_CASE_P(
@@ -348,6 +349,7 @@ INSTANTIATE_TEST_CASE_P(NEON, ClpfHbdSpeedTest,
                         ::testing::Values(make_tuple(&aom_clpf_block_hbd_neon,
                                                      &aom_clpf_block_hbd_c, 8,
                                                      8)));
+#endif
 #endif
 #endif
 
