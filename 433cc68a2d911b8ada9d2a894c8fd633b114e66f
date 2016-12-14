@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "5a7fdbe6_d34f17db",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-14T18:46:53Z",
+      "side": 1,
+      "message": "FYI\n- Any function declared in a header file should have the \u0027av1_\u0027 prefix. This is because, all these functions are publicly visible, so we want to avoid name-collision with another function of the same name.\n- A static function *inside a source (.c/.cc)* file is NOT publicly visible. So, it does NOT need the av1_ prefix.",
+      "parentUuid": "5a7fdbe6_30178970",
+      "range": {
+        "startLine": 711,
+        "startChar": 18,
+        "endLine": 711,
+        "endChar": 32
+      },
+      "revId": "433cc68a2d911b8ada9d2a894c8fd633b114e66f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a7fdbe6_3090692d",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 8
