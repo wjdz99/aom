@@ -2717,10 +2717,78 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
 }
 
 static void read_tile_info(AV1Decoder *const pbi,
-                           struct aom_read_bit_buffer *const rb) {
+  struct aom_read_bit_buffer *const rb) {
   AV1_COMMON *const cm = &pbi->common;
 #if CONFIG_EXT_TILE
-// Read the tile width/height
+#if CONFIG_FLEXIBLE_TILE
+  int tile_col_to_edge = cm->mi_cols;
+  int tile_row_to_edge = cm->mi_rows;
+  int frame_width = ALIGN_POWER_OF_TWO(cm->mi_cols, 
+    cm->mib_size_log2) >> cm->mib_size_log2;
+  int frame_height = ALIGN_POWER_OF_TWO(cm->mi_rows,
+    cm->mib_size_log2) >> cm->mib_size_log2;
+  int tile_enable_flag = aom_rb_read_bit(rb);
+  cm->tile_cols = 1;
+  cm->tile_rows = 1;
+  cm->uniform_spacing_flag = 1;
+  memset(cm->tile_widths, 0, sizeof(cm->tile_widths));
+  memset(cm->tile_heights, 0, sizeof(cm->tile_heights));
+  cm->tile_widths[0] = tile_col_to_edge;
+  cm->tile_heights[0] = tile_row_to_edge;
+  if (tile_enable_flag) {
+    cm->tile_cols = aom_rb_read_literal(rb, 6) + 1;
+    cm->tile_rows = aom_rb_read_literal(rb, 6) + 1;
+
+    if (cm->tile_cols > 1 || cm->tile_rows > 1)
+      cm->uniform_spacing_flag = aom_rb_read_bit(rb);
+    else
+      cm->uniform_spacing_flag = 1;
+
+    if (!cm->uniform_spacing_flag && cm->tile_cols > 1) {
+      for (int i = 0; i < cm->tile_cols; i++) {
+        cm->tile_widths[i] = AOMMIN(tile_col_to_edge,
+          (aom_rb_read_literal(rb, 6) + 1) << cm->mib_size_log2);
+        assert(cm->tile_widths[i] < 512);
+        tile_col_to_edge -= cm->tile_widths[i];
+      }
+    } else {
+      int lastDiv = 0;
+      for (int i = 0; i < cm->tile_cols; i++) {
+        int tmp = ((i + 1) * frame_width) / cm->tile_cols;
+        cm->tile_widths[i] = AOMMIN(tile_col_to_edge,
+          (tmp - lastDiv) << cm->mib_size_log2);
+        assert(cm->tile_widths[i] < 512);
+        tile_col_to_edge -= cm->tile_widths[i];
+        lastDiv = tmp;
+      }
+    }
+    if (!cm->uniform_spacing_flag && cm->tile_rows > 1) {
+      for (int i = 0; i < cm->tile_rows; i++) {
+        cm->tile_heights[i] = AOMMIN(tile_row_to_edge,
+          (aom_rb_read_literal(rb, 6) + 1) << cm->mib_size_log2);
+        assert(cm->tile_heights[i] < 512);
+        tile_row_to_edge -= cm->tile_heights[i];
+      }
+    } else {
+      int lastDiv = 0;
+      for (int i = 0; i < cm->tile_rows; i++) {
+        int tmp = ((i + 1) * frame_height) / cm->tile_rows;
+        cm->tile_heights[i] = AOMMIN(tile_row_to_edge,
+          (tmp - lastDiv) << cm->mib_size_log2);
+        assert(cm->tile_heights[i] < 512);
+        tile_row_to_edge -= cm->tile_heights[i];
+        lastDiv = tmp;
+      }
+    }
+  }
+  if (cm->tile_cols * cm->tile_rows > 1) {
+    // Read the number of bytes used to store tile size
+    pbi->tile_col_size_bytes = aom_rb_read_literal(rb, 2) + 1;
+    pbi->tile_size_bytes = aom_rb_read_literal(rb, 2) + 1;
+  }
+
+#else
+  // Read the tile width/height
 #if CONFIG_EXT_PARTITION
   if (cm->sb_size == BLOCK_128X128) {
     cm->tile_width = aom_rb_read_literal(rb, 5) + 1;
@@ -2750,6 +2818,73 @@ static void read_tile_info(AV1Decoder *const pbi,
     pbi->tile_col_size_bytes = aom_rb_read_literal(rb, 2) + 1;
     pbi->tile_size_bytes = aom_rb_read_literal(rb, 2) + 1;
   }
+#endif
+#else
+#if CONFIG_FLEXIBLE_TILE
+  int tile_col_to_edge = cm->mi_cols;
+  int tile_row_to_edge = cm->mi_rows;
+  int frame_width = ALIGN_POWER_OF_TWO(cm->mi_cols,
+    cm->mib_size_log2) >> cm->mib_size_log2;
+  int frame_height = ALIGN_POWER_OF_TWO(cm->mi_rows,
+    cm->mib_size_log2) >> cm->mib_size_log2;
+  int tile_enable_flag = aom_rb_read_bit(rb);
+  cm->tile_cols = 1;
+  cm->tile_rows = 1;
+  cm->uniform_spacing_flag = 1;
+  memset(cm->tile_widths, 0, sizeof(cm->tile_widths));
+  memset(cm->tile_heights, 0, sizeof(cm->tile_heights));
+  cm->tile_widths[0] = tile_col_to_edge;
+  cm->tile_heights[0] = tile_row_to_edge;
+  if (tile_enable_flag) {
+    cm->tile_cols = aom_rb_read_literal(rb, 6) + 1;
+    cm->tile_rows = aom_rb_read_literal(rb, 6) + 1;
+
+
+    if (cm->tile_cols > 1 || cm->tile_rows > 1)
+      cm->uniform_spacing_flag = aom_rb_read_bit(rb);
+    else
+      cm->uniform_spacing_flag = 1;
+
+    if (!cm->uniform_spacing_flag && cm->tile_cols > 1) {
+      for (int i = 0; i < cm->tile_cols; i++) {
+        cm->tile_widths[i] = AOMMIN(tile_col_to_edge,
+          (aom_rb_read_literal(rb, 6) + 1) << cm->mib_size_log2);
+        assert(cm->tile_widths[i] < 512);
+        tile_col_to_edge -= cm->tile_widths[i];
+      }
+    } else {
+      int lastDiv = 0;
+      for (int i = 0; i < cm->tile_cols; i++) {
+        int tmp = ((i + 1) * frame_width) / cm->tile_cols;
+        cm->tile_widths[i] = AOMMIN(tile_col_to_edge,
+          (tmp - lastDiv) << cm->mib_size_log2);
+        assert(cm->tile_widths[i] < 512);
+        tile_col_to_edge -= cm->tile_widths[i];
+        lastDiv = tmp;
+      }
+    }
+    if (!cm->uniform_spacing_flag && cm->tile_rows > 1) {
+      for (int i = 0; i < cm->tile_rows; i++) {
+        cm->tile_heights[i] = AOMMIN(tile_row_to_edge,
+          (aom_rb_read_literal(rb, 6) + 1) << cm->mib_size_log2);
+        assert(cm->tile_heights[i] < 512);
+        tile_row_to_edge -= cm->tile_heights[i];
+      }
+    } else {
+      int lastDiv = 0;
+      for (int i = 0; i < cm->tile_rows; i++) {
+        int tmp = ((i + 1) * frame_height) / cm->tile_rows;
+        cm->tile_heights[i] = AOMMIN(tile_row_to_edge,
+          (tmp - lastDiv) << cm->mib_size_log2);
+        assert(cm->tile_heights[i] < 512);
+        tile_row_to_edge -= cm->tile_heights[i];
+        lastDiv = tmp;
+      }
+    }
+  }
+  // Read the number of bytes used to store tile size
+  pbi->tile_size_bytes = aom_rb_read_literal(rb, 2) + 1;
+
 #else
   int min_log2_tile_cols, max_log2_tile_cols, max_ones;
   av1_get_tile_n_bits(cm->mi_cols, &min_log2_tile_cols, &max_log2_tile_cols);
@@ -2761,7 +2896,7 @@ static void read_tile_info(AV1Decoder *const pbi,
 
   if (cm->log2_tile_cols > 6)
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                       "Invalid number of tile columns");
+      "Invalid number of tile columns");
 
   // rows
   cm->log2_tile_rows = aom_rb_read_bit(rb);
@@ -2779,7 +2914,7 @@ static void read_tile_info(AV1Decoder *const pbi,
   cm->tile_width = ALIGN_POWER_OF_TWO(cm->tile_width, MAX_MIB_SIZE_LOG2);
   cm->tile_height = ALIGN_POWER_OF_TWO(cm->tile_height, MAX_MIB_SIZE_LOG2);
 
-// tile size magnitude
+  // tile size magnitude
 #if !CONFIG_TILE_GROUPS
   if (cm->tile_rows > 1 || cm->tile_cols > 1)
 #endif
@@ -2787,15 +2922,28 @@ static void read_tile_info(AV1Decoder *const pbi,
 #endif  // CONFIG_EXT_TILE
 
 #if CONFIG_TILE_GROUPS
+#if CONFIG_FLEXIBLE_TILE
+  // Store an index to the location of the tile group information
+  pbi->tg_size_bit_offset = rb->bit_offset;
+  pbi->tg_size = cm->tile_cols  * cm->tile_rows;
+  int n_log2_tiles = 0;
+  while ((1 << n_log2_tiles) < cm->tile_cols * cm->tile_rows) n_log2_tiles++;
+  if (cm->tile_rows > 1 || cm->tile_cols > 1) {
+    pbi->tg_start = aom_rb_read_literal(rb, n_log2_tiles);
+    pbi->tg_size = 1 + aom_rb_read_literal(rb, n_log2_tiles);
+  }
+#else
   // Store an index to the location of the tile group information
   pbi->tg_size_bit_offset = rb->bit_offset;
   pbi->tg_size = 1 << (cm->log2_tile_rows + cm->log2_tile_cols);
   if (cm->log2_tile_rows + cm->log2_tile_cols > 0) {
     pbi->tg_start =
-        aom_rb_read_literal(rb, cm->log2_tile_rows + cm->log2_tile_cols);
+      aom_rb_read_literal(rb, cm->log2_tile_rows + cm->log2_tile_cols);
     pbi->tg_size =
-        1 + aom_rb_read_literal(rb, cm->log2_tile_rows + cm->log2_tile_cols);
+      1 + aom_rb_read_literal(rb, cm->log2_tile_rows + cm->log2_tile_cols);
   }
+#endif
+#endif
 #endif
 }
 
@@ -3004,7 +3152,12 @@ static void get_tile_buffers(
   struct aom_read_bit_buffer rb_tg_hdr;
   uint8_t clear_data[MAX_AV1_HEADER_SIZE];
   const int num_tiles = tile_rows * tile_cols;
+#if CONFIG_FLEXIBLE_TILE
+  int num_bits = 0;
+  while ((1 << num_bits) < num_tiles) num_bits++;
+#else
   const int num_bits = OD_ILOG(num_tiles) - 1;
+#endif
   const int hdr_size = pbi->uncomp_hdr_size + pbi->first_partition_size;
   const int tg_size_bit_offset = pbi->tg_size_bit_offset;
 
