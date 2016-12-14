@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dabcabd0_33e148e7",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2016-12-14T10:53:36Z",
+      "side": 1,
+      "message": "I think you need to add:\n  mi-\u003embmi.tile_boundary_info \u003d 0;\nbefore setting the boundary flags.\n\n(I ran a test that changed the tiling structure between frames and it ended up disabling deblocking in too many places.  I believe this is because the mbmi structure is cleared at initialization, but not between frames.)",
+      "revId": "8c20add2ddd33a6be1ec4c388146d339a4bba3a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
