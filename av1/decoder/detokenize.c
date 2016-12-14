@@ -81,19 +81,19 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
       fc->coef_probs[tx_size_ctx][type][ref];
   const aom_prob *prob;
 #if CONFIG_EC_ADAPT
-  aom_cdf_prob(*coef_head_cdfs)[COEFF_CONTEXTS][ENTROPY_TOKENS] =
+  aom_cdf_prob(*coef_head_cdfs)[COEFF_CONTEXTS][ENTROPY_TOKENS + 1] =
       xd->tile_ctx->coef_head_cdfs[tx_size][type][ref];
-  aom_cdf_prob(*coef_tail_cdfs)[COEFF_CONTEXTS][ENTROPY_TOKENS] =
+  aom_cdf_prob(*coef_tail_cdfs)[COEFF_CONTEXTS][ENTROPY_TOKENS + 1] =
       xd->tile_ctx->coef_tail_cdfs[tx_size][type][ref];
 #elif CONFIG_EC_MULTISYMBOL
-  aom_cdf_prob(*coef_head_cdfs)[COEFF_CONTEXTS][ENTROPY_TOKENS] =
+  aom_cdf_prob(*coef_head_cdfs)[COEFF_CONTEXTS][ENTROPY_TOKENS + 1] =
       fc->coef_head_cdfs[tx_size_ctx][type][ref];
-  aom_cdf_prob(*coef_tail_cdfs)[COEFF_CONTEXTS][ENTROPY_TOKENS] =
+  aom_cdf_prob(*coef_tail_cdfs)[COEFF_CONTEXTS][ENTROPY_TOKENS + 1] =
       fc->coef_tail_cdfs[tx_size_ctx][type][ref];
 #endif
 #if CONFIG_EC_MULTISYMBOL
-  aom_cdf_prob(*cdf_head)[ENTROPY_TOKENS];
-  aom_cdf_prob(*cdf_tail)[ENTROPY_TOKENS];
+  aom_cdf_prob(*cdf_head)[ENTROPY_TOKENS + 1];
+  aom_cdf_prob(*cdf_tail)[ENTROPY_TOKENS + 1];
   int ctx_eob, band_eob;
   const aom_prob *prob_eob;
   int val = 0;
