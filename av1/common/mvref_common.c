@@ -402,9 +402,12 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
   for (idx = 0; idx < nearest_refmv_count; ++idx)
     ref_mv_stack[idx].weight += REF_CAT_LEVEL;
-
+#if CONFIG_TEMPMV_SIGNALING
+  if (cm->use_prev_frame_mvs && rf[1] == NONE) {
+#else
   if (prev_frame_mvs_base && cm->show_frame && cm->last_show_frame &&
       rf[1] == NONE) {
+#endif
     int blk_row, blk_col;
     int coll_blk_count = 0;
     const int mi_step = mi_size_wide[BLOCK_16X16];
