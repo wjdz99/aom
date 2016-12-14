@@ -789,6 +789,56 @@ static void set_tile_info(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
 
 #if CONFIG_EXT_TILE
+#if CONFIG_FLEXIBLE_TILE
+  int max_mib_cols =
+      (ALIGN_POWER_OF_TWO(cm->mi_cols, MAX_MIB_SIZE_LOG2) >> MAX_MIB_SIZE_LOG2);
+  int max_mib_rows =
+      (ALIGN_POWER_OF_TWO(cm->mi_rows, MAX_MIB_SIZE_LOG2) >> MAX_MIB_SIZE_LOG2);
+  int tile_col_to_edge = cm->mi_cols;
+  int tile_row_to_edge = cm->mi_rows;
+  cm->tile_cols = clamp(cpi->oxcf.tile_columns, 1, AOMMIN(64, max_mib_cols));
+  cm->tile_rows = clamp(cpi->oxcf.tile_rows, 1, AOMMIN(64, max_mib_rows));
+
+  memset(cm->tile_widths, 0, sizeof(cm->tile_widths));
+  memset(cm->tile_heights, 0, sizeof(cm->tile_heights));
+  cm->uniform_spacing_flag = 1;  // cpi->oxcf.uniform_spacing_flag;
+  if (!cm->uniform_spacing_flag && cm->tile_cols > 1) {
+    for (int i = 0; i < cm->tile_cols; i++) {
+      cm->tile_widths[i] = AOMMIN(tile_col_to_edge, (cpi->oxcf.tile_widths[i])
+                                                        << MAX_MIB_SIZE_LOG2);
+      assert(cm->tile_widths[i] < 512);
+      tile_col_to_edge -= cm->tile_widths[i];
+    }
+  } else {
+    int lastDiv = 0;
+    for (int i = 0; i < cm->tile_cols; i++) {
+      int tmp = ((i + 1) * max_mib_cols) / cm->tile_cols;
+      cm->tile_widths[i] =
+          AOMMIN(tile_col_to_edge, (tmp - lastDiv) << MAX_MIB_SIZE_LOG2);
+      assert(cm->tile_widths[i] < 512);
+      tile_col_to_edge -= cm->tile_widths[i];
+      lastDiv = tmp;
+    }
+  }
+  if (!cm->uniform_spacing_flag && cm->tile_rows > 1) {
+    for (int i = 0; i < cm->tile_rows; i++) {
+      cm->tile_heights[i] = AOMMIN(tile_row_to_edge, (cpi->oxcf.tile_heights[i])
+                                                         << MAX_MIB_SIZE_LOG2);
+      assert(cm->tile_heights[i] < 512);
+      tile_row_to_edge -= cm->tile_heights[i];
+    }
+  } else {
+    int lastDiv = 0;
+    for (int i = 0; i < cm->tile_rows; i++) {
+      int tmp = ((i + 1) * max_mib_rows) / cm->tile_rows;
+      cm->tile_heights[i] =
+          AOMMIN(tile_row_to_edge, (tmp - lastDiv) << MAX_MIB_SIZE_LOG2);
+      assert(cm->tile_heights[i] < 512);
+      tile_row_to_edge -= cm->tile_heights[i];
+      lastDiv = tmp;
+    }
+  }
+#else
 #if CONFIG_EXT_PARTITION
   if (cpi->oxcf.superblock_size != AOM_SUPERBLOCK_SIZE_64X64) {
     cm->tile_width = clamp(cpi->oxcf.tile_columns, 1, 32);
@@ -820,6 +870,57 @@ static void set_tile_info(AV1_COMP *cpi) {
 
   cm->tile_rows = 1;
   while (cm->tile_rows * cm->tile_height < cm->mi_rows) ++cm->tile_rows;
+#endif  // CONFIG_FLEXIBLE_TILE
+#else
+#if CONFIG_FLEXIBLE_TILE
+  int max_mib_cols =
+      (ALIGN_POWER_OF_TWO(cm->mi_cols, MAX_MIB_SIZE_LOG2) >> MAX_MIB_SIZE_LOG2);
+  int max_mib_rows =
+      (ALIGN_POWER_OF_TWO(cm->mi_rows, MAX_MIB_SIZE_LOG2) >> MAX_MIB_SIZE_LOG2);
+  int tile_col_to_edge = cm->mi_cols;
+  int tile_row_to_edge = cm->mi_rows;
+  cm->tile_cols = clamp(cpi->oxcf.tile_columns, 1, AOMMIN(64, max_mib_cols));
+  cm->tile_rows = clamp(cpi->oxcf.tile_rows, 1, AOMMIN(64, max_mib_rows));
+
+  memset(cm->tile_widths, 0, sizeof(cm->tile_widths));
+  memset(cm->tile_heights, 0, sizeof(cm->tile_heights));
+  cm->uniform_spacing_flag = 1;  // cpi->oxcf.uniform_spacing_flag;
+  if (!cm->uniform_spacing_flag && cm->tile_cols > 1) {
+    for (int i = 0; i < cm->tile_cols; i++) {
+      cm->tile_widths[i] = AOMMIN(tile_col_to_edge, (cpi->oxcf.tile_widths[i])
+                                                        << MAX_MIB_SIZE_LOG2);
+      assert(cm->tile_widths[i] < 512);
+      tile_col_to_edge -= cm->tile_widths[i];
+    }
+  } else {
+    int lastDiv = 0;
+    for (int i = 0; i < cm->tile_cols; i++) {
+      int tmp = ((i + 1) * max_mib_cols) / cm->tile_cols;
+      cm->tile_widths[i] =
+          AOMMIN(tile_col_to_edge, (tmp - lastDiv) << MAX_MIB_SIZE_LOG2);
+      assert(cm->tile_widths[i] < 512);
+      tile_col_to_edge -= cm->tile_widths[i];
+      lastDiv = tmp;
+    }
+  }
+  if (!cm->uniform_spacing_flag && cm->tile_rows > 1) {
+    for (int i = 0; i < cm->tile_rows; i++) {
+      cm->tile_heights[i] = AOMMIN(tile_row_to_edge, (cpi->oxcf.tile_heights[i])
+                                                         << MAX_MIB_SIZE_LOG2);
+      assert(cm->tile_heights[i] < 512);
+      tile_row_to_edge -= cm->tile_heights[i];
+    }
+  } else {
+    int lastDiv = 0;
+    for (int i = 0; i < cm->tile_rows; i++) {
+      int tmp = ((i + 1) * max_mib_rows) / cm->tile_rows;
+      cm->tile_heights[i] =
+          AOMMIN(tile_row_to_edge, (tmp - lastDiv) << MAX_MIB_SIZE_LOG2);
+      assert(cm->tile_heights[i] < 512);
+      tile_row_to_edge -= cm->tile_heights[i];
+      lastDiv = tmp;
+    }
+  }
 #else
   int min_log2_tile_cols, max_log2_tile_cols;
   av1_get_tile_n_bits(cm->mi_cols, &min_log2_tile_cols, &max_log2_tile_cols);
@@ -839,6 +940,7 @@ static void set_tile_info(AV1_COMP *cpi) {
   // round to integer multiples of max superblock size
   cm->tile_width = ALIGN_POWER_OF_TWO(cm->tile_width, MAX_MIB_SIZE_LOG2);
   cm->tile_height = ALIGN_POWER_OF_TWO(cm->tile_height, MAX_MIB_SIZE_LOG2);
+#endif  // CONFIG_FLEXIBLE_TILE
 #endif  // CONFIG_EXT_TILE
 }
 
