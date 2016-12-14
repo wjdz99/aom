@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5a7fdbe6_30178970",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-12-14T18:40:41Z",
+      "side": 1,
+      "message": "Done. Not sure if static functions should have prefix.",
+      "parentUuid": "5a7fdbe6_30c86910",
+      "range": {
+        "startLine": 711,
+        "startChar": 18,
+        "endLine": 711,
+        "endChar": 32
+      },
+      "revId": "433cc68a2d911b8ada9d2a894c8fd633b114e66f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a7fdbe6_3090692d",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2016-12-14T17:37:01Z",
       "side": 1,
       "message": "So, this just calculates RD cost for a given angle? In that case, the name is confusing. I\u0027d call this \"calc_rd_given_intra_angle()\" or something similar.",
+      "range": {
+        "startLine": 2559,
+        "startChar": 15,
+        "endLine": 2559,
+        "endChar": 43
+      },
+      "revId": "433cc68a2d911b8ada9d2a894c8fd633b114e66f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7fdbe6_30fea9f8",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2559,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-12-14T18:40:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a7fdbe6_3090692d",
       "range": {
         "startLine": 2559,
         "startChar": 15,
