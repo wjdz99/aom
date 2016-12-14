@@ -255,19 +255,129 @@ const uint8_t *av1_get_soft_mask(int wedge_index, int wedge_sign,
 // TODO(sarahparker) this needs to be extended for other experiments and
 // is currently only intended for ext_inter alone
 #if CONFIG_EXT_INTER
-const uint8_t *av1_get_compound_type_mask(
-    const INTERINTER_COMPOUND_DATA *const comp_data, BLOCK_SIZE sb_type,
-    int invert) {
+#if CONFIG_COMPOUND_SEGMENT
+// Fill a histogram with the pixels pointed to by s.
+static void hist(const uint8_t *src, int src_stride,
+                 int *histogram, int h, int w) {
+  int i, j;
+  memset(histogram, 0, 256 * sizeof(*histogram));
+  for (i = 0; i < h; ++i, src += src_stride) {
+    for (j = 0; j < w; ++j) {
+      histogram[src[j]]++;
+    }
+  }
+}
+
+// Pick a split value by examining a histogram to insure that divides at
+// least 1/10th of the pixels,  looking for the one that separates the most
+// pixels and the smallest histogram.
+static int pick_split(int *hist, double *score) {
+  int i;
+  int sum = 0, count = 0, min_split;
+  int max = 0;
+  int first = -1, last = 255;
+  int newsum = 0;
+  int best_split = -1;
+  double best_score = 0;
+  for (i = 0; i < 256; ++i) {
+    if (hist[i] != 0 && first == -1)
+      first = i;
+    if (hist[i] != 0)
+      last = i;
+    max = hist[i] > max ? hist[i] : max;
+    count++;
+    sum += hist[i];
+  }
+  min_split = sum / 10;
+  for (i = first; i < last; ++i) {
+    newsum += hist[i];
+    if (newsum > min_split && sum - newsum > min_split) {
+      double this_score = (newsum < sum - newsum) ? newsum : sum - newsum;
+      this_score *= max - hist[i];
+      if (this_score > best_score) {
+        best_score = this_score;
+        best_split = i;
+      }
+    }
+  }
+  *score = best_score;
+  // best_split is off by 1 since we use < not <=..
+  return best_split + 1;
+}
+
+static int best_split(const uint8_t *src,
+                      int stride, int h, int w) {
+  int histogram[256];
+  int split;
+
+  // This allows us to create the mask from any of the three planes, using
+  // the continuity to pick between them. Its set to only look at Y because
+  double this_score = 0;
+  hist(src, stride, histogram, h, w);
+
+  split = pick_split(histogram, &this_score);
+  return split;
+
+/*
+  cs->y = 128;
+  cs->u = 128;
+  cs->v = 128;
+  cs->yt = 100;
+  cs->ut = 100;
+  cs->vt = 100;
+  switch (best_plane) {
+    case 0:
+      cs->y = 0;
+      cs->yt = split;
+      break;
+    case 1:
+      cs->u = 0;
+      cs->ut = split;
+      break;
+    case 2:
+      cs->v = 0;
+      cs->vt = split;
+      break;
+  }
+*/
+}
+#endif  // CONFIG_COMPOUND_SEGMENT
+
+const uint8_t *av1_get_compound_type_mask(INTERINTER_COMPOUND_DATA
+    *comp_data, BLOCK_SIZE sb_type, int invert) {
   assert(is_masked_compound_type(comp_data->type));
   switch (comp_data->type) {
     case COMPOUND_WEDGE:
       return av1_get_contiguous_soft_mask(
           comp_data->wedge_index,
           invert ? !comp_data->wedge_sign : comp_data->wedge_sign, sb_type);
+#if CONFIG_COMPOUND_SEGMENT
+    case COMPOUND_SEG:
+      return comp_data->seg_mask;
+#endif  // CONFIG_COMPOUND_SEGMENT
     default: assert(0); return NULL;
   }
 }
+
+#if CONFIG_COMPOUND_SEGMENT
+void build_compound_seg_mask(INTERINTER_COMPOUND_DATA *comp_data, const uint8_t *src0,
+                             int src0_stride, const uint8_t *src1, int src1_stride,
+                             BLOCK_SIZE sb_type,  int h, int w) {
+
+  int block_stride = block_size_wide[sb_type];
+  int i, j;
+  (void) src0;
+  (void) src1;
+  (void) src0_stride;
+  (void) src1_stride;
+  for (i = 0; i < h; ++i)
+    for (j = 0; j < w; ++j) {
+      comp_data->seg_mask[i * block_stride + j] = 32;
+    }
+}
+#endif  // CONFIG_COMPOUND_SEGMENT
 #endif  // CONFIG_EXT_INTER
+
 
 static void init_wedge_master_masks() {
   int i, j, s;
@@ -399,7 +509,7 @@ static void build_masked_compound_wedge_extend_highbd(
 static void build_masked_compound(
     uint8_t *dst, int dst_stride, const uint8_t *src0, int src0_stride,
     const uint8_t *src1, int src1_stride,
-    const INTERINTER_COMPOUND_DATA *const comp_data, BLOCK_SIZE sb_type, int h,
+    INTERINTER_COMPOUND_DATA *comp_data, BLOCK_SIZE sb_type, int h,
     int w) {
   // Derive subsampling from h and w passed in. May be refactored to
   // pass in subsampling factors directly.
@@ -441,10 +551,9 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
 #if CONFIG_SUPERTX
                                      int wedge_offset_x, int wedge_offset_y,
 #endif  // CONFIG_SUPERTX
-                                     const MACROBLOCKD *xd) {
-  const MODE_INFO *mi = xd->mi[0];
-  const INTERINTER_COMPOUND_DATA *const comp_data =
-      &mi->mbmi.interinter_compound_data;
+                                     MACROBLOCKD *xd, int plane) {
+  MODE_INFO *mi = xd->mi[0];
+  INTERINTER_COMPOUND_DATA *comp_data = &mi->mbmi.interinter_compound_data;
 // The prediction filter types used here should be those for
 // the second reference block.
 #if CONFIG_DUAL_FILTER
@@ -492,10 +601,16 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
                                      comp_data->wedge_sign, mi->mbmi.sb_type,
                                      wedge_offset_x, wedge_offset_y, h, w);
 #else
+#if CONFIG_COMPOUND_SEGMENT
+  if (!plane && comp_data->type == COMPOUND_SEG)
+    build_compound_seg_mask(comp_data, dst,
+                   dst_stride, tmp_dst, MAX_SB_SIZE, mi->mbmi.sb_type, h, w);
+#endif  // CONFIG_COMPOUND_SEGMENT
   build_masked_compound(dst, dst_stride, dst, dst_stride, tmp_dst, MAX_SB_SIZE,
                         comp_data, mi->mbmi.sb_type, h, w);
 #endif  // CONFIG_SUPERTX
 #endif  // CONFIG_AOM_HIGHBITDEPTH
+  (void)plane;
 }
 #endif  // CONFIG_EXT_INTER
 
@@ -653,7 +768,7 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #if CONFIG_SUPERTX
                 wedge_offset_x, wedge_offset_y,
 #endif  // CONFIG_SUPERTX
-                xd);
+                xd, plane);
           else
 #endif  // CONFIG_EXT_INTER
             av1_make_inter_predictor(pre, pre_buf->stride, dst, dst_buf->stride,
@@ -718,7 +833,7 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #if CONFIG_SUPERTX
                                       wedge_offset_x, wedge_offset_y,
 #endif  // CONFIG_SUPERTX
-                                      xd);
+                                      xd, plane);
     else
 #else  // CONFIG_EXT_INTER
 #if CONFIG_GLOBAL_MOTION
@@ -2166,16 +2281,21 @@ void av1_build_inter_predictors_for_planes_single_buf(
 static void build_wedge_inter_predictor_from_buf(
     MACROBLOCKD *xd, int plane, int x, int y, int w, int h, uint8_t *ext_dst0,
     int ext_dst_stride0, uint8_t *ext_dst1, int ext_dst_stride1) {
-  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const int is_compound = has_second_ref(mbmi);
   MACROBLOCKD_PLANE *const pd = &xd->plane[plane];
   struct buf_2d *const dst_buf = &pd->dst;
   uint8_t *const dst = dst_buf->buf + dst_buf->stride * y + x;
-  const INTERINTER_COMPOUND_DATA *const comp_data =
-      &mbmi->interinter_compound_data;
+  INTERINTER_COMPOUND_DATA *comp_data = &mbmi->interinter_compound_data;
 
   if (is_compound &&
       is_masked_compound_type(mbmi->interinter_compound_data.type)) {
+#if CONFIG_COMPOUND_SEGMENT
+    if (!plane && comp_data->type == COMPOUND_SEG)
+      build_compound_seg_mask(comp_data, ext_dst0,
+                     ext_dst_stride0, ext_dst1, ext_dst_stride1,
+                     mbmi->sb_type, h, w);
+#endif  // CONFIG_COMPOUND_SEGMENT
 #if CONFIG_AOM_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
       build_masked_compound_wedge_highbd(

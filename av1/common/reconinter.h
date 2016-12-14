@@ -260,7 +260,7 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
 #if CONFIG_SUPERTX
                                      int wedge_offset_x, int wedge_offset_y,
 #endif  // CONFIG_SUPERTX
-                                     const MACROBLOCKD *xd);
+                                     MACROBLOCKD *xd, int plane);
 #endif  // CONFIG_EXT_INTER
 
 static INLINE int round_mv_comp_q4(int value) {
@@ -524,7 +524,7 @@ const uint8_t *av1_get_soft_mask(int wedge_index, int wedge_sign,
                                  int wedge_offset_y);
 
 const uint8_t *av1_get_compound_type_mask(
-    const INTERINTER_COMPOUND_DATA *const comp_data, BLOCK_SIZE sb_type,
+    INTERINTER_COMPOUND_DATA *comp_data, BLOCK_SIZE sb_type,
     int invert);
 
 void av1_build_interintra_predictors(MACROBLOCKD *xd, uint8_t *ypred,
