@@ -434,6 +434,8 @@ static INLINE int has_subpel_mv_component(const MODE_INFO *const mi,
   const int unify_bsize = 0;
 #endif
 
+  return 1;
+
   if (bsize >= BLOCK_8X8 || unify_bsize) {
     if (dir & 0x01) {
       if (mbmi->mv[ref].as_mv.col & SUBPEL_MASK) return 1;
