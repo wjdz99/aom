@@ -721,7 +721,7 @@ static int main_loop(int argc, const char **argv_) {
   if (!quiet) fprintf(stderr, "%s\n", decoder.name);
 
 #if CONFIG_AV1_DECODER && CONFIG_EXT_TILE
-  if (strncmp(decoder.name, "WebM Project AV1", 17) == 0) {
+  if (strncmp(decoder.name, "AOMedia Project AV1", 19) == 0) {
     if (aom_codec_control(&decoder, AV1_SET_DECODE_TILE_ROW, tile_row)) {
       fprintf(stderr, "Failed to set decode_tile_row: %s\n",
               aom_codec_error(&decoder));

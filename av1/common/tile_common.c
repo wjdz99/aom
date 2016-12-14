@@ -14,13 +14,27 @@
 #include "aom_dsp/aom_dsp_common.h"
 
 void av1_tile_set_row(TileInfo *tile, const AV1_COMMON *cm, int row) {
+#if CONFIG_FLEXIBLE_TILE
+  tile->mi_row_start = 0;
+  for (int i = 0; i < row; i++) tile->mi_row_start += cm->tile_heights[i];
+  tile->mi_row_end =
+      AOMMIN(tile->mi_row_start + cm->tile_heights[row], cm->mi_rows);
+#else
   tile->mi_row_start = row * cm->tile_height;
   tile->mi_row_end = AOMMIN(tile->mi_row_start + cm->tile_height, cm->mi_rows);
+#endif  // CONFIG_FLEXIBLE_TILE
 }
 
 void av1_tile_set_col(TileInfo *tile, const AV1_COMMON *cm, int col) {
+#if CONFIG_FLEXIBLE_TILE
+  tile->mi_col_start = 0;
+  for (int i = 0; i < col; i++) tile->mi_col_start += cm->tile_widths[i];
+  tile->mi_col_end =
+      AOMMIN(tile->mi_col_start + cm->tile_widths[col], cm->mi_cols);
+#else
   tile->mi_col_start = col * cm->tile_width;
   tile->mi_col_end = AOMMIN(tile->mi_col_start + cm->tile_width, cm->mi_cols);
+#endif  // CONFIG_FLEXIBLE_TILE
 }
 
 void av1_tile_init(TileInfo *tile, const AV1_COMMON *cm, int row, int col) {

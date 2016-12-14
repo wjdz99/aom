@@ -300,6 +300,7 @@ EXPERIMENT_LIST="
     coef_interleave
     entropy_stats
     masked_tx
+    flexible_tile
 "
 CONFIG_LIST="
     dependency_tracking

@@ -753,6 +753,25 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
           if (frame_worker_data->pbi->dec_tile_row >= 0) {
             const int tile_row =
                 AOMMIN(frame_worker_data->pbi->dec_tile_row, cm->tile_rows - 1);
+#if CONFIG_FLEXIBLE_TILE
+            int i = 0;
+            int mi_row = 0;
+            const int ssy = ctx->img.y_chroma_shift;
+            int plane;
+            while (i < tile_row) {
+              mi_row = cm->tile_heights[i];
+              i++;
+            }
+
+            ctx->img.planes[0] += mi_row * MI_SIZE * ctx->img.stride[0];
+            for (plane = 1; plane < MAX_MB_PLANE; ++plane) {
+              ctx->img.planes[plane] +=
+                  mi_row * (MI_SIZE >> ssy) * ctx->img.stride[plane];
+            }
+            ctx->img.d_h =
+                AOMMIN(cm->tile_heights[tile_row], cm->mi_rows - mi_row) *
+                MI_SIZE;
+#else
             const int mi_row = tile_row * cm->tile_height;
             const int ssy = ctx->img.y_chroma_shift;
             int plane;
@@ -763,11 +782,28 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
             }
             ctx->img.d_h =
                 AOMMIN(cm->tile_height, cm->mi_rows - mi_row) * MI_SIZE;
+#endif  // CONFIG_FLEXIBLE_TILE
           }
 
           if (frame_worker_data->pbi->dec_tile_col >= 0) {
             const int tile_col =
                 AOMMIN(frame_worker_data->pbi->dec_tile_col, cm->tile_cols - 1);
+#if CONFIG_FLEXIBLE_TILE
+            int i = 0, mi_col = 0;
+            const int ssx = ctx->img.x_chroma_shift;
+            int plane;
+            while (i < tile_col) {
+              mi_col += cm->tile_widths[i];
+              i++;
+            }
+            ctx->img.planes[0] += mi_col * MI_SIZE;
+            for (plane = 1; plane < MAX_MB_PLANE; ++plane) {
+              ctx->img.planes[plane] += mi_col * (MI_SIZE >> ssx);
+            }
+            ctx->img.d_w =
+                AOMMIN(cm->tile_widths[tile_col], cm->mi_cols - mi_col) *
+                MI_SIZE;
+#else
             const int mi_col = tile_col * cm->tile_width;
             const int ssx = ctx->img.x_chroma_shift;
             int plane;
@@ -777,6 +813,7 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
             }
             ctx->img.d_w =
                 AOMMIN(cm->tile_width, cm->mi_cols - mi_col) * MI_SIZE;
+#endif  // CONFIG_FLEXIBLE_TILE
           }
 #endif  // CONFIG_EXT_TILE
 

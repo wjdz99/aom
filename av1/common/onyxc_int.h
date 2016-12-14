@@ -361,6 +361,11 @@ typedef struct AV1Common {
   int log2_tile_cols, log2_tile_rows;
 #endif  // !CONFIG_EXT_TILE
   int tile_cols, tile_rows;
+#if CONFIG_FLEXIBLE_TILE
+  int uniform_spacing_flag;  // when being 1, all tiles are the same size except
+                             // the last tiles in rightmost and bottom
+  int tile_widths[MAX_TILE_COLS], tile_heights[MAX_TILE_ROWS];  // In MI units
+#endif                          // CONFIG_FLEXIBLE_TILE
   int tile_width, tile_height;  // In MI units
 
   int byte_alignment;
