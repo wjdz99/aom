@@ -238,6 +238,11 @@ typedef struct AV1EncoderConfig {
 
   int tile_columns;
   int tile_rows;
+#if CONFIG_FLEXIBLE_TILE
+  int uniform_spacing_flag;
+  int tile_widths[MAX_TILE_COLS];
+  int tile_heights[MAX_TILE_ROWS];
+#endif  // CONFIG_FLEXIBLE_TILE
 
   int max_threads;
 

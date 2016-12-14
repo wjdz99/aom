@@ -3306,6 +3306,33 @@ static void fix_interp_filter(AV1_COMMON *cm, FRAME_COUNTS *counts) {
 static void write_tile_info(const AV1_COMMON *const cm,
                             struct aom_write_bit_buffer *wb) {
 #if CONFIG_EXT_TILE
+#if CONFIG_FLEXIBLE_TILE
+  assert(cm->tile_cols <= 64);
+  assert(cm->tile_rows <= 64);
+  aom_wb_write_literal(wb, cm->tile_cols - 1, 6);
+  aom_wb_write_literal(wb, cm->tile_rows - 1, 6);
+  if (cm->tile_cols > 1 || cm->tile_rows > 1) {
+    aom_wb_write_bit(wb, cm->uniform_spacing_flag);
+  }
+  if (!cm->uniform_spacing_flag && cm->tile_cols > 1) {
+    for (int i = 0; i < cm->tile_cols; i++) {
+      aom_wb_write_literal(
+          wb, (ALIGN_POWER_OF_TWO(cm->tile_widths[i], cm->mib_size_log2) >>
+               cm->mib_size_log2) -
+                  1,
+          6);
+    }
+  }
+  if (!cm->uniform_spacing_flag && cm->tile_rows > 1) {
+    for (int i = 0; i < cm->tile_rows; i++) {
+      aom_wb_write_literal(
+          wb, (ALIGN_POWER_OF_TWO(cm->tile_heights[i], cm->mib_size_log2) >>
+               cm->mib_size_log2) -
+                  1,
+          6);
+    }
+  }
+#else
   const int tile_width =
       ALIGN_POWER_OF_TWO(cm->tile_width, cm->mib_size_log2) >>
       cm->mib_size_log2;
@@ -3331,6 +3358,34 @@ static void write_tile_info(const AV1_COMMON *const cm,
     aom_wb_write_literal(wb, tile_width - 1, 6);
     aom_wb_write_literal(wb, tile_height - 1, 6);
   }
+#endif  // CONFIG_FLEXIBLE_TILE
+#else
+#if CONFIG_FLEXIBLE_TILE
+  assert(cm->tile_cols <= 64);
+  assert(cm->tile_rows <= 64);
+  aom_wb_write_literal(wb, cm->tile_cols - 1, 6);
+  aom_wb_write_literal(wb, cm->tile_rows - 1, 6);
+  if (cm->tile_cols > 1 || cm->tile_rows > 1) {
+    aom_wb_write_bit(wb, cm->uniform_spacing_flag);
+  }
+  if (!cm->uniform_spacing_flag && cm->tile_cols > 1) {
+    for (int i = 0; i < cm->tile_cols; i++) {
+      aom_wb_write_literal(
+          wb, (ALIGN_POWER_OF_TWO(cm->tile_widths[i], cm->mib_size_log2) >>
+               cm->mib_size_log2) -
+                  1,
+          6);
+    }
+  }
+  if (!cm->uniform_spacing_flag && cm->tile_rows > 1) {
+    for (int i = 0; i < cm->tile_rows; i++) {
+      aom_wb_write_literal(
+          wb, (ALIGN_POWER_OF_TWO(cm->tile_heights[i], cm->mib_size_log2) >>
+               cm->mib_size_log2) -
+                  1,
+          6);
+    }
+  }
 #else
   int min_log2_tile_cols, max_log2_tile_cols, ones;
   av1_get_tile_n_bits(cm->mi_cols, &min_log2_tile_cols, &max_log2_tile_cols);
@@ -3344,6 +3399,7 @@ static void write_tile_info(const AV1_COMMON *const cm,
   // rows
   aom_wb_write_bit(wb, cm->log2_tile_rows != 0);
   if (cm->log2_tile_rows != 0) aom_wb_write_bit(wb, cm->log2_tile_rows != 1);
+#endif  // CONFIG_FLEXIBLE_TILE
 #endif  // CONFIG_EXT_TILE
 }
 
@@ -3402,7 +3458,7 @@ static int get_refresh_mask(AV1_COMP *cpi) {
 #if CONFIG_EXT_TILE
 static INLINE int find_identical_tile(
     const int tile_row, const int tile_col,
-    TileBufferEnc (*const tile_buffers)[1024]) {
+    TileBufferEnc (*const tile_buffers)[MAX_TILE_COLS]) {
   const MV32 candidate_offset[1] = { { 1, 0 } };
   const uint8_t *const cur_tile_data =
       tile_buffers[tile_row][tile_col].data + 4;
@@ -3476,8 +3532,14 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
   const int tile_rows = cm->tile_rows;
   unsigned int tile_size = 0;
 #if CONFIG_TILE_GROUPS
+#if CONFIG_FLEXIBLE_TILE
+  const int have_tiles = tile_cols > 1 || tile_rows > 1;
+  int n_log2_tiles = 0;
+  while ((1 << n_log2_tiles) < tile_cols * tile_rows) n_log2_tiles++;
+#else
   const int n_log2_tiles = cm->log2_tile_rows + cm->log2_tile_cols;
   const int have_tiles = n_log2_tiles > 0;
+#endif  // CONFIG_FLEXIBLE_TILE
   size_t comp_hdr_size;
   // Fixed size tile groups for the moment
   const int num_tg_hdrs = cm->num_tg;
@@ -3722,8 +3784,14 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
 #if CONFIG_TILE_GROUPS
   // Write the final tile group size
   if (n_log2_tiles) {
+#if CONFIG_FLEXIBLE_TILE
+    aom_wb_write_literal(&tg_params_wb,
+                         (cm->tile_rows * cm->tile_cols) - tile_count,
+                         n_log2_tiles);
+#else
     aom_wb_write_literal(&tg_params_wb, (1 << n_log2_tiles) - tile_count,
                          n_log2_tiles);
+#endif  // CONFIG_FLEXIBLE_TILE
     aom_wb_write_literal(&tg_params_wb, tile_count - 1, n_log2_tiles);
   }
 #endif
