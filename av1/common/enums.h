@@ -55,11 +55,21 @@ extern "C" {
 
 // Maximum number of tile rows and tile columns
 #if CONFIG_EXT_TILE
+#if CONFIG_FLEXIBLE_TILE
+#define MAX_TILE_ROWS 64
+#define MAX_TILE_COLS 64
+#else
 #define MAX_TILE_ROWS 1024
 #define MAX_TILE_COLS 1024
+#endif  // CONFIG_FLEXIBLE_TILE
+#else
+#if CONFIG_FLEXIBLE_TILE
+#define MAX_TILE_ROWS 64
+#define MAX_TILE_COLS 64
 #else
 #define MAX_TILE_ROWS 4
 #define MAX_TILE_COLS 64
+#endif  // CONFIG_FLEXIBLE_TILE
 #endif  // CONFIG_EXT_TILE
 
 #if CONFIG_VAR_TX
