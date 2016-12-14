@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5a7fdbe6_db01f36e",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-12-14T03:36:41Z",
+      "side": 1,
+      "message": "There are some comments at line 306. I guess the name of these are self explanatory.",
+      "parentUuid": "9a3cf3c1_8db89d0f",
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3cf3c1_2dd8917e",
         "filename": "av1/common/blockd.h",
         "patchSetId": 6
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "5a7fdbe6_bbab5f53",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-12-14T03:36:41Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "9a3cf3c1_2dd8917e",
+      "range": {
+        "startLine": 696,
+        "startChar": 24,
+        "endLine": 696,
+        "endChar": 25
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3cf3c1_0d182d9d",
         "filename": "av1/common/blockd.h",
         "patchSetId": 6
@@ -53,6 +95,30 @@
       "writtenOn": "2016-12-13T20:46:00Z",
       "side": 1,
       "message": "This looks like a bugfix: can you mention it explicitly in commit msg pls?",
+      "range": {
+        "startLine": 775,
+        "startChar": 4,
+        "endLine": 775,
+        "endChar": 20
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7fdbe6_fbfeb73f",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-12-14T03:36:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3cf3c1_0d182d9d",
       "range": {
         "startLine": 775,
         "startChar": 4,
@@ -105,6 +171,30 @@
     },
     {
       "key": {
+        "uuid": "5a7fdbe6_fbccf74f",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 783,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-12-14T03:36:41Z",
+      "side": 1,
+      "message": "It is the the way AV1 used to be before merging with the nextgenv2 branch. ext-intra on the nextgenv2 branch was outdated. I have updated the commit message for this.",
+      "parentUuid": "9a3cf3c1_ad28019a",
+      "range": {
+        "startLine": 783,
+        "startChar": 16,
+        "endLine": 783,
+        "endChar": 26
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3cf3c1_edc28996",
         "filename": "av1/common/reconintra.c",
         "patchSetId": 6
@@ -116,6 +206,30 @@
       "writtenOn": "2016-12-13T20:46:00Z",
       "side": 1,
       "message": "I see these two lines together almost everywhere. Maybe we need a helper function that takes \u0027sb_type\u0027 and \u0027plane\u0027 and returns the angle_step?",
+      "range": {
+        "startLine": 1361,
+        "startChar": 1,
+        "endLine": 1362,
+        "endChar": 79
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7fdbe6_3bfbefc7",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1362,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-12-14T03:36:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3cf3c1_edc28996",
       "range": {
         "startLine": 1361,
         "startChar": 1,
@@ -174,6 +288,30 @@
     },
     {
       "key": {
+        "uuid": "5a7fdbe6_d639ca01",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2557,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-12-14T03:36:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3cf3c1_2d0ad102",
+      "range": {
+        "startLine": 2557,
+        "startChar": 7,
+        "endLine": 2557,
+        "endChar": 14
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3cf3c1_4d0d151a",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 6
@@ -220,6 +358,30 @@
     },
     {
       "key": {
+        "uuid": "5a7fdbe6_963f52e7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2564,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-12-14T03:36:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3cf3c1_cd190562",
+      "range": {
+        "startLine": 2564,
+        "startChar": 37,
+        "endLine": 2564,
+        "endChar": 73
+      },
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3cf3c1_2de1b110",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 6
@@ -231,6 +393,24 @@
       "writtenOn": "2016-12-13T20:46:00Z",
       "side": 1,
       "message": "Same recommendation to add a comment about this function, and the order of parameters.",
+      "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7fdbe6_7691fe9d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3985,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2016-12-14T03:36:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3cf3c1_2de1b110",
       "revId": "a7271a26ec79f0574c8c7f0822888416982638de",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
