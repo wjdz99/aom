@@ -77,10 +77,99 @@ class TransTestBase {
     delete[] ref_output;
   }
 
+  void RunFwdExtremeCheck() {
+    tran_low_t *input = new tran_low_t[txfm_size_];
+    tran_low_t *temp_out = new tran_low_t[txfm_size_];
+    tran_low_t *output = new tran_low_t[txfm_size_];
+    double *ref_input = new double[txfm_size_];
+    double *tmp_output = new double[txfm_size_];
+    double *ref_output = new double[txfm_size_];
+
+    ACMRandom rnd(ACMRandom::DeterministicSeed());
+    const int count_test_block = 5;
+    const tran_low_t mask = 0xFF;
+    for (int ti = 0; ti < count_test_block; ++ti) {
+      for (int ni = 0; ni < txfm_size_; ++ni) {
+        input[ni] = rnd.Rand8() % 2 ? mask : -mask;
+        ref_input[ni] = static_cast<double>(input[ni]);
+      }
+
+      if (ti == 0) {
+        for (int j = 0; j < txfm_size_; ++j) {
+          input[j] = mask;
+          ref_input[j] = static_cast<double>(input[j]);
+        }
+      } else if (ti == 1) {
+        for (int j = 0; j < txfm_size_; ++j) {
+          input[j] = -mask;
+          ref_input[j] = static_cast<double>(input[j]);
+        }
+      }
+
+      scale_input(input);
+      fwd_txfm_(input, temp_out);
+      simulate_col_txfm(temp_out);
+      fwd_txfm_(temp_out, output);
+      scale_output(output);
+
+      scale_input_ref(ref_input);
+      fwd_txfm_ref_(ref_input, tmp_output, txfm_size_);
+      simulate_col_txfm_ref(tmp_output);
+      fwd_txfm_ref_(tmp_output, ref_output, txfm_size_);
+      scale_output_ref(ref_output);
+
+      for (int ni = 0; ni < txfm_size_; ++ni) {
+        EXPECT_LE(
+            abs(output[ni] - static_cast<tran_low_t>(round(ref_output[ni]))),
+            max_error_);
+      }
+    }
+
+    delete[] input;
+    delete[] temp_out;
+    delete[] output;
+    delete[] ref_input;
+    delete[] tmp_output;
+    delete[] ref_output;
+  }
+
   double max_error_;
   int txfm_size_;
   FdctFunc fwd_txfm_;
   FdctFuncRef fwd_txfm_ref_;
+
+  void simulate_col_txfm(tran_low_t *out) {
+    tran_low_t value = ROUND_POWER_OF_TWO(out[0], 2);
+    for (int i = 0; i < txfm_size_; i++) {
+      out[i] = value;
+    }
+  }
+  void simulate_col_txfm_ref(double *out) {
+    double value = out[0] / 4.0;
+    for (int i = 0; i < txfm_size_; i++) {
+      out[i] = value;
+    }
+  }
+  void scale_input(tran_low_t *in) {
+    for (int i = 0; i < txfm_size_; i++) {
+      in[i] *= 4;
+    }
+  }
+  void scale_input_ref(double *in) {
+    for (int i = 0; i < txfm_size_; i++) {
+      in[i] *= 4;
+    }
+  }
+  void scale_output(tran_low_t *out) {
+    for (int i = 0; i < txfm_size_; i++) {
+      out[i] /= 4;
+    }
+  }
+  void scale_output_ref(double *out) {
+    for (int i = 0; i < txfm_size_; i++) {
+      out[i] /= 4;
+    }
+  }
 };
 
 typedef std::tr1::tuple<FdctFunc, FdctFuncRef, int, int> FdctParam;
@@ -96,7 +185,8 @@ class AV1FwdTxfm : public TransTestBase,
   virtual void TearDown() {}
 };
 
-TEST_P(AV1FwdTxfm, RunFwdAccuracyCheck) { RunFwdAccuracyCheck(); }
+TEST_P(AV1FwdTxfm, FwdAccuracyCheck) { RunFwdAccuracyCheck(); }
+TEST_P(AV1FwdTxfm, FwdExtremeCheck) { RunFwdExtremeCheck(); }
 
 INSTANTIATE_TEST_CASE_P(
     C, AV1FwdTxfm,

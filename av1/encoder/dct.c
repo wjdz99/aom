@@ -2076,14 +2076,14 @@ void av1_highbd_fht16x16_c(const int16_t *input, tran_low_t *output, int stride,
 
 // TODO(luoyi): Adding this function to avoid DCT_DCT overflow.
 // Remove this function after we scale the column txfm output correctly.
-static INLINE int range_check_dct32x32(const int16_t *input, int16_t bound,
-                                       int size) {
-  int i;
-  for (i = 0; i < size; ++i) {
-    if (abs(input[i]) > bound) return 1;
-  }
-  return 0;
-}
+// static INLINE int range_check_dct32x32(const int16_t *input, int16_t bound,
+//                                        int size) {
+//   int i;
+//   for (i = 0; i < size; ++i) {
+//     if (abs(input[i]) > bound) return 1;
+//   }
+//   return 0;
+// }
 
 void av1_fht32x32_c(const int16_t *input, tran_low_t *output, int stride,
                     int tx_type) {
@@ -2117,12 +2117,12 @@ void av1_fht32x32_c(const int16_t *input, tran_low_t *output, int stride,
   maybe_flip_input(&input, &stride, 32, 32, flipped_input, tx_type);
 #endif
 
-  if (DCT_DCT == tx_type) {
-    if (range_check_dct32x32(input, (1 << 6) - 1, 1 << 10)) {
-      aom_fdct32x32_c(input, output, stride);
-      return;
-    }
-  }
+  // if (DCT_DCT == tx_type) {
+  //   if (range_check_dct32x32(input, (1 << 6) - 1, 1 << 10)) {
+  //     aom_fdct32x32_c(input, output, stride);
+  //     return;
+  //   }
+  // }
   // Columns
   for (i = 0; i < 32; ++i) {
     for (j = 0; j < 32; ++j) temp_in[j] = input[j * stride + i] * 4;
