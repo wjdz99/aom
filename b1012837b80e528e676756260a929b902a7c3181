@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a7fdbe6_18061ad0",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1473,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2016-12-15T20:57:22Z",
+      "side": 1,
+      "message": "At this point, I think both pre_buf and post_buf are the same to those\nin od_encode_checkpoint(\u0026x-\u003edaala_enc, \u0026pre_buf); and  ... \u0026post_buf) done in choose_tx_size_type_from_rd()?\n\nThat is, the pre condition of two functions, and choose_tx_size_type_from_rd() and choose_tx_size_type_from_rd() is the same?",
+      "range": {
+        "startLine": 1473,
+        "startChar": 46,
+        "endLine": 1473,
+        "endChar": 48
+      },
+      "revId": "b1012837b80e528e676756260a929b902a7c3181",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
