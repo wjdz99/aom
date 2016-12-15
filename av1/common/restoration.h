@@ -38,7 +38,7 @@ extern "C" {
 #define DOMAINTXFMRF_VTABLE_PREC (1 << DOMAINTXFMRF_VTABLE_PRECBITS)
 #define DOMAINTXFMRF_MULT \
   sqrt(((1 << (DOMAINTXFMRF_ITERS * 2)) - 1) * 2.0 / 3.0)
-#define DOMAINTXFMRF_TMPBUF_SIZE (RESTORATION_TILEPELS_MAX)
+#define DOMAINTXFMRF_TMPBUF_SIZE (RESTORATION_TILEPELS_MAX * 4)
 #define DOMAINTXFMRF_BITS (DOMAINTXFMRF_PARAMS_BITS)
 
 #define SGRPROJ_TMPBUF_SIZE (RESTORATION_TILEPELS_MAX * 6 * 8)
@@ -59,6 +59,9 @@ extern "C" {
 #define SGRPROJ_PRJ_MAX1 (SGRPROJ_PRJ_MIN1 + (1 << SGRPROJ_PRJ_BITS) - 1)
 
 #define SGRPROJ_BITS (SGRPROJ_PRJ_BITS * 2 + SGRPROJ_PARAMS_BITS)
+
+// Max of SGRPROJ_TMPBUF_SIZE and DOMAINTXFMRF_TMPBUF_SIZE
+#define RESTORATION_TMPBUF_SIZE (SGRPROJ_TMPBUF_SIZE)
 
 #define RESTORATION_HALFWIN 3
 #define RESTORATION_HALFWIN1 (RESTORATION_HALFWIN + 1)
@@ -128,6 +131,7 @@ typedef struct {
   int ntiles;
   int tile_width, tile_height;
   int nhtiles, nvtiles;
+  uint8_t *tmpbuf;
 } RestorationInternal;
 
 static INLINE int get_rest_tilesize(int width, int height) {
@@ -188,6 +192,10 @@ static INLINE void av1_get_rest_tile_limits(
 }
 
 extern const sgr_params_type sgr_params[SGRPROJ_PARAMS];
+
+int av1_alloc_restoration_struct(RestorationInfo *rst_info, int width,
+                                 int height);
+void av1_free_restoration_struct(RestorationInfo *rst_info);
 
 void av1_selfguided_restoration(int64_t *dgd, int width, int height, int stride,
                                 int bit_depth, int r, int eps, void *tmpbuf);
