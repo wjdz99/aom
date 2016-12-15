@@ -3555,6 +3555,11 @@ static INLINE void fidtx32_16col(__m128i *tl, __m128i *tr, __m128i *bl,
 }
 #endif
 
+static INLINE void scale_sqrt2_8x16_unsigned(__m128i *in) {
+  scale_sqrt2_8x8_unsigned(in);
+  scale_sqrt2_8x8_unsigned(in + 8);
+}
+
 static INLINE void load_buffer_16x32(const int16_t *input, __m128i *intl,
                                      __m128i *intr, __m128i *inbl,
                                      __m128i *inbr, int stride, int flipud,
@@ -3588,18 +3593,34 @@ static INLINE void load_buffer_16x32(const int16_t *input, __m128i *intl,
     }
   }
 
-  scale_sqrt2_8x16(intl);
-  scale_sqrt2_8x16(intr);
-  scale_sqrt2_8x16(inbl);
-  scale_sqrt2_8x16(inbr);
+  scale_sqrt2_8x16_unsigned(intl);
+  scale_sqrt2_8x16_unsigned(intr);
+  scale_sqrt2_8x16_unsigned(inbl);
+  scale_sqrt2_8x16_unsigned(inbr);
+}
+
+static void row_16x32_rounding(__m128i *tl, __m128i *tr, __m128i *bl,
+                               __m128i *br) {
+  row_8x16_rounding(tl, 2);
+  row_8x16_rounding(tr, 2);
+  row_8x16_rounding(bl, 2);
+  row_8x16_rounding(br, 2);
+}
+
+static void array_transpose_16x32(__m128i *tl, __m128i *tr, __m128i *bl,
+                                  __m128i *br) {
+  array_transpose_16x16(tl, tr);
+  array_transpose_16x16(bl, br);
 }
 
 static INLINE void write_buffer_16x32(tran_low_t *output, __m128i *restl,
                                       __m128i *restr, __m128i *resbl,
                                       __m128i *resbr) {
   int i;
-  right_shift_16x16(restl, restr);
-  right_shift_16x16(resbl, resbr);
+  //right_shift_16x16(restl, restr);
+  //right_shift_16x16(resbl, resbr);
+  row_16x32_rounding(restl, restr, resbl, resbr);
+  array_transpose_16x32(restl, restr, resbl, resbr);
   for (i = 0; i < 16; ++i) {
     store_output(&restl[i], output + i * 16 + 0);
     store_output(&restr[i], output + i * 16 + 8);
@@ -3620,132 +3641,141 @@ void av1_fht16x32_sse2(const int16_t *input, tran_low_t *output, int stride,
   switch (tx_type) {
     case DCT_DCT:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 0, 0);
+#if 1
+      array_transpose_16x32(intl, intr, inbl, inbr);
+      fdct16_sse2(intl, intr);
+      fdct16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fdct32_16col(intl, intr, inbl, inbr);
+#else
+
       fdct32_16col(intl, intr, inbl, inbr);
       right_shift_16x16(intl, intr);
       right_shift_16x16(inbl, inbr);
       fdct16_sse2(intl, intr);
       fdct16_sse2(inbl, inbr);
+#endif
       break;
     case ADST_DCT:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 0, 0);
-      fhalfright32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fdct16_sse2(intl, intr);
       fdct16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fhalfright32_16col(intl, intr, inbl, inbr);
       break;
     case DCT_ADST:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 0, 0);
-      fdct32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fadst16_sse2(intl, intr);
       fadst16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fdct32_16col(intl, intr, inbl, inbr);
       break;
     case ADST_ADST:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 0, 0);
-      fhalfright32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fadst16_sse2(intl, intr);
       fadst16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fhalfright32_16col(intl, intr, inbl, inbr);
       break;
 #if CONFIG_EXT_TX
     case FLIPADST_DCT:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 1, 0);
-      fhalfright32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fdct16_sse2(intl, intr);
       fdct16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fhalfright32_16col(intl, intr, inbl, inbr);
       break;
     case DCT_FLIPADST:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 0, 1);
-      fdct32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fadst16_sse2(intl, intr);
       fadst16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fdct32_16col(intl, intr, inbl, inbr);
       break;
     case FLIPADST_FLIPADST:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 1, 1);
-      fhalfright32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fadst16_sse2(intl, intr);
       fadst16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fhalfright32_16col(intl, intr, inbl, inbr);
       break;
     case ADST_FLIPADST:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 0, 1);
-      fhalfright32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fadst16_sse2(intl, intr);
       fadst16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fhalfright32_16col(intl, intr, inbl, inbr);
       break;
     case FLIPADST_ADST:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 1, 0);
-      fhalfright32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fadst16_sse2(intl, intr);
       fadst16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fhalfright32_16col(intl, intr, inbl, inbr);
       break;
     case IDTX:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 0, 0);
-      fidtx32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fidtx16_sse2(intl, intr);
       fidtx16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fidtx32_16col(intl, intr, inbl, inbr);
       break;
     case V_DCT:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 0, 0);
-      fdct32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fidtx16_sse2(intl, intr);
       fidtx16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fdct32_16col(intl, intr, inbl, inbr);
       break;
     case H_DCT:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 0, 0);
-      fidtx32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fdct16_sse2(intl, intr);
       fdct16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fidtx32_16col(intl, intr, inbl, inbr);
       break;
     case V_ADST:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 0, 0);
-      fhalfright32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fidtx16_sse2(intl, intr);
       fidtx16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fhalfright32_16col(intl, intr, inbl, inbr);
       break;
     case H_ADST:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 0, 0);
-      fidtx32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fadst16_sse2(intl, intr);
       fadst16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fidtx32_16col(intl, intr, inbl, inbr);
       break;
     case V_FLIPADST:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 1, 0);
-      fhalfright32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fidtx16_sse2(intl, intr);
       fidtx16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fhalfright32_16col(intl, intr, inbl, inbr);
       break;
     case H_FLIPADST:
       load_buffer_16x32(input, intl, intr, inbl, inbr, stride, 0, 1);
-      fidtx32_16col(intl, intr, inbl, inbr);
-      right_shift_16x16(intl, intr);
-      right_shift_16x16(inbl, inbr);
+      array_transpose_16x32(intl, intr, inbl, inbr);
       fadst16_sse2(intl, intr);
       fadst16_sse2(inbl, inbr);
+      row_16x32_rounding(intl, intr, inbl, inbr);
+      fidtx32_16col(intl, intr, inbl, inbr);
       break;
 #endif
     default: assert(0); break;
