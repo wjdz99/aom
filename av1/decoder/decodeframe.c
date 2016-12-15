@@ -1764,7 +1764,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
-  partition =
+  partition = (n4x4_l2 == 0) ? PARTITION_NONE :
       read_partition(cm, xd, mi_row, mi_col, r, has_rows, has_cols, bsize);
   subsize = subsize_lookup[partition][bsize];  // get_subsize(bsize, partition);
 
