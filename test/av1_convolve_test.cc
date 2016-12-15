@@ -18,16 +18,191 @@
 #include "av1/common/convolve.h"
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_ports/mem.h"
+#include <algorithm>
 
 using libaom_test::ACMRandom;
 
 namespace {
+
+static void filter_block1d_horiz_c(const uint8_t *src_ptr, int src_stride,
+                            const int16_t *filter, int tap,
+                            uint8_t *dst_ptr, int dst_stride,
+                            int w, int h) {
+  src_ptr -= tap / 2 - 1;
+  for (int r = 0; r < h; ++r) {
+    for (int c = 0; c < w; ++c) {
+      int sum = 0;
+      for (int i = 0; i < tap; ++i) {
+        sum += src_ptr[c + i] * filter[i];
+      }
+      dst_ptr[c] = clip_pixel(ROUND_POWER_OF_TWO(sum, FILTER_BITS));
+    }
+    src_ptr += src_stride;
+    dst_ptr += dst_stride;
+  }
+}
+
+static void filter_block1d_vert_c(const uint8_t *src_ptr, int src_stride,
+                           const int16_t *filter, int tap,
+                           uint8_t *dst_ptr, int dst_stride,
+                           int w, int h) {
+  src_ptr -= (tap / 2 - 1) * src_stride;
+  for (int r = 0; r < h; ++r) {
+    for (int c = 0; c < w; ++c) {
+      int sum = 0;
+      for (int i = 0; i < tap; ++i) {
+        sum += src_ptr[c + i * src_stride] * filter[i];
+      }
+      dst_ptr[c] = clip_pixel(ROUND_POWER_OF_TWO(sum, FILTER_BITS));
+    }
+    src_ptr += src_stride;
+    dst_ptr += dst_stride;
+  }
+}
+
+static void filter_block2d_c(const uint8_t *src_ptr, const unsigned int src_stride,
+                             uint8_t *dst_ptr, unsigned int dst_stride,
+                      unsigned int w, unsigned int h,
+                      const int16_t *filter_horiz, int tap_horiz,
+                      const int16_t *filter_vert, int tap_vert) {
+  if (tap_horiz >= tap_vert) {
+    uint8_t *temp_ptr = new uint8_t[w * (h + tap_vert - 1)];
+    const unsigned int temp_stride = w;
+    filter_block1d_horiz_c(src_ptr - (tap_vert/2 - 1) * src_stride, src_stride, filter_horiz, tap_horiz, temp_ptr, temp_stride, w, h + tap_vert - 1);
+    filter_block1d_vert_c(temp_ptr + (tap_vert/2 - 1) * temp_stride, temp_stride, filter_vert, tap_vert, dst_ptr, dst_stride, w, h);
+    delete[] temp_ptr;
+  } else {
+    uint8_t *temp_ptr = new uint8_t[(w + tap_horiz - 1) * h];
+    const unsigned int temp_stride = w + tap_horiz - 1;
+    filter_block1d_vert_c(src_ptr - (tap_horiz/2 - 1), src_stride, filter_vert, tap_vert, temp_ptr, temp_stride, w + tap_horiz - 1, h);
+    filter_block1d_horiz_c(temp_ptr + (tap_horiz/2 - 1), temp_stride, filter_horiz, tap_horiz, dst_ptr, dst_stride, w, h);
+    delete[] temp_ptr;
+  }
+}
+
+static int match(const uint8_t* out, int out_stride, const uint8_t* ref_out, int ref_out_stride, int w, int h) {
+  for (int r = 0; r < h; ++r) {
+    for (int c = 0; c < w; ++c) {
+      if (out[r * out_stride + c] != ref_out[r * ref_out_stride + c])
+        return 0;
+    }
+  }
+  return 1;
+}
+
 void setup_convolve() {
 #if HAVE_SSSE3 && CONFIG_RUNTIME_CPU_DETECT
   av1_convolve_horiz = av1_convolve_horiz_c;
   av1_convolve_vert = av1_convolve_vert_c;
 #endif
 }
+
+typedef void (*Convolve8Func)(const uint8_t *src, ptrdiff_t src_stride,
+                             uint8_t *dst, ptrdiff_t dst_stride,
+                             const int16_t *filter_x, int filter_x_stride,
+                             const int16_t *filter_y, int filter_y_stride,
+                             int w, int h);
+
+typedef void (*ConvolveFunc)(const uint8_t *src, int src_stride, uint8_t *dst,
+                             int dst_stride, int w, int h,
+                             const InterpFilterParams filter_params,
+                             const int subpel_y_q4, int y_step_q4, int avg);
+
+struct ConvolveFunctions {
+  ConvolveFunctions(Convolve8Func h8, Convolve8Func h8_avg, Convolve8Func v8, Convolve8Func v8_avg, ConvolveFunc hf, ConvolveFunc vf)
+      : h8_(h8), h8_avg_(h8_avg), v8_(v8), v8_avg_(v8_avg), hf_(hf), vf_(vf) {}
+  Convolve8Func h8_;
+  Convolve8Func h8_avg_;
+  Convolve8Func v8_;
+  Convolve8Func v8_avg_;
+  ConvolveFunc hf_;
+  ConvolveFunc vf_;
+};
+
+class Av1ConvolveTest : public ::testing::TestWithParam<ConvolveFunctions> {
+ public:
+  virtual void SetUp() {
+    // Force input_ to be unaligned, output to be 16 byte aligned.
+    input_ = reinterpret_cast<uint8_t *>( aom_memalign(kDataAlignment, kInputBufferSize));
+    output_ = reinterpret_cast<uint8_t *>( aom_memalign(kDataAlignment, kOutputBufferSize));
+    ref_output_ = reinterpret_cast<uint8_t *>( aom_memalign(kDataAlignment, kOutputBufferSize));
+    ConvolveFunctions cfs = GetParam();
+    aom_convolve8_horiz = cfs.h8_;
+    aom_convolve8_avg_horiz = cfs.h8_avg_;
+    aom_convolve8_vert = cfs.v8_;
+    aom_convolve8_avg_vert = cfs.v8_avg_;
+    av1_convolve_horiz = cfs.hf_;
+    av1_convolve_vert = cfs.vf_;
+  }
+  virtual void TearDown() {
+    aom_free(input_);
+    aom_free(output_);
+    aom_free(ref_output_);
+  }
+  virtual uint8_t* input(int w, int h, int& stride) {
+    stride = w + MAX_FILTER_TAP - 1;
+    int offset = MAX_FILTER_TAP/2 - 1;
+    for (int r = 0; r < h + MAX_FILTER_TAP - 1; ++r) {
+      for (int c = 0; c < w + MAX_FILTER_TAP - 1; ++c) {
+        input_[r * stride + c] = r + c;
+      }
+    }
+    return input_ + offset * stride + offset;
+  }
+  virtual uint8_t* output(int w, int h, int& stride) {
+    stride = w;
+    return output_;
+  }
+  virtual uint8_t* ref_output(int w, int h, int& stride) {
+    stride = w;
+    return ref_output_;
+  }
+
+ protected:
+  static const int kDataAlignment = 16;
+  static const int kOuterBlockSize = MAX_SB_SIZE;
+  static const int kInputStride = kOuterBlockSize;
+  static const int kOutputStride = kOuterBlockSize;
+  static const int kInputBufferSize = kOuterBlockSize * kOuterBlockSize;
+  static const int kOutputBufferSize = kOuterBlockSize * kOuterBlockSize;
+  uint8_t *input_;
+  uint8_t *output_;
+  uint8_t *ref_output_;
+};
+
+TEST_P(Av1ConvolveTest, av1_convolve) {
+  // define parameter
+  int w = 16;
+  int h = 16;
+  int subpel_x_q4 = 8;
+  int subpel_y_q4 = 8;
+  int x_step_q4 = 16;
+  int y_step_q4 = 16;
+  int ref_idx = 0;
+  InterpFilter interp_filter[4] = {MULTITAP_SHARP, EIGHTTAP_REGULAR, EIGHTTAP_REGULAR, EIGHTTAP_REGULAR,};
+
+  int in_stride, out_stride, ref_out_stride;
+  uint8_t* in = input(w, h, in_stride);
+  uint8_t* out = output(w, h, out_stride);
+  uint8_t* ref_out = ref_output(w, h, ref_out_stride);
+
+  InterpFilterParams param_vert = av1_get_interp_filter_params(interp_filter[0]);
+  InterpFilterParams param_horiz = av1_get_interp_filter_params(interp_filter[1]);
+  const int16_t *filter_vert = av1_get_interp_filter_subpel_kernel(param_vert, subpel_y_q4);
+  const int16_t *filter_horiz = av1_get_interp_filter_subpel_kernel(param_horiz, subpel_x_q4);
+
+  filter_block2d_c(in, in_stride, ref_out, ref_out_stride, w, h, filter_horiz, param_horiz.taps, filter_vert, param_vert.taps);
+
+  av1_convolve(in, in_stride, out, out_stride, w, h, interp_filter, subpel_x_q4, x_step_q4, subpel_y_q4, y_step_q4, ref_idx);
+
+  EXPECT_EQ(match(out, out_stride, ref_out, ref_out_stride, w, h), 1);
+};
+
+ConvolveFunctions convolve_functions_c(aom_convolve8_horiz_c, aom_convolve8_avg_horiz_c, aom_convolve8_vert_c, aom_convolve8_avg_vert_c, av1_convolve_horiz_c, av1_convolve_vert_c);
+
+ConvolveFunctions convolve_functions_ls[] = {convolve_functions_c};
+
+INSTANTIATE_TEST_CASE_P(C, Av1ConvolveTest, ::testing::ValuesIn(convolve_functions_ls));
 
 TEST(AV1ConvolveTest, av1_convolve8) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
