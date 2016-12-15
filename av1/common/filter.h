@@ -21,6 +21,8 @@
 extern "C" {
 #endif
 
+#define MAX_FILTER_TAP 12
+
 #define EIGHTTAP_REGULAR 0
 #define EIGHTTAP_SMOOTH 1
 #define MULTITAP_SHARP 2
