@@ -22,6 +22,30 @@
       "revId": "6867cb2e23ee7ce4167a8ed084b5e43376294f95",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7fdbe6_73a9fec6",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2016-12-15T16:23:36Z",
+      "side": 1,
+      "message": "In cb4x4 mode, we need it to be (max - 1). Otherwise, (max - 2) would be enough, but (max - 1) still works, just the tailing entry would be 0 and no one is using it. So I change it as (max - 1) all the time to make the code easier to read.",
+      "parentUuid": "5a7fdbe6_d37c6a25",
+      "range": {
+        "startLine": 15,
+        "startChar": 31,
+        "endLine": 15,
+        "endChar": 51
+      },
+      "revId": "6867cb2e23ee7ce4167a8ed084b5e43376294f95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
