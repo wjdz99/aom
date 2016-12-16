@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1aa00309_ad729d00",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-12-16T09:26:11Z",
+      "side": 1,
+      "message": "Is there an American spelling convention?",
+      "parentUuid": "da6cabba_d3edf49b",
+      "range": {
+        "startLine": 7,
+        "startChar": 25,
+        "endLine": 7,
+        "endChar": 38
+      },
+      "revId": "8c2c45e72aeb752c09cdfc1b76df69d2fa5043fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da6cabba_93f37c7e",
         "filename": "/COMMIT_MSG",
         "patchSetId": 3
@@ -122,6 +146,30 @@
       "writtenOn": "2016-12-16T02:07:40Z",
       "side": 1,
       "message": "I wonder if you\u0027re blocking clang-cl with this check",
+      "range": {
+        "startLine": 219,
+        "startChar": 23,
+        "endLine": 219,
+        "endChar": 41
+      },
+      "revId": "8c2c45e72aeb752c09cdfc1b76df69d2fa5043fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ac9e3ea_e5db1608",
+        "filename": "test/clpf_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2016-12-16T09:26:11Z",
+      "side": 1,
+      "message": "Probably.  My Linux version of clang-cl does define _MSC_VER (but regular clang doesn\u0027t).  So I\u0027ve added || defined(__clang__), but it is untested (\"CC\u003dclang CXX\u003dclang++ ./configure --target\u003dx86-linux-gcc\" does compile fine, though, and include the intrinsics).  Is there a test using clang-cl, so we can test this?",
+      "parentUuid": "da6cabba_13d68cde",
       "range": {
         "startLine": 219,
         "startChar": 23,
