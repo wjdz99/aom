@@ -61,12 +61,34 @@ static void filter_block1d_vert_c(const uint8_t *src_ptr, int src_stride,
   }
 }
 
+static void block2d_average_c(uint8_t *src, unsigned int src_stride,
+                              uint8_t *output_ptr, unsigned int output_stride,
+                              unsigned int output_width,
+                              unsigned int output_height) {
+  unsigned int i, j;
+  for (i = 0; i < output_height; ++i) {
+    for (j = 0; j < output_width; ++j) {
+      output_ptr[j] = (output_ptr[j] + src[i * src_stride + j] + 1) >> 1;
+    }
+    output_ptr += output_stride;
+  }
+}
+
 static void filter_block2d_c(const uint8_t *src_ptr,
                              const unsigned int src_stride, uint8_t *dst_ptr,
                              unsigned int dst_stride, unsigned int w,
                              unsigned int h, const int16_t *filter_horiz,
                              int tap_horiz, const int16_t *filter_vert,
-                             int tap_vert) {
+                             int tap_vert, int avg) {
+  uint8_t *out_ptr;
+  int out_stride;
+  if (avg) {
+    out_ptr = new uint8_t[w * h];
+    out_stride = w;
+  } else {
+    out_ptr = dst_ptr;
+    out_stride = dst_stride;
+  }
   if (tap_horiz <= tap_vert) {
     uint8_t *temp_ptr = new uint8_t[w * (h + tap_vert - 1)];
     const unsigned int temp_stride = w;
@@ -75,7 +97,7 @@ static void filter_block2d_c(const uint8_t *src_ptr,
                            filter_horiz, tap_horiz, temp_ptr, temp_stride, w,
                            h + tap_vert - 1);
     filter_block1d_vert_c(temp_ptr + offset * temp_stride, temp_stride,
-                          filter_vert, tap_vert, dst_ptr, dst_stride, w, h);
+                          filter_vert, tap_vert, out_ptr, out_stride, w, h);
     delete[] temp_ptr;
   } else {
     uint8_t *temp_ptr = new uint8_t[(w + tap_horiz - 1) * h];
@@ -84,8 +106,12 @@ static void filter_block2d_c(const uint8_t *src_ptr,
     filter_block1d_vert_c(src_ptr - offset, src_stride, filter_vert, tap_vert,
                           temp_ptr, temp_stride, w + tap_horiz - 1, h);
     filter_block1d_horiz_c(temp_ptr + offset, temp_stride, filter_horiz,
-                           tap_horiz, dst_ptr, dst_stride, w, h);
+                           tap_horiz, out_ptr, out_stride, w, h);
     delete[] temp_ptr;
+  }
+  if (avg) {
+    block2d_average_c(out_ptr, out_stride, dst_ptr, dst_stride, w, h);
+    delete[] out_ptr;
   }
 }
 
@@ -187,22 +213,23 @@ class Av1ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
 TEST_P(Av1ConvolveTest, av1_convolve) {
   const int x_step_q4 = 16;
   const int y_step_q4 = 16;
-  int ref_idx = 0;
   int bsize_ls[] = { 1, 2, 4, 8, 16, 32, 64, 3, 7, 15, 31, 63 };
   int bsize_num = sizeof(bsize_ls) / sizeof(bsize_ls[0]);
 
-  for (int hb_idx = 0; hb_idx < bsize_num; ++hb_idx) {
-    for (int vb_idx = 0; vb_idx < bsize_num; ++vb_idx) {
-      int w = bsize_ls[hb_idx];
-      int h = bsize_ls[vb_idx];
-      int in_stride, out_stride, ref_out_stride;
-      uint8_t *in = input(w, h, &in_stride);
-      uint8_t *out = output(w, h, &out_stride);
-      uint8_t *ref_out = ref_output(w, h, &ref_out_stride);
-      for (int subpel_x_q4 = 0; subpel_x_q4 < SUBPEL_SHIFTS; ++subpel_x_q4) {
-        for (int subpel_y_q4 = 0; subpel_y_q4 < SUBPEL_SHIFTS; ++subpel_y_q4) {
-          int filter_x = interp_filter_ls_[1];
-          int filter_y = interp_filter_ls_[0];
+  for (int ref_idx = 0; ref_idx <= 1; ++ref_idx) {
+    for (int hb_idx = 0; hb_idx < bsize_num; ++hb_idx) {
+      for (int vb_idx = 0; vb_idx < bsize_num; ++vb_idx) {
+        int w = bsize_ls[hb_idx];
+        int h = bsize_ls[vb_idx];
+        int in_stride, out_stride, ref_out_stride;
+        uint8_t *in = input(w, h, &in_stride);
+        uint8_t *out = output(w, h, &out_stride);
+        uint8_t *ref_out = ref_output(w, h, &ref_out_stride);
+        for (int subpel_x_q4 = 0; subpel_x_q4 < SUBPEL_SHIFTS; ++subpel_x_q4) {
+          for (int subpel_y_q4 = 0; subpel_y_q4 < SUBPEL_SHIFTS;
+               ++subpel_y_q4) {
+            int filter_x = interp_filter_ls_[1];
+            int filter_y = interp_filter_ls_[0];
 #if CONFIG_DUAL_FILTER
           // guarantee only one direction uses 12-tap sharp filter
           if (filter_x == filter_y && filter_x == MULTITAP_SHARP &&
@@ -220,7 +247,7 @@ TEST_P(Av1ConvolveTest, av1_convolve) {
 
           filter_block2d_c(in, in_stride, ref_out, ref_out_stride, w, h,
                            filter_horiz, param_horiz.taps, filter_vert,
-                           param_vert.taps);
+                           param_vert.taps, ref_idx);
 
           av1_convolve(in, in_stride, out, out_stride, w, h, interp_filter_ls_,
                        subpel_x_q4, x_step_q4, subpel_y_q4, y_step_q4, ref_idx);
@@ -230,6 +257,7 @@ TEST_P(Av1ConvolveTest, av1_convolve) {
         }
       }
     }
+  }
   }
 };
 
@@ -245,78 +273,6 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::Combine(::testing::Values(&convolve_functions_c),
                        ::testing::ValuesIn(filter_ls),
                        ::testing::ValuesIn(filter_ls)));
-
-void setup_convolve() {
-#if HAVE_SSSE3 && CONFIG_RUNTIME_CPU_DETECT
-  av1_convolve_horiz = av1_convolve_horiz_c;
-  av1_convolve_vert = av1_convolve_vert_c;
-#endif
-}
-
-TEST(Av1ConvolveTest, av1_convolve_avg) {
-  ACMRandom rnd(ACMRandom::DeterministicSeed());
-#if CONFIG_DUAL_FILTER
-  InterpFilter interp_filter[4] = { EIGHTTAP_REGULAR, EIGHTTAP_REGULAR,
-                                    EIGHTTAP_REGULAR, EIGHTTAP_REGULAR };
-  InterpFilterParams filter_params =
-      av1_get_interp_filter_params(interp_filter[0]);
-#else
-  InterpFilter interp_filter = EIGHTTAP_REGULAR;
-  InterpFilterParams filter_params =
-      av1_get_interp_filter_params(interp_filter);
-#endif
-  int filter_size = filter_params.taps;
-  int filter_center = filter_size / 2 - 1;
-  uint8_t src0[12 * 12];
-  uint8_t src1[12 * 12];
-  int src_stride = filter_size;
-  uint8_t dst0[1] = { 0 };
-  uint8_t dst1[1] = { 0 };
-  uint8_t dst[1] = { 0 };
-  int dst_stride = 1;
-  int x_step_q4 = 16;
-  int y_step_q4 = 16;
-  int avg = 0;
-
-  int w = 1;
-  int h = 1;
-
-  int subpel_x_q4;
-  int subpel_y_q4;
-
-  setup_convolve();
-
-  for (int i = 0; i < filter_size * filter_size; i++) {
-    src0[i] = rnd.Rand16() % (1 << 8);
-    src1[i] = rnd.Rand16() % (1 << 8);
-  }
-
-  int offset = filter_size * filter_center + filter_center;
-
-  for (subpel_x_q4 = 0; subpel_x_q4 < SUBPEL_SHIFTS; subpel_x_q4++) {
-    for (subpel_y_q4 = 0; subpel_y_q4 < SUBPEL_SHIFTS; subpel_y_q4++) {
-      avg = 0;
-      av1_convolve(src0 + offset, src_stride, dst0, dst_stride, w, h,
-                   interp_filter, subpel_x_q4, x_step_q4, subpel_y_q4,
-                   y_step_q4, avg);
-      avg = 0;
-      av1_convolve(src1 + offset, src_stride, dst1, dst_stride, w, h,
-                   interp_filter, subpel_x_q4, x_step_q4, subpel_y_q4,
-                   y_step_q4, avg);
-
-      avg = 0;
-      av1_convolve(src0 + offset, src_stride, dst, dst_stride, w, h,
-                   interp_filter, subpel_x_q4, x_step_q4, subpel_y_q4,
-                   y_step_q4, avg);
-      avg = 1;
-      av1_convolve(src1 + offset, src_stride, dst, dst_stride, w, h,
-                   interp_filter, subpel_x_q4, x_step_q4, subpel_y_q4,
-                   y_step_q4, avg);
-
-      EXPECT_EQ(dst[0], ROUND_POWER_OF_TWO(dst0[0] + dst1[0], 1));
-    }
-  }
-}
 
 #if CONFIG_AOM_HIGHBITDEPTH
 TEST(AV1ConvolveTest, av1_highbd_convolve) {
