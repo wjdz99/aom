@@ -25,7 +25,7 @@ files.
 Options:
     --help                      Print this message
     --out=outfile               Redirect output to a file
-    --ver=version               Version (7,8,9,10,11,12,14) of visual studio to generate for
+    --ver=version               Version (12,14) of visual studio to generate for
     --target=isa-os-cc          Target specifier
 EOF
     exit 1
@@ -215,7 +215,7 @@ for opt in "$@"; do
     ;;
     --ver=*) vs_ver="$optval"
              case $optval in
-             10|11|12|14)
+             12|14)
              ;;
              *) die Unrecognized Visual Studio Version in $opt
              ;;
@@ -230,13 +230,7 @@ for opt in "$@"; do
 done
 outfile=${outfile:-/dev/stdout}
 mkoutfile=${mkoutfile:-/dev/stdout}
-case "${vs_ver:-10}" in
-    10) sln_vers="11.00"
-       sln_vers_str="Visual Studio 2010"
-    ;;
-    11) sln_vers="12.00"
-       sln_vers_str="Visual Studio 2012"
-    ;;
+case "${vs_ver:-12}" in
     12) sln_vers="12.00"
        sln_vers_str="Visual Studio 2013"
     ;;
