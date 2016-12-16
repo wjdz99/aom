@@ -168,9 +168,8 @@ DECLARE_ALIGNED(16, extern const uint16_t,
 static INLINE const uint8_t *get_band_translate(TX_SIZE tx_size) {
   switch (tx_size) {
     case TX_4X4: return av1_coefband_trans_4x4;
-#if CONFIG_EXT_TX
+    case TX_8X4:
     case TX_4X8: return av1_coefband_trans_4x8_8x4;
-#endif  // CONFIG_EXT_TX
     default: return av1_coefband_trans_8x8plus;
   }
 }
