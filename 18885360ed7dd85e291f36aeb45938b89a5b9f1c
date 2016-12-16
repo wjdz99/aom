@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da6cabba_6d9ef93e",
+        "filename": "configure",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2016-12-16T17:18:47Z",
+      "side": 0,
+      "message": "Can you nuke the references to these from README?",
+      "range": {
+        "startLine": 135,
+        "startChar": 31,
+        "endLine": 136,
+        "endChar": 46
+      },
+      "revId": "18885360ed7dd85e291f36aeb45938b89a5b9f1c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
