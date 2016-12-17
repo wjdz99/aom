@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a3c83a3_93160471",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-17T01:44:00Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be #if CONFIG_ANS \u0026\u0026 ANS_MAX_SYMBOLS ?",
+      "revId": "c54f58184341482aadc79f564363278c3c926565",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a3c83a3_b31b009a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-17T01:44:00Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be #if CONFIG_ANS \u0026\u0026 ANS_MAX_SYMBOLS ?",
+      "revId": "c54f58184341482aadc79f564363278c3c926565",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a3c83a3_333d50ee",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-17T01:44:00Z",
+      "side": 1,
+      "message": "Is there a #define constant we can use for this?",
+      "revId": "c54f58184341482aadc79f564363278c3c926565",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a3c83a3_d3208cc4",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-17T01:44:00Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be #if CONFIG_ANS \u0026\u0026 ANS_MAX_SYMBOLS ?",
+      "revId": "c54f58184341482aadc79f564363278c3c926565",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a3c83a3_f32588d1",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-17T01:44:00Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be #if CONFIG_ANS \u0026\u0026 ANS_MAX_SYMBOLS ?",
+      "revId": "c54f58184341482aadc79f564363278c3c926565",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a3c83a3_130bf44a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1325,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-17T01:44:00Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be #if CONFIG_ANS \u0026\u0026 ANS_MAX_SYMBOLS ?",
+      "revId": "c54f58184341482aadc79f564363278c3c926565",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a3c83a3_3308f04b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1381,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-17T01:44:00Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be #if CONFIG_ANS \u0026\u0026 ANS_MAX_SYMBOLS ?",
+      "revId": "c54f58184341482aadc79f564363278c3c926565",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a3c83a3_7337d80b",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-17T01:44:00Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be #if CONFIG_ANS \u0026\u0026 ANS_MAX_SYMBOLS ?",
+      "revId": "c54f58184341482aadc79f564363278c3c926565",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a3c83a3_5363bc22",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2178,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-17T01:44:00Z",
+      "side": 1,
+      "message": "This feels like an anti-pattern, having to add an extra parameter up through a stack of initialization calls based on a compile time flag.\n\nI suspect the right way to do this is to add some EC backend specific flags to the aom_reader structure so that all of these calls can remain unchanged.\n\nI am going to approve this patch, but ask that you look at doing this refactor in a follow on.",
+      "revId": "c54f58184341482aadc79f564363278c3c926565",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a3c83a3_f32ae8a9",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-17T01:44:00Z",
+      "side": 1,
+      "message": "Isn\u0027t this something that should be handled in the aom_reader_init() function?",
+      "revId": "c54f58184341482aadc79f564363278c3c926565",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a3c83a3_d325ecda",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1978,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-17T01:44:00Z",
+      "side": 1,
+      "message": "It would be better to have a generic way to tell the EC backend to re-initialize based on changed configuration.  The daala_ec could also take advantage of this to pre-allocate a larger buffer.\n\nThat way we would not need to have any compile time flags for this.",
+      "revId": "c54f58184341482aadc79f564363278c3c926565",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a3c83a3_53157c5e",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-17T01:44:00Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be #if CONFIG_ANS \u0026\u0026 ANS_MAX_SYMBOLS ?",
+      "revId": "c54f58184341482aadc79f564363278c3c926565",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
