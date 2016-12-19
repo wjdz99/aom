@@ -15,7 +15,7 @@
 ##
 . $(dirname $0)/tools_common.sh
 
-readonly TEST_FRAMES=10
+readonly TEST_FRAMES=5
 
 # Environment check: Make sure input is available.
 aomenc_verify_environment() {
@@ -195,8 +195,8 @@ aomenc_av1_ivf_minq0_maxq0() {
 aomenc_av1_webm_lag10_frames20() {
   if [ "$(aomenc_can_encode_av1)" = "yes" ] && \
      [ "$(webm_io_available)" = "yes" ]; then
-    local readonly lag_total_frames=20
-    local readonly lag_frames=10
+    local readonly lag_total_frames=10
+    local readonly lag_frames=5
     local readonly output="${AOM_TEST_OUTPUT_DIR}/av1_lag10_frames20.webm"
     aomenc $(yuv_raw_input) \
       --codec=av1 \
