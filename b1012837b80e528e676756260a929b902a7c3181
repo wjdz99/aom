@@ -46,6 +46,30 @@
       "revId": "b1012837b80e528e676756260a929b902a7c3181",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab4f348_b122006b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1473,
+      "author": {
+        "id": 5240
+      },
+      "writtenOn": "2016-12-19T21:42:39Z",
+      "side": 1,
+      "message": "You\u0027re right, we could share pre_buf, I can do the change if you want but I\u0027m afraid of making this code more complicated (I think it\u0027s already too complicated).",
+      "parentUuid": "5a7fdbe6_bb198862",
+      "range": {
+        "startLine": 1473,
+        "startChar": 46,
+        "endLine": 1473,
+        "endChar": 48
+      },
+      "revId": "b1012837b80e528e676756260a929b902a7c3181",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
