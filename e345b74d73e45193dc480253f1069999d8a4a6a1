@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57b7b6b5_3c1d654b",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2016-12-20T17:33:38Z",
+      "side": 1,
+      "message": "This change is not needed.\n\nIn line 376, if cm-\u003euse_prev_frame_mvs is 0, the prev_frame_mvs_base pointer would be set to NULL.",
+      "revId": "e345b74d73e45193dc480253f1069999d8a4a6a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
