@@ -3891,6 +3891,18 @@ static void write_uncompressed_header(AV1_COMP *cpi,
     aom_wb_write_bit(wb, 1);  // show_existing_frame
     aom_wb_write_literal(wb, cpi->existing_fb_idx_to_show, 3);
 
+#if CONFIG_REFERENCE_BUFFER
+    if (cpi->seq_params.frame_id_numbers_present_flag) {
+      int FidLen = cpi->seq_params.frame_id_length_minus7 + 7;
+      int display_frame_id = cm->ref_frame_id[cpi->existing_fb_idx_to_show];
+      aom_wb_write_literal(wb, display_frame_id, FidLen);
+      /* Add a zero byte to prevent emulation of superframe marker */
+      /* Same logic as when when terminating the entropy coder */
+      /* Consider to have this logic only one place */
+      aom_wb_write_literal(wb, 0, 8);
+    }
+#endif
+
     return;
   } else {
 #endif                        // CONFIG_EXT_REFS
