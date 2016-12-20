@@ -22,6 +22,30 @@
       "revId": "62636fd4df619281ed1730802bfa5e46d67c32a1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d72d6695_0e1deb4a",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1773,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-12-20T05:00:49Z",
+      "side": 1,
+      "message": "The EXT_TX experiment appears to have a merge commit from two different versions of the same experiment.  See line 142 of av1/common/entropymode.h.  I am in the process of sorting it out and will address this in a separate patch.",
+      "parentUuid": "da6cabba_ad0c91b5",
+      "range": {
+        "startLine": 1770,
+        "startChar": 0,
+        "endLine": 1773,
+        "endChar": 6
+      },
+      "revId": "62636fd4df619281ed1730802bfa5e46d67c32a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
