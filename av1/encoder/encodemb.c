@@ -896,6 +896,243 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
   }
 }
 
+void av1_encode_sb_mtx(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  struct optimize_ctx ctx;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  struct encode_b_args arg = { cm, x, &ctx, &mbmi->skip, NULL, NULL, 1 };
+  int plane;
+#if CONFIG_MASKED_TX
+#define STATS_MODES 2
+#if STATS_MODES == 1
+  double highest_e_perc = 0;
+#endif
+#endif
+
+  mbmi->skip = 1;
+
+  if (x->skip) return;
+
+  for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+#if CONFIG_VAR_TX
+    // TODO(jingning): Clean this up.
+    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+    const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
+    const int mi_height = block_size_high[plane_bsize] >> tx_size_wide_log2[0];
+    const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
+    const BLOCK_SIZE txb_size = txsize_to_bsize[max_tx_size];
+    const int bw = block_size_wide[txb_size] >> tx_size_wide_log2[0];
+    const int bh = block_size_high[txb_size] >> tx_size_wide_log2[0];
+    int idx, idy;
+    int block = 0;
+    int step = tx_size_wide_unit[max_tx_size] * tx_size_high_unit[max_tx_size];
+    av1_get_entropy_contexts(bsize, TX_4X4, pd, ctx.ta[plane], ctx.tl[plane]);
+#else
+    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    const TX_SIZE tx_size = plane ? get_uv_tx_size(mbmi, pd) : mbmi->tx_size;
+    av1_get_entropy_contexts(bsize, tx_size, pd, ctx.ta[plane], ctx.tl[plane]);
+#endif
+#if !CONFIG_PVQ
+    av1_subtract_plane(x, bsize, plane);
+#if CONFIG_MASKED_TX
+#if STATS_MODES == 1
+    if (plane == 0 && bsize >= BLOCK_16X16) {
+      int w = block_size_wide[bsize];
+      int h = block_size_high[bsize];
+      int tx = (w < 64 && h < 64) ? AOMMIN(w, h) : 32;
+      int r, c;
+      int64_t cum_sum[64][64];
+      struct macroblock_plane *const p = &x->plane[plane];
+      int16_t* buf = p->src_diff;
+      int stride = w;
+
+      cum_sum[0][0] = buf[0] * buf[0];
+      for (c = 1; c < w; ++c)
+        cum_sum[0][c] = cum_sum[0][c - 1] + buf[c] * buf[c];
+      for (r = 1; r < h; ++r) {
+        cum_sum[r][0] = cum_sum[r - 1][0] + buf[r * stride] * buf[r * stride];
+        for (c = 1; c < w; ++c) {
+          cum_sum[r][c] = cum_sum[r - 1][c] + cum_sum[r][c - 1] -
+              cum_sum[r - 1][c - 1] + buf[r * stride + c] * buf[r * stride + c];
+        }
+      }
+
+      // check every tx block, in which the residual energy of every
+      // horizontal/vertical 1:4 strip will be checked, to determine if most of
+      // the energy exist in one strip
+      for (r = 0; r < h; r += tx) {
+        for (c = 0; c < w; c += tx) {  // every tx block
+          int rr, cc;
+          int64_t total_e;
+
+          total_e = cum_sum[r + tx - 1][c + tx - 1] -
+              (r == 0 ? 0 : cum_sum[r - 1][c + tx - 1]) -
+              (c == 0 ? 0 : cum_sum[r + tx - 1][c - 1]) +
+              ((r == 0 || c == 0) ? 0 : cum_sum[r - 1][c - 1]);
+
+          if (total_e == 0)
+            continue;
+
+          // horizontal strips
+          cc = 0;
+          for (rr = 0; (rr + (tx / 4)) <= tx; ++rr) {
+            int start_row = rr + r;
+            int end_row = start_row + tx / 4 - 1;
+            int start_col = cc + c;
+            int end_col = start_col + tx - 1;
+            int64_t sum;
+            double e_perc;
+
+            if (start_row > 0 && start_col > 0) {
+              sum = cum_sum[end_row][end_col] - cum_sum[start_row - 1][end_col]
+                  - cum_sum[end_row][start_col - 1]
+                  + cum_sum[start_row - 1][start_col - 1];
+            } else if (start_row == 0 && start_col > 0) {
+              sum = cum_sum[end_row][end_col] - cum_sum[end_row][start_col - 1];
+            } else if (start_col == 0 && start_row > 0) {
+              sum = cum_sum[end_row][end_col] - cum_sum[start_row - 1][end_col];
+            } else {
+              sum = cum_sum[end_row][end_col];
+            }
+            e_perc = (double)sum / (double)total_e;
+            if (e_perc > highest_e_perc)
+              highest_e_perc = e_perc;
+          }
+
+          // vertical strips
+          rr = 0;
+          for (cc = 0; cc + tx / 4 <= tx; ++cc) {
+            int start_row = rr + r;
+            int end_row = rr + r + tx - 1;
+            int start_col = cc + c;
+            int end_col = cc + c + tx / 4 - 1;
+            int64_t sum;
+            double e_perc;
+
+            if (start_row > 0 && start_col > 0) {
+              sum = cum_sum[end_row][end_col] - cum_sum[start_row - 1][end_col]
+                  - cum_sum[end_row][start_col - 1]
+                  + cum_sum[start_row - 1][start_col - 1];
+            } else if (start_row == 0 && start_col > 0) {
+              sum = cum_sum[end_row][end_col] - cum_sum[end_row][start_col - 1];
+            } else if (start_col == 0 && start_row > 0) {
+              sum = cum_sum[end_row][end_col] - cum_sum[start_row - 1][end_col];
+            } else {
+              sum = cum_sum[end_row][end_col];
+            }
+            e_perc = (double)sum / (double)total_e;
+            if (e_perc > highest_e_perc)
+              highest_e_perc = e_perc;
+          }
+        }
+      }
+    }
+#elif STATS_MODE == 2
+    if (plane == 0 && bsize >= BLOCK_16X16) {
+      int w = block_size_wide[bsize];
+      int h = block_size_high[bsize];
+      int tx = (w < 64 && h < 64) ? AOMMIN(w, h) : 32;
+      int r, c;
+      int64_t nzmap[64][64];
+      struct macroblock_plane *const p = &x->plane[plane];
+      int16_t* buf = p->src_diff;
+      int stride = w;
+      int delta = pd->dequant[0];
+      FILE *f = fopen("mtxstats2.stt", "a");
+
+      for (r = 0; r < h; ++r) {
+        for (c = 0; c < w; ++c) {
+          nzmap[r][c] = (16 * buf[r * stride + c] >= -delta &&
+              16 * buf[r * stride + c] <= delta) ? 0 : 1;
+        }
+      }
+
+      // check every tx block
+      for (r = 0; r < h; r += tx) {
+        for (c = 0; c < w; c += tx) {  // every tx block
+          int rr, cc;
+          int nz_x0 = tx - 1, nz_x1 = 0;
+          int nz_y0 = tx - 1, nz_y1 = 0;
+
+          // row scan
+          for (rr = 0; rr < tx; rr++) {
+            for (cc = 0; cc < nz_x0; cc++) {
+              if (nzmap[r + rr][c + cc] == 1) {
+                nz_x0 = cc;
+                break;
+              }
+            }
+
+            for (cc = tx - 1; cc > nz_x1; cc--) {
+              if (nzmap[r + rr][c + cc] == 1) {
+                nz_x1 = cc;
+                break;
+              }
+            }
+          }
+
+          // col scan
+          for (cc = 0; cc < tx; cc++) {
+            for (rr = 0; rr < nz_y0; rr++) {
+              if (nzmap[r + rr][c + cc] == 1) {
+                nz_y0 = rr;
+                break;
+              }
+            }
+
+            for (rr = tx - 1; rr > nz_y1; rr--) {
+              if (nzmap[r + rr][c + cc] == 1) {
+                nz_y1 = rr;
+                break;
+              }
+            }
+          }
+
+          if (nz_x0 <= nz_x1) {
+            fprintf(f, "%d %d %d %d %d\n", tx, nz_x0, nz_x1, nz_y0, nz_y1);
+          } else {
+            assert(nz_x1 == 0 && nz_x0 == tx - 1);
+            assert(nz_y1 == 0 && nz_y0 == tx - 1);
+          }
+        }
+      }
+
+      fclose(f);
+    }
+#endif
+#endif  // CONFIG_MASKED_TX
+#endif
+    arg.ta = ctx.ta[plane];
+    arg.tl = ctx.tl[plane];
+
+#if CONFIG_VAR_TX
+    for (idy = 0; idy < mi_height; idy += bh) {
+      for (idx = 0; idx < mi_width; idx += bw) {
+        encode_block_inter(plane, block, idy, idx, plane_bsize, max_tx_size,
+                           &arg);
+        block += step;
+      }
+    }
+#else
+    av1_foreach_transformed_block_in_plane(xd, bsize, plane, encode_block,
+                                           &arg);
+#endif
+  }
+#if CONFIG_MASKED_TX
+#if STATS_MODE == 1
+  if (mbmi->skip == 0 && bsize >= BLOCK_16X16 && highest_e_perc > 0.001) {
+    int w = block_size_wide[bsize];
+    int h = block_size_high[bsize];
+    int tx = (w < 64 && h < 64) ? AOMMIN(w, h) : 32;
+    FILE *f = fopen("mtxstats1.stt", "a");
+    fprintf(f, "%d %.2lf\n", tx, highest_e_perc);
+    fclose(f);
+  }
+#endif
+#endif
+}
+
 #if CONFIG_SUPERTX
 void av1_encode_sb_supertx(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
   MACROBLOCKD *const xd = &x->e_mbd;
