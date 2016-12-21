@@ -5710,6 +5710,11 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     }
 #endif  // CONFIG_MOTION_VAR
 
+#if CONFIG_MASKED_TX
+    if (!dry_run)
+      av1_encode_sb_mtx((AV1_COMMON *)cm, x, block_size);
+    else
+#endif
     av1_encode_sb((AV1_COMMON *)cm, x, block_size);
 #if CONFIG_VAR_TX
     if (mbmi->skip) mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
