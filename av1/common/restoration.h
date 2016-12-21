@@ -40,12 +40,18 @@ extern "C" {
   sqrt(((1 << (DOMAINTXFMRF_ITERS * 2)) - 1) * 2.0 / 3.0)
 // A single 32 bit buffer needed for the filter
 #define DOMAINTXFMRF_TMPBUF_SIZE (RESTORATION_TILEPELS_MAX * sizeof(int32_t))
+// One extra buffer needed in encoder, which is either 8-bit or 16-bit
+// depending on the video bit depth.
+#define DOMAINTXFMRF_EXTBUF_SIZE (RESTORATION_TILEPELS_MAX * sizeof(uint16_t))
 #define DOMAINTXFMRF_BITS (DOMAINTXFMRF_PARAMS_BITS)
 
-// 6 highprecision buffers needed for the filter:
-// 1 for the degraded frame, 2 for the restored versions and
+// 5 32-bit buffers needed for the filter:
+// 2 for the restored versions of the frame and
 // 3 for each restoration operation
-#define SGRPROJ_TMPBUF_SIZE (RESTORATION_TILEPELS_MAX * 6 * sizeof(int32_t))
+#define SGRPROJ_TMPBUF_SIZE (RESTORATION_TILEPELS_MAX * 5 * sizeof(int32_t))
+// 2 extra 32-bit buffers needed in encoder:
+// 1 for the original frame and 1 for the degraded frame
+#define SGRPROJ_EXTBUF_SIZE (RESTORATION_TILEPELS_MAX * 2 * sizeof(int32_t))
 #define SGRPROJ_PARAMS_BITS 3
 #define SGRPROJ_PARAMS (1 << SGRPROJ_PARAMS_BITS)
 
@@ -69,6 +75,7 @@ extern "C" {
 #define WIENER_WIN (2 * WIENER_HALFWIN + 1)
 #define WIENER_WIN2 ((WIENER_WIN) * (WIENER_WIN))
 #define WIENER_TMPBUF_SIZE (0)
+#define WIENER_EXTBUF_SIZE (0)
 
 #define WIENER_FILT_PREC_BITS 7
 #define WIENER_FILT_STEP (1 << WIENER_FILT_PREC_BITS)
@@ -101,6 +108,8 @@ extern "C" {
 
 // Max of SGRPROJ_TMPBUF_SIZE, DOMAINTXFMRF_TMPBUF_SIZE, WIENER_TMPBUF_SIZE
 #define RESTORATION_TMPBUF_SIZE (SGRPROJ_TMPBUF_SIZE)
+// Max of SGRPROJ_EXTBUF_SIZE, DOMAINTXFMRF_EXTBUF_SIZE, WIENER_EXTBUF_SIZE
+#define RESTORATION_EXTBUF_SIZE (SGRPROJ_EXTBUF_SIZE)
 
 typedef struct {
   int level;
@@ -144,7 +153,7 @@ typedef struct {
   int ntiles;
   int tile_width, tile_height;
   int nhtiles, nvtiles;
-  uint8_t *tmpbuf;
+  int32_t *tmpbuf;
 } RestorationInternal;
 
 static INLINE int get_rest_tilesize(int width, int height) {
@@ -211,7 +220,7 @@ int av1_alloc_restoration_struct(RestorationInfo *rst_info, int width,
 void av1_free_restoration_struct(RestorationInfo *rst_info);
 
 void av1_selfguided_restoration(int32_t *dgd, int width, int height, int stride,
-                                int bit_depth, int r, int eps, void *tmpbuf);
+                                int bit_depth, int r, int eps, int32_t *tmpbuf);
 void av1_domaintxfmrf_restoration(uint8_t *dgd, int width, int height,
                                   int stride, int param, uint8_t *dst,
                                   int dst_stride, int32_t *tmpbuf);

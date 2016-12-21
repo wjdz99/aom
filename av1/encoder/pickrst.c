@@ -196,13 +196,13 @@ void encode_xq(int *xq, int *xqd) {
 static void search_selfguided_restoration(uint8_t *dat8, int width, int height,
                                           int dat_stride, uint8_t *src8,
                                           int src_stride, int bit_depth,
-                                          int *eps, int *xqd, void *srcbuf,
-                                          void *rstbuf) {
-  int32_t *srd = (int32_t *)srcbuf;
-  int32_t *dgd = (int32_t *)rstbuf;
-  int32_t *flt1 = dgd + RESTORATION_TILEPELS_MAX;
+                                          int *eps, int *xqd, int32_t *extbuf,
+                                          int32_t *rstbuf) {
+  int32_t *srd = extbuf;
+  int32_t *dgd = extbuf + RESTORATION_TILEPELS_MAX;
+  int32_t *flt1 = rstbuf;
   int32_t *flt2 = flt1 + RESTORATION_TILEPELS_MAX;
-  uint8_t *tmpbuf2 = (uint8_t *)(flt2 + RESTORATION_TILEPELS_MAX);
+  int32_t *tmpbuf2 = flt2 + RESTORATION_TILEPELS_MAX;
   int i, j, ep, bestep = 0;
   int64_t err, besterr = -1;
   int exqd[2], bestxqd[2] = { 0, 0 };
@@ -376,7 +376,7 @@ static void search_domaintxfmrf_restoration(uint8_t *dgd8, int width,
                                             int height, int dgd_stride,
                                             uint8_t *src8, int src_stride,
                                             int bit_depth, int *sigma_r,
-                                            void *fltbuf, void *rstbuf) {
+                                            int32_t *fltbuf, int32_t *tmpbuf) {
   const int first_p_step = 8;
   const int second_p_range = first_p_step >> 1;
   const int second_p_step = 2;
@@ -386,7 +386,6 @@ static void search_domaintxfmrf_restoration(uint8_t *dgd8, int width,
   int64_t best_sse = INT64_MAX, sse;
   if (bit_depth == 8) {
     uint8_t *flt = (uint8_t *)fltbuf;
-    int32_t *tmpbuf = (int32_t *)rstbuf;
     uint8_t *dgd = dgd8;
     uint8_t *src = src8;
     // First phase
@@ -428,7 +427,6 @@ static void search_domaintxfmrf_restoration(uint8_t *dgd8, int width,
   } else {
 #if CONFIG_AOM_HIGHBITDEPTH
     uint16_t *flt = (uint16_t *)fltbuf;
-    int32_t *tmpbuf = (int32_t *)rstbuf;
     uint16_t *dgd = CONVERT_TO_SHORTPTR(dgd8);
     uint16_t *src = CONVERT_TO_SHORTPTR(src8);
     // First phase

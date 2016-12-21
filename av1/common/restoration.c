@@ -326,8 +326,9 @@ void decode_xq(int *xqd, int *xq) {
 
 #define APPROXIMATE_SGR 1
 void av1_selfguided_restoration(int32_t *dgd, int width, int height, int stride,
-                                int bit_depth, int r, int eps, void *tmpbuf) {
-  int32_t *A = (int32_t *)tmpbuf;
+                                int bit_depth, int r, int eps,
+                                int32_t *tmpbuf) {
+  int32_t *A = tmpbuf;
   int32_t *B = A + RESTORATION_TILEPELS_MAX;
   int32_t *T = B + RESTORATION_TILEPELS_MAX;
   int8_t num[RESTORATION_TILEPELS_MAX];
@@ -496,11 +497,11 @@ void av1_selfguided_restoration(int32_t *dgd, int width, int height, int stride,
 static void apply_selfguided_restoration(uint8_t *dat, int width, int height,
                                          int stride, int bit_depth, int eps,
                                          int *xqd, uint8_t *dst, int dst_stride,
-                                         void *tmpbuf) {
+                                         int32_t *tmpbuf) {
   int xq[2];
-  int32_t *flt1 = (int32_t *)tmpbuf;
+  int32_t *flt1 = tmpbuf;
   int32_t *flt2 = flt1 + RESTORATION_TILEPELS_MAX;
-  uint8_t *tmpbuf2 = (uint8_t *)(flt2 + RESTORATION_TILEPELS_MAX);
+  int32_t *tmpbuf2 = flt2 + RESTORATION_TILEPELS_MAX;
   int i, j;
   for (i = 0; i < height; ++i) {
     for (j = 0; j < width; ++j) {
@@ -538,9 +539,6 @@ static void loop_sgrproj_filter_tile(uint8_t *data, int tile_idx, int width,
   const int tile_height = rst->tile_height >> rst->subsampling_y;
   int h_start, h_end, v_start, v_end;
   uint8_t *data_p, *dst_p;
-  uint8_t *dat = (uint8_t *)rst->tmpbuf;
-  uint8_t *tmpbuf =
-      (uint8_t *)rst->tmpbuf + RESTORATION_TILEPELS_MAX * sizeof(*dat);
 
   if (rst->rsi->sgrproj_info[tile_idx].level == 0) {
     loop_copy_tile(data, tile_idx, 0, 0, width, height, stride, rst, dst,
@@ -555,7 +553,7 @@ static void loop_sgrproj_filter_tile(uint8_t *data, int tile_idx, int width,
   apply_selfguided_restoration(data_p, h_end - h_start, v_end - v_start, stride,
                                8, rst->rsi->sgrproj_info[tile_idx].ep,
                                rst->rsi->sgrproj_info[tile_idx].xqd, dst_p,
-                               dst_stride, tmpbuf);
+                               dst_stride, rst->tmpbuf);
 }
 
 static void loop_sgrproj_filter(uint8_t *data, int width, int height,
@@ -810,15 +808,13 @@ static void loop_wiener_filter_highbd(uint8_t *data8, int width, int height,
   }
 }
 
-static void apply_selfguided_restoration_highbd(uint16_t *dat, int width,
-                                                int height, int stride,
-                                                int bit_depth, int eps,
-                                                int *xqd, uint16_t *dst,
-                                                int dst_stride, void *tmpbuf) {
+static void apply_selfguided_restoration_highbd(
+    uint16_t *dat, int width, int height, int stride, int bit_depth, int eps,
+    int *xqd, uint16_t *dst, int dst_stride, int32_t *tmpbuf) {
   int xq[2];
-  int32_t *flt1 = (int32_t *)tmpbuf;
+  int32_t *flt1 = tmpbuf;
   int32_t *flt2 = flt1 + RESTORATION_TILEPELS_MAX;
-  uint8_t *tmpbuf2 = (uint8_t *)(flt2 + RESTORATION_TILEPELS_MAX);
+  int32_t *tmpbuf2 = flt2 + RESTORATION_TILEPELS_MAX;
   int i, j;
   for (i = 0; i < height; ++i) {
     for (j = 0; j < width; ++j) {
@@ -857,9 +853,6 @@ static void loop_sgrproj_filter_tile_highbd(uint16_t *data, int tile_idx,
   const int tile_height = rst->tile_height >> rst->subsampling_y;
   int h_start, h_end, v_start, v_end;
   uint16_t *data_p, *dst_p;
-  uint16_t *dat = (uint16_t *)rst->tmpbuf;
-  uint8_t *tmpbuf =
-      (uint8_t *)rst->tmpbuf + RESTORATION_TILEPELS_MAX * sizeof(*dat);
 
   if (rst->rsi->sgrproj_info[tile_idx].level == 0) {
     loop_copy_tile_highbd(data, tile_idx, 0, 0, width, height, stride, rst, dst,
@@ -874,7 +867,7 @@ static void loop_sgrproj_filter_tile_highbd(uint16_t *data, int tile_idx,
   apply_selfguided_restoration_highbd(
       data_p, h_end - h_start, v_end - v_start, stride, bit_depth,
       rst->rsi->sgrproj_info[tile_idx].ep, rst->rsi->sgrproj_info[tile_idx].xqd,
-      dst_p, dst_stride, tmpbuf);
+      dst_p, dst_stride, rst->tmpbuf);
 }
 
 static void loop_sgrproj_filter_highbd(uint8_t *data8, int width, int height,
