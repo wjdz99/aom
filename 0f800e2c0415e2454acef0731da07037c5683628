@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57b7b6b5_b31176cb",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3692,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-12-21T16:43:22Z",
+      "side": 1,
+      "message": "These operations are shared by both #if CONFIG_REFERENCE_BUFFER and #else branch, so what do thinking of moving #if CONFIG_REFERENCE_BUFFER below these two lines and remove the #else branch.",
+      "range": {
+        "startLine": 3691,
+        "startChar": 0,
+        "endLine": 3692,
+        "endChar": 68
+      },
+      "revId": "0f800e2c0415e2454acef0731da07037c5683628",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57b7b6b5_731bfee7",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3694,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-12-21T16:43:22Z",
+      "side": 1,
+      "message": "The naming of this variable is not consistent with others, i.e. in the style of xxx_xxx. could this be renamed to something like \"frame_id_len\"?",
+      "range": {
+        "startLine": 3694,
+        "startChar": 10,
+        "endLine": 3694,
+        "endChar": 16
+      },
+      "revId": "0f800e2c0415e2454acef0731da07037c5683628",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57b7b6b5_331d86d9",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3896,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-12-21T16:43:22Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 3896,
+        "startChar": 10,
+        "endLine": 3896,
+        "endChar": 16
+      },
+      "revId": "0f800e2c0415e2454acef0731da07037c5683628",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
