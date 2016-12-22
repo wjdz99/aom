@@ -107,7 +107,7 @@ static INLINE void write_uniform(aom_writer *w, int n, int v) {
 static struct av1_token ext_tx_inter_encodings[EXT_TX_SETS_INTER][TX_TYPES];
 static struct av1_token ext_tx_intra_encodings[EXT_TX_SETS_INTRA][TX_TYPES];
 #else
-static struct av1_token ext_tx_encodings[TX_TYPES];
+static struct av1_token tx_encodings[TX_TYPES];
 #endif  // CONFIG_EXT_TX
 #if CONFIG_GLOBAL_MOTION
 static struct av1_token global_motion_types_encodings[GLOBAL_TRANS_TYPES];
@@ -143,7 +143,7 @@ void av1_encode_token_init(void) {
     av1_tokens_from_tree(ext_tx_intra_encodings[s], av1_ext_tx_intra_tree[s]);
   }
 #else
-  av1_tokens_from_tree(ext_tx_encodings, av1_ext_tx_tree);
+  av1_tokens_from_tree(tx_encodings, av1_tx_tree);
 #endif  // CONFIG_EXT_TX
   av1_tokens_from_tree(intra_mode_encodings, av1_intra_mode_tree);
   av1_tokens_from_tree(switchable_interp_encodings, av1_switchable_interp_tree);
@@ -186,12 +186,12 @@ void av1_encode_token_init(void) {
       an in-order traversal of the av1_switchable_interp_tree structure. */
   av1_indices_from_tree(av1_switchable_interp_ind, av1_switchable_interp_inv,
                         SWITCHABLE_FILTERS, av1_switchable_interp_tree);
-/* This hack is necessary because the four TX_TYPES are not consecutive,
-    e.g., 0, 1, 2, 3, when doing an in-order traversal of the av1_ext_tx_tree
-    structure. */
-#if !CONFIG_EXT_TX
-  av1_indices_from_tree(av1_ext_tx_ind, av1_ext_tx_inv, TX_TYPES,
-                        av1_ext_tx_tree);
+#if CONFIG_EXT_TX
+#else
+  /* This hack is necessary because the four TX_TYPES are not consecutive,
+      e.g., 0, 1, 2, 3, when doing an in-order traversal of the av1_tx_tree
+      structure. */
+  av1_indices_from_tree(av1_tx_ind, av1_tx_inv, TX_TYPES, av1_tx_tree);
 #endif
   av1_indices_from_tree(av1_intra_mode_ind, av1_intra_mode_inv, INTRA_MODES,
                         av1_intra_mode_tree);
@@ -679,16 +679,16 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
     for (j = 0; j < TX_TYPES; ++j)
       savings += prob_diff_update_savings(
-          av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
-          cm->counts.intra_ext_tx[i][j], TX_TYPES, probwt);
+          av1_tx_tree, cm->fc->intra_tx_prob[i][j],
+          cm->counts.intra_tx[i][j], TX_TYPES, probwt);
   }
   do_update = savings > savings_thresh;
   aom_write(w, do_update, GROUP_DIFF_UPDATE_PROB);
   if (do_update) {
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
       for (j = 0; j < TX_TYPES; ++j) {
-        prob_diff_update(av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
-                         cm->counts.intra_ext_tx[i][j], TX_TYPES, probwt, w);
+        prob_diff_update(av1_tx_tree, cm->fc->intra_tx_prob[i][j],
+                         cm->counts.intra_tx[i][j], TX_TYPES, probwt, w);
       }
     }
   }
@@ -696,15 +696,15 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
   savings = 0;
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
     savings +=
-        prob_diff_update_savings(av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[i],
-                                 cm->counts.inter_ext_tx[i], TX_TYPES, probwt);
+        prob_diff_update_savings(av1_tx_tree, cm->fc->inter_tx_prob[i],
+                                 cm->counts.inter_tx[i], TX_TYPES, probwt);
   }
   do_update = savings > savings_thresh;
   aom_write(w, do_update, GROUP_DIFF_UPDATE_PROB);
   if (do_update) {
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-      prob_diff_update(av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[i],
-                       cm->counts.inter_ext_tx[i], TX_TYPES, probwt, w);
+      prob_diff_update(av1_tx_tree, cm->fc->inter_tx_prob[i],
+                       cm->counts.inter_tx[i], TX_TYPES, probwt, w);
     }
   }
 }
@@ -1216,26 +1216,26 @@ static void write_tx_type(const AV1_COMMON *const cm,
         !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
       if (is_inter) {
 #if CONFIG_DAALA_EC
-        aom_write_symbol(w, av1_ext_tx_ind[mbmi->tx_type],
-                         cm->fc->inter_ext_tx_cdf[tx_size], TX_TYPES);
+        aom_write_symbol(w, av1_tx_ind[mbmi->tx_type],
+                         cm->fc->inter_tx_cdf[tx_size], TX_TYPES);
 #else
-        av1_write_token(w, av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[tx_size],
-                        &ext_tx_encodings[mbmi->tx_type]);
+        av1_write_token(w, av1_tx_tree, cm->fc->inter_tx_prob[tx_size],
+                        &tx_encodings[mbmi->tx_type]);
 #endif
       } else {
 #if CONFIG_DAALA_EC
         aom_write_symbol(
-            w, av1_ext_tx_ind[mbmi->tx_type],
-            cm->fc->intra_ext_tx_cdf[tx_size]
-                                    [intra_mode_to_tx_type_context[mbmi->mode]],
+            w, av1_tx_ind[mbmi->tx_type],
+            cm->fc->intra_tx_cdf[tx_size]
+                                [intra_mode_to_tx_type_context[mbmi->mode]],
             TX_TYPES);
 #else
         av1_write_token(
-            w, av1_ext_tx_tree,
+            w, av1_tx_tree,
             cm->fc
-                ->intra_ext_tx_prob[tx_size]
-                                   [intra_mode_to_tx_type_context[mbmi->mode]],
-            &ext_tx_encodings[mbmi->tx_type]);
+                ->intra_tx_prob[tx_size]
+                               [intra_mode_to_tx_type_context[mbmi->mode]],
+            &tx_encodings[mbmi->tx_type]);
 #endif
       }
     }
@@ -2356,7 +2356,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
     if (supertx_size < TX_32X32 && !skip) {
       av1_write_token(w, av1_ext_tx_tree,
                       cm->fc->inter_ext_tx_prob[supertx_size],
-                      &ext_tx_encodings[mbmi->tx_type]);
+                      &tx_encodings[mbmi->tx_type]);
     }
 #endif  // CONFIG_EXT_TX
 

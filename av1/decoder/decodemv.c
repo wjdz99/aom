@@ -743,25 +743,25 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       FRAME_COUNTS *counts = xd->counts;
       if (inter_block) {
 #if CONFIG_DAALA_EC
-        mbmi->tx_type = av1_ext_tx_inv[aom_read_symbol(
-            r, cm->fc->inter_ext_tx_cdf[tx_size], TX_TYPES, ACCT_STR)];
+        mbmi->tx_type = av1_tx_inv[aom_read_symbol(
+            r, cm->fc->inter_tx_cdf[tx_size], TX_TYPES, ACCT_STR)];
 #else
         mbmi->tx_type = aom_read_tree(
-            r, av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[tx_size], ACCT_STR);
+            r, av1_tx_tree, cm->fc->inter_tx_prob[tx_size], ACCT_STR);
 #endif
-        if (counts) ++counts->inter_ext_tx[tx_size][mbmi->tx_type];
+        if (counts) ++counts->inter_tx[tx_size][mbmi->tx_type];
       } else {
         const TX_TYPE tx_type_nom = intra_mode_to_tx_type_context[mbmi->mode];
 #if CONFIG_DAALA_EC
-        mbmi->tx_type = av1_ext_tx_inv[aom_read_symbol(
-            r, cm->fc->intra_ext_tx_cdf[tx_size][tx_type_nom], TX_TYPES,
+        mbmi->tx_type = av1_tx_inv[aom_read_symbol(
+            r, cm->fc->intra_tx_cdf[tx_size][tx_type_nom], TX_TYPES,
             ACCT_STR)];
 #else
         mbmi->tx_type = aom_read_tree(
-            r, av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[tx_size][tx_type_nom],
+            r, av1_tx_tree, cm->fc->intra_tx_prob[tx_size][tx_type_nom],
             ACCT_STR);
 #endif
-        if (counts) ++counts->intra_ext_tx[tx_size][tx_type_nom][mbmi->tx_type];
+        if (counts) ++counts->intra_tx[tx_size][tx_type_nom][mbmi->tx_type];
       }
     } else {
       mbmi->tx_type = DCT_DCT;

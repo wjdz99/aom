@@ -140,11 +140,11 @@ static void fill_mode_costs(AV1_COMP *cpi) {
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
     for (j = 0; j < TX_TYPES; ++j)
       av1_cost_tokens(cpi->intra_tx_type_costs[i][j],
-                      fc->intra_ext_tx_prob[i][j], av1_ext_tx_tree);
+                      fc->intra_tx_prob[i][j], av1_tx_tree);
   }
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-    av1_cost_tokens(cpi->inter_tx_type_costs[i], fc->inter_ext_tx_prob[i],
-                    av1_ext_tx_tree);
+    av1_cost_tokens(cpi->inter_tx_type_costs[i], fc->inter_tx_prob[i],
+                    av1_tx_tree);
   }
 #endif  // CONFIG_EXT_TX
 #if CONFIG_EXT_INTRA

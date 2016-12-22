@@ -144,8 +144,8 @@ typedef struct frame_contexts {
   aom_prob intra_ext_tx_prob[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
                             [TX_TYPES - 1];
 #else
-  aom_prob intra_ext_tx_prob[EXT_TX_SIZES][TX_TYPES][TX_TYPES - 1];
-  aom_prob inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1];
+  aom_prob intra_tx_prob[EXT_TX_SIZES][TX_TYPES][TX_TYPES - 1];
+  aom_prob inter_tx_prob[EXT_TX_SIZES][TX_TYPES - 1];
 #endif  // CONFIG_EXT_TX
 #if CONFIG_SUPERTX
   aom_prob supertx_prob[PARTITION_SUPERTX_CONTEXTS][TX_SIZES];
@@ -171,9 +171,10 @@ typedef struct frame_contexts {
   aom_cdf_prob switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS]
                                     [SWITCHABLE_FILTERS];
   aom_cdf_prob inter_mode_cdf[INTER_MODE_CONTEXTS][INTER_MODES];
-#if !CONFIG_EXT_TX
-  aom_cdf_prob intra_ext_tx_cdf[EXT_TX_SIZES][TX_TYPES][TX_TYPES];
-  aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SIZES][TX_TYPES];
+#if CONFIG_EXT_TX
+#else
+  aom_cdf_prob intra_tx_cdf[EXT_TX_SIZES][TX_TYPES][TX_TYPES];
+  aom_cdf_prob inter_tx_cdf[EXT_TX_SIZES][TX_TYPES];
 #endif
 #endif
 #if CONFIG_EC_MULTISYMBOL
@@ -266,8 +267,8 @@ typedef struct FRAME_COUNTS {
   unsigned int intra_ext_tx[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
                            [TX_TYPES];
 #else
-  unsigned int intra_ext_tx[EXT_TX_SIZES][TX_TYPES][TX_TYPES];
-  unsigned int inter_ext_tx[EXT_TX_SIZES][TX_TYPES];
+  unsigned int intra_tx[EXT_TX_SIZES][TX_TYPES][TX_TYPES];
+  unsigned int inter_tx[EXT_TX_SIZES][TX_TYPES];
 #endif  // CONFIG_EXT_TX
 #if CONFIG_SUPERTX
   unsigned int supertx[PARTITION_SUPERTX_CONTEXTS][TX_SIZES][2];
@@ -344,7 +345,7 @@ extern const aom_tree_index av1_ext_tx_inter_tree[EXT_TX_SETS_INTER]
 extern const aom_tree_index av1_ext_tx_intra_tree[EXT_TX_SETS_INTRA]
                                                  [TREE_SIZE(TX_TYPES)];
 #else
-extern const aom_tree_index av1_ext_tx_tree[TREE_SIZE(TX_TYPES)];
+extern const aom_tree_index av1_tx_tree[TREE_SIZE(TX_TYPES)];
 #endif  // CONFIG_EXT_TX
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 extern const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)];
@@ -371,8 +372,8 @@ void av1_setup_past_independence(struct AV1Common *cm);
 void av1_adapt_intra_frame_probs(struct AV1Common *cm);
 void av1_adapt_inter_frame_probs(struct AV1Common *cm);
 #if CONFIG_DAALA_EC && !CONFIG_EXT_TX
-extern int av1_ext_tx_ind[TX_TYPES];
-extern int av1_ext_tx_inv[TX_TYPES];
+extern int av1_tx_ind[TX_TYPES];
+extern int av1_tx_inv[TX_TYPES];
 #endif
 
 static INLINE int av1_ceil_log2(int n) {

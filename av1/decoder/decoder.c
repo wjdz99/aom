@@ -53,9 +53,9 @@ static void initialize_dec(void) {
 #if CONFIG_DAALA_EC
     av1_indices_from_tree(av1_switchable_interp_ind, av1_switchable_interp_inv,
                           SWITCHABLE_FILTERS, av1_switchable_interp_tree);
-#if !CONFIG_EXT_TX
-    av1_indices_from_tree(av1_ext_tx_ind, av1_ext_tx_inv, TX_TYPES,
-                          av1_ext_tx_tree);
+#if CONFIG_EXT_TX
+#else
+    av1_indices_from_tree(av1_tx_ind, av1_tx_inv, TX_TYPES, av1_tx_tree);
 #endif
     av1_indices_from_tree(av1_intra_mode_ind, av1_intra_mode_inv, INTRA_MODES,
                           av1_intra_mode_tree);
