@@ -98,7 +98,8 @@ void aom_decode_band_pvq_splits(aom_reader *r, od_pvq_codeword_ctx *adapt,
  *
  * @retval decoded variable x
  */
-int od_laplace_decode_special_(od_ec_dec *dec, unsigned decay, int max OD_ACC_STR) {
+int aom_laplace_decode_special_(aom_reader *r, unsigned decay,
+ int max OD_ACC_STR) {
   int pos;
   int shift;
   int xs;
@@ -131,19 +132,27 @@ int od_laplace_decode_special_(od_ec_dec *dec, unsigned decay, int max OD_ACC_ST
     }
     if (ms > 0 && ms < 15) {
       /* Simple way of truncating the pdf when we have a bound. */
-      sym = od_ec_decode_cdf_unscaled(dec, cdf, ms + 1);
+      sym = aom_read_symbol_unscaled(r, cdf, ms + 1, acc_str);
     }
-    else sym = od_ec_decode_cdf_q15(dec, cdf, 16);
+    else sym = aom_read_symbol(r, cdf, 16, acc_str);
     xs += sym;
     ms -= 15;
   }
   while (sym >= 15 && ms != 0);
-  if (shift) pos = (xs << shift) + od_ec_dec_bits(dec, shift, acc_str);
+#if CONFIG_DAALA_EC
+  if (shift) pos = (xs << shift) + od_ec_dec_bits(&r->ec, shift, acc_str);
   else pos = xs;
+#else
+# error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
+#endif
   OD_ASSERT(pos >> shift <= max >> shift || max == -1);
   if (max != -1 && pos > max) {
     pos = max;
-    dec->error = 1;
+#if CONFIG_DAALA_EC
+    r->ec.error = 1;
+#else
+# error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
+#endif
   }
   OD_ASSERT(pos <= max || max == -1);
   return pos;
