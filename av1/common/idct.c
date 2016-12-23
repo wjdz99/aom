@@ -122,7 +122,7 @@ static void highbd_iidtx4_c(const tran_low_t *input, tran_low_t *output,
   int i;
   for (i = 0; i < 4; ++i)
     output[i] =
-        HIGHBD_WRAPLOW(highbd_dct_const_round_shift(input[i] * Sqrt2), bd);
+        HIGHBD_WRAPLOW(dct_const_round_shift(input[i] * Sqrt2), bd);
 }
 
 static void highbd_iidtx8_c(const tran_low_t *input, tran_low_t *output,
@@ -137,7 +137,7 @@ static void highbd_iidtx16_c(const tran_low_t *input, tran_low_t *output,
   int i;
   for (i = 0; i < 16; ++i)
     output[i] =
-        HIGHBD_WRAPLOW(highbd_dct_const_round_shift(input[i] * 2 * Sqrt2), bd);
+        HIGHBD_WRAPLOW(dct_const_round_shift(input[i] * 2 * Sqrt2), bd);
 }
 
 static void highbd_iidtx32_c(const tran_low_t *input, tran_low_t *output,
@@ -155,7 +155,7 @@ static void highbd_ihalfright32_c(const tran_low_t *input, tran_low_t *output,
   // Multiply input by sqrt(2)
   for (i = 0; i < 16; ++i) {
     inputhalf[i] =
-        HIGHBD_WRAPLOW(highbd_dct_const_round_shift(input[i] * Sqrt2), bd);
+        HIGHBD_WRAPLOW(dct_const_round_shift(input[i] * Sqrt2), bd);
   }
   for (i = 0; i < 16; ++i) {
     output[i] = input[16 + i] * 4;
@@ -171,7 +171,7 @@ static void highbd_iidtx64_c(const tran_low_t *input, tran_low_t *output,
   int i;
   for (i = 0; i < 64; ++i)
     output[i] =
-        HIGHBD_WRAPLOW(highbd_dct_const_round_shift(input[i] * 4 * Sqrt2), bd);
+        HIGHBD_WRAPLOW(dct_const_round_shift(input[i] * 4 * Sqrt2), bd);
 }
 #endif  // CONFIG_TX64X64
 #endif  // CONFIG_EXT_TX
@@ -185,11 +185,11 @@ static void highbd_ihalfright64_c(const tran_low_t *input, tran_low_t *output,
   // Multiply input by sqrt(2)
   for (i = 0; i < 32; ++i) {
     inputhalf[i] =
-        HIGHBD_WRAPLOW(highbd_dct_const_round_shift(input[i] * Sqrt2), bd);
+        HIGHBD_WRAPLOW(dct_const_round_shift(input[i] * Sqrt2), bd);
   }
   for (i = 0; i < 32; ++i) {
     output[i] = HIGHBD_WRAPLOW(
-        highbd_dct_const_round_shift(input[32 + i] * 4 * Sqrt2), bd);
+        dct_const_round_shift(input[32 + i] * 4 * Sqrt2), bd);
   }
   aom_highbd_idct32_c(inputhalf, output + 32, bd);
   // Note overall scaling factor is 4 * sqrt(2)  times orthogonal
@@ -1621,7 +1621,7 @@ void av1_highbd_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest8,
     HIGH_IHT_4x8[tx_type].rows(input, outtmp, bd);
     for (j = 0; j < n; ++j) {
       out[j][i] =
-          HIGHBD_WRAPLOW(highbd_dct_const_round_shift(outtmp[j] * Sqrt2), bd);
+          HIGHBD_WRAPLOW(dct_const_round_shift(outtmp[j] * Sqrt2), bd);
     }
     input += n;
   }
@@ -1683,7 +1683,7 @@ void av1_highbd_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest8,
     HIGH_IHT_8x4[tx_type].rows(input, outtmp, bd);
     for (j = 0; j < n2; ++j) {
       out[j][i] =
-          HIGHBD_WRAPLOW(highbd_dct_const_round_shift(outtmp[j] * Sqrt2), bd);
+          HIGHBD_WRAPLOW(dct_const_round_shift(outtmp[j] * Sqrt2), bd);
     }
     input += n2;
   }
@@ -1861,7 +1861,7 @@ void av1_highbd_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest8,
     HIGH_IHT_8x16[tx_type].rows(input, outtmp, bd);
     for (j = 0; j < n; ++j)
       out[j][i] =
-          HIGHBD_WRAPLOW(highbd_dct_const_round_shift(outtmp[j] * Sqrt2), bd);
+          HIGHBD_WRAPLOW(dct_const_round_shift(outtmp[j] * Sqrt2), bd);
     input += n;
   }
 
@@ -1922,7 +1922,7 @@ void av1_highbd_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest8,
     HIGH_IHT_16x8[tx_type].rows(input, outtmp, bd);
     for (j = 0; j < n2; ++j)
       out[j][i] =
-          HIGHBD_WRAPLOW(highbd_dct_const_round_shift(outtmp[j] * Sqrt2), bd);
+          HIGHBD_WRAPLOW(dct_const_round_shift(outtmp[j] * Sqrt2), bd);
     input += n2;
   }
 
@@ -2097,7 +2097,7 @@ void av1_highbd_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest8,
     HIGH_IHT_16x32[tx_type].rows(input, outtmp, bd);
     for (j = 0; j < n; ++j)
       out[j][i] =
-          HIGHBD_WRAPLOW(highbd_dct_const_round_shift(outtmp[j] * Sqrt2), bd);
+          HIGHBD_WRAPLOW(dct_const_round_shift(outtmp[j] * Sqrt2), bd);
     input += n;
   }
 
@@ -2158,7 +2158,7 @@ void av1_highbd_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest8,
     HIGH_IHT_32x16[tx_type].rows(input, outtmp, bd);
     for (j = 0; j < n2; ++j)
       out[j][i] =
-          HIGHBD_WRAPLOW(highbd_dct_const_round_shift(outtmp[j] * Sqrt2), bd);
+          HIGHBD_WRAPLOW(dct_const_round_shift(outtmp[j] * Sqrt2), bd);
     input += n2;
   }
 
