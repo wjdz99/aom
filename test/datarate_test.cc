@@ -134,7 +134,7 @@ TEST_P(DatarateTestLarge, BasicRateTargetingVBR) {
   cfg_.g_lag_in_frames = 0;
 
   ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
-                                       30, 1, 0, 300);
+                                       30, 1, 0, 140);
   for (int i = 400; i <= 800; i += 400) {
     cfg_.rc_target_bitrate = i;
     ResetModel();
@@ -159,7 +159,7 @@ TEST_P(DatarateTestLarge, BasicRateTargeting) {
 
   ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                        30, 1, 0, 140);
-  for (int i = 150; i < 800; i += 200) {
+  for (int i = 150; i < 800; i += 400) {
     cfg_.rc_target_bitrate = i;
     ResetModel();
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
@@ -185,7 +185,7 @@ TEST_P(DatarateTestLarge, BasicRateTargeting444) {
   cfg_.rc_max_quantizer = 63;
   cfg_.rc_end_usage = AOM_CBR;
 
-  for (int i = 250; i < 900; i += 200) {
+  for (int i = 250; i < 900; i += 400) {
     cfg_.rc_target_bitrate = i;
     ResetModel();
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
