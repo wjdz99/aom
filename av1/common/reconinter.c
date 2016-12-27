@@ -1082,7 +1082,7 @@ void av1_build_masked_inter_predictor_complex(
                                    pre_stride, mask, h, top_w, xd->bd);
       else
 #endif  // CONFIG_AOM_HIGHBITDEPTH
-        aom_blend_a64_vmask(dst, dst_stride, dst, dst_stride, pre, pre_stride,
+        aom_blend_a64_vmask_c(dst, dst_stride, dst, dst_stride, pre, pre_stride,
                             mask, h, top_w);
 
       dst += h * dst_stride;
@@ -1103,7 +1103,7 @@ void av1_build_masked_inter_predictor_complex(
                                    pre_stride, mask, top_h, w, xd->bd);
       else
 #endif  // CONFIG_AOM_HIGHBITDEPTH
-        aom_blend_a64_hmask(dst, dst_stride, dst, dst_stride, pre, pre_stride,
+        aom_blend_a64_hmask_c(dst, dst_stride, dst, dst_stride, pre, pre_stride,
                             mask, top_h, w);
 
       dst += w;
