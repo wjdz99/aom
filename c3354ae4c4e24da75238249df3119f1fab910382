@@ -16,6 +16,24 @@
       "revId": "c3354ae4c4e24da75238249df3119f1fab910382",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b75ab266_143fd377",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1677,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2016-12-28T18:54:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b75ab266_546e6bab",
+      "revId": "c3354ae4c4e24da75238249df3119f1fab910382",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
