@@ -24,11 +24,11 @@
 #if OD_ACCOUNTING
 # define generic_decode(r, model, max, ex_q16, integration, str) generic_decode_(r, model, max, ex_q16, integration, str)
 # define aom_decode_cdf_adapt_q15(r, cdf, n, count, rate, str) aom_decode_cdf_adapt_q15_(r, cdf, n, count, rate, str)
-# define od_decode_cdf_adapt(ec, cdf, n, increment, str) od_decode_cdf_adapt_(ec, cdf, n, increment, str)
+# define aom_decode_cdf_adapt(r, cdf, n, increment, str) aom_decode_cdf_adapt_(r, cdf, n, increment, str)
 #else
 # define generic_decode(r, model, max, ex_q16, integration, str) generic_decode_(r, model, max, ex_q16, integration)
 # define aom_decode_cdf_adapt_q15(r, cdf, n, count, rate, str) aom_decode_cdf_adapt_q15_(r, cdf, n, count, rate)
-# define od_decode_cdf_adapt(ec, cdf, n, increment, str) od_decode_cdf_adapt_(ec, cdf, n, increment)
+# define aom_decode_cdf_adapt(r, cdf, n, increment, str) aom_decode_cdf_adapt_(r, cdf, n, increment)
 #endif
 
 typedef struct {
@@ -64,7 +64,7 @@ void aom_encode_cdf_adapt_q15(aom_writer *w, int val, uint16_t *cdf, int n,
 void aom_encode_cdf_adapt(aom_writer *w, int val, uint16_t *cdf, int n,
  int increment);
 
-int od_decode_cdf_adapt_(od_ec_dec *ec, uint16_t *cdf, int n,
+int aom_decode_cdf_adapt_(aom_reader *r, uint16_t *cdf, int n,
  int increment OD_ACC_STR);
 
 void generic_encode(aom_writer *w, generic_encoder *model, int x, int max,
