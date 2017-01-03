@@ -535,7 +535,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                 tx_type, &max_scan_line, r, mbmi->segment_id);
     inverse_transform_block(
         xd, plane, tx_type, plane_tx_size,
-        &pd->dst.buf[4 * blk_row * pd->dst.stride + 4 * blk_col],
+        &pd->dst.buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]],
         pd->dst.stride, max_scan_line, eob);
     *eob_total += eob;
   } else {
@@ -1673,7 +1673,6 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
         const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
         const int bh_var_tx = tx_size_high_unit[max_tx_size];
         const int bw_var_tx = tx_size_wide_unit[max_tx_size];
-
         for (row = 0; row < max_blocks_high; row += bh_var_tx)
           for (col = 0; col < max_blocks_wide; col += bw_var_tx)
             decode_reconstruct_tx(cm, xd, r, mbmi, plane, plane_bsize, row, col,
