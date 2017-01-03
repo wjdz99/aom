@@ -1701,6 +1701,7 @@ int find_homography(const int np, double *pts1, double *pts2, double *mat) {
   return 0;
 }
 
+#if CONFIG_WARPED_MOTION
 int find_projection(const int np, double *pts1, double *pts2,
                     WarpedMotionParams *wm_params) {
   double H[9];
@@ -1712,7 +1713,31 @@ int find_projection(const int np, double *pts1, double *pts2,
     case HOMOGRAPHY: result = find_homography(np, pts1, pts2, H); break;
     default: assert(0 && "Invalid warped motion type!"); return 1;
   }
-  if (result == 0) av1_integerize_model(H, wm_params->wmtype, wm_params);
+  if (result == 0) {
+    av1_integerize_model(H, wm_params->wmtype, wm_params);
+
+    if (wm_params->wmtype == ROTZOOM) {
+      wm_params->wmmat[5] = wm_params->wmmat[2];
+      wm_params->wmmat[4] = -wm_params->wmmat[3];
+    }
+  }
+  if (wm_params->wmtype == AFFINE || wm_params->wmtype == ROTZOOM) {
+    int32_t *mat = wm_params->wmmat;
+
+    int32_t alpha = mat[2] - (1 << WARPEDMODEL_PREC_BITS);
+    int32_t beta = mat[3];
+    int32_t gamma = ((int64_t)mat[4] << WARPEDMODEL_PREC_BITS) / mat[2];
+    int32_t delta = mat[5] -
+                    (((int64_t)mat[3] * mat[4] + (mat[2] / 2)) / mat[2]) -
+                    (1 << WARPEDMODEL_PREC_BITS);
+
+    // check compatibility with the fast warp filter
+    if ((4 * abs(alpha) + 7 * abs(beta) > (1 << WARPEDMODEL_PREC_BITS)) ||
+        (4 * abs(gamma) + 7 * abs(delta) > (1 << WARPEDMODEL_PREC_BITS))) {
+      return 1;
+    }
+  }
 
   return result;
 }
+#endif  // CONFIG_WARPED_MOTION
