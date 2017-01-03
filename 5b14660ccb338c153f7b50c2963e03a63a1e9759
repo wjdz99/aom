@@ -22,6 +22,52 @@
       "revId": "5b14660ccb338c153f7b50c2963e03a63a1e9759",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b75ab266_a746a972",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1835,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-01-03T19:15:47Z",
+      "side": 1,
+      "message": "With non-tx coding does the \"lossless always implies 4x4\" concept still make sense?",
+      "range": {
+        "startLine": 1834,
+        "startChar": 0,
+        "endLine": 1835,
+        "endChar": 63
+      },
+      "revId": "5b14660ccb338c153f7b50c2963e03a63a1e9759",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b75ab266_c76abdcb",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1840,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-01-03T19:15:47Z",
+      "side": 1,
+      "message": "If ONLY_4X4 is set in the header then shouldn\u0027t these cases only produce TX_4x4 regardless of the active segment?",
+      "range": {
+        "startLine": 1836,
+        "startChar": 0,
+        "endLine": 1840,
+        "endChar": 3
+      },
+      "revId": "5b14660ccb338c153f7b50c2963e03a63a1e9759",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
