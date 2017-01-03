@@ -3022,7 +3022,7 @@ static void update_coef_probs(AV1_COMP *cpi, aom_writer *w) {
 #if CONFIG_LOOP_RESTORATION
 static void encode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_write_bit_buffer *wb) {
-  RestorationInfo *rst = &cm->rst_info;
+  RestorationInfo *rst = &cm->rst_info[0];
   switch (rst->frame_restoration_type) {
     case RESTORE_NONE:
       aom_wb_write_bit(wb, 0);
@@ -3080,7 +3080,7 @@ static void write_domaintxfmrf_filter(DomaintxfmrfInfo *domaintxfmrf_info,
 
 static void encode_restoration(AV1_COMMON *cm, aom_writer *wb) {
   int i;
-  RestorationInfo *rsi = &cm->rst_info;
+  RestorationInfo *rsi = &cm->rst_info[0];
   if (rsi->frame_restoration_type != RESTORE_NONE) {
     if (rsi->frame_restoration_type == RESTORE_SWITCHABLE) {
       // RESTORE_SWITCHABLE

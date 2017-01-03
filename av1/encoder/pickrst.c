@@ -856,6 +856,11 @@ static void quantize_sym_filter(double *f, int *fi) {
   fi[0] = CLIP(fi[0], WIENER_FILT_TAP0_MINV, WIENER_FILT_TAP0_MAXV);
   fi[1] = CLIP(fi[1], WIENER_FILT_TAP1_MINV, WIENER_FILT_TAP1_MAXV);
   fi[2] = CLIP(fi[2], WIENER_FILT_TAP2_MINV, WIENER_FILT_TAP2_MAXV);
+  // Satisfy filter constraints
+  fi[WIENER_WIN - 1] = fi[0];
+  fi[WIENER_WIN - 2] = fi[1];
+  fi[WIENER_WIN - 3] = fi[2];
+  fi[3] = WIENER_FILT_STEP - 2 * (fi[0] + fi[1] + fi[2]);
 }
 
 static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
@@ -953,7 +958,7 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
       wiener_info[tile_idx].level = 0;
     } else {
       wiener_info[tile_idx].level = 1;
-      for (i = 0; i < WIENER_HALFWIN; ++i) {
+      for (i = 0; i < WIENER_WIN; ++i) {
         wiener_info[tile_idx].vfilter[i] =
             rsi->wiener_info[tile_idx].vfilter[i];
         wiener_info[tile_idx].hfilter[i] =
@@ -974,7 +979,7 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     rsi->wiener_info[tile_idx].level = wiener_info[tile_idx].level;
     if (wiener_info[tile_idx].level) {
       bits += (WIENER_FILT_BITS << AV1_PROB_COST_SHIFT);
-      for (i = 0; i < WIENER_HALFWIN; ++i) {
+      for (i = 0; i < WIENER_WIN; ++i) {
         rsi->wiener_info[tile_idx].vfilter[i] =
             wiener_info[tile_idx].vfilter[i];
         rsi->wiener_info[tile_idx].hfilter[i] =
@@ -1079,6 +1084,10 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   const int ntiles =
       av1_get_rest_ntiles(cm->width, cm->height, NULL, NULL, NULL, NULL);
 
+  // Color components
+  cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+  cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+
   for (r = 0; r < RESTORE_SWITCHABLE_TYPES; r++)
     tile_cost[r] = (double *)aom_malloc(sizeof(*tile_cost[0]) * ntiles);
 
@@ -1086,7 +1095,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
 
   if (method == LPF_PICK_MINIMAL_LPF && lf->filter_level) {
     lf->filter_level = 0;
-    cm->rst_info.frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
   } else if (method >= LPF_PICK_FROM_Q) {
     const int min_filter_level = 0;
     const int max_filter_level = av1_get_max_filter_level(cpi);
@@ -1124,10 +1133,10 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   for (r = 0; r < RESTORE_SWITCHABLE_TYPES; ++r) {
     cost_restore[r] = search_restore_fun[r](
         src, cpi, lf->filter_level, method == LPF_PICK_FROM_SUBIMAGE,
-        &cm->rst_info, tile_cost[r], &cpi->trial_frame_rst);
+        &cm->rst_info[0], tile_cost[r], &cpi->trial_frame_rst);
   }
   cost_restore[RESTORE_SWITCHABLE] = search_switchable_restoration(
-      cpi, lf->filter_level, method == LPF_PICK_FROM_SUBIMAGE, &cm->rst_info,
+      cpi, lf->filter_level, method == LPF_PICK_FROM_SUBIMAGE, &cm->rst_info[0],
       tile_cost);
 
   best_cost_restore = DBL_MAX;
@@ -1138,12 +1147,15 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
       best_cost_restore = cost_restore[r];
     }
   }
-  cm->rst_info.frame_restoration_type = best_restore;
+  cm->rst_info[0].frame_restoration_type = best_restore;
+  cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+  cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
   /*
   printf("Frame %d/%d frame_restore_type %d : %f %f %f %f %f\n",
          cm->current_video_frame, cm->show_frame,
-         cm->rst_info.frame_restoration_type, cost_restore[0], cost_restore[1],
+         cm->rst_info[0].frame_restoration_type, cost_restore[0], cost_restore[1],
          cost_restore[2], cost_restore[3], cost_restore[4]);
          */
+
   for (r = 0; r < RESTORE_SWITCHABLE_TYPES; r++) aom_free(tile_cost[r]);
 }
