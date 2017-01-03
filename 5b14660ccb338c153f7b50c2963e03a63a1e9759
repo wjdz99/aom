@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b75ab266_470a2d45",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-01-03T19:06:42Z",
+      "side": 1,
+      "message": "I think I understand this conflict here. My question is that since we made \"lossless\" a feature at the segment level, should the decision to override frame level TX_MODE with ONLY_4X4 be made at segment level too? i.e. If a frame has multiple segments with at least one lossy segment, should the TX_MODE for the frame be allowed to use TX_MODE_SELECT as default, lossless segments can then override that and uses ONLY_4X4 for those lossless segments only?",
+      "range": {
+        "startLine": 13,
+        "startChar": 51,
+        "endLine": 14,
+        "endChar": 46
+      },
+      "revId": "5b14660ccb338c153f7b50c2963e03a63a1e9759",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
