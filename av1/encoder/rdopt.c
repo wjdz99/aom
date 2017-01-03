@@ -4647,7 +4647,6 @@ static int64_t encode_inter_mb_segment(const AV1_COMP *const cpi, MACROBLOCK *x,
         fwd_txfm_param.tx_type = DCT_DCT;
         fwd_txfm_param.tx_size = TX_4X4;
         fwd_txfm_param.fwd_txfm_opt = FWD_TXFM_OPT_NORMAL;
-        fwd_txfm_param.rd_transform = 0;
         fwd_txfm_param.lossless = xd->lossless[xd->mi[0]->mbmi.segment_id];
 
         fwd_txfm(src_int16, coeff, diff_stride, &fwd_txfm_param);
