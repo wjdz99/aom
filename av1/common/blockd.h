@@ -263,7 +263,10 @@ typedef struct {
   int wedge_sign;
 #if CONFIG_COMPOUND_SEGMENT
   int which;
+  // TODO(sarahparker) some of theses masks are only used in the encoder
+  // and could probably be moved to AV1_COMP as this experiment is finalized
   DECLARE_ALIGNED(16, uint8_t, seg_mask[2][2 * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, inv_seg_mask[2][2 * MAX_SB_SQUARE]);
 #endif  // CONFIG_COMPOUND_SEGMENT
 } INTERINTER_COMPOUND_DATA;
 #endif  // CONFIG_EXT_INTER

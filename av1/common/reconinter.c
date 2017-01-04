@@ -265,7 +265,7 @@ const uint8_t *av1_get_compound_type_mask(INTERINTER_COMPOUND_DATA *comp_data,
           invert ? !comp_data->wedge_sign : comp_data->wedge_sign, sb_type);
 #if CONFIG_COMPOUND_SEGMENT
     case COMPOUND_SEG:
-      if (invert) return comp_data->seg_mask[!comp_data->which];
+      if (invert) return comp_data->inv_seg_mask[comp_data->which];
       return comp_data->seg_mask[comp_data->which];
 #endif  // CONFIG_COMPOUND_SEGMENT
     default: assert(0); return NULL;
@@ -290,6 +290,13 @@ void build_compound_seg_mask(INTERINTER_COMPOUND_DATA *comp_data,
       comp_data->seg_mask[0][i * block_stride + j] = 45;
       comp_data->seg_mask[1][i * block_stride + j] =
           AOM_BLEND_A64_MAX_ALPHA - 45;
+
+      comp_data->inv_seg_mask[0][i * block_stride + j] =
+          AOM_BLEND_A64_MAX_ALPHA -
+          comp_data->seg_mask[0][i * block_stride + j];
+      comp_data->inv_seg_mask[1][i * block_stride + j] =
+          AOM_BLEND_A64_MAX_ALPHA -
+          comp_data->seg_mask[1][i * block_stride + j];
     }
 }
 #endif  // CONFIG_COMPOUND_SEGMENT
