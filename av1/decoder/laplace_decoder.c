@@ -39,11 +39,7 @@ static int aom_decode_pvq_split_(aom_reader *r, od_pvq_codeword_ctx *adapt,
   fctx = 7*ctx + (sum >> shift) - 1;
   msbs = aom_decode_cdf_adapt(r, adapt->pvq_split_cdf[fctx],
    (sum >> shift) + 1, adapt->pvq_split_increment, acc_str);
-#if CONFIG_DAALA_EC
-  if (shift) count = od_ec_dec_bits(&r->ec, shift, acc_str);
-#else
-# error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
-#endif
+  if (shift) count = aom_read_literal(r, shift, acc_str);
   count += msbs << shift;
   if (count > sum) {
     count = sum;
