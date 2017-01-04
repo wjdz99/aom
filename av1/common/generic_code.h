@@ -79,7 +79,7 @@ double od_encode_cdf_cost(int val, uint16_t *cdf, int n);
 int aom_decode_cdf_adapt_q15_(aom_reader *r, uint16_t *cdf, int n,
  int *count, int rate OD_ACC_STR);
 
-int generic_decode_(od_ec_dec *dec, generic_encoder *model, int max,
+int generic_decode_(aom_reader *r, generic_encoder *model, int max,
  int *ex_q16, int integration OD_ACC_STR);
 
 int log_ex(int ex_q16);
