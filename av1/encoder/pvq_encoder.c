@@ -635,7 +635,7 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
  * @param [in]     encode_flip whether we need to encode the CfL flip flag now
  * @param [in]     flip       value of the CfL flip flag
  */
-void pvq_encode_partition(od_ec_enc *ec,
+void pvq_encode_partition(aom_writer *w,
                                  int qg,
                                  int theta,
                                  int max_theta,
@@ -667,30 +667,38 @@ void pvq_encode_partition(od_ec_enc *ec,
   }
   /* Jointly code gain, theta and noref for small values. Then we handle
      larger gain and theta values. For noref, theta = -1. */
-  od_encode_cdf_adapt(ec, id, &adapt->pvq.pvq_gaintheta_cdf[cdf_ctx][0],
+#if CONFIG_DAALA_EC
+  od_encode_cdf_adapt(&w->ec, id, &adapt->pvq.pvq_gaintheta_cdf[cdf_ctx][0],
    8 + 7*code_skip, adapt->pvq.pvq_gaintheta_increment);
+#else
+# error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
+#endif
   if (encode_flip) {
     /* We could eventually do some smarter entropy coding here, but it would
        have to be good enough to overcome the overhead of the entropy coder.
        An early attempt using a "toogle" flag with simple adaptation wasn't
        worth the trouble. */
-    od_ec_enc_bits(ec, flip, 1);
+    aom_write_bit(w, flip);
   }
   if (qg > 0) {
     int tmp;
     tmp = *exg;
-    generic_encode(ec, &model[!noref], qg - 1, -1, &tmp, 2);
+    generic_encode(w, &model[!noref], qg - 1, -1, &tmp, 2);
     OD_IIR_DIADIC(*exg, qg << 16, 2);
   }
   if (theta > 1 && (nodesync || max_theta > 3)) {
     int tmp;
     tmp = *ext;
-    generic_encode(ec, &model[2], theta - 2, nodesync ? -1 : max_theta - 3,
+    generic_encode(w, &model[2], theta - 2, nodesync ? -1 : max_theta - 3,
      &tmp, 2);
     OD_IIR_DIADIC(*ext, theta << 16, 2);
   }
-  od_encode_pvq_codeword(ec, &adapt->pvq.pvq_codeword_ctx, in,
+#if CONFIG_DAALA_EC
+  od_encode_pvq_codeword(&w->ec, &adapt->pvq.pvq_codeword_ctx, in,
    n - (theta != -1), k);
+#else
+# error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
+#endif
 }
 
 /** Quantizes a scalar with rate-distortion optimization (RDO)
@@ -898,9 +906,9 @@ int od_pvq_encode(daala_enc_ctx *enc,
 #error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
 #endif
       od_encode_checkpoint(enc, &dc_buf);
-#if CONFIG_DAALA_EC
-      generic_encode(&enc->w.ec, &enc->state.adapt.model_dc[pli],
+      generic_encode(&enc->w, &enc->state.adapt.model_dc[pli],
        n - 1, -1, &enc->state.adapt.ex_dc[pli][bs][0], 2);
+#if CONFIG_DAALA_EC
       tell2 = od_ec_enc_tell_frac(&enc->w.ec) - tell2;
 #else
 #error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
@@ -964,15 +972,11 @@ int od_pvq_encode(daala_enc_ctx *enc,
     /* Encode CFL flip bit just after the first time it's used. */
     encode_flip = pli != 0 && is_keyframe && theta[i] != -1 && !cfl_encoded;
     if (i == 0 || (!skip_rest && !(skip_dir & (1 << ((i - 1)%3))))) {
-#if CONFIG_DAALA_EC
-      pvq_encode_partition(&enc->w.ec, qg[i], theta[i], max_theta[i],
-       y + off[i], size[i], k[i], model, &enc->state.adapt, exg + i, ext + i,
+      pvq_encode_partition(&enc->w, qg[i], theta[i], max_theta[i], y + off[i],
+       size[i], k[i], model, &enc->state.adapt, exg + i, ext + i,
        robust || is_keyframe, (pli != 0)*OD_TXSIZES*PVQ_MAX_PARTITIONS
        + bs*PVQ_MAX_PARTITIONS + i, is_keyframe, i == 0 && (i < nb_bands - 1),
        skip_rest, encode_flip, flip);
-#else
-#error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
-#endif
     }
     if (i == 0 && !skip_rest && bs > 0) {
 #if CONFIG_DAALA_EC
@@ -1029,9 +1033,9 @@ int od_pvq_encode(daala_enc_ctx *enc,
 #error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
 #endif
         od_encode_checkpoint(enc, &dc_buf);
-#if CONFIG_DAALA_EC
-        generic_encode(&enc->w.ec, &enc->state.adapt.model_dc[pli],
+        generic_encode(&enc->w, &enc->state.adapt.model_dc[pli],
          n - 1, -1, &enc->state.adapt.ex_dc[pli][bs][0], 2);
+#if CONFIG_DAALA_EC
         tell2 = od_ec_enc_tell_frac(&enc->w.ec) - tell2;
 #else
 #error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
