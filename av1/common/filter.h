@@ -30,8 +30,7 @@ extern "C" {
 
 #define MAX_SUBPEL_TAPS 12
 
-#define SUPPORT_NONINTERPOLATING_FILTERS 0 /* turn on for experimentation */
-#define SWITCHABLE_FILTERS 4               /* Number of switchable filters */
+#define SWITCHABLE_FILTERS 4 /* Number of switchable filters */
 #define LOG_SWITCHABLE_FILTERS \
   3 /* (1 << LOG_SWITCHABLE_FILTERS) > SWITCHABLE_FILTERS */
 #else
