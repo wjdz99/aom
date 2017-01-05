@@ -19,10 +19,10 @@
 #include "aom_scale/yv12config.h"
 
 #include "av1/common/common_data.h"
-#include "av1/common/quant_common.h"
 #include "av1/common/entropy.h"
 #include "av1/common/entropymode.h"
 #include "av1/common/mv.h"
+#include "av1/common/quant_common.h"
 #include "av1/common/scale.h"
 #include "av1/common/seg_common.h"
 #include "av1/common/tile_common.h"
@@ -569,19 +569,19 @@ static INLINE BLOCK_SIZE get_subsize(BLOCK_SIZE bsize,
 }
 
 static const TX_TYPE intra_mode_to_tx_type_context[INTRA_MODES] = {
-  DCT_DCT,    // DC
-  ADST_DCT,   // V
-  DCT_ADST,   // H
-  DCT_DCT,    // D45
-  ADST_ADST,  // D135
-  ADST_DCT,   // D117
-  DCT_ADST,   // D153
-  DCT_ADST,   // D207
-  ADST_DCT,   // D63
+    DCT_DCT,    // DC
+    ADST_DCT,   // V
+    DCT_ADST,   // H
+    DCT_DCT,    // D45
+    ADST_ADST,  // D135
+    ADST_DCT,   // D117
+    DCT_ADST,   // D153
+    DCT_ADST,   // D207
+    ADST_DCT,   // D63
 #if CONFIG_ALT_INTRA
-  ADST_ADST,  // SMOOTH
-#endif        // CONFIG_ALT_INTRA
-  ADST_ADST,  // TM
+    ADST_ADST,  // SMOOTH
+#endif          // CONFIG_ALT_INTRA
+    ADST_ADST,  // TM
 };
 
 #if CONFIG_SUPERTX
@@ -596,8 +596,8 @@ static INLINE int supertx_enabled(const MB_MODE_INFO *mbmi) {
 
 #define ALLOW_INTRA_EXT_TX 1
 
-static const int num_ext_tx_set_inter[EXT_TX_SETS_INTER] = { 1, 16, 12, 2 };
-static const int num_ext_tx_set_intra[EXT_TX_SETS_INTRA] = { 1, 7, 5 };
+static const int num_ext_tx_set_inter[EXT_TX_SETS_INTER] = {1, 16, 12, 2};
+static const int num_ext_tx_set_intra[EXT_TX_SETS_INTRA] = {1, 7, 5};
 
 static INLINE int get_ext_tx_set(TX_SIZE tx_size, BLOCK_SIZE bs, int is_inter) {
   tx_size = txsize_sqr_map[tx_size];
@@ -611,53 +611,53 @@ static INLINE int get_ext_tx_set(TX_SIZE tx_size, BLOCK_SIZE bs, int is_inter) {
   return (tx_size == TX_16X16 ? 2 : 1);
 }
 
-static const int use_intra_ext_tx_for_txsize[EXT_TX_SETS_INTRA]
-                                            [EXT_TX_SIZES] = {
+static const int use_intra_ext_tx_for_txsize[EXT_TX_SETS_INTRA][EXT_TX_SIZES] =
+    {
 #if CONFIG_CB4X4
-                                              { 1, 1, 1, 1, 1 },  // unused
-                                              { 0, 1, 1, 0, 0 },
-                                              { 0, 0, 0, 1, 0 },
+        {1, 1, 1, 1, 1},  // unused
+        {0, 1, 1, 0, 0},
+        {0, 0, 0, 1, 0},
 #else
-                                              { 1, 1, 1, 1 },  // unused
-                                              { 1, 1, 0, 0 },
-                                              { 0, 0, 1, 0 },
+        {1, 1, 1, 1},  // unused
+        {1, 1, 0, 0},
+        {0, 0, 1, 0},
 #endif  // CONFIG_CB4X4
-                                            };
+};
 
-static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER]
-                                            [EXT_TX_SIZES] = {
+static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER][EXT_TX_SIZES] =
+    {
 #if CONFIG_CB4X4
-                                              { 1, 1, 1, 1, 1 },  // unused
-                                              { 0, 1, 1, 0, 0 },
-                                              { 0, 0, 0, 1, 0 },
-                                              { 0, 0, 0, 0, 1 },
+        {1, 1, 1, 1, 1},  // unused
+        {0, 1, 1, 0, 0},
+        {0, 0, 0, 1, 0},
+        {0, 0, 0, 0, 1},
 #else
-                                              { 1, 1, 1, 1 },  // unused
-                                              { 1, 1, 0, 0 },
-                                              { 0, 0, 1, 0 },
-                                              { 0, 0, 0, 1 },
+        {1, 1, 1, 1},  // unused
+        {1, 1, 0, 0},
+        {0, 0, 1, 0},
+        {0, 0, 0, 1},
 #endif  // CONFIG_CB4X4
-                                            };
+};
 
 // Transform types used in each intra set
 static const int ext_tx_used_intra[EXT_TX_SETS_INTRA][TX_TYPES] = {
-  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
-  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0},
+    {1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
 };
 
 // Transform types used in each inter set
 static const int ext_tx_used_inter[EXT_TX_SETS_INTER][TX_TYPES] = {
-  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-  { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 },
-  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
 };
 
 // 1D Transforms used in inter set, this needs to be changed if
 // ext_tx_used_inter is changed
 static const int ext_tx_used_inter_1D[EXT_TX_SETS_INTER][TX_TYPES_1D] = {
-  { 1, 0, 0, 0 }, { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, { 1, 0, 0, 1 },
+    {1, 0, 0, 0}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 0, 0, 1},
 };
 
 static INLINE int get_ext_tx_types(TX_SIZE tx_size, BLOCK_SIZE bs,
@@ -741,16 +741,16 @@ static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
 
 #if CONFIG_FILTER_INTRA
 static const TX_TYPE filter_intra_mode_to_tx_type_lookup[FILTER_INTRA_MODES] = {
-  DCT_DCT,    // FILTER_DC
-  ADST_DCT,   // FILTER_V
-  DCT_ADST,   // FILTER_H
-  DCT_DCT,    // FILTER_D45
-  ADST_ADST,  // FILTER_D135
-  ADST_DCT,   // FILTER_D117
-  DCT_ADST,   // FILTER_D153
-  DCT_ADST,   // FILTER_D207
-  ADST_DCT,   // FILTER_D63
-  ADST_ADST,  // FILTER_TM
+    DCT_DCT,    // FILTER_DC
+    ADST_DCT,   // FILTER_V
+    DCT_ADST,   // FILTER_H
+    DCT_DCT,    // FILTER_D45
+    ADST_ADST,  // FILTER_D135
+    ADST_DCT,   // FILTER_D117
+    DCT_ADST,   // FILTER_D153
+    DCT_ADST,   // FILTER_D207
+    ADST_DCT,   // FILTER_D63
+    ADST_ADST,  // FILTER_TM
 };
 #endif  // CONFIG_FILTER_INTRA
 
@@ -759,15 +759,15 @@ static const TX_TYPE filter_intra_mode_to_tx_type_lookup[FILTER_INTRA_MODES] = {
 #define ANGLE_STEP_UV 4
 
 static const uint8_t av1_angle_step_y[TX_SIZES] = {
-  0, 4, 3, 3,
+    0, 4, 3, 3,
 };
 static const uint8_t av1_max_angle_delta_y[TX_SIZES] = {
-  0, 2, 3, 3,
+    0, 2, 3, 3,
 };
 
 extern const int16_t dr_intra_derivative[90];
 static const uint8_t mode_to_angle_map[INTRA_MODES] = {
-  0, 90, 180, 45, 135, 111, 157, 203, 67, 0,
+    0, 90, 180, 45, 135, 111, 157, 203, 67, 0,
 };
 
 static INLINE int av1_get_angle_step(BLOCK_SIZE sb_type, int plane) {

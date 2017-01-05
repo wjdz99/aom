@@ -14,8 +14,8 @@
 #include <stdio.h>
 
 #include "aom/aom_encoder.h"
-#include "aom_dsp/bitwriter_buffer.h"
 #include "aom_dsp/aom_dsp_common.h"
+#include "aom_dsp/bitwriter_buffer.h"
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem_ops.h"
 #include "aom_ports/system_state.h"
@@ -60,9 +60,7 @@ static struct av1_token intra_mode_encodings[INTRA_MODES];
 static struct av1_token switchable_interp_encodings[SWITCHABLE_FILTERS];
 #if CONFIG_EXT_PARTITION_TYPES
 static const struct av1_token ext_partition_encodings[EXT_PARTITION_TYPES] = {
-  { 0, 1 },  { 4, 3 },  { 12, 4 }, { 7, 3 },
-  { 10, 4 }, { 11, 4 }, { 26, 5 }, { 27, 5 }
-};
+    {0, 1}, {4, 3}, {12, 4}, {7, 3}, {10, 4}, {11, 4}, {26, 5}, {27, 5}};
 #endif
 static struct av1_token partition_encodings[PARTITION_TYPES];
 #if !CONFIG_REF_MV
@@ -71,9 +69,8 @@ static struct av1_token inter_mode_encodings[INTER_MODES];
 #if CONFIG_EXT_INTER
 static const struct av1_token
     inter_compound_mode_encodings[INTER_COMPOUND_MODES] = {
-      { 2, 2 },  { 50, 6 }, { 51, 6 }, { 24, 5 }, { 52, 6 },
-      { 53, 6 }, { 54, 6 }, { 55, 6 }, { 0, 1 },  { 7, 3 }
-    };
+        {2, 2},  {50, 6}, {51, 6}, {24, 5}, {52, 6},
+        {53, 6}, {54, 6}, {55, 6}, {0, 1},  {7, 3}};
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_PALETTE
 static struct av1_token palette_size_encodings[PALETTE_MAX_SIZE - 1];
@@ -81,12 +78,12 @@ static struct av1_token palette_color_index_encodings[PALETTE_MAX_SIZE - 1]
                                                      [PALETTE_MAX_SIZE];
 #endif  // CONFIG_PALETTE
 static const struct av1_token tx_size_encodings[MAX_TX_DEPTH][TX_SIZES] = {
-  { { 0, 1 }, { 1, 1 } },                      // Max tx_size is 8X8
-  { { 0, 1 }, { 2, 2 }, { 3, 2 } },            // Max tx_size is 16X16
-  { { 0, 1 }, { 2, 2 }, { 6, 3 }, { 7, 3 } },  // Max tx_size is 32X32
+    {{0, 1}, {1, 1}},                  // Max tx_size is 8X8
+    {{0, 1}, {2, 2}, {3, 2}},          // Max tx_size is 16X16
+    {{0, 1}, {2, 2}, {6, 3}, {7, 3}},  // Max tx_size is 32X32
 #if CONFIG_TX64X64
-  { { 0, 1 }, { 2, 2 }, { 6, 3 }, { 14, 4 }, { 15, 4 } },  // Max tx_size 64X64
-#endif                                                     // CONFIG_TX64X64
+    {{0, 1}, {2, 2}, {6, 3}, {14, 4}, {15, 4}},  // Max tx_size 64X64
+#endif                                           // CONFIG_TX64X64
 };
 
 #if CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
@@ -1232,8 +1229,9 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     if (left_mi)
       palette_y_mode_ctx +=
           (left_mi->mbmi.palette_mode_info.palette_size[0] > 0);
-    aom_write(w, n > 0, av1_default_palette_y_mode_prob[bsize - BLOCK_8X8]
-                                                       [palette_y_mode_ctx]);
+    aom_write(
+        w, n > 0,
+        av1_default_palette_y_mode_prob[bsize - BLOCK_8X8][palette_y_mode_ctx]);
     if (n > 0) {
       av1_write_token(w, av1_palette_size_tree,
                       av1_default_palette_y_size_prob[bsize - BLOCK_8X8],
@@ -2377,7 +2375,8 @@ static void write_tokens_sb(AV1_COMP *cpi, const TileInfo *const tile,
         write_tokens_b(cpi, tile, w, tok, tok_end, mi_row + hbs, mi_col + hbs);
         break;
 #endif  // CONFIG_EXT_PARTITION_TYPES
-      default: assert(0);
+      default:
+        assert(0);
     }
   }
 }
@@ -2593,7 +2592,8 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
                               mi_row + hbs, mi_col + hbs);
         break;
 #endif  // CONFIG_EXT_PARTITION_TYPES
-      default: assert(0);
+      default:
+        assert(0);
     }
   }
 #if CONFIG_SUPERTX
@@ -2876,7 +2876,7 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
     case TWO_LOOP: {
       /* dry run to see if there is any update at all needed */
       int savings = 0;
-      int update[2] = { 0, 0 };
+      int update[2] = {0, 0};
       for (i = 0; i < PLANE_TYPES; ++i) {
         for (j = 0; j < REF_TYPES; ++j) {
           for (k = 0; k < COEF_BANDS; ++k) {
@@ -2997,18 +2997,18 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
       }
       return;
     }
-    default: assert(0);
+    default:
+      assert(0);
   }
 }
 #endif
 #if CONFIG_ENTROPY
 // Calculate the token counts between subsequent subframe updates.
-static void get_coef_counts_diff(AV1_COMP *cpi, int index,
-                                 av1_coeff_count coef_counts[TX_SIZES]
-                                                            [PLANE_TYPES],
-                                 unsigned int eob_counts[TX_SIZES][PLANE_TYPES]
-                                                        [REF_TYPES][COEF_BANDS]
-                                                        [COEFF_CONTEXTS]) {
+static void get_coef_counts_diff(
+    AV1_COMP *cpi, int index,
+    av1_coeff_count coef_counts[TX_SIZES][PLANE_TYPES],
+    unsigned int eob_counts[TX_SIZES][PLANE_TYPES][REF_TYPES][COEF_BANDS]
+                           [COEFF_CONTEXTS]) {
   int i, j, k, l, m, tx_size, val;
   const int max_idx = cpi->common.coef_probs_update_idx;
   const TX_MODE tx_mode = cpi->common.tx_mode;
@@ -3027,8 +3027,8 @@ static void get_coef_counts_diff(AV1_COMP *cpi, int index,
                   cpi->common.counts.eob_branch[tx_size][i][j][k][l] -
                   subframe_stats->eob_counts_buf[max_idx][tx_size][i][j][k][l];
             } else {
-              val = subframe_stats->eob_counts_buf[index + 1][tx_size][i][j][k]
-                                                  [l] -
+              val = subframe_stats
+                        ->eob_counts_buf[index + 1][tx_size][i][j][k][l] -
                     subframe_stats->eob_counts_buf[index][tx_size][i][j][k][l];
             }
             assert(val >= 0);
@@ -3037,13 +3037,13 @@ static void get_coef_counts_diff(AV1_COMP *cpi, int index,
             for (m = 0; m < ENTROPY_TOKENS; ++m) {
               if (index == max_idx) {
                 val = cpi->td.rd_counts.coef_counts[tx_size][i][j][k][l][m] -
-                      subframe_stats->coef_counts_buf[max_idx][tx_size][i][j][k]
-                                                     [l][m];
+                      subframe_stats
+                          ->coef_counts_buf[max_idx][tx_size][i][j][k][l][m];
               } else {
-                val = subframe_stats->coef_counts_buf[index + 1][tx_size][i][j]
-                                                     [k][l][m] -
-                      subframe_stats->coef_counts_buf[index][tx_size][i][j][k]
-                                                     [l][m];
+                val = subframe_stats
+                          ->coef_counts_buf[index + 1][tx_size][i][j][k][l][m] -
+                      subframe_stats
+                          ->coef_counts_buf[index][tx_size][i][j][k][l][m];
               }
               assert(val >= 0);
               coef_counts[tx_size][i][j][k][l][m] = val;
@@ -3068,7 +3068,7 @@ static void update_coef_probs_subframe(
     case TWO_LOOP: {
       /* dry run to see if there is any update at all needed */
       int savings = 0;
-      int update[2] = { 0, 0 };
+      int update[2] = {0, 0};
       for (i = 0; i < PLANE_TYPES; ++i) {
         for (j = 0; j < REF_TYPES; ++j) {
           for (k = 0; k < COEF_BANDS; ++k) {
@@ -3205,7 +3205,8 @@ static void update_coef_probs_subframe(
       }
       return;
     }
-    default: assert(0);
+    default:
+      assert(0);
   }
 }
 #endif  // CONFIG_ENTROPY
@@ -3345,14 +3346,20 @@ static void encode_restoration_mode(AV1_COMMON *cm,
       aom_wb_write_bit(wb, 0);
       aom_wb_write_bit(wb, 1);
       break;
-    default: assert(0);
+    default:
+      assert(0);
   }
   for (p = 1; p < MAX_MB_PLANE; ++p) {
     rsi = &cm->rst_info[p];
     switch (rsi->frame_restoration_type) {
-      case RESTORE_NONE: aom_wb_write_bit(wb, 0); break;
-      case RESTORE_WIENER: aom_wb_write_bit(wb, 1); break;
-      default: assert(0);
+      case RESTORE_NONE:
+        aom_wb_write_bit(wb, 0);
+        break;
+      case RESTORE_WIENER:
+        aom_wb_write_bit(wb, 1);
+        break;
+      default:
+        assert(0);
     }
   }
 }
@@ -3800,7 +3807,7 @@ static int get_refresh_mask(AV1_COMP *cpi) {
 static INLINE int find_identical_tile(
     const int tile_row, const int tile_col,
     TileBufferEnc (*const tile_buffers)[1024]) {
-  const MV32 candidate_offset[1] = { { 1, 0 } };
+  const MV32 candidate_offset[1] = {{1, 0}};
   const uint8_t *const cur_tile_data =
       tile_buffers[tile_row][tile_col].data + 4;
   const unsigned int cur_tile_size = tile_buffers[tile_row][tile_col].size;
@@ -4209,11 +4216,20 @@ static void write_sync_code(struct aom_write_bit_buffer *wb) {
 static void write_profile(BITSTREAM_PROFILE profile,
                           struct aom_write_bit_buffer *wb) {
   switch (profile) {
-    case PROFILE_0: aom_wb_write_literal(wb, 0, 2); break;
-    case PROFILE_1: aom_wb_write_literal(wb, 2, 2); break;
-    case PROFILE_2: aom_wb_write_literal(wb, 1, 2); break;
-    case PROFILE_3: aom_wb_write_literal(wb, 6, 3); break;
-    default: assert(0);
+    case PROFILE_0:
+      aom_wb_write_literal(wb, 0, 2);
+      break;
+    case PROFILE_1:
+      aom_wb_write_literal(wb, 2, 2);
+      break;
+    case PROFILE_2:
+      aom_wb_write_literal(wb, 1, 2);
+      break;
+    case PROFILE_3:
+      aom_wb_write_literal(wb, 6, 3);
+      break;
+    default:
+      assert(0);
   }
 }
 
@@ -4532,8 +4548,10 @@ static void write_global_motion_params(WarpedMotionParams *params,
       aom_write_primitive_symmetric(w, (params->wmmat[1] >> GM_TRANS_PREC_DIFF),
                                     GM_ABS_TRANS_BITS);
       break;
-    case IDENTITY: break;
-    default: assert(0);
+    case IDENTITY:
+      break;
+    default:
+      assert(0);
   }
 }
 
@@ -4629,8 +4647,8 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #endif  // CONFIG_EXT_PARTITION_TYPES
 #if CONFIG_UNPOISON_PARTITION_CTX
   for (; i < PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES; ++i) {
-    unsigned int ct[2] = { counts->partition[i][PARTITION_VERT],
-                           counts->partition[i][PARTITION_SPLIT] };
+    unsigned int ct[2] = {counts->partition[i][PARTITION_VERT],
+                          counts->partition[i][PARTITION_SPLIT]};
     assert(counts->partition[i][PARTITION_NONE] == 0);
     assert(counts->partition[i][PARTITION_HORZ] == 0);
     assert(fc->partition_prob[i][PARTITION_NONE] == 0);
@@ -4639,8 +4657,8 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                               ct, probwt);
   }
   for (; i < PARTITION_CONTEXTS_PRIMARY + 2 * PARTITION_BLOCK_SIZES; ++i) {
-    unsigned int ct[2] = { counts->partition[i][PARTITION_HORZ],
-                           counts->partition[i][PARTITION_SPLIT] };
+    unsigned int ct[2] = {counts->partition[i][PARTITION_HORZ],
+                          counts->partition[i][PARTITION_SPLIT]};
     assert(counts->partition[i][PARTITION_NONE] == 0);
     assert(counts->partition[i][PARTITION_VERT] == 0);
     assert(fc->partition_prob[i][PARTITION_NONE] == 0);
@@ -4828,11 +4846,21 @@ static int choose_size_bytes(uint32_t size, int spare_msbs) {
 
 static void mem_put_varsize(uint8_t *const dst, const int sz, const int val) {
   switch (sz) {
-    case 1: dst[0] = (uint8_t)(val & 0xff); break;
-    case 2: mem_put_le16(dst, val); break;
-    case 3: mem_put_le24(dst, val); break;
-    case 4: mem_put_le32(dst, val); break;
-    default: assert("Invalid size" && 0); break;
+    case 1:
+      dst[0] = (uint8_t)(val & 0xff);
+      break;
+    case 2:
+      mem_put_le16(dst, val);
+      break;
+    case 3:
+      mem_put_le24(dst, val);
+      break;
+    case 4:
+      mem_put_le32(dst, val);
+      break;
+    default:
+      assert("Invalid size" && 0);
+      break;
   }
 }
 static int remux_tiles(const AV1_COMMON *const cm, uint8_t *dst,
@@ -4946,7 +4974,7 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
   struct aom_write_bit_buffer saved_wb;
 #endif
   uint32_t data_size;
-  struct aom_write_bit_buffer wb = { data, 0 };
+  struct aom_write_bit_buffer wb = {data, 0};
 
   unsigned int max_tile_size;
   unsigned int max_tile_col_size;

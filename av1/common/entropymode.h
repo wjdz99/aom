@@ -12,11 +12,11 @@
 #ifndef AV1_COMMON_ENTROPYMODE_H_
 #define AV1_COMMON_ENTROPYMODE_H_
 
+#include "aom_dsp/aom_filter.h"
 #include "av1/common/entropy.h"
 #include "av1/common/entropymv.h"
 #include "av1/common/filter.h"
 #include "av1/common/seg_common.h"
-#include "aom_dsp/aom_filter.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -383,14 +383,10 @@ extern const aom_prob av1_default_palette_y_size_prob[PALETTE_BLOCK_SIZES]
                                                      [PALETTE_SIZES - 1];
 extern const aom_prob av1_default_palette_uv_size_prob[PALETTE_BLOCK_SIZES]
                                                       [PALETTE_SIZES - 1];
-extern const aom_prob
-    av1_default_palette_y_color_index_prob[PALETTE_MAX_SIZE - 1]
-                                          [PALETTE_COLOR_INDEX_CONTEXTS]
-                                          [PALETTE_COLORS - 1];
-extern const aom_prob
-    av1_default_palette_uv_color_index_prob[PALETTE_MAX_SIZE - 1]
-                                           [PALETTE_COLOR_INDEX_CONTEXTS]
-                                           [PALETTE_COLORS - 1];
+extern const aom_prob av1_default_palette_y_color_index_prob
+    [PALETTE_MAX_SIZE - 1][PALETTE_COLOR_INDEX_CONTEXTS][PALETTE_COLORS - 1];
+extern const aom_prob av1_default_palette_uv_color_index_prob
+    [PALETTE_MAX_SIZE - 1][PALETTE_COLOR_INDEX_CONTEXTS][PALETTE_COLORS - 1];
 #endif  // CONFIG_PALETTE
 
 extern const aom_tree_index av1_intra_mode_tree[TREE_SIZE(INTRA_MODES)];

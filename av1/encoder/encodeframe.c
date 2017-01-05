@@ -13,13 +13,13 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "./av1_rtcd.h"
-#include "./aom_dsp_rtcd.h"
 #include "./aom_config.h"
+#include "./aom_dsp_rtcd.h"
+#include "./av1_rtcd.h"
 
 #include "aom_dsp/aom_dsp_common.h"
-#include "aom_ports/mem.h"
 #include "aom_ports/aom_timer.h"
+#include "aom_ports/mem.h"
 #include "aom_ports/system_state.h"
 
 #include "av1/common/common.h"
@@ -29,8 +29,8 @@
 #include "av1/common/mvref_common.h"
 #include "av1/common/pred_common.h"
 #include "av1/common/quant_common.h"
-#include "av1/common/reconintra.h"
 #include "av1/common/reconinter.h"
+#include "av1/common/reconintra.h"
 #include "av1/common/seg_common.h"
 #include "av1/common/tile_common.h"
 
@@ -105,79 +105,83 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
 // Eventually this should be replaced by custom no-reference routines,
 //  which will be faster.
 static const uint8_t AV1_VAR_OFFS[MAX_SB_SIZE] = {
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
 #if CONFIG_EXT_PARTITION
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128
 #endif  // CONFIG_EXT_PARTITION
 };
 
 #if CONFIG_AOM_HIGHBITDEPTH
 static const uint16_t AV1_HIGH_VAR_OFFS_8[MAX_SB_SIZE] = {
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
 #if CONFIG_EXT_PARTITION
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128
 #endif  // CONFIG_EXT_PARTITION
 };
 
 static const uint16_t AV1_HIGH_VAR_OFFS_10[MAX_SB_SIZE] = {
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4,
 #if CONFIG_EXT_PARTITION
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
-  128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4, 128 * 4,
+    128 * 4
 #endif  // CONFIG_EXT_PARTITION
 };
 
 static const uint16_t AV1_HIGH_VAR_OFFS_12[MAX_SB_SIZE] = {
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16,
 #if CONFIG_EXT_PARTITION
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
-  128 * 16
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16, 128 * 16,
+    128 * 16
 #endif  // CONFIG_EXT_PARTITION
 };
 #endif  // CONFIG_AOM_HIGHBITDEPTH
@@ -843,11 +847,11 @@ static void choose_partitioning(AV1_COMP *const cpi, ThreadData *const td,
   int pixels_wide = MI_SIZE * mi_size_wide[cm->sb_size];
   int pixels_high = MI_SIZE * mi_size_high[cm->sb_size];
   int64_t thresholds[5] = {
-    cpi->vbp_thresholds[0], cpi->vbp_thresholds[1], cpi->vbp_thresholds[2],
-    cpi->vbp_thresholds[3], cpi->vbp_thresholds[4],
+      cpi->vbp_thresholds[0], cpi->vbp_thresholds[1], cpi->vbp_thresholds[2],
+      cpi->vbp_thresholds[3], cpi->vbp_thresholds[4],
   };
-  BLOCK_SIZE bsize_min[5] = { BLOCK_16X16, BLOCK_16X16, BLOCK_16X16,
-                              cpi->vbp_bsize_min, BLOCK_8X8 };
+  BLOCK_SIZE bsize_min[5] = {BLOCK_16X16, BLOCK_16X16, BLOCK_16X16,
+                             cpi->vbp_bsize_min, BLOCK_8X8};
   const int start_level = cm->sb_size == BLOCK_64X64 ? 1 : 0;
   const int64_t *const thre = thresholds + start_level;
   const BLOCK_SIZE *const bmin = bsize_min + start_level;
@@ -951,10 +955,16 @@ static void choose_partitioning(AV1_COMP *const cpi, ThreadData *const td,
 #if CONFIG_AOM_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       switch (xd->bd) {
-        case 10: ref = CONVERT_TO_BYTEPTR(AV1_HIGH_VAR_OFFS_10); break;
-        case 12: ref = CONVERT_TO_BYTEPTR(AV1_HIGH_VAR_OFFS_12); break;
+        case 10:
+          ref = CONVERT_TO_BYTEPTR(AV1_HIGH_VAR_OFFS_10);
+          break;
+        case 12:
+          ref = CONVERT_TO_BYTEPTR(AV1_HIGH_VAR_OFFS_12);
+          break;
         case 8:
-        default: ref = CONVERT_TO_BYTEPTR(AV1_HIGH_VAR_OFFS_8); break;
+        default:
+          ref = CONVERT_TO_BYTEPTR(AV1_HIGH_VAR_OFFS_8);
+          break;
       }
     }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
@@ -1549,7 +1559,8 @@ static void update_state_sb_supertx(const AV1_COMP *const cpi, ThreadData *td,
       pmc = &pc_tree->verticalb_supertx;
       break;
 #endif  // CONFIG_EXT_PARTITION_TYPES
-    default: assert(0);
+    default:
+      assert(0);
   }
 
   for (i = 0; i < MAX_MB_PLANE; ++i) {
@@ -1652,7 +1663,8 @@ static void update_supertx_param_sb(const AV1_COMP *const cpi, ThreadData *td,
         update_supertx_param(td, &pc_tree->verticalb[i], best_tx, supertx_size);
       break;
 #endif  // CONFIG_EXT_PARTITION_TYPES
-    default: assert(0);
+    default:
+      assert(0);
   }
 }
 #endif  // CONFIG_SUPERTX
@@ -1756,19 +1768,21 @@ static void set_mode_info_sb(const AV1_COMP *const cpi, ThreadData *td,
                       &pc_tree->verticalb[2]);
       break;
 #endif  // CONFIG_EXT_PARTITION_TYPES
-    default: assert(0 && "Invalid partition type."); break;
+    default:
+      assert(0 && "Invalid partition type.");
+      break;
   }
 }
 #endif
 
 void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
                           int mi_row, int mi_col) {
-  uint8_t *const buffers[3] = { src->y_buffer, src->u_buffer, src->v_buffer };
-  const int widths[3] = { src->y_crop_width, src->uv_crop_width,
-                          src->uv_crop_width };
-  const int heights[3] = { src->y_crop_height, src->uv_crop_height,
-                           src->uv_crop_height };
-  const int strides[3] = { src->y_stride, src->uv_stride, src->uv_stride };
+  uint8_t *const buffers[3] = {src->y_buffer, src->u_buffer, src->v_buffer};
+  const int widths[3] = {src->y_crop_width, src->uv_crop_width,
+                         src->uv_crop_width};
+  const int heights[3] = {src->y_crop_height, src->uv_crop_height,
+                          src->uv_crop_height};
+  const int strides[3] = {src->y_stride, src->uv_stride, src->uv_stride};
   int i;
 
   // Set current frame pointer.
@@ -2083,8 +2097,8 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
                               [ref0 != BWDREF_FRAME]++;
           } else {
             const int bit1 = !(ref0 == LAST2_FRAME || ref0 == LAST_FRAME);
-            counts->single_ref[av1_get_pred_context_single_ref_p3(xd)][2]
-                              [bit1]++;
+            counts
+                ->single_ref[av1_get_pred_context_single_ref_p3(xd)][2][bit1]++;
             if (!bit1) {
               counts->single_ref[av1_get_pred_context_single_ref_p4(xd)][3]
                                 [ref0 != LAST_FRAME]++;
@@ -2491,8 +2505,8 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
             !xd->mi[0]->mbmi.skip) {
           int eset = get_ext_tx_set(supertx_size, bsize, 1);
           if (eset > 0) {
-            ++td->counts->inter_ext_tx[eset][supertx_size]
-                                      [xd->mi[0]->mbmi.tx_type];
+            ++td->counts
+                  ->inter_ext_tx[eset][supertx_size][xd->mi[0]->mbmi.tx_type];
           }
         }
 #else
@@ -2611,7 +2625,9 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
                partition, &pc_tree->verticalb[2], rate);
       break;
 #endif  // CONFIG_EXT_PARTITION_TYPES
-    default: assert(0 && "Invalid partition type."); break;
+    default:
+      assert(0 && "Invalid partition type.");
+      break;
   }
 
 #if CONFIG_EXT_PARTITION_TYPES
@@ -2965,9 +2981,12 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
     case PARTITION_VERT_A:
     case PARTITION_VERT_B:
     case PARTITION_HORZ_A:
-    case PARTITION_HORZ_B: assert(0 && "Cannot handle extended partiton types");
+    case PARTITION_HORZ_B:
+      assert(0 && "Cannot handle extended partiton types");
 #endif  //  CONFIG_EXT_PARTITION_TYPES
-    default: assert(0); break;
+    default:
+      assert(0);
+      break;
   }
 
   if (last_part_rdc.rate < INT_MAX) {
@@ -3560,7 +3579,7 @@ static void rd_test_partition3(
 
         if (!check_intra_sb(cpi, tile_info, mi_row, mi_col, bsize, pc_tree)) {
           TX_TYPE best_tx = DCT_DCT;
-          RD_COST tmp_rdc = { sum_rate_nocoef, 0, 0 };
+          RD_COST tmp_rdc = {sum_rate_nocoef, 0, 0};
 
           restore_context(x, x_ctx, mi_row, mi_col, bsize);
 
@@ -3992,17 +4011,16 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
         pc_tree->partitioning = PARTITION_SPLIT;
 
-        sum_rdc.rate +=
-            av1_cost_bit(cm->fc->supertx_prob
-                             [partition_supertx_context_lookup[PARTITION_SPLIT]]
-                             [supertx_size],
-                         0);
+        sum_rdc.rate += av1_cost_bit(
+            cm->fc->supertx_prob[partition_supertx_context_lookup
+                                     [PARTITION_SPLIT]][supertx_size],
+            0);
         sum_rdc.rdcost =
             RDCOST(x->rdmult, x->rddiv, sum_rdc.rate, sum_rdc.dist);
 
         if (is_inter_mode(pc_tree->leaf_split[0]->mic.mbmi.mode)) {
           TX_TYPE best_tx = DCT_DCT;
-          RD_COST tmp_rdc = { sum_rate_nocoef, 0, 0 };
+          RD_COST tmp_rdc = {sum_rate_nocoef, 0, 0};
 
           restore_context(x, &x_ctx, mi_row, mi_col, bsize);
 
@@ -4010,9 +4028,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                         &tmp_rdc.rate, &tmp_rdc.dist, &best_tx, pc_tree);
 
           tmp_rdc.rate += av1_cost_bit(
-              cm->fc->supertx_prob
-                  [partition_supertx_context_lookup[PARTITION_SPLIT]]
-                  [supertx_size],
+              cm->fc->supertx_prob[partition_supertx_context_lookup
+                                       [PARTITION_SPLIT]][supertx_size],
               1);
           tmp_rdc.rdcost =
               RDCOST(x->rdmult, x->rddiv, tmp_rdc.rate, tmp_rdc.dist);
@@ -4076,17 +4093,16 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
         pc_tree->partitioning = PARTITION_SPLIT;
 
-        sum_rdc.rate +=
-            av1_cost_bit(cm->fc->supertx_prob
-                             [partition_supertx_context_lookup[PARTITION_SPLIT]]
-                             [supertx_size],
-                         0);
+        sum_rdc.rate += av1_cost_bit(
+            cm->fc->supertx_prob[partition_supertx_context_lookup
+                                     [PARTITION_SPLIT]][supertx_size],
+            0);
         sum_rdc.rdcost =
             RDCOST(x->rdmult, x->rddiv, sum_rdc.rate, sum_rdc.dist);
 
         if (!check_intra_sb(cpi, tile_info, mi_row, mi_col, bsize, pc_tree)) {
           TX_TYPE best_tx = DCT_DCT;
-          RD_COST tmp_rdc = { sum_rate_nocoef, 0, 0 };
+          RD_COST tmp_rdc = {sum_rate_nocoef, 0, 0};
 
           restore_context(x, &x_ctx, mi_row, mi_col, bsize);
 
@@ -4094,9 +4110,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                         &tmp_rdc.rate, &tmp_rdc.dist, &best_tx, pc_tree);
 
           tmp_rdc.rate += av1_cost_bit(
-              cm->fc->supertx_prob
-                  [partition_supertx_context_lookup[PARTITION_SPLIT]]
-                  [supertx_size],
+              cm->fc->supertx_prob[partition_supertx_context_lookup
+                                       [PARTITION_SPLIT]][supertx_size],
               1);
           tmp_rdc.rdcost =
               RDCOST(x->rdmult, x->rddiv, tmp_rdc.rate, tmp_rdc.dist);
@@ -4236,7 +4251,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
       if (!check_intra_sb(cpi, tile_info, mi_row, mi_col, bsize, pc_tree)) {
         TX_TYPE best_tx = DCT_DCT;
-        RD_COST tmp_rdc = { sum_rate_nocoef, 0, 0 };
+        RD_COST tmp_rdc = {sum_rate_nocoef, 0, 0};
 
         restore_context(x, &x_ctx, mi_row, mi_col, bsize);
 
@@ -4380,7 +4395,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
       if (!check_intra_sb(cpi, tile_info, mi_row, mi_col, bsize, pc_tree)) {
         TX_TYPE best_tx = DCT_DCT;
-        RD_COST tmp_rdc = { sum_rate_nocoef, 0, 0 };
+        RD_COST tmp_rdc = {sum_rate_nocoef, 0, 0};
 
         restore_context(x, &x_ctx, mi_row, mi_col, bsize);
 
@@ -4779,8 +4794,9 @@ void av1_init_tile_data(AV1_COMP *cpi) {
 
   if (cpi->tile_data == NULL || cpi->allocated_tiles < tile_cols * tile_rows) {
     if (cpi->tile_data != NULL) aom_free(cpi->tile_data);
-    CHECK_MEM_ERROR(cm, cpi->tile_data, aom_malloc(tile_cols * tile_rows *
-                                                   sizeof(*cpi->tile_data)));
+    CHECK_MEM_ERROR(
+        cm, cpi->tile_data,
+        aom_malloc(tile_cols * tile_rows * sizeof(*cpi->tile_data)));
     cpi->allocated_tiles = tile_cols * tile_rows;
 
     for (tile_row = 0; tile_row < tile_rows; ++tile_row)
@@ -4998,7 +5014,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     YV12_BUFFER_CONFIG *ref_buf;
     int frame;
     double erroradvantage = 0;
-    double params[8] = { 0, 0, 1, 0, 0, 1, 0, 0 };
+    double params[8] = {0, 0, 1, 0, 0, 1, 0, 0};
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
       ref_buf = get_ref_frame_buffer(cpi, frame);
       if (ref_buf) {
@@ -5806,8 +5822,8 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       int eset = get_ext_tx_set(tx_size, bsize, is_inter);
       if (eset > 0) {
         if (is_inter) {
-          ++td->counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]]
-                                    [mbmi->tx_type];
+          ++td->counts
+                ->inter_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->tx_type];
         } else {
           ++td->counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
                                     [mbmi->tx_type];
@@ -5820,9 +5836,9 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       if (is_inter) {
         ++td->counts->inter_ext_tx[tx_size][mbmi->tx_type];
       } else {
-        ++td->counts->intra_ext_tx[tx_size]
-                                  [intra_mode_to_tx_type_context[mbmi->mode]]
-                                  [mbmi->tx_type];
+        ++td->counts
+              ->intra_ext_tx[tx_size][intra_mode_to_tx_type_context[mbmi->mode]]
+                            [mbmi->tx_type];
       }
     }
 #endif  // CONFIG_EXT_TX
@@ -5882,7 +5898,9 @@ static int check_intra_sb(const AV1_COMP *const cpi, const TileInfo *const tile,
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return 1;
 
   switch (partition) {
-    case PARTITION_NONE: return check_intra_b(&pc_tree->none); break;
+    case PARTITION_NONE:
+      return check_intra_b(&pc_tree->none);
+      break;
     case PARTITION_VERT:
       if (check_intra_b(&pc_tree->vertical[0])) return 1;
       if (mi_col + hbs < cm->mi_cols && (bsize > BLOCK_8X8 || unify_bsize)) {
@@ -5935,7 +5953,8 @@ static int check_intra_sb(const AV1_COMP *const cpi, const TileInfo *const tile,
       }
       break;
 #endif  // CONFIG_EXT_PARTITION_TYPES
-    default: assert(0);
+    default:
+      assert(0);
   }
   return 0;
 }
@@ -5957,7 +5976,8 @@ static int check_supertx_sb(BLOCK_SIZE bsize, TX_SIZE supertx_size,
   partition = pc_tree->partitioning;
   subsize = get_subsize(bsize, partition);
   switch (partition) {
-    case PARTITION_NONE: return check_supertx_b(supertx_size, &pc_tree->none);
+    case PARTITION_NONE:
+      return check_supertx_b(supertx_size, &pc_tree->none);
     case PARTITION_VERT:
       return check_supertx_b(supertx_size, &pc_tree->vertical[0]);
     case PARTITION_HORZ:
@@ -5977,7 +5997,9 @@ static int check_supertx_sb(BLOCK_SIZE bsize, TX_SIZE supertx_size,
     case PARTITION_VERT_B:
       return check_supertx_b(supertx_size, &pc_tree->verticalb[0]);
 #endif  // CONFIG_EXT_PARTITION_TYPES
-    default: assert(0); return 0;
+    default:
+      assert(0);
+      return 0;
   }
 }
 
@@ -6235,9 +6257,9 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
   DECLARE_ALIGNED(16, uint8_t, tmp_buf1[MAX_MB_PLANE * MAX_TX_SQUARE * 2]);
   DECLARE_ALIGNED(16, uint8_t, tmp_buf2[MAX_MB_PLANE * MAX_TX_SQUARE * 2]);
   DECLARE_ALIGNED(16, uint8_t, tmp_buf3[MAX_MB_PLANE * MAX_TX_SQUARE * 2]);
-  int dst_stride1[3] = { MAX_TX_SIZE, MAX_TX_SIZE, MAX_TX_SIZE };
-  int dst_stride2[3] = { MAX_TX_SIZE, MAX_TX_SIZE, MAX_TX_SIZE };
-  int dst_stride3[3] = { MAX_TX_SIZE, MAX_TX_SIZE, MAX_TX_SIZE };
+  int dst_stride1[3] = {MAX_TX_SIZE, MAX_TX_SIZE, MAX_TX_SIZE};
+  int dst_stride2[3] = {MAX_TX_SIZE, MAX_TX_SIZE, MAX_TX_SIZE};
+  int dst_stride3[3] = {MAX_TX_SIZE, MAX_TX_SIZE, MAX_TX_SIZE};
 #if CONFIG_CB4X4
   const int unify_bsize = 1;
 #else
@@ -6656,7 +6678,8 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
       }
       break;
 #endif  // CONFIG_EXT_PARTITION_TYPES
-    default: assert(0);
+    default:
+      assert(0);
   }
 
 #if CONFIG_EXT_PARTITION_TYPES

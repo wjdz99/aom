@@ -12,29 +12,24 @@
 #include <limits.h>
 
 #include "av1/encoder/encoder.h"
-#include "av1/encoder/speed_features.h"
 #include "av1/encoder/rdopt.h"
+#include "av1/encoder/speed_features.h"
 
 #include "aom_dsp/aom_dsp_common.h"
 
 // Mesh search patters for various speed settings
 static MESH_PATTERN best_quality_mesh_pattern[MAX_MESH_STEP] = {
-  { 64, 4 }, { 28, 2 }, { 15, 1 }, { 7, 1 }
-};
+    {64, 4}, {28, 2}, {15, 1}, {7, 1}};
 
 #define MAX_MESH_SPEED 5  // Max speed setting for mesh motion method
-static MESH_PATTERN
-    good_quality_mesh_patterns[MAX_MESH_SPEED + 1][MAX_MESH_STEP] = {
-      { { 64, 8 }, { 28, 4 }, { 15, 1 }, { 7, 1 } },
-      { { 64, 8 }, { 28, 4 }, { 15, 1 }, { 7, 1 } },
-      { { 64, 8 }, { 14, 2 }, { 7, 1 }, { 7, 1 } },
-      { { 64, 16 }, { 24, 8 }, { 12, 4 }, { 7, 1 } },
-      { { 64, 16 }, { 24, 8 }, { 12, 4 }, { 7, 1 } },
-      { { 64, 16 }, { 24, 8 }, { 12, 4 }, { 7, 1 } },
-    };
-static unsigned char good_quality_max_mesh_pct[MAX_MESH_SPEED + 1] = {
-  50, 25, 15, 5, 1, 1
+static MESH_PATTERN good_quality_mesh_patterns[MAX_MESH_SPEED +
+                                               1][MAX_MESH_STEP] = {
+    {{64, 8}, {28, 4}, {15, 1}, {7, 1}},  {{64, 8}, {28, 4}, {15, 1}, {7, 1}},
+    {{64, 8}, {14, 2}, {7, 1}, {7, 1}},   {{64, 16}, {24, 8}, {12, 4}, {7, 1}},
+    {{64, 16}, {24, 8}, {12, 4}, {7, 1}}, {{64, 16}, {24, 8}, {12, 4}, {7, 1}},
 };
+static unsigned char good_quality_max_mesh_pct[MAX_MESH_SPEED + 1] = {
+    50, 25, 15, 5, 1, 1};
 
 // Intra only frames, golden frames (except alt ref overlays) and
 // alt ref frames tend to be coded at a higher than ambient quality
@@ -182,10 +177,10 @@ static void set_good_speed_feature(AV1_COMP *cpi, AV1_COMMON *cm,
     sf->tx_size_search_method =
         frame_is_boosted(cpi) ? USE_FULL_RD : USE_LARGESTALL;
     sf->mode_search_skip_flags =
-        (cm->frame_type == KEY_FRAME) ? 0 : FLAG_SKIP_INTRA_DIRMISMATCH |
-                                                FLAG_SKIP_INTRA_BESTINTER |
-                                                FLAG_SKIP_COMP_BESTINTRA |
-                                                FLAG_SKIP_INTRA_LOWVAR;
+        (cm->frame_type == KEY_FRAME)
+            ? 0
+            : FLAG_SKIP_INTRA_DIRMISMATCH | FLAG_SKIP_INTRA_BESTINTER |
+                  FLAG_SKIP_COMP_BESTINTRA | FLAG_SKIP_INTRA_LOWVAR;
     sf->disable_filter_search_var_thresh = 100;
     sf->comp_inter_joint_search_thresh = BLOCK_SIZES;
     sf->auto_min_max_partition_size = RELAXED_NEIGHBORING_MIN_MAX;
@@ -322,10 +317,10 @@ static void set_rt_speed_feature(AV1_COMP *cpi, SPEED_FEATURES *sf, int speed,
 
   if (speed >= 2) {
     sf->mode_search_skip_flags =
-        (cm->frame_type == KEY_FRAME) ? 0 : FLAG_SKIP_INTRA_DIRMISMATCH |
-                                                FLAG_SKIP_INTRA_BESTINTER |
-                                                FLAG_SKIP_COMP_BESTINTRA |
-                                                FLAG_SKIP_INTRA_LOWVAR;
+        (cm->frame_type == KEY_FRAME)
+            ? 0
+            : FLAG_SKIP_INTRA_DIRMISMATCH | FLAG_SKIP_INTRA_BESTINTER |
+                  FLAG_SKIP_COMP_BESTINTRA | FLAG_SKIP_INTRA_LOWVAR;
     sf->adaptive_pred_interp_filter = 2;
     sf->disable_filter_search_var_thresh = 50;
     sf->comp_inter_joint_search_thresh = BLOCK_SIZES;

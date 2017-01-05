@@ -27,8 +27,8 @@
 #include "av1/common/entropymv.h"
 #include "av1/common/quant_common.h"
 #include "av1/common/reconinter.h"  // av1_setup_dst_planes()
-#include "av1/encoder/av1_quantize.h"
 #include "av1/encoder/aq_variance.h"
+#include "av1/encoder/av1_quantize.h"
 #include "av1/encoder/block.h"
 #include "av1/encoder/encodeframe.h"
 #include "av1/encoder/encodemb.h"
@@ -286,10 +286,14 @@ void av1_end_first_pass(AV1_COMP *cpi) {
 
 static aom_variance_fn_t get_block_variance_fn(BLOCK_SIZE bsize) {
   switch (bsize) {
-    case BLOCK_8X8: return aom_mse8x8;
-    case BLOCK_16X8: return aom_mse16x8;
-    case BLOCK_8X16: return aom_mse8x16;
-    default: return aom_mse16x16;
+    case BLOCK_8X8:
+      return aom_mse8x8;
+    case BLOCK_16X8:
+      return aom_mse16x8;
+    case BLOCK_8X16:
+      return aom_mse8x16;
+    default:
+      return aom_mse16x16;
   }
 }
 
@@ -308,26 +312,38 @@ static aom_variance_fn_t highbd_get_block_variance_fn(BLOCK_SIZE bsize,
   switch (bd) {
     default:
       switch (bsize) {
-        case BLOCK_8X8: return aom_highbd_8_mse8x8;
-        case BLOCK_16X8: return aom_highbd_8_mse16x8;
-        case BLOCK_8X16: return aom_highbd_8_mse8x16;
-        default: return aom_highbd_8_mse16x16;
+        case BLOCK_8X8:
+          return aom_highbd_8_mse8x8;
+        case BLOCK_16X8:
+          return aom_highbd_8_mse16x8;
+        case BLOCK_8X16:
+          return aom_highbd_8_mse8x16;
+        default:
+          return aom_highbd_8_mse16x16;
       }
       break;
     case 10:
       switch (bsize) {
-        case BLOCK_8X8: return aom_highbd_10_mse8x8;
-        case BLOCK_16X8: return aom_highbd_10_mse16x8;
-        case BLOCK_8X16: return aom_highbd_10_mse8x16;
-        default: return aom_highbd_10_mse16x16;
+        case BLOCK_8X8:
+          return aom_highbd_10_mse8x8;
+        case BLOCK_16X8:
+          return aom_highbd_10_mse16x8;
+        case BLOCK_8X16:
+          return aom_highbd_10_mse8x16;
+        default:
+          return aom_highbd_10_mse16x16;
       }
       break;
     case 12:
       switch (bsize) {
-        case BLOCK_8X8: return aom_highbd_12_mse8x8;
-        case BLOCK_16X8: return aom_highbd_12_mse16x8;
-        case BLOCK_8X16: return aom_highbd_12_mse8x16;
-        default: return aom_highbd_12_mse16x16;
+        case BLOCK_8X8:
+          return aom_highbd_12_mse8x8;
+        case BLOCK_16X8:
+          return aom_highbd_12_mse16x8;
+        case BLOCK_8X16:
+          return aom_highbd_12_mse8x16;
+        default:
+          return aom_highbd_12_mse16x16;
       }
       break;
   }
@@ -358,8 +374,8 @@ static void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
                                      const MV *ref_mv, MV *best_mv,
                                      int *best_motion_err) {
   MACROBLOCKD *const xd = &x->e_mbd;
-  MV tmp_mv = { 0, 0 };
-  MV ref_mv_full = { ref_mv->row >> 3, ref_mv->col >> 3 };
+  MV tmp_mv = {0, 0};
+  MV ref_mv_full = {ref_mv->row >> 3, ref_mv->col >> 3};
   int num00, tmp_err, n;
   const BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
   aom_variance_fn_ptr_t v_fn_ptr = cpi->fn_ptr[bsize];
@@ -487,9 +503,9 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
   int image_data_start_row = INVALID_ROW;
   int new_mv_count = 0;
   int sum_in_vectors = 0;
-  MV lastmv = { 0, 0 };
+  MV lastmv = {0, 0};
   TWO_PASS *twopass = &cpi->twopass;
-  const MV zero_mv = { 0, 0 };
+  const MV zero_mv = {0, 0};
   int recon_y_stride, recon_uv_stride, uv_mb_height;
 
   YV12_BUFFER_CONFIG *const lst_yv12 = get_ref_frame_buffer(cpi, LAST_FRAME);
@@ -602,7 +618,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
   uv_mb_height = 16 >> (new_yv12->y_height > new_yv12->uv_height);
 
   for (mb_row = 0; mb_row < cm->mb_rows; ++mb_row) {
-    MV best_ref_mv = { 0, 0 };
+    MV best_ref_mv = {0, 0};
 
     // Reset above block coeffs.
     xd->up_available = (mb_row != 0);
@@ -671,9 +687,14 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
 #if CONFIG_AOM_HIGHBITDEPTH
       if (cm->use_highbitdepth) {
         switch (cm->bit_depth) {
-          case AOM_BITS_8: break;
-          case AOM_BITS_10: this_error >>= 4; break;
-          case AOM_BITS_12: this_error >>= 8; break;
+          case AOM_BITS_8:
+            break;
+          case AOM_BITS_10:
+            this_error >>= 4;
+            break;
+          case AOM_BITS_12:
+            this_error >>= 8;
+            break;
           default:
             assert(0 &&
                    "cm->bit_depth should be AOM_BITS_8, "
@@ -730,7 +751,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
       if (!frame_is_intra_only(cm)) {  // Do a motion search
         int tmp_err, motion_error, raw_motion_error;
         // Assume 0,0 motion with no mv overhead.
-        MV mv = { 0, 0 }, tmp_mv = { 0, 0 };
+        MV mv = {0, 0}, tmp_mv = {0, 0};
         struct buf_2d unscaled_last_source_buf_2d;
 
         xd->plane[0].pre[0].buf = first_ref_buf->y_buffer + recon_yoffset;
@@ -1594,10 +1615,11 @@ static int64_t calculate_total_gf_group_bits(AV1_COMP *cpi,
   }
 
   // Clamp odd edge cases.
-  total_group_bits =
-      (total_group_bits < 0) ? 0 : (total_group_bits > twopass->kf_group_bits)
-                                       ? twopass->kf_group_bits
-                                       : total_group_bits;
+  total_group_bits = (total_group_bits < 0)
+                         ? 0
+                         : (total_group_bits > twopass->kf_group_bits)
+                               ? twopass->kf_group_bits
+                               : total_group_bits;
 
   // Clip based on user supplied data rate variability limit.
   if (total_group_bits > (int64_t)max_bits * rc->baseline_gf_interval)
@@ -2756,7 +2778,9 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
       break;
 #endif  // CONFIG_EXT_REFS
 
-    default: assert(0); break;
+    default:
+      assert(0);
+      break;
   }
 }
 

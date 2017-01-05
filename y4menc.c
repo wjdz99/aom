@@ -9,8 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include <assert.h>
 #include "./y4menc.h"
+#include <assert.h>
 
 int y4m_write_file_header(char *buf, size_t len, int width, int height,
                           const struct AvxRational *framerate,
@@ -20,9 +20,9 @@ int y4m_write_file_header(char *buf, size_t len, int width, int height,
     case 8:
       color = fmt == AOM_IMG_FMT_444A
                   ? "C444alpha\n"
-                  : fmt == AOM_IMG_FMT_I444 ? "C444\n" : fmt == AOM_IMG_FMT_I422
-                                                             ? "C422\n"
-                                                             : "C420jpeg\n";
+                  : fmt == AOM_IMG_FMT_I444
+                        ? "C444\n"
+                        : fmt == AOM_IMG_FMT_I422 ? "C422\n" : "C420jpeg\n";
       break;
     case 9:
       color = fmt == AOM_IMG_FMT_I44416
@@ -54,7 +54,9 @@ int y4m_write_file_header(char *buf, size_t len, int width, int height,
                   : fmt == AOM_IMG_FMT_I42216 ? "C422p16 XYSCSS=422P16\n"
                                               : "C420p16 XYSCSS=420P16\n";
       break;
-    default: color = NULL; assert(0);
+    default:
+      color = NULL;
+      assert(0);
   }
   return snprintf(buf, len, "YUV4MPEG2 W%u H%u F%u:%u I%c %s", width, height,
                   framerate->numerator, framerate->denominator, 'p', color);

@@ -212,7 +212,9 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
       case ONE_TOKEN:
       case TWO_TOKEN:
       case THREE_TOKEN:
-      case FOUR_TOKEN: val = token; break;
+      case FOUR_TOKEN:
+        val = token;
+        break;
       case CATEGORY1_TOKEN:
         val = CAT1_MIN_VAL + read_coeff(cat1_prob, 1, r);
         break;
@@ -242,7 +244,9 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
           case AOM_BITS_12:
             val = CAT6_MIN_VAL + read_coeff(cat6p, 18 - skip_bits, r);
             break;
-          default: assert(0); return -1;
+          default:
+            assert(0);
+            return -1;
         }
 #else
         val = CAT6_MIN_VAL + read_coeff(cat6p, 14 - skip_bits, r);
@@ -319,7 +323,9 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
       case ONE_TOKEN:
       case TWO_TOKEN:
       case THREE_TOKEN:
-      case FOUR_TOKEN: val = token; break;
+      case FOUR_TOKEN:
+        val = token;
+        break;
       case CATEGORY1_TOKEN:
         val = CAT1_MIN_VAL + read_coeff(cat1_prob, 1, r);
         break;
@@ -349,7 +355,9 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
           case AOM_BITS_12:
             val = CAT6_MIN_VAL + read_coeff(cat6p, 18 - skip_bits, r);
             break;
-          default: assert(0); return -1;
+          default:
+            assert(0);
+            return -1;
         }
 #else
         val = CAT6_MIN_VAL + read_coeff(cat6p, 14 - skip_bits, r);
@@ -368,7 +376,9 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
       switch (token) {
         case TWO_TOKEN:
         case THREE_TOKEN:
-        case FOUR_TOKEN: val = token; break;
+        case FOUR_TOKEN:
+          val = token;
+          break;
         case CATEGORY1_TOKEN:
           val = CAT1_MIN_VAL + read_coeff(cat1_prob, 1, r);
           break;
@@ -398,7 +408,9 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
             case AOM_BITS_12:
               val = CAT6_MIN_VAL + read_coeff(cat6p, 18 - skip_bits, r);
               break;
-            default: assert(0); return -1;
+            default:
+              assert(0);
+              return -1;
           }
 #else
           val = CAT6_MIN_VAL + read_coeff(cat6p, 14 - skip_bits, r);

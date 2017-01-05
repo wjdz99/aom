@@ -9,9 +9,9 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "./av1_rtcd.h"
 #include "./aom_config.h"
 #include "./aom_dsp_rtcd.h"
+#include "./av1_rtcd.h"
 
 #include "aom_dsp/bitwriter.h"
 #include "aom_dsp/quantize.h"
@@ -30,8 +30,8 @@
 #include "av1/encoder/tokenize.h"
 
 #if CONFIG_PVQ
-#include "av1/encoder/encint.h"
 #include "av1/common/partition.h"
+#include "av1/encoder/encint.h"
 #include "av1/encoder/pvq_encoder.h"
 #endif
 
@@ -83,7 +83,7 @@ typedef struct av1_token_state {
 
 // These numbers are empirically obtained.
 static const int plane_rd_mult[REF_TYPES][PLANE_TYPES] = {
-  { 10, 6 }, { 8, 5 },
+    {10, 6}, {8, 5},
 };
 
 #define UPDATE_RD_COST()                             \
@@ -125,7 +125,7 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
   int dq = get_dq_profile_from_ctx(mb->qindex, ctx, ref, plane_type);
   const dequant_val_type_nuq *dequant_val = pd->dequant_val_nuq[dq];
 #elif !CONFIG_AOM_QM
-  const int dq_step[2] = { dequant_ptr[0] >> shift, dequant_ptr[1] >> shift };
+  const int dq_step[2] = {dequant_ptr[0] >> shift, dequant_ptr[1] >> shift};
 #endif  // CONFIG_NEW_QUANT
   int next = eob, sz = 0;
   const int64_t rdmult = (mb->rdmult * plane_rd_mult[ref][plane_type]) >> 1;
@@ -442,16 +442,15 @@ typedef enum QUANT_FUNC {
 
 static AV1_QUANT_FACADE
     quant_func_list[AV1_XFORM_QUANT_TYPES][QUANT_FUNC_TYPES] = {
-      { av1_quantize_fp_facade, av1_highbd_quantize_fp_facade },
-      { av1_quantize_b_facade, av1_highbd_quantize_b_facade },
-      { av1_quantize_dc_facade, av1_highbd_quantize_dc_facade },
+        {av1_quantize_fp_facade, av1_highbd_quantize_fp_facade},
+        {av1_quantize_b_facade, av1_highbd_quantize_b_facade},
+        {av1_quantize_dc_facade, av1_highbd_quantize_dc_facade},
 #if CONFIG_NEW_QUANT
-      { av1_quantize_fp_nuq_facade, av1_highbd_quantize_fp_nuq_facade },
-      { av1_quantize_b_nuq_facade, av1_highbd_quantize_b_nuq_facade },
-      { av1_quantize_dc_nuq_facade, av1_highbd_quantize_dc_nuq_facade },
+        {av1_quantize_fp_nuq_facade, av1_highbd_quantize_fp_nuq_facade},
+        {av1_quantize_b_nuq_facade, av1_highbd_quantize_b_nuq_facade},
+        {av1_quantize_dc_nuq_facade, av1_highbd_quantize_dc_nuq_facade},
 #endif  // CONFIG_NEW_QUANT
-      { NULL, NULL }
-    };
+        {NULL, NULL}};
 
 #elif !CONFIG_PVQ
 
@@ -462,16 +461,15 @@ typedef enum QUANT_FUNC {
 
 static AV1_QUANT_FACADE quant_func_list[AV1_XFORM_QUANT_TYPES]
                                        [QUANT_FUNC_TYPES] = {
-                                         { av1_quantize_fp_facade },
-                                         { av1_quantize_b_facade },
-                                         { av1_quantize_dc_facade },
+                                           {av1_quantize_fp_facade},
+                                           {av1_quantize_b_facade},
+                                           {av1_quantize_dc_facade},
 #if CONFIG_NEW_QUANT
-                                         { av1_quantize_fp_nuq_facade },
-                                         { av1_quantize_b_nuq_facade },
-                                         { av1_quantize_dc_nuq_facade },
+                                           {av1_quantize_fp_nuq_facade},
+                                           {av1_quantize_b_nuq_facade},
+                                           {av1_quantize_dc_nuq_facade},
 #endif  // CONFIG_NEW_QUANT
-                                         { NULL }
-                                       };
+                                           {NULL}};
 #endif
 
 void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
@@ -851,7 +849,7 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
 }
 
 void av1_encode_sby_pass1(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
-  encode_block_pass1_args args = { cm, x };
+  encode_block_pass1_args args = {cm, x};
   av1_subtract_plane(x, bsize, 0);
   av1_foreach_transformed_block_in_plane(&x->e_mbd, bsize, 0,
                                          encode_block_pass1, &args);
@@ -861,7 +859,7 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
   MACROBLOCKD *const xd = &x->e_mbd;
   struct optimize_ctx ctx;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  struct encode_b_args arg = { cm, x, &ctx, &mbmi->skip, NULL, NULL, 1 };
+  struct encode_b_args arg = {cm, x, &ctx, &mbmi->skip, NULL, NULL, 1};
   int plane;
 
   mbmi->skip = 1;
@@ -914,7 +912,7 @@ void av1_encode_sb_supertx(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
   MACROBLOCKD *const xd = &x->e_mbd;
   struct optimize_ctx ctx;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  struct encode_b_args arg = { cm, x, &ctx, &mbmi->skip, NULL, NULL, 1 };
+  struct encode_b_args arg = {cm, x, &ctx, &mbmi->skip, NULL, NULL, 1};
   int plane;
 
   mbmi->skip = 1;
@@ -1106,12 +1104,11 @@ void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
                                   BLOCK_SIZE bsize, int plane,
                                   int enable_optimize_b) {
   const MACROBLOCKD *const xd = &x->e_mbd;
-  ENTROPY_CONTEXT ta[2 * MAX_MIB_SIZE] = { 0 };
-  ENTROPY_CONTEXT tl[2 * MAX_MIB_SIZE] = { 0 };
+  ENTROPY_CONTEXT ta[2 * MAX_MIB_SIZE] = {0};
+  ENTROPY_CONTEXT tl[2 * MAX_MIB_SIZE] = {0};
 
   struct encode_b_args arg = {
-    cm, x, NULL, &xd->mi[0]->mbmi.skip, ta, tl, enable_optimize_b
-  };
+      cm, x, NULL, &xd->mi[0]->mbmi.skip, ta, tl, enable_optimize_b};
   if (enable_optimize_b) {
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     const TX_SIZE tx_size =
@@ -1153,11 +1150,11 @@ PVQ_SKIP_TYPE av1_pvq_encode_helper(
   assert(OD_COEFF_SHIFT >= 3);
   // DC quantizer for PVQ
   if (use_activity_masking)
-    pvq_dc_quant = OD_MAXI(
-        1, (quant[0] << (OD_COEFF_SHIFT - 3)) *
-                   daala_enc->state.pvq_qm_q4[plane]
-                                             [od_qm_get_index(tx_size, 0)] >>
-               4);
+    pvq_dc_quant =
+        OD_MAXI(1, (quant[0] << (OD_COEFF_SHIFT - 3)) *
+                           daala_enc->state
+                               .pvq_qm_q4[plane][od_qm_get_index(tx_size, 0)] >>
+                       4);
   else
     pvq_dc_quant = OD_MAXI(1, quant[0] << (OD_COEFF_SHIFT - 3));
 

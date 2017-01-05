@@ -61,9 +61,8 @@
 #if CONFIG_DUAL_FILTER
 #define DUAL_FILTER_SET_SIZE (SWITCHABLE_FILTERS * SWITCHABLE_FILTERS)
 static const int filter_sets[DUAL_FILTER_SET_SIZE][2] = {
-  { 0, 0 }, { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 0 }, { 1, 1 },
-  { 1, 2 }, { 1, 3 }, { 2, 0 }, { 2, 1 }, { 2, 2 }, { 2, 3 },
-  { 3, 0 }, { 3, 1 }, { 3, 2 }, { 3, 3 },
+    {0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
+    {2, 0}, {2, 1}, {2, 2}, {2, 3}, {3, 0}, {3, 1}, {3, 2}, {3, 3},
 };
 #endif  // CONFIG_DUAL_FILTER
 
@@ -113,8 +112,8 @@ static const int filter_sets[DUAL_FILTER_SET_SIZE][2] = {
 #define FILTER_FAST_SEARCH 1
 #endif  // CONFIG_EXT_INTRA
 
-const double ADST_FLIP_SVM[8] = { -6.6623, -2.8062, -3.2531, 3.1671,    // vert
-                                  -7.7051, -3.2234, -3.6193, 3.4533 };  // horz
+const double ADST_FLIP_SVM[8] = {-6.6623, -2.8062, -3.2531, 3.1671,   // vert
+                                 -7.7051, -3.2234, -3.6193, 3.4533};  // horz
 
 typedef struct {
   PREDICTION_MODE mode;
@@ -138,284 +137,284 @@ struct rdcost_block_args {
 
 #define LAST_NEW_MV_INDEX 6
 static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
-  { NEARESTMV, { LAST_FRAME, NONE_FRAME } },
+    {NEARESTMV, {LAST_FRAME, NONE_FRAME}},
 #if CONFIG_EXT_REFS
-  { NEARESTMV, { LAST2_FRAME, NONE_FRAME } },
-  { NEARESTMV, { LAST3_FRAME, NONE_FRAME } },
-  { NEARESTMV, { BWDREF_FRAME, NONE_FRAME } },
+    {NEARESTMV, {LAST2_FRAME, NONE_FRAME}},
+    {NEARESTMV, {LAST3_FRAME, NONE_FRAME}},
+    {NEARESTMV, {BWDREF_FRAME, NONE_FRAME}},
 #endif  // CONFIG_EXT_REFS
-  { NEARESTMV, { ALTREF_FRAME, NONE_FRAME } },
-  { NEARESTMV, { GOLDEN_FRAME, NONE_FRAME } },
+    {NEARESTMV, {ALTREF_FRAME, NONE_FRAME}},
+    {NEARESTMV, {GOLDEN_FRAME, NONE_FRAME}},
 
-  { DC_PRED, { INTRA_FRAME, NONE_FRAME } },
+    {DC_PRED, {INTRA_FRAME, NONE_FRAME}},
 
-  { NEWMV, { LAST_FRAME, NONE_FRAME } },
+    {NEWMV, {LAST_FRAME, NONE_FRAME}},
 #if CONFIG_EXT_REFS
-  { NEWMV, { LAST2_FRAME, NONE_FRAME } },
-  { NEWMV, { LAST3_FRAME, NONE_FRAME } },
-  { NEWMV, { BWDREF_FRAME, NONE_FRAME } },
+    {NEWMV, {LAST2_FRAME, NONE_FRAME}},
+    {NEWMV, {LAST3_FRAME, NONE_FRAME}},
+    {NEWMV, {BWDREF_FRAME, NONE_FRAME}},
 #endif  // CONFIG_EXT_REFS
-  { NEWMV, { ALTREF_FRAME, NONE_FRAME } },
-  { NEWMV, { GOLDEN_FRAME, NONE_FRAME } },
+    {NEWMV, {ALTREF_FRAME, NONE_FRAME}},
+    {NEWMV, {GOLDEN_FRAME, NONE_FRAME}},
 
-  { NEARMV, { LAST_FRAME, NONE_FRAME } },
+    {NEARMV, {LAST_FRAME, NONE_FRAME}},
 #if CONFIG_EXT_REFS
-  { NEARMV, { LAST2_FRAME, NONE_FRAME } },
-  { NEARMV, { LAST3_FRAME, NONE_FRAME } },
-  { NEARMV, { BWDREF_FRAME, NONE_FRAME } },
+    {NEARMV, {LAST2_FRAME, NONE_FRAME}},
+    {NEARMV, {LAST3_FRAME, NONE_FRAME}},
+    {NEARMV, {BWDREF_FRAME, NONE_FRAME}},
 #endif  // CONFIG_EXT_REFS
-  { NEARMV, { ALTREF_FRAME, NONE_FRAME } },
-  { NEARMV, { GOLDEN_FRAME, NONE_FRAME } },
+    {NEARMV, {ALTREF_FRAME, NONE_FRAME}},
+    {NEARMV, {GOLDEN_FRAME, NONE_FRAME}},
 
 #if CONFIG_EXT_INTER
-  { NEWFROMNEARMV, { LAST_FRAME, NONE_FRAME } },
+    {NEWFROMNEARMV, {LAST_FRAME, NONE_FRAME}},
 #if CONFIG_EXT_REFS
-  { NEWFROMNEARMV, { LAST2_FRAME, NONE_FRAME } },
-  { NEWFROMNEARMV, { LAST3_FRAME, NONE_FRAME } },
-  { NEWFROMNEARMV, { BWDREF_FRAME, NONE_FRAME } },
+    {NEWFROMNEARMV, {LAST2_FRAME, NONE_FRAME}},
+    {NEWFROMNEARMV, {LAST3_FRAME, NONE_FRAME}},
+    {NEWFROMNEARMV, {BWDREF_FRAME, NONE_FRAME}},
 #endif  // CONFIG_EXT_REFS
-  { NEWFROMNEARMV, { ALTREF_FRAME, NONE_FRAME } },
-  { NEWFROMNEARMV, { GOLDEN_FRAME, NONE_FRAME } },
+    {NEWFROMNEARMV, {ALTREF_FRAME, NONE_FRAME}},
+    {NEWFROMNEARMV, {GOLDEN_FRAME, NONE_FRAME}},
 #endif  // CONFIG_EXT_INTER
 
-  { ZEROMV, { LAST_FRAME, NONE_FRAME } },
+    {ZEROMV, {LAST_FRAME, NONE_FRAME}},
 #if CONFIG_EXT_REFS
-  { ZEROMV, { LAST2_FRAME, NONE_FRAME } },
-  { ZEROMV, { LAST3_FRAME, NONE_FRAME } },
-  { ZEROMV, { BWDREF_FRAME, NONE_FRAME } },
+    {ZEROMV, {LAST2_FRAME, NONE_FRAME}},
+    {ZEROMV, {LAST3_FRAME, NONE_FRAME}},
+    {ZEROMV, {BWDREF_FRAME, NONE_FRAME}},
 #endif  // CONFIG_EXT_REFS
-  { ZEROMV, { GOLDEN_FRAME, NONE_FRAME } },
-  { ZEROMV, { ALTREF_FRAME, NONE_FRAME } },
+    {ZEROMV, {GOLDEN_FRAME, NONE_FRAME}},
+    {ZEROMV, {ALTREF_FRAME, NONE_FRAME}},
 
 // TODO(zoeliu): May need to reconsider the order on the modes to check
 
 #if CONFIG_EXT_INTER
-  { NEAREST_NEARESTMV, { LAST_FRAME, ALTREF_FRAME } },
+    {NEAREST_NEARESTMV, {LAST_FRAME, ALTREF_FRAME}},
 #if CONFIG_EXT_REFS
-  { NEAREST_NEARESTMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEARESTMV, { LAST3_FRAME, ALTREF_FRAME } },
+    {NEAREST_NEARESTMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {NEAREST_NEARESTMV, {LAST3_FRAME, ALTREF_FRAME}},
 #endif  // CONFIG_EXT_REFS
-  { NEAREST_NEARESTMV, { GOLDEN_FRAME, ALTREF_FRAME } },
+    {NEAREST_NEARESTMV, {GOLDEN_FRAME, ALTREF_FRAME}},
 #if CONFIG_EXT_REFS
-  { NEAREST_NEARESTMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEARESTMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEARESTMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEARESTMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+    {NEAREST_NEARESTMV, {LAST_FRAME, BWDREF_FRAME}},
+    {NEAREST_NEARESTMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {NEAREST_NEARESTMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {NEAREST_NEARESTMV, {GOLDEN_FRAME, BWDREF_FRAME}},
 #endif  // CONFIG_EXT_REFS
 
 #else  // CONFIG_EXT_INTER
 
-  { NEARESTMV, { LAST_FRAME, ALTREF_FRAME } },
+    {NEARESTMV, {LAST_FRAME, ALTREF_FRAME}},
 #if CONFIG_EXT_REFS
-  { NEARESTMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEARESTMV, { LAST3_FRAME, ALTREF_FRAME } },
+    {NEARESTMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {NEARESTMV, {LAST3_FRAME, ALTREF_FRAME}},
 #endif  // CONFIG_EXT_REFS
-  { NEARESTMV, { GOLDEN_FRAME, ALTREF_FRAME } },
+    {NEARESTMV, {GOLDEN_FRAME, ALTREF_FRAME}},
 #if CONFIG_EXT_REFS
-  { NEARESTMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEARESTMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEARESTMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEARESTMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+    {NEARESTMV, {LAST_FRAME, BWDREF_FRAME}},
+    {NEARESTMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {NEARESTMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {NEARESTMV, {GOLDEN_FRAME, BWDREF_FRAME}},
 #endif  // CONFIG_EXT_REFS
 #endif  // CONFIG_EXT_INTER
 
-  { TM_PRED, { INTRA_FRAME, NONE_FRAME } },
+    {TM_PRED, {INTRA_FRAME, NONE_FRAME}},
 
 #if CONFIG_ALT_INTRA
-  { SMOOTH_PRED, { INTRA_FRAME, NONE_FRAME } },
+    {SMOOTH_PRED, {INTRA_FRAME, NONE_FRAME}},
 #endif  // CONFIG_ALT_INTRA
 
 #if CONFIG_EXT_INTER
-  { NEAR_NEARESTMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEARMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEAR_NEARMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEW_NEARESTMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEWMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEW_NEARMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEAR_NEWMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEW_NEWMV, { LAST_FRAME, ALTREF_FRAME } },
-  { ZERO_ZEROMV, { LAST_FRAME, ALTREF_FRAME } },
+    {NEAR_NEARESTMV, {LAST_FRAME, ALTREF_FRAME}},
+    {NEAREST_NEARMV, {LAST_FRAME, ALTREF_FRAME}},
+    {NEAR_NEARMV, {LAST_FRAME, ALTREF_FRAME}},
+    {NEW_NEARESTMV, {LAST_FRAME, ALTREF_FRAME}},
+    {NEAREST_NEWMV, {LAST_FRAME, ALTREF_FRAME}},
+    {NEW_NEARMV, {LAST_FRAME, ALTREF_FRAME}},
+    {NEAR_NEWMV, {LAST_FRAME, ALTREF_FRAME}},
+    {NEW_NEWMV, {LAST_FRAME, ALTREF_FRAME}},
+    {ZERO_ZEROMV, {LAST_FRAME, ALTREF_FRAME}},
 
 #if CONFIG_EXT_REFS
-  { NEAR_NEARESTMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEARMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEAR_NEARMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEW_NEARESTMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEWMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEW_NEARMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEAR_NEWMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEW_NEWMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { ZERO_ZEROMV, { LAST2_FRAME, ALTREF_FRAME } },
+    {NEAR_NEARESTMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {NEAREST_NEARMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {NEAR_NEARMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {NEW_NEARESTMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {NEAREST_NEWMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {NEW_NEARMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {NEAR_NEWMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {NEW_NEWMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {ZERO_ZEROMV, {LAST2_FRAME, ALTREF_FRAME}},
 
-  { NEAR_NEARESTMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEARMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEAR_NEARMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEW_NEARESTMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEWMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEW_NEARMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEAR_NEWMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEW_NEWMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { ZERO_ZEROMV, { LAST3_FRAME, ALTREF_FRAME } },
+    {NEAR_NEARESTMV, {LAST3_FRAME, ALTREF_FRAME}},
+    {NEAREST_NEARMV, {LAST3_FRAME, ALTREF_FRAME}},
+    {NEAR_NEARMV, {LAST3_FRAME, ALTREF_FRAME}},
+    {NEW_NEARESTMV, {LAST3_FRAME, ALTREF_FRAME}},
+    {NEAREST_NEWMV, {LAST3_FRAME, ALTREF_FRAME}},
+    {NEW_NEARMV, {LAST3_FRAME, ALTREF_FRAME}},
+    {NEAR_NEWMV, {LAST3_FRAME, ALTREF_FRAME}},
+    {NEW_NEWMV, {LAST3_FRAME, ALTREF_FRAME}},
+    {ZERO_ZEROMV, {LAST3_FRAME, ALTREF_FRAME}},
 #endif  // CONFIG_EXT_REFS
 
-  { NEAR_NEARESTMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEARMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEAR_NEARMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEW_NEARESTMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEWMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEW_NEARMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEAR_NEWMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEW_NEWMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { ZERO_ZEROMV, { GOLDEN_FRAME, ALTREF_FRAME } },
+    {NEAR_NEARESTMV, {GOLDEN_FRAME, ALTREF_FRAME}},
+    {NEAREST_NEARMV, {GOLDEN_FRAME, ALTREF_FRAME}},
+    {NEAR_NEARMV, {GOLDEN_FRAME, ALTREF_FRAME}},
+    {NEW_NEARESTMV, {GOLDEN_FRAME, ALTREF_FRAME}},
+    {NEAREST_NEWMV, {GOLDEN_FRAME, ALTREF_FRAME}},
+    {NEW_NEARMV, {GOLDEN_FRAME, ALTREF_FRAME}},
+    {NEAR_NEWMV, {GOLDEN_FRAME, ALTREF_FRAME}},
+    {NEW_NEWMV, {GOLDEN_FRAME, ALTREF_FRAME}},
+    {ZERO_ZEROMV, {GOLDEN_FRAME, ALTREF_FRAME}},
 
 #if CONFIG_EXT_REFS
-  { NEAR_NEARESTMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEARMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEAR_NEARMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEW_NEARESTMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEWMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEW_NEARMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEAR_NEWMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEW_NEWMV, { LAST_FRAME, BWDREF_FRAME } },
-  { ZERO_ZEROMV, { LAST_FRAME, BWDREF_FRAME } },
+    {NEAR_NEARESTMV, {LAST_FRAME, BWDREF_FRAME}},
+    {NEAREST_NEARMV, {LAST_FRAME, BWDREF_FRAME}},
+    {NEAR_NEARMV, {LAST_FRAME, BWDREF_FRAME}},
+    {NEW_NEARESTMV, {LAST_FRAME, BWDREF_FRAME}},
+    {NEAREST_NEWMV, {LAST_FRAME, BWDREF_FRAME}},
+    {NEW_NEARMV, {LAST_FRAME, BWDREF_FRAME}},
+    {NEAR_NEWMV, {LAST_FRAME, BWDREF_FRAME}},
+    {NEW_NEWMV, {LAST_FRAME, BWDREF_FRAME}},
+    {ZERO_ZEROMV, {LAST_FRAME, BWDREF_FRAME}},
 
-  { NEAR_NEARESTMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEARMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEAR_NEARMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEW_NEARESTMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEWMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEW_NEARMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEAR_NEWMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEW_NEWMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { ZERO_ZEROMV, { LAST2_FRAME, BWDREF_FRAME } },
+    {NEAR_NEARESTMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {NEAREST_NEARMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {NEAR_NEARMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {NEW_NEARESTMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {NEAREST_NEWMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {NEW_NEARMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {NEAR_NEWMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {NEW_NEWMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {ZERO_ZEROMV, {LAST2_FRAME, BWDREF_FRAME}},
 
-  { NEAR_NEARESTMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEARMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEAR_NEARMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEW_NEARESTMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEWMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEW_NEARMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEAR_NEWMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEW_NEWMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { ZERO_ZEROMV, { LAST3_FRAME, BWDREF_FRAME } },
+    {NEAR_NEARESTMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {NEAREST_NEARMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {NEAR_NEARMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {NEW_NEARESTMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {NEAREST_NEWMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {NEW_NEARMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {NEAR_NEWMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {NEW_NEWMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {ZERO_ZEROMV, {LAST3_FRAME, BWDREF_FRAME}},
 
-  { NEAR_NEARESTMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEARMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEAR_NEARMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEW_NEARESTMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEW_NEARMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEAR_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEW_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { ZERO_ZEROMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+    {NEAR_NEARESTMV, {GOLDEN_FRAME, BWDREF_FRAME}},
+    {NEAREST_NEARMV, {GOLDEN_FRAME, BWDREF_FRAME}},
+    {NEAR_NEARMV, {GOLDEN_FRAME, BWDREF_FRAME}},
+    {NEW_NEARESTMV, {GOLDEN_FRAME, BWDREF_FRAME}},
+    {NEAREST_NEWMV, {GOLDEN_FRAME, BWDREF_FRAME}},
+    {NEW_NEARMV, {GOLDEN_FRAME, BWDREF_FRAME}},
+    {NEAR_NEWMV, {GOLDEN_FRAME, BWDREF_FRAME}},
+    {NEW_NEWMV, {GOLDEN_FRAME, BWDREF_FRAME}},
+    {ZERO_ZEROMV, {GOLDEN_FRAME, BWDREF_FRAME}},
 #endif  // CONFIG_EXT_REFS
 
 #else  // CONFIG_EXT_INTER
 
-  { NEARMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEWMV, { LAST_FRAME, ALTREF_FRAME } },
+    {NEARMV, {LAST_FRAME, ALTREF_FRAME}},
+    {NEWMV, {LAST_FRAME, ALTREF_FRAME}},
 #if CONFIG_EXT_REFS
-  { NEARMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEWMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEARMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEWMV, { LAST3_FRAME, ALTREF_FRAME } },
+    {NEARMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {NEWMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {NEARMV, {LAST3_FRAME, ALTREF_FRAME}},
+    {NEWMV, {LAST3_FRAME, ALTREF_FRAME}},
 #endif  // CONFIG_EXT_REFS
-  { NEARMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEWMV, { GOLDEN_FRAME, ALTREF_FRAME } },
+    {NEARMV, {GOLDEN_FRAME, ALTREF_FRAME}},
+    {NEWMV, {GOLDEN_FRAME, ALTREF_FRAME}},
 
 #if CONFIG_EXT_REFS
-  { NEARMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEWMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEARMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEWMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEARMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEWMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEARMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+    {NEARMV, {LAST_FRAME, BWDREF_FRAME}},
+    {NEWMV, {LAST_FRAME, BWDREF_FRAME}},
+    {NEARMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {NEWMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {NEARMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {NEWMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {NEARMV, {GOLDEN_FRAME, BWDREF_FRAME}},
+    {NEWMV, {GOLDEN_FRAME, BWDREF_FRAME}},
 #endif  // CONFIG_EXT_REFS
 
-  { ZEROMV, { LAST_FRAME, ALTREF_FRAME } },
+    {ZEROMV, {LAST_FRAME, ALTREF_FRAME}},
 #if CONFIG_EXT_REFS
-  { ZEROMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { ZEROMV, { LAST3_FRAME, ALTREF_FRAME } },
+    {ZEROMV, {LAST2_FRAME, ALTREF_FRAME}},
+    {ZEROMV, {LAST3_FRAME, ALTREF_FRAME}},
 #endif  // CONFIG_EXT_REFS
-  { ZEROMV, { GOLDEN_FRAME, ALTREF_FRAME } },
+    {ZEROMV, {GOLDEN_FRAME, ALTREF_FRAME}},
 
 #if CONFIG_EXT_REFS
-  { ZEROMV, { LAST_FRAME, BWDREF_FRAME } },
-  { ZEROMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { ZEROMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { ZEROMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+    {ZEROMV, {LAST_FRAME, BWDREF_FRAME}},
+    {ZEROMV, {LAST2_FRAME, BWDREF_FRAME}},
+    {ZEROMV, {LAST3_FRAME, BWDREF_FRAME}},
+    {ZEROMV, {GOLDEN_FRAME, BWDREF_FRAME}},
 #endif  // CONFIG_EXT_REFS
 
 #endif  // CONFIG_EXT_INTER
 
-  { H_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { V_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D135_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D207_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D153_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D63_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D117_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D45_PRED, { INTRA_FRAME, NONE_FRAME } },
+    {H_PRED, {INTRA_FRAME, NONE_FRAME}},
+    {V_PRED, {INTRA_FRAME, NONE_FRAME}},
+    {D135_PRED, {INTRA_FRAME, NONE_FRAME}},
+    {D207_PRED, {INTRA_FRAME, NONE_FRAME}},
+    {D153_PRED, {INTRA_FRAME, NONE_FRAME}},
+    {D63_PRED, {INTRA_FRAME, NONE_FRAME}},
+    {D117_PRED, {INTRA_FRAME, NONE_FRAME}},
+    {D45_PRED, {INTRA_FRAME, NONE_FRAME}},
 
 #if CONFIG_EXT_INTER
-  { ZEROMV, { LAST_FRAME, INTRA_FRAME } },
-  { NEARESTMV, { LAST_FRAME, INTRA_FRAME } },
-  { NEARMV, { LAST_FRAME, INTRA_FRAME } },
-  { NEWMV, { LAST_FRAME, INTRA_FRAME } },
+    {ZEROMV, {LAST_FRAME, INTRA_FRAME}},
+    {NEARESTMV, {LAST_FRAME, INTRA_FRAME}},
+    {NEARMV, {LAST_FRAME, INTRA_FRAME}},
+    {NEWMV, {LAST_FRAME, INTRA_FRAME}},
 
 #if CONFIG_EXT_REFS
-  { ZEROMV, { LAST2_FRAME, INTRA_FRAME } },
-  { NEARESTMV, { LAST2_FRAME, INTRA_FRAME } },
-  { NEARMV, { LAST2_FRAME, INTRA_FRAME } },
-  { NEWMV, { LAST2_FRAME, INTRA_FRAME } },
+    {ZEROMV, {LAST2_FRAME, INTRA_FRAME}},
+    {NEARESTMV, {LAST2_FRAME, INTRA_FRAME}},
+    {NEARMV, {LAST2_FRAME, INTRA_FRAME}},
+    {NEWMV, {LAST2_FRAME, INTRA_FRAME}},
 
-  { ZEROMV, { LAST3_FRAME, INTRA_FRAME } },
-  { NEARESTMV, { LAST3_FRAME, INTRA_FRAME } },
-  { NEARMV, { LAST3_FRAME, INTRA_FRAME } },
-  { NEWMV, { LAST3_FRAME, INTRA_FRAME } },
+    {ZEROMV, {LAST3_FRAME, INTRA_FRAME}},
+    {NEARESTMV, {LAST3_FRAME, INTRA_FRAME}},
+    {NEARMV, {LAST3_FRAME, INTRA_FRAME}},
+    {NEWMV, {LAST3_FRAME, INTRA_FRAME}},
 #endif  // CONFIG_EXT_REFS
 
-  { ZEROMV, { GOLDEN_FRAME, INTRA_FRAME } },
-  { NEARESTMV, { GOLDEN_FRAME, INTRA_FRAME } },
-  { NEARMV, { GOLDEN_FRAME, INTRA_FRAME } },
-  { NEWMV, { GOLDEN_FRAME, INTRA_FRAME } },
+    {ZEROMV, {GOLDEN_FRAME, INTRA_FRAME}},
+    {NEARESTMV, {GOLDEN_FRAME, INTRA_FRAME}},
+    {NEARMV, {GOLDEN_FRAME, INTRA_FRAME}},
+    {NEWMV, {GOLDEN_FRAME, INTRA_FRAME}},
 
 #if CONFIG_EXT_REFS
-  { ZEROMV, { BWDREF_FRAME, INTRA_FRAME } },
-  { NEARESTMV, { BWDREF_FRAME, INTRA_FRAME } },
-  { NEARMV, { BWDREF_FRAME, INTRA_FRAME } },
-  { NEWMV, { BWDREF_FRAME, INTRA_FRAME } },
+    {ZEROMV, {BWDREF_FRAME, INTRA_FRAME}},
+    {NEARESTMV, {BWDREF_FRAME, INTRA_FRAME}},
+    {NEARMV, {BWDREF_FRAME, INTRA_FRAME}},
+    {NEWMV, {BWDREF_FRAME, INTRA_FRAME}},
 #endif  // CONFIG_EXT_REFS
 
-  { ZEROMV, { ALTREF_FRAME, INTRA_FRAME } },
-  { NEARESTMV, { ALTREF_FRAME, INTRA_FRAME } },
-  { NEARMV, { ALTREF_FRAME, INTRA_FRAME } },
-  { NEWMV, { ALTREF_FRAME, INTRA_FRAME } },
+    {ZEROMV, {ALTREF_FRAME, INTRA_FRAME}},
+    {NEARESTMV, {ALTREF_FRAME, INTRA_FRAME}},
+    {NEARMV, {ALTREF_FRAME, INTRA_FRAME}},
+    {NEWMV, {ALTREF_FRAME, INTRA_FRAME}},
 #endif  // CONFIG_EXT_INTER
 };
 
 static const REF_DEFINITION av1_ref_order[MAX_REFS] = {
-  { { LAST_FRAME, NONE_FRAME } },
+    {{LAST_FRAME, NONE_FRAME}},
 #if CONFIG_EXT_REFS
-  { { LAST2_FRAME, NONE_FRAME } },    { { LAST3_FRAME, NONE_FRAME } },
-  { { BWDREF_FRAME, NONE_FRAME } },
+    {{LAST2_FRAME, NONE_FRAME}},    {{LAST3_FRAME, NONE_FRAME}},
+    {{BWDREF_FRAME, NONE_FRAME}},
 #endif  // CONFIG_EXT_REFS
-  { { GOLDEN_FRAME, NONE_FRAME } },   { { ALTREF_FRAME, NONE_FRAME } },
+    {{GOLDEN_FRAME, NONE_FRAME}},   {{ALTREF_FRAME, NONE_FRAME}},
 
-  { { LAST_FRAME, ALTREF_FRAME } },
+    {{LAST_FRAME, ALTREF_FRAME}},
 #if CONFIG_EXT_REFS
-  { { LAST2_FRAME, ALTREF_FRAME } },  { { LAST3_FRAME, ALTREF_FRAME } },
+    {{LAST2_FRAME, ALTREF_FRAME}},  {{LAST3_FRAME, ALTREF_FRAME}},
 #endif  // CONFIG_EXT_REFS
-  { { GOLDEN_FRAME, ALTREF_FRAME } },
+    {{GOLDEN_FRAME, ALTREF_FRAME}},
 
 #if CONFIG_EXT_REFS
-  { { LAST_FRAME, BWDREF_FRAME } },   { { LAST2_FRAME, BWDREF_FRAME } },
-  { { LAST3_FRAME, BWDREF_FRAME } },  { { GOLDEN_FRAME, BWDREF_FRAME } },
+    {{LAST_FRAME, BWDREF_FRAME}},   {{LAST2_FRAME, BWDREF_FRAME}},
+    {{LAST3_FRAME, BWDREF_FRAME}},  {{GOLDEN_FRAME, BWDREF_FRAME}},
 #endif  // CONFIG_EXT_REFS
 
-  { { INTRA_FRAME, NONE_FRAME } },
+    {{INTRA_FRAME, NONE_FRAME}},
 };
 
 #if CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
@@ -436,18 +435,18 @@ static INLINE int write_uniform_cost(int n, int v) {
 #define FAST_EXT_TX_EDST_MARGIN 0.3
 
 static const TX_TYPE_1D vtx_tab[TX_TYPES] = {
-  DCT_1D,      ADST_1D, DCT_1D,      ADST_1D,
+    DCT_1D,      ADST_1D, DCT_1D,      ADST_1D,
 #if CONFIG_EXT_TX
-  FLIPADST_1D, DCT_1D,  FLIPADST_1D, ADST_1D, FLIPADST_1D, IDTX_1D,
-  DCT_1D,      IDTX_1D, ADST_1D,     IDTX_1D, FLIPADST_1D, IDTX_1D,
+    FLIPADST_1D, DCT_1D,  FLIPADST_1D, ADST_1D, FLIPADST_1D, IDTX_1D,
+    DCT_1D,      IDTX_1D, ADST_1D,     IDTX_1D, FLIPADST_1D, IDTX_1D,
 #endif  // CONFIG_EXT_TX
 };
 
 static const TX_TYPE_1D htx_tab[TX_TYPES] = {
-  DCT_1D,  DCT_1D,      ADST_1D,     ADST_1D,
+    DCT_1D,  DCT_1D,      ADST_1D,     ADST_1D,
 #if CONFIG_EXT_TX
-  DCT_1D,  FLIPADST_1D, FLIPADST_1D, FLIPADST_1D, ADST_1D, IDTX_1D,
-  IDTX_1D, DCT_1D,      IDTX_1D,     ADST_1D,     IDTX_1D, FLIPADST_1D,
+    DCT_1D,  FLIPADST_1D, FLIPADST_1D, FLIPADST_1D, ADST_1D, IDTX_1D,
+    IDTX_1D, DCT_1D,      IDTX_1D,     ADST_1D,     IDTX_1D, FLIPADST_1D,
 #endif  // CONFIG_EXT_TX
 };
 
@@ -638,7 +637,7 @@ static void get_energy_distribution_fine(const AV1_COMP *cpi, BLOCK_SIZE bsize,
                                          double *hordist, double *verdist) {
   int bw = block_size_wide[bsize];
   int bh = block_size_high[bsize];
-  unsigned int esq[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  unsigned int esq[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   unsigned int var[16];
   double total = 0;
 
@@ -853,7 +852,7 @@ static int prune_two_for_sby(const AV1_COMP *cpi, BLOCK_SIZE bsize,
   const BLOCK_SIZE bs = get_plane_block_size(bsize, pd);
   const int bw = 4 << (b_width_log2_lookup[bs]);
   const int bh = 4 << (b_height_log2_lookup[bs]);
-  double hdist[3] = { 0, 0, 0 }, vdist[3] = { 0, 0, 0 };
+  double hdist[3] = {0, 0, 0}, vdist[3] = {0, 0, 0};
   double hcorr, vcorr;
   int prune = 0;
   av1_subtract_plane(x, bsize, 0);
@@ -872,7 +871,7 @@ static int prune_one_for_sby(const AV1_COMP *cpi, BLOCK_SIZE bsize,
                              MACROBLOCK *x, MACROBLOCKD *xd) {
   struct macroblock_plane *const p = &x->plane[0];
   struct macroblockd_plane *const pd = &xd->plane[0];
-  double hdist[3] = { 0, 0, 0 }, vdist[3] = { 0, 0, 0 };
+  double hdist[3] = {0, 0, 0}, vdist[3] = {0, 0, 0};
   av1_subtract_plane(x, bsize, 0);
   return adst_vs_flipadst(cpi, bsize, p->src.buf, p->src.stride, pd->dst.buf,
                           pd->dst.stride, hdist, vdist);
@@ -883,11 +882,13 @@ static int prune_tx_types(const AV1_COMP *cpi, BLOCK_SIZE bsize, MACROBLOCK *x,
 #if CONFIG_EXT_TX
   const int *tx_set_1D = ext_tx_used_inter_1D[tx_set];
 #else
-  const int tx_set_1D[TX_TYPES_1D] = { 0 };
+  const int tx_set_1D[TX_TYPES_1D] = {0};
 #endif
 
   switch (cpi->sf.tx_type_search.prune_mode) {
-    case NO_PRUNE: return 0; break;
+    case NO_PRUNE:
+      return 0;
+      break;
     case PRUNE_ONE:
       if ((tx_set >= 0) && !(tx_set_1D[FLIPADST_1D] & tx_set_1D[ADST_1D]))
         return 0;
@@ -1400,8 +1401,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
 
   if (!is_inter_block(mbmi)) {
     struct encode_b_args b_args = {
-      (AV1_COMMON *)cm, x, NULL, &mbmi->skip, args->t_above, args->t_left, 1
-    };
+        (AV1_COMMON *)cm, x, NULL, &mbmi->skip, args->t_above, args->t_left, 1};
     av1_encode_block_intra(plane, block, blk_row, blk_col, plane_bsize, tx_size,
                            &b_args);
     if (args->cpi->sf.use_transform_domain_distortion && !CONFIG_DAALA_DIST) {
@@ -3350,28 +3350,28 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
 
 // Indices are sign, integer, and fractional part of the gradient value
 static const uint8_t gradient_to_angle_bin[2][7][16] = {
-  {
-      { 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0 },
-      { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1 },
-      { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-      { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-      { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-      { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 },
-      { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 },
-  },
-  {
-      { 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4 },
-      { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3 },
-      { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-      { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-      { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-      { 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2 },
-      { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 },
-  },
+    {
+        {6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+        {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+    },
+    {
+        {6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4},
+        {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+        {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+    },
 };
 
 static const uint8_t mode_to_angle_bin[INTRA_MODES] = {
-  0, 2, 6, 0, 4, 3, 5, 7, 1, 0,
+    0, 2, 6, 0, 4, 3, 5, 7, 1, 0,
 };
 
 static void angle_estimation(const uint8_t *src, int src_stride, int rows,
@@ -4844,8 +4844,8 @@ static int cost_mv_ref(const AV1_COMP *const cpi, PREDICTION_MODE mode,
 
 #if CONFIG_EXT_INTER
   if (is_compound) {
-    return cpi->inter_compound_mode_cost[mode_context]
-                                        [INTER_COMPOUND_OFFSET(mode)];
+    return cpi
+        ->inter_compound_mode_cost[mode_context][INTER_COMPOUND_OFFSET(mode)];
   } else {
     if (mode == NEWMV || mode == NEWFROMNEARMV) {
 #else
@@ -4885,8 +4885,8 @@ static int cost_mv_ref(const AV1_COMP *const cpi, PREDICTION_MODE mode,
   assert(is_inter_mode(mode));
 #if CONFIG_EXT_INTER
   if (is_inter_compound_mode(mode)) {
-    return cpi->inter_compound_mode_cost[mode_context]
-                                        [INTER_COMPOUND_OFFSET(mode)];
+    return cpi
+        ->inter_compound_mode_cost[mode_context][INTER_COMPOUND_OFFSET(mode)];
   } else {
 #endif  // CONFIG_EXT_INTER
     return cpi->inter_mode_cost[mode_context][INTER_OFFSET(mode)];
@@ -4900,22 +4900,27 @@ static int cost_mv_ref(const AV1_COMP *const cpi, PREDICTION_MODE mode,
 static int get_interinter_compound_type_bits(BLOCK_SIZE bsize,
                                              COMPOUND_TYPE comp_type) {
   switch (comp_type) {
-    case COMPOUND_AVERAGE: return 0;
-    case COMPOUND_WEDGE: return get_interinter_wedge_bits(bsize);
+    case COMPOUND_AVERAGE:
+      return 0;
+    case COMPOUND_WEDGE:
+      return get_interinter_wedge_bits(bsize);
 #if CONFIG_COMPOUND_SEGMENT
-    case COMPOUND_SEG: return 1;
+    case COMPOUND_SEG:
+      return 1;
 #endif  // CONFIG_COMPOUND_SEGMENT
-    default: assert(0); return 0;
+    default:
+      assert(0);
+      return 0;
   }
 }
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_GLOBAL_MOTION
 static int GLOBAL_MOTION_RATE(const AV1_COMP *const cpi, int ref) {
-  static const int gm_amortization_blks[TRANS_TYPES] = { 4, 6, 8, 10, 12 };
+  static const int gm_amortization_blks[TRANS_TYPES] = {4, 6, 8, 10, 12};
   static const int gm_params_cost[TRANS_TYPES] = {
-    GM_IDENTITY_BITS, GM_TRANSLATION_BITS, GM_ROTZOOM_BITS,
-    GM_AFFINE_BITS,   GM_HOMOGRAPHY_BITS,
+      GM_IDENTITY_BITS, GM_TRANSLATION_BITS, GM_ROTZOOM_BITS,
+      GM_AFFINE_BITS,   GM_HOMOGRAPHY_BITS,
   };
   const WarpedMotionParams *gm = &cpi->common.global_motion[(ref)];
   assert(gm->wmtype < GLOBAL_TRANS_TYPES);
@@ -4929,17 +4934,15 @@ static int GLOBAL_MOTION_RATE(const AV1_COMP *const cpi, int ref) {
 }
 #endif  // CONFIG_GLOBAL_MOTION
 
-static int set_and_cost_bmi_mvs(const AV1_COMP *const cpi, MACROBLOCK *x,
-                                MACROBLOCKD *xd, int i, PREDICTION_MODE mode,
-                                int_mv this_mv[2],
-                                int_mv frame_mv[MB_MODE_COUNT]
-                                               [TOTAL_REFS_PER_FRAME],
-                                int_mv seg_mvs[TOTAL_REFS_PER_FRAME],
+static int set_and_cost_bmi_mvs(
+    const AV1_COMP *const cpi, MACROBLOCK *x, MACROBLOCKD *xd, int i,
+    PREDICTION_MODE mode, int_mv this_mv[2],
+    int_mv frame_mv[MB_MODE_COUNT][TOTAL_REFS_PER_FRAME],
+    int_mv seg_mvs[TOTAL_REFS_PER_FRAME],
 #if CONFIG_EXT_INTER
-                                int_mv compound_seg_newmvs[2],
+    int_mv compound_seg_newmvs[2],
 #endif  // CONFIG_EXT_INTER
-                                int_mv *best_ref_mv[2], const int *mvjcost,
-                                int *mvcost[2]) {
+    int_mv *best_ref_mv[2], const int *mvjcost, int *mvcost[2]) {
   MODE_INFO *const mic = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mic->mbmi;
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
@@ -5067,7 +5070,8 @@ static int set_and_cost_bmi_mvs(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_GLOBAL_MOTION
       break;
 #endif  // CONFIG_EXT_INTER
-    default: break;
+    default:
+      break;
   }
 
   mic->bmi[i].as_mv[0].as_int = this_mv[0].as_int;
@@ -5437,14 +5441,14 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   const int ph = block_size_high[bsize];
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  const int refs[2] = { mbmi->ref_frame[0],
-                        mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1] };
+  const int refs[2] = {mbmi->ref_frame[0],
+                       mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]};
   int_mv ref_mv[2];
   int ite, ref;
 #if CONFIG_DUAL_FILTER
   InterpFilter interp_filter[4] = {
-    mbmi->interp_filter[0], mbmi->interp_filter[1], mbmi->interp_filter[2],
-    mbmi->interp_filter[3],
+      mbmi->interp_filter[0], mbmi->interp_filter[1], mbmi->interp_filter[2],
+      mbmi->interp_filter[3],
   };
 #else
   const InterpFilter interp_filter = mbmi->interp_filter;
@@ -5453,11 +5457,10 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
   // Do joint motion search in compound mode to get more accurate mv.
   struct buf_2d backup_yv12[2][MAX_MB_PLANE];
-  int last_besterr[2] = { INT_MAX, INT_MAX };
+  int last_besterr[2] = {INT_MAX, INT_MAX};
   const YV12_BUFFER_CONFIG *const scaled_ref_frame[2] = {
-    av1_get_scaled_ref_frame(cpi, mbmi->ref_frame[0]),
-    av1_get_scaled_ref_frame(cpi, mbmi->ref_frame[1])
-  };
+      av1_get_scaled_ref_frame(cpi, mbmi->ref_frame[0]),
+      av1_get_scaled_ref_frame(cpi, mbmi->ref_frame[1])};
 
 // Prediction buffer from second frame.
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -6739,13 +6742,12 @@ static void store_coding_context(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx,
   ctx->hybrid_pred_diff = (int)comp_pred_diff[REFERENCE_MODE_SELECT];
 }
 
-static void setup_buffer_inter(const AV1_COMP *const cpi, MACROBLOCK *x,
-                               MV_REFERENCE_FRAME ref_frame,
-                               BLOCK_SIZE block_size, int mi_row, int mi_col,
-                               int_mv frame_nearest_mv[TOTAL_REFS_PER_FRAME],
-                               int_mv frame_near_mv[TOTAL_REFS_PER_FRAME],
-                               struct buf_2d yv12_mb[TOTAL_REFS_PER_FRAME]
-                                                    [MAX_MB_PLANE]) {
+static void setup_buffer_inter(
+    const AV1_COMP *const cpi, MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame,
+    BLOCK_SIZE block_size, int mi_row, int mi_col,
+    int_mv frame_nearest_mv[TOTAL_REFS_PER_FRAME],
+    int_mv frame_near_mv[TOTAL_REFS_PER_FRAME],
+    struct buf_2d yv12_mb[TOTAL_REFS_PER_FRAME][MAX_MB_PLANE]) {
   const AV1_COMMON *cm = &cpi->common;
   const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_buffer(cpi, ref_frame);
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -6798,7 +6800,7 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   MACROBLOCKD *xd = &x->e_mbd;
   const AV1_COMMON *cm = &cpi->common;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  struct buf_2d backup_yv12[MAX_MB_PLANE] = { { 0, 0, 0, 0, 0 } };
+  struct buf_2d backup_yv12[MAX_MB_PLANE] = {{0, 0, 0, 0, 0}};
   int bestsme = INT_MAX;
   int step_param;
   int sadpb = x->sadperbit16;
@@ -6919,7 +6921,8 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
           MAX_MVSEARCH_STEPS - 1 - step_param, 1, &cpi->fn_ptr[bsize], &ref_mv,
           &(x->best_mv.as_mv), 0);
       break;
-    default: assert("Invalid motion mode!\n");
+    default:
+      assert("Invalid motion mode!\n");
   }
 #endif  // CONFIG_MOTION_VAR
 
@@ -7003,7 +7006,8 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
             x->nmvjointcost, x->mvcost, &dis, &x->pred_sse[ref], 0,
             cpi->sf.use_upsampled_references);
         break;
-      default: assert("Invalid motion mode!\n");
+      default:
+        assert("Invalid motion mode!\n");
     }
 #endif  // CONFIG_MOTION_VAR
   }
@@ -7041,7 +7045,7 @@ static void do_masked_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   MACROBLOCKD *xd = &x->e_mbd;
   const AV1_COMMON *cm = &cpi->common;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  struct buf_2d backup_yv12[MAX_MB_PLANE] = { { 0, 0, 0, 0, 0 } };
+  struct buf_2d backup_yv12[MAX_MB_PLANE] = {{0, 0, 0, 0, 0}};
   int bestsme = INT_MAX;
   int step_param;
   int sadpb = x->sadperbit16;
@@ -7290,8 +7294,8 @@ static InterpFilter predict_interp_filter(
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   const int is_comp_pred = has_second_ref(mbmi);
   const int this_mode = mbmi->mode;
-  int refs[2] = { mbmi->ref_frame[0],
-                  (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]) };
+  int refs[2] = {mbmi->ref_frame[0],
+                 (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1])};
   if (pred_filter_search) {
     InterpFilter af = SWITCHABLE, lf = SWITCHABLE;
     if (xd->up_available) af = xd->mi[-xd->mi_stride]->mbmi.interp_filter;
@@ -7667,7 +7671,7 @@ static int interinter_compound_motion_search(const AV1_COMP *const cpi,
   int_mv tmp_mv[2];
   int rate_mvs[2], tmp_rate_mv = 0;
   if (this_mode == NEW_NEWMV) {
-    int mv_idxs[2] = { 0, 0 };
+    int mv_idxs[2] = {0, 0};
     do_masked_motion_search_indexed(cpi, x, &mbmi->interinter_compound_data,
                                     bsize, mi_row, mi_col, tmp_mv, rate_mvs,
                                     mv_idxs, 2);
@@ -7675,14 +7679,14 @@ static int interinter_compound_motion_search(const AV1_COMP *const cpi,
     mbmi->mv[0].as_int = tmp_mv[0].as_int;
     mbmi->mv[1].as_int = tmp_mv[1].as_int;
   } else if (this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV) {
-    int mv_idxs[2] = { 0, 0 };
+    int mv_idxs[2] = {0, 0};
     do_masked_motion_search_indexed(cpi, x, &mbmi->interinter_compound_data,
                                     bsize, mi_row, mi_col, tmp_mv, rate_mvs,
                                     mv_idxs, 0);
     tmp_rate_mv = rate_mvs[0];
     mbmi->mv[0].as_int = tmp_mv[0].as_int;
   } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
-    int mv_idxs[2] = { 0, 0 };
+    int mv_idxs[2] = {0, 0};
     do_masked_motion_search_indexed(cpi, x, &mbmi->interinter_compound_data,
                                     bsize, mi_row, mi_col, tmp_mv, rate_mvs,
                                     mv_idxs, 1);
@@ -7844,8 +7848,8 @@ static int64_t handle_inter_mode(
   const int this_mode = mbmi->mode;
   int_mv *frame_mv = mode_mv[this_mode];
   int i;
-  int refs[2] = { mbmi->ref_frame[0],
-                  (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]) };
+  int refs[2] = {mbmi->ref_frame[0],
+                 (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1])};
   int_mv cur_mv[2];
   int rate_mv = 0;
 #if CONFIG_EXT_INTER
@@ -8323,9 +8327,9 @@ static int64_t handle_inter_mode(
     int compound_type_cost[COMPOUND_TYPES];
     uint8_t pred0[2 * MAX_SB_SQUARE];
     uint8_t pred1[2 * MAX_SB_SQUARE];
-    uint8_t *preds0[1] = { pred0 };
-    uint8_t *preds1[1] = { pred1 };
-    int strides[1] = { bw };
+    uint8_t *preds0[1] = {pred0};
+    uint8_t *preds1[1] = {pred1};
+    int strides[1] = {bw};
     int tmp_rate_mv;
     int masked_compound_used = is_any_masked_compound_used(bsize);
     COMPOUND_TYPE cur_type;
@@ -8385,7 +8389,9 @@ static int64_t handle_inter_mode(
           }
           break;
 #endif  // CONFIG_COMPOUND_SEGMENT
-        default: assert(0); return 0;
+        default:
+          assert(0);
+          return 0;
       }
 
       if (best_rd_cur < best_rd_compound) {
@@ -9382,11 +9388,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   int_mv frame_mv[MB_MODE_COUNT][TOTAL_REFS_PER_FRAME];
   struct buf_2d yv12_mb[TOTAL_REFS_PER_FRAME][MAX_MB_PLANE];
 #if CONFIG_EXT_INTER
-  int_mv single_newmvs[2][TOTAL_REFS_PER_FRAME] = { { { 0 } }, { { 0 } } };
-  int single_newmvs_rate[2][TOTAL_REFS_PER_FRAME] = { { 0 }, { 0 } };
+  int_mv single_newmvs[2][TOTAL_REFS_PER_FRAME] = {{{0}}, {{0}}};
+  int single_newmvs_rate[2][TOTAL_REFS_PER_FRAME] = {{0}, {0}};
   int64_t modelled_rd[MB_MODE_COUNT][TOTAL_REFS_PER_FRAME];
 #else
-  int_mv single_newmv[TOTAL_REFS_PER_FRAME] = { { 0 } };
+  int_mv single_newmv[TOTAL_REFS_PER_FRAME] = {{0}};
 #endif  // CONFIG_EXT_INTER
   InterpFilter single_inter_filter[MB_MODE_COUNT][TOTAL_REFS_PER_FRAME];
   int single_skippable[MB_MODE_COUNT][TOTAL_REFS_PER_FRAME];
@@ -9440,13 +9446,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       cm->base_qindex, cm->y_dc_delta_q, cm->bit_depth);
   const int *const intra_mode_cost = cpi->mbmode_cost[size_group_lookup[bsize]];
   int best_skip2 = 0;
-  uint8_t ref_frame_skip_mask[2] = { 0 };
+  uint8_t ref_frame_skip_mask[2] = {0};
 #if CONFIG_EXT_INTER
-  uint32_t mode_skip_mask[TOTAL_REFS_PER_FRAME] = { 0 };
+  uint32_t mode_skip_mask[TOTAL_REFS_PER_FRAME] = {0};
   MV_REFERENCE_FRAME best_single_inter_ref = LAST_FRAME;
   int64_t best_single_inter_rd = INT64_MAX;
 #else
-  uint16_t mode_skip_mask[TOTAL_REFS_PER_FRAME] = { 0 };
+  uint16_t mode_skip_mask[TOTAL_REFS_PER_FRAME] = {0};
 #endif  // CONFIG_EXT_INTER
   int mode_skip_start = sf->mode_skip_start + 1;
   const int *const rd_threshes = rd_opt->threshes[segment_id][bsize];
@@ -9478,12 +9484,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   DECLARE_ALIGNED(16, int32_t, weighted_src_buf[MAX_SB_SQUARE]);
   DECLARE_ALIGNED(16, int32_t, mask2d_buf[MAX_SB_SQUARE]);
   uint8_t *dst_buf1[MAX_MB_PLANE], *dst_buf2[MAX_MB_PLANE];
-  int dst_width1[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
-  int dst_width2[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
-  int dst_height1[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
-  int dst_height2[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
-  int dst_stride1[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
-  int dst_stride2[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
+  int dst_width1[MAX_MB_PLANE] = {MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE};
+  int dst_width2[MAX_MB_PLANE] = {MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE};
+  int dst_height1[MAX_MB_PLANE] = {MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE};
+  int dst_height2[MAX_MB_PLANE] = {MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE};
+  int dst_stride1[MAX_MB_PLANE] = {MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE};
+  int dst_stride2[MAX_MB_PLANE] = {MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE};
 
 #if CONFIG_AOM_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
@@ -9816,7 +9822,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     // skip mask to look at a subset of the remaining modes.
     if (midx == mode_skip_start && best_mode_index >= 0) {
       switch (best_mbmode.ref_frame[0]) {
-        case INTRA_FRAME: break;
+        case INTRA_FRAME:
+          break;
         case LAST_FRAME:
           ref_frame_skip_mask[0] |= LAST_FRAME_MODE_MASK;
           ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
@@ -9841,7 +9848,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
           break;
 #endif  // CONFIG_EXT_REFS
-        case ALTREF_FRAME: ref_frame_skip_mask[0] |= ALTREF_FRAME_MODE_MASK;
+        case ALTREF_FRAME:
+          ref_frame_skip_mask[0] |= ALTREF_FRAME_MODE_MASK;
 #if CONFIG_EXT_REFS
           ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
 #endif  // CONFIG_EXT_REFS
@@ -9917,7 +9925,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #else   // CONFIG_GLOBAL_MOTION
     } else {
 #endif  // CONFIG_GLOBAL_MOTION
-      const MV_REFERENCE_FRAME ref_frames[2] = { ref_frame, second_ref_frame };
+      const MV_REFERENCE_FRAME ref_frames[2] = {ref_frame, second_ref_frame};
       if (!check_best_zero_mv(cpi, mbmi_ext->mode_context,
 #if CONFIG_REF_MV && CONFIG_EXT_INTER
                               mbmi_ext->compound_mode_context,
@@ -10282,15 +10290,14 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           clamp_mv2(&cur_mv.as_mv, xd);
 
           if (!mv_check_bounds(x, &cur_mv.as_mv)) {
-            int dummy_single_skippable[MB_MODE_COUNT]
-                                      [TOTAL_REFS_PER_FRAME] = { { 0 } };
+            int dummy_single_skippable[MB_MODE_COUNT][TOTAL_REFS_PER_FRAME] = {
+                {0}};
 #if CONFIG_EXT_INTER
-            int_mv dummy_single_newmvs[2][TOTAL_REFS_PER_FRAME] = { { { 0 } },
-                                                                    { { 0 } } };
-            int dummy_single_newmvs_rate[2][TOTAL_REFS_PER_FRAME] = { { 0 },
-                                                                      { 0 } };
+            int_mv dummy_single_newmvs[2][TOTAL_REFS_PER_FRAME] = {{{0}},
+                                                                   {{0}}};
+            int dummy_single_newmvs_rate[2][TOTAL_REFS_PER_FRAME] = {{0}, {0}};
 #else
-            int_mv dummy_single_newmv[TOTAL_REFS_PER_FRAME] = { { 0 } };
+            int_mv dummy_single_newmv[TOTAL_REFS_PER_FRAME] = {{0}};
 #endif
 
             frame_mv[NEARMV][ref_frame] = cur_mv;
@@ -10832,8 +10839,8 @@ PALETTE_EXIT:
       || best_mbmode.mode == NEWFROMNEARMV || best_mbmode.mode == NEW_NEWMV
 #endif  // CONFIG_EXT_INTER
       ) {
-    const MV_REFERENCE_FRAME refs[2] = { best_mbmode.ref_frame[0],
-                                         best_mbmode.ref_frame[1] };
+    const MV_REFERENCE_FRAME refs[2] = {best_mbmode.ref_frame[0],
+                                        best_mbmode.ref_frame[1]};
     int comp_pred_mode = refs[1] > INTRA_FRAME;
     int_mv zeromv[2];
 #if CONFIG_REF_MV
@@ -10939,9 +10946,8 @@ PALETTE_EXIT:
            !comp_pred_mode))
         best_mbmode.mode = NEARESTMV;
       else if (frame_mv[NEARMV][refs[0]].as_int == best_mbmode.mv[0].as_int &&
-               ((comp_pred_mode &&
-                 frame_mv[NEARMV][refs[1]].as_int ==
-                     best_mbmode.mv[1].as_int) ||
+               ((comp_pred_mode && frame_mv[NEARMV][refs[1]].as_int ==
+                                       best_mbmode.mv[1].as_int) ||
                 !comp_pred_mode))
         best_mbmode.mode = NEARMV;
       else if (best_mbmode.mv[0].as_int == zeromv[0].as_int &&
@@ -10951,8 +10957,8 @@ PALETTE_EXIT:
         best_mbmode.mode = ZEROMV;
 #if CONFIG_EXT_INTER
     } else {
-      const MV_REFERENCE_FRAME refs[2] = { best_mbmode.ref_frame[0],
-                                           best_mbmode.ref_frame[1] };
+      const MV_REFERENCE_FRAME refs[2] = {best_mbmode.ref_frame[0],
+                                          best_mbmode.ref_frame[1]};
       int_mv zeromv[2];
 #if CONFIG_GLOBAL_MOTION
       zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]],
@@ -11002,8 +11008,8 @@ PALETTE_EXIT:
     if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) {
       int_mv zeromv[2];
 #if CONFIG_GLOBAL_MOTION
-      const MV_REFERENCE_FRAME refs[2] = { best_mbmode.ref_frame[0],
-                                           best_mbmode.ref_frame[1] };
+      const MV_REFERENCE_FRAME refs[2] = {best_mbmode.ref_frame[0],
+                                          best_mbmode.ref_frame[1]};
       zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]],
                                               cm->allow_high_precision_mv)
                              .as_int;
@@ -11301,7 +11307,7 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
   unsigned int ref_costs_comp[TOTAL_REFS_PER_FRAME];
   aom_prob comp_mode_p;
 #if CONFIG_DUAL_FILTER
-  InterpFilter tmp_best_filter[4] = { 0 };
+  InterpFilter tmp_best_filter[4] = {0};
 #else
   InterpFilter tmp_best_filter = SWITCHABLE;
 #endif
@@ -11318,7 +11324,7 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
 #endif  // CONFIG_EXT_INTER
   b_mode_info best_bmodes[4];
   int best_skip2 = 0;
-  int ref_frame_skip_mask[2] = { 0 };
+  int ref_frame_skip_mask[2] = {0};
   int internal_active_edge =
       av1_active_edge_sb(cpi, mi_row, mi_col) && av1_internal_image_edge(cpi);
 #if CONFIG_PVQ
@@ -11424,7 +11430,8 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
     if (ref_index > 2 && sf->mode_skip_start < MAX_MODES) {
       if (ref_index == 3) {
         switch (best_mbmode.ref_frame[0]) {
-          case INTRA_FRAME: break;
+          case INTRA_FRAME:
+            break;
           case LAST_FRAME:
             ref_frame_skip_mask[0] |= (1 << GOLDEN_FRAME) |
 #if CONFIG_EXT_REFS

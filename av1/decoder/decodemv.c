@@ -589,8 +589,9 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     if (left_mi)
       palette_y_mode_ctx +=
           (left_mi->mbmi.palette_mode_info.palette_size[0] > 0);
-    if (aom_read(r, av1_default_palette_y_mode_prob[bsize - BLOCK_8X8]
-                                                   [palette_y_mode_ctx],
+    if (aom_read(r,
+                 av1_default_palette_y_mode_prob[bsize - BLOCK_8X8]
+                                                [palette_y_mode_ctx],
                  ACCT_STR)) {
       pmi->palette_size[0] =
           aom_read_tree(r, av1_palette_size_tree,
@@ -650,8 +651,8 @@ static void read_filter_intra_mode_info(AV1_COMMON *const cm,
           read_uniform(r, FILTER_INTRA_MODES);
     }
     if (counts) {
-      ++counts->filter_intra[0]
-                            [filter_intra_mode_info->use_filter_intra_mode[0]];
+      ++counts
+            ->filter_intra[0][filter_intra_mode_info->use_filter_intra_mode[0]];
     }
   }
   if (mbmi->uv_mode == DC_PRED
@@ -666,8 +667,8 @@ static void read_filter_intra_mode_info(AV1_COMMON *const cm,
           read_uniform(r, FILTER_INTRA_MODES);
     }
     if (counts) {
-      ++counts->filter_intra[1]
-                            [filter_intra_mode_info->use_filter_intra_mode[1]];
+      ++counts
+            ->filter_intra[1][filter_intra_mode_info->use_filter_intra_mode[1]];
     }
   }
 }
@@ -973,7 +974,7 @@ static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
                            nmv_context *ctx, nmv_context_counts *counts,
                            int allow_hp) {
   MV_JOINT_TYPE joint_type;
-  MV diff = { 0, 0 };
+  MV diff = {0, 0};
   joint_type =
 #if CONFIG_EC_MULTISYMBOL
       (MV_JOINT_TYPE)aom_read_symbol(r, ctx->joint_cdf, MV_JOINTS, ACCT_STR);
@@ -1970,8 +1971,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
     }
     if (xd->counts)
-      xd->counts->compound_interinter[bsize]
-                                     [mbmi->interinter_compound_data.type]++;
+      xd->counts
+          ->compound_interinter[bsize][mbmi->interinter_compound_data.type]++;
   }
 #endif  // CONFIG_EXT_INTER
 
