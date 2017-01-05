@@ -44,6 +44,9 @@ static int64_t sse_restoration_tile(const YV12_BUFFER_CONFIG *src,
                                     int width, int v_start, int height,
                                     int components_pattern) {
   int64_t filt_err = 0;
+  // Y and UV components cannot be mixed
+  assert(components_pattern == 1 || components_pattern == 2 ||
+         components_pattern == 4 || components_pattern == 6);
 #if CONFIG_AOM_HIGHBITDEPTH
   if (cm->use_highbitdepth) {
     if ((components_pattern >> AOM_PLANE_Y) & 1) {
@@ -122,6 +125,10 @@ static int64_t try_restoration_tile(const YV12_BUFFER_CONFIG *src,
   const int ntiles = av1_get_rest_ntiles(cm->width, cm->height, &tile_width,
                                          &tile_height, &nhtiles, &nvtiles);
   (void)ntiles;
+
+  // Y and UV components cannot be mixed
+  assert(components_pattern == 1 || components_pattern == 2 ||
+         components_pattern == 4 || components_pattern == 6);
 
   av1_loop_restoration_frame(cm->frame_to_show, cm, rsi, components_pattern,
                              partial_frame, dst_frame);
@@ -940,17 +947,21 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   double score;
   int tile_idx, tile_width, tile_height, nhtiles, nvtiles;
   int h_start, h_end, v_start, v_end;
-  const int ntiles = av1_get_rest_ntiles(cm->width, cm->height, &tile_width,
+  const int ntiles = av1_get_rest_ntiles(width, height, &tile_width,
                                          &tile_height, &nhtiles, &nvtiles);
 
   assert(width == dgd->uv_crop_width);
   assert(height == dgd->uv_crop_height);
 
   //  Make a copy of the unfiltered / processed recon buffer
-  aom_yv12_copy_frame(cm->frame_to_show, &cpi->last_frame_uf);
+  aom_yv12_copy_y(cm->frame_to_show, &cpi->last_frame_uf);
+  aom_yv12_copy_u(cm->frame_to_show, &cpi->last_frame_uf);
+  aom_yv12_copy_v(cm->frame_to_show, &cpi->last_frame_uf);
   av1_loop_filter_frame(cm->frame_to_show, cm, &cpi->td.mb.e_mbd, filter_level,
                         0, partial_frame);
-  aom_yv12_copy_frame(cm->frame_to_show, &cpi->last_frame_db);
+  aom_yv12_copy_y(cm->frame_to_show, &cpi->last_frame_db);
+  aom_yv12_copy_u(cm->frame_to_show, &cpi->last_frame_db);
+  aom_yv12_copy_v(cm->frame_to_show, &cpi->last_frame_db);
 
   rsi[plane].frame_restoration_type = RESTORE_NONE;
 
@@ -986,7 +997,9 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   }
   if (!wiener_decompose_sep_sym(M, H, vfilterd, hfilterd)) {
     info->frame_restoration_type = RESTORE_NONE;
-    aom_yv12_copy_frame(&cpi->last_frame_uf, cm->frame_to_show);
+    aom_yv12_copy_y(&cpi->last_frame_uf, cm->frame_to_show);
+    aom_yv12_copy_u(&cpi->last_frame_uf, cm->frame_to_show);
+    aom_yv12_copy_v(&cpi->last_frame_uf, cm->frame_to_show);
     return cost_norestore;
   }
   quantize_sym_filter(vfilterd, rsi[plane].wiener_info[0].vfilter);
@@ -999,7 +1012,9 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                         rsi[plane].wiener_info[0].hfilter);
   if (score > 0.0) {
     info->frame_restoration_type = RESTORE_NONE;
-    aom_yv12_copy_frame(&cpi->last_frame_uf, cm->frame_to_show);
+    aom_yv12_copy_y(&cpi->last_frame_uf, cm->frame_to_show);
+    aom_yv12_copy_u(&cpi->last_frame_uf, cm->frame_to_show);
+    aom_yv12_copy_v(&cpi->last_frame_uf, cm->frame_to_show);
     return cost_norestore;
   }
 
@@ -1020,11 +1035,15 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   cost_wiener = RDCOST_DBL(x->rdmult, x->rddiv, (bits >> 4), err);
   if (cost_wiener > cost_norestore) {
     info->frame_restoration_type = RESTORE_NONE;
-    aom_yv12_copy_frame(&cpi->last_frame_uf, cm->frame_to_show);
+    aom_yv12_copy_y(&cpi->last_frame_uf, cm->frame_to_show);
+    aom_yv12_copy_u(&cpi->last_frame_uf, cm->frame_to_show);
+    aom_yv12_copy_v(&cpi->last_frame_uf, cm->frame_to_show);
     return cost_norestore;
   }
 
-  aom_yv12_copy_frame(&cpi->last_frame_uf, cm->frame_to_show);
+  aom_yv12_copy_y(&cpi->last_frame_uf, cm->frame_to_show);
+  aom_yv12_copy_u(&cpi->last_frame_uf, cm->frame_to_show);
+  aom_yv12_copy_v(&cpi->last_frame_uf, cm->frame_to_show);
   return cost_wiener;
 }
 

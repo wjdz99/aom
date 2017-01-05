@@ -150,8 +150,6 @@ typedef struct {
 typedef struct {
   RestorationInfo *rsi;
   int keyframe;
-  int subsampling_x;
-  int subsampling_y;
   int ntiles;
   int tile_width, tile_height;
   int nhtiles, nvtiles;
