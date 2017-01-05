@@ -340,13 +340,30 @@ void av1_selfguided_restoration(int32_t *dgd, int width, int height, int stride,
   boxsum(dgd, width, height, stride, r, 0, B, width, T, width);
   boxsum(dgd, width, height, stride, r, 1, A, width, T, width);
   boxnum(width, height, r, num, width);
+  // The following loop is optimized assuming r <= 2. If we allow
+  // r > 2, then the loop will need modifying.
+  assert(r <= 2);
   for (i = 0; i < height; ++i) {
     for (j = 0; j < width; ++j) {
       const int k = i * width + j;
       const int n = num[k];
-      const int64_t p = A[k] * n - B[k] * B[k];
-      const int64_t q = p + n * n * eps;
-      A[k] = (int32_t)((p << SGRPROJ_SGR_BITS) + (q >> 1)) / q;
+      // Assuming that we only allow up to 12-bit depth and r <= 2,
+      // we calculate p = n^2 * Var(nxn block of original image)
+      // (where n = 2 * r + 1 <= 5).
+      //
+      // There is an inequality which gives a bound on the variance:
+      // https://en.wikipedia.org/wiki/Popoviciu's_inequality_on_variances
+      // In this case, since each pixel is in the range [0, 2^12),
+      // the variance is at most 1/4 * (2^12)^2 = 2^22.
+      // Then p <= 25^2 * 2^22 < 2^32, and also q <= p + 25^2 * 68 < 2^32.
+      //
+      // The point of all this is to guarantee that q < 2^32, so that
+      // platforms with a 64-bit by 32-bit divide unit (eg, x86)
+      // can do the division by q more efficiently.
+      const uint32_t p = (uint32_t)((uint64_t)A[k] * n - (uint64_t)B[k] * B[k]);
+      const uint32_t q = (uint32_t)(p + n * n * eps);
+      assert((uint64_t)A[k] * n - (uint64_t)B[k] * B[k] < (25 * 25U << 22));
+      A[k] = (int32_t)(((uint64_t)p << SGRPROJ_SGR_BITS) + (q >> 1)) / q;
       B[k] = ((SGRPROJ_SGR - A[k]) * B[k] + (n >> 1)) / n;
     }
   }
@@ -571,28 +588,30 @@ static void loop_sgrproj_filter(uint8_t *data, int width, int height,
 static void apply_domaintxfmrf_hor(int iter, int param, uint8_t *img, int width,
                                    int height, int img_stride, int32_t *dat,
                                    int dat_stride) {
-  int i, j;
+  int i, j, acc, old_px;
   for (i = 0; i < height; ++i) {
-    uint8_t *ip = &img[i * img_stride];
-    int32_t *dp = &dat[i * dat_stride];
-    *dp *= DOMAINTXFMRF_VTABLE_PREC;
-    dp++;
-    ip++;
     // left to right
-    for (j = 1; j < width; ++j, dp++, ip++) {
-      const int v = domaintxfmrf_vtable[iter][param][abs(ip[0] - ip[-1])];
-      dp[0] = dp[0] * (DOMAINTXFMRF_VTABLE_PREC - v) +
-              ((v * dp[-1] + DOMAINTXFMRF_VTABLE_PREC / 2) >>
-               DOMAINTXFMRF_VTABLE_PRECBITS);
+    acc = dat[i * dat_stride] * DOMAINTXFMRF_VTABLE_PREC;
+    dat[i * dat_stride] = acc;
+    old_px = img[i * img_stride];
+    for (j = 1; j < width; ++j) {
+      const int cur_px = img[i * img_stride + j];
+      const int v = domaintxfmrf_vtable[iter][param][abs(cur_px - old_px)];
+      acc = dat[i * dat_stride + j] * (DOMAINTXFMRF_VTABLE_PREC - v) +
+            ((v * acc + DOMAINTXFMRF_VTABLE_PREC / 2) >>
+             DOMAINTXFMRF_VTABLE_PRECBITS);
+      dat[i * dat_stride + j] = acc;
+      old_px = cur_px;
     }
     // right to left
-    dp -= 2;
-    ip -= 2;
-    for (j = width - 2; j >= 0; --j, dp--, ip--) {
-      const int v = domaintxfmrf_vtable[iter][param][abs(ip[1] - ip[0])];
-      dp[0] = (dp[0] * (DOMAINTXFMRF_VTABLE_PREC - v) + v * dp[1] +
-               DOMAINTXFMRF_VTABLE_PREC / 2) >>
-              DOMAINTXFMRF_VTABLE_PRECBITS;
+    for (j = width - 2; j >= 0; --j) {
+      const int cur_px = img[i * img_stride + j];
+      const int v = domaintxfmrf_vtable[iter][param][abs(cur_px - old_px)];
+      acc = (dat[i * dat_stride + j] * (DOMAINTXFMRF_VTABLE_PREC - v) +
+             v * acc + DOMAINTXFMRF_VTABLE_PREC / 2) >>
+            DOMAINTXFMRF_VTABLE_PRECBITS;
+      dat[i * dat_stride + j] = acc;
+      old_px = cur_px;
     }
   }
 }
@@ -600,40 +619,32 @@ static void apply_domaintxfmrf_hor(int iter, int param, uint8_t *img, int width,
 static void apply_domaintxfmrf_ver(int iter, int param, uint8_t *img, int width,
                                    int height, int img_stride, int32_t *dat,
                                    int dat_stride) {
-  int i, j;
+  int i, j, acc, old_px;
   for (j = 0; j < width; ++j) {
-    uint8_t *ip = &img[j];
-    int32_t *dp = &dat[j];
-    dp += dat_stride;
-    ip += img_stride;
     // top to bottom
-    for (i = 1; i < height; ++i, dp += dat_stride, ip += img_stride) {
-      const int v =
-          domaintxfmrf_vtable[iter][param][abs(ip[0] - ip[-img_stride])];
-      dp[0] = (dp[0] * (DOMAINTXFMRF_VTABLE_PREC - v) +
-               (dp[-dat_stride] * v + DOMAINTXFMRF_VTABLE_PREC / 2)) >>
-              DOMAINTXFMRF_VTABLE_PRECBITS;
+    acc = dat[j];
+    old_px = img[j];
+    for (i = 1; i < height; ++i) {
+      const int cur_px = img[i * img_stride + j];
+      const int v = domaintxfmrf_vtable[iter][param][abs(cur_px - old_px)];
+      acc = (dat[i * dat_stride + j] * (DOMAINTXFMRF_VTABLE_PREC - v) +
+             (acc * v + DOMAINTXFMRF_VTABLE_PREC / 2)) >>
+            DOMAINTXFMRF_VTABLE_PRECBITS;
+      dat[i * dat_stride + j] = acc;
+      old_px = cur_px;
     }
     // bottom to top
-    dp -= 2 * dat_stride;
-    ip -= 2 * img_stride;
-    for (i = height - 2; i >= 0; --i, dp -= dat_stride, ip -= img_stride) {
-      const int v =
-          domaintxfmrf_vtable[iter][param][abs(ip[img_stride] - ip[0])];
-      dp[0] = (dp[0] * (DOMAINTXFMRF_VTABLE_PREC - v) + dp[dat_stride] * v +
-               DOMAINTXFMRF_VTABLE_PREC / 2) >>
-              DOMAINTXFMRF_VTABLE_PRECBITS;
-    }
-  }
-}
-
-static void apply_domaintxfmrf_reduce_prec(int32_t *dat, int width, int height,
-                                           int dat_stride) {
-  int i, j;
-  for (i = 0; i < height; ++i) {
-    for (j = 0; j < width; ++j) {
-      dat[i * dat_stride + j] = ROUND_POWER_OF_TWO_SIGNED(
-          dat[i * dat_stride + j], DOMAINTXFMRF_VTABLE_PRECBITS);
+    dat[(height - 1) * dat_stride + j] =
+        ROUND_POWER_OF_TWO(acc, DOMAINTXFMRF_VTABLE_PRECBITS);
+    for (i = height - 2; i >= 0; --i) {
+      const int cur_px = img[i * img_stride + j];
+      const int v = domaintxfmrf_vtable[iter][param][abs(old_px - cur_px)];
+      acc = (dat[i * dat_stride + j] * (DOMAINTXFMRF_VTABLE_PREC - v) +
+             acc * v + DOMAINTXFMRF_VTABLE_PREC / 2) >>
+            DOMAINTXFMRF_VTABLE_PRECBITS;
+      dat[i * dat_stride + j] =
+          ROUND_POWER_OF_TWO(acc, DOMAINTXFMRF_VTABLE_PRECBITS);
+      old_px = cur_px;
     }
   }
 }
@@ -651,7 +662,6 @@ void av1_domaintxfmrf_restoration(uint8_t *dgd, int width, int height,
   for (t = 0; t < DOMAINTXFMRF_ITERS; ++t) {
     apply_domaintxfmrf_hor(t, param, dgd, width, height, stride, dat, width);
     apply_domaintxfmrf_ver(t, param, dgd, width, height, stride, dat, width);
-    apply_domaintxfmrf_reduce_prec(dat, width, height, width);
   }
   for (i = 0; i < height; ++i) {
     for (j = 0; j < width; ++j) {
@@ -892,32 +902,30 @@ static void apply_domaintxfmrf_hor_highbd(int iter, int param, uint16_t *img,
                                           int32_t *dat, int dat_stride,
                                           int bd) {
   const int shift = (bd - 8);
-  int i, j;
+  int i, j, acc, old_px;
   for (i = 0; i < height; ++i) {
-    uint16_t *ip = &img[i * img_stride];
-    int32_t *dp = &dat[i * dat_stride];
-    *dp *= DOMAINTXFMRF_VTABLE_PREC;
-    dp++;
-    ip++;
     // left to right
-    for (j = 1; j < width; ++j, dp++, ip++) {
-      const int v =
-          domaintxfmrf_vtable[iter][param]
-                             [abs((ip[0] >> shift) - (ip[-1] >> shift))];
-      dp[0] = dp[0] * (DOMAINTXFMRF_VTABLE_PREC - v) +
-              ((v * dp[-1] + DOMAINTXFMRF_VTABLE_PREC / 2) >>
-               DOMAINTXFMRF_VTABLE_PRECBITS);
+    acc = dat[i * dat_stride] * DOMAINTXFMRF_VTABLE_PREC;
+    dat[i * dat_stride] = acc;
+    old_px = img[i * img_stride] >> shift;
+    for (j = 1; j < width; ++j) {
+      const int cur_px = img[i * img_stride + j] >> shift;
+      const int v = domaintxfmrf_vtable[iter][param][abs(cur_px - old_px)];
+      acc = dat[i * dat_stride + j] * (DOMAINTXFMRF_VTABLE_PREC - v) +
+            ((v * acc + DOMAINTXFMRF_VTABLE_PREC / 2) >>
+             DOMAINTXFMRF_VTABLE_PRECBITS);
+      dat[i * dat_stride + j] = acc;
+      old_px = cur_px;
     }
     // right to left
-    dp -= 2;
-    ip -= 2;
-    for (j = width - 2; j >= 0; --j, dp--, ip--) {
-      const int v =
-          domaintxfmrf_vtable[iter][param]
-                             [abs((ip[1] >> shift) - (ip[0] >> shift))];
-      dp[0] = (dp[0] * (DOMAINTXFMRF_VTABLE_PREC - v) + v * dp[1] +
-               DOMAINTXFMRF_VTABLE_PREC / 2) >>
-              DOMAINTXFMRF_VTABLE_PRECBITS;
+    for (j = width - 2; j >= 0; --j) {
+      const int cur_px = img[i * img_stride + j] >> shift;
+      const int v = domaintxfmrf_vtable[iter][param][abs(cur_px - old_px)];
+      acc = (dat[i * dat_stride + j] * (DOMAINTXFMRF_VTABLE_PREC - v) +
+             v * acc + DOMAINTXFMRF_VTABLE_PREC / 2) >>
+            DOMAINTXFMRF_VTABLE_PRECBITS;
+      dat[i * dat_stride + j] = acc;
+      old_px = cur_px;
     }
   }
 }
@@ -926,30 +934,33 @@ static void apply_domaintxfmrf_ver_highbd(int iter, int param, uint16_t *img,
                                           int width, int height, int img_stride,
                                           int32_t *dat, int dat_stride,
                                           int bd) {
-  int i, j;
   const int shift = (bd - 8);
+  int i, j, old_px;
   for (j = 0; j < width; ++j) {
-    uint16_t *ip = &img[j];
-    int32_t *dp = &dat[j];
-    dp += dat_stride;
-    ip += img_stride;
     // top to bottom
-    for (i = 1; i < height; ++i, dp += dat_stride, ip += img_stride) {
-      const int v = domaintxfmrf_vtable[iter][param][abs(
-          (ip[0] >> shift) - (ip[-img_stride] >> shift))];
-      dp[0] = (dp[0] * (DOMAINTXFMRF_VTABLE_PREC - v) +
-               (dp[-dat_stride] * v + DOMAINTXFMRF_VTABLE_PREC / 2)) >>
-              DOMAINTXFMRF_VTABLE_PRECBITS;
+    acc = dat[j];
+    old_px = img[j] >> shift;
+    for (i = 1; i < height; ++i) {
+      const int cur_px = img[i * img_stride + j] >> shift;
+      const int v = domaintxfmrf_vtable[iter][param][abs(cur_px - old_px)];
+      acc = (dat[i * dat_stride + j] * (DOMAINTXFMRF_VTABLE_PREC - v) +
+             (acc * v + DOMAINTXFMRF_VTABLE_PREC / 2)) >>
+            DOMAINTXFMRF_VTABLE_PRECBITS;
+      dat[i * dat_stride + j] = acc;
+      old_px = cur_px;
     }
     // bottom to top
-    dp -= 2 * dat_stride;
-    ip -= 2 * img_stride;
-    for (i = height - 2; i >= 0; --i, dp -= dat_stride, ip -= img_stride) {
-      const int v = domaintxfmrf_vtable[iter][param][abs(
-          (ip[img_stride] >> shift) - (ip[0] >> shift))];
-      dp[0] = (dp[0] * (DOMAINTXFMRF_VTABLE_PREC - v) + dp[dat_stride] * v +
-               DOMAINTXFMRF_VTABLE_PREC / 2) >>
-              DOMAINTXFMRF_VTABLE_PRECBITS;
+    dat[(height - 1) * dat_stride + j] =
+        ROUND_POWER_OF_TWO(acc, DOMAINTXFMRF_VTABLE_PRECBITS);
+    for (i = height - 2; i >= 0; --i) {
+      const int cur_px = img[i * img_stride + j] >> shift;
+      const int v = domaintxfmrf_vtable[iter][param][abs(old_px - cur_px)];
+      acc = (dat[i * dat_stride + j] * (DOMAINTXFMRF_VTABLE_PREC - v) +
+             acc * v + DOMAINTXFMRF_VTABLE_PREC / 2) >>
+            DOMAINTXFMRF_VTABLE_PRECBITS;
+      dat[i * dat_stride + j] =
+          ROUND_POWER_OF_TWO(acc, DOMAINTXFMRF_VTABLE_PRECBITS);
+      old_px = cur_px;
     }
   }
 }
@@ -970,7 +981,6 @@ void av1_domaintxfmrf_restoration_highbd(uint16_t *dgd, int width, int height,
                                   width, bit_depth);
     apply_domaintxfmrf_ver_highbd(t, param, dgd, width, height, stride, dat,
                                   width, bit_depth);
-    apply_domaintxfmrf_reduce_prec(dat, width, height, width);
   }
   for (i = 0; i < height; ++i) {
     for (j = 0; j < width; ++j) {
