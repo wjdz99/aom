@@ -97,12 +97,8 @@ static void GenDomainTxfmRFVtable() {
 
 void av1_loop_restoration_precal() { GenDomainTxfmRFVtable(); }
 
-static void loop_restoration_init(RestorationInternal *rst, int kf, int width,
-                                  int height) {
+static void loop_restoration_init(RestorationInternal *rst, int kf) {
   rst->keyframe = kf;
-  rst->ntiles =
-      av1_get_rest_ntiles(width, height, &rst->tile_width, &rst->tile_height,
-                          &rst->nhtiles, &rst->nvtiles);
 }
 
 static void extend_frame(uint8_t *data, int width, int height, int stride) {
@@ -127,8 +123,8 @@ static void loop_copy_tile(uint8_t *data, int tile_idx, int subtile_idx,
                            int subtile_bits, int width, int height, int stride,
                            RestorationInternal *rst, uint8_t *dst,
                            int dst_stride) {
-  const int tile_width = rst->tile_width >> rst->subsampling_x;
-  const int tile_height = rst->tile_height >> rst->subsampling_y;
+  const int tile_width = rst->tile_width;
+  const int tile_height = rst->tile_height;
   int i;
   int h_start, h_end, v_start, v_end;
   av1_get_rest_tile_limits(tile_idx, subtile_idx, subtile_bits, rst->nhtiles,
@@ -143,8 +139,8 @@ static void loop_wiener_filter_tile(uint8_t *data, int tile_idx, int width,
                                     int height, int stride,
                                     RestorationInternal *rst, uint8_t *dst,
                                     int dst_stride) {
-  const int tile_width = rst->tile_width >> rst->subsampling_x;
-  const int tile_height = rst->tile_height >> rst->subsampling_y;
+  const int tile_width = rst->tile_width;
+  const int tile_height = rst->tile_height;
   int i, j;
   int h_start, h_end, v_start, v_end;
   DECLARE_ALIGNED(16, InterpKernel, hkernel);
@@ -493,8 +489,8 @@ static void loop_sgrproj_filter_tile(uint8_t *data, int tile_idx, int width,
                                      int height, int stride,
                                      RestorationInternal *rst, uint8_t *dst,
                                      int dst_stride) {
-  const int tile_width = rst->tile_width >> rst->subsampling_x;
-  const int tile_height = rst->tile_height >> rst->subsampling_y;
+  const int tile_width = rst->tile_width;
+  const int tile_height = rst->tile_height;
   int h_start, h_end, v_start, v_end;
   uint8_t *data_p, *dst_p;
 
@@ -620,8 +616,8 @@ static void loop_domaintxfmrf_filter_tile(uint8_t *data, int tile_idx,
                                           int width, int height, int stride,
                                           RestorationInternal *rst,
                                           uint8_t *dst, int dst_stride) {
-  const int tile_width = rst->tile_width >> rst->subsampling_x;
-  const int tile_height = rst->tile_height >> rst->subsampling_y;
+  const int tile_width = rst->tile_width;
+  const int tile_height = rst->tile_height;
   int h_start, h_end, v_start, v_end;
   int32_t *tmpbuf = (int32_t *)rst->tmpbuf;
 
@@ -697,8 +693,8 @@ static void loop_copy_tile_highbd(uint16_t *data, int tile_idx, int subtile_idx,
                                   int subtile_bits, int width, int height,
                                   int stride, RestorationInternal *rst,
                                   uint16_t *dst, int dst_stride) {
-  const int tile_width = rst->tile_width >> rst->subsampling_x;
-  const int tile_height = rst->tile_height >> rst->subsampling_y;
+  const int tile_width = rst->tile_width;
+  const int tile_height = rst->tile_height;
   int i;
   int h_start, h_end, v_start, v_end;
   av1_get_rest_tile_limits(tile_idx, subtile_idx, subtile_bits, rst->nhtiles,
@@ -714,8 +710,8 @@ static void loop_wiener_filter_tile_highbd(uint16_t *data, int tile_idx,
                                            RestorationInternal *rst,
                                            int bit_depth, uint16_t *dst,
                                            int dst_stride) {
-  const int tile_width = rst->tile_width >> rst->subsampling_x;
-  const int tile_height = rst->tile_height >> rst->subsampling_y;
+  const int tile_width = rst->tile_width;
+  const int tile_height = rst->tile_height;
   int h_start, h_end, v_start, v_end;
   int i, j;
   DECLARE_ALIGNED(16, InterpKernel, hkernel);
@@ -809,8 +805,8 @@ static void loop_sgrproj_filter_tile_highbd(uint16_t *data, int tile_idx,
                                             RestorationInternal *rst,
                                             int bit_depth, uint16_t *dst,
                                             int dst_stride) {
-  const int tile_width = rst->tile_width >> rst->subsampling_x;
-  const int tile_height = rst->tile_height >> rst->subsampling_y;
+  const int tile_width = rst->tile_width;
+  const int tile_height = rst->tile_height;
   int h_start, h_end, v_start, v_end;
   uint16_t *data_p, *dst_p;
 
@@ -939,8 +935,8 @@ void av1_domaintxfmrf_restoration_highbd(uint16_t *dgd, int width, int height,
 static void loop_domaintxfmrf_filter_tile_highbd(
     uint16_t *data, int tile_idx, int width, int height, int stride,
     RestorationInternal *rst, int bit_depth, uint16_t *dst, int dst_stride) {
-  const int tile_width = rst->tile_width >> rst->subsampling_x;
-  const int tile_height = rst->tile_height >> rst->subsampling_y;
+  const int tile_width = rst->tile_width;
+  const int tile_height = rst->tile_height;
   int h_start, h_end, v_start, v_end;
   int32_t *tmpbuf = (int32_t *)rst->tmpbuf;
 
@@ -1074,8 +1070,10 @@ static void loop_restoration_rows(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 
   if ((components_pattern >> AOM_PLANE_Y) & 1) {
     if (rsi[0].frame_restoration_type != RESTORE_NONE) {
-      cm->rst_internal.subsampling_x = 0;
-      cm->rst_internal.subsampling_y = 0;
+      cm->rst_internal.ntiles = av1_get_rest_ntiles(
+          cm->width, cm->height, &cm->rst_internal.tile_width,
+          &cm->rst_internal.tile_height, &cm->rst_internal.nhtiles,
+          &cm->rst_internal.nvtiles);
       cm->rst_internal.rsi = &rsi[0];
       restore_func =
           restore_funcs[cm->rst_internal.rsi->frame_restoration_type];
@@ -1098,10 +1096,12 @@ static void loop_restoration_rows(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   }
 
   if ((components_pattern >> AOM_PLANE_U) & 1) {
-    cm->rst_internal.subsampling_x = cm->subsampling_x;
-    cm->rst_internal.subsampling_y = cm->subsampling_y;
-    cm->rst_internal.rsi = &rsi[1];
-    if (rsi[1].frame_restoration_type != RESTORE_NONE) {
+    if (rsi[AOM_PLANE_U].frame_restoration_type != RESTORE_NONE) {
+      cm->rst_internal.ntiles = av1_get_rest_ntiles(
+          cm->width >> cm->subsampling_x, cm->height >> cm->subsampling_y,
+          &cm->rst_internal.tile_width, &cm->rst_internal.tile_height,
+          &cm->rst_internal.nhtiles, &cm->rst_internal.nvtiles);
+      cm->rst_internal.rsi = &rsi[AOM_PLANE_U];
       restore_func =
           restore_funcs[cm->rst_internal.rsi->frame_restoration_type];
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -1123,10 +1123,12 @@ static void loop_restoration_rows(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   }
 
   if ((components_pattern >> AOM_PLANE_V) & 1) {
-    cm->rst_internal.subsampling_x = cm->subsampling_x;
-    cm->rst_internal.subsampling_y = cm->subsampling_y;
-    cm->rst_internal.rsi = &rsi[2];
-    if (rsi[2].frame_restoration_type != RESTORE_NONE) {
+    if (rsi[AOM_PLANE_V].frame_restoration_type != RESTORE_NONE) {
+      cm->rst_internal.ntiles = av1_get_rest_ntiles(
+          cm->width >> cm->subsampling_x, cm->height >> cm->subsampling_y,
+          &cm->rst_internal.tile_width, &cm->rst_internal.tile_height,
+          &cm->rst_internal.nhtiles, &cm->rst_internal.nvtiles);
+      cm->rst_internal.rsi = &rsi[AOM_PLANE_V];
       restore_func =
           restore_funcs[cm->rst_internal.rsi->frame_restoration_type];
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -1167,8 +1169,7 @@ void av1_loop_restoration_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     mi_rows_to_filter = AOMMAX(cm->mi_rows / 8, 8);
   }
   end_mi_row = start_mi_row + mi_rows_to_filter;
-  loop_restoration_init(&cm->rst_internal, cm->frame_type == KEY_FRAME,
-                        cm->width, cm->height);
+  loop_restoration_init(&cm->rst_internal, cm->frame_type == KEY_FRAME);
   loop_restoration_rows(frame, cm, start_mi_row, end_mi_row, components_pattern,
                         rsi, dst);
 }

@@ -44,6 +44,9 @@ static int64_t sse_restoration_tile(const YV12_BUFFER_CONFIG *src,
                                     int width, int v_start, int height,
                                     int components_pattern) {
   int64_t filt_err = 0;
+  // Y and UV components cannot be mixed
+  assert(components_pattern == 1 || components_pattern == 2 ||
+         components_pattern == 4 || components_pattern == 6);
 #if CONFIG_AOM_HIGHBITDEPTH
   if (cm->use_highbitdepth) {
     if ((components_pattern >> AOM_PLANE_Y) & 1) {
@@ -122,6 +125,10 @@ static int64_t try_restoration_tile(const YV12_BUFFER_CONFIG *src,
   const int ntiles = av1_get_rest_ntiles(cm->width, cm->height, &tile_width,
                                          &tile_height, &nhtiles, &nvtiles);
   (void)ntiles;
+
+  // Y and UV components cannot be mixed
+  assert(components_pattern == 1 || components_pattern == 2 ||
+         components_pattern == 4 || components_pattern == 6);
 
   av1_loop_restoration_frame(cm->frame_to_show, cm, rsi, components_pattern,
                              partial_frame, dst_frame);
@@ -940,7 +947,7 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   double score;
   int tile_idx, tile_width, tile_height, nhtiles, nvtiles;
   int h_start, h_end, v_start, v_end;
-  const int ntiles = av1_get_rest_ntiles(cm->width, cm->height, &tile_width,
+  const int ntiles = av1_get_rest_ntiles(width, height, &tile_width,
                                          &tile_height, &nhtiles, &nvtiles);
 
   assert(width == dgd->uv_crop_width);
