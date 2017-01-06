@@ -1714,8 +1714,13 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
                                         ACCT_STR);
 #else
 #if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+    p = (PARTITION_TYPE)aom_read_symbol_adapt(r, cm->fc->partition_cdf[ctx],
+                                              PARTITION_TYPES, ACCT_STR);
+#else
     p = (PARTITION_TYPE)aom_read_symbol(r, cm->fc->partition_cdf[ctx],
                                         PARTITION_TYPES, ACCT_STR);
+#endif
 #else
     p = (PARTITION_TYPE)aom_read_tree(r, av1_partition_tree, probs, ACCT_STR);
 #endif

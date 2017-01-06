@@ -180,7 +180,12 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 #if CONFIG_EC_MULTISYMBOL
     cdf = &coef_cdfs[band][ctx];
     token = ONE_TOKEN +
+#if CONFIG_EC_ADAPT
+            aom_read_symbol_adapt(r, *cdf, CATEGORY6_TOKEN - ONE_TOKEN + 1,
+                                  ACCT_STR);
+#else
             aom_read_symbol(r, *cdf, CATEGORY6_TOKEN - ONE_TOKEN + 1, ACCT_STR);
+#endif
     INCREMENT_COUNT(ONE_TOKEN + (token > ONE_TOKEN));
     switch (token) {
       case ONE_TOKEN:

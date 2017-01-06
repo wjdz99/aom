@@ -54,6 +54,8 @@
   aom_read_tree_bits_(r, tree, probs ACCT_STR_ARG(ACCT_STR_NAME))
 #define aom_read_symbol(r, cdf, nsymbs, ACCT_STR_NAME) \
   aom_read_symbol_(r, cdf, nsymbs ACCT_STR_ARG(ACCT_STR_NAME))
+#define aom_read_symbol_adapt(r, cdf, nsymbs, ACCT_STR_NAME) \
+  aom_read_symbol_adapt_(r, cdf, nsymbs ACCT_STR_ARG(ACCT_STR_NAME))
 #define aom_read_symbol_unscaled(r, cdf, nsymbs, ACCT_STR_NAME) \
   aom_read_symbol_unscaled_(r, cdf, nsymbs ACCT_STR_ARG(ACCT_STR_NAME))
 
@@ -235,15 +237,21 @@ static INLINE int aom_read_symbol_(aom_reader *r, aom_cdf_prob *cdf,
   "coder. Enable daala_ec or ans for a valid configuration."
 #endif
 
-#if CONFIG_EC_ADAPT
-  update_cdf(cdf, ret, nsymbs);
-#endif
-
 #if CONFIG_ACCOUNTING
   if (ACCT_STR_NAME) aom_process_accounting(r, ACCT_STR_NAME);
 #endif
   return ret;
 }
+
+#if CONFIG_EC_ADAPT
+static INLINE int aom_read_symbol_adapt_(aom_reader *r, aom_cdf_prob *cdf,
+                                         int nsymbs ACCT_STR_PARAM) {
+  int ret;
+  ret = aom_read_symbol(r, cdf, nsymbs, ACCT_STR_NAME);
+  update_cdf(cdf, ret, nsymbs);
+  return ret;
+}
+#endif
 
 #if CONFIG_PVQ
 static INLINE int aom_read_symbol_unscaled_(aom_reader *r,

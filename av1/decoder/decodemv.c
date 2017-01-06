@@ -50,7 +50,11 @@ static INLINE int read_uniform(aom_reader *r, int n) {
 #if CONFIG_EC_MULTISYMBOL
 static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
   return (PREDICTION_MODE)
+#if CONFIG_EC_ADAPT
+      av1_intra_mode_inv[aom_read_symbol_adapt(r, cdf, INTRA_MODES, ACCT_STR)];
+#else
       av1_intra_mode_inv[aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR)];
+#endif
 }
 #else
 static PREDICTION_MODE read_intra_mode(aom_reader *r, const aom_prob *p) {
@@ -197,8 +201,13 @@ static PREDICTION_MODE read_inter_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   assert(0);
 #else
 #if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+  const int mode = av1_inter_mode_inv[aom_read_symbol_adapt(
+      r, cm->fc->inter_mode_cdf[ctx], INTER_MODES, ACCT_STR)];
+#else
   const int mode = av1_inter_mode_inv[aom_read_symbol(
       r, cm->fc->inter_mode_cdf[ctx], INTER_MODES, ACCT_STR)];
+#endif
 #else
   const int mode = aom_read_tree(r, av1_inter_mode_tree,
                                  cm->fc->inter_mode_probs[ctx], ACCT_STR);
@@ -298,7 +307,11 @@ static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 
 static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
 #if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+  return aom_read_symbol_adapt(r, segp->tree_cdf, MAX_SEGMENTS, ACCT_STR);
+#else
   return aom_read_symbol(r, segp->tree_cdf, MAX_SEGMENTS, ACCT_STR);
+#endif
 #else
   return aom_read_tree(r, av1_segment_tree, segp->tree_probs, ACCT_STR);
 #endif
@@ -743,8 +756,13 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       FRAME_COUNTS *counts = xd->counts;
       if (inter_block) {
 #if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+        mbmi->tx_type = av1_ext_tx_inv[aom_read_symbol_adapt(
+            r, cm->fc->inter_ext_tx_cdf[tx_size], TX_TYPES, ACCT_STR)];
+#else
         mbmi->tx_type = av1_ext_tx_inv[aom_read_symbol(
             r, cm->fc->inter_ext_tx_cdf[tx_size], TX_TYPES, ACCT_STR)];
+#endif
 #else
         mbmi->tx_type = aom_read_tree(
             r, av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[tx_size], ACCT_STR);
@@ -753,9 +771,15 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       } else {
         const TX_TYPE tx_type_nom = intra_mode_to_tx_type_context[mbmi->mode];
 #if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+        mbmi->tx_type = av1_ext_tx_inv[aom_read_symbol_adapt(
+            r, cm->fc->intra_ext_tx_cdf[tx_size][tx_type_nom], TX_TYPES,
+            ACCT_STR)];
+#else
         mbmi->tx_type = av1_ext_tx_inv[aom_read_symbol(
             r, cm->fc->intra_ext_tx_cdf[tx_size][tx_type_nom], TX_TYPES,
             ACCT_STR)];
+#endif
 #else
         mbmi->tx_type = aom_read_tree(
             r, av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[tx_size][tx_type_nom],
@@ -889,7 +913,11 @@ static int read_mv_component(aom_reader *r, nmv_component *mvcomp, int usehp) {
   const int sign = aom_read(r, mvcomp->sign, ACCT_STR);
   const int mv_class =
 #if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+      aom_read_symbol_adapt(r, mvcomp->class_cdf, MV_CLASSES, ACCT_STR);
+#else
       aom_read_symbol(r, mvcomp->class_cdf, MV_CLASSES, ACCT_STR);
+#endif
 #else
       aom_read_tree(r, av1_mv_class_tree, mvcomp->classes, ACCT_STR);
 #endif
@@ -910,8 +938,14 @@ static int read_mv_component(aom_reader *r, nmv_component *mvcomp, int usehp) {
 
 // Fractional part
 #if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+  fr = aom_read_symbol_adapt(r,
+                             class0 ? mvcomp->class0_fp_cdf[d] : mvcomp->fp_cdf,
+                             MV_FP_SIZE, ACCT_STR);
+#else
   fr = aom_read_symbol(r, class0 ? mvcomp->class0_fp_cdf[d] : mvcomp->fp_cdf,
                        MV_FP_SIZE, ACCT_STR);
+#endif
 #else
   fr = aom_read_tree(r, av1_mv_fp_tree,
                      class0 ? mvcomp->class0_fp[d] : mvcomp->fp, ACCT_STR);
@@ -933,7 +967,12 @@ static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
   MV diff = { 0, 0 };
   joint_type =
 #if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+      (MV_JOINT_TYPE)aom_read_symbol_adapt(r, ctx->joint_cdf, MV_JOINTS,
+                                           ACCT_STR);
+#else
       (MV_JOINT_TYPE)aom_read_symbol(r, ctx->joint_cdf, MV_JOINTS, ACCT_STR);
+#endif
 #else
       (MV_JOINT_TYPE)aom_read_tree(r, av1_mv_joint_tree, ctx->joints, ACCT_STR);
 #endif
@@ -1084,9 +1123,15 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
            has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
 #if CONFIG_EC_MULTISYMBOL
         mbmi->interp_filter[dir] =
+#if CONFIG_EC_ADAPT
+            (InterpFilter)av1_switchable_interp_inv[aom_read_symbol_adapt(
+                r, cm->fc->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
+                ACCT_STR)];
+#else
             (InterpFilter)av1_switchable_interp_inv[aom_read_symbol(
                 r, cm->fc->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
                 ACCT_STR)];
+#endif
 #else
         mbmi->interp_filter[dir] = (InterpFilter)aom_read_tree(
             r, av1_switchable_interp_tree, cm->fc->switchable_interp_prob[ctx],
@@ -1114,9 +1159,15 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
     const int ctx = av1_get_pred_context_switchable_interp(xd);
 #if CONFIG_EC_MULTISYMBOL
     mbmi->interp_filter =
+#if CONFIG_EC_ADAPT
+        (InterpFilter)av1_switchable_interp_inv[aom_read_symbol_adapt(
+            r, cm->fc->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
+            ACCT_STR)];
+#else
         (InterpFilter)av1_switchable_interp_inv[aom_read_symbol(
             r, cm->fc->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
             ACCT_STR)];
+#endif
 #else
     mbmi->interp_filter = (InterpFilter)aom_read_tree(
         r, av1_switchable_interp_tree, cm->fc->switchable_interp_prob[ctx],
