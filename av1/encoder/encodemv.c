@@ -47,7 +47,11 @@ static void encode_mv_component(aom_writer *w, int comp, nmv_component *mvcomp,
 
 // Class
 #if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+  aom_write_symbol_adapt(w, mv_class, mvcomp->class_cdf, MV_CLASSES);
+#else
   aom_write_symbol(w, mv_class, mvcomp->class_cdf, MV_CLASSES);
+#endif
 #else
   av1_write_token(w, av1_mv_class_tree, mvcomp->classes,
                   &mv_class_encodings[mv_class]);
@@ -64,9 +68,15 @@ static void encode_mv_component(aom_writer *w, int comp, nmv_component *mvcomp,
 
 // Fractional bits
 #if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+  aom_write_symbol_adapt(
+      w, fr, mv_class == MV_CLASS_0 ? mvcomp->class0_fp_cdf[d] : mvcomp->fp_cdf,
+      MV_FP_SIZE);
+#else
   aom_write_symbol(
       w, fr, mv_class == MV_CLASS_0 ? mvcomp->class0_fp_cdf[d] : mvcomp->fp_cdf,
       MV_FP_SIZE);
+#endif
 #else
   av1_write_token(w, av1_mv_fp_tree,
                   mv_class == MV_CLASS_0 ? mvcomp->class0_fp[d] : mvcomp->fp,
@@ -266,7 +276,11 @@ void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
   (void)is_compound;
 #endif
 #if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+  aom_write_symbol_adapt(w, j, mvctx->joint_cdf, MV_JOINTS);
+#else
   aom_write_symbol(w, j, mvctx->joint_cdf, MV_JOINTS);
+#endif
 #else
   av1_write_token(w, av1_mv_joint_tree, mvctx->joints, &mv_joint_encodings[j]);
 #endif
