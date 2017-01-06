@@ -16,6 +16,24 @@
       "revId": "118155d56ac36721907f058259ff230aa1ddb4e8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97a04ea7_5cda45d2",
+        "filename": "build/cmake/aom_config.h.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-06T23:54:15Z",
+      "side": 0,
+      "message": "\u003e Should this file be automatically generated? Why it is in the git\n \u003e repo?\n\neventually it would be nice if it was. this is a temporary addition Tom made while adding some basic cmake support",
+      "parentUuid": "97a04ea7_c1c657ab",
+      "revId": "118155d56ac36721907f058259ff230aa1ddb4e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
