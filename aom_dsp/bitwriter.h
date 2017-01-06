@@ -199,11 +199,15 @@ static INLINE void aom_write_symbol(aom_writer *w, int symb, aom_cdf_prob *cdf,
     "CONFIG_EC_MULTISYMBOL is selected without a valid backing entropy " \
   "coder. Enable daala_ec or ans for a valid configuration."
 #endif
+}
 
 #if CONFIG_EC_ADAPT
+static INLINE void aom_write_symbol_adapt(aom_writer *w, int symb,
+                                          aom_cdf_prob *cdf, int nsymbs) {
+  aom_write_symbol(w, symb, cdf, nsymbs);
   update_cdf(cdf, symb, nsymbs);
-#endif
 }
+#endif
 
 #if CONFIG_PVQ
 static INLINE void aom_write_symbol_unscaled(aom_writer *w, int symb,
