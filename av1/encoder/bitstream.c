@@ -263,6 +263,10 @@ static void write_inter_mode(AV1_COMMON *cm, aom_writer *w,
 #if CONFIG_EC_MULTISYMBOL
   aom_write_symbol(w, av1_inter_mode_ind[INTER_OFFSET(mode)],
                    cm->fc->inter_mode_cdf[mode_ctx], INTER_MODES);
+#if CONFIG_EC_ADAPT
+  update_cdf(cm->fc->inter_mode_cdf[mode_ctx],
+             av1_inter_mode_ind[INTER_OFFSET(mode)], INTER_MODES);
+#endif
 #else
   {
     const aom_prob *const inter_probs = cm->fc->inter_mode_probs[mode_ctx];
@@ -792,6 +796,10 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
       if (token != ZERO_TOKEN) {
         aom_write_symbol(w, token - ONE_TOKEN, *p->token_cdf,
                          CATEGORY6_TOKEN - ONE_TOKEN + 1);
+#if CONFIG_EC_ADAPT
+        update_cdf(*p->token_cdf, token - ONE_TOKEN,
+                   CATEGORY6_TOKEN - ONE_TOKEN + 1);
+#endif
       }
     }
 #else
@@ -915,6 +923,9 @@ static void write_segment_id(aom_writer *w, const struct segmentation *seg,
   if (seg->enabled && seg->update_map) {
 #if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, segment_id, segp->tree_cdf, MAX_SEGMENTS);
+#if CONFIG_EC_ADAPT
+    update_cdf(segp->tree_cdf, segment_id, MAX_SEGMENTS);
+#endif
 #else
     aom_write_tree(w, av1_segment_tree, segp->tree_probs, segment_id, 3, 0);
 #endif
@@ -1112,6 +1123,11 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
 #if CONFIG_EC_MULTISYMBOL
       aom_write_symbol(w, av1_switchable_interp_ind[mbmi->interp_filter],
                        cm->fc->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS);
+#if CONFIG_EC_ADAPT
+      update_cdf(cm->fc->switchable_interp_cdf[ctx],
+                 av1_switchable_interp_ind[mbmi->interp_filter],
+                 SWITCHABLE_FILTERS);
+#endif
 #else
       av1_write_token(w, av1_switchable_interp_tree,
                       cm->fc->switchable_interp_prob[ctx],
@@ -1218,6 +1234,10 @@ static void write_tx_type(const AV1_COMMON *const cm,
 #if CONFIG_EC_MULTISYMBOL
         aom_write_symbol(w, av1_ext_tx_ind[mbmi->tx_type],
                          cm->fc->inter_ext_tx_cdf[tx_size], TX_TYPES);
+#if CONFIG_EC_ADAPT
+        update_cdf(cm->fc->inter_ext_tx_cdf[tx_size],
+                   av1_ext_tx_ind[mbmi->tx_type], TX_TYPES);
+#endif
 #else
         av1_write_token(w, av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[tx_size],
                         &ext_tx_encodings[mbmi->tx_type]);
@@ -1229,6 +1249,12 @@ static void write_tx_type(const AV1_COMMON *const cm,
             cm->fc->intra_ext_tx_cdf[tx_size]
                                     [intra_mode_to_tx_type_context[mbmi->mode]],
             TX_TYPES);
+#if CONFIG_EC_ADAPT
+        update_cdf(
+            cm->fc->intra_ext_tx_cdf[tx_size]
+                                    [intra_mode_to_tx_type_context[mbmi->mode]],
+            av1_ext_tx_ind[mbmi->tx_type], TX_TYPES);
+#endif
 #else
         av1_write_token(
             w, av1_ext_tx_tree,
@@ -1351,6 +1377,10 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
       aom_write_symbol(w, av1_intra_mode_ind[mode],
                        cm->fc->y_mode_cdf[size_group_lookup[bsize]],
                        INTRA_MODES);
+#if CONFIG_EC_ADAPT
+      update_cdf(cm->fc->y_mode_cdf[size_group_lookup[bsize]],
+                 av1_intra_mode_ind[mode], INTRA_MODES);
+#endif
 #else
       write_intra_mode(w, mode, cm->fc->y_mode_prob[size_group_lookup[bsize]]);
 #endif
@@ -1364,6 +1394,10 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #if CONFIG_EC_MULTISYMBOL
           aom_write_symbol(w, av1_intra_mode_ind[b_mode], cm->fc->y_mode_cdf[0],
                            INTRA_MODES);
+#if CONFIG_EC_ADAPT
+          update_cdf(cm->fc->y_mode_cdf[0], av1_intra_mode_ind[b_mode],
+                     INTRA_MODES);
+#endif
 #else
           write_intra_mode(w, b_mode, cm->fc->y_mode_prob[0]);
 #endif
@@ -1373,6 +1407,10 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
                      cm->fc->uv_mode_cdf[mode], INTRA_MODES);
+#if CONFIG_EC_ADAPT
+    update_cdf(cm->fc->uv_mode_cdf[mode], av1_intra_mode_ind[mbmi->uv_mode],
+               INTRA_MODES);
+#endif
 #else
     write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mode]);
 #endif
@@ -1702,6 +1740,10 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
 #if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, av1_intra_mode_ind[mbmi->mode],
                      get_y_mode_cdf(cm, mi, above_mi, left_mi, 0), INTRA_MODES);
+#if CONFIG_EC_ADAPT
+    update_cdf(get_y_mode_cdf(cm, mi, above_mi, left_mi, 0),
+               av1_intra_mode_ind[mbmi->mode], INTRA_MODES);
+#endif
 #else
     write_intra_mode(w, mbmi->mode,
                      get_y_mode_probs(cm, mi, above_mi, left_mi, 0));
@@ -1718,6 +1760,10 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
         aom_write_symbol(w, av1_intra_mode_ind[mi->bmi[block].as_mode],
                          get_y_mode_cdf(cm, mi, above_mi, left_mi, block),
                          INTRA_MODES);
+#if CONFIG_EC_ADAPT
+        update_cdf(get_y_mode_cdf(cm, mi, above_mi, left_mi, block),
+                   av1_intra_mode_ind[mi->bmi[block].as_mode], INTRA_MODES);
+#endif
 #else
         write_intra_mode(w, mi->bmi[block].as_mode,
                          get_y_mode_probs(cm, mi, above_mi, left_mi, block));
@@ -1728,6 +1774,10 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
 #if CONFIG_EC_MULTISYMBOL
   aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
                    cm->fc->uv_mode_cdf[mbmi->mode], INTRA_MODES);
+#if CONFIG_EC_ADAPT
+  update_cdf(cm->fc->uv_mode_cdf[mbmi->mode], av1_intra_mode_ind[mbmi->uv_mode],
+             INTRA_MODES);
+#endif
 #else
   write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mbmi->mode]);
 #endif
@@ -2188,6 +2238,9 @@ static void write_partition(const AV1_COMMON *const cm,
 #else
 #if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, p, cm->fc->partition_cdf[ctx], PARTITION_TYPES);
+#if CONFIG_EC_ADAPT
+    update_cdf(cm->fc->partition_cdf[ctx], p, PARTITION_TYPES);
+#endif
 #else
     av1_write_token(w, av1_partition_tree, probs, &partition_encodings[p]);
 #endif
