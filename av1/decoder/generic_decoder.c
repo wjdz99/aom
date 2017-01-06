@@ -9,7 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-/* clang-format off */
+// clang-format off
+// NOLINT
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -144,3 +145,5 @@ int generic_decode_(aom_reader *r, generic_encoder *model, int max,
    "dec: %d %d %d %d %d %x", *ex_q16, x, shift, id, xs, dec->rng));
   return x;
 }
+
+// clang-format on
