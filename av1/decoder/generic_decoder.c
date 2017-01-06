@@ -9,7 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-/* clang-format off */
+// clang-format off
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
