@@ -23,6 +23,16 @@ set(AOM_C_FAILED_TESTS)
 set(AOM_CXX_PASSED_TESTS)
 set(AOM_CXX_FAILED_TESTS)
 
+function(AomPushVar var new_value)
+  set(SAVED_${var} ${var} PARENT_SCOPE)
+  set(${var} ${new_value} PARENT_SCOPE)
+endfunction ()
+
+function(AomPopVar var)
+  set(var ${SAVED_${var}} PARENT_SCOPE)
+  unset(SAVED_${var} PARENT_SCOPE)
+endfunction ()
+
 # TODO(tomfinegan): Rename the functions in here to_be_of_this_format to match
 # other custom CMake commands (from CMake built in plugins and other cmake code
 # in AOM).
