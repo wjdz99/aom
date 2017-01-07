@@ -28,6 +28,9 @@
 
 #include "av1/decoder/decodeframe.h"
 #include "av1/decoder/decodemv.h"
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SEGMENT
+#include "av1/decoder/dsubexp.h"
+#endif
 
 #include "aom_dsp/aom_dsp_common.h"
 
@@ -1891,6 +1894,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_COMPOUND_SEGMENT
     else if (mbmi->interinter_compound_data.type == COMPOUND_SEG) {
       mbmi->interinter_compound_data.which = aom_read_bit(r, ACCT_STR);
+      mbmi->interinter_compound_data.mask_type =
+        aom_read_literal(r, MAX_SEG_MASK_BITS, ACCT_STR);
     }
 #endif  // CONFIG_COMPOUND_SEGMENT
   }
