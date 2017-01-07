@@ -273,24 +273,37 @@ const uint8_t *av1_get_compound_type_mask(INTERINTER_COMPOUND_DATA *comp_data,
 }
 
 #if CONFIG_COMPOUND_SEGMENT
+void uniform_mask(INTERINTER_COMPOUND_DATA *comp_data, BLOCK_SIZE sb_type,
+                  int h, int w, int mask_val) {
+  int i, j;
+  int block_stride = block_size_wide[sb_type];
+  for (i = 0; i < h; ++i)
+    for (j = 0; j < w; ++j) {
+      // if which == 0, put more weight on the first predictor
+      comp_data->seg_mask[0][i * block_stride + j] = mask_val;
+      comp_data->seg_mask[1][i * block_stride + j] =
+          AOM_BLEND_A64_MAX_ALPHA - mask_val;
+    }
+}
+
 // temporary placeholder mask, this will be generated using segmentation later
 void build_compound_seg_mask(INTERINTER_COMPOUND_DATA *comp_data,
                              const uint8_t *src0, int src0_stride,
                              const uint8_t *src1, int src1_stride,
                              BLOCK_SIZE sb_type, int h, int w) {
-  int block_stride = block_size_wide[sb_type];
-  int i, j;
   (void)src0;
   (void)src1;
   (void)src0_stride;
   (void)src1_stride;
-  for (i = 0; i < h; ++i)
-    for (j = 0; j < w; ++j) {
-      // if which == 0, put more weight on the first predictor
-      comp_data->seg_mask[0][i * block_stride + j] = 45;
-      comp_data->seg_mask[1][i * block_stride + j] =
-          AOM_BLEND_A64_MAX_ALPHA - 45;
-    }
+  switch (comp_data->mask_type) {
+    case UNIFORM_45:
+      uniform_mask(comp_data, sb_type, h, w, 45);
+      break;
+    case UNIFORM_55:
+      uniform_mask(comp_data, sb_type, h, w, 55);
+      break;
+    default: assert(0);
+  }
 }
 #endif  // CONFIG_COMPOUND_SEGMENT
 #endif  // CONFIG_EXT_INTER
