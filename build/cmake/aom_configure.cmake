@@ -68,6 +68,14 @@ else ()
                          HAVE_AOM_PORTS)
   AomCheckSourceCompiles("pthread_check" "#include <pthread.h>" HAVE_PTHREAD_H)
   AomCheckSourceCompiles("unistd_check" "#include <unistd.h>" HAVE_UNISTD_H)
+  set(CMAKE_REQUIRED_LIBRARIES "m")
+  AomCheckCCompiles("fenv_check"
+                    "#define _GNU_SOURCE
+                     #include <fenv.h>
+                     void unused(void) {
+                       (void)feenableexcept(FE_DIVBYZERO | FE_INVALID);
+                     }" HAVE_FEXCEPT)
+   unset(CMAKE_REQUIRED_LIBRARIES)
 endif ()
 
 
