@@ -6856,6 +6856,10 @@ static int64_t pick_interinter_seg_mask(const AV1_COMP *const cpi,
   uint64_t sse;
   int64_t dist;
   int rd0, rd1;
+  SEG_MASK_TYPE cur_mask_type;
+  int64_t best_rd = INT64_MAX;
+  SEG_MASK_TYPE best_mask_type = 0;
+  int which_inverse = 0;
 #if CONFIG_AOM_HIGHBITDEPTH
   const int hbd = xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH;
   const int bd_round = hbd ? (xd->bd - 8) * 2 : 0;
@@ -6883,26 +6887,38 @@ static int64_t pick_interinter_seg_mask(const AV1_COMP *const cpi,
     aom_subtract_block(bh, bw, d10, bw, p1, bw, p0, bw);
   }
 
-  // build mask and inverse
+  // try each mask type and its inverse
+  for (cur_mask_type = 0; cur_mask_type < SEG_MASK_TYPES; cur_mask_type++) {
+    // build mask and inverse
+    comp_data->mask_type = cur_mask_type;
+    build_compound_seg_mask(comp_data, p0, bw, p1, bw, bsize, bh, bw);
+
+    // compute rd for mask0
+    sse = av1_wedge_sse_from_residuals(r1, d10, comp_data->seg_mask[0], N);
+    sse = ROUND_POWER_OF_TWO(sse, bd_round);
+
+    model_rd_from_sse(cpi, xd, bsize, 0, sse, &rate, &dist);
+    rd0 = RDCOST(x->rdmult, x->rddiv, rate, dist);
+
+    // compute rd for mask1
+    sse = av1_wedge_sse_from_residuals(r1, d10, comp_data->seg_mask[1], N);
+    sse = ROUND_POWER_OF_TWO(sse, bd_round);
+
+    model_rd_from_sse(cpi, xd, bsize, 0, sse, &rate, &dist);
+    rd1 = RDCOST(x->rdmult, x->rddiv, rate, dist);
+    if (AOMMIN(rd0, rd1) < best_rd) {
+      best_mask_type = cur_mask_type;
+      which_inverse = rd1 < rd0;
+      best_rd = which_inverse ? rd1 : rd0;
+    }
+  }
+
+  // make final mask
+  comp_data->which = which_inverse;
+  comp_data->mask_type = best_mask_type;
   build_compound_seg_mask(comp_data, p0, bw, p1, bw, bsize, bh, bw);
 
-  // compute rd for mask0
-  sse = av1_wedge_sse_from_residuals(r1, d10, comp_data->seg_mask[0], N);
-  sse = ROUND_POWER_OF_TWO(sse, bd_round);
-
-  model_rd_from_sse(cpi, xd, bsize, 0, sse, &rate, &dist);
-  rd0 = RDCOST(x->rdmult, x->rddiv, rate, dist);
-
-  // compute rd for mask1
-  sse = av1_wedge_sse_from_residuals(r1, d10, comp_data->seg_mask[1], N);
-  sse = ROUND_POWER_OF_TWO(sse, bd_round);
-
-  model_rd_from_sse(cpi, xd, bsize, 0, sse, &rate, &dist);
-  rd1 = RDCOST(x->rdmult, x->rddiv, rate, dist);
-
-  // pick the better of the two
-  mbmi->interinter_compound_data.which = rd1 < rd0;
-  return mbmi->interinter_compound_data.which ? rd1 : rd0;
+  return best_rd;
 }
 #endif  // CONFIG_COMPOUND_SEGMENT
 
