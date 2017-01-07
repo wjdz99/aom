@@ -213,7 +213,7 @@ static INLINE int get_interintra_wedge_bits(BLOCK_SIZE sb_type) {
 }
 
 #if CONFIG_COMPOUND_SEGMENT
-void build_compound_seg_mask(INTERINTER_COMPOUND_DATA *comp_data,
+void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
                              const uint8_t *src0, int src0_stride,
                              const uint8_t *src1, int src1_stride,
                              BLOCK_SIZE sb_type, int h, int w);
@@ -538,8 +538,15 @@ const uint8_t *av1_get_soft_mask(int wedge_index, int wedge_sign,
                                  BLOCK_SIZE sb_type, int wedge_offset_x,
                                  int wedge_offset_y);
 
-const uint8_t *av1_get_compound_type_mask(INTERINTER_COMPOUND_DATA *comp_data,
-                                          BLOCK_SIZE sb_type, int invert);
+const uint8_t *av1_get_compound_type_mask_inverse(uint8_t *mask_buffer,
+                                                  const INTERINTER_COMPOUND_DATA
+                                                  *const comp_data,
+                                                  BLOCK_SIZE sb_type, int h,
+                                                  int w, int stride);
+
+const uint8_t *av1_get_compound_type_mask(const INTERINTER_COMPOUND_DATA
+                                          *const comp_data,
+                                          BLOCK_SIZE sb_type);
 
 void av1_build_interintra_predictors(MACROBLOCKD *xd, uint8_t *ypred,
                                      uint8_t *upred, uint8_t *vpred,
