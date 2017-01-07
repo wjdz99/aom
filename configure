@@ -238,6 +238,7 @@ ARCH_EXT_LIST="
 HAVE_LIST="
     ${ARCH_EXT_LIST}
     aom_ports
+    fexcept
     pthread_h
     unistd_h
     wxwidgets
@@ -655,6 +656,12 @@ EOF
       WX_CXXFLAGS=$(wx-config --cppflags)
       WX_LDFLAGS=$(wx-config --libs)
     fi
+
+    check_cc <<EOF && enable_feature fexcept
+#define _GNU_SOURCE
+#include <fenv.h>
+int main(void) { (void)feenableexcept(FE_DIVBYZERO | FE_INVALID); return 0; }
+EOF
 }
 
 process_toolchain() {
