@@ -181,6 +181,7 @@ static INLINE int is_masked_compound_type(COMPOUND_TYPE type) {
   return (type == COMPOUND_WEDGE);
 #endif  // CONFIG_COMPOUND_SEGMENT
 }
+
 #else
 
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
@@ -250,7 +251,7 @@ typedef struct RD_STATS {
 #endif  // CONFIG_RD_DEBUG
 } RD_STATS;
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 typedef struct {
   COMPOUND_TYPE type;
   int wedge_index;
@@ -260,7 +261,7 @@ typedef struct {
   DECLARE_ALIGNED(16, uint8_t, seg_mask[2][2 * MAX_SB_SQUARE]);
 #endif  // CONFIG_COMPOUND_SEGMENT
 } INTERINTER_COMPOUND_DATA;
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 // This structure now relates to 8x8 block regions.
 typedef struct {
@@ -315,8 +316,10 @@ typedef struct {
   int use_wedge_interintra;
   int interintra_wedge_index;
   int interintra_wedge_sign;
-  INTERINTER_COMPOUND_DATA interinter_compound_data;
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
+  INTERINTER_COMPOUND_DATA interinter_compound_data;
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
   MOTION_MODE motion_mode;
   int_mv mv[2];
   int_mv pred_mv[2];

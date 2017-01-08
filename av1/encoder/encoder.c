@@ -405,9 +405,9 @@ void av1_initialize_enc(void) {
     av1_rc_init_minq_luts();
     av1_entropy_mv_init();
     av1_encode_token_init();
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
     av1_init_wedge_masks();
-#endif
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
     init_done = 1;
   }
 }
@@ -1131,7 +1131,7 @@ MAKE_BFP_SAD3_WRAPPER(aom_highbd_sad4x4x3)
 MAKE_BFP_SAD8_WRAPPER(aom_highbd_sad4x4x8)
 MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad4x4x4d)
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #define HIGHBD_MBFP(BT, MSDF, MVF, MSVF) \
   cpi->fn_ptr[BT].msdf = MSDF;           \
   cpi->fn_ptr[BT].mvf = MVF;             \
@@ -1174,7 +1174,7 @@ MAKE_MBFP_SAD_WRAPPER(aom_highbd_masked_sad8x8)
 MAKE_MBFP_SAD_WRAPPER(aom_highbd_masked_sad8x4)
 MAKE_MBFP_SAD_WRAPPER(aom_highbd_masked_sad4x8)
 MAKE_MBFP_SAD_WRAPPER(aom_highbd_masked_sad4x4)
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 #if CONFIG_MOTION_VAR
 #define HIGHBD_OBFP(BT, OSDF, OVF, OSVF) \
@@ -1336,7 +1336,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                    aom_highbd_sad64x128x4d_bits8)
 #endif  // CONFIG_EXT_PARTITION
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #if CONFIG_EXT_PARTITION
         HIGHBD_MBFP(BLOCK_128X128, aom_highbd_masked_sad128x128_bits8,
                     aom_highbd_masked_variance128x128,
@@ -1387,7 +1387,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
         HIGHBD_MBFP(BLOCK_4X4, aom_highbd_masked_sad4x4_bits8,
                     aom_highbd_masked_variance4x4,
                     aom_highbd_masked_sub_pixel_variance4x4)
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #if CONFIG_MOTION_VAR
 #if CONFIG_EXT_PARTITION
         HIGHBD_OBFP(BLOCK_128X128, aom_highbd_obmc_sad128x128_bits8,
@@ -1559,7 +1559,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                    aom_highbd_sad64x128x4d_bits10)
 #endif  // CONFIG_EXT_PARTITION
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #if CONFIG_EXT_PARTITION
         HIGHBD_MBFP(BLOCK_128X128, aom_highbd_masked_sad128x128_bits10,
                     aom_highbd_10_masked_variance128x128,
@@ -1610,7 +1610,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
         HIGHBD_MBFP(BLOCK_4X4, aom_highbd_masked_sad4x4_bits10,
                     aom_highbd_10_masked_variance4x4,
                     aom_highbd_10_masked_sub_pixel_variance4x4)
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #if CONFIG_MOTION_VAR
 #if CONFIG_EXT_PARTITION
         HIGHBD_OBFP(BLOCK_128X128, aom_highbd_obmc_sad128x128_bits10,
@@ -1782,7 +1782,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                    aom_highbd_sad64x128x4d_bits12)
 #endif  // CONFIG_EXT_PARTITION
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #if CONFIG_EXT_PARTITION
         HIGHBD_MBFP(BLOCK_128X128, aom_highbd_masked_sad128x128_bits12,
                     aom_highbd_12_masked_variance128x128,
@@ -1833,7 +1833,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
         HIGHBD_MBFP(BLOCK_4X4, aom_highbd_masked_sad4x4_bits12,
                     aom_highbd_12_masked_variance4x4,
                     aom_highbd_12_masked_sub_pixel_variance4x4)
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 #if CONFIG_MOTION_VAR
 #if CONFIG_EXT_PARTITION
@@ -2401,7 +2401,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
        aom_obmc_sub_pixel_variance4x4)
 #endif  // CONFIG_MOTION_VAR
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #define MBFP(BT, MSDF, MVF, MSVF) \
   cpi->fn_ptr[BT].msdf = MSDF;    \
   cpi->fn_ptr[BT].mvf = MVF;      \
@@ -2441,7 +2441,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
        aom_masked_sub_pixel_variance8x4)
   MBFP(BLOCK_4X4, aom_masked_sad4x4, aom_masked_variance4x4,
        aom_masked_sub_pixel_variance4x4)
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 #if CONFIG_AOM_HIGHBITDEPTH
   highbd_set_var_fns(cpi);

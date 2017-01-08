@@ -28,7 +28,7 @@
 #include "av1/common/warped_motion.h"
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 #define NSMOOTHERS 1
 static int get_masked_weight(int m, int smoothness) {
@@ -254,7 +254,6 @@ const uint8_t *av1_get_soft_mask(int wedge_index, int wedge_sign,
 // get a mask according to the compound type
 // TODO(sarahparker) this needs to be extended for other experiments and
 // is currently only intended for ext_inter alone
-#if CONFIG_EXT_INTER
 const uint8_t *av1_get_compound_type_mask(INTERINTER_COMPOUND_DATA *comp_data,
                                           BLOCK_SIZE sb_type, int invert) {
   assert(is_masked_compound_type(comp_data->type));
@@ -293,7 +292,6 @@ void build_compound_seg_mask(INTERINTER_COMPOUND_DATA *comp_data,
     }
 }
 #endif  // CONFIG_COMPOUND_SEGMENT
-#endif  // CONFIG_EXT_INTER
 
 static void init_wedge_master_masks() {
   int i, j, s;
@@ -530,7 +528,7 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
 #endif  // CONFIG_SUPERTX
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 #if CONFIG_AOM_HIGHBITDEPTH
 void av1_highbd_build_inter_predictor(
