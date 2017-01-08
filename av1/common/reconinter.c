@@ -299,8 +299,9 @@ const uint8_t *av1_get_compound_type_mask(
 }
 
 #if CONFIG_COMPOUND_SEGMENT
-void uniform_mask(uint8_t *mask, int which_inverse, BLOCK_SIZE sb_type, int h,
-                  int w, int mask_val) {
+#if COMPOUND_SEGMENT_TYPE == 0
+static void uniform_mask(uint8_t *mask, int which_inverse, BLOCK_SIZE sb_type,
+                         int h, int w, int mask_val) {
   int i, j;
   int block_stride = block_size_wide[sb_type];
   for (i = 0; i < h; ++i)
@@ -321,11 +322,756 @@ void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
   switch (mask_type) {
     case UNIFORM_45: uniform_mask(mask, 0, sb_type, h, w, 45); break;
     case UNIFORM_45_INV: uniform_mask(mask, 1, sb_type, h, w, 45); break;
-    case UNIFORM_55: uniform_mask(mask, 0, sb_type, h, w, 55); break;
-    case UNIFORM_55_INV: uniform_mask(mask, 1, sb_type, h, w, 55); break;
     default: assert(0);
   }
 }
+
+#if CONFIG_AOM_HIGHBITDEPTH
+void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                                    const uint8_t *src0, int src0_stride,
+                                    const uint8_t *src1, int src1_stride,
+                                    BLOCK_SIZE sb_type, int h, int w, int bd) {
+  (void)src0;
+  (void)src1;
+  (void)src0_stride;
+  (void)src1_stride;
+  (void)bd;
+  switch (mask_type) {
+    case UNIFORM_45: uniform_mask(mask, 0, sb_type, h, w, 45); break;
+    case UNIFORM_45_INV: uniform_mask(mask, 1, sb_type, h, w, 45); break;
+    default: assert(0);
+  }
+}
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+
+#elif COMPOUND_SEGMENT_TYPE == 1
+#define DIFF_FACTOR 16
+static void diffwtd_mask(uint8_t *mask, int which_inverse, int mask_base,
+                         const uint8_t *src0, int src0_stride,
+                         const uint8_t *src1, int src1_stride,
+                         BLOCK_SIZE sb_type, int h, int w) {
+  int i, j, m, diff;
+  int block_stride = block_size_wide[sb_type];
+  for (i = 0; i < h; ++i) {
+    for (j = 0; j < w; ++j) {
+      diff =
+          abs((int)src0[i * src0_stride + j] - (int)src1[i * src1_stride + j]);
+      m = clamp(mask_base + (diff / DIFF_FACTOR), 0, AOM_BLEND_A64_MAX_ALPHA);
+      mask[i * block_stride + j] =
+          which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+    }
+  }
+}
+
+void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                             const uint8_t *src0, int src0_stride,
+                             const uint8_t *src1, int src1_stride,
+                             BLOCK_SIZE sb_type, int h, int w) {
+  switch (mask_type) {
+    case DIFFWTD_45:
+      diffwtd_mask(mask, 0, 47, src0, src0_stride, src1, src1_stride, sb_type,
+                   h, w);
+      break;
+    case DIFFWTD_45_INV:
+      diffwtd_mask(mask, 1, 47, src0, src0_stride, src1, src1_stride, sb_type,
+                   h, w);
+      break;
+    default: assert(0);
+  }
+}
+
+#if CONFIG_AOM_HIGHBITDEPTH
+static void diffwtd_mask_highbd(uint8_t *mask, int which_inverse, int mask_base,
+                                const uint16_t *src0, int src0_stride,
+                                const uint16_t *src1, int src1_stride,
+                                BLOCK_SIZE sb_type, int h, int w, int bd) {
+  int i, j, m, diff;
+  int block_stride = block_size_wide[sb_type];
+  for (i = 0; i < h; ++i) {
+    for (j = 0; j < w; ++j) {
+      diff = abs((int)src0[i * src0_stride + j] -
+                 (int)src1[i * src1_stride + j]) >>
+             (bd - 8);
+      m = clamp(mask_base + (diff / DIFF_FACTOR), 0, AOM_BLEND_A64_MAX_ALPHA);
+      mask[i * block_stride + j] =
+          which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+    }
+  }
+}
+
+void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                                    const uint8_t *src0, int src0_stride,
+                                    const uint8_t *src1, int src1_stride,
+                                    BLOCK_SIZE sb_type, int h, int w, int bd) {
+  switch (mask_type) {
+    case DIFFWTD_42:
+      diffwtd_mask_highbd(mask, 0, 42, CONVERT_TO_SHORTPTR(src0), src0_stride,
+                          CONVERT_TO_SHORTPTR(src1), src1_stride, sb_type, h, w,
+                          bd);
+      break;
+    case DIFFWTD_42_INV:
+      diffwtd_mask_highbd(mask, 1, 42, CONVERT_TO_SHORTPTR(src0), src0_stride,
+                          CONVERT_TO_SHORTPTR(src1), src1_stride, sb_type, h, w,
+                          bd);
+      break;
+    default: assert(0);
+  }
+}
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+
+#elif COMPOUND_SEGMENT_TYPE == 2
+#define DIFF_FACTOR 16
+static void smoothnesswtd_mask(uint8_t *mask, int which_inverse, int mask_base,
+                               const uint8_t *src0, int src0_stride,
+                               const uint8_t *src1, int src1_stride,
+                               BLOCK_SIZE sb_type, int h, int w) {
+  int i, j, diff;
+  int block_stride = block_size_wide[sb_type];
+  // Top left corner
+  { { int dx0, dx1, dy0, dy1, d0, d1;
+  i = 0;
+  j = 0;
+  dx0 = abs(src0[i * src0_stride + j + 1] - src0[i * src0_stride + j]);
+  dy0 = abs(src0[(i + 1) * src0_stride + j] - src0[i * src0_stride + j]);
+  d0 = AOMMAX(dx0, dy0);
+  dx1 = abs(src1[i * src1_stride + j + 1] - src1[i * src1_stride + j]);
+  dy1 = abs(src1[(i + 1) * src1_stride + j] - src1[i * src1_stride + j]);
+  d1 = AOMMAX(dx1, dy1);
+  diff = d1 - d0;
+  if (which_inverse)
+    mask[i * block_stride + j] =
+        clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+              AOM_BLEND_A64_MAX_ALPHA);
+  else
+    mask[i * block_stride + j] = clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+}
+}
+// Top Right corner
+{ { int dx0, dx1, dy0, dy1, d0, d1;
+i = 0;
+j = w - 1;
+dx0 = abs(src0[i * src0_stride + j - 1] - src0[i * src0_stride + j]);
+dy0 = abs(src0[(i + 1) * src0_stride + j] - src0[i * src0_stride + j]);
+d0 = AOMMAX(dx0, dy0);
+dx1 = abs(src1[i * src1_stride + j - 1] - src1[i * src1_stride + j]);
+dy1 = abs(src1[(i + 1) * src1_stride + j] - src1[i * src1_stride + j]);
+d1 = AOMMAX(dx1, dy1);
+diff = d1 - d0;
+if (which_inverse)
+  mask[i * block_stride + j] =
+      clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+            AOM_BLEND_A64_MAX_ALPHA);
+else
+  mask[i * block_stride + j] = clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+}
+}
+// Bottom left corner
+{ { int dx0, dx1, dy0, dy1, d0, d1;
+i = h - 1;
+j = 0;
+dx0 = abs(src0[i * src0_stride + j + 1] - src0[i * src0_stride + j]);
+dy0 = abs(src0[(i - 1) * src0_stride + j] - src0[i * src0_stride + j]);
+d0 = AOMMAX(dx0, dy0);
+dx1 = abs(src1[i * src1_stride + j + 1] - src1[i * src1_stride + j]);
+dy1 = abs(src1[(i - 1) * src1_stride + j] - src1[i * src1_stride + j]);
+d1 = AOMMAX(dx1, dy1);
+diff = d1 - d0;
+if (which_inverse)
+  mask[i * block_stride + j] =
+      clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+            AOM_BLEND_A64_MAX_ALPHA);
+else
+  mask[i * block_stride + j] = clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+}
+}
+// Bottom Right corner
+{ { int dx0, dx1, dy0, dy1, d0, d1;
+i = h - 1;
+j = w - 1;
+dx0 = abs(src0[i * src0_stride + j - 1] - src0[i * src0_stride + j]);
+dy0 = abs(src0[(i - 1) * src0_stride + j] - src0[i * src0_stride + j]);
+d0 = AOMMAX(dx0, dy0);
+dx1 = abs(src1[i * src1_stride + j - 1] - src1[i * src1_stride + j]);
+dy1 = abs(src1[(i - 1) * src1_stride + j] - src1[i * src1_stride + j]);
+d1 = AOMMAX(dx1, dy1);
+diff = d1 - d0;
+if (which_inverse)
+  mask[i * block_stride + j] =
+      clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+            AOM_BLEND_A64_MAX_ALPHA);
+else
+  mask[i * block_stride + j] = clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+}
+}
+// Top row
+{
+  i = 0;
+  for (j = 1; j < w - 1; ++j) {
+    int dx0, dx1, dy0, dy1, d0, d1;
+    dx0 =
+        abs(src0[i * src0_stride + j + 1] - src0[i * src0_stride + j - 1]) / 2;
+    dy0 = abs(src0[(i + 1) * src0_stride + j] - src0[i * src0_stride + j]);
+    d0 = AOMMAX(dx0, dy0);
+    dx1 = abs(src1[i * src1_stride + j + 1] - src1[i * src1_stride + j]) / 2;
+    dy1 = abs(src1[(i + 1) * src1_stride + j] - src1[i * src1_stride + j]);
+    d1 = AOMMAX(dx1, dy1);
+    diff = d1 - d0;
+    if (which_inverse)
+      mask[i * block_stride + j] =
+          clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+                AOM_BLEND_A64_MAX_ALPHA);
+    else
+      mask[i * block_stride + j] =
+          clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+  }
+}
+// Bottom row
+{
+  i = h - 1;
+  for (j = 1; j < w - 1; ++j) {
+    int dx0, dx1, dy0, dy1, d0, d1;
+    dx0 =
+        abs(src0[i * src0_stride + j + 1] - src0[i * src0_stride + j - 1]) / 2;
+    dy0 = abs(src0[(i - 1) * src0_stride + j] - src0[i * src0_stride + j]);
+    d0 = AOMMAX(dx0, dy0);
+    dx1 = abs(src1[i * src1_stride + j + 1] - src1[i * src1_stride + j]) / 2;
+    dy1 = abs(src1[(i - 1) * src1_stride + j] - src1[i * src1_stride + j]);
+    d1 = AOMMAX(dx1, dy1);
+    diff = d1 - d0;
+    if (which_inverse)
+      mask[i * block_stride + j] =
+          clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+                AOM_BLEND_A64_MAX_ALPHA);
+    else
+      mask[i * block_stride + j] =
+          clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+  }
+}
+// Left column
+{
+  j = 0;
+  for (i = 1; i < h - 1; ++i) {
+    int dx0, dx1, dy0, dy1, d0, d1;
+    dx0 = abs(src0[i * src0_stride + j + 1] - src0[i * src0_stride + j]);
+    dy0 =
+        abs(src0[(i + 1) * src0_stride + j] - src0[(i - 1) * src0_stride + j]) /
+        2;
+    d0 = AOMMAX(dx0, dy0);
+    dx1 = abs(src1[i * src1_stride + j + 1] - src1[i * src1_stride + j]);
+    dy1 =
+        abs(src1[(i + 1) * src1_stride + j] - src1[(i - 1) * src1_stride + j]) /
+        2;
+    d1 = AOMMAX(dx1, dy1);
+    diff = d1 - d0;
+    if (which_inverse)
+      mask[i * block_stride + j] =
+          clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+                AOM_BLEND_A64_MAX_ALPHA);
+    else
+      mask[i * block_stride + j] =
+          clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+  }
+}
+// Right column
+{
+  j = w - 1;
+  for (i = 1; i < h - 1; ++i) {
+    int dx0, dx1, dy0, dy1, d0, d1;
+    dx0 = abs(src0[i * src0_stride + j - 1] - src0[i * src0_stride + j]);
+    dy0 =
+        abs(src0[(i + 1) * src0_stride + j] - src0[(i - 1) * src0_stride + j]) /
+        2;
+    d0 = AOMMAX(dx0, dy0);
+    dx1 = abs(src1[i * src1_stride + j - 1] - src1[i * src1_stride + j]);
+    dy1 =
+        abs(src1[(i + 1) * src1_stride + j] - src1[(i - 1) * src1_stride + j]) /
+        2;
+    d1 = AOMMAX(dx1, dy1);
+    diff = d1 - d0;
+    if (which_inverse)
+      mask[i * block_stride + j] =
+          clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+                AOM_BLEND_A64_MAX_ALPHA);
+    else
+      mask[i * block_stride + j] =
+          clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+  }
+}
+// Center part
+for (i = 1; i < h - 1; ++i) {
+  for (j = 1; j < w - 1; ++j) {
+    int dx0, dx1, dy0, dy1, d0, d1;
+    dx0 =
+        abs(src0[i * src0_stride + j + 1] - src0[i * src0_stride + j - 1]) / 2;
+    dy0 =
+        abs(src0[(i + 1) * src0_stride + j] - src0[(i - 1) * src0_stride + j]) /
+        2;
+    d0 = AOMMAX(dx0, dy0);
+    dx1 =
+        abs(src1[i * src1_stride + j + 1] - src1[i * src1_stride + j - 1]) / 2;
+    dy1 =
+        abs(src1[(i + 1) * src1_stride + j] - src1[(i - 1) * src1_stride + j]) /
+        2;
+    d1 = AOMMAX(dx1, dy1);
+    diff = d1 - d0;
+    if (which_inverse)
+      mask[i * block_stride + j] =
+          clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+                AOM_BLEND_A64_MAX_ALPHA);
+    else
+      mask[i * block_stride + j] =
+          clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+  }
+}
+}
+
+void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                             const uint8_t *src0, int src0_stride,
+                             const uint8_t *src1, int src1_stride,
+                             BLOCK_SIZE sb_type, int h, int w) {
+  switch (mask_type) {
+    case SMOOTHNESSWTD_44:
+      smoothnesswtd_mask(mask, 0, 44, src0, src0_stride, src1, src1_stride,
+                         sb_type, h, w);
+      break;
+    case SMOOTHNESSWTD_44_INV:
+      smoothnesswtd_mask(mask, 1, 44, src0, src0_stride, src1, src1_stride,
+                         sb_type, h, w);
+      break;
+    default: assert(0);
+  }
+}
+
+#if CONFIG_AOM_HIGBITDEPTH
+static void smoothnesswtd_mask_highbd(uint8_t *mask, int which_inverse,
+                                      int mask_base, const uint16_t *src0,
+                                      int src0_stride, const uint16_t *src1,
+                                      int src1_stride, BLOCK_SIZE sb_type,
+                                      int h, int w, int bd) {
+  int i, j, diff;
+  int block_stride = block_size_wide[sb_type];
+  // Top left corner
+  { { int dx0, dx1, dy0, dy1, d0, d1;
+  i = 0;
+  j = 0;
+  dx0 = abs(src0[i * src0_stride + j + 1] - src0[i * src0_stride + j]);
+  dy0 = abs(src0[(i + 1) * src0_stride + j] - src0[i * src0_stride + j]);
+  d0 = AOMMAX(dx0, dy0);
+  dx1 = abs(src1[i * src1_stride + j + 1] - src1[i * src1_stride + j]);
+  dy1 = abs(src1[(i + 1) * src1_stride + j] - src1[i * src1_stride + j]);
+  d1 = AOMMAX(dx1, dy1);
+  diff = (d1 - d0) >> (bd - 8);
+  if (which_inverse)
+    mask[i * block_stride + j] =
+        clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+              AOM_BLEND_A64_MAX_ALPHA);
+  else
+    mask[i * block_stride + j] = clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+}
+}
+// Top Right corner
+{ { int dx0, dx1, dy0, dy1, d0, d1;
+i = 0;
+j = w - 1;
+dx0 = abs(src0[i * src0_stride + j - 1] - src0[i * src0_stride + j]);
+dy0 = abs(src0[(i + 1) * src0_stride + j] - src0[i * src0_stride + j]);
+d0 = AOMMAX(dx0, dy0);
+dx1 = abs(src1[i * src1_stride + j - 1] - src1[i * src1_stride + j]);
+dy1 = abs(src1[(i + 1) * src1_stride + j] - src1[i * src1_stride + j]);
+d1 = AOMMAX(dx1, dy1);
+diff = (d1 - d0) >> (bd - 8);
+if (which_inverse)
+  mask[i * block_stride + j] =
+      clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+            AOM_BLEND_A64_MAX_ALPHA);
+else
+  mask[i * block_stride + j] = clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+}
+}
+// Bottom left corner
+{ { int dx0, dx1, dy0, dy1, d0, d1;
+i = h - 1;
+j = 0;
+dx0 = abs(src0[i * src0_stride + j + 1] - src0[i * src0_stride + j]);
+dy0 = abs(src0[(i - 1) * src0_stride + j] - src0[i * src0_stride + j]);
+d0 = AOMMAX(dx0, dy0);
+dx1 = abs(src1[i * src1_stride + j + 1] - src1[i * src1_stride + j]);
+dy1 = abs(src1[(i - 1) * src1_stride + j] - src1[i * src1_stride + j]);
+d1 = AOMMAX(dx1, dy1);
+diff = (d1 - d0) >> (bd - 8);
+if (which_inverse)
+  mask[i * block_stride + j] =
+      clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+            AOM_BLEND_A64_MAX_ALPHA);
+else
+  mask[i * block_stride + j] = clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+}
+}
+// Bottom Right corner
+{ { int dx0, dx1, dy0, dy1, d0, d1;
+i = h - 1;
+j = w - 1;
+dx0 = abs(src0[i * src0_stride + j - 1] - src0[i * src0_stride + j]);
+dy0 = abs(src0[(i - 1) * src0_stride + j] - src0[i * src0_stride + j]);
+d0 = AOMMAX(dx0, dy0);
+dx1 = abs(src1[i * src1_stride + j - 1] - src1[i * src1_stride + j]);
+dy1 = abs(src1[(i - 1) * src1_stride + j] - src1[i * src1_stride + j]);
+d1 = AOMMAX(dx1, dy1);
+diff = (d1 - d0) >> (bd - 8);
+if (which_inverse)
+  mask[i * block_stride + j] =
+      clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+            AOM_BLEND_A64_MAX_ALPHA);
+else
+  mask[i * block_stride + j] = clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+}
+}
+// Top row
+{
+  i = 0;
+  for (j = 1; j < w - 1; ++j) {
+    int dx0, dx1, dy0, dy1, d0, d1;
+    dx0 =
+        abs(src0[i * src0_stride + j + 1] - src0[i * src0_stride + j - 1]) / 2;
+    dy0 = abs(src0[(i + 1) * src0_stride + j] - src0[i * src0_stride + j]);
+    d0 = AOMMAX(dx0, dy0);
+    dx1 = abs(src1[i * src1_stride + j + 1] - src1[i * src1_stride + j]) / 2;
+    dy1 = abs(src1[(i + 1) * src1_stride + j] - src1[i * src1_stride + j]);
+    d1 = AOMMAX(dx1, dy1);
+    diff = (d1 - d0) >> (bd - 8);
+    if (which_inverse)
+      mask[i * block_stride + j] =
+          clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+                AOM_BLEND_A64_MAX_ALPHA);
+    else
+      mask[i * block_stride + j] =
+          clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+  }
+}
+// Bottom row
+{
+  i = h - 1;
+  for (j = 1; j < w - 1; ++j) {
+    int dx0, dx1, dy0, dy1, d0, d1;
+    dx0 =
+        abs(src0[i * src0_stride + j + 1] - src0[i * src0_stride + j - 1]) / 2;
+    dy0 = abs(src0[(i - 1) * src0_stride + j] - src0[i * src0_stride + j]);
+    d0 = AOMMAX(dx0, dy0);
+    dx1 = abs(src1[i * src1_stride + j + 1] - src1[i * src1_stride + j]) / 2;
+    dy1 = abs(src1[(i - 1) * src1_stride + j] - src1[i * src1_stride + j]);
+    d1 = AOMMAX(dx1, dy1);
+    diff = (d1 - d0) >> (bd - 8);
+    if (which_inverse)
+      mask[i * block_stride + j] =
+          clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+                AOM_BLEND_A64_MAX_ALPHA);
+    else
+      mask[i * block_stride + j] =
+          clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+  }
+}
+// Left column
+{
+  j = 0;
+  for (i = 1; i < h - 1; ++i) {
+    int dx0, dx1, dy0, dy1, d0, d1;
+    dx0 = abs(src0[i * src0_stride + j + 1] - src0[i * src0_stride + j]);
+    dy0 =
+        abs(src0[(i + 1) * src0_stride + j] - src0[(i - 1) * src0_stride + j]) /
+        2;
+    d0 = AOMMAX(dx0, dy0);
+    dx1 = abs(src1[i * src1_stride + j + 1] - src1[i * src1_stride + j]);
+    dy1 =
+        abs(src1[(i + 1) * src1_stride + j] - src1[(i - 1) * src1_stride + j]) /
+        2;
+    d1 = AOMMAX(dx1, dy1);
+    diff = (d1 - d0) >> (bd - 8);
+    if (which_inverse)
+      mask[i * block_stride + j] =
+          clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+                AOM_BLEND_A64_MAX_ALPHA);
+    else
+      mask[i * block_stride + j] =
+          clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+  }
+}
+// Right column
+{
+  j = w - 1;
+  for (i = 1; i < h - 1; ++i) {
+    int dx0, dx1, dy0, dy1, d0, d1;
+    dx0 = abs(src0[i * src0_stride + j - 1] - src0[i * src0_stride + j]);
+    dy0 =
+        abs(src0[(i + 1) * src0_stride + j] - src0[(i - 1) * src0_stride + j]) /
+        2;
+    d0 = AOMMAX(dx0, dy0);
+    dx1 = abs(src1[i * src1_stride + j - 1] - src1[i * src1_stride + j]);
+    dy1 =
+        abs(src1[(i + 1) * src1_stride + j] - src1[(i - 1) * src1_stride + j]) /
+        2;
+    d1 = AOMMAX(dx1, dy1);
+    diff = (d1 - d0) >> (bd - 8);
+    if (which_inverse)
+      mask[i * block_stride + j] =
+          clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+                AOM_BLEND_A64_MAX_ALPHA);
+    else
+      mask[i * block_stride + j] =
+          clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+  }
+}
+// Center part
+for (i = 1; i < h - 1; ++i) {
+  for (j = 1; j < w - 1; ++j) {
+    int dx0, dx1, dy0, dy1, d0, d1;
+    dx0 =
+        abs(src0[i * src0_stride + j + 1] - src0[i * src0_stride + j - 1]) / 2;
+    dy0 =
+        abs(src0[(i + 1) * src0_stride + j] - src0[(i - 1) * src0_stride + j]) /
+        2;
+    d0 = AOMMAX(dx0, dy0);
+    dx1 =
+        abs(src1[i * src1_stride + j + 1] - src1[i * src1_stride + j - 1]) / 2;
+    dy1 =
+        abs(src1[(i + 1) * src1_stride + j] - src1[(i - 1) * src1_stride + j]) /
+        2;
+    d1 = AOMMAX(dx1, dy1);
+    diff = (d1 - d0) >> (bd - 8);
+    if (which_inverse)
+      mask[i * block_stride + j] =
+          clamp(AOM_BLEND_A64_MAX_ALPHA - mask_base + (diff / DIFF_FACTOR), 0,
+                AOM_BLEND_A64_MAX_ALPHA);
+    else
+      mask[i * block_stride + j] =
+          clamp(mask_base + (diff / DIFF_FACTOR), 0, 64);
+  }
+}
+}
+
+void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                                    const uint8_t *src0, int src0_stride,
+                                    const uint8_t *src1, int src1_stride,
+                                    BLOCK_SIZE sb_type, int h, int w, int bd) {
+  switch (mask_type) {
+    case SMOOTHNESSWTD_44:
+      smoothnesswtd_mask_highbd(mask, 0, 44, CONVERT_TO_SHORTPTR(src0),
+                                src0_stride, CONVERT_TO_SHORTPTR(src1),
+                                src1_stride, sb_type, h, w);
+      break;
+    case SMOOTHNESSWTD_44_INV:
+      smoothnesswtd_mask_highbd(mask, 1, 44, CONVERT_TO_SHORTPTR(src0),
+                                src0_stride, CONVERT_TO_SHORTPTR(src1),
+                                src1_stride, sb_type, h, w);
+      break;
+    default: assert(0);
+  }
+}
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+
+#elif COMPOUND_SEGMENT_TYPE == 3
+static uint8_t range_mask[4][256] = {
+  {
+      56, 56, 57, 57, 58, 58, 58, 59, 59, 60, 60, 60, 61, 61, 61, 62, 62, 62,
+      62, 63, 63, 63, 63, 63, 63, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+      64, 64, 64, 63, 63, 63, 63, 63, 63, 62, 62, 62, 62, 61, 61, 61, 60, 60,
+      60, 59, 59, 58, 58, 58, 57, 57, 56, 56, 55, 55, 54, 54, 53, 53, 52, 52,
+      51, 51, 50, 49, 49, 48, 48, 47, 47, 46, 45, 45, 44, 44, 43, 43, 42, 41,
+      41, 40, 40, 39, 39, 38, 38, 37, 37, 36, 36, 35, 35, 34, 34, 33, 33, 32,
+      32, 31, 31, 30, 30, 29, 29, 29, 28, 28, 27, 27, 27, 26, 26, 26, 25, 25,
+      25, 24, 24, 24, 23, 23, 23, 23, 22, 22, 22, 22, 21, 21, 21, 21, 21, 20,
+      20, 20, 20, 20, 20, 19, 19, 19, 19, 19, 19, 19, 18, 18, 18, 18, 18, 18,
+      18, 18, 18, 18, 18, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17,
+      17, 17, 17, 17, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+      16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+      16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+      16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+      16, 16, 16, 16,
+  },
+  {
+      24, 25, 25, 25, 26, 26, 26, 27, 27, 27, 28, 28, 29, 29, 29, 30, 30, 31,
+      31, 32, 32, 33, 33, 34, 34, 35, 35, 36, 36, 37, 37, 38, 38, 39, 39, 40,
+      40, 41, 41, 42, 43, 43, 44, 44, 45, 45, 46, 47, 47, 48, 48, 49, 49, 50,
+      51, 51, 52, 52, 53, 53, 54, 54, 55, 55, 56, 56, 57, 57, 58, 58, 58, 59,
+      59, 60, 60, 60, 61, 61, 61, 62, 62, 62, 62, 63, 63, 63, 63, 63, 63, 64,
+      64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 63, 63, 63, 63, 63,
+      63, 62, 62, 62, 62, 61, 61, 61, 60, 60, 60, 59, 59, 58, 58, 58, 57, 57,
+      56, 56, 55, 55, 54, 54, 53, 53, 52, 52, 51, 51, 50, 49, 49, 48, 48, 47,
+      47, 46, 45, 45, 44, 44, 43, 43, 42, 41, 41, 40, 40, 39, 39, 38, 38, 37,
+      37, 36, 36, 35, 35, 34, 34, 33, 33, 32, 32, 31, 31, 30, 30, 29, 29, 29,
+      28, 28, 27, 27, 27, 26, 26, 26, 25, 25, 25, 24, 24, 24, 23, 23, 23, 23,
+      22, 22, 22, 22, 21, 21, 21, 21, 21, 20, 20, 20, 20, 20, 20, 19, 19, 19,
+      19, 19, 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 17, 17, 17,
+      17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 16, 16,
+      16, 16, 16, 16,
+  },
+  {
+      16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17,
+      17, 17, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+      19, 19, 19, 19, 19, 19, 19, 20, 20, 20, 20, 20, 20, 21, 21, 21, 21, 21,
+      22, 22, 22, 22, 23, 23, 23, 23, 24, 24, 24, 25, 25, 25, 26, 26, 26, 27,
+      27, 27, 28, 28, 29, 29, 29, 30, 30, 31, 31, 32, 32, 33, 33, 34, 34, 35,
+      35, 36, 36, 37, 37, 38, 38, 39, 39, 40, 40, 41, 41, 42, 43, 43, 44, 44,
+      45, 45, 46, 47, 47, 48, 48, 49, 49, 50, 51, 51, 52, 52, 53, 53, 54, 54,
+      55, 55, 56, 56, 57, 57, 58, 58, 58, 59, 59, 60, 60, 60, 61, 61, 61, 62,
+      62, 62, 62, 63, 63, 63, 63, 63, 63, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+      64, 64, 64, 64, 64, 63, 63, 63, 63, 63, 63, 62, 62, 62, 62, 61, 61, 61,
+      60, 60, 60, 59, 59, 58, 58, 58, 57, 57, 56, 56, 55, 55, 54, 54, 53, 53,
+      52, 52, 51, 51, 50, 49, 49, 48, 48, 47, 47, 46, 45, 45, 44, 44, 43, 43,
+      42, 41, 41, 40, 40, 39, 39, 38, 38, 37, 37, 36, 36, 35, 35, 34, 34, 33,
+      33, 32, 32, 31, 31, 30, 30, 29, 29, 29, 28, 28, 27, 27, 27, 26, 26, 26,
+      25, 25, 25, 24,
+  },
+  {
+      16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+      16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+      16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+      16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17,
+      17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 18,
+      18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19, 19, 19, 20,
+      20, 20, 20, 20, 20, 21, 21, 21, 21, 21, 22, 22, 22, 22, 23, 23, 23, 23,
+      24, 24, 24, 25, 25, 25, 26, 26, 26, 27, 27, 27, 28, 28, 29, 29, 29, 30,
+      30, 31, 31, 32, 32, 33, 33, 34, 34, 35, 35, 36, 36, 37, 37, 38, 38, 39,
+      39, 40, 40, 41, 41, 42, 43, 43, 44, 44, 45, 45, 46, 47, 47, 48, 48, 49,
+      49, 50, 51, 51, 52, 52, 53, 53, 54, 54, 55, 55, 56, 56, 57, 57, 58, 58,
+      58, 59, 59, 60, 60, 60, 61, 61, 61, 62, 62, 62, 62, 63, 63, 63, 63, 63,
+      63, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 63, 63, 63,
+      63, 63, 63, 62, 62, 62, 62, 61, 61, 61, 60, 60, 60, 59, 59, 58, 58, 58,
+      57, 57, 56, 56,
+  }
+};
+
+static void valuewtd_mask(uint8_t *mask, int which_pred, int value_index,
+                          const uint8_t *src0, int src0_stride,
+                          const uint8_t *src1, int src1_stride,
+                          BLOCK_SIZE sb_type, int h, int w) {
+  int i, j;
+  int block_stride = block_size_wide[sb_type];
+  if (which_pred) {
+    for (i = 0; i < h; ++i) {
+      for (j = 0; j < w; ++j) {
+        mask[i * block_stride + j] =
+            AOM_BLEND_A64_MAX_ALPHA -
+            range_mask[value_index][src1[i * src1_stride + j]];
+      }
+    }
+  } else {
+    for (i = 0; i < h; ++i) {
+      for (j = 0; j < w; ++j) {
+        mask[i * block_stride + j] =
+            range_mask[value_index][src0[i * src0_stride + j]];
+      }
+    }
+  }
+}
+
+void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                             const uint8_t *src0, int src0_stride,
+                             const uint8_t *src1, int src1_stride,
+                             BLOCK_SIZE sb_type, int h, int w) {
+  switch (mask_type) {
+    case VALUE_P0_Q0:
+      valuewtd_mask(mask, 0, 0, src0, src0_stride, src1, src1_stride, sb_type,
+                    h, w);
+      break;
+    case VALUE_P0_Q1:
+      valuewtd_mask(mask, 0, 1, src0, src0_stride, src1, src1_stride, sb_type,
+                    h, w);
+      break;
+    case VALUE_P0_Q2:
+      valuewtd_mask(mask, 0, 2, src0, src0_stride, src1, src1_stride, sb_type,
+                    h, w);
+      break;
+    case VALUE_P0_Q3:
+      valuewtd_mask(mask, 0, 3, src0, src0_stride, src1, src1_stride, sb_type,
+                    h, w);
+      break;
+    case VALUE_P1_Q0:
+      valuewtd_mask(mask, 1, 0, src0, src0_stride, src1, src1_stride, sb_type,
+                    h, w);
+      break;
+    case VALUE_P1_Q1:
+      valuewtd_mask(mask, 1, 1, src0, src0_stride, src1, src1_stride, sb_type,
+                    h, w);
+      break;
+    case VALUE_P1_Q2:
+      valuewtd_mask(mask, 1, 2, src0, src0_stride, src1, src1_stride, sb_type,
+                    h, w);
+      break;
+    case VALUE_P1_Q3:
+      valuewtd_mask(mask, 1, 3, src0, src0_stride, src1, src1_stride, sb_type,
+                    h, w);
+      break;
+    default: assert(0);
+  }
+}
+
+#if CONFIG_AOM_HIGHBITDEPTH
+static void valuewtd_mask_highbd(uint8_t *mask, int which_pred, int value_index,
+                                 const uint8_t *src0, int src0_stride,
+                                 const uint8_t *src1, int src1_stride,
+                                 BLOCK_SIZE sb_type, int h, int w, int bd) {
+  int i, j;
+  int block_stride = block_size_wide[sb_type];
+  if (which_pred) {
+    for (i = 0; i < h; ++i) {
+      for (j = 0; j < w; ++j) {
+        mask[i * block_stride + j] =
+            AOM_BLEND_A64_MAX_ALPHA -
+            range_mask[value_index][src1[i * src1_stride + j] >> (bd - 8)];
+      }
+    }
+  } else {
+    for (i = 0; i < h; ++i) {
+      for (j = 0; j < w; ++j) {
+        mask[i * block_stride + j] =
+            range_mask[value_index][src0[i * src0_stride + j] >> (bd - 8)];
+      }
+    }
+  }
+}
+
+void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                                    const uint8_t *src0, int src0_stride,
+                                    const uint8_t *src1, int src1_stride,
+                                    BLOCK_SIZE sb_type, int h, int w, int bd) {
+  switch (mask_type) {
+    case VALUE_P0_Q0:
+      valuewtd_mask_highbd(mask, 0, 0, src0, src0_stride, src1, src1_stride,
+                           sb_type, h, w, bd);
+      break;
+    case VALUE_P0_Q1:
+      valuewtd_mask_highbd(mask, 0, 1, src0, src0_stride, src1, src1_stride,
+                           sb_type, h, w, bd);
+      break;
+    case VALUE_P0_Q2:
+      valuewtd_mask_highbd(mask, 0, 2, src0, src0_stride, src1, src1_stride,
+                           sb_type, h, w, bd);
+      break;
+    case VALUE_P0_Q3:
+      valuewtd_mask_highbd(mask, 0, 3, src0, src0_stride, src1, src1_stride,
+                           sb_type, h, w, bd);
+      break;
+    case VALUE_P1_Q0:
+      valuewtd_mask_highbd(mask, 1, 0, src0, src0_stride, src1, src1_stride,
+                           sb_type, h, w, bd);
+      break;
+    case VALUE_P1_Q1:
+      valuewtd_mask_highbd(mask, 1, 1, src0, src0_stride, src1, src1_stride,
+                           sb_type, h, w, bd);
+      break;
+    case VALUE_P1_Q2:
+      valuewtd_mask_highbd(mask, 1, 2, src0, src0_stride, src1, src1_stride,
+                           sb_type, h, w, bd);
+      break;
+    case VALUE_P1_Q3:
+      valuewtd_mask_highbd(mask, 1, 3, src0, src0_stride, src1, src1_stride,
+                           sb_type, h, w, bd);
+      break;
+    default: assert(0);
+  }
+}
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // COMPOUND_SEGMENT_TYPE
 #endif  // CONFIG_COMPOUND_SEGMENT
 
 static void init_wedge_master_masks() {
@@ -470,16 +1216,18 @@ static void build_masked_compound(
 }
 
 #if CONFIG_AOM_HIGHBITDEPTH
-static void build_masked_compound_wedge_highbd(
+static void build_masked_compound_highbd(
     uint8_t *dst_8, int dst_stride, const uint8_t *src0_8, int src0_stride,
-    const uint8_t *src1_8, int src1_stride, int wedge_index, int wedge_sign,
-    BLOCK_SIZE sb_type, int h, int w, int bd) {
+    const uint8_t *src1_8, int src1_stride,
+    const INTERINTER_COMPOUND_DATA *const comp_data, BLOCK_SIZE sb_type, int h,
+    int w, int bd) {
   // Derive subsampling from h and w passed in. May be refactored to
   // pass in subsampling factors directly.
   const int subh = (2 << b_height_log2_lookup[sb_type]) == h;
   const int subw = (2 << b_width_log2_lookup[sb_type]) == w;
-  const uint8_t *mask =
-      av1_get_contiguous_soft_mask(wedge_index, wedge_sign, sb_type);
+  const uint8_t *mask = av1_get_compound_type_mask(comp_data, sb_type);
+  // const uint8_t *mask =
+  //     av1_get_contiguous_soft_mask(wedge_index, wedge_sign, sb_type);
   aom_highbd_blend_a64_mask(dst_8, dst_stride, src0_8, src0_stride, src1_8,
                             src1_stride, mask, block_size_wide[sb_type], h, w,
                             subh, subw, bd);
@@ -534,11 +1282,22 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
         comp_data->wedge_index, comp_data->wedge_sign, mi->mbmi.sb_type,
         wedge_offset_x, wedge_offset_y, h, w);
 #else
+#if CONFIG_COMPOUND_SEGMENT
+  if (!plane && comp_data->type == COMPOUND_SEG) {
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+      build_compound_seg_mask_highbd(comp_data->seg_mask, comp_data->mask_type,
+                                     dst, dst_stride, tmp_dst, MAX_SB_SIZE,
+                                     mi->mbmi.sb_type, h, w, xd->bd);
+    else
+      build_compound_seg_mask(comp_data->seg_mask, comp_data->mask_type, dst,
+                              dst_stride, tmp_dst, MAX_SB_SIZE,
+                              mi->mbmi.sb_type, h, w);
+  }
+#endif  // CONFIG_COMPOUND_SEGMENT
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
-    build_masked_compound_wedge_highbd(
-        dst, dst_stride, dst, dst_stride, tmp_dst, MAX_SB_SIZE,
-        comp_data->wedge_index, comp_data->wedge_sign, mi->mbmi.sb_type, h, w,
-        xd->bd);
+    build_masked_compound_highbd(dst, dst_stride, dst, dst_stride, tmp_dst,
+                                 MAX_SB_SIZE, comp_data, mi->mbmi.sb_type, h, w,
+                                 xd->bd);
   else
     build_masked_compound(dst, dst_stride, dst, dst_stride, tmp_dst,
                           MAX_SB_SIZE, comp_data, mi->mbmi.sb_type, h, w);
@@ -2251,17 +3010,32 @@ static void build_wedge_inter_predictor_from_buf(
   if (is_compound &&
       is_masked_compound_type(mbmi->interinter_compound_data.type)) {
 #if CONFIG_COMPOUND_SEGMENT
+#if CONFIG_AOM_HIGHBITDEPTH
+    if (!plane && comp_data->type == COMPOUND_SEG) {
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+        build_compound_seg_mask_highbd(
+            comp_data->seg_mask, comp_data->mask_type,
+            CONVERT_TO_BYTEPTR(ext_dst0), ext_dst_stride0,
+            CONVERT_TO_BYTEPTR(ext_dst1), ext_dst_stride1, mbmi->sb_type, h, w,
+            xd->bd);
+      else
+        build_compound_seg_mask(comp_data->seg_mask, comp_data->mask_type,
+                                ext_dst0, ext_dst_stride0, ext_dst1,
+                                ext_dst_stride1, mbmi->sb_type, h, w);
+    }
+#else
     if (!plane && comp_data->type == COMPOUND_SEG)
       build_compound_seg_mask(comp_data->seg_mask, comp_data->mask_type,
                               ext_dst0, ext_dst_stride0, ext_dst1,
                               ext_dst_stride1, mbmi->sb_type, h, w);
+#endif  // CONFIG_AOM_HIGHBITDEPTH
 #endif  // CONFIG_COMPOUND_SEGMENT
 #if CONFIG_AOM_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
-      build_masked_compound_wedge_highbd(
+      build_masked_compound_highbd(
           dst, dst_buf->stride, CONVERT_TO_BYTEPTR(ext_dst0), ext_dst_stride0,
-          CONVERT_TO_BYTEPTR(ext_dst1), ext_dst_stride1, comp_data->wedge_index,
-          comp_data->wedge_sign, mbmi->sb_type, h, w, xd->bd);
+          CONVERT_TO_BYTEPTR(ext_dst1), ext_dst_stride1, comp_data,
+          mbmi->sb_type, h, w, xd->bd);
     else
 #endif  // CONFIG_AOM_HIGHBITDEPTH
       build_masked_compound(dst, dst_buf->stride, ext_dst0, ext_dst_stride0,
