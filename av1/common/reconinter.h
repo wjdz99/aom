@@ -117,7 +117,7 @@ static INLINE void highbd_inter_predictor(const uint8_t *src, int src_stride,
 }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 // Set to one to use larger codebooks
 #define USE_LARGE_WEDGE_CODEBOOK 0
 
@@ -178,7 +178,9 @@ static INLINE int get_interinter_wedge_bits(BLOCK_SIZE sb_type) {
   const int wbits = wedge_params_lookup[sb_type].bits;
   return (wbits > 0) ? wbits + 1 : 0;
 }
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
+#if CONFIG_EXT_INTER
 static INLINE int is_interintra_wedge_used(BLOCK_SIZE sb_type) {
   (void)sb_type;
   return wedge_params_lookup[sb_type].bits > 0;
@@ -228,7 +230,7 @@ static INLINE void av1_make_inter_predictor(
                     h, ref, interp_filter, xs, ys);
 }
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
                                      uint8_t *dst, int dst_stride,
                                      const int subpel_x, const int subpel_y,
@@ -238,7 +240,7 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
                                      const InterpFilter *interp_filter,
 #else
                                      const InterpFilter interp_filter,
-#endif
+#endif  // CONFIG_DUAL_FILTER
                                      int xs, int ys,
 #if CONFIG_SUPERTX
                                      int wedge_offset_x, int wedge_offset_y,
@@ -247,7 +249,7 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
                                      int plane,
 #endif  // CONFIG_COMPOUND_SEGMENT
                                      MACROBLOCKD *xd);
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
 static INLINE int round_mv_comp_q4(int value) {
   return (value < 0 ? value - 2 : value + 2) / 4;
@@ -498,7 +500,7 @@ void av1_build_obmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                         int mi_row, int mi_col);
 #endif  // CONFIG_MOTION_VAR
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 #define MASK_MASTER_SIZE (2 * MAX_SB_SIZE)
 #define MASK_MASTER_STRIDE (2 * MAX_SB_SIZE)
 
@@ -516,7 +518,9 @@ const uint8_t *av1_get_soft_mask(int wedge_index, int wedge_sign,
 
 const uint8_t *av1_get_compound_type_mask(INTERINTER_COMPOUND_DATA *comp_data,
                                           BLOCK_SIZE sb_type, int invert);
+#endif  // CONFIG_EXT_INTER || (CONFIG_EXT_REFS && CONFIG_TRIPRED)
 
+#if CONFIG_EXT_INTER
 void av1_build_interintra_predictors(MACROBLOCKD *xd, uint8_t *ypred,
                                      uint8_t *upred, uint8_t *vpred,
                                      int ystride, int ustride, int vstride,
