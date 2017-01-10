@@ -1920,16 +1920,27 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 
 #if !CONFIG_PVQ
 #if CONFIG_PALETTE
-  for (plane = 0; plane <= 1; ++plane) {
-    if (m->mbmi.palette_mode_info.palette_size[plane] > 0) {
-      const int rows =
-          block_size_high[m->mbmi.sb_type] >> (xd->plane[plane].subsampling_y);
-      const int cols =
-          block_size_wide[m->mbmi.sb_type] >> (xd->plane[plane].subsampling_x);
-      assert(*tok < tok_end);
-      pack_palette_tokens(w, tok, m->mbmi.palette_mode_info.palette_size[plane],
-                          rows * cols - 1);
-      assert(*tok < tok_end + m->mbmi.skip);
+  {
+    const BLOCK_SIZE bsize = m->mbmi.sb_type;
+    const int block_height = block_size_high[bsize];
+    const int block_width = block_size_wide[bsize];
+    const int rows_in_pixels =
+        (xd->mb_to_bottom_edge >= 0)
+            ? block_height
+            : (xd->mb_to_bottom_edge >> 3) + block_height;
+    const int cols_in_pixels = (xd->mb_to_right_edge >= 0)
+                                   ? block_width
+                                   : (xd->mb_to_right_edge >> 3) + block_width;
+    for (plane = 0; plane <= 1; ++plane) {
+      const uint8_t palette_size_plane =
+          m->mbmi.palette_mode_info.palette_size[plane];
+      if (palette_size_plane > 0) {
+        const int rows = rows_in_pixels >> (xd->plane[plane].subsampling_y);
+        const int cols = cols_in_pixels >> (xd->plane[plane].subsampling_x);
+        assert(*tok < tok_end);
+        pack_palette_tokens(w, tok, palette_size_plane, rows * cols - 1);
+        assert(*tok < tok_end + m->mbmi.skip);
+      }
     }
   }
 #endif  // CONFIG_PALETTE

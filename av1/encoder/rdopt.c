@@ -1920,8 +1920,16 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   MACROBLOCKD *const xd = &x->e_mbd;
   MODE_INFO *const mic = xd->mi[0];
   MB_MODE_INFO *const mbmi = &mic->mbmi;
-  const int rows = block_size_high[bsize];
-  const int cols = block_size_wide[bsize];
+  const int block_height = block_size_high[bsize];
+  const int block_width = block_size_wide[bsize];
+  const int rows_in_pixels = (xd->mb_to_bottom_edge >= 0)
+                                 ? block_height
+                                 : (xd->mb_to_bottom_edge >> 3) + block_height;
+  const int cols_in_pixels = (xd->mb_to_right_edge >= 0)
+                                 ? block_width
+                                 : (xd->mb_to_right_edge >> 3) + block_width;
+  const int rows = rows_in_pixels >> (xd->plane[0].subsampling_y);
+  const int cols = cols_in_pixels >> (xd->plane[0].subsampling_x);
   int this_rate, colors, n;
   RD_STATS tokenonly_rd_stats;
   int64_t this_rd;
@@ -3939,8 +3947,16 @@ static void rd_pick_palette_intra_sbuv(
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
   const BLOCK_SIZE bsize = mbmi->sb_type;
-  const int rows = block_size_high[bsize] >> (xd->plane[1].subsampling_y);
-  const int cols = block_size_wide[bsize] >> (xd->plane[1].subsampling_x);
+  const int block_height = block_size_high[bsize];
+  const int block_width = block_size_wide[bsize];
+  const int rows_in_pixels = (xd->mb_to_bottom_edge >= 0)
+                                 ? block_height
+                                 : (xd->mb_to_bottom_edge >> 3) + block_height;
+  const int cols_in_pixels = (xd->mb_to_right_edge >= 0)
+                                 ? block_width
+                                 : (xd->mb_to_right_edge >> 3) + block_width;
+  const int rows = rows_in_pixels >> (xd->plane[1].subsampling_y);
+  const int cols = cols_in_pixels >> (xd->plane[1].subsampling_x);
   int this_rate;
   int64_t this_rd;
   int colors_u, colors_v, colors;
@@ -8543,8 +8559,16 @@ static void restore_uv_color_map(const AV1_COMP *const cpi, MACROBLOCK *x) {
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
   const BLOCK_SIZE bsize = mbmi->sb_type;
-  const int rows = block_size_high[bsize] >> (xd->plane[1].subsampling_y);
-  const int cols = block_size_wide[bsize] >> (xd->plane[1].subsampling_x);
+  const int block_height = block_size_high[bsize];
+  const int block_width = block_size_wide[bsize];
+  const int rows_in_pixels = (xd->mb_to_bottom_edge >= 0)
+                                 ? block_height
+                                 : (xd->mb_to_bottom_edge >> 3) + block_height;
+  const int cols_in_pixels = (xd->mb_to_right_edge >= 0)
+                                 ? block_width
+                                 : (xd->mb_to_right_edge >> 3) + block_width;
+  const int rows = rows_in_pixels >> (xd->plane[1].subsampling_y);
+  const int cols = cols_in_pixels >> (xd->plane[1].subsampling_x);
   int src_stride = x->plane[1].src.stride;
   const uint8_t *const src_u = x->plane[1].src.buf;
   const uint8_t *const src_v = x->plane[2].src.buf;
@@ -8874,10 +8898,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   od_rollback_buffer pre_buf;
 #endif
 
-#if CONFIG_PALETTE || CONFIG_EXT_INTRA
+#if CONFIG_EXT_INTRA
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
-#endif  // CONFIG_PALETTE || CONFIG_EXT_INTRA
+#endif  // CONFIG_EXT_INTRA
 #if CONFIG_PALETTE
   int palette_ctx = 0;
   const MODE_INFO *above_mi = xd->above_mi;
@@ -10130,8 +10154,24 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         cpi, x, bsize, palette_ctx, intra_mode_cost[DC_PRED], &mbmi_dummy,
         best_palette_color_map, &dummy_rd, NULL, NULL, NULL, NULL);
     if (pmi->palette_size[0] == 0) goto PALETTE_EXIT;
-    memcpy(color_map, best_palette_color_map,
-           rows * cols * sizeof(best_palette_color_map[0]));
+    {
+      const int block_height = block_size_high[bsize];
+      const int block_width = block_size_wide[bsize];
+      const int palette_rows_in_pixels =
+          (xd->mb_to_bottom_edge >= 0)
+              ? block_height
+              : (xd->mb_to_bottom_edge >> 3) + block_height;
+      const int palette_cols_in_pixels =
+          (xd->mb_to_right_edge >= 0)
+              ? block_width
+              : (xd->mb_to_right_edge >> 3) + block_width;
+      const int palette_rows =
+          palette_rows_in_pixels >> (xd->plane[0].subsampling_y);
+      const int palette_cols =
+          palette_cols_in_pixels >> (xd->plane[0].subsampling_x);
+      memcpy(color_map, best_palette_color_map,
+             palette_rows * palette_cols * sizeof(best_palette_color_map[0]));
+    }
     super_block_yrd(cpi, x, &rd_stats_y, bsize, best_rd);
     if (rd_stats_y.rate == INT_MAX) goto PALETTE_EXIT;
     uv_tx = uv_txsize_lookup[bsize][mbmi->tx_size][xd->plane[1].subsampling_x]
