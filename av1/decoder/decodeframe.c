@@ -3268,6 +3268,10 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_PVQ
       av1_zero(td->pvq_ref_coeff);
 #endif
+#if CONFIG_EC_ADAPT
+      // Initialise the tile context
+      td->tctx = *cm->fc;
+#endif
       av1_tile_init(&td->xd.tile, td->cm, tile_row, tile_col);
       setup_bool_decoder(buf->data, data_end, buf->size, &cm->error,
                          &td->bit_reader, pbi->decrypt_cb, pbi->decrypt_state);
@@ -3285,6 +3289,10 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
                            td->dqcoeff);
 #if CONFIG_PVQ
       daala_dec_init(cm, &td->xd.daala_dec, &td->bit_reader);
+#endif
+#if CONFIG_EC_ADAPT
+      // Initialise the tile context
+      td->xd.tile_ctx = &td->tctx;
 #endif
 #if CONFIG_PALETTE
       td->xd.plane[0].color_index_map = td->color_index_map[0];
