@@ -84,6 +84,64 @@ void av1_convolve_vert_c(const uint8_t *src, int src_stride, uint8_t *dst,
   }
 }
 
+#if CONFIG_IMPROVED_FILTER
+void av1_convolve_horiz_full_c(const uint8_t *src, int src_stride,
+                               uint16_t *dst, int dst_stride, int w, int h,
+                               const InterpFilterParams filter_params,
+                               const int subpel_x_q4, int x_step_q4) {
+  int x, y;
+  int filter_size = filter_params.taps;
+  src -= filter_size / 2 - 1;
+  for (y = 0; y < h; ++y) {
+    int x_q4 = subpel_x_q4;
+    for (x = 0; x < w; ++x) {
+      const uint8_t *const src_x = &src[x_q4 >> SUBPEL_BITS];
+      const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
+          filter_params, x_q4 & SUBPEL_MASK);
+      int k, sum = 0;
+      for (k = 0; k < filter_size; ++k) sum += src_x[k] * x_filter[k];
+      dst[x] = sum;
+      x_q4 += x_step_q4;
+    }
+    src += src_stride;
+    dst += dst_stride;
+  }
+}
+
+void av1_convolve_vert_full_c(const uint16_t *src, int src_stride, uint8_t *dst,
+                              int dst_stride, int w, int h,
+                              const InterpFilterParams filter_params,
+                              const int subpel_y_q4, int y_step_q4, int avg) {
+  int x, y;
+  int filter_size = filter_params.taps;
+  src -= src_stride * (filter_size / 2 - 1);
+
+  for (x = 0; x < w; ++x) {
+    int y_q4 = subpel_y_q4;
+    for (y = 0; y < h; ++y) {
+      const uint16_t *const src_y = &src[(y_q4 >> SUBPEL_BITS) * src_stride];
+      const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
+          filter_params, y_q4 & SUBPEL_MASK);
+      int k, sum = 0;
+      for (k = 0; k < filter_size; ++k)
+        sum += src_y[k * src_stride] * y_filter[k];
+      if (avg) {
+        dst[y * dst_stride] = ROUND_POWER_OF_TWO(
+            dst[y * dst_stride] +
+                clip_pixel(ROUND_POWER_OF_TWO(sum, FILTER_BITS * 2)),
+            1);
+      } else {
+        dst[y * dst_stride] =
+            clip_pixel(ROUND_POWER_OF_TWO(sum, FILTER_BITS * 2));
+      }
+      y_q4 += y_step_q4;
+    }
+    ++src;
+    ++dst;
+  }
+}
+#endif
+
 static void convolve_copy(const uint8_t *src, int src_stride, uint8_t *dst,
                           int dst_stride, int w, int h, int avg) {
   if (avg == 0) {
@@ -132,17 +190,37 @@ void av1_convolve_vert_facade(const uint8_t *src, int src_stride, uint8_t *dst,
     const int16_t *filter_y =
         av1_get_interp_filter_subpel_kernel(filter_params, subpel_y_q4);
     if (avg == 0) {
-      aom_convolve8_vert(src, src_stride, dst, dst_stride, NULL, -1, filter_y,
-                         y_step_q4, w, h);
+      aom_convolve8_vert_c(src, src_stride, dst, dst_stride, NULL, -1, filter_y,
+                           y_step_q4, w, h);
     } else {
-      aom_convolve8_avg_vert(src, src_stride, dst, dst_stride, NULL, -1,
-                             filter_y, y_step_q4, w, h);
+      aom_convolve8_avg_vert_c(src, src_stride, dst, dst_stride, NULL, -1,
+                               filter_y, y_step_q4, w, h);
     }
   } else {
     av1_convolve_vert(src, src_stride, dst, dst_stride, w, h, filter_params,
                       subpel_y_q4, y_step_q4, avg);
   }
 }
+
+#if CONFIG_IMPROVED_FILTER
+void av1_convolve_horiz_facade_full(const uint8_t *src, int src_stride,
+                                    uint16_t *dst, int dst_stride, int w, int h,
+                                    const InterpFilterParams filter_params,
+                                    const int subpel_x_q4, int x_step_q4) {
+  av1_convolve_horiz_full_c(src, src_stride, dst, dst_stride, w, h,
+                            filter_params, subpel_x_q4, x_step_q4);
+}
+
+void av1_convolve_vert_facade_full(const uint16_t *src, int src_stride,
+                                   uint8_t *dst, int dst_stride, int w, int h,
+                                   const InterpFilterParams filter_params,
+                                   const int subpel_y_q4, int y_step_q4,
+                                   int avg) {
+  av1_convolve_vert_full_c(src, src_stride, dst, dst_stride, w, h,
+                           filter_params, subpel_y_q4, y_step_q4, avg);
+}
+
+#endif
 
 void av1_convolve(const uint8_t *src, int src_stride, uint8_t *dst,
                   int dst_stride, int w, int h,
@@ -189,8 +267,13 @@ void av1_convolve(const uint8_t *src, int src_stride, uint8_t *dst,
     // temp's size is set to a 256 aligned value to facilitate SIMD
     // implementation. The value is greater than (maximum possible intermediate
     // height or width) * MAX_SB_SIZE
+#if CONFIG_IMPROVED_FILTER
+    DECLARE_ALIGNED(16, uint16_t,
+                    temp[((MAX_SB_SIZE * 2 + 16) + 16) * MAX_SB_SIZE]);
+#else
     DECLARE_ALIGNED(16, uint8_t,
                     temp[((MAX_SB_SIZE * 2 + 16) + 16) * MAX_SB_SIZE]);
+#endif
     int max_intermediate_size = ((MAX_SB_SIZE * 2 + 16) + 16);
     int filter_size;
     InterpFilterParams filter_params;
@@ -250,19 +333,32 @@ void av1_convolve(const uint8_t *src, int src_stride, uint8_t *dst,
 
       assert(filter_params.taps <= MAX_FILTER_TAP);
 
+#if CONFIG_IMPROVED_FILTER
+      av1_convolve_horiz_facade_full(src - src_stride * (filter_size / 2 - 1),
+                                     src_stride, temp, temp_stride, w,
+                                     intermediate_height, filter_params,
+                                     subpel_x_q4, x_step_q4);
+#else
       av1_convolve_horiz_facade(src - src_stride * (filter_size / 2 - 1),
                                 src_stride, temp, temp_stride, w,
                                 intermediate_height, filter_params, subpel_x_q4,
                                 x_step_q4, 0);
+#endif
 
 #if CONFIG_DUAL_FILTER
       filter_params = filter_params_y;
 #endif
       assert(filter_params.taps <= MAX_FILTER_TAP);
 
+#if CONFIG_IMPROVED_FILTER
+      av1_convolve_vert_facade_full(
+          temp + temp_stride * (filter_size / 2 - 1), temp_stride, dst,
+          dst_stride, w, h, filter_params, subpel_y_q4, y_step_q4, ref_idx);
+#else
       av1_convolve_vert_facade(temp + temp_stride * (filter_size / 2 - 1),
                                temp_stride, dst, dst_stride, w, h,
                                filter_params, subpel_y_q4, y_step_q4, ref_idx);
+#endif
     }
   }
 }
