@@ -314,9 +314,11 @@ static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
   const int tx_col = blk_col >> 1;
   const int max_blocks_high = max_block_high(xd, mbmi->sb_type, 0);
   const int max_blocks_wide = max_block_wide(xd, mbmi->sb_type, 0);
-  int ctx = txfm_partition_context(xd->above_txfm_context + tx_col,
-                                   xd->left_txfm_context + tx_row,
-                                   mbmi->sb_type, tx_size);
+  int ctx = tx_size > TX_4X4
+                ? txfm_partition_context(xd->above_txfm_context + tx_col,
+                                         xd->left_txfm_context + tx_row,
+                                         mbmi->sb_type, tx_size)
+                : 0;
   TX_SIZE(*const inter_tx_size)
   [MAX_MIB_SIZE] =
       (TX_SIZE(*)[MAX_MIB_SIZE]) & mbmi->inter_tx_size[tx_row][tx_col];

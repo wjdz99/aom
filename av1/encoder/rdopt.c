@@ -3297,9 +3297,10 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   ENTROPY_CONTEXT *pta = ta + blk_col;
   ENTROPY_CONTEXT *ptl = tl + blk_row;
   int coeff_ctx, i;
-  int ctx =
-      txfm_partition_context(tx_above + (blk_col >> 1),
-                             tx_left + (blk_row >> 1), mbmi->sb_type, tx_size);
+  int ctx = tx_size > TX_4X4 ? txfm_partition_context(tx_above + (blk_col >> 1),
+                                                      tx_left + (blk_row >> 1),
+                                                      mbmi->sb_type, tx_size)
+                             : 0;
   int64_t sum_rd = INT64_MAX;
   int tmp_eob = 0;
   int zero_blk_rate;
