@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "97a04ea7_c4d489a6",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-01-10T03:51:59Z",
+      "side": 1,
+      "message": "We can add enums once we have converged on a specific strategy that works the best. This mask type can simply be a parameter where having a readable name makes less  of a sense. Consider the wedge case - does it make sense to have a specific name for every wedge ?\n\nAnyways, this can stay for now, but we will probably change this soon anyways.",
+      "parentUuid": "97a04ea7_70f1dcb1",
+      "revId": "9917089921f70e6709307d29d28b523491734f81",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "97a04ea7_a484ea60",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 5
