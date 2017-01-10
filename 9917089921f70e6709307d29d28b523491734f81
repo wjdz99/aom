@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "97a04ea7_70f1dcb1",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-01-10T03:23:32Z",
+      "side": 1,
+      "message": "What is the disadvantage of using enums here? It seems more readable to give each mask type a name rather than just a number.",
+      "parentUuid": "97a04ea7_24faba99",
+      "revId": "9917089921f70e6709307d29d28b523491734f81",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "97a04ea7_a484ea60",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-09T23:56:58Z",
       "side": 1,
       "message": "Prefer this to explicitly use the mask_type as a parameter.",
+      "revId": "9917089921f70e6709307d29d28b523491734f81",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97a04ea7_70647ccd",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-01-10T03:23:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97a04ea7_a484ea60",
       "revId": "9917089921f70e6709307d29d28b523491734f81",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "97a04ea7_9061e0bd",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1895,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-01-10T03:23:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97a04ea7_843fe675",
+      "revId": "9917089921f70e6709307d29d28b523491734f81",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "97a04ea7_644be229",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 5
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "97a04ea7_b06ee4a8",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1643,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-01-10T03:23:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97a04ea7_644be229",
+      "revId": "9917089921f70e6709307d29d28b523491734f81",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "97a04ea7_2451dad9",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 5
@@ -81,6 +153,24 @@
       "writtenOn": "2017-01-09T23:56:58Z",
       "side": 1,
       "message": "Better to fold in the inverse of the mask into SEG_MASK_TYPES.",
+      "revId": "9917089921f70e6709307d29d28b523491734f81",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97a04ea7_d06b6897",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 6891,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-01-10T03:23:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97a04ea7_2451dad9",
       "revId": "9917089921f70e6709307d29d28b523491734f81",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
