@@ -397,19 +397,30 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
   int i, j;
   int this_rate = 0;
   uint8_t color_order[PALETTE_MAX_SIZE];
-  const int rows =
-      block_size_high[bsize] >> (xd->plane[plane != 0].subsampling_y);
-  const int cols =
-      block_size_wide[bsize] >> (xd->plane[plane != 0].subsampling_x);
+  const int subsampling_x = (xd->plane[plane != 0].subsampling_x);
+  const int subsampling_y = (xd->plane[plane != 0].subsampling_y);
+  const int block_height = block_size_high[bsize];
+  const int block_width = block_size_wide[bsize];
+  const int plane_block_width = block_width >> subsampling_x;
+  const int rows_in_pixels = (xd->mb_to_bottom_edge >= 0)
+                                 ? block_height
+                                 : (xd->mb_to_bottom_edge >> 3) + block_height;
+  const int cols_in_pixels = (xd->mb_to_right_edge >= 0)
+                                 ? block_width
+                                 : (xd->mb_to_right_edge >> 3) + block_width;
+  const int rows = rows_in_pixels >> subsampling_y;
+  const int cols = cols_in_pixels >> subsampling_x;
   const aom_prob(*const probs)[PALETTE_COLOR_CONTEXTS][PALETTE_COLORS - 1] =
       plane == 0 ? av1_default_palette_y_color_prob
                  : av1_default_palette_uv_color_prob;
+  assert(plane == 0 || plane == 1);
 
   for (i = 0; i < rows; ++i) {
     for (j = (i == 0 ? 1 : 0); j < cols; ++j) {
       int color_new_idx;
-      const int color_ctx = av1_get_palette_color_context(
-          color_map, cols, i, j, n, color_order, &color_new_idx);
+      const int color_ctx =
+          av1_get_palette_color_context(color_map, cols, plane_block_width, i,
+                                        j, n, color_order, &color_new_idx);
       assert(color_new_idx >= 0 && color_new_idx < n);
       if (dry_run == DRY_RUN_COSTCOEFFS)
         this_rate += cpi->palette_y_color_cost[n - 2][color_ctx][color_new_idx];
