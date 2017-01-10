@@ -1922,6 +1922,8 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   MB_MODE_INFO *const mbmi = &mic->mbmi;
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
+  const int width =
+      (xd->mb_to_right_edge >= 0) ? cols : (xd->mb_to_right_edge >> 3) + cols;
   int this_rate, colors, n;
   RD_STATS tokenonly_rd_stats;
   int64_t this_rd;
@@ -2028,7 +2030,7 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
         for (j = (i == 0 ? 1 : 0); j < cols; ++j) {
           int color_idx;
           const int color_ctx = av1_get_palette_color_context(
-              color_map, cols, i, j, k, color_order, &color_idx);
+              color_map, width, cols, i, j, k, color_order, &color_idx);
           assert(color_idx >= 0 && color_idx < k);
           this_rate += cpi->palette_y_color_cost[k - 2][color_ctx][color_idx];
         }
@@ -3941,6 +3943,10 @@ static void rd_pick_palette_intra_sbuv(
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const int rows = block_size_high[bsize] >> (xd->plane[1].subsampling_y);
   const int cols = block_size_wide[bsize] >> (xd->plane[1].subsampling_x);
+  const int width =
+      (xd->mb_to_right_edge >= 0)
+          ? cols
+          : (xd->mb_to_right_edge >> (3 + xd->plane[1].subsampling_x)) + cols;
   int this_rate;
   int64_t this_rd;
   int colors_u, colors_v, colors;
@@ -4065,7 +4071,7 @@ static void rd_pick_palette_intra_sbuv(
         for (j = (i == 0 ? 1 : 0); j < cols; ++j) {
           int color_idx;
           const int color_ctx = av1_get_palette_color_context(
-              color_map, cols, i, j, n, color_order, &color_idx);
+              color_map, width, cols, i, j, n, color_order, &color_idx);
           assert(color_idx >= 0 && color_idx < n);
           this_rate += cpi->palette_uv_color_cost[n - 2][color_ctx][color_idx];
         }
