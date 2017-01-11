@@ -156,10 +156,16 @@ static PREDICTION_MODE read_inter_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
                                        MB_MODE_INFO *mbmi,
 #endif
                                        aom_reader *r, int16_t ctx) {
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+
 #if CONFIG_REF_MV
   FRAME_COUNTS *counts = xd->counts;
   int16_t mode_ctx = ctx & NEWMV_CTX_MASK;
-  aom_prob mode_prob = cm->fc->newmv_prob[mode_ctx];
+  aom_prob mode_prob = ec_ctx->newmv_prob[mode_ctx];
 
   if (aom_read(r, mode_prob, ACCT_STR) == 0) {
     if (counts) ++counts->newmv_mode[mode_ctx][0];
@@ -170,7 +176,7 @@ static PREDICTION_MODE read_inter_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
       return NEWMV;
 #if CONFIG_EXT_INTER
     } else {
-      mode_prob = cm->fc->new2mv_prob;
+      mode_prob = ec_ctx->new2mv_prob;
       if (aom_read(r, mode_prob, ACCT_STR) == 0) {
         if (counts) ++counts->new2mv_mode[0];
         return NEWMV;
@@ -187,7 +193,7 @@ static PREDICTION_MODE read_inter_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 
   mode_ctx = (ctx >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
 
-  mode_prob = cm->fc->zeromv_prob[mode_ctx];
+  mode_prob = ec_ctx->zeromv_prob[mode_ctx];
   if (aom_read(r, mode_prob, ACCT_STR) == 0) {
     if (counts) ++counts->zeromv_mode[mode_ctx][0];
     return ZEROMV;
@@ -200,7 +206,7 @@ static PREDICTION_MODE read_inter_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (ctx & (1 << SKIP_NEARMV_OFFSET)) mode_ctx = 7;
   if (ctx & (1 << SKIP_NEARESTMV_SUB8X8_OFFSET)) mode_ctx = 8;
 
-  mode_prob = cm->fc->refmv_prob[mode_ctx];
+  mode_prob = ec_ctx->refmv_prob[mode_ctx];
 
   if (aom_read(r, mode_prob, ACCT_STR) == 0) {
     if (counts) ++counts->refmv_mode[mode_ctx][0];
@@ -216,10 +222,10 @@ static PREDICTION_MODE read_inter_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 #else
 #if CONFIG_EC_MULTISYMBOL
   const int mode = av1_inter_mode_inv[aom_read_symbol(
-      r, cm->fc->inter_mode_cdf[ctx], INTER_MODES, ACCT_STR)];
+      r, ec_ctx->inter_mode_cdf[ctx], INTER_MODES, ACCT_STR)];
 #else
   const int mode = aom_read_tree(r, av1_inter_mode_tree,
-                                 cm->fc->inter_mode_probs[ctx], ACCT_STR);
+                                 ec_ctx->inter_mode_probs[ctx], ACCT_STR);
 #endif
   FRAME_COUNTS *counts = xd->counts;
   if (counts) ++counts->inter_mode[ctx][mode];
