@@ -2185,18 +2185,29 @@ static void write_partition(const AV1_COMMON *const cm,
   const int has_rows = (mi_row + hbs) < cm->mi_rows;
   const int has_cols = (mi_col + hbs) < cm->mi_cols;
 
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  (void)cm;
+#elif CONFIG_EC_MULTISYMBOL
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+
   if (!is_partition_point) return;
 
   if (has_rows && has_cols) {
 #if CONFIG_EXT_PARTITION_TYPES
     if (bsize <= BLOCK_8X8)
+#if CONFIG_EC_MULTISYMBOL
+      aom_write_symbol(w, p, ec_ctx->partition_cdf[ctx], PARTITION_TYPES);
+#else
       av1_write_token(w, av1_partition_tree, probs, &partition_encodings[p]);
+#endif
     else
       av1_write_token(w, av1_ext_partition_tree, probs,
                       &ext_partition_encodings[p]);
 #else
 #if CONFIG_EC_MULTISYMBOL
-    aom_write_symbol(w, p, cm->fc->partition_cdf[ctx], PARTITION_TYPES);
+    aom_write_symbol(w, p, ec_ctx->partition_cdf[ctx], PARTITION_TYPES);
 #else
     av1_write_token(w, av1_partition_tree, probs, &partition_encodings[p]);
 #endif
