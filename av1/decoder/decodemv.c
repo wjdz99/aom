@@ -1115,6 +1115,12 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
                                          MB_MODE_INFO *const mbmi,
                                          aom_reader *r) {
   FRAME_COUNTS *counts = xd->counts;
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#elif CONFIG_EC_MULTISYMBOL
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+
 #if CONFIG_DUAL_FILTER
   int dir;
   if (cm->interp_filter != SWITCHABLE) {
@@ -1130,7 +1136,7 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
 #if CONFIG_EC_MULTISYMBOL
         mbmi->interp_filter[dir] =
             (InterpFilter)av1_switchable_interp_inv[aom_read_symbol(
-                r, cm->fc->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
+                r, ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
                 ACCT_STR)];
 #else
         mbmi->interp_filter[dir] = (InterpFilter)aom_read_tree(
@@ -1154,7 +1160,7 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
 #if CONFIG_EC_MULTISYMBOL
     mbmi->interp_filter =
         (InterpFilter)av1_switchable_interp_inv[aom_read_symbol(
-            r, cm->fc->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
+            r, ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
             ACCT_STR)];
 #else
     mbmi->interp_filter = (InterpFilter)aom_read_tree(
