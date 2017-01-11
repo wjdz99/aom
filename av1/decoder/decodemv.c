@@ -156,6 +156,12 @@ static PREDICTION_MODE read_inter_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
                                        MB_MODE_INFO *mbmi,
 #endif
                                        aom_reader *r, int16_t ctx) {
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#elif CONFIG_EC_MULTISYMBOL
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+
 #if CONFIG_REF_MV
   FRAME_COUNTS *counts = xd->counts;
   int16_t mode_ctx = ctx & NEWMV_CTX_MASK;
@@ -216,7 +222,7 @@ static PREDICTION_MODE read_inter_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 #else
 #if CONFIG_EC_MULTISYMBOL
   const int mode = av1_inter_mode_inv[aom_read_symbol(
-      r, cm->fc->inter_mode_cdf[ctx], INTER_MODES, ACCT_STR)];
+      r, ec_ctx->inter_mode_cdf[ctx], INTER_MODES, ACCT_STR)];
 #else
   const int mode = aom_read_tree(r, av1_inter_mode_tree,
                                  cm->fc->inter_mode_probs[ctx], ACCT_STR);

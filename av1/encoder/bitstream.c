@@ -217,6 +217,9 @@ static void write_interintra_mode(aom_writer *w, INTERINTRA_MODE mode,
 
 static void write_inter_mode(AV1_COMMON *cm, aom_writer *w,
                              PREDICTION_MODE mode,
+#if CONFIG_EC_MULTISYMBOL
+                             FRAME_CONTEXT *ec_ctx,
+#endif
 #if CONFIG_REF_MV && CONFIG_EXT_INTER
                              int is_compound,
 #endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
@@ -228,7 +231,7 @@ static void write_inter_mode(AV1_COMMON *cm, aom_writer *w,
   aom_write(w, mode != NEWMV && mode != NEWFROMNEARMV, newmv_prob);
 
   if (!is_compound && (mode == NEWMV || mode == NEWFROMNEARMV))
-    aom_write(w, mode == NEWFROMNEARMV, cm->fc->new2mv_prob);
+    aom_write(w, mode == NEWFROMNEARMV, ec_ctx->new2mv_prob);
 
   if (mode != NEWMV && mode != NEWFROMNEARMV) {
 #else
@@ -262,7 +265,7 @@ static void write_inter_mode(AV1_COMMON *cm, aom_writer *w,
   assert(is_inter_mode(mode));
 #if CONFIG_EC_MULTISYMBOL
   aom_write_symbol(w, av1_inter_mode_ind[INTER_OFFSET(mode)],
-                   cm->fc->inter_mode_cdf[mode_ctx], INTER_MODES);
+                   ec_ctx->inter_mode_cdf[mode_ctx], INTER_MODES);
 #else
   {
     const aom_prob *const inter_probs = cm->fc->inter_mode_probs[mode_ctx];
@@ -1418,6 +1421,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
         else if (is_inter_singleref_mode(mode))
 #endif  // CONFIG_EXT_INTER
           write_inter_mode(cm, w, mode,
+#if CONFIG_EC_MULTISYMBOL
+                           ec_ctx,
+#endif
 #if CONFIG_REF_MV && CONFIG_EXT_INTER
                            is_compound,
 #endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
@@ -1455,6 +1461,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
           else if (is_inter_singleref_mode(b_mode))
 #endif  // CONFIG_EXT_INTER
             write_inter_mode(cm, w, b_mode,
+#if CONFIG_EC_MULTISYMBOL
+                             ec_ctx,
+#endif
 #if CONFIG_REF_MV && CONFIG_EXT_INTER
                              has_second_ref(mbmi),
 #endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
