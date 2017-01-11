@@ -1163,6 +1163,9 @@ static void write_tx_type(const AV1_COMMON *const cm,
 #if CONFIG_SUPERTX
                           const int supertx_enabled,
 #endif
+#if CONFIG_EC_ADAPT
+                          MACROBLOCKD *xd,
+#endif
                           aom_writer *w) {
   const int is_inter = is_inter_block(mbmi);
 #if CONFIG_VAR_TX
@@ -1170,6 +1173,12 @@ static void write_tx_type(const AV1_COMMON *const cm,
 #else
   const TX_SIZE tx_size = mbmi->tx_size;
 #endif
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+
   if (!FIXED_TX_TYPE) {
 #if CONFIG_EXT_TX
     const BLOCK_SIZE bsize = mbmi->sb_type;
@@ -1185,12 +1194,12 @@ static void write_tx_type(const AV1_COMMON *const cm,
         if (eset > 0)
           av1_write_token(
               w, av1_ext_tx_inter_tree[eset],
-              cm->fc->inter_ext_tx_prob[eset][txsize_sqr_map[tx_size]],
+              ec_ctx->inter_ext_tx_prob[eset][txsize_sqr_map[tx_size]],
               &ext_tx_inter_encodings[eset][mbmi->tx_type]);
       } else if (ALLOW_INTRA_EXT_TX) {
         if (eset > 0)
           av1_write_token(w, av1_ext_tx_intra_tree[eset],
-                          cm->fc->intra_ext_tx_prob[eset][tx_size][mbmi->mode],
+                          ec_ctx->intra_ext_tx_prob[eset][tx_size][mbmi->mode],
                           &ext_tx_intra_encodings[eset][mbmi->tx_type]);
       }
     }
@@ -1203,22 +1212,22 @@ static void write_tx_type(const AV1_COMMON *const cm,
       if (is_inter) {
 #if CONFIG_EC_MULTISYMBOL
         aom_write_symbol(w, av1_ext_tx_ind[mbmi->tx_type],
-                         cm->fc->inter_ext_tx_cdf[tx_size], TX_TYPES);
+                         ec_ctx->inter_ext_tx_cdf[tx_size], TX_TYPES);
 #else
-        av1_write_token(w, av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[tx_size],
+        av1_write_token(w, av1_ext_tx_tree, ec_ctx->inter_ext_tx_prob[tx_size],
                         &ext_tx_encodings[mbmi->tx_type]);
 #endif
       } else {
 #if CONFIG_EC_MULTISYMBOL
         aom_write_symbol(
             w, av1_ext_tx_ind[mbmi->tx_type],
-            cm->fc->intra_ext_tx_cdf[tx_size]
+            ec_ctx->intra_ext_tx_cdf[tx_size]
                                     [intra_mode_to_tx_type_context[mbmi->mode]],
             TX_TYPES);
 #else
         av1_write_token(
             w, av1_ext_tx_tree,
-            cm->fc
+            ec_ctx
                 ->intra_ext_tx_prob[tx_size]
                                    [intra_mode_to_tx_type_context[mbmi->mode]],
             &ext_tx_encodings[mbmi->tx_type]);
@@ -1648,6 +1657,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #if CONFIG_SUPERTX
                 supertx_enabled,
 #endif
+#if CONFIG_EC_ADAPT
+                xd,
+#endif
                 w);
 }
 
@@ -1749,6 +1761,9 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
   write_tx_type(cm, mbmi,
 #if CONFIG_SUPERTX
                 0,
+#endif
+#if CONFIG_EC_ADAPT
+                xd,
 #endif
                 w);
 }
