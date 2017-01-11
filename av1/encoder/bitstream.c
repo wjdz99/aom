@@ -1668,6 +1668,12 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
   const int unify_bsize = 0;
 #endif
 
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#elif CONFIG_EC_MULTISYMBOL
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+
   if (seg->update_map) write_segment_id(w, seg, segp, mbmi->segment_id);
 
 #if CONFIG_DELTA_Q
@@ -1694,7 +1700,8 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
   if (bsize >= BLOCK_8X8 || unify_bsize) {
 #if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, av1_intra_mode_ind[mbmi->mode],
-                     get_y_mode_cdf(cm, mi, above_mi, left_mi, 0), INTRA_MODES);
+                     get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, 0),
+                     INTRA_MODES);
 #else
     write_intra_mode(w, mbmi->mode,
                      get_y_mode_probs(cm, mi, above_mi, left_mi, 0));
@@ -1709,7 +1716,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
         const int block = idy * 2 + idx;
 #if CONFIG_EC_MULTISYMBOL
         aom_write_symbol(w, av1_intra_mode_ind[mi->bmi[block].as_mode],
-                         get_y_mode_cdf(cm, mi, above_mi, left_mi, block),
+                         get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, block),
                          INTRA_MODES);
 #else
         write_intra_mode(w, mi->bmi[block].as_mode,
@@ -4270,7 +4277,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
   if (frame_is_intra_only(cm)) {
     av1_copy(cm->kf_y_prob, av1_kf_y_mode_prob);
 #if CONFIG_EC_MULTISYMBOL
-    av1_copy(cm->kf_y_cdf, av1_kf_y_mode_cdf);
+    av1_copy(cm->fc->kf_y_cdf, av1_kf_y_mode_cdf);
 #endif
 
 #if !CONFIG_EC_ADAPT
