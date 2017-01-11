@@ -794,6 +794,11 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   // TODO(slavarnway): move x_mis, y_mis into xd ?????
   const int x_mis = AOMMIN(cm->mi_cols - mi_col, bw);
   const int y_mis = AOMMIN(cm->mi_rows - mi_row, bh);
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#elif CONFIG_EC_MULTISYMBOL
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
 
   mbmi->segment_id = read_intra_segment_id(cm, xd, mi_offset, x_mis, y_mis, r);
   mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
@@ -815,7 +820,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   (void)i;
   mbmi->mode =
 #if CONFIG_EC_MULTISYMBOL
-      read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, 0));
+      read_intra_mode(r, get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, 0));
 #else
       read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, 0));
 #endif
@@ -825,7 +830,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
       for (i = 0; i < 4; ++i)
         mi->bmi[i].as_mode =
 #if CONFIG_EC_MULTISYMBOL
-            read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, i));
+            read_intra_mode(r, get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, i));
 #else
             read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, i));
 #endif
@@ -834,13 +839,13 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     case BLOCK_4X8:
       mi->bmi[0].as_mode = mi->bmi[2].as_mode =
 #if CONFIG_EC_MULTISYMBOL
-          read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, 0));
+          read_intra_mode(r, get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, 0));
 #else
           read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, 0));
 #endif
       mi->bmi[1].as_mode = mi->bmi[3].as_mode = mbmi->mode =
 #if CONFIG_EC_MULTISYMBOL
-          read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, 1));
+          read_intra_mode(r, get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, 1));
 #else
           read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, 1));
 #endif
@@ -848,13 +853,13 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     case BLOCK_8X4:
       mi->bmi[0].as_mode = mi->bmi[1].as_mode =
 #if CONFIG_EC_MULTISYMBOL
-          read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, 0));
+          read_intra_mode(r, get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, 0));
 #else
           read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, 0));
 #endif
       mi->bmi[2].as_mode = mi->bmi[3].as_mode = mbmi->mode =
 #if CONFIG_EC_MULTISYMBOL
-          read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, 2));
+          read_intra_mode(r, get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, 2));
 #else
           read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, 2));
 #endif
@@ -862,7 +867,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     default:
       mbmi->mode =
 #if CONFIG_EC_MULTISYMBOL
-          read_intra_mode(r, get_y_mode_cdf(cm, mi, above_mi, left_mi, 0));
+          read_intra_mode(r, get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, 0));
 #else
           read_intra_mode(r, get_y_mode_probs(cm, mi, above_mi, left_mi, 0));
 #endif
