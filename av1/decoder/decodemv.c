@@ -973,6 +973,17 @@ static REFERENCE_MODE read_block_reference_mode(AV1_COMMON *cm,
   }
 }
 
+#if CONFIG_OPT_COMP_REFS
+static int read_block_bipred_mode(AV1_COMMON *cm, const MACROBLOCKD *xd,
+                                  aom_reader *r) {
+  const int ctx = av1_get_bipred_mode_context(cm, xd);
+  const int bipred_mode = aom_read(r, cm->fc->comp_bipred_prob[ctx], ACCT_STR);
+  FRAME_COUNTS *counts = xd->counts;
+  if (counts) ++counts->comp_bipred[ctx][bipred_mode];
+  return bipred_mode;
+}
+#endif  // CONFIG_OPT_COMP_REFS
+
 // Read the referncence frame
 static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             aom_reader *r, int segment_id,
@@ -986,6 +997,7 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     ref_frame[1] = NONE;
   } else {
     const REFERENCE_MODE mode = read_block_reference_mode(cm, xd, r);
+
     // FIXME(rbultje) I'm pretty sure this breaks segmentation ref frame coding
     if (mode == COMPOUND_REFERENCE) {
 #if CONFIG_EXT_REFS
@@ -993,37 +1005,47 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #else
       const int idx = cm->ref_frame_sign_bias[cm->comp_fixed_ref];
 #endif  // CONFIG_EXT_REFS
-      const int ctx = av1_get_pred_context_comp_ref_p(cm, xd);
-      const int bit = aom_read(r, fc->comp_ref_prob[ctx][0], ACCT_STR);
 
-      if (counts) ++counts->comp_ref[ctx][0][bit];
+#if CONFIG_OPT_COMP_REFS
+      if (read_block_bipred_mode(cm, xd, r)) {
+        ref_frame[!idx] = LAST_FRAME;
+        ref_frame[idx] = BWDREF_FRAME;
+      } else {
+#endif  // CONFIG_OPT_COMP_REFS
+        const int ctx = av1_get_pred_context_comp_ref_p(cm, xd);
+        const int bit = aom_read(r, fc->comp_ref_prob[ctx][0], ACCT_STR);
+
+        if (counts) ++counts->comp_ref[ctx][0][bit];
 
 #if CONFIG_EXT_REFS
-      // Decode forward references.
-      if (!bit) {
-        const int ctx1 = av1_get_pred_context_comp_ref_p1(cm, xd);
-        const int bit1 = aom_read(r, fc->comp_ref_prob[ctx1][1], ACCT_STR);
-        if (counts) ++counts->comp_ref[ctx1][1][bit1];
-        ref_frame[!idx] = cm->comp_fwd_ref[bit1 ? 0 : 1];
-      } else {
-        const int ctx2 = av1_get_pred_context_comp_ref_p2(cm, xd);
-        const int bit2 = aom_read(r, fc->comp_ref_prob[ctx2][2], ACCT_STR);
-        if (counts) ++counts->comp_ref[ctx2][2][bit2];
-        ref_frame[!idx] = cm->comp_fwd_ref[bit2 ? 3 : 2];
-      }
+        // Decode forward references.
+        if (!bit) {
+          const int ctx1 = av1_get_pred_context_comp_ref_p1(cm, xd);
+          const int bit1 = aom_read(r, fc->comp_ref_prob[ctx1][1], ACCT_STR);
+          if (counts) ++counts->comp_ref[ctx1][1][bit1];
+          ref_frame[!idx] = cm->comp_fwd_ref[bit1 ? 0 : 1];
+        } else {
+          const int ctx2 = av1_get_pred_context_comp_ref_p2(cm, xd);
+          const int bit2 = aom_read(r, fc->comp_ref_prob[ctx2][2], ACCT_STR);
+          if (counts) ++counts->comp_ref[ctx2][2][bit2];
+          ref_frame[!idx] = cm->comp_fwd_ref[bit2 ? 3 : 2];
+        }
 
-      // Decode backward references.
-      {
-        const int ctx_bwd = av1_get_pred_context_comp_bwdref_p(cm, xd);
-        const int bit_bwd =
-            aom_read(r, fc->comp_bwdref_prob[ctx_bwd][0], ACCT_STR);
-        if (counts) ++counts->comp_bwdref[ctx_bwd][0][bit_bwd];
-        ref_frame[idx] = cm->comp_bwd_ref[bit_bwd];
-      }
+        // Decode backward references.
+        {
+          const int ctx_bwd = av1_get_pred_context_comp_bwdref_p(cm, xd);
+          const int bit_bwd =
+              aom_read(r, fc->comp_bwdref_prob[ctx_bwd][0], ACCT_STR);
+          if (counts) ++counts->comp_bwdref[ctx_bwd][0][bit_bwd];
+          ref_frame[idx] = cm->comp_bwd_ref[bit_bwd];
+        }
 #else
-      ref_frame[!idx] = cm->comp_var_ref[bit];
-      ref_frame[idx] = cm->comp_fixed_ref;
+        ref_frame[!idx] = cm->comp_var_ref[bit];
+        ref_frame[idx] = cm->comp_fixed_ref;
 #endif  // CONFIG_EXT_REFS
+#if CONFIG_OPT_COMP_REFS
+      }
+#endif  // CONFIG_OPT_COMP_REFS
     } else if (mode == SINGLE_REFERENCE) {
 #if CONFIG_EXT_REFS
       const int ctx0 = av1_get_pred_context_single_ref_p1(xd);

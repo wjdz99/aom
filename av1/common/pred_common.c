@@ -227,8 +227,61 @@ int av1_get_reference_mode_context(const AV1_COMMON *cm,
   return ctx;
 }
 
-#if CONFIG_EXT_REFS
+#if CONFIG_OPT_COMP_REFS
+int av1_get_bipred_mode_context(const AV1_COMMON *cm,
+                                const MACROBLOCKD *xd) {
+  int ctx;
+  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+  const int has_above = xd->up_available;
+  const int has_left = xd->left_available;
 
+  // TODO(zoeliu): Temporarily keep cm in case needed
+  (void)cm;
+
+  // Note:
+  // The mode info data structure has a one element border above and to the
+  // left of the entries corresponding to real macroblocks.
+  // The prediction flags in these dummy entries are initialized to 0.
+  if (has_above && has_left) {  // both edges available
+    if (is_bipred_block(above_mbmi) || is_bipred_block(left_mbmi)) {
+      // Both neighboring blocks are bi-predictive blocks
+      ctx = 4;
+    } else if ((has_specific_ref(above_mbmi, LAST_FRAME) &&
+                has_specific_ref(left_mbmi, BWDREF_FRAME)) ||
+               (has_specific_ref(left_mbmi, LAST_FRAME) &&
+                has_specific_ref(above_mbmi, BWDREF_FRAME))) {
+      // The two neighboring blocks jointly show a bi-prediction trend.
+      ctx = 3;
+    } else {
+      // Following valued between 0 and 2
+      ctx = has_specific_ref(above_mbmi, LAST_FRAME) +
+            has_specific_ref(above_mbmi, BWDREF_FRAME) +
+            has_specific_ref(left_mbmi, LAST_FRAME) +
+            has_specific_ref(left_mbmi, BWDREF_FRAME);
+      assert(ctx < 3);
+    }
+  } else if (has_above || has_left) {  // one edge available
+    const MB_MODE_INFO *edge_mbmi = has_above ? above_mbmi : left_mbmi;
+
+    if (is_bipred_block(edge_mbmi)) {
+      // The one neighboring block is a bi-predictive one
+      ctx = 4;
+    } else {
+      // Following valued between 0 and 1
+      ctx = has_specific_ref(edge_mbmi, LAST_FRAME) +
+            has_specific_ref(edge_mbmi, BWDREF_FRAME);
+    }
+  } else {  // no edges available (1)
+    ctx = 1;
+  }
+
+  assert(ctx >= 0 && ctx < COMP_INTER_CONTEXTS);
+  return ctx;
+}
+#endif  // CONFIG_OPT_COMP_REFS
+
+#if CONFIG_EXT_REFS
 // TODO(zoeliu): Future work will be conducted to optimize the context design
 //               for the coding of the reference frames.
 

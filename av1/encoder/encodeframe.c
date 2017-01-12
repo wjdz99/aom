@@ -1927,26 +1927,37 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
         if (cm->reference_mode == REFERENCE_MODE_SELECT)
           counts->comp_inter[av1_get_reference_mode_context(cm, xd)]
                             [has_second_ref(mbmi)]++;
+#if CONFIG_OPT_COMP_REFS
+        if (has_second_ref(mbmi))
+          counts->comp_bipred[av1_get_bipred_mode_context(cm, xd)]
+                             [is_bipred_block(mbmi)]++;
+#endif  // CONFIG_OPT_COMP_REFS
 
         if (has_second_ref(mbmi)) {
+#if CONFIG_OPT_COMP_REFS
+          if (!is_bipred_block(mbmi)) {
+#endif  // CONFIG_OPT_COMP_REFS
 #if CONFIG_EXT_REFS
-          const int bit = (ref0 == GOLDEN_FRAME || ref0 == LAST3_FRAME);
+            const int bit = (ref0 == GOLDEN_FRAME || ref0 == LAST3_FRAME);
 
-          counts->comp_ref[av1_get_pred_context_comp_ref_p(cm, xd)][0][bit]++;
-          if (!bit) {
-            counts->comp_ref[av1_get_pred_context_comp_ref_p1(cm, xd)][1]
-                            [ref0 == LAST_FRAME]++;
-          } else {
-            counts->comp_ref[av1_get_pred_context_comp_ref_p2(cm, xd)][2]
-                            [ref0 == GOLDEN_FRAME]++;
-          }
+            counts->comp_ref[av1_get_pred_context_comp_ref_p(cm, xd)][0][bit]++;
+            if (!bit) {
+              counts->comp_ref[av1_get_pred_context_comp_ref_p1(cm, xd)][1]
+                              [ref0 == LAST_FRAME]++;
+            } else {
+              counts->comp_ref[av1_get_pred_context_comp_ref_p2(cm, xd)][2]
+                              [ref0 == GOLDEN_FRAME]++;
+            }
 
-          counts->comp_bwdref[av1_get_pred_context_comp_bwdref_p(cm, xd)][0]
-                             [ref1 == ALTREF_FRAME]++;
+            counts->comp_bwdref[av1_get_pred_context_comp_bwdref_p(cm, xd)][0]
+                               [ref1 == ALTREF_FRAME]++;
 #else
-          counts->comp_ref[av1_get_pred_context_comp_ref_p(cm, xd)][0]
-                          [ref0 == GOLDEN_FRAME]++;
+            counts->comp_ref[av1_get_pred_context_comp_ref_p(cm, xd)][0]
+                            [ref0 == GOLDEN_FRAME]++;
 #endif  // CONFIG_EXT_REFS
+#if CONFIG_OPT_COMP_REFS
+          }
+#endif  // CONFIG_OPT_COMP_REFS
         } else {
 #if CONFIG_EXT_REFS
           const int bit = (ref0 == ALTREF_FRAME || ref0 == BWDREF_FRAME);

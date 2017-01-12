@@ -245,6 +245,10 @@ static void read_frame_reference_mode_probs(AV1_COMMON *cm, aom_reader *r) {
 
   if (cm->reference_mode != SINGLE_REFERENCE) {
     for (i = 0; i < REF_CONTEXTS; ++i) {
+#if CONFIG_OPT_COMP_REFS
+      av1_diff_update_prob(r, &fc->comp_bipred_prob[i], ACCT_STR);
+#endif  // CONFIG_OPT_COMP_REFS
+
 #if CONFIG_EXT_REFS
       for (j = 0; j < (FWD_REFS - 1); ++j)
         av1_diff_update_prob(r, &fc->comp_ref_prob[i][j], ACCT_STR);
