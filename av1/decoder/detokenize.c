@@ -311,16 +311,20 @@ void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
   const MODE_INFO *const mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
+  const int subsampling_x = (xd->plane[plane != 0].subsampling_x);
+  const int subsampling_y = (xd->plane[plane != 0].subsampling_y);
   const int block_height = block_size_high[bsize];
   const int block_width = block_size_wide[bsize];
+  const int plane_block_width = block_width >> subsampling_x;
+  const int plane_block_height = block_height >> subsampling_y;
   const int rows_in_pixels = (xd->mb_to_bottom_edge >= 0)
                                  ? block_height
                                  : (xd->mb_to_bottom_edge >> 3) + block_height;
   const int cols_in_pixels = (xd->mb_to_right_edge >= 0)
                                  ? block_width
                                  : (xd->mb_to_right_edge >> 3) + block_width;
-  const int rows = rows_in_pixels >> (xd->plane[plane != 0].subsampling_y);
-  const int cols = cols_in_pixels >> (xd->plane[plane != 0].subsampling_x);
+  const int rows = rows_in_pixels >> subsampling_y;
+  const int cols = cols_in_pixels >> subsampling_x;
   uint8_t color_order[PALETTE_MAX_SIZE];
   const int n = mbmi->palette_mode_info.palette_size[plane != 0];
   int i, j;
@@ -332,14 +336,19 @@ void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
 
   for (i = 0; i < rows; ++i) {
     for (j = (i == 0 ? 1 : 0); j < cols; ++j) {
-      const int color_ctx = av1_get_palette_color_context(color_map, cols, i, j,
-                                                          n, color_order, NULL);
+      const int color_ctx = av1_get_palette_color_context(
+          color_map, plane_block_width, cols, i, j, n, color_order, NULL);
       const int color_idx = aom_read_tree(r, av1_palette_color_tree[n - 2],
                                           prob[n - 2][color_ctx], ACCT_STR);
       assert(color_idx >= 0 && color_idx < n);
-      color_map[i * cols + j] = color_order[color_idx];
+      color_map[i * plane_block_width + j] = color_order[color_idx];
     }
+    memset(color_map + i * plane_block_width + cols, 0,
+           (plane_block_width - cols));  // Zero padding for extra columns.
   }
+  // Zero padding for extra rows.
+  memset(color_map + rows * plane_block_width, 0,
+         (plane_block_height - rows) * plane_block_width);
 }
 #endif  // CONFIG_PALETTE
 
