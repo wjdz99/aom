@@ -294,6 +294,7 @@ EXPERIMENT_LIST="
     coef_interleave
     entropy_stats
     masked_tx
+    opt_comp_refs
 "
 CONFIG_LIST="
     dependency_tracking
@@ -476,6 +477,7 @@ post_process_cmdline() {
     enabled ec_multisymbol && ! enabled ans && soft_enable daala_ec
     enabled ec_multisymbol && ! enabled daala_ec && soft_enable ans
     enabled daala_ec && enable_feature ec_multisymbol
+    enabled opt_comp_refs && enable_feature ext_refs
     if enabled ext_tile; then
       log_echo "ext_tile not compatible with reference_buffer, so"
       log_echo "disabling reference_buffer"

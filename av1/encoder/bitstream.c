@@ -944,26 +944,35 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
 
     if (is_compound) {
+#if CONFIG_OPT_COMP_REFS
+      const int bipred_mode = is_bipred_block(mbmi);
+
+      aom_write(w, bipred_mode, av1_get_bipred_mode_prob(cm, xd));
+      if (!bipred_mode) {
+#endif  // CONFIG_OPT_COMP_REFS
 #if CONFIG_EXT_REFS
-      const int bit = (mbmi->ref_frame[0] == GOLDEN_FRAME ||
-                       mbmi->ref_frame[0] == LAST3_FRAME);
-      const int bit_bwd = mbmi->ref_frame[1] == ALTREF_FRAME;
+        const int bit = (mbmi->ref_frame[0] == GOLDEN_FRAME ||
+                         mbmi->ref_frame[0] == LAST3_FRAME);
+        const int bit_bwd = mbmi->ref_frame[1] == ALTREF_FRAME;
 #else  // CONFIG_EXT_REFS
-      const int bit = mbmi->ref_frame[0] == GOLDEN_FRAME;
+        const int bit = mbmi->ref_frame[0] == GOLDEN_FRAME;
 #endif  // CONFIG_EXT_REFS
 
-      aom_write(w, bit, av1_get_pred_prob_comp_ref_p(cm, xd));
+        aom_write(w, bit, av1_get_pred_prob_comp_ref_p(cm, xd));
 
 #if CONFIG_EXT_REFS
-      if (!bit) {
-        const int bit1 = mbmi->ref_frame[0] == LAST_FRAME;
-        aom_write(w, bit1, av1_get_pred_prob_comp_ref_p1(cm, xd));
-      } else {
-        const int bit2 = mbmi->ref_frame[0] == GOLDEN_FRAME;
-        aom_write(w, bit2, av1_get_pred_prob_comp_ref_p2(cm, xd));
-      }
-      aom_write(w, bit_bwd, av1_get_pred_prob_comp_bwdref_p(cm, xd));
+        if (!bit) {
+          const int bit1 = mbmi->ref_frame[0] == LAST_FRAME;
+          aom_write(w, bit1, av1_get_pred_prob_comp_ref_p1(cm, xd));
+        } else {
+          const int bit2 = mbmi->ref_frame[0] == GOLDEN_FRAME;
+          aom_write(w, bit2, av1_get_pred_prob_comp_ref_p2(cm, xd));
+        }
+        aom_write(w, bit_bwd, av1_get_pred_prob_comp_bwdref_p(cm, xd));
 #endif  // CONFIG_EXT_REFS
+#if CONFIG_OPT_COMP_REFS
+      }
+#endif  // CONFIG_OPT_COMP_REFS
     } else {
 #if CONFIG_EXT_REFS
       const int bit0 = (mbmi->ref_frame[0] == ALTREF_FRAME ||
@@ -4349,20 +4358,22 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     }
     if (cm->reference_mode != SINGLE_REFERENCE) {
       for (i = 0; i < REF_CONTEXTS; i++) {
+#if CONFIG_OPT_COMP_REFS
+        av1_cond_prob_diff_update(header_bc, &fc->comp_bipred_prob[i],
+                                  counts->comp_bipred[i], probwt);
+#endif  // CONFIG_OPT_COMP_REFS
+
 #if CONFIG_EXT_REFS
-        for (j = 0; j < (FWD_REFS - 1); j++) {
+        for (j = 0; j < (FWD_REFS - 1); j++)
           av1_cond_prob_diff_update(header_bc, &fc->comp_ref_prob[i][j],
                                     counts->comp_ref[i][j], probwt);
-        }
-        for (j = 0; j < (BWD_REFS - 1); j++) {
+        for (j = 0; j < (BWD_REFS - 1); j++)
           av1_cond_prob_diff_update(header_bc, &fc->comp_bwdref_prob[i][j],
                                     counts->comp_bwdref[i][j], probwt);
-        }
 #else
-        for (j = 0; j < (COMP_REFS - 1); j++) {
+        for (j = 0; j < (COMP_REFS - 1); j++)
           av1_cond_prob_diff_update(header_bc, &fc->comp_ref_prob[i][j],
                                     counts->comp_ref[i][j], probwt);
-        }
 #endif  // CONFIG_EXT_REFS
       }
     }

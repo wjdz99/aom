@@ -93,6 +93,15 @@ static INLINE aom_prob av1_get_reference_mode_prob(const AV1_COMMON *cm,
   return cm->fc->comp_inter_prob[av1_get_reference_mode_context(cm, xd)];
 }
 
+#if CONFIG_OPT_COMP_REFS
+int av1_get_bipred_mode_context(const AV1_COMMON *cm, const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_bipred_mode_prob(const AV1_COMMON *cm,
+                                                const MACROBLOCKD *xd) {
+  return cm->fc->comp_bipred_prob[av1_get_bipred_mode_context(cm, xd)];
+}
+#endif  // CONFIG_OPT_COMP_REFS
+
 int av1_get_pred_context_comp_ref_p(const AV1_COMMON *cm,
                                     const MACROBLOCKD *xd);
 
