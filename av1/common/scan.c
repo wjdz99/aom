@@ -6458,12 +6458,12 @@ static int cmp_prob(const void *a, const void *b) {
   return *(const uint32_t *)b > *(const uint32_t *)a ? 1 : -1;
 }
 
-void av1_augment_prob(uint32_t *prob, int size, int tx1d_size) {
+void av1_augment_prob(uint32_t *prob, int tx1d_size) {
   int r, c;
-  for (r = 0; r < size; r++) {
-    for (c = 0; c < size; c++) {
+  for (r = 0; r < tx1d_size; r++) {
+    for (c = 0; c < tx1d_size; c++) {
       const int coeff_idx = r * tx1d_size + c;
-      const int idx = r * size + c;
+      const int idx = r * tx1d_size + c;
       const uint32_t mask_16 = ((1 << 16) - 1);
       const uint32_t tie_breaker = ~(((r + c) << COEFF_IDX_BITS) | coeff_idx);
       // prob[idx]: 16 bits  r+c: 6 bits  coeff_idx: 10 bits
@@ -6527,7 +6527,7 @@ void av1_update_sort_order(TX_SIZE tx_size, const uint32_t *non_zero_prob,
   int sort_idx;
   assert(tx2d_size <= COEFF_IDX_SIZE);
   memcpy(temp, non_zero_prob, tx2d_size * sizeof(*non_zero_prob));
-  av1_augment_prob(temp, tx1d_size, tx1d_size);
+  av1_augment_prob(temp, tx1d_size);
   qsort(temp, tx2d_size, sizeof(*temp), cmp_prob);
   for (sort_idx = 0; sort_idx < tx2d_size; ++sort_idx) {
     const int coeff_idx = (temp[sort_idx] & COEFF_IDX_MASK) ^ COEFF_IDX_MASK;

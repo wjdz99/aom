@@ -20,7 +20,7 @@ TEST(ScanTest, av1_augment_prob) {
   const uint32_t ref_prob[16] = {
     8, 8, 7, 7, 8, 8, 4, 2, 3, 3, 2, 2, 2, 2, 2, 2
   };
-  av1_augment_prob(prob, tx1d_size, tx1d_size);
+  av1_augment_prob(prob, tx1d_size);
   for (int r = 0; r < tx1d_size; ++r) {
     for (int c = 0; c < tx1d_size; ++c) {
       const uint32_t idx = r * tx1d_size + c;
