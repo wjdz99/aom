@@ -9656,10 +9656,20 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     // Estimate the reference frame signaling cost and add it
     // to the rolling cost variable.
     if (comp_pred) {
-      rate2 += ref_costs_comp[ref_frame];
+#if CONFIG_OPT_COMP_REFS
+      const aom_prob bipred_mode_p = av1_get_bipred_mode_prob(cm, xd);
+      const int bipred_mode = is_bipred_block(mbmi);
+      rate2 += av1_cost_bit(bipred_mode_p, bipred_mode);
+
+      if (!is_bipred_block(mbmi)) {
+#endif  // CONFIG_OPT_COMP_REFS
+        rate2 += ref_costs_comp[ref_frame];
 #if CONFIG_EXT_REFS
-      rate2 += ref_costs_comp[second_ref_frame];
+        rate2 += ref_costs_comp[second_ref_frame];
 #endif  // CONFIG_EXT_REFS
+#if CONFIG_OPT_COMP_REFS
+      }
+#endif  // CONFIG_OPT_COMP_REFS
     } else {
       rate2 += ref_costs_single[ref_frame];
     }

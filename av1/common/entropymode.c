@@ -695,6 +695,13 @@ static const aom_prob default_comp_inter_p[COMP_INTER_CONTEXTS] = {
   239, 183, 119, 96, 41
 };
 
+#if CONFIG_OPT_COMP_REFS
+// TODO(zoeliu): Needed to further adjust the initial setup
+static const aom_prob default_comp_bipred_p[COMP_INTER_CONTEXTS] = {
+  239, 183, 119, 96, 41
+};
+#endif  // CONFIG_OPT_COMP_REFS
+
 #if CONFIG_EXT_REFS
 static const aom_prob default_comp_ref_p[REF_CONTEXTS][FWD_REFS - 1] = {
   // TODO(zoeliu): To adjust the initial prob values.
@@ -1700,6 +1707,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->partition_prob, default_partition_probs);
   av1_copy(fc->intra_inter_prob, default_intra_inter_p);
   av1_copy(fc->comp_inter_prob, default_comp_inter_p);
+#if CONFIG_OPT_COMP_REFS
+  av1_copy(fc->comp_bipred_prob, default_comp_bipred_p);
+#endif  // CONFIG_OPT_COMP_REFS
   av1_copy(fc->comp_ref_prob, default_comp_ref_p);
 #if CONFIG_EXT_REFS
   av1_copy(fc->comp_bwdref_prob, default_comp_bwdref_p);
@@ -1849,6 +1859,12 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
   for (i = 0; i < COMP_INTER_CONTEXTS; i++)
     fc->comp_inter_prob[i] = av1_mode_mv_merge_probs(pre_fc->comp_inter_prob[i],
                                                      counts->comp_inter[i]);
+
+#if CONFIG_OPT_COMP_REFS
+  for (i = 0; i < COMP_INTER_CONTEXTS; i++)
+    fc->comp_bipred_prob[i] = av1_mode_mv_merge_probs(
+        pre_fc->comp_bipred_prob[i], counts->comp_bipred[i]);
+#endif  // CONFIG_OPT_COMP_REFS
 
 #if CONFIG_EXT_REFS
   for (i = 0; i < REF_CONTEXTS; i++)
