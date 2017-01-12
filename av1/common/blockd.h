@@ -383,6 +383,35 @@ static INLINE int has_second_ref(const MB_MODE_INFO *mbmi) {
   return mbmi->ref_frame[1] > INTRA_FRAME;
 }
 
+#if CONFIG_OPT_COMP_REFS
+static INLINE int is_bipred_block(const MB_MODE_INFO *mbmi) {
+  // TODO(zoeliu): To further justify such criteria
+  return has_second_ref(mbmi) && (mbmi->ref_frame[0] == LAST_FRAME) &&
+      (mbmi->ref_frame[1] == BWDREF_FRAME);
+}
+
+static INLINE int has_specific_ref(const MB_MODE_INFO *mbmi,
+                                   MV_REFERENCE_FRAME ref_frame) {
+  if (!(ref_frame >= INTRA_FRAME && ref_frame <= ALTREF_FRAME))
+    return 0;
+
+  // TODO(zoeliu): To further justify such criteria
+  if (!has_second_ref(mbmi)) {  // Intra or single-ref Inter
+    return mbmi->ref_frame[0] == ref_frame;
+  } else {  // compound Inter
+    if (ref_frame >= LAST_FRAME && ref_frame <= GOLDEN_FRAME) {
+      // Forward prediction
+      return mbmi->ref_frame[0] == ref_frame;
+    } else if (ref_frame >= BWDREF_FRAME && ref_frame <= ALTREF_FRAME) {
+      // Backward prediction
+      return mbmi->ref_frame[1] == ref_frame;
+    } else {
+      return 0;
+    }
+  }
+}
+#endif  // CONFIG_OPT_COMP_REFS
+
 PREDICTION_MODE av1_left_block_mode(const MODE_INFO *cur_mi,
                                     const MODE_INFO *left_mi, int b);
 
