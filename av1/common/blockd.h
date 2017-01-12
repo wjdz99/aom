@@ -38,6 +38,8 @@ extern "C" {
 
 #define MAX_MB_PLANE 3
 
+#define USE_INTRA_MODEL_RD 1
+
 #if CONFIG_EXT_INTER
 // Should we try rectangular interintra predictions?
 #define USE_RECT_INTERINTRA 1
