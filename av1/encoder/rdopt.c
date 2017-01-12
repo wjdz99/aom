@@ -2843,6 +2843,40 @@ static void highbd_angle_estimation(const uint8_t *src8, int src_stride,
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 #endif  // CONFIG_EXT_INTRA
 
+#if USE_INTRA_MODEL_RD
+static int64_t intra_model_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
+                              BLOCK_SIZE bsize, const int *bmode_costs) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  RD_STATS this_rd_stats;
+  int row, col;
+  int64_t temp_sse, this_rd;
+  const TX_SIZE tx_size =
+      tx_size_from_tx_mode(bsize, cpi->common.tx_mode, 0);
+  const int stepr = tx_size_high_unit[tx_size];
+  const int stepc = tx_size_wide_unit[tx_size];
+  const int max_blocks_wide = max_block_wide(xd, bsize, 0);
+  const int max_blocks_high = max_block_high(xd, bsize, 0);
+  mbmi->tx_size = tx_size;
+  for (row = 0; row < max_blocks_high; row += stepr) {
+    for (col = 0; col < max_blocks_wide; col += stepc) {
+      struct macroblockd_plane *const pd = &xd->plane[0];
+      uint8_t *dst = &pd->dst.buf[(row * pd->dst.stride + col) <<
+                                  tx_size_wide_log2[0]];
+      av1_predict_intra_block(xd, pd->width, pd->height, tx_size, mbmi->mode,
+                              dst, pd->dst.stride, dst, pd->dst.stride, col,
+                              row, 0);
+    }
+  }
+  model_rd_for_sb(cpi, bsize, x, xd, 0, 0, &this_rd_stats.rate,
+                  &this_rd_stats.dist, &this_rd_stats.skip, &temp_sse);
+  this_rd = RDCOST(x->rdmult, x->rddiv,
+                   this_rd_stats.rate + bmode_costs[mbmi->mode],
+                   this_rd_stats.dist);
+  return this_rd;
+}
+#endif
+
 // This function is used only for intra_only frames
 static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                       int *rate, int *rate_tokenonly,
@@ -2855,6 +2889,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   MB_MODE_INFO best_mbmi = *mbmi;
   int this_rate, this_rate_tokenonly, s;
   int64_t this_distortion, this_rd;
+  int64_t best_model_rd = INT64_MAX;
 #if CONFIG_EXT_INTRA
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
@@ -2947,7 +2982,16 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       super_block_yrd(cpi, x, &this_rd_stats, bsize, best_rd);
     }
 #else
+#if USE_INTRA_MODEL_RD
+    this_rd = intra_model_rd(cpi, x, bsize, bmode_costs);
+    if (this_rd < best_model_rd) best_model_rd = this_rd;
+    if (this_rd < best_model_rd + (best_model_rd >> 1))
+      super_block_yrd(cpi, x, &this_rd_stats, bsize, best_rd);
+    else
+      continue;
+#else
     super_block_yrd(cpi, x, &this_rd_stats, bsize, best_rd);
+#endif
 #endif  // CONFIG_EXT_INTRA
     this_rate_tokenonly = this_rd_stats.rate;
     this_distortion = this_rd_stats.dist;
