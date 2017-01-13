@@ -4650,6 +4650,10 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   // TODO(yushin) : activity masking info needs be signaled by a bitstream
   td->mb.daala_enc.use_activity_masking = AV1_PVQ_ENABLE_ACTIVITY_MASKING;
 
+#if !CONFIG_DAALA_DIST
+  td->mb.daala_enc.use_activity_masking = 0;
+#endif
+
   if (td->mb.daala_enc.use_activity_masking)
     td->mb.daala_enc.qm = OD_HVS_QM;  // Hard coded. Enc/dec required to sync.
   else

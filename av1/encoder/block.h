@@ -202,6 +202,10 @@ struct macroblock {
   int pvq_speed;
   int pvq_coded;  // Indicates whether pvq_info needs be stored to tokenize
 #endif
+#if CONFIG_PVQ || CONFIG_DAALA_DIST
+  // Keep rate of each of 4x4 block in the current macroblock during RDO
+  int rate_4x4[256];
+#endif
 };
 
 #ifdef __cplusplus
