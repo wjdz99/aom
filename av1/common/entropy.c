@@ -3999,6 +3999,7 @@ void av1_default_coef_probs(AV1_COMMON *cm) {
 #endif  // CONFIG_TX64X64
 #endif  // CONFIG_ENTROPY
 #if CONFIG_EC_MULTISYMBOL
+  av1_copy(cm->fc->cbp_probs, av1_default_cbp_probs);
   av1_coef_pareto_cdfs(cm->fc);
 #endif  // CONFIG_EC_MULTISYMBOL
 }
@@ -4021,6 +4022,11 @@ static void adapt_coef_probs(AV1_COMMON *cm, TX_SIZE tx_size,
   const unsigned int(*eob_counts)[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS] =
       (const unsigned int(*)[REF_TYPES][COEF_BANDS]
                             [COEFF_CONTEXTS])cm->counts.eob_branch[tx_size];
+#if CONFIG_EC_MULTISYMBOL
+  const av1_cbp_probs_model *const pre_cbp_probs = pre_fc->cbp_probs[tx_size];
+  av1_cbp_probs_model *const cbp_probs = cm->fc->cbp_probs[tx_size];
+  const av1_cbp_count_model *const cbp_counts = (const av1_cbp_count_model *)&cm->counts.cbp_count[tx_size][0];
+#endif
   int i, j, k, l, m;
 
   for (i = 0; i < PLANE_TYPES; ++i)
@@ -4039,6 +4045,22 @@ static void adapt_coef_probs(AV1_COMMON *cm, TX_SIZE tx_size,
                 av1_merge_probs(pre_probs[i][j][k][l][m], branch_ct[m],
                                 count_sat, update_factor);
         }
+
+#if CONFIG_EC_MULTISYMBOL
+  for (i = 0; i < PLANE_TYPES; ++i) {
+    for (j = 0; j < REF_TYPES; ++j) {
+      for (k = 0; k < CBP_CONTEXTS; ++k) {
+          const int n0 = cbp_counts[i][j][k][0];
+          const int n1 = cbp_counts[i][j][k][1];
+          const unsigned int branch_ct[2] = {n0, n1};
+          cbp_probs[i][j][k] =
+              av1_merge_probs(pre_cbp_probs[i][j][k], branch_ct,
+                                count_sat, update_factor);
+        }
+    }
+  }
+#endif
+
 }
 
 void av1_adapt_coef_probs(AV1_COMMON *cm) {
