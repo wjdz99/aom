@@ -627,7 +627,9 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
   struct macroblockd_plane *const pd = &xd->plane[plane];
 #if CONFIG_MOTION_VAR
   const MODE_INFO *mi = xd->mi[mi_col_offset + xd->mi_stride * mi_row_offset];
+#if !CONFIG_CB4X4
   const int build_for_obmc = !(mi_col_offset == 0 && mi_row_offset == 0);
+#endif
 #else
   const MODE_INFO *mi = xd->mi[0];
 #endif  // CONFIG_MOTION_VAR
@@ -2143,9 +2145,7 @@ void av1_build_ncobmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_AOM_HIGHBITDEPTH
   }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
-  // causal obmc pred
 
-  // replace by bottom and right preds
   av1_build_prediction_by_bottom_preds(cm, xd, mi_row, mi_col, dst_buf1,
                                        dst_width1, dst_height1, dst_stride1);
   av1_build_prediction_by_right_preds(cm, xd, mi_row, mi_col, dst_buf2,
