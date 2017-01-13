@@ -303,8 +303,13 @@ int16_t av1_ac_quant(int qindex, int delta, aom_bit_depth_t bit_depth) {
 
 int av1_get_qindex(const struct segmentation *seg, int segment_id,
                    int base_qindex) {
+#if CONFIG_EXT_SEGMENT
+  if (segfeature_active(seg, segment_id, QUALITY_SEG_LVL_ALT_Q)) {
+    const int data = get_segdata(seg, segment_id, QUALITY_SEG_LVL_ALT_Q);
+#else
   if (segfeature_active(seg, segment_id, SEG_LVL_ALT_Q)) {
     const int data = get_segdata(seg, segment_id, SEG_LVL_ALT_Q);
+#endif
     const int seg_qindex =
         seg->abs_delta == SEGMENT_ABSDATA ? data : base_qindex + data;
     return clamp(seg_qindex, 0, MAXQ);

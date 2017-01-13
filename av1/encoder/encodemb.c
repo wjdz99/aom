@@ -148,7 +148,11 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
   int shortcut = 0;
   int next_shortcut = 0;
 
+#if CONFIG_EXT_SEGMENT
+  assert((mb->qindex == 0) ^ (xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]] == 0));
+#else
   assert((mb->qindex == 0) ^ (xd->lossless[xd->mi[0]->mbmi.segment_id] == 0));
+#endif
 
   token_costs += band;
 
@@ -558,7 +562,11 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   fwd_txfm_param.tx_type = tx_type;
   fwd_txfm_param.tx_size = tx_size;
+#if CONFIG_EXT_SEGMENT
+  fwd_txfm_param.lossless = xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]];
+#else
   fwd_txfm_param.lossless = xd->lossless[xd->mi[0]->mbmi.segment_id];
+#endif
 
 #if CONFIG_AOM_HIGHBITDEPTH
   fwd_txfm_param.bd = xd->bd;
@@ -666,7 +674,11 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   }
 #endif
 #if !CONFIG_PVQ
+#if CONFIG_EXT_SEGMENT
+  if (p->eobs[block] && !xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]]) {
+#else
   if (p->eobs[block] && !xd->lossless[xd->mi[0]->mbmi.segment_id]) {
+#endif
     *a = *l = av1_optimize_b(cm, x, plane, block, tx_size, ctx) > 0;
   } else {
     *a = *l = p->eobs[block] > 0;
@@ -704,7 +716,11 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   inv_txfm_param.tx_type = get_tx_type(pd->plane_type, xd, block, tx_size);
   inv_txfm_param.tx_size = tx_size;
   inv_txfm_param.eob = p->eobs[block];
+#if CONFIG_EXT_SEGMENT
+  inv_txfm_param.lossless = xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]];
+#else
   inv_txfm_param.lossless = xd->lossless[xd->mi[0]->mbmi.segment_id];
+#endif
 
 #if CONFIG_AOM_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
@@ -820,7 +836,11 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
       return;
     }
 #endif  //  CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_EXT_SEGMENT
+    if (xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]]) {
+#else
     if (xd->lossless[xd->mi[0]->mbmi.segment_id]) {
+#endif
       av1_iwht4x4_add(dqcoeff, dst, pd->dst.stride, p->eobs[block]);
     } else {
       av1_idct4x4_add(dqcoeff, dst, pd->dst.stride, p->eobs[block]);
@@ -1018,7 +1038,11 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
     inv_txfm_param.tx_type = tx_type;
     inv_txfm_param.tx_size = tx_size;
     inv_txfm_param.eob = *eob;
+#if CONFIG_EXT_SEGMENT
+    inv_txfm_param.lossless = xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]];
+#else
     inv_txfm_param.lossless = xd->lossless[mbmi->segment_id];
+#endif
 #if CONFIG_AOM_HIGHBITDEPTH
     inv_txfm_param.bd = xd->bd;
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {

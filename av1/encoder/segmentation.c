@@ -118,27 +118,76 @@ static int cost_segmap(unsigned *segcounts, aom_prob *probs) {
 
 static void count_segs(const AV1_COMMON *cm, MACROBLOCKD *xd,
                        const TileInfo *tile, MODE_INFO **mi,
+#if CONFIG_EXT_SEGMENT
+						unsigned(*harmonic_pred_seg_counts)[HARMONIC_SPATIAL_PRED_PROBS + 1],
+						unsigned(*heterogeneous_pred_seg_counts)[HETEROGENEOUS_SPATIAL_PRED_PROBS + 1],
+						unsigned(*temporal_predictor_count)[2],
+						unsigned(*t_unpred_seg_counts)[MAX_SEGMENTS],
+                        SEG_CATEGORIES seg_cat_idx,
+#else
                        unsigned *no_pred_segcounts,
                        unsigned (*temporal_predictor_count)[2],
-                       unsigned *t_unpred_seg_counts, int bw, int bh,
+                       unsigned *t_unpred_seg_counts, 
+#endif
+	int bw, int bh,
                        int mi_row, int mi_col) {
   int segment_id;
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
   xd->mi = mi;
+#if CONFIG_EXT_SEGMENT
+  segment_id = xd->mi[0]->mbmi.segment_id[seg_cat_idx];
+#else
   segment_id = xd->mi[0]->mbmi.segment_id;
+#endif
 
   set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols);
 
   // Count the number of hits on each segment with no prediction
+#if !CONFIG_EXT_SEGMENT
   no_pred_segcounts[segment_id]++;
+#endif
 
   // Temporal prediction not allowed on key frames
   if (cm->frame_type != KEY_FRAME) {
-    const BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
-    // Test to see if the segment id matches the predicted value.
-    const int pred_segment_id =
+	  const BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
+	  // Test to see if the segment id matches the predicted value.
+	  
+  
+#if CONFIG_EXT_SEGMENT
+      const int pred_segment_id =
+        get_segment_id(cm, cm->last_frame_seg_map, bsize, seg_cat_idx, mi_row, mi_col);
+      const int pred_flag = pred_segment_id == segment_id;
+      const int pred_context = av1_get_pred_context_seg_id(xd, seg_cat_idx);
+
+      // Store the prediction status for this mb and update counts
+      // as appropriate
+      xd->mi[0]->mbmi.seg_id_predicted[seg_cat_idx] = pred_flag;
+      temporal_predictor_count[pred_context][pred_flag]++;
+
+      const int spatial_seg_pred_ctx = av1_get_spatial_pred_context(xd, seg_cat_idx);
+      int spatial_pred_idx = SEG_ID_SPATIAL_UNPREDICTED;
+      if (spatial_seg_pred_ctx) {
+        spatial_pred_idx = segment_id == xd->left_mi->mbmi.segment_id[seg_cat_idx] ? SEG_ID_COPY_LEFT : SEG_ID_SPATIAL_UNPREDICTED;
+        harmonic_pred_seg_counts[0][spatial_pred_idx]++;
+        if (!pred_flag) harmonic_pred_seg_counts[1][spatial_pred_idx]++;
+      }
+      else {
+        if (xd->left_mi)
+          spatial_pred_idx = segment_id == xd->left_mi->mbmi.segment_id[seg_cat_idx] ? SEG_ID_COPY_LEFT : SEG_ID_SPATIAL_UNPREDICTED;
+        if (xd->above_mi && spatial_pred_idx == 0)
+          spatial_pred_idx = segment_id == xd->above_mi->mbmi.segment_id[seg_cat_idx] ? SEG_ID_COPY_ABOVE : SEG_ID_SPATIAL_UNPREDICTED;
+        heterogeneous_pred_seg_counts[0][spatial_pred_idx]++;
+        if (!pred_flag) heterogeneous_pred_seg_counts[1][spatial_pred_idx]++;
+      }
+      xd->mi[0]->mbmi.seg_id_spatial_predicted[seg_cat_idx] = spatial_pred_idx;
+      if (spatial_pred_idx == SEG_ID_SPATIAL_UNPREDICTED) {
+        t_unpred_seg_counts[0][segment_id]++;
+        if (!pred_flag) t_unpred_seg_counts[1][segment_id]++;
+      }
+#else
+      const int pred_segment_id =
         get_segment_id(cm, cm->last_frame_seg_map, bsize, mi_row, mi_col);
     const int pred_flag = pred_segment_id == segment_id;
     const int pred_context = av1_get_pred_context_seg_id(xd);
@@ -148,16 +197,49 @@ static void count_segs(const AV1_COMMON *cm, MACROBLOCKD *xd,
     xd->mi[0]->mbmi.seg_id_predicted = pred_flag;
     temporal_predictor_count[pred_context][pred_flag]++;
 
-    // Update the "unpredicted" segment count
-    if (!pred_flag) t_unpred_seg_counts[segment_id]++;
+      // Update the "unpredicted" segment count
+      if (!pred_flag) t_unpred_seg_counts[segment_id]++;
+#endif
   }
+#if CONFIG_EXT_SEGMENT
+  else {
+	  const int spatial_seg_pred_ctx = av1_get_spatial_pred_context(xd, seg_cat_idx);
+	  int spatial_pred_idx = SEG_ID_SPATIAL_UNPREDICTED;
+	  if (spatial_seg_pred_ctx) {
+		  spatial_pred_idx = segment_id == xd->left_mi->mbmi.segment_id[seg_cat_idx] ? SEG_ID_COPY_LEFT : SEG_ID_SPATIAL_UNPREDICTED;
+		  harmonic_pred_seg_counts[0][spatial_pred_idx]++;
+		  
+	  }
+	  else {
+		  if (xd->left_mi)
+			  spatial_pred_idx = segment_id == xd->left_mi->mbmi.segment_id[seg_cat_idx] ? SEG_ID_COPY_LEFT : SEG_ID_SPATIAL_UNPREDICTED;
+		  if (xd->above_mi && spatial_pred_idx == 0)
+			  spatial_pred_idx = segment_id == xd->above_mi->mbmi.segment_id[seg_cat_idx] ? SEG_ID_COPY_ABOVE : SEG_ID_SPATIAL_UNPREDICTED;
+		  heterogeneous_pred_seg_counts[0][spatial_pred_idx]++;
+		  
+	  }
+	  xd->mi[0]->mbmi.seg_id_spatial_predicted[seg_cat_idx] = spatial_pred_idx;
+	  if (spatial_pred_idx == SEG_ID_SPATIAL_UNPREDICTED) {
+		  t_unpred_seg_counts[0][segment_id]++;		  
+	  }
+  }
+#endif
+ 
 }
-
 static void count_segs_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                          const TileInfo *tile, MODE_INFO **mi,
-                          unsigned *no_pred_segcounts,
+                          const TileInfo *tile, MODE_INFO **mi,                          
+#if CONFIG_EXT_SEGMENT
+						  unsigned (*harmonic_pred_seg_counts)[HARMONIC_SPATIAL_PRED_PROBS + 1],
+						  unsigned (*heterogeneous_pred_seg_counts)[HETEROGENEOUS_SPATIAL_PRED_PROBS + 1],
+						  unsigned(*temporal_predictor_count)[2],
+						  unsigned (*t_unpred_seg_counts)[MAX_SEGMENTS],
+                          SEG_CATEGORIES seg_cat_idx,
+#else
+						  unsigned *no_pred_segcounts,
                           unsigned (*temporal_predictor_count)[2],
-                          unsigned *t_unpred_seg_counts, int mi_row, int mi_col,
+                          unsigned *t_unpred_seg_counts, 
+#endif
+	int mi_row, int mi_col,
                           BLOCK_SIZE bsize) {
   const int mis = cm->mi_stride;
   const int bs = mi_size_wide[bsize], hbs = bs / 2;
@@ -256,19 +338,49 @@ static void count_segs_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
   bh = mi_size_high[mi[0]->mbmi.sb_type];
 
   if (bw == bs && bh == bs) {
-    count_segs(cm, xd, tile, mi, no_pred_segcounts, temporal_predictor_count,
-               t_unpred_seg_counts, bs, bs, mi_row, mi_col);
+    count_segs(cm, xd, tile, mi, 
+#if CONFIG_EXT_SEGMENT
+		harmonic_pred_seg_counts, heterogeneous_pred_seg_counts, 
+        temporal_predictor_count, t_unpred_seg_counts, seg_cat_idx,
+#else
+		no_pred_segcounts, temporal_predictor_count, t_unpred_seg_counts,
+#endif
+		bs, bs, mi_row, mi_col);
   } else if (bw == bs && bh < bs) {
-    count_segs(cm, xd, tile, mi, no_pred_segcounts, temporal_predictor_count,
-               t_unpred_seg_counts, bs, hbs, mi_row, mi_col);
-    count_segs(cm, xd, tile, mi + hbs * mis, no_pred_segcounts,
-               temporal_predictor_count, t_unpred_seg_counts, bs, hbs,
+    count_segs(cm, xd, tile, mi, 
+#if CONFIG_EXT_SEGMENT
+		harmonic_pred_seg_counts, heterogeneous_pred_seg_counts,
+        temporal_predictor_count, t_unpred_seg_counts, seg_cat_idx,
+#else
+		no_pred_segcounts, temporal_predictor_count, t_unpred_seg_counts,
+#endif
+		bs, hbs, mi_row, mi_col);
+    count_segs(cm, xd, tile, mi + hbs * mis, 
+#if CONFIG_EXT_SEGMENT
+		harmonic_pred_seg_counts, heterogeneous_pred_seg_counts,
+        temporal_predictor_count, t_unpred_seg_counts, seg_cat_idx,
+#else
+		no_pred_segcounts, temporal_predictor_count, t_unpred_seg_counts,
+#endif
+		bs, hbs,
                mi_row + hbs, mi_col);
   } else if (bw < bs && bh == bs) {
-    count_segs(cm, xd, tile, mi, no_pred_segcounts, temporal_predictor_count,
-               t_unpred_seg_counts, hbs, bs, mi_row, mi_col);
-    count_segs(cm, xd, tile, mi + hbs, no_pred_segcounts,
-               temporal_predictor_count, t_unpred_seg_counts, hbs, bs, mi_row,
+    count_segs(cm, xd, tile, mi, 
+#if CONFIG_EXT_SEGMENT
+		harmonic_pred_seg_counts, heterogeneous_pred_seg_counts,
+        temporal_predictor_count, t_unpred_seg_counts, seg_cat_idx,
+#else
+		no_pred_segcounts, temporal_predictor_count, t_unpred_seg_counts,
+#endif
+		hbs, bs, mi_row, mi_col);
+    count_segs(cm, xd, tile, mi + hbs, 
+#if CONFIG_EXT_SEGMENT
+		harmonic_pred_seg_counts, heterogeneous_pred_seg_counts,
+        temporal_predictor_count, t_unpred_seg_counts, seg_cat_idx,
+#else
+		no_pred_segcounts, temporal_predictor_count, t_unpred_seg_counts,
+#endif
+		hbs, bs, mi_row,
                mi_col + hbs);
   } else {
     const BLOCK_SIZE subsize = subsize_lookup[PARTITION_SPLIT][bsize];
@@ -280,19 +392,31 @@ static void count_segs_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
       const int mi_dc = hbs * (n & 1);
       const int mi_dr = hbs * (n >> 1);
 
-      count_segs_sb(cm, xd, tile, &mi[mi_dr * mis + mi_dc], no_pred_segcounts,
-                    temporal_predictor_count, t_unpred_seg_counts,
+      count_segs_sb(cm, xd, tile, &mi[mi_dr * mis + mi_dc], 
+#if CONFIG_EXT_SEGMENT
+		  harmonic_pred_seg_counts, heterogeneous_pred_seg_counts,
+          temporal_predictor_count, t_unpred_seg_counts, seg_cat_idx,
+#else
+		  no_pred_segcounts, temporal_predictor_count, t_unpred_seg_counts,
+#endif
                     mi_row + mi_dr, mi_col + mi_dc, subsize);
     }
   }
 #endif  // CONFIG_EXT_PARTITION_TYPES
 }
 
+#if CONFIG_EXT_SEGMENT
+void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd, SEG_CATEGORIES seg_cat_idx) {
+  struct segmentation *seg = &cm->seg[seg_cat_idx];
+  struct segmentation_probs *segp = &cm->fc->seg[seg_cat_idx];
+#else
 void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
   struct segmentation *seg = &cm->seg;
   struct segmentation_probs *segp = &cm->fc->seg;
+#endif
+  
 
-  int no_pred_cost;
+  int no_pred_cost = 0;
   int t_pred_cost = INT_MAX;
 
   int i, tile_col, tile_row, mi_row, mi_col;
@@ -301,7 +425,20 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
 #else
   const int probwt = 1;
 #endif
-
+#if CONFIG_EXT_SEGMENT
+  unsigned temporal_predictor_count[PREDICTION_PROBS][2];
+  unsigned harmonic_pred_seg_counts[2][HARMONIC_SPATIAL_PRED_PROBS + 1];
+  unsigned heterogeneous_pred_seg_counts[2][HETEROGENEOUS_SPATIAL_PRED_PROBS + 1];
+  unsigned unpred_seg_counts[2][MAX_SEGMENTS];
+  aom_prob no_pred_tree[2][SEG_TREE_PROBS];
+  aom_prob harmonic_pred_prob[2][HARMONIC_SPATIAL_PRED_PROBS];
+  aom_prob heterogeneous_pred_prob[2][HETEROGENEOUS_SPATIAL_PRED_PROBS];
+  aom_prob t_nopred_prob[PREDICTION_PROBS];
+  av1_zero(temporal_predictor_count);
+  av1_zero(harmonic_pred_seg_counts);
+  av1_zero(heterogeneous_pred_seg_counts);
+  av1_zero(unpred_seg_counts);
+#else
   unsigned(*temporal_predictor_count)[2] = cm->counts.seg.pred;
   unsigned *no_pred_segcounts = cm->counts.seg.tree_total;
   unsigned *t_unpred_seg_counts = cm->counts.seg.tree_mispred;
@@ -309,11 +446,16 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
   aom_prob no_pred_tree[SEG_TREE_PROBS];
   aom_prob t_pred_tree[SEG_TREE_PROBS];
   aom_prob t_nopred_prob[PREDICTION_PROBS];
+#endif
 
   (void)xd;
 
   // We are about to recompute all the segment counts, so zero the accumulators.
+#if CONFIG_EXT_SEGMENT
+  av1_zero(cm->counts.seg[seg_cat_idx]);
+#else
   av1_zero(cm->counts.seg);
+#endif
 
   // First of all generate stats regarding how well the last segment map
   // predicts this one
@@ -330,14 +472,156 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
         MODE_INFO **mi = mi_ptr;
         for (mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->mib_size, mi += cm->mib_size) {
+#if CONFIG_EXT_SEGMENT
+			count_segs_sb(cm, xd, &tile_info, mi, harmonic_pred_seg_counts, heterogeneous_pred_seg_counts,
+				temporal_predictor_count, unpred_seg_counts, seg_cat_idx, mi_row,
+				mi_col, cm->sb_size);
+#else
           count_segs_sb(cm, xd, &tile_info, mi, no_pred_segcounts,
                         temporal_predictor_count, t_unpred_seg_counts, mi_row,
                         mi_col, cm->sb_size);
+#endif
         }
       }
     }
   }
 
+#if CONFIG_EXT_SEGMENT
+  // Work out probability tree for coding segments without temporal prediction
+  // and the cost.
+  unsigned int branch_ct[32][2];
+  int count0 = harmonic_pred_seg_counts[0][0];
+  int count1 = harmonic_pred_seg_counts[0][1];
+
+  harmonic_pred_prob[0][0] = get_binary_prob(count0, count1);
+  av1_prob_diff_update_savings_search(
+	  harmonic_pred_seg_counts[0], segp->harmonic_spatial_pred_probs[0], &harmonic_pred_prob[0][0],
+	  DIFF_UPDATE_PROB, probwt);
+
+  // Add in the predictor signaling cost
+  no_pred_cost += count0 * av1_cost_zero(harmonic_pred_prob[0][0]) +
+	  count1 * av1_cost_one(harmonic_pred_prob[0][0]);
+
+  
+  int savings = 0;
+
+  av1_tree_probs_from_distribution(av1_seg_id_spatial_prediction_tree, branch_ct, heterogeneous_pred_seg_counts[0]);
+
+  for (i = 0; i < HETEROGENEOUS_SPATIAL_PRED_PROBS; i++) {
+	  count0 = branch_ct[i][0];
+	  count1 = branch_ct[i][1];
+
+	  heterogeneous_pred_prob[0][i] = get_binary_prob(count0, count1);
+	  av1_prob_diff_update_savings_search(
+		  branch_ct[i], segp->heterogeneous_spatial_pred_probs[i], &heterogeneous_pred_prob[0][i],
+		  DIFF_UPDATE_PROB, probwt);
+
+	  // Add in the predictor signaling cost
+	  no_pred_cost += count0 * av1_cost_zero(heterogeneous_pred_prob[0][i]) +
+		  count1 * av1_cost_one(heterogeneous_pred_prob[0][i]);
+  }
+  av1_tree_probs_from_distribution(av1_segment_tree[seg->num_seg - 2], branch_ct, unpred_seg_counts[0]);
+
+  for (i = 0; i < seg->num_seg - 1; i++) {
+	  count0 = branch_ct[i][0];
+	  count1 = branch_ct[i][1];
+
+	  no_pred_tree[0][i] = get_binary_prob(count0, count1);
+	  av1_prob_diff_update_savings_search(
+		  branch_ct[i], segp->tree_probs[i], &no_pred_tree[0][i],
+		  DIFF_UPDATE_PROB, probwt);
+
+	  // Add in the predictor signaling cost
+	  no_pred_cost += count0 * av1_cost_zero(no_pred_tree[0][i]) +
+		  count1 * av1_cost_one(no_pred_tree[0][i]);
+  }
+  //calc_segtree_probs(unpred_seg_counts[0], no_pred_tree[0], segp->tree_probs, probwt);
+  //no_pred_cost += cost_segmap(unpred_seg_counts[0], no_pred_tree[0]);
+
+  // Key frames cannot use temporal prediction
+  if (!frame_is_intra_only(cm) && !cm->error_resilient_mode) {
+	  t_pred_cost = 0;
+	  // Work out probability tree for coding those segments not
+	  // predicted using the temporal method and the cost.
+	  count0 = harmonic_pred_seg_counts[1][0];
+	  count1 = harmonic_pred_seg_counts[1][1];
+
+	  harmonic_pred_prob[1][0] = get_binary_prob(count0, count1);
+	  av1_prob_diff_update_savings_search(
+		  harmonic_pred_seg_counts[1], segp->harmonic_spatial_pred_probs[1], &harmonic_pred_prob[1][0],
+		  DIFF_UPDATE_PROB, probwt);
+
+	  // Add in the predictor signaling cost
+	  t_pred_cost += count0 * av1_cost_zero(harmonic_pred_prob[1][0]) +
+		  count1 * av1_cost_one(harmonic_pred_prob[1][0]);
+
+
+	  av1_tree_probs_from_distribution(av1_seg_id_spatial_prediction_tree, branch_ct, heterogeneous_pred_seg_counts[1]);
+
+	  for (i = 0; i < HETEROGENEOUS_SPATIAL_PRED_PROBS; i++) {
+		  count0 = branch_ct[i][0];
+		  count1 = branch_ct[i][1];
+
+		  heterogeneous_pred_prob[1][i] = get_binary_prob(count0, count1);
+		  av1_prob_diff_update_savings_search(
+			  branch_ct[i], segp->heterogeneous_spatial_pred_probs[i], &heterogeneous_pred_prob[1][i],
+			  DIFF_UPDATE_PROB, probwt);
+
+		  // Add in the predictor signaling cost
+		  t_pred_cost += count0 * av1_cost_zero(heterogeneous_pred_prob[1][i]) +
+			  count1 * av1_cost_one(heterogeneous_pred_prob[1][i]);
+	  }
+
+	  av1_tree_probs_from_distribution(av1_segment_tree[seg->num_seg - 2], branch_ct, unpred_seg_counts[1]);
+
+	  for (i = 0; i < seg->num_seg - 1; i++) {
+		  count0 = branch_ct[i][0];
+		  count1 = branch_ct[i][1];
+
+		  no_pred_tree[1][i] = get_binary_prob(count0, count1);
+		  av1_prob_diff_update_savings_search(
+			  branch_ct[i], segp->tree_probs[i], &no_pred_tree[1][i],
+			  DIFF_UPDATE_PROB, probwt);
+
+		  // Add in the predictor signaling cost
+		  t_pred_cost += count0 * av1_cost_zero(no_pred_tree[1][i]) +
+			  count1 * av1_cost_one(no_pred_tree[1][i]);
+	  }
+
+	  //calc_segtree_probs(unpred_seg_counts[1], no_pred_tree[1], segp->tree_probs, probwt);
+	  //t_pred_cost += cost_segmap(unpred_seg_counts[1], no_pred_tree[1]);
+	  // Add in the cost of the signaling for each prediction context.
+	  for (i = 0; i < PREDICTION_PROBS; i++) {
+		  count0 = temporal_predictor_count[i][0];
+		  count1 = temporal_predictor_count[i][1];
+
+		  t_nopred_prob[i] = get_binary_prob(count0, count1);
+		  av1_prob_diff_update_savings_search(
+			  temporal_predictor_count[i], segp->pred_probs[i], &t_nopred_prob[i],
+			  DIFF_UPDATE_PROB, probwt);
+
+		  // Add in the predictor signaling cost
+		  t_pred_cost += count0 * av1_cost_zero(t_nopred_prob[i]) +
+			  count1 * av1_cost_one(t_nopred_prob[i]);
+	  }
+  }
+  // Now choose which coding method to use.
+  if (t_pred_cost < no_pred_cost) {
+	  assert(!cm->error_resilient_mode);
+	  seg->temporal_update = 1;
+	  av1_copy(cm->counts.seg[seg_cat_idx].temp_pred, temporal_predictor_count);
+	  av1_copy(cm->counts.seg[seg_cat_idx].tree_mispred, unpred_seg_counts[1]);
+	  av1_copy(cm->counts.seg[seg_cat_idx].harmonic_spatial_pred, harmonic_pred_seg_counts[1]);
+	  av1_copy(cm->counts.seg[seg_cat_idx].heterogeneous_spatial_pred, heterogeneous_pred_seg_counts[1]);
+
+  }
+  else {
+	  seg->temporal_update = 0;
+	  av1_copy(cm->counts.seg[seg_cat_idx].tree_mispred, unpred_seg_counts[0]);
+	  av1_copy(cm->counts.seg[seg_cat_idx].harmonic_spatial_pred, harmonic_pred_seg_counts[0]);
+	  av1_copy(cm->counts.seg[seg_cat_idx].heterogeneous_spatial_pred, heterogeneous_pred_seg_counts[0]);
+  }
+#else
   // Work out probability tree for coding segments without prediction
   // and the cost.
   calc_segtree_probs(no_pred_segcounts, no_pred_tree, segp->tree_probs, probwt);
@@ -374,8 +658,20 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
   } else {
     seg->temporal_update = 0;
   }
+#endif
 }
 
+#if CONFIG_EXT_SEGMENT
+void av1_reset_segment_features(AV1_COMMON *cm, SEG_CATEGORIES seg_cat_idx) {
+  struct segmentation *seg = &cm->seg[seg_cat_idx];
+
+  // Set up default state for MB feature flags
+  seg->enabled = 0;
+  seg->update_map = 0;
+  seg->update_data = 0;
+  av1_clearall_segfeatures(seg);
+}
+#else
 void av1_reset_segment_features(AV1_COMMON *cm) {
   struct segmentation *seg = &cm->seg;
 
@@ -385,3 +681,4 @@ void av1_reset_segment_features(AV1_COMMON *cm) {
   seg->update_data = 0;
   av1_clearall_segfeatures(seg);
 }
+#endif
