@@ -49,7 +49,11 @@ static int get_aq_c_strength(int q_index, aom_bit_depth_t bit_depth) {
 
 void av1_setup_in_frame_q_adj(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
+#if CONFIG_EXT_SEGMENT
+  struct segmentation *const seg = &cm->seg[QUALITY_SEG_IDX];
+#else
   struct segmentation *const seg = &cm->seg;
+#endif
 
   // Make SURE use of floating point in this function is safe.
   aom_clear_system_state();
@@ -61,7 +65,11 @@ void av1_setup_in_frame_q_adj(AV1_COMP *cpi) {
     const int aq_strength = get_aq_c_strength(cm->base_qindex, cm->bit_depth);
 
     // Clear down the segment map.
+#if CONFIG_EXT_SEGMENT
+    memset(cpi->segmentation_map, DEFAULT_AQ2_SEG << MAX_LOG2_ACTIVE_SEGMENTS, cm->mi_rows * cm->mi_cols);
+#else
     memset(cpi->segmentation_map, DEFAULT_AQ2_SEG, cm->mi_rows * cm->mi_cols);
+#endif
 
     av1_clearall_segfeatures(seg);
 
@@ -78,7 +86,11 @@ void av1_setup_in_frame_q_adj(AV1_COMP *cpi) {
     seg->abs_delta = SEGMENT_DELTADATA;
 
     // Default segment "Q" feature is disabled so it defaults to the baseline Q.
+#if CONFIG_EXT_SEGMENT
+    av1_disable_segfeature(seg, DEFAULT_AQ2_SEG, QUALITY_SEG_LVL_ALT_Q);
+#else
     av1_disable_segfeature(seg, DEFAULT_AQ2_SEG, SEG_LVL_ALT_Q);
+#endif
 
     // Use some of the segments for in frame Q adjustment.
     for (segment = 0; segment < AQ_C_SEGMENTS; ++segment) {
@@ -98,8 +110,13 @@ void av1_setup_in_frame_q_adj(AV1_COMP *cpi) {
         qindex_delta = -cm->base_qindex + 1;
       }
       if ((cm->base_qindex + qindex_delta) > 0) {
+#if CONFIG_EXT_SEGMENT
+        av1_enable_segfeature(seg, segment, QUALITY_SEG_LVL_ALT_Q);
+        av1_set_segdata(seg, segment, QUALITY_SEG_LVL_ALT_Q, qindex_delta, QUALITY_SEG_IDX);
+#else
         av1_enable_segfeature(seg, segment, SEG_LVL_ALT_Q);
         av1_set_segdata(seg, segment, SEG_LVL_ALT_Q, qindex_delta);
+#endif
       }
     }
   }
@@ -156,7 +173,11 @@ void av1_caq_select_segment(const AV1_COMP *cpi, MACROBLOCK *mb, BLOCK_SIZE bs,
   // Fill in the entires in the segment map corresponding to this SB64.
   for (y = 0; y < ymis; y++) {
     for (x = 0; x < xmis; x++) {
+#if CONFIG_EXT_SEGMENT
+      av1_store_segment_id_into_map(segment, &cpi->segmentation_map[mi_offset + y * cm->mi_cols + x], QUALITY_SEG_IDX);
+#else
       cpi->segmentation_map[mi_offset + y * cm->mi_cols + x] = segment;
+#endif
     }
   }
 }

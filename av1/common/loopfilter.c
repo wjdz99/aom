@@ -301,7 +301,11 @@ static uint8_t get_filter_level(const loop_filter_info_n *lfi_n,
   assert(IMPLIES(supertx_enabled(mbmi),
                  mbmi->segment_id_supertx <= mbmi->segment_id));
 #else
+#if CONFIG_EXT_SEGMENT
+  const int segment_id = mbmi->segment_id[QUALITY_SEG_IDX];
+#else
   const int segment_id = mbmi->segment_id;
+#endif
 #endif  // CONFIG_SUPERTX
   return lfi_n->lvl[segment_id][mbmi->ref_frame[0]][mode_lf_lut[mbmi->mode]];
 }
@@ -328,18 +332,30 @@ void av1_loop_filter_frame_init(AV1_COMMON *cm, int default_filt_lvl) {
   const int scale = 1 << (default_filt_lvl >> 5);
   loop_filter_info_n *const lfi = &cm->lf_info;
   struct loopfilter *const lf = &cm->lf;
+#if CONFIG_EXT_SEGMENT
+  const struct segmentation *const seg = &cm->seg[QUALITY_SEG_IDX];
+#else
   const struct segmentation *const seg = &cm->seg;
+#endif
 
   // update limits if sharpness has changed
   if (lf->last_sharpness_level != lf->sharpness_level) {
     update_sharpness(lfi, lf->sharpness_level);
     lf->last_sharpness_level = lf->sharpness_level;
   }
-
+#if CONFIG_EXT_SEGMENT
+  for (seg_id = 0; seg_id < seg->num_seg; seg_id++) {
+#else
   for (seg_id = 0; seg_id < MAX_SEGMENTS; seg_id++) {
+#endif
     int lvl_seg = default_filt_lvl;
+#if CONFIG_EXT_SEGMENT
+    if (segfeature_active(seg, seg_id, QUALITY_SEG_LVL_ALT_LF)) {
+      const int data = get_segdata(seg, seg_id, QUALITY_SEG_LVL_ALT_LF);
+#else
     if (segfeature_active(seg, seg_id, SEG_LVL_ALT_LF)) {
       const int data = get_segdata(seg, seg_id, SEG_LVL_ALT_LF);
+#endif
       lvl_seg = clamp(
           seg->abs_delta == SEGMENT_ABSDATA ? data : default_filt_lvl + data, 0,
           MAX_LOOP_FILTER);

@@ -49,6 +49,7 @@ typedef enum {
   FRAME_TYPES,
 } FRAME_TYPE;
 
+
 #if CONFIG_EXT_INTERP && SUPPORT_NONINTERPOLATING_FILTERS
 #define IsInterpolatingFilter(filter) (av1_is_interpolating_filter(filter))
 #else
@@ -281,12 +282,23 @@ typedef struct {
   TX_SIZE min_tx_size;
 #endif
   int8_t skip;
+#if CONFIG_EXT_SEGMENT
+  int8_t segment_id[NUM_SEG_CATEGORIES];
+#if CONFIG_SUPERTX
+  // Minimum of all segment IDs under the current supertx block.
+  int8_t segment_id_supertx[NUM_SEG_CATEGORIES];
+#endif// CONFIG_SUPERTX
+  int8_t seg_id_predicted[NUM_SEG_CATEGORIES];  // valid only when temporal_update is enabled
+  int8_t seg_id_spatial_predicted[NUM_SEG_CATEGORIES]; //0: not predicted 1: copy left 2: copy above
+  int8_t q_index;
+#else
   int8_t segment_id;
 #if CONFIG_SUPERTX
   // Minimum of all segment IDs under the current supertx block.
   int8_t segment_id_supertx;
-#endif                      // CONFIG_SUPERTX
+#endif// CONFIG_SUPERTX
   int8_t seg_id_predicted;  // valid only when temporal_update is enabled
+#endif  //CONFIG_EXT_SEGMENT
 
   // Only for INTRA blocks
   PREDICTION_MODE uv_mode;
@@ -471,6 +483,9 @@ typedef struct macroblockd {
   int mb_to_right_edge;
   int mb_to_top_edge;
   int mb_to_bottom_edge;
+#if CONFIG_EXT_SEGMENT
+  int seg_id_is_done[NUM_SEG_CATEGORIES];
+#endif
 
   FRAME_CONTEXT *fc;
 
@@ -516,6 +531,7 @@ typedef struct macroblockd {
 
   int qindex[MAX_SEGMENTS];
   int lossless[MAX_SEGMENTS];
+
   int corrupted;
 
   struct aom_internal_error_info *error_info;
@@ -526,6 +542,10 @@ typedef struct macroblockd {
   int prev_qindex;
   int delta_qindex;
   int current_qindex;
+#if CONFIG_EXT_DELTAQ
+  int prev_altq_segid;
+  int deltaq_is_done;
+#endif
 #endif
 } MACROBLOCKD;
 
@@ -747,7 +767,11 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
 
   if (is_inter_block(mbmi) || plane_type != PLANE_TYPE_Y ||
+#if CONFIG_EXT_SEGMENT
+      xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]] || tx_size >= TX_32X32)
+#else
       xd->lossless[mbmi->segment_id] || tx_size >= TX_32X32)
+#endif
     return DCT_DCT;
 
   return intra_mode_to_tx_type_context[plane_type == PLANE_TYPE_Y
@@ -849,7 +873,11 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
                                              : mbmi->uv_mode];
 #else   // CONFIG_EXT_TX
   (void)block_idx;
+#if CONFIG_EXT_SEGMENT
+  if (plane_type != PLANE_TYPE_Y || xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]] ||
+#else
   if (plane_type != PLANE_TYPE_Y || xd->lossless[mbmi->segment_id] ||
+#endif
       txsize_sqr_map[tx_size] >= TX_32X32)
     return DCT_DCT;
   return mbmi->tx_type;

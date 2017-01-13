@@ -336,7 +336,11 @@ static void separate_arf_mbs(AV1_COMP *cpi) {
         ncnt[0]++;
         cpi->segmentation_map[mi_row * cm->mi_cols + mi_col] = 0;
       } else {
+#if CONFIG_EXT_SEGMENT
+        cpi->segmentation_map[mi_row * cm->mi_cols + mi_col] = 1 << MAX_LOG2_ACTIVE_SEGMENTS;
+#else
         cpi->segmentation_map[mi_row * cm->mi_cols + mi_col] = 1;
+#endif
         ncnt[1]++;
       }
     }
@@ -353,11 +357,18 @@ static void separate_arf_mbs(AV1_COMP *cpi) {
     // never be called with the common data structure uninitialized.
     else
       cpi->static_mb_pct = 0;
-
+#if CONFIG_EXT_SEGMENT
+    av1_enable_segmentation(&cm->seg[QUALITY_SEG_IDX]);
+#else
     av1_enable_segmentation(&cm->seg);
+#endif
   } else {
     cpi->static_mb_pct = 0;
+#if CONFIG_EXT_SEGMENT
+    av1_disable_segmentation(&cm->seg[QUALITY_SEG_IDX]);
+#else
     av1_disable_segmentation(&cm->seg);
+#endif
   }
 
   // Free localy allocated storage

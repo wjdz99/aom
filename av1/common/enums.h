@@ -222,6 +222,14 @@ typedef enum {
   TX_TYPES,
 } TX_TYPE;
 
+#if CONFIG_EXT_SEGMENT
+typedef enum {
+	SEG_ID_SPATIAL_UNPREDICTED = 0,
+	SEG_ID_COPY_LEFT,
+	SEG_ID_COPY_ABOVE,
+	SEG_ID_SPATIAL_PREDICTIONS
+} SEG_ID_SPATIAL_PREDICTION;
+#endif
 #if CONFIG_EXT_TX
 #define EXT_TX_SIZES 4       // number of sizes that use extended transforms
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER

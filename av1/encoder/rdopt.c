@@ -1087,7 +1087,11 @@ static void dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
       inv_txfm_param.tx_type = get_tx_type(plane_type, xd, block, tx_size);
       inv_txfm_param.tx_size = tx_size;
       inv_txfm_param.eob = eob;
+#if CONFIG_EXT_SEGMENT
+      inv_txfm_param.lossless = xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]];
+#else
       inv_txfm_param.lossless = xd->lossless[mbmi->segment_id];
+#endif
 
 #if CONFIG_AOM_HIGHBITDEPTH
       if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
@@ -1238,7 +1242,11 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
                     coeff_ctx, AV1_XFORM_QUANT_FP);
 #endif  // CONFIG_NEW_QUANT
 #if !CONFIG_PVQ
+#if CONFIG_EXT_SEGMENT
+    if (x->plane[plane].eobs[block] && !xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]]) {
+#else
     if (x->plane[plane].eobs[block] && !xd->lossless[mbmi->segment_id]) {
+#endif
       args->t_above[blk_col] = args->t_left[blk_row] =
           (av1_optimize_b(cm, x, plane, block, tx_size, coeff_ctx) > 0);
     } else {
@@ -1403,7 +1411,11 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   if (rd_stats->rate == INT_MAX) return INT64_MAX;
 #if CONFIG_EXT_TX
   if (get_ext_tx_types(tx_size, bs, is_inter) > 1 &&
+#if CONFIG_EXT_SEGMENT
+      !xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]]) {
+#else
       !xd->lossless[xd->mi[0]->mbmi.segment_id]) {
+#endif
     const int ext_tx_set = get_ext_tx_set(tx_size, bs, is_inter);
     if (is_inter) {
       if (ext_tx_set > 0)
@@ -1417,7 +1429,11 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 #else
+#if CONFIG_EXT_SEGMENT
+  if (tx_size < TX_32X32 && !xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]] &&
+#else
   if (tx_size < TX_32X32 && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
+#endif
       !FIXED_TX_TYPE) {
     if (is_inter) {
       rd_stats->rate += cpi->inter_tx_type_costs[mbmi->tx_size][mbmi->tx_type];
@@ -1443,8 +1459,11 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   if (tx_select) rd_stats->rate += r_tx_size;
-
+#if CONFIG_EXT_SEGMENT
+  if (is_inter && !xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]] &&
+#else
   if (is_inter && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
+#endif
       !(rd_stats->skip))
     rd = AOMMIN(rd, RDCOST(x->rdmult, x->rddiv, s1, rd_stats->sse));
 
@@ -1696,7 +1715,11 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
                      cpi->sf.use_fast_coef_costing);
   }
 #else   // CONFIG_EXT_TX
+#if CONFIG_EXT_SEGMENT
+  if (mbmi->tx_size < TX_32X32 && !xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]]) {
+#else
   if (mbmi->tx_size < TX_32X32 && !xd->lossless[mbmi->segment_id]) {
+#endif
     for (tx_type = 0; tx_type < TX_TYPES; ++tx_type) {
       RD_STATS this_rd_stats;
       if (!is_inter && x->use_default_intra_tx_type &&
@@ -1726,7 +1749,11 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
       else
         this_rd = RDCOST(x->rdmult, x->rddiv, this_rd_stats.rate + s0,
                          this_rd_stats.dist);
+#if CONFIG_EXT_SEGMENT
+      if (is_inter && !xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]] && !this_rd_stats.skip)
+#else
       if (is_inter && !xd->lossless[mbmi->segment_id] && !this_rd_stats.skip)
+#endif
         this_rd =
             AOMMIN(this_rd, RDCOST(x->rdmult, x->rddiv, s1, this_rd_stats.sse));
 
@@ -1830,8 +1857,11 @@ static void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   av1_init_rd_stats(rd_stats);
 
   assert(bs == xd->mi[0]->mbmi.sb_type);
-
+#if CONFIG_EXT_SEGMENT
+  if (xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]]) {
+#else
   if (xd->lossless[xd->mi[0]->mbmi.segment_id]) {
+#endif
     choose_smallest_tx_size(cpi, x, rd_stats, ref_best_rd, bs);
   } else if (cpi->sf.tx_size_search_method == USE_LARGESTALL) {
     choose_largest_tx_size(cpi, x, rd_stats, ref_best_rd, bs);
@@ -2248,7 +2278,11 @@ static int64_t rd_pick_intra4x4block(
         }
 #endif
 
+#if CONFIG_EXT_SEGMENT
+        if (xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]]) {
+#else
         if (xd->lossless[xd->mi[0]->mbmi.segment_id]) {
+#endif
 #if !CONFIG_PVQ
           TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, TX_4X4);
           const SCAN_ORDER *scan_order = get_scan(cm, TX_4X4, tx_type, 0);
@@ -2464,7 +2498,11 @@ static int64_t rd_pick_intra_sub_8x8_y_mode(const AV1_COMP *const cpi,
   mic->mbmi.mode = mic->bmi[3].as_mode;
 
   // Add in the cost of the transform type
+#if CONFIG_EXT_SEGMENT
+  if (!xd->lossless[mic->mbmi.segment_id[QUALITY_SEG_IDX]]) {
+#else
   if (!xd->lossless[mic->mbmi.segment_id]) {
+#endif
     int rate_tx_type = 0;
 #if CONFIG_EXT_TX
     if (get_ext_tx_types(TX_4X4, bsize, 0) > 1) {
@@ -2970,7 +3008,11 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     this_rate = this_rate_tokenonly + bmode_costs[mic->mbmi.mode];
 
+#if CONFIG_EXT_SEGMENT
+    if (!xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]] &&
+#else
     if (!xd->lossless[xd->mi[0]->mbmi.segment_id] &&
+#endif
         mic->mbmi.sb_type >= BLOCK_8X8) {
       // super_block_yrd above includes the cost of the tx_size in the
       // tokenonly rate, but for intra blocks, tx_size is always coded
@@ -4632,7 +4674,11 @@ static int64_t encode_inter_mb_segment(const AV1_COMP *const cpi, MACROBLOCK *x,
       av1_xform_quant(cm, x, 0, block, idy + (i >> 1), idx + (i & 0x01),
                       BLOCK_8X8, tx_size, coeff_ctx, AV1_XFORM_QUANT_FP);
 #endif  // CONFIG_NEW_QUANT
+#if CONFIG_EXT_SEGMENT
+      if (xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]] == 0)
+#else
       if (xd->lossless[xd->mi[0]->mbmi.segment_id] == 0)
+#endif
         av1_optimize_b(cm, x, 0, block, tx_size, coeff_ctx);
 #else
       coeff = BLOCK_OFFSET(p->coeff, k);
@@ -5950,7 +5996,11 @@ static void estimate_ref_frame_costs(const AV1_COMMON *cm,
                                      unsigned int *ref_costs_comp,
                                      aom_prob *comp_mode_p) {
   int seg_ref_active =
+#if CONFIG_EXT_SEGMENT
+    segfeature_active(&cm->seg[ACTIVE_SEG_IDX], segment_id, ACTIVE_SEG_LVL_REF_FRAME);
+#else
       segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME);
+#endif
   if (seg_ref_active) {
     memset(ref_costs_single, 0,
            TOTAL_REFS_PER_FRAME * sizeof(*ref_costs_single));
@@ -8667,10 +8717,20 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
 #endif  // CONFIG_PALETTE
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+#if CONFIG_EXT_SEGMENT
+  const struct segmentation *const active_seg = &cm->seg[ACTIVE_SEG_IDX];
+  const struct segmentation *const quality_seg = &cm->seg[QUALITY_SEG_IDX];
+#else
   const struct segmentation *const seg = &cm->seg;
+#endif
   PREDICTION_MODE this_mode;
   MV_REFERENCE_FRAME ref_frame, second_ref_frame;
+#if CONFIG_EXT_SEGMENT
+  unsigned char active_segment_id = mbmi->segment_id[ACTIVE_SEG_IDX];
+  unsigned char quality_segment_id = mbmi->segment_id[QUALITY_SEG_IDX];
+#else
   unsigned char segment_id = mbmi->segment_id;
+#endif
   int comp_pred, i, k;
   int_mv frame_mv[MB_MODE_COUNT][TOTAL_REFS_PER_FRAME];
   struct buf_2d yv12_mb[TOTAL_REFS_PER_FRAME][MAX_MB_PLANE];
@@ -8742,7 +8802,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   uint16_t mode_skip_mask[TOTAL_REFS_PER_FRAME] = { 0 };
 #endif  // CONFIG_EXT_INTER
   int mode_skip_start = sf->mode_skip_start + 1;
+#if CONFIG_EXT_SEGMENT
+  const int *const rd_threshes = rd_opt->threshes[quality_segment_id][bsize];
+#else
   const int *const rd_threshes = rd_opt->threshes[segment_id][bsize];
+#endif
   const int *const rd_thresh_freq_fact = tile_data->thresh_freq_fact[bsize];
   int64_t mode_threshold[MAX_MODES];
   int *mode_map = tile_data->mode_map[bsize];
@@ -8818,8 +8882,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
          sizeof(directional_mode_skip_mask[0]) * INTRA_MODES);
 #endif  // CONFIG_EXT_INTRA
 
+#if CONFIG_EXT_SEGMENT
+  estimate_ref_frame_costs(cm, xd, active_segment_id, ref_costs_single, ref_costs_comp,
+                           &comp_mode_p);
+#else
   estimate_ref_frame_costs(cm, xd, segment_id, ref_costs_single, ref_costs_comp,
                            &comp_mode_p);
+#endif
 
   for (i = 0; i < REFERENCE_MODES; ++i) best_pred_rd[i] = INT64_MAX;
   for (i = 0; i < TX_SIZES; i++) rate_uv_intra[i] = INT_MAX;
@@ -8929,8 +8998,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     }
     // If the segment reference frame feature is enabled....
     // then do nothing if the current ref frame is not allowed..
+#if CONFIG_EXT_SEGMENT
+    if (segfeature_active(active_seg, active_segment_id, ACTIVE_SEG_LVL_REF_FRAME) &&
+        get_segdata(active_seg, active_segment_id, ACTIVE_SEG_LVL_REF_FRAME) != (int)ref_frame) {
+#else
     if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
         get_segdata(seg, segment_id, SEG_LVL_REF_FRAME) != (int)ref_frame) {
+#endif
       ref_frame_skip_mask[0] |= (1 << ref_frame);
       ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
     }
@@ -8939,7 +9013,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   // Disable this drop out case if the ref frame
   // segment level feature is enabled for this segment. This is to
   // prevent the possibility that we end up unable to pick any mode.
+#if CONFIG_EXT_SEGMENT
+  if (!segfeature_active(active_seg, active_segment_id, ACTIVE_SEG_LVL_REF_FRAME)) {
+#else
   if (!segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME)) {
+#endif
     // Only consider ZEROMV/ALTREF_FRAME for alt ref frame,
     // unless ARNR filtering is enabled in which case we want
     // an unfiltered alternative. We allow near/nearest as well
@@ -9161,7 +9239,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
       // Do not allow compound prediction if the segment level reference frame
       // feature is in use as in this case there can only be one reference.
+#if CONFIG_EXT_SEGMENT
+      if (segfeature_active(active_seg, active_segment_id, ACTIVE_SEG_LVL_REF_FRAME)) continue;
+#else
       if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME)) continue;
+#endif
 
       if ((mode_search_skip_flags & FLAG_SKIP_COMP_BESTINTRA) &&
           best_mode_index >= 0 && best_mbmode.ref_frame[0] == INTRA_FRAME)
@@ -9346,8 +9428,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         rate2 += av1_cost_bit(
             av1_default_palette_y_mode_prob[bsize - BLOCK_8X8][palette_ctx], 0);
 #endif  // CONFIG_PALETTE
-
+#if CONFIG_EXT_SEGMENT
+      if (!xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]] && bsize >= BLOCK_8X8) {
+#else
       if (!xd->lossless[mbmi->segment_id] && bsize >= BLOCK_8X8) {
+#endif
         // super_block_yrd above includes the cost of the tx_size in the
         // tokenonly rate, but for intra blocks, tx_size is always coded
         // (prediction granularity), so we account for it in the full rate,
@@ -9722,7 +9807,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         rate_uv = 0;
         // Cost the skip mb case
         rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd), 1);
+#if CONFIG_EXT_SEGMENT
+      } else if (ref_frame != INTRA_FRAME && !xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]]) {
+#else
       } else if (ref_frame != INTRA_FRAME && !xd->lossless[mbmi->segment_id]) {
+#endif
 #if CONFIG_REF_MV
         if (RDCOST(x->rdmult, x->rddiv, rate_y + rate_uv + rate_skip0,
                    distortion2) <
@@ -9863,7 +9952,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     if (x->skip && !comp_pred) break;
   }
 
+#if CONFIG_EXT_SEGMENT
+  if (xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]] == 0 && best_mode_index >= 0 &&
+#else
   if (xd->lossless[mbmi->segment_id] == 0 && best_mode_index >= 0 &&
+#endif
       ((sf->tx_type_search.fast_inter_tx_type_search == 1 &&
         is_inter_mode(best_mbmode.mode)) ||
        (sf->tx_type_search.fast_intra_tx_type_search == 1 &&
@@ -10380,7 +10473,11 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+#if CONFIG_EXT_SEGMENT
+  unsigned char segment_id = mbmi->segment_id[ACTIVE_SEG_IDX];
+#else
   unsigned char segment_id = mbmi->segment_id;
+#endif
   const int comp_pred = 0;
   int i;
   int64_t best_pred_diff[REFERENCE_MODES];
@@ -10401,7 +10498,11 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
 
   rd_cost->rate = INT_MAX;
 
+#if CONFIG_EXT_SEGMENT
+  assert(segfeature_active(&cm->seg[ACTIVE_SEG_IDX], segment_id, ACTIVE_SEG_LVL_SKIP));
+#else
   assert(segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP));
+#endif
 
 #if CONFIG_PALETTE
   mbmi->palette_mode_info.palette_size[0] = 0;
@@ -10525,9 +10626,18 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
   const SPEED_FEATURES *const sf = &cpi->sf;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+#if CONFIG_EXT_SEGMENT
+  const struct segmentation *const active_seg = &cm->seg[ACTIVE_SEG_IDX];
+#else
   const struct segmentation *const seg = &cm->seg;
+#endif
   MV_REFERENCE_FRAME ref_frame, second_ref_frame;
+#if CONFIG_EXT_SEGMENT
+  unsigned char active_segment_id = mbmi->segment_id[ACTIVE_SEG_IDX];
+  unsigned char quality_segment_id = mbmi->segment_id[QUALITY_SEG_IDX];
+#else
   unsigned char segment_id = mbmi->segment_id;
+#endif
   int comp_pred, i;
   int_mv frame_mv[MB_MODE_COUNT][TOTAL_REFS_PER_FRAME];
   struct buf_2d yv12_mb[TOTAL_REFS_PER_FRAME][MAX_MB_PLANE];
@@ -10614,9 +10724,13 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
       seg_mvs[i][j].as_int = INVALID_MV;
 #endif  // CONFIG_EXT_INTER
   }
-
+#if CONFIG_EXT_SEGMENT
+  estimate_ref_frame_costs(cm, xd, active_segment_id, ref_costs_single, ref_costs_comp,
+    &comp_mode_p);
+#else
   estimate_ref_frame_costs(cm, xd, segment_id, ref_costs_single, ref_costs_comp,
                            &comp_mode_p);
+#endif
 
   for (i = 0; i < REFERENCE_MODES; ++i) best_pred_rd[i] = INT64_MAX;
   rate_uv_intra = INT_MAX;
@@ -10744,7 +10858,11 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
     // Test best rd so far against threshold for trying this mode.
     if (!internal_active_edge &&
         rd_less_than_thresh(best_rd,
+#if CONFIG_EXT_SEGMENT
+                            rd_opt->threshes[quality_segment_id][bsize][ref_index],
+#else
                             rd_opt->threshes[segment_id][bsize][ref_index],
+#endif
                             tile_data->thresh_freq_fact[bsize][ref_index]))
       continue;
 
@@ -10754,7 +10872,11 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
       if (!(cpi->ref_frame_flags & flag_list[second_ref_frame])) continue;
       // Do not allow compound prediction if the segment level reference frame
       // feature is in use as in this case there can only be one reference.
+#if CONFIG_EXT_SEGMENT
+      if (segfeature_active(active_seg, active_segment_id, ACTIVE_SEG_LVL_REF_FRAME)) continue;
+#else
       if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME)) continue;
+#endif
 
       if ((sf->mode_search_skip_flags & FLAG_SKIP_COMP_BESTINTRA) &&
           best_mbmode.ref_frame[0] == INTRA_FRAME)
@@ -10778,6 +10900,22 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
 
     // If the segment reference frame feature is enabled....
     // then do nothing if the current ref frame is not allowed..
+#if CONFIG_EXT_SEGMENT
+    if (segfeature_active(active_seg, active_segment_id, ACTIVE_SEG_LVL_REF_FRAME) &&
+      get_segdata(active_seg, active_segment_id, ACTIVE_SEG_LVL_REF_FRAME) != (int)ref_frame) {
+      continue;
+      // Disable this drop out case if the ref frame
+      // segment level feature is enabled for this segment. This is to
+      // prevent the possibility that we end up unable to pick any mode.
+    } else if (!segfeature_active(active_seg, active_segment_id, ACTIVE_SEG_LVL_REF_FRAME)) {
+      // Only consider ZEROMV/ALTREF_FRAME for alt ref frame,
+      // unless ARNR filtering is enabled in which case we want
+      // an unfiltered alternative. We allow near/nearest as well
+      // because they may result in zero-zero MVs but be cheaper.
+      if (cpi->rc.is_src_frame_alt_ref && (cpi->oxcf.arnr_max_frames == 0))
+        continue;
+    }
+#else
     if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
         get_segdata(seg, segment_id, SEG_LVL_REF_FRAME) != (int)ref_frame) {
       continue;
@@ -10792,6 +10930,8 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
       if (cpi->rc.is_src_frame_alt_ref && (cpi->oxcf.arnr_max_frames == 0))
         continue;
     }
+#endif
+
 
     mbmi->tx_size = TX_4X4;
     mbmi->uv_mode = DC_PRED;
@@ -10869,8 +11009,13 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
 #endif  // CONFIG_EXT_INTER
 
       this_rd_thresh = (ref_frame == LAST_FRAME)
+#if CONFIG_EXT_SEGMENT
+                           ? rd_opt->threshes[quality_segment_id][bsize][THR_LAST]
+                           : rd_opt->threshes[quality_segment_id][bsize][THR_ALTR];
+#else
                            ? rd_opt->threshes[segment_id][bsize][THR_LAST]
                            : rd_opt->threshes[segment_id][bsize][THR_ALTR];
+#endif
 #if CONFIG_EXT_REFS
       this_rd_thresh = (ref_frame == LAST2_FRAME)
                            ? rd_opt->threshes[segment_id][bsize][THR_LAST2]
@@ -10883,7 +11028,11 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
                            : this_rd_thresh;
 #endif  // CONFIG_EXT_REFS
       this_rd_thresh = (ref_frame == GOLDEN_FRAME)
+#if CONFIG_EXT_SEGMENT
+                           ? rd_opt->threshes[quality_segment_id][bsize][THR_GOLD]
+#else
                            ? rd_opt->threshes[segment_id][bsize][THR_GOLD]
+#endif
                            : this_rd_thresh;
 
       // TODO(any): Add search of the tx_type to improve rd performance at the
@@ -11060,7 +11209,11 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
         for (i = 0; i < 4; i++) xd->mi[0]->bmi[i] = tmp_best_bmodes[i];
       }
       // Add in the cost of the transform type
+#if CONFIG_EXT_SEGMENT
+      if (!xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]]) {
+#else
       if (!xd->lossless[mbmi->segment_id]) {
+#endif
         int rate_tx_type = 0;
 #if CONFIG_EXT_TX
         if (get_ext_tx_types(mbmi->tx_size, bsize, 1) > 1) {
@@ -11138,8 +11291,11 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
     if (!disable_skip) {
       // Skip is never coded at the segment level for sub8x8 blocks and instead
       // always coded in the bitstream at the mode info level.
-
+#if CONFIG_EXT_SEGMENT
+      if (ref_frame != INTRA_FRAME && !xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]]) {
+#else
       if (ref_frame != INTRA_FRAME && !xd->lossless[mbmi->segment_id]) {
+#endif
         if (RDCOST(x->rdmult, x->rddiv, rate_y + rate_uv, distortion2) <
             RDCOST(x->rdmult, x->rddiv, 0, total_sse)) {
           // Add in the cost of the no skip flag.
