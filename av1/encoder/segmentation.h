@@ -39,10 +39,14 @@ void av1_clear_segdata(struct segmentation *seg, int segment_id,
 // the absolute values given).
 void av1_set_segment_data(struct segmentation *seg, signed char *feature_data,
                           unsigned char abs_delta);
-
+#if CONFIG_EXT_SEGMENT
+void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd, SEG_CATEGORIES seg_cat_idx);
+void av1_reset_segment_features(AV1_COMMON *cm, SEG_CATEGORIES seg_cat_idx);
+#else
 void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd);
 
 void av1_reset_segment_features(AV1_COMMON *cm);
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -317,7 +317,12 @@ typedef struct AV1Common {
   int ref_frame_sign_bias[TOTAL_REFS_PER_FRAME]; /* Two state 0, 1 */
 
   struct loopfilter lf;
+  
+#if CONFIG_EXT_SEGMENT
+  struct segmentation seg[NUM_SEG_CATEGORIES]; //0: active segments 1: quality segments  
+#else
   struct segmentation seg;
+#endif
 
   int frame_parallel_decode;  // frame-based threading.
 
@@ -411,6 +416,9 @@ typedef struct AV1Common {
   int delta_q_present_flag;
   // Resolution of delta quant
   int delta_q_res;
+#if CONFIG_EXT_SEGMENT
+  int delta_q_minb_size_log2_minus3;//log2 min block size (minus 3) to signal delta q
+#endif
 #endif
 #if CONFIG_TILE_GROUPS
   int num_tg;
