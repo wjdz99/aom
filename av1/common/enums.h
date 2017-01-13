@@ -236,6 +236,14 @@ typedef enum {
   FRAME_BOTTOM_BOUNDARY = 128,
 } BOUNDARY_TYPE;
 
+#if CONFIG_EXT_SEGMENT
+typedef enum {
+  SEG_ID_SPATIAL_UNPREDICTED = 0,
+  SEG_ID_COPY_LEFT,
+  SEG_ID_COPY_ABOVE,
+  SEG_ID_SPATIAL_PREDICTIONS
+} SEG_ID_SPATIAL_PREDICTION;
+#endif
 #if CONFIG_EXT_TX
 #if CONFIG_CB4X4
 #define EXT_TX_SIZES 5  // number of sizes that use extended transforms
