@@ -95,6 +95,7 @@ static INLINE void aom_dk_write(aom_dk_writer *br, int bit, int probability) {
   br->count = count;
   br->lowvalue = lowvalue;
   br->range = range;
+  /* printf("range==%d&&bit==%d&&prob==%d\n", range, bit, probability);*/
 }
 
 #ifdef __cplusplus

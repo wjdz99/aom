@@ -75,7 +75,11 @@
 FRAME_COUNTS aggregate_fc;
 #endif  // CONFIG_ENTROPY_STATS
 
+#if CONFIG_EXT_SEGMENT
+#define AM_SEGMENT_ID_INACTIVE MAX_ACTIVE_SEGMENTS - 1
+#else
 #define AM_SEGMENT_ID_INACTIVE 7
+#endif
 #define AM_SEGMENT_ID_ACTIVE 0
 
 #define SHARP_FILTER_QTHRESH 0 /* Q threshold for 8-tap sharp filter */
@@ -141,12 +145,21 @@ static void suppress_active_map(AV1_COMP *cpi) {
   int i;
   if (cpi->active_map.enabled || cpi->active_map.update)
     for (i = 0; i < cpi->common.mi_rows * cpi->common.mi_cols; ++i)
+#if CONFIG_EXT_SEGMENT
+      if (av1_extract_segment_id_from_map(seg_map[i], ACTIVE_SEG_IDX) ==
+          cpi->common.seg[ACTIVE_SEG_IDX].num_seg - 1)
+#else
       if (seg_map[i] == AM_SEGMENT_ID_INACTIVE)
+#endif
         seg_map[i] = AM_SEGMENT_ID_ACTIVE;
 }
 
 static void apply_active_map(AV1_COMP *cpi) {
+#if CONFIG_EXT_SEGMENT
+  struct segmentation *const seg = &cpi->common.seg[ACTIVE_SEG_IDX];
+#else
   struct segmentation *const seg = &cpi->common.seg;
+#endif
   unsigned char *const seg_map = cpi->segmentation_map;
   const unsigned char *const active_map = cpi->active_map.map;
   int i;
@@ -157,7 +170,26 @@ static void apply_active_map(AV1_COMP *cpi) {
     cpi->active_map.enabled = 0;
     cpi->active_map.update = 1;
   }
-
+#if CONFIG_EXT_SEGMENT
+  if (cpi->active_map.update) {
+    if (cpi->active_map.enabled) {
+      for (i = 0; i < cpi->common.mi_rows * cpi->common.mi_cols; ++i)
+        if (seg_map[i] == AM_SEGMENT_ID_ACTIVE)
+          seg_map[i] = active_map[i] == AM_SEGMENT_ID_INACTIVE
+                           ? seg->num_seg - 1
+                           : AM_SEGMENT_ID_ACTIVE;
+      av1_enable_segmentation(seg);
+      av1_enable_segfeature(seg, seg->num_seg - 1, ACTIVE_SEG_LVL_SKIP);
+    } else {
+      av1_disable_segfeature(seg, seg->num_seg - 1, ACTIVE_SEG_LVL_SKIP);
+      if (seg->enabled) {
+        seg->update_data = 1;
+        seg->update_map = 1;
+      }
+    }
+    cpi->active_map.update = 0;
+  }
+#else
   if (cpi->active_map.update) {
     if (cpi->active_map.enabled) {
       for (i = 0; i < cpi->common.mi_rows * cpi->common.mi_cols; ++i)
@@ -179,6 +211,7 @@ static void apply_active_map(AV1_COMP *cpi) {
     }
     cpi->active_map.update = 0;
   }
+#endif
 }
 
 int av1_set_active_map(AV1_COMP *cpi, unsigned char *new_map_16x16, int rows,
@@ -223,7 +256,13 @@ int av1_get_active_map(AV1_COMP *cpi, unsigned char *new_map_16x16, int rows,
           // Cyclic refresh segments are considered active despite not having
           // AM_SEGMENT_ID_ACTIVE
           new_map_16x16[(r >> 1) * cols + (c >> 1)] |=
+#if CONFIG_EXT_SEGMENT
+              av1_extract_segment_id_from_map(seg_map_8x8[r * mi_cols + c],
+                                              ACTIVE_SEG_IDX) !=
+              cpi->common.seg[ACTIVE_SEG_IDX].num_seg - 1;
+#else
               seg_map_8x8[r * mi_cols + c] != AM_SEGMENT_ID_INACTIVE;
+#endif
         }
       }
     }
@@ -549,6 +588,161 @@ static void restore_coding_context(AV1_COMP *cpi) {
   *cm->fc = cc->fc;
 }
 
+#if CONFIG_EXT_SEGMENT
+static void configure_static_seg_features(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  const RATE_CONTROL *const rc = &cpi->rc;
+  struct segmentation *const active_seg = &cm->seg[ACTIVE_SEG_IDX];
+  struct segmentation *const quality_seg = &cm->seg[QUALITY_SEG_IDX];
+
+  int high_q = (int)(rc->avg_q > 48.0);
+  int qi_delta;
+
+  // Disable and clear down for KF
+  if (cm->frame_type == KEY_FRAME) {
+    // Clear down the global segmentation map
+    memset(cpi->segmentation_map, 0, cm->mi_rows * cm->mi_cols);
+    active_seg->update_map = 0;
+    active_seg->update_data = 0;
+    quality_seg->update_map = 0;
+    quality_seg->update_data = 0;
+    cpi->static_mb_pct = 0;
+
+    // Disable segmentation
+    av1_disable_segmentation(active_seg);
+    av1_disable_segmentation(quality_seg);
+
+    // Clear down the segment features.
+    av1_clearall_segfeatures(active_seg);
+    av1_clearall_segfeatures(quality_seg);
+  } else if (cpi->refresh_alt_ref_frame) {
+    // If this is an alt ref frame, so only quality segments are enabled
+    // Clear down the global segmentation map
+    memset(cpi->segmentation_map, 0, cm->mi_rows * cm->mi_cols);
+    active_seg->update_map = 0;
+    active_seg->update_data = 0;
+    quality_seg->update_map = 0;
+    quality_seg->update_data = 0;
+    cpi->static_mb_pct = 0;
+
+    // Disable segmentation and individual segment features by default
+    av1_disable_segmentation(active_seg);
+    av1_disable_segmentation(quality_seg);
+    av1_clearall_segfeatures(active_seg);
+    av1_clearall_segfeatures(quality_seg);
+
+    // Scan frames from current to arf frame.
+    // This function re-enables segmentation if appropriate.
+    av1_update_mbgraph_stats(cpi);
+
+    // If segmentation was enabled set those features needed for the
+    // arf itself.
+    if (quality_seg->enabled) {
+      quality_seg->update_map = 1;
+      quality_seg->update_data = 1;
+
+      qi_delta =
+          av1_compute_qdelta(rc, rc->avg_q, rc->avg_q * 0.875, cm->bit_depth);
+      av1_set_segdata(quality_seg, 1, QUALITY_SEG_LVL_ALT_Q, qi_delta - 2,
+                      QUALITY_SEG_IDX);
+      av1_set_segdata(quality_seg, 1, QUALITY_SEG_LVL_ALT_LF, -2,
+                      QUALITY_SEG_IDX);
+
+      av1_enable_segfeature(quality_seg, 1, QUALITY_SEG_LVL_ALT_Q);
+      av1_enable_segfeature(quality_seg, 1, QUALITY_SEG_LVL_ALT_LF);
+
+      quality_seg->num_seg = 2;
+
+      // Where relevant assume segment data is delta data
+      quality_seg->abs_delta = SEGMENT_DELTADATA;
+    }
+  } else if (quality_seg->enabled) {
+    // All other frames if segmentation has been enabled
+
+    // First normal frame in a valid gf or alt ref group
+    if (rc->frames_since_golden == 0) {
+      // Set up segment features for normal frames in an arf group
+      if (rc->source_alt_ref_active) {
+        quality_seg->update_map = 1;
+        quality_seg->update_data = 1;
+        quality_seg->abs_delta = SEGMENT_DELTADATA;
+
+        if (active_seg->enabled) {
+          active_seg->update_map = 0;
+          active_seg->update_data = 1;
+        }
+
+        qi_delta =
+            av1_compute_qdelta(rc, rc->avg_q, rc->avg_q * 1.125, cm->bit_depth);
+        av1_set_segdata(quality_seg, 1, QUALITY_SEG_LVL_ALT_Q, qi_delta + 2,
+                        QUALITY_SEG_IDX);
+        av1_enable_segfeature(quality_seg, 1, QUALITY_SEG_LVL_ALT_Q);
+
+        av1_set_segdata(quality_seg, 1, QUALITY_SEG_LVL_ALT_LF, -2,
+                        QUALITY_SEG_IDX);
+        av1_enable_segfeature(quality_seg, 1, QUALITY_SEG_LVL_ALT_LF);
+
+        // Segment coding disabled for compred testing
+        if (high_q || (cpi->static_mb_pct == 100)) {
+          av1_set_segdata(active_seg, 1, ACTIVE_SEG_LVL_REF_FRAME, ALTREF_FRAME,
+                          ACTIVE_SEG_IDX);
+          av1_enable_segfeature(active_seg, 1, ACTIVE_SEG_LVL_REF_FRAME);
+          av1_enable_segfeature(active_seg, 1, ACTIVE_SEG_LVL_SKIP);
+        }
+      } else {
+        // Disable segmentation and clear down features if alt ref
+        // is not active for this group
+
+        av1_disable_segmentation(quality_seg);
+        av1_disable_segmentation(active_seg);
+
+        memset(cpi->segmentation_map, 0, cm->mi_rows * cm->mi_cols);
+
+        quality_seg->update_map = 0;
+        quality_seg->update_data = 0;
+
+        active_seg->update_map = 0;
+        active_seg->update_data = 0;
+
+        av1_clearall_segfeatures(active_seg);
+      }
+    } else if (rc->is_src_frame_alt_ref) {
+      // Special case where we are coding over the top of a previous
+      // alt ref frame.
+      // Segment coding disabled for compred testing
+
+      // Enable ref frame features for segment 0 as well
+      av1_enable_segfeature(active_seg, 0, ACTIVE_SEG_LVL_REF_FRAME);
+      av1_enable_segfeature(active_seg, 1, ACTIVE_SEG_LVL_REF_FRAME);
+
+      // All mbs should use ALTREF_FRAME
+      av1_clear_segdata(active_seg, 0, ACTIVE_SEG_LVL_REF_FRAME);
+      av1_set_segdata(active_seg, 0, ACTIVE_SEG_LVL_REF_FRAME, ALTREF_FRAME,
+                      ACTIVE_SEG_IDX);
+      av1_clear_segdata(active_seg, 1, ACTIVE_SEG_LVL_REF_FRAME);
+      av1_set_segdata(active_seg, 1, ACTIVE_SEG_LVL_REF_FRAME, ALTREF_FRAME,
+                      ACTIVE_SEG_IDX);
+
+      // Skip all MBs if high Q (0,0 mv and skip coeffs)
+      if (high_q) {
+        av1_enable_segfeature(active_seg, 0, ACTIVE_SEG_LVL_SKIP);
+        av1_enable_segfeature(active_seg, 1, ACTIVE_SEG_LVL_SKIP);
+      }
+      // Enable data update
+      active_seg->update_data = 1;
+    } else {
+      // All other frames.
+
+      // No updates.. leave things as they are.
+      active_seg->update_map = 0;
+      active_seg->update_data = 0;
+
+      quality_seg->update_map = 0;
+      quality_seg->update_data = 0;
+    }
+  }
+}
+#else
 static void configure_static_seg_features(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const RATE_CONTROL *const rc = &cpi->rc;
@@ -672,7 +866,27 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
     }
   }
 }
+#endif
+#if CONFIG_EXT_SEGMENT
+static void update_reference_segmentation_map(AV1_COMP *cpi,
+                                              SEG_CATEGORIES seg_cat_idx) {
+  AV1_COMMON *const cm = &cpi->common;
+  MODE_INFO **mi_8x8_ptr = cm->mi_grid_visible;
+  uint8_t *cache_ptr = cm->current_frame_seg_map;
+  int row, col;
 
+  for (row = 0; row < cm->mi_rows; row++) {
+    MODE_INFO **mi_8x8 = mi_8x8_ptr;
+    uint8_t *cache = cache_ptr;
+    for (col = 0; col < cm->mi_cols; col++, mi_8x8++, cache++) {
+      av1_store_segment_id_into_map(mi_8x8[0]->mbmi.segment_id[seg_cat_idx],
+                                    &cache[0], seg_cat_idx);
+    }
+    mi_8x8_ptr += cm->mi_stride;
+    cache_ptr += cm->mi_cols;
+  }
+}
+#else
 static void update_reference_segmentation_map(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   MODE_INFO **mi_8x8_ptr = cm->mi_grid_visible;
@@ -688,6 +902,7 @@ static void update_reference_segmentation_map(AV1_COMP *cpi) {
     cache_ptr += cm->mi_cols;
   }
 }
+#endif
 
 static void alloc_raw_frame_buffers(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
@@ -2014,7 +2229,12 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   }
 #endif  // CONFIG_PALETTE
 
+#if CONFIG_EXT_SEGMENT
+  av1_reset_segment_features(cm, ACTIVE_SEG_IDX);
+  av1_reset_segment_features(cm, QUALITY_SEG_IDX);
+#else
   av1_reset_segment_features(cm);
+#endif
   av1_set_high_precision_mv(cpi, 0);
 
   set_rc_buffer_sizes(rc, &cpi->oxcf);
@@ -3557,6 +3777,20 @@ static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, int buffer_idx) {
   }
 }
 
+#if CONFIG_EXT_SEGMENT
+static INLINE void alloc_frame_segmap(AV1_COMMON *const cm, int buffer_idx) {
+  RefCntBuffer *const new_fb_ptr = &cm->buffer_pool->frame_bufs[buffer_idx];
+  if (new_fb_ptr->seg_map == NULL || new_fb_ptr->mi_rows < cm->mi_rows ||
+      new_fb_ptr->mi_cols < cm->mi_cols) {
+    aom_free(new_fb_ptr->seg_map);
+    CHECK_MEM_ERROR(cm, new_fb_ptr->seg_map,
+                    (uint8_t *)aom_calloc(cm->mi_rows * cm->mi_cols,
+                                          sizeof(*new_fb_ptr->seg_map)));
+    new_fb_ptr->mi_rows = cm->mi_rows;
+    new_fb_ptr->mi_cols = cm->mi_cols;
+  }
+}
+#endif
 void av1_scale_references(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
   MV_REFERENCE_FRAME ref_frame;
@@ -3608,6 +3842,9 @@ void av1_scale_references(AV1_COMP *cpi) {
                                  (int)cm->bit_depth);
           cpi->scaled_ref_idx[ref_frame - 1] = new_fb;
           alloc_frame_mvs(cm, new_fb);
+#if CONFIG_EXT_SEGMENT
+          alloc_frame_segmap(cm, new_fb);
+#endif
         }
 #else
       if (ref->y_crop_width != cm->width || ref->y_crop_height != cm->height) {
@@ -3631,6 +3868,9 @@ void av1_scale_references(AV1_COMP *cpi) {
           scale_and_extend_frame(ref, &new_fb_ptr->buf, MAX_MB_PLANE);
           cpi->scaled_ref_idx[ref_frame - 1] = new_fb;
           alloc_frame_mvs(cm, new_fb);
+#if CONFIG_EXT_SEGMENT
+          alloc_frame_segmap(cm, new_fb);
+#endif
         }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
@@ -3941,7 +4181,9 @@ static void set_frame_size(AV1_COMP *cpi) {
 #endif
 
   alloc_frame_mvs(cm, cm->new_fb_idx);
-
+#if CONFIG_EXT_SEGMENT
+  alloc_frame_segmap(cm, cm->new_fb_idx);
+#endif
   // Reset the frame pointers to the current frame size.
   if (aom_realloc_frame_buffer(get_frame_new_buffer(cm), cm->width, cm->height,
                                cm->subsampling_x, cm->subsampling_y,
@@ -4067,9 +4309,14 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
 #endif  // CONFIG_SUBFRAME_PROB_UPDATE
 
   suppress_active_map(cpi);
-  // Variance adaptive and in frame q adjustment experiments are mutually
-  // exclusive.
+// Variance adaptive and in frame q adjustment experiments are mutually
+// exclusive.
+#if CONFIG_EXT_SEGMENT_EXP
+  if (cpi->oxcf.aq_mode == VARIANCE_AQ ||
+      cpi->oxcf.aq_mode == REPEAT_VARIANCE_AQ) {
+#else
   if (cpi->oxcf.aq_mode == VARIANCE_AQ) {
+#endif
     av1_vaq_frame_setup(cpi);
   } else if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
     av1_setup_in_frame_q_adj(cpi);
@@ -4207,9 +4454,14 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
     av1_copy(cpi->subframe_stats.coef_probs_buf[0], cm->fc->coef_probs);
 #endif  // CONFIG_SUBFRAME_PROB_UPDATE
 
-    // Variance adaptive and in frame q adjustment experiments are mutually
-    // exclusive.
+// Variance adaptive and in frame q adjustment experiments are mutually
+// exclusive.
+#if CONFIG_EXT_SEGMENT_EXP
+    if (cpi->oxcf.aq_mode == VARIANCE_AQ ||
+        cpi->oxcf.aq_mode == REPEAT_VARIANCE_AQ) {
+#else
     if (cpi->oxcf.aq_mode == VARIANCE_AQ) {
+#endif
       av1_vaq_frame_setup(cpi);
     } else if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
       av1_setup_in_frame_q_adj(cpi);
@@ -4673,7 +4925,11 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
                                       unsigned int *frame_flags) {
   AV1_COMMON *const cm = &cpi->common;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+#if CONFIG_EXT_SEGMENT
+  struct segmentation *const seg = &cm->seg[QUALITY_SEG_IDX];
+#else
   struct segmentation *const seg = &cm->seg;
+#endif
   TX_SIZE t;
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *tile_ctxs[MAX_TILE_ROWS * MAX_TILE_COLS];
@@ -4778,7 +5034,16 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   // Set various flags etc to special state if it is a key frame.
   if (frame_is_intra_only(cm)) {
-    // Reset the loop filter deltas and segmentation map.
+// Reset the loop filter deltas and segmentation map.
+#if CONFIG_EXT_SEGMENT
+    av1_reset_segment_features(cm, QUALITY_SEG_IDX);
+
+    // If segmentation is enabled force a map update for key frames.
+    if (seg->enabled) {
+      seg->update_map = 1;
+      seg->update_data = 1;
+    }
+#else
     av1_reset_segment_features(cm);
 
     // If segmentation is enabled force a map update for key frames.
@@ -4786,11 +5051,41 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       seg->update_map = 1;
       seg->update_data = 1;
     }
+#endif
 
     // The alternate reference frame cannot be active for a key frame.
     cpi->rc.source_alt_ref_active = 0;
 
     cm->error_resilient_mode = oxcf->error_resilient_mode;
+#if CONFIG_EXT_SEGMENT
+    switch (oxcf->aq_mode) {
+      case VARIANCE_AQ:
+#if CONFIG_EXT_SEGMENT_EXP
+      case REPEAT_VARIANCE_AQ:
+#endif
+        seg->num_seg = 5;
+        cm->seg[QUALITY_SEG_IDX].seg_map_minb_size_log2_minus3 = 1;
+        break;
+      case COMPLEXITY_AQ:
+        seg->num_seg = 5;
+        cm->seg[QUALITY_SEG_IDX].seg_map_minb_size_log2_minus3 = 1;
+        break;
+      case CYCLIC_REFRESH_AQ:
+        seg->num_seg = 3;
+        cm->seg[QUALITY_SEG_IDX].seg_map_minb_size_log2_minus3 = 1;
+        break;
+      case NO_AQ:
+      default:
+        seg->num_seg = MAX_QUALITY_SEGMENTS;
+        cm->seg[QUALITY_SEG_IDX].seg_map_minb_size_log2_minus3 = 0;
+    }
+    if (cpi->active_map.enabled) cm->seg[ACTIVE_SEG_IDX].num_seg = 2;
+    cm->seg[ACTIVE_SEG_IDX].seg_map_minb_size_log2_minus3 =
+        oxcf->min_active_seg_unit_size;
+    cm->seg[ACTIVE_SEG_IDX].skip_seg_id_disabled = 0;
+    cm->seg[QUALITY_SEG_IDX].skip_seg_id_disabled =
+        oxcf->skip_quality_seg_id_disabled;
+#endif
 
     // By default, encoder assumes decoder can use prev_mi.
     if (cm->error_resilient_mode) {
@@ -4934,7 +5229,14 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   if (cm->show_frame) dump_filtered_recon_frames(cpi);
 #endif  // DUMP_RECON_FRAMES
 
+#if CONFIG_EXT_SEGMENT
+  if (cm->seg[ACTIVE_SEG_IDX].enabled)
+    update_reference_segmentation_map(cpi, ACTIVE_SEG_IDX);
+  if (cm->seg[QUALITY_SEG_IDX].enabled)
+    update_reference_segmentation_map(cpi, QUALITY_SEG_IDX);
+#else
   if (cm->seg.update_map) update_reference_segmentation_map(cpi);
+#endif
 
   if (frame_is_intra_only(cm) == 0) {
     release_scaled_references(cpi);
@@ -5028,10 +5330,17 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     *frame_flags = cpi->frame_flags & ~FRAMEFLAGS_KEY;
   }
 
-  // Clear the one shot update flags for segmentation map and mode/ref loop
-  // filter deltas.
+// Clear the one shot update flags for segmentation map and mode/ref loop
+// filter deltas.
+#if CONFIG_EXT_SEGMENT
+  cm->seg[ACTIVE_SEG_IDX].update_map = 0;
+  cm->seg[ACTIVE_SEG_IDX].update_data = 0;
+  cm->seg[QUALITY_SEG_IDX].update_map = 0;
+  cm->seg[QUALITY_SEG_IDX].update_data = 0;
+#else
   cm->seg.update_map = 0;
   cm->seg.update_data = 0;
+#endif
   cm->lf.mode_ref_delta_update = 0;
 
   // keep track of the last coded dimensions
@@ -5210,8 +5519,15 @@ static int frame_is_reference(const AV1_COMP *cpi) {
          cpi->refresh_bwd_ref_frame ||
 #endif  // CONFIG_EXT_REFS
          cpi->refresh_alt_ref_frame || !cm->error_resilient_mode ||
-         cm->lf.mode_ref_delta_update || cm->seg.update_map ||
-         cm->seg.update_data;
+         cm->lf.mode_ref_delta_update ||
+#if CONFIG_EXT_SEGMENT
+         cm->seg[ACTIVE_SEG_IDX].update_map ||
+         cm->seg[ACTIVE_SEG_IDX].update_data ||
+         cm->seg[QUALITY_SEG_IDX].update_map ||
+         cm->seg[QUALITY_SEG_IDX].update_data;
+#else
+         cm->seg.update_map || cm->seg.update_data;
+#endif
 }
 
 static void adjust_frame_rate(AV1_COMP *cpi,

@@ -220,7 +220,6 @@ static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
     "CONFIG_EC_MULTISYMBOL is selected without a valid backing entropy " \
   "coder. Enable daala_ec or ans for a valid configuration."
 #endif
-
 #if CONFIG_ACCOUNTING
   if (ACCT_STR_NAME) aom_process_accounting(r, ACCT_STR_NAME);
   aom_update_symb_counts(r, (nsymbs == 2));

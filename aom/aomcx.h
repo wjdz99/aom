@@ -456,6 +456,21 @@ enum aome_enc_control_id {
    */
   AV1E_SET_MTU,
 
+  /*!\brief Codec control function to set an min active seg unit size for a
+   * frame.
+       *
+       * AOM will set the min segment unit size (0: 8x8, 1: 16x16, 2: 32x32 3:
+   * 64x64)
+       * Experiment: EXT_SEGMENTS
+       */
+  AV1E_SET_MIN_ACTIVE_SEG_UNIT_SIZE,
+  /*!\brief Codec control function to disable quality seg id skip.
+   *
+   * AOM will enable/disable quality seg id skip (0: enable, 1: disable)
+   * Experiment: EXT_SEGMENTS
+   */
+  AV1E_SET_SKIP_QUALITY_SEG_DISABLED,
+
   /*!\brief Codec control function to set dependent_horz_tiles.
   *
   * In encoding and decoding, AV1 allows enabling dependent horizontal tile
@@ -660,6 +675,13 @@ AOM_CTRL_USE_TYPE(AV1E_SET_FRAME_PARALLEL_DECODING, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_AQ_MODE, unsigned int)
 #define AOM_CTRL_AV1E_SET_AQ_MODE
+
+#if CONFIG_EXT_SEGMENT
+AOM_CTRL_USE_TYPE(AV1E_SET_MIN_ACTIVE_SEG_UNIT_SIZE, unsigned int)
+#define AOM_CTRL_AV1E_SET_MIN_ACTIVE_SEG_UNIT_SIZE
+AOM_CTRL_USE_TYPE(AV1E_SET_SKIP_QUALITY_SEG_DISABLED, unsigned int)
+#define AOM_CTRL_AV1E_SET_SKIP_QUALITY_SEG_DISABLED
+#endif
 
 AOM_CTRL_USE_TYPE(AV1E_SET_FRAME_PERIODIC_BOOST, unsigned int)
 #define AOM_CTRL_AV1E_SET_FRAME_PERIODIC_BOOST
