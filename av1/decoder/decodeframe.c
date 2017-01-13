@@ -305,7 +305,12 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
   inv_txfm_param.tx_type = tx_type;
   inv_txfm_param.tx_size = tx_size;
   inv_txfm_param.eob = eob;
+#if CONFIG_EXT_SEGMENT
+  inv_txfm_param.lossless =
+      xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]];
+#else
   inv_txfm_param.lossless = xd->lossless[xd->mi[0]->mbmi.segment_id];
+#endif
 
 #if CONFIG_AOM_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
@@ -486,9 +491,13 @@ static void predict_and_reconstruct_intra_block(AV1_COMMON *cm,
 #if !CONFIG_PVQ
     const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
     int16_t max_scan_line = 0;
-    const int eob =
-        av1_decode_block_tokens(xd, plane, scan_order, col, row, tx_size,
-                                tx_type, &max_scan_line, r, mbmi->segment_id);
+    const int eob = av1_decode_block_tokens(
+        xd, plane, scan_order, col, row, tx_size,
+#if CONFIG_EXT_SEGMENT
+        tx_type, &max_scan_line, r, mbmi->segment_id[QUALITY_SEG_IDX]);
+#else
+        tx_type, &max_scan_line, r, mbmi->segment_id);
+#endif
 #if CONFIG_ADAPT_SCAN
     av1_update_scan_count_facade(cm, tx_size, tx_type, pd->dqcoeff, eob);
 #endif
@@ -1349,7 +1358,58 @@ static void dec_predict_sb_complex(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     default: assert(0);
   }
 }
+#if CONFIG_EXT_SEGMENT
+static void set_segment_id_supertx(const AV1_COMMON *const cm, const int mi_row,
+                                   const int mi_col, const BLOCK_SIZE bsize) {
+  const struct segmentation *active_seg = &cm->seg[ACTIVE_SEG_IDX];
+  const struct segmentation *quality_seg = &cm->seg[QUALITY_SEG_IDX];
+  const int miw = AOMMIN(mi_size_wide[bsize], cm->mi_cols - mi_col);
+  const int mih = AOMMIN(mi_size_high[bsize], cm->mi_rows - mi_row);
+  const int mi_offset = mi_row * cm->mi_stride + mi_col;
+  MODE_INFO **const mip = cm->mi_grid_visible + mi_offset;
+  int r, c;
+  int seg_id_supertx[NUM_SEG_CATEGORIES] = { MAX_ACTIVE_SEGMENTS,
+                                             MAX_QUALITY_SEGMENTS };
 
+  if (!active_seg->enabled) {
+    seg_id_supertx[ACTIVE_SEG_IDX] = 0;
+  } else {
+    // Find the minimum segment_id
+    for (r = 0; r < mih; r++)
+      for (c = 0; c < miw; c++)
+        seg_id_supertx[ACTIVE_SEG_IDX] =
+            AOMMIN(mip[r * cm->mi_stride + c]->mbmi.segment_id[ACTIVE_SEG_IDX],
+                   seg_id_supertx[ACTIVE_SEG_IDX]);
+    assert(0 <= seg_id_supertx[ACTIVE_SEG_IDX] &&
+           seg_id_supertx[ACTIVE_SEG_IDX] < MAX_ACTIVE_SEGMENTS);
+  }
+
+  // Assign the the segment_id back to segment_id_supertx
+  for (r = 0; r < mih; r++)
+    for (c = 0; c < miw; c++)
+      mip[r * cm->mi_stride + c]->mbmi.segment_id_supertx[ACTIVE_SEG_IDX] =
+          seg_id_supertx[ACTIVE_SEG_IDX];
+
+  if (!quality_seg->enabled) {
+    seg_id_supertx[QUALITY_SEG_IDX] = 0;
+  } else {
+    // Find the minimum segment_id
+    for (r = 0; r < mih; r++)
+      for (c = 0; c < miw; c++)
+        seg_id_supertx[QUALITY_SEG_IDX] =
+            AOMMIN(mip[r * cm->mi_stride + c]->mbmi.segment_id[QUALITY_SEG_IDX],
+                   seg_id_supertx[QUALITY_SEG_IDX]);
+    assert(0 <= seg_id_supertx[QUALITY_SEG_IDX] &&
+           seg_id_supertx[QUALITY_SEG_IDX] < MAX_QUALITY_SEGMENTS);
+  }
+
+  // Assign the the segment_id back to segment_id_supertx
+  for (r = 0; r < mih; r++)
+    for (c = 0; c < miw; c++)
+      mip[r * cm->mi_stride + c]->mbmi.segment_id_supertx[QUALITY_SEG_IDX] =
+          seg_id_supertx[QUALITY_SEG_IDX];
+}
+#else
 static void set_segment_id_supertx(const AV1_COMMON *const cm, const int mi_row,
                                    const int mi_col, const BLOCK_SIZE bsize) {
   const struct segmentation *seg = &cm->seg;
@@ -1376,6 +1436,7 @@ static void set_segment_id_supertx(const AV1_COMMON *const cm, const int mi_row,
     for (c = 0; c < miw; c++)
       mip[r * cm->mi_stride + c]->mbmi.segment_id_supertx = seg_id_supertx;
 }
+#endif  // CONFIG_EXT_SEGMENT
 #endif  // CONFIG_SUPERTX
 
 static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
@@ -1423,7 +1484,12 @@ static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   }
 
 #if CONFIG_SUPERTX
+#if CONFIG_EXT_SEGMENT
+  xd->mi[0]->mbmi.segment_id_supertx[ACTIVE_SEG_IDX] = MAX_ACTIVE_SEGMENTS;
+  xd->mi[0]->mbmi.segment_id_supertx[QUALITY_SEG_IDX] = MAX_QUALITY_SEGMENTS;
+#else
   xd->mi[0]->mbmi.segment_id_supertx = MAX_SEGMENTS;
+#endif
 #endif  // CONFIG_SUPERTX
 
   xd->corrupted |= aom_reader_has_error(r);
@@ -1441,7 +1507,8 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
   MB_MODE_INFO *mbmi;
 
   mbmi = set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
-#if CONFIG_DELTA_Q
+
+#if CONFIG_DELTA_Q && !CONFIG_EXT_SEGMENT
   if (cm->delta_q_present_flag) {
     int i;
     for (i = 0; i < MAX_SEGMENTS; i++) {
@@ -1550,18 +1617,33 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 
         for (row_y = 0; row_y < tu_num_h_y; row_y++) {
           for (col_y = 0; col_y < tu_num_w_y; col_y++) {
-            // luma
-            eobtotal += reconstruct_inter_block(cm, xd, r, mbmi->segment_id, 0,
-                                                row_y * tx_sz_y,
-                                                col_y * tx_sz_y, tx_log2_y);
+// luma
+#if CONFIG_EXT_SEGMENT
+            eobtotal += reconstruct_inter_block(
+                cm, xd, r, mbmi->segment_id[QUALITY_SEG_IDX], 0,
+#else
+            eobtotal += reconstruct_inter_block(
+                cm, xd, r, mbmi->segment_id, 0,
+#endif
+                row_y * tx_sz_y, col_y * tx_sz_y, tx_log2_y);
             // chroma
             if (tu_idx_c < tu_num_c) {
               row_c = (tu_idx_c / tu_num_w_c) * tx_sz_c;
               col_c = (tu_idx_c % tu_num_w_c) * tx_sz_c;
+#if CONFIG_EXT_SEGMENT
+              eobtotal += reconstruct_inter_block(
+                  cm, xd, r, mbmi->segment_id[QUALITY_SEG_IDX],
+#else
               eobtotal += reconstruct_inter_block(cm, xd, r, mbmi->segment_id,
-                                                  1, row_c, col_c, tx_log2_c);
+#endif
+                  1, row_c, col_c, tx_log2_c);
+#if CONFIG_EXT_SEGMENT
+              eobtotal += reconstruct_inter_block(
+                  cm, xd, r, mbmi->segment_id[QUALITY_SEG_IDX],
+#else
               eobtotal += reconstruct_inter_block(cm, xd, r, mbmi->segment_id,
-                                                  2, row_c, col_c, tx_log2_c);
+#endif
+                  2, row_c, col_c, tx_log2_c);
               tu_idx_c++;
             }
           }
@@ -1571,10 +1653,20 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
         while (tu_idx_c < tu_num_c) {
           row_c = (tu_idx_c / tu_num_w_c) * tx_sz_c;
           col_c = (tu_idx_c % tu_num_w_c) * tx_sz_c;
+#if CONFIG_EXT_SEGMENT
+          eobtotal += reconstruct_inter_block(
+              cm, xd, r, mbmi->segment_id[QUALITY_SEG_IDX], 1,
+#else
           eobtotal += reconstruct_inter_block(cm, xd, r, mbmi->segment_id, 1,
-                                              row_c, col_c, tx_log2_c);
+#endif
+              row_c, col_c, tx_log2_c);
+#if CONFIG_EXT_SEGMENT
+          eobtotal += reconstruct_inter_block(
+              cm, xd, r, mbmi->segment_id[QUALITY_SEG_IDX], 2,
+#else
           eobtotal += reconstruct_inter_block(cm, xd, r, mbmi->segment_id, 2,
-                                              row_c, col_c, tx_log2_c);
+#endif
+              row_c, col_c, tx_log2_c);
           tu_idx_c++;
         }
 
@@ -1700,8 +1792,14 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
         const int stepc = tx_size_wide_unit[tx_size];
         for (row = 0; row < max_blocks_high; row += stepr)
           for (col = 0; col < max_blocks_wide; col += stepc)
+#if CONFIG_EXT_SEGMENT
+            eobtotal += reconstruct_inter_block(
+                cm, xd, r, mbmi->segment_id[QUALITY_SEG_IDX], plane, row, col,
+                tx_size);
+#else
             eobtotal += reconstruct_inter_block(cm, xd, r, mbmi->segment_id,
                                                 plane, row, col, tx_size);
+#endif
 #endif
       }
     }
@@ -1857,7 +1955,12 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_SUPERTX
 static int read_skip(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
                      aom_reader *r) {
+#if CONFIG_EXT_SEGMENT
+  if (segfeature_active(&cm->seg[ACTIVE_SEG_IDX], segment_id,
+                        ACTIVE_SEG_LVL_SKIP)) {
+#else
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
+#endif
     return 1;
   } else {
     const int ctx = av1_get_skip_context(xd);
@@ -2117,7 +2220,12 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     set_mi_row_col(xd, tile, mi_row, mi_size_high[bsize], mi_col,
                    mi_size_wide[bsize], cm->mi_rows, cm->mi_cols);
     set_skip_context(xd, mi_row, mi_col);
+#if CONFIG_EXT_SEGMENT
+    skip = read_skip(cm, xd, xd->mi[0]->mbmi.segment_id_supertx[ACTIVE_SEG_IDX],
+                     r);
+#else
     skip = read_skip(cm, xd, xd->mi[0]->mbmi.segment_id_supertx, r);
+#endif
     if (skip) {
       reset_skip_context(xd, bsize);
     } else {
@@ -2168,7 +2276,12 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
         for (row = 0; row < max_blocks_high; row += stepr)
           for (col = 0; col < max_blocks_wide; col += stepc)
             eobtotal += reconstruct_inter_block(
+#if CONFIG_EXT_SEGMENT
+                cm, xd, r, mbmi->segment_id_supertx[QUALITY_SEG_IDX], i, row,
+                col, tx_size);
+#else
                 cm, xd, r, mbmi->segment_id_supertx, i, row, col, tx_size);
+#endif
       }
       if ((unify_bsize || !(subsize < BLOCK_8X8)) && eobtotal == 0) skip = 1;
     }
@@ -2364,6 +2477,114 @@ static void read_coef_probs(FRAME_CONTEXT *fc, TX_MODE tx_mode, aom_reader *r) {
 }
 #endif
 
+#if CONFIG_EXT_SEGMENT
+static void setup_segmentation(AV1_COMMON *const cm,
+                               struct aom_read_bit_buffer *rb) {
+  struct segmentation *const seg[NUM_SEG_CATEGORIES] = { &cm->seg[0],
+                                                         &cm->seg[1] };
+  int i, j;
+
+  seg[ACTIVE_SEG_IDX]->update_map = 0;
+  seg[ACTIVE_SEG_IDX]->update_data = 0;
+  seg[QUALITY_SEG_IDX]->update_map = 0;
+  seg[QUALITY_SEG_IDX]->update_data = 0;
+
+  seg[ACTIVE_SEG_IDX]->enabled = aom_rb_read_bit(rb);
+  seg[QUALITY_SEG_IDX]->enabled = aom_rb_read_bit(rb);
+  if (!seg[ACTIVE_SEG_IDX]->enabled && !seg[QUALITY_SEG_IDX]->enabled) return;
+
+  if (seg[ACTIVE_SEG_IDX]->enabled) {
+    // Segmentation map update
+    if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+      seg[ACTIVE_SEG_IDX]->update_map = 1;
+    } else {
+      seg[ACTIVE_SEG_IDX]->update_map = aom_rb_read_bit(rb);
+    }
+    if (seg[ACTIVE_SEG_IDX]->update_map) {
+      if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+        seg[ACTIVE_SEG_IDX]->temporal_update = 0;
+      } else {
+        seg[ACTIVE_SEG_IDX]->temporal_update = aom_rb_read_bit(rb);
+      }
+      seg[ACTIVE_SEG_IDX]->num_seg = aom_rb_read_literal(rb, 2);
+      seg[ACTIVE_SEG_IDX]->seg_map_minb_size_log2_minus3 =
+          aom_rb_read_literal(rb, 2);
+    }
+    seg[ACTIVE_SEG_IDX]->skip_seg_id_disabled = 0;
+    seg[ACTIVE_SEG_IDX]->skip_seg_id_replacement = 0;
+
+    // Segmentation data update
+    seg[ACTIVE_SEG_IDX]->update_data = aom_rb_read_bit(rb);
+    if (seg[ACTIVE_SEG_IDX]->update_data) {
+      av1_clearall_segfeatures(seg[ACTIVE_SEG_IDX]);
+      for (i = 0; i < seg[ACTIVE_SEG_IDX]->num_seg; i++) {
+        for (j = 0; j < ACTIVE_SEG_LVL_MAX; j++) {
+          int data = 0;
+          const int feature_enabled = aom_rb_read_bit(rb);
+          if (feature_enabled) {
+            av1_enable_segfeature(seg[ACTIVE_SEG_IDX], i, j);
+            data = decode_unsigned_max(
+                rb, av1_seg_feature_data_max(j, ACTIVE_SEG_IDX));
+            if (av1_is_segfeature_signed(j, ACTIVE_SEG_IDX))
+              data = aom_rb_read_bit(rb) ? -data : data;
+          }
+          av1_set_segdata(seg[ACTIVE_SEG_IDX], i, j, data, ACTIVE_SEG_IDX);
+        }
+      }
+    }
+  }
+
+  if (seg[QUALITY_SEG_IDX]->enabled) {
+    // Segmentation map update
+    if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+      seg[QUALITY_SEG_IDX]->update_map = 1;
+    } else {
+      seg[QUALITY_SEG_IDX]->update_map = aom_rb_read_bit(rb);
+    }
+    if (seg[QUALITY_SEG_IDX]->update_map) {
+      if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+        seg[QUALITY_SEG_IDX]->temporal_update = 0;
+      } else {
+        seg[QUALITY_SEG_IDX]->temporal_update = aom_rb_read_bit(rb);
+      }
+      seg[QUALITY_SEG_IDX]->num_seg = aom_rb_read_literal(rb, 4);
+      seg[QUALITY_SEG_IDX]->seg_map_minb_size_log2_minus3 =
+          aom_rb_read_literal(rb, 2);
+      seg[QUALITY_SEG_IDX]->skip_seg_id_disabled = aom_rb_read_bit(rb);
+      if (seg[QUALITY_SEG_IDX]->temporal_update &&
+          !seg[QUALITY_SEG_IDX]->skip_seg_id_disabled)
+        seg[QUALITY_SEG_IDX]->skip_seg_id_replacement = aom_rb_read_bit(rb);
+      else
+        seg[QUALITY_SEG_IDX]->skip_seg_id_replacement = 1;
+    } else {
+      seg[QUALITY_SEG_IDX]->skip_seg_id_disabled = 0;
+      seg[QUALITY_SEG_IDX]->skip_seg_id_replacement = 0;
+    }
+
+    // Segmentation data update
+    seg[QUALITY_SEG_IDX]->update_data = aom_rb_read_bit(rb);
+    if (seg[QUALITY_SEG_IDX]->update_data) {
+      seg[QUALITY_SEG_IDX]->abs_delta = aom_rb_read_bit(rb);
+
+      av1_clearall_segfeatures(seg[QUALITY_SEG_IDX]);
+      for (i = 0; i < seg[QUALITY_SEG_IDX]->num_seg; i++) {
+        for (j = 0; j < QUALITY_SEG_LVL_MAX; j++) {
+          int data = 0;
+          const int feature_enabled = aom_rb_read_bit(rb);
+          if (feature_enabled) {
+            av1_enable_segfeature(seg[QUALITY_SEG_IDX], i, j);
+            data = decode_unsigned_max(
+                rb, av1_seg_feature_data_max(j, QUALITY_SEG_IDX));
+            if (av1_is_segfeature_signed(j, QUALITY_SEG_IDX))
+              data = aom_rb_read_bit(rb) ? -data : data;
+          }
+          av1_set_segdata(seg[QUALITY_SEG_IDX], i, j, data, QUALITY_SEG_IDX);
+        }
+      }
+    }
+  }
+}
+#else
 static void setup_segmentation(AV1_COMMON *const cm,
                                struct aom_read_bit_buffer *rb) {
   struct segmentation *const seg = &cm->seg;
@@ -2411,6 +2632,7 @@ static void setup_segmentation(AV1_COMMON *const cm,
     }
   }
 }
+#endif
 
 #if CONFIG_LOOP_RESTORATION
 static void decode_restoration_mode(AV1_COMMON *cm,
@@ -2651,9 +2873,17 @@ static void setup_segmentation_dequant(AV1_COMMON *const cm) {
   int b;
   int dq;
 #endif  //  CONFIG_NEW_QUANT
+
+#if CONFIG_EXT_SEGMENT
+  if (cm->seg[QUALITY_SEG_IDX].enabled) {
+    for (i = 0; i < cm->seg[QUALITY_SEG_IDX].num_seg; i++) {
+      const int qindex =
+          av1_get_qindex(&cm->seg[QUALITY_SEG_IDX], i, cm->base_qindex);
+#else
   if (cm->seg.enabled) {
     for (i = 0; i < MAX_SEGMENTS; ++i) {
       const int qindex = av1_get_qindex(&cm->seg, i, cm->base_qindex);
+#endif
       cm->y_dequant[i][0] =
           av1_dc_quant(qindex, cm->y_dc_delta_q, cm->bit_depth);
       cm->y_dequant[i][1] = av1_ac_quant(qindex, 0, cm->bit_depth);
@@ -4184,6 +4414,44 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 
   setup_segmentation(cm, rb);
 
+#if CONFIG_EXT_SEGMENT
+#if CONFIG_DELTA_Q
+  {
+    struct segmentation *const seg = &cm->seg[QUALITY_SEG_IDX];
+    int segment_quantizer_active = 0;
+    for (i = 0; i < seg->num_seg; i++) {
+      if (segfeature_active(seg, i, QUALITY_SEG_LVL_ALT_Q)) {
+        segment_quantizer_active = 1;
+      }
+    }
+
+    cm->delta_q_res = 1;
+    if (segment_quantizer_active == 0) {
+      cm->delta_q_present_flag = aom_rb_read_bit(rb);
+    } else {
+      cm->delta_q_present_flag = 0;
+    }
+    if (cm->delta_q_present_flag) {
+      xd->prev_qindex = cm->base_qindex;
+      cm->delta_q_res = 1 << aom_rb_read_literal(rb, 2);
+    }
+  }
+#endif
+  for (i = 0; i < cm->seg[QUALITY_SEG_IDX].num_seg; i++) {
+    const int qindex =
+        cm->seg[QUALITY_SEG_IDX].enabled
+            ? av1_get_qindex(&cm->seg[QUALITY_SEG_IDX], i, cm->base_qindex)
+            : cm->base_qindex;
+    xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
+                      cm->uv_dc_delta_q == 0 && cm->uv_ac_delta_q == 0;
+    xd->qindex[i] = qindex;
+  }
+
+  setup_segmentation_dequant(cm);
+  cm->tx_mode = (!cm->seg[QUALITY_SEG_IDX].enabled && xd->lossless[0])
+                    ? ONLY_4X4
+                    : read_tx_mode(rb);
+#else
 #if CONFIG_DELTA_Q
   {
     struct segmentation *const seg = &cm->seg;
@@ -4219,6 +4487,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   setup_segmentation_dequant(cm);
   cm->tx_mode =
       (!cm->seg.enabled && xd->lossless[0]) ? ONLY_4X4 : read_tx_mode(rb);
+#endif
   cm->reference_mode = read_frame_reference_mode(cm, rb);
 
   read_tile_info(pbi, rb);
@@ -4377,6 +4646,43 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 #endif
 
 #if !CONFIG_EC_ADAPT
+#if CONFIG_EXT_SEGMENT
+  if (cm->seg[ACTIVE_SEG_IDX].enabled && cm->seg[ACTIVE_SEG_IDX].update_map) {
+    if (cm->seg[ACTIVE_SEG_IDX].temporal_update) {
+      for (k = 0; k < PREDICTION_PROBS; k++)
+        av1_diff_update_prob(&r, &cm->fc->seg[ACTIVE_SEG_IDX].pred_probs[k],
+                             ACCT_STR);
+    }
+    av1_diff_update_prob(
+        &r, &cm->fc->seg[ACTIVE_SEG_IDX].harmonic_spatial_pred_probs[0],
+        ACCT_STR);
+    for (k = 0; k < HETEROGENEOUS_SPATIAL_PRED_PROBS; k++)
+      av1_diff_update_prob(
+          &r, &cm->fc->seg[ACTIVE_SEG_IDX].heterogeneous_spatial_pred_probs[k],
+          ACCT_STR);
+    for (k = 0; k < cm->seg[ACTIVE_SEG_IDX].num_seg - 1; k++)
+      av1_diff_update_prob(&r, &cm->fc->seg[ACTIVE_SEG_IDX].tree_probs[k],
+                           ACCT_STR);
+  }
+
+  if (cm->seg[QUALITY_SEG_IDX].enabled && cm->seg[QUALITY_SEG_IDX].update_map) {
+    if (cm->seg[QUALITY_SEG_IDX].temporal_update) {
+      for (k = 0; k < PREDICTION_PROBS; k++)
+        av1_diff_update_prob(&r, &cm->fc->seg[QUALITY_SEG_IDX].pred_probs[k],
+                             ACCT_STR);
+    }
+    av1_diff_update_prob(
+        &r, &cm->fc->seg[QUALITY_SEG_IDX].harmonic_spatial_pred_probs[0],
+        ACCT_STR);
+    for (k = 0; k < HETEROGENEOUS_SPATIAL_PRED_PROBS; k++)
+      av1_diff_update_prob(
+          &r, &cm->fc->seg[QUALITY_SEG_IDX].heterogeneous_spatial_pred_probs[k],
+          ACCT_STR);
+    for (k = 0; k < cm->seg[QUALITY_SEG_IDX].num_seg - 1; k++)
+      av1_diff_update_prob(&r, &cm->fc->seg[QUALITY_SEG_IDX].tree_probs[k],
+                           ACCT_STR);
+  }
+#else
   if (cm->seg.enabled && cm->seg.update_map) {
     if (cm->seg.temporal_update) {
       for (k = 0; k < PREDICTION_PROBS; k++)
@@ -4385,7 +4691,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     for (k = 0; k < MAX_SEGMENTS - 1; k++)
       av1_diff_update_prob(&r, &cm->fc->seg.tree_probs[k], ACCT_STR);
   }
-
+#endif
   for (j = 0; j < INTRA_MODES; j++) {
     for (i = 0; i < INTRA_MODES - 1; ++i)
       av1_diff_update_prob(&r, &fc->uv_mode_prob[j][i], ACCT_STR);

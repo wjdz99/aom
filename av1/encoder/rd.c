@@ -305,12 +305,20 @@ void av1_initialize_me_consts(const AV1_COMP *cpi, MACROBLOCK *x, int qindex) {
 
 static void set_block_thresholds(const AV1_COMMON *cm, RD_OPT *rd) {
   int i, bsize, segment_id;
-
+#if CONFIG_EXT_SEGMENT
+  for (segment_id = 0; segment_id < cm->seg[QUALITY_SEG_IDX].num_seg;
+       ++segment_id) {
+    const int qindex = clamp(
+        av1_get_qindex(&cm->seg[QUALITY_SEG_IDX], segment_id, cm->base_qindex) +
+            cm->y_dc_delta_q,
+        0, MAXQ);
+#else
   for (segment_id = 0; segment_id < MAX_SEGMENTS; ++segment_id) {
     const int qindex =
         clamp(av1_get_qindex(&cm->seg, segment_id, cm->base_qindex) +
                   cm->y_dc_delta_q,
               0, MAXQ);
+#endif
     const int q = compute_rd_thresh_factor(qindex, cm->bit_depth);
 
     for (bsize = 0; bsize < BLOCK_SIZES; ++bsize) {

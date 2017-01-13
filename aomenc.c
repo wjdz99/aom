@@ -414,6 +414,20 @@ static const arg_def_t aq_mode = ARG_DEF(
     "Adaptive quantization mode (0: off (default), 1: variance 2: complexity, "
     "3: cyclic refresh)");
 #endif
+#if CONFIG_EXT_SEGMENT
+static const arg_def_t min_aseg_unit_size =
+    ARG_DEF(NULL, "min-aseg-unit-size", 1,
+            "minimun active seg unit size (0: 8x8 (default), 1: 16x16 2: 32x32 "
+            "3: 64x64) ");
+static const arg_def_t skip_qseg_disabled =
+    ARG_DEF(NULL, "skip-qseg-disabled", 1,
+            "skip quality seg id disabled (0: enabled(default), 1: disabled) ");
+static const arg_def_t replace_skipped_qseg =
+    ARG_DEF(NULL, "replace-skipped-qseg", 1,
+            "replace skipped quality seg with spatial neighbors (0: temporal "
+            "(default), "
+            "1: spatial) ");
+#endif
 static const arg_def_t frame_periodic_boost =
     ARG_DEF(NULL, "frame-boost", 1,
             "Enable frame periodic boost (0: off (default), 1: on)");
@@ -490,6 +504,11 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
 #endif
                                        &frame_parallel_decoding,
                                        &aq_mode,
+#if CONFIG_EXT_SEGMENT
+                                       &min_aseg_unit_size,
+                                       &skip_qseg_disabled,
+                                       &replace_skipped_qseg,
+#endif
                                        &frame_periodic_boost,
                                        &noise_sens,
                                        &tune_content,
@@ -532,6 +551,11 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
 #endif
                                         AV1E_SET_FRAME_PARALLEL_DECODING,
                                         AV1E_SET_AQ_MODE,
+#if CONFIG_EXT_SEGMENT
+                                        AV1E_SET_MIN_ACTIVE_SEG_UNIT_SIZE,
+                                        AV1E_SET_SKIP_QUALITY_SEG_DISABLED,
+                                        AV1E_SET_QUALITY_SEG_REPLACEMENT,
+#endif
                                         AV1E_SET_FRAME_PERIODIC_BOOST,
                                         AV1E_SET_NOISE_SENSITIVITY,
                                         AV1E_SET_TUNE_CONTENT,
@@ -2175,7 +2199,6 @@ int main(int argc, const char **argv_) {
                   fps >= 1.0 ? "fps" : "fpm");
           print_time("ETA", estimated_time_left);
         }
-
       } else {
         frame_avail = 0;
       }
