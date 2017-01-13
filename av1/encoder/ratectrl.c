@@ -426,10 +426,15 @@ void av1_rc_update_rate_correction_factors(AV1_COMP *cpi) {
   // Clear down mmx registers to allow floating point in what follows
   aom_clear_system_state();
 
-  // Work out how big we would have expected the frame to be at this Q given
-  // the current correction factor.
-  // Stay in double to avoid int overflow when values are large
+// Work out how big we would have expected the frame to be at this Q given
+// the current correction factor.
+// Stay in double to avoid int overflow when values are large
+#if CONFIG_EXT_SEGMENT
+  if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ &&
+      cpi->common.seg[QUALITY_SEG_IDX].enabled) {
+#else
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cpi->common.seg.enabled) {
+#endif
     projected_size_based_on_q =
         av1_cyclic_refresh_estimate_bits_at_q(cpi, rate_correction_factor);
   } else {
@@ -495,7 +500,12 @@ int av1_rc_regulate_q(const AV1_COMP *cpi, int target_bits_per_frame,
   i = active_best_quality;
 
   do {
+#if CONFIG_EXT_SEGMENT
+    if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ &&
+        cm->seg[QUALITY_SEG_IDX].enabled) {
+#else
     if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->seg.enabled) {
+#endif
       bits_per_mb_at_this_q =
           (int)av1_cyclic_refresh_rc_bits_per_mb(cpi, i, correction_factor);
     } else {
@@ -1224,8 +1234,12 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   RATE_CONTROL *const rc = &cpi->rc;
   const int qindex = cm->base_qindex;
-
+#if CONFIG_EXT_SEGMENT
+  if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ &&
+      cm->seg[QUALITY_SEG_IDX].enabled) {
+#else
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->seg.enabled) {
+#endif
     av1_cyclic_refresh_postencode(cpi);
   }
 
@@ -1727,8 +1741,13 @@ int av1_resize_one_pass_cbr(AV1_COMP *cpi) {
     rc->buffer_level = rc->optimal_buffer_level;
     rc->bits_off_target = rc->optimal_buffer_level;
     rc->this_frame_target = calc_pframe_target_size_one_pass_cbr(cpi);
-    // Reset cyclic refresh parameters.
+// Reset cyclic refresh parameters.
+#if CONFIG_EXT_SEGMENT
+    if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ &&
+        cm->seg[QUALITY_SEG_IDX].enabled)
+#else
     if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->seg.enabled)
+#endif
       av1_cyclic_refresh_reset_resize(cpi);
     // Get the projected qindex, based on the scaled target frame size (scaled
     // so target_bits_per_mb in av1_rc_regulate_q will be correct target).
