@@ -149,7 +149,6 @@ static INLINE int aom_dk_read(struct aom_dk_reader *r, int prob) {
   r->value = value;
   r->count = count;
   r->range = range;
-
 #if CONFIG_BITSTREAM_DEBUG
   {
     int ref_bit, ref_prob;
