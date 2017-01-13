@@ -4451,7 +4451,9 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
   if (cm->tx_mode == TX_MODE_SELECT) read_tx_size_probs(fc, &r);
 
 #if !CONFIG_PVQ
+#if !CONFIG_EC_ADAPT
   read_coef_probs(fc, cm->tx_mode, &r);
+#endif
 
 #if CONFIG_VAR_TX
   for (k = 0; k < TXFM_PARTITION_CONTEXTS; ++k)
