@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83b1f1f3_fd279f7d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3295,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-01-13T19:03:45Z",
+      "side": 1,
+      "message": "It might be more legible to initialize these together or to comment as to why they can\u0027t be initialized together.",
+      "range": {
+        "startLine": 3294,
+        "startChar": 0,
+        "endLine": 3295,
+        "endChar": 34
+      },
+      "revId": "d6d4239ee38a8f063e308e91bf3e4148a0ba441c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
