@@ -149,8 +149,12 @@ void av1_frameworker_copy_context(AVxWorker *const dst_worker,
     pthread_cond_wait(&src_worker_data->stats_cond,
                       &src_worker_data->stats_mutex);
   }
-
+#if CONFIG_EXT_SEGMENT
+  dst_cm->last_frame_seg_map = (src_cm->seg[ACTIVE_SEG_IDX].enabled ||
+                                src_cm->seg[QUALITY_SEG_IDX].enabled)
+#else
   dst_cm->last_frame_seg_map = src_cm->seg.enabled
+#endif
                                    ? src_cm->current_frame_seg_map
                                    : src_cm->last_frame_seg_map;
   dst_worker_data->pbi->need_resync = src_worker_data->pbi->need_resync;
@@ -184,7 +188,12 @@ void av1_frameworker_copy_context(AVxWorker *const dst_worker,
   dst_cm->lf.filter_level = src_cm->lf.filter_level;
   memcpy(dst_cm->lf.ref_deltas, src_cm->lf.ref_deltas, TOTAL_REFS_PER_FRAME);
   memcpy(dst_cm->lf.mode_deltas, src_cm->lf.mode_deltas, MAX_MODE_LF_DELTAS);
+#if CONFIG_EXT_SEGMENT
+  dst_cm->seg[ACTIVE_SEG_IDX] = src_cm->seg[ACTIVE_SEG_IDX];
+  dst_cm->seg[QUALITY_SEG_IDX] = src_cm->seg[QUALITY_SEG_IDX];
+#else
   dst_cm->seg = src_cm->seg;
+#endif
   memcpy(dst_cm->frame_contexts, src_cm->frame_contexts,
          FRAME_CONTEXTS * sizeof(dst_cm->frame_contexts[0]));
 #else

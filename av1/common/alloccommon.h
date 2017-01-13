@@ -38,8 +38,9 @@ void av1_free_state_buffers(struct AV1Common *cm);
 
 void av1_set_mb_mi(struct AV1Common *cm, int width, int height);
 
+#if !CONFIG_EXT_SEGMENT
 void av1_swap_current_and_last_seg_map(struct AV1Common *cm);
-
+#endif
 #ifdef __cplusplus
 }  // extern "C"
 #endif
