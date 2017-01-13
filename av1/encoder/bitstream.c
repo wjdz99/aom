@@ -1081,8 +1081,7 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
       assert(mbmi->interp_filter[0] == EIGHTTAP_REGULAR);
       return;
     }
-#endif  // CONFIG_DUAL_FILTER
-#if CONFIG_DUAL_FILTER
+
     for (dir = 0; dir < 2; ++dir) {
       if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
           (mbmi->ref_frame[1] > INTRA_FRAME &&
@@ -1107,7 +1106,7 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
 #endif
       ++cpi->interp_filter_selected[0][mbmi->interp_filter];
     }
-#endif
+#endif  // CONFIG_DUAL_FILTER
   }
 }
 
