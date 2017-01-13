@@ -1692,7 +1692,17 @@ static const aom_prob default_segment_pred_probs[PREDICTION_PROBS] = {
   128, 128, 128
 };
 // clang-format on
-
+#if CONFIG_EXT_SEGMENT
+const aom_tree_index av1_seg_id_spatial_prediction_tree[TREE_SIZE(SEG_ID_SPATIAL_PREDICTIONS)] = {
+	-SEG_ID_COPY_LEFT, 2, -SEG_ID_SPATIAL_UNPREDICTED, -SEG_ID_COPY_ABOVE
+};
+static const aom_prob default_seg_id_heterogeneous_spatial_prediction_tree_probs[HETEROGENEOUS_SPATIAL_PRED_PROBS] = {
+	180, 80
+};
+static const aom_prob default_seg_id_harmonic_spatial_prediction_tree_probs[HARMONIC_SPATIAL_PRED_PROBS] = {
+	60
+};
+#endif
 static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->uv_mode_prob, default_uv_probs);
   av1_copy(fc->y_mode_prob, default_if_y_probs);
@@ -1736,8 +1746,20 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_SUPERTX
   av1_copy(fc->supertx_prob, default_supertx_prob);
 #endif  // CONFIG_SUPERTX
+#if CONFIG_EXT_SEGMENT
+  av1_copy(fc->seg[ACTIVE_SEG_IDX].tree_probs, default_segment_tree_probs);
+  av1_copy(fc->seg[ACTIVE_SEG_IDX].pred_probs, default_segment_pred_probs);
+  av1_copy(fc->seg[ACTIVE_SEG_IDX].heterogeneous_spatial_pred_probs, default_seg_id_heterogeneous_spatial_prediction_tree_probs);
+  av1_copy(fc->seg[ACTIVE_SEG_IDX].harmonic_spatial_pred_probs, default_seg_id_harmonic_spatial_prediction_tree_probs);
+  av1_copy(fc->seg[QUALITY_SEG_IDX].tree_probs, default_segment_tree_probs);
+  av1_copy(fc->seg[QUALITY_SEG_IDX].pred_probs, default_segment_pred_probs);
+  av1_copy(fc->seg[QUALITY_SEG_IDX].heterogeneous_spatial_pred_probs, default_seg_id_heterogeneous_spatial_prediction_tree_probs);
+  av1_copy(fc->seg[QUALITY_SEG_IDX].harmonic_spatial_pred_probs, default_seg_id_harmonic_spatial_prediction_tree_probs);
+
+#else
   av1_copy(fc->seg.tree_probs, default_segment_tree_probs);
   av1_copy(fc->seg.pred_probs, default_segment_pred_probs);
+#endif
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
   av1_copy(fc->intra_filter_probs, default_intra_filter_probs);
@@ -1770,7 +1792,19 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
   av1_tree_to_cdf_2D(av1_intra_mode_tree, av1_kf_y_mode_prob, av1_kf_y_mode_cdf,
                      INTRA_MODES, INTRA_MODES);
+ 
+#if CONFIG_EXT_SEGMENT
+  av1_tree_to_cdf(av1_seg_id_spatial_prediction_tree, fc->seg[ACTIVE_SEG_IDX].heterogeneous_spatial_pred_probs, fc->seg[ACTIVE_SEG_IDX].heterogeneous_spatial_pred_cdf);
+  //this conversion will be re-do after num seg is determined. For now, just default is used
+  av1_tree_to_cdf(av1_segment_tree[MAX_SEGMENTS - 2], fc->seg[ACTIVE_SEG_IDX].tree_probs, fc->seg[ACTIVE_SEG_IDX].tree_cdf);
+
+  av1_tree_to_cdf(av1_seg_id_spatial_prediction_tree, fc->seg[QUALITY_SEG_IDX].heterogeneous_spatial_pred_probs, fc->seg[QUALITY_SEG_IDX].heterogeneous_spatial_pred_cdf);
+  //this conversion will be re-do after num seg is determined. For now, just default is used
+  av1_tree_to_cdf(av1_segment_tree[MAX_SEGMENTS - 2], fc->seg[QUALITY_SEG_IDX].tree_probs, fc->seg[QUALITY_SEG_IDX].tree_cdf);
+
+#else
   av1_tree_to_cdf(av1_segment_tree, fc->seg.tree_probs, fc->seg.tree_cdf);
+#endif
 #endif
 #if CONFIG_DELTA_Q
   av1_copy(fc->delta_q_prob, default_delta_q_probs);
@@ -1784,10 +1818,29 @@ int av1_switchable_interp_inv[SWITCHABLE_FILTERS];
 void av1_set_mode_cdfs(struct AV1Common *cm) {
   FRAME_CONTEXT *fc = cm->fc;
   int i, j;
+
+#if CONFIG_EXT_SEGMENT
+  if (cm->seg[ACTIVE_SEG_IDX].enabled && cm->seg[ACTIVE_SEG_IDX].update_map) {
+    av1_tree_to_cdf(av1_segment_tree[cm->seg[ACTIVE_SEG_IDX].num_seg - 2], cm->fc->seg[ACTIVE_SEG_IDX].tree_probs,
+      cm->fc->seg[ACTIVE_SEG_IDX].tree_cdf);
+    av1_tree_to_cdf(av1_seg_id_spatial_prediction_tree, cm->fc->seg[ACTIVE_SEG_IDX].heterogeneous_spatial_pred_probs,
+      cm->fc->seg[ACTIVE_SEG_IDX].heterogeneous_spatial_pred_cdf);
+  }
+
+  if (cm->seg[QUALITY_SEG_IDX].enabled && cm->seg[QUALITY_SEG_IDX].update_map) {
+    av1_tree_to_cdf(av1_segment_tree[cm->seg[QUALITY_SEG_IDX].num_seg - 2], cm->fc->seg[QUALITY_SEG_IDX].tree_probs,
+      cm->fc->seg[QUALITY_SEG_IDX].tree_cdf);
+    av1_tree_to_cdf(av1_seg_id_spatial_prediction_tree, cm->fc->seg[QUALITY_SEG_IDX].heterogeneous_spatial_pred_probs,
+      cm->fc->seg[QUALITY_SEG_IDX].heterogeneous_spatial_pred_cdf);
+  }
+
+#else
   if (cm->seg.enabled && cm->seg.update_map) {
     av1_tree_to_cdf(av1_segment_tree, cm->fc->seg.tree_probs,
                     cm->fc->seg.tree_cdf);
   }
+#endif
+  
 
   for (i = 0; i < INTRA_MODES; ++i)
     av1_tree_to_cdf(av1_intra_mode_tree, fc->uv_mode_prob[i],
@@ -2020,6 +2073,35 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
   }
 #endif  // CONFIG_EXT_TX
 
+#if CONFIG_EXT_SEGMENT
+  if (cm->seg[ACTIVE_SEG_IDX].temporal_update) {
+	  for (i = 0; i < PREDICTION_PROBS; i++)
+		  fc->seg[ACTIVE_SEG_IDX].pred_probs[i] = av1_mode_mv_merge_probs(pre_fc->seg[ACTIVE_SEG_IDX].pred_probs[i],
+			  counts->seg[ACTIVE_SEG_IDX].temp_pred[i]);
+  }
+  fc->seg[ACTIVE_SEG_IDX].harmonic_spatial_pred_probs[0] = av1_mode_mv_merge_probs(pre_fc->seg[ACTIVE_SEG_IDX].harmonic_spatial_pred_probs[0],
+	  counts->seg[ACTIVE_SEG_IDX].harmonic_spatial_pred);
+
+  aom_tree_merge_probs(av1_seg_id_spatial_prediction_tree, pre_fc->seg[ACTIVE_SEG_IDX].heterogeneous_spatial_pred_probs,
+	  counts->seg[ACTIVE_SEG_IDX].heterogeneous_spatial_pred, fc->seg[ACTIVE_SEG_IDX].heterogeneous_spatial_pred_probs);
+
+  aom_tree_merge_probs(av1_segment_tree[cm->seg[ACTIVE_SEG_IDX].num_seg - 2], pre_fc->seg[ACTIVE_SEG_IDX].tree_probs,
+	  counts->seg[ACTIVE_SEG_IDX].tree_mispred, fc->seg[ACTIVE_SEG_IDX].tree_probs);
+
+  if (cm->seg[QUALITY_SEG_IDX].temporal_update) {
+    for (i = 0; i < PREDICTION_PROBS; i++)
+      fc->seg[QUALITY_SEG_IDX].pred_probs[i] = av1_mode_mv_merge_probs(pre_fc->seg[QUALITY_SEG_IDX].pred_probs[i],
+        counts->seg[QUALITY_SEG_IDX].temp_pred[i]);
+  }
+  fc->seg[QUALITY_SEG_IDX].harmonic_spatial_pred_probs[0] = av1_mode_mv_merge_probs(pre_fc->seg[QUALITY_SEG_IDX].harmonic_spatial_pred_probs[0],
+    counts->seg[QUALITY_SEG_IDX].harmonic_spatial_pred);
+
+  aom_tree_merge_probs(av1_seg_id_spatial_prediction_tree, pre_fc->seg[QUALITY_SEG_IDX].heterogeneous_spatial_pred_probs,
+    counts->seg[QUALITY_SEG_IDX].heterogeneous_spatial_pred, fc->seg[QUALITY_SEG_IDX].heterogeneous_spatial_pred_probs);
+
+  aom_tree_merge_probs(av1_segment_tree[cm->seg[QUALITY_SEG_IDX].num_seg - 2], pre_fc->seg[QUALITY_SEG_IDX].tree_probs,
+    counts->seg[QUALITY_SEG_IDX].tree_mispred, fc->seg[QUALITY_SEG_IDX].tree_probs);
+#else
   if (cm->seg.temporal_update) {
     for (i = 0; i < PREDICTION_PROBS; i++)
       fc->seg.pred_probs[i] = av1_mode_mv_merge_probs(pre_fc->seg.pred_probs[i],
@@ -2031,7 +2113,7 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
     aom_tree_merge_probs(av1_segment_tree, pre_fc->seg.tree_probs,
                          counts->seg.tree_total, fc->seg.tree_probs);
   }
-
+#endif
   for (i = 0; i < INTRA_MODES; ++i)
     aom_tree_merge_probs(av1_intra_mode_tree, pre_fc->uv_mode_prob[i],
                          counts->uv_mode[i], fc->uv_mode_prob[i]);
@@ -2093,8 +2175,16 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
   struct loopfilter *const lf = &cm->lf;
 
   int i;
+#if CONFIG_EXT_SEGMENT
+  av1_clearall_segfeatures(&cm->seg[ACTIVE_SEG_IDX]);
+  cm->seg[ACTIVE_SEG_IDX].abs_delta = SEGMENT_DELTADATA;
+
+  av1_clearall_segfeatures(&cm->seg[QUALITY_SEG_IDX]);
+  cm->seg[QUALITY_SEG_IDX].abs_delta = SEGMENT_DELTADATA;
+#else
   av1_clearall_segfeatures(&cm->seg);
   cm->seg.abs_delta = SEGMENT_DELTADATA;
+#endif
 
   if (cm->last_frame_seg_map && !cm->frame_parallel_decode)
     memset(cm->last_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));

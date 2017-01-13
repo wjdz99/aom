@@ -188,6 +188,9 @@ typedef struct AV1EncoderConfig {
   int best_allowed_q;
   int cq_level;
   AQ_MODE aq_mode;  // Adaptive Quantization mode
+#if CONFIG_EXT_SEGMENT
+  int min_seg_unit_size[NUM_SEG_CATEGORIES];
+#endif
 #if CONFIG_AOM_QM
   int using_qm;
   int qm_minlevel;

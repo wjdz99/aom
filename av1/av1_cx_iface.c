@@ -58,6 +58,10 @@ struct av1_extracfg {
 #endif
   unsigned int frame_parallel_decoding_mode;
   AQ_MODE aq_mode;
+#if CONFIG_EXT_SEGMENT
+  unsigned int min_active_seg_unit_size;
+  unsigned int min_quality_seg_unit_size;
+#endif
   unsigned int frame_periodic_boost;
   aom_bit_depth_t bit_depth;
   aom_tune_content content;
@@ -108,6 +112,10 @@ static struct av1_extracfg default_extra_cfg = {
 #endif
   1,                           // frame_parallel_decoding_mode
   NO_AQ,                       // aq_mode
+#if CONFIG_EXT_SEGMENT
+  0,						   // min_seg_unit_size (log - 3)
+  0,
+#endif
   0,                           // frame_periodic_delta_q
   AOM_BITS_8,                  // Bit depth
   AOM_CONTENT_DEFAULT,         // content
@@ -190,6 +198,10 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(cfg, rc_min_quantizer, cfg->rc_max_quantizer);
   RANGE_CHECK_BOOL(extra_cfg, lossless);
   RANGE_CHECK(extra_cfg, aq_mode, 0, AQ_MODE_COUNT - 1);
+#if CONFIG_EXT_SEGMENT
+  RANGE_CHECK(extra_cfg, min_active_seg_unit_size, 0, 3);
+  RANGE_CHECK(extra_cfg, min_quality_seg_unit_size, 0, 3);
+#endif
   RANGE_CHECK_HI(extra_cfg, frame_periodic_boost, 1);
   RANGE_CHECK_HI(cfg, g_threads, 64);
   RANGE_CHECK_HI(cfg, g_lag_in_frames, MAX_LAG_BUFFERS);
@@ -501,7 +513,10 @@ static aom_codec_err_t set_encoder_config(
   oxcf->frame_parallel_decoding_mode = extra_cfg->frame_parallel_decoding_mode;
 
   oxcf->aq_mode = extra_cfg->aq_mode;
-
+#if CONFIG_EXT_SEGMENT
+  oxcf->min_seg_unit_size[ACTIVE_SEG_IDX] = extra_cfg->min_active_seg_unit_size;
+  oxcf->min_seg_unit_size[QUALITY_SEG_IDX] = extra_cfg->min_quality_seg_unit_size;
+#endif
   oxcf->frame_periodic_boost = extra_cfg->frame_periodic_boost;
 
   /*
@@ -779,6 +794,24 @@ static aom_codec_err_t ctrl_set_aq_mode(aom_codec_alg_priv_t *ctx,
   extra_cfg.aq_mode = CAST(AV1E_SET_AQ_MODE, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
+
+#if CONFIG_EXT_SEGMENT
+static aom_codec_err_t ctrl_set_min_active_seg_unit_size(aom_codec_alg_priv_t *ctx,
+	                                                     va_list args) {
+	struct av1_extracfg extra_cfg = ctx->extra_cfg;
+	extra_cfg.min_active_seg_unit_size = 
+        CAST(AV1E_SET_MIN_ACTIVE_SEG_UNIT_SIZE, args);
+	return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_min_quality_seg_unit_size(aom_codec_alg_priv_t *ctx,
+                                                          va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.min_quality_seg_unit_size = 
+      CAST(AV1E_SET_MIN_QUALITY_SEG_UNIT_SIZE, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+#endif
 
 static aom_codec_err_t ctrl_set_min_gf_interval(aom_codec_alg_priv_t *ctx,
                                                 va_list args) {
@@ -1375,6 +1408,10 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
 #endif
   { AV1E_SET_FRAME_PARALLEL_DECODING, ctrl_set_frame_parallel_decoding_mode },
   { AV1E_SET_AQ_MODE, ctrl_set_aq_mode },
+#if CONFIG_EXT_SEGMENT
+  { AV1E_SET_MIN_ACTIVE_SEG_UNIT_SIZE, ctrl_set_min_active_seg_unit_size },
+  { AV1E_SET_MIN_QUALITY_SEG_UNIT_SIZE, ctrl_set_min_quality_seg_unit_size },
+#endif
   { AV1E_SET_FRAME_PERIODIC_BOOST, ctrl_set_frame_periodic_boost },
   { AV1E_SET_TUNE_CONTENT, ctrl_set_tune_content },
   { AV1E_SET_COLOR_SPACE, ctrl_set_color_space },
