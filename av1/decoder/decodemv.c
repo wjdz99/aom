@@ -295,7 +295,17 @@ static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   return NEAREST_NEARESTMV + mode;
 }
 #endif  // CONFIG_EXT_INTER
-
+#if CONFIG_EXT_SEGMENT
+static int read_unpred_segment_id(aom_reader *r,
+                                  struct segmentation_probs *segp,
+                                  int num_seg) {
+#if CONFIG_EC_MULTISYMBOL
+  return aom_read_symbol(r, segp->tree_cdf, num_seg, ACCT_STR);
+#else
+  return aom_read_tree(r, av1_segment_tree[num_seg - 2], segp->tree_probs, ACCT_STR);
+#endif
+}
+#else
 static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
 #if CONFIG_EC_MULTISYMBOL
   return aom_read_symbol(r, segp->tree_cdf, MAX_SEGMENTS, ACCT_STR);
@@ -303,7 +313,7 @@ static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
   return aom_read_tree(r, av1_segment_tree, segp->tree_probs, ACCT_STR);
 #endif
 }
-
+#endif
 #if CONFIG_VAR_TX
 static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
                                MB_MODE_INFO *mbmi, FRAME_COUNTS *counts,
@@ -395,7 +405,11 @@ static TX_SIZE read_tx_size_intra(AV1_COMMON *cm, MACROBLOCKD *xd,
                                   aom_reader *r) {
   TX_MODE tx_mode = cm->tx_mode;
   BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
+#if CONFIG_EXT_SEGMENT
+  if (xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]]) return TX_4X4;
+#else
   if (xd->lossless[xd->mi[0]->mbmi.segment_id]) return TX_4X4;
+#endif
   if (bsize >= BLOCK_8X8) {
     if (tx_mode == TX_MODE_SELECT) {
       const TX_SIZE tx_size =
@@ -414,7 +428,11 @@ static TX_SIZE read_tx_size_inter(AV1_COMMON *cm, MACROBLOCKD *xd,
                                   int allow_select, aom_reader *r) {
   TX_MODE tx_mode = cm->tx_mode;
   BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
+#if CONFIG_EXT_SEGMENT
+  if (xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]]) return TX_4X4;
+#else
   if (xd->lossless[xd->mi[0]->mbmi.segment_id]) return TX_4X4;
+#endif
 #if CONFIG_CB4X4 && CONFIG_VAR_TX
   if (bsize > BLOCK_4X4) {
 #else
@@ -445,6 +463,35 @@ static TX_SIZE read_tx_size_inter(AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 }
 
+
+#if CONFIG_EXT_SEGMENT
+static int dec_get_segment_id(const AV1_COMMON *cm, const uint8_t *segment_ids,
+                              SEG_CATEGORIES seg_cat_idx, int mi_offset,
+                              int x_mis, int y_mis) {
+  int x, y, segment_id = INT_MAX;
+
+  for (y = 0; y < y_mis; y++)
+    for (x = 0; x < x_mis; x++)
+      segment_id = AOMMIN(
+          segment_id, 
+          av1_extract_segment_id_from_map(
+              segment_ids[mi_offset + y * cm->mi_cols + x], seg_cat_idx));
+  assert(segment_id >= 0 && segment_id < cm->seg[seg_cat_idx].num_seg);
+  return segment_id;
+}
+static void set_segment_id(AV1_COMMON *cm, int mi_offset, int x_mis, int y_mis,
+                           int segment_id, SEG_CATEGORIES seg_cat_idx) {
+  int x, y;
+  assert(segment_id >= 0 && segment_id < cm->seg[seg_cat_idx].num_seg);
+
+  for (y = 0; y < y_mis; y++)
+    for (x = 0; x < x_mis; x++)
+      av1_store_segment_id_into_map(
+          segment_id,
+          &cm->current_frame_seg_map[mi_offset + y * cm->mi_cols + x],
+          seg_cat_idx);
+}
+#else
 static int dec_get_segment_id(const AV1_COMMON *cm, const uint8_t *segment_ids,
                               int mi_offset, int x_mis, int y_mis) {
   int x, y, segment_id = INT_MAX;
@@ -468,7 +515,8 @@ static void set_segment_id(AV1_COMMON *cm, int mi_offset, int x_mis, int y_mis,
     for (x = 0; x < x_mis; x++)
       cm->current_frame_seg_map[mi_offset + y * cm->mi_cols + x] = segment_id;
 }
-
+#endif
+#if !CONFIG_EXT_SEGMENT
 static int read_intra_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                  int mi_offset, int x_mis, int y_mis,
                                  aom_reader *r) {
@@ -486,6 +534,7 @@ static int read_intra_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id);
   return segment_id;
 }
+#endif
 
 static void copy_segment_id(const AV1_COMMON *cm,
                             const uint8_t *last_segment_ids,
@@ -500,6 +549,274 @@ static void copy_segment_id(const AV1_COMMON *cm,
                            : 0;
 }
 
+#if CONFIG_EXT_SEGMENT
+static int read_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                           int skip_seg_id_read, SEG_CATEGORIES seg_cat_idx,
+                           int mi_row, int mi_col, aom_reader *r) {
+  struct segmentation *const seg = &cm->seg[seg_cat_idx];
+  FRAME_COUNTS *counts = xd->counts;
+  struct segmentation_probs *const segp = &cm->fc->seg[seg_cat_idx];
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  int predicted_segment_id, segment_id;
+  const int mi_offset = mi_row * cm->mi_cols + mi_col;
+  const int bw = mi_size_wide[mbmi->sb_type];
+  const int bh = mi_size_high[mbmi->sb_type];
+
+  // TODO(slavarnway): move x_mis, y_mis into xd ?????
+  const int x_mis = AOMMIN(cm->mi_cols - mi_col, bw);
+  const int y_mis = AOMMIN(cm->mi_rows - mi_row, bh);
+  int i, j;
+
+  if (!seg->enabled) return 0;  // Default for disabled segmentation
+
+  predicted_segment_id =
+      cm->last_frame_seg_map && seg->temporal_update
+          ? dec_get_segment_id(cm, cm->last_frame_seg_map, seg_cat_idx,
+                               mi_offset, x_mis, y_mis)
+          : 0;
+
+  if (!seg->update_map) {
+    copy_segment_id(cm, cm->last_frame_seg_map, cm->current_frame_seg_map,
+                    mi_offset, x_mis, y_mis);
+    return predicted_segment_id;
+  } else {
+    int seg_map_minb_size = 1 << (seg->seg_map_minb_size_log2_minus3);
+    const int seg_id_read = !((-xd->mb_to_left_edge >> (MI_SIZE_LOG2 + 3)) &
+                              (seg_map_minb_size - 1)) &&
+                            !((-xd->mb_to_top_edge >> (MI_SIZE_LOG2 + 3)) &
+                              (seg_map_minb_size - 1));
+    const int last_block_seg_minb =
+        (mi_row + mi_size_high[xd->mi[0]->mbmi.sb_type] == cm->mi_rows ||
+         !((mi_row + mi_size_high[xd->mi[0]->mbmi.sb_type]) &
+           (seg_map_minb_size - 1))) &&
+        (mi_col + mi_size_wide[xd->mi[0]->mbmi.sb_type] == cm->mi_cols ||
+         !((mi_col + mi_size_wide[xd->mi[0]->mbmi.sb_type]) &
+           (seg_map_minb_size - 1)));
+    MODE_INFO* top_mi =
+        xd->mi[-((mi_row & (seg_map_minb_size - 1)) + 1) * cm->mi_stride -
+               (mi_col & (seg_map_minb_size - 1))];
+    MODE_INFO* left_mi =
+        xd->mi[-(mi_row & (seg_map_minb_size - 1)) * cm->mi_stride -
+               ((mi_col & (seg_map_minb_size - 1)) + 1)];
+    const int pred_segment_id = get_segment_id(
+        cm, cm->last_frame_seg_map,
+        seg_map_minb_size == 1 ? BLOCK_8X8 : seg_map_minb_size == 2
+                                                 ? BLOCK_16X16
+                                                 : seg_map_minb_size == 4
+                                                       ? BLOCK_32X32
+                                                       : BLOCK_64X64,
+        seg_cat_idx, (mi_row & ~(seg_map_minb_size - 1)),
+        (mi_col & ~(seg_map_minb_size - 1)));
+    if (seg_id_read) xd->seg_id_is_done[seg_cat_idx] = 0;
+    if (seg_id_read || !xd->seg_id_is_done[seg_cat_idx]) {
+      int above_segment_id = top_mi ? top_mi->mbmi.segment_id[seg_cat_idx] : 0;
+      int left_segment_id = left_mi ? left_mi->mbmi.segment_id[seg_cat_idx] : 0;
+      int seg_id_spatial_predicted = 0;
+      if (seg->temporal_update) {
+        if (skip_seg_id_read && !seg->skip_seg_id_disabled) {
+          // this is not final segment id
+          if (seg->skip_seg_id_replacement == SKIP_SEG_ID_TEMPORAL_REPLACE) {
+            segment_id = pred_segment_id;
+            mbmi->seg_id_predicted[seg_cat_idx] = 1;
+          } else {
+            mbmi->seg_id_predicted[seg_cat_idx] = 0;
+            segment_id = xd->left_mi ? left_segment_id : above_segment_id;
+            mbmi->seg_id_spatial_predicted[seg_cat_idx] =
+                xd->left_mi ? SEG_ID_COPY_LEFT : SEG_ID_COPY_ABOVE;
+          }
+        } else {
+          const int ctx =
+              (top_mi ? top_mi->mbmi.seg_id_predicted[seg_cat_idx] : 0) +
+              (left_mi ? left_mi->mbmi.seg_id_predicted[seg_cat_idx] : 0);
+          const aom_prob pred_prob = segp->pred_probs[ctx];
+          xd->seg_id_is_done[seg_cat_idx] = 1;
+          mbmi->seg_id_predicted[seg_cat_idx] =
+              aom_read(r, pred_prob, ACCT_STR);
+          if (counts)
+            ++counts->seg[seg_cat_idx]
+                  .temp_pred[ctx][mbmi->seg_id_predicted[seg_cat_idx]];
+          if (mbmi->seg_id_predicted[seg_cat_idx]) {
+            segment_id = pred_segment_id;
+          } else {
+            const int spatial_ctx =
+                top_mi && left_mi &&
+                        top_mi->mbmi.segment_id[seg_cat_idx] ==
+                            left_mi->mbmi.segment_id[seg_cat_idx]
+                    ? 1
+                    : 0;
+            if (spatial_ctx) {
+              seg_id_spatial_predicted =
+                  aom_read(r, segp->harmonic_spatial_pred_probs[0], ACCT_STR);
+              if (counts)
+                ++counts->seg[seg_cat_idx]
+                      .harmonic_spatial_pred[seg_id_spatial_predicted];
+            } else {
+#if CONFIG_EC_MULTISYMBOL
+              seg_id_spatial_predicted = aom_read_symbol(
+                  r, segp->heterogeneous_spatial_pred_cdf,
+                  HETEROGENEOUS_SPATIAL_PRED_PROBS + 1, ACCT_STR);
+#else
+              seg_id_spatial_predicted = aom_read_tree(
+                  r, av1_seg_id_spatial_prediction_tree,
+                  segp->heterogeneous_spatial_pred_probs, ACCT_STR);
+#endif
+              if (counts)
+                ++counts->seg[seg_cat_idx]
+                      .heterogeneous_spatial_pred[seg_id_spatial_predicted];
+            }
+            if (!seg_id_spatial_predicted) {
+              segment_id = read_unpred_segment_id(r, segp, seg->num_seg);
+              if (counts) ++counts->seg[seg_cat_idx].tree_mispred[segment_id];
+            } else {
+              segment_id = seg_id_spatial_predicted == SEG_ID_COPY_LEFT
+                               ? left_segment_id
+                               : above_segment_id;
+            }
+          }
+        }
+      } else {
+        if (skip_seg_id_read && !seg->skip_seg_id_disabled) {
+          // this is not final segment id
+          segment_id = xd->left_mi ? left_segment_id : above_segment_id;
+          mbmi->seg_id_spatial_predicted[seg_cat_idx] =
+              xd->left_mi ? SEG_ID_COPY_LEFT : SEG_ID_COPY_ABOVE;
+        } else {
+          const int spatial_ctx =
+              top_mi && left_mi &&
+                      top_mi->mbmi.segment_id[seg_cat_idx] ==
+                          left_mi->mbmi.segment_id[seg_cat_idx]
+                  ? 1 
+                  : 0;
+          xd->seg_id_is_done[seg_cat_idx] = 1;
+          if (spatial_ctx) {
+            seg_id_spatial_predicted = aom_read(r, segp->harmonic_spatial_pred_probs[0], ACCT_STR);
+            if (counts) ++counts->seg[seg_cat_idx].harmonic_spatial_pred[seg_id_spatial_predicted];
+          } else {
+#if CONFIG_EC_MULTISYMBOL
+            seg_id_spatial_predicted =
+                aom_read_symbol(r, segp->heterogeneous_spatial_pred_cdf,
+                                HETEROGENEOUS_SPATIAL_PRED_PROBS + 1, ACCT_STR);
+#else
+            seg_id_spatial_predicted =
+                aom_read_tree(r, av1_seg_id_spatial_prediction_tree,
+                              segp->heterogeneous_spatial_pred_probs, ACCT_STR);
+#endif
+            if (counts) 
+              ++counts->seg[seg_cat_idx]
+                    .heterogeneous_spatial_pred[seg_id_spatial_predicted];
+          }
+          if (!seg_id_spatial_predicted) {
+            segment_id = read_unpred_segment_id(r, segp, seg->num_seg);
+            if (counts) ++counts->seg[seg_cat_idx].tree_mispred[segment_id];
+          } else {
+            segment_id = seg_id_spatial_predicted == SEG_ID_COPY_LEFT
+                             ? left_segment_id
+                             : above_segment_id;
+          }
+          mbmi->seg_id_spatial_predicted[seg_cat_idx] =
+              seg_id_spatial_predicted;
+        }
+      }
+      if (!skip_seg_id_read || seg->skip_seg_id_disabled) {
+        MODE_INFO* l_mi =
+            xd->mi[-(mi_row & (seg_map_minb_size - 1)) * cm->mi_stride -
+                   ((mi_col & (seg_map_minb_size - 1)))];
+        l_mi->mbmi.segment_id[seg_cat_idx] = segment_id;
+        l_mi->mbmi.seg_id_predicted[seg_cat_idx] =
+            mbmi->seg_id_predicted[seg_cat_idx];
+        l_mi->mbmi.seg_id_spatial_predicted[seg_cat_idx] =
+            mbmi->seg_id_spatial_predicted[seg_cat_idx];
+        av1_store_segment_id_into_map(
+            segment_id,
+            &cm->current_frame_seg_map[mi_offset -
+                                       (mi_row & (seg_map_minb_size - 1)) *
+                                           cm->mi_cols -
+                                       ((mi_col & (seg_map_minb_size - 1)))],
+            seg_cat_idx);
+        set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id, seg_cat_idx);
+      }
+    } else if (xd->seg_id_is_done[seg_cat_idx]) {
+      MODE_INFO* l_mi =
+          xd->mi[-(mi_row & (seg_map_minb_size - 1)) * cm->mi_stride -
+                 ((mi_col & (seg_map_minb_size - 1)))];
+      mbmi->segment_id[seg_cat_idx] =
+          l_mi->mbmi.segment_id[seg_cat_idx];
+      segment_id = mbmi->segment_id[seg_cat_idx];
+      mbmi->seg_id_predicted[seg_cat_idx] =
+          l_mi->mbmi.seg_id_predicted[seg_cat_idx];
+      mbmi->seg_id_spatial_predicted[seg_cat_idx] =
+          l_mi->mbmi.seg_id_spatial_predicted[seg_cat_idx];
+      set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id, seg_cat_idx);
+    }
+    if (last_block_seg_minb) {
+      // for the whole blocks with size of seg_map_minb_size are skipped
+      MODE_INFO* topleft_mi =
+          xd->mi[-(mi_row & (seg_map_minb_size - 1)) * cm->mi_stride -
+                 ((mi_col & (seg_map_minb_size - 1)))];
+      for (i = 0; i < AOMMIN(AOMMAX(mi_size_high[xd->mi[0]->mbmi.sb_type],
+                                    seg_map_minb_size),
+                             cm->mi_rows - (mi_row & ~(seg_map_minb_size - 1)));
+           i++) {
+        for (j = 0;
+             j < AOMMIN(AOMMAX(mi_size_wide[xd->mi[0]->mbmi.sb_type],
+                               seg_map_minb_size),
+                        cm->mi_cols - (mi_col & ~(seg_map_minb_size - 1)));
+             j++) {
+          MODE_INFO* l_mi =
+              xd->mi[-(mi_row & (seg_map_minb_size - 1)) * cm->mi_stride -
+                     ((mi_col & (seg_map_minb_size - 1))) + i * cm->mi_stride +
+                     j];
+          if (!xd->seg_id_is_done[seg_cat_idx]) {
+            if (cm->seg[seg_cat_idx].temporal_update &&
+                cm->seg[seg_cat_idx].skip_seg_id_replacement ==
+                    SKIP_SEG_ID_TEMPORAL_REPLACE) {
+              l_mi->mbmi.segment_id[seg_cat_idx] = pred_segment_id;
+              l_mi->mbmi.seg_id_predicted[seg_cat_idx] = 1;
+              l_mi->mbmi.seg_id_spatial_predicted[seg_cat_idx] = 0;
+              segment_id = pred_segment_id;
+            } else {
+              l_mi->mbmi.segment_id[seg_cat_idx] =
+                  left_mi ? left_mi->mbmi.segment_id[seg_cat_idx]
+                          : top_mi ? top_mi->mbmi.segment_id[seg_cat_idx] : 0;
+              l_mi->mbmi.seg_id_spatial_predicted[seg_cat_idx] =
+                  left_mi ? SEG_ID_COPY_LEFT : top_mi
+                                                   ? SEG_ID_COPY_ABOVE
+                                                   : SEG_ID_SPATIAL_UNPREDICTED;
+              l_mi->mbmi.seg_id_predicted[seg_cat_idx] = 0;
+              segment_id = l_mi->mbmi.segment_id[seg_cat_idx];
+            }
+            av1_store_segment_id_into_map(
+                l_mi->mbmi.segment_id[seg_cat_idx],
+                &cm->current_frame_seg_map
+                     [mi_offset -
+                      (mi_row & (seg_map_minb_size - 1)) * cm->mi_cols -
+                      ((mi_col & (seg_map_minb_size - 1))) + i * cm->mi_cols +
+                      j],
+                seg_cat_idx);
+          } else if (i != 0 || j != 0) {
+            l_mi->mbmi.segment_id[seg_cat_idx] =
+                topleft_mi->mbmi.segment_id[seg_cat_idx];
+            l_mi->mbmi.seg_id_predicted[seg_cat_idx] =
+                topleft_mi->mbmi.seg_id_predicted[seg_cat_idx];
+            l_mi->mbmi.seg_id_spatial_predicted[seg_cat_idx] =
+                topleft_mi->mbmi.seg_id_spatial_predicted[seg_cat_idx];
+            segment_id = l_mi->mbmi.segment_id[seg_cat_idx];
+            av1_store_segment_id_into_map(
+                l_mi->mbmi.segment_id[seg_cat_idx],
+                &cm->current_frame_seg_map
+                     [mi_offset -
+                      (mi_row & (seg_map_minb_size - 1)) * cm->mi_cols -
+                      ((mi_col & (seg_map_minb_size - 1))) + i * cm->mi_cols +
+                      j],
+                seg_cat_idx);
+          }
+        }
+      }
+    }
+  }
+  return segment_id;
+}
+#else
 static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                  int mi_row, int mi_col, aom_reader *r) {
   struct segmentation *const seg = &cm->seg;
@@ -546,10 +863,15 @@ static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id);
   return segment_id;
 }
-
+#endif
 static int read_skip(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
                      aom_reader *r) {
+#if CONFIG_EXT_SEGMENT
+  if (segfeature_active(&cm->seg[ACTIVE_SEG_IDX], segment_id,
+                        ACTIVE_SEG_LVL_SKIP)) {
+#else
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
+#endif
     return 1;
   } else {
     const int ctx = av1_get_skip_context(xd);
@@ -747,7 +1069,13 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 #if CONFIG_SUPERTX
         !supertx_enabled &&
 #endif  // CONFIG_SUPERTX
+#if CONFIG_EXT_SEGMENT
+        !segfeature_active(&cm->seg[ACTIVE_SEG_IDX], 
+                           mbmi->segment_id[ACTIVE_SEG_IDX],
+                           ACTIVE_SEG_LVL_SKIP)) {
+#else
         !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
+#endif
       FRAME_COUNTS *counts = xd->counts;
       if (inter_block) {
 #if CONFIG_EC_MULTISYMBOL
@@ -787,16 +1115,23 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   const MODE_INFO *left_mi = xd->left_mi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   int i;
+#if !CONFIG_EXT_SEGMENT
   const int mi_offset = mi_row * cm->mi_cols + mi_col;
   const int bw = mi_size_wide[bsize];
   const int bh = mi_size_high[bsize];
+#endif
 
+#if CONFIG_EXT_SEGMENT
+  mbmi->segment_id[ACTIVE_SEG_IDX] =
+      read_segment_id(cm, xd, 0, ACTIVE_SEG_IDX, mi_row, mi_col, r);
+  mbmi->skip = read_skip(cm, xd, mbmi->segment_id[ACTIVE_SEG_IDX], r);
+#else
   // TODO(slavarnway): move x_mis, y_mis into xd ?????
   const int x_mis = AOMMIN(cm->mi_cols - mi_col, bw);
   const int y_mis = AOMMIN(cm->mi_rows - mi_row, bh);
-
   mbmi->segment_id = read_intra_segment_id(cm, xd, mi_offset, x_mis, y_mis, r);
   mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
+#endif  // CONFIG_EXT_SEGMENT
 
 #if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
@@ -804,6 +1139,15 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
         xd->prev_qindex +
         read_delta_qindex(cm, xd, r, mbmi, mi_col, mi_row) * cm->delta_q_res;
     xd->prev_qindex = xd->current_qindex;
+  }
+#endif
+#if CONFIG_EXT_SEGMENT
+  if (cm->seg[QUALITY_SEG_IDX].enabled) {
+    int segment_id_skip = !av1_is_segfeature_enabled(&cm->seg[QUALITY_SEG_IDX],
+                                                     QUALITY_SEG_LVL_ALT_LF) &&
+                          mbmi->skip;    
+    mbmi->segment_id[QUALITY_SEG_IDX] = read_segment_id(
+        cm, xd, segment_id_skip, QUALITY_SEG_IDX, mi_row, mi_col, r);
   }
 #endif
 
@@ -979,10 +1323,17 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             MV_REFERENCE_FRAME ref_frame[2]) {
   FRAME_CONTEXT *const fc = cm->fc;
   FRAME_COUNTS *counts = xd->counts;
-
+#if CONFIG_EXT_SEGMENT
+  if (segfeature_active(&cm->seg[ACTIVE_SEG_IDX], segment_id,
+                        ACTIVE_SEG_LVL_REF_FRAME)) {
+    ref_frame[0] = (MV_REFERENCE_FRAME)get_segdata(
+        &cm->seg[ACTIVE_SEG_IDX], segment_id,
+      ACTIVE_SEG_LVL_REF_FRAME);
+#else
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
     ref_frame[0] = (MV_REFERENCE_FRAME)get_segdata(&cm->seg, segment_id,
                                                    SEG_LVL_REF_FRAME);
+#endif
     ref_frame[1] = NONE;
   } else {
     const REFERENCE_MODE mode = read_block_reference_mode(cm, xd, r);
@@ -1426,8 +1777,15 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 
 static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                int segment_id, aom_reader *r) {
+#if CONFIG_EXT_SEGMENT
+  if (segfeature_active(&cm->seg[ACTIVE_SEG_IDX], segment_id,
+                        ACTIVE_SEG_LVL_REF_FRAME)) {
+    return get_segdata(&cm->seg[ACTIVE_SEG_IDX], segment_id,
+                       ACTIVE_SEG_LVL_REF_FRAME) != INTRA_FRAME;
+#else
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
     return get_segdata(&cm->seg, segment_id, SEG_LVL_REF_FRAME) != INTRA_FRAME;
+#endif
   } else {
     const int ctx = av1_get_intra_inter_context(xd);
     const int is_inter = aom_read(r, cm->fc->intra_inter_prob[ctx], ACCT_STR);
@@ -1478,7 +1836,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   mbmi->palette_mode_info.palette_size[1] = 0;
 #endif  // CONFIG_PALETTE
 
+#if CONFIG_EXT_SEGMENT
+  read_ref_frames(cm, xd, r, mbmi->segment_id[ACTIVE_SEG_IDX], mbmi->ref_frame);
+#else
   read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
+#endif
   is_compound = has_second_ref(mbmi);
 
   for (ref = 0; ref < 1 + is_compound; ++ref) {
@@ -1546,8 +1908,13 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #else
   mode_ctx = inter_mode_ctx[mbmi->ref_frame[0]];
 #endif
-
+#if CONFIG_EXT_SEGMENT
+  if (segfeature_active(&cm->seg[ACTIVE_SEG_IDX],
+                        mbmi->segment_id[ACTIVE_SEG_IDX],
+                        ACTIVE_SEG_LVL_SKIP)) {
+#else
   if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
+#endif
     mbmi->mode = ZEROMV;
     if (bsize < BLOCK_8X8) {
       aom_internal_error(xd->error_info, AOM_CODEC_UNSUP_BITSTREAM,
@@ -1926,11 +2293,21 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 
   mbmi->mv[0].as_int = 0;
   mbmi->mv[1].as_int = 0;
+#if CONFIG_EXT_SEGMENT
+  mbmi->segment_id[ACTIVE_SEG_IDX] =
+      read_segment_id(cm, xd, 0, ACTIVE_SEG_IDX, mi_row, mi_col, r);
+#if CONFIG_SUPERTX
+  if (!supertx_enabled) {
+#endif  // CONFIG_SUPERTX
+    mbmi->skip = read_skip(cm, xd, mbmi->segment_id[ACTIVE_SEG_IDX], r);
+#else
   mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, r);
 #if CONFIG_SUPERTX
   if (!supertx_enabled) {
 #endif  // CONFIG_SUPERTX
     mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
+#endif
+
 #if CONFIG_DELTA_Q
     if (cm->delta_q_present_flag) {
       xd->current_qindex =
@@ -1938,9 +2315,21 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
           read_delta_qindex(cm, xd, r, mbmi, mi_col, mi_row) * cm->delta_q_res;
       xd->prev_qindex = xd->current_qindex;
     }
-#endif
+#endif    
+#if CONFIG_EXT_SEGMENT
+    inter_block =
+        read_is_inter_block(cm, xd, mbmi->segment_id[ACTIVE_SEG_IDX], r);
+    if (cm->seg[QUALITY_SEG_IDX].update_map) {
+      int seg_id_skip = (inter_block ||
+        !av1_is_segfeature_enabled(&cm->seg[QUALITY_SEG_IDX],
+                                   QUALITY_SEG_LVL_ALT_LF)) &&
+        mbmi->skip;
+      mbmi->segment_id[QUALITY_SEG_IDX] = read_segment_id(
+          cm, xd, seg_id_skip, QUALITY_SEG_IDX, mi_row, mi_col, r);      
+    }
+#else
     inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
-
+#endif
 #if CONFIG_VAR_TX
     xd->above_txfm_context = cm->above_txfm_context + mi_col;
     xd->left_txfm_context =
@@ -1984,10 +2373,10 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
       set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
     }
 #else
-  if (inter_block)
-    mbmi->tx_size = read_tx_size_inter(cm, xd, !mbmi->skip, r);
-  else
-    mbmi->tx_size = read_tx_size_intra(cm, xd, r);
+    if (inter_block)
+      mbmi->tx_size = read_tx_size_inter(cm, xd, !mbmi->skip, r);
+    else
+      mbmi->tx_size = read_tx_size_intra(cm, xd, r);
 #endif  // CONFIG_VAR_TX
 #if CONFIG_SUPERTX
   }

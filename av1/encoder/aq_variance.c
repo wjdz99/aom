@@ -33,6 +33,23 @@ static const int segment_id[ENERGY_SPAN] = { 0, 1, 1, 2, 3, 4 };
 
 #define SEGMENT_ID(i) segment_id[(i)-ENERGY_MIN]
 
+#if CONFIG_EXT_SEGMENT_EXP
+static const int g_deltaq[4][MAX_SEGMENTS] = {
+  {
+      -6, -3, -1, 0, 8,
+  },
+  {
+      -8, -4, -1, 0, 10,
+  },
+  {
+      -10,-5, -1, 0, 12,
+  },
+  {
+      -14,-8, -2, 0, 14,
+  },
+};
+#endif
+
 DECLARE_ALIGNED(16, static const uint8_t, av1_all_zeros[MAX_SB_SIZE]) = { 0 };
 #if CONFIG_AOM_HIGHBITDEPTH
 DECLARE_ALIGNED(16, static const uint16_t,
@@ -46,11 +63,18 @@ unsigned int av1_vaq_segment_id(int energy) {
 
 void av1_vaq_frame_setup(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
+#if CONFIG_EXT_SEGMENT
+  struct segmentation *seg = &cm->seg[QUALITY_SEG_IDX];
+#else
   struct segmentation *seg = &cm->seg;
+#endif
   int i;
 
   if (frame_is_intra_only(cm) || cm->error_resilient_mode ||
       cpi->refresh_alt_ref_frame ||
+#if CONFIG_EXT_SEGMENT_EXP
+      1 ||
+#endif
       (cpi->refresh_golden_frame && !cpi->rc.is_src_frame_alt_ref)) {
     cpi->vaq_refresh = 1;
 
@@ -60,8 +84,11 @@ void av1_vaq_frame_setup(AV1_COMP *cpi) {
     seg->abs_delta = SEGMENT_DELTADATA;
 
     aom_clear_system_state();
-
+#if CONFIG_EXT_SEGMENT
+    for (i = 0; i < seg->num_seg; ++i) {
+#else
     for (i = 0; i < MAX_SEGMENTS; ++i) {
+#endif
       int qindex_delta =
           av1_compute_qdelta_by_rate(&cpi->rc, cm->frame_type, cm->base_qindex,
                                      rate_ratio[i], cm->bit_depth);
@@ -73,14 +100,24 @@ void av1_vaq_frame_setup(AV1_COMP *cpi) {
       if ((cm->base_qindex != 0) && ((cm->base_qindex + qindex_delta) == 0)) {
         qindex_delta = -cm->base_qindex + 1;
       }
-
+#if CONFIG_EXT_SEGMENT_EXP
+      qindex_delta = g_deltaq[cm->base_qindex / 64][i];
+      if ((cm->base_qindex != 0) && ((cm->base_qindex + qindex_delta) <= 0)) {
+        qindex_delta = -cm->base_qindex + 1;
+      }
+#endif
       // No need to enable SEG_LVL_ALT_Q for this segment.
       if (rate_ratio[i] == 1.0) {
         continue;
       }
-
+#if CONFIG_EXT_SEGMENT
+      av1_set_segdata(seg, i, QUALITY_SEG_LVL_ALT_Q, qindex_delta,
+                      QUALITY_SEG_IDX);
+      av1_enable_segfeature(seg, i, QUALITY_SEG_LVL_ALT_Q);
+#else
       av1_set_segdata(seg, i, SEG_LVL_ALT_Q, qindex_delta);
       av1_enable_segfeature(seg, i, SEG_LVL_ALT_Q);
+#endif
     }
   }
 }

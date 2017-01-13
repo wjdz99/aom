@@ -317,7 +317,12 @@ typedef struct AV1Common {
   int ref_frame_sign_bias[TOTAL_REFS_PER_FRAME]; /* Two state 0, 1 */
 
   struct loopfilter lf;
+  
+#if CONFIG_EXT_SEGMENT
+  struct segmentation seg[NUM_SEG_CATEGORIES]; //0: active segments 1: quality segments  
+#else
   struct segmentation seg;
+#endif
 
   int frame_parallel_decode;  // frame-based threading.
 

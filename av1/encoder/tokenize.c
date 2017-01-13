@@ -379,7 +379,11 @@ static INLINE void add_token(TOKENEXTRA **t, const aom_prob *context_tree,
 static INLINE int get_tx_eob(const struct segmentation *seg, int segment_id,
                              TX_SIZE tx_size) {
   const int eob_max = tx_size_2d[tx_size];
+#if CONFIG_EXT_SEGMENT
+  return segfeature_active(seg, segment_id, ACTIVE_SEG_LVL_SKIP) ? 0 : eob_max;
+#else
   return segfeature_active(seg, segment_id, SEG_LVL_SKIP) ? 0 : eob_max;
+#endif
 }
 
 #if CONFIG_PALETTE
@@ -442,9 +446,17 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   const PLANE_TYPE type = pd->plane_type;
   const tran_low_t *qcoeff = BLOCK_OFFSET(p->qcoeff, block);
 #if CONFIG_SUPERTX
+#if CONFIG_EXT_SEGMENT
+  const int segment_id = AOMMIN(mbmi->segment_id[ACTIVE_SEG_IDX], mbmi->segment_id_supertx[ACTIVE_SEG_IDX]);
+#else
   const int segment_id = AOMMIN(mbmi->segment_id, mbmi->segment_id_supertx);
+#endif
+#else
+#if CONFIG_EXT_SEGMENT
+  const int segment_id = mbmi->segment_id[ACTIVE_SEG_IDX];
 #else
   const int segment_id = mbmi->segment_id;
+#endif
 #endif  // CONFIG_SUEPRTX
   const int16_t *scan, *nb;
   const TX_TYPE tx_type = get_tx_type(type, xd, block, tx_size);
@@ -468,7 +480,12 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   unsigned int(*const eob_branch)[COEFF_CONTEXTS] =
       td->counts->eob_branch[txsize_sqr_map[tx_size]][type][ref];
   const uint8_t *const band = get_band_translate(tx_size);
+#if CONFIG_EXT_SEGMENT
+  const int seg_eob =
+      get_tx_eob(&cpi->common.seg[ACTIVE_SEG_IDX], segment_id, tx_size);
+#else
   const int seg_eob = get_tx_eob(&cpi->common.seg, segment_id, tx_size);
+#endif
   int skip_eob = 0;
   int16_t token;
   EXTRABIT extra;
@@ -722,7 +739,13 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const int ctx = av1_get_skip_context(xd);
   const int skip_inc =
+#if CONFIG_EXT_SEGMENT
+      !segfeature_active(&cm->seg[ACTIVE_SEG_IDX],
+                         mbmi->segment_id[ACTIVE_SEG_IDX],
+                         ACTIVE_SEG_LVL_SKIP);
+#else
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
+#endif
   struct tokenize_b_args arg = { cpi, td, t, 0 };
   if (mbmi->skip) {
     if (!dry_run) td->counts->skip[ctx][1] += skip_inc;
@@ -775,7 +798,12 @@ void av1_tokenize_sb_supertx(const AV1_COMP *cpi, ThreadData *td,
   TOKENEXTRA *t_backup = *t;
   const int ctx = av1_get_skip_context(xd);
   const int skip_inc =
+#if CONFIG_EXT_SEGMENT
+      !segfeature_active(&cm->seg[ACTIVE_SEG_IDX],
+                         mbmi->segment_id_supertx[ACTIVE_SEG_IDX], ACTIVE_SEG_LVL_SKIP);
+#else
       !segfeature_active(&cm->seg, mbmi->segment_id_supertx, SEG_LVL_SKIP);
+#endif
   struct tokenize_b_args arg = { cpi, td, t, 0 };
   if (mbmi->skip) {
     if (!dry_run) td->counts->skip[ctx][1] += skip_inc;
