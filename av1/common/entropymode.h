@@ -48,9 +48,17 @@ typedef struct {
 } SCAN_ORDER;
 
 struct seg_counts {
+#if CONFIG_EXT_SEGMENT
+	//unsigned int tree_total[MAX_SEGMENTS];
+	unsigned int tree_mispred[MAX_SEGMENTS];
+	unsigned int harmonic_spatial_pred[HARMONIC_SPATIAL_PRED_PROBS + 1];
+	unsigned int heterogeneous_spatial_pred[HETEROGENEOUS_SPATIAL_PRED_PROBS + 1];
+	unsigned int temp_pred[PREDICTION_PROBS][2];
+#else
   unsigned int tree_total[MAX_SEGMENTS];
   unsigned int tree_mispred[MAX_SEGMENTS];
   unsigned int pred[PREDICTION_PROBS][2];
+#endif
 };
 
 typedef struct frame_contexts {
@@ -150,7 +158,11 @@ typedef struct frame_contexts {
 #if CONFIG_SUPERTX
   aom_prob supertx_prob[PARTITION_SUPERTX_CONTEXTS][TX_SIZES];
 #endif  // CONFIG_SUPERTX
+#if CONFIG_EXT_SEGMENT
+  struct segmentation_probs seg[NUM_SEG_CATEGORIES];
+#else
   struct segmentation_probs seg;
+#endif
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
   aom_prob intra_filter_probs[INTRA_FILTERS + 1][INTRA_FILTERS - 1];
@@ -271,7 +283,11 @@ typedef struct FRAME_COUNTS {
   unsigned int supertx[PARTITION_SUPERTX_CONTEXTS][TX_SIZES][2];
   unsigned int supertx_size[TX_SIZES];
 #endif  // CONFIG_SUPERTX
+#if CONFIG_EXT_SEGMENT
+  struct seg_counts seg[NUM_SEG_CATEGORIES];
+#else
   struct seg_counts seg;
+#endif
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
   unsigned int intra_filter[INTRA_FILTERS + 1][INTRA_FILTERS];
@@ -356,6 +372,11 @@ extern const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)];
 extern const aom_tree_index
     av1_switchable_restore_tree[TREE_SIZE(RESTORE_SWITCHABLE_TYPES)];
 #endif  // CONFIG_LOOP_RESTORATION
+
+#if CONFIG_EXT_SEGMENT
+extern const aom_tree_index av1_seg_id_spatial_prediction_tree[TREE_SIZE(SEG_ID_SPATIAL_PREDICTIONS)];
+#endif // CONFIG_EXT_SEGMENT
+
 #if CONFIG_EC_MULTISYMBOL
 extern int av1_switchable_interp_ind[SWITCHABLE_FILTERS];
 extern int av1_switchable_interp_inv[SWITCHABLE_FILTERS];

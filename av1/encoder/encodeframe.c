@@ -313,13 +313,32 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi;
+#if CONFIG_EXT_SEGMENT
+  const struct segmentation *const seg = &cm->seg[QUALITY_SEG_IDX];
+#else
   const struct segmentation *const seg = &cm->seg;
+#endif
 
   set_offsets_without_segment_id(cpi, tile, x, mi_row, mi_col, bsize);
 
   mbmi = &xd->mi[0]->mbmi;
 
   // Setup segment ID.
+#if CONFIG_EXT_SEGMENT
+  if (seg->enabled) {
+    if (!cpi->vaq_refresh) {
+      const uint8_t *const map =
+        seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
+      mbmi->segment_id[QUALITY_SEG_IDX] = get_segment_id(cm, map, bsize, QUALITY_SEG_IDX, mi_row, mi_col);
+    }
+    av1_init_plane_quantizers(cpi, x, mbmi->segment_id[QUALITY_SEG_IDX]);
+  }
+  else {
+    mbmi->segment_id[QUALITY_SEG_IDX] = 0;
+  }
+  x->skip_block = segfeature_active(&cm->seg[ACTIVE_SEG_IDX], mbmi->segment_id[ACTIVE_SEG_IDX], ACTIVE_SEG_LVL_SKIP);
+
+#else
   if (seg->enabled) {
     if (!cpi->vaq_refresh) {
       const uint8_t *const map =
@@ -330,6 +349,7 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
   } else {
     mbmi->segment_id = 0;
   }
+#endif
 
 #if CONFIG_SUPERTX
   mbmi->segment_id_supertx = MAX_SEGMENTS;
@@ -844,6 +864,18 @@ static void choose_partitioning(AV1_COMP *const cpi, ThreadData *const td,
 
   int segment_id = CR_SEGMENT_ID_BASE;
 
+#if CONFIG_EXT_SEGMENT
+  if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->seg[QUALITY_SEG_IDX].enabled) {
+    const uint8_t *const map =
+      cm->seg[QUALITY_SEG_IDX].update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
+    segment_id = get_segment_id(cm, map, cm->sb_size, QUALITY_SEG_IDX, mi_row, mi_col);
+
+    if (cyclic_refresh_segment_id_boosted(segment_id)) {
+      int q = av1_get_qindex(&cm->seg[QUALITY_SEG_IDX], segment_id, cm->base_qindex);
+      set_vbp_thresholds(cpi, thresholds, q);
+    }
+  }
+#else
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->seg.enabled) {
     const uint8_t *const map =
         cm->seg.update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
@@ -854,6 +886,7 @@ static void choose_partitioning(AV1_COMP *const cpi, ThreadData *const td,
       set_vbp_thresholds(cpi, thresholds, q);
     }
   }
+#endif
 
   set_offsets(cpi, tile, x, mi_row, mi_col, cm->sb_size);
 
@@ -1035,7 +1068,12 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
   MODE_INFO *mi = &ctx->mic;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   MODE_INFO *mi_addr = xd->mi[0];
+#if CONFIG_EXT_SEGMENT
+  const struct segmentation *const active_seg = &cm->seg[ACTIVE_SEG_IDX];
+  const struct segmentation *const quality_seg = &cm->seg[QUALITY_SEG_IDX];
+#else
   const struct segmentation *const seg = &cm->seg;
+#endif
   const int bw = mi_size_wide[mi->mbmi.sb_type];
   const int bh = mi_size_high[mi->mbmi.sb_type];
   const int x_mis = AOMMIN(bw, cm->mi_cols - mi_col);
@@ -1082,6 +1120,22 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
 #endif
 
   // If segmentation in use
+#if CONFIG_EXT_SEGMENT
+  if (quality_seg->enabled) {
+    // For in frame complexity AQ copy the segment id from the segment map.
+    if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
+      const uint8_t *const map =
+        quality_seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
+      mi_addr->mbmi.segment_id[QUALITY_SEG_IDX] = get_segment_id(cm, map, bsize, QUALITY_SEG_IDX, mi_row, mi_col);
+    }
+    // Else for cyclic refresh mode update the segment map, set the segment id
+    // and then update the quantizer.
+    if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ) {
+      av1_cyclic_refresh_update_segment(cpi, &xd->mi[0]->mbmi, mi_row, mi_col,
+        bsize, ctx->rate, ctx->dist, x->skip);
+    }
+  }
+#else
   if (seg->enabled) {
     // For in frame complexity AQ copy the segment id from the segment map.
     if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
@@ -1096,6 +1150,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
                                         bsize, ctx->rate, ctx->dist, x->skip);
     }
   }
+#endif
 
   for (i = 0; i < MAX_MB_PLANE; ++i) {
     p[i].coeff = ctx->coeff[i];
@@ -1119,12 +1174,29 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
         xd->mi[x_idx + y * mis] = mi_addr;
       }
 
+#if CONFIG_EXT_SEGMENT
 #if CONFIG_DELTA_Q
+  if (cpi->oxcf.aq_mode > NO_AQ && cpi->oxcf.aq_mode != DELTA_AQ) {
+    av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]);
+  }
+#else
+  if (cpi->oxcf.aq_mode) {
+    av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]);
+    x->skip_block = segfeature_active(&cm->seg[ACTIVE_SEG_IDX], mbmi->segment_id[ACTIVE_SEG_IDX], ACTIVE_SEG_LVL_SKIP);
+  }
+#endif
+#else
+#if CONFIG_DELTA_Q
+#if CONFIG_EXT_SEGMENT_EXP
+  if (cpi->oxcf.aq_mode > NO_AQ && cpi->oxcf.aq_mode != DELTA_AQ)
+#else
   if (cpi->oxcf.aq_mode > NO_AQ && cpi->oxcf.aq_mode < DELTA_AQ)
+#endif
     av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id);
 #else
   if (cpi->oxcf.aq_mode)
     av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id);
+#endif
 #endif
 
   if (is_inter_block(mbmi) && mbmi->sb_type < BLOCK_8X8 && !unify_bsize) {
@@ -1661,7 +1733,11 @@ static int set_segment_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   const AV1_COMMON *const cm = &cpi->common;
   av1_init_plane_quantizers(cpi, x, segment_id);
   aom_clear_system_state();
+#if CONFIG_EXT_SEGMENT
+  segment_qindex = av1_get_qindex(&cm->seg[QUALITY_SEG_IDX], segment_id, cm->base_qindex);
+#else
   segment_qindex = av1_get_qindex(&cm->seg, segment_id, cm->base_qindex);
+#endif
   return av1_compute_rd_mult(cpi, segment_qindex + cm->y_dc_delta_q);
 }
 
@@ -1748,7 +1824,31 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   // Save rdmult before it might be changed, so it can be restored later.
   orig_rdmult = x->rdmult;
 
+#if CONFIG_EXT_SEGMENT
+  if (aq_mode == VARIANCE_AQ || aq_mode == REPEAT_VARIANCE_AQ) {
+    if (cpi->vaq_refresh) {
+      const int energy =
+        bsize <= BLOCK_16X16 ? x->mb_energy : av1_block_energy(cpi, x, bsize);
+      mbmi->segment_id[QUALITY_SEG_IDX] = av1_vaq_segment_id(energy);
+      // Re-initialise quantiser
+      av1_init_plane_quantizers(cpi, x, mbmi->segment_id[QUALITY_SEG_IDX]);
+    }
+    x->rdmult = set_segment_rdmult(cpi, x, mbmi->segment_id[QUALITY_SEG_IDX]);
+  }
+  else if (aq_mode == COMPLEXITY_AQ) {
+    x->rdmult = set_segment_rdmult(cpi, x, mbmi->segment_id[QUALITY_SEG_IDX]);
+  }
+  else if (aq_mode == CYCLIC_REFRESH_AQ) {
+    // If segment is boosted, use rdmult for that segment.
+    if (cyclic_refresh_segment_id_boosted(mbmi->segment_id[QUALITY_SEG_IDX]))
+      x->rdmult = av1_cyclic_refresh_get_rdmult(cpi->cyclic_refresh);
+  }
+#else
+#if CONFIG_EXT_SEGMENT_EXP
+  if (aq_mode == VARIANCE_AQ || aq_mode == REPEAT_VARIANCE_AQ) {
+#else
   if (aq_mode == VARIANCE_AQ) {
+#endif
     if (cpi->vaq_refresh) {
       const int energy =
           bsize <= BLOCK_16X16 ? x->mb_energy : av1_block_energy(cpi, x, bsize);
@@ -1764,7 +1864,7 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     if (cyclic_refresh_segment_id_boosted(mbmi->segment_id))
       x->rdmult = av1_cyclic_refresh_get_rdmult(cpi->cyclic_refresh);
   }
-
+#endif
   // Find best coding mode & reconstruct the MB so it is available
   // as a predictor for MBs that follow in the SB
   if (frame_is_intra_only(cm)) {
@@ -1774,7 +1874,11 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_SUPERTX
   } else {
     if (bsize >= BLOCK_8X8 || unify_bsize) {
+#if CONFIG_EXT_SEGMENT
+      if (segfeature_active(&cm->seg[ACTIVE_SEG_IDX], mbmi->segment_id[ACTIVE_SEG_IDX], ACTIVE_SEG_LVL_SKIP)) {
+#else
       if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
+#endif
         av1_rd_pick_inter_mode_sb_seg_skip(cpi, tile_data, x, rd_cost, bsize,
                                            ctx, best_rd);
 #if CONFIG_SUPERTX
@@ -1791,7 +1895,11 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_SUPERTX
       }
     } else {
+#if CONFIG_EXT_SEGMENT
+      if (segfeature_active(&cm->seg[ACTIVE_SEG_IDX], mbmi->segment_id[ACTIVE_SEG_IDX], ACTIVE_SEG_LVL_SKIP)) {
+#else
       if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
+#endif
         // The decoder rejects sub8x8 partitions when SEG_LVL_SKIP is set.
         rd_cost->rate = INT_MAX;
       } else {
@@ -1880,8 +1988,14 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
   const MACROBLOCK *x = &td->mb;
   const MACROBLOCKD *const xd = &x->e_mbd;
 #endif
+  
+#if CONFIG_EXT_SEGMENT
+  MODE_INFO *const mi = xd->mi[0];
+  MB_MODE_INFO *const mbmi = &mi->mbmi;
+#else
   const MODE_INFO *const mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
+#endif
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const int unify_bsize = CONFIG_CB4X4;
@@ -1909,7 +2023,11 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
     FRAME_COUNTS *const counts = td->counts;
     const int inter_block = is_inter_block(mbmi);
     const int seg_ref_active =
+#if CONFIG_EXT_SEGMENT
+        segfeature_active(&cm->seg[ACTIVE_SEG_IDX], mbmi->segment_id[ACTIVE_SEG_IDX], ACTIVE_SEG_LVL_REF_FRAME);
+#else
         segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_REF_FRAME);
+#endif
     if (!seg_ref_active) {
 #if CONFIG_SUPERTX
       if (!supertx_enabled)
@@ -2030,7 +2148,11 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
     }
 
     if (inter_block &&
+#if CONFIG_EXT_SEGMENT
+      !segfeature_active(&cm->seg[ACTIVE_SEG_IDX], mbmi->segment_id[ACTIVE_SEG_IDX], ACTIVE_SEG_LVL_SKIP)) {
+#else
         !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
+#endif
       int16_t mode_ctx;
 #if !CONFIG_REF_MV
       mode_ctx = mbmi_ext->mode_context[mbmi->ref_frame[0]];
@@ -3701,7 +3823,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
         // terminated for current branch of the partition search tree.
         // The dist & rate thresholds are set to 0 at speed 0 to disable the
         // early termination at that speed.
+#if CONFIG_EXT_SEGMENT
+        if (!x->e_mbd.lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]] &&
+#else
         if (!x->e_mbd.lossless[xd->mi[0]->mbmi.segment_id] &&
+#endif
             (ctx_none->skippable && best_rdc.dist < dist_breakout_thr &&
              best_rdc.rate < rate_breakout_thr)) {
           do_square_split = 0;
@@ -4361,7 +4487,12 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
   // Code each SB in the row
   for (mi_col = tile_info->mi_col_start; mi_col < tile_info->mi_col_end;
        mi_col += cm->mib_size) {
+#if CONFIG_EXT_SEGMENT
+    const struct segmentation *const active_seg = &cm->seg[ACTIVE_SEG_IDX];
+    const struct segmentation *const quality_seg = &cm->seg[QUALITY_SEG_IDX];
+#else
     const struct segmentation *const seg = &cm->seg;
+#endif
     int dummy_rate;
     int64_t dummy_dist;
     RD_COST dummy_rdc;
@@ -4395,12 +4526,21 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     av1_zero(x->pred_mv);
     pc_root->index = 0;
 
+#if CONFIG_EXT_SEGMENT
+    if (active_seg->enabled) {
+      const uint8_t *const map =
+        active_seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
+      int segment_id = get_segment_id(cm, map, cm->sb_size, ACTIVE_SEG_IDX, mi_row, mi_col);
+      seg_skip = segfeature_active(active_seg, segment_id, ACTIVE_SEG_LVL_SKIP);
+    }
+#else
     if (seg->enabled) {
       const uint8_t *const map =
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
       int segment_id = get_segment_id(cm, map, cm->sb_size, mi_row, mi_col);
       seg_skip = segfeature_active(seg, segment_id, SEG_LVL_SKIP);
     }
+#endif
 
 #if CONFIG_DELTA_Q
     if (cpi->oxcf.aq_mode == DELTA_AQ) {
@@ -4422,8 +4562,13 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       xd->delta_qindex = current_qindex - cm->base_qindex;
       set_offsets(cpi, tile_info, x, mi_row, mi_col, BLOCK_64X64);
       xd->mi[0]->mbmi.current_q_index = current_qindex;
+#if CONFIG_EXT_SEGMENT
+      xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX] = 0;
+      av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]);
+#else
       xd->mi[0]->mbmi.segment_id = 0;
       av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id);
+#endif
     }
 #endif
 
@@ -4516,7 +4661,11 @@ static void init_encode_frame_mb_context(AV1_COMP *cpi) {
 static int check_dual_ref_flags(AV1_COMP *cpi) {
   const int ref_flags = cpi->ref_frame_flags;
 
+#if CONFIG_EXT_SEGMENT
+  if (segfeature_active(&cpi->common.seg[ACTIVE_SEG_IDX], 1, ACTIVE_SEG_LVL_REF_FRAME)) {
+#else
   if (segfeature_active(&cpi->common.seg, 1, SEG_LVL_REF_FRAME)) {
+#endif
     return 0;
   } else {
     return (!!(ref_flags & AOM_GOLD_FLAG) + !!(ref_flags & AOM_LAST_FLAG) +
@@ -4831,6 +4980,17 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   }
 #endif  // CONFIG_GLOBAL_MOTION
 
+#if CONFIG_EXT_SEGMENT
+  for (i = 0; i < MAX_QUALITY_SEGMENTS; ++i) {
+    const int qindex = cm->seg[QUALITY_SEG_IDX].enabled
+      ? av1_get_qindex(&cm->seg[QUALITY_SEG_IDX], i, cm->base_qindex)
+      : cm->base_qindex;
+    xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
+      cm->uv_dc_delta_q == 0 && cm->uv_ac_delta_q == 0;
+  }
+
+  if (!cm->seg[QUALITY_SEG_IDX].enabled && xd->lossless[0]) x->optimize = 0;  
+#else
   for (i = 0; i < MAX_SEGMENTS; ++i) {
     const int qindex = cm->seg.enabled
                            ? av1_get_qindex(&cm->seg, i, cm->base_qindex)
@@ -4840,7 +5000,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   }
 
   if (!cm->seg.enabled && xd->lossless[0]) x->optimize = 0;
-
+#endif
   cm->tx_mode = select_tx_mode(cpi, xd);
   av1_frame_init_quantizer(cpi);
 
@@ -5347,7 +5507,11 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
   MODE_INFO *mi = mi_8x8[0];
   MB_MODE_INFO *mbmi = &mi->mbmi;
   const int seg_skip =
+#if CONFIG_EXT_SEGMENT
+      segfeature_active(&cm->seg[ACTIVE_SEG_IDX], mbmi->segment_id[ACTIVE_SEG_IDX], ACTIVE_SEG_LVL_SKIP);
+#else
       segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
+#endif
   const int mis = cm->mi_stride;
   const int mi_width = mi_size_wide[bsize];
   const int mi_height = mi_size_high[bsize];
@@ -5534,7 +5698,11 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       TX_SIZE intra_tx_size;
       // The new intra coding scheme requires no change of transform size
       if (is_inter) {
+#if CONFIG_EXT_SEGMENT
+        if (xd->lossless[mbmi->segment_id[QUALITY_SEG_IDX]]) {
+#else
         if (xd->lossless[mbmi->segment_id]) {
+#endif
           intra_tx_size = TX_4X4;
         } else {
           intra_tx_size = tx_size_from_tx_mode(bsize, cm->tx_mode, 1);
@@ -5577,7 +5745,11 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     }
 #else
     if (tx_size < TX_32X32 && cm->base_qindex > 0 && !mbmi->skip &&
+#if CONFIG_EXT_SEGMENT
+        !segfeature_active(&cm->seg[ACTIVE_SEG_IDX], mbmi->segment_id[ACTIVE_SEG_IDX], ACTIVE_SEG_LVL_SKIP)) {
+#else
         !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
+#endif
       if (is_inter) {
         ++td->counts->inter_ext_tx[tx_size][mbmi->tx_type];
       } else {

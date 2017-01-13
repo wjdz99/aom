@@ -414,6 +414,11 @@ static const arg_def_t aq_mode = ARG_DEF(
     "Adaptive quantization mode (0: off (default), 1: variance 2: complexity, "
     "3: cyclic refresh)");
 #endif
+#if CONFIG_EXT_SEGMENT
+static const arg_def_t min_seg_unit_size = ARG_DEF(
+	NULL, "min_seg_unit_size", 1,
+	"minimun seg unit size (0: 8x8 (default), 1: 16x16 2: 32x32 3: 64x64) ");
+#endif
 static const arg_def_t frame_periodic_boost =
     ARG_DEF(NULL, "frame-boost", 1,
             "Enable frame periodic boost (0: off (default), 1: on)");
@@ -490,6 +495,9 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
 #endif
                                        &frame_parallel_decoding,
                                        &aq_mode,
+#if CONFIG_EXT_SEGMENT
+									   &min_seg_unit_size,
+#endif
                                        &frame_periodic_boost,
                                        &noise_sens,
                                        &tune_content,
@@ -2175,7 +2183,6 @@ int main(int argc, const char **argv_) {
                   fps >= 1.0 ? "fps" : "fpm");
           print_time("ETA", estimated_time_left);
         }
-
       } else {
         frame_avail = 0;
       }
