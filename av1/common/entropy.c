@@ -5744,7 +5744,14 @@ void av1_average_tile_intra_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
   AVERAGE_TILE_CDFS(intra_ext_tx_cdf)
   AVERAGE_TILE_CDFS(inter_ext_tx_cdf);
 
+#if CONFIG_EXT_SEGMENT
+  AVERAGE_TILE_CDFS(seg[ACTIVE_SEG_IDX].tree_cdf)
+  AVERAGE_TILE_CDFS(seg[ACTIVE_SEG_IDX].spatial_pred_cdf)
+  AVERAGE_TILE_CDFS(seg[QUALITY_SEG_IDX].tree_cdf)
+  AVERAGE_TILE_CDFS(seg[QUALITY_SEG_IDX].spatial_pred_cdf)
+#else
   AVERAGE_TILE_CDFS(seg.tree_cdf)
+#endif
   AVERAGE_TILE_CDFS(uv_mode_cdf)
 
   AVERAGE_TILE_CDFS(partition_cdf)
