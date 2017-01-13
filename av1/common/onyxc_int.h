@@ -106,6 +106,9 @@ typedef struct {
 typedef struct {
   int ref_count;
   MV_REF *mvs;
+#if CONFIG_EXT_SEGMENT
+  uint8_t *seg_map;
+#endif
   int mi_rows;
   int mi_cols;
   aom_codec_frame_buffer_t raw_frame_buffer;
@@ -275,11 +278,12 @@ typedef struct AV1Common {
   // Whether to use previous frame's motion vectors for prediction.
   int use_prev_frame_mvs;
 
+#if !CONFIG_EXT_SEGMENT
   // Persistent mb segment id map used in prediction.
   int seg_map_idx;
   int prev_seg_map_idx;
-
   uint8_t *seg_map_array[NUM_PING_PONG_BUFFERS];
+#endif
   uint8_t *last_frame_seg_map;
   uint8_t *current_frame_seg_map;
   int seg_map_alloc_size;
@@ -304,7 +308,13 @@ typedef struct AV1Common {
   int ref_frame_sign_bias[TOTAL_REFS_PER_FRAME]; /* Two state 0, 1 */
 
   struct loopfilter lf;
+
+#if CONFIG_EXT_SEGMENT
+  struct segmentation
+      seg[NUM_SEG_CATEGORIES];  // 0: active segments 1: quality segments
+#else
   struct segmentation seg;
+#endif
 
   int frame_parallel_decode;  // frame-based threading.
 

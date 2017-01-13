@@ -305,6 +305,9 @@ EXPERIMENT_LIST="
     coef_interleave
     entropy_stats
     masked_tx
+    ext_segment
+    ext_segment_exp
+	ext_segment_left
     dependent_horztiles
     daala_dist
     tripred
