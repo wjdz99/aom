@@ -1,0 +1,661 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83b1f1f3_5daa4b76",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "a",
+      "range": {
+        "startLine": 9,
+        "startChar": 17,
+        "endLine": 9,
+        "endChar": 20
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_dd9d7b58",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "\"...better approximate perceptual distortion in 8x8 pixel blocks.\"\n\nMeasuring activity is just a means to an end.",
+      "range": {
+        "startLine": 10,
+        "startChar": 21,
+        "endLine": 10,
+        "endChar": 68
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_208e5018",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "\"work best\"",
+      "range": {
+        "startLine": 12,
+        "startChar": 41,
+        "endLine": 12,
+        "endChar": 53
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_a0a18087",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "You can always remove the words \"note that\". The reader is noting it because you just wrote a sentence telling them.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 9
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_40e184af",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "regions",
+      "range": {
+        "startLine": 14,
+        "startChar": 49,
+        "endLine": 14,
+        "endChar": 58
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_20dc90f8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "\"It measures the variance of...\"",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 29
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_60d688d8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "No need for \"the\" here.",
+      "range": {
+        "startLine": 14,
+        "startChar": 30,
+        "endLine": 14,
+        "endChar": 33
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_a0fd0047",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "\"...uses these variances...\"\n\nOtherwise it\u0027s really unclear what \"it\" is.",
+      "range": {
+        "startLine": 15,
+        "startChar": 5,
+        "endLine": 15,
+        "endChar": 15
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_a04420b3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "So, the original Daala distortion function also does an 8x8 DCT and weights the distortion in the frequency domain according to OD_QM8_Q4_HVS. I see you\u0027ve removed that step here, but I think it\u0027s important to explain why. It\u0027s a pretty important deviation from what Daala is doing.",
+      "range": {
+        "startLine": 15,
+        "startChar": 29,
+        "endLine": 15,
+        "endChar": 57
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_a02b40e6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "\"...in blocks as small as 4x4...\"",
+      "range": {
+        "startLine": 17,
+        "startChar": 32,
+        "endLine": 17,
+        "endChar": 48
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_e04e18d1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "functions",
+      "range": {
+        "startLine": 18,
+        "startChar": 41,
+        "endLine": 18,
+        "endChar": 49
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_403d042f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "You should also have plural agreement here, but I think you can just delete this clause.",
+      "range": {
+        "startLine": 19,
+        "startChar": 39,
+        "endLine": 19,
+        "endChar": 53
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_80be3c71",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "\"Daala\u0027s\"",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 5
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_00ca2cfc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "\"where\" doesn\u0027t really make sense. Just end the previous sentence and start a new one: \"The Daala distortion function...\"",
+      "range": {
+        "startLine": 21,
+        "startChar": 31,
+        "endLine": 21,
+        "endChar": 39
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_608768b1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "Sounds a little odd. Maybe \"including after\" instead?",
+      "range": {
+        "startLine": 22,
+        "startChar": 50,
+        "endLine": 22,
+        "endChar": 57
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_609e88f9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "\"...and chroma continues to use MSE.\"",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_4b8b6546",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "I think you mean superblock (64x64)?\n\nI think it\u0027s also a good idea to say why here. \"This is needed when using the 8x8 Daala distortion metric during RDO, because it evaluates distortion in a different order than the underlying 4x4 blocks are coded.\"",
+      "range": {
+        "startLine": 206,
+        "startChar": 51,
+        "endLine": 206,
+        "endChar": 61
+      },
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_2b5471bf",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4654,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "Instead of just overriding it like this, I think it would be clearer with an #if / #else / #endif.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_06ca44fc",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "This comment is no longer accurate.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_c66dac1b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "Do we need to do something about high bit depth here or in od_compte_dist_8x8()? If so, we should leave a TODO.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_2be2b1e6",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "This is missing the changes in commit 4bad008fb091 in Daala. They are simple, so, I think we should include them to avoid having to re-sync later.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_6bdca927",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "Can you explain why? Why is much more important than what.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_66714049",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "This won\u0027t work with the CB4X4 and RECT_TX experiments. I\u0027d suggest copying the code on line 1200 to get both a width and a height. That means od_compute_dist() will need to be able to work on rectangular blocks as well, but that\u0027s a simple change.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_061ec4da",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1221,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "This won\u0027t work with rectangular transforms. Suggest checking bsw and bsh.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_463d1c2f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1393,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "Again, doesn\u0027t work with rectangular transforms.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_8637344d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1397,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "Doesn\u0027t work with CB4X4 or RECT_TX.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_46b43c93",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1426,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "Doesn\u0027t work with rectangular transforms.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_46643cc9",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1593,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "This is a very generic function, but you\u0027ve over-specialized it here. I would make this take a second foreach_transformed_block_visitor, like say, \"mi_visit\", instead of hard-coding the call to block_8x8_rd_txfm_daala_dist(). Then you could name it av1_foreach_transformed_block_and_mi_in_plane() or something, and move it to common/blockd.c.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_c66f6ca1",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1639,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "Extraneous whitespace change.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_067a4462",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1656,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "This will work with CB4X4, but not RECT_TX.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_4600bcb8",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2823,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "What is the \u003c\u003c 4 for?",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_863c949b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 5484,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "Extraneous whitespace change.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_e62ab048",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 5490,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-01-13T21:32:53Z",
+      "side": 1,
+      "message": "Extraneous whitespace change.",
+      "revId": "a8e22a1127bc8b580f40861fe48123d55ca656d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
