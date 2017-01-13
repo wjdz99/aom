@@ -22,6 +22,9 @@ extern "C" {
 
 static INLINE int get_segment_id(const AV1_COMMON *const cm,
                                  const uint8_t *segment_ids, BLOCK_SIZE bsize,
+#if CONFIG_EXT_SEGMENT
+                                 SEG_CATEGORIES seg_cat_idx,
+#endif
                                  int mi_row, int mi_col) {
   const int mi_offset = mi_row * cm->mi_cols + mi_col;
   const int bw = mi_size_wide[bsize];
@@ -32,13 +35,29 @@ static INLINE int get_segment_id(const AV1_COMMON *const cm,
 
   for (y = 0; y < ymis; ++y)
     for (x = 0; x < xmis; ++x)
+#if CONFIG_EXT_SEGMENT
       segment_id =
-          AOMMIN(segment_id, segment_ids[mi_offset + y * cm->mi_cols + x]);
-
+      AOMMIN(segment_id, 
+             av1_extract_segment_id_from_map(segment_ids[mi_offset + y * cm->mi_cols + x], seg_cat_idx));
+  assert(segment_id >= 0 && segment_id < cm->seg[seg_cat_idx].num_seg);
+#else
+      segment_id =
+      AOMMIN(segment_id, segment_ids[mi_offset + y * cm->mi_cols + x]);
   assert(segment_id >= 0 && segment_id < MAX_SEGMENTS);
+#endif
   return segment_id;
 }
+#if CONFIG_EXT_SEGMENT
+static INLINE int av1_get_pred_context_seg_id(const MACROBLOCKD *xd, int seg_cat_idx) {
+    const MODE_INFO *const above_mi = xd->above_mi;
+    const MODE_INFO *const left_mi = xd->left_mi;
+    const int above_sip =
+      (above_mi != NULL) ? above_mi->mbmi.seg_id_predicted[seg_cat_idx] : 0;
+    const int left_sip = (left_mi != NULL) ? left_mi->mbmi.seg_id_predicted[seg_cat_idx] : 0;
 
+    return above_sip + left_sip;
+  }
+#else
 static INLINE int av1_get_pred_context_seg_id(const MACROBLOCKD *xd) {
   const MODE_INFO *const above_mi = xd->above_mi;
   const MODE_INFO *const left_mi = xd->left_mi;
@@ -48,11 +67,24 @@ static INLINE int av1_get_pred_context_seg_id(const MACROBLOCKD *xd) {
 
   return above_sip + left_sip;
 }
-
+#endif
+  
+#if CONFIG_EXT_SEGMENT
+static INLINE int av1_get_spatial_pred_context(const MACROBLOCKD *xd, SEG_CATEGORIES seg_cat_idx) {
+	const MODE_INFO *const above_mi = xd->above_mi;
+	const MODE_INFO *const left_mi = xd->left_mi;
+	return (above_mi != NULL) && (left_mi != NULL) && (above_mi->mbmi.segment_id[seg_cat_idx] == left_mi->mbmi.segment_id[seg_cat_idx]);
+}
+static INLINE aom_prob av1_get_pred_prob_seg_id(
+  const struct segmentation_probs *segp, const MACROBLOCKD *xd, SEG_CATEGORIES seg_cat_idx) {
+  return segp->pred_probs[av1_get_pred_context_seg_id(xd, seg_cat_idx)];
+}
+#else
 static INLINE aom_prob av1_get_pred_prob_seg_id(
     const struct segmentation_probs *segp, const MACROBLOCKD *xd) {
   return segp->pred_probs[av1_get_pred_context_seg_id(xd)];
 }
+#endif
 
 static INLINE int av1_get_skip_context(const MACROBLOCKD *xd) {
   const MODE_INFO *const above_mi = xd->above_mi;

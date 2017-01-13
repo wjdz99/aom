@@ -639,11 +639,19 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
       set_plane_n4(xd, mi_size_wide[bsize], mi_size_high[bsize]);
 
       // Do intra 16x16 prediction.
+#if CONFIG_EXT_SEGMENT
+      xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX] = 0;
+#else
       xd->mi[0]->mbmi.segment_id = 0;
+#endif
 #if CONFIG_SUPERTX
       xd->mi[0]->mbmi.segment_id_supertx = 0;
 #endif  // CONFIG_SUPERTX
+#if CONFIG_EXT_SEGMENT
+      xd->lossless[xd->mi[0]->mbmi.segment_id[QUALITY_SEG_IDX]] = (qindex == 0);
+#else
       xd->lossless[xd->mi[0]->mbmi.segment_id] = (qindex == 0);
+#endif
       xd->mi[0]->mbmi.mode = DC_PRED;
       xd->mi[0]->mbmi.tx_size =
           use_dc_pred ? (bsize >= BLOCK_16X16 ? TX_16X16 : TX_8X8) : TX_4X4;

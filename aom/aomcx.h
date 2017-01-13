@@ -471,6 +471,30 @@ enum aome_enc_control_id {
    * Experiment: TILE_GROUPS
    */
   AV1E_SET_MTU,
+
+#if CONFIG_EXT_SEGMENT
+  /*!\brief Codec control function to set an min active seg unit size for a
+   * frame.
+       *
+       * AOM will set the min segment unit size (0: 8x8, 1: 16x16, 2: 32x32 3:
+   * 64x64)
+       * Experiment: EXT_SEGMENTS
+       */
+  AV1E_SET_MIN_ACTIVE_SEG_UNIT_SIZE,
+  /*!\brief Codec control function to disable quality seg id skip.
+   *
+   * AOM will enable/disable quality seg id skip (0: enable, 1: disable)
+   * Experiment: EXT_SEGMENTS
+   */
+  AV1E_SET_SKIP_QUALITY_SEG_DISABLED,
+  /*!\brief Codec control function to set skipped quality seg id replacement.
+   *
+   * AOM will set skipped quality seg id (0: temporal replacement, 1: spatial
+   * replacement)
+   * Experiment: EXT_SEGMENTS
+   */
+  AV1E_SET_QUALITY_SEG_REPLACEMENT,
+#endif
 };
 
 /*!\brief aom 1-D scaling mode
@@ -624,6 +648,15 @@ AOM_CTRL_USE_TYPE(AV1E_SET_FRAME_PARALLEL_DECODING, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_AQ_MODE, unsigned int)
 #define AOM_CTRL_AV1E_SET_AQ_MODE
+
+#if CONFIG_EXT_SEGMENT
+AOM_CTRL_USE_TYPE(AV1E_SET_MIN_ACTIVE_SEG_UNIT_SIZE, unsigned int)
+#define AOM_CTRL_AV1E_SET_MIN_ACTIVE_SEG_UNIT_SIZE
+AOM_CTRL_USE_TYPE(AV1E_SET_SKIP_QUALITY_SEG_DISABLED, unsigned int)
+#define AOM_CTRL_AV1E_SET_SKIP_QUALITY_SEG_DISABLED
+AOM_CTRL_USE_TYPE(AV1E_SET_QUALITY_SEG_REPLACEMENT, unsigned int)
+#define AOM_CTRL_AV1E_SET_QUALITY_SEG_REPLACEMENT
+#endif
 
 AOM_CTRL_USE_TYPE(AV1E_SET_FRAME_PERIODIC_BOOST, unsigned int)
 #define AOM_CTRL_AV1E_SET_FRAME_PERIODIC_BOOST
