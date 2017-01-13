@@ -784,7 +784,6 @@ static int main_loop(int argc, const char **argv_) {
         frame_in++;
 
         aom_usec_timer_start(&timer);
-
         if (aom_codec_decode(&decoder, buf, (unsigned int)bytes_in_buffer, NULL,
                              0)) {
           const char *detail = aom_codec_error_detail(&decoder);
