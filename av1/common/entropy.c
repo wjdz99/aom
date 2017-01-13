@@ -4398,18 +4398,55 @@ void av1_model_to_full_probs(const aom_prob *model, aom_prob *full) {
 
 #if CONFIG_EC_MULTISYMBOL
 static void build_token_cdfs(const aom_prob *pdf_model,
+                             const aom_prob *cbp_model,
                              aom_cdf_prob cdf_tail[ENTROPY_TOKENS],
                              aom_cdf_prob cdf_head[ENTROPY_TOKENS]) {
-  int i, p, scale, sum = 0;
+  int i, p, phead[6], scaleNZ, scaleEOB_1, scaleEOB_2p, scaleNEOB_1,
+      scaleNEOB_2p, sum = 0;
+  int scale_cbp;
 
   assert(pdf_model[2] != 0);
 
-  // Do the head (ZERO, ONE, TWO or more)
-  cdf_head[ZERO_TOKEN] = sum = (pdf_model[1] << 7);
-  scale = (1 << 15) - cdf_head[ZERO_TOKEN];
-  p = AOMMAX(1, (scale * 128 * pdf_model[2] + (1 << 14)) >> 15);
-  cdf_head[ONE_TOKEN] = cdf_head[ZERO_TOKEN] + p;
-  cdf_head[TWO_TOKEN] = (1 << 15);
+  /* Values are 0=BLOCK_ZERO 1=ZERO_TOKEN, 2=ONE_TOKEN_EOB
+     3=ONE_TOKEN_NEOB, 4=TWO_TOKEN_PLUS_EOB, 5=TWO_TOKEN_PLUS_NEOB
+     */
+  cdf_head[0] = phead[0] = cbp_model == NULL ? 0 : ((*cbp_model) << 7) + 64;
+  scale_cbp = cbp_model == NULL ? 256 : (256 - *cbp_model);
+  cdf_head[1 + ZERO_TOKEN] = phead[1] = (pdf_model[1] << 7) + 64;
+  scaleNZ = (1 << 15) - cdf_head[1 + ZERO_TOKEN];
+  scaleEOB_1 = (pdf_model[0] << 7) + 64;
+  // Lower probability of EOB for larger values
+  scaleEOB_2p = (pdf_model[0] << 6) + 64;
+  scaleNEOB_1 = (1 << 15) - scaleEOB_1;
+  scaleNEOB_2p = (1 << 15) - scaleEOB_2p;
+
+  p = (pdf_model[2] << 7) + 64;  // Scaled ONE_CONTEXT_NODE prob
+  p = AOMMAX(1, AOMMIN(32767, (scaleNZ * p + (1 << 14)) >> 15));
+
+  phead[1 + ONE_TOKEN_EOB] =
+      AOMMAX(1, AOMMIN(32767, (p * scaleEOB_1 + (1 << 14)) >> 15));
+  phead[1 + ONE_TOKEN_NEOB] =
+      AOMMAX(1, AOMMIN(32767, (p * scaleNEOB_1 + (1 << 14)) >> 15));
+
+  p = AOMMAX(1, AOMMIN(32767, (1 << 15) - p - phead[1 + ZERO_TOKEN]));
+
+  phead[1 + TWO_TOKEN_PLUS_EOB] =
+      AOMMAX(1, AOMMIN(32767, (p * scaleEOB_2p + (1 << 14)) >> 15));
+  phead[1 + TWO_TOKEN_PLUS_NEOB] =
+      AOMMAX(1, AOMMIN(32767, (p * scaleNEOB_2p + (1 << 14)) >> 15));
+
+  // Now use CBP to scale the values
+  for (i = 1; i < 5; ++i) {
+    phead[i] = (scale_cbp * phead[i] + 128) >> 8;
+  }
+
+  for (i = 1; i < 5; ++i) {
+    cdf_head[i] = cdf_head[i - 1] + phead[i];
+  }
+  cdf_head[5] = (1 << 15);
+  for (i = 5; i >= 1; --i) {
+    cdf_head[i - 1] = AOMMIN(cdf_head[i - 1], cdf_head[i] - 1);
+  }
 
   // Do the tail
   sum = 0;
@@ -4428,6 +4465,7 @@ void av1_coef_pareto_cdfs(FRAME_CONTEXT *fc) {
         for (k = 0; k < COEF_BANDS; ++k)
           for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l)
             build_token_cdfs(fc->coef_probs[t][i][j][k][l],
+                             k == 0 ? &fc->blockzero_probs[t][i][j][l] : NULL,
                              fc->coef_tail_cdfs[t][i][j][k][l],
                              fc->coef_head_cdfs[t][i][j][k][l]);
 }
