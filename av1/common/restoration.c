@@ -55,6 +55,7 @@ int av1_alloc_restoration_struct(RestorationInfo *rst_info, int width,
   rst_info->wiener_info = (WienerInfo *)aom_realloc(
       rst_info->wiener_info, sizeof(*rst_info->wiener_info) * ntiles);
   assert(rst_info->wiener_info != NULL);
+  memset(rst_info->wiener_info, 0, sizeof(*rst_info->wiener_info) * ntiles);
   rst_info->sgrproj_info = (SgrprojInfo *)aom_realloc(
       rst_info->sgrproj_info, sizeof(*rst_info->sgrproj_info) * ntiles);
   assert(rst_info->sgrproj_info != NULL);
@@ -143,25 +144,11 @@ static void loop_wiener_filter_tile(uint8_t *data, int tile_idx, int width,
   const int tile_height = rst->tile_height;
   int i, j;
   int h_start, h_end, v_start, v_end;
-  DECLARE_ALIGNED(16, InterpKernel, hkernel);
-  DECLARE_ALIGNED(16, InterpKernel, vkernel);
-
   if (rst->rsi->restoration_type[tile_idx] == RESTORE_NONE) {
     loop_copy_tile(data, tile_idx, 0, 0, width, height, stride, rst, dst,
                    dst_stride);
     return;
   }
-  // TODO(david.barker): Store hfilter/vfilter as an InterpKernel
-  // instead of the current format. Then this can be removed.
-  assert(WIENER_WIN == SUBPEL_TAPS - 1);
-  for (i = 0; i < WIENER_WIN; ++i) {
-    hkernel[i] = rst->rsi->wiener_info[tile_idx].hfilter[i];
-    vkernel[i] = rst->rsi->wiener_info[tile_idx].vfilter[i];
-  }
-  hkernel[WIENER_WIN] = 0;
-  vkernel[WIENER_WIN] = 0;
-  hkernel[3] -= 128;
-  vkernel[3] -= 128;
   av1_get_rest_tile_limits(tile_idx, 0, 0, rst->nhtiles, rst->nvtiles,
                            tile_width, tile_height, width, height, 0, 0,
                            &h_start, &h_end, &v_start, &v_end);
@@ -173,8 +160,9 @@ static void loop_wiener_filter_tile(uint8_t *data, int tile_idx, int width,
       int h = AOMMIN(MAX_SB_SIZE, (v_end - i + 15) & ~15);
       const uint8_t *data_p = data + i * stride + j;
       uint8_t *dst_p = dst + i * dst_stride + j;
-      aom_convolve8_add_src(data_p, stride, dst_p, dst_stride, hkernel, 16,
-                            vkernel, 16, w, h);
+      aom_convolve8_add_src(data_p, stride, dst_p, dst_stride,
+                            rst->rsi->wiener_info[tile_idx].hfilter, 16,
+                            rst->rsi->wiener_info[tile_idx].vfilter, 16, w, h);
     }
 }
 
@@ -552,36 +540,34 @@ void av1_selfguided_restoration(int32_t *dgd, int width, int height, int stride,
   int i, j;
   eps <<= 2 * (bit_depth - 8);
 
-  // Don't filter tiles with dimensions < 5 on any axis
-  if ((width < 5) || (height < 5)) return;
+  // Don't filter tiles which are too small along any axis
+  if ((width < (2 * r + 1)) || (height < (2 * r + 1))) return;
 
   boxsum(dgd, width, height, stride, r, 0, B, width);
   boxsum(dgd, width, height, stride, r, 1, A, width);
   boxnum(width, height, r, num, width);
-  // The following loop is optimized assuming r <= 2. If we allow
-  // r > 2, then the loop will need modifying.
   assert(r <= 3);
   for (i = 0; i < height; ++i) {
     for (j = 0; j < width; ++j) {
       const int k = i * width + j;
       const int n = num[k];
-      // Assuming that we only allow up to 12-bit depth and r <= 2,
-      // we calculate p = n^2 * Var(n-pixel block of original image)
-      // (where n = 2 * r + 1 <= 5).
-      //
-      // There is an inequality which gives a bound on the variance:
+      // In the following, we compute p = n^2 * Var(n-pixel block of frame)
+      // and q = p + (small). We can find upper bounds for p and q using
       // https://en.wikipedia.org/wiki/Popoviciu's_inequality_on_variances
-      // In this case, since each pixel is in the range [0, 2^12),
-      // the variance is at most 1/4 * (2^12)^2 = 2^22.
-      // Then p <= 25^2 * 2^22 < 2^32, and also q <= p + 25^2 * 68 < 2^32.
+      // and the fact that n = (2 * r + 1)^2 <= 49 for r <= 3.
       //
-      // The point of all this is to guarantee that q < 2^32, so that
-      // platforms with a 64-bit by 32-bit divide unit (eg, x86)
-      // can do the division by q more efficiently.
-      const uint32_t p = (uint32_t)((uint64_t)A[k] * n - (uint64_t)B[k] * B[k]);
-      const uint32_t q = (uint32_t)(p + n * n * eps);
-      assert((uint64_t)A[k] * n - (uint64_t)B[k] * B[k] < (25 * 25U << 22));
-      A[k] = (int32_t)(((uint64_t)p << SGRPROJ_SGR_BITS) + (q >> 1)) / q;
+      // If highbitdepth is enabled, this gives a maximum of
+      // p < 49^2 * 1/4 * (2^12)^2 < 2^34,  q < 2^34
+      // If highbitdepth is disabled, we instead get a maximum of
+      // p < 49^2 * 1/4 * (2^8)^2 < 2^26,  q < 2^26
+      const uint64_t p = (uint64_t)A[k] * n - (uint64_t)B[k] * B[k];
+      const uint64_t q = p + n * n * eps;
+#if CONFIG_AOM_HIGHBITDEPTH
+      assert(p < (49 * 49ULL << 24) / 4);
+#else
+      assert(p < (49 * 49 << 16) / 4);
+#endif
+      A[k] = (int32_t)(((p << SGRPROJ_SGR_BITS) + (q >> 1)) / q);
       B[k] = ((SGRPROJ_SGR - A[k]) * B[k] + (n >> 1)) / n;
     }
   }
@@ -1028,25 +1014,12 @@ static void loop_wiener_filter_tile_highbd(uint16_t *data, int tile_idx,
   const int tile_height = rst->tile_height;
   int h_start, h_end, v_start, v_end;
   int i, j;
-  DECLARE_ALIGNED(16, InterpKernel, hkernel);
-  DECLARE_ALIGNED(16, InterpKernel, vkernel);
 
   if (rst->rsi->restoration_type[tile_idx] == RESTORE_NONE) {
     loop_copy_tile_highbd(data, tile_idx, 0, 0, width, height, stride, rst, dst,
                           dst_stride);
     return;
   }
-  // TODO(david.barker): Store hfilter/vfilter as an InterpKernel
-  // instead of the current format. Then this can be removed.
-  assert(WIENER_WIN == SUBPEL_TAPS - 1);
-  for (i = 0; i < WIENER_WIN; ++i) {
-    hkernel[i] = rst->rsi->wiener_info[tile_idx].hfilter[i];
-    vkernel[i] = rst->rsi->wiener_info[tile_idx].vfilter[i];
-  }
-  hkernel[WIENER_WIN] = 0;
-  vkernel[WIENER_WIN] = 0;
-  hkernel[3] -= 128;
-  vkernel[3] -= 128;
   av1_get_rest_tile_limits(tile_idx, 0, 0, rst->nhtiles, rst->nvtiles,
                            tile_width, tile_height, width, height, 0, 0,
                            &h_start, &h_end, &v_start, &v_end);
@@ -1058,9 +1031,10 @@ static void loop_wiener_filter_tile_highbd(uint16_t *data, int tile_idx,
       int h = AOMMIN(MAX_SB_SIZE, (v_end - i + 15) & ~15);
       const uint16_t *data_p = data + i * stride + j;
       uint16_t *dst_p = dst + i * dst_stride + j;
-      aom_highbd_convolve8_add_src(CONVERT_TO_BYTEPTR(data_p), stride,
-                                   CONVERT_TO_BYTEPTR(dst_p), dst_stride,
-                                   hkernel, 16, vkernel, 16, w, h, bit_depth);
+      aom_highbd_convolve8_add_src(
+          CONVERT_TO_BYTEPTR(data_p), stride, CONVERT_TO_BYTEPTR(dst_p),
+          dst_stride, rst->rsi->wiener_info[tile_idx].hfilter, 16,
+          rst->rsi->wiener_info[tile_idx].vfilter, 16, w, h, bit_depth);
     }
 }
 
