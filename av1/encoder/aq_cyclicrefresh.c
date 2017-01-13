@@ -227,19 +227,31 @@ void av1_cyclic_refresh_update_segment(const AV1_COMP *cpi,
   int x = 0;
   int y = 0;
 
-  // If this block is labeled for refresh, check if we should reset the
-  // segment_id.
+// If this block is labeled for refresh, check if we should reset the
+// segment_id.
+#if CONFIG_EXT_SEGMENT
+  if (cyclic_refresh_segment_id_boosted(mbmi->segment_id[QUALITY_SEG_IDX])) {
+    mbmi->segment_id[QUALITY_SEG_IDX] = refresh_this_block;
+    // Reset segment_id if will be skipped.
+    if (skip) mbmi->segment_id[QUALITY_SEG_IDX] = CR_SEGMENT_ID_BASE;
+  }
+#else
   if (cyclic_refresh_segment_id_boosted(mbmi->segment_id)) {
     mbmi->segment_id = refresh_this_block;
     // Reset segment_id if will be skipped.
     if (skip) mbmi->segment_id = CR_SEGMENT_ID_BASE;
   }
+#endif
 
-  // Update the cyclic refresh map, to be used for setting segmentation map
-  // for the next frame. If the block  will be refreshed this frame, mark it
-  // as clean. The magnitude of the -ve influences how long before we consider
-  // it for refresh again.
+// Update the cyclic refresh map, to be used for setting segmentation map
+// for the next frame. If the block  will be refreshed this frame, mark it
+// as clean. The magnitude of the -ve influences how long before we consider
+// it for refresh again.
+#if CONFIG_EXT_SEGMENT
+  if (cyclic_refresh_segment_id_boosted(mbmi->segment_id[QUALITY_SEG_IDX])) {
+#else
   if (cyclic_refresh_segment_id_boosted(mbmi->segment_id)) {
+#endif
     new_map_value = -cr->time_for_refresh;
   } else if (refresh_this_block) {
     // Else if it is accepted as candidate for refresh, and has not already
@@ -257,6 +269,29 @@ void av1_cyclic_refresh_update_segment(const AV1_COMP *cpi,
     for (x = 0; x < xmis; x++) {
       int map_offset = block_index + y * cm->mi_cols + x;
       cr->map[map_offset] = new_map_value;
+#if CONFIG_EXT_SEGMENT
+      av1_store_segment_id_into_map(mbmi->segment_id[QUALITY_SEG_IDX],
+                                    &cpi->segmentation_map[map_offset],
+                                    QUALITY_SEG_IDX);
+      // Inter skip blocks were clearly not coded at the current qindex, so
+      // don't update the map for them. For cases where motion is non-zero or
+      // the reference frame isn't the previous frame, the previous value in
+      // the map for this spatial location is not entirely correct.
+      if ((!is_inter_block(mbmi) || !skip) &&
+          mbmi->segment_id[QUALITY_SEG_IDX] <= CR_SEGMENT_ID_BOOST2) {
+        cr->last_coded_q_map[map_offset] =
+            clamp(cm->base_qindex +
+                      cr->qindex_delta[mbmi->segment_id[QUALITY_SEG_IDX]],
+                  0, MAXQ);
+      } else if (is_inter_block(mbmi) && skip &&
+          mbmi->segment_id[QUALITY_SEG_IDX] <= CR_SEGMENT_ID_BOOST2) {
+        cr->last_coded_q_map[map_offset] = AOMMIN(
+            clamp(cm->base_qindex +
+                      cr->qindex_delta[mbmi->segment_id[QUALITY_SEG_IDX]],
+                  0, MAXQ),
+            cr->last_coded_q_map[map_offset]);
+      }
+#else
       cpi->segmentation_map[map_offset] = mbmi->segment_id;
       // Inter skip blocks were clearly not coded at the current qindex, so
       // don't update the map for them. For cases where motion is non-zero or
@@ -273,6 +308,7 @@ void av1_cyclic_refresh_update_segment(const AV1_COMP *cpi,
                          0, MAXQ),
                    cr->last_coded_q_map[map_offset]);
       }
+#endif
     }
 }
 
@@ -391,7 +427,12 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
   unsigned char *const seg_map = cpi->segmentation_map;
   int i, block_count, bl_index, sb_rows, sb_cols, sbs_in_frame;
   int xmis, ymis, x, y;
+#if CONFIG_EXT_SEGMENT
+  memset(seg_map, CR_SEGMENT_ID_BASE << MAX_LOG2_ACTIVE_SEGMENTS,
+         cm->mi_rows * cm->mi_cols);
+#else
   memset(seg_map, CR_SEGMENT_ID_BASE, cm->mi_rows * cm->mi_cols);
+#endif
   sb_cols = (cm->mi_cols + cm->mib_size - 1) / cm->mib_size;
   sb_rows = (cm->mi_rows + cm->mib_size - 1) / cm->mib_size;
   sbs_in_frame = sb_cols * sb_rows;
@@ -412,7 +453,12 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
     int mi_col = sb_col_index * cm->mib_size;
     int qindex_thresh =
         cpi->oxcf.content == AOM_CONTENT_SCREEN
+#if CONFIG_EXT_SEGMENT
+            ? av1_get_qindex(&cm->seg[QUALITY_SEG_IDX], CR_SEGMENT_ID_BOOST2,
+                             cm->base_qindex)
+#else
             ? av1_get_qindex(&cm->seg, CR_SEGMENT_ID_BOOST2, cm->base_qindex)
+#endif
             : 0;
     assert(mi_row >= 0 && mi_row < cm->mi_rows);
     assert(mi_col >= 0 && mi_col < cm->mi_cols);
@@ -438,7 +484,13 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
     if (sum_map >= xmis * ymis / 2) {
       for (y = 0; y < ymis; y++)
         for (x = 0; x < xmis; x++) {
+#if CONFIG_EXT_SEGMENT
+          av1_store_segment_id_into_map(
+              CR_SEGMENT_ID_BOOST1, &seg_map[bl_index + y * cm->mi_cols + x],
+              QUALITY_SEG_IDX);
+#else
           seg_map[bl_index + y * cm->mi_cols + x] = CR_SEGMENT_ID_BOOST1;
+#endif
         }
       cr->target_num_seg_blocks += xmis * ymis;
     }
@@ -479,7 +531,11 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const RATE_CONTROL *const rc = &cpi->rc;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
+#if CONFIG_EXT_SEGMENT
+  struct segmentation *const seg = &cm->seg[QUALITY_SEG_IDX];
+#else
   struct segmentation *const seg = &cm->seg;
+#endif
   const int apply_cyclic_refresh = apply_cyclic_refresh_bitrate(cm, rc);
   if (cm->current_video_frame == 0) cr->low_content_avg = 0.0;
   // Don't apply refresh on key frame or enhancement layer frames.
@@ -487,7 +543,7 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
     // Set segmentation map to 0 and disable.
     unsigned char *const seg_map = cpi->segmentation_map;
     memset(seg_map, 0, cm->mi_rows * cm->mi_cols);
-    av1_disable_segmentation(&cm->seg);
+    av1_disable_segmentation(seg);
     if (cm->frame_type == KEY_FRAME) {
       memset(cr->last_coded_q_map, MAXQ,
              cm->mi_rows * cm->mi_cols * sizeof(*cr->last_coded_q_map));
@@ -509,25 +565,33 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
 
     // Set up segmentation.
     // Clear down the segment map.
-    av1_enable_segmentation(&cm->seg);
+    av1_enable_segmentation(seg);
     av1_clearall_segfeatures(seg);
     // Select delta coding method.
     seg->abs_delta = SEGMENT_DELTADATA;
 
-    // Note: setting temporal_update has no effect, as the seg-map coding method
-    // (temporal or spatial) is determined in
-    // av1_choose_segmap_coding_method(),
-    // based on the coding cost of each method. For error_resilient mode on the
-    // last_frame_seg_map is set to 0, so if temporal coding is used, it is
-    // relative to 0 previous map.
-    // seg->temporal_update = 0;
-
+// Note: setting temporal_update has no effect, as the seg-map coding method
+// (temporal or spatial) is determined in
+// av1_choose_segmap_coding_method(),
+// based on the coding cost of each method. For error_resilient mode on the
+// last_frame_seg_map is set to 0, so if temporal coding is used, it is
+// relative to 0 previous map.
+// seg->temporal_update = 0;
+#if CONFIG_EXT_SEGMENT
+    // Segment BASE "Q" feature is disabled so it defaults to the baseline Q.
+    av1_disable_segfeature(seg, CR_SEGMENT_ID_BASE, QUALITY_SEG_LVL_ALT_Q);
+    // Use segment BOOST1 for in-frame Q adjustment.
+    av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST1, QUALITY_SEG_LVL_ALT_Q);
+    // Use segment BOOST2 for more aggressive in-frame Q adjustment.
+    av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST2, QUALITY_SEG_LVL_ALT_Q);
+#else
     // Segment BASE "Q" feature is disabled so it defaults to the baseline Q.
     av1_disable_segfeature(seg, CR_SEGMENT_ID_BASE, SEG_LVL_ALT_Q);
     // Use segment BOOST1 for in-frame Q adjustment.
     av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST1, SEG_LVL_ALT_Q);
     // Use segment BOOST2 for more aggressive in-frame Q adjustment.
     av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_Q);
+#endif
 
     // Set the q delta for segment BOOST1.
     qindex_delta = compute_deltaq(cpi, cm->base_qindex, cr->rate_ratio_qdelta);
@@ -538,7 +602,12 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
 
     cr->rdmult = av1_compute_rd_mult(cpi, qindex2);
 
+#if CONFIG_EXT_SEGMENT
+    av1_set_segdata(seg, CR_SEGMENT_ID_BOOST1, QUALITY_SEG_LVL_ALT_Q,
+                    qindex_delta, QUALITY_SEG_IDX);
+#else
     av1_set_segdata(seg, CR_SEGMENT_ID_BOOST1, SEG_LVL_ALT_Q, qindex_delta);
+#endif
 
     // Set a more aggressive (higher) q delta for segment BOOST2.
     qindex_delta = compute_deltaq(
@@ -546,7 +615,12 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
         AOMMIN(CR_MAX_RATE_TARGET_RATIO,
                0.1 * cr->rate_boost_fac * cr->rate_ratio_qdelta));
     cr->qindex_delta[2] = qindex_delta;
+#if CONFIG_EXT_SEGMENT
+    av1_set_segdata(seg, CR_SEGMENT_ID_BOOST2, QUALITY_SEG_LVL_ALT_Q,
+                    qindex_delta, QUALITY_SEG_IDX);
+#else
     av1_set_segdata(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_Q, qindex_delta);
+#endif
 
     // Update the segmentation and refresh map.
     cyclic_refresh_update_map(cpi);

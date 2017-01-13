@@ -295,6 +295,8 @@ EXPERIMENT_LIST="
     coef_interleave
     entropy_stats
     masked_tx
+	ext_segment
+    ext_segment_exp
 "
 CONFIG_LIST="
     dependency_tracking
