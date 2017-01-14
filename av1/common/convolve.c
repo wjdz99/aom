@@ -133,8 +133,14 @@ void av1_convolve_horiz_facade(const uint8_t *src, int src_stride, uint8_t *dst,
       aom_convolve8_avg_horiz(src, src_stride, dst, dst_stride, filter_x,
                               x_step_q4, NULL, -1, w, h);
   } else {
-    av1_convolve_horiz(src, src_stride, dst, dst_stride, w, h, filter_params,
-                       subpel_x_q4, x_step_q4, conv_params);
+    if (conv_params->round == 1) {
+      av1_convolve_horiz(src, src_stride, dst, dst_stride, w, h, filter_params,
+                         subpel_x_q4, x_step_q4, conv_params);
+    } else {
+      // TODO(angiebird) need SIMD implementation here
+      av1_convolve_horiz_c(src, src_stride, dst, dst_stride, w, h,
+                           filter_params, subpel_x_q4, x_step_q4, conv_params);
+    }
   }
 }
 
@@ -154,8 +160,14 @@ void av1_convolve_vert_facade(const uint8_t *src, int src_stride, uint8_t *dst,
                              filter_y, y_step_q4, w, h);
     }
   } else {
-    av1_convolve_vert(src, src_stride, dst, dst_stride, w, h, filter_params,
-                      subpel_y_q4, y_step_q4, conv_params);
+    if (conv_params->round == 1) {
+      av1_convolve_vert(src, src_stride, dst, dst_stride, w, h, filter_params,
+                        subpel_y_q4, y_step_q4, conv_params);
+    } else {
+      // TODO(angiebird) need SIMD implementation here
+      av1_convolve_vert_c(src, src_stride, dst, dst_stride, w, h, filter_params,
+                          subpel_y_q4, y_step_q4, conv_params);
+    }
   }
 }
 
