@@ -17,10 +17,22 @@
 extern "C" {
 #endif
 
+typedef enum CONVOLVE_OPT {
+  CONVOLVE_OPT_ROUND,
+  CONVOLVE_OPT_NO_ROUND,
+} CONVOLVE_OPT;
+
 typedef struct ConvolveParams {
   int ref;
-  int round;
+  CONVOLVE_OPT round;
 } ConvolveParams;
+
+static INLINE ConvolveParams get_conv_params(int ref) {
+  ConvolveParams conv_params;
+  conv_params.ref = ref;
+  conv_params.round = CONVOLVE_OPT_ROUND;
+  return conv_params;
+}
 
 void av1_convolve(const uint8_t *src, int src_stride, uint8_t *dst,
                   int dst_stride, int w, int h,
