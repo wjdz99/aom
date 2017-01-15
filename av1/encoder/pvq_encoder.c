@@ -467,8 +467,9 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
       /* Set angular resolution (in ra) to match the encoded gain */
       ts = od_pvq_compute_max_theta(qcg, beta);
       theta_lower = OD_MAXI(0, (int)floor(.5 +
-       theta*OD_THETA_SCALE_1*2/M_PI*ts) - 2);
-      theta_upper = OD_MINI(ts - 1, (int)ceil(theta*OD_THETA_SCALE_1*2/M_PI*ts));
+       theta*OD_THETA_SCALE_1*2/OD_PI*ts) - 2);
+      theta_upper = OD_MINI(ts - 1,
+       (int)ceil(theta*OD_THETA_SCALE_1*2/OD_PI*ts));
       /* Include the angles within a reasonable range. */
       for (j = theta_lower; j <= theta_upper; j++) {
         od_val32 qtheta;
