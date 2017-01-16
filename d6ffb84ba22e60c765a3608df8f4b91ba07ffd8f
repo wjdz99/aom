@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83b1f1f3_659f6da5",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-01-16T16:50:12Z",
+      "side": 1,
+      "message": "shall we use an enum to replace 0 and 1 here?",
+      "revId": "d6ffb84ba22e60c765a3608df8f4b91ba07ffd8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83b1f1f3_85948187",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-01-16T16:50:12Z",
+      "side": 1,
+      "message": "round is always set to 1?",
+      "revId": "d6ffb84ba22e60c765a3608df8f4b91ba07ffd8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
