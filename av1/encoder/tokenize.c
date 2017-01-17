@@ -478,11 +478,11 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
     td->counts->cbp_count[txsize_sqr_map[tx_size]][type][ref];
 #else
   int skip_eob = 0;
+  const int seg_eob = get_tx_eob(&cpi->common.seg, segment_id, tx_size);
 #endif
   unsigned int(*const eob_branch)[COEFF_CONTEXTS] =
       td->counts->eob_branch[txsize_sqr_map[tx_size]][type][ref];
   const uint8_t *const band = get_band_translate(tx_size);
-  const int seg_eob = get_tx_eob(&cpi->common.seg, segment_id, tx_size);
   int skip_eob = 0;
   int16_t token;
   EXTRABIT extra;
@@ -510,12 +510,10 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
     pt = get_coef_context(nb, token_cache, c);
     skip_eob = (token == ZERO_TOKEN);
   }
-  if (c < seg_eob) {
-    add_token(&t, coef_probs[band[c]][pt],
-              NULL, NULL,
-              0, EOB_TOKEN, 0, counts[band[c]][pt]);
-    ++eob_branch[band[c]][pt];
-  }
+  add_token(&t, coef_probs[band[c]][pt],
+            NULL, NULL,
+            0, EOB_TOKEN, 0, counts[band[c]][pt]);
+  ++eob_branch[band[c]][pt];
 #else
   while (c < eob) {
     const int v = qcoeff[scan[c]];
