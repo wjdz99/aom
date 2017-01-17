@@ -260,7 +260,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
     if (v) dqcoeff[scan[c]] = aom_read_bit(r, ACCT_STR) ? -v : v;
 #endif  // CONFIG_COEFFICIENT_RANGE_CHECKING
 
-    if (c + 1 < max_eob && token) {
+    if (token) {
       if (counts) ++eob_branch_count[band_eob][ctx_eob];
       if (!aom_read(r, prob_eob[EOB_CONTEXT_NODE], ACCT_STR)) {
         //        INCREMENT_COUNT(EOB_MODEL_TOKEN);
