@@ -276,7 +276,21 @@ enum aome_enc_control_id {
    * By default, the value is 0, i.e. one single row tile for entire image.
    */
   AV1E_SET_TILE_ROWS,
-
+#if CONFIG_DEPENDENT_HORZTILES
+	  /*!\brief Codec control function to set dependent_horz_tiles.
+	  *
+	  * In encoding and decoding, AV1 allows enabling dependent horizontal tile
+	  * The parameter for this control describes the value of this flag,
+	  * which has a valid range [0, 1]:
+	  *            0 = disable dependent horizontal tile
+	  *            1 = enable dependent horizontal tile, 
+	  *
+	  * By default, the value is 0, i.e. disable dependent horizontal tile.
+	  *
+	  * Supported in codecs: AV1
+	  */
+  AV1E_SET_TILE_DEPENDENT_ROWS,
+#endif
 #if CONFIG_DEBLOCKING_ACROSS_TILES
   /*!\brief Codec control function to set loop_filter_across_tiles_enabled.
    *
@@ -584,6 +598,10 @@ AOM_CTRL_USE_TYPE(AV1E_SET_TILE_COLUMNS, int)
 #define AOM_CTRL_AV1E_SET_TILE_COLUMNS
 AOM_CTRL_USE_TYPE(AV1E_SET_TILE_ROWS, int)
 #define AOM_CTRL_AV1E_SET_TILE_ROWS
+#if CONFIG_DEPENDENT_HORZTILES
+AOM_CTRL_USE_TYPE(AV1E_SET_TILE_DEPENDENT_ROWS, int)
+#define AOM_CTRL_AV1E_SET_TILE_DEPENDENT_ROWS
+#endif
 #if CONFIG_DEBLOCKING_ACROSS_TILES
 AOM_CTRL_USE_TYPE(AV1E_SET_TILE_LOOPFILTER, int)
 #define AOM_CTRL_AV1E_SET_TILE_LOOPFILTER
