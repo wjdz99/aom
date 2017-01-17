@@ -5370,6 +5370,30 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     mbmi->skip = 1;
     for (plane = 0; plane < MAX_MB_PLANE; ++plane)
       av1_encode_intra_block_plane((AV1_COMMON *)cm, x, block_size, plane, 1);
+
+#if 0
+    {
+      int i;
+      for (i = 0; i < MAX_MB_PLANE; ++i) {
+        const struct macroblockd_plane *const pd = &xd->plane[i];
+        const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+        const int diff_stride = block_size_wide[plane_bsize];
+        const int rows = block_size_high[plane_bsize];
+        const int cols = block_size_wide[plane_bsize];
+        int r, c;
+        int16_t *const src_diff = x->plane[i].src_diff;
+        printf("Plane %d residues:\n", i);
+        for (r = 0; r < rows; ++r) {
+          for (c= 0; c < cols; ++c) {
+            printf("%3d ", src_diff[r * diff_stride + c]);
+          }
+          printf("\n");
+        }
+        printf("\n");
+      }
+    }
+#endif
+
     if (!dry_run)
       sum_intra_stats(td->counts, mi, xd->above_mi, xd->left_mi,
                       frame_is_intra_only(cm));
