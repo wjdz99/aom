@@ -16,6 +16,24 @@
       "revId": "4561688b82d1081e24b8a8504d3c30caf189d71d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "838811a6_3f9507cf",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 6285,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-01-18T07:36:47Z",
+      "side": 1,
+      "message": "Me too. As I explained to Tim, intra mode search remembers the decoded 4x4 blocks since it is used as reference pixels to right and bottom 4x4 pixels. However, sadly inter mode search does not try to remember any decoded (and predicted) pixels. Thus, there was no way to access predicted and decoded 4x4 pixels during inter mode search.",
+      "parentUuid": "43753906_9af5b99e",
+      "revId": "4561688b82d1081e24b8a8504d3c30caf189d71d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
