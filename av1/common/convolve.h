@@ -17,6 +17,8 @@
 extern "C" {
 #endif
 
+#define CONVOLVE_POST_ROUNDING 0
+
 typedef enum CONVOLVE_OPT {
   // indicate the results in dst buf is rounded by FILTER_BITS or not
   CONVOLVE_OPT_ROUND,
