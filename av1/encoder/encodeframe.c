@@ -1084,7 +1084,8 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
   // If segmentation in use
   if (seg->enabled) {
     // For in frame complexity AQ copy the segment id from the segment map.
-    if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
+    if (cpi->oxcf.aq_mode == COMPLEXITY_AQ ||
+        cpi->oxcf.aq_mode == VARIANCE_AQ) {
       const uint8_t *const map =
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
       mi_addr->mbmi.segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
