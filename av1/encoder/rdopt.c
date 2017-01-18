@@ -1910,7 +1910,8 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
 
 #if CONFIG_PALETTE
 // Reshapes 'color_map' array from 'orig_width x orig_height' to 'new_width x
-// new_height'. Extra rows and columns are filled in as zeros.
+// new_height'. Extra rows and columns are filled in by copying last valid
+// row/column.
 static void reshape(uint8_t *const color_map, int orig_width, int orig_height,
                     int new_width, int new_height) {
   int j;
@@ -1920,12 +1921,15 @@ static void reshape(uint8_t *const color_map, int orig_width, int orig_height,
 
   for (j = orig_height - 1; j >= 0; --j) {
     memmove(color_map + j * new_width, color_map + j * orig_width, orig_width);
-    // Zero padding for extra columns on the right.
-    memset(color_map + j * new_width + orig_width, 0, new_width - orig_width);
+    // Copy last column to extra columns.
+    memset(color_map + j * new_width + orig_width,
+           color_map[j * new_width + orig_width - 1], new_width - orig_width);
   }
-  // Zero padding for extra rows at the bottom.
-  memset(color_map + orig_height * new_width, 0,
-         (new_height - orig_height) * new_width);
+  // Copy last row to extra rows.
+  for (j = orig_height; j < new_height; ++j) {
+    memcpy(color_map + j * new_width, color_map + (orig_height - 1) * new_width,
+           new_width);
+  }
 }
 
 static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,

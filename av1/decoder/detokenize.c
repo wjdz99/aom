@@ -343,12 +343,15 @@ void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
       assert(color_idx >= 0 && color_idx < n);
       color_map[i * plane_block_width + j] = color_order[color_idx];
     }
-    memset(color_map + i * plane_block_width + cols, 0,
-           (plane_block_width - cols));  // Zero padding for extra columns.
+    memset(color_map + i * plane_block_width + cols,
+           color_map[i * plane_block_width + cols - 1],
+           (plane_block_width - cols));  // Copy last column to extra columns.
   }
-  // Zero padding for extra rows.
-  memset(color_map + rows * plane_block_width, 0,
-         (plane_block_height - rows) * plane_block_width);
+  // Copy last row to extra rows.
+  for (i = rows; i < plane_block_height; ++i) {
+    memcpy(color_map + i * plane_block_width,
+           color_map + (rows - 1) * plane_block_width, plane_block_width);
+  }
 }
 #endif  // CONFIG_PALETTE
 
