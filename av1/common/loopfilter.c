@@ -766,7 +766,7 @@ static void build_masks(const loop_filter_info_n *const lfi_n,
   // rectangular transfroms are used with the EXT_TX expt.
   const TX_SIZE tx_size_y = txsize_sqr_up_map[mbmi->tx_size];
   const TX_SIZE tx_size_uv =
-      txsize_sqr_up_map[uv_txsize_lookup[block_size][mbmi->tx_size][1][1]];
+      txsize_sqr_map[uv_txsize_lookup[block_size][mbmi->tx_size][1][1]];
   const int filter_level = get_filter_level(lfi_n, mbmi);
   uint64_t *const left_y = &lfm->left_y[tx_size_y];
   uint64_t *const above_y = &lfm->above_y[tx_size_y];
