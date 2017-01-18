@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c865c6f6_2ce55bad",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-01-18T21:58:34Z",
+      "side": 1,
+      "message": "Keep this assignment loop separate from above loop (i.e. e[] \u003d x[] \u003d y[]) intentionally, thinking of additional option which does not scale in freq domain but compute sum directly in pixel domain as before.",
+      "range": {
+        "startLine": 536,
+        "startChar": 46,
+        "endLine": 536,
+        "endChar": 47
+      },
+      "revId": "a5cbc04dc2b4a10840ca5d9fe596e744a49df393",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
