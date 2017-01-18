@@ -864,6 +864,10 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
     uint8_t *pre[2];
     MV32 scaled_mv[2];
     SubpelParams subpel_params[2];
+#if CONVOLVE_POST_ROUNDING
+    int32_t tmp_dst[MAX_SB_SIZE * MAX_SB_SIZE];
+    int r, c;
+#endif  // CONVOLVE_POST_ROUNDING
 
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       const struct scale_factors *const sf = &xd->block_refs[ref]->sf;
@@ -916,6 +920,11 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
       const struct scale_factors *const sf = &xd->block_refs[ref]->sf;
       ConvolveParams conv_params = get_conv_params(ref);
       struct buf_2d *const pre_buf = &pd->pre[ref];
+#if CONVOLVE_POST_ROUNDING
+      conv_params.dst = tmp_dst;
+      conv_params.dst_stride = MAX_SB_SIZE;
+      conv_params.round = CONVOLVE_OPT_NO_ROUND;
+#endif  // CONVOLVE_POST_ROUNDING
 #if CONFIG_EXT_INTER
       if (ref &&
           is_masked_compound_type(mi->mbmi.interinter_compound_data.type))
@@ -953,6 +962,14 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
             &conv_params, mi->mbmi.interp_filter, subpel_params[ref].xs,
             subpel_params[ref].ys, xd);
     }
+#if CONVOLVE_POST_ROUNDING
+    for (r = 0; r < h; ++r) {
+      for (c = 0; c < w; ++c) {
+        dst[r * dst_buf->stride + c] = clip_pixel(
+            ROUND_POWER_OF_TWO(tmp_dst[r * MAX_SB_SIZE + c], FILTER_BITS));
+      }
+    }
+#endif  // CONVOLVE_POST_ROUNDING
   }
 }
 
