@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c865c6f6_41e84df2",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-01-19T20:17:44Z",
+      "side": 1,
+      "message": "int -\u003e int32_t",
+      "revId": "245731db4b7b116de5d0d578facc3aed65f7bdbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c865c6f6_1c5e3c55",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 928,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-01-19T20:17:44Z",
+      "side": 1,
+      "message": "Maybe we could create a separate function to set conv_params.round to \"CONVOLVE_OPT_NO_ROUND\", similar to \"get_conv_params(ref)\"?",
+      "revId": "245731db4b7b116de5d0d578facc3aed65f7bdbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c865c6f6_dc26641d",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 971,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-01-19T20:17:44Z",
+      "side": 1,
+      "message": "Maybe this part of code could be better placed in a separate function, similar to \"av1_subtract_plane()\" so that it opens to further optimized implementation?\n\nAlso, a few other functions in this file also make calls to av1_make_inter_predictor(). Maybe we could put a \"TODO\" note down here to have CONVOLVE_POST_ROUNDING to work with other experiments?",
+      "revId": "245731db4b7b116de5d0d578facc3aed65f7bdbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
