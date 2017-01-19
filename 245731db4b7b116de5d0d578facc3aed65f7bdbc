@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c865c6f6_f7cf02ab",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-01-19T22:32:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c865c6f6_41e84df2",
+      "revId": "245731db4b7b116de5d0d578facc3aed65f7bdbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c865c6f6_d73d1efa",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-19T22:13:35Z",
       "side": 1,
       "message": "Do we need this #if statement?\n\nIf opt_rounding is off, one can do the usual rounding in this tmp_dst buffer. That should match the codebase behavior.",
+      "revId": "245731db4b7b116de5d0d578facc3aed65f7bdbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c865c6f6_f7a822c9",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-01-19T22:32:25Z",
+      "side": 1,
+      "message": "The prediction result only store in tmp_dst when opt_rounding is off. When it is on, the result is store in dst_buf directly.",
+      "parentUuid": "c865c6f6_d73d1efa",
       "revId": "245731db4b7b116de5d0d578facc3aed65f7bdbc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "c865c6f6_d7ccfeb8",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 928,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-01-19T22:32:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c865c6f6_1c5e3c55",
+      "revId": "245731db4b7b116de5d0d578facc3aed65f7bdbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c865c6f6_dc26641d",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-19T20:17:44Z",
       "side": 1,
       "message": "Maybe this part of code could be better placed in a separate function, similar to \"av1_subtract_plane()\" so that it opens to further optimized implementation?\n\nAlso, a few other functions in this file also make calls to av1_make_inter_predictor(). Maybe we could put a \"TODO\" note down here to have CONVOLVE_POST_ROUNDING to work with other experiments?",
+      "revId": "245731db4b7b116de5d0d578facc3aed65f7bdbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c865c6f6_b79bcab7",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 971,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-01-19T22:32:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c865c6f6_dc26641d",
       "revId": "245731db4b7b116de5d0d578facc3aed65f7bdbc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
