@@ -1797,7 +1797,8 @@ void av1_predict_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
     predict_square_intra_block(xd, wpx, hpx, tx_size, mode, ref, ref_stride,
                                dst, dst_stride, col_off, row_off, plane);
   } else {
-#if CONFIG_EXT_TX && CONFIG_RECT_TX
+#if (CONFIG_EXT_TX && CONFIG_RECT_TX) || \
+    (CONFIG_EXT_INTER && USE_RECT_INTERINTRA)
 #if CONFIG_AOM_HIGHBITDEPTH
     uint16_t tmp16[MAX_SB_SIZE];
 #endif
