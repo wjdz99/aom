@@ -2692,9 +2692,14 @@ void av1_build_intra_predictors_for_interintra(MACROBLOCKD *xd,
                                                BLOCK_SIZE bsize, int plane,
                                                BUFFER_SET *ctx, uint8_t *dst,
                                                int dst_stride) {
-  build_intra_predictors_for_interintra(
-      xd, ctx->plane[plane], ctx->stride[plane], dst, dst_stride,
-      interintra_to_intra_mode[xd->mi[0]->mbmi.interintra_mode], bsize, plane);
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, &xd->plane[plane]);
+  PREDICTION_MODE mode =
+      interintra_to_intra_mode[xd->mi[0]->mbmi.interintra_mode];
+
+  av1_predict_intra_block(xd, pd->width, pd->height, plane_bsize, mode,
+                          ctx->plane[plane], ctx->stride[plane], dst,
+                          dst_stride, 0, 0, plane);
 }
 
 void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
