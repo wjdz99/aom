@@ -951,7 +951,11 @@ static const TX_SIZE uv_txsize_lookup[BLOCK_SIZES][TX_SIZES_ALL][2][2] = {
 #if CONFIG_TX64X64
       { { TX_4X8, TX_4X4 }, { TX_4X4, TX_4X4 } },
 #endif                                             // CONFIG_TX64X64
+#if CONFIG_CB4X4
+      { { TX_4X8, TX_4X4 }, { TX_2X2, TX_2X2 } },  // used
+#else
       { { TX_4X8, TX_4X4 }, { TX_4X4, TX_4X4 } },  // used
+#endif
       { { TX_4X8, TX_4X4 }, { TX_4X4, TX_4X4 } },
       { { TX_4X8, TX_4X4 }, { TX_4X4, TX_4X4 } },
       { { TX_4X8, TX_4X4 }, { TX_4X4, TX_4X4 } },
@@ -977,7 +981,11 @@ static const TX_SIZE uv_txsize_lookup[BLOCK_SIZES][TX_SIZES_ALL][2][2] = {
       { { TX_8X4, TX_4X4 }, { TX_4X4, TX_4X4 } },
 #endif  // CONFIG_TX64X64
       { { TX_8X4, TX_4X4 }, { TX_4X4, TX_4X4 } },
+#if CONFIG_CB4X4
+      { { TX_8X4, TX_2X2 }, { TX_4X4, TX_2X2 } },  // used
+#else
       { { TX_8X4, TX_4X4 }, { TX_4X4, TX_4X4 } },  // used
+#endif
       { { TX_8X4, TX_4X4 }, { TX_4X4, TX_4X4 } },
       { { TX_8X4, TX_4X4 }, { TX_4X4, TX_4X4 } },
       { { TX_8X4, TX_4X4 }, { TX_4X4, TX_4X4 } },
