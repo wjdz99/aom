@@ -866,7 +866,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
           xd->mi[0]->mbmi.mv[0].as_mv = mv;
           xd->mi[0]->mbmi.tx_size = TX_4X4;
           xd->mi[0]->mbmi.ref_frame[0] = LAST_FRAME;
-          xd->mi[0]->mbmi.ref_frame[1] = NONE;
+          xd->mi[0]->mbmi.ref_frame[1] = NONE_FRAME;
           av1_build_inter_predictors_sby(xd, mb_row * mb_scale,
                                          mb_col * mb_scale, NULL, bsize);
           av1_encode_sby_pass1(cm, x, bsize);
@@ -1588,10 +1588,11 @@ static int64_t calculate_total_gf_group_bits(AV1_COMP *cpi,
   }
 
   // Clamp odd edge cases.
-  total_group_bits =
-      (total_group_bits < 0) ? 0 : (total_group_bits > twopass->kf_group_bits)
-                                       ? twopass->kf_group_bits
-                                       : total_group_bits;
+  total_group_bits = (total_group_bits < 0)
+                         ? 0
+                         : (total_group_bits > twopass->kf_group_bits)
+                               ? twopass->kf_group_bits
+                               : total_group_bits;
 
   // Clip based on user supplied data rate variability limit.
   if (total_group_bits > (int64_t)max_bits * rc->baseline_gf_interval)
