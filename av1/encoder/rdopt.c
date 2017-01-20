@@ -135,54 +135,54 @@ struct rdcost_block_args {
 
 #define LAST_NEW_MV_INDEX 6
 static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
-  { NEARESTMV, { LAST_FRAME, NONE } },
+  { NEARESTMV, { LAST_FRAME, NONE_FRAME } },
 #if CONFIG_EXT_REFS
-  { NEARESTMV, { LAST2_FRAME, NONE } },
-  { NEARESTMV, { LAST3_FRAME, NONE } },
-  { NEARESTMV, { BWDREF_FRAME, NONE } },
+  { NEARESTMV, { LAST2_FRAME, NONE_FRAME } },
+  { NEARESTMV, { LAST3_FRAME, NONE_FRAME } },
+  { NEARESTMV, { BWDREF_FRAME, NONE_FRAME } },
 #endif  // CONFIG_EXT_REFS
-  { NEARESTMV, { ALTREF_FRAME, NONE } },
-  { NEARESTMV, { GOLDEN_FRAME, NONE } },
+  { NEARESTMV, { ALTREF_FRAME, NONE_FRAME } },
+  { NEARESTMV, { GOLDEN_FRAME, NONE_FRAME } },
 
-  { DC_PRED, { INTRA_FRAME, NONE } },
+  { DC_PRED, { INTRA_FRAME, NONE_FRAME } },
 
-  { NEWMV, { LAST_FRAME, NONE } },
+  { NEWMV, { LAST_FRAME, NONE_FRAME } },
 #if CONFIG_EXT_REFS
-  { NEWMV, { LAST2_FRAME, NONE } },
-  { NEWMV, { LAST3_FRAME, NONE } },
-  { NEWMV, { BWDREF_FRAME, NONE } },
+  { NEWMV, { LAST2_FRAME, NONE_FRAME } },
+  { NEWMV, { LAST3_FRAME, NONE_FRAME } },
+  { NEWMV, { BWDREF_FRAME, NONE_FRAME } },
 #endif  // CONFIG_EXT_REFS
-  { NEWMV, { ALTREF_FRAME, NONE } },
-  { NEWMV, { GOLDEN_FRAME, NONE } },
+  { NEWMV, { ALTREF_FRAME, NONE_FRAME } },
+  { NEWMV, { GOLDEN_FRAME, NONE_FRAME } },
 
-  { NEARMV, { LAST_FRAME, NONE } },
+  { NEARMV, { LAST_FRAME, NONE_FRAME } },
 #if CONFIG_EXT_REFS
-  { NEARMV, { LAST2_FRAME, NONE } },
-  { NEARMV, { LAST3_FRAME, NONE } },
-  { NEARMV, { BWDREF_FRAME, NONE } },
+  { NEARMV, { LAST2_FRAME, NONE_FRAME } },
+  { NEARMV, { LAST3_FRAME, NONE_FRAME } },
+  { NEARMV, { BWDREF_FRAME, NONE_FRAME } },
 #endif  // CONFIG_EXT_REFS
-  { NEARMV, { ALTREF_FRAME, NONE } },
-  { NEARMV, { GOLDEN_FRAME, NONE } },
+  { NEARMV, { ALTREF_FRAME, NONE_FRAME } },
+  { NEARMV, { GOLDEN_FRAME, NONE_FRAME } },
 
 #if CONFIG_EXT_INTER
-  { NEWFROMNEARMV, { LAST_FRAME, NONE } },
+  { NEWFROMNEARMV, { LAST_FRAME, NONE_FRAME } },
 #if CONFIG_EXT_REFS
-  { NEWFROMNEARMV, { LAST2_FRAME, NONE } },
-  { NEWFROMNEARMV, { LAST3_FRAME, NONE } },
-  { NEWFROMNEARMV, { BWDREF_FRAME, NONE } },
+  { NEWFROMNEARMV, { LAST2_FRAME, NONE_FRAME } },
+  { NEWFROMNEARMV, { LAST3_FRAME, NONE_FRAME } },
+  { NEWFROMNEARMV, { BWDREF_FRAME, NONE_FRAME } },
 #endif  // CONFIG_EXT_REFS
-  { NEWFROMNEARMV, { ALTREF_FRAME, NONE } },
-  { NEWFROMNEARMV, { GOLDEN_FRAME, NONE } },
+  { NEWFROMNEARMV, { ALTREF_FRAME, NONE_FRAME } },
+  { NEWFROMNEARMV, { GOLDEN_FRAME, NONE_FRAME } },
 #endif  // CONFIG_EXT_INTER
 
-  { ZEROMV, { LAST_FRAME, NONE } },
+  { ZEROMV, { LAST_FRAME, NONE_FRAME } },
 #if CONFIG_EXT_REFS
-  { ZEROMV, { LAST2_FRAME, NONE } },
-  { ZEROMV, { LAST3_FRAME, NONE } },
-  { ZEROMV, { BWDREF_FRAME, NONE } },
+  { ZEROMV, { LAST2_FRAME, NONE_FRAME } },
+  { ZEROMV, { LAST3_FRAME, NONE_FRAME } },
+  { ZEROMV, { BWDREF_FRAME, NONE_FRAME } },
 #endif  // CONFIG_EXT_REFS
-  { ZEROMV, { GOLDEN_FRAME, NONE } },
-  { ZEROMV, { ALTREF_FRAME, NONE } },
+  { ZEROMV, { GOLDEN_FRAME, NONE_FRAME } },
+  { ZEROMV, { ALTREF_FRAME, NONE_FRAME } },
 
 // TODO(zoeliu): May need to reconsider the order on the modes to check
 
@@ -216,10 +216,10 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
 #endif  // CONFIG_EXT_REFS
 #endif  // CONFIG_EXT_INTER
 
-  { TM_PRED, { INTRA_FRAME, NONE } },
+  { TM_PRED, { INTRA_FRAME, NONE_FRAME } },
 
 #if CONFIG_ALT_INTRA
-  { SMOOTH_PRED, { INTRA_FRAME, NONE } },
+  { SMOOTH_PRED, { INTRA_FRAME, NONE_FRAME } },
 #endif  // CONFIG_ALT_INTRA
 
 #if CONFIG_EXT_INTER
@@ -347,14 +347,14 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
 
 #endif  // CONFIG_EXT_INTER
 
-  { H_PRED, { INTRA_FRAME, NONE } },
-  { V_PRED, { INTRA_FRAME, NONE } },
-  { D135_PRED, { INTRA_FRAME, NONE } },
-  { D207_PRED, { INTRA_FRAME, NONE } },
-  { D153_PRED, { INTRA_FRAME, NONE } },
-  { D63_PRED, { INTRA_FRAME, NONE } },
-  { D117_PRED, { INTRA_FRAME, NONE } },
-  { D45_PRED, { INTRA_FRAME, NONE } },
+  { H_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { V_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { D135_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { D207_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { D153_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { D63_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { D117_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { D45_PRED, { INTRA_FRAME, NONE_FRAME } },
 
 #if CONFIG_EXT_INTER
   { ZEROMV, { LAST_FRAME, INTRA_FRAME } },
@@ -394,12 +394,12 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
 };
 
 static const REF_DEFINITION av1_ref_order[MAX_REFS] = {
-  { { LAST_FRAME, NONE } },
+  { { LAST_FRAME, NONE_FRAME } },
 #if CONFIG_EXT_REFS
-  { { LAST2_FRAME, NONE } },          { { LAST3_FRAME, NONE } },
-  { { BWDREF_FRAME, NONE } },
+  { { LAST2_FRAME, NONE_FRAME } },    { { LAST3_FRAME, NONE_FRAME } },
+  { { BWDREF_FRAME, NONE_FRAME } },
 #endif  // CONFIG_EXT_REFS
-  { { GOLDEN_FRAME, NONE } },         { { ALTREF_FRAME, NONE } },
+  { { GOLDEN_FRAME, NONE_FRAME } },   { { ALTREF_FRAME, NONE_FRAME } },
 
   { { LAST_FRAME, ALTREF_FRAME } },
 #if CONFIG_EXT_REFS
@@ -412,7 +412,7 @@ static const REF_DEFINITION av1_ref_order[MAX_REFS] = {
   { { LAST3_FRAME, BWDREF_FRAME } },  { { GOLDEN_FRAME, BWDREF_FRAME } },
 #endif  // CONFIG_EXT_REFS
 
-  { { INTRA_FRAME, NONE } },
+  { { INTRA_FRAME, NONE_FRAME } },
 };
 
 #if CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
@@ -8420,7 +8420,7 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 
   ctx->skip = 0;
   xd->mi[0]->mbmi.ref_frame[0] = INTRA_FRAME;
-  xd->mi[0]->mbmi.ref_frame[1] = NONE;
+  xd->mi[0]->mbmi.ref_frame[1] = NONE_FRAME;
 
   if (bsize >= BLOCK_8X8 || unify_bsize) {
     if (rd_pick_intra_sby_mode(cpi, x, &rate_y, &rate_y_tokenonly, &dist_y,
@@ -9248,7 +9248,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
 #endif  // CONFIG_EXT_REFS
           break;
-        case NONE:
+        case NONE_FRAME:
         case TOTAL_REFS_PER_FRAME:
           assert(0 && "Invalid Reference frame");
           break;
@@ -10401,7 +10401,7 @@ PALETTE_EXIT:
 #if CONFIG_EXT_INTER
           (best_mbmode.ref_frame[1] <= INTRA_FRAME)
 #else
-          (best_mbmode.ref_frame[1] == NONE ||
+          (best_mbmode.ref_frame[1] == NONE_FRAME ||
            best_mbmode.mv[1].as_int == zeromv[1].as_int)
 #endif  // CONFIG_EXT_INTER
               ) {
@@ -10520,7 +10520,7 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->uv_mode = DC_PRED;
   mbmi->ref_frame[0] = LAST_FRAME;
-  mbmi->ref_frame[1] = NONE;
+  mbmi->ref_frame[1] = NONE_FRAME;
 #if CONFIG_GLOBAL_MOTION
   mbmi->mv[0].as_int =
       gm_get_motion_vector(&cm->global_motion[mbmi->ref_frame[0]],
@@ -10833,7 +10833,7 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
             ref_frame_skip_mask[1] |= (1 << BWDREF_FRAME) | 0x01;
 #endif  // CONFIG_EXT_REFS
             break;
-          case NONE:
+          case NONE_FRAME:
           case TOTAL_REFS_PER_FRAME:
             assert(0 && "Invalid Reference frame");
             break;

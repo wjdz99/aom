@@ -898,7 +898,7 @@ static void choose_partitioning(AV1_COMP *const cpi, ThreadData *const td,
     av1_setup_pre_planes(xd, 0, yv12, mi_row, mi_col,
                          &cm->frame_refs[LAST_FRAME - 1].sf);
     mbmi->ref_frame[0] = LAST_FRAME;
-    mbmi->ref_frame[1] = NONE;
+    mbmi->ref_frame[1] = NONE_FRAME;
     mbmi->sb_type = cm->sb_size;
     mbmi->mv[0].as_int = 0;
 #if CONFIG_DUAL_FILTER
