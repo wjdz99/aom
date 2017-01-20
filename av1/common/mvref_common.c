@@ -28,7 +28,7 @@ static uint8_t add_ref_mv_candidate(
   const int unify_bsize = 0;
 #endif
 
-  if (rf[1] == NONE) {
+  if (rf[1] == NONE_FRAME) {
     // single reference frame
     for (ref = 0; ref < 2; ++ref) {
       if (candidate->ref_frame[ref] == rf[0]) {
@@ -419,7 +419,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     ref_mv_stack[idx].weight += REF_CAT_LEVEL;
 
   if (prev_frame_mvs_base && cm->show_frame && cm->last_show_frame &&
-      rf[1] == NONE) {
+      rf[1] == NONE_FRAME) {
     int blk_row, blk_col;
     int coll_blk_count = 0;
 #if CONFIG_CB4X4
@@ -514,7 +514,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     len = nr_len;
   }
 
-  if (rf[1] > NONE) {
+  if (rf[1] > NONE_FRAME) {
     for (idx = 0; idx < *refmv_count; ++idx) {
       clamp_mv_ref(&ref_mv_stack[idx].this_mv.as_mv, xd->n8_w << MI_SIZE_LOG2,
                    xd->n8_h << MI_SIZE_LOG2, xd);
@@ -899,7 +899,7 @@ void av1_append_sub8x8_mvs_for_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
   CANDIDATE_MV tmp_mv;
   uint8_t idx;
   uint8_t above_count = 0, left_count = 0;
-  MV_REFERENCE_FRAME rf[2] = { mi->mbmi.ref_frame[ref], NONE };
+  MV_REFERENCE_FRAME rf[2] = {mi->mbmi.ref_frame[ref], NONE_FRAME};
   *ref_mv_count = 0;
 #endif
 
