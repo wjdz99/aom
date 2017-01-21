@@ -556,9 +556,9 @@ static double od_compute_dist(int qm, int activity_masking, od_coeff *x,
     }
   } else {
     int j;
-    od_coeff e[OD_BSIZE_MAX * OD_BSIZE_MAX];
-    od_coeff tmp[OD_BSIZE_MAX * OD_BSIZE_MAX];
-    od_coeff e_lp[OD_BSIZE_MAX * OD_BSIZE_MAX];
+    DECLARE_ALIGNED(16, od_coeff, e[MAX_TX_SQUARE]);
+    DECLARE_ALIGNED(16, od_coeff, tmp[MAX_TX_SQUARE]);
+    DECLARE_ALIGNED(16, od_coeff, e_lp[MAX_TX_SQUARE]);
     int mid = OD_DIST_LP_MID;
     for (i = 0; i < bsize_h; i++) {
       for (j = 0; j < bsize_w; j++) {
@@ -594,16 +594,14 @@ static double od_compute_dist(int qm, int activity_masking, od_coeff *x,
                                    bsize_w);
       }
     }
-    /* Compensate for the fact that the quantization matrix lowers the
-       distortion value. We tried a half-dozen values and picked the one where
-       we liked the ntt-short1 curves best. The tuning is approximate since
-       the different metrics go in different directions. */
-    /*Start interpolation at coded_quantizer 1.7=f(36) and end it at 1.2=f(47)*/
-    // TODO(yushin): Check whether qindex of AV1 work here, replacing daala's
-    // coded_quantizer.
-    /*sum *= qindex >= 47 ? 1.2 :
-        qindex <= 36 ? 1.7 :
-     1.7 + (1.2 - 1.7)*(qindex - 36)/(47 - 36);*/
+    /* Scale according to linear regression against PSNRHVS-M, for 8x8 blocks. */
+    if (activity_masking) {
+      sum *= 1.3;
+    } else {
+      sum *= qindex >= 55 ? 0.89 :
+	     qindex <= 20 ? 0.69 :
+	     0.69 + (0.89 - 0.69)*(qindex - 20)/(55 - 20);
+    }
   }
   return sum;
 }
