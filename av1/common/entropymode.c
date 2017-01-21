@@ -558,6 +558,23 @@ static const aom_prob default_wedge_interintra_prob[BLOCK_SIZES] = {
 };
 #endif  // CONFIG_EXT_INTER
 
+#if CONFIG_COMP_TRIPRED
+// TODO(zoeliu): To work with follow experiments:
+//               1. CONFIG_EXT_INTER
+//               2. CONFIG_EXT_PARTITION
+static const aom_prob default_compound_type_probs[BLOCK_SIZES]
+                                                 [COMPOUND_TYPES - 1] = {
+                                                   { 208 }, { 208 }, { 208 },
+                                                   { 208 }, { 208 }, { 208 },
+                                                   { 216 }, { 216 }, { 216 },
+                                                   { 224 }, { 224 }, { 240 },
+                                                   { 240 },
+#if CONFIG_EXT_PARTITION
+                                                   { 255 }, { 255 }, { 255 },
+#endif  // CONFIG_EXT_PARTITION
+                                                 };
+#endif  // CONFIG_COMP_TRIPRED
+
 // Change this section appropriately once warped motion is supported
 #if CONFIG_MOTION_VAR && !CONFIG_WARPED_MOTION
 const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
@@ -718,6 +735,12 @@ const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)] = {
 #endif  // CONFIG_COMPOUND_SEGMENT
 /* clang-format on */
 #endif  // CONFIG_EXT_INTER
+
+#if CONFIG_COMP_TRIPRED
+const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)] = {
+  -COMPOUND_AVERAGE, -COMPOUND_TRIPRED
+};
+#endif  // CONFIG_COMP_TRIPRED
 
 const aom_tree_index av1_partition_tree[TREE_SIZE(PARTITION_TYPES)] = {
   -PARTITION_NONE, 2, -PARTITION_HORZ, 4, -PARTITION_VERT, -PARTITION_SPLIT
@@ -1778,7 +1801,11 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_EXT_INTER
   av1_copy(fc->inter_compound_mode_probs, default_inter_compound_mode_probs);
+#endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   av1_copy(fc->compound_type_prob, default_compound_type_probs);
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+#if CONFIG_EXT_INTER
   av1_copy(fc->interintra_prob, default_interintra_prob);
   av1_copy(fc->interintra_mode_prob, default_interintra_mode_prob);
   av1_copy(fc->wedge_interintra_prob, default_wedge_interintra_prob);
@@ -1985,13 +2012,15 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
       fc->wedge_interintra_prob[i] = av1_mode_mv_merge_probs(
           pre_fc->wedge_interintra_prob[i], counts->wedge_interintra[i]);
   }
+#endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   for (i = 0; i < BLOCK_SIZES; ++i) {
     aom_tree_merge_probs(av1_compound_type_tree, pre_fc->compound_type_prob[i],
                          counts->compound_interinter[i],
                          fc->compound_type_prob[i]);
   }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
   for (i = 0; i < BLOCK_SIZE_GROUPS; i++)
     aom_tree_merge_probs(av1_intra_mode_tree, pre_fc->y_mode_prob[i],

@@ -365,13 +365,24 @@ typedef enum {
   II_TM_PRED,
   INTERINTRA_MODES
 } INTERINTRA_MODE;
+#endif  // CONFIG_EXT_INTER
 
+// TODO(zoeliu): Currently EXT_INTER and COMP_TRIPRED are mutually exclusive;
+//               Once the benefit of COMP_TRIPRED is confirmed, they will be
+//               made to work together.
+#if CONFIG_EXT_INTER
 typedef enum {
   COMPOUND_AVERAGE = 0,
   COMPOUND_WEDGE,
 #if CONFIG_COMPOUND_SEGMENT
   COMPOUND_SEG,
 #endif  // CONFIG_COMPOUND_SEGMENT
+  COMPOUND_TYPES,
+} COMPOUND_TYPE;
+#elif CONFIG_COMP_TRIPRED
+typedef enum {
+  COMPOUND_AVERAGE = 0,
+  COMPOUND_TRIPRED,
   COMPOUND_TYPES,
 } COMPOUND_TYPE;
 #endif  // CONFIG_EXT_INTER
