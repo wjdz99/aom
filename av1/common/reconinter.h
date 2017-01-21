@@ -413,6 +413,11 @@ void av1_setup_dst_planes(struct macroblockd_plane planes[MAX_MB_PLANE],
 void av1_setup_pre_planes(MACROBLOCKD *xd, int idx,
                           const YV12_BUFFER_CONFIG *src, int mi_row, int mi_col,
                           const struct scale_factors *sf);
+#if CONFIG_COMP_TRIPRED
+void av1_setup_pre_third_planes(MACROBLOCKD *xd, const YV12_BUFFER_CONFIG *src,
+                                int mi_row, int mi_col,
+                                const struct scale_factors *sf);
+#endif  // CONFIG_COMP_TRIPRED
 
 // Detect if the block have sub-pixel level motion vectors
 // per component.
@@ -572,6 +577,15 @@ void av1_build_wedge_inter_predictor_from_buf(MACROBLOCKD *xd, BLOCK_SIZE bsize,
                                               uint8_t *ext_dst1[3],
                                               int ext_dst_stride1[3]);
 #endif  // CONFIG_EXT_INTER
+
+#if CONFIG_COMP_TRIPRED
+void av1_build_single_inter_predictor_for_planes_from_any_ref(
+    const AV1_COMMON *cm, const MACROBLOCKD *xd, BLOCK_SIZE bsize,
+    int plane_from, int plane_to, int mi_row, int mi_col,
+    MV_REFERENCE_FRAME ref_frame, int_mv mv,
+    const struct buf_2d yv12_mb_one_ref[MAX_MB_PLANE], uint8_t *ext_dst[3],
+    int ext_dst_stride[3]);
+#endif  // CONFIG_COMP_TRIPRED
 
 #ifdef __cplusplus
 }  // extern "C"
