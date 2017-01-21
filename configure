@@ -324,6 +324,7 @@ EXPERIMENT_LIST="
     compound_singleref
     aom_qm
     lowdelay_compound
+    ext_cbsizes
 "
 CONFIG_LIST="
     dependency_tracking
