@@ -475,5 +475,20 @@ void av1_update_mv_count(ThreadData *td) {
 #else
               &td->counts->mv);
 #endif
+
+#if CONFIG_COMPOUND_TRIPRED
+    // TODO(zoeliu): To work with experiments of
+    //               1. CONFIG_EXT_INTER; and
+    //               2. CONFIG_REF_MV
+    if (has_second_ref(mbmi) &&
+        mbmi->interinter_compound_data.type == COMPOUND_TRIPRED) {
+      nmv_context_counts *counts = &td->counts->mv;
+      const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame_third][0].as_mv;
+      const MV *mv = &mbmi->mv_third.as_mv;
+      const MV diff = {mv->row - ref->row, mv->col - ref->col };
+
+      av1_inc_mv(&diff, counts, 1);
+    }
+#endif  // CONFIG_COMPOUND_TRIPRED
   }
 }
