@@ -1023,7 +1023,7 @@ static void dec_predict_sb_complex(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   const BLOCK_SIZE subsize = get_subsize(bsize, partition);
 #if CONFIG_EXT_PARTITION_TYPES
   const BLOCK_SIZE bsize2 = get_subsize(bsize, PARTITION_SPLIT);
-#endif
+#endif  // CONFIG_EXT_PARTITION_TYPES
   int i;
   const int mi_offset = mi_row * cm->mi_stride + mi_col;
   uint8_t *dst_buf1[3], *dst_buf2[3], *dst_buf3[3];
@@ -1504,13 +1504,13 @@ static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   }
 #if CONFIG_EXT_PARTITION_TYPES
   xd->mi[0]->mbmi.partition = partition;
-#endif
+#endif  // CONFIG_EXT_PARTITION_TYPES
   av1_read_mode_info(pbi, xd, supertx_enabled, mi_row, mi_col, r, x_mis, y_mis);
 #else
   set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
 #if CONFIG_EXT_PARTITION_TYPES
   xd->mi[0]->mbmi.partition = partition;
-#endif
+#endif  // CONFIG_EXT_PARTITION_TYPES
   av1_read_mode_info(pbi, xd, mi_row, mi_col, r, x_mis, y_mis);
 #endif  // CONFIG_SUPERTX
 
@@ -1853,7 +1853,7 @@ static void detoken_and_recon_sb(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #endif
 #if CONFIG_EXT_PARTITION_TYPES
   BLOCK_SIZE bsize2 = get_subsize(bsize, PARTITION_SPLIT);
-#endif
+#endif  // CONFIG_EXT_PARTITION_TYPES
   PARTITION_TYPE partition;
   BLOCK_SIZE subsize;
   const int has_rows = (mi_row + hbs) < cm->mi_rows;
@@ -1914,7 +1914,7 @@ static void detoken_and_recon_sb(AV1Decoder *const pbi, MACROBLOCKD *const xd,
         decode_token_and_recon_block(pbi, xd, mi_row + hbs, mi_col + hbs, r,
                                      bsize2);
         break;
-#endif
+#endif  // CONFIG_EXT_PARTITION_TYPES
       default: assert(0 && "Invalid partition type");
     }
   }
@@ -1937,7 +1937,7 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                     mi_row, mi_col, r,
 #if CONFIG_EXT_PARTITION_TYPES
                     partition,
-#endif
+#endif  // CONFIG_EXT_PARTITION_TYPES
                     bsize);
 #if !(CONFIG_MOTION_VAR && CONFIG_NCOBMC)
 #if CONFIG_SUPERTX
@@ -2046,7 +2046,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   BLOCK_SIZE subsize;
 #if CONFIG_EXT_PARTITION_TYPES
   BLOCK_SIZE bsize2 = get_subsize(bsize, PARTITION_SPLIT);
-#endif
+#endif  // CONFIG_EXT_PARTITION_TYPES
   const int has_rows = (mi_row + hbs) < cm->mi_rows;
   const int has_cols = (mi_col + hbs) < cm->mi_cols;
 #if CONFIG_SUPERTX
@@ -2240,7 +2240,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #endif
                      mi_row + hbs, mi_col + hbs, r, partition, bsize2);
         break;
-#endif
+#endif  // CONFIG_EXT_PARTITION_TYPES
       default: assert(0 && "Invalid partition type");
     }
   }

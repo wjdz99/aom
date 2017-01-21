@@ -3529,6 +3529,11 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     cpi->time_pick_lpf += aom_usec_timer_elapsed(&timer);
   }
 
+#if 0
+  // NOTE(zoeliu): To turn off loop filtering
+  lf->filter_level = 0;
+#endif  // 0
+
   if (lf->filter_level > 0) {
 #if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
     av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);

@@ -68,7 +68,7 @@ static const struct av1_token ext_partition_encodings[EXT_PARTITION_TYPES] = {
   { 0, 1 },  { 4, 3 },  { 12, 4 }, { 7, 3 },
   { 10, 4 }, { 11, 4 }, { 26, 5 }, { 27, 5 }
 };
-#endif
+#endif  // CONFIG_EXT_PARTITION_TYPES
 static struct av1_token partition_encodings[PARTITION_TYPES];
 #if !CONFIG_REF_MV
 static struct av1_token inter_mode_encodings[INTER_MODES];
@@ -2333,26 +2333,41 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_DUAL_FILTER
 #if 0
     // NOTE(zoeliu): For debug
-    if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
-      const PREDICTION_MODE mode = m->mbmi.mode;
-      const int segment_id = m->mbmi.segment_id;
-      const BLOCK_SIZE bsize = m->mbmi.sb_type;
+    {
+      static int locate_mismatch_flag_enc = 0;
 
-      // For sub8x8, simply dump out the first sub8x8 block info
-      const PREDICTION_MODE b_mode =
-          (bsize < BLOCK_8X8) ? m->bmi[0].as_mode : -1;
-      const int mv_x = (bsize < BLOCK_8X8) ?
-          m->bmi[0].as_mv[0].as_mv.row : m->mbmi.mv[0].as_mv.row;
-      const int mv_y = (bsize < BLOCK_8X8) ?
-          m->bmi[0].as_mv[0].as_mv.col : m->mbmi.mv[0].as_mv.col;
+#define mismatch_frame 37
+#define mismatch_row 272
+#define mismatch_col 264
 
-      printf("Before pack_inter_mode_mvs(): "
-             "Frame=%d, (mi_row,mi_col)=(%d,%d), "
-             "mode=%d, segment_id=%d, bsize=%d, b_mode=%d, "
-             "mv[0]=(%d, %d), ref[0]=%d, ref[1]=%d\n",
-             cm->current_video_frame, mi_row, mi_col,
-             mode, segment_id, bsize, b_mode, mv_x, mv_y,
-             m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
+      if (cm->current_video_frame == mismatch_frame) {
+        if (mi_row == 0 && mi_col == 0) locate_mismatch_flag_enc = 0;
+
+        if (//mi_row*MI_SIZE >= mismatch_row && mi_col*MI_SIZE >= mismatch_col &&
+            !locate_mismatch_flag_enc) {
+          const PREDICTION_MODE mode = m->mbmi.mode;
+          const int segment_id = m->mbmi.segment_id;
+          const BLOCK_SIZE bsize = m->mbmi.sb_type;
+
+          // For sub8x8, simply dump out the first sub8x8 block info
+          const PREDICTION_MODE b_mode =
+              (bsize < BLOCK_8X8) ? m->bmi[0].as_mode : -1;
+          const int mv_x = (bsize < BLOCK_8X8) ?
+              m->bmi[0].as_mv[0].as_mv.row : m->mbmi.mv[0].as_mv.row;
+          const int mv_y = (bsize < BLOCK_8X8) ?
+              m->bmi[0].as_mv[0].as_mv.col : m->mbmi.mv[0].as_mv.col;
+
+          printf("=== ENCODER == Before pack_inter_mode_mvs(): "
+                 "Frame=%d, (mi_row,mi_col)=(%d,%d), "
+                 "mode=%d, segment_id=%d, bsize=%d, b_mode=%d, "
+                 "mv[0]=(%d, %d), ref[0]=%d, ref[1]=%d\n",
+                 cm->current_video_frame, mi_row, mi_col,
+                 mode, segment_id, bsize, b_mode, mv_x, mv_y,
+                 m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
+
+          // locate_mismatch_flag_enc = 1;
+        }
+      }
     }
 #endif  // 0
     pack_inter_mode_mvs(cpi, mi_row, mi_col,
@@ -4953,6 +4968,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     prob_diff_update(av1_partition_tree, fc->partition_prob[i],
                      counts->partition[i], PARTITION_TYPES, probwt, header_bc);
 #endif  // CONFIG_EXT_PARTITION_TYPES
+
 #if CONFIG_UNPOISON_PARTITION_CTX
   for (; i < PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES; ++i) {
     unsigned int ct[2] = { counts->partition[i][PARTITION_VERT],

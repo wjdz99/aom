@@ -2254,6 +2254,45 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_DUAL_FILTER
   }
 #endif  // CONFIG_WARPED_MOTION
+
+#if 0
+  // NOTE(zoeliu): For debug
+  {
+    static int locate_mismatch_flag_dec = 0;
+
+    const unsigned int mismatch_frame = 37;
+    const int mismatch_row = 272;
+    const int mismatch_col = 264;
+
+    if (cm->current_video_frame == mismatch_frame) {
+      if (mi_row == 0 && mi_col == 0) locate_mismatch_flag_dec = 0;
+
+      if (//mi_row*MI_SIZE >= mismatch_row && mi_col*MI_SIZE >= mismatch_col &&
+          !locate_mismatch_flag_dec) {
+        const PREDICTION_MODE mode = mbmi->mode;
+        const int segment_id = mbmi->segment_id;
+
+        // For sub8x8, simply dump out the first sub8x8 block info
+        const PREDICTION_MODE b_mode =
+            (bsize < BLOCK_8X8) ? mi->bmi[0].as_mode : -1;
+        const int mv_x = (bsize < BLOCK_8X8) ?
+            mi->bmi[0].as_mv[0].as_mv.row : mbmi->mv[0].as_mv.row;
+        const int mv_y = (bsize < BLOCK_8X8) ?
+            mi->bmi[0].as_mv[0].as_mv.col : mbmi->mv[0].as_mv.col;
+
+        printf("=== DECODER == In read_inter_block_mode_info(): "
+               "Frame=%d, (mi_row,mi_col)=(%d,%d), "
+               "mode=%d, segment_id=%d, bsize=%d, b_mode=%d, "
+               "mv[0]=(%d, %d), ref[0]=%d, ref[1]=%d\n",
+               cm->current_video_frame, mi_row, mi_col,
+               mode, segment_id, bsize, b_mode, mv_x, mv_y,
+               mbmi->ref_frame[0], mbmi->ref_frame[1]);
+
+        // locate_mismatch_flag_dec = 1;
+      }
+    }
+  }
+#endif  // 0
 }
 
 static void read_inter_frame_mode_info(AV1Decoder *const pbi,
