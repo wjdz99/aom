@@ -1645,18 +1645,42 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
                                               tx_size);
     }
   } else {
+    int num_refs = 1 + has_second_ref(mbmi);
     int ref;
 
-    for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
-      const MV_REFERENCE_FRAME frame = mbmi->ref_frame[ref];
-      RefBuffer *ref_buf = &cm->frame_refs[frame - LAST_FRAME];
+#if CONFIG_COMP_TRIPRED
+    if (mbmi->sb_type >= BLOCK_8X8 &&
+        mbmi->interinter_compound_data.type == COMPOUND_TRIPRED)
+      num_refs = 3;
+#endif  // CONFIG_COMP_TRIPRED
 
-      xd->block_refs[ref] = ref_buf;
+    for (ref = 0; ref < num_refs; ++ref) {
+#if CONFIG_COMP_TRIPRED
+      const MV_REFERENCE_FRAME frame =
+          (ref < 2) ? mbmi->ref_frame[ref] : mbmi->ref_frame_third;
+#else
+      const MV_REFERENCE_FRAME frame = mbmi->ref_frame[ref];
+#endif  // CONFIG_COMP_TRIPRED
+      RefBuffer *ref_buf = NULL;
+
+#if CONFIG_COMP_TRIPRED
+      if (frame < LAST_FRAME) continue;
+#endif  // CONFIG_COMP_TRIPRED
+
+      ref_buf = &cm->frame_refs[frame - LAST_FRAME];
+
+#if CONFIG_COMP_TRIPRED
+      if (ref == 2)
+        xd->block_ref_third = ref_buf;
+      else
+#endif  // CONFIG_COMP_TRIPRED
+        xd->block_refs[ref] = ref_buf;
       if ((!av1_is_valid_scale(&ref_buf->sf)))
         aom_internal_error(xd->error_info, AOM_CODEC_UNSUP_BITSTREAM,
                            "Reference frame has invalid dimensions");
       av1_setup_pre_planes(xd, ref, ref_buf->buf, mi_row, mi_col, &ref_buf->sf);
     }
+
 #if CONFIG_WARPED_MOTION
     if (mbmi->motion_mode == WARPED_CAUSAL) {
       int i;
@@ -4534,14 +4558,18 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
         }
       }
     }
-    if (cm->reference_mode != SINGLE_REFERENCE) {
+#endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+#if CONFIG_EXT_INTER
+    if (cm->reference_mode != SINGLE_REFERENCE)
+#endif  // CONFIG_EXT_INTER
       for (i = 0; i < BLOCK_SIZES; i++) {
         for (j = 0; j < COMPOUND_TYPES - 1; j++) {
           av1_diff_update_prob(&r, &fc->compound_type_prob[i][j], ACCT_STR);
         }
       }
-    }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     for (i = BLOCK_8X8; i < BLOCK_SIZES; ++i) {
