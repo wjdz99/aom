@@ -25,20 +25,6 @@
 #include "aom_ports/mem_ops.h"
 #include "av1/common/odintrin.h"
 
-#if RANS_PRECISION <= OD_DIVU_DMAX
-#define ANS_DIVREM(quotient, remainder, dividend, divisor) \
-  do {                                                     \
-    quotient = OD_DIVU_SMALL((dividend), (divisor));       \
-    remainder = (dividend) - (quotient) * (divisor);       \
-  } while (0)
-#else
-#define ANS_DIVREM(quotient, remainder, dividend, divisor) \
-  do {                                                     \
-    quotient = (dividend) / (divisor);                     \
-    remainder = (dividend) % (divisor);                    \
-  } while (0)
-#endif
-
 #define ANS_DIV8(dividend, divisor) OD_DIVU_SMALL((dividend), (divisor))
 
 #ifdef __cplusplus
@@ -131,17 +117,36 @@ static INLINE void rabs_write(struct AnsCoder *ans, int value, AnsP8 p0) {
 // RANS_PRECISION takes the place of m from the paper.
 static INLINE void rans_write(struct AnsCoder *ans, aom_cdf_prob cum_prob,
                               aom_cdf_prob prob) {
-  unsigned quotient, remainder;
+  static const int tabled_divide_bits = 10;
+  const int msb = get_msb(prob);
+  const int shift =
+      msb - (tabled_divide_bits - 1) < 0 ? 0 : msb - (tabled_divide_bits - 1);
+  const aom_cdf_prob prob_top = prob >> shift;
+  const aom_cdf_prob quant_prob = prob_top << shift;
+  unsigned quot, rem;
   while (ans->state >= L_BASE / RANS_PRECISION * IO_BASE * prob) {
     ans->buf[ans->buf_offset++] = ans->state % IO_BASE;
     ans->state /= IO_BASE;
   }
-  ANS_DIVREM(quotient, remainder, ans->state, prob);
-  ans->state = quotient * RANS_PRECISION + remainder + cum_prob;
+  quot = OD_DIVU_SMALL_UNSCALED(ans->state, prob_top) >> msb;
+  rem = ans->state - quot * quant_prob;
+  if (prob != quant_prob) {
+    unsigned adjustment = (prob - quant_prob) * quot;
+    assert(adjustment < prob);
+    if (adjustment > rem) {
+      --quot;
+      rem += prob - adjustment;
+    } else {
+      rem -= adjustment;
+    }
+  }
+  ans->state = quot * RANS_PRECISION + rem + cum_prob;
+  assert(ans->state % RANS_PRECISION >= cum_prob);
+  assert(ans->state % RANS_PRECISION < cum_prob + prob);
+  assert(ans->state < L_BASE * IO_BASE);
 }
 
 #undef ANS_DIV8
-#undef ANS_DIVREM
 #ifdef __cplusplus
 }  // extern "C"
 #endif  // __cplusplus

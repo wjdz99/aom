@@ -208,4 +208,31 @@ TEST(AnsTest, FinalStateSerialization) {
     EXPECT_EQ(d.state, i);
   }
 }
+TEST(DISABLED_AnsTest, EncodeDecodeRansStateTransitions) {
+  for (aom_cdf_prob prob = RANS_PRECISION - 1; prob > 0; --prob) {
+    fprintf(stderr, "prob %d\n", prob);
+    const aom_cdf_prob tab[2] = { prob, RANS_PRECISION };
+    for (unsigned state = L_BASE; state < L_BASE * IO_BASE; ++state) {
+      uint8_t buf[8];
+      AnsCoder c;
+      ans_write_init(&c, buf);
+      c.state = state;
+      rans_write(&c, 0, prob);
+      int written_size = ans_write_end(&c);
+      ASSERT_LT(static_cast<size_t>(written_size), sizeof(buf));
+      AnsDecoder d;
+#if ANS_MAX_SYMBOLS
+      // There is no real data window here because only a single value is sent
+      // through ans (only synthetic states), so use a dummy value
+      d.window_size = 1024;
+#endif
+      int read_init_status = ans_read_init(&d, buf, written_size);
+      EXPECT_EQ(read_init_status, 0);
+      int sym_out_idx = rans_read(&d, tab);
+      d.state = refill_state(&d, d.state);
+      EXPECT_EQ(sym_out_idx, 0);
+      EXPECT_EQ(d.state, state);
+    }
+  }
+}
 }  // namespace
