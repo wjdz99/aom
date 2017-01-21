@@ -999,12 +999,109 @@ static REFERENCE_MODE read_block_reference_mode(AV1_COMMON *cm,
   }
 }
 
+// Read the compound referncence frames
+static void read_comp_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                                 aom_reader *r,
+                                 MV_REFERENCE_FRAME ref_frame[2]) {
+  FRAME_CONTEXT *const fc = cm->fc;
+  FRAME_COUNTS *counts = xd->counts;
+
+#if CONFIG_EXT_REFS
+  const int idx = cm->ref_frame_sign_bias[cm->comp_bwd_ref[0]];
+#else
+  const int idx = cm->ref_frame_sign_bias[cm->comp_fixed_ref];
+#endif  // CONFIG_EXT_REFS
+
+  const int ctx = av1_get_pred_context_comp_ref_p(cm, xd);
+  const int bit = aom_read(r, fc->comp_ref_prob[ctx][0], ACCT_STR);
+  if (counts) ++counts->comp_ref[ctx][0][bit];
+
+#if CONFIG_EXT_REFS
+  // Decode forward references.
+  if (!bit) {
+    const int ctx1 = av1_get_pred_context_comp_ref_p1(cm, xd);
+    const int bit1 = aom_read(r, fc->comp_ref_prob[ctx1][1], ACCT_STR);
+    if (counts) ++counts->comp_ref[ctx1][1][bit1];
+    ref_frame[!idx] = cm->comp_fwd_ref[bit1 ? 0 : 1];
+  } else {
+    const int ctx2 = av1_get_pred_context_comp_ref_p2(cm, xd);
+    const int bit2 = aom_read(r, fc->comp_ref_prob[ctx2][2], ACCT_STR);
+    if (counts) ++counts->comp_ref[ctx2][2][bit2];
+    ref_frame[!idx] = cm->comp_fwd_ref[bit2 ? 3 : 2];
+  }
+
+  // Decode backward references.
+  {
+    const int ctx_bwd = av1_get_pred_context_comp_bwdref_p(cm, xd);
+    const int bit_bwd = aom_read(r, fc->comp_bwdref_prob[ctx_bwd][0], ACCT_STR);
+    if (counts) ++counts->comp_bwdref[ctx_bwd][0][bit_bwd];
+    ref_frame[idx] = cm->comp_bwd_ref[bit_bwd];
+  }
+#else
+  ref_frame[!idx] = cm->comp_var_ref[bit];
+  ref_frame[idx] = cm->comp_fixed_ref;
+#endif  // CONFIG_EXT_REFS
+}
+
+// Read the single referncence frames
+static void read_single_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                                   aom_reader *r,
+                                   MV_REFERENCE_FRAME *ref_frame) {
+  FRAME_CONTEXT *const fc = cm->fc;
+  FRAME_COUNTS *counts = xd->counts;
+
+#if CONFIG_EXT_REFS
+  const int ctx0 = av1_get_pred_context_single_ref_p1(xd);
+  const int bit0 = aom_read(r, fc->single_ref_prob[ctx0][0], ACCT_STR);
+  if (counts) ++counts->single_ref[ctx0][0][bit0];
+
+  if (bit0) {
+    const int ctx1 = av1_get_pred_context_single_ref_p2(xd);
+    const int bit1 = aom_read(r, fc->single_ref_prob[ctx1][1], ACCT_STR);
+    if (counts) ++counts->single_ref[ctx1][1][bit1];
+    *ref_frame = bit1 ? ALTREF_FRAME : BWDREF_FRAME;
+  } else {
+    const int ctx2 = av1_get_pred_context_single_ref_p3(xd);
+    const int bit2 = aom_read(r, fc->single_ref_prob[ctx2][2], ACCT_STR);
+    if (counts) ++counts->single_ref[ctx2][2][bit2];
+    if (bit2) {
+      const int ctx4 = av1_get_pred_context_single_ref_p5(xd);
+      const int bit4 = aom_read(r, fc->single_ref_prob[ctx4][4], ACCT_STR);
+      if (counts) ++counts->single_ref[ctx4][4][bit4];
+      *ref_frame = bit4 ? GOLDEN_FRAME : LAST3_FRAME;
+    } else {
+      const int ctx3 = av1_get_pred_context_single_ref_p4(xd);
+      const int bit3 = aom_read(r, fc->single_ref_prob[ctx3][3], ACCT_STR);
+      if (counts) ++counts->single_ref[ctx3][3][bit3];
+      *ref_frame = bit3 ? LAST2_FRAME : LAST_FRAME;
+    }
+  }
+#else
+  const int ctx0 = av1_get_pred_context_single_ref_p1(xd);
+  const int bit0 = aom_read(r, fc->single_ref_prob[ctx0][0], ACCT_STR);
+  if (counts) ++counts->single_ref[ctx0][0][bit0];
+
+  if (bit0) {
+    const int ctx1 = av1_get_pred_context_single_ref_p2(xd);
+    const int bit1 = aom_read(r, fc->single_ref_prob[ctx1][1], ACCT_STR);
+    if (counts) ++counts->single_ref[ctx1][1][bit1];
+    *ref_frame = bit1 ? ALTREF_FRAME : GOLDEN_FRAME;
+  } else {
+    *ref_frame = LAST_FRAME;
+  }
+#endif  // CONFIG_EXT_REFS
+}
+
 // Read the referncence frame
 static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             aom_reader *r, int segment_id,
                             MV_REFERENCE_FRAME ref_frame[2]) {
+#if CONFIG_COMP_TRIPRED
   FRAME_CONTEXT *const fc = cm->fc;
   FRAME_COUNTS *counts = xd->counts;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  const BLOCK_SIZE bsize = mbmi->sb_type;
+#endif  // CONFIG_COMP_TRIPRED
 
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
     ref_frame[0] = (MV_REFERENCE_FRAME)get_segdata(&cm->seg, segment_id,
@@ -1012,86 +1109,29 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     ref_frame[1] = NONE;
   } else {
     const REFERENCE_MODE mode = read_block_reference_mode(cm, xd, r);
+
     // FIXME(rbultje) I'm pretty sure this breaks segmentation ref frame coding
     if (mode == COMPOUND_REFERENCE) {
-#if CONFIG_EXT_REFS
-      const int idx = cm->ref_frame_sign_bias[cm->comp_bwd_ref[0]];
-#else
-      const int idx = cm->ref_frame_sign_bias[cm->comp_fixed_ref];
-#endif  // CONFIG_EXT_REFS
-      const int ctx = av1_get_pred_context_comp_ref_p(cm, xd);
-      const int bit = aom_read(r, fc->comp_ref_prob[ctx][0], ACCT_STR);
+#if CONFIG_COMP_TRIPRED
+      // Read interinter compound data type
+      mbmi->interinter_compound_data.type = aom_read_tree(
+          r, av1_compound_type_tree, fc->compound_type_prob[bsize], ACCT_STR);
+      if (counts)
+        counts->compound_interinter[bsize]
+                                   [mbmi->interinter_compound_data.type]++;
+#endif  // CONFIG_COMP_TRIPRED
 
-      if (counts) ++counts->comp_ref[ctx][0][bit];
+      // Read the bi-prediction compound reference frames
+      read_comp_ref_frames(cm, xd, r, ref_frame);
 
-#if CONFIG_EXT_REFS
-      // Decode forward references.
-      if (!bit) {
-        const int ctx1 = av1_get_pred_context_comp_ref_p1(cm, xd);
-        const int bit1 = aom_read(r, fc->comp_ref_prob[ctx1][1], ACCT_STR);
-        if (counts) ++counts->comp_ref[ctx1][1][bit1];
-        ref_frame[!idx] = cm->comp_fwd_ref[bit1 ? 0 : 1];
-      } else {
-        const int ctx2 = av1_get_pred_context_comp_ref_p2(cm, xd);
-        const int bit2 = aom_read(r, fc->comp_ref_prob[ctx2][2], ACCT_STR);
-        if (counts) ++counts->comp_ref[ctx2][2][bit2];
-        ref_frame[!idx] = cm->comp_fwd_ref[bit2 ? 3 : 2];
+#if CONFIG_COMP_TRIPRED
+      if (mbmi->interinter_compound_data.type == COMPOUND_TRIPRED) {
+        // Read the third reference for tri-prediction
+        read_single_ref_frames(cm, xd, r, &mbmi->ref_frame_third);
       }
-
-      // Decode backward references.
-      {
-        const int ctx_bwd = av1_get_pred_context_comp_bwdref_p(cm, xd);
-        const int bit_bwd =
-            aom_read(r, fc->comp_bwdref_prob[ctx_bwd][0], ACCT_STR);
-        if (counts) ++counts->comp_bwdref[ctx_bwd][0][bit_bwd];
-        ref_frame[idx] = cm->comp_bwd_ref[bit_bwd];
-      }
-#else
-      ref_frame[!idx] = cm->comp_var_ref[bit];
-      ref_frame[idx] = cm->comp_fixed_ref;
-#endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_COMP_TRIPRED
     } else if (mode == SINGLE_REFERENCE) {
-#if CONFIG_EXT_REFS
-      const int ctx0 = av1_get_pred_context_single_ref_p1(xd);
-      const int bit0 = aom_read(r, fc->single_ref_prob[ctx0][0], ACCT_STR);
-      if (counts) ++counts->single_ref[ctx0][0][bit0];
-
-      if (bit0) {
-        const int ctx1 = av1_get_pred_context_single_ref_p2(xd);
-        const int bit1 = aom_read(r, fc->single_ref_prob[ctx1][1], ACCT_STR);
-        if (counts) ++counts->single_ref[ctx1][1][bit1];
-        ref_frame[0] = bit1 ? ALTREF_FRAME : BWDREF_FRAME;
-      } else {
-        const int ctx2 = av1_get_pred_context_single_ref_p3(xd);
-        const int bit2 = aom_read(r, fc->single_ref_prob[ctx2][2], ACCT_STR);
-        if (counts) ++counts->single_ref[ctx2][2][bit2];
-        if (bit2) {
-          const int ctx4 = av1_get_pred_context_single_ref_p5(xd);
-          const int bit4 = aom_read(r, fc->single_ref_prob[ctx4][4], ACCT_STR);
-          if (counts) ++counts->single_ref[ctx4][4][bit4];
-          ref_frame[0] = bit4 ? GOLDEN_FRAME : LAST3_FRAME;
-        } else {
-          const int ctx3 = av1_get_pred_context_single_ref_p4(xd);
-          const int bit3 = aom_read(r, fc->single_ref_prob[ctx3][3], ACCT_STR);
-          if (counts) ++counts->single_ref[ctx3][3][bit3];
-          ref_frame[0] = bit3 ? LAST2_FRAME : LAST_FRAME;
-        }
-      }
-#else
-      const int ctx0 = av1_get_pred_context_single_ref_p1(xd);
-      const int bit0 = aom_read(r, fc->single_ref_prob[ctx0][0], ACCT_STR);
-      if (counts) ++counts->single_ref[ctx0][0][bit0];
-
-      if (bit0) {
-        const int ctx1 = av1_get_pred_context_single_ref_p2(xd);
-        const int bit1 = aom_read(r, fc->single_ref_prob[ctx1][1], ACCT_STR);
-        if (counts) ++counts->single_ref[ctx1][1][bit1];
-        ref_frame[0] = bit1 ? ALTREF_FRAME : GOLDEN_FRAME;
-      } else {
-        ref_frame[0] = LAST_FRAME;
-      }
-#endif  // CONFIG_EXT_REFS
-
+      read_single_ref_frames(cm, xd, r, &ref_frame[0]);
       ref_frame[1] = NONE;
     } else {
       assert(0 && "Invalid prediction mode.");
@@ -1497,6 +1537,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   const int allow_hp = cm->allow_high_precision_mv;
   const int unify_bsize = CONFIG_CB4X4;
   int_mv nearestmv[2], nearmv[2];
+#if CONFIG_COMP_TRIPRED
+  // TODO(zoeliu): To work with the experiment of CONFIG_REF_MV
+  int_mv nearestmv_third, nearmv_third;
+#endif  // CONFIG_COMP_TRIPRED
   int_mv ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES];
 #if CONFIG_EXT_INTER
   int mv_idx;
@@ -1521,6 +1565,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   mbmi->palette_mode_info.palette_size[1] = 0;
 #endif  // CONFIG_PALETTE
 
+#if CONFIG_COMP_TRIPRED
+  mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
+#endif  // CONFIG_COMP_TRIPRED
+
   read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
   is_compound = has_second_ref(mbmi);
 
@@ -1533,10 +1581,21 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_EXT_INTER
                      compound_inter_mode_ctx,
 #endif  // CONFIG_EXT_INTER
-#endif
+#endif  // CONFIG_REF_MV
                      ref_mvs[frame], mi_row, mi_col, fpm_sync, (void *)pbi,
                      inter_mode_ctx);
   }
+#if CONFIG_COMP_TRIPRED
+  if (is_compound && mbmi->interinter_compound_data.type == COMPOUND_TRIPRED &&
+      mbmi->ref_frame_third != mbmi->ref_frame[0] &&
+      mbmi->ref_frame_third != mbmi->ref_frame[1]) {
+    MV_REFERENCE_FRAME frame = mbmi->ref_frame_third;
+
+    // TODO(zoeliu): To work with CONFIG_REF_MV and CONFIG_EXT_INTER
+    av1_find_mv_refs(cm, xd, mi, frame, ref_mvs[frame], mi_row, mi_col,
+                     fpm_sync, (void *)pbi, inter_mode_ctx);
+  }
+#endif  // CONFIG_COMP_TRIPRED
 
 #if CONFIG_REF_MV
   if (is_compound) {
@@ -1564,7 +1623,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                              : 0;
 #else
       zeromv[0].as_int = zeromv[1].as_int = 0;
-#endif
+#endif  // CONFIG_GLOBAL_MOTION
       for (ref = 0; ref < 2; ++ref) {
         lower_mv_precision(&ref_mvs[rf[ref]][0].as_mv, allow_hp);
         lower_mv_precision(&ref_mvs[rf[ref]][1].as_mv, allow_hp);
@@ -1588,7 +1647,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   mbmi->ref_mv_idx = 0;
 #else
   mode_ctx = inter_mode_ctx[mbmi->ref_frame[0]];
-#endif
+#endif  // CONFIG_REF_MV
 
   if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
     mbmi->mode = ZEROMV;
@@ -1627,6 +1686,20 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                             &nearestmv[ref], &nearmv[ref]);
     }
   }
+#if CONFIG_COMP_TRIPRED
+  if (is_compound && mbmi->interinter_compound_data.type == COMPOUND_TRIPRED) {
+    if (mbmi->ref_frame_third == mbmi->ref_frame[0]) {
+      nearestmv_third = nearestmv[0];
+      nearmv_third = nearmv[0];
+    } else if (mbmi->ref_frame_third == mbmi->ref_frame[1]) {
+      nearestmv_third = nearestmv[1];
+      nearmv_third = nearmv[1];
+    } else {
+      av1_find_best_ref_mvs(allow_hp, ref_mvs[mbmi->ref_frame_third],
+                            &nearestmv_third, &nearmv_third);
+    }
+  }
+#endif  // CONFIG_COMP_TRIPRED
 
 #if CONFIG_REF_MV
   if (mbmi->ref_mv_idx > 0) {
@@ -1690,7 +1763,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
 #endif  // CONFIG_EXT_INTER
   }
-#endif
+#endif  // CONFIG_REF_MV
 
 #if !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION
   read_mb_interp_filter(cm, xd, mbmi, r);
@@ -1834,6 +1907,20 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                    ref_mv,
 #endif  // CONFIG_EXT_INTER
                    nearestmv, nearmv, is_compound, allow_hp, r);
+
+#if CONFIG_COMP_TRIPRED
+    if (is_compound && mbmi->interinter_compound_data.type == COMPOUND_TRIPRED) {
+      // TODO(zoeliu): To work with the experiment of CONFIG_REF_MV
+      // Read the third motion vector
+      FRAME_COUNTS *counts = xd->counts;
+      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
+      int_mv ref_mv_third = nearestmv_third;
+
+      read_mv(r, &mbmi->mv_third.as_mv, &ref_mv_third.as_mv, &cm->fc->nmvc,
+              mv_counts, allow_hp);
+      xd->corrupted |= !is_mv_valid(&mbmi->mv_third.as_mv);
+    }
+#endif  // CONFIG_COMP_TRIPRED
   }
 
 #if CONFIG_EXT_INTER
