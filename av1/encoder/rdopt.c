@@ -594,16 +594,16 @@ static double od_compute_dist(int qm, int activity_masking, od_coeff *x,
                                    bsize_w);
       }
     }
-    /* Compensate for the fact that the quantization matrix lowers the
-       distortion value. We tried a half-dozen values and picked the one where
-       we liked the ntt-short1 curves best. The tuning is approximate since
-       the different metrics go in different directions. */
-    /*Start interpolation at coded_quantizer 1.7=f(36) and end it at 1.2=f(47)*/
-    // TODO(yushin): Check whether qindex of AV1 work here, replacing daala's
-    // coded_quantizer.
-    /*sum *= qindex >= 47 ? 1.2 :
-        qindex <= 36 ? 1.7 :
-     1.7 + (1.2 - 1.7)*(qindex - 36)/(47 - 36);*/
+    /* Scale according to linear regression against SSE, for 8x8 blocks. */
+    if (activity_masking) {
+      sum *= qindex >= 43 ? 1.1 :
+             qindex <= 20 ? 2.6 :
+             2.6 + (1.1 - 2.6) * (qindex - 20) / (43 - 20);
+    } else {
+      sum *= qindex >= 55 ? 1.2 :
+             qindex <= 20 ? 2.0 :
+             2.0 + (1.2 - 2.0) * (qindex - 20) / (55 - 20);
+    }
   }
   return sum;
 }
