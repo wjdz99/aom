@@ -926,6 +926,7 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #else
       ConvolveParams conv_params = get_conv_params(ref);
 #endif  // CONVOLVE_POST_ROUNDING
+
 #if CONFIG_EXT_INTER
       if (ref &&
           is_masked_compound_type(mi->mbmi.interinter_compound_data.type))
@@ -970,6 +971,112 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #endif  // CONVOLVE_POST_ROUNDING
   }
 }
+
+#if CONFIG_COMP_TRIPRED
+// TODO(zoeliu): Not working with following experiments yet;
+//               Once the benefit of COMP_TRIPRED is confirmed, it needs to work
+//               at least together with EXT_INTER.
+//               (1) CONFIG_GLOBAL_MOTION
+//               (2) CONFIG_SUB8X8_MC
+//               (3) CONFIG_MOTION_VAR
+//               (4) CONFIG_SUPERTX
+//               (5) CONFIG_EXT_INTER
+//               (6) CONFIG_DUAL_FILTER
+#define NUM_PREDICTORS 3
+void build_inter_tripredictors(MACROBLOCKD *xd, int plane, int bw, int bh,
+                               int x, int y, int w, int h, int mi_x, int mi_y) {
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  MODE_INFO *mi = xd->mi[0];
+  int ref;
+
+  assert(has_second_ref(&mi->mbmi) &&
+         mi->mbmi.interinter_compound_data.type == COMPOUND_TRIPRED);
+
+  // TODO(zoeliu): Currently TRIPRED does not support sub8x8 yet.
+  assert(mi->mbmi.sb_type >= BLOCK_8X8);
+
+  // NOTE: The tri-prediction is implemented through a 2-level bi-prediction:
+  //       (1) 1st level: A no-wedge normal compound bi-prediction;
+  //       (2) 2nd level: A no-wedge normal compound bi-prediction, with the
+  //                      1st-level bi-predicted result as the 1st predictor,
+  //                      and the 3rd predictor handled as the 2nd predictor.
+  //       Hence, the final predictor should be:
+  //       1/4 * predictor[0] + 1/4 * predictor[1] + 1/2 * predictor[2]
+  {
+    struct buf_2d *const dst_buf = &pd->dst;
+    uint8_t *const dst = dst_buf->buf + dst_buf->stride * y + x;
+
+    uint8_t *pre[NUM_PREDICTORS];
+    SubpelParams subpel_params[NUM_PREDICTORS];
+
+#if CONVOLVE_POST_ROUNDING
+    int32_t tmp_dst[MAX_SB_SIZE * MAX_SB_SIZE];
+#endif  // CONVOLVE_POST_ROUNDING
+
+    for (ref = 0; ref < NUM_PREDICTORS; ++ref) {
+      const struct scale_factors *const sf =
+          (ref < 2) ? &xd->block_refs[ref]->sf : &xd->block_ref_third->sf;
+      struct buf_2d *const pre_buf = (ref < 2) ? &pd->pre[ref] : &pd->pre_third;
+      const MV mv = (ref < 2) ? mi->mbmi.mv[ref].as_mv : mi->mbmi.mv_third.as_mv;
+
+      MV32 scaled_mv;
+
+      // TODO(jkoleszar): This clamping is done in the incorrect place for the
+      // scaling case. It needs to be done on the scaled MV, not the pre-scaling
+      // MV. Note however that it performs the subsampling aware scaling so
+      // that the result is always q4.
+      // mv_precision precision is MV_PRECISION_Q4.
+      const MV mv_q4 = clamp_mv_to_umv_border_sb(
+          xd, &mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
+
+      const int is_scaled = av1_is_scaled(sf);
+
+      if (is_scaled) {
+        pre[ref] =
+            pre_buf->buf + scaled_buffer_offset(x, y, pre_buf->stride, sf);
+        scaled_mv = av1_scale_mv(&mv_q4, mi_x + x, mi_y + y, sf);
+        subpel_params[ref].xs = sf->x_step_q4;
+        subpel_params[ref].ys = sf->y_step_q4;
+      } else {
+        pre[ref] = pre_buf->buf + (y * pre_buf->stride + x);
+        scaled_mv.row = mv_q4.row;
+        scaled_mv.col = mv_q4.col;
+        subpel_params[ref].xs = 16;
+        subpel_params[ref].ys = 16;
+      }
+
+      subpel_params[ref].subpel_x = scaled_mv.col & SUBPEL_MASK;
+      subpel_params[ref].subpel_y = scaled_mv.row & SUBPEL_MASK;
+      pre[ref] += (scaled_mv.row >> SUBPEL_BITS) * pre_buf->stride +
+                  (scaled_mv.col >> SUBPEL_BITS);
+    }
+
+    for (ref = 0; ref < NUM_PREDICTORS; ++ref) {
+      const struct scale_factors *const sf =
+          (ref < 2) ? &xd->block_refs[ref]->sf : &xd->block_ref_third->sf;
+      struct buf_2d *const pre_buf = (ref < 2) ? &pd->pre[ref] : &pd->pre_third;
+
+#if CONVOLVE_POST_ROUNDING
+      ConvolveParams conv_params =
+          get_conv_params_no_round((ref < 2) ? ref : 1, tmp_dst, MAX_SB_SIZE);
+#else
+      ConvolveParams conv_params = get_conv_params((ref < 2) ? ref : 1);
+#endif  // CONVOLVE_POST_ROUNDING
+
+      av1_make_inter_predictor(
+          pre[ref], pre_buf->stride, dst, dst_buf->stride,
+          subpel_params[ref].subpel_x, subpel_params[ref].subpel_y, sf, w, h,
+          &conv_params, mi->mbmi.interp_filter, subpel_params[ref].xs,
+          subpel_params[ref].ys, xd);
+    }
+
+#if CONVOLVE_POST_ROUNDING
+    // TODO(angiebird): This part needs optimization
+    av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h);
+#endif  // CONVOLVE_POST_ROUNDING
+  }
+}
+#endif  // CONFIG_COMP_TRIPRED
 
 void av1_build_inter_predictor_sub8x8(MACROBLOCKD *xd, int plane, int i, int ir,
                                       int ic, int mi_row, int mi_col) {
@@ -1021,6 +1128,7 @@ static void build_inter_predictors_for_planes(MACROBLOCKD *xd, BLOCK_SIZE bsize,
 #else
   const int unify_bsize = 0;
 #endif
+
   for (plane = plane_from; plane <= plane_to; ++plane) {
     const struct macroblockd_plane *pd = &xd->plane[plane];
     const int bw = block_size_wide[bsize] >> pd->subsampling_x;
@@ -1035,9 +1143,14 @@ static void build_inter_predictors_for_planes(MACROBLOCKD *xd, BLOCK_SIZE bsize,
       const int pw = 8 >> (have_vsplit | pd->subsampling_x);
       const int ph = 8 >> (have_hsplit | pd->subsampling_y);
       int x, y;
+
       assert(bp != PARTITION_NONE && bp < PARTITION_TYPES);
       assert(bsize == BLOCK_8X8);
       assert(pw * num_4x4_w == bw && ph * num_4x4_h == bh);
+#if CONFIG_COMP_TRIPRED
+      assert(xd->mi[0]->mbmi.interinter_compound_data.type != COMPOUND_TRIPRED);
+#endif  // CONFIG_COMP_TRIPRED
+
       for (y = 0; y < num_4x4_h; ++y)
         for (x = 0; x < num_4x4_w; ++x)
           build_inter_predictors(xd, plane,
@@ -1050,15 +1163,21 @@ static void build_inter_predictors_for_planes(MACROBLOCKD *xd, BLOCK_SIZE bsize,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
                                  mi_x, mi_y);
     } else {
-      build_inter_predictors(xd, plane,
+#if CONFIG_COMP_TRIPRED
+      if (has_second_ref(&xd->mi[0]->mbmi) &&
+          xd->mi[0]->mbmi.interinter_compound_data.type == COMPOUND_TRIPRED)
+        build_inter_tripredictors(xd, plane, bw, bh, 0, 0, bw, bh, mi_x, mi_y);
+      else
+#endif  // CONFIG_COMP_TRIPRED
+        build_inter_predictors(xd, plane,
 #if CONFIG_MOTION_VAR
-                             0, 0,
+                               0, 0,
 #endif  // CONFIG_MOTION_VAR
-                             0, bw, bh, 0, 0, bw, bh,
+                               0, bw, bh, 0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
-                             0, 0,
+                               0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
-                             mi_x, mi_y);
+                               mi_x, mi_y);
     }
   }
 }
@@ -1183,9 +1302,13 @@ void av1_setup_pre_planes(MACROBLOCKD *xd, int idx,
                                         src->uv_stride };
     for (i = 0; i < MAX_MB_PLANE; ++i) {
       struct macroblockd_plane *const pd = &xd->plane[i];
-      setup_pred_plane(&pd->pre[idx], buffers[i], widths[i], heights[i],
-                       strides[i], mi_row, mi_col, sf, pd->subsampling_x,
-                       pd->subsampling_y);
+#if CONFIG_COMP_TRIPRED
+      struct buf_2d *pre_buf = (idx < 2) ? &pd->pre[idx] : &pd->pre_third;
+#else
+      struct buf_2d *pre_buf = &pd->pre[idx];
+#endif  // CONFIG_COMP_TRIPRED
+      setup_pred_plane(pre_buf, buffers[i], widths[i], heights[i], strides[i],
+                       mi_row, mi_col, sf, pd->subsampling_x, pd->subsampling_y);
     }
   }
 }
@@ -2752,7 +2875,9 @@ void av1_build_interintra_predictors(MACROBLOCKD *xd, uint8_t *ypred,
   av1_build_interintra_predictors_sbuv(xd, upred, vpred, ustride, vstride, ctx,
                                        bsize);
 }
+#endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 // Builds the inter-predictor for the single ref case
 // for use in the encoder to search the wedges efficiently.
 static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
@@ -2764,8 +2889,15 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const MODE_INFO *mi = xd->mi[0];
 
+#if CONFIG_COMP_TRIPRED
+  const struct scale_factors *const sf = (ref < 2) ? &xd->block_refs[ref]->sf
+                                                   : &xd->block_ref_third->sf;
+  struct buf_2d *const pre_buf = (ref < 2) ? &pd->pre[ref] : &pd->pre_third;
+#else
   const struct scale_factors *const sf = &xd->block_refs[ref]->sf;
   struct buf_2d *const pre_buf = &pd->pre[ref];
+#endif  // CONFIG_COMP_TRIPRED
+
 #if CONFIG_AOM_HIGHBITDEPTH
   uint8_t *const dst =
       (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH ? CONVERT_TO_BYTEPTR(ext_dst)
@@ -2774,9 +2906,14 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
 #else
   uint8_t *const dst = ext_dst + ext_dst_stride * y + x;
 #endif
+
+#if CONFIG_COMP_TRIPRED
+  const MV mv = (ref < 2) ? mi->mbmi.mv[ref].as_mv : mi->mbmi.mv_third.as_mv;
+#else
   const MV mv = mi->mbmi.sb_type < BLOCK_8X8
                     ? average_split_mvs(pd, mi, ref, block)
                     : mi->mbmi.mv[ref].as_mv;
+#endif  // CONFIG_COMP_TRIPRED
 
   // TODO(jkoleszar): This clamping is done in the incorrect place for the
   // scaling case. It needs to be done on the scaled MV, not the pre-scaling
@@ -2790,7 +2927,12 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
   MV32 scaled_mv;
   int xs, ys, subpel_x, subpel_y;
   const int is_scaled = av1_is_scaled(sf);
+#if CONFIG_COMP_TRIPRED
+  ConvolveParams conv_params = get_conv_params(ref > 0 ? 1 : 0);
+  (void)block;
+#else
   ConvolveParams conv_params = get_conv_params(0);
+#endif  // CONFIG_COMP_TRIPRED
 
   if (is_scaled) {
     pre = pre_buf->buf + scaled_buffer_offset(x, y, pre_buf->stride, sf);
@@ -2828,6 +2970,11 @@ void av1_build_inter_predictors_for_planes_single_buf(
     const int bw = block_size_wide[plane_bsize];
     const int bh = block_size_high[plane_bsize];
 
+#if CONFIG_COMP_TRIPRED
+    if (xd->mi[0]->mbmi.interinter_compound_data.type == COMPOUND_TRIPRED)
+      assert(xd->mi[0]->mbmi.sb_type >= BLOCK_8X8);
+#endif  // CONFIG_COMP_TRIPRED
+
     if (xd->mi[0]->mbmi.sb_type < BLOCK_8X8) {
       int x, y;
       assert(bsize == BLOCK_8X8);
@@ -2843,7 +2990,9 @@ void av1_build_inter_predictors_for_planes_single_buf(
     }
   }
 }
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
+#if CONFIG_EXT_INTER
 static void build_wedge_inter_predictor_from_buf(
     MACROBLOCKD *xd, int plane, int x, int y, int w, int h, uint8_t *ext_dst0,
     int ext_dst_stride0, uint8_t *ext_dst1, int ext_dst_stride1) {
