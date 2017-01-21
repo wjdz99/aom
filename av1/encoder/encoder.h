@@ -820,14 +820,24 @@ static INLINE int is_bwdref_enabled(const AV1_COMP *const cpi) {
 }
 #endif  // CONFIG_EXT_REFS
 
+static INLINE const RefBuffer *get_ref_buf_ptr(const AV1_COMMON *cm,
+                                               MV_REFERENCE_FRAME ref) {
+  return &cm->frame_refs[ref >= LAST_FRAME ? ref - LAST_FRAME : 0];
+}
+
 static INLINE void set_ref_ptrs(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 MV_REFERENCE_FRAME ref0,
                                 MV_REFERENCE_FRAME ref1) {
-  xd->block_refs[0] =
-      &cm->frame_refs[ref0 >= LAST_FRAME ? ref0 - LAST_FRAME : 0];
-  xd->block_refs[1] =
-      &cm->frame_refs[ref1 >= LAST_FRAME ? ref1 - LAST_FRAME : 0];
+  xd->block_refs[0] = get_ref_buf_ptr(cm, ref0);
+  xd->block_refs[1] = get_ref_buf_ptr(cm, ref1);
 }
+
+#if CONFIG_COMP_TRIPRED
+static INLINE void set_third_ref_ptr(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                     MV_REFERENCE_FRAME ref_third) {
+  xd->block_ref_third = get_ref_buf_ptr(cm, ref_third);
+}
+#endif  // CONFIG_COMP_TRIPRED
 
 static INLINE int get_chessboard_index(const int frame_index) {
   return frame_index & 0x1;

@@ -1927,7 +1927,7 @@ static int64_t choose_tx_size_fix_type(const AV1_COMP *const cpi, BLOCK_SIZE bs,
   return best_rd;
 }
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 static int64_t estimate_yrd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bs,
                                    MACROBLOCK *x, int *r, int64_t *d, int *s,
                                    int64_t *sse, int64_t ref_best_rd) {
@@ -1940,7 +1940,7 @@ static int64_t estimate_yrd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bs,
   *sse = rd_stats.sse;
   return rd;
 }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
 static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
                                    RD_STATS *rd_stats, int64_t ref_best_rd,
@@ -4877,19 +4877,23 @@ static int cost_mv_ref(const AV1_COMP *const cpi, PREDICTION_MODE mode,
 #endif
 }
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 static int get_interinter_compound_type_bits(BLOCK_SIZE bsize,
                                              COMPOUND_TYPE comp_type) {
   switch (comp_type) {
     case COMPOUND_AVERAGE: return 0;
+#if CONFIG_COMP_TRIPRED
+    case COMPOUND_TRIPRED: (void)bsize; return 0;
+#else
     case COMPOUND_WEDGE: return get_interinter_wedge_bits(bsize);
 #if CONFIG_COMPOUND_SEGMENT
     case COMPOUND_SEG: return 1;
 #endif  // CONFIG_COMPOUND_SEGMENT
+#endif  // CONFIG_COMP_TRIPRED
     default: assert(0); return 0;
   }
 }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
 #if CONFIG_GLOBAL_MOTION
 static int GLOBAL_MOTION_RATE(const AV1_COMP *const cpi, int ref) {
@@ -5618,6 +5622,149 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 #endif  // CONFIG_EXT_INTER
   }
 }
+
+#if CONFIG_COMP_TRIPRED
+// Do joint motion search in compound mode to get a more accurate third mv for
+// tri-prediction.
+static void tripred_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
+                                  BLOCK_SIZE bsize, int mi_row, int mi_col,
+                                  const MV_REFERENCE_FRAME ref_frame_third,
+                                  int_mv single_newmv[TOTAL_REFS_PER_FRAME],
+                                  int_mv *third_mv, int *rate_third_mv,
+                                  const uint8_t *second_pred) {
+  const int pw = block_size_wide[bsize];
+  const int ph = block_size_high[bsize];
+  MACROBLOCKD *xd = &x->e_mbd;
+  int_mv ref_mv_third = x->mbmi_ext->ref_mvs[ref_frame_third][0];
+  struct buf_2d backup_yv12[MAX_MB_PLANE];
+  const YV12_BUFFER_CONFIG *const scaled_ref_frame_buf_third =
+      av1_get_scaled_ref_frame(cpi, ref_frame_third);
+
+  // NOTE(zoeliu): Currently COMPOUND_TRIPRED does not support sub8x8 blocks.
+  assert(bsize >= BLOCK_8X8 &&
+         xd->mi[0]->mbmi.interinter_compound_data.type == COMPOUND_TRIPRED);
+
+  // NOTE(zoeliu): For tri-prediction motion search, the 2nd level is a 2nd bi-
+  //               prediction, with the 2nd predictor as the result of the 1st
+  //               level bi-prediction, and the 1st predictor is to be
+  //               identified from any arbitrary reference frame.
+
+  // Set up the initial third motion vector - using the single frame motion
+  // search result
+  third_mv->as_int = single_newmv[ref_frame_third].as_int;
+
+  // Set up the 1st predictor planes
+  {
+    int i;
+    for (i = 0; i < MAX_MB_PLANE; i++) backup_yv12[i] = xd->plane[i].pre[0];
+
+    if (scaled_ref_frame_buf_third) {
+      // Swap out the reference frame for a version that's been scaled to
+      // match the resolution of the current frame, allowing the existing
+      // motion search code to be used without additional modifications.
+      av1_setup_pre_planes(xd, 0, scaled_ref_frame_buf_third, mi_row, mi_col,
+                           NULL);
+    } else {
+      const RefBuffer *block_ref_third =
+          get_ref_buf_ptr(&cpi->common, ref_frame_third);
+      av1_setup_pre_planes(xd, 0, block_ref_third->buf, mi_row, mi_col,
+                           &block_ref_third->sf);
+    }
+  }
+
+  // Reuse the compound joint motion search functionality to identify the best
+  // third mv
+  {
+    int bestsme = INT_MAX;
+    int sadpb = x->sadperbit16;
+    MV *const best_mv = &x->best_mv.as_mv;
+    int search_range = 3;
+
+    int tmp_col_min = x->mv_col_min;
+    int tmp_col_max = x->mv_col_max;
+    int tmp_row_min = x->mv_row_min;
+    int tmp_row_max = x->mv_row_max;
+
+    av1_set_mv_search_range(x, &ref_mv_third.as_mv);
+
+    // Use the mv result from the single mode as the mv predictor.
+    *best_mv = third_mv->as_mv;
+
+    best_mv->col >>= 3;
+    best_mv->row >>= 3;
+
+#if CONFIG_REF_MV
+// TODO(zoeliu): To work with CONFIG_REF_MV
+// av1_set_mvcost(x, ref_frame_third, 0, mbmi->ref_mv_idx);
+#endif  // CONFIG_REF_MV
+
+    // Small-range full-pixel motion search.
+    bestsme =
+        av1_refining_search_8p_c(x, sadpb, search_range, &cpi->fn_ptr[bsize],
+                                 &ref_mv_third.as_mv, second_pred);
+    if (bestsme < INT_MAX)
+      bestsme = av1_get_mvpred_av_var(x, best_mv, &ref_mv_third.as_mv,
+                                      second_pred, &cpi->fn_ptr[bsize], 1);
+
+    x->mv_col_min = tmp_col_min;
+    x->mv_col_max = tmp_col_max;
+    x->mv_row_min = tmp_row_min;
+    x->mv_row_max = tmp_row_max;
+
+    if (bestsme < INT_MAX) {
+      int dis; /* TODO: Use dis in distortion calculation later. */
+      unsigned int sse;
+
+      if (cpi->sf.use_upsampled_references) {
+        // Use up-sampled reference frames.
+        struct macroblockd_plane *const pd = &xd->plane[0];
+        struct buf_2d backup_pred = pd->pre[0];
+
+        const YV12_BUFFER_CONFIG *upsampled_ref =
+            get_upsampled_ref(cpi, ref_frame_third);
+
+        // Set pred for Y plane
+        setup_pred_plane(&pd->pre[0], upsampled_ref->y_buffer,
+                         upsampled_ref->y_crop_width,
+                         upsampled_ref->y_crop_height, upsampled_ref->y_stride,
+                         (mi_row << 3), (mi_col << 3), NULL, pd->subsampling_x,
+                         pd->subsampling_y);
+
+        bestsme = cpi->find_fractional_mv_step(
+            x, &ref_mv_third.as_mv, cpi->common.allow_high_precision_mv,
+            x->errorperbit, &cpi->fn_ptr[bsize], 0,
+            cpi->sf.mv.subpel_iters_per_step, NULL, x->nmvjointcost, x->mvcost,
+            &dis, &sse, second_pred, pw, ph, 1);
+
+        // Restore the reference frame
+        pd->pre[0] = backup_pred;
+      } else {
+        bestsme = cpi->find_fractional_mv_step(
+            x, &ref_mv_third.as_mv, cpi->common.allow_high_precision_mv,
+            x->errorperbit, &cpi->fn_ptr[bsize], 0,
+            cpi->sf.mv.subpel_iters_per_step, NULL, x->nmvjointcost, x->mvcost,
+            &dis, &sse, second_pred, pw, ph, 0);
+      }
+    }
+
+    third_mv->as_mv = *best_mv;
+
+#if CONFIG_REF_MV
+// TODO(zoeliu): To work with CONFIG_REF_MV
+// av1_set_mvcost(x, ref_frame_third, 2, mbmi->ref_mv_idx);
+#endif  // CONFIG_REF_MV
+
+    *rate_third_mv =
+        av1_mv_bit_cost(&third_mv->as_mv, &ref_mv_third.as_mv, x->nmvjointcost,
+                        x->mvcost, MV_COST_WEIGHT);
+  }
+
+  {
+    int i;
+    for (i = 0; i < MAX_MB_PLANE; i++) xd->plane[i].pre[0] = backup_yv12[i];
+  }
+}
+#endif  // CONFIG_COMP_TRIPRED
 
 static int64_t rd_pick_inter_best_sub8x8_mode(
     const AV1_COMP *const cpi, MACROBLOCK *x, int_mv *best_ref_mv,
@@ -7762,10 +7909,15 @@ static int64_t handle_inter_mode(
 #if CONFIG_EXT_INTER
     int_mv single_newmvs[2][TOTAL_REFS_PER_FRAME],
     int single_newmvs_rate[2][TOTAL_REFS_PER_FRAME],
-    int *compmode_interintra_cost, int *compmode_interinter_cost,
-    int64_t (*const modelled_rd)[TOTAL_REFS_PER_FRAME],
+    int *compmode_interintra_cost,
 #else
     int_mv single_newmv[TOTAL_REFS_PER_FRAME],
+#endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+    int *compmode_interinter_cost,
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+#if CONFIG_EXT_INTER
+    int64_t (*const modelled_rd)[TOTAL_REFS_PER_FRAME],
 #endif  // CONFIG_EXT_INTER
     InterpFilter (*single_filter)[TOTAL_REFS_PER_FRAME],
     int (*single_skippable)[TOTAL_REFS_PER_FRAME], const int64_t ref_best_rd) {
@@ -7781,8 +7933,10 @@ static int64_t handle_inter_mode(
                   (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]) };
   int_mv cur_mv[2];
   int rate_mv = 0;
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   int pred_exists = 1;
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+#if CONFIG_EXT_INTER
   const int bw = block_size_wide[bsize];
   int mv_idx = (this_mode == NEWFROMNEARMV) ? 1 : 0;
   int_mv single_newmv[TOTAL_REFS_PER_FRAME];
@@ -7835,14 +7989,17 @@ static int64_t handle_inter_mode(
 #if CONFIG_EXT_INTER
   *compmode_interintra_cost = 0;
   mbmi->use_wedge_interintra = 0;
-  *compmode_interinter_cost = 0;
-  mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
 
   // is_comp_interintra_pred implies !is_comp_pred
   assert(!is_comp_interintra_pred || (!is_comp_pred));
   // is_comp_interintra_pred implies is_interintra_allowed(mbmi->sb_type)
   assert(!is_comp_interintra_pred || is_interintra_allowed(mbmi));
 #endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+  *compmode_interinter_cost = 0;
+  mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
 #if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
@@ -8234,6 +8391,9 @@ static int64_t handle_inter_mode(
     }
   }
 
+  // NOTE(zoeliu): Restore the original dst buf
+  restore_dst_buf(xd, orig_dst);
+
 #if CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   best_bmc_mbmi = *mbmi;
@@ -8519,6 +8679,7 @@ static int64_t handle_inter_mode(
     pred_exists = 0;
   }
 #endif  // CONFIG_DUAL_FILTER
+
   if (pred_exists == 0) {
     int tmp_rate;
     int64_t tmp_dist;
@@ -8528,6 +8689,231 @@ static int64_t handle_inter_mode(
     rd = RDCOST(x->rdmult, x->rddiv, rs + tmp_rate, tmp_dist);
   }
 #endif  // CONFIG_EXT_INTER
+
+// ======= COMP_TRIPRED - START =======
+
+#if CONFIG_COMP_TRIPRED
+  if (is_comp_pred) {
+    int rate_sum, rs2;
+    int64_t dist_sum;
+    int64_t best_rd_bipred = INT64_MAX;
+    int64_t best_rd_tripred = INT64_MAX;
+
+    int tmp_skip_txfm_sb;
+    int64_t tmp_skip_sse_sb;
+    int compound_type_cost[COMPOUND_TYPES];
+
+    restore_dst_buf(xd, orig_dst);
+
+    // Summary on tri-prediction: A combination of two-level bi-prediction
+    // 1. Obtain the pair of 1st-level bi-predictors;
+    // 2. Conduct the 2nd-level bi-prediction to search for the best 3rd
+    //    (single) reference frame and its motion vector: In this bi-prediction,
+    //    the 1st-level bi-prediction results serves as one predictor and the
+    //    3rd reference frame provides the 2nd predictor.
+    // 3. Calculate the RD value including the cost from the 3rd reference frame
+    //    and the 3rd mv, and make the RD optimization decision.
+
+    // NOTE(zoeliu): An alternative version is being implemented as follows:
+    //  - Reuse the wedge prediction idea, and for each bi-predictive frame, one
+    //    side of the wedge a compound prediction is applied that uses the
+    //    implicit pair of compound references (LAST/BWDREF currently), and the
+    //    other side a single prediction or Intra is applied. The extra cost for
+    //    such wedge based inter-inter would be one more motion vector but
+    //    saving the coding of one reference - the total cost is the coding of
+    //    1 reference + 3 mvs
+
+    mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
+    av1_cost_tokens(compound_type_cost, cm->fc->compound_type_prob[bsize],
+                    av1_compound_type_tree);
+    rs2 = av1_cost_literal(get_interinter_compound_type_bits(
+              bsize, mbmi->interinter_compound_data.type)) +
+          compound_type_cost[mbmi->interinter_compound_data.type];
+
+    av1_build_inter_predictors_sby(xd, mi_row, mi_col, &orig_dst, bsize);
+    av1_subtract_plane(x, bsize, 0);
+    rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
+                             &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
+    if (rd < INT64_MAX)
+      rd = RDCOST(x->rdmult, x->rddiv, rs2 + rate_mv + rate_sum, dist_sum);
+    best_rd_bipred = rd;
+
+    // Disbale tri-predition search if source variance is small.
+    // TODO(zoeliu): To further evaluate the following criteria
+    if (best_rd_bipred / 4 < ref_best_rd) {
+      // (zoeliu)best_rd_bipred / 3 < ref_best_rd)
+      const int bw = 4 * num_4x4_blocks_wide_lookup[bsize];
+      const int bh = 4 * num_4x4_blocks_high_lookup[bsize];
+
+      MV_REFERENCE_FRAME best_ref_frame_third = LAST_FRAME;
+      int_mv best_mv_third;
+      int best_rate_third_mv = 0;
+
+      // Prediction buffer from the 1st level of the compound bi-prediction
+      // result,
+      // which serves as the other prediction for the 2nd level of the compound
+      // bi-prediction.
+      // TODO(zoeliu): To work with CONFIG_AOM_HIGHBITDEPTH
+      DECLARE_ALIGNED(16, uint8_t, pred0[2 * MAX_SB_SQUARE]);
+
+      unsigned int ref_costs_single[TOTAL_REFS_PER_FRAME];
+      unsigned int ref_costs_comp[TOTAL_REFS_PER_FRAME];
+      aom_prob comp_mode_p;
+      MV_REFERENCE_FRAME ref_frame;
+      static const int flag_list[TOTAL_REFS_PER_FRAME] = { 0,
+                                                           AOM_LAST_FLAG,
+                                                           AOM_LAST2_FLAG,
+                                                           AOM_LAST3_FLAG,
+                                                           AOM_GOLD_FLAG,
+                                                           AOM_BWD_FLAG,
+                                                           AOM_ALT_FLAG };
+
+      // Set up the compound type
+      mbmi->interinter_compound_data.type = COMPOUND_TRIPRED;
+      rs2 = av1_cost_literal(get_interinter_compound_type_bits(
+                bsize, mbmi->interinter_compound_data.type)) +
+            compound_type_cost[mbmi->interinter_compound_data.type];
+
+      // TODO(zoeliu): Reference frame costs have been calculated but not passed
+      //               down here. Further code cleaning is needed.
+      estimate_ref_frame_costs(cm, xd, mbmi->segment_id, ref_costs_single,
+                               ref_costs_comp, &comp_mode_p);
+
+      // Obtain the pair of 1st-level compound bi-predictors
+      // NOTE: The compound predictors have been obtained above when the RD cost
+      //       for one-level bi-prediction is being calculated.
+
+      // Set up the 1st level bi-predictor result planes
+      // TODO(zoeliu): Following code should be further optimized.
+      {
+        const uint8_t *src_row = orig_dst.plane[0];
+        const int src_stride = orig_dst.stride[0];
+        uint8_t *dst_row = pred0;
+        const int dst_stride = bw;
+        int r;
+        for (r = 0; r < bh; ++r, dst_row += dst_stride, src_row += src_stride)
+          memcpy(dst_row, src_row, bw);
+      }
+
+      // Search for the best third predictor - (3rd reference frame, 3rd mv)
+      for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+        if (cpi->ref_frame_flags & flag_list[ref_frame]) {
+          int_mv third_mv;
+          int rate_third_mv = 0;
+
+          tripred_motion_search(cpi, x, bsize, mi_row, mi_col, ref_frame,
+                                single_newmv, &third_mv, &rate_third_mv, pred0);
+
+          // TODO(zoeliu): To obtain the tri-predictor using the current
+          //               ref_frame as the 3rd reference frame
+          mbmi->ref_frame_third = ref_frame;
+          mbmi->mv_third = third_mv;
+
+          // Set up the third predition buf/plane
+          set_third_ref_ptr(cm, xd, mbmi->ref_frame_third);
+          {
+            YV12_BUFFER_CONFIG *cfg =
+                get_ref_frame_buffer(cpi, mbmi->ref_frame_third);
+            assert(cfg != NULL);
+            av1_setup_pre_planes(xd, 2, cfg, mi_row, mi_col,
+                                 &xd->block_ref_third->sf);
+          }
+
+          // Restore the 1st-level bi-prediction result to complete
+          // tri-prediction
+          // TODO(zoeliu): Following code should be further optimized.
+          {
+            const uint8_t *src_row = pred0;
+            const int src_stride = bw;
+            uint8_t *dst_row = orig_dst.plane[0];
+            const int dst_stride = orig_dst.stride[0];
+            int r;
+            for (r = 0; r < bh;
+                 ++r, dst_row += dst_stride, src_row += src_stride)
+              memcpy(dst_row, src_row, bw);
+          }
+
+          // Build the final tri-predictor
+          av1_build_inter_predictors_for_planes_single_buf(
+              xd, bsize, 0, 0, mi_row, mi_col, 2, orig_dst.plane,
+              orig_dst.stride);
+          av1_subtract_plane(x, bsize, 0);
+          rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
+                                   &tmp_skip_txfm_sb, &tmp_skip_sse_sb,
+                                   INT64_MAX);
+          if (rd < INT64_MAX) {
+            int rate3 = ref_costs_single[ref_frame] + rate_third_mv;
+            rd = RDCOST(x->rdmult, x->rddiv, rs2 + rate_mv + rate3 + rate_sum,
+                        dist_sum);
+            if (rd < best_rd_tripred) {
+              best_rd_tripred = rd;
+              best_ref_frame_third = ref_frame;
+              best_mv_third.as_mv = third_mv.as_mv;
+              best_rate_third_mv = rate_third_mv;
+            }
+          }
+        }
+      }
+
+      if (best_rd_tripred < best_rd_bipred) {
+        mbmi->interinter_compound_data.type = COMPOUND_TRIPRED;
+
+        mbmi->ref_frame_third = best_ref_frame_third;
+        mbmi->mv_third.as_mv = best_mv_third.as_mv;
+
+        // TODO(zoeliu): To confirm whether the rate cost for the third MV needs
+        //               to be re-calculated.
+        // NOTE(zoeliu): "rd_stats" does not include the rate cost for reference
+        //               frames.
+        rd_stats->rate += best_rate_third_mv;
+        rate_mv += best_rate_third_mv;
+
+        // Set up the third predition buf/plane
+        set_third_ref_ptr(cm, xd, mbmi->ref_frame_third);
+        {
+          YV12_BUFFER_CONFIG *cfg =
+              get_ref_frame_buffer(cpi, mbmi->ref_frame_third);
+          assert(cfg != NULL);
+          av1_setup_pre_planes(xd, 2, cfg, mi_row, mi_col,
+                               &xd->block_ref_third->sf);
+        }
+      } else {
+        mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
+      }
+    }
+
+    if (ref_best_rd < INT64_MAX &&
+        AOMMIN(best_rd_tripred, best_rd_bipred) / 4 > ref_best_rd) {
+      restore_dst_buf(xd, orig_dst);
+      return INT64_MAX;
+    }
+
+    pred_exists = 0;
+
+    *compmode_interinter_cost =
+        compound_type_cost[mbmi->interinter_compound_data.type] +
+        av1_cost_literal(get_interinter_compound_type_bits(
+            bsize, mbmi->interinter_compound_data.type));
+  }
+
+#if CONFIG_DUAL_FILTER
+  if (!av1_is_interp_needed(xd) && cm->interp_filter == SWITCHABLE) {
+    for (i = 0; i < 4; ++i) mbmi->interp_filter[i] = EIGHTTAP_REGULAR;
+    pred_exists = 0;
+  }
+#endif  // CONFIG_DUAL_FILTER
+
+  if (pred_exists == 0) {
+    int tmp_rate;
+    int64_t tmp_dist;
+    av1_build_inter_predictors_sb(xd, mi_row, mi_col, &orig_dst, bsize);
+    model_rd_for_sb(cpi, bsize, x, xd, 0, MAX_MB_PLANE - 1, &tmp_rate,
+                    &tmp_dist, &skip_txfm_sb, &skip_sse_sb);
+    rd = RDCOST(x->rdmult, x->rddiv, rs + tmp_rate, tmp_dist);
+  }
+#endif  // CONFIG_EXT_REFS && CONFIG_TRIPRED
+
+// ======= COMP_TRIPRED - END =======
 
 #if CONFIG_DUAL_FILTER
   if (!is_comp_pred) single_filter[this_mode][refs[0]] = mbmi->interp_filter[0];
@@ -9670,8 +10056,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     int compmode_cost = 0;
 #if CONFIG_EXT_INTER
     int compmode_interintra_cost = 0;
-    int compmode_interinter_cost = 0;
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+    int compmode_interinter_cost = 0;
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
     int rate2 = 0, rate_y = 0, rate_uv = 0;
     int64_t distortion2 = 0, distortion_y = 0, distortion_uv = 0;
     int skippable = 0;
@@ -10081,9 +10469,14 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_MOTION_VAR
 #if CONFIG_EXT_INTER
             single_newmvs, single_newmvs_rate, &compmode_interintra_cost,
-            &compmode_interinter_cost, modelled_rd,
 #else
             single_newmv,
+#endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+            &compmode_interinter_cost,
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+#if CONFIG_EXT_INTER
+            modelled_rd,
 #endif  // CONFIG_EXT_INTER
             single_inter_filter, single_skippable, best_rd);
 
@@ -10207,11 +10600,16 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_MOTION_VAR
 #if CONFIG_EXT_INTER
                 dummy_single_newmvs, dummy_single_newmvs_rate,
-                &tmp_compmode_interintra_cost, &tmp_compmode_interinter_cost,
-                NULL,
+                &tmp_compmode_interintra_cost,
 #else
                 dummy_single_newmv,
-#endif
+#endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+                &tmp_compmode_interinter_cost,
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+#if CONFIG_EXT_INTER
+                NULL,
+#endif  // CONFIG_EXT_INTER
                 single_inter_filter, dummy_single_skippable, best_rd);
           }
 
@@ -10308,12 +10706,15 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
 #if CONFIG_EXT_INTER
     rate2 += compmode_interintra_cost;
+#endif  // CONFIG_EXT_INTER
+
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
     if (cm->reference_mode != SINGLE_REFERENCE && comp_pred)
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       if (mbmi->motion_mode == SIMPLE_TRANSLATION)
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
         rate2 += compmode_interinter_cost;
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
     // Estimate the reference frame signaling cost and add it
     // to the rolling cost variable.
@@ -10322,6 +10723,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_EXT_REFS
       rate2 += ref_costs_comp[second_ref_frame];
 #endif  // CONFIG_EXT_REFS
+#if CONFIG_COMP_TRIPRED
+      if (mbmi->interinter_compound_data.type == COMPOUND_TRIPRED)
+        rate2 += ref_costs_single[mbmi->ref_frame_third];
+#endif  // CONFIG_COMP_TRIPRED
     } else {
       rate2 += ref_costs_single[ref_frame];
     }
@@ -10493,12 +10898,20 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     *mbmi = best_mbmode;
 
     set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+#if CONFIG_COMP_TRIPRED
+    set_third_ref_ptr(cm, xd, mbmi->ref_frame_third);
+#endif  // CONFIG_COMP_TRIPRED
 
     // Select prediction reference frames.
     for (i = 0; i < MAX_MB_PLANE; i++) {
       xd->plane[i].pre[0] = yv12_mb[mbmi->ref_frame[0]][i];
-      if (has_second_ref(mbmi))
+      if (has_second_ref(mbmi)) {
         xd->plane[i].pre[1] = yv12_mb[mbmi->ref_frame[1]][i];
+#if CONFIG_COMP_TRIPRED
+        if (mbmi->interinter_compound_data.type == COMPOUND_TRIPRED)
+          xd->plane[i].pre_third = yv12_mb[mbmi->ref_frame_third][i];
+#endif  // CONFIG_COMP_TRIPRED
+      }
     }
 
     if (is_inter_mode(mbmi->mode)) {
@@ -10532,6 +10945,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_WARPED_MOTION
       }
 #endif  // CONFIG_WARPED_MOTION
+
 #if CONFIG_MOTION_VAR
       if (mbmi->motion_mode == OBMC_CAUSAL)
         av1_build_obmc_inter_prediction(cm, xd, mi_row, mi_col, dst_buf1,
@@ -10799,7 +11213,7 @@ PALETTE_EXIT:
           best_mbmode.ref_mv_idx = i;
         }
       }
-#endif
+#endif  // CONFIG_EXT_INTER
       if (mbmi_ext->ref_mv_count[rf_type] >= 1) {
         nearestmv[0] = mbmi_ext->ref_mv_stack[rf_type][0].this_mv;
         nearestmv[1] = mbmi_ext->ref_mv_stack[rf_type][0].comp_mv;
@@ -11199,8 +11613,10 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
   mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
 #endif  // CONFIG_FILTER_INTRA
   mbmi->motion_mode = SIMPLE_TRANSLATION;
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+#if CONFIG_EXT_INTER
   mbmi->use_wedge_interintra = 0;
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_WARPED_MOTION
