@@ -282,7 +282,7 @@ typedef struct RD_STATS {
 #endif  // CONFIG_RD_DEBUG
 } RD_STATS;
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 typedef struct {
   COMPOUND_TYPE type;
   int wedge_index;
@@ -292,7 +292,7 @@ typedef struct {
   DECLARE_ALIGNED(16, uint8_t, seg_mask[2 * MAX_SB_SQUARE]);
 #endif  // CONFIG_COMPOUND_SEGMENT
 } INTERINTER_COMPOUND_DATA;
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
 // This structure now relates to 8x8 block regions.
 typedef struct {
@@ -327,6 +327,9 @@ typedef struct {
   InterpFilter interp_filter;
 #endif
   MV_REFERENCE_FRAME ref_frame[2];
+#if CONFIG_COMP_TRIPRED
+  MV_REFERENCE_FRAME ref_frame_third;
+#endif  // CONFIG_COMP_TRIPRED
   TX_TYPE tx_type;
 
 #if CONFIG_FILTER_INTRA
@@ -347,11 +350,17 @@ typedef struct {
   int use_wedge_interintra;
   int interintra_wedge_index;
   int interintra_wedge_sign;
-  INTERINTER_COMPOUND_DATA interinter_compound_data;
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+  INTERINTER_COMPOUND_DATA interinter_compound_data;
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   MOTION_MODE motion_mode;
   int_mv mv[2];
   int_mv pred_mv[2];
+#if CONFIG_COMP_TRIPRED
+  int_mv mv_third;
+// TODO(zoeliu): To explore whether a third pred_mv is needed
+#endif  // CONFIG_COMP_TRIPRED
 #if CONFIG_REF_MV
   uint8_t ref_mv_idx;
 #endif
@@ -426,6 +435,9 @@ typedef struct macroblockd_plane {
   int subsampling_y;
   struct buf_2d dst;
   struct buf_2d pre[2];
+#if CONFIG_COMP_TRIPRED
+  struct buf_2d pre_third;
+#endif  // CONFIG_COMP_TRIPRED
   ENTROPY_CONTEXT *above_context;
   ENTROPY_CONTEXT *left_context;
   int16_t seg_dequant[MAX_SEGMENTS][2];
@@ -505,6 +517,9 @@ typedef struct macroblockd {
 
   /* pointers to reference frames */
   const RefBuffer *block_refs[2];
+#if CONFIG_COMP_TRIPRED
+  const RefBuffer *block_ref_third;
+#endif  // CONFIG_COMP_TRIPRED
 
   /* pointer to current frame */
   const YV12_BUFFER_CONFIG *cur_buf;
