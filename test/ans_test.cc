@@ -154,7 +154,7 @@ bool check_rans(const std::vector<int> &sym_vec, const rans_sym *const tab,
   return ans_read_end(&d) != 0;
 }
 
-class AbsTest : public ::testing::Test {
+class AbsTestFixture : public ::testing::Test {
  protected:
   static void SetUpTestCase() { pv_vec_ = abs_encode_build_vals(kNumBools); }
   virtual void SetUp() { buf_ = new uint8_t[kNumBools / 8]; }
@@ -163,9 +163,9 @@ class AbsTest : public ::testing::Test {
   static PvVec pv_vec_;
   uint8_t *buf_;
 };
-PvVec AbsTest::pv_vec_;
+PvVec AbsTestFixture::pv_vec_;
 
-class AnsTest : public ::testing::Test {
+class AnsTestFixture : public ::testing::Test {
  protected:
   static void SetUpTestCase() {
     sym_vec_ = ans_encode_build_vals(rans_sym_tab_, kNumSyms);
@@ -177,11 +177,38 @@ class AnsTest : public ::testing::Test {
   static rans_sym rans_sym_tab_[kRansSymbols];
   uint8_t *buf_;
 };
-std::vector<int> AnsTest::sym_vec_;
-rans_sym AnsTest::rans_sym_tab_[kRansSymbols];
+std::vector<int> AnsTestFixture::sym_vec_;
+rans_sym AnsTestFixture::rans_sym_tab_[kRansSymbols];
 
-TEST_F(AbsTest, Uabs) { EXPECT_TRUE(check_uabs(pv_vec_, buf_)); }
-TEST_F(AnsTest, Rans) {
+TEST_F(AbsTestFixture, Uabs) { EXPECT_TRUE(check_uabs(pv_vec_, buf_)); }
+TEST_F(AnsTestFixture, Rans) {
   EXPECT_TRUE(check_rans(sym_vec_, rans_sym_tab_, buf_));
+}
+DISABLED_TEST(AnsTest, EncodeDecodeRansStateTransitions) {
+  for (aom_cdf_prob prob = 1; prob < 100 /*RANS_PRECISION*/; ++prob) {
+    fprintf(stderr, "prob %d\n", prob);
+    const struct rans_sym sym = { prob, 0 };
+    const aom_cdf_prob tab[2] = { prob, RANS_PRECISION };
+    for (unsigned state = L_BASE; state < L_BASE * IO_BASE; ++state) {
+      uint8_t buf[8];
+      AnsCoder c;
+      ans_write_init(&c, buf);
+      c.state = state;
+      rans_write(&c, &sym);
+      int written_size = ans_write_end(&c);
+      ASSERT_LT(static_cast<size_t>(written_size), sizeof(buf));
+      AnsDecoder d;
+#if ANS_MAX_SYMBOLS
+      // There is no real data window here because only a single value is sent
+      // through ans (only synthetic states), so use a dummy value
+      d.window_size = 1024;
+#endif
+      int read_init_status = ans_read_init(&d, buf, written_size);
+      EXPECT_EQ(read_init_status, 0);
+      int sym_out_idx = rans_read(&d, tab);
+      EXPECT_EQ(sym_out_idx, 0);
+      EXPECT_EQ(d.state, state);
+    }
+  }
 }
 }  // namespace
