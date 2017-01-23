@@ -28,7 +28,7 @@
 #define DEFAULT_WMTYPE ROTZOOM
 #endif  // CONFIG_WARPED_MOTION
 
-const int16_t warped_filter[WARPEDPIXEL_PREC_SHIFTS * 3][8];
+const int16_t warped_filter[WARPEDPIXEL_PREC_SHIFTS * 3][10];
 
 typedef void (*ProjectPointsFunc)(int32_t *mat, int *points, int *proj,
                                   const int n, const int stride_points,
