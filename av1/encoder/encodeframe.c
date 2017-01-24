@@ -1007,6 +1007,20 @@ static void update_filter_type_count(FRAME_COUNTS *counts,
 #if CONFIG_GLOBAL_MOTION
 static void update_global_motion_used(PREDICTION_MODE mode, BLOCK_SIZE bsize,
                                       const MB_MODE_INFO *mbmi, AV1_COMP *cpi) {
+#if CONFIG_EXT_INTER
+  if (mode == ZEROMV || ZERO_ZEROMV) {
+    const int num_4x4s = bsize >= BLOCK_8X8
+                             ? num_4x4_blocks_wide_lookup[bsize] *
+                                   num_4x4_blocks_high_lookup[bsize]
+                             : 1;
+    ++cpi->global_motion_used[mbmi->ref_frame[0]][0];
+    cpi->global_motion_used[mbmi->ref_frame[0]][1] += num_4x4s;
+    if (has_second_ref(mbmi)) {
+      ++cpi->global_motion_used[mbmi->ref_frame[1]][0];
+      cpi->global_motion_used[mbmi->ref_frame[1]][1] += num_4x4s;
+    }
+  }
+#else
   if (mode == ZEROMV) {
     const int num_4x4s = bsize >= BLOCK_8X8
                              ? num_4x4_blocks_wide_lookup[bsize] *
@@ -1019,6 +1033,7 @@ static void update_global_motion_used(PREDICTION_MODE mode, BLOCK_SIZE bsize,
       cpi->global_motion_used[mbmi->ref_frame[1]][1] += num_4x4s;
     }
   }
+#endif  // CONFIG_EXT_INTER
 }
 #endif  // CONFIG_GLOBAL_MOTION
 
