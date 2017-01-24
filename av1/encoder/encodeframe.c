@@ -1135,7 +1135,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
         xd->mi[x_idx + y * mis] = mi_addr;
       }
 
-#if CONFIG_DELTA_Q
+#if CONFIG_DELTA_Q && !CONFIG_EXT_DELTA_Q
   if (cpi->oxcf.aq_mode > NO_AQ && cpi->oxcf.aq_mode < DELTA_AQ)
     av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id);
 #else
@@ -2025,6 +2025,20 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
     }
     if (absdq < DELTA_Q_SMALL) td->counts->delta_q[absdq][0]++;
     xd->prev_qindex = mbmi->current_q_index;
+#if CONFIG_EXT_DELTA_Q
+    if (cm->delta_lf_present_flag) {
+      const int dlf =
+          (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
+              cm->delta_lf_res;
+      const int absdlf = abs(dlf);
+      int i;
+      for (i = 0; i < absdlf; ++i) {
+        td->counts->delta_lf[i][1]++;
+      }
+      if (absdlf < DELTA_LF_SMALL) td->counts->delta_lf[absdlf][0]++;
+      xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
+    }
+#endif
   }
 #else
   (void)mi_row;
@@ -4547,6 +4561,10 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
   // Reset delta for every tile
   if (cm->delta_q_present_flag)
     if (mi_row == tile_info->mi_row_start) xd->prev_qindex = cm->base_qindex;
+#if CONFIG_EXT_DELTA_Q
+  if (cm->delta_lf_present_flag)
+    if (mi_row == tile_info->mi_row_start) xd->prev_delta_lf_from_base = 0;
+#endif
 #endif
 
   // Code each SB in the row
@@ -4591,6 +4609,44 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     }
 
 #if CONFIG_DELTA_Q
+#if CONFIG_EXT_DELTA_Q
+    if (cpi->oxcf.deltaq_mode != NO_DELTA_Q) {
+      // Test mode for delta quantization
+      int sb_row = mi_row >> 3;
+      int sb_col = mi_col >> 3;
+      int sb_stride = (cm->width + MAX_SB_SIZE - 1) >> MAX_SB_SIZE_LOG2;
+      int index = ((sb_row * sb_stride + sb_col + 8) & 31) - 16;
+      int j, k;
+
+      // Ensure divisibility of delta_qindex by delta_q_res
+      int offset_qindex = (index < 0 ? -index - 8 : index - 8);
+      int qmask = ~(cm->delta_q_res - 1);
+      int current_qindex = clamp(cm->base_qindex + offset_qindex,
+                                 cm->delta_q_res, 256 - cm->delta_q_res);
+      current_qindex =
+          ((current_qindex - cm->base_qindex + cm->delta_q_res / 2) & qmask) +
+          cm->base_qindex;
+
+      xd->delta_qindex = current_qindex - cm->base_qindex;
+      set_offsets(cpi, tile_info, x, mi_row, mi_col, BLOCK_64X64);
+      xd->mi[0]->mbmi.current_q_index = current_qindex;
+      av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id);
+      if (cpi->oxcf.deltaq_mode == DELTA_Q_LF) {
+        int lfmask = ~(cm->delta_lf_res - 1);
+        int current_delta_lf_from_base = offset_qindex / 2;
+        current_delta_lf_from_base = ((current_delta_lf_from_base + cm->delta_lf_res / 2) & lfmask);
+
+        // pre-set the delta lf for loop filter. Note that this value is set
+        // before mi is assigned for each block in current superblock
+        for (j = 0; j < AOMMIN(cm->mib_size, cm->mi_rows - mi_row); j++) {
+          for (k = 0; k < AOMMIN(cm->mib_size, cm->mi_cols - mi_col); k++) {
+            cm->mi[(mi_row + j) * cm->mi_stride + (mi_col + k)]
+                .mbmi.current_delta_lf_from_base = current_delta_lf_from_base;
+          }
+        }
+      }
+    }
+#else
     if (cpi->oxcf.aq_mode == DELTA_AQ) {
       // Test mode for delta quantization
       int sb_row = mi_row >> 3;
@@ -4613,6 +4669,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       xd->mi[0]->mbmi.segment_id = 0;
       av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id);
     }
+#endif
 #endif
 
     x->source_variance = UINT_MAX;
@@ -5077,6 +5134,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #if CONFIG_DELTA_Q
   // Fix delta q resolution for the moment
   cm->delta_q_res = DEFAULT_DELTA_Q_RES;
+#if CONFIG_EXT_DELTA_Q
+  cm->delta_lf_res = DEFAULT_DELTA_LF_RES;
+#endif
 #endif
 
 #if CONFIG_EXT_REFS
