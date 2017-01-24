@@ -544,9 +544,7 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                              int_mv zeromv) {
   const int *ref_sign_bias = cm->ref_frame_sign_bias;
   int i, refmv_count = 0;
-#if !CONFIG_REF_MV
-  const POSITION *const mv_ref_search = mv_ref_blocks[mi->mbmi.sb_type];
-#endif
+  const BLOCK_SIZE bsize = mi->mbmi.sb_type;
   int different_ref_found = 0;
   int context_counter = 0;
   const MV_REF *const prev_frame_mvs =
@@ -554,10 +552,9 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
           ? cm->prev_frame->mvs + mi_row * cm->mi_cols + mi_col
           : NULL;
   const TileInfo *const tile = &xd->tile;
-  const BLOCK_SIZE bsize = mi->mbmi.sb_type;
   const int bw = block_size_wide[AOMMAX(bsize, BLOCK_8X8)];
   const int bh = block_size_high[AOMMAX(bsize, BLOCK_8X8)];
-#if CONFIG_REF_MV
+#if CONFIG_REF_MV && USE_SIMP_MV_PRED
   POSITION mv_ref_search[MVREF_NEIGHBOURS];
   const int num_8x8_blocks_wide = num_8x8_blocks_wide_lookup[bsize];
   const int num_8x8_blocks_high = num_8x8_blocks_high_lookup[bsize];
@@ -579,6 +576,17 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   mv_ref_search[7].col = -3;
   mv_ref_search[8].row = num_8x8_blocks_high - 1;
   mv_ref_search[8].col = -3;
+#else
+  POSITION mv_ref_search[MVREF_NEIGHBOURS];
+  mv_ref_search[0] = mv_ref_blocks[bsize][0];
+  mv_ref_search[1] = mv_ref_blocks[bsize][1];
+  mv_ref_search[2] = mv_ref_blocks[bsize][2];
+  mv_ref_search[3] = mv_ref_blocks[bsize][3];
+  mv_ref_search[4] = mv_ref_blocks[bsize][4];
+  mv_ref_search[5] = mv_ref_blocks[bsize][5];
+  mv_ref_search[6] = mv_ref_blocks[bsize][6];
+  mv_ref_search[7] = mv_ref_blocks[bsize][7];
+#endif  // CONFIG_REF_MV && USE_SIMP_MV_PRED
 
 #if CONFIG_CB4X4
   for (i = 0; i < MVREF_NEIGHBOURS; ++i) {
@@ -586,7 +594,6 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     mv_ref_search[i].col *= 2;
   }
 #endif  // CONFIG_CB4X4
-#endif  // CONFIG_REF_MV
 
   // The nearest 2 blocks are treated differently
   // if the size < 8x8 we get the mv from the bmi substructure,
@@ -727,14 +734,11 @@ void av1_update_mv_context(const MACROBLOCKD *xd, MODE_INFO *mi,
                            int block, int mi_row, int mi_col,
                            int16_t *mode_context) {
   int i, refmv_count = 0;
-#if !CONFIG_REF_MV
-  const POSITION *const mv_ref_search = mv_ref_blocks[mi->mbmi.sb_type];
-#endif
   int context_counter = 0;
   const int bw = block_size_wide[mi->mbmi.sb_type];
   const int bh = block_size_high[mi->mbmi.sb_type];
   const TileInfo *const tile = &xd->tile;
-#if CONFIG_REF_MV
+#if CONFIG_REF_MV && USE_SIMP_MV_PRED
   POSITION mv_ref_search[MVREF_NEIGHBOURS];
   const int num_8x8_blocks_wide = mi_size_wide[mi->mbmi.sb_type];
   const int num_8x8_blocks_high = mi_size_high[mi->mbmi.sb_type];
@@ -756,6 +760,8 @@ void av1_update_mv_context(const MACROBLOCKD *xd, MODE_INFO *mi,
   mv_ref_search[7].col = -3;
   mv_ref_search[8].row = num_8x8_blocks_high - 1;
   mv_ref_search[8].col = -3;
+#else
+  const POSITION *const mv_ref_search = mv_ref_blocks[mi->mbmi.sb_type];
 #endif
 
   // Blank the reference vector list
