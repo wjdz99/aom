@@ -291,6 +291,7 @@ EXPERIMENT_LIST="
     chroma_2x2
     frame_size
     delta_q
+    ext_delta_q
     adapt_scan
     filter_7bit
     parallel_deblocking
