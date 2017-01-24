@@ -1590,7 +1590,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   }
 
 #if CONFIG_EXT_INTER
-  if (is_compound && bsize >= BLOCK_8X8 && mbmi->mode != ZERO_ZEROMV) {
+  if (is_compound && (bsize >= BLOCK_8X8 || unify_bsize) &&
+      mbmi->mode != ZERO_ZEROMV) {
 #else
   if (is_compound && (bsize >= BLOCK_8X8 || unify_bsize) &&
       mbmi->mode != NEWMV && mbmi->mode != ZEROMV) {
