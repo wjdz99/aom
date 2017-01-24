@@ -285,6 +285,7 @@ EXPERIMENT_LIST="
     cb4x4
     frame_size
     delta_q
+    ext_delta_q
     adapt_scan
     filter_7bit
     parallel_deblocking

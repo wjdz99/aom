@@ -366,6 +366,9 @@ typedef struct {
   int8_t dering_gain;
 #if CONFIG_DELTA_Q
   int current_q_index;
+#if CONFIG_EXT_DELTA_Q
+  int current_delta_lf;
+#endif
 #endif
 #if CONFIG_RD_DEBUG
   RD_STATS rd_stats;
@@ -558,6 +561,10 @@ typedef struct macroblockd {
   int prev_qindex;
   int delta_qindex;
   int current_qindex;
+#if CONFIG_EXT_DELTA_Q
+  int prev_delta_lf;
+  int current_delta_lf;
+#endif
 #endif
 } MACROBLOCKD;
 

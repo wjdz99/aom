@@ -435,6 +435,11 @@ typedef enum {
 #define DELTA_Q_SMALL 3
 #define DELTA_Q_CONTEXTS (DELTA_Q_SMALL)
 #define DEFAULT_DELTA_Q_RES 4
+#if CONFIG_EXT_DELTA_Q
+#define DELTA_LF_SMALL 3
+#define DELTA_LF_CONTEXTS (DELTA_LF_SMALL)
+#define DEFAULT_DELTA_LF_RES 2
+#endif
 #endif
 
 /* Segment Feature Masks */
