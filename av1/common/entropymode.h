@@ -261,6 +261,9 @@ typedef struct frame_contexts {
 #endif
 #if CONFIG_DELTA_Q
   aom_prob delta_q_prob[DELTA_Q_PROBS];
+#if CONFIG_EXT_DELTA_Q
+  aom_prob delta_lf_prob[DELTA_LF_PROBS];
+#endif
 #endif
 } FRAME_CONTEXT;
 
@@ -362,6 +365,9 @@ typedef struct FRAME_COUNTS {
 #endif
 #if CONFIG_DELTA_Q
   unsigned int delta_q[DELTA_Q_PROBS][2];
+#if CONFIG_EXT_DELTA_Q
+  unsigned int delta_lf[DELTA_LF_PROBS][2];
+#endif
 #endif
 #if CONFIG_EXT_TX
 #if CONFIG_RECT_TX

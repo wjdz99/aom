@@ -506,6 +506,18 @@ enum aome_enc_control_id {
    * Experiment: ANS
    */
   AV1E_SET_ANS_WINDOW_SIZE_LOG2,
+
+  /*!\brief Codec control function to set the delta q mode
+  *
+  * AV1 has a segment based feature that allows encoder to adaptively change
+  * quantization parameter for each segment within a frame to improve the
+  * subjective quality. the delta q mode is added on top of segment based
+  * feature, and allows control per 64x64 q and lf delta.This control makes
+  * encoder operate in one of the several DELTA_Q_modes supported.
+  *
+  * By default, encoder operates with DELTAQ_Mode 0(deltaq signaling off).
+  */
+  AV1E_SET_DELTAQ_MODE,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -670,6 +682,11 @@ AOM_CTRL_USE_TYPE(AV1E_SET_FRAME_PARALLEL_DECODING, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_AQ_MODE, unsigned int)
 #define AOM_CTRL_AV1E_SET_AQ_MODE
+
+#if CONFIG_EXT_DELTA_Q
+AOM_CTRL_USE_TYPE(AV1E_SET_DELTAQ_MODE, unsigned int)
+#define AOM_CTRL_AV1E_SET_DELTAQ_MODE
+#endif
 
 AOM_CTRL_USE_TYPE(AV1E_SET_FRAME_PERIODIC_BOOST, unsigned int)
 #define AOM_CTRL_AV1E_SET_FRAME_PERIODIC_BOOST
