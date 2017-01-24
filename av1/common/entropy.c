@@ -3587,6 +3587,10 @@ void av1_adapt_coef_probs(AV1_COMMON *cm) {
   for (tx_size = 0; tx_size < TX_SIZES; tx_size++)
     adapt_coef_probs(cm, tx_size, count_sat, update_factor);
 
+#if CONFIG_ENTROPY
+  if (cm->partial_prob_update == 0)
+#endif
+  {
 #if CONFIG_ADAPT_SCAN
   for (tx_size = 0; tx_size < TX_SIZES_ALL; ++tx_size) {
 #if !(CONFIG_VAR_TX || CONFIG_RECT_TX)
@@ -3600,6 +3604,7 @@ void av1_adapt_coef_probs(AV1_COMMON *cm) {
     }
   }
 #endif
+  }
 }
 
 #if CONFIG_ENTROPY
