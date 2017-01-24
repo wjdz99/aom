@@ -627,12 +627,70 @@ static void update_delta_q_probs(AV1_COMMON *cm, aom_writer *w,
 #else
   const int probwt = 1;
 #endif
+#if CONFIG_EXT_DELTA_Q
+  if (!cm->delta_q_present_flag) return;
+#endif  // CONFIG_EXT_DELTA_Q
   for (k = 0; k < DELTA_Q_PROBS; ++k) {
     av1_cond_prob_diff_update(w, &cm->fc->delta_q_prob[k], counts->delta_q[k],
                               probwt);
   }
 }
 #endif  // CONFIG_EC_ADAPT
+
+#if CONFIG_EXT_DELTA_Q
+static void write_delta_lflevel(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                                int delta_lflevel, aom_writer *w) {
+  int sign = delta_lflevel < 0;
+  int abs = sign ? -delta_lflevel : delta_lflevel;
+  int rem_bits, thr, i = 0;
+  int smallval = abs < DELTA_LF_SMALL ? 1 : 0;
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  (void)cm;
+#else
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+  (void)xd;
+#endif
+
+#if CONFIG_EC_MULTISYMBOL
+  aom_write_symbol(w, AOMMIN(abs, DELTA_LF_SMALL), ec_ctx->delta_lf_cdf,
+                   DELTA_LF_PROBS + 1);
+#else
+  while (i < DELTA_LF_SMALL && i <= abs) {
+    int bit = (i < abs);
+    aom_write(w, bit, ec_ctx->delta_lf_prob[i]);
+    i++;
+  }
+#endif  // CONFIG_EC_MULTISYMBOL
+
+  if (!smallval) {
+    rem_bits = OD_ILOG_NZ(abs - 1) - 1;
+    thr = (1 << rem_bits) + 1;
+    aom_write_literal(w, rem_bits, 3);
+    aom_write_literal(w, abs - thr, rem_bits);
+  }
+  if (abs > 0) {
+    aom_write_bit(w, sign);
+  }
+}
+
+#if !CONFIG_EC_ADAPT
+static void update_delta_lf_probs(AV1_COMMON *cm, aom_writer *w,
+                                  FRAME_COUNTS *counts) {
+  int k;
+#if CONFIG_TILE_GROUPS
+  const int probwt = cm->num_tg;
+#else
+  const int probwt = 1;
+#endif
+  if (!cm->delta_lf_present_flag) return;
+  for (k = 0; k < DELTA_LF_PROBS; ++k) {
+    av1_cond_prob_diff_update(w, &cm->fc->delta_lf_prob[k], counts->delta_lf[k],
+                              probwt);
+  }
+}
+#endif  // CONFIG_EC_ADAPT
+#endif  // CONFIG_EXT_DELTA_Q
 #endif  // CONFIG_DELTA_Q
 
 static void update_skip_probs(AV1_COMMON *cm, aom_writer *w,
@@ -1622,6 +1680,15 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
           (mbmi->current_q_index - xd->prev_qindex) / cm->delta_q_res;
       write_delta_qindex(cm, xd, reduced_delta_qindex, w);
       xd->prev_qindex = mbmi->current_q_index;
+#if CONFIG_EXT_DELTA_Q
+      if (cm->delta_lf_present_flag) {
+        int reduced_delta_lflevel =
+            (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
+            cm->delta_lf_res;
+        write_delta_lflevel(cm, xd, reduced_delta_lflevel, w);
+        xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
+      }
+#endif  // CONFIG_EXT_DELTA_Q
     }
   }
 #endif
@@ -1995,6 +2062,15 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
           (mbmi->current_q_index - xd->prev_qindex) / cm->delta_q_res;
       write_delta_qindex(cm, xd, reduced_delta_qindex, w);
       xd->prev_qindex = mbmi->current_q_index;
+#if CONFIG_EXT_DELTA_Q
+      if (cm->delta_lf_present_flag) {
+        int reduced_delta_lflevel =
+            (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
+            cm->delta_lf_res;
+        write_delta_lflevel(cm, xd, reduced_delta_lflevel, w);
+        xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
+      }
+#endif  // CONFIG_EXT_DELTA_Q
     }
   }
 #else
@@ -2843,6 +2919,11 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
 #if CONFIG_DELTA_Q
   if (cpi->common.delta_q_present_flag) {
     xd->prev_qindex = cpi->common.base_qindex;
+#if CONFIG_EXT_DELTA_Q
+    if (cpi->common.delta_lf_present_flag) {
+      xd->prev_delta_lf_from_base = 0;
+    }
+#endif  // CONFIG_EXT_DELTA_Q
   }
 #endif
 
@@ -4512,6 +4593,38 @@ static void write_uncompressed_header(AV1_COMP *cpi,
   encode_quantization(cm, wb);
   encode_segmentation(cm, xd, wb);
 #if CONFIG_DELTA_Q
+#if CONFIG_EXT_DELTA_Q
+  {
+    int i;
+    struct segmentation *const seg = &cm->seg;
+    int segment_quantizer_active = 0, segment_lf_active = 0;
+    for (i = 0; i < MAX_SEGMENTS; i++) {
+      if (segfeature_active(seg, i, SEG_LVL_ALT_Q)) {
+        segment_quantizer_active = 1;
+      }
+      if (segfeature_active(seg, i, SEG_LVL_ALT_LF)) {
+        segment_lf_active = 1;
+      }
+    }
+
+    aom_wb_write_bit(wb, cm->delta_q_present_flag);
+    if (cm->delta_q_present_flag) {
+      if (segment_quantizer_active) {
+        assert(seg->abs_delta == SEGMENT_DELTADATA);
+      }
+      aom_wb_write_literal(wb, OD_ILOG_NZ(cm->delta_q_res) - 1, 2);
+      xd->prev_qindex = cm->base_qindex;
+      aom_wb_write_bit(wb, cm->delta_lf_present_flag);
+      if (cm->delta_lf_present_flag) {
+        if (segment_lf_active) {
+          assert(seg->abs_delta == SEGMENT_DELTADATA);
+        }
+        aom_wb_write_literal(wb, OD_ILOG_NZ(cm->delta_lf_res) - 1, 2);
+        xd->prev_delta_lf_from_base = 0;
+      }
+    }
+  }
+#else
   {
     int i;
     struct segmentation *const seg = &cm->seg;
@@ -4532,6 +4645,7 @@ static void write_uncompressed_header(AV1_COMP *cpi,
       }
     }
   }
+#endif  // CONFIG_EXT_DELTA_Q
 #endif
 
   write_tx_mode(cm, xd, &cm->tx_mode, wb);
@@ -4678,6 +4792,9 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
   update_skip_probs(cm, header_bc, counts);
 #if !CONFIG_EC_ADAPT && CONFIG_DELTA_Q
   update_delta_q_probs(cm, header_bc, counts);
+#if CONFIG_EXT_DELTA_Q
+  update_delta_lf_probs(cm, header_bc, counts);
+#endif
 #endif
 #if !CONFIG_EC_ADAPT
   update_seg_probs(cpi, header_bc);
