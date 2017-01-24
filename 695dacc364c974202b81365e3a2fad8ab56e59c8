@@ -16,6 +16,24 @@
       "revId": "695dacc364c974202b81365e3a2fad8ab56e59c8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c865c6f6_f5d111af",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-01-24T00:02:48Z",
+      "side": 1,
+      "message": "yeah, not ready to document any of this yet. Using \"Internal flag.\" as a \"go away, not ready for consumption\"/\"note to self\". I can drop a TODO in here, but it\u0027s not really necessary: I\u0027m aware of the hole (pit/chasm?) I\u0027ve dug for myself...",
+      "parentUuid": "c865c6f6_3f02e82b",
+      "revId": "695dacc364c974202b81365e3a2fad8ab56e59c8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
