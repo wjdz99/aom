@@ -295,11 +295,13 @@ EXPERIMENT_LIST="
     parallel_deblocking
     tile_groups
     ec_adapt
+    tempmv_signaling
     rd_debug
     reference_buffer
     coef_interleave
     entropy_stats
     masked_tx
+    mv_compress
 "
 CONFIG_LIST="
     dependency_tracking
