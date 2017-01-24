@@ -556,26 +556,14 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const int bh = block_size_high[AOMMAX(bsize, BLOCK_8X8)];
 #if CONFIG_REF_MV
   POSITION mv_ref_search[MVREF_NEIGHBOURS];
-  const int num_8x8_blocks_wide = num_8x8_blocks_wide_lookup[bsize];
-  const int num_8x8_blocks_high = num_8x8_blocks_high_lookup[bsize];
-  mv_ref_search[0].row = num_8x8_blocks_high - 1;
-  mv_ref_search[0].col = -1;
-  mv_ref_search[1].row = -1;
-  mv_ref_search[1].col = num_8x8_blocks_wide - 1;
-  mv_ref_search[2].row = -1;
-  mv_ref_search[2].col = (num_8x8_blocks_wide - 1) >> 1;
-  mv_ref_search[3].row = (num_8x8_blocks_high - 1) >> 1;
-  mv_ref_search[3].col = -1;
-  mv_ref_search[4].row = -1;
-  mv_ref_search[4].col = -1;
-  mv_ref_search[5].row = -1;
-  mv_ref_search[5].col = num_8x8_blocks_wide;
-  mv_ref_search[6].row = num_8x8_blocks_high;
-  mv_ref_search[6].col = -1;
-  mv_ref_search[7].row = -1;
-  mv_ref_search[7].col = -3;
-  mv_ref_search[8].row = num_8x8_blocks_high - 1;
-  mv_ref_search[8].col = -3;
+  mv_ref_search[0] = mv_ref_blocks[bsize][0];
+  mv_ref_search[1] = mv_ref_blocks[bsize][1];
+  mv_ref_search[2] = mv_ref_blocks[bsize][2];
+  mv_ref_search[3] = mv_ref_blocks[bsize][3];
+  mv_ref_search[4] = mv_ref_blocks[bsize][4];
+  mv_ref_search[5] = mv_ref_blocks[bsize][5];
+  mv_ref_search[6] = mv_ref_blocks[bsize][6];
+  mv_ref_search[7] = mv_ref_blocks[bsize][7];
 
 #if CONFIG_CB4X4
   for (i = 0; i < MVREF_NEIGHBOURS; ++i) {
@@ -733,26 +721,15 @@ void av1_update_mv_context(const MACROBLOCKD *xd, MODE_INFO *mi,
   const TileInfo *const tile = &xd->tile;
 #if CONFIG_REF_MV
   POSITION mv_ref_search[MVREF_NEIGHBOURS];
-  const int num_8x8_blocks_wide = bw >> 3;
-  const int num_8x8_blocks_high = bh >> 3;
-  mv_ref_search[0].row = num_8x8_blocks_high - 1;
-  mv_ref_search[0].col = -1;
-  mv_ref_search[1].row = -1;
-  mv_ref_search[1].col = num_8x8_blocks_wide - 1;
-  mv_ref_search[2].row = -1;
-  mv_ref_search[2].col = (num_8x8_blocks_wide - 1) >> 1;
-  mv_ref_search[3].row = (num_8x8_blocks_high - 1) >> 1;
-  mv_ref_search[3].col = -1;
-  mv_ref_search[4].row = -1;
-  mv_ref_search[4].col = -1;
-  mv_ref_search[5].row = -1;
-  mv_ref_search[5].col = num_8x8_blocks_wide;
-  mv_ref_search[6].row = num_8x8_blocks_high;
-  mv_ref_search[6].col = -1;
-  mv_ref_search[7].row = -1;
-  mv_ref_search[7].col = -3;
-  mv_ref_search[8].row = num_8x8_blocks_high - 1;
-  mv_ref_search[8].col = -3;
+  const BLOCK_SIZE bsize = mi->mbmi.sb_type;
+  mv_ref_search[0] = mv_ref_blocks[bsize][0];
+  mv_ref_search[1] = mv_ref_blocks[bsize][1];
+  mv_ref_search[2] = mv_ref_blocks[bsize][2];
+  mv_ref_search[3] = mv_ref_blocks[bsize][3];
+  mv_ref_search[4] = mv_ref_blocks[bsize][4];
+  mv_ref_search[5] = mv_ref_blocks[bsize][5];
+  mv_ref_search[6] = mv_ref_blocks[bsize][6];
+  mv_ref_search[7] = mv_ref_blocks[bsize][7];
 #endif
 
   // Blank the reference vector list

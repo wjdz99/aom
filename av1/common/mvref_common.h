@@ -18,11 +18,7 @@
 extern "C" {
 #endif
 
-#if CONFIG_REF_MV
 #define MVREF_NEIGHBOURS 9
-#else
-#define MVREF_NEIGHBOURS 8
-#endif
 
 typedef struct position {
   int row;
@@ -103,7 +99,6 @@ static const int counter_to_context[19] = {
   BOTH_INTRA             // 18
 };
 
-#if !CONFIG_REF_MV
 static const POSITION mv_ref_blocks[BLOCK_SIZES][MVREF_NEIGHBOURS] = {
   // 4X4
   { { -1, 0 },
@@ -253,7 +248,6 @@ static const POSITION mv_ref_blocks[BLOCK_SIZES][MVREF_NEIGHBOURS] = {
     { -2, 12 } },
 #endif  // CONFIG_EXT_PARTITION
 };
-#endif
 
 static const int idx_n_column_to_subblock[4][2] = {
   { 1, 2 }, { 1, 3 }, { 3, 2 }, { 3, 3 }
