@@ -268,6 +268,7 @@ set(AOM_AV1_ENCODER_SRCS
     "${AOM_ROOT}/av1/encoder/cost.c"
     "${AOM_ROOT}/av1/encoder/cost.h"
     "${AOM_ROOT}/av1/encoder/dct.c"
+    "${AOM_ROOT}/av1/encoder/dct.h"
     "${AOM_ROOT}/av1/encoder/encodeframe.c"
     "${AOM_ROOT}/av1/encoder/encodeframe.h"
     "${AOM_ROOT}/av1/encoder/encodemb.c"
