@@ -1851,11 +1851,19 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
   const QUANTS *const quants = &cpi->quants;
 
 #if CONFIG_DELTA_Q
+#if CONFIG_EXT_DELTA_Q
+  int current_q_index = AOMMAX(
+      0, AOMMIN(QINDEX_RANGE - 1, cpi->oxcf.deltaq_mode != NO_DELTA_Q
+                                      ? cm->base_qindex + xd->delta_qindex
+                                      : cm->base_qindex));
+  const int qindex = av1_get_qindex(&cm->seg, segment_id, current_q_index);
+#else
   int current_q_index = AOMMAX(
       0, AOMMIN(QINDEX_RANGE - 1, cpi->oxcf.aq_mode == DELTA_AQ
                                       ? cm->base_qindex + xd->delta_qindex
                                       : cm->base_qindex));
   const int qindex = av1_get_qindex(&cm->seg, segment_id, current_q_index);
+#endif
 #else
   const int qindex = av1_get_qindex(&cm->seg, segment_id, cm->base_qindex);
 #endif

@@ -627,6 +627,10 @@ static const aom_prob default_obmc_prob[BLOCK_SIZES] = {
 
 #if CONFIG_DELTA_Q
 static const aom_prob default_delta_q_probs[DELTA_Q_PROBS] = { 220, 220, 220 };
+#if CONFIG_EXT_DELTA_Q
+static const aom_prob default_delta_lf_probs[DELTA_LF_PROBS] = { 220, 220,
+                                                                 220 };
+#endif
 #endif
 #if CONFIG_EC_MULTISYMBOL
 int av1_intra_mode_ind[INTRA_MODES];
@@ -1827,6 +1831,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
 #if CONFIG_DELTA_Q
   av1_copy(fc->delta_q_prob, default_delta_q_probs);
+#if CONFIG_EXT_DELTA_Q
+  av1_copy(fc->delta_lf_prob, default_delta_lf_probs);
+#endif
 #endif
 }
 
@@ -2012,6 +2019,12 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
           av1_switchable_interp_tree, pre_fc->switchable_interp_prob[i],
           counts->switchable_interp[i], fc->switchable_interp_prob[i]);
   }
+
+#if CONFIG_DELTA_Q && !CONFIG_EXT_DELTA_Q
+  for (i = 0; i < DELTA_Q_PROBS; ++i)
+    fc->delta_q_prob[i] =
+        mode_mv_merge_probs(pre_fc->delta_q_prob[i], counts->delta_q[i]);
+#endif
 }
 
 void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
@@ -2126,9 +2139,18 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
   }
 #endif
 #if CONFIG_DELTA_Q
+#if CONFIG_EXT_DELTA_Q
   for (i = 0; i < DELTA_Q_PROBS; ++i)
     fc->delta_q_prob[i] =
         mode_mv_merge_probs(pre_fc->delta_q_prob[i], counts->delta_q[i]);
+  for (i = 0; i < DELTA_Q_PROBS; ++i)
+    fc->delta_lf_prob[i] =
+        mode_mv_merge_probs(pre_fc->delta_lf_prob[i], counts->delta_lf[i]);
+#else
+  for (i = 0; i < DELTA_Q_PROBS; ++i)
+    fc->delta_q_prob[i] =
+        mode_mv_merge_probs(pre_fc->delta_q_prob[i], counts->delta_q[i]);
+#endif
 #endif
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
