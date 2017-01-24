@@ -4027,6 +4027,7 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
   }
   apply_active_map(cpi);
 
+
   // transform / motion compensation build reconstruction frame
   av1_encode_frame(cpi);
 
@@ -4772,6 +4773,11 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
           (1 << frame_id_length);
     }
   }
+#endif
+
+#if CONFIG_EXT_DELTA_Q
+  cm->delta_q_present_flag = cpi->oxcf.deltaq_mode != NO_DELTA_Q;
+  cm->delta_lf_present_flag = cpi->oxcf.deltaq_mode == DELTA_Q_LF;
 #endif
 
   if (cpi->sf.recode_loop == DISALLOW_RECODE) {
