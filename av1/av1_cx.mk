@@ -25,6 +25,7 @@ AV1_CX_SRCS-yes += encoder/variance_tree.c
 AV1_CX_SRCS-yes += encoder/variance_tree.h
 AV1_CX_SRCS-yes += encoder/cost.h
 AV1_CX_SRCS-yes += encoder/cost.c
+AV1_CX_SRCS-yes += encoder/dct.h
 AV1_CX_SRCS-yes += encoder/dct.c
 AV1_CX_SRCS-yes += encoder/hybrid_fwd_txfm.c
 AV1_CX_SRCS-yes += encoder/hybrid_fwd_txfm.h

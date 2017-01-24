@@ -21,7 +21,7 @@
 
 #undef CONFIG_COEFFICIENT_RANGE_CHECKING
 #define CONFIG_COEFFICIENT_RANGE_CHECKING 1
-#include "av1/encoder/dct.c"
+#include "av1/encoder/dct.h"
 
 using libaom_test::ACMRandom;
 
