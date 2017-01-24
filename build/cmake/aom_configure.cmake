@@ -13,11 +13,24 @@ cmake_minimum_required(VERSION 3.2)
 include("${AOM_ROOT}/build/cmake/aom_config_defaults.cmake")
 include("${AOM_ROOT}/build/cmake/compiler_flags.cmake")
 include("${AOM_ROOT}/build/cmake/compiler_tests.cmake")
-include("${AOM_ROOT}/build/cmake/targets/${AOM_TARGET}.cmake")
 
-# TODO(tomfinegan): For some ${AOM_TARGET} values a toolchain can be
-# inferred, and we could include it here instead of forcing users to
-# remember to explicitly specify ${AOM_TARGET} and the cmake toolchain.
+# Detect target CPU.
+if (NOT AOM_TARGET_CPU)
+  set(AOM_TARGET_CPU ${CMAKE_SYSTEM_PROCESSOR})
+  if (NOT EXISTS "${AOM_ROOT}/build/cmake/targets/${AOM_TARGET_CPU}.cmake")
+    message("No RTCD template for ${AOM_TARGET_CPU}, using generic.")
+    set(AOM_TARGET_CPU "generic")
+  endif ()
+  if (NOT AOM_TARGET_CPU STREQUAL "generic")
+    find_program(YASM_EXECUTABLE yasm $ENV{YASM_PATH})
+    if (NOT YASM_EXECUTABLE)
+      message(WARNING "Unable to find yasm, using generic as target CPU.")
+      set(AOM_TARGET_CPU "generic")
+    endif ()
+  endif ()
+endif ()
+
+include("${AOM_ROOT}/build/cmake/targets/${AOM_TARGET_CPU}.cmake")
 
 include(FindGit)
 include(FindPerl)
