@@ -107,7 +107,7 @@ struct rans_sym {
 // RANS_PRECISION is m
 static INLINE void rans_write(struct AnsCoder *ans,
                               const struct rans_sym *const sym) {
-  static const int tabled_divide_bits = 10;
+  static const int tabled_divide_bits = 9;
   const aom_cdf_prob p = sym->prob;
   const int msb = get_msb(p);
   const int shift =
