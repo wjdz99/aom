@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff4c206c_a2c94dce",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-01-25T19:12:41Z",
+      "side": 1,
+      "message": "May define a function for these.",
+      "range": {
+        "startLine": 318,
+        "startChar": 2,
+        "endLine": 331,
+        "endChar": 51
+      },
+      "revId": "489fbeccb1d01087d957c88db559fec3d5759cc6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb8e8366_688ba222",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2258,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-01-25T19:12:41Z",
+      "side": 1,
+      "message": "This name is very general. extend_palette_color_map may be a better option, since the new dimension is always no smaller than the original.",
+      "range": {
+        "startLine": 2258,
+        "startChar": 12,
+        "endLine": 2258,
+        "endChar": 19
+      },
+      "revId": "489fbeccb1d01087d957c88db559fec3d5759cc6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
