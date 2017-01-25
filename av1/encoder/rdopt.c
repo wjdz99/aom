@@ -8561,8 +8561,14 @@ static int64_t handle_inter_mode(
 #if CONFIG_MOTION_VAR
     if (mbmi->motion_mode == OBMC_CAUSAL) {
 #if CONFIG_EXT_INTER
+#if CONFIG_WARPED_MOTION
+      int numproj = mbmi->num_proj_ref[0];
+#endif  // CONFIG_WARPED_MOTION
       *mbmi = best_bmc_mbmi;
       mbmi->motion_mode = OBMC_CAUSAL;
+#if CONFIG_WARPED_MOTION
+      mbmi->num_proj_ref[0] = numproj;
+#endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_EXT_INTER
       if (!is_comp_pred && have_newmv_in_inter_mode(this_mode)) {
         int tmp_rate_mv = 0;
@@ -8608,8 +8614,10 @@ static int64_t handle_inter_mode(
 #if CONFIG_WARPED_MOTION
     if (mbmi->motion_mode == WARPED_CAUSAL) {
 #if CONFIG_EXT_INTER
+      int numproj = mbmi->num_proj_ref[0];
       *mbmi = best_bmc_mbmi;
       mbmi->motion_mode = WARPED_CAUSAL;
+      mbmi->num_proj_ref[0] = numproj;
 #endif  // CONFIG_EXT_INTER
       mbmi->wm_params[0].wmtype = DEFAULT_WMTYPE;
 #if CONFIG_DUAL_FILTER
