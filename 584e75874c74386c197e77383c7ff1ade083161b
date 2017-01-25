@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6029dc7b_4ad41a34",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8537,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-01-25T22:10:26Z",
+      "side": 1,
+      "message": "Maybe when ext_inter is on, set best_bmc_mbmi.num_proj_ref[0] \u003d mbmi-\u003enum_proj_ref[0] here, instead of fixing it later.",
+      "revId": "584e75874c74386c197e77383c7ff1ade083161b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebbb1d3e_3d261c14",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8565,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-01-25T22:10:26Z",
+      "side": 1,
+      "message": "Can we directly modify best_bmc_mbmi before going through the loops?",
+      "revId": "584e75874c74386c197e77383c7ff1ade083161b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
