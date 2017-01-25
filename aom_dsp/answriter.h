@@ -107,7 +107,7 @@ struct rans_sym {
 // RANS_PRECISION is m
 static INLINE void rans_write(struct AnsCoder *ans,
                               const struct rans_sym *const sym) {
-  static const int tabled_divide_bits = 9;
+  static const int tabled_divide_bits = 8;
   const aom_cdf_prob p = sym->prob;
   const int msb = get_msb(p);
   const int shift =
@@ -123,9 +123,12 @@ static INLINE void rans_write(struct AnsCoder *ans,
   rem = ans->state - quot * q;
   if (p != q) {
     unsigned adjustment = (p - q) * quot;
-    assert(adjustment < p);
-    if (adjustment > rem) {
-      --quot;
+    assert(adjustment < 2 * p);
+    if (adjustment > rem + p) {
+      quot -= 2;
+      rem += p + p - adjustment;
+    } else if (adjustment > rem) {
+      quot -= 1;
       rem += p - adjustment;
     } else {
       rem -= adjustment;
