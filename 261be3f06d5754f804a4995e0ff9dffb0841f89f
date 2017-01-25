@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "105bc970_14036f3a",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3043,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-01-25T10:51:44Z",
+      "side": 1,
+      "message": "I suggest to add comments for plane type, ref type and bands in the below, like elsewhere in this file.",
+      "revId": "261be3f06d5754f804a4995e0ff9dffb0841f89f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
