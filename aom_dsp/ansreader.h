@@ -57,43 +57,27 @@ static INLINE unsigned refill_state(struct AnsDecoder *const ans,
   return state;
 }
 
-static INLINE int uabs_read(struct AnsDecoder *ans, AnsP8 p0) {
-  AnsP8 p = ANS_P8_PRECISION - p0;
-  int s;
-  unsigned xp, sp;
-  unsigned state;
+static INLINE int rabs_read(struct AnsDecoder *ans, AnsP8 p0) {
 #if ANS_MAX_SYMBOLS
   if (ans->symbols_left-- == 0) {
     ans_read_reinit(ans);
     ans->symbols_left--;
   }
 #endif
-  state = ans->state;
-  sp = state * p;
-  xp = sp / ANS_P8_PRECISION;
-  s = (sp & 0xFF) >= p0;
-  if (s)
-    state = xp;
+  unsigned state = ans->state;
+  const unsigned quo = state / ANS_P8_PRECISION;
+  const unsigned rem = state % ANS_P8_PRECISION;
+  const int val = rem >= p0;
+  if (val)
+    state = quo * (ANS_P8_PRECISION - p0) + rem - p0;
   else
-    state -= xp;
+    state = quo * p0 + rem;
   ans->state = refill_state(ans, state);
-  return s;
+  return val;
 }
 
-static INLINE int uabs_read_bit(struct AnsDecoder *ans) {
-  int s;
-  unsigned state;
-#if ANS_MAX_SYMBOLS
-  if (ans->symbols_left-- == 0) {
-    ans_read_reinit(ans);
-    ans->symbols_left--;
-  }
-#endif
-  state = ans->state;
-  s = (int)(state & 1);
-  state >>= 1;
-  ans->state = refill_state(ans, state);
-  return s;
+static INLINE int rabs_read_bit(struct AnsDecoder *ans) {
+  return rabs_read(ans, 128);
 }
 
 struct rans_dec_sym {

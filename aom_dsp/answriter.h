@@ -98,17 +98,17 @@ static INLINE int ans_write_end(struct AnsCoder *const ans) {
 }
 
 // uABS with normalization
-static INLINE void uabs_write(struct AnsCoder *ans, int val, AnsP8 p0) {
-  AnsP8 p = ANS_P8_PRECISION - p0;
+static INLINE void rabs_write(struct AnsCoder *ans, int val, AnsP8 p0) {
+  const AnsP8 p = ANS_P8_PRECISION - p0;
   const unsigned l_s = val ? p : p0;
-  while (ans->state >= L_BASE / ANS_P8_PRECISION * IO_BASE * l_s) {
-    ans->buf[ans->buf_offset++] = ans->state % IO_BASE;
-    ans->state /= IO_BASE;
+  unsigned state = ans->state;
+  while (state >= L_BASE / ANS_P8_PRECISION * IO_BASE * l_s) {
+    ans->buf[ans->buf_offset++] = state % IO_BASE;
+    state /= IO_BASE;
   }
-  if (!val)
-    ans->state = ANS_DIV8(ans->state * ANS_P8_PRECISION, p0);
-  else
-    ans->state = ANS_DIV8((ans->state + 1) * ANS_P8_PRECISION + p - 1, p) - 1;
+  unsigned quot = ANS_DIV8(state, l_s);
+  unsigned rem = state - quot * l_s;
+  ans->state = quot * ANS_P8_PRECISION + rem + (val ? p0 : 0);
 }
 
 struct rans_sym {
