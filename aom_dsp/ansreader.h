@@ -130,10 +130,21 @@ static INLINE int ans_read_init(struct AnsDecoder *const ans,
     if (offset < 2) return 1;
     ans->buf_offset += 2;
     ans->state = mem_get_be16(buf) & 0x7FFF;
+#if L_BASE * IO_BASE > (1 << 23)
+  } else if ((x & 0xC0) == 0x80) {
+    if (offset < 3) return 1;
+    ans->buf_offset += 3;
+    ans->state = mem_get_be24(buf) & 0x3FFFFF;
+  } else {
+    if (offset < 4) return 1;
+    ans->buf_offset += 4;
+    ans->state = mem_get_be32(buf) & 0x3FFFFFFF;
+#else
   } else {
     if (offset < 3) return 1;
     ans->buf_offset += 3;
     ans->state = mem_get_be24(buf) & 0x7FFFFF;
+#endif
   }
 #else
   ans->buf = buf;
