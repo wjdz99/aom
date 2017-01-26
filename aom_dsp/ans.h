@@ -35,7 +35,7 @@ typedef uint8_t AnsP8;
 
 // L_BASE % PRECISION must be 0. Increasing L_BASE beyond 2**15 will cause uabs
 // to overflow.
-#define L_BASE (RANS_PRECISION)
+#define L_BASE (16 * RANS_PRECISION)
 #define IO_BASE 256
 // Range I = { L_BASE, L_BASE + 1, ..., L_BASE * IO_BASE - 1 }
 
