@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "d17e3f50_1f4aac6e",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 816,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-01-26T23:20:57Z",
+      "side": 1,
+      "message": "In particular this looks like it was generated with save_first_bin \u003d True, and I think save_first_bin \u003d False makes more sense here now that the ONE_TOKEN (which was used to dictate the table row via count_one_token/count_two_token_plus) lives outside the table.",
+      "range": {
+        "startLine": 816,
+        "startChar": 0,
+        "endLine": 816,
+        "endChar": 45
+      },
+      "revId": "72b7ab0af423abbdc47ca9b78dd3a86f219206b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c928bb40_229c209f",
         "filename": "av1/common/entropy.h",
         "patchSetId": 8
