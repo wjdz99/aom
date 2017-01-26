@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "687dbafa_3d8b2c46",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-01-26T17:22:25Z",
+      "side": 1,
+      "message": "The duplication of the block \"cdf_head ... ACCT_STR);\" can be avoided:\ndo {\n  cdf_head ... ACCT_STR);\n  if (!token) {\n    ... *band_translate++;\n  }\n} while(!token);",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 193,
+        "endChar": 77
+      },
+      "revId": "72b7ab0af423abbdc47ca9b78dd3a86f219206b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
