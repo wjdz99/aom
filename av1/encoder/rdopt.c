@@ -7854,7 +7854,7 @@ static int64_t handle_inter_mode(
 #endif  // CONFIG_EXT_INTER
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_WARPED_MOTION
-  double pts[144], pts_inref[144];
+  double pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
 #endif  // CONFIG_WARPED_MOTION
   int64_t rd = INT64_MAX;
   BUFFER_SET orig_dst, tmp_dst;
@@ -8600,6 +8600,14 @@ static int64_t handle_inter_mode(
   if (cm->interp_filter == SWITCHABLE) rd_stats->rate += rs;
 #if CONFIG_WARPED_MOTION
   aom_clear_system_state();
+  /*
+  {
+    static int count = 0;
+    if (count == 5699)
+      printf("Debug\n");
+    printf("Hello %d: bsize %d\n", count++, bsize);
+  }
+  */
   mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #if CONFIG_EXT_INTER
   best_bmc_mbmi.num_proj_ref[0] = mbmi->num_proj_ref[0];
