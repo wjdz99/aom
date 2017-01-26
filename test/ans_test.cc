@@ -70,7 +70,7 @@ bool check_uabs(const PvVec &pv_vec, uint8_t *buf) {
   if (ans_read_init(&d, buf, offset)) return false;
   start = std::clock();
   for (PvVec::const_iterator it = pv_vec.begin(); it != pv_vec.end(); ++it) {
-    okay = okay && (uabs_read(&d, 256 - it->first) != 0) == it->second;
+    okay = okay && (rabs_read(&d, 256 - it->first) != 0) == it->second;
   }
   std::clock_t dec_time = std::clock() - start;
   if (!okay) return false;
