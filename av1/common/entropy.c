@@ -4824,9 +4824,6 @@ static void adapt_coef_probs(AV1_COMMON *cm, TX_SIZE tx_size,
       (const av1_blockz_count_model *)&cm->counts.blockz_count[tx_size][0];
 #endif
   int i, j, k, l, m;
-#if CONFIG_RECT_TX
-  assert(!is_rect_tx(tx_size));
-#endif  // CONFIG_RECT_TX
 
   for (i = 0; i < PLANE_TYPES; ++i)
     for (j = 0; j < REF_TYPES; ++j)
