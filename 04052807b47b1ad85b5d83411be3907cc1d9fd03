@@ -16,6 +16,23 @@
       "revId": "04052807b47b1ad85b5d83411be3907cc1d9fd03",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50be520d_14680a3f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4946,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-01-27T16:27:05Z",
+      "side": 1,
+      "message": "Thanks for pointing it out - Then we can simply remove the variable of \"num_refs\" and just do\nfor (ref \u003d 0; ref \u003c 1 + is_compound; ++ref) ...\n, which would look so great!",
+      "revId": "04052807b47b1ad85b5d83411be3907cc1d9fd03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
