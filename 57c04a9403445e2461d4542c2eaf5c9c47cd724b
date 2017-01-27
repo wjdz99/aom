@@ -16,6 +16,40 @@
       "revId": "57c04a9403445e2461d4542c2eaf5c9c47cd724b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0c6d0c3_dc89bfd1",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1018,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-01-27T04:32:41Z",
+      "side": 1,
+      "message": "I would then suggest to add the loop down here:\n\nint ref;\nfor (ref \u003d 0; ref \u003c 1 + has_second_ref(mbmi); ++ref) {\n  ++cpi-\u003eglobal_motion_used[mbmi-\u003eref_frame[ref]][0];\n  cpi-\u003eglobal_motion_used[mbmi-\u003eref_frame[ref]][1] +\u003d num_4x4s;\n}",
+      "revId": "57c04a9403445e2461d4542c2eaf5c9c47cd724b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7668f9da_8ec4763c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4950,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-01-27T04:32:41Z",
+      "side": 1,
+      "message": "I would suggest here to put CONFIG_EXT_INTER out of CONFIG_GLOBAL_MOTION, and then we could combine the code to something like\n\n#if CONFIG_EXT_INTER\n  const int num_refs \u003d 1;\n#else\n  const int num_refs \u003d 1 + is_compound;\n#endif  // CONFIG_EXT_INTER\n  int ref;\n\n  for (ref \u003d 0; ref \u003c num_refs; ++ref) {\n#if CONFIG_GLOBAL_MOTION\n      this_mv[ref].as_int \u003d\n          gm_get_motion_vector(\u0026cpi-\u003ecommon.global_motion[mbmi-\u003eref_frame[ref]], cpi-\u003ecommon.allow_high_precision_mv).as_int;\n      thismvcost +\u003d GLOBAL_MOTION_RATE(cpi, mbmi-\u003eref_frame[ref]);\n#else\n      this_mv[ref].as_int \u003d 0;\n#endif  // CONFIG_GLOBAL_MOTION\n  }",
+      "revId": "57c04a9403445e2461d4542c2eaf5c9c47cd724b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
