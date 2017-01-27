@@ -4575,7 +4575,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                      counts->intra_filter[i], INTRA_FILTERS, probwt, header_bc);
 #endif  // CONFIG_INTRA_INTERP
 #endif  // CONFIG_EXT_INTRA
-#endif  // CONFIG_EC_ADAPT, CONFIG_DAALA_EC
+#endif  // !CONFIG_EC_ADAPT
   if (frame_is_intra_only(cm)) {
     av1_copy(cm->kf_y_prob, av1_kf_y_mode_prob);
 #if CONFIG_EC_MULTISYMBOL
