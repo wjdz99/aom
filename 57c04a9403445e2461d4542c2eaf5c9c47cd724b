@@ -2,6 +2,74 @@
   "comments": [
     {
       "key": {
+        "uuid": "a2304181_86fb0cc6",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 773,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-27T04:55:38Z",
+      "side": 1,
+      "message": "you can scope this in the loop and make it *const I think",
+      "revId": "57c04a9403445e2461d4542c2eaf5c9c47cd724b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6fa20b_d6ac2bff",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2734,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-27T04:55:38Z",
+      "side": 1,
+      "message": "*const",
+      "revId": "57c04a9403445e2461d4542c2eaf5c9c47cd724b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e213ec48_38339a5c",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2735,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-27T04:55:38Z",
+      "side": 1,
+      "message": "this can be declared const int here",
+      "revId": "57c04a9403445e2461d4542c2eaf5c9c47cd724b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb521bd9_9d3d9ca5",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-27T04:55:38Z",
+      "side": 1,
+      "message": "since this is a single dispatch function you could place a return here and below with high-bitdepth to keep the ifdef\u0027ry down",
+      "revId": "57c04a9403445e2461d4542c2eaf5c9c47cd724b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3ed25031_eed1cdf5",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 4
