@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "7b1db7b6_8581dd52",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-27T14:21:15Z",
+      "side": 1,
+      "message": "Added.",
+      "range": {
+        "startLine": 555,
+        "startChar": 0,
+        "endLine": 557,
+        "endChar": 42
+      },
+      "revId": "72b7ab0af423abbdc47ca9b78dd3a86f219206b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d17e3f50_1f4aac6e",
         "filename": "av1/common/entropy.c",
         "patchSetId": 8
@@ -36,6 +59,29 @@
       "writtenOn": "2017-01-26T23:20:57Z",
       "side": 1,
       "message": "In particular this looks like it was generated with save_first_bin \u003d True, and I think save_first_bin \u003d False makes more sense here now that the ONE_TOKEN (which was used to dictate the table row via count_one_token/count_two_token_plus) lives outside the table.",
+      "range": {
+        "startLine": 816,
+        "startChar": 0,
+        "endLine": 816,
+        "endChar": 45
+      },
+      "revId": "72b7ab0af423abbdc47ca9b78dd3a86f219206b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e8b8d71_ae31a794",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 816,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-27T14:21:15Z",
+      "side": 1,
+      "message": "You\u0027re right. I have changed it to save_first_bin \u003d False, but it makes no difference at all to BDR.",
       "range": {
         "startLine": 816,
         "startChar": 0,
@@ -71,6 +117,29 @@
     },
     {
       "key": {
+        "uuid": "1d8bb7ea_2e44324c",
+        "filename": "av1/common/entropy.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-27T14:21:15Z",
+      "side": 1,
+      "message": "Removed.",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 56
+      },
+      "revId": "72b7ab0af423abbdc47ca9b78dd3a86f219206b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "687dbafa_3d8b2c46",
         "filename": "av1/decoder/detokenize.c",
         "patchSetId": 8
@@ -82,6 +151,29 @@
       "writtenOn": "2017-01-26T17:22:25Z",
       "side": 1,
       "message": "The duplication of the block \"cdf_head ... ACCT_STR);\" can be avoided:\ndo {\n  cdf_head ... ACCT_STR);\n  if (!token) {\n    ... *band_translate++;\n  }\n} while(!token);",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 193,
+        "endChar": 77
+      },
+      "revId": "72b7ab0af423abbdc47ca9b78dd3a86f219206b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ac0914ea_b946064d",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-27T14:21:15Z",
+      "side": 1,
+      "message": "That is true, but the decoder loop gets refactored in 6930 and 7103. The zero loop needs to be unwound so that the EOB_TOKEN values can be combined, and then a new zero loop can be made.",
       "range": {
         "startLine": 175,
         "startChar": 0,
