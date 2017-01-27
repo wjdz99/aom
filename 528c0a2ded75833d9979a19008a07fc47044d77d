@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa22f54a_b24e9768",
+        "filename": "test/simd_impl.h",
+        "patchSetId": 73
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-27T03:35:01Z",
+      "side": 1,
+      "message": "constants are usually kCamelCase, but OK to follow up, this one has been sitting for a while due to lack of attention by me",
+      "revId": "528c0a2ded75833d9979a19008a07fc47044d77d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
