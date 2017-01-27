@@ -1198,7 +1198,6 @@ static void write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 
   if (!FIXED_TX_TYPE) {
 #if CONFIG_EXT_TX
-    const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
     const BLOCK_SIZE bsize = mbmi->sb_type;
     if (get_ext_tx_types(tx_size, bsize, is_inter) > 1 &&
         ((!cm->seg.enabled && cm->base_qindex > 0) ||
@@ -1211,19 +1210,16 @@ static void write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
       int eset = get_ext_tx_set(tx_size, bsize, is_inter);
       if (is_inter) {
         assert(ext_tx_used_inter[eset][mbmi->tx_type]);
-        if (eset > 0) {
-          av1_write_token(w, av1_ext_tx_inter_tree[eset],
-                          ec_ctx->inter_ext_tx_prob[eset][square_tx_size],
-                          &ext_tx_inter_encodings[eset][mbmi->tx_type]);
-        }
-      } else if (ALLOW_INTRA_EXT_TX) {
-        assert(ext_tx_used_intra[eset][mbmi->tx_type]);
-        if (eset > 0) {
+        if (eset > 0)
           av1_write_token(
-              w, av1_ext_tx_intra_tree[eset],
-              ec_ctx->intra_ext_tx_prob[eset][square_tx_size][mbmi->mode],
-              &ext_tx_intra_encodings[eset][mbmi->tx_type]);
-        }
+              w, av1_ext_tx_inter_tree[eset],
+              ec_ctx->inter_ext_tx_prob[eset][txsize_sqr_map[tx_size]],
+              &ext_tx_inter_encodings[eset][mbmi->tx_type]);
+      } else if (ALLOW_INTRA_EXT_TX) {
+        if (eset > 0)
+          av1_write_token(w, av1_ext_tx_intra_tree[eset],
+                          ec_ctx->intra_ext_tx_prob[eset][tx_size][mbmi->mode],
+                          &ext_tx_intra_encodings[eset][mbmi->tx_type]);
       }
     }
 #else
@@ -2707,9 +2703,6 @@ static void build_tree_distribution(AV1_COMP *cpi, TX_SIZE tx_size,
   unsigned int(*eob_branch_ct)[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS] =
       cpi->common.counts.eob_branch[tx_size];
   int i, j, k, l, m;
-#if CONFIG_RECT_TX
-  assert(!is_rect_tx(tx_size));
-#endif  // CONFIG_RECT_TX
 
   for (i = 0; i < PLANE_TYPES; ++i) {
     for (j = 0; j < REF_TYPES; ++j) {
@@ -2748,9 +2741,6 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
 #else
   const int probwt = 1;
 #endif
-#if CONFIG_RECT_TX
-  assert(!is_rect_tx(tx_size));
-#endif  // CONFIG_RECT_TX
 
   switch (cpi->sf.use_fast_coef_updates) {
     case TWO_LOOP: {
