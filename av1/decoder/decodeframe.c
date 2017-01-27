@@ -494,7 +494,7 @@ static void predict_and_reconstruct_intra_block(
   PREDICTION_MODE mode = (plane == 0) ? mbmi->mode : mbmi->uv_mode;
   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
   uint8_t *dst;
-  const int block_idx = (row << 1) + col;
+  int block_idx = (row << 1) + col;
 #if CONFIG_PVQ
   (void)r;
 #endif
@@ -502,7 +502,7 @@ static void predict_and_reconstruct_intra_block(
 
 #if !CONFIG_CB4X4
   if (mbmi->sb_type < BLOCK_8X8)
-    if (plane == 0) mode = xd->mi[0]->bmi[block_idx].as_mode;
+    if (plane == 0) mode = xd->mi[0]->bmi[(row << 1) + col].as_mode;
 #endif
 
   av1_predict_intra_block(xd, pd->width, pd->height, txsize_to_bsize[tx_size],
