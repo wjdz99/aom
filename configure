@@ -253,6 +253,7 @@ EXPERIMENT_LIST="
     var_tx
     rect_tx
     ref_mv
+    tpl_mv
     dual_filter
     ext_tx
     tx64x64
