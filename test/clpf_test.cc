@@ -26,9 +26,15 @@ using libaom_test::ACMRandom;
 
 namespace {
 
+#if CONFIG_DEBLOCKING_ACROSS_TILES
+typedef void (*clpf_block_t)(const uint8_t *src, uint8_t *dst, int sstride,
+                             int dstride, int x0, int y0, int sizex, int sizey,
+                             unsigned int strength, TILE_BOUNDARY_TYPE bt);
+#else
 typedef void (*clpf_block_t)(const uint8_t *src, uint8_t *dst, int sstride,
                              int dstride, int x0, int y0, int sizex, int sizey,
                              int width, int height, unsigned int strength);
+#endif
 
 typedef std::tr1::tuple<clpf_block_t, clpf_block_t, int, int>
     clpf_block_param_t;
@@ -55,10 +61,17 @@ class ClpfBlockTest : public ::testing::TestWithParam<clpf_block_param_t> {
 typedef ClpfBlockTest ClpfSpeedTest;
 
 #if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_DEBLOCKING_ACROSS_TILES
+typedef void (*clpf_block_hbd_t)(const uint16_t *src, uint16_t *dst,
+                                 int sstride, int dstride, int x0, int y0,
+                                 int sizex, int sizey, unsigned int strength,
+                                 TILE_BOUNDARY_TYPE bt);
+#else
 typedef void (*clpf_block_hbd_t)(const uint16_t *src, uint16_t *dst,
                                  int sstride, int dstride, int x0, int y0,
                                  int sizex, int sizey, int width, int height,
                                  unsigned int strength);
+#endif
 
 typedef std::tr1::tuple<clpf_block_hbd_t, clpf_block_hbd_t, int, int>
     clpf_block_hbd_param_t;
@@ -88,13 +101,24 @@ typedef ClpfBlockHbdTest ClpfHbdSpeedTest;
 
 template <typename pixel>
 void test_clpf(int w, int h, int depth, int iterations,
+#if CONFIG_DEBLOCKING_ACROSS_TILES
+               void (*clpf)(const pixel *src, pixel *dst, int sstride,
+                            int dstride, int x0, int y0, int sizex, int sizey,
+                            unsigned int strength, TILE_BOUNDARY_TYPE bt),
+               void (*ref_clpf)(const pixel *src, pixel *dst, int sstride,
+                                int dstride, int x0, int y0, int sizex,
+                                int sizey, unsigned int strength,
+                                TILE_BOUNDARY_TYPE bt))
+#else
                void (*clpf)(const pixel *src, pixel *dst, int sstride,
                             int dstride, int x0, int y0, int sizex, int sizey,
                             int width, int height, unsigned int strength),
                void (*ref_clpf)(const pixel *src, pixel *dst, int sstride,
                                 int dstride, int x0, int y0, int sizex,
                                 int sizey, int width, int height,
-                                unsigned int strength)) {
+                                unsigned int strength))
+#endif
+{
   const int size = 24;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
   DECLARE_ALIGNED(16, pixel, s[size * size]);
@@ -123,11 +147,24 @@ void test_clpf(int w, int h, int depth, int iterations,
           for (xpos = 0; xpos < size && !error; xpos += w * !error) {
             for (strength = depth - 8; strength < depth - 5 && !error;
                  strength += !error) {
+#if CONFIG_DEBLOCKING_ACROSS_TILES
+              TILE_BOUNDARY_TYPE bt = TILE_BOUNDARY_TYPE(
+                  (TILE_LEFT_BOUNDARY & -(!xpos)) |
+                  (TILE_ABOVE_BOUNDARY & -(!ypos)) |
+                  (TILE_RIGHT_BOUNDARY & -(xpos + w == size)) |
+                  (TILE_BOTTOM_BOUNDARY & -(ypos + h == size)));
+              ref_clpf(s, ref_d, size, size, xpos, ypos, w, h, 1 << strength,
+                       bt);
+              if (clpf != ref_clpf)
+                ASM_REGISTER_STATE_CHECK(clpf(s, d, size, size, xpos, ypos, w,
+                                              h, 1 << strength, bt));
+#else
               ref_clpf(s, ref_d, size, size, xpos, ypos, w, h, size, size,
                        1 << strength);
               if (clpf != ref_clpf)
                 ASM_REGISTER_STATE_CHECK(clpf(s, d, size, size, xpos, ypos, w,
                                               h, size, size, 1 << strength));
+#endif
               if (ref_clpf != clpf)
                 for (pos = 0; pos < size * size && !error; pos++) {
                   error = ref_d[pos] != d[pos];
@@ -161,6 +198,16 @@ void test_clpf(int w, int h, int depth, int iterations,
 
 template <typename pixel>
 void test_clpf_speed(int w, int h, int depth, int iterations,
+#if CONFIG_DEBLOCKING_ACROSS_TILES
+                     void (*clpf)(const pixel *src, pixel *dst, int sstride,
+                                  int dstride, int x0, int y0, int sizex,
+                                  int sizey, unsigned int strength,
+                                  TILE_BOUNDARY_TYPE bt),
+                     void (*ref_clpf)(const pixel *src, pixel *dst, int sstride,
+                                      int dstride, int x0, int y0, int sizex,
+                                      int sizey, unsigned int strength,
+                                      TILE_BOUNDARY_TYPE bt))
+#else
                      void (*clpf)(const pixel *src, pixel *dst, int sstride,
                                   int dstride, int x0, int y0, int sizex,
                                   int sizey, int width, int height,
@@ -168,7 +215,9 @@ void test_clpf_speed(int w, int h, int depth, int iterations,
                      void (*ref_clpf)(const pixel *src, pixel *dst, int sstride,
                                       int dstride, int x0, int y0, int sizex,
                                       int sizey, int width, int height,
-                                      unsigned int strength)) {
+                                      unsigned int strength))
+#endif
+{
   aom_usec_timer ref_timer;
   aom_usec_timer timer;
 
