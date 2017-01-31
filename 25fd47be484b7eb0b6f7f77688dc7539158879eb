@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6544dee1_3aa4e67d",
+        "filename": "av1/common/clpf.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2017-01-31T23:17:33Z",
+      "side": 1,
+      "message": "I would suggest keep the whole boundary_type bits here and check whether it is tile boundary or frame boundary inside the actual filter kernel functions above. if the enumeration value changed, this shift will not work.",
+      "range": {
+        "startLine": 172,
+        "startChar": 14,
+        "endLine": 172,
+        "endChar": 16
+      },
+      "revId": "25fd47be484b7eb0b6f7f77688dc7539158879eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
