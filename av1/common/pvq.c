@@ -626,7 +626,7 @@ static od_val32 od_gain_compand(od_val32 g, int q0, od_val16 beta) {
     int32_t expr;
     expr = od_pow(g, od_beta_rcp(beta));
     expr <<= OD_CGAIN_SHIFT + OD_COMPAND_SHIFT - OD_EXP2_OUTSHIFT;
-    return (expr + (q0 >> 1))/q0;
+    return OD_MAXI(1, (expr + (q0 >> 1))/q0);
   }
 #endif
 }
@@ -698,7 +698,7 @@ od_val32 od_gain_expand(od_val32 cg0, int q0, od_val16 beta) {
     tmp = cg0*q0*(int64_t)irt;
     /*Expanded gain must be in Q(OD_COMPAND_SHIFT), thus OD_COMPAND_SHIFT is
        not included here.*/
-    return OD_VSHR_ROUND(tmp, OD_CGAIN_SHIFT + sqrt_outshift + sqrt_inshift);
+    return OD_MAXI(1, OD_VSHR_ROUND(tmp, OD_CGAIN_SHIFT + sqrt_outshift + sqrt_inshift));
 #endif
   }
   else {
@@ -715,7 +715,7 @@ od_val32 od_gain_expand(od_val32 cg0, int q0, od_val16 beta) {
     expr = od_pow(cg, beta);
     /*Expanded gain must be in Q(OD_COMPAND_SHIFT), hence the subtraction by
        OD_COMPAND_SHIFT.*/
-    return OD_SHR_ROUND(expr, OD_EXP2_OUTSHIFT - OD_COMPAND_SHIFT);
+    return OD_MAXI(1, OD_SHR_ROUND(expr, OD_EXP2_OUTSHIFT - OD_COMPAND_SHIFT));
 #endif
   }
 }
