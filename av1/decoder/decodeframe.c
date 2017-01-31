@@ -480,11 +480,7 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
 static void predict_and_reconstruct_intra_block(AV1_COMMON *cm,
                                                 MACROBLOCKD *const xd,
-#if CONFIG_ANS
-                                                struct AnsDecoder *const r,
-#else
                                                 aom_reader *r,
-#endif  // CONFIG_ANS
                                                 MB_MODE_INFO *const mbmi,
                                                 int plane, int row, int col,
                                                 TX_SIZE tx_size) {
@@ -586,11 +582,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
 #if !CONFIG_VAR_TX || CONFIG_SUPERTX || \
     (!CONFIG_VAR_TX && CONFIG_EXT_TX && CONFIG_RECT_TX)
 static int reconstruct_inter_block(AV1_COMMON *cm, MACROBLOCKD *const xd,
-#if CONFIG_ANS
-                                   struct AnsDecoder *const r,
-#else
                                    aom_reader *r,
-#endif
                                    int segment_id, int plane, int row, int col,
                                    TX_SIZE tx_size) {
   PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
