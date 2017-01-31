@@ -21,7 +21,8 @@
   aom_memalign*/
 #define DEFAULT_ALIGNMENT 32
 #else
-#define DEFAULT_ALIGNMENT (2 * sizeof(void *)) /* NOLINT */
+#define DEFAULT_ALIGNMENT \
+  (sizeof(void *) < 8 ? 16 : 2 * sizeof(void *)) /* NOLINT */
 #endif
 #endif
 
