@@ -52,8 +52,9 @@ int av1_alloc_restoration_struct(RestorationInfo *rst_info, int width,
   const int ntiles = av1_get_rest_ntiles(width, height, NULL, NULL, NULL, NULL);
   rst_info->restoration_type = (RestorationType *)aom_realloc(
       rst_info->restoration_type, sizeof(*rst_info->restoration_type) * ntiles);
-  rst_info->wiener_info = (WienerInfo *)aom_realloc(
-      rst_info->wiener_info, sizeof(*rst_info->wiener_info) * ntiles);
+  aom_free(rst_info->wiener_info);
+  rst_info->wiener_info =
+      (WienerInfo *)aom_memalign(16, sizeof(*rst_info->wiener_info) * ntiles);
   assert(rst_info->wiener_info != NULL);
   memset(rst_info->wiener_info, 0, sizeof(*rst_info->wiener_info) * ntiles);
   rst_info->sgrproj_info = (SgrprojInfo *)aom_realloc(
