@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <assert.h>
 #include <math.h>
 
 #include "./aom_config.h"
@@ -259,61 +260,73 @@ static INLINE void paeth_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
   }
 }
 
-// Weights are quadratic from 'bs' to '1'.
-// Scale is same as 'bs'.
-// TODO(urvang): Integerize the weights at a suitable precision.
+// Weights are quadratic from 'bs' to '1', scaled by 2^16.
+// Rationale: Given that max block dimension is 64 (=2^6), and max pixel value
+// is below 256 (=2^8), power of 16 is chosen so that all weighted sums in
+// smooth_predictor() remain within 2^31 (unsigned integer) range.
+static const int sm_weight_log2_scale = 16;
+
 #if CONFIG_TX64X64
-static const double sm_weight_arrays[6][64] = {
+static const uint32_t sm_weight_arrays[6][64] = {
 #else
-static const double sm_weight_arrays[5][32] = {
+static const uint32_t sm_weight_arrays[5][32] = {
 #endif  // CONFIG_TX64X64
   // bs = 2
-  { 2, 1 },
+  { 131072, 65536 },
   // bs = 4
-  { 4, 2.33333, 1.33333, 1 },
+  { 262144, 152917, 87381, 65536 },
   // bs = 8
-  { 8, 6.14286, 4.57143, 3.28571, 2.28571, 1.57143, 1.14286, 1 },
+  { 524288, 402578, 299593, 215333, 149797, 102985, 74898, 65536 },
   // bs = 16
-  { 16, 14.0667, 12.2667, 10.6, 9.06667, 7.66667, 6.4, 5.26667, 4.26667, 3.4,
-    2.66667, 2.06667, 1.6, 1.26667, 1.06667, 1 },
+  { 1048576, 921873, 803908, 694682, 594193, 502443, 419430, 345156, 279620,
+    222822, 174763, 135441, 104858, 83012, 69905, 65536 },
   // bs = 32
-  { 32,      30.0323, 28.129,  26.2903, 24.5161, 22.8065, 21.1613, 19.5806,
-    18.0645, 16.6129, 15.2258, 13.9032, 12.6452, 11.4516, 10.3226, 9.25806,
-    8.25806, 7.32258, 6.45161, 5.64516, 4.90323, 4.22581, 3.6129,  3.06452,
-    2.58065, 2.16129, 1.80645, 1.51613, 1.29032, 1.12903, 1.03226, 1 },
+  { 2097152, 1968194, 1843464, 1722963, 1606689, 1494644, 1386826, 1283237,
+    1183876, 1088743, 997838,  911162,  828713,  750493,  676501,  606737,
+    541201,  479893,  422813,  369961,  321338,  276942,  236775,  200836,
+    169125,  141642,  118388,  99361,   84563,   73992,   67650,   65536 },
 #if CONFIG_TX64X64
   // bs = 64
-  { 64,      62.0159, 60.0635, 58.1429, 56.254,  54.3968, 52.5714, 50.7778,
-    49.0159, 47.2857, 45.5873, 43.9206, 42.2857, 40.6825, 39.1111, 37.5714,
-    36.0635, 34.5873, 33.1429, 31.7302, 30.3492, 29,      27.6825, 26.3968,
-    25.1429, 23.9206, 22.7302, 21.5714, 20.4444, 19.3492, 18.2857, 17.254,
-    16.254,  15.2857, 14.3492, 13.4444, 12.5714, 11.7302, 10.9206, 10.1429,
-    9.39683, 8.68254, 8,       7.34921, 6.73016, 6.14286, 5.5873,  5.06349,
-    4.57143, 4.11111, 3.68254, 3.28571, 2.92063, 2.5873,  2.28571, 2.01587,
-    1.77778, 1.57143, 1.39683, 1.25397, 1.14286, 1.06349, 1.01587, 1 },
+  { 4194304, 4064272, 3936321, 3810450, 3686660, 3564950, 3445321, 3327772,
+    3212304, 3098917, 2987609, 2878383, 2771237, 2666171, 2563186, 2462281,
+    2363457, 2266713, 2172050, 2079468, 1988966, 1900544, 1814203, 1729942,
+    1647762, 1567663, 1489644, 1413705, 1339847, 1268070, 1198373, 1130756,
+    1065220, 1001765, 940390,  881095,  823881,  768748,  715695,  664722,
+    615830,  569019,  524288,  481638,  441068,  402578,  366169,  331841,
+    299593,  269426,  241339,  215333,  191407,  169561,  149797,  132112,
+    116508,  102985,  91542,   82180,   74898,   69697,   66576,   65536 },
 #endif  // CONFIG_TX64X64
 };
+
+#define divide_round(value, bits) (((value) + (1 << ((bits)-1))) >> (bits))
 
 static INLINE void smooth_predictor(uint8_t *dst, ptrdiff_t stride, int bs,
                                     const uint8_t *above, const uint8_t *left) {
   const uint8_t below_pred = left[bs - 1];   // estimated by bottom-left pixel
   const uint8_t right_pred = above[bs - 1];  // estimated by top-right pixel
-  const int arr_index = (int)lround(log2(bs)) - 1;
-  const double *const sm_weights = sm_weight_arrays[arr_index];
-  const double scale = 2.0 * bs;
+  const int log2_bs = (int)lround(log2(bs));
+  const int arr_index = log2_bs - 1;
+  const uint32_t *const sm_weights = sm_weight_arrays[arr_index];
+  // scale = 2 * bs * 2^sm_weight_log2_scale
+  const int log2_scale = 1 + log2_bs + sm_weight_log2_scale;
+  const uint32_t scaled_bs = sm_weights[0];
+  assert((int)scaled_bs == (bs << sm_weight_log2_scale));
   int r;
   for (r = 0; r < bs; ++r) {
     int c;
     for (c = 0; c < bs; ++c) {
-      const int pixels[] = { above[c], below_pred, left[r], right_pred };
-      const double weights[] = { sm_weights[r], bs - sm_weights[r],
-                                 sm_weights[c], bs - sm_weights[c] };
-      double this_pred = 0;
+      const uint8_t pixels[] = { above[c], below_pred, left[r], right_pred };
+      const uint32_t weights[] = { sm_weights[r], scaled_bs - sm_weights[r],
+                                   sm_weights[c], scaled_bs - sm_weights[c] };
+      uint32_t this_pred = 0;
       int i;
+      assert(scaled_bs >= sm_weights[r] && scaled_bs >= sm_weights[c]);
+      // sanity check: no overflow.
+      assert(log2_scale + 8 * sizeof(*left) < 8 * sizeof(this_pred));
       for (i = 0; i < 4; ++i) {
         this_pred += weights[i] * pixels[i];
       }
-      dst[c] = clip_pixel(lround(this_pred / scale));
+      dst[c] = clip_pixel(divide_round(this_pred, log2_scale));
     }
     dst += stride;
   }
@@ -1027,22 +1040,29 @@ static INLINE void highbd_smooth_predictor(uint16_t *dst, ptrdiff_t stride,
                                            const uint16_t *left, int bd) {
   const uint16_t below_pred = left[bs - 1];   // estimated by bottom-left pixel
   const uint16_t right_pred = above[bs - 1];  // estimated by top-right pixel
-  const int arr_index = (int)lround(log2(bs)) - 1;
-  const double *const sm_weights = sm_weight_arrays[arr_index];
-  const double scale = 2.0 * bs;
+  const int log2_bs = (int)lround(log2(bs));
+  const int arr_index = log2_bs - 1;
+  const uint32_t *const sm_weights = sm_weight_arrays[arr_index];
+  // scale = 2 * bs * 2^sm_weight_log2_scale
+  const int log2_scale = 1 + log2_bs + sm_weight_log2_scale;
+  const uint32_t scaled_bs = sm_weights[0];
+  assert((int)scaled_bs == (bs << sm_weight_log2_scale));
   int r;
   for (r = 0; r < bs; ++r) {
     int c;
     for (c = 0; c < bs; ++c) {
-      const int pixels[] = { above[c], below_pred, left[r], right_pred };
-      const double weights[] = { sm_weights[r], bs - sm_weights[r],
-                                 sm_weights[c], bs - sm_weights[c] };
-      double this_pred = 0;
+      const uint16_t pixels[] = { above[c], below_pred, left[r], right_pred };
+      const uint32_t weights[] = { sm_weights[r], scaled_bs - sm_weights[r],
+                                   sm_weights[c], scaled_bs - sm_weights[c] };
+      uint64_t this_pred = 0;  // Needs to be 64 bit to avoid overflow.
       int i;
+      assert(scaled_bs >= sm_weights[r] && scaled_bs >= sm_weights[c]);
+      // sanity check: no overflow.
+      assert(log2_scale + 8 * sizeof(*left) < 8 * sizeof(this_pred));
       for (i = 0; i < 4; ++i) {
         this_pred += weights[i] * pixels[i];
       }
-      dst[c] = clip_pixel_highbd(lround(this_pred / scale), bd);
+      dst[c] = clip_pixel_highbd(divide_round(this_pred, log2_scale), bd);
     }
     dst += stride;
   }
