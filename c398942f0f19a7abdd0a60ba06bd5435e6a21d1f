@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6217e936_dcf95b9b",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-31T00:41:08Z",
+      "side": 1,
+      "message": "it is if you --enable-vp9-temporal-denoising",
+      "range": {
+        "startLine": 365,
+        "startChar": 6,
+        "endLine": 365,
+        "endChar": 33
+      },
+      "revId": "c398942f0f19a7abdd0a60ba06bd5435e6a21d1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c43d1b2_da289dac",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-31T00:41:08Z",
+      "side": 1,
+      "message": "it might be good to split the two sets",
+      "revId": "c398942f0f19a7abdd0a60ba06bd5435e6a21d1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2db09be0_1009a63d",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-31T00:41:08Z",
+      "side": 1,
+      "message": "there\u0027s 32-bit and other elf platforms to consider as well, but I imagine the goal here is an x86_64 for some base platforms",
+      "revId": "c398942f0f19a7abdd0a60ba06bd5435e6a21d1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "801b5b97_da4fc475",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-31T00:41:08Z",
+      "side": 1,
+      "message": "-f ...  is technically an ARGS no?",
+      "range": {
+        "startLine": 65,
+        "startChar": 50,
+        "endLine": 65,
+        "endChar": 65
+      },
+      "revId": "c398942f0f19a7abdd0a60ba06bd5435e6a21d1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8109f6ef_263384f3",
+        "filename": "build/cmake/targets/x86_64.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-31T00:41:08Z",
+      "side": 1,
+      "message": "not sure if this one would really apply under cmake",
+      "revId": "c398942f0f19a7abdd0a60ba06bd5435e6a21d1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
