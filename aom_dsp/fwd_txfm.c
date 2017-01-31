@@ -41,6 +41,8 @@ void aom_fdct4x4_c(const int16_t *input, tran_low_t *output, int stride) {
         if (i == 0 && in_high[0]) {
           ++in_high[0];
         }
+        // Do next column (which is a transposed row in second/horizontal pass)
+        ++input;
       } else {
         assert(in_low != NULL);
         in_high[0] = in_low[0 * 4];
@@ -62,8 +64,6 @@ void aom_fdct4x4_c(const int16_t *input, tran_low_t *output, int stride) {
       temp2 = -step[2] * cospi_8_64 + step[3] * cospi_24_64;
       out[1] = (tran_low_t)fdct_round_shift(temp1);
       out[3] = (tran_low_t)fdct_round_shift(temp2);
-      // Do next column (which is a transposed row in second/horizontal pass)
-      ++input;
       out += 4;
     }
     // Setup in/out for next pass.
@@ -112,6 +112,7 @@ void aom_fdct8x8_c(const int16_t *input, tran_low_t *final_output, int stride) {
         s5 = (input[2 * stride] - input[5 * stride]) * 4;
         s6 = (input[1 * stride] - input[6 * stride]) * 4;
         s7 = (input[0 * stride] - input[7 * stride]) * 4;
+        // Do next column (which is a transposed row in second/horizontal pass)
         ++input;
       } else {
         s0 = in[0 * 8] + in[7 * 8];
@@ -221,6 +222,8 @@ void aom_fdct16x16_c(const int16_t *input, tran_low_t *output, int stride) {
         step1[5] = (input[2 * stride] - input[13 * stride]) * 4;
         step1[6] = (input[1 * stride] - input[14 * stride]) * 4;
         step1[7] = (input[0 * stride] - input[15 * stride]) * 4;
+        // Do next column (which is a transposed row in second/horizontal pass)
+        input++;
       } else {
         // Calculate input for the first 8 results.
         assert(in_low != NULL);
@@ -351,8 +354,6 @@ void aom_fdct16x16_c(const int16_t *input, tran_low_t *output, int stride) {
         out[7] = (tran_low_t)fdct_round_shift(temp1);
         out[15] = (tran_low_t)fdct_round_shift(temp2);
       }
-      // Do next column (which is a transposed row in second/horizontal pass)
-      input++;
       out += 16;
     }
     // Setup in/out for next pass.
