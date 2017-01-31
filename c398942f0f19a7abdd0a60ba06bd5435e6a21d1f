@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "e1c452ca_20c864a3",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-01-31T19:24:45Z",
+      "side": 1,
+      "message": "thinking libvpx?\n$ ../configure --enable-vp9-temporal-denoising --target\u003dx86_64-darwin15-gcc --disable-docs\nUnknown option \"--enable-vp9-temporal-denoising\".\n\nAlso,\n$ ../configure --enable-temporal-denoising --target\u003dx86_64-darwin15-gcc --disable-docs\n$ rm ../aom_dsp/x86/add_noise_sse2.asm\n$ make\n\u003cOK\u003e\n\nNot present in libaom_srcs.txt either. Possibly a candidate for deletion?",
+      "revId": "c398942f0f19a7abdd0a60ba06bd5435e6a21d1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c43d1b2_da289dac",
         "filename": "CMakeLists.txt",
         "patchSetId": 6
@@ -42,6 +59,23 @@
     },
     {
       "key": {
+        "uuid": "7c607d95_0971892d",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-01-31T19:24:45Z",
+      "side": 1,
+      "message": "going to deal with HBD next I think, and probably other optional stuff. It\u0027ll get broken out. Would rather leave this alone until I get to that.",
+      "revId": "c398942f0f19a7abdd0a60ba06bd5435e6a21d1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2db09be0_1009a63d",
         "filename": "build/cmake/aom_optimization.cmake",
         "patchSetId": 6
@@ -53,6 +87,23 @@
       "writtenOn": "2017-01-31T00:41:08Z",
       "side": 1,
       "message": "there\u0027s 32-bit and other elf platforms to consider as well, but I imagine the goal here is an x86_64 for some base platforms",
+      "revId": "c398942f0f19a7abdd0a60ba06bd5435e6a21d1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e0e4ae25_444c0a68",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-01-31T19:24:45Z",
+      "side": 1,
+      "message": "yeah, I\u0027ll refine this further. I haven\u0027t looked into forcing a 32-bit build when cmake sees x86_64 yet.",
       "revId": "c398942f0f19a7abdd0a60ba06bd5435e6a21d1f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -82,6 +133,23 @@
     },
     {
       "key": {
+        "uuid": "8e8aae5c_325df1b5",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-01-31T19:24:45Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "c398942f0f19a7abdd0a60ba06bd5435e6a21d1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8109f6ef_263384f3",
         "filename": "build/cmake/targets/x86_64.cmake",
         "patchSetId": 6
@@ -93,6 +161,23 @@
       "writtenOn": "2017-01-31T00:41:08Z",
       "side": 1,
       "message": "not sure if this one would really apply under cmake",
+      "revId": "c398942f0f19a7abdd0a60ba06bd5435e6a21d1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cfead2d6_93a3179e",
+        "filename": "build/cmake/targets/x86_64.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-01-31T19:24:45Z",
+      "side": 1,
+      "message": "removed (from everywhere else, too)",
       "revId": "c398942f0f19a7abdd0a60ba06bd5435e6a21d1f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
