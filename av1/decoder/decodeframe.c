@@ -4607,6 +4607,10 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
   assert(!memcmp(cm->counts.coef, zero_counts.coef, sizeof(cm->counts.coef)));
   assert(!memcmp(cm->counts.eob_branch, zero_counts.eob_branch,
                  sizeof(cm->counts.eob_branch)));
+#if CONFIG_EC_MULTISYMBOL
+  assert(!memcmp(cm->counts.cbp_count, zero_counts.cbp_count,
+                 sizeof(cm->counts.cbp_count)));
+#endif
   assert(!memcmp(cm->counts.switchable_interp, zero_counts.switchable_interp,
                  sizeof(cm->counts.switchable_interp)));
   assert(!memcmp(cm->counts.inter_mode, zero_counts.inter_mode,
