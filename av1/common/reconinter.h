@@ -70,8 +70,12 @@ static INLINE void inter_predictor(const uint8_t *src, int src_stride,
 #if CONFIG_CONVOLVE_ROUND
     if (conv_params->round == CONVOLVE_OPT_NO_ROUND)
       av1_convolve_2d_facade(src, src_stride, dst, dst_stride, w, h,
-                             interp_filter, subpel_x, xs, subpel_y, ys,
-                             conv_params);
+#if CONFIG_DUAL_FILTER
+                             interp_filter,
+#else
+                             &interp_filter,
+#endif
+                             subpel_x, xs, subpel_y, ys, conv_params);
     else
 #endif
       av1_convolve(src, src_stride, dst, dst_stride, w, h, interp_filter,
@@ -612,7 +616,9 @@ void av1_build_intra_predictors_for_interintra(MACROBLOCKD *xd,
 void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
                             const uint8_t *inter_pred, int inter_stride,
                             const uint8_t *intra_pred, int intra_stride);
+#endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXT_INTER || CONFIG_TRIPRED
 // Encoder only
 void av1_build_inter_predictors_for_planes_single_buf(
     MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane_from, int plane_to, int mi_row,
@@ -624,7 +630,7 @@ void av1_build_wedge_inter_predictor_from_buf(
 #endif  // CONFIG_SUPERTX
     uint8_t *ext_dst0[3], int ext_dst_stride0[3], uint8_t *ext_dst1[3],
     int ext_dst_stride1[3]);
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_TRIPRED
 
 #ifdef __cplusplus
 }  // extern "C"
