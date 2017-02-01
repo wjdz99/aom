@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "76474301_952e61d0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-02-01T05:56:08Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3a84f11b34941e48cb0ef315e5063d229b8cdc27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "512e046b_6241f584",
         "filename": "aom_dsp/x86/deblock_sse2.asm",
         "patchSetId": 1
@@ -30,6 +47,23 @@
       "writtenOn": "2017-02-01T02:13:34Z",
       "side": 1,
       "message": "deblock.c, deblock_msa.c too",
+      "revId": "3a84f11b34941e48cb0ef315e5063d229b8cdc27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ceb1baa4_f4abf995",
+        "filename": "aom_dsp/x86/deblock_sse2.asm",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-02-01T05:56:08Z",
+      "side": 1,
+      "message": "Done",
       "revId": "3a84f11b34941e48cb0ef315e5063d229b8cdc27",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
