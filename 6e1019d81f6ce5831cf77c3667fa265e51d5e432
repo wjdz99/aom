@@ -16,6 +16,23 @@
       "revId": "6e1019d81f6ce5831cf77c3667fa265e51d5e432",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "942eb0b5_f32e1abf",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1697,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-02-01T07:50:44Z",
+      "side": 1,
+      "message": "I added it to reconinter.h because COMPOUND_WEDGE currently depends on wedge_params_lookup.",
+      "revId": "6e1019d81f6ce5831cf77c3667fa265e51d5e432",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
