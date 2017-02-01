@@ -27,18 +27,30 @@ TEST(AV1, TestAccounting) {
   const int kSymbols = 1024;
   aom_writer bw;
   uint8_t bw_buffer[kBufferSize];
+#if CONFIG_ANS
+  aom_buf_ans_alloc(&bw, NULL, kSymbols);
+  buf_ans_write_init(&bw, bw_buffer);
+#else
   aom_start_encode(&bw, bw_buffer);
+#endif
   for (int i = 0; i < kSymbols; i++) {
     aom_write(&bw, 0, 32);
     aom_write(&bw, 0, 32);
     aom_write(&bw, 0, 32);
   }
+#if CONFIG_ANS
+  aom_buf_ans_flush(&bw);
+  const unsigned int written_size = buf_ans_write_end(&bw);
+  aom_buf_ans_free(&bw);
+#else
   aom_stop_encode(&bw);
+  const unsigned int written_size = bw.pos;
+#endif
   aom_reader br;
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
-  br.window_size = 1 << 16;
+  br.window_size = kSymbols;
 #endif
-  aom_reader_init(&br, bw_buffer, bw.pos, NULL, NULL);
+  aom_reader_init(&br, bw_buffer, written_size, NULL, NULL);
 
   Accounting accounting;
   aom_accounting_init(&accounting);
@@ -54,7 +66,7 @@ TEST(AV1, TestAccounting) {
   GTEST_ASSERT_EQ(accounting.syms.num_syms, 0);
 
   // Should record 2 * kSymbols accounting symbols.
-  aom_reader_init(&br, bw_buffer, bw.pos, NULL, NULL);
+  aom_reader_init(&br, bw_buffer, written_size, NULL, NULL);
   br.accounting = &accounting;
   for (int i = 0; i < kSymbols; i++) {
     aom_read(&br, 32, "A");
