@@ -283,6 +283,9 @@ typedef struct FRAME_COUNTS {
 
   unsigned int txb_count[TX_SIZES_ALL][TX_TYPES];
 #endif  // CONFIG_ADAPT_SCAN
+#if CONFIG_EC_MULTISYMBOL
+  av1_cbp_count_model cbp_count[TX_SIZES][PLANE_TYPES];
+#endif
 
 #if CONFIG_REF_MV
   unsigned int newmv_mode[NEWMV_MODE_CONTEXTS][2];
