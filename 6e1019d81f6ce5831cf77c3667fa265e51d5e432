@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3aa2cdc_e7e1b65c",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1697,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-02-01T05:17:34Z",
+      "side": 1,
+      "message": "It may be better to add a function in blockd.h to indicate if any of the masked compounds are used.",
+      "revId": "6e1019d81f6ce5831cf77c3667fa265e51d5e432",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
