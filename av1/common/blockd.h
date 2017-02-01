@@ -214,7 +214,6 @@ static INLINE int is_masked_compound_type(COMPOUND_TYPE type) {
 #endif  // CONFIG_COMPOUND_SEGMENT
 }
 #else
-
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEWMV);
 }

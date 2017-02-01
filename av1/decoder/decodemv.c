@@ -1922,13 +1922,12 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_EXT_INTER
-  mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
   if (cm->reference_mode != SINGLE_REFERENCE &&
       is_inter_compound_mode(mbmi->mode)
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       && mbmi->motion_mode == SIMPLE_TRANSLATION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-      ) {
+      && is_any_masked_compound_used(bsize)) {
     mbmi->interinter_compound_data.type = aom_read_tree(
         r, av1_compound_type_tree, cm->fc->compound_type_prob[bsize], ACCT_STR);
     if (xd->counts)
@@ -1945,6 +1944,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
           aom_read_literal(r, MAX_SEG_MASK_BITS, ACCT_STR);
     }
 #endif  // CONFIG_COMPOUND_SEGMENT
+  } else {
+    mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
   }
 #endif  // CONFIG_EXT_INTER
 
