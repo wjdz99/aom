@@ -1929,7 +1929,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       && mbmi->motion_mode == SIMPLE_TRANSLATION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       ) {
-    mbmi->interinter_compound_data.type = aom_read_tree(
+    if (bsize <= BLOCK_8X8)
+      mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
+    else
+      mbmi->interinter_compound_data.type = aom_read_tree(
         r, av1_compound_type_tree, cm->fc->compound_type_prob[bsize], ACCT_STR);
     if (xd->counts)
       xd->counts->compound_interinter[bsize]
