@@ -652,33 +652,34 @@ include_directories(${AOM_ROOT} ${AOM_CONFIG_DIR})
 
 # Targets
 # TODO(tomfinegan): Add support for enable/disable encoder/decoder.
-add_library(aom_dsp OBJECT ${AOM_DSP_SOURCES})
-AomAddRtcdGenerationCommand(${AOM_ROOT}/aom_dsp/aom_dsp_rtcd_defs.pl
-                            ${AOM_CONFIG_DIR}/aom_dsp_rtcd.h
-                            ${AOM_CONFIG_DIR}/aom_dsp/aom_dsp_rtcd.c
-                            aom_dsp_rtcd)
+add_rtcd_build_step("${AOM_ROOT}/aom_dsp/aom_dsp_rtcd_defs.pl"
+                    "${AOM_CONFIG_DIR}/aom_dsp_rtcd.h"
+                    "${AOM_ROOT}/aom_dsp/aom_dsp_rtcd.c"
+                    "aom_dsp_rtcd")
+add_rtcd_build_step("${AOM_ROOT}/aom_scale/aom_scale_rtcd.pl"
+                    "${AOM_CONFIG_DIR}/aom_scale_rtcd.h"
+                    "${AOM_ROOT}/aom_scale/aom_scale_rtcd.c"
+                    "aom_scale_rtcd")
+add_rtcd_build_step("${AOM_ROOT}/av1/common/av1_rtcd_defs.pl"
+                    "${AOM_CONFIG_DIR}/av1_rtcd.h"
+                    "${AOM_ROOT}/av1/common/av1_rtcd.c"
+                    "aom_av1_rtcd")
 
-add_library(aom_encoder_stats OBJECT ${AOM_ENCODER_STATS_SOURCES})
-add_library(aom_mem OBJECT ${AOM_MEM_SOURCES})
-
-add_library(aom_scale OBJECT ${AOM_SCALE_SOURCES})
-AomAddRtcdGenerationCommand(${AOM_ROOT}/aom_scale/aom_scale_rtcd.pl
-                            ${AOM_CONFIG_DIR}/aom_scale_rtcd.h
-                            ${AOM_CONFIG_DIR}/aom_scale/aom_scale_rtcd.c
-                            aom_scale_rtcd)
-
-add_library(aom_util OBJECT ${AOM_UTIL_SOURCES})
-
-add_library(aom_av1_common OBJECT ${AOM_AV1_COMMON_SOURCES})
-AomAddRtcdGenerationCommand(${AOM_ROOT}/av1/common/av1_rtcd_defs.pl
-                            ${AOM_CONFIG_DIR}/av1_rtcd.h
-                            ${AOM_CONFIG_DIR}/av1/common/av1_rtcd.c
-                            aom_av1_rtcd)
-
-add_library(aom_av1_decoder OBJECT ${AOM_AV1_DECODER_SOURCES})
-add_library(aom_av1_encoder OBJECT ${AOM_AV1_ENCODER_SOURCES})
+add_library(aom_util OBJECT ${AOM_UTIL_SOURCES} ${AOM_RTCD_HEADER_FILE_LIST})
+add_library(aom_dsp OBJECT ${AOM_DSP_SOURCES} ${AOM_RTCD_HEADER_FILE_LIST})
+add_library(aom_encoder_stats OBJECT ${AOM_ENCODER_STATS_SOURCES}
+            ${AOM_RTCD_HEADER_FILE_LIST})
+add_library(aom_mem OBJECT ${AOM_MEM_SOURCES} ${AOM_RTCD_HEADER_FILE_LIST})
+add_library(aom_scale OBJECT ${AOM_SCALE_SOURCES} ${AOM_RTCD_HEADER_FILE_LIST})
+add_library(aom_av1_common OBJECT ${AOM_AV1_COMMON_SOURCES}
+            ${AOM_RTCD_HEADER_FILE_LIST})
+add_library(aom_av1_decoder OBJECT ${AOM_AV1_DECODER_SOURCES}
+            ${AOM_RTCD_HEADER_FILE_LIST})
+add_library(aom_av1_encoder OBJECT ${AOM_AV1_ENCODER_SOURCES}
+            ${AOM_RTCD_HEADER_FILE_LIST})
 add_library(aom
             ${AOM_SOURCES}
+            ${AOM_RTCD_HEADER_FILE_LIST}}
             $<TARGET_OBJECTS:aom_dsp>
             $<TARGET_OBJECTS:aom_mem>
             $<TARGET_OBJECTS:aom_scale>
