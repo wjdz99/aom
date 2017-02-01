@@ -18,6 +18,8 @@
 // * rANS (range Asymmetric Numeral Systems), a multi-symbol coder
 
 #include <assert.h>
+#include <limits.h>
+#include <math.h>
 #include "./aom_config.h"
 #include "aom/aom_integer.h"
 #include "aom_dsp/prob.h"
@@ -25,6 +27,7 @@
 #include "aom_ports/mem_ops.h"
 #if CONFIG_ACCOUNTING
 #include "av1/common/accounting.h"
+#include "av1/common/odintrin.h"
 #endif
 
 #ifdef __cplusplus
@@ -40,6 +43,7 @@ struct AnsDecoder {
   int window_size;
 #endif
 #if CONFIG_ACCOUNTING
+  int buf_total_size;
   Accounting *accounting;
 #endif
 };
@@ -134,8 +138,8 @@ static INLINE int rans_read(struct AnsDecoder *ans, const aom_cdf_prob *tab) {
   return sym.val;
 }
 
-static INLINE int ans_read_init(struct AnsDecoder *const ans,
-                                const uint8_t *const buf, int offset) {
+static INLINE int ans_read_init_common(struct AnsDecoder *const ans,
+                                       const uint8_t *const buf, int offset) {
   unsigned x;
   if (offset < 1) return 1;
 #if ANS_REVERSE
@@ -182,9 +186,6 @@ static INLINE int ans_read_init(struct AnsDecoder *const ans,
     return 1;
   }
 #endif  // ANS_REVERSE
-#if CONFIG_ACCOUNTING
-  ans->accounting = NULL;
-#endif
   ans->state += L_BASE;
   if (ans->state >= L_BASE * IO_BASE) return 1;
 #if ANS_MAX_SYMBOLS
@@ -194,9 +195,19 @@ static INLINE int ans_read_init(struct AnsDecoder *const ans,
   return 0;
 }
 
+static INLINE int ans_read_init(struct AnsDecoder *const ans,
+                                const uint8_t *const buf, int offset) {
+#if CONFIG_ACCOUNTING
+  ans->accounting = NULL;
+  ans->buf_total_size = offset;
+#endif
+  return ans_read_init_common(ans, buf, offset);
+}
+
 #if ANS_REVERSE
 static INLINE int ans_read_reinit(struct AnsDecoder *const ans) {
-  return ans_read_init(ans, ans->buf + ans->buf_offset, -ans->buf_offset);
+  return ans_read_init_common(ans, ans->buf + ans->buf_offset,
+                              -ans->buf_offset);
 }
 #endif
 
@@ -207,6 +218,35 @@ static INLINE int ans_read_end(const struct AnsDecoder *const ans) {
 static INLINE int ans_reader_has_error(const struct AnsDecoder *const ans) {
   return ans->state < L_BASE / RANS_PRECISION;
 }
+
+#if CONFIG_ACCOUNTING
+static INLINE uint32_t ans_reader_tell(const struct AnsDecoder *ans) {
+#if ANS_REVERSE
+  const uint32_t bytes_read = ans->buf_total_size + ans->buf_offset;
+#else
+  const uint32_t bytes_read = ans->buf_total_size - ans->buf_offset;
+#endif
+  uint32_t bits_read =
+      ans->state > L_BASE ? OD_ILOG_NZ(ans->state) - L_BASE_BITS : 0;
+  uint32_t tell = bytes_read * CHAR_BIT - bits_read;
+  return tell;
+#endif
+}
+
+static INLINE uint32_t ans_reader_tell_frac(const struct AnsDecoder *ans) {
+#if ANS_REVERSE
+  const uint32_t bytes_read = ans->buf_total_size + ans->buf_offset;
+#else
+  const uint32_t bytes_read = ans->buf_total_size - ans->buf_offset;
+#endif
+  uint32_t frac_bits_read =
+      ans->state > L_BASE ? (uint32_t)((log2(ans->state) - L_BASE_BITS) * 8)
+                          : 0;
+  uint32_t tell = bytes_read * CHAR_BIT * 8 - frac_bits_read;
+  return tell;
+}
+#endif  // CONFIG_ACCOUNTING
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif  // __cplusplus
