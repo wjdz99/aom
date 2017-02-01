@@ -507,7 +507,10 @@ static const aom_prob default_inter_compound_mode_probs
       { 17, 81, 52, 192, 64, 192, 128, 180, 180 },   // 5 = one intra neighbour
       { 25, 29, 50, 192, 64, 192, 128, 180, 180 },   // 6 = two intra neighbours
     };
+#endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXT_INTER || CONFIG_TRIPRED
+// TODO(zoeliu): To have CONFIG_TRIPRED work with CONFIG_COMPOUND_SEGMENT
 #if CONFIG_COMPOUND_SEGMENT
 static const aom_prob
     default_compound_type_probs[BLOCK_SIZES][COMPOUND_TYPES - 1] = {
@@ -521,7 +524,23 @@ static const aom_prob
       { 255, 200 }, { 255, 200 }, { 255, 200 },
 #endif  // CONFIG_EXT_PARTITION
     };
+
 #else  // !CONFIG_COMPOUND_SEGMENT
+
+#if CONFIG_EXT_INTER && CONFIG_TRIPRED
+static const aom_prob
+    default_compound_type_probs[BLOCK_SIZES][COMPOUND_TYPES - 1] = {
+#if CONFIG_CB4X4
+      { 255, 255 }, { 255, 255 }, { 255, 255 },
+#endif
+      { 208, 200 }, { 208, 200 }, { 208, 200 }, { 208, 200 }, { 208, 200 },
+      { 208, 200 }, { 216, 200 }, { 216, 200 }, { 216, 200 }, { 224, 200 },
+      { 224, 200 }, { 240, 200 }, { 240, 200 },
+#if CONFIG_EXT_PARTITION
+      { 255, 200 }, { 255, 200 }, { 255, 200 },
+#endif  // CONFIG_EXT_PARTITION
+    };
+#else   // !(CONFIG_EXT_INTER && CONFIG_TRIPRED)
 static const aom_prob default_compound_type_probs[BLOCK_SIZES]
                                                  [COMPOUND_TYPES - 1] = {
 #if CONFIG_CB4X4
@@ -536,8 +555,12 @@ static const aom_prob default_compound_type_probs[BLOCK_SIZES]
                                                    { 255 }, { 255 }, { 255 },
 #endif  // CONFIG_EXT_PARTITION
                                                  };
-#endif  // CONFIG_COMPOUND_SEGMENT
+#endif  // CONFIG_EXT_INTER && CONFIG_TRIPRED
 
+#endif  // CONFIG_COMPOUND_SEGMENT
+#endif  // CONFIG_EXT_INTER || CONFIG_TRIPRED
+
+#if CONFIG_EXT_INTER
 static const aom_prob default_interintra_prob[BLOCK_SIZE_GROUPS] = {
   208, 208, 208, 208,
 };
@@ -709,18 +732,36 @@ const aom_tree_index av1_inter_compound_mode_tree
   -INTER_COMPOUND_OFFSET(NEAREST_NEWMV), -INTER_COMPOUND_OFFSET(NEW_NEARESTMV),
   -INTER_COMPOUND_OFFSET(NEAR_NEWMV), -INTER_COMPOUND_OFFSET(NEW_NEARMV)
 };
+/* clang-format on */
+#endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXT_INTER || CONFIG_TRIPRED
+/* clang-format off */
+// TODO(zoeliu): To have CONFIG_TRIPRED work with CONFIG_COMPOUND_SEGMENT
 #if CONFIG_COMPOUND_SEGMENT
 const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)] = {
   -COMPOUND_AVERAGE, 2, -COMPOUND_WEDGE, -COMPOUND_SEG
 };
+
 #else  // !CONFIG_COMPOUND_SEGMENT
+
+#if CONFIG_EXT_INTER && CONFIG_TRIPRED
+const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)] = {
+  -COMPOUND_AVERAGE, 2, -COMPOUND_TRIPRED, -COMPOUND_WEDGE
+};
+#elif CONFIG_EXT_INTER
 const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)] = {
   -COMPOUND_AVERAGE, -COMPOUND_WEDGE
 };
+#else
+const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)] = {
+  -COMPOUND_AVERAGE, -COMPOUND_TRIPRED
+};
+#endif
+
 #endif  // CONFIG_COMPOUND_SEGMENT
 /* clang-format on */
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_TRIPRED
 
 const aom_tree_index av1_partition_tree[TREE_SIZE(PARTITION_TYPES)] = {
   -PARTITION_NONE, 2, -PARTITION_HORZ, 4, -PARTITION_VERT, -PARTITION_SPLIT
@@ -1593,11 +1634,13 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_EXT_INTER
   av1_copy(fc->inter_compound_mode_probs, default_inter_compound_mode_probs);
-  av1_copy(fc->compound_type_prob, default_compound_type_probs);
   av1_copy(fc->interintra_prob, default_interintra_prob);
   av1_copy(fc->interintra_mode_prob, default_interintra_mode_prob);
   av1_copy(fc->wedge_interintra_prob, default_wedge_interintra_prob);
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_TRIPRED
+  av1_copy(fc->compound_type_prob, default_compound_type_probs);
+#endif  // CONFIG_EXT_INTER || CONFIG_TRIPRED
 #if CONFIG_SUPERTX
   av1_copy(fc->supertx_prob, default_supertx_prob);
 #endif  // CONFIG_SUPERTX
@@ -1800,13 +1843,15 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
       fc->wedge_interintra_prob[i] = av1_mode_mv_merge_probs(
           pre_fc->wedge_interintra_prob[i], counts->wedge_interintra[i]);
   }
+#endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXT_INTER || CONFIG_TRIPRED
   for (i = 0; i < BLOCK_SIZES; ++i) {
     aom_tree_merge_probs(av1_compound_type_tree, pre_fc->compound_type_prob[i],
                          counts->compound_interinter[i],
                          fc->compound_type_prob[i]);
   }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_TRIPRED
 
   for (i = 0; i < BLOCK_SIZE_GROUPS; i++)
     aom_tree_merge_probs(av1_intra_mode_tree, pre_fc->y_mode_prob[i],
