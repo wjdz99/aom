@@ -588,7 +588,9 @@ void av1_build_intra_predictors_for_interintra(MACROBLOCKD *xd,
 void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
                             const uint8_t *inter_pred, int inter_stride,
                             const uint8_t *intra_pred, int intra_stride);
+#endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXT_INTER || CONFIG_TRIPRED
 // Encoder only
 void av1_build_inter_predictors_for_planes_single_buf(
     MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane_from, int plane_to, int mi_row,
@@ -600,7 +602,7 @@ void av1_build_wedge_inter_predictor_from_buf(
 #endif  // CONFIG_SUPERTX
     uint8_t *ext_dst0[3], int ext_dst_stride0[3], uint8_t *ext_dst1[3],
     int ext_dst_stride1[3]);
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_TRIPRED
 
 #ifdef __cplusplus
 }  // extern "C"
