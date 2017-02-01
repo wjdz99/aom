@@ -109,9 +109,9 @@ LIBAOM_TEST_SRCS-yes                   += ans_test.cc
 LIBAOM_TEST_SRCS-yes                   += ans_codec_test.cc
 else
 LIBAOM_TEST_SRCS-yes                   += boolcoder_test.cc
+endif
 ifeq ($(CONFIG_ACCOUNTING),yes)
 LIBAOM_TEST_SRCS-yes                   += accounting_test.cc
-endif
 endif
 LIBAOM_TEST_SRCS-yes                   += divu_small_test.cc
 #LIBAOM_TEST_SRCS-yes                   += encoder_parms_get_to_decoder.cc
