@@ -7535,7 +7535,7 @@ static int64_t pick_interinter_wedge(const AV1_COMP *const cpi,
   int wedge_index = -1;
   int wedge_sign = 0;
 
-  assert(is_interinter_wedge_used(bsize));
+  assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));
 
   if (cpi->sf.fast_wedge_sign_estimate) {
     wedge_sign = estimate_wedge_sign(cpi, x, bsize, p0, bw, p1, bw);
@@ -8335,7 +8335,7 @@ static int64_t handle_inter_mode(
     av1_cost_tokens(compound_type_cost, cm->fc->compound_type_prob[bsize],
                     av1_compound_type_tree);
 
-    if (is_interinter_wedge_used(bsize)) {
+    if (is_any_masked_compound_used(bsize)) {
       // get inter predictors to use for masked compound modes
       av1_build_inter_predictors_for_planes_single_buf(
           xd, bsize, 0, 0, mi_row, mi_col, 0, preds0, strides);
@@ -8344,6 +8344,7 @@ static int64_t handle_inter_mode(
     }
 
     for (cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES; cur_type++) {
+      if (!is_interinter_compound_used(cur_type, bsize)) break;
       tmp_rate_mv = rate_mv;
       best_rd_cur = INT64_MAX;
       mbmi->interinter_compound_data.type = cur_type;
@@ -8364,7 +8365,6 @@ static int64_t handle_inter_mode(
           best_rd_compound = best_rd_cur;
           break;
         case COMPOUND_WEDGE:
-          if (!is_interinter_wedge_used(bsize)) break;
           if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh &&
               best_rd_compound / 3 < ref_best_rd) {
             best_rd_cur = build_and_cost_compound_wedge(
@@ -8374,7 +8374,6 @@ static int64_t handle_inter_mode(
           break;
 #if CONFIG_COMPOUND_SEGMENT
         case COMPOUND_SEG:
-          if (!is_interinter_wedge_used(bsize)) break;
           if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh &&
               best_rd_compound / 3 < ref_best_rd) {
             best_rd_cur = build_and_cost_compound_seg(
