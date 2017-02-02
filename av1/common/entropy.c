@@ -3934,7 +3934,7 @@ static void build_token_cdfs(const aom_prob *pdf_model,
   cdf_head[ZERO_TOKEN] = sum = (pdf_model[1] << 7);
   scale = (1 << 15) - cdf_head[ZERO_TOKEN];
   p = AOMMAX(1, (scale * 128 * pdf_model[2] + (1 << 14)) >> 15);
-  cdf_head[ONE_TOKEN] = cdf_head[ZERO_TOKEN] + p;
+  cdf_head[ONE_TOKEN] = cdf_head[ZERO_TOKEN] + AOMMIN(scale - 1, p);
   cdf_head[TWO_TOKEN] = (1 << 15);
 
   // Do the tail
