@@ -63,10 +63,17 @@ static INLINE int uabs_read(struct AnsDecoder *ans, AnsP8 p0) {
   unsigned xp, sp;
   unsigned state;
 #if ANS_MAX_SYMBOLS
-  if (ans->symbols_left-- == 0) {
-    ans_read_reinit(ans);
-    ans->symbols_left--;
+  if (ans->symbols_left <= ANS_RAW_VALUES) {
+    if (ans->symbols_left > 0) {
+      s = ans->state & 1;
+      ans->state >>= 1;
+      ans->symbols_left--;
+      return s;
+    } else {
+      ans_read_reinit(ans);
+    }
   }
+  ans->symbols_left--;
 #endif
   state = ans->state;
   sp = state * p;
@@ -84,10 +91,17 @@ static INLINE int uabs_read_bit(struct AnsDecoder *ans) {
   int s;
   unsigned state;
 #if ANS_MAX_SYMBOLS
-  if (ans->symbols_left-- == 0) {
-    ans_read_reinit(ans);
-    ans->symbols_left--;
+  if (ans->symbols_left <= ANS_RAW_VALUES) {
+    if (ans->symbols_left > 0) {
+      s = ans->state & 1;
+      ans->state >>= 1;
+      ans->symbols_left--;
+      return s;
+    } else {
+      ans_read_reinit(ans);
+    }
   }
+  ans->symbols_left--;
 #endif
   state = ans->state;
   s = (int)(state & 1);
@@ -116,15 +130,22 @@ static INLINE void fetch_sym(struct rans_dec_sym *out, const aom_cdf_prob *cdf,
   out->cum_prob = cum_prob;
 }
 
-static INLINE int rans_read(struct AnsDecoder *ans, const aom_cdf_prob *tab) {
+static INLINE int rans_read(struct AnsDecoder *ans, const aom_cdf_prob *tab, int nsymbs) {
   unsigned rem;
   unsigned quo;
   struct rans_dec_sym sym;
 #if ANS_MAX_SYMBOLS
-  if (ans->symbols_left-- == 0) {
-    ans_read_reinit(ans);
-    ans->symbols_left--;
+  if (ans->symbols_left <= ANS_RAW_VALUES) {
+    if (ans->symbols_left > 0) {
+      int val = ans->state & 0xF;
+      ans->state >>= 4;
+      ans->symbols_left--;
+      return AOMMIN(val, nsymbs - 1);
+    } else {
+      ans_read_reinit(ans);
+    }
   }
+  ans->symbols_left--;
 #endif
   quo = ans->state / RANS_PRECISION;
   rem = ans->state % RANS_PRECISION;
@@ -200,12 +221,14 @@ static INLINE int ans_read_reinit(struct AnsDecoder *const ans) {
 }
 #endif
 
-static INLINE int ans_read_end(struct AnsDecoder *const ans) {
-  return ans->state == L_BASE;
-}
+//static INLINE int ans_read_end(struct AnsDecoder *const ans) {
+//  return ans->state == L_BASE;
+//}
 
 static INLINE int ans_reader_has_error(const struct AnsDecoder *const ans) {
-  return ans->state < L_BASE && ans->buf_offset == 0;
+  (void) ans;
+//  return ans->state < L_BASE && ans->buf_offset == 0;
+  return 0;
 }
 #ifdef __cplusplus
 }  // extern "C"

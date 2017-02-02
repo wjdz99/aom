@@ -89,7 +89,8 @@ static INLINE void buf_uabs_write(struct BufAnsCoder *const c, uint8_t val,
 }
 
 static INLINE void buf_rans_write(struct BufAnsCoder *const c,
-                                  const struct rans_sym *const sym) {
+                                  int symb,
+                                  const aom_cdf_prob *const cdf) {
   assert(c->offset <= c->size);
 #if !ANS_MAX_SYMBOLS
   if (c->offset == c->size) {
@@ -97,8 +98,13 @@ static INLINE void buf_rans_write(struct BufAnsCoder *const c,
   }
 #endif
   c->buf[c->offset].method = ANS_METHOD_RANS;
-  c->buf[c->offset].val_start = sym->cum_prob;
-  c->buf[c->offset].prob = sym->prob;
+  if (c->offset >= c->size - ANS_RAW_VALUES) {
+    c->buf[c->offset].val_start = symb;
+  } else {
+  const unsigned cum_prob = symb > 0 ? cdf[symb - 1] : 0;
+  c->buf[c->offset].val_start = cum_prob;
+  c->buf[c->offset].prob = cdf[symb] - cum_prob;
+  }
   ++c->offset;
 #if ANS_MAX_SYMBOLS
   if (c->offset == c->size) aom_buf_ans_flush(c);
