@@ -220,7 +220,7 @@ static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
   int ret;
 #if CONFIG_ANS
   (void)nsymbs;
-  ret = rans_read(r, cdf);
+  ret = rans_read(r, cdf, nsymbs);
 #elif CONFIG_DAALA_EC
   ret = daala_read_symbol(r, cdf, nsymbs);
 #else

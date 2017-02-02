@@ -45,12 +45,28 @@ void aom_buf_ans_grow(struct BufAnsCoder *c) {
 #endif
 
 void aom_buf_ans_flush(struct BufAnsCoder *const c) {
-  int offset;
+  int offset = c->offset;
+  int raw_symbols;
+  int place = 0;
 #if ANS_MAX_SYMBOLS
-  if (c->offset == 0) return;
+  if (offset == 0) return;
 #endif
-  assert(c->offset > 0);
-  for (offset = c->offset - 1; offset >= 0; --offset) {
+  assert(offset > 0);
+  c->ans.state = 0;
+  for (offset = offset - 1; offset >= c->size - ANS_RAW_VALUES; --offset) {
+    if (c->buf[offset].method == ANS_METHOD_RANS) {
+      place += 4;
+      c->ans.state <<= 4;
+      assert(c->buf[offset].val_start < 16);
+      c->ans.state += c->buf[offset].val_start;
+    } else {
+      ++place;
+      c->ans.state <<= 1;
+      c->ans.state += c->buf[offset].val_start;
+    }
+  }
+  if (c->ans.state < L_BASE) c->ans.state |= (1 << AOMMAX(place, L_BASE_BITS));
+  for (; offset >= 0; --offset) {
     if (c->buf[offset].method == ANS_METHOD_RANS) {
       struct rans_sym sym;
       sym.prob = c->buf[offset].prob;
