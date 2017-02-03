@@ -52,7 +52,7 @@ SIMD_INLINE v128 calc_delta(v128 o, v128 a, v128 b, v128 c, v128 d, v128 e,
 // Process blocks of width 8, two lines at a time, 8 bit.
 static void clpf_block8(const uint8_t *src, uint8_t *dst, int sstride,
                         int dstride, int x0, int y0, int sizey, int width,
-                        int height, unsigned int strength) {
+                        int height, unsigned int strength, unsigned int bd) {
   const int bottom = height - 2 - y0;
   const int right = width - 8 - x0;
   const v128 sp = v128_dup_8(strength);
@@ -110,7 +110,7 @@ static void clpf_block8(const uint8_t *src, uint8_t *dst, int sstride,
 // Process blocks of width 4, four lines at a time, 8 bit.
 static void clpf_block4(const uint8_t *src, uint8_t *dst, int sstride,
                         int dstride, int x0, int y0, int sizey, int width,
-                        int height, unsigned int strength) {
+                        int height, unsigned int strength, unsigned int bd) {
   const v128 sp = v128_dup_8(strength);
   const v128 sm = v128_dup_8(-(int)strength);
   const int right = width - 4 - x0;
@@ -181,16 +181,16 @@ static void clpf_block4(const uint8_t *src, uint8_t *dst, int sstride,
 void SIMD_FUNC(aom_clpf_block)(const uint8_t *src, uint8_t *dst, int sstride,
                                int dstride, int x0, int y0, int sizex,
                                int sizey, int width, int height,
-                               unsigned int strength) {
+                               unsigned int strength, unsigned int bd) {
   if ((sizex != 4 && sizex != 8) || ((sizey & 3) && sizex == 4)) {
     // Fallback to C for odd sizes:
     // * block widths not 4 or 8
     // * block heights not a multiple of 4 if the block width is 4
     aom_clpf_block_c(src, dst, sstride, dstride, x0, y0, sizex, sizey, width,
-                     height, strength);
+                     height, strength, bd);
   } else {
     (sizex == 4 ? clpf_block4 : clpf_block8)(src, dst, sstride, dstride, x0, y0,
-                                             sizey, width, height, strength);
+                                             sizey, width, height, strength, bd);
   }
 }
 
@@ -238,7 +238,7 @@ static void calc_delta_hbd8(v128 o, v128 a, v128 b, v128 c, v128 d, v128 e,
 SIMD_INLINE void clpf_block_hbd4(const uint16_t *src, uint16_t *dst,
                                  int sstride, int dstride, int x0, int y0,
                                  int sizey, int width, int height,
-                                 unsigned int strength) {
+                                 unsigned int strength, unsigned int bd) {
   const v128 sp = v128_dup_16(strength);
   const v128 sm = v128_dup_16(-(int)strength);
   const int right = width - 4 - x0;
@@ -293,7 +293,7 @@ SIMD_INLINE void clpf_block_hbd4(const uint16_t *src, uint16_t *dst,
 // The most simple case.  Start here if you need to understand the functions.
 SIMD_INLINE void clpf_block_hbd(const uint16_t *src, uint16_t *dst, int sstride,
                                 int dstride, int x0, int y0, int sizey,
-                                int width, int height, unsigned int strength) {
+                                int width, int height, unsigned int strength, unsigned int bd) {
   const v128 sp = v128_dup_16(strength);
   const v128 sm = v128_dup_16(-(int)strength);
   const int right = width - 8 - x0;
@@ -344,16 +344,16 @@ SIMD_INLINE void clpf_block_hbd(const uint16_t *src, uint16_t *dst, int sstride,
 void SIMD_FUNC(aom_clpf_block_hbd)(const uint16_t *src, uint16_t *dst,
                                    int sstride, int dstride, int x0, int y0,
                                    int sizex, int sizey, int width, int height,
-                                   unsigned int strength) {
+                                   unsigned int strength, unsigned int bd) {
   if ((sizex != 4 && sizex != 8) || ((sizey & 1) && sizex == 4)) {
     // Fallback to C for odd sizes:
     // * block width not 4 or 8
     // * block heights not a multiple of 2 if the block width is 4
     aom_clpf_block_hbd_c(src, dst, sstride, dstride, x0, y0, sizex, sizey,
-                         width, height, strength);
+                         width, height, strength, bd);
   } else {
     (sizex == 4 ? clpf_block_hbd4 : clpf_block_hbd)(
-        src, dst, sstride, dstride, x0, y0, sizey, width, height, strength);
+       src, dst, sstride, dstride, x0, y0, sizey, width, height, strength, bd);
   }
 }
 #endif
