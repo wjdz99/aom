@@ -100,7 +100,7 @@ SIMD_INLINE void read_two_lines(const uint8_t *rec, const uint8_t *org,
 void SIMD_FUNC(aom_clpf_detect)(const uint8_t *rec, const uint8_t *org,
                                 int rstride, int ostride, int x0, int y0,
                                 int width, int height, int *sum0, int *sum1,
-                                unsigned int strength, int size) {
+                                unsigned int strength, int size, unsigned int bd) {
   const v128 sp = v128_dup_8(strength);
   const v128 sm = v128_dup_8(-(int)strength);
   const int right = width - 8 - x0;
@@ -111,7 +111,7 @@ void SIMD_FUNC(aom_clpf_detect)(const uint8_t *rec, const uint8_t *org,
 
   if (size != 8) {  // Fallback to plain C
     aom_clpf_detect_c(rec, org, rstride, ostride, x0, y0, width, height, sum0,
-                      sum1, strength, size);
+                      sum1, strength, size, bd);
     return;
   }
 
@@ -148,7 +148,7 @@ SIMD_INLINE void calc_delta_multi(v128 r, v128 o, v128 a, v128 b, v128 c,
 void SIMD_FUNC(aom_clpf_detect_multi)(const uint8_t *rec, const uint8_t *org,
                                       int rstride, int ostride, int x0, int y0,
                                       int width, int height, int *sum,
-                                      int size) {
+                                      int size, unsigned int bd) {
   const int bottom = height - 2 - y0;
   const int right = width - 8 - x0;
   ssd128_internal ssd0 = v128_ssd_u8_init();
@@ -159,7 +159,7 @@ void SIMD_FUNC(aom_clpf_detect_multi)(const uint8_t *rec, const uint8_t *org,
 
   if (size != 8) {  // Fallback to plain C
     aom_clpf_detect_multi_c(rec, org, rstride, ostride, x0, y0, width, height,
-                            sum, size);
+                            sum, size, bd);
     return;
   }
 
@@ -216,7 +216,7 @@ void SIMD_FUNC(aom_clpf_detect_hbd)(const uint16_t *rec, const uint16_t *org,
                                     int rstride, int ostride, int x0, int y0,
                                     int width, int height, int *sum0, int *sum1,
                                     unsigned int strength, int shift,
-                                    int size) {
+                                    int size, unsigned int bitdepth) {
   const v128 sp = v128_dup_8(strength >> shift);
   const v128 sm = v128_dup_8(-(int)(strength >> shift));
   const int bottom = height - 2 - y0;
@@ -227,7 +227,7 @@ void SIMD_FUNC(aom_clpf_detect_hbd)(const uint16_t *rec, const uint16_t *org,
 
   if (size != 8) {  // Fallback to plain C
     aom_clpf_detect_hbd_c(rec, org, rstride, ostride, x0, y0, width, height,
-                          sum0, sum1, strength, shift, size);
+                          sum0, sum1, strength, shift, size, bitdepth);
     return;
   }
 
@@ -251,7 +251,7 @@ void SIMD_FUNC(aom_clpf_detect_multi_hbd)(const uint16_t *rec,
                                           const uint16_t *org, int rstride,
                                           int ostride, int x0, int y0,
                                           int width, int height, int *sum,
-                                          int shift, int size) {
+                                          int shift, int size, unsigned int bitdepth) {
   const int bottom = height - 2 - y0;
   const int right = width - 8 - x0;
   ssd128_internal ssd0 = v128_ssd_u8_init();
@@ -262,7 +262,7 @@ void SIMD_FUNC(aom_clpf_detect_multi_hbd)(const uint16_t *rec,
 
   if (size != 8) {  // Fallback to plain C
     aom_clpf_detect_multi_hbd_c(rec, org, rstride, ostride, x0, y0, width,
-                                height, sum, shift, size);
+                                height, sum, shift, size, bitdepth);
     return;
   }
 
