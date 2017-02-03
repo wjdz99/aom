@@ -252,17 +252,17 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
                 ->mbmi.skip;
 #if CONFIG_AOM_HIGHBITDEPTH
       if (cm->use_highbitdepth) {
-        aom_clpf_detect_multi_hbd(CONVERT_TO_SHORTPTR(rec_buffer),
+        aom_clpf_detect_multi_hbd_c(CONVERT_TO_SHORTPTR(rec_buffer),
                                   CONVERT_TO_SHORTPTR(org_buffer), rec_stride,
                                   org_stride, xpos, ypos, rec_width, rec_height,
                                   sum + skip, cm->bit_depth - 8, block_size);
       } else {
-        aom_clpf_detect_multi(rec_buffer, org_buffer, rec_stride, org_stride,
+        aom_clpf_detect_multi_c(rec_buffer, org_buffer, rec_stride, org_stride,
                               xpos, ypos, rec_width, rec_height, sum + skip,
                               block_size);
       }
 #else
-      aom_clpf_detect_multi(rec_buffer, org_buffer, rec_stride, org_stride,
+      aom_clpf_detect_multi_c(rec_buffer, org_buffer, rec_stride, org_stride,
                             xpos, ypos, rec_width, rec_height, sum + skip,
                             block_size);
 #endif
