@@ -14,10 +14,18 @@
 #include "aom/aom_image.h"
 #include "aom_dsp/aom_dsp_common.h"
 
+int sign(int i) { return i < 0 ? -1 : 1; }
+
+int constrain(int x, int s) {
+  return sign(x) *
+    AOMMAX(0, abs(x) - AOMMAX(0, abs(x) - s + (abs(x) >> (6-get_msb(s)))));
+  
+}
+
 int av1_clpf_sample(int X, int A, int B, int C, int D, int E, int F, int b) {
-  int delta = 4 * clamp(A - X, -b, b) + clamp(B - X, -b, b) +
-              3 * clamp(C - X, -b, b) + 3 * clamp(D - X, -b, b) +
-              clamp(E - X, -b, b) + 4 * clamp(F - X, -b, b);
+  int delta = 4 * constrain(A - X, b) + constrain(B - X, b) +
+              3 * constrain(C - X, b) + 3 * constrain(D - X, b) +
+              constrain(E - X, b) + 4 * constrain(F - X, b);
   return (8 + delta - (delta < 0)) >> 4;
 }
 
@@ -231,11 +239,11 @@ void av1_clpf_frame(const YV12_BUFFER_CONFIG *frame,
                                    dstride, xpos, ypos, sizex, sizey, width,
                                    height, strength);
               } else {
-                aom_clpf_block(src_buffer, dst_buffer, sstride, dstride, xpos,
+                aom_clpf_block_c(src_buffer, dst_buffer, sstride, dstride, xpos,
                                ypos, sizex, sizey, width, height, strength);
               }
 #else
-              aom_clpf_block(src_buffer, dst_buffer, sstride, dstride, xpos,
+              aom_clpf_block_c(src_buffer, dst_buffer, sstride, dstride, xpos,
                              ypos, sizex, sizey, width, height, strength);
 #endif
             }
