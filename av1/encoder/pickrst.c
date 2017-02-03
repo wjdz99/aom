@@ -937,6 +937,15 @@ static void quantize_sym_filter(double *f, InterpKernel fi) {
   fi[0] = CLIP(fi[0], WIENER_FILT_TAP0_MINV, WIENER_FILT_TAP0_MAXV);
   fi[1] = CLIP(fi[1], WIENER_FILT_TAP1_MINV, WIENER_FILT_TAP1_MAXV);
   fi[2] = CLIP(fi[2], WIENER_FILT_TAP2_MINV, WIENER_FILT_TAP2_MAXV);
+
+  fi[0] = (fi[0] - WIENER_FILT_TAP0_MINV) >> WIENER_FILT_TAP0_STEP_BITS;
+  fi[1] = (fi[1] - WIENER_FILT_TAP1_MINV) >> WIENER_FILT_TAP1_STEP_BITS;
+  fi[2] = (fi[2] - WIENER_FILT_TAP2_MINV) >> WIENER_FILT_TAP2_STEP_BITS;
+
+  fi[0] = (fi[0] << WIENER_FILT_TAP0_STEP_BITS) + WIENER_FILT_TAP0_MINV;
+  fi[1] = (fi[1] << WIENER_FILT_TAP1_STEP_BITS) + WIENER_FILT_TAP1_MINV;
+  fi[2] = (fi[2] << WIENER_FILT_TAP2_STEP_BITS) + WIENER_FILT_TAP2_MINV;
+
   // Satisfy filter constraints
   fi[WIENER_WIN - 1] = fi[0];
   fi[WIENER_WIN - 2] = fi[1];

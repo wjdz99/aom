@@ -3434,17 +3434,23 @@ static void encode_restoration_mode(AV1_COMMON *cm,
 }
 
 static void write_wiener_filter(WienerInfo *wiener_info, aom_writer *wb) {
-  aom_write_literal(wb, wiener_info->vfilter[0] - WIENER_FILT_TAP0_MINV,
+  aom_write_literal(wb, (wiener_info->vfilter[0] - WIENER_FILT_TAP0_MINV) >>
+                    WIENER_FILT_TAP0_STEP_BITS,
                     WIENER_FILT_TAP0_BITS);
-  aom_write_literal(wb, wiener_info->vfilter[1] - WIENER_FILT_TAP1_MINV,
+  aom_write_literal(wb, (wiener_info->vfilter[1] - WIENER_FILT_TAP1_MINV) >>
+                    WIENER_FILT_TAP1_STEP_BITS,
                     WIENER_FILT_TAP1_BITS);
-  aom_write_literal(wb, wiener_info->vfilter[2] - WIENER_FILT_TAP2_MINV,
+  aom_write_literal(wb, (wiener_info->vfilter[2] - WIENER_FILT_TAP2_MINV) >>
+                    WIENER_FILT_TAP2_STEP_BITS,
                     WIENER_FILT_TAP2_BITS);
-  aom_write_literal(wb, wiener_info->hfilter[0] - WIENER_FILT_TAP0_MINV,
+  aom_write_literal(wb, (wiener_info->hfilter[0] - WIENER_FILT_TAP0_MINV) >>
+                    WIENER_FILT_TAP0_STEP_BITS,
                     WIENER_FILT_TAP0_BITS);
-  aom_write_literal(wb, wiener_info->hfilter[1] - WIENER_FILT_TAP1_MINV,
+  aom_write_literal(wb, (wiener_info->hfilter[1] - WIENER_FILT_TAP1_MINV) >>
+                    WIENER_FILT_TAP1_STEP_BITS,
                     WIENER_FILT_TAP1_BITS);
-  aom_write_literal(wb, wiener_info->hfilter[2] - WIENER_FILT_TAP2_MINV,
+  aom_write_literal(wb, (wiener_info->hfilter[2] - WIENER_FILT_TAP2_MINV) >>
+                    WIENER_FILT_TAP2_STEP_BITS,
                     WIENER_FILT_TAP2_BITS);
 }
 
