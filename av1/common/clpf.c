@@ -14,11 +14,23 @@
 #include "aom/aom_image.h"
 #include "aom_dsp/aom_dsp_common.h"
 
-int av1_clpf_sample(int X, int A, int B, int C, int D, int E, int F, int b) {
-  int delta = 4 * clamp(A - X, -b, b) + clamp(B - X, -b, b) +
-              3 * clamp(C - X, -b, b) + 3 * clamp(D - X, -b, b) +
-              clamp(E - X, -b, b) + 4 * clamp(F - X, -b, b);
-  return (8 + delta - (delta < 0)) >> 4;
+int sign(int i) { return i < 0 ? -1 : 1; }
+
+int constrain(int x, int s) {
+  return sign(x) *
+    AOMMAX(0, abs(x) - AOMMAX(0, abs(x) - s + (abs(x) >> (5-get_msb(s)))));
+  
+}
+
+int av1_clpf_sample(int X, int A, int B, int C, int D, int E, int F, int G, int H, int I, int J, int K, int L, int b) {
+  int delta =
+    8 * constrain(A - X, b) + 3 * constrain(B - X, b) +
+    8 * constrain(C - X, b) + 8 * constrain(D - X, b) +
+    3 * constrain(E - X, b) + 8 * constrain(F - X, b) +
+    3 * constrain(G - X, b) + 3 * constrain(H - X, b) +
+    1 * constrain(I - X, b) + 1 * constrain(J - X, b) +
+    1 * constrain(K - X, b) + 1 * constrain(L - X, b);
+  return (32 + delta - (delta < 0)) >> 6;
 }
 
 void aom_clpf_block_c(const uint8_t *src, uint8_t *dst, int sstride,
@@ -34,8 +46,16 @@ void aom_clpf_block_c(const uint8_t *src, uint8_t *dst, int sstride,
       int D = src[y * sstride + AOMMIN(width - 1, x + 1)];
       int E = src[y * sstride + AOMMIN(width - 1, x + 2)];
       int F = src[AOMMIN(height - 1, y + 1) * sstride + x];
+      int G = src[AOMMAX(0, y - 2) * sstride + x];
+      int H = src[AOMMIN(height - 1, y + 2) * sstride + x];
+
+      int I = src[AOMMAX(0, y - 1) * sstride + AOMMAX(0, x - 1)];
+      int J = src[AOMMAX(0, y - 1) * sstride + AOMMIN(width - 1, x + 1)];
+      int K = src[AOMMIN(height - 1, y + 1) * sstride + AOMMAX(0, x - 1)];
+      int L = src[AOMMIN(height - 1, y + 1) * sstride + AOMMIN(width - 1, x + 1)];
+      
       int delta;
-      delta = av1_clpf_sample(X, A, B, C, D, E, F, strength);
+      delta = av1_clpf_sample(X, A, B, C, D, E, F, G, H, I, J, K, L, strength);
       dst[y * dstride + x] = X + delta;
     }
   }
@@ -231,11 +251,11 @@ void av1_clpf_frame(const YV12_BUFFER_CONFIG *frame,
                                    dstride, xpos, ypos, sizex, sizey, width,
                                    height, strength);
               } else {
-                aom_clpf_block(src_buffer, dst_buffer, sstride, dstride, xpos,
+                aom_clpf_block_c(src_buffer, dst_buffer, sstride, dstride, xpos,
                                ypos, sizex, sizey, width, height, strength);
               }
 #else
-              aom_clpf_block(src_buffer, dst_buffer, sstride, dstride, xpos,
+              aom_clpf_block_c(src_buffer, dst_buffer, sstride, dstride, xpos,
                              ypos, sizex, sizey, width, height, strength);
 #endif
             }
