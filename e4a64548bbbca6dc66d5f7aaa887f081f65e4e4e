@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "ce87c098_fc07ed26",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 4404,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-03T12:13:25Z",
+      "side": 1,
+      "message": "Thanks. I think it\u0027s best just to rename tham as prob_EOB_1 etc, as this more directly states what they are.",
+      "parentUuid": "e72ef380_7352de8b",
+      "revId": "e4a64548bbbca6dc66d5f7aaa887f081f65e4e4e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28275069_015b9476",
         "filename": "av1/common/entropy.c",
         "patchSetId": 12
@@ -42,6 +60,24 @@
         "endLine": 4470,
         "endChar": 29
       },
+      "revId": "e4a64548bbbca6dc66d5f7aaa887f081f65e4e4e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84de42fd_d6070ed5",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 4470,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-03T12:13:25Z",
+      "side": 1,
+      "message": "We could, but that would involve creating a new tree not used for coding to do this intermediate conversion. The endgame is to get rid of all the trees and get rid of this conversion code, plus all the tree_to_cdf conversions, store all the default CDFs natively, and do the backwards updates on the CDFs not the 8 bit probabilities. This code, and the conversion code, will live for a little while but die eventually.\n\nI think if we still feel we want to use the tree code for neatness/consistency in the interim we could put it in another commit.",
+      "parentUuid": "28275069_015b9476",
       "revId": "e4a64548bbbca6dc66d5f7aaa887f081f65e4e4e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
