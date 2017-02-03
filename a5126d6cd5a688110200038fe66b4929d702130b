@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "680490c6_6e0f19f2",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2017-02-03T17:25:14Z",
+      "side": 1,
+      "message": "similar comment here. maybe it\u0027s better to move #if into the is_inside function itself.",
+      "range": {
+        "startLine": 195,
+        "startChar": 8,
+        "endLine": 195,
+        "endChar": 11
+      },
+      "revId": "a5126d6cd5a688110200038fe66b4929d702130b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d194137_1d158c83",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1926,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2017-02-03T17:25:14Z",
+      "side": 1,
+      "message": "maybe it\u0027s better to add a new parameter \"cm\" for set_mi_row_col function even in default case, then move \"#if CONFIG_DEPENDENT_HORZTILES\" inside this function, so the upper level code won\u0027t have so many #defines. this function seems is called at a lot of places.",
+      "range": {
+        "startLine": 1926,
+        "startChar": 2,
+        "endLine": 1926,
+        "endChar": 4
+      },
+      "revId": "a5126d6cd5a688110200038fe66b4929d702130b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0364002b_18ca0e6d",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2017-02-03T17:25:14Z",
+      "side": 1,
+      "message": "same comment here",
+      "range": {
+        "startLine": 379,
+        "startChar": 2,
+        "endLine": 379,
+        "endChar": 5
+      },
+      "revId": "a5126d6cd5a688110200038fe66b4929d702130b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
