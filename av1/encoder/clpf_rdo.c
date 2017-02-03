@@ -30,7 +30,9 @@ void aom_clpf_detect_c(const uint8_t *rec, const uint8_t *org, int rstride,
       int D = rec[y * rstride + AOMMIN(width - 1, x + 1)];
       int E = rec[y * rstride + AOMMIN(width - 1, x + 2)];
       int F = rec[AOMMIN(height - 1, y + 1) * rstride + x];
-      int delta = av1_clpf_sample(X, A, B, C, D, E, F, strength);
+      int G = rec[AOMMAX(0, y - 2) * rstride + x];
+      int H = rec[AOMMIN(height - 1, y + 2) * rstride + x];
+      int delta = av1_clpf_sample(X, A, B, C, D, E, F, G, H, strength);
       int Y = X + delta;
       *sum0 += (O - X) * (O - X);
       *sum1 += (O - Y) * (O - Y);
@@ -53,9 +55,11 @@ void aom_clpf_detect_multi_c(const uint8_t *rec, const uint8_t *org,
       int D = rec[y * rstride + AOMMIN(width - 1, x + 1)];
       int E = rec[y * rstride + AOMMIN(width - 1, x + 2)];
       int F = rec[AOMMIN(height - 1, y + 1) * rstride + x];
-      int delta1 = av1_clpf_sample(X, A, B, C, D, E, F, 1);
-      int delta2 = av1_clpf_sample(X, A, B, C, D, E, F, 2);
-      int delta3 = av1_clpf_sample(X, A, B, C, D, E, F, 4);
+      int G = rec[AOMMAX(0, y - 2) * rstride + x];
+      int H = rec[AOMMIN(height - 1, y + 2) * rstride + x];
+      int delta1 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 1);
+      int delta2 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 2);
+      int delta3 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 4);
       int F1 = X + delta1;
       int F2 = X + delta2;
       int F3 = X + delta3;
@@ -84,7 +88,9 @@ void aom_clpf_detect_hbd_c(const uint16_t *rec, const uint16_t *org,
       int D = rec[y * rstride + AOMMIN(width - 1, x + 1)] >> shift;
       int E = rec[y * rstride + AOMMIN(width - 1, x + 2)] >> shift;
       int F = rec[AOMMIN(height - 1, y + 1) * rstride + x] >> shift;
-      int delta = av1_clpf_sample(X, A, B, C, D, E, F, strength >> shift);
+      int G = rec[AOMMAX(0, y - 2) * rstride + x] >> shift;
+      int H = rec[AOMMIN(height - 1, y + 2) * rstride + x] >> shift;
+      int delta = av1_clpf_sample(X, A, B, C, D, E, F, G, H, strength >> shift);
       int Y = X + delta;
       *sum0 += (O - X) * (O - X);
       *sum1 += (O - Y) * (O - Y);
@@ -252,17 +258,17 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
                 ->mbmi.skip;
 #if CONFIG_AOM_HIGHBITDEPTH
       if (cm->use_highbitdepth) {
-        aom_clpf_detect_multi_hbd(CONVERT_TO_SHORTPTR(rec_buffer),
+        aom_clpf_detect_multi_hbd_c(CONVERT_TO_SHORTPTR(rec_buffer),
                                   CONVERT_TO_SHORTPTR(org_buffer), rec_stride,
                                   org_stride, xpos, ypos, rec_width, rec_height,
                                   sum + skip, cm->bit_depth - 8, block_size);
       } else {
-        aom_clpf_detect_multi(rec_buffer, org_buffer, rec_stride, org_stride,
+        aom_clpf_detect_multi_c(rec_buffer, org_buffer, rec_stride, org_stride,
                               xpos, ypos, rec_width, rec_height, sum + skip,
                               block_size);
       }
 #else
-      aom_clpf_detect_multi(rec_buffer, org_buffer, rec_stride, org_stride,
+      aom_clpf_detect_multi_c(rec_buffer, org_buffer, rec_stride, org_stride,
                             xpos, ypos, rec_width, rec_height, sum + skip,
                             block_size);
 #endif
