@@ -166,13 +166,6 @@ add_proto qw/void aom_scaled_avg_vert/,     "const uint8_t *src, ptrdiff_t src_s
 
 specialize qw/aom_convolve_copy       sse2      /;
 specialize qw/aom_convolve_avg        sse2      /;
-specialize qw/aom_convolve8           sse2 ssse3/, "$avx2_ssse3";
-specialize qw/aom_convolve8_horiz     sse2 ssse3/, "$avx2_ssse3";
-specialize qw/aom_convolve8_vert      sse2 ssse3/, "$avx2_ssse3";
-specialize qw/aom_convolve8_avg       sse2 ssse3/;
-specialize qw/aom_convolve8_avg_horiz sse2 ssse3/;
-specialize qw/aom_convolve8_avg_vert  sse2 ssse3/;
-specialize qw/aom_scaled_2d                ssse3/;
 
 if (aom_config("CONFIG_LOOP_RESTORATION") eq "yes") {
   add_proto qw/void aom_convolve8_add_src/,       "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h";

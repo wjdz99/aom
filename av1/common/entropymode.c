@@ -1792,10 +1792,11 @@ static const aom_prob default_switchable_interp_prob
 #else   // CONFIG_DUAL_FILTER
 static const aom_prob default_switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS]
                                                     [SWITCHABLE_FILTERS - 1] = {
-                                                      { 235, 162 },
-                                                      { 36, 255 },
-                                                      { 34, 3 },
-                                                      { 149, 144 },
+                                                      { 242, 54, 192 },
+                                                      { 58, 133, 188 },
+                                                      { 17, 74, 225 },
+                                                      { 62, 22, 5 },
+                                                      { 159, 83, 170 },
                                                     };
 #endif  // CONFIG_DUAL_FILTER
 
@@ -4682,7 +4683,8 @@ const aom_tree_index av1_switchable_interp_tree[TREE_SIZE(SWITCHABLE_FILTERS)] =
     };
 #else
 const aom_tree_index av1_switchable_interp_tree[TREE_SIZE(SWITCHABLE_FILTERS)] =
-    { -EIGHTTAP_REGULAR, 2, -EIGHTTAP_SMOOTH, -MULTITAP_SHARP };
+    { -EIGHTTAP_REGULAR, 2, -EIGHTTAP_SMOOTH, 4, -MULTITAP_SHARP,
+      -EIGHTTAP_ADAPTIVE };
 #endif  // CONFIG_DUAL_FILTER
 
 void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
