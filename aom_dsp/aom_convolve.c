@@ -19,6 +19,48 @@
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_dsp/aom_filter.h"
 #include "aom_ports/mem.h"
+#include "av1/common/filter.h"
+
+// Get pixel range, i.e. max(pixel values) - min(pixel values).
+static uint8_t get_range(const uint8_t *const pixels, ptrdiff_t pixel_increment,
+                         int num_pixels) {
+  uint8_t min = pixels[0], max = pixels[0];
+  int i;
+  for (i = 1; i < num_pixels; ++i) {
+    const uint8_t this_pixel = pixels[i * pixel_increment];
+    if (this_pixel < min) {
+      min = this_pixel;
+    } else if (this_pixel > max) {
+      max = this_pixel;
+    }
+  }
+  assert(max >= min);
+  return (max - min);
+}
+
+#define SHARP_RANGE_THRESHOLD 64
+#define NORMAL_RANGE_THRESHOLD 0
+
+static InterpFilter pick_implicit_filter(uint8_t range) {
+  if (range > SHARP_RANGE_THRESHOLD)
+    return MULTITAP_SHARP;
+  else if (range > NORMAL_RANGE_THRESHOLD)
+    return EIGHTTAP_REGULAR;
+  else
+    return EIGHTTAP_SMOOTH;
+}
+
+const InterpKernel *adapt_filter(const InterpKernel *const given_filter_kernel,
+                                 const uint8_t *const pixels,
+                                 ptrdiff_t pixel_increment, int num_pixels) {
+  if (given_filter_kernel !=
+      (const InterpKernel *)av1_get_interp_filter_kernel(IMPLICIT_FILTER)) {
+    return given_filter_kernel;
+  }
+  const uint8_t range = get_range(pixels, pixel_increment, num_pixels);
+  const InterpFilter selected_filter = pick_implicit_filter(range);
+  return (const InterpKernel *)av1_get_interp_filter_kernel(selected_filter);
+}
 
 static void convolve_horiz(const uint8_t *src, ptrdiff_t src_stride,
                            uint8_t *dst, ptrdiff_t dst_stride,
@@ -30,7 +72,9 @@ static void convolve_horiz(const uint8_t *src, ptrdiff_t src_stride,
     int x_q4 = x0_q4;
     for (x = 0; x < w; ++x) {
       const uint8_t *const src_x = &src[x_q4 >> SUBPEL_BITS];
-      const int16_t *const x_filter = x_filters[x_q4 & SUBPEL_MASK];
+      const InterpKernel *selected_x_filters =
+          adapt_filter(x_filters, src_x, 1, SUBPEL_TAPS);
+      const int16_t *const x_filter = selected_x_filters[x_q4 & SUBPEL_MASK];
       int k, sum = 0;
       for (k = 0; k < SUBPEL_TAPS; ++k) sum += src_x[k] * x_filter[k];
       dst[x] = clip_pixel(ROUND_POWER_OF_TWO(sum, FILTER_BITS));
@@ -51,7 +95,9 @@ static void convolve_avg_horiz(const uint8_t *src, ptrdiff_t src_stride,
     int x_q4 = x0_q4;
     for (x = 0; x < w; ++x) {
       const uint8_t *const src_x = &src[x_q4 >> SUBPEL_BITS];
-      const int16_t *const x_filter = x_filters[x_q4 & SUBPEL_MASK];
+      const InterpKernel *selected_x_filters =
+          adapt_filter(x_filters, src_x, 1, SUBPEL_TAPS);
+      const int16_t *const x_filter = selected_x_filters[x_q4 & SUBPEL_MASK];
       int k, sum = 0;
       for (k = 0; k < SUBPEL_TAPS; ++k) sum += src_x[k] * x_filter[k];
       dst[x] = ROUND_POWER_OF_TWO(
@@ -74,7 +120,9 @@ static void convolve_vert(const uint8_t *src, ptrdiff_t src_stride,
     int y_q4 = y0_q4;
     for (y = 0; y < h; ++y) {
       const unsigned char *src_y = &src[(y_q4 >> SUBPEL_BITS) * src_stride];
-      const int16_t *const y_filter = y_filters[y_q4 & SUBPEL_MASK];
+      const InterpKernel *selected_y_filters =
+          adapt_filter(y_filters, src_y, src_stride, SUBPEL_TAPS);
+      const int16_t *const y_filter = selected_y_filters[y_q4 & SUBPEL_MASK];
       int k, sum = 0;
       for (k = 0; k < SUBPEL_TAPS; ++k)
         sum += src_y[k * src_stride] * y_filter[k];
@@ -97,7 +145,9 @@ static void convolve_avg_vert(const uint8_t *src, ptrdiff_t src_stride,
     int y_q4 = y0_q4;
     for (y = 0; y < h; ++y) {
       const unsigned char *src_y = &src[(y_q4 >> SUBPEL_BITS) * src_stride];
-      const int16_t *const y_filter = y_filters[y_q4 & SUBPEL_MASK];
+      const InterpKernel *selected_y_filters =
+          adapt_filter(y_filters, src_y, src_stride, SUBPEL_TAPS);
+      const int16_t *const y_filter = selected_y_filters[y_q4 & SUBPEL_MASK];
       int k, sum = 0;
       for (k = 0; k < SUBPEL_TAPS; ++k)
         sum += src_y[k * src_stride] * y_filter[k];

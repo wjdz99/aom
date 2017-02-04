@@ -1792,10 +1792,10 @@ static const aom_prob default_switchable_interp_prob
 #else   // CONFIG_DUAL_FILTER
 static const aom_prob default_switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS]
                                                     [SWITCHABLE_FILTERS - 1] = {
-                                                      { 235, 162 },
-                                                      { 36, 255 },
-                                                      { 34, 3 },
-                                                      { 149, 144 },
+                                                      { 245, 223 },
+                                                      { 39, 255 },
+                                                      { 8, 3 },
+                                                      { 176, 212 },
                                                     };
 #endif  // CONFIG_DUAL_FILTER
 
