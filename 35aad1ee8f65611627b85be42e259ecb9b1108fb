@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5916db07_30649bf8",
+        "filename": "aom_dsp/ansreader.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-04T00:33:23Z",
+      "side": 1,
+      "message": "A short description would be helpful, specially if it answers questions like:\n- What is \u0027p0\u0027? (is this reading \u0027p0\u0027 bits?). Or even better, rename it to a more meaningful name, that\u0027s self-documenting.\n- What does \u0027rabs\u0027 mean? (\"Reverse absolute\"? if so, what\u0027s that?)",
+      "revId": "35aad1ee8f65611627b85be42e259ecb9b1108fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53b19ca2_ddab9fed",
+        "filename": "aom_dsp/ansreader.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-04T00:33:23Z",
+      "side": 1,
+      "message": "optional suggestion:\nHere: \"const unsigned old_state \u003d ...\"\nand at 71, you can write:\nconst unsigned new_state \u003d val ?  .... : .....;",
+      "revId": "35aad1ee8f65611627b85be42e259ecb9b1108fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfb97355_c6107cd5",
+        "filename": "aom_dsp/ansreader.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-04T00:33:23Z",
+      "side": 1,
+      "message": "Prefer full words: \"quotient\" and \"remainder\" as they aren\u0027t too long I think.\n(here and elsewhere in the patch)",
+      "range": {
+        "startLine": 68,
+        "startChar": 17,
+        "endLine": 68,
+        "endChar": 20
+      },
+      "revId": "35aad1ee8f65611627b85be42e259ecb9b1108fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95de8433_440c1bef",
+        "filename": "aom_dsp/ansreader.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-04T00:33:23Z",
+      "side": 1,
+      "message": "same here: short description pls.\n(\"reading a single bit\"?)",
+      "revId": "35aad1ee8f65611627b85be42e259ecb9b1108fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e352504f_d1a4e139",
+        "filename": "aom_dsp/answriter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-04T00:33:23Z",
+      "side": 1,
+      "message": "Update comment. Also, write full form of \u0027rabs\u0027",
+      "range": {
+        "startLine": 109,
+        "startChar": 3,
+        "endLine": 109,
+        "endChar": 7
+      },
+      "revId": "35aad1ee8f65611627b85be42e259ecb9b1108fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1618266_69d85a26",
+        "filename": "aom_dsp/answriter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-04T00:33:23Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 118,
+        "startChar": 2,
+        "endLine": 118,
+        "endChar": 10
+      },
+      "revId": "35aad1ee8f65611627b85be42e259ecb9b1108fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b2616d8_74679d20",
+        "filename": "aom_dsp/answriter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-04T00:33:23Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 119,
+        "startChar": 2,
+        "endLine": 119,
+        "endChar": 10
+      },
+      "revId": "35aad1ee8f65611627b85be42e259ecb9b1108fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
