@@ -550,10 +550,19 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   // transform block size in pixels
   tx_blk_size = tx_size_wide[tx_size];
-
-  for (j = 0; j < tx_blk_size; j++)
-    for (i = 0; i < tx_blk_size; i++)
-      src_int16[diff_stride * j + i] = src[src_stride * j + i];
+#if CONFIG_AOM_HIGHBITDEPTH
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    for (j = 0; j < tx_blk_size; j++)
+      for (i = 0; i < tx_blk_size; i++)
+        src_int16[diff_stride * j + i] = CONVERT_TO_SHORTPTR(src)[src_stride * j + i];
+  } else {
+#endif // CONFIG_AOM_HIGHBITDEPTH
+    for (j = 0; j < tx_blk_size; j++)
+      for (i = 0; i < tx_blk_size; i++)
+        src_int16[diff_stride * j + i] = src[src_stride * j + i];
+#if CONFIG_AOM_HIGHBITDEPTH
+  }
+#endif // CONFIG_AOM_HIGHBITDEPTH
 #endif
 
 #if CONFIG_PVQ || CONFIG_DAALA_DIST
@@ -565,10 +574,19 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   // copy uint8 orig and predicted block to int16 buffer
   // in order to use existing VP10 transform functions
-  for (j = 0; j < tx_blk_size; j++)
-    for (i = 0; i < tx_blk_size; i++) {
-      pred[diff_stride * j + i] = dst[dst_stride * j + i];
-    }
+#if CONFIG_AOM_HIGHBITDEPTH
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+        for (j = 0; j < tx_blk_size; j++)
+      for (i = 0; i < tx_blk_size; i++)
+        pred[diff_stride * j + i] = CONVERT_TO_SHORTPTR(dst)[dst_stride * j + i];
+  } else {
+#endif // CONFIG_AOM_HIGHBITDEPTH
+    for (j = 0; j < tx_blk_size; j++)
+      for (i = 0; i < tx_blk_size; i++)
+        pred[diff_stride * j + i] = dst[dst_stride * j + i];
+#if CONFIG_AOM_HIGHBITDEPTH
+  }
+#endif // CONFIG_AOM_HIGHBITDEPTH
 #endif
 
   (void)ctx;
@@ -577,6 +595,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   fwd_txfm_param.tx_size = tx_size;
   fwd_txfm_param.lossless = xd->lossless[xd->mi[0]->mbmi.segment_id];
 
+#if !CONFIG_PVQ
 #if CONFIG_AOM_HIGHBITDEPTH
   fwd_txfm_param.bd = xd->bd;
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
@@ -584,16 +603,14 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
     if (xform_quant_idx != AV1_XFORM_QUANT_SKIP_QUANT) {
       if (LIKELY(!x->skip_block)) {
         quant_func_list[xform_quant_idx][QUANT_FUNC_HIGHBD](
-            coeff, tx2d_size, p, qcoeff, pd, dqcoeff, eob, scan_order, &qparam);
+                                                            coeff, tx2d_size, p, qcoeff, pd, dqcoeff, eob, scan_order, &qparam);
       } else {
         av1_quantize_skip(tx2d_size, qcoeff, dqcoeff, eob);
       }
     }
     return;
   }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
-
-#if !CONFIG_PVQ
+#else
   fwd_txfm(src_diff, coeff, diff_stride, &fwd_txfm_param);
   if (xform_quant_idx != AV1_XFORM_QUANT_SKIP_QUANT) {
     if (LIKELY(!x->skip_block)) {
@@ -603,11 +620,21 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
       av1_quantize_skip(tx2d_size, qcoeff, dqcoeff, eob);
     }
   }
+#endif // CONFIG_AOM_HIGHBITDEPTH
 #else   // #if !CONFIG_PVQ
-
   (void)xform_quant_idx;
+#if CONFIG_AOM_HIGHBITDEPTH
+  fwd_txfm_param.bd = xd->bd;
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    highbd_fwd_txfm(src_int16, coeff, diff_stride, &fwd_txfm_param);
+    highbd_fwd_txfm(pred, ref_coeff, diff_stride, &fwd_txfm_param);
+  } else {
+#endif
   fwd_txfm(src_int16, coeff, diff_stride, &fwd_txfm_param);
   fwd_txfm(pred, ref_coeff, diff_stride, &fwd_txfm_param);
+#if CONFIG_AOM_HIGHBITDEPTH
+  }
+#endif
 
   // PVQ for inter mode block
   if (!x->skip_block) {
@@ -1079,19 +1106,31 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   // but av1_inv_txfm_add_*x*() also does addition of predicted image to
   // inverse transformed image,
   // pass blank dummy image to av1_inv_txfm_add_*x*(), i.e. set dst as zeros
-
-  for (j = 0; j < tx_blk_size; j++)
-    for (i = 0; i < tx_blk_size; i++) dst[j * dst_stride + i] = 0;
+#if CONFIG_AOM_HIGHBITDEPTH
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    for (j = 0; j < tx_blk_size; j++)
+      for (i = 0; i < tx_blk_size; i++) CONVERT_TO_SHORTPTR(dst)[j * dst_stride + i] = 0;
+  } else {
+#endif // CONFIG_AOM_HIGHBITDEPTH
+    for (j = 0; j < tx_blk_size; j++)
+      for (i = 0; i < tx_blk_size; i++) dst[j * dst_stride + i] = 0;
+#if CONFIG_AOM_HIGHBITDEPTH
+  }
+#endif // CONFIG_AOM_HIGHBITDEPTH
 
   inv_txfm_param.tx_type = tx_type;
   inv_txfm_param.tx_size = tx_size;
   inv_txfm_param.eob = *eob;
   inv_txfm_param.lossless = xd->lossless[mbmi->segment_id];
 #if CONFIG_AOM_HIGHBITDEPTH
-#error
-
-#else
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    inv_txfm_param.bd = xd->bd;
+    highbd_inv_txfm_add(dqcoeff, dst, dst_stride, &inv_txfm_param);
+  } else {
+#endif
   inv_txfm_add(dqcoeff, dst, dst_stride, &inv_txfm_param);
+#if CONFIG_AOM_HIGHBITDEPTH
+  }
 #endif
 #endif  // #if !CONFIG_PVQ
 
