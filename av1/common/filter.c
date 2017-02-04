@@ -346,6 +346,7 @@ static const InterpFilterParams
     av1_interp_filter_params_list[SWITCHABLE_FILTERS + 1] = {
       { (const int16_t *)sub_pel_filters_8, SUBPEL_TAPS, SUBPEL_SHIFTS,
         EIGHTTAP_REGULAR },
+      { NULL, SUBPEL_TAPS, SUBPEL_SHIFTS, EIGHTTAP_ADAPTIVE },
       { (const int16_t *)sub_pel_filters_8smooth, SUBPEL_TAPS, SUBPEL_SHIFTS,
         EIGHTTAP_SMOOTH },
       { (const int16_t *)sub_pel_filters_8sharp, SUBPEL_TAPS, SUBPEL_SHIFTS,

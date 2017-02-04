@@ -252,8 +252,8 @@ TEST_P(Av1ConvolveTest, av1_convolve_horiz) {
 ConvolveFunctions convolve_functions_c(av1_convolve_horiz_c,
                                        av1_convolve_vert_c);
 
-InterpFilter filter_ls[] = { EIGHTTAP_REGULAR, EIGHTTAP_SMOOTH,
-                             MULTITAP_SHARP };
+InterpFilter filter_ls[] = { EIGHTTAP_REGULAR, EIGHTTAP_ADAPTIVE,
+                             EIGHTTAP_SMOOTH, MULTITAP_SHARP };
 
 INSTANTIATE_TEST_CASE_P(
     C, Av1ConvolveTest,
