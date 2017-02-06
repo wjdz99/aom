@@ -16,6 +16,23 @@
       "revId": "d237576bb12d854115ed3c3ddcac534bc35e3da4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2557de80_ea5de494",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2407,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-06T16:20:59Z",
+      "side": 1,
+      "message": "I think this should be UNCONSTRAINED_NODES-1 in the EC_ADAPT case as in the encoder, to be correct and avoid mismatch.  If CONFIG_NEW_TOKENSET we are not calling this. If CONFIG_EC_MULTISYMBOL + CONFIG_EC_ADAPT we are only doing bool coding for ZERO_TOKEN and EOB_TOKEN, so we don\u0027t do the ONE_TOKEN update.",
+      "revId": "d237576bb12d854115ed3c3ddcac534bc35e3da4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
