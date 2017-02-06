@@ -11,12 +11,4 @@ assertions, user-defined assertions, death tests, fatal and non-fatal
 failures, various options for running the tests, and XML test report
 generation.
 
-Local Modifications:
-- Remove everything but:
-  googletest-release-1.8.0/googletest/
-   CHANGES
-   CONTRIBUTORS
-   include
-   LICENSE
-   README.md
-   src
+No Local Modifications.
