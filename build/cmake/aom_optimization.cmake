@@ -19,12 +19,11 @@
 # that disallow the direct addition of .o files to them as dependencies. Static
 # libraries do not have this limitation.
 function (add_intrinsics_object_library flag opt_name target_to_update sources)
-  if (MSVC)
-    message(FATAL_ERROR "MSVC instrinics support not implemented.")
-  endif ()
   set(target_name ${target_to_update}_${opt_name}_intrinsics)
   add_library(${target_name} OBJECT ${${sources}})
-  target_compile_options(${target_name} PUBLIC ${flag})
+  if (NOT MSVC)
+    target_compile_options(${target_name} PUBLIC ${flag})
+  endif ()
   target_sources(aom PUBLIC $<TARGET_OBJECTS:${target_name}>)
 
   # Add the new lib target to the global list of aom library targets.
@@ -35,13 +34,12 @@ endfunction ()
 # Adds sources in list named by $sources to $target and adds $flag to the
 # compile flags for each source file.
 function (add_intrinsics_source_to_target flag target sources)
-  if (MSVC)
-    message(FATAL_ERROR "MSVC instrinics support not implemented.")
-  endif ()
   target_sources(${target} PUBLIC ${${sources}})
-  foreach (source ${${sources}})
-    set_property(SOURCE ${source} APPEND PROPERTY COMPILE_FLAGS ${flag})
-  endforeach ()
+  if (NOT MSVC)
+    foreach (source ${${sources}})
+      set_property(SOURCE ${source} APPEND PROPERTY COMPILE_FLAGS ${flag})
+    endforeach ()
+  endif ()
 endfunction ()
 
 # Adds build commands for ASM files in $sources and uses $asm_build_name to
@@ -59,12 +57,16 @@ function (add_asm_build asm_build_name sources)
 
   # TODO(tomfinegan): This might get rather lengthy; probably best to move it
   # out into its own function or macro.
-  if ("${AOM_TARGET_CPU}" STREQUAL "x86_64" AND
-      "${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
-    set(objformat "macho64")
-  elseif ("${AOM_TARGET_CPU}" STREQUAL "x86_64" AND
-      "${AOM_TARGET_SYSTEM}" STREQUAL "Linux")
-    set(objformat "elf64")
+  if ("${AOM_TARGET_CPU}" STREQUAL "x86_64")
+    if ("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
+      set(objformat "macho64")
+    elseif ("${AOM_TARGET_SYSTEM}" STREQUAL "Linux")
+      set(objformat "elf64")
+    elseif ("${AOM_TARGET_SYSTEM}" STREQUAL "Windows")
+      set(objformat "win64")
+    else ()
+      message(FATAL_ERROR "Unknown obj format: ${AOM_TARGET_SYSTEM}")
+    endif ()
   else ()
     message(FATAL_ERROR
             "Unknown obj format: ${AOM_TARGET_CPU}-${AOM_TARGET_SYSTEM}")
