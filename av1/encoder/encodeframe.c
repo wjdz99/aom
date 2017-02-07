@@ -4696,6 +4696,7 @@ static void init_encode_frame_mb_context(AV1_COMP *cpi) {
   av1_setup_block_planes(xd, cm->subsampling_x, cm->subsampling_y);
 }
 
+#if !CONFIG_REF_ADAPT
 static int check_dual_ref_flags(AV1_COMP *cpi) {
   const int ref_flags = cpi->ref_frame_flags;
 
@@ -4710,6 +4711,7 @@ static int check_dual_ref_flags(AV1_COMP *cpi) {
             !!(ref_flags & AOM_ALT_FLAG)) >= 2;
   }
 }
+#endif  // !CONFIG_REF_ADAPT
 
 #if !CONFIG_VAR_TX
 static void reset_skip_tx_size(AV1_COMMON *cm, TX_SIZE max_tx_size) {
@@ -5191,6 +5193,13 @@ void av1_encode_frame(AV1_COMP *cpi) {
     const int is_alt_ref = frame_type == ALTREF_FRAME;
 
     /* prediction (compound, single or hybrid) mode selection */
+#if CONFIG_REF_ADAPT
+    // NOTE(zoeliu): "is_alt_ref" is true only for OVERLAY/INTNL_OVERLAY frames
+    if (is_alt_ref || !cpi->allow_comp_inter_inter)
+      cm->reference_mode = SINGLE_REFERENCE;
+    else
+      cm->reference_mode = REFERENCE_MODE_SELECT;
+#else
     if (is_alt_ref || !cpi->allow_comp_inter_inter)
       cm->reference_mode = SINGLE_REFERENCE;
     else if (mode_thrs[COMPOUND_REFERENCE] > mode_thrs[SINGLE_REFERENCE] &&
@@ -5201,6 +5210,7 @@ void av1_encode_frame(AV1_COMP *cpi) {
       cm->reference_mode = SINGLE_REFERENCE;
     else
       cm->reference_mode = REFERENCE_MODE_SELECT;
+#endif  // CONFIG_REF_ADAPT
 
 #if CONFIG_DUAL_FILTER
     cm->interp_filter = SWITCHABLE;
