@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "5a0e410b_8480c2d0",
+        "filename": "aom_dsp/intrapred.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-02-07T00:27:08Z",
+      "side": 1,
+      "message": "It may be worthwhile to remove the scaling by block size. For all block-sizes,  it could use the same 2^12 precision.\nIt does not need to be done in this patch, but good to do add a TODO.",
+      "revId": "49c57a99002bc6f3388754fd9a8d96e39e20a1fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "85f29a30_57d07df3",
         "filename": "aom_dsp/intrapred.c",
         "patchSetId": 3
