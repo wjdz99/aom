@@ -804,7 +804,7 @@ endif ()
 if (HAVE_SSE2)
   add_asm_build("aom_dsp" "AOM_DSP_ASM_SSE2")
   add_asm_build("aom_av1_encoder" "AOM_AV1_ENCODER_SSE2_ASM")
-  require_flag("-msse2" NO)
+  require_flag_nomsvc("-msse2" NO)
   add_intrinsics_object_library("-msse2" "sse2" "aom_dsp" "AOM_DSP_INTRIN_SSE2")
   add_intrinsics_object_library("-msse2" "sse2" "aom_av1_common"
                                 "AOM_AV1_COMMON_SSE2_INTRIN")
@@ -822,7 +822,7 @@ if (HAVE_SSSE3)
   endif ()
   add_asm_build("aom_dsp" "AOM_DSP_ASM_SSSE3")
   add_asm_build("aom_av1_encoder" "AOM_AV1_ENCODER_SSSE3_ASM")
-  require_flag("-mssse3" NO)
+  require_flag_nomsvc("-mssse3" NO)
   add_intrinsics_object_library("-mssse3" "ssse3" "aom_dsp"
                                 "AOM_DSP_INTRIN_SSSE3")
   add_intrinsics_object_library("-mssse3" "ssse3" "aom_av1_common"
@@ -833,7 +833,7 @@ endif ()
 
 if (HAVE_SSE4_1)
   add_asm_build("aom_dsp" "AOM_DSP_ASM_SSE4_1")
-  require_flag("-msse4.1" NO)
+  require_flag_nomsvc("-msse4.1" NO)
   add_intrinsics_object_library("-msse4.1" "sse4_1" "aom_dsp"
                                 "AOM_DSP_INTRIN_SSE4_1")
   add_intrinsics_object_library("-msse4.1" "sse4" "aom_av1_common"
@@ -848,7 +848,7 @@ if (HAVE_AVX)
   add_asm_build("aom_dsp" "AOM_DSP_AVX_ASM")
 endif ()
 if (HAVE_AVX2)
-  require_flag("-mavx2" NO)
+  require_flag_nomsvc("-mavx2" NO)
   add_intrinsics_object_library("-mavx2" "avx2" "aom_dsp" "AOM_DSP_AVX2_INTRIN")
   add_intrinsics_object_library("-mavx2" "avx2" "aom_av1_common"
                                 "AOM_AV1_COMMON_AVX2_INTRIN")
