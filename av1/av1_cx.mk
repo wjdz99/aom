@@ -58,7 +58,7 @@ AV1_CX_SRCS-yes += encoder/lookahead.c
 AV1_CX_SRCS-yes += encoder/lookahead.h
 AV1_CX_SRCS-yes += encoder/mcomp.h
 AV1_CX_SRCS-yes += encoder/encoder.h
-AV1_CX_SRCS-yes += encoder/quantize.h
+AV1_CX_SRCS-yes += encoder/av1_quantize.h
 AV1_CX_SRCS-yes += encoder/ratectrl.h
 AV1_CX_SRCS-yes += encoder/rd.h
 AV1_CX_SRCS-yes += encoder/rdopt.h
@@ -74,7 +74,7 @@ AV1_CX_SRCS-yes += encoder/picklpf.c
 AV1_CX_SRCS-yes += encoder/picklpf.h
 AV1_CX_SRCS-$(CONFIG_LOOP_RESTORATION) += encoder/pickrst.c
 AV1_CX_SRCS-$(CONFIG_LOOP_RESTORATION) += encoder/pickrst.h
-AV1_CX_SRCS-yes += encoder/quantize.c
+AV1_CX_SRCS-yes += encoder/av1_quantize.c
 AV1_CX_SRCS-yes += encoder/ratectrl.c
 AV1_CX_SRCS-yes += encoder/rd.c
 AV1_CX_SRCS-yes += encoder/rdopt.c
@@ -123,7 +123,7 @@ AV1_CX_SRCS-yes += encoder/laplace_encoder.c
 endif
 
 AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/temporal_filter_apply_sse2.asm
-AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/quantize_sse2.c
+AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/av1_quantize_sse2.c
 ifeq ($(CONFIG_AOM_HIGHBITDEPTH),yes)
 AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/highbd_block_error_intrin_sse2.c
 endif
@@ -132,7 +132,7 @@ AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/dct_sse2.asm
 AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/error_sse2.asm
 
 ifeq ($(ARCH_X86_64),yes)
-AV1_CX_SRCS-$(HAVE_SSSE3) += encoder/x86/quantize_ssse3_x86_64.asm
+AV1_CX_SRCS-$(HAVE_SSSE3) += encoder/x86/av1_quantize_ssse3_x86_64.asm
 endif
 
 AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/dct_intrin_sse2.c
