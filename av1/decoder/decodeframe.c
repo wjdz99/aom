@@ -495,7 +495,10 @@ static void predict_and_reconstruct_intra_block(
   if (mbmi->sb_type < BLOCK_8X8)
     if (plane == 0) mode = xd->mi[0]->bmi[block_idx].as_mode;
 #endif
-
+#if CONFIG_PALETTE_THROUGHPUT
+  if (mbmi->palette_mode_info.palette_size[plane > 0] && plane <= 1)
+    av1_decode_palette_tokens(xd, plane, tx_size, row, col, r);
+#endif
   av1_predict_intra_block(xd, pd->width, pd->height, txsize_to_bsize[tx_size],
                           mode, dst, pd->dst.stride, dst, pd->dst.stride, col,
                           row, plane);
@@ -1628,7 +1631,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 #else
   if (!is_inter_block(mbmi)) {
     int plane;
-#if CONFIG_PALETTE
+#if CONFIG_PALETTE && !CONFIG_PALETTE_THROUGHPUT
     for (plane = 0; plane <= 1; ++plane) {
       if (mbmi->palette_mode_info.palette_size[plane])
         av1_decode_palette_tokens(xd, plane, r);
@@ -1648,7 +1651,6 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       int row, col;
       const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
       const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
-
       for (row = 0; row < max_blocks_high; row += stepr)
         for (col = 0; col < max_blocks_wide; col += stepc)
           predict_and_reconstruct_intra_block(cm, xd, r, mbmi, plane, row, col,
