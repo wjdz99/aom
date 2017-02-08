@@ -304,6 +304,7 @@ EXPERIMENT_LIST="
     dependent_horztiles
     daala_dist
     tripred
+    palette_throughput
 "
 CONFIG_LIST="
     dependency_tracking
