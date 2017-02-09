@@ -1941,8 +1941,7 @@ void av1_filter_block_plane_ss11_hor(AV1_COMMON *const cm,
 #if CONFIG_PARALLEL_DEBLOCKING
 
 typedef
-enum EDGE_DIR
-{
+enum EDGE_DIR {
   VERT_EDGE = 0,
   HORZ_EDGE = 1,
 
@@ -1951,7 +1950,7 @@ enum EDGE_DIR
 } EDGE_DIR;
 
 static
-uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES] =
+const uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES] =
 {
   // mask for vertical edges filtering
   {
@@ -2061,8 +2060,7 @@ const uint32_t av1_transform_masks[NUM_EDGE_DIRS][TX_SIZES_ALL] =
 static
 TX_SIZE av1_get_transform_size(const MODE_INFO * const pCurr,
                                const EDGE_DIR edgeDir,
-                               const uint32_t scaleHorz, const uint32_t scaleVert)
-{
+                               const uint32_t scaleHorz, const uint32_t scaleVert) {
   const block_size = pCurr->mbmi.sb_type;
   TX_SIZE txSize;
 
@@ -2071,12 +2069,9 @@ TX_SIZE av1_get_transform_size(const MODE_INFO * const pCurr,
 
   txSize = uv_txsize_lookup[block_size][pCurr->mbmi.tx_size][scaleHorz][scaleVert];
 
-  if (VERT_EDGE == edgeDir)
-  {
+  if (VERT_EDGE == edgeDir) {
     txSize = txsize_horz_map[txSize];
-  }
-  else
-  {
+  } else {
     txSize = txsize_vert_map[txSize];
   }
 
@@ -2084,8 +2079,7 @@ TX_SIZE av1_get_transform_size(const MODE_INFO * const pCurr,
 }
 
 typedef
-struct AV1_DEBLOCKING_PARAMETERS
-{
+struct AV1_DEBLOCKING_PARAMETERS {
   // length of the filter applied to the outer edge
   uint32_t filterLength;
   // length of the filter applied to the inner edge
@@ -2105,15 +2099,13 @@ void av1_prepare_filtering_parameters(AV1_DEBLOCKING_PARAMETERS * const pParams,
                                       const EDGE_DIR edgeDir,
                                       const uint32_t x, const uint32_t y,
                                       const uint32_t width, const uint32_t height,
-                                      const uint32_t scaleHorz, const uint32_t scaleVert)
-{
+                                      const uint32_t scaleHorz, const uint32_t scaleVert) {
   // reset to initial values
   pParams->filterLength = 0;
   pParams->filterLengthInternal = 0;
 
   // no deblocking is required
-  if ((width <= x) || (height <= y))
-  {
+  if ((width <= x) || (height <= y)) {
     return;
   }
 
@@ -2130,8 +2122,7 @@ void av1_prepare_filtering_parameters(AV1_DEBLOCKING_PARAMETERS * const pParams,
     uint32_t level = currLevel;
 
     // prepare outer edge parameters. deblock the edge if it's an edge of a TU
-    if (coord)
-    {
+    if (coord) {
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
       if (av1_disable_loopfilter_on_tile_boundary(cm) &&
           (((VERT_EDGE == edgeDir) && (0 == (ppCurr[0]->mbmi.boundary_info & TILE_LEFT_BOUNDARY))) ||
@@ -2140,8 +2131,7 @@ void av1_prepare_filtering_parameters(AV1_DEBLOCKING_PARAMETERS * const pParams,
       {
         const int32_t tuEdge = (coord & av1_transform_masks[edgeDir][currTxSize]) ? (0) : (1);
 
-        if (tuEdge)
-        {
+        if (tuEdge) {
           const MODE_INFO * const pPrev = *(ppCurr - modeStep);
           const TX_SIZE prevTxSize = av1_get_transform_size(pPrev, edgeDir, scaleHorz, scaleVert);
           const uint32_t prevLevel = get_filter_level(&cm->lf_info, &pPrev->mbmi);
@@ -2151,8 +2141,7 @@ void av1_prepare_filtering_parameters(AV1_DEBLOCKING_PARAMETERS * const pParams,
           // if the current and the previous blocks are skipped,
           // deblock the edge if the edge belongs to a PU's edge only.
           if ((currLevel || prevLevel) &&
-              (!prevSkipped || !currSkipped || puEdge))
-          {
+              (!prevSkipped || !currSkipped || puEdge)) {
             pParams->filterLength = (TX_4X4 >= min(currTxSize, prevTxSize)) ? (4) : (8);
             // update the level if the current block is skipped,
             // but the previous one is not
@@ -2162,14 +2151,12 @@ void av1_prepare_filtering_parameters(AV1_DEBLOCKING_PARAMETERS * const pParams,
       }
 
       // prepare internal edge parameters
-      if (currLevel && !currSkipped)
-      {
+      if (currLevel && !currSkipped) {
         pParams->filterLengthInternal = (TX_4X4 >= currTxSize) ? (4) : (0);
       }
 
       // prepare common parameters
-      if (pParams->filterLength || pParams->filterLengthInternal)
-      {
+      if (pParams->filterLength || pParams->filterLengthInternal) {
         const loop_filter_thresh * const limits = cm->lf_info.lfthr + level;
 
         pParams->lim = limits->lim;
@@ -2184,8 +2171,7 @@ static
 void av1_filter_block_plane_vert(const AV1_COMMON * const cm,
                                  const struct macroblockd_plane * const pPlane,
                                  const MODE_INFO **ppModeInfo, const ptrdiff_t modeStride,
-                                 const uint32_t cuX, const uint32_t cuY)
-{
+                                 const uint32_t cuX, const uint32_t cuY) {
   const uint32_t scaleHorz = pPlane->subsampling_x;
   const uint32_t scaleVert = pPlane->subsampling_y;
   const uint32_t width = pPlane->dst.width;
@@ -2195,12 +2181,10 @@ void av1_filter_block_plane_vert(const AV1_COMMON * const cm,
   uint8_t * const pDst = pPlane->dst.buf;
   const int dstStride = pPlane->dst.stride;
 
-  for (int y = 0; y < (MAX_MIB_SIZE >> scaleVert); y += 1)
-  {
+  for (int y = 0; y < (MAX_MIB_SIZE >> scaleVert); y += 1) {
     uint8_t *p = pDst + y * MI_SIZE * dstStride;
 
-    for (int x = 0; x < (MAX_MIB_SIZE >> scaleHorz); x += 1)
-    {
+    for (int x = 0; x < (MAX_MIB_SIZE >> scaleHorz); x += 1) {
       const MODE_INFO ** const pCurr = ppModeInfo + (y << scaleVert) * modeStride + (x << scaleHorz);
       AV1_DEBLOCKING_PARAMETERS params;
 
@@ -2210,8 +2194,7 @@ void av1_filter_block_plane_vert(const AV1_COMMON * const cm,
                                        width, height,
                                        scaleHorz, scaleVert);
 
-      switch (params.filterLength)
-      {
+      switch (params.filterLength) {
         // apply 4-tap filtering
         case 4:
           aom_lpf_vertical_4(p, dstStride, params.mblim, params.lim, params.hev_thr);
@@ -2228,8 +2211,7 @@ void av1_filter_block_plane_vert(const AV1_COMMON * const cm,
       }
 
       // process the internal edge
-      if (params.filterLengthInternal)
-      {
+      if (params.filterLengthInternal) {
         aom_lpf_vertical_4(p + 4, dstStride, params.mblim, params.lim, params.hev_thr);
       }
 
@@ -2243,8 +2225,7 @@ static
 void av1_filter_block_plane_horz(const AV1_COMMON * const cm,
                                  const struct macroblockd_plane * const pPlane,
                                  const MODE_INFO **ppModeInfo, const ptrdiff_t modeStride,
-                                 const uint32_t cuX, const uint32_t cuY)
-{
+                                 const uint32_t cuX, const uint32_t cuY) {
   const uint32_t scaleHorz = pPlane->subsampling_x;
   const uint32_t scaleVert = pPlane->subsampling_y;
   const uint32_t width = pPlane->dst.width;
@@ -2254,12 +2235,10 @@ void av1_filter_block_plane_horz(const AV1_COMMON * const cm,
   uint8_t * const pDst = pPlane->dst.buf;
   const int dstStride = pPlane->dst.stride;
 
-  for (int y = 0; y < (MAX_MIB_SIZE >> scaleVert); y += 1)
-  {
+  for (int y = 0; y < (MAX_MIB_SIZE >> scaleVert); y += 1) {
     uint8_t *p = pDst + y * MI_SIZE * dstStride;
 
-    for (int x = 0; x < (MAX_MIB_SIZE >> scaleHorz); x += 1)
-    {
+    for (int x = 0; x < (MAX_MIB_SIZE >> scaleHorz); x += 1) {
       const MODE_INFO ** const pCurr = ppModeInfo + (y << scaleVert) * modeStride + (x << scaleHorz);
       AV1_DEBLOCKING_PARAMETERS params;
 
@@ -2269,8 +2248,7 @@ void av1_filter_block_plane_horz(const AV1_COMMON * const cm,
                                        width, height,
                                        scaleHorz, scaleVert);
 
-      switch (params.filterLength)
-      {
+      switch (params.filterLength) {
         // apply 4-tap filtering
         case 4:
           aom_lpf_horizontal_4(p, dstStride, params.mblim, params.lim, params.hev_thr);
@@ -2287,8 +2265,7 @@ void av1_filter_block_plane_horz(const AV1_COMMON * const cm,
       }
 
       // process the internal edge
-      if (params.filterLengthInternal)
-      {
+      if (params.filterLengthInternal) {
         aom_lpf_horizontal_4(p + 4 * dstStride, dstStride, params.mblim, params.lim, params.hev_thr);
       }
 
