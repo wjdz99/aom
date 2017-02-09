@@ -757,9 +757,15 @@ static const aom_prob default_comp_ref_p[REF_CONTEXTS][FWD_REFS - 1] = {
   { 172, 170, 170 },
   { 238, 247, 247 }
 };
+#if CONFIG_EXT_ALTREF
+static const aom_prob default_comp_bwdref_p[REF_CONTEXTS][BWD_REFS - 1] = {
+  { 16, 16 }, { 74, 74 }, { 142, 142 }, { 170, 170 }, { 247, 247 }
+};
+#else
 static const aom_prob default_comp_bwdref_p[REF_CONTEXTS][BWD_REFS - 1] = {
   { 16 }, { 74 }, { 142 }, { 170 }, { 247 }
 };
+#endif  // CONFIG_EXT_ALTREF
 #else
 static const aom_prob default_comp_ref_p[REF_CONTEXTS][COMP_REFS - 1] = {
   { 50 }, { 126 }, { 123 }, { 221 }, { 226 }
@@ -768,11 +774,19 @@ static const aom_prob default_comp_ref_p[REF_CONTEXTS][COMP_REFS - 1] = {
 
 static const aom_prob default_single_ref_p[REF_CONTEXTS][SINGLE_REFS - 1] = {
 #if CONFIG_EXT_REFS
+#if CONFIG_EXT_ALTREF
+  { 33, 16, 16, 16, 16, 16 },
+  { 77, 74, 74, 74, 74, 74 },
+  { 142, 142, 142, 142, 142, 142 },
+  { 172, 170, 170, 170, 170, 170 },
+  { 238, 247, 247, 247, 247, 247 }
+#else
   { 33, 16, 16, 16, 16 },
   { 77, 74, 74, 74, 74 },
   { 142, 142, 142, 142, 142 },
   { 172, 170, 170, 170, 170 },
   { 238, 247, 247, 247, 247 }
+#endif  // CONFIG_EXT_ALTREF
 #else
   { 33, 16 }, { 77, 74 }, { 142, 142 }, { 172, 170 }, { 238, 247 }
 #endif  // CONFIG_EXT_REFS
@@ -1970,6 +1984,9 @@ static void set_default_lf_deltas(struct loopfilter *lf) {
   lf->ref_deltas[BWDREF_FRAME] = lf->ref_deltas[LAST_FRAME];
 #endif  // CONFIG_EXT_REFS
   lf->ref_deltas[GOLDEN_FRAME] = -1;
+#if CONFIG_EXT_ALTREF
+  lf->ref_deltas[ALTREF2_FRAME] = -1;
+#endif  // CONFIG_EXT_ALTREF
   lf->ref_deltas[ALTREF_FRAME] = -1;
 
   lf->mode_deltas[0] = 0;

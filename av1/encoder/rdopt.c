@@ -9696,7 +9696,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     if (sf->alt_ref_search_fp) {
       assert(cpi->ref_frame_flags & flag_list[ALTREF_FRAME]);
       mode_skip_mask[ALTREF_FRAME] = 0;
-      ref_frame_skip_mask[0] = ~(1 << ALTREF_FRAME);
+      ref_frame_skip_mask[0] = (uint8_t)(~(1 << ALTREF_FRAME));
       ref_frame_skip_mask[1] = SECOND_REF_FRAME_MASK;
     }
   }
