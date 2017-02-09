@@ -349,7 +349,11 @@ static INLINE int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
 static INLINE int is_inside(const TileInfo *const tile, int mi_col, int mi_row,
                             int mi_rows, int dependent_horz_tile_flag,
                             const POSITION *mi_pos) {
+#if CONFIG_TILE_GROUPS
+  if (dependent_horz_tile_flag && !tile->tg_horz_boundary) {
+#else
   if (dependent_horz_tile_flag) {
+#endif
     return !(mi_row + mi_pos->row < 0 ||
              mi_col + mi_pos->col < tile->mi_col_start ||
              mi_row + mi_pos->row >= mi_rows ||
