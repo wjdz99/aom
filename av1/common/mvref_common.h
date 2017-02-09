@@ -349,7 +349,11 @@ static INLINE int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
 static INLINE int is_inside(const TileInfo *const tile, int mi_col, int mi_row,
                             int mi_rows, int dependent_horz_tile_flag,
                             const POSITION *mi_pos) {
+#if CONFIG_TILE_GROUPS
+  if (dependent_horz_tile_flag && !tile->tg_horz_boundary) {
+#else
   if (dependent_horz_tile_flag) {
+#endif
     return !(mi_row + mi_pos->row < 0 ||
              mi_col + mi_pos->col < tile->mi_col_start ||
              mi_row + mi_pos->row >= mi_rows ||
@@ -412,13 +416,17 @@ static INLINE int8_t av1_ref_frame_type(const MV_REFERENCE_FRAME *const rf) {
 
 static MV_REFERENCE_FRAME ref_frame_map[COMP_REFS][2] = {
 #if CONFIG_EXT_REFS
-  { LAST_FRAME, BWDREF_FRAME },  { LAST2_FRAME, BWDREF_FRAME },
-  { LAST3_FRAME, BWDREF_FRAME }, { GOLDEN_FRAME, BWDREF_FRAME },
-
-  { LAST_FRAME, ALTREF_FRAME },  { LAST2_FRAME, ALTREF_FRAME },
-  { LAST3_FRAME, ALTREF_FRAME }, { GOLDEN_FRAME, ALTREF_FRAME }
+  { LAST_FRAME, BWDREF_FRAME },
+  { LAST2_FRAME, BWDREF_FRAME },
+  { LAST3_FRAME, BWDREF_FRAME },
+  { GOLDEN_FRAME, BWDREF_FRAME },
+  { LAST_FRAME, ALTREF_FRAME },
+  { LAST2_FRAME, ALTREF_FRAME },
+  { LAST3_FRAME, ALTREF_FRAME },
+  { GOLDEN_FRAME, ALTREF_FRAME }
 #else
-  { LAST_FRAME, ALTREF_FRAME }, { GOLDEN_FRAME, ALTREF_FRAME }
+  { LAST_FRAME, ALTREF_FRAME },
+  { GOLDEN_FRAME, ALTREF_FRAME }
 #endif
 };
 
