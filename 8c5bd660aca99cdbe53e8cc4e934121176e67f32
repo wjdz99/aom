@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8028f87_494c9b15",
+        "filename": "aom_dsp/loopfilter.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5286
+      },
+      "writtenOn": "2017-02-10T17:31:17Z",
+      "side": 1,
+      "message": "Some spots have 0\u003d\u003dCONFIG*, and others just check for define, will be good to be consistent",
+      "revId": "8c5bd660aca99cdbe53e8cc4e934121176e67f32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a1f8918_7b36be79",
+        "filename": "av1/common/loopfilter.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2072,
+      "author": {
+        "id": 5286
+      },
+      "writtenOn": "2017-02-10T17:31:17Z",
+      "side": 1,
+      "message": "32 bits is too much! Guess its for consistency with rest of the code?",
+      "revId": "8c5bd660aca99cdbe53e8cc4e934121176e67f32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
