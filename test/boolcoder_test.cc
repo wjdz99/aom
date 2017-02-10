@@ -91,6 +91,7 @@ TEST(AV1, TestBitIO) {
   }
 }
 
+#if CONFIG_ACCOUNTING
 #if CONFIG_DAALA_EC
 #define FRAC_DIFF_TOTAL_ERROR 0.07
 #else
@@ -141,3 +142,4 @@ TEST(AV1, TestTell) {
         << " frac_diff_total: " << frac_diff_total;
   }
 }
+#endif
