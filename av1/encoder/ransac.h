@@ -28,6 +28,12 @@ corresponding points in 2 frames using RANSAC.*/
 int ransac_homography(double *matched_points, int npoints,
                       int *number_of_inliers, int *best_inlier_indices,
                       double *best_params);
+int ransac_hortrapezoid(double *matched_points, int npoints,
+                        int *number_of_inliers, int *best_inlier_indices,
+                        double *best_params);
+int ransac_vertrapezoid(double *matched_points, int npoints,
+                        int *number_of_inliers, int *best_inlier_indices,
+                        double *best_params);
 int ransac_affine(double *matched_points, int npoints, int *number_of_inliers,
                   int *best_inlier_indices, double *best_params);
 int ransac_rotzoom(double *matched_points, int npoints, int *number_of_inliers,
