@@ -454,7 +454,7 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi) {
   int i;
 
   // Limit memory usage for high resolutions
-  if (AOMMIN(cm->width, cm->height) > 1080) {
+  if (AOMMIN(cm->width, cm->height) > 720) {
     sf->use_upsampled_references = 0;
   }
 
