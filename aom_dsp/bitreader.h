@@ -110,6 +110,7 @@ static INLINE int aom_reader_has_error(aom_reader *r) {
 #endif
 }
 
+#if CONFIG_ACCOUNTING
 // Returns the position in the bit reader in bits.
 static INLINE uint32_t aom_reader_tell(const aom_reader *r) {
 #if CONFIG_ANS
@@ -136,7 +137,6 @@ static INLINE uint32_t aom_reader_tell_frac(const aom_reader *r) {
 #endif
 }
 
-#if CONFIG_ACCOUNTING
 static INLINE void aom_process_accounting(const aom_reader *r ACCT_STR_PARAM) {
   if (r->accounting != NULL) {
     uint32_t tell_frac;
