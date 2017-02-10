@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c901578_5d15e1f5",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1026,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-10T18:43:46Z",
+      "side": 1,
+      "message": "I think we should follow the structure of the current code, i.e., there should be a separate av1_highbd_block_error2 function, instead of overloading av1_block_error2().\n\nThat will minimize the confusion when attempting to use these functions, and potentially also when attempting to remove some of them later.",
+      "revId": "739688df0664a842788f69c2aec523e55a89fae3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26a24d6e_98ea83ea",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1028,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-10T18:43:46Z",
+      "side": 1,
+      "message": "For instance, I think calling av1_block_error() here (and below) is wrong. av1_highbd_block_error() takes an additional bd argument and does additional shifts. You defer that to the caller, which means the PVQ highbd support looks different from the non-PVQ highbd support.\n\nThat\u0027s just a question of style, but it also looks like some of the accelerated variants (e.g., av1_block_error_avx2()) hard-code int16_t arguments, despite the tran_low_t declaration. That\u0027s more serious.\n\nArguably the 16-bit version shouldn\u0027t even be compiled in highbd mode, but I don\u0027t know if there\u0027s something that still relies on it (whatever it is seems like it would be clearly busted, if the argument size depends on your CPU features). But that\u0027s an issue for someone else to sort out.",
+      "revId": "739688df0664a842788f69c2aec523e55a89fae3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
