@@ -16,6 +16,7 @@
 
 typedef struct od_state     od_state;
 typedef struct od_adapt_ctx od_adapt_ctx;
+typedef struct daala_info   daala_info;
 
 # include "generic_code.h"
 # include "odintrin.h"
@@ -38,9 +39,25 @@ struct od_adapt_ctx {
   int skip_increment;
 };
 
+/** Configuration parameters for a codec instance. */
+struct daala_info {
+  double framerate;
+   /** key frame rate defined how often a key frame is emitted by encoder in
+    * number of frames. So 10 means every 10th frame is a keyframe.  */
+  int keyframe_rate;
+};
+
 struct od_state {
   od_adapt_ctx adapt;
+  daala_info info;
   unsigned char pvq_qm_q4[OD_NPLANES_MAX][OD_QM_SIZE];
+  int             quantizer;
+  int             coded_quantizer;
+  int32_t         frame_width;
+  int32_t         frame_height;
+  /** Increments by 1 for each frame. */
+  int64_t         cur_time;
+
   /* Quantization matrices and their inverses. */
   int16_t qm[OD_QM_BUFFER_SIZE];
   int16_t qm_inv[OD_QM_BUFFER_SIZE];
