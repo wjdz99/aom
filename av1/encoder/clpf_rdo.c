@@ -19,7 +19,7 @@
 void aom_clpf_detect_c(const uint8_t *rec, const uint8_t *org, int rstride,
                        int ostride, int x0, int y0, int width, int height,
                        int *sum0, int *sum1, unsigned int strength, int size,
-                       unsigned int bd) {
+                       unsigned int damping) {
   int x, y;
   for (y = y0; y < y0 + size; y++) {
     for (x = x0; x < x0 + size; x++) {
@@ -34,7 +34,7 @@ void aom_clpf_detect_c(const uint8_t *rec, const uint8_t *org, int rstride,
       const int G = rec[AOMMIN(height - 1, y + 1) * rstride + x];
       const int H = rec[AOMMIN(height - 1, y + 2) * rstride + x];
       const int delta =
-          av1_clpf_sample(X, A, B, C, D, E, F, G, H, strength, bd);
+          av1_clpf_sample(X, A, B, C, D, E, F, G, H, strength, damping);
       const int Y = X + delta;
       *sum0 += (O - X) * (O - X);
       *sum1 += (O - Y) * (O - Y);
@@ -45,7 +45,7 @@ void aom_clpf_detect_c(const uint8_t *rec, const uint8_t *org, int rstride,
 void aom_clpf_detect_multi_c(const uint8_t *rec, const uint8_t *org,
                              int rstride, int ostride, int x0, int y0,
                              int width, int height, int *sum, int size,
-                             unsigned int bd) {
+                             unsigned int damping) {
   int x, y;
 
   for (y = y0; y < y0 + size; y++) {
@@ -60,9 +60,9 @@ void aom_clpf_detect_multi_c(const uint8_t *rec, const uint8_t *org,
       const int F = rec[y * rstride + AOMMIN(width - 1, x + 2)];
       const int G = rec[AOMMIN(height - 1, y + 1) * rstride + x];
       const int H = rec[AOMMIN(height - 1, y + 2) * rstride + x];
-      const int delta1 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 1, bd);
-      const int delta2 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 2, bd);
-      const int delta3 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 4, bd);
+      const int delta1 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 1, damping);
+      const int delta2 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 2, damping);
+      const int delta3 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 4, damping);
       const int F1 = X + delta1;
       const int F2 = X + delta2;
       const int F3 = X + delta3;
@@ -147,6 +147,11 @@ int av1_clpf_decision(int k, int l, const YV12_BUFFER_CONFIG *rec,
                       unsigned int fb_size_log2, int8_t *res) {
   int m, n, sum0 = 0, sum1 = 0;
 
+  int c, damping = 0;
+  for (c = 0; c < MAX_SEGMENTS; c++)
+    damping += av1_get_qindex(&cm->seg, c, cm->base_qindex);
+  damping = damping / MAX_SEGMENTS / 64 + 3;
+
   for (m = 0; m < h; m++) {
     for (n = 0; n < w; n++) {
       int xpos = (l << fb_size_log2) + n * block_size;
@@ -160,18 +165,18 @@ int av1_clpf_decision(int k, int l, const YV12_BUFFER_CONFIG *rec,
                               CONVERT_TO_SHORTPTR(org->y_buffer), rec->y_stride,
                               org->y_stride, xpos, ypos, rec->y_crop_width,
                               rec->y_crop_height, &sum0, &sum1, strength,
-                              block_size, cm->bit_depth);
+                              block_size, damping);
         } else {
-          aom_clpf_detect(rec->y_buffer, org->y_buffer, rec->y_stride,
+          aom_clpf_detect_c(rec->y_buffer, org->y_buffer, rec->y_stride,
                           org->y_stride, xpos, ypos, rec->y_crop_width,
                           rec->y_crop_height, &sum0, &sum1, strength,
-                          block_size, cm->bit_depth);
+                          block_size, damping);
         }
 #else
-        aom_clpf_detect(rec->y_buffer, org->y_buffer, rec->y_stride,
+        aom_clpf_detect_c(rec->y_buffer, org->y_buffer, rec->y_stride,
                         org->y_stride, xpos, ypos, rec->y_crop_width,
                         rec->y_crop_height, &sum0, &sum1, strength, block_size,
-                        cm->bit_depth);
+                        damping);
 #endif
       }
     }
@@ -259,6 +264,11 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
     return filtered;
   }
 
+  int damping = 0;
+  for (c = 0; c < MAX_SEGMENTS; c++)
+    damping += av1_get_qindex(&cm->seg, c, cm->base_qindex);
+  damping = damping / MAX_SEGMENTS / 64 + 3;
+
   for (m = 0; m < h; m++) {
     for (n = 0; n < w; n++) {
       int xpos = x + n * block_size;
@@ -273,16 +283,16 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
         aom_clpf_detect_multi_hbd(CONVERT_TO_SHORTPTR(rec_buffer),
                                   CONVERT_TO_SHORTPTR(org_buffer), rec_stride,
                                   org_stride, xpos, ypos, rec_width, rec_height,
-                                  sum + skip, block_size, cm->bit_depth);
+                                  sum + skip, block_size, damping);
       } else {
-        aom_clpf_detect_multi(rec_buffer, org_buffer, rec_stride, org_stride,
+        aom_clpf_detect_multi_c(rec_buffer, org_buffer, rec_stride, org_stride,
                               xpos, ypos, rec_width, rec_height, sum + skip,
-                              block_size, cm->bit_depth);
+                              block_size, damping);
       }
 #else
-      aom_clpf_detect_multi(rec_buffer, org_buffer, rec_stride, org_stride,
+      aom_clpf_detect_multi_c(rec_buffer, org_buffer, rec_stride, org_stride,
                             xpos, ypos, rec_width, rec_height, sum + skip,
-                            block_size, cm->bit_depth);
+                            block_size, damping);
 #endif
       filtered |= !skip;
     }
