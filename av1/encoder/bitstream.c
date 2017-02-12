@@ -1437,7 +1437,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
       (bsize >= BLOCK_8X8 || (bsize > BLOCK_4X4 && is_inter)) &&
 #endif  // CONFIG_RECT_TX
 #else
-      bsize >= BLOCK_8X8 &&
+        bsize >= BLOCK_8X8 &&
 #endif
 #if CONFIG_SUPERTX
       !supertx_enabled &&
