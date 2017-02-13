@@ -139,6 +139,12 @@ extern uint32_t OD_DIVU_SMALL_CONSTS[OD_DIVU_DMAX][2];
 #define OD_ARG_NONNULL(x)
 #endif
 
+#if OD_GNUC_PREREQ(3, 1, 0)
+#define OD_DEPRECATED __attribute__((deprecated))
+#else
+#define OD_DEPRECATED
+#endif
+
 #if defined(OD_ENABLE_ASSERTIONS)
 #if OD_GNUC_PREREQ(2, 5, 0)
 __attribute__((noreturn))
