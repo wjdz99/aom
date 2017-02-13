@@ -1174,6 +1174,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
         THR_D207_PRED /*D207_PRED*/,
         THR_D63_PRED /*D63_PRED*/,
 #if CONFIG_ALT_INTRA
+        THR_PAETH /*PAETH_PRED*/,
         THR_SMOOTH, /*SMOOTH_PRED*/
 #endif              // CONFIG_ALT_INTRA
         THR_TM /*TM_PRED*/,

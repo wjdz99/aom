@@ -137,11 +137,12 @@ typedef enum {
 
 #endif  // CONFIG_EXT_INTER
 
-  THR_TM,
-
 #if CONFIG_ALT_INTRA
+  THR_PAETH,
   THR_SMOOTH,
 #endif  // CONFIG_ALT_INTRA
+
+  THR_TM,
 
 #if CONFIG_EXT_INTER
 

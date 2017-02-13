@@ -414,7 +414,7 @@ static void set_rt_speed_feature(AV1_COMP *cpi, SPEED_FEATURES *sf, int speed,
       int i;
       if (content == AOM_CONTENT_SCREEN) {
         for (i = 0; i < BLOCK_SIZES; ++i)
-          sf->intra_y_mode_bsize_mask[i] = INTRA_DC_TM_H_V;
+          sf->intra_y_mode_bsize_mask[i] = INTRA_DC_TM_PAETH_H_V;
       } else {
         for (i = 0; i < BLOCK_SIZES; ++i)
           if (i >= BLOCK_16X16)
