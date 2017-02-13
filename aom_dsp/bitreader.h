@@ -265,7 +265,11 @@ static INLINE int aom_read_tree_as_cdf(aom_reader *r,
 }
 #endif  // CONFIG_EC_MULTISYMBOL
 
-static INLINE int aom_read_tree_(aom_reader *r, const aom_tree_index *tree,
+static INLINE
+#if CONFIG_EC_MULTISYMBOL
+OD_DEPRECATED
+#endif
+int aom_read_tree_(aom_reader *r, const aom_tree_index *tree,
                                  const aom_prob *probs ACCT_STR_PARAM) {
   int ret;
 #if CONFIG_EC_MULTISYMBOL
