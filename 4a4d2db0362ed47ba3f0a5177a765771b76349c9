@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25d2774b_4254452e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-02-13T23:14:06Z",
+      "side": 1,
+      "message": "Can you mark this with a TODO? Or just implement av1_rc_update_framerate for xiphrc?",
+      "revId": "4a4d2db0362ed47ba3f0a5177a765771b76349c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5435656_4beefe8d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4779,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-02-13T23:14:06Z",
+      "side": 1,
+      "message": "This is a TODO, right? The Xiph RC can also tell you to drop a frame.",
+      "revId": "4a4d2db0362ed47ba3f0a5177a765771b76349c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b80678f3_528a5a29",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4948,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-02-13T23:14:06Z",
+      "side": 1,
+      "message": "It would be kind of nice to make this more orthogonal with the existing code, e.g. av1_xiphrc_postencode_update() and av1_xiphrc_get_one_pass_params(). Though this is optional, and maybe getting rid of two different frame type enums will shrink this code sufficiently that it doesn\u0027t matter.",
+      "revId": "4a4d2db0362ed47ba3f0a5177a765771b76349c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81886101_28cb7418",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 5008,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-02-13T23:14:06Z",
+      "side": 1,
+      "message": "Still needs an assert for AOM_CQ?",
+      "revId": "4a4d2db0362ed47ba3f0a5177a765771b76349c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f9ec373_3c09553a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 5013,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-02-13T23:14:06Z",
+      "side": 1,
+      "message": "Still would like this updated. I really don\u0027t want these to get mixed up.",
+      "revId": "4a4d2db0362ed47ba3f0a5177a765771b76349c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
