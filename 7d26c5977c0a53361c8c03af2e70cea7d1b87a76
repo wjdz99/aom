@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cf69629_c6684ed6",
+        "filename": "aom_dsp/answriter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-13T20:43:44Z",
+      "side": 0,
+      "message": "Actually, I would have preferred keeping the struct, given the two variables are still used together mostly.\nBut, upto you. I don\u0027t have a strong preference.",
+      "revId": "7d26c5977c0a53361c8c03af2e70cea7d1b87a76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
