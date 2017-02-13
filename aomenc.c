@@ -299,8 +299,10 @@ static const arg_def_t resize_up_thresh =
 static const arg_def_t resize_down_thresh =
     ARG_DEF(NULL, "resize-down", 1, "Downscale threshold (buf %)");
 static const struct arg_enum_list end_usage_enum[] = { { "vbr", AOM_VBR },
+#if !CONFIG_XIPHRC
                                                        { "cbr", AOM_CBR },
                                                        { "cq", AOM_CQ },
+#endif
                                                        { "q", AOM_Q },
                                                        { NULL, 0 } };
 static const arg_def_t end_usage =
