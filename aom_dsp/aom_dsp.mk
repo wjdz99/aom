@@ -20,14 +20,9 @@ DSP_SRCS-$(ARCH_X86)$(ARCH_X86_64)   += x86/synonyms.h
 # bit reader
 DSP_SRCS-yes += prob.h
 DSP_SRCS-yes += prob.c
-DSP_SRCS-$(CONFIG_ANS) += ans.h
 
 ifeq ($(CONFIG_ENCODERS),yes)
-ifeq ($(CONFIG_ANS),yes)
-DSP_SRCS-yes += answriter.h
-DSP_SRCS-yes += buf_ans.h
-DSP_SRCS-yes += buf_ans.c
-else ifeq ($(CONFIG_DAALA_EC),yes)
+ifeq ($(CONFIG_DAALA_EC),yes)
 DSP_SRCS-yes += entenc.c
 DSP_SRCS-yes += entenc.h
 DSP_SRCS-yes += daalaboolwriter.c
@@ -48,9 +43,7 @@ DSP_SRCS-$(CONFIG_INTERNAL_STATS) += fastssim.c
 endif
 
 ifeq ($(CONFIG_DECODERS),yes)
-ifeq ($(CONFIG_ANS),yes)
-DSP_SRCS-yes += ansreader.h
-else ifeq ($(CONFIG_DAALA_EC),yes)
+ifeq ($(CONFIG_DAALA_EC),yes)
 DSP_SRCS-yes += entdec.c
 DSP_SRCS-yes += entdec.h
 DSP_SRCS-yes += daalaboolreader.c
