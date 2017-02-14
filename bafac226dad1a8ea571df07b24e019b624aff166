@@ -16,6 +16,24 @@
       "revId": "bafac226dad1a8ea571df07b24e019b624aff166",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34a88ca6_0d41a443",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-02-14T19:35:56Z",
+      "side": 1,
+      "message": "I have not looked at the generated code either, but my guess is that some compiler will not inline this even when the INLINE keyword is used.\n\nI can just use a call to od_ec_decode_bool_q15() and ensure that it is always 16384.",
+      "parentUuid": "49326818_0aa8d52a",
+      "revId": "bafac226dad1a8ea571df07b24e019b624aff166",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
