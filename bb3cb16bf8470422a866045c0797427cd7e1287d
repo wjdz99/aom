@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d0a1f1b_0d10ebd9",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 12
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-02-14T01:45:41Z",
+      "side": 1,
+      "message": "this should be guaranteed now with the move to c99, but I think msvc still holds to inline being c++ only. this could be extended to check for __inline",
+      "revId": "bb3cb16bf8470422a866045c0797427cd7e1287d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d0417cd_46c39496",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 12
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-02-14T01:45:41Z",
+      "side": 1,
+      "message": "technically this picks up ssse3, sse4. not sure what msvc will do in that case for code generation",
+      "revId": "bb3cb16bf8470422a866045c0797427cd7e1287d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
