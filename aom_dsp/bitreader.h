@@ -272,7 +272,7 @@ static INLINE
     aom_read_tree_(aom_reader *r, const aom_tree_index *tree,
                    const aom_prob *probs ACCT_STR_PARAM) {
   int ret;
-#if CONFIG_EC_MULTISYMBOL
+#if 0 && CONFIG_EC_MULTISYMBOL
   ret = aom_read_tree_as_cdf(r, tree, probs);
 #else
   ret = aom_read_tree_as_bits(r, tree, probs);
