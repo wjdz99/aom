@@ -22,9 +22,7 @@
 
 #include "aom/aomdx.h"
 #include "aom/aom_integer.h"
-#if CONFIG_ANS
-#include "aom_dsp/ansreader.h"
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
 #include "aom_dsp/daalaboolreader.h"
 #else
 #include "aom_dsp/dkboolreader.h"
@@ -63,9 +61,7 @@
 extern "C" {
 #endif
 
-#if CONFIG_ANS
-typedef struct AnsDecoder aom_reader;
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
 typedef struct daala_reader aom_reader;
 #else
 typedef struct aom_dk_reader aom_reader;
@@ -74,12 +70,7 @@ typedef struct aom_dk_reader aom_reader;
 static INLINE int aom_reader_init(aom_reader *r, const uint8_t *buffer,
                                   size_t size, aom_decrypt_cb decrypt_cb,
                                   void *decrypt_state) {
-#if CONFIG_ANS
-  (void)decrypt_cb;
-  (void)decrypt_state;
-  if (size > INT_MAX) return 1;
-  return ans_read_init(r, buffer, (int)size);
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
   (void)decrypt_cb;
   (void)decrypt_state;
   return aom_daala_reader_init(r, buffer, (int)size);
@@ -89,11 +80,7 @@ static INLINE int aom_reader_init(aom_reader *r, const uint8_t *buffer,
 }
 
 static INLINE const uint8_t *aom_reader_find_end(aom_reader *r) {
-#if CONFIG_ANS
-  (void)r;
-  assert(0 && "Use the raw buffer size with ANS");
-  return NULL;
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
   return aom_daala_reader_find_end(r);
 #else
   return aom_dk_reader_find_end(r);
@@ -101,9 +88,7 @@ static INLINE const uint8_t *aom_reader_find_end(aom_reader *r) {
 }
 
 static INLINE int aom_reader_has_error(aom_reader *r) {
-#if CONFIG_ANS
-  return ans_reader_has_error(r);
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
   return aom_daala_reader_has_error(r);
 #else
   return aom_dk_reader_has_error(r);
@@ -112,11 +97,7 @@ static INLINE int aom_reader_has_error(aom_reader *r) {
 
 // Returns the position in the bit reader in bits.
 static INLINE uint32_t aom_reader_tell(const aom_reader *r) {
-#if CONFIG_ANS
-  (void)r;
-  assert(0 && "aom_reader_tell() is unimplemented for ANS");
-  return 0;
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
   return aom_daala_reader_tell(r);
 #else
   return aom_dk_reader_tell(r);
@@ -125,11 +106,7 @@ static INLINE uint32_t aom_reader_tell(const aom_reader *r) {
 
 // Returns the position in the bit reader in 1/8th bits.
 static INLINE uint32_t aom_reader_tell_frac(const aom_reader *r) {
-#if CONFIG_ANS
-  (void)r;
-  assert(0 && "aom_reader_tell_frac() is unimplemented for ANS");
-  return 0;
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
   return aom_daala_reader_tell_frac(r);
 #else
   return aom_dk_reader_tell_frac(r);
@@ -150,9 +127,7 @@ static INLINE void aom_process_accounting(const aom_reader *r ACCT_STR_PARAM) {
 
 static INLINE int aom_read_(aom_reader *r, int prob ACCT_STR_PARAM) {
   int ret;
-#if CONFIG_ANS
-  ret = rabs_read(r, prob);
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
   ret = aom_daala_read(r, prob);
 #else
   ret = aom_dk_read(r, prob);
@@ -165,9 +140,7 @@ static INLINE int aom_read_(aom_reader *r, int prob ACCT_STR_PARAM) {
 
 static INLINE int aom_read_bit_(aom_reader *r ACCT_STR_PARAM) {
   int ret;
-#if CONFIG_ANS
-  ret = rabs_read_bit(r);  // Non trivial optimization at half probability
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
   // Note this uses raw bits and is not the same as aom_daala_read(r, 128);
   ret = aom_daala_read_bit(r);
 #else
@@ -218,10 +191,7 @@ static INLINE int aom_read_tree_(aom_reader *r, const aom_tree_index *tree,
 static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
                                 int nsymbs ACCT_STR_PARAM) {
   int ret;
-#if CONFIG_ANS
-  (void)nsymbs;
-  ret = rans_read(r, cdf);
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
   ret = daala_read_symbol(r, cdf, nsymbs);
 #else
 #error \

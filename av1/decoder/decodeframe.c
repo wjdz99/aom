@@ -2425,9 +2425,6 @@ static void setup_bool_decoder(const uint8_t *data, const uint8_t *data_end,
                                const size_t read_size,
                                struct aom_internal_error_info *error_info,
                                aom_reader *r,
-#if CONFIG_ANS && ANS_MAX_SYMBOLS
-                               int window_size,
-#endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
                                aom_decrypt_cb decrypt_cb, void *decrypt_state) {
   // Validate the calculated partition length. If the buffer
   // described by the partition can't be fully read, then restrict
@@ -2436,9 +2433,6 @@ static void setup_bool_decoder(const uint8_t *data, const uint8_t *data_end,
     aom_internal_error(error_info, AOM_CODEC_CORRUPT_FRAME,
                        "Truncated packet or corrupt tile length");
 
-#if CONFIG_ANS && ANS_MAX_SYMBOLS
-  r->window_size = window_size;
-#endif
   if (aom_reader_init(r, data, read_size, decrypt_cb, decrypt_state))
     aom_internal_error(error_info, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate bool decoder %d", 1);
@@ -3501,9 +3495,6 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       av1_tile_init(&td->xd.tile, td->cm, tile_row, tile_col);
       setup_bool_decoder(buf->data, data_end, buf->size, &cm->error,
                          &td->bit_reader,
-#if CONFIG_ANS && ANS_MAX_SYMBOLS
-                         1 << cm->ans_window_size_log2,
-#endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
                          pbi->decrypt_cb, pbi->decrypt_state);
 #if CONFIG_ACCOUNTING
       if (pbi->acct_enabled) {
@@ -3666,26 +3657,18 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 
 #if CONFIG_EXT_TILE
   if (n_tiles == 1) {
-#if CONFIG_ANS
-    return data_end;
-#else
     // Find the end of the single tile buffer
     return aom_reader_find_end(&pbi->tile_data->bit_reader);
-#endif  // CONFIG_ANS
   } else {
     // Return the end of the last tile buffer
     return tile_buffers[tile_rows - 1][tile_cols - 1].raw_data_end;
   }
-#else
-#if CONFIG_ANS
-  return data_end;
 #else
   {
     // Get last tile data.
     TileData *const td = pbi->tile_data + tile_cols * tile_rows - 1;
     return aom_reader_find_end(&td->bit_reader);
   }
-#endif  // CONFIG_ANS
 #endif  // CONFIG_EXT_TILE
 }
 
@@ -3765,9 +3748,9 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
   int tile_row, tile_col;
   int i;
 
-#if !(CONFIG_ANS || CONFIG_EXT_TILE)
+#if !CONFIG_EXT_TILE
   int final_worker = -1;
-#endif  // !(CONFIG_ANS || CONFIG_EXT_TILE)
+#endif  // !CONFIG_EXT_TILE
 
   assert(tile_rows <= MAX_TILE_ROWS);
   assert(tile_cols <= MAX_TILE_COLS);
@@ -3864,9 +3847,6 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
         av1_tile_init(&twd->xd.tile, cm, tile_row, buf->col);
         setup_bool_decoder(buf->data, data_end, buf->size, &cm->error,
                            &twd->bit_reader,
-#if CONFIG_ANS && ANS_MAX_SYMBOLS
-                           1 << cm->ans_window_size_log2,
-#endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
                            pbi->decrypt_cb, pbi->decrypt_state);
         av1_init_macroblockd(cm, &twd->xd,
 #if CONFIG_PVQ
@@ -3888,11 +3868,11 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
           winterface->launch(worker);
         }
 
-#if !(CONFIG_ANS || CONFIG_EXT_TILE)
+#if !CONFIG_EXT_TILE
         if (tile_row == tile_rows - 1 && buf->col == tile_cols - 1) {
           final_worker = i;
         }
-#endif  // !(CONFIG_ANS || CONFIG_EXT_TILE)
+#endif  // !CONFIG_EXT_TILE
       }
 
       // Sync all workers
@@ -3919,16 +3899,12 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
   // Return the end of the last tile buffer
   return tile_buffers[tile_rows - 1][tile_cols - 1].raw_data_end;
 #else
-#if CONFIG_ANS
-  return data_end;
-#else
   assert(final_worker != -1);
   {
     TileWorkerData *const twd =
         (TileWorkerData *)pbi->tile_workers[final_worker].data1;
     return aom_reader_find_end(&twd->bit_reader);
   }
-#endif  // CONFIG_ANS
 #endif  // CONFIG_EXT_TILE
 }
 
@@ -4130,9 +4106,6 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
       memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
       pbi->need_resync = 0;
     }
-#if CONFIG_ANS && ANS_MAX_SYMBOLS
-    cm->ans_window_size_log2 = aom_rb_read_literal(rb, 4) + 8;
-#endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
 #if CONFIG_PALETTE
     cm->allow_screen_content_tools = aom_rb_read_bit(rb);
 #endif  // CONFIG_PALETTE
@@ -4172,9 +4145,6 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
         memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
         pbi->need_resync = 0;
       }
-#if CONFIG_ANS && ANS_MAX_SYMBOLS
-      cm->ans_window_size_log2 = aom_rb_read_literal(rb, 4) + 8;
-#endif
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
       pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
 
@@ -4512,9 +4482,6 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
   int j;
 #endif
 
-#if CONFIG_ANS && ANS_MAX_SYMBOLS
-  r.window_size = 1 << cm->ans_window_size_log2;
-#endif
   if (aom_reader_init(&r, data, partition_size, pbi->decrypt_cb,
                       pbi->decrypt_state))
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
