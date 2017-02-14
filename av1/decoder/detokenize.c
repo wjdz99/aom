@@ -13,12 +13,6 @@
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem.h"
 #endif  // !CONFIG_PVQ
-
-#if CONFIG_ANS
-#include "aom_dsp/ans.h"
-#endif  // CONFIG_ANS
-#include "av1/common/blockd.h"
-
 #if !CONFIG_PVQ
 #include "av1/common/common.h"
 #include "av1/common/entropy.h"

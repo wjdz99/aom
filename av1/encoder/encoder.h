@@ -22,10 +22,6 @@
 #include "av1/common/thread_common.h"
 #include "av1/common/onyxc_int.h"
 #include "av1/encoder/aq_cyclicrefresh.h"
-#if CONFIG_ANS
-#include "aom_dsp/ans.h"
-#include "aom_dsp/buf_ans.h"
-#endif
 #include "av1/encoder/av1_quantize.h"
 #include "av1/encoder/context_tree.h"
 #include "av1/encoder/encodemb.h"
@@ -274,9 +270,6 @@ typedef struct AV1EncoderConfig {
 #if CONFIG_EXT_PARTITION
   aom_superblock_size_t superblock_size;
 #endif  // CONFIG_EXT_PARTITION
-#if CONFIG_ANS && ANS_MAX_SYMBOLS
-  int ans_window_size_log2;
-#endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {
@@ -648,9 +641,6 @@ typedef struct AV1_COMP {
   SUBFRAME_STATS wholeframe_stats;
   av1_coeff_stats branch_ct_buf[COEF_PROBS_BUFS][TX_SIZES][PLANE_TYPES];
 #endif  // CONFIG_ENTROPY
-#if CONFIG_ANS
-  struct BufAnsCoder buf_ans;
-#endif
 #if CONFIG_EXT_REFS
   int refresh_frame_mask;
   int existing_fb_idx_to_show;

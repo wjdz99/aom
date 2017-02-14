@@ -14,9 +14,6 @@
 
 #if !CONFIG_PVQ
 #include "av1/decoder/decoder.h"
-#if CONFIG_ANS
-#include "aom_dsp/ans.h"
-#endif  // CONFIG_ANS
 #include "av1/common/scan.h"
 #endif  // !CONFIG_PVQ
 

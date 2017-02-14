@@ -18,9 +18,7 @@
 #error "CONFIG_EC_ADAPT is enabled without enabling CONFIG_EC_MULTISYMBOL"
 #endif
 
-#if CONFIG_ANS
-#include "aom_dsp/buf_ans.h"
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
 #include "aom_dsp/daalaboolwriter.h"
 #else
 #include "aom_dsp/dkboolwriter.h"
@@ -36,9 +34,7 @@
 extern "C" {
 #endif
 
-#if CONFIG_ANS
-typedef struct BufAnsCoder aom_writer;
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
 typedef struct daala_writer aom_writer;
 #else
 typedef struct aom_dk_writer aom_writer;
@@ -68,11 +64,7 @@ static INLINE void init_token_stats(TOKEN_STATS *token_stats) {
 }
 
 static INLINE void aom_start_encode(aom_writer *bc, uint8_t *buffer) {
-#if CONFIG_ANS
-  (void)bc;
-  (void)buffer;
-  assert(0 && "buf_ans requires a more complicated startup procedure");
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
   aom_daala_start_encode(bc, buffer);
 #else
   aom_dk_start_encode(bc, buffer);
@@ -80,10 +72,7 @@ static INLINE void aom_start_encode(aom_writer *bc, uint8_t *buffer) {
 }
 
 static INLINE void aom_stop_encode(aom_writer *bc) {
-#if CONFIG_ANS
-  (void)bc;
-  assert(0 && "buf_ans requires a more complicated shutdown procedure");
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
   aom_daala_stop_encode(bc);
 #else
   aom_dk_stop_encode(bc);
@@ -91,9 +80,7 @@ static INLINE void aom_stop_encode(aom_writer *bc) {
 }
 
 static INLINE void aom_write(aom_writer *br, int bit, int probability) {
-#if CONFIG_ANS
-  buf_rabs_write(br, bit, probability);
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
   aom_daala_write(br, bit, probability);
 #else
   aom_dk_write(br, bit, probability);
@@ -111,9 +98,7 @@ static INLINE void aom_write_record(aom_writer *br, int bit, int probability,
 }
 
 static INLINE void aom_write_bit(aom_writer *w, int bit) {
-#if CONFIG_ANS
-  buf_rabs_write_bit(w, bit);
-#elif CONFIG_DAALA_EC && CONFIG_RAWBITS
+#if CONFIG_DAALA_EC && CONFIG_RAWBITS
   // Note this uses raw bits and is not the same as aom_daala_write(r, 128);
   aom_daala_write_bit(w, bit);
 #else
@@ -161,13 +146,7 @@ static INLINE void aom_write_tree_as_bits_record(
 #if CONFIG_EC_MULTISYMBOL
 static INLINE void aom_write_cdf(aom_writer *w, int symb,
                                  const aom_cdf_prob *cdf, int nsymbs) {
-#if CONFIG_ANS
-  (void)nsymbs;
-  assert(cdf);
-  const aom_cdf_prob cum_prob = symb > 0 ? cdf[symb - 1] : 0;
-  const aom_cdf_prob prob = cdf[symb] - cum_prob;
-  buf_rans_write(w, cum_prob, prob);
-#elif CONFIG_DAALA_EC
+#if CONFIG_DAALA_EC
   daala_write_symbol(w, symb, cdf, nsymbs);
 #else
 #error \

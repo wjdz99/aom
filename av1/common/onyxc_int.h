@@ -16,9 +16,6 @@
 #include "./av1_rtcd.h"
 #include "aom/internal/aom_codec_internal.h"
 #include "aom_util/aom_thread.h"
-#if CONFIG_ANS
-#include "aom_dsp/ans.h"
-#endif
 #include "av1/common/alloccommon.h"
 #include "av1/common/av1_loopfilter.h"
 #include "av1/common/entropy.h"
@@ -430,9 +427,6 @@ typedef struct AV1Common {
   int valid_for_referencing[REF_FRAMES];
   int refresh_mask;
   int invalid_delta_frame_id_minus1;
-#endif
-#if CONFIG_ANS && ANS_MAX_SYMBOLS
-  int ans_window_size_log2;
 #endif
 } AV1_COMMON;
 

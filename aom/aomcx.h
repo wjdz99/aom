@@ -494,18 +494,6 @@ enum aome_enc_control_id {
   * Supported in codecs: AV1
   */
   AV1E_SET_TILE_DEPENDENT_ROWS,
-
-  /*!\brief Codec control function to set the number of symbols in an ANS data
-   * window.
-   *
-   * The number of ANS symbols (both boolean and non-booleans alphabets) in an
-   * ANS data window is set to 1 << value.
-   *
-   * \note Valid range: [8, 23]
-   *
-   * Experiment: ANS
-   */
-  AV1E_SET_ANS_WINDOW_SIZE_LOG2,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -710,9 +698,6 @@ AOM_CTRL_USE_TYPE(AV1E_SET_TARGET_LEVEL, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_GET_LEVEL, int *)
 #define AOM_CTRL_AV1E_GET_LEVEL
-
-AOM_CTRL_USE_TYPE(AV1E_SET_ANS_WINDOW_SIZE_LOG2, unsigned int)
-#define AOM_CTRL_AV1E_SET_ANS_WINDOW_SIZE_LOG2
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
 #ifdef __cplusplus

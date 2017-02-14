@@ -40,9 +40,6 @@
 #include "av1/common/seg_common.h"
 #include "av1/common/tile_common.h"
 
-#if CONFIG_ANS
-#include "aom_dsp/buf_ans.h"
-#endif  // CONFIG_ANS
 #include "av1/encoder/bitstream.h"
 #include "av1/encoder/cost.h"
 #include "av1/encoder/encodemv.h"
@@ -3938,11 +3935,7 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
                             unsigned int *max_tile_col_size) {
 #endif
   const AV1_COMMON *const cm = &cpi->common;
-#if CONFIG_ANS
-  struct BufAnsCoder *buf_ans = &cpi->buf_ans;
-#else
   aom_writer mode_bc;
-#endif  // CONFIG_ANS
   int tile_row, tile_col;
   TOKENEXTRA *(*const tok_buffers)[MAX_TILE_COLS] = cpi->tile_tok;
   TileBufferEnc(*const tile_buffers)[MAX_TILE_COLS] = cpi->tile_buffers;
@@ -4005,19 +3998,12 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
       // Is CONFIG_EXT_TILE = 1, every tile in the row has a header,
       // even for the last one, unless no tiling is used at all.
       total_size += data_offset;
-#if !CONFIG_ANS
+
       aom_start_encode(&mode_bc, buf->data + data_offset);
       write_modes(cpi, &tile_info, &mode_bc, &tok, tok_end);
       assert(tok == tok_end);
       aom_stop_encode(&mode_bc);
       tile_size = mode_bc.pos;
-#else
-      buf_ans_write_init(buf_ans, buf->data + data_offset);
-      write_modes(cpi, &tile_info, buf_ans, &tok, tok_end);
-      assert(tok == tok_end);
-      aom_buf_ans_flush(buf_ans);
-      tile_size = buf_ans_write_end(buf_ans);
-#endif  // !CONFIG_ANS
 
       buf->size = tile_size;
 
@@ -4166,16 +4152,8 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
       // The last tile does not have a header.
       if (!is_last_tile) total_size += 4;
 
-#if CONFIG_ANS
-      buf_ans_write_init(buf_ans, dst + total_size);
-      write_modes(cpi, &tile_info, buf_ans, &tok, tok_end);
-      assert(tok == tok_end);
-      aom_buf_ans_flush(buf_ans);
-      tile_size = buf_ans_write_end(buf_ans);
-#else
       aom_start_encode(&mode_bc, dst + total_size);
 #if CONFIG_PVQ
-      // NOTE: This will not work with CONFIG_ANS turned on.
       od_adapt_ctx_reset(&cpi->td.mb.daala_enc.state.adapt, 0);
       cpi->td.mb.pvq_q = &this_tile->pvq_q;
 #endif
@@ -4188,7 +4166,6 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
       assert(tok == tok_end);
       aom_stop_encode(&mode_bc);
       tile_size = mode_bc.pos;
-#endif  // CONFIG_ANS
 #if CONFIG_PVQ
       cpi->td.mb.pvq_q = NULL;
 #endif
@@ -4397,11 +4374,6 @@ static void write_uncompressed_header(AV1_COMP *cpi,
     write_sync_code(wb);
     write_bitdepth_colorspace_sampling(cm, wb);
     write_frame_size(cm, wb);
-#if CONFIG_ANS && ANS_MAX_SYMBOLS
-    assert(cpi->common.ans_window_size_log2 >= 8);
-    assert(cpi->common.ans_window_size_log2 < 24);
-    aom_wb_write_literal(wb, cpi->common.ans_window_size_log2 - 8, 4);
-#endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
 #if CONFIG_PALETTE
     aom_wb_write_bit(wb, cm->allow_screen_content_tools);
 #endif  // CONFIG_PALETTE
@@ -4437,12 +4409,6 @@ static void write_uncompressed_header(AV1_COMP *cpi,
       aom_wb_write_literal(wb, get_refresh_mask(cpi), REF_FRAMES);
 #endif  // CONFIG_EXT_REFS
       write_frame_size(cm, wb);
-
-#if CONFIG_ANS && ANS_MAX_SYMBOLS
-      assert(cpi->common.ans_window_size_log2 >= 8);
-      assert(cpi->common.ans_window_size_log2 < 24);
-      aom_wb_write_literal(wb, cpi->common.ans_window_size_log2 - 8, 4);
-#endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
     } else {
       MV_REFERENCE_FRAME ref_frame;
 
@@ -4668,15 +4634,9 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
   const int probwt = 1;
 #endif
 
-#if CONFIG_ANS
-  int header_size;
-  header_bc = &cpi->buf_ans;
-  buf_ans_write_init(header_bc, data);
-#else
   aom_writer real_header_bc;
   header_bc = &real_header_bc;
   aom_start_encode(header_bc, data);
-#endif
 
 #if CONFIG_LOOP_RESTORATION
   encode_restoration(cm, header_bc);
@@ -4888,16 +4848,9 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
   av1_set_mode_cdfs(cm);
 #endif
 #endif
-#if CONFIG_ANS
-  aom_buf_ans_flush(header_bc);
-  header_size = buf_ans_write_end(header_bc);
-  assert(header_size <= 0xffff);
-  return header_size;
-#else
   aom_stop_encode(header_bc);
   assert(header_bc->pos <= 0xffff);
   return header_bc->pos;
-#endif  // CONFIG_ANS
 }
 
 static int choose_size_bytes(uint32_t size, int spare_msbs) {
@@ -5118,10 +5071,6 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
   aom_wb_write_literal(&saved_wb, compressed_header_size, 16);
 #else
   data += data_size;
-#endif
-#if CONFIG_ANS && ANS_REVERSE
-  // Avoid aliasing the superframe index
-  *data++ = 0;
 #endif
   *size = data - dst;
 }
