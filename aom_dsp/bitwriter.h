@@ -242,7 +242,7 @@ static INLINE void aom_write_tree_as_cdf(aom_writer *w,
 static INLINE void aom_write_tree(aom_writer *w, const aom_tree_index *tree,
                                   const aom_prob *probs, int bits, int len,
                                   aom_tree_index i) {
-#if CONFIG_EC_MULTISYMBOL
+#if 0 && CONFIG_EC_MULTISYMBOL
   aom_write_tree_as_cdf(w, tree, probs, bits, len, i);
 #else
   aom_write_tree_as_bits(w, tree, probs, bits, len, i);
