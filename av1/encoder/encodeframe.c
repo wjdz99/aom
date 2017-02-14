@@ -1025,10 +1025,8 @@ static void update_global_motion_used(PREDICTION_MODE mode, BLOCK_SIZE bsize,
       || mode == ZERO_ZEROMV
 #endif
       ) {
-    const int num_4x4s = bsize >= BLOCK_8X8
-                             ? num_4x4_blocks_wide_lookup[bsize] *
-                                   num_4x4_blocks_high_lookup[bsize]
-                             : 1;
+    const int num_4x4s =
+        num_4x4_blocks_wide_lookup[bsize] * num_4x4_blocks_high_lookup[bsize];
     int ref;
     for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
       ++cpi->global_motion_used[mbmi->ref_frame[ref]][0];

@@ -4911,20 +4911,24 @@ static int get_interinter_compound_type_bits(BLOCK_SIZE bsize,
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_GLOBAL_MOTION
-static int GLOBAL_MOTION_RATE(const AV1_COMP *const cpi, int ref) {
-  static const int gm_amortization_blks[TRANS_TYPES] = { 4, 6, 8, 10, 12 };
+static int GLOBAL_MOTION_RATE(const AV1_COMP *const cpi, int ref,
+                              BLOCK_SIZE bsize) {
+  static const int gm_amortization_blks[TRANS_TYPES] = { 0, 60, 120, 180, 240 };
   static const int gm_params_cost[TRANS_TYPES] = {
     GM_IDENTITY_BITS, GM_TRANSLATION_BITS, GM_ROTZOOM_BITS,
     GM_AFFINE_BITS,   GM_HOMOGRAPHY_BITS,
   };
-  const WarpedMotionParams *gm = &cpi->common.global_motion[(ref)];
+  const WarpedMotionParams *gm = &cpi->common.global_motion[ref];
+  const int num_4x4s =
+      num_4x4_blocks_wide_lookup[bsize] * num_4x4_blocks_high_lookup[bsize];
   assert(gm->wmtype < GLOBAL_TRANS_TYPES);
-  if (cpi->global_motion_used[ref][0] >= gm_amortization_blks[gm->wmtype]) {
+  if (cpi->global_motion_used[ref][1] >= gm_amortization_blks[gm->wmtype]) {
     return 0;
   } else {
     const int cost = (gm_params_cost[gm->wmtype] << AV1_PROB_COST_SHIFT) +
                      cpi->gmtype_cost[gm->wmtype];
-    return cost / gm_amortization_blks[gm->wmtype];
+    return (cost * num_4x4s + (gm_amortization_blks[gm->wmtype] / 2)) /
+           gm_amortization_blks[gm->wmtype];
   }
 }
 #endif  // CONFIG_GLOBAL_MOTION
@@ -4998,7 +5002,8 @@ static int set_and_cost_bmi_mvs(const AV1_COMP *const cpi, MACROBLOCK *x,
                 &cpi->common.global_motion[mbmi->ref_frame[ref]],
                 cpi->common.allow_high_precision_mv)
                 .as_int;
-        thismvcost += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[ref]);
+        thismvcost +=
+            GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[ref], mbmi->sb_type);
 #else
         this_mv[ref].as_int = 0;
 #endif  // CONFIG_GLOBAL_MOTION
@@ -5059,8 +5064,8 @@ static int set_and_cost_bmi_mvs(const AV1_COMP *const cpi, MACROBLOCK *x,
           gm_get_motion_vector(&cpi->common.global_motion[mbmi->ref_frame[1]],
                                cpi->common.allow_high_precision_mv)
               .as_int;
-      thismvcost += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[0]) +
-                    GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[1]);
+      thismvcost += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[0], mbmi->sb_type) +
+                    GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[1], mbmi->sb_type);
 #else
       this_mv[0].as_int = 0;
       this_mv[1].as_int = 0;
@@ -8903,9 +8908,9 @@ static int64_t handle_inter_mode(
         || this_mode == ZERO_ZEROMV
 #endif  // CONFIG_EXT_INTER
         ) {
-      rd_stats->rate += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[0]);
+      rd_stats->rate += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[0], bsize);
       if (is_comp_pred)
-        rd_stats->rate += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[1]);
+        rd_stats->rate += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[1], bsize);
       if (is_nontrans_global_motion(xd)) {
         rd_stats->rate -= rs;
 #if CONFIG_DUAL_FILTER
