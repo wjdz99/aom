@@ -655,7 +655,7 @@ typedef struct AV1_COMP {
 #if CONFIG_GLOBAL_MOTION
   // Stores number of prediction blocks using global motion and the
   // number of 4x4 blocks using it per reference frame.
-  int global_motion_used[TOTAL_REFS_PER_FRAME][2];
+  int global_motion_used[TOTAL_REFS_PER_FRAME][MAX_GLOBAL_MOTION_MODELS][2];
   int global_motion_search_done;
 #endif
 #if CONFIG_REFERENCE_BUFFER

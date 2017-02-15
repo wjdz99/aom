@@ -1031,8 +1031,8 @@ static void update_global_motion_used(PREDICTION_MODE mode, BLOCK_SIZE bsize,
                              : 1;
     int ref;
     for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
-      ++cpi->global_motion_used[mbmi->ref_frame[ref]][0];
-      cpi->global_motion_used[mbmi->ref_frame[ref]][1] += num_4x4s;
+      ++cpi->global_motion_used[mbmi->ref_frame[ref]][mbmi->motion_vector_used[ref]][0];
+      cpi->global_motion_used[mbmi->ref_frame[ref]][mbmi->motion_vector_used[ref]][1] += num_4x4s;
     }
   }
 }
@@ -4996,38 +4996,43 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   if (cpi->common.frame_type == INTER_FRAME && cpi->Source &&
       !cpi->global_motion_search_done) {
     YV12_BUFFER_CONFIG *ref_buf;
-    int frame;
+    int frame, num_models, i;
     double erroradvantage = 0;
-    double params[8] = { 0, 0, 1, 0, 0, 1, 0, 0 };
+    double params[8 * MAX_GLOBAL_MOTION_MODELS];
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
       ref_buf = get_ref_frame_buffer(cpi, frame);
       if (ref_buf) {
         TransformationType model;
         aom_clear_system_state();
         for (model = ROTZOOM; model < GLOBAL_TRANS_TYPES; ++model) {
-          if (compute_global_motion_feature_based(model, cpi->Source, ref_buf,
+          if (num_models =
+                compute_global_motion_feature_based(model, cpi->Source, ref_buf,
 #if CONFIG_AOM_HIGHBITDEPTH
                                                   cpi->common.bit_depth,
 #endif  // CONFIG_AOM_HIGHBITDEPTH
                                                   params)) {
-            convert_model_to_params(params, &cm->global_motion[frame]);
-            if (cm->global_motion[frame].wmtype != IDENTITY) {
-              erroradvantage = refine_integerized_param(
-                  &cm->global_motion[frame], cm->global_motion[frame].wmtype,
+            for (i = 0; i < num_models; ++i) {
+              params += 8;
+              convert_model_to_params(params, &cm->global_motion[frame][i]);
+              if (cm->global_motion[frame][i].wmtype != IDENTITY) {
+                erroradvantage = refine_integerized_param(
+                    &cm->global_motion[frame][i],
+                    cm->global_motion[frame][i].wmtype,
 #if CONFIG_AOM_HIGHBITDEPTH
-                  xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
+                    xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
 #endif  // CONFIG_AOM_HIGHBITDEPTH
-                  ref_buf->y_buffer, ref_buf->y_width, ref_buf->y_height,
-                  ref_buf->y_stride, cpi->Source->y_buffer,
-                  cpi->Source->y_width, cpi->Source->y_height,
-                  cpi->Source->y_stride, 3);
-              if (erroradvantage >
-                  gm_advantage_thresh[cm->global_motion[frame].wmtype]) {
-                set_default_gmparams(&cm->global_motion[frame]);
+                    ref_buf->y_buffer, ref_buf->y_width, ref_buf->y_height,
+                    ref_buf->y_stride, cpi->Source->y_buffer,
+                    cpi->Source->y_width, cpi->Source->y_height,
+                    cpi->Source->y_stride, 3);
+                if (erroradvantage >
+                    gm_advantage_thresh[cm->global_motion[frame][i].wmtype]) {
+                  set_default_gmparams(&cm->global_motion[frame][i]);
+                }
               }
             }
           }
-          if (cm->global_motion[frame].wmtype != IDENTITY) break;
+          if (cm->global_motion[frame][i].wmtype != IDENTITY) break;
         }
         aom_clear_system_state();
       }

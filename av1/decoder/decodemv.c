@@ -1328,11 +1328,11 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     }
     case ZEROMV: {
 #if CONFIG_GLOBAL_MOTION
-      mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
+      mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]][mbmi->motion_vector_used[0]],
                                           cm->allow_high_precision_mv)
                          .as_int;
       if (is_compound)
-        mv[1].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[1]],
+        mv[1].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[1]][mbmi->motion_vector_used[1]],
                                             cm->allow_high_precision_mv)
                            .as_int;
 #else
@@ -1481,10 +1481,10 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     case ZERO_ZEROMV: {
       assert(is_compound);
 #if CONFIG_GLOBAL_MOTION
-      mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
+      mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]][mbmi->motion_vector_used[0]],
                                           cm->allow_high_precision_mv)
                          .as_int;
-      mv[1].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[1]],
+      mv[1].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[1]][mbmi->motion_vector_used[1]],
                                           cm->allow_high_precision_mv)
                          .as_int;
 #else
@@ -1591,11 +1591,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       int_mv zeromv[2];
       av1_set_ref_frame(rf, ref_frame);
 #if CONFIG_GLOBAL_MOTION
-      zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[rf[0]],
+      zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[rf[0]][mbmi->motion_vector_used[0]],
                                               cm->allow_high_precision_mv)
                              .as_int;
       zeromv[1].as_int = (rf[1] != NONE_FRAME)
-                             ? gm_get_motion_vector(&cm->global_motion[rf[1]],
+                             ? gm_get_motion_vector(&cm->global_motion[rf[1]][mbmi->motion_vector_used[1]],
                                                     cm->allow_high_precision_mv)
                                    .as_int
                              : 0;

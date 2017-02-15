@@ -35,6 +35,7 @@ typedef struct mv32 {
 } MV32;
 
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
+#define MAX_GLOBAL_MOTION_MODELS 1
 // Bits of precision used for the model
 #define WARPEDMODEL_PREC_BITS 16
 #define WARPEDMODEL_ROW3HOMO_PREC_BITS 16

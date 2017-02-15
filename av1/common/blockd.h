@@ -321,6 +321,12 @@ typedef struct {
 #endif  // CONFIG_PALETTE
 
 // Only for INTER blocks
+#if CONFIG_GLOBAL_MOTION
+  // indicates which motion vector is used if multiple motion
+  // models are allowed per reference. This is a list of 2
+  // to handle compound modes
+  int motion_vector_used[2];
+#endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_DUAL_FILTER
   InterpFilter interp_filter[4];
 #else
@@ -551,7 +557,7 @@ typedef struct macroblockd {
 
   struct aom_internal_error_info *error_info;
 #if CONFIG_GLOBAL_MOTION
-  WarpedMotionParams *global_motion;
+  WarpedMotionParams (*global_motion)[MAX_GLOBAL_MOTION_MODELS];
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_DELTA_Q
   int prev_qindex;

@@ -4483,18 +4483,24 @@ static void read_global_motion_params(WarpedMotionParams *params,
 }
 
 static void read_global_motion(AV1_COMMON *cm, aom_reader *r) {
-  int frame;
+  int frame, i;
+  memset(cm->num_global_motion, 0, sizeof(cm->num_global_motion));
+  memset(cm->global_motion, 0, sizeof(cm->global_motion));
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
-    read_global_motion_params(&cm->global_motion[frame],
-                              cm->fc->global_motion_types_prob, r);
-    /*
-    printf("Dec Ref %d [%d/%d]: %d %d %d %d\n",
-           frame, cm->current_video_frame, cm->show_frame,
-           cm->global_motion[frame].wmmat[0],
-           cm->global_motion[frame].wmmat[1],
-           cm->global_motion[frame].wmmat[2],
-           cm->global_motion[frame].wmmat[3]);
+    //TODO(sarahparker) this value will need to be read from the bitstream
+    cm->num_global_motion = 1;
+    for (i = 0; i < cm->num_global_motion[frame]; ++i) {
+      read_global_motion_params(&cm->global_motion[frame][i],
+                                cm->fc->global_motion_types_prob, r);
+      /*
+      printf("Dec Ref %d [%d/%d]: %d %d %d %d\n",
+             frame, cm->current_video_frame, cm->show_frame,
+             cm->global_motion[frame][i].wmmat[0],
+             cm->global_motion[frame][i].wmmat[1],
+             cm->global_motion[frame][i].wmmat[2],
+             cm->global_motion[frame][i].wmmat[3]);
            */
+    }
   }
 }
 #endif  // CONFIG_GLOBAL_MOTION
