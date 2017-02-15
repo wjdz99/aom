@@ -1,0 +1,440 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c20982a_27ffa57c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "In short, explain how this change helps.",
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fb1a1a4_6167514d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1511,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "Can you try to build \u0026 run an encode/decode with both \"CONFIG_COEF_INTERLEAVE\" and \"CONFIG_PALETTE\" to make sure it works?",
+      "range": {
+        "startLine": 1511,
+        "startChar": 26,
+        "endLine": 1511,
+        "endChar": 0
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17d4c4e1_6200c349",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "Do you need \" \u0026\u0026 !CONFIG_PALETTE_THROUGHPUT\" here?",
+      "range": {
+        "startLine": 1546,
+        "startChar": 18,
+        "endLine": 1546,
+        "endChar": 0
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f4a284c_def0a116",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1639,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "update",
+      "range": {
+        "startLine": 1639,
+        "startChar": 0,
+        "endLine": 1639,
+        "endChar": 25
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e52e843_cf9132f6",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "Declare both these variables where they are used",
+      "range": {
+        "startLine": 459,
+        "startChar": 6,
+        "endLine": 459,
+        "endChar": 15
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "890f9058_429f5b55",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 460,
+        "startChar": 2,
+        "endLine": 460,
+        "endChar": 5
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54c33d9e_4649a2a9",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "Can be declared const here.",
+      "range": {
+        "startLine": 461,
+        "startChar": 2,
+        "endLine": 461,
+        "endChar": 16
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e102f14c_8140f4f9",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "this too",
+      "range": {
+        "startLine": 462,
+        "startChar": 2,
+        "endLine": 462,
+        "endChar": 17
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "154ae7ce_d650d844",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "Declare const here",
+      "range": {
+        "startLine": 465,
+        "startChar": 2,
+        "endLine": 465,
+        "endChar": 13
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5dcc8e8_9947b054",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be plane_block_width? (here and elsewhere in this function)?",
+      "range": {
+        "startLine": 465,
+        "startChar": 52,
+        "endLine": 465,
+        "endChar": 74
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e690024_e5bab9f7",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "declare const",
+      "range": {
+        "startLine": 466,
+        "startChar": 2,
+        "endLine": 466,
+        "endChar": 14
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46049ae8_b452a5c4",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "similarly, plane_block_height here?",
+      "range": {
+        "startLine": 466,
+        "startChar": 54,
+        "endLine": 466,
+        "endChar": 76
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f9e5ecd_0182272d",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 939,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "Can you explain why this change is needed?",
+      "range": {
+        "startLine": 939,
+        "startChar": 18,
+        "endLine": 939,
+        "endChar": 46
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bef9e9eb_633c2f4f",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2038,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "Can you explain this change?",
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a528d81_62db712a",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2190,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "This is a very complicated line to read. Create local const variables for \"(bkw \u003c\u003c tx_size_wide_log2[0])\" and each of the parameters to clarify the code.",
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8e2a5cc_2be6d194",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2209,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "The code from 2208 - 2241 looks very similar to the one above from 2179 - 2201.\n\nCan we refactor it into a function?",
+      "range": {
+        "startLine": 2208,
+        "startChar": 7,
+        "endLine": 2209,
+        "endChar": 39
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52a1769a_c014088d",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "Why not use av1_get_block_dimensions() here?",
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "475ae206_7ae92090",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "\"encoding\"",
+      "range": {
+        "startLine": 489,
+        "startChar": 44,
+        "endLine": 489,
+        "endChar": 52
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "172dc5af_2edf8dc0",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "redundant \"#if ...\" inside the same \"#if ...\"",
+      "range": {
+        "startLine": 666,
+        "startChar": 4,
+        "endLine": 666,
+        "endChar": 29
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b82790ec_83708887",
+        "filename": "av1/encoder/tokenize.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-15T22:59:15Z",
+      "side": 1,
+      "message": "This should be declared only when \"!CONFIG_PALETTE_THROUGHPUT\", right?",
+      "range": {
+        "startLine": 78,
+        "startChar": 5,
+        "endLine": 78,
+        "endChar": 28
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
