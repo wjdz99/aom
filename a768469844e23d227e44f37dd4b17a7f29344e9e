@@ -16,6 +16,24 @@
       "revId": "a768469844e23d227e44f37dd4b17a7f29344e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1bba29a_669303bd",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-02-15T17:58:11Z",
+      "side": 1,
+      "message": "Docs say[1,2] this is the output of uname -p (note that it appears to be -m on mac) on systems where uname is available, and the value of the PROCESSOR_ARCHITECTURE environment variable on windows.\n\nWhen cross compiling we\u0027ll be setting this directly in a toolchain file (... probably, haven\u0027t fully committed to going the toolchain file route). For now I\u0027m going to follow this path and see how things work for x86 mac builds.\n\n[1] https://cmake.org/cmake/help/v3.7/variable/CMAKE_HOST_SYSTEM_PROCESSOR.html\n[2] https://cmake.org/cmake/help/v3.7/variable/CMAKE_SYSTEM_PROCESSOR.html",
+      "parentUuid": "240d5f8e_0729e6ec",
+      "revId": "a768469844e23d227e44f37dd4b17a7f29344e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
