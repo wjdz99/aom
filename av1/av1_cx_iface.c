@@ -123,7 +123,7 @@ static struct av1_extracfg default_extra_cfg = {
 #endif
   1,                            // frame_parallel_decoding_mode
   NO_AQ,                        // aq_mode
-  0,                            // frame_periodic_delta_q
+  CONFIG_XIPHRC,                // frame_periodic_delta_q
   AOM_BITS_8,                   // Bit depth
   AOM_CONTENT_DEFAULT,          // content
   AOM_CS_UNKNOWN,               // color space
@@ -212,6 +212,10 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(cfg, g_threads, 64);
   RANGE_CHECK_HI(cfg, g_lag_in_frames, MAX_LAG_BUFFERS);
   RANGE_CHECK(cfg, rc_end_usage, AOM_VBR, AOM_Q);
+#if CONFIG_XIPHRC
+  if (cfg->rc_end_usage == AOM_CQ || cfg->rc_end_usage == AOM_CBR)
+    ERROR("The xiphrc experiment does not support CQ or CBR modes");
+#endif
   RANGE_CHECK_HI(cfg, rc_undershoot_pct, 100);
   RANGE_CHECK_HI(cfg, rc_overshoot_pct, 100);
   RANGE_CHECK_HI(cfg, rc_2pass_vbr_bias_pct, 100);
