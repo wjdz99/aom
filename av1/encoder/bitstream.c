@@ -4244,6 +4244,10 @@ static void write_uncompressed_header(AV1_COMP *cpi,
   write_sequence_header(&cpi->seq_params);
 #endif
 
+#if CONFIG_EXT_TX
+  aom_wb_write_bit(wb, cm->reduced_tx_set_used);
+#endif  // CONFIG_EXT_TX
+
   aom_wb_write_literal(wb, AOM_FRAME_MARKER, 2);
 
   write_profile(cm->profile, wb);

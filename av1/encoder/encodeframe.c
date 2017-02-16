@@ -5135,6 +5135,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
 void av1_encode_frame(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
+#if CONFIG_EXT_TX
+  // Indicates whether or not to used a default reduced set for ext-tx
+  // rather than the potential full set of 16 transforms
+  cm->reduced_tx_set_used = 0;
+#endif  // CONFIG_EXT_TX
 
   // In the longer term the encoder should be generalized to match the
   // decoder such that we allow compound where one of the 3 buffers has a

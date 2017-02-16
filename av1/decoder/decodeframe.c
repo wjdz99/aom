@@ -4004,6 +4004,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   read_sequence_header(&pbi->seq_params);
 #endif
 
+#if CONFIG_EXT_TX
+  cm->reduced_tx_set_used = aom_rb_read_bit(rb);
+#endif  // CONFIG_EXT_TX
+
   cm->last_frame_type = cm->frame_type;
   cm->last_intra_only = cm->intra_only;
 
