@@ -2226,8 +2226,10 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
       reset_skip_context(xd, bsize);
     } else {
 #if CONFIG_EXT_TX
-      if (get_ext_tx_types(supertx_size, bsize, 1) > 1) {
-        int eset = get_ext_tx_set(supertx_size, bsize, 1);
+      if (get_ext_tx_types(supertx_size, bsize, 1, cm->reduced_tx_set_used) >
+          1) {
+        int eset =
+            get_ext_tx_set(supertx_size, bsize, 1, cm->reduced_tx_set_used);
         if (eset > 0) {
           txfm = aom_read_tree(r, av1_ext_tx_inter_tree[eset],
                                cm->fc->inter_ext_tx_prob[eset][supertx_size],
@@ -4003,6 +4005,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   /* TODO: Move outside frame loop or inside key-frame branch */
   read_sequence_header(&pbi->seq_params);
 #endif
+
+#if CONFIG_EXT_TX
+  cm->reduced_tx_set_used = aom_rb_read_bit(rb);
+#endif  // CONFIG_EXT_TX
 
   cm->last_frame_type = cm->frame_type;
   cm->last_intra_only = cm->intra_only;
