@@ -456,9 +456,14 @@ static void write_selected_tx_size(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         IMPLIES(is_rect_tx(tx_size), tx_size == max_txsize_rect_lookup[bsize]));
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
 
+#if CONFIG_EC_MULTISYMBOL
+    aom_write_symbol(w, depth, cm->fc->tx_size_cdf[tx_size_cat][tx_size_ctx],
+                     tx_size_cat + 2);
+#else
     av1_write_token(w, av1_tx_size_tree[tx_size_cat],
                     cm->fc->tx_size_probs[tx_size_cat][tx_size_ctx],
                     &tx_size_encodings[tx_size_cat][depth]);
+#endif
   }
 }
 
