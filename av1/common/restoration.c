@@ -116,7 +116,26 @@ static void GenDomainTxfmRFVtable() {
 }
 #endif  // USE_DOMAINTXFMRF
 
+#define MAX_RADIUS 3  // Only 1, 2, 3 allowed
+#define MAX_EPS 80    // Max value of eps
+#define MAX_NELEM ((2 * MAX_RADIUS + 1) * (2 * MAX_RADIUS + 1))
+#define SGRPROJ_MTABLE_BITS 16
+
+// TODO(debargha): This table can be substantially reduced since only a few
+// values are actually used.
+static int sgrproj_mtable[MAX_EPS][MAX_NELEM];
+
+static void GenSgrprojVtable() {
+  int e, n;
+  for (e = 1; e <= MAX_EPS; ++e)
+    for (n = 1; n <= MAX_NELEM; ++n) {
+      const int n2e = n * n * e;
+      sgrproj_mtable[e - 1][n - 1] = (((1 << SGRPROJ_MTABLE_BITS) + n2e) / n2e);
+    }
+}
+
 void av1_loop_restoration_precal() {
+  GenSgrprojVtable();
 #if USE_DOMAINTXFMRF
   GenDomainTxfmRFVtable();
 #endif  // USE_DOMAINTXFMRF
@@ -554,7 +573,39 @@ void decode_xq(int *xqd, int *xq) {
   xq[1] = (1 << SGRPROJ_PRJ_BITS) - xq[0] - xqd[1];
 }
 
+static const uint8_t x_by_xplus1[256] = {
+  0,   128, 171, 192, 205, 213, 219, 224, 228, 230, 233, 235, 236, 238, 239,
+  240, 241, 242, 243, 243, 244, 244, 245, 245, 246, 246, 247, 247, 247, 247,
+  248, 248, 248, 248, 249, 249, 249, 249, 249, 250, 250, 250, 250, 250, 250,
+  250, 251, 251, 251, 251, 251, 251, 251, 251, 251, 251, 252, 252, 252, 252,
+  252, 252, 252, 252, 252, 252, 252, 252, 252, 252, 252, 252, 252, 253, 253,
+  253, 253, 253, 253, 253, 253, 253, 253, 253, 253, 253, 253, 253, 253, 253,
+  253, 253, 253, 253, 253, 253, 253, 253, 253, 253, 253, 253, 254, 254, 254,
+  254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254,
+  254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254,
+  254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254,
+  254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254,
+  254, 254, 254, 254, 254, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255,
+};
 #define APPROXIMATE_SGR 1
+
+static int32_t get_sgrproj_scale(uint32_t s, int n, int eps) {
+  /*
+  const uint32_t q = (uint32_t)(s + n * n * eps);
+  return (int32_t)(((uint64_t)s << SGRPROJ_SGR_BITS) + (q >> 1)) / q;
+  */
+  const int p = sgrproj_mtable[eps - 1][n - 1];
+  const int z =
+      (s * p + (1 << (SGRPROJ_MTABLE_BITS - 1))) >> SGRPROJ_MTABLE_BITS;
+  return x_by_xplus1[AOMMIN(z, 255)];
+}
+
 void av1_selfguided_restoration(int32_t *dgd, int width, int height, int stride,
                                 int bit_depth, int r, int eps,
                                 int32_t *tmpbuf) {
@@ -591,9 +642,8 @@ void av1_selfguided_restoration(int32_t *dgd, int width, int height, int stride,
       // platforms with a 64-bit by 32-bit divide unit (eg, x86)
       // can do the division by q more efficiently.
       const uint32_t p = (uint32_t)((uint64_t)A[k] * n - (uint64_t)B[k] * B[k]);
-      const uint32_t q = (uint32_t)(p + n * n * eps);
       assert((uint64_t)A[k] * n - (uint64_t)B[k] * B[k] < (25 * 25U << 22));
-      A[k] = (int32_t)(((uint64_t)p << SGRPROJ_SGR_BITS) + (q >> 1)) / q;
+      A[k] = get_sgrproj_scale(p, n, eps);
       B[k] = ((SGRPROJ_SGR - A[k]) * B[k] + (n >> 1)) / n;
     }
   }
