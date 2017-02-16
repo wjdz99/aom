@@ -125,6 +125,7 @@ void av1_clpf_frame(const YV12_BUFFER_CONFIG *frame,
           : frame->y_buffer;
   uint8_t *dst_buffer;
 
+  strength >>= 1;
   int damping = 0;
   for (c = 0; c < MAX_SEGMENTS; c++)
     damping += av1_get_qindex(&cm->seg, c, cm->base_qindex);

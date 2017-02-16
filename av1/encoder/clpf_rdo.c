@@ -60,9 +60,9 @@ void aom_clpf_detect_multi_c(const uint8_t *rec, const uint8_t *org,
       const int F = rec[y * rstride + AOMMIN(width - 1, x + 2)];
       const int G = rec[AOMMIN(height - 1, y + 1) * rstride + x];
       const int H = rec[AOMMIN(height - 1, y + 2) * rstride + x];
-      const int delta1 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 1, damping);
-      const int delta2 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 2, damping);
-      const int delta3 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 4, damping);
+      const int delta1 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 2, damping);
+      const int delta2 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 4, damping);
+      const int delta3 = av1_clpf_sample(X, A, B, C, D, E, F, G, H, 8, damping);
       const int F1 = X + delta1;
       const int F2 = X + delta2;
       const int F3 = X + delta3;

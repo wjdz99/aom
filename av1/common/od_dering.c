@@ -343,7 +343,7 @@ void od_dering(int16_t *y, int16_t *in, int xdec,
   for (bi = 0; bi < dering_count; bi++) {
     by = dlist[bi].by;
     bx = dlist[bi].bx;
-    if (filter2_thresh[by][bx] == 0) continue;
+    if (filter2_thresh[by][bx] == 0 || 1) continue;
     (filter_dering_orthogonal[bsize - OD_LOG_BSIZE0])(
         &y[bi << 2 * bsize], 1 << bsize,
         &in[(by * OD_FILT_BSTRIDE << bsize) + (bx << bsize)],
