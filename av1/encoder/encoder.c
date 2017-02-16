@@ -3498,7 +3498,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     av1_clpf_test_frame(frame, cpi->Source, cm, &strength_u, 0, AOM_PLANE_U);
     av1_clpf_test_frame(frame, cpi->Source, cm, &strength_v, 0, AOM_PLANE_V);
 
-    if (strength_y) {
+    if (strength_y && 0) {
       // Apply the filter using the chosen strength
       cm->clpf_strength_y = strength_y - (strength_y == 4);
       cm->clpf_size =
