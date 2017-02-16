@@ -170,6 +170,7 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     nplanes = 3;
   else
     nplanes = 1;
+  nplanes = 1;
   nvsb = (cm->mi_rows + MAX_MIB_SIZE - 1) / MAX_MIB_SIZE;
   nhsb = (cm->mi_cols + MAX_MIB_SIZE - 1) / MAX_MIB_SIZE;
   av1_setup_dst_planes(xd->plane, frame, 0, 0);
