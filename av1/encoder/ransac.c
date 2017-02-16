@@ -117,7 +117,7 @@ static int get_rand_indices(int npoints, int minpts, int *indices,
 }
 
 static int ransac(int *matched_points, int npoints, int *number_of_inliers,
-                  int *best_inlier_mask, double *best_params, const int minpts,
+                  double *best_params, const int minpts,
                   IsDegenerateFunc is_degenerate,
                   FindTransformationFunc find_transformation,
                   ProjectPointsDoubleFunc projectpoints) {
@@ -146,7 +146,6 @@ static int ransac(int *matched_points, int npoints, int *number_of_inliers,
   double *corners1;
   double *corners2;
   double *image1_coord;
-  int *inlier_mask;
 
   double *cnp1, *cnp2;
 
@@ -165,10 +164,9 @@ static int ransac(int *matched_points, int npoints, int *number_of_inliers,
   corners1 = (double *)aom_malloc(sizeof(*corners1) * npoints * 2);
   corners2 = (double *)aom_malloc(sizeof(*corners2) * npoints * 2);
   image1_coord = (double *)aom_malloc(sizeof(*image1_coord) * npoints * 2);
-  inlier_mask = (int *)aom_malloc(sizeof(*inlier_mask) * npoints);
 
   if (!(best_inlier_set1 && best_inlier_set2 && inlier_set1 && inlier_set2 &&
-        corners1 && corners2 && image1_coord && inlier_mask)) {
+        corners1 && corners2 && image1_coord)) {
     ret_val = 1;
     goto finish_ransac;
   }
@@ -223,8 +221,7 @@ static int ransac(int *matched_points, int npoints, int *number_of_inliers,
       double dy = image1_coord[i * 2 + 1] - corners2[i * 2 + 1];
       double distance = sqrt(dx * dx + dy * dy);
 
-      inlier_mask[i] = distance < inlier_threshold;
-      if (inlier_mask[i]) {
+      if (distance < inlier_threshold) {
         inlier_set1[num_inliers * 2] = corners1[i * 2];
         inlier_set1[num_inliers * 2 + 1] = corners1[i * 2 + 1];
         inlier_set2[num_inliers * 2] = corners2[i * 2];
@@ -254,8 +251,6 @@ static int ransac(int *matched_points, int npoints, int *number_of_inliers,
                num_inliers * 2 * sizeof(*best_inlier_set1));
         memcpy(best_inlier_set2, inlier_set2,
                num_inliers * 2 * sizeof(*best_inlier_set2));
-        memcpy(best_inlier_mask, inlier_mask,
-               npoints * sizeof(*best_inlier_mask));
 
         assert(npoints > 0);
         fracinliers = (double)num_inliers / (double)npoints;
@@ -281,7 +276,6 @@ finish_ransac:
   aom_free(corners1);
   aom_free(corners2);
   aom_free(image1_coord);
-  aom_free(inlier_mask);
   return ret_val;
 }
 
@@ -306,29 +300,29 @@ static int is_degenerate_homography(double *p) {
 }
 
 int ransac_translation(int *matched_points, int npoints, int *number_of_inliers,
-                       int *best_inlier_mask, double *best_params) {
-  return ransac(matched_points, npoints, number_of_inliers, best_inlier_mask,
-                best_params, 3, is_degenerate_translation, find_translation,
+                       double *best_params) {
+  return ransac(matched_points, npoints, number_of_inliers, best_params, 3,
+                is_degenerate_translation, find_translation,
                 project_points_double_translation);
 }
 
 int ransac_rotzoom(int *matched_points, int npoints, int *number_of_inliers,
-                   int *best_inlier_mask, double *best_params) {
-  return ransac(matched_points, npoints, number_of_inliers, best_inlier_mask,
-                best_params, 3, is_degenerate_affine, find_rotzoom,
+                   double *best_params) {
+  return ransac(matched_points, npoints, number_of_inliers, best_params, 3,
+                is_degenerate_affine, find_rotzoom,
                 project_points_double_rotzoom);
 }
 
 int ransac_affine(int *matched_points, int npoints, int *number_of_inliers,
-                  int *best_inlier_mask, double *best_params) {
-  return ransac(matched_points, npoints, number_of_inliers, best_inlier_mask,
-                best_params, 3, is_degenerate_affine, find_affine,
+                  double *best_params) {
+  return ransac(matched_points, npoints, number_of_inliers, best_params, 3,
+                is_degenerate_affine, find_affine,
                 project_points_double_affine);
 }
 
 int ransac_homography(int *matched_points, int npoints, int *number_of_inliers,
-                      int *best_inlier_mask, double *best_params) {
-  return ransac(matched_points, npoints, number_of_inliers, best_inlier_mask,
-                best_params, 4, is_degenerate_homography, find_homography,
+                      double *best_params) {
+  return ransac(matched_points, npoints, number_of_inliers, best_params, 4,
+                is_degenerate_homography, find_homography,
                 project_points_double_homography);
 }
