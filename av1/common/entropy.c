@@ -9,14 +9,15 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "./aom_config.h"
 #include "av1/common/entropy.h"
-#include "av1/common/blockd.h"
-#include "av1/common/onyxc_int.h"
-#include "av1/common/entropymode.h"
-#include "av1/common/scan.h"
-#include "aom_mem/aom_mem.h"
+#include "./aom_config.h"
 #include "aom/aom_integer.h"
+#include "aom_mem/aom_mem.h"
+#include "av1/common/blockd.h"
+#include "av1/common/coeff_cdf_tables.h"
+#include "av1/common/entropymode.h"
+#include "av1/common/onyxc_int.h"
+#include "av1/common/scan.h"
 
 // Unconstrained Node Tree
 /* clang-format off */
@@ -4658,10 +4659,30 @@ void av1_model_to_full_probs(const aom_prob *model, aom_prob *full) {
 }
 
 #if CONFIG_NEW_TOKENSET
-static void build_token_cdfs(const aom_prob *pdf_model,
+
+static void build_tail_cdfs( aom_cdf_prob cdf_tail[ENTROPY_TOKENS + 1],
+                             aom_cdf_prob cdf_head[ENTROPY_TOKENS + 1]) {
+
+  int probNZ, prob1, prob_idx, i;
+  int phead[6], sum, p;
+  for (i=0; i < 6; ++i) {
+    phead[i] = cdf_head[i] - (i==0 ? 0 : cdf_head[i-1]);
+  }
+  // Do the tail
+  probNZ = 32768 - phead[1 + ZERO_TOKEN] - phead[0];
+  prob1 = phead[1 + ONE_TOKEN_EOB] + phead[1 + ONE_TOKEN_NEOB];
+  prob_idx = AOMMIN(COEFF_PROB_MODELS - 1, AOMMAX(0, ((256 * prob1) / probNZ) - 1));
+
+  sum = 0;
+  for (i = 0; i < ENTROPY_TOKENS - 3; ++i) {
+    p = av1_pareto8_tail_probs[prob_idx][i];
+    cdf_tail[i] = sum += p;
+  }
+}
+
+static void build_head_cdfs(const aom_prob *pdf_model,
                              const aom_prob *blockz_model,
-                             aom_cdf_prob cdf_tail[ENTROPY_TOKENS],
-                             aom_cdf_prob cdf_head[ENTROPY_TOKENS]) {
+                             aom_cdf_prob cdf_head[ENTROPY_TOKENS + 1]) {
   int i, p, p1, p2, phead[6], prob_NZ, prob_EOB_1, prob_EOB_2p, prob_NEOB_1,
       prob_NEOB_2p, sum = 0;
   int prob8_blocknz;
@@ -4730,37 +4751,49 @@ static void build_token_cdfs(const aom_prob *pdf_model,
   }
   cdf_head[5] = CDF_PROB_TOP;
 
-  // Do the tail
-  sum = 0;
-  for (i = 0; i < ENTROPY_TOKENS - 3; ++i) {
-    p = av1_pareto8_tail_probs[pdf_model[2] - 1][i];
-    cdf_tail[i] = sum += p;
-  }
 }
 
-void av1_coef_pareto_cdfs(FRAME_CONTEXT *fc) {
+static void av1_default_coef_cdfs(FRAME_CONTEXT *fc) {
+  int i, j, k, l;
+  for (i = 0; i < PLANE_TYPES; ++i)
+    for (j = 0; j < REF_TYPES; ++j)
+      for (k = 0; k < COEF_BANDS; ++k)
+        for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l) {
+          av1_copy(fc->coef_head_cdfs[0][i][j][k][l], default_coef_head_cdf_4x4[i][j][k][l]);
+          av1_copy(fc->coef_head_cdfs[1][i][j][k][l], default_coef_head_cdf_8x8[i][j][k][l]);
+          av1_copy(fc->coef_head_cdfs[2][i][j][k][l], default_coef_head_cdf_16x16[i][j][k][l]);
+          av1_copy(fc->coef_head_cdfs[3][i][j][k][l], default_coef_head_cdf_32x32[i][j][k][l]);
+        }
+}
+
+void av1_coef_head_cdfs(FRAME_CONTEXT *fc) {
   TX_SIZE t;
   int i, j, k, l;
   for (t = 0; t < TX_SIZES; ++t)
     for (i = 0; i < PLANE_TYPES; ++i)
       for (j = 0; j < REF_TYPES; ++j)
         for (k = 0; k < COEF_BANDS; ++k)
-          for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l)
-            build_token_cdfs(fc->coef_probs[t][i][j][k][l],
+          for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l) {
+            build_head_cdfs(fc->coef_probs[t][i][j][k][l],
                              k == 0 ? &fc->blockzero_probs[t][i][j][l] : NULL,
-                             fc->coef_tail_cdfs[t][i][j][k][l],
                              fc->coef_head_cdfs[t][i][j][k][l]);
+          }
 }
+
 #elif CONFIG_EC_MULTISYMBOL
 static void build_token_cdfs(const aom_prob *pdf_model,
-                             aom_cdf_prob cdf[ENTROPY_TOKENS]) {
+                             aom_cdf_prob cdf[ENTROPY_TOKENS + 1]) {
   int i, sum = 0;
   assert(pdf_model[2] != 0);
   for (i = 0; i < ENTROPY_TOKENS - 2; ++i) {
     cdf[i] = sum += av1_pareto8_token_probs[pdf_model[2] - 1][i];
   }
 }
+#endif  // CONFIG_NEW_TOKENSET
+
+#if CONFIG_EC_MULTISYMBOL
 void av1_coef_pareto_cdfs(FRAME_CONTEXT *fc) {
+  /* Build the tail based on a Pareto distribution */
   TX_SIZE t;
   int i, j, k, l;
   for (t = 0; t < TX_SIZES; ++t)
@@ -4768,10 +4801,16 @@ void av1_coef_pareto_cdfs(FRAME_CONTEXT *fc) {
       for (j = 0; j < REF_TYPES; ++j)
         for (k = 0; k < COEF_BANDS; ++k)
           for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l)
+#if CONFIG_NEW_TOKENSET
+            build_tail_cdfs( fc->coef_tail_cdfs[t][i][j][k][l],
+                             fc->coef_head_cdfs[t][i][j][k][l]);
+#else
             build_token_cdfs(fc->coef_probs[t][i][j][k][l],
                              fc->coef_cdfs[t][i][j][k][l]);
+#endif
 }
-#endif  // CONFIG_NEW_TOKENSET
+#endif
+
 
 void av1_default_coef_probs(AV1_COMMON *cm) {
 #if CONFIG_ENTROPY
@@ -4792,6 +4831,10 @@ void av1_default_coef_probs(AV1_COMMON *cm) {
 #endif  // CONFIG_ENTROPY
 #if CONFIG_NEW_TOKENSET
   av1_copy(cm->fc->blockzero_probs, av1_default_blockzero_probs);
+#endif
+#if CONFIG_NEW_TOKENSET
+  /* Load the head tokens */
+  av1_default_coef_cdfs(cm->fc);
 #endif
 #if CONFIG_EC_MULTISYMBOL
   av1_coef_pareto_cdfs(cm->fc);
