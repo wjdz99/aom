@@ -119,7 +119,7 @@ static void GenDomainTxfmRFVtable() {
 #define MAX_RADIUS 3  // Only 1, 2, 3 allowed
 #define MAX_EPS 80    // Max value of eps
 #define MAX_NELEM ((2 * MAX_RADIUS + 1) * (2 * MAX_RADIUS + 1))
-#define SGRPROJ_MTABLE_BITS 30
+#define SGRPROJ_MTABLE_BITS 20
 #define SGRPROJ_RECIP_BITS 16
 
 // TODO(debargha): This table can be substantially reduced since only a few
@@ -614,7 +614,6 @@ void av1_selfguided_restoration(int32_t *dgd, int width, int height, int stride,
   int32_t *B = A + RESTORATION_TILEPELS_MAX;
   int8_t num[RESTORATION_TILEPELS_MAX];
   int i, j;
-  eps <<= 2 * (bit_depth - 8);
 
   // Don't filter tiles with dimensions < 5 on any axis
   if ((width < 5) || (height < 5)) return;
@@ -627,30 +626,31 @@ void av1_selfguided_restoration(int32_t *dgd, int width, int height, int stride,
     for (j = 0; j < width; ++j) {
       const int k = i * width + j;
       const int n = num[k];
-      // Assuming that we only allow up to 12-bit depth and r <= 2,
-      // we calculate p = n^2 * Var(n-pixel block of original image)
-      // (where n = 2 * r + 1 <= 5).
-      //
-      // There is an inequality which gives a bound on the variance:
-      // https://en.wikipedia.org/wiki/Popoviciu's_inequality_on_variances
-      // In this case, since each pixel is in the range [0, 2^12),
-      // the variance is at most 1/4 * (2^12)^2 = 2^22.
-      // Then p <= 25^2 * 2^22 < 2^32, and also q <= p + 25^2 * 68 < 2^32.
-      //
-      // The point of all this is to guarantee that q < 2^32, so that
-      // platforms with a 64-bit by 32-bit divide unit (eg, x86)
-      // can do the division by q more efficiently.
-      const uint32_t p = (uint32_t)((uint64_t)A[k] * n - (uint64_t)B[k] * B[k]);
+
 #if APPROXIMATE_SGR
-      const int s = sgrproj_mtable[eps - 1][n - 1];
-      const int z =
-          ((int64_t)s * (int64_t)p + (1 << (SGRPROJ_MTABLE_BITS - 1))) >>
-          SGRPROJ_MTABLE_BITS;
-      A[k] = x_by_xplus1[AOMMIN(z, 255)];
-      B[k] = ((SGRPROJ_SGR - A[k]) * (int64_t)B[k] * (int64_t)one_by_x[n - 1] +
-              (1 << (SGRPROJ_RECIP_BITS - 1))) >>
-             SGRPROJ_RECIP_BITS;
+      uint32_t mean;
+
+      uint32_t a = ROUND_POWER_OF_TWO(A[k], 2 * (bit_depth - 8));
+      // < 2^16 * n < 2^22 regardless of bit depth
+      uint32_t b = ROUND_POWER_OF_TWO(B[k], bit_depth - 8);
+      // <= 2^8 * n < 2^14 regardless of bit depth
+      // (this can equal 2^8 * n if in high bit depth mode, due to rounding)
+
+      const uint32_t p = a * n - b * b; // each term is <= 2^16 * n^2 < 2^28,
+                                        // and p < 2^14 * n^2 < 2^26
+      uint32_t s = sgrproj_mtable[eps - 1][n - 1]; // = round(2^20 / n^2 eps)
+      // p * s < (2^14 * n^2) * round(2^20 / n^2 eps) < 2^34 / eps < 2^32
+      // as long as eps >= 4. So p * s fits into a uint32_t, and z < 2^12
+      const uint32_t z = ROUND_POWER_OF_TWO(p * s, SGRPROJ_MTABLE_BITS);
+
+      A[k] = x_by_xplus1[AOMMIN(z, 255)]; // < 2^8
+      // Finally, SGRPROJ_SGR - A[k] < 2^8, B[k] < 2^12 * n,
+      // one_by_x[n - 1] = round(2^16 / n)
+      // => B[k] * one_over_x[n - 1] < 2^28, mean < 2^bit_depth
+      mean = ROUND_POWER_OF_TWO(B[k] * one_by_x[n - 1], SGRPROJ_RECIP_BITS);
+      B[k] = (SGRPROJ_SGR - A[k]) * mean; // < 2^(8 + bit_depth)
 #else
+      const uint32_t p = (uint32_t)((uint64_t)A[k] * n - (uint64_t)B[k] * B[k]);
       const uint32_t q = (uint32_t)(p + n * n * eps);
       assert((uint64_t)A[k] * n - (uint64_t)B[k] * B[k] < (25 * 25U << 22));
       A[k] = (int32_t)(((uint64_t)p << SGRPROJ_SGR_BITS) + (q >> 1)) / q;
