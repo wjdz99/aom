@@ -23,6 +23,7 @@ AV1_COMMON_SRCS-yes += common/frame_buffers.c
 AV1_COMMON_SRCS-yes += common/frame_buffers.h
 AV1_COMMON_SRCS-yes += common/alloccommon.h
 AV1_COMMON_SRCS-yes += common/blockd.h
+AV1_COMMON_SRCS-yes += common/coeff_cdf_tables.h
 AV1_COMMON_SRCS-yes += common/common.h
 AV1_COMMON_SRCS-yes += common/entropy.h
 AV1_COMMON_SRCS-yes += common/entropymode.h

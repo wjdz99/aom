@@ -195,6 +195,7 @@ set(AOM_AV1_COMMON_SOURCES
     "${AOM_ROOT}/av1/common/av1_txfm.h"
     "${AOM_ROOT}/av1/common/blockd.c"
     "${AOM_ROOT}/av1/common/blockd.h"
+    "${AOM_ROOT}/av1/common/coeff_cdf_tables.h"
     "${AOM_ROOT}/av1/common/common.h"
     "${AOM_ROOT}/av1/common/common_data.h"
     "${AOM_ROOT}/av1/common/convolve.c"
