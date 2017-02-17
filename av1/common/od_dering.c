@@ -300,13 +300,15 @@ void od_dering(int16_t *y, int16_t *in, int xdec,
   int bx;
   int by;
   int bsize;
-  int filter2_thresh[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS];
   od_filter_dering_direction_func filter_dering_direction[OD_DERINGSIZES] = {
     od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
   };
+#ifndef CONFIG_CLPF
+  int filter2_thresh[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS];
   od_filter_dering_orthogonal_func filter_dering_orthogonal[OD_DERINGSIZES] = {
     od_filter_dering_orthogonal_4x4, od_filter_dering_orthogonal_8x8
   };
+#endif
   bsize = OD_DERING_SIZE_LOG2 - xdec;
   if (pli == 0) {
     for (bi = 0; bi < dering_count; bi++) {
