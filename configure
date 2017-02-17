@@ -307,6 +307,7 @@ EXPERIMENT_LIST="
     daala_dist
     tripred
     ref_adapt
+    mv_compress
 "
 CONFIG_LIST="
     dependency_tracking
