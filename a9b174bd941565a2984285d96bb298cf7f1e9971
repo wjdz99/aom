@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1016c714_490ed47a",
+        "filename": "test/convolve_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-17T23:41:00Z",
+      "side": 1,
+      "message": "That\u0027s what I was going to write, then decided to be consistent with the code in this file, which seems to use C-style cast wherever I looked.\nPerhaps this should be a one-sweep cleanup later.",
+      "parentUuid": "8b967391_5ed364c0",
+      "revId": "a9b174bd941565a2984285d96bb298cf7f1e9971",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5e6ba57_3752f008",
         "filename": "test/convolve_test.cc",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "a9b174bd941565a2984285d96bb298cf7f1e9971",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bd45643_961472ff",
+        "filename": "test/convolve_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-17T23:41:00Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "a5e6ba57_3752f008",
+      "revId": "a9b174bd941565a2984285d96bb298cf7f1e9971",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
