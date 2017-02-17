@@ -127,7 +127,7 @@ void av1_caq_select_segment(const AV1_COMP *cpi, MACROBLOCK *mb, BLOCK_SIZE bs,
   } else {
     // Rate depends on fraction of a SB64 in frame (xmis * ymis / bw * bh).
     // It is converted to bits * 256 units.
-    const int target_rate = (cpi->rc.sb64_target_rate * xmis * ymis * 256) /
+    const int target_rate = ((int64_t)cpi->rc.sb64_target_rate * xmis * ymis * 256) /
                             (cm->mib_size * cm->mib_size);
     double logvar;
     double low_var_thresh;
