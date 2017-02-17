@@ -600,7 +600,7 @@ static const int num_ext_tx_set_inter[EXT_TX_SETS_INTER] = { 1, 16, 12, 2 };
 static const int num_ext_tx_set_intra[EXT_TX_SETS_INTRA] = { 1, 7, 5 };
 
 static INLINE int get_ext_tx_set(TX_SIZE tx_size, BLOCK_SIZE bs, int is_inter) {
-  tx_size = txsize_sqr_map[tx_size];
+  tx_size = txsize_sqr_up_map[tx_size];
 #if CONFIG_CB4X4
   (void)bs;
   if (tx_size > TX_32X32) return 0;
@@ -799,7 +799,7 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
 
   if (is_inter_block(mbmi) || plane_type != PLANE_TYPE_Y ||
-      xd->lossless[mbmi->segment_id] || tx_size >= TX_32X32)
+      xd->lossless[mbmi->segment_id] || txsize_sqr_up_map[tx_size] >= TX_32X32)
     return DCT_DCT;
 
   return intra_mode_to_tx_type_context[plane_type == PLANE_TYPE_Y
@@ -871,8 +871,8 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA
 
 #if CONFIG_EXT_TX
-  if (xd->lossless[mbmi->segment_id] || txsize_sqr_map[tx_size] > TX_32X32 ||
-      (txsize_sqr_map[tx_size] >= TX_32X32 && !is_inter_block(mbmi)))
+  if (xd->lossless[mbmi->segment_id] || txsize_sqr_up_map[tx_size] > TX_32X32 ||
+      (txsize_sqr_up_map[tx_size] >= TX_32X32 && !is_inter_block(mbmi)))
     return DCT_DCT;
   if (mbmi->sb_type >= BLOCK_8X8 || CONFIG_CB4X4) {
     if (plane_type == PLANE_TYPE_Y) {
@@ -887,7 +887,7 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
 #if CONFIG_CB4X4
       if (tx_size < TX_4X4) return DCT_DCT;
 #endif
-      return (mbmi->tx_type == IDTX && txsize_sqr_map[tx_size] >= TX_32X32)
+      return (mbmi->tx_type == IDTX && txsize_sqr_up_map[tx_size] >= TX_32X32)
                  ? DCT_DCT
                  : mbmi->tx_type;
     }
@@ -910,7 +910,7 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
 #else   // CONFIG_EXT_TX
   (void)block_idx;
   if (plane_type != PLANE_TYPE_Y || xd->lossless[mbmi->segment_id] ||
-      txsize_sqr_map[tx_size] >= TX_32X32)
+      txsize_sqr_up_map[tx_size] >= TX_32X32)
     return DCT_DCT;
   return mbmi->tx_type;
 #endif  // CONFIG_EXT_TX

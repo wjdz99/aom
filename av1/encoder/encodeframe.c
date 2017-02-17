@@ -5803,10 +5803,10 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       if (eset > 0) {
         if (is_inter) {
           ++td->counts
-                ->inter_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->tx_type];
+                ->inter_ext_tx[eset][txsize_sqr_up_map[tx_size]][mbmi->tx_type];
         } else {
-          ++td->counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
-                                    [mbmi->tx_type];
+          ++td->counts->intra_ext_tx[eset][txsize_sqr_up_map[tx_size]]
+                                    [mbmi->mode][mbmi->tx_type];
         }
       }
     }

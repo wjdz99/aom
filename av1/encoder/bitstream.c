@@ -1292,7 +1292,7 @@ static void write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 
   if (!FIXED_TX_TYPE) {
 #if CONFIG_EXT_TX
-    const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
+    const TX_SIZE square_tx_size = txsize_sqr_up_map[tx_size];
     const BLOCK_SIZE bsize = mbmi->sb_type;
     if (get_ext_tx_types(tx_size, bsize, is_inter) > 1 &&
         ((!cm->seg.enabled && cm->base_qindex > 0) ||

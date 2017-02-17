@@ -736,7 +736,7 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
   if (!FIXED_TX_TYPE) {
 #if CONFIG_EXT_TX
-    const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
+    const TX_SIZE square_tx_size = txsize_sqr_up_map[tx_size];
     if (get_ext_tx_types(tx_size, mbmi->sb_type, inter_block) > 1 &&
         ((!cm->seg.enabled && cm->base_qindex > 0) ||
          (cm->seg.enabled && xd->qindex[mbmi->segment_id] > 0)) &&
