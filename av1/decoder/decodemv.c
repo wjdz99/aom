@@ -809,6 +809,9 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     }
 #endif  // CONFIG_EXT_TX
   }
+#if FIXED_TX_TYPE
+  assert(mbmi->tx_type == DCT_DCT);
+#endif
 }
 
 static void read_intra_frame_mode_info(AV1_COMMON *const cm,
