@@ -91,11 +91,6 @@ typedef tuple<ConvolveFunctions *, InterpFilter /* filter_x */,
 class Av1ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
  public:
   virtual void SetUp() {
-    // Force input_ to be unaligned, output to be 16 byte aligned.
-    input_ = reinterpret_cast<uint8_t *>(
-        aom_memalign(kDataAlignment, kInputBufferSize));
-    output_ = reinterpret_cast<uint8_t *>(
-        aom_memalign(kDataAlignment, kOutputBufferSize));
     ref_output_ = reinterpret_cast<uint8_t *>(
         aom_memalign(kDataAlignment, kOutputBufferSize));
     cfs_ = GET_PARAM(0);
@@ -105,28 +100,32 @@ class Av1ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
     interp_filter_ls_[3] = interp_filter_ls_[1];
   }
   virtual void TearDown() {
-    aom_free(input_);
-    aom_free(output_);
-    aom_free(ref_output_);
+    for (unsigned int i = 0; i < buf_ls_.size(); ++i) {
+      uint8_t *buf = buf_ls_.back();
+      buf_ls_.pop_back();
+      aom_free(buf);
+    }
   }
-  virtual uint8_t *input(int w, int h, int *stride) {
+  virtual uint8_t *add_input(int w, int h, int *stride) {
+    uint8_t *buf = reinterpret_cast<uint8_t *>(
+        aom_memalign(kDataAlignment, kInputBufferSize));
     ACMRandom rnd(ACMRandom::DeterministicSeed());
     *stride = w + MAX_FILTER_TAP - 1;
     int offset = MAX_FILTER_TAP / 2 - 1;
     for (int r = 0; r < h + MAX_FILTER_TAP - 1; ++r) {
       for (int c = 0; c < w + MAX_FILTER_TAP - 1; ++c) {
-        input_[r * (*stride) + c] = rnd.Rand8();
+        buf[r * (*stride) + c] = rnd.Rand8();
       }
     }
-    return input_ + offset * (*stride) + offset;
+    buf_ls_.push_back(buf);
+    return buf + offset * (*stride) + offset;
   }
-  virtual uint8_t *output(int w, int h, int *stride) {
+  virtual uint8_t *add_output(int w, int h, int *stride) {
+    uint8_t *buf = reinterpret_cast<uint8_t *>(
+        aom_memalign(kDataAlignment, kInputBufferSize));
+    buf_ls_.push_back(buf);
     *stride = w;
-    return output_;
-  }
-  virtual uint8_t *ref_output(int w, int h, int *stride) {
-    *stride = w;
-    return ref_output_;
+    return buf;
   }
 
  protected:
@@ -134,28 +133,29 @@ class Av1ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
   static const int kOuterBlockSize = MAX_SB_SIZE + MAX_FILTER_TAP - 1;
   static const int kInputBufferSize = kOuterBlockSize * kOuterBlockSize;
   static const int kOutputBufferSize = kOuterBlockSize * kOuterBlockSize;
-  uint8_t *input_;
   uint8_t *output_;
   uint8_t *ref_output_;
+  std::vector<uint8_t *> buf_ls_;
   InterpFilter interp_filter_ls_[4];
   ConvolveFunctions *cfs_;
 };
+
+int bsize_ls[] = { 1, 2, 4, 8, 16, 32, 64, 3, 7, 15, 31, 63 };
+int bsize_num = sizeof(bsize_ls) / sizeof(bsize_ls[0]);
 
 TEST_P(Av1ConvolveTest, av1_convolve_vert) {
   const int y_step_q4 = 16;
   ConvolveParams conv_params;
   conv_params.ref = 0;
-  int bsize_ls[] = { 1, 2, 4, 8, 16, 32, 64, 3, 7, 15, 31, 63 };
-  int bsize_num = sizeof(bsize_ls) / sizeof(bsize_ls[0]);
 
   for (int hb_idx = 0; hb_idx < bsize_num; ++hb_idx) {
     for (int vb_idx = 0; vb_idx < bsize_num; ++vb_idx) {
       int w = bsize_ls[hb_idx];
       int h = bsize_ls[vb_idx];
       int in_stride, out_stride, ref_out_stride;
-      uint8_t *in = input(w, h, &in_stride);
-      uint8_t *out = output(w, h, &out_stride);
-      uint8_t *ref_out = ref_output(w, h, &ref_out_stride);
+      uint8_t *in = add_input(w, h, &in_stride);
+      uint8_t *out = add_output(w, h, &out_stride);
+      uint8_t *ref_out = add_output(w, h, &ref_out_stride);
       for (int subpel_y_q4 = 0; subpel_y_q4 < SUBPEL_SHIFTS; ++subpel_y_q4) {
         InterpFilter filter_y = interp_filter_ls_[0];
         InterpFilterParams param_vert = av1_get_interp_filter_params(filter_y);
@@ -178,17 +178,15 @@ TEST_P(Av1ConvolveTest, av1_convolve_horiz) {
   const int x_step_q4 = 16;
   ConvolveParams conv_params;
   conv_params.ref = 0;
-  int bsize_ls[] = { 1, 2, 4, 8, 16, 32, 64, 3, 7, 15, 31, 63 };
-  int bsize_num = sizeof(bsize_ls) / sizeof(bsize_ls[0]);
 
   for (int hb_idx = 0; hb_idx < bsize_num; ++hb_idx) {
     for (int vb_idx = 0; vb_idx < bsize_num; ++vb_idx) {
       int w = bsize_ls[hb_idx];
       int h = bsize_ls[vb_idx];
       int in_stride, out_stride, ref_out_stride;
-      uint8_t *in = input(w, h, &in_stride);
-      uint8_t *out = output(w, h, &out_stride);
-      uint8_t *ref_out = ref_output(w, h, &ref_out_stride);
+      uint8_t *in = add_input(w, h, &in_stride);
+      uint8_t *out = add_output(w, h, &out_stride);
+      uint8_t *ref_out = add_output(w, h, &ref_out_stride);
       for (int subpel_x_q4 = 0; subpel_x_q4 < SUBPEL_SHIFTS; ++subpel_x_q4) {
         InterpFilter filter_x = interp_filter_ls_[1];
         InterpFilterParams param_horiz = av1_get_interp_filter_params(filter_x);
