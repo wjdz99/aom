@@ -1344,6 +1344,7 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
       aom_write_symbol(w, av1_switchable_interp_ind[mbmi->interp_filter],
                        ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS);
       ++cpi->interp_filter_selected[0][mbmi->interp_filter];
+      fprintf(stderr, "%d %d\n", ctx, mbmi->interp_filter);
     }
 #endif  // CONFIG_DUAL_FILTER
   }
