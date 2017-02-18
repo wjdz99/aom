@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f8c4878_70305c7e",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-18T16:10:45Z",
+      "side": 1,
+      "message": "It\u0027s a good practice to write an assert for any assumption we make.\nSo, please add:\nassert(conv_params-\u003eround \u003d\u003d CONVOLVE_OPT_ROUND);\n\nand the same can be added in other functions too.",
+      "revId": "0d776aa7abed6600e2e9d0683fece21b2003e4a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
