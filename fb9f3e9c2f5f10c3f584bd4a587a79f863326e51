@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa41cabb_b9368f79",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5100
+      },
+      "writtenOn": "2017-02-18T02:06:00Z",
+      "side": 1,
+      "message": "The 45 wavefront scan allows to compute the ctx of the diagonal samples\u0027 indices  at the same time. \nInterleaving palette indices and palette residual on a transform block basis means that the entropy decoding and further processing of the palette residual is not delayed by the entropy decoding of all the color indices of the palette encoded block.",
+      "parentUuid": "4c20982a_27ffa57c",
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5fb1a1a4_6167514d",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 6
