@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e9875fc_2d4f2572",
+        "filename": "av1/encoder/clpf_rdo.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-02-19T09:19:22Z",
+      "side": 1,
+      "message": "Actually, this disables 32x32, not 128x128.  To disable 128x128 this way, you need to add \"if (c \u003d\u003d 1) continue;\" (and braces to the for loop).\nInteresting, though, that disabling 32x32 only gives a change below the noise level.\n\nIn this loop:\nc\u003d0: CLPF_NOSIZE (no signalling)\nc\u003d1: CLPF_128X128\nc\u003d2: CLPF_64X64\nc\u003d3: CLPF_32x32\n\nThe comment at line 190 verifies this order.\n\nIf you check fb_size_log2 or cm-\u003eclpf_size in encoder.c:3533, you can verify what\u0027s selected.\n\nWhat\u0027s the BDR penalty if you disable 128x128 only (\"AOM_PLANE_Y ? 4 : 1\" + \"if (c \u003d\u003d 1) continue;\", and if you disable both 32x32 and 128x128 (AOM_PLANE_Y ? 3 : 1\" + \"if (c \u003d\u003d 1) continue;\"?",
+      "range": {
+        "startLine": 379,
+        "startChar": 42,
+        "endLine": 379,
+        "endChar": 43
+      },
+      "revId": "f1beb4202623a7ceba0a8287a84eb726b4d2a001",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
