@@ -1884,7 +1884,7 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
                                        const uint8_t *ref, int ref_stride,
                                        uint8_t *dst, int dst_stride,
                                        int col_off, int row_off, int plane) {
-  const BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
+  BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const int txw = tx_size_wide_unit[tx_size];
   const int have_top = row_off || xd->up_available;
@@ -1909,6 +1909,13 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
 #if CONFIG_EXT_PARTITION_TYPES
   const PARTITION_TYPE partition = xd->mi[0]->mbmi.partition;
 #endif
+
+#if CONFIG_CB4X4
+  // force 4x4 chroma component block size.
+  if (plane && bsize < BLOCK_8X8)
+    bsize = BLOCK_8X8;
+#endif
+
   const int have_right =
       av1_has_right(bsize, mi_row, mi_col, right_available,
 #if CONFIG_EXT_PARTITION_TYPES
@@ -1918,6 +1925,19 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
   const int have_bottom = av1_has_bottom(bsize, mi_row, mi_col, yd > 0, tx_size,
                                          row_off, col_off, pd->subsampling_y);
   assert(txwpx == txhpx);
+
+  if (pd->subsampling_x) {
+    if (bsize < BLOCK_8X8) {
+      if ((mi_row & 0x01) != 0) {
+        fprintf(stderr, "mi_row %d\n", mi_row);
+        assert(0);
+      }
+      if ((mi_col & 0x01) != 0) {
+        fprintf(stderr, "mi_col %d\n", mi_col);
+        assert(0);
+      }
+    }
+  }
 
 #if CONFIG_PALETTE
   if (xd->mi[0]->mbmi.palette_mode_info.palette_size[plane != 0] > 0) {
