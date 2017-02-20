@@ -5082,18 +5082,37 @@ static int GLOBAL_MOTION_RATE(const AV1_COMP *const cpi, int ref) {
   static const int gm_amortization_blks[TRANS_TYPES] = {
     4, 6, 8, 10, 10, 10, 12
   };
-  static const int gm_params_cost[TRANS_TYPES] = {
-    GM_IDENTITY_BITS,   GM_TRANSLATION_BITS,  GM_ROTZOOM_BITS,
-    GM_AFFINE_BITS,     GM_HORTRAPEZOID_BITS, GM_VERTRAPEZOID_BITS,
-    GM_HOMOGRAPHY_BITS,
-  };
   const WarpedMotionParams *gm = &cpi->common.global_motion[(ref)];
   assert(gm->wmtype < GLOBAL_TRANS_TYPES);
   if (cpi->global_motion_used[ref][0] >= gm_amortization_blks[gm->wmtype]) {
     return 0;
   } else {
-    const int cost = (gm_params_cost[gm->wmtype] << AV1_PROB_COST_SHIFT) +
-                     cpi->gmtype_cost[gm->wmtype];
+    int params_cost = 0, cost;
+    switch (gm->wmtype) {
+      case HOMOGRAPHY:
+        params_cost += gm->wmmat[6] == 0 ? 1 : (GM_ABS_ROW3HOMO_BITS + 2);
+        params_cost += gm->wmmat[7] == 0 ? 1 : (GM_ABS_ROW3HOMO_BITS + 2);
+      // Fallthrough intended
+      case AFFINE:
+        params_cost += gm->wmmat[4] == 0 ? 1 : (GM_ABS_ALPHA_BITS + 2);
+        params_cost += gm->wmmat[5] == (1 << WARPEDMODEL_PREC_BITS)
+                           ? 1
+                           : (GM_ABS_ALPHA_BITS + 2);
+      // Fallthrough intended
+      case ROTZOOM:
+        params_cost += gm->wmmat[2] == (1 << WARPEDMODEL_PREC_BITS)
+                           ? 1
+                           : (GM_ABS_ALPHA_BITS + 2);
+        params_cost += gm->wmmat[3] == 0 ? 1 : (GM_ABS_ALPHA_BITS + 2);
+      // Fallthrough intended
+      case TRANSLATION:
+        params_cost += gm->wmmat[0] == 0 ? 1 : (GM_ABS_TRANS_BITS + 2);
+        params_cost += gm->wmmat[1] == 0 ? 1 : (GM_ABS_TRANS_BITS + 2);
+      // Fallthrough intended
+      case IDENTITY: break;
+      default: assert(0);
+    }
+    cost = (params_cost << AV1_PROB_COST_SHIFT) + cpi->gmtype_cost[gm->wmtype];
     return cost / gm_amortization_blks[gm->wmtype];
   }
 }
