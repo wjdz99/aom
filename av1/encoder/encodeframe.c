@@ -5051,6 +5051,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0
     };
 
+    av1_zero(cpi->gmparams_cost);
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
       ref_buf = get_ref_frame_buffer(cpi, frame);
       if (ref_buf) {
@@ -5108,6 +5109,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
           if (cm->global_motion[frame].wmtype != IDENTITY) break;
         }
         aom_clear_system_state();
+        cpi->gmparams_cost[frame] =
+            gm_get_params_cost(&cm->global_motion[frame]);
       }
     }
     cpi->global_motion_search_done = 1;

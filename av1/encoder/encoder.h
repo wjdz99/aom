@@ -596,6 +596,7 @@ typedef struct AV1_COMP {
 #endif  // CONFIG_LOOP_RESTORATION
 #if CONFIG_GLOBAL_MOTION
   int gmtype_cost[TRANS_TYPES];
+  int gmparams_cost[TOTAL_REFS_PER_FRAME];
 #endif  // CONFIG_GLOBAL_MOTION
 
   int multi_arf_allowed;

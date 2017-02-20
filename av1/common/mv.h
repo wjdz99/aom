@@ -14,6 +14,7 @@
 
 #include "av1/common/common.h"
 #include "av1/common/common_data.h"
+#include "av1/encoder/cost.h"
 #include "aom_dsp/aom_filter.h"
 
 #ifdef __cplusplus
@@ -141,10 +142,10 @@ typedef struct {
 
 // Maximum number of bits used for different models
 #define GM_IDENTITY_BITS 0
-#define GM_TRANSLATION_BITS ((GM_ABS_TRANS_BITS + 1) * 2)
-#define GM_ROTZOOM_BITS (GM_TRANSLATION_BITS + (GM_ABS_ALPHA_BITS + 1) * 2)
-#define GM_AFFINE_BITS (GM_ROTZOOM_BITS + (GM_ABS_ALPHA_BITS + 1) * 2)
-#define GM_HOMOGRAPHY_BITS (GM_AFFINE_BITS + (GM_ABS_ROW3HOMO_BITS + 1) * 2)
+#define GM_TRANSLATION_BITS ((GM_ABS_TRANS_BITS + 2) * 2)
+#define GM_ROTZOOM_BITS (GM_TRANSLATION_BITS + (GM_ABS_ALPHA_BITS + 2) * 2)
+#define GM_AFFINE_BITS (GM_ROTZOOM_BITS + (GM_ABS_ALPHA_BITS + 2) * 2)
+#define GM_HOMOGRAPHY_BITS (GM_AFFINE_BITS + (GM_ABS_ROW3HOMO_BITS + 2) * 2)
 #define GM_HORTRAPEZOID_BITS \
   (GM_AFFINE_BITS - GM_ABS_ALPHA_BITS + GM_ABS_ROW3HOMO_BITS)
 #define GM_VERTRAPEZOID_BITS \

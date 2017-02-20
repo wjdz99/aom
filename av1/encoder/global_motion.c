@@ -226,6 +226,44 @@ double refine_integerized_param(WarpedMotionParams *wm,
   return best_error;
 }
 
+int gm_get_params_cost(WarpedMotionParams *gm) {
+  assert(gm->wmtype < GLOBAL_TRANS_TYPES);
+  int params_cost = 0;
+  switch (gm->wmtype) {
+    case HOMOGRAPHY:
+    case HORTRAPEZOID:
+    case VERTRAPEZOID:
+      if (gm->wmtype != HORTRAPEZOID)
+        params_cost += gm->wmmat[6] == 0 ? 1 : (GM_ABS_ROW3HOMO_BITS + 2);
+      if (gm->wmtype != VERTRAPEZOID)
+        params_cost += gm->wmmat[7] == 0 ? 1 : (GM_ABS_ROW3HOMO_BITS + 2);
+    // Fallthrough intended
+    case AFFINE:
+    case ROTZOOM:
+      params_cost += gm->wmmat[2] == (1 << WARPEDMODEL_PREC_BITS)
+                         ? 1
+                         : (GM_ABS_ALPHA_BITS + 2);
+      if (gm->wmtype != VERTRAPEZOID)
+        params_cost += gm->wmmat[3] == 0 ? 1 : (GM_ABS_ALPHA_BITS + 2);
+      if (gm->wmtype >= AFFINE) {
+        if (gm->wmtype != HORTRAPEZOID)
+          params_cost += gm->wmmat[4] == 0 ? 1 : (GM_ABS_ALPHA_BITS + 2);
+        params_cost += gm->wmmat[5] == (1 << WARPEDMODEL_PREC_BITS)
+                           ? 1
+                           : (GM_ABS_ALPHA_BITS + 2);
+      }
+    // Fallthrough intended
+    // Fallthrough intended
+    case TRANSLATION:
+      params_cost += gm->wmmat[0] == 0 ? 1 : (GM_ABS_TRANS_BITS + 2);
+      params_cost += gm->wmmat[1] == 0 ? 1 : (GM_ABS_TRANS_BITS + 2);
+    // Fallthrough intended
+    case IDENTITY: break;
+    default: assert(0);
+  }
+  return (params_cost << AV1_PROB_COST_SHIFT);
+}
+
 static INLINE RansacFunc get_ransac_type(TransformationType type) {
   switch (type) {
     case HOMOGRAPHY: return ransac_homography;
