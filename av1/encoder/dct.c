@@ -39,6 +39,74 @@ static INLINE void range_check(const tran_low_t *input, const int size,
 #endif
 }
 
+#if CONFIG_DAALA_DCT4
+/*This is the strength reduced version of ((_a)/(1 << (_b))).
+  This will not work for _b == 0, however currently this is only used for
+   b == 1 anyway.*/
+# define OD_UNBIASED_RSHIFT32(_a, _b) \
+ (((int32_t)(((uint32_t)(_a) >> (32 - (_b))) + (_a))) >> (_b))
+
+# define OD_DCT_RSHIFT(_a, _b) OD_UNBIASED_RSHIFT32(_a, _b)
+
+#define OD_DCT_OVERFLOW_CHECK(val, scale, offset, idx)
+
+#define OD_FDCT_2_ASYM(p0, p1, p1h) \
+  /* Embedded 2-point asymmetric Type-II fDCT. */ \
+  do { \
+    p0 += p1h; \
+    p1 = p0 - p1; \
+  } \
+  while (0)
+
+#define OD_FDST_2_ASYM(p0, p1) \
+  /* Embedded 2-point asymmetric Type-IV fDST. */ \
+  do { \
+    /* 11507/16384 ~= 4*Sin[Pi/8] - 2*Tan[Pi/8] ~= 0.702306604714169 */ \
+    OD_DCT_OVERFLOW_CHECK(p1, 23013, 16384, 187); \
+    p0 -= (p1*23013 + 16384) >> 15; \
+    /* 669/1024 ~= Cos[Pi/8]/Sqrt[2] ~= 0.653281482438188 */ \
+    OD_DCT_OVERFLOW_CHECK(p0, 21407, 16384, 188); \
+    p1 += (p0*21407 + 16384) >> 15; \
+    /* 4573/4096 ~= 4*Sin[Pi/8] - Tan[Pi/8] ~= 1.11652016708726 */ \
+    OD_DCT_OVERFLOW_CHECK(p1, 18293, 8192, 189); \
+    p0 -= (p1*18293 + 8192) >> 14; \
+  } \
+  while (0)
+
+#define OD_FDCT_4(q0, q2, q1, q3) \
+  /* Embedded 4-point orthonormal Type-II fDCT. */ \
+  do { \
+    int q2h; \
+    int q3h; \
+    q3 = q0 - q3; \
+    q3h = OD_DCT_RSHIFT(q3, 1); \
+    q0 -= q3h; \
+    q2 += q1; \
+    q2h = OD_DCT_RSHIFT(q2, 1); \
+    q1 = q2h - q1; \
+    OD_FDCT_2_ASYM(q0, q2, q2h); \
+    OD_FDST_2_ASYM(q3, q1); \
+  } \
+  while (0)
+
+static void fdct4(const tran_low_t *x, tran_low_t *y) {
+  int t0;
+  int t1;
+  int t2;
+  int t3;
+  t0 = x[0];
+  t2 = x[1];
+  t1 = x[2];
+  t3 = x[3];
+  OD_FDCT_4(t0, t2, t1, t3);
+  y[0] = (tran_low_t)t0;
+  y[1] = (tran_low_t)t1;
+  y[2] = (tran_low_t)t2;
+  y[3] = (tran_low_t)t3;
+}
+
+#else
+
 static void fdct4(const tran_low_t *input, tran_low_t *output) {
   tran_high_t temp;
   tran_low_t step[4];
@@ -74,6 +142,7 @@ static void fdct4(const tran_low_t *input, tran_low_t *output) {
 
   range_check(output, 4, 16);
 }
+#endif
 
 static void fdct8(const tran_low_t *input, tran_low_t *output) {
   tran_high_t temp;
@@ -1144,9 +1213,13 @@ void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
+#if !CONFIG_DAALA_DCT4
   if (tx_type == DCT_DCT) {
     aom_fdct4x4_c(input, output, stride);
   } else {
+#else
+  {
+#endif
     static const transform_2d FHT[] = {
       { fdct4, fdct4 },    // DCT_DCT
       { fadst4, fdct4 },   // ADST_DCT
@@ -1179,8 +1252,12 @@ void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
 
     // Columns
     for (i = 0; i < 4; ++i) {
+#if CONFIG_DAALA_DCT4 && CONFIG_DCT_ONLY
+      for (j = 0; j < 4; ++j) temp_in[j] = input[j * stride + i] << 4;
+#else
       for (j = 0; j < 4; ++j) temp_in[j] = input[j * stride + i] * 16;
       if (i == 0 && temp_in[0]) temp_in[0] += 1;
+#endif
       ht.cols(temp_in, temp_out);
       for (j = 0; j < 4; ++j) out[j * 4 + i] = temp_out[j];
     }
@@ -1189,7 +1266,11 @@ void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
     for (i = 0; i < 4; ++i) {
       for (j = 0; j < 4; ++j) temp_in[j] = out[j + i * 4];
       ht.rows(temp_in, temp_out);
+#if CONFIG_DAALA_DCT4 && CONFIG_DCT_ONLY
+      for (j = 0; j < 4; ++j) output[j + i * 4] = temp_out[j] >> 1;
+#else
       for (j = 0; j < 4; ++j) output[j + i * 4] = (temp_out[j] + 1) >> 2;
+#endif
     }
   }
 }
