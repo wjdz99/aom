@@ -14,6 +14,7 @@
 
 #include "av1/common/common.h"
 #include "av1/common/common_data.h"
+#include "av1/encoder/cost.h"
 #include "aom_dsp/aom_filter.h"
 
 #ifdef __cplusplus
@@ -141,10 +142,10 @@ typedef struct {
 
 // Maximum number of bits used for different models
 #define GM_IDENTITY_BITS 0
-#define GM_TRANSLATION_BITS ((GM_ABS_TRANS_BITS + 1) * 2)
-#define GM_ROTZOOM_BITS (GM_TRANSLATION_BITS + (GM_ABS_ALPHA_BITS + 1) * 2)
-#define GM_AFFINE_BITS (GM_ROTZOOM_BITS + (GM_ABS_ALPHA_BITS + 1) * 2)
-#define GM_HOMOGRAPHY_BITS (GM_AFFINE_BITS + (GM_ABS_ROW3HOMO_BITS + 1) * 2)
+#define GM_TRANSLATION_BITS ((GM_ABS_TRANS_BITS + 2) * 2)
+#define GM_ROTZOOM_BITS (GM_TRANSLATION_BITS + (GM_ABS_ALPHA_BITS + 2) * 2)
+#define GM_AFFINE_BITS (GM_ROTZOOM_BITS + (GM_ABS_ALPHA_BITS + 2) * 2)
+#define GM_HOMOGRAPHY_BITS (GM_AFFINE_BITS + (GM_ABS_ROW3HOMO_BITS + 2) * 2)
 #define GM_HORTRAPEZOID_BITS \
   (GM_AFFINE_BITS - GM_ABS_ALPHA_BITS + GM_ABS_ROW3HOMO_BITS)
 #define GM_VERTRAPEZOID_BITS \
@@ -161,6 +162,44 @@ static INLINE int block_center_x(int mi_col, BLOCK_SIZE bs) {
 static INLINE int block_center_y(int mi_row, BLOCK_SIZE bs) {
   const int bh = block_size_high[bs];
   return mi_row * MI_SIZE + bh / 2 - 1;
+}
+
+static INLINE int gm_get_params_cost(WarpedMotionParams *gm) {
+  assert(gm->wmtype < GLOBAL_TRANS_TYPES);
+  int params_cost = 0;
+  switch (gm->wmtype) {
+    case HOMOGRAPHY:
+    case HORTRAPEZOID:
+    case VERTRAPEZOID:
+      if (gm->wmtype != HORTRAPEZOID)
+        params_cost += gm->wmmat[6] == 0 ? 1 : (GM_ABS_ROW3HOMO_BITS + 2);
+      if (gm->wmtype != VERTRAPEZOID)
+        params_cost += gm->wmmat[7] == 0 ? 1 : (GM_ABS_ROW3HOMO_BITS + 2);
+    // Fallthrough intended
+    case AFFINE:
+    case ROTZOOM:
+      params_cost += gm->wmmat[2] == (1 << WARPEDMODEL_PREC_BITS)
+                         ? 1
+                         : (GM_ABS_ALPHA_BITS + 2);
+      if (gm->wmtype != VERTRAPEZOID)
+        params_cost += gm->wmmat[3] == 0 ? 1 : (GM_ABS_ALPHA_BITS + 2);
+      if (gm->wmtype >= AFFINE) {
+        if (gm->wmtype != HORTRAPEZOID)
+          params_cost += gm->wmmat[4] == 0 ? 1 : (GM_ABS_ALPHA_BITS + 2);
+        params_cost += gm->wmmat[5] == (1 << WARPEDMODEL_PREC_BITS)
+                           ? 1
+                           : (GM_ABS_ALPHA_BITS + 2);
+      }
+    // Fallthrough intended
+    // Fallthrough intended
+    case TRANSLATION:
+      params_cost += gm->wmmat[0] == 0 ? 1 : (GM_ABS_TRANS_BITS + 2);
+      params_cost += gm->wmmat[1] == 0 ? 1 : (GM_ABS_TRANS_BITS + 2);
+    // Fallthrough intended
+    case IDENTITY: break;
+    default: assert(0);
+  }
+  return (params_cost << AV1_PROB_COST_SHIFT);
 }
 
 // Convert a global motion translation vector (which may have more bits than a
