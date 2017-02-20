@@ -586,6 +586,11 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
     for (i = 0; i < tx_blk_size; i++) {
       pred[diff_stride * j + i] = dst[dst_stride * j + i];
     }
+
+#if CONFIG_UV_DC_PRED_ONLY
+  if (plane != 0) assert(mbmi->uv_mode == DC_PRED);
+#endif
+
 #endif
 
   (void)ctx;

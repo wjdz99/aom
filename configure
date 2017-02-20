@@ -286,6 +286,7 @@ EXPERIMENT_LIST="
     daala_ec
     rawbits
     pvq
+    uv_dc_pred_only
     xiphrc
     cb4x4
     chroma_2x2

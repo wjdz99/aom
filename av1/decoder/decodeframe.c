@@ -457,6 +457,9 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
   eob = 0;
   dst = &pd->dst.buf[4 * row * pd->dst.stride + 4 * col];
 
+#if CONFIG_UV_DC_PRED_ONLY
+  if (plane != 0) assert(mbmi->uv_mode == DC_PRED);
+#endif
   if (ac_dc_coded) {
     int xdec = pd->subsampling_x;
     int seg_id = mbmi->segment_id;

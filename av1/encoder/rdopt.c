@@ -4748,7 +4748,11 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #if CONFIG_PALETTE
   pmi->palette_size[1] = 0;
 #endif  // CONFIG_PALETTE
+#if CONFIG_UV_DC_PRED_ONLY
+  for (mode = DC_PRED; mode <= DC_PRED; ++mode) {
+#else
   for (mode = DC_PRED; mode <= TM_PRED; ++mode) {
+#endif
 #if CONFIG_EXT_INTRA
     const int is_directional_mode =
         av1_is_directional_mode(mode, mbmi->sb_type);
