@@ -93,7 +93,8 @@ void aom_iwht4x4_1_add_c(const tran_low_t *in, uint8_t *dest, int dest_stride) {
   }
 }
 
-#if CONFIG_DAALA_DCT4
+#if CONFIG_DAALA_DCT4 || CONFIG_DAALA_DCT8
+
 /*This is the strength reduced version of ((_a)/(1 << (_b))).
   This will not work for _b == 0, however currently this is only used for
    b == 1 anyway.*/
@@ -103,6 +104,10 @@ void aom_iwht4x4_1_add_c(const tran_low_t *in, uint8_t *dest, int dest_stride) {
 # define OD_DCT_RSHIFT(_a, _b) OD_UNBIASED_RSHIFT32(_a, _b)
 
 #define OD_DCT_OVERFLOW_CHECK(val, scale, offset, idx)
+
+#endif
+
+#if CONFIG_DAALA_DCT4
 
 #define OD_IDCT_2_ASYM(p0, p1, p1h) \
   /* Embedded 2-point asymmetric Type-II iDCT. */ \
@@ -220,6 +225,126 @@ void aom_idct4x4_1_add_c(const tran_low_t *input, uint8_t *dest,
   }
 }
 
+#if CONFIG_DAALA_DCT8
+
+#define OD_IDCT_2(t0, t1) \
+  /* Embedded 2-point orthonormal Type-II iDCT. */ \
+  do { \
+    /* 3393/8192 ~= Tan[pi/8] ~= 0.414213562373095 */ \
+    t0 += (t1*3393 + 4096) >> 13; \
+    /* 5793/8192 ~= Sin[pi/4] ~= 0.707106781186547 */ \
+    t1 -= (t0*5793 + 4096) >> 13; \
+    /* 13573/32768 ~= Tan[pi/8] ~= 0.414213562373095 */ \
+    t0 += (t1*13573 + 16384) >> 15; \
+  } \
+  while (0)
+
+#define OD_IDST_2(t0, t1) \
+  /* Embedded 2-point orthonormal Type-IV iDST. */ \
+  do { \
+    /* 10947/16384 ~= Tan[3*Pi/16]) ~= 0.668178637919299 */ \
+    t0 += (t1*10947 + 8192) >> 14; \
+    /* 473/512 ~= Sin[3*Pi/8] ~= 0.923879532511287 */ \
+    t1 -= (t0*473 + 256) >> 9; \
+    /* 10947/16384 ~= Tan[3*Pi/16] ~= 0.668178637919299 */ \
+    t0 += (t1*10947 + 8192) >> 14; \
+  } \
+  while (0)
+
+#define OD_IDCT_4_ASYM(t0, t2, t1, t1h, t3, t3h) \
+  /* Embedded 4-point asymmetric Type-II iDCT. */ \
+  do { \
+    OD_IDST_2(t3, t2); \
+    OD_IDCT_2(t0, t1); \
+    t1 = t2 - t1; \
+    t1h = OD_DCT_RSHIFT(t1, 1); \
+    t2 = t1h - t2; \
+    t3 = t0 - t3; \
+    t3h = OD_DCT_RSHIFT(t3, 1); \
+    t0 -= t3h; \
+  } \
+  while (0)
+
+#define OD_IDST_4_ASYM(t0, t0h, t2, t1, t3) \
+  /* Embedded 4-point asymmetric Type-IV iDST. */ \
+  do { \
+    /* 8757/16384 ~= Tan[5*Pi/32] ~= 0.534511135950792 */ \
+    t1 -= (t2*8757 + 8192) >> 14; \
+    /* 6811/8192 ~= Sin[5*Pi/16] ~= 0.831469612302545 */ \
+    t2 += (t1*6811 + 4096) >> 13; \
+    /* 8757/16384 ~= Tan[5*Pi/32] ~= 0.534511135950792 */ \
+    t1 -= (t2*8757 + 8192) >> 14; \
+    /* 6723/8192 ~= Tan[7*Pi/32] ~= 0.820678790828660 */ \
+    t3 -= (t0*6723 + 4096) >> 13; \
+    /* 8035/8192 ~= Sin[7*Pi/16] ~= 0.980785280403230 */ \
+    t0 += (t3*8035 + 4096) >> 13; \
+    /* 6723/8192 ~= Tan[7*Pi/32] ~= 0.820678790828660 */ \
+    t3 -= (t0*6723 + 4096) >> 13; \
+    t0 += t2; \
+    t0h = OD_DCT_RSHIFT(t0, 1); \
+    t2 = t0h - t2; \
+    t1 += t3; \
+    t3 -= OD_DCT_RSHIFT(t1, 1); \
+    /* -19195/32768 ~= Tan[Pi/8] - Tan[Pi/4] ~= -0.585786437626905 */ \
+    t1 -= (t2*19195 + 16384) >> 15; \
+    /* 11585/16384 ~= Sin[Pi/4] ~= 0.707106781186548 */ \
+    t2 -= (t1*11585 + 8192) >> 14; \
+    /* 7489/8192 ~= Tan[Pi/8] + Tan[Pi/4]/2 ~= 0.914213562373095 */ \
+    t1 += (t2*7489 + 4096) >> 13; \
+  } \
+  while (0)
+
+#define OD_IDCT_8(r0, r4, r2, r6, r1, r5, r3, r7) \
+  /* Embedded 8-point orthonormal Type-II iDCT. */ \
+  do { \
+    int r1h; \
+    int r3h; \
+    int r5h; \
+    int r7h; \
+    OD_IDST_4_ASYM(r7, r7h, r5, r6, r4); \
+    OD_IDCT_4_ASYM(r0, r2, r1, r1h, r3, r3h); \
+    r0 += r7h; \
+    r7 = r0 - r7; \
+    r6 = r1h - r6; \
+    r1 -= r6; \
+    r5h = OD_DCT_RSHIFT(r5, 1); \
+    r2 += r5h; \
+    r5 = r2 - r5; \
+    r4 = r3h - r4; \
+    r3 -= r4; \
+  } \
+  while (0)
+
+void aom_idct8_c(const tran_low_t *y, tran_low_t *x) {
+  int t0;
+  int t1;
+  int t2;
+  int t3;
+  int t4;
+  int t5;
+  int t6;
+  int t7;
+  t0 = y[0];
+  t4 = y[1];
+  t2 = y[2];
+  t6 = y[3];
+  t1 = y[4];
+  t5 = y[5];
+  t3 = y[6];
+  t7 = y[7];
+  OD_IDCT_8(t0, t4, t2, t6, t1, t5, t3, t7);
+  x[0] = (tran_low_t)t0;
+  x[1] = (tran_low_t)t1;
+  x[2] = (tran_low_t)t2;
+  x[3] = (tran_low_t)t3;
+  x[4] = (tran_low_t)t4;
+  x[5] = (tran_low_t)t5;
+  x[6] = (tran_low_t)t6;
+  x[7] = (tran_low_t)t7;
+}
+
+#else
+
 void aom_idct8_c(const tran_low_t *input, tran_low_t *output) {
   tran_low_t step1[8], step2[8];
   tran_high_t temp1, temp2;
@@ -273,6 +398,7 @@ void aom_idct8_c(const tran_low_t *input, tran_low_t *output) {
   output[6] = WRAPLOW(step1[1] - step1[6]);
   output[7] = WRAPLOW(step1[0] - step1[7]);
 }
+#endif
 
 void aom_idct8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
   tran_low_t out[8 * 8];
@@ -346,6 +472,112 @@ void aom_iadst4_c(const tran_low_t *input, tran_low_t *output) {
   output[2] = WRAPLOW(dct_const_round_shift(s2));
   output[3] = WRAPLOW(dct_const_round_shift(s0 + s1 - s3));
 }
+
+#if CONFIG_DAALA_DCT8
+
+#define OD_IDST_8(t0, t4, t2, t6, t1, t5, t3, t7) \
+  /* Embedded 8-point orthonormal Type-IV iDST. */ \
+  do { \
+    int t0h; \
+    int t2h; \
+    int t5h_; \
+    int t7h_; \
+    /* 11725/32768 ~= Tan[7*Pi/64] ~= 0.357805721314524 */ \
+    t1 += (t6*11725 + 16384) >> 15; \
+    /* 5197/8192 ~= Sin[7*Pi/32] ~= 0.634393284163645 */ \
+    t6 -= (t1*5197 + 4096) >> 13; \
+    /* 11725/32768 ~= Tan[7*Pi/64] ~= 0.357805721314524 */ \
+    t1 += (t6*11725 + 16384) >> 15; \
+    /* 2455/4096 ~= Tan[11*Pi/64] ~= 0.599376933681924 */ \
+    t2 += (t5*2455 + 2048) >> 12; \
+    /* 7225/8192 ~= Sin[11*Pi/32] ~= 0.881921264348355 */ \
+    t5 -= (t2*7225 + 4096) >> 13; \
+    /* 2455/4096 ~= Tan[11*Pi/64] ~= 0.599376933681924 */ \
+    t2 += (t5*2455 + 2048) >> 12; \
+    /* 4861/32768 ~= Tan[3*Pi/64] ~= 0.148335987538347 */ \
+    t3 += (t4*4861 + 16384) >> 15; \
+    /* 1189/4096 ~= Sin[3*Pi/32] ~= 0.290284677254462 */ \
+    t4 -= (t3*1189 + 2048) >> 12; \
+    /* 4861/32768 ~= Tan[3*Pi/64] ~= 0.148335987538347 */ \
+    t3 += (t4*4861 + 16384) >> 15; \
+    /* 7425/8192 ~= Tan[15*Pi/64] ~= 0.906347169019147 */ \
+    t0 += (t7*7425 + 4096) >> 13; \
+    /* 8153/8192 ~= Sin[15*Pi/32] ~= 0.995184726672197 */ \
+    t7 -= (t0*8153 + 4096) >> 13; \
+    /* 7425/8192 ~= Tan[15*Pi/64] ~= 0.906347169019147 */ \
+    t0 += (t7*7425 + 4096) >> 13; \
+    /* TODO: Can we move this into another operation */ \
+    t7 = -t7; \
+    t7 -= t6; \
+    t7h_ = OD_DCT_RSHIFT(t7, 1); \
+    t6 += t7h_; \
+    t2 -= t3; \
+    t2h = OD_DCT_RSHIFT(t2, 1); \
+    t3 += t2h; \
+    t0 += t1; \
+    t0h = OD_DCT_RSHIFT(t0, 1); \
+    t1 -= t0h; \
+    t5 = t4 - t5; \
+    t5h_ = OD_DCT_RSHIFT(t5, 1); \
+    t4 -= t5h_; \
+    t1 += t5h_; \
+    t5 = t1 - t5; \
+    t3 -= t0h; \
+    t0 += t3; \
+    t6 += t2h; \
+    t2 = t6 - t2; \
+    t4 += t7h_; \
+    t7 -= t4; \
+    /* 3259/16384 ~= Tan[Pi/16] ~= 0.198912367379658 */ \
+    t1 += (t6*3259 + 8192) >> 14; \
+    /* 3135/8192 ~= Sin[Pi/8] ~= 0.382683432365090 */ \
+    t6 -= (t1*3135 + 4096) >> 13; \
+    /* 3259/16384 ~= Tan[Pi/16] ~= 0.198912367379658 */ \
+    t1 += (t6*3259 + 8192) >> 14; \
+    /* 10947/16384 ~= Tan[3*Pi/16] ~= 0.668178637919299 */ \
+    t5 += (t2*10947 + 8192) >> 14; \
+    /* 15137/16384 ~= Sin[3*Pi/8] ~= 0.923879532511287 */ \
+    t2 -= (t5*15137 + 8192) >> 14; \
+    /* 21895/32768 ~= Tan[3*Pi/16] ~= 0.668178637919299 */ \
+    t5 += (t2*21895 + 16384) >> 15; \
+    /* 13573/32768 ~= Tan[Pi/8] ~= 0.414213562373095 */ \
+    t3 += (t4*13573 + 16384) >> 15; \
+    /* 11585/16384 ~= Sin[Pi/4] ~= 0.707106781186547 */ \
+    t4 -= (t3*11585 + 8192) >> 14; \
+    /* 13573/32768 ~= Tan[Pi/8] ~= 0.414213562373095 */ \
+    t3 += (t4*13573 + 16384) >> 15; \
+  } \
+  while (0)
+
+void aom_iadst8_c(const tran_low_t *y, tran_low_t *x) {
+  int t0;
+  int t1;
+  int t2;
+  int t3;
+  int t4;
+  int t5;
+  int t6;
+  int t7;
+  t0 = y[0];
+  t4 = y[1];
+  t2 = y[2];
+  t6 = y[3];
+  t1 = y[4];
+  t5 = y[5];
+  t3 = y[6];
+  t7 = y[7];
+  OD_IDST_8(t0, t4, t2, t6, t1, t5, t3, t7);
+  x[0] = (tran_low_t)t0;
+  x[1] = (tran_low_t)t1;
+  x[2] = (tran_low_t)t2;
+  x[3] = (tran_low_t)t3;
+  x[4] = (tran_low_t)t4;
+  x[5] = (tran_low_t)t5;
+  x[6] = (tran_low_t)t6;
+  x[7] = (tran_low_t)t7;
+}
+
+#else
 
 void aom_iadst8_c(const tran_low_t *input, tran_low_t *output) {
   int s0, s1, s2, s3, s4, s5, s6, s7;
@@ -423,6 +655,8 @@ void aom_iadst8_c(const tran_low_t *input, tran_low_t *output) {
   output[6] = WRAPLOW(x5);
   output[7] = WRAPLOW(-x1);
 }
+
+#endif
 
 void aom_idct8x8_12_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
   tran_low_t out[8 * 8] = { 0 };
