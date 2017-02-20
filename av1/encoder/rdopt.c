@@ -980,6 +980,10 @@ static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
     int rate;
     int64_t dist;
 
+#if CONFIG_CB4X4
+    if (x->skip_chroma_rd && plane) continue;
+#endif
+
     // TODO(geza): Write direct sse functions that do not compute
     // variance as well.
     cpi->fn_ptr[bs].vf(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride,
@@ -3705,6 +3709,11 @@ static int super_block_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   av1_init_rd_stats(rd_stats);
 
   if (ref_best_rd < 0) is_cost_valid = 0;
+
+#if CONFIG_CB4X4
+  if (x->skip_chroma_rd) return is_cost_valid;
+#endif
+
 #if !CONFIG_PVQ
   if (is_inter_block(mbmi) && is_cost_valid) {
     for (plane = 1; plane < MAX_MB_PLANE; ++plane)
@@ -4323,6 +4332,10 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   av1_init_rd_stats(rd_stats);
 
+#if CONFIG_CB4X4
+  if (x->skip_chroma_rd) return is_cost_valid;
+#endif
+
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
   if (is_rect_tx(mbmi->tx_size)) {
     return super_block_uvrd(cpi, x, rd_stats, bsize, ref_best_rd);
@@ -4815,12 +4828,19 @@ static void choose_intra_uv_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
   // appropriate speed flag is set.
   (void)ctx;
 #if CONFIG_CB4X4
-  rd_pick_intra_sbuv_mode(cpi, x, rate_uv, rate_uv_tokenonly, dist_uv, skip_uv,
-                          bsize, max_tx_size);
-#else
+  max_tx_size = AOMMAX(max_tx_size, TX_4X4);
+  if (x->skip_chroma_rd) {
+    *rate_uv = 0;
+    *rate_uv_tokenonly = 0;
+    *dist_uv = 0;
+    *skip_uv = 1;
+    *mode_uv = DC_PRED; // x->e_mbd.mi[0]->mbmi.uv_mode;
+    return;
+  }
+#endif
+
   rd_pick_intra_sbuv_mode(cpi, x, rate_uv, rate_uv_tokenonly, dist_uv, skip_uv,
                           bsize < BLOCK_8X8 ? BLOCK_8X8 : bsize, max_tx_size);
-#endif
   *mode_uv = x->e_mbd.mi[0]->mbmi.uv_mode;
 }
 
