@@ -3048,6 +3048,7 @@ static int recode_loop_test_global_motion(AV1_COMP *cpi) {
         cpi->global_motion_used[i][1] <
             min_blocks[cm->global_motion[i].wmtype]) {
       set_default_gmparams(&cm->global_motion[i]);
+      cpi->gmparams_cost[i] = 0;
 #if CONFIG_REF_MV
       recode = 1;
 #else
