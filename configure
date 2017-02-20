@@ -288,6 +288,7 @@ EXPERIMENT_LIST="
     rawbits
     pvq
     xiphrc
+    dct_only
     cb4x4
     frame_size
     delta_q
