@@ -1037,9 +1037,27 @@ void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   tran_low_t *outp = &out[0][0];
   int outstride = 8;
 
+#if 0
+  printf("decoding 8x8 block:\n");
+  printf("  input:\n");
+  for (j = 0; j < 8; j++) {
+    for (i = 0; i < 8; i++) {
+      printf("%s%5i", i > 0 ? " " : "     ", input[j*8 + i]);
+    }
+    printf("\n");
+  }
+  printf("\n");
+#endif
+
   // inverse transform row vectors
   for (i = 0; i < 8; ++i) {
+#if CONFIG_DAALA_DCT8
+    tran_low_t temp_in[8];
+    for (j = 0; j < 8; j++) temp_in[j] = input[j] << 1;
+    IHT_8[tx_type].rows(temp_in, out[i]);
+#else
     IHT_8[tx_type].rows(input, out[i]);
+#endif
     input += 8;
   }
 
@@ -1066,9 +1084,25 @@ void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < 8; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_DCT8
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 5));
+#endif
     }
   }
+
+#if 0
+  printf("  output:\n");
+  for (j = 0; j < 8; j++) {
+    for (i = 0; i < 8; i++) {
+      printf("%s%5i", i > 0 ? " " : "     ", dest[j*stride + i]);
+    }
+    printf("\n");
+  }
+  printf("\n");
+#endif
+
 }
 
 void av1_iht16x16_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
@@ -1304,7 +1338,7 @@ void av1_idct8x8_add(const tran_low_t *input, uint8_t *dest, int stride,
     aom_idct8x8_12_add(input, dest, stride);
 #endif
   else
-    aom_idct8x8_64_add(input, dest, stride);
+    av1_iht8x8_64_add(input, dest, stride, DCT_DCT);
 }
 
 void av1_idct16x16_add(const tran_low_t *input, uint8_t *dest, int stride,
@@ -1470,8 +1504,13 @@ void av1_inv_txfm_add_32x16(const tran_low_t *input, uint8_t *dest, int stride,
 
 void av1_inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest, int stride,
                           int eob, TX_TYPE tx_type) {
+  (void)eob;
   switch (tx_type) {
+#if CONFIG_DAALA_DCT8
     case DCT_DCT: av1_idct8x8_add(input, dest, stride, eob); break;
+#else
+    case DCT_DCT:
+#endif
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST: av1_iht8x8_64_add(input, dest, stride, tx_type); break;
