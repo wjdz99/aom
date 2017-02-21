@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "db7600bf_14d8a6c2",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1335,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-02-21T20:32:46Z",
+      "side": 1,
+      "message": "Looks like you were right, there was a typo on line 1509 below.  The next patch set should fix it.  I\u0027ll need to rerun the metrics too.",
+      "parentUuid": "8eed8c93_2daacbac",
+      "revId": "7550acc5a77f862f9927994b1b96bf4c3f06239f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5cd5d809_60452d53",
         "filename": "av1/encoder/dct.c",
         "patchSetId": 7
