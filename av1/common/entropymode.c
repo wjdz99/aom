@@ -1636,6 +1636,24 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
     av1_tree_to_cdf_1D(av1_tx_size_tree[k], fc->tx_size_probs[k],
                        fc->tx_size_cdf[k], TX_SIZE_CONTEXTS);
   }
+#if CONFIG_PALETTE
+  for (int i = 0; i < PALETTE_BLOCK_SIZES; ++i) {
+    av1_tree_to_cdf(av1_palette_size_tree, av1_default_palette_y_size_prob[i],
+                    fc->palette_y_size_cdf[i]);
+    av1_tree_to_cdf(av1_palette_size_tree, av1_default_palette_uv_size_prob[i],
+                    fc->palette_uv_size_cdf[i]);
+  }
+  for (int i = 0; i < PALETTE_MAX_SIZE - 1; ++i) {
+    for (int j = 0; j < PALETTE_COLOR_INDEX_CONTEXTS; ++j) {
+      av1_tree_to_cdf(av1_palette_color_index_tree[i],
+                      av1_default_palette_y_color_index_prob[i][j],
+                      fc->palette_y_color_index_cdf[i][j]);
+      av1_tree_to_cdf(av1_palette_color_index_tree[i],
+                      av1_default_palette_uv_color_index_prob[i][j],
+                      fc->palette_uv_color_index_cdf[i][j]);
+    }
+  }
+#endif
 #endif
 #if CONFIG_DELTA_Q
   av1_copy(fc->delta_q_prob, default_delta_q_probs);

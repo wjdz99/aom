@@ -597,11 +597,23 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     if (aom_read(r, av1_default_palette_y_mode_prob[bsize - BLOCK_8X8]
                                                    [palette_y_mode_ctx],
                  ACCT_STR)) {
+#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+      FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
+#else
+      FRAME_CONTEXT *const ec_ctx = xd->fc;
+#endif
+      pmi->palette_size[0] =
+          aom_read_symbol(r, ec_ctx->palette_y_size_cdf[bsize - BLOCK_8X8],
+                          PALETTE_SIZES, ACCT_STR) +
+          2;
+#else
       pmi->palette_size[0] =
           aom_read_tree(r, av1_palette_size_tree,
                         av1_default_palette_y_size_prob[bsize - BLOCK_8X8],
                         ACCT_STR) +
           2;
+#endif
       n = pmi->palette_size[0];
       for (i = 0; i < n; ++i)
         pmi->palette_colors[i] = aom_read_literal(r, cm->bit_depth, ACCT_STR);
@@ -615,11 +627,23 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     const int palette_uv_mode_ctx = (pmi->palette_size[0] > 0);
     if (aom_read(r, av1_default_palette_uv_mode_prob[palette_uv_mode_ctx],
                  ACCT_STR)) {
+#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
+      FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
+#else
+      FRAME_CONTEXT *const ec_ctx = xd->fc;
+#endif
+      pmi->palette_size[1] =
+          aom_read_symbol(r, ec_ctx->palette_uv_size_cdf[bsize - BLOCK_8X8],
+                          PALETTE_SIZES, ACCT_STR) +
+          2;
+#else
       pmi->palette_size[1] =
           aom_read_tree(r, av1_palette_size_tree,
                         av1_default_palette_uv_size_prob[bsize - BLOCK_8X8],
                         ACCT_STR) +
           2;
+#endif
       n = pmi->palette_size[1];
       for (i = 0; i < n; ++i) {
         pmi->palette_colors[PALETTE_MAX_SIZE + i] =

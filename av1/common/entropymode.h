@@ -254,6 +254,18 @@ typedef struct frame_contexts {
 #if CONFIG_DELTA_Q
   aom_prob delta_q_prob[DELTA_Q_CONTEXTS];
 #endif
+#if CONFIG_PALETTE && CONFIG_EC_MULTISYMBOL
+  aom_cdf_prob palette_y_size_cdf[PALETTE_BLOCK_SIZES]
+                                 [PALETTE_SIZES + CONFIG_EC_ADAPT];
+  aom_cdf_prob palette_uv_size_cdf[PALETTE_BLOCK_SIZES]
+                                  [PALETTE_SIZES + CONFIG_EC_ADAPT];
+  aom_cdf_prob palette_y_color_index_cdf[PALETTE_MAX_SIZE - 1]
+                                        [PALETTE_COLOR_INDEX_CONTEXTS]
+                                        [PALETTE_COLORS + CONFIG_EC_ADAPT];
+  aom_cdf_prob palette_uv_color_index_cdf[PALETTE_MAX_SIZE - 1]
+                                         [PALETTE_COLOR_INDEX_CONTEXTS]
+                                         [PALETTE_COLORS + CONFIG_EC_ADAPT];
+#endif
 } FRAME_CONTEXT;
 
 typedef struct FRAME_COUNTS {

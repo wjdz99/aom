@@ -35,12 +35,17 @@ typedef struct {
 } TOKENVALUE;
 
 typedef struct {
+#if CONFIG_EC_MULTISYMBOL
 #if CONFIG_NEW_TOKENSET
   aom_cdf_prob (*tail_cdf)[ENTROPY_TOKENS + CONFIG_EC_ADAPT];
   aom_cdf_prob (*head_cdf)[ENTROPY_TOKENS + CONFIG_EC_ADAPT];
   int is_eob;
-#elif CONFIG_EC_MULTISYMBOL
+#else
   aom_cdf_prob (*token_cdf)[ENTROPY_TOKENS + CONFIG_EC_ADAPT];
+#endif
+#if CONFIG_PALETTE
+  aom_cdf_prob (*palette_cdf)[PALETTE_COLORS + CONFIG_EC_ADAPT];
+#endif
 #endif
   const aom_prob *context_tree;
   EXTRABIT extra;
