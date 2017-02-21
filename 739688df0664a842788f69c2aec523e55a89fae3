@@ -33,6 +33,24 @@
       "revId": "739688df0664a842788f69c2aec523e55a89fae3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37512cd9_a42b0db7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1028,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-02-21T23:15:11Z",
+      "side": 1,
+      "message": "av1_rtcd_defs.pl selects the C version when highbd support is enabled. Evil, I know.\n\nBut yes I\u0027m missing the scaling (they scale the distortion to what it would be if it was 8 bit content). Will fix.",
+      "parentUuid": "26a24d6e_98ea83ea",
+      "revId": "739688df0664a842788f69c2aec523e55a89fae3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
