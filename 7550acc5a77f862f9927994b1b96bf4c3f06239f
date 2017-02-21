@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "34556023_d13dc502",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-21T19:59:06Z",
+      "side": 1,
+      "message": "I\u0027m not following why this implies there will be a loss of quality. Did we do some kind of test that would demonstrate this is the reason? It doesn\u0027t seem to follow from our dcttest numbers (though I guess we haven\u0027t tried to do something equivalent on the existing transforms, nor made an equivalent for the DST).",
+      "revId": "7550acc5a77f862f9927994b1b96bf4c3f06239f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bf0f7c1d_4abd83b9",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1050,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-21T19:59:06Z",
+      "side": 1,
+      "message": "Please don\u0027t commit debugging code like this (unless it is worth putting behind a named flag that can be enabled with configure).",
+      "revId": "7550acc5a77f862f9927994b1b96bf4c3f06239f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "edc406db_9e020c6f",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1335,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-21T19:59:06Z",
+      "side": 1,
+      "message": "Is there some potential mismatch here?",
+      "revId": "7550acc5a77f862f9927994b1b96bf4c3f06239f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5cd5d809_60452d53",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1975,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-21T19:59:06Z",
+      "side": 1,
+      "message": "Why are you shifting up the transform input by 4, and then shifting the output down by 2? Does that work better than just shifting the input by 3?\n\nIt also means running right into the rails for 16-bit values with 9-bit input: 2*(1.5 bits) for the orthonormal scaling, 4 for the shift, and 9 for the input. That means you have no headroom to deal with quantization errors (I\u0027m not sure how much we need, but my guess is we would need at least some).",
+      "revId": "7550acc5a77f862f9927994b1b96bf4c3f06239f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aad77e55_4e376f25",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2005,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-21T19:59:06Z",
+      "side": 1,
+      "message": "Debug code.",
+      "revId": "7550acc5a77f862f9927994b1b96bf4c3f06239f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67822e46_f8ab3ebe",
+        "filename": "configure",
+        "patchSetId": 7
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-21T19:59:06Z",
+      "side": 1,
+      "message": "This disables all assembly in the whole codec, right? That\u0027s fine for an initial integration, but you may want to qualify the \"lower complexity\" claim in the commit message, or people will go run this and be very disappointed.",
+      "revId": "7550acc5a77f862f9927994b1b96bf4c3f06239f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
