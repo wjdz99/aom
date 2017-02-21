@@ -600,6 +600,7 @@ static const int num_ext_tx_set_inter[EXT_TX_SETS_INTER] = { 1, 16, 12, 2 };
 static const int num_ext_tx_set_intra[EXT_TX_SETS_INTRA] = { 1, 7, 5 };
 
 static INLINE int get_ext_tx_set(TX_SIZE tx_size, BLOCK_SIZE bs, int is_inter) {
+  const TX_SIZE tx_size2 = txsize_sqr_up_map[tx_size];
   tx_size = txsize_sqr_map[tx_size];
 #if CONFIG_CB4X4
   (void)bs;
@@ -607,7 +608,7 @@ static INLINE int get_ext_tx_set(TX_SIZE tx_size, BLOCK_SIZE bs, int is_inter) {
 #else
   if (tx_size > TX_32X32 || bs < BLOCK_8X8) return 0;
 #endif
-  if (tx_size == TX_32X32) return is_inter ? 3 : 0;
+  if (tx_size2 == TX_32X32) return is_inter ? 3 : 0;
   return (tx_size == TX_16X16 ? 2 : 1);
 }
 
