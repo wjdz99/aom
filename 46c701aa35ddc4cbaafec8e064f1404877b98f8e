@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c920f205_996357ff",
+        "filename": "configure",
+        "patchSetId": 2
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-21T19:18:38Z",
+      "side": 1,
+      "message": "This should probably go before the line above, right? Otherwise we might still get ec_adapt without ec_multisymbol.",
+      "revId": "46c701aa35ddc4cbaafec8e064f1404877b98f8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
