@@ -921,8 +921,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
 #error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
 #endif
   /* Code as if we're not skipping. */
-  aom_encode_cdf_adapt(&enc->w, 2 + (out[0] != 0), skip_cdf,
-   4, enc->state.adapt.skip_increment);
+  aom_write_symbol(&enc->w, 2 + (out[0] != 0), skip_cdf, 4);
   ac_dc_coded = AC_CODED + (out[0] != 0);
 #if OD_SIGNAL_Q_SCALING
   if (bs == OD_TXSIZES - 1 && pli == 0) {
@@ -1031,8 +1030,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
     }
     /* We decide to skip, roll back everything as it was before. */
     od_encode_rollback(enc, &buf);
-    aom_encode_cdf_adapt(&enc->w, out[0] != 0, skip_cdf,
-     4, enc->state.adapt.skip_increment);
+    aom_write_symbol(&enc->w, out[0] != 0, skip_cdf, 4);
     ac_dc_coded = (out[0] != 0);
 #if OD_SIGNAL_Q_SCALING
     if (bs == OD_TXSIZES - 1 && pli == 0) {
