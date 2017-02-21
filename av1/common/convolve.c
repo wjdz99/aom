@@ -23,6 +23,9 @@
 #define MAX_BLOCK_HEIGHT (MAX_SB_SIZE)
 #define MAX_STEP (32)
 
+#define ROUND_POWER_OF_TWO_SIGNED_EXTENSION(value, n) \
+  ((n == 0) ? value : ROUND_POWER_OF_TWO_SIGNED(value, n))
+
 void av1_convolve_horiz_c(const uint8_t *src, int src_stride, uint8_t *dst,
                           int dst_stride, int w, int h,
                           const InterpFilterParams filter_params,
@@ -155,8 +158,8 @@ void av1_convolve_rounding(const int32_t *src, int src_stride, uint8_t *dst,
   int r, c;
   for (r = 0; r < h; ++r) {
     for (c = 0; c < w; ++c) {
-      dst[r * dst_stride + c] =
-          clip_pixel(ROUND_POWER_OF_TWO_SIGNED(src[r * src_stride + c], bits));
+      dst[r * dst_stride + c] = clip_pixel(
+          ROUND_POWER_OF_TWO_SIGNED_EXTENSION(src[r * src_stride + c], bits));
     }
   }
 }
@@ -184,7 +187,7 @@ void av1_convolve_2d(const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst,
         sum += x_filter[k] * src_horiz[y * src_stride + x - fo_horiz + k];
       }
       im_block[y * im_stride + x] =
-          ROUND_POWER_OF_TWO_SIGNED(sum, conv_params->round_0);
+          ROUND_POWER_OF_TWO_SIGNED_EXTENSION(sum, conv_params->round_0);
     }
   }
 
@@ -199,7 +202,7 @@ void av1_convolve_2d(const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst,
         sum += y_filter[k] * src_vert[(y - fo_vert + k) * im_stride + x];
       }
       dst[y * dst_stride + x] +=
-          ROUND_POWER_OF_TWO_SIGNED(sum, conv_params->round_1);
+          ROUND_POWER_OF_TWO_SIGNED_EXTENSION(sum, conv_params->round_1);
     }
   }
 }
