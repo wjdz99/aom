@@ -2082,7 +2082,7 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
     txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, 0, bs, mbmi->tx_size,
                      cpi->sf.use_fast_coef_costing);
   }
-#else   // CONFIG_EXT_TX
+#else  // CONFIG_EXT_TX
   if (mbmi->tx_size < TX_32X32 && !xd->lossless[mbmi->segment_id]) {
     for (tx_type = 0; tx_type < TX_TYPES; ++tx_type) {
       RD_STATS this_rd_stats;
