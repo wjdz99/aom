@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "134551c7_84959936",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-02-21T23:23:21Z",
+      "side": 1,
+      "message": "I thought SIMP_REF_MV was merged into REF_MV? was this intentional or just a typo?",
+      "range": {
+        "startLine": 418,
+        "startChar": 4,
+        "endLine": 418,
+        "endChar": 22
+      },
+      "revId": "97bcd59765530d3e209e1a9ca274648dbd39ab78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
