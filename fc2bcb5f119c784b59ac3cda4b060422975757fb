@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6b3790a_427a5946",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-02-21T15:19:46Z",
+      "side": 1,
+      "message": "I like the idea of defaulting to always have CDFs with an extra slot at the end for the count.  However, this patch seems like a good way to introduce some confusion when later reading the code.\n\nInstead of MAX_TX_DEPTH + 2 (where MAX_TX_DEPTH + 1 is the length of the CDF and the extra + 1 is the slot), maybe we should use a macro:\n\n#define CDF_SIZE(x) ((x) + 1)\n\nand use CDF_SIZE(MAX_TX_DEPTH + 1) so its clear how many CDF elements there are?",
+      "revId": "fc2bcb5f119c784b59ac3cda4b060422975757fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
