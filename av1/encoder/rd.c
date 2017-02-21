@@ -138,7 +138,7 @@ static void fill_mode_costs(AV1_COMP *cpi) {
   }
 #else
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-    for (j = 0; j < TX_TYPES; ++j)
+    for (j = DCT_DCT; j < TX_TYPES; ++j)
       av1_cost_tokens(cpi->intra_tx_type_costs[i][j],
                       fc->intra_ext_tx_prob[i][j], av1_ext_tx_tree);
   }

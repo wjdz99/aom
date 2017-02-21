@@ -1680,7 +1680,7 @@ void av1_set_mode_cdfs(struct AV1Common *cm) {
 
 #if !CONFIG_EXT_TX
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i)
-    for (j = 0; j < TX_TYPES; ++j)
+    for (j = DCT_DCT; j < TX_TYPES; ++j)
       av1_tree_to_cdf(av1_ext_tx_tree, fc->intra_ext_tx_prob[i][j],
                       fc->intra_ext_tx_cdf[i][j]);
 
@@ -1879,7 +1879,7 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
   }
 #else
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-    for (j = 0; j < TX_TYPES; ++j) {
+    for (j = DCT_DCT; j < TX_TYPES; ++j) {
       aom_tree_merge_probs(av1_ext_tx_tree, pre_fc->intra_ext_tx_prob[i][j],
                            counts->intra_ext_tx[i][j],
                            fc->intra_ext_tx_prob[i][j]);

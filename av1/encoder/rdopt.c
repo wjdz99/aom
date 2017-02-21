@@ -2084,7 +2084,7 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 #else   // CONFIG_EXT_TX
   if (mbmi->tx_size < TX_32X32 && !xd->lossless[mbmi->segment_id]) {
-    for (tx_type = 0; tx_type < TX_TYPES; ++tx_type) {
+    for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
       RD_STATS this_rd_stats;
       if (!is_inter && x->use_default_intra_tx_type &&
           tx_type != get_default_tx_type(0, xd, 0, mbmi->tx_size))

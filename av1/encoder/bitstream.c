@@ -698,7 +698,7 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
   const int probwt = 1;
 #endif
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-    for (j = 0; j < TX_TYPES; ++j)
+    for (j = DCT_DCT; j < TX_TYPES; ++j)
       savings += prob_diff_update_savings(
           av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
           cm->counts.intra_ext_tx[i][j], TX_TYPES, probwt);
@@ -707,7 +707,7 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
   aom_write(w, do_update, GROUP_DIFF_UPDATE_PROB);
   if (do_update) {
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-      for (j = 0; j < TX_TYPES; ++j) {
+      for (j = DCT_DCT; j < TX_TYPES; ++j) {
         prob_diff_update(av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
                          cm->counts.intra_ext_tx[i][j], TX_TYPES, probwt, w);
       }

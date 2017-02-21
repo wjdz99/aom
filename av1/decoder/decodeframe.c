@@ -217,15 +217,15 @@ static void read_ext_tx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
   int i, j, k;
   if (aom_read(r, GROUP_DIFF_UPDATE_PROB, ACCT_STR)) {
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-      for (j = 0; j < TX_TYPES; ++j) {
-        for (k = 0; k < TX_TYPES - 1; ++k)
+      for (j = DCT_DCT; j < TX_TYPES; ++j) {
+        for (k = DCT_DCT; k < TX_TYPES - 1; ++k)
           av1_diff_update_prob(r, &fc->intra_ext_tx_prob[i][j][k], ACCT_STR);
       }
     }
   }
   if (aom_read(r, GROUP_DIFF_UPDATE_PROB, ACCT_STR)) {
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-      for (k = 0; k < TX_TYPES - 1; ++k)
+      for (k = DCT_DCT; k < TX_TYPES - 1; ++k)
         av1_diff_update_prob(r, &fc->inter_ext_tx_prob[i][k], ACCT_STR);
     }
   }
