@@ -1207,9 +1207,6 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
       }
 #endif  // CONFIG_GLOBAL_MOTION
       if (cm->interp_filter == SWITCHABLE
-#if CONFIG_DUAL_FILTER
-          && av1_is_interp_needed(xd)
-#endif
 #if CONFIG_WARPED_MOTION
           && mbmi->motion_mode != WARPED_CAUSAL
 #endif  // CONFIG_WARPED_MOTION
