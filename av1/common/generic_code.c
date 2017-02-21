@@ -40,6 +40,12 @@ void aom_cdf_init_q15(uint16_t *cdf, int ncdfs, int nsyms) {
   }
 }
 
+void aom_cdf_init_count(uint16_t *cdf, int ncdfs, int nsyms) {
+  int i;
+  for (i = 0; i < ncdfs; i++)
+    cdf[i*nsyms + nsyms - 1] = 0;
+}
+
 /** Adapts a Q15 cdf after encoding/decoding a symbol. */
 void aom_cdf_adapt_q15(int val, uint16_t *cdf, int n, int *count, int rate) {
   int i;
