@@ -27,6 +27,33 @@ void aom_cdf_init(uint16_t *cdf, int ncdfs, int nsyms, int val, int first) {
   }
 }
 
+void aom_cdf_init_q15(uint16_t *cdf, int ncdfs, int nsyms) {
+  int i;
+  int j;
+#if CONFIG_EC_ADAPT
+  int norm_q15 = 32768 / (nsyms - 1);
+#else
+  int norm_q15 = 32768 / nsyms;
+#endif
+  for (i = 0; i < ncdfs; i++) {
+#if CONFIG_EC_ADAPT
+    for (j = 0; j < nsyms - 1; j++)
+#else
+    for (j = 0; j < nsyms; j++)
+#endif
+      cdf[i*nsyms + j] = (j + 1) * norm_q15;
+
+    // TODO(yushin) : Check whehter this is a reasonabl way to resolve when
+    // the cumultive probablity for the last symbol is not 32768
+    // when norm_q15 is not integral.
+    cdf[i*nsyms + j - 1] = 32768;
+
+#if CONFIG_EC_ADAPT
+    cdf[i*nsyms + nsyms - 1] = 0;
+#endif
+  }
+}
+
 /** Adapts a Q15 cdf after encoding/decoding a symbol. */
 void aom_cdf_adapt_q15(int val, uint16_t *cdf, int n, int *count, int rate) {
   int i;
