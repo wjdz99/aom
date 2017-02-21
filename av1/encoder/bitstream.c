@@ -1360,6 +1360,7 @@ static void write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 }
 
 static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
+                                const int mi_row, const int mi_col,
 #if CONFIG_SUPERTX
                                 int supertx_enabled,
 #endif
@@ -1419,8 +1420,6 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #endif  // CONFIG_SUPERTX
 #if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
-    int mi_row = (-xd->mb_to_top_edge) >> (MI_SIZE_LOG2 + 3);
-    int mi_col = (-xd->mb_to_left_edge) >> (MI_SIZE_LOG2 + 3);
     int super_block_upper_left =
         ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
     if ((bsize != BLOCK_64X64 || skip == 0) && super_block_upper_left) {
@@ -1504,7 +1503,12 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
     aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
                      ec_ctx->uv_mode_cdf[mode], INTRA_MODES);
 #else
+#if CONFIG_CB4X4
+    if (bsize >= BLOCK_8X8 || is_chroma_reference(mi_row, mi_col))
+      write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mode]);
+#else
     write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mode]);
+#endif // CONFIG_CB4X4
 #endif
 #if CONFIG_EXT_INTRA
     write_intra_angle_info(cm, xd, w);
@@ -1764,11 +1768,13 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 }
 
 #if CONFIG_DELTA_Q
-static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
-                              MODE_INFO **mi_8x8, aom_writer *w) {
+static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd, const int mi_row,
+                              const int mi_col, MODE_INFO **mi_8x8,
+                              aom_writer *w) {
   int skip;
 #else
 static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
+                              const int mi_row, const int mi_col,
                               MODE_INFO **mi_8x8, aom_writer *w) {
 #endif
   const struct segmentation *const seg = &cm->seg;
@@ -1795,8 +1801,6 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
 #if CONFIG_DELTA_Q
   skip = write_skip(cm, xd, mbmi->segment_id, mi, w);
   if (cm->delta_q_present_flag) {
-    int mi_row = (-xd->mb_to_top_edge) >> 6;
-    int mi_col = (-xd->mb_to_left_edge) >> 6;
     int super_block_upper_left = ((mi_row & 7) == 0) && ((mi_col & 7) == 0);
     if ((bsize != BLOCK_64X64 || skip == 0) && super_block_upper_left) {
       int reduced_delta_qindex =
@@ -1854,7 +1858,12 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
   aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
                    ec_ctx->uv_mode_cdf[mbmi->mode], INTRA_MODES);
 #else
+#if CONFIG_CB4X4
+  if (bsize >= BLOCK_8X8 || is_chroma_reference(mi_row, mi_col))
+    write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mbmi->mode]);
+#else
   write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mbmi->mode]);
+#endif // CONFIG_CB4X4
 #endif
 #if CONFIG_EXT_INTRA
   write_intra_angle_info(cm, xd, w);
@@ -1970,7 +1979,7 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif
 
   if (frame_is_intra_only(cm)) {
-    write_mb_modes_kf(cm, xd, xd->mi, w);
+    write_mb_modes_kf(cm, xd, mi_row, mi_col, xd->mi, w);
   } else {
 #if CONFIG_VAR_TX
     xd->above_txfm_context = cm->above_txfm_context + mi_col;
@@ -2007,7 +2016,7 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
              m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
     }
 #endif  // 0
-    pack_inter_mode_mvs(cpi, m,
+    pack_inter_mode_mvs(cpi, m, mi_row, mi_col,
 #if CONFIG_SUPERTX
                         supertx_enabled,
 #endif
