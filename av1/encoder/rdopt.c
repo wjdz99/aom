@@ -2011,7 +2011,11 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
     od_encode_checkpoint(&x->daala_enc, &post_buf);
 #endif
 
+#if CONFIG_DCT_ONLY
+    for (tx_type = DCT_DCT; tx_type <= DCT_DCT; ++tx_type) {
+#else
     for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
+#endif
       RD_STATS this_rd_stats;
       if (is_inter) {
         if (x->use_default_inter_tx_type &&
@@ -2082,9 +2086,13 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
     txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, 0, bs, mbmi->tx_size,
                      cpi->sf.use_fast_coef_costing);
   }
-#else   // CONFIG_EXT_TX
+#else  // CONFIG_EXT_TX
   if (mbmi->tx_size < TX_32X32 && !xd->lossless[mbmi->segment_id]) {
-    for (tx_type = 0; tx_type < TX_TYPES; ++tx_type) {
+#if CONFIG_DCT_ONLY
+    for (tx_type = DCT_DCT; tx_type <= DCT_DCT; ++tx_type) {
+#else
+    for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
+#endif
       RD_STATS this_rd_stats;
       if (!is_inter && x->use_default_intra_tx_type &&
           tx_type != get_default_tx_type(0, xd, 0, mbmi->tx_size))
@@ -2174,7 +2182,11 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   od_encode_checkpoint(&x->daala_enc, &buf);
 #endif
 
+#if CONFIG_DCT_ONLY
+  for (tx_type = DCT_DCT; tx_type <= DCT_DCT; ++tx_type) {
+#else
   for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
+#endif
     RD_STATS this_rd_stats;
 #if CONFIG_REF_MV
     if (mbmi->ref_mv_idx > 0 && tx_type != DCT_DCT) continue;
@@ -4200,7 +4212,11 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   for (idx = 0; idx < count32; ++idx)
     av1_invalid_rd_stats(&rd_stats_stack[idx]);
 
+#if CONFIG_DCT_ONLY
+  for (tx_type = DCT_DCT; tx_type <= DCT_DCT; ++tx_type) {
+#else
   for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
+#endif
     RD_STATS this_rd_stats;
     av1_init_rd_stats(&this_rd_stats);
 #if CONFIG_EXT_TX
