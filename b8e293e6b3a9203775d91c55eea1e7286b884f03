@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b3a6f5c_8f5abf7d",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-21T21:15:18Z",
+      "side": 1,
+      "message": "Typos (\"whether\", \"reasonable\")",
+      "revId": "b8e293e6b3a9203775d91c55eea1e7286b884f03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "071198c0_e07c9032",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-21T21:15:18Z",
+      "side": 1,
+      "message": "The other approach is simply to set\n  cdf[i*nsyms + j] \u003d (j + 1)*32768/(nsyms - CONFIG_EC_ADAPT);\n\nThen you will always get exactly 32768 in the last place. That should be equivalent to what od_encode_cdf_adapt_q15()/od_decode_cdf_adapt_q15() were doing in Daala.",
+      "revId": "b8e293e6b3a9203775d91c55eea1e7286b884f03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d89739ba_d98fc93b",
+        "filename": "av1/common/generic_code.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-21T21:15:18Z",
+      "side": 1,
+      "message": "I think you already found that, unlike OD_CDFS_INIT(), you cannot use this unless the CDF size matches the array size for all contexts being initialized. Perhaps best to put a warning here, so it does not surprise others.",
+      "revId": "b8e293e6b3a9203775d91c55eea1e7286b884f03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4fed8571_56be63f6",
+        "filename": "av1/common/generic_code.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-21T21:15:18Z",
+      "side": 1,
+      "message": "Why the \"+\" at the beginning of the line?\n\nPersonally, I would pass in\n sizeof(cdf[0])/sizeof(cdf[0][0]) - CONFIG_EC_ADAPT\nto the last argument. That would get rid of a bunch of special cases in aom_cdf_init_q15().",
+      "revId": "b8e293e6b3a9203775d91c55eea1e7286b884f03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
