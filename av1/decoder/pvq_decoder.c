@@ -27,6 +27,12 @@
 #include "av1/decoder/decint.h"
 #include "av1/decoder/pvq_decoder.h"
 
+int aom_read_symbol_pvq(aom_reader *r, aom_cdf_prob *cdf, int nsymbs) {
+  if (cdf[0] == 0)
+    aom_cdf_init_q15(cdf, 1, nsymbs + CONFIG_EC_ADAPT);
+  return aom_read_symbol(r, cdf, nsymbs, ACCT_STR_NAME);
+}
+
 static void aom_decode_pvq_codeword(aom_reader *r, od_pvq_codeword_ctx *ctx,
  od_coeff *y, int n, int k) {
   int i;
