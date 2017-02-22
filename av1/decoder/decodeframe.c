@@ -456,6 +456,11 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 #if CONFIG_UV_DC_PRED_ONLY
   if (plane != 0) assert(mbmi->uv_mode == DC_PRED);
 #endif
+#if CONFIG_PVQ_CFL
+  if (plane != 0 && xd->cfl->enabled) {
+    cfl_load(xd->cfl, dst, pd->dst.stride, row, col, tx_size_wide[tx_size]);
+  }
+#endif
   if (ac_dc_coded) {
     int xdec = pd->subsampling_x;
     int seg_id = mbmi->segment_id;
@@ -489,7 +494,14 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
     inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
                             max_scan_line, eob);
   }
-
+#if CONFIG_PVQ_CFL
+  if (plane == 0) {
+    xd->cfl->enabled = ac_dc_coded != PVQ_SKIP;
+    if (xd->cfl->enabled) {
+      cfl_store(xd->cfl, dst, pd->dst.stride, row, col, tx_size_wide[tx_size]);
+    }
+  }
+#endif
   return eob;
 }
 #endif
@@ -515,7 +527,6 @@ static void predict_and_reconstruct_intra_block(
   av1_predict_intra_block(xd, pd->width, pd->height, txsize_to_bsize[tx_size],
                           mode, dst, pd->dst.stride, dst, pd->dst.stride, col,
                           row, plane);
-
   if (!mbmi->skip) {
     TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx, tx_size);
 #if !CONFIG_PVQ
@@ -536,6 +547,15 @@ static void predict_and_reconstruct_intra_block(
     av1_pvq_decode_helper2(cm, xd, mbmi, plane, row, col, tx_size, tx_type);
 #endif
   }
+
+  /*const int tx_blk_size = tx_size_wide[tx_size];
+  printf("%d [%d %d] Dist: ", tx_blk_size, row, col);
+  for (int j = 0; j < tx_blk_size; j++) {
+    for (int i = 0; i < tx_blk_size; i++) {
+      printf("%d, ", dst[pd->dst.stride * j + i]);
+    }
+  }
+  printf("\n");*/
 }
 
 #if CONFIG_VAR_TX
@@ -1675,6 +1695,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
         for (col = 0; col < max_blocks_wide; col += stepc)
           predict_and_reconstruct_intra_block(cm, xd, r, mbmi, plane, row, col,
                                               tx_size);
+
     }
   } else {
     int ref;
@@ -3514,6 +3535,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_PVQ
                            td->pvq_ref_coeff,
 #endif
+#if CONFIG_PVQ_CFL
+                           &td->cfl,
+#endif
                            td->dqcoeff);
 #if CONFIG_PVQ
       daala_dec_init(cm, &td->xd.daala_dec, &td->bit_reader);
@@ -3869,6 +3893,9 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
         av1_init_macroblockd(cm, &twd->xd,
 #if CONFIG_PVQ
                              twd->pvq_ref_coeff,
+#endif
+#if CONFIG_PVQ_CFL
+                             &twd->cfl,
 #endif
                              twd->dqcoeff);
 #if CONFIG_PVQ
@@ -4999,4 +5026,5 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
   // Non frame parallel update frame context here.
   if (!cm->error_resilient_mode && !context_updated)
     cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
+
 }
