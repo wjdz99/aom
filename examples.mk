@@ -62,6 +62,10 @@ ifeq ($(CONFIG_WEBM_IO),yes)
   INC_PATH-yes += $(SRC_PATH_BARE)/third_party/libwebm
 endif
 
+ifeq ($(CONFIG_ANALYZER),yes)
+  CXXFLAGS += ${WX_CXXFLAGS}
+  extralibs += ${WX_LDFLAGS}
+endif
 
 # List of examples to build. UTILS are tools meant for distribution
 # while EXAMPLES demonstrate specific portions of the API.
@@ -110,6 +114,15 @@ ifeq ($(CONFIG_WEBM_IO),yes)
 endif
 aomenc.GUID                  = 548DEC74-7A15-4B2B-AFC3-AA102E7C25C1
 aomenc.DESCRIPTION           = Full featured encoder
+
+ifeq ($(CONFIG_ANALYZER),yes)
+  EXAMPLES-$(CONFIG_DECODERS)        += analyzer.cc
+  analyzer.GUID                       = 83827a8c-e3c3-4b19-8832-0cfc206c4496
+  analyzer.SRCS                      += ivfdec.h ivfdec.c
+  analyzer.SRCS                      += video_reader.h video_reader.c
+  analyzer.SRCS                      += tools_common.h tools_common.c
+  analyzer.DESCRIPTION                = Bitstream analyzer
+endif
 
 ifeq ($(CONFIG_INSPECTION),yes)
 EXAMPLES-$(CONFIG_DECODERS) += inspect.c
