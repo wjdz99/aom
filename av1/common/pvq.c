@@ -23,6 +23,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if CONFIG_PVQ_CFL
+#include "av1/common/common_data.h"
+#endif
+
 /* Imported from encode.c in daala */
 /* These are the PVQ equivalent of quantization matrices, except that
    the values are per-band. */
@@ -1018,3 +1022,40 @@ void od_pvq_synthesis_partial(od_coeff *xcoeff, const od_coeff *ypulse,
     }
   }
 }
+
+#if CONFIG_PVQ_CFL
+void cfl_load(const CFL_CTX *const cfl, uint8_t *const output,
+    int output_stride, int row, int col, int tx_blk_size) {
+  // Adjusted for 4:2:0
+  const int step = 2;
+  const uint8_t *const pred = &cfl->y_pix[
+    (step * (row * MAX_SB_SIZE + col)) << tx_size_wide_log2[0]];
+  int i, j;
+  int pred_row_offset = 0;
+  int output_row_offset = 0;
+  for (j = 0; j < tx_blk_size; j++) {
+    for (i = 0; i < tx_blk_size;  i++) {
+      output[output_row_offset + i] = pred[step * (pred_row_offset + i)];
+    }
+    pred_row_offset += MAX_SB_SIZE;
+    output_row_offset += output_stride;
+  }
+}
+
+void cfl_store(CFL_CTX *const cfl, uint8_t *const input, int input_stride,
+    int row, int col, int tx_blk_size) {
+  uint8_t *const pred = &cfl->y_pix[
+    (row * MAX_SB_SIZE + col) << tx_size_wide_log2[0]];
+  int i, j;
+  int pred_row_offset = 0;
+  int input_row_offset = 0;
+
+  for (j = 0; j < tx_blk_size; j++) {
+    for (i = 0; i < tx_blk_size; i++) {
+      pred[pred_row_offset + i] = input[input_row_offset + i];
+    }
+    pred_row_offset += MAX_SB_SIZE;
+    input_row_offset += input_stride;
+  }
+}
+#endif
