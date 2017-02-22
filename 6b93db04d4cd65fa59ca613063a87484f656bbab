@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4123fd46_8bcae13c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T19:08:41Z",
+      "side": 1,
+      "message": "They include previous patches. So, it is not anchor to separte patch i.\n\nhttps://beta.arewecompressedyet.com/?job\u003dav1_fix_use_pvq_ec_adapt_both_5f%402017-02-21T17%3A42%3A27.173Z\u0026job\u003dav1_pvq_partition_split_ec_adapt_5f%402017-02-22T00%3A50%3A59.380Z",
+      "parentUuid": "2554d5ff_64b0e748",
+      "revId": "6b93db04d4cd65fa59ca613063a87484f656bbab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e356d73c_9ddea01e",
         "filename": "av1/common/pvq.c",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-22T06:47:43Z",
       "side": 1,
       "message": "Is it possible to just do the initialization of this CDF once here?",
+      "revId": "6b93db04d4cd65fa59ca613063a87484f656bbab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca5472d0_b1ca4ba9",
+        "filename": "av1/common/pvq.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T19:08:41Z",
+      "side": 1,
+      "message": "Unfortunately, it is not because the # of symbols for each cdf is only known at the 1st call of enc/dec with that cdf.",
+      "parentUuid": "e356d73c_9ddea01e",
       "revId": "6b93db04d4cd65fa59ca613063a87484f656bbab",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "17d8fdfe_1e35a42b",
+        "filename": "av1/decoder/pvq_decoder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T19:08:41Z",
+      "side": 1,
+      "message": "The only reason is EC write/read needs to decide the # of symbols based on context, but I\u0027d also like to think of better way to put all EC functions in one file.",
+      "parentUuid": "b3c214cf_52461bb4",
+      "revId": "6b93db04d4cd65fa59ca613063a87484f656bbab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e9bbffcf_f826834d",
         "filename": "av1/encoder/pvq_encoder.c",
         "patchSetId": 8
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-22T06:47:43Z",
       "side": 1,
       "message": "Why do we need to add an extra if statement in every call to aom_write_symbol_pvq() when the cdf is set to zero in od_adapt_pvq_ctx_reset() and could just be initialized there?\n\nIt would be nice to not add special aom_writer calls outside of aom_dsp/bitreader.h and aom_dsp/bitwriter.h.  Especially those that introduce hidden side effects.",
+      "revId": "6b93db04d4cd65fa59ca613063a87484f656bbab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "11c14bbf_e3f899ac",
+        "filename": "av1/encoder/pvq_encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T19:08:41Z",
+      "side": 1,
+      "message": "Again, becase the # of symbols that is not known before the 1st call, I needed to check whether it is 1st call or not.",
+      "parentUuid": "e9bbffcf_f826834d",
       "revId": "6b93db04d4cd65fa59ca613063a87484f656bbab",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
