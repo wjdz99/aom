@@ -1897,12 +1897,21 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
   const int txhpx = tx_size_high[tx_size];
   // Distance between the right edge of this prediction block to
   // the frame right edge
+#if CONFIG_CB4X4
+  const int xr_chr_offset = (plane && bsize < BLOCK_8X8) ? 2 : 0;
+  const int yd_chr_offset = (plane && bsize < BLOCK_8X8) ? 2 : 0;
+#else
+  const int xr_chr_offset = 0;
+  const int yd_chr_offset = 0;
+#endif
   const int xr =
-      (xd->mb_to_right_edge >> (3 + pd->subsampling_x)) + (wpx - x - txwpx);
+      (xd->mb_to_right_edge >> (3 + pd->subsampling_x)) + (wpx - x - txwpx) -
+      xr_chr_offset;
   // Distance between the bottom edge of this prediction block to
   // the frame bottom edge
   const int yd =
-      (xd->mb_to_bottom_edge >> (3 + pd->subsampling_y)) + (hpx - y - txhpx);
+      (xd->mb_to_bottom_edge >> (3 + pd->subsampling_y)) + (hpx - y - txhpx) -
+      yd_chr_offset;
   const int right_available =
       (mi_col + ((col_off + txw) >> (1 - pd->subsampling_x))) <
       xd->tile.mi_col_end;
