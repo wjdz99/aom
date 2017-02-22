@@ -686,7 +686,7 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
   }
 }
 
-#else
+#else  // CONFIG_EXT_TX
 #if !CONFIG_EC_ADAPT
 static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
   const int savings_thresh = av1_cost_one(GROUP_DIFF_UPDATE_PROB) -
@@ -732,8 +732,12 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
     }
   }
 }
+#endif  // !CONFIG_EC_ADAPT
 #endif  // CONFIG_EXT_TX
-#endif
+
+#if !CONFIG_PVQ
+// TODO(ycho): Palette info needs to be sent when PVQ is enabled too. Figure out
+// where exactly palette tokens should be sent.
 #if CONFIG_PALETTE
 static void pack_palette_tokens(aom_writer *w, const TOKENEXTRA **tp, int n,
                                 int num) {
@@ -750,7 +754,6 @@ static void pack_palette_tokens(aom_writer *w, const TOKENEXTRA **tp, int n,
   *tp = p;
 }
 #endif  // CONFIG_PALETTE
-#if !CONFIG_PVQ
 #if CONFIG_SUPERTX
 static void update_supertx_probs(AV1_COMMON *cm, int probwt, aom_writer *w) {
   const int savings_thresh = av1_cost_one(GROUP_DIFF_UPDATE_PROB) -
@@ -854,7 +857,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 
   *tp = p;
 }
-#else
+#else  // CONFIG_NEW_TOKENSET
 static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
                            const TOKENEXTRA *const stop,
                            aom_bit_depth_t bit_depth, const TX_SIZE tx_size,
@@ -959,8 +962,8 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 
   *tp = p;
 }
-#endif
-#endif  // !CONFIG_PVG
+#endif  // CONFIG_NEW_TOKENSET
+#endif  // !CONFIG_PVQ
 #if CONFIG_VAR_TX
 static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
                             const TOKENEXTRA *const tok_end, MACROBLOCKD *xd,

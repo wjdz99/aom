@@ -1647,12 +1647,16 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 #else
   if (!is_inter_block(mbmi)) {
     int plane;
+#if !CONFIG_PVQ
+// TODO(ycho): Palette tokens needs to be read when PVQ is enabled too. Figure
+// out where exactly palette tokens should be read.
 #if CONFIG_PALETTE
     for (plane = 0; plane <= 1; ++plane) {
       if (mbmi->palette_mode_info.palette_size[plane])
         av1_decode_palette_tokens(xd, plane, r);
     }
 #endif  // CONFIG_PALETTE
+#endif  // !CONFIG_PVQ
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       const struct macroblockd_plane *const pd = &xd->plane[plane];
       const TX_SIZE tx_size = plane ? get_uv_tx_size(mbmi, pd) : mbmi->tx_size;
