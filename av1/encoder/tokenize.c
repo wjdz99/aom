@@ -397,6 +397,7 @@ static INLINE int get_tx_eob(const struct segmentation *seg, int segment_id,
   return segfeature_active(seg, segment_id, SEG_LVL_SKIP) ? 0 : eob_max;
 }
 #endif
+#endif
 
 #if CONFIG_PALETTE
 void av1_tokenize_palette_sb(const AV1_COMP *cpi,
@@ -439,6 +440,7 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
 }
 #endif  // CONFIG_PALETTE
 
+#if !CONFIG_PVQ
 static void tokenize_b(int plane, int block, int blk_row, int blk_col,
                        BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
   struct tokenize_b_args *const args = arg;
