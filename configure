@@ -286,6 +286,7 @@ EXPERIMENT_LIST="
     daala_ec
     rawbits
     pvq
+    pvq_cfl
     uv_dc_pred_only
     xiphrc
     cb4x4
@@ -486,6 +487,9 @@ post_process_cmdline() {
 
     # Enable daala_ec by default
     ! enabled ans && soft_enable daala_ec
+
+    # Enable pvq when pvq_cfl is enabled
+    enabled pvq_cfl && enable_feature pvq  && enable_feature uv_dc_pred_only
 
     # Fix up experiment dependencies
     enabled ec_adapt && enable_feature ec_multisymbol
