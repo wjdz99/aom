@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40e96568_5a7fcb8c",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-02-22T06:38:18Z",
+      "side": 1,
+      "message": "I strongly feel that cdf_size should always be the number of symbols in the CDF for all functions that use CDFs.\n\nThat is, please do not pass in the length of the array and then assume that EC_ADAPT implies that an extra slot for holding the counts exists.\n\nSee Thomas Davies patch that adds this extra entry to the CDF as part of EC_MULTISYMBOL here:\nhttps://aomedia-review.googlesource.com/#/c/8002/\n\nAlso, why not call this nsymbs to match the rest of the code?",
+      "revId": "d6f2e2e89a16bb4f7a2626c86f5f088682a6c32a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf668c6d_01ab03ac",
+        "filename": "av1/common/pvq_state.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-02-22T06:38:18Z",
+      "side": 1,
+      "message": "I feel as though this function is being too clever for it\u0027s own good an will be difficult to read.\n\nIt essentially initializes a 1D array of CDFs.  Why not call it that?  Also, you know the size of the array and the number of CDFs at this point.  You could make this code easier to read by calling it as:\n\nOD_CDFS_INIT_Q15_1D(adapt-\u003eskip_cdf, 4, OD_TXSIZES*2)\n\nwhich would pass through to a helper function that would do the actual CDF initialization.  Similar to what is done here:\n\nhttps://aomedia.googlesource.com/aom/+/master/aom_dsp/prob.h#106\n\nThis will be needed later when you want to initialize the CDFs used by the generic_coder.",
+      "revId": "d6f2e2e89a16bb4f7a2626c86f5f088682a6c32a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
