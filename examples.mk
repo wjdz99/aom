@@ -119,6 +119,8 @@ ifeq ($(CONFIG_ANALYZER),yes)
   EXAMPLES-$(CONFIG_DECODERS)        += analyzer.cc
   analyzer.GUID                       = 83827a8c-e3c3-4b19-8832-0cfc206c4496
   analyzer.SRCS                      += ivfdec.h ivfdec.c
+  analyzer.SRCS                      += av1/decoder/inspection.h
+  analyzer.SRCS                      += av1/decoder/inspection.c
   analyzer.SRCS                      += video_reader.h video_reader.c
   analyzer.SRCS                      += tools_common.h tools_common.c
   analyzer.DESCRIPTION                = Bitstream analyzer
