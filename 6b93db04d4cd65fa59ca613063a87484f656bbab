@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2554d5ff_64b0e748",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-02-22T06:47:43Z",
+      "side": 1,
+      "message": "Are these numbers from the previous patch, or based on an anchor?  Could you please include the AWCY run names you are comparing above the table each time you include it?",
+      "revId": "6b93db04d4cd65fa59ca613063a87484f656bbab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e356d73c_9ddea01e",
+        "filename": "av1/common/pvq.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-02-22T06:47:43Z",
+      "side": 1,
+      "message": "Is it possible to just do the initialization of this CDF once here?",
+      "revId": "6b93db04d4cd65fa59ca613063a87484f656bbab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3c214cf_52461bb4",
+        "filename": "av1/decoder/pvq_decoder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-02-22T06:47:43Z",
+      "side": 1,
+      "message": "Why are we adding an extra entropy coder API outside of aom_dsp/bitreader.h and aom_dsp/bitwriter.h?",
+      "revId": "6b93db04d4cd65fa59ca613063a87484f656bbab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9bbffcf_f826834d",
+        "filename": "av1/encoder/pvq_encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-02-22T06:47:43Z",
+      "side": 1,
+      "message": "Why do we need to add an extra if statement in every call to aom_write_symbol_pvq() when the cdf is set to zero in od_adapt_pvq_ctx_reset() and could just be initialized there?\n\nIt would be nice to not add special aom_writer calls outside of aom_dsp/bitreader.h and aom_dsp/bitwriter.h.  Especially those that introduce hidden side effects.",
+      "revId": "6b93db04d4cd65fa59ca613063a87484f656bbab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
