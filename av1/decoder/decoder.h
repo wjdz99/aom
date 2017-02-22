@@ -25,6 +25,9 @@
 #if CONFIG_ACCOUNTING
 #include "av1/common/accounting.h"
 #endif
+#if CONFIG_INSPECTION
+#include "av1/decoder/inspection.h"
+#endif
 
 #if CONFIG_PVQ
 #include "aom_dsp/entdec.h"
@@ -136,6 +139,9 @@ typedef struct AV1Decoder {
 #endif
 #if CONFIG_REFERENCE_BUFFER
   SequenceHeader seq_params;
+#endif
+#if CONFIG_INSPECTION
+  insp_frame_data *frame_data;
 #endif
 } AV1Decoder;
 

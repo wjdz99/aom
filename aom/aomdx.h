@@ -41,6 +41,10 @@ extern aom_codec_iface_t *aom_codec_av1_dx(void);
  */
 typedef struct Accounting Accounting;
 
+/** Data structure that stores frame inspection data.
+ */
+typedef struct insp_frame_data insp_frame_data;
+
 /*!\enum aom_dec_control_id
  * \brief AOM decoder control functions
  *
@@ -128,6 +132,7 @@ enum aom_dec_control_id {
    */
   AV1_SET_DECODE_TILE_ROW,
   AV1_SET_DECODE_TILE_COL,
+  AV1_SET_INSPECTION_FRAME_DATA,
 
   AOM_DECODER_CTRL_ID_MAX,
 };
@@ -184,6 +189,8 @@ AOM_CTRL_USE_TYPE(AV1_SET_DECODE_TILE_ROW, int)
 #define AOM_CTRL_AV1_SET_DECODE_TILE_ROW
 AOM_CTRL_USE_TYPE(AV1_SET_DECODE_TILE_COL, int)
 #define AOM_CTRL_AV1_SET_DECODE_TILE_COL
+AOM_CTRL_USE_TYPE(AV1_SET_INSPECTION_FRAME_DATA, insp_frame_data *)
+#define AOM_CTRL_AV1_SET_INSPECTION_FRAME_DATA
 /*!\endcond */
 /*! @} - end defgroup aom_decoder */
 
