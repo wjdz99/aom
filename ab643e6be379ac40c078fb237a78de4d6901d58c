@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9035d9a9_c59863c9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T23:32:02Z",
+      "side": 1,
+      "message": "Is palett using av1_decode_block_tokens()?\nOtherwise,  av1_decode_block_tokens() indeed needs be disabled if pvq is enabled since pvq is also replacing whole part of coefficient coding in addition to quantization.",
+      "parentUuid": "d94974c4_86162ee3",
+      "revId": "ab643e6be379ac40c078fb237a78de4d6901d58c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f96813db_5688b819",
         "filename": "av1/decoder/detokenize.h",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-22T23:25:25Z",
       "side": 1,
       "message": "This should go just after \"av1_decode_block_tokens\"",
+      "revId": "ab643e6be379ac40c078fb237a78de4d6901d58c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a54d1061_78210878",
+        "filename": "av1/decoder/detokenize.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T23:32:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f96813db_5688b819",
       "revId": "ab643e6be379ac40c078fb237a78de4d6901d58c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
