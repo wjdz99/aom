@@ -8,6 +8,7 @@
 #include "aom/aomdx.h"
 #include "av1/common/accounting.h"
 #include "av1/common/onyxc_int.h"
+#include "av1/decoder/inspection.h"
 
 /* clang-format off */
 
@@ -22,7 +23,7 @@ enum {
   OD_ALL_MASK = OD_LUMA_MASK | OD_CB_MASK | OD_CR_MASK
 };
 
-class AV1Decoder {
+class AnalyzerDecoder {
 private :
   FILE *input;
   wxString path;
@@ -31,6 +32,8 @@ private :
   const AvxVideoInfo *info;
   const AvxInterface *decoder;
 
+  insp_frame_data frame_data;
+
   aom_codec_ctx_t codec;
 public :
   aom_image_t *image;
@@ -38,8 +41,8 @@ public :
 
   int plane_mask;
 
-  AV1Decoder();
-  ~AV1Decoder();
+  AnalyzerDecoder();
+  ~AnalyzerDecoder();
 
   bool open(const wxString &path);
   void close();
@@ -48,18 +51,18 @@ public :
   int getWidth() const;
   int getHeight() const;
 
-  bool setAccountingEnabled(bool enable);
   bool getAccountingStruct(Accounting **acct);
+  bool setInspectionFrameData(insp_frame_data *);
 };
 
-AV1Decoder::AV1Decoder() : reader(NULL), info(NULL), decoder(NULL),
+AnalyzerDecoder::AnalyzerDecoder() : reader(NULL), info(NULL), decoder(NULL),
  image(NULL), frame(0) {
 }
 
-AV1Decoder::~AV1Decoder() {
+AnalyzerDecoder::~AnalyzerDecoder() {
 }
 
-bool AV1Decoder::open(const wxString &path) {
+bool AnalyzerDecoder::open(const wxString &path) {
   reader = aom_video_reader_open(path.mb_str());
   if (!reader) {
     fprintf(stderr, "Failed to open %s for reading.", path.mb_str().data());
@@ -77,13 +80,15 @@ bool AV1Decoder::open(const wxString &path) {
     fprintf(stderr, "Failed to initialize decoder.");
     return false;
   }
+  init_frame_data(&frame_data, info->frame_width, info->frame_height);
+  setInspectionFrameData(&frame_data);
   return true;
 }
 
-void AV1Decoder::close() {
+void AnalyzerDecoder::close() {
 }
 
-bool AV1Decoder::step() {
+bool AnalyzerDecoder::step() {
   if (aom_video_reader_read_frame(reader)) {
     size_t frame_size;
     const unsigned char *frame_data;
@@ -105,17 +110,22 @@ bool AV1Decoder::step() {
   return false;
 }
 
-int AV1Decoder::getWidth() const {
+int AnalyzerDecoder::getWidth() const {
   return info->frame_width;
 }
 
-int AV1Decoder::getHeight() const {
+int AnalyzerDecoder::getHeight() const {
   return info->frame_height;
 }
 
-bool AV1Decoder::getAccountingStruct(Accounting **accounting) {
+bool AnalyzerDecoder::getAccountingStruct(Accounting **accounting) {
   return
    aom_codec_control(&codec, AV1_GET_ACCOUNTING, accounting) == AOM_CODEC_OK;
+}
+
+bool AnalyzerDecoder::setInspectionFrameData(insp_frame_data *fd) {
+  return
+   aom_codec_control(&codec, AV1_SET_INSPECTION_FRAME_DATA, fd) == AOM_CODEC_OK;
 }
 
 #define MIN_ZOOM (1)
@@ -124,7 +134,7 @@ bool AV1Decoder::getAccountingStruct(Accounting **accounting) {
 class AnalyzerPanel : public wxPanel {
   DECLARE_EVENT_TABLE()
 private :
-  AV1Decoder decoder;
+  AnalyzerDecoder decoder;
   const wxString path;
 
   int zoom;
