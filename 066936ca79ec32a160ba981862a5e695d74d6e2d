@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eab083c7_0b271c7f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 7855,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-22T20:21:17Z",
+      "side": 1,
+      "message": "You can typedef an anonymous struct like this instead, and also let\u0027s use CamelCase for the struct name.\n(This is not consistent right now, but we may end up using ALL_CAPS or CamelCase eventually I think).\n\ntypedef struct {\n...\n} HandleInterModeArgs;",
+      "range": {
+        "startLine": 7855,
+        "startChar": 15,
+        "endLine": 7855,
+        "endChar": 37
+      },
+      "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c90fd06e_9c85b5d3",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 7857,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-22T20:21:17Z",
+      "side": 1,
+      "message": "Can we add a short comment for each of the struct members?",
+      "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5395bdc8_43e55806",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 7863,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-22T20:21:17Z",
+      "side": 1,
+      "message": "Why not \"int_mv single_newmvs[2][TOTAL_REFS_PER_FRAME]\" as before?\n(same for the member below)",
+      "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec884a13_afb454fd",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 7945,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-22T20:21:17Z",
+      "side": 1,
+      "message": "I believe -\u003e has higher operator precedence than *, so you don\u0027t need the braces.",
+      "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1eb9b2ee_5198dbcb",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 8650,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-22T20:21:17Z",
+      "side": 1,
+      "message": "\"const\" while we are here",
+      "range": {
+        "startLine": 8650,
+        "startChar": 6,
+        "endLine": 8650,
+        "endChar": 13
+      },
+      "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}

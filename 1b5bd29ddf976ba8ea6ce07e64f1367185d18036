@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbc2d9ff_5c09ef3e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 7858,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-22T20:21:17Z",
+      "side": 0,
+      "message": "I wonder if all these arrays of size \"TOTAL_REFS_PER_FRAME\" can be put into a single array of a struct -- where the struct contains int_mv *mode_mv, int_mv single_newmvs[2], ...... , InterpFilter *single_filter and int *single_skippable.\nThis can be for a later patch, of course. But if that makes sense, pls add a TODO.",
+      "range": {
+        "startLine": 7858,
+        "startChar": 23,
+        "endLine": 7858,
+        "endChar": 24
+      },
+      "revId": "1b5bd29ddf976ba8ea6ce07e64f1367185d18036",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
