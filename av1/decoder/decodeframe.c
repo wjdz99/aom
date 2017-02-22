@@ -38,6 +38,9 @@
 #include "av1/common/entropymode.h"
 #include "av1/common/entropymv.h"
 #include "av1/common/idct.h"
+#if CONFIG_EC_MULTISYMBOL
+#include "av1/common/mode_cdf_tables.h"
+#endif
 #include "av1/common/pred_common.h"
 #include "av1/common/quant_common.h"
 #include "av1/common/reconinter.h"

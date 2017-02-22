@@ -30,6 +30,9 @@
 #include "av1/common/entropy.h"
 #include "av1/common/entropymode.h"
 #include "av1/common/entropymv.h"
+#if CONFIG_EC_MULTISYMBOL
+#include "av1/common/mode_cdf_tables.h"
+#endif
 #include "av1/common/mvref_common.h"
 #include "av1/common/odintrin.h"
 #include "av1/common/pred_common.h"

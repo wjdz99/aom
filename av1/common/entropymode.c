@@ -15,9 +15,8 @@
 #include "av1/common/scan.h"
 #include "av1/common/onyxc_int.h"
 #include "av1/common/seg_common.h"
-
 #if CONFIG_EC_MULTISYMBOL
-aom_cdf_prob av1_kf_y_mode_cdf[INTRA_MODES][INTRA_MODES][CDF_SIZE(INTRA_MODES)];
+#include "av1/common/mode_cdf_tables.h"
 #endif
 
 #if CONFIG_ALT_INTRA
@@ -1612,29 +1611,17 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->switchable_restore_prob, default_switchable_restore_prob);
 #endif  // CONFIG_LOOP_RESTORATION
 #if CONFIG_EC_MULTISYMBOL
-  av1_tree_to_cdf_1D(av1_intra_mode_tree, fc->y_mode_prob, fc->y_mode_cdf,
-                     BLOCK_SIZE_GROUPS);
-  av1_tree_to_cdf_1D(av1_intra_mode_tree, fc->uv_mode_prob, fc->uv_mode_cdf,
-                     INTRA_MODES);
-  av1_tree_to_cdf_1D(av1_switchable_interp_tree, fc->switchable_interp_prob,
-                     fc->switchable_interp_cdf, SWITCHABLE_FILTER_CONTEXTS);
-  av1_tree_to_cdf_1D(av1_partition_tree, fc->partition_prob, fc->partition_cdf,
-                     PARTITION_CONTEXTS);
-  av1_tree_to_cdf_1D(av1_inter_mode_tree, fc->inter_mode_probs,
-                     fc->inter_mode_cdf, INTER_MODE_CONTEXTS);
+  av1_copy(fc->y_mode_cdf, default_if_y_mode_cdf);
+  av1_copy(fc->uv_mode_cdf, default_uv_mode_cdf);
+  av1_copy(fc->switchable_interp_cdf, default_switchable_interp_cdf);
+  av1_copy(fc->partition_cdf, default_partition_cdf);
+  av1_copy(fc->inter_mode_cdf, default_inter_mode_cdf);
 #if !CONFIG_EXT_TX
-  av1_tree_to_cdf_2D(av1_ext_tx_tree, fc->intra_ext_tx_prob,
-                     fc->intra_ext_tx_cdf, EXT_TX_SIZES, TX_TYPES);
-  av1_tree_to_cdf_1D(av1_ext_tx_tree, fc->inter_ext_tx_prob,
-                     fc->inter_ext_tx_cdf, EXT_TX_SIZES);
+  av1_copy(fc->intra_ext_tx_cdf, default_intra_ext_tx_cdf);
+  av1_copy(fc->inter_ext_tx_cdf, default_inter_ext_tx_cdf);
 #endif
-  av1_tree_to_cdf_2D(av1_intra_mode_tree, av1_kf_y_mode_prob, av1_kf_y_mode_cdf,
-                     INTRA_MODES, INTRA_MODES);
-  av1_tree_to_cdf(av1_segment_tree, fc->seg.tree_probs, fc->seg.tree_cdf);
-  for (int k = 0; k < MAX_TX_DEPTH; k++) {
-    av1_tree_to_cdf_1D(av1_tx_size_tree[k], fc->tx_size_probs[k],
-                       fc->tx_size_cdf[k], TX_SIZE_CONTEXTS);
-  }
+  av1_copy(fc->seg.tree_cdf, default_seg_tree_cdf);
+  av1_copy(fc->tx_size_cdf, default_tx_size_cdf);
 #endif
 #if CONFIG_DELTA_Q
   av1_copy(fc->delta_q_prob, default_delta_q_probs);
