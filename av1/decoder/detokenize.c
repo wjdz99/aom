@@ -477,7 +477,9 @@ void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
           color_map, plane_block_width, i, j, n, color_order, NULL);
 #if CONFIG_EC_MULTISYMBOL
       const int color_idx =
-          aom_read_symbol(r, cdf[n - 2][color_ctx], n, ACCT_STR);
+          n > 2 ? aom_read_symbol(r, cdf[n - 2][color_ctx], n, ACCT_STR)
+                : aom_read(r, cdf[0][color_ctx][0] >> (CDF_PROB_BITS - 8),
+                           ACCT_STR);
 #else
       const int color_idx =
           aom_read_tree(r, av1_palette_color_index_tree[n - 2],

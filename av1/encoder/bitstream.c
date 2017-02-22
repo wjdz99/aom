@@ -739,7 +739,8 @@ static void pack_palette_tokens(aom_writer *w, const TOKENEXTRA **tp, int n,
 
   for (i = 0; i < num; ++i) {
 #if CONFIG_EC_MULTISYMBOL
-    aom_write_symbol(w, p->token, *p->palette_cdf, n);
+    if (n > 2) aom_write_symbol(w, p->token, *p->palette_cdf, n);
+    else aom_write(w, p->token, *p->palette_cdf[0] >> (CDF_PROB_BITS - 8));
 #else
     av1_write_token(w, av1_palette_color_index_tree[n - 2], p->context_tree,
                     &palette_color_index_encodings[n - 2][p->token]);
