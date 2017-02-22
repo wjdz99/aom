@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4afa86dc_127ab235",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-22T00:53:23Z",
+      "side": 1,
+      "message": "I think it may be better to rename nsyms to cdf_size or something similar, if it is not actually going to be the number of symbols in normal usage. But that\u0027s up to you.",
+      "revId": "7e2cc151197ef331e3e23b19bc56cfc6dd6d150f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
