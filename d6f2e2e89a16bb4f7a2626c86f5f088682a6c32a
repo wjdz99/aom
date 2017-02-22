@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "33c034bf_81b44270",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T18:48:13Z",
+      "side": 1,
+      "message": "Sure, I will try to use #define CDF_SIZE(x) ((x) + 1) as well.\nRegarding the name of cdf_size, :), pls look this: https://aomedia-review.googlesource.com/#/c/7950/4/av1/common/generic_code.c@30",
+      "parentUuid": "40e96568_5a7fcb8c",
+      "revId": "d6f2e2e89a16bb4f7a2626c86f5f088682a6c32a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf668c6d_01ab03ac",
         "filename": "av1/common/pvq_state.c",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-22T06:38:18Z",
       "side": 1,
       "message": "I feel as though this function is being too clever for it\u0027s own good an will be difficult to read.\n\nIt essentially initializes a 1D array of CDFs.  Why not call it that?  Also, you know the size of the array and the number of CDFs at this point.  You could make this code easier to read by calling it as:\n\nOD_CDFS_INIT_Q15_1D(adapt-\u003eskip_cdf, 4, OD_TXSIZES*2)\n\nwhich would pass through to a helper function that would do the actual CDF initialization.  Similar to what is done here:\n\nhttps://aomedia.googlesource.com/aom/+/master/aom_dsp/prob.h#106\n\nThis will be needed later when you want to initialize the CDFs used by the generic_coder.",
+      "revId": "d6f2e2e89a16bb4f7a2626c86f5f088682a6c32a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a8b0e214_07e1e63f",
+        "filename": "av1/common/pvq_state.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T18:48:13Z",
+      "side": 1,
+      "message": "Yes, agree that the function will frustrate the readers with no fun. The function gets more clever with https://aomedia-review.googlesource.com/#/c/7950/3/av1/common/generic_code.c@49.\n\nBtw, adapt-\u003eskip_cdf is 2D cdf array like all other cdfs in pvq of av1, so I think you meant OD_CDFS_INIT_Q15_2D(adapt-\u003eskip_cdf, 4, OD_TXSIZES*2), with #define OD_CDFS_INIT_Q15_1D(..) newly defined.\n\nWell, I\u0027ve basically tried to reuse the existing daala code which also has designated 2D init functions, which does not decompose into call of each 1D init.\nIn the patch with generic_coder coming later, it just need to call 1D function for init since one cdf is used at a moment.\n\nIf look carefully, :), it is CDF\"S\", meaning multiple CDFs. And there is OD_SINGLE_CDF_INIT(), which is for 1D but seems not used in daala at present.\n\nI also wonder who initially wrote the code:\n#define OD_CDFS_INIT(cdf, val) aom_cdf_init(\u0026cdf[0][0], \\\n sizeof(cdf)/sizeof(cdf[0]), sizeof(cdf[0])/sizeof(cdf[0][0]), val, val)",
+      "parentUuid": "cf668c6d_01ab03ac",
       "revId": "d6f2e2e89a16bb4f7a2626c86f5f088682a6c32a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
