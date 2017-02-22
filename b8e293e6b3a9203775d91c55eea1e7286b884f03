@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5e4508e3_17cefb0b",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T01:18:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b3a6f5c_8f5abf7d",
+      "revId": "b8e293e6b3a9203775d91c55eea1e7286b884f03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "071198c0_e07c9032",
         "filename": "av1/common/generic_code.c",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-21T21:15:18Z",
       "side": 1,
       "message": "The other approach is simply to set\n  cdf[i*nsyms + j] \u003d (j + 1)*32768/(nsyms - CONFIG_EC_ADAPT);\n\nThen you will always get exactly 32768 in the last place. That should be equivalent to what od_encode_cdf_adapt_q15()/od_decode_cdf_adapt_q15() were doing in Daala.",
+      "revId": "b8e293e6b3a9203775d91c55eea1e7286b884f03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "089ecea7_9b96ed90",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T01:18:36Z",
+      "side": 1,
+      "message": "Great! I am using the code suggested here",
+      "parentUuid": "071198c0_e07c9032",
       "revId": "b8e293e6b3a9203775d91c55eea1e7286b884f03",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "d4288446_0a0b7f10",
+        "filename": "av1/common/generic_code.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T01:18:36Z",
+      "side": 1,
+      "message": "Right. In the succeeding patches, a cdf where its declared size does not mactch to real size is not intialized by this function. I will add the warning you have pointed out.",
+      "parentUuid": "d89739ba_d98fc93b",
+      "revId": "b8e293e6b3a9203775d91c55eea1e7286b884f03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4fed8571_56be63f6",
         "filename": "av1/common/generic_code.h",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-21T21:15:18Z",
       "side": 1,
       "message": "Why the \"+\" at the beginning of the line?\n\nPersonally, I would pass in\n sizeof(cdf[0])/sizeof(cdf[0][0]) - CONFIG_EC_ADAPT\nto the last argument. That would get rid of a bunch of special cases in aom_cdf_init_q15().",
+      "revId": "b8e293e6b3a9203775d91c55eea1e7286b884f03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81628757_dc168685",
+        "filename": "av1/common/generic_code.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T01:18:36Z",
+      "side": 1,
+      "message": "Apparently, the \u0027+\u0027 came from my mistake when copying the diff of patch.",
+      "parentUuid": "4fed8571_56be63f6",
       "revId": "b8e293e6b3a9203775d91c55eea1e7286b884f03",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
