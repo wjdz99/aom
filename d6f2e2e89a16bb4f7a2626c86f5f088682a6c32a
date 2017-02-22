@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "2cc63663_a7dde0b1",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-22T19:14:16Z",
+      "side": 1,
+      "message": "To be fair, my first suggestion was the same as Nathan\u0027s. I only meant if you\u0027re going to make the behavior different from all of the other functions, it should also be named something different. But to me it\u0027s even better if it\u0027s not different, and really does take the number of symbols.",
+      "parentUuid": "33c034bf_81b44270",
+      "revId": "d6f2e2e89a16bb4f7a2626c86f5f088682a6c32a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf668c6d_01ab03ac",
         "filename": "av1/common/pvq_state.c",
         "patchSetId": 8
