@@ -11,6 +11,9 @@
 
 #include "av1/common/onyxc_int.h"
 #include "av1/common/entropymv.h"
+#if CONFIG_EC_MULTISYMBOL
+#include "av1/common/mv_cdf_tables.h"
+#endif
 
 // Integer pel reference mv threshold for use of high-precision 1/8 mv
 #define COMPANDED_MVREF_THRESH 8
@@ -294,6 +297,7 @@ void av1_adapt_mv_probs(AV1_COMMON *cm, int allow_hp) {
 }
 
 #if CONFIG_EC_MULTISYMBOL
+
 void av1_set_mv_cdfs(nmv_context *ctx) {
   int i;
   int j;
@@ -310,17 +314,36 @@ void av1_set_mv_cdfs(nmv_context *ctx) {
     av1_tree_to_cdf(av1_mv_fp_tree, comp_ctx->fp, comp_ctx->fp_cdf);
   }
 }
+
+void av1_init_mv_cdfs(nmv_context *ctx) {
+  int i;
+  int j;
+  av1_copy(ctx->joint_cdf, default_mv_joint_cdf);
+
+  for (i = 0; i < 2; ++i) {
+    nmv_component *const comp_ctx = &ctx->comps[i];
+    av1_copy(comp_ctx->class_cdf, default_mv_class_cdf);
+
+    for (j = 0; j < CLASS0_SIZE; ++j) {
+      av1_copy(comp_ctx->class0_fp_cdf, default_mv_class0_fp_cdf);
+    }
+    av1_copy(comp_ctx->fp_cdf, default_mv_fp_cdf);
+  }
+}
 #endif
 
 void av1_init_mv_probs(AV1_COMMON *cm) {
 #if CONFIG_REF_MV
   int i;
-  for (i = 0; i < NMV_CONTEXTS; ++i) cm->fc->nmvc[i] = default_nmv_context;
+  for (i = 0; i < NMV_CONTEXTS; ++i) {
+    cm->fc->nmvc[i] = default_nmv_context;
+#if CONFIG_EC_MULTISYMBOL
+    av1_init_mv_cdfs(&cm->fc->nmvc[i]);
+#endif
+  }
 #else
   cm->fc->nmvc = default_nmv_context;
-#if CONFIG_EC_MULTISYMBOL
-  av1_set_mv_cdfs(&cm->fc->nmvc);
-#endif
+  av1_init_mv_cdfs(&cm->fc->nmvc);
 #endif
 #if CONFIG_GLOBAL_MOTION
   av1_copy(cm->fc->global_motion_types_prob, default_global_motion_types_prob);
