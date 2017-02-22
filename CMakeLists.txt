@@ -884,6 +884,13 @@ add_executable(aomenc
                $<TARGET_OBJECTS:aom_encoder_app_util>
                $<TARGET_OBJECTS:aom_encoder_stats>)
 
+if (CONFIG_ANALYZER)
+add_executable(analyzer
+               "${AOM_ROOT}/examples/analyzer.cc"
+               $<TARGET_OBJECTS:aom_common_app_util>
+               $<TARGET_OBJECTS:aom_decoder_app_util>)
+endif ()
+
 add_executable(decode_to_md5
                "${AOM_ROOT}/examples/decode_to_md5.c"
                $<TARGET_OBJECTS:aom_common_app_util>
@@ -920,8 +927,14 @@ add_executable(twopass_encoder
                $<TARGET_OBJECTS:aom_encoder_app_util>)
 
 # List of app targets.
-set(AOM_APP_TARGETS aom_cx_set_ref aomdec aomenc decode_to_md5 decode_with_drops
-    lossless_encoder set_maps simple_decoder simple_encoder twopass_encoder)
+if (CONFIG_ANALYZER)
+  set(AOM_APP_TARGETS aom_cx_set_ref aomdec aomenc analyzer decode_to_md5
+      decode_with_drops lossless_encoder set_maps simple_decoder simple_encoder
+      twopass_encoder)
+else ()
+  set(AOM_APP_TARGETS aom_cx_set_ref aomdec aomenc decode_to_md5 decode_with_drops
+      lossless_encoder set_maps simple_decoder simple_encoder twopass_encoder)
+endif ()
 
 foreach (aom_app ${AOM_APP_TARGETS})
   target_link_libraries(${aom_app} PUBLIC aom)
