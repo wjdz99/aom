@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "616b7fc3_3d9d9ed6",
+        "filename": "av1/common/generic_code.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T01:34:04Z",
+      "side": 1,
+      "message": "It means the # of symbols coded, i.e. the last element of cdf when CONFIG_EC_ADAPT is 1. But as explained in the response to your 3rd comment, instead I set all of cdf as zeros, then the 1st call of aom write/read symbol function (thru wrapper, aom_write/read_symbol_pvq()) check if the 1st element of cdf is zero to do init is required.",
+      "parentUuid": "aef21d0e_820d4641",
+      "revId": "5d17bf46886d7e22f75d54f14226e214b664dd67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df39903e_85dcffc3",
         "filename": "av1/common/generic_code.h",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "80102d76_653e8ab3",
+        "filename": "av1/common/generic_code.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T01:34:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df39903e_85dcffc3",
+      "revId": "5d17bf46886d7e22f75d54f14226e214b664dd67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "63cc2b57_e4ad40c2",
         "filename": "av1/common/pvq.c",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2017-02-21T22:26:21Z",
       "side": 1,
       "message": "Was this meant to use OD_CDFS_INIT_COUNT()?",
+      "revId": "5d17bf46886d7e22f75d54f14226e214b664dd67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c578b5d1_0814ae3f",
+        "filename": "av1/common/pvq.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-22T01:34:04Z",
+      "side": 1,
+      "message": "Well, at first I wanted to use OD_CDFS_INIT_COUNT() which only set the last element, i.e. cdf[nsyms] added by \u0027+ CONFIG_ERC_ADAPT]\u0027, but changed mind to use existing function, OD_CDFS_INIT(... , 0) even though it set all the cdf with 0s.",
+      "parentUuid": "63cc2b57_e4ad40c2",
       "revId": "5d17bf46886d7e22f75d54f14226e214b664dd67",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
