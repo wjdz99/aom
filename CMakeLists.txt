@@ -591,6 +591,13 @@ if (CONFIG_ACCOUNTING)
       "${AOM_ROOT}/test/accounting_test.cc")
 endif ()
 
+if (CONFIG_INSPECTION)
+  set(AOM_AV1_DECODER_SOURCES
+      ${AOM_AV1_DECODER_SOURCES
+      "${AOM_ROOT}/av1/decoder/inspection.c"
+      "${AOM_ROOT}/av1/decoder/inspection.h")
+endif()
+
 if (CONFIG_ANS)
   if (CONFIG_DAALA_EC)
     message(FATAL_ERROR "CONFIG_ANS requires CONFIG_DAALA_EC=0.")
