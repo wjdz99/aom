@@ -18,6 +18,7 @@
 #include "aom/aomdx.h"
 #include "av1/common/accounting.h"
 #include "av1/common/onyxc_int.h"
+#include "av1/decoder/inspection.h"
 
 /* clang-format off */
 
@@ -41,6 +42,8 @@ private :
   const AvxVideoInfo *info;
   const AvxInterface *decoder;
 
+  insp_frame_data frame_data;
+
   aom_codec_ctx_t codec;
 public :
   aom_image_t *image;
@@ -58,8 +61,10 @@ public :
   int getWidth() const;
   int getHeight() const;
 
-  bool setAccountingEnabled(bool enable);
   bool getAccountingStruct(Accounting **acct);
+  bool setInspectionCallback();
+
+  static void inspect(void *decoder, void *data);
 };
 
 AV1Decoder::AV1Decoder() : reader(NULL), info(NULL), decoder(NULL),
@@ -87,6 +92,8 @@ bool AV1Decoder::open(const wxString &path) {
     fprintf(stderr, "Failed to initialize decoder.");
     return false;
   }
+  ifd_init(&frame_data, info->frame_width, info->frame_height);
+  setInspectionCallback();
   return true;
 }
 
@@ -126,6 +133,19 @@ int AV1Decoder::getHeight() const {
 bool AV1Decoder::getAccountingStruct(Accounting **accounting) {
   return
    aom_codec_control(&codec, AV1_GET_ACCOUNTING, accounting) == AOM_CODEC_OK;
+}
+
+bool AV1Decoder::setInspectionCallback() {
+  aom_inspect_init ii;
+  ii.inspect_cb = AV1Decoder::inspect;
+  ii.inspect_ctx = (void *)this;
+  return
+   aom_codec_control(&codec, AV1_SET_INSPECTION_CALLBACK, &ii) == AOM_CODEC_OK;
+}
+
+void AV1Decoder::inspect(void *pbi, void *data) {
+  AV1Decoder *decoder = (AV1Decoder *)data;
+  ifd_inspect(&decoder->frame_data, pbi);
 }
 
 #define MIN_ZOOM (1)
