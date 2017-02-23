@@ -25,6 +25,7 @@
 
 #include "av1/encoder/av1_quantize.h"
 #include "av1/encoder/encodemb.h"
+#include "av1/encoder/encoder.h"
 #include "av1/encoder/hybrid_fwd_txfm.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/tokenize.h"
@@ -649,6 +650,40 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif  // #if !CONFIG_PVQ
 }
 
+#ifdef GET_BLOCK_DATA
+static void get_plane_block_data(MACROBLOCK *x, int plane, int block,
+                                 BLOCK_SIZE plane_bsize) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const MODE_INFO *mi = xd->mi[0];
+  const MB_MODE_INFO *mbmi = &mi->mbmi;
+  struct macroblock_plane *const p = &x->plane[plane];
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  uint8_t *dst = pd->dst.buf;
+  const int dst_stride = pd->dst.stride;
+  const int diff_stride = 4 * num_4x4_blocks_wide_lookup[plane_bsize];
+  const int16_t *src_diff = p->src_diff;
+  int i;
+  const int h = block_size_high[plane_bsize];
+  const int w = block_size_wide[plane_bsize];
+  FILE *fp = xd->block_fp[plane];
+  PREDICTION_MODE block_mode =
+    mbmi->sb_type < BLOCK_8X8 ? mi->bmi[block].as_mode : mbmi->mode;
+
+  // write block mode
+  fwrite(&block_mode, 1, sizeof(block_mode), fp);
+  // write plane block width
+  fwrite(&w, 1, sizeof(w), fp);
+  // write plane block height
+  fwrite(&h, 1, sizeof(h), fp);
+  // write residual
+  for (i = 0; i < h; ++i)
+    fwrite(src_diff + i * diff_stride, w, sizeof(*src_diff), fp);
+  // write prediction block
+  for (i = 0; i < h; ++i)
+    fwrite(dst + i * dst_stride, w, sizeof(*dst), fp);
+}
+#endif
+
 static void encode_block(int plane, int block, int blk_row, int blk_col,
                          BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
   struct encode_b_args *const args = arg;
@@ -873,6 +908,46 @@ void av1_encode_sby_pass1(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
   av1_foreach_transformed_block_in_plane(&x->e_mbd, bsize, 0,
                                          encode_block_pass1, &args);
 }
+
+#ifdef GET_BLOCK_DATA
+void av1_get_block_data(MACROBLOCK *x, BLOCK_SIZE bsize) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  BLOCK_SIZE plane_bsize;
+  int plane;
+
+  mbmi->skip = 1;
+
+  if (x->skip)
+    return;
+
+  for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    plane_bsize = get_plane_block_size(bsize, pd);
+    if (xd->mi[0]->mbmi.sb_type < BLOCK_8X8) {
+      const PARTITION_TYPE bp = bsize - xd->mi[0]->mbmi.sb_type;
+      const int have_vsplit = bp != PARTITION_HORZ;
+      const int have_hsplit = bp != PARTITION_VERT;
+      const int num_4x4_w = 2 >> ((!have_vsplit) | pd->subsampling_x);
+      const int num_4x4_h = 2 >> ((!have_hsplit) | pd->subsampling_y);
+      const int pw = 8 >> (have_vsplit | pd->subsampling_x);
+      const int ph = 8 >> (have_hsplit | pd->subsampling_y);
+      int w, h;
+      assert(bp != PARTITION_NONE && bp < PARTITION_TYPES);
+      assert(bsize == BLOCK_8X8);
+      assert(pw * num_4x4_w == bw && ph * num_4x4_h == bh);
+      (void) pw;
+      (void) ph;
+
+      for (h = 0; h < num_4x4_h; ++h)
+        for (w = 0; w < num_4x4_w; ++w)
+          get_plane_block_data(x, plane, h * 2 + w, plane_bsize);
+     } else {
+        get_plane_block_data(x, plane, 0, plane_bsize);
+    }
+  }
+}
+#endif
 
 void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize,
                    const int mi_row, const int mi_col) {

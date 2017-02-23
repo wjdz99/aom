@@ -12,6 +12,7 @@
 #ifndef AV1_COMMON_BLOCKD_H_
 #define AV1_COMMON_BLOCKD_H_
 
+#include <stdio.h>
 #include "./aom_config.h"
 
 #include "aom_dsp/aom_dsp_common.h"
@@ -558,6 +559,7 @@ typedef struct macroblockd {
   int delta_qindex;
   int current_qindex;
 #endif
+  FILE *block_fp[3];
 } MACROBLOCKD;
 
 static INLINE BLOCK_SIZE get_subsize(BLOCK_SIZE bsize,

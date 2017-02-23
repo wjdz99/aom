@@ -50,6 +50,7 @@ typedef enum AV1_XFORM_QUANT {
 
 void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize,
                    const int mi_row, const int mi_col);
+void av1_get_block_data(MACROBLOCK *x, BLOCK_SIZE bsize);
 #if CONFIG_SUPERTX
 void av1_encode_sb_supertx(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize);
 #endif  // CONFIG_SUPERTX

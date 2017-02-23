@@ -485,6 +485,24 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
 #if CONFIG_ANS
   aom_buf_ans_free(&cpi->buf_ans);
 #endif  // CONFIG_ANS
+
+#ifdef GET_BLOCK_DATA
+  if (cpi->block_fp[0]) {
+    fclose(cpi->block_fp[0]);
+    printf("File closed 0.\n");
+    cpi->block_fp[0] = NULL;
+  }
+  if (cpi->block_fp[1]) {
+    fclose(cpi->block_fp[1]);
+    printf("File closed 1.\n");
+    cpi->block_fp[1] = NULL;
+  }
+  if (cpi->block_fp[2]) {
+    fclose(cpi->block_fp[2]);
+    printf("File closed 2.\n");
+    cpi->block_fp[2] = NULL;
+  }
+#endif
 }
 
 static void save_coding_context(AV1_COMP *cpi) {
@@ -930,6 +948,32 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
 
   cpi->oxcf = *oxcf;
   cpi->framerate = oxcf->init_framerate;
+
+#ifdef GET_BLOCK_DATA
+  if (cpi->block_fp[0]) {
+    fclose(cpi->block_fp[0]);
+    printf("File closed 0.\n");
+  }
+  cpi->block_fp[0] = fopen("block_y.dat", "wb");
+  if (cpi->block_fp[0] != NULL)
+    printf("File opened 0.\n");
+
+  if (cpi->block_fp[1]) {
+    fclose(cpi->block_fp[1]);
+    printf("File closed 1.\n");
+  }
+  cpi->block_fp[1] = fopen("block_u.dat", "wb");
+  if (cpi->block_fp[1] != NULL)
+    printf("File opened 1.\n");
+
+  if (cpi->block_fp[2]) {
+    fclose(cpi->block_fp[2]);
+    printf("File closed 2.\n");
+  }
+  cpi->block_fp[2] = fopen("block_v.dat", "wb");
+  if (cpi->block_fp[2] != NULL)
+    printf("File opened 2.\n");
+#endif
 
   cm->profile = oxcf->profile;
   cm->bit_depth = oxcf->bit_depth;
