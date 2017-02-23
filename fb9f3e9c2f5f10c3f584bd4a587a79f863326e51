@@ -78,6 +78,30 @@
     },
     {
       "key": {
+        "uuid": "b361c1d3_c09f7842",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1511,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "Good point. the current version does not comply with CONFIG_COEFF_INTERLEAVE experimental yet. \nwe prefer to fix this after CONFIG_COEFF_INTERLEAVE is brought up for continue discussion.",
+      "parentUuid": "5fb1a1a4_6167514d",
+      "range": {
+        "startLine": 1511,
+        "startChar": 26,
+        "endLine": 1511,
+        "endChar": 0
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "17d4c4e1_6200c349",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 6
@@ -89,6 +113,30 @@
       "writtenOn": "2017-02-15T22:59:15Z",
       "side": 1,
       "message": "Do you need \" \u0026\u0026 !CONFIG_PALETTE_THROUGHPUT\" here?",
+      "range": {
+        "startLine": 1546,
+        "startChar": 18,
+        "endLine": 1546,
+        "endChar": 0
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af136405_16cb370d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "it will be added later to comply with CONFIG_COEFF_INTERLEAVE experiental.",
+      "parentUuid": "17d4c4e1_6200c349",
       "range": {
         "startLine": 1546,
         "startChar": 18,
@@ -124,6 +172,30 @@
     },
     {
       "key": {
+        "uuid": "53318096_26163838",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1639,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "will update the comment",
+      "parentUuid": "2f4a284c_def0a116",
+      "range": {
+        "startLine": 1639,
+        "startChar": 0,
+        "endLine": 1639,
+        "endChar": 25
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8e52e843_cf9132f6",
         "filename": "av1/decoder/detokenize.c",
         "patchSetId": 6
@@ -135,6 +207,30 @@
       "writtenOn": "2017-02-15T22:59:15Z",
       "side": 1,
       "message": "Declare both these variables where they are used",
+      "range": {
+        "startLine": 459,
+        "startChar": 6,
+        "endLine": 459,
+        "endChar": 15
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c7c9d57_9c65fa5a",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "will move the variables in the 2-D loop.",
+      "parentUuid": "8e52e843_cf9132f6",
       "range": {
         "startLine": 459,
         "startChar": 6,
@@ -170,6 +266,30 @@
     },
     {
       "key": {
+        "uuid": "896a5a45_d296b551",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "will add",
+      "parentUuid": "890f9058_429f5b55",
+      "range": {
+        "startLine": 460,
+        "startChar": 2,
+        "endLine": 460,
+        "endChar": 5
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "54c33d9e_4649a2a9",
         "filename": "av1/decoder/detokenize.c",
         "patchSetId": 6
@@ -181,6 +301,30 @@
       "writtenOn": "2017-02-15T22:59:15Z",
       "side": 1,
       "message": "Can be declared const here.",
+      "range": {
+        "startLine": 461,
+        "startChar": 2,
+        "endLine": 461,
+        "endChar": 16
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e525e146_2eb80c72",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "yes. it can. will add.",
+      "parentUuid": "54c33d9e_4649a2a9",
       "range": {
         "startLine": 461,
         "startChar": 2,
@@ -262,6 +406,54 @@
     },
     {
       "key": {
+        "uuid": "5aff6fa2_2e20a14e",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "this one is tricky. since the value depends on cols which is computed by av1_get_block_dimensions(). Currently the compiler does not allow me to define variances after the function call.",
+      "parentUuid": "154ae7ce_d650d844",
+      "range": {
+        "startLine": 465,
+        "startChar": 2,
+        "endLine": 465,
+        "endChar": 13
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a03ad9f1_ba2d98e0",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "plane_block_width is the block size (for the whole block) and also is not truncated at the frame boundary.",
+      "parentUuid": "f5dcc8e8_9947b054",
+      "range": {
+        "startLine": 465,
+        "startChar": 52,
+        "endLine": 465,
+        "endChar": 74
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e690024_e5bab9f7",
         "filename": "av1/decoder/detokenize.c",
         "patchSetId": 6
@@ -308,6 +500,30 @@
     },
     {
       "key": {
+        "uuid": "5da3eef4_cfdb33fc",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "same answer as above.",
+      "parentUuid": "46049ae8_b452a5c4",
+      "range": {
+        "startLine": 466,
+        "startChar": 54,
+        "endLine": 466,
+        "endChar": 76
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2f9e5ecd_0182272d",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 6
@@ -319,6 +535,30 @@
       "writtenOn": "2017-02-15T22:59:15Z",
       "side": 1,
       "message": "Can you explain why this change is needed?",
+      "range": {
+        "startLine": 939,
+        "startChar": 18,
+        "endLine": 939,
+        "endChar": 46
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dba9768_03cf9eba",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 939,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "we need this because palette index and coeff are interleaved at transform block level.",
+      "parentUuid": "2f9e5ecd_0182272d",
       "range": {
         "startLine": 939,
         "startChar": 18,
@@ -348,6 +588,24 @@
     },
     {
       "key": {
+        "uuid": "0ebe3011_cd22e021",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2038,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "if coeff is skipped, we need code palette index for all the transform blocks and no interleave here.",
+      "parentUuid": "bef9e9eb_633c2f4f",
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5a528d81_62db712a",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 6
@@ -359,6 +617,24 @@
       "writtenOn": "2017-02-15T22:59:15Z",
       "side": 1,
       "message": "This is a very complicated line to read. Create local const variables for \"(bkw \u003c\u003c tx_size_wide_log2[0])\" and each of the parameters to clarify the code.",
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cefdec4_6de25e92",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2190,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "will update the code to clarify.",
+      "parentUuid": "5a528d81_62db712a",
       "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -388,6 +664,30 @@
     },
     {
       "key": {
+        "uuid": "e61fdb94_33de1953",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2209,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "yes. they are identical but they are under different macro and only one of them will be enabled. Also, it is interleaved with coeff pack. So it is hard to refactor into a separate function.",
+      "parentUuid": "e8e2a5cc_2be6d194",
+      "range": {
+        "startLine": 2208,
+        "startChar": 7,
+        "endLine": 2209,
+        "endChar": 39
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "52a1769a_c014088d",
         "filename": "av1/encoder/tokenize.c",
         "patchSetId": 6
@@ -405,6 +705,24 @@
     },
     {
       "key": {
+        "uuid": "7179933d_12e0a540",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "we are not able to use this function since tokenize_palette_b() is at transform block.",
+      "parentUuid": "52a1769a_c014088d",
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "475ae206_7ae92090",
         "filename": "av1/encoder/tokenize.c",
         "patchSetId": 6
@@ -416,6 +734,30 @@
       "writtenOn": "2017-02-15T22:59:15Z",
       "side": 1,
       "message": "\"encoding\"",
+      "range": {
+        "startLine": 489,
+        "startChar": 44,
+        "endLine": 489,
+        "endChar": 52
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5fbf4c5_b4ccd3ce",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "will update.",
+      "parentUuid": "475ae206_7ae92090",
       "range": {
         "startLine": 489,
         "startChar": 44,
@@ -451,6 +793,30 @@
     },
     {
       "key": {
+        "uuid": "63a4a9e2_fa43a366",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "yes. will update.",
+      "parentUuid": "172dc5af_2edf8dc0",
+      "range": {
+        "startLine": 666,
+        "startChar": 4,
+        "endLine": 666,
+        "endChar": 29
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b82790ec_83708887",
         "filename": "av1/encoder/tokenize.h",
         "patchSetId": 6
@@ -462,6 +828,30 @@
       "writtenOn": "2017-02-15T22:59:15Z",
       "side": 1,
       "message": "This should be declared only when \"!CONFIG_PALETTE_THROUGHPUT\", right?",
+      "range": {
+        "startLine": 78,
+        "startChar": 5,
+        "endLine": 78,
+        "endChar": 28
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd50f590_6d8df6a3",
+        "filename": "av1/encoder/tokenize.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-02-23T18:19:34Z",
+      "side": 1,
+      "message": "yes. will update.",
+      "parentUuid": "b82790ec_83708887",
       "range": {
         "startLine": 78,
         "startChar": 5,
