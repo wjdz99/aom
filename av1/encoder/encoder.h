@@ -49,6 +49,7 @@
 #include "aom/internal/aom_codec_internal.h"
 #include "aom_util/aom_thread.h"
 
+#define GET_BLOCK_DATA
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -667,6 +668,7 @@ typedef struct AV1_COMP {
 #if CONFIG_REFERENCE_BUFFER
   SequenceHeader seq_params;
 #endif
+  FILE *block_fp[3];
 } AV1_COMP;
 
 void av1_initialize_enc(void);

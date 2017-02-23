@@ -5608,6 +5608,11 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     for (plane = 0; plane < MAX_MB_PLANE; ++plane)
       av1_encode_intra_block_plane((AV1_COMMON *)cm, x, block_size, plane, 1,
                                    mi_row, mi_col);
+#ifdef GET_BLOCK_DATA
+    if (!dry_run && cm->show_frame) {
+      av1_get_block_data(x, bsize);
+    }
+#endif
     if (!dry_run)
       sum_intra_stats(td->counts, mi, xd->above_mi, xd->left_mi,
                       frame_is_intra_only(cm), mi_row, mi_col);
@@ -5707,6 +5712,13 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
         av1_build_inter_predictors_sby(xd, mi_row, mi_col, NULL, block_size);
 
       av1_build_inter_predictors_sbuv(xd, mi_row, mi_col, NULL, block_size);
+
+#ifdef GET_BLOCK_DATA
+    if (!dry_run && cm->show_frame) {
+      av1_get_block_data(x, bsize);
+    }
+#endif
+
 #if CONFIG_WARPED_MOTION
     }
 #endif  // CONFIG_WARPED_MOTION
