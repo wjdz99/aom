@@ -25,6 +25,7 @@
 
 #include "av1/encoder/av1_quantize.h"
 #include "av1/encoder/encodemb.h"
+#include "av1/encoder/encoder.h"
 #include "av1/encoder/hybrid_fwd_txfm.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/tokenize.h"
@@ -649,6 +650,55 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif  // #if !CONFIG_PVQ
 }
 
+#ifdef GET_BLOCK_DATA
+static void get_block_data(int plane, int block, int blk_row, int blk_col,
+                           BLOCK_SIZE plane_bsize,
+                           TX_SIZE tx_size, void *arg) {
+  struct encode_b_args *const args = arg;
+  MACROBLOCK *const x = args->x;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  struct macroblock_plane *const p = &x->plane[plane];
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  PLANE_TYPE plane_type = (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
+  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+
+  uint8_t *dst = &pd->dst.buf[4 * blk_row * pd->dst.stride + 4 * blk_col];
+  const int dst_stride = pd->dst.stride;
+  const int diff_stride = 4 * num_4x4_blocks_wide_lookup[plane_bsize];
+  const int16_t *src_diff = &p->src_diff[4 * (blk_row * diff_stride + blk_col)];
+  int i, n;
+  FILE *fp;
+
+ // if (tx_type == IDTX) return;
+
+  switch (tx_size) {
+    case TX_4X4:
+      n = 4;
+      fp = xd->training_fp[0];
+      break;
+    case TX_8X8:
+      n = 8;
+      fp = xd->training_fp[1];
+      break;
+    case TX_16X16:
+      n = 16;
+      fp = xd->training_fp[2];
+      break;
+    default:
+      return;
+  }
+  // can replace this with whatever data you need, for example mbmi->mode:
+  // fwrite(&mbmi->mode, 1, sizeof(mbmi->mode), fp);
+  fwrite(&tx_type, 1, sizeof(tx_type), fp);
+  fwrite(&plane, 1, sizeof(plane), fp);
+  for (i = 0; i < n; ++i)
+    fwrite(src_diff + i * diff_stride, n, sizeof(*src_diff), fp);
+  for (i = 0; i < n; ++i)
+    fwrite(dst + i * dst_stride, n, sizeof(*dst), fp);
+}
+#endif
+
 static void encode_block(int plane, int block, int blk_row, int blk_col,
                          BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
   struct encode_b_args *const args = arg;
@@ -873,6 +923,28 @@ void av1_encode_sby_pass1(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
   av1_foreach_transformed_block_in_plane(&x->e_mbd, bsize, 0,
                                          encode_block_pass1, &args);
 }
+
+#ifdef GET_BLOCK_DATA
+void av1_get_block_data(MACROBLOCK *x, BLOCK_SIZE bsize) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  struct optimize_ctx ctx;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  struct encode_b_args arg = { NULL, x, &ctx, &mbmi->skip, NULL, NULL, 1 };
+  int plane;
+
+  mbmi->skip = 1;
+
+  if (x->skip)
+    return;
+
+  for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    //TODO(sarahparker) find av1 version of: if (!x->skip_recode)
+      av1_subtract_plane(x, bsize, plane);
+    av1_foreach_transformed_block_in_plane(xd, bsize, plane,
+                                            get_block_data, &arg);
+  }
+}
+#endif
 
 void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize,
                    const int mi_row, const int mi_col) {
