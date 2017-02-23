@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "712bdcde_704ac954",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 7855,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-23T00:34:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eab083c7_0b271c7f",
+      "range": {
+        "startLine": 7855,
+        "startChar": 15,
+        "endLine": 7855,
+        "endChar": 37
+      },
+      "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c90fd06e_9c85b5d3",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 5
@@ -39,6 +63,24 @@
       "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a932bde0_958c972d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 7857,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-23T00:34:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c90fd06e_9c85b5d3",
+      "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "2bbec32b_b75d3ef1",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 7863,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-23T00:34:44Z",
+      "side": 1,
+      "message": "This way we can reference an array that\u0027s scope is the caller of handle_inter_mode, which is basically what was done before this patch since the array is being passed by reference. I admit this syntax is kinda gross.\n\nIf we use an array that\u0027s a member of this stuct instead, then the calling function will need to be refactored as well to use the arrays in this struct instead of its own. All if the arrays are declared at the top of the calling function so it shouldn\u0027t be a big deal to do do if you think that\u0027s best. Happy to do it if so, let me know.",
+      "parentUuid": "5395bdc8_43e55806",
+      "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ec884a13_afb454fd",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 5
@@ -70,6 +130,24 @@
       "writtenOn": "2017-02-22T20:21:17Z",
       "side": 1,
       "message": "I believe -\u003e has higher operator precedence than *, so you don\u0027t need the braces.",
+      "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd522757_a7770d21",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 7945,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-23T00:34:44Z",
+      "side": 1,
+      "message": "I just did this because I thought it would be more readable. You are right though. Should I remove the braces?",
+      "parentUuid": "ec884a13_afb454fd",
       "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -96,6 +174,30 @@
       "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0bcce54_183bb8e5",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 8650,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-23T00:34:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1eb9b2ee_5198dbcb",
+      "range": {
+        "startLine": 8650,
+        "startChar": 6,
+        "endLine": 8650,
+        "endChar": 13
+      },
+      "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
