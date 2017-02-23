@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d476e5d9_11aa0a39",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-23T23:59:51Z",
+      "side": 1,
+      "message": "#if CONFIG_PALETTE \u0026\u0026 CONFIG_PALETTE_THROUGHPUT",
+      "revId": "7f3aa6de6b2c478079e8c7251bc46871aa251726",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58f4b4e1_0501dac8",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-23T23:59:51Z",
+      "side": 1,
+      "message": "\"  //  CONFIG_PALETTE \u0026\u0026 CONFIG_PALETTE_THROUGHPUT\"",
+      "range": {
+        "startLine": 514,
+        "startChar": 6,
+        "endLine": 514,
+        "endChar": 0
+      },
+      "revId": "7f3aa6de6b2c478079e8c7251bc46871aa251726",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab7cedb8_db335393",
+        "filename": "av1/encoder/tokenize.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-23T23:59:51Z",
+      "side": 1,
+      "message": "The structure should be as follows:\n\n#if CONFIG_PALETTE\n#if CONFIG_PALETTE_THROUGHPUT\nvoid tokenize_palette_b(.....);\n#else\nvoid av1_tokenize_palette_sb(......);\n#endif  // CONFIG_PALETTE_THROUGHPUT\n#endif  // CONFIG_PALETTE\n\nBecause, \"CONFIG_PALETTE_THROUGHPUT\" blocks should never be compiled without CONFIG_PALETTE.",
+      "revId": "7f3aa6de6b2c478079e8c7251bc46871aa251726",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}

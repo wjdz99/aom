@@ -102,6 +102,30 @@
     },
     {
       "key": {
+        "uuid": "46c9a437_c817cf82",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1511,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-23T23:59:51Z",
+      "side": 1,
+      "message": "If it doesn\u0027t work, add a TODO in code:\n\"TODO(fangwen): Make CONFIG_COEF_INTERLEAVE work with CONFIG_PALETTE_THROUGHPUT\"",
+      "parentUuid": "b361c1d3_c09f7842",
+      "range": {
+        "startLine": 1511,
+        "startChar": 26,
+        "endLine": 1511,
+        "endChar": 0
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "17d4c4e1_6200c349",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 6
@@ -454,6 +478,54 @@
     },
     {
       "key": {
+        "uuid": "bbfff95e_f77eec26",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-23T23:59:51Z",
+      "side": 1,
+      "message": "I meant that you should replace \"block_size_wide[bsize]\" by \"plane_block_width\", because they\u0027ll be different for UV planes, for example. Right?",
+      "parentUuid": "a03ad9f1_ba2d98e0",
+      "range": {
+        "startLine": 465,
+        "startChar": 52,
+        "endLine": 465,
+        "endChar": 74
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "491ad102_d4393ac0",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-23T23:59:51Z",
+      "side": 1,
+      "message": "There was a recent change where we moved from C89 spec to C99, so mixed declaration and code are allowed.\nPls try again.",
+      "parentUuid": "5aff6fa2_2e20a14e",
+      "range": {
+        "startLine": 465,
+        "startChar": 2,
+        "endLine": 465,
+        "endChar": 13
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e690024_e5bab9f7",
         "filename": "av1/decoder/detokenize.c",
         "patchSetId": 6
@@ -517,6 +589,30 @@
         "startChar": 54,
         "endLine": 466,
         "endChar": 76
+      },
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0df3a0e_5a89242d",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-23T23:59:51Z",
+      "side": 1,
+      "message": "same as above",
+      "parentUuid": "0e690024_e5bab9f7",
+      "range": {
+        "startLine": 466,
+        "startChar": 2,
+        "endLine": 466,
+        "endChar": 14
       },
       "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
@@ -600,6 +696,24 @@
       "side": 1,
       "message": "if coeff is skipped, we need code palette index for all the transform blocks and no interleave here.",
       "parentUuid": "bef9e9eb_633c2f4f",
+      "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2d2e0eb_a4ed97c3",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2038,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-23T23:59:51Z",
+      "side": 1,
+      "message": "Pls add that comment in code, as it is not obvious.",
+      "parentUuid": "0ebe3011_cd22e021",
       "revId": "fb9f3e9c2f5f10c3f584bd4a587a79f863326e51",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
