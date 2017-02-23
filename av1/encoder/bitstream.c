@@ -1402,6 +1402,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
   const int unify_bsize = 0;
 #endif
 
+  (void)mi_row;
+  (void)mi_col;
+
   if (seg->update_map) {
     if (seg->temporal_update) {
       const int pred_flag = mbmi->seg_id_predicted;
@@ -1792,6 +1795,9 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
 #else
   const int unify_bsize = 0;
 #endif
+
+  (void)mi_row;
+  (void)mi_col;
 
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
