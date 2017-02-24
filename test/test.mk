@@ -24,12 +24,9 @@ LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += datarate_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += encode_api_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += error_resilience_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += i420_video_source.h
-#LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += realtime_test.cc
-#LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += resize_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += y4m_video_source.h
 LIBAOM_TEST_SRCS-$(CONFIG_ENCODERS)    += yuv_video_source.h
 
-#LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += level_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += active_map_refresh_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += active_map_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += borders_test.cc
@@ -114,7 +111,6 @@ LIBAOM_TEST_SRCS-yes                   += accounting_test.cc
 endif
 endif
 LIBAOM_TEST_SRCS-yes                   += divu_small_test.cc
-#LIBAOM_TEST_SRCS-yes                   += encoder_parms_get_to_decoder.cc
 endif
 
 LIBAOM_TEST_SRCS-$(CONFIG_ADAPT_SCAN)  += scan_test.cc
@@ -132,7 +128,6 @@ LIBAOM_TEST_SRCS-$(HAVE_SSSE3)         += simd_ssse3_test.cc
 LIBAOM_TEST_SRCS-$(HAVE_SSE4_1)        += simd_sse4_test.cc
 LIBAOM_TEST_SRCS-$(HAVE_NEON)          += simd_neon_test.cc
 LIBAOM_TEST_SRCS-yes                   += intrapred_test.cc
-#LIBAOM_TEST_SRCS-$(CONFIG_AV1_DECODER) += av1_thread_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += dct16x16_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += dct32x32_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += fdct4x4_test.cc
@@ -141,7 +136,6 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += hadamard_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += minmax_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += variance_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += error_block_test.cc
-#LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_quantize_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += subtract_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += arf_freq_test.cc
 
