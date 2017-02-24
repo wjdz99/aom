@@ -142,6 +142,30 @@
       "revId": "03ec9ccdc5f02320dcb2863bf70c77141db22d82",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "317d5ccd_6b398545",
+        "filename": "aom_dsp/aom_dsp_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-02-24T22:47:30Z",
+      "side": 1,
+      "message": "\u003e int a \u003d 0x00FF00FF;\n \u003e int a2 \u003d AOM_SAFE_SHL(a, 8);  // This undefined, a reasonable user\n \u003e might expect the result to be a well defined (int)0xFF00FF00.\n\nOkay. If you want this to be defined, as well, the version that casts to unsigned instead of multiplying will work (that only relies on implementation-defined behavior). You can argue whether you want to be able to detect such overflows or not. At least in the usage in this patch, they would be indicative of a real bug. Alternatively, we could keep the current multiply-based implementation and simply rename it to AOM_SIGNED_SHL(). That might have less of a chance of confusion.\n\n \u003e int64_t b \u003d -1;\n \u003e int64_t b2 \u003d AOM_SAFE_SHL(b, 48);  // This macro is now doing a\n \u003e shift that is undefined for being wider than the type, this is\n \u003e likely to manifest as a real bug\n\nThis is a pretty good, point, though. Maybe we could call it AOM_SIGNED_SHL32? It\u0027s probably not worth trying to make a single implementation that does the right thing for all integer types.",
+      "parentUuid": "a35bc3d1_546a5e6a",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 53
+      },
+      "revId": "03ec9ccdc5f02320dcb2863bf70c77141db22d82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
