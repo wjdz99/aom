@@ -940,6 +940,10 @@ static INLINE TX_SIZE get_tx_size(int plane, const MACROBLOCKD *xd,
   return tx_size;
 }
 
+static INLINE PLANE_TYPE get_plane_type(int plane) {
+  return (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
+}
+
 static INLINE BLOCK_SIZE
 get_plane_block_size(BLOCK_SIZE bsize, const struct macroblockd_plane *pd) {
   return ss_size_lookup[bsize][pd->subsampling_x][pd->subsampling_y];
