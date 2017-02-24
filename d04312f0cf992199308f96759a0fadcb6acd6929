@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2a34aa4_1f96a516",
+        "filename": "av1/encoder/pvq_encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-02-24T00:06:02Z",
+      "side": 1,
+      "message": "I don\u0027t think this is the solution. It\u0027s at best a work-around. Did any of the Google folks have anything to say about it. One other thing that is unclear is whether there\u0027s also a potential problem on the decoder side.",
+      "range": {
+        "startLine": 829,
+        "startChar": 2,
+        "endLine": 829,
+        "endChar": 24
+      },
+      "revId": "d04312f0cf992199308f96759a0fadcb6acd6929",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
