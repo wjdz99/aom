@@ -707,6 +707,7 @@ static MB_MODE_INFO *set_offsets_extend(AV1_COMMON *const cm,
   return &xd->mi[0]->mbmi;
 }
 
+#if CONFIG_SUPERTX
 static MB_MODE_INFO *set_mb_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                     BLOCK_SIZE bsize, int mi_row, int mi_col,
                                     int bw, int bh, int x_mis, int y_mis) {
@@ -728,6 +729,7 @@ static MB_MODE_INFO *set_mb_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #endif
   return &xd->mi[0]->mbmi;
 }
+#endif
 
 static void set_offsets_topblock(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                  const TileInfo *const tile, BLOCK_SIZE bsize,
@@ -1497,9 +1499,9 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
   const int bh = mi_size_high[bsize];
   const int x_mis = AOMMIN(bw, cm->mi_cols - mi_col);
   const int y_mis = AOMMIN(bh, cm->mi_rows - mi_row);
-  MB_MODE_INFO *mbmi;
 
-  mbmi = set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
+  set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
 
 #if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
@@ -1660,7 +1662,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 #endif  // CONFIG_PALETTE && !CONFIG_PALETTE_THROUGHPUT
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       const struct macroblockd_plane *const pd = &xd->plane[plane];
-      const TX_SIZE tx_size = plane ? get_uv_tx_size(mbmi, pd) : mbmi->tx_size;
+      const TX_SIZE tx_size = get_tx_size(plane, xd);
       const int stepr = tx_size_high_unit[tx_size];
       const int stepc = tx_size_wide_unit[tx_size];
 #if CONFIG_CB4X4
@@ -1780,8 +1782,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
             decode_reconstruct_tx(cm, xd, r, mbmi, plane, plane_bsize, row, col,
                                   max_tx_size, &eobtotal);
 #else
-        const TX_SIZE tx_size =
-            plane ? get_uv_tx_size(mbmi, pd) : mbmi->tx_size;
+        const TX_SIZE tx_size = get_tx_size(plane, xd);
         const int stepr = tx_size_high_unit[tx_size];
         const int stepc = tx_size_wide_unit[tx_size];
         for (row = 0; row < max_blocks_high; row += stepr)
@@ -2289,7 +2290,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
       for (i = 0; i < MAX_MB_PLANE; ++i) {
         const struct macroblockd_plane *const pd = &xd->plane[i];
         int row, col;
-        const TX_SIZE tx_size = i ? get_uv_tx_size(mbmi, pd) : mbmi->tx_size;
+        const TX_SIZE tx_size = get_tx_size(i, xd);
         const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
         const int stepr = tx_size_high_unit[tx_size];
         const int stepc = tx_size_wide_unit[tx_size];
