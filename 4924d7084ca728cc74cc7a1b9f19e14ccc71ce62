@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "a1099247_146524b0",
+        "filename": "av1/common/x86/pvq_sse4.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-24T18:40:14Z",
+      "side": 1,
+      "message": "So, this difference would be the reason for change of bd_rate then.",
+      "parentUuid": "5acdc3ab_e2530d4e",
+      "range": {
+        "startLine": 186,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 72
+      },
+      "revId": "4924d7084ca728cc74cc7a1b9f19e14ccc71ce62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76af9a2d_cbdce091",
         "filename": "av1/encoder/pvq_encoder.c",
         "patchSetId": 4
@@ -84,6 +108,30 @@
       "writtenOn": "2017-02-24T12:41:55Z",
       "side": 1,
       "message": "One point of difference between the C code and the SIMD code is that there is no limit on pulse RDO in the SIMD version.",
+      "range": {
+        "startLine": 135,
+        "startChar": 2,
+        "endLine": 135,
+        "endChar": 23
+      },
+      "revId": "4924d7084ca728cc74cc7a1b9f19e14ccc71ce62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a1f8ca8_18fa77e5",
+        "filename": "av1/encoder/pvq_encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-02-24T18:40:14Z",
+      "side": 1,
+      "message": "Yes, again that explains the change of bd rate.",
+      "parentUuid": "76af9a2d_cbdce091",
       "range": {
         "startLine": 135,
         "startChar": 2,
