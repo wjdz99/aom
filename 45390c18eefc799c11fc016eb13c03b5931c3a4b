@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7be72fc_571a5073",
+        "filename": "aom_dsp/dkboolreader.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-24T01:43:56Z",
+      "side": 0,
+      "message": "Revert this change (deleted line by mistake)",
+      "revId": "45390c18eefc799c11fc016eb13c03b5931c3a4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
