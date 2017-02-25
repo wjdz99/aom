@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e175715c_1c884b3b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1504,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-02-25T16:28:08Z",
+      "side": 1,
+      "message": "This appears to be unrelated to the get_tx_size() cleanup, could be in a separate patch?\n\nAlso if return value is no longer used from set_offsets, maybe it should not return any more..",
+      "range": {
+        "startLine": 1503,
+        "startChar": 2,
+        "endLine": 1504,
+        "endChar": 40
+      },
+      "revId": "d7c78f4153f3f2c9911bdca8c656135f991dbbe8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
