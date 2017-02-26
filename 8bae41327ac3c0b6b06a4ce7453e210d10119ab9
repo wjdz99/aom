@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce6c3670_d4674b8a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-02-26T21:58:27Z",
+      "side": 1,
+      "message": "Please take a look at https://github.com/erlang/otp/wiki/Writing-good-commit-messages, it would be nice if you could rewrite the commit message based on the recommendations in the link, with some description of what are the changes to loop filter.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 0
+      },
+      "revId": "8bae41327ac3c0b6b06a4ce7453e210d10119ab9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
