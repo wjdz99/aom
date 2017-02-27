@@ -3722,6 +3722,8 @@ static void write_tile_info(const AV1_COMMON *const cm,
   assert(tile_width > 0);
   assert(tile_height > 0);
 
+  aom_wb_write_literal(wb, cm->tile_copy_mode, 1);
+
 // Write the tile sizes
 #if CONFIG_EXT_PARTITION
   if (cm->sb_size == BLOCK_128X128) {
@@ -3970,7 +3972,7 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
         // Check if this tile is a copy tile.
         // Very low chances to have copy tiles on the key frames, so don't
         // search on key frames to reduce unnecessary search.
-        if (cm->frame_type != KEY_FRAME) {
+        if (cm->tile_copy_mode) {
           const int idendical_tile_offset =
               find_identical_tile(tile_row, tile_col, tile_buffers);
 
