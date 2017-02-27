@@ -1513,7 +1513,8 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 #endif  // !CONFIG_PVQ
 
         const PLANE_TYPE plane_type = get_plane_type(plane);
-        TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+        TX_TYPE tx_type =
+            get_tx_type(plane_type, xd, block, tx_size, &cpi->common);
 
         av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, recon,
                                     MAX_TX_SIZE, eob);
@@ -1575,7 +1576,12 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   if (!is_inter_block(mbmi)) {
     struct macroblock_plane *const p = &x->plane[plane];
     av1_inverse_transform_block_facade(xd, plane, block, blk_row, blk_col,
-                                       p->eobs[block]);
+                                       p->eobs[block],
+#if CONFIG_EXT_TILE
+                                       cm->tile_encoding_mode);
+#else
+                                       0);
+#endif  // CONFIG_EXT_TILE
     av1_dist_block(args->cpi, x, plane, plane_bsize, block, blk_row, blk_col,
                    tx_size, &this_rd_stats.dist, &this_rd_stats.sse,
                    OUTPUT_HAS_DECODED_PIXELS);
@@ -1591,7 +1597,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   }
 #if !CONFIG_PVQ
   PLANE_TYPE plane_type = get_plane_type(plane);
-  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size, cm);
   const SCAN_ORDER *scan_order =
       get_scan(cm, tx_size, tx_type, is_inter_block(mbmi));
   this_rd_stats.rate =
@@ -1857,7 +1863,11 @@ int av1_tx_type_cost(const AV1_COMP *cpi, const MACROBLOCKD *xd,
 #else
   (void)bsize;
   if (tx_size < TX_32X32 && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
+#if CONFIG_EXT_TILE
+      !(FIXED_TX_TYPE || cpi->common.tile_encoding_mode)) {
+#else
       !FIXED_TX_TYPE) {
+#endif  // CONFIG_EXT_TILE
     if (is_inter) {
       return cpi->inter_tx_type_costs[tx_size][tx_type];
     } else {
@@ -1938,7 +1948,12 @@ static int skip_txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs,
 #if CONFIG_REF_MV
   if (mbmi->ref_mv_idx > 0 && tx_type != DCT_DCT) return 1;
 #endif  // CONFIG_REF_MV
-  if (FIXED_TX_TYPE && tx_type != get_default_tx_type(0, xd, 0, tx_size))
+#if CONFIG_EXT_TILE
+  if ((FIXED_TX_TYPE || cpi->common.tile_encoding_mode) &&
+#else
+  if (FIXED_TX_TYPE &&
+#endif  // CONFIG_EXT_TILE
+      tx_type != get_default_tx_type(0, xd, 0, tx_size))
     return 1;
   if (!is_inter && x->use_default_intra_tx_type &&
       tx_type != get_default_tx_type(0, xd, 0, tx_size))
@@ -2717,7 +2732,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
                                     src_stride, dst, dst_stride, xd->bd);
 #endif
           if (is_lossless) {
-            TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size);
+            TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size, cm);
             const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
             const int coeff_ctx =
                 combine_entropy_contexts(tempa[idx], templ[idy]);
@@ -2761,7 +2776,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
           } else {
             int64_t dist;
             unsigned int tmp;
-            TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size);
+            TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size, cm);
             const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
             const int coeff_ctx =
                 combine_entropy_contexts(tempa[idx], templ[idy]);
@@ -2911,7 +2926,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 #endif  // !CONFIG_PVQ
 
         if (is_lossless) {
-          TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size);
+          TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size, cm);
           const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
           const int coeff_ctx =
               combine_entropy_contexts(tempa[idx], templ[idy]);
@@ -2968,7 +2983,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
         } else {
           int64_t dist;
           unsigned int tmp;
-          TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size);
+          TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size, cm);
           const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
           const int coeff_ctx =
               combine_entropy_contexts(tempa[idx], templ[idy]);
@@ -3852,7 +3867,7 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
   int64_t tmp;
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   PLANE_TYPE plane_type = get_plane_type(plane);
-  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size, cm);
   const SCAN_ORDER *const scan_order =
       get_scan(cm, tx_size, tx_type, is_inter_block(&xd->mi[0]->mbmi));
   BLOCK_SIZE txm_bsize = txsize_to_bsize[tx_size];
@@ -5218,7 +5233,7 @@ static int64_t encode_inter_mb_segment_sub8x8(
   int64_t thisdistortion = 0, thissse = 0;
   int thisrate = 0;
   TX_SIZE tx_size = mi->mbmi.tx_size;
-  TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, i, tx_size);
+  TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, i, tx_size, cm);
   const int num_4x4_w = tx_size_wide_unit[tx_size];
   const int num_4x4_h = tx_size_high_unit[tx_size];
 #if !CONFIG_PVQ
@@ -6620,7 +6635,7 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
                               BLOCK_8X8, TX_4X4, coeff_ctx, AV1_XFORM_QUANT_FP);
 
               inv_txfm_param.tx_type =
-                  get_tx_type(plane_type, xd, block, TX_4X4);
+                  get_tx_type(plane_type, xd, block, TX_4X4, cm);
               inv_txfm_param.tx_size = TX_4X4;
               inv_txfm_param.eob = eob;
               inv_txfm_param.lossless = xd->lossless[mbmi->segment_id];
