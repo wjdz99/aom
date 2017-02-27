@@ -4975,7 +4975,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   RD_COUNTS *const rdc = &cpi->td.rd_counts;
-  int i;
 
   x->min_partition_size = AOMMIN(x->min_partition_size, cm->sb_size);
   x->max_partition_size = AOMMIN(x->max_partition_size, cm->sb_size);
@@ -4996,22 +4995,41 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       !cpi->global_motion_search_done) {
     YV12_BUFFER_CONFIG *ref_buf;
     int frame;
-    double erroradvantage = 0;
-    double params[8] = { 0, 0, 1, 0, 0, 1, 0, 0 };
+    double all_params[(MAX_PARAMDIM - 1) * NUM_RANSAC_RUNS *
+                      NUM_MOTIONS_PER_RANSAC];
+    int total_motions = NUM_RANSAC_RUNS * NUM_MOTIONS_PER_RANSAC;
+
+    const double identity_matrix[MAX_PARAMDIM - 1] = { 0.0, 0.0, 1.0, 0.0,
+                                                       0.0, 1.0, 0.0, 0.0 };
+
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
       ref_buf = get_ref_frame_buffer(cpi, frame);
       if (ref_buf) {
         TransformationType model;
         aom_clear_system_state();
         for (model = ROTZOOM; model < GLOBAL_TRANS_TYPES; ++model) {
-          if (compute_global_motion_feature_based(model, cpi->Source, ref_buf,
+          int best_motion = 0;
+          double best_erroradvantage = 10000.0;
+          for (int motion_index = 0; motion_index < total_motions;
+               ++motion_index) {
+            memcpy(all_params + (MAX_PARAMDIM - 1) * motion_index,
+                   identity_matrix, (MAX_PARAMDIM - 1) * sizeof(*all_params));
+          }
+
+          compute_global_motion_feature_based(model, cpi->Source, ref_buf,
 #if CONFIG_AOM_HIGHBITDEPTH
-                                                  cpi->common.bit_depth,
+                                              cpi->common.bit_depth,
 #endif  // CONFIG_AOM_HIGHBITDEPTH
-                                                  params)) {
-            convert_model_to_params(params, &cm->global_motion[frame]);
+                                              all_params);
+
+          for (int motion_index = 0; motion_index < total_motions;
+               ++motion_index) {
+            double *params_this_motion =
+                all_params + (MAX_PARAMDIM - 1) * motion_index;
+            convert_model_to_params(params_this_motion, &cm->global_motion[frame]);
+
             if (cm->global_motion[frame].wmtype != IDENTITY) {
-              erroradvantage = refine_integerized_param(
+              const double erroradv_this_motion = refine_integerized_param(
                   &cm->global_motion[frame], cm->global_motion[frame].wmtype,
 #if CONFIG_AOM_HIGHBITDEPTH
                   xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
@@ -5020,12 +5038,28 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                   ref_buf->y_stride, cpi->Source->y_buffer,
                   cpi->Source->y_width, cpi->Source->y_height,
                   cpi->Source->y_stride, 3);
-              if (erroradvantage >
-                  gm_advantage_thresh[cm->global_motion[frame].wmtype]) {
-                set_default_gmparams(&cm->global_motion[frame]);
+              // printf("Motion %d: %f %f %f %f %f %f %f %f, EA: %f\n",
+              //        motion_index, params_this_motion[0], params_this_motion[1],
+              //        params_this_motion[2], params_this_motion[3],
+              //        params_this_motion[4], params_this_motion[5],
+              //        params_this_motion[6], params_this_motion[7],
+              //        erroradv_this_motion);
+              if (erroradv_this_motion < best_erroradvantage) {
+                best_erroradvantage = erroradv_this_motion;
+                best_motion = motion_index;
+                // printf("Updated best motion to be %d\n", best_motion);
               }
             }
           }
+
+          convert_model_to_params(all_params + (MAX_PARAMDIM - 1) * best_motion,
+                                  &cm->global_motion[frame]);
+
+          if (best_erroradvantage >
+              gm_advantage_thresh[cm->global_motion[frame].wmtype]) {
+            set_default_gmparams(&cm->global_motion[frame]);
+          }
+
           if (cm->global_motion[frame].wmtype != IDENTITY) break;
         }
         aom_clear_system_state();
@@ -5035,7 +5069,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   }
 #endif  // CONFIG_GLOBAL_MOTION
 
-  for (i = 0; i < MAX_SEGMENTS; ++i) {
+  for (int i = 0; i < MAX_SEGMENTS; ++i) {
     const int qindex = cm->seg.enabled
                            ? av1_get_qindex(&cm->seg, i, cm->base_qindex)
                            : cm->base_qindex;

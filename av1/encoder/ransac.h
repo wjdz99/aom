@@ -19,21 +19,28 @@
 
 #include "av1/common/warped_motion.h"
 
+// Number of points randomly chosen by ransac for model fitting in each
+// iteration.
+#define NUM_INITIAL_POINTS 3
+
 typedef int (*RansacFunc)(int *matched_points, int npoints,
-                          int *number_of_inliers, double *best_params);
+                          int *number_of_inliers, double *best_params,
+                          int num_motions);
 
 /* Each of these functions fits a motion model from a set of
    corresponding points in 2 frames using RANSAC. */
 int ransac_homography(int *matched_points, int npoints, int *number_of_inliers,
-                      double *best_params);
+                      double *best_params, int num_motions);
 int ransac_affine(int *matched_points, int npoints, int *number_of_inliers,
-                  double *best_params);
+                  double *best_params, int num_motions);
 int ransac_hortrapezoid(int *matched_points, int npoints,
-                        int *number_of_inliers, double *best_params);
+                        int *number_of_inliers, double *best_params,
+                        int num_motions);
 int ransac_vertrapezoid(int *matched_points, int npoints,
-                        int *number_of_inliers, double *best_params);
+                        int *number_of_inliers, double *best_params,
+                        int num_motions);
 int ransac_rotzoom(int *matched_points, int npoints, int *number_of_inliers,
-                   double *best_params);
+                   double *best_params, int num_motions);
 int ransac_translation(int *matched_points, int npoints, int *number_of_inliers,
-                       double *best_params);
+                       double *best_params, int num_motions);
 #endif  // AV1_ENCODER_RANSAC_H_

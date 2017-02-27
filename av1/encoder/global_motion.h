@@ -20,6 +20,9 @@
 extern "C" {
 #endif
 
+#define NUM_RANSAC_RUNS 1
+#define NUM_MOTIONS_PER_RANSAC 8
+
 extern const double gm_advantage_thresh[TRANS_TYPES];
 
 void convert_to_params(const double *params, int32_t *model);
