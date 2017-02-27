@@ -75,6 +75,9 @@ struct av1_extracfg {
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
   int ans_window_size_log2;
 #endif
+#if CONFIG_EXT_TILE
+  unsigned int tile_copy_mode;
+#endif
 };
 
 static struct av1_extracfg default_extra_cfg = {
@@ -133,6 +136,9 @@ static struct av1_extracfg default_extra_cfg = {
   AOM_SUPERBLOCK_SIZE_DYNAMIC,  // superblock_size
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
   23,  // ans_window_size_log2
+#endif
+#if CONFIG_EXT_TILE
+  0,  // Tile copy mode is disabled by default.
 #endif
 };
 
@@ -270,6 +276,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
     if (extra_cfg->tile_rows != UINT_MAX)
       RANGE_CHECK(extra_cfg, tile_rows, 1, 64);
   }
+  RANGE_CHECK_HI(extra_cfg, tile_copy_mode, 1);
 #else
   RANGE_CHECK_HI(extra_cfg, tile_columns, 6);
   RANGE_CHECK_HI(extra_cfg, tile_rows, 2);
@@ -516,6 +523,7 @@ static aom_codec_err_t set_encoder_config(
 #endif  // CONFIG_EXT_PARTITION
     oxcf->tile_columns = AOMMIN(extra_cfg->tile_columns, max);
     oxcf->tile_rows = AOMMIN(extra_cfg->tile_rows, max);
+    oxcf->tile_copy_mode = extra_cfg->tile_copy_mode;
   }
 #else
   oxcf->tile_columns = extra_cfg->tile_columns;
@@ -817,6 +825,15 @@ static aom_codec_err_t ctrl_set_frame_parallel_decoding_mode(
       CAST(AV1E_SET_FRAME_PARALLEL_DECODING, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
+
+#if CONFIG_EXT_TILE
+static aom_codec_err_t ctrl_set_tile_copy_mode(aom_codec_alg_priv_t *ctx,
+                                               va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.tile_copy_mode = CAST(AV1E_SET_TILE_COPY_MODE, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+#endif
 
 static aom_codec_err_t ctrl_set_aq_mode(aom_codec_alg_priv_t *ctx,
                                         va_list args) {
@@ -1446,6 +1463,9 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_SUPERBLOCK_SIZE, ctrl_set_superblock_size },
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
   { AV1E_SET_ANS_WINDOW_SIZE_LOG2, ctrl_set_ans_window_size_log2 },
+#endif
+#if CONFIG_EXT_TILE
+  { AV1E_SET_TILE_COPY_MODE, ctrl_set_tile_copy_mode },
 #endif
 
   // Getters

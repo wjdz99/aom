@@ -3040,6 +3040,7 @@ static void read_tile_info(AV1Decoder *const pbi,
                            struct aom_read_bit_buffer *const rb) {
   AV1_COMMON *const cm = &pbi->common;
 #if CONFIG_EXT_TILE
+  cm->tile_copy_mode = aom_rb_read_literal(rb, 1);
 // Read the tile width/height
 #if CONFIG_EXT_PARTITION
   if (cm->sb_size == BLOCK_128X128) {
@@ -3157,7 +3158,8 @@ static void get_tile_buffer(const uint8_t *const data_end,
                             const uint8_t **data, aom_decrypt_cb decrypt_cb,
                             void *decrypt_state,
                             TileBufferDec (*const tile_buffers)[MAX_TILE_COLS],
-                            int tile_size_bytes, int col, int row) {
+                            int tile_size_bytes, int col, int row,
+                            unsigned int tile_copy_mode) {
   size_t size;
 
   size_t copy_size = 0;
@@ -3176,8 +3178,9 @@ static void get_tile_buffer(const uint8_t *const data_end,
     size = mem_get_varsize(*data, tile_size_bytes);
   }
 
-  // The top bit indicates copy mode
-  if ((size >> (tile_size_bytes * 8 - 1)) == 1) {
+  // If cm->tile_copy_mode = 1, then the top bit of the tile header indicates
+  // copy mode.
+  if (tile_copy_mode && (size >> (tile_size_bytes * 8 - 1)) == 1) {
     // The remaining bits in the top byte signal the row offset
     int offset = (size >> (tile_size_bytes - 1) * 8) & 0x7f;
 
@@ -3273,7 +3276,7 @@ static void get_tile_buffers(
 
         get_tile_buffer(tile_col_data_end[c], &pbi->common.error, &data,
                         pbi->decrypt_cb, pbi->decrypt_state, tile_buffers,
-                        tile_size_bytes, c, r);
+                        tile_size_bytes, c, r, cm->tile_copy_mode);
       }
     }
 
@@ -3288,7 +3291,7 @@ static void get_tile_buffers(
 
         get_tile_buffer(tile_col_data_end[c], &pbi->common.error, &data,
                         pbi->decrypt_cb, pbi->decrypt_state, tile_buffers,
-                        tile_size_bytes, c, r);
+                        tile_size_bytes, c, r, cm->tile_copy_mode);
       }
     }
   }
