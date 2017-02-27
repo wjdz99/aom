@@ -32,11 +32,12 @@ const int kImgHeight = 576;
 
 class AV1ExtTileTest
     : public ::libaom_test::EncoderTest,
-      public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode, int> {
+      public ::libaom_test::CodecTestWith3Params<libaom_test::TestMode, int,
+                                                 unsigned int> {
  protected:
   AV1ExtTileTest()
       : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
-        set_cpu_used_(GET_PARAM(2)) {
+        set_cpu_used_(GET_PARAM(2)), tile_copy_mode_(GET_PARAM(3)) {
     init_flags_ = AOM_CODEC_USE_PSNR;
     aom_codec_dec_cfg_t cfg = aom_codec_dec_cfg_t();
     cfg.w = kImgWidth;
@@ -81,6 +82,7 @@ class AV1ExtTileTest
       // The tile size is 64x64.
       encoder->Control(AV1E_SET_TILE_COLUMNS, kTileSize);
       encoder->Control(AV1E_SET_TILE_ROWS, kTileSize);
+      encoder->Control(AV1E_SET_TILE_COPY_MODE, tile_copy_mode_);
 #if CONFIG_EXT_PARTITION
       // Always use 64x64 max partition.
       encoder->Control(AV1E_SET_SUPERBLOCK_SIZE, AOM_SUPERBLOCK_SIZE_64X64);
@@ -168,6 +170,7 @@ class AV1ExtTileTest
 
   ::libaom_test::TestMode encoding_mode_;
   int set_cpu_used_;
+  unsigned int tile_copy_mode_;
   ::libaom_test::Decoder *decoder_;
   aom_image_t tile_img_;
   std::vector<std::string> md5_;
@@ -193,5 +196,5 @@ TEST_P(AV1ExtTileTest, DecoderResultTest) {
 AV1_INSTANTIATE_TEST_CASE(
     // Now only test 2-pass mode.
     AV1ExtTileTest, ::testing::Values(::libaom_test::kTwoPassGood),
-    ::testing::Range(0, 4));
+    ::testing::Range(0, 4), ::testing::Values(0, 1));
 }  // namespace
