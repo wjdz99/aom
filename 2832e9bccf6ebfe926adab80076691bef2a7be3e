@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71a2da12_b7914d78",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1139,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-02-27T17:38:24Z",
+      "side": 1,
+      "message": "We had trouble with left shift of int with ubsan, you might want just use x * (1 \u003c\u003c 3) or x * 8  directly.",
+      "range": {
+        "startLine": 1139,
+        "startChar": 19,
+        "endLine": 1139,
+        "endChar": 27
+      },
+      "revId": "2832e9bccf6ebfe926adab80076691bef2a7be3e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
