@@ -55,7 +55,7 @@ class ClpfBlockTest : public ::testing::TestWithParam<clpf_block_param_t> {
 
 typedef ClpfBlockTest ClpfSpeedTest;
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 typedef void (*clpf_block_hbd_t)(const uint16_t *src, uint16_t *dst,
                                  int sstride, int dstride, int x0, int y0,
                                  int sizex, int sizey, unsigned int strength,
@@ -213,7 +213,7 @@ TEST_P(ClpfSpeedTest, TestSpeed) {
   test_clpf_speed(sizex, sizey, 8, 16, clpf, ref_clpf);
 }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 TEST_P(ClpfBlockHbdTest, TestSIMDNoMismatch) {
   test_clpf(sizex, sizey, 12, 1, clpf, ref_clpf);
 }
@@ -270,7 +270,7 @@ INSTANTIATE_TEST_CASE_P(
                                  4)));
 #endif
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 #if HAVE_SSE2
 INSTANTIATE_TEST_CASE_P(
     SSE2, ClpfBlockHbdTest,
@@ -310,7 +310,7 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(&aom_clpf_block_hbd_neon, &aom_clpf_block_hbd_c, 4, 8),
         make_tuple(&aom_clpf_block_hbd_neon, &aom_clpf_block_hbd_c, 4, 4)));
 #endif
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
 // Test speed for all supported architectures
 #if HAVE_SSE2
@@ -337,7 +337,7 @@ INSTANTIATE_TEST_CASE_P(NEON, ClpfSpeedTest,
                                                      &aom_clpf_block_c, 8, 8)));
 #endif
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 #if HAVE_SSE2
 INSTANTIATE_TEST_CASE_P(SSE2, ClpfHbdSpeedTest,
                         ::testing::Values(make_tuple(&aom_clpf_block_hbd_sse2,
@@ -365,7 +365,7 @@ INSTANTIATE_TEST_CASE_P(NEON, ClpfHbdSpeedTest,
                                                      &aom_clpf_block_hbd_c, 8,
                                                      8)));
 #endif
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 #endif  // defined(_WIN64) || !defined(_MSC_VER)
 
 }  // namespace

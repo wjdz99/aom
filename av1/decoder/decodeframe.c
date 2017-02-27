@@ -328,16 +328,16 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
   inv_txfm_param.eob = eob;
   inv_txfm_param.lossless = xd->lossless[xd->mi[0]->mbmi.segment_id];
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     inv_txfm_param.bd = xd->bd;
     highbd_inv_txfm_add(dqcoeff, dst, stride, &inv_txfm_param);
   } else {
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
     inv_txfm_add(dqcoeff, dst, stride, &inv_txfm_param);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
 }
 
@@ -350,7 +350,7 @@ static int av1_pvq_decode_helper(od_dec_ctx *dec, tran_low_t *ref_coeff,
   int off;
   const int is_keyframe = 0;
   const int has_dc_skip = 1;
-  /*TODO(tterribe): Handle CONFIG_AOM_HIGHBITDEPTH.*/
+  /*TODO(tterribe): Handle CONFIG_HIGHBITDEPTH.*/
   int coeff_shift = 3 - get_tx_scale(bs);
   int rounding_mask;
   // DC quantizer for PVQ
@@ -1000,7 +1000,7 @@ static void dec_predict_sb_complex(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   int dst_stride2[3] = { MAX_TX_SIZE, MAX_TX_SIZE, MAX_TX_SIZE };
   int dst_stride3[3] = { MAX_TX_SIZE, MAX_TX_SIZE, MAX_TX_SIZE };
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     int len = sizeof(uint16_t);
     dst_buf1[0] = CONVERT_TO_BYTEPTR(tmp_buf1);
@@ -1023,7 +1023,7 @@ static void dec_predict_sb_complex(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     dst_buf3[0] = tmp_buf3;
     dst_buf3[1] = tmp_buf3 + MAX_TX_SQUARE;
     dst_buf3[2] = tmp_buf3 + 2 * MAX_TX_SQUARE;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   }
 #endif
 
@@ -1703,17 +1703,17 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 #if CONFIG_WARPED_MOTION
     if (mbmi->motion_mode == WARPED_CAUSAL) {
       int i;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
       int use_hbd = xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH;
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
       for (i = 0; i < 3; ++i) {
         const struct macroblockd_plane *pd = &xd->plane[i];
 
         av1_warp_plane(&mbmi->wm_params[0],
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
                        xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
                        pd->pre[0].buf0, pd->pre[0].width, pd->pre[0].height,
                        pd->pre[0].stride, pd->dst.buf,
                        ((mi_col * MI_SIZE) >> pd->subsampling_x),
@@ -2931,7 +2931,7 @@ static void setup_frame_size(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   if (aom_realloc_frame_buffer(
           get_frame_new_buffer(cm), cm->width, cm->height, cm->subsampling_x,
           cm->subsampling_y,
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
           cm->use_highbitdepth,
 #endif
           AOM_BORDER_IN_PIXELS, cm->byte_alignment,
@@ -3014,7 +3014,7 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
   if (aom_realloc_frame_buffer(
           get_frame_new_buffer(cm), cm->width, cm->height, cm->subsampling_x,
           cm->subsampling_y,
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
           cm->use_highbitdepth,
 #endif
           AOM_BORDER_IN_PIXELS, cm->byte_alignment,
@@ -3968,7 +3968,7 @@ static void read_bitdepth_colorspace_sampling(AV1_COMMON *cm,
     cm->bit_depth = AOM_BITS_8;
   }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (cm->bit_depth > AOM_BITS_8) {
     cm->use_highbitdepth = 1;
   } else {
@@ -4047,7 +4047,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
                        "Invalid frame marker");
 
   cm->profile = av1_read_profile(rb);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (cm->profile >= MAX_PROFILES)
     aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                        "Unsupported bitstream profile");
@@ -4261,7 +4261,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #endif
       for (i = 0; i < INTER_REFS_PER_FRAME; ++i) {
         RefBuffer *const ref_buf = &cm->frame_refs[i];
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
         av1_setup_scale_factors_for_frame(
             &ref_buf->sf, ref_buf->buf->y_crop_width,
             ref_buf->buf->y_crop_height, cm->width, cm->height,
@@ -4293,7 +4293,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   }
 #endif
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   get_frame_new_buffer(cm)->bit_depth = cm->bit_depth;
 #endif
   get_frame_new_buffer(cm)->color_space = cm->color_space;
@@ -4363,7 +4363,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   decode_restoration_mode(cm, rb);
 #endif  // CONFIG_LOOP_RESTORATION
   setup_quantization(cm, rb);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   xd->bd = (int)cm->bit_depth;
 #endif
 

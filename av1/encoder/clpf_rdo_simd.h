@@ -145,7 +145,7 @@ void SIMD_FUNC(aom_clpf_detect_multi)(const uint8_t *rec, const uint8_t *org,
   sum[3] += v128_ssd_u8_sum(ssd3);
 }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 SIMD_INLINE void read_two_lines_hbd(const uint16_t *rec, const uint16_t *org,
                                     int rstride, int ostride, int x0, int y0,
                                     int bottom, int right, int y, v128 *o,

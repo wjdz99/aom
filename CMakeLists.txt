@@ -546,7 +546,7 @@ if (CONFIG_INTERNAL_STATS)
       "${AOM_ROOT}/av1/encoder/blockiness.c")
 endif ()
 
-if (CONFIG_AOM_HIGHBITDEPTH)
+if (CONFIG_HIGHBITDEPTH)
   set(AOM_AV1_COMMON_SSE4_1_INTRIN
       ${AOM_AV1_COMMON_SSE4_1_INTRIN}
       "${AOM_ROOT}/av1/common/x86/av1_highbd_convolve_sse4.c"

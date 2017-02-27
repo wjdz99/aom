@@ -53,7 +53,7 @@ static int64_t sse_restoration_tile(const YV12_BUFFER_CONFIG *src,
   // Y and UV components cannot be mixed
   assert(components_pattern == 1 || components_pattern == 2 ||
          components_pattern == 4 || components_pattern == 6);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (cm->use_highbitdepth) {
     if ((components_pattern >> AOM_PLANE_Y) & 1) {
       filt_err +=
@@ -69,7 +69,7 @@ static int64_t sse_restoration_tile(const YV12_BUFFER_CONFIG *src,
     }
     return filt_err;
   }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
   if ((components_pattern >> AOM_PLANE_Y) & 1) {
     filt_err += aom_get_y_sse_part(src, dst, h_start, width, v_start, height);
   }
@@ -87,7 +87,7 @@ static int64_t sse_restoration_frame(AV1_COMMON *const cm,
                                      const YV12_BUFFER_CONFIG *dst,
                                      int components_pattern) {
   int64_t filt_err = 0;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (cm->use_highbitdepth) {
     if ((components_pattern >> AOM_PLANE_Y) & 1) {
       filt_err += aom_highbd_get_y_sse(src, dst);
@@ -102,7 +102,7 @@ static int64_t sse_restoration_frame(AV1_COMMON *const cm,
   }
 #else
   (void)cm;
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
   if ((components_pattern >> AOM_PLANE_Y) & 1) {
     filt_err = aom_get_y_sse(src, dst);
   }
@@ -376,11 +376,11 @@ static double search_sgrproj(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
         dgd->y_buffer + v_start * dgd->y_stride + h_start, h_end - h_start,
         v_end - v_start, dgd->y_stride,
         src->y_buffer + v_start * src->y_stride + h_start, src->y_stride,
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
         cm->bit_depth,
 #else
         8,
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
         &rsi->sgrproj_info[tile_idx].ep, rsi->sgrproj_info[tile_idx].xqd,
         cm->rst_internal.tmpbuf);
     rsi->restoration_type[tile_idx] = RESTORE_SGRPROJ;
@@ -437,7 +437,7 @@ static int64_t compute_sse(uint8_t *dgd, int width, int height, int dgd_stride,
   return sse;
 }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 static int64_t compute_sse_highbd(uint16_t *dgd, int width, int height,
                                   int dgd_stride, uint16_t *src,
                                   int src_stride) {
@@ -452,7 +452,7 @@ static int64_t compute_sse_highbd(uint16_t *dgd, int width, int height,
   }
   return sse;
 }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
 static void search_domaintxfmrf_restoration(uint8_t *dgd8, int width,
                                             int height, int dgd_stride,
@@ -507,7 +507,7 @@ static void search_domaintxfmrf_restoration(uint8_t *dgd8, int width,
       }
     }
   } else {
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
     uint16_t *flt = (uint16_t *)fltbuf;
     uint16_t *dgd = CONVERT_TO_SHORTPTR(dgd8);
     uint16_t *src = CONVERT_TO_SHORTPTR(src8);
@@ -549,7 +549,7 @@ static void search_domaintxfmrf_restoration(uint8_t *dgd8, int width,
     }
 #else
     assert(0);
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
   }
   *sigma_r = best_p;
 }
@@ -598,11 +598,11 @@ static double search_domaintxfmrf(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
         dgd->y_buffer + v_start * dgd->y_stride + h_start, h_end - h_start,
         v_end - v_start, dgd->y_stride,
         src->y_buffer + v_start * src->y_stride + h_start, src->y_stride,
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
         cm->bit_depth,
 #else
         8,
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
         &rsi->domaintxfmrf_info[tile_idx].sigma_r, cpi->extra_rstbuf,
         cm->rst_internal.tmpbuf);
 
@@ -697,7 +697,7 @@ static void compute_stats(uint8_t *dgd, uint8_t *src, int h_start, int h_end,
   }
 }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 static double find_average_highbd(uint16_t *src, int h_start, int h_end,
                                   int v_start, int v_end, int stride) {
   uint64_t sum = 0;
@@ -750,7 +750,7 @@ static void compute_stats_highbd(uint8_t *dgd8, uint8_t *src8, int h_start,
     }
   }
 }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
 // Solves Ax = b, where x and b are column vectors
 static int linsolve(int n, double *A, int stride, double *b, double *x) {
@@ -1026,21 +1026,21 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                              WIENER_HALFWIN, &h_start, &h_end, &v_start,
                              &v_end);
     if (plane == AOM_PLANE_U) {
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
       if (cm->use_highbitdepth)
         compute_stats_highbd(dgd->u_buffer, src->u_buffer, h_start, h_end,
                              v_start, v_end, dgd_stride, src_stride, M, H);
       else
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
         compute_stats(dgd->u_buffer, src->u_buffer, h_start, h_end, v_start,
                       v_end, dgd_stride, src_stride, M, H);
     } else if (plane == AOM_PLANE_V) {
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
       if (cm->use_highbitdepth)
         compute_stats_highbd(dgd->v_buffer, src->v_buffer, h_start, h_end,
                              v_start, v_end, dgd_stride, src_stride, M, H);
       else
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
         compute_stats(dgd->v_buffer, src->v_buffer, h_start, h_end, v_start,
                       v_end, dgd_stride, src_stride, M, H);
     } else {
@@ -1154,7 +1154,7 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   }
 
 // Construct a (WIENER_HALFWIN)-pixel border around the frame
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (cm->use_highbitdepth)
     extend_frame_highbd(CONVERT_TO_SHORTPTR(dgd->y_buffer), width, height,
                         dgd_stride);
@@ -1177,12 +1177,12 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     av1_get_rest_tile_limits(tile_idx, 0, 0, nhtiles, nvtiles, tile_width,
                              tile_height, width, height, 0, 0, &h_start, &h_end,
                              &v_start, &v_end);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
     if (cm->use_highbitdepth)
       compute_stats_highbd(dgd->y_buffer, src->y_buffer, h_start, h_end,
                            v_start, v_end, dgd_stride, src_stride, M, H);
     else
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
       compute_stats(dgd->y_buffer, src->y_buffer, h_start, h_end, v_start,
                     v_end, dgd_stride, src_stride, M, H);
 
@@ -1359,7 +1359,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     const int q = av1_ac_quant(cm->base_qindex, 0, cm->bit_depth);
 // These values were determined by linear fitting the result of the
 // searched level, filt_guess = q * 0.316206 + 3.87252
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
     int filt_guess;
     switch (cm->bit_depth) {
       case AOM_BITS_8:
@@ -1379,7 +1379,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     }
 #else
     int filt_guess = ROUND_POWER_OF_TWO(q * 20723 + 1015158, 18);
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
     if (cm->frame_type == KEY_FRAME) filt_guess -= 4;
     lf->filter_level = clamp(filt_guess, min_filter_level, max_filter_level);
   } else {

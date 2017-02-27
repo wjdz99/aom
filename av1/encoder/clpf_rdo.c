@@ -74,7 +74,7 @@ void aom_clpf_detect_multi_c(const uint8_t *rec, const uint8_t *org,
   }
 }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 // Identical to aom_clpf_detect_c() apart from "rec" and "org".
 void aom_clpf_detect_hbd_c(const uint16_t *rec, const uint16_t *org,
                            int rstride, int ostride, int x0, int y0, int width,
@@ -157,7 +157,7 @@ int av1_clpf_decision(int k, int l, const YV12_BUFFER_CONFIG *rec,
       if (fb_size_log2 == MAX_FB_SIZE_LOG2 ||
           !cm->mi_grid_visible[ypos / MI_SIZE * cm->mi_stride + xpos / MI_SIZE]
                ->mbmi.skip) {
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
         if (cm->use_highbitdepth) {
           aom_clpf_detect_hbd(CONVERT_TO_SHORTPTR(rec->y_buffer),
                               CONVERT_TO_SHORTPTR(org->y_buffer), rec->y_stride,
@@ -274,7 +274,7 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
           !!cm->mi_grid_visible[(ypos << suby) / MI_SIZE * cm->mi_stride +
                                 (xpos << subx) / MI_SIZE]
                 ->mbmi.skip;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
       if (cm->use_highbitdepth) {
         aom_clpf_detect_multi_hbd(
             CONVERT_TO_SHORTPTR(rec_buffer), CONVERT_TO_SHORTPTR(org_buffer),

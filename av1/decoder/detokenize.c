@@ -134,7 +134,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 #endif
   }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (xd->bd > AOM_BITS_8) {
     if (xd->bd == AOM_BITS_10) {
       cat1_prob = av1_cat1_prob_high10;
@@ -232,7 +232,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
       case CATEGORY6_TOKEN: {
         const int skip_bits = TX_SIZES - 1 - txsize_sqr_up_map[tx_size];
         const uint8_t *cat6p = cat6_prob + skip_bits;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
         switch (xd->bd) {
           case AOM_BITS_8:
             val = CAT6_MIN_VAL + read_coeff(cat6p, 14 - skip_bits, r);
@@ -262,13 +262,13 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
     v = (val * dqv) >> dq_shift;
 #endif
 #if CONFIG_COEFFICIENT_RANGE_CHECKING
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
     if (v)
       dqcoeff[scan[c]] =
           highbd_check_range((aom_read_bit(r, ACCT_STR) ? -v : v), xd->bd);
 #else
     if (v) dqcoeff[scan[c]] = check_range(aom_read_bit(r, ACCT_STR) ? -v : v);
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 #else
     if (v) dqcoeff[scan[c]] = aom_read_bit(r, ACCT_STR) ? -v : v;
 #endif  // CONFIG_COEFFICIENT_RANGE_CHECKING
@@ -339,7 +339,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
       case CATEGORY6_TOKEN: {
         const int skip_bits = TX_SIZES - 1 - txsize_sqr_up_map[tx_size];
         const uint8_t *cat6p = cat6_prob + skip_bits;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
         switch (xd->bd) {
           case AOM_BITS_8:
             val = CAT6_MIN_VAL + read_coeff(cat6p, 14 - skip_bits, r);
@@ -388,7 +388,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
         case CATEGORY6_TOKEN: {
           const int skip_bits = TX_SIZES - 1 - txsize_sqr_up_map[tx_size];
           const uint8_t *cat6p = cat6_prob + skip_bits;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
           switch (xd->bd) {
             case AOM_BITS_8:
               val = CAT6_MIN_VAL + read_coeff(cat6p, 14 - skip_bits, r);
@@ -421,12 +421,12 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 #endif  // CONFIG_NEW_QUANT
 
 #if CONFIG_COEFFICIENT_RANGE_CHECKING
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
     dqcoeff[scan[c]] =
         highbd_check_range((aom_read_bit(r, ACCT_STR) ? -v : v), xd->bd);
 #else
     dqcoeff[scan[c]] = check_range(aom_read_bit(r, ACCT_STR) ? -v : v);
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 #else
     dqcoeff[scan[c]] = aom_read_bit(r, ACCT_STR) ? -v : v;
 #endif  // CONFIG_COEFFICIENT_RANGE_CHECKING

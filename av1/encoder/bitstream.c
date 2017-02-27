@@ -787,7 +787,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
   int count = 0;
   const int seg_eob = tx_size_2d[tx_size];
 #endif
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   const av1_extra_bit *const extra_bits_table =
       (bit_depth == AOM_BITS_12)
           ? av1_extra_bits_high12
@@ -795,7 +795,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 #else
   const av1_extra_bit *const extra_bits_table = av1_extra_bits;
   (void)bit_depth;
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
   while (p < stop && p->token != EOSB_TOKEN) {
     const int token = p->token;
@@ -864,7 +864,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
   int count = 0;
   const int seg_eob = tx_size_2d[tx_size];
 #endif
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   const av1_extra_bit *const extra_bits_table =
       (bit_depth == AOM_BITS_12)
           ? av1_extra_bits_high12
@@ -872,7 +872,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 #else
   const av1_extra_bit *const extra_bits_table = av1_extra_bits;
   (void)bit_depth;
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
   while (p < stop && p->token != EOSB_TOKEN) {
     const int token = p->token;

@@ -31,7 +31,7 @@ typedef struct INV_TXFM_PARAM {
   TX_SIZE tx_size;
   int eob;
   int lossless;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   int bd;
 #endif
 } INV_TXFM_PARAM;
@@ -42,13 +42,13 @@ typedef struct {
   transform_1d cols, rows;  // vertical and horizontal
 } transform_2d;
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 typedef void (*highbd_transform_1d)(const tran_low_t *, tran_low_t *, int bd);
 
 typedef struct {
   highbd_transform_1d cols, rows;  // vertical and horizontal
 } highbd_transform_2d;
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
 #define MAX_TX_SCALE 1
 int get_tx_scale(const TX_SIZE tx_size);
@@ -78,7 +78,7 @@ void av1_inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest, int stride,
                             int eob, TX_TYPE tx_type);
 void inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                   INV_TXFM_PARAM *inv_txfm_param);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 void av1_highbd_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
                             int eob, int bd);
 void av1_highbd_idct4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
@@ -106,7 +106,7 @@ void av1_highbd_inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest,
                                    TX_TYPE tx_type);
 void highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                          INV_TXFM_PARAM *inv_txfm_param);
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 #ifdef __cplusplus
 }  // extern "C"
 #endif

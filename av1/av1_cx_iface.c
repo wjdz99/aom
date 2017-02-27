@@ -313,7 +313,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
       ERROR("rc_twopass_stats_in missing EOS stats packet");
   }
 
-#if !CONFIG_AOM_HIGHBITDEPTH
+#if !CONFIG_HIGHBITDEPTH
   if (cfg->g_profile > (unsigned int)PROFILE_1) {
     ERROR("Profile > 1 not supported in this build configuration");
   }
@@ -880,7 +880,7 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
 
     if (res == AOM_CODEC_OK) {
       set_encoder_config(&priv->oxcf, &priv->cfg, &priv->extra_cfg);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
       priv->oxcf.use_highbitdepth =
           (ctx->init_flags & AOM_CODEC_USE_HIGHBITDEPTH) ? 1 : 0;
 #endif
@@ -1516,7 +1516,7 @@ static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
 CODEC_INTERFACE(aom_codec_av1_cx) = {
   "AOMedia Project AV1 Encoder" VERSION_STRING,
   AOM_CODEC_INTERNAL_ABI_VERSION,
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   AOM_CODEC_CAP_HIGHBITDEPTH |
 #endif
       AOM_CODEC_CAP_ENCODER | AOM_CODEC_CAP_PSNR,  // aom_codec_caps_t

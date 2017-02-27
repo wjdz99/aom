@@ -44,7 +44,7 @@ extern "C" {
   (RESTORATION_TILEPELS_MAX * (sizeof(int32_t) + 2 * sizeof(uint8_t)))
 // One extra buffer needed in encoder, which is either 8-bit or 16-bit
 // depending on the video bit depth.
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 #define DOMAINTXFMRF_EXTBUF_SIZE (RESTORATION_TILEPELS_MAX * sizeof(uint16_t))
 #else
 #define DOMAINTXFMRF_EXTBUF_SIZE (RESTORATION_TILEPELS_MAX * sizeof(uint8_t))
@@ -243,7 +243,7 @@ void av1_domaintxfmrf_restoration(uint8_t *dgd, int width, int height,
                                   int stride, int param, uint8_t *dst,
                                   int dst_stride, int32_t *tmpbuf);
 #endif  // USE_DOMAINTXFMRF
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 void extend_frame_highbd(uint16_t *data, int width, int height, int stride);
 #if USE_DOMAINTXFMRF
 void av1_domaintxfmrf_restoration_highbd(uint16_t *dgd, int width, int height,
@@ -251,7 +251,7 @@ void av1_domaintxfmrf_restoration_highbd(uint16_t *dgd, int width, int height,
                                          uint16_t *dst, int dst_stride,
                                          int32_t *tmpbuf);
 #endif  // USE_DOMAINTXFMRF
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 void decode_xq(int *xqd, int *xq);
 void av1_loop_restoration_frame(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
                                 RestorationInfo *rsi, int components_pattern,

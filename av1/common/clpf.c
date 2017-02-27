@@ -59,7 +59,7 @@ void aom_clpf_block_c(const uint8_t *src, uint8_t *dst, int sstride,
   }
 }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 // Identical to aom_clpf_block_c() apart from "src" and "dst".
 void aom_clpf_block_hbd_c(const uint16_t *src, uint16_t *dst, int sstride,
                           int dstride, int x0, int y0, int sizex, int sizey,
@@ -130,7 +130,7 @@ void av1_clpf_frame(
       cm->bit_depth - 5 - (plane != AOM_PLANE_Y) + (cm->base_qindex >> 6);
 
 // Make buffer space for in-place filtering
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   strength <<= (cm->bit_depth - 8);
   CHECK_MEM_ERROR(cm, cache, aom_malloc(cache_size << !!cm->use_highbitdepth));
   dst_buffer = cm->use_highbitdepth ? CONVERT_TO_BYTEPTR(cache) : cache;
@@ -195,7 +195,7 @@ void av1_clpf_frame(
               // Temporary buffering needed for in-place filtering
               if (cache_ptr[cache_idx]) {
 // Copy filtered block back into the frame
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
                 if (cm->use_highbitdepth) {
                   uint16_t *const d = CONVERT_TO_SHORTPTR(cache_dst[cache_idx]);
                   if (sizex == 8) {
@@ -243,7 +243,7 @@ void av1_clpf_frame(
                            cache_ptr[cache_idx] + c * bs, sizex);
 #endif
               }
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
               if (cm->use_highbitdepth) {
                 cache_ptr[cache_idx] = cache + cache_idx * bs * bs * 2;
                 dst_buffer =
@@ -260,7 +260,7 @@ void av1_clpf_frame(
               if (++cache_idx >= cache_blocks) cache_idx = 0;
 
 // Apply the filter
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
               if (cm->use_highbitdepth) {
                 aom_clpf_block_hbd(CONVERT_TO_SHORTPTR(src_buffer),
                                    CONVERT_TO_SHORTPTR(dst_buffer), sstride,
@@ -286,7 +286,7 @@ void av1_clpf_frame(
   // Copy remaining blocks into the frame
   for (cache_idx = 0; cache_idx < cache_blocks && cache_ptr[cache_idx];
        cache_idx++) {
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
     if (cm->use_highbitdepth) {
       uint16_t *const d = CONVERT_TO_SHORTPTR(cache_dst[cache_idx]);
       for (c = 0; c < bs; c++) {

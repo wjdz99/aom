@@ -23,7 +23,7 @@ extern "C" {
 
 #define EOSB_TOKEN 127  // Not signalled, encoder only
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 typedef int32_t EXTRABIT;
 #else
 typedef int16_t EXTRABIT;
@@ -114,7 +114,7 @@ static INLINE int av1_get_cost(int16_t token, EXTRABIT extrabits,
          cat6_high_table[extrabits >> 9];
 }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 static INLINE const int *av1_get_high_cost_table(int bit_depth) {
   return bit_depth == 8 ? av1_cat6_high_cost
                         : (bit_depth == 10 ? av1_cat6_high10_high_cost
@@ -125,7 +125,7 @@ static INLINE const int *av1_get_high_cost_table(int bit_depth) {
   (void)bit_depth;
   return av1_cat6_high_cost;
 }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
 static INLINE void av1_get_token_extra(int v, int16_t *token, EXTRABIT *extra) {
   if (v >= CAT6_MIN_VAL || v <= -CAT6_MIN_VAL) {

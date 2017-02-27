@@ -125,7 +125,7 @@ static void copy_sb8_16(AV1_COMMON *cm, int16_t *dst, int dstride,
                         int sstride, int vsize, int hsize) {
   int r, c;
   (void)cm;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (cm->use_highbitdepth) {
     const uint16_t *base =
         &CONVERT_TO_SHORTPTR(src)[src_voffset * sstride + src_hoffset];
@@ -351,7 +351,7 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
         od_dering(
             dst, &src[OD_FILT_VBORDER * OD_FILT_BSTRIDE + OD_FILT_HBORDER],
             dec[pli], dir, pli, dlist, dering_count, threshold, coeff_shift);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
         if (cm->use_highbitdepth) {
           copy_dering_16bit_to_16bit(
               (int16_t *)&CONVERT_TO_SHORTPTR(
@@ -368,7 +368,7 @@ void av1_dering_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                                           (MAX_MIB_SIZE * sbr << bsize[pli]) +
                                       (sbc * MAX_MIB_SIZE << bsize[pli])],
               xd->plane[pli].dst.stride, dst, dlist, dering_count, bsize[pli]);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
         }
 #endif
       }
