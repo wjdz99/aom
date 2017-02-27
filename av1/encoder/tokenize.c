@@ -334,7 +334,7 @@ static void cost_coeffs_b(int plane, int block, int blk_row, int blk_col,
   const PLANE_TYPE type = pd->plane_type;
   const int ref = is_inter_block(mbmi);
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
-  const TX_TYPE tx_type = get_tx_type(type, xd, block_raster_idx, tx_size);
+  const TX_TYPE tx_type = get_tx_type(type, xd, block_raster_idx, tx_size, cm);
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, ref);
   int pt = get_entropy_context(tx_size, pd->above_context + blk_col,
                                pd->left_context + blk_row);
@@ -535,7 +535,7 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
 #endif  // !CONFIG_NEW_TOKENSET
   const int16_t *scan, *nb;
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
-  const TX_TYPE tx_type = get_tx_type(type, xd, block_raster_idx, tx_size);
+  const TX_TYPE tx_type = get_tx_type(type, xd, block_raster_idx, tx_size, cm);
   const SCAN_ORDER *const scan_order =
       get_scan(cm, tx_size, tx_type, is_inter_block(mbmi));
   const int ref = is_inter_block(mbmi);

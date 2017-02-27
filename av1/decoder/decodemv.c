@@ -734,7 +734,11 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
 
+#if CONFIG_EXT_TILE
+  if (!(FIXED_TX_TYPE || cm->tile_encoding_mode)) {
+#else
   if (!FIXED_TX_TYPE) {
+#endif  // CONFIG_EXT_TILE
 #if CONFIG_EXT_TX
     const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
     if (get_ext_tx_types(tx_size, mbmi->sb_type, inter_block,
