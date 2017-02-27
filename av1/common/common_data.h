@@ -423,6 +423,12 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES] =
   }
 };
 
+#if CONFIG_VAR_TX
+#define DISABLE_RECTX_IN_VARTX 1
+#else
+#define DISABLE_RECTX_IN_VARTX 0
+#endif
+
 static const TX_SIZE max_txsize_lookup[BLOCK_SIZES] = {
 #if CONFIG_CB4X4
   // 2X2,    2X4,      4X2,
@@ -455,6 +461,7 @@ static const TX_SIZE max_txsize_lookup[BLOCK_SIZES] = {
 #endif  // CONFIG_TX64X64
 };
 
+#if !DISABLE_RECTX_IN_VARTX
 static const TX_SIZE max_txsize_rect_lookup[BLOCK_SIZES] = {
 #if CONFIG_CB4X4
   // 2X2,    2X4,      4X2,
@@ -486,6 +493,9 @@ static const TX_SIZE max_txsize_rect_lookup[BLOCK_SIZES] = {
 #endif  // CONFIG_EXT_PARTITION
 #endif  // CONFIG_TX64X64
 };
+#else
+#define max_txsize_rect_lookup max_txsize_lookup
+#endif
 
 #if (CONFIG_VAR_TX || CONFIG_RECT_TX)
 // Same as "max_txsize_lookup[bsize] - TX_8X8", except for rectangular
