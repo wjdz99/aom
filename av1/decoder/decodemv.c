@@ -768,7 +768,11 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   TX_TYPE *tx_type = &mbmi->txk_type[block];
 #endif
 
+#if CONFIG_EXT_TILE
+  if (!(FIXED_TX_TYPE || cm->tile_encoding_mode)) {
+#else
   if (!FIXED_TX_TYPE) {
+#endif  // CONFIG_EXT_TILE
 #if CONFIG_EXT_TX
     const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
     if (get_ext_tx_types(tx_size, mbmi->sb_type, inter_block,

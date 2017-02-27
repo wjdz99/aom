@@ -861,11 +861,7 @@ int av1_is_intra_filter_switchable(int angle);
 #endif  // CONFIG_INTRA_INTERP
 #endif  // CONFIG_EXT_INTRA
 
-#if CONFIG_EXT_TILE
-#define FIXED_TX_TYPE 1
-#else
 #define FIXED_TX_TYPE 0
-#endif
 
 // Converts block_index for given transform size to index of the block in raster
 // order.
@@ -902,13 +898,15 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
                                            : mbmi->uv_mode];
 }
 
-static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
-                                  int block, TX_SIZE tx_size) {
+static INLINE TX_TYPE get_tx_type_internal(PLANE_TYPE plane_type,
+                                           const MACROBLOCKD *xd, int block,
+                                           TX_SIZE tx_size,
+                                           int is_fixed_tx_type) {
   const MODE_INFO *const mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
 #if !CONFIG_TXK_SEL
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
-  if (FIXED_TX_TYPE)
+  if (is_fixed_tx_type)
     return get_default_tx_type(plane_type, xd, block_raster_idx, tx_size);
 
 #if CONFIG_EXT_TX

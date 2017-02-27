@@ -79,7 +79,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 #if CONFIG_TXK_SEL
   av1_read_tx_type(cm, xd, block, plane, r);
 #endif
-  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size, cm);
   const SCAN_ORDER *const scan_order =
       get_scan(cm, tx_size, tx_type, is_inter_block(mbmi));
   const int16_t *scan = scan_order->scan;
@@ -236,7 +236,7 @@ uint8_t av1_read_coeffs_txb_facade(AV1_COMMON *cm, MACROBLOCKD *xd,
                                           &txb_ctx, max_scan_line, eob);
 #if CONFIG_ADAPT_SCAN
   PLANE_TYPE plane_type = get_plane_type(plane);
-  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size, cm);
   if (xd->counts && *eob > 0)
     av1_update_scan_count_facade(cm, xd->counts, tx_size, tx_type, pd->dqcoeff,
                                  *eob);
