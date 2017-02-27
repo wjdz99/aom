@@ -524,7 +524,10 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->adaptive_interp_filter_search = 0;
   sf->allow_partition_search_skip = 0;
 #if CONFIG_EXT_TILE
-  sf->use_upsampled_references = 0;
+  if (cpi->oxcf.tile_encoding_mode)
+    sf->use_upsampled_references = 0;
+  else
+    sf->use_upsampled_references = 1;
 #else
   sf->use_upsampled_references = 1;
 #endif  // CONFIG_EXT_TILE
@@ -560,7 +563,10 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
 
 // Set this at the appropriate speed levels
 #if CONFIG_EXT_TILE
-  sf->use_transform_domain_distortion = 1;
+  if (cpi->oxcf.tile_encoding_mode)
+    sf->use_transform_domain_distortion = 1;
+  else
+    sf->use_transform_domain_distortion = 0;
 #else
   sf->use_transform_domain_distortion = 0;
 #endif  // CONFIG_EXT_TILE

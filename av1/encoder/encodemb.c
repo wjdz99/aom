@@ -121,7 +121,7 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
   const int16_t *const dequant_ptr = pd->dequant;
   const uint8_t *const band_translate = get_band_translate(tx_size);
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
-  TX_TYPE tx_type = get_tx_type(plane_type, xd, block_raster_idx, tx_size);
+  TX_TYPE tx_type = get_tx_type(plane_type, xd, block_raster_idx, tx_size, cm);
   const SCAN_ORDER *const scan_order =
       get_scan(cm, tx_size, tx_type, is_inter_block(&xd->mi[0]->mbmi));
   const int16_t *const scan = scan_order->scan;
@@ -505,7 +505,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif
   PLANE_TYPE plane_type = get_plane_type(plane);
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
-  TX_TYPE tx_type = get_tx_type(plane_type, xd, block_raster_idx, tx_size);
+  TX_TYPE tx_type = get_tx_type(plane_type, xd, block_raster_idx, tx_size, cm);
   const int is_inter = is_inter_block(&xd->mi[0]->mbmi);
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, is_inter);
   tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
@@ -740,7 +740,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
   // inverse transform parameters
   inv_txfm_param.tx_type =
-      get_tx_type(pd->plane_type, xd, block_raster_idx, tx_size);
+      get_tx_type(pd->plane_type, xd, block_raster_idx, tx_size, cm);
   inv_txfm_param.tx_size = tx_size;
   inv_txfm_param.eob = p->eobs[block];
   inv_txfm_param.lossless = xd->lossless[xd->mi[0]->mbmi.segment_id];
@@ -979,7 +979,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   PLANE_TYPE plane_type = get_plane_type(plane);
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
   const TX_TYPE tx_type =
-      get_tx_type(plane_type, xd, block_raster_idx, tx_size);
+      get_tx_type(plane_type, xd, block_raster_idx, tx_size, cm);
   PREDICTION_MODE mode;
   const int diff_stride = block_size_wide[plane_bsize];
   uint8_t *src, *dst;

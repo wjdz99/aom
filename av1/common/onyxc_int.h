@@ -371,6 +371,9 @@ typedef struct AV1Common {
 #endif  // !CONFIG_EXT_TILE
   int tile_cols, tile_rows;
   int tile_width, tile_height;  // In MI units
+#if CONFIG_EXT_TILE
+  unsigned int tile_encoding_mode;
+#endif  // CONFIG_EXT_TILE
 
 #if CONFIG_DEPENDENT_HORZTILES
   int dependent_horz_tiles;
@@ -986,6 +989,20 @@ static INLINE void set_sb_size(AV1_COMMON *const cm, const BLOCK_SIZE sb_size) {
 #else
   cm->mib_size_log2 = mi_width_log2_lookup[cm->sb_size];
 #endif
+}
+
+static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
+                                  int block_idx, TX_SIZE tx_size,
+                                  const AV1_COMMON *cm) {
+  int is_fixed_tx_type = FIXED_TX_TYPE;
+
+#if CONFIG_EXT_TILE
+  is_fixed_tx_type = is_fixed_tx_type || cm->tile_encoding_mode;
+#else
+  (void)cm;
+#endif  // CONFIG_EXT_TILE
+    return get_tx_type_internal(plane_type, xd, block_idx, tx_size,
+                                is_fixed_tx_type);
 }
 
 #ifdef __cplusplus

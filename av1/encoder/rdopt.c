@@ -1300,7 +1300,7 @@ static void dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
           av1_block_index_to_raster_order(tx_size, block);
 
       inv_txfm_param.tx_type =
-          get_tx_type(plane_type, xd, block_raster_idx, tx_size);
+          get_tx_type(plane_type, xd, block_raster_idx, tx_size, &cpi->common);
       inv_txfm_param.tx_size = tx_size;
       inv_txfm_param.eob = eob;
       inv_txfm_param.lossless = xd->lossless[mbmi->segment_id];
@@ -1672,7 +1672,7 @@ static void txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
 
   av1_get_entropy_contexts(bsize, tx_size, pd, args.t_above, args.t_left);
 
-  tx_type = get_tx_type(pd->plane_type, xd, 0, tx_size);
+  tx_type = get_tx_type(pd->plane_type, xd, 0, tx_size, cm);
   args.scan_order =
       get_scan(cm, tx_size, tx_type, is_inter_block(&xd->mi[0]->mbmi));
 
@@ -1719,7 +1719,7 @@ void av1_txfm_rd_in_plane_supertx(MACROBLOCK *x, const AV1_COMP *cpi, int *rate,
 
   av1_get_entropy_contexts(bsize, tx_size, pd, args.t_above, args.t_left);
 
-  tx_type = get_tx_type(pd->plane_type, xd, 0, tx_size);
+  tx_type = get_tx_type(pd->plane_type, xd, 0, tx_size, cm);
   args.scan_order =
       get_scan(cm, tx_size, tx_type, is_inter_block(&xd->mi[0]->mbmi));
 
@@ -1810,7 +1810,11 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 #else
   if (tx_size < TX_32X32 && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
+#if CONFIG_EXT_TILE
+      !(FIXED_TX_TYPE || cm->tile_encoding_mode)) {
+#else
       !FIXED_TX_TYPE) {
+#endif  // CONFIG_EXT_TILE
     if (is_inter) {
       rd_stats->rate += cpi->inter_tx_type_costs[mbmi->tx_size][mbmi->tx_type];
     } else {
@@ -1912,7 +1916,13 @@ static int64_t choose_tx_size_fix_type(const AV1_COMP *const cpi, BLOCK_SIZE bs,
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
     if (is_rect_tx(n)) break;
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
-    if (FIXED_TX_TYPE && tx_type != get_default_tx_type(0, xd, 0, n)) continue;
+
+#if CONFIG_EXT_TILE
+    if ((FIXED_TX_TYPE || cm->tile_encoding_mode) &&
+#else
+    if (FIXED_TX_TYPE &&
+#endif  // CONFIG_EXT_TILE
+        tx_type != get_default_tx_type(0, xd, 0, n)) continue;
     if (!is_inter && x->use_default_intra_tx_type &&
         tx_type != get_default_tx_type(0, xd, 0, n))
       continue;
@@ -2655,7 +2665,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
                                     src_stride, dst, dst_stride, xd->bd);
           if (is_lossless) {
             TX_TYPE tx_type =
-                get_tx_type(PLANE_TYPE_Y, xd, block_raster_idx, tx_size);
+                get_tx_type(PLANE_TYPE_Y, xd, block_raster_idx, tx_size, cm);
             const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
             const int coeff_ctx =
                 combine_entropy_contexts(tempa[idx], templ[idy]);
@@ -2690,7 +2700,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
             int64_t dist;
             unsigned int tmp;
             TX_TYPE tx_type =
-                get_tx_type(PLANE_TYPE_Y, xd, block_raster_idx, tx_size);
+                get_tx_type(PLANE_TYPE_Y, xd, block_raster_idx, tx_size, cm);
             const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
             const int coeff_ctx =
                 combine_entropy_contexts(tempa[idx], templ[idy]);
@@ -2823,7 +2833,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 
         if (is_lossless) {
           TX_TYPE tx_type =
-              get_tx_type(PLANE_TYPE_Y, xd, block_raster_idx, tx_size);
+              get_tx_type(PLANE_TYPE_Y, xd, block_raster_idx, tx_size, cm);
           const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
           const int coeff_ctx =
               combine_entropy_contexts(tempa[idx], templ[idy]);
@@ -2890,7 +2900,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
           int64_t dist;
           unsigned int tmp;
           TX_TYPE tx_type =
-              get_tx_type(PLANE_TYPE_Y, xd, block_raster_idx, tx_size);
+              get_tx_type(PLANE_TYPE_Y, xd, block_raster_idx, tx_size, cm);
           const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
           const int coeff_ctx =
               combine_entropy_contexts(tempa[idx], templ[idy]);
@@ -3772,7 +3782,7 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
   int64_t tmp;
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   PLANE_TYPE plane_type = get_plane_type(plane);
-  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size, cm);
   const SCAN_ORDER *const scan_order =
       get_scan(cm, tx_size, tx_type, is_inter_block(&xd->mi[0]->mbmi));
   BLOCK_SIZE txm_bsize = txsize_to_bsize[tx_size];
@@ -5186,7 +5196,7 @@ static int64_t encode_inter_mb_segment_sub8x8(
   int64_t thisdistortion = 0, thissse = 0;
   int thisrate = 0;
   TX_SIZE tx_size = mi->mbmi.tx_size;
-  TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, i, tx_size);
+  TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, i, tx_size, cm);
   const int num_4x4_w = tx_size_wide_unit[tx_size];
   const int num_4x4_h = tx_size_high_unit[tx_size];
 #if !CONFIG_PVQ
@@ -6580,7 +6590,7 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
                               BLOCK_8X8, TX_4X4, coeff_ctx, AV1_XFORM_QUANT_FP);
 
               inv_txfm_param.tx_type =
-                  get_tx_type(plane_type, xd, block, TX_4X4);
+                  get_tx_type(plane_type, xd, block, TX_4X4, cm);
               inv_txfm_param.tx_size = TX_4X4;
               inv_txfm_param.eob = eob;
               inv_txfm_param.lossless = xd->lossless[mbmi->segment_id];

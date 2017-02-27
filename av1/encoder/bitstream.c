@@ -1292,7 +1292,11 @@ static void write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
 
+#if CONFIG_EXT_TILE
+  if (!(FIXED_TX_TYPE || cm->tile_encoding_mode)) {
+#else
   if (!FIXED_TX_TYPE) {
+#endif  // CONFIG_EXT_TILE
 #if CONFIG_EXT_TX
     const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
     const BLOCK_SIZE bsize = mbmi->sb_type;
@@ -3778,6 +3782,8 @@ static void write_tile_info(const AV1_COMMON *const cm,
   assert(tile_width > 0);
   assert(tile_height > 0);
 
+  aom_wb_write_literal(wb, cm->tile_encoding_mode, 1);
+
 // Write the tile sizes
 #if CONFIG_EXT_PARTITION
   if (cm->sb_size == BLOCK_128X128) {
@@ -4023,10 +4029,11 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
         // tile header: size of this tile, or copy offset
         uint32_t tile_header = tile_size;
 
-        // Check if this tile is a copy tile.
+        // If the tile_encoding_mode is 1 (i.e. TILE_VR), check if this tile is
+        // a copy tile.
         // Very low chances to have copy tiles on the key frames, so don't
         // search on key frames to reduce unnecessary search.
-        if (cm->frame_type != KEY_FRAME) {
+        if (cm->frame_type != KEY_FRAME && cm->tile_encoding_mode) {
           const int idendical_tile_offset =
               find_identical_tile(tile_row, tile_col, tile_buffers);
 

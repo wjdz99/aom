@@ -42,7 +42,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   aom_prob *nz_map = cm->fc->nz_map[tx_size][plane_type];
   aom_prob *eob_flag = cm->fc->eob_flag[tx_size][plane_type];
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  const TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  const TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size, cm);
   const SCAN_ORDER *const scan_order =
       get_scan(cm, tx_size, tx_type, is_inter_block(mbmi));
   const int16_t *scan = scan_order->scan;
