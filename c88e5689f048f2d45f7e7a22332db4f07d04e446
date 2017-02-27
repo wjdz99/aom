@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "87692e28_6edaf96b",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-27T18:55:46Z",
+      "side": 1,
+      "message": "I thought it might be useful for seeing when the variables aren\u0027t used, but it certainly isn\u0027t needed. I\u0027ve removed it.",
+      "parentUuid": "c1e671c0_7d7c27a3",
+      "revId": "c88e5689f048f2d45f7e7a22332db4f07d04e446",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39760fc1_f3619aa5",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-23T01:14:15Z",
       "side": 1,
       "message": "ditto",
+      "revId": "c88e5689f048f2d45f7e7a22332db4f07d04e446",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e85f66ff_a16bcd94",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1804,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-27T18:55:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39760fc1_f3619aa5",
       "revId": "c88e5689f048f2d45f7e7a22332db4f07d04e446",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
