@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83558059_b0688e93",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 7939,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-28T23:17:55Z",
+      "side": 1,
+      "message": "This is not part of your patch, but while we are here:\n\"#endif  // CONFIG_REF_MV\"",
+      "revId": "32707fa42f8f92e5fd73acc903c2ad6ce2260c35",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47efb2c5_4e9f50e5",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 10241,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-28T23:17:55Z",
+      "side": 1,
+      "message": "\"#endif  // CONFIG_EXT_INTER\"",
+      "revId": "32707fa42f8f92e5fd73acc903c2ad6ce2260c35",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cb47ff4_0b87d7a4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 10370,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-02-28T23:17:55Z",
+      "side": 1,
+      "message": "\"#endif  // CONFIG_EXT_INTER\"",
+      "revId": "32707fa42f8f92e5fd73acc903c2ad6ce2260c35",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
