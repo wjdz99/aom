@@ -19,6 +19,7 @@ include("${AOM_ROOT}/build/cmake/aom_optimization.cmake")
 include("${AOM_ROOT}/aom_dsp/aom_dsp.cmake")
 include("${AOM_ROOT}/av1/av1.cmake")
 include("${AOM_ROOT}/test/test.cmake")
+include("${AOM_ROOT}/test/test-data.cmake")
 
 set(AOM_RTCD_SOURCES
     "${AOM_CONFIG_DIR}/aom_dsp_rtcd.h"
