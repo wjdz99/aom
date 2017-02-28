@@ -36,6 +36,8 @@
 extern "C" {
 #endif
 
+#define SUB8X8_COMP_REF 1
+
 #define MAX_MB_PLANE 3
 
 #if CONFIG_EXT_INTER
@@ -635,11 +637,12 @@ static const int ext_tx_set_index_inter[EXT_TX_SET_TYPES] = {
   0, 3, -1, -1, 2, 1
 };
 
+#define USE_TXTYPE_SEARCH_FOR_SUB8X8_IN_CB4X4 1
 static INLINE TxSetType get_ext_tx_set_type(TX_SIZE tx_size, BLOCK_SIZE bs,
                                             int is_inter, int use_reduced_set) {
   const TX_SIZE tx_size2 = txsize_sqr_up_map[tx_size];
   tx_size = txsize_sqr_map[tx_size];
-#if CONFIG_CB4X4
+#if CONFIG_CB4X4 && USE_TXTYPE_SEARCH_FOR_SUB8X8_IN_CB4X4
   (void)bs;
   if (tx_size > TX_32X32) return EXT_TX_SET_DCTONLY;
 #else
@@ -933,12 +936,10 @@ static INLINE TX_SIZE get_uv_tx_size(const MB_MODE_INFO *mbmi,
   return uv_txsize;
 }
 
-static INLINE TX_SIZE get_tx_size(int plane, const MACROBLOCKD *xd,
-                                  int block_idx) {
+static INLINE TX_SIZE get_tx_size(int plane, const MACROBLOCKD *xd) {
   const MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   const MACROBLOCKD_PLANE *pd = &xd->plane[plane];
   const TX_SIZE tx_size = plane ? get_uv_tx_size(mbmi, pd) : mbmi->tx_size;
-  (void)block_idx;
   return tx_size;
 }
 
