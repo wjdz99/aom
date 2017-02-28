@@ -24,16 +24,16 @@
 
 #define OD_FRAME_NSUBTYPES (OD_ALTREF_P_FRAME + 1)
 
-/* Periodic boost (in between golden frames) strength - lower is more */
-#define OD_PERIODIC_BOOST_DIV (10)
+/* Periodic boost (in between golden frames) strength */
+#define OD_PERIODIC_BOOST_STRENGTH (1.2f)
 
 /* Constants for frame QP modulation <- tweak these
  * Adjusts how the rate control system decides the quantizers per frame
  * (sub)type */
 #define OD_MQP_I (0.98)
 #define OD_MQP_P (1.06)
-#define OD_MQP_GP (0.99)
-#define OD_MQP_AP (0.92)
+#define OD_MQP_GP (1.03)
+#define OD_MQP_AP (0.94)
 #define OD_DQP_I (-2)
 #define OD_DQP_P (0)
 #define OD_DQP_GP (-2)
@@ -91,6 +91,8 @@ typedef struct od_rc_state {
   /*The full-precision, unmodulated quantizer upon which
     our modulated quantizers are based.*/
   int base_quantizer;
+  /* Previous frame's quantizer boost */
+  double prev_frame_boost;
 
   /* Increments by 1 for each frame. */
   int64_t cur_frame;
@@ -146,6 +148,7 @@ typedef struct od_rc_state {
 int od_enc_rc_init(od_rc_state *rc, int64_t bitrate, int delay_ms);
 
 int od_enc_rc_select_quantizers_and_lambdas(od_rc_state *rc,
+                                            RATE_CONTROL *alt_rc,
                                             int is_golden_frame,
                                             int is_altref_frame, int frame_type,
                                             int *bottom_idx, int *top_idx);
