@@ -302,7 +302,7 @@ int items_compare(pvq_search_item *a, pvq_search_item *b) {
  * @param [in]     beta      per-band activity masking beta param
  * @param [out]    skip_diff distortion cost of skipping this block
  *                           (accumulated)
- * @param [in]     robust    make stream robust to error in the reference
+ * @param [in]     nodesync   make stream robust to error in the reference
  * @param [in]     is_keyframe whether we're encoding a keyframe
  * @param [in]     pli       plane index
  * @param [in]     adapt     probability adaptation context
@@ -314,7 +314,7 @@ int items_compare(pvq_search_item *a, pvq_search_item *b) {
 */
 static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
  int n, int q0, od_coeff *y, int *itheta, int *max_theta, int *vk,
- od_val16 beta, double *skip_diff, int robust, int is_keyframe, int pli,
+ od_val16 beta, double *skip_diff, int nodesync, int is_keyframe, int pli,
  const od_adapt_ctx *adapt, const int16_t *qm,
  const int16_t *qm_inv, double pvq_norm_lambda, int speed) {
   od_val32 g;
@@ -468,7 +468,7 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
       for (j = theta_lower; j <= theta_upper; j++) {
         od_val32 qtheta;
         qtheta = od_pvq_compute_theta(j, ts);
-        k = od_pvq_compute_k(qcg, j, qtheta, 0, n, beta, robust || is_keyframe);
+        k = od_pvq_compute_k(qcg, j, qtheta, 0, n, beta, nodesync);
         items[idx].gain = i;
         items[idx].theta = j;
         items[idx].k = k;
@@ -562,7 +562,7 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
       double cost;
       od_val32 qcg;
       qcg = OD_SHL(i, OD_CGAIN_SHIFT);
-      k = od_pvq_compute_k(qcg, -1, -1, 1, n, beta, robust || is_keyframe);
+      k = od_pvq_compute_k(qcg, -1, -1, 1, n, beta, nodesync);
       /* Compute the minimal possible distortion by not taking the PVQ
          cos_dist into account. */
       dist = gain_weight*(qcg - cg)*(qcg - cg);
@@ -757,7 +757,7 @@ void od_encode_quantizer_scaling(daala_enc_ctx *enc, int q_scaling,
  * @param [in]     pli     plane index
  * @param [in]     bs      log of the block size minus two
  * @param [in]     beta    per-band activity masking beta param
- * @param [in]     robust  make stream robust to error in the reference
+ * @param [in]     nodesync  make stream robust to error in the reference
  * @param [in]     is_keyframe whether we're encoding a keyframe
  * @param [in]     q_scaling scaling factor to apply to quantizer
  * @param [in]     bx      x-coordinate of this block
@@ -779,7 +779,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
                    int pli,
                    int bs,
                    const od_val16 *beta,
-                   int robust,
+                   int nodesync,
                    int is_keyframe,
                    int q_scaling,
                    int bx,
@@ -879,7 +879,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
 
     qg[i] = pvq_theta(out + off[i], in + off[i], ref + off[i], size[i],
      q, y + off[i], &theta[i], &max_theta[i],
-     &k[i], beta[i], &skip_diff, robust, is_keyframe, pli, &enc->state.adapt,
+     &k[i], beta[i], &skip_diff, nodesync, is_keyframe, pli, &enc->state.adapt,
      qm + off[i], qm_inv + off[i], enc->pvq_norm_lambda, speed);
   }
   od_encode_checkpoint(enc, &buf);
@@ -966,7 +966,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
     if (i == 0 || (!skip_rest && !(skip_dir & (1 << ((i - 1)%3))))) {
       pvq_encode_partition(&enc->w, qg[i], theta[i], max_theta[i], y + off[i],
        size[i], k[i], model, &enc->state.adapt, exg + i, ext + i,
-       robust || is_keyframe, (pli != 0)*OD_TXSIZES*PVQ_MAX_PARTITIONS
+       nodesync, (pli != 0)*OD_TXSIZES*PVQ_MAX_PARTITIONS
        + bs*PVQ_MAX_PARTITIONS + i, is_keyframe, i == 0 && (i < nb_bands - 1),
        skip_rest, encode_flip, flip);
     }
