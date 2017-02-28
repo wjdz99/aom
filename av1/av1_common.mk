@@ -131,6 +131,8 @@ ifneq ($(findstring yes,$(CONFIG_PVQ)$(CONFIG_DAALA_DIST)$(CONFIG_XIPHRC)),)
 AV1_COMMON_SRCS-yes += common/pvq.h
 AV1_COMMON_SRCS-yes += common/pvq_state.h
 AV1_COMMON_SRCS-yes += common/generic_code.h
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/dist_sse4.c
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/dist_sse4.h
 endif
 
 ifneq ($(CONFIG_AOM_HIGHBITDEPTH),yes)
