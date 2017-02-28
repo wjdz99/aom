@@ -552,50 +552,6 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
       }
     }
   }
-  /* Don't bother with no-reference version if there's a reasonable
-     correlation. The only exception is luma on a keyframe because
-     H/V prediction is unreliable. */
-  if (n <= OD_MAX_PVQ_SIZE &&
-   ((is_keyframe && pli == 0) || corr < .5
-   || cg < (od_val32)(OD_SHL(2, OD_CGAIN_SHIFT)))) {
-    int gain_bound;
-    int prev_k;
-    gain_bound = OD_SHR(cg, OD_CGAIN_SHIFT);
-    prev_k = 0;
-    /* Search for the best gain (haven't determined reasonable range yet). */
-    for (i = OD_MAXI(1, gain_bound); i <= gain_bound + 1; i++) {
-      double cos_dist;
-      double cost;
-      od_val32 qcg;
-      qcg = OD_SHL(i, OD_CGAIN_SHIFT);
-      k = od_pvq_compute_k(qcg, -1, -1, 1, n, beta, robust || is_keyframe);
-      /* Compute the minimal possible distortion by not taking the PVQ
-         cos_dist into account. */
-      dist = gain_weight*(qcg - cg)*(qcg - cg);
-      dist *= OD_CGAIN_SCALE_2;
-      if (dist > dist0 && k != 0) continue;
-      cos_dist = pvq_search_rdo_double(x16, n, k, y_tmp,
-       qcg*(double)cg*OD_CGAIN_SCALE_2, pvq_norm_lambda, prev_k);
-      prev_k = k;
-      /* See Jmspeex' Journal of Dubious Theoretical Results. */
-      dist = gain_weight*(qcg - cg)*(qcg - cg)
-       + qcg*(double)cg*(2 - 2*cos_dist);
-      dist *= OD_CGAIN_SCALE_2;
-      /* Do approximate RDO. */
-      cost = dist + pvq_norm_lambda*od_pvq_rate(i, 0, -1, 0, adapt, y_tmp, k,
-       n, is_keyframe, pli, speed);
-      if (cost <= best_cost) {
-        best_cost = cost;
-        best_dist = dist;
-        qg = i;
-        noref = 1;
-        best_k = k;
-        *itheta = -1;
-        *max_theta = 0;
-        OD_COPY(y, y_tmp, n);
-      }
-    }
-  }
   k = best_k;
   theta = best_qtheta;
   skip = 0;
