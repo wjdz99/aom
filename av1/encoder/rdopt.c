@@ -458,7 +458,7 @@ static const TX_TYPE_1D htx_tab[TX_TYPES] = {
 };
 
 #if CONFIG_DAALA_DIST
-static int od_compute_var_4x4(od_coeff *x, int stride) {
+int od_compute_var_4x4_c(od_coeff *x, int stride) {
   int sum;
   int s2;
   int i;
@@ -485,8 +485,8 @@ static int od_compute_var_4x4(od_coeff *x, int stride) {
 #define OD_DIST_LP_MID (5)
 #define OD_DIST_LP_NORM (OD_DIST_LP_MID + 2)
 
-static double od_compute_dist_8x8(int qm, int use_activity_masking, od_coeff *x,
-                                  od_coeff *y, od_coeff *e_lp, int stride) {
+double od_compute_dist_8x8_c(int qm, int use_activity_masking, od_coeff *x,
+                             od_coeff *y, od_coeff *e_lp, int stride) {
   double sum;
   int min_var;
   double mean_var;
@@ -512,7 +512,7 @@ static double od_compute_dist_8x8(int qm, int use_activity_masking, od_coeff *x,
       min_var = OD_MINI(min_var, varx);
       mean_var += 1. / (1 + varx);
       /* The cast to (double) is to avoid an overflow before the sqrt.*/
-      vardist += varx - 2 * sqrt(varx * (double)vary) + vary;
+      vardist += varx - 2 * sqrtf(varx * (double)vary) + vary;
     }
   }
   /* We use a different variance statistic depending on whether activity
@@ -544,9 +544,8 @@ static double od_compute_dist_8x8(int qm, int use_activity_masking, od_coeff *x,
 }
 
 // Note : Inputs x and y are in a pixel domain
-static double od_compute_dist(int qm, int activity_masking, od_coeff *x,
-                              od_coeff *y, int bsize_w, int bsize_h,
-                              int qindex) {
+double od_compute_dist(int qm, int activity_masking, od_coeff *x, od_coeff *y,
+                       int bsize_w, int bsize_h, int qindex) {
   int i;
   double sum;
   sum = 0;
