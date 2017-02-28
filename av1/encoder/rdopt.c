@@ -9618,6 +9618,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_REF_MV
 
 #if CONFIG_MOTION_VAR
+  av1_count_overlappable_neighbors(cm, xd, mi_row, mi_col);
   av1_build_prediction_by_above_preds(cm, xd, mi_row, mi_col, dst_buf1,
                                       dst_width1, dst_height1, dst_stride1);
   av1_build_prediction_by_left_preds(cm, xd, mi_row, mi_col, dst_buf2,

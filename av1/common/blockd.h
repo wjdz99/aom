@@ -352,6 +352,9 @@ typedef struct {
   INTERINTER_COMPOUND_DATA interinter_compound_data;
 #endif  // CONFIG_EXT_INTER
   MOTION_MODE motion_mode;
+#if CONFIG_MOTION_VAR
+  int overlappable_neighbors[2];
+#endif  // CONFIG_MOTION_VAR
   int_mv mv[2];
   int_mv pred_mv[2];
 #if CONFIG_REF_MV
@@ -1035,6 +1038,16 @@ static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize) {
   return (bsize >= BLOCK_8X8);
 }
 
+static INLINE int check_num_overlappable_neighbors(const MB_MODE_INFO *mbmi) {
+  if (mbmi->overlappable_neighbors[0] == 0 &&
+      mbmi->overlappable_neighbors[1] == 0)
+    return 0;
+  if (mbmi->overlappable_neighbors[0] > 2 ||
+      mbmi->overlappable_neighbors[1] > 2)
+    return 0;
+  return 1;
+}
+
 static INLINE MOTION_MODE motion_mode_allowed(const MB_MODE_INFO *mbmi) {
 #if CONFIG_EXT_INTER
   if (is_motion_variation_allowed_bsize(mbmi->sb_type) &&
@@ -1043,6 +1056,10 @@ static INLINE MOTION_MODE motion_mode_allowed(const MB_MODE_INFO *mbmi) {
   if (is_motion_variation_allowed_bsize(mbmi->sb_type) &&
       is_inter_mode(mbmi->mode)) {
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_MOTION_VAR
+    if (!check_num_overlappable_neighbors(mbmi))
+      return SIMPLE_TRANSLATION;
+#endif
 #if CONFIG_WARPED_MOTION
     if (!has_second_ref(mbmi) && mbmi->num_proj_ref[0] >= 3)
       return WARPED_CAUSAL;
