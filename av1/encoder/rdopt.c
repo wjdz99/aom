@@ -9618,15 +9618,18 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_REF_MV
 
 #if CONFIG_MOTION_VAR
-  av1_build_prediction_by_above_preds(cm, xd, mi_row, mi_col, dst_buf1,
-                                      dst_width1, dst_height1, dst_stride1);
-  av1_build_prediction_by_left_preds(cm, xd, mi_row, mi_col, dst_buf2,
-                                     dst_width2, dst_height2, dst_stride2);
-  av1_setup_dst_planes(xd->plane, get_frame_new_buffer(cm), mi_row, mi_col);
-  x->mask_buf = mask2d_buf;
-  x->wsrc_buf = weighted_src_buf;
-  calc_target_weighted_pred(cm, x, xd, mi_row, mi_col, dst_buf1[0],
-                            dst_stride1[0], dst_buf2[0], dst_stride2[0]);
+  av1_count_overlappable_neighbors(cm, xd, mi_row, mi_col);
+  if (check_num_overlappable_neighbors(mbmi)) {
+    av1_build_prediction_by_above_preds(cm, xd, mi_row, mi_col, dst_buf1,
+                                        dst_width1, dst_height1, dst_stride1);
+    av1_build_prediction_by_left_preds(cm, xd, mi_row, mi_col, dst_buf2,
+                                       dst_width2, dst_height2, dst_stride2);
+    av1_setup_dst_planes(xd->plane, get_frame_new_buffer(cm), mi_row, mi_col);
+    x->mask_buf = mask2d_buf;
+    x->wsrc_buf = weighted_src_buf;
+    calc_target_weighted_pred(cm, x, xd, mi_row, mi_col, dst_buf1[0],
+                              dst_stride1[0], dst_buf2[0], dst_stride2[0]);
+  }
 #endif  // CONFIG_MOTION_VAR
 
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
