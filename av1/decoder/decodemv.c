@@ -157,7 +157,6 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
 #endif
                                        aom_reader *r, int16_t ctx) {
 
-#if CONFIG_REF_MV
   FRAME_COUNTS *counts = xd->counts;
   int16_t mode_ctx = ctx & NEWMV_CTX_MASK;
   aom_prob mode_prob = ec_ctx->newmv_prob[mode_ctx];
@@ -214,22 +213,8 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
 
   // Invalid prediction mode.
   assert(0);
-#else
-#if CONFIG_EC_MULTISYMBOL
-  const int mode = av1_inter_mode_inv[aom_read_symbol(
-      r, ec_ctx->inter_mode_cdf[ctx], INTER_MODES, ACCT_STR)];
-#else
-  const int mode = aom_read_tree(r, av1_inter_mode_tree,
-                                 ec_ctx->inter_mode_probs[ctx], ACCT_STR);
-#endif
-  FRAME_COUNTS *counts = xd->counts;
-  if (counts) ++counts->inter_mode[ctx][mode];
-
-  return NEARESTMV + mode;
-#endif
 }
 
-#if CONFIG_REF_MV
 static void read_drl_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
                          MB_MODE_INFO *mbmi, aom_reader *r) {
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
@@ -272,7 +257,6 @@ static void read_drl_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
     }
   }
 }
-#endif
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
@@ -1287,7 +1271,6 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
   BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
-#if CONFIG_REF_MV
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
 #if CONFIG_CB4X4
   int_mv *pred_mv = mbmi->pred_mv;
@@ -1296,9 +1279,6 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
   int_mv *pred_mv =
       (bsize >= BLOCK_8X8) ? mbmi->pred_mv : xd->mi[0]->bmi[block].pred_mv;
 #endif  // CONFIG_CB4X4
-#else
-  (void)block;
-#endif  // CONFIG_REF_MV
   (void)ref_frame;
   (void)cm;
   (void)mi_row;
@@ -1311,11 +1291,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_INTER
     case NEWMV: {
       FRAME_COUNTS *counts = xd->counts;
-#if !CONFIG_REF_MV
-      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
-#endif
       for (i = 0; i < 1 + is_compound; ++i) {
-#if CONFIG_REF_MV
         int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
         int nmv_ctx =
             av1_nmv_ctx(xd->ref_mv_count[rf_type], xd->ref_mv_stack[rf_type], i,
@@ -1324,15 +1300,9 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
             counts ? &counts->mv[nmv_ctx] : NULL;
         read_mv(r, &mv[i].as_mv, &ref_mv[i].as_mv, &ec_ctx->nmvc[nmv_ctx],
                 mv_counts, allow_hp);
-#else
-        read_mv(r, &mv[i].as_mv, &ref_mv[i].as_mv, &ec_ctx->nmvc, mv_counts,
-                allow_hp);
-#endif
         ret = ret && is_mv_valid(&mv[i].as_mv);
 
-#if CONFIG_REF_MV
         pred_mv[i].as_int = ref_mv[i].as_int;
-#endif
       }
       break;
     }
@@ -1340,20 +1310,16 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       mv[0].as_int = nearest_mv[0].as_int;
       if (is_compound) mv[1].as_int = nearest_mv[1].as_int;
 
-#if CONFIG_REF_MV
       pred_mv[0].as_int = nearest_mv[0].as_int;
       if (is_compound) pred_mv[1].as_int = nearest_mv[1].as_int;
-#endif
       break;
     }
     case NEARMV: {
       mv[0].as_int = near_mv[0].as_int;
       if (is_compound) mv[1].as_int = near_mv[1].as_int;
 
-#if CONFIG_REF_MV
       pred_mv[0].as_int = near_mv[0].as_int;
       if (is_compound) pred_mv[1].as_int = near_mv[1].as_int;
-#endif
       break;
     }
     case ZEROMV: {
@@ -1374,21 +1340,15 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       if (is_compound) mv[1].as_int = 0;
 #endif  // CONFIG_GLOBAL_MOTION
 
-#if CONFIG_REF_MV
       pred_mv[0].as_int = 0;
       if (is_compound) pred_mv[1].as_int = 0;
-#endif
       break;
     }
 #if CONFIG_EXT_INTER
     case NEW_NEWMV: {
       FRAME_COUNTS *counts = xd->counts;
-#if !CONFIG_REF_MV
-      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
-#endif
       assert(is_compound);
       for (i = 0; i < 2; ++i) {
-#if CONFIG_REF_MV
         int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
         int nmv_ctx =
             av1_nmv_ctx(xd->ref_mv_count[rf_type], xd->ref_mv_stack[rf_type], i,
@@ -1397,10 +1357,6 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
             counts ? &counts->mv[nmv_ctx] : NULL;
         read_mv(r, &mv[i].as_mv, &ref_mv[i].as_mv, &ec_ctx->nmvc[nmv_ctx],
                 mv_counts, allow_hp);
-#else
-        read_mv(r, &mv[i].as_mv, &ref_mv[i].as_mv, &ec_ctx->nmvc, mv_counts,
-                allow_hp);
-#endif
         ret = ret && is_mv_valid(&mv[i].as_mv);
       }
       break;
@@ -1431,7 +1387,6 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     }
     case NEW_NEARESTMV: {
       FRAME_COUNTS *counts = xd->counts;
-#if CONFIG_REF_MV
       int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
       int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
                                 xd->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
@@ -1439,11 +1394,6 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
           counts ? &counts->mv[nmv_ctx] : NULL;
       read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc[nmv_ctx],
               mv_counts, allow_hp);
-#else
-      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
-      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc, mv_counts,
-              allow_hp);
-#endif
       assert(is_compound);
       ret = ret && is_mv_valid(&mv[0].as_mv);
       mv[1].as_int = nearest_mv[1].as_int;
@@ -1451,7 +1401,6 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     }
     case NEAREST_NEWMV: {
       FRAME_COUNTS *counts = xd->counts;
-#if CONFIG_REF_MV
       int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
       int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
                                 xd->ref_mv_stack[rf_type], 1, mbmi->ref_mv_idx);
@@ -1460,19 +1409,12 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       mv[0].as_int = nearest_mv[0].as_int;
       read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, &ec_ctx->nmvc[nmv_ctx],
               mv_counts, allow_hp);
-#else
-      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
-      mv[0].as_int = nearest_mv[0].as_int;
-      read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, &ec_ctx->nmvc, mv_counts,
-              allow_hp);
-#endif
       assert(is_compound);
       ret = ret && is_mv_valid(&mv[1].as_mv);
       break;
     }
     case NEAR_NEWMV: {
       FRAME_COUNTS *counts = xd->counts;
-#if CONFIG_REF_MV
       int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
       int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
                                 xd->ref_mv_stack[rf_type], 1, mbmi->ref_mv_idx);
@@ -1481,12 +1423,6 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       mv[0].as_int = near_mv[0].as_int;
       read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, &ec_ctx->nmvc[nmv_ctx],
               mv_counts, allow_hp);
-#else
-      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
-      mv[0].as_int = near_mv[0].as_int;
-      read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, &ec_ctx->nmvc, mv_counts,
-              allow_hp);
-#endif
       assert(is_compound);
 
       ret = ret && is_mv_valid(&mv[1].as_mv);
@@ -1494,7 +1430,6 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     }
     case NEW_NEARMV: {
       FRAME_COUNTS *counts = xd->counts;
-#if CONFIG_REF_MV
       int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
       int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
                                 xd->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
@@ -1502,11 +1437,6 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
           counts ? &counts->mv[nmv_ctx] : NULL;
       read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc[nmv_ctx],
               mv_counts, allow_hp);
-#else
-      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
-      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc, mv_counts,
-              allow_hp);
-#endif
       assert(is_compound);
       ret = ret && is_mv_valid(&mv[0].as_mv);
       mv[1].as_int = near_mv[1].as_int;
@@ -1603,17 +1533,14 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     MV_REFERENCE_FRAME frame = mbmi->ref_frame[ref];
 
     av1_find_mv_refs(cm, xd, mi, frame,
-#if CONFIG_REF_MV
                      &xd->ref_mv_count[frame], xd->ref_mv_stack[frame],
 #if CONFIG_EXT_INTER
                      compound_inter_mode_ctx,
 #endif  // CONFIG_EXT_INTER
-#endif
                      ref_mvs[frame], mi_row, mi_col, fpm_sync, (void *)pbi,
                      inter_mode_ctx);
   }
 
-#if CONFIG_REF_MV
   if (is_compound) {
     MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
     av1_find_mv_refs(cm, xd, mi, ref_frame, &xd->ref_mv_count[ref_frame],
@@ -1666,9 +1593,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     mode_ctx =
         av1_mode_context_analyzer(inter_mode_ctx, mbmi->ref_frame, bsize, -1);
   mbmi->ref_mv_idx = 0;
-#else
-  mode_ctx = inter_mode_ctx[mbmi->ref_frame[0]];
-#endif
 
   if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
     mbmi->mode = ZEROMV;
@@ -1689,10 +1613,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                                      mbmi,
 #endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
                                      r, mode_ctx);
-#if CONFIG_REF_MV
       if (mbmi->mode == NEARMV || mbmi->mode == NEWMV)
         read_drl_idx(cm, xd, mbmi, r);
-#endif
     }
   }
 
@@ -1708,7 +1630,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
   }
 
-#if CONFIG_REF_MV
   if (mbmi->ref_mv_idx > 0) {
     int_mv cur_mv =
         xd->ref_mv_stack[mbmi->ref_frame[0]][1 + mbmi->ref_mv_idx].this_mv;
@@ -1771,7 +1692,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
 #endif  // CONFIG_EXT_INTER
   }
-#endif
 
 #if !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION && !CONFIG_GLOBAL_MOTION
   read_mb_interp_filter(cm, xd, mbmi, r);
@@ -1791,13 +1711,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         int_mv block[2];
         const int j = idy * 2 + idx;
         int_mv ref_mv_s8[2];
-#if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
         if (!is_compound)
 #endif  // CONFIG_EXT_INTER
           mode_ctx = av1_mode_context_analyzer(inter_mode_ctx, mbmi->ref_frame,
                                                bsize, j);
-#endif
 #if CONFIG_EXT_INTER
         if (is_compound)
           b_mode = read_inter_compound_mode(cm, xd, r, mode_ctx);
@@ -1816,10 +1734,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #else
         if (b_mode != ZEROMV) {
 #endif  // CONFIG_EXT_INTER
-#if CONFIG_REF_MV
           CANDIDATE_MV ref_mv_stack[2][MAX_REF_MV_STACK_SIZE];
           uint8_t ref_mv_count[2];
-#endif
           for (ref = 0; ref < 1 + is_compound; ++ref)
 #if CONFIG_EXT_INTER
           {
@@ -1828,9 +1744,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                                   mi_row, mi_col, NULL);
 #endif  // CONFIG_EXT_INTER
             av1_append_sub8x8_mvs_for_idx(cm, xd, j, ref, mi_row, mi_col,
-#if CONFIG_REF_MV
                                           ref_mv_stack[ref], &ref_mv_count[ref],
-#endif
 #if CONFIG_EXT_INTER
                                           mv_ref_list,
 #endif  // CONFIG_EXT_INTER
@@ -1848,12 +1762,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         }
 
         for (ref = 0; ref < 1 + is_compound && b_mode != ZEROMV; ++ref) {
-#if CONFIG_REF_MV
           ref_mv_s8[ref] = nearest_sub8x8[ref];
           lower_mv_precision(&ref_mv_s8[ref].as_mv, allow_hp);
-#else
-          ref_mv_s8[ref] = nearestmv[ref];
-#endif
         }
 #if CONFIG_EXT_INTER
         (void)ref_mv_s8;
@@ -1880,10 +1790,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       }
     }
 
-#if CONFIG_REF_MV
     mbmi->pred_mv[0].as_int = mi->bmi[3].pred_mv[0].as_int;
     mbmi->pred_mv[1].as_int = mi->bmi[3].pred_mv[1].as_int;
-#endif
     mi->mbmi.mode = b_mode;
 
     mbmi->mv[0].as_int = mi->bmi[3].as_mv[0].as_int;
@@ -1894,7 +1802,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     ref_mv[1] = nearestmv[1];
 
     for (ref = 0; ref < 1 + is_compound && mbmi->mode == NEWMV; ++ref) {
-#if CONFIG_REF_MV
       uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
       if (xd->ref_mv_count[ref_frame_type] > 1) {
         ref_mv[ref] =
@@ -1904,7 +1811,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         clamp_mv_ref(&ref_mv[ref].as_mv, xd->n8_w << MI_SIZE_LOG2,
                      xd->n8_h << MI_SIZE_LOG2, xd);
       }
-#endif
       nearestmv[ref] = ref_mv[ref];
     }
 
@@ -2164,7 +2070,6 @@ void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd,
 
   if (frame_is_intra_only(cm)) {
     read_intra_frame_mode_info(cm, xd, mi_row, mi_col, r);
-#if CONFIG_REF_MV
     for (h = 0; h < y_mis; ++h) {
       MV_REF *const frame_mv = frame_mvs + h * cm->mi_cols;
       for (w = 0; w < x_mis; ++w) {
@@ -2173,7 +2078,6 @@ void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd,
         mv->ref_frame[1] = NONE_FRAME;
       }
     }
-#endif
   } else {
     read_inter_frame_mode_info(pbi, xd,
 #if CONFIG_SUPERTX
@@ -2188,10 +2092,8 @@ void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd,
         mv->ref_frame[1] = mi->mbmi.ref_frame[1];
         mv->mv[0].as_int = mi->mbmi.mv[0].as_int;
         mv->mv[1].as_int = mi->mbmi.mv[1].as_int;
-#if CONFIG_REF_MV
         mv->pred_mv[0].as_int = mi->mbmi.pred_mv[0].as_int;
         mv->pred_mv[1].as_int = mi->mbmi.pred_mv[1].as_int;
-#endif
       }
     }
   }
