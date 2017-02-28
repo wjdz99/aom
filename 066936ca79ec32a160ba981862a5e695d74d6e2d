@@ -137,6 +137,24 @@
     },
     {
       "key": {
+        "uuid": "efa86619_132fba5f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 7863,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-28T00:41:09Z",
+      "side": 1,
+      "message": "I notice that modelled_rd was originally an int64_t array pointer. It\u0027s NULL in some calls so I think it needs to be a pointer. I do see a comment from jingning@ in the NULL call that suggests it might be deprecated (\"This should be deprecated shortly.\"), but I\u0027m not sure. If it does get deprecated then it can just be a 2D array.\n\nThere\u0027s a similar issue for single_newmvs, single_newmvs_rate, and single_newmv - one function call gets a fresh array of zeros for each, while the other gets the values from the last run. I\u0027ve tested always just using the last run and it reduces performance. Again, if the second call gets removed at some point the array can be made internal to the arguments struct, but for now those members also need to be array pointers.",
+      "parentUuid": "aee8fe40_632ea581",
+      "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ec884a13_afb454fd",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 5
@@ -187,6 +205,24 @@
       "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0130a55f_7db45a7e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 7945,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-28T00:41:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cfd32bb8_774e01aa",
+      "revId": "066936ca79ec32a160ba981862a5e695d74d6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
