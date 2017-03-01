@@ -416,12 +416,8 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
   s = 1;
   corr = corr/(1e-100 + g*(double)gr/OD_SHL(1, xshift + rshift));
   corr = OD_MAXF(OD_MINF(corr, 1.), -1.);
-  if (is_keyframe) skip_dist = gain_weight*cg*cg*OD_CGAIN_SCALE_2;
-  else {
-    skip_dist = gain_weight*(cg - cgr)*(cg - cgr)
-     + cgr*(double)cg*(2 - 2*corr);
-    skip_dist *= OD_CGAIN_SCALE_2;
-  }
+  skip_dist = gain_weight*(cg - cgr)*(cg - cgr) + cgr*(double)cg*(2 - 2*corr);
+  skip_dist *= OD_CGAIN_SCALE_2;
   if (!is_keyframe) {
     /* noref, gain=0 isn't allowed, but skip is allowed. */
     od_val32 scgr;
