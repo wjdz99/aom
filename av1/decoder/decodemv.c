@@ -2077,7 +2077,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
     inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
 
 #if CONFIG_VAR_TX
-    xd->above_txfm_context = cm->above_txfm_context + mi_col;
+    xd->above_txfm_context = xd->above_txfm_context_buffer + mi_col;
     xd->left_txfm_context =
         xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
 

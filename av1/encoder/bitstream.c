@@ -1994,7 +1994,7 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
     write_mb_modes_kf(cm, xd, mi_row, mi_col, xd->mi, w);
   } else {
 #if CONFIG_VAR_TX
-    xd->above_txfm_context = cm->above_txfm_context + mi_col;
+    xd->above_txfm_context = xd->above_txfm_context_buffer + mi_col;
     xd->left_txfm_context =
         xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
 #endif

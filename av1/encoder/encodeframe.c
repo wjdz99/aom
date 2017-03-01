@@ -273,7 +273,7 @@ static void set_offsets_without_segment_id(const AV1_COMP *const cpi,
   set_mode_info_offsets(cpi, x, xd, mi_row, mi_col);
 
 #if CONFIG_VAR_TX
-  xd->above_txfm_context = cm->above_txfm_context + mi_col;
+  xd->above_txfm_context = xd->above_txfm_context_buffer + mi_col;
   xd->left_txfm_context =
       xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
   xd->max_tx_size = max_txsize_lookup[bsize];
@@ -2312,6 +2312,7 @@ static void restore_context(MACROBLOCK *x,
 #if CONFIG_VAR_TX
   xd->above_txfm_context = ctx->p_ta;
   xd->left_txfm_context = ctx->p_tl;
+
   memcpy(xd->above_txfm_context, ctx->ta,
          sizeof(*xd->above_txfm_context) * mi_width);
   memcpy(xd->left_txfm_context, ctx->tl,
@@ -2752,7 +2753,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
   pc_tree->partitioning = partition;
 
 #if CONFIG_VAR_TX
-  xd->above_txfm_context = cm->above_txfm_context + mi_col;
+  xd->above_txfm_context = xd->above_txfm_context_buffer + mi_col;
   xd->left_txfm_context =
       xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
 #endif
@@ -3782,7 +3783,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 
 #if CONFIG_VAR_TX
-  xd->above_txfm_context = cm->above_txfm_context + mi_col;
+  xd->above_txfm_context = xd->above_txfm_context_buffer + mi_col;
   xd->left_txfm_context =
       xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
 #endif
@@ -5501,9 +5502,9 @@ static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
   }
 }
 
-static void tx_partition_count_update(const AV1_COMMON *const cm, MACROBLOCK *x,
-                                      BLOCK_SIZE plane_bsize, int mi_row,
-                                      int mi_col, FRAME_COUNTS *td_counts) {
+static void tx_partition_count_update(MACROBLOCK *x, BLOCK_SIZE plane_bsize,
+                                      int mi_row, int mi_col,
+                                      FRAME_COUNTS *td_counts) {
   MACROBLOCKD *xd = &x->e_mbd;
   const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
   const int mi_height = block_size_high[plane_bsize] >> tx_size_wide_log2[0];
@@ -5512,7 +5513,7 @@ static void tx_partition_count_update(const AV1_COMMON *const cm, MACROBLOCK *x,
   const int bw = tx_size_wide_unit[max_tx_size];
   int idx, idy;
 
-  xd->above_txfm_context = cm->above_txfm_context + mi_col;
+  xd->above_txfm_context = xd->above_txfm_context_buffer + mi_col;
   xd->left_txfm_context =
       xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
 
@@ -5560,8 +5561,7 @@ static void set_txfm_context(MACROBLOCKD *xd, TX_SIZE tx_size, int blk_row,
   }
 }
 
-static void tx_partition_set_contexts(const AV1_COMMON *const cm,
-                                      MACROBLOCKD *xd, BLOCK_SIZE plane_bsize,
+static void tx_partition_set_contexts(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize,
                                       int mi_row, int mi_col) {
   const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
   const int mi_height = block_size_high[plane_bsize] >> tx_size_high_log2[0];
@@ -5570,7 +5570,7 @@ static void tx_partition_set_contexts(const AV1_COMMON *const cm,
   const int bw = tx_size_wide_unit[max_tx_size];
   int idx, idy;
 
-  xd->above_txfm_context = cm->above_txfm_context + mi_col;
+  xd->above_txfm_context = xd->above_txfm_context_buffer + mi_col;
   xd->left_txfm_context =
       xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
 
@@ -5762,7 +5762,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
         !(is_inter && (mbmi->skip || seg_skip))) {
 #if CONFIG_VAR_TX
       if (is_inter) {
-        tx_partition_count_update(cm, x, bsize, mi_row, mi_col, td->counts);
+        tx_partition_count_update(x, bsize, mi_row, mi_col, td->counts);
       } else {
         const int tx_size_ctx = get_tx_size_context(xd);
         const int tx_size_cat = is_inter ? inter_tx_size_cat_lookup[bsize]
@@ -5862,7 +5862,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       mbmi->sb_type >= BLOCK_8X8 &&
 #endif
       is_inter && !(mbmi->skip || seg_skip)) {
-    if (dry_run) tx_partition_set_contexts(cm, xd, bsize, mi_row, mi_col);
+    if (dry_run) tx_partition_set_contexts(xd, bsize, mi_row, mi_col);
   } else {
     TX_SIZE tx_size = mbmi->tx_size;
     // The new intra coding scheme requires no change of transform size

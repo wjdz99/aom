@@ -554,7 +554,7 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
   }
   xd->above_seg_context = cm->above_seg_context;
 #if CONFIG_VAR_TX
-  xd->above_txfm_context = cm->above_txfm_context;
+  xd->above_txfm_context_buffer = cm->above_txfm_context;
 #endif
   xd->mi_stride = cm->mi_stride;
   xd->error_info = &cm->error;
