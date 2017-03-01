@@ -818,6 +818,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
   int skip_theta_value;
   const unsigned char *pvq_qm;
   double dc_rate;
+  int n;
   int use_masking;
   PVQ_SKIP_TYPE ac_dc_coded;
 #if !OD_SIGNAL_Q_SCALING
@@ -889,39 +890,35 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
      qm + off[i], qm_inv + off[i], enc->pvq_norm_lambda, speed);
   }
   od_encode_checkpoint(enc, &buf);
-  if (is_keyframe) out[0] = 0;
-  else {
-    int n;
-    n = OD_DIV_R0(abs(in[0] - ref[0]), dc_quant);
-    if (n == 0) {
-      out[0] = 0;
-    } else {
-      int tell2;
-      od_rollback_buffer dc_buf;
+  n = OD_DIV_R0(abs(in[0] - ref[0]), dc_quant);
+  if (n == 0) {
+    out[0] = 0;
+  } else {
+    int tell2;
+    od_rollback_buffer dc_buf;
 
-      dc_rate = -OD_LOG2((double)(skip_cdf[3] - skip_cdf[2])/
-       (double)(skip_cdf[2] - skip_cdf[1]));
-      dc_rate += 1;
+    dc_rate = -OD_LOG2((double)(skip_cdf[3] - skip_cdf[2])/
+        (double)(skip_cdf[2] - skip_cdf[1]));
+    dc_rate += 1;
 
 #if CONFIG_DAALA_EC
-      tell2 = od_ec_enc_tell_frac(&enc->w.ec);
+    tell2 = od_ec_enc_tell_frac(&enc->w.ec);
 #else
 #error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
 #endif
-      od_encode_checkpoint(enc, &dc_buf);
-      generic_encode(&enc->w, &enc->state.adapt.model_dc[pli],
-       n - 1, -1, &enc->state.adapt.ex_dc[pli][bs][0], 2);
+    od_encode_checkpoint(enc, &dc_buf);
+    generic_encode(&enc->w, &enc->state.adapt.model_dc[pli],
+        n - 1, -1, &enc->state.adapt.ex_dc[pli][bs][0], 2);
 #if CONFIG_DAALA_EC
-      tell2 = od_ec_enc_tell_frac(&enc->w.ec) - tell2;
+    tell2 = od_ec_enc_tell_frac(&enc->w.ec) - tell2;
 #else
 #error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
 #endif
-      dc_rate += tell2/8.0;
-      od_encode_rollback(enc, &dc_buf);
+    dc_rate += tell2/8.0;
+    od_encode_rollback(enc, &dc_buf);
 
-      out[0] = od_rdo_quant(in[0] - ref[0], dc_quant, dc_rate,
-       enc->pvq_norm_lambda);
-    }
+    out[0] = od_rdo_quant(in[0] - ref[0], dc_quant, dc_rate,
+    enc->pvq_norm_lambda);
   }
 #if CONFIG_DAALA_EC
   tell = od_ec_enc_tell_frac(&enc->w.ec);
@@ -1003,44 +1000,40 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
     tell -= (int)floor(.5+8*skip_rate);
   }
   if (nb_bands == 0 || skip_diff <= enc->pvq_norm_lambda/8*tell) {
-    if (is_keyframe) out[0] = 0;
-    else {
-      int n;
-      n = OD_DIV_R0(abs(in[0] - ref[0]), dc_quant);
-      if (n == 0) {
-        out[0] = 0;
-      } else {
-        int tell2;
-        od_rollback_buffer dc_buf;
+    n = OD_DIV_R0(abs(in[0] - ref[0]), dc_quant);
+    if (n == 0) {
+      out[0] = 0;
+    } else {
+      int tell2;
+      od_rollback_buffer dc_buf;
 
-        dc_rate = -OD_LOG2((double)(skip_cdf[1] - skip_cdf[0])/
-         (double)skip_cdf[0]);
-        dc_rate += 1;
+      dc_rate = -OD_LOG2((double)(skip_cdf[1] - skip_cdf[0])/
+          (double)skip_cdf[0]);
+      dc_rate += 1;
 
 #if CONFIG_DAALA_EC
-        tell2 = od_ec_enc_tell_frac(&enc->w.ec);
+      tell2 = od_ec_enc_tell_frac(&enc->w.ec);
 #else
 #error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
 #endif
-        od_encode_checkpoint(enc, &dc_buf);
-        generic_encode(&enc->w, &enc->state.adapt.model_dc[pli],
-         n - 1, -1, &enc->state.adapt.ex_dc[pli][bs][0], 2);
+      od_encode_checkpoint(enc, &dc_buf);
+      generic_encode(&enc->w, &enc->state.adapt.model_dc[pli],
+          n - 1, -1, &enc->state.adapt.ex_dc[pli][bs][0], 2);
 #if CONFIG_DAALA_EC
-        tell2 = od_ec_enc_tell_frac(&enc->w.ec) - tell2;
+      tell2 = od_ec_enc_tell_frac(&enc->w.ec) - tell2;
 #else
 #error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
 #endif
-        dc_rate += tell2/8.0;
-        od_encode_rollback(enc, &dc_buf);
+      dc_rate += tell2/8.0;
+      od_encode_rollback(enc, &dc_buf);
 
-        out[0] = od_rdo_quant(in[0] - ref[0], dc_quant, dc_rate,
-         enc->pvq_norm_lambda);
-      }
+      out[0] = od_rdo_quant(in[0] - ref[0], dc_quant, dc_rate,
+      enc->pvq_norm_lambda);
     }
     /* We decide to skip, roll back everything as it was before. */
     od_encode_rollback(enc, &buf);
     aom_encode_cdf_adapt(&enc->w, out[0] != 0, skip_cdf,
-     4, enc->state.adapt.skip_increment);
+        4, enc->state.adapt.skip_increment);
     ac_dc_coded = (out[0] != 0);
 #if OD_SIGNAL_Q_SCALING
     if (bs == OD_TXSIZES - 1 && pli == 0) {
