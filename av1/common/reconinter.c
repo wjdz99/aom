@@ -823,7 +823,8 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
   for (ref = 0; ref < 1 + is_compound; ++ref) {
     WarpedMotionParams *const wm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
     is_global[ref] =
-        (get_y_mode(mi, block) == ZEROMV && wm->wmtype > TRANSLATION);
+        (get_y_mode(mi, block) == ZEROMV && wm->wmtype > TRANSLATION
+        && mi->mbmi.sb_type >= BLOCK_8X8);
   }
 #endif  // CONFIG_GLOBAL_MOTION
 
@@ -2751,7 +2752,8 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
 #if CONFIG_GLOBAL_MOTION
   WarpedMotionParams *const wm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
   const int is_global =
-      (get_y_mode(mi, block) == ZEROMV && wm->wmtype > TRANSLATION);
+      (get_y_mode(mi, block) == ZEROMV && wm->wmtype > TRANSLATION,
+       && mi->mbmi.sb_type >= BLOCK_8X8);
 #endif  // CONFIG_GLOBAL_MOTION
 
   if (is_scaled) {
