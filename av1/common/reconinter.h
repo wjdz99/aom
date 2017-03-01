@@ -24,6 +24,19 @@
 extern "C" {
 #endif
 
+#if CONFIG_GLOBAL_MOTION
+static INLINE int is_global_mv_block(PREDICTION_MODE mode,
+                                     TransformationType type,
+                                     BLOCK_SIZE bsize) {
+#if GLOBAL_SUB8X8_USED
+  (void)bsize;
+  return mode == ZEROMV && type > TRANSLATION;
+#else
+  return mode == ZEROMV && type > TRANSLATION && bsize >= BLOCK_8X8;
+#endif  // GLOBAL_SUB8X8_USED
+}
+#endif  // CONFIG_GLOBAL_MOTION
+
 static INLINE void inter_predictor(const uint8_t *src, int src_stride,
                                    uint8_t *dst, int dst_stride,
                                    const int subpel_x, const int subpel_y,
