@@ -22,13 +22,25 @@
 extern "C" {
 #endif
 
-#define DERING_LEVEL_BITS 6
+// ceil(log2(DERING_STRENGTHS^CLPF_REFINEMENT_LEVELS *
+//           CLPF_STRENGTHS^CLPF_REFINEMENT_LEVELS))
+#define DERING_LEVEL_BITS (22)
 #define MAX_DERING_LEVEL (1 << DERING_LEVEL_BITS)
 
 #define DERING_REFINEMENT_BITS 2
 #define DERING_REFINEMENT_LEVELS 4
+#define CLPF_REFINEMENT_BITS 1
+#define CLPF_REFINEMENT_LEVELS 2
+  
+#define DERING_STRENGTHS 21
+#define CLPF_STRENGTHS 4
+extern int dering_level_table[DERING_STRENGTHS];
 
-int compute_level_from_index(int global_level, int gi);
+int levels_to_id(const int lev[DERING_REFINEMENT_LEVELS], const int str[CLPF_REFINEMENT_LEVELS]);
+void id_to_levels(int lev[DERING_REFINEMENT_LEVELS], int str[CLPF_REFINEMENT_LEVELS], int id);
+
+
+//int compute_level_from_index(int global_level, int gi);
 int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col);
 int sb_compute_dering_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
                            dering_list *dlist);

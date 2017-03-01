@@ -414,6 +414,8 @@ typedef struct AV1Common {
   int mib_size_log2;   // Log 2 of above.
 #if CONFIG_CDEF
   int dering_level;
+  int dering_signal;
+  int clpf_signal;
 #endif
 
 #if CONFIG_DELTA_Q

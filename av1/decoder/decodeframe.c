@@ -2348,10 +2348,15 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   if (cm->sb_size == BLOCK_128X128 && bsize == BLOCK_128X128) {
     if (cm->dering_level != 0 && !sb_all_skip(cm, mi_row, mi_col)) {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain =
-          aom_read_literal(r, DERING_REFINEMENT_BITS, ACCT_STR);
+	cm->dering_signal ? cm->dering_signal : 
+	  aom_read_literal(r, DERING_REFINEMENT_BITS, ACCT_STR);
+      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength =
+	cm->clpf_signal ? cm->clpf_signal :
+	aom_read_literal(r, CLPF_REFINEMENT_BITS, ACCT_STR);
     } else {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain =
-          0;
+        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength =
+        0;
     }
   } else if (cm->sb_size == BLOCK_64X64 && bsize == BLOCK_64X64) {
 #else
@@ -2359,10 +2364,15 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #endif
     if (cm->dering_level != 0 && !sb_all_skip(cm, mi_row, mi_col)) {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain =
-          aom_read_literal(r, DERING_REFINEMENT_BITS, ACCT_STR);
+	cm->dering_signal ? cm->dering_signal :
+	aom_read_literal(r, DERING_REFINEMENT_BITS, ACCT_STR);
+      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength =
+          cm->clpf_signal ? cm->clpf_signal :
+	  aom_read_literal(r, CLPF_REFINEMENT_BITS, ACCT_STR);
     } else {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain =
-          0;
+        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength =
+        0;
     }
   }
 #if CONFIG_EXT_PARTITION
@@ -2752,7 +2762,17 @@ static int clpf_bit(UNUSED int k, UNUSED int l,
 }
 
 static void setup_dering(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
+  int lev[DERING_REFINEMENT_LEVELS];
+  int str[CLPF_REFINEMENT_LEVELS];
+  int c, r;
   cm->dering_level = aom_rb_read_literal(rb, DERING_LEVEL_BITS);
+  id_to_levels(lev, str, cm->dering_level);
+  for (r = c = 1; c < DERING_REFINEMENT_LEVELS; c++)
+    r &= lev[c] == lev[0];
+  cm->dering_signal = r ? dering_level_table[lev[0]] : 0;
+  for (r = c = 1; c < CLPF_REFINEMENT_LEVELS; c++)
+    r &= str[c] == str[0];
+  cm->clpf_signal = r ? str[0] : 0;
 }
 #endif  // CONFIG_CDEF
 
