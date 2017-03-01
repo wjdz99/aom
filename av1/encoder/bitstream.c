@@ -2770,19 +2770,32 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 #if CONFIG_EXT_PARTITION
   if (cm->sb_size == BLOCK_128X128 && bsize == BLOCK_128X128 &&
       cm->dering_level != 0 && !sb_all_skip(cm, mi_row, mi_col)) {
-    aom_write_literal(
-        w,
-        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain,
-        DERING_REFINEMENT_BITS);
+
+    if (!cm->dering_signal)
+      aom_write_literal(
+	  w,
+	  cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain,
+	  DERING_REFINEMENT_BITS);
+    if (!cm->clpf_signal)
+      aom_write_literal(
+	  w,
+	  cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength,
+	  CLPF_REFINEMENT_BITS);
   } else if (cm->sb_size == BLOCK_64X64 && bsize == BLOCK_64X64 &&
 #else
   if (bsize == BLOCK_64X64 &&
 #endif  // CONFIG_EXT_PARTITION
              cm->dering_level != 0 && !sb_all_skip(cm, mi_row, mi_col)) {
-    aom_write_literal(
-        w,
-        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain,
-        DERING_REFINEMENT_BITS);
+    if (!cm->dering_signal)
+      aom_write_literal(
+          w,
+          cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain,
+          DERING_REFINEMENT_BITS);
+    if (!cm->clpf_signal)
+      aom_write_literal(
+          w,
+          cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength,
+          CLPF_REFINEMENT_BITS);
   }
 #endif
 
