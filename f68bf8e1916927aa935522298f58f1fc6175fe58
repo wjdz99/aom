@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a1dec26b_b078b6a4",
+        "filename": "av1/common/mv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-03-01T20:01:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eeec1758_6d97b736",
+      "revId": "f68bf8e1916927aa935522298f58f1fc6175fe58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "96ef888e_13de8818",
         "filename": "av1/common/mvref_common.c",
         "patchSetId": 3
@@ -30,6 +48,30 @@
       "writtenOn": "2017-03-01T02:00:51Z",
       "side": 1,
       "message": "It seems that we are repeating these \"block_center_{x,y}\" calls for every call to gm_get_motion_vector().\nNow that we are passing \u0027bsize\u0027 to that function, why not just pass \u0027mi_col\u0027 and \u0027mi_row\u0027 and take care of finding block center within gm_get_motion_vector()?",
+      "range": {
+        "startLine": 958,
+        "startChar": 42,
+        "endLine": 958,
+        "endChar": 71
+      },
+      "revId": "f68bf8e1916927aa935522298f58f1fc6175fe58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7521e91_35c82418",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 958,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-03-01T20:01:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96ef888e_13de8818",
       "range": {
         "startLine": 958,
         "startChar": 42,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "7944a089_93c55a3e",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2755,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-03-01T20:01:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ed0f24d_f9c73637",
+      "revId": "f68bf8e1916927aa935522298f58f1fc6175fe58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2b5cc897_072755c3",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 3
@@ -70,6 +130,24 @@
       "writtenOn": "2017-03-01T02:00:51Z",
       "side": 1,
       "message": "If we need to change the same code in multiple places, it\u0027s an indication that this needs to be an inline function / macro.",
+      "revId": "f68bf8e1916927aa935522298f58f1fc6175fe58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36395dff_6ec437b0",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2756,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-03-01T20:01:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b5cc897_072755c3",
       "revId": "f68bf8e1916927aa935522298f58f1fc6175fe58",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
