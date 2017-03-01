@@ -41,16 +41,16 @@ void av1_calc_indices(const float *data, const float *centroids,
 }
 
 // Generate a random number in the range [0, 32768).
-static unsigned int lcg_rand16(unsigned int *state) {
+static unsigned int lcg_rand16(uint64_t *state) {
   *state = *state * 1103515245 + 12345;
-  return *state / 65536 % 32768;
+  return (unsigned int)(*state / 65536 % 32768);
 }
 
 static void calc_centroids(const float *data, float *centroids,
                            const uint8_t *indices, int n, int k, int dim) {
   int i, j, index;
   int count[PALETTE_MAX_SIZE];
-  unsigned int rand_state = (unsigned int)data[0];
+  uint64_t rand_state = (uint64_t)data[0];
 
   assert(n <= 32768);
 
