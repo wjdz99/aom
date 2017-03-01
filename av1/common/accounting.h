@@ -50,6 +50,10 @@ typedef struct {
   AccountingSymbol *syms;
   /** Number of symbols actually recorded. */
   int num_syms;
+  /** Raw symbol decoding calls. */
+  int num_raw_syms;
+  /** Raw binary symbol decoding calls. */
+  int num_raw_binary_syms;
   /** Dictionary for translating strings into id. */
   AccountingDictionary dictionary;
 } AccountingSymbols;
