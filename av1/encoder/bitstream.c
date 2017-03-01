@@ -2774,6 +2774,10 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
         w,
         cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain,
         DERING_REFINEMENT_BITS);
+    aom_write_literal(
+        w,
+        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength,
+        CLPF_REFINEMENT_BITS);
   } else if (cm->sb_size == BLOCK_64X64 && bsize == BLOCK_64X64 &&
 #else
   if (bsize == BLOCK_64X64 &&
@@ -2783,6 +2787,10 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
         w,
         cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain,
         DERING_REFINEMENT_BITS);
+    aom_write_literal(
+        w,
+        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength,
+        CLPF_REFINEMENT_BITS);
   }
 #endif
 
