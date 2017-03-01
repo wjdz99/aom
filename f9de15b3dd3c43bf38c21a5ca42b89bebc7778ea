@@ -69,6 +69,30 @@
       "revId": "f9de15b3dd3c43bf38c21a5ca42b89bebc7778ea",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f8bcf025_a2ca6ff3",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-01T18:52:47Z",
+      "side": 1,
+      "message": "Indeed.\nSo, in the line above, we can denote the const with \"ULL\" and then explicitly cast down:\n*state \u003d (unsigned int)(*state * 1103515245ULL + 12345);",
+      "parentUuid": "b00f499b_3d9770ec",
+      "range": {
+        "startLine": 46,
+        "startChar": 23,
+        "endLine": 46,
+        "endChar": 48
+      },
+      "revId": "f9de15b3dd3c43bf38c21a5ca42b89bebc7778ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
