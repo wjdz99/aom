@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "422834b2_6a955860",
+        "filename": "av1/common/mv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-03-01T21:22:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d292c691_67f77b5e",
+      "revId": "4dee8042c62a76cbe6f75f6551a8d328379b1965",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d5031bde_8ee22143",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 4
@@ -65,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "f3750c35_a9047fc7",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-03-01T21:22:53Z",
+      "side": 1,
+      "message": "Is it really better to pass the entire struct when we only need a single element?",
+      "parentUuid": "d5031bde_8ee22143",
+      "range": {
+        "startLine": 826,
+        "startChar": 8,
+        "endLine": 826,
+        "endChar": 26
+      },
+      "revId": "4dee8042c62a76cbe6f75f6551a8d328379b1965",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "023b4e28_69159b90",
         "filename": "av1/common/reconinter.h",
         "patchSetId": 4
@@ -76,6 +118,24 @@
       "writtenOn": "2017-03-01T20:20:45Z",
       "side": 1,
       "message": "We can refactor further:\n\n#if GLOBAL_SUB8X8_USED\n(void)bsize;\nconst int block_size_allowed \u003d 1;\n#else\nconst int block_size_allowed \u003d (bsize \u003e\u003d BLOCK_8X8);\n#endif\nreturn mode \u003d\u003d ZEROMV \u0026\u0026 type \u003e TRANSLATION \u0026\u0026 block_size_allowed;",
+      "revId": "4dee8042c62a76cbe6f75f6551a8d328379b1965",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b9728c4_afc621cf",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-03-01T21:22:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "023b4e28_69159b90",
       "revId": "4dee8042c62a76cbe6f75f6551a8d328379b1965",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
