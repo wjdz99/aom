@@ -1040,7 +1040,12 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     // does the feature use compound prediction or not
     // (if not specified at the frame/segment level)
     if (cm->reference_mode == REFERENCE_MODE_SELECT) {
+#if SUB8X8_COMP_REF
       aom_write(w, is_compound, av1_get_reference_mode_prob(cm, xd));
+#else
+      if (mbmi->sb_type >= BLOCK_8X8)
+        aom_write(w, is_compound, av1_get_reference_mode_prob(cm, xd));
+#endif
     } else {
       assert((!is_compound) == (cm->reference_mode == SINGLE_REFERENCE));
     }
@@ -2219,8 +2224,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
         }
 #endif  // CONFIG_RD_DEBUG
       } else {
-        TX_SIZE tx = plane ? get_uv_tx_size(&m->mbmi, &xd->plane[plane])
-                           : m->mbmi.tx_size;
+        TX_SIZE tx = get_tx_size(plane, xd);
         const int bkw = tx_size_wide_unit[tx];
         const int bkh = tx_size_high_unit[tx];
 #if CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
@@ -2252,8 +2256,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
         }
       }
 #else
-      TX_SIZE tx =
-          plane ? get_uv_tx_size(&m->mbmi, &xd->plane[plane]) : m->mbmi.tx_size;
+      TX_SIZE tx = get_tx_size(plane, xd);
       TOKEN_STATS token_stats;
 #if CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
       const struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -2319,8 +2322,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
   if (!m->mbmi.skip) {
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       PVQ_INFO *pvq;
-      TX_SIZE tx_size =
-          plane ? get_uv_tx_size(&m->mbmi, &xd->plane[plane]) : m->mbmi.tx_size;
+      TX_SIZE tx_size = get_tx_size(plane, xd);
       int idx, idy;
       const struct macroblockd_plane *const pd = &xd->plane[plane];
       int max_blocks_wide;
@@ -2731,8 +2733,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
         const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
 
         int row, col;
-        TX_SIZE tx =
-            plane ? get_uv_tx_size(mbmi, &xd->plane[plane]) : mbmi->tx_size;
+        TX_SIZE tx = get_tx_size(plane, xd);
         BLOCK_SIZE txb_size = txsize_to_bsize[tx];
 
         const int stepr = tx_size_high_unit[txb_size];

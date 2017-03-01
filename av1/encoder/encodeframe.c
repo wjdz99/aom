@@ -2049,9 +2049,16 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
         const MV_REFERENCE_FRAME ref1 = mbmi->ref_frame[1];
 #endif  // CONFIG_EXT_REFS
 
-        if (cm->reference_mode == REFERENCE_MODE_SELECT)
+        if (cm->reference_mode == REFERENCE_MODE_SELECT) {
+#if !SUB8X8_COMP_REF
+          if (mbmi->sb_type >= BLOCK_8X8)
+            counts->comp_inter[av1_get_reference_mode_context(cm, xd)]
+                              [has_second_ref(mbmi)]++;
+#else
           counts->comp_inter[av1_get_reference_mode_context(cm, xd)]
                             [has_second_ref(mbmi)]++;
+#endif
+        }
 
         if (has_second_ref(mbmi)) {
 #if CONFIG_EXT_REFS
@@ -6737,7 +6744,7 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
   MB_MODE_INFO *mbmi;
   TX_TYPE tx_type, best_tx_nostx;
 #if CONFIG_EXT_TX
-  const int ext_tx_set;
+  int ext_tx_set;
 #endif  // CONFIG_EXT_TX
   int tmp_rate_tx = 0, skip_tx = 0;
   int64_t tmp_dist_tx = 0, rd_tx, bestrd_tx = INT64_MAX;

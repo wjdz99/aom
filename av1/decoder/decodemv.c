@@ -1011,6 +1011,11 @@ static REFERENCE_MODE read_block_reference_mode(AV1_COMMON *cm,
                                                 aom_reader *r) {
   if (cm->reference_mode == REFERENCE_MODE_SELECT) {
     const int ctx = av1_get_reference_mode_context(cm, xd);
+
+#if !SUB8X8_COMP_REF
+    if (xd->mi[0]->mbmi.sb_type < BLOCK_8X8) return SINGLE_REFERENCE;
+#endif
+
     const REFERENCE_MODE mode =
         (REFERENCE_MODE)aom_read(r, cm->fc->comp_inter_prob[ctx], ACCT_STR);
     FRAME_COUNTS *counts = xd->counts;
@@ -1042,8 +1047,8 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
       const int idx = cm->ref_frame_sign_bias[cm->comp_fixed_ref];
 #endif  // CONFIG_EXT_REFS
       const int ctx = av1_get_pred_context_comp_ref_p(cm, xd);
-      const int bit = aom_read(r, fc->comp_ref_prob[ctx][0], ACCT_STR);
 
+      const int bit = aom_read(r, fc->comp_ref_prob[ctx][0], ACCT_STR);
       if (counts) ++counts->comp_ref[ctx][0][bit];
 
 #if CONFIG_EXT_REFS
@@ -1281,13 +1286,13 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #else
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
+  BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
 #if CONFIG_REF_MV
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
 #if CONFIG_CB4X4
   int_mv *pred_mv = mbmi->pred_mv;
   (void)block;
 #else
-  BLOCK_SIZE bsize = mbmi->sb_type;
   int_mv *pred_mv =
       (bsize >= BLOCK_8X8) ? mbmi->pred_mv : xd->mi[0]->bmi[block].pred_mv;
 #endif  // CONFIG_CB4X4
@@ -1298,6 +1303,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
   (void)cm;
   (void)mi_row;
   (void)mi_col;
+  (void)bsize;
 
   switch (mode) {
 #if CONFIG_EXT_INTER
@@ -1354,14 +1360,14 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_GLOBAL_MOTION
       mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
                                           cm->allow_high_precision_mv,
-                                          mi_col * MI_SIZE + MI_SIZE / 2,
-                                          mi_row * MI_SIZE + MI_SIZE / 2)
+                                          block_center_x(mi_col, bsize),
+                                          block_center_y(mi_row, bsize))
                          .as_int;
       if (is_compound)
         mv[1].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[1]],
                                             cm->allow_high_precision_mv,
-                                            mi_col * MI_SIZE + MI_SIZE / 2,
-                                            mi_row * MI_SIZE + MI_SIZE / 2)
+                                            block_center_x(mi_col, bsize),
+                                            block_center_y(mi_row, bsize))
                            .as_int;
 #else
       mv[0].as_int = 0;
@@ -1511,13 +1517,13 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_GLOBAL_MOTION
       mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
                                           cm->allow_high_precision_mv,
-                                          mi_col * MI_SIZE + MI_SIZE / 2,
-                                          mi_row * MI_SIZE + MI_SIZE / 2)
+                                          block_center_x(mi_col, bsize),
+                                          block_center_y(mi_row, bsize))
                          .as_int;
       mv[1].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[1]],
                                           cm->allow_high_precision_mv,
-                                          mi_col * MI_SIZE + MI_SIZE / 2,
-                                          mi_row * MI_SIZE + MI_SIZE / 2)
+                                          block_center_x(mi_col, bsize),
+                                          block_center_y(mi_row, bsize))
                          .as_int;
 #else
       mv[0].as_int = 0;
@@ -1577,7 +1583,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
   int16_t mode_ctx = 0;
 #if CONFIG_WARPED_MOTION
-  double pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
+  int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -1625,15 +1631,15 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_GLOBAL_MOTION
       zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[rf[0]],
                                               cm->allow_high_precision_mv,
-                                              mi_col * MI_SIZE + MI_SIZE / 2,
-                                              mi_row * MI_SIZE + MI_SIZE / 2)
+                                              block_center_x(mi_col, bsize),
+                                              block_center_y(mi_row, bsize))
                              .as_int;
       zeromv[1].as_int =
           (rf[1] != NONE_FRAME)
               ? gm_get_motion_vector(&cm->global_motion[rf[1]],
                                      cm->allow_high_precision_mv,
-                                     mi_col * MI_SIZE + MI_SIZE / 2,
-                                     mi_row * MI_SIZE + MI_SIZE / 2)
+                                     block_center_x(mi_col, bsize),
+                                     block_center_y(mi_row, bsize))
                     .as_int
               : 0;
 #else
@@ -1973,7 +1979,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     if (mbmi->motion_mode == WARPED_CAUSAL) {
       mbmi->wm_params[0].wmtype = DEFAULT_WMTYPE;
       find_projection(mbmi->num_proj_ref[0], pts, pts_inref,
-                      &mbmi->wm_params[0]);
+                      &mbmi->wm_params[0], mi_row, mi_col);
     }
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_SUPERTX
