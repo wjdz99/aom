@@ -2349,9 +2349,12 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     if (cm->dering_level != 0 && !sb_all_skip(cm, mi_row, mi_col)) {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain =
           aom_read_literal(r, DERING_REFINEMENT_BITS, ACCT_STR);
+      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength =
+          aom_read_literal(r, CLPF_REFINEMENT_BITS, ACCT_STR);
     } else {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain =
-          0;
+        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength =
+        0;
     }
   } else if (cm->sb_size == BLOCK_64X64 && bsize == BLOCK_64X64) {
 #else
@@ -2360,9 +2363,12 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     if (cm->dering_level != 0 && !sb_all_skip(cm, mi_row, mi_col)) {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain =
           aom_read_literal(r, DERING_REFINEMENT_BITS, ACCT_STR);
+      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength =
+  	  aom_read_literal(r, CLPF_REFINEMENT_BITS, ACCT_STR);
     } else {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain =
-          0;
+        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength =
+        0;
     }
   }
 #if CONFIG_EXT_PARTITION

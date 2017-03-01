@@ -59,7 +59,7 @@ void aom_clpf_block_c(const uint8_t *src, uint8_t *dst, int sstride,
   }
 }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if defined(CONFIG_AOM_HIGHBITDEPTH) || defined(CONFIG_CDEF)
 // Identical to aom_clpf_block_c() apart from "src" and "dst".
 void aom_clpf_block_hbd_c(const uint16_t *src, uint16_t *dst, int sstride,
                           int dstride, int x0, int y0, int sizex, int sizey,
@@ -98,6 +98,7 @@ void av1_clpf_frame(
     int (*decision)(int, int, const YV12_BUFFER_CONFIG *,
                     const YV12_BUFFER_CONFIG *, const AV1_COMMON *cm, int, int,
                     int, unsigned int, unsigned int, int8_t *, int)) {
+
   /* Constrained low-pass filter (CLPF) */
   int c, k, l, m, n;
   const int subx = plane != AOM_PLANE_Y && frame->subsampling_x;
@@ -126,8 +127,7 @@ void av1_clpf_frame(
   // Damping is the filter cut-off log2 point for the constrain function.
   // For instance, if the damping is 5, neighbour differences above 32 will
   // be ignored and half of the strength will be applied for a difference of 16.
-  int damping =
-      cm->bit_depth - 5 - (plane != AOM_PLANE_Y) + (cm->base_qindex >> 6);
+  int damping = cm->bit_depth - 5 - (plane != AOM_PLANE_Y) + (cm->base_qindex >> 6);
 
 // Make buffer space for in-place filtering
 #if CONFIG_AOM_HIGHBITDEPTH
