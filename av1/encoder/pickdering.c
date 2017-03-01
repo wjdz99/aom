@@ -19,7 +19,7 @@
 #include "av1/encoder/encoder.h"
 #include "aom/aom_integer.h"
 
-static double compute_dist(int16_t *x, int xstride, int16_t *y, int ystride,
+static double compute_dist(uint16_t *x, int xstride, uint16_t *y, int ystride,
                            int nhb, int nvb, int coeff_shift) {
   int i, j;
   double sum;
@@ -34,13 +34,13 @@ static double compute_dist(int16_t *x, int xstride, int16_t *y, int ystride,
   return sum / (double)(1 << 2 * coeff_shift);
 }
 
-int av1_dering_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
-                      AV1_COMMON *cm, MACROBLOCKD *xd) {
+uint32_t av1_dering_search(YV12_BUFFER_CONFIG *frame,
+                           const YV12_BUFFER_CONFIG *ref, AV1_COMMON *cm,
+                           MACROBLOCKD *xd) {
   int r, c;
   int sbr, sbc;
-  int nhsb, nvsb;
-  int16_t *src;
-  int16_t *ref_coeff;
+  uint16_t *src;
+  uint16_t *ref_coeff;
   dering_list dlist[MAX_MIB_SIZE * MAX_MIB_SIZE];
   int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS] = { { 0 } };
   int stride;
@@ -48,11 +48,42 @@ int av1_dering_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
   int dec[3];
   int pli;
   int level;
-  int best_level;
   int dering_count;
   int coeff_shift = AOMMAX(cm->bit_depth - 8, 0);
-  src = aom_malloc(sizeof(*src) * cm->mi_rows * cm->mi_cols * 64);
-  ref_coeff = aom_malloc(sizeof(*ref_coeff) * cm->mi_rows * cm->mi_cols * 64);
+  uint64_t best_tot_mse = 0;
+  int sb_count;
+  int nvsb = (cm->mi_rows + MAX_MIB_SIZE - 1) / MAX_MIB_SIZE;
+  int nhsb = (cm->mi_cols + MAX_MIB_SIZE - 1) / MAX_MIB_SIZE;
+  int *sb_index = aom_malloc(nvsb * nhsb * sizeof(*sb_index));
+  uint64_t(*mse)[DERING_STRENGTHS][CLPF_STRENGTHS] =
+      aom_malloc(sizeof(*mse) * nvsb * nhsb);
+  int clpf_damping = 3 + (cm->base_qindex >> 6);
+  int i;
+  int lev[DERING_REFINEMENT_LEVELS];
+  int best_lev[DERING_REFINEMENT_LEVELS];
+  int str[CLPF_REFINEMENT_LEVELS];
+  int best_str[CLPF_REFINEMENT_LEVELS];
+  int dering_bits = 0;
+  int clpf_bits = 0;
+
+  static const double lambda_square[] = {
+    // exp(x / 8.5)
+    1.0000, 1.1248, 1.2653, 1.4232, 1.6009, 1.8008, 2.0256, 2.2785,
+    2.5630, 2.8830, 3.2429, 3.6478, 4.1032, 4.6155, 5.1917, 5.8399,
+    6.5689, 7.3891, 8.3116, 9.3492, 10.516, 11.829, 13.306, 14.967,
+    16.836, 18.938, 21.302, 23.962, 26.953, 30.318, 34.103, 38.361,
+    43.151, 48.538, 54.598, 61.414, 69.082, 77.706, 87.408, 98.320,
+    110.59, 124.40, 139.93, 157.40, 177.05, 199.16, 224.02, 251.99,
+    283.45, 318.84, 358.65, 403.42, 453.79, 510.45, 574.17, 645.86,
+    726.49, 817.19, 919.22, 1033.9, 1163.0, 1308.2, 1471.6, 1655.3
+  };
+  static const double log2[] = { 0.0, 1.0, 2.0 /*1.585*/, 2.0, 2.323, 2.585, 2.807, 3.0 };
+  double lambda =
+    lambda_square[av1_get_qindex(&cm->seg, 0, cm->base_qindex) >> 2];
+
+  src = aom_memalign(32, sizeof(*src) * cm->mi_rows * cm->mi_cols * 64);
+  ref_coeff =
+      aom_memalign(32, sizeof(*ref_coeff) * cm->mi_rows * cm->mi_cols * 64);
   av1_setup_dst_planes(xd->plane, frame, 0, 0);
   for (pli = 0; pli < 3; pli++) {
     dec[pli] = xd->plane[pli].subsampling_x;
@@ -77,39 +108,25 @@ int av1_dering_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
 #endif
     }
   }
-  nvsb = (cm->mi_rows + MAX_MIB_SIZE - 1) / MAX_MIB_SIZE;
-  nhsb = (cm->mi_cols + MAX_MIB_SIZE - 1) / MAX_MIB_SIZE;
-  /* Pick a base threshold based on the quantizer. The threshold will then be
-     adjusted on a 64x64 basis. We use a threshold of the form T = a*Q^b,
-     where a and b are derived empirically trying to optimize rate-distortion
-     at different quantizer settings. */
-  best_level = AOMMIN(
-      MAX_DERING_LEVEL - 1,
-      (int)floor(.5 +
-                 .45 * pow(av1_ac_quant(cm->base_qindex, 0, cm->bit_depth) >>
-                               (cm->bit_depth - 8),
-                           0.6)));
+  sb_count = 0;
   for (sbr = 0; sbr < nvsb; sbr++) {
     for (sbc = 0; sbc < nhsb; sbc++) {
       int nvb, nhb;
       int gi;
-      int best_gi;
-      int32_t best_mse = INT32_MAX;
-      int16_t dst[MAX_MIB_SIZE * MAX_MIB_SIZE * 8 * 8];
-      int16_t tmp_dst[MAX_MIB_SIZE * MAX_MIB_SIZE * 8 * 8];
+      DECLARE_ALIGNED(32, uint16_t, dst[MAX_MIB_SIZE * MAX_MIB_SIZE * 8 * 8]);
+      DECLARE_ALIGNED(32, uint16_t,
+                      tmp_dst[MAX_MIB_SIZE * MAX_MIB_SIZE * 8 * 8]);
       nhb = AOMMIN(MAX_MIB_SIZE, cm->mi_cols - MAX_MIB_SIZE * sbc);
       nvb = AOMMIN(MAX_MIB_SIZE, cm->mi_rows - MAX_MIB_SIZE * sbr);
       dering_count = sb_compute_dering_list(cm, sbr * MAX_MIB_SIZE,
                                             sbc * MAX_MIB_SIZE, dlist);
       if (dering_count == 0) continue;
-      best_gi = 0;
-      for (gi = 0; gi < DERING_REFINEMENT_LEVELS; gi++) {
-        int cur_mse;
+      for (gi = 0; gi < DERING_STRENGTHS; gi++) {
         int threshold;
-        int16_t inbuf[OD_DERING_INBUF_SIZE];
-        int16_t *in;
-        int i, j;
-        level = compute_level_from_index(best_level, gi);
+        DECLARE_ALIGNED(32, uint16_t, inbuf[OD_DERING_INBUF_SIZE]);
+        uint16_t *in;
+        int j;
+        level = dering_level_table[gi];
         threshold = level << coeff_shift;
         for (r = 0; r < nvb << bsize[0]; r++) {
           for (c = 0; c < nhb << bsize[0]; c++) {
@@ -130,32 +147,116 @@ int av1_dering_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
           for (j = -OD_FILT_HBORDER * (sbc != 0);
                j < (nhb << bsize[0]) + OD_FILT_HBORDER * (sbc != nhsb - 1);
                j++) {
-            int16_t *x;
+            uint16_t *x;
             x = &src[(sbr * stride * MAX_MIB_SIZE << bsize[0]) +
                      (sbc * MAX_MIB_SIZE << bsize[0])];
             in[i * OD_FILT_BSTRIDE + j] = x[i * stride + j];
           }
         }
-        od_dering(tmp_dst, in, 0, dir, 0, dlist, dering_count, threshold,
-                  coeff_shift);
-        copy_dering_16bit_to_16bit(dst, MAX_MIB_SIZE << bsize[0], tmp_dst,
-                                   dlist, dering_count, bsize[0]);
-        cur_mse = (int)compute_dist(
-            dst, MAX_MIB_SIZE << bsize[0],
-            &ref_coeff[(sbr * stride * MAX_MIB_SIZE << bsize[0]) +
-                       (sbc * MAX_MIB_SIZE << bsize[0])],
-            stride, nhb, nvb, coeff_shift);
-        if (cur_mse < best_mse) {
-          best_gi = gi;
-          best_mse = cur_mse;
-        }
+	for (i = 0; i < CLPF_STRENGTHS; i++) {
+	  od_dering(tmp_dst, in, 0, dir, 0, dlist, dering_count, threshold,
+		    i + (i == 3), clpf_damping, coeff_shift, 0);
+	  copy_dering_16bit_to_16bit(dst, MAX_MIB_SIZE << bsize[0], tmp_dst,
+				     dlist, dering_count, bsize[0]);
+	  mse[sb_count][gi][i] = (int)compute_dist(
+              dst, MAX_MIB_SIZE << bsize[0],
+              &ref_coeff[(sbr * stride * MAX_MIB_SIZE << bsize[0]) +
+                         (sbc * MAX_MIB_SIZE << bsize[0])],
+              stride, nhb, nvb, coeff_shift);
+          sb_index[sb_count] = MAX_MIB_SIZE * sbr * cm->mi_stride +
+                                    MAX_MIB_SIZE * sbc;
+	}
       }
-      cm->mi_grid_visible[MAX_MIB_SIZE * sbr * cm->mi_stride +
-                          MAX_MIB_SIZE * sbc]
-          ->mbmi.dering_gain = best_gi;
+      sb_count++;
     }
   }
+  best_tot_mse = 1UL << 63;
+
+  int l0;
+  for (l0 = 0; l0 < DERING_STRENGTHS; l0++) {
+    int l1;
+    lev[0] = l0;
+    for (l1 = l0; l1 < DERING_STRENGTHS; l1++) {
+      int l2;
+      lev[1] = l1;
+      for (l2 = l1; l2 < DERING_STRENGTHS; l2++) {
+        int l3;
+        lev[2] = l2;
+        for (l3 = l2; l3 < DERING_STRENGTHS; l3++) {
+          int cs0;
+          lev[3] = l3;
+          for (cs0 = 0; cs0 < CLPF_STRENGTHS; cs0++) {
+            int cs1;
+            str[0] = cs0;
+            for (cs1 = cs0; cs1 < CLPF_STRENGTHS; cs1++) {
+              uint64_t tot_mse = 0;
+              str[1] = cs1;
+              for (i = 0; i < sb_count; i++) {
+                int gi;
+                int cs;
+                uint64_t best_mse = 1UL << 63;
+                for (gi = 0; gi < DERING_REFINEMENT_LEVELS; gi++) {
+                  for (cs = 0; cs < CLPF_REFINEMENT_LEVELS; cs++) {
+                    if (mse[i][lev[gi]][str[cs]] < best_mse) {
+                      best_mse = mse[i][lev[gi]][str[cs]];
+                    }
+                  }
+                }
+                tot_mse += best_mse;
+              }
+
+#if 1
+              // Add the bit cost
+              int dering_diffs = 0, clpf_diffs = 0;
+              for (i = 1; i < DERING_REFINEMENT_LEVELS; i++)
+                dering_diffs += lev[i] != lev[i - 1];
+              for (i = 1; i < CLPF_REFINEMENT_LEVELS; i++)
+                clpf_diffs += str[i] != str[i - 1];
+              tot_mse += (uint64_t)(sb_count * lambda *
+                                    (log2[dering_diffs] + log2[clpf_diffs]));
+#endif
+              if (tot_mse < best_tot_mse) {
+                for (i = 0; i < DERING_REFINEMENT_LEVELS; i++)
+                  best_lev[i] = lev[i];
+                for (i = 0; i < CLPF_REFINEMENT_LEVELS; i++)
+                  best_str[i] = str[i];
+                best_tot_mse = tot_mse;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  for (i=0;i<DERING_REFINEMENT_LEVELS;i++) lev[i] = best_lev[i];
+  for (i=0;i<CLPF_REFINEMENT_LEVELS;i++) str[i] = best_str[i];
+
+  id_to_levels(lev, str, levels_to_id(lev, str)); // Pack tables
+  cdef_get_bits(lev, str, &dering_bits, &clpf_bits);
+
+  for (i=0;i<sb_count;i++) {
+    int gi, cs;
+    int best_gi, best_clpf;
+    uint64_t best_mse = 1UL << 63;
+    best_gi = best_clpf = 0;
+    for (gi = 0; gi < (1 << dering_bits); gi++) {
+      for (cs = 0; cs < (1 << clpf_bits); cs++) {
+        if (mse[i][lev[gi]][str[cs]] < best_mse) {
+          best_gi = gi;
+          best_clpf = cs;
+          best_mse = mse[i][lev[gi]][str[cs]];
+        }
+      }
+    }
+    cm->mi_grid_visible[sb_index[i]]
+        ->mbmi.dering_gain = best_gi;
+    cm->mi_grid_visible[sb_index[i]]
+      ->mbmi.clpf_strength = best_clpf;
+  }
+
   aom_free(src);
   aom_free(ref_coeff);
-  return best_level;
+  aom_free(mse);
+  aom_free(sb_index);
+  return levels_to_id(best_lev, best_str);
 }
