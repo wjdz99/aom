@@ -126,7 +126,7 @@ AV1_CX_SRCS-yes += encoder/pvq_encoder.h
 AV1_CX_SRCS-yes += encoder/generic_encoder.c
 AV1_CX_SRCS-yes += encoder/laplace_encoder.c
 endif
-ifneq ($(findstring yes,$(CONFIG_XIPHRC)$(CONFIG_PVQ)),)
+ifneq ($(findstring yes,$(CONFIG_XIPHRC)$(CONFIG_PVQ)$(CONFIG_XIPHRC)),)
 AV1_CX_SRCS-yes += encoder/encint.h
 endif
 
