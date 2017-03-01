@@ -2346,23 +2346,29 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #if CONFIG_CDEF
 #if CONFIG_EXT_PARTITION
   if (cm->sb_size == BLOCK_128X128 && bsize == BLOCK_128X128) {
-    if (cm->dering_level != 0 && !sb_all_skip(cm, mi_row, mi_col)) {
+    if (!sb_all_skip(cm, mi_row, mi_col)) {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain =
-          aom_read_literal(r, DERING_REFINEMENT_BITS, ACCT_STR);
+          aom_read_literal(r, cm->dering_bits, ACCT_STR);
+      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength =
+          aom_read_literal(r, cm->clpf_bits, ACCT_STR);
     } else {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain =
-          0;
+        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength =
+        0;
     }
   } else if (cm->sb_size == BLOCK_64X64 && bsize == BLOCK_64X64) {
 #else
   if (bsize == BLOCK_64X64) {
 #endif
-    if (cm->dering_level != 0 && !sb_all_skip(cm, mi_row, mi_col)) {
+    if (!sb_all_skip(cm, mi_row, mi_col)) {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain =
-          aom_read_literal(r, DERING_REFINEMENT_BITS, ACCT_STR);
+          aom_read_literal(r, cm->dering_bits, ACCT_STR);
+      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength =
+          aom_read_literal(r, cm->clpf_bits, ACCT_STR);
     } else {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain =
-          0;
+        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.clpf_strength =
+        0;
     }
   }
 #if CONFIG_EXT_PARTITION
@@ -2753,6 +2759,8 @@ static int clpf_bit(UNUSED int k, UNUSED int l,
 
 static void setup_dering(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   cm->dering_level = aom_rb_read_literal(rb, DERING_LEVEL_BITS);
+  id_to_levels(cm->dering_lev, cm->clpf_str, cm->dering_level);
+  cdef_get_bits(cm->dering_lev, cm->clpf_str, &cm->dering_bits, &cm->clpf_bits);
 }
 #endif  // CONFIG_CDEF
 

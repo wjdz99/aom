@@ -2769,20 +2769,27 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 #if CONFIG_CDEF
 #if CONFIG_EXT_PARTITION
   if (cm->sb_size == BLOCK_128X128 && bsize == BLOCK_128X128 &&
-      cm->dering_level != 0 && !sb_all_skip(cm, mi_row, mi_col)) {
+      !sb_all_skip(cm, mi_row, mi_col)) {
     aom_write_literal(
         w,
         cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain,
-        DERING_REFINEMENT_BITS);
+        cm->dering_bits);
+    aom_write_literal(w, cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]
+                             ->mbmi.clpf_strength,
+                      cm->clpf_bits);
   } else if (cm->sb_size == BLOCK_64X64 && bsize == BLOCK_64X64 &&
 #else
   if (bsize == BLOCK_64X64 &&
 #endif  // CONFIG_EXT_PARTITION
-             cm->dering_level != 0 && !sb_all_skip(cm, mi_row, mi_col)) {
-    aom_write_literal(
-        w,
-        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain,
-        DERING_REFINEMENT_BITS);
+             !sb_all_skip(cm, mi_row, mi_col)) {
+    if (cm->dering_bits)
+      aom_write_literal(w, cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]
+                               ->mbmi.dering_gain,
+                        cm->dering_bits);
+    if (cm->clpf_bits)
+      aom_write_literal(w, cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]
+                               ->mbmi.clpf_strength,
+                        cm->clpf_bits);
   }
 #endif
 
@@ -3585,7 +3592,7 @@ static void encode_clpf(const AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
 #endif
 
 #if CONFIG_CDEF
-static void encode_dering(int level, struct aom_write_bit_buffer *wb) {
+static void encode_dering(uint64_t level, struct aom_write_bit_buffer *wb) {
   aom_wb_write_literal(wb, level, DERING_LEVEL_BITS);
 }
 #endif  // CONFIG_CDEF
