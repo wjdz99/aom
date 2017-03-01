@@ -5046,6 +5046,7 @@ static int set_and_cost_bmi_mvs(
             gm_get_motion_vector(
                 &cpi->common.global_motion[mbmi->ref_frame[ref]],
                 cpi->common.allow_high_precision_mv,
+                mbmi->sb_type,
                 block_center_x(mi_col, mbmi->sb_type),
                 block_center_y(mi_row, mbmi->sb_type))
                 .as_int;
@@ -5105,12 +5106,14 @@ static int set_and_cost_bmi_mvs(
       this_mv[0].as_int =
           gm_get_motion_vector(&cpi->common.global_motion[mbmi->ref_frame[0]],
                                cpi->common.allow_high_precision_mv,
+                               mbmi->sb_type,
                                block_center_x(mi_col, mbmi->sb_type),
                                block_center_y(mi_row, mbmi->sb_type))
               .as_int;
       this_mv[1].as_int =
           gm_get_motion_vector(&cpi->common.global_motion[mbmi->ref_frame[1]],
                                cpi->common.allow_high_precision_mv,
+                               mbmi->sb_type,
                                block_center_x(mi_col, mbmi->sb_type),
                                block_center_y(mi_row, mbmi->sb_type))
               .as_int;
@@ -5382,7 +5385,7 @@ static int check_best_zero_mv(
         )
       zeromv[cur_frm].as_int =
           gm_get_motion_vector(&cpi->common.global_motion[ref_frames[cur_frm]],
-                               cpi->common.allow_high_precision_mv,
+                               cpi->common.allow_high_precision_mv, bsize,
                                block_center_x(mi_col, bsize),
                                block_center_y(mi_row, bsize))
               .as_int;
@@ -5846,6 +5849,7 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
         frame_mv[ZEROMV][frame].as_int =
             gm_get_motion_vector(&cm->global_motion[frame],
                                  cm->allow_high_precision_mv,
+                                 mbmi->sb_type,
                                  block_center_x(mi_col, mbmi->sb_type),
                                  block_center_y(mi_row, mbmi->sb_type))
                 .as_int;
@@ -5880,6 +5884,7 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
           frame_mv[ZERO_ZEROMV][frame].as_int =
               gm_get_motion_vector(&cm->global_motion[frame],
                                    cm->allow_high_precision_mv,
+                                   mbmi->sb_type,
                                    block_center_x(mi_col, mbmi->sb_type),
                                    block_center_y(mi_row, mbmi->sb_type))
                   .as_int;
@@ -9569,7 +9574,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_GLOBAL_MOTION
     frame_mv[ZEROMV][ref_frame].as_int =
         gm_get_motion_vector(
-            &cm->global_motion[ref_frame], cm->allow_high_precision_mv,
+            &cm->global_motion[ref_frame], cm->allow_high_precision_mv, bsize,
             block_center_x(mi_col, bsize), block_center_y(mi_row, bsize))
             .as_int;
 #else   // CONFIG_GLOBAL_MOTION
@@ -9581,7 +9586,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_GLOBAL_MOTION
     frame_mv[ZERO_ZEROMV][ref_frame].as_int =
         gm_get_motion_vector(
-            &cm->global_motion[ref_frame], cm->allow_high_precision_mv,
+            &cm->global_motion[ref_frame], cm->allow_high_precision_mv, bsize,
             block_center_x(mi_col, bsize), block_center_y(mi_row, bsize))
             .as_int;
 #else   // CONFIG_GLOBAL_MOTION
@@ -9685,7 +9690,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       mode_skip_mask[ALTREF_FRAME] = ~INTER_NEAREST_NEAR_ZERO;
 #if CONFIG_GLOBAL_MOTION
       zeromv.as_int = gm_get_motion_vector(&cm->global_motion[ALTREF_FRAME],
-                                           cm->allow_high_precision_mv,
+                                           cm->allow_high_precision_mv, bsize,
                                            block_center_x(mi_col, bsize),
                                            block_center_y(mi_row, bsize))
                           .as_int;
@@ -10863,13 +10868,14 @@ PALETTE_EXIT:
 #endif  // CONFIG_REF_MV
 #if CONFIG_GLOBAL_MOTION
     zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]],
-                                            cm->allow_high_precision_mv,
+                                            cm->allow_high_precision_mv, bsize,
                                             block_center_x(mi_col, bsize),
                                             block_center_y(mi_row, bsize))
                            .as_int;
     zeromv[1].as_int = comp_pred_mode
                            ? gm_get_motion_vector(&cm->global_motion[refs[1]],
                                                   cm->allow_high_precision_mv,
+                                                  bsize,
                                                   block_center_x(mi_col, bsize),
                                                   block_center_y(mi_row, bsize))
                                  .as_int
@@ -10983,13 +10989,14 @@ PALETTE_EXIT:
 #if CONFIG_GLOBAL_MOTION
       zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]],
                                               cm->allow_high_precision_mv,
+                                              bsize,
                                               block_center_x(mi_col, bsize),
                                               block_center_y(mi_row, bsize))
                              .as_int;
       zeromv[1].as_int =
           comp_pred_mode
               ? gm_get_motion_vector(&cm->global_motion[refs[1]],
-                                     cm->allow_high_precision_mv,
+                                     cm->allow_high_precision_mv, bsize,
                                      block_center_x(mi_col, bsize),
                                      block_center_y(mi_row, bsize))
                     .as_int
@@ -11037,11 +11044,13 @@ PALETTE_EXIT:
                                            best_mbmode.ref_frame[1] };
       zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]],
                                               cm->allow_high_precision_mv,
+                                              bsize,
                                               block_center_x(mi_col, bsize),
                                               block_center_y(mi_row, bsize))
                              .as_int;
       zeromv[1].as_int = gm_get_motion_vector(&cm->global_motion[refs[1]],
                                               cm->allow_high_precision_mv,
+                                              bsize,
                                               block_center_x(mi_col, bsize),
                                               block_center_y(mi_row, bsize))
                              .as_int;
@@ -11206,7 +11215,7 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   mbmi->mv[0].as_int =
       gm_get_motion_vector(
           &cm->global_motion[mbmi->ref_frame[0]], cm->allow_high_precision_mv,
-          block_center_x(mi_col, bsize), block_center_y(mi_row, bsize))
+          bsize, block_center_x(mi_col, bsize), block_center_y(mi_row, bsize))
           .as_int;
 #else   // CONFIG_GLOBAL_MOTION
   mbmi->mv[0].as_int = 0;
