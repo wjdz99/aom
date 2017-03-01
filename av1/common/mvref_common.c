@@ -941,20 +941,20 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #if CONFIG_REF_MV
   av1_set_ref_frame(rf, ref_frame);
   zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[rf[0]],
-                                          cm->allow_high_precision_mv,
+                                          cm->allow_high_precision_mv, bsize,
                                           block_center_x(mi_col, bsize),
                                           block_center_y(mi_row, bsize))
                          .as_int;
-  zeromv[1].as_int = (rf[1] != NONE_FRAME)
-                         ? gm_get_motion_vector(&cm->global_motion[rf[1]],
-                                                cm->allow_high_precision_mv,
-                                                block_center_x(mi_col, bsize),
-                                                block_center_y(mi_row, bsize))
-                               .as_int
-                         : 0;
+  zeromv[1].as_int =
+      (rf[1] != NONE_FRAME)
+          ? gm_get_motion_vector(
+                &cm->global_motion[rf[1]], cm->allow_high_precision_mv, bsize,
+                block_center_x(mi_col, bsize), block_center_y(mi_row, bsize))
+                .as_int
+          : 0;
 #else
   zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame],
-                                          cm->allow_high_precision_mv,
+                                          cm->allow_high_precision_mv, bsize,
                                           block_center_x(mi_col, bsize),
                                           block_center_y(mi_row, bsize))
                          .as_int;
@@ -1044,6 +1044,7 @@ void av1_append_sub8x8_mvs_for_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_GLOBAL_MOTION
   zeromv.as_int =
       gm_get_motion_vector(&cm->global_motion[ref], cm->allow_high_precision_mv,
+                           mi->mbmi.sb_type,
                            block_center_x(mi_col, mi->mbmi.sb_type),
                            block_center_y(mi_row, mi->mbmi.sb_type))
           .as_int;
