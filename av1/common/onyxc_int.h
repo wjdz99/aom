@@ -35,7 +35,11 @@
 #if CONFIG_PVQ
 #include "av1/common/pvq.h"
 #endif
-
+#if CONFIG_CDEF
+struct AV1Common;
+typedef struct AV1Common AV1_COMMON;
+#include "av1/common/dering.h"
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -413,7 +417,11 @@ typedef struct AV1Common {
   int mib_size;        // Size of the superblock in units of MI blocks
   int mib_size_log2;   // Log 2 of above.
 #if CONFIG_CDEF
-  int dering_level;
+  uint32_t dering_level;
+  int dering_lev[DERING_REFINEMENT_LEVELS];
+  int clpf_str[CLPF_REFINEMENT_LEVELS];
+  int dering_bits;
+  int clpf_bits;
 #endif
 
 #if CONFIG_DELTA_Q
