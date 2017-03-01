@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "eb1d157e_bfb795b9",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 7939,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-01T00:03:48Z",
+      "side": 1,
+      "message": "No, just doing it for \"#endif\"s is OK (to be consistent with most of the code).\n[Very few \"#else\"s use comment, most don\u0027t.]",
+      "parentUuid": "654fb92d_ffc4c52d",
+      "revId": "32707fa42f8f92e5fd73acc903c2ad6ce2260c35",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "47efb2c5_4e9f50e5",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 10
