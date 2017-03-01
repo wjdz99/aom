@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60153776_c48e89d2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-01T20:20:45Z",
+      "side": 1,
+      "message": "Consistent signs (all negative/positive) would be good.",
+      "range": {
+        "startLine": 10,
+        "startChar": 36,
+        "endLine": 10,
+        "endChar": 42
+      },
+      "revId": "4dee8042c62a76cbe6f75f6551a8d328379b1965",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d292c691_67f77b5e",
+        "filename": "av1/common/mv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-01T20:20:45Z",
+      "side": 1,
+      "message": "consts",
+      "revId": "4dee8042c62a76cbe6f75f6551a8d328379b1965",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5031bde_8ee22143",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-01T20:20:45Z",
+      "side": 1,
+      "message": "\"is_global_mv_block()\" is used only in this file, I believe? Then, it can be declared here too (instead of in header).\nAlso, you can probably just pass \u0027mi\u0027, \u0027block\u0027 and \u0027wmtype\u0027 to it, and take care of get_y_mode() etc within the function.",
+      "range": {
+        "startLine": 826,
+        "startChar": 8,
+        "endLine": 826,
+        "endChar": 26
+      },
+      "revId": "4dee8042c62a76cbe6f75f6551a8d328379b1965",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "023b4e28_69159b90",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-01T20:20:45Z",
+      "side": 1,
+      "message": "We can refactor further:\n\n#if GLOBAL_SUB8X8_USED\n(void)bsize;\nconst int block_size_allowed \u003d 1;\n#else\nconst int block_size_allowed \u003d (bsize \u003e\u003d BLOCK_8X8);\n#endif\nreturn mode \u003d\u003d ZEROMV \u0026\u0026 type \u003e TRANSLATION \u0026\u0026 block_size_allowed;",
+      "revId": "4dee8042c62a76cbe6f75f6551a8d328379b1965",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
