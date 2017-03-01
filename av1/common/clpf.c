@@ -126,8 +126,8 @@ void av1_clpf_frame(
   // Damping is the filter cut-off log2 point for the constrain function.
   // For instance, if the damping is 5, neighbour differences above 32 will
   // be ignored and half of the strength will be applied for a difference of 16.
-  int damping =
-      cm->bit_depth - 5 - (plane != AOM_PLANE_Y) + (cm->base_qindex >> 6);
+  int damping = cm->bit_depth - 3;
+  //cm->bit_depth - 5 - (plane != AOM_PLANE_Y) + (cm->base_qindex >> 6);
 
 // Make buffer space for in-place filtering
 #if CONFIG_AOM_HIGHBITDEPTH
