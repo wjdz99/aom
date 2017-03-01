@@ -59,7 +59,7 @@ void aom_clpf_block_c(const uint8_t *src, uint8_t *dst, int sstride,
   }
 }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if defined(CONFIG_AOM_HIGHBITDEPTH) || defined(CONFIG_CDEF)
 // Identical to aom_clpf_block_c() apart from "src" and "dst".
 void aom_clpf_block_hbd_c(const uint16_t *src, uint16_t *dst, int sstride,
                           int dstride, int x0, int y0, int sizex, int sizey,
@@ -92,14 +92,13 @@ void aom_clpf_block_hbd_c(const uint16_t *src, uint16_t *dst, int sstride,
 
 // Return number of filtered blocks
 void av1_clpf_frame(
-    const YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *org,
-    AV1_COMMON *cm, int enable_fb_flag, unsigned int strength,
-    unsigned int fb_size_log2, int plane,
-    int (*decision)(int, int, const YV12_BUFFER_CONFIG *,
-                    const YV12_BUFFER_CONFIG *, const AV1_COMMON *cm, int, int,
-                    int, unsigned int, unsigned int, int8_t *, int)) {
+    const YV12_BUFFER_CONFIG *frame,
+    AV1_COMMON *cm, unsigned int strength,
+    int plane) {
+
   /* Constrained low-pass filter (CLPF) */
   int c, k, l, m, n;
+  const unsigned int fb_size_log2 = 4;
   const int subx = plane != AOM_PLANE_Y && frame->subsampling_x;
   const int suby = plane != AOM_PLANE_Y && frame->subsampling_y;
   const int bs = (subx || suby) ? 4 : 8;
@@ -126,8 +125,7 @@ void av1_clpf_frame(
   // Damping is the filter cut-off log2 point for the constrain function.
   // For instance, if the damping is 5, neighbour differences above 32 will
   // be ignored and half of the strength will be applied for a difference of 16.
-  int damping =
-      cm->bit_depth - 5 - (plane != AOM_PLANE_Y) + (cm->base_qindex >> 6);
+  int damping = cm->bit_depth - 5 - (plane != AOM_PLANE_Y) + (cm->base_qindex >> 6);
 
 // Make buffer space for in-place filtering
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -146,7 +144,7 @@ void av1_clpf_frame(
   for (k = 0; k < num_fb_ver; k++) {
     for (l = 0; l < num_fb_hor; l++) {
       int h, w;
-      int allskip = !(enable_fb_flag && fb_size_log2 == MAX_FB_SIZE_LOG2);
+      int allskip = 1;
       const int xoff = l << fb_size_log2;
       const int yoff = k << fb_size_log2;
       for (m = 0; allskip && m < (1 << fb_size_log2) / bs; m++) {
@@ -167,14 +165,7 @@ void av1_clpf_frame(
       w = AOMMIN(width, (l + 1) << fb_size_log2) & ((1 << fb_size_log2) - 1);
       h += !h << fb_size_log2;
       w += !w << fb_size_log2;
-      if (!allskip &&  // Do not filter the block if all is skip encoded
-          (!enable_fb_flag ||
-           // Only called if fb_flag enabled (luma only)
-           decision(k, l, frame, org, cm, bs, w / bs, h / bs, strength,
-                    fb_size_log2,
-                    cm->clpf_blocks + yoff / MIN_FB_SIZE * cm->clpf_stride +
-                        xoff / MIN_FB_SIZE,
-                    plane))) {
+      if (!allskip) {  // Do not filter the block if all is skip encoded
         // Iterate over all smaller blocks inside the filter block
         for (m = 0; m < ((h + bs - 1) >> bslog); m++) {
           for (n = 0; n < ((w + bs - 1) >> bslog); n++) {
@@ -185,8 +176,7 @@ void av1_clpf_frame(
             sizey = AOMMIN(height - ypos, bs);
             if (!cm->mi_grid_visible[(ypos << suby) / MI_SIZE * cm->mi_stride +
                                      (xpos << subx) / MI_SIZE]
-                     ->mbmi.skip ||
-                (enable_fb_flag && fb_size_log2 == MAX_FB_SIZE_LOG2)) {
+                ->mbmi.skip) {
               BOUNDARY_TYPE boundary_type =
                   cm->mi[(ypos << suby) / MI_SIZE * cm->mi_stride +
                          (xpos << subx) / MI_SIZE]
