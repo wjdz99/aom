@@ -59,7 +59,7 @@ set(AOM_DSP_COMMON_INTRIN_SSE4_1
     "${AOM_ROOT}/aom_dsp/x86/blend_a64_mask_sse4.c"
     "${AOM_ROOT}/aom_dsp/x86/blend_a64_vmask_sse4.c")
 
-set(AOM_DSP_COMMON_AVX2_INTRIN
+set(AOM_DSP_COMMON_INTRIN_AVX2
     "${AOM_ROOT}/aom_dsp/x86/aom_subpixel_8t_intrin_avx2.c"
     "${AOM_ROOT}/aom_dsp/x86/fwd_txfm_avx2.c"
     "${AOM_ROOT}/aom_dsp/x86/loopfilter_avx2.c")
@@ -161,7 +161,7 @@ if (CONFIG_ENCODERS)
   set(AOM_DSP_ENCODER_INTRIN_SSE3 "${AOM_ROOT}/aom_dsp/x86/sad_sse3.asm")
   set(AOM_DSP_ENCODER_ASM_SSE4_1 "${AOM_ROOT}/aom_dsp/x86/sad_sse4.asm")
 
-  set(AOM_DSP_ENCODER_AVX2_INTRIN
+  set(AOM_DSP_ENCODER_INTRIN_AVX2
       "${AOM_ROOT}/aom_dsp/x86/sad4d_avx2.c"
       "${AOM_ROOT}/aom_dsp/x86/sad_avx2.c"
       "${AOM_ROOT}/aom_dsp/x86/sad_impl_avx2.c"
@@ -230,8 +230,8 @@ if (CONFIG_ENCODERS)
         ${AOM_DSP_ENCODER_INTRIN_SSE4_1}
         "${AOM_ROOT}/aom_dsp/x86/highbd_variance_sse4.c")
 
-    set(AOM_DSP_ENCODER_AVX2_INTRIN
-        ${AOM_ENCODER_DSP_AVX2_INTRIN}
+    set(AOM_DSP_ENCODER_INTRIN_AVX2
+        ${AOM_DSP_ENCODER_INTRIN_AVX2}
         "${AOM_ROOT}/aom_dsp/x86/sad_highbd_avx2.c")
   endif ()
 
@@ -270,35 +270,24 @@ if (CONFIG_MOTION_VAR)
       ${AOM_DSP_ENCODER_INTRIN_SSE4_1}
       "${AOM_ROOT}/aom_dsp/x86/obmc_sad_sse4.c"
       "${AOM_ROOT}/aom_dsp/x86/obmc_variance_sse4.c")
-
-  set(AOM_DSP_ENCODER_UNIT_TEST_INTRIN_SSE4_1
-      ${AOM_DSP_ENCODER_UNIT_TEST_INTRIN_SSE4_1}
-      "${AOM_ROOT}/test/obmc_sad_test.cc"
-      "${AOM_ROOT}/test/obmc_variance_test.cc")
-endif ()
-
-set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_dsp_common)
-
-if (CONFIG_DECODERS)
-  set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_dsp_decoder)
-endif ()
-if (CONFIG_ENCODERS)
-  set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_dsp_encoder)
 endif ()
 
 # Creates aom_dsp build targets. Must not be called until after libaom target
 # has been created.
 function (setup_aom_dsp_targets)
   add_library(aom_dsp_common OBJECT ${AOM_DSP_COMMON_SOURCES})
+  set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_dsp_common)
   target_sources(aom PUBLIC $<TARGET_OBJECTS:aom_dsp_common>)
 
   if (CONFIG_DECODERS)
     add_library(aom_dsp_decoder OBJECT ${AOM_DSP_DECODER_SOURCES})
+    set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_dsp_decoder)
     target_sources(aom PUBLIC $<TARGET_OBJECTS:aom_dsp_decoder>)
   endif ()
 
   if (CONFIG_ENCODERS)
     add_library(aom_dsp_encoder OBJECT ${AOM_DSP_ENCODER_SOURCES})
+    set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_dsp_encoder)
     target_sources(aom PUBLIC $<TARGET_OBJECTS:aom_dsp_encoder>)
   endif ()
 
@@ -358,27 +347,14 @@ function (setup_aom_dsp_targets)
 
   if (HAVE_AVX2)
     add_intrinsics_object_library("-mavx2" "avx2" "aom_dsp_common"
-                                  "AOM_DSP_COMMON_AVX2_INTRIN")
+                                  "AOM_DSP_COMMON_INTRIN_AVX2")
     if (CONFIG_ENCODERS)
       add_intrinsics_object_library("-mavx2" "avx2" "aom_dsp_encoder"
-                                    "AOM_DSP_ENCODER_AVX2_INTRIN")
+                                    "AOM_DSP_ENCODER_INTRIN_AVX2")
     endif ()
   endif ()
 
   # Pass the new lib targets up to the parent scope instance of
   # $AOM_LIB_TARGETS.
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} PARENT_SCOPE)
-endfunction ()
-
-# Sets up aom_dsp test targets. The test_libaom target must be created before
-# this function is called.
-function (setup_aom_dsp_test_targets)
-  if (HAVE_SSE_4_1)
-    if (CONFIG_ENCODERS)
-      if (CONFIG_UNIT_TESTS AND AOM_DSP_ENCODER_UNIT_TEST_INTRIN_SSE4_1)
-        add_intrinsics_source_to_target("-msse4.1" "test_libaom"
-          "AOM_DSP_ENCODER_UNIT_TEST_INTRIN_SSE4_1")
-      endif ()
-    endif ()
-  endif ()
 endfunction ()
