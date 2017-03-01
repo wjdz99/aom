@@ -569,7 +569,7 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
 #else
 #if CONFIG_EC_MULTISYMBOL
   aom_cdf_prob(*const coef_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
-      ec_ctx->coef_cdfs[tx_size][type][ref];
+      ec_ctx->coef_cdfs[txsize_sqr_map[tx_size]][type][ref];
 #endif
   int skip_eob = 0;
   const int seg_eob = get_tx_eob(&cpi->common.seg, segment_id, tx_size);
