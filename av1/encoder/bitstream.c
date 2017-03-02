@@ -2320,6 +2320,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #else   // !CONFIG_PVQ
   // PVQ writes its tokens (i.e. symbols) here.
   if (!m->mbmi.skip) {
+    const int is_keyframe = cm->frame_type == KEY_FRAME;
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       PVQ_INFO *pvq;
       TX_SIZE tx_size = get_tx_size(plane, xd);
@@ -2330,6 +2331,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
       int step = (1 << tx_size);
       const BLOCK_SIZE plane_bsize =
           get_plane_block_size(AOMMAX(bsize, BLOCK_8X8), pd);
+      const int is_skip_copy = !(plane != 0 && is_keyframe && !OD_DISABLE_CFL);
 
       max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
       max_blocks_high = max_block_high(xd, plane_bsize, plane);
@@ -2340,7 +2342,6 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 
       for (idy = 0; idy < max_blocks_high; idy += step) {
         for (idx = 0; idx < max_blocks_wide; idx += step) {
-          const int is_keyframe = 0;
           const int encode_flip = 0;
           const int flip = 0;
           const int nodesync = 1;
@@ -2369,7 +2370,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
                     exg + i, ext + i, nodesync,
                     (plane != 0) * OD_TXSIZES * PVQ_MAX_PARTITIONS +
                         pvq->bs * PVQ_MAX_PARTITIONS + i,
-                    is_keyframe, i == 0 && (i < pvq->nb_bands - 1),
+                    is_skip_copy, i == 0 && (i < pvq->nb_bands - 1),
                     pvq->skip_rest, encode_flip, flip);
               }
               if (i == 0 && !pvq->skip_rest && pvq->bs > 0) {
