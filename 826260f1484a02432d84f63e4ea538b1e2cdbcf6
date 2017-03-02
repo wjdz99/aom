@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44953d06_44bf5c3a",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2017-03-02T18:58:46Z",
+      "side": 1,
+      "message": "Nice, I didn\u0027t realize this pattern was also used for decrypt_cb",
+      "revId": "826260f1484a02432d84f63e4ea538b1e2cdbcf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecfe419b_cec65bbd",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5009,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2017-03-02T18:58:46Z",
+      "side": 1,
+      "message": "Wrong comment here.",
+      "revId": "826260f1484a02432d84f63e4ea538b1e2cdbcf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "365a3013_5cdf1358",
+        "filename": "av1/decoder/inspection.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2017-03-02T18:58:46Z",
+      "side": 1,
+      "message": "This function is called from each thread so there may be a benign data race here. I\u0027m not sure what to do about it, maybe we only need to copy the data belonging to the tile being decoded by the worker thread, or maybe we can just simply add a TODO so we don\u0027t forget about it.\n\nI also wonder if we should be passing in worker data.",
+      "revId": "826260f1484a02432d84f63e4ea538b1e2cdbcf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
