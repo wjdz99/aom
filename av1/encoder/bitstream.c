@@ -556,18 +556,33 @@ static void write_motion_mode(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_DELTA_Q
-static void write_delta_qindex(const AV1_COMMON *cm, int delta_qindex,
-                               aom_writer *w) {
+static void write_delta_qindex(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                               int delta_qindex, aom_writer *w) {
   int sign = delta_qindex < 0;
   int abs = sign ? -delta_qindex : delta_qindex;
-  int rem_bits, thr, i = 0;
+  int rem_bits, thr;
   int smallval = abs < DELTA_Q_SMALL ? 1 : 0;
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  (void)cm;
+#else
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+  (void)xd;
+#endif
 
-  while (i < DELTA_Q_SMALL && i <= abs) {
-    int bit = (i < abs);
-    aom_write(w, bit, cm->fc->delta_q_prob[i]);
-    i++;
+#if CONFIG_EC_MULTISYMBOL
+  aom_write_symbol(w, AOMMIN(abs, DELTA_Q_SMALL), ec_ctx->delta_q_cdf,
+                   DELTA_Q_PROBS + 1);
+#else
+  {
+    int i = 0;
+    while (i < DELTA_Q_SMALL && i <= abs) {
+      int bit = (i < abs);
+      aom_write(w, bit, ec_ctx->delta_q_prob[i]);
+      i++;
+    }
   }
+#endif
 
   if (!smallval) {
     rem_bits = OD_ILOG_NZ(abs - 1) - 1;
@@ -1435,7 +1450,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
     if ((bsize != BLOCK_64X64 || skip == 0) && super_block_upper_left) {
       int reduced_delta_qindex =
           (mbmi->current_q_index - xd->prev_qindex) / cm->delta_q_res;
-      write_delta_qindex(cm, reduced_delta_qindex, w);
+      write_delta_qindex(cm, xd, reduced_delta_qindex, w);
       xd->prev_qindex = mbmi->current_q_index;
     }
   }
@@ -1817,7 +1832,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
     if ((bsize != BLOCK_64X64 || skip == 0) && super_block_upper_left) {
       int reduced_delta_qindex =
           (mbmi->current_q_index - xd->prev_qindex) / cm->delta_q_res;
-      write_delta_qindex(cm, reduced_delta_qindex, w);
+      write_delta_qindex(cm, xd, reduced_delta_qindex, w);
       xd->prev_qindex = mbmi->current_q_index;
     }
   }
