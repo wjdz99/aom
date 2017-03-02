@@ -4834,7 +4834,7 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   TOKENEXTRA *tok = cpi->tile_tok[tile_row][tile_col];
   int mi_row;
 #if CONFIG_PVQ
-  od_adapt_ctx *adapt;
+  od_PROBSx *adapt;
 #endif
 #if CONFIG_DEPENDENT_HORZTILES
   if ((!cm->dependent_horz_tiles) || (tile_row == 0)) {
