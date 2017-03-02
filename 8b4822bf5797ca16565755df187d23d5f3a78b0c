@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "36bc53ee_6c8d4adb",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-03-02T17:43:45Z",
+      "side": 1,
+      "message": "It doesn\u0027t look like there is any consistent naming scheme for structs.  For example, just in av1/common/blockd.h you have:\n\ntypedef struct { ... } b_mode_info;\ntypedef struct macroblockd_plane { ... } MACROBLOCKD_PLANE;\ntypedef struct RefBuffer { ... } RefBuffer;\n\nright next to each other.  If we are going to expose this and the accounting struct as part of the AV1 API, we might want to call them AV1Accounting and AV1Inspection to match AV1Decoder.\n\nI can do this in a cleanup patch.",
+      "parentUuid": "bca79215_474e151a",
+      "revId": "8b4822bf5797ca16565755df187d23d5f3a78b0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "20c656f0_981b633d",
         "filename": "aom/aomdx.h",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-22T22:04:39Z",
       "side": 1,
       "message": "This needs a comment.",
+      "revId": "8b4822bf5797ca16565755df187d23d5f3a78b0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41861385_83191562",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-03-02T17:43:45Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "20c656f0_981b633d",
       "revId": "8b4822bf5797ca16565755df187d23d5f3a78b0c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7728d939_78cbe61d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5007,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-03-02T17:43:45Z",
+      "side": 1,
+      "message": "This was a very good point.  I actually think we only need to set a per decoded frame callback, and let the owner of the callback manage the insp_frame_data pointer.\n\nSee the updated usage in the wx analyzer:\nhttps://aomedia-review.googlesource.com/#/c/7969/\n\nThis will prevent an extra copy to move the inspected frame data out of struct that the decoder holds and should support changing the resolution per frame.",
+      "parentUuid": "88a23695_7824b584",
+      "revId": "8b4822bf5797ca16565755df187d23d5f3a78b0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76fdc5c2_8db13a67",
         "filename": "av1/decoder/inspection.c",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-22T22:04:39Z",
       "side": 1,
       "message": "This function can be called several times for every |decode_frame| API call. So, in order to extract data from no-show frames, we need some kind of callback mechanism to let the user of this API read the temporary frame_data.",
+      "revId": "8b4822bf5797ca16565755df187d23d5f3a78b0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "586c806a_190edda3",
+        "filename": "av1/decoder/inspection.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-03-02T17:43:45Z",
+      "side": 1,
+      "message": "This is an excellent point.  I have reworked the inspection decoder control so that you can only set a callback, and have added a helper function for extracting the data.\n\nThis should prevent having to copy the data in your callback after it has already been copied out of the decoder, and may also remove testing for some error conditions.",
+      "parentUuid": "76fdc5c2_8db13a67",
       "revId": "8b4822bf5797ca16565755df187d23d5f3a78b0c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
