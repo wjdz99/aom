@@ -477,6 +477,7 @@ post_process_cmdline() {
     soft_enable filter_7bit
     soft_enable reference_buffer
     soft_enable delta_q
+    soft_enable tile_groups
 
     # Enable low-bitdepth pixel pipeline by default
     soft_enable lowbitdepth
