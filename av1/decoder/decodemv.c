@@ -1592,6 +1592,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   mbmi->palette_mode_info.palette_size[1] = 0;
 #endif  // CONFIG_PALETTE
 
+  for (int i = 0; i < MODE_CTX_REF_FRAMES; i++)
+    memset(ref_mvs[i], 0, sizeof(ref_mvs[i][0]) * MAX_MV_REF_CANDIDATES);
+
   read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
   is_compound = has_second_ref(mbmi);
 
