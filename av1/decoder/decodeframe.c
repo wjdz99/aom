@@ -3465,9 +3465,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_EXT_TILE
   int tile_row, tile_col;
 
-#if CONFIG_ENTROPY
+#if CONFIG_SUBFRAME_PROB_UPDATE
   cm->do_subframe_update = n_tiles == 1;
-#endif  // CONFIG_ENTROPY
+#endif  // CONFIG_SUBFRAME_PROB_UPDATE
 
   if (cm->lf.filter_level && !cm->skip_loop_filter &&
       pbi->lf_worker.data1 == NULL) {
@@ -3607,7 +3607,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
         if (pbi->mb.corrupted)
           aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                              "Failed to decode tile data");
-#if CONFIG_ENTROPY
+#if CONFIG_SUBFRAME_PROB_UPDATE
         if (cm->do_subframe_update &&
             cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD) {
           const int mi_rows_per_update =
@@ -3619,7 +3619,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
             ++cm->coef_probs_update_idx;
           }
         }
-#endif  // CONFIG_ENTROPY
+#endif  // CONFIG_SUBFRAME_PROB_UPDATE
       }
     }
 
@@ -4367,7 +4367,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   xd->bd = (int)cm->bit_depth;
 #endif
 
-#if CONFIG_ENTROPY
+#if CONFIG_Q_ADAPT_PROBS
   av1_default_coef_probs(cm);
   if (cm->frame_type == KEY_FRAME || cm->error_resilient_mode ||
       cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL) {
@@ -4375,7 +4375,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   } else if (cm->reset_frame_context == RESET_FRAME_CONTEXT_CURRENT) {
     cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
   }
-#endif  // CONFIG_ENTROPY
+#endif  // CONFIG_Q_ADAPT_PROBS
 
   setup_segmentation(cm, rb);
 
@@ -4954,10 +4954,10 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
     av1_frameworker_unlock_stats(worker);
   }
 
-#if CONFIG_ENTROPY
+#if CONFIG_SUBFRAME_PROB_UPDATE
   av1_copy(cm->starting_coef_probs, cm->fc->coef_probs);
   cm->coef_probs_update_idx = 0;
-#endif  // CONFIG_ENTROPY
+#endif  // CONFIG_SUBFRAME_PROB_UPDATE
 
   if (pbi->max_threads > 1
 #if CONFIG_EXT_TILE
@@ -5016,9 +5016,9 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
 
   if (!xd->corrupted) {
     if (cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD) {
-#if CONFIG_ENTROPY
+#if CONFIG_SUBFRAME_PROB_UPDATE
       cm->partial_prob_update = 0;
-#endif  // CONFIG_ENTROPY
+#endif  // CONFIG_SUBFRAME_PROB_UPDATE
       av1_adapt_coef_probs(cm);
       av1_adapt_intra_frame_probs(cm);
 
