@@ -500,6 +500,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   const struct macroblock_plane *const p = &x->plane[plane];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
 #else
+  const int is_keyframe = cm->frame_type == KEY_FRAME;
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
 #endif
@@ -636,6 +637,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
                               eob,          // End of Block marker
                               pd->dequant,  // aom's quantizers
                               plane,        // image plane
+                              is_keyframe,  // wheter the frame is a keyframe
                               tx_size,      // block size in log_2 - 2
                               tx_type,
                               &x->rate,  // rate measured
@@ -1165,7 +1167,8 @@ void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
 PVQ_SKIP_TYPE av1_pvq_encode_helper(
     daala_enc_ctx *daala_enc, tran_low_t *const coeff, tran_low_t *ref_coeff,
     tran_low_t *const dqcoeff, uint16_t *eob, const int16_t *quant, int plane,
-    int tx_size, TX_TYPE tx_type, int *rate, int speed, PVQ_INFO *pvq_info) {
+    int is_keyframe, int tx_size, TX_TYPE tx_type, int *rate, int speed,
+    PVQ_INFO *pvq_info) {
   const int tx_blk_size = tx_size_wide[tx_size];
   PVQ_SKIP_TYPE ac_dc_coded;
   /*TODO(tterribe): Handle CONFIG_AOM_HIGHBITDEPTH.*/
@@ -1230,7 +1233,7 @@ PVQ_SKIP_TYPE av1_pvq_encode_helper(
       quant[1] << (OD_COEFF_SHIFT - 3),  // scale/quantizer
       plane, tx_size, OD_PVQ_BETA[use_activity_masking][plane][tx_size],
       OD_ROBUST_STREAM,
-      0,        // is_keyframe,
+      is_keyframe,
       0, 0, 0,  // q_scaling, bx, by,
       daala_enc->state.qm + off, daala_enc->state.qm_inv + off,
       speed,  // speed
