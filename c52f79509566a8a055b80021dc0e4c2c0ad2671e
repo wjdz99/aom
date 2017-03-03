@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "d6ac4960_f900beba",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8044,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-03T19:08:34Z",
+      "side": 1,
+      "message": "\u003e it probably makes more sense to add this when it\u0027s needed.\n\nExactly.\n\n\u003e \n\u003e What do you think of all these derived variables by the way? It seems to me that it\u0027s not the greatest to have all these pointers into and copies of data from a struct - kind of obfuscates where the information is from. \n\nThere are two ways I guess:\n- Have local variables that derive from struct members -- initialized once, and hopefully const, OR\n- Call an inline function/macro every time you need that derived variable (e.g. \u0027mv_idx \u003d get_motion_vector_index(mbmi-\u003emode).\n\nSo, I guess the choice depends on whether the value derived variables is ever going to change and/or if you only need the initial value of these variables, even if the original struct members change.\n\n\u003e One thing to note is that mbmi does get changed so maybe the copies are needed, will need to investigate for each variable.\n\nYeah, you\u0027ll probably have to look at each variable.",
+      "parentUuid": "3dea74b2_9832f1de",
+      "revId": "c52f79509566a8a055b80021dc0e4c2c0ad2671e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d11f25e2_cd7d42b7",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "I return the value if it isn\u0027t 0 though. I could just hardcode it to be the same error value of INT64_MAX.",
       "parentUuid": "d11f25e2_cd7d42b7",
+      "revId": "c52f79509566a8a055b80021dc0e4c2c0ad2671e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f81c1ab_e470bee7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8153,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-03T19:08:34Z",
+      "side": 1,
+      "message": "Ah indeed, my bad.\nYou can use a \u0027const\u0027 though.\n(Not a big deal here, but as a good practice in general).",
+      "parentUuid": "d32ff0e6_3a9d8c35",
       "revId": "c52f79509566a8a055b80021dc0e4c2c0ad2671e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
