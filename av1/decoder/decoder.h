@@ -137,6 +137,10 @@ typedef struct AV1Decoder {
 #if CONFIG_REFERENCE_BUFFER
   SequenceHeader seq_params;
 #endif
+#if CONFIG_MV_COUNT
+  int frame_mv_count;
+  int superblock_mv_count;
+#endif
 } AV1Decoder;
 
 int av1_receive_compressed_data(struct AV1Decoder *pbi, size_t size,

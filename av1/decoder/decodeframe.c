@@ -1861,6 +1861,40 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                     partition,
 #endif
                     bsize);
+#if CONFIG_MV_COUNT
+  // accumulate count for mv for each super block
+  AV1_COMMON *const cm = &pbi->common;
+  const int bw = mi_size_wide[bsize];
+  const int bh = mi_size_high[bsize];
+  const int x_mis = AOMMIN(bw, cm->mi_cols - mi_col);
+  const int y_mis = AOMMIN(bh, cm->mi_rows - mi_row);
+  MB_MODE_INFO *mbmi;
+  mbmi = set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
+#if CONFIG_CB4X4
+  pbi->superblock_mv_count += 3;
+  if (has_second_ref(mbmi)) pbi->superblock_mv_count += 3;
+#else
+  if (bsize > BLOCK_8X8) {
+    pbi->superblock_mv_count += 3;
+    if (has_second_ref(mbmi)) pbi->superblock_mv_count += 3;
+  } else {
+    // u, v plane each has one mv
+    pbi->superblock_mv_count += 2;
+    if (has_second_ref(mbmi)) pbi->superblock_mv_count += 2;
+    // y plane
+    if (mbmi->sb_type == BLOCK_8X8) {
+      pbi->superblock_mv_count++;
+      if (has_second_ref(mbmi)) pbi->superblock_mv_count++;
+    } else if (mbmi->sb_type == BLOCK_8X4 || mbmi->sb_type == BLOCK_4X8) {
+      pbi->superblock_mv_count += 2;
+      if (has_second_ref(mbmi)) pbi->superblock_mv_count += 2;
+    } else {
+      pbi->superblock_mv_count += 4;
+      if (has_second_ref(mbmi)) pbi->superblock_mv_count += 4;
+    }
+  }
+#endif  // CONFIG_CB4X4
+#endif  // CONFIG_MV_COUNT
 #if !(CONFIG_MOTION_VAR && CONFIG_NCOBMC)
 #if CONFIG_SUPERTX
   if (!supertx_enabled)
@@ -3424,6 +3458,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_ENTROPY
   cm->do_subframe_update = n_tiles == 1;
 #endif  // CONFIG_ENTROPY
+#if CONFIG_MV_COUNT
+  pbi->frame_mv_count = 0;
+#endif
 
   if (cm->lf.filter_level && !cm->skip_loop_filter &&
       pbi->lf_worker.data1 == NULL) {
@@ -3547,6 +3584,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 
         for (mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->mib_size) {
+#if CONFIG_MV_COUNT
+          pbi->superblock_mv_count = 0;
+#endif
           av1_update_boundary_info(cm, &tile_info, mi_row, mi_col);
           decode_partition(pbi, &td->xd,
 #if CONFIG_SUPERTX
@@ -3557,6 +3597,13 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_NCOBMC && CONFIG_MOTION_VAR
           detoken_and_recon_sb(pbi, &td->xd, mi_row, mi_col, &td->bit_reader,
                                cm->sb_size);
+#endif
+#if CONFIG_MV_COUNT
+          // sb_mv_count can be written to txt file to count sliding window MV
+          // when writing to local txt file, also consider alt ref frame,
+          // where cm->show_frame is 0
+          if (!frame_is_intra_only(cm) && cm->show_frame)
+            pbi->frame_mv_count += pbi->superblock_mv_count;
 #endif
         }
         pbi->mb.corrupted |= td->xd.corrupted;
