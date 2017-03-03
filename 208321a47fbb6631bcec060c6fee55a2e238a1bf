@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07e61088_76e1ed34",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1872,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-03-03T19:55:33Z",
+      "side": 1,
+      "message": "These lines are not needed. You can find mbmi by\n\nMB_MODE_INFO *mbmi \u003d \u0026xd-\u003emi[0].mbmi;",
+      "range": {
+        "startLine": 1865,
+        "startChar": 0,
+        "endLine": 1872,
+        "endChar": 74
+      },
+      "revId": "208321a47fbb6631bcec060c6fee55a2e238a1bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72302106_91b97db5",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1877,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-03-03T19:55:33Z",
+      "side": 1,
+      "message": "should be (bsize \u003e\u003d BLOCK_8X8) here.\n\n8x8 block is considered as a regular blok size too.",
+      "revId": "208321a47fbb6631bcec060c6fee55a2e238a1bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
