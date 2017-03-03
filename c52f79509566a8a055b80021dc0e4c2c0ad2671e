@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3dea74b2_9832f1de",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8044,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-03T18:56:14Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s a good point. Was considering a bunch of variables and lost track of this I guess. My thought was that I can add members in the future but it probably makes more sense to add this when it\u0027s needed.\n\nWhat do you think of all these derived variables by the way? It seems to me that it\u0027s not the greatest to have all these pointers into and copies of data from a struct - kind of obfuscates where the information is from. One thing to note is that mbmi does get changed so maybe the copies are needed, will need to investigate for each variable.",
+      "parentUuid": "4b8df0f1_e09d70d9",
+      "revId": "c52f79509566a8a055b80021dc0e4c2c0ad2671e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d11f25e2_cd7d42b7",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-03T00:12:18Z",
       "side": 1,
       "message": "It\u0027s OK to omit the local var:\nif (handle_newmv( ....) !\u003d 0) .....",
+      "revId": "c52f79509566a8a055b80021dc0e4c2c0ad2671e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d32ff0e6_3a9d8c35",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8153,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-03T18:56:14Z",
+      "side": 1,
+      "message": "I return the value if it isn\u0027t 0 though. I could just hardcode it to be the same error value of INT64_MAX.",
+      "parentUuid": "d11f25e2_cd7d42b7",
       "revId": "c52f79509566a8a055b80021dc0e4c2c0ad2671e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
