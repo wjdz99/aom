@@ -1863,18 +1863,12 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                     bsize);
 #if CONFIG_MV_COUNT
   // accumulate count for mv for each super block
-  AV1_COMMON *const cm = &pbi->common;
-  const int bw = mi_size_wide[bsize];
-  const int bh = mi_size_high[bsize];
-  const int x_mis = AOMMIN(bw, cm->mi_cols - mi_col);
-  const int y_mis = AOMMIN(bh, cm->mi_rows - mi_row);
-  MB_MODE_INFO *mbmi;
-  mbmi = set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
 #if CONFIG_CB4X4
   pbi->superblock_mv_count += 3;
   if (has_second_ref(mbmi)) pbi->superblock_mv_count += 3;
 #else
-  if (bsize > BLOCK_8X8) {
+  if (bsize >= BLOCK_8X8) {
     pbi->superblock_mv_count += 3;
     if (has_second_ref(mbmi)) pbi->superblock_mv_count += 3;
   } else {
@@ -1882,10 +1876,7 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     pbi->superblock_mv_count += 2;
     if (has_second_ref(mbmi)) pbi->superblock_mv_count += 2;
     // y plane
-    if (mbmi->sb_type == BLOCK_8X8) {
-      pbi->superblock_mv_count++;
-      if (has_second_ref(mbmi)) pbi->superblock_mv_count++;
-    } else if (mbmi->sb_type == BLOCK_8X4 || mbmi->sb_type == BLOCK_4X8) {
+    if (mbmi->sb_type == BLOCK_8X4 || mbmi->sb_type == BLOCK_4X8) {
       pbi->superblock_mv_count += 2;
       if (has_second_ref(mbmi)) pbi->superblock_mv_count += 2;
     } else {
@@ -3548,6 +3539,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     }
   }
 
+#if CONFIG_MV_COUNT
+  FILE *pFile = fopen("mv_count.txt", "a");
+#endif
   for (tile_row = tile_rows_start; tile_row < tile_rows_end; ++tile_row) {
     const int row = inv_row_order ? tile_rows - 1 - tile_row : tile_row;
     int mi_row = 0;
@@ -3605,6 +3599,14 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
           if (!frame_is_intra_only(cm) && cm->show_frame)
             pbi->frame_mv_count += pbi->superblock_mv_count;
 #endif
+#if CONFIG_MV_COUNT
+          if (!frame_is_intra_only(cm) && cm->show_frame)
+            fprintf(pFile, "%d, %d\n", cm->current_video_frame,
+                    pbi->superblock_mv_count);
+          if (!frame_is_intra_only(cm) && !cm->show_frame)
+            fprintf(pFile, "%d, %d\n", cm->current_video_frame + 10000,
+                    pbi->superblock_mv_count);
+#endif
         }
         pbi->mb.corrupted |= td->xd.corrupted;
         if (pbi->mb.corrupted)
@@ -3625,6 +3627,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_ENTROPY
       }
     }
+#if CONFIG_MV_COUNT
+    fclose(pFile);
+#endif
 
     assert(mi_row > 0);
 
