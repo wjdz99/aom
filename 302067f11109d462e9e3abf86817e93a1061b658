@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d799f783_9499b6db",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-03-03T23:35:37Z",
+      "side": 1,
+      "message": "I don\u0027t think we need these extra scopings anymore",
+      "range": {
+        "startLine": 577,
+        "startChar": 0,
+        "endLine": 577,
+        "endChar": 3
+      },
+      "revId": "302067f11109d462e9e3abf86817e93a1061b658",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
