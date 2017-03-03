@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5864839_584968e3",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1596,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-03-03T16:56:13Z",
+      "side": 1,
+      "message": "The av1_find_mv_refs() function calls will fill in all the entries that would be used.\n\nSetting them all zero is probably not needed (?)",
+      "revId": "66abffb38ac6ecc3bccba04b6488e850d253aa25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
