@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eaa1ef1b_19005982",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-03T08:16:33Z",
+      "side": 1,
+      "message": "wonder if this is even meaningful in the aom world",
+      "range": {
+        "startLine": 60,
+        "startChar": 50,
+        "endLine": 60,
+        "endChar": 0
+      },
+      "revId": "2fac8d7207c8202ed87147e01529b19770ea6c25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
