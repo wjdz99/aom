@@ -476,6 +476,8 @@ post_process_cmdline() {
 
     # Enable adopted experiments by default
     soft_enable adapt_scan
+    soft_enable ext_tx
+    soft_enable rect_tx
     soft_enable ref_mv
     soft_enable filter_7bit
     soft_enable reference_buffer
