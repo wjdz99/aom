@@ -63,7 +63,7 @@ static const int mode_2_counter[MB_MODE_COUNT] = {
   0,    // NEARMV
   3,    // ZEROMV
   1,    // NEWMV
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   1,    // NEWFROMNEARMV
   0,    // NEAREST_NEARESTMV
   0,    // NEAREST_NEARMV
@@ -75,7 +75,7 @@ static const int mode_2_counter[MB_MODE_COUNT] = {
   1,    // NEW_NEARMV
   3,    // ZERO_ZEROMV
   1,    // NEW_NEWMV
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 };
 
 // There are 3^3 different combinations of 3 counts that can be either 0,1 or

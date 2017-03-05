@@ -27,9 +27,9 @@ extern "C" {
 #define TX_SIZE_CONTEXTS 2
 
 #define INTER_OFFSET(mode) ((mode)-NEARESTMV)
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 #define INTER_COMPOUND_OFFSET(mode) ((mode)-NEAREST_NEARESTMV)
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
 #if CONFIG_PALETTE
 #define PALETTE_COLOR_CONTEXTS 16
@@ -144,18 +144,18 @@ typedef struct frame_contexts {
 #endif  // CONFIG_REF_MV
 
   aom_prob inter_mode_probs[INTER_MODE_CONTEXTS][INTER_MODES - 1];
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   aom_prob inter_compound_mode_probs[INTER_MODE_CONTEXTS]
                                     [INTER_COMPOUND_MODES - 1];
-#endif  // CONFIG_EXT_INTER
-#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   aom_prob compound_type_prob[BLOCK_SIZES][COMPOUND_TYPES - 1];
 #endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+
 #if CONFIG_EXT_INTER
   aom_prob interintra_prob[BLOCK_SIZE_GROUPS];
   aom_prob interintra_mode_prob[BLOCK_SIZE_GROUPS][INTERINTRA_MODES - 1];
   aom_prob wedge_interintra_prob[BLOCK_SIZES];
 #endif  // CONFIG_EXT_INTER
+
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   aom_prob motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1];
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
@@ -275,15 +275,20 @@ typedef struct FRAME_COUNTS {
 #endif
 
   unsigned int inter_mode[INTER_MODE_CONTEXTS][INTER_MODES];
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   unsigned int inter_compound_mode[INTER_MODE_CONTEXTS][INTER_COMPOUND_MODES];
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+
+#if CONFIG_EXT_INTER
   unsigned int interintra[BLOCK_SIZE_GROUPS][2];
   unsigned int interintra_mode[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
   unsigned int wedge_interintra[BLOCK_SIZES][2];
 #endif  // CONFIG_EXT_INTER
+
 #if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   unsigned int compound_interinter[BLOCK_SIZES][COMPOUND_TYPES];
 #endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   unsigned int motion_mode[BLOCK_SIZES][MOTION_MODES];
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
@@ -371,15 +376,17 @@ extern int av1_intra_mode_inv[INTRA_MODES];
 extern int av1_inter_mode_ind[INTER_MODES];
 extern int av1_inter_mode_inv[INTER_MODES];
 #endif
+
 #if CONFIG_EXT_INTER
 extern const aom_tree_index
     av1_interintra_mode_tree[TREE_SIZE(INTERINTRA_MODES)];
-extern const aom_tree_index
-    av1_inter_compound_mode_tree[TREE_SIZE(INTER_COMPOUND_MODES)];
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+extern const aom_tree_index
+    av1_inter_compound_mode_tree[TREE_SIZE(INTER_COMPOUND_MODES)];
 extern const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)];
 #endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+
 extern const aom_tree_index av1_partition_tree[TREE_SIZE(PARTITION_TYPES)];
 #if CONFIG_EXT_PARTITION_TYPES
 extern const aom_tree_index
