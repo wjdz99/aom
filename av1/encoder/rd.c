@@ -467,11 +467,13 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
         av1_cost_tokens((int *)cpi->inter_mode_cost[i],
                         cm->fc->inter_mode_probs[i], av1_inter_mode_tree);
 #endif  // CONFIG_REF_MV
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
       for (i = 0; i < INTER_MODE_CONTEXTS; ++i)
         av1_cost_tokens((int *)cpi->inter_compound_mode_cost[i],
                         cm->fc->inter_compound_mode_probs[i],
                         av1_inter_compound_mode_tree);
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+#if CONFIG_EXT_INTER
       for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
         av1_cost_tokens((int *)cpi->interintra_mode_cost[i],
                         cm->fc->interintra_mode_prob[i],

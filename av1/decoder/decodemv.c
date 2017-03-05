@@ -300,7 +300,7 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
                                                 aom_reader *r, int16_t ctx) {
   const int mode =
@@ -313,7 +313,7 @@ static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   assert(is_inter_compound_mode(NEAREST_NEARESTMV + mode));
   return NEAREST_NEARESTMV + mode;
 }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
 static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
 #if CONFIG_EC_MULTISYMBOL
@@ -1285,6 +1285,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #else
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
+
 #if CONFIG_REF_MV
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
 #if CONFIG_CB4X4
@@ -1372,6 +1373,78 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif
       break;
     }
+#if CONFIG_COMP_TRIPRED
+    case NEAREST_NEARMV: {
+      assert(!is_compound);
+      mv[0].as_int = nearest_mv[0].as_int;
+      mv[1].as_int = near_mv[0].as_int;
+      break;
+    }
+    case NEW_NEWMV: {
+      FRAME_COUNTS *counts = xd->counts;
+      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
+      assert(!is_compound);
+      for (i = 0; i < 2; ++i) {
+        // NOTE: Both mvs should use the same ref mv due to the same reference
+        //       frame.
+        read_mv(r, &mv[i].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc, mv_counts,
+                allow_hp);
+        ret = ret && is_mv_valid(&mv[i].as_mv);
+      }
+      break;
+    }
+    case NEW_NEARESTMV: {
+      FRAME_COUNTS *counts = xd->counts;
+      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
+      assert(!is_compound);
+      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc, mv_counts,
+              allow_hp);
+      ret = ret && is_mv_valid(&mv[0].as_mv);
+      mv[1].as_int = nearest_mv[0].as_int;
+      break;
+    }
+    case NEW_NEARMV: {
+      FRAME_COUNTS *counts = xd->counts;
+      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
+      assert(!is_compound);
+      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc, mv_counts,
+              allow_hp);
+      ret = ret && is_mv_valid(&mv[0].as_mv);
+      mv[1].as_int = near_mv[0].as_int;
+      break;
+    }
+    case NEAREST_NEWMV: {
+      FRAME_COUNTS *counts = xd->counts;
+      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
+      assert(!is_compound);
+      mv[0].as_int = nearest_mv[0].as_int;
+      read_mv(r, &mv[1].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc, mv_counts,
+              allow_hp);
+      ret = ret && is_mv_valid(&mv[1].as_mv);
+      break;
+    }
+    case NEAR_NEWMV: {
+      FRAME_COUNTS *counts = xd->counts;
+      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
+      assert(!is_compound);
+      mv[0].as_int = near_mv[0].as_int;
+      read_mv(r, &mv[1].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc, mv_counts,
+              allow_hp);
+      ret = ret && is_mv_valid(&mv[1].as_mv);
+      break;
+    }
+    case ZERO_ZEROMV: {  // ZERO_NEWMV
+      // NOTE: For TRIPRED, ZERO_ZEROMV is overloaded by ZERO_NEWMV.
+      FRAME_COUNTS *counts = xd->counts;
+      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
+      assert(!is_compound);
+      mv[0].as_int = 0;
+      read_mv(r, &mv[1].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc, mv_counts,
+              allow_hp);
+      ret = ret && is_mv_valid(&mv[1].as_mv);
+      break;
+    }
+#endif  // CONFIG_COMP_TRIPRED
 #if CONFIG_EXT_INTER
     case NEW_NEWMV: {
       FRAME_COUNTS *counts = xd->counts;
@@ -1677,11 +1750,17 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
   } else {
     if (bsize >= BLOCK_8X8 || unify_bsize) {
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 #if CONFIG_EXT_INTER
       if (is_compound)
+#else  // CONFIG_COMP_TRIPRED
+      // NOTE(zoeliu): Currently TRIPRED does not work with EXT_INTER yet.
+      if (!is_compound &&
+          mbmi->interinter_compound_data.type == COMPOUND_TRIPRED)
+#endif  // CONFIG_EXT_INTER
         mbmi->mode = read_inter_compound_mode(cm, xd, r, mode_ctx);
       else
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
         mbmi->mode = read_inter_mode(ec_ctx, xd,
 #if CONFIG_REF_MV && CONFIG_EXT_INTER
                                      mbmi,
@@ -1957,15 +2036,19 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_COMP_TRIPRED
     if (bsize >= BLOCK_8X8 &&
         mbmi->interinter_compound_data.type == COMPOUND_TRIPRED) {
-      // TODO(zoeliu): To work with the experiment of CONFIG_REF_MV
-      // Read the third motion vector
-      FRAME_COUNTS *counts = xd->counts;
-      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
-      int_mv ref_mv_third = nearestmv_third;
+      if (is_compound) {
+        // TODO(zoeliu): To work with the experiment of CONFIG_REF_MV
+        // Read the third motion vector
+        FRAME_COUNTS *counts = xd->counts;
+        nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
+        int_mv ref_mv_third = nearestmv_third;
 
-      read_mv(r, &mbmi->mv_third.as_mv, &ref_mv_third.as_mv, &cm->fc->nmvc,
-              mv_counts, allow_hp);
-      xd->corrupted |= !is_mv_valid(&mbmi->mv_third.as_mv);
+        read_mv(r, &mbmi->mv_third.as_mv, &ref_mv_third.as_mv, &cm->fc->nmvc,
+                mv_counts, allow_hp);
+        xd->corrupted |= !is_mv_valid(&mbmi->mv_third.as_mv);
+      } else {
+        mbmi->mv_third.as_mv = mbmi->mv[1].as_mv;
+      }
     }
 #endif  // CONFIG_COMP_TRIPRED
   }

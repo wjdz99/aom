@@ -65,6 +65,8 @@ static const int mode_2_counter[MB_MODE_COUNT] = {
   1,    // NEWMV
 #if CONFIG_EXT_INTER
   1,    // NEWFROMNEARMV
+#endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   0,    // NEAREST_NEARESTMV
   0,    // NEAREST_NEARMV
   0,    // NEAR_NEARESTMV
@@ -73,9 +75,14 @@ static const int mode_2_counter[MB_MODE_COUNT] = {
   1,    // NEW_NEARESTMV
   1,    // NEAR_NEWMV
   1,    // NEW_NEARMV
+#if CONFIG_COMP_TRIPRED
+  // NOTE: ZERO_ZEROMV is overloaded by ZERO_NEWMV.
+  1,    // ZERO_ZEROMV
+#else  // !CONFIG_COMP_TRIPRED
   3,    // ZERO_ZEROMV
+#endif  // CONFIG_COMP_TRIPRED
   1,    // NEW_NEWMV
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 };
 
 // There are 3^3 different combinations of 3 counts that can be either 0,1 or

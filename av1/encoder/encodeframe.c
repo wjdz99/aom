@@ -2224,17 +2224,22 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
         }
 #endif  // CONFIG_EXT_INTER
 #else
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
         if (is_inter_compound_mode(mode))
           ++counts->inter_compound_mode[mode_ctx][INTER_COMPOUND_OFFSET(mode)];
         else
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
           ++counts->inter_mode[mode_ctx][INTER_OFFSET(mode)];
 #endif
       } else {
         const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
         const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
         int idx, idy;
+
+#if CONFIG_COMP_TRIPRED
+        assert(mbmi->interinter_compound_data.type != COMPOUND_TRIPRED);
+#endif  // CONFIG_COMP_TRIPRED
+
         for (idy = 0; idy < 2; idy += num_4x4_h) {
           for (idx = 0; idx < 2; idx += num_4x4_w) {
             const int j = idy * 2 + idx;
