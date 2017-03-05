@@ -7897,6 +7897,173 @@ static int64_t build_and_cost_compound_wedge(
 }
 #endif  // CONFIG_EXT_INTER
 
+#if CONFIG_COMP_TRIPRED
+static int64_t handle_tripred_single_ref_comp_mode(
+    const AV1_COMP *const cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
+    RD_STATS *rd_stats, int mi_row, int mi_col, int *rate_mv_ptr,
+    BUFFER_SET *orig_dst_ptr, int_mv single_newmv[TOTAL_REFS_PER_FRAME],
+    int *compmode_interinter_cost, const int64_t ref_best_rd) {
+
+  const AV1_COMMON *cm = &cpi->common;
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+
+  int64_t rd = INT64_MAX;
+  int rate_sum, rs2;
+  int64_t dist_sum;
+  int64_t best_rd_unipred = INT64_MAX;
+  int64_t best_rd_tripred = INT64_MAX;
+
+  int tmp_skip_txfm_sb;
+  int64_t tmp_skip_sse_sb;
+  int compound_type_cost[COMPOUND_TYPES];
+  int rate_mv = *rate_mv_ptr;
+
+  // Summary on tri-prediction: A combination of two-level bi-prediction
+  // 1. Obtain the pair of 1st-level bi-predictors;
+  // 2. Conduct the 2nd-level bi-prediction to search for the best 3rd
+  //    (single) reference frame and its motion vector: In this bi-prediction,
+  //    the 1st-level bi-prediction results serves as one predictor and the
+  //    3rd reference frame provides the 2nd predictor.
+  // 3. Calculate the RD value including the cost from the 3rd reference frame
+  //    and the 3rd mv, and make the RD optimization decision.
+
+  // NOTE(zoeliu): An alternative version is being implemented as follows:
+  //  - Reuse the wedge prediction idea, and for each bi-predictive frame, one
+  //    side of the wedge a compound prediction is applied that uses the
+  //    implicit pair of compound references (LAST/BWDREF currently), and the
+  //    other side a single prediction or Intra is applied. The extra cost for
+  //    such wedge based inter-inter would be one more motion vector but
+  //    saving the coding of one reference - the total cost is the coding of
+  //    1 reference + 3 mvs
+
+  mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
+  av1_cost_tokens(compound_type_cost, cm->fc->compound_type_prob[bsize],
+                  av1_compound_type_tree);
+  rs2 = av1_cost_literal(get_interinter_compound_type_bits(
+            bsize, mbmi->interinter_compound_data.type)) +
+        compound_type_cost[mbmi->interinter_compound_data.type];
+
+  av1_build_inter_predictors_sby(xd, mi_row, mi_col, orig_dst_ptr, bsize);
+  av1_subtract_plane(x, bsize, 0);
+  rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
+                           &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
+  if (rd < INT64_MAX)
+    rd = RDCOST(x->rdmult, x->rddiv, rs2 + rate_mv + rate_sum, dist_sum);
+  best_rd_unipred = rd;
+
+  // Disbale tri-predition search if source variance is small.
+  // TODO(zoeliu): To further evaluate the following criteria
+  if (best_rd_unipred / 4 < ref_best_rd) {
+    // (zoeliu)best_rd_bipred / 3 < ref_best_rd)
+    const int bw = 4 * num_4x4_blocks_wide_lookup[bsize];
+    const int bh = 4 * num_4x4_blocks_high_lookup[bsize];
+
+    // Prediction buffer from the 1st level of the compound bi-prediction
+    // result,
+    // which serves as the other prediction for the 2nd level of the compound
+    // bi-prediction.
+    // TODO(zoeliu): To work with CONFIG_AOM_HIGHBITDEPTH
+    DECLARE_ALIGNED(16, uint8_t, pred0[2 * MAX_SB_SQUARE]);
+    int rate_third_mv = 0;
+
+    // Set up the compound type
+    mbmi->interinter_compound_data.type = COMPOUND_TRIPRED;
+    rs2 = av1_cost_literal(get_interinter_compound_type_bits(
+              bsize, mbmi->interinter_compound_data.type)) +
+          compound_type_cost[mbmi->interinter_compound_data.type];
+
+    // === Set up the third reference frame as identical to the 1st one ===
+    mbmi->ref_frame_third = mbmi->ref_frame[0];
+
+    // NOTE: The single inter predictor has been obtained above when the RD cost
+    //       for one-level uni-prediction is being calculated.
+
+    // Set up the 1st level uni-predictor result planes
+    // TODO(zoeliu): Following code should be further optimized.
+    {
+      const uint8_t *src_row = orig_dst_ptr->plane[0];
+      const int src_stride = orig_dst_ptr->stride[0];
+      uint8_t *dst_row = pred0;
+      const int dst_stride = bw;
+      int r;
+      for (r = 0; r < bh; ++r, dst_row += dst_stride, src_row += src_stride)
+        memcpy(dst_row, src_row, bw);
+    }
+
+    // Search for the best third predictor - Joint Search to identify
+    // (SAME reference frame, 3rd mv)
+    // (To be continued ... ) if (mbmi->mode_third)
+    tripred_motion_search(cpi, x, bsize, mi_row, mi_col, mbmi->ref_frame_third,
+                          single_newmv, &mbmi->mv_third, &rate_third_mv, pred0);
+
+    // Set up the third predition buf/plane
+    set_third_ref_ptr(cm, xd, mbmi->ref_frame_third);
+    {
+      YV12_BUFFER_CONFIG *cfg =
+          get_ref_frame_buffer(cpi, mbmi->ref_frame_third);
+      assert(cfg != NULL);
+      av1_setup_pre_planes(xd, 2, cfg, mi_row, mi_col,
+                           &xd->block_ref_third->sf);
+    }
+
+    // Restore the 1st-level bi-prediction result to complete
+    // tri-prediction
+    // TODO(zoeliu): Following code should be further optimized.
+    {
+      const uint8_t *src_row = pred0;
+      const int src_stride = bw;
+      uint8_t *dst_row = orig_dst_ptr->plane[0];
+      const int dst_stride = orig_dst_ptr->stride[0];
+      int r;
+      for (r = 0; r < bh;
+           ++r, dst_row += dst_stride, src_row += src_stride)
+        memcpy(dst_row, src_row, bw);
+    }
+
+    // Build the final tri-predictor
+    av1_build_inter_predictors_for_planes_single_buf(
+        xd, bsize, 0, 0, mi_row, mi_col, 2, orig_dst_ptr->plane,
+        orig_dst_ptr->stride);
+    av1_subtract_plane(x, bsize, 0);
+    rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
+                             &tmp_skip_txfm_sb, &tmp_skip_sse_sb,
+                             INT64_MAX);
+    if (rd < INT64_MAX)
+      rd = RDCOST(x->rdmult, x->rddiv,
+                  rs2 + rate_mv + rate_third_mv + rate_sum, dist_sum);
+    best_rd_tripred = rd;
+
+    if (best_rd_tripred < best_rd_unipred) {
+      mbmi->interinter_compound_data.type = COMPOUND_TRIPRED;
+
+      // TODO(zoeliu): To confirm whether the rate cost for the third MV needs
+      //               to be re-calculated.
+      // NOTE(zoeliu): "rd_stats" does not include the rate cost for reference
+      //               frames.
+      rd_stats->rate += rate_third_mv;
+      rate_mv += rate_third_mv;
+    } else {
+      mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
+    }
+  }
+
+  if (ref_best_rd < INT64_MAX &&
+      AOMMIN(best_rd_tripred, best_rd_unipred) / 4 > ref_best_rd) {
+    restore_dst_buf(xd, *orig_dst_ptr);
+    return INT64_MAX;
+  }
+
+  *compmode_interinter_cost =
+      compound_type_cost[mbmi->interinter_compound_data.type] +
+      av1_cost_literal(get_interinter_compound_type_bits(
+          bsize, mbmi->interinter_compound_data.type));
+  *rate_mv_ptr = rate_mv;
+
+  return 0;
+}
+#endif  // CONFIG_COMP_TRIPRED
+
 static int64_t handle_inter_mode(
     const AV1_COMP *const cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     RD_STATS *rd_stats, RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv,
@@ -8693,159 +8860,77 @@ static int64_t handle_inter_mode(
 // ======= COMP_TRIPRED - START =======
 
 #if CONFIG_COMP_TRIPRED
-  // IDEA: Obtain two inter predictors from one single reference frame
   if (mbmi->ref_frame[0] >= LAST_FRAME && mbmi->ref_frame[1] < LAST_FRAME) {
-    int rate_sum, rs2;
-    int64_t dist_sum;
-    int64_t best_rd_unipred = INT64_MAX;
-    int64_t best_rd_tripred = INT64_MAX;
-
-    int tmp_skip_txfm_sb;
-    int64_t tmp_skip_sse_sb;
-    int compound_type_cost[COMPOUND_TYPES];
+    // IDEA: Obtain two inter predictors from one single reference frame
+    int_mv cur_mv_third;
 
     restore_dst_buf(xd, orig_dst);
 
-    // Summary on tri-prediction: A combination of two-level bi-prediction
-    // 1. Obtain the pair of 1st-level bi-predictors;
-    // 2. Conduct the 2nd-level bi-prediction to search for the best 3rd
-    //    (single) reference frame and its motion vector: In this bi-prediction,
-    //    the 1st-level bi-prediction results serves as one predictor and the
-    //    3rd reference frame provides the 2nd predictor.
-    // 3. Calculate the RD value including the cost from the 3rd reference frame
-    //    and the 3rd mv, and make the RD optimization decision.
+    mbmi->ref_frame_third = mbmi->ref_frame[0];
+    cur_mv_third.as_int = 0;
 
-    // NOTE(zoeliu): An alternative version is being implemented as follows:
-    //  - Reuse the wedge prediction idea, and for each bi-predictive frame, one
-    //    side of the wedge a compound prediction is applied that uses the
-    //    implicit pair of compound references (LAST/BWDREF currently), and the
-    //    other side a single prediction or Intra is applied. The extra cost for
-    //    such wedge based inter-inter would be one more motion vector but
-    //    saving the coding of one reference - the total cost is the coding of
-    //    1 reference + 3 mvs
+    if (mbmi->mode == NEARESTMV) {
+      const PREDICTION_MODE single_ref_comp_modes[2] = {
+        NEAREST_NEARMV, NEAREST_NEWMV};
+      int mode_idx;
 
-    mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
-    av1_cost_tokens(compound_type_cost, cm->fc->compound_type_prob[bsize],
-                    av1_compound_type_tree);
-    rs2 = av1_cost_literal(get_interinter_compound_type_bits(
-              bsize, mbmi->interinter_compound_data.type)) +
-          compound_type_cost[mbmi->interinter_compound_data.type];
+      for (mode_idx = 0; mode_idx < 2; ++mode_idx) {
+        if (single_ref_comp_modes[mode_idx] == NEAREST_NEARMV) {
+          mbmi->mode_third = NEARMV;
 
-    av1_build_inter_predictors_sby(xd, mi_row, mi_col, &orig_dst, bsize);
-    av1_subtract_plane(x, bsize, 0);
-    rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
-                             &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
-    if (rd < INT64_MAX)
-      rd = RDCOST(x->rdmult, x->rddiv, rs2 + rate_mv + rate_sum, dist_sum);
-    best_rd_unipred = rd;
+          // Obtain the 3rd mv
+          cur_mv_third.as_int = mode_mv[NEARMV][mbmi->ref_frame_third].as_int;
+          clamp_mv2(&cur_mv_third.as_mv, xd);
+          assert(!mv_check_bounds(x, &cur_mv_third.as_mv));
+          mbmi->mv_third.as_int = cur_mv_third.as_int;
+        } else {
+          mbmi->mode_third = NEWMV;
+        }
 
-    // Disbale tri-predition search if source variance is small.
-    // TODO(zoeliu): To further evaluate the following criteria
-    if (best_rd_unipred / 4 < ref_best_rd) {
-      // (zoeliu)best_rd_bipred / 3 < ref_best_rd)
-      const int bw = 4 * num_4x4_blocks_wide_lookup[bsize];
-      const int bh = 4 * num_4x4_blocks_high_lookup[bsize];
-
-      // Prediction buffer from the 1st level of the compound bi-prediction
-      // result,
-      // which serves as the other prediction for the 2nd level of the compound
-      // bi-prediction.
-      // TODO(zoeliu): To work with CONFIG_AOM_HIGHBITDEPTH
-      DECLARE_ALIGNED(16, uint8_t, pred0[2 * MAX_SB_SQUARE]);
-      int rate_third_mv = 0;
-
-      // Set up the compound type
-      mbmi->interinter_compound_data.type = COMPOUND_TRIPRED;
-      rs2 = av1_cost_literal(get_interinter_compound_type_bits(
-                bsize, mbmi->interinter_compound_data.type)) +
-            compound_type_cost[mbmi->interinter_compound_data.type];
-
-      // === Set up the third reference frame as identical to the 1st one ===
-      mbmi->ref_frame_third = mbmi->ref_frame[0];
-
-      // NOTE: The single inter predictor has been obtained above when the RD cost
-      //       for one-level uni-prediction is being calculated.
-
-      // Set up the 1st level uni-predictor result planes
-      // TODO(zoeliu): Following code should be further optimized.
-      {
-        const uint8_t *src_row = orig_dst.plane[0];
-        const int src_stride = orig_dst.stride[0];
-        uint8_t *dst_row = pred0;
-        const int dst_stride = bw;
-        int r;
-        for (r = 0; r < bh; ++r, dst_row += dst_stride, src_row += src_stride)
-          memcpy(dst_row, src_row, bw);
+        handle_tripred_single_ref_comp_mode(
+            cpi, x, bsize, rd_stats, mi_row, mi_col, &rate_mv, &orig_dst,
+            single_newmv, compmode_interinter_cost, ref_best_rd);
       }
+    } else if (mbmi->mode == NEWMV) {
+      const PREDICTION_MODE single_ref_comp_modes[3] = {
+        NEW_NEARESTMV, NEW_NEARMV, NEW_NEWMV};
+      int mode_idx;
 
-      // Search for the best third predictor - Joint Search to identify
-      // (SAME reference frame, 3rd mv)
-      tripred_motion_search(cpi, x, bsize, mi_row, mi_col, mbmi->ref_frame_third,
-                            single_newmv, &mbmi->mv_third, &rate_third_mv, pred0);
+      for (mode_idx = 0; mode_idx < 3; ++mode_idx) {
+        switch(single_ref_comp_modes[mode_idx]) {
+          case NEW_NEARESTMV:
+            mbmi->mode_third = NEARESTMV;
+            break;
+          case NEW_NEARMV:
+            mbmi->mode_third = NEARMV;
+            break;
+          case NEW_NEWMV:
+            mbmi->mode_third = NEWMV;
+            break;
+          default:
+            assert(0);
+        }
 
-      // Set up the third predition buf/plane
-      set_third_ref_ptr(cm, xd, mbmi->ref_frame_third);
-      {
-        YV12_BUFFER_CONFIG *cfg =
-            get_ref_frame_buffer(cpi, mbmi->ref_frame_third);
-        assert(cfg != NULL);
-        av1_setup_pre_planes(xd, 2, cfg, mi_row, mi_col,
-                             &xd->block_ref_third->sf);
+        // Obtain the 3rd mv
+        if (mbmi->mode_third == NEARESTMV || mbmi->mode_third == NEARMV) {
+          cur_mv_third.as_int =
+              mode_mv[mbmi->mode_third][mbmi->ref_frame_third].as_int;
+          clamp_mv2(&cur_mv_third.as_mv, xd);
+          assert(!mv_check_bounds(x, &cur_mv_third.as_mv));
+          mbmi->mv_third.as_int = cur_mv_third.as_int;
+        }
+
+        handle_tripred_single_ref_comp_mode(
+            cpi, x, bsize, rd_stats, mi_row, mi_col, &rate_mv, &orig_dst, single_newmv,
+            compmode_interinter_cost, ref_best_rd);
       }
-
-      // Restore the 1st-level bi-prediction result to complete
-      // tri-prediction
-      // TODO(zoeliu): Following code should be further optimized.
-      {
-        const uint8_t *src_row = pred0;
-        const int src_stride = bw;
-        uint8_t *dst_row = orig_dst.plane[0];
-        const int dst_stride = orig_dst.stride[0];
-        int r;
-        for (r = 0; r < bh;
-             ++r, dst_row += dst_stride, src_row += src_stride)
-          memcpy(dst_row, src_row, bw);
-      }
-
-      // Build the final tri-predictor
-      av1_build_inter_predictors_for_planes_single_buf(
-          xd, bsize, 0, 0, mi_row, mi_col, 2, orig_dst.plane,
-          orig_dst.stride);
-      av1_subtract_plane(x, bsize, 0);
-      rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
-                               &tmp_skip_txfm_sb, &tmp_skip_sse_sb,
-                               INT64_MAX);
-      if (rd < INT64_MAX)
-        rd = RDCOST(x->rdmult, x->rddiv,
-                    rs2 + rate_mv + rate_third_mv + rate_sum, dist_sum);
-      best_rd_tripred = rd;
-
-      if (best_rd_tripred < best_rd_unipred) {
-        mbmi->interinter_compound_data.type = COMPOUND_TRIPRED;
-
-        // TODO(zoeliu): To confirm whether the rate cost for the third MV needs
-        //               to be re-calculated.
-        // NOTE(zoeliu): "rd_stats" does not include the rate cost for reference
-        //               frames.
-        rd_stats->rate += rate_third_mv;
-        rate_mv += rate_third_mv;
-      } else {
-        mbmi->interinter_compound_data.type = COMPOUND_AVERAGE;
-      }
-    }
-
-    if (ref_best_rd < INT64_MAX &&
-        AOMMIN(best_rd_tripred, best_rd_unipred) / 4 > ref_best_rd) {
-      restore_dst_buf(xd, orig_dst);
-      return INT64_MAX;
+    } else {  // NEARMV or ZEROMV
+      handle_tripred_single_ref_comp_mode(
+          cpi, x, bsize, rd_stats, mi_row, mi_col, &rate_mv, &orig_dst, single_newmv,
+          compmode_interinter_cost, ref_best_rd);
     }
 
     pred_exists = 0;
-
-    *compmode_interinter_cost =
-        compound_type_cost[mbmi->interinter_compound_data.type] +
-        av1_cost_literal(get_interinter_compound_type_bits(
-            bsize, mbmi->interinter_compound_data.type));
 
   } else if (is_comp_pred) {
     int rate_sum, rs2;
