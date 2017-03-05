@@ -299,6 +299,9 @@ typedef struct {
   // Common for both INTER and INTRA blocks
   BLOCK_SIZE sb_type;
   PREDICTION_MODE mode;
+#if CONFIG_COMP_TRIPRED
+  PREDICTION_MODE mode_third;
+#endif  // CONFIG_COMP_TRIPRED
   TX_SIZE tx_size;
 #if CONFIG_VAR_TX
   // TODO(jingning): This effectively assigned a separate entry for each
