@@ -68,13 +68,13 @@ static struct av1_token partition_encodings[PARTITION_TYPES];
 #if !CONFIG_REF_MV
 static struct av1_token inter_mode_encodings[INTER_MODES];
 #endif
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 static const struct av1_token
     inter_compound_mode_encodings[INTER_COMPOUND_MODES] = {
       { 2, 2 },  { 50, 6 }, { 51, 6 }, { 24, 5 }, { 52, 6 },
       { 53, 6 }, { 54, 6 }, { 55, 6 }, { 0, 1 },  { 7, 3 }
     };
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 #if CONFIG_PALETTE
 static struct av1_token palette_size_encodings[PALETTE_MAX_SIZE - 1];
 static struct av1_token palette_color_encodings[PALETTE_MAX_SIZE - 1]
@@ -322,7 +322,7 @@ static void write_drl_idx(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
 }
 #endif
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 static void write_inter_compound_mode(AV1_COMMON *cm, aom_writer *w,
                                       PREDICTION_MODE mode,
                                       const int16_t mode_ctx) {
@@ -333,7 +333,7 @@ static void write_inter_compound_mode(AV1_COMMON *cm, aom_writer *w,
   av1_write_token(w, av1_inter_compound_mode_tree, inter_compound_probs,
                   &inter_compound_mode_encodings[INTER_COMPOUND_OFFSET(mode)]);
 }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
 static void encode_unsigned_max(struct aom_write_bit_buffer *wb, int data,
                                 int max) {
@@ -490,7 +490,7 @@ static void update_inter_mode_probs(AV1_COMMON *cm, aom_writer *w,
 }
 #endif
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 static void update_inter_compound_mode_probs(AV1_COMMON *cm, int probwt,
                                              aom_writer *w) {
   const int savings_thresh = av1_cost_one(GROUP_DIFF_UPDATE_PROB) -
@@ -513,7 +513,7 @@ static void update_inter_compound_mode_probs(AV1_COMMON *cm, int probwt,
     }
   }
 }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
 static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       int segment_id, const MODE_INFO *mi, aom_writer *w) {
@@ -1354,6 +1354,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #else
   skip = write_skip(cm, xd, segment_id, mi, w);
 #endif  // CONFIG_SUPERTX
+
 #if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
     int mi_row = (-xd->mb_to_top_edge) >> (MI_SIZE_LOG2 + 3);
@@ -1470,11 +1471,11 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
     // If segment skip is not enabled code the mode.
     if (!segfeature_active(seg, segment_id, SEG_LVL_SKIP)) {
       if (bsize >= BLOCK_8X8 || unify_bsize) {
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
         if (is_inter_compound_mode(mode))
           write_inter_compound_mode(cm, w, mode, mode_ctx);
         else if (is_inter_singleref_mode(mode))
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
           write_inter_mode(w, mode, ec_ctx,
 #if CONFIG_REF_MV && CONFIG_EXT_INTER
                            is_compound,
@@ -1578,10 +1579,23 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
     } else {
 #if CONFIG_EXT_INTER
       if (mode == NEWMV || mode == NEWFROMNEARMV || mode == NEW_NEWMV) {
-#else
+#elif CONFIG_COMP_TRIPRED
+      // TODO(zoeliu): Currently TRIPRED does not work together with EXT_INTER.
+      if (mode == NEWMV || mode == NEW_NEWMV || mode == NEW_NEARESTMV ||
+          mode == NEW_NEARMV) {
+#else  // !CONFIG_EXT_INTER && !CONFIG_COMP_TRIPRED
       if (mode == NEWMV) {
 #endif  // CONFIG_EXT_INTER
         int_mv ref_mv;
+
+#if CONFIG_COMP_TRIPRED
+        // NOTE(zoeliu): Following code should be removed once it is confirmed.
+        if (mode == NEW_NEWMV || mode == NEW_NEARESRMV || mode == NEW_NEARMV) {
+          assert(mbmi->interinter_compound_data.type == COMPOUND_TRIPRED &&
+                 !is_compound);
+        }
+#endif  // CONFIG_COMP_TRIPRED
+
         for (ref = 0; ref < 1 + is_compound; ++ref) {
 #if CONFIG_REF_MV
           int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
@@ -1630,7 +1644,10 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
       // TODO(zoeliu): Currently assume COMPOUND_TRIPRED only applies to
       //               non-sub8x8 blocks
       if (bsize >= BLOCK_8X8 &&
-          mbmi->interinter_compound_data.type == COMPOUND_TRIPRED) {
+          mbmi->interinter_compound_data.type == COMPOUND_TRIPRED &&
+          (is_compound || (mode == NEAREST_NEWMV || mode == NEAR_NEWMV ||
+                           // NOTE: ZERO_ZEROMV overloaded by ZERO_NEWMV
+                           mode == ZERO_ZEROMV || mode == NEW_NEWMV))) {
         // TODO(zoeliu): To work with the following experiments:
         //               1. CONFIG_EXT_INTER
         //               2. CONFIG_REF_MV
@@ -4620,9 +4637,12 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     }
 #endif
 #endif
-#if CONFIG_EXT_INTER
-    update_inter_compound_mode_probs(cm, probwt, header_bc);
 
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+    update_inter_compound_mode_probs(cm, probwt, header_bc);
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+
+#if CONFIG_EXT_INTER
     if (cm->reference_mode != COMPOUND_REFERENCE) {
       for (i = 0; i < BLOCK_SIZE_GROUPS; i++) {
         if (is_interintra_allowed_bsize_group(i)) {

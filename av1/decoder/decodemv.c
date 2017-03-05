@@ -300,7 +300,7 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
                                                 aom_reader *r, int16_t ctx) {
   const int mode =
@@ -313,7 +313,7 @@ static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   assert(is_inter_compound_mode(NEAREST_NEARESTMV + mode));
   return NEAREST_NEARESTMV + mode;
 }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
 static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
 #if CONFIG_EC_MULTISYMBOL
@@ -1372,6 +1372,8 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif
       break;
     }
+    // TODO(zoeliu): To handle COMP_TRIPRED for the following inter compound
+    //               modes.
 #if CONFIG_EXT_INTER
     case NEW_NEWMV: {
       FRAME_COUNTS *counts = xd->counts;
@@ -1677,11 +1679,17 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
   } else {
     if (bsize >= BLOCK_8X8 || unify_bsize) {
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 #if CONFIG_EXT_INTER
       if (is_compound)
+#else  // CONFIG_COMP_TRIPRED
+      // NOTE(zoeliu): Currently TRIPRED does not work with EXT_INTER yet.
+      if (!is_compound &&
+          mbmi->interinter_compound_data.type == COMPOUND_TRIPRED)
+#endif  // CONFIG_EXT_INTER
         mbmi->mode = read_inter_compound_mode(cm, xd, r, mode_ctx);
       else
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
         mbmi->mode = read_inter_mode(ec_ctx, xd,
 #if CONFIG_REF_MV && CONFIG_EXT_INTER
                                      mbmi,

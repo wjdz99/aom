@@ -78,11 +78,11 @@ typedef enum {
 } FRAME_TYPE;
 
 static INLINE int is_inter_mode(PREDICTION_MODE mode) {
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   return mode >= NEARESTMV && mode <= NEW_NEWMV;
 #else
   return mode >= NEARESTMV && mode <= NEWMV;
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 }
 
 #if CONFIG_PVQ
@@ -117,9 +117,13 @@ typedef struct {
   int stride[MAX_MB_PLANE];
 } BUFFER_SET;
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 static INLINE int is_inter_singleref_mode(PREDICTION_MODE mode) {
+#if CONFIG_EXT_INTER
   return mode >= NEARESTMV && mode <= NEWFROMNEARMV;
+#else  // CONFIG_COMP_TRIPRED
+  return mode >= NEARESTMV && mode <= NEWMV;
+#endif  // CONFIG_EXT_INTER
 }
 
 static INLINE int is_inter_compound_mode(PREDICTION_MODE mode) {
@@ -145,7 +149,9 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,  // NEARMV
     MB_MODE_COUNT,  // ZEROMV
     MB_MODE_COUNT,  // NEWMV
+#if CONFIG_EXT_INTER
     MB_MODE_COUNT,  // NEWFROMNEARMV
+#endif  // CONFIG_EXT_INTER
     NEARESTMV,      // NEAREST_NEARESTMV
     NEARESTMV,      // NEAREST_NEARMV
     NEARMV,         // NEAR_NEARESTMV
@@ -180,7 +186,9 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,  // NEARMV
     MB_MODE_COUNT,  // ZEROMV
     MB_MODE_COUNT,  // NEWMV
+#if CONFIG_EXT_INTER
     MB_MODE_COUNT,  // NEWFROMNEARMV
+#endif  // CONFIG_EXT_INTER
     NEARESTMV,      // NEAREST_NEARESTMV
     NEARMV,         // NEAREST_NEARMV
     NEARESTMV,      // NEAR_NEARESTMV
@@ -197,11 +205,22 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
 }
 
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
-  return (mode == NEWMV || mode == NEWFROMNEARMV || mode == NEW_NEWMV ||
-          mode == NEAREST_NEWMV || mode == NEW_NEARESTMV ||
+  return (mode == NEWMV ||
+#if CONFIG_EXT_INTER
+          mode == NEWFROMNEARMV ||
+#endif  // CONFIG_EXT_INTER
+          mode == NEW_NEWMV || mode == NEAREST_NEWMV || mode == NEW_NEARESTMV ||
           mode == NEAR_NEWMV || mode == NEW_NEARMV);
 }
 
+#else  // !(CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED)
+
+static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
+  return (mode == NEWMV);
+}
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+
+#if CONFIG_EXT_INTER
 static INLINE int use_masked_motion_search(COMPOUND_TYPE type) {
   return (type == COMPOUND_WEDGE);
 }
@@ -212,11 +231,6 @@ static INLINE int is_masked_compound_type(COMPOUND_TYPE type) {
 #else
   return (type == COMPOUND_WEDGE);
 #endif  // CONFIG_COMPOUND_SEGMENT
-}
-#else
-
-static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
-  return (mode == NEWMV);
 }
 #endif  // CONFIG_EXT_INTER
 
@@ -299,6 +313,9 @@ typedef struct {
   // Common for both INTER and INTRA blocks
   BLOCK_SIZE sb_type;
   PREDICTION_MODE mode;
+#if CONFIG_COMP_TRIPRED
+  PREDICTION_MODE mode_third;
+#endif  // CONFIG_COMP_TRIPRED
   TX_SIZE tx_size;
 #if CONFIG_VAR_TX
   // TODO(jingning): This effectively assigned a separate entry for each
