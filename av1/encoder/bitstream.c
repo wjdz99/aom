@@ -1354,6 +1354,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #else
   skip = write_skip(cm, xd, segment_id, mi, w);
 #endif  // CONFIG_SUPERTX
+
 #if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
     int mi_row = (-xd->mb_to_top_edge) >> (MI_SIZE_LOG2 + 3);
@@ -1634,6 +1635,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
         // TODO(zoeliu): To work with the following experiments:
         //               1. CONFIG_EXT_INTER
         //               2. CONFIG_REF_MV
+        // NOTE(zoeliu): 
         int_mv ref_mv = mbmi_ext->ref_mvs[mbmi->ref_frame_third][0];
         av1_encode_mv(cpi, w, &mbmi->mv_third.as_mv, &ref_mv.as_mv, nmvc,
                       allow_hp);
