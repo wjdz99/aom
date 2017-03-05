@@ -544,9 +544,11 @@ typedef struct AV1_COMP {
 #endif
 
   unsigned int inter_mode_cost[INTER_MODE_CONTEXTS][INTER_MODES];
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   unsigned int inter_compound_mode_cost[INTER_MODE_CONTEXTS]
                                        [INTER_COMPOUND_MODES];
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+#if CONFIG_EXT_INTER
   unsigned int interintra_mode_cost[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -836,6 +838,27 @@ static INLINE void set_ref_ptrs(const AV1_COMMON *cm, MACROBLOCKD *xd,
 static INLINE void set_third_ref_ptr(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                      MV_REFERENCE_FRAME ref_third) {
   xd->block_ref_third = get_ref_buf_ptr(cm, ref_third);
+}
+
+static INLINE PREDICTION_MODE av1_tripred_single_ref_comp_mode(
+    PREDICTION_MODE mode, PREDICTION_MODE mode_third) {
+  if (mode == NEARESTMV && mode_third == NEARMV) {
+    return NEAREST_NEARMV;
+  } else if (mode == NEARESTMV && mode_third == NEWMV) {
+    return NEAREST_NEWMV;
+  } else if (mode == NEWMV && mode_third == NEARESTMV) {
+    return NEW_NEARESTMV;
+  } else if (mode == NEWMV && mode_third == NEARMV) {
+    return NEW_NEARMV;
+  } else if (mode == NEWMV && mode_third == NEWMV) {
+    return NEW_NEWMV;
+  } else if (mode == NEARMV && mode_third == NEWMV) {
+    return NEAR_NEWMV;
+  } else {
+    assert(mode == ZEROMV && mode_third == NEWMV);
+    // !!!NOTE(zoeliu): Temporarily overload the ZERO_ZEROMV mode.
+    return ZERO_ZEROMV;
+  }
 }
 #endif  // CONFIG_COMP_TRIPRED
 

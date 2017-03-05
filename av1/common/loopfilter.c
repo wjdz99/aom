@@ -269,6 +269,11 @@ static const int mode_lf_lut[MB_MODE_COUNT] = {
   1,                            // NEWFROMNEARMV mode
   1, 1, 1, 1, 1, 1, 1, 1, 0, 1  // INTER_COMPOUND_MODES (ZERO_ZEROMV == 0)
 #endif                          // CONFIG_EXT_INTER
+#if CONFIG_COMP_TRIPRED
+  ,
+  // NOTE: In TRIPRED, ZERO_ZEROMV is overloaded by ZERO_NEWMV.
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1  // INTER_COMPOUND_MODES (ZERO_ZEROMV == 1)
+#endif  // CONFIG_COMP_TRIPRED
 };
 
 static void update_sharpness(loop_filter_info_n *lfi, int sharpness_lvl) {

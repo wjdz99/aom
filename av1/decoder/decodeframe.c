@@ -199,7 +199,7 @@ static void read_inter_mode_probs(FRAME_CONTEXT *fc, aom_reader *r) {
 #endif
 }
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 static void read_inter_compound_mode_probs(FRAME_CONTEXT *fc, aom_reader *r) {
   int i, j;
   if (aom_read(r, GROUP_DIFF_UPDATE_PROB, ACCT_STR)) {
@@ -210,7 +210,8 @@ static void read_inter_compound_mode_probs(FRAME_CONTEXT *fc, aom_reader *r) {
     }
   }
 }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+
 #if !CONFIG_EC_ADAPT
 #if !CONFIG_EXT_TX
 static void read_ext_tx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
@@ -4540,8 +4541,11 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 #endif
     read_inter_mode_probs(fc, &r);
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
     read_inter_compound_mode_probs(fc, &r);
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+
+#if CONFIG_EXT_INTER
     if (cm->reference_mode != COMPOUND_REFERENCE) {
       for (i = 0; i < BLOCK_SIZE_GROUPS; i++) {
         if (is_interintra_allowed_bsize_group(i)) {
@@ -4650,10 +4654,12 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
                  sizeof(cm->counts.switchable_interp)));
   assert(!memcmp(cm->counts.inter_mode, zero_counts.inter_mode,
                  sizeof(cm->counts.inter_mode)));
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   assert(!memcmp(cm->counts.inter_compound_mode,
                  zero_counts.inter_compound_mode,
                  sizeof(cm->counts.inter_compound_mode)));
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+#if CONFIG_EXT_INTER
   assert(!memcmp(cm->counts.interintra, zero_counts.interintra,
                  sizeof(cm->counts.interintra)));
   assert(!memcmp(cm->counts.wedge_interintra, zero_counts.wedge_interintra,

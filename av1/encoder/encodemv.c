@@ -394,7 +394,9 @@ static void inc_mvs_sub8x8(const MODE_INFO *mi, int block, const int_mv mvs[2],
     av1_inc_mv(&diff, counts, 1);
   }
 }
-#else
+
+#else  // !CONFIG_EXT_INTER
+
 static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
                     const int_mv mvs[2],
 #if CONFIG_REF_MV
@@ -470,7 +472,11 @@ void av1_update_mv_count(ThreadData *td) {
   } else {
 #if CONFIG_EXT_INTER
     if (have_newmv_in_inter_mode(mbmi->mode))
-#else
+#elif CONFIG_COMP_TRIPRED
+    // TODO(zoeliu): Currently TRIPRED does not work together with EXT_INTER.
+    if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
+        mbmi->mode == NEW_NEARESTMV || mbmi->mode == NEW_NEARMV)
+#else  // !CONFIG_EXT_INTER && !CONFIG_COMP_TRIPRED
     if (mbmi->mode == NEWMV)
 #endif  // CONFIG_EXT_INTER
       inc_mvs(mbmi, mbmi_ext, mbmi->mv,
@@ -485,7 +491,11 @@ void av1_update_mv_count(ThreadData *td) {
     //               1. CONFIG_EXT_INTER; and
     //               2. CONFIG_REF_MV
     if (mbmi->sb_type >= BLOCK_8X8 &&
-        mbmi->interinter_compound_data.type == COMPOUND_TRIPRED) {
+        mbmi->interinter_compound_data.type == COMPOUND_TRIPRED &&
+        (has_second_ref(mbmi) ||
+         (mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEAR_NEWMV ||
+          // NOTE: ZERO_ZEROMV overloaded by ZERO_NEWMV
+          mbmi->mode == ZERO_ZEROMV || mbmi->mode == NEW_NEWMV))) {
       nmv_context_counts *counts = &td->counts->mv;
       const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame_third][0].as_mv;
       const MV *mv = &mbmi->mv_third.as_mv;

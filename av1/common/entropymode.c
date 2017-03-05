@@ -496,7 +496,7 @@ static const aom_prob
 #endif  // CONFIG_EXT_INTER
     };
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 static const aom_prob default_inter_compound_mode_probs
     [INTER_MODE_CONTEXTS][INTER_COMPOUND_MODES - 1] = {
       { 2, 173, 68, 192, 64, 192, 128, 180, 180 },   // 0 = both zero mv
@@ -507,7 +507,9 @@ static const aom_prob default_inter_compound_mode_probs
       { 17, 81, 52, 192, 64, 192, 128, 180, 180 },   // 5 = one intra neighbour
       { 25, 29, 50, 192, 64, 192, 128, 180, 180 },   // 6 = two intra neighbours
     };
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
+#if CONFIG_EXT_INTER
 #if CONFIG_COMPOUND_SEGMENT
 static const aom_prob
     default_compound_type_probs[BLOCK_SIZES][COMPOUND_TYPES - 1] = {
@@ -709,7 +711,9 @@ const aom_tree_index av1_interintra_mode_tree[TREE_SIZE(INTERINTRA_MODES)] = {
   -II_D63_PRED, 16,                 /* 7 = II_D63_NODE    */
   -II_D153_PRED, -II_D207_PRED      /* 8 = II_D153_NODE   */
 };
+#endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 const aom_tree_index av1_inter_compound_mode_tree
     [TREE_SIZE(INTER_COMPOUND_MODES)] = {
   -INTER_COMPOUND_OFFSET(ZERO_ZEROMV), 2,
@@ -723,7 +727,9 @@ const aom_tree_index av1_inter_compound_mode_tree
   -INTER_COMPOUND_OFFSET(NEAREST_NEWMV), -INTER_COMPOUND_OFFSET(NEW_NEARESTMV),
   -INTER_COMPOUND_OFFSET(NEAR_NEWMV), -INTER_COMPOUND_OFFSET(NEW_NEARMV)
 };
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
 
+#if CONFIG_EXT_INTER
 #if CONFIG_COMPOUND_SEGMENT
 const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)] = {
   -COMPOUND_AVERAGE, 2, -COMPOUND_WEDGE, -COMPOUND_SEG
@@ -1799,12 +1805,12 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->obmc_prob, default_obmc_prob);
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-#if CONFIG_EXT_INTER
-  av1_copy(fc->inter_compound_mode_probs, default_inter_compound_mode_probs);
-#endif  // CONFIG_EXT_INTER
+
 #if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+  av1_copy(fc->inter_compound_mode_probs, default_inter_compound_mode_probs);
   av1_copy(fc->compound_type_prob, default_compound_type_probs);
 #endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+
 #if CONFIG_EXT_INTER
   av1_copy(fc->interintra_prob, default_interintra_prob);
   av1_copy(fc->interintra_mode_prob, default_interintra_mode_prob);
@@ -1992,11 +1998,14 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
   }
 #endif  // CONFIG_SUPERTX
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
   for (i = 0; i < INTER_MODE_CONTEXTS; i++)
     aom_tree_merge_probs(
         av1_inter_compound_mode_tree, pre_fc->inter_compound_mode_probs[i],
         counts->inter_compound_mode[i], fc->inter_compound_mode_probs[i]);
+#endif  // CONFIG_EXT_INTER || CONFIG_COMP_TRIPRED
+
+#if CONFIG_EXT_INTER
   for (i = 0; i < BLOCK_SIZE_GROUPS; ++i) {
     if (is_interintra_allowed_bsize_group(i))
       fc->interintra_prob[i] = av1_mode_mv_merge_probs(
