@@ -334,6 +334,16 @@ typedef enum ATTRIBUTE_PACKED {
   ZERO_ZEROMV,
   NEW_NEWMV,
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_COMP_TRIPRED
+  // TODO(zoeliu): Currently the mode design has not considered to have TRIPRED
+  //               to work together with EXT_INTER yet.
+  NEAREST_NEARMV,
+  NEAREST_NEWMV,
+  NEW_NEARESTMV,
+  NEAR_NEWMV,
+  NEW_NEARMV,
+  NEW_NEWMV,
+#endif  // CONFIG_COMP_TRIPRED
   MB_MODE_COUNT,
   INTRA_MODES = TM_PRED + 1
 } PREDICTION_MODE;
