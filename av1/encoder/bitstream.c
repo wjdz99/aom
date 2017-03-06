@@ -783,7 +783,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
                            aom_bit_depth_t bit_depth, const TX_SIZE tx_size,
                            TOKEN_STATS *token_stats) {
   const TOKENEXTRA *p = *tp;
-#if CONFIG_VAR_TX || CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_VAR_TX || CONFIG_PALETTE_INTERLEAVE
   int count = 0;
   const int seg_eob = tx_size_2d[tx_size];
 #endif
@@ -846,7 +846,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
     }
     ++p;
 
-#if CONFIG_VAR_TX || CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_VAR_TX || CONFIG_PALETTE_INTERLEAVE
     ++count;
     if (token == EOB_TOKEN || count == seg_eob) break;
 #endif
@@ -860,7 +860,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
                            aom_bit_depth_t bit_depth, const TX_SIZE tx_size,
                            TOKEN_STATS *token_stats) {
   const TOKENEXTRA *p = *tp;
-#if CONFIG_VAR_TX || CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_VAR_TX || CONFIG_PALETTE_INTERLEAVE
   int count = 0;
   const int seg_eob = tx_size_2d[tx_size];
 #endif
@@ -951,7 +951,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
     }
     ++p;
 
-#if CONFIG_VAR_TX || CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_VAR_TX || CONFIG_PALETTE_INTERLEAVE
     ++count;
     if (token == EOB_TOKEN || count == seg_eob) break;
 #endif
@@ -2074,11 +2074,11 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif
 
 #if CONFIG_PALETTE
-#if CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_PALETTE_INTERLEAVE
   // when block is skipped, palette index is coded here
   // since there is no coeff to be interleaved.
   if (m->mbmi.skip)
-#endif  // CONFIG_PALETTE_THROUGHPUT
+#endif  // CONFIG_PALETTE_INTERLEAVE
     for (plane = 0; plane <= 1; ++plane) {
       const uint8_t palette_size_plane =
           m->mbmi.palette_mode_info.palette_size[plane];
@@ -2227,7 +2227,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
         TX_SIZE tx = get_tx_size(plane, xd);
         const int bkw = tx_size_wide_unit[tx];
         const int bkh = tx_size_high_unit[tx];
-#if CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
         const uint8_t palette_size_plane =
             m->mbmi.palette_mode_info.palette_size[plane > 0];
         const int bkw_in_pixel = bkw << tx_size_wide_log2[0];
@@ -2235,10 +2235,10 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
         int rows, cols;
         av1_get_block_dimensions(m->mbmi.sb_type, plane, xd, NULL, NULL, &rows,
                                  &cols);
-#endif  // CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#endif  // CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
         for (row = 0; row < num_4x4_h; row += bkh) {
           for (col = 0; col < num_4x4_w; col += bkw) {
-#if CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
             if (palette_size_plane > 0 && plane <= 1) {
               const int col_in_pixel = col << tx_size_wide_log2[0];
               const int row_in_pixel = row << tx_size_high_log2[0];
@@ -2250,7 +2250,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
               pack_palette_tokens(w, tok, palette_size_plane,
                                   num_palette_indexes);
             }
-#endif  // CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#endif  // CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
             pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx, &token_stats);
           }
         }
@@ -2258,7 +2258,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #else
       TX_SIZE tx = get_tx_size(plane, xd);
       TOKEN_STATS token_stats;
-#if CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
       const struct macroblockd_plane *const pd = &xd->plane[plane];
       BLOCK_SIZE bsize = mbmi->sb_type;
 #if CONFIG_CB4X4
@@ -2300,7 +2300,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #else
       init_token_stats(&token_stats);
       pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx, &token_stats);
-#endif  // CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#endif  // CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
 #if CONFIG_RD_DEBUG
       if (is_inter_block(mbmi) && mbmi->sb_type >= BLOCK_8X8 &&
           rd_token_stats_mismatch(&m->mbmi.rd_stats, &token_stats, plane)) {
