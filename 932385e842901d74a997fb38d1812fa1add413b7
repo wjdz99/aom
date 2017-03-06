@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8fa41692_b20b67f2",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-03-06T23:12:36Z",
+      "side": 1,
+      "message": "Right, fixed.",
+      "parentUuid": "5884c228_0e6a43c3",
+      "revId": "932385e842901d74a997fb38d1812fa1add413b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87a9b324_a2b229e1",
         "filename": "av1/encoder/tokenize.c",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "45dc865b_48e140a5",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-03-06T23:12:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87a9b324_a2b229e1",
+      "revId": "932385e842901d74a997fb38d1812fa1add413b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3820f23_3c36e55c",
         "filename": "av1/encoder/tokenize.c",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-06T23:02:03Z",
       "side": 1,
       "message": "The two lines above should be in an #if !CONFIG_PVQ, right?",
+      "revId": "932385e842901d74a997fb38d1812fa1add413b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0572bdf8_c4e48e96",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 899,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-03-06T23:12:36Z",
+      "side": 1,
+      "message": "Yeap- fixed.\n(but, as you know, we have no way to test this since CB_4X4 cannot be enabled yet with PVQ)",
+      "parentUuid": "d3820f23_3c36e55c",
       "revId": "932385e842901d74a997fb38d1812fa1add413b7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
