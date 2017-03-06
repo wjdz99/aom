@@ -433,7 +433,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 #endif  // !CONFIG_PVQ
 
 #if CONFIG_PALETTE
-#if CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_PALETTE_INTERLEAVE
 void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
                                TX_SIZE tx_size, int row, int col,
                                aom_reader *r) {
@@ -514,6 +514,35 @@ void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
                            &plane_block_height, &rows, &cols);
   assert(plane == 0 || plane == 1);
 
+#if CONFIG_PALETTE_THROUGHPUT
+  // run wavefront on the palette map index decoding per transform block
+  for (i = 1; i < rows + cols - 1; ++i) {
+    for (j = AOMMIN(i, cols - 1); j >= AOMMAX(0, i - rows + 1); --j) {
+      const int color_ctx = av1_get_palette_color_index_context(
+          color_map, plane_block_width, (i - j), j, n, color_order, NULL);
+      const int color_idx =
+        aom_read_tree(r, av1_palette_color_index_tree[n - 2],
+          prob[n - 2][color_ctx], ACCT_STR);
+      assert(color_idx >= 0 && color_idx < n);
+      color_map[(i - j) * plane_block_width + j] = color_order[color_idx];
+    }
+  }
+  // Copy last column to extra columns.
+  if (cols < plane_block_width) {
+    for (i = 0; i < plane_block_height; ++i) {
+      memset(color_map + i * plane_block_width + cols,
+             color_map[i * plane_block_width + cols - 1],
+             (plane_block_width - cols));
+    }
+  }
+  // Copy last row to extra rows.
+  if (rows < plane_block_height) {
+    for (i = rows; i < plane_block_height; ++i) {
+      memcpy(color_map + i * plane_block_width,
+             color_map + (rows - 1) * plane_block_width, plane_block_width);
+    }
+  }
+#else
   for (i = 0; i < rows; ++i) {
     for (j = (i == 0 ? 1 : 0); j < cols; ++j) {
       const int color_ctx = av1_get_palette_color_index_context(
@@ -533,6 +562,7 @@ void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
     memcpy(color_map + i * plane_block_width,
            color_map + (rows - 1) * plane_block_width, plane_block_width);
   }
+#endif
 }
 #endif  // CONFIG_PALETTE_THROUGHPUT
 #endif  // CONFIG_PALETTE
