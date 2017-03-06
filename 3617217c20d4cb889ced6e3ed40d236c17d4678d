@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce421e1b_c1703359",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 5
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-03-06T19:31:01Z",
+      "side": 1,
+      "message": "This needs to be wrapped in an if() endif() block or you will get build errors when using cmake:\n\n/home/nathan/git/av1.17mar5/examples/inspect.c:210:1: error: unknown type name ‘insp_frame_data’\n insp_frame_data frame_data;\n\nThis can be done with:\n\n+if (CONFIG_INSPECTION)\n add_executable(inspect\n                \"${AOM_ROOT}/examples/inspect.c\"\n                $\u003cTARGET_OBJECTS:aom_common_app_util\u003e\n                $\u003cTARGET_OBJECTS:aom_decoder_app_util\u003e)\n+set(AOM_APP_TARGETS ${AOM_APP_TARGETS} inspect)\n+endif ()",
+      "revId": "3617217c20d4cb889ced6e3ed40d236c17d4678d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "186fbe22_a29dafb2",
+        "filename": "examples/inspect.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-03-06T19:31:01Z",
+      "side": 1,
+      "message": "Why are you including the C file here?  When I build with cmake I get the following linker error:\n\nScanning dependencies of target inspect\n[ 92%] Building C object CMakeFiles/inspect.dir/examples/inspect.c.o\n[ 92%] Linking CXX executable inspect\nCMakeFiles/aom_av1_decoder.dir/av1/av1_dx_iface.c.o: In function `aom_codec_av1_dx\u0027:\nav1_dx_iface.c:(.text+0x3206): multiple definition of `aom_codec_av1_dx\u0027\nCMakeFiles/inspect.dir/examples/inspect.c.o:inspect.c:(.text+0x3602): first defined here\nCMakeFiles/aom_av1_decoder.dir/av1/av1_dx_iface.c.o:(.rodata+0x13c0): multiple definition of `aom_codec_av1_dx_algo\u0027\nCMakeFiles/inspect.dir/examples/inspect.c.o:(.rodata+0x13c0): first defined here\ncollect2: error: ld returned 1 exit status\nmake[2]: *** [CMakeFiles/inspect.dir/build.make:428: inspect] Error 1\nmake[1]: *** [CMakeFiles/Makefile2:547: CMakeFiles/inspect.dir/all] Error 2\nmake: *** [Makefile:128: all] Error 2\n\nDo you need to include this for emscripten to build properly?",
+      "revId": "3617217c20d4cb889ced6e3ed40d236c17d4678d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f5f8b0b_13cbebb0",
+        "filename": "examples/inspect.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-03-06T19:31:01Z",
+      "side": 1,
+      "message": "This file should also #include \"../av1/decoder/inspection.h\"",
+      "revId": "3617217c20d4cb889ced6e3ed40d236c17d4678d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ada2bcea_654a0c37",
+        "filename": "tools/build_inspector.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-03-06T19:31:01Z",
+      "side": 1,
+      "message": "Can you test for the existence of emconfigure, emmake and emcc and fail gracefully please.",
+      "revId": "3617217c20d4cb889ced6e3ed40d236c17d4678d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a258fabb_bac8aa2a",
+        "filename": "tools/build_inspector.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-03-06T19:31:01Z",
+      "side": 1,
+      "message": "Why not call this .inspect?  On most unix systems, cd ~inspect looks like you have an inspect user.  Also, what happens on subsequent runs?",
+      "revId": "3617217c20d4cb889ced6e3ed40d236c17d4678d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
