@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 #if CONFIG_PALETTE
-#if CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_PALETTE_INTERLEAVE
 void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
                                TX_SIZE tx_size, int row, int col,
                                aom_reader *r);

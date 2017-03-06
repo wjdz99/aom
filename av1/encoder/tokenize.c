@@ -399,7 +399,7 @@ static INLINE int get_tx_eob(const struct segmentation *seg, int segment_id,
 #endif
 #endif  // !CONFIG_PVQ
 
-#if CONFIG_PALETTE && !CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_PALETTE && !CONFIG_PALETTE_INTERLEAVE
 void av1_tokenize_palette_sb(const AV1_COMP *cpi,
                              const struct ThreadData *const td, int plane,
                              TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
@@ -413,6 +413,8 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
   int i, j;
   int this_rate = 0;
   uint8_t color_order[PALETTE_MAX_SIZE];
+  (void)cpi;
+  (void)dry_run;
   const aom_prob(
       *const probs)[PALETTE_COLOR_INDEX_CONTEXTS][PALETTE_COLORS - 1] =
       plane == 0 ? av1_default_palette_y_color_index_prob
@@ -422,6 +424,21 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
                            &cols);
   assert(plane == 0 || plane == 1);
 
+#if CONFIG_PALETTE_THROUGHPUT
+  for (i = 1; i < rows + cols - 1; ++i) {
+    for (j = AOMMIN(i, cols - 1); j >= AOMMAX(0, i - rows + 1); --j) {
+      int color_new_idx;
+      const int color_ctx = av1_get_palette_color_index_context(
+          color_map, plane_block_width, (i - j), j, n, color_order,
+          &color_new_idx);
+      assert(color_new_idx >= 0 && color_new_idx < n);
+      (*t)->token = color_new_idx;
+      (*t)->context_tree = probs[n - 2][color_ctx];
+      (*t)->skip_eob_node = 0;
+      ++(*t);
+    }
+  }
+#else
   for (i = 0; i < rows; ++i) {
     for (j = (i == 0 ? 1 : 0); j < cols; ++j) {
       int color_new_idx;
@@ -437,12 +454,13 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
       ++(*t);
     }
   }
+#endif  // CONFIG_PALETTE_THROUGHPUT
   if (rate) *rate += this_rate;
 }
-#endif  // CONFIG_PALETTE
+#endif  // CONFIG_PALETTE && !CONFIG_PALETTE_INTERLEAVE
 
 #if !CONFIG_PVQ || CONFIG_VAR_TX
-#if CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
 void tokenize_palette_b(int plane, int block, int blk_row, int blk_col,
                         BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
   struct tokenize_b_args *const args = arg;
@@ -505,7 +523,7 @@ void tokenize_palette_b(int plane, int block, int blk_row, int blk_col,
     }
   }
 }
-#endif  // CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#endif  // CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
 
 static void tokenize_b(int plane, int block, int blk_row, int blk_col,
                        BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
@@ -665,7 +683,7 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   av1_set_contexts(xd, pd, plane, tx_size, c > 0, blk_col, blk_row);
 }
 
-#if CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
 void tokenize_joint_b(int plane, int block, int blk_row, int blk_col,
                       BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
   if (plane < 2)
@@ -673,7 +691,7 @@ void tokenize_joint_b(int plane, int block, int blk_row, int blk_col,
                        arg);
   tokenize_b(plane, block, blk_row, blk_col, plane_bsize, tx_size, arg);
 }
-#endif  // CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#endif  // CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
 #endif  //  !CONFIG_PVQ
 
 struct is_skippable_args {
@@ -862,7 +880,7 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
   struct tokenize_b_args arg = { cpi, td, t, 0 };
   if (mbmi->skip) {
-#if CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
     if (!dry_run) {
       int plane;
       for (plane = 0; plane < 2; ++plane) {
@@ -870,7 +888,7 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
                                                tokenize_palette_b, &arg);
       }
     }
-#endif  // CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#endif  // CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
     if (!dry_run) td->counts->skip[ctx][1] += skip_inc;
     reset_skip_context(xd, bsize);
     return;
@@ -880,12 +898,12 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
   if (!dry_run) {
 #if CONFIG_COEF_INTERLEAVE
     td->counts->skip[ctx][0] += skip_inc;
-#if CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
     av1_foreach_transformed_block_in_plane(xd, bsize, plane, tokenize_joint_b,
                                            &arg);
 #else
     av1_foreach_transformed_block_interleave(xd, bsize, tokenize_b, &arg);
-#endif  // CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#endif  // CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
 #else
     int plane;
 
@@ -901,13 +919,13 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
       (void)mi_row;
       (void)mi_col;
 #endif
-#if CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#if CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
       av1_foreach_transformed_block_in_plane(xd, bsize, plane, tokenize_joint_b,
                                              &arg);
 #else
       av1_foreach_transformed_block_in_plane(xd, bsize, plane, tokenize_b,
                                              &arg);
-#endif  // CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
+#endif  // CONFIG_PALETTE && CONFIG_PALETTE_INTERLEAVE
       (*t)->token = EOSB_TOKEN;
       (*t)++;
     }

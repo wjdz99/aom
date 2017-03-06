@@ -307,6 +307,7 @@ EXPERIMENT_LIST="
     daala_dist
     tripred
     palette_throughput
+    palette_interleave
     ref_adapt
     lv_map
     mv_compress
@@ -496,6 +497,7 @@ post_process_cmdline() {
     enabled ec_multisymbol && ! enabled ans && soft_enable daala_ec
     enabled ec_multisymbol && ! enabled daala_ec && soft_enable ans
     enabled palette_throughput && soft_enable palette
+	enabled palette_interleave && soft_enable palette && soft_enable_palette_throughput
     if enabled rawbits && ! enabled daala_ec; then
       log_echo "rawbits requires daala_ec, so disabling rawbits"
       disable_feature rawbits
