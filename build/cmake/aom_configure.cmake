@@ -10,6 +10,7 @@
 ##
 include(FindGit)
 include(FindPerl)
+include(FindThreads)
 
 # Generate the user config settings. This must occur before include of
 # aom_config_defaults.cmake (because it turns every config variable into a cache
@@ -139,6 +140,10 @@ aom_check_source_compiles("aom_ports_check"
                           HAVE_AOM_PORTS)
 aom_check_source_compiles("pthread_check" "#include <pthread.h>" HAVE_PTHREAD_H)
 aom_check_source_compiles("unistd_check" "#include <unistd.h>" HAVE_UNISTD_H)
+
+if (HAVE_PTHREAD_H AND CONFIG_MULTITHREAD)
+  append_exe_linker_flag("${CMAKE_THREAD_LIBS_INIT}")
+endif ()
 
 # TODO(tomfinegan): consume trailing whitespace after configure_file() when
 # target platform check produces empty INLINE and RESTRICT values (aka empty
