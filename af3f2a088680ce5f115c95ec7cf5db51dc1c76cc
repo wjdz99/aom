@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3905e317_4053a5a4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-03-06T20:14:57Z",
+      "side": 1,
+      "message": "If you could make these lines shorter, they will be easier to read in git log. In general, summary line is best to have \u003c\u003d 50 chars, other lines are better within 72 chars.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 77
+      },
+      "revId": "af3f2a088680ce5f115c95ec7cf5db51dc1c76cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
