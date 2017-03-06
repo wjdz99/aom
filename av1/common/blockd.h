@@ -19,10 +19,10 @@
 #include "aom_scale/yv12config.h"
 
 #include "av1/common/common_data.h"
-#include "av1/common/quant_common.h"
 #include "av1/common/entropy.h"
 #include "av1/common/entropymode.h"
 #include "av1/common/mv.h"
+#include "av1/common/quant_common.h"
 #include "av1/common/scale.h"
 #include "av1/common/seg_common.h"
 #include "av1/common/tile_common.h"
@@ -36,7 +36,11 @@
 extern "C" {
 #endif
 
+#if CONFIG_MV_COUNT
+#define SUB8X8_COMP_REF 0
+#else
 #define SUB8X8_COMP_REF 1
+#endif
 
 #define MAX_MB_PLANE 3
 
@@ -69,9 +73,9 @@ typedef enum {
   SEG_MASK_TYPES,
 } SEG_MASK_TYPE;
 
-#endif  // COMPOUND_SEGMENT_TYPE
-#endif  // CONFIG_COMPOUND_SEGMENT
-#endif  // CONFIG_EXT_INTER
+#endif // COMPOUND_SEGMENT_TYPE
+#endif // CONFIG_COMPOUND_SEGMENT
+#endif // CONFIG_EXT_INTER
 
 typedef enum {
   KEY_FRAME = 0,
@@ -84,7 +88,7 @@ static INLINE int is_inter_mode(PREDICTION_MODE mode) {
   return mode >= NEARESTMV && mode <= NEW_NEWMV;
 #else
   return mode >= NEARESTMV && mode <= NEWMV;
-#endif  // CONFIG_EXT_INTER
+#endif // CONFIG_EXT_INTER
 }
 
 #if CONFIG_PVQ
@@ -99,18 +103,18 @@ typedef struct PVQ_INFO {
   int size[PVQ_MAX_PARTITIONS];
   int skip_rest;
   int skip_dir;
-  int bs;  // log of the block size minus two,
-           // i.e. equivalent to aom's TX_SIZE
+  int bs; // log of the block size minus two,
+          // i.e. equivalent to aom's TX_SIZE
   // Block skip info, indicating whether DC/AC, is coded.
-  PVQ_SKIP_TYPE ac_dc_coded;  // bit0: DC coded, bit1 : AC coded (1 means coded)
+  PVQ_SKIP_TYPE ac_dc_coded; // bit0: DC coded, bit1 : AC coded (1 means coded)
   tran_low_t dq_dc_residue;
 } PVQ_INFO;
 
 typedef struct PVQ_QUEUE {
-  PVQ_INFO *buf;  // buffer for pvq info, stored in encoding order
-  int curr_pos;   // curr position to write PVQ_INFO
-  int buf_len;    // allocated buffer length
-  int last_pos;   // last written position of PVQ_INFO in a tile
+  PVQ_INFO *buf; // buffer for pvq info, stored in encoding order
+  int curr_pos;  // curr position to write PVQ_INFO
+  int buf_len;   // allocated buffer length
+  int last_pos;  // last written position of PVQ_INFO in a tile
 } PVQ_QUEUE;
 #endif
 
@@ -130,34 +134,34 @@ static INLINE int is_inter_compound_mode(PREDICTION_MODE mode) {
 
 static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
   static PREDICTION_MODE lut[MB_MODE_COUNT] = {
-    MB_MODE_COUNT,  // DC_PRED
-    MB_MODE_COUNT,  // V_PRED
-    MB_MODE_COUNT,  // H_PRED
-    MB_MODE_COUNT,  // D45_PRED
-    MB_MODE_COUNT,  // D135_PRED
-    MB_MODE_COUNT,  // D117_PRED
-    MB_MODE_COUNT,  // D153_PRED
-    MB_MODE_COUNT,  // D207_PRED
-    MB_MODE_COUNT,  // D63_PRED
+    MB_MODE_COUNT, // DC_PRED
+    MB_MODE_COUNT, // V_PRED
+    MB_MODE_COUNT, // H_PRED
+    MB_MODE_COUNT, // D45_PRED
+    MB_MODE_COUNT, // D135_PRED
+    MB_MODE_COUNT, // D117_PRED
+    MB_MODE_COUNT, // D153_PRED
+    MB_MODE_COUNT, // D207_PRED
+    MB_MODE_COUNT, // D63_PRED
 #if CONFIG_ALT_INTRA
-    MB_MODE_COUNT,  // SMOOTH_PRED
-#endif              // CONFIG_ALT_INTRA
-    MB_MODE_COUNT,  // TM_PRED
-    MB_MODE_COUNT,  // NEARESTMV
-    MB_MODE_COUNT,  // NEARMV
-    MB_MODE_COUNT,  // ZEROMV
-    MB_MODE_COUNT,  // NEWMV
-    MB_MODE_COUNT,  // NEWFROMNEARMV
-    NEARESTMV,      // NEAREST_NEARESTMV
-    NEARESTMV,      // NEAREST_NEARMV
-    NEARMV,         // NEAR_NEARESTMV
-    NEARMV,         // NEAR_NEARMV
-    NEARESTMV,      // NEAREST_NEWMV
-    NEWMV,          // NEW_NEARESTMV
-    NEARMV,         // NEAR_NEWMV
-    NEWMV,          // NEW_NEARMV
-    ZEROMV,         // ZERO_ZEROMV
-    NEWMV,          // NEW_NEWMV
+    MB_MODE_COUNT, // SMOOTH_PRED
+#endif             // CONFIG_ALT_INTRA
+    MB_MODE_COUNT, // TM_PRED
+    MB_MODE_COUNT, // NEARESTMV
+    MB_MODE_COUNT, // NEARMV
+    MB_MODE_COUNT, // ZEROMV
+    MB_MODE_COUNT, // NEWMV
+    MB_MODE_COUNT, // NEWFROMNEARMV
+    NEARESTMV,     // NEAREST_NEARESTMV
+    NEARESTMV,     // NEAREST_NEARMV
+    NEARMV,        // NEAR_NEARESTMV
+    NEARMV,        // NEAR_NEARMV
+    NEARESTMV,     // NEAREST_NEWMV
+    NEWMV,         // NEW_NEARESTMV
+    NEARMV,        // NEAR_NEWMV
+    NEWMV,         // NEW_NEARMV
+    ZEROMV,        // ZERO_ZEROMV
+    NEWMV,         // NEW_NEWMV
   };
   assert(is_inter_compound_mode(mode));
   return lut[mode];
@@ -165,34 +169,34 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
 
 static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
   static PREDICTION_MODE lut[MB_MODE_COUNT] = {
-    MB_MODE_COUNT,  // DC_PRED
-    MB_MODE_COUNT,  // V_PRED
-    MB_MODE_COUNT,  // H_PRED
-    MB_MODE_COUNT,  // D45_PRED
-    MB_MODE_COUNT,  // D135_PRED
-    MB_MODE_COUNT,  // D117_PRED
-    MB_MODE_COUNT,  // D153_PRED
-    MB_MODE_COUNT,  // D207_PRED
-    MB_MODE_COUNT,  // D63_PRED
+    MB_MODE_COUNT, // DC_PRED
+    MB_MODE_COUNT, // V_PRED
+    MB_MODE_COUNT, // H_PRED
+    MB_MODE_COUNT, // D45_PRED
+    MB_MODE_COUNT, // D135_PRED
+    MB_MODE_COUNT, // D117_PRED
+    MB_MODE_COUNT, // D153_PRED
+    MB_MODE_COUNT, // D207_PRED
+    MB_MODE_COUNT, // D63_PRED
 #if CONFIG_ALT_INTRA
-    MB_MODE_COUNT,  // SMOOTH_PRED
-#endif              // CONFIG_ALT_INTRA
-    MB_MODE_COUNT,  // TM_PRED
-    MB_MODE_COUNT,  // NEARESTMV
-    MB_MODE_COUNT,  // NEARMV
-    MB_MODE_COUNT,  // ZEROMV
-    MB_MODE_COUNT,  // NEWMV
-    MB_MODE_COUNT,  // NEWFROMNEARMV
-    NEARESTMV,      // NEAREST_NEARESTMV
-    NEARMV,         // NEAREST_NEARMV
-    NEARESTMV,      // NEAR_NEARESTMV
-    NEARMV,         // NEAR_NEARMV
-    NEWMV,          // NEAREST_NEWMV
-    NEARESTMV,      // NEW_NEARESTMV
-    NEWMV,          // NEAR_NEWMV
-    NEARMV,         // NEW_NEARMV
-    ZEROMV,         // ZERO_ZEROMV
-    NEWMV,          // NEW_NEWMV
+    MB_MODE_COUNT, // SMOOTH_PRED
+#endif             // CONFIG_ALT_INTRA
+    MB_MODE_COUNT, // TM_PRED
+    MB_MODE_COUNT, // NEARESTMV
+    MB_MODE_COUNT, // NEARMV
+    MB_MODE_COUNT, // ZEROMV
+    MB_MODE_COUNT, // NEWMV
+    MB_MODE_COUNT, // NEWFROMNEARMV
+    NEARESTMV,     // NEAREST_NEARESTMV
+    NEARMV,        // NEAREST_NEARMV
+    NEARESTMV,     // NEAR_NEARESTMV
+    NEARMV,        // NEAR_NEARMV
+    NEWMV,         // NEAREST_NEWMV
+    NEARESTMV,     // NEW_NEARESTMV
+    NEWMV,         // NEAR_NEWMV
+    NEARMV,        // NEW_NEARMV
+    ZEROMV,        // ZERO_ZEROMV
+    NEWMV,         // NEW_NEWMV
   };
   assert(is_inter_compound_mode(mode));
   return lut[mode];
@@ -213,14 +217,14 @@ static INLINE int is_masked_compound_type(COMPOUND_TYPE type) {
   return (type == COMPOUND_WEDGE || type == COMPOUND_SEG);
 #else
   return (type == COMPOUND_WEDGE);
-#endif  // CONFIG_COMPOUND_SEGMENT
+#endif // CONFIG_COMPOUND_SEGMENT
 }
 #else
 
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEWMV);
 }
-#endif  // CONFIG_EXT_INTER
+#endif // CONFIG_EXT_INTER
 
 /* For keyframes, intra block modes are predicted by the (already decoded)
    modes for the Y blocks to the left and above us; for interframes, there
@@ -228,13 +232,13 @@ static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
 
 typedef struct {
   PREDICTION_MODE as_mode;
-  int_mv as_mv[2];  // first, second inter predictor motion vectors
+  int_mv as_mv[2]; // first, second inter predictor motion vectors
 #if CONFIG_REF_MV
   int_mv pred_mv[2];
 #endif
 #if CONFIG_EXT_INTER
   int_mv ref_mv[2];
-#endif  // CONFIG_EXT_INTER
+#endif // CONFIG_EXT_INTER
 } b_mode_info;
 
 typedef int8_t MV_REFERENCE_FRAME;
@@ -248,21 +252,21 @@ typedef struct {
   uint16_t palette_colors[3 * PALETTE_MAX_SIZE];
 #else
   uint8_t palette_colors[3 * PALETTE_MAX_SIZE];
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif // CONFIG_AOM_HIGHBITDEPTH
   // Only used by encoder to store the color index of the top left pixel.
   // TODO(huisu): move this to encoder
   uint8_t palette_first_color_idx[2];
 } PALETTE_MODE_INFO;
-#endif  // CONFIG_PALETTE
+#endif // CONFIG_PALETTE
 
 #if CONFIG_FILTER_INTRA
-#define USE_3TAP_INTRA_FILTER 1  // 0: 4-tap; 1: 3-tap
+#define USE_3TAP_INTRA_FILTER 1 // 0: 4-tap; 1: 3-tap
 typedef struct {
   // 1: an ext intra mode is used; 0: otherwise.
   uint8_t use_filter_intra_mode[PLANE_TYPES];
   FILTER_INTRA_MODE filter_intra_mode[PLANE_TYPES];
 } FILTER_INTRA_MODE_INFO;
-#endif  // CONFIG_FILTER_INTRA
+#endif // CONFIG_FILTER_INTRA
 
 #if CONFIG_VAR_TX
 #if CONFIG_RD_DEBUG
@@ -281,8 +285,8 @@ typedef struct RD_STATS {
 #if CONFIG_VAR_TX
   int txb_coeff_cost_map[MAX_MB_PLANE][TXB_COEFF_COST_MAP_SIZE]
                         [TXB_COEFF_COST_MAP_SIZE];
-#endif  // CONFIG_VAR_TX
-#endif  // CONFIG_RD_DEBUG
+#endif // CONFIG_VAR_TX
+#endif // CONFIG_RD_DEBUG
 } RD_STATS;
 
 #if CONFIG_EXT_INTER
@@ -293,9 +297,9 @@ typedef struct {
 #if CONFIG_COMPOUND_SEGMENT
   SEG_MASK_TYPE mask_type;
   DECLARE_ALIGNED(16, uint8_t, seg_mask[2 * MAX_SB_SQUARE]);
-#endif  // CONFIG_COMPOUND_SEGMENT
+#endif // CONFIG_COMPOUND_SEGMENT
 } INTERINTER_COMPOUND_DATA;
-#endif  // CONFIG_EXT_INTER
+#endif // CONFIG_EXT_INTER
 
 // This structure now relates to 8x8 block regions.
 typedef struct {
@@ -314,14 +318,14 @@ typedef struct {
 #if CONFIG_SUPERTX
   // Minimum of all segment IDs under the current supertx block.
   int8_t segment_id_supertx;
-#endif                      // CONFIG_SUPERTX
-  int8_t seg_id_predicted;  // valid only when temporal_update is enabled
+#endif                     // CONFIG_SUPERTX
+  int8_t seg_id_predicted; // valid only when temporal_update is enabled
 
   // Only for INTRA blocks
   PREDICTION_MODE uv_mode;
 #if CONFIG_PALETTE
   PALETTE_MODE_INFO palette_mode_info;
-#endif  // CONFIG_PALETTE
+#endif // CONFIG_PALETTE
 
 // Only for INTER blocks
 #if CONFIG_DUAL_FILTER
@@ -334,15 +338,15 @@ typedef struct {
 
 #if CONFIG_FILTER_INTRA
   FILTER_INTRA_MODE_INFO filter_intra_mode_info;
-#endif  // CONFIG_FILTER_INTRA
+#endif // CONFIG_FILTER_INTRA
 #if CONFIG_EXT_INTRA
   // The actual prediction angle is the base angle + (angle_delta * step).
   int8_t angle_delta[2];
 #if CONFIG_INTRA_INTERP
   // To-Do (huisu): this may be replaced by interp_filter
   INTRA_FILTER intra_filter;
-#endif  // CONFIG_INTRA_INTERP
-#endif  // CONFIG_EXT_INTRA
+#endif // CONFIG_INTRA_INTERP
+#endif // CONFIG_EXT_INTRA
 
 #if CONFIG_EXT_INTER
   INTERINTRA_MODE interintra_mode;
@@ -351,11 +355,11 @@ typedef struct {
   int interintra_wedge_index;
   int interintra_wedge_sign;
   INTERINTER_COMPOUND_DATA interinter_compound_data;
-#endif  // CONFIG_EXT_INTER
+#endif // CONFIG_EXT_INTER
   MOTION_MODE motion_mode;
 #if CONFIG_MOTION_VAR
   int overlappable_neighbors[2];
-#endif  // CONFIG_MOTION_VAR
+#endif // CONFIG_MOTION_VAR
   int_mv mv[2];
   int_mv pred_mv[2];
 #if CONFIG_REF_MV
@@ -367,7 +371,7 @@ typedef struct {
 #if CONFIG_NEW_QUANT
   int dq_off_index;
   int send_dq_bit;
-#endif  // CONFIG_NEW_QUANT
+#endif // CONFIG_NEW_QUANT
   /* deringing gain *per-superblock* */
   int8_t dering_gain;
 #if CONFIG_DELTA_Q
@@ -381,7 +385,7 @@ typedef struct {
 #if CONFIG_WARPED_MOTION
   int num_proj_ref[2];
   WarpedMotionParams wm_params[2];
-#endif  // CONFIG_WARPED_MOTION
+#endif // CONFIG_WARPED_MOTION
 
   BOUNDARY_TYPE boundary_info;
 } MB_MODE_INFO;
@@ -440,7 +444,7 @@ typedef struct macroblockd_plane {
 #endif
 #if CONFIG_PALETTE
   uint8_t *color_index_map;
-#endif  // CONFIG_PALETTE
+#endif // CONFIG_PALETTE
 
   // number of 4x4s in current block
   uint16_t n4_w, n4_h;
@@ -456,7 +460,7 @@ typedef struct macroblockd_plane {
   const int16_t *dequant;
 #if CONFIG_NEW_QUANT
   const dequant_val_type_nuq *dequant_val_nuq[QUANT_PROFILES];
-#endif  // CONFIG_NEW_QUANT
+#endif // CONFIG_NEW_QUANT
 #if CONFIG_AOM_QM
   const qm_val_t *seg_qmatrix[MAX_SEGMENTS][2][TX_SIZES];
 #endif
@@ -468,7 +472,7 @@ typedef struct macroblockd_plane {
 #endif
 } MACROBLOCKD_PLANE;
 
-#define BLOCK_OFFSET(x, i) \
+#define BLOCK_OFFSET(x, i)                                                     \
   ((x) + (i) * (1 << (tx_size_wide_log2[0] + tx_size_high_log2[0])))
 
 typedef struct RefBuffer {
@@ -558,7 +562,7 @@ typedef struct macroblockd {
   struct aom_internal_error_info *error_info;
 #if CONFIG_GLOBAL_MOTION
   WarpedMotionParams *global_motion;
-#endif  // CONFIG_GLOBAL_MOTION
+#endif // CONFIG_GLOBAL_MOTION
 #if CONFIG_DELTA_Q
   int prev_qindex;
   int delta_qindex;
@@ -575,19 +579,19 @@ static INLINE BLOCK_SIZE get_subsize(BLOCK_SIZE bsize,
 }
 
 static const TX_TYPE intra_mode_to_tx_type_context[INTRA_MODES] = {
-  DCT_DCT,    // DC
-  ADST_DCT,   // V
-  DCT_ADST,   // H
-  DCT_DCT,    // D45
-  ADST_ADST,  // D135
-  ADST_DCT,   // D117
-  DCT_ADST,   // D153
-  DCT_ADST,   // D207
-  ADST_DCT,   // D63
+    DCT_DCT,   // DC
+    ADST_DCT,  // V
+    DCT_ADST,  // H
+    DCT_DCT,   // D45
+    ADST_ADST, // D135
+    ADST_DCT,  // D117
+    DCT_ADST,  // D153
+    DCT_ADST,  // D207
+    ADST_DCT,  // D63
 #if CONFIG_ALT_INTRA
-  ADST_ADST,  // SMOOTH
-#endif        // CONFIG_ALT_INTRA
-  ADST_ADST,  // TM
+    ADST_ADST, // SMOOTH
+#endif         // CONFIG_ALT_INTRA
+    ADST_ADST, // TM
 };
 
 #if CONFIG_SUPERTX
@@ -596,7 +600,7 @@ static INLINE int supertx_enabled(const MB_MODE_INFO *mbmi) {
   return tx_size_wide[max_tx_size] >
          AOMMIN(block_size_wide[mbmi->sb_type], block_size_high[mbmi->sb_type]);
 }
-#endif  // CONFIG_SUPERTX
+#endif // CONFIG_SUPERTX
 
 #define USE_TXTYPE_SEARCH_FOR_SUB8X8_IN_CB4X4 1
 
@@ -620,27 +624,24 @@ typedef enum {
 } TxSetType;
 
 // Number of transform types in each set type
-static const int num_ext_tx_set[EXT_TX_SET_TYPES] = { 1, 2, 5, 7, 12, 16 };
+static const int num_ext_tx_set[EXT_TX_SET_TYPES] = {1, 2, 5, 7, 12, 16};
 
 // Maps intra set index to the set type
 static const int ext_tx_set_type_intra[EXT_TX_SETS_INTRA] = {
-  EXT_TX_SET_DCTONLY, EXT_TX_SET_DTT4_IDTX_1DDCT, EXT_TX_SET_DTT4_IDTX
-};
+    EXT_TX_SET_DCTONLY, EXT_TX_SET_DTT4_IDTX_1DDCT, EXT_TX_SET_DTT4_IDTX};
 
 // Maps inter set index to the set type
 static const int ext_tx_set_type_inter[EXT_TX_SETS_INTER] = {
-  EXT_TX_SET_DCTONLY, EXT_TX_SET_ALL16, EXT_TX_SET_DTT9_IDTX_1DDCT,
-  EXT_TX_SET_DCT_IDTX
-};
+    EXT_TX_SET_DCTONLY, EXT_TX_SET_ALL16, EXT_TX_SET_DTT9_IDTX_1DDCT,
+    EXT_TX_SET_DCT_IDTX};
 
 // Maps set types above to the indices used for intra
-static const int ext_tx_set_index_intra[EXT_TX_SET_TYPES] = { 0, -1, 2,
-                                                              1, -1, -1 };
+static const int ext_tx_set_index_intra[EXT_TX_SET_TYPES] = {0, -1, 2,
+                                                             1, -1, -1};
 
 // Maps set types above to the indices used for inter
-static const int ext_tx_set_index_inter[EXT_TX_SET_TYPES] = {
-  0, 3, -1, -1, 2, 1
-};
+static const int ext_tx_set_index_inter[EXT_TX_SET_TYPES] = {0,  3, -1,
+                                                             -1, 2, 1};
 
 static INLINE TxSetType get_ext_tx_set_type(TX_SIZE tx_size, BLOCK_SIZE bs,
                                             int is_inter, int use_reduced_set) {
@@ -648,9 +649,11 @@ static INLINE TxSetType get_ext_tx_set_type(TX_SIZE tx_size, BLOCK_SIZE bs,
   tx_size = txsize_sqr_map[tx_size];
 #if CONFIG_CB4X4 && USE_TXTYPE_SEARCH_FOR_SUB8X8_IN_CB4X4
   (void)bs;
-  if (tx_size > TX_32X32) return EXT_TX_SET_DCTONLY;
+  if (tx_size > TX_32X32)
+    return EXT_TX_SET_DCTONLY;
 #else
-  if (tx_size > TX_32X32 || bs < BLOCK_8X8) return EXT_TX_SET_DCTONLY;
+  if (tx_size > TX_32X32 || bs < BLOCK_8X8)
+    return EXT_TX_SET_DCTONLY;
 #endif
   if (use_reduced_set)
     return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DTT4_IDTX;
@@ -672,53 +675,53 @@ static INLINE int get_ext_tx_set(TX_SIZE tx_size, BLOCK_SIZE bs, int is_inter,
                   : ext_tx_set_index_intra[set_type];
 }
 
-static const int use_intra_ext_tx_for_txsize[EXT_TX_SETS_INTRA][EXT_TX_SIZES] =
-    {
+static const int use_intra_ext_tx_for_txsize[EXT_TX_SETS_INTRA]
+                                            [EXT_TX_SIZES] = {
 #if CONFIG_CB4X4
-      { 1, 1, 1, 1, 1 },  // unused
-      { 0, 1, 1, 0, 0 },
-      { 0, 0, 0, 1, 0 },
+                                                {1, 1, 1, 1, 1}, // unused
+                                                {0, 1, 1, 0, 0},
+                                                {0, 0, 0, 1, 0},
 #else
-      { 1, 1, 1, 1 },  // unused
-      { 1, 1, 0, 0 },
-      { 0, 0, 1, 0 },
-#endif  // CONFIG_CB4X4
-    };
+                                                {1, 1, 1, 1}, // unused
+                                                {1, 1, 0, 0},
+                                                {0, 0, 1, 0},
+#endif // CONFIG_CB4X4
+};
 
-static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER][EXT_TX_SIZES] =
-    {
+static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER]
+                                            [EXT_TX_SIZES] = {
 #if CONFIG_CB4X4
-      { 1, 1, 1, 1, 1 },  // unused
-      { 0, 1, 1, 0, 0 },
-      { 0, 0, 0, 1, 0 },
-      { 0, 0, 0, 0, 1 },
+                                                {1, 1, 1, 1, 1}, // unused
+                                                {0, 1, 1, 0, 0},
+                                                {0, 0, 0, 1, 0},
+                                                {0, 0, 0, 0, 1},
 #else
-      { 1, 1, 1, 1 },  // unused
-      { 1, 1, 0, 0 },
-      { 0, 0, 1, 0 },
-      { 0, 0, 0, 1 },
-#endif  // CONFIG_CB4X4
-    };
+                                                {1, 1, 1, 1}, // unused
+                                                {1, 1, 0, 0},
+                                                {0, 0, 1, 0},
+                                                {0, 0, 0, 1},
+#endif // CONFIG_CB4X4
+};
 
 // Transform types used in each intra set
 static const int ext_tx_used_intra[EXT_TX_SETS_INTRA][TX_TYPES] = {
-  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
-  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0},
+    {1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
 };
 
 // Transform types used in each inter set
 static const int ext_tx_used_inter[EXT_TX_SETS_INTER][TX_TYPES] = {
-  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-  { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 },
-  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
 };
 
 // 1D Transforms used in inter set, this needs to be changed if
 // ext_tx_used_inter is changed
 static const int ext_tx_used_inter_1D[EXT_TX_SETS_INTER][TX_TYPES_1D] = {
-  { 1, 0, 0, 0 }, { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, { 1, 0, 0, 1 },
+    {1, 0, 0, 0}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 0, 0, 1},
 };
 
 static INLINE int get_ext_tx_types(TX_SIZE tx_size, BLOCK_SIZE bs, int is_inter,
@@ -732,28 +735,28 @@ static INLINE int get_ext_tx_types(TX_SIZE tx_size, BLOCK_SIZE bs, int is_inter,
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
   static const char LUT[BLOCK_SIZES] = {
 #if CONFIG_CB4X4
-    0,  // BLOCK_2X2
-    0,  // BLOCK_2X4
-    0,  // BLOCK_4X2
+    0, // BLOCK_2X2
+    0, // BLOCK_2X4
+    0, // BLOCK_4X2
 #endif
-    0,  // BLOCK_4X4
-    1,  // BLOCK_4X8
-    1,  // BLOCK_8X4
-    0,  // BLOCK_8X8
-    1,  // BLOCK_8X16
-    1,  // BLOCK_16X8
-    0,  // BLOCK_16X16
-    1,  // BLOCK_16X32
-    1,  // BLOCK_32X16
-    0,  // BLOCK_32X32
-    0,  // BLOCK_32X64
-    0,  // BLOCK_64X32
-    0,  // BLOCK_64X64
+    0, // BLOCK_4X4
+    1, // BLOCK_4X8
+    1, // BLOCK_8X4
+    0, // BLOCK_8X8
+    1, // BLOCK_8X16
+    1, // BLOCK_16X8
+    0, // BLOCK_16X16
+    1, // BLOCK_16X32
+    1, // BLOCK_32X16
+    0, // BLOCK_32X32
+    0, // BLOCK_32X64
+    0, // BLOCK_64X32
+    0, // BLOCK_64X64
 #if CONFIG_EXT_PARTITION
-    0,  // BLOCK_64X128
-    0,  // BLOCK_128X64
-    0,  // BLOCK_128X128
-#endif  // CONFIG_EXT_PARTITION
+    0, // BLOCK_64X128
+    0, // BLOCK_128X64
+    0, // BLOCK_128X128
+#endif // CONFIG_EXT_PARTITION
   };
 
   return LUT[bsize];
@@ -766,8 +769,8 @@ static INLINE int is_rect_tx_allowed(const MACROBLOCKD *xd,
 }
 
 static INLINE int is_rect_tx(TX_SIZE tx_size) { return tx_size >= TX_SIZES; }
-#endif  // CONFIG_RECT_TX
-#endif  // CONFIG_EXT_TX
+#endif // CONFIG_RECT_TX
+#endif // CONFIG_EXT_TX
 
 static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
                                            int is_inter) {
@@ -776,7 +779,7 @@ static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
   const TX_SIZE max_rect_tx_size = max_txsize_rect_lookup[bsize];
 #else
   const TX_SIZE max_tx_size = max_txsize_lookup[bsize];
-#endif  // CONFIG_VAR_TX || (CONFIG_EXT_TX && CONFIG_RECT_TX)
+#endif // CONFIG_VAR_TX || (CONFIG_EXT_TX && CONFIG_RECT_TX)
   (void)is_inter;
 #if CONFIG_VAR_TX
 #if CONFIG_CB4X4
@@ -798,7 +801,7 @@ static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
   }
 #else
   return AOMMIN(max_tx_size, largest_tx_size);
-#endif  // CONFIG_VAR_TX
+#endif // CONFIG_VAR_TX
 }
 
 #if CONFIG_EXT_INTRA
@@ -806,15 +809,15 @@ static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
 #define ANGLE_STEP_UV 4
 
 static const uint8_t av1_angle_step_y[TX_SIZES] = {
-  0, 4, 3, 3,
+    0, 4, 3, 3,
 };
 static const uint8_t av1_max_angle_delta_y[TX_SIZES] = {
-  0, 2, 3, 3,
+    0, 2, 3, 3,
 };
 
 extern const int16_t dr_intra_derivative[90];
 static const uint8_t mode_to_angle_map[INTRA_MODES] = {
-  0, 90, 180, 45, 135, 111, 157, 203, 67, 0,
+    0, 90, 180, 45, 135, 111, 157, 203, 67, 0,
 };
 
 static INLINE int av1_get_angle_step(BLOCK_SIZE sb_type, int plane) {
@@ -831,8 +834,8 @@ static INLINE int av1_get_max_angle_delta(BLOCK_SIZE sb_type, int plane) {
 // Returns whether filter selection is needed for a given
 // intra prediction angle.
 int av1_is_intra_filter_switchable(int angle);
-#endif  // CONFIG_INTRA_INTERP
-#endif  // CONFIG_EXT_INTRA
+#endif // CONFIG_INTRA_INTERP
+#endif // CONFIG_EXT_INTRA
 
 #if CONFIG_EXT_TILE
 #define FIXED_TX_TYPE 1
@@ -870,14 +873,15 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
     if (plane_type == PLANE_TYPE_Y) {
 #if !ALLOW_INTRA_EXT_TX
       if (is_inter_block(mbmi))
-#endif  // ALLOW_INTRA_EXT_TX
+#endif // ALLOW_INTRA_EXT_TX
         return mbmi->tx_type;
     }
 
     if (is_inter_block(mbmi)) {
 // UV Inter only
 #if CONFIG_CB4X4
-      if (tx_size < TX_4X4) return DCT_DCT;
+      if (tx_size < TX_4X4)
+        return DCT_DCT;
 #endif
       return (mbmi->tx_type == IDTX && txsize_sqr_map[tx_size] >= TX_32X32)
                  ? DCT_DCT
@@ -893,19 +897,19 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
 #endif
 
   // Sub8x8-Inter/Intra OR UV-Intra
-  if (is_inter_block(mbmi))  // Sub8x8-Inter
+  if (is_inter_block(mbmi)) // Sub8x8-Inter
     return DCT_DCT;
-  else  // Sub8x8 Intra OR UV-Intra
+  else // Sub8x8 Intra OR UV-Intra
     return intra_mode_to_tx_type_context[plane_type == PLANE_TYPE_Y
                                              ? get_y_mode(mi, block_idx)
                                              : mbmi->uv_mode];
-#else   // CONFIG_EXT_TX
+#else  // CONFIG_EXT_TX
   (void)block_idx;
   if (plane_type != PLANE_TYPE_Y || xd->lossless[mbmi->segment_id] ||
       txsize_sqr_map[tx_size] >= TX_32X32)
     return DCT_DCT;
   return mbmi->tx_type;
-#endif  // CONFIG_EXT_TX
+#endif // CONFIG_EXT_TX
 }
 
 void av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y);
@@ -929,7 +933,7 @@ static INLINE TX_SIZE get_uv_tx_size(const MB_MODE_INFO *mbmi,
   if (supertx_enabled(mbmi))
     return uvsupertx_size_lookup[txsize_sqr_map[mbmi->tx_size]]
                                 [pd->subsampling_x][pd->subsampling_y];
-#endif  // CONFIG_SUPERTX
+#endif // CONFIG_SUPERTX
 
   uv_txsize = uv_txsize_lookup[mbmi->sb_type][mbmi->tx_size][pd->subsampling_x]
                               [pd->subsampling_y];
@@ -998,7 +1002,8 @@ void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
 #if CONFIG_EXT_INTER
 static INLINE int is_interintra_allowed_bsize(const BLOCK_SIZE bsize) {
 #if !USE_RECT_INTERINTRA
-  if (block_size_wide[bsize] != block_size_high[bsize]) return 0;
+  if (block_size_wide[bsize] != block_size_high[bsize])
+    return 0;
 #endif
   // TODO(debargha): Should this be bsize < BLOCK_LARGEST?
   return (bsize >= BLOCK_8X8) && (bsize < BLOCK_64X64);
@@ -1032,7 +1037,7 @@ static INLINE int is_interintra_allowed_bsize_group(const int group) {
 static INLINE int is_interintra_pred(const MB_MODE_INFO *mbmi) {
   return (mbmi->ref_frame[1] == INTRA_FRAME) && is_interintra_allowed(mbmi);
 }
-#endif  // CONFIG_EXT_INTER
+#endif // CONFIG_EXT_INTER
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize) {
@@ -1058,20 +1063,21 @@ static INLINE MOTION_MODE motion_mode_allowed(const MB_MODE_INFO *mbmi) {
 #else
   if (is_motion_variation_allowed_bsize(mbmi->sb_type) &&
       is_inter_mode(mbmi->mode)) {
-#endif  // CONFIG_EXT_INTER
+#endif // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR
-    if (!check_num_overlappable_neighbors(mbmi)) return SIMPLE_TRANSLATION;
+    if (!check_num_overlappable_neighbors(mbmi))
+      return SIMPLE_TRANSLATION;
 #endif
 #if CONFIG_WARPED_MOTION
     if (!has_second_ref(mbmi) && mbmi->num_proj_ref[0] >= 3)
       return WARPED_CAUSAL;
     else
-#endif  // CONFIG_WARPED_MOTION
+#endif // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
       return OBMC_CAUSAL;
 #else
     return SIMPLE_TRANSLATION;
-#endif  // CONFIG_MOTION_VAR
+#endif // CONFIG_MOTION_VAR
   } else {
     return SIMPLE_TRANSLATION;
   }
@@ -1081,8 +1087,8 @@ static INLINE MOTION_MODE motion_mode_allowed(const MB_MODE_INFO *mbmi) {
 static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi) {
   return (is_inter_block(mbmi));
 }
-#endif  // CONFIG_MOTION_VAR
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+#endif // CONFIG_MOTION_VAR
+#endif // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 // Returns sub-sampled dimensions of the given block.
 // The output values for 'rows_within_bounds' and 'cols_within_bounds' will
@@ -1106,10 +1112,14 @@ static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
   assert(IMPLIES(plane == PLANE_TYPE_Y, pd->subsampling_y == 0));
   assert(block_width >= block_cols);
   assert(block_height >= block_rows);
-  if (width) *width = block_width >> pd->subsampling_x;
-  if (height) *height = block_height >> pd->subsampling_y;
-  if (rows_within_bounds) *rows_within_bounds = block_rows >> pd->subsampling_y;
-  if (cols_within_bounds) *cols_within_bounds = block_cols >> pd->subsampling_x;
+  if (width)
+    *width = block_width >> pd->subsampling_x;
+  if (height)
+    *height = block_height >> pd->subsampling_y;
+  if (rows_within_bounds)
+    *rows_within_bounds = block_rows >> pd->subsampling_y;
+  if (cols_within_bounds)
+    *cols_within_bounds = block_cols >> pd->subsampling_x;
 }
 
 #if CONFIG_GLOBAL_MOTION
@@ -1126,10 +1136,12 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
   // First check if all modes are ZEROMV
   if (mbmi->sb_type >= BLOCK_8X8 || unify_bsize) {
 #if CONFIG_EXT_INTER
-    if (mbmi->mode != ZEROMV && mbmi->mode != ZERO_ZEROMV) return 0;
+    if (mbmi->mode != ZEROMV && mbmi->mode != ZERO_ZEROMV)
+      return 0;
 #else
-    if (mbmi->mode != ZEROMV) return 0;
-#endif  // CONFIG_EXT_INTER
+    if (mbmi->mode != ZEROMV)
+      return 0;
+#endif // CONFIG_EXT_INTER
   } else {
 #if CONFIG_EXT_INTER
     if (mi->bmi[0].as_mode != ZEROMV || mi->bmi[1].as_mode != ZEROMV ||
@@ -1142,22 +1154,23 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
     if (mi->bmi[0].as_mode != ZEROMV || mi->bmi[1].as_mode != ZEROMV ||
         mi->bmi[2].as_mode != ZEROMV || mi->bmi[3].as_mode != ZEROMV)
       return 0;
-#endif  // CONFIG_EXT_INTER
+#endif // CONFIG_EXT_INTER
   }
   // Now check if all global motion is non translational
   for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
-    if (xd->global_motion[mbmi->ref_frame[ref]].wmtype <= TRANSLATION) return 0;
+    if (xd->global_motion[mbmi->ref_frame[ref]].wmtype <= TRANSLATION)
+      return 0;
   }
   return 1;
 }
-#endif  // CONFIG_GLOBAL_MOTION
+#endif // CONFIG_GLOBAL_MOTION
 
 static INLINE PLANE_TYPE get_plane_type(const int plane) {
   return (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
 }
 
 #ifdef __cplusplus
-}  // extern "C"
+} // extern "C"
 #endif
 
-#endif  // AV1_COMMON_BLOCKD_H_
+#endif // AV1_COMMON_BLOCKD_H_

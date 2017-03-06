@@ -19,8 +19,8 @@
 #include "aom_scale/yv12config.h"
 #include "aom_util/aom_thread.h"
 
-#include "av1/common/thread_common.h"
 #include "av1/common/onyxc_int.h"
+#include "av1/common/thread_common.h"
 #include "av1/decoder/dthread.h"
 #if CONFIG_ACCOUNTING
 #include "av1/common/accounting.h"
@@ -55,7 +55,7 @@ typedef struct TileData {
 #endif
 #if CONFIG_PALETTE
   DECLARE_ALIGNED(16, uint8_t, color_index_map[2][MAX_SB_SQUARE]);
-#endif  // CONFIG_PALETTE
+#endif // CONFIG_PALETTE
 } TileData;
 
 typedef struct TileWorkerData {
@@ -74,16 +74,16 @@ typedef struct TileWorkerData {
 #endif
 #if CONFIG_PALETTE
   DECLARE_ALIGNED(16, uint8_t, color_index_map[2][MAX_SB_SQUARE]);
-#endif  // CONFIG_PALETTE
+#endif // CONFIG_PALETTE
   struct aom_internal_error_info error_info;
 } TileWorkerData;
 
 typedef struct TileBufferDec {
   const uint8_t *data;
   size_t size;
-  const uint8_t *raw_data_end;  // The end of the raw tile buffer in the
-                                // bit stream.
-  int col;                      // only used with multi-threaded decoding
+  const uint8_t *raw_data_end; // The end of the raw tile buffer in the
+                               // bit stream.
+  int col;                     // only used with multi-threaded decoding
 } TileBufferDec;
 
 typedef struct AV1Decoder {
@@ -97,9 +97,9 @@ typedef struct AV1Decoder {
 
   // TODO(hkuang): Combine this with cur_buf in macroblockd as they are
   // the same.
-  RefCntBuffer *cur_buf;  //  Current decoding frame buffer.
+  RefCntBuffer *cur_buf; //  Current decoding frame buffer.
 
-  AVxWorker *frame_worker_owner;  // frame_worker that owns this pbi.
+  AVxWorker *frame_worker_owner; // frame_worker that owns this pbi.
   AVxWorker lf_worker;
   AVxWorker *tile_workers;
   TileWorkerData *tile_worker_data;
@@ -118,23 +118,23 @@ typedef struct AV1Decoder {
 
   int max_threads;
   int inv_tile_order;
-  int need_resync;   // wait for key/intra-only frame.
-  int hold_ref_buf;  // hold the reference buffer.
+  int need_resync;  // wait for key/intra-only frame.
+  int hold_ref_buf; // hold the reference buffer.
 
   int tile_size_bytes;
 #if CONFIG_EXT_TILE
   int tile_col_size_bytes;
   int dec_tile_row, dec_tile_col;
-#endif  // CONFIG_EXT_TILE
+#endif // CONFIG_EXT_TILE
 #if CONFIG_ACCOUNTING
   int acct_enabled;
   Accounting accounting;
 #endif
-  size_t uncomp_hdr_size;       // Size of the uncompressed header
-  size_t first_partition_size;  // Size of the compressed header
+  size_t uncomp_hdr_size;      // Size of the uncompressed header
+  size_t first_partition_size; // Size of the compressed header
 #if CONFIG_TILE_GROUPS
-  int tg_size;   // Number of tiles in the current tilegroup
-  int tg_start;  // First tile in the current tilegroup
+  int tg_size;  // Number of tiles in the current tilegroup
+  int tg_start; // First tile in the current tilegroup
   int tg_size_bit_offset;
 #endif
 #if CONFIG_REFERENCE_BUFFER
@@ -147,6 +147,7 @@ typedef struct AV1Decoder {
 #if CONFIG_MV_COUNT
   int frame_mv_count;
   int superblock_mv_count;
+  int is_first_partition;
 #endif
 } AV1Decoder;
 
@@ -208,15 +209,17 @@ static INLINE int dec_is_ref_frame_buf(AV1Decoder *const pbi,
   int i;
   for (i = 0; i < INTER_REFS_PER_FRAME; ++i) {
     RefBuffer *const ref_frame = &cm->frame_refs[i];
-    if (ref_frame->idx == INVALID_IDX) continue;
-    if (frame_buf == &cm->buffer_pool->frame_bufs[ref_frame->idx]) break;
+    if (ref_frame->idx == INVALID_IDX)
+      continue;
+    if (frame_buf == &cm->buffer_pool->frame_bufs[ref_frame->idx])
+      break;
   }
   return (i < INTER_REFS_PER_FRAME);
 }
-#endif  // CONFIG_EXT_REFS
+#endif // CONFIG_EXT_REFS
 
 #ifdef __cplusplus
-}  // extern "C"
+} // extern "C"
 #endif
 
-#endif  // AV1_DECODER_DECODER_H_
+#endif // AV1_DECODER_DECODER_H_
