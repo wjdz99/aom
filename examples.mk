@@ -187,6 +187,11 @@ aom_cx_set_ref.DESCRIPTION          = AV1 set encoder reference frame
 endif
 endif
 
+EXAMPLES-yes += hello.cc
+hello.SRCS   += examples/hello_helper.c
+hello.GUID   = C7D69FD6-D0AE-416C-81D6-157D78118CC8
+hello.DESCRIPTION = Some C++ app thingy
+
 # Handle extra library flags depending on codec configuration
 
 # We should not link to math library (libm) on RVCT
@@ -260,9 +265,21 @@ SHARED_LIB_SUF=.so
 endif
 endif
 CODEC_LIB_SUF=$(if $(CONFIG_SHARED),$(SHARED_LIB_SUF),.a)
-$(foreach bin,$(BINS-yes),\
+
+BINS_C=$(filter-out %.cc, $(BINS-yes))
+$(info BINS_C=$(BINS_C))
+$(foreach bin,$(BINS_C),\
     $(eval $(bin):$(LIB_PATH)/lib$(CODEC_LIB)$(CODEC_LIB_SUF))\
     $(eval $(call linker_template,$(bin),\
+        $(call objs,$($(notdir $(bin:$(EXE_SFX)=)).SRCS)) \
+        -l$(CODEC_LIB) $(addprefix -l,$(CODEC_EXTRA_LIBS))\
+        )))
+
+BINS_CXX=$(filter %.cc, $(BINS-yes))
+$(info BINS_CXX=$(BINS_CXX))
+$(foreach bin,$(BINS_CXX),\
+    $(eval $(bin):$(LIB_PATH)/lib$(CODEC_LIB)$(CODEC_LIB_SUF))\
+    $(eval $(call linkerxx_template,$(bin),\
         $(call objs,$($(notdir $(bin:$(EXE_SFX)=)).SRCS)) \
         -l$(CODEC_LIB) $(addprefix -l,$(CODEC_EXTRA_LIBS))\
         )))
