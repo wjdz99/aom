@@ -3702,6 +3702,14 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   int partition_vert_allowed =
       !force_horz_split && xss <= yss && bsize_at_least_8x8;
 
+// NOTE: If PVQ is used with VAR_TX, don't allow rectungular partition since
+// VAR_TX need to use rectangular tx for non-square prediction block
+// even when RECT_TX is disabled.
+#if CONFIG_PVQ && CONFIG_VAR_TX
+  partition_horz_allowed = 0;
+  partition_vert_allowed = 0;
+#endif
+
 #if CONFIG_PVQ
   od_rollback_buffer pre_rdo_buf;
 #endif
