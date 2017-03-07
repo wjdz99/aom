@@ -279,7 +279,7 @@ static void pvq_decode_partition(aom_reader *r,
  * @param [out]    out         decoded partition
  * @param [in]     q0          quantizer
  * @param [in]     pli         plane index
- * @param [in]     bs          log of the block size minus two
+ * @param [in]     bs          tx size in AOM's TX_SIZE type
  * @param [in]     beta        per-band activity masking beta param
  * @param [in]     nodesync    stream is robust to error in the reference
  * @param [in]     is_keyframe whether we're encoding a keyframe
@@ -293,7 +293,7 @@ void od_pvq_decode(daala_dec_ctx *dec,
                    od_coeff *out,
                    int q0,
                    int pli,
-                   int bs,
+                   TX_SIZE bs,
                    const od_val16 *beta,
                    int nodesync,
                    int is_keyframe,
