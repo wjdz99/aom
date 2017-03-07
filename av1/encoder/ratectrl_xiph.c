@@ -648,12 +648,15 @@ int od_enc_rc_select_quantizers_and_lambdas(od_rc_state *rc,
                                             int is_altref_frame, int frame_type,
                                             int *bottom_idx, int *top_idx) {
   int frame_subtype;
+  int64_t log_cur_scale;
   int lossy_quantizer_min;
   int lossy_quantizer_max;
   double mqp_i = OD_MQP_I;
   double mqp_p = OD_MQP_P;
   double mqp_gp = OD_MQP_GP;
   double mqp_ap = OD_MQP_AP;
+  int reservoir_frames;
+  int nframes[OD_FRAME_NSUBTYPES];
   int32_t mqp_Q12[OD_FRAME_NSUBTYPES];
   int64_t dqp_Q45[OD_FRAME_NSUBTYPES];
   /*Verify the closed-form frame type determination code matches what the
@@ -677,6 +680,107 @@ int od_enc_rc_select_quantizers_and_lambdas(od_rc_state *rc,
     OD_ASSERT(closed_form_altref == is_altref_frame);
     OD_ASSERT(closed_form_golden == is_golden_frame);
   }
+
+  log_cur_scale = (int64_t)rc->scalefilter[frame_type].y[0] << 33;
+
+  /*Count the various types and classes of frames.*/
+  reservoir_frames = frame_type_count(rc, nframes);
+  nframes[OD_I_FRAME] = od_rc_scale_drop(rc, OD_I_FRAME, nframes[OD_I_FRAME]);
+  nframes[OD_P_FRAME] = od_rc_scale_drop(rc, OD_P_FRAME, nframes[OD_P_FRAME]);
+  nframes[OD_GOLDEN_P_FRAME] =
+      od_rc_scale_drop(rc, OD_GOLDEN_P_FRAME, nframes[OD_GOLDEN_P_FRAME]);
+  nframes[OD_ALTREF_P_FRAME] =
+      od_rc_scale_drop(rc, OD_ALTREF_P_FRAME, nframes[OD_ALTREF_P_FRAME]);
+
+  switch (rc->twopass_state) {
+    default: break;
+    case 1: {
+      /*Pass 1 mode: use a fixed qi value.*/
+      int qi = rc->qis[0];
+      return qi;
+    } break;
+    case 2: {
+      int64_t scale_sum[2];
+      int qti;
+      /*Pass 2 mode: we know exactly how much of each frame type there is in
+         the current buffer window, and have estimates for the scales.*/
+      nframes[0] = rc->nframes[0];
+      nframes[1] = rc->nframes[1];
+      scale_sum[0] = rc->scale_sum[0];
+      scale_sum[1] = rc->scale_sum[1];
+      /*Otherwise, search for the last keyframe in the buffer window and
+         target that.*/
+      /*TODO: Currently we only do this when using a finite buffer; we could
+         save the position of the last keyframe in the summary data and do it
+         with a whole-file buffer as well, but it isn't likely to make a
+         difference.*/
+      if (rc->frame_metrics != NULL) {
+        int fmi;
+        int fm_tail;
+        fm_tail = rc->frame_metrics_head + rc->nframe_metrics;
+        if (fm_tail >= rc->cframe_metrics) fm_tail -= rc->cframe_metrics;
+        for (fmi = fm_tail;;) {
+          od_frame_metrics *m;
+          fmi--;
+          if (fmi < 0) fmi += rc->cframe_metrics;
+          /*Stop before we remove the first frame.*/
+          if (fmi == rc->frame_metrics_head) break;
+          m = rc->frame_metrics + fmi;
+          /*If we find a keyframe, remove it and everything past it.*/
+          if (m->frame_type == OD_I_FRAME) {
+            do {
+              qti = m->frame_type;
+              nframes[qti]--;
+              scale_sum[qti] -= od_bexp64_q24(m->log_scale);
+              fmi++;
+              if (fmi >= rc->cframe_metrics) fmi = 0;
+              m = rc->frame_metrics + fmi;
+            } while (fmi != fm_tail);
+            /*And stop scanning backwards.*/
+            break;
+          }
+        }
+      }
+      /*If we're not using the same frame type as in pass 1 (because someone
+         changed the keyframe interval), remove that scale estimate.
+        We'll add in a replacement for the correct frame type below.*/
+      qti = rc->cur_metrics.frame_type;
+      if (qti != frame_type) {
+        nframes[qti]--;
+        scale_sum[qti] -= od_bexp64_q24(rc->cur_metrics.log_scale);
+      }
+      /*Compute log_scale estimates for each frame type from the pass-1 scales
+         we measured in the current window.*/
+      for (qti = 0; qti < 2; qti++) {
+        rc->log_scale[qti] = nframes[qti] > 0
+                                 ? od_blog64(scale_sum[qti]) -
+                                       od_blog64(nframes[qti]) - OD_Q57(24)
+                                 : -rc->log_npixels;
+      }
+      /*If we're not using the same frame type as in pass 1, add a scale
+         estimate for the corresponding frame using the current low-pass
+         filter value.
+        This is mostly to ensure we have a valid estimate even when pass 1 had
+         no frames of this type in the buffer window.
+        TODO: We could also plan ahead and figure out how many keyframes we'll
+         be forced to add in the current buffer window.*/
+      qti = rc->cur_metrics.frame_type;
+      if (qti != frame_type) {
+        int64_t scale;
+        scale = rc->log_scale[frame_type] < OD_Q57(23)
+                    ? od_bexp64(rc->log_scale[frame_type] + OD_Q57(24))
+                    : 0x7FFFFFFFFFFFLL;
+        scale *= nframes[frame_type];
+        nframes[frame_type]++;
+        scale += od_bexp64_q24(log_cur_scale >> 33);
+        rc->log_scale[frame_type] =
+            od_blog64(scale) - od_blog64(nframes[qti]) - OD_Q57(24);
+      } else {
+        log_cur_scale = (int64_t)rc->cur_metrics.log_scale << 33;
+      }
+    } break;
+  }
+
   /*Quantizer selection sticks to the codable, lossy portion of the quantizer
     range.*/
   lossy_quantizer_min = convert_to_ac_quant(rc->minq, rc->bit_depth);
@@ -762,8 +866,6 @@ int od_enc_rc_select_quantizers_and_lambdas(od_rc_state *rc,
     }
   } else {
     int clamp;
-    int reservoir_frames;
-    int nframes[OD_FRAME_NSUBTYPES];
     int64_t rate_bias;
     int64_t rate_total;
     int base_quantizer;
@@ -777,20 +879,6 @@ int od_enc_rc_select_quantizers_and_lambdas(od_rc_state *rc,
        before the last keyframe in our current buffer window (after the current
        frame), or the end of the buffer window, whichever comes first.*/
     /*Single pass only right now.*/
-    /*Count the various types and classes of frames.*/
-    reservoir_frames = frame_type_count(rc, nframes);
-    /*Downgrade the delta frame rate to correspond to the recent drop count
-       history.
-      At the moment, drop frames can only be one frame type at a time:
-       B-frames only if B-frames are in use, otherwise P-frames only.
-      In the event this is extended later, the drop tracking watches all
-       frame types.*/
-    nframes[OD_I_FRAME] = od_rc_scale_drop(rc, OD_I_FRAME, nframes[OD_I_FRAME]);
-    nframes[OD_P_FRAME] = od_rc_scale_drop(rc, OD_P_FRAME, nframes[OD_P_FRAME]);
-    nframes[OD_GOLDEN_P_FRAME] =
-        od_rc_scale_drop(rc, OD_GOLDEN_P_FRAME, nframes[OD_GOLDEN_P_FRAME]);
-    nframes[OD_ALTREF_P_FRAME] =
-        od_rc_scale_drop(rc, OD_ALTREF_P_FRAME, nframes[OD_ALTREF_P_FRAME]);
     /*If we've been missing our target, add a penalty term.*/
     rate_bias = (rc->rate_bias / (rc->cur_frame + 1000)) * reservoir_frames;
     /*rate_total is the total bits available over the next
@@ -990,13 +1078,13 @@ int od_enc_rc_update_state(od_rc_state *rc, int64_t bits, int is_golden_frame,
       frame_subtype = OD_GOLDEN_P_FRAME;
     else if (is_altref_frame && frame_type == OD_P_FRAME)
       frame_subtype = OD_ALTREF_P_FRAME;
+
     if (bits <= 0) {
       /*We didn't code any blocks in this frame.*/
       log_scale = OD_Q57(-64);
       bits = 0;
       ++rc->prev_drop_count[frame_subtype];
     } else {
-      od_iir_bessel2 *f;
       int64_t log_bits;
       int64_t log_qexp;
       /*Compute the estimated scale factor for this frame type.*/
@@ -1004,6 +1092,51 @@ int od_enc_rc_update_state(od_rc_state *rc, int64_t bits, int is_golden_frame,
       log_qexp = od_blog64(rc->target_quantizer);
       log_qexp = (log_qexp >> 6) * (rc->exp[frame_type]);
       log_scale = OD_MINI(log_bits - rc->log_npixels + log_qexp, OD_Q57(16));
+    }
+
+    switch (rc->twopass_state) {
+      case 1: {
+        int golden, altref;
+        int64_t ipc;
+        rc->cur_metrics.frame_type =
+            od_frame_type(rc, rc->cur_frame, &golden, &altref, &ipc);
+        /*Pass 1 mode: save the metrics for this frame.*/
+        rc->cur_metrics.log_scale = od_q57_to_q24(log_scale);
+        rc->cur_metrics.activity_avg = rc->activity_avg;
+        rc->twopass_buffer_bytes = 0;
+      } break;
+      case 2: {
+        /*Pass 2 mode:*/
+        if (!1) {
+          int prev_frame_type;
+          /*Move the current metrics back one frame.*/
+          *&rc->prev_metrics = *&rc->cur_metrics;
+          /*Back out the last frame's statistics from the sliding window.*/
+          prev_frame_type = rc->prev_metrics.frame_type;
+          rc->frames_left[prev_frame_type]--;
+          rc->nframes[prev_frame_type]--;
+          rc->scale_sum[prev_frame_type] -=
+              od_bexp64_q24(rc->prev_metrics.log_scale);
+          rc->scale_window0 = rc->cur_frame + 1;
+          /*Free the corresponding entry in the circular buffer.*/
+          if (rc->frame_metrics != NULL) {
+            rc->nframe_metrics--;
+            rc->frame_metrics_head++;
+            if (rc->frame_metrics_head >= rc->cframe_metrics)
+              rc->frame_metrics_head = 0;
+          }
+          /*Mark us ready for the next 2-pass packet.*/
+          rc->twopass_buffer_bytes = 0;
+          /*Update state, so the user doesn't have to keep calling 2pass_in
+             after they've fed in all the data when we're using a finite buffer.
+           */
+          od_enc_rc_2pass_in(rc, NULL, 0);
+        }
+      } break;
+    }
+
+    if (bits > 0) {
+      od_iir_bessel2 *f;
       /*If this is the first example of the given frame type we've
          seen, we immediately replace the default scale factor guess
          with the estimate we just computed using the first frame.*/
@@ -1074,4 +1207,220 @@ int od_enc_rc_update_state(od_rc_state *rc, int64_t bits, int is_golden_frame,
     rc->rate_bias -= bits;
   }
   return dropped;
+}
+
+static void od_rc_buffer_val(od_rc_state *rc, int64_t val, int bytes) {
+  while (bytes-- > 0) {
+    rc->twopass_buffer[rc->twopass_buffer_bytes++] =
+        (unsigned char)(val & 0xFF);
+    val >>= 8;
+  }
+}
+
+int od_enc_rc_2pass_out(od_rc_state *rc, unsigned char **buf) {
+  rc->twopass_buffer_bytes = 0;
+  od_rc_buffer_val(rc, OD_RC_2PASS_MAGIC, 4);
+  od_rc_buffer_val(rc, OD_RC_2PASS_VERSION, 4);
+  od_rc_buffer_val(rc, rc->frame_count[0], 4);
+  od_rc_buffer_val(rc, rc->frame_count[1], 4);
+  od_rc_buffer_val(rc, rc->frame_count[2], 4);
+  od_rc_buffer_val(rc, rc->exp[0], 1);
+  od_rc_buffer_val(rc, rc->exp[1], 1);
+  od_rc_buffer_val(rc, rc->scale_sum[0], 8);
+  od_rc_buffer_val(rc, rc->scale_sum[1], 8);
+  *buf = rc->twopass_buffer;
+  return rc->twopass_buffer_bytes;
+}
+
+static size_t od_rc_buffer_fill(od_rc_state *rc, unsigned char *buf,
+                                size_t bytes, size_t consumed, size_t goal) {
+  while ((size_t)rc->twopass_buffer_fill < goal && consumed < bytes)
+    rc->twopass_buffer[rc->twopass_buffer_fill++] = buf[consumed++];
+  return consumed;
+}
+
+static int64_t od_rc_unbuffer_val(od_rc_state *rc, int bytes) {
+  int64_t ret;
+  int shift;
+  ret = 0;
+  shift = 0;
+  while (bytes-- > 0) {
+    ret |= ((int64_t)rc->twopass_buffer[rc->twopass_buffer_bytes++]) << shift;
+    shift += 8;
+  }
+  return ret;
+}
+
+int od_enc_rc_2pass_in(od_rc_state *rc, unsigned char *buf, size_t bytes) {
+  size_t consumed;
+  consumed = 0;
+  /*Enable pass 2 mode if this is the first call.*/
+  if (rc->twopass_state == 0) {
+    rc->twopass_state = 2;
+    rc->twopass_buffer_fill = 0;
+    rc->frame_count[0] = 0;
+    rc->nframe_metrics = 0;
+    rc->cframe_metrics = 0;
+    rc->frame_metrics_head = 0;
+    rc->scale_window0 = 0;
+    rc->scale_window_end = 0;
+  }
+  /*If we haven't got a valid summary header yet, try to parse one.*/
+  if (rc->frame_count[0] == 0) {
+    if (!buf) {
+      int frames_needed;
+      /*If we're using a whole-file buffer, we just need the first frame.
+        Otherwise, we may need as many as one per buffer slot.*/
+      frames_needed = rc->frame_metrics == NULL ? 1 : rc->reservoir_frame_delay;
+      return OD_RC_2PASS_HDR_SZ + frames_needed * OD_RC_2PASS_PACKET_SZ -
+             rc->twopass_buffer_fill;
+    }
+    consumed = od_rc_buffer_fill(rc, buf, bytes, consumed, OD_RC_2PASS_HDR_SZ);
+    if (rc->twopass_buffer_fill >= OD_RC_2PASS_HDR_SZ) {
+      int64_t scale_sum[2];
+      int exp[2];
+      int reservoir_frame_delay;
+      /*Read the summary header data.*/
+      /*Check the magic value and version number.*/
+      if (od_rc_unbuffer_val(rc, 4) != OD_RC_2PASS_MAGIC ||
+          od_rc_unbuffer_val(rc, 4) != OD_RC_2PASS_VERSION) {
+        rc->twopass_buffer_bytes = 0;
+        return -1;
+      }
+      rc->frame_count[0] = (uint32_t)od_rc_unbuffer_val(rc, 4);
+      rc->frame_count[1] = (uint32_t)od_rc_unbuffer_val(rc, 4);
+      rc->frame_count[2] = (uint32_t)od_rc_unbuffer_val(rc, 4);
+      exp[0] = (int)od_rc_unbuffer_val(rc, 1);
+      exp[1] = (int)od_rc_unbuffer_val(rc, 1);
+      scale_sum[0] = od_rc_unbuffer_val(rc, 8);
+      scale_sum[1] = od_rc_unbuffer_val(rc, 8);
+      /*Make sure the file claims to have at least one frame.
+        Otherwise we probably got the placeholder data from an aborted pass 1.
+        Also make sure the total frame count doesn't overflow an integer.*/
+      reservoir_frame_delay =
+          rc->frame_count[0] + rc->frame_count[1] + rc->frame_count[2];
+      /*if(rc->frame_count[0]==0||reservoir_frame_delay<0||
+       reservoir_frame_delay < rc->frame_count[0]||
+       reservoir_frame_delay < rc->frame_count[1]){
+        rc->frame_count[0]=0;
+        rc->twopass_buffer_bytes=0;
+        return -1;
+      }*/
+      /*Got a valid header; set up pass 2.*/
+      rc->frames_left[0] = rc->frame_count[0];
+      rc->frames_left[1] = rc->frame_count[1];
+      rc->frames_left[2] = rc->frame_count[2];
+      /*If the user hasn't specified a buffer size, use the whole file.*/
+      if (rc->frame_metrics == NULL) {
+        rc->reservoir_frame_delay = reservoir_frame_delay;
+        rc->nframes[0] = rc->frame_count[0];
+        rc->nframes[1] = rc->frame_count[1];
+        rc->nframes[2] = rc->frame_count[2];
+        rc->scale_sum[0] = scale_sum[0];
+        rc->scale_sum[1] = scale_sum[1];
+        rc->scale_window_end = reservoir_frame_delay;
+        od_enc_rc_reset(rc);
+      }
+      rc->exp[0] = exp[0];
+      rc->exp[1] = exp[1];
+      /*Clear the header data from the buffer to make room for packet data.*/
+      rc->twopass_buffer_fill = 0;
+      rc->twopass_buffer_bytes = 0;
+    }
+  }
+  if (rc->frame_count[0] != 0) {
+    int64_t curframe_num;
+    int nframe_count;
+    curframe_num = rc->cur_frame;
+    nframe_count = rc->frame_count[0] + rc->frame_count[1] + rc->frame_count[2];
+    if (curframe_num >= nframe_count) {
+      /*We don't want any more data after the last frame, and we don't want to
+         allow any more frames to be encoded.*/
+      rc->twopass_buffer_bytes = 0;
+    } else if (rc->twopass_buffer_bytes == 0) {
+      if (rc->frame_metrics == NULL) {
+        /*We're using a whole-file buffer:*/
+        if (!buf) return OD_RC_2PASS_PACKET_SZ - rc->twopass_buffer_fill;
+        consumed =
+            od_rc_buffer_fill(rc, buf, bytes, consumed, OD_RC_2PASS_PACKET_SZ);
+        if (rc->twopass_buffer_fill >= OD_RC_2PASS_PACKET_SZ) {
+          int32_t log_scale;
+          unsigned activity;
+          int frame_type;
+          // int          arg;
+          /*Read the metrics for the next frame.*/
+          frame_type = od_rc_unbuffer_val(rc, 4);
+          log_scale = od_rc_unbuffer_val(rc, 4);
+          activity = od_rc_unbuffer_val(rc, 4);
+          rc->cur_metrics.log_scale = log_scale;
+          rc->cur_metrics.frame_type = frame_type;
+          rc->activity_avg = rc->cur_metrics.activity_avg = activity;
+          /*Clear the buffer for the next frame.*/
+          rc->twopass_buffer_fill = 0;
+        }
+      } else {
+        int frames_needed;
+        /*We're using a finite buffer:*/
+        frames_needed =
+            OD_MINI(rc->reservoir_frame_delay -
+                        OD_MINI(rc->reservoir_frame_delay,
+                                rc->scale_window_end - rc->scale_window0),
+                    rc->frames_left[0] + rc->frames_left[1] - rc->nframes[0] -
+                        rc->nframes[1]);
+        while (frames_needed > 0) {
+          if (!buf) {
+            return OD_RC_2PASS_PACKET_SZ * frames_needed -
+                   rc->twopass_buffer_fill;
+          }
+          consumed = od_rc_buffer_fill(rc, buf, bytes, consumed,
+                                       OD_RC_2PASS_PACKET_SZ);
+          if (rc->twopass_buffer_fill >= OD_RC_2PASS_PACKET_SZ) {
+            od_frame_metrics *m;
+            int fmi;
+            uint32_t frame_type;
+            int32_t log_scale;
+            unsigned activity;
+            /*Read the metrics for the next frame.*/
+            frame_type = od_rc_unbuffer_val(rc, 4);
+            log_scale = od_rc_unbuffer_val(rc, 4);
+            activity = od_rc_unbuffer_val(rc, 4);
+            /*Add the to the circular buffer.*/
+            fmi = rc->frame_metrics_head + rc->nframe_metrics++;
+            if (fmi >= rc->cframe_metrics) fmi -= rc->cframe_metrics;
+            m = rc->frame_metrics + fmi;
+            m->log_scale = log_scale;
+            m->frame_type = frame_type;
+            m->activity_avg = activity;
+            /*And accumulate the statistics over the window.*/
+            rc->nframes[frame_type]++;
+            rc->scale_sum[frame_type] += od_bexp64_q24(m->log_scale);
+            rc->scale_window_end += 1;
+            /*Compute an upper bound on the number of remaining packets needed
+               for the current window.*/
+            frames_needed =
+                OD_MINI(rc->reservoir_frame_delay -
+                            OD_MINI(rc->reservoir_frame_delay,
+                                    rc->scale_window_end - rc->scale_window0),
+                        rc->frames_left[0] + rc->frames_left[1] -
+                            rc->nframes[0] - rc->nframes[1]);
+            /*Clear the buffer for the next frame.*/
+            rc->twopass_buffer_fill = 0;
+            rc->twopass_buffer_bytes = 0;
+          } else { /*Go back for more data.*/
+            break;
+          }
+        }
+        /*If we've got all the frames we need, fill in the current metrics.
+          We're ready to go.*/
+        if (frames_needed <= 0) {
+          // int arg;
+          *&rc->cur_metrics = *(rc->frame_metrics + rc->frame_metrics_head);
+          rc->activity_avg = rc->cur_metrics.activity_avg;
+          /*Mark us ready for the next frame.*/
+          rc->twopass_buffer_bytes = 1;
+        }
+      }
+    }
+  }
+  return (int)consumed;
 }
