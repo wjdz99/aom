@@ -1,0 +1,152 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9ac8a07_c7f34db5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-07T23:06:41Z",
+      "side": 1,
+      "message": "\"Remove\"",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 8
+      },
+      "revId": "b7535fb27a6039c86d9b860e883016e1377a418f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ac391e2f_b8da5b04",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-07T23:06:41Z",
+      "side": 1,
+      "message": "Remove \"per transform block\" comment.\nAlso, first letter capital and end with a fullstop: \"Run wavefront ..... index decoding.\"",
+      "range": {
+        "startLine": 454,
+        "startChar": 53,
+        "endLine": 454,
+        "endChar": 72
+      },
+      "revId": "b7535fb27a6039c86d9b860e883016e1377a418f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c124c8f7_683843ee",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-07T23:06:41Z",
+      "side": 1,
+      "message": "This \u0027if\u0027 condition is not needed; the condition in \u0027for\u0027 loop checks that already.",
+      "revId": "b7535fb27a6039c86d9b860e883016e1377a418f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84a44d6e_b11289cb",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-07T23:06:41Z",
+      "side": 1,
+      "message": "This for loop is common between #if CONFIG_PALETTE_THROUGHPUT and #else blocks, so can be common (after #endif).",
+      "revId": "b7535fb27a6039c86d9b860e883016e1377a418f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21258bdf_d1c23d5f",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-07T23:06:41Z",
+      "side": 1,
+      "message": "Remove both (after you take care of the comments below)",
+      "revId": "b7535fb27a6039c86d9b860e883016e1377a418f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "662632a6_2658fbe5",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-07T23:06:41Z",
+      "side": 1,
+      "message": "Most of the parts between #if and #else are common, so please refactor. For example:\n\n#if CONFIG_PALETTE_THROUGHPUT\n  for (k \u003d 1; k \u003c rows + cols - 1; ++k) {\n    for (j \u003d AOMMIN(i, cols - 1); j \u003e\u003d AOMMAX(0, i - rows + 1); --j) {\n    const int i \u003d k - j;\n#else\n  for (i \u003d 0; i \u003c rows; ++i) {\n    for (j \u003d (i \u003d\u003d 0 ? 1 : 0); j \u003c cols; ++j) {\n#endif  // CONFIG_PALETTE_THROUGHPUT\n      int color_new_idx;\n      .....\n    }\n  }",
+      "revId": "b7535fb27a6039c86d9b860e883016e1377a418f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63c604a2_e7dd91ed",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-07T23:06:41Z",
+      "side": 1,
+      "message": "You need to keep the \"if (dry_run \u003d\u003d DRY_RUN_COSTCOEFFS)\" line from #else",
+      "revId": "b7535fb27a6039c86d9b860e883016e1377a418f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71389088_21eba1a0",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-07T23:06:41Z",
+      "side": 1,
+      "message": "2 --\u003e PALETTE_MIN_SIZE",
+      "revId": "b7535fb27a6039c86d9b860e883016e1377a418f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
