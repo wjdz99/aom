@@ -1013,7 +1013,7 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
 
       // AC coeffs coded?
       if (pvq->ac_dc_coded & AC_CODED) {
-        assert(pvq->bs == tx_size);
+        assert(pvq->tx_size == tx_size);
         for (i = 0; i < pvq->nb_bands; i++) {
           if (i == 0 ||
               (!pvq->skip_rest && !(pvq->skip_dir & (1 << ((i - 1) % 3))))) {
@@ -1022,15 +1022,15 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
                 pvq->y + pvq->off[i], pvq->size[i], pvq->k[i], model, adapt,
                 exg + i, ext + i, nodesync,
                 (plane != 0) * OD_TXSIZES * PVQ_MAX_PARTITIONS +
-                    pvq->bs * PVQ_MAX_PARTITIONS + i,
+                    pvq->tx_size * PVQ_MAX_PARTITIONS + i,
                 is_keyframe, i == 0 && (i < pvq->nb_bands - 1), pvq->skip_rest,
                 encode_flip, flip);
           }
-          if (i == 0 && !pvq->skip_rest && pvq->bs > 0) {
+          if (i == 0 && !pvq->skip_rest && pvq->tx_size > 0) {
             aom_encode_cdf_adapt(
                 w, pvq->skip_dir,
-                &adapt->pvq
-                     .pvq_skip_dir_cdf[(plane != 0) + 2 * (pvq->bs - 1)][0],
+                &adapt->pvq.pvq_skip_dir_cdf[(plane != 0) +
+                                             2 * (pvq->tx_size - 1)][0],
                 7, adapt->pvq.pvq_skip_dir_increment);
           }
         }
@@ -1039,7 +1039,7 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
       if (!has_dc_skip || (pvq->ac_dc_coded & DC_CODED)) {
         generic_encode(w, &adapt->model_dc[plane],
                        abs(pvq->dq_dc_residue) - has_dc_skip, -1,
-                       &adapt->ex_dc[plane][pvq->bs][0], 2);
+                       &adapt->ex_dc[plane][pvq->tx_size][0], 2);
       }
       if ((pvq->ac_dc_coded & DC_CODED)) {
         aom_write_bit(w, pvq->dq_dc_residue < 0);
