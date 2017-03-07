@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14b53215_0982b71d",
+        "filename": "av1/decoder/pvq_decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-03-07T20:06:15Z",
+      "side": 1,
+      "message": "How about tx_size for consistency instead of bs?",
+      "revId": "0e2c8fa6fd67f48eecc1692e57f4a766f5aba142",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
