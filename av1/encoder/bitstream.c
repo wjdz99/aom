@@ -1011,7 +1011,6 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
 
   for (idy = 0; idy < max_blocks_high; idy += step) {
     for (idx = 0; idx < max_blocks_wide; idx += step) {
-      const int is_keyframe = 0;
       const int encode_flip = 0;
       const int flip = 0;
       const int nodesync = 1;
@@ -1034,13 +1033,14 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
         for (i = 0; i < pvq->nb_bands; i++) {
           if (i == 0 ||
               (!pvq->skip_rest && !(pvq->skip_dir & (1 << ((i - 1) % 3))))) {
+            int is_skip_copy = !pvq->cfl_enabled;
             pvq_encode_partition(
                 w, pvq->qg[i], pvq->theta[i], pvq->max_theta[i],
                 pvq->y + pvq->off[i], pvq->size[i], pvq->k[i], model, adapt,
                 exg + i, ext + i, nodesync,
                 (plane != 0) * OD_TXSIZES * PVQ_MAX_PARTITIONS +
                     pvq->bs * PVQ_MAX_PARTITIONS + i,
-                is_keyframe, i == 0 && (i < pvq->nb_bands - 1), pvq->skip_rest,
+                is_skip_copy, i == 0 && (i < pvq->nb_bands - 1), pvq->skip_rest,
                 encode_flip, flip);
           }
           if (i == 0 && !pvq->skip_rest && pvq->bs > 0) {
@@ -2258,7 +2258,6 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
     assert(*tok < tok_end);
 #endif
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
-
 #if CONFIG_CB4X4
       if (mbmi->sb_type < BLOCK_8X8 && plane &&
           !is_chroma_reference(mi_row, mi_col)) {
