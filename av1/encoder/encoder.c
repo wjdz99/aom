@@ -4924,6 +4924,9 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #endif  // CONFIG_ENTROPY
     av1_adapt_coef_probs(cm);
     av1_adapt_intra_frame_probs(cm);
+#if CONFIG_ADAPT_SCAN
+    av1_adapt_scan_order(cm);
+#endif  // CONFIG_ADAPT_SCAN
   }
 
   if (!frame_is_intra_only(cm)) {
