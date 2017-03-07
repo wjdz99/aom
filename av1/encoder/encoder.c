@@ -2278,6 +2278,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   kf_list = fopen("kf_list.stt", "w");
 #endif
 
+#if CONFIG_XIPHRC
+  if (oxcf->pass == 2)
+    cpi->od_rc.twopass_allframes_buf = oxcf->two_pass_stats_in.buf;
+#else
   if (oxcf->pass == 1) {
     av1_init_first_pass(cpi);
   } else if (oxcf->pass == 2) {
@@ -2303,6 +2307,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
     av1_init_second_pass(cpi);
   }
+#endif
 
   init_upsampled_ref_frame_bufs(cpi);
 
@@ -3925,9 +3930,11 @@ static void set_frame_size(AV1_COMP *cpi) {
     }
   }
 
+#if !CONFIG_XIPHRC
   if (oxcf->pass == 2) {
     av1_set_target_rate(cpi);
   }
+#endif
 
   alloc_frame_mvs(cm, cm->new_fb_idx);
 
@@ -5049,6 +5056,7 @@ static void Pass0Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   encode_frame_to_data_rate(cpi, size, dest, frame_flags);
 }
 
+#if !CONFIG_XIPHRC
 static void Pass2Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
                         unsigned int *frame_flags) {
   encode_frame_to_data_rate(cpi, size, dest, frame_flags);
@@ -5065,6 +5073,7 @@ static void Pass2Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   av1_twopass_postencode_update(cpi);
 #endif  // CONFIG_EXT_REFS
 }
+#endif
 
 static void init_ref_frame_bufs(AV1_COMMON *cm) {
   int i;
@@ -5587,7 +5596,17 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   } else {
     *size = 0;
     if (flush && oxcf->pass == 1 && !cpi->twopass.first_pass_done) {
-#if !CONFIG_XIPHRC
+#if CONFIG_XIPHRC
+      size_t tmp;
+      uint8_t *buf = NULL;
+      struct aom_codec_cx_pkt pkt;
+      Pass0Encode(cpi, &tmp, dest, frame_flags);
+      od_enc_rc_2pass_out(&cpi->od_rc, &buf);
+      pkt.data.twopass_stats.buf = buf;
+      pkt.data.twopass_stats.sz = OD_RC_2PASS_PACKET_SZ;
+      pkt.kind = AOM_CODEC_STATS_PKT;
+      aom_codec_pkt_list_add(cpi->output_pkt_list, &pkt);
+#else
       av1_end_first_pass(cpi); /* get last stats packet */
 #endif
       cpi->twopass.first_pass_done = 1;
@@ -5639,12 +5658,19 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   cpi->frame_flags = *frame_flags;
 
   if (oxcf->pass == 2) {
-#if !CONFIG_XIPHRC
+#if CONFIG_XIPHRC
+    int ret;
+    uint8_t *data = cpi->od_rc.twopass_allframes_buf;
+    data += (cpi->od_rc.cur_frame) * OD_RC_2PASS_PACKET_SZ;
+    ret = od_enc_rc_2pass_in(&cpi->od_rc, data, OD_RC_2PASS_PACKET_SZ);
+    assert(ret >= 0 && "Invalid 2pass file!");
+  }
+#else
     av1_rc_get_second_pass_params(cpi);
-#endif
   } else if (oxcf->pass == 1) {
     set_frame_size(cpi);
   }
+#endif
 
   if (cpi->oxcf.pass != 0 || frame_is_intra_only(cm) == 1) {
     for (i = 0; i < TOTAL_REFS_PER_FRAME; ++i)
@@ -5663,11 +5689,26 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   }
 #endif
 
+#if CONFIG_XIPHRC
+  if (oxcf->pass == 1) {
+    size_t tmp;
+    uint8_t *buf = NULL;
+    struct aom_codec_cx_pkt pkt;
+    Pass0Encode(cpi, &tmp, dest, frame_flags);
+    od_enc_rc_2pass_out(&cpi->od_rc, &buf);
+    pkt.data.twopass_stats.buf = buf;
+    pkt.data.twopass_stats.sz = OD_RC_2PASS_PACKET_SZ;
+    pkt.kind = AOM_CODEC_STATS_PKT;
+    aom_codec_pkt_list_add(cpi->output_pkt_list, &pkt);
+  } else if (oxcf->pass == 2) {
+    Pass0Encode(cpi, size, dest, frame_flags);
+#else
   if (oxcf->pass == 1) {
     cpi->td.mb.e_mbd.lossless[0] = is_lossless_requested(oxcf);
     av1_first_pass(cpi, source);
   } else if (oxcf->pass == 2) {
     Pass2Encode(cpi, size, dest, frame_flags);
+#endif
   } else {
     // One pass encode
     Pass0Encode(cpi, size, dest, frame_flags);

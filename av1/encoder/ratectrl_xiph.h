@@ -48,6 +48,12 @@
    conversion (6.235 * 2^45) */
 #define OD_LOG_QUANTIZER_OFFSET_Q45 (0x0000C7851EB851ECLL)
 
+#define OD_RC_2PASS_MAGIC (0x9032544F)
+#define OD_RC_2PASS_HDR_SZ (38)
+#define OD_RC_2PASS_PACKET_SZ (38)
+#define OD_RC_2PASS_VERSION (1)
+#define OD_PACKET_DONE (INT_MAX)
+
 /*A 2nd order low-pass Bessel follower.
   We use this for rate control because it has fast reaction time, but is
    critically damped.*/
@@ -57,6 +63,16 @@ typedef struct od_iir_bessel2 {
   int32_t x[2];
   int32_t y[2];
 } od_iir_bessel2;
+
+/* The 2-pass metrics associated with a single frame. */
+typedef struct od_frame_metrics {
+  /*The log base 2 of the scale factor for this frame in Q24 format.*/
+  int64_t log_scale;
+  /*The frame type from pass 1.*/
+  unsigned frame_type : 1;
+  /*The frame activity average from pass 1.*/
+  unsigned activity_avg;
+} od_frame_metrics;
 
 /*Rate control setup and working state information.*/
 typedef struct od_rc_state {
@@ -84,11 +100,43 @@ typedef struct od_rc_state {
   /* Min Q */
   int minq;
 
+  /* 2-pass metrics */
+  od_frame_metrics prev_metrics;
+  od_frame_metrics cur_metrics;
+  od_frame_metrics *frame_metrics;
+
+  /* 2-pass state */
+  int64_t scale_sum[OD_FRAME_NSUBTYPES];
+  int frames_left[OD_FRAME_NSUBTYPES];
+  int nframes[OD_FRAME_NSUBTYPES];
+  int nframe_metrics;
+  int cframe_metrics;
+  int frame_metrics_head;
+  int scale_window0;
+  int scale_window_end;
+  uint8_t twopass_buffer[128];
+  int twopass_buffer_bytes;
+  int twopass_buffer_fill;
+  int activity_avg;
+  int qis[10];
+  int nqis;
+
+  /* Every state packet from the first pass in a single buffer */
+  uint8_t *twopass_allframes_buf;
+
   /* Actual returned quantizer */
   int target_quantizer;
   /*The full-precision, unmodulated quantizer upon which
     our modulated quantizers are based.*/
   int base_quantizer;
+  /*The log of the target quantizer level in Q57 format.*/
+  int64_t log_qtarget;
+  /*An "average" quantizer for each frame type (INTRA or INTER) and qi value.
+    This is used to parameterize the rate control decisions.
+    They are kept in the log domain to simplify later processing.
+    These are DCT domain quantizers, and so are scaled by an additional factor
+     of 4 from the pixel domain.*/
+  int64_t log_qavg[2][64];
 
   /* Increments by 1 for each frame. */
   int64_t cur_frame;
@@ -156,5 +204,9 @@ int od_frame_type(od_rc_state *rc, int64_t coding_frame_count, int *is_golden,
                   int *is_altref, int64_t *ip_count);
 
 int od_enc_rc_resize(od_rc_state *rc);
+
+int od_enc_rc_2pass_in(od_rc_state *rc, unsigned char *buf, size_t bytes);
+
+int od_enc_rc_2pass_out(od_rc_state *rc, unsigned char **buf);
 
 #endif
