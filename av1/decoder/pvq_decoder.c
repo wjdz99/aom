@@ -102,7 +102,7 @@ typedef struct {
  * @param [out]    noref       boolean indicating absence of reference
  * @param [in]     beta        per-band activity masking beta param
  * @param [in]     nodesync    stream is robust to error in the reference
- * @param [in]     is_keyframe whether we're encoding a keyframe
+ * @param [in]     is_skip_copy whether skip can copy the reference
  * @param [in]     pli         plane index
  * @param [in]     cdf_ctx     selects which cdf context to use
  * @param [in,out] skip_rest   whether to skip further bands in each direction
@@ -124,8 +124,7 @@ static void pvq_decode_partition(aom_reader *r,
                                  int *noref,
                                  od_val16 beta,
                                  int nodesync,
-                                 int is_keyframe,
-                                 int pli,
+                                 int is_skip_copy,
                                  int cdf_ctx,
                                  cfl_ctx *cfl,
                                  int has_skip,
@@ -153,13 +152,12 @@ static void pvq_decode_partition(aom_reader *r,
   /* Skip is per-direction. For band=0, we can use any of the flags. */
   if (skip_rest[(band + 2) % 3]) {
     qg = 0;
-    if (is_keyframe) {
-      itheta = -1;
-      *noref = 1;
-    }
-    else {
+    if (is_skip_copy) {
       itheta = 0;
       *noref = 0;
+    } else {
+      itheta = -1;
+      *noref = 1;
     }
   }
   else {
@@ -169,8 +167,12 @@ static void pvq_decode_partition(aom_reader *r,
     id = aom_decode_cdf_adapt(r, &adapt->pvq.pvq_gaintheta_cdf[cdf_ctx][0],
      8 + 7*has_skip, adapt->pvq.pvq_gaintheta_increment,
      "pvq:gaintheta");
-    if (!is_keyframe && id >= 10) id++;
-    if (is_keyframe && id >= 8) id++;
+    /* id=10 implies skip copy, when skip can copy from the reference, it isn't
+     * allowed, as skip can be signaled at the block level */
+    if (is_skip_copy && id >= 10) id++;
+    /* id=8 implies skip zero, when skip zeroes out the coeffs, it isn't
+     * allowed, as skip can be signaled at the block level. */
+    if (!is_skip_copy && id >= 8) id++;
     if (id >= 8) {
       id -= 8;
       skip_rest[0] = skip_rest[1] = skip_rest[2] = 1;
@@ -213,10 +215,8 @@ static void pvq_decode_partition(aom_reader *r,
     /* we have a reference; compute its gain */
     od_val32 cgr;
     int icgr;
-    int cfl_enabled;
-    cfl_enabled = pli != 0 && is_keyframe && !OD_DISABLE_CFL;
     cgr = od_pvq_compute_gain(ref16, n, q0, &gr, beta, rshift);
-    if (cfl_enabled) cgr = OD_CGAIN_SCALE;
+    if (!is_skip_copy) cgr = OD_CGAIN_SCALE;
 #if defined(OD_FLOAT_PVQ)
     icgr = (int)floor(.5 + cgr);
 #else
@@ -224,12 +224,13 @@ static void pvq_decode_partition(aom_reader *r,
 #endif
     /* quantized gain is interleave encoded when there's a reference;
        deinterleave it now */
-    if (is_keyframe) qg = neg_deinterleave(qg, icgr);
-    else {
+    if (is_skip_copy) {
       qg = neg_deinterleave(qg, icgr + 1) - 1;
       if (qg == 0) *skip = (icgr ? OD_PVQ_SKIP_ZERO : OD_PVQ_SKIP_COPY);
+      if (qg == icgr && itheta == 0) *skip = OD_PVQ_SKIP_COPY;
+    } else {
+      qg = neg_deinterleave(qg, icgr);
     }
-    if (qg == icgr && itheta == 0 && !cfl_enabled) *skip = OD_PVQ_SKIP_COPY;
     gain_offset = cgr - OD_SHL(icgr, OD_CGAIN_SHIFT);
     qcg = OD_SHL(qg, OD_CGAIN_SHIFT) + gain_offset;
     /* read and decode first-stage PVQ error theta */
@@ -245,7 +246,7 @@ static void pvq_decode_partition(aom_reader *r,
   }
   else{
     itheta = 0;
-    if (!is_keyframe) qg++;
+    if (is_skip_copy) qg++;
     qcg = OD_SHL(qg, OD_CGAIN_SHIFT);
     if (qg == 0) *skip = OD_PVQ_SKIP_ZERO;
   }
@@ -282,7 +283,7 @@ static void pvq_decode_partition(aom_reader *r,
  * @param [in]     bs          log of the block size minus two
  * @param [in]     beta        per-band activity masking beta param
  * @param [in]     nodesync    stream is robust to error in the reference
- * @param [in]     is_keyframe whether we're encoding a keyframe
+ * @param [in]     cfl_enabled whether CfL is enabled
  * @param [out]    flags       bitmask of the per band skip and noref flags
  * @param [in]     ac_dc_coded skip flag for the block (range 0-3)
  * @param [in]     qm          QM with magnitude compensation
@@ -296,7 +297,7 @@ void od_pvq_decode(daala_dec_ctx *dec,
                    int bs,
                    const od_val16 *beta,
                    int nodesync,
-                   int is_keyframe,
+                   int cfl_enabled,
                    unsigned int *flags,
                    PVQ_SKIP_TYPE ac_dc_coded,
                    const int16_t *qm,
@@ -312,11 +313,13 @@ void od_pvq_decode(daala_dec_ctx *dec,
   int size[PVQ_MAX_PARTITIONS];
   generic_encoder *model;
   int skip_rest[3] = {0};
+  int is_skip_copy;
   cfl_ctx cfl;
   const unsigned char *pvq_qm;
   int use_masking;
 
   aom_clear_system_state();
+
 
   /*Default to skip=1 and noref=0 for all bands.*/
   for (i = 0; i < PVQ_MAX_PARTITIONS; i++) {
@@ -337,15 +340,16 @@ void od_pvq_decode(daala_dec_ctx *dec,
   nb_bands = OD_BAND_OFFSETS[bs][0];
   off = &OD_BAND_OFFSETS[bs][1];
   out[0] = ac_dc_coded & DC_CODED;
+  is_skip_copy = !cfl_enabled;
   if (ac_dc_coded < AC_CODED) {
-    if (is_keyframe) for (i = 1; i < 1 << (2*bs + 4); i++) out[i] = 0;
-    else for (i = 1; i < 1 << (2*bs + 4); i++) out[i] = ref[i];
-  }
-  else {
+    if (is_skip_copy) for (i = 1; i < 1 << (2*bs + 4); i++) out[i] = ref[i];
+    else
+      for (i = 1; i < 1 << (2*bs + 4); i++) out[i] = 0;
+  } else {
     for (i = 0; i < nb_bands; i++) size[i] = off[i+1] - off[i];
     cfl.ref = ref;
     cfl.nb_coeffs = off[nb_bands];
-    cfl.allow_flip = pli != 0 && is_keyframe;
+    cfl.allow_flip = cfl_enabled;
     for (i = 0; i < nb_bands; i++) {
       int q;
 
@@ -356,7 +360,7 @@ void od_pvq_decode(daala_dec_ctx *dec,
 
       pvq_decode_partition(dec->r, q, size[i],
        model, &dec->state.adapt, exg + i, ext + i, ref + off[i], out + off[i],
-       &noref[i], beta[i], nodesync, is_keyframe, pli,
+       &noref[i], beta[i], nodesync, is_skip_copy,
        (pli != 0)*OD_TXSIZES*PVQ_MAX_PARTITIONS + bs*PVQ_MAX_PARTITIONS + i,
        &cfl, i == 0 && (i < nb_bands - 1), skip_rest, i, &skip[i],
        qm + off[i], qm_inv + off[i]);
