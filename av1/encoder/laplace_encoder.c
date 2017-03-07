@@ -107,8 +107,21 @@ void aom_laplace_encode_special(aom_writer *w, int x, unsigned decay, int max) {
       OD_LOG_PARTIAL((OD_LOG_PVQ, OD_LOG_DEBUG, "\n"));
     }
     if (ms > 0 && ms < 15) {
-      /* Simple way of truncating the pdf when we have a bound */
-      aom_write_cdf_unscaled(w, sym, cdf, ms + 1);
+      uint16_t tcdf[16];
+      unsigned ft;
+      unsigned d;
+      int s;
+      int i;
+      /* Truncate the pdf when we have a bound */
+      ft = cdf[ms];
+      OD_ASSERT(ft <= CDF_PROB_TOP);
+      s = CDF_PROB_BITS - OD_ILOG_NZ(ft);
+      d = CDF_PROB_TOP - (ft << s);
+      for (i = 0; i <= ms; i++) {
+        tcdf[i] = cdf[i] + OD_MINI(cdf[i], d);
+      }
+      OD_ASSERT(tcdf[ms] == CDF_PROB_TOP);
+      aom_write_cdf(w, sym, tcdf, ms + 1);
     }
     else {
       aom_write_cdf(w, sym, cdf, 16);

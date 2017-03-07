@@ -118,8 +118,21 @@ int aom_laplace_decode_special_(aom_reader *r, unsigned decay,
       OD_LOG_PARTIAL((OD_LOG_PVQ, OD_LOG_DEBUG, "\n"));
     }
     if (ms > 0 && ms < 15) {
-      /* Simple way of truncating the pdf when we have a bound. */
-      sym = aom_read_cdf_unscaled(r, cdf, ms + 1, ACCT_STR_NAME);
+      uint16_t tcdf[16];
+      unsigned ft;
+      unsigned d;
+      int i;
+      int s;
+      /* Truncate the pdf when we have a bound. */
+      ft = cdf[ms];
+      OD_ASSERT(ft <= CDF_PROB_TOP);
+      s = CDF_PROB_BITS - OD_ILOG_NZ(ft);
+      d = CDF_PROB_TOP - (ft << s);
+      for (i = 0; i <= ms; i++) {
+        tcdf[i] = cdf[i] + OD_MINI(cdf[i], d);
+      }
+      OD_ASSERT(tcdf[ms] == CDF_PROB_TOP);
+      sym = aom_read_cdf(r, tcdf, ms + 1, ACCT_STR_NAME);
     }
     else sym = aom_read_cdf(r, cdf, 16, ACCT_STR_NAME);
     xs += sym;
