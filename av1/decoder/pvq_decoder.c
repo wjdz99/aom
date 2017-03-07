@@ -102,7 +102,7 @@ typedef struct {
  * @param [out]    noref       boolean indicating absence of reference
  * @param [in]     beta        per-band activity masking beta param
  * @param [in]     nodesync    stream is robust to error in the reference
- * @param [in]     is_skip_copy whether skip can copy the reference
+ * @param [in]     is_skip_copy  whether skip can copy the reference
  * @param [in]     pli         plane index
  * @param [in]     cdf_ctx     selects which cdf context to use
  * @param [in,out] skip_rest   whether to skip further bands in each direction
