@@ -546,6 +546,9 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   qparam.iqmatrix = iqmatrix;
 #endif  // CONFIG_AOM_QM
 #else
+  /*If we are coding a chroma block of a keyframe, we are doing CfL.*/
+  int cfl_enabled =
+      cm->frame_type == KEY_FRAME && plane != 0 && !OD_DISABLE_CFL;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   tran_low_t *ref_coeff = BLOCK_OFFSET(pd->pvq_ref_coeff, block);
   int skip = 1;
@@ -636,6 +639,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
                               eob,          // End of Block marker
                               pd->dequant,  // aom's quantizers
                               plane,        // image plane
+                              cfl_enabled,  // wheter CfL is enabled
                               tx_size,      // block size in log_2 - 2
                               tx_type,
                               &x->rate,  // rate measured
@@ -1165,7 +1169,8 @@ void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
 PVQ_SKIP_TYPE av1_pvq_encode_helper(
     daala_enc_ctx *daala_enc, tran_low_t *const coeff, tran_low_t *ref_coeff,
     tran_low_t *const dqcoeff, uint16_t *eob, const int16_t *quant, int plane,
-    int tx_size, TX_TYPE tx_type, int *rate, int speed, PVQ_INFO *pvq_info) {
+    int cfl_enabled, int tx_size, TX_TYPE tx_type, int *rate, int speed,
+    PVQ_INFO *pvq_info) {
   const int tx_blk_size = tx_size_wide[tx_size];
   PVQ_SKIP_TYPE ac_dc_coded;
   /*TODO(tterribe): Handle CONFIG_AOM_HIGHBITDEPTH.*/
@@ -1229,9 +1234,7 @@ PVQ_SKIP_TYPE av1_pvq_encode_helper(
       quant[0] << (OD_COEFF_SHIFT - 3),  // scale/quantizer
       quant[1] << (OD_COEFF_SHIFT - 3),  // scale/quantizer
       plane, tx_size, OD_PVQ_BETA[use_activity_masking][plane][tx_size],
-      OD_ROBUST_STREAM,
-      0,        // is_keyframe,
-      0, 0, 0,  // q_scaling, bx, by,
+      OD_ROBUST_STREAM, cfl_enabled, 0, 0, 0,  // q_scaling, bx, by,
       daala_enc->state.qm + off, daala_enc->state.qm_inv + off,
       speed,  // speed
       pvq_info);

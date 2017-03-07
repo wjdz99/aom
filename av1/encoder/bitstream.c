@@ -990,8 +990,8 @@ static PVQ_INFO *get_pvq_block(PVQ_QUEUE *pvq_q) {
 }
 
 static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
-                            MACROBLOCKD *const xd, int plane, BLOCK_SIZE bsize,
-                            const TX_SIZE tx_size) {
+                            MACROBLOCKD *const xd, int plane, int is_skip_copy,
+                            BLOCK_SIZE bsize, const TX_SIZE tx_size) {
   PVQ_INFO *pvq;
   int idx, idy;
   const struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -1009,7 +1009,6 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
 
   for (idy = 0; idy < max_blocks_high; idy += step) {
     for (idx = 0; idx < max_blocks_wide; idx += step) {
-      const int is_keyframe = 0;
       const int encode_flip = 0;
       const int flip = 0;
       const int nodesync = 1;
@@ -1038,7 +1037,7 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
                 exg + i, ext + i, nodesync,
                 (plane != 0) * OD_TXSIZES * PVQ_MAX_PARTITIONS +
                     pvq->bs * PVQ_MAX_PARTITIONS + i,
-                is_keyframe, i == 0 && (i < pvq->nb_bands - 1), pvq->skip_rest,
+                is_skip_copy, i == 0 && (i < pvq->nb_bands - 1), pvq->skip_rest,
                 encode_flip, flip);
           }
           if (i == 0 && !pvq->skip_rest && pvq->bs > 0) {
@@ -1068,7 +1067,7 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
 static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
                             const TOKENEXTRA *const tok_end,
 #if CONFIG_PVQ
-                            MACROBLOCK *const x,
+                            MACROBLOCK *const x, int is_skip_copy,
 #endif
                             MACROBLOCKD *xd, MB_MODE_INFO *mbmi, int plane,
                             BLOCK_SIZE plane_bsize, aom_bit_depth_t bit_depth,
@@ -1094,7 +1093,7 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 #if !CONFIG_PVQ
     pack_mb_tokens(w, tp, tok_end, bit_depth, tx_size, &tmp_token_stats);
 #else
-    pack_pvq_tokens(w, x, xd, plane, bsize, tx_size);
+    pack_pvq_tokens(w, x, xd, plane, is_skip_copy, bsize, tx_size);
 #endif
 #if CONFIG_RD_DEBUG
     token_stats->txb_coeff_cost_map[blk_row][blk_col] = tmp_token_stats.cost;
@@ -1116,7 +1115,7 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 
       pack_txb_tokens(w, tp, tok_end,
 #if CONFIG_PVQ
-                      x,
+                      x, is_skip_copy,
 #endif
                       xd, mbmi, plane, plane_bsize, bit_depth, block, offsetr,
                       offsetc, sub_txs, token_stats);
@@ -2278,6 +2277,10 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       MB_MODE_INFO *mbmi = &m->mbmi;
+#if CONFIG_PVQ
+      const int is_skip_copy =
+          !(plane != 0 && cm->frame_type == KEY_FRAME && !OD_DISABLE_CFL);
+#endif
 
 #if CONFIG_CB4X4
       if (mbmi->sb_type < BLOCK_8X8 && plane &&
@@ -2316,7 +2319,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
           for (col = 0; col < num_4x4_w; col += bkw) {
             pack_txb_tokens(w, tok, tok_end,
 #if CONFIG_PVQ
-                            x,
+                            x, is_skip_copy,
 #endif
                             xd, mbmi, plane, plane_bsize, cm->bit_depth, block,
                             row, col, max_tx_size, &token_stats);
@@ -2339,7 +2342,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #if !CONFIG_PVQ
             pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx, &token_stats);
 #else
-            pack_pvq_tokens(w, x, xd, plane, bsize, tx);
+            pack_pvq_tokens(w, x, xd, plane, is_skip_copy, bsize, tx);
 #endif
           }
         }
@@ -2352,7 +2355,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
       pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx, &token_stats);
 #else
       (void)token_stats;
-      pack_pvq_tokens(w, x, xd, plane, mbmi->sb_type, tx);
+      pack_pvq_tokens(w, x, xd, plane, is_skip_copy, mbmi->sb_type, tx);
 #endif
 #if CONFIG_RD_DEBUG
       if (is_inter_block(mbmi) && mbmi->sb_type >= BLOCK_8X8 &&
