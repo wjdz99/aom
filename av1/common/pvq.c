@@ -217,9 +217,9 @@ void od_adapt_pvq_ctx_reset(od_pvq_adapt_ctx *state, int is_keyframe) {
 
 /* QMs are arranged from smallest to largest blocksizes, first for
    blocks with decimation=0, followed by blocks with decimation=1.*/
-int od_qm_offset(int bs, int xydec)
+int od_qm_offset(int tx_size, int xydec)
 {
-    return xydec*OD_QM_STRIDE + OD_QM_OFFSET(bs);
+    return xydec*OD_QM_STRIDE + OD_QM_OFFSET(tx_size);
 }
 
 #if defined(OD_FLOAT_PVQ)
@@ -309,11 +309,11 @@ int od_pvq_k1_ctx(int n, int orig_length) {
 }
 
 /* Indexing for the packed quantization matrices. */
-int od_qm_get_index(int bs, int band) {
+int od_qm_get_index(int tx_size, int band) {
   /* The -band/3 term is due to the fact that we force corresponding horizontal
      and vertical bands to have the same quantization. */
-  OD_ASSERT(bs >= 0 && bs < OD_TXSIZES);
-  return bs*(bs + 1) + band - band/3;
+  OD_ASSERT(tx_size >= 0 && tx_size < OD_TXSIZES);
+  return tx_size*(tx_size + 1) + band - band/3;
 }
 
 #if !defined(OD_FLOAT_PVQ)

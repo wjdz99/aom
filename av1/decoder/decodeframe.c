@@ -347,19 +347,19 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
 #if CONFIG_PVQ
 static int av1_pvq_decode_helper(od_dec_ctx *dec, tran_low_t *ref_coeff,
                                  tran_low_t *dqcoeff, int16_t *quant, int pli,
-                                 int bs, TX_TYPE tx_type, int xdec,
+                                 TX_SIZE tx_size, TX_TYPE tx_type, int xdec,
                                  PVQ_SKIP_TYPE ac_dc_coded) {
   unsigned int flags;  // used for daala's stream analyzer.
   int off;
   const int is_keyframe = 0;
   const int has_dc_skip = 1;
   /*TODO(tterribe): Handle CONFIG_AOM_HIGHBITDEPTH.*/
-  int coeff_shift = 3 - get_tx_scale(bs);
+  int coeff_shift = 3 - get_tx_scale(tx_size);
   int rounding_mask;
   // DC quantizer for PVQ
   int pvq_dc_quant;
   int lossless = (quant[0] == 0);
-  const int blk_size = tx_size_wide[bs];
+  const int blk_size = tx_size_wide[tx_size];
   int eob = 0;
   int i;
   int use_activity_masking = dec->use_activity_masking;
@@ -379,13 +379,13 @@ static int av1_pvq_decode_helper(od_dec_ctx *dec, tran_low_t *ref_coeff,
     if (use_activity_masking)
       pvq_dc_quant = OD_MAXI(
           1, (quant[0] << (OD_COEFF_SHIFT - 3)) *
-                     dec->state.pvq_qm_q4[pli][od_qm_get_index(bs, 0)] >>
+                     dec->state.pvq_qm_q4[pli][od_qm_get_index(tx_size, 0)] >>
                  4);
     else
       pvq_dc_quant = OD_MAXI(1, quant[0] << (OD_COEFF_SHIFT - 3));
   }
 
-  off = od_qm_offset(bs, xdec);
+  off = od_qm_offset(tx_size, xdec);
 
   // copy int16 inputs to int32
   for (i = 0; i < blk_size * blk_size; i++) {
@@ -394,15 +394,15 @@ static int av1_pvq_decode_helper(od_dec_ctx *dec, tran_low_t *ref_coeff,
   }
 
   od_pvq_decode(dec, ref_int32, out_int32, quant[1] << (OD_COEFF_SHIFT - 3),
-                pli, bs, OD_PVQ_BETA[use_activity_masking][pli][bs],
+                pli, tx_size, OD_PVQ_BETA[use_activity_masking][pli][tx_size],
                 OD_ROBUST_STREAM, is_keyframe, &flags, ac_dc_coded,
                 dec->state.qm + off, dec->state.qm_inv + off);
 
   if (!has_dc_skip || out_int32[0]) {
     out_int32[0] =
-        has_dc_skip + generic_decode(dec->r, &dec->state.adapt.model_dc[pli],
-                                     -1, &dec->state.adapt.ex_dc[pli][bs][0], 2,
-                                     "dc:mag");
+        has_dc_skip +
+        generic_decode(dec->r, &dec->state.adapt.model_dc[pli], -1,
+                       &dec->state.adapt.ex_dc[pli][tx_size][0], 2, "dc:mag");
     if (out_int32[0]) out_int32[0] *= aom_read_bit(dec->r, "dc:sign") ? -1 : 1;
   }
   out_int32[0] = out_int32[0] * pvq_dc_quant + ref_int32[0];

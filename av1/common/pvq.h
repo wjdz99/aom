@@ -160,7 +160,7 @@ int od_vector_log_mag(const od_coeff *x, int n);
 void od_interp_qm(unsigned char *out, int q, const od_qm_entry *entry1,
                   const od_qm_entry *entry2);
 
-int od_qm_get_index(int bs, int band);
+int od_qm_get_index(int tx_size, int band);
 
 extern const od_val16 *const OD_PVQ_BETA[2][OD_NPLANES_MAX][OD_TXSIZES + 1];
 
@@ -183,6 +183,6 @@ int od_pvq_compute_k(od_val32 qcg, int itheta, od_val32 theta, int noref,
  int n, od_val16 beta, int nodesync);
 
 int od_vector_is_null(const od_coeff *x, int len);
-int od_qm_offset(int bs, int xydec);
+int od_qm_offset(int tx_size, int xydec);
 
 #endif
