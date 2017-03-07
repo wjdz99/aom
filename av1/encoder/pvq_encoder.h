@@ -42,7 +42,7 @@ void pvq_encode_partition(aom_writer *w,
                                  int *ext,
                                  int nodesync,
                                  int cdf_ctx,
-                                 int is_keyframe,
+                                 int is_skip_copy,
                                  int code_skip,
                                  int skip_rest,
                                  int encode_flip,
@@ -50,7 +50,7 @@ void pvq_encode_partition(aom_writer *w,
 
 PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc, od_coeff *ref,
     const od_coeff *in, od_coeff *out, int q_dc, int q_ac, int pli, int bs,
-    const od_val16 *beta, int nodesync, int is_keyframe, int q_scaling, int bx,
+    const od_val16 *beta, int nodesync, int is_skip_copy, int q_scaling, int bx,
     int by, const int16_t *qm, const int16_t *qm_inv, int speed,
     PVQ_INFO *pvq_info);
 
