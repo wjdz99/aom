@@ -24,10 +24,10 @@ int constrain(int x, int s, unsigned int damping) {
 
 int av1_clpf_sample(int X, int A, int B, int C, int D, int E, int F, int G,
                     int H, int s, unsigned int dmp) {
-  int delta = 1 * constrain(A - X, s, dmp) + 3 * constrain(B - X, s, dmp) +
-              1 * constrain(C - X, s, dmp) + 3 * constrain(D - X, s, dmp) +
-              3 * constrain(E - X, s, dmp) + 1 * constrain(F - X, s, dmp) +
-              3 * constrain(G - X, s, dmp) + 1 * constrain(H - X, s, dmp);
+  int delta = 0 * constrain(A - X, s, dmp) + 4 * constrain(B - X, s, dmp) +
+              0 * constrain(C - X, s, dmp) + 4 * constrain(D - X, s, dmp) +
+              4 * constrain(E - X, s, dmp) + 0 * constrain(F - X, s, dmp) +
+              4 * constrain(G - X, s, dmp) + 0 * constrain(H - X, s, dmp);
   return (8 + delta - (delta < 0)) >> 4;
 }
 
@@ -272,6 +272,11 @@ void av1_clpf_frame(
                                damping);
               }
 #else
+	      if (plane)
+              aom_clpf_block_c(src_buffer, dst_buffer, sstride, dstride, xpos,
+                             ypos, sizex, sizey, strength, boundary_type,
+                             damping);
+	      else
               aom_clpf_block(src_buffer, dst_buffer, sstride, dstride, xpos,
                              ypos, sizex, sizey, strength, boundary_type,
                              damping);
