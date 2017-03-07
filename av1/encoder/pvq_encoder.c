@@ -753,7 +753,7 @@ void od_encode_quantizer_scaling(daala_enc_ctx *enc, int q_scaling,
  * @param [out]    out     quantized coefficient block
  * @param [in]     q0      scale/quantizer
  * @param [in]     pli     plane index
- * @param [in]     bs      log of the block size minus two
+ * @param [in]     bs      tx size in AOM's TX_SIZE type
  * @param [in]     beta    per-band activity masking beta param
  * @param [in]     nodesync  make stream robust to error in the reference
  * @param [in]     is_keyframe whether we're encoding a keyframe
@@ -775,7 +775,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
                    int q_dc,
                    int q_ac,
                    int pli,
-                   int bs,
+                   TX_SIZE bs,
                    const od_val16 *beta,
                    int nodesync,
                    int is_keyframe,
