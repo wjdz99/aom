@@ -529,6 +529,12 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   int tx_blk_size;
   int i, j;
 #endif
+#if CONFIG_PVQ_CFL
+  /*If we are coding a chroma block of a keyframe, we are doing CfL.*/
+  const int cfl_enabled = plane != 0 && cm->frame_type == KEY_FRAME;
+#elif CONFIG_PVQ
+  const int cfl_enabled = 0;
+#endif
 
 #if !CONFIG_PVQ
   const int tx2d_size = tx_size_2d[tx_size];
@@ -626,7 +632,10 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
     assert(block < MAX_PVQ_BLOCKS_IN_SB);
     PVQ_INFO *const pvq_info =
         (x->pvq_coded) ? &x->pvq[block][plane] : &NULL_PVQ_INFO;
+
     pvq_info->is_coded = x->pvq_coded;
+    /*If we are coding a chroma block of a keyframe, we are doing CfL.*/
+    pvq_info->cfl_enabled = cfl_enabled;
 
     av1_pvq_encode_helper(&x->daala_enc,
                           coeff,        // target original vector
@@ -1228,9 +1237,7 @@ void av1_pvq_encode_helper(daala_enc_ctx *daala_enc, tran_low_t *const coeff,
                 quant[1] << (OD_COEFF_SHIFT - 3),  // scale/quantizer
                 plane, tx_size,
                 OD_PVQ_BETA[use_activity_masking][plane][tx_size],
-                OD_ROBUST_STREAM,
-                0,        // is_keyframe,
-                0, 0, 0,  // q_scaling, bx, by,
+                OD_ROBUST_STREAM, 0, 0, 0,  // q_scaling, bx, by,
                 daala_enc->state.qm + off, daala_enc->state.qm_inv + off, speed,
                 pvq_info);
 
