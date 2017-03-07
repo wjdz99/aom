@@ -16,6 +16,47 @@
       "revId": "0e2c8fa6fd67f48eecc1692e57f4a766f5aba142",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "befec55a_0c2297eb",
+        "filename": "av1/decoder/pvq_decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-03-07T22:21:55Z",
+      "side": 1,
+      "message": "I\u0027ve considered it then decided to leave them as \u0027bs\u0027 inside original od_pvq_[en/de]code().\nWell, if you really prefer, please do so in separate patch! :)",
+      "parentUuid": "14b53215_0982b71d",
+      "revId": "0e2c8fa6fd67f48eecc1692e57f4a766f5aba142",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11bda402_40504eff",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-03-07T22:21:55Z",
+      "side": 1,
+      "message": "I missed changing this one to pvq-\u003etx_size! Fixed it.",
+      "range": {
+        "startLine": 1016,
+        "startChar": 26,
+        "endLine": 1016,
+        "endChar": 33
+      },
+      "revId": "0e2c8fa6fd67f48eecc1692e57f4a766f5aba142",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
