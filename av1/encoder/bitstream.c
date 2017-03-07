@@ -779,11 +779,12 @@ static void update_supertx_probs(AV1_COMMON *cm, int probwt, aom_writer *w) {
 #endif  // CONFIG_SUPERTX
 
 #if CONFIG_NEW_TOKENSET
-static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
+static int pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
                            const TOKENEXTRA *const stop,
                            aom_bit_depth_t bit_depth, const TX_SIZE tx_size,
                            TOKEN_STATS *token_stats) {
   const TOKENEXTRA *p = *tp;
+  int cost = 0;
 #if CONFIG_VAR_TX || CONFIG_PALETTE_THROUGHPUT
   int count = 0;
   const int seg_eob = tx_size_2d[tx_size];
@@ -854,13 +855,15 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
   }
 
   *tp = p;
+  return cost;
 }
 #else
-static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
+static int pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
                            const TOKENEXTRA *const stop,
                            aom_bit_depth_t bit_depth, const TX_SIZE tx_size,
                            TOKEN_STATS *token_stats) {
   const TOKENEXTRA *p = *tp;
+  int cost = 0;
 #if CONFIG_VAR_TX || CONFIG_PALETTE_THROUGHPUT
   int count = 0;
   const int seg_eob = tx_size_2d[tx_size];
@@ -887,8 +890,11 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 
 #if CONFIG_EC_MULTISYMBOL
     /* skip one or two nodes */
-    if (!p->skip_eob_node)
+    if (!p->skip_eob_node){
+      if(token == EOB_TOKEN)
+        cost = av1_cost_bit(p->context_tree[0], 0);
       aom_write_record(w, token != EOB_TOKEN, p->context_tree[0], token_stats);
+    }
     if (token != EOB_TOKEN) {
       aom_write_record(w, token != ZERO_TOKEN, p->context_tree[1], token_stats);
       if (token != ZERO_TOKEN) {
@@ -900,8 +906,11 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
     /* skip one or two nodes */
     if (p->skip_eob_node)
       coef_length -= p->skip_eob_node;
-    else
+    else{
+      if(token == EOB_TOKEN)
+        cost = av1_cost_bit(p->context_tree[0], 0);
       aom_write_record(w, token != EOB_TOKEN, p->context_tree[0], token_stats);
+    }
 
     if (token != EOB_TOKEN) {
       aom_write_record(w, token != ZERO_TOKEN, p->context_tree[1], token_stats);
@@ -959,6 +968,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
   }
 
   *tp = p;
+  return cost;
 }
 #endif
 #else   // !CONFIG_PVQ
@@ -2058,6 +2068,7 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
   MODE_INFO *m;
   int bh, bw;
+
   xd->mi = cm->mi_grid_visible + (mi_row * cm->mi_stride + mi_col);
   m = xd->mi[0];
 
@@ -2120,6 +2131,48 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
                         w);
   }
 }
+
+#if CONFIG_COLLECT_RD_STATS
+#include "hybrid_fwd_txfm.h"
+
+typedef struct collect_rd_stats_args {
+  AV1_COMP *cpi;
+  MODE_INFO *m;
+
+  uint32_t px_n;
+  int32_t px_var_sum;
+  uint32_t px_var_ssq;
+  uint32_t px_dist_ssq;
+
+  uint32_t tx_n;
+  uint32_t tx_size;
+  uint32_t tx_eob;
+  uint32_t tx_satd;
+  int32_t tx_dc;
+
+} collect_rd_stats_args;
+
+static void collect_rd_stats_b(int plane, int block, int blk_row, int blk_col,
+                               BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
+                               void *arg) {
+  collect_rd_stats_args *args = (collect_rd_stats_args *)arg;
+  const int subblock_index = (blk_row & 1)*2 + (blk_col & 1);
+  const int tx1d_size = get_tx1d_size(tx_size);
+  (void)block;
+  (void)plane_bsize;
+
+  args->px_n += args->m->bmi[subblock_index].px_n[plane];
+  args->px_var_sum += args->m->bmi[subblock_index].px_var_sum[plane];
+  args->px_var_ssq += args->m->bmi[subblock_index].px_var_ssq[plane];
+  args->px_dist_ssq += args->m->bmi[subblock_index].px_dist_ssq[plane];
+  args->tx_n += tx1d_size*tx1d_size;
+  args->tx_size = tx1d_size*tx1d_size;
+  args->tx_eob += args->m->bmi[subblock_index].tx_eob[plane];
+  args->tx_satd += args->m->bmi[subblock_index].tx_satd[plane];
+  args->tx_dc = args->m->bmi[subblock_index].tx_dc[plane];
+
+}
+#endif
 
 static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
                            aom_writer *w, const TOKENEXTRA **tok,
@@ -2263,6 +2316,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif
 
 #if CONFIG_VAR_TX
+    if (!m->mbmi.skip) {
       const struct macroblockd_plane *const pd = &xd->plane[plane];
       BLOCK_SIZE bsize = mbmi->sb_type;
 #if CONFIG_CB4X4
@@ -2385,24 +2439,80 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
       }
 #else
 #if !CONFIG_PVQ
+#if CONFIG_COLLECT_RD_STATS
+      const MACROBLOCK *x = &cpi->td.mb;
+      const BLOCK_SIZE actual_bsize= AOMMAX(xd->mi[0]->mbmi.sb_type, BLOCK_8X8);
+      collect_rd_stats_args args;
+      int tell_frac;
+      unsigned eob_frac = 0;
+      tell_frac = od_ec_enc_tell_frac(&w->ec);
+#endif // CONFIG_COLLECT_RD_STATS
       init_token_stats(&token_stats);
-      pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx, &token_stats);
+      eob_frac =
+        pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx, &token_stats);
+#if CONFIG_COLLECT_RD_STATS
+      tell_frac = m->mbmi.skip ? 0 : od_ec_enc_tell_frac(&w->ec) - tell_frac;
+      tell_frac <<= AV1_PROB_COST_SHIFT - OD_BITRES; /* (bits in Q9) */
+      args.cpi = cpi;
+      args.m = m;
+      args.px_n = 0;
+      args.px_var_sum = 0;
+      args.px_var_ssq = 0;
+      args.px_dist_ssq = 0;
+      args.tx_n = 0;
+      args.tx_size = 0;
+      args.tx_eob = 0;
+      args.tx_satd = 0;
+      args.tx_dc = 0;
+
+      av1_foreach_transformed_block_in_plane(xd, actual_bsize, plane,
+                                             collect_rd_stats_b, &args);
+
+      printf("%u %u %u   %u %u %u %u   %d %d %d %d   %u %u %u %u %u %u %u "
+             "  %d %u %u %u %d %u\n",
+             is_inter_block(&m->mbmi),
+             plane,
+             av1_get_qindex(&cm->seg, m->mbmi.segment_id, cm->base_qindex),
+             xd->plane[plane].dequant[0], /* actual DC quantizer */
+             xd->plane[plane].dequant[1], /* actual AC quantizer */
+             x->plane[plane].zbin[0],     /* DC quant threshold */
+             x->plane[plane].zbin[1],     /* AC quant threshold */
+
+             (int)(plane == 0 ? get_y_mode(m, 0) : m->mbmi.uv_mode),
+             (int)(plane == 0 ? get_y_mode(m, 1) : -1),
+             (int)(plane == 0 ? get_y_mode(m, 2) : -1),
+             (int)(plane == 0 ? get_y_mode(m, 3) : -1),
+
+             xd->mi[0]->mbmi.sb_type, /* block size / shape index */
+             args.px_n, /* total valid pixels in prediction unit */
+             (unsigned)m->mbmi.tx_type, /* transform type */
+             args.tx_size, /* transform size */
+             args.tx_n, /* Total coefficients transformed */
+             args.tx_eob, /* Total coefficients coded */
+             eob_frac, /* Approximately how much did the EOB token cost? */
+
+             args.px_var_sum,
+             args.px_var_ssq,
+             args.px_dist_ssq,
+             args.tx_satd,
+             args.tx_dc,
+             (unsigned)tell_frac);
+#endif // CONFIG_COLLECT_RD_STATS
 #else
       (void)token_stats;
       pack_pvq_tokens(w, x, xd, plane, mbmi->sb_type, tx);
 #endif
 #endif  // CONFIG_PALETTE && CONFIG_PALETTE_THROUGHPUT
 #if CONFIG_RD_DEBUG
-      if (is_inter_block(mbmi) && mbmi->sb_type >= BLOCK_8X8 &&
-          rd_token_stats_mismatch(&m->mbmi.rd_stats, &token_stats, plane)) {
-        dump_mode_info(m);
-        assert(0);
-      }
+    if (is_inter_block(mbmi) && mbmi->sb_type >= BLOCK_8X8 &&
+        rd_token_stats_mismatch(&m->mbmi.rd_stats, &token_stats, plane)) {
+      dump_mode_info(m);
+      assert(0);
+    }
 #else
-      (void)mbmi;
+    (void)mbmi;
 #endif  // CONFIG_RD_DEBUG
 #endif  // CONFIG_VAR_TX
-
 #if !CONFIG_PVQ
       assert(*tok < tok_end && (*tok)->token == EOSB_TOKEN);
       (*tok)++;
