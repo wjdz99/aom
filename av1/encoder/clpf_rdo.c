@@ -171,6 +171,12 @@ int av1_clpf_decision(int k, int l, const YV12_BUFFER_CONFIG *rec,
                           block_size, damping);
         }
 #else
+	if (plane)
+        aom_clpf_detect_c(rec->y_buffer, org->y_buffer, rec->y_stride,
+                        org->y_stride, xpos, ypos, rec->y_crop_width,
+                        rec->y_crop_height, &sum0, &sum1, strength, block_size,
+                        damping);
+	else
         aom_clpf_detect(rec->y_buffer, org->y_buffer, rec->y_stride,
                         org->y_stride, xpos, ypos, rec->y_crop_width,
                         rec->y_crop_height, &sum0, &sum1, strength, block_size,
@@ -286,6 +292,11 @@ static int clpf_rdo(int y, int x, const YV12_BUFFER_CONFIG *rec,
                               block_size, damping);
       }
 #else
+      if (plane)
+      aom_clpf_detect_multi_c(rec_buffer, org_buffer, rec_stride, org_stride,
+                            xpos, ypos, rec_width, rec_height, sum + skip,
+                            block_size, damping);
+      else
       aom_clpf_detect_multi(rec_buffer, org_buffer, rec_stride, org_stride,
                             xpos, ypos, rec_width, rec_height, sum + skip,
                             block_size, damping);
