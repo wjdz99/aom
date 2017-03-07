@@ -913,8 +913,6 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
       out[0] = od_rdo_quant(in[0] - ref[0], dc_quant, dc_rate,
           enc->pvq_norm_lambda);
     }
-  } else {
-    out[0] = 0;
   }
 #if CONFIG_DAALA_EC
   tell = od_ec_enc_tell_frac(&enc->w.ec);
@@ -1028,8 +1026,6 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
         out[0] = od_rdo_quant(in[0] - ref[0], dc_quant, dc_rate,
             enc->pvq_norm_lambda);
       }
-    } else {
-      out[0] = 0;
     }
     /* We decide to skip, roll back everything as it was before. */
     od_encode_rollback(enc, &buf);
