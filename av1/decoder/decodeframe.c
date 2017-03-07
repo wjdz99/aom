@@ -349,11 +349,10 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
 #if CONFIG_PVQ
 static int av1_pvq_decode_helper(MACROBLOCKD *xd, tran_low_t *ref_coeff,
                                  tran_low_t *dqcoeff, int16_t *quant, int pli,
-                                 int bs, TX_TYPE tx_type, int xdec,
-                                 PVQ_SKIP_TYPE ac_dc_coded) {
+                                 int cfl_enabled, int bs, TX_TYPE tx_type,
+                                 int xdec, PVQ_SKIP_TYPE ac_dc_coded) {
   unsigned int flags;  // used for daala's stream analyzer.
   int off;
-  const int is_keyframe = 0;
   const int has_dc_skip = 1;
   int coeff_shift = 3 - get_tx_scale(bs);
   int hbd_downshift = 0;
@@ -405,7 +404,7 @@ static int av1_pvq_decode_helper(MACROBLOCKD *xd, tran_low_t *ref_coeff,
   od_pvq_decode(dec, ref_int32, out_int32,
                 OD_MAXI(1, quant[1] << (OD_COEFF_SHIFT - 3) >> hbd_downshift),
                 pli, bs, OD_PVQ_BETA[use_activity_masking][pli][bs],
-                OD_ROBUST_STREAM, is_keyframe, &flags, ac_dc_coded,
+                OD_ROBUST_STREAM, cfl_enabled, &flags, ac_dc_coded,
                 dec->state.qm + off, dec->state.qm_inv + off);
 
   if (!has_dc_skip || out_int32[0]) {
@@ -454,6 +453,8 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   MB_MODE_INFO *const mbmi, int plane, int row,
                                   int col, TX_SIZE tx_size, TX_TYPE tx_type) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
+  int cfl_enabled =
+      cm->frame_type == KEY_FRAME && plane != 0 && !OD_DISABLE_CFL;
   // transform block size in pixels
   int tx_blk_size = tx_size_wide[tx_size];
   int i, j;
@@ -507,8 +508,9 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
     quant = &pd->seg_dequant[seg_id][0];  // aom's quantizer
 
-    eob = av1_pvq_decode_helper(xd, pvq_ref_coeff, dqcoeff, quant, plane,
-                                tx_size, tx_type, xdec, ac_dc_coded);
+    eob =
+        av1_pvq_decode_helper(xd, pvq_ref_coeff, dqcoeff, quant, plane,
+                              cfl_enabled, tx_size, tx_type, xdec, ac_dc_coded);
 
 // Since av1 does not have separate inverse transform
 // but also contains adding to predicted image,
