@@ -85,7 +85,7 @@ PVQ_SKIP_TYPE av1_pvq_encode_helper(MACROBLOCK *x, tran_low_t *const coeff,
 void av1_store_pvq_enc_info(PVQ_INFO *pvq_info, int *qg, int *theta,
                             int *max_theta, int *k, od_coeff *y, int nb_bands,
                             const int *off, int *size, int skip_rest,
-                            int skip_dir, int bs);
+                            int skip_dir, TX_SIZE bs);
 #endif
 
 #ifdef __cplusplus
