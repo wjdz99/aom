@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e87406f9_075aac29",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 8011,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-07T00:48:57Z",
+      "side": 1,
+      "message": "Sorry I missed that again. Need to figure out if I can get my refactor tool to stop doing this.",
+      "parentUuid": "b2ea4351_65f5996c",
+      "revId": "f316e93447024e5d7be82e426ac7d19164398a83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0ae0fbc_55f7bee3",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-04T01:28:07Z",
       "side": 1,
       "message": "same here.\nAlso, we are assigning same value to both \u0027rate_mv\u0027 and \u0027rd_stats-\u003erate\u0027 and both are being passed to the function? Can\u0027t we get rid of one?\nAt least, we should pass \u0027rd_stats-\u003erate\u0027 directly to the function instead of the whole \u0027rd_stats\u0027.",
+      "revId": "f316e93447024e5d7be82e426ac7d19164398a83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b9056a5_7b095d7d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 8014,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-07T00:48:57Z",
+      "side": 1,
+      "message": "rate_mv is used more and is modified by another function called here - single_motion_search.\n\nThis is the only usage of rd_stats in this function so I\u0027ll just do this afterwards when no error code is returned.",
+      "parentUuid": "f0ae0fbc_55f7bee3",
       "revId": "f316e93447024e5d7be82e426ac7d19164398a83",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true

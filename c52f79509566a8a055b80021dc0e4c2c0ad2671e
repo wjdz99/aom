@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "ca780d81_c11f8eaf",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8044,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-07T00:48:57Z",
+      "side": 1,
+      "message": "\u003e There are two ways I guess:\n\u003e - Have local variables that derive from struct members -- initialized once, and hopefully const, OR\n\u003e - Call an inline function/macro every time you need that derived variable (e.g. \u0027mv_idx \u003d get_motion_vector_index(mbmi-\u003emode).\n\u003e \n\u003e So, I guess the choice depends on whether the value derived variables is ever going to change and/or if you only need the initial value of these variables, even if the original struct members change.\n\nThis is going to need a little more investigation on my part. For now I\u0027ve left their definitions the same as in handle_inter_mode(). I\u0027ll work on making them const where possible.\n\nI\u0027m not really into the macro, the local variables seem cleaner to me for now.",
+      "parentUuid": "d6ac4960_f900beba",
+      "revId": "c52f79509566a8a055b80021dc0e4c2c0ad2671e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d11f25e2_cd7d42b7",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -105,6 +123,24 @@
       "revId": "c52f79509566a8a055b80021dc0e4c2c0ad2671e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65b4fa78_1d578c72",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8153,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-07T00:48:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f81c1ab_e470bee7",
+      "revId": "c52f79509566a8a055b80021dc0e4c2c0ad2671e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
