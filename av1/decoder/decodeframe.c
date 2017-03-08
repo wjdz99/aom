@@ -406,7 +406,6 @@ static int av1_pvq_decode_helper(od_dec_ctx *dec, tran_low_t *ref_coeff,
     if (out_int32[0]) out_int32[0] *= aom_read_bit(dec->r, "dc:sign") ? -1 : 1;
   }
   out_int32[0] = out_int32[0] * pvq_dc_quant + ref_int32[0];
-
   // copy int32 result back to int16
   assert(OD_COEFF_SHIFT > coeff_shift);
   rounding_mask = (1 << (OD_COEFF_SHIFT - coeff_shift - 1)) - 1;
@@ -443,6 +442,12 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   MB_MODE_INFO *const mbmi, int plane, int row,
                                   int col, TX_SIZE tx_size, TX_TYPE tx_type) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
+#if CONFIG_PVQ_CFL
+  int cfl_enabled =
+      cm->frame_type == KEY_FRAME && plane != 0;
+#else
+  int cfl_enabled = 0;
+#endif
   // transform block size in pixels
   int tx_blk_size = tx_size_wide[tx_size];
   int i, j;
