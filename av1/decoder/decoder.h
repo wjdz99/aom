@@ -144,6 +144,11 @@ typedef struct AV1Decoder {
   aom_inspect_cb inspect_cb;
   void *inspect_ctx;
 #endif
+#if CONFIG_MV_COUNT
+  int frame_mv_count;
+  int superblock_mv_count;
+  int is_first_partition;
+#endif
 } AV1Decoder;
 
 int av1_receive_compressed_data(struct AV1Decoder *pbi, size_t size,
