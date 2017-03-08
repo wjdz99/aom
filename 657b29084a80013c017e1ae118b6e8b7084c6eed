@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "96c2b944_bb45ca96",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 4436,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-03-08T17:03:43Z",
+      "side": 1,
+      "message": "in the current av1, the loop filter level is not determined yet at the beginning of frame/tile. It is only determined at loop filtering is actually performed after the mode decision. So here we predict the delta lf from previous super block\u0027s delta lf and code the delta between these two. It is equivalent to code the delta between current lf and previous superblock\u0027s lf.\nWill add comment in the code to illustrate the reason.",
+      "parentUuid": "0b015c4a_315c8eda",
+      "range": {
+        "startLine": 4436,
+        "startChar": 28,
+        "endLine": 4436,
+        "endChar": 29
+      },
+      "revId": "657b29084a80013c017e1ae118b6e8b7084c6eed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5532eba8_748314bb",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-08T08:39:07Z",
       "side": 1,
       "message": "Remove?",
+      "range": {
+        "startLine": 1879,
+        "startChar": 8,
+        "endLine": 1879,
+        "endChar": 70
+      },
+      "revId": "657b29084a80013c017e1ae118b6e8b7084c6eed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cde628a2_2bec700c",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1879,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-03-08T17:03:43Z",
+      "side": 1,
+      "message": "I missed this. Will remove it.",
+      "parentUuid": "5532eba8_748314bb",
       "range": {
         "startLine": 1879,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "899c4aa3_4b352dbe",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2949,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-03-08T17:03:43Z",
+      "side": 1,
+      "message": "in the current av1, the loop filter level is not determined yet at the beginning of frame/tile for encoder. It is only determined at loop filtering is actually performed after the mode decision. So here we predict the delta lf from previous super block\u0027s delta lf and code the delta between these two. It is equivalent to code the delta between current lf and previous superblock\u0027s lf.",
+      "parentUuid": "7970e31d_9d3a11ae",
+      "range": {
+        "startLine": 2949,
+        "startChar": 26,
+        "endLine": 2949,
+        "endChar": 27
+      },
+      "revId": "657b29084a80013c017e1ae118b6e8b7084c6eed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3ebb14c_f134a992",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 8
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "9adb2657_944df29a",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 4634,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-03-08T17:03:43Z",
+      "side": 1,
+      "message": "in the current av1, the loop filter level is not determined yet at the beginning of frame/tile. It is only determined at loop filtering is actually performed after the mode decision. So here we predict the delta lf from previous super block\u0027s delta lf and code the delta between these two. It is equivalent to code the delta between current lf and previous superblock\u0027s lf.",
+      "parentUuid": "d3ebb14c_f134a992",
+      "range": {
+        "startLine": 4634,
+        "startChar": 28,
+        "endLine": 4634,
+        "endChar": 29
+      },
+      "revId": "657b29084a80013c017e1ae118b6e8b7084c6eed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e26cf5e4_09349679",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 8
@@ -105,6 +201,30 @@
       "writtenOn": "2017-03-08T08:39:07Z",
       "side": 1,
       "message": "Would it make sense to use cm-\u003elf.filter_level instead of 0?",
+      "range": {
+        "startLine": 4565,
+        "startChar": 63,
+        "endLine": 4565,
+        "endChar": 64
+      },
+      "revId": "657b29084a80013c017e1ae118b6e8b7084c6eed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "46762958_fd3114fb",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 4565,
+      "author": {
+        "id": 5280
+      },
+      "writtenOn": "2017-03-08T17:03:43Z",
+      "side": 1,
+      "message": "in the current av1, the loop filter level is not determined yet at the beginning of frame/tile. It is only determined at loop filtering is actually performed after the mode decision. So here we predict the delta lf from previous super block\u0027s delta lf and code the delta between these two. It is equivalent to code the delta between current lf and previous superblock\u0027s lf.",
+      "parentUuid": "e26cf5e4_09349679",
       "range": {
         "startLine": 4565,
         "startChar": 63,
