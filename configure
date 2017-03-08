@@ -287,6 +287,7 @@ EXPERIMENT_LIST="
     daala_ec
     rawbits
     pvq
+    pvq_cfl
     xiphrc
     cb4x4
     chroma_2x2
@@ -485,6 +486,7 @@ post_process_cmdline() {
     soft_enable palette
 
     # Fix up experiment dependencies
+    enabled pvq_cfl && enable_feature pvq
     enabled pvq && enable_feature ec_adapt
     enabled ec_adapt && enable_feature ec_multisymbol
     enabled new_tokenset && enable_feature ec_multisymbol
