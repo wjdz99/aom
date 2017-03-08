@@ -207,8 +207,8 @@ void av1_encode_token_init(void) {
 }
 
 #if !CONFIG_EC_MULTISYMBOL
-static void write_intra_mode(aom_writer *w, PREDICTION_MODE mode,
-                             const aom_prob *probs) {
+static void write_intra_mode_kf(aom_writer *w, PREDICTION_MODE mode,
+                                const aom_prob *probs) {
   av1_write_token(w, av1_intra_mode_tree, probs, &intra_mode_encodings[mode]);
 }
 #endif
@@ -1466,6 +1466,31 @@ static void write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
   }
 }
 
+static void write_intra_mode(FRAME_CONTEXT *frame_ctx, BLOCK_SIZE bsize,
+                             PREDICTION_MODE mode, aom_writer *w) {
+#if CONFIG_EC_MULTISYMBOL
+  aom_write_symbol(w, av1_intra_mode_ind[mode],
+                   frame_ctx->y_mode_cdf[size_group_lookup[bsize]],
+                   INTRA_MODES);
+#else
+  av1_write_token(w, av1_intra_mode_tree,
+                  frame_ctx->y_mode_prob[size_group_lookup[bsize]],
+                  &intra_mode_encodings[mode]);
+#endif
+}
+
+static void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
+                                PREDICTION_MODE uv_mode, PREDICTION_MODE y_mode,
+                                aom_writer *w) {
+#if CONFIG_EC_MULTISYMBOL
+  aom_write_symbol(w, av1_intra_mode_ind[uv_mode],
+                   frame_ctx->uv_mode_cdf[y_mode], INTRA_MODES);
+#else
+  av1_write_token(w, av1_intra_mode_tree, frame_ctx->uv_mode_prob[y_mode],
+                  &intra_mode_encodings[uv_mode]);
+#endif
+}
+
 static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
                                 const int mi_row, const int mi_col,
 #if CONFIG_SUPERTX
@@ -1585,13 +1610,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 
   if (!is_inter) {
     if (bsize >= BLOCK_8X8 || unify_bsize) {
-#if CONFIG_EC_MULTISYMBOL
-      aom_write_symbol(w, av1_intra_mode_ind[mode],
-                       ec_ctx->y_mode_cdf[size_group_lookup[bsize]],
-                       INTRA_MODES);
-#else
-      write_intra_mode(w, mode, cm->fc->y_mode_prob[size_group_lookup[bsize]]);
-#endif
+      write_intra_mode(ec_ctx, bsize, mode, w);
     } else {
       int idx, idy;
       const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
@@ -1599,31 +1618,15 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
       for (idy = 0; idy < 2; idy += num_4x4_h) {
         for (idx = 0; idx < 2; idx += num_4x4_w) {
           const PREDICTION_MODE b_mode = mi->bmi[idy * 2 + idx].as_mode;
-#if CONFIG_EC_MULTISYMBOL
-          aom_write_symbol(w, av1_intra_mode_ind[b_mode], ec_ctx->y_mode_cdf[0],
-                           INTRA_MODES);
-#else
-          write_intra_mode(w, b_mode, cm->fc->y_mode_prob[0]);
-#endif
+          write_intra_mode(ec_ctx, 0, b_mode, w);
         }
       }
     }
 #if CONFIG_CB4X4
-    if (bsize >= BLOCK_8X8 || is_chroma_reference(mi_row, mi_col)) {
-#if CONFIG_EC_MULTISYMBOL
-      aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
-                       ec_ctx->uv_mode_cdf[mode], INTRA_MODES);
-#else
-      write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mode]);
-#endif  // CONFIG_EC_MULTISYMBOL
-    }
+    if (bsize >= BLOCK_8X8 || is_chroma_reference(mi_row, mi_col))
+      write_intra_uv_mode(ec_ctx, mbmi->uv_mode, mode, w);
 #else  // !CONFIG_CB4X4
-#if CONFIG_EC_MULTISYMBOL
-    aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
-                     ec_ctx->uv_mode_cdf[mode], INTRA_MODES);
-#else
-    write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mode]);
-#endif  // CONFIG_EC_MULTISYMBOL
+    write_intra_uv_mode(ec_ctx, mbmi->uv_mode, mode, w);
 #endif  // CONFIG_CB4X4
 
 #if CONFIG_EXT_INTRA
@@ -1910,7 +1913,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
 
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#elif CONFIG_EC_MULTISYMBOL
+#else
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
 
@@ -1950,8 +1953,8 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
                      get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, 0),
                      INTRA_MODES);
 #else
-    write_intra_mode(w, mbmi->mode,
-                     get_y_mode_probs(cm, mi, above_mi, left_mi, 0));
+    write_intra_mode_kf(w, mbmi->mode,
+                        get_y_mode_probs(cm, mi, above_mi, left_mi, 0));
 #endif
   } else {
     const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
@@ -1966,29 +1969,18 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
                          get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, block),
                          INTRA_MODES);
 #else
-        write_intra_mode(w, mi->bmi[block].as_mode,
-                         get_y_mode_probs(cm, mi, above_mi, left_mi, block));
+        write_intra_mode_kf(w, mi->bmi[block].as_mode,
+                            get_y_mode_probs(cm, mi, above_mi, left_mi, block));
 #endif
       }
     }
   }
 
 #if CONFIG_CB4X4
-  if (bsize >= BLOCK_8X8 || is_chroma_reference(mi_row, mi_col)) {
-#if CONFIG_EC_MULTISYMBOL
-    aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
-                     ec_ctx->uv_mode_cdf[mbmi->mode], INTRA_MODES);
-#else
-    write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mbmi->mode]);
-#endif  // CONFIG_EC_MULTISYMBOL
-  }
+  if (bsize >= BLOCK_8X8 || is_chroma_reference(mi_row, mi_col))
+    write_intra_uv_mode(ec_ctx, mbmi->uv_mode, mbmi->mode, w);
 #else  // !CONFIG_CB4X4
-#if CONFIG_EC_MULTISYMBOL
-  aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
-                   ec_ctx->uv_mode_cdf[mbmi->mode], INTRA_MODES);
-#else
-  write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mbmi->mode]);
-#endif  // CONFIG_EC_MULTISYMBOL
+  write_intra_uv_mode(ec_ctx, mbmi->uv_mode, mbmi->mode, w);
 #endif  // CONFIG_CB4X4
 
 #if CONFIG_EXT_INTRA
