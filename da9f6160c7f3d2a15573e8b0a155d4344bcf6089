@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "056133b7_4c76f65b",
+        "filename": "av1/common/mvref_common.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-03-08T19:10:50Z",
+      "side": 1,
+      "message": "I did think of that as well, then the \n\n#if CONFIG_DEPENDENT_HORZTILES\nconst int dependent_horz_tiles \u003d cm-\u003edependent_horz_tiles;\n#else\nconst int dependent_horz_tiles \u003d 0;\n#endif  // CONFIG_DEPENDENT_HORZTILES\n\nwill need be duplicated everywhere is_inside() is called, that would be against the intention of this patch.\n\nA slightly different approach is to move the flag into TileInfo, I guess that I can try that if that is preferred.",
+      "parentUuid": "6201de71_29f98554",
+      "revId": "da9f6160c7f3d2a15573e8b0a155d4344bcf6089",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "906b0687_b9dd2715",
         "filename": "av1/common/mvref_common.h",
         "patchSetId": 4
