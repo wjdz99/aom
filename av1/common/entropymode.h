@@ -170,7 +170,6 @@ typedef struct frame_contexts {
   aom_prob coeff_lps[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS];
 #endif
 
-#if CONFIG_REF_MV
   aom_prob newmv_prob[NEWMV_MODE_CONTEXTS];
   aom_prob zeromv_prob[ZEROMV_MODE_CONTEXTS];
   aom_prob refmv_prob[REFMV_MODE_CONTEXTS];
@@ -179,7 +178,6 @@ typedef struct frame_contexts {
 #if CONFIG_EXT_INTER
   aom_prob new2mv_prob;
 #endif  // CONFIG_EXT_INTER
-#endif  // CONFIG_REF_MV
 
   aom_prob inter_mode_probs[INTER_MODE_CONTEXTS][INTER_MODES - 1];
 #if CONFIG_EXT_INTER
@@ -210,11 +208,7 @@ typedef struct frame_contexts {
   aom_prob txfm_partition_prob[TXFM_PARTITION_CONTEXTS];
 #endif
   aom_prob skip_probs[SKIP_CONTEXTS];
-#if CONFIG_REF_MV
   nmv_context nmvc[NMV_CONTEXTS];
-#else
-  nmv_context nmvc;
-#endif
   int initialized;
 #if CONFIG_EXT_TX
   aom_prob inter_ext_tx_prob[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES - 1];
@@ -316,7 +310,6 @@ typedef struct FRAME_COUNTS {
   av1_blockz_count_model blockz_count[TX_SIZES][PLANE_TYPES];
 #endif
 
-#if CONFIG_REF_MV
   unsigned int newmv_mode[NEWMV_MODE_CONTEXTS][2];
   unsigned int zeromv_mode[ZEROMV_MODE_CONTEXTS][2];
   unsigned int refmv_mode[REFMV_MODE_CONTEXTS][2];
@@ -324,7 +317,6 @@ typedef struct FRAME_COUNTS {
 #if CONFIG_EXT_INTER
   unsigned int new2mv_mode[2];
 #endif  // CONFIG_EXT_INTER
-#endif
 
   unsigned int inter_mode[INTER_MODE_CONTEXTS][INTER_MODES];
 #if CONFIG_EXT_INTER
@@ -358,11 +350,7 @@ typedef struct FRAME_COUNTS {
   unsigned int txfm_partition[TXFM_PARTITION_CONTEXTS][2];
 #endif
   unsigned int skip[SKIP_CONTEXTS][2];
-#if CONFIG_REF_MV
   nmv_context_counts mv[NMV_CONTEXTS];
-#else
-  nmv_context_counts mv;
-#endif
 #if CONFIG_DELTA_Q
   unsigned int delta_q[DELTA_Q_PROBS][2];
 #endif
