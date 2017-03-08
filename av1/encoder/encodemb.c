@@ -631,8 +631,11 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
       pvq_info->is_coded = 1;
     }
     /*If we are coding a chroma block of a keyframe, we are doing CfL.*/
-    pvq_info->cfl_enabled =
-        cm->frame_type == KEY_FRAME && plane != 0 && !OD_DISABLE_CFL;
+#if CONFIG_PVQ_CFL 
+    pvq_info->cfl_enabled = cm->frame_type == KEY_FRAME && plane != 0;
+#else
+    pvq_info->cfl_enabled = 0;
+#endif
     av1_pvq_encode_helper(&x->daala_enc,
                           coeff,        // target original vector
                           ref_coeff,    // reference vector
