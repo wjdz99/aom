@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6363a89d_16d59545",
+        "filename": "test/simd_cmp_neon.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-08T06:48:03Z",
+      "side": 1,
+      "message": "you probably want to check defined() first to avoid a warning should this not exist; mac will warn if you try to pack an empty object into an archive, but the current build avoids this step (both cmake and configure).\nmsvc does have this define, _DEBUG might be a close approximation:\nhttps://msdn.microsoft.com/en-us/library/b0084kay.aspx",
+      "revId": "008e9b9c81e45afe5c4e9fa8304a7eef12eef15c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
