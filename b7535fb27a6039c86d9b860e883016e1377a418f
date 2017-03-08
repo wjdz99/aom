@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "03d85f54_6387c74b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-08T00:40:41Z",
+      "side": 1,
+      "message": "Reminder.",
+      "parentUuid": "e9ac8a07_c7f34db5",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 8
+      },
+      "revId": "b7535fb27a6039c86d9b860e883016e1377a418f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac391e2f_b8da5b04",
         "filename": "av1/decoder/detokenize.c",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-07T23:06:41Z",
       "side": 1,
       "message": "Remove \"per transform block\" comment.\nAlso, first letter capital and end with a fullstop: \"Run wavefront ..... index decoding.\"",
+      "range": {
+        "startLine": 454,
+        "startChar": 53,
+        "endLine": 454,
+        "endChar": 72
+      },
+      "revId": "b7535fb27a6039c86d9b860e883016e1377a418f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a4f1d14f_f5728cad",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-08T00:40:41Z",
+      "side": 1,
+      "message": "Reminder: first letter capital and end with a fullstop: \"Run wavefront ..... index decoding.\"",
+      "parentUuid": "ac391e2f_b8da5b04",
       "range": {
         "startLine": 454,
         "startChar": 53,
@@ -110,6 +158,24 @@
       "writtenOn": "2017-03-07T23:06:41Z",
       "side": 1,
       "message": "Most of the parts between #if and #else are common, so please refactor. For example:\n\n#if CONFIG_PALETTE_THROUGHPUT\n  for (k \u003d 1; k \u003c rows + cols - 1; ++k) {\n    for (j \u003d AOMMIN(i, cols - 1); j \u003e\u003d AOMMAX(0, i - rows + 1); --j) {\n    const int i \u003d k - j;\n#else\n  for (i \u003d 0; i \u003c rows; ++i) {\n    for (j \u003d (i \u003d\u003d 0 ? 1 : 0); j \u003c cols; ++j) {\n#endif  // CONFIG_PALETTE_THROUGHPUT\n      int color_new_idx;\n      .....\n    }\n  }",
+      "revId": "b7535fb27a6039c86d9b860e883016e1377a418f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc5b9d93_10254c03",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-08T00:40:41Z",
+      "side": 1,
+      "message": "Even the \"const int color_ctx \u003d av1_get_palette_color_index_context(...\" line can be refactored using a variable \u0027k\u0027. See my comment again.",
+      "parentUuid": "662632a6_2658fbe5",
       "revId": "b7535fb27a6039c86d9b860e883016e1377a418f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
