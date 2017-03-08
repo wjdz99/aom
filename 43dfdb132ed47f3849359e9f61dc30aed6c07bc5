@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1c86f594_43ac1c5b",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-03-08T18:17:51Z",
+      "side": 1,
+      "message": "I don\u0027t think so. aom_read_bit calls aom_read, which is where the counting is done, unless the RAWBITS experiment is on",
+      "parentUuid": "6d19a840_c5164244",
+      "revId": "43dfdb132ed47f3849359e9f61dc30aed6c07bc5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dbd1cd2d_5fba3f7f",
         "filename": "av1/common/accounting.h",
         "patchSetId": 1
