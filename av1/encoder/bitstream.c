@@ -1019,6 +1019,7 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
 
   for (idy = 0; idy < max_blocks_high; idy += step) {
     for (idx = 0; idx < max_blocks_wide; idx += step) {
+      // TODO(ltrudeau) enable flip after CfL is added to RDO.
       const int encode_flip = 0;
       const int flip = 0;
       const int nodesync = 1;
@@ -2267,8 +2268,11 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       MB_MODE_INFO *mbmi = &m->mbmi;
 #if CONFIG_PVQ
-      const int is_skip_copy =
-          !(plane != 0 && cm->frame_type == KEY_FRAME && !OD_DISABLE_CFL);
+#if CONFIG_PVQ_CFL
+      const int is_skip_copy = !(plane != 0 && cm->frame_type == KEY_FRAME);
+#else
+      const int is_skip_copy = 1;
+#endif  // CONFIG_PVQ_CFL
 #endif
 
 #if CONFIG_CB4X4
