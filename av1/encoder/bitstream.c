@@ -1022,6 +1022,7 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
 
   for (idy = 0; idy < max_blocks_high; idy += step) {
     for (idx = 0; idx < max_blocks_wide; idx += step) {
+      // TODO(ltrudeau) enable flip after CfL is added to RDO.
       const int encode_flip = 0;
       const int flip = 0;
       const int nodesync = 1;

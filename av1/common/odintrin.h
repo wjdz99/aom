@@ -66,7 +66,6 @@ extern "C" {
 
 # define OD_COEFF_SHIFT (4)
 
-# define OD_DISABLE_CFL (1)
 # define OD_DISABLE_FILTER (1)
 
 #if !defined(NDEBUG)
