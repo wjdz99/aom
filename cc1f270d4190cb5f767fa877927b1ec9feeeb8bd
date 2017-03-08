@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "03e5e53d_8f809b39",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8014,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-08T21:57:53Z",
+      "side": 1,
+      "message": "For pointers, keeping declaring both address and value constant is fine (and good).\nI think this is explained in the doc I linked above.",
+      "parentUuid": "b43adcb9_66ed2812",
+      "revId": "cc1f270d4190cb5f767fa877927b1ec9feeeb8bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0e056c2_1745ce9b",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -119,6 +137,24 @@
     },
     {
       "key": {
+        "uuid": "84c17631_9c08ae0e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8075,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-08T21:57:53Z",
+      "side": 1,
+      "message": "TODO would be nice",
+      "parentUuid": "4732004a_e152d7dd",
+      "revId": "cc1f270d4190cb5f767fa877927b1ec9feeeb8bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "670d0596_737287ac",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -183,6 +219,24 @@
       "side": 1,
       "message": "I didn\u0027t make this a constant because the helper functions I\u0027m working on follow this pattern. Subsequent helpers will use the same variable for their return code. Should I put the call and return handling in braces to make a local constant ret_val go out of scope?",
       "parentUuid": "f45c734c_062a3c49",
+      "revId": "cc1f270d4190cb5f767fa877927b1ec9feeeb8bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8de2781_dee247f0",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8402,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-08T21:57:53Z",
+      "side": 1,
+      "message": "Ah k, makes sense to reuse the same variable for all return values. No need for const then.",
+      "parentUuid": "93cb6542_8e0f692f",
       "revId": "cc1f270d4190cb5f767fa877927b1ec9feeeb8bd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
