@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d9a2d6c_15e68214",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 15
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-03-08T01:56:56Z",
+      "side": 1,
+      "message": "You can drop the CMake changes. Using append_exe_linker_flag to add libs doesn\u0027t always work for me with gcc+make. I\u0027ll take care of syncing up the CMake build after these changes land.",
+      "range": {
+        "startLine": 214,
+        "startChar": 0,
+        "endLine": 214,
+        "endChar": 42
+      },
+      "revId": "ea864c13af381a4147be1acde0a9edec1156d5fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
