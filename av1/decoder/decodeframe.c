@@ -1891,6 +1891,42 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                     partition,
 #endif
                     bsize);
+#if CONFIG_MV_COUNT
+  // accumulate count for mv for each super block
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
+  pbi->superblock_mv_count += 3;
+  if (has_second_ref(mbmi)) pbi->superblock_mv_count += 3;
+#else
+  // only the first partition of HORZ, VERT, SPLIT under 8x8 has u, v MVs
+  if (pbi->is_first_partition) {
+    pbi->superblock_mv_count += 3;
+    if (has_second_ref(mbmi)) pbi->superblock_mv_count += 3;
+  } else {
+    pbi->superblock_mv_count += 1;
+    if (has_second_ref(mbmi)) pbi->superblock_mv_count += 1;
+  }
+#endif  // CONFIG_CHROMA_2X2
+#else
+  if (bsize >= BLOCK_8X8) {
+    pbi->superblock_mv_count += 3;
+    if (has_second_ref(mbmi)) pbi->superblock_mv_count += 3;
+  } else {
+    // u, v plane each has one mv
+    pbi->superblock_mv_count += 2;
+    if (has_second_ref(mbmi)) pbi->superblock_mv_count += 2;
+    // y plane
+    if (mbmi->sb_type == BLOCK_8X4 || mbmi->sb_type == BLOCK_4X8) {
+      pbi->superblock_mv_count += 2;
+      if (has_second_ref(mbmi)) pbi->superblock_mv_count += 2;
+    } else {
+      pbi->superblock_mv_count += 4;
+      if (has_second_ref(mbmi)) pbi->superblock_mv_count += 4;
+    }
+  }
+#endif  // CONFIG_CB4X4
+#endif  // CONFIG_MV_COUNT
 #if !(CONFIG_MOTION_VAR && CONFIG_NCOBMC)
 #if CONFIG_SUPERTX
   if (!supertx_enabled)
@@ -2021,6 +2057,9 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                              : read_partition(cm, xd, mi_row, mi_col, r,
                                               has_rows, has_cols, bsize);
   subsize = subsize_lookup[partition][bsize];  // get_subsize(bsize, partition);
+#if CONFIG_MV_COUNT
+  if (subsize >= BLOCK_8X8) pbi->is_first_partition = 1;
+#endif
 
 #if CONFIG_PVQ
   assert(partition < PARTITION_TYPES);
@@ -2075,6 +2114,10 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                      partition,
 #endif  // CONFIG_EXT_PARTITION_TYPES
                      subsize);
+#if CONFIG_MV_COUNT
+        if (has_rows && (subsize == BLOCK_8X4 || subsize == BLOCK_4X8))
+          pbi->is_first_partition = 0;
+#endif  // CONFIG_MV_COUNT
         if (has_rows)
           decode_block(pbi, xd,
 #if CONFIG_SUPERTX
@@ -2096,6 +2139,10 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                      partition,
 #endif  // CONFIG_EXT_PARTITION_TYPES
                      subsize);
+#if CONFIG_MV_COUNT
+        if (has_rows && (subsize == BLOCK_8X4 || subsize == BLOCK_4X8))
+          pbi->is_first_partition = 0;
+#endif  // CONFIG_MV_COUNT
         if (has_cols)
           decode_block(pbi, xd,
 #if CONFIG_SUPERTX
@@ -2113,6 +2160,9 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                          supertx_enabled,
 #endif  // CONFIG_SUPERTX
                          mi_row, mi_col, r, subsize, n8x8_l2);
+#if CONFIG_MV_COUNT
+        pbi->is_first_partition = 0;
+#endif
         decode_partition(pbi, xd,
 #if CONFIG_SUPERTX
                          supertx_enabled,
@@ -3462,6 +3512,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_SUBFRAME_PROB_UPDATE
   cm->do_subframe_update = n_tiles == 1;
 #endif  // CONFIG_SUBFRAME_PROB_UPDATE
+#if CONFIG_MV_COUNT
+  pbi->frame_mv_count = 0;
+#endif
 
   if (cm->lf.filter_level && !cm->skip_loop_filter &&
       pbi->lf_worker.data1 == NULL) {
@@ -3549,6 +3602,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     }
   }
 
+#if CONFIG_MV_COUNT
+  FILE *pFile = fopen("mv_count.txt", "a");
+#endif
   for (tile_row = tile_rows_start; tile_row < tile_rows_end; ++tile_row) {
     const int row = inv_row_order ? tile_rows - 1 - tile_row : tile_row;
     int mi_row = 0;
@@ -3591,6 +3647,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 
         for (mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->mib_size) {
+#if CONFIG_MV_COUNT
+          pbi->superblock_mv_count = 0;
+#endif
           av1_update_boundary_info(cm, &tile_info, mi_row, mi_col);
           decode_partition(pbi, &td->xd,
 #if CONFIG_SUPERTX
@@ -3601,6 +3660,20 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_NCOBMC && CONFIG_MOTION_VAR
           detoken_and_recon_sb(pbi, &td->xd, mi_row, mi_col, &td->bit_reader,
                                cm->sb_size);
+#endif
+#if CONFIG_MV_COUNT
+          // sb_mv_count can be written to txt file to count sliding window MV
+          // when writing to local txt file, also consider alt ref frame,
+          // where cm->show_frame is 0
+          if (!frame_is_intra_only(cm) && cm->show_frame)
+            pbi->frame_mv_count += pbi->superblock_mv_count;
+
+          if (!frame_is_intra_only(cm) && cm->show_frame)
+            fprintf(pFile, "%d, %d\n", cm->current_video_frame,
+                    pbi->superblock_mv_count);
+          else if (!frame_is_intra_only(cm) && !cm->show_frame)
+            fprintf(pFile, "%d, %d\n", cm->current_video_frame + 10000,
+                    pbi->superblock_mv_count);
 #endif
         }
         aom_merge_corrupted_flag(&pbi->mb.corrupted, td->xd.corrupted);
@@ -3622,6 +3695,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_SUBFRAME_PROB_UPDATE
       }
     }
+#if CONFIG_MV_COUNT
+    fclose(pFile);
+#endif
 
     assert(mi_row > 0);
 
