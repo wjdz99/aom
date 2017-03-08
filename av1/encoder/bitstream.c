@@ -1608,17 +1608,24 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
         }
       }
     }
+#if CONFIG_CB4X4
+    if (bsize >= BLOCK_8X8 || is_chroma_reference(mi_row, mi_col)) {
+#if CONFIG_EC_MULTISYMBOL
+      aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
+                       ec_ctx->uv_mode_cdf[mode], INTRA_MODES);
+#else
+      write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mode]);
+#endif  // CONFIG_EC_MULTISYMBOL
+    }
+#else  // !CONFIG_CB4X4
 #if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
                      ec_ctx->uv_mode_cdf[mode], INTRA_MODES);
 #else
-#if CONFIG_CB4X4
-    if (bsize >= BLOCK_8X8 || is_chroma_reference(mi_row, mi_col))
-      write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mode]);
-#else
     write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mode]);
+#endif  // CONFIG_EC_MULTISYMBOL
 #endif  // CONFIG_CB4X4
-#endif
+
 #if CONFIG_EXT_INTRA
     write_intra_angle_info(cm, xd, w);
 #endif  // CONFIG_EXT_INTRA
@@ -1965,17 +1972,25 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
     }
   }
+
+#if CONFIG_CB4X4
+  if (bsize >= BLOCK_8X8 || is_chroma_reference(mi_row, mi_col)) {
+#if CONFIG_EC_MULTISYMBOL
+    aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
+                     ec_ctx->uv_mode_cdf[mbmi->mode], INTRA_MODES);
+#else
+    write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mbmi->mode]);
+#endif  // CONFIG_EC_MULTISYMBOL
+  }
+#else  // !CONFIG_CB4X4
 #if CONFIG_EC_MULTISYMBOL
   aom_write_symbol(w, av1_intra_mode_ind[mbmi->uv_mode],
                    ec_ctx->uv_mode_cdf[mbmi->mode], INTRA_MODES);
 #else
-#if CONFIG_CB4X4
-  if (bsize >= BLOCK_8X8 || is_chroma_reference(mi_row, mi_col))
-    write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mbmi->mode]);
-#else
   write_intra_mode(w, mbmi->uv_mode, cm->fc->uv_mode_prob[mbmi->mode]);
+#endif  // CONFIG_EC_MULTISYMBOL
 #endif  // CONFIG_CB4X4
-#endif
+
 #if CONFIG_EXT_INTRA
   write_intra_angle_info(cm, xd, w);
 #endif  // CONFIG_EXT_INTRA
