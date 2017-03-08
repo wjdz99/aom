@@ -28,6 +28,25 @@ typedef uint32_t od_ec_window;
    3 => 1/8th bits.*/
 #define OD_BITRES (3)
 
+/*With CONFIG_EC_SMALLMUL, the value stored in a CDF is 32768 minus the actual
+   Q15 cumulative probability (an "inverse" CDF).
+  This function converts from one representation to the other (and is its own
+   inverse).*/
+#if CONFIG_EC_SMALLMUL
+# define OD_ICDF(x) (32768U - (x))
+#else
+# define OD_ICDF(x) (x)
+#endif
+
+/*We don't store the cumulative probability of all symbol values less than 0 in
+   the CDF arrays, because it is a constant.
+  OD_F0 is this constant.*/
+#if CONFIG_EC_SMALLMUL
+# define OD_F0 (32768U)
+#else
+# define OD_F0 (0U)
+#endif
+
 /*See entcode.c for further documentation.*/
 
 OD_WARN_UNUSED_RESULT uint32_t od_ec_tell_frac(uint32_t nbits_total,
