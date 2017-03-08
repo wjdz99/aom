@@ -529,6 +529,12 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   int tx_blk_size;
   int i, j;
 #endif
+#if CONFIG_PVQ_CFL
+  /*If we are coding a chroma block of a keyframe, we are doing CfL.*/
+  const int cfl_enabled = plane != 0 && cm->frame_type == KEY_FRAME;
+#elif CONFIG_PVQ
+  const int cfl_enabled = 0;
+#endif
 
 #if !CONFIG_PVQ
   const int tx2d_size = tx_size_2d[tx_size];
@@ -629,9 +635,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
       assert(block < MAX_PVQ_BLOCKS_IN_SB);
       pvq_info = &x->pvq[block][plane];
     }
-    /*If we are coding a chroma block of a keyframe, we are doing CfL.*/
-    pvq_info->cfl_enabled =
-        cm->frame_type == KEY_FRAME && plane != 0 && !OD_DISABLE_CFL;
+    pvq_info->cfl_enabled = cfl_enabled;
     pvq_info->is_coded = x->pvq_coded;
 
     av1_pvq_encode_helper(&x->daala_enc,
