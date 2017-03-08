@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b43adcb9_66ed2812",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8014,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-08T20:52:40Z",
+      "side": 1,
+      "message": "OK, I know it just makes the function\u0027s local copy constant but I thought it would be good to do since they\u0027re not modified. Will fix in next patch.\n\nShould I also change the pointers so their addresses aren\u0027t constant? IE. const BUFFER_SET *const tmp_dst \u003e\u003e\u003e const BUFFER_SET *tmp_dst",
+      "parentUuid": "7b8dc251_53390d24",
+      "revId": "cc1f270d4190cb5f767fa877927b1ec9feeeb8bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0e056c2_1745ce9b",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "1ddcdfe1_0f65e8b4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8017,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-08T20:52:40Z",
+      "side": 1,
+      "message": "Sounds good - I didn\u0027t even know what it was.",
+      "parentUuid": "f0e056c2_1745ce9b",
+      "range": {
+        "startLine": 8017,
+        "startChar": 34,
+        "endLine": 8017,
+        "endChar": 36
+      },
+      "revId": "cc1f270d4190cb5f767fa877927b1ec9feeeb8bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae394c3d_61e1a8a1",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -53,6 +95,24 @@
       "writtenOn": "2017-03-08T19:38:03Z",
       "side": 1,
       "message": "Can you later (after this patch) look at the chain of functions starting from av1_build_inter_predictors_sb()?\nI think definition of them can be modified as they may not actually be altering the contents of \u0027orig_dst\u0027",
+      "revId": "cc1f270d4190cb5f767fa877927b1ec9feeeb8bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4732004a_e152d7dd",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8075,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-08T20:52:40Z",
+      "side": 1,
+      "message": "OK. Should I put a TODO in the code, or is a personal note fine?",
+      "parentUuid": "ae394c3d_61e1a8a1",
       "revId": "cc1f270d4190cb5f767fa877927b1ec9feeeb8bd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "039b9288_1ac0119e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8401,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-08T20:52:40Z",
+      "side": 1,
+      "message": "This is true - will do. I think I didn\u0027t include it because it wasn\u0027t in the braces that were the original interpolation filter search.",
+      "parentUuid": "670d0596_737287ac",
+      "revId": "cc1f270d4190cb5f767fa877927b1ec9feeeb8bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f45c734c_062a3c49",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -87,6 +165,24 @@
       "writtenOn": "2017-03-08T19:38:03Z",
       "side": 1,
       "message": "const",
+      "revId": "cc1f270d4190cb5f767fa877927b1ec9feeeb8bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93cb6542_8e0f692f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8402,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-08T20:52:40Z",
+      "side": 1,
+      "message": "I didn\u0027t make this a constant because the helper functions I\u0027m working on follow this pattern. Subsequent helpers will use the same variable for their return code. Should I put the call and return handling in braces to make a local constant ret_val go out of scope?",
+      "parentUuid": "f45c734c_062a3c49",
       "revId": "cc1f270d4190cb5f767fa877927b1ec9feeeb8bd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
