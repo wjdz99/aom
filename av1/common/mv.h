@@ -148,7 +148,7 @@ typedef struct {
   (GM_AFFINE_BITS - GM_ABS_ALPHA_BITS + GM_ABS_ROW3HOMO_BITS)
 
 // Use global motion parameters for sub8x8 blocks
-#define GLOBAL_SUB8X8_USED 0
+#define GLOBAL_SUB8X8_USED 1
 
 static INLINE int block_center_x(int mi_col, BLOCK_SIZE bs) {
   const int bw = block_size_wide[bs];
