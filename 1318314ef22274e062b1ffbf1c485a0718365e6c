@@ -16,6 +16,24 @@
       "revId": "1318314ef22274e062b1ffbf1c485a0718365e6c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9549b004_b9cd8b7b",
+        "filename": "aom_dsp/intrapred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-09T23:00:45Z",
+      "side": 1,
+      "message": "I guess those wanted a block size enum not a raw value",
+      "parentUuid": "3059c14f_2d948358",
+      "revId": "1318314ef22274e062b1ffbf1c485a0718365e6c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
