@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b67115b4_3f8d53d5",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-09T06:27:24Z",
+      "side": 1,
+      "message": "prefer static_cast\u003c\u003e here",
+      "range": {
+        "startLine": 720,
+        "startChar": 23,
+        "endLine": 720,
+        "endChar": 33
+      },
+      "revId": "df1a82c0b61767e656f3d6d8a512d07a2878514d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34c74a5f_d55fa542",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-09T06:27:24Z",
+      "side": 1,
+      "message": "prefer reinterpret_cast\u003c\u003e",
+      "range": {
+        "startLine": 742,
+        "startChar": 47,
+        "endLine": 742,
+        "endChar": 61
+      },
+      "revId": "df1a82c0b61767e656f3d6d8a512d07a2878514d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
