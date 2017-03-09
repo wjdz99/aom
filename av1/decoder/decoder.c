@@ -62,6 +62,10 @@ static void initialize_dec(void) {
     av1_indices_from_tree(av1_inter_mode_ind, av1_inter_mode_inv, INTER_MODES,
                           av1_inter_mode_tree);
 #endif
+#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
+    av1_indices_from_tree(av1_intra_filter_ind, av1_intra_filter_inv,
+                          INTRA_FILTERS, av1_intra_filter_tree);
+#endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
   }
 }
 
