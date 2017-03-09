@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fdb10b24_46892493",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 8034,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-03-09T00:33:00Z",
+      "side": 1,
+      "message": "I think even this method should declare \u0027single_filter\u0027 as const (so this interpolation_filter_search() function can do the same).\n(OK to not add a TODO, but something to do later on)",
+      "range": {
+        "startLine": 8034,
+        "startChar": 8,
+        "endLine": 8034,
+        "endChar": 29
+      },
+      "revId": "e5fd539cfbb429eb6a2eb1ac4c1f28c3edbf1665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
