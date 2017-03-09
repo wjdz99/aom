@@ -630,8 +630,11 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
       av1_quantize_skip(tx2d_size, qcoeff, dqcoeff, eob);
     }
   }
-#else   // #if !CONFIG_PVQ
+#else  // #if !CONFIG_PVQ
 
+#if CONFIG_PVQ_CFL
+  if (plane != 0) assert(mbmi->uv_mode == DC_PRED);
+#endif
   // PVQ for inter mode block
   if (!x->skip_block) {
     (void)xform_quant_idx;
