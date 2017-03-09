@@ -256,12 +256,15 @@ typedef struct frame_contexts {
                           [CDF_SIZE(MAX_TX_DEPTH + 1)];
 #if CONFIG_DELTA_Q
   aom_cdf_prob delta_q_cdf[CDF_SIZE(DELTA_Q_PROBS + 1)];
-#endif
+#endif  // CONFIG_DELTA_Q
 #if !CONFIG_EXT_TX
   aom_cdf_prob intra_ext_tx_cdf[EXT_TX_SIZES][TX_TYPES][CDF_SIZE(TX_TYPES)];
   aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SIZES][CDF_SIZE(TX_TYPES)];
-#endif
-#endif
+#endif  // !CONFIG_EXT_TX
+#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
+  aom_cdf_prob intra_filter_cdf[INTRA_FILTERS + 1][CDF_SIZE(INTRA_FILTERS)];
+#endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
+#endif  // CONFIG_EC_MULTISYMBOL
 #if CONFIG_DELTA_Q
   aom_prob delta_q_prob[DELTA_Q_PROBS];
 #endif
@@ -449,6 +452,10 @@ extern const aom_tree_index av1_tx_size_tree[MAX_TX_DEPTH][TREE_SIZE(TX_SIZES)];
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
 extern const aom_tree_index av1_intra_filter_tree[TREE_SIZE(INTRA_FILTERS)];
+#if CONFIG_EC_MULTISYMBOL
+extern int av1_intra_filter_ind[INTRA_FILTERS];
+extern int av1_intra_filter_inv[INTRA_FILTERS];
+#endif  // CONFIG_EC_MULTISYMBOL
 #endif  // CONFIG_INTRA_INTERP
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_EXT_TX
