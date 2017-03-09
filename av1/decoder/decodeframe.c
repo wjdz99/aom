@@ -443,6 +443,7 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
   struct macroblockd_plane *const pd = &xd->plane[plane];
 #if CONFIG_PVQ_CFL
   int cfl_enabled = cm->frame_type == KEY_FRAME && plane != 0;
+  if (plane != 0) assert(mbmi->uv_mode == DC_PRED);
 #else
   int cfl_enabled = 0;
 #endif
