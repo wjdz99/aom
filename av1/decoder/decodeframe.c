@@ -442,10 +442,10 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   int col, TX_SIZE tx_size, TX_TYPE tx_type) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
 #if CONFIG_PVQ_CFL
-  int cfl_enabled = cm->frame_type == KEY_FRAME && plane != 0;
+  const int cfl_enabled = plane != 0 && cm->frame_type == KEY_FRAME;
   if (plane != 0) assert(mbmi->uv_mode == DC_PRED);
 #else
-  int cfl_enabled = 0;
+  const int cfl_enabled = 0;
 #endif
   // transform block size in pixels
   int tx_blk_size = tx_size_wide[tx_size];
@@ -462,6 +462,12 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
   dst = &pd->dst.buf[4 * row * pd->dst.stride + 4 * col];
 
   if (ac_dc_coded) {
+#if CONFIG_PVQ_CFL
+    if (cfl_enabled) {
+      xd->cfl->flat_val = dst[0];
+      cfl_load(xd->cfl, dst, pd->dst.stride, row, col, tx_blk_size);
+    }
+#endif
     int xdec = pd->subsampling_x;
     int seg_id = mbmi->segment_id;
     int16_t *quant;
@@ -480,6 +486,16 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
     fwd_txfm(pred, pvq_ref_coeff, diff_stride, &fwd_txfm_param);
 
+#if CONFIG_PVQ_CFL
+    if (cfl_enabled) {
+      assert(tx_type == DCT_DCT);
+      // Knowning that the prediction is DC_PRED and that DCT_DCT is used,
+      // we can compute the DC without doing a full DCT.
+      pvq_ref_coeff[0] =
+          xd->cfl->flat_val * ((get_tx_scale(tx_size)) ? 128 : tx_blk_size * 8);
+    }
+#endif
+
     quant = &pd->seg_dequant[seg_id][0];  // aom's quantizer
 
     eob = av1_pvq_decode_helper(&xd->daala_dec, pvq_ref_coeff, dqcoeff, quant,
@@ -496,6 +512,10 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
                             max_scan_line, eob);
   }
 
+#if CONFIG_PVQ_CFL
+  if (plane == 0 && cm->frame_type == KEY_FRAME)
+    cfl_store(xd->cfl, dst, pd->dst.stride, row, col, tx_blk_size);
+#endif
   return eob;
 }
 #endif
@@ -3538,6 +3558,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_PVQ
                            td->pvq_ref_coeff,
 #endif
+#if CONFIG_PVQ_CFL
+                           &td->cfl,
+#endif
                            td->dqcoeff);
 #if CONFIG_PVQ
       daala_dec_init(cm, &td->xd.daala_dec, &td->bit_reader);
@@ -3903,6 +3926,9 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
         av1_init_macroblockd(cm, &twd->xd,
 #if CONFIG_PVQ
                              twd->pvq_ref_coeff,
+#endif
+#if CONFIG_PVQ_CFL
+                             &twd->cfl,
 #endif
                              twd->dqcoeff);
 #if CONFIG_PVQ
