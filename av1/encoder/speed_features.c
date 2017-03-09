@@ -176,6 +176,7 @@ static void set_good_speed_feature(AV1_COMP *cpi, AV1_COMMON *cm,
     sf->disable_wedge_search_var_thresh = 100;
     sf->fast_wedge_sign_estimate = 1;
 #endif  // CONFIG_EXT_INTER
+    sf->optimize_coefficients = 0;
   }
 
   if (speed >= 3) {
