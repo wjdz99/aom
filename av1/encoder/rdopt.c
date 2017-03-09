@@ -4628,6 +4628,7 @@ static int rd_pick_filter_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
   mbmi->palette_mode_info.palette_size[1] = 0;
 #endif  // CONFIG_PALETTE
 
+#if !CONFIG_PVQ_CFL
   for (mode = 0; mode < FILTER_INTRA_MODES; ++mode) {
     mbmi->filter_intra_mode_info.filter_intra_mode[1] = mode;
     if (!super_block_uvrd(cpi, x, &tokenonly_rd_stats, bsize, *best_rd))
@@ -4648,6 +4649,7 @@ static int rd_pick_filter_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
       filter_intra_selected_flag = 1;
     }
   }
+#endif
 
   if (filter_intra_selected_flag) {
     mbmi->uv_mode = DC_PRED;
@@ -4772,7 +4774,11 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #if CONFIG_PALETTE
   pmi->palette_size[1] = 0;
 #endif  // CONFIG_PALETTE
+#if !CONFIG_PVQ_CFL
   for (mode = DC_PRED; mode <= TM_PRED; ++mode) {
+#else
+  for (mode = DC_PRED; mode <= DC_PRED; ++mode) {
+#endif
 #if CONFIG_EXT_INTRA
     const int is_directional_mode =
         av1_is_directional_mode(mode, mbmi->sb_type);
