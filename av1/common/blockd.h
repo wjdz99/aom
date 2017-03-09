@@ -546,6 +546,9 @@ typedef struct macroblockd {
 #if CONFIG_PVQ
   daala_dec_ctx daala_dec;
 #endif
+#if CONFIG_PVQ_CFL
+  CFL_CTX *cfl;
+#endif
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *tile_ctx;
 #endif
