@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb8fdef0_c72f4d3e",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-03-09T19:48:58Z",
+      "side": 1,
+      "message": "Do we need these commented out sums? They are making the code wrap a lot. Can the be better expressed with commented text above?",
+      "range": {
+        "startLine": 192,
+        "startChar": 15,
+        "endLine": 192,
+        "endChar": 44
+      },
+      "revId": "11f439ad3542b082686a25f24f03e5d2f572f7b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9eeb4e3f_5cc4b2bc",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-03-09T19:48:58Z",
+      "side": 1,
+      "message": "I don\u0027t quite follow what this part is doing in general",
+      "range": {
+        "startLine": 190,
+        "startChar": 0,
+        "endLine": 193,
+        "endChar": 32
+      },
+      "revId": "11f439ad3542b082686a25f24f03e5d2f572f7b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24918339_a84aecb2",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1139,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-03-09T19:48:58Z",
+      "side": 1,
+      "message": "CDF_PROB_BITS - 8?\nis this AOMMIN ever going to have an effect? Can we replace it with an assert?",
+      "range": {
+        "startLine": 1139,
+        "startChar": 60,
+        "endLine": 1139,
+        "endChar": 61
+      },
+      "revId": "11f439ad3542b082686a25f24f03e5d2f572f7b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
