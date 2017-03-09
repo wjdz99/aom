@@ -161,6 +161,7 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
   int next_shortcut = 0;
 
   assert((mb->qindex == 0) ^ (xd->lossless[xd->mi[0]->mbmi.segment_id] == 0));
+  assert(mb->optimize);
 
   token_costs += band;
 
@@ -702,7 +703,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   }
 #endif
 #if !CONFIG_PVQ
-  if (p->eobs[block] && !xd->lossless[xd->mi[0]->mbmi.segment_id]) {
+  if (x->optimize && p->eobs[block] && !xd->lossless[xd->mi[0]->mbmi.segment_id]) {
     *a = *l = av1_optimize_b(cm, x, plane, block, tx_size, ctx) > 0;
   } else {
     *a = *l = p->eobs[block] > 0;
@@ -1042,7 +1043,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #if !CONFIG_PVQ
   ctx = combine_entropy_contexts(*a, *l);
 
-  if (args->enable_optimize_b) {
+  if (x->optimize && args->enable_optimize_b) {
 #if CONFIG_NEW_QUANT
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     ctx, AV1_XFORM_QUANT_FP_NUQ);
