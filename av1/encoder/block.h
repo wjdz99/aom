@@ -17,9 +17,7 @@
 #if CONFIG_PVQ
 #include "av1/encoder/encint.h"
 #endif
-#if CONFIG_REF_MV
 #include "av1/common/mvref_common.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,13 +65,11 @@ typedef unsigned int av1_coeff_cost[PLANE_TYPES][REF_TYPES][COEF_BANDS][2]
 typedef struct {
   int_mv ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES];
   int16_t mode_context[MODE_CTX_REF_FRAMES];
-#if CONFIG_REF_MV
   uint8_t ref_mv_count[MODE_CTX_REF_FRAMES];
   CANDIDATE_MV ref_mv_stack[MODE_CTX_REF_FRAMES][MAX_REF_MV_STACK_SIZE];
 #if CONFIG_EXT_INTER
   int16_t compound_mode_context[MODE_CTX_REF_FRAMES];
 #endif  // CONFIG_EXT_INTER
-#endif
 } MB_MODE_INFO_EXT;
 
 #if CONFIG_PALETTE
@@ -122,19 +118,12 @@ struct macroblock {
   unsigned int pred_sse[TOTAL_REFS_PER_FRAME];
   int pred_mv_sad[TOTAL_REFS_PER_FRAME];
 
-#if CONFIG_REF_MV
   int *nmvjointcost;
   int nmv_vec_cost[NMV_CONTEXTS][MV_JOINTS];
   int *nmvcost[NMV_CONTEXTS][2];
   int *nmvcost_hp[NMV_CONTEXTS][2];
   int **mv_cost_stack[NMV_CONTEXTS];
   int *nmvjointsadcost;
-#else
-  int nmvjointcost[MV_JOINTS];
-  int *nmvcost[2];
-  int *nmvcost_hp[2];
-  int nmvjointsadcost[MV_JOINTS];
-#endif
 
   int **mvcost;
   int *nmvsadcost[2];
@@ -158,9 +147,7 @@ struct macroblock {
 
 #if CONFIG_VAR_TX
   uint8_t blk_skip[MAX_MB_PLANE][MAX_MIB_SIZE * MAX_MIB_SIZE * 8];
-#if CONFIG_REF_MV
   uint8_t blk_skip_drl[MAX_MB_PLANE][MAX_MIB_SIZE * MAX_MIB_SIZE * 8];
-#endif
 #endif
 
   int skip;

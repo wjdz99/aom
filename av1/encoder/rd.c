@@ -342,7 +342,6 @@ static void set_block_thresholds(const AV1_COMMON *cm, RD_OPT *rd) {
   }
 }
 
-#if CONFIG_REF_MV
 void av1_set_mvcost(MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame, int ref,
                     int ref_mv_idx) {
   MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
@@ -355,16 +354,13 @@ void av1_set_mvcost(MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame, int ref,
   x->mvsadcost = x->mvcost;
   x->nmvjointsadcost = x->nmvjointcost;
 }
-#endif
 
 void av1_initialize_rd_consts(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &cpi->td.mb;
   RD_OPT *const rd = &cpi->rd;
   int i;
-#if CONFIG_REF_MV
   int nmv_ctx;
-#endif
 
   aom_clear_system_state();
 
@@ -375,7 +371,6 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 
   set_block_thresholds(cm, rd);
 
-#if CONFIG_REF_MV
   for (nmv_ctx = 0; nmv_ctx < NMV_CONTEXTS; ++nmv_ctx) {
     av1_build_nmv_cost_table(
         x->nmv_vec_cost[nmv_ctx],
@@ -387,11 +382,6 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
   x->nmvjointcost = x->nmv_vec_cost[0];
   x->mvsadcost = x->mvcost;
   x->nmvjointsadcost = x->nmvjointcost;
-#else
-  av1_build_nmv_cost_table(
-      x->nmvjointcost, cm->allow_high_precision_mv ? x->nmvcost_hp : x->nmvcost,
-      &cm->fc->nmvc, cm->allow_high_precision_mv);
-#endif
 
   if (cpi->oxcf.pass != 1) {
     av1_fill_token_costs(x->token_costs, cm->fc->coef_probs);
@@ -438,7 +428,6 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
     fill_mode_costs(cpi);
 
     if (!frame_is_intra_only(cm)) {
-#if CONFIG_REF_MV
       for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i) {
         cpi->newmv_mode_cost[i][0] = av1_cost_bit(cm->fc->newmv_prob[i], 0);
         cpi->newmv_mode_cost[i][1] = av1_cost_bit(cm->fc->newmv_prob[i], 1);
@@ -462,11 +451,6 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
       cpi->new2mv_mode_cost[0] = av1_cost_bit(cm->fc->new2mv_prob, 0);
       cpi->new2mv_mode_cost[1] = av1_cost_bit(cm->fc->new2mv_prob, 1);
 #endif  // CONFIG_EXT_INTER
-#else
-      for (i = 0; i < INTER_MODE_CONTEXTS; ++i)
-        av1_cost_tokens((int *)cpi->inter_mode_cost[i],
-                        cm->fc->inter_mode_probs[i], av1_inter_mode_tree);
-#endif  // CONFIG_REF_MV
 #if CONFIG_EXT_INTER
       for (i = 0; i < INTER_MODE_CONTEXTS; ++i)
         av1_cost_tokens((int *)cpi->inter_compound_mode_cost[i],
