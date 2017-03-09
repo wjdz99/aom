@@ -1531,8 +1531,7 @@ static const aom_prob default_inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1] = {
 };
 #endif  // CONFIG_EXT_TX
 
-#if CONFIG_EXT_INTRA
-#if CONFIG_INTRA_INTERP
+#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 static const aom_prob
     default_intra_filter_probs[INTRA_FILTERS + 1][INTRA_FILTERS - 1] = {
       { 98, 63, 60 }, { 98, 82, 80 }, { 94, 65, 103 },
@@ -1542,8 +1541,11 @@ const aom_tree_index av1_intra_filter_tree[TREE_SIZE(INTRA_FILTERS)] = {
   -INTRA_FILTER_LINEAR,      2, -INTRA_FILTER_8TAP, 4, -INTRA_FILTER_8TAP_SHARP,
   -INTRA_FILTER_8TAP_SMOOTH,
 };
-#endif  // CONFIG_INTRA_INTERP
-#endif  // CONFIG_EXT_INTRA
+#if CONFIG_EC_MULTISYMBOL
+int av1_intra_filter_ind[INTRA_FILTERS];
+int av1_intra_filter_inv[INTRA_FILTERS];
+#endif  // CONFIG_EC_MULTISYMBOL
+#endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 
 #if CONFIG_FILTER_INTRA
 static const aom_prob default_filter_intra_probs[2] = { 230, 230 };
@@ -2315,8 +2317,14 @@ void av1_set_mode_cdfs(struct AV1Common *cm) {
                       fc->tx_size_cdf[i][j]);
     }
   }
+#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
+  for (i = 0; i < INTRA_FILTERS + 1; ++i) {
+    av1_tree_to_cdf(av1_intra_filter_tree, fc->intra_filter_probs[i],
+                    fc->intra_filter_cdf[i]);
+  }
+#endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 }
-#endif
+#endif  // CONFIG_EC_MULTISYMBOL
 
 #if CONFIG_DUAL_FILTER
 const aom_tree_index av1_switchable_interp_tree[TREE_SIZE(SWITCHABLE_FILTERS)] =
