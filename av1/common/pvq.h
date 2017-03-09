@@ -185,4 +185,21 @@ int od_pvq_compute_k(od_val32 qcg, int itheta, od_val32 theta, int noref,
 int od_vector_is_null(const od_coeff *x, int len);
 int od_qm_offset(int bs, int xydec);
 
+#if CONFIG_PVQ_CFL
+typedef struct {
+  // Pixel buffer containing the Luma pixel used as the prediction for Chroma.
+  uint8_t y_pix[MAX_SB_SQUARE];
+  // Height and width of the pixel buffer.
+  int y_height, y_width;
+  // Pixel value of a DC_PRED block.
+  int flat_val;
+} CFL_CTX;
+
+
+void cfl_load(const CFL_CTX *const cfl, uint8_t *const output,
+    int output_stride, int row, int col, int tx_blk_size);
+
+void cfl_store(CFL_CTX *const cfl, uint8_t *const input, int input_stride,
+    int row, int col, int tx_blk_size);
+#endif  // CONFIG_PVQ_CFL
 #endif
