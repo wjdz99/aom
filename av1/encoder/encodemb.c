@@ -632,6 +632,9 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   fwd_txfm(src_int16, coeff, diff_stride, &fwd_txfm_param);
   fwd_txfm(pred, ref_coeff, diff_stride, &fwd_txfm_param);
 
+#if CONFIG_PVQ_CFL
+  if (plane != 0) assert(mbmi->uv_mode == DC_PRED);
+#endif
   // PVQ for inter mode block
   if (!x->skip_block) {
     PVQ_SKIP_TYPE ac_dc_coded =
