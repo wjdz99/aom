@@ -878,9 +878,14 @@ void apply_selfguided_restoration_sse4_1(uint8_t *dat, int width, int height,
                                    xqd, dst, dst_stride, tmpbuf);
     return;
   }
+#if USE_HIGHPASS_IN_SGRPROJ
+  av1_highpass_filter_c(dat, width, height, stride, flt1, width, bit_depth,
+                        sgr_params[eps].corner, sgr_params[eps].edge, tmpbuf2);
+#else
   av1_selfguided_restoration_sse4_1(dat, width, height, stride, flt1, width,
                                     bit_depth, sgr_params[eps].r1,
                                     sgr_params[eps].e1, tmpbuf2);
+#endif  // USE_HIGHPASS_IN_SGRPROJ
   av1_selfguided_restoration_sse4_1(dat, width, height, stride, flt2, width,
                                     bit_depth, sgr_params[eps].r2,
                                     sgr_params[eps].e2, tmpbuf2);
