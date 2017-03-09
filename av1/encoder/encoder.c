@@ -928,6 +928,9 @@ static void update_frame_size(AV1_COMP *cpi) {
 #if CONFIG_PVQ
                        NULL,
 #endif
+#if CONFIG_PVQ_CFL
+                       NULL,
+#endif
                        NULL);
   memset(cpi->mbmi_ext_base, 0,
          cm->mi_rows * cm->mi_cols * sizeof(*cpi->mbmi_ext_base));

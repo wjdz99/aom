@@ -1033,7 +1033,6 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
       generic_encoder *model = adapt->pvq.pvq_param_model;
 
       pvq = get_pvq_block(x->pvq_q);
-
       // encode block skip info
       aom_encode_cdf_adapt(w, pvq->ac_dc_coded,
                            adapt->skip_cdf[2 * tx_size + (plane != 0)], 4,

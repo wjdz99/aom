@@ -601,6 +601,12 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   // transform block size in pixels
   tx_blk_size = tx_size_wide[tx_size];
 
+#if CONFIG_PVQ_CFL
+  if (cfl_enabled) {
+    xd->cfl->flat_val = dst[0];
+    cfl_load(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_blk_size);
+  }
+#endif  // CONFIG_PVQ_CFL
 // copy uint8 orig and predicted block to int16 buffer
 // in order to use existing VP10 transform functions
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -694,10 +700,26 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
                           x->pvq_speed,
                           pvq_info);  // PVQ info for a block
     skip = pvq_info->ac_dc_coded == PVQ_SKIP;
+#if CONFIG_PVQ_CFL
+    if (skip && x->pvq_coded && cfl_enabled) {
+      // For CfL skip implies zeroing out the coefficients.
+      // In order to get away with not doing the inverse transform,
+      // we copy the flat value resulting from DC_PRED.
+      for (j = 0; j < tx_blk_size; j++) {
+        for (i = 0; i < tx_blk_size; i++) {
+          dst[j * dst_stride + i] = xd->cfl->flat_val;
+        }
+      }
+    }
+#endif
   }
   x->pvq_skip[plane] = skip;
 
   if (!skip) mbmi->skip = 0;
+#if CONFIG_PVQ_CFL
+  if (skip && x->pvq_coded && plane == 0 && cm->frame_type == KEY_FRAME)
+    cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_blk_size);
+#endif
 #endif  // #if !CONFIG_PVQ
 }
 
@@ -1057,7 +1079,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   int ctx = 0;
   INV_TXFM_PARAM inv_txfm_param;
 #if CONFIG_PVQ
-  int tx_blk_size;
+  const int tx_blk_size = tx_size_wide[tx_size];
   int i, j;
 #endif
 
@@ -1148,7 +1170,6 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
     *(args->skip) = 0;
   }
 #else  // #if !CONFIG_PVQ
-
 #if CONFIG_NEW_QUANT
   av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                   ctx, AV1_XFORM_QUANT_FP_NUQ);
@@ -1163,9 +1184,6 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   if (!x->pvq_skip[plane]) *(args->skip) = 0;
 
   if (x->pvq_skip[plane]) return;
-
-  // transform block size in pixels
-  tx_blk_size = tx_size_wide[tx_size];
 
 // Since av1 does not have separate function which does inverse transform
 // but av1_inv_txfm_add_*x*() also does addition of predicted image to
@@ -1204,6 +1222,11 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   if (*eob) *(args->skip) = 0;
 #else
 // Note : *(args->skip) == mbmi->skip
+#endif
+#if CONFIG_PVQ_CFL
+  if (x->pvq_coded && plane == 0) {
+    cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_blk_size);
+  }
 #endif
 }
 

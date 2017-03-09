@@ -23,6 +23,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if CONFIG_PVQ_CFL
+#include "av1/common/common_data.h"
+#endif
+
 /* Imported from encode.c in daala */
 /* These are the PVQ equivalent of quantization matrices, except that
    the values are per-band. */
@@ -1018,3 +1022,114 @@ void od_pvq_synthesis_partial(od_coeff *xcoeff, const od_coeff *ypulse,
     }
   }
 }
+
+#if CONFIG_PVQ_CFL
+void cfl_load(const CFL_CTX *const cfl, uint8_t *const output,
+    int output_stride, int row, int col, int tx_blk_size) {
+  // TODO(ltrudeau) adjust to Chroma subsampling (hardcoded to 4:2:0)
+  const int step = 2;
+  const int tx_off_log2 = tx_size_wide_log2[0];
+  const uint8_t *const pred = &cfl->y_pix[
+    (step * (row * MAX_SB_SIZE + col)) << tx_off_log2];
+  const int uv_width = step * ((col << tx_off_log2) + tx_blk_size);
+  const int diff_width = (uv_width - cfl->y_width) / step;
+  const int uv_height = step * ((row << tx_off_log2) + tx_blk_size);
+  const int diff_height = (uv_height - cfl->y_height) / step;
+
+  int pred_row_offset = 0;
+  int output_row_offset = 0;
+  int i, j;
+
+  for (j = 0; j < tx_blk_size; j++) {
+    for (i = 0; i < tx_blk_size;  i++) {
+      output[output_row_offset + i] = pred[step * (pred_row_offset + i)];
+    }
+    pred_row_offset += MAX_SB_SIZE;
+    output_row_offset += output_stride;
+  }
+
+  // Due to frame boundary issues, it is possible that the total area of
+  // covered by Chroma exceeds that of Luma. When this happens, we write over
+  // the broken data by repeating the last columns and/or rows.
+  //
+  // Note that in order to manage the case where both rows and columns overrun,
+  // we apply rows first. This way, when the rows overrun the bottom of the
+  // frame, the columns will be copied over them.
+  if (diff_width > 0) {
+    int last_pixel;
+    output_row_offset = tx_blk_size - diff_width;
+    for (j = 0; j < tx_blk_size; j++) {
+      last_pixel = output_row_offset - 1;
+      for (i = 0; i < diff_width;  i++) {
+        output[output_row_offset + i] = output[last_pixel];
+      }
+      output_row_offset += output_stride;
+    }
+  }
+  if (diff_height > 0) {
+    output_row_offset = diff_height * output_stride;
+    const int last_row_offset = output_row_offset - output_stride;
+    for (j = 0; j < diff_height; j++) {
+      for (i = 0; i < tx_blk_size;  i++) {
+        output[output_row_offset + i] = output[last_row_offset + i];
+      }
+      output_row_offset += output_stride;
+    }
+  }
+
+  // To debug pipe stdout to a file and diff the encoder file and decoder file
+/*  printf("%d [%d %d cfl:(%d %d) uv:(%d, %d) diff:(%d %d)] Load: ",
+     tx_blk_size, row, col, cfl->y_width,
+  cfl->y_height, uv_width, uv_height, diff_width, diff_height);
+  for (j = 0; j < tx_blk_size; j++) {
+    for (i = 0; i < tx_blk_size; i++) {
+      printf("%d ", output[output_stride * j + i]);
+    }
+  }
+  printf("\n");
+*/
+}
+
+void cfl_store(CFL_CTX *const cfl, uint8_t *const input, int input_stride,
+    int row, int col, int tx_blk_size) {
+
+  const int tx_off_log2 = tx_size_wide_log2[0];
+  uint8_t *const pred = &cfl->y_pix[
+    (row * MAX_SB_SIZE + col) << tx_off_log2];
+  int pred_row_offset = 0;
+  int input_row_offset = 0;
+  int i, j;
+
+  // Check that we remain inside the pixel buffer.
+  assert(MAX_SB_SIZE * (row + tx_blk_size-1) + col + tx_blk_size - 1
+      < MAX_SB_SQUARE);
+
+  for (j = 0; j < tx_blk_size; j++) {
+    for (i = 0; i < tx_blk_size; i++) {
+      pred[pred_row_offset + i] = input[input_row_offset + i];
+    }
+    pred_row_offset += MAX_SB_SIZE;
+    input_row_offset += input_stride;
+  }
+
+  // We need to store what surface of the pixel buffer has been written to.
+  // This way can manage Chroma overrun
+  if (col == 0 && row == 0) {
+    cfl->y_width = tx_blk_size;
+    cfl->y_height = tx_blk_size;
+  } else {
+    cfl->y_width = OD_MAXI((col << tx_off_log2) + tx_blk_size, cfl->y_width);
+    cfl->y_height = OD_MAXI((row << tx_off_log2) + tx_blk_size, cfl->y_height);
+  }
+
+  // To debug pipe stdout to a file and diff the encoder file and decoder file
+/*  printf("[%d %d (%d %d)] Store: ", row, col, cfl->y_width, cfl->y_height);
+  for (j = 0; j < tx_blk_size; j++) {
+    for (i = 0; i < tx_blk_size; i++) {
+      printf("%d ", pred[MAX_SB_SIZE * j + i]);
+    }
+  }
+  printf("\n");
+  */
+}
+#endif
