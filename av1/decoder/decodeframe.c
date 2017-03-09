@@ -442,10 +442,10 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   int col, TX_SIZE tx_size, TX_TYPE tx_type) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
 #if CONFIG_PVQ_CFL
-  int cfl_enabled = cm->frame_type == KEY_FRAME && plane != 0;
+  const int cfl_enabled = plane != 0 && cm->frame_type == KEY_FRAME;
   if (plane != 0) assert(mbmi->uv_mode == DC_PRED);
 #else
-  int cfl_enabled = 0;
+  const int cfl_enabled = 0;
 #endif
   // transform block size in pixels
   int tx_blk_size = tx_size_wide[tx_size];
@@ -462,6 +462,10 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
   dst = &pd->dst.buf[4 * row * pd->dst.stride + 4 * col];
 
   if (ac_dc_coded) {
+#if CONFIG_PVQ_CFL
+    if (cfl_enabled)
+      cfl_load(xd->cfl, dst, pd->dst.stride, row, col, tx_blk_size);
+#endif
     int xdec = pd->subsampling_x;
     int seg_id = mbmi->segment_id;
     int16_t *quant;
@@ -496,6 +500,10 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
                             max_scan_line, eob);
   }
 
+#if CONFIG_PVQ_CFL
+  if (plane == 0 && cm->frame_type == KEY_FRAME)
+    cfl_store(xd->cfl, dst, pd->dst.stride, row, col, tx_blk_size);
+#endif
   return eob;
 }
 #endif
@@ -3538,6 +3546,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_PVQ
                            td->pvq_ref_coeff,
 #endif
+#if CONFIG_PVQ_CFL
+                           &td->cfl,
+#endif
                            td->dqcoeff);
 #if CONFIG_PVQ
       daala_dec_init(cm, &td->xd.daala_dec, &td->bit_reader);
@@ -3903,6 +3914,9 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
         av1_init_macroblockd(cm, &twd->xd,
 #if CONFIG_PVQ
                              twd->pvq_ref_coeff,
+#endif
+#if CONFIG_PVQ_CFL
+                             &twd->cfl,
 #endif
                              twd->dqcoeff);
 #if CONFIG_PVQ
