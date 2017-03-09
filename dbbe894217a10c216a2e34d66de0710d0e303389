@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce5eef5f_097b4d10",
+        "filename": "configure",
+        "patchSetId": 4
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-03-09T16:13:10Z",
+      "side": 1,
+      "message": "replace tabs with spaces.",
+      "range": {
+        "startLine": 298,
+        "startChar": 1,
+        "endLine": 298,
+        "endChar": 26
+      },
+      "revId": "dbbe894217a10c216a2e34d66de0710d0e303389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
