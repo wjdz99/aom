@@ -76,6 +76,30 @@
     },
     {
       "key": {
+        "uuid": "158454ad_1918b11b",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1526,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-03-09T21:33:02Z",
+      "side": 1,
+      "message": "I think it makes the code more legible to stay in its current shape, i.e. to have the definition of \"compound_inter_mode_ctx\" following that of \"inter_mode_ctx\".",
+      "parentUuid": "0fa5b335_b489726d",
+      "range": {
+        "startLine": 1524,
+        "startChar": 0,
+        "endLine": 1526,
+        "endChar": 27
+      },
+      "revId": "8561a4793c1d469a61b8046d8ebd94d2bf02fc39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "33f683bf_b750403d",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 16
@@ -172,6 +196,30 @@
       "writtenOn": "2017-03-09T19:34:56Z",
       "side": 1,
       "message": "Should this TODO be dropped along with the deleted code?",
+      "range": {
+        "startLine": 821,
+        "startChar": 0,
+        "endLine": 821,
+        "endChar": 52
+      },
+      "revId": "8561a4793c1d469a61b8046d8ebd94d2bf02fc39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c42157c_eac88837",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 821,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-03-09T21:33:02Z",
+      "side": 1,
+      "message": "Yes, this line of TODO should be removed as well.",
+      "parentUuid": "e60d124a_289214d3",
       "range": {
         "startLine": 821,
         "startChar": 0,
