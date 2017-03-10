@@ -58,11 +58,9 @@ typedef struct {
   int nmvcosts[2][MV_VALS];
   int nmvcosts_hp[2][MV_VALS];
 
-#if CONFIG_REF_MV
   int nmv_vec_cost[NMV_CONTEXTS][MV_JOINTS];
   int nmv_costs[NMV_CONTEXTS][2][MV_VALS];
   int nmv_costs_hp[NMV_CONTEXTS][2][MV_VALS];
-#endif
 
   // 0 = Intra, Last, GF, ARF
   signed char last_ref_lf_deltas[TOTAL_REFS_PER_FRAME];
@@ -431,10 +429,8 @@ typedef struct AV1_COMP {
 
   CODING_CONTEXT coding_context;
 
-#if CONFIG_REF_MV
   int nmv_costs[NMV_CONTEXTS][2][MV_VALS];
   int nmv_costs_hp[NMV_CONTEXTS][2][MV_VALS];
-#endif
 
   int nmvcosts[2][MV_VALS];
   int nmvcosts_hp[2][MV_VALS];
@@ -542,7 +538,6 @@ typedef struct AV1_COMP {
   search_site_config ss_cfg;
 
   int mbmode_cost[BLOCK_SIZE_GROUPS][INTRA_MODES];
-#if CONFIG_REF_MV
   int newmv_mode_cost[NEWMV_MODE_CONTEXTS][2];
   int zeromv_mode_cost[ZEROMV_MODE_CONTEXTS][2];
   int refmv_mode_cost[REFMV_MODE_CONTEXTS][2];
@@ -550,7 +545,6 @@ typedef struct AV1_COMP {
 #if CONFIG_EXT_INTER
   int new2mv_mode_cost[2];
 #endif  // CONFIG_EXT_INTER
-#endif
 
   unsigned int inter_mode_cost[INTER_MODE_CONTEXTS][INTER_MODES];
 #if CONFIG_EXT_INTER
@@ -823,16 +817,6 @@ static INLINE int is_altref_enabled(const AV1_COMP *const cpi) {
   return cpi->oxcf.mode != REALTIME && cpi->oxcf.lag_in_frames > 0 &&
          cpi->oxcf.enable_auto_arf;
 }
-
-// TODO(zoeliu): To set up cpi->oxcf.enable_auto_brf
-#if 0 && CONFIG_EXT_REFS
-static INLINE int is_bwdref_enabled(const AV1_COMP *const cpi) {
-  // NOTE(zoeliu): The enabling of bi-predictive frames depends on the use of
-  //               alt_ref, and now will be off when the alt_ref interval is
-  //               not sufficiently large.
-  return is_altref_enabled(cpi) && cpi->oxcf.enable_auto_brf;
-}
-#endif  // CONFIG_EXT_REFS
 
 static INLINE void set_ref_ptrs(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 MV_REFERENCE_FRAME ref0,

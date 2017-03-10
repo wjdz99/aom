@@ -236,7 +236,6 @@ void av1_set_high_precision_mv(AV1_COMP *cpi, int allow_high_precision_mv) {
   MACROBLOCK *const mb = &cpi->td.mb;
   cpi->common.allow_high_precision_mv = allow_high_precision_mv;
 
-#if CONFIG_REF_MV
   if (cpi->common.allow_high_precision_mv) {
     int i;
     for (i = 0; i < NMV_CONTEXTS; ++i) {
@@ -250,15 +249,6 @@ void av1_set_high_precision_mv(AV1_COMP *cpi, int allow_high_precision_mv) {
       mb->mvsadcost = mb->nmvsadcost;
     }
   }
-#else
-  if (cpi->common.allow_high_precision_mv) {
-    mb->mvcost = mb->nmvcost_hp;
-    mb->mvsadcost = mb->nmvcost_hp;
-  } else {
-    mb->mvcost = mb->nmvcost;
-    mb->mvsadcost = mb->nmvcost;
-  }
-#endif
 }
 
 static BLOCK_SIZE select_sb_size(const AV1_COMP *const cpi) {
@@ -490,23 +480,17 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
 static void save_coding_context(AV1_COMP *cpi) {
   CODING_CONTEXT *const cc = &cpi->coding_context;
   AV1_COMMON *cm = &cpi->common;
-#if CONFIG_REF_MV
   int i;
-#endif
 
-// Stores a snapshot of key state variables which can subsequently be
-// restored with a call to av1_restore_coding_context. These functions are
-// intended for use in a re-code loop in av1_compress_frame where the
-// quantizer value is adjusted between loop iterations.
-#if CONFIG_REF_MV
+  // Stores a snapshot of key state variables which can subsequently be
+  // restored with a call to av1_restore_coding_context. These functions are
+  // intended for use in a re-code loop in av1_compress_frame where the
+  // quantizer value is adjusted between loop iterations.
   for (i = 0; i < NMV_CONTEXTS; ++i) {
     av1_copy(cc->nmv_vec_cost[i], cpi->td.mb.nmv_vec_cost[i]);
     av1_copy(cc->nmv_costs, cpi->nmv_costs);
     av1_copy(cc->nmv_costs_hp, cpi->nmv_costs_hp);
   }
-#else
-  av1_copy(cc->nmvjointcost, cpi->td.mb.nmvjointcost);
-#endif
 
   av1_copy(cc->nmvcosts, cpi->nmvcosts);
   av1_copy(cc->nmvcosts_hp, cpi->nmvcosts_hp);
@@ -520,21 +504,15 @@ static void save_coding_context(AV1_COMP *cpi) {
 static void restore_coding_context(AV1_COMP *cpi) {
   CODING_CONTEXT *const cc = &cpi->coding_context;
   AV1_COMMON *cm = &cpi->common;
-#if CONFIG_REF_MV
   int i;
-#endif
 
-// Restore key state variables to the snapshot state stored in the
-// previous call to av1_save_coding_context.
-#if CONFIG_REF_MV
+  // Restore key state variables to the snapshot state stored in the
+  // previous call to av1_save_coding_context.
   for (i = 0; i < NMV_CONTEXTS; ++i) {
     av1_copy(cpi->td.mb.nmv_vec_cost[i], cc->nmv_vec_cost[i]);
     av1_copy(cpi->nmv_costs, cc->nmv_costs);
     av1_copy(cpi->nmv_costs_hp, cc->nmv_costs_hp);
   }
-#else
-  av1_copy(cpi->td.mb.nmvjointcost, cc->nmvjointcost);
-#endif
 
   av1_copy(cpi->nmvcosts, cc->nmvcosts);
   av1_copy(cpi->nmvcosts_hp, cc->nmvcosts_hp);
@@ -2084,15 +2062,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 #endif
 #define log2f(x) (log(x) / (float)M_LOG2_E)
 
-#if !CONFIG_REF_MV
-static void cal_nmvjointsadcost(int *mvjointsadcost) {
-  mvjointsadcost[0] = 600;
-  mvjointsadcost[1] = 300;
-  mvjointsadcost[2] = 300;
-  mvjointsadcost[3] = 300;
-}
-#endif
-
 static void cal_nmvsadcosts(int *mvsadcost[2]) {
   int i = 1;
 
@@ -2194,12 +2163,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   realloc_segmentation_maps(cpi);
 
-#if CONFIG_REF_MV
   for (i = 0; i < NMV_CONTEXTS; ++i) {
     memset(cpi->nmv_costs, 0, sizeof(cpi->nmv_costs));
     memset(cpi->nmv_costs_hp, 0, sizeof(cpi->nmv_costs_hp));
   }
-#endif
 
   memset(cpi->nmvcosts, 0, sizeof(cpi->nmvcosts));
   memset(cpi->nmvcosts_hp, 0, sizeof(cpi->nmvcosts_hp));
@@ -2267,20 +2234,12 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   cpi->first_time_stamp_ever = INT64_MAX;
 
-#if CONFIG_REF_MV
   for (i = 0; i < NMV_CONTEXTS; ++i) {
     cpi->td.mb.nmvcost[i][0] = &cpi->nmv_costs[i][0][MV_MAX];
     cpi->td.mb.nmvcost[i][1] = &cpi->nmv_costs[i][1][MV_MAX];
     cpi->td.mb.nmvcost_hp[i][0] = &cpi->nmv_costs_hp[i][0][MV_MAX];
     cpi->td.mb.nmvcost_hp[i][1] = &cpi->nmv_costs_hp[i][1][MV_MAX];
   }
-#else
-  cal_nmvjointsadcost(cpi->td.mb.nmvjointsadcost);
-  cpi->td.mb.nmvcost[0] = &cpi->nmvcosts[0][MV_MAX];
-  cpi->td.mb.nmvcost[1] = &cpi->nmvcosts[1][MV_MAX];
-  cpi->td.mb.nmvcost_hp[0] = &cpi->nmvcosts_hp[0][MV_MAX];
-  cpi->td.mb.nmvcost_hp[1] = &cpi->nmvcosts_hp[1][MV_MAX];
-#endif
   cpi->td.mb.nmvsadcost[0] = &cpi->nmvsadcosts[0][MV_MAX];
   cpi->td.mb.nmvsadcost[1] = &cpi->nmvsadcosts[1][MV_MAX];
   cal_nmvsadcosts(cpi->td.mb.nmvsadcost);
@@ -3032,11 +2991,7 @@ static int recode_loop_test_global_motion(AV1_COMP *cpi) {
         cpi->global_motion_used[i][1] <
             min_blocks[cm->global_motion[i].wmtype]) {
       set_default_gmparams(&cm->global_motion[i]);
-#if CONFIG_REF_MV
       recode = 1;
-#else
-      recode |= (cpi->global_motion_used[i][1] > 0);
-#endif
     }
   }
   return recode;
@@ -3760,75 +3715,6 @@ void av1_full_to_model_counts(av1_coeff_count_model *model_count,
         for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l)
           full_to_model_count(model_count[i][j][k][l], full_count[i][j][k][l]);
 }
-
-#if 0 && CONFIG_INTERNAL_STATS
-static void output_frame_level_debug_stats(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
-  FILE *const f = fopen("tmp.stt", cm->current_video_frame ? "a" : "w");
-  int64_t recon_err;
-
-  aom_clear_system_state();
-
-  recon_err = aom_get_y_sse(cpi->Source, get_frame_new_buffer(cm));
-
-  if (cpi->twopass.total_left_stats.coded_error != 0.0)
-    fprintf(f, "%10u %dx%d %d %d %10d %10d %10d %10d"
-       "%10"PRId64" %10"PRId64" %5d %5d %10"PRId64" "
-       "%10"PRId64" %10"PRId64" %10d "
-       "%7.2lf %7.2lf %7.2lf %7.2lf %7.2lf"
-        "%6d %6d %5d %5d %5d "
-        "%10"PRId64" %10.3lf"
-        "%10lf %8u %10"PRId64" %10d %10d %10d\n",
-        cpi->common.current_video_frame,
-        cm->width, cm->height,
-        cpi->rc.source_alt_ref_pending,
-        cpi->rc.source_alt_ref_active,
-        cpi->rc.this_frame_target,
-        cpi->rc.projected_frame_size,
-        cpi->rc.projected_frame_size / cpi->common.MBs,
-        (cpi->rc.projected_frame_size - cpi->rc.this_frame_target),
-        cpi->rc.vbr_bits_off_target,
-        cpi->rc.vbr_bits_off_target_fast,
-        cpi->twopass.extend_minq,
-        cpi->twopass.extend_minq_fast,
-        cpi->rc.total_target_vs_actual,
-        (cpi->rc.starting_buffer_level - cpi->rc.bits_off_target),
-        cpi->rc.total_actual_bits, cm->base_qindex,
-        av1_convert_qindex_to_q(cm->base_qindex, cm->bit_depth),
-        (double)av1_dc_quant(cm->base_qindex, 0, cm->bit_depth) / 4.0,
-        av1_convert_qindex_to_q(cpi->twopass.active_worst_quality,
-                                cm->bit_depth),
-        cpi->rc.avg_q,
-        av1_convert_qindex_to_q(cpi->oxcf.cq_level, cm->bit_depth),
-        cpi->refresh_last_frame, cpi->refresh_golden_frame,
-        cpi->refresh_alt_ref_frame, cm->frame_type, cpi->rc.gfu_boost,
-        cpi->twopass.bits_left,
-        cpi->twopass.total_left_stats.coded_error,
-        cpi->twopass.bits_left /
-            (1 + cpi->twopass.total_left_stats.coded_error),
-        cpi->tot_recode_hits, recon_err, cpi->rc.kf_boost,
-        cpi->twopass.kf_zeromotion_pct,
-        cpi->twopass.fr_content_type);
-
-  fclose(f);
-
-  if (0) {
-    FILE *const fmodes = fopen("Modes.stt", "a");
-    int i;
-
-    fprintf(fmodes, "%6d:%1d:%1d:%1d ", cpi->common.current_video_frame,
-            cm->frame_type, cpi->refresh_golden_frame,
-            cpi->refresh_alt_ref_frame);
-
-    for (i = 0; i < MAX_MODES; ++i)
-      fprintf(fmodes, "%5d ", cpi->mode_chosen_counts[i]);
-
-    fprintf(fmodes, "\n");
-
-    fclose(fmodes);
-  }
-}
-#endif
 
 static void set_mv_search_params(AV1_COMP *cpi) {
   const AV1_COMMON *const cm = &cpi->common;

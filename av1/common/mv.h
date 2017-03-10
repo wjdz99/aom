@@ -231,14 +231,12 @@ static INLINE void set_default_gmparams(WarpedMotionParams *wm) {
 }
 #endif  // CONFIG_GLOBAL_MOTION
 
-#if CONFIG_REF_MV
 typedef struct candidate_mv {
   int_mv this_mv;
   int_mv comp_mv;
   uint8_t pred_diff[2];
   int weight;
 } CANDIDATE_MV;
-#endif
 
 static INLINE int is_zero_mv(const MV *mv) {
   return *((const uint32_t *)mv) == 0;

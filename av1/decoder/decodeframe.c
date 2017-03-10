@@ -175,7 +175,6 @@ static void read_switchable_interp_probs(FRAME_CONTEXT *fc, aom_reader *r) {
 #endif
 
 static void read_inter_mode_probs(FRAME_CONTEXT *fc, aom_reader *r) {
-#if CONFIG_REF_MV
   int i;
   for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i)
     av1_diff_update_prob(r, &fc->newmv_prob[i], ACCT_STR);
@@ -188,18 +187,6 @@ static void read_inter_mode_probs(FRAME_CONTEXT *fc, aom_reader *r) {
 #if CONFIG_EXT_INTER
   av1_diff_update_prob(r, &fc->new2mv_prob, ACCT_STR);
 #endif  // CONFIG_EXT_INTER
-#else
-#if !CONFIG_EC_ADAPT
-  int i, j;
-  for (i = 0; i < INTER_MODE_CONTEXTS; ++i) {
-    for (j = 0; j < INTER_MODES - 1; ++j)
-      av1_diff_update_prob(r, &fc->inter_mode_probs[i][j], ACCT_STR);
-  }
-#else
-  (void)fc;
-  (void)r;
-#endif
-#endif
 }
 
 #if CONFIG_EXT_INTER
@@ -4648,9 +4635,6 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
           av1_diff_update_prob(&r, &cm->kf_y_prob[k][j][i], ACCT_STR);
 #endif
   } else {
-#if !CONFIG_REF_MV
-    nmv_context *const nmvc = &fc->nmvc;
-#endif
     read_inter_mode_probs(fc, &r);
 
 #if CONFIG_EXT_INTER
@@ -4705,12 +4689,8 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     }
 #endif
 
-#if CONFIG_REF_MV
     for (i = 0; i < NMV_CONTEXTS; ++i)
       read_mv_probs(&fc->nmvc[i], cm->allow_high_precision_mv, &r);
-#else
-    read_mv_probs(nmvc, cm->allow_high_precision_mv, &r);
-#endif
 #if !CONFIG_EC_ADAPT
     read_ext_tx_probs(fc, &r);
 #endif  // EC_ADAPT, DAALA_EC
@@ -4727,11 +4707,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 #endif
   /* Make tail distribution from head */
   av1_coef_pareto_cdfs(fc);
-#if CONFIG_REF_MV
   for (i = 0; i < NMV_CONTEXTS; ++i) av1_set_mv_cdfs(&fc->nmvc[i]);
-#else
-  av1_set_mv_cdfs(&fc->nmvc);
-#endif
   av1_set_mode_cdfs(cm);
 #endif
 
@@ -4796,14 +4772,10 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
   assert(!memcmp(&cm->counts.tx_size, &zero_counts.tx_size,
                  sizeof(cm->counts.tx_size)));
   assert(!memcmp(cm->counts.skip, zero_counts.skip, sizeof(cm->counts.skip)));
-#if CONFIG_REF_MV
   assert(
       !memcmp(&cm->counts.mv[0], &zero_counts.mv[0], sizeof(cm->counts.mv[0])));
   assert(
       !memcmp(&cm->counts.mv[1], &zero_counts.mv[1], sizeof(cm->counts.mv[0])));
-#else
-  assert(!memcmp(&cm->counts.mv, &zero_counts.mv, sizeof(cm->counts.mv)));
-#endif
   assert(!memcmp(cm->counts.inter_ext_tx, zero_counts.inter_ext_tx,
                  sizeof(cm->counts.inter_ext_tx)));
   assert(!memcmp(cm->counts.intra_ext_tx, zero_counts.intra_ext_tx,
@@ -4887,9 +4859,7 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "Truncated packet or corrupt header length");
 
-#if CONFIG_REF_MV
   cm->setup_mi(cm);
-#endif
 
 #if CONFIG_TEMPMV_SIGNALING
   if (cm->use_prev_frame_mvs) {
