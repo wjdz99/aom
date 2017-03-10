@@ -4448,7 +4448,7 @@ static void read_ext_tx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
     if (aom_read(r, GROUP_DIFF_UPDATE_PROB, ACCT_STR)) {
       for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
         if (!use_intra_ext_tx_for_txsize[s][i]) continue;
-        for (j = 0; j < INTRA_MODES; ++j)
+        for (j = 0; j < TX_TYPES_BASIC; ++j)
           for (k = 0; k < num_ext_tx_set[ext_tx_set_type_intra[s]] - 1; ++k)
             av1_diff_update_prob(r, &fc->intra_ext_tx_prob[s][i][j][k],
                                  ACCT_STR);

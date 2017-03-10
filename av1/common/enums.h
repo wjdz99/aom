@@ -223,6 +223,7 @@ typedef enum {
   H_FLIPADST = 15,
 #endif  // CONFIG_EXT_TX
   TX_TYPES,
+  TX_TYPES_BASIC = ADST_ADST + 1,
 } TX_TYPE;
 
 typedef enum {

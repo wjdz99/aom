@@ -697,7 +697,7 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
     int do_update = 0;
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
       if (!use_intra_ext_tx_for_txsize[s][i]) continue;
-      for (j = 0; j < INTRA_MODES; ++j)
+      for (j = 0; j < TX_TYPES_BASIC; ++j)
         savings += prob_diff_update_savings(
             av1_ext_tx_intra_tree[s], cm->fc->intra_ext_tx_prob[s][i][j],
             cm->counts.intra_ext_tx[s][i][j],
@@ -708,7 +708,7 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
     if (do_update) {
       for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
         if (!use_intra_ext_tx_for_txsize[s][i]) continue;
-        for (j = 0; j < INTRA_MODES; ++j)
+        for (j = 0; j < TX_TYPES_BASIC; ++j)
           prob_diff_update(av1_ext_tx_intra_tree[s],
                            cm->fc->intra_ext_tx_prob[s][i][j],
                            cm->counts.intra_ext_tx[s][i][j],
@@ -1452,9 +1452,10 @@ static void write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
       } else if (ALLOW_INTRA_EXT_TX) {
         assert(ext_tx_used_intra[eset][mbmi->tx_type]);
         if (eset > 0) {
+          const TX_TYPE tx_type_ctx = intra_mode_to_tx_type_context[mbmi->mode];
           av1_write_token(
               w, av1_ext_tx_intra_tree[eset],
-              ec_ctx->intra_ext_tx_prob[eset][square_tx_size][mbmi->mode],
+              ec_ctx->intra_ext_tx_prob[eset][square_tx_size][tx_type_ctx],
               &ext_tx_intra_encodings[eset][mbmi->tx_type]);
         }
       }

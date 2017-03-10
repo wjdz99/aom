@@ -784,12 +784,13 @@ static void read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         }
       } else if (ALLOW_INTRA_EXT_TX) {
         if (eset > 0) {
+          const TX_TYPE tx_type_ctx = intra_mode_to_tx_type_context[mbmi->mode];
           mbmi->tx_type = aom_read_tree(
               r, av1_ext_tx_intra_tree[eset],
-              ec_ctx->intra_ext_tx_prob[eset][square_tx_size][mbmi->mode],
+              ec_ctx->intra_ext_tx_prob[eset][square_tx_size][tx_type_ctx],
               ACCT_STR);
           if (counts)
-            ++counts->intra_ext_tx[eset][square_tx_size][mbmi->mode]
+            ++counts->intra_ext_tx[eset][square_tx_size][tx_type_ctx]
                                   [mbmi->tx_type];
         }
       }

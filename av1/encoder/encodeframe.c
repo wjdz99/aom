@@ -5843,7 +5843,8 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
           ++td->counts
                 ->inter_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->tx_type];
         } else {
-          ++td->counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
+          const TX_TYPE tx_type_ctx = intra_mode_to_tx_type_context[mbmi->mode];
+          ++td->counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][tx_type_ctx]
                                     [mbmi->tx_type];
         }
       }

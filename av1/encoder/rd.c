@@ -129,7 +129,7 @@ static void fill_mode_costs(AV1_COMP *cpi) {
     }
     for (s = 1; s < EXT_TX_SETS_INTRA; ++s) {
       if (use_intra_ext_tx_for_txsize[s][i]) {
-        for (j = 0; j < INTRA_MODES; ++j)
+        for (j = 0; j < TX_TYPES_BASIC; ++j)
           av1_cost_tokens(cpi->intra_tx_type_costs[s][i][j],
                           fc->intra_ext_tx_prob[s][i][j],
                           av1_ext_tx_intra_tree[s]);

@@ -218,7 +218,7 @@ typedef struct frame_contexts {
   int initialized;
 #if CONFIG_EXT_TX
   aom_prob inter_ext_tx_prob[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES - 1];
-  aom_prob intra_ext_tx_prob[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
+  aom_prob intra_ext_tx_prob[EXT_TX_SETS_INTRA][EXT_TX_SIZES][TX_TYPES_BASIC]
                             [TX_TYPES - 1];
 #else
   aom_prob intra_ext_tx_prob[EXT_TX_SIZES][TX_TYPES][TX_TYPES - 1];
@@ -371,8 +371,8 @@ typedef struct FRAME_COUNTS {
   unsigned int tx_size_implied[TX_SIZES][TX_SIZES];
 #endif  // CONFIG_RECT_TX
   unsigned int inter_ext_tx[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES];
-  unsigned int intra_ext_tx[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
-                           [TX_TYPES];
+  unsigned int intra_ext_tx[EXT_TX_SETS_INTRA][EXT_TX_SIZES][TX_TYPES_BASIC]
+                           [TX_TYPES - 1];
 #else
   unsigned int intra_ext_tx[EXT_TX_SIZES][TX_TYPES][TX_TYPES];
   unsigned int inter_ext_tx[EXT_TX_SIZES][TX_TYPES];
