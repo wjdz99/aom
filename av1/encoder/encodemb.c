@@ -549,7 +549,6 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   tran_low_t *ref_coeff = BLOCK_OFFSET(pd->pvq_ref_coeff, block);
   int skip = 1;
-  PVQ_INFO *pvq_info = NULL;
   uint8_t *src;
   int16_t *src_int16;
   const int src_stride = p->src.stride;
@@ -557,10 +556,6 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   (void)scan_order;
   (void)qcoeff;
 
-  if (x->pvq_coded) {
-    assert(block < MAX_PVQ_BLOCKS_IN_SB);
-    pvq_info = &x->pvq[block][plane];
-  }
   src = &p->src.buf[(blk_row * src_stride + blk_col) << tx_size_wide_log2[0]];
   src_int16 =
       &p->src_int16[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
@@ -628,20 +623,26 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   // PVQ for inter mode block
   if (!x->skip_block) {
-    PVQ_SKIP_TYPE ac_dc_coded =
-        av1_pvq_encode_helper(&x->daala_enc,
-                              coeff,        // target original vector
-                              ref_coeff,    // reference vector
-                              dqcoeff,      // de-quantized vector
-                              eob,          // End of Block marker
-                              pd->dequant,  // aom's quantizers
-                              plane,        // image plane
-                              tx_size,      // block size in log_2 - 2
-                              tx_type,
-                              &x->rate,  // rate measured
-                              x->pvq_speed,
-                              pvq_info);  // PVQ info for a block
-    skip = ac_dc_coded == PVQ_SKIP;
+    PVQ_INFO _pvq_info;
+    PVQ_INFO *pvq_info = &_pvq_info;
+    if (x->pvq_coded) {
+      assert(block < MAX_PVQ_BLOCKS_IN_SB);
+      pvq_info = &x->pvq[block][plane];
+      pvq_info->is_coded = 1;
+    }
+    av1_pvq_encode_helper(&x->daala_enc,
+                          coeff,        // target original vector
+                          ref_coeff,    // reference vector
+                          dqcoeff,      // de-quantized vector
+                          eob,          // End of Block marker
+                          pd->dequant,  // aom's quantizers
+                          plane,        // image plane
+                          tx_size,      // block size in log_2 - 2
+                          tx_type,
+                          &x->rate,     // rate measured
+                          x->pvq_speed,
+                          pvq_info);  // PVQ info for a block
+    skip = pvq_info->ac_dc_coded == PVQ_SKIP;
   }
   x->pvq_skip[plane] = skip;
 
@@ -1162,12 +1163,11 @@ void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
 }
 
 #if CONFIG_PVQ
-PVQ_SKIP_TYPE av1_pvq_encode_helper(
+void av1_pvq_encode_helper(
     daala_enc_ctx *daala_enc, tran_low_t *const coeff, tran_low_t *ref_coeff,
     tran_low_t *const dqcoeff, uint16_t *eob, const int16_t *quant, int plane,
     int tx_size, TX_TYPE tx_type, int *rate, int speed, PVQ_INFO *pvq_info) {
   const int tx_blk_size = tx_size_wide[tx_size];
-  PVQ_SKIP_TYPE ac_dc_coded;
   /*TODO(tterribe): Handle CONFIG_AOM_HIGHBITDEPTH.*/
   int coeff_shift = 3 - get_tx_scale(tx_size);
   int rounding_mask;
@@ -1224,7 +1224,7 @@ PVQ_SKIP_TYPE av1_pvq_encode_helper(
     out_int32[0] = OD_DIV_R0(in_int32[0] - ref_int32[0], pvq_dc_quant);
   }
 
-  ac_dc_coded = od_pvq_encode(
+  od_pvq_encode(
       daala_enc, ref_int32, in_int32, out_int32,
       quant[0] << (OD_COEFF_SHIFT - 3),  // scale/quantizer
       quant[1] << (OD_COEFF_SHIFT - 3),  // scale/quantizer
@@ -1248,7 +1248,7 @@ PVQ_SKIP_TYPE av1_pvq_encode_helper(
 
   // need to save quantized residue of DC coeff
   // so that final pvq bitstream writing can know whether DC is coded.
-  if (pvq_info) pvq_info->dq_dc_residue = out_int32[0];
+  pvq_info->dq_dc_residue = out_int32[0];
 
   out_int32[0] = out_int32[0] * pvq_dc_quant;
   out_int32[0] += ref_int32[0];
@@ -1274,8 +1274,6 @@ PVQ_SKIP_TYPE av1_pvq_encode_helper(
 #error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
 #endif
   assert(*rate >= 0);
-
-  return ac_dc_coded;
 }
 
 void av1_store_pvq_enc_info(PVQ_INFO *pvq_info, int *qg, int *theta,
