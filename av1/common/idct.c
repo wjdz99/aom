@@ -2839,3 +2839,135 @@ void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
+
+#if CONFIG_DPCM_INTRA
+void av1_dpcm_inv_txfm_add_4_c(const tran_low_t *input, int stride, int tx_type,
+                               uint8_t *dest) {
+  static const transform_1d IHT[] = {aom_idct4_c, aom_iadst4_c, aom_iadst4_c,
+                                     iidtx4_c};
+  const transform_1d inv_tx = IHT[tx_type];
+  int i;
+  tran_low_t out[4];
+  assert(tx_type < TX_TYPES_1D);
+  inv_tx(input, out);
+  for (i = 0; i < 4; ++i) {
+    out[i] = (tran_low_t)dct_const_round_shift(out[i] * Sqrt2);
+    dest[i * stride] =
+        clip_pixel_add(dest[i * stride], ROUND_POWER_OF_TWO(out[i], 4));
+  }
+}
+
+void av1_dpcm_inv_txfm_add_8_c(const tran_low_t *input, int stride, int tx_type,
+                               uint8_t *dest) {
+  static const transform_1d IHT[] = {aom_idct8_c, aom_iadst8_c, aom_iadst8_c,
+                                     iidtx8_c};
+  const transform_1d inv_tx = IHT[tx_type];
+  int i;
+  tran_low_t out[8];
+  assert(tx_type < TX_TYPES_1D);
+  inv_tx(input, out);
+  for (i = 0; i < 8; ++i) {
+    dest[i * stride] =
+        clip_pixel_add(dest[i * stride], ROUND_POWER_OF_TWO(out[i], 4));
+  }
+}
+
+void av1_dpcm_inv_txfm_add_16_c(const tran_low_t *input, int stride,
+                                int tx_type, uint8_t *dest) {
+  static const transform_1d IHT[] = {aom_idct16_c, aom_iadst16_c, aom_iadst16_c,
+                                     iidtx16_c};
+  const transform_1d inv_tx = IHT[tx_type];
+  int i;
+  tran_low_t out[16];
+  assert(tx_type < TX_TYPES_1D);
+  inv_tx(input, out);
+  for (i = 0; i < 16; ++i) {
+    out[i] = (tran_low_t)dct_const_round_shift(out[i] * Sqrt2);
+    dest[i * stride] =
+        clip_pixel_add(dest[i * stride], ROUND_POWER_OF_TWO(out[i], 5));
+  }
+}
+
+void av1_dpcm_inv_txfm_add_32_c(const tran_low_t *input, int stride,
+                                int tx_type, uint8_t *dest) {
+  static const transform_1d IHT[] = {aom_idct32_c, ihalfright32_c,
+                                     ihalfright32_c, iidtx32_c};
+  const transform_1d inv_tx = IHT[tx_type];
+  int i;
+  tran_low_t out[32];
+  assert(tx_type < TX_TYPES_1D);
+  inv_tx(input, out);
+  for (i = 0; i < 32; ++i) {
+    dest[i * stride] =
+        clip_pixel_add(dest[i * stride], ROUND_POWER_OF_TWO(out[i], 4));
+  }
+}
+
+#if CONFIG_AOM_HIGHBITDEPTH
+void av1_hbd_dpcm_inv_txfm_add_4_c(const tran_low_t *input, int stride,
+                                   int tx_type, int bd, uint16_t *dest) {
+  static const highbd_transform_1d IHT[] = {
+      aom_highbd_idct4_c, aom_highbd_iadst4_c, aom_highbd_iadst4_c,
+      highbd_iidtx4_c};
+  const highbd_transform_1d inv_tx = IHT[tx_type];
+  int i;
+  tran_low_t out[4];
+  assert(tx_type < TX_TYPES_1D);
+  inv_tx(input, out, bd);
+  for (i = 0; i < 4; ++i) {
+    out[i] = (tran_low_t)dct_const_round_shift(out[i] * Sqrt2);
+    dest[i * stride] = highbd_clip_pixel_add(dest[i * stride],
+                                             ROUND_POWER_OF_TWO(out[i], 4), bd);
+  }
+}
+
+void av1_hbd_dpcm_inv_txfm_add_8_c(const tran_low_t *input, int stride,
+                                   int tx_type, int bd, uint16_t *dest) {
+  static const highbd_transform_1d IHT[] = {
+      aom_highbd_idct8_c, aom_highbd_iadst8_c, aom_highbd_iadst8_c,
+      highbd_iidtx8_c};
+  const highbd_transform_1d inv_tx = IHT[tx_type];
+  int i;
+  tran_low_t out[8];
+  assert(tx_type < TX_TYPES_1D);
+  inv_tx(input, out, bd);
+  for (i = 0; i < 8; ++i) {
+    dest[i * stride] =
+        clip_pixel_add(dest[i * stride], ROUND_POWER_OF_TWO(out[i], 4));
+  }
+}
+
+void av1_hbd_dpcm_inv_txfm_add_16_c(const tran_low_t *input, int stride,
+                                    int tx_type, int bd, uint16_t *dest) {
+  static const highbd_transform_1d IHT[] = {
+      aom_highbd_idct16_c, aom_highbd_iadst16_c, aom_highbd_iadst16_c,
+      highbd_iidtx16_c};
+  const highbd_transform_1d inv_tx = IHT[tx_type];
+  int i;
+  tran_low_t out[16];
+  assert(tx_type < TX_TYPES_1D);
+  inv_tx(input, out, bd);
+  for (i = 0; i < 16; ++i) {
+    out[i] = (tran_low_t)dct_const_round_shift(out[i] * Sqrt2);
+    dest[i * stride] =
+        clip_pixel_add(dest[i * stride], ROUND_POWER_OF_TWO(out[i], 5));
+  }
+}
+
+void av1_hbd_dpcm_inv_txfm_add_32_c(const tran_low_t *input, int stride,
+                                    int tx_type, int bd, uint16_t *dest) {
+  static const highbd_transform_1d IHT[] = {
+      aom_highbd_idct32_c, highbd_ihalfright32_c, highbd_ihalfright32_c,
+      highbd_iidtx32_c};
+  const highbd_transform_1d inv_tx = IHT[tx_type];
+  int i;
+  tran_low_t out[32];
+  assert(tx_type < TX_TYPES_1D);
+  inv_tx(input, out, bd);
+  for (i = 0; i < 32; ++i) {
+    dest[i * stride] =
+        clip_pixel_add(dest[i * stride], ROUND_POWER_OF_TWO(out[i], 4));
+  }
+}
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_DPCM_INTRA

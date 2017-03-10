@@ -535,6 +535,159 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 }
 #endif
 
+#if CONFIG_DPCM_INTRA
+static void process_block_dpcm_vert(TX_SIZE tx_size, TX_TYPE_1D tx_type_1d,
+                                    const tran_low_t *dqcoeff, uint8_t *dst,
+                                    int dst_stride) {
+  const int tx1d_width = tx_size_wide[tx_size];
+  const int tx1d_height = tx_size_high[tx_size];
+  void (*inverse_tx)(const tran_low_t *input, int stride, int tx_type,
+                     uint8_t *dst) = NULL;
+  int r;
+
+  switch (tx1d_width) {
+    case 4: inverse_tx = av1_dpcm_inv_txfm_add_4_c; break;
+    case 8: inverse_tx = av1_dpcm_inv_txfm_add_8_c; break;
+    case 16: inverse_tx = av1_dpcm_inv_txfm_add_16_c; break;
+    case 32: inverse_tx = av1_dpcm_inv_txfm_add_32_c; break;
+    default: assert(0);
+  }
+
+  for (r = 0; r < tx1d_height; ++r) {
+    if (r > 0) memcpy(dst, dst - dst_stride, tx1d_width * sizeof(dst[0]));
+    inverse_tx(dqcoeff, 1, tx_type_1d, dst);
+    dqcoeff += tx1d_width;
+    dst += dst_stride;
+  }
+}
+
+static void process_block_dpcm_horz(TX_SIZE tx_size, TX_TYPE_1D tx_type_1d,
+                                    const tran_low_t *dqcoeff, uint8_t *dst,
+                                    int dst_stride) {
+  const int tx1d_width = tx_size_wide[tx_size];
+  const int tx1d_height = tx_size_high[tx_size];
+  void (*inverse_tx)(const tran_low_t *input, int stride, int tx_type,
+      uint8_t *dst) = NULL;
+  tran_low_t tx_buff[64];
+  int r, c;
+
+  switch (tx1d_height) {
+    case 4: inverse_tx = av1_dpcm_inv_txfm_add_4_c; break;
+    case 8: inverse_tx = av1_dpcm_inv_txfm_add_8_c; break;
+    case 16: inverse_tx = av1_dpcm_inv_txfm_add_16_c; break;
+    case 32: inverse_tx = av1_dpcm_inv_txfm_add_32_c; break;
+    default: assert(0);
+  }
+
+  for (c = 0; c < tx1d_width; ++c, ++dqcoeff, ++dst) {
+    for (r = 0; r < tx1d_height; ++r) {
+      if (c > 0) dst[r * dst_stride] = dst[r * dst_stride - 1];
+      tx_buff[r] = dqcoeff[r * tx1d_width];
+    }
+    inverse_tx(tx_buff, dst_stride, tx_type_1d, dst);
+  }
+}
+
+#if CONFIG_AOM_HIGHBITDEPTH
+static void hbd_process_block_dpcm_vert(TX_SIZE tx_size, TX_TYPE_1D tx_type_1d,
+                                        int bd, const tran_low_t *dqcoeff,
+                                        uint8_t *dst8, int dst_stride) {
+  uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
+  const int tx1d_width = tx_size_wide[tx_size];
+  const int tx1d_height = tx_size_high[tx_size];
+  void (*inverse_tx)(const tran_low_t *input, int stride, int tx_type, int bd,
+                     uint16_t *dst) = NULL;
+  int r;
+
+  switch (tx1d_width) {
+    case 4: inverse_tx = av1_hbd_dpcm_inv_txfm_add_4_c; break;
+    case 8: inverse_tx = av1_hbd_dpcm_inv_txfm_add_8_c; break;
+    case 16: inverse_tx = av1_hbd_dpcm_inv_txfm_add_16_c; break;
+    case 32: inverse_tx = av1_hbd_dpcm_inv_txfm_add_32_c; break;
+    default: assert(0);
+  }
+
+  for (r = 0; r < tx1d_height; ++r) {
+    if (r > 0) memcpy(dst, dst - dst_stride, tx1d_width * sizeof(dst[0]));
+    inverse_tx(dqcoeff, 1, tx_type_1d, bd, dst);
+    dqcoeff += tx1d_width;
+    dst += dst_stride;
+  }
+}
+
+static void hbd_process_block_dpcm_horz(TX_SIZE tx_size, TX_TYPE_1D tx_type_1d,
+                                        int bd, const tran_low_t *dqcoeff,
+                                        uint8_t *dst8, int dst_stride) {
+  uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
+  const int tx1d_width = tx_size_wide[tx_size];
+  const int tx1d_height = tx_size_high[tx_size];
+  void (*inverse_tx)(const tran_low_t *input, int stride, int tx_type, int bd,
+      uint16_t *dst) = NULL;
+  tran_low_t tx_buff[64];
+  int r, c;
+
+  switch (tx1d_height) {
+    case 4: inverse_tx = av1_hbd_dpcm_inv_txfm_add_4_c; break;
+    case 8: inverse_tx = av1_hbd_dpcm_inv_txfm_add_8_c; break;
+    case 16: inverse_tx = av1_hbd_dpcm_inv_txfm_add_16_c; break;
+    case 32: inverse_tx = av1_hbd_dpcm_inv_txfm_add_32_c; break;
+    default: assert(0);
+  }
+
+  for (c = 0; c < tx1d_width; ++c, ++dqcoeff, ++dst) {
+    for (r = 0; r < tx1d_height; ++r) {
+      if (c > 0) dst[r * dst_stride] = dst[r * dst_stride - 1];
+      tx_buff[r] = dqcoeff[r * tx1d_width];
+    }
+    inverse_tx(tx_buff, dst_stride, tx_type_1d, bd, dst);
+  }
+}
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+
+static void inverse_transform_block_dpcm(MACROBLOCKD *xd, int plane,
+                                         PREDICTION_MODE mode, TX_SIZE tx_size,
+                                         TX_TYPE tx_type, uint8_t *dst,
+                                         int dst_stride, int16_t scan_line) {
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  tran_low_t *const dqcoeff = pd->dqcoeff;
+  TX_TYPE_1D tx_type_1d = DCT_1D;
+  switch(tx_type) {
+    case IDTX: tx_type_1d = IDTX_1D; break;
+    case V_DCT: assert(mode == H_PRED); tx_type_1d = DCT_1D; break;
+    case H_DCT: assert(mode == V_PRED); tx_type_1d = DCT_1D; break;
+    default: assert(0);
+  }
+  switch (mode) {
+    case V_PRED:
+#if CONFIG_AOM_HIGHBITDEPTH
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+        hbd_process_block_dpcm_vert(tx_size, tx_type_1d, xd->bd, dqcoeff, dst,
+                                    dst_stride);
+      } else {
+        process_block_dpcm_vert(tx_size, tx_type_1d, dqcoeff, dst, dst_stride);
+      }
+#else
+      process_block_dpcm_vert(tx_size, tx_type_1d, dqcoeff, dst, dst_stride);
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+      break;
+    case H_PRED:
+#if CONFIG_AOM_HIGHBITDEPTH
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+        hbd_process_block_dpcm_horz(tx_size, tx_type_1d, xd->bd, dqcoeff, dst,
+                                    dst_stride);
+      } else {
+        process_block_dpcm_horz(tx_size, tx_type_1d, dqcoeff, dst, dst_stride);
+      }
+#else
+      process_block_dpcm_horz(tx_size, tx_type_1d, dqcoeff, dst, dst_stride);
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+      break;
+    default: assert(0);
+  }
+  memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
+}
+#endif  // CONFIG_DPCM_INTRA
+
 static void predict_and_reconstruct_intra_block(
     AV1_COMMON *cm, MACROBLOCKD *const xd, aom_reader *const r,
     MB_MODE_INFO *const mbmi, int plane, int row, int col, TX_SIZE tx_size) {
@@ -571,12 +724,22 @@ static void predict_and_reconstruct_intra_block(
         av1_decode_block_tokens(cm, xd, plane, scan_order, col, row, tx_size,
                                 tx_type, &max_scan_line, r, mbmi->segment_id);
 #endif  // CONFIG_LV_MAP
-    if (eob)
-      inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
-                              max_scan_line, eob);
+    if (eob) {
+#if CONFIG_DPCM_INTRA
+      if (av1_use_dpcm_intra(plane, mode, tx_type, mbmi)) {
+        inverse_transform_block_dpcm(xd, plane, mode, tx_size, tx_type, dst,
+                                     pd->dst.stride, max_scan_line);
+      } else {
+#endif  // CONFIG_DPCM_INTRA
+        inverse_transform_block(xd, plane, tx_type, tx_size, dst,
+                                pd->dst.stride, max_scan_line, eob);
+#if CONFIG_DPCM_INTRA
+      }
+#endif  // CONFIG_DPCM_INTRA
+    }
 #else
     av1_pvq_decode_helper2(cm, xd, mbmi, plane, row, col, tx_size, tx_type);
-#endif
+#endif  // !CONFIG_PVQ
   }
 }
 
@@ -1702,6 +1865,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
         av1_decode_palette_tokens(xd, plane, r);
     }
 #endif  // CONFIG_PALETTE
+
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       const struct macroblockd_plane *const pd = &xd->plane[plane];
       const TX_SIZE tx_size = get_tx_size(plane, xd);

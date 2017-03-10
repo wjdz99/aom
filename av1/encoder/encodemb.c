@@ -1056,6 +1056,368 @@ static void encode_block_intra_and_set_context(int plane, int block,
 #endif
 }
 
+#if CONFIG_DPCM_INTRA
+static int get_eob(tran_low_t *qcoeff, intptr_t n_coeffs,
+                   const int16_t *scan) {
+  int i, rc, eob = -1;
+  for (i = (int)n_coeffs - 1; i >= 0; i--) {
+    rc = scan[i];
+    if (qcoeff[rc]) {
+      eob = i;
+      break;
+    }
+  }
+  eob += 1;
+  return eob;
+}
+
+static void quantize_scaler(int coeff, int16_t zbin, int16_t round_value,
+                            int16_t quant, int16_t quant_shift, int16_t dequant,
+                            int log_scale, tran_low_t *const qcoeff,
+                            tran_low_t *const dqcoeff) {
+  const int coeff_sign = (coeff >> 31);
+  const int abs_coeff = (coeff ^ coeff_sign) - coeff_sign;
+  if (abs_coeff >= zbin) {
+    int tmp = clamp(abs_coeff + round_value, INT16_MIN, INT16_MAX);
+    tmp = ((((tmp * quant) >> 16) + tmp) * quant_shift) >> 16;
+    *qcoeff = (tmp ^ coeff_sign) - coeff_sign;
+    *dqcoeff = (*qcoeff * dequant) >> log_scale;
+  }
+}
+
+static void process_block_dpcm_vert(TX_SIZE tx_size, TX_TYPE_1D tx_type_1d,
+                                    struct macroblockd_plane *const pd,
+                                    struct macroblock_plane *const p,
+                                    uint8_t *src, int src_stride, uint8_t *dst,
+                                    int dst_stride, int16_t *src_diff,
+                                    int diff_stride, tran_low_t *coeff,
+                                    tran_low_t *qcoeff, tran_low_t *dqcoeff) {
+  const int tx1d_width = tx_size_wide[tx_size];
+  const int tx1d_height = tx_size_high[tx_size];
+  const int log_scale = get_tx_scale(tx_size);
+  void (*forward_tx)(const int16_t *input, int stride, int tx_type,
+                     tran_low_t *output) = NULL;
+  void (*inverse_tx)(const tran_low_t *input, int stride, int tx_type,
+                     uint8_t *dst) = NULL;
+  int r, c, q_idx = 0;
+
+  switch (tx1d_width) {
+    case 4:
+      forward_tx = av1_dpcm_ft4_c;
+      inverse_tx = av1_dpcm_inv_txfm_add_4_c;
+      break;
+    case 8:
+      forward_tx = av1_dpcm_ft8_c;
+      inverse_tx = av1_dpcm_inv_txfm_add_8_c;
+      break;
+    case 16:
+      forward_tx = av1_dpcm_ft16_c;
+      inverse_tx = av1_dpcm_inv_txfm_add_16_c;
+      break;
+    case 32:
+      forward_tx = av1_dpcm_ft32_c;
+      inverse_tx = av1_dpcm_inv_txfm_add_32_c;
+      break;
+    default: assert(0);
+  }
+
+  for (r = 0; r < tx1d_height; ++r) {
+    // Subtraction.
+    if (r > 0) memcpy(dst, dst - dst_stride, tx1d_width * sizeof(dst[0]));
+    for (c = 0; c < tx1d_width; ++c) src_diff[c] = src[c] - dst[c];
+    // Forward transform.
+    forward_tx(src_diff, 1, tx_type_1d, coeff);
+    // Quantization.
+    for (c = 0; c < tx1d_width; ++c) {
+      quantize_scaler(coeff[c], p->zbin[q_idx], p->round[q_idx],
+                      p->quant[q_idx], p->quant_shift[q_idx],
+                      pd->dequant[q_idx], log_scale, &qcoeff[c], &dqcoeff[c]);
+      q_idx = 1;
+    }
+    // Inverse transform.
+    inverse_tx(dqcoeff, 1, tx_type_1d, dst);
+    // Move to the next row.
+    coeff += tx1d_width;
+    qcoeff += tx1d_width;
+    dqcoeff += tx1d_width;
+    src_diff += diff_stride;
+    dst += dst_stride;
+    src += src_stride;
+  }
+}
+
+static void process_block_dpcm_horz(TX_SIZE tx_size, TX_TYPE_1D tx_type_1d,
+                                    struct macroblockd_plane *const pd,
+                                    struct macroblock_plane *const p,
+                                    uint8_t *src, int src_stride, uint8_t *dst,
+                                    int dst_stride, int16_t *src_diff,
+                                    int diff_stride, tran_low_t *coeff,
+                                    tran_low_t *qcoeff, tran_low_t *dqcoeff) {
+  const int tx1d_width = tx_size_wide[tx_size];
+  const int tx1d_height = tx_size_high[tx_size];
+  const int log_scale = get_tx_scale(tx_size);
+  int r, c, q_idx = 0;
+  void (*forward_tx)(const int16_t *input, int stride, int tx_type,
+                     tran_low_t *output) = NULL;
+  void (*inverse_tx)(const tran_low_t *input, int stride, int tx_type,
+                     uint8_t *dst) = NULL;
+  tran_low_t tx_buff[64];
+
+  switch (tx1d_height) {
+    case 4:
+      forward_tx = av1_dpcm_ft4_c;
+      inverse_tx = av1_dpcm_inv_txfm_add_4_c;
+      break;
+    case 8:
+      forward_tx = av1_dpcm_ft8_c;
+      inverse_tx = av1_dpcm_inv_txfm_add_8_c;
+      break;
+    case 16:
+      forward_tx = av1_dpcm_ft16_c;
+      inverse_tx = av1_dpcm_inv_txfm_add_16_c;
+      break;
+    case 32:
+      forward_tx = av1_dpcm_ft32_c;
+      inverse_tx = av1_dpcm_inv_txfm_add_32_c;
+      break;
+    default: assert(0);
+  }
+
+  for (c = 0; c < tx1d_width; ++c) {
+    // Subtraction.
+    for (r = 0; r < tx1d_height; ++r) {
+      if (c > 0) dst[r * dst_stride] = dst[r * dst_stride - 1];
+      src_diff[r * diff_stride] = src[r * src_stride] - dst[r * dst_stride];
+    }
+    // Forward transform.
+    forward_tx(src_diff, diff_stride, tx_type_1d, tx_buff);
+    for (r = 0; r < tx1d_height; ++r) coeff[r * tx1d_width] = tx_buff[r];
+    // Quantization.
+    for (r = 0; r < tx1d_height; ++r) {
+      quantize_scaler(coeff[r * tx1d_width], p->zbin[q_idx], p->round[q_idx],
+                      p->quant[q_idx], p->quant_shift[q_idx],
+                      pd->dequant[q_idx], log_scale, &qcoeff[r * tx1d_width],
+                      &dqcoeff[r * tx1d_width]);
+      q_idx = 1;
+    }
+    // Inverse transform.
+    for (r = 0; r < tx1d_height; ++r) tx_buff[r] = dqcoeff[r * tx1d_width];
+    inverse_tx(tx_buff, dst_stride, tx_type_1d, dst);
+    // Move to the next column.
+    ++coeff, ++qcoeff, ++dqcoeff, ++src_diff, ++dst, ++src;
+  }
+}
+
+#if CONFIG_AOM_HIGHBITDEPTH
+static void hbd_process_block_dpcm_vert(
+    TX_SIZE tx_size, TX_TYPE_1D tx_type_1d, int bd,
+    struct macroblockd_plane *const pd, struct macroblock_plane *const p,
+    uint8_t *src8, int src_stride, uint8_t *dst8, int dst_stride,
+    int16_t *src_diff, int diff_stride, tran_low_t *coeff, tran_low_t *qcoeff,
+    tran_low_t *dqcoeff) {
+  uint16_t *src = CONVERT_TO_SHORTPTR(src8);
+  uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
+  const int tx1d_width = tx_size_wide[tx_size];
+  const int tx1d_height = tx_size_high[tx_size];
+  const int log_scale = get_tx_scale(tx_size);
+  void (*forward_tx)(const int16_t *input, int stride, int tx_type,
+                     tran_low_t *output) = NULL;
+  void (*inverse_tx)(const tran_low_t *input, int stride, int tx_type, int bd,
+                     uint16_t *dst) = NULL;
+  int r, c, q_idx = 0;
+
+  switch (tx1d_width) {
+    case 4:
+      forward_tx = av1_dpcm_ft4_c;
+      inverse_tx = av1_hbd_dpcm_inv_txfm_add_4_c;
+      break;
+    case 8:
+      forward_tx = av1_dpcm_ft8_c;
+      inverse_tx = av1_hbd_dpcm_inv_txfm_add_8_c;
+      break;
+    case 16:
+      forward_tx = av1_dpcm_ft16_c;
+      inverse_tx = av1_hbd_dpcm_inv_txfm_add_16_c;
+      break;
+    case 32:
+      forward_tx = av1_dpcm_ft32_c;
+      inverse_tx = av1_hbd_dpcm_inv_txfm_add_32_c;
+      break;
+    default: assert(0);
+  }
+
+  for (r = 0; r < tx1d_height; ++r) {
+    // Subtraction.
+    if (r > 0) memcpy(dst, dst - dst_stride, tx1d_width * sizeof(dst[0]));
+    for (c = 0; c < tx1d_width; ++c) src_diff[c] = src[c] - dst[c];
+    // Forward transform.
+    forward_tx(src_diff, 1, tx_type_1d, coeff);
+    // Quantization.
+    for (c = 0; c < tx1d_width; ++c) {
+      quantize_scaler(coeff[c], p->zbin[q_idx], p->round[q_idx],
+                      p->quant[q_idx], p->quant_shift[q_idx],
+                      pd->dequant[q_idx], log_scale, &qcoeff[c], &dqcoeff[c]);
+      q_idx = 1;
+    }
+    // Inverse transform.
+    inverse_tx(dqcoeff, 1, tx_type_1d, bd, dst);
+    // Move to the next row.
+    coeff += tx1d_width;
+    qcoeff += tx1d_width;
+    dqcoeff += tx1d_width;
+    src_diff += diff_stride;
+    dst += dst_stride;
+    src += src_stride;
+  }
+}
+
+static void nbd_process_block_dpcm_horz(
+    TX_SIZE tx_size, TX_TYPE_1D tx_type_1d, int bd,
+    struct macroblockd_plane *const pd, struct macroblock_plane *const p,
+    uint8_t *src8, int src_stride, uint8_t *dst8, int dst_stride,
+    int16_t *src_diff, int diff_stride, tran_low_t *coeff, tran_low_t *qcoeff,
+    tran_low_t *dqcoeff) {
+  uint16_t *src = CONVERT_TO_SHORTPTR(src8);
+  uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
+  const int tx1d_width = tx_size_wide[tx_size];
+  const int tx1d_height = tx_size_high[tx_size];
+  const int log_scale = get_tx_scale(tx_size);
+  int r, c, q_idx = 0;
+  void (*forward_tx)(const int16_t *input, int stride, int tx_type,
+                     tran_low_t *output) = NULL;
+  void (*inverse_tx)(const tran_low_t *input, int stride, int tx_type, int bd,
+                     uint16_t *dst) = NULL;
+  tran_low_t tx_buff[64];
+
+  switch (tx1d_height) {
+    case 4:
+      forward_tx = av1_dpcm_ft4_c;
+      inverse_tx = av1_hbd_dpcm_inv_txfm_add_4_c;
+      break;
+    case 8:
+      forward_tx = av1_dpcm_ft8_c;
+      inverse_tx = av1_hbd_dpcm_inv_txfm_add_8_c;
+      break;
+    case 16:
+      forward_tx = av1_dpcm_ft16_c;
+      inverse_tx = av1_hbd_dpcm_inv_txfm_add_16_c;
+      break;
+    case 32:
+      forward_tx = av1_dpcm_ft32_c;
+      inverse_tx = av1_hbd_dpcm_inv_txfm_add_32_c;
+      break;
+    default: assert(0);
+  }
+
+  for (c = 0; c < tx1d_width; ++c) {
+    // Subtraction.
+    for (r = 0; r < tx1d_height; ++r) {
+      if (c > 0) dst[r * dst_stride] = dst[r * dst_stride - 1];
+      src_diff[r * diff_stride] = src[r * src_stride] - dst[r * dst_stride];
+    }
+    // Forward transform.
+    forward_tx(src_diff, diff_stride, tx_type_1d, tx_buff);
+    for (r = 0; r < tx1d_height; ++r) coeff[r * tx1d_width] = tx_buff[r];
+    // Quantization.
+    for (r = 0; r < tx1d_height; ++r) {
+      quantize_scaler(coeff[r * tx1d_width], p->zbin[q_idx], p->round[q_idx],
+                      p->quant[q_idx], p->quant_shift[q_idx],
+                      pd->dequant[q_idx], log_scale, &qcoeff[r * tx1d_width],
+                      &dqcoeff[r * tx1d_width]);
+      q_idx = 1;
+    }
+    // Inverse transform.
+    for (r = 0; r < tx1d_height; ++r) tx_buff[r] = dqcoeff[r * tx1d_width];
+    inverse_tx(tx_buff, dst_stride, tx_type_1d, bd, dst);
+    // Move to the next column.
+    ++coeff, ++qcoeff, ++dqcoeff, ++src_diff, ++dst, ++src;
+  }
+}
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+
+static void encode_block_intra_dpcm(PREDICTION_MODE mode, int plane, int block,
+                                    int blk_row, int blk_col,
+                                    BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
+                                    TX_TYPE tx_type, void *arg) {
+  struct encode_b_args *const args = arg;
+  AV1_COMMON *cm = args->cm;
+  MACROBLOCK *const x = args->x;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  struct macroblock_plane *const p = &x->plane[plane];
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
+  const int diff_stride = block_size_wide[plane_bsize];
+  const int src_stride = p->src.stride;
+  const int dst_stride = pd->dst.stride;
+  const int tx1d_width = tx_size_wide[tx_size];
+  const int tx1d_height = tx_size_high[tx_size];
+  const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, 0);
+  tran_low_t *coeff = BLOCK_OFFSET(p->coeff, block);
+  tran_low_t *qcoeff = BLOCK_OFFSET(p->qcoeff, block);
+  uint8_t *dst =
+      &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
+  uint8_t *src =
+      &p->src.buf[(blk_row * src_stride + blk_col) << tx_size_wide_log2[0]];
+  int16_t *src_diff =
+      &p->src_diff[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
+  uint16_t *eob = &p->eobs[block];
+  *eob = 0;
+  memset(qcoeff, 0, tx1d_height * tx1d_width * sizeof(*qcoeff));
+  memset(dqcoeff, 0, tx1d_height * tx1d_width * sizeof(*dqcoeff));
+
+  if (LIKELY(!x->skip_block)) {
+    TX_TYPE_1D tx_type_1d = DCT_1D;
+    switch(tx_type) {
+      case IDTX: tx_type_1d = IDTX_1D; break;
+      case V_DCT: assert(mode == H_PRED); tx_type_1d = DCT_1D; break;
+      case H_DCT: assert(mode == V_PRED); tx_type_1d = DCT_1D; break;
+      default: assert(0);
+    }
+    switch (mode) {
+      case V_PRED:
+#if CONFIG_AOM_HIGHBITDEPTH
+        if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+          hbd_process_block_dpcm_vert(tx_size, tx_type_1d, xd->bd, pd, p, src,
+                                      src_stride, dst, dst_stride, src_diff,
+                                      diff_stride, coeff, qcoeff, dqcoeff);
+        } else {
+          process_block_dpcm_vert(tx_size, tx_type_1d, pd, p, src, src_stride,
+                                  dst, dst_stride, src_diff, diff_stride, coeff,
+                                  qcoeff, dqcoeff);
+        }
+#else
+        process_block_dpcm_vert(tx_size, tx_type_1d, pd, p, src, src_stride,
+                                dst, dst_stride, src_diff, diff_stride, coeff,
+                                qcoeff, dqcoeff);
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+        break;
+      case H_PRED:
+#if CONFIG_AOM_HIGHBITDEPTH
+        if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+          nbd_process_block_dpcm_horz(tx_size, tx_type_1d, xd->bd, pd, p, src,
+                                      src_stride, dst, dst_stride, src_diff,
+                                      diff_stride, coeff, qcoeff, dqcoeff);
+        } else {
+          process_block_dpcm_horz(tx_size, tx_type_1d, pd, p, src, src_stride,
+                                  dst, dst_stride, src_diff, diff_stride, coeff,
+                                  qcoeff, dqcoeff);
+        }
+#else
+        process_block_dpcm_horz(tx_size, tx_type_1d, pd, p, src, src_stride,
+                                dst, dst_stride, src_diff, diff_stride, coeff,
+                                qcoeff, dqcoeff);
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+        break;
+      default: assert(0);
+    }
+    *eob = get_eob(qcoeff, tx1d_height * tx1d_width, scan_order->scan);
+  }
+
+  args->ta[blk_col] = args->tl[blk_row] = *eob > 0;
+  if (*eob) *(args->skip) = 0;
+}
+#endif  // CONFIG_DPCM_INTRA
+
 void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                             BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
                             void *arg) {
@@ -1095,6 +1457,14 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   av1_predict_intra_block(xd, pd->width, pd->height, txsize_to_bsize[tx_size],
                           mode, dst, dst_stride, dst, dst_stride, blk_col,
                           blk_row, plane);
+
+#if CONFIG_DPCM_INTRA
+  if (av1_use_dpcm_intra(plane, mode, tx_type, mbmi)) {
+    encode_block_intra_dpcm(mode, plane, block, blk_row, blk_col, plane_bsize,
+                            tx_size, tx_type, arg);
+    return;
+  }
+#endif   // CONFIG_DPCM_INTRA
 
   if (check_subtract_block_size(tx1d_width, tx1d_height)) {
 #if CONFIG_AOM_HIGHBITDEPTH

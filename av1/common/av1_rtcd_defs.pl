@@ -562,6 +562,20 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") ne "yes") {
 add_proto qw/void av1_fwd_idtx/, "const int16_t *src_diff, tran_low_t *coeff, int stride, int bs, int tx_type";
   specialize qw/av1_fwd_idtx/;
 
+if (aom_config("CONFIG_DPCM_INTRA") eq "yes") {
+  add_proto qw/void av1_dpcm_ft4/, "const int16_t *input, int stride, int tx_type, tran_low_t *output";
+  specialize qw/av1_dpcm_ft4/;
+
+  add_proto qw/void av1_dpcm_ft8/, "const int16_t *input, int stride, int tx_type, tran_low_t *output";
+  specialize qw/av1_dpcm_ft8/;
+
+  add_proto qw/void av1_dpcm_ft16/, "const int16_t *input, int stride, int tx_type, tran_low_t *output";
+  specialize qw/av1_dpcm_ft16/;
+
+  add_proto qw/void av1_dpcm_ft32/, "const int16_t *input, int stride, int tx_type, tran_low_t *output";
+  specialize qw/av1_dpcm_ft32/;
+}
+
 if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
   #fwd txfm
   add_proto qw/void av1_fwd_txfm2d_4x4/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
