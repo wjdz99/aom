@@ -86,6 +86,8 @@ static INLINE int is_inter_mode(PREDICTION_MODE mode) {
 
 #if CONFIG_PVQ
 typedef struct PVQ_INFO {
+  // Indicates whether pvq_info needs be stored to tokenize
+  int is_coded;
   int theta[PVQ_MAX_PARTITIONS];
   int max_theta[PVQ_MAX_PARTITIONS];
   int qg[PVQ_MAX_PARTITIONS];
