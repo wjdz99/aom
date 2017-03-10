@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4a6c241b_276cdd24",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 8702,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-10T18:43:37Z",
+      "side": 1,
+      "message": "It actually is related - these used to be inline if\u0027s but making single_filter a member of opt_args made both of the lines too long. I\u0027ll fix it in this commit.",
+      "parentUuid": "606d1bb8_495724a4",
+      "revId": "8ac353473f8bed522992f5cf8bf2da7aabe981b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f3e1e80_7dbe4b96",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-10T18:09:52Z",
       "side": 1,
       "message": "I think that makes sense (in a separate patch though)",
+      "revId": "8ac353473f8bed522992f5cf8bf2da7aabe981b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "227ae2bb_4491e1cc",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 9438,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-03-10T18:43:37Z",
+      "side": 1,
+      "message": "The reason I ask is that frame_mv gets used in a lot of other places.\n\nAlso, it\u0027s (frustratingly) renamed when it\u0027s passed to handle_inter_mode to mode_mv[][], and then it internally makes a new variable:\nint_mv *frame_mv \u003d mode_mv[pred_mode];\n\nEven though it has the same name as what was passed it now is a different type and points to a single 1D array from the given 2D array. This will need a little thought.\n\nSo yeah, I\u0027ll make this a TODO for now.",
+      "parentUuid": "1f3e1e80_7dbe4b96",
       "revId": "8ac353473f8bed522992f5cf8bf2da7aabe981b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
