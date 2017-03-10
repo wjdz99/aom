@@ -764,11 +764,9 @@ void od_encode_quantizer_scaling(daala_enc_ctx *enc, int q_scaling,
  * @param [in]     qm_inv  Inverse of QM with magnitude compensation
  * @param [in]     speed   Make search faster by making approximations
  * @param [in]     pvq_info If null, conisdered as RDO search mode
- * @return         Returns block skip info indicating whether DC/AC are coded.
- *                 bit0: DC is coded, bit1: AC is coded (1 means coded)
  *
  */
-PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
+void od_pvq_encode(daala_enc_ctx *enc,
                    od_coeff *ref,
                    const od_coeff *in,
                    od_coeff *out,
@@ -952,10 +950,9 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
   if (theta[0] == skip_theta_value && qg[0] == 0 && skip_rest) nb_bands = 0;
 
   /* NOTE: There was no other better place to put this function. */
-  if (pvq_info)
-    av1_store_pvq_enc_info(pvq_info, qg, theta, max_theta, k,
-      y, nb_bands, off, size,
-      skip_rest, skip_dir, bs);
+  if (pvq_info->is_coded)
+    av1_store_pvq_enc_info(pvq_info, qg, theta, max_theta, k, y, nb_bands, off,
+        size, skip_rest, skip_dir, bs);
 
   for (i = 0; i < nb_bands; i++) {
     int encode_flip;
@@ -1048,7 +1045,5 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
     if (is_keyframe) for (i = 1; i < 1 << (2*bs + 4); i++) out[i] = 0;
     else for (i = 1; i < 1 << (2*bs + 4); i++) out[i] = ref[i];
   }
-  if (pvq_info)
-    pvq_info->ac_dc_coded = ac_dc_coded;
-  return ac_dc_coded;
+  pvq_info->ac_dc_coded = ac_dc_coded;
 }
