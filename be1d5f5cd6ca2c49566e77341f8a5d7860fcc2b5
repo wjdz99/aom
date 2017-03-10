@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6715f5c5_f7e93da4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-10T20:47:45Z",
+      "side": 1,
+      "message": "good point I\u0027ll add one given this has picked up some changes along the way",
+      "parentUuid": "1fc5e3e2_bf8acf7e",
+      "revId": "be1d5f5cd6ca2c49566e77341f8a5d7860fcc2b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b11566a5_29b44ecc",
         "filename": "build/cmake/aom_configure.cmake",
         "patchSetId": 10
@@ -39,6 +57,30 @@
       "revId": "be1d5f5cd6ca2c49566e77341f8a5d7860fcc2b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc832b00_e03db7cf",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-10T20:47:45Z",
+      "side": 1,
+      "message": "\u003e should this also include AND CONFIG_DEBUG in the condition? Commit message sounds like maybe it should.\n\ncheck is in the code, it should be OK to establish fenv.h presence either way",
+      "parentUuid": "b11566a5_29b44ecc",
+      "range": {
+        "startLine": 161,
+        "startChar": 4,
+        "endLine": 161,
+        "endChar": 12
+      },
+      "revId": "be1d5f5cd6ca2c49566e77341f8a5d7860fcc2b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
