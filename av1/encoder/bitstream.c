@@ -4556,7 +4556,8 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 
 #if CONFIG_GLOBAL_MOTION
 static void write_global_motion_params(WarpedMotionParams *params,
-                                       aom_prob *probs, aom_writer *w) {
+                                       aom_prob *probs, aom_writer *w,
+                                       int allow_hp) {
   TransformationType type = params->wmtype;
   av1_write_token(w, av1_global_motion_types_tree, probs,
                   &global_motion_types_encodings[type]);
@@ -4593,10 +4594,25 @@ static void write_global_motion_params(WarpedMotionParams *params,
       }
     // fallthrough intended
     case TRANSLATION:
-      aom_write_primitive_symmetric(w, (params->wmmat[0] >> GM_TRANS_PREC_DIFF),
-                                    GM_ABS_TRANS_BITS);
-      aom_write_primitive_symmetric(w, (params->wmmat[1] >> GM_TRANS_PREC_DIFF),
-                                    GM_ABS_TRANS_BITS);
+      if (type == TRANSLATION) {
+        int shift =
+            allow_hp ? WARPEDMODEL_PREC_BITS - 3 : WARPEDMODEL_PREC_BITS - 2;
+        int scale = allow_hp ? 0 : 1;
+
+        aom_write_primitive_symmetric(
+            w, (ROUND_POWER_OF_TWO_SIGNED(params->wmmat[0], shift) << scale),
+            GM_ABS_TRANS_ONLY_BITS);
+        aom_write_primitive_symmetric(
+            w, (ROUND_POWER_OF_TWO_SIGNED(params->wmmat[1], shift) << scale),
+            GM_ABS_TRANS_ONLY_BITS);
+
+      } else {
+        (void)allow_hp;
+        aom_write_primitive_symmetric(
+            w, (params->wmmat[0] >> GM_TRANS_PREC_DIFF), GM_ABS_TRANS_BITS);
+        aom_write_primitive_symmetric(
+            w, (params->wmmat[1] >> GM_TRANS_PREC_DIFF), GM_ABS_TRANS_BITS);
+      }
       break;
     case IDENTITY: break;
     default: assert(0);
@@ -4616,7 +4632,8 @@ static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
     }
 #endif
     write_global_motion_params(&cm->global_motion[frame],
-                               cm->fc->global_motion_types_prob, w);
+                               cm->fc->global_motion_types_prob, w,
+                               cm->allow_high_precision_mv);
     /*
     printf("Frame %d/%d: Enc Ref %d (used %d/%d): %d %d %d %d\n",
            cm->current_video_frame, cm->show_frame, frame,

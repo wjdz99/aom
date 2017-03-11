@@ -4530,10 +4530,20 @@ static void read_global_motion_params(WarpedMotionParams *params,
       }
     // fallthrough intended
     case TRANSLATION:
-      params->wmmat[0] = aom_read_primitive_symmetric(r, GM_ABS_TRANS_BITS) *
-                         GM_TRANS_DECODE_FACTOR;
-      params->wmmat[1] = aom_read_primitive_symmetric(r, GM_ABS_TRANS_BITS) *
-                         GM_TRANS_DECODE_FACTOR;
+      if (type == TRANSLATION) {
+        params->wmmat[0] =
+            aom_read_primitive_symmetric(r, GM_ABS_TRANS_ONLY_BITS) *
+            (1 << (WARPEDMODEL_PREC_BITS - 3));
+        params->wmmat[1] =
+            aom_read_primitive_symmetric(r, GM_ABS_TRANS_ONLY_BITS) *
+            (1 << (WARPEDMODEL_PREC_BITS - 3));
+
+      } else {
+        params->wmmat[0] = aom_read_primitive_symmetric(r, GM_ABS_TRANS_BITS) *
+                           GM_TRANS_DECODE_FACTOR;
+        params->wmmat[1] = aom_read_primitive_symmetric(r, GM_ABS_TRANS_BITS) *
+                           GM_TRANS_DECODE_FACTOR;
+      }
       break;
     case IDENTITY: break;
     default: assert(0);
