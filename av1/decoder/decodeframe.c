@@ -1703,7 +1703,6 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       int i;
       for (i = 0; i < 3; ++i) {
         const struct macroblockd_plane *pd = &xd->plane[i];
-
         av1_warp_plane(&mbmi->wm_params[0],
 #if CONFIG_AOM_HIGHBITDEPTH
                        xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,

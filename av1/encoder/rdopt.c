@@ -8143,7 +8143,8 @@ static int64_t handle_inter_mode(
     int (*single_skippable)[TOTAL_REFS_PER_FRAME], const int64_t ref_best_rd) {
   const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
-  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  MODE_INFO *mi = xd->mi[0];
+  MB_MODE_INFO *mbmi = &mi->mbmi;
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const int is_comp_pred = has_second_ref(mbmi);
   const int this_mode = mbmi->mode;
@@ -8742,7 +8743,11 @@ static int64_t handle_inter_mode(
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   rate2_nocoeff = rd_stats->rate;
-  last_motion_mode_allowed = motion_mode_allowed(mbmi);
+  last_motion_mode_allowed = motion_mode_allowed(
+#if CONFIG_GLOBAL_MOTION
+      0, xd->global_motion[mbmi->ref_frame[0]].wmtype,
+#endif  // CONFIG_GLOBAL_MOTION
+      mi);
   base_mbmi = *mbmi;
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
@@ -10633,12 +10638,17 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         *returnrate_nocoef -= av1_cost_bit(av1_get_intra_inter_prob(cm, xd),
                                            mbmi->ref_frame[0] != INTRA_FRAME);
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+        const MOTION_MODE motion_allowed = motion_mode_allowed(
+#if CONFIG_GLOBAL_MOTION
+            0, xd->global_motion[mbmi->ref_frame[0]].wmtype,
+#endif  // CONFIG_GLOBAL_MOTION
+            mi);
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
-        if (motion_mode_allowed(mbmi) == WARPED_CAUSAL)
+        if (motion_allowed(mbmi) == WARPED_CAUSAL)
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
           *returnrate_nocoef -= cpi->motion_mode_cost[bsize][mbmi->motion_mode];
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
-        else if (motion_mode_allowed(mbmi) == OBMC_CAUSAL)
+        else if (motion_allowed(mbmi) == OBMC_CAUSAL)
           *returnrate_nocoef -=
               cpi->motion_mode_cost1[bsize][mbmi->motion_mode];
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
@@ -11150,6 +11160,16 @@ PALETTE_EXIT:
     }
   }
 #endif  // CONFIG_REF_MV
+
+#if (CONFIG_WARPED_MOTION || CONFIG_MOTION_VAR) && CONFIG_GLOBAL_MOTION
+#if CONFIG_EXT_INTER
+  if (best_mbmode.mode == ZERO_ZEROMV ||
+#else
+      best_mbmode.mode == ZEROMV &&
+#endif  // CONFIG_EXT_INTER
+      xd->global_motion[best_mbmode.ref_frame[0]].wmtype > 0)
+    best_mbmode.motion_mode = SIMPLE_TRANSLATION;
+#endif  // (CONFIG_WARPED_MOTION || CONFIG_MOTION_VAR) && CONFIG_GLOBAL_MOTION
 
   if (best_mode_index < 0 || best_rd >= best_rd_so_far) {
     rd_cost->rate = INT_MAX;
