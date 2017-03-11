@@ -5099,8 +5099,10 @@ static int GLOBAL_MOTION_RATE(const AV1_COMP *const cpi, int ref) {
   if (cpi->global_motion_used[ref][0] >= gm_amortization_blks[gm->wmtype]) {
     return 0;
   } else {
-    const int cost = (gm_params_cost[gm->wmtype] << AV1_PROB_COST_SHIFT) +
-                     cpi->gmtype_cost[gm->wmtype];
+    const int cost =
+      ((gm_params_cost[gm->wmtype] -
+      2 * (gm->wmtype == TRANSLATION && !cpi->common.allow_high_precision_mv)) <<
+      AV1_PROB_COST_SHIFT) + cpi->gmtype_cost[gm->wmtype];
     return cost / gm_amortization_blks[gm->wmtype];
   }
 }
