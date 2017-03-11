@@ -551,9 +551,15 @@ static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 }
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-static void write_motion_mode(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
+static void write_motion_mode(const AV1_COMMON *cm, const MODE_INFO *mi,
                               aom_writer *w) {
-  MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(mbmi);
+  const MB_MODE_INFO *mbmi = &mi->mbmi;
+  MOTION_MODE last_motion_mode_allowed =
+    motion_mode_allowed(
+#if CONFIG_GLOBAL_MOTION
+                        0, cm->global_motion[mbmi->ref_frame[0]].wmtype,
+#endif  // CONFIG_GLOBAL_MOTION
+                        mi);
 
   if (last_motion_mode_allowed == SIMPLE_TRANSLATION) return;
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
@@ -1875,7 +1881,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #if CONFIG_EXT_INTER
       if (mbmi->ref_frame[1] != INTRA_FRAME)
 #endif  // CONFIG_EXT_INTER
-        write_motion_mode(cm, mbmi, w);
+        write_motion_mode(cm, mi, w);
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_EXT_INTER
