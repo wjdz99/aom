@@ -626,12 +626,12 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   }
 #else   // #if !CONFIG_PVQ
 
-  (void)xform_quant_idx;
-  fwd_txfm(src_int16, coeff, diff_stride, &fwd_txfm_param);
-  fwd_txfm(pred, ref_coeff, diff_stride, &fwd_txfm_param);
-
   // PVQ for inter mode block
   if (!x->skip_block) {
+    (void)xform_quant_idx;
+    fwd_txfm(src_int16, coeff, diff_stride, &fwd_txfm_param);
+    fwd_txfm(pred, ref_coeff, diff_stride, &fwd_txfm_param);
+
     PVQ_SKIP_TYPE ac_dc_coded =
         av1_pvq_encode_helper(&x->daala_enc,
                               coeff,        // target original vector
