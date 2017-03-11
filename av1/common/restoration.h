@@ -39,7 +39,7 @@ extern "C" {
 #define SGRPROJ_EXTBUF_SIZE (0)
 #define SGRPROJ_PARAMS_BITS 4
 #define SGRPROJ_PARAMS (1 << SGRPROJ_PARAMS_BITS)
-#define USE_HIGHPASS_IN_SGRPROJ 0
+#define USE_HIGHPASS_IN_SGRPROJ 1
 
 // Precision bits for projection
 #define SGRPROJ_PRJ_BITS 7
