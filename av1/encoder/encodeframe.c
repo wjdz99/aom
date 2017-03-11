@@ -5050,7 +5050,19 @@ static void encode_frame_internal(AV1_COMP *cpi) {
               }
             }
           }
-          if (cm->global_motion[frame].wmtype != IDENTITY) break;
+          if (cm->global_motion[frame].wmtype != IDENTITY) {
+            if (cm->global_motion[frame].wmtype == TRANSLATION) {
+              cm->global_motion[frame].wmmat[0] =
+                  convert_to_trans_prec(cm->allow_high_precision_mv,
+                                        cm->global_motion[frame].wmmat[0]) *
+                  GM_TRANS_ONLY_DECODE_FACTOR;
+              cm->global_motion[frame].wmmat[1] =
+                  convert_to_trans_prec(cm->allow_high_precision_mv,
+                                        cm->global_motion[frame].wmmat[1]) *
+                  GM_TRANS_ONLY_DECODE_FACTOR;
+            }
+            break;
+          }
         }
         aom_clear_system_state();
       }
