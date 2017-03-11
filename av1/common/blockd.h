@@ -11,7 +11,6 @@
 
 #ifndef AV1_COMMON_BLOCKD_H_
 #define AV1_COMMON_BLOCKD_H_
-
 #include "./aom_config.h"
 
 #include "aom_dsp/aom_dsp_common.h"
@@ -413,6 +412,20 @@ PREDICTION_MODE av1_left_block_mode(const MODE_INFO *cur_mi,
 
 PREDICTION_MODE av1_above_block_mode(const MODE_INFO *cur_mi,
                                      const MODE_INFO *above_mi, int b);
+
+#if CONFIG_GLOBAL_MOTION
+static INLINE int is_global_mv_block(const MODE_INFO *mi, int block,
+                                     TransformationType type) {
+  PREDICTION_MODE mode = get_y_mode(mi, block);
+#if GLOBAL_SUB8X8_USED
+  const int block_size_allowed = 1;
+#else
+  const BLOCK_SIZE bsize = mi->mbmi.sb_type;
+  const int block_size_allowed = (bsize >= BLOCK_8X8);
+#endif  // GLOBAL_SUB8X8_USED
+  return mode == ZEROMV && type > TRANSLATION && block_size_allowed;
+}
+#endif  // CONFIG_GLOBAL_MOTION
 
 enum mv_precision { MV_PRECISION_Q3, MV_PRECISION_Q4 };
 
@@ -1051,7 +1064,16 @@ static INLINE int check_num_overlappable_neighbors(const MB_MODE_INFO *mbmi) {
 }
 #endif
 
-static INLINE MOTION_MODE motion_mode_allowed(const MB_MODE_INFO *mbmi) {
+static INLINE MOTION_MODE motion_mode_allowed(
+#if CONFIG_GLOBAL_MOTION
+    int block, const TransformationType gm_type,
+#endif  // CONFIG_GLOBAL_MOTION
+    const MODE_INFO *mi) {
+  const MB_MODE_INFO *mbmi = &mi->mbmi;
+#if CONFIG_GLOBAL_MOTION
+  if (is_global_mv_block(mi, block, gm_type)) return SIMPLE_TRANSLATION;
+
+#endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_EXT_INTER
   if (is_motion_variation_allowed_bsize(mbmi->sb_type) &&
       is_inter_mode(mbmi->mode) && mbmi->ref_frame[1] != INTRA_FRAME) {
