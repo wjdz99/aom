@@ -3914,7 +3914,7 @@ static void set_restoration_tilesize(int width, int height,
                                      RestorationInfo *rst) {
   (void)width;
   (void)height;
-  rst[0].restoration_tilesize = (RESTORATION_TILESIZE_MAX >> 1);
+  rst[0].restoration_tilesize = (RESTORATION_TILESIZE_MAX >> 2);
   rst[1].restoration_tilesize = rst[0].restoration_tilesize;
   rst[2].restoration_tilesize = rst[0].restoration_tilesize;
 }
