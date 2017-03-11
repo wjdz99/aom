@@ -8143,7 +8143,8 @@ static int64_t handle_inter_mode(
     int (*single_skippable)[TOTAL_REFS_PER_FRAME], const int64_t ref_best_rd) {
   const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
-  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  MODE_INFO *mi = xd->mi[0];
+  MB_MODE_INFO *mbmi = &mi->mbmi;
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const int is_comp_pred = has_second_ref(mbmi);
   const int this_mode = mbmi->mode;
@@ -8742,7 +8743,11 @@ static int64_t handle_inter_mode(
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   rate2_nocoeff = rd_stats->rate;
-  last_motion_mode_allowed = motion_mode_allowed(mbmi);
+  last_motion_mode_allowed = motion_mode_allowed(
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+      0, xd->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+      mi);
   base_mbmi = *mbmi;
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
@@ -8764,6 +8769,11 @@ static int64_t handle_inter_mode(
     mbmi->motion_mode = motion_mode;
 #if CONFIG_MOTION_VAR
     if (mbmi->motion_mode == OBMC_CAUSAL) {
+      assert_motion_mode_valid(OBMC_CAUSAL,
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                               0, cm->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                               mi);
 #if CONFIG_EXT_INTER
       *mbmi = best_bmc_mbmi;
       mbmi->motion_mode = OBMC_CAUSAL;
@@ -8809,6 +8819,11 @@ static int64_t handle_inter_mode(
 
 #if CONFIG_WARPED_MOTION
     if (mbmi->motion_mode == WARPED_CAUSAL) {
+      assert_motion_mode_valid(WARPED_CAUSAL,
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                               0, xd->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                               mi);
 #if CONFIG_EXT_INTER
       *mbmi = best_bmc_mbmi;
       mbmi->motion_mode = WARPED_CAUSAL;
@@ -10633,12 +10648,17 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         *returnrate_nocoef -= av1_cost_bit(av1_get_intra_inter_prob(cm, xd),
                                            mbmi->ref_frame[0] != INTRA_FRAME);
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+        const MOTION_MODE motion_allowed = motion_mode_allowed(
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+            0, xd->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+            mi);
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
-        if (motion_mode_allowed(mbmi) == WARPED_CAUSAL)
+        if (motion_allowed == WARPED_CAUSAL)
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
           *returnrate_nocoef -= cpi->motion_mode_cost[bsize][mbmi->motion_mode];
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
-        else if (motion_mode_allowed(mbmi) == OBMC_CAUSAL)
+        else if (motion_allowed == OBMC_CAUSAL)
           *returnrate_nocoef -=
               cpi->motion_mode_cost1[bsize][mbmi->motion_mode];
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
@@ -10716,6 +10736,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     if (is_inter_mode(mbmi->mode)) {
 #if CONFIG_WARPED_MOTION
       if (mbmi->motion_mode == WARPED_CAUSAL) {
+        assert_motion_mode_valid(WARPED_CAUSAL,
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                 0, xd->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                 xd->mi[0]);
         assert(!has_second_ref(mbmi));
 
         int plane;
@@ -10743,10 +10768,15 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
       if (mbmi->motion_mode == OBMC_CAUSAL)
-        av1_build_obmc_inter_prediction(
-            cm, xd, mi_row, mi_col, opt_args.above_pred_buf,
-            opt_args.above_pred_stride, opt_args.left_pred_buf,
-            opt_args.left_pred_stride);
+        assert_motion_mode_valid(OBMC_CAUSAL,
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                 0, cm->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                 xd->mi[0]);
+      av1_build_obmc_inter_prediction(
+          cm, xd, mi_row, mi_col, opt_args.above_pred_buf,
+          opt_args.above_pred_stride, opt_args.left_pred_buf,
+          opt_args.left_pred_stride);
 #endif  // CONFIG_MOTION_VAR
       av1_subtract_plane(x, bsize, 0);
 #if CONFIG_VAR_TX
@@ -11194,6 +11224,16 @@ PALETTE_EXIT:
       || mbmi->mode == ZERO_ZEROMV
 #endif  // CONFIG_EXT_INTER
       ) {
+    // Correct the motion mode for ZEROMV
+    const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+        0, xd->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+        xd->mi[0]);
+    if (mbmi->motion_mode > last_motion_mode_allowed)
+      mbmi->motion_mode = last_motion_mode_allowed;
+
+    // Correct the interpolation filter for ZEROMV
     if (is_nontrans_global_motion(xd)) {
 #if CONFIG_DUAL_FILTER
       mbmi->interp_filter[0] = cm->interp_filter == SWITCHABLE
@@ -12445,6 +12485,11 @@ void av1_check_ncobmc_rd(const struct AV1_COMP *cpi, struct macroblock *x,
 
   // Check non-causal mode
   mbmi->motion_mode = OBMC_CAUSAL;
+  assert_motion_mode_valid(OBMC_CAUSAL,
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                           0, cm->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                           mi);
   av1_build_ncobmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
 
   av1_subtract_plane(x, bsize, 0);
