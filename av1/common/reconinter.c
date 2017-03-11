@@ -1821,6 +1821,12 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
       } else {
 #if CONFIG_WARPED_MOTION
         if (above_mbmi->motion_mode == WARPED_CAUSAL) {
+          assert_motion_mode_valid(WARPED_CAUSAL,
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                   0, cm->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                   above_mi);
+
           av1_warp_plane(&above_mbmi->wm_params[0],
 #if CONFIG_AOM_HIGHBITDEPTH
                          xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
@@ -1943,6 +1949,12 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
       } else {
 #if CONFIG_WARPED_MOTION
         if (left_mbmi->motion_mode == WARPED_CAUSAL) {
+          assert_motion_mode_valid(WARPED_CAUSAL,
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                   0, cm->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                   left_mi);
+
           av1_warp_plane(&left_mbmi->wm_params[0],
 #if CONFIG_AOM_HIGHBITDEPTH
                          xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
@@ -2115,6 +2127,12 @@ void av1_build_prediction_by_bottom_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
       } else {
 #if CONFIG_WARPED_MOTION
         if (mbmi->motion_mode == WARPED_CAUSAL) {
+          assert_motion_mode_valid(WARPED_CAUSAL,
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                   0, cm->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                   mi);
+
           av1_warp_plane(&mbmi->wm_params[0],
 #if CONFIG_AOM_HIGHBITDEPTH
                          xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
@@ -2240,6 +2258,12 @@ void av1_build_prediction_by_right_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
       } else {
 #if CONFIG_WARPED_MOTION
         if (mbmi->motion_mode == WARPED_CAUSAL) {
+          assert_motion_mode_valid(WARPED_CAUSAL,
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                   0, cm->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                   mi);
+
           av1_warp_plane(&mbmi->wm_params[0],
 #if CONFIG_AOM_HIGHBITDEPTH
                          xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
