@@ -5021,7 +5021,7 @@ static int input_fpmb_stats(FIRSTPASS_MB_STATS *firstpass_mb_stats,
 #endif
 
 #if CONFIG_GLOBAL_MOTION
-static int gm_get_params_cost(WarpedMotionParams *gm) {
+static int gm_get_params_cost(WarpedMotionParams *gm, int allow_hp) {
   assert(gm->wmtype < GLOBAL_TRANS_TYPES);
   int params_cost = 0;
   switch (gm->wmtype) {
@@ -5049,8 +5049,15 @@ static int gm_get_params_cost(WarpedMotionParams *gm) {
       }
     // Fallthrough intended
     case TRANSLATION:
-      params_cost += gm->wmmat[0] == 0 ? 1 : (GM_ABS_TRANS_BITS + 2);
-      params_cost += gm->wmmat[1] == 0 ? 1 : (GM_ABS_TRANS_BITS + 2);
+      if (gm->wmtype == TRANSLATION) {
+        params_cost +=
+            gm->wmmat[0] == 0 ? 1 : (GM_ABS_TRANS_ONLY_BITS - !allow_hp + 2);
+        params_cost +=
+            gm->wmmat[1] == 0 ? 1 : (GM_ABS_TRANS_ONLY_BITS - !allow_hp + 2);
+      } else {
+        params_cost += gm->wmmat[0] == 0 ? 1 : (GM_ABS_TRANS_BITS + 2);
+        params_cost += gm->wmmat[1] == 0 ? 1 : (GM_ABS_TRANS_BITS + 2);
+      }
     // Fallthrough intended
     case IDENTITY: break;
     default: assert(0);
@@ -5149,12 +5156,25 @@ static void encode_frame_internal(AV1_COMP *cpi) {
             set_default_gmparams(&cm->global_motion[frame]);
           }
 
-          if (cm->global_motion[frame].wmtype != IDENTITY) break;
+          if (cm->global_motion[frame].wmtype != IDENTITY) {
+            if (cm->global_motion[frame].wmtype == TRANSLATION) {
+              cm->global_motion[frame].wmmat[0] =
+                  convert_to_trans_prec(cm->allow_high_precision_mv,
+                                        cm->global_motion[frame].wmmat[0]) *
+                  GM_TRANS_ONLY_DECODE_FACTOR;
+              cm->global_motion[frame].wmmat[1] =
+                  convert_to_trans_prec(cm->allow_high_precision_mv,
+                                        cm->global_motion[frame].wmmat[1]) *
+                  GM_TRANS_ONLY_DECODE_FACTOR;
+            }
+            break;
+          }
         }
         aom_clear_system_state();
       }
       cpi->gmparams_cost[frame] =
-          gm_get_params_cost(&cm->global_motion[frame]) +
+          gm_get_params_cost(&cm->global_motion[frame],
+                             cm->allow_high_precision_mv) +
           cpi->gmtype_cost[cm->global_motion[frame].wmtype] -
           cpi->gmtype_cost[IDENTITY];
     }
