@@ -3191,6 +3191,9 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
   av1_init_scan_order(cm);
 #endif
   av1_convolve_init(cm);
+#if CONFIG_PVQ
+  av1_default_pvq_probs(cm);
+#endif  // CONFIG_PVQ
   cm->fc->initialized = 1;
 
   if (cm->frame_type == KEY_FRAME || cm->error_resilient_mode ||
