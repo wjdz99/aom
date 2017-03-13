@@ -4998,6 +4998,11 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
       av1_adapt_scan_order(cm);
 #endif  // CONFIG_ADAPT_SCAN
 
+#if CONFIG_PVQ && CONFIG_EC_ADAPT
+      av1_average_tile_pvq_cdfs(pbi->common.fc, tile_ctxs,
+                                cm->tile_rows * cm->tile_cols);
+#endif  // CONFIG_PVQ && CONFIG_EC_ADAPT
+
       if (!frame_is_intra_only(cm)) {
         av1_adapt_inter_frame_probs(cm);
         av1_adapt_mv_probs(cm, cm->allow_high_precision_mv);
