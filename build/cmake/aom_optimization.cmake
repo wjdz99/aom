@@ -9,6 +9,12 @@
 ## PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 ##
 
+if (AOM_BUILD_CMAKE_AOM_OPTIMIZATION_CMAKE_)
+  return()
+else ()
+  set(AOM_BUILD_CMAKE_AOM_OPTIMIZATION_CMAKE_)
+endif ()
+
 # Translate $flag to one which MSVC understands, and write the new flag to the
 # variable named by $translated_flag (or unset it, when MSVC needs no flag).
 function (get_msvc_intrinsic_flag flag translated_flag)
@@ -112,15 +118,12 @@ function (add_asm_library lib_name asm_sources dependent_target)
   # consumers of the AOM cmake build.
   add_library(${lib_name} STATIC ${${asm_sources}})
 
-  get_asm_obj_format("objformat")
-
   foreach (asm_source ${${asm_sources}})
     get_filename_component(asm_source_name "${asm_source}" NAME)
     set(asm_object "${asm_lib_obj_dir}/${asm_source_name}.o")
     add_custom_command(OUTPUT "${asm_object}"
-                       COMMAND ${YASM_EXECUTABLE}
+                       COMMAND ${AS_EXECUTABLE}
                        ARGS ${AOM_AS_FLAGS}
-                            -f ${objformat}
                             -I${AOM_ROOT} -I${AOM_CONFIG_DIR}
                             -o "${asm_object}" "${asm_source}"
                        DEPENDS "${asm_source}"
