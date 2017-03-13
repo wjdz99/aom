@@ -530,8 +530,10 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   int i, j;
 #endif
 #if CONFIG_PVQ_CFL
+  assert(mbmi->uv_mode == DC_PRED);
+  const int is_keyframe = cm->frame_type == KEY_FRAME;
   /*If we are coding a chroma block of a keyframe, we are doing CfL.*/
-  const int cfl_enabled = plane != 0 && cm->frame_type == KEY_FRAME;
+  const int cfl_enabled = plane != 0 && is_keyframe && x->pvq_coded;
 #elif CONFIG_PVQ
   const int cfl_enabled = 0;
 #endif
@@ -630,15 +632,22 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   }
 #else  // #if !CONFIG_PVQ
 
-#if CONFIG_PVQ_CFL
-  if (plane != 0) assert(mbmi->uv_mode == DC_PRED);
-#endif
   // PVQ for inter mode block
   if (!x->skip_block) {
     (void)xform_quant_idx;
     fwd_txfm(src_int16, coeff, diff_stride, &fwd_txfm_param);
     fwd_txfm(pred, ref_coeff, diff_stride, &fwd_txfm_param);
 
+#if CONFIG_PVQ_CFL
+    if (cfl_enabled) {
+      assert(tx_type == DCT_DCT);
+      // Use DC from DC_PRED instead of CfL. Knowning that the prediction is
+      // DC_PRED and that DCT_DCT is used, we can compute the DC without doing
+      // a full DCT.
+      ref_coeff[0] =
+          xd->cfl->flat_val * ((get_tx_scale(tx_size)) ? 128 : tx_blk_size * 8);
+    }
+#endif
     PVQ_INFO _pvq_info;
     PVQ_INFO *pvq_info = &_pvq_info;
     if (x->pvq_coded) {
@@ -662,7 +671,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
                           pvq_info);  // PVQ info for a block
     skip = pvq_info->ac_dc_coded == PVQ_SKIP;
 #if CONFIG_PVQ_CFL
-    if (skip && x->pvq_coded && cfl_enabled) {
+    if (skip && cfl_enabled) {
       // For CfL skip implies zeroing out the coefficients.
       // In order to get away with not doing the inverse transform,
       // we copy the flat value resulting from DC_PRED.
@@ -678,7 +687,8 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   if (!skip) mbmi->skip = 0;
 #if CONFIG_PVQ_CFL
-  if (skip && x->pvq_coded && plane == 0 && cm->frame_type == KEY_FRAME)
+  // Store Luma pixel when pvq skips.
+  if (skip && x->pvq_coded && plane == 0 && is_keyframe)
     cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_blk_size);
 #endif
 #endif  // #if !CONFIG_PVQ
