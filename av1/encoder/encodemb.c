@@ -529,6 +529,13 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   int tx_blk_size;
   int i, j;
 #endif
+#if CONFIG_PVQ_CFL
+  assert(mbmi->uv_mode == DC_PRED);
+  const int is_keyframe = cm->frame_type == KEY_FRAME;
+  const int cfl_enabled = plane != 0 && is_keyframe && x->pvq_coded;
+#elif CONFIG_PVQ
+  const int cfl_enabled = 0;
+#endif
 
 #if !CONFIG_PVQ
   const int tx2d_size = tx_size_2d[tx_size];
@@ -575,24 +582,12 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   // transform block size in pixels
   tx_blk_size = tx_size_wide[tx_size];
 
-  PVQ_INFO _pvq_info;
-  PVQ_INFO *pvq_info = &_pvq_info;
-  if (x->pvq_coded) {
-    assert(block < MAX_PVQ_BLOCKS_IN_SB);
-    pvq_info = &x->pvq[block][plane];
-    pvq_info->is_coded = 1;
 #if CONFIG_PVQ_CFL
-    pvq_info->cfl_enabled = plane != 0 && cm->frame_type == KEY_FRAME;
-    if (pvq_info->cfl_enabled) {
-      xd->cfl->flat_val = dst[0];
-      cfl_load(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_blk_size);
-    }
-#else
-    pvq_info->cfl_enabled = 0;
-#endif
-  } else {
-    pvq_info->is_coded = 0;
+  if (x->pvq_coded && cfl_enabled) {
+    xd->cfl->flat_val = dst[0];
+    cfl_load(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_blk_size);
   }
+#endif
 
   // copy uint8 orig and predicted block to int16 buffer
   // in order to use existing VP10 transform functions
@@ -636,9 +631,6 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   }
 #else  // #if !CONFIG_PVQ
 
-#if CONFIG_PVQ_CFL
-  if (plane != 0) assert(mbmi->uv_mode == DC_PRED);
-#endif
   // PVQ for inter mode block
   if (!x->skip_block) {
     (void)xform_quant_idx;
@@ -646,11 +638,26 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
     fwd_txfm(pred, ref_coeff, diff_stride, &fwd_txfm_param);
 
 #if CONFIG_PVQ_CFL
-    /*If we are coding a chroma block of a keyframe, we are doing CfL.*/
-    pvq_info->cfl_enabled = cm->frame_type == KEY_FRAME && plane != 0;
-#else
-    pvq_info->cfl_enabled = 0;
+    if (cfl_enabled) {
+      assert(tx_type == DCT_DCT);
+      // Use DC from DC_PRED instead of CfL. Knowning that the prediction is
+      // DC_PRED and that DCT_DCT is used, we can compute the DC without doing
+      // a full DCT.
+      ref_coeff[0] =
+          xd->cfl->flat_val * ((get_tx_scale(tx_size)) ? 128 : tx_blk_size * 8);
+    }
 #endif
+
+    PVQ_INFO _pvq_info;
+    PVQ_INFO *pvq_info = &_pvq_info;
+    if (x->pvq_coded) {
+      assert(block < MAX_PVQ_BLOCKS_IN_SB);
+      pvq_info = &x->pvq[block][plane];
+      pvq_info->is_coded = 1;
+    }
+    pvq_info->is_coded = x->pvq_coded;
+    pvq_info->cfl_enabled = cfl_enabled;
+
     av1_pvq_encode_helper(&x->daala_enc,
                           coeff,        // target original vector
                           ref_coeff,    // reference vector
@@ -665,7 +672,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
                           pvq_info);  // PVQ info for a block
     skip = pvq_info->ac_dc_coded == PVQ_SKIP;
 #if CONFIG_PVQ_CFL
-    if (skip && pvq_info->is_coded && pvq_info->cfl_enabled) {
+    if (skip && cfl_enabled) {
       // For CfL skip implies zeroing out the coefficients.
       // In order to get away with not doing the inverse transform,
       // we copy the flat value resulting from DC_PRED.
@@ -681,7 +688,8 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   if (!skip) mbmi->skip = 0;
 #if CONFIG_PVQ_CFL
-  if (skip && x->pvq_coded && plane == 0 && cm->frame_type == KEY_FRAME)
+  // Store Luma pixel when pvq skips.
+  if (skip && x->pvq_coded && plane == 0 && is_keyframe)
     cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_blk_size);
 #endif
 #endif  // #if !CONFIG_PVQ
