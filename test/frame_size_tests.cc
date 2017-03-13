@@ -72,12 +72,12 @@ TEST_F(AV1FrameSizeTests, LargeValidSizes) {
 // reference buffer (8) - we can end up with up to 30 buffers of roughly this
 // size or almost 1 gig of memory.
 // In total the allocations will exceed 2GiB which may cause a failure with
-// mingw + wine, use a smaller size in that case.
-#if defined(_WIN32) && !defined(_WIN64) || defined(__OS2__)
+// non-64 bit platforms, use a smaller size in that case.
+if (sizeof(void *) < 8)
   video.SetSize(2560, 1440);
-#else
+else
   video.SetSize(4096, 4096);
-#endif
+
   video.set_limit(2);
   expected_res_ = AOM_CODEC_OK;
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
