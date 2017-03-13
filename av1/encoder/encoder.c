@@ -4990,6 +4990,11 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #if CONFIG_ADAPT_SCAN
     av1_adapt_scan_order(cm);
 #endif  // CONFIG_ADAPT_SCAN
+
+#if CONFIG_PVQ && CONFIG_EC_ADAPT
+    av1_average_tile_pvq_cdfs(cpi->common.fc, tile_ctxs,
+                              cm->tile_rows * cm->tile_cols);
+#endif  // CONFIG_PVQ && CONFIG_EC_ADAPT
   }
 
   if (!frame_is_intra_only(cm)) {
