@@ -18,6 +18,12 @@
 #include "av1/common/seg_common.h"
 #include "aom_dsp/aom_filter.h"
 
+#if CONFIG_PVQ
+#include "av1/common/pvq.h"
+#include "av1/common/pvq_state.h"
+#include "av1/common/generic_code.h"
+#endif  // CONFIG_PVQ
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -272,6 +278,9 @@ typedef struct frame_contexts {
 #if CONFIG_DELTA_Q
   aom_prob delta_q_prob[DELTA_Q_PROBS];
 #endif
+#if CONFIG_PVQ && CONFIG_EC_ADAPT
+  od_adapt_ctx pvq_context;
+#endif  // CONFIG_PVQ && CONFIG_EC_ADAPT
 } FRAME_CONTEXT;
 
 typedef struct FRAME_COUNTS {
