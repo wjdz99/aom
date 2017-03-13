@@ -463,8 +463,12 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
   if (ac_dc_coded) {
 #if CONFIG_PVQ_CFL
-    if (cfl_enabled)
+    if (cfl_enabled) {
+      // Knowning that the prediction is DC_PRED and that DCT_DCT is used,
+      // we can compute the DC without doing a full DCT.
+      xd->cfl->dc = dst[0] * ((get_tx_scale(tx_size)) ? 128 : tx_blk_size * 8);
       cfl_load(xd->cfl, dst, pd->dst.stride, row, col, tx_blk_size);
+    }
 #endif
     int xdec = pd->subsampling_x;
     int seg_id = mbmi->segment_id;
@@ -483,6 +487,11 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
     fwd_txfm_param.lossless = xd->lossless[seg_id];
 
     fwd_txfm(pred, pvq_ref_coeff, diff_stride, &fwd_txfm_param);
+
+    if (cfl_enabled) {
+      assert(tx_type == DCT_DCT);
+      pvq_ref_coeff[0] = xd->cfl->dc;
+    }
 
     quant = &pd->seg_dequant[seg_id][0];  // aom's quantizer
 

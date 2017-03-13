@@ -193,6 +193,7 @@ typedef struct {
   int y_height, y_width;
   // Pixel value of a DC_PRED block.
   int flat_val;
+  int dc;
 } CFL_CTX;
 
 

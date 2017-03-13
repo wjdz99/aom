@@ -585,6 +585,9 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
     pvq_info->cfl_enabled = plane != 0 && cm->frame_type == KEY_FRAME;
     if (pvq_info->cfl_enabled) {
       xd->cfl->flat_val = dst[0];
+      // Knowning that the prediction is DC_PRED and that DCT_DCT is used,
+      // we can compute the DC without doing a full DCT.
+      xd->cfl->dc = dst[0] * ((get_tx_scale(tx_size)) ? 128 : tx_blk_size * 8);
       cfl_load(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_blk_size);
     }
 #else
@@ -645,12 +648,11 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
     fwd_txfm(src_int16, coeff, diff_stride, &fwd_txfm_param);
     fwd_txfm(pred, ref_coeff, diff_stride, &fwd_txfm_param);
 
-#if CONFIG_PVQ_CFL
-    /*If we are coding a chroma block of a keyframe, we are doing CfL.*/
-    pvq_info->cfl_enabled = cm->frame_type == KEY_FRAME && plane != 0;
-#else
-    pvq_info->cfl_enabled = 0;
-#endif
+    if (pvq_info->is_coded && pvq_info->cfl_enabled) {
+      assert(tx_type == DCT_DCT);
+      ref_coeff[0] = xd->cfl->dc;
+    }
+
     av1_pvq_encode_helper(&x->daala_enc,
                           coeff,        // target original vector
                           ref_coeff,    // reference vector
