@@ -276,7 +276,7 @@ TEST(AV1ConvolveTest, av1_highbd_convolve) {
 #endif
   int filter_size = filter_params.taps;
   int filter_center = filter_size / 2 - 1;
-  uint16_t src[12 * 12];
+  uint16_t src[12 * 12] = { 0 };
   int src_stride = filter_size;
   uint16_t dst[1] = { 0 };
   int dst_stride = 1;
