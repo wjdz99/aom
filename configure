@@ -197,6 +197,7 @@ enable_feature dependency_tracking
 enable_feature spatial_resampling
 enable_feature multithread
 enable_feature os_support
+enable_feature highbitdepth
 
 CODECS="
     av1_encoder
@@ -495,6 +496,11 @@ post_process_cmdline() {
     soft_enable ec_multisymbol
     soft_enable palette
     soft_enable alt_intra
+
+    # Workaround features currently incompatible with highbitdepth
+    enabled pvq && disable_feature highbitdepth
+    enabled emulate_hardware && disable_feature highbitdepth
+    enabled tx64x64 && disable_feature highbitdepth
 
     # Fix up experiment dependencies
     enabled pvq && enable_feature ec_adapt
