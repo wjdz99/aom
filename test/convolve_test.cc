@@ -191,6 +191,7 @@ void filter_average_block2d_8_c(const uint8_t *src_ptr,
 }
 
 #if CONFIG_HIGHBITDEPTH
+#ifndef __clang_analyzer__
 void highbd_filter_block2d_8_c(const uint16_t *src_ptr,
                                const unsigned int src_stride,
                                const int16_t *HFilter, const int16_t *VFilter,
@@ -292,6 +293,7 @@ void highbd_filter_average_block2d_8_c(
   highbd_block2d_average_c(tmp, kMaxDimension, dst_ptr, dst_stride,
                            output_width, output_height);
 }
+#endif
 #endif  // CONFIG_HIGHBITDEPTH
 
 class ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
@@ -499,6 +501,7 @@ class ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
       const int16_t *VFilter, uint8_t *dst_ptr, unsigned int dst_stride,
       unsigned int output_width, unsigned int output_height) {
 #if CONFIG_HIGHBITDEPTH
+#ifndef __clang_analyzer__
     if (UUT_->use_highbd_ == 0) {
       filter_block2d_8_c(src_ptr, src_stride, HFilter, VFilter, dst_ptr,
                          dst_stride, output_width, output_height);
@@ -508,6 +511,7 @@ class ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
                                 dst_stride, output_width, output_height,
                                 UUT_->use_highbd_);
     }
+#endif
 #else
     filter_block2d_8_c(src_ptr, src_stride, HFilter, VFilter, dst_ptr,
                        dst_stride, output_width, output_height);
