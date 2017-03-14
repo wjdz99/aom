@@ -55,6 +55,30 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
   specialize qw/av1_highbd_convolve_horiz sse4_1/;
   add_proto qw/void av1_highbd_convolve_vert/, "const uint16_t *src, int src_stride, uint16_t *dst, int dst_stride, int w, int h, const InterpFilterParams fp, const int subpel_x_q4, int x_step_q4, int avg, int bd";
   specialize qw/av1_highbd_convolve_vert sse4_1/;
+
+  #fwd txfm: required by the encoder and unit tests
+  add_proto qw/void av1_fwd_txfm2d_4x4/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
+  specialize qw/av1_fwd_txfm2d_4x4 sse4_1/;
+  add_proto qw/void av1_fwd_txfm2d_8x8/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
+  specialize qw/av1_fwd_txfm2d_8x8 sse4_1/;
+  add_proto qw/void av1_fwd_txfm2d_16x16/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
+  specialize qw/av1_fwd_txfm2d_16x16 sse4_1/;
+  add_proto qw/void av1_fwd_txfm2d_32x32/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
+  specialize qw/av1_fwd_txfm2d_32x32 sse4_1/;
+  add_proto qw/void av1_fwd_txfm2d_64x64/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
+  specialize qw/av1_fwd_txfm2d_64x64 sse4_1/;
+
+  #inv txfm: required by the encoder, the decoder, and unit tests
+  add_proto qw/void av1_inv_txfm2d_add_4x4/, "const int32_t *input, uint16_t *output, int stride, int tx_type, int bd";
+  specialize qw/av1_inv_txfm2d_add_4x4 sse4_1/;
+  add_proto qw/void av1_inv_txfm2d_add_8x8/, "const int32_t *input, uint16_t *output, int stride, int tx_type, int bd";
+  specialize qw/av1_inv_txfm2d_add_8x8 sse4_1/;
+  add_proto qw/void av1_inv_txfm2d_add_16x16/, "const int32_t *input, uint16_t *output, int stride, int tx_type, int bd";
+  specialize qw/av1_inv_txfm2d_add_16x16 sse4_1/;
+  add_proto qw/void av1_inv_txfm2d_add_32x32/, "const int32_t *input, uint16_t *output, int stride, int tx_type, int bd";
+  specialize qw/av1_inv_txfm2d_add_32x32 avx2/;
+  add_proto qw/void av1_inv_txfm2d_add_64x64/, "const int32_t *input, uint16_t *output, int stride, int tx_type, int bd";
+  specialize qw/av1_inv_txfm2d_add_64x64/;
 }
 
 #
@@ -546,32 +570,6 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") ne "yes") {
 
 add_proto qw/void av1_fwd_idtx/, "const int16_t *src_diff, tran_low_t *coeff, int stride, int bs, int tx_type";
   specialize qw/av1_fwd_idtx/;
-
-if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
-  #fwd txfm
-  add_proto qw/void av1_fwd_txfm2d_4x4/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
-  specialize qw/av1_fwd_txfm2d_4x4 sse4_1/;
-  add_proto qw/void av1_fwd_txfm2d_8x8/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
-  specialize qw/av1_fwd_txfm2d_8x8 sse4_1/;
-  add_proto qw/void av1_fwd_txfm2d_16x16/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
-  specialize qw/av1_fwd_txfm2d_16x16 sse4_1/;
-  add_proto qw/void av1_fwd_txfm2d_32x32/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
-  specialize qw/av1_fwd_txfm2d_32x32 sse4_1/;
-  add_proto qw/void av1_fwd_txfm2d_64x64/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
-  specialize qw/av1_fwd_txfm2d_64x64 sse4_1/;
-
-  #inv txfm
-  add_proto qw/void av1_inv_txfm2d_add_4x4/, "const int32_t *input, uint16_t *output, int stride, int tx_type, int bd";
-  specialize qw/av1_inv_txfm2d_add_4x4 sse4_1/;
-  add_proto qw/void av1_inv_txfm2d_add_8x8/, "const int32_t *input, uint16_t *output, int stride, int tx_type, int bd";
-  specialize qw/av1_inv_txfm2d_add_8x8 sse4_1/;
-  add_proto qw/void av1_inv_txfm2d_add_16x16/, "const int32_t *input, uint16_t *output, int stride, int tx_type, int bd";
-  specialize qw/av1_inv_txfm2d_add_16x16 sse4_1/;
-  add_proto qw/void av1_inv_txfm2d_add_32x32/, "const int32_t *input, uint16_t *output, int stride, int tx_type, int bd";
-  specialize qw/av1_inv_txfm2d_add_32x32 avx2/;
-  add_proto qw/void av1_inv_txfm2d_add_64x64/, "const int32_t *input, uint16_t *output, int stride, int tx_type, int bd";
-  specialize qw/av1_inv_txfm2d_add_64x64/;
-}
 
 #
 # Motion search
