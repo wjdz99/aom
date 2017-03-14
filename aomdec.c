@@ -1026,7 +1026,7 @@ fail2:
     webm_free(input.webm_ctx);
 #endif
 
-  if (input.aom_input_ctx->file_type != FILE_TYPE_WEBM) free(buf);
+  free(buf);
 
   if (scaled_img) aom_img_free(scaled_img);
 #if CONFIG_HIGHBITDEPTH

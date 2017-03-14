@@ -731,11 +731,11 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
       MAX_MV_REF_CANDIDATES +
       (cpi->sf.adaptive_motion_search && block_size < x->max_partition_size);
 
-  MV pred_mv[3];
+  MV pred_mv[3] = { 0 };
   pred_mv[0] = x->mbmi_ext->ref_mvs[ref_frame][0].as_mv;
   pred_mv[1] = x->mbmi_ext->ref_mvs[ref_frame][1].as_mv;
   pred_mv[2] = x->pred_mv[ref_frame];
-  assert(num_mv_refs <= (int)(sizeof(pred_mv) / sizeof(pred_mv[0])));
+  assert(num_mv_refs < (int)(sizeof(pred_mv) / sizeof(pred_mv[0])));
 
   near_same_nearest = x->mbmi_ext->ref_mvs[ref_frame][0].as_int ==
                       x->mbmi_ext->ref_mvs[ref_frame][1].as_int;
