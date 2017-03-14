@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "892de381_6b923afb",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-03-14T21:25:45Z",
+      "side": 1,
+      "message": "At least the first non-null test should be still useful for xiphrc?",
+      "revId": "64a7532d4e6e1b6eb92e0d7a8adb69fea1cd62fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f61daf44_9c57c733",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 5664,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-03-14T21:25:45Z",
+      "side": 1,
+      "message": "Asserts get compiled out in release builds. If this is something that could be hit by the user (like a corrupted stats packet) you should return -1 instead of asserting.",
+      "revId": "64a7532d4e6e1b6eb92e0d7a8adb69fea1cd62fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8993ad84_6f555356",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 5697,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-03-14T21:25:45Z",
+      "side": 1,
+      "message": "This is a stack allocated buffer. cpi-\u003epkt_list needs to outlive this function, so I don\u0027t think this will fly.\n\nThe existing RC code seems to use a static buffer allocated in cpi-\u003etwopass.total_stats.",
+      "revId": "64a7532d4e6e1b6eb92e0d7a8adb69fea1cd62fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
