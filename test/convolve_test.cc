@@ -191,6 +191,7 @@ void filter_average_block2d_8_c(const uint8_t *src_ptr,
 }
 
 #if CONFIG_HIGHBITDEPTH
+#ifndef __clang_analyzer__
 void highbd_filter_block2d_8_c(const uint16_t *src_ptr,
                                const unsigned int src_stride,
                                const int16_t *HFilter, const int16_t *VFilter,
@@ -265,6 +266,7 @@ void highbd_filter_block2d_8_c(const uint16_t *src_ptr,
     }
   }
 }
+#endif
 
 void highbd_block2d_average_c(uint16_t *src, unsigned int src_stride,
                               uint16_t *output_ptr, unsigned int output_stride,
