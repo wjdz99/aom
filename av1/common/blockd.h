@@ -950,6 +950,7 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
 #endif  // CONFIG_INTRABC
 #if !CONFIG_TXK_SEL
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
+  (void)block_raster_idx;
   if (FIXED_TX_TYPE)
     return get_default_tx_type(plane_type, xd, block_raster_idx, tx_size);
 
