@@ -35,7 +35,7 @@ Advanced options:
   ${toggle_codec_srcs}            in/exclude codec library source code
   ${toggle_debug_libs}            in/exclude debug version of libraries
   ${toggle_static_msvcrt}         use static MSVCRT (VS builds only)
-  ${toggle_aom_highbitdepth}      enable 16-bit generic pixel pipeline (used by high bitdepth profiles)
+  ${toggle_aom_highbitdepth}      support for 16-bit generic pixel pipeline (used by high bitdepth profiles)
   ${toggle_lowbitdepth}           enable 8-bit optimized pixel pipeline
   ${toggle_av1}                  AV1 codec support
   ${toggle_internal_stats}        output of encoder internal stats for debug, if supported (encoders)
@@ -197,6 +197,7 @@ enable_feature dependency_tracking
 enable_feature spatial_resampling
 enable_feature multithread
 enable_feature os_support
+enable_feature aom_highbitdepth
 
 CODECS="
     av1_encoder
