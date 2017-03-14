@@ -3805,6 +3805,18 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
+#if CONFIG_PVQ_CFL
+  {
+    RD_STATS this_rd_stats;
+    x->cfl_store_y = 1;
+    // Check that we don't instruct PVQ to encode
+    assert(x->pvq_coded == 0);
+    txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, 0, bsize,
+                     mic->mbmi.tx_size, cpi->sf.use_fast_coef_costing);
+    x->cfl_store_y = 0;
+  }
+#endif
+
 #if CONFIG_PVQ
   od_encode_rollback(&x->daala_enc, &post_buf);
 #endif  // CONFIG_PVQ
