@@ -283,9 +283,9 @@ typedef struct frame_contexts {
 #if CONFIG_DELTA_Q
   aom_prob delta_q_prob[DELTA_Q_PROBS];
 #endif
-#if CONFIG_PVQ && CONFIG_EC_ADAPT
+#if CONFIG_PVQ
   od_adapt_ctx pvq_context;
-#endif  // CONFIG_PVQ && CONFIG_EC_ADAPT
+#endif  // CONFIG_PVQ
 } FRAME_CONTEXT;
 
 typedef struct FRAME_COUNTS {

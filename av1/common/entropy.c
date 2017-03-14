@@ -5740,17 +5740,10 @@ void av1_average_tile_inter_cdfs(AV1_COMMON *cm, FRAME_CONTEXT *fc,
 static void av1_average_cxt(int *cxt_ptr[], int *fc_cxt_ptr, int cxt_size,
                             const int num_tiles) {
   int i, j;
-  aom_cdf_prob last_val = 0;
   for (i = 0; i < cxt_size; ++i) {
-    // Zero symbol counts for the next frame
-    if (last_val == CDF_PROB_TOP) {
-      fc_cxt_ptr[i] = 0;
-    } else {
-      int sum = 0;
-      for (j = 0; j < num_tiles; ++j) sum += cxt_ptr[j][i];
-      fc_cxt_ptr[i] = sum / num_tiles;
-    }
-    last_val = fc_cxt_ptr[i];
+    int sum = 0;
+    for (j = 0; j < num_tiles; ++j) sum += cxt_ptr[j][i];
+    fc_cxt_ptr[i] = sum / num_tiles;
   }
 }
 
@@ -5775,8 +5768,8 @@ void av1_default_pvq_probs(AV1_COMMON *cm) {
 
 void av1_average_tile_pvq_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
                                const int num_tiles) {
-  int i, j, cdf_size, cxt_size;
-
+  int i, cdf_size, cxt_size;
+  int k;
   aom_cdf_prob *cdf_ptr[MAX_TILE_ROWS * MAX_TILE_COLS];
   aom_cdf_prob *fc_cdf_ptr;
   int *cxt_ptr[MAX_TILE_ROWS * MAX_TILE_COLS];
@@ -5785,18 +5778,24 @@ void av1_average_tile_pvq_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
   AVERAGE_TILE_CXT(pvq_context.ex_dc)
   AVERAGE_TILE_CXT(pvq_context.ex_g)
 
-  for (j = 0; j < OD_NPLANES_MAX; j++) AVERAGE_TILE_CXT(pvq_context.model_dc[j])
+  for (k = 0; k < OD_NPLANES_MAX; k++) {
+    AVERAGE_TILE_CDFS(pvq_context.model_dc[k].cdf)
+  }
 
   AVERAGE_TILE_CDFS(pvq_context.skip_cdf)
 
   AVERAGE_TILE_CXT(pvq_context.pvq.pvq_codeword_ctx.pvq_adapt)
+
   AVERAGE_TILE_CDFS(pvq_context.pvq.pvq_codeword_ctx.pvq_k1_cdf)
   AVERAGE_TILE_CDFS(pvq_context.pvq.pvq_codeword_ctx.pvq_split_cdf)
 
-  for (j = 0; j < 3; j++) AVERAGE_TILE_CDFS(pvq_context.pvq.pvq_param_model[j])
+  for (k = 0; k < 3; k++) {
+    AVERAGE_TILE_CDFS(pvq_context.pvq.pvq_param_model[k].cdf)
+  }
 
   AVERAGE_TILE_CXT(pvq_context.pvq.pvq_ext)
   AVERAGE_TILE_CXT(pvq_context.pvq.pvq_exg)
+
   AVERAGE_TILE_CDFS(pvq_context.pvq.pvq_gaintheta_cdf)
   AVERAGE_TILE_CDFS(pvq_context.pvq.pvq_skip_dir_cdf)
 }
