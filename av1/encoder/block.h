@@ -213,6 +213,9 @@ struct macroblock {
   int pvq_speed;
   int pvq_coded;  // Indicates whether pvq_info needs be stored to tokenize
 #endif
+#if CONFIG_PVQ_CFL
+  int cfl_store_y;
+#endif
 #if CONFIG_DAALA_DIST
   // Keep rate of each 4x4 block in the current macroblock during RDO
   // This is needed when using the 8x8 Daala distortion metric during RDO,
