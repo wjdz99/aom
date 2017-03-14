@@ -1008,7 +1008,7 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
   const BLOCK_SIZE plane_bsize =
       get_plane_block_size(AOMMAX(bsize, BLOCK_8X8), pd);
 
-  adapt = &x->daala_enc.state.adapt;
+  adapt = x->daala_enc.state.adapt;
 
   max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
   max_blocks_high = max_block_high(xd, plane_bsize, plane);
@@ -4061,16 +4061,18 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
       tile_size = buf_ans_write_end(buf_ans);
 #else
       aom_start_encode(&mode_bc, dst + total_size);
-#if CONFIG_PVQ
-      // NOTE: This will not work with CONFIG_ANS turned on.
-      od_adapt_ctx_reset(&cpi->td.mb.daala_enc.state.adapt, 0);
-      cpi->td.mb.pvq_q = &this_tile->pvq_q;
-#endif
+
 #if CONFIG_EC_ADAPT
       // Initialise tile context from the frame context
       this_tile->tctx = *cm->fc;
       cpi->td.mb.e_mbd.tile_ctx = &this_tile->tctx;
 #endif
+
+#if CONFIG_PVQ
+      cpi->td.mb.pvq_q = &this_tile->pvq_q;
+      cpi->td.mb.daala_enc.state.adapt = &this_tile->tctx.pvq_context;
+#endif  // CONFIG_PVQ
+
       write_modes(cpi, &tile_info, &mode_bc, &tok, tok_end);
       assert(tok == tok_end);
       aom_stop_encode(&mode_bc);
