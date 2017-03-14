@@ -567,7 +567,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
 #error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
 #endif
 
-    adapt = &x->daala_enc.state.adapt;
+    adapt = x->daala_enc.state.adapt;
 #if CONFIG_DAALA_EC
     od_ec_enc_reset(&x->daala_enc.w.ec);
 #else
