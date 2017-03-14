@@ -1710,7 +1710,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 
 #if !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION && !CONFIG_GLOBAL_MOTION
     write_mb_interp_filter(cpi, xd, w);
-#endif  // !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION
+#endif  // !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION && !CONFIG_GLOBAL_MOTION
 
     if (bsize < BLOCK_8X8 && !unify_bsize) {
       const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
@@ -1907,7 +1907,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
       write_mb_interp_filter(cpi, xd, w);
-#endif  // CONFIG_DUAL_FILTE || CONFIG_WARPED_MOTION
+#endif  // CONFIG_DUAL_FILTE || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
   }
 
   write_tx_type(cm, xd, mbmi,
@@ -4607,7 +4607,7 @@ static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
            */
   }
 }
-#endif
+#endif  // CONFIG_GLOBAL_MOTION
 
 static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
   AV1_COMMON *const cm = &cpi->common;
