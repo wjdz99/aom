@@ -30,7 +30,7 @@ void aom_cdf_init(uint16_t *cdf, int ncdfs, int nsyms, int val, int first) {
 void aom_cdf_init_q15_1D(uint16_t *cdf, int nsyms, int cdf_size) {
   int i;
   for (i = 0; i < nsyms; i++)
-    cdf[i] = (i + 1)*32768/nsyms;
+    cdf[i] = (i + 1)*CDF_PROB_TOP/nsyms;
 
 #if CONFIG_EC_ADAPT
   cdf[cdf_size - 1] = 0;
@@ -118,6 +118,6 @@ int log_ex(int ex_q16) {
  */
 void generic_model_update(int *ex_q16, int x, int integration) {
   /* We could have saturated ExQ16 directly, but this is safe and simpler */
-  x = OD_MINI(x, 32767);
+  x = OD_MINI(x, CDF_PROB_TOP - 1);
   OD_IIR_DIADIC(*ex_q16, x << 16, integration);
 }
