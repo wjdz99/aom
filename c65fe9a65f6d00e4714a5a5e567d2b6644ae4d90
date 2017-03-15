@@ -16,6 +16,24 @@
       "revId": "c65fe9a65f6d00e4714a5a5e567d2b6644ae4d90",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "268973dc_e1add74e",
+        "filename": "test/simd_cmp_neon.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-03-15T19:13:21Z",
+      "side": 1,
+      "message": "Removed _DEBUG for neon.  x86 versions still have them.  True that we haven\u0027t seen a problem, so remove _DEBUG for x86 as well?",
+      "parentUuid": "6a09799f_034c8ff2",
+      "revId": "c65fe9a65f6d00e4714a5a5e567d2b6644ae4d90",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
