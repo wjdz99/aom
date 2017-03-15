@@ -390,12 +390,6 @@ static INLINE void add_token(
   (*t)++;
   ++counts[token];
 }
-
-static INLINE int get_tx_eob(const struct segmentation *seg, int segment_id,
-                             TX_SIZE tx_size) {
-  const int eob_max = tx_size_2d[tx_size];
-  return segfeature_active(seg, segment_id, SEG_LVL_SKIP) ? 0 : eob_max;
-}
 #endif
 #endif  // !CONFIG_PVQ
 
