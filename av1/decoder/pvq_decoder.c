@@ -81,12 +81,6 @@ static void pvq_synthesis(od_coeff *xcoeff, od_coeff *ypulse, od_val16 *r16,
    qm_inv);
 }
 
-typedef struct {
-  od_coeff *ref;
-  int nb_coeffs;
-  int allow_flip;
-} cfl_ctx;
-
 /** Decodes a single vector of integers (eg, a partition within a
  *  coefficient block) encoded using PVQ
  *
@@ -126,7 +120,9 @@ static void pvq_decode_partition(aom_reader *r,
                                  int nodesync,
                                  int is_skip_copy,
                                  int cdf_ctx,
-                                 cfl_ctx *cfl,
+#if CONFIG_PVQ_CFL
+                                 CFL_CTX *cfl,
+#endif
                                  int has_skip,
                                  int *skip_rest,
                                  int band,
@@ -181,6 +177,7 @@ static void pvq_decode_partition(aom_reader *r,
     itheta = (id >> 1) - 1;
     *noref = (itheta == -1);
   }
+#if CONFIG_PVQ_CFL
   /* The CfL flip bit is only decoded on the first band that has noref=0. */
   if (cfl->allow_flip && !*noref) {
     int flip;
@@ -190,6 +187,7 @@ static void pvq_decode_partition(aom_reader *r,
     }
     cfl->allow_flip = 0;
   }
+#endif
   if (qg > 0) {
     int tmp;
     tmp = *exg;
@@ -283,7 +281,7 @@ static void pvq_decode_partition(aom_reader *r,
  * @param [in]     bs          log of the block size minus two
  * @param [in]     beta        per-band activity masking beta param
  * @param [in]     nodesync    stream is robust to error in the reference
- * @param [in]     cfl_enabled whether CfL is enabled
+ * @param [in]     cfl         CfL context
  * @param [out]    flags       bitmask of the per band skip and noref flags
  * @param [in]     ac_dc_coded skip flag for the block (range 0-3)
  * @param [in]     qm          QM with magnitude compensation
@@ -297,7 +295,9 @@ void od_pvq_decode(daala_dec_ctx *dec,
                    int bs,
                    const od_val16 *beta,
                    int nodesync,
-                   int cfl_enabled,
+#if CONFIG_PVQ_CFL
+                   CFL_CTX *cfl,
+#endif
                    unsigned int *flags,
                    PVQ_SKIP_TYPE ac_dc_coded,
                    const int16_t *qm,
@@ -314,7 +314,6 @@ void od_pvq_decode(daala_dec_ctx *dec,
   generic_encoder *model;
   int skip_rest[3] = {0};
   int is_skip_copy;
-  cfl_ctx cfl;
   const unsigned char *pvq_qm;
   int use_masking;
 
@@ -340,17 +339,23 @@ void od_pvq_decode(daala_dec_ctx *dec,
   nb_bands = OD_BAND_OFFSETS[bs][0];
   off = &OD_BAND_OFFSETS[bs][1];
   out[0] = ac_dc_coded & DC_CODED;
-  is_skip_copy = !cfl_enabled;
+#if CONFIG_PVQ_CFL
+  is_skip_copy = !cfl->enabled;
+#else
+  is_skip_copy = 1;
+#endif
   if (ac_dc_coded < AC_CODED) {
     if (is_skip_copy) for (i = 1; i < 1 << (2*bs + 4); i++) out[i] = ref[i];
     else
       for (i = 1; i < 1 << (2*bs + 4); i++) out[i] = 0;
   } else {
     for (i = 0; i < nb_bands; i++) size[i] = off[i+1] - off[i];
-    cfl.ref = ref;
-    cfl.nb_coeffs = off[nb_bands];
+#if CONFIG_PVQ_CFL
+    cfl->ref = ref;
+    cfl->nb_coeffs = off[nb_bands];
     // TODO(ltrudeau) enable flip after CfL is added to RDO.
-    cfl.allow_flip = 0/*cfl_enabled*/;
+    cfl->allow_flip = 0/*cfl_enabled*/;
+#endif
     for (i = 0; i < nb_bands; i++) {
       int q;
 
@@ -363,7 +368,10 @@ void od_pvq_decode(daala_dec_ctx *dec,
        model, &dec->state.adapt, exg + i, ext + i, ref + off[i], out + off[i],
        &noref[i], beta[i], nodesync, is_skip_copy,
        (pli != 0)*OD_TXSIZES*PVQ_MAX_PARTITIONS + bs*PVQ_MAX_PARTITIONS + i,
-       &cfl, i == 0 && (i < nb_bands - 1), skip_rest, i, &skip[i],
+#if CONFIG_PVQ_CFL
+       cfl,
+#endif
+       i == 0 && (i < nb_bands - 1), skip_rest, i, &skip[i],
        qm + off[i], qm_inv + off[i]);
       if (i == 0 && !skip_rest[0] && bs > 0) {
         int skip_dir;
