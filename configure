@@ -257,6 +257,7 @@ EXPERIMENT_LIST="
     tx64x64
     sub8x8_mc
     ext_intra
+    extra_intra_unified_angle
     intra_interp
     filter_intra
     ext_inter
