@@ -141,6 +141,8 @@ typedef enum {
 
 #if CONFIG_ALT_INTRA
   THR_SMOOTH,
+  THR_SMOOTH_V,
+  THR_SMOOTH_H,
 #endif  // CONFIG_ALT_INTRA
 
 #if CONFIG_EXT_INTER
