@@ -807,7 +807,7 @@ static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
 #if CONFIG_EXTRA_INTRA_UNIFIED_ANGLE
 #define ANGLE_STEP_UV 3
 static const uint8_t av1_angle_step_y[TX_SIZES] = {
-    0, 3, 3, 3,
+  0, 3, 3, 3,
 };
 #else
 #define ANGLE_STEP_UV 4
