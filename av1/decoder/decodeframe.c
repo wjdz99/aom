@@ -2618,6 +2618,26 @@ static void decode_restoration(AV1_COMMON *cm, aom_reader *rb) {
     }
   }
 }
+
+#if CONFIG_FRAME_SUPERRES
+// TODO(afergs): make "struct aom_read_bit_buffer *const rb"?
+static void decode_superres_scale(AV1_COMMON *const cm,
+                                  struct aom_read_bit_buffer *rb) {
+  // The first bit is whether to scale or not
+  if (aom_rb_read_bit(rb)) {
+    cm->superres_scale_numerator =
+        (uint8_t)aom_rb_read_literal(rb, SUPERRES_SCALE_BITS);
+    cm->superres_scale_numerator += SUPERRES_SCALE_NUMERATOR_MIN;
+  } else {
+    // 1:1 scaling - ie. no scaling, scale not provided
+    cm->superres_scale_numerator = SUPERRES_SCALE_DENOMINATOR;
+  }
+  cm->superres_width = cm->width * cm->superres_scale_numerator /
+                       SUPERRES_SCALE_DENOMINATOR;
+  cm->superres_height = cm->height * cm->superres_scale_numerator /
+                        SUPERRES_SCALE_DENOMINATOR;
+}
+#endif
 #endif  // CONFIG_LOOP_RESTORATION
 
 static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
@@ -4283,6 +4303,9 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #endif
 #if CONFIG_LOOP_RESTORATION
   decode_restoration_mode(cm, rb);
+#if CONFIG_FRAME_SUPERRES
+  decode_superres_scale(cm, rb);
+#endif
 #endif  // CONFIG_LOOP_RESTORATION
   setup_quantization(cm, rb);
 #if CONFIG_AOM_HIGHBITDEPTH
