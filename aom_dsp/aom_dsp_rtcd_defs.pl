@@ -48,7 +48,7 @@ if (aom_config("CONFIG_TX64X64") eq "yes") {
 
 @pred_names = qw/dc dc_top dc_left dc_128 v h he ve d207 d207e d63 d63e d63f d45 d45e d117 d135 d153/;
 if (aom_config("CONFIG_ALT_INTRA") eq "yes") {
-  push @pred_names, qw/paeth smooth/;
+  push @pred_names, qw/paeth smooth smooth_h smooth_v/;
 } else {
   push @pred_names, 'tm';
 }
