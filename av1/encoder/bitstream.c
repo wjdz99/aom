@@ -3487,6 +3487,23 @@ static void encode_restoration(AV1_COMMON *cm, aom_writer *wb) {
     }
   }
 }
+
+#if CONFIG_FRAME_SUPERRES
+// TODO(afergs): make "struct aom_write_bit_buffer *const wb"?
+static void encode_superres_scale(const AV1_COMMON *const cm,
+                                  struct aom_write_bit_buffer *wb) {
+  // First bit is whether to to scale or not
+  if (cm->superres_scale_numerator == SUPERRES_SCALE_DENOMINATOR)
+    aom_wb_write_bit(wb, 0);  // no scaling
+  else {
+    aom_wb_write_bit(wb, 1);  // scaling, write scale factor
+    // TODO(afergs): write factor to the compressed header instead
+    aom_wb_write_literal(
+        wb, cm->superres_scale_numerator - SUPERRES_SCALE_NUMERATOR_MIN,
+        SUPERRES_SCALE_BITS);
+  }
+}
+#endif  // CONFIG_FRAME_SUPERRES
 #endif  // CONFIG_LOOP_RESTORATION
 
 static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
@@ -4492,6 +4509,9 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 #endif
 #if CONFIG_LOOP_RESTORATION
   encode_restoration_mode(cm, wb);
+#if CONFIG_FRAME_SUPERRES
+  encode_superres_scale(cm, wb);
+#endif
 #endif  // CONFIG_LOOP_RESTORATION
   encode_quantization(cm, wb);
   encode_segmentation(cm, xd, wb);
