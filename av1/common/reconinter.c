@@ -679,6 +679,9 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
                            subpel_y, sf, w, h, &conv_params, tmp_ipf,
 #if CONFIG_GLOBAL_MOTION
                            is_global, p_col, p_row, plane, ref,
+#if CONFIG_MOTION_VAR
+                           0, 0,
+#endif
 #endif  // CONFIG_GLOBAL_MOTION
                            xs, ys, xd);
 #if CONFIG_COMPOUND_SEGMENT
@@ -719,6 +722,9 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
                            subpel_y, sf, w, h, &conv_params, tmp_ipf,
 #if CONFIG_GLOBAL_MOTION
                            is_global, p_col, p_row, plane, ref,
+#if CONFIG_MOTION_VAR
+                           0, 0,
+#endif
 #endif  // CONFIG_GLOBAL_MOTION
                            xs, ys, xd);
 #if CONFIG_COMPOUND_SEGMENT
@@ -931,6 +937,9 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #if CONFIG_GLOBAL_MOTION
                 is_global[ref], (mi_x >> pd->subsampling_x) + x,
                 (mi_y >> pd->subsampling_y) + y, plane, ref,
+#if CONFIG_MOTION_VAR
+                mi_col_offset, mi_row_offset,
+#endif
 #endif  // CONFIG_GLOBAL_MOTION
                 xs, ys, xd);
         }
@@ -1034,6 +1043,9 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #if CONFIG_GLOBAL_MOTION
             is_global[ref], (mi_x >> pd->subsampling_x) + x,
             (mi_y >> pd->subsampling_y) + y, plane, ref,
+#if CONFIG_MOTION_VAR
+            mi_col_offset, mi_row_offset,
+#endif
 #endif  // CONFIG_GLOBAL_MOTION
             subpel_params[ref].xs, subpel_params[ref].ys, xd);
     }
@@ -2842,6 +2854,9 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
 #if CONFIG_GLOBAL_MOTION
                            is_global, (mi_x >> pd->subsampling_x) + x,
                            (mi_y >> pd->subsampling_y) + y, plane, ref,
+#if CONFIG_MOTION_VAR
+                           0, 0,
+#endif
 #endif  // CONFIG_GLOBAL_MOTION
                            xs, ys, xd);
 }
