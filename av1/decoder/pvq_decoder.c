@@ -228,7 +228,7 @@ static void pvq_decode_partition(aom_reader *r,
       if (qg == 0) *skip = (icgr ? OD_PVQ_SKIP_ZERO : OD_PVQ_SKIP_COPY);
       if (qg == icgr && itheta == 0) *skip = OD_PVQ_SKIP_COPY;
     } else {
-      qg = neg_deinterleave(qg, icgr);
+      //qg = neg_deinterleave(qg, icgr);
     }
     gain_offset = cgr - OD_SHL(icgr, OD_CGAIN_SHIFT);
     qcg = OD_SHL(qg, OD_CGAIN_SHIFT) + gain_offset;

@@ -616,7 +616,7 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
      but not noref=1.*/
   if (is_skip_copy) return noref ? qg - 1 : neg_interleave(qg + 1, icgr + 1);
   else
-    return noref ? qg : neg_interleave(qg, icgr);
+    return qg;//noref ? qg : neg_interleave(qg, icgr);
 }
 
 /** Encodes a single vector of integers (eg, a partition within a
