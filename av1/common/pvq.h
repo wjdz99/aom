@@ -193,6 +193,12 @@ typedef struct {
   int y_height, y_width;
   // Pixel value of a DC_PRED block.
   int flat_val;
+  // Whether the spatial intra pred must be replaced by CfL
+  int enabled;
+  // Whether the flip bit can be coded
+  int allow_flip;
+  int nb_coeffs;
+  od_coeff *ref;
 } CFL_CTX;
 
 

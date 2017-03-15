@@ -349,8 +349,11 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
 #if CONFIG_PVQ
 static int av1_pvq_decode_helper(MACROBLOCKD *xd, tran_low_t *ref_coeff,
                                  tran_low_t *dqcoeff, int16_t *quant, int pli,
-                                 int cfl_enabled, int bs, TX_TYPE tx_type,
-                                 int xdec, PVQ_SKIP_TYPE ac_dc_coded) {
+#if CONFIG_PVQ_CFL
+                                 CFL_CTX *cfl,
+#endif
+                                 int bs, TX_TYPE tx_type, int xdec,
+                                 PVQ_SKIP_TYPE ac_dc_coded) {
   unsigned int flags;  // used for daala's stream analyzer.
   int off;
   const int has_dc_skip = 1;
@@ -401,11 +404,14 @@ static int av1_pvq_decode_helper(MACROBLOCKD *xd, tran_low_t *ref_coeff,
         hbd_downshift;
   }
 
-  od_pvq_decode(dec, ref_int32, out_int32,
-                OD_MAXI(1, quant[1] << (OD_COEFF_SHIFT - 3) >> hbd_downshift),
-                pli, bs, OD_PVQ_BETA[use_activity_masking][pli][bs],
-                OD_ROBUST_STREAM, cfl_enabled, &flags, ac_dc_coded,
-                dec->state.qm + off, dec->state.qm_inv + off);
+  od_pvq_decode(
+      dec, ref_int32, out_int32,
+      OD_MAXI(1, quant[1] << (OD_COEFF_SHIFT - 3) >> hbd_downshift), pli, bs,
+      OD_PVQ_BETA[use_activity_masking][pli][bs], OD_ROBUST_STREAM,
+#if CONFIG_PVQ_CFL
+      cfl,
+#endif
+      &flags, ac_dc_coded, dec->state.qm + off, dec->state.qm_inv + off);
 
   if (!has_dc_skip || out_int32[0]) {
     out_int32[0] =
@@ -453,10 +459,9 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   int col, TX_SIZE tx_size, TX_TYPE tx_type) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
 #if CONFIG_PVQ_CFL
-  const int cfl_enabled = plane != 0 && cm->frame_type == KEY_FRAME;
+  CFL_CTX *const cfl = xd->cfl;
+  cfl->enabled = plane != 0 && cm->frame_type == KEY_FRAME;
   if (plane != 0) assert(mbmi->uv_mode == DC_PRED);
-#else
-  const int cfl_enabled = 0;
 #endif
   // transform block size in pixels
   int tx_blk_size = tx_size_wide[tx_size];
@@ -474,9 +479,9 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
   if (ac_dc_coded) {
 #if CONFIG_PVQ_CFL
-    if (cfl_enabled) {
-      xd->cfl->flat_val = dst[0];
-      cfl_load(xd->cfl, dst, pd->dst.stride, row, col, tx_blk_size);
+    if (cfl->enabled) {
+      cfl->flat_val = dst[0];
+      cfl_load(cfl, dst, pd->dst.stride, row, col, tx_blk_size);
     }
 #endif
     int xdec = pd->subsampling_x;
@@ -516,20 +521,23 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
 #if CONFIG_PVQ_CFL
-    if (cfl_enabled) {
+    if (cfl->enabled) {
       assert(tx_type == DCT_DCT);
       // Knowning that the prediction is DC_PRED and that DCT_DCT is used,
       // we can compute the DC without doing a full DCT.
       pvq_ref_coeff[0] =
-          xd->cfl->flat_val * ((get_tx_scale(tx_size)) ? 128 : tx_blk_size * 8);
+          cfl->flat_val * ((get_tx_scale(tx_size)) ? 128 : tx_blk_size * 8);
     }
 #endif
 
     quant = &pd->seg_dequant[seg_id][0];  // aom's quantizer
 
-    eob =
-        av1_pvq_decode_helper(xd, pvq_ref_coeff, dqcoeff, quant, plane,
-                              cfl_enabled, tx_size, tx_type, xdec, ac_dc_coded);
+    eob = av1_pvq_decode_helper(xd, pvq_ref_coeff, dqcoeff, quant, plane,
+
+#if CONFIG_PVQ_CFL
+                                cfl,
+#endif
+                                tx_size, tx_type, xdec, ac_dc_coded);
 
 // Since av1 does not have separate inverse transform
 // but also contains adding to predicted image,
@@ -553,7 +561,7 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
 #if CONFIG_PVQ_CFL
   if (plane == 0 && cm->frame_type == KEY_FRAME)
-    cfl_store(xd->cfl, dst, pd->dst.stride, row, col, tx_blk_size);
+    cfl_store(cfl, dst, pd->dst.stride, row, col, tx_blk_size);
 #endif
   return eob;
 }
