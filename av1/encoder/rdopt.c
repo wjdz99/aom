@@ -217,6 +217,10 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
 
 #if CONFIG_ALT_INTRA
   { SMOOTH_PRED, { INTRA_FRAME, NONE_FRAME } },
+#if CONFIG_SMOOTH_HV
+  { SMOOTH_V_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { SMOOTH_H_PRED, { INTRA_FRAME, NONE_FRAME } },
+#endif  // CONFIG_SMOOTH_HV
 #endif  // CONFIG_ALT_INTRA
 
 #if CONFIG_EXT_INTER
@@ -9536,7 +9540,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   MV_REFERENCE_FRAME best_single_inter_ref = LAST_FRAME;
   int64_t best_single_inter_rd = INT64_MAX;
 #else
-  uint16_t mode_skip_mask[TOTAL_REFS_PER_FRAME] = { 0 };
+  uint32_t mode_skip_mask[TOTAL_REFS_PER_FRAME] = { 0 };
 #endif  // CONFIG_EXT_INTER
   int mode_skip_start = sf->mode_skip_start + 1;
   const int *const rd_threshes = rd_opt->threshes[segment_id][bsize];
