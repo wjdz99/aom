@@ -31,7 +31,7 @@
 #include "av1/encoder/pickrst.h"
 
 // When set to 1, only RESTORE_WIENER or RESTORE_NONE are allowed
-#define FORCE_RESTORE_WIENER_ONLY 0
+#define FORCE_RESTORE_WIENER_ONLY 1
 
 // Number of Wiener iterations
 #define NUM_WIENER_ITERS 10
