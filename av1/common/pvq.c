@@ -1087,7 +1087,7 @@ void cfl_load(const CFL_CTX *const cfl, uint8_t *const output,
     }
   }
   printf("\n");
-*/
+  */
 }
 
 void cfl_store(CFL_CTX *const cfl, uint8_t *const input, int input_stride,

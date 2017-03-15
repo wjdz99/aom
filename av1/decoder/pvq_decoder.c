@@ -180,10 +180,11 @@ static void pvq_decode_partition(aom_reader *r,
 #if CONFIG_PVQ_CFL
   /* The CfL flip bit is only decoded on the first band that has noref=0. */
   if (cfl->allow_flip && !*noref) {
-    int flip;
-    flip = aom_read_bit(r, "cfl:flip");
-    if (flip) {
-      for (i = 0; i < cfl->nb_coeffs; i++) cfl->ref[i] = -cfl->ref[i];
+    if (aom_read_bit(r, "cfl:flip")) {
+      // This code actually flips the whole prediction. This works because the
+      // bands before the flip bit are norefs (i.e. they don't use the
+      // prediction). To avoid flipping the DC, i starts at 1.
+      for (i = 1; i < cfl->nb_coeffs; i++) cfl->ref[i] = -cfl->ref[i];
     }
     cfl->allow_flip = 0;
   }
@@ -353,8 +354,7 @@ void od_pvq_decode(daala_dec_ctx *dec,
 #if CONFIG_PVQ_CFL
     cfl->ref = ref;
     cfl->nb_coeffs = off[nb_bands];
-    // TODO(ltrudeau) enable flip after CfL is added to RDO.
-    cfl->allow_flip = 0/*cfl_enabled*/;
+    cfl->allow_flip = cfl->enabled;
 #endif
     for (i = 0; i < nb_bands; i++) {
       int q;
