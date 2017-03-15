@@ -183,8 +183,9 @@ static void pvq_decode_partition(aom_reader *r,
     int flip;
     flip = aom_read_bit(r, "cfl:flip");
     if (flip) {
-      for (i = 0; i < cfl->nb_coeffs; i++) cfl->ref[i] = -cfl->ref[i];
+      for (i = 1; i < cfl->nb_coeffs; i++) cfl->ref[i] = -cfl->ref[i];
     }
+
     cfl->allow_flip = 0;
   }
 #endif
@@ -353,8 +354,7 @@ void od_pvq_decode(daala_dec_ctx *dec,
 #if CONFIG_PVQ_CFL
     cfl->ref = ref;
     cfl->nb_coeffs = off[nb_bands];
-    // TODO(ltrudeau) enable flip after CfL is added to RDO.
-    cfl->allow_flip = 0/*cfl_enabled*/;
+    cfl->allow_flip = cfl->enabled;
 #endif
     for (i = 0; i < nb_bands; i++) {
       int q;
