@@ -57,6 +57,8 @@ if (NOT AOM_TARGET_CPU)
   elseif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "i386" OR
           "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86")
     set(AOM_TARGET_CPU "x86")
+  elseif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "armv7s")
+    set(AOM_TARGET_CPU "armv7s")
   endif ()
 endif ()
 
@@ -88,6 +90,18 @@ if ("${AOM_TARGET_CPU}" STREQUAL "x86" OR "${AOM_TARGET_CPU}" STREQUAL "x86_64")
   endif ()
   get_asm_obj_format("objformat")
   set(AOM_AS_FLAGS -f ${objformat} ${AOM_AS_FLAGS})
+  string(STRIP "${AOM_AS_FLAGS}" AOM_AS_FLAGS)
+elseif ("${AOM_TARGET_CPU}" MATCHES "arm")
+  if (NOT "${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
+    message(FATAL_ERROR
+            "Unknown assembler target: ${AOM_TARGET_CPU}-${AOM_TARGET_SYSTEM}")
+  endif ()
+  if (NOT AS_EXECUTABLE)
+    message(FATAL_ERROR
+            "Unknown assembler for: ${AOM_TARGET_CPU}-${AOM_TARGET_SYSTEM}")
+  endif ()
+
+  set(AOM_AS_FLAGS "-arch ${AOM_TARGET_CPU} ${AOM_AS_FLAGS}")
   string(STRIP "${AOM_AS_FLAGS}" AOM_AS_FLAGS)
 endif ()
 
