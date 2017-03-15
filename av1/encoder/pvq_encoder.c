@@ -645,7 +645,7 @@ void pvq_encode_partition(aom_writer *w,
                                  int qg,
                                  int theta,
                                  int max_theta,
-                                 const od_coeff *in,
+                                 od_coeff *in,
                                  int n,
                                  int k,
                                  generic_encoder model[3],
@@ -797,7 +797,6 @@ void od_pvq_encode(daala_enc_ctx *enc,
   uint16_t *skip_cdf;
   od_rollback_buffer buf;
   int dc_quant;
-  int flip;
   int cfl_encoded;
   int skip_rest;
   int skip_dir;
@@ -839,11 +838,10 @@ void od_pvq_encode(daala_enc_ctx *enc,
   tell = 0;
   for (i = 0; i < nb_bands; i++) size[i] = off[i+1] - off[i];
   skip_diff = 0;
-  flip = 0;
+  pvq_info->cfl_flip = 0;
   cfl_enabled = pvq_info->cfl_enabled;
   is_skip_copy = !cfl_enabled;
-  // TODO(ltrudeau) Enable flip after CfL is added to RDO.
-  if (0/*cfl_enabled*/) {
+  if (cfl_enabled) {
     od_val32 xy;
     xy = 0;
     /*Compute the dot-product of the first band of chroma with the luma ref.*/
@@ -862,7 +860,7 @@ void od_pvq_encode(daala_enc_ctx *enc,
     }
     /*If cos(theta) < 0, then |theta| > pi/2 and we should negate the ref.*/
     if (xy < 0) {
-      flip = 1;
+      pvq_info->cfl_flip = 1;
       for(i = off[0]; i < off[nb_bands]; i++) ref[i] = -ref[i];
     }
   }
@@ -960,7 +958,7 @@ void od_pvq_encode(daala_enc_ctx *enc,
        size[i], k[i], model, &enc->state.adapt, exg + i, ext + i,
        nodesync, (pli != 0)*OD_TXSIZES*PVQ_MAX_PARTITIONS
        + bs*PVQ_MAX_PARTITIONS + i, is_skip_copy, i == 0 && (i < nb_bands - 1),
-       skip_rest, encode_flip, flip);
+       skip_rest, encode_flip, pvq_info->cfl_flip);
     }
     if (i == 0 && !skip_rest && bs > 0) {
       aom_encode_cdf_adapt(&enc->w, skip_dir,

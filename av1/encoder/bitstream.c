@@ -1025,10 +1025,8 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
 
   for (idy = 0; idy < max_blocks_high; idy += step) {
     for (idx = 0; idx < max_blocks_wide; idx += step) {
-      // TODO(ltrudeau) enable flip after CfL is added to RDO.
-      const int encode_flip = 0;
-      const int flip = 0;
       const int nodesync = 1;
+      int cfl_encoded = 0;
       int i;
       const int has_dc_skip = 1;
       int *exg = &adapt->pvq.pvq_exg[plane][tx_size][0];
@@ -1045,6 +1043,9 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
       if (pvq->ac_dc_coded & AC_CODED) {
         assert(pvq->bs == tx_size);
         for (i = 0; i < pvq->nb_bands; i++) {
+          /* Encode CFL flip bit just after the first time it's used. */
+          int encode_flip =
+              pvq->cfl_enabled && pvq->theta[i] != -1 && !cfl_encoded;
           if (i == 0 ||
               (!pvq->skip_rest && !(pvq->skip_dir & (1 << ((i - 1) % 3))))) {
             int is_skip_copy = !pvq->cfl_enabled;
@@ -1055,7 +1056,7 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
                 (plane != 0) * OD_TXSIZES * PVQ_MAX_PARTITIONS +
                     pvq->bs * PVQ_MAX_PARTITIONS + i,
                 is_skip_copy, i == 0 && (i < pvq->nb_bands - 1), pvq->skip_rest,
-                encode_flip, flip);
+                encode_flip, pvq->cfl_flip);
           }
           if (i == 0 && !pvq->skip_rest && pvq->bs > 0) {
             aom_encode_cdf_adapt(
@@ -1064,6 +1065,7 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
                      .pvq_skip_dir_cdf[(plane != 0) + 2 * (pvq->bs - 1)][0],
                 7, adapt->pvq.pvq_skip_dir_increment);
           }
+          if (encode_flip) cfl_encoded = 1;
         }
       }
       // Encode residue of DC coeff, if exist.
