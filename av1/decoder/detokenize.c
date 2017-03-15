@@ -108,12 +108,12 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 #if CONFIG_NEW_QUANT
   const tran_low_t *dqv_val = &dq_val[0][0];
 #endif  // CONFIG_NEW_QUANT
-  const uint8_t *cat1_prob;
-  const uint8_t *cat2_prob;
-  const uint8_t *cat3_prob;
-  const uint8_t *cat4_prob;
-  const uint8_t *cat5_prob;
-  const uint8_t *cat6_prob;
+  // TODO(aconverse@google.com): Merge this into the skip bits mechanism
+#if CONFIG_AOM_HIGHBITDEPTH
+  const uint8_t *const cat6_prob = av1_cat6_prob + (12 - xd->bd);
+#else
+  const uint8_t *const cat6_prob = av1_cat6_prob + (12 - 8);
+#endif
   (void)tx_type;
 #if CONFIG_AOM_QM
   (void)iqmatrix;
@@ -126,40 +126,6 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
     blockz_count = counts->blockz_count[tx_size_ctx][type][ref][ctx];
 #endif
   }
-
-#if CONFIG_AOM_HIGHBITDEPTH
-  if (xd->bd > AOM_BITS_8) {
-    if (xd->bd == AOM_BITS_10) {
-      cat1_prob = av1_cat1_prob_high10;
-      cat2_prob = av1_cat2_prob_high10;
-      cat3_prob = av1_cat3_prob_high10;
-      cat4_prob = av1_cat4_prob_high10;
-      cat5_prob = av1_cat5_prob_high10;
-      cat6_prob = av1_cat6_prob_high10;
-    } else {
-      cat1_prob = av1_cat1_prob_high12;
-      cat2_prob = av1_cat2_prob_high12;
-      cat3_prob = av1_cat3_prob_high12;
-      cat4_prob = av1_cat4_prob_high12;
-      cat5_prob = av1_cat5_prob_high12;
-      cat6_prob = av1_cat6_prob_high12;
-    }
-  } else {
-    cat1_prob = av1_cat1_prob;
-    cat2_prob = av1_cat2_prob;
-    cat3_prob = av1_cat3_prob;
-    cat4_prob = av1_cat4_prob;
-    cat5_prob = av1_cat5_prob;
-    cat6_prob = av1_cat6_prob;
-  }
-#else
-  cat1_prob = av1_cat1_prob;
-  cat2_prob = av1_cat2_prob;
-  cat3_prob = av1_cat3_prob;
-  cat4_prob = av1_cat4_prob;
-  cat5_prob = av1_cat5_prob;
-  cat6_prob = av1_cat6_prob;
-#endif
 
   dq_shift = get_tx_scale(tx_size);
 
@@ -218,19 +184,19 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
       case THREE_TOKEN:
       case FOUR_TOKEN: val = token; break;
       case CATEGORY1_TOKEN:
-        val = CAT1_MIN_VAL + read_coeff(cat1_prob, 1, r);
+        val = CAT1_MIN_VAL + read_coeff(av1_cat1_prob, 1, r);
         break;
       case CATEGORY2_TOKEN:
-        val = CAT2_MIN_VAL + read_coeff(cat2_prob, 2, r);
+        val = CAT2_MIN_VAL + read_coeff(av1_cat2_prob, 2, r);
         break;
       case CATEGORY3_TOKEN:
-        val = CAT3_MIN_VAL + read_coeff(cat3_prob, 3, r);
+        val = CAT3_MIN_VAL + read_coeff(av1_cat3_prob, 3, r);
         break;
       case CATEGORY4_TOKEN:
-        val = CAT4_MIN_VAL + read_coeff(cat4_prob, 4, r);
+        val = CAT4_MIN_VAL + read_coeff(av1_cat4_prob, 4, r);
         break;
       case CATEGORY5_TOKEN:
-        val = CAT5_MIN_VAL + read_coeff(cat5_prob, 5, r);
+        val = CAT5_MIN_VAL + read_coeff(av1_cat5_prob, 5, r);
         break;
       case CATEGORY6_TOKEN: {
         const int skip_bits = TX_SIZES - 1 - txsize_sqr_up_map[tx_size];
@@ -325,19 +291,19 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
       case THREE_TOKEN:
       case FOUR_TOKEN: val = token; break;
       case CATEGORY1_TOKEN:
-        val = CAT1_MIN_VAL + read_coeff(cat1_prob, 1, r);
+        val = CAT1_MIN_VAL + read_coeff(av1_cat1_prob, 1, r);
         break;
       case CATEGORY2_TOKEN:
-        val = CAT2_MIN_VAL + read_coeff(cat2_prob, 2, r);
+        val = CAT2_MIN_VAL + read_coeff(av1_cat2_prob, 2, r);
         break;
       case CATEGORY3_TOKEN:
-        val = CAT3_MIN_VAL + read_coeff(cat3_prob, 3, r);
+        val = CAT3_MIN_VAL + read_coeff(av1_cat3_prob, 3, r);
         break;
       case CATEGORY4_TOKEN:
-        val = CAT4_MIN_VAL + read_coeff(cat4_prob, 4, r);
+        val = CAT4_MIN_VAL + read_coeff(av1_cat4_prob, 4, r);
         break;
       case CATEGORY5_TOKEN:
-        val = CAT5_MIN_VAL + read_coeff(cat5_prob, 5, r);
+        val = CAT5_MIN_VAL + read_coeff(av1_cat5_prob, 5, r);
         break;
       case CATEGORY6_TOKEN: {
         const int skip_bits = TX_SIZES - 1 - txsize_sqr_up_map[tx_size];
@@ -374,19 +340,19 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
         case THREE_TOKEN:
         case FOUR_TOKEN: val = token; break;
         case CATEGORY1_TOKEN:
-          val = CAT1_MIN_VAL + read_coeff(cat1_prob, 1, r);
+          val = CAT1_MIN_VAL + read_coeff(av1_cat1_prob, 1, r);
           break;
         case CATEGORY2_TOKEN:
-          val = CAT2_MIN_VAL + read_coeff(cat2_prob, 2, r);
+          val = CAT2_MIN_VAL + read_coeff(av1_cat2_prob, 2, r);
           break;
         case CATEGORY3_TOKEN:
-          val = CAT3_MIN_VAL + read_coeff(cat3_prob, 3, r);
+          val = CAT3_MIN_VAL + read_coeff(av1_cat3_prob, 3, r);
           break;
         case CATEGORY4_TOKEN:
-          val = CAT4_MIN_VAL + read_coeff(cat4_prob, 4, r);
+          val = CAT4_MIN_VAL + read_coeff(av1_cat4_prob, 4, r);
           break;
         case CATEGORY5_TOKEN:
-          val = CAT5_MIN_VAL + read_coeff(cat5_prob, 5, r);
+          val = CAT5_MIN_VAL + read_coeff(av1_cat5_prob, 5, r);
           break;
         case CATEGORY6_TOKEN: {
           const int skip_bits = TX_SIZES - 1 - txsize_sqr_up_map[tx_size];
