@@ -313,6 +313,10 @@ typedef struct AV1Common {
 #if CONFIG_LOOP_RESTORATION
   RestorationInfo rst_info[MAX_MB_PLANE];
   RestorationInternal rst_internal;
+#if CONFIG_FRAME_SUPERRES
+  // The numerator of the superres scale, the denominator is fixed
+  uint8_t superres_scale_numerator;
+#endif  // CONFIG_FRAME_SUPERRES
 #endif  // CONFIG_LOOP_RESTORATION
 
   // Flag signaling how frame contexts should be updated at the end of
