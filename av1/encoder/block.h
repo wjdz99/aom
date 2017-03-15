@@ -69,6 +69,12 @@ typedef struct {
   int16_t mode_context[MODE_CTX_REF_FRAMES];
 #if CONFIG_LV_MAP
   tran_low_t *tcoeff[MAX_MB_PLANE];
+  uint16_t eobs[MAX_MB_PLANE]
+               [MAX_SB_SQUARE / (tx_size_wide[0] * tx_size_high[0])];
+  uint8_t txb_skip_ctx[MAX_MB_PLANE]
+                      [MAX_SB_SQUARE / (tx_size_wide[0] * tx_size_high[0])];
+  int dc_sign_ctx[MAX_MB_PLANE]
+                 [MAX_SB_SQUARE / (tx_size_wide[0] * tx_size_high[0])];
 #endif
 #if CONFIG_REF_MV
   uint8_t ref_mv_count[MODE_CTX_REF_FRAMES];
