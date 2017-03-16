@@ -43,6 +43,9 @@
 #if CONFIG_ANS
 #include "aom_dsp/buf_ans.h"
 #endif  // CONFIG_ANS
+#if CONFIG_LV_MAP
+#include "av1/encoder/encodetxb.h"
+#endif  // CONFIG_LV_MAP
 #include "av1/encoder/bitstream.h"
 #include "av1/encoder/cost.h"
 #include "av1/encoder/encodemv.h"
@@ -889,7 +892,8 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 
   *tp = p;
 }
-#else
+#else  //  CONFIG_NEW_TOKENSET
+#if !CONFIG_LV_MAP
 static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
                            const TOKENEXTRA *const stop,
                            aom_bit_depth_t bit_depth, const TX_SIZE tx_size,
@@ -994,7 +998,8 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 
   *tp = p;
 }
-#endif
+#endif  // !CONFIG_LV_MAP
+#endif  // CONFIG_NEW_TOKENSET
 #else   // !CONFIG_PVQ
 static PVQ_INFO *get_pvq_block(PVQ_QUEUE *pvq_q) {
   PVQ_INFO *pvq;
@@ -2159,7 +2164,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
   MB_MODE_INFO *const mbmi = &m->mbmi;
   int plane;
   int bh, bw;
-#if CONFIG_PVQ
+#if CONFIG_PVQ || CONFIG_LV_MAP
   MACROBLOCK *const x = &cpi->td.mb;
   (void)tok;
   (void)tok_end;
@@ -2346,7 +2351,13 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
       TOKEN_STATS token_stats;
 #if !CONFIG_PVQ
       init_token_stats(&token_stats);
+#if CONFIG_LV_MAP
+      (void)tx;
+      av1_write_coeffs_mb(cm, x, w, plane);
+#else   // CONFIG_LV_MAP
       pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx, &token_stats);
+#endif  // CONFIG_LV_MAP
+
 #else
       (void)token_stats;
       pack_pvq_tokens(w, x, xd, plane, mbmi->sb_type, tx);
