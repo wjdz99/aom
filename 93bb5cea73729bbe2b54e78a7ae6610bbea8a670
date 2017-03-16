@@ -22,6 +22,30 @@
       "revId": "93bb5cea73729bbe2b54e78a7ae6610bbea8a670",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "01e251aa_e637359a",
+        "filename": "test/simd_cmp_sse2.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-16T23:20:35Z",
+      "side": 1,
+      "message": "\u003e So, for the x86 cases, if __OPTIMIZE__ is defined, we can run the tests.  If not, it\u0027s probably because we\u0027re not running gcc/clang and in that case let\u0027s hope it\u0027s ok to include the tests if _NDEBUG is not set.  Does make sense (until we actually run into a problem)?\n\nthat should be fine as a start, you could group the logic for clarity and break the long line",
+      "parentUuid": "af9a5e33_84b855ab",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 1
+      },
+      "revId": "93bb5cea73729bbe2b54e78a7ae6610bbea8a670",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
