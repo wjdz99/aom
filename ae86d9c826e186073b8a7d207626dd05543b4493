@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62136647_954b0bf7",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-16T22:20:51Z",
+      "side": 1,
+      "message": "note, currently configure has some nasm support too",
+      "revId": "ae86d9c826e186073b8a7d207626dd05543b4493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f44ae0d_bd36b579",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-16T22:20:51Z",
+      "side": 1,
+      "message": "since you have the return an else isn\u0027t strictly necessary",
+      "revId": "ae86d9c826e186073b8a7d207626dd05543b4493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
