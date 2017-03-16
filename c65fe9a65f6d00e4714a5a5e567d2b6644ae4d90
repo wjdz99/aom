@@ -70,6 +70,24 @@
       "revId": "c65fe9a65f6d00e4714a5a5e567d2b6644ae4d90",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba10cda5_b60b6ae5",
+        "filename": "test/simd_cmp_neon.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-03-16T07:58:32Z",
+      "side": 1,
+      "message": "I intended to remove the test for _DEBUG here, but missed this file.  Removed now.  Unless we can test VS for NEON, perhaps it\u0027s safest not to compile these tests for such a setup?",
+      "parentUuid": "0355f525_0b9be573",
+      "revId": "c65fe9a65f6d00e4714a5a5e567d2b6644ae4d90",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
