@@ -94,7 +94,7 @@ if ("${AOM_TARGET_CPU}" STREQUAL "x86" OR "${AOM_TARGET_CPU}" STREQUAL "x86_64")
 elseif ("${AOM_TARGET_CPU}" MATCHES "arm")
   if ("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
     set(AS_EXECUTABLE as)
-    set(AOM_AS_FLAGS "-arch ${AOM_TARGET_CPU}")
+    set(AOM_AS_FLAGS -arch ${AOM_TARGET_CPU})
   endif ()
   if (NOT AS_EXECUTABLE)
     message(FATAL_ERROR
