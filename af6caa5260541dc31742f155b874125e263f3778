@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92e3c1ed_a75df51a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-16T03:28:07Z",
+      "side": 1,
+      "message": "better would be to say \"av1,decoder: add MV count\" the first part is clear based on where you posted the change (and where it will be merged to), the second wasn\u0027t a problem at the tip of the tree, but locally. If you had to fix clang formatting with the current master that should be a separate commit",
+      "revId": "af6caa5260541dc31742f155b874125e263f3778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46a670ef_20ab5562",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1911,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-16T03:28:07Z",
+      "side": 1,
+      "message": "when distances get large it can help to add // !CONFIG_CB4X4 as a reminder",
+      "revId": "af6caa5260541dc31742f155b874125e263f3778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ad03755_a54fc615",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3606,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-16T03:28:07Z",
+      "side": 1,
+      "message": "local variables are lower case\n\nhttps://engdoc.corp.google.com/eng/doc/devguide/cpp/styleguide.shtml?cl\u003dhead#Variable_Names",
+      "range": {
+        "startLine": 3606,
+        "startChar": 8,
+        "endLine": 3606,
+        "endChar": 13
+      },
+      "revId": "af6caa5260541dc31742f155b874125e263f3778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e53ba4aa_fb67824c",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3666,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-16T03:28:07Z",
+      "side": 1,
+      "message": "txt -\u003e text. also not sure I understand the statement with the repeat of \u0027writing / written to local file\u0027",
+      "range": {
+        "startLine": 3665,
+        "startChar": 13,
+        "endLine": 3666,
+        "endChar": 44
+      },
+      "revId": "af6caa5260541dc31742f155b874125e263f3778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f05c4f3_4b90c027",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3672,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-16T03:28:07Z",
+      "side": 1,
+      "message": "you should check the file pointer before writing to it",
+      "revId": "af6caa5260541dc31742f155b874125e263f3778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
