@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7becaae_85c67c30",
+        "filename": "build/cmake/toolchains/armv7s-ios.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-03-16T00:14:40Z",
+      "side": 1,
+      "message": "The Xcode generator ignores almost all of these settings. To support arm builds via xcode I\u0027ll have to make a separate pass. Not sure if worth it or not, but will probably get done at some point whether I really want to do it or not. :|",
+      "revId": "2dffe21f1f5fc05e5dbab2d9919b879307e3a665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
