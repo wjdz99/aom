@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4683820c_f1c185de",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-03-16T23:55:37Z",
+      "side": 1,
+      "message": "added TODO",
+      "parentUuid": "62136647_954b0bf7",
+      "revId": "ae86d9c826e186073b8a7d207626dd05543b4493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1f44ae0d_bd36b579",
         "filename": "build/cmake/aom_optimization.cmake",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-16T22:20:51Z",
       "side": 1,
       "message": "since you have the return an else isn\u0027t strictly necessary",
+      "revId": "ae86d9c826e186073b8a7d207626dd05543b4493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ad3b2b3_010a6834",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-03-16T23:55:37Z",
+      "side": 1,
+      "message": "made it more like a C include guard",
+      "parentUuid": "1f44ae0d_bd36b579",
       "revId": "ae86d9c826e186073b8a7d207626dd05543b4493",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
