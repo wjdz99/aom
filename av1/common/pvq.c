@@ -1038,11 +1038,18 @@ void cfl_load(const CFL_CTX *const cfl, uint8_t *const output,
 
   int pred_row_offset = 0;
   int output_row_offset = 0;
+  int top_left, bot_left;
   int i, j;
 
   for (j = 0; j < tx_blk_size; j++) {
     for (i = 0; i < tx_blk_size;  i++) {
-      output[output_row_offset + i] = pred[step * (pred_row_offset + i)];
+      top_left = step * (pred_row_offset + i);
+      bot_left = top_left + MAX_SB_SIZE;
+      // Average pixels in 2x2 grid
+      output[output_row_offset + i] = OD_SHR_ROUND(
+            pred[top_left] + pred[top_left + 1]  // Top row
+          + pred[bot_left] + pred[bot_left + 1]  // Bottom row
+          , step);
     }
     pred_row_offset += MAX_SB_SIZE;
     output_row_offset += output_stride;
