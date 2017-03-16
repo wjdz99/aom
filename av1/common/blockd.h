@@ -1043,9 +1043,15 @@ static INLINE int check_num_overlappable_neighbors(const MB_MODE_INFO *mbmi) {
   if (mbmi->overlappable_neighbors[0] == 0 &&
       mbmi->overlappable_neighbors[1] == 0)
     return 0;
-  if (mbmi->overlappable_neighbors[0] > 2 ||
-      mbmi->overlappable_neighbors[1] > 2)
-    return 0;
+  if (mbmi->sb_type <= BLOCK_8X8) {
+    if (mbmi->overlappable_neighbors[0] > 1 ||
+        mbmi->overlappable_neighbors[1] > 1)
+      return 0;
+  } else {
+    if (mbmi->overlappable_neighbors[0] > 2 ||
+        mbmi->overlappable_neighbors[1] > 2)
+      return 0;
+  }
   return 1;
 }
 #endif
