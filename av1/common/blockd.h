@@ -1039,20 +1039,19 @@ static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize) {
 }
 
 #if CONFIG_MOTION_VAR
+// input: log2 of length, 0(4), 1(8), ...
+static const int max_neighbor_obmc[6] = {
+  0, 1, 2, 3, 4, 4
+};
+
 static INLINE int check_num_overlappable_neighbors(const MB_MODE_INFO *mbmi) {
   if (mbmi->overlappable_neighbors[0] == 0 &&
       mbmi->overlappable_neighbors[1] == 0)
     return 0;
-  if (mbmi->sb_type <= BLOCK_8X8) {
-    if (mbmi->overlappable_neighbors[0] > 1 ||
-        mbmi->overlappable_neighbors[1] > 1)
-      return 0;
-  } else {
-    if (mbmi->overlappable_neighbors[0] > 2 ||
-        mbmi->overlappable_neighbors[1] > 2)
-      return 0;
-  }
-  return 1;
+  return (mbmi->overlappable_neighbors[0] <=
+      max_neighbor_obmc[b_width_log2_lookup[mbmi->sb_type]]) &&
+      (mbmi->overlappable_neighbors[1] <=
+          max_neighbor_obmc[b_height_log2_lookup[mbmi->sb_type]]);
 }
 #endif
 
