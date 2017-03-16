@@ -1042,7 +1042,12 @@ void cfl_load(const CFL_CTX *const cfl, uint8_t *const output,
 
   for (j = 0; j < tx_blk_size; j++) {
     for (i = 0; i < tx_blk_size;  i++) {
-      output[output_row_offset + i] = pred[step * (pred_row_offset + i)];
+      output[output_row_offset + i] =
+        (pred[step * (pred_row_offset + i)]
+        + pred[step * (pred_row_offset + i) + 1]
+        + pred[step * (pred_row_offset + i) + MAX_SB_SIZE]
+        + pred[step * (pred_row_offset + i) + MAX_SB_SIZE + 1]
+        )/4;
     }
     pred_row_offset += MAX_SB_SIZE;
     output_row_offset += output_stride;
