@@ -1335,7 +1335,7 @@ static void dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
         inv_txfm_param.bd = xd->bd;
         aom_highbd_convolve_copy(dst, dst_stride, recon, MAX_TX_SIZE, NULL, 0,
                                  NULL, 0, bsw, bsh, xd->bd);
-        highbd_inv_txfm_add(dqcoeff, recon, MAX_TX_SIZE, &inv_txfm_param);
+        av1_highbd_inv_txfm_add(dqcoeff, recon, MAX_TX_SIZE, &inv_txfm_param);
       } else
 #endif  // CONFIG_AOM_HIGHBITDEPTH
       {
@@ -1348,7 +1348,7 @@ static void dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
         for (j = 0; j < bsh; j++)
           for (i = 0; i < bsw; i++) recon[j * MAX_TX_SIZE + i] = 0;
 #endif  // !CONFIG_PVQ
-        inv_txfm_add(dqcoeff, recon, MAX_TX_SIZE, &inv_txfm_param);
+        av1_inv_txfm_add(dqcoeff, recon, MAX_TX_SIZE, &inv_txfm_param);
       }
 #if CONFIG_DAALA_DIST
       if (plane == 0) {
