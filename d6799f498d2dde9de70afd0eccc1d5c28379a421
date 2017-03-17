@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "51356434_6257bbf2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6350
+      },
+      "writtenOn": "2017-03-17T16:24:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4a4c9f2_48d7b143",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 79
+      },
+      "revId": "d6799f498d2dde9de70afd0eccc1d5c28379a421",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f5d9a98d_f095d2f0",
         "filename": "/COMMIT_MSG",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-16T23:09:16Z",
       "side": 1,
       "message": "This should be broken into multiple lines so it is readable",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 286
+      },
+      "revId": "d6799f498d2dde9de70afd0eccc1d5c28379a421",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0eff55cf_e2ca1ccc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6350
+      },
+      "writtenOn": "2017-03-17T16:24:38Z",
+      "side": 1,
+      "message": "Reformatted, better? I\u0027m not sure whether you have a line break between each sentence rule, but happy to change if you do.",
+      "parentUuid": "f5d9a98d_f095d2f0",
       "range": {
         "startLine": 9,
         "startChar": 0,
