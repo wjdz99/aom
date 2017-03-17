@@ -699,8 +699,6 @@ aom_fixed_buf_t *aom_codec_get_global_headers(aom_codec_ctx_t *ctx);
 #define AOM_DL_REALTIME (1)
 /*!\brief deadline parameter analogous to  AVx GOOD QUALITY mode. */
 #define AOM_DL_GOOD_QUALITY (1000000)
-/*!\brief deadline parameter analogous to AVx BEST QUALITY mode. */
-#define AOM_DL_BEST_QUALITY (0)
 /*!\brief Encode a frame
  *
  * Encodes a video frame at the given "presentation time." The presentation
