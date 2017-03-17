@@ -2259,7 +2259,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
   }
 #else  // CONFIG_COEF_INTERLEAVE
   if (!mbmi->skip) {
-#if !CONFIG_PVQ
+#if !CONFIG_PVQ && !CONFIG_LV_MAP
     assert(*tok < tok_end);
 #endif
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
@@ -2354,7 +2354,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_RD_DEBUG
 #endif  // CONFIG_VAR_TX
 
-#if !CONFIG_PVQ
+#if !CONFIG_PVQ && !CONFIG_LV_MAP
       assert(*tok < tok_end && (*tok)->token == EOSB_TOKEN);
       (*tok)++;
 #endif
