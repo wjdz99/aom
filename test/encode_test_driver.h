@@ -30,21 +30,17 @@ class VideoSource;
 enum TestMode {
   kRealTime,
   kOnePassGood,
-  kOnePassBest,
-  kTwoPassGood,
-  kTwoPassBest
+  kTwoPassGood
 };
 #define ALL_TEST_MODES                                                        \
   ::testing::Values(::libaom_test::kRealTime, ::libaom_test::kOnePassGood,    \
-                    ::libaom_test::kOnePassBest, ::libaom_test::kTwoPassGood, \
-                    ::libaom_test::kTwoPassBest)
+                    ::libaom_test::kTwoPassGood)
 
 #define ONE_PASS_TEST_MODES                                                \
-  ::testing::Values(::libaom_test::kRealTime, ::libaom_test::kOnePassGood, \
-                    ::libaom_test::kOnePassBest)
+  ::testing::Values(::libaom_test::kRealTime, ::libaom_test::kOnePassGood)
 
 #define TWO_PASS_TEST_MODES \
-  ::testing::Values(::libaom_test::kTwoPassGood, ::libaom_test::kTwoPassBest)
+  ::testing::Values(::libaom_test::kTwoPassGood)
 
 // Provides an object to handle the libaom get_cx_data() iteration pattern
 class CxDataIterator {
