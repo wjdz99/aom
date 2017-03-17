@@ -153,8 +153,6 @@ static const arg_def_t limit =
     ARG_DEF(NULL, "limit", 1, "Stop encoding after n input frames");
 static const arg_def_t skip =
     ARG_DEF(NULL, "skip", 1, "Skip the first n input frames");
-static const arg_def_t deadline =
-    ARG_DEF("d", "deadline", 1, "Deadline per frame (usec)");
 static const arg_def_t best_dl =
     ARG_DEF(NULL, "best", 0, "Use Best Quality Deadline");
 static const arg_def_t good_dl =
@@ -219,7 +217,6 @@ static const arg_def_t *main_args[] = { &debugmode,
                                         &fpf_name,
                                         &limit,
                                         &skip,
-                                        &deadline,
                                         &best_dl,
                                         &good_dl,
                                         &rt_dl,
@@ -934,8 +931,6 @@ static void parse_global_config(struct AvxEncoderConfig *global, char **argv) {
         die("Error: Invalid pass selected (%d)\n", global->pass);
     } else if (arg_match(&arg, &usage, argi))
       global->usage = arg_parse_uint(&arg);
-    else if (arg_match(&arg, &deadline, argi))
-      global->deadline = arg_parse_uint(&arg);
     else if (arg_match(&arg, &best_dl, argi))
       global->deadline = AOM_DL_BEST_QUALITY;
     else if (arg_match(&arg, &good_dl, argi))
