@@ -754,11 +754,11 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_AOM_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     inv_txfm_param.bd = xd->bd;
-    highbd_inv_txfm_add(dqcoeff, dst, pd->dst.stride, &inv_txfm_param);
+    av1_highbd_inv_txfm_add(dqcoeff, dst, pd->dst.stride, &inv_txfm_param);
     return;
   }
 #endif  // CONFIG_AOM_HIGHBITDEPTH
-  inv_txfm_add(dqcoeff, dst, pd->dst.stride, &inv_txfm_param);
+  av1_inv_txfm_add(dqcoeff, dst, pd->dst.stride, &inv_txfm_param);
 }
 
 #if CONFIG_VAR_TX
@@ -1079,12 +1079,12 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_AOM_HIGHBITDEPTH
     inv_txfm_param.bd = xd->bd;
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-      highbd_inv_txfm_add(dqcoeff, dst, dst_stride, &inv_txfm_param);
+      av1_highbd_inv_txfm_add(dqcoeff, dst, dst_stride, &inv_txfm_param);
     } else {
-      inv_txfm_add(dqcoeff, dst, dst_stride, &inv_txfm_param);
+      av1_inv_txfm_add(dqcoeff, dst, dst_stride, &inv_txfm_param);
     }
 #else
-    inv_txfm_add(dqcoeff, dst, dst_stride, &inv_txfm_param);
+    av1_inv_txfm_add(dqcoeff, dst, dst_stride, &inv_txfm_param);
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
     *(args->skip) = 0;
