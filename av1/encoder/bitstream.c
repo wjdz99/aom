@@ -1169,10 +1169,10 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     // (if not specified at the frame/segment level)
     if (cm->reference_mode == REFERENCE_MODE_SELECT) {
 #if SUB8X8_COMP_REF
-      aom_write(w, is_compound, av1_get_reference_mode_prob(cm, xd));
+      aom_write(w, is_compound, av1_get_inter_ref_prob(cm, xd));
 #else
       if (mbmi->sb_type >= BLOCK_8X8)
-        aom_write(w, is_compound, av1_get_reference_mode_prob(cm, xd));
+        aom_write(w, is_compound, av1_get_inter_ref_prob(cm, xd));
 #endif
     } else {
       assert((!is_compound) == (cm->reference_mode == SINGLE_REFERENCE));
@@ -1673,9 +1673,20 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
     int16_t mode_ctx;
     write_ref_frames(cm, xd, w);
 
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    // TODO(zoeliu): To consider to work with SUPERTX
+    if (!segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME))
+      aom_write(w, is_inter_compound_mode(mode),
+                av1_get_inter_mode_prob(cm, xd));
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+
 #if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
+#if CONFIG_COMPOUND_SINGLEREF
+    if (is_inter_compound_mode(mode))
+#else  // !CONFIG_COMPOUND_SINGLEREF
     if (is_compound)
+#endif  // CONFIG_COMPOUND_SINGLEREF
       mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
     else
 #endif  // CONFIG_EXT_INTER
@@ -1691,7 +1702,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #if CONFIG_EXT_INTER
         if (is_inter_compound_mode(mode))
           write_inter_compound_mode(cm, w, mode, mode_ctx);
-        else if (is_inter_singleref_mode(mode))
+        else if (is_inter_single_mode(mode))
 #endif  // CONFIG_EXT_INTER
           write_inter_mode(w, mode, ec_ctx,
 #if CONFIG_REF_MV && CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
@@ -1720,15 +1731,20 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
           const PREDICTION_MODE b_mode = mi->bmi[j].as_mode;
 #if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
+#if CONFIG_COMPOUND_SINGLEREF
+          if (!is_inter_compound_mode(b_mode))
+#else  // !CONFIG_COMPOUND_SINGLEREF
           if (!is_compound)
+#endif  // CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_EXT_INTER
             mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
                                                  mbmi->ref_frame, bsize, j);
 #endif
+
 #if CONFIG_EXT_INTER
           if (is_inter_compound_mode(b_mode))
             write_inter_compound_mode(cm, w, b_mode, mode_ctx);
-          else if (is_inter_singleref_mode(b_mode))
+          else if (is_inter_single_mode(b_mode))
 #endif  // CONFIG_EXT_INTER
             write_inter_mode(w, b_mode, ec_ctx,
 #if CONFIG_REF_MV && CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
@@ -1742,7 +1758,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
               b_mode == NEWFROMNEARMV ||
 #endif  // !CONFIG_COMPOUND_SINGLEREF
               b_mode == NEW_NEWMV) {
-#else
+#else  // !CONFIG_EXT_INTER
           if (b_mode == NEWMV) {
 #endif  // CONFIG_EXT_INTER
             for (ref = 0; ref < 1 + is_compound; ++ref) {
@@ -4708,12 +4724,20 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                                 counts->intra_inter[i], probwt);
 
     if (cpi->allow_comp_inter_inter) {
+      // TODO(zoeliu): Should it be:
+      // const int use_hybrid_pred = (cm->reference_mode != SINGLE_REFERENCE);
       const int use_hybrid_pred = cm->reference_mode == REFERENCE_MODE_SELECT;
       if (use_hybrid_pred)
-        for (i = 0; i < COMP_INTER_CONTEXTS; i++)
-          av1_cond_prob_diff_update(header_bc, &fc->comp_inter_prob[i],
-                                    counts->comp_inter[i], probwt);
+        for (i = 0; i < COMP_INTER_REF_CONTEXTS; i++)
+          av1_cond_prob_diff_update(header_bc, &fc->comp_inter_ref_prob[i],
+                                    counts->comp_inter_ref[i], probwt);
     }
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (i = 0; i < COMP_INTER_MODE_CONTEXTS; i++)
+      av1_cond_prob_diff_update(header_bc, &fc->comp_inter_mode_prob[i],
+                                counts->comp_inter_mode[i], probwt);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
     if (cm->reference_mode != COMPOUND_REFERENCE) {
       for (i = 0; i < REF_CONTEXTS; i++) {

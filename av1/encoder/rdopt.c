@@ -167,7 +167,17 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { NEARMV, { ALTREF_FRAME, NONE_FRAME } },
   { NEARMV, { GOLDEN_FRAME, NONE_FRAME } },
 
-#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
+#if CONFIG_EXT_INTER
+#if CONFIG_COMPOUND_SINGLEREF
+  { NEAREST_NEARMV, { LAST_FRAME, NONE_FRAME } },
+#if CONFIG_EXT_REFS
+  { NEAREST_NEARMV, { LAST2_FRAME, NONE_FRAME } },
+  { NEAREST_NEARMV, { LAST3_FRAME, NONE_FRAME } },
+  { NEAREST_NEARMV, { BWDREF_FRAME, NONE_FRAME } },
+#endif  // CONFIG_EXT_REFS
+  { NEAREST_NEARMV, { ALTREF_FRAME, NONE_FRAME } },
+  { NEAREST_NEARMV, { GOLDEN_FRAME, NONE_FRAME } },
+#else  // !CONFIG_COMPOUND_SINGLEREF
   { NEWFROMNEARMV, { LAST_FRAME, NONE_FRAME } },
 #if CONFIG_EXT_REFS
   { NEWFROMNEARMV, { LAST2_FRAME, NONE_FRAME } },
@@ -176,7 +186,8 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
 #endif  // CONFIG_EXT_REFS
   { NEWFROMNEARMV, { ALTREF_FRAME, NONE_FRAME } },
   { NEWFROMNEARMV, { GOLDEN_FRAME, NONE_FRAME } },
-#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
+#endif  // CONFIG_COMPOUND_SINGLEREF
+#endif  // CONFIG_EXT_INTER
 
   { ZEROMV, { LAST_FRAME, NONE_FRAME } },
 #if CONFIG_EXT_REFS
@@ -8309,9 +8320,11 @@ static int64_t handle_inter_mode(
 #if CONFIG_EXT_INTER
   int pred_exists = 1;
   const int bw = block_size_wide[bsize];
-#if !CONFIG_COMPOUND_SINGLEREF
+#if CONFIG_COMPOUND_SINGLEREF
+  int is_comp_inter_mode = is_inter_compound_mode(this_mode);
+#else  // !CONFIG_COMPOUND_SINGLEREF
   int mv_idx = (this_mode == NEWFROMNEARMV) ? 1 : 0;
-#endif  // !CONFIG_COMPOUND_SINGLEREF
+#endif  // CONFIG_COMPOUND_SINGLEREF
   int_mv single_newmv[TOTAL_REFS_PER_FRAME];
   const unsigned int *const interintra_mode_cost =
       cpi->interintra_mode_cost[size_group_lookup[bsize]];
@@ -8374,7 +8387,11 @@ static int64_t handle_inter_mode(
 
 #if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
+#if CONFIG_COMPOUND_SINGLEREF
+  if (is_comp_inter_mode)
+#else  // !CONFIG_COMPOUND_SINGLEREF
   if (is_comp_pred)
+#endif  // CONFIG_COMPOUND_SINGLEREF
     mode_ctx = mbmi_ext->compound_mode_context[refs[0]];
   else
 #endif  // CONFIG_EXT_INTER
