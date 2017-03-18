@@ -86,12 +86,21 @@ static INLINE aom_prob av1_get_intra_inter_prob(const AV1_COMMON *cm,
   return cm->fc->intra_inter_prob[av1_get_intra_inter_context(xd)];
 }
 
-int av1_get_reference_mode_context(const AV1_COMMON *cm, const MACROBLOCKD *xd);
+int av1_get_inter_ref_context(const AV1_COMMON *cm, const MACROBLOCKD *xd);
 
-static INLINE aom_prob av1_get_reference_mode_prob(const AV1_COMMON *cm,
-                                                   const MACROBLOCKD *xd) {
-  return cm->fc->comp_inter_prob[av1_get_reference_mode_context(cm, xd)];
+static INLINE aom_prob av1_get_inter_ref_prob(const AV1_COMMON *cm,
+                                              const MACROBLOCKD *xd) {
+  return cm->fc->comp_inter_ref_prob[av1_get_inter_ref_context(cm, xd)];
 }
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+int av1_get_inter_mode_context(const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_inter_mode_prob(const AV1_COMMON *cm,
+                                               const MACROBLOCKD *xd) {
+  return cm->fc->comp_inter_mode_prob[av1_get_inter_mode_context(xd)];
+}
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
 int av1_get_pred_context_comp_ref_p(const AV1_COMMON *cm,
                                     const MACROBLOCKD *xd);
