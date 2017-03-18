@@ -850,7 +850,12 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #else
   const MODE_INFO *mi = xd->mi[0];
 #endif  // CONFIG_MOTION_VAR
+#if !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF) || CONFIG_GLOBAL_MOTION
   const int is_compound = has_second_ref(&mi->mbmi);
+#endif
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  const int is_comp_inter_mode = is_inter_compound_mode(mi->mbmi.mode);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   int ref;
 #if CONFIG_GLOBAL_MOTION
   int is_global[2];
@@ -891,7 +896,11 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
     for (idy = 0; idy < b8_s; idy += b4_h) {
       for (idx = 0; idx < b8_s; idx += b4_w) {
         const int chr_idx = (idy * 2) + idx;
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+        for (ref = 0; ref < 1 + is_comp_inter_mode; ++ref) {
+#else
         for (ref = 0; ref < 1 + is_compound; ++ref) {
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
           const struct scale_factors *const sf = &xd->block_refs[ref]->sf;
           struct buf_2d *const pre_buf = &pd->pre[ref];
           struct buf_2d *const dst_buf = &pd->dst;
@@ -939,17 +948,31 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #endif  // CONFIG_SUPERTX
                 plane,
 #if CONFIG_GLOBAL_MOTION
-                is_global[ref], (mi_x >> pd->subsampling_x) + x,
-                (mi_y >> pd->subsampling_y) + y, ref
+#if CONFIG_COMPOUND_SINGLEREF
+                // TODO(zoeliu): To finally make single ref compound work with
+                //               global motion.
+                (is_compound) ? is_global[ref] : is_global[0],
+#else  // !CONFIG_COMPOUND_SINGLEREF
+                is_global[ref],
+#endif  // CONFIG_COMPOUND_SINGLEREF
+                (mi_x >> pd->subsampling_x) + x,
+                (mi_y >> pd->subsampling_y) + y, ref,
 #endif  // CONFIG_GLOBAL_MOTION
-                                                     xd);
+                xd);
           else
 #endif  // CONFIG_EXT_INTER
             av1_make_inter_predictor(
                 pre, pre_buf->stride, dst, dst_buf->stride, subpel_x, subpel_y,
                 sf, x_step, y_step, &conv_params, mi->mbmi.interp_filter,
 #if CONFIG_GLOBAL_MOTION
-                is_global[ref], (mi_x >> pd->subsampling_x) + x,
+#if CONFIG_COMPOUND_SINGLEREF
+                // TODO(zoeliu): To finally make single ref compound work with
+                //               global motion.
+                (is_compound) ? is_global[ref] : is_global[0],
+#else  // !CONFIG_COMPOUND_SINGLEREF
+                is_global[ref],
+#endif  // CONFIG_COMPOUND_SINGLEREF
+                (mi_x >> pd->subsampling_x) + x,
                 (mi_y >> pd->subsampling_y) + y, plane, ref,
 #if CONFIG_MOTION_VAR
                 mi_col_offset, mi_row_offset,
@@ -974,7 +997,11 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
     av1_zero(tmp_dst);
 #endif  // CONFIG_CONVOLVE_ROUND
 
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (ref = 0; ref < 1 + is_comp_inter_mode; ++ref) {
+#else
     for (ref = 0; ref < 1 + is_compound; ++ref) {
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
       const struct scale_factors *const sf = &xd->block_refs[ref]->sf;
       struct buf_2d *const pre_buf = &pd->pre[ref];
 #if CONFIG_CB4X4
@@ -1027,7 +1054,12 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #else
     ConvolveParams conv_params = get_conv_params(ref, plane);
 #endif  // CONFIG_CONVOLVE_ROUND
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (ref = 0; ref < 1 + is_comp_inter_mode; ++ref) {
+#else
     for (ref = 0; ref < 1 + is_compound; ++ref) {
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
       const struct scale_factors *const sf = &xd->block_refs[ref]->sf;
       struct buf_2d *const pre_buf = &pd->pre[ref];
       conv_params.ref = ref;
@@ -1044,7 +1076,14 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #endif  // CONFIG_SUPERTX
             plane,
 #if CONFIG_GLOBAL_MOTION
-            is_global[ref], (mi_x >> pd->subsampling_x) + x,
+#if CONFIG_COMPOUND_SINGLEREF
+            // TODO(zoeliu): To finally make single ref compound work with
+            //               global motion.
+            (is_compound) ? is_global[ref] : is_global[0],
+#else  // !CONFIG_COMPOUND_SINGLEREF
+            is_global[ref],
+#endif  // CONFIG_COMPOUND_SINGLEREF
+            (mi_x >> pd->subsampling_x) + x,
             (mi_y >> pd->subsampling_y) + y, ref,
 #endif  // CONFIG_GLOBAL_MOTION
             xd);
@@ -1055,7 +1094,14 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
             subpel_params[ref].subpel_x, subpel_params[ref].subpel_y, sf, w, h,
             &conv_params, mi->mbmi.interp_filter,
 #if CONFIG_GLOBAL_MOTION
-            is_global[ref], (mi_x >> pd->subsampling_x) + x,
+#if CONFIG_COMPOUND_SINGLEREF
+            // TODO(zoeliu): To finally make single ref compound work with
+            //               global motion.
+            (is_compound) ? is_global[ref] : is_global[0],
+#else  // !CONFIG_COMPOUND_SINGLEREF
+            is_global[ref],
+#endif  // CONFIG_COMPOUND_SINGLEREF
+            (mi_x >> pd->subsampling_x) + x,
             (mi_y >> pd->subsampling_y) + y, plane, ref,
 #if CONFIG_MOTION_VAR
             mi_col_offset, mi_row_offset,
@@ -1069,9 +1115,15 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #if CONFIG_AOM_HIGHBITDEPTH
     if (!(xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH))
 #endif  // CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_COMPOUND_SINGLEREF
+      av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
+                            FILTER_BITS * 2 + is_comp_inter_mode -
+                                conv_params.round_0 - conv_params.round_1);
+#else  // !CONFIG_COMPOUND_SINGLEREF
       av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
                             FILTER_BITS * 2 + is_compound -
                                 conv_params.round_0 - conv_params.round_1);
+#endif  // CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_CONVOLVE_ROUND
   }
 }
@@ -1085,7 +1137,12 @@ void av1_build_inter_predictor_sub8x8(MACROBLOCKD *xd, int plane, int i, int ir,
   const int height = block_size_high[plane_bsize];
   uint8_t *const dst = &pd->dst.buf[(ir * pd->dst.stride + ic) << 2];
   int ref;
+#if !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF) || CONFIG_GLOBAL_MOTION
   const int is_compound = has_second_ref(&mi->mbmi);
+#endif
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  const int is_comp_inter_mode = is_inter_compound_mode(mi->mbmi.mode);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_GLOBAL_MOTION
   const int p_col = ((mi_col * MI_SIZE) >> pd->subsampling_x) + 4 * ic;
   const int p_row = ((mi_row * MI_SIZE) >> pd->subsampling_y) + 4 * ir;
@@ -1096,7 +1153,11 @@ void av1_build_inter_predictor_sub8x8(MACROBLOCKD *xd, int plane, int i, int ir,
   }
 #endif  // CONFIG_GLOBAL_MOTION
 
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  for (ref = 0; ref < 1 + is_comp_inter_mode; ++ref) {
+#else
   for (ref = 0; ref < 1 + is_compound; ++ref) {
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
     ConvolveParams conv_params = get_conv_params(ref, plane);
     const uint8_t *pre =
         &pd->pre[ref].buf[(ir * pd->pre[ref].stride + ic) << 2];
@@ -1107,7 +1168,12 @@ void av1_build_inter_predictor_sub8x8(MACROBLOCKD *xd, int plane, int i, int ir,
           &mi->bmi[i].as_mv[ref].as_mv, &xd->block_refs[ref]->sf, width, height,
           ref, mi->mbmi.interp_filter,
 #if CONFIG_GLOBAL_MOTION
-          is_global[ref], p_col, p_row,
+#if CONFIG_COMPOUND_SINGLEREF
+          (is_compound) ? is_global[ref] : is_global[0],
+#else  // !CONFIG_COMPOUND_SINGLEREF
+          is_global[ref],
+#endif  // CONFIG_COMPOUND_SINGLEREF
+          p_col, p_row,
 #endif  // CONFIG_GLOBAL_MOTION
           plane, MV_PRECISION_Q3, mi_col * MI_SIZE + 4 * ic,
           mi_row * MI_SIZE + 4 * ir, xd);
@@ -1118,7 +1184,12 @@ void av1_build_inter_predictor_sub8x8(MACROBLOCKD *xd, int plane, int i, int ir,
                                 &xd->block_refs[ref]->sf, width, height,
                                 &conv_params, mi->mbmi.interp_filter,
 #if CONFIG_GLOBAL_MOTION
-                                is_global[ref], p_col, p_row, plane, ref,
+#if CONFIG_COMPOUND_SINGLEREF
+                                (is_compound) ? is_global[ref] : is_global[0],
+#else  // !CONFIG_COMPOUND_SINGLEREF
+                                is_global[ref],
+#endif  // CONFIG_COMPOUND_SINGLEREF
+                                p_col, p_row, plane, ref,
 #endif  // CONFIG_GLOBAL_MOTION
                                 MV_PRECISION_Q3, mi_col * MI_SIZE + 4 * ic,
                                 mi_row * MI_SIZE + 4 * ir, xd);
@@ -2882,7 +2953,13 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
   const int is_scaled = av1_is_scaled(sf);
   ConvolveParams conv_params = get_conv_params(0, plane);
 #if CONFIG_GLOBAL_MOTION
+#if CONFIG_COMPOUND_SINGLEREF
+  WarpedMotionParams *const wm =
+      has_second_ref(&mi->mbmi) ? &xd->global_motion[mi->mbmi.ref_frame[ref]]
+                                : &xd->global_motion[mi->mbmi.ref_frame[0]];
+#else  // !CONFIG_COMPOUND_SINGLEREF
   WarpedMotionParams *const wm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
+#endif  // CONFIG_COMPOUND_SINGLEREF
   const int is_global = is_global_mv_block(mi, block, wm->wmtype);
 #endif  // CONFIG_GLOBAL_MOTION
 
@@ -2954,7 +3031,11 @@ static void build_wedge_inter_predictor_from_buf(
     uint8_t *ext_dst0, int ext_dst_stride0, uint8_t *ext_dst1,
     int ext_dst_stride1) {
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+#if CONFIG_COMPOUND_SINGLEREF
+  const int is_compound = is_inter_compound_mode(mbmi->mode);
+#else  // !CONFIG_COMPOUND_SINGLEREF
   const int is_compound = has_second_ref(mbmi);
+#endif  // CONFIG_COMPOUND_SINGLEREF
   MACROBLOCKD_PLANE *const pd = &xd->plane[plane];
   struct buf_2d *const dst_buf = &pd->dst;
   uint8_t *const dst = dst_buf->buf + dst_buf->stride * y + x;

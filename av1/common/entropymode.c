@@ -741,9 +741,16 @@ static const aom_prob default_intra_inter_p[INTRA_INTER_CONTEXTS] = {
   9, 102, 187, 225
 };
 
-static const aom_prob default_comp_inter_p[COMP_INTER_CONTEXTS] = {
+static const aom_prob default_comp_inter_ref_p[COMP_INTER_REF_CONTEXTS] = {
   239, 183, 119, 96, 41
 };
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+static const aom_prob default_comp_inter_mode_p[COMP_INTER_MODE_CONTEXTS] = {
+  // TODO(zoeliu): To further adjust the default probability values.
+  41, 119, 187, 225
+};
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
 #if CONFIG_EXT_REFS
 static const aom_prob default_comp_ref_p[REF_CONTEXTS][FWD_REFS - 1] = {
@@ -2190,7 +2197,10 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->switchable_interp_prob, default_switchable_interp_prob);
   av1_copy(fc->partition_prob, default_partition_probs);
   av1_copy(fc->intra_inter_prob, default_intra_inter_p);
-  av1_copy(fc->comp_inter_prob, default_comp_inter_p);
+  av1_copy(fc->comp_inter_ref_prob, default_comp_inter_ref_p);
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  av1_copy(fc->comp_inter_mode_prob, default_comp_inter_mode_p);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   av1_copy(fc->comp_ref_prob, default_comp_ref_p);
 #if CONFIG_EXT_REFS
   av1_copy(fc->comp_bwdref_prob, default_comp_bwdref_p);
@@ -2343,9 +2353,18 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
   for (i = 0; i < INTRA_INTER_CONTEXTS; i++)
     fc->intra_inter_prob[i] = av1_mode_mv_merge_probs(
         pre_fc->intra_inter_prob[i], counts->intra_inter[i]);
-  for (i = 0; i < COMP_INTER_CONTEXTS; i++)
-    fc->comp_inter_prob[i] = av1_mode_mv_merge_probs(pre_fc->comp_inter_prob[i],
-                                                     counts->comp_inter[i]);
+
+  for (i = 0; i < COMP_INTER_REF_CONTEXTS; i++)
+    fc->comp_inter_ref_prob[i] =
+        av1_mode_mv_merge_probs(pre_fc->comp_inter_ref_prob[i],
+                                counts->comp_inter_ref[i]);
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  for (i = 0; i < COMP_INTER_MODE_CONTEXTS; i++)
+    fc->comp_inter_mode_prob[i] =
+        av1_mode_mv_merge_probs(pre_fc->comp_inter_mode_prob[i],
+                                counts->comp_inter_mode[i]);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
 #if CONFIG_EXT_REFS
   for (i = 0; i < REF_CONTEXTS; i++)
