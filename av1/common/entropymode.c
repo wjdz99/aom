@@ -471,14 +471,14 @@ static const aom_prob default_refmv_prob[REFMV_MODE_CONTEXTS] = {
 static const aom_prob default_drl_prob[DRL_MODE_CONTEXTS] = { 128, 160, 180,
                                                               128, 160 };
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
 static const aom_prob default_new2mv_prob = 180;
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_REF_MV
 
 static const aom_prob
     default_inter_mode_probs[INTER_MODE_CONTEXTS][INTER_MODES - 1] = {
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
       // TODO(zoeliu): To adjust the initial default probs
       { 2, 173, 34, 173 },  // 0 = both zero mv
       { 7, 145, 85, 145 },  // 1 = one zero mv + one a predicted mv
@@ -495,7 +495,7 @@ static const aom_prob
       { 8, 64, 46 },   // 4 = two new mvs
       { 17, 81, 31 },  // 5 = one intra neighbour + x
       { 25, 29, 30 },  // 6 = two intra neighbours
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
     };
 
 #if CONFIG_EXT_INTER
@@ -671,12 +671,12 @@ const aom_tree_index av1_intra_mode_tree[TREE_SIZE(INTRA_MODES)] = {
 const aom_tree_index av1_inter_mode_tree[TREE_SIZE(INTER_MODES)] = {
   -INTER_OFFSET(ZEROMV),    2,
   -INTER_OFFSET(NEARESTMV), 4,
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
   -INTER_OFFSET(NEARMV),    6,
   -INTER_OFFSET(NEWMV),     -INTER_OFFSET(NEWFROMNEARMV)
 #else
   -INTER_OFFSET(NEARMV),    -INTER_OFFSET(NEWMV)
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
 };
 
 #if CONFIG_EXT_INTER
@@ -1498,7 +1498,7 @@ static const aom_prob
                                    },
                                },
                              };
-#else
+#else  // !CONFIG_EXT_TX
 
 /* clang-format off */
 const aom_tree_index av1_ext_tx_tree[TREE_SIZE(TX_TYPES)] = {
@@ -1642,7 +1642,7 @@ static const aom_cdf_prob
       { 23680, 23929, 27831, 30446, 30598, 31129, 31244, 31655, 31868, 32234,
         32768, 0 },
     };
-#else
+#else  // !CONFIG_ALT_INTRA
 static const aom_cdf_prob default_if_y_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(
     INTRA_MODES)] = {
   { 8320, 11376, 12880, 19959, 23072, 24067, 25461, 26917, 29157, 32768, 0 },
@@ -1709,7 +1709,7 @@ static const aom_cdf_prob
       { 22528, 25928, 29348, 32768, 0 },
       { 24576, 27296, 30032, 32768, 0 },
     };
-#endif
+#endif  // !CONFIG_EXT_TX
 
 // CDF version of 'av1_kf_y_mode_prob'.
 const aom_cdf_prob
@@ -1979,7 +1979,7 @@ const aom_cdf_prob
           { 6656, 12164, 16993, 21568, 22933, 23648, 25322, 26602, 27806, 29841,
             32768, 0 },
       },
-#else
+#else  // !CONFIG_ALT_INTRA
       { { 17536, 19321, 21527, 25360, 27516, 28026, 29323, 30023, 30999, 32768,
           0 },
         { 11776, 15466, 22360, 24865, 26991, 27889, 29299, 30519, 31398, 32768,
@@ -2206,9 +2206,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->zeromv_prob, default_zeromv_prob);
   av1_copy(fc->refmv_prob, default_refmv_prob);
   av1_copy(fc->drl_prob, default_drl_prob);
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
   fc->new2mv_prob = default_new2mv_prob;
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_REF_MV
   av1_copy(fc->inter_mode_probs, default_inter_mode_probs);
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -2382,10 +2382,10 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
   for (i = 0; i < DRL_MODE_CONTEXTS; ++i)
     fc->drl_prob[i] =
         av1_mode_mv_merge_probs(pre_fc->drl_prob[i], counts->drl_mode[i]);
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
   fc->new2mv_prob =
       av1_mode_mv_merge_probs(pre_fc->new2mv_prob, counts->new2mv_mode);
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
 #else
   for (i = 0; i < INTER_MODE_CONTEXTS; i++)
     aom_tree_merge_probs(av1_inter_mode_tree, pre_fc->inter_mode_probs[i],

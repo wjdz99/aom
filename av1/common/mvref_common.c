@@ -48,11 +48,11 @@ static uint8_t add_ref_mv_candidate(
           ref_mv_stack[index].weight = 2 * len;
           ++(*refmv_count);
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
           if (candidate->mode == NEWMV || candidate->mode == NEWFROMNEARMV)
 #else
           if (candidate->mode == NEWMV)
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
             ++newmv_count;
         }
 
@@ -76,11 +76,11 @@ static uint8_t add_ref_mv_candidate(
             ref_mv_stack[index].weight = len;
             ++(*refmv_count);
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
             if (candidate->mode == NEWMV || candidate->mode == NEWFROMNEARMV)
 #else
             if (candidate->mode == NEWMV)
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
               ++newmv_count;
           }
         }
