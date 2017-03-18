@@ -933,7 +933,17 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_NEARA] += 1000;
   rd->thresh_mult[THR_NEARG] += 1000;
 
-#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
+#if CONFIG_EXT_INTER
+#if CONFIG_COMPOUND_SINGLEREF
+  rd->thresh_mult[THR_NEAREST_NEARMV] += 1000;
+#if CONFIG_EXT_REFS
+  rd->thresh_mult[THR_NEAREST_NEARL2] += 1000;
+  rd->thresh_mult[THR_NEAREST_NEARL3] += 1000;
+  rd->thresh_mult[THR_NEAREST_NEARB] += 1000;
+#endif  // CONFIG_EXT_REFS
+  rd->thresh_mult[THR_NEAREST_NEARA] += 1000;
+  rd->thresh_mult[THR_NEAREST_NEARG] += 1000;
+#else  // !CONFIG_COMPOUND_SINGLEREF
   rd->thresh_mult[THR_NEWFROMNEARMV] += 1000;
 #if CONFIG_EXT_REFS
   rd->thresh_mult[THR_NEWFROMNEARL2] += 1000;
@@ -942,6 +952,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
 #endif  // CONFIG_EXT_REFS
   rd->thresh_mult[THR_NEWFROMNEARA] += 1000;
   rd->thresh_mult[THR_NEWFROMNEARG] += 1000;
+#endif  // CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
 
   rd->thresh_mult[THR_ZEROMV] += 2000;

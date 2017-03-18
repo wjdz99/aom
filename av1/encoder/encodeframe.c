@@ -2067,13 +2067,18 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
         if (cm->reference_mode == REFERENCE_MODE_SELECT) {
 #if !SUB8X8_COMP_REF
           if (mbmi->sb_type >= BLOCK_8X8)
-            counts->comp_inter[av1_get_reference_mode_context(cm, xd)]
-                              [has_second_ref(mbmi)]++;
+            counts->comp_inter_ref[av1_get_inter_ref_context(cm, xd)]
+                                  [has_second_ref(mbmi)]++;
 #else
-          counts->comp_inter[av1_get_reference_mode_context(cm, xd)]
-                            [has_second_ref(mbmi)]++;
+          counts->comp_inter_ref[av1_get_inter_ref_context(cm, xd)]
+                                [has_second_ref(mbmi)]++;
 #endif
         }
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+        counts->comp_inter_mode[av1_get_inter_mode_context(cm, xd)]
+                               [is_inter_compound_mode(mbmi->mode)]++;
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
         if (has_second_ref(mbmi)) {
 #if CONFIG_EXT_REFS
@@ -5265,18 +5270,18 @@ void av1_encode_frame(AV1_COMP *cpi) {
       int single_count_zero = 0;
       int comp_count_zero = 0;
 
-      for (i = 0; i < COMP_INTER_CONTEXTS; i++) {
-        single_count_zero += counts->comp_inter[i][0];
-        comp_count_zero += counts->comp_inter[i][1];
+      for (i = 0; i < COMP_INTER_REF_CONTEXTS; i++) {
+        single_count_zero += counts->comp_inter_ref[i][0];
+        comp_count_zero += counts->comp_inter_ref[i][1];
       }
 
       if (comp_count_zero == 0) {
         cm->reference_mode = SINGLE_REFERENCE;
-        av1_zero(counts->comp_inter);
+        av1_zero(counts->comp_inter_ref);
 #if !CONFIG_REF_ADAPT
       } else if (single_count_zero == 0) {
         cm->reference_mode = COMPOUND_REFERENCE;
-        av1_zero(counts->comp_inter);
+        av1_zero(counts->comp_inter_ref);
 #endif  // !CONFIG_REF_ADAPT
       }
     }
