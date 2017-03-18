@@ -197,7 +197,10 @@ typedef struct frame_contexts {
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   aom_prob intra_inter_prob[INTRA_INTER_CONTEXTS];
-  aom_prob comp_inter_prob[COMP_INTER_CONTEXTS];
+  aom_prob comp_inter_ref_prob[COMP_INTER_REF_CONTEXTS];
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  aom_prob comp_inter_mode_prob[COMP_INTER_MODE_CONTEXTS];
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   aom_prob single_ref_prob[REF_CONTEXTS][SINGLE_REFS - 1];
 #if CONFIG_EXT_REFS
   aom_prob comp_ref_prob[REF_CONTEXTS][FWD_REFS - 1];
@@ -341,7 +344,10 @@ typedef struct FRAME_COUNTS {
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   unsigned int intra_inter[INTRA_INTER_CONTEXTS][2];
-  unsigned int comp_inter[COMP_INTER_CONTEXTS][2];
+  unsigned int comp_inter_ref[COMP_INTER_REF_CONTEXTS][2];
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  unsigned int comp_inter_mode[COMP_INTER_MODE_CONTEXTS][2];
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   unsigned int single_ref[REF_CONTEXTS][SINGLE_REFS - 1][2];
 #if CONFIG_EXT_REFS
   unsigned int comp_ref[REF_CONTEXTS][FWD_REFS - 1][2];
