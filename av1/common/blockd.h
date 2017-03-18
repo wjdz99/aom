@@ -121,7 +121,11 @@ typedef struct {
 
 #if CONFIG_EXT_INTER
 static INLINE int is_inter_singleref_mode(PREDICTION_MODE mode) {
+#if CONFIG_COMPOUND_SINGLEREF
+  return mode >= NEARESTMV && mode <= NEWMV;
+#else  // !CONFIG_COMPOUND_SINGLEREF
   return mode >= NEARESTMV && mode <= NEWFROMNEARMV;
+#endif  // CONFIG_COMPOUND_SINGLEREF
 }
 
 static INLINE int is_inter_compound_mode(PREDICTION_MODE mode) {
@@ -147,7 +151,9 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,  // NEARMV
     MB_MODE_COUNT,  // ZEROMV
     MB_MODE_COUNT,  // NEWMV
+#if !CONFIG_COMPOUND_SINGLEREF
     MB_MODE_COUNT,  // NEWFROMNEARMV
+#endif  // !CONFIG_COMPOUND_SINGLEREF
     NEARESTMV,      // NEAREST_NEARESTMV
     NEARESTMV,      // NEAREST_NEARMV
     NEARMV,         // NEAR_NEARESTMV
@@ -182,7 +188,9 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,  // NEARMV
     MB_MODE_COUNT,  // ZEROMV
     MB_MODE_COUNT,  // NEWMV
+#if !CONFIG_COMPOUND_SINGLEREF
     MB_MODE_COUNT,  // NEWFROMNEARMV
+#endif  // !CONFIG_COMPOUND_SINGLEREF
     NEARESTMV,      // NEAREST_NEARESTMV
     NEARMV,         // NEAREST_NEARMV
     NEARESTMV,      // NEAR_NEARESTMV
@@ -199,8 +207,11 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
 }
 
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
-  return (mode == NEWMV || mode == NEWFROMNEARMV || mode == NEW_NEWMV ||
-          mode == NEAREST_NEWMV || mode == NEW_NEARESTMV ||
+  return (mode == NEWMV ||
+#if !CONFIG_COMPOUND_SINGLEREF
+          mode == NEWFROMNEARMV ||
+#endif  // !CONFIG_COMPOUND_SINGLEREF
+          mode == NEW_NEWMV || mode == NEAREST_NEWMV || mode == NEW_NEARESTMV ||
           mode == NEAR_NEWMV || mode == NEW_NEARMV);
 }
 

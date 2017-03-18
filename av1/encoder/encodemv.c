@@ -294,14 +294,24 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
                     nmv_context_counts *nmv_counts) {
   int i;
   PREDICTION_MODE mode = mbmi->mode;
+#if !CONFIG_COMPOUND_SINGLEREF
   int mv_idx = (mode == NEWFROMNEARMV);
+#endif  // !CONFIG_COMPOUND_SINGLEREF
 #if !CONFIG_REF_MV
   nmv_context_counts *counts = nmv_counts;
 #endif
 
-  if (mode == NEWMV || mode == NEWFROMNEARMV || mode == NEW_NEWMV) {
+  if (mode == NEWMV ||
+#if !CONFIG_COMPOUND_SINGLEREF
+      mode == NEWFROMNEARMV ||
+#endif  // !CONFIG_COMPOUND_SINGLEREF
+      mode == NEW_NEWMV) {
     for (i = 0; i < 1 + has_second_ref(mbmi); ++i) {
+#if CONFIG_COMPOUND_SINGLEREF
+      const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame[i]][0].as_mv;
+#else  // !CONFIG_COMPOUND_SINGLEREF
       const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame[i]][mv_idx].as_mv;
+#endif  // CONFIG_COMPOUND_SINGLEREF
       const MV diff = { mvs[i].as_mv.row - ref->row,
                         mvs[i].as_mv.col - ref->col };
 #if CONFIG_REF_MV
@@ -354,7 +364,11 @@ static void inc_mvs_sub8x8(const MODE_INFO *mi, int block, const int_mv mvs[2],
   nmv_context_counts *counts = nmv_counts;
 #endif
 
-  if (mode == NEWMV || mode == NEWFROMNEARMV || mode == NEW_NEWMV) {
+  if (mode == NEWMV ||
+#if !CONFIG_COMPOUND_SINGLEREF
+      mode == NEWFROMNEARMV ||
+#endif  // !CONFIG_COMPOUND_SINGLEREF
+      mode == NEW_NEWMV) {
     for (i = 0; i < 1 + has_second_ref(&mi->mbmi); ++i) {
       const MV *ref = &mi->bmi[block].ref_mv[i].as_mv;
       const MV diff = { mvs[i].as_mv.row - ref->row,
