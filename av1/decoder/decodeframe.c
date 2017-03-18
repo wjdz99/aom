@@ -255,8 +255,8 @@ static void read_frame_reference_mode_probs(AV1_COMMON *cm, aom_reader *r) {
   int i, j;
 
   if (cm->reference_mode == REFERENCE_MODE_SELECT)
-    for (i = 0; i < COMP_INTER_CONTEXTS; ++i)
-      av1_diff_update_prob(r, &fc->comp_inter_prob[i], ACCT_STR);
+    for (i = 0; i < COMP_INTER_REF_CONTEXTS; ++i)
+      av1_diff_update_prob(r, &fc->comp_inter_ref_prob[i], ACCT_STR);
 
   if (cm->reference_mode != COMPOUND_REFERENCE) {
     for (i = 0; i < REF_CONTEXTS; ++i) {
@@ -820,6 +820,15 @@ static void dec_predict_b_extend(
   set_ref(cm, xd, 0, mi_row_pred, mi_col_pred);
   if (has_second_ref(&xd->mi[0]->mbmi))
     set_ref(cm, xd, 1, mi_row_pred, mi_col_pred);
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  // Single ref compound mode
+  if (!has_second_ref(&xd->mi[0]->mbmi) && xd->mi[0]->mbmi.sb_type >= BLOCK_8X8
+      && is_inter_compound_mode(xd->mi[0]->mbmi.mode)) {
+    xd->block_refs[1] = xd->block_refs[0];
+    av1_setup_pre_planes(xd, 1, xd->block_refs[1]->buf, mi_row, mi_col,
+                         &xd->block_refs[1]->sf);
+  }
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
   if (!bextend) mbmi->tx_size = max_txsize_lookup[bsize_top];
 
@@ -1698,6 +1707,16 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
                            "Reference frame has invalid dimensions");
       av1_setup_pre_planes(xd, ref, ref_buf->buf, mi_row, mi_col, &ref_buf->sf);
     }
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    // Single ref compound mode
+    if (!has_second_ref(mbmi) && mbmi->sb_type >= BLOCK_8X8 &&
+        is_inter_compound_mode(mbmi->mode)) {
+      xd->block_refs[1] = xd->block_refs[0];
+      av1_setup_pre_planes(xd, 1, xd->block_refs[1]->buf, mi_row, mi_col,
+                           &xd->block_refs[1]->sf);
+    }
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+
 #if CONFIG_WARPED_MOTION
     if (mbmi->motion_mode == WARPED_CAUSAL) {
       int i;
@@ -4586,6 +4605,11 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     for (i = 0; i < INTRA_INTER_CONTEXTS; i++)
       av1_diff_update_prob(&r, &fc->intra_inter_prob[i], ACCT_STR);
 
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (i = 0; i < COMP_INTER_MODE_CONTEXTS; i++)
+      av1_diff_update_prob(&r, &fc->comp_inter_mode_prob[i], ACCT_STR);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+
     if (cm->reference_mode != SINGLE_REFERENCE)
       setup_compound_reference_mode(cm);
     read_frame_reference_mode_probs(cm, &r);
@@ -4675,8 +4699,12 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   assert(!memcmp(cm->counts.intra_inter, zero_counts.intra_inter,
                  sizeof(cm->counts.intra_inter)));
-  assert(!memcmp(cm->counts.comp_inter, zero_counts.comp_inter,
-                 sizeof(cm->counts.comp_inter)));
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  assert(!memcmp(cm->counts.comp_inter_mode, zero_counts.comp_inter_mode,
+                 sizeof(cm->counts.comp_inter_mode)));
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  assert(!memcmp(cm->counts.comp_inter_ref, zero_counts.comp_inter_ref,
+                 sizeof(cm->counts.comp_inter_ref)));
   assert(!memcmp(cm->counts.single_ref, zero_counts.single_ref,
                  sizeof(cm->counts.single_ref)));
   assert(!memcmp(cm->counts.comp_ref, zero_counts.comp_ref,

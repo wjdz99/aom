@@ -1169,10 +1169,10 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     // (if not specified at the frame/segment level)
     if (cm->reference_mode == REFERENCE_MODE_SELECT) {
 #if SUB8X8_COMP_REF
-      aom_write(w, is_compound, av1_get_reference_mode_prob(cm, xd));
+      aom_write(w, is_compound, av1_get_inter_ref_prob(cm, xd));
 #else
       if (mbmi->sb_type >= BLOCK_8X8)
-        aom_write(w, is_compound, av1_get_reference_mode_prob(cm, xd));
+        aom_write(w, is_compound, av1_get_inter_ref_prob(cm, xd));
 #endif
     } else {
       assert((!is_compound) == (cm->reference_mode == SINGLE_REFERENCE));
@@ -1559,8 +1559,10 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #else
   const int unify_bsize = 0;
 #endif
+#if !(CONFIG_EXT_INTER && CONFIG_COMPOUND_REF)
   (void)mi_row;
   (void)mi_col;
+#endif  // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_REF)
 
   if (seg->update_map) {
     if (seg->temporal_update) {
@@ -1673,9 +1675,29 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
     int16_t mode_ctx;
     write_ref_frames(cm, xd, w);
 
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    // TODO(zoeliu): To consider to work with SUPERTX
+    if (!segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME)) {
+      if (!is_compound && is_inter_compound_mode(mode) &&
+          mode != NEAREST_NEARMV) {
+        printf("bitstream.c: Single ref comp mode only supports NEAREST_NEARMV "
+               "Frame=%d, (mi_row,mi_col)=(%d,%d), bsize=%d, mode=%d, "
+               "is_comp_inter_mode=%d\n", cm->current_video_frame, mi_row,
+               mi_col, bsize, mode, is_inter_compound_mode(mode));
+        assert(0);
+      }
+      aom_write(w, is_inter_compound_mode(mode),
+                av1_get_inter_mode_prob(cm, xd));
+    }
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+
 #if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
+#if CONFIG_COMPOUND_SINGLEREF
+    if (is_inter_compound_mode(mode))
+#else  // !CONFIG_COMPOUND_SINGLEREF
     if (is_compound)
+#endif  // CONFIG_COMPOUND_SINGLEREF
       mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
     else
 #endif  // CONFIG_EXT_INTER
@@ -1691,7 +1713,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #if CONFIG_EXT_INTER
         if (is_inter_compound_mode(mode))
           write_inter_compound_mode(cm, w, mode, mode_ctx);
-        else if (is_inter_singleref_mode(mode))
+        else if (is_inter_single_mode(mode))
 #endif  // CONFIG_EXT_INTER
           write_inter_mode(w, mode, ec_ctx,
 #if CONFIG_REF_MV && CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
@@ -1720,15 +1742,20 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
           const PREDICTION_MODE b_mode = mi->bmi[j].as_mode;
 #if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
+#if CONFIG_COMPOUND_SINGLEREF
+          // For sub8x8 no single ref comp mode is supported.
+          assert (is_compound || !is_inter_compound_mode(b_mode));
+#endif  // CONFIG_COMPOUND_SINGLEREF
           if (!is_compound)
 #endif  // CONFIG_EXT_INTER
             mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
                                                  mbmi->ref_frame, bsize, j);
 #endif
+
 #if CONFIG_EXT_INTER
           if (is_inter_compound_mode(b_mode))
             write_inter_compound_mode(cm, w, b_mode, mode_ctx);
-          else if (is_inter_singleref_mode(b_mode))
+          else if (is_inter_single_mode(b_mode))
 #endif  // CONFIG_EXT_INTER
             write_inter_mode(w, b_mode, ec_ctx,
 #if CONFIG_REF_MV && CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
@@ -1742,7 +1769,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
               b_mode == NEWFROMNEARMV ||
 #endif  // !CONFIG_COMPOUND_SINGLEREF
               b_mode == NEW_NEWMV) {
-#else
+#else  // !CONFIG_EXT_INTER
           if (b_mode == NEWMV) {
 #endif  // CONFIG_EXT_INTER
             for (ref = 0; ref < 1 + is_compound; ++ref) {
@@ -2143,6 +2170,75 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
              m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
     }
 #endif  // 0
+
+#if 0
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    // NOTE(zoeliu): For debug
+    if (is_inter_block(&m->mbmi)) {
+#define FRAME_TO_CHECK 1
+      if (cm->current_video_frame == FRAME_TO_CHECK &&
+          // cm->reference_mode != SINGLE_REFERENCE &&
+          cm->show_frame == 0) {
+        const MB_MODE_INFO *const mbmi = &m->mbmi;
+        const BLOCK_SIZE bsize = mbmi->sb_type;
+
+#if CONFIG_DELTA_Q || CONFIG_EC_ADAPT
+        MACROBLOCK *const x = &cpi->td.mb;
+#else
+        const MACROBLOCK *x = &cpi->td.mb;
+#endif
+        const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+
+        // For sub8x8, simply dump out the first sub8x8 block info
+        const PREDICTION_MODE b_mode =
+            (bsize < BLOCK_8X8) ? m->bmi[0].as_mode : -1;
+
+        int_mv mv[2], ref_mv[2];
+        int is_comp_ref = has_second_ref(&m->mbmi);
+        int ref;
+
+        for (ref = 0; ref < 1 + is_comp_ref; ++ref) {
+          // Block mvs
+          mv[ref].as_mv =
+              (bsize < BLOCK_8X8) ? m->bmi[0].as_mv[ref].as_mv
+                                  : m->mbmi.mv[ref].as_mv;
+          // Block ref mvs
+#if CONFIG_EXT_INTER || CONFIG_REF_MV
+          if (bsize < BLOCK_8X8)
+#if CONFIG_EXT_INTER
+            ref_mv[ref].as_mv = m->bmi[0].ref_mv[ref].as_mv;
+#else  // CONFIG_REF_MV
+            ref_mv[ref].as_mv = m->bmi[0].pred_mv[ref].as_mv;
+#endif  // CONFIG_EXT_INTER
+          else
+#endif  // CONFIG_EXT_INTER || CONFIG_REF_MV
+            ref_mv[ref].as_mv =
+                mbmi_ext->ref_mvs[mbmi->ref_frame[ref]][0].as_mv;
+        }
+
+        if (!is_comp_ref) {
+          if (bsize >= BLOCK_8X8 && is_inter_compound_mode(m->mbmi.mode)) {
+            mv[2].as_mv = m->mbmi.mv[1].as_mv;
+          } else {
+            mv[1].as_int = 0;
+          }
+          ref_mv[1].as_int = 0;
+        }
+
+        printf(
+            "=== ENCODER ===: "
+            "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, b_mode=%d, "
+            "mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, ref[1]=%d, "
+            "ref_mv[0]=(%d,%d), ref_mv[1]=(%d,%d)\n",
+            cm->current_video_frame, mi_row, mi_col, mbmi->mode, bsize,
+            b_mode, mv[0].as_mv.row, mv[0].as_mv.col, mv[1].as_mv.row,
+            mv[1].as_mv.col, mbmi->ref_frame[0], mbmi->ref_frame[1],
+            ref_mv[0].as_mv.row, ref_mv[0].as_mv.col, ref_mv[1].as_mv.row,
+            ref_mv[1].as_mv.col);
+      }
+    }
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#endif  // 1
     pack_inter_mode_mvs(cpi, m, mi_row, mi_col,
 #if CONFIG_SUPERTX
                         supertx_enabled,
@@ -4708,12 +4804,20 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                                 counts->intra_inter[i], probwt);
 
     if (cpi->allow_comp_inter_inter) {
+      // TODO(zoeliu): Should it be:
+      // const int use_hybrid_pred = (cm->reference_mode != SINGLE_REFERENCE);
       const int use_hybrid_pred = cm->reference_mode == REFERENCE_MODE_SELECT;
       if (use_hybrid_pred)
-        for (i = 0; i < COMP_INTER_CONTEXTS; i++)
-          av1_cond_prob_diff_update(header_bc, &fc->comp_inter_prob[i],
-                                    counts->comp_inter[i], probwt);
+        for (i = 0; i < COMP_INTER_REF_CONTEXTS; i++)
+          av1_cond_prob_diff_update(header_bc, &fc->comp_inter_ref_prob[i],
+                                    counts->comp_inter_ref[i], probwt);
     }
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (i = 0; i < COMP_INTER_MODE_CONTEXTS; i++)
+      av1_cond_prob_diff_update(header_bc, &fc->comp_inter_mode_prob[i],
+                                counts->comp_inter_mode[i], probwt);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
     if (cm->reference_mode != COMPOUND_REFERENCE) {
       for (i = 0; i < REF_CONTEXTS; i++) {

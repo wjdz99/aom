@@ -2067,13 +2067,18 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
         if (cm->reference_mode == REFERENCE_MODE_SELECT) {
 #if !SUB8X8_COMP_REF
           if (mbmi->sb_type >= BLOCK_8X8)
-            counts->comp_inter[av1_get_reference_mode_context(cm, xd)]
-                              [has_second_ref(mbmi)]++;
+            counts->comp_inter_ref[av1_get_inter_ref_context(cm, xd)]
+                                  [has_second_ref(mbmi)]++;
 #else
-          counts->comp_inter[av1_get_reference_mode_context(cm, xd)]
-                            [has_second_ref(mbmi)]++;
+          counts->comp_inter_ref[av1_get_inter_ref_context(cm, xd)]
+                                [has_second_ref(mbmi)]++;
 #endif
         }
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+        counts->comp_inter_mode[av1_get_inter_mode_context(xd)]
+                               [is_inter_compound_mode(mbmi->mode)]++;
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
         if (has_second_ref(mbmi)) {
 #if CONFIG_EXT_REFS
@@ -2191,7 +2196,11 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
         const PREDICTION_MODE mode = mbmi->mode;
 #if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
+#if CONFIG_COMPOUND_SINGLEREF
+        if (is_inter_compound_mode(mode)) {
+#else  // !CONFIG_COMPOUND_SINGLEREF
         if (has_second_ref(mbmi)) {
+#endif  // CONFIG_COMPOUND_SINGLEREF
           mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
           ++counts->inter_compound_mode[mode_ctx][INTER_COMPOUND_OFFSET(mode)];
         } else {
@@ -2252,6 +2261,11 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
           for (idx = 0; idx < 2; idx += num_4x4_w) {
             const int j = idy * 2 + idx;
             const PREDICTION_MODE b_mode = mi->bmi[j].as_mode;
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+            // Single ref comp mode is not supported for sub8x8
+            assert(has_second_ref(mbmi) || !is_inter_compound_mode(b_mode));
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+
 #if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
             if (has_second_ref(mbmi)) {
@@ -5265,18 +5279,18 @@ void av1_encode_frame(AV1_COMP *cpi) {
       int single_count_zero = 0;
       int comp_count_zero = 0;
 
-      for (i = 0; i < COMP_INTER_CONTEXTS; i++) {
-        single_count_zero += counts->comp_inter[i][0];
-        comp_count_zero += counts->comp_inter[i][1];
+      for (i = 0; i < COMP_INTER_REF_CONTEXTS; i++) {
+        single_count_zero += counts->comp_inter_ref[i][0];
+        comp_count_zero += counts->comp_inter_ref[i][1];
       }
 
       if (comp_count_zero == 0) {
         cm->reference_mode = SINGLE_REFERENCE;
-        av1_zero(counts->comp_inter);
+        av1_zero(counts->comp_inter_ref);
 #if !CONFIG_REF_ADAPT
       } else if (single_count_zero == 0) {
         cm->reference_mode = COMPOUND_REFERENCE;
-        av1_zero(counts->comp_inter);
+        av1_zero(counts->comp_inter_ref);
 #endif  // !CONFIG_REF_ADAPT
       }
     }
@@ -5718,6 +5732,15 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
                            &xd->block_refs[ref]->sf);
     }
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    // Single ref compound mode
+    if (!is_compound && is_inter_compound_mode(mbmi->mode)) {
+      YV12_BUFFER_CONFIG *cfg = get_ref_frame_buffer(cpi, mbmi->ref_frame[0]);
+      assert(cfg != NULL);
+      av1_setup_pre_planes(xd, 1, cfg, mi_row, mi_col, &xd->block_refs[1]->sf);
+    }
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+
 #if CONFIG_WARPED_MOTION
     if (mbmi->motion_mode == WARPED_CAUSAL) {
       int i;
@@ -6067,6 +6090,14 @@ static void predict_superblock(const AV1_COMP *const cpi, ThreadData *td,
     av1_setup_pre_planes(xd, ref, cfg, mi_row_pred, mi_col_pred,
                          &xd->block_refs[ref]->sf);
   }
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  // Single ref compound mode
+  if (!is_compound && is_inter_compound_mode(mbmi->mode)) {
+    YV12_BUFFER_CONFIG *cfg = get_ref_frame_buffer(cpi, mbmi->ref_frame[0]);
+    av1_setup_pre_planes(xd, 1, cfg, mi_row_pred, mi_col_pred,
+                         &xd->block_refs[1]->sf);
+  }
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
   if (!b_sub8x8)
     av1_build_inter_predictors_sb_extend(xd,

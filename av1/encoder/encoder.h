@@ -840,10 +840,20 @@ static INLINE int is_bwdref_enabled(const AV1_COMP *const cpi) {
 static INLINE void set_ref_ptrs(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 MV_REFERENCE_FRAME ref0,
                                 MV_REFERENCE_FRAME ref1) {
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+
   xd->block_refs[0] =
       &cm->frame_refs[ref0 >= LAST_FRAME ? ref0 - LAST_FRAME : 0];
-  xd->block_refs[1] =
-      &cm->frame_refs[ref1 >= LAST_FRAME ? ref1 - LAST_FRAME : 0];
+#if CONFIG_COMPOUND_SINGLEREF
+  // single ref comp mode
+  if (is_inter_compound_mode(mbmi->mode) && ref1 < LAST_FRAME)
+    xd->block_refs[1] = xd->block_refs[0];
+  else
+#endif  // CONFIG_COMPOUND_SINGLEREF
+    xd->block_refs[1] =
+        &cm->frame_refs[ref1 >= LAST_FRAME ? ref1 - LAST_FRAME : 0];
 }
 
 static INLINE int get_chessboard_index(const int frame_index) {
