@@ -263,7 +263,7 @@ static INLINE void av1_make_inter_predictor(
     int is_global, int p_col, int p_row, int plane, int ref,
 #if CONFIG_MOTION_VAR
     int mi_col_offset, int mi_row_offset,
-#endif
+#endif  // CONFIG_MOTION_VAR
 #endif  // CONFIG_GLOBAL_MOTION
     int xs, int ys, const MACROBLOCKD *xd) {
   (void)xd;
@@ -273,10 +273,16 @@ static INLINE void av1_make_inter_predictor(
     const MODE_INFO *mi = xd->mi[mi_col_offset + xd->mi_stride * mi_row_offset];
 #else
     const MODE_INFO *mi = xd->mi[0];
-#endif
+#endif // CONFIG_MOTION_VAR
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     const struct buf_2d *const pre_buf = &pd->pre[ref];
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    WarpedMotionParams *gm = has_second_ref(&mi->mbmi) ?
+        &xd->global_motion[mi->mbmi.ref_frame[ref]] :
+        &xd->global_motion[mi->mbmi.ref_frame[0]] :;
+#else
     WarpedMotionParams *gm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
     av1_warp_plane(gm,
 #if CONFIG_AOM_HIGHBITDEPTH
@@ -289,6 +295,7 @@ static INLINE void av1_make_inter_predictor(
   }
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_AOM_HIGHBITDEPTH
+  // TODO(zoeliu): To make single ref compound mode work with DUAL_FILTER.
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     highbd_inter_predictor(src, src_stride, dst, dst_stride, subpel_x, subpel_y,
                            sf, w, h, conv_params->ref, interp_filter, xs, ys,
