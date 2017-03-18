@@ -268,7 +268,7 @@ static const int mode_lf_lut[MB_MODE_COUNT] = {
   ,
 #if !CONFIG_COMPOUND_SINGLEREF
   1,                            // NEWFROMNEARMV mode
-#endif  // !CONFIG_COMPOUND_SINGLEREF
+#endif                          // !CONFIG_COMPOUND_SINGLEREF
   1, 1, 1, 1, 1, 1, 1, 1, 0, 1  // INTER_COMPOUND_MODES (ZERO_ZEROMV == 0)
 #endif                          // CONFIG_EXT_INTER
 };
