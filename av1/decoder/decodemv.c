@@ -182,11 +182,11 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
   if (aom_read(r, mode_prob, ACCT_STR) == 0) {
     if (counts) ++counts->newmv_mode[mode_ctx][0];
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
     if (has_second_ref(mbmi)) {
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
       return NEWMV;
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
     } else {
       mode_prob = ec_ctx->new2mv_prob;
       if (aom_read(r, mode_prob, ACCT_STR) == 0) {
@@ -197,7 +197,7 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
         return NEWFROMNEARMV;
       }
     }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
   }
   if (counts) ++counts->newmv_mode[mode_ctx][1];
 
@@ -1330,9 +1330,9 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
   (void)bsize;
 
   switch (mode) {
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
     case NEWFROMNEARMV:
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
     case NEWMV: {
       FRAME_COUNTS *counts = xd->counts;
 #if !CONFIG_REF_MV
@@ -1593,9 +1593,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   const int unify_bsize = CONFIG_CB4X4;
   int_mv nearestmv[2], nearmv[2];
   int_mv ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES];
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
   int mv_idx;
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
   int ref, is_compound;
   int16_t inter_mode_ctx[MODE_CTX_REF_FRAMES];
 #if CONFIG_REF_MV && CONFIG_EXT_INTER
@@ -1827,7 +1827,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                                    r, mode_ctx);
 
 #if CONFIG_EXT_INTER
+#if !CONFIG_COMPOUND_SINGLEREF
         mv_idx = (b_mode == NEWFROMNEARMV) ? 1 : 0;
+#endif  // !CONFIG_COMPOUND_SINGLEREF
 
         if (b_mode != ZEROMV && b_mode != ZERO_ZEROMV) {
 #else
@@ -1878,8 +1880,12 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
         if (!assign_mv(cm, xd, b_mode, mbmi->ref_frame, j, block,
 #if CONFIG_EXT_INTER
+#if CONFIG_COMPOUND_SINGLEREF
+                       ref_mv[0],
+#else  // !CONFIG_COMPOUND_SINGLEREF
                        ref_mv[mv_idx],
-#else
+#endif  // CONFIG_COMPOUND_SINGLEREF
+#else  // !CONFIG_EXT_INTER
                        ref_mv_s8,
 #endif  // CONFIG_EXT_INTER
                        nearest_sub8x8, near_sub8x8, mi_row, mi_col, is_compound,
@@ -1927,11 +1933,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
     int mv_corrupted_flag =
         !assign_mv(cm, xd, mbmi->mode, mbmi->ref_frame, 0, mbmi->mv,
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
                    mbmi->mode == NEWFROMNEARMV ? nearmv : nearestmv,
 #else
                    ref_mv,
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
                    nearestmv, nearmv, mi_row, mi_col, is_compound, allow_hp, r);
     aom_merge_corrupted_flag(&xd->corrupted, mv_corrupted_flag);
   }

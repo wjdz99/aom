@@ -176,9 +176,9 @@ typedef struct frame_contexts {
   aom_prob refmv_prob[REFMV_MODE_CONTEXTS];
   aom_prob drl_prob[DRL_MODE_CONTEXTS];
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
   aom_prob new2mv_prob;
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_REF_MV
 
   aom_prob inter_mode_probs[INTER_MODE_CONTEXTS][INTER_MODES - 1];
@@ -321,9 +321,9 @@ typedef struct FRAME_COUNTS {
   unsigned int zeromv_mode[ZEROMV_MODE_CONTEXTS][2];
   unsigned int refmv_mode[REFMV_MODE_CONTEXTS][2];
   unsigned int drl_mode[DRL_MODE_CONTEXTS][2];
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
   unsigned int new2mv_mode[2];
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_COMPOUND_SINGLEREF
 #endif
 
   unsigned int inter_mode[INTER_MODE_CONTEXTS][INTER_MODES];
