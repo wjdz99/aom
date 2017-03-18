@@ -219,7 +219,7 @@ void av1_clpf_test_plane(const YV12_BUFFER_CONFIG *rec,
   clpf_rdo(rec, org, cm, bs, width >> bslog, height >> bslog, sums, plane);
 
   // Add a favourable bias for conservative strengths
-  for (i = 0; i < 4; i++) sums[i] -= sums[i] >> (7 + i);
+  //for (i = 0; i < 4; i++) sums[i] -= sums[i] >> (7 + i);
 
   // Tag the strength to the error
   for (i = 0; i < 4; i++) sums[i] = (sums[i] << 2) + i;
