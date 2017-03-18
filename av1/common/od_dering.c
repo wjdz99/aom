@@ -19,6 +19,7 @@
 #include "./aom_dsp_rtcd.h"
 #include "./av1_rtcd.h"
 #include "./cdef.h"
+#include "./clpf.h"
 
 /* Generated from gen_filter_tables.c. */
 const int OD_DIRECTION_OFFSETS_TABLE[8][3] = {
@@ -293,6 +294,8 @@ void od_dering(uint16_t *y, uint16_t *in, int xdec,
     // Prevent CLPF from reading across superblock boundaries
     if (!by) bt2 |= TILE_ABOVE_BOUNDARY;
     if (by == (1 << bsize) - 1) bt2 |= TILE_BOTTOM_BOUNDARY;
+    if (bx == (1 << bsize) - 1) bt2 |= TILE_RIGHT_BOUNDARY;
+    if (!bx) bt2 |= TILE_LEFT_BOUNDARY;
 
     if (threshold == 0 || dir[by][bx] == 1 || dir[by][bx] == 2 ||
         dir[by][bx] == 3) {
