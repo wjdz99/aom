@@ -120,7 +120,7 @@ typedef struct {
 } BUFFER_SET;
 
 #if CONFIG_EXT_INTER
-static INLINE int is_inter_singleref_mode(PREDICTION_MODE mode) {
+static INLINE int is_inter_single_mode(PREDICTION_MODE mode) {
 #if CONFIG_COMPOUND_SINGLEREF
   return mode >= NEARESTMV && mode <= NEWMV;
 #else  // !CONFIG_COMPOUND_SINGLEREF
