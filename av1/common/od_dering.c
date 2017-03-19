@@ -293,6 +293,8 @@ void od_dering(uint16_t *y, uint16_t *in, int xdec,
     // Prevent CLPF from reading across superblock boundaries
     if (!by) bt2 |= TILE_ABOVE_BOUNDARY;
     if (by == (1 << bsize) - 1) bt2 |= TILE_BOTTOM_BOUNDARY;
+    if (bx == (1 << bsize) - 1) bt2 |= TILE_RIGHT_BOUNDARY;
+    if (!bx) bt2 |= TILE_LEFT_BOUNDARY;
 
     aom_clpf_block_hbd(in, &y[((bi - by) << 2 * bsize) - (bx << bsize)],
                        OD_FILT_BSTRIDE, 1 << bsize, bx << bsize, by << bsize,
