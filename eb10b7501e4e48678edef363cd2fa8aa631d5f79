@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e513dde4_b7573aa0",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-03-19T20:47:53Z",
+      "side": 0,
+      "message": "This was an optimisation to allow Rand16\u0027s rather than the double amount of Rand8\u0027s, which worked when an uint32_t was randomised regardless of whether the actual argument of the intrinsic was 8, 16 or 32 bit.  But the sanitiser didn\u0027t like this lazy typing, so when CArg could be an uint8_t, this allocation didn\u0027t work anymore.",
+      "range": {
+        "startLine": 819,
+        "startChar": 34,
+        "endLine": 819,
+        "endChar": 66
+      },
+      "revId": "eb10b7501e4e48678edef363cd2fa8aa631d5f79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
