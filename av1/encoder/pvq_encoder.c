@@ -93,7 +93,6 @@ double pvq_search_rdo_double_c(const od_val16 *xcoeff, int n, int k,
   double xx;
   double lambda;
   double norm_1;
-  int rdo_pulses;
   double delta_rate;
   xx = xy = yy = 0;
   for (j = 0; j < n; j++) {
@@ -102,7 +101,6 @@ double pvq_search_rdo_double_c(const od_val16 *xcoeff, int n, int k,
   }
   norm_1 = 1./sqrt(1e-30 + xx);
   lambda = pvq_norm_lambda/(1e-30 + g2);
-  i = 0;
   if (prev_k > 0 && prev_k <= k) {
     /* We reuse pulses from a previous search so we don't have to search them
        again. */
@@ -130,42 +128,14 @@ double pvq_search_rdo_double_c(const od_val16 *xcoeff, int n, int k,
   }
   else OD_CLEAR(ypulse, n);
 
-  /* Only use RDO on the last few pulses. This not only saves CPU, but using
-     RDO on all pulses actually makes the results worse for reasons I don't
-     fully understand. */
-  rdo_pulses = 1 + k/4;
   /* Rough assumption for now, the last position costs about 3 bits more than
      the first. */
   delta_rate = 3./n;
-  /* Search one pulse at a time */
-  for (; i < k - rdo_pulses; i++) {
-    int pos;
-    double best_xy;
-    double best_yy;
-    pos = 0;
-    best_xy = -10;
-    best_yy = 1;
-    for (j = 0; j < n; j++) {
-      double tmp_xy;
-      double tmp_yy;
-      tmp_xy = xy + x[j];
-      tmp_yy = yy + 2*ypulse[j] + 1;
-      tmp_xy *= tmp_xy;
-      if (j == 0 || tmp_xy*best_yy > best_xy*tmp_yy) {
-        best_xy = tmp_xy;
-        best_yy = tmp_yy;
-        pos = j;
-      }
-    }
-    xy = xy + x[pos];
-    yy = yy + 2*ypulse[pos] + 1;
-    ypulse[pos]++;
-  }
   /* Search last pulses with RDO. Distortion is D = (x-y)^2 = x^2 - 2*x*y + y^2
      and since x^2 and y^2 are constant, we just maximize x*y, plus a
      lambda*rate term. Note that since x and y aren't normalized here,
      we need to divide by sqrt(x^2)*sqrt(y^2). */
-  for (; i < k; i++) {
+  for (i = 0; i < k; i++) {
     double rsqrt_table[4];
     int rsqrt_table_size = 4;
     int pos;
