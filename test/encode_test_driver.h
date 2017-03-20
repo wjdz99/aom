@@ -27,13 +27,11 @@ namespace libaom_test {
 class CodecFactory;
 class VideoSource;
 
-enum TestMode { kRealTime, kOnePassGood, kTwoPassGood };
-#define ALL_TEST_MODES                                                     \
-  ::testing::Values(::libaom_test::kRealTime, ::libaom_test::kOnePassGood, \
-                    ::libaom_test::kTwoPassGood)
+enum TestMode { kOnePassGood, kTwoPassGood };
+#define ALL_TEST_MODES \
+  ::testing::Values(::libaom_test::kOnePassGood, ::libaom_test::kTwoPassGood)
 
-#define ONE_PASS_TEST_MODES \
-  ::testing::Values(::libaom_test::kRealTime, ::libaom_test::kOnePassGood)
+#define ONE_PASS_TEST_MODES ::testing::Values(::libaom_test::kOnePassGood)
 
 #define TWO_PASS_TEST_MODES ::testing::Values(::libaom_test::kTwoPassGood)
 

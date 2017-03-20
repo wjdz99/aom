@@ -105,8 +105,6 @@ void EncoderTest::InitializeConfig() {
 
 void EncoderTest::SetMode(TestMode mode) {
   switch (mode) {
-    case kRealTime: deadline_ = AOM_DL_REALTIME; break;
-
     case kOnePassGood:
     case kTwoPassGood: deadline_ = AOM_DL_GOOD_QUALITY; break;
 
