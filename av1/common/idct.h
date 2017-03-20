@@ -70,12 +70,6 @@ void av1_inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest, int stride,
                           int eob, TX_TYPE tx_type);
 void av1_inv_txfm_add_4x8(const tran_low_t *input, uint8_t *dest, int stride,
                           int eob, TX_TYPE tx_type);
-void av1_inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest, int stride,
-                          int eob, TX_TYPE tx_type);
-void av1_inv_txfm_add_16x16(const tran_low_t *input, uint8_t *dest, int stride,
-                            int eob, TX_TYPE tx_type);
-void av1_inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest, int stride,
-                            int eob, TX_TYPE tx_type);
 void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                       INV_TXFM_PARAM *inv_txfm_param);
 #if CONFIG_AOM_HIGHBITDEPTH
