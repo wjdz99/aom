@@ -239,7 +239,7 @@ void copy_dering_16bit_to_16bit(uint16_t *dst, int dstride, uint16_t *src,
   }
 }
 
-void od_dering(uint16_t *y, uint16_t *in, int xdec,
+void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
                int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS], int pli,
                dering_list *dlist, int dering_count, int threshold,
                int clpf_strength, int clpf_damping, int coeff_shift,
@@ -282,21 +282,41 @@ void od_dering(uint16_t *y, uint16_t *in, int xdec,
           dir[by][bx]);
     }
   }
-  if (!clpf_strength) return;
-  copy_dering_16bit_to_16bit(in, OD_FILT_BSTRIDE, y, dlist, dering_count,
-                             bsize);
-  for (bi = 0; bi < dering_count; bi++) {
-    BOUNDARY_TYPE bt2 = 0;
-    by = dlist[bi].by;
-    bx = dlist[bi].bx;
+  if (clpf_strength) {
+    int bssize = MAX_MIB_SIZE * (1 << bsize);
+    uint8_t tmp[bssize * bssize];
+    for (int i = 0; i < bssize; i++)
+      for (int j = 0; j < bssize; j++)
+	tmp[i * bssize + j] = dst[i * dstride + j];
+    //copy_dering_16bit_to_16bit(in, OD_FILT_BSTRIDE, y, dlist, dering_count,
+    //                           bsize);
+    for (bi = 0; bi < dering_count; bi++) {
+      BOUNDARY_TYPE bt2 = 0;
+      by = dlist[bi].by;
+      bx = dlist[bi].bx;
 
-    // Prevent CLPF from reading across superblock boundaries
-    if (!by) bt2 |= TILE_ABOVE_BOUNDARY;
-    if (by == (1 << bsize) - 1) bt2 |= TILE_BOTTOM_BOUNDARY;
+      // Prevent CLPF from reading across superblock boundaries
+      if (!by) bt2 |= TILE_ABOVE_BOUNDARY;
+      if (!bx) bt2 |= TILE_LEFT_BOUNDARY;
+      if (by == MAX_MIB_SIZE - 1||1) bt2 |= TILE_BOTTOM_BOUNDARY;
+      if (bx == MAX_MIB_SIZE - 1) bt2 |= TILE_RIGHT_BOUNDARY;
+#if 0
+      aom_clpf_block_hbd(in, &y[((bi - by) << 2 * bsize) - (bx << bsize)],
+                         OD_FILT_BSTRIDE, 1 << bsize, bx << bsize, by << bsize,
+                         1 << bsize, 1 << bsize, clpf_strength << coeff_shift,
+                         bt | bt2, clpf_damping + coeff_shift);
+#else
+      aom_clpf_cdef(tmp,
+                    &y[((bi - by) << 2 * bsize) - (bx << bsize)],
+                    dst,
+                    bssize, 1 << bsize, dstride, bx << bsize, by << bsize,
+                    1 << bsize, 1 << bsize, clpf_strength << coeff_shift,
+                    bt | bt2, clpf_damping + coeff_shift);
+#endif
+    }
+    //copy_dering_16bit_to_8bit(dst, dstride, y, dlist, dering_count, bsize);
 
-    aom_clpf_block_hbd(in, &y[((bi - by) << 2 * bsize) - (bx << bsize)],
-                       OD_FILT_BSTRIDE, 1 << bsize, bx << bsize, by << bsize,
-                       1 << bsize, 1 << bsize, clpf_strength << coeff_shift,
-                       bt | bt2, clpf_damping + coeff_shift);
-  }
+  } else
+  // TODO: hbd
+  copy_dering_16bit_to_8bit(dst, dstride, y, dlist, dering_count, bsize);
 }

@@ -20,7 +20,7 @@
 #include "av1/encoder/clpf_rdo.h"
 #include "av1/encoder/encoder.h"
 
-static double compute_dist(uint16_t *x, int xstride, uint16_t *y, int ystride,
+static double compute_dist(uint8_t *x, int xstride, uint8_t *y, int ystride,
                            int nhb, int nvb, int coeff_shift) {
   int i, j;
   double sum;
@@ -40,7 +40,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
   int r, c;
   int sbr, sbc;
   uint16_t *src;
-  uint16_t *ref_coeff;
+  uint8_t *ref_coeff;
   dering_list dlist[MAX_MIB_SIZE * MAX_MIB_SIZE];
   int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS] = { { 0 } };
   int stride;
@@ -98,7 +98,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
     for (sbc = 0; sbc < nhsb; sbc++) {
       int nvb, nhb;
       int gi;
-      DECLARE_ALIGNED(32, uint16_t, dst[MAX_MIB_SIZE * MAX_MIB_SIZE * 8 * 8]);
+      DECLARE_ALIGNED(32, uint8_t, dst[MAX_MIB_SIZE * MAX_MIB_SIZE * 8 * 8]);
       DECLARE_ALIGNED(32, uint16_t,
                       tmp_dst[MAX_MIB_SIZE * MAX_MIB_SIZE * 8 * 8]);
       nhb = AOMMIN(MAX_MIB_SIZE, cm->mi_cols - MAX_MIB_SIZE * sbc);
@@ -139,10 +139,8 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
           }
         }
         for (i = 0; i < CLPF_STRENGTHS; i++) {
-          od_dering(tmp_dst, in, 0, dir, 0, dlist, dering_count, threshold,
+          od_dering(dst, MAX_MIB_SIZE << bsize[0], tmp_dst, in, 0, dir, 0, dlist, dering_count, threshold,
                     i + (i == 3), clpf_damping, coeff_shift, 0);
-          copy_dering_16bit_to_16bit(dst, MAX_MIB_SIZE << bsize[0], tmp_dst,
-                                     dlist, dering_count, bsize[0]);
           mse[sb_count][gi][i] = (int)compute_dist(
               dst, MAX_MIB_SIZE << bsize[0],
               &ref_coeff[(sbr * stride * MAX_MIB_SIZE << bsize[0]) +

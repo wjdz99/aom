@@ -432,7 +432,11 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd,
         else
           threshold = level << coeff_shift;
         if (threshold == 0 && clpf_strength == 0) continue;
-        od_dering(dst,
+        od_dering(&xd->plane[pli].dst.buf[xd->plane[pli].dst.stride *
+                                          (MAX_MIB_SIZE * sbr << bsize[pli]) +
+                                      (sbc * MAX_MIB_SIZE << bsize[pli])],
+                  xd->plane[pli].dst.stride,
+                  dst,
                   &src[OD_FILT_VBORDER * OD_FILT_BSTRIDE + OD_FILT_HBORDER],
                   dec[pli], dir, pli, dlist, dering_count, threshold,
                   clpf_strength, clpf_damping, coeff_shift, boundary_type);
@@ -448,11 +452,6 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd,
               3 - dec[pli]);
         } else {
 #endif
-          copy_dering_16bit_to_8bit(
-              &xd->plane[pli].dst.buf[xd->plane[pli].dst.stride *
-                                          (MAX_MIB_SIZE * sbr << bsize[pli]) +
-                                      (sbc * MAX_MIB_SIZE << bsize[pli])],
-              xd->plane[pli].dst.stride, dst, dlist, dering_count, bsize[pli]);
 #if CONFIG_AOM_HIGHBITDEPTH
         }
 #endif
