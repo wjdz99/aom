@@ -70,6 +70,30 @@
       "revId": "b0d2a198ba6b5d96e8626b01beb7e62e752d4ad5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a43e18d7_3f8141b1",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-03-20T17:50:56Z",
+      "side": 1,
+      "message": "Removed the unnecessary index mapping.",
+      "parentUuid": "b2122fde_f7a529af",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 209,
+        "endChar": 62
+      },
+      "revId": "b0d2a198ba6b5d96e8626b01beb7e62e752d4ad5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
