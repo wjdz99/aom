@@ -27,13 +27,11 @@ namespace libaom_test {
 class CodecFactory;
 class VideoSource;
 
-enum TestMode { kRealTime, kOnePassGood, kTwoPassGood };
-#define ALL_TEST_MODES                                                     \
-  ::testing::Values(::libaom_test::kRealTime, ::libaom_test::kOnePassGood, \
-                    ::libaom_test::kTwoPassGood)
+ enum TestMode { kRealTime, kOnePassGood, kTwoPassGood };
+#define ALL_TEST_MODES \
+  ::testing::Values(::libaom_test::kRealTime, ::libaom_test::kOnePassGood, ::libaom_test::kTwoPassGood)
 
-#define ONE_PASS_TEST_MODES \
-  ::testing::Values(::libaom_test::kRealTime, ::libaom_test::kOnePassGood)
+#define ONE_PASS_TEST_MODES ::testing::Values(::libaom_test::kRealTime, ::libaom_test::kOnePassGood)
 
 #define TWO_PASS_TEST_MODES ::testing::Values(::libaom_test::kTwoPassGood)
 
@@ -163,7 +161,7 @@ class EncoderTest {
  protected:
   explicit EncoderTest(const CodecFactory *codec)
       : codec_(codec), abort_(false), init_flags_(0), frame_flags_(0),
-        last_pts_(0) {
+    last_pts_(0), mode_(kRealTime) {
     // Default to 1 thread.
     cfg_.g_threads = 1;
   }
@@ -239,6 +237,7 @@ class EncoderTest {
   unsigned long init_flags_;
   unsigned long frame_flags_;
   aom_codec_pts_t last_pts_;
+  TestMode mode_;
 };
 
 }  // namespace libaom_test
