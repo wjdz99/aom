@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d9c42a02_f00eab8e",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1742,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-03-20T20:34:13Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "339a62ce_5486de55",
+      "range": {
+        "startLine": 1699,
+        "startChar": 12,
+        "endLine": 1742,
+        "endChar": 27
+      },
+      "revId": "f34c98376d192f79f85e75a5d87b1dc1ca7b21e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a9fcf5f_142fe31f",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-20T16:54:33Z",
       "side": 1,
       "message": "Do these get built on the decode path?",
+      "range": {
+        "startLine": 795,
+        "startChar": 26,
+        "endLine": 795,
+        "endChar": 46
+      },
+      "revId": "f34c98376d192f79f85e75a5d87b1dc1ca7b21e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d52b8149_3367aeae",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-03-20T20:34:13Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "6a9fcf5f_142fe31f",
       "range": {
         "startLine": 795,
         "startChar": 26,
