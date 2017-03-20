@@ -659,6 +659,7 @@ int od_enc_rc_select_quantizers_and_lambdas(od_rc_state *rc,
   int nframes[OD_FRAME_NSUBTYPES];
   int32_t mqp_Q12[OD_FRAME_NSUBTYPES];
   int64_t dqp_Q45[OD_FRAME_NSUBTYPES];
+  OD_UNUSED(is_altref_frame);
   /*Verify the closed-form frame type determination code matches what the
      input queue set.*/
   /*One pseudo-non-closed-form caveat:
@@ -675,10 +676,10 @@ int od_enc_rc_select_quantizers_and_lambdas(od_rc_state *rc,
         od_frame_type(rc, rc->cur_frame, &closed_form_golden,
                       &closed_form_altref, &closed_form_cur_frame);
     OD_UNUSED(closed_form_type);
-    OD_ASSERT(closed_form_type == frame_type);
-    OD_ASSERT(closed_form_cur_frame == rc->cur_frame);
-    OD_ASSERT(closed_form_altref == is_altref_frame);
-    OD_ASSERT(closed_form_golden == is_golden_frame);
+    assert(closed_form_type == frame_type);
+    assert(closed_form_cur_frame == rc->cur_frame);
+    assert(closed_form_altref == is_altref_frame);
+    assert(closed_form_golden == is_golden_frame);
   }
 
   log_cur_scale = (int64_t)rc->scalefilter[frame_type].y[0] << 33;
