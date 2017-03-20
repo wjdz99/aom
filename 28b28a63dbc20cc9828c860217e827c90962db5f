@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f4522a20_7aebfd6a",
+        "filename": "av1/common/odintrin.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 6390
+      },
+      "writtenOn": "2017-03-20T20:14:18Z",
+      "side": 1,
+      "message": "CONFIG_DEBUG also turns on debug symbol information. Typically when I\u0027m benchmarking I do --enable-debug --extra-cflags\u003d-DNDEBUG",
+      "parentUuid": "1249aa1d_353c6109",
+      "revId": "28b28a63dbc20cc9828c860217e827c90962db5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df06f0e0_2aaafdaf",
         "filename": "av1/common/odintrin.h",
         "patchSetId": 1
