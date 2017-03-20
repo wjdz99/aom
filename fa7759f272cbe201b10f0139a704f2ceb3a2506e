@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e5a174f_ab078d36",
+        "filename": "configure",
+        "patchSetId": 2
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-03-20T19:49:24Z",
+      "side": 1,
+      "message": "may be better to remove this automatic enabling of ext-inter. compound_singleref can be a dependent experiment on ext-inter, just like wedge, interintra and compound-segment.",
+      "revId": "fa7759f272cbe201b10f0139a704f2ceb3a2506e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
