@@ -4615,7 +4615,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     }
 
 #if CONFIG_DELTA_Q
-    if (cpi->oxcf.aq_mode == DELTA_AQ) {
+    if (cm->delta_q_present_flag) {
       // Test mode for delta quantization
       int sb_row = mi_row >> 3;
       int sb_col = mi_col >> 3;
@@ -5083,6 +5083,15 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   if (!cm->seg.enabled && xd->lossless[0]) x->optimize = 0;
 
   cm->tx_mode = select_tx_mode(cpi, xd);
+
+#if CONFIG_DELTA_Q
+  // Fix delta q resolution for the moment
+  cm->delta_q_res = DEFAULT_DELTA_Q_RES;
+  // Set delta_q_present_flag before it is used for the first time
+  cm->delta_q_present_flag =
+      cpi->oxcf.aq_mode == DELTA_AQ && cm->base_qindex > 0;
+#endif
+
   av1_frame_init_quantizer(cpi);
 
   av1_initialize_rd_consts(cpi);
@@ -5101,11 +5110,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   cm->use_prev_frame_mvs =
       !cm->error_resilient_mode && cm->width == cm->last_width &&
       cm->height == cm->last_height && !cm->intra_only && cm->last_show_frame;
-#endif
-
-#if CONFIG_DELTA_Q
-  // Fix delta q resolution for the moment
-  cm->delta_q_res = DEFAULT_DELTA_Q_RES;
 #endif
 
 #if CONFIG_EXT_REFS
