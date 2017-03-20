@@ -4424,8 +4424,10 @@ static void write_uncompressed_header(AV1_COMP *cpi,
         segment_quantizer_active = 1;
       }
     }
-    if (segment_quantizer_active == 0) {
-      cm->delta_q_present_flag = cpi->oxcf.aq_mode == DELTA_AQ;
+
+    if (cm->delta_q_present_flag)
+      assert(segment_quantizer_active == 0 && cm->base_qindex > 0);
+    if (segment_quantizer_active == 0 && cm->base_qindex > 0) {
       aom_wb_write_bit(wb, cm->delta_q_present_flag);
       if (cm->delta_q_present_flag) {
         aom_wb_write_literal(wb, OD_ILOG_NZ(cm->delta_q_res) - 1, 2);
