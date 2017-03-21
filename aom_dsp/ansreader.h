@@ -98,7 +98,7 @@ static INLINE int rabs_read_bit(struct AnsDecoder *ans) {
 }
 
 struct rans_dec_sym {
-  uint8_t val;
+  int val;
   aom_cdf_prob prob;
   aom_cdf_prob cum_prob;  // not-inclusive
 };
