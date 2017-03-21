@@ -286,17 +286,12 @@ void od_dering(uint16_t *y, uint16_t *in, int xdec,
   copy_dering_16bit_to_16bit(in, OD_FILT_BSTRIDE, y, dlist, dering_count,
                              bsize);
   for (bi = 0; bi < dering_count; bi++) {
-    BOUNDARY_TYPE bt2 = 0;
     by = dlist[bi].by;
     bx = dlist[bi].bx;
-
-    // Prevent CLPF from reading across superblock boundaries
-    if (!by) bt2 |= TILE_ABOVE_BOUNDARY;
-    if (by == (1 << bsize) - 1) bt2 |= TILE_BOTTOM_BOUNDARY;
 
     aom_clpf_block_hbd(in, &y[((bi - by) << 2 * bsize) - (bx << bsize)],
                        OD_FILT_BSTRIDE, 1 << bsize, bx << bsize, by << bsize,
                        1 << bsize, 1 << bsize, clpf_strength << coeff_shift,
-                       bt | bt2, clpf_damping + coeff_shift);
+                       bt, clpf_damping + coeff_shift);
   }
 }
