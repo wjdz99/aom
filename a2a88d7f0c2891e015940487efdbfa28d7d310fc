@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61bad343_ef691f3b",
+        "filename": "av1/common/txb_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-03-21T21:33:13Z",
+      "side": 1,
+      "message": "Would it be better to simply have assert(5 + ctx \u003c\u003d 7)?",
+      "range": {
+        "startLine": 177,
+        "startChar": 4,
+        "endLine": 177,
+        "endChar": 31
+      },
+      "revId": "a2a88d7f0c2891e015940487efdbfa28d7d310fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b24ef6f1_8288c2ec",
+        "filename": "av1/common/txb_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-03-21T21:33:13Z",
+      "side": 1,
+      "message": "what about assert(ctx \u003c 3) instead?",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 198,
+        "endChar": 28
+      },
+      "revId": "a2a88d7f0c2891e015940487efdbfa28d7d310fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ee27b2f_8c42facd",
+        "filename": "av1/common/txb_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-03-21T21:33:13Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 205,
+        "startChar": 4,
+        "endLine": 205,
+        "endChar": 28
+      },
+      "revId": "a2a88d7f0c2891e015940487efdbfa28d7d310fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b0e9ee3_c7f759bd",
+        "filename": "av1/common/txb_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-03-21T21:33:13Z",
+      "side": 1,
+      "message": "assert (14 + ctx \u003c 20)?",
+      "range": {
+        "startLine": 211,
+        "startChar": 2,
+        "endLine": 211,
+        "endChar": 32
+      },
+      "revId": "a2a88d7f0c2891e015940487efdbfa28d7d310fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d179e01_ad21761f",
+        "filename": "av1/common/txb_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-03-21T21:33:13Z",
+      "side": 1,
+      "message": "assert ( bwl \u003e\u003d2 \u0026\u0026 bwl \u003c\u003d 5)?",
+      "range": {
+        "startLine": 225,
+        "startChar": 2,
+        "endLine": 225,
+        "endChar": 12
+      },
+      "revId": "a2a88d7f0c2891e015940487efdbfa28d7d310fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
