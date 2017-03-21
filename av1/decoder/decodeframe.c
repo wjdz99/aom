@@ -526,18 +526,18 @@ static void predict_and_reconstruct_intra_block(
     int eob;
     av1_read_coeffs_txb_facade(cm, xd, r, row, col, block_idx, plane,
                                pd->dqcoeff, &max_scan_line, &eob);
-#else   // CONFIG_LV_MAP
+#else  // CONFIG_LV_MAP
     const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
     int16_t max_scan_line = 0;
     const int eob =
         av1_decode_block_tokens(xd, plane, scan_order, col, row, tx_size,
                                 tx_type, &max_scan_line, r, mbmi->segment_id);
-#endif  // CONFIG_LV_MAP
 #if CONFIG_ADAPT_SCAN
     if (xd->counts)
       av1_update_scan_count_facade(cm, xd->counts, tx_size, tx_type,
                                    pd->dqcoeff, eob);
 #endif
+#endif  // CONFIG_LV_MAP
     if (eob)
       inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
                               max_scan_line, eob);
