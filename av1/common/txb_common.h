@@ -174,7 +174,7 @@ static INLINE int get_nz_map_ctx(const tran_low_t *tcoeffs,
     ctx = (ctx + 1) >> 1;
 
     // unit test purpose
-    if (5 + ctx > 7) exit(0);
+    if (5 + ctx > 7) assert(0);
 
     return 5 + ctx;
   }
@@ -195,20 +195,20 @@ static INLINE int get_nz_map_ctx(const tran_low_t *tcoeffs,
   if (row == 0) {
     ctx = (ctx + 1) >> 1;
 
-    if (ctx >= 3) exit(0);
+    if (ctx >= 3) assert(0);
     return 8 + ctx;
   }
 
   if (col == 0) {
     ctx = (ctx + 1) >> 1;
 
-    if (ctx >= 3) exit(0);
+    if (ctx >= 3) assert(0);
     return 11 + ctx;
   }
 
   ctx >>= 1;
 
-  if (14 + ctx >= 20) exit(0);
+  if (14 + ctx >= 20) assert(0);
 
   return 14 + ctx;
 }
@@ -222,7 +222,8 @@ static INLINE int get_eob_ctx(const tran_low_t *tcoeffs,
   if (bwl == 4) return av1_coeff_band_16x16[c];
   if (bwl == 5) return av1_coeff_band_32x32[c];
 
-  exit(0);
+  assert(0);
+  return 0;
 }
 
 static INLINE void set_dc_sign(int *cul_level, tran_low_t v) {
