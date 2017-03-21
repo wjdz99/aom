@@ -954,7 +954,7 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       if (mv_ref_list[idx].as_int != zeromv[0].as_int) all_zero = 0;
   }
 
-  if (all_zero) mode_context[ref_frame] |= (1 << ALL_ZERO_FLAG_OFFSET);
+  //if (all_zero) mode_context[ref_frame] |= (1 << ALL_ZERO_FLAG_OFFSET);
 #endif
 }
 
