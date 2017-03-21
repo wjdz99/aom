@@ -17,6 +17,7 @@
 #include "av1/common/entropymode.h"
 #include "av1/common/onyxc_int.h"
 #include "av1/common/scan.h"
+#include "av1/common/txb_common.h"
 
 // Unconstrained Node Tree
 /* clang-format off */
@@ -5584,8 +5585,12 @@ void av1_adapt_coef_probs(AV1_COMMON *cm) {
   if (cm->partial_prob_update == 1) update_factor = COEF_MAX_UPDATE_FACTOR;
 #endif  // CONFIG_SUBFRAME_PROB_UPDATE
 
+#if CONFIG_LV_MAP
+  av1_adapt_txb_probs(cm, count_sat, update_factor);
+#else
   for (tx_size = 0; tx_size < TX_SIZES; tx_size++)
     adapt_coef_probs(cm, tx_size, count_sat, update_factor);
+#endif
 }
 
 #if CONFIG_SUBFRAME_PROB_UPDATE
