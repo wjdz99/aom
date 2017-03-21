@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cb2b8d2_85521570",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-03-21T12:05:07Z",
+      "side": 1,
+      "message": "Removed in child #8656.",
+      "range": {
+        "startLine": 246,
+        "startChar": 15,
+        "endLine": 246,
+        "endChar": 31
+      },
+      "revId": "17e7c4e508ef0a1dafe36e8df28c8d1f1b95fd99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
