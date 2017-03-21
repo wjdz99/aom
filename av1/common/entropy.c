@@ -9,14 +9,17 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "av1/common/entropy.h"
 #include "./aom_config.h"
 #include "aom/aom_integer.h"
 #include "aom_mem/aom_mem.h"
 #include "av1/common/blockd.h"
+#include "av1/common/entropy.h"
 #include "av1/common/entropymode.h"
 #include "av1/common/onyxc_int.h"
 #include "av1/common/scan.h"
+#if CONFIG_LV_MAP
+#include "av1/common/txb_common.h"
+#endif
 
 // Unconstrained Node Tree
 /* clang-format off */
@@ -5584,8 +5587,12 @@ void av1_adapt_coef_probs(AV1_COMMON *cm) {
   if (cm->partial_prob_update == 1) update_factor = COEF_MAX_UPDATE_FACTOR;
 #endif  // CONFIG_SUBFRAME_PROB_UPDATE
 
+#if CONFIG_LV_MAP
+  av1_adapt_txb_probs(cm, count_sat, update_factor);
+#else
   for (tx_size = 0; tx_size < TX_SIZES; tx_size++)
     adapt_coef_probs(cm, tx_size, count_sat, update_factor);
+#endif
 }
 
 #if CONFIG_SUBFRAME_PROB_UPDATE
