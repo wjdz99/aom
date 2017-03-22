@@ -16,6 +16,24 @@
       "revId": "361975b902e2a1df5c65949548c57de1ac0930d6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b71ddfc6_038e917d",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-03-22T01:26:22Z",
+      "side": 1,
+      "message": "That can\u0027t work by accident: no build/cmake/targets/armv6.cmake \n\nI don\u0027t think we even want one, right?",
+      "parentUuid": "6a639635_0bb0098b",
+      "revId": "361975b902e2a1df5c65949548c57de1ac0930d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
