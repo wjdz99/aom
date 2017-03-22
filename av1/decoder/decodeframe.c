@@ -4999,6 +4999,16 @@ static void make_update_tile_list_dec(AV1Decoder *pbi, int tile_rows,
 }
 #endif
 
+#if CONFIG_FRAME_SUPERRES
+void superres_post_decode(AV1Decoder *pbi) {
+  AV1_COMMON *const cm = &pbi->common;
+  BufferPool *const pool = cm->buffer_pool;
+  lock_buffer_pool(pool);
+  av1_superres_upscale(cm, pool);
+  unlock_buffer_pool(pool);
+}
+#endif  // CONFIG_FRAME_SUPERRES
+
 void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
                       const uint8_t *data_end, const uint8_t **p_data_end) {
   AV1_COMMON *const cm = &pbi->common;
@@ -5173,6 +5183,10 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
     av1_cdef_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
   }
 #endif  // CONFIG_CDEF
+
+#if CONFIG_FRAME_SUPERRES
+  superres_post_decode(pbi);
+#endif  // CONFIG_FRAME_SUPERRES
 
 #if CONFIG_LOOP_RESTORATION
   if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||

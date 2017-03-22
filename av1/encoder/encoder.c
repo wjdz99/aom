@@ -2410,6 +2410,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   av1_loop_filter_init(cm);
 #if CONFIG_FRAME_SUPERRES
+  cm->superres_pending = 0;
   cm->superres_scale_numerator = SUPERRES_SCALE_DENOMINATOR;
   cm->superres_upscaled_width = oxcf->scaled_frame_width;
   cm->superres_upscaled_height = oxcf->scaled_frame_height;
@@ -3301,60 +3302,6 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
 #endif  // DUMP_REF_FRAME_IMAGES
 }
 
-static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
-  MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
-  struct loopfilter *lf = &cm->lf;
-  if (is_lossless_requested(&cpi->oxcf)) {
-    lf->filter_level = 0;
-  } else {
-    struct aom_usec_timer timer;
-
-    aom_clear_system_state();
-
-    aom_usec_timer_start(&timer);
-
-    av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_pick);
-
-    aom_usec_timer_mark(&timer);
-    cpi->time_pick_lpf += aom_usec_timer_elapsed(&timer);
-  }
-
-  if (lf->filter_level > 0) {
-#if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
-    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
-#else
-    if (cpi->num_workers > 1)
-      av1_loop_filter_frame_mt(cm->frame_to_show, cm, xd->plane,
-                               lf->filter_level, 0, 0, cpi->workers,
-                               cpi->num_workers, &cpi->lf_row_sync);
-    else
-      av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
-#endif
-  }
-#if CONFIG_CDEF
-  if (is_lossless_requested(&cpi->oxcf)) {
-    cm->cdef_bits = 0;
-    cm->cdef_strengths[0] = 0;
-    cm->nb_cdef_strengths = 1;
-  } else {
-    // Find cm->dering_level, cm->clpf_strength_u and cm->clpf_strength_v
-    av1_cdef_search(cm->frame_to_show, cpi->source, cm, xd);
-
-    // Apply the filter
-    av1_cdef_frame(cm->frame_to_show, cm, xd);
-  }
-#endif
-#if CONFIG_LOOP_RESTORATION
-  av1_pick_filter_restoration(cpi->source, cpi, cpi->sf.lpf_pick);
-  if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
-    av1_loop_restoration_frame(cm->frame_to_show, cm, cm->rst_info, 7, 0, NULL);
-  }
-#endif  // CONFIG_LOOP_RESTORATION
-  aom_extend_frame_inner_borders(cm->frame_to_show);
-}
-
 static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, int buffer_idx) {
   RefCntBuffer *const new_fb_ptr = &cm->buffer_pool->frame_bufs[buffer_idx];
   if (new_fb_ptr->mvs == NULL || new_fb_ptr->mi_rows < cm->mi_rows ||
@@ -3748,6 +3695,7 @@ static void set_frame_size(AV1_COMP *cpi, int width, int height) {
                        "Failed to allocate frame buffer");
 
 #if CONFIG_LOOP_RESTORATION
+  // TODO(afergs): Use cm->superres_(width|height)?
   set_restoration_tilesize(cm->width, cm->height, cm->rst_info);
   for (int i = 0; i < MAX_MB_PLANE; ++i)
     cm->rst_info[i].frame_restoration_type = RESTORE_NONE;
@@ -3815,6 +3763,116 @@ static void setup_frame_size(AV1_COMP *cpi) {
   set_frame_size(cpi, encode_width, encode_height);
 }
 
+#if CONFIG_FRAME_SUPERRES
+static void superres_post_encode(AV1_COMP *cpi) {
+  AV1_COMMON *cm = &cpi->common;
+
+  if (cm->superres_scale_numerator == SUPERRES_SCALE_DENOMINATOR) return;
+
+  av1_superres_upscale(cm, NULL);
+
+  // If regular resizing is occurring the source will need to be downscaled to
+  // match the upscaled superres resolution. Otherwise the original source is
+  // used.
+  if (av1_resize_unscaled(cpi)) {  // TODO(afergs): Check if this does anything.
+    cpi->source = cpi->un_scaled_source;
+    if (cpi->last_source != NULL) cpi->last_source = cpi->unscaled_last_source;
+  } else {
+    // Do downscale. cm->(width|height) has been updated by av1_superres_upscale
+    if (aom_realloc_frame_buffer(&cpi->scaled_source, cm->width, cm->height,
+                                 cm->subsampling_x, cm->subsampling_y,
+#if CONFIG_HIGHBITDEPTH
+                                 cm->use_highbitdepth,
+#endif  // CONFIG_HIGHBITDEPTH
+                                 AOM_BORDER_IN_PIXELS, cm->byte_alignment, NULL,
+                                 NULL, NULL))
+      aom_internal_error(
+          &cm->error, AOM_CODEC_MEM_ERROR,
+          "Failed to reallocate scaled source buffer for superres");
+    cpi->source =
+        av1_scale_if_required(cm, cpi->un_scaled_source, &cpi->scaled_source);
+    assert(cpi->source == &cpi->scaled_source);
+
+    if (cpi->last_source != NULL) {
+      // Intentional error - remove the '!'
+      if (!aom_realloc_frame_buffer(
+              &cpi->scaled_last_source, cm->width, cm->height,
+              cm->subsampling_x, cm->subsampling_y,
+#if CONFIG_HIGHBITDEPTH
+              cm->use_highbitdepth,
+#endif  // CONFIG_HIGHBITDEPTH
+              AOM_BORDER_IN_PIXELS, cm->byte_alignment, NULL, NULL, NULL))
+        aom_internal_error(
+            &cm->error, AOM_CODEC_MEM_ERROR,
+            "Failed to reallocate scaled last source buffer for superres "
+            "upscaling");
+      cpi->last_source = av1_scale_if_required(cm, cpi->unscaled_last_source,
+                                               &cpi->scaled_last_source);
+      assert(cpi->last_source == &cpi->scaled_last_source);
+    }
+  }
+}
+#endif  // CONFIG_FRAME_SUPERRES
+
+static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
+  MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
+  struct loopfilter *lf = &cm->lf;
+  if (is_lossless_requested(&cpi->oxcf)) {
+    lf->filter_level = 0;
+  } else {
+    struct aom_usec_timer timer;
+
+    aom_clear_system_state();
+
+    aom_usec_timer_start(&timer);
+
+    av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_pick);
+
+    aom_usec_timer_mark(&timer);
+    cpi->time_pick_lpf += aom_usec_timer_elapsed(&timer);
+  }
+
+  if (lf->filter_level > 0) {
+#if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
+    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
+#else
+    if (cpi->num_workers > 1)
+      av1_loop_filter_frame_mt(cm->frame_to_show, cm, xd->plane,
+                               lf->filter_level, 0, 0, cpi->workers,
+                               cpi->num_workers, &cpi->lf_row_sync);
+    else
+      av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
+#endif
+  }
+#if CONFIG_CDEF
+  if (is_lossless_requested(&cpi->oxcf)) {
+    cm->cdef_bits = 0;
+    cm->cdef_strengths[0] = 0;
+    cm->nb_cdef_strengths = 1;
+  } else {
+    // Find cm->dering_level, cm->clpf_strength_u and cm->clpf_strength_v
+    av1_cdef_search(cm->frame_to_show, cpi->source, cm, xd);
+
+    // Apply the filter
+    av1_cdef_frame(cm->frame_to_show, cm, xd);
+  }
+#endif
+
+#if CONFIG_FRAME_SUPERRES
+  superres_post_encode(cpi);
+#endif  // CONFIG_FRAME_SUPERRES
+
+#if CONFIG_LOOP_RESTORATION
+  av1_pick_filter_restoration(cpi->source, cpi, cpi->sf.lpf_pick);
+  if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+      cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+      cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
+    av1_loop_restoration_frame(cm->frame_to_show, cm, cm->rst_info, 7, 0, NULL);
+  }
+#endif  // CONFIG_LOOP_RESTORATION
+  aom_extend_frame_inner_borders(cm->frame_to_show);
+}
+
 static void reset_use_upsampled_references(AV1_COMP *cpi) {
   MV_REFERENCE_FRAME ref_frame;
 
@@ -3837,13 +3895,6 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
   const int use_upsampled_ref = cpi->sf.use_upsampled_references;
 
   aom_clear_system_state();
-
-#if CONFIG_FRAME_SUPERRES
-  // TODO(afergs): Figure out when is actually a good time to do superres
-  cm->superres_scale_numerator = SUPERRES_SCALE_DENOMINATOR;
-  // (uint8_t)(rand() % 9 + SUPERRES_SCALE_NUMERATOR_MIN);
-  cpi->superres_pending = cpi->oxcf.superres_enabled && 0;
-#endif  // CONFIG_FRAME_SUPERRES
 
   setup_frame_size(cpi);
   av1_resize_step(cpi);
@@ -3899,11 +3950,6 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
   // transform / motion compensation build reconstruction frame
   av1_encode_frame(cpi);
 
-#if CONFIG_FRAME_SUPERRES
-  // TODO(afergs): Upscale the frame to show
-  cpi->superres_pending = 0;
-#endif  // CONFIG_FRAME_SUPERRES
-
   // Update some stats from cyclic refresh, and check if we should not update
   // golden reference, for 1 pass CBR.
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->frame_type != KEY_FRAME &&
@@ -3941,7 +3987,7 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
     setup_frame_size(cpi);
 
 #if CONFIG_FRAME_SUPERRES
-    if (loop_count == 0 || av1_resize_pending(cpi) || cpi->superres_pending) {
+    if (loop_count == 0 || av1_resize_pending(cpi) || cm->superres_pending) {
 #else
     if (loop_count == 0 || av1_resize_pending(cpi)) {
 #endif  // CONFIG_FRAME_SUPERRES
@@ -4666,6 +4712,14 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   cm->delta_lf_present_flag = cpi->oxcf.deltaq_mode == DELTA_Q_LF;
 #endif
 
+#if CONFIG_FRAME_SUPERRES
+  // Don't set superres if (cm->show_existing_frame)
+  int new_num = rand() % 9 + 8;
+  if (cm->superres_scale_numerator != new_num) cm->superres_pending = 1;
+  cm->superres_scale_numerator = new_num;
+  printf("\nsuperres_scale_numerator: %d\n", cm->superres_scale_numerator);
+#endif  // CONFIG_FRAME_SUPERRES
+
   if (cpi->sf.recode_loop == DISALLOW_RECODE) {
     encode_without_recode_loop(cpi);
   } else {
@@ -4710,6 +4764,8 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 // off.
 #endif  // CONFIG_EXT_REFS
 
+  // TODO(afergs): Split up loopfilter_frame so superres can occur up here
+  //               instead of tucked away in loopfilter_frame?
   // Pick the loop filter level for the frame.
   loopfilter_frame(cpi, cm);
 

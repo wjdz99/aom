@@ -887,4 +887,91 @@ void av1_calculate_superres_size(const AV1_COMMON *cm, int *width,
   *width = *width * cm->superres_scale_numerator / SUPERRES_SCALE_DENOMINATOR;
   *height = *height * cm->superres_scale_numerator / SUPERRES_SCALE_DENOMINATOR;
 }
+
+// TODO(afergs): Look for in-place upscaling
+// TODO(afergs): aom_ vs av1_ functions? Which can I use?
+void av1_superres_upscale(AV1_COMMON *cm, BufferPool *const pool) {
+  if (cm->superres_scale_numerator == SUPERRES_SCALE_DENOMINATOR) return;
+
+  // Upscale decoded image.
+  YV12_BUFFER_CONFIG copy_buffer;
+  memset(&copy_buffer, 0, sizeof(copy_buffer));
+
+  YV12_BUFFER_CONFIG *const frame_to_show = get_frame_new_buffer(cm);
+
+  if (aom_alloc_frame_buffer(&copy_buffer, cm->width, cm->height,
+                             cm->subsampling_x, cm->subsampling_y,
+#ifdef CONFIG_HIGHBITDEPTH
+                             cm->use_highbitdepth,
+#endif  // CONFIG_HIGHBITDEPTH
+                             AOM_BORDER_IN_PIXELS, cm->byte_alignment))
+    aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                       "Failed to allocate copy buffer for superres upscaling");
+
+  aom_yv12_copy_frame(frame_to_show, &copy_buffer);
+  // Copy function assumes the frames are the same size, doesn't copy bit_depth.
+  copy_buffer.bit_depth = frame_to_show->bit_depth;
+
+  // Set target upscaled resolution
+  cm->width = cm->superres_upscaled_width;
+  cm->height = cm->superres_upscaled_height;
+
+  // Realloc the current frame at a higher resolution in place
+  if (pool != NULL) {
+    // Use callbacks if on the decoder
+    aom_codec_frame_buffer_t *fb =
+        &pool->frame_bufs[cm->new_fb_idx].raw_frame_buffer;
+    aom_release_frame_buffer_cb_fn_t release_fb_cb = pool->release_fb_cb;
+    aom_get_frame_buffer_cb_fn_t cb = pool->get_fb_cb;
+    void *cb_priv = pool->cb_priv;
+
+    // Realloc with callback does not release the frame buffer - do it first
+    if (release_fb_cb(cb_priv, fb))
+      aom_internal_error(
+          &cm->error, AOM_CODEC_MEM_ERROR,
+          "Failed to free current frame buffer before superres upscaling");
+
+    if (aom_realloc_frame_buffer(frame_to_show, cm->width, cm->height,
+                                 cm->subsampling_x, cm->subsampling_y,
+#ifdef CONFIG_HIGHBITDEPTH
+                                 cm->use_highbitdepth,
+#endif  // CONFIG_HIGHBITDEPTH
+                                 AOM_BORDER_IN_PIXELS, cm->byte_alignment, fb,
+                                 cb, cb_priv))
+      aom_internal_error(
+          &cm->error, AOM_CODEC_MEM_ERROR,
+          "Failed to allocate current frame buffer for superres upscaling");
+  } else {
+    // Don't use callbacks on the encoder
+    if (aom_alloc_frame_buffer(frame_to_show, cm->width, cm->height,
+                               cm->subsampling_x, cm->subsampling_y,
+#ifdef CONFIG_HIGHBITDEPTH
+                               cm->use_highbitdepth,
+#endif  // CONFIG_HIGHBITDEPTH
+                               AOM_BORDER_IN_PIXELS, cm->byte_alignment))
+      aom_internal_error(
+          &cm->error, AOM_CODEC_MEM_ERROR,
+          "Failed to reallocate current frame buffer for superres upscaling");
+  }
+  // TODO(afergs): verify frame_to_show is correct after realloc
+  //               encoder:
+  //               decoder:
+  frame_to_show->bit_depth = copy_buffer.bit_depth;
+
+  // Scale up and back into the frame to show
+  // TODO(afergs): Don't really need to call scale if required, just call the
+  //               underlying function directly
+  YV12_BUFFER_CONFIG *dst =
+      av1_scale_if_required(cm, &copy_buffer, frame_to_show);
+  // TODO(afergs): Can it ever not be needed? Scaling is basically guaranteed.
+  assert(frame_to_show == dst);
+  (void)dst;
+
+  // Free the copy buffer
+  aom_free_frame_buffer(&copy_buffer);
+
+  // TODO(afergs): [STAGE II] fit Wiener filter to images, save params to cm,
+  //                          and write to bitstream...
+  cm->superres_pending = 0;
+}
 #endif  // CONFIG_FRAME_SUPERRES
