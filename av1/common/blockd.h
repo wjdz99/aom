@@ -73,6 +73,9 @@ typedef enum {
 typedef enum {
   KEY_FRAME = 0,
   INTER_FRAME = 1,
+#if CONFIG_AOM_SFRAME
+  S_FRAME = 2,
+#endif
   FRAME_TYPES,
 } FRAME_TYPE;
 

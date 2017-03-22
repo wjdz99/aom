@@ -338,6 +338,10 @@ static const arg_def_t kf_min_dist =
     ARG_DEF(NULL, "kf-min-dist", 1, "Minimum keyframe interval (frames)");
 static const arg_def_t kf_max_dist =
     ARG_DEF(NULL, "kf-max-dist", 1, "Maximum keyframe interval (frames)");
+#if CONFIG_AOM_SFRAME
+static const arg_def_t sframe_interval =
+    ARG_DEF(NULL, "sframe-interval", 1, "sframe interval (frames)");
+#endif
 static const arg_def_t kf_disabled =
     ARG_DEF(NULL, "disable-kf", 0, "Disable keyframe placement");
 static const arg_def_t *kf_args[] = { &kf_min_dist, &kf_max_dist, &kf_disabled,
@@ -1248,6 +1252,10 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       config->cfg.kf_max_dist = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &kf_disabled, argi)) {
       config->cfg.kf_mode = AOM_KF_DISABLED;
+#if CONFIG_AOM_SFRAME
+    } else if (arg_match(&arg, &sframe_interval, argi)) {
+      config->cfg.sframe_interval = arg_parse_uint(&arg);
+#endif
 #if CONFIG_AOM_HIGHBITDEPTH
     } else if (arg_match(&arg, &test16bitinternalarg, argi)) {
       if (strcmp(global->codec->name, "av1") == 0 ||

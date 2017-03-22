@@ -3533,7 +3533,11 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (!seg->enabled) return;
 
   // Segmentation map
-  if (!frame_is_intra_only(cm) && !cm->error_resilient_mode) {
+  if (!frame_is_intra_only(cm) && !cm->error_resilient_mode
+#if CONFIG_AOM_SFRAME
+    && !cm->is_sframe
+#endif
+    ) {
     aom_wb_write_bit(wb, seg->update_map);
   } else {
     assert(seg->update_map == 1);
@@ -3543,7 +3547,11 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
     av1_choose_segmap_coding_method(cm, xd);
 
     // Write out the chosen coding method.
-    if (!frame_is_intra_only(cm) && !cm->error_resilient_mode) {
+    if (!frame_is_intra_only(cm) && !cm->error_resilient_mode
+#if CONFIG_AOM_SFRAME
+    && !cm->is_sframe
+#endif
+    ) {
       aom_wb_write_bit(wb, seg->temporal_update);
     } else {
       assert(seg->temporal_update == 0);
@@ -4182,8 +4190,13 @@ static void write_frame_size_with_refs(AV1_COMP *cpi,
       found &= cm->render_width == cfg->render_width &&
                cm->render_height == cfg->render_height;
     }
+#if CONFIG_AOM_SFRAME
+    if (cm->is_sframe)
+      found = 0;
+    else
+#endif
     aom_wb_write_bit(wb, found);
-    if (found) {
+  if (found) {
       break;
     }
   }
@@ -4297,7 +4310,12 @@ static void write_uncompressed_header(AV1_COMP *cpi,
   }
 #endif  // CONFIG_EXT_REFS
 
+#if CONFIG_AOM_SFRAME
+  // change frame_type to 2 bits as added s_frame type:
+  aom_wb_write_literal(wb, cm->frame_type, 2);
+#else
   aom_wb_write_bit(wb, cm->frame_type);
+#endif
   aom_wb_write_bit(wb, cm->show_frame);
   aom_wb_write_bit(wb, cm->error_resilient_mode);
 
@@ -4361,13 +4379,19 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 #endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
     } else {
       MV_REFERENCE_FRAME ref_frame;
-
+#if CONFIG_AOM_SFRAME
+    if (!cm->is_sframe) {
+#endif
 #if CONFIG_EXT_REFS
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
 #else
       aom_wb_write_literal(wb, get_refresh_mask(cpi), REF_FRAMES);
 #endif  // CONFIG_EXT_REFS
-
+#if CONFIG_AOM_SFRAME
+    } else {
+        cm->refresh_mask=0xFF;
+    }
+#endif
 #if CONFIG_EXT_REFS
       if (!cpi->refresh_frame_mask) {
         // NOTE: "cpi->refresh_frame_mask == 0" indicates that the coded frame
@@ -4380,7 +4404,16 @@ static void write_uncompressed_header(AV1_COMP *cpi,
         assert(get_ref_frame_map_idx(cpi, ref_frame) != INVALID_IDX);
         aom_wb_write_literal(wb, get_ref_frame_map_idx(cpi, ref_frame),
                              REF_FRAMES_LOG2);
+#if CONFIG_AOM_SFRAME
+        if (!cm->is_sframe)
+#endif
         aom_wb_write_bit(wb, cm->ref_frame_sign_bias[ref_frame]);
+#if CONFIG_AOM_SFRAME
+        else
+        {
+          cm->ref_frame_sign_bias[ref_frame]=0;
+        }
+#endif
 #if CONFIG_REFERENCE_BUFFER
         if (cpi->seq_params.frame_id_numbers_present_flag) {
           int i = get_ref_frame_map_idx(cpi, ref_frame);
@@ -4422,7 +4455,11 @@ static void write_uncompressed_header(AV1_COMP *cpi,
   }
 
 #if CONFIG_REFERENCE_BUFFER
-  cm->refresh_mask = cm->frame_type == KEY_FRAME ? 0xFF : get_refresh_mask(cpi);
+#if CONFIG_AOM_SFRAME
+  cm->refresh_mask = (cm->frame_type == KEY_FRAME) || (cm->frame_type == S_FRAME) ? 0xFF : get_refresh_mask(cpi);
+#else
+  cm->refresh_mask = (cm->frame_type == KEY_FRAME) ? 0xFF : get_refresh_mask(cpi);
+#endif
 #endif
 
   if (!cm->error_resilient_mode) {

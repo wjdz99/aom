@@ -293,7 +293,11 @@ static void setup_frame(AV1_COMP *cpi) {
   // frames where the error_resilient_mode or intra_only flag is set. For
   // other inter-frames the encoder currently uses only two contexts;
   // context 1 for ALTREF frames and context 0 for the others.
-  if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+  if (frame_is_intra_only(cm) || cm->error_resilient_mode
+#if CONFIG_AOM_SFRAME
+    || cm->is_sframe
+#endif
+	  ) {
     av1_setup_past_independence(cm);
   } else {
 #if CONFIG_EXT_REFS
@@ -317,7 +321,11 @@ static void setup_frame(AV1_COMP *cpi) {
       cm->frame_context_idx = REGULAR_FRAME;
   }
 
-  if (cm->frame_type == KEY_FRAME) {
+  if (cm->frame_type == KEY_FRAME
+#if CONFIG_AOM_SFRAME
+    || cm->is_sframe
+#endif
+    ) {
     cpi->refresh_golden_frame = 1;
     cpi->refresh_alt_ref_frame = 1;
     av1_zero(cpi->interp_filter_selected);
@@ -980,6 +988,9 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
   cpi->ref_frame_flags = 0;
 
   init_buffer_indices(cpi);
+#if CONFIG_AOM_SFRAME
+  cm->is_sframe = 0;
+#endif
 }
 
 static void set_rc_buffer_sizes(RATE_CONTROL *rc,
@@ -3244,7 +3255,11 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
   }
   // At this point the new frame has been encoded.
   // If any buffer copy / swapping is signaled it should be done here.
-  if (cm->frame_type == KEY_FRAME) {
+  if (cm->frame_type == KEY_FRAME
+#if CONFIG_AOM_SFRAME
+    ||cm->is_sframe
+#endif
+    ) {
     ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->gld_fb_idx],
                cm->new_fb_idx);
 #if CONFIG_EXT_REFS
@@ -4780,7 +4795,11 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     cpi->sf.interp_filter_search_mask = setup_interp_filter_search_mask(cpi);
 
   // Set various flags etc to special state if it is a key frame.
-  if (frame_is_intra_only(cm)) {
+  if (frame_is_intra_only(cm)
+#if CONFIG_AOM_SFRAME
+    || cm->is_sframe
+#endif
+    ) {
     // Reset the loop filter deltas and segmentation map.
     av1_reset_segment_features(cm);
 
@@ -4860,6 +4879,12 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       }
 #endif
       cm->current_frame_id = ((msb << 8) + lsb) % (1 << frame_id_length);
+#if CONFIG_AOM_SFRAME
+      // S_frame is meant for stitching  different streams of different  resolutions together
+      // so the Current_frame_id must be the same accross different streams of the same content
+      // current _frame_id  should be the same and not random. 0x37 is a chosen number as start point
+      cm->current_frame_id = 0x37;
+#endif
     } else {
       cm->current_frame_id =
           (cm->current_frame_id + 1 + (1 << frame_id_length)) %
@@ -4897,7 +4922,11 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   }
 
   // If the encoder forced a KEY_FRAME decision
-  if (cm->frame_type == KEY_FRAME) {
+  if (cm->frame_type == KEY_FRAME
+#if CONFIG_AOM_SFRAME
+    || cm->is_sframe
+#endif
+    ) {
     cpi->refresh_last_frame = 1;
   }
 

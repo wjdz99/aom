@@ -1367,6 +1367,11 @@ void av1_rc_get_one_pass_vbr_params(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
   int target;
+#if CONFIG_AOM_SFRAME
+  int altref_enabled;
+  int sframe_mode = 1;
+  int sframe_interval = cpi->oxcf.sframe_interval;
+#endif
   // TODO(yaowu): replace the "auto_key && 0" below with proper decision logic.
   if (!cpi->refresh_alt_ref_frame &&
       (cm->current_video_frame == 0 || (cpi->frame_flags & FRAMEFLAGS_KEY) ||
@@ -1378,7 +1383,46 @@ void av1_rc_get_one_pass_vbr_params(AV1_COMP *cpi) {
     rc->kf_boost = DEFAULT_KF_BOOST;
     rc->source_alt_ref_active = 0;
   } else {
-    cm->frame_type = INTER_FRAME;
+  cm->frame_type = INTER_FRAME;
+#if CONFIG_AOM_SFRAME
+  altref_enabled = is_altref_enabled(cpi);
+  if (altref_enabled) {
+    if (sframe_mode == 1) { // mode 1 : insert sframe if it matches altref frame. otherwise do nothing
+      if (cm->current_video_frame%sframe_interval == 0  && cpi->refresh_alt_ref_frame && cm->frame_type != KEY_FRAME && cm->current_video_frame!=0) {
+        cm->is_sframe = 1;
+        cm->frame_type = S_FRAME;
+        // printf ("is SFRAME \n");
+        } else {
+            cm->is_sframe = 0;
+            cm->frame_type = INTER_FRAME;
+            // printf ("is not SFRAME \n");
+        }
+      } else { // second mode: if sframe is due, it will only be inserted at the closet coming altref frame
+          if (cm->current_video_frame%sframe_interval == 0  && cm->frame_type != KEY_FRAME && cm->current_video_frame!=0)
+            rc->sframe_due = 1;
+            if (rc->sframe_due && cpi->refresh_alt_ref_frame) {
+              cm->is_sframe = 1;
+              cm->frame_type = S_FRAME;
+              rc->sframe_due = 0;
+              // printf ("is SFRAME \n");
+        } else {
+          cm->is_sframe = 0;
+          cm->frame_type = INTER_FRAME;
+          // printf ("is not SFRAME \n");
+        }
+    }
+  }else{
+    if (cm->current_video_frame%sframe_interval == 0 && cm->frame_type != KEY_FRAME && cm->current_video_frame!=0) {
+      cm->is_sframe = 1;
+      cm->frame_type = S_FRAME;
+      // printf ("is SFRAME \n");
+    } else {
+      cm->is_sframe = 0;
+      cm->frame_type = INTER_FRAME;
+      // printf ("is not SFRAME \n");
+    }
+  }
+#endif // CONFIG_AOM_SFRAME
   }
   if (rc->frames_till_gf_update_due == 0) {
     rc->baseline_gf_interval = (rc->min_gf_interval + rc->max_gf_interval) / 2;
@@ -1399,6 +1443,12 @@ void av1_rc_get_one_pass_vbr_params(AV1_COMP *cpi) {
   else
     target = calc_pframe_target_size_one_pass_vbr(cpi);
   av1_rc_set_frame_target(cpi, target);
+#if CONFIG_AOM_SFRAME
+  if (cm->is_sframe == 1)
+    printf("\n   *******   frame number %d  is   SFrame \n ******** ",cm->current_video_frame);
+  else
+  printf("\n  *******   frame number %d   is NOT SFrame \n ******** ",cm->current_video_frame);
+#endif
 }
 
 static int calc_pframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {

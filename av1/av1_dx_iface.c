@@ -195,6 +195,9 @@ static aom_codec_err_t decoder_peek_si_internal(
 
   {
     int show_frame;
+#if CONFIG_AOM_SFRAME
+    int frame_type;
+#endif
     int error_resilient;
     struct aom_read_bit_buffer rb = { data, data + data_sz, 0, NULL, NULL };
     const int frame_marker = aom_rb_read_literal(&rb, 2);
@@ -214,7 +217,13 @@ static aom_codec_err_t decoder_peek_si_internal(
 
     if (data_sz <= 8) return AOM_CODEC_UNSUP_BITSTREAM;
 
+#if CONFIG_AOM_SFRAME
+    // when enabling SFRAME frame_type is 2 bits
+    frame_type = aom_rb_read_literal(&rb, 2);
+    si->is_kf = !frame_type;
+#else
     si->is_kf = !aom_rb_read_bit(&rb);
+#endif
     show_frame = aom_rb_read_bit(&rb);
     error_resilient = aom_rb_read_bit(&rb);
 #if CONFIG_REFERENCE_BUFFER

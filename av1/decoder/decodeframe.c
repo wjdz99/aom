@@ -2492,13 +2492,21 @@ static void setup_segmentation(AV1_COMMON *const cm,
   if (!seg->enabled) return;
 
   // Segmentation map update
-  if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+  if (frame_is_intra_only(cm)
+#if CONFIG_AOM_SFRAME
+    || cm->is_sframe
+#endif
+    || cm->error_resilient_mode) {
     seg->update_map = 1;
   } else {
     seg->update_map = aom_rb_read_bit(rb);
   }
   if (seg->update_map) {
-    if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+    if (frame_is_intra_only(cm)
+#if CONFIG_AOM_SFRAME
+      || cm->is_sframe
+#endif
+      || cm->error_resilient_mode) {
       seg->temporal_update = 0;
     } else {
       seg->temporal_update = aom_rb_read_bit(rb);
@@ -2906,17 +2914,23 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
   int found = 0, i;
   int has_valid_ref_frame = 0;
   BufferPool *const pool = cm->buffer_pool;
-  for (i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-    if (aom_rb_read_bit(rb)) {
-      YV12_BUFFER_CONFIG *const buf = cm->frame_refs[i].buf;
-      width = buf->y_crop_width;
-      height = buf->y_crop_height;
-      cm->render_width = buf->render_width;
-      cm->render_height = buf->render_height;
-      found = 1;
-      break;
+#if CONFIG_AOM_SFRAME
+  if (!cm->is_sframe) {
+#endif
+    for (i = 0; i < INTER_REFS_PER_FRAME; ++i) {
+      if (aom_rb_read_bit(rb)) {
+        YV12_BUFFER_CONFIG *const buf = cm->frame_refs[i].buf;
+        width = buf->y_crop_width;
+        height = buf->y_crop_height;
+        cm->render_width = buf->render_width;
+        cm->render_height = buf->render_height;
+        found = 1;
+        break;
+      }
     }
+#if CONFIG_AOM_SFRAME
   }
+#endif
 
   if (!found) {
     av1_read_frame_size(rb, &width, &height);
@@ -3991,6 +4005,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   BufferPool *const pool = cm->buffer_pool;
   RefCntBuffer *const frame_bufs = pool->frame_bufs;
   int i, mask, ref_index = 0;
+  int marker;
   size_t sz;
 
 #if CONFIG_REFERENCE_BUFFER
@@ -4005,8 +4020,8 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   // NOTE: By default all coded frames to be used as a reference
   cm->is_reference_frame = 1;
 #endif  // CONFIG_EXT_REFS
-
-  if (aom_rb_read_literal(rb, 2) != AOM_FRAME_MARKER)
+  marker = aom_rb_read_literal(rb, 2);
+  if (marker != AOM_FRAME_MARKER)
     aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                        "Invalid frame marker");
 
@@ -4060,8 +4075,12 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 
     return 0;
   }
-
+#if CONFIG_AOM_SFRAME
+// frame_type is now 2 bits  if enabled SFRAME
+  cm->frame_type = (FRAME_TYPE)aom_rb_read_literal(rb,2);
+#else
   cm->frame_type = (FRAME_TYPE)aom_rb_read_bit(rb);
+#endif
   cm->show_frame = aom_rb_read_bit(rb);
   cm->error_resilient_mode = aom_rb_read_bit(rb);
 #if CONFIG_REFERENCE_BUFFER
@@ -4170,7 +4189,20 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
       cm->ans_window_size_log2 = aom_rb_read_literal(rb, 4) + 8;
 #endif
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
+#if CONFIG_AOM_SFRAME
+    if (cm->frame_type == S_FRAME)
+      cm->is_sframe = 1;
+    else
+      cm->is_sframe = 0;
+
+    if (cm->is_sframe) {
+      pbi->refresh_frame_flags = 0xFF;
+    } else {
       pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+    }
+#else
+      pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+#endif
 
 #if CONFIG_EXT_REFS
       if (!pbi->refresh_frame_flags) {
@@ -4186,7 +4218,15 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
         RefBuffer *const ref_frame = &cm->frame_refs[i];
         ref_frame->idx = idx;
         ref_frame->buf = &frame_bufs[idx].buf;
+#if CONFIG_AOM_SFRAME
+        if (cm->is_sframe) {
+          cm->ref_frame_sign_bias[LAST_FRAME + i] = 0;
+        } else {
+          cm->ref_frame_sign_bias[LAST_FRAME + i] = aom_rb_read_bit(rb);
+        }
+#else
         cm->ref_frame_sign_bias[LAST_FRAME + i] = aom_rb_read_bit(rb);
+#endif
 #if CONFIG_REFERENCE_BUFFER
         if (pbi->seq_params.frame_id_numbers_present_flag) {
           int frame_id_length = pbi->seq_params.frame_id_length_minus7 + 7;
@@ -4308,7 +4348,11 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   unlock_buffer_pool(pool);
   pbi->hold_ref_buf = 1;
 
-  if (frame_is_intra_only(cm) || cm->error_resilient_mode)
+  if (frame_is_intra_only(cm) || cm->error_resilient_mode
+#if CONFIG_AOM_SFRAME
+    || cm->is_sframe
+#endif
+    )
     av1_setup_past_independence(cm);
 
 #if CONFIG_EXT_PARTITION
@@ -4871,10 +4915,18 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
            !cm->prev_frame->intra_only);
   }
 #else
+#if CONFIG_AOM_SFRAME
+  if (cm->is_sframe) {
+    cm->use_prev_frame_mvs = 0;
+  } else {
+#endif
   cm->use_prev_frame_mvs =
       !cm->error_resilient_mode && cm->width == cm->last_width &&
       cm->height == cm->last_height && !cm->last_intra_only &&
       cm->last_show_frame && (cm->last_frame_type != KEY_FRAME);
+#if CONFIG_AOM_SFRAME
+  }
+#endif
 #endif
 #if CONFIG_EXT_REFS
   // NOTE(zoeliu): As cm->prev_frame can take neither a frame of

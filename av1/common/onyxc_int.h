@@ -384,7 +384,9 @@ typedef struct AV1Common {
   TXFM_CONTEXT left_txfm_context[MAX_MIB_SIZE];
 #endif
   int above_context_alloc_cols;
-
+#if CONFIG_AOM_SFRAME
+  int is_sframe;
+#endif
   // scratch memory for intraonly/keyframe forward updates from default tables
   // - this is intentionally not placed in FRAME_CONTEXT since it's reset upon
   // each keyframe and not used afterwards

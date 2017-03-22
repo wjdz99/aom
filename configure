@@ -307,6 +307,7 @@ EXPERIMENT_LIST="
     masked_tx
     dependent_horztiles
     daala_dist
+    aom_sframe
     tripred
     palette_throughput
     ref_adapt

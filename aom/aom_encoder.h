@@ -574,6 +574,13 @@ typedef struct aom_codec_enc_cfg {
    * equal to kf_max_dist for a fixed interval.
    */
   unsigned int kf_max_dist;
+
+  /*!\brief sframe interval
+   *
+   * This value, expressed as a number of frames, forces the encoder
+   * when to insert an s-frame.
+   */
+   unsigned int sframe_interval;
 } aom_codec_enc_cfg_t; /**< alias for struct aom_codec_enc_cfg */
 
 /*!\brief Initialize an encoder instance

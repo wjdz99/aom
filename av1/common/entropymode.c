@@ -3194,6 +3194,9 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
   cm->fc->initialized = 1;
 
   if (cm->frame_type == KEY_FRAME || cm->error_resilient_mode ||
+#if CONFIG_AOM_SFRAME
+    cm->is_sframe ||
+#endif
       cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL) {
     // Reset all frame contexts.
     for (i = 0; i < FRAME_CONTEXTS; ++i) cm->frame_contexts[i] = *cm->fc;

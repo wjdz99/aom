@@ -101,7 +101,9 @@ typedef struct {
   int source_alt_ref_pending;
   int source_alt_ref_active;
   int is_src_frame_alt_ref;
-
+#if CONFIG_AOM_SFRAME
+  int sframe_due;
+#endif
 #if CONFIG_EXT_REFS
   // Length of the bi-predictive frame group interval
   int bipred_group_interval;

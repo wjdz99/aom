@@ -5116,9 +5116,17 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                               !cm->intra_only && !cm->prev_frame->intra_only;
   }
 #else
+#if CONFIG_AOM_SFRAME
+  if (cm->is_sframe) {
+    cm->use_prev_frame_mvs = 0;
+  } else {
+#endif
   cm->use_prev_frame_mvs =
       !cm->error_resilient_mode && cm->width == cm->last_width &&
       cm->height == cm->last_height && !cm->intra_only && cm->last_show_frame;
+#if CONFIG_AOM_SFRAME
+  }
+#endif
 #endif
 
 #if CONFIG_EXT_REFS
