@@ -11275,9 +11275,11 @@ PALETTE_EXIT:
         best_mbmode.mode = ZEROMV;
 #if CONFIG_EXT_INTER
     } else {
+      /*
       const MV_REFERENCE_FRAME refs[2] = { best_mbmode.ref_frame[0],
                                            best_mbmode.ref_frame[1] };
       int_mv zeromv[2];
+                                           */
 #if CONFIG_GLOBAL_MOTION
       zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]],
                                               cm->allow_high_precision_mv,
@@ -11322,6 +11324,19 @@ PALETTE_EXIT:
   }
 
 #if CONFIG_REF_MV
+  // Make sure that the ref_mv_idx is only nonzero when we're
+  // using a mode which can support ref_mv_idx
+  if (best_mbmode.ref_mv_idx != 0 &&
+#if CONFIG_EXT_INTER
+      !(best_mbmode.mode == NEARMV || best_mbmode.mode == NEWMV)
+#else
+      !(best_mbmode.mode == NEARMV || best_mbmode.mode == NEWMV
+        || best_mbmode.mode == NEAR_NEARMV || best_mbmode.mode == NEW_NEWMV)
+#endif  // CONFIG_EXT_INTER
+        ) {
+    best_mbmode.ref_mv_idx = 0;
+  }
+
   {
     int8_t ref_frame_type = av1_ref_frame_type(best_mbmode.ref_frame);
     int16_t mode_ctx = mbmi_ext->mode_context[ref_frame_type];
