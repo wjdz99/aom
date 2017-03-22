@@ -629,10 +629,6 @@ typedef struct AV1_COMP {
   int resize_buffer_underflow;
   int resize_count;
 
-#if CONFIG_FRAME_SUPERRES
-  int superres_pending;
-#endif  // CONFIG_FRAME_SUPERRES
-
   // VAR_BASED_PARTITION thresholds
   // 0 - threshold_128x128;
   // 1 - threshold_64x64;

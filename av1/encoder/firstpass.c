@@ -1245,18 +1245,6 @@ void av1_calculate_next_scaled_size(const AV1_COMP *cpi,
                          cpi->resize_next_scale_den;
 }
 
-#if CONFIG_FRAME_SUPERRES
-void av1_calculate_superres_size(const AV1_COMP *cpi, int *encoded_width,
-                                 int *encoded_height) {
-  *encoded_width = cpi->oxcf.scaled_frame_width *
-                   cpi->common.superres_scale_numerator /
-                   SUPERRES_SCALE_DENOMINATOR;
-  *encoded_height = cpi->oxcf.scaled_frame_height *
-                    cpi->common.superres_scale_numerator /
-                    SUPERRES_SCALE_DENOMINATOR;
-}
-#endif  // CONFIG_FRAME_SUPERRES
-
 void av1_init_second_pass(AV1_COMP *cpi) {
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   TWO_PASS *const twopass = &cpi->twopass;

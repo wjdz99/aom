@@ -292,8 +292,10 @@ typedef struct AV1Common {
 
   loop_filter_info_n lf_info;
 #if CONFIG_FRAME_SUPERRES
+  int superres_pending;
   // The numerator of the superres scale; the denominator is fixed.
   uint8_t superres_scale_numerator;
+  YV12_BUFFER_CONFIG superres_buffer;
 #endif  // CONFIG_FRAME_SUPERRES
 #if CONFIG_LOOP_RESTORATION
   RestorationInfo rst_info[MAX_MB_PLANE];

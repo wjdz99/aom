@@ -4262,7 +4262,6 @@ static void write_superres_scale(const AV1_COMMON *const cm,
     aom_wb_write_bit(wb, 0);  // no scaling
   } else {
     aom_wb_write_bit(wb, 1);  // scaling, write scale factor
-    // TODO(afergs): write factor to the compressed header instead?
     aom_wb_write_literal(
         wb, cm->superres_scale_numerator - SUPERRES_SCALE_NUMERATOR_MIN,
         SUPERRES_SCALE_BITS);
@@ -4417,11 +4416,6 @@ static void write_uncompressed_header(AV1_COMP *cpi,
     aom_wb_write_literal(wb, cm->current_frame_id, frame_id_len);
   }
 #endif
-
-#if CONFIG_FRAME_SUPERRES
-  // TODO(afergs): Remove - this is just to stop superres from breaking
-  cm->superres_scale_numerator = SUPERRES_SCALE_DENOMINATOR;
-#endif  // CONFIG_FRAME_SUPERRES
 
   if (cm->frame_type == KEY_FRAME) {
     write_sync_code(wb);

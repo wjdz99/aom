@@ -881,3 +881,13 @@ YV12_BUFFER_CONFIG *av1_scale_if_required(AV1_COMMON *cm,
     return unscaled;
   }
 }
+
+#if CONFIG_FRAME_SUPERRES
+void av1_calculate_superres_size(const AV1_COMMON *cm, int *encoded_width,
+                                 int *encoded_height) {
+  *encoded_width = *encoded_width * cm->superres_scale_numerator /
+                   SUPERRES_SCALE_DENOMINATOR;
+  *encoded_height = *encoded_height * cm->superres_scale_numerator /
+                    SUPERRES_SCALE_DENOMINATOR;
+}
+#endif  // CONFIG_FRAME_SUPERRES

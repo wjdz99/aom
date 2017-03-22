@@ -49,6 +49,9 @@
 #include "av1/common/quant_common.h"
 #include "av1/common/reconinter.h"
 #include "av1/common/reconintra.h"
+#if CONFIG_FRAME_SUPERRES
+#include "av1/common/resize.h"
+#endif  // CONFIG_FRAME_SUPERRES
 #include "av1/common/seg_common.h"
 #include "av1/common/thread_common.h"
 #include "av1/common/tile_common.h"
@@ -4836,6 +4839,52 @@ static void make_update_tile_list_dec(AV1Decoder *pbi, int tile_rows,
 }
 #endif
 
+#if CONFIG_FRAME_SUPERRES
+void superres_post_decode(AV1_COMMON *cm) {
+  if (cm->superres_scale_numerator == SUPERRES_SCALE_DENOMINATOR) return;
+
+  YV12_BUFFER_CONFIG *dst = get_frame_new_buffer(cm);
+
+  // TODO(afergs): upscale decoded image
+  // TODO(afergs): make sure to NULLify the buffer?
+  // TODO(afergs): Get resolution from decode...
+  aom_alloc_frame_buffer(&cm->superres_buffer, cm->width, cm->height,
+                         cm->subsampling_x, cm->subsampling_y,
+#if CONFIG_HIGHBITDEPTH
+                         cm->use_highbitdepth,
+#endif  // CONFIG_HIGHBITDEPTH
+                         AOM_BORDER_IN_PIXELS, cm->byte_alignment);
+  aom_yv12_copy_frame(cm->frame_to_show, &cm->superres_buffer);
+  // <BLOCK>
+  // TODO(afergs): Actually call the set_frame_size function instead...
+  //               This may be worth a shot though.
+  // TODO(afergs): This is wrong
+  av1_calculate_superres_size(cm, &cm->width, &cm->height);
+  // Does scale if require handle this? It really should...
+  if (aom_realloc_frame_buffer(cm->frame_to_show, cm->width, cm->height,
+                               cm->subsampling_x, cm->subsampling_y,
+#if CONFIG_HIGHBITDEPTH
+                               cm->use_highbitdepth,
+#endif
+                               AOM_BORDER_IN_PIXELS, cm->byte_alignment, NULL,
+                               NULL, NULL))
+    aom_internal_error(
+        &cm->error, AOM_CODEC_MEM_ERROR,
+        "Failed to reallocate frame buffer for superres upscaling");
+  // </BLOCK>
+
+  // Scale up and back into the frame to show
+  dst = av1_scale_if_required(cm, &cm->superres_buffer, cm->frame_to_show);
+
+  // Update frame_to_show if needed - SHOULD NEVER BE NEEDED
+  // TODO(afergs): Can it ever not be needed? Scaling is basically guaranteed.
+  if (cm->frame_to_show != dst)
+    cm->frame_to_show = dst;  // TODO(afergs): Throw an error, this is bad!
+
+  // TODO(afergs): [STAGE II]
+}
+#endif  // CONFIG_FRAME_SUPERRES
+
 void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
                       const uint8_t *data_end, const uint8_t **p_data_end) {
   AV1_COMMON *const cm = &pbi->common;
@@ -5010,6 +5059,10 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
     av1_cdef_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
   }
 #endif  // CONFIG_CDEF
+
+#if CONFIG_FRAME_SUPERRES
+  superres_post_decode(cm);
+#endif  // CONFIG_FRAME_SUPERRES
 
 #if CONFIG_LOOP_RESTORATION
   if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
