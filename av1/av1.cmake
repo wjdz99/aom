@@ -368,6 +368,13 @@ if (CONFIG_WARPED_MOTION)
       "${AOM_ROOT}/av1/common/x86/warp_plane_sse2.c")
 endif ()
 
+if (CONFIG_FRAME_SUPERRES)
+  set(AOM_AV1_COMMON_SOURCES
+      ${AOM_AV1_COMMON_SOURCES}
+      "${AOM_ROOT}/av1/common/superres.c"
+      "${AOM_ROOT}/av1/common/superres.h"
+endif()
+
 # Setup AV1 common/decoder/encoder targets. The libaom target must exist before
 # this function is called.
 function (setup_av1_targets)
