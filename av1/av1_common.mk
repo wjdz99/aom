@@ -80,6 +80,10 @@ ifeq ($(CONFIG_LOOP_RESTORATION),yes)
 AV1_COMMON_SRCS-yes += common/restoration.h
 AV1_COMMON_SRCS-yes += common/restoration.c
 AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/selfguided_sse4.c
+ifeq ($(CONFIG_FRAME_SUPERRES),yes)
+AV1_COMMON_SRCS-yes += common/superres.h
+AV1_COMMON_SRCS-yes += common/superres.c
+endif
 endif
 ifeq (yes,$(filter $(CONFIG_GLOBAL_MOTION) $(CONFIG_WARPED_MOTION),yes))
 AV1_COMMON_SRCS-yes += common/warped_motion.h
