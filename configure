@@ -370,6 +370,7 @@ CONFIG_LIST="
     experimental
     size_limit
     aom_qm
+    colorspace_headers
     ${EXPERIMENT_LIST}
     analyzer
 "
@@ -428,6 +429,7 @@ CMDLINE_SELECT="
     highbitdepth
     experimental
     aom_qm
+    colorspace_headers
     tile_groups
 "
 
