@@ -2203,8 +2203,15 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
                                   has_second_ref(mbmi),
 #endif  // CONFIG_EXT_INTER
                                   mode_ctx);
+#if CONFIG_EXT_INTER
+        }
+#endif  // CONFIG_EXT_INTER
 
-          if (mode == NEWMV) {
+          if (mode == NEWMV
+#if CONFIG_EXT_INTER
+              || mbmi->mode == NEW_NEWMV
+#endif
+              ) {
             uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
             int idx;
 
@@ -2219,7 +2226,11 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
             }
           }
 
-          if (mode == NEARMV) {
+          if (mode == NEARMV
+#if CONFIG_EXT_INTER
+              || mbmi->mode == NEAR_NEARMV
+#endif
+              ) {
             uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
             int idx;
 
@@ -2233,9 +2244,6 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
               }
             }
           }
-#if CONFIG_EXT_INTER
-        }
-#endif  // CONFIG_EXT_INTER
 #else
 #if CONFIG_EXT_INTER
         if (is_inter_compound_mode(mode))

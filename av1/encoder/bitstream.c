@@ -304,7 +304,11 @@ static void write_drl_idx(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
 
   assert(mbmi->ref_mv_idx < 3);
 
-  if (mbmi->mode == NEWMV) {
+  if (mbmi->mode == NEWMV
+#if CONFIG_EXT_INTER
+      || mbmi->mode == NEW_NEWMV
+#endif
+      ) {
     int idx;
     for (idx = 0; idx < 2; ++idx) {
       if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
@@ -319,7 +323,11 @@ static void write_drl_idx(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
     return;
   }
 
-  if (mbmi->mode == NEARMV) {
+  if (mbmi->mode == NEARMV
+#if CONFIG_EXT_INTER
+      || mbmi->mode == NEAR_NEARMV
+#endif
+      ) {
     int idx;
     // TODO(jingning): Temporary solution to compensate the NEARESTMV offset.
     for (idx = 1; idx < 3; ++idx) {
@@ -1718,8 +1726,16 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
                            mode_ctx);
 
 #if CONFIG_REF_MV
-        if (mode == NEARMV || mode == NEWMV)
+        if (mode == NEARMV || mode == NEWMV
+#if CONFIG_EXT_INTER
+            || mbmi->mode == NEAR_NEARMV || mbmi->mode == NEW_NEWMV
+#endif
+            )
           write_drl_idx(cm, mbmi, mbmi_ext, w);
+#if CONFIG_EXT_INTER
+        else
+          assert(mbmi->ref_mv_idx == 0);
+#endif
 #endif
       }
     }
