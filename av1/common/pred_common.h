@@ -69,6 +69,8 @@ static INLINE aom_prob av1_get_skip_prob(const AV1_COMMON *cm,
 
 #if CONFIG_DUAL_FILTER
 int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir);
+InterpFilter av1_get_ref_filter_type(const MODE_INFO *mi, const MACROBLOCKD *xd,
+                                     int dir, MV_REFERENCE_FRAME ref_frame);
 #else
 int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd);
 #endif

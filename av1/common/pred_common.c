@@ -19,9 +19,8 @@
 
 // Returns a context number for the given MB prediction signal
 #if CONFIG_DUAL_FILTER
-static InterpFilter get_ref_filter_type(const MODE_INFO *mi,
-                                        const MACROBLOCKD *xd, int dir,
-                                        MV_REFERENCE_FRAME ref_frame) {
+InterpFilter av1_get_ref_filter_type(const MODE_INFO *mi, const MACROBLOCKD *xd,
+                                     int dir, MV_REFERENCE_FRAME ref_frame) {
   InterpFilter ref_type = SWITCHABLE_FILTERS;
   const MB_MODE_INFO *ref_mbmi = &mi->mbmi;
   int use_subpel[2] = {
@@ -52,11 +51,11 @@ int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir) {
   int above_type = SWITCHABLE_FILTERS;
 
   if (xd->left_available)
-    left_type = get_ref_filter_type(xd->mi[-1], xd, dir, ref_frame);
+    left_type = av1_get_ref_filter_type(xd->mi[-1], xd, dir, ref_frame);
 
   if (xd->up_available)
     above_type =
-        get_ref_filter_type(xd->mi[-xd->mi_stride], xd, dir, ref_frame);
+        av1_get_ref_filter_type(xd->mi[-xd->mi_stride], xd, dir, ref_frame);
 
   if (left_type == above_type) {
     filter_type_ctx += left_type;

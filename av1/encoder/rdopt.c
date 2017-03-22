@@ -6993,7 +6993,7 @@ static void get_range_variance_sad_mad(const uint8_t *const pixels,
   *mad_ptr = max_ad;
 }
 
-void get_avg_range_variance_sad_mad(const struct buf_2d *const pre_buf,
+void get_avg_range_variance_sad_mad(const struct buf_2d *const pre_buf, int dir,
                                     uint8_t *const avg_range,
                                     uint64_t *const avg_variance,
                                     uint64_t *const avg_sad,
@@ -7002,78 +7002,95 @@ void get_avg_range_variance_sad_mad(const struct buf_2d *const pre_buf,
   uint64_t total_variance = 0;
   uint64_t total_sad = 0;
   uint8_t mad = 0;
-  int j;
-  for (j = 0; j < pre_buf->height; ++j) {
-    uint8_t this_range;
-    uint64_t this_variance;
-    uint64_t this_sad;
-    uint8_t this_mad;
-    get_range_variance_sad_mad(pre_buf->buf + j * pre_buf->stride, 1,
-                               pre_buf->width, &this_range, &this_variance,
-                               &this_sad, &this_mad);
-    total_range += this_range;
-    total_variance += this_variance;
-    total_sad += this_sad;
-    if (this_mad > mad) mad = this_mad;
+  int count;
+  if (dir == 1) {  // horizontal
+    int j;
+    for (j = 0; j < pre_buf->height; ++j) {
+      uint8_t this_range;
+      uint64_t this_variance;
+      uint64_t this_sad;
+      uint8_t this_mad;
+      get_range_variance_sad_mad(pre_buf->buf + j * pre_buf->stride, 1,
+                                 pre_buf->width, &this_range, &this_variance,
+                                 &this_sad, &this_mad);
+      total_range += this_range;
+      total_variance += this_variance;
+      total_sad += this_sad;
+      if (this_mad > mad) mad = this_mad;
+    }
+    count = pre_buf->height;
+  } else {  // vertical
+    int i;
+    for (i = 0; i < pre_buf->height; ++i) {
+      uint8_t this_range;
+      uint64_t this_variance;
+      uint64_t this_sad;
+      uint8_t this_mad;
+      get_range_variance_sad_mad(pre_buf->buf + i, pre_buf->stride,
+                                 pre_buf->height, &this_range, &this_variance,
+                                 &this_sad, &this_mad);
+      total_range += this_range;
+      total_variance += this_variance;
+      total_sad += this_sad;
+      if (this_mad > mad) mad = this_mad;
+    }
+    count = pre_buf->width;
   }
-  int i;
-  for (i = 0; i < pre_buf->height; ++i) {
-    uint8_t this_range;
-    uint64_t this_variance;
-    uint64_t this_sad;
-    uint8_t this_mad;
-    get_range_variance_sad_mad(pre_buf->buf + i, pre_buf->stride,
-                               pre_buf->height, &this_range, &this_variance,
-                               &this_sad, &this_mad);
-    total_range += this_range;
-    total_variance += this_variance;
-    total_sad += this_sad;
-    if (this_mad > mad) mad = this_mad;
-  }
-  const int count = pre_buf->width + pre_buf->height;
   *avg_range = (total_range + (total_range >> 1)) / count;
   *avg_variance = (total_variance + (total_variance >> 1)) / count;
   *avg_sad = (total_sad + (total_sad >> 1)) / count;
   *max_mad = mad;
 }
 
+// Arrays of size 2 are vertical followed by horizontal direction.
 typedef struct {
-  uint8_t range;
-  uint64_t variance;
-  uint64_t sad;  // sum of absolute difference of consecutive pixels
-  uint8_t mad;   // max of absolute difference of consecutive pixels
+  uint8_t ranges[2];
+  uint64_t variances[2];
+  uint64_t sads[2];  // sum of absolute difference of consecutive pixels
+  uint8_t mads[2];   // max of absolute difference of consecutive pixels
   BLOCK_SIZE bsize;
   PREDICTION_MODE pred_mode;
   TX_SIZE tx_size;
   TX_TYPE tx_type;
-  InterpFilter above_filter;
-  InterpFilter left_filter;
+  InterpFilter above_filters[2];
+  InterpFilter left_filters[2];
 } InterpFilterFeatures;
 
 static void get_features(const MACROBLOCKD *const xd,
                          InterpFilterFeatures *const f) {
   const struct macroblockd_plane *const pd = &xd->plane[0];
-  get_avg_range_variance_sad_mad(&pd->pre[0], &f->range, &f->variance, &f->sad,
-                                 &f->mad);
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   f->bsize = mbmi->sb_type;
   f->pred_mode = mbmi->mode;
   f->tx_size = mbmi->tx_size;
   f->tx_type = mbmi->tx_type;
-  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
-  f->above_filter = (xd->up_available && is_inter_block(above_mbmi))
-                        ? above_mbmi->interp_filter
-                        : SWITCHABLE_FILTERS;
-  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
-  f->left_filter = (xd->left_available && is_inter_block(left_mbmi))
-                       ? left_mbmi->interp_filter
-                       : SWITCHABLE_FILTERS;
+  int dir;
+  for (dir = 0; dir < 2; ++dir) {
+    get_avg_range_variance_sad_mad(&pd->pre[0], dir, &f->ranges[dir],
+                                   &f->variances[dir], &f->sads[dir],
+                                   &f->mads[dir]);
+    const MV_REFERENCE_FRAME ref_frame =
+        (dir < 2) ? mbmi->ref_frame[0] : mbmi->ref_frame[1];
+    f->above_filters[dir] =
+        xd->up_available ? av1_get_ref_filter_type(xd->mi[-xd->mi_stride], xd,
+                                                   dir, ref_frame)
+                         : SWITCHABLE_FILTERS;
+    f->left_filters[dir] =
+        xd->left_available
+            ? av1_get_ref_filter_type(xd->mi[-1], xd, dir, ref_frame)
+            : SWITCHABLE_FILTERS;
+  }
 }
 
-void print_features(const InterpFilterFeatures *const f, InterpFilter filter) {
-  fprintf(stderr, "%d %u %lu %lu %u %d %d %d %d %d %d\n", filter, f->range,
-          f->variance, f->sad, f->mad, f->bsize, f->pred_mode, f->tx_size,
-          f->tx_type, f->above_filter, f->left_filter);
+void print_features(const InterpFilterFeatures *const f,
+                    const InterpFilter *const filter) {
+  int dir;
+  for (dir = 0; dir < 2; ++dir) {
+    fprintf(stderr, "%d %d %u %lu %lu %u %d %d %d %d %d %d\n", filter[dir], dir,
+            f->ranges[dir], f->variances[dir], f->sads[dir], f->mads[dir],
+            f->bsize, f->pred_mode, f->tx_size, f->tx_type,
+            f->above_filters[dir], f->left_filters[dir]);
+  }
 }
 
 int64_t interpolation_filter_search(
@@ -7176,10 +7193,10 @@ int64_t interpolation_filter_search(
       av1_copy(mbmi->interp_filter, best_filter);
 #else
       mbmi->interp_filter = best_filter;
+#endif  // CONFIG_DUAL_FILTER
       InterpFilterFeatures features;
       get_features(xd, &features);
       print_features(&features, best_filter);
-#endif  // CONFIG_DUAL_FILTER
     } else {
 #if CONFIG_DUAL_FILTER
       for (i = 0; i < 4; ++i)
