@@ -252,7 +252,11 @@ static void read_drl_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   mbmi->ref_mv_idx = 0;
 
-  if (mbmi->mode == NEWMV) {
+  if (mbmi->mode == NEWMV
+#if CONFIG_EXT_INTER
+      || mbmi->mode == NEW_NEWMV
+#endif
+      ) {
     int idx;
     for (idx = 0; idx < 2; ++idx) {
       if (xd->ref_mv_count[ref_frame_type] > idx + 1) {
@@ -269,7 +273,11 @@ static void read_drl_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
     }
   }
 
-  if (mbmi->mode == NEARMV) {
+  if (mbmi->mode == NEARMV
+#if CONFIG_EXT_INTER
+      || mbmi->mode == NEAR_NEARMV
+#endif
+      ) {
     int idx;
     // Offset the NEARESTMV mode.
     // TODO(jingning): Unify the two syntax decoding loops after the NEARESTMV
@@ -1730,7 +1738,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
                                      r, mode_ctx);
 #if CONFIG_REF_MV
-      if (mbmi->mode == NEARMV || mbmi->mode == NEWMV)
+      if (mbmi->mode == NEARMV || mbmi->mode == NEWMV
+#if CONFIG_EXT_INTER
+          || mbmi->mode == NEAR_NEARMV || mbmi->mode == NEW_NEWMV
+#endif
+          )
         read_drl_idx(cm, xd, mbmi, r);
 #endif
     }
