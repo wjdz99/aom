@@ -4112,7 +4112,6 @@ static void write_superres_scale(const AV1_COMMON *const cm,
     aom_wb_write_bit(wb, 0);  // no scaling
   } else {
     aom_wb_write_bit(wb, 1);  // scaling, write scale factor
-    // TODO(afergs): write factor to the compressed header instead
     aom_wb_write_literal(
         wb, cm->superres_scale_numerator - SUPERRES_SCALE_NUMERATOR_MIN,
         SUPERRES_SCALE_BITS);
