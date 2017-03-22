@@ -76,6 +76,9 @@ YV12_BUFFER_CONFIG *av1_scale_if_required(AV1_COMMON *cm,
 // Superres scaling happens after regular downscaling.
 // TODO(afergs): Limit overall reduction to 1/2 of the original size
 void av1_calculate_superres_size(const AV1_COMMON *cm, int *width, int *height);
+
+// TODO(afergs): intergrate selection of upscaled resolution
+void av1_superres_upscale(AV1_COMMON *cm);
 #endif  // CONFIG_FRAME_SUPERRES
 
 #ifdef __cplusplus
