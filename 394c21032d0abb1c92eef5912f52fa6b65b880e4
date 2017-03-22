@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e73f068_f4bb2b73",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-03-22T18:25:27Z",
+      "side": 1,
+      "message": "memset(tot_mse, 0, sizeof(tot_mse)) should be more optimised and faster.",
+      "range": {
+        "startLine": 33,
+        "startChar": 2,
+        "endLine": 33,
+        "endChar": 55
+      },
+      "revId": "394c21032d0abb1c92eef5912f52fa6b65b880e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
