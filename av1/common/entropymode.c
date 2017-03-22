@@ -628,27 +628,65 @@ static const aom_prob
     };
 #else
 static const aom_prob
-    default_partition_probs[PARTITION_CONTEXTS][PARTITION_TYPES - 1] = {
-      // 8x8 -> 4x4
-      { 199, 122, 141 },  // a/l both not split
-      { 147, 63, 159 },   // a split, l not split
-      { 148, 133, 118 },  // l split, a not split
-      { 121, 104, 114 },  // a/l both split
-      // 16x16 -> 8x8
-      { 174, 73, 87 },  // a/l both not split
-      { 92, 41, 83 },   // a split, l not split
-      { 82, 99, 50 },   // l split, a not split
-      { 53, 39, 39 },   // a/l both split
-      // 32x32 -> 16x16
-      { 177, 58, 59 },  // a/l both not split
-      { 68, 26, 63 },   // a split, l not split
-      { 52, 79, 25 },   // l split, a not split
-      { 17, 14, 12 },   // a/l both split
-      // 64x64 -> 32x32
+    default_partition_probs_inter[PARTITION_CONTEXTS][PARTITION_TYPES - 1] = {
+      { 211, 120, 158 },
+      { 157, 49, 188 },
+      { 159, 167, 106 },
+      { 143, 110, 123 },
+      { 175, 87, 115 },
+      { 95, 37, 112 },
+      { 98, 113, 52 },
+      { 50, 45, 44 },
+      { 183, 59, 71 },
+      { 74, 23, 63 },
+      { 82, 67, 27 },
+      { 25, 18, 16 },
+      { 194, 31, 38 },
+      { 51, 13, 45 },
+      { 62, 37, 13 },
+      { 10, 9, 9 },
+#if CONFIG_EXT_PARTITION
+      // 128x128 -> 64x64
       { 222, 34, 30 },  // a/l both not split
       { 72, 16, 44 },   // a split, l not split
       { 58, 32, 12 },   // l split, a not split
       { 10, 7, 6 },     // a/l both split
+#endif  // CONFIG_EXT_PARTITION
+#if CONFIG_UNPOISON_PARTITION_CTX
+      { 0, 0, 141 },    // 8x8 -> 4x4
+      { 0, 0, 87 },     // 16x16 -> 8x8
+      { 0, 0, 59 },     // 32x32 -> 16x16
+      { 0, 0, 30 },     // 64x64 -> 32x32
+#if CONFIG_EXT_PARTITION
+      { 0, 0, 30 },     // 128x128 -> 64x64
+#endif  // CONFIG_EXT_PARTITION
+      { 0, 122, 0 },    // 8x8 -> 4x4
+      { 0, 73, 0 },     // 16x16 -> 8x8
+      { 0, 58, 0 },     // 32x32 -> 16x16
+      { 0, 34, 0 },     // 64x64 -> 32x32
+#if CONFIG_EXT_PARTITION
+      { 0, 34, 0 },     // 128x128 -> 64x64
+#endif  // CONFIG_EXT_PARTITION
+#endif  // CONFIG_UNPOISON_PARTITION_CTX
+    };
+static const aom_prob
+    default_partition_probs_intra[PARTITION_CONTEXTS][PARTITION_TYPES - 1] = {
+      { 220, 90, 86 },
+      { 200, 67, 89 },
+      { 195, 96, 62 },
+      { 182, 83, 78 },
+      { 148, 65, 74 },
+      { 89, 37, 63 },
+      { 83, 61, 35 },
+      { 48, 35, 26 },
+      { 138, 34, 24 },
+      { 56, 15, 19 },
+      { 48, 23, 10 },
+      { 16, 6, 5 },
+      { 41, 9, 13 },
+      { 9, 7, 4 },
+      { 12, 5, 6 },
+      { 3, 3, 3 },
 #if CONFIG_EXT_PARTITION
       // 128x128 -> 64x64
       { 222, 34, 30 },  // a/l both not split
@@ -1923,20 +1961,37 @@ static const aom_cdf_prob
     };
 #else
 static const aom_cdf_prob
-    default_partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(PARTITION_TYPES)] = {
-      { 25472, 28949, 31052, 32768, 0 }, { 18816, 22250, 28783, 32768, 0 },
-      { 18944, 26126, 29188, 32768, 0 }, { 15488, 22508, 27077, 32768, 0 },
-      { 22272, 25265, 27815, 32768, 0 }, { 11776, 15138, 20854, 32768, 0 },
-      { 10496, 19109, 21777, 32768, 0 }, { 6784, 10743, 14098, 32768, 0 },
-      { 22656, 24947, 26749, 32768, 0 }, { 8704, 11148, 16469, 32768, 0 },
-      { 6656, 14714, 16477, 32768, 0 },  { 2176, 3849, 5205, 32768, 0 },
-      { 28416, 28994, 29436, 32768, 0 }, { 9216, 10688, 14483, 32768, 0 },
-      { 7424, 10592, 11632, 32768, 0 },  { 1280, 2141, 2859, 32768, 0 },
+    default_partition_cdf_inter[PARTITION_CONTEXTS][CDF_SIZE(PARTITION_TYPES)] =
+        {
+          { 25472, 28949, 31052, 32768, 0 }, { 18816, 22250, 28783, 32768, 0 },
+          { 18944, 26126, 29188, 32768, 0 }, { 15488, 22508, 27077, 32768, 0 },
+          { 22272, 25265, 27815, 32768, 0 }, { 11776, 15138, 20854, 32768, 0 },
+          { 10496, 19109, 21777, 32768, 0 }, { 6784, 10743, 14098, 32768, 0 },
+          { 22656, 24947, 26749, 32768, 0 }, { 8704, 11148, 16469, 32768, 0 },
+          { 6656, 14714, 16477, 32768, 0 },  { 2176, 3849, 5205, 32768, 0 },
+          { 28416, 28994, 29436, 32768, 0 }, { 9216, 10688, 14483, 32768, 0 },
+          { 7424, 10592, 11632, 32768, 0 },  { 1280, 2141, 2859, 32768, 0 },
 #if CONFIG_EXT_PARTITION
-      { 28416, 28994, 29436, 32768, 0 }, { 9216, 10688, 14483, 32768, 0 },
-      { 7424, 10592, 11632, 32768, 0 },  { 1280, 2141, 2859, 32768, 0 },
+          { 28416, 28994, 29436, 32768, 0 }, { 9216, 10688, 14483, 32768, 0 },
+          { 7424, 10592, 11632, 32768, 0 },  { 1280, 2141, 2859, 32768, 0 },
 #endif
-    };
+        };
+static const aom_cdf_prob
+    default_partition_cdf_intra[PARTITION_CONTEXTS][CDF_SIZE(PARTITION_TYPES)] =
+        {
+          { 25472, 28949, 31052, 32768, 0 }, { 18816, 22250, 28783, 32768, 0 },
+          { 18944, 26126, 29188, 32768, 0 }, { 15488, 22508, 27077, 32768, 0 },
+          { 22272, 25265, 27815, 32768, 0 }, { 11776, 15138, 20854, 32768, 0 },
+          { 10496, 19109, 21777, 32768, 0 }, { 6784, 10743, 14098, 32768, 0 },
+          { 22656, 24947, 26749, 32768, 0 }, { 8704, 11148, 16469, 32768, 0 },
+          { 6656, 14714, 16477, 32768, 0 },  { 2176, 3849, 5205, 32768, 0 },
+          { 28416, 28994, 29436, 32768, 0 }, { 9216, 10688, 14483, 32768, 0 },
+          { 7424, 10592, 11632, 32768, 0 },  { 1280, 2141, 2859, 32768, 0 },
+#if CONFIG_EXT_PARTITION
+          { 28416, 28994, 29436, 32768, 0 }, { 9216, 10688, 14483, 32768, 0 },
+          { 7424, 10592, 11632, 32768, 0 },  { 1280, 2141, 2859, 32768, 0 },
+#endif
+        };
 #endif
 
 static const aom_cdf_prob
@@ -2696,7 +2751,8 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->uv_mode_prob, default_uv_probs);
   av1_copy(fc->y_mode_prob, default_if_y_probs);
   av1_copy(fc->switchable_interp_prob, default_switchable_interp_prob);
-  av1_copy(fc->partition_prob, default_partition_probs);
+  av1_copy(fc->partition_prob_intra, default_partition_probs_intra);
+  av1_copy(fc->partition_prob_inter, default_partition_probs_inter);
   av1_copy(fc->intra_inter_prob, default_intra_inter_p);
   av1_copy(fc->comp_inter_prob, default_comp_inter_p);
   av1_copy(fc->comp_ref_prob, default_comp_ref_p);
@@ -2762,7 +2818,8 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->y_mode_cdf, default_if_y_mode_cdf);
   av1_copy(fc->uv_mode_cdf, default_uv_mode_cdf);
   av1_copy(fc->switchable_interp_cdf, default_switchable_interp_cdf);
-  av1_copy(fc->partition_cdf, default_partition_cdf);
+  av1_copy(fc->partition_cdf_intra, default_partition_cdf_intra);
+  av1_copy(fc->partition_cdf_inter, default_partition_cdf_inter);
   av1_copy(fc->inter_mode_cdf, default_inter_mode_cdf);
   av1_copy(fc->intra_ext_tx_cdf, default_intra_ext_tx_cdf);
   av1_copy(fc->inter_ext_tx_cdf, default_inter_ext_tx_cdf);
@@ -2821,9 +2878,12 @@ void av1_set_mode_cdfs(struct AV1Common *cm) {
     assert(cum_prob == CDF_PROB_TOP);
   }
 #else
-  for (i = 0; i < PARTITION_CONTEXTS; ++i)
-    av1_tree_to_cdf(av1_partition_tree, fc->partition_prob[i],
-                    fc->partition_cdf[i]);
+  for (j = 0; j < PARTITION_CONTEXTS; ++j) {
+    av1_tree_to_cdf(av1_partition_tree, fc->partition_prob_intra[j],
+                    fc->partition_cdf_intra[j]);
+    av1_tree_to_cdf(av1_partition_tree, fc->partition_prob_inter[j],
+                    fc->partition_cdf_inter[j]);
+  }
 #endif
 
   for (i = 0; i < INTRA_MODES; ++i)
@@ -3092,11 +3152,6 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
   for (; i < PARTITION_CONTEXTS_PRIMARY; ++i)
     aom_tree_merge_probs(av1_ext_partition_tree, pre_fc->partition_prob[i],
                          counts->partition[i], fc->partition_prob[i]);
-#else
-  for (i = 0; i < PARTITION_CONTEXTS_PRIMARY; ++i) {
-    aom_tree_merge_probs(av1_partition_tree, pre_fc->partition_prob[i],
-                         counts->partition[i], fc->partition_prob[i]);
-  }
 #endif  // CONFIG_EXT_PARTITION_TYPES
 #if CONFIG_UNPOISON_PARTITION_CTX
   for (i = PARTITION_CONTEXTS_PRIMARY;

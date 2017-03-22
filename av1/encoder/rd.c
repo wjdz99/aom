@@ -412,9 +412,14 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
         av1_cost_tokens(cpi->partition_cost[CONFIG_UNPOISON_PARTITION_CTX + i],
                         cm->fc->partition_prob[i], av1_ext_partition_tree);
 #else
-      for (i = 0; i < PARTITION_CONTEXTS_PRIMARY; ++i)
-        av1_cost_tokens(cpi->partition_cost[CONFIG_UNPOISON_PARTITION_CTX + i],
-                        cm->fc->partition_prob[i], av1_partition_tree);
+      for (i = 0; i < PARTITION_CONTEXTS_PRIMARY; ++i) {
+        av1_cost_tokens(
+            cpi->partition_cost_inter[CONFIG_UNPOISON_PARTITION_CTX + i],
+            cm->fc->partition_prob_inter[i], av1_partition_tree);
+        av1_cost_tokens(
+            cpi->partition_cost_intra[CONFIG_UNPOISON_PARTITION_CTX + i],
+            cm->fc->partition_prob_intra[i], av1_partition_tree);
+      }
 #endif  // CONFIG_EXT_PARTITION_TYPES
 #if CONFIG_UNPOISON_PARTITION_CTX
       for (; i < PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES; ++i) {

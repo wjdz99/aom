@@ -1964,7 +1964,10 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
   FRAME_COUNTS *const counts = ctx >= 0 ? xd->counts : NULL;
 #else
   const int ctx = partition_plane_context(xd, mi_row, mi_col, bsize);
-  const aom_prob *const probs = cm->fc->partition_prob[ctx];
+  const int is_intra_only = frame_is_intra_only(cm);
+  const aom_prob *const probs = is_intra_only
+                                    ? cm->fc->partition_prob_intra[ctx]
+                                    : cm->fc->partition_prob_inter[ctx];
   FRAME_COUNTS *const counts = xd->counts;
 #endif
   PARTITION_TYPE p;
@@ -1994,8 +1997,10 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif
 #else
 #if CONFIG_EC_MULTISYMBOL
-    p = (PARTITION_TYPE)aom_read_symbol(r, ec_ctx->partition_cdf[ctx],
-                                        PARTITION_TYPES, ACCT_STR);
+    p = (PARTITION_TYPE)aom_read_symbol(
+        r, is_intra_only ? ec_ctx->partition_cdf_intra[ctx]
+                         : ec_ctx->partition_cdf_inter[ctx],
+        PARTITION_TYPES, ACCT_STR);
 #else
     p = (PARTITION_TYPE)aom_read_tree(r, av1_partition_tree, probs, ACCT_STR);
 #endif
@@ -2007,7 +2012,7 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
   else
     p = PARTITION_SPLIT;
 
-  if (counts) ++counts->partition[ctx][p];
+  if (counts && !is_intra_only) ++counts->partition_inter[ctx][p];
 
   return p;
 }
@@ -4559,9 +4564,13 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     for (i = 0; i < EXT_PARTITION_TYPES - 1; ++i)
       av1_diff_update_prob(&r, &fc->partition_prob[j][i], ACCT_STR);
 #else
-  for (j = 0; j < PARTITION_CONTEXTS_PRIMARY; ++j)
-    for (i = 0; i < PARTITION_TYPES - 1; ++i)
-      av1_diff_update_prob(&r, &fc->partition_prob[j][i], ACCT_STR);
+  if (!frame_is_intra_only(cm)) {
+    for (j = 0; j < PARTITION_CONTEXTS_PRIMARY; ++j) {
+      for (i = 0; i < PARTITION_TYPES - 1; ++i) {
+        av1_diff_update_prob(&r, &fc->partition_prob_inter[j][i], ACCT_STR);
+      }
+    }
+  }
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
 #if CONFIG_UNPOISON_PARTITION_CTX
@@ -4694,8 +4703,8 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
                  sizeof(cm->counts.y_mode)));
   assert(!memcmp(cm->counts.uv_mode, zero_counts.uv_mode,
                  sizeof(cm->counts.uv_mode)));
-  assert(!memcmp(cm->counts.partition, zero_counts.partition,
-                 sizeof(cm->counts.partition)));
+  assert(!memcmp(cm->counts.partition_inter, zero_counts.partition_inter,
+                 sizeof(cm->counts.partition_inter)));
   assert(!memcmp(cm->counts.coef, zero_counts.coef, sizeof(cm->counts.coef)));
   assert(!memcmp(cm->counts.eob_branch, zero_counts.eob_branch,
                  sizeof(cm->counts.eob_branch)));

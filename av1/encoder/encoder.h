@@ -566,8 +566,10 @@ typedef struct AV1_COMP {
   int partition_cost[PARTITION_CONTEXTS + CONFIG_UNPOISON_PARTITION_CTX]
                     [EXT_PARTITION_TYPES];
 #else
-  int partition_cost[PARTITION_CONTEXTS + CONFIG_UNPOISON_PARTITION_CTX]
-                    [PARTITION_TYPES];
+  int partition_cost_inter[PARTITION_CONTEXTS + CONFIG_UNPOISON_PARTITION_CTX]
+                          [PARTITION_TYPES];
+  int partition_cost_intra[PARTITION_CONTEXTS + CONFIG_UNPOISON_PARTITION_CTX]
+                          [PARTITION_TYPES];
 #endif
 #if CONFIG_PALETTE
   int palette_y_size_cost[PALETTE_BLOCK_SIZES][PALETTE_SIZES];

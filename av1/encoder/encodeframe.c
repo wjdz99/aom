@@ -2462,7 +2462,9 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
-  if (!dry_run && ctx >= 0) td->counts->partition[ctx][partition]++;
+  if (!dry_run && ctx >= 0 && !frame_is_intra_only(cm)) {
+    td->counts->partition_inter[ctx][partition]++;
+  }
 
 #if CONFIG_SUPERTX
   if (!frame_is_intra_only(cm) && bsize <= MAX_SUPERTX_BLOCK_SIZE &&
@@ -2791,6 +2793,12 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
     x->mb_energy = av1_block_energy(cpi, x, bsize);
   }
 
+  const int is_intra_only = frame_is_intra_only(cm);
+  const int *const partition_cost =
+      is_intra_only
+          ? cpi->partition_cost_intra[pl + CONFIG_UNPOISON_PARTITION_CTX]
+          : cpi->partition_cost_inter[pl + CONFIG_UNPOISON_PARTITION_CTX];
+
   if (do_partition_search &&
       cpi->sf.partition_search_type == SEARCH_PARTITION &&
       cpi->sf.adjust_partitioning_from_last_frame) {
@@ -2822,8 +2830,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
                        bsize, ctx_none, INT64_MAX);
 
       if (none_rdc.rate < INT_MAX) {
-        none_rdc.rate += cpi->partition_cost[pl + CONFIG_UNPOISON_PARTITION_CTX]
-                                            [PARTITION_NONE];
+        none_rdc.rate += partition_cost[PARTITION_NONE];
         none_rdc.rdcost =
             RDCOST(x->rdmult, x->rddiv, none_rdc.rate, none_rdc.dist);
 #if CONFIG_SUPERTX
@@ -3003,8 +3010,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
   }
 
   if (last_part_rdc.rate < INT_MAX) {
-    last_part_rdc.rate +=
-        cpi->partition_cost[pl + CONFIG_UNPOISON_PARTITION_CTX][partition];
+    last_part_rdc.rate += partition_cost[partition];
     last_part_rdc.rdcost =
         RDCOST(x->rdmult, x->rddiv, last_part_rdc.rate, last_part_rdc.dist);
 #if CONFIG_SUPERTX
@@ -3084,8 +3090,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
         encode_sb(cpi, td, tile_info, tp, mi_row + y_idx, mi_col + x_idx,
                   OUTPUT_ENABLED, split_subsize, pc_tree->split[i], NULL);
 
-      chosen_rdc.rate += cpi->partition_cost[pl + CONFIG_UNPOISON_PARTITION_CTX]
-                                            [PARTITION_NONE];
+      chosen_rdc.rate += partition_cost[PARTITION_NONE];
 #if CONFIG_SUPERTX
       chosen_rate_nocoef +=
           cpi->partition_cost[pl + CONFIG_UNPOISON_PARTITION_CTX]
@@ -3093,8 +3098,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
 #endif
     }
     if (chosen_rdc.rate < INT_MAX) {
-      chosen_rdc.rate += cpi->partition_cost[pl + CONFIG_UNPOISON_PARTITION_CTX]
-                                            [PARTITION_SPLIT];
+      chosen_rdc.rate += partition_cost[PARTITION_SPLIT];
       chosen_rdc.rdcost =
           RDCOST(x->rdmult, x->rddiv, chosen_rdc.rate, chosen_rdc.dist);
 #if CONFIG_SUPERTX
@@ -3691,8 +3695,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
                                          bsize);
 #endif  // CONFIG_CB4X4
+  const int is_intra_only = frame_is_intra_only(cm);
   const int *partition_cost =
-      cpi->partition_cost[pl + CONFIG_UNPOISON_PARTITION_CTX];
+      is_intra_only
+          ? cpi->partition_cost_intra[pl + CONFIG_UNPOISON_PARTITION_CTX]
+          : cpi->partition_cost_inter[pl + CONFIG_UNPOISON_PARTITION_CTX];
 #if CONFIG_SUPERTX
   int this_rate_nocoef, sum_rate_nocoef = 0, best_rate_nocoef = INT_MAX;
   int abort_flag;
@@ -3735,19 +3742,22 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #if !CONFIG_UNPOISON_PARTITION_CTX
   if (force_horz_split || force_vert_split) {
     tmp_partition_cost[PARTITION_NONE] = INT_MAX;
+    const aom_prob *const partition_prob =
+        is_intra_only ? cm->fc->partition_prob_intra[pl]
+                      : cm->fc->partition_prob_inter[pl];
 
     if (!force_vert_split) {  // force_horz_split only
       tmp_partition_cost[PARTITION_VERT] = INT_MAX;
       tmp_partition_cost[PARTITION_HORZ] =
-          av1_cost_bit(cm->fc->partition_prob[pl][PARTITION_HORZ], 0);
+          av1_cost_bit(partition_prob[PARTITION_HORZ], 0);
       tmp_partition_cost[PARTITION_SPLIT] =
-          av1_cost_bit(cm->fc->partition_prob[pl][PARTITION_HORZ], 1);
+          av1_cost_bit(partition_prob[PARTITION_HORZ], 1);
     } else if (!force_horz_split) {  // force_vert_split only
       tmp_partition_cost[PARTITION_HORZ] = INT_MAX;
       tmp_partition_cost[PARTITION_VERT] =
-          av1_cost_bit(cm->fc->partition_prob[pl][PARTITION_VERT], 0);
+          av1_cost_bit(partition_prob[PARTITION_VERT], 0);
       tmp_partition_cost[PARTITION_SPLIT] =
-          av1_cost_bit(cm->fc->partition_prob[pl][PARTITION_VERT], 1);
+          av1_cost_bit(partition_prob[PARTITION_VERT], 1);
     } else {  // force_ horz_split && force_vert_split horz_split
       tmp_partition_cost[PARTITION_HORZ] = INT_MAX;
       tmp_partition_cost[PARTITION_VERT] = INT_MAX;
