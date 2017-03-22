@@ -437,20 +437,50 @@ static const arg_def_t max_gf_interval = ARG_DEF(
     "max gf/arf frame interval (default 0, indicating in-built behavior)");
 
 static const struct arg_enum_list color_space_enum[] = {
-  { "unknown", AOM_CS_UNKNOWN },
-  { "bt601", AOM_CS_BT_601 },
-  { "bt709", AOM_CS_BT_709 },
-  { "smpte170", AOM_CS_SMPTE_170 },
-  { "smpte240", AOM_CS_SMPTE_240 },
-  { "bt2020", AOM_CS_BT_2020 },
-  { "reserved", AOM_CS_RESERVED },
-  { "sRGB", AOM_CS_SRGB },
-  { NULL, 0 }
-};
+    {"unknown", AOM_CS_UNKNOWN},
+    {"bt601", AOM_CS_BT_601},
+    {"bt709", AOM_CS_BT_709},
+    {"smpte170", AOM_CS_SMPTE_170},
+    {"smpte240", AOM_CS_SMPTE_240},
+#if CONFIG_COLORSPACE_HEADERS
+    {"bt2020ncl", AOM_CS_BT_2020_NCL},
+    {"bt2020cl", AOM_CS_BT_2020_CL},
+    {"sRGB", AOM_CS_SRGB},
+    {"ICtCp", AOM_CS_ICTCP},
+#else
+    {"bt2020", AOM_CS_BT_2020},
+    {"reserved", AOM_CS_RESERVED},
+    {"sRGB", AOM_CS_SRGB},
+#endif
+    {NULL, 0}};
 
 static const arg_def_t input_color_space =
     ARG_DEF_ENUM(NULL, "color-space", 1, "The color space of input content:",
                  color_space_enum);
+
+#if CONFIG_COLORSPACE_HEADERS
+static const struct arg_enum_list transfer_function_enum[] = {
+    {"unknown", AOM_TF_UNKNOWN},
+    {"bt709", AOM_TF_BT_709},
+    {"pq", AOM_TF_PQ},
+    {"hlg", AOM_TF_HLG},
+    {NULL, 0}};
+
+static const arg_def_t input_transfer_function = ARG_DEF_ENUM(
+    NULL, "transfer-function", 1, "The transfer function of input content:",
+    transfer_function_enum);
+
+static const struct arg_enum_list chroma_sample_position_enum[] = {
+    {"unknown", AOM_CSP_UNKNOWN},
+    {"vertical", AOM_CSP_VERTICAL},
+    {"colocated", AOM_CSP_COLOCATED},
+    {NULL, 0}};
+
+static const arg_def_t input_chroma_sample_position =
+    ARG_DEF_ENUM(NULL, "chroma-sample-position", 1,
+                 "The chroma sample position when chroma 4:2:0 is signaled:",
+                 chroma_sample_position_enum);
+#endif
 
 static const struct arg_enum_list tune_content_enum[] = {
   { "default", AOM_CONTENT_DEFAULT },
@@ -474,98 +504,106 @@ static const arg_def_t superblock_size = ARG_DEF_ENUM(
     NULL, "sb-size", 1, "Superblock size to use", superblock_size_enum);
 #endif  // CONFIG_EXT_PARTITION
 
-static const arg_def_t *av1_args[] = { &cpu_used_av1,
-                                       &auto_altref,
-                                       &sharpness,
-                                       &static_thresh,
-                                       &tile_cols,
-                                       &tile_rows,
+static const arg_def_t *av1_args[] = {&cpu_used_av1,
+                                      &auto_altref,
+                                      &sharpness,
+                                      &static_thresh,
+                                      &tile_cols,
+                                      &tile_rows,
 #if CONFIG_DEPENDENT_HORZTILES
-                                       &tile_dependent_rows,
+                                      &tile_dependent_rows,
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-                                       &tile_loopfilter,
+                                      &tile_loopfilter,
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
-                                       &arnr_maxframes,
-                                       &arnr_strength,
-                                       &tune_ssim,
-                                       &cq_level,
-                                       &max_intra_rate_pct,
-                                       &max_inter_rate_pct,
-                                       &gf_cbr_boost_pct,
-                                       &lossless,
+                                      &arnr_maxframes,
+                                      &arnr_strength,
+                                      &tune_ssim,
+                                      &cq_level,
+                                      &max_intra_rate_pct,
+                                      &max_inter_rate_pct,
+                                      &gf_cbr_boost_pct,
+                                      &lossless,
 #if CONFIG_AOM_QM
-                                       &enable_qm,
-                                       &qm_min,
-                                       &qm_max,
+                                      &enable_qm,
+                                      &qm_min,
+                                      &qm_max,
 #endif
-                                       &frame_parallel_decoding,
-                                       &aq_mode,
-                                       &frame_periodic_boost,
-                                       &noise_sens,
-                                       &tune_content,
-                                       &input_color_space,
-                                       &min_gf_interval,
-                                       &max_gf_interval,
+                                      &frame_parallel_decoding,
+                                      &aq_mode,
+                                      &frame_periodic_boost,
+                                      &noise_sens,
+                                      &tune_content,
+                                      &input_color_space,
+#if CONFIG_COLORSPACE_HEADERS
+                                      &input_transfer_function,
+                                      &input_chroma_sample_position,
+#endif
+                                      &min_gf_interval,
+                                      &max_gf_interval,
 #if CONFIG_EXT_PARTITION
-                                       &superblock_size,
+                                      &superblock_size,
 #endif  // CONFIG_EXT_PARTITION
 #if CONFIG_TILE_GROUPS
-                                       &num_tg,
-                                       &mtu_size,
+                                      &num_tg,
+                                      &mtu_size,
 #endif
 #if CONFIG_TEMPMV_SIGNALING
-                                       &disable_tempmv,
+                                      &disable_tempmv,
 #endif
 #if CONFIG_AOM_HIGHBITDEPTH
-                                       &bitdeptharg,
-                                       &inbitdeptharg,
+                                      &bitdeptharg,
+                                      &inbitdeptharg,
 #endif  // CONFIG_AOM_HIGHBITDEPTH
-                                       NULL };
-static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
-                                        AOME_SET_ENABLEAUTOALTREF,
-                                        AOME_SET_SHARPNESS,
-                                        AOME_SET_STATIC_THRESHOLD,
-                                        AV1E_SET_TILE_COLUMNS,
-                                        AV1E_SET_TILE_ROWS,
+                                      NULL};
+static const int av1_arg_ctrl_map[] = {AOME_SET_CPUUSED,
+                                       AOME_SET_ENABLEAUTOALTREF,
+                                       AOME_SET_SHARPNESS,
+                                       AOME_SET_STATIC_THRESHOLD,
+                                       AV1E_SET_TILE_COLUMNS,
+                                       AV1E_SET_TILE_ROWS,
 #if CONFIG_DEPENDENT_HORZTILES
-                                        AV1E_SET_TILE_DEPENDENT_ROWS,
+                                       AV1E_SET_TILE_DEPENDENT_ROWS,
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-                                        AV1E_SET_TILE_LOOPFILTER,
+                                       AV1E_SET_TILE_LOOPFILTER,
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
-                                        AOME_SET_ARNR_MAXFRAMES,
-                                        AOME_SET_ARNR_STRENGTH,
-                                        AOME_SET_TUNING,
-                                        AOME_SET_CQ_LEVEL,
-                                        AOME_SET_MAX_INTRA_BITRATE_PCT,
-                                        AV1E_SET_MAX_INTER_BITRATE_PCT,
-                                        AV1E_SET_GF_CBR_BOOST_PCT,
-                                        AV1E_SET_LOSSLESS,
+                                       AOME_SET_ARNR_MAXFRAMES,
+                                       AOME_SET_ARNR_STRENGTH,
+                                       AOME_SET_TUNING,
+                                       AOME_SET_CQ_LEVEL,
+                                       AOME_SET_MAX_INTRA_BITRATE_PCT,
+                                       AV1E_SET_MAX_INTER_BITRATE_PCT,
+                                       AV1E_SET_GF_CBR_BOOST_PCT,
+                                       AV1E_SET_LOSSLESS,
 #if CONFIG_AOM_QM
-                                        AV1E_SET_ENABLE_QM,
-                                        AV1E_SET_QM_MIN,
-                                        AV1E_SET_QM_MAX,
+                                       AV1E_SET_ENABLE_QM,
+                                       AV1E_SET_QM_MIN,
+                                       AV1E_SET_QM_MAX,
 #endif
-                                        AV1E_SET_FRAME_PARALLEL_DECODING,
-                                        AV1E_SET_AQ_MODE,
-                                        AV1E_SET_FRAME_PERIODIC_BOOST,
-                                        AV1E_SET_NOISE_SENSITIVITY,
-                                        AV1E_SET_TUNE_CONTENT,
-                                        AV1E_SET_COLOR_SPACE,
-                                        AV1E_SET_MIN_GF_INTERVAL,
-                                        AV1E_SET_MAX_GF_INTERVAL,
+                                       AV1E_SET_FRAME_PARALLEL_DECODING,
+                                       AV1E_SET_AQ_MODE,
+                                       AV1E_SET_FRAME_PERIODIC_BOOST,
+                                       AV1E_SET_NOISE_SENSITIVITY,
+                                       AV1E_SET_TUNE_CONTENT,
+                                       AV1E_SET_COLOR_SPACE,
+#if CONFIG_COLORSPACE_HEADERS
+                                       AV1E_SET_TRANSFER_FUNCTION,
+                                       AV1E_SET_CHROMA_SAMPLE_POSITION,
+#endif
+                                       AV1E_SET_MIN_GF_INTERVAL,
+                                       AV1E_SET_MAX_GF_INTERVAL,
 #if CONFIG_EXT_PARTITION
-                                        AV1E_SET_SUPERBLOCK_SIZE,
+                                       AV1E_SET_SUPERBLOCK_SIZE,
 #endif  // CONFIG_EXT_PARTITION
 #if CONFIG_TILE_GROUPS
-                                        AV1E_SET_NUM_TG,
-                                        AV1E_SET_MTU,
+                                       AV1E_SET_NUM_TG,
+                                       AV1E_SET_MTU,
 #endif
 #if CONFIG_TEMPMV_SIGNALING
-                                        AV1E_SET_DISABLE_TEMPMV,
+                                       AV1E_SET_DISABLE_TEMPMV,
 #endif
-                                        0 };
+                                       0};
 #endif
 
 static const arg_def_t *no_args[] = { NULL };

@@ -68,6 +68,10 @@ struct av1_extracfg {
   aom_bit_depth_t bit_depth;
   aom_tune_content content;
   aom_color_space_t color_space;
+#if CONFIG_COLORSPACE_HEADERS
+  aom_transfer_function_t transfer_function;
+  aom_chroma_sample_position_t chroma_sample_position;
+#endif
   int color_range;
   int render_width;
   int render_height;
@@ -78,61 +82,65 @@ struct av1_extracfg {
 };
 
 static struct av1_extracfg default_extra_cfg = {
-  0,  // cpu_used
-  1,  // enable_auto_alt_ref
+    0, // cpu_used
+    1, // enable_auto_alt_ref
 #if CONFIG_EXT_REFS
-  0,    // enable_auto_bwd_ref
+    0,  // enable_auto_bwd_ref
 #endif  // CONFIG_EXT_REFS
-  0,    // noise_sensitivity
-  0,    // sharpness
-  0,    // static_thresh
+    0,  // noise_sensitivity
+    0,  // sharpness
+    0,  // static_thresh
 #if CONFIG_EXT_TILE
-  UINT_MAX,  // tile_columns
-  UINT_MAX,  // tile_rows
+    UINT_MAX, // tile_columns
+    UINT_MAX, // tile_rows
 #else
-  0,  // tile_columns
-  0,  // tile_rows
+    0, // tile_columns
+    0, // tile_rows
 #endif  // CONFIG_EXT_TILE
 #if CONFIG_DEPENDENT_HORZTILES
-  0,  // Depdendent Horizontal tiles
+    0, // Depdendent Horizontal tiles
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-  1,              // loop_filter_across_tiles_enabled
+    1,             // loop_filter_across_tiles_enabled
 #endif            // CONFIG_LOOPFILTERING_ACROSS_TILES
-  7,              // arnr_max_frames
-  5,              // arnr_strength
-  0,              // min_gf_interval; 0 -> default decision
-  0,              // max_gf_interval; 0 -> default decision
-  AOM_TUNE_PSNR,  // tuning
-  10,             // cq_level
-  0,              // rc_max_intra_bitrate_pct
-  0,              // rc_max_inter_bitrate_pct
-  0,              // gf_cbr_boost_pct
-  0,              // lossless
+    7,             // arnr_max_frames
+    5,             // arnr_strength
+    0,             // min_gf_interval; 0 -> default decision
+    0,             // max_gf_interval; 0 -> default decision
+    AOM_TUNE_PSNR, // tuning
+    10,            // cq_level
+    0,             // rc_max_intra_bitrate_pct
+    0,             // rc_max_inter_bitrate_pct
+    0,             // gf_cbr_boost_pct
+    0,             // lossless
 #if CONFIG_AOM_QM
-  0,                 // enable_qm
-  DEFAULT_QM_FIRST,  // qm_min
-  DEFAULT_QM_LAST,   // qm_max
+    0,                // enable_qm
+    DEFAULT_QM_FIRST, // qm_min
+    DEFAULT_QM_LAST,  // qm_max
 #endif
 #if CONFIG_TILE_GROUPS
-  1,  // max number of tile groups
-  0,  // mtu_size
+    1, // max number of tile groups
+    0, // mtu_size
 #endif
 #if CONFIG_TEMPMV_SIGNALING
-  0,  // disable temporal mv prediction
+    0, // disable temporal mv prediction
 #endif
-  1,                            // frame_parallel_decoding_mode
-  NO_AQ,                        // aq_mode
-  CONFIG_XIPHRC,                // frame_periodic_delta_q
-  AOM_BITS_8,                   // Bit depth
-  AOM_CONTENT_DEFAULT,          // content
-  AOM_CS_UNKNOWN,               // color space
-  0,                            // color range
-  0,                            // render width
-  0,                            // render height
-  AOM_SUPERBLOCK_SIZE_DYNAMIC,  // superblock_size
+    1,                   // frame_parallel_decoding_mode
+    NO_AQ,               // aq_mode
+    CONFIG_XIPHRC,       // frame_periodic_delta_q
+    AOM_BITS_8,          // Bit depth
+    AOM_CONTENT_DEFAULT, // content
+    AOM_CS_UNKNOWN,      // color space
+#if CONFIG_COLORSPACE_HEADERS
+    AOM_TF_UNKNOWN,  // transfer function
+    AOM_CSP_UNKNOWN, // chroma sample position
+#endif
+    0,                           // color range
+    0,                           // render width
+    0,                           // render height
+    AOM_SUPERBLOCK_SIZE_DYNAMIC, // superblock_size
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
-  23,  // ans_window_size_log2
+    23, // ans_window_size_log2
 #endif
 };
 
@@ -329,7 +337,14 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
       cfg->g_bit_depth == AOM_BITS_8) {
     ERROR("Codec bit-depth 8 not supported in profile > 1");
   }
+#if CONFIG_COLORSPACE_HEADERS
+  RANGE_CHECK(extra_cfg, color_space, AOM_CS_UNKNOWN, AOM_CS_ICTCP);
+  RANGE_CHECK(extra_cfg, transfer_function, AOM_TF_UNKNOWN, AOM_TF_HLG);
+  RANGE_CHECK(extra_cfg, chroma_sample_position, AOM_CSP_UNKNOWN,
+              AOM_CSP_COLOCATED);
+#else
   RANGE_CHECK(extra_cfg, color_space, AOM_CS_UNKNOWN, AOM_CS_SRGB);
+#endif
   RANGE_CHECK(extra_cfg, color_range, 0, 1);
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
   RANGE_CHECK(extra_cfg, ans_window_size_log2, 8, 23);
@@ -488,6 +503,10 @@ static aom_codec_err_t set_encoder_config(
 #endif
 
   oxcf->color_space = extra_cfg->color_space;
+#if CONFIG_COLORSPACE_HEADERS
+  oxcf->transfer_function = extra_cfg->transfer_function;
+  oxcf->chroma_sample_position = extra_cfg->chroma_sample_position;
+#endif
   oxcf->color_range = extra_cfg->color_range;
   oxcf->render_width = extra_cfg->render_width;
   oxcf->render_height = extra_cfg->render_height;
@@ -1356,6 +1375,23 @@ static aom_codec_err_t ctrl_set_color_space(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
+#if CONFIG_COLORSPACE_HEADERS
+static aom_codec_err_t ctrl_set_transfer_function(aom_codec_alg_priv_t *ctx,
+                                                  va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.transfer_function = CAST(AV1E_SET_TRANSFER_FUNCTION, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t
+ctrl_set_chroma_sample_position(aom_codec_alg_priv_t *ctx, va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.chroma_sample_position =
+      CAST(AV1E_SET_CHROMA_SAMPLE_POSITION, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+#endif
+
 static aom_codec_err_t ctrl_set_color_range(aom_codec_alg_priv_t *ctx,
                                             va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -1389,73 +1425,77 @@ static aom_codec_err_t ctrl_set_ans_window_size_log2(aom_codec_alg_priv_t *ctx,
 #endif
 
 static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
-  { AOM_COPY_REFERENCE, ctrl_copy_reference },
-  { AOME_USE_REFERENCE, ctrl_use_reference },
+    {AOM_COPY_REFERENCE, ctrl_copy_reference},
+    {AOME_USE_REFERENCE, ctrl_use_reference},
 
-  // Setters
-  { AOM_SET_REFERENCE, ctrl_set_reference },
-  { AOM_SET_POSTPROC, ctrl_set_previewpp },
-  { AOME_SET_ROI_MAP, ctrl_set_roi_map },
-  { AOME_SET_ACTIVEMAP, ctrl_set_active_map },
-  { AOME_SET_SCALEMODE, ctrl_set_scale_mode },
-  { AOME_SET_CPUUSED, ctrl_set_cpuused },
-  { AOME_SET_ENABLEAUTOALTREF, ctrl_set_enable_auto_alt_ref },
+    // Setters
+    {AOM_SET_REFERENCE, ctrl_set_reference},
+    {AOM_SET_POSTPROC, ctrl_set_previewpp},
+    {AOME_SET_ROI_MAP, ctrl_set_roi_map},
+    {AOME_SET_ACTIVEMAP, ctrl_set_active_map},
+    {AOME_SET_SCALEMODE, ctrl_set_scale_mode},
+    {AOME_SET_CPUUSED, ctrl_set_cpuused},
+    {AOME_SET_ENABLEAUTOALTREF, ctrl_set_enable_auto_alt_ref},
 #if CONFIG_EXT_REFS
-  { AOME_SET_ENABLEAUTOBWDREF, ctrl_set_enable_auto_bwd_ref },
+    {AOME_SET_ENABLEAUTOBWDREF, ctrl_set_enable_auto_bwd_ref},
 #endif  // CONFIG_EXT_REFS
-  { AOME_SET_SHARPNESS, ctrl_set_sharpness },
-  { AOME_SET_STATIC_THRESHOLD, ctrl_set_static_thresh },
-  { AV1E_SET_TILE_COLUMNS, ctrl_set_tile_columns },
-  { AV1E_SET_TILE_ROWS, ctrl_set_tile_rows },
+    {AOME_SET_SHARPNESS, ctrl_set_sharpness},
+    {AOME_SET_STATIC_THRESHOLD, ctrl_set_static_thresh},
+    {AV1E_SET_TILE_COLUMNS, ctrl_set_tile_columns},
+    {AV1E_SET_TILE_ROWS, ctrl_set_tile_rows},
 #if CONFIG_DEPENDENT_HORZTILES
-  { AV1E_SET_TILE_DEPENDENT_ROWS, ctrl_set_tile_dependent_rows },
+    {AV1E_SET_TILE_DEPENDENT_ROWS, ctrl_set_tile_dependent_rows},
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-  { AV1E_SET_TILE_LOOPFILTER, ctrl_set_tile_loopfilter },
+    {AV1E_SET_TILE_LOOPFILTER, ctrl_set_tile_loopfilter},
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
-  { AOME_SET_ARNR_MAXFRAMES, ctrl_set_arnr_max_frames },
-  { AOME_SET_ARNR_STRENGTH, ctrl_set_arnr_strength },
-  { AOME_SET_TUNING, ctrl_set_tuning },
-  { AOME_SET_CQ_LEVEL, ctrl_set_cq_level },
-  { AOME_SET_MAX_INTRA_BITRATE_PCT, ctrl_set_rc_max_intra_bitrate_pct },
-  { AV1E_SET_MAX_INTER_BITRATE_PCT, ctrl_set_rc_max_inter_bitrate_pct },
-  { AV1E_SET_GF_CBR_BOOST_PCT, ctrl_set_rc_gf_cbr_boost_pct },
-  { AV1E_SET_LOSSLESS, ctrl_set_lossless },
+    {AOME_SET_ARNR_MAXFRAMES, ctrl_set_arnr_max_frames},
+    {AOME_SET_ARNR_STRENGTH, ctrl_set_arnr_strength},
+    {AOME_SET_TUNING, ctrl_set_tuning},
+    {AOME_SET_CQ_LEVEL, ctrl_set_cq_level},
+    {AOME_SET_MAX_INTRA_BITRATE_PCT, ctrl_set_rc_max_intra_bitrate_pct},
+    {AV1E_SET_MAX_INTER_BITRATE_PCT, ctrl_set_rc_max_inter_bitrate_pct},
+    {AV1E_SET_GF_CBR_BOOST_PCT, ctrl_set_rc_gf_cbr_boost_pct},
+    {AV1E_SET_LOSSLESS, ctrl_set_lossless},
 #if CONFIG_AOM_QM
-  { AV1E_SET_ENABLE_QM, ctrl_set_enable_qm },
-  { AV1E_SET_QM_MIN, ctrl_set_qm_min },
-  { AV1E_SET_QM_MAX, ctrl_set_qm_max },
+    {AV1E_SET_ENABLE_QM, ctrl_set_enable_qm},
+    {AV1E_SET_QM_MIN, ctrl_set_qm_min},
+    {AV1E_SET_QM_MAX, ctrl_set_qm_max},
 #endif
 #if CONFIG_TILE_GROUPS
-  { AV1E_SET_NUM_TG, ctrl_set_num_tg },
-  { AV1E_SET_MTU, ctrl_set_mtu },
+    {AV1E_SET_NUM_TG, ctrl_set_num_tg},
+    {AV1E_SET_MTU, ctrl_set_mtu},
 #endif
 #if CONFIG_TEMPMV_SIGNALING
-  { AV1E_SET_DISABLE_TEMPMV, ctrl_set_disable_tempmv },
+    {AV1E_SET_DISABLE_TEMPMV, ctrl_set_disable_tempmv},
 #endif
-  { AV1E_SET_FRAME_PARALLEL_DECODING, ctrl_set_frame_parallel_decoding_mode },
-  { AV1E_SET_AQ_MODE, ctrl_set_aq_mode },
-  { AV1E_SET_FRAME_PERIODIC_BOOST, ctrl_set_frame_periodic_boost },
-  { AV1E_SET_TUNE_CONTENT, ctrl_set_tune_content },
-  { AV1E_SET_COLOR_SPACE, ctrl_set_color_space },
-  { AV1E_SET_COLOR_RANGE, ctrl_set_color_range },
-  { AV1E_SET_NOISE_SENSITIVITY, ctrl_set_noise_sensitivity },
-  { AV1E_SET_MIN_GF_INTERVAL, ctrl_set_min_gf_interval },
-  { AV1E_SET_MAX_GF_INTERVAL, ctrl_set_max_gf_interval },
-  { AV1E_SET_RENDER_SIZE, ctrl_set_render_size },
-  { AV1E_SET_SUPERBLOCK_SIZE, ctrl_set_superblock_size },
+    {AV1E_SET_FRAME_PARALLEL_DECODING, ctrl_set_frame_parallel_decoding_mode},
+    {AV1E_SET_AQ_MODE, ctrl_set_aq_mode},
+    {AV1E_SET_FRAME_PERIODIC_BOOST, ctrl_set_frame_periodic_boost},
+    {AV1E_SET_TUNE_CONTENT, ctrl_set_tune_content},
+    {AV1E_SET_COLOR_SPACE, ctrl_set_color_space},
+#if CONFIG_COLORSPACE_HEADERS
+    {AV1E_SET_TRANSFER_FUNCTION, ctrl_set_transfer_function},
+    {AV1E_SET_CHROMA_SAMPLE_POSITION, ctrl_set_chroma_sample_position},
+#endif
+    {AV1E_SET_COLOR_RANGE, ctrl_set_color_range},
+    {AV1E_SET_NOISE_SENSITIVITY, ctrl_set_noise_sensitivity},
+    {AV1E_SET_MIN_GF_INTERVAL, ctrl_set_min_gf_interval},
+    {AV1E_SET_MAX_GF_INTERVAL, ctrl_set_max_gf_interval},
+    {AV1E_SET_RENDER_SIZE, ctrl_set_render_size},
+    {AV1E_SET_SUPERBLOCK_SIZE, ctrl_set_superblock_size},
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
-  { AV1E_SET_ANS_WINDOW_SIZE_LOG2, ctrl_set_ans_window_size_log2 },
+    {AV1E_SET_ANS_WINDOW_SIZE_LOG2, ctrl_set_ans_window_size_log2},
 #endif
 
-  // Getters
-  { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },
-  { AOME_GET_LAST_QUANTIZER_64, ctrl_get_quantizer64 },
-  { AV1_GET_REFERENCE, ctrl_get_reference },
-  { AV1E_GET_ACTIVEMAP, ctrl_get_active_map },
-  { AV1_GET_NEW_FRAME_IMAGE, ctrl_get_new_frame_image },
+    // Getters
+    {AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer},
+    {AOME_GET_LAST_QUANTIZER_64, ctrl_get_quantizer64},
+    {AV1_GET_REFERENCE, ctrl_get_reference},
+    {AV1E_GET_ACTIVEMAP, ctrl_get_active_map},
+    {AV1_GET_NEW_FRAME_IMAGE, ctrl_get_new_frame_image},
 
-  { -1, NULL },
+    {-1, NULL},
 };
 
 static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
