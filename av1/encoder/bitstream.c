@@ -2505,10 +2505,13 @@ static void write_partition(const AV1_COMMON *const cm,
 #endif
                                                 bsize)
                       : 0;
+  const int is_intra_only = frame_is_intra_only(cm);
 #if CONFIG_UNPOISON_PARTITION_CTX
   const aom_prob *const probs = ctx >= 0 ? cm->fc->partition_prob[ctx] : NULL;
 #else
-  const aom_prob *const probs = cm->fc->partition_prob[ctx];
+  const aom_prob *const probs = is_intra_only
+                                    ? cm->fc->partition_prob_intra[ctx]
+                                    : cm->fc->partition_prob_inter[ctx];
 #endif
 
 #if CONFIG_EC_ADAPT
@@ -2537,7 +2540,9 @@ static void write_partition(const AV1_COMMON *const cm,
 #endif  // CONFIG_EC_MULTISYMBOL
 #else
 #if CONFIG_EC_MULTISYMBOL
-    aom_write_symbol(w, p, ec_ctx->partition_cdf[ctx], PARTITION_TYPES);
+    aom_write_symbol(w, p, is_intra_only ? ec_ctx->partition_cdf_intra[ctx]
+                                         : ec_ctx->partition_cdf_inter[ctx],
+                     PARTITION_TYPES);
 #else
     av1_write_token(w, av1_partition_tree, probs, &partition_encodings[p]);
 #endif
@@ -4643,9 +4648,13 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                      counts->partition[i], EXT_PARTITION_TYPES, probwt,
                      header_bc);
 #else
-  for (i = 0; i < PARTITION_CONTEXTS_PRIMARY; ++i)
-    prob_diff_update(av1_partition_tree, fc->partition_prob[i],
-                     counts->partition[i], PARTITION_TYPES, probwt, header_bc);
+  if (!frame_is_intra_only(cm)) {
+    for (j = 0; j < PARTITION_CONTEXTS_PRIMARY; ++j) {
+      prob_diff_update(av1_partition_tree, fc->partition_prob_inter[j],
+                       counts->partition_inter[j], PARTITION_TYPES, probwt,
+                       header_bc);
+    }
+  }
 #endif  // CONFIG_EXT_PARTITION_TYPES
 #if CONFIG_UNPOISON_PARTITION_CTX
   for (; i < PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES; ++i) {

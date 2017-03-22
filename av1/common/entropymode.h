@@ -83,7 +83,8 @@ typedef struct frame_contexts {
 #if CONFIG_EXT_PARTITION_TYPES
   aom_prob partition_prob[PARTITION_CONTEXTS][EXT_PARTITION_TYPES - 1];
 #else
-  aom_prob partition_prob[PARTITION_CONTEXTS][PARTITION_TYPES - 1];
+  aom_prob partition_prob_intra[PARTITION_CONTEXTS][PARTITION_TYPES - 1];
+  aom_prob partition_prob_inter[PARTITION_CONTEXTS][PARTITION_TYPES - 1];
 #endif
   av1_coeff_probs_model coef_probs[TX_SIZES][PLANE_TYPES];
 #if CONFIG_NEW_TOKENSET
@@ -248,7 +249,10 @@ typedef struct frame_contexts {
 #if CONFIG_EXT_PARTITION_TYPES
   aom_cdf_prob partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(EXT_PARTITION_TYPES)];
 #else
-  aom_cdf_prob partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(PARTITION_TYPES)];
+  aom_cdf_prob partition_cdf_intra[PARTITION_CONTEXTS]
+                                  [CDF_SIZE(PARTITION_TYPES)];
+  aom_cdf_prob partition_cdf_inter[PARTITION_CONTEXTS]
+                                  [CDF_SIZE(PARTITION_TYPES)];
 #endif
   aom_cdf_prob switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS]
                                     [CDF_SIZE(SWITCHABLE_FILTERS)];
@@ -288,7 +292,7 @@ typedef struct FRAME_COUNTS {
 #if CONFIG_EXT_PARTITION_TYPES
   unsigned int partition[PARTITION_CONTEXTS][EXT_PARTITION_TYPES];
 #else
-  unsigned int partition[PARTITION_CONTEXTS][PARTITION_TYPES];
+  unsigned int partition_inter[PARTITION_CONTEXTS][PARTITION_TYPES];
 #endif
   av1_coeff_count_model coef[TX_SIZES][PLANE_TYPES];
   unsigned int eob_branch[TX_SIZES][PLANE_TYPES][REF_TYPES][COEF_BANDS]
