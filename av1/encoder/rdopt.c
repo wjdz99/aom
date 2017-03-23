@@ -10155,9 +10155,22 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
     if (best_rd < mode_threshold[mode_index]) continue;
 
+#if CONFIG_EXT_REFS
+#if CONFIG_LOWDELAY_COMPOUND
+    if (ref_frame == BWDREF_FRAME && !(LOWDELAY_MASK & 4)) continue;
+#endif
+#endif
+
     comp_pred = second_ref_frame > INTRA_FRAME;
     if (comp_pred) {
       if (!cpi->allow_comp_inter_inter) continue;
+
+#if CONFIG_EXT_REFS
+#if CONFIG_LOWDELAY_COMPOUND
+      if (second_ref_frame == BWDREF_FRAME && !(LOWDELAY_MASK & 2)) continue;
+      if (second_ref_frame == ALTREF_FRAME && !(LOWDELAY_MASK & 1)) continue;
+#endif
+#endif
 
       // Skip compound inter modes if ARF is not available.
       if (!(cpi->ref_frame_flags & flag_list[second_ref_frame])) continue;
