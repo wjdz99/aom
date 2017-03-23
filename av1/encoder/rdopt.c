@@ -8447,6 +8447,41 @@ static int64_t motion_mode_rd(
       if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
                           mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
                           &mbmi->wm_params[0], mi_row, mi_col) == 0) {
+        // Do a second time for NEWMV modes where we can change the mv
+        if (mbmi->mode == NEWMV) {
+          int_mv wmv;
+          int tmp_rate_mv;
+          WarpedMotionParams wm_params;
+          wmv = gm_get_motion_vector(&mbmi->wm_params[0],
+                                     cm->allow_high_precision_mv, bsize, mi_col,
+                                     mi_row, 0);
+          if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
+                              wmv.as_mv.row, wmv.as_mv.col, &wm_params, mi_row,
+                              mi_col) == 0) {
+            mbmi->wm_params[0] = wm_params;
+            mbmi->mv[0].as_int = wmv.as_int;
+            if (!is_comp_pred && have_newmv_in_inter_mode(this_mode)) {
+              MV ref_mv;
+#if CONFIG_EXT_INTER
+              ref_mv = x->mbmi_ext->ref_mvs[mbmi->ref_frame[0]][mv_idx].as_mv;
+#else
+              ref_mv = x->mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0].as_mv;
+#endif  // CONFIG_EXT_INTER
+              tmp_rate_mv = av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv,
+                                            x->nmvjointcost,
+                                            x->mvcost, MV_COST_WEIGHT);
+              if (discount_newmv_test(cpi, this_mode, mbmi->mv[0], mode_mv,
+                                      refs[0])) {
+                tmp_rate_mv = AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
+              }
+#if CONFIG_EXT_INTER
+              tmp_rate2 = rate2_bmc_nocoeff - rate_mv_bmc + tmp_rate_mv;
+#else
+              tmp_rate2 = rate2_nocoeff - rate_mv + tmp_rate_mv;
+#endif  // CONFIG_EXT_INTER
+            }
+          }
+        }
         int plane;
         for (plane = 0; plane < 3; ++plane) {
           const struct macroblockd_plane *pd = &xd->plane[plane];
