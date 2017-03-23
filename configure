@@ -313,6 +313,7 @@ EXPERIMENT_LIST="
     lv_map
     mv_compress
     frame_superres
+    lowdelay_compound
 "
 CONFIG_LIST="
     dependency_tracking
