@@ -1065,11 +1065,12 @@ void av1_append_sub8x8_mvs_for_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 
 #if CONFIG_WARPED_MOTION
-void calc_projection_samples(MB_MODE_INFO *const mbmi,
+static void calc_projection_samples(MB_MODE_INFO *const mbmi,
 #if CONFIG_GLOBAL_MOTION
-                             MACROBLOCKD *xd,
+                                    MACROBLOCKD *xd,
 #endif
-                             int x, int y, int *pts_inref) {
+                                    int allowhpmv, int x, int y,
+                                    int *pts_inref) {
   if (mbmi->motion_mode == WARPED_CAUSAL
 #if CONFIG_GLOBAL_MOTION
       || (mbmi->mode == ZEROMV &&
@@ -1091,8 +1092,8 @@ void calc_projection_samples(MB_MODE_INFO *const mbmi,
     pts_inref[1] =
         ROUND_POWER_OF_TWO_SIGNED(ipts_inref[1], WARPEDPIXEL_PREC_BITS - 3);
   } else {
-    pts_inref[0] = (x * 8) + mbmi->mv[0].as_mv.col;
-    pts_inref[1] = (y * 8) + mbmi->mv[0].as_mv.row;
+    pts_inref[0] = (x * 8) + (mbmi->mv[0].as_mv.col << (!allowhpmv));
+    pts_inref[1] = (y * 8) + (mbmi->mv[0].as_mv.row << (!allowhpmv));
   }
 }
 
@@ -1136,7 +1137,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
 #if CONFIG_GLOBAL_MOTION
                                   xd,
 #endif
-                                  x, y, pts_inref);
+                                  cm->allow_high_precision_mv, x, y, pts_inref);
 
           pts += 2;
           pts_inref += 2;
@@ -1176,7 +1177,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
 #if CONFIG_GLOBAL_MOTION
                                   xd,
 #endif
-                                  x, y, pts_inref);
+                                  cm->allow_high_precision_mv, x, y, pts_inref);
 
           pts += 2;
           pts_inref += 2;
@@ -1212,7 +1213,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
 #if CONFIG_GLOBAL_MOTION
                                 xd,
 #endif
-                                x, y, pts_inref);
+                                cm->allow_high_precision_mv, x, y, pts_inref);
 
         pts += 2;
         pts_inref += 2;

@@ -89,59 +89,6 @@ typedef struct {
   int32_t wmmat[8];
   int32_t alpha, beta, gamma, delta;
 } WarpedMotionParams;
-#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-
-#if CONFIG_GLOBAL_MOTION
-// ALPHA here refers to parameters a and b in rotzoom model:
-// | a   b|
-// |-b   a|
-//
-// and a, b, c, d in affine model:
-// | a   b|
-// | c   d|
-//
-// Anything ending in PREC_BITS is the number of bits of precision
-// to maintain when converting from double to integer.
-//
-// The ABS parameters are used to create an upper and lower bound
-// for each parameter. In other words, after a parameter is integerized
-// it is clamped between -(1 << ABS_XXX_BITS) and (1 << ABS_XXX_BITS).
-//
-// XXX_PREC_DIFF and XXX_DECODE_FACTOR
-// are computed once here to prevent repetitive
-// computation on the decoder side. These are
-// to allow the global motion parameters to be encoded in a lower
-// precision than the warped model precision. This means that they
-// need to be changed to warped precision when they are decoded.
-//
-// XX_MIN, XX_MAX are also computed to avoid repeated computation
-
-#define GM_TRANS_PREC_BITS 6
-#define GM_ABS_TRANS_BITS 12
-#define GM_TRANS_PREC_DIFF (WARPEDMODEL_PREC_BITS - GM_TRANS_PREC_BITS)
-#define GM_TRANS_DECODE_FACTOR (1 << GM_TRANS_PREC_DIFF)
-
-#define GM_ALPHA_PREC_BITS 15
-#define GM_ABS_ALPHA_BITS 12
-#define GM_ALPHA_PREC_DIFF (WARPEDMODEL_PREC_BITS - GM_ALPHA_PREC_BITS)
-#define GM_ALPHA_DECODE_FACTOR (1 << GM_ALPHA_PREC_DIFF)
-
-#define GM_ROW3HOMO_PREC_BITS 16
-#define GM_ABS_ROW3HOMO_BITS 11
-#define GM_ROW3HOMO_PREC_DIFF \
-  (WARPEDMODEL_ROW3HOMO_PREC_BITS - GM_ROW3HOMO_PREC_BITS)
-#define GM_ROW3HOMO_DECODE_FACTOR (1 << GM_ROW3HOMO_PREC_DIFF)
-
-#define GM_TRANS_MAX (1 << GM_ABS_TRANS_BITS)
-#define GM_ALPHA_MAX (1 << GM_ABS_ALPHA_BITS)
-#define GM_ROW3HOMO_MAX (1 << GM_ABS_ROW3HOMO_BITS)
-
-#define GM_TRANS_MIN -GM_TRANS_MAX
-#define GM_ALPHA_MIN -GM_ALPHA_MAX
-#define GM_ROW3HOMO_MIN -GM_ROW3HOMO_MAX
-
-// Use global motion parameters for sub8x8 blocks
-#define GLOBAL_SUB8X8_USED 0
 
 static INLINE int block_center_x(int mi_col, BLOCK_SIZE bs) {
   const int bw = block_size_wide[bs];
@@ -198,6 +145,59 @@ static INLINE int_mv gm_get_motion_vector(const WarpedMotionParams *gm,
   res.as_mv.col = tx;
   return res;
 }
+#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
+
+#if CONFIG_GLOBAL_MOTION
+// ALPHA here refers to parameters a and b in rotzoom model:
+// | a   b|
+// |-b   a|
+//
+// and a, b, c, d in affine model:
+// | a   b|
+// | c   d|
+//
+// Anything ending in PREC_BITS is the number of bits of precision
+// to maintain when converting from double to integer.
+//
+// The ABS parameters are used to create an upper and lower bound
+// for each parameter. In other words, after a parameter is integerized
+// it is clamped between -(1 << ABS_XXX_BITS) and (1 << ABS_XXX_BITS).
+//
+// XXX_PREC_DIFF and XXX_DECODE_FACTOR
+// are computed once here to prevent repetitive
+// computation on the decoder side. These are
+// to allow the global motion parameters to be encoded in a lower
+// precision than the warped model precision. This means that they
+// need to be changed to warped precision when they are decoded.
+//
+// XX_MIN, XX_MAX are also computed to avoid repeated computation
+
+#define GM_TRANS_PREC_BITS 6
+#define GM_ABS_TRANS_BITS 12
+#define GM_TRANS_PREC_DIFF (WARPEDMODEL_PREC_BITS - GM_TRANS_PREC_BITS)
+#define GM_TRANS_DECODE_FACTOR (1 << GM_TRANS_PREC_DIFF)
+
+#define GM_ALPHA_PREC_BITS 15
+#define GM_ABS_ALPHA_BITS 12
+#define GM_ALPHA_PREC_DIFF (WARPEDMODEL_PREC_BITS - GM_ALPHA_PREC_BITS)
+#define GM_ALPHA_DECODE_FACTOR (1 << GM_ALPHA_PREC_DIFF)
+
+#define GM_ROW3HOMO_PREC_BITS 16
+#define GM_ABS_ROW3HOMO_BITS 11
+#define GM_ROW3HOMO_PREC_DIFF \
+  (WARPEDMODEL_ROW3HOMO_PREC_BITS - GM_ROW3HOMO_PREC_BITS)
+#define GM_ROW3HOMO_DECODE_FACTOR (1 << GM_ROW3HOMO_PREC_DIFF)
+
+#define GM_TRANS_MAX (1 << GM_ABS_TRANS_BITS)
+#define GM_ALPHA_MAX (1 << GM_ABS_ALPHA_BITS)
+#define GM_ROW3HOMO_MAX (1 << GM_ABS_ROW3HOMO_BITS)
+
+#define GM_TRANS_MIN -GM_TRANS_MAX
+#define GM_ALPHA_MIN -GM_ALPHA_MAX
+#define GM_ROW3HOMO_MIN -GM_ROW3HOMO_MAX
+
+// Use global motion parameters for sub8x8 blocks
+#define GLOBAL_SUB8X8_USED 0
 
 static INLINE TransformationType get_gmtype(const WarpedMotionParams *gm) {
   if (gm->wmmat[6] != 0 || gm->wmmat[7] != 0) {
