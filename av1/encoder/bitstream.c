@@ -2775,11 +2775,8 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
       !sb_all_skip(cm, mi_row, mi_col)) {
     aom_write_literal(
         w,
-        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.dering_gain,
-        cm->dering_bits);
-    aom_write_literal(w, cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]
-                             ->mbmi.clpf_strength,
-                      cm->clpf_bits);
+        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength,
+        cm->cdef_bits);
   } else if (cm->sb_size == BLOCK_64X64 && bsize == BLOCK_64X64 &&
 #else
   if (bsize == BLOCK_64X64 &&
