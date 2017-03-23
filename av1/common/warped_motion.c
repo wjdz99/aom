@@ -1280,14 +1280,13 @@ void av1_warp_plane(WarpedMotionParams *wm,
 
 #if CONFIG_WARPED_MOTION
 
-#define LEAST_SQUARES_ORDER 2
 #define LEAST_SQUARES_SAMPLES_MAX 32
 #define LEAST_SQUARES_MV_MAX 1024  // max mv in 1/8-pel
 
 #if LEAST_SQUARES_ORDER == 2
-static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
-                           int mvy, int mvx, WarpedMotionParams *wm, int mi_row,
-                           int mi_col) {
+static int find_affine_int_2ls(const int np, int *pts1, int *pts2,
+                               BLOCK_SIZE bsize, int mvy, int mvx,
+                               WarpedMotionParams *wm, int mi_row, int mi_col) {
   int32_t A[2][2] = { { 0, 0 }, { 0, 0 } };
   int32_t Bx[2] = { 0, 0 };
   int32_t By[2] = { 0, 0 };
@@ -1382,11 +1381,35 @@ static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   return 0;
 }
 
-#else
+int find_projection_2ls(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
+                        int mvy, int mvx, WarpedMotionParams *wm_params,
+                        int mi_row, int mi_col) {
+  int result = 1;
+  switch (wm_params->wmtype) {
+    case AFFINE:
+      result = find_affine_int_2ls(np, pts1, pts2, bsize, mvy, mvx, wm_params,
+                                   mi_row, mi_col);
+      break;
+    default: assert(0 && "Invalid warped motion type!"); return 1;
+  }
+  if (result == 0) {
+    if (wm_params->wmtype == ROTZOOM) {
+      wm_params->wmmat[5] = wm_params->wmmat[2];
+      wm_params->wmmat[4] = -wm_params->wmmat[3];
+    }
+    if (wm_params->wmtype == AFFINE || wm_params->wmtype == ROTZOOM) {
+      // check compatibility with the fast warp filter
+      if (!get_shear_params(wm_params)) return 1;
+    }
+  }
 
-static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
-                           int mvy, int mvx, WarpedMotionParams *wm, int mi_row,
-                           int mi_col) {
+  return result;
+}
+#endif  // LEAST_SQUARES_ORDER == 2
+
+static int find_affine_int_3ls(const int np, int *pts1, int *pts2,
+                               BLOCK_SIZE bsize, int mvy, int mvx,
+                               WarpedMotionParams *wm, int mi_row, int mi_col) {
   int32_t A[3][3] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
   int32_t Bx[3] = { 0, 0, 0 };
   int32_t By[3] = { 0, 0, 0 };
@@ -1531,16 +1554,15 @@ static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
 
   return 0;
 }
-#endif  // LEAST_SQUARES_ORDER == 2
 
-int find_projection(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
-                    int mvy, int mvx, WarpedMotionParams *wm_params, int mi_row,
-                    int mi_col) {
+int find_projection_3ls(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
+                        int mvy, int mvx, WarpedMotionParams *wm_params,
+                        int mi_row, int mi_col) {
   int result = 1;
   switch (wm_params->wmtype) {
     case AFFINE:
-      result = find_affine_int(np, pts1, pts2, bsize, mvy, mvx, wm_params,
-                               mi_row, mi_col);
+      result = find_affine_int_3ls(np, pts1, pts2, bsize, mvy, mvx, wm_params,
+                                   mi_row, mi_col);
       break;
     default: assert(0 && "Invalid warped motion type!"); return 1;
   }
