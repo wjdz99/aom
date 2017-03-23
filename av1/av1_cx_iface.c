@@ -98,7 +98,7 @@ static struct av1_extracfg default_extra_cfg = {
     0,  // tile_rows
 #endif  // CONFIG_EXT_TILE
 #if CONFIG_DEPENDENT_HORZTILES
-    0,  // Depdendent Horizontal tiles
+    0,  // Dependent Horizontal tiles
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
     1,             // loop_filter_across_tiles_enabled
@@ -116,7 +116,7 @@ static struct av1_extracfg default_extra_cfg = {
 #if CONFIG_AOM_QM
     0,                // enable_qm
     DEFAULT_QM_FIRST,  // qm_min
-    DEFAULT_QM_LAST,   // qm_max
+    DEFAULT_QM_LAST,  // qm_max
 #endif
 #if CONFIG_TILE_GROUPS
     1,  // max number of tile groups
@@ -132,8 +132,8 @@ static struct av1_extracfg default_extra_cfg = {
     AOM_CONTENT_DEFAULT,  // content
     AOM_CS_UNKNOWN,      // color space
 #if CONFIG_COLORSPACE_HEADERS
-    AOM_TF_UNKNOWN,  // transfer function
-    AOM_CSP_UNKNOWN,  // chroma sample position
+    AOM_TF_UNKNOWN,      // transfer function
+    AOM_CSP_UNKNOWN,     // chroma sample position
 #endif
     0,                           // color range
     0,                           // render width
