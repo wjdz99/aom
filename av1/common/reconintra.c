@@ -2146,8 +2146,9 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
                                        const uint8_t *ref, int ref_stride,
                                        uint8_t *dst, int dst_stride,
                                        int col_off, int row_off, int plane) {
-  BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
   const struct macroblockd_plane *const pd = &xd->plane[plane];
+  MB_MODE_INFO *const mbmi = xd->mi[0]->mbmi;
+  plane const BLOCK_SIZE bsize = mbmi->sb_type;
   const int txw = tx_size_wide_unit[tx_size];
   const int have_top = row_off || xd->up_available;
   const int have_left = col_off || xd->left_available;
@@ -2177,7 +2178,7 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
       (mi_col + ((col_off + txw) >> (1 - pd->subsampling_x))) <
       xd->tile.mi_col_end;
 #if CONFIG_EXT_PARTITION_TYPES
-  const PARTITION_TYPE partition = xd->mi[0]->mbmi.partition;
+  const PARTITION_TYPE partition = mbmi->partition;
 #endif
 
 #if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
@@ -2196,17 +2197,17 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
   assert(txwpx == txhpx);
 
 #if CONFIG_PALETTE
-  if (xd->mi[0]->mbmi.palette_mode_info.palette_size[plane != 0] > 0) {
+  if (mbmi->palette_mode_info.palette_size[plane != 0] > 0) {
     const int bs = tx_size_wide[tx_size];
     const int stride = wpx;
     int r, c;
     const uint8_t *const map = xd->plane[plane != 0].color_index_map;
 #if CONFIG_AOM_HIGHBITDEPTH
-    uint16_t *palette = xd->mi[0]->mbmi.palette_mode_info.palette_colors +
-                        plane * PALETTE_MAX_SIZE;
+    uint16_t *palette =
+        mbmi->palette_mode_info.palette_colors + plane * PALETTE_MAX_SIZE;
 #else
-    uint8_t *palette = xd->mi[0]->mbmi.palette_mode_info.palette_colors +
-                       plane * PALETTE_MAX_SIZE;
+    uint8_t *palette =
+        mbmi->palette_mode_info.palette_colors + plane * PALETTE_MAX_SIZE;
 #endif  // CONFIG_AOM_HIGHBITDEPTH
 
 #if CONFIG_AOM_HIGHBITDEPTH
