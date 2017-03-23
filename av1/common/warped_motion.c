@@ -587,10 +587,6 @@ const int16_t warped_filter[WARPEDPIXEL_PREC_SHIFTS * 3 + 1][8] = {
 };
 /* clang-format on */
 
-// Whether to use approximate divisor
-#define APPROXIMATE_DIVISOR 1
-
-#if APPROXIMATE_DIVISOR
 #define DIV_LUT_PREC_BITS 14
 #define DIV_LUT_BITS 8
 #define DIV_LUT_NUM (1 << DIV_LUT_BITS)
@@ -657,7 +653,6 @@ static int16_t resolve_divisor_32(uint32_t D, int16_t *shift) {
   // Use f as lookup into the precomputed table of multipliers
   return div_lut[f];
 }
-#endif  // APPROXIMATE_DIVISOR
 
 static int is_affine_valid(WarpedMotionParams *wm) {
   const int32_t *mat = wm->wmmat;
@@ -680,7 +675,6 @@ static int get_shear_params(WarpedMotionParams *wm, int32_t *alpha,
   if (!is_affine_valid(wm)) return 0;
   *alpha = mat[2] - (1 << WARPEDMODEL_PREC_BITS);
   *beta = mat[3];
-#if APPROXIMATE_DIVISOR
   int16_t shift;
   int16_t y = resolve_divisor_32(abs(mat[2]), &shift) * (mat[2] < 0 ? -1 : 1);
   int64_t v;
@@ -689,11 +683,6 @@ static int get_shear_params(WarpedMotionParams *wm, int32_t *alpha,
   v = ((int64_t)mat[3] * mat[4]) * y;
   *delta = mat[5] - ROUND_POWER_OF_TWO_SIGNED_64(v, shift) -
            (1 << WARPEDMODEL_PREC_BITS);
-#else
-  *gamma = ((int64_t)mat[4] << WARPEDMODEL_PREC_BITS) / mat[2];
-  *delta = mat[5] - (((int64_t)mat[3] * mat[4] + (mat[2] / 2)) / mat[2]) -
-           (1 << WARPEDMODEL_PREC_BITS);
-#endif  // APPROXIMATE_DIVISOR
   return 1;
 }
 
@@ -1299,13 +1288,149 @@ void av1_warp_plane(WarpedMotionParams *wm,
 
 #if CONFIG_WARPED_MOTION
 
+#define LEAST_SQUARES_ORDER 2
 #define LEAST_SQUARES_SAMPLES_MAX 32
 #define LEAST_SQUARES_MV_MAX 1024  // max mv in 1/8-pel
 
-#ifndef APPROXIMATE_DIVISOR
-#define IDET_PREC_BITS 48
-#define IDET_WARPEDMODEL_DIFF_BITS (IDET_PREC_BITS - WARPEDMODEL_PREC_BITS)
-#endif  // APPROXIMATE_DIVISOR
+#if LEAST_SQUARES_ORDER == 2
+static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
+                           int mvy, int mvx, WarpedMotionParams *wm, int mi_row,
+                           int mi_col) {
+  int32_t A[2][2] = { { 0, 0 }, { 0, 0 } };
+  int32_t Bx[2] = { 0, 0 };
+  int32_t By[2] = { 0, 0 };
+  int i, j, n = 0;
+
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  const int suy = (mi_row * MI_SIZE + AOMMAX(bh, MI_SIZE) / 2 - 1) * 8;
+  const int sux = (mi_col * MI_SIZE + AOMMAX(bw, MI_SIZE) / 2 - 1) * 8;
+  const int duy = suy + mvy;
+  const int dux = sux + mvx;
+
+  // Assume the center pixel of the block has exactly the same motion vector
+  // as transmitted for the block. First shift the origin of the source
+  // points to the block center, and the origin of the destination points to
+  // the block center added to the motion vector transmitted.
+  // Let (xi, yi) denote the source points and (xi', yi') denote destination
+  // points after origin shfifting, for i = 0, 1, 2, .... n-1.
+  // Then if  P = [x0, y0,
+  //               x1, y1
+  //               x2, y1,
+  //                ....
+  //              ]
+  //          q = [x0', x1', x2', ... ]'
+  //          r = [y0', y1', y2', ... ]'
+  // the least squares problems that need to be solved are:
+  //          [h1, h2]' = inv(P'P)P'q and
+  //          [h3, h4]' = inv(P'P)P'r
+  // where the affine transformation is given by:
+  //          x' = h1.x + h2.y
+  //          y' = h3.x + h4.y
+  //
+  // The loop below computes: A = P'P, Bx = P'q, By = P'r
+  // We need to just compute inv(A).Bx and inv(A).By for the solutions.
+  for (j = 0; j < SAMPLES_PER_NEIGHBOR && n < LEAST_SQUARES_SAMPLES_MAX; ++j) {
+    int sx, sy, dx, dy;
+    // Contribution from sample in current block
+    const int y_offset = j >> 1;
+    const int x_offset = j & 1;
+    sx = x_offset * 8;
+    sy = y_offset * 8;
+    dx = x_offset * 8;
+    dy = y_offset * 8;
+    if (abs(sx - dx) < LEAST_SQUARES_MV_MAX &&
+        abs(sy - dy) < LEAST_SQUARES_MV_MAX) {
+      A[0][0] += sx * sx;
+      A[0][1] += sx * sy;
+      A[1][1] += sy * sy;
+      Bx[0] += sx * dx;
+      Bx[1] += sy * dx;
+      By[0] += sx * dy;
+      By[1] += sy * dy;
+      n++;
+    }
+    // Contribution from neighbor block
+    for (i = j; i < np && n < LEAST_SQUARES_SAMPLES_MAX;
+         i += SAMPLES_PER_NEIGHBOR) {
+      dx = pts2[i * 2] - dux;
+      dy = pts2[i * 2 + 1] - duy;
+      sx = pts1[i * 2] - sux;
+      sy = pts1[i * 2 + 1] - suy;
+      if (abs(sx - dx) < LEAST_SQUARES_MV_MAX &&
+          abs(sy - dy) < LEAST_SQUARES_MV_MAX) {
+        A[0][0] += sx * sx;
+        A[0][1] += sx * sy;
+        A[1][1] += sy * sy;
+        Bx[0] += sx * dx;
+        Bx[1] += sy * dx;
+        By[0] += sx * dy;
+        By[1] += sy * dy;
+        n++;
+      }
+    }
+  }
+  int64_t Px[2], Py[2];
+  int64_t iDet, Det, v;
+  int16_t shift;
+
+  // These divided by the Det, are the least squares solutions
+  Px[0] = (int64_t)A[1][1] * Bx[0] - (int64_t)A[0][1] * Bx[1];
+  Px[1] = -(int64_t)A[0][1] * Bx[0] + (int64_t)A[0][0] * Bx[1];
+  Py[0] = (int64_t)A[1][1] * By[0] - (int64_t)A[0][1] * By[1];
+  Py[1] = -(int64_t)A[0][1] * By[0] + (int64_t)A[0][0] * By[1];
+
+  // Compute Determinant of A
+  Det = (int64_t)A[0][0] * A[1][1] - (int64_t)A[0][1] * A[0][1];
+
+  /*
+  Px[0] = ROUND_POWER_OF_TWO_SIGNED(Px[0], 6);
+  Px[1] = ROUND_POWER_OF_TWO_SIGNED(Px[1], 6);
+  Py[0] = ROUND_POWER_OF_TWO_SIGNED(Py[0], 6);
+  Py[1] = ROUND_POWER_OF_TWO_SIGNED(Py[1], 6);
+  Det = ROUND_POWER_OF_TWO_SIGNED(Det, 6);
+  */
+
+  if (Det == 0) return 1;
+  iDet = resolve_divisor_64(labs(Det), &shift) * (Det < 0 ? -1 : 1);
+  if (shift > WARPEDMODEL_PREC_BITS) {
+    shift -= WARPEDMODEL_PREC_BITS;
+  } else {
+    iDet <<= WARPEDMODEL_PREC_BITS;
+  }
+
+  v = Px[0] * iDet;
+  wm->wmmat[2] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
+  v = Px[1] * iDet;
+  wm->wmmat[3] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
+  v = (dux << WARPEDMODEL_PREC_BITS) - sux * wm->wmmat[2] - suy * wm->wmmat[3];
+  wm->wmmat[0] = ROUND_POWER_OF_TWO_SIGNED(v, 3);
+
+  v = Py[0] * iDet;
+  wm->wmmat[4] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
+  v = Py[1] * iDet;
+  wm->wmmat[5] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
+  v = (duy << WARPEDMODEL_PREC_BITS) - sux * wm->wmmat[4] - suy * wm->wmmat[5];
+  wm->wmmat[1] = ROUND_POWER_OF_TWO_SIGNED(v, 3);
+
+  /*
+  printf("su = [%d; %d]; du = [%d; %d];\n", sux, suy, dux, duy);
+  printf("A = [%d %d; %d %d]\n", A[0][0], A[0][1], A[0][1], A[1][1]);
+  printf("Bx = [%d %d]'\n", Bx[0], Bx[1]);
+  printf("By = [%d %d]'\n", By[0], By[1]);
+  printf("Det = %"PRId64"\n", Det);
+  printf("iDet = %"PRId64", k = %d\n", iDet, shift);
+  printf("Px = [%"PRId64" %"PRId64"]';\n", Px[0], Px[1]);
+  printf("Py = [%"PRId64" %"PRId64"]';\n", Py[0], Py[1]);
+  */
+  // printf("afmodel2: %d %d %d %d %d %d\n", wm->wmmat[2], wm->wmmat[3],
+  //        wm->wmmat[4], wm->wmmat[5], wm->wmmat[0], wm->wmmat[1]);
+
+  wm->wmmat[6] = wm->wmmat[7] = 0;
+  return 0;
+}
+
+#else
 
 static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
                            int mvy, int mvx, WarpedMotionParams *wm, int mi_row,
@@ -1424,18 +1549,12 @@ static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
 
   int16_t shift;
   int64_t iDet;
-#if APPROXIMATE_DIVISOR
   iDet = resolve_divisor_64(labs(Det), &shift) * (Det < 0 ? -1 : 1);
   if (shift > WARPEDMODEL_PREC_BITS) {
     shift -= WARPEDMODEL_PREC_BITS;
   } else {
     iDet <<= WARPEDMODEL_PREC_BITS;
   }
-#else
-  // Compute inverse of the Determinant
-  iDet = ((int64_t)1 << IDET_PREC_BITS) / Det;
-  shift = IDET_WARPEDMODEL_DIFF_BITS;
-#endif  // APPROXIMATE_DIVISOR
 
   v = Px[0] * iDet;
   wm->wmmat[2] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
@@ -1457,9 +1576,12 @@ static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   off = (uy << WARPEDMODEL_PREC_BITS) - ux * wm->wmmat[4] - uy * wm->wmmat[5];
   wm->wmmat[1] += ROUND_POWER_OF_TWO_SIGNED(off, 3);
   wm->wmmat[6] = wm->wmmat[7] = 0;
+  // printf("afmodel3: %d %d %d %d %d %d\n", wm->wmmat[2], wm->wmmat[3],
+  //        wm->wmmat[4], wm->wmmat[5], wm->wmmat[0], wm->wmmat[1]);
 
   return 0;
 }
+#endif  // LEAST_SQUARES_ORDER == 2
 
 int find_projection(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
                     int mvy, int mvx, WarpedMotionParams *wm_params, int mi_row,
