@@ -82,8 +82,8 @@ struct av1_extracfg {
 };
 
 static struct av1_extracfg default_extra_cfg = {
-    0, // cpu_used
-    1, // enable_auto_alt_ref
+    0,  // cpu_used
+    1,  // enable_auto_alt_ref
 #if CONFIG_EXT_REFS
     0,  // enable_auto_bwd_ref
 #endif  // CONFIG_EXT_REFS
@@ -91,14 +91,14 @@ static struct av1_extracfg default_extra_cfg = {
     0,  // sharpness
     0,  // static_thresh
 #if CONFIG_EXT_TILE
-    UINT_MAX, // tile_columns
-    UINT_MAX, // tile_rows
+    UINT_MAX,  // tile_columns
+    UINT_MAX,  // tile_rows
 #else
-    0, // tile_columns
-    0, // tile_rows
+    0,  // tile_columns
+    0,  // tile_rows
 #endif  // CONFIG_EXT_TILE
 #if CONFIG_DEPENDENT_HORZTILES
-    0, // Depdendent Horizontal tiles
+    0,  // Depdendent Horizontal tiles
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
     1,             // loop_filter_across_tiles_enabled
@@ -107,7 +107,7 @@ static struct av1_extracfg default_extra_cfg = {
     5,             // arnr_strength
     0,             // min_gf_interval; 0 -> default decision
     0,             // max_gf_interval; 0 -> default decision
-    AOM_TUNE_PSNR, // tuning
+    AOM_TUNE_PSNR,  // tuning
     10,            // cq_level
     0,             // rc_max_intra_bitrate_pct
     0,             // rc_max_inter_bitrate_pct
@@ -115,32 +115,32 @@ static struct av1_extracfg default_extra_cfg = {
     0,             // lossless
 #if CONFIG_AOM_QM
     0,                // enable_qm
-    DEFAULT_QM_FIRST, // qm_min
-    DEFAULT_QM_LAST,  // qm_max
+    DEFAULT_QM_FIRST,  // qm_min
+    DEFAULT_QM_LAST,   // qm_max
 #endif
 #if CONFIG_TILE_GROUPS
-    1, // max number of tile groups
-    0, // mtu_size
+    1,  // max number of tile groups
+    0,  // mtu_size
 #endif
 #if CONFIG_TEMPMV_SIGNALING
-    0, // disable temporal mv prediction
+    0,  // disable temporal mv prediction
 #endif
     1,                   // frame_parallel_decoding_mode
     NO_AQ,               // aq_mode
     CONFIG_XIPHRC,       // frame_periodic_delta_q
     AOM_BITS_8,          // Bit depth
-    AOM_CONTENT_DEFAULT, // content
+    AOM_CONTENT_DEFAULT,  // content
     AOM_CS_UNKNOWN,      // color space
 #if CONFIG_COLORSPACE_HEADERS
     AOM_TF_UNKNOWN,  // transfer function
-    AOM_CSP_UNKNOWN, // chroma sample position
+    AOM_CSP_UNKNOWN,  // chroma sample position
 #endif
     0,                           // color range
     0,                           // render width
     0,                           // render height
-    AOM_SUPERBLOCK_SIZE_DYNAMIC, // superblock_size
+    AOM_SUPERBLOCK_SIZE_DYNAMIC,  // superblock_size
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
-    23, // ans_window_size_log2
+    23,  // ans_window_size_log2
 #endif
 };
 

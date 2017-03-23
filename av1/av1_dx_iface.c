@@ -165,7 +165,7 @@ static int parse_bitdepth_colorspace_sampling(BITSTREAM_PROFILE profile,
   if (profile >= PROFILE_2) rb->bit_offset += 1;  // Bit-depth 10 or 12.
 #if CONFIG_COLORSPACE_HEADERS
   color_space = (aom_color_space_t)aom_rb_read_literal(rb, 5);
-  rb->bit_offset += 5; // Transfer function
+  rb->bit_offset += 5;  // Transfer function
 #else
   color_space = (aom_color_space_t)aom_rb_read_literal(rb, 3);
 #endif
@@ -182,7 +182,8 @@ static int parse_bitdepth_colorspace_sampling(BITSTREAM_PROFILE profile,
       rb->bit_offset += 1;  // unused.
     }
 #if CONFIG_COLORSPACE_HEADERS
-    else {
+    else
+    {
       subsampling_x = 1;
       subsampling_y = 1;
     }
