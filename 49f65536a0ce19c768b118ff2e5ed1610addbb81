@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6bf813c8_ad187267",
+        "filename": "av1/common/mv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-03-23T21:33:42Z",
+      "side": 1,
+      "message": "what is gm when only WARPED_MOTION is enabled?\nand why it can outperform the old newmv?",
+      "range": {
+        "startLine": 124,
+        "startChar": 6,
+        "endLine": 124,
+        "endChar": 27
+      },
+      "revId": "49f65536a0ce19c768b118ff2e5ed1610addbb81",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "faeaa138_d7180223",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8460,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-03-23T21:33:42Z",
+      "side": 1,
+      "message": "rate of the new mv needs to be re-calculated",
+      "revId": "49f65536a0ce19c768b118ff2e5ed1610addbb81",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
