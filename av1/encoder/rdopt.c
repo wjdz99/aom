@@ -8429,32 +8429,63 @@ static int64_t motion_mode_rd(
                                                             : cm->interp_filter;
 #endif  // CONFIG_DUAL_FILTER
 
-      if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
-                          mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
-                          &mbmi->wm_params[0], mi_row, mi_col) == 0) {
-        int plane;
-        for (plane = 0; plane < 3; ++plane) {
-          const struct macroblockd_plane *pd = &xd->plane[plane];
-
-          av1_warp_plane(&mbmi->wm_params[0],
-#if CONFIG_AOM_HIGHBITDEPTH
-                         xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
-#endif  // CONFIG_AOM_HIGHBITDEPTH
-                         pd->pre[0].buf0, pd->pre[0].width, pd->pre[0].height,
-                         pd->pre[0].stride, pd->dst.buf,
-                         (mi_col * MI_SIZE) >> pd->subsampling_x,
-                         (mi_row * MI_SIZE) >> pd->subsampling_y,
-                         (xd->n8_w * MI_SIZE) >> pd->subsampling_x,
-                         (xd->n8_h * MI_SIZE) >> pd->subsampling_y,
-                         pd->dst.stride, pd->subsampling_x, pd->subsampling_y,
-                         16, 16, 0);
+      if (mbmi->mode == NEWMV) {
+        // Do 3 dim least squares to get the translational component
+        // Update the rate cost for the new motion vector to be transmitted.
+        if (find_projection_3ls(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
+                                mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                                &mbmi->wm_params[0], mi_row, mi_col) == 0) {
+          MV ref_mv;
+          int_mv wmv;
+          int tmp_rate_mv;
+          wmv = gm_get_motion_vector(&mbmi->wm_params[0],
+                                     cm->allow_high_precision_mv, bsize, mi_col,
+                                     mi_row, 0);
+          mbmi->mv[0].as_int = wmv.as_int;
+#if CONFIG_EXT_INTER
+          ref_mv = x->mbmi_ext->ref_mvs[mbmi->ref_frame[0]][mv_idx].as_mv;
+#else
+          ref_mv = x->mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0].as_mv;
+#endif  // CONFIG_EXT_INTER
+          tmp_rate_mv =
+              av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv, x->nmvjointcost,
+                              x->mvcost, MV_COST_WEIGHT);
+          if (discount_newmv_test(cpi, this_mode, mbmi->mv[0], mode_mv,
+                                  refs[0])) {
+              tmp_rate_mv = AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
+          }
+#if CONFIG_EXT_INTER
+          tmp_rate2 = rate2_bmc_nocoeff - rate_mv_bmc + tmp_rate_mv;
+#else
+          tmp_rate2 = rate2_nocoeff - rate_mv + tmp_rate_mv;
+#endif  // CONFIG_EXT_INTER
         }
-
-        model_rd_for_sb(cpi, bsize, x, xd, 0, MAX_MB_PLANE - 1, &tmp_rate,
-                        &tmp_dist, skip_txfm_sb, skip_sse_sb);
-      } else {
+      }
+      if (!find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
+                           mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                           &mbmi->wm_params[0], mi_row, mi_col) == 0) {
         continue;
       }
+
+      int plane;
+      for (plane = 0; plane < 3; ++plane) {
+        const struct macroblockd_plane *pd = &xd->plane[plane];
+
+        av1_warp_plane(&mbmi->wm_params[0],
+#if CONFIG_AOM_HIGHBITDEPTH
+                       xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+                       pd->pre[0].buf0, pd->pre[0].width, pd->pre[0].height,
+                       pd->pre[0].stride, pd->dst.buf,
+                       (mi_col * MI_SIZE) >> pd->subsampling_x,
+                       (mi_row * MI_SIZE) >> pd->subsampling_y,
+                       (xd->n8_w * MI_SIZE) >> pd->subsampling_x,
+                       (xd->n8_h * MI_SIZE) >> pd->subsampling_y,
+                       pd->dst.stride, pd->subsampling_x, pd->subsampling_y,
+                       16, 16, 0);
+      }
+      model_rd_for_sb(cpi, bsize, x, xd, 0, MAX_MB_PLANE - 1, &tmp_rate,
+                      &tmp_dist, skip_txfm_sb, skip_sse_sb);
     }
 #endif  // CONFIG_WARPED_MOTION
     x->skip = 0;
