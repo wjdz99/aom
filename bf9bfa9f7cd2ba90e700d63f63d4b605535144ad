@@ -16,6 +16,24 @@
       "revId": "bf9bfa9f7cd2ba90e700d63f63d4b605535144ad",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "133ec68d_f52395f3",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-03-23T16:35:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec7c6175_24ee4150",
+      "revId": "bf9bfa9f7cd2ba90e700d63f63d4b605535144ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
