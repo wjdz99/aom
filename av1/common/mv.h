@@ -88,6 +88,62 @@ typedef struct {
   TransformationType wmtype;
   int32_t wmmat[8];
 } WarpedMotionParams;
+
+static INLINE int block_center_x(int mi_col, BLOCK_SIZE bs) {
+  const int bw = block_size_wide[bs];
+  return mi_col * MI_SIZE + bw / 2;
+}
+
+static INLINE int block_center_y(int mi_row, BLOCK_SIZE bs) {
+  const int bh = block_size_high[bs];
+  return mi_row * MI_SIZE + bh / 2;
+}
+
+// Convert a global motion translation vector (which may have more bits than a
+// regular motion vector) into a motion vector
+static INLINE int_mv gm_get_motion_vector(const WarpedMotionParams *gm,
+                                          int allow_hp, BLOCK_SIZE bsize,
+                                          int mi_col, int mi_row,
+                                          int block_idx) {
+  const int unify_bsize = CONFIG_CB4X4;
+  int_mv res;
+  const int32_t *mat = gm->wmmat;
+  int xc, yc, x, y;
+  if (bsize >= BLOCK_8X8 || unify_bsize) {
+    x = block_center_x(mi_col, bsize);
+    y = block_center_y(mi_row, bsize);
+  } else {
+    x = block_center_x(mi_col, bsize);
+    y = block_center_y(mi_row, bsize);
+    x += (block_idx & 1) * MI_SIZE / 2;
+    y += (block_idx & 2) * MI_SIZE / 4;
+  }
+  int shift = allow_hp ? WARPEDMODEL_PREC_BITS - 3 : WARPEDMODEL_PREC_BITS - 2;
+  int scale = allow_hp ? 0 : 1;
+
+  if (gm->wmtype == ROTZOOM) {
+    assert(gm->wmmat[5] == gm->wmmat[2]);
+    assert(gm->wmmat[4] == -gm->wmmat[3]);
+  }
+  xc = mat[2] * x + mat[3] * y + mat[0];
+  yc = mat[4] * x + mat[5] * y + mat[1];
+
+  if (gm->wmtype > AFFINE) {
+    const int Z =
+        mat[6] * x + mat[7] * y + (1 << WARPEDMODEL_ROW3HOMO_PREC_BITS);
+    xc <<= (WARPEDMODEL_ROW3HOMO_PREC_BITS - WARPEDMODEL_PREC_BITS);
+    yc <<= (WARPEDMODEL_ROW3HOMO_PREC_BITS - WARPEDMODEL_PREC_BITS);
+    xc = xc > 0 ? (xc + Z / 2) / Z : (xc - Z / 2) / Z;
+    yc = yc > 0 ? (yc + Z / 2) / Z : (yc - Z / 2) / Z;
+  }
+
+  int tx = (ROUND_POWER_OF_TWO_SIGNED(xc, shift) << scale) - (x << 3);
+  int ty = (ROUND_POWER_OF_TWO_SIGNED(yc, shift) << scale) - (y << 3);
+
+  res.as_mv.row = ty;
+  res.as_mv.col = tx;
+  return res;
+}
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
 #if CONFIG_GLOBAL_MOTION
@@ -152,62 +208,6 @@ typedef struct {
 
 // Use global motion parameters for sub8x8 blocks
 #define GLOBAL_SUB8X8_USED 0
-
-static INLINE int block_center_x(int mi_col, BLOCK_SIZE bs) {
-  const int bw = block_size_wide[bs];
-  return mi_col * MI_SIZE + bw / 2;
-}
-
-static INLINE int block_center_y(int mi_row, BLOCK_SIZE bs) {
-  const int bh = block_size_high[bs];
-  return mi_row * MI_SIZE + bh / 2;
-}
-
-// Convert a global motion translation vector (which may have more bits than a
-// regular motion vector) into a motion vector
-static INLINE int_mv gm_get_motion_vector(const WarpedMotionParams *gm,
-                                          int allow_hp, BLOCK_SIZE bsize,
-                                          int mi_col, int mi_row,
-                                          int block_idx) {
-  const int unify_bsize = CONFIG_CB4X4;
-  int_mv res;
-  const int32_t *mat = gm->wmmat;
-  int xc, yc, x, y;
-  if (bsize >= BLOCK_8X8 || unify_bsize) {
-    x = block_center_x(mi_col, bsize);
-    y = block_center_y(mi_row, bsize);
-  } else {
-    x = block_center_x(mi_col, bsize);
-    y = block_center_y(mi_row, bsize);
-    x += (block_idx & 1) * MI_SIZE / 2;
-    y += (block_idx & 2) * MI_SIZE / 4;
-  }
-  int shift = allow_hp ? WARPEDMODEL_PREC_BITS - 3 : WARPEDMODEL_PREC_BITS - 2;
-  int scale = allow_hp ? 0 : 1;
-
-  if (gm->wmtype == ROTZOOM) {
-    assert(gm->wmmat[5] == gm->wmmat[2]);
-    assert(gm->wmmat[4] == -gm->wmmat[3]);
-  }
-  xc = mat[2] * x + mat[3] * y + mat[0];
-  yc = mat[4] * x + mat[5] * y + mat[1];
-
-  if (gm->wmtype > AFFINE) {
-    const int Z =
-        mat[6] * x + mat[7] * y + (1 << WARPEDMODEL_ROW3HOMO_PREC_BITS);
-    xc <<= (WARPEDMODEL_ROW3HOMO_PREC_BITS - WARPEDMODEL_PREC_BITS);
-    yc <<= (WARPEDMODEL_ROW3HOMO_PREC_BITS - WARPEDMODEL_PREC_BITS);
-    xc = xc > 0 ? (xc + Z / 2) / Z : (xc - Z / 2) / Z;
-    yc = yc > 0 ? (yc + Z / 2) / Z : (yc - Z / 2) / Z;
-  }
-
-  int tx = (ROUND_POWER_OF_TWO_SIGNED(xc, shift) << scale) - (x << 3);
-  int ty = (ROUND_POWER_OF_TWO_SIGNED(yc, shift) << scale) - (y << 3);
-
-  res.as_mv.row = ty;
-  res.as_mv.col = tx;
-  return res;
-}
 
 static INLINE TransformationType get_gmtype(const WarpedMotionParams *gm) {
   if (gm->wmmat[6] != 0 || gm->wmmat[7] != 0) {
