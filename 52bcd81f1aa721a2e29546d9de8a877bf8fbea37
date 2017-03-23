@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d4f751a_01a5677d",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-03-23T15:44:44Z",
+      "side": 1,
+      "message": "Is this a const in the scope of this function?",
+      "range": {
+        "startLine": 389,
+        "startChar": 11,
+        "endLine": 389,
+        "endChar": 14
+      },
+      "revId": "52bcd81f1aa721a2e29546d9de8a877bf8fbea37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9965723_9ae00265",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-03-23T15:44:44Z",
+      "side": 1,
+      "message": "If there is no plan to use it in near future for this function, maybe removing it from parameter list?",
+      "range": {
+        "startLine": 396,
+        "startChar": 8,
+        "endLine": 396,
+        "endChar": 19
+      },
+      "revId": "52bcd81f1aa721a2e29546d9de8a877bf8fbea37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
