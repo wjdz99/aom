@@ -53,6 +53,10 @@
 extern "C" {
 #endif
 
+#if CONFIG_LOWDELAY_COMPOUND
+#define LOWDELAY_BWDREF 1
+#define LOWDELAY_MASK 2
+#endif
 typedef struct {
   int nmvjointcost[MV_JOINTS];
   int nmvcosts[2][MV_VALS];

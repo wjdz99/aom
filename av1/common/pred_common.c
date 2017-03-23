@@ -258,12 +258,17 @@ int av1_get_pred_context_comp_ref_p(const AV1_COMMON *cm,
   const int above_in_image = xd->up_available;
   const int left_in_image = xd->left_available;
 
-  // Note:
-  // The mode info data structure has a one element border above and to the
-  // left of the entries correpsonding to real macroblocks.
-  // The prediction flags in these dummy entries are initialised to 0.
+// Note:
+// The mode info data structure has a one element border above and to the
+// left of the entries correpsonding to real macroblocks.
+// The prediction flags in these dummy entries are initialised to 0.
+#if CONFIG_LOWDELAY_COMPOUND  // Equivalent in encoder & decoder
+  const int bwd_ref_sign_idx = 1;
+  const int fwd_ref_sign_idx = 0;
+#else
   const int bwd_ref_sign_idx = cm->ref_frame_sign_bias[cm->comp_bwd_ref[0]];
   const int fwd_ref_sign_idx = !bwd_ref_sign_idx;
+#endif
 
   if (above_in_image && left_in_image) {  // both edges available
     const int above_intra = !is_inter_block(above_mbmi);
@@ -358,12 +363,17 @@ int av1_get_pred_context_comp_ref_p1(const AV1_COMMON *cm,
   const int above_in_image = xd->up_available;
   const int left_in_image = xd->left_available;
 
-  // Note:
-  // The mode info data structure has a one element border above and to the
-  // left of the entries correpsonding to real macroblocks.
-  // The prediction flags in these dummy entries are initialised to 0.
+// Note:
+// The mode info data structure has a one element border above and to the
+// left of the entries correpsonding to real macroblocks.
+// The prediction flags in these dummy entries are initialised to 0.
+#if CONFIG_LOWDELAY_COMPOUND  // Equivalent in encoder & decoder
+  const int bwd_ref_sign_idx = 1;
+  const int fwd_ref_sign_idx = 0;
+#else
   const int bwd_ref_sign_idx = cm->ref_frame_sign_bias[cm->comp_bwd_ref[0]];
   const int fwd_ref_sign_idx = !bwd_ref_sign_idx;
+#endif
 
   if (above_in_image && left_in_image) {  // both edges available
     const int above_intra = !is_inter_block(above_mbmi);
@@ -459,12 +469,17 @@ int av1_get_pred_context_comp_ref_p2(const AV1_COMMON *cm,
   const int above_in_image = xd->up_available;
   const int left_in_image = xd->left_available;
 
-  // Note:
-  // The mode info data structure has a one element border above and to the
-  // left of the entries correpsonding to real macroblocks.
-  // The prediction flags in these dummy entries are initialised to 0.
+// Note:
+// The mode info data structure has a one element border above and to the
+// left of the entries correpsonding to real macroblocks.
+// The prediction flags in these dummy entries are initialised to 0.
+#if CONFIG_LOWDELAY_COMPOUND  // Equivalent in encoder & decoder
+  const int bwd_ref_sign_idx = 1;
+  const int fwd_ref_sign_idx = 0;
+#else
   const int bwd_ref_sign_idx = cm->ref_frame_sign_bias[cm->comp_bwd_ref[0]];
   const int fwd_ref_sign_idx = !bwd_ref_sign_idx;
+#endif
 
   if (above_in_image && left_in_image) {  // both edges available
     const int above_intra = !is_inter_block(above_mbmi);
@@ -554,12 +569,17 @@ int av1_get_pred_context_comp_bwdref_p(const AV1_COMMON *cm,
   const int above_in_image = xd->up_available;
   const int left_in_image = xd->left_available;
 
-  // Note:
-  // The mode info data structure has a one element border above and to the
-  // left of the entries corresponding to real macroblocks.
-  // The prediction flags in these dummy entries are initialized to 0.
+// Note:
+// The mode info data structure has a one element border above and to the
+// left of the entries corresponding to real macroblocks.
+// The prediction flags in these dummy entries are initialized to 0.
+#if CONFIG_LOWDELAY_COMPOUND  // Equivalent in encoder & decoder
+  const int bwd_ref_sign_idx = 1;
+  const int fwd_ref_sign_idx = 0;
+#else
   const int bwd_ref_sign_idx = cm->ref_frame_sign_bias[cm->comp_bwd_ref[0]];
   const int fwd_ref_sign_idx = !bwd_ref_sign_idx;
+#endif
 
   if (above_in_image && left_in_image) {  // both edges available
     const int above_intra = !is_inter_block(above_mbmi);
