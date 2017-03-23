@@ -8447,6 +8447,19 @@ static int64_t motion_mode_rd(
       if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
                           mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
                           &mbmi->wm_params[0], mi_row, mi_col) == 0) {
+        // Do a second time for NEWMV modes where we can change the mv
+        if (mbmi->mode == NEWMV) {
+          int_mv wmv;
+          WarpedMotionParams wm_params;
+          wmv = gm_get_motion_vector(&mbmi->wm_params[0], cm->allow_high_precision_mv,
+                                     bsize, mi_col, mi_row, 0);
+          if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
+                              wmv.as_mv.row, wmv.as_mv.col, &wm_params,
+                              mi_row, mi_col) == 0) {
+            mbmi->wm_params[0] = wm_params;
+            mbmi->mv[0].as_int =  wmv.as_int;
+          }
+        }
         int plane;
         for (plane = 0; plane < 3; ++plane) {
           const struct macroblockd_plane *pd = &xd->plane[plane];
