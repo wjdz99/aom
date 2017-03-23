@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2074d4e8_347c6936",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2639,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-03-23T16:28:47Z",
+      "side": 1,
+      "message": "I think this is not what we want. \nInstead, the width and height read should be already the superres_width/height. We need to get the coded width and height here by scaling that superres_width/height down.",
+      "revId": "da33b7bd9abd5ec86c466f02c46fe9d2099553d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
