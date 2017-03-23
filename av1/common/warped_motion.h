@@ -28,6 +28,7 @@
 #define SAMPLES_PER_NEIGHBOR 4
 #define SAMPLES_ARRAY_SIZE ((2 * MAX_MIB_SIZE + 2) * SAMPLES_PER_NEIGHBOR * 2)
 #define DEFAULT_WMTYPE AFFINE
+#define LEAST_SQUARES_ORDER 2
 #endif  // CONFIG_WARPED_MOTION
 
 const int16_t warped_filter[WARPEDPIXEL_PREC_SHIFTS * 3 + 1][8];
@@ -86,9 +87,20 @@ void av1_warp_plane(WarpedMotionParams *wm,
                     int p_height, int p_stride, int subsampling_x,
                     int subsampling_y, int x_scale, int y_scale, int ref_frm);
 
-int find_projection(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
-                    int mvy, int mvx, WarpedMotionParams *wm_params, int mi_row,
-                    int mi_col);
+#if CONFIG_WARPED_MOTION
+int find_projection_3ls(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
+                        int mvy, int mvx, WarpedMotionParams *wm_params,
+                        int mi_row, int mi_col);
+
+#if LEAST_SQUARES_ORDER == 2
+int find_projection_2ls(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
+                        int mvy, int mvx, WarpedMotionParams *wm_params,
+                        int mi_row, int mi_col);
+#define find_projection find_projection_2ls
+#else
+#define find_projection find_projection_3ls
+#endif  // LEAST_SQUARES_ORDER == 3
+#endif  // CONFIG_WARPED_MOTION
 
 int get_shear_params(WarpedMotionParams *wm);
 #endif  // AV1_COMMON_WARPED_MOTION_H_
