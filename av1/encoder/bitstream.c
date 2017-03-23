@@ -2686,6 +2686,12 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
     int skip;
     const int bsw = mi_size_wide[bsize];
     const int bsh = mi_size_high[bsize];
+#if CONFIG_EC_ADAPT
+    FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+    FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+
     xd->mi = cm->mi_grid_visible + mi_offset;
     supertx_size = mbmi->tx_size;
 #if CONFIG_DEPENDENT_HORZTILES
