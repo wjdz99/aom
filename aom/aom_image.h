@@ -107,18 +107,18 @@ typedef enum aom_color_range {
 
 #if CONFIG_COLORSPACE_HEADERS
 typedef enum aom_chroma_sample_position {
-  AOM_CSP_UNKNOWN = 0,   /**< Unknown */
-  AOM_CSP_VERTICAL = 1,  /**< Horizontally co-located with luma(0, 0) sample,*/
-                         /**< between two vertical samples  */
-  AOM_CSP_COLOCATED = 2, /**< Co-located with luma(0, 0) sample */
-  AOM_CSP_RESERVED = 3   /**< Reserved value */
+  AOM_CSP_UNKNOWN = 0,          /**< Unknown */
+  AOM_CSP_VERTICAL = 1,         /**< Horizontally co-located with luma(0, 0)*/
+                                /**< sample, between two vertical samples */
+  AOM_CSP_COLOCATED = 2,        /**< Co-located with luma(0, 0) sample */
+  AOM_CSP_RESERVED = 3          /**< Reserved value */
 } aom_chroma_sample_position_t; /**< alias for enum aom_transfer_function */
 #endif
 
 /**\brief Image Descriptor */
 typedef struct aom_image {
-  aom_img_fmt_t fmt;       /**< Image Format */
-  aom_color_space_t cs;    /**< Color Space */
+  aom_img_fmt_t fmt;    /**< Image Format */
+  aom_color_space_t cs; /**< Color Space */
 #if CONFIG_COLORSPACE_HEADERS
   aom_transfer_function_t tf;       /**< transfer function */
   aom_chroma_sample_position_t csp; /**< chroma sample position */

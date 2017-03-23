@@ -180,15 +180,15 @@ static int parse_bitdepth_colorspace_sampling(BITSTREAM_PROFILE profile,
       rb->bit_offset += 2;  // subsampling x/y.
 #endif
       rb->bit_offset += 1;  // unused.
-    }
 #if CONFIG_COLORSPACE_HEADERS
-    else
-    {
+    } else {
       subsampling_x = 1;
       subsampling_y = 1;
     }
     if (subsampling_x == 1 && subsampling_y == 1) {
       rb->bit_offset += 2;
+    }
+#else
     }
 #endif
   } else {

@@ -50,15 +50,15 @@ struct EncodeParameters {
 };
 
 const EncodeParameters kAV1EncodeParameterSet[] = {
-    {0, 0, 0, 1, 0, AOM_CR_STUDIO_RANGE, AOM_CS_BT_601, {0, 0}},
-    {0, 0, 0, 0, 0, AOM_CR_FULL_RANGE, AOM_CS_BT_709, {0, 0}},
+  { 0, 0, 0, 1, 0, AOM_CR_STUDIO_RANGE, AOM_CS_BT_601, { 0, 0 } },
+  { 0, 0, 0, 0, 0, AOM_CR_FULL_RANGE, AOM_CS_BT_709, { 0, 0 } },
 #if CONFIG_COLORSPACE_HEADERS
-    {0, 0, 1, 0, 0, AOM_CR_FULL_RANGE, AOM_CS_BT_2020_NCL, {0, 0}},
+  { 0, 0, 1, 0, 0, AOM_CR_FULL_RANGE, AOM_CS_BT_2020_NCL, { 0, 0 } },
 #else
-    {0, 0, 1, 0, 0, AOM_CR_FULL_RANGE, AOM_CS_BT_2020, {0, 0}},
+  { 0, 0, 1, 0, 0, AOM_CR_FULL_RANGE, AOM_CS_BT_2020, { 0, 0 } },
 #endif
-    {0, 2, 0, 0, 1, AOM_CR_STUDIO_RANGE, AOM_CS_UNKNOWN, {640, 480}},
-    // TODO(JBB): Test profiles (requires more work).
+  { 0, 2, 0, 0, 1, AOM_CR_STUDIO_RANGE, AOM_CS_UNKNOWN, { 640, 480 } },
+  // TODO(JBB): Test profiles (requires more work).
 };
 
 class AvxEncoderParmsGetToDecoder
