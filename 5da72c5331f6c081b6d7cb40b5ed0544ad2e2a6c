@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15aeed0b_929a935e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-24T03:28:12Z",
+      "side": 1,
+      "message": "maybe: add low delay compound mode experiment?\n\nin any case prefer imperative present tense for commit subject:\n\nhttps://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project",
+      "revId": "5da72c5331f6c081b6d7cb40b5ed0544ad2e2a6c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
