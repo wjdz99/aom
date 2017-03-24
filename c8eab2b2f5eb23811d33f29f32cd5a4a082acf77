@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "dd1fcf41_5a3ab2f3",
+        "filename": "av1/encoder/ransac.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 1034,
+      "author": {
+        "id": 6350
+      },
+      "writtenOn": "2017-03-24T22:18:21Z",
+      "side": 1,
+      "message": "We\u0027re planning to do more investigation into that when testing diversified motion. Is it OK with you to defer that change until then?",
+      "parentUuid": "1d779d29_91d7a435",
+      "revId": "c8eab2b2f5eb23811d33f29f32cd5a4a082acf77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f35bd09_77f11e7b",
         "filename": "av1/encoder/ransac.c",
         "patchSetId": 14
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-23T23:37:26Z",
       "side": 1,
       "message": "It may be good to return a sorted order of the motions returned - i.e. the better the motion, the lower the index.",
+      "revId": "c8eab2b2f5eb23811d33f29f32cd5a4a082acf77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1be5e7a5_09e70605",
+        "filename": "av1/encoder/ransac.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 1119,
+      "author": {
+        "id": 6350
+      },
+      "writtenOn": "2017-03-24T22:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f35bd09_77f11e7b",
       "revId": "c8eab2b2f5eb23811d33f29f32cd5a4a082acf77",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
