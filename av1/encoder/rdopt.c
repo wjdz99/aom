@@ -5388,8 +5388,6 @@ static int64_t encode_inter_mb_segment_sub8x8(
       *(tl + (k >> 1)) = !(p->eobs[block] == 0);
 #else
       thisrate += x->rate;
-      *(ta + (k & 1)) = !x->pvq_skip[0];
-      *(tl + (k >> 1)) = !x->pvq_skip[0];
 #endif  // !CONFIG_PVQ
 #if CONFIG_EXT_TX
       if (tx_size == TX_8X4) {
