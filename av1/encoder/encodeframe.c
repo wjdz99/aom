@@ -1136,6 +1136,9 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
     pd[i].pvq_ref_coeff = ctx->pvq_ref_coeff[i];
 #endif
     p[i].eobs = ctx->eobs[i];
+#if CONFIG_LV_MAP
+    p[i].txb_entropy_ctx = ctx->txb_entropy_ctx[i];
+#endif  // CONFIG_LV_MAP
   }
 #if CONFIG_PALETTE
   for (i = 0; i < 2; ++i) pd[i].color_index_map = ctx->color_index_map[i];
