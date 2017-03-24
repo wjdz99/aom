@@ -20,9 +20,15 @@
 #include "av1/common/onyxc_int.h"
 #include "av1/common/reconinter.h"
 
+// i * exp(i / 10.4)
 int dering_level_table[DERING_STRENGTHS] = {
-  0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 17, 20, 24, 28, 33, 39, 46, 54, 63
-};
+  0, 1, 3, 7, 14, 24, 39, 63 };
+//0, 1, 2, 4, 5, 8, 10, 13, 17, 21, 26, 31, 38, 45, 53, 63 };
+
+// i * exp(i / 20.0)
+int dering_level_table_uv[DERING_STRENGTHS] = {
+  0, 1, 3, 5, 9, 14, 21, 31 };
+//0, 1, 2, 3, 4, 6, 8, 9, 11, 14, 16, 19, 21, 24, 28, 31 };
 
 int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
   int r, c;
@@ -216,12 +222,12 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                                  ->mbmi.cdef_strength] %
           CLPF_STRENGTHS;
       clpf_strength += clpf_strength == 3;
-      uv_level = dering_level_table
-          [cm->cdef_uv_strengths[cm->mi_grid_visible[MAX_MIB_SIZE * sbr *
+      uv_level = dering_level_table_uv
+        [cm->cdef_uv_strengths[cm->mi_grid_visible[MAX_MIB_SIZE * sbr *
                                                          cm->mi_stride +
                                                      MAX_MIB_SIZE * sbc]
                                      ->mbmi.cdef_strength] /
-           CLPF_STRENGTHS];
+        CLPF_STRENGTHS];
       uv_clpf_strength =
           cm->cdef_uv_strengths[cm->mi_grid_visible[MAX_MIB_SIZE * sbr *
                                                         cm->mi_stride +

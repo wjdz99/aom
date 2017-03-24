@@ -11,9 +11,9 @@
 #ifndef AV1_COMMON_DERING_H_
 #define AV1_COMMON_DERING_H_
 
-#define CDEF_STRENGTH_BITS 7
+#define CDEF_STRENGTH_BITS 5
 
-#define DERING_STRENGTHS 21
+#define DERING_STRENGTHS 8
 #define CLPF_STRENGTHS 4
 
 #include "./aom_config.h"
@@ -28,6 +28,7 @@ extern "C" {
 #endif
 
 extern int dering_level_table[DERING_STRENGTHS];
+extern int dering_level_table_uv[DERING_STRENGTHS];
 
 int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col);
 int sb_compute_dering_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
