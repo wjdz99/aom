@@ -22,6 +22,9 @@ DSP_SRCS-yes += prob.h
 DSP_SRCS-yes += prob.c
 DSP_SRCS-$(CONFIG_ANS) += ans.h
 
+DSP_SRCS-yes += binary_codes.h
+DSP_SRCS-yes += binary_codes.c
+
 ifeq ($(CONFIG_ENCODERS),yes)
 ifeq ($(CONFIG_ANS),yes)
 DSP_SRCS-yes += answriter.h
