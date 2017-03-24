@@ -77,19 +77,17 @@ static uint64_t joint_strength_search(int *best_lev, int nb_strengths,
   return best_tot_mse;
 }
 
-static double compute_dist(uint16_t *x, int xstride, uint16_t *y, int ystride,
-                           int nhb, int nvb, int coeff_shift, int bsize) {
+static uint64_t compute_dist(uint16_t *x, int xstride, uint16_t *y, int ystride,
+                             int nhb, int nvb, int coeff_shift, int bsize) {
   int i, j;
-  double sum;
-  sum = 0;
+  uint64_t sum = 0;
   for (i = 0; i < nvb << bsize; i++) {
     for (j = 0; j < nhb << bsize; j++) {
-      double tmp;
-      tmp = x[i * xstride + j] - y[i * ystride + j];
+      int64_t tmp = x[i * xstride + j] - y[i * ystride + j];
       sum += tmp * tmp;
     }
   }
-  return sum / (double)(1 << 2 * coeff_shift);
+  return sum >> 2 * coeff_shift;
 }
 
 void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
@@ -233,7 +231,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
                     coeff_shift);
           copy_dering_16bit_to_16bit(dst, MAX_MIB_SIZE << bsize[pli], tmp_dst,
                                      dlist, dering_count, bsize[pli]);
-          mse[pli][sb_count][gi] = (int)compute_dist(
+          mse[pli][sb_count][gi] = compute_dist(
               dst, MAX_MIB_SIZE << bsize[pli],
               &ref_coeff[pli][(sbr * stride[pli] * MAX_MIB_SIZE << bsize[pli]) +
                               (sbc * MAX_MIB_SIZE << bsize[pli])],
