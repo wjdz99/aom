@@ -109,6 +109,40 @@ static void encode_term_subexp(aom_writer *w, int word) {
   }
 }
 
+// Encodes a value v in [0, n-1] quasi-uniformly
+static void encode_uniform_gen(aom_writer *w, uint16_t n, int v) {
+  const int l = get_msb(n - 1) + 1;
+  const int m = (1 << l) - n;
+  if (v < m) {
+    aom_write_literal(w, v, l - 1);
+  } else {
+    aom_write_literal(w, m + ((v - m) >> 1), l - 1);
+    aom_write_bit(w, (v - m) & 1);
+  }
+}
+
+static void encode_withref_bilevel(aom_writer *w, uint16_t n, uint16_t p,
+                                   int ref, int v) {
+  int lolimit = ref - p / 2;
+  int hilimit = ref + p / 2 - 1;
+  if (lolimit < 0) {
+    lolimit = 0;
+    hilimit = p - 1;
+  } else if (hilimit >= n) {
+    hilimit = n - 1;
+    lowlimit = n - p;
+  }
+  if (v >= lolimit && v <= hilimit) {
+    aom_write_bit(w, 1);
+    v = v - lowlimit;
+    encode_uniform_gen(w, p, v);
+  } else {
+    aom_write_bit(w, 0);
+    if (v > lowlimit) v -= p;
+    encode_uniform_gen(w, n - p, v);
+  }
+}
+
 void av1_write_prob_diff_update(aom_writer *w, aom_prob newp, aom_prob oldp) {
   const int delp = remap_prob(newp, oldp);
   encode_term_subexp(w, delp);

@@ -74,6 +74,33 @@ static int decode_term_subexp_(aom_reader *r ACCT_STR_PARAM) {
   return decode_uniform(r, ACCT_STR_NAME) + 64;
 }
 
+static int decode_uniform_gen(aom_reader *r, uint16_t n ACCT_STR_PARAM) {
+  const int l = get_msb(n - 1) + 1;
+  const int m = (1 << l) - n;
+  const int v = aom_read_literal(r, l - 1, ACCT_STR_NAME);
+  return v < m ? v : (v << 1) - m + aom_read_bit(r, ACCT_STR_NAME);
+}
+
+static int decode_withref_bilevel(aom_writer *w, uint16_t n, uint16_t p,
+                                  int ref ACCT_STR_PARAM) {
+  int lolimit = ref - p / 2;
+  int hilimit = ref + p / 2 - 1;
+  if (lolimit < 0) {
+    lolimit = 0;
+    hilimit = p - 1;
+  } else if (hilimit >= n) {
+    hilimit = n - 1;
+    lowlimit = n - p;
+  }
+  if (aom_read_bit((r, ACCT_STR_NAME)) {
+    v = decode_uniform_gen(r, p, ACCT_STR_NAME) + lowlimit;
+  } else {
+    v = decode_uniform_gen(r, n - p, ACCT_STR_NAME);
+    if (v > lowlimit) v += p;
+  }
+  return v;
+}
+
 void av1_diff_update_prob_(aom_reader *r, aom_prob *p ACCT_STR_PARAM) {
   if (aom_read(r, DIFF_UPDATE_PROB, ACCT_STR_NAME)) {
     const int delp = decode_term_subexp(r, ACCT_STR_NAME);
