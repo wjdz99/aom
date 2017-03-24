@@ -193,9 +193,9 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
         DECLARE_ALIGNED(32, uint16_t, inbuf[OD_DERING_INBUF_SIZE]);
         uint16_t *in;
         int j;
-        level = dering_level_table[gi / CLPF_STRENGTHS];
-        threshold = level << coeff_shift;
         for (pli = 0; pli < nplanes; pli++) {
+          level = (pli ? dering_level_table_uv : dering_level_table)[gi / CLPF_STRENGTHS];
+          threshold = level << coeff_shift;
           if (pli > 0 && !chroma_dering) threshold = 0;
           for (r = 0; r < nvb << bsize[pli]; r++) {
             for (c = 0; c < nhb << bsize[pli]; c++) {
