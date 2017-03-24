@@ -88,7 +88,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
   const aom_prob *prob;
 #if CONFIG_EC_ADAPT
   aom_cdf_prob(*coef_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
-      ec_ctx->coef_cdfs[tx_size][type][ref];
+      ec_ctx->coef_cdfs[tx_size_ctx][type][ref];
   aom_cdf_prob(*cdf)[CDF_SIZE(ENTROPY_TOKENS)];
 #elif CONFIG_EC_MULTISYMBOL
   aom_cdf_prob(*coef_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
