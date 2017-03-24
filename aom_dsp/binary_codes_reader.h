@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Alliance for Open Media. All rights reserved
+ * Copyright (c) 2017, Alliance for Open Media. All rights reserved
  *
  * This source code is subject to the terms of the BSD 2 Clause License and
  * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
@@ -9,24 +9,24 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef AV1_DECODER_DSUBEXP_H_
-#define AV1_DECODER_DSUBEXP_H_
-
-#include "aom_dsp/bitreader.h"
+#ifndef AOM_DSP_BINARY_CODES_READER_H_
+#define AOM_DSP_BINARY_CODES_READER_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if CONFIG_ACCOUNTING
-#define av1_diff_update_prob(r, p, str) av1_diff_update_prob_(r, p, str)
-#else
-#define av1_diff_update_prob(r, p, str) av1_diff_update_prob_(r, p)
-#endif
+#include <assert.h>
+#include "./aom_config.h"
+#include "aom/aom_integer.h"
+#include "aom_dsp/bitreader.h"
 
-void av1_diff_update_prob_(aom_reader *r, aom_prob *p ACCT_STR_PARAM);
+int aom_read_primitive_symmetric(aom_reader *r, unsigned int mag_bits);
 
+uint16_t aom_read_primitive_refbilevel(aom_reader *r, uint16_t n, uint16_t p,
+                                       uint16_t ref);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
-#endif  // AV1_DECODER_DSUBEXP_H_
+
+#endif  // AOM_DSP_BINARY_CODES_READER_H_
