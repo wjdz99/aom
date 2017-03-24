@@ -97,9 +97,7 @@ typedef enum {
 
 typedef struct {
   int_mv mv[2];
-#if CONFIG_REF_MV
   int_mv pred_mv[2];
-#endif
   MV_REFERENCE_FRAME ref_frame[2];
 } MV_REF;
 
@@ -623,14 +621,12 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
 
   xd->n8_h = bh;
   xd->n8_w = bw;
-#if CONFIG_REF_MV
   xd->is_sec_rect = 0;
   if (xd->n8_w < xd->n8_h)
     if (mi_col & (xd->n8_h - 1)) xd->is_sec_rect = 1;
 
   if (xd->n8_w > xd->n8_h)
     if (mi_row & (xd->n8_w - 1)) xd->is_sec_rect = 1;
-#endif
 }
 #else
 static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
@@ -664,14 +660,12 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
 
   xd->n8_h = bh;
   xd->n8_w = bw;
-#if CONFIG_REF_MV
   xd->is_sec_rect = 0;
   if (xd->n8_w < xd->n8_h)
     if (mi_col & (xd->n8_h - 1)) xd->is_sec_rect = 1;
 
   if (xd->n8_w > xd->n8_h)
     if (mi_row & (xd->n8_w - 1)) xd->is_sec_rect = 1;
-#endif
 }
 #endif
 
