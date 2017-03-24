@@ -241,16 +241,20 @@ void copy_dering_16bit_to_16bit(uint16_t *dst, int dstride, uint16_t *src,
 
 void od_dering(uint16_t *y, uint16_t *in, int xdec,
                int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS], int pli,
-               dering_list *dlist, int dering_count, int threshold,
+               dering_list *dlist, int dering_count, int level,
                int clpf_strength, int clpf_damping, int coeff_shift) {
   int bi;
   int bx;
   int by;
   int bsize;
+  int threshold;
+  static int level_table[DERING_STRENGTHS] = {0, 1, 3, 7, 14, 24, 39, 63};
+  static int level_table_uv[DERING_STRENGTHS] = {0, 1, 2, 5, 8, 12, 18, 25};
   od_filter_dering_direction_func filter_dering_direction[OD_DERINGSIZES] = {
     od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
   };
   bsize = OD_DERING_SIZE_LOG2 - xdec;
+  threshold = (pli ? level_table_uv : level_table)[level] << coeff_shift;
   if (pli == 0) {
     for (bi = 0; bi < dering_count; bi++) {
       int32_t var;
