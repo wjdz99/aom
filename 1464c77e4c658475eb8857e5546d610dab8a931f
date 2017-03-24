@@ -22,6 +22,30 @@
       "revId": "1464c77e4c658475eb8857e5546d610dab8a931f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1306afc9_889db0f4",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-03-24T17:50:38Z",
+      "side": 1,
+      "message": "Yes, the general preference is NULL in C and 0 in C++, I believe.",
+      "parentUuid": "afc235f7_58eeb425",
+      "range": {
+        "startLine": 384,
+        "startChar": 34,
+        "endLine": 384,
+        "endChar": 35
+      },
+      "revId": "1464c77e4c658475eb8857e5546d610dab8a931f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
