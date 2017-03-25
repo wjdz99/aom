@@ -243,7 +243,8 @@ void od_dering(uint16_t *y, uint16_t *in, int xdec,
                int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS], int *dirinit,
                int var[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS], int pli,
                dering_list *dlist, int dering_count, int threshold,
-               int clpf_strength, int clpf_damping, int coeff_shift) {
+               int clpf_strength, int clpf_damping, int coeff_shift,
+               int skip_dering) {
   int bi;
   int bx;
   int by;
@@ -252,6 +253,7 @@ void od_dering(uint16_t *y, uint16_t *in, int xdec,
     od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
   };
   bsize = OD_DERING_SIZE_LOG2 - xdec;
+  if (!skip_dering) {
   if (pli == 0) {
     if (!dirinit || !*dirinit) {
       for (bi = 0; bi < dering_count; bi++) {
@@ -288,8 +290,9 @@ void od_dering(uint16_t *y, uint16_t *in, int xdec,
           dir[by][bx]);
     }
   }
+  }
   if (!clpf_strength) return;
-  copy_dering_16bit_to_16bit(in, OD_FILT_BSTRIDE, y, dlist, dering_count,
+  if (threshold && !skip_dering) copy_dering_16bit_to_16bit(in, OD_FILT_BSTRIDE, y, dlist, dering_count,
                              bsize);
   for (bi = 0; bi < dering_count; bi++) {
     by = dlist[bi].by;
