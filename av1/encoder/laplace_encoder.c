@@ -113,12 +113,12 @@ void aom_laplace_encode_special(aom_writer *w, int x, unsigned decay, int max) {
       int s;
       int i;
       /* Truncate the pdf when we have a bound */
-      ft = cdf[ms];
+      ft = AOM_ICDF(cdf[ms]);
       OD_ASSERT(ft <= CDF_PROB_TOP);
       s = CDF_PROB_BITS - OD_ILOG_NZ(ft);
       d = CDF_PROB_TOP - (ft << s);
       for (i = 0; i <= ms; i++) {
-        tcdf[i] = cdf[i] + OD_MINI(cdf[i], d);
+        tcdf[i] = AOM_ICDF(AOM_ICDF(cdf[i]) + OD_MINI(AOM_ICDF(cdf[i]), d));
       }
       OD_ASSERT(tcdf[ms] == CDF_PROB_TOP);
       aom_write_cdf(w, sym, tcdf, ms + 1);
