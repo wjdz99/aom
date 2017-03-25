@@ -241,37 +241,23 @@ if (CONFIG_CDEF)
 
   set(AOM_AV1_COMMON_SSE2_INTRIN
       ${AOM_AV1_COMMON_SSE2_INTRIN}
-      "${AOM_ROOT}/av1/common/clpf_sse2.c")
+      "${AOM_ROOT}/av1/common/clpf_sse2.c"
+      "${AOM_ROOT}/av1/common/od_dering_sse2.c")
 
   set(AOM_AV1_COMMON_SSSE3_INTRIN
       ${AOM_AV1_COMMON_SSSE3_INTRIN}
-      "${AOM_ROOT}/av1/common/clpf_ssse3.c")
+      "${AOM_ROOT}/av1/common/clpf_ssse3.c"
+      "${AOM_ROOT}/av1/common/od_dering_ssse3.c")
 
   set(AOM_AV1_COMMON_SSE4_1_INTRIN
       ${AOM_AV1_COMMON_SSE4_1_INTRIN}
-      "${AOM_ROOT}/av1/common/clpf_sse4.c")
+      "${AOM_ROOT}/av1/common/clpf_sse4.c"
+      "${AOM_ROOT}/av1/common/od_dering_sse4.c")
 
   set(AOM_AV1_COMMON_NEON_INTRIN
       ${AOM_AV1_COMMON_NEON_INTRIN}
-      "${AOM_ROOT}/av1/common/clpf_neon.c")
-
-  set(AOM_AV1_ENCODER_SSE2_INTRIN
-      ${AOM_AV1_ENCODER_SSE2_INTRIN}
-      "${AOM_ROOT}/av1/encoder/clpf_rdo_sse2.c")
-
-  set(AOM_AV1_ENCODER_SSSE3_INTRIN
-      ${AOM_AV1_ENCODER_SSSE3_INTRIN}
-      "${AOM_ROOT}/av1/encoder/clpf_rdo_ssse3.c")
-
-  set(AOM_AV1_ENCODER_SSE4_1_INTRIN
-      ${AOM_AV1_ENCODER_SSE4_1_INTRIN}
-      "${AOM_ROOT}/av1/encoder/clpf_rdo_sse4.c"
-      "${AOM_ROOT}/av1/common/x86/od_dering_sse4.c"
-      "${AOM_ROOT}/av1/common/x86/od_dering_sse4.h")
-
-  set(AOM_AV1_ENCODER_NEON_INTRIN
-      ${AOM_AV1_ENCODER_NEON_INTRIN}
-      "${AOM_ROOT}/av1/encoder/clpf_rdo_neon.c")
+      "${AOM_ROOT}/av1/common/clpf_neon.c"
+      "${AOM_ROOT}/av1/common/od_dering_neon.c")
 endif ()
 
 if (CONFIG_EXT_INTER)
