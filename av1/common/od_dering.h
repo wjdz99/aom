@@ -52,10 +52,4 @@ void od_dering(uint16_t *y, uint16_t *in, int xdec,
                dering_list *dlist, int dering_count, int threshold,
                int clpf_strength, int clpf_damping, int coeff_shift,
                int skip_dering);
-int od_filter_dering_direction_4x4_c(uint16_t *y, int ystride,
-                                     const uint16_t *in, int threshold,
-                                     int dir);
-int od_filter_dering_direction_8x8_c(uint16_t *y, int ystride,
-                                     const uint16_t *in, int threshold,
-                                     int dir);
 #endif
