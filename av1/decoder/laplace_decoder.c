@@ -124,12 +124,12 @@ int aom_laplace_decode_special_(aom_reader *r, unsigned decay,
       int i;
       int s;
       /* Truncate the pdf when we have a bound. */
-      ft = cdf[ms];
+      ft = AOM_ICDF(cdf[ms]);
       OD_ASSERT(ft <= CDF_PROB_TOP);
       s = CDF_PROB_BITS - OD_ILOG_NZ(ft);
       d = CDF_PROB_TOP - (ft << s);
       for (i = 0; i <= ms; i++) {
-        tcdf[i] = cdf[i] + OD_MINI(cdf[i], d);
+        tcdf[i] = AOM_ICDF(AOM_ICDF(cdf[i]) + OD_MINI(AOM_ICDF(cdf[i]), d));
       }
       OD_ASSERT(tcdf[ms] == CDF_PROB_TOP);
       sym = aom_read_cdf(r, tcdf, ms + 1, ACCT_STR_NAME);
