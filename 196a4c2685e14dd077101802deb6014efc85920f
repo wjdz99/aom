@@ -16,6 +16,24 @@
       "revId": "196a4c2685e14dd077101802deb6014efc85920f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a188ace_f7fce7b3",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-03-25T01:02:51Z",
+      "side": 1,
+      "message": "Good idea. Since this CL is already complicated, let me create a new CL to change this part.",
+      "parentUuid": "c970e4c0_e78cab27",
+      "revId": "196a4c2685e14dd077101802deb6014efc85920f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
