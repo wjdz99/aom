@@ -1048,10 +1048,11 @@ static INLINE int check_num_overlappable_neighbors(const MB_MODE_INFO *mbmi) {
   if (mbmi->overlappable_neighbors[0] == 0 &&
       mbmi->overlappable_neighbors[1] == 0)
     return 0;
-  return (mbmi->overlappable_neighbors[0] <=
+/*  return (mbmi->overlappable_neighbors[0] <=
       max_neighbor_obmc[b_width_log2_lookup[mbmi->sb_type]]) &&
       (mbmi->overlappable_neighbors[1] <=
-          max_neighbor_obmc[b_height_log2_lookup[mbmi->sb_type]]);
+          max_neighbor_obmc[b_height_log2_lookup[mbmi->sb_type]]);*/
+  return 1;
 }
 #endif
 
