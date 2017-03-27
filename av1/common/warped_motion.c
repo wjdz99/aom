@@ -383,15 +383,16 @@ static int32_t do_cubic_filter(int32_t *p, int x) {
   }
 }
 
-static INLINE void get_subcolumn(int taps, uint8_t *ref, int32_t *col,
-                                 int stride, int x, int y_start) {
+static INLINE void get_subcolumn(int taps, const uint8_t *const ref,
+                                 int32_t *col, int stride, int x, int y_start) {
   int i;
   for (i = 0; i < taps; ++i) {
     col[i] = ref[(i + y_start) * stride + x];
   }
 }
 
-static uint8_t bi_ntap_filter(uint8_t *ref, int x, int y, int stride) {
+static uint8_t bi_ntap_filter(const uint8_t *const ref, int x, int y,
+                              int stride) {
   int32_t val, arr[WARPEDPIXEL_FILTER_TAPS];
   int k;
   int i = (int)x >> WARPEDPIXEL_PREC_BITS;
@@ -410,7 +411,8 @@ static uint8_t bi_ntap_filter(uint8_t *ref, int x, int y, int stride) {
   return (uint8_t)clip_pixel(val);
 }
 
-static uint8_t bi_cubic_filter(uint8_t *ref, int x, int y, int stride) {
+static uint8_t bi_cubic_filter(const uint8_t *const ref, int x, int y,
+                               int stride) {
   int32_t val, arr[4];
   int k;
   int i = (int)x >> WARPEDPIXEL_PREC_BITS;
@@ -426,7 +428,8 @@ static uint8_t bi_cubic_filter(uint8_t *ref, int x, int y, int stride) {
   return (uint8_t)clip_pixel(val);
 }
 
-static uint8_t bi_linear_filter(uint8_t *ref, int x, int y, int stride) {
+static uint8_t bi_linear_filter(const uint8_t *const ref, int x, int y,
+                                int stride) {
   const int ix = x >> WARPEDPIXEL_PREC_BITS;
   const int iy = y >> WARPEDPIXEL_PREC_BITS;
   const int sx = x - (ix * (1 << WARPEDPIXEL_PREC_BITS));
@@ -442,8 +445,8 @@ static uint8_t bi_linear_filter(uint8_t *ref, int x, int y, int stride) {
   return (uint8_t)clip_pixel(val);
 }
 
-static uint8_t warp_interpolate(uint8_t *ref, int x, int y, int width,
-                                int height, int stride) {
+static uint8_t warp_interpolate(const uint8_t *const ref, int x, int y,
+                                int width, int height, int stride) {
   int ix = x >> WARPEDPIXEL_PREC_BITS;
   int iy = y >> WARPEDPIXEL_PREC_BITS;
   int sx = x - (ix * (1 << WARPEDPIXEL_PREC_BITS));
@@ -778,16 +781,17 @@ int get_shear_params(WarpedMotionParams *wm) {
 }
 
 #if CONFIG_HIGHBITDEPTH
-static INLINE void highbd_get_subcolumn(int taps, uint16_t *ref, int32_t *col,
-                                        int stride, int x, int y_start) {
+static INLINE void highbd_get_subcolumn(int taps, const uint16_t *const ref,
+                                        int32_t *col, int stride, int x,
+                                        int y_start) {
   int i;
   for (i = 0; i < taps; ++i) {
     col[i] = ref[(i + y_start) * stride + x];
   }
 }
 
-static uint16_t highbd_bi_ntap_filter(uint16_t *ref, int x, int y, int stride,
-                                      int bd) {
+static uint16_t highbd_bi_ntap_filter(const uint16_t *const ref, int x, int y,
+                                      int stride, int bd) {
   int32_t val, arr[WARPEDPIXEL_FILTER_TAPS];
   int k;
   int i = (int)x >> WARPEDPIXEL_PREC_BITS;
@@ -806,8 +810,8 @@ static uint16_t highbd_bi_ntap_filter(uint16_t *ref, int x, int y, int stride,
   return (uint16_t)clip_pixel_highbd(val, bd);
 }
 
-static uint16_t highbd_bi_cubic_filter(uint16_t *ref, int x, int y, int stride,
-                                       int bd) {
+static uint16_t highbd_bi_cubic_filter(const uint16_t *const ref, int x, int y,
+                                       int stride, int bd) {
   int32_t val, arr[4];
   int k;
   int i = (int)x >> WARPEDPIXEL_PREC_BITS;
@@ -823,8 +827,8 @@ static uint16_t highbd_bi_cubic_filter(uint16_t *ref, int x, int y, int stride,
   return (uint16_t)clip_pixel_highbd(val, bd);
 }
 
-static uint16_t highbd_bi_linear_filter(uint16_t *ref, int x, int y, int stride,
-                                        int bd) {
+static uint16_t highbd_bi_linear_filter(const uint16_t *const ref, int x, int y,
+                                        int stride, int bd) {
   const int ix = x >> WARPEDPIXEL_PREC_BITS;
   const int iy = y >> WARPEDPIXEL_PREC_BITS;
   const int sx = x - (ix * (1 << WARPEDPIXEL_PREC_BITS));
@@ -840,8 +844,9 @@ static uint16_t highbd_bi_linear_filter(uint16_t *ref, int x, int y, int stride,
   return (uint16_t)clip_pixel_highbd(val, bd);
 }
 
-static uint16_t highbd_warp_interpolate(uint16_t *ref, int x, int y, int width,
-                                        int height, int stride, int bd) {
+static uint16_t highbd_warp_interpolate(const uint16_t *const ref, int x, int y,
+                                        int width, int height, int stride,
+                                        int bd) {
   int ix = x >> WARPEDPIXEL_PREC_BITS;
   int iy = y >> WARPEDPIXEL_PREC_BITS;
   int sx = x - (ix * (1 << WARPEDPIXEL_PREC_BITS));
@@ -903,17 +908,15 @@ static INLINE int highbd_error_measure(int err, int bd) {
          error_measure_lut[256 + e1] * e2;
 }
 
-static void highbd_warp_plane_old(WarpedMotionParams *wm, uint8_t *ref8,
-                                  int width, int height, int stride,
-                                  uint8_t *pred8, int p_col, int p_row,
-                                  int p_width, int p_height, int p_stride,
-                                  int subsampling_x, int subsampling_y,
-                                  int x_scale, int y_scale, int bd,
-                                  int ref_frm) {
+static void highbd_warp_plane_old(
+    WarpedMotionParams *wm, const uint8_t *const ref8, int width, int height,
+    int stride, const uint8_t *const pred8, int p_col, int p_row, int p_width,
+    int p_height, int p_stride, int subsampling_x, int subsampling_y,
+    int x_scale, int y_scale, int bd, int ref_frm) {
   int i, j;
   ProjectPointsFunc projectpoints = get_project_points_type(wm->wmtype);
   uint16_t *pred = CONVERT_TO_SHORTPTR(pred8);
-  uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);
+  const uint16_t *const ref = CONVERT_TO_SHORTPTR(ref8);
   if (projectpoints == NULL) return;
   for (i = p_row; i < p_row + p_height; ++i) {
     for (j = p_col; j < p_col + p_width; ++j) {
@@ -1070,12 +1073,12 @@ void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
   }
 }
 
-static void highbd_warp_plane(WarpedMotionParams *wm, uint8_t *ref8, int width,
-                              int height, int stride, uint8_t *pred8, int p_col,
-                              int p_row, int p_width, int p_height,
-                              int p_stride, int subsampling_x,
-                              int subsampling_y, int x_scale, int y_scale,
-                              int bd, int ref_frm) {
+static void highbd_warp_plane(WarpedMotionParams *wm, const uint8_t *const ref8,
+                              int width, int height, int stride,
+                              const uint8_t *const pred8, int p_col, int p_row,
+                              int p_width, int p_height, int p_stride,
+                              int subsampling_x, int subsampling_y, int x_scale,
+                              int y_scale, int bd, int ref_frm) {
   if (wm->wmtype == ROTZOOM) {
     wm->wmmat[5] = wm->wmmat[2];
     wm->wmmat[4] = -wm->wmmat[3];
@@ -1088,7 +1091,7 @@ static void highbd_warp_plane(WarpedMotionParams *wm, uint8_t *ref8, int width,
     const int16_t gamma = wm->gamma;
     const int16_t delta = wm->delta;
 
-    uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);
+    const uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);
     uint16_t *pred = CONVERT_TO_SHORTPTR(pred8);
     av1_highbd_warp_affine(mat, ref, width, height, stride, pred, p_col, p_row,
                            p_width, p_height, p_stride, subsampling_x,
@@ -1101,32 +1104,41 @@ static void highbd_warp_plane(WarpedMotionParams *wm, uint8_t *ref8, int width,
   }
 }
 
-static double highbd_warp_erroradv(WarpedMotionParams *wm, uint8_t *ref8,
-                                   int width, int height, int stride,
-                                   uint8_t *dst8, int p_col, int p_row,
-                                   int p_width, int p_height, int p_stride,
-                                   int subsampling_x, int subsampling_y,
-                                   int x_scale, int y_scale, int bd) {
-  int gm_err = 0, no_gm_err = 0;
-  int64_t gm_sumerr = 0, no_gm_sumerr = 0;
-  int i, j;
-  uint16_t *tmp = aom_malloc(p_width * p_height * sizeof(*tmp));
+static int64_t highbd_frame_error(const uint8_t *const ref8, int stride,
+                                  const uint8_t *const dst8, int p_col,
+                                  int p_row, int p_width, int p_height,
+                                  int p_stride, int bd) {
   uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
-  uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);
+  const uint16_t *const ref = CONVERT_TO_SHORTPTR(ref8);
+  int64_t sum_error = 0;
+  for (int i = 0; i < p_height; ++i) {
+    for (int j = 0; j < p_width; ++j) {
+      sum_error += highbd_error_measure(
+          dst[j + i * p_stride] - ref[(j + p_col) + (i + p_row) * stride], bd);
+    }
+  }
+  return sum_error;
+}
+
+static int64_t highbd_warp_error(
+    WarpedMotionParams *wm, const uint8_t *const ref8, int width, int height,
+    int stride, const uint8_t *const dst8, int p_col, int p_row, int p_width,
+    int p_height, int p_stride, int subsampling_x, int subsampling_y,
+    int x_scale, int y_scale, int bd) {
+  int64_t gm_sumerr = 0;
+  uint16_t *tmp = aom_malloc(p_width * p_height * sizeof(*tmp));
+
+  if (!tmp) return 0;
+
   highbd_warp_plane(wm, ref8, width, height, stride, CONVERT_TO_BYTEPTR(tmp),
                     p_col, p_row, p_width, p_height, p_width, subsampling_x,
                     subsampling_y, x_scale, y_scale, bd, 0);
-  for (i = 0; i < p_height; ++i) {
-    for (j = 0; j < p_width; ++j) {
-      gm_err = dst[j + i * p_stride] - tmp[j + i * p_width];
-      no_gm_err =
-          dst[j + i * p_stride] - ref[(j + p_col) + (i + p_row) * stride];
-      gm_sumerr += highbd_error_measure(gm_err, bd);
-      no_gm_sumerr += highbd_error_measure(no_gm_err, bd);
-    }
-  }
+
+  gm_sumerr = highbd_frame_error(CONVERT_TO_BYTEPTR(tmp), p_width, dst8, p_col,
+                                 p_row, p_width, p_height, p_stride, bd);
+
   aom_free(tmp);
-  return (double)gm_sumerr / no_gm_sumerr;
+  return gm_sumerr;
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
@@ -1134,11 +1146,11 @@ static INLINE int error_measure(int err) {
   return error_measure_lut[255 + err];
 }
 
-static void warp_plane_old(WarpedMotionParams *wm, uint8_t *ref, int width,
-                           int height, int stride, uint8_t *pred, int p_col,
-                           int p_row, int p_width, int p_height, int p_stride,
-                           int subsampling_x, int subsampling_y, int x_scale,
-                           int y_scale, int ref_frm) {
+static void warp_plane_old(WarpedMotionParams *wm, const uint8_t *const ref,
+                           int width, int height, int stride, uint8_t *pred,
+                           int p_col, int p_row, int p_width, int p_height,
+                           int p_stride, int subsampling_x, int subsampling_y,
+                           int x_scale, int y_scale, int ref_frm) {
   int i, j;
   ProjectPointsFunc projectpoints = get_project_points_type(wm->wmtype);
   if (projectpoints == NULL) return;
@@ -1327,11 +1339,11 @@ void av1_warp_affine_c(const int32_t *mat, const uint8_t *ref, int width,
   }
 }
 
-static void warp_plane(WarpedMotionParams *wm, uint8_t *ref, int width,
-                       int height, int stride, uint8_t *pred, int p_col,
-                       int p_row, int p_width, int p_height, int p_stride,
-                       int subsampling_x, int subsampling_y, int x_scale,
-                       int y_scale, int ref_frm) {
+static void warp_plane(WarpedMotionParams *wm, const uint8_t *const ref,
+                       int width, int height, int stride, uint8_t *pred,
+                       int p_col, int p_row, int p_width, int p_height,
+                       int p_stride, int subsampling_x, int subsampling_y,
+                       int x_scale, int y_scale, int ref_frm) {
   if (wm->wmtype == ROTZOOM) {
     wm->wmmat[5] = wm->wmmat[2];
     wm->wmmat[4] = -wm->wmmat[3];
@@ -1354,59 +1366,82 @@ static void warp_plane(WarpedMotionParams *wm, uint8_t *ref, int width,
   }
 }
 
-static double warp_erroradv(WarpedMotionParams *wm, uint8_t *ref, int width,
-                            int height, int stride, uint8_t *dst, int p_col,
-                            int p_row, int p_width, int p_height, int p_stride,
-                            int subsampling_x, int subsampling_y, int x_scale,
-                            int y_scale) {
-  int gm_err = 0, no_gm_err = 0;
-  int gm_sumerr = 0, no_gm_sumerr = 0;
-  int i, j;
+static int frame_error(const uint8_t *const ref, int stride,
+                       const uint8_t *const dst, int p_col, int p_row,
+                       int p_width, int p_height, int p_stride) {
+  int sum_error = 0;
+  for (int i = 0; i < p_height; ++i) {
+    for (int j = 0; j < p_width; ++j) {
+      sum_error += error_measure(dst[j + i * p_stride] -
+                                 ref[(j + p_col) + (i + p_row) * stride]);
+    }
+  }
+  return sum_error;
+}
+
+static int warp_error(WarpedMotionParams *wm, const uint8_t *const ref,
+                      int width, int height, int stride, uint8_t *dst,
+                      int p_col, int p_row, int p_width, int p_height,
+                      int p_stride, int subsampling_x, int subsampling_y,
+                      int x_scale, int y_scale) {
+  int gm_sumerr = 0;
   uint8_t *tmp = aom_malloc(p_width * p_height);
+
+  if (!tmp) return 0;
+
   warp_plane(wm, ref, width, height, stride, tmp, p_col, p_row, p_width,
              p_height, p_width, subsampling_x, subsampling_y, x_scale, y_scale,
              0);
 
-  for (i = 0; i < p_height; ++i) {
-    for (j = 0; j < p_width; ++j) {
-      gm_err = dst[j + i * p_stride] - tmp[j + i * p_width];
-      no_gm_err =
-          dst[j + i * p_stride] - ref[(j + p_col) + (i + p_row) * stride];
-      gm_sumerr += error_measure(gm_err);
-      no_gm_sumerr += error_measure(no_gm_err);
-    }
-  }
+  gm_sumerr =
+      frame_error(tmp, p_width, dst, p_col, p_row, p_width, p_height, p_stride);
 
   aom_free(tmp);
-  return (double)gm_sumerr / no_gm_sumerr;
+  return gm_sumerr;
 }
 
-double av1_warp_erroradv(WarpedMotionParams *wm,
+int64_t av1_frame_error(
 #if CONFIG_HIGHBITDEPTH
-                         int use_hbd, int bd,
+    int use_hbd, int bd,
 #endif  // CONFIG_HIGHBITDEPTH
-                         uint8_t *ref, int width, int height, int stride,
-                         uint8_t *dst, int p_col, int p_row, int p_width,
-                         int p_height, int p_stride, int subsampling_x,
-                         int subsampling_y, int x_scale, int y_scale) {
+    const uint8_t *ref, int stride, uint8_t *dst, int p_col, int p_row,
+    int p_width, int p_height, int p_stride) {
+#if CONFIG_HIGHBITDEPTH
+  if (use_hbd)
+    return highbd_frame_error(ref, stride, dst, p_col, p_row, p_width, p_height,
+                              p_stride, bd);
+#endif  // CONFIG_HIGHBITDEPTH
+  return frame_error(ref, stride, dst, p_col, p_row, p_width, p_height,
+                     p_stride);
+}
+
+int64_t av1_warp_error(WarpedMotionParams *wm,
+#if CONFIG_HIGHBITDEPTH
+                       int use_hbd, int bd,
+#endif  // CONFIG_HIGHBITDEPTH
+                       const uint8_t *ref, int width, int height,
+                       int stride, uint8_t *dst, int p_col, int p_row,
+                       int p_width, int p_height, int p_stride,
+                       int subsampling_x, int subsampling_y, int x_scale,
+                       int y_scale) {
   if (wm->wmtype <= AFFINE)
     if (!get_shear_params(wm)) return 1;
 #if CONFIG_HIGHBITDEPTH
   if (use_hbd)
-    return highbd_warp_erroradv(
-        wm, ref, width, height, stride, dst, p_col, p_row, p_width, p_height,
-        p_stride, subsampling_x, subsampling_y, x_scale, y_scale, bd);
+    return highbd_warp_error(wm, ref, width, height, stride, dst, p_col, p_row,
+                             p_width, p_height, p_stride, subsampling_x,
+                             subsampling_y, x_scale, y_scale, bd);
 #endif  // CONFIG_HIGHBITDEPTH
-  return warp_erroradv(wm, ref, width, height, stride, dst, p_col, p_row,
-                       p_width, p_height, p_stride, subsampling_x,
-                       subsampling_y, x_scale, y_scale);
+  return warp_error(wm, ref, width, height, stride, dst, p_col, p_row, p_width,
+                    p_height, p_stride, subsampling_x, subsampling_y, x_scale,
+                    y_scale);
 }
 
 void av1_warp_plane(WarpedMotionParams *wm,
 #if CONFIG_HIGHBITDEPTH
                     int use_hbd, int bd,
 #endif  // CONFIG_HIGHBITDEPTH
-                    uint8_t *ref, int width, int height, int stride,
+                    const uint8_t *ref, int width, int height, int stride,
                     uint8_t *pred, int p_col, int p_row, int p_width,
                     int p_height, int p_stride, int subsampling_x,
                     int subsampling_y, int x_scale, int y_scale, int ref_frm) {
