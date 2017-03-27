@@ -2527,12 +2527,12 @@ static void write_partition(const AV1_COMMON *const cm,
   const int is_partition_point = bsize >= BLOCK_8X8;
   const int ctx = is_partition_point
                       ? partition_plane_context(xd, mi_row, mi_col,
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
                                                 has_rows, has_cols,
 #endif
                                                 bsize)
                       : 0;
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
   const aom_prob *const probs =
       ctx < PARTITION_CONTEXTS ? cm->fc->partition_prob[ctx] : NULL;
 #else
@@ -2570,12 +2570,32 @@ static void write_partition(const AV1_COMMON *const cm,
     av1_write_token(w, av1_partition_tree, probs, &partition_encodings[p]);
 #endif
 #endif  // CONFIG_EXT_PARTITION_TYPES
-  } else if (!has_rows && has_cols) {
+  }
+  else if (!has_rows && has_cols) {
     assert(p == PARTITION_SPLIT || p == PARTITION_HORZ);
+#if CONFIG_UNPOISON_PARTITION_CTX && NEW_UNPOISON
+    assert(bsize > BLOCK_8X8);
+    aom_cdf_prob cdf[2];
+    partition_gather_vert_alike(cdf, ec_ctx->partition_cdf[ctx]);
+    aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
+#if 0
+    fprintf(stderr, "bs %d r %d c %d ctx %d p %d %d cdf[0] %d %d bprob %d\n",
+            bsize, mi_row, mi_col, ctx, p, p == PARTITION_SPLIT, cdf[0], cdf[0] >> 7,
+            probs[1]);
+#endif
+#else
     aom_write(w, p == PARTITION_SPLIT, probs[1]);
+#endif
   } else if (has_rows && !has_cols) {
     assert(p == PARTITION_SPLIT || p == PARTITION_VERT);
+#if CONFIG_UNPOISON_PARTITION_CTX && NEW_UNPOISON
+    assert(bsize > BLOCK_8X8);
+    aom_cdf_prob cdf[2];
+    partition_gather_horz_alike(cdf, ec_ctx->partition_cdf[ctx]);
+    aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
+#else
     aom_write(w, p == PARTITION_SPLIT, probs[2]);
+#endif
   } else {
     assert(p == PARTITION_SPLIT);
   }
@@ -4713,7 +4733,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     prob_diff_update(av1_partition_tree, fc->partition_prob[i],
                      counts->partition[i], PARTITION_TYPES, probwt, header_bc);
 #endif  // CONFIG_EXT_PARTITION_TYPES
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
   for (; i < PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES; ++i) {
     unsigned int ct[2] = { counts->partition[i][PARTITION_VERT],
                            counts->partition[i][PARTITION_SPLIT] };

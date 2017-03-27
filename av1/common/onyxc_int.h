@@ -730,6 +730,43 @@ static INLINE int is_chroma_reference(const int mi_row, const int mi_col) {
 }
 #endif
 
+#if CONFIG_UNPOISON_PARTITION_CTX && CONFIG_EC_MULTISYMBOL
+#if NEW_UNPOISON
+static INLINE aom_cdf_prob cdf_element_prob(const aom_cdf_prob *cdf,
+                                            size_t element) {
+  return cdf[element] - (element > 0 ? cdf[element - 1] : 0);
+}
+
+static INLINE void partition_gather_horz_alike(aom_cdf_prob *out,
+                                               const aom_cdf_prob *const in) {
+  out[0] = 0;
+  out[0] += cdf_element_prob(in, PARTITION_HORZ);
+  out[0] += cdf_element_prob(in, PARTITION_SPLIT);
+#if CONFIG_EXT_PARTITION_TYPES
+  out[0] += cdf_element_prob(in, PARTITION_HORZ_A);
+  out[0] += cdf_element_prob(in, PARTITION_HORZ_B);
+  out[0] += cdf_element_prob(in, PARTITION_VERT_A);
+#endif
+  out[0] = CDF_PROB_TOP - out[0];
+  out[1] = CDF_PROB_TOP;
+}
+
+static INLINE void partition_gather_vert_alike(aom_cdf_prob *out,
+                                               const aom_cdf_prob *const in) {
+  out[0] = 0;
+  out[0] += cdf_element_prob(in, PARTITION_VERT);
+  out[0] += cdf_element_prob(in, PARTITION_SPLIT);
+#if CONFIG_EXT_PARTITION_TYPES
+  out[0] += cdf_element_prob(in, PARTITION_HORZ_A);
+  out[0] += cdf_element_prob(in, PARTITION_VERT_A);
+  out[0] += cdf_element_prob(in, PARTITION_VERT_B);
+#endif
+  out[0] = CDF_PROB_TOP - out[0];
+  out[1] = CDF_PROB_TOP;
+}
+#endif  // NEW_UNPOISON
+#endif  // CONFIG_UNPOISON_PARTITION_CTX && CONFIG_EC_MULTISYMBOL
+
 #if CONFIG_EXT_PARTITION_TYPES
 static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
                                                 int mi_col, BLOCK_SIZE subsize,
@@ -770,11 +807,11 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
 
 static INLINE int partition_plane_context(const MACROBLOCKD *xd, int mi_row,
                                           int mi_col,
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
                                           int has_rows, int has_cols,
 #endif
                                           BLOCK_SIZE bsize) {
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
   const PARTITION_CONTEXT *above_ctx = xd->above_seg_context + mi_col;
   const PARTITION_CONTEXT *left_ctx =
       xd->left_seg_context + (mi_row & MAX_MIB_MASK);

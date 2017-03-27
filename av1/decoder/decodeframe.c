@@ -1936,7 +1936,7 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
                                      int mi_row, int mi_col, aom_reader *r,
                                      int has_rows, int has_cols,
                                      BLOCK_SIZE bsize) {
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
   const int ctx =
       partition_plane_context(xd, mi_row, mi_col, has_rows, has_cols, bsize);
   const aom_prob *const probs =
@@ -1946,7 +1946,7 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
   const int ctx = partition_plane_context(xd, mi_row, mi_col, bsize);
   const aom_prob *const probs = cm->fc->partition_prob[ctx];
   FRAME_COUNTS *const counts = xd->counts;
-#endif
+#endif  // CONFIG_UNPOISON_PARTITION_CTX && !CONFIG_EC_ADAPT
   PARTITION_TYPE p;
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -1984,6 +1984,24 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
     p = (PARTITION_TYPE)aom_read_tree(r, av1_partition_tree, probs, ACCT_STR);
 #endif
 #endif  // CONFIG_EXT_PARTITION_TYPES
+#if CONFIG_UNPOISON_PARTITION_CTX && NEW_UNPOISON
+  else if (!has_rows && has_cols) {
+    assert(bsize > BLOCK_8X8);
+    aom_cdf_prob cdf[2];
+    partition_gather_vert_alike(cdf, ec_ctx->partition_cdf[ctx]);
+    assert(cdf[1] == CDF_PROB_TOP);
+    p = aom_read_cdf(r, cdf, 2, ACCT_STR) ? PARTITION_SPLIT : PARTITION_HORZ;
+    // gather cols
+  } else if (has_rows && !has_cols) {
+    assert(bsize > BLOCK_8X8);
+    aom_cdf_prob cdf[2];
+    partition_gather_horz_alike(cdf, ec_ctx->partition_cdf[ctx]);
+    assert(cdf[1] == CDF_PROB_TOP);
+    p = aom_read_cdf(r, cdf, 2, ACCT_STR) ? PARTITION_SPLIT : PARTITION_VERT;
+  } else {
+    p = PARTITION_SPLIT;
+  }
+#else
   else if (!has_rows && has_cols)
     p = aom_read(r, probs[1], ACCT_STR) ? PARTITION_SPLIT : PARTITION_HORZ;
   else if (has_rows && !has_cols)
@@ -1992,6 +2010,7 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
     p = PARTITION_SPLIT;
 
   if (counts) ++counts->partition[ctx][p];
+#endif
 
   return p;
 }
@@ -4564,12 +4583,12 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
       av1_diff_update_prob(&r, &fc->partition_prob[j][i], ACCT_STR);
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
   for (; j < PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES; ++j)
     av1_diff_update_prob(&r, &fc->partition_prob[j][PARTITION_VERT], ACCT_STR);
   for (; j < PARTITION_CONTEXTS_PRIMARY + 2 * PARTITION_BLOCK_SIZES; ++j)
     av1_diff_update_prob(&r, &fc->partition_prob[j][PARTITION_HORZ], ACCT_STR);
-#endif  // CONFIG_UNPOISON_PARTITION_CTX
+#endif  // CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
 
 #if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
   for (i = 0; i < INTRA_FILTERS + 1; ++i)

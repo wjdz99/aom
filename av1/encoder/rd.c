@@ -446,7 +446,7 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
         cost_restricted_partitions(cpi, i);
       }
 #endif  // CONFIG_EXT_PARTITION_TYPES
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
       for (; i < PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES; ++i) {
         aom_prob p = cm->fc->partition_prob[i][PARTITION_VERT];
         assert(p > 0);

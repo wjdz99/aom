@@ -2462,7 +2462,7 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
   const int is_partition_root = bsize >= BLOCK_8X8;
   const int ctx = is_partition_root
                       ? partition_plane_context(xd, mi_row, mi_col,
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
                                                 mi_row + hbs < cm->mi_rows,
                                                 mi_col + hbs < cm->mi_cols,
 #endif
@@ -2763,7 +2763,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
   const int hbs = bs / 2;
   int i;
   const int pl = partition_plane_context(xd, mi_row, mi_col,
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
                                          mi_row + hbs < cm->mi_rows,
                                          mi_col + hbs < cm->mi_cols,
 #endif
@@ -3677,7 +3677,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
   const TOKENEXTRA *const tp_orig = *tp;
   PICK_MODE_CONTEXT *ctx_none = &pc_tree->none;
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
   const int hbs = mi_size_wide[bsize] / 2;
   const int has_rows = mi_row + hbs < cm->mi_rows;
   const int has_cols = mi_col + hbs < cm->mi_cols;
@@ -3690,7 +3690,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   const int unify_bsize = 1;
   const int pl = bsize_at_least_8x8
                      ? partition_plane_context(xd, mi_row, mi_col,
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
                                                has_rows, has_cols,
 #endif
                                                bsize)
@@ -3698,7 +3698,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #else
   const int unify_bsize = 0;
   const int pl = partition_plane_context(xd, mi_row, mi_col,
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
                                          has_rows, has_cols,
 #endif
                                          bsize);

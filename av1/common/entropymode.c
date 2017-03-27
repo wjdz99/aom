@@ -656,7 +656,7 @@ static const aom_prob
       { 58, 32, 12 },   // l split, a not split
       { 10, 7, 6 },     // a/l both split
 #endif  // CONFIG_EXT_PARTITION
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
       { 0, 0, 141 },    // 8x8 -> 4x4
       { 0, 0, 87 },     // 16x16 -> 8x8
       { 0, 0, 59 },     // 32x32 -> 16x16
@@ -671,7 +671,7 @@ static const aom_prob
 #if CONFIG_EXT_PARTITION
       { 0, 34, 0 },     // 128x128 -> 64x64
 #endif  // CONFIG_EXT_PARTITION
-#endif  // CONFIG_UNPOISON_PARTITION_CTX
+#endif  // CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
     };
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
@@ -3098,7 +3098,7 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
                          counts->partition[i], fc->partition_prob[i]);
   }
 #endif  // CONFIG_EXT_PARTITION_TYPES
-#if CONFIG_UNPOISON_PARTITION_CTX
+#if CONFIG_UNPOISON_PARTITION_CTX && !NEW_UNPOISON
   for (i = PARTITION_CONTEXTS_PRIMARY;
        i < PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES; ++i) {
     unsigned int ct[2] = { counts->partition[i][PARTITION_VERT],
