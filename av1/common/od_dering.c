@@ -353,12 +353,23 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
       by = dlist[bi].by;
       bx = dlist[bi].bx;
 
-      (!threshold || (dir[by][bx] < 4 && dir[by][bx]) ? aom_clpf_block_hbd
-                                                      : aom_clpf_hblock_hbd)(
-          in, &y[((bi - by) << 2 * bsize) - (bx << bsize)], OD_FILT_BSTRIDE,
-          1 << bsize, bx << bsize, by << bsize, 1 << bsize, 1 << bsize,
-          clpf_strength << coeff_shift, clpf_damping + coeff_shift);
+      if (!dst || hbd) {
+        (!threshold || (dir[by][bx] < 4 && dir[by][bx]) ? aom_clpf_block_hbd
+                                                        : aom_clpf_hblock_hbd)(
+            in, dst && hbd ? (uint16_t *)dst
+                           : &y[((bi - by) << 2 * bsize) - (bx << bsize)],
+            OD_FILT_BSTRIDE, dst && hbd ? dstride : 1 << bsize, bx << bsize,
+            by << bsize, 1 << bsize, 1 << bsize, clpf_strength << coeff_shift,
+            clpf_damping + coeff_shift);
+      } else {
+        (!threshold || (dir[by][bx] < 4 && dir[by][bx]) ? aom_clpf_block
+                                                        : aom_clpf_hblock)(
+            in, dst, OD_FILT_BSTRIDE, dstride, bx << bsize, by << bsize,
+            1 << bsize, 1 << bsize, clpf_strength << coeff_shift,
+            clpf_damping + coeff_shift);
+      }
     }
+    if (dst) return;
   }
   if (dst) {
     if (hbd) {
