@@ -8847,9 +8847,10 @@ static int64_t handle_inter_mode(
   }
 
   if (mbmi_ext->ref_mv_count[ref_frame_type] > 1) {
+    int ref_mv_idx = mbmi->ref_mv_idx + 1;
     if (this_mode == NEAR_NEWMV || this_mode == NEAR_NEARESTMV ||
         this_mode == NEAR_NEARMV) {
-      cur_mv[0] = mbmi_ext->ref_mv_stack[ref_frame_type][1].this_mv;
+      cur_mv[0] = mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv;
 
       lower_mv_precision(&cur_mv[0].as_mv, cm->allow_high_precision_mv);
       clamp_mv2(&cur_mv[0].as_mv, xd);
@@ -8859,7 +8860,7 @@ static int64_t handle_inter_mode(
 
     if (this_mode == NEW_NEARMV || this_mode == NEAREST_NEARMV ||
         this_mode == NEAR_NEARMV) {
-      cur_mv[1] = mbmi_ext->ref_mv_stack[ref_frame_type][1].comp_mv;
+      cur_mv[1] = mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx].comp_mv;
 
       lower_mv_precision(&cur_mv[1].as_mv, cm->allow_high_precision_mv);
       clamp_mv2(&cur_mv[1].as_mv, xd);
@@ -10450,7 +10451,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       mbmi->ref_mv_idx = 0;
       ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
 
+#if CONFIG_EXT_INTER
+      if ((this_mode == NEWMV || this_mode == NEW_NEWMV) &&
+          mbmi_ext->ref_mv_count[ref_frame_type] > 1) {
+#else
       if (this_mode == NEWMV && mbmi_ext->ref_mv_count[ref_frame_type] > 1) {
+#endif
         int ref;
         for (ref = 0; ref < 1 + comp_pred; ++ref) {
           int_mv this_mv =
@@ -10495,11 +10501,18 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       }
 
 #if CONFIG_REF_MV
-      // TODO(jingning): This needs some refactoring to improve code quality
-      // and reduce redundant steps.
+// TODO(jingning): This needs some refactoring to improve code quality
+// and reduce redundant steps.
+#if CONFIG_EXT_INTER
+      if (((mbmi->mode == NEARMV || mbmi->mode == NEAR_NEARMV) &&
+           mbmi_ext->ref_mv_count[ref_frame_type] > 2) ||
+          ((mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) &&
+           mbmi_ext->ref_mv_count[ref_frame_type] > 1)) {
+#else
       if ((mbmi->mode == NEARMV &&
            mbmi_ext->ref_mv_count[ref_frame_type] > 2) ||
           (mbmi->mode == NEWMV && mbmi_ext->ref_mv_count[ref_frame_type] > 1)) {
+#endif
         int_mv backup_mv = frame_mv[NEARMV][ref_frame];
         MB_MODE_INFO backup_mbmi = *mbmi;
         int backup_skip = x->skip;
@@ -11325,7 +11338,12 @@ PALETTE_EXIT:
   // Make sure that the ref_mv_idx is only nonzero when we're
   // using a mode which can support ref_mv_idx
   if (best_mbmode.ref_mv_idx != 0 &&
+#if CONFIG_EXT_INTER
+      !(best_mbmode.mode == NEARMV || best_mbmode.mode == NEAR_NEARMV ||
+        best_mbmode.mode == NEWMV || best_mbmode.mode == NEW_NEWMV)) {
+#else
       !(best_mbmode.mode == NEARMV || best_mbmode.mode == NEWMV)) {
+#endif
     best_mbmode.ref_mv_idx = 0;
   }
 
