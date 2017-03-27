@@ -17,13 +17,13 @@
 static const __m128i *const filter = (const __m128i *const)warped_filter;
 
 /* SSE2 version of the rotzoom/affine warp filter */
-void av1_highbd_warp_affine_ssse3(int32_t *mat, uint16_t *ref, int width,
-                                  int height, int stride, uint16_t *pred,
-                                  int p_col, int p_row, int p_width,
-                                  int p_height, int p_stride, int subsampling_x,
-                                  int subsampling_y, int bd, int ref_frm,
-                                  int16_t alpha, int16_t beta, int16_t gamma,
-                                  int16_t delta) {
+void av1_highbd_warp_affine_ssse3(int32_t *mat, const uint16_t *const ref,
+                                  int width, int height, int stride,
+                                  uint16_t *pred, int p_col, int p_row,
+                                  int p_width, int p_height, int p_stride,
+                                  int subsampling_x, int subsampling_y, int bd,
+                                  int ref_frm, int16_t alpha, int16_t beta,
+                                  int16_t gamma, int16_t delta) {
 #if HORSHEAR_REDUCE_PREC_BITS >= 5
   __m128i tmp[15];
 #else
