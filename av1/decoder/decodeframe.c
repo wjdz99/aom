@@ -1975,18 +1975,23 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
 
+#if CONFIG_EC_MULTISYMBOL
+  aom_cdf_prob *partition_cdf = (ctx >= 0) ?
+      ec_ctx->partition_cdf[ctx] : NULL;
+#endif
+
   if (has_rows && has_cols)
 #if CONFIG_EXT_PARTITION_TYPES
     if (bsize <= BLOCK_8X8)
 #if CONFIG_EC_MULTISYMBOL
-      p = (PARTITION_TYPE)aom_read_symbol(r, ec_ctx->partition_cdf[ctx],
+      p = (PARTITION_TYPE)aom_read_symbol(r, partition_cdf,
                                           PARTITION_TYPES, ACCT_STR);
 #else
       p = (PARTITION_TYPE)aom_read_tree(r, av1_partition_tree, probs, ACCT_STR);
 #endif
     else
 #if CONFIG_EC_MULTISYMBOL
-      p = (PARTITION_TYPE)aom_read_symbol(r, ec_ctx->partition_cdf[ctx],
+      p = (PARTITION_TYPE)aom_read_symbol(r, partition_cdf,
                                           EXT_PARTITION_TYPES, ACCT_STR);
 #else
       p = (PARTITION_TYPE)aom_read_tree(r, av1_ext_partition_tree, probs,
@@ -1994,7 +1999,7 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif
 #else
 #if CONFIG_EC_MULTISYMBOL
-    p = (PARTITION_TYPE)aom_read_symbol(r, ec_ctx->partition_cdf[ctx],
+    p = (PARTITION_TYPE)aom_read_symbol(r, partition_cdf,
                                         PARTITION_TYPES, ACCT_STR);
 #else
     p = (PARTITION_TYPE)aom_read_tree(r, av1_partition_tree, probs, ACCT_STR);
@@ -2061,8 +2066,8 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
   partition = (bsize < BLOCK_8X8) ? PARTITION_NONE
-                             : read_partition(cm, xd, mi_row, mi_col, r,
-                                              has_rows, has_cols, bsize);
+                                  : read_partition(cm, xd, mi_row, mi_col, r,
+                                                   has_rows, has_cols, bsize);
   subsize = subsize_lookup[partition][bsize];  // get_subsize(bsize, partition);
 
 #if CONFIG_PVQ
