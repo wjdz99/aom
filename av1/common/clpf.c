@@ -38,7 +38,7 @@ int av1_clpf_hsample(int X, int A, int B, int C, int D, int s,
   return (4 + delta - (delta < 0)) >> 3;
 }
 
-void aom_clpf_block_c(const uint8_t *src, uint8_t *dst, int sstride,
+void aom_clpf_block_c(const uint16_t *src, uint8_t *dst, int sstride,
                       int dstride, int x0, int y0, int sizex, int sizey,
                       unsigned int strength, unsigned int damping) {
   int x, y;
@@ -61,7 +61,7 @@ void aom_clpf_block_c(const uint8_t *src, uint8_t *dst, int sstride,
   }
 }
 
-// Identical to aom_clpf_block_c() apart from "src" and "dst".
+// Identical to aom_clpf_block_c() apart from "dst".
 // TODO(stemidts): Put under CONFIG_AOM_HIGHBITDEPTH if CDEF do 8 bit internally
 void aom_clpf_block_hbd_c(const uint16_t *src, uint16_t *dst, int sstride,
                           int dstride, int x0, int y0, int sizex, int sizey,
@@ -86,7 +86,25 @@ void aom_clpf_block_hbd_c(const uint16_t *src, uint16_t *dst, int sstride,
   }
 }
 
-// TODO(stemidts): Put under CONFIG_AOM_HIGHBITDEPTH if CDEF do 8 bit internally
+// Vertically restricted filter
+void aom_clpf_hblock_c(const uint16_t *src, uint8_t *dst, int sstride,
+                       int dstride, int x0, int y0, int sizex, int sizey,
+                       unsigned int strength, unsigned int damping) {
+  int x, y;
+
+  for (y = y0; y < y0 + sizey; y++) {
+    for (x = x0; x < x0 + sizex; x++) {
+      const int X = src[y * sstride + x];
+      const int A = src[y * sstride + x - 2];
+      const int B = src[y * sstride + x - 1];
+      const int C = src[y * sstride + x + 1];
+      const int D = src[y * sstride + x + 2];
+      const int delta = av1_clpf_hsample(X, A, B, C, D, strength, damping);
+      dst[y * dstride + x] = X + delta;
+    }
+  }
+}
+
 void aom_clpf_hblock_hbd_c(const uint16_t *src, uint16_t *dst, int sstride,
                            int dstride, int x0, int y0, int sizex, int sizey,
                            unsigned int strength, unsigned int damping) {
