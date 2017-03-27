@@ -1599,6 +1599,8 @@ void av1_build_obmc_inter_prediction(const AV1_COMMON *cm, MACROBLOCKD *xd,
     const int overlap = num_4x4_blocks_high_lookup[bsize] * 2;
     const int miw = AOMMIN(xd->n8_w, cm->mi_cols - mi_col);
     const int mi_row_offset = -1;
+    const int neighbor_limit = max_neighbor_obmc[b_width_log2_lookup[bsize]];
+    int neighbor_count = 0;
 
     assert(miw > 0);
 
@@ -1610,6 +1612,12 @@ void av1_build_obmc_inter_prediction(const AV1_COMMON *cm, MACROBLOCKD *xd,
       const int mi_step = AOMMIN(xd->n8_w, mi_size_wide[above_mbmi->sb_type]);
 
       if (is_neighbor_overlappable(above_mbmi)) {
+        neighbor_count++;
+        if (!CONFIG_CB4X4 && (above_mbmi->sb_type == BLOCK_4X4 ||
+            above_mbmi->sb_type == BLOCK_4X8))
+          neighbor_count++;
+        if (neighbor_count > neighbor_limit)
+          break;
         for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
           const struct macroblockd_plane *pd = &xd->plane[plane];
           const int bw = (mi_step * MI_SIZE) >> pd->subsampling_x;
@@ -1640,6 +1648,8 @@ void av1_build_obmc_inter_prediction(const AV1_COMMON *cm, MACROBLOCKD *xd,
     const int overlap = num_4x4_blocks_wide_lookup[bsize] * 2;
     const int mih = AOMMIN(xd->n8_h, cm->mi_rows - mi_row);
     const int mi_col_offset = -1;
+    const int neighbor_limit = max_neighbor_obmc[b_height_log2_lookup[bsize]];
+    int neighbor_count = 0;
 
     assert(mih > 0);
 
@@ -1651,6 +1661,12 @@ void av1_build_obmc_inter_prediction(const AV1_COMMON *cm, MACROBLOCKD *xd,
       const int mi_step = AOMMIN(xd->n8_h, mi_size_high[left_mbmi->sb_type]);
 
       if (is_neighbor_overlappable(left_mbmi)) {
+        neighbor_count++;
+        if (!CONFIG_CB4X4 && (left_mbmi->sb_type == BLOCK_4X4 ||
+            left_mbmi->sb_type == BLOCK_8X4))
+          neighbor_count++;
+        if (neighbor_count > neighbor_limit)
+          break;
         for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
           const struct macroblockd_plane *pd = &xd->plane[plane];
           const int bw = overlap >> pd->subsampling_x;
