@@ -385,3 +385,77 @@ int od_filter_dering_direction_8x8_sse4_1(uint16_t *y, int ystride,
   }
   return (hsum_epi16(total_abs) + 8) >> 4;
 }
+
+static INLINE __m128i pack_16bit_to_8bit(const __m128i x) {
+  return _mm_shuffle_epi8(x, _mm_setr_epi8(0, 2, 4, 6, 8, 10, 12, 14, -1, -1,
+                                           -1, -1, -1, -1, -1, -1));
+}
+
+void copy_8x8_16bit_to_8bit_sse4_1(uint8_t *dst, int dstride, uint16_t *src,
+                                   int sstride) {
+  int i;
+  for (i = 0; i < 8; i++) {
+    __m128i row = _mm_loadu_si128((__m128i *)&src[i * sstride]);
+    row = pack_16bit_to_8bit(row);
+    _mm_storel_epi64((__m128i *)&dst[i * dstride], row);
+  }
+}
+
+void copy_4x4_16bit_to_8bit_sse4_1(uint8_t *dst, int dstride, uint16_t *src,
+                                   int sstride) {
+  int i;
+  for (i = 0; i < 4; i++) {
+    __m128i row = _mm_loadl_epi64((__m128i *)&src[i * sstride]);
+    row = pack_16bit_to_8bit(row);
+    *((uint32_t *)&dst[i * dstride]) = _mm_cvtsi128_si32(row);
+  }
+}
+
+void copy_8x8_16bit_to_16bit_sse4_1(uint16_t *dst, int dstride, uint16_t *src,
+                                    int sstride) {
+  int i;
+  for (i = 0; i < 8; i++) {
+    __m128i row = _mm_loadu_si128((__m128i *)&src[i * sstride]);
+    _mm_storeu_si128((__m128i *)&dst[i * dstride], row);
+  }
+}
+
+void copy_4x4_16bit_to_16bit_sse4_1(uint16_t *dst, int dstride, uint16_t *src,
+                                    int sstride) {
+  int i;
+  for (i = 0; i < 4; i++) {
+    __m128i row = _mm_loadl_epi64((__m128i *)&src[i * sstride]);
+    _mm_storel_epi64((__m128i *)&dst[i * dstride], row);
+  }
+}
+
+void copy_nxm_8bit_to_16bit_sse4_1(uint16_t *dst, int dstride,
+                                   const uint8_t *src, int sstride, int n,
+                                   int m) {
+  int i, j;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < (n & ~0x7); j += 8) {
+      __m128i row = _mm_loadl_epi64((__m128i *)&src[i * sstride + j]);
+      row = _mm_unpacklo_epi8(row, _mm_setzero_si128());
+      _mm_storeu_si128((__m128i *)&dst[i * dstride + j], row);
+    }
+    for (; j < n; j++) {
+      dst[i * dstride + j] = src[i * sstride + j];
+    }
+  }
+}
+
+void copy_nxm_16bit_to_16bit_sse4_1(uint16_t *dst, int dstride,
+                                    const uint16_t *src, int sstride, int n,
+                                    int m) {
+  int i, j;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < (n & ~0x7); j += 8) {
+      __m128i row = _mm_loadu_si128((__m128i *)&src[i * sstride + j]);
+      _mm_storeu_si128((__m128i *)&dst[i * dstride + j], row);
+    }
+    for (; j < n; j++) {
+      dst[i * dstride + j] = src[i * sstride + j];
+    }
+  }
+}

@@ -78,23 +78,22 @@ int sb_compute_dering_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
   return count;
 }
 
-static INLINE void copy_8x8_16bit_to_8bit(uint8_t *dst, int dstride,
-                                          uint16_t *src, int sstride) {
+void copy_8x8_16bit_to_8bit_c(uint8_t *dst, int dstride, uint16_t *src,
+                              int sstride) {
   int i, j;
   for (i = 0; i < 8; i++)
     for (j = 0; j < 8; j++)
       dst[i * dstride + j] = (uint8_t)src[i * sstride + j];
 }
 
-static INLINE void copy_4x4_16bit_to_8bit(uint8_t *dst, int dstride,
-                                          uint16_t *src, int sstride) {
+void copy_4x4_16bit_to_8bit_c(uint8_t *dst, int dstride, uint16_t *src,
+                              int sstride) {
   int i, j;
   for (i = 0; i < 4; i++)
     for (j = 0; j < 4; j++)
       dst[i * dstride + j] = (uint8_t)src[i * sstride + j];
 }
 
-/* TODO: Optimize this function for SSE. */
 void copy_dering_16bit_to_8bit(uint8_t *dst, int dstride, uint16_t *src,
                                dering_list *dlist, int dering_count,
                                int bsize) {
@@ -116,28 +115,38 @@ void copy_dering_16bit_to_8bit(uint8_t *dst, int dstride, uint16_t *src,
   }
 }
 
-/* TODO: Optimize this function for SSE. */
+void copy_nxm_8bit_to_16bit_c(uint16_t *dst, int dstride, const uint8_t *src,
+                              int sstride, int n, int m) {
+  int i, j;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++) {
+      dst[i * dstride + j] = src[i * sstride + j];
+    }
+  }
+}
+
+void copy_nxm_16bit_to_16bit_c(uint16_t *dst, int dstride, const uint16_t *src,
+                               int sstride, int n, int m) {
+  int i, j;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++) {
+      dst[i * dstride + j] = src[i * sstride + j];
+    }
+  }
+}
+
 static void copy_sb8_16(UNUSED AV1_COMMON *cm, uint16_t *dst, int dstride,
                         const uint8_t *src, int src_voffset, int src_hoffset,
                         int sstride, int vsize, int hsize) {
-  int r, c;
 #if CONFIG_AOM_HIGHBITDEPTH
   if (cm->use_highbitdepth) {
     const uint16_t *base =
         &CONVERT_TO_SHORTPTR(src)[src_voffset * sstride + src_hoffset];
-    for (r = 0; r < vsize; r++) {
-      for (c = 0; c < hsize; c++) {
-        dst[r * dstride + c] = base[r * sstride + c];
-      }
-    }
+    copy_nxm_16bit_to_16bit(dst, dstride, base, sstride, hsize, vsize);
   } else {
 #endif
     const uint8_t *base = &src[src_voffset * sstride + src_hoffset];
-    for (r = 0; r < vsize; r++) {
-      for (c = 0; c < hsize; c++) {
-        dst[r * dstride + c] = base[r * sstride + c];
-      }
-    }
+    copy_nxm_8bit_to_16bit(dst, dstride, base, sstride, hsize, vsize);
 #if CONFIG_AOM_HIGHBITDEPTH
   }
 #endif
