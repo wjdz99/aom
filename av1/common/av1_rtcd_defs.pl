@@ -761,6 +761,18 @@ if (aom_config("CONFIG_CDEF") eq "yes") {
 
   add_proto qw/int od_filter_dering_direction_8x8/, "uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir";
   specialize qw/od_filter_dering_direction_8x8 sse4_1/;
+
+  add_proto qw/void copy_8x8_16bit_to_8bit/, "uint8_t *dst, int dstride, uint16_t *src, int sstride";
+  specialize qw/copy_8x8_16bit_to_8bit sse4_1/;
+
+  add_proto qw/void copy_4x4_16bit_to_8bit/, "uint8_t *dst, int dstride, uint16_t *src, int sstride";
+  specialize qw/copy_4x4_16bit_to_8bit sse4_1/;
+
+  add_proto qw/void copy_8x8_16bit_to_16bit/, "uint16_t *dst, int dstride, uint16_t *src, int sstride";
+  specialize qw/copy_8x8_16bit_to_16bit sse4_1/;
+
+  add_proto qw/void copy_4x4_16bit_to_16bit/, "uint16_t *dst, int dstride, uint16_t *src, int sstride";
+  specialize qw/copy_4x4_16bit_to_16bit sse4_1/;
 }
 
 # PVQ Functions

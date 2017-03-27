@@ -78,23 +78,22 @@ int sb_compute_dering_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
   return count;
 }
 
-static INLINE void copy_8x8_16bit_to_8bit(uint8_t *dst, int dstride,
-                                          uint16_t *src, int sstride) {
+void copy_8x8_16bit_to_8bit_c(uint8_t *dst, int dstride,
+                              uint16_t *src, int sstride) {
   int i, j;
   for (i = 0; i < 8; i++)
     for (j = 0; j < 8; j++)
       dst[i * dstride + j] = (uint8_t)src[i * sstride + j];
 }
 
-static INLINE void copy_4x4_16bit_to_8bit(uint8_t *dst, int dstride,
-                                          uint16_t *src, int sstride) {
+void copy_4x4_16bit_to_8bit_c(uint8_t *dst, int dstride,
+                              uint16_t *src, int sstride) {
   int i, j;
   for (i = 0; i < 4; i++)
     for (j = 0; j < 4; j++)
       dst[i * dstride + j] = (uint8_t)src[i * sstride + j];
 }
 
-/* TODO: Optimize this function for SSE. */
 void copy_dering_16bit_to_8bit(uint8_t *dst, int dstride, uint16_t *src,
                                dering_list *dlist, int dering_count,
                                int bsize) {
