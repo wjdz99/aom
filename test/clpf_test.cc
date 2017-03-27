@@ -119,8 +119,8 @@ void test_clpf(int w, int h, int depth, int iterations,
           s[i] = clamp((rnd.Rand16() & ((1 << bits) - 1)) + level, 0,
                        (1 << depth) - 1);
 
-        for (ypos = 2; ypos < size - h - 2 && !error; ypos += h * !error) {
-          for (xpos = 2; xpos < size - w - 2 && !error; xpos += w * !error) {
+        for (ypos = 8; ypos < size - h - 8 && !error; ypos += h * !error) {
+          for (xpos = 8; xpos < size - w - 8 && !error; xpos += w * !error) {
             for (strength = depth - 8; strength < depth - 5 && !error;
                  strength += !error) {
               ref_clpf(s, ref_d, size, size, xpos, ypos, w, h, 1 << strength,
