@@ -5046,7 +5046,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     const double *params_this_motion;
     int inliers_by_motion[RANSAC_NUM_MOTIONS];
     WarpedMotionParams tmp_wm_params;
-    static const double kInfiniteErrAdv = 1e12;
     static const double kIdentityParams[MAX_PARAMDIM - 1] = {
       0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0
     };
@@ -5055,9 +5054,16 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       ref_buf = get_ref_frame_buffer(cpi, frame);
       if (ref_buf) {
         TransformationType model;
+        const int64_t ref_frame_error = av1_frame_error(
+#if CONFIG_AOM_HIGHBITDEPTH
+            xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+            ref_buf->y_buffer, ref_buf->y_stride, cpi->Source->y_buffer, 0, 0,
+            cpi->Source->y_width, cpi->Source->y_height, cpi->Source->y_stride);
+
         aom_clear_system_state();
         for (model = ROTZOOM; model < GLOBAL_TRANS_TYPES; ++model) {
-          double best_erroradvantage = kInfiniteErrAdv;
+          int64_t best_warp_error = INT64_MAX;
 
           // Initially set all params to identity.
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
@@ -5079,7 +5085,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
             convert_model_to_params(params_this_motion, &tmp_wm_params);
 
             if (tmp_wm_params.wmtype != IDENTITY) {
-              const double erroradv_this_motion = refine_integerized_param(
+              const double warp_error = refine_integerized_param(
                   &tmp_wm_params, tmp_wm_params.wmtype,
 #if CONFIG_AOM_HIGHBITDEPTH
                   xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
@@ -5088,8 +5094,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                   ref_buf->y_stride, cpi->Source->y_buffer,
                   cpi->Source->y_width, cpi->Source->y_height,
                   cpi->Source->y_stride, 3);
-              if (erroradv_this_motion < best_erroradvantage) {
-                best_erroradvantage = erroradv_this_motion;
+              if (warp_error < best_warp_error) {
+                best_warp_error = warp_error;
                 // Save the wm_params modified by refine_integerized_param()
                 // rather than motion index to avoid rerunning refine() below.
                 memcpy(&(cm->global_motion[frame]), &tmp_wm_params,
@@ -5100,7 +5106,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
           // If the best error advantage found doesn't meet the threshold for
           // this motion type, revert to IDENTITY.
-          if (best_erroradvantage >
+          if ((double)best_warp_error / (double)ref_frame_error >
               gm_advantage_thresh[cm->global_motion[frame].wmtype]) {
             set_default_gmparams(&cm->global_motion[frame]);
           }

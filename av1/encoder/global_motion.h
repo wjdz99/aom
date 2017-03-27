@@ -35,14 +35,17 @@ int32_t add_param_offset(int param_index, int32_t param_value, int32_t offset);
 
 void force_wmtype(WarpedMotionParams *wm, TransformationType wmtype);
 
-double refine_integerized_param(WarpedMotionParams *wm,
-                                TransformationType wmtype,
+// Returns the av1_warp_error between "dst" and the result of applying the
+// motion params that result from fine-tuning "wm" to "ref". Note that "wm" is
+// modified in place.
+int64_t refine_integerized_param(WarpedMotionParams *wm,
+                                 TransformationType wmtype,
 #if CONFIG_AOM_HIGHBITDEPTH
-                                int use_hbd, int bd,
+                                 int use_hbd, int bd,
 #endif  // CONFIG_AOM_HIGHBITDEPTH
-                                uint8_t *ref, int r_width, int r_height,
-                                int r_stride, uint8_t *dst, int d_width,
-                                int d_height, int d_stride, int n_refinements);
+                                 uint8_t *ref, int r_width, int r_height,
+                                 int r_stride, uint8_t *dst, int d_width,
+                                 int d_height, int d_stride, int n_refinements);
 
 /*
   Computes "num_motions" candidate global motion parameters between two frames.
