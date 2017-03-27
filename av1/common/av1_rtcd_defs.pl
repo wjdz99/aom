@@ -608,7 +608,7 @@ if (aom_config("CONFIG_PVQ") eq "yes") {
 
 if ((aom_config("CONFIG_WARPED_MOTION") eq "yes") ||
     (aom_config("CONFIG_GLOBAL_MOTION") eq "yes")) {
-  add_proto qw/void av1_warp_affine/, "int32_t *mat, uint8_t *ref, int width, int height, int stride, uint8_t *pred, int p_col, int p_row, int p_width, int p_height, int p_stride, int subsampling_x, int subsampling_y, int ref_frm, int16_t alpha, int16_t beta, int16_t gamma, int16_t delta";
+  add_proto qw/void av1_warp_affine/, "int32_t *mat, const uint8_t *const ref, int width, int height, int stride, uint8_t *pred, int p_col, int p_row, int p_width, int p_height, int p_stride, int subsampling_x, int subsampling_y, int ref_frm, int16_t alpha, int16_t beta, int16_t gamma, int16_t delta";
   specialize qw/av1_warp_affine sse2/;
 
   if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
