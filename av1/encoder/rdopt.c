@@ -10161,6 +10161,17 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
     if (best_rd < mode_threshold[mode_index]) continue;
 
+#if CONFIG_LOWDELAY_COMPOUND  // Changes LL bitstream
+#if CONFIG_EXT_REFS
+    if (cpi->oxcf.pass == 0) {
+      if (!(LOWDELAY_MASK & 8) && (ref_frame == ALTREF_FRAME)) continue;
+      if (!(LOWDELAY_MASK & 4) && (ref_frame == BWDREF_FRAME)) continue;
+      if (!(LOWDELAY_MASK & 2) && (second_ref_frame == ALTREF_FRAME)) continue;
+      if (!(LOWDELAY_MASK & 1) && (second_ref_frame == BWDREF_FRAME)) continue;
+    }
+#endif
+#endif
+
     comp_pred = second_ref_frame > INTRA_FRAME;
     if (comp_pred) {
       if (!cpi->allow_comp_inter_inter) continue;
@@ -11844,9 +11855,21 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
                             tile_data->thresh_freq_fact[bsize][ref_index]))
       continue;
 
+#if CONFIG_LOWDELAY_COMPOUND  // Changes LL bitstream
+#if CONFIG_EXT_REFS
+    if (cpi->oxcf.pass == 0) {
+      if (!(LOWDELAY_MASK & 8) && (ref_frame == ALTREF_FRAME)) continue;
+      if (!(LOWDELAY_MASK & 4) && (ref_frame == BWDREF_FRAME)) continue;
+      if (!(LOWDELAY_MASK & 2) && (second_ref_frame == ALTREF_FRAME)) continue;
+      if (!(LOWDELAY_MASK & 1) && (second_ref_frame == BWDREF_FRAME)) continue;
+    }
+#endif
+#endif
+
     comp_pred = second_ref_frame > INTRA_FRAME;
     if (comp_pred) {
       if (!cpi->allow_comp_inter_inter) continue;
+
       if (!(cpi->ref_frame_flags & flag_list[second_ref_frame])) continue;
       // Do not allow compound prediction if the segment level reference frame
       // feature is in use as in this case there can only be one reference.
