@@ -41,8 +41,9 @@ int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
   for (r = 0; r < maxr; r++) {
     for (c = 0; c < maxc; c++) {
       skip = skip &&
-             cm->mi_grid_visible[(mi_row + r) * cm->mi_stride + mi_col + c]
-                 ->mbmi.skip;
+             (!cm->mi_grid_visible[(mi_row + r) * cm->mi_stride + mi_col + c] ||
+              cm->mi_grid_visible[(mi_row + r) * cm->mi_stride + mi_col + c]
+                  ->mbmi.skip);
     }
   }
   return skip;
@@ -68,7 +69,7 @@ int sb_compute_dering_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
     MODE_INFO **grid_row;
     grid_row = &grid[(mi_row + r) * cm->mi_stride + mi_col];
     for (c = 0; c < maxc; c++) {
-      if (!grid_row[c]->mbmi.skip) {
+      if (grid_row[c] && !grid_row[c]->mbmi.skip) {
         dlist[count].by = r;
         dlist[count].bx = c;
         count++;
@@ -201,34 +202,28 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                               MAX_MIB_SIZE * sbc]
               ->mbmi.boundary_info;
 #endif
+      MB_MODE_INFO *const mbmi =
+          &cm->mi_grid_visible[MAX_MIB_SIZE * sbr * cm->mi_stride +
+                               MAX_MIB_SIZE * sbc]
+               ->mbmi;
       if (!dering_left) cstart = -OD_FILT_HBORDER;
       nhb = AOMMIN(MAX_MIB_SIZE, cm->mi_cols - MAX_MIB_SIZE * sbc);
       nvb = AOMMIN(MAX_MIB_SIZE, cm->mi_rows - MAX_MIB_SIZE * sbr);
-      level = dering_level_table
-          [cm->cdef_strengths[cm->mi_grid_visible[MAX_MIB_SIZE * sbr *
-                                                      cm->mi_stride +
-                                                  MAX_MIB_SIZE * sbc]
-                                  ->mbmi.cdef_strength] /
-           CLPF_STRENGTHS];
+      level = !mbmi
+                  ? 0
+                  : dering_level_table[cm->cdef_strengths[mbmi->cdef_strength] /
+                                       CLPF_STRENGTHS];
       clpf_strength =
-          cm->cdef_strengths[cm->mi_grid_visible[MAX_MIB_SIZE * sbr *
-                                                     cm->mi_stride +
-                                                 MAX_MIB_SIZE * sbc]
-                                 ->mbmi.cdef_strength] %
-          CLPF_STRENGTHS;
+          !mbmi ? 0 : cm->cdef_strengths[mbmi->cdef_strength] % CLPF_STRENGTHS;
       clpf_strength += clpf_strength == 3;
-      uv_level = dering_level_table
-          [cm->cdef_uv_strengths[cm->mi_grid_visible[MAX_MIB_SIZE * sbr *
-                                                         cm->mi_stride +
-                                                     MAX_MIB_SIZE * sbc]
-                                     ->mbmi.cdef_strength] /
-           CLPF_STRENGTHS];
+      uv_level =
+          !mbmi
+              ? 0
+              : dering_level_table[cm->cdef_uv_strengths[mbmi->cdef_strength] /
+                                   CLPF_STRENGTHS];
       uv_clpf_strength =
-          cm->cdef_uv_strengths[cm->mi_grid_visible[MAX_MIB_SIZE * sbr *
-                                                        cm->mi_stride +
-                                                    MAX_MIB_SIZE * sbc]
-                                    ->mbmi.cdef_strength] %
-          CLPF_STRENGTHS;
+          !mbmi ? 0
+                : cm->cdef_uv_strengths[mbmi->cdef_strength] % CLPF_STRENGTHS;
       uv_clpf_strength += uv_clpf_strength == 3;
       curr_row_dering[sbc] = 0;
       if ((level == 0 && clpf_strength == 0 && uv_level == 0 &&
