@@ -1305,8 +1305,6 @@ static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   const int bh = block_size_high[bsize];
   const int suy = (mi_row * MI_SIZE + AOMMAX(bh, MI_SIZE) / 2 - 1) * 8;
   const int sux = (mi_col * MI_SIZE + AOMMAX(bw, MI_SIZE) / 2 - 1) * 8;
-  const int duy = suy + mvy;
-  const int dux = sux + mvx;
 
   // Assume the center pixel of the block has exactly the same motion vector
   // as transmitted for the block. First shift the origin of the source
@@ -1330,8 +1328,25 @@ static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   //
   // The loop below computes: A = P'P, Bx = P'q, By = P'r
   // We need to just compute inv(A).Bx and inv(A).By for the solutions.
+  int mv_count = 1;
+  int sum_mvy = mvy;
+  int sum_mvx = mvx;
+  for (i = 0; i < np; i += SAMPLES_PER_NEIGHBOR) {
+    sum_mvy += pts2[i * 2 + 1] - pts1[i * 2 + 1];
+    sum_mvx += pts2[i * 2] - pts1[i * 2];
+    mv_count++;
+  }
+
+  const int avg_mvy = (sum_mvy >= 0 ? 1 : -1) * ((abs(sum_mvy) + (mv_count >> 1)) / mv_count);
+  const int avg_mvx = (sum_mvx >= 0 ? 1 : -1) * ((abs(sum_mvx) + (mv_count >> 1)) / mv_count);
+  const int duy = suy + ROUND_POWER_OF_TWO_SIGNED(mvy * 15 + avg_mvy, 4);
+  const int dux = sux + ROUND_POWER_OF_TWO_SIGNED(mvx * 15 + avg_mvx, 4);
+
+  // printf("%d %d %d %d\n", mvx, mvy, avg_mvx, avg_mvy);
+
   for (j = 0; j < SAMPLES_PER_NEIGHBOR && n < LEAST_SQUARES_SAMPLES_MAX; ++j) {
     int sx, sy, dx, dy;
+
     // Contribution from neighbor block
     for (i = j; i < np && n < LEAST_SQUARES_SAMPLES_MAX;
          i += SAMPLES_PER_NEIGHBOR) {
