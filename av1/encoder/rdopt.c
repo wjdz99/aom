@@ -10149,6 +10149,27 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       }
     }
 
+#if CONFIG_LOWDELAY_COMPOUND  // Changes LL bitstream
+#if CONFIG_EXT_REFS
+    if (cpi->oxcf.pass == 0) {
+      if (!(LOWDELAY_MASK & 4)) {
+        ref_frame_skip_mask[0] |= (1 << BWDREF_FRAME);
+        ref_frame_skip_mask[1] |= (1 << AOMMAX(0, second_ref_frame));
+      }
+      if (second_ref_frame > INTRA_FRAME) {
+        if (!(LOWDELAY_MASK & 2)) {
+          ref_frame_skip_mask[0] |= (1 << ref_frame);
+          ref_frame_skip_mask[1] |= (1 << BWDREF_FRAME);
+        }
+        if (!(LOWDELAY_MASK & 1)) {
+          ref_frame_skip_mask[0] |= (1 << ref_frame);
+          ref_frame_skip_mask[1] |= (1 << ALTREF_FRAME);
+        }
+      }
+    }
+#endif
+#endif
+
     if ((ref_frame_skip_mask[0] & (1 << ref_frame)) &&
         (ref_frame_skip_mask[1] & (1 << AOMMAX(0, second_ref_frame))))
       continue;
@@ -11833,6 +11854,27 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
       }
     }
 
+#if CONFIG_LOWDELAY_COMPOUND  // Changes LL bitstream
+#if CONFIG_EXT_REFS
+    if (cpi->oxcf.pass == 0) {
+      if (!(LOWDELAY_MASK & 4)) {
+        ref_frame_skip_mask[0] |= (1 << BWDREF_FRAME);
+        ref_frame_skip_mask[1] |= (1 << AOMMAX(0, second_ref_frame));
+      }
+      if (second_ref_frame > INTRA_FRAME) {
+        if (!(LOWDELAY_MASK & 2)) {
+          ref_frame_skip_mask[0] |= (1 << ref_frame);
+          ref_frame_skip_mask[1] |= (1 << BWDREF_FRAME);
+        }
+        if (!(LOWDELAY_MASK & 1)) {
+          ref_frame_skip_mask[0] |= (1 << ref_frame);
+          ref_frame_skip_mask[1] |= (1 << ALTREF_FRAME);
+        }
+      }
+    }
+#endif
+#endif
+
     if ((ref_frame_skip_mask[0] & (1 << ref_frame)) &&
         (ref_frame_skip_mask[1] & (1 << AOMMAX(0, second_ref_frame))))
       continue;
@@ -11847,6 +11889,7 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
     comp_pred = second_ref_frame > INTRA_FRAME;
     if (comp_pred) {
       if (!cpi->allow_comp_inter_inter) continue;
+
       if (!(cpi->ref_frame_flags & flag_list[second_ref_frame])) continue;
       // Do not allow compound prediction if the segment level reference frame
       // feature is in use as in this case there can only be one reference.
