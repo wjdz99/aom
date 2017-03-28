@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ba61bac_e16d0f69",
+        "filename": "test/clpf_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-03-28T21:39:07Z",
+      "side": 1,
+      "message": "I think you deleted the wrong character here.",
+      "revId": "5a10b5e65b9a0e96dd86230f1565f8071b70d91b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
