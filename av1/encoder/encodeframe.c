@@ -5115,6 +5115,10 @@ static void encode_frame_internal(AV1_COMP *cpi) {
         }
         aom_clear_system_state();
       }
+      cpi->gmparams_cost[frame] =
+          gm_get_params_cost(&cm->global_motion[frame]) +
+          cpi->gmtype_cost[cm->global_motion[frame].wmtype] -
+          cpi->gmtype_cost[IDENTITY];
     }
     cpi->global_motion_search_done = 1;
   }

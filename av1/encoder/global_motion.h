@@ -44,6 +44,8 @@ double refine_integerized_param(WarpedMotionParams *wm,
                                 int r_stride, uint8_t *dst, int d_width,
                                 int d_height, int d_stride, int n_refinements);
 
+int gm_get_params_cost(WarpedMotionParams *gm);
+
 /*
   Computes "num_motions" candidate global motion parameters between two frames.
   The array "params_by_motion" should be length 8 * "num_motions", where the

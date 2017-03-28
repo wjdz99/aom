@@ -5129,24 +5129,15 @@ static int get_interinter_compound_type_bits(BLOCK_SIZE bsize,
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_GLOBAL_MOTION
-static int GLOBAL_MOTION_RATE(const AV1_COMP *const cpi, int ref) {
-  static const int gm_amortization_blks[TRANS_TYPES] = {
-    4, 6, 8, 10, 10, 10, 12
-  };
-  static const int gm_params_cost[TRANS_TYPES] = {
-    GM_IDENTITY_BITS,   GM_TRANSLATION_BITS,  GM_ROTZOOM_BITS,
-    GM_AFFINE_BITS,     GM_HORTRAPEZOID_BITS, GM_VERTRAPEZOID_BITS,
-    GM_HOMOGRAPHY_BITS,
-  };
-  const WarpedMotionParams *gm = &cpi->common.global_motion[(ref)];
-  assert(gm->wmtype < GLOBAL_TRANS_TYPES);
-  if (cpi->global_motion_used[ref][0] >= gm_amortization_blks[gm->wmtype]) {
+static int GLOBAL_MOTION_RATE(const AV1_COMP *const cpi, int ref,
+                              BLOCK_SIZE bsize) {
+  const int factor = cpi->gmparams_cost[ref] / 512;
+  const int num_4x4_blocks =
+      num_4x4_blocks_wide_lookup[bsize] * num_4x4_blocks_high_lookup[bsize];
+  if (cpi->global_motion_used[ref][1] * factor >= cpi->gmparams_cost[ref])
     return 0;
-  } else {
-    const int cost = (gm_params_cost[gm->wmtype] << AV1_PROB_COST_SHIFT) +
-                     cpi->gmtype_cost[gm->wmtype];
-    return cost / gm_amortization_blks[gm->wmtype];
-  }
+  else
+    return factor * num_4x4_blocks;
 }
 #endif  // CONFIG_GLOBAL_MOTION
 
