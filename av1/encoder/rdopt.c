@@ -33,9 +33,6 @@
 #include "av1/common/reconintra.h"
 #include "av1/common/scan.h"
 #include "av1/common/seg_common.h"
-#if CONFIG_LV_MAP
-#include "av1/common/txb_common.h"
-#endif
 #if CONFIG_WARPED_MOTION
 #include "av1/common/warped_motion.h"
 #endif  // CONFIG_WARPED_MOTION
@@ -46,9 +43,6 @@
 #include "av1/encoder/encodemb.h"
 #include "av1/encoder/encodemv.h"
 #include "av1/encoder/encoder.h"
-#if CONFIG_LV_MAP
-#include "av1/encoder/encodetxb.h"
-#endif
 #include "av1/encoder/hybrid_fwd_txfm.h"
 #include "av1/encoder/mcomp.h"
 #if CONFIG_PALETTE
@@ -1124,11 +1118,10 @@ static int64_t av1_block_error2_c(const tran_low_t *coeff,
  * can skip this if the last coefficient in this transform block, e.g. the
  * 16th coefficient in a 4x4 block or the 64th coefficient in a 8x8 block,
  * were non-zero). */
-#if !CONFIG_LV_MAP
-static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
-                       int block, TX_SIZE tx_size, const SCAN_ORDER *scan_order,
-                       const ENTROPY_CONTEXT *a, const ENTROPY_CONTEXT *l,
-                       int use_fast_coef_costing) {
+int av1_cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
+                    int block, TX_SIZE tx_size, const SCAN_ORDER *scan_order,
+                    const ENTROPY_CONTEXT *a, const ENTROPY_CONTEXT *l,
+                    int use_fast_coef_costing) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   const struct macroblock_plane *p = &x->plane[plane];
@@ -1265,39 +1258,6 @@ static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
   }
 
   return cost;
-}
-#endif  // !CONFIG_LV_MAP
-
-int av1_cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
-                    int block, TX_SIZE tx_size, const SCAN_ORDER *scan_order,
-                    const ENTROPY_CONTEXT *a, const ENTROPY_CONTEXT *l,
-                    int use_fast_coef_costing) {
-#if !CONFIG_LV_MAP
-  return cost_coeffs(cm, x, plane, block, tx_size, scan_order, a, l,
-                     use_fast_coef_costing);
-#else  // !CONFIG_LV_MAP
-  (void)scan_order;
-  (void)use_fast_coef_costing;
-  const MACROBLOCKD *xd = &x->e_mbd;
-  const MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  const struct macroblockd_plane *pd = &xd->plane[plane];
-  const BLOCK_SIZE bsize = mbmi->sb_type;
-#if CONFIG_CB4X4
-#if CONFIG_CHROMA_2X2
-  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
-#else
-  const BLOCK_SIZE plane_bsize =
-      AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
-#endif  // CONFIG_CHROMA_2X2
-#else   // CONFIG_CB4X4
-  const BLOCK_SIZE plane_bsize =
-      get_plane_block_size(AOMMAX(BLOCK_8X8, bsize), pd);
-#endif  // CONFIG_CB4X4
-
-  TXB_CTX txb_ctx;
-  get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
-  return av1_cost_coeffs_txb(cm, x, plane, block, &txb_ctx);
-#endif  // !CONFIG_LV_MAP
 }
 #endif  // !CONFIG_PVQ || CONFIG_VAR_TX
 
@@ -2690,10 +2650,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
   assert(bsize < BLOCK_8X8);
   assert(tx_width < 8 || tx_height < 8);
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
-  if (is_lossless)
-    assert(tx_width == 4 && tx_height == 4);
-  else
-    assert(tx_width == pred_block_width && tx_height == pred_block_height);
+  assert(tx_width == pred_block_width && tx_height == pred_block_height);
 #else
   assert(tx_width == 4 && tx_height == 4);
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
@@ -3230,6 +3187,7 @@ static int64_t rd_pick_intra_sub_8x8_y_mode(const AV1_COMP *const cpi,
 
         bmode_costs = cpi->y_mode_costs[A][L];
       }
+
       this_rd = rd_pick_intra_sub_8x8_y_subblock_mode(
           cpi, mb, idy, idx, &best_mode, bmode_costs,
           xd->plane[0].above_context + idx, xd->plane[0].left_context + idy, &r,
@@ -5129,24 +5087,15 @@ static int get_interinter_compound_type_bits(BLOCK_SIZE bsize,
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_GLOBAL_MOTION
-static int GLOBAL_MOTION_RATE(const AV1_COMP *const cpi, int ref) {
-  static const int gm_amortization_blks[TRANS_TYPES] = {
-    4, 6, 8, 10, 10, 10, 12
-  };
-  static const int gm_params_cost[TRANS_TYPES] = {
-    GM_IDENTITY_BITS,   GM_TRANSLATION_BITS,  GM_ROTZOOM_BITS,
-    GM_AFFINE_BITS,     GM_HORTRAPEZOID_BITS, GM_VERTRAPEZOID_BITS,
-    GM_HOMOGRAPHY_BITS,
-  };
-  const WarpedMotionParams *gm = &cpi->common.global_motion[(ref)];
-  assert(gm->wmtype < GLOBAL_TRANS_TYPES);
-  if (cpi->global_motion_used[ref][0] >= gm_amortization_blks[gm->wmtype]) {
+static int GLOBAL_MOTION_RATE(const AV1_COMP *const cpi, int ref,
+                              BLOCK_SIZE bsize) {
+  const int factor = cpi->gmparams_cost[ref] / 512;
+  const int num_4x4_blocks =
+      num_4x4_blocks_wide_lookup[bsize] * num_4x4_blocks_high_lookup[bsize];
+  if (cpi->global_motion_used[ref][1] * factor >= cpi->gmparams_cost[ref])
     return 0;
-  } else {
-    const int cost = (gm_params_cost[gm->wmtype] << AV1_PROB_COST_SHIFT) +
-                     cpi->gmtype_cost[gm->wmtype];
-    return cost / gm_amortization_blks[gm->wmtype];
-  }
+  else
+    return factor * num_4x4_blocks;
 }
 #endif  // CONFIG_GLOBAL_MOTION
 
@@ -5221,7 +5170,8 @@ static int set_and_cost_bmi_mvs(
                 cpi->common.allow_high_precision_mv, mbmi->sb_type, mi_col,
                 mi_row, i)
                 .as_int;
-        thismvcost += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[ref]);
+        thismvcost +=
+            GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[ref], mbmi->sb_type);
 #else
         this_mv[ref].as_int = 0;
 #endif  // CONFIG_GLOBAL_MOTION
@@ -5284,8 +5234,8 @@ static int set_and_cost_bmi_mvs(
                                cpi->common.allow_high_precision_mv,
                                mbmi->sb_type, mi_col, mi_row, i)
               .as_int;
-      thismvcost += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[0]) +
-                    GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[1]);
+      thismvcost += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[0], mbmi->sb_type) +
+                    GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[1], mbmi->sb_type);
 #else
       this_mv[0].as_int = 0;
       this_mv[1].as_int = 0;
@@ -8659,9 +8609,11 @@ static int64_t motion_mode_rd(
         || this_mode == ZERO_ZEROMV
 #endif  // CONFIG_EXT_INTER
         ) {
-      rd_stats->rate += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[0]);
+      rd_stats->rate +=
+          GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[0], mbmi->sb_type);
       if (is_comp_pred)
-        rd_stats->rate += GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[1]);
+        rd_stats->rate +=
+            GLOBAL_MOTION_RATE(cpi, mbmi->ref_frame[1], mbmi->sb_type);
       if (is_nontrans_global_motion(xd)) {
         rd_stats->rate -= rs;
 #if CONFIG_DUAL_FILTER

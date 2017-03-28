@@ -1137,9 +1137,6 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
     pd[i].pvq_ref_coeff = ctx->pvq_ref_coeff[i];
 #endif
     p[i].eobs = ctx->eobs[i];
-#if CONFIG_LV_MAP
-    p[i].txb_entropy_ctx = ctx->txb_entropy_ctx[i];
-#endif  // CONFIG_LV_MAP
   }
 #if CONFIG_PALETTE
   for (i = 0; i < 2; ++i) pd[i].color_index_map = ctx->color_index_map[i];
@@ -1859,9 +1856,6 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     pd[i].pvq_ref_coeff = ctx->pvq_ref_coeff[i];
 #endif
     p[i].eobs = ctx->eobs[i];
-#if CONFIG_LV_MAP
-    p[i].txb_entropy_ctx = ctx->txb_entropy_ctx[i];
-#endif
   }
 
 #if CONFIG_PALETTE
@@ -5115,6 +5109,10 @@ static void encode_frame_internal(AV1_COMP *cpi) {
         }
         aom_clear_system_state();
       }
+      cpi->gmparams_cost[frame] =
+          gm_get_params_cost(&cm->global_motion[frame]) +
+          cpi->gmtype_cost[cm->global_motion[frame].wmtype] -
+          cpi->gmtype_cost[IDENTITY];
     }
     cpi->global_motion_search_done = 1;
   }
@@ -6832,6 +6830,7 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
     ENTROPY_CONTEXT ctxa[2 * MAX_MIB_SIZE];
     ENTROPY_CONTEXT ctxl[2 * MAX_MIB_SIZE];
     const struct macroblockd_plane *const pd = &xd->plane[plane];
+    int coeff_ctx = 1;
     RD_STATS this_rd_stats;
     av1_init_rd_stats(&this_rd_stats);
 
@@ -6839,10 +6838,11 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
     tx_size =
         uv_txsize_lookup[bsize][tx_size][cm->subsampling_x][cm->subsampling_y];
     av1_get_entropy_contexts(bsize, tx_size, pd, ctxa, ctxl);
+    coeff_ctx = combine_entropy_contexts(ctxa[0], ctxl[0]);
 
     av1_subtract_plane(x, bsize, plane);
     av1_tx_block_rd_b(cpi, x, tx_size, 0, 0, plane, 0,
-                      get_plane_block_size(bsize, pd), &ctxa[0], &ctxl[0],
+                      get_plane_block_size(bsize, pd), coeff_ctx,
                       &this_rd_stats);
 
     this_rate = this_rd_stats.rate;
@@ -6875,6 +6875,7 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
     ENTROPY_CONTEXT ctxa[2 * MAX_MIB_SIZE];
     ENTROPY_CONTEXT ctxl[2 * MAX_MIB_SIZE];
     const struct macroblockd_plane *const pd = &xd->plane[0];
+    int coeff_ctx = 1;
     RD_STATS this_rd_stats;
 #endif  // CONFIG_VAR_TX
 
@@ -6887,8 +6888,10 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
 
 #if CONFIG_VAR_TX
     av1_init_rd_stats(&this_rd_stats);
+
     av1_get_entropy_contexts(bsize, tx_size, pd, ctxa, ctxl);
-    av1_tx_block_rd_b(cpi, x, tx_size, 0, 0, 0, 0, bsize, &ctxa[0], &ctxl[0],
+    coeff_ctx = combine_entropy_contexts(ctxa[0], ctxl[0]);
+    av1_tx_block_rd_b(cpi, x, tx_size, 0, 0, 0, 0, bsize, coeff_ctx,
                       &this_rd_stats);
 
     this_rate = this_rd_stats.rate;
