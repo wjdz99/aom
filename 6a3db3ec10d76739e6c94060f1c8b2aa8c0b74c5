@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c4a9e9b1_665c6840",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-03-28T22:47:13Z",
+      "side": 1,
+      "message": "Agree.  It\u0027s like that so clpf_block could know whether it was at an edge or not, but that\u0027s no issue now.  Also, I can switch the src/dst order to match that of dering.  And finally, we don\u0027t have to senc bx and by to clpf_block anymore (for y we were subtracting bx,by and passing bx,by to clpf_block so it could add them again!)\n\nThese changes make this patch a big larger, though, but I think it makes sense to do this cleanup right away.",
+      "parentUuid": "4c0e8d10_67cd4ea2",
+      "range": {
+        "startLine": 359,
+        "startChar": 41,
+        "endLine": 359,
+        "endChar": 44
+      },
+      "revId": "6a3db3ec10d76739e6c94060f1c8b2aa8c0b74c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c38a55f5_f332e435",
         "filename": "av1/common/od_dering.c",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-28T18:59:43Z",
       "side": 1,
       "message": "Sounds like you want to remove the \"if (dst) return;\" and just make the code below part of an \"else\" statement.",
+      "range": {
+        "startLine": 372,
+        "startChar": 13,
+        "endLine": 372,
+        "endChar": 19
+      },
+      "revId": "6a3db3ec10d76739e6c94060f1c8b2aa8c0b74c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cfeeef5b_dcc69b96",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-03-28T22:47:13Z",
+      "side": 1,
+      "message": "It\u0027s not exactly the same thing, for a case !dst \u0026\u0026 !clpf_strength, but that combination never happens so what you suggest is fine.  The confusing bit here is that when od_dering() is called from pickcdef, we don\u0027t want to convert to 8 bit (at least, not now, later perhaps we want to compute mse based on 8 bit data).  So pickcdef will use NULL as the 8 bit destination, which makes the function behave as before.",
+      "parentUuid": "c38a55f5_f332e435",
       "range": {
         "startLine": 372,
         "startChar": 13,
