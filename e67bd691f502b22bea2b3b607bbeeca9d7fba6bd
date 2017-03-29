@@ -22,6 +22,30 @@
       "revId": "e67bd691f502b22bea2b3b607bbeeca9d7fba6bd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d24e960_df4329f2",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-03-29T15:26:56Z",
+      "side": 1,
+      "message": "The cdef indeed remains to operate at 8x8 block for luma and 4x4 for chroma. It is just an indexing part change to support the use of 4x4 coding block.",
+      "parentUuid": "fb23442d_4bf5d5ad",
+      "range": {
+        "startLine": 142,
+        "startChar": 4,
+        "endLine": 142,
+        "endChar": 14
+      },
+      "revId": "e67bd691f502b22bea2b3b607bbeeca9d7fba6bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
