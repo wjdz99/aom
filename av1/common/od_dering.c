@@ -262,21 +262,25 @@ static INLINE void copy_4x4_16bit_to_8bit(uint8_t *dst, int dstride,
 /* TODO: Optimize this function for SSE. */
 static void copy_dering_16bit_to_8bit(uint8_t *dst, int dstride, uint16_t *src,
                                       dering_list *dlist, int dering_count,
-                                      int bsize) {
+                                      BLOCK_SIZE bsize) {
   int bi, bx, by;
-  if (bsize == 3) {
+  const int mi_size_l2 = (bsize == BLOCK_8X8) ? MI_SIZE_LOG2 : MI_SIZE_LOG2 - 1;
+
+  if (bsize == BLOCK_8X8) {
     for (bi = 0; bi < dering_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
-      copy_8x8_16bit_to_8bit(&dst[(by << 3) * dstride + (bx << 3)], dstride,
-                             &src[bi << 2 * bsize], 1 << bsize);
+      copy_8x8_16bit_to_8bit(
+          &dst[(by << mi_size_l2) * dstride + (bx << mi_size_l2)], dstride,
+          &src[bi << (2 * 3)], 8);
     }
   } else {
     for (bi = 0; bi < dering_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
-      copy_4x4_16bit_to_8bit(&dst[(by << 2) * dstride + (bx << 2)], dstride,
-                             &src[bi << 2 * bsize], 1 << bsize);
+      copy_4x4_16bit_to_8bit(
+          &dst[(by << mi_size_l2) * dstride + (bx << mi_size_l2)], dstride,
+          &src[bi << (2 * 2)], 4);
     }
   }
 }
@@ -355,23 +359,30 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
     if (threshold && !skip_dering)
       copy_dering_16bit_to_16bit(in, OD_FILT_BSTRIDE, y, dlist, dering_count,
                                  xdec ? BLOCK_4X4 : BLOCK_8X8);
+
     for (bi = 0; bi < dering_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
 
+#if CONFIG_CB4X4
+      const int y_offset = ((bi - by / 2) << 2 * bsize) - ((bx / 2) << bsize);
+#else
+      const int y_offset = ((bi - by) << 2 * bsize) - (bx << bsize);
+#endif
       (!threshold || (dir[by][bx] < 4 && dir[by][bx]) ? aom_clpf_block_hbd
                                                       : aom_clpf_hblock_hbd)(
-          in, &y[((bi - by) << 2 * bsize) - (bx << bsize)], OD_FILT_BSTRIDE,
-          1 << bsize, bx << mi_size_l2, by << mi_size_l2, 1 << bsize,
-          1 << bsize, clpf_strength << coeff_shift, clpf_damping + coeff_shift);
+          in, &y[y_offset], OD_FILT_BSTRIDE, 1 << bsize, bx << mi_size_l2,
+          by << mi_size_l2, 1 << bsize, 1 << bsize,
+          clpf_strength << coeff_shift, clpf_damping + coeff_shift);
     }
   }
   if (dst) {
     if (hbd) {
       copy_dering_16bit_to_16bit((uint16_t *)dst, dstride, y, dlist,
-                                 dering_count, 3 - xdec);
+                                 dering_count, xdec ? BLOCK_4X4 : BLOCK_8X8);
     } else {
-      copy_dering_16bit_to_8bit(dst, dstride, y, dlist, dering_count, bsize);
+      copy_dering_16bit_to_8bit(dst, dstride, y, dlist, dering_count,
+                                xdec ? BLOCK_4X4 : BLOCK_8X8);
     }
   }
 }
