@@ -1301,9 +1301,75 @@ int av1_cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
 }
 #endif  // !CONFIG_PVQ || CONFIG_VAR_TX
 
-static void dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
-                       int blk_row, int blk_col, TX_SIZE tx_size,
-                       int64_t *out_dist, int64_t *out_sse) {
+static INLINE int num_4x4_to_edge(int plane_4x4_dim, int mb_to_edge_dim,
+                                  int subsampling_dim, int blk_dim) {
+  return plane_4x4_dim + (mb_to_edge_dim >> (5 + subsampling_dim)) - blk_dim;
+}
+
+// Compute the pixel domain sum square error on all visible 4x4s in the
+// transform block.
+static unsigned pixel_sse(const AV1_COMP *const cpi, const MACROBLOCKD *xd,
+                          const struct macroblockd_plane *const pd,
+                          const uint8_t *src, const int src_stride,
+                          const uint8_t *dst, const int dst_stride, int blk_row,
+                          int blk_col, const BLOCK_SIZE plane_bsize,
+                          const BLOCK_SIZE tx_bsize) {
+  unsigned int sse = 0;
+  const int plane_4x4_w = num_4x4_blocks_wide_lookup[plane_bsize];
+  const int plane_4x4_h = num_4x4_blocks_high_lookup[plane_bsize];
+  const int tx_4x4_w = num_4x4_blocks_wide_lookup[tx_bsize];
+  const int tx_4x4_h = num_4x4_blocks_high_lookup[tx_bsize];
+  int b4x4s_to_right_edge = num_4x4_to_edge(plane_4x4_w, xd->mb_to_right_edge,
+                                            pd->subsampling_x, blk_col);
+  int b4x4s_to_bottom_edge = num_4x4_to_edge(plane_4x4_h, xd->mb_to_bottom_edge,
+                                             pd->subsampling_y, blk_row);
+  if (tx_bsize == BLOCK_4X4 ||
+      (b4x4s_to_right_edge >= tx_4x4_w && b4x4s_to_bottom_edge >= tx_4x4_h)) {
+    cpi->fn_ptr[tx_bsize].vf(src, src_stride, dst, dst_stride, &sse);
+  } else {
+    const aom_variance_fn_t vf_4x4 = cpi->fn_ptr[BLOCK_4X4].vf;
+    int r, c;
+    unsigned this_sse = 0;
+    int max_r = AOMMIN(b4x4s_to_bottom_edge, tx_4x4_h);
+    int max_c = AOMMIN(b4x4s_to_right_edge, tx_4x4_w);
+    sse = 0;
+    // if we are in the unrestricted motion border.
+    for (r = 0; r < max_r; ++r) {
+      // Skip visiting the sub blocks that are wholly within the UMV.
+      for (c = 0; c < max_c; ++c) {
+        vf_4x4(src + r * src_stride * 4 + c * 4, src_stride,
+               dst + r * dst_stride * 4 + c * 4, dst_stride, &this_sse);
+        sse += this_sse;
+      }
+    }
+  }
+  return sse;
+}
+
+// Compute the squares sum squares on all visible 4x4s in the transform block.
+static int64_t sum_squares_visible(const MACROBLOCKD *xd,
+                                   const struct macroblockd_plane *const pd,
+                                   const int16_t *diff, const int diff_stride,
+                                   int blk_row, int blk_col,
+                                   const BLOCK_SIZE plane_bsize,
+                                   const BLOCK_SIZE tx_bsize) {
+  const int plane_4x4_w = num_4x4_blocks_wide_lookup[plane_bsize];
+  const int plane_4x4_h = num_4x4_blocks_high_lookup[plane_bsize];
+  const int tx_4x4_w = num_4x4_blocks_wide_lookup[tx_bsize];
+  const int tx_4x4_h = num_4x4_blocks_high_lookup[tx_bsize];
+  int b4x4s_to_right_edge = num_4x4_to_edge(plane_4x4_w, xd->mb_to_right_edge,
+                                            pd->subsampling_x, blk_col);
+  int b4x4s_to_bottom_edge = num_4x4_to_edge(plane_4x4_h, xd->mb_to_bottom_edge,
+                                             pd->subsampling_y, blk_row);
+  int max_r = AOMMIN(b4x4s_to_bottom_edge, tx_4x4_h);
+  int max_c = AOMMIN(b4x4s_to_right_edge, tx_4x4_w);
+  return aom_sum_squares_2d_i16(diff, diff_stride, max_c * 4, max_r * 4);
+}
+
+static void dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
+                       BLOCK_SIZE plane_bsize, int block, int blk_row,
+                       int blk_col, TX_SIZE tx_size, int64_t *out_dist,
+                       int64_t *out_sse) {
   MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblock_plane *const p = &x->plane[plane];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -1376,7 +1442,8 @@ static void dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
         tmp = 0;
     } else
 #endif  // CONFIG_DAALA_DIST
-      cpi->fn_ptr[tx_bsize].vf(src, src_stride, dst, dst_stride, &tmp);
+      tmp = pixel_sse(cpi, xd, pd, src, src_stride, dst, dst_stride, blk_row,
+                      blk_col, plane_bsize, tx_bsize);
 
     *out_sse = (int64_t)tmp * 16;
 
@@ -1431,7 +1498,8 @@ static void dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
           tmp = 0;
       } else
 #endif  // CONFIG_DAALA_DIST
-        cpi->fn_ptr[tx_bsize].vf(src, src_stride, recon, MAX_TX_SIZE, &tmp);
+        tmp = pixel_sse(cpi, xd, pd, src, src_stride, recon, MAX_TX_SIZE,
+                        blk_row, blk_col, plane_bsize, tx_bsize);
     }
     *out_dist = (int64_t)tmp * 16;
   }
@@ -1445,12 +1513,6 @@ static int rate_block(int plane, int block, const ENTROPY_CONTEXT *a,
                          args->scan_order, a, l, args->use_fast_coef_costing);
 }
 #endif  // !CONFIG_PVQ
-
-static uint64_t sum_squares_2d(const int16_t *diff, int diff_stride,
-                               TX_SIZE tx_size) {
-  return aom_sum_squares_2d_i16(diff, diff_stride, tx_size_wide[tx_size],
-                                tx_size_high[tx_size]);
-}
 
 static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
                           BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
@@ -1487,13 +1549,12 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
     av1_encode_block_intra(plane, block, blk_row, blk_col, plane_bsize, tx_size,
                            &b_args);
     if (args->cpi->sf.use_transform_domain_distortion && !CONFIG_DAALA_DIST) {
-      dist_block(args->cpi, x, plane, block, blk_row, blk_col, tx_size,
-                 &this_rd_stats.dist, &this_rd_stats.sse);
+      dist_block(args->cpi, x, plane, plane_bsize, block, blk_row, blk_col,
+                 tx_size, &this_rd_stats.dist, &this_rd_stats.sse);
     } else {
       // Note that the encode block_intra call above already calls
       // av1_inv_txfm_add, so we can't just call dist_block here.
       const BLOCK_SIZE tx_bsize = txsize_to_bsize[tx_size];
-      const aom_variance_fn_t variance = args->cpi->fn_ptr[tx_bsize].vf;
       const struct macroblock_plane *const p = &x->plane[plane];
       const struct macroblockd_plane *const pd = &xd->plane[plane];
 
@@ -1534,7 +1595,8 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
       } else
 #endif  // CONFIG_DAALA_DIST
       {
-        this_rd_stats.sse = sum_squares_2d(diff, diff_stride, tx_size);
+        this_rd_stats.sse = sum_squares_visible(
+            xd, pd, diff, diff_stride, blk_row, blk_col, plane_bsize, tx_bsize);
 
 #if CONFIG_AOM_HIGHBITDEPTH
         if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
@@ -1557,7 +1619,8 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
           tmp = 0;
       } else
 #endif  // CONFIG_DAALA_DIST
-        variance(src, src_stride, dst, dst_stride, &tmp);
+        tmp = pixel_sse(args->cpi, xd, pd, src, src_stride, dst, dst_stride,
+                        blk_row, blk_col, plane_bsize, tx_bsize);
       this_rd_stats.dist = (int64_t)tmp * 16;
     }
   } else {
@@ -1573,8 +1636,8 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
     if (x->plane[plane].eobs[block] && !xd->lossless[mbmi->segment_id])
       av1_optimize_b(cm, x, plane, block, tx_size, coeff_ctx);
 #endif  // !CONFIG_PVQ
-    dist_block(args->cpi, x, plane, block, blk_row, blk_col, tx_size,
-               &this_rd_stats.dist, &this_rd_stats.sse);
+    dist_block(args->cpi, x, plane, plane_bsize, block, blk_row, blk_col,
+               tx_size, &this_rd_stats.dist, &this_rd_stats.sse);
   }
 
   rd = RDCOST(x->rdmult, x->rddiv, 0, this_rd_stats.dist);
@@ -3897,6 +3960,13 @@ static int super_block_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x,
 }
 
 #if CONFIG_VAR_TX
+// FIXME crop these calls
+static uint64_t sum_squares_2d(const int16_t *diff, int diff_stride,
+                               TX_SIZE tx_size) {
+  return aom_sum_squares_2d_i16(diff, diff_stride, tx_size_wide[tx_size],
+                                tx_size_high[tx_size]);
+}
+
 void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
                        int blk_row, int blk_col, int plane, int block,
                        int plane_bsize, const ENTROPY_CONTEXT *a,
@@ -5360,8 +5430,8 @@ static int64_t encode_inter_mb_segment_sub8x8(
       av1_xform_quant(cm, x, 0, block, idy + (i >> 1), idx + (i & 0x01),
                       BLOCK_8X8, tx_size, coeff_ctx, AV1_XFORM_QUANT_FP);
 #endif  // !CONFIG_PVQ
-      dist_block(cpi, x, 0, block, idy + (i >> 1), idx + (i & 0x1), tx_size,
-                 &dist, &ssz);
+      dist_block(cpi, x, 0, plane_bsize, block, idy + (i >> 1), idx + (i & 0x1),
+                 tx_size, &dist, &ssz);
       thisdistortion += dist;
       thissse += ssz;
 #if !CONFIG_PVQ
