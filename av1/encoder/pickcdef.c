@@ -122,19 +122,24 @@ uint64_t compute_dering_mse(uint16_t *dst, int dstride, uint16_t *src,
                             BLOCK_SIZE bsize, int coeff_shift) {
   uint64_t sum = 0;
   int bi, bx, by;
+
+  const int mi_size_l2 = (bsize == BLOCK_8X8) ? MI_SIZE_LOG2 : MI_SIZE_LOG2 - 1;
+
   if (bsize == BLOCK_8X8) {
     for (bi = 0; bi < dering_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
-      sum += mse_8x8_16bit(&dst[(by << 3) * dstride + (bx << 3)], dstride,
-                           &src[bi << (2 * 3)], 8);
+      sum +=
+          mse_8x8_16bit(&dst[(by << mi_size_l2) * dstride + (bx << mi_size_l2)],
+                        dstride, &src[bi << (2 * 3)], 8);
     }
   } else {
     for (bi = 0; bi < dering_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
-      sum += mse_4x4_16bit(&dst[(by << 2) * dstride + (bx << 2)], dstride,
-                           &src[bi << (2 * 2)], 4);
+      sum +=
+          mse_4x4_16bit(&dst[(by << mi_size_l2) * dstride + (bx << mi_size_l2)],
+                        dstride, &src[bi << (2 * 2)], 4);
     }
   }
   return sum >> 2 * coeff_shift;
