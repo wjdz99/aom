@@ -661,8 +661,8 @@ static int is_affine_valid(WarpedMotionParams *wm) {
 
 static int is_affine_shear_allowed(int32_t alpha, int32_t beta, int32_t gamma,
                                    int32_t delta) {
-  if ((4 * abs(alpha) + 7 * abs(beta) >= (1 << WARPEDMODEL_PREC_BITS)) ||
-      (4 * abs(gamma) + 4 * abs(delta) >= (1 << WARPEDMODEL_PREC_BITS)))
+  if ((4 * abs(alpha) + 4 * abs(beta) > (1 << WARPEDMODEL_PREC_BITS)) ||
+      (4 * abs(gamma) + 4 * abs(delta) > (1 << WARPEDMODEL_PREC_BITS)))
     return 0;
   else
     return 1;
