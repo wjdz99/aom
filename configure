@@ -157,7 +157,7 @@ for t in ${all_targets}; do
 done
 
 if ! perl --version >/dev/null; then
-    die "Perl is required to build"
+    die "Perl is required to build"CHECK_MISSING
 fi
 
 
