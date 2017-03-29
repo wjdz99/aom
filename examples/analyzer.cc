@@ -61,6 +61,7 @@ class AV1Decoder {
   int getHeight() const;
 
   bool getAccountingStruct(Accounting **acct);
+  void computeBitsPerPixel();
   bool setInspectionCallback();
 
   static void inspect(void *decoder, void *data);
@@ -126,6 +127,27 @@ bool AV1Decoder::getAccountingStruct(Accounting **accounting) {
          AOM_CODEC_OK;
 }
 
+void AV1Decoder::computeBitsPerPixel() {
+  Accounting *acct;
+  int totals_q3[MAX_SYMBOL_TYPES] = { 0 };
+  int sym_count[MAX_SYMBOL_TYPES] = { 0 };
+  getAccountingStruct(&acct);
+  for (int i = 0; i < acct->syms.num_syms; i++) {
+    AccountingSymbol *s;
+    s = &acct->syms.syms[i];
+    totals_q3[s->id] += s->bits;
+    sym_count[s->id] += s->samples;
+  }
+  printf("=== Frame: %-3i ===\n", frame - 1);
+  for (int i = 0; i < acct->syms.dictionary.num_strs; i++) {
+    if (totals_q3[i]) {
+      printf("%30s = %10.3f (%f bit/symbol)\n", acct->syms.dictionary.strs[i],
+             (float)totals_q3[i] / 8, (float)totals_q3[i] / 8 / sym_count[i]);
+    }
+  }
+  printf("\n");
+}
+
 bool AV1Decoder::setInspectionCallback() {
   aom_inspect_init ii;
   ii.inspect_cb = AV1Decoder::inspect;
@@ -137,6 +159,10 @@ bool AV1Decoder::setInspectionCallback() {
 void AV1Decoder::inspect(void *pbi, void *data) {
   AV1Decoder *decoder = (AV1Decoder *)data;
   ifd_inspect(&decoder->frame_data, pbi);
+  if (decoder->frame_data.show_frame == 0) {
+    printf("Got hidden frame\n");
+    decoder->computeBitsPerPixel();
+  }
 }
 
 #define MIN_ZOOM (1)
@@ -277,31 +303,7 @@ void AnalyzerPanel::render() {
 }
 
 void AnalyzerPanel::computeBitsPerPixel() {
-  Accounting *acct;
-  double bpp_total;
-  int totals_q3[MAX_SYMBOL_TYPES] = { 0 };
-  int sym_count[MAX_SYMBOL_TYPES] = { 0 };
-  decoder.getAccountingStruct(&acct);
-  for (int j = 0; j < decoder.getHeight(); j++) {
-    for (int i = 0; i < decoder.getWidth(); i++) {
-      bpp_q3[j * decoder.getWidth() + i] = 0.0;
-    }
-  }
-  bpp_total = 0;
-  for (int i = 0; i < acct->syms.num_syms; i++) {
-    AccountingSymbol *s;
-    s = &acct->syms.syms[i];
-    totals_q3[s->id] += s->bits;
-    sym_count[s->id] += s->samples;
-  }
-  printf("=== Frame: %-3i ===\n", decoder.frame - 1);
-  for (int i = 0; i < acct->syms.dictionary.num_strs; i++) {
-    if (totals_q3[i]) {
-      printf("%30s = %10.3f (%f bit/symbol)\n", acct->syms.dictionary.strs[i],
-             (float)totals_q3[i] / 8, (float)totals_q3[i] / 8 / sym_count[i]);
-    }
-  }
-  printf("\n");
+  decoder.computeBitsPerPixel();
 }
 
 bool AnalyzerPanel::nextFrame() {
@@ -314,7 +316,7 @@ bool AnalyzerPanel::nextFrame() {
 
 void AnalyzerPanel::refresh() {
   if (bit_accounting) {
-    computeBitsPerPixel();
+    decoder.computeBitsPerPixel();
   }
   render();
 }
