@@ -132,7 +132,15 @@ typedef struct {
 #define GM_ROW3HOMO_DECODE_FACTOR (1 << GM_ROW3HOMO_PREC_DIFF)
 
 #define GM_TRANS_MAX (1 << GM_ABS_TRANS_BITS)
-#define GM_ALPHA_MAX (1 << GM_ABS_ALPHA_BITS)
+
+// The restriction on shearing based affine warp expect the
+// parameters alpha, beta, gamma, delta to be less than 1 / 11
+// each. So if (1 << GM_ABS_ALPHA_BITS) / (1 << GM_ALPHA_PREC_BITS)
+// is more than 1/11, we have to retrict it further.
+// In other words, GM_ALPHA_MAX shold be the minimum of
+// (1 << GM_ABS_ALPHA_BITS) or (1 << GM_ALPHA_PREC_BITS) / 11
+#define GM_ALPHA_MAX \
+    AOMMIN((1 << GM_ALPHA_PREC_BITS) / 11, (1 << GM_ABS_ALPHA_BITS))
 #define GM_ROW3HOMO_MAX (1 << GM_ABS_ROW3HOMO_BITS)
 
 #define GM_TRANS_MIN -GM_TRANS_MAX
