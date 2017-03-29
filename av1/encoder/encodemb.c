@@ -142,6 +142,8 @@ static inline int64_t get_token_bit_costs(
 #endif
 }
 
+#define USE_GREEDY_OPTIMIZE_B 1
+
 int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
                    TX_SIZE tx_size, int ctx) {
 #if !CONFIG_PVQ
@@ -156,7 +158,6 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   const int eob = p->eobs[block];
   const PLANE_TYPE plane_type = pd->plane_type;
-  const int default_eob = tx_size_2d[tx_size];
   const int16_t *const dequant_ptr = pd->dequant;
   const uint8_t *const band_translate = get_band_translate(tx_size);
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
@@ -177,16 +178,13 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
 #elif !CONFIG_AOM_QM
   const int dq_step[2] = { dequant_ptr[0] >> shift, dequant_ptr[1] >> shift };
 #endif  // CONFIG_NEW_QUANT
-  int next = eob, sz = 0;
+  int sz = 0;
   const int64_t rdmult = (mb->rdmult * plane_rd_mult[ref][plane_type]) >> 1;
   const int64_t rddiv = mb->rddiv;
   int64_t rd_cost0, rd_cost1;
   int rate0, rate1;
-  int64_t error0, error1;
   int16_t t0, t1;
-  int best, band = (eob < default_eob) ? band_translate[eob]
-                                       : band_translate[eob - 1];
-  int pt, i, final_eob;
+  int i, final_eob;
 #if CONFIG_AOM_HIGHBITDEPTH
   const int cat6_bits = av1_get_cat6_extrabits_size(tx_size, xd->bd);
 #else
@@ -194,17 +192,281 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
 #endif
   unsigned int(*token_costs)[2][COEFF_CONTEXTS][ENTROPY_TOKENS] =
       mb->token_costs[txsize_sqr_map[tx_size]][plane_type][ref];
+
+#if !USE_GREEDY_OPTIMIZE_B
+  const int default_eob = tx_size_2d[tx_size];
+  int next = eob;
+  int64_t error0, error1;
+  int best, band = (eob < default_eob) ? band_translate[eob]
+                                       : band_translate[eob - 1];
+  int pt;
   const uint16_t *band_counts = &band_count_table[tx_size][band];
   uint16_t band_left = eob - band_cum_count_table[tx_size][band] + 1;
   int shortcut = 0;
   int next_shortcut = 0;
+#endif
 
   assert((mb->qindex == 0) ^ (xd->lossless[xd->mi[0]->mbmi.segment_id] == 0));
 
-  token_costs += band;
-
   assert((!plane_type && !plane) || (plane_type && plane));
-  assert(eob <= default_eob);
+  assert(eob <= tx_size_2d[tx_size]);
+
+#if USE_GREEDY_OPTIMIZE_B
+  for (i = 0; i < eob; i++) {
+    const int rc = scan[i];
+    int x = qcoeff[rc];
+    t0 = av1_get_token(x);
+
+    tokens[i][0].qc = x;
+    tokens[i][0].token = t0;
+    tokens[i][0].dqc = dqcoeff[rc];
+
+    token_cache[rc] = av1_pt_energy_class[t0];
+  }
+  tokens[eob][0].token = EOB_TOKEN;
+  tokens[eob][0].qc = 0;
+  tokens[eob][0].dqc = 0;
+  tokens[eob][1] = tokens[eob][0];
+
+  unsigned int(*token_costs_ptr)[2][COEFF_CONTEXTS][ENTROPY_TOKENS] =
+      token_costs;
+
+  final_eob = 0;
+
+  int64_t eob_cost0, eob_cost1;
+
+  const int ctx0 = ctx;
+  /* Record the r-d cost */
+  int64_t accu_rate = 0;
+  int64_t accu_error = 0;
+
+  rate0 = get_token_bit_costs(*(token_costs_ptr + band_translate[0]), 0, ctx0,
+                              EOB_TOKEN);
+  int64_t best_block_rd_cost = RDCOST(rdmult, rddiv, rate0, accu_error);
+
+  int x_prev = 1;
+
+  for (i = 0; i < eob; i++) {
+    const int rc = scan[i];
+    int x = qcoeff[rc];
+    sz = -(x < 0);
+
+    int dx0 = (coeff[rc]) * (1 << shift);
+#if CONFIG_AOM_HIGHBITDEPTH
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      dx0 >>= xd->bd - 8;
+    }
+#endif
+    int64_t d0 = dx0 * dx0;
+
+    const int band_cur = band_translate[i];
+    const int ctx_cur = (i == 0) ? ctx : get_coef_context(nb, token_cache, i);
+    const int token_tree_sel_cur = (x_prev == 0);
+
+    if (x == 0) {
+      // no need to search when x == 0
+      rate0 =
+          get_token_bit_costs(*(token_costs_ptr + band_cur), token_tree_sel_cur,
+                              ctx_cur, tokens[i][0].token);
+      accu_rate += rate0;
+      x_prev = 0;
+      // accu_error does not change when x==0
+    } else {
+      int x_a = x - 2 * sz - 1;
+      int64_t d2, d2_a;
+
+      /*  Computing distortion
+       */
+      // compute the distortion for the first candidate
+      // and the distortion for quantizing to 0.
+      int dx;
+
+#if CONFIG_AOM_QM
+      int iwt = iqmatrix[rc];
+      dqv = dequant_ptr[rc != 0];
+      dqv = ((iwt * (int)dqv) + (1 << (AOM_QM_BITS - 1))) >> AOM_QM_BITS;
+#else
+      dqv = dequant_ptr[rc != 0];
+#endif
+
+      dx = (dqcoeff[rc] - coeff[rc]) * (1 << shift);
+#if CONFIG_AOM_HIGHBITDEPTH
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+        dx >>= xd->bd - 8;
+      }
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+      d2 = dx * dx;
+
+/* compute the distortion for the second candidate
+ * x_a -= 2 * sz + 1;
+ */
+#if CONFIG_NEW_QUANT
+      dx = av1_dequant_coeff_nuq(x, dqv, dequant_val[band_translate[i]]) -
+           (coeff[rc] << shift);
+#if CONFIG_AOM_HIGHBITDEPTH
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+        dx >>= xd->bd - 8;
+      }
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+#else   // CONFIG_NEW_QUANT
+#if CONFIG_AOM_HIGHBITDEPTH
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+        dx -= ((dqv >> (xd->bd - 8)) + sz) ^ sz;
+      } else {
+        dx -= (dqv + sz) ^ sz;
+      }
+#else
+      dx -= (dqv + sz) ^ sz;
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_NEW_QUANT
+      d2_a = (int64_t)dx * dx;
+
+      /*  Computing rates and r-d cost
+       */
+      const int band_next = band_translate[i + 1];
+      int ctx_next, token_tree_sel_next;
+
+      int base_bits, next_bits0, next_bits1, best_x;
+      int best_eob_x;
+
+      // rate cost of x
+      base_bits = av1_get_token_cost(x, &t0, cat6_bits);
+      token_cache[rc] = av1_pt_energy_class[t0];
+
+      ctx_next = get_coef_context(nb, token_cache, i + 1);
+      token_tree_sel_next = (x == 0);
+
+      rate0 = base_bits + get_token_bit_costs(*(token_costs_ptr + band_cur),
+                                              token_tree_sel_cur, ctx_cur, t0);
+      next_bits0 = get_token_bit_costs(*(token_costs_ptr + band_next),
+                                       token_tree_sel_next, ctx_next,
+                                       tokens[i + 1][0].token);
+
+      rd_cost0 = RDCOST(rdmult, rddiv, (rate0 + next_bits0), d2);
+
+      eob_cost0 = INT64_MAX;
+      if (x != 0) {
+        next_bits0 =
+            get_token_bit_costs(*(token_costs_ptr + band_next),
+                                token_tree_sel_next, ctx_next, EOB_TOKEN);
+        eob_cost0 = RDCOST(rdmult, rddiv, (accu_rate + rate0 + next_bits0),
+                           (accu_error + d2 - d0));
+      }
+
+      // rate cost of x_a
+      base_bits = av1_get_token_cost(x_a, &t1, cat6_bits);
+      token_cache[rc] = av1_pt_energy_class[t1];
+
+      ctx_next = get_coef_context(nb, token_cache, i + 1);
+      token_tree_sel_next = (x_a == 0);
+
+      rate1 = base_bits + get_token_bit_costs(*(token_costs_ptr + band_cur),
+                                              token_tree_sel_cur, ctx_cur, t1);
+      next_bits1 = get_token_bit_costs(*(token_costs_ptr + band_next),
+                                       token_tree_sel_next, ctx_next,
+                                       tokens[i + 1][0].token);
+      rd_cost1 = RDCOST(rdmult, rddiv, (rate1 + next_bits1), d2_a);
+
+      eob_cost1 = INT64_MAX;
+      if (x_a != 0) {
+        next_bits1 =
+            get_token_bit_costs(*(token_costs_ptr + band_next),
+                                token_tree_sel_next, ctx_next, EOB_TOKEN);
+        eob_cost1 = RDCOST(rdmult, rddiv, (accu_rate + rate1 + next_bits1),
+                           (accu_error + d2_a - d0));
+      }
+
+      // record the decisions at scan position i
+      int dqc, dqc_a = 0;
+
+      best_x = (rd_cost1 < rd_cost0);
+      best_eob_x = (eob_cost1 < eob_cost0);
+
+      dqc = dqcoeff[rc];
+      if (best_x + best_eob_x) {
+        if (x_a != 0) {
+#if CONFIG_NEW_QUANT
+          dqc_a = av1_dequant_abscoeff_nuq(abs(x_a), dqv,
+                                           dequant_val[band_translate[i]]);
+          dqc_a = shift ? ROUND_POWER_OF_TWO(dqc_a, shift) : dqc_a;
+          if (sz) dqc_a = -dqc_a;
+#else
+// The 32x32 transform coefficient uses half quantization step size.
+// Account for the rounding difference in the dequantized coefficeint
+// value when the quantization index is dropped from an even number
+// to an odd number.
+
+#if CONFIG_AOM_QM
+          tran_low_t offset = dqv >> shift;
+#else
+          tran_low_t offset = dq_step[rc != 0];
+#endif
+          if (shift & x_a) offset += (dqv & 0x01);
+
+          if (sz == 0)
+            dqc_a = dqcoeff[rc] - offset;
+          else
+            dqc_a = dqcoeff[rc] + offset;
+#endif  // CONFIG_NEW_QUANT
+        } else {
+          dqc_a = 0;
+        }  // if (x_a != 0)
+      }
+
+      if (best_x) {
+        qcoeff[rc] = x_a;
+        dqcoeff[rc] = dqc_a;
+
+        accu_rate += rate1;
+        accu_error += d2_a - d0;
+
+        token_cache[rc] = av1_pt_energy_class[t1];
+      } else {
+        accu_rate += rate0;
+        accu_error += d2 - d0;
+
+        token_cache[rc] = av1_pt_energy_class[t0];
+      }
+
+      x_prev = qcoeff[rc];
+
+      int e = (best_eob_x) ? x_a : x;
+      int64_t best_eob_cost_i = (best_eob_x) ? eob_cost1 : eob_cost0;
+
+      if (e != 0) {
+        tokens[i][1].token = (best_eob_x) ? t1 : t0;
+        tokens[i][1].qc = e;
+        tokens[i][1].dqc = (best_eob_x) ? dqc_a : dqc;
+      }
+
+      if (best_eob_cost_i < best_block_rd_cost) {
+        best_block_rd_cost = best_eob_cost_i;
+        final_eob = i + 1;
+      }
+    }  // if (x==0)
+  }    // for (i)
+
+  assert(final_eob <= eob);
+  if (final_eob > 0) {
+    assert(tokens[final_eob - 1][1].qc != 0);
+    i = final_eob - 1;
+    const int rc = scan[i];
+    qcoeff[rc] = tokens[i][1].qc;
+    dqcoeff[rc] = tokens[i][1].dqc;
+  }
+
+  for (i = final_eob; i < eob; i++) {
+    const int rc = scan[i];
+    qcoeff[rc] = 0;
+    dqcoeff[rc] = 0;
+  }
+
+  mb->plane[plane].eobs[block] = final_eob;
+  return final_eob;
+
+#else
+
+  token_costs += band;
 
   /* Now set up a Viterbi trellis to evaluate alternative roundings. */
   /* Initialize the sentinel node of the trellis. */
@@ -486,6 +748,9 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
   mb->plane[plane].eobs[block] = final_eob;
   assert(final_eob <= default_eob);
   return final_eob;
+
+#endif  // CONFIG_GREEDY_OPTIMIZE_B
+
 #else   // !CONFIG_PVQ
   (void)cm;
   (void)tx_size;
