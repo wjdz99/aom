@@ -65,6 +65,8 @@ sub aom_config($) {
 }
 
 sub specialize {
+  # Make sure we have at least a function name and one architecture.
+  die $! if (@_ <= 1); 
   my $fn=$_[0];
   shift;
   foreach my $opt (@_) {
