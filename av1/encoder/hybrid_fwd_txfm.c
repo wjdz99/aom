@@ -152,7 +152,7 @@ static void fwd_txfm_64x64(const int16_t *src_diff, tran_low_t *coeff,
 }
 #endif  // CONFIG_TX64X64
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 #if CONFIG_CB4X4
 static void highbd_fwd_txfm_2x2(const int16_t *src_diff, tran_low_t *coeff,
                                 int diff_stride, TX_TYPE tx_type, int lossless,
@@ -401,7 +401,7 @@ static void highbd_fwd_txfm_64x64(const int16_t *src_diff, tran_low_t *coeff,
   }
 }
 #endif  // CONFIG_TX64X64
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
 void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
                   FWD_TXFM_PARAM *fwd_txfm_param) {
@@ -454,7 +454,7 @@ void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
   }
 }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 void av1_highbd_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff,
                          int diff_stride, FWD_TXFM_PARAM *fwd_txfm_param) {
   const int fwd_txfm_opt = FWD_TXFM_OPT_NORMAL;
@@ -516,4 +516,4 @@ void av1_highbd_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff,
     default: assert(0); break;
   }
 }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
