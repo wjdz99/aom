@@ -115,7 +115,7 @@ static void ihalfright64_c(const tran_low_t *input, tran_low_t *output) {
 }
 #endif  // CONFIG_TX64X64
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 #if CONFIG_EXT_TX
 static void highbd_iidtx4_c(const tran_low_t *input, tran_low_t *output,
                             int bd) {
@@ -212,7 +212,7 @@ static void highbd_idct64_row_c(const tran_low_t *input, tran_low_t *output,
   for (i = 0; i < 64; ++i) output[i] = (tran_low_t)out[i];
 }
 #endif  // CONFIG_TX64X64
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
 // Inverse identity transform and add.
 #if CONFIG_EXT_TX
@@ -277,7 +277,7 @@ static void maybe_flip_strides(uint8_t **dst, int *dstride, tran_low_t **src,
 }
 #endif  // CONFIG_EXT_TX
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 #if CONFIG_EXT_TX
 static void highbd_inv_idtx_add_c(const tran_low_t *input, uint8_t *dest8,
                                   int stride, int bs, int tx_type, int bd) {
@@ -333,7 +333,7 @@ static void maybe_flip_strides16(uint16_t **dst, int *dstride, tran_low_t **src,
   }
 }
 #endif  // CONFIG_EXT_TX
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
 void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                          int tx_type) {
@@ -1515,7 +1515,7 @@ static void inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
 }
 #endif  // CONFIG_TX64X64
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 void av1_highbd_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
                                 int stride, int tx_type, int bd) {
   static const highbd_transform_2d HIGH_IHT_4[] = {
@@ -2744,7 +2744,7 @@ static void highbd_inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
   }
 }
 #endif  // CONFIG_TX64X64
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
 void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                       INV_TXFM_PARAM *inv_txfm_param) {
@@ -2781,7 +2781,7 @@ void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                              INV_TXFM_PARAM *inv_txfm_param) {
   const TX_TYPE tx_type = inv_txfm_param->tx_type;
@@ -2838,4 +2838,4 @@ void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
     default: assert(0 && "Invalid transform size"); break;
   }
 }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
