@@ -224,7 +224,7 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_inv_txfm2d_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1) += av1_convolve_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1) += av1_convolve_optimz_test.cc
 ifneq ($(findstring yes,$(CONFIG_GLOBAL_MOTION) $(CONFIG_WARPED_MOTION)),)
-LIBAOM_TEST_SRCS-$(HAVE_SSE2) += warp_filter_test.cc
+LIBAOM_TEST_SRCS-$(HAVE_SSE2) += warp_filter_test.cc warp_filter_test_util.cc
 endif
 ifeq ($(CONFIG_LOOP_RESTORATION),yes)
 LIBAOM_TEST_SRCS-$(HAVE_SSE4_1) += selfguided_filter_test.cc
