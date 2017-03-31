@@ -1279,9 +1279,8 @@ void av1_warp_plane(WarpedMotionParams *wm,
 }
 
 #if CONFIG_WARPED_MOTION
-
 #define LEAST_SQUARES_ORDER 2
-#define LEAST_SQUARES_SAMPLES_MAX 32
+#define LEAST_SQUARES_SAMPLES_MAX 8
 #define LEAST_SQUARES_MV_MAX 1024  // max mv in 1/8-pel
 
 #if LEAST_SQUARES_ORDER == 2
@@ -1291,7 +1290,7 @@ static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   int32_t A[2][2] = { { 0, 0 }, { 0, 0 } };
   int32_t Bx[2] = { 0, 0 };
   int32_t By[2] = { 0, 0 };
-  int i, j, n = 0;
+  int i, n = 0;
 
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
@@ -1322,26 +1321,24 @@ static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   //
   // The loop below computes: A = P'P, Bx = P'q, By = P'r
   // We need to just compute inv(A).Bx and inv(A).By for the solutions.
-  for (j = 0; j < SAMPLES_PER_NEIGHBOR && n < LEAST_SQUARES_SAMPLES_MAX; ++j) {
-    int sx, sy, dx, dy;
-    // Contribution from neighbor block
-    for (i = j; i < np && n < LEAST_SQUARES_SAMPLES_MAX;
-         i += SAMPLES_PER_NEIGHBOR) {
-      dx = pts2[i * 2] - dux;
-      dy = pts2[i * 2 + 1] - duy;
-      sx = pts1[i * 2] - sux;
-      sy = pts1[i * 2 + 1] - suy;
-      if (abs(sx - dx) < LEAST_SQUARES_MV_MAX &&
-          abs(sy - dy) < LEAST_SQUARES_MV_MAX) {
-        A[0][0] += sx * sx;
-        A[0][1] += sx * sy;
-        A[1][1] += sy * sy;
-        Bx[0] += sx * dx;
-        Bx[1] += sy * dx;
-        By[0] += sx * dy;
-        By[1] += sy * dy;
-        n++;
-      }
+  int sx, sy, dx, dy;
+  // Contribution from neighbor block
+  for (i = 0; i < np && n < LEAST_SQUARES_SAMPLES_MAX; ++i) {
+    dx = pts2[i * 2] - dux;
+    dy = pts2[i * 2 + 1] - duy;
+    sx = pts1[i * 2] - sux;
+    sy = pts1[i * 2 + 1] - suy;
+
+    if (abs(sx - dx) < LEAST_SQUARES_MV_MAX &&
+        abs(sy - dy) < LEAST_SQUARES_MV_MAX) {
+      A[0][0] += 4 * sx * sx + 4 * sx + 2;
+      A[0][1] += 4 * sx * sy + 2 * sx + 2 * sy + 1;
+      A[1][1] += 4 * sy * sy + 4 * sy + 2;
+      Bx[0] += 4 * sx * dx + 2 * sx + 2 * dx + 2;
+      Bx[1] += 4 * sy * dx + 2 * sy + 2 * dx + 1;
+      By[0] += 4 * sx * dy + 2 * dy + 2 * sx + 1;
+      By[1] += 4 * sy * dy + 2 * sy + 2 * dy + 2;
+      n++;
     }
   }
   int64_t Px[2], Py[2];
