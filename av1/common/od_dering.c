@@ -358,24 +358,39 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
     for (bi = 0; bi < dering_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
-      int py = by << mi_size_l2;
-      int px = bx << mi_size_l2;
+      const int bs = 1 << bsize;
+      const int py = by << mi_size_l2;
+      const int px = bx << mi_size_l2;
+      uint16_t *const y2 = &y[bi << 2 * bsize];
+      uint8_t *const dst2 = &dst[py * dstride + px];
+      const uint16_t *const in2 = &in[py * OD_FILT_BSTRIDE + px];
 
       if (!dst || hbd) {
         // 16 bit destination if high bitdepth or 8 bit destination not given
         (!threshold || (dir[by][bx] < 4 && dir[by][bx]) ? aom_clpf_block_hbd
                                                         : aom_clpf_hblock_hbd)(
-            dst ? (uint16_t *)dst + py * dstride + px : &y[bi << 2 * bsize],
-            in + py * OD_FILT_BSTRIDE + px, dst && hbd ? dstride : 1 << bsize,
-            OD_FILT_BSTRIDE, 1 << bsize, 1 << bsize,
-            clpf_strength << coeff_shift, clpf_damping + coeff_shift);
+            dst ? (uint16_t *)dst2 : y2, in2, dst && hbd ? dstride : bs,
+            OD_FILT_BSTRIDE, bs, bs, clpf_strength << coeff_shift,
+            clpf_damping + coeff_shift);
       } else {
         // Do clpf and write the result to an 8 bit destination
-        (!threshold || (dir[by][bx] < 4 && dir[by][bx]) ? aom_clpf_block
-                                                        : aom_clpf_hblock)(
-            dst + py * dstride + px, in + py * OD_FILT_BSTRIDE + px, dstride,
-            OD_FILT_BSTRIDE, 1 << bsize, 1 << bsize,
-            clpf_strength << coeff_shift, clpf_damping + coeff_shift);
+        if (in[(py - 1) * OD_FILT_BSTRIDE + px - 1] == OD_DERING_VERY_LARGE ||
+            in[(py + bs) * OD_FILT_BSTRIDE + px + bs] == OD_DERING_VERY_LARGE) {
+          // Use 16 bit CLPF for boundary handling
+          (!threshold || (dir[by][bx] < 4 && dir[by][bx])
+               ? aom_clpf_block_hbd
+               : aom_clpf_hblock_hbd)(
+              y2, in2, dst && hbd ? dstride : bs, OD_FILT_BSTRIDE, bs, bs,
+              clpf_strength << coeff_shift, clpf_damping + coeff_shift);
+          (bsize == 3 ? copy_8x8_16bit_to_8bit
+                      : copy_4x4_16bit_to_8bit)(dst2, dstride, y2, bs);
+        } else {
+          // No boundaries, use the faster 8 bit CLPF
+          (!threshold || (dir[by][bx] < 4 && dir[by][bx]) ? aom_clpf_block
+                                                          : aom_clpf_hblock)(
+              dst2, in2, dstride, OD_FILT_BSTRIDE, bs, bs,
+              clpf_strength << coeff_shift, clpf_damping + coeff_shift);
+        }
       }
     }
   } else {
