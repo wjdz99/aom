@@ -148,8 +148,13 @@ else ()
   endif ()
 endif ()
 
-if (AOM_TARGET_SYSTEM MATCHES "Darwin\|Linux\|Windows")
+if ("${AOM_TARGET_SYSTEM}" MATCHES "Darwin\|Linux\|Windows")
   set(CONFIG_OS_SUPPORT 1)
+  if ("${AOM_TARGET_SYSTEM}" STREQUAL "Linux")
+    add_compiler_flag_if_supported("-D_LARGEFILE_SOURCE")
+    add_compiler_flag_if_supported("-D_FILE_OFFSET_BITS=64")
+    add_compiler_flag_if_supported("-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0")
+  endif ()
 endif ()
 
 # Test compiler support.
