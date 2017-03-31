@@ -49,7 +49,7 @@ specialize qw/av1_convolve_horiz ssse3/;
 add_proto qw/void av1_convolve_vert/, "const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride, int w, int h, const InterpFilterParams fp, const int subpel_x_q4, int x_step_q4, ConvolveParams *conv_params";
 specialize qw/av1_convolve_vert ssse3/;
 
-if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
+if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
   add_proto qw/void av1_highbd_convolve_init/, "void";
   specialize qw/av1_highbd_convolve_init sse4_1/;
   add_proto qw/void av1_highbd_convolve_horiz/, "const uint16_t *src, int src_stride, uint16_t *dst, int dst_stride, int w, int h, const InterpFilterParams fp, const int subpel_x_q4, int x_step_q4, int avg, int bd";
@@ -61,7 +61,7 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
 #
 # Inverse dct
 #
-if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
+if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
   # Note as optimized versions of these functions are added we need to add a check to ensure
   # that when CONFIG_EMULATE_HARDWARE is on, it defaults to the C versions only.
   if (aom_config("CONFIG_EMULATE_HARDWARE") eq "yes") {
@@ -295,7 +295,7 @@ if (aom_config("CONFIG_FILTER_INTRA") eq "yes") {
   add_proto qw/void av1_tm_filter_predictor/, "uint8_t *dst, ptrdiff_t stride, int bs, const uint8_t *above, const uint8_t *left";
   specialize qw/av1_tm_filter_predictor/;
   # High bitdepth functions
-  if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
+  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
     add_proto qw/void av1_highbd_dc_filter_predictor/, "uint16_t *dst, ptrdiff_t stride, int bs, const uint16_t *above, const uint16_t *left, int bd";
     specialize qw/av1_highbd_dc_filter_predictor/;
     add_proto qw/void av1_highbd_v_filter_predictor/, "uint16_t *dst, ptrdiff_t stride, int bs, const uint16_t *above, const uint16_t *left, int bd";
@@ -320,7 +320,7 @@ if (aom_config("CONFIG_FILTER_INTRA") eq "yes") {
 }
 
 # High bitdepth functions
-if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
+if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
   #
   # Sub Pixel Filters
   #
@@ -393,7 +393,7 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
   specialize qw/av1_highbd_iht16x16_256_add/;
 }
 
-if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
+if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
   #inv txfm
   add_proto qw/void av1_inv_txfm2d_add_4x4/, "const int32_t *input, uint16_t *output, int stride, int tx_type, int bd";
   specialize qw/av1_inv_txfm2d_add_4x4 sse4_1/;
@@ -415,7 +415,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
 # ENCODEMB INVOKE
 
 if (aom_config("CONFIG_AOM_QM") eq "yes") {
-  if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
+  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
     # the transform coefficients are held in 32-bit
     # values, so the assembler code for  av1_block_error can no longer be used.
     add_proto qw/int64_t av1_block_error/, "const tran_low_t *coeff, const tran_low_t *dqcoeff, intptr_t block_size, int64_t *ssz";
@@ -456,7 +456,7 @@ if (aom_config("CONFIG_AOM_QM") eq "yes") {
     specialize qw/av1_fdct8x8_quant/;
   }
 } else {
-  if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
+  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
     # the transform coefficients are held in 32-bit
     # values, so the assembler code for  av1_block_error can no longer be used.
     add_proto qw/int64_t av1_block_error/, "const tran_low_t *coeff, const tran_low_t *dqcoeff, intptr_t block_size, int64_t *ssz";
@@ -551,7 +551,7 @@ specialize qw/av1_fht8x32/;
 add_proto qw/void av1_fht32x8/, "const int16_t *input, tran_low_t *output, int stride, int tx_type";
 specialize qw/av1_fht32x8/;
 
-if (aom_config("CONFIG_AOM_HIGHBITDEPTH") ne "yes") {
+if (aom_config("CONFIG_HIGHBITDEPTH") ne "yes") {
   if (aom_config("CONFIG_EXT_TX") ne "yes") {
     specialize qw/av1_fht4x4 msa/;
     specialize qw/av1_fht8x8 msa/;
@@ -562,7 +562,7 @@ if (aom_config("CONFIG_AOM_HIGHBITDEPTH") ne "yes") {
 add_proto qw/void av1_fwd_idtx/, "const int16_t *src_diff, tran_low_t *coeff, int stride, int bs, int tx_type";
   specialize qw/av1_fwd_idtx/;
 
-if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
+if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
   #fwd txfm
   add_proto qw/void av1_fwd_txfm2d_4x4/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
   specialize qw/av1_fwd_txfm2d_4x4 sse4_1/;
@@ -601,7 +601,7 @@ if (aom_config("CONFIG_AOM_QM") eq "yes") {
   specialize qw/av1_quantize_b/;
 }
 
-if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
+if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
 
   # ENCODEMB INVOKE
   if (aom_config("CONFIG_NEW_QUANT") eq "yes") {
@@ -724,7 +724,7 @@ if (aom_config("CONFIG_EXT_INTER") eq "yes") {
 if (aom_config("CONFIG_PVQ") eq "yes") {
 # fdct functions
 
-if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
+if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
   add_proto qw/void av1_fht4x4/, "const int16_t *input, tran_low_t *output, int stride, int tx_type";
   specialize qw/av1_fht4x4 sse2/;
 
@@ -803,7 +803,7 @@ if (aom_config("CONFIG_LOOP_RESTORATION") eq "yes") {
   add_proto qw/void av1_highpass_filter/, "uint8_t *dgd, int width, int height, int stride, int32_t *dst, int dst_stride, int r, int eps";
   specialize qw/av1_highpass_filter sse4_1/;
 
-  if (aom_config("CONFIG_AOM_HIGHBITDEPTH") eq "yes") {
+  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
     add_proto qw/void apply_selfguided_restoration_highbd/, "uint16_t *dat, int width, int height, int stride, int bit_depth, int eps, int *xqd, uint16_t *dst, int dst_stride, int32_t *tmpbuf";
     specialize qw/apply_selfguided_restoration_highbd sse4_1/;
 

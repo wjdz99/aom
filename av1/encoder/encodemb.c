@@ -49,28 +49,28 @@ void av1_subtract_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane) {
   const int bh = block_size_high[plane_bsize];
 
   if (check_subtract_block_size(bw, bh)) {
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
     if (x->e_mbd.cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       aom_highbd_subtract_block_c(bh, bw, p->src_diff, bw, p->src.buf,
                                   p->src.stride, pd->dst.buf, pd->dst.stride,
                                   x->e_mbd.bd);
       return;
     }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
     aom_subtract_block_c(bh, bw, p->src_diff, bw, p->src.buf, p->src.stride,
                          pd->dst.buf, pd->dst.stride);
 
     return;
   }
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (x->e_mbd.cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     aom_highbd_subtract_block(bh, bw, p->src_diff, bw, p->src.buf,
                               p->src.stride, pd->dst.buf, pd->dst.stride,
                               x->e_mbd.bd);
     return;
   }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
   aom_subtract_block(bh, bw, p->src_diff, bw, p->src.buf, p->src.stride,
                      pd->dst.buf, pd->dst.stride);
 }
@@ -155,7 +155,7 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
   int best, band = (eob < default_eob) ? band_translate[eob]
                                        : band_translate[eob - 1];
   int pt, i, final_eob;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   const int cat6_bits = av1_get_cat6_extrabits_size(tx_size, xd->bd);
 #else
   const int cat6_bits = av1_get_cat6_extrabits_size(tx_size, 8);
@@ -234,11 +234,11 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
       }
 
       dx = (dqcoeff[rc] - coeff[rc]) * (1 << shift);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
       if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
         dx >>= xd->bd - 8;
       }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
       d2 = (int64_t)dx * dx;
       tokens[i][0].rate += (best ? rate1 : rate0);
       tokens[i][0].error = d2 + (best ? error1 : error0);
@@ -341,13 +341,13 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
 #if CONFIG_NEW_QUANT
       dx = av1_dequant_coeff_nuq(x, dqv, dequant_val[band_translate[i]]) -
            (coeff[rc] << shift);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
       if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
         dx >>= xd->bd - 8;
       }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 #else   // CONFIG_NEW_QUANT
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
       if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
         dx -= ((dqv >> (xd->bd - 8)) + sz) ^ sz;
       } else {
@@ -355,7 +355,7 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
       }
 #else
       dx -= (dqv + sz) ^ sz;
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 #endif  // CONFIG_NEW_QUANT
       d2 = (int64_t)dx * dx;
 
@@ -457,7 +457,7 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
 }
 
 #if !CONFIG_PVQ
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
 typedef enum QUANT_FUNC {
   QUANT_FUNC_LOWBD = 0,
   QUANT_FUNC_HIGHBD = 1,
@@ -496,7 +496,7 @@ static AV1_QUANT_FACADE quant_func_list[AV1_XFORM_QUANT_TYPES]
 #endif  // CONFIG_NEW_QUANT
                                          { NULL }
                                        };
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 #endif  // CONFIG_PVQ
 
 void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
@@ -576,20 +576,20 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   // transform block size in pixels
   tx_blk_size = tx_size_wide[tx_size];
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     for (j = 0; j < tx_blk_size; j++)
       for (i = 0; i < tx_blk_size; i++)
         src_int16[diff_stride * j + i] =
             CONVERT_TO_SHORTPTR(src)[src_stride * j + i];
   } else {
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
     for (j = 0; j < tx_blk_size; j++)
       for (i = 0; i < tx_blk_size; i++)
         src_int16[diff_stride * j + i] = src[src_stride * j + i];
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 #endif
 
 #if CONFIG_PVQ || CONFIG_DAALA_DIST
@@ -601,20 +601,20 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
 // copy uint8 orig and predicted block to int16 buffer
 // in order to use existing VP10 transform functions
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     for (j = 0; j < tx_blk_size; j++)
       for (i = 0; i < tx_blk_size; i++)
         pred[diff_stride * j + i] =
             CONVERT_TO_SHORTPTR(dst)[dst_stride * j + i];
   } else {
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
     for (j = 0; j < tx_blk_size; j++)
       for (i = 0; i < tx_blk_size; i++)
         pred[diff_stride * j + i] = dst[dst_stride * j + i];
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 #endif
 
   (void)ctx;
@@ -624,7 +624,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   fwd_txfm_param.lossless = xd->lossless[mbmi->segment_id];
 
 #if !CONFIG_PVQ
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   fwd_txfm_param.bd = xd->bd;
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     av1_highbd_fwd_txfm(src_diff, coeff, diff_stride, &fwd_txfm_param);
@@ -642,7 +642,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif  // CONFIG_LV_MAP
     return;
   }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
   av1_fwd_txfm(src_diff, coeff, diff_stride, &fwd_txfm_param);
   if (xform_quant_idx != AV1_XFORM_QUANT_SKIP_QUANT) {
     if (LIKELY(!x->skip_block)) {
@@ -658,7 +658,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif  // CONFIG_LV_MAP
 #else   // #if !CONFIG_PVQ
   (void)xform_quant_idx;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   fwd_txfm_param.bd = xd->bd;
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     av1_highbd_fwd_txfm(src_int16, coeff, diff_stride, &fwd_txfm_param);
@@ -667,7 +667,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif
     av1_fwd_txfm(src_int16, coeff, diff_stride, &fwd_txfm_param);
     av1_fwd_txfm(pred, ref_coeff, diff_stride, &fwd_txfm_param);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   }
 #endif
 
@@ -790,13 +790,13 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   inv_txfm_param.eob = p->eobs[block];
   inv_txfm_param.lossless = xd->lossless[xd->mi[0]->mbmi.segment_id];
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     inv_txfm_param.bd = xd->bd;
     av1_highbd_inv_txfm_add(dqcoeff, dst, pd->dst.stride, &inv_txfm_param);
     return;
   }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
   av1_inv_txfm_add(dqcoeff, dst, pd->dst.stride, &inv_txfm_param);
 }
 
@@ -888,21 +888,21 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
 // but av1_inv_txfm_add_*x*() also does addition of predicted image to
 // inverse transformed image,
 // pass blank dummy image to av1_inv_txfm_add_*x*(), i.e. set dst as zeros
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
       if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
         for (j = 0; j < tx_blk_size; j++)
           for (i = 0; i < tx_blk_size; i++)
             CONVERT_TO_SHORTPTR(dst)[j * pd->dst.stride + i] = 0;
       } else {
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
         for (j = 0; j < tx_blk_size; j++)
           for (i = 0; i < tx_blk_size; i++) dst[j * pd->dst.stride + i] = 0;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
       }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
     }
 #endif  // !CONFIG_PVQ
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       if (xd->lossless[xd->mi[0]->mbmi.segment_id]) {
         av1_highbd_iwht4x4_add(dqcoeff, dst, pd->dst.stride, p->eobs[block],
@@ -913,7 +913,7 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
       }
       return;
     }
-#endif  //  CONFIG_AOM_HIGHBITDEPTH
+#endif  //  CONFIG_HIGHBITDEPTH
     if (xd->lossless[xd->mi[0]->mbmi.segment_id]) {
       av1_iwht4x4_add(dqcoeff, dst, pd->dst.stride, p->eobs[block]);
     } else {
@@ -1097,7 +1097,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                           blk_row, plane);
 
   if (check_subtract_block_size(tx1d_width, tx1d_height)) {
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       aom_highbd_subtract_block_c(tx1d_height, tx1d_width, src_diff,
                                   diff_stride, src, src_stride, dst, dst_stride,
@@ -1109,9 +1109,9 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #else
     aom_subtract_block_c(tx1d_height, tx1d_width, src_diff, diff_stride, src,
                          src_stride, dst, dst_stride);
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
   } else {
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       aom_highbd_subtract_block(tx1d_height, tx1d_width, src_diff, diff_stride,
                                 src, src_stride, dst, dst_stride, xd->bd);
@@ -1122,7 +1122,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #else
     aom_subtract_block(tx1d_height, tx1d_width, src_diff, diff_stride, src,
                        src_stride, dst, dst_stride);
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
   }
 
 #if !CONFIG_PVQ
@@ -1157,7 +1157,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
     inv_txfm_param.tx_size = tx_size;
     inv_txfm_param.eob = *eob;
     inv_txfm_param.lossless = xd->lossless[mbmi->segment_id];
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
     inv_txfm_param.bd = xd->bd;
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       av1_highbd_inv_txfm_add(dqcoeff, dst, dst_stride, &inv_txfm_param);
@@ -1166,7 +1166,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
     }
 #else
     av1_inv_txfm_add(dqcoeff, dst, dst_stride, &inv_txfm_param);
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
     *(args->skip) = 0;
   }
@@ -1192,31 +1192,31 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 // but av1_inv_txfm_add_*x*() also does addition of predicted image to
 // inverse transformed image,
 // pass blank dummy image to av1_inv_txfm_add_*x*(), i.e. set dst as zeros
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     for (j = 0; j < tx_blk_size; j++)
       for (i = 0; i < tx_blk_size; i++)
         CONVERT_TO_SHORTPTR(dst)[j * dst_stride + i] = 0;
   } else {
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
     for (j = 0; j < tx_blk_size; j++)
       for (i = 0; i < tx_blk_size; i++) dst[j * dst_stride + i] = 0;
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   }
-#endif  // CONFIG_AOM_HIGHBITDEPTH
+#endif  // CONFIG_HIGHBITDEPTH
 
   inv_txfm_param.tx_type = tx_type;
   inv_txfm_param.tx_size = tx_size;
   inv_txfm_param.eob = *eob;
   inv_txfm_param.lossless = xd->lossless[mbmi->segment_id];
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     inv_txfm_param.bd = xd->bd;
     av1_highbd_inv_txfm_add(dqcoeff, dst, dst_stride, &inv_txfm_param);
   } else {
 #endif
     av1_inv_txfm_add(dqcoeff, dst, dst_stride, &inv_txfm_param);
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   }
 #endif
 #endif  // #if !CONFIG_PVQ
@@ -1285,7 +1285,7 @@ PVQ_SKIP_TYPE av1_pvq_encode_helper(MACROBLOCK *x, tran_low_t *const coeff,
   DECLARE_ALIGNED(16, int32_t, ref_int32[OD_TXSIZE_MAX * OD_TXSIZE_MAX]);
   DECLARE_ALIGNED(16, int32_t, out_int32[OD_TXSIZE_MAX * OD_TXSIZE_MAX]);
 
-#if CONFIG_AOM_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
   hbd_downshift = x->e_mbd.bd - 8;
 #endif
 
