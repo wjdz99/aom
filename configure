@@ -318,6 +318,7 @@ EXPERIMENT_LIST="
     one_sided_compound
     smooth_hv
     var_refs
+    rect_intra_pred
 "
 CONFIG_LIST="
     dependency_tracking
@@ -495,6 +496,7 @@ post_process_cmdline() {
     soft_enable wedge
     soft_enable compound_segment
     soft_enable interintra
+    soft_enable rect_intra_pred
 
     # Backwards/jenkins compatibility with --enable-aom-highbitdepth
     enabled aom_highbitdepth && enable_feature highbitdepth
