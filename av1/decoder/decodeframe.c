@@ -4979,7 +4979,11 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
   if (!xd->corrupted) {
     if (cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD) {
 #if CONFIG_EC_ADAPT
-      FRAME_CONTEXT *tile_ctxs[MAX_TILE_ROWS * MAX_TILE_COLS];
+      FRAME_CONTEXT **tile_ctxs = aom_malloc(cm->tile_rows * cm->tile_cols *
+                                             sizeof(&pbi->tile_data[0].tctx));
+      aom_cdf_prob **cdf_ptrs =
+          aom_malloc(cm->tile_rows * cm->tile_cols *
+                     sizeof(&pbi->tile_data[0].tctx.partition_cdf[0][0]));
       make_update_tile_list_dec(pbi, cm->tile_rows, cm->tile_cols, tile_ctxs);
 #endif
 
@@ -4989,9 +4993,9 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
       av1_adapt_coef_probs(cm);
       av1_adapt_intra_frame_probs(cm);
 #if CONFIG_EC_ADAPT
-      av1_average_tile_coef_cdfs(pbi->common.fc, tile_ctxs,
+      av1_average_tile_coef_cdfs(pbi->common.fc, tile_ctxs, cdf_ptrs,
                                  cm->tile_rows * cm->tile_cols);
-      av1_average_tile_intra_cdfs(pbi->common.fc, tile_ctxs,
+      av1_average_tile_intra_cdfs(pbi->common.fc, tile_ctxs, cdf_ptrs,
                                   cm->tile_rows * cm->tile_cols);
 #endif
 #if CONFIG_ADAPT_SCAN
@@ -5003,11 +5007,15 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
         av1_adapt_mv_probs(cm, cm->allow_high_precision_mv);
 #if CONFIG_EC_ADAPT
         av1_average_tile_inter_cdfs(&pbi->common, pbi->common.fc, tile_ctxs,
-                                    cm->tile_rows * cm->tile_cols);
-        av1_average_tile_mv_cdfs(pbi->common.fc, tile_ctxs,
+                                    cdf_ptrs, cm->tile_rows * cm->tile_cols);
+        av1_average_tile_mv_cdfs(pbi->common.fc, tile_ctxs, cdf_ptrs,
                                  cm->tile_rows * cm->tile_cols);
 #endif
       }
+#if CONFIG_EC_ADAPT
+      aom_free(tile_ctxs);
+      aom_free(cdf_ptrs);
+#endif
     } else {
       debug_check_frame_counts(cm);
     }
