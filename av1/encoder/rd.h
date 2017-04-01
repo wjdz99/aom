@@ -442,6 +442,10 @@ void av1_setup_pred_block(const MACROBLOCKD *xd,
 int av1_get_intra_cost_penalty(int qindex, int qdelta,
                                aom_bit_depth_t bit_depth);
 
+static INLINE int get_partition_edge_index(int has_rows, int has_cols) {
+  return 2 * !has_rows + !has_cols;
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

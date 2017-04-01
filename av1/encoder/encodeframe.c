@@ -2768,6 +2768,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
                                          mi_col + hbs < cm->mi_cols,
 #endif
                                          bsize);
+  const int *const partition_cost = cpi->partition_cost[0][pl];
   const PARTITION_TYPE partition = get_partition(cm, mi_row, mi_col, bsize);
   const BLOCK_SIZE subsize = get_subsize(bsize, partition);
   RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
@@ -2843,11 +2844,11 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
                        bsize, ctx_none, INT64_MAX);
 
       if (none_rdc.rate < INT_MAX) {
-        none_rdc.rate += cpi->partition_cost[pl][PARTITION_NONE];
+        none_rdc.rate += partition_cost[PARTITION_NONE];
         none_rdc.rdcost =
             RDCOST(x->rdmult, x->rddiv, none_rdc.rate, none_rdc.dist);
 #if CONFIG_SUPERTX
-        none_rate_nocoef += cpi->partition_cost[pl][PARTITION_NONE];
+        none_rate_nocoef += partition_cost[PARTITION_NONE];
 #endif
       }
 
@@ -3021,11 +3022,11 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
   }
 
   if (last_part_rdc.rate < INT_MAX) {
-    last_part_rdc.rate += cpi->partition_cost[pl][partition];
+    last_part_rdc.rate += partition_cost[partition];
     last_part_rdc.rdcost =
         RDCOST(x->rdmult, x->rddiv, last_part_rdc.rate, last_part_rdc.dist);
 #if CONFIG_SUPERTX
-    last_part_rate_nocoef += cpi->partition_cost[pl][partition];
+    last_part_rate_nocoef += partition_cost[partition];
 #endif
   }
 
@@ -3100,17 +3101,17 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
         encode_sb(cpi, td, tile_info, tp, mi_row + y_idx, mi_col + x_idx,
                   OUTPUT_ENABLED, split_subsize, pc_tree->split[i], NULL);
 
-      chosen_rdc.rate += cpi->partition_cost[pl][PARTITION_NONE];
+      chosen_rdc.rate += partition_cost[PARTITION_NONE];
 #if CONFIG_SUPERTX
-      chosen_rate_nocoef += cpi->partition_cost[pl][PARTITION_SPLIT];
+      chosen_rate_nocoef += partition_cost[PARTITION_SPLIT];
 #endif
     }
     if (chosen_rdc.rate < INT_MAX) {
-      chosen_rdc.rate += cpi->partition_cost[pl][PARTITION_SPLIT];
+      chosen_rdc.rate += partition_cost[PARTITION_SPLIT];
       chosen_rdc.rdcost =
           RDCOST(x->rdmult, x->rddiv, chosen_rdc.rate, chosen_rdc.dist);
 #if CONFIG_SUPERTX
-      chosen_rate_nocoef += cpi->partition_cost[pl][PARTITION_NONE];
+      chosen_rate_nocoef += partition_cost[PARTITION_NONE];
 #endif
     }
   }
@@ -3627,16 +3628,21 @@ static void rd_test_partition3(
 #endif  // CONFIG_SUPERTX
 
       if (sum_rdc.rdcost < best_rdc->rdcost) {
+        const int has_rows = mi_row + hbs < cm->mi_rows;
+        const int has_cols = mi_col + hbs < cm->mi_cols;
         int pl = partition_plane_context(xd, mi_row, mi_col,
 #if CONFIG_UNPOISON_PARTITION_CTX
-                                         has_rows, has_cols,
+                                         mi_row + hbs < cm->mi_rows,
+                                         mi_col + hbs < cm->mi_cols,
 #endif
                                          bsize);
-        sum_rdc.rate += cpi->partition_cost[pl][partition];
+        assert(mi_row + hbs < cm->mi_rows);
+        assert(mi_col + hbs < cm->mi_cols);
+        sum_rdc.rate += cpi->partition_cost[0][pl][partition];
         sum_rdc.rdcost =
             RDCOST(x->rdmult, x->rddiv, sum_rdc.rate, sum_rdc.dist);
 #if CONFIG_SUPERTX
-        sum_rate_nocoef += cpi->partition_cost[pl][partition];
+        sum_rate_nocoef += cpi->partition_cost[0][pl][partition];
 #endif
         if (sum_rdc.rdcost < best_rdc->rdcost) {
 #if CONFIG_SUPERTX
@@ -3675,8 +3681,6 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   const int hbs = mi_size_wide[bsize] / 2;
   const int has_rows = mi_row + hbs < cm->mi_rows;
   const int has_cols = mi_col + hbs < cm->mi_cols;
-#else
-  int tmp_partition_cost[PARTITION_TYPES];
 #endif
   BLOCK_SIZE subsize;
   RD_COST this_rdc, sum_rdc, best_rdc;
@@ -3699,7 +3703,6 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
                                          bsize);
 #endif  // CONFIG_CB4X4
-  const int *partition_cost = cpi->partition_cost[pl];
 #if CONFIG_SUPERTX
   int this_rate_nocoef, sum_rate_nocoef = 0, best_rate_nocoef = INT_MAX;
   int abort_flag;
@@ -3718,6 +3721,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   const int force_vert_split = (mi_col + mi_step >= cm->mi_cols);
   const int xss = x->e_mbd.plane[1].subsampling_x;
   const int yss = x->e_mbd.plane[1].subsampling_y;
+
+  const int partition_edge_index =
+      get_partition_edge_index(!force_horz_split, !force_vert_split);
+  const int *const partition_cost =
+      cpi->partition_cost[partition_edge_index][pl];
 
   BLOCK_SIZE min_size = x->min_partition_size;
   BLOCK_SIZE max_size = x->max_partition_size;
@@ -3738,32 +3746,6 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
 
   (void)*tp_orig;
-
-#if !CONFIG_UNPOISON_PARTITION_CTX
-  if (force_horz_split || force_vert_split) {
-    tmp_partition_cost[PARTITION_NONE] = INT_MAX;
-
-    if (!force_vert_split) {  // force_horz_split only
-      tmp_partition_cost[PARTITION_VERT] = INT_MAX;
-      tmp_partition_cost[PARTITION_HORZ] =
-          av1_cost_bit(cm->fc->partition_prob[pl][PARTITION_HORZ], 0);
-      tmp_partition_cost[PARTITION_SPLIT] =
-          av1_cost_bit(cm->fc->partition_prob[pl][PARTITION_HORZ], 1);
-    } else if (!force_horz_split) {  // force_vert_split only
-      tmp_partition_cost[PARTITION_HORZ] = INT_MAX;
-      tmp_partition_cost[PARTITION_VERT] =
-          av1_cost_bit(cm->fc->partition_prob[pl][PARTITION_VERT], 0);
-      tmp_partition_cost[PARTITION_SPLIT] =
-          av1_cost_bit(cm->fc->partition_prob[pl][PARTITION_VERT], 1);
-    } else {  // force_ horz_split && force_vert_split horz_split
-      tmp_partition_cost[PARTITION_HORZ] = INT_MAX;
-      tmp_partition_cost[PARTITION_VERT] = INT_MAX;
-      tmp_partition_cost[PARTITION_SPLIT] = 0;
-    }
-
-    partition_cost = tmp_partition_cost;
-  }
-#endif
 
 #if CONFIG_VAR_TX
 #ifndef NDEBUG
