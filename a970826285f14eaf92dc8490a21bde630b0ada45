@@ -22,6 +22,30 @@
       "revId": "a970826285f14eaf92dc8490a21bde630b0ada45",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c457e7c_f2e59df7",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-04-01T05:25:42Z",
+      "side": 1,
+      "message": "If we do ++r and ++c, the maxr and maxc needs to be scaled, so as (mi_row + r) and (mi_col + c). It looks a bit hard to read.\n\nI replaced r / r_step with r \u003e\u003e r_shift in the updated version to avoid potential division in this loop.",
+      "parentUuid": "a1a4c94b_b8a6037b",
+      "range": {
+        "startLine": 81,
+        "startChar": 30,
+        "endLine": 81,
+        "endChar": 36
+      },
+      "revId": "a970826285f14eaf92dc8490a21bde630b0ada45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
