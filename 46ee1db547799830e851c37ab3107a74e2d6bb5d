@@ -46,6 +46,29 @@
       "revId": "46ee1db547799830e851c37ab3107a74e2d6bb5d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7b5c92e_2a01b496",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-04-01T12:04:00Z",
+      "side": 1,
+      "message": "A matter of taste perhaps and I\u0027ll not block anything on this, but I would simply write \"c_shift \u003d c_step \u003d\u003d 2;\"",
+      "range": {
+        "startLine": 77,
+        "startChar": 35,
+        "endLine": 77,
+        "endChar": 43
+      },
+      "revId": "46ee1db547799830e851c37ab3107a74e2d6bb5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
