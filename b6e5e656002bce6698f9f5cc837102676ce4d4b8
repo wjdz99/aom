@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "93da8209_2873094e",
+        "filename": "av1/common/od_dering_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2017-04-01T01:50:21Z",
+      "side": 1,
+      "message": "LLVM at least unrolls these, I assume GCC does the same.",
+      "parentUuid": "63c81a03_ef21685d",
+      "range": {
+        "startLine": 386,
+        "startChar": 16,
+        "endLine": 386,
+        "endChar": 19
+      },
+      "revId": "b6e5e656002bce6698f9f5cc837102676ce4d4b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "72c4209f_847f357b",
         "filename": "av1/common/od_dering_simd.h",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-04-01T01:31:30Z",
       "side": 1,
       "message": "I think you should probably unroll this",
+      "range": {
+        "startLine": 404,
+        "startChar": 4,
+        "endLine": 404,
+        "endChar": 23
+      },
+      "revId": "b6e5e656002bce6698f9f5cc837102676ce4d4b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2f36e6d_8a3da967",
+        "filename": "av1/common/od_dering_simd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2017-04-01T01:50:21Z",
+      "side": 1,
+      "message": "LLVM at least unrolls these, I assume GCC does the same.",
+      "parentUuid": "72c4209f_847f357b",
       "range": {
         "startLine": 404,
         "startChar": 4,
