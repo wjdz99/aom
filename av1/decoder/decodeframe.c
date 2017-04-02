@@ -539,7 +539,6 @@ static void predict_and_reconstruct_intra_block(
     AV1_COMMON *cm, MACROBLOCKD *const xd, aom_reader *const r,
     MB_MODE_INFO *const mbmi, int plane, int row, int col, TX_SIZE tx_size) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
-  PREDICTION_MODE mode = (plane == 0) ? mbmi->mode : mbmi->uv_mode;
   PLANE_TYPE plane_type = get_plane_type(plane);
   uint8_t *dst;
   const int block_idx = (row << 1) + col;
@@ -548,13 +547,7 @@ static void predict_and_reconstruct_intra_block(
 #endif
   dst = &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
 
-#if !CONFIG_CB4X4
-  if (mbmi->sb_type < BLOCK_8X8)
-    if (plane == 0) mode = xd->mi[0]->bmi[block_idx].as_mode;
-#endif
-  av1_predict_intra_block(xd, pd->width, pd->height, txsize_to_bsize[tx_size],
-                          mode, dst, pd->dst.stride, dst, pd->dst.stride, col,
-                          row, plane);
+  av1_predict_intra_block_facade(xd, plane, block_idx, col, row, tx_size);
 
   if (!mbmi->skip) {
     TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx, tx_size);
