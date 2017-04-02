@@ -24,7 +24,8 @@
 /* Search for the best strength to add as an option, knowing we
    already selected nb_strengths options. */
 static uint64_t search_one(int *lev, int nb_strengths,
-                           uint64_t mse[][TOTAL_STRENGTHS], int sb_count) {
+                           uint64_t mse[][TOTAL_STRENGTHS], int sb_count,
+                           int dering) {
   uint64_t tot_mse[TOTAL_STRENGTHS];
   int i, j;
   uint64_t best_tot_mse = (uint64_t)1 << 63;
@@ -40,13 +41,13 @@ static uint64_t search_one(int *lev, int nb_strengths,
       }
     }
     /* Find best mse when adding each possible new option. */
-    for (j = 0; j < TOTAL_STRENGTHS; j++) {
+    for (j = 0; j < (dering ? TOTAL_STRENGTHS : CLPF_STRENGTHS); j++) {
       uint64_t best = best_mse;
       if (mse[i][j] < best) best = mse[i][j];
       tot_mse[j] += best;
     }
   }
-  for (j = 0; j < TOTAL_STRENGTHS; j++) {
+  for (j = 0; j < (dering ? TOTAL_STRENGTHS : CLPF_STRENGTHS); j++) {
     if (tot_mse[j] < best_tot_mse) {
       best_tot_mse = tot_mse[j];
       best_id = j;
@@ -59,20 +60,21 @@ static uint64_t search_one(int *lev, int nb_strengths,
 /* Search for the set of strengths that minimizes mse. */
 static uint64_t joint_strength_search(int *best_lev, int nb_strengths,
                                       uint64_t mse[][TOTAL_STRENGTHS],
-                                      int sb_count) {
+                                      int sb_count, int dering) {
   uint64_t best_tot_mse;
   int i;
   best_tot_mse = (uint64_t)1 << 63;
   /* Greedy search: add one strength options at a time. */
   for (i = 0; i < nb_strengths; i++) {
-    best_tot_mse = search_one(best_lev, i, mse, sb_count);
+    best_tot_mse = search_one(best_lev, i, mse, sb_count, dering);
   }
   /* Trying to refine the greedy search by reconsidering each
      already-selected option. */
   for (i = 0; i < 4 * nb_strengths; i++) {
     int j;
     for (j = 0; j < nb_strengths - 1; j++) best_lev[j] = best_lev[j + 1];
-    best_tot_mse = search_one(best_lev, nb_strengths - 1, mse, sb_count);
+    best_tot_mse =
+        search_one(best_lev, nb_strengths - 1, mse, sb_count, dering);
   }
   return best_tot_mse;
 }
@@ -210,9 +212,8 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
   DECLARE_ALIGNED(32, uint16_t, inbuf[OD_DERING_INBUF_SIZE]);
   uint16_t *in;
   DECLARE_ALIGNED(32, uint16_t, tmp_dst[MAX_SB_SQUARE]);
-  int chroma_dering =
-      xd->plane[1].subsampling_x == xd->plane[1].subsampling_y &&
-      xd->plane[2].subsampling_x == xd->plane[2].subsampling_y;
+  int dering = xd->plane[1].subsampling_x == xd->plane[1].subsampling_y &&
+               xd->plane[2].subsampling_x == xd->plane[2].subsampling_y;
   quantizer =
       av1_ac_quant(cm->base_qindex, 0, cm->bit_depth) >> (cm->bit_depth - 8);
   lambda = .12 * quantizer * quantizer / 256.;
@@ -285,11 +286,11 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
       for (pli = 0; pli < nplanes; pli++) {
         for (i = 0; i < OD_DERING_INBUF_SIZE; i++)
           inbuf[i] = OD_DERING_VERY_LARGE;
-        for (gi = 0; gi < TOTAL_STRENGTHS; gi++) {
+        for (gi = 0; gi < (dering ? TOTAL_STRENGTHS : CLPF_STRENGTHS); gi++) {
           int threshold;
           int clpf_strength;
           threshold = gi / CLPF_STRENGTHS;
-          if (pli > 0 && !chroma_dering) threshold = 0;
+
           /* We avoid filtering the pixels for which some of the pixels to
              average
              are outside the frame. We could change the filter instead, but it
@@ -328,9 +329,10 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
 
   nb_strength_bits = 0;
   /* Search for different number of signalling bits. */
-  for (i = 0; i <= 3; i++) {
+  for (i = 0; i <= 2 + dering; i++) {
     nb_strengths = 1 << i;
-    tot_mse = joint_strength_search(best_lev, nb_strengths, mse[0], sb_count);
+    tot_mse =
+        joint_strength_search(best_lev, nb_strengths, mse[0], sb_count, dering);
     /* Count superblock signalling cost. */
     tot_mse += (uint64_t)(sb_count * lambda * i);
     /* Count header signalling cost. */
@@ -367,7 +369,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
       int gi;
       int best_gi = 0;
       best_tot_mse = (uint64_t)1 << 63;
-      for (gi = 0; gi < TOTAL_STRENGTHS; gi++) {
+      for (gi = 0; gi < (dering ? TOTAL_STRENGTHS : CLPF_STRENGTHS); gi++) {
         tot_mse = 0;
         for (i = 0; i < sb_count; i++) {
           if (selected_strength[i] == str) {
