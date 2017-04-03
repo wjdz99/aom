@@ -220,10 +220,10 @@ static INLINE void copy_4x4_16bit_to_16bit(uint16_t *dst, int dstride,
 /* TODO: Optimize this function for SSE. */
 void copy_dering_16bit_to_16bit(uint16_t *dst, int dstride, uint16_t *src,
                                 dering_list *dlist, int dering_count,
-                                BLOCK_SIZE bsize) {
+                                int bsize) {
   int bi, bx, by;
 
-  if (bsize == BLOCK_8X8) {
+  if (bsize == 3) {
     for (bi = 0; bi < dering_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
@@ -350,7 +350,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
   if (clpf_strength) {
     if (threshold && !skip_dering)
       copy_dering_16bit_to_16bit(in, OD_FILT_BSTRIDE, y, dlist, dering_count,
-                                 xdec ? BLOCK_4X4 : BLOCK_8X8);
+                                 bsize);
     for (bi = 0; bi < dering_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
@@ -378,7 +378,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
     // No clpf, so copy instead
     if (hbd) {
       copy_dering_16bit_to_16bit((uint16_t *)dst, dstride, y, dlist,
-                                 dering_count, 3 - xdec);
+                                 dering_count, bsize);
     } else {
       copy_dering_16bit_to_8bit(dst, dstride, y, dlist, dering_count, bsize);
     }
