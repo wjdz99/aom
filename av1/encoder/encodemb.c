@@ -900,10 +900,10 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
 
 #if CONFIG_NEW_QUANT
   av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                  ctx, AV1_XFORM_QUANT_B_NUQ);
+                  ctx, AV1_XFORM_QUANT_FP_NUQ);
 #else
   av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                  ctx, AV1_XFORM_QUANT_B);
+                  ctx, AV1_XFORM_QUANT_FP);
 #endif  // CONFIG_NEW_QUANT
 #if !CONFIG_PVQ
   if (p->eobs[block] > 0) {
@@ -1134,10 +1134,10 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   } else {
 #if CONFIG_NEW_QUANT
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    ctx, AV1_XFORM_QUANT_B_NUQ);
+                    ctx, AV1_XFORM_QUANT_FP_NUQ);
 #else   // CONFIG_NEW_QUANT
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    ctx, AV1_XFORM_QUANT_B);
+                    ctx, AV1_XFORM_QUANT_FP);
 #endif  // CONFIG_NEW_QUANT
   }
 
