@@ -296,6 +296,7 @@ EXPERIMENT_LIST="
     filter_7bit
     parallel_deblocking
     parallel_deblocking_15tap
+    parallel_deblocking_15tapluma
     loopfiltering_across_tiles
     tile_groups
     ec_adapt

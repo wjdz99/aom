@@ -2127,7 +2127,7 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
           // if the current and the previous blocks are skipped,
           // deblock the edge if the edge belongs to a PU's edge only.
           if ((currLevel || pvLvl) && (!pvSkip || !currSkipped || puEdge)) {
-#if CONFIG_PARALLEL_DEBLOCKING_15TAP
+#if CONFIG_PARALLEL_DEBLOCKING_15TAP || CONFIG_PARALLEL_DEBLOCKING_15TAPLUMA
             const TX_SIZE minTs = AOMMIN(ts, pvTs);
             if (TX_4X4 >= minTs) {
               pParams->filterLength = 4;
@@ -2135,6 +2135,12 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
               pParams->filterLength = 8;
             } else {
               pParams->filterLength = 16;
+#if CONFIG_PARALLEL_DEBLOCKING_15TAPLUMA
+              // No wide filtering for chroma
+              if (scaleHorz || scaleVert) {
+                pParams->filterLength = 8;
+              }
+#endif
             }
 #else
             pParams->filterLength = (TX_4X4 >= AOMMIN(ts, pvTs)) ? (4) : (8);
@@ -2195,7 +2201,7 @@ static void av1_filter_block_plane_vert(const AV1_COMMON *const cm,
           aom_lpf_vertical_8(p, dstStride, params.mblim, params.lim,
                              params.hev_thr);
           break;
-#if CONFIG_PARALLEL_DEBLOCKING_15TAP
+#if CONFIG_PARALLEL_DEBLOCKING_15TAP || CONFIG_PARALLEL_DEBLOCKING_15TAPLUMA
         // apply 16-tap filtering
         case 16:
           aom_lpf_vertical_16(p, dstStride, params.mblim, params.lim,
@@ -2249,7 +2255,7 @@ static void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
           aom_lpf_horizontal_8(p, dstStride, params.mblim, params.lim,
                                params.hev_thr);
           break;
-#if CONFIG_PARALLEL_DEBLOCKING_15TAP
+#if CONFIG_PARALLEL_DEBLOCKING_15TAP || CONFIG_PARALLEL_DEBLOCKING_15TAPLUMA
         // apply 16-tap filtering
         case 16:
           aom_lpf_horizontal_edge_16(p, dstStride, params.mblim, params.lim,
