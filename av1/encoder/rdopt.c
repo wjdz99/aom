@@ -2818,7 +2818,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
             (void)scan_order;
 
             av1_xform_quant(cm, x, 0, block, row + idy, col + idx, BLOCK_8X8,
-                            tx_size, coeff_ctx, AV1_XFORM_QUANT_B);
+                            tx_size, coeff_ctx, AV1_XFORM_QUANT_FP);
 
             ratey += x->rate;
             skip = x->pvq_skip[0];
@@ -3036,7 +3036,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 #else
                           row + idy, col + idx,
 #endif  // CONFIG_CB4X4
-                          BLOCK_8X8, tx_size, coeff_ctx, AV1_XFORM_QUANT_B);
+                          BLOCK_8X8, tx_size, coeff_ctx, AV1_XFORM_QUANT_FP);
 #endif  // CONFIG_NEW_QUANT
           ratey +=
               av1_cost_coeffs(cm, x, 0, block, tx_size, scan_order, tempa + idx,
@@ -3061,7 +3061,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 #else
                           row + idy, col + idx,
 #endif  // CONFIG_CB4X4
-                          BLOCK_8X8, tx_size, coeff_ctx, AV1_XFORM_QUANT_B);
+                          BLOCK_8X8, tx_size, coeff_ctx, AV1_XFORM_QUANT_FP);
 
           ratey += x->rate;
           skip = x->pvq_skip[0];
