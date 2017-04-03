@@ -167,7 +167,7 @@ int SIMD_FUNC(od_dir_find8)(const od_dering_in *img, int stride, int32_t *var,
         v128_sub_16(v128_shr_s16(lines[i], coeff_shift), v128_dup_16(128));
   }
 
-#if defined(__SSE4_1__)
+#if 0//defined(__SSE4_1__)
   /* Compute "mostly vertical" directions. */
   __m128i dir47 = compute_directions(lines, cost + 4);
 
@@ -201,6 +201,7 @@ int SIMD_FUNC(od_dir_find8)(const od_dering_in *img, int stride, int32_t *var,
   compute_directions(lines, cost);
 
   for (i = 0; i < 8; i++) {
+    cost[i] >>= 16;
     if (cost[i] > best_cost) {
       best_cost = cost[i];
       best_dir = i;
