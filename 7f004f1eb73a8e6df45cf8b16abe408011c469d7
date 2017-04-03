@@ -16,6 +16,24 @@
       "revId": "7f004f1eb73a8e6df45cf8b16abe408011c469d7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a703661c_f398dc48",
+        "filename": "build/cmake/toolchains/arm64-linux-gcc.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-04-03T17:02:43Z",
+      "side": 1,
+      "message": "Yeah. I was thinking that people would be used to using the environment, but I think it\u0027s better to be consistent and use -D instead of the environment wherever it makes sense (everything except test data path). So, done.",
+      "parentUuid": "c7753b9a_26f6efe9",
+      "revId": "7f004f1eb73a8e6df45cf8b16abe408011c469d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
