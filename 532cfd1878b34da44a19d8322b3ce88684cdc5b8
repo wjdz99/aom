@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5504b52b_ebf0c1f1",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-03T18:27:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b0a6a37_e38c3a8b",
+      "revId": "532cfd1878b34da44a19d8322b3ce88684cdc5b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3223d19d_4797e4a8",
         "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
         "patchSetId": 1
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "943a480c_646cce1a",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-03T18:27:51Z",
+      "side": 1,
+      "message": "Done (new ones in this patch and old ones in this file as well)",
+      "parentUuid": "3223d19d_4797e4a8",
+      "range": {
+        "startLine": 55,
+        "startChar": 44,
+        "endLine": 55,
+        "endChar": 45
+      },
+      "revId": "532cfd1878b34da44a19d8322b3ce88684cdc5b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6dc9bcef_812ff67c",
         "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
         "patchSetId": 1
@@ -56,6 +98,24 @@
       "revId": "532cfd1878b34da44a19d8322b3ce88684cdc5b8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7215ffb3_6b1cd8e4",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-03T18:27:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6dc9bcef_812ff67c",
+      "revId": "532cfd1878b34da44a19d8322b3ce88684cdc5b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "b5134879_608d7eed",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-03T18:27:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8cbab819_c98e53e6",
+      "range": {
+        "startLine": 72,
+        "startChar": 14,
+        "endLine": 72,
+        "endChar": 26
+      },
+      "revId": "532cfd1878b34da44a19d8322b3ce88684cdc5b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a4b6adb_86fdf2b4",
         "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
         "patchSetId": 1
@@ -96,6 +180,24 @@
       "revId": "532cfd1878b34da44a19d8322b3ce88684cdc5b8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7207b270_b33e57c0",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-03T18:27:51Z",
+      "side": 1,
+      "message": "I think that\u0027s a small compromise for a huge saving in nearly duplicate lines and maintainability.\nFor example, now, if one wanted to add another transform size, I\u0027d just have to add something to \u0027tx_dims\u0027 / \u0027tx_sizes\u0027 array, and we are done. Earlier, one had to write a huge number of lines to do that.",
+      "parentUuid": "4a4b6adb_86fdf2b4",
+      "revId": "532cfd1878b34da44a19d8322b3ce88684cdc5b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
