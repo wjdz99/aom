@@ -305,7 +305,8 @@ static void write_drl_idx(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
   assert(mbmi->ref_mv_idx < 3);
 
 #if CONFIG_EXT_INTER
-  if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
+  if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
+      mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEW_NEARESTMV) {
 #else
   if (mbmi->mode == NEWMV) {
 #endif
@@ -324,7 +325,8 @@ static void write_drl_idx(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
   }
 
 #if CONFIG_EXT_INTER
-  if (mbmi->mode == NEARMV || mbmi->mode == NEAR_NEARMV) {
+  if (mbmi->mode == NEARMV || mbmi->mode == NEAR_NEARMV ||
+      mbmi->mode == NEAREST_NEARMV || mbmi->mode == NEAR_NEARESTMV) {
 #else
   if (mbmi->mode == NEARMV) {
 #endif
@@ -1742,7 +1744,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
 #if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
         if (mode == NEARMV || mode == NEAR_NEARMV || mode == NEWMV ||
-            mode == NEW_NEWMV)
+            mode == NEW_NEWMV || mode == NEAREST_NEWMV ||
+            mode == NEW_NEARESTMV || mode == NEAREST_NEARMV ||
+            mode == NEAR_NEARESTMV)
 #else
         if (mode == NEARMV || mode == NEWMV)
 #endif
