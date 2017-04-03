@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02238059_5685fe9a",
+        "filename": "av1/common/od_dering_simd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-04-03T21:37:22Z",
+      "side": 1,
+      "message": "This can be aligned, I believe.",
+      "range": {
+        "startLine": 305,
+        "startChar": 20,
+        "endLine": 305,
+        "endChar": 29
+      },
+      "revId": "76f877f807b121b81f1376105567526f2a35fc11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b2eb6514_214c21e7",
+        "filename": "av1/common/od_dering_simd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-04-03T21:37:22Z",
+      "side": 1,
+      "message": "Please update the comments to reflect the new computations",
+      "range": {
+        "startLine": 307,
+        "startChar": 6,
+        "endLine": 307,
+        "endChar": 7
+      },
+      "revId": "76f877f807b121b81f1376105567526f2a35fc11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "301f364a_38ada0ae",
+        "filename": "av1/common/od_dering_simd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-04-03T21:37:22Z",
+      "side": 1,
+      "message": "(A question unrelated to this patch:) Did you ever try damping here instead, by the way?",
+      "range": {
+        "startLine": 316,
+        "startChar": 4,
+        "endLine": 317,
+        "endChar": 27
+      },
+      "revId": "76f877f807b121b81f1376105567526f2a35fc11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
