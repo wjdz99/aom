@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "57a62485_853e318e",
+        "filename": "examples/analyzer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5041
+      },
+      "writtenOn": "2017-04-04T21:47:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59b779e7_81a3a99c",
+      "revId": "0867ecdb8bd473696a12396359f23965767ec587",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2b0a70f4_ac63de87",
         "filename": "examples/analyzer.cc",
         "patchSetId": 12
@@ -30,6 +48,30 @@
       "writtenOn": "2017-04-04T14:55:18Z",
       "side": 1,
       "message": "Very minor, but can you put this at the end of the list of initializers?  They are supposed to be in the same order they appear as member variables.",
+      "range": {
+        "startLine": 74,
+        "startChar": 18,
+        "endLine": 74,
+        "endChar": 19
+      },
+      "revId": "0867ecdb8bd473696a12396359f23965767ec587",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cab3082d_d7225b4e",
+        "filename": "examples/analyzer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5041
+      },
+      "writtenOn": "2017-04-04T21:47:32Z",
+      "side": 1,
+      "message": "It should actually be in the order specified in the class, so after decoder but before image.",
+      "parentUuid": "2b0a70f4_ac63de87",
       "range": {
         "startLine": 74,
         "startChar": 18,
