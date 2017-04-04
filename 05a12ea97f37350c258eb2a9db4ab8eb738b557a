@@ -1,0 +1,232 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e9b89e5_a71b144f",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-04T16:45:40Z",
+      "side": 1,
+      "message": "this looks to be unused",
+      "revId": "05a12ea97f37350c258eb2a9db4ab8eb738b557a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eae85759_c1cbfb68",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-04T16:45:40Z",
+      "side": 1,
+      "message": "this looks to be unused",
+      "range": {
+        "startLine": 16,
+        "startChar": 18,
+        "endLine": 16,
+        "endChar": 0
+      },
+      "revId": "05a12ea97f37350c258eb2a9db4ab8eb738b557a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e943dc8_bfc624f6",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-04T16:45:40Z",
+      "side": 1,
+      "message": "namespaces are typically replicated in the .cc:\n\nhttps://google.github.io/styleguide/cppguide.html#Namespaces",
+      "revId": "05a12ea97f37350c258eb2a9db4ab8eb738b557a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28ee78cd_e3656c95",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-04T16:45:40Z",
+      "side": 1,
+      "message": "constants like this are usually prefixed with k [1]. note regular variables are written as lower + \u0027_\u0027. lowercase camel case is never used in the google c++ style.\n\nhttps://google.github.io/styleguide/cppguide.html#Constant_Names",
+      "range": {
+        "startLine": 23,
+        "startChar": 22,
+        "endLine": 23,
+        "endChar": 35
+      },
+      "revId": "05a12ea97f37350c258eb2a9db4ab8eb738b557a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a23caf0d_d0423ed0",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-04T16:45:40Z",
+      "side": 1,
+      "message": "these can be inlined in the header",
+      "revId": "05a12ea97f37350c258eb2a9db4ab8eb738b557a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de400675_0efbfecc",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-04T16:45:40Z",
+      "side": 1,
+      "message": "add a newline",
+      "revId": "05a12ea97f37350c258eb2a9db4ab8eb738b557a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65ec0dca_ed55c35e",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-04T16:45:40Z",
+      "side": 1,
+      "message": "a do {} while would be more readable given the test below",
+      "revId": "05a12ea97f37350c258eb2a9db4ab8eb738b557a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2848e568_4c3e4361",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-04T16:45:40Z",
+      "side": 1,
+      "message": "this should be ASSERT_NE",
+      "revId": "05a12ea97f37350c258eb2a9db4ab8eb738b557a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38db01af_833f8254",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-04T16:45:40Z",
+      "side": 1,
+      "message": "prefer static_cast\u003c\u003e in c++ code",
+      "revId": "05a12ea97f37350c258eb2a9db4ab8eb738b557a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fb87801_d6bb0309",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-04T16:45:40Z",
+      "side": 1,
+      "message": "stdlib.h should be included for this",
+      "range": {
+        "startLine": 75,
+        "startChar": 13,
+        "endLine": 75,
+        "endChar": 16
+      },
+      "revId": "05a12ea97f37350c258eb2a9db4ab8eb738b557a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ad2f37b_1cb0029c",
+        "filename": "test/warp_filter_test_util.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-04T16:45:40Z",
+      "side": 1,
+      "message": "this is unused in this header",
+      "revId": "05a12ea97f37350c258eb2a9db4ab8eb738b557a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "069d3ebd_cb46bb0b",
+        "filename": "test/warp_filter_test_util.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-04T16:45:40Z",
+      "side": 1,
+      "message": "this would be better named WarpAffineFunc:\n\nhttps://google.github.io/styleguide/cppguide.html#Type_Names",
+      "range": {
+        "startLine": 29,
+        "startChar": 15,
+        "endLine": 29,
+        "endChar": 31
+      },
+      "revId": "05a12ea97f37350c258eb2a9db4ab8eb738b557a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
