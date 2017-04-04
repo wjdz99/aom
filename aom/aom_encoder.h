@@ -402,6 +402,15 @@ typedef struct aom_codec_enc_cfg {
    */
   unsigned int rc_resize_down_thresh;
 
+  /*!\brief Enable/disable frame super-resolution scaling, if supported.
+   *
+   * Similar to spatial resampling, frame super-resolution scaling integrates
+   * upscaling and restoration with a fitted filter by the decoder. The filter
+   * is fitted to each frame and should perform even better at lower data rares,
+   * while costing even more CPU time on the encoder/decoder.
+   */
+  unsigned int rc_superres_allowed;
+
   /*!\brief Rate control algorithm to use.
    *
    * Indicates whether the end usage of this stream is to be streamed over
