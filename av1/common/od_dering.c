@@ -112,6 +112,13 @@ int od_dir_find8_c(const uint16_t *img, int stride, int32_t *var,
   return best_dir;
 }
 
+static int sign(int i) { return i < 0 ? -1 : 1; }
+
+static int constrain(int x, int s, unsigned int damping) {
+  return sign(x) *
+         AOMMIN(abs(x), AOMMAX(0, s - (abs(x) >> (damping - get_msb(s)))));
+}
+
 /* Smooth in the direction detected. */
 void od_filter_dering_direction_8x8_c(uint16_t *y, int ystride,
                                       const uint16_t *in, int threshold,
@@ -134,8 +141,10 @@ void od_filter_dering_direction_8x8_c(uint16_t *y, int ystride,
              xx;
         p1 = in[i * OD_FILT_BSTRIDE + j - OD_DIRECTION_OFFSETS_TABLE[dir][k]] -
              xx;
-        if (abs(p0) < threshold) sum += taps[k] * p0;
-        if (abs(p1) < threshold) sum += taps[k] * p1;
+        //if (abs(p0) < threshold) sum += taps[k] * p0;
+        //if (abs(p1) < threshold) sum += taps[k] * p1;
+        sum += taps[k] * constrain(p0, threshold, 6);
+        sum += taps[k] * constrain(p1, threshold, 6);
       }
       sum = (sum + 8) >> 4;
       yy = xx + sum;
@@ -166,8 +175,10 @@ void od_filter_dering_direction_4x4_c(uint16_t *y, int ystride,
              xx;
         p1 = in[i * OD_FILT_BSTRIDE + j - OD_DIRECTION_OFFSETS_TABLE[dir][k]] -
              xx;
-        if (abs(p0) < threshold) sum += taps[k] * p0;
-        if (abs(p1) < threshold) sum += taps[k] * p1;
+        //if (abs(p0) < threshold) sum += taps[k] * p0;
+        //if (abs(p1) < threshold) sum += taps[k] * p1;
+        sum += taps[k] * constrain(p0, threshold, 6);
+        sum += taps[k] * constrain(p1, threshold, 6);
       }
       sum = (sum + 8) >> 4;
       yy = xx + sum;
@@ -296,7 +307,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
 
   int threshold = (pli ? level_table_uv : level_table)[level] << coeff_shift;
   od_filter_dering_direction_func filter_dering_direction[OD_DERINGSIZES] = {
-    od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
+    od_filter_dering_direction_4x4_c, od_filter_dering_direction_8x8_c
   };
   bsize = OD_DERING_SIZE_LOG2 - xdec;
   if (!skip_dering) {
