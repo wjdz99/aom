@@ -119,6 +119,32 @@ if ("${AOM_TARGET_CPU}" STREQUAL "arm64")
       "${AOM_ROOT}/aom_dsp/arm/loopfilter_8_neon.c")
 endif ()
 
+set(AOM_DSP_COMMON_INTRIN_DSPR2
+    "${AOM_ROOT}/aom_dsp/mips/common_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/common_dspr2.h"
+    "${AOM_ROOT}/aom_dsp/mips/convolve2_avg_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/convolve2_avg_horiz_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/convolve2_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/convolve2_horiz_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/convolve2_vert_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/convolve8_avg_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/convolve8_avg_horiz_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/convolve8_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/convolve8_horiz_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/convolve8_vert_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/convolve_common_dspr2.h"
+    "${AOM_ROOT}/aom_dsp/mips/intrapred16_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/intrapred4_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/intrapred8_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/inv_txfm_dspr2.h"
+    "${AOM_ROOT}/aom_dsp/mips/loopfilter_filters_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/loopfilter_filters_dspr2.h"
+    "${AOM_ROOT}/aom_dsp/mips/loopfilter_macros_dspr2.h"
+    "${AOM_ROOT}/aom_dsp/mips/loopfilter_masks_dspr2.h"
+    "${AOM_ROOT}/aom_dsp/mips/loopfilter_mb_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/loopfilter_mb_horiz_dspr2.c"
+    "${AOM_ROOT}/aom_dsp/mips/loopfilter_mb_vert_dspr2.c")
+
 if (CONFIG_AOM_HIGHBITDEPTH)
   set(AOM_DSP_COMMON_ASM_SSE2
       ${AOM_DSP_COMMON_ASM_SSE2}
@@ -127,6 +153,14 @@ if (CONFIG_AOM_HIGHBITDEPTH)
   set(AOM_DSP_COMMON_INTRIN_SSE2
       ${AOM_DSP_COMMON_INTRIN_SSE2}
       "${AOM_ROOT}/aom_dsp/x86/highbd_loopfilter_sse2.c")
+
+  set(AOM_DSP_COMMON_INTRIN_DSPR2
+      ${AOM_DSP_COMMON_INTRIN_DSPR2}
+      "${AOM_ROOT}/aom_dsp/mips/itrans16_dspr2.c"
+      "${AOM_ROOT}/aom_dsp/mips/itrans32_cols_dspr2.c"
+      "${AOM_ROOT}/aom_dsp/mips/itrans32_dspr2.c"
+      "${AOM_ROOT}/aom_dsp/mips/itrans4_dspr2.c"
+      "${AOM_ROOT}/aom_dsp/mips/itrans8_dspr2.c")
 endif ()
 
 if (CONFIG_ANS)
@@ -424,6 +458,11 @@ function (setup_aom_dsp_targets)
   if (HAVE_NEON)
     add_intrinsics_object_library("${AOM_NEON_INTRIN_FLAG}" "neon"
                                   "aom_dsp_common" "AOM_DSP_COMMON_INTRIN_NEON")
+  endif ()
+
+  if (HAVE_DSPR2)
+    add_intrinsics_object_library("" "dspr2" "aom_dsp_common"
+                                  "AOM_DSP_COMMON_INTRIN_DSPR2")
   endif ()
   # Pass the new lib targets up to the parent scope instance of
   # $AOM_LIB_TARGETS.
