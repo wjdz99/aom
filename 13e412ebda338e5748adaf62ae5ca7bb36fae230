@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b85c201_5e3e2d53",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-04-04T18:21:53Z",
+      "side": 1,
+      "message": "Hi Joe, if build_for_obmc is true, this condition becomes false, we will use the motion_vector in mi-\u003embmi.mv[ref], which is copied from mi-\u003ebmi[3].as_mv[1] (see read_inter_block_mode_info() in decodemv.c)",
+      "range": {
+        "startLine": 1039,
+        "startChar": 10,
+        "endLine": 1039,
+        "endChar": 59
+      },
+      "revId": "13e412ebda338e5748adaf62ae5ca7bb36fae230",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
