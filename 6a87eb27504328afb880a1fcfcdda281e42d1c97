@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe8c7cff_0347aa8f",
+        "filename": "av1/common/od_dering_simd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-04-04T04:45:45Z",
+      "side": 1,
+      "message": "The summing was moved but the comment wasn\u0027t updated.  The comment would be more accurate if it says something like p0 \u003d abs(p0) \u003c thresh ? p0 : 0 here and sum +\u003d 3 * p0 below, or perhaps make a bigger comment here:\n\np0 \u003d in[i * OD_FILT_BSTRIDE + offset] - row;\np1 \u003d in[i * OD_FILT_BSTRIDE - offset] - row;\nif (abs(p0) \u003c thresh) sum +\u003d 3 * p0;\nif (abs(p1) \u003c thresh) sum +\u003d 3 * p1;\n\nThen have relevant the SIMD code in one block below.  It looks clearer to me if the tap weight is written explicitly (1,2 or 3), since it\u0027s hardcoded and not read from the table.",
+      "range": {
+        "startLine": 309,
+        "startChar": 28,
+        "endLine": 309,
+        "endChar": 46
+      },
+      "revId": "6a87eb27504328afb880a1fcfcdda281e42d1c97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
