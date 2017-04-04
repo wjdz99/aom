@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b7016ec8_8cfc9491",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 5802,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-04-04T20:41:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e4f9495_75db9e54",
+      "revId": "37dee7be482ba82828a55b1b9440c93caf1e27f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bfc3b3ba_60396cf7",
         "filename": "av1/common/generic_code.c",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-04T18:47:37Z",
       "side": 1,
       "message": "I don\u0027t think you should change this one. This isn\u0027t a CDF, it\u0027s a consequence of the fact that ex_q16 is stored in Q16 format. I.e., if we change the resolution of CDF probabilities some day (which seems likely), this should not change.",
+      "revId": "37dee7be482ba82828a55b1b9440c93caf1e27f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87df008a_0b04db44",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-04-04T20:41:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfc3b3ba_60396cf7",
       "revId": "37dee7be482ba82828a55b1b9440c93caf1e27f5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
