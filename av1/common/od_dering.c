@@ -296,7 +296,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
 
   int threshold = (pli ? level_table_uv : level_table)[level] << coeff_shift;
   od_filter_dering_direction_func filter_dering_direction[OD_DERINGSIZES] = {
-    od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
+    od_filter_dering_direction_4x4_c, od_filter_dering_direction_8x8_c
   };
   clpf_damping += coeff_shift;
   bsize = OD_DERING_SIZE_LOG2 - xdec;
@@ -327,7 +327,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
             &y[bi << 2 * bsize], 1 << bsize,
             &in[(by * OD_FILT_BSTRIDE << bsize) + (bx << bsize)],
             od_adjust_thresh(threshold, var[by][bx]), dir[by][bx],
-            6 - (pli != AOM_PLANE_Y));
+            clpf_damping);
       }
     } else {
       for (bi = 0; bi < dering_count; bi++) {
@@ -336,7 +336,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
         (filter_dering_direction[bsize - OD_LOG_BSIZE0])(
             &y[bi << 2 * bsize], 1 << bsize,
             &in[(by * OD_FILT_BSTRIDE << bsize) + (bx << bsize)], threshold,
-            dir[by][bx], 6 - (pli != AOM_PLANE_Y));
+            dir[by][bx], clpf_damping);
       }
     }
   }
