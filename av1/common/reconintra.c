@@ -1585,11 +1585,12 @@ static void highbd_filter_intra_predictors_3tap(uint16_t *dst, ptrdiff_t stride,
                                                 const uint16_t *left, int mode,
                                                 int bd) {
   int k, r, c;
-  int mean, ipred;
+  int mean;
+  int64_t ipred;
 #if CONFIG_TX64X64
-  int preds[65][65];
+  int64_t preds[65][65];
 #else
-  int preds[33][33];
+  int64_t preds[33][33];
 #endif  // CONFIG_TX64X64
   const TX_SIZE tx_size = get_txsize_from_blocklen(bs);
   const int c0 = av1_filter_intra_taps_3[tx_size][mode][0];
@@ -1630,11 +1631,12 @@ static void highbd_filter_intra_predictors_4tap(uint16_t *dst, ptrdiff_t stride,
                                                 const uint16_t *left, int mode,
                                                 int bd) {
   int k, r, c;
-  int mean, ipred;
+  int mean;
+  int64_t ipred;
 #if CONFIG_TX64X64
-  int preds[65][129];
+  int64_t preds[65][129];
 #else
-  int preds[33][65];
+  int64_t preds[33][65];
 #endif  // CONFIG_TX64X64
   const TX_SIZE tx_size = get_txsize_from_blocklen(bs);
   const int c0 = av1_filter_intra_taps_4[tx_size][mode][0];
