@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7cb14c5c_d0793286",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-04-05T01:52:20Z",
+      "side": 1,
+      "message": "Shall we change to #if CONFIG_MOTION_VAR \u0026\u0026 !CONFIG_CB4X4?  because there is a build error (build_for_obmc is not defined) if  true \u003d\u003d (CONFIG_MOTION_VAR \u0026\u0026 CONFIG_CB4X4 \u0026\u0026 CONFIG_SUB8X8_MC)",
+      "range": {
+        "startLine": 924,
+        "startChar": 0,
+        "endLine": 924,
+        "endChar": 21
+      },
+      "revId": "529ec3c95bff3408988e17962648c437e2caaa99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
