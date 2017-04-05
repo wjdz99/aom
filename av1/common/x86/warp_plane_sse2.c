@@ -14,7 +14,7 @@
 #include "./av1_rtcd.h"
 #include "av1/common/warped_motion.h"
 
-const __m128i *const filter = (const __m128i *const)warped_filter;
+static const __m128i *const filter = (const __m128i *const)warped_filter;
 
 /* SSE2 version of the rotzoom/affine warp filter */
 void av1_warp_affine_sse2(int32_t *mat, uint8_t *ref, int width, int height,
