@@ -286,13 +286,12 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
   // DERING_STRENGTHS to 8 and use the following tables:
   // static int level_table[DERING_STRENGTHS] = {0, 1, 3, 7, 14, 24, 39, 63};
   // static int level_table_uv[DERING_STRENGTHS] = {0, 1, 2, 5, 8, 12, 18, 25};
-  // For now, use 21 strengths and the same for luma and chroma.
-  static int level_table[DERING_STRENGTHS] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 17, 20, 24, 28, 33, 39, 46, 54, 63
-  };
-  static int level_table_uv[DERING_STRENGTHS] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 17, 20, 24, 28, 33, 39, 46, 54, 63
-  };
+  // For now, use 16 strengths and the same for luma and chroma.
+  //static int level_table[DERING_STRENGTHS] = {0, 1, 2, 3, 5, 7, 8, 10, 12, 14, 19, 24, 31, 39, 48, 63};
+  //static int level_table[DERING_STRENGTHS] =    {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 18, 21, 25, 31};
+  //static int level_table_uv[DERING_STRENGTHS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 18, 21, 25, 31};
+  static int level_table[DERING_STRENGTHS] =    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+  static int level_table_uv[DERING_STRENGTHS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 
   int threshold = (pli ? level_table_uv : level_table)[level] << coeff_shift;
   od_filter_dering_direction_func filter_dering_direction[OD_DERINGSIZES] = {
