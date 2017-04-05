@@ -81,7 +81,7 @@ static INLINE uint8_t clip_pixel(int val) {
   return (val > 255) ? 255 : (val < 0) ? 0 : val;
 }
 
-static INLINE int clamp(int value, int low, int high) {
+static INLINE int clamp(int64_t value, int low, int high) {
   return value < low ? low : (value > high ? high : value);
 }
 
@@ -90,7 +90,7 @@ static INLINE double fclamp(double value, double low, double high) {
 }
 
 #if CONFIG_HIGHBITDEPTH
-static INLINE uint16_t clip_pixel_highbd(int val, int bd) {
+static INLINE uint16_t clip_pixel_highbd(int64_t val, int bd) {
   switch (bd) {
     case 8:
     default: return (uint16_t)clamp(val, 0, 255);
