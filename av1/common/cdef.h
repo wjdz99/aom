@@ -11,9 +11,9 @@
 #ifndef AV1_COMMON_DERING_H_
 #define AV1_COMMON_DERING_H_
 
-#define CDEF_STRENGTH_BITS 7
+#define CDEF_STRENGTH_BITS 5
 
-#define DERING_STRENGTHS 21
+#define DERING_STRENGTHS 8
 #define CLPF_STRENGTHS 4
 
 #include "./aom_config.h"
