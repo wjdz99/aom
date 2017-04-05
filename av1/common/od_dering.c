@@ -274,8 +274,8 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
                int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS], int *dirinit,
                int var[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS], int pli,
                dering_list *dlist, int dering_count, int level,
-               int clpf_strength, int clpf_damping, int coeff_shift,
-               int skip_dering, int hbd) {
+               int clpf_strength, int damping, int coeff_shift, int skip_dering,
+               int hbd) {
   int bi;
   int bx;
   int by;
@@ -296,9 +296,9 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
 
   int threshold = (pli ? level_table_uv : level_table)[level] << coeff_shift;
   od_filter_dering_direction_func filter_dering_direction[OD_DERINGSIZES] = {
-    od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
+    od_filter_dering_direction_4x4_c, od_filter_dering_direction_8x8_c
   };
-  clpf_damping += coeff_shift;
+  damping += coeff_shift;
   bsize = OD_DERING_SIZE_LOG2 - xdec;
   if (!skip_dering) {
     if (pli == 0) {
@@ -326,7 +326,8 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
         (filter_dering_direction[bsize - OD_LOG_BSIZE0])(
             &y[bi << 2 * bsize], 1 << bsize,
             &in[(by * OD_FILT_BSTRIDE << bsize) + (bx << bsize)],
-            od_adjust_thresh(threshold, var[by][bx]), dir[by][bx], 6);
+            od_adjust_thresh(threshold, var[by][bx]),
+            dir[by][bx], 6);
       }
     } else {
       for (bi = 0; bi < dering_count; bi++) {
@@ -334,8 +335,8 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
         bx = dlist[bi].bx;
         (filter_dering_direction[bsize - OD_LOG_BSIZE0])(
             &y[bi << 2 * bsize], 1 << bsize,
-            &in[(by * OD_FILT_BSTRIDE << bsize) + (bx << bsize)], threshold,
-            dir[by][bx], threshold == 0 ? 0 : get_msb(threshold) + 1);
+            &in[(by * OD_FILT_BSTRIDE << bsize) + (bx << bsize)],
+            threshold, dir[by][bx], damping + (threshold ? get_msb(threshold) : 0) - 4);
       }
     }
   }
@@ -357,14 +358,14 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
             dst ? (uint16_t *)dst + py * dstride + px : &y[bi << 2 * bsize],
             in + py * OD_FILT_BSTRIDE + px, dst && hbd ? dstride : 1 << bsize,
             OD_FILT_BSTRIDE, 1 << bsize, 1 << bsize,
-            clpf_strength << coeff_shift, clpf_damping);
+            clpf_strength << coeff_shift, damping);
       } else {
         // Do clpf and write the result to an 8 bit destination
         (!threshold || (dir[by][bx] < 4 && dir[by][bx]) ? aom_clpf_block
                                                         : aom_clpf_hblock)(
             dst + py * dstride + px, in + py * OD_FILT_BSTRIDE + px, dstride,
             OD_FILT_BSTRIDE, 1 << bsize, 1 << bsize,
-            clpf_strength << coeff_shift, clpf_damping);
+            clpf_strength << coeff_shift, damping);
       }
     }
   } else {
