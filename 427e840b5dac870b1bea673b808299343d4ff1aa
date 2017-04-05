@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7343e13a_85809709",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-04-05T18:14:06Z",
+      "side": 1,
+      "message": "it might work, but i doubt it-- the conditionals for CONFIG_{DE,EN}CODERS are there, but I haven\u0027t tested it.",
+      "parentUuid": "b9a2a123_ad80c6d8",
+      "revId": "427e840b5dac870b1bea673b808299343d4ff1aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5489dc69_4a54851f",
         "filename": "test/test.cmake",
         "patchSetId": 1
