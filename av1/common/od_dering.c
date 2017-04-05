@@ -286,15 +286,27 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
   // DERING_STRENGTHS to 8 and use the following tables:
   // static int level_table[DERING_STRENGTHS] = {0, 1, 3, 7, 14, 24, 39, 63};
   // static int level_table_uv[DERING_STRENGTHS] = {0, 1, 2, 5, 8, 12, 18, 25};
-  // For now, use 21 strengths and the same for luma and chroma.
-  static int level_table[DERING_STRENGTHS] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 17, 20, 24, 28, 33, 39, 46, 54, 63
-  };
-  static int level_table_uv[DERING_STRENGTHS] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 17, 20, 24, 28, 33, 39, 46, 54, 63
-  };
+  // For now, use 16 strengths and the same for luma and chroma.
+  //static int level_table[DERING_STRENGTHS] = {0, 1, 2, 3, 5, 7, 8, 10, 12, 14, 19, 24, 31, 39, 48, 63};
+  static int level_table[DERING_STRENGTHS] =
+    {0, 1*2, 2*2, 3*2, 4*2, 5*2, 6*2, 7*2, 8*2, 10*2, 12*2, 15*2, 18*2, 21*2, 25*2, 31*2,
+     1*2+1, 2*2+1, 3*2+1, 4*2+1, 5*2+1, 6*2+1, 7*2+1, 8*2+1, 9*2+1, 10*2+1, 12*2+1, 15*2+1, 18*2+1, 21*2+1, 25*2+1, 31*2+1};
+  static int level_table_uv[DERING_STRENGTHS] =
+    {0, 1*2, 2*2, 3*2, 4*2, 5*2, 6*2, 7*2, 8*2, 10*2, 12*2, 15*2, 18*2, 21*2, 25*2, 31*2,
+     1*2+1, 2*2+1, 3*2+1, 4*2+1, 5*2+1, 6*2+1, 7*2+1, 8*2+1, 9*2+1, 10*2+1, 12*2+1, 15*2+1, 18*2+1, 21*2+1, 25*2+1, 31*2+1};
+  //static int level_table_uv[DERING_STRENGTHS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 18, 21, 25, 31};
+  //static int level_table[DERING_STRENGTHS] =    {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 18, 21, 25, 31};
+  //static int level_table_uv[DERING_STRENGTHS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 18, 21, 25, 31};
+  //static int level_table[DERING_STRENGTHS] =    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+  //static int level_table_uv[DERING_STRENGTHS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 
-  int threshold = (pli ? level_table_uv : level_table)[level] << coeff_shift;
+  int threshold = (level >> 1) << coeff_shift;//(pli ? level_table_uv : level_table)[level];
+  int dering_damping = 5 + (level & 1) + coeff_shift;
+  if (level == 1) {
+    threshold = 1 << coeff_shift;
+    dering_damping = 4 + coeff_shift;
+  }
+    
   od_filter_dering_direction_func filter_dering_direction[OD_DERINGSIZES] = {
     od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
   };
@@ -326,7 +338,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
         (filter_dering_direction[bsize - OD_LOG_BSIZE0])(
             &y[bi << 2 * bsize], 1 << bsize,
             &in[(by * OD_FILT_BSTRIDE << bsize) + (bx << bsize)],
-            od_adjust_thresh(threshold, var[by][bx]), dir[by][bx], 6);
+            od_adjust_thresh(threshold, var[by][bx]), dir[by][bx], dering_damping);
       }
     } else {
       for (bi = 0; bi < dering_count; bi++) {
@@ -335,7 +347,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
         (filter_dering_direction[bsize - OD_LOG_BSIZE0])(
             &y[bi << 2 * bsize], 1 << bsize,
             &in[(by * OD_FILT_BSTRIDE << bsize) + (bx << bsize)], threshold,
-            dir[by][bx], threshold == 0 ? 0 : get_msb(threshold) + 1);
+            dir[by][bx], dering_damping - 1);
       }
     }
   }
