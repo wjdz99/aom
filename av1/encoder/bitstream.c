@@ -4570,6 +4570,7 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 
 #if CONFIG_GLOBAL_MOTION
 static void write_global_motion_params(WarpedMotionParams *params,
+                                       WarpedMotionParams *ref_params,
                                        aom_prob *probs, aom_writer *w) {
   TransformationType type = params->wmtype;
   av1_write_token(w, av1_global_motion_types_tree, probs,
@@ -4579,38 +4580,51 @@ static void write_global_motion_params(WarpedMotionParams *params,
     case HORTRAPEZOID:
     case VERTRAPEZOID:
       if (type != HORTRAPEZOID)
-        aom_write_primitive_symmetric(
-            w, (params->wmmat[6] >> GM_ROW3HOMO_PREC_DIFF),
-            GM_ABS_ROW3HOMO_BITS);
+        aom_write_signed_primitive_refsubexpfin(
+            w, GM_ROW3HOMO_MAX, SUBEXPFIN_K,
+            (ref_params->wmmat[6] >> GM_ROW3HOMO_PREC_DIFF),
+            (params->wmmat[6] >> GM_ROW3HOMO_PREC_DIFF));
       if (type != VERTRAPEZOID)
-        aom_write_primitive_symmetric(
-            w, (params->wmmat[7] >> GM_ROW3HOMO_PREC_DIFF),
-            GM_ABS_ROW3HOMO_BITS);
+        aom_write_signed_primitive_refsubexpfin(
+            w, GM_ROW3HOMO_MAX, SUBEXPFIN_K,
+            (ref_params->wmmat[7] >> GM_ROW3HOMO_PREC_DIFF),
+            (params->wmmat[7] >> GM_ROW3HOMO_PREC_DIFF));
     // fallthrough intended
     case AFFINE:
     case ROTZOOM:
-      aom_write_primitive_symmetric(
-          w,
-          (params->wmmat[2] >> GM_ALPHA_PREC_DIFF) - (1 << GM_ALPHA_PREC_BITS),
-          GM_ABS_ALPHA_BITS);
+      aom_write_signed_primitive_refsubexpfin(
+          w, GM_ALPHA_MAX, SUBEXPFIN_K,
+          (ref_params->wmmat[2] >> GM_ALPHA_PREC_DIFF) -
+              (1 << GM_ALPHA_PREC_BITS),
+          (params->wmmat[2] >> GM_ALPHA_PREC_DIFF) - (1 << GM_ALPHA_PREC_BITS));
       if (type != VERTRAPEZOID)
-        aom_write_primitive_symmetric(
-            w, (params->wmmat[3] >> GM_ALPHA_PREC_DIFF), GM_ABS_ALPHA_BITS);
+        aom_write_signed_primitive_refsubexpfin(
+            w, GM_ALPHA_MAX, SUBEXPFIN_K,
+            (ref_params->wmmat[3] >> GM_ALPHA_PREC_DIFF),
+            (params->wmmat[3] >> GM_ALPHA_PREC_DIFF));
       if (type >= AFFINE) {
         if (type != HORTRAPEZOID)
-          aom_write_primitive_symmetric(
-              w, (params->wmmat[4] >> GM_ALPHA_PREC_DIFF), GM_ABS_ALPHA_BITS);
-        aom_write_primitive_symmetric(w,
-                                      (params->wmmat[5] >> GM_ALPHA_PREC_DIFF) -
-                                          (1 << GM_ALPHA_PREC_BITS),
-                                      GM_ABS_ALPHA_BITS);
+          aom_write_signed_primitive_refsubexpfin(
+              w, GM_ALPHA_MAX, SUBEXPFIN_K,
+              (ref_params->wmmat[4] >> GM_ALPHA_PREC_DIFF),
+              (params->wmmat[4] >> GM_ALPHA_PREC_DIFF));
+        aom_write_signed_primitive_refsubexpfin(
+            w, GM_ALPHA_MAX, SUBEXPFIN_K,
+            (ref_params->wmmat[5] >> GM_ALPHA_PREC_DIFF) -
+                (1 << GM_ALPHA_PREC_BITS),
+            (params->wmmat[5] >> GM_ALPHA_PREC_DIFF) -
+                (1 << GM_ALPHA_PREC_BITS));
       }
     // fallthrough intended
     case TRANSLATION:
-      aom_write_primitive_symmetric(w, (params->wmmat[0] >> GM_TRANS_PREC_DIFF),
-                                    GM_ABS_TRANS_BITS);
-      aom_write_primitive_symmetric(w, (params->wmmat[1] >> GM_TRANS_PREC_DIFF),
-                                    GM_ABS_TRANS_BITS);
+      aom_write_signed_primitive_refsubexpfin(
+          w, GM_TRANS_MAX, SUBEXPFIN_K,
+          (ref_params->wmmat[0] >> GM_TRANS_PREC_DIFF),
+          (params->wmmat[0] >> GM_TRANS_PREC_DIFF));
+      aom_write_signed_primitive_refsubexpfin(
+          w, GM_TRANS_MAX, SUBEXPFIN_K,
+          (ref_params->wmmat[1] >> GM_TRANS_PREC_DIFF),
+          (params->wmmat[1] >> GM_TRANS_PREC_DIFF));
       break;
     case IDENTITY: break;
     default: assert(0);
@@ -4630,6 +4644,7 @@ static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
     }
 #endif
     write_global_motion_params(&cm->global_motion[frame],
+                               &cm->prev_frame->global_motion[frame],
                                cm->fc->global_motion_types_prob, w);
     /*
     printf("Frame %d/%d: Enc Ref %d (used %d): %d %d %d %d\n",

@@ -116,6 +116,7 @@ typedef struct {
 //
 // XX_MIN, XX_MAX are also computed to avoid repeated computation
 
+#define SUBEXPFIN_K 0
 #define GM_TRANS_PREC_BITS 6
 #define GM_ABS_TRANS_BITS 12
 #define GM_TRANS_PREC_DIFF (WARPEDMODEL_PREC_BITS - GM_TRANS_PREC_BITS)
