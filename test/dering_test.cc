@@ -69,7 +69,7 @@ void test_dering(int bsize, int iterations,
 
   for (boundary = 0; boundary < 16; boundary++) {
     for (depth = 8; depth <= 12; depth += 2) {
-      for (damping = 5; damping < 7; damping++) {
+      for (damping = 4 + depth - 8; damping < 7 + depth - 8; damping++) {
         for (count = 0; count < iterations; count++) {
           for (level = 0; level < (1 << depth) && !error;
                level += (1 + 4 * !!boundary) << (depth - 8)) {
@@ -102,7 +102,7 @@ void test_dering(int bsize, int iterations,
               }
               for (dir = 0; dir < 8; dir++) {
                 for (threshold = 0; threshold < 64 << (depth - 8) && !error;
-                     threshold += !error << (depth - 8)) {
+                     threshold += (1 + 4 * !!boundary) << (depth - 8)) {
                   ref_dering(ref_d, size, s + OD_FILT_HBORDER +
                                               OD_FILT_VBORDER * OD_FILT_BSTRIDE,
                              threshold, dir, damping);
