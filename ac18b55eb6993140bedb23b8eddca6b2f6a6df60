@@ -16,6 +16,24 @@
       "revId": "ac18b55eb6993140bedb23b8eddca6b2f6a6df60",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc18cc47_dd12788a",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-04-05T23:54:39Z",
+      "side": 1,
+      "message": "I noticed, but it actually seems kind of silly to have to have the extra flag to pass another --enable-x_feature flag. Not sure if it\u0027s worth bothering with, but I can bring the functionality back by adding an extra variable list and disabling everything in it from aom_configure.cmake when CONFIG_EXPERIMENTAL is 0 if people are truly going to miss the extra step.",
+      "parentUuid": "19f79367_9c26791f",
+      "revId": "ac18b55eb6993140bedb23b8eddca6b2f6a6df60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
