@@ -298,7 +298,8 @@ static void write_drl_idx(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
 
 #if CONFIG_EXT_INTER
   if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
-      mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEW_NEARESTMV) {
+      mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEW_NEARESTMV ||
+      mbmi->mode == NEW_NEARMV || mbmi->mode == NEAR_NEWMV) {
 #else
   if (mbmi->mode == NEWMV) {
 #endif
@@ -1742,7 +1743,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
         if (mode == NEARMV || mode == NEAR_NEARMV || mode == NEWMV ||
             mode == NEW_NEWMV || mode == NEAREST_NEWMV ||
             mode == NEW_NEARESTMV || mode == NEAREST_NEARMV ||
-            mode == NEAR_NEARESTMV)
+            mode == NEAR_NEARESTMV || mode == NEW_NEARMV || mode == NEAR_NEWMV)
 #else
         if (mode == NEARMV || mode == NEWMV)
 #endif

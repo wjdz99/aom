@@ -8660,6 +8660,11 @@ static int64_t handle_inter_mode(
 
   if (mbmi_ext->ref_mv_count[ref_frame_type] > 1) {
     int ref_mv_idx = mbmi->ref_mv_idx + 1;
+    // Special case: Combined NEAR+NEW modes use a 0 offset (like NEWMV)
+    // rather than a 1 offset (like NEARMV)
+    if (this_mode == NEAR_NEWMV || this_mode == NEW_NEARMV)
+      ref_mv_idx = mbmi->ref_mv_idx;
+
     if (this_mode == NEAR_NEWMV || this_mode == NEAR_NEARESTMV ||
         this_mode == NEAR_NEARMV) {
       cur_mv[0] = mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv;
@@ -10263,15 +10268,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_EXT_INTER
       if (comp_pred) {
         if (mbmi_ext->ref_mv_count[ref_frame_type] > 1) {
-          if (this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV ||
-              this_mode == NEW_NEWMV) {
+          if (compound_ref0_mode(mbmi->mode) == NEWMV) {
             int_mv this_mv = mbmi_ext->ref_mv_stack[ref_frame_type][0].this_mv;
             clamp_mv_ref(&this_mv.as_mv, xd->n8_w << MI_SIZE_LOG2,
                          xd->n8_h << MI_SIZE_LOG2, xd);
             mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0] = this_mv;
           }
-          if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV ||
-              this_mode == NEW_NEWMV) {
+          if (compound_ref1_mode(mbmi->mode) == NEWMV) {
             int_mv this_mv = mbmi_ext->ref_mv_stack[ref_frame_type][0].comp_mv;
             clamp_mv_ref(&this_mv.as_mv, xd->n8_w << MI_SIZE_LOG2,
                          xd->n8_h << MI_SIZE_LOG2, xd);
@@ -10333,7 +10336,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
             mbmi->mode == NEAR_NEARESTMV || mbmi->mode == NEAREST_NEARMV) &&
            mbmi_ext->ref_mv_count[ref_frame_type] > 2) ||
           ((mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
-            mbmi->mode == NEW_NEARESTMV || mbmi->mode == NEAREST_NEWMV) &&
+            mbmi->mode == NEW_NEARESTMV || mbmi->mode == NEAREST_NEWMV ||
+            mbmi->mode == NEW_NEARMV || mbmi->mode == NEAR_NEWMV) &&
            mbmi_ext->ref_mv_count[ref_frame_type] > 1)) {
 #else
       if ((mbmi->mode == NEARMV &&
@@ -10406,15 +10410,14 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
 #if CONFIG_EXT_INTER
           if (comp_pred) {
-            if (mbmi->mode == NEW_NEWMV || mbmi->mode == NEW_NEARESTMV ||
-                mbmi->mode == NEAR_NEARMV || mbmi->mode == NEAR_NEARESTMV) {
+            if (compound_ref0_mode(mbmi->mode) == NEWMV) {
               int_mv this_mv =
                   mbmi_ext->ref_mv_stack[ref_frame_type][mbmi->ref_mv_idx]
                       .this_mv;
               clamp_mv_ref(&this_mv.as_mv, xd->n8_w << MI_SIZE_LOG2,
                            xd->n8_h << MI_SIZE_LOG2, xd);
               mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0] = this_mv;
-            } else {
+            } else if (compound_ref0_mode(mbmi->mode) == NEARESTMV) {
               int_mv this_mv =
                   mbmi_ext->ref_mv_stack[ref_frame_type][0].this_mv;
               clamp_mv_ref(&this_mv.as_mv, xd->n8_w << MI_SIZE_LOG2,
@@ -10422,15 +10425,14 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
               mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0] = this_mv;
             }
 
-            if (mbmi->mode == NEW_NEWMV || mbmi->mode == NEAREST_NEWMV ||
-                mbmi->mode == NEAR_NEARMV || mbmi->mode == NEAREST_NEARMV) {
+            if (compound_ref1_mode(mbmi->mode) == NEWMV) {
               int_mv this_mv =
                   mbmi_ext->ref_mv_stack[ref_frame_type][mbmi->ref_mv_idx]
                       .comp_mv;
               clamp_mv_ref(&this_mv.as_mv, xd->n8_w << MI_SIZE_LOG2,
                            xd->n8_h << MI_SIZE_LOG2, xd);
               mbmi_ext->ref_mvs[mbmi->ref_frame[1]][0] = this_mv;
-            } else {
+            } else if (compound_ref1_mode(mbmi->mode) == NEARESTMV) {
               int_mv this_mv =
                   mbmi_ext->ref_mv_stack[ref_frame_type][0].comp_mv;
               clamp_mv_ref(&this_mv.as_mv, xd->n8_w << MI_SIZE_LOG2,
@@ -11189,7 +11191,8 @@ PALETTE_EXIT:
         best_mbmode.mode == NEW_NEARESTMV ||
         best_mbmode.mode == NEAREST_NEWMV ||
         best_mbmode.mode == NEAR_NEARESTMV ||
-        best_mbmode.mode == NEAREST_NEARMV)) {
+        best_mbmode.mode == NEAREST_NEARMV || best_mbmode.mode == NEW_NEARMV ||
+        best_mbmode.mode == NEAR_NEWMV)) {
 #else
       !(best_mbmode.mode == NEARMV || best_mbmode.mode == NEWMV)) {
 #endif
