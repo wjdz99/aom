@@ -2729,9 +2729,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 #endif
             if (RDCOST(x->rdmult, x->rddiv, ratey, distortion) >= best_rd)
               goto next_highbd;
-#if CONFIG_PVQ
             if (!skip)
-#endif
               av1_inverse_transform_block(xd, BLOCK_OFFSET(pd->dqcoeff, block),
                                           DCT_DCT, tx_size, dst, dst_stride,
                                           p->eobs[block]);
@@ -2772,9 +2770,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
             templ[idy] = !skip;
             can_skip &= skip;
 #endif
-#if CONFIG_PVQ
             if (!skip)
-#endif
               av1_inverse_transform_block(xd, BLOCK_OFFSET(pd->dqcoeff, block),
                                           tx_type, tx_size, dst, dst_stride,
                                           p->eobs[block]);
@@ -2938,9 +2934,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 #endif  // !CONFIG_PVQ
           if (RDCOST(x->rdmult, x->rddiv, ratey, distortion) >= best_rd)
             goto next;
-#if CONFIG_PVQ
           if (!skip)
-#endif  // CONFIG_PVQ
             av1_inverse_transform_block(xd, BLOCK_OFFSET(pd->dqcoeff, block),
                                         DCT_DCT, tx_size, dst, dst_stride,
                                         p->eobs[block]);
@@ -2994,9 +2988,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
           templ[idy] = !skip;
           can_skip &= skip;
 #endif  // !CONFIG_PVQ
-#if CONFIG_PVQ
           if (!skip)
-#endif  // CONFIG_PVQ
             av1_inverse_transform_block(xd, BLOCK_OFFSET(pd->dqcoeff, block),
                                         tx_type, tx_size, dst, dst_stride,
                                         p->eobs[block]);
