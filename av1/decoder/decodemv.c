@@ -234,7 +234,8 @@ static void read_drl_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
 #if CONFIG_EXT_INTER
   if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
-      mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEW_NEARESTMV) {
+      mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEW_NEARESTMV ||
+      mbmi->mode == NEW_NEARMV || mbmi->mode == NEAR_NEWMV) {
 #else
   if (mbmi->mode == NEWMV) {
 #endif
@@ -1716,7 +1717,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       if (mbmi->mode == NEARMV || mbmi->mode == NEAR_NEARMV ||
           mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
           mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEW_NEARESTMV ||
-          mbmi->mode == NEAREST_NEARMV || mbmi->mode == NEAR_NEARESTMV)
+          mbmi->mode == NEAREST_NEARMV || mbmi->mode == NEAR_NEARESTMV ||
+          mbmi->mode == NEW_NEARMV || mbmi->mode == NEAR_NEWMV)
 #else
       if (mbmi->mode == NEARMV || mbmi->mode == NEWMV)
 #endif
@@ -1779,14 +1781,17 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_EXT_INTER
     if (xd->ref_mv_count[ref_frame_type] > 1) {
       int ref_mv_idx = 1 + mbmi->ref_mv_idx;
-      if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEAR_NEARESTMV ||
-          mbmi->mode == NEAR_NEARMV) {
+      // Special case: Combined NEAR+NEW modes use a 0 offset (like NEWMV)
+      // rather than a 1 offset (like NEARMV)
+      if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV)
+        ref_mv_idx = mbmi->ref_mv_idx;
+
+      if (compound_ref0_mode(mbmi->mode) == NEARMV) {
         nearmv[0] = xd->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv;
         lower_mv_precision(&nearmv[0].as_mv, allow_hp);
       }
 
-      if (mbmi->mode == NEW_NEARMV || mbmi->mode == NEAREST_NEARMV ||
-          mbmi->mode == NEAR_NEARMV) {
+      if (compound_ref1_mode(mbmi->mode) == NEARMV) {
         nearmv[1] = xd->ref_mv_stack[ref_frame_type][ref_mv_idx].comp_mv;
         lower_mv_precision(&nearmv[1].as_mv, allow_hp);
       }
@@ -1919,8 +1924,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
 #if CONFIG_EXT_INTER
     if (is_compound) {
-      if (mbmi->mode == NEW_NEWMV || mbmi->mode == NEW_NEARESTMV ||
-          mbmi->mode == NEW_NEARMV) {
+      if (compound_ref0_mode(mbmi->mode) == NEWMV) {
 #if CONFIG_REF_MV
         uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
         if (xd->ref_mv_count[ref_frame_type] > 1) {
@@ -1932,8 +1936,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif
         nearestmv[0] = ref_mv[0];
       }
-      if (mbmi->mode == NEW_NEWMV || mbmi->mode == NEAREST_NEWMV ||
-          mbmi->mode == NEAR_NEWMV) {
+      if (compound_ref1_mode(mbmi->mode) == NEWMV) {
 #if CONFIG_REF_MV
         uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
         if (xd->ref_mv_count[ref_frame_type] > 1) {

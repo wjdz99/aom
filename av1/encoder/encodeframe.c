@@ -1103,8 +1103,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
       (mbmi->sb_type >= BLOCK_8X8 || unify_bsize)) {
 #if CONFIG_EXT_INTER
     if (has_second_ref(mbmi)) {
-      if (mbmi->mode == NEW_NEWMV || mbmi->mode == NEW_NEARESTMV ||
-          mbmi->mode == NEW_NEARMV) {
+      if (compound_ref0_mode(mbmi->mode) == NEWMV) {
         int_mv this_mv =
             x->mbmi_ext->ref_mv_stack[rf_type][mbmi->ref_mv_idx].this_mv;
         clamp_mv_ref(&this_mv.as_mv, xd->n8_w << MI_SIZE_LOG2,
@@ -1113,8 +1112,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
         mbmi->pred_mv[0] = this_mv;
         mi->mbmi.pred_mv[0] = this_mv;
       }
-      if (mbmi->mode == NEW_NEWMV || mbmi->mode == NEAREST_NEWMV ||
-          mbmi->mode == NEAR_NEWMV) {
+      if (compound_ref1_mode(mbmi->mode) == NEWMV) {
         int_mv this_mv =
             x->mbmi_ext->ref_mv_stack[rf_type][mbmi->ref_mv_idx].comp_mv;
         clamp_mv_ref(&this_mv.as_mv, xd->n8_w << MI_SIZE_LOG2,
@@ -1337,8 +1335,7 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
       (mbmi->sb_type >= BLOCK_8X8 || unify_bsize)) {
 #if CONFIG_EXT_INTER
     if (has_second_ref(mbmi)) {
-      if (mbmi->mode == NEW_NEWMV || mbmi->mode == NEW_NEARESTMV ||
-          mbmi->mode == NEW_NEARMV) {
+      if (compound_ref0_mode(mbmi->mode) == NEWMV) {
         int_mv this_mv =
             x->mbmi_ext->ref_mv_stack[rf_type][mbmi->ref_mv_idx].this_mv;
         clamp_mv_ref(&this_mv.as_mv, xd->n8_w << MI_SIZE_LOG2,
@@ -1347,8 +1344,7 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
         mbmi->pred_mv[0] = this_mv;
         mi->mbmi.pred_mv[0] = this_mv;
       }
-      if (mbmi->mode == NEW_NEWMV || mbmi->mode == NEAREST_NEWMV ||
-          mbmi->mode == NEAR_NEWMV) {
+      if (compound_ref1_mode(mbmi->mode) == NEWMV) {
         int_mv this_mv =
             x->mbmi_ext->ref_mv_stack[rf_type][mbmi->ref_mv_idx].comp_mv;
         clamp_mv_ref(&this_mv.as_mv, xd->n8_w << MI_SIZE_LOG2,
@@ -2267,7 +2263,8 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 
 #if CONFIG_EXT_INTER
         if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
-            mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEW_NEARESTMV) {
+            mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEW_NEARESTMV ||
+            mbmi->mode == NEW_NEARMV || mbmi->mode == NEAR_NEWMV) {
 #else
         if (mbmi->mode == NEWMV) {
 #endif
