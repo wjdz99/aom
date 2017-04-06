@@ -314,6 +314,7 @@ EXPERIMENT_LIST="
     mv_compress
     frame_superres
     new_multisymbol
+    lowdelay_compound
 "
 CONFIG_LIST="
     dependency_tracking
