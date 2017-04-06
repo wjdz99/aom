@@ -1561,6 +1561,8 @@ void av1_build_inter_predictors_sb_extend(MACROBLOCKD *xd,
 #endif  // CONFIG_SUPERTX
 
 #if CONFIG_MOTION_VAR
+#define WARP_NEIGHBORS_WITH_OBMC 0
+
 // obmc_mask_N[overlap_position]
 static const uint8_t obmc_mask_1[1] = { 64 };
 
@@ -1875,7 +1877,7 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
       bh = AOMMAX((num_4x4_blocks_high_lookup[bsize] * 2) >> pd->subsampling_y,
                   4);
 
-#if CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
       if (above_mbmi->motion_mode == WARPED_CAUSAL) {
         assert_motion_mode_valid(WARPED_CAUSAL,
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
@@ -1895,16 +1897,16 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                        16, 0);
 
       } else {
-#endif  // CONFIG_WARPED_MOTION
+#endif  // CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
         build_inter_predictors(xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
                                0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                                0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
                                mi_x, mi_y);
-#if CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
       }
-#endif  // CONFIG_WARPED_MOTION
+#endif  // CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
     }
     *above_mbmi = backup_mbmi;
   }
@@ -1979,7 +1981,7 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                   4);
       bh = (mi_step << MI_SIZE_LOG2) >> pd->subsampling_y;
 
-#if CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
       if (left_mbmi->motion_mode == WARPED_CAUSAL) {
         assert_motion_mode_valid(WARPED_CAUSAL,
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
@@ -1999,16 +2001,16 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                        16, 0);
 
       } else {
-#endif  // CONFIG_WARPED_MOTION
+#endif  // CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
         build_inter_predictors(xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
                                0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                                0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
                                mi_x, mi_y);
-#if CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
       }
-#endif  // CONFIG_WARPED_MOTION
+#endif  // CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
     }
     *left_mbmi = backup_mbmi;
   }
@@ -2154,7 +2156,7 @@ void av1_build_prediction_by_bottom_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                 mi_x, mi_y);
           }
       } else {
-#if CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
         if (mbmi->motion_mode == WARPED_CAUSAL) {
           assert_motion_mode_valid(WARPED_CAUSAL,
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
@@ -2174,7 +2176,7 @@ void av1_build_prediction_by_bottom_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                          16, 16, 0);
 
         } else {
-#endif  // CONFIG_WARPED_MOTION
+#endif  // CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
           build_inter_predictors(
               xd, j, mi_col_offset, mi_row_offset, 0, bw, bh, 0,
               xd->n8_h == 1 ? (4 >> pd->subsampling_y) : 0, bw, bh,
@@ -2182,9 +2184,9 @@ void av1_build_prediction_by_bottom_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
               0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
               mi_x, mi_y);
-#if CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
         }
-#endif  // CONFIG_WARPED_MOTION
+#endif  // CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
       }
     }
 #if CONFIG_EXT_INTER
@@ -2285,7 +2287,7 @@ void av1_build_prediction_by_right_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                    mi_x, mi_y);
           }
       } else {
-#if CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
         if (mbmi->motion_mode == WARPED_CAUSAL) {
           assert_motion_mode_valid(WARPED_CAUSAL,
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
@@ -2305,7 +2307,7 @@ void av1_build_prediction_by_right_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                          pd->subsampling_y, 16, 16, 0);
 
         } else {
-#endif  // CONFIG_WARPED_MOTION
+#endif  // CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
           build_inter_predictors(xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
                                  xd->n8_w == 1 ? 4 >> pd->subsampling_x : 0, 0,
                                  bw, bh,
@@ -2313,9 +2315,9 @@ void av1_build_prediction_by_right_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                  0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
                                  mi_x, mi_y);
-#if CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
         }
-#endif  // CONFIG_WARPED_MOTION
+#endif  // CONFIG_WARPED_MOTION && WARP_NEIGHBORS_WITH_OBMC
       }
     }
 #if CONFIG_EXT_INTER
