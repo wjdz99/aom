@@ -611,6 +611,8 @@ typedef struct AV1_COMP {
 
   TileBufferEnc tile_buffers[MAX_TILE_ROWS][MAX_TILE_COLS];
 
+  int recode_pending;
+
   int resize_pending;
   int resize_state;
   int resize_scale_num;

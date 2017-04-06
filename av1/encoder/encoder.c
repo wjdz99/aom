@@ -3842,6 +3842,7 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
   av1_set_rd_speed_thresholds(cpi);
   av1_set_rd_speed_thresholds_sub8x8(cpi);
   cpi->common.interp_filter = cpi->sf.default_interp_filter;
+  cpi->recode_pending = 0;
 }
 
 static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
@@ -4080,7 +4081,6 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
 
   // transform / motion compensation build reconstruction frame
   av1_encode_frame(cpi);
-
   // Update some stats from cyclic refresh, and check if we should not update
   // golden reference, for 1 pass CBR.
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->frame_type != KEY_FRAME &&
@@ -4091,6 +4091,7 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
   // seen in the last encoder iteration.
   // update_base_skip_probs(cpi);
   aom_clear_system_state();
+  assert(cpi->recode_pending == 0);
 }
 
 static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
@@ -4396,6 +4397,7 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
       loop = 1;
     }
 #endif  // CONFIG_GLOBAL_MOTION
+    if (cpi->recode_pending) loop = 1;
 
     if (loop) {
       ++loop_count;
@@ -4406,6 +4408,7 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
 #endif
     }
   } while (loop);
+  assert(cpi->recode_pending == 0);
 }
 
 static int get_ref_frame_flags(const AV1_COMP *cpi) {

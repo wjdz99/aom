@@ -3702,7 +3702,10 @@ static void write_frame_interp_filter(InterpFilter filter,
     aom_wb_write_literal(wb, filter, LOG_SWITCHABLE_FILTERS);
 }
 
-static void fix_interp_filter(AV1_COMMON *cm, FRAME_COUNTS *counts) {
+// Returns if recode is needed
+static void fix_interp_filter(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  FRAME_COUNTS *counts = cpi->td.counts;
   if (cm->interp_filter == SWITCHABLE) {
     // Check to see if only one of the filters is actually used
     int count[SWITCHABLE_FILTERS];
@@ -3718,9 +3721,17 @@ static void fix_interp_filter(AV1_COMMON *cm, FRAME_COUNTS *counts) {
       for (i = 0; i < SWITCHABLE_FILTERS; ++i) {
         if (count[i]) {
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
-          if (i == EIGHTTAP_REGULAR || WARP_NEIGHBORS_WITH_OBMC)
-#endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+          if (i != EIGHTTAP_REGULAR && !WARP_NEIGHBORS_WITH_OBMC) {
+            if (cpi->sf.recode_loop == ALLOW_RECODE) {
+              cpi->recode_pending = 1;
+              cm->interp_filter = i;
+            }
+          } else {
             cm->interp_filter = i;
+          }
+#else
+          cm->interp_filter = i;
+#endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
           break;
         }
       }
@@ -4507,7 +4518,7 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 
       aom_wb_write_bit(wb, cm->allow_high_precision_mv);
 
-      fix_interp_filter(cm, cpi->td.counts);
+      fix_interp_filter(cpi);
       write_frame_interp_filter(cm->interp_filter, wb);
 #if CONFIG_TEMPMV_SIGNALING
       if (!cm->error_resilient_mode) {
