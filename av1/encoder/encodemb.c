@@ -1124,19 +1124,16 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                     ctx, AV1_XFORM_QUANT_B);
   }
 
-#if CONFIG_PVQ
-  // *(args->skip) == mbmi->skip
-  if (!x->pvq_skip[plane]) *(args->skip) = 0;
-
-  if (x->pvq_skip[plane]) return;
-#endif  // CONFIG_PVQ
-  av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst, dst_stride,
-                              *eob);
 #if !CONFIG_PVQ
   if (*eob) *(args->skip) = 0;
 #else
-// Note : *(args->skip) == mbmi->skip
+  // *(args->skip) == mbmi->skip
+  if (!x->pvq_skip[plane]) *(args->skip) = 0;
 #endif
+  if (*(args->skip)) return;
+
+  av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst, dst_stride,
+                              *eob);
 }
 
 void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
