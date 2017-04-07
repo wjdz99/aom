@@ -15,6 +15,10 @@
 #include <stdio.h>
 #include "aom/aom_integer.h"
 
+#include "aom_scale/aom_scale.h"
+
+#include "av1/common/onyxc_int.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -61,6 +65,14 @@ void av1_highbd_resize_frame444(const uint8_t *const y, int y_stride,
                                 uint8_t *ov, int ouv_stride, int oheight,
                                 int owidth, int bd);
 #endif  // CONFIG_HIGHBITDEPTH
+
+YV12_BUFFER_CONFIG *av1_scale_if_required_fast(AV1_COMMON *cm,
+                                               YV12_BUFFER_CONFIG *unscaled,
+                                               YV12_BUFFER_CONFIG *scaled);
+
+YV12_BUFFER_CONFIG *av1_scale_if_required(AV1_COMMON *cm,
+                                          YV12_BUFFER_CONFIG *unscaled,
+                                          YV12_BUFFER_CONFIG *scaled);
 
 #ifdef __cplusplus
 }  // extern "C"
