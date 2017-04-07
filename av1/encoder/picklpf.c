@@ -46,7 +46,7 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
   av1_loop_filter_frame(cm->frame_to_show, cm, &cpi->td.mb.e_mbd, filt_level, 1,
                         partial_frame);
 #else
-  if (cpi->num_workers > 1)
+  if (cpi->num_workers > 1 && !CONFIG_CB4X4)
     av1_loop_filter_frame_mt(cm->frame_to_show, cm, cpi->td.mb.e_mbd.plane,
                              filt_level, 1, partial_frame, cpi->workers,
                              cpi->num_workers, &cpi->lf_row_sync);
