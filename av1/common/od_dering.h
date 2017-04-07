@@ -14,11 +14,7 @@
 
 #include "odintrin.h"
 
-#define OD_DERINGSIZES (2)
-
-#define OD_DERING_SIZE_LOG2 (3)
-
-#define OD_DERING_NBLOCKS (OD_BSIZE_MAX / 8)
+#define OD_DERING_NBLOCKS (MAX_SB_SIZE / 8)
 
 /* We need to buffer three vertical lines. */
 #define OD_FILT_VBORDER (3)
@@ -26,11 +22,11 @@
    16 bytes (8 x 16 bits) to make vectorization easier. */
 #define OD_FILT_HBORDER (8)
 #define OD_FILT_BSTRIDE \
-  ALIGN_POWER_OF_TWO(OD_BSIZE_MAX + 2 * OD_FILT_HBORDER, 3)
+  ALIGN_POWER_OF_TWO(MAX_SB_SIZE + 2 * OD_FILT_HBORDER, 3)
 
 #define OD_DERING_VERY_LARGE (30000)
 #define OD_DERING_INBUF_SIZE \
-  (OD_FILT_BSTRIDE * (OD_BSIZE_MAX + 2 * OD_FILT_VBORDER))
+  (OD_FILT_BSTRIDE * (MAX_SB_SIZE + 2 * OD_FILT_VBORDER))
 
 extern const int OD_DIRECTION_OFFSETS_TABLE[8][3];
 
@@ -48,7 +44,7 @@ void copy_dering_16bit_to_16bit(uint16_t *dst, int dstride, uint16_t *src,
                                 int bsize);
 
 void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
-               int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS], int *dirinit,
+               int ydec, int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS], int *dirinit,
                int var[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS], int pli,
                dering_list *dlist, int dering_count, int level,
                int clpf_strength, int clpf_damping, int coeff_shift,
