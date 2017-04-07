@@ -14,7 +14,7 @@
 
 #include "./aom_config.h"
 
-#if CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#if CONFIG_FRAME_SUPERRES
 
 #include "av1/common/onyxc_int.h"
 
@@ -30,6 +30,6 @@ void av1_frame_superres_post_decode(AV1_COMMON *cm);
 }  // extern "C"
 #endif
 
-#endif  // CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#endif  // CONFIG_FRAME_SUPERRES
 
 #endif

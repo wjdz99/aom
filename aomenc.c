@@ -300,10 +300,10 @@ static const struct arg_enum_list end_usage_enum[] = { { "vbr", AOM_VBR },
                                                        { "cq", AOM_CQ },
                                                        { "q", AOM_Q },
                                                        { NULL, 0 } };
-#if CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#if CONFIG_FRAME_SUPERRES
 static const arg_def_t superres_allowed =
     ARG_DEF(NULL, "superres-allowed", 1, "Frame super-resolution enabled");
-#endif  // CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#endif  // CONFIG_FRAME_SUPERRES
 static const arg_def_t end_usage =
     ARG_DEF_ENUM(NULL, "end-usage", 1, "Rate control mode", end_usage_enum);
 static const arg_def_t target_bitrate =
@@ -325,9 +325,9 @@ static const arg_def_t buf_optimal_sz =
 static const arg_def_t *rc_args[] = { &dropframe_thresh, &resize_allowed,
                                       &resize_width,     &resize_height,
                                       &resize_up_thresh, &resize_down_thresh,
-#if CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#if CONFIG_FRAME_SUPERRES
                                       &superres_allowed,
-#endif  // CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#endif  // CONFIG_FRAME_SUPERRES
                                       &end_usage,        &target_bitrate,
                                       &min_quantizer,    &max_quantizer,
                                       &undershoot_pct,   &overshoot_pct,
@@ -1219,10 +1219,10 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       config->cfg.rc_resize_up_thresh = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &resize_down_thresh, argi)) {
       config->cfg.rc_resize_down_thresh = arg_parse_uint(&arg);
-#if CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#if CONFIG_FRAME_SUPERRES
     } else if (arg_match(&arg, &superres_allowed, argi)) {
       config->cfg.rc_superres_allowed = arg_parse_uint(&arg);
-#endif  // CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#endif  // CONFIG_FRAME_SUPERRES
     } else if (arg_match(&arg, &end_usage, argi)) {
       config->cfg.rc_end_usage = arg_parse_enum_or_int(&arg);
     } else if (arg_match(&arg, &target_bitrate, argi)) {
@@ -1441,9 +1441,9 @@ static void show_stream_config(struct stream_state *stream,
   SHOW(rc_scaled_height);
   SHOW(rc_resize_up_thresh);
   SHOW(rc_resize_down_thresh);
-#if CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#if CONFIG_FRAME_SUPERRES
   SHOW(rc_superres_allowed);
-#endif  // CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#endif  // CONFIG_FRAME_SUPERRES
   SHOW(rc_end_usage);
   SHOW(rc_target_bitrate);
   SHOW(rc_min_quantizer);
