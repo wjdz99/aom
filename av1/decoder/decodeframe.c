@@ -2739,7 +2739,7 @@ static void setup_render_size(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
     av1_read_frame_size(rb, &cm->render_width, &cm->render_height);
 }
 
-#if CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#if CONFIG_FRAME_SUPERRES
 // TODO(afergs): make "struct aom_read_bit_buffer *const rb"?
 static void setup_superres_size(AV1_COMMON *const cm,
                                 struct aom_read_bit_buffer *rb, int *width,
@@ -2769,7 +2769,7 @@ static void setup_superres_size(AV1_COMMON *const cm,
     cm->superres_scale_numerator = SUPERRES_SCALE_DENOMINATOR;
   }
 }
-#endif  // CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#endif  // CONFIG_FRAME_SUPERRES
 
 static void resize_mv_buffer(AV1_COMMON *cm) {
   aom_free(cm->cur_frame->mvs);
@@ -2817,9 +2817,9 @@ static void setup_frame_size(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   BufferPool *const pool = cm->buffer_pool;
   av1_read_frame_size(rb, &width, &height);
   setup_render_size(cm, rb);
-#if CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#if CONFIG_FRAME_SUPERRES
   setup_superres_size(cm, rb, &width, &height);
-#endif  // CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#endif  // CONFIG_FRAME_SUPERRES
   resize_context_buffers(cm, width, height);
 
   lock_buffer_pool(pool);
