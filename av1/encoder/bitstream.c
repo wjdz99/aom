@@ -241,9 +241,6 @@ static void write_interintra_mode(aom_writer *w, INTERINTRA_MODE mode,
 
 static void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
                              FRAME_CONTEXT *ec_ctx,
-#if CONFIG_REF_MV && CONFIG_EXT_INTER
-                             int is_compound,
-#endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
                              const int16_t mode_ctx) {
 #if CONFIG_REF_MV
   const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
@@ -251,7 +248,7 @@ static void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
 #if CONFIG_EXT_INTER
   aom_write(w, mode != NEWMV && mode != NEWFROMNEARMV, newmv_prob);
 
-  if (!is_compound && (mode == NEWMV || mode == NEWFROMNEARMV))
+  if (mode == NEWMV || mode == NEWFROMNEARMV)
     aom_write(w, mode == NEWFROMNEARMV, ec_ctx->new2mv_prob);
 
   if (mode != NEWMV && mode != NEWFROMNEARMV) {
@@ -1733,11 +1730,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
           write_inter_compound_mode(cm, w, mode, mode_ctx);
         else if (is_inter_singleref_mode(mode))
 #endif  // CONFIG_EXT_INTER
-          write_inter_mode(w, mode, ec_ctx,
-#if CONFIG_REF_MV && CONFIG_EXT_INTER
-                           is_compound,
-#endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
-                           mode_ctx);
+          write_inter_mode(w, mode, ec_ctx, mode_ctx);
 
 #if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
@@ -1777,11 +1770,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const MODE_INFO *mi,
             write_inter_compound_mode(cm, w, b_mode, mode_ctx);
           else if (is_inter_singleref_mode(b_mode))
 #endif  // CONFIG_EXT_INTER
-            write_inter_mode(w, b_mode, ec_ctx,
-#if CONFIG_REF_MV && CONFIG_EXT_INTER
-                             has_second_ref(mbmi),
-#endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
-                             mode_ctx);
+            write_inter_mode(w, b_mode, ec_ctx, mode_ctx);
 
 #if CONFIG_EXT_INTER
           if (b_mode == NEWMV || b_mode == NEWFROMNEARMV ||
