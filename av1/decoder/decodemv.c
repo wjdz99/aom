@@ -616,9 +616,23 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                         ACCT_STR) +
           2;
       n = pmi->palette_size[0];
+#if CONFIG_PALETTE_COLOR_DELTA
+      if (aom_read_bit(r, ACCT_STR)) {
+        const int min_bits = cm->bit_depth - 4;
+        int bits = min_bits + aom_read_literal(r, 2, ACCT_STR);
+        pmi->palette_colors[0] = aom_read_literal(r, cm->bit_depth, ACCT_STR);
+        for (i = 1; i < n; ++i) {
+          pmi->palette_colors[i] = pmi->palette_colors[i - 1] +
+                                   aom_read_literal(r, bits, ACCT_STR) + 1;
+        }
+      } else {
+        for (i = 0; i < n; ++i)
+          pmi->palette_colors[i] = aom_read_literal(r, cm->bit_depth, ACCT_STR);
+      }
+#else
       for (i = 0; i < n; ++i)
         pmi->palette_colors[i] = aom_read_literal(r, cm->bit_depth, ACCT_STR);
-
+#endif  // CONFIG_PALETTE_COLOR_DELTA
       xd->plane[0].color_index_map[0] = read_uniform(r, n);
       assert(xd->plane[0].color_index_map[0] < n);
     }
@@ -634,12 +648,49 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                         ACCT_STR) +
           2;
       n = pmi->palette_size[1];
+#if CONFIG_PALETTE_COLOR_DELTA
+      if (aom_read_bit(r, ACCT_STR)) {
+        const int min_bits = cm->bit_depth - 4;
+        int bits = min_bits + aom_read_literal(r, 2, ACCT_STR);
+        pmi->palette_colors[PALETTE_MAX_SIZE] =
+            aom_read_literal(r, cm->bit_depth, ACCT_STR);
+        for (i = 1; i < n; ++i) {
+          pmi->palette_colors[PALETTE_MAX_SIZE + i] =
+              pmi->palette_colors[PALETTE_MAX_SIZE + i - 1] +
+              aom_read_literal(r, bits, ACCT_STR);
+        }
+      } else {
+        for (i = 0; i < n; ++i) {
+          pmi->palette_colors[PALETTE_MAX_SIZE + i] =
+              aom_read_literal(r, cm->bit_depth, ACCT_STR);
+        }
+      }
+
+      if (aom_read_bit(r, ACCT_STR)) {
+        const int min_bits = cm->bit_depth - 4;
+        int bits = min_bits + aom_read_literal(r, 2, ACCT_STR);
+        pmi->palette_colors[2 * PALETTE_MAX_SIZE] =
+            aom_read_literal(r, cm->bit_depth, ACCT_STR);
+        for (i = 1; i < n; ++i) {
+          int d = aom_read_literal(r, bits, ACCT_STR);
+          if (aom_read_bit(r, ACCT_STR)) d = -d;
+          pmi->palette_colors[2 * PALETTE_MAX_SIZE + i] =
+              pmi->palette_colors[2 * PALETTE_MAX_SIZE + i - 1] + d;
+        }
+      } else {
+        for (i = 0; i < n; ++i) {
+          pmi->palette_colors[2 * PALETTE_MAX_SIZE + i] =
+              aom_read_literal(r, cm->bit_depth, ACCT_STR);
+        }
+      }
+#else
       for (i = 0; i < n; ++i) {
         pmi->palette_colors[PALETTE_MAX_SIZE + i] =
             aom_read_literal(r, cm->bit_depth, ACCT_STR);
         pmi->palette_colors[2 * PALETTE_MAX_SIZE + i] =
             aom_read_literal(r, cm->bit_depth, ACCT_STR);
       }
+#endif  // CONFIG_PALETTE_COLOR_DELTA
       xd->plane[1].color_index_map[0] = read_uniform(r, n);
       assert(xd->plane[1].color_index_map[0] < n);
     }

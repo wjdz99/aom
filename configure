@@ -284,6 +284,7 @@ EXPERIMENT_LIST="
     bitstream_debug
     alt_intra
     palette
+    palette_color_delta
     daala_ec
     rawbits
     pvq
