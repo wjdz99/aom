@@ -15,6 +15,9 @@
 #include <stdio.h>
 #include "aom/aom_integer.h"
 
+//#include "./aom_scale_rtcd.h"
+#include "aom_scale/aom_scale.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -60,6 +63,14 @@ void av1_highbd_resize_frame444(const uint8_t *const y, int y_stride,
                                 uint8_t *oy, int oy_stride, uint8_t *ou,
                                 uint8_t *ov, int ouv_stride, int oheight,
                                 int owidth, int bd);
+#endif  // CONFIG_HIGHBITDEPTH
+
+#if CONFIG_HIGHBITDEPTH
+void scale_and_extend_frame_normative(const YV12_BUFFER_CONFIG *src,
+                                      YV12_BUFFER_CONFIG *dst, int bd);
+#else
+void scale_and_extend_frame_normative(const YV12_BUFFER_CONFIG *src,
+                                      YV12_BUFFER_CONFIG *dst);
 #endif  // CONFIG_HIGHBITDEPTH
 
 #ifdef __cplusplus
