@@ -86,6 +86,24 @@
       "revId": "b6582aff34146b6773241bd830c3c8aee5824bbe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84643c1a_a2a196f3",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-07T16:20:57Z",
+      "side": 1,
+      "message": "No I *think* the stride is still 8 here. It\u0027s just the 4 that should be replaced by 4*4.",
+      "parentUuid": "70159137_26c6bd3d",
+      "revId": "b6582aff34146b6773241bd830c3c8aee5824bbe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
