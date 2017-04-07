@@ -462,9 +462,9 @@ static aom_codec_err_t set_encoder_config(
     oxcf->resize_mode = RESIZE_NONE;
   }
 
-#if CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#if CONFIG_FRAME_SUPERRES
   oxcf->superres_enabled = cfg->rc_superres_allowed;
-#endif  // CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#endif  // CONFIG_FRAME_SUPERRES
 
   oxcf->maximum_buffer_size_ms = is_vbr ? 240000 : cfg->rc_buf_sz;
   oxcf->starting_buffer_level_ms = is_vbr ? 60000 : cfg->rc_buf_initial_sz;
@@ -1493,9 +1493,9 @@ static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
         60,  // rc_resize_down_thresold
         30,  // rc_resize_up_thresold
 
-#if CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#if CONFIG_FRAME_SUPERRES
         0,  // rc_superres_allowed
-#endif      // CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#endif      // CONFIG_FRAME_SUPERRES
 
         AOM_VBR,      // rc_end_usage
         { NULL, 0 },  // rc_twopass_stats_in

@@ -404,7 +404,7 @@ typedef struct aom_codec_enc_cfg {
    */
   unsigned int rc_resize_down_thresh;
 
-#if CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#if CONFIG_FRAME_SUPERRES
   /*!\brief Enable/disable frame super-resolution scaling, if supported.
    *
    * Similar to spatial resampling, frame super-resolution scaling integrates
@@ -413,7 +413,7 @@ typedef struct aom_codec_enc_cfg {
    * while costing even more CPU time on the encoder/decoder.
    */
   unsigned int rc_superres_allowed;
-#endif  // CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
+#endif  // CONFIG_FRAME_SUPERRES
 
   /*!\brief Rate control algorithm to use.
    *
