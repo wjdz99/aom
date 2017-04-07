@@ -34,13 +34,19 @@
 
 const double gm_advantage_thresh[TRANS_TYPES] = {
   1.00,  // Identity (not used)
-  0.85,  // Translation
-  0.75,  // Rot zoom
-  0.65,  // Affine
-  0.65,  // Hor Trapezoid
-  0.65,  // Ver Trapezoid
-  0.50,  // Homography
+  0.95,  // Translation
+  0.90,  // Rot zoom
+  0.85,  // Affine
+  0.85,  // Hor Trapezoid
+  0.85,  // Ver Trapezoid
+  0.80,  // Homography
 };
+
+int is_enough_erroradvantage(double best_erroradvantage,
+                             TransformationType wmtype, int params_cost) {
+  return best_erroradvantage < gm_advantage_thresh[wmtype] &&
+         best_erroradvantage * params_cost <= 22000;
+}
 
 void convert_to_params(const double *params, int32_t *model) {
   int i;
