@@ -1368,6 +1368,98 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
 }
 
 #if CONFIG_PALETTE
+#if CONFIG_PALETTE_DELTA_ENCODING
+// Write luma palette color values with delta encoding. Write the first value as
+// literal, and the deltas between each value and the previous one. The luma
+// palette is sorted so each delta is larger than 0.
+static void write_palette_colors_y(const PALETTE_MODE_INFO *const pmi,
+                                   int bit_depth, aom_writer *w) {
+  int max_d = 0, bits, i;
+  const int min_bits = bit_depth - 3;
+  const int n = pmi->palette_size[0];
+  for (i = 1; i < n; ++i) {
+    int d = pmi->palette_colors[i] - pmi->palette_colors[i - 1];
+    assert(d > 0);
+    if (d > max_d) max_d = d;
+  }
+  bits = AOMMAX(av1_ceil_log2(max_d), min_bits);
+  aom_write_literal(w, bits - min_bits, 2);
+  aom_write_literal(w, pmi->palette_colors[0], bit_depth);
+  for (i = 1; i < n; ++i) {
+    aom_write_literal(
+        w, pmi->palette_colors[i] - pmi->palette_colors[i - 1] - 1, bits);
+    bits =
+        AOMMIN(bits, av1_ceil_log2((1 << bit_depth) - pmi->palette_colors[i]));
+  }
+}
+
+// Write chroma palette color values. Use delta encoding for u channel as its
+// palette is sorted. For v channel, either use delta encoding or transmit
+// raw values directly, whichever costs less.
+static void write_palette_colors_uv(const PALETTE_MODE_INFO *const pmi,
+                                    int bit_depth, aom_writer *w) {
+  int max_d = 0, bits, i;
+  const int min_bits_u = bit_depth - 3;
+  const int n = pmi->palette_size[1];
+#if CONFIG_AOM_HIGHBITDEPTH
+  const uint16_t *colors_u = pmi->palette_colors + PALETTE_MAX_SIZE;
+  const uint16_t *colors_v = pmi->palette_colors + 2 * PALETTE_MAX_SIZE;
+#else
+  const uint8_t *colors_u = pmi->palette_colors + PALETTE_MAX_SIZE;
+  const uint8_t *colors_v = pmi->palette_colors + 2 * PALETTE_MAX_SIZE;
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+  // U channel colors.
+  for (i = 1; i < n; ++i) {
+    int d = colors_u[i] - colors_u[i - 1];
+    assert(d >= 0);
+    if (d > max_d) max_d = d;
+  }
+  bits = AOMMAX(av1_ceil_log2(max_d + 1), min_bits_u);
+  aom_write_literal(w, bits - min_bits_u, 2);
+  aom_write_literal(w, colors_u[0], bit_depth);
+  for (i = 1; i < n; ++i) {
+    aom_write_literal(w, colors_u[i] - colors_u[i - 1], bits);
+    bits = AOMMIN(bits, av1_ceil_log2(1 + (1 << bit_depth) - colors_u[i]));
+  }
+  // V channel colors.
+  const int min_bits_v = bit_depth - 4;
+  const int max_val = 1 << bit_depth;
+  int zero_count = 0;
+  max_d = 0;
+  for (i = 1; i < n; ++i) {
+    int v = abs((int)colors_v[i] - colors_v[i - 1]);
+    int d = AOMMIN(v, max_val - v);
+    if (d > max_d) max_d = d;
+    if (d == 0) ++zero_count;
+  }
+  bits = AOMMAX(av1_ceil_log2(max_d + 1), min_bits_v);
+  if (2 + bit_depth + (bits + 1) * (n - 1) - zero_count <
+      bit_depth * n) {  // delta encoding
+    aom_write_bit(w, 1);
+    aom_write_literal(w, bits - min_bits_v, 2);
+    aom_write_literal(w, colors_v[0], bit_depth);
+    for (i = 1; i < n; ++i) {
+      if (colors_v[i] == colors_v[i - 1]) {  // No need to signal sign bit.
+        aom_write_literal(w, 0, bits);
+        continue;
+      }
+      int d = abs((int)colors_v[i] - colors_v[i - 1]);
+      int sign_bit = colors_v[i] < colors_v[i - 1];
+      if (d <= max_val - d) {
+        aom_write_literal(w, d, bits);
+        aom_write_bit(w, sign_bit);
+      } else {
+        aom_write_literal(w, max_val - d, bits);
+        aom_write_bit(w, !sign_bit);
+      }
+    }
+  } else {  // Transmit raw values.
+    aom_write_bit(w, 0);
+    for (i = 0; i < n; ++i) aom_write_literal(w, colors_v[i], bit_depth);
+  }
+}
+#endif  // CONFIG_PALETTE_DELTA_ENCODING
+
 static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                                     const MODE_INFO *const mi, aom_writer *w) {
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
@@ -1375,7 +1467,6 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const MODE_INFO *const left_mi = xd->left_mi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
-  int i;
 
   if (mbmi->mode == DC_PRED) {
     const int n = pmi->palette_size[0];
@@ -1393,8 +1484,13 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       av1_write_token(w, av1_palette_size_tree,
                       av1_default_palette_y_size_prob[bsize - BLOCK_8X8],
                       &palette_size_encodings[n - PALETTE_MIN_SIZE]);
+#if CONFIG_PALETTE_DELTA_ENCODING
+      write_palette_colors_y(pmi, cm->bit_depth, w);
+#else
+      int i;
       for (i = 0; i < n; ++i)
         aom_write_literal(w, pmi->palette_colors[i], cm->bit_depth);
+#endif  // CONFIG_PALETTE_DELTA_ENCODING
       write_uniform(w, n, pmi->palette_first_color_idx[0]);
     }
   }
@@ -1407,12 +1503,17 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       av1_write_token(w, av1_palette_size_tree,
                       av1_default_palette_uv_size_prob[bsize - BLOCK_8X8],
                       &palette_size_encodings[n - PALETTE_MIN_SIZE]);
+#if CONFIG_PALETTE_DELTA_ENCODING
+      write_palette_colors_uv(pmi, cm->bit_depth, w);
+#else
+      int i;
       for (i = 0; i < n; ++i) {
         aom_write_literal(w, pmi->palette_colors[PALETTE_MAX_SIZE + i],
                           cm->bit_depth);
         aom_write_literal(w, pmi->palette_colors[2 * PALETTE_MAX_SIZE + i],
                           cm->bit_depth);
       }
+#endif  // CONFIG_PALETTE_DELTA_ENCODING
       write_uniform(w, n, pmi->palette_first_color_idx[1]);
     }
   }

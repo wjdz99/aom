@@ -2531,12 +2531,26 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
       extend_palette_color_map(color_map, cols, rows, block_width,
                                block_height);
       palette_mode_cost =
-          dc_mode_cost + cpi->common.bit_depth * k * av1_cost_bit(128, 0) +
+          dc_mode_cost +
           cpi->palette_y_size_cost[bsize - BLOCK_8X8][k - PALETTE_MIN_SIZE] +
           write_uniform_cost(k, color_map[0]) +
           av1_cost_bit(
               av1_default_palette_y_mode_prob[bsize - BLOCK_8X8][palette_ctx],
               1);
+#if CONFIG_PALETTE_DELTA_ENCODING
+      int max_d = 0, bits;
+      const int min_bits = cpi->common.bit_depth - 3;
+      for (i = 1; i < k; ++i) {
+        int d = pmi->palette_colors[i] - pmi->palette_colors[i - 1];
+        assert(d > 0);
+        if (d > max_d) max_d = d;
+      }
+      bits = AOMMAX(av1_ceil_log2(max_d), min_bits);
+      palette_mode_cost +=
+          av1_cost_bit(128, 0) * (2 + cpi->common.bit_depth + bits * (k - 1));
+#else
+      palette_mode_cost += cpi->common.bit_depth * k * av1_cost_bit(128, 0);
+#endif  // CONFIG_PALETTE_DELTA_ENCODING
       for (i = 0; i < rows; ++i) {
         for (j = (i == 0 ? 1 : 0); j < cols; ++j) {
           int color_idx;
@@ -4575,6 +4589,22 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
         centroids[i * 2 + 1] = lb_v + (2 * i + 1) * (ub_v - lb_v) / n / 2;
       }
       av1_k_means(data, centroids, color_map, rows * cols, n, 2, max_itr);
+#if CONFIG_PALETTE_DELTA_ENCODING
+      // Sort the U channel colors in ascending order.
+      for (i = 0; i < 2 * (n - 1); i += 2) {
+        int min_idx = i;
+        float min_val = centroids[i];
+        for (j = i + 2; j < 2 * n; j += 2)
+          if (centroids[j] < min_val) min_val = centroids[j], min_idx = j;
+        if (min_idx != i) {
+          float temp_u = centroids[i], temp_v = centroids[i + 1];
+          centroids[i] = centroids[min_idx];
+          centroids[i + 1] = centroids[min_idx + 1];
+          centroids[min_idx] = temp_u, centroids[min_idx + 1] = temp_v;
+        }
+      }
+      av1_calc_indices(data, centroids, color_map, rows * cols, n, 2);
+#endif  // CONFIG_PALETTE_DELTA_ENCODING
       extend_palette_color_map(color_map, cols, rows, plane_block_width,
                                plane_block_height);
       pmi->palette_size[1] = n;
@@ -4595,12 +4625,48 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
       if (tokenonly_rd_stats.rate == INT_MAX) continue;
       this_rate =
           tokenonly_rd_stats.rate + dc_mode_cost +
-          2 * cpi->common.bit_depth * n * av1_cost_bit(128, 0) +
           cpi->palette_uv_size_cost[bsize - BLOCK_8X8][n - PALETTE_MIN_SIZE] +
           write_uniform_cost(n, color_map[0]) +
           av1_cost_bit(
               av1_default_palette_uv_mode_prob[pmi->palette_size[0] > 0], 1);
-
+#if CONFIG_PALETTE_DELTA_ENCODING
+      int max_d = 0, bits;
+      const int min_bits_u = cpi->common.bit_depth - 3;
+#if CONFIG_AOM_HIGHBITDEPTH
+      const uint16_t *palette_u = pmi->palette_colors + PALETTE_MAX_SIZE;
+      const uint16_t *palette_v = pmi->palette_colors + 2 * PALETTE_MAX_SIZE;
+#else
+      const uint8_t *palette_u = pmi->palette_colors + PALETTE_MAX_SIZE;
+      const uint8_t *palette_v = pmi->palette_colors + 2 * PALETTE_MAX_SIZE;
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+      // Cost for transmitting U channel color values.
+      for (i = 1; i < n; ++i) {
+        int d = palette_u[i] - palette_u[i - 1];
+        assert(d >= 0);
+        if (d > max_d) max_d = d;
+      }
+      bits = AOMMAX(av1_ceil_log2(max_d + 1), min_bits_u);
+      this_rate += av1_cost_bit(128, 0) *
+                   (2 + (int)cpi->common.bit_depth + bits * (n - 1));
+      // Cost for transmitting V channel color values.
+      const int min_bits_v = cpi->common.bit_depth - 3;
+      const int max_val = 1 << cpi->common.bit_depth;
+      int zero_count = 0;
+      max_d = 0;
+      for (i = 1; i < n; ++i) {
+        int v = abs((int)palette_v[i] - palette_v[i - 1]);
+        int d = AOMMIN(v, max_val - v);
+        if (d > max_d) max_d = d;
+        if (d == 0) ++zero_count;
+      }
+      bits = AOMMAX(av1_ceil_log2(max_d + 1), min_bits_v);
+      this_rate += av1_cost_bit(128, 0) *
+                   (1 + AOMMIN(2 + (int)cpi->common.bit_depth +
+                                   (bits + 1) * (n - 1) - zero_count,
+                               (int)cpi->common.bit_depth * n));
+#else
+      this_rate += 2 * cpi->common.bit_depth * n * av1_cost_bit(128, 0);
+#endif  // CONFIG_PALETTE_DELTA_ENCODING
       for (i = 0; i < rows; ++i) {
         for (j = (i == 0 ? 1 : 0); j < cols; ++j) {
           int color_idx;
