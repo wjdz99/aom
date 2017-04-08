@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f66b37dc_6221ee0a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4921,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-04-08T05:52:56Z",
+      "side": 1,
+      "message": "I tried a few other options. This appears to minimize the amount of codes that need to be changed.\nProbably good to keep this chunk of code relatively easy to read.",
+      "parentUuid": "99c74877_cc4cc8d6",
+      "range": {
+        "startLine": 4921,
+        "startChar": 27,
+        "endLine": 4921,
+        "endChar": 43
+      },
+      "revId": "625736a2fcc131a46d24cbd5c917665d50151bd3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7cbe4c65_b49c6b0a",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "455b5cb3_aa37d04d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3520,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-04-08T05:52:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7cbe4c65_b49c6b0a",
+      "range": {
+        "startLine": 3520,
+        "startChar": 28,
+        "endLine": 3520,
+        "endChar": 45
+      },
+      "revId": "625736a2fcc131a46d24cbd5c917665d50151bd3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e34a2453_860d351e",
         "filename": "av1/encoder/picklpf.c",
         "patchSetId": 1
@@ -68,6 +116,30 @@
       "revId": "625736a2fcc131a46d24cbd5c917665d50151bd3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dced02d_db3e121a",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-04-08T05:52:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e34a2453_860d351e",
+      "range": {
+        "startLine": 49,
+        "startChar": 27,
+        "endLine": 49,
+        "endChar": 43
+      },
+      "revId": "625736a2fcc131a46d24cbd5c917665d50151bd3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
