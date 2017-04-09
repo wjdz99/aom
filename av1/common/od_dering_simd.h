@@ -217,8 +217,8 @@ void SIMD_FUNC(od_filter_dering_direction_4x4)(uint16_t *y, int ystride,
                                                int damping) {
   int i;
   v128 p0, p1, sum, row, res;
-  int o1 = OD_DIRECTION_OFFSETS_TABLE[dir][0];
-  int o2 = OD_DIRECTION_OFFSETS_TABLE[dir][1];
+  int o1 = cdef_directions[dir][0];
+  int o2 = cdef_directions[dir][1];
 
   if (threshold) damping -= get_msb(threshold);
   for (i = 0; i < 4; i += 2) {
@@ -267,9 +267,9 @@ void SIMD_FUNC(od_filter_dering_direction_8x8)(uint16_t *y, int ystride,
                                                int damping) {
   int i;
   v128 sum, p0, p1, row, res;
-  int o1 = OD_DIRECTION_OFFSETS_TABLE[dir][0];
-  int o2 = OD_DIRECTION_OFFSETS_TABLE[dir][1];
-  int o3 = OD_DIRECTION_OFFSETS_TABLE[dir][2];
+  int o1 = cdef_directions[dir][0];
+  int o2 = cdef_directions[dir][1];
+  int o3 = cdef_directions[dir][2];
 
   if (threshold) damping -= get_msb(threshold);
   for (i = 0; i < 8; i++) {
