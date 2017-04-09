@@ -20,10 +20,12 @@
 #include "av1/common/onyxc_int.h"
 #include "av1/common/reconinter.h"
 
-int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
+int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) { return 0; }
+
+int sb_all_nonskip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
   int r, c;
   int maxc, maxr;
-  int skip = 1;
+  int nonskip = 1;
   maxc = cm->mi_cols - mi_col;
   maxr = cm->mi_rows - mi_row;
 #if CONFIG_EXT_PARTITION
@@ -36,12 +38,12 @@ int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
 
   for (r = 0; r < maxr; r++) {
     for (c = 0; c < maxc; c++) {
-      skip = skip &&
-             cm->mi_grid_visible[(mi_row + r) * cm->mi_stride + mi_col + c]
+      nonskip &=
+             !cm->mi_grid_visible[(mi_row + r) * cm->mi_stride + mi_col + c]
                  ->mbmi.skip;
     }
   }
-  return skip;
+  return nonskip;
 }
 
 static int is_8x8_block_skip(MODE_INFO **grid, int mi_row, int mi_col,
@@ -75,17 +77,17 @@ int sb_compute_dering_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
   const int c_step = mi_size_wide[BLOCK_8X8];
   const int r_shift = (r_step == 2);
   const int c_shift = (c_step == 2);
-
+  const int allnonskip = sb_all_nonskip(cm, mi_row, mi_col);
   assert(r_step == 1 || r_step == 2);
   assert(c_step == 1 || c_step == 2);
 
   for (r = 0; r < maxr; r += r_step) {
     for (c = 0; c < maxc; c += c_step) {
-      if (!is_8x8_block_skip(grid, mi_row + r, mi_col + c, cm->mi_stride)) {
-        dlist[count].by = r >> r_shift;
-        dlist[count].bx = c >> c_shift;
-        count++;
-      }
+      dlist[count].by = r >> r_shift;
+      dlist[count].bx = c >> c_shift;
+      dlist[count].skip = is_8x8_block_skip(grid, mi_row + r, mi_col + c, cm->mi_stride);
+      dlist[count].extended = allnonskip;
+      count++;
     }
   }
   return count;
