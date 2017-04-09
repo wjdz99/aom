@@ -356,11 +356,12 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
       for (bi = 0; bi < dering_count; bi++) {
         by = dlist[bi].by;
         bx = dlist[bi].bx;
-        (filter_dering_direction[bsize == BLOCK_8X8])(
-            &y[bi << (bsizex + bsizey)], 1 << bsizex,
-            &in[(by * OD_FILT_BSTRIDE << bsizey) + (bx << bsizex)],
-            pli ? threshold : od_adjust_thresh(threshold, var[by][bx]),
-            dir[by][bx], dering_damping);
+	if (!pli || !dlist[bi].skip)
+	  (filter_dering_direction[bsize == BLOCK_8X8])(
+              &y[bi << (bsizex + bsizey)], 1 << bsizex,
+              &in[(by * OD_FILT_BSTRIDE << bsizey) + (bx << bsizex)],
+              pli ? threshold : od_adjust_thresh(threshold, var[by][bx]),
+              dir[by][bx], dering_damping);
       }
     }
   }
