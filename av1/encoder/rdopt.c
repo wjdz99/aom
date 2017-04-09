@@ -1519,11 +1519,8 @@ static void dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
         (void)dst;
 #endif  // !CONFIG_PVQ
 
-        const int block_raster_idx =
-            av1_block_index_to_raster_order(tx_size, block);
         const PLANE_TYPE plane_type = get_plane_type(plane);
-        TX_TYPE tx_type =
-            get_tx_type(plane_type, xd, block_raster_idx, tx_size);
+        TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
 
         av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, recon,
                                     MAX_TX_SIZE, eob);
@@ -1569,13 +1566,13 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
                                            *(args->t_left + blk_row));
   RD_STATS this_rd_stats;
 
-  const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
-
   av1_init_rd_stats(&this_rd_stats);
 
   if (args->exit_early) return;
 
   if (!is_inter_block(mbmi)) {
+    const int block_raster_idx =
+        av1_block_index_to_raster_order(tx_size, block);
     av1_predict_intra_block_facade(xd, plane, block_raster_idx, blk_col,
                                    blk_row, tx_size);
     av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
@@ -1592,8 +1589,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
     struct macroblockd_plane *const pd = &xd->plane[plane];
     tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
     PLANE_TYPE plane_type = get_plane_type(plane);
-    const TX_TYPE tx_type =
-        get_tx_type(plane_type, xd, block_raster_idx, tx_size);
+    const TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
     const int dst_stride = pd->dst.stride;
     uint8_t *dst =
         &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
@@ -2696,8 +2692,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
                                     src_stride, dst, dst_stride, xd->bd);
 #endif
           if (is_lossless) {
-            TX_TYPE tx_type =
-                get_tx_type(PLANE_TYPE_Y, xd, block_raster_idx, tx_size);
+            TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size);
             const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
             const int coeff_ctx =
                 combine_entropy_contexts(tempa[idx], templ[idy]);
@@ -2741,8 +2736,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
           } else {
             int64_t dist;
             unsigned int tmp;
-            TX_TYPE tx_type =
-                get_tx_type(PLANE_TYPE_Y, xd, block_raster_idx, tx_size);
+            TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size);
             const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
             const int coeff_ctx =
                 combine_entropy_contexts(tempa[idx], templ[idy]);
@@ -2892,8 +2886,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 #endif  // !CONFIG_PVQ
 
         if (is_lossless) {
-          TX_TYPE tx_type =
-              get_tx_type(PLANE_TYPE_Y, xd, block_raster_idx, tx_size);
+          TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size);
           const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
           const int coeff_ctx =
               combine_entropy_contexts(tempa[idx], templ[idy]);
@@ -2950,8 +2943,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
         } else {
           int64_t dist;
           unsigned int tmp;
-          TX_TYPE tx_type =
-              get_tx_type(PLANE_TYPE_Y, xd, block_raster_idx, tx_size);
+          TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size);
           const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
           const int coeff_ctx =
               combine_entropy_contexts(tempa[idx], templ[idy]);
