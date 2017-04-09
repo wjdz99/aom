@@ -88,14 +88,7 @@ AV1_COMMON_SRCS-yes += common/warped_motion.h
 AV1_COMMON_SRCS-yes += common/warped_motion.c
 endif
 ifeq ($(CONFIG_CDEF),yes)
-AV1_COMMON_SRCS-yes += common/clpf.c
-AV1_COMMON_SRCS-yes += common/clpf.h
-AV1_COMMON_SRCS-yes += common/clpf_simd.h
 AV1_COMMON_SRCS-yes += common/cdef_simd.h
-AV1_COMMON_SRCS-$(HAVE_SSE2) += common/clpf_sse2.c
-AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/clpf_ssse3.c
-AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/clpf_sse4.c
-AV1_COMMON_SRCS-$(HAVE_NEON) += common/clpf_neon.c
 AV1_COMMON_SRCS-$(HAVE_SSE2) += common/od_dering_sse2.c
 AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/od_dering_ssse3.c
 AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/od_dering_sse4.c
