@@ -315,7 +315,6 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
   int bx;
   int by;
   int bsize, bsizex, bsizey;
-
   int threshold = (level >> 1) << coeff_shift;
   int filter_skip = get_filter_skip(level);
   if (level == 1) threshold = 31 << coeff_shift;

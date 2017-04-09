@@ -21,10 +21,11 @@ SIMD_INLINE v128 constrain(v256 a, v256 b, unsigned int strength,
   v128 diff = v128_pack_s16_s8(v256_high_v128(diff16), v256_low_v128(diff16));
   const v128 sign = v128_cmplt_s8(diff, v128_zero());
   diff = v128_abs_s8(diff);
+  const v128 d = diff;  // v128_ssub_u8(diff, v128_dup_8(strength))
   return v128_xor(
       v128_add_8(sign,
                  v128_min_u8(diff, v128_ssub_u8(v128_dup_8(strength),
-                                                v128_shr_u8(diff, adjdamp)))),
+                                                v128_shr_u8(d, adjdamp)))),
       sign);
 }
 
