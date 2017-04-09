@@ -23,7 +23,8 @@
 int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
   int r, c;
   int maxc, maxr;
-  int skip = 1;
+  int skip = 0;
+  int count = 0;
   maxc = cm->mi_cols - mi_col;
   maxr = cm->mi_rows - mi_row;
 #if CONFIG_EXT_PARTITION
@@ -36,12 +37,13 @@ int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
 
   for (r = 0; r < maxr; r++) {
     for (c = 0; c < maxc; c++) {
-      skip = skip &&
+      count++;
+      skip +=
              cm->mi_grid_visible[(mi_row + r) * cm->mi_stride + mi_col + c]
                  ->mbmi.skip;
     }
   }
-  return skip;
+  return skip * 100 / count > 80;
 }
 
 static int is_8x8_block_skip(MODE_INFO **grid, int mi_row, int mi_col,
@@ -56,6 +58,8 @@ static int is_8x8_block_skip(MODE_INFO **grid, int mi_row, int mi_col,
 
 int sb_compute_dering_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
                            dering_list *dlist) {
+  if (sb_all_skip(cm, mi_row, mi_col))
+      return 0;
   int r, c;
   int maxc, maxr;
   MODE_INFO **grid;
