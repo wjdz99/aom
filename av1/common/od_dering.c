@@ -305,6 +305,10 @@ int get_filter_skip(int level) {
   return filter_skip;
 }
 
+void aom_clpf_vblock_c(uint8_t *dst, const uint16_t *src, int dstride,
+                       int sstride, int sizex, int sizey, unsigned int strength,
+                       unsigned int damping);
+
 void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
                int ydec, int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS],
                int *dirinit, int var[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS],
@@ -383,8 +387,9 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
             clpf_strength << coeff_shift, clpf_damping);
       } else {
         // Do clpf and write the result to an 8 bit destination
-        (!threshold || (dir[by][bx] < 4 && dir[by][bx]) ? aom_clpf_block
-                                                        : aom_clpf_hblock)(
+        (!threshold ? aom_clpf_block_c :
+        (dir[by][bx] < 4 && dir[by][bx] ? aom_clpf_vblock_c
+         : aom_clpf_hblock_c))(
             dst + py * dstride + px, in + py * OD_FILT_BSTRIDE + px, dstride,
             OD_FILT_BSTRIDE, 1 << bsizex, 1 << bsizey,
             clpf_strength << coeff_shift, clpf_damping);

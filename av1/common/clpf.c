@@ -26,9 +26,9 @@ int av1_clpf_sample(int X, int A, int B, int C, int D, int E, int F, int G,
 
 int av1_clpf_hsample(int X, int A, int B, int C, int D, int s,
                      unsigned int dmp) {
-  int delta = 1 * constrain(A - X, s, dmp) + 3 * constrain(B - X, s, dmp) +
-              3 * constrain(C - X, s, dmp) + 1 * constrain(D - X, s, dmp);
-  return (4 + delta - (delta < 0)) >> 3;
+  int delta = 3 * constrain(A - X, s, dmp) + 5 * constrain(B - X, s, dmp) +
+              5 * constrain(C - X, s, dmp) + 3 * constrain(D - X, s, dmp);
+  return (8 + delta - (delta < 0)) >> 4;
 }
 
 void aom_clpf_block_c(uint8_t *dst, const uint16_t *src, int dstride,
@@ -91,6 +91,25 @@ void aom_clpf_hblock_c(uint8_t *dst, const uint16_t *src, int dstride,
       const int B = src[y * sstride + x - 1];
       const int C = src[y * sstride + x + 1];
       const int D = src[y * sstride + x + 2];
+      const int delta = av1_clpf_hsample(X, A, B, C, D, strength, damping);
+      dst[y * dstride + x] = X + delta;
+    }
+  }
+}
+
+// Horizontally restricted filter
+void aom_clpf_vblock_c(uint8_t *dst, const uint16_t *src, int dstride,
+                       int sstride, int sizex, int sizey, unsigned int strength,
+                       unsigned int damping) {
+  int x, y;
+
+  for (y = 0; y < sizey; y++) {
+    for (x = 0; x < sizex; x++) {
+      const int X = src[y * sstride + x];
+      const int A = src[(y - 2) * sstride + x];
+      const int B = src[(y - 1) * sstride + x];
+      const int C = src[(y + 1) * sstride + x];
+      const int D = src[(y + 2) * sstride + x];
       const int delta = av1_clpf_hsample(X, A, B, C, D, strength, damping);
       dst[y * dstride + x] = X + delta;
     }
