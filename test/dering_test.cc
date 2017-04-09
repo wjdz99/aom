@@ -105,14 +105,14 @@ void test_dering(int bsize, int iterations,
                      threshold += (1 + 4 * !!boundary) << (depth - 8)) {
                   ref_dering(ref_d, size, s + OD_FILT_HBORDER +
                                               OD_FILT_VBORDER * OD_FILT_BSTRIDE,
-                             threshold, dir, damping);
+                             threshold, 0, dir, damping, 0, bsize);
                   // If dering and ref_dering are the same, we're just testing
                   // speed
                   if (dering != ref_dering)
                     ASM_REGISTER_STATE_CHECK(dering(
                         d, size,
                         s + OD_FILT_HBORDER + OD_FILT_VBORDER * OD_FILT_BSTRIDE,
-                        threshold, dir, damping));
+                        threshold, 0, dir, damping, 0, bsize));
                   if (ref_dering != dering) {
                     for (pos = 0; pos < sizeof(d) / sizeof(*d) && !error;
                          pos++) {
@@ -291,10 +291,10 @@ using std::tr1::make_tuple;
 #if HAVE_SSE2
 INSTANTIATE_TEST_CASE_P(
     SSE2, CDEFDeringDirTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_sse2,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_sse2,
-                                 &od_filter_dering_direction_8x8_c, 8)));
+    ::testing::Values(make_tuple(&od_filter_dering_direction_sse2,
+                                 &od_filter_dering_direction_c, BLOCK_4X4),
+                      make_tuple(&od_filter_dering_direction_sse2,
+                                 &od_filter_dering_direction_c, BLOCK_8X8)));
 INSTANTIATE_TEST_CASE_P(SSE2, CDEFDeringFindDirTest,
                         ::testing::Values(make_tuple(&od_dir_find8_sse2,
                                                      &od_dir_find8_c)));
@@ -302,10 +302,10 @@ INSTANTIATE_TEST_CASE_P(SSE2, CDEFDeringFindDirTest,
 #if HAVE_SSSE3
 INSTANTIATE_TEST_CASE_P(
     SSSE3, CDEFDeringDirTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_ssse3,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_ssse3,
-                                 &od_filter_dering_direction_8x8_c, 8)));
+    ::testing::Values(make_tuple(&od_filter_dering_direction_ssse3,
+                                 &od_filter_dering_direction_c, BLOCK_4X4),
+                      make_tuple(&od_filter_dering_direction_ssse3,
+                                 &od_filter_dering_direction_c, BLOCK_8X8)));
 INSTANTIATE_TEST_CASE_P(SSSE3, CDEFDeringFindDirTest,
                         ::testing::Values(make_tuple(&od_dir_find8_ssse3,
                                                      &od_dir_find8_c)));
@@ -314,10 +314,10 @@ INSTANTIATE_TEST_CASE_P(SSSE3, CDEFDeringFindDirTest,
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_CASE_P(
     SSE4_1, CDEFDeringDirTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_sse4_1,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_sse4_1,
-                                 &od_filter_dering_direction_8x8_c, 8)));
+    ::testing::Values(make_tuple(&od_filter_dering_direction_sse4_1,
+                                 &od_filter_dering_direction_c, BLOCK_4X4),
+                      make_tuple(&od_filter_dering_direction_sse4_1,
+                                 &od_filter_dering_direction_c, BLOCK_8X8)));
 INSTANTIATE_TEST_CASE_P(SSE4_1, CDEFDeringFindDirTest,
                         ::testing::Values(make_tuple(&od_dir_find8_sse4_1,
                                                      &od_dir_find8_c)));
@@ -326,10 +326,10 @@ INSTANTIATE_TEST_CASE_P(SSE4_1, CDEFDeringFindDirTest,
 #if HAVE_NEON
 INSTANTIATE_TEST_CASE_P(
     NEON, CDEFDeringDirTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_neon,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_neon,
-                                 &od_filter_dering_direction_8x8_c, 8)));
+    ::testing::Values(make_tuple(&od_filter_dering_direction_neon,
+                                 &od_filter_dering_direction_c, BLOCK_4X4),
+                      make_tuple(&od_filter_dering_direction_neon,
+                                 &od_filter_dering_direction_c, BLOCK_8X8)));
 INSTANTIATE_TEST_CASE_P(NEON, CDEFDeringFindDirTest,
                         ::testing::Values(make_tuple(&od_dir_find8_neon,
                                                      &od_dir_find8_c)));
@@ -339,10 +339,10 @@ INSTANTIATE_TEST_CASE_P(NEON, CDEFDeringFindDirTest,
 #if HAVE_SSE2
 INSTANTIATE_TEST_CASE_P(
     SSE2, CDEFDeringSpeedTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_sse2,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_sse2,
-                                 &od_filter_dering_direction_8x8_c, 8)));
+    ::testing::Values(make_tuple(&od_filter_dering_direction_sse2,
+                                 &od_filter_dering_direction_c, BLOCK_4X4),
+                      make_tuple(&od_filter_dering_direction_sse2,
+                                 &od_filter_dering_direction_c, BLOCK_8X8)));
 INSTANTIATE_TEST_CASE_P(SSE2, CDEFDeringFindDirSpeedTest,
                         ::testing::Values(make_tuple(&od_dir_find8_sse2,
                                                      &od_dir_find8_c)));
@@ -351,10 +351,10 @@ INSTANTIATE_TEST_CASE_P(SSE2, CDEFDeringFindDirSpeedTest,
 #if HAVE_SSSE3
 INSTANTIATE_TEST_CASE_P(
     SSSE3, CDEFDeringSpeedTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_ssse3,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_ssse3,
-                                 &od_filter_dering_direction_8x8_c, 8)));
+    ::testing::Values(make_tuple(&od_filter_dering_direction_ssse3,
+                                 &od_filter_dering_direction_c, BLOCK_4X4),
+                      make_tuple(&od_filter_dering_direction_ssse3,
+                                 &od_filter_dering_direction_c, BLOCK_8X8)));
 INSTANTIATE_TEST_CASE_P(SSSE3, CDEFDeringFindDirSpeedTest,
                         ::testing::Values(make_tuple(&od_dir_find8_ssse3,
                                                      &od_dir_find8_c)));
@@ -363,10 +363,10 @@ INSTANTIATE_TEST_CASE_P(SSSE3, CDEFDeringFindDirSpeedTest,
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_CASE_P(
     SSE4_1, CDEFDeringSpeedTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_sse4_1,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_sse4_1,
-                                 &od_filter_dering_direction_8x8_c, 8)));
+    ::testing::Values(make_tuple(&od_filter_dering_direction_sse4_1,
+                                 &od_filter_dering_direction_c, BLOCK_4X4),
+                      make_tuple(&od_filter_dering_direction_sse4_1,
+                                 &od_filter_dering_direction_c, BLOCK_8X8)));
 INSTANTIATE_TEST_CASE_P(SSE4_1, CDEFDeringFindDirSpeedTest,
                         ::testing::Values(make_tuple(&od_dir_find8_sse4_1,
                                                      &od_dir_find8_c)));
@@ -375,10 +375,10 @@ INSTANTIATE_TEST_CASE_P(SSE4_1, CDEFDeringFindDirSpeedTest,
 #if HAVE_NEON
 INSTANTIATE_TEST_CASE_P(
     NEON, CDEFDeringSpeedTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_neon,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_neon,
-                                 &od_filter_dering_direction_8x8_c, 8)));
+    ::testing::Values(make_tuple(&od_filter_dering_direction_neon,
+                                 &od_filter_dering_direction_c, BLOCK_4X4),
+                      make_tuple(&od_filter_dering_direction_neon,
+                                 &od_filter_dering_direction_c, BLOCK_8X8)));
 INSTANTIATE_TEST_CASE_P(NEON, CDEFDeringFindDirSpeedTest,
                         ::testing::Values(make_tuple(&od_dir_find8_neon,
                                                      &od_dir_find8_c)));
