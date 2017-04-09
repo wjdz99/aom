@@ -14,6 +14,8 @@
 #include "aom_ports/bitops.h"
 #include "aom_ports/mem.h"
 
+SIMD_INLINE unsigned int log2i(unsigned int x) { return x ? get_msb(x) : 0; }
+
 // sign(a - b) * min(abs(a - b), max(0, strength - (abs(a - b) >> adjdamp)))
 SIMD_INLINE v128 constrain(v256 a, v256 b, unsigned int strength,
                            unsigned int adjdamp) {
@@ -225,7 +227,7 @@ void SIMD_FUNC(aom_clpf_block)(uint8_t *dst, const uint16_t *src, int dstride,
     aom_clpf_block_c(dst, src, dstride, sstride, sizex, sizey, strength, dmp);
   } else {
     (sizex == 4 ? SIMD_FUNC(clpf_block4) : SIMD_FUNC(clpf_block8))(
-        dst, src, dstride, sstride, sizey, strength, dmp - get_msb(strength));
+        dst, src, dstride, sstride, sizey, strength, dmp - log2i(strength));
   }
 }
 
@@ -239,7 +241,7 @@ void SIMD_FUNC(aom_clpf_hblock)(uint8_t *dst, const uint16_t *src, int dstride,
     aom_clpf_hblock_c(dst, src, dstride, sstride, sizex, sizey, strength, dmp);
   } else {
     (sizex == 4 ? SIMD_FUNC(clpf_hblock4) : SIMD_FUNC(clpf_hblock8))(
-        dst, src, dstride, sstride, sizey, strength, dmp - get_msb(strength));
+        dst, src, dstride, sstride, sizey, strength, dmp - log2i(strength));
   }
 }
 
@@ -425,7 +427,7 @@ void SIMD_FUNC(aom_clpf_block_hbd)(uint16_t *dst, const uint16_t *src,
                          dmp);
   } else {
     (sizex == 4 ? SIMD_FUNC(clpf_block_hbd4) : SIMD_FUNC(clpf_block_hbd))(
-        dst, src, dstride, sstride, sizey, strength, dmp - get_msb(strength));
+        dst, src, dstride, sstride, sizey, strength, dmp - log2i(strength));
   }
 }
 
@@ -441,6 +443,6 @@ void SIMD_FUNC(aom_clpf_hblock_hbd)(uint16_t *dst, const uint16_t *src,
                           dmp);
   } else {
     (sizex == 4 ? SIMD_FUNC(clpf_hblock_hbd4) : SIMD_FUNC(clpf_hblock_hbd))(
-        dst, src, dstride, sstride, sizey, strength, dmp - get_msb(strength));
+        dst, src, dstride, sstride, sizey, strength, dmp - log2i(strength));
   }
 }
