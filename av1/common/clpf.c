@@ -97,6 +97,25 @@ void aom_clpf_hblock_c(uint8_t *dst, const uint16_t *src, int dstride,
   }
 }
 
+// Horizontally restricted filter
+void aom_clpf_vblock_c(uint8_t *dst, const uint16_t *src, int dstride,
+                       int sstride, int sizex, int sizey, unsigned int strength,
+                       unsigned int damping) {
+  int x, y;
+
+  for (y = 0; y < sizey; y++) {
+    for (x = 0; x < sizex; x++) {
+      const int X = src[y * sstride + x];
+      const int A = src[(y - 2) * sstride + x];
+      const int B = src[(y - 1) * sstride + x];
+      const int C = src[(y + 1) * sstride + x];
+      const int D = src[(y + 2) * sstride + x];
+      const int delta = av1_clpf_hsample(X, A, B, C, D, strength, damping);
+      dst[y * dstride + x] = X + delta;
+    }
+  }
+}
+
 void aom_clpf_hblock_hbd_c(uint16_t *dst, const uint16_t *src, int dstride,
                            int sstride, int sizex, int sizey,
                            unsigned int strength, unsigned int damping) {
