@@ -127,22 +127,22 @@ void test_clpf(int w, int h, int depth, int iterations,
               if (boundary & 1) {  // Left
                 for (int i = 0; i < size; i++)
                   for (int j = 0; j < xpos; j++)
-                    s[i * size + j] = OD_DERING_VERY_LARGE;
+                    s[i * size + j] = CDEF_VERY_LARGE;
               }
               if (boundary & 2) {  // Right
                 for (int i = 0; i < size; i++)
                   for (int j = xpos + w; j < size; j++)
-                    s[i * size + j] = OD_DERING_VERY_LARGE;
+                    s[i * size + j] = CDEF_VERY_LARGE;
               }
               if (boundary & 4) {  // Above
                 for (int i = 0; i < ypos; i++)
                   for (int j = 0; j < size; j++)
-                    s[i * size + j] = OD_DERING_VERY_LARGE;
+                    s[i * size + j] = CDEF_VERY_LARGE;
               }
               if (boundary & 8) {  // Below
                 for (int i = ypos + h; i < size; i++)
                   for (int j = 0; j < size; j++)
-                    s[i * size + j] = OD_DERING_VERY_LARGE;
+                    s[i * size + j] = CDEF_VERY_LARGE;
               }
             }
             for (strength = depth - 8; strength < depth - 5 && !error;
