@@ -119,6 +119,10 @@ void od_filter_dering_direction_8x8_c(uint16_t *y, int ystride,
   int i;
   int j;
   int k;
+  int clpf_strength = threshold >> 8;
+  int clpf_damping = damping >> 8;
+  damping &= 255;
+  threshold &= 255;
   static const int taps[3] = { 3, 2, 1 };
   for (i = 0; i < 8; i++) {
     for (j = 0; j < 8; j++) {
@@ -126,6 +130,16 @@ void od_filter_dering_direction_8x8_c(uint16_t *y, int ystride,
       int16_t xx;
       int16_t yy;
       xx = in[i * OD_FILT_BSTRIDE + j];
+      const int A = in[(i - 2) * OD_FILT_BSTRIDE + j];
+      const int B = in[(i - 1) * OD_FILT_BSTRIDE + j];
+      const int C = in[i * OD_FILT_BSTRIDE + j - 2];
+      const int D = in[i * OD_FILT_BSTRIDE + j - 1];
+      const int E = in[i * OD_FILT_BSTRIDE + j + 1];
+      const int F = in[i * OD_FILT_BSTRIDE + j + 2];
+      const int G = in[(i + 1) * OD_FILT_BSTRIDE + j];
+      const int H = in[(i + 2) * OD_FILT_BSTRIDE + j];
+      const int delta =
+          av1_clpf_sample(xx, A, B, C, D, E, F, G, H, clpf_strength, clpf_damping);
       sum = 0;
       for (k = 0; k < 3; k++) {
         int16_t p0;
@@ -138,7 +152,13 @@ void od_filter_dering_direction_8x8_c(uint16_t *y, int ystride,
         sum += taps[k] * constrain(p1, threshold, damping);
       }
       sum = (sum + 8) >> 4;
-      yy = xx + sum;
+      if ((threshold & 1)&&0) {
+        if (OD_ABS(sum) > OD_ABS(delta))
+          yy = xx + sum;
+        else
+          yy = xx + delta;
+      } else
+        yy = clamp(xx + sum + delta, 0, 255);
       y[i * ystride + j] = yy;
     }
   }
@@ -151,6 +171,10 @@ void od_filter_dering_direction_4x4_c(uint16_t *y, int ystride,
   int i;
   int j;
   int k;
+  int clpf_strength = threshold >> 8;
+  int clpf_damping = damping >> 8;
+  damping &= 255;
+  threshold &= 255;
   static const int taps[2] = { 4, 1 };
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 4; j++) {
@@ -158,6 +182,16 @@ void od_filter_dering_direction_4x4_c(uint16_t *y, int ystride,
       int16_t xx;
       int16_t yy;
       xx = in[i * OD_FILT_BSTRIDE + j];
+      const int A = in[(i - 2) * OD_FILT_BSTRIDE + j];
+      const int B = in[(i - 1) * OD_FILT_BSTRIDE + j];
+      const int C = in[i * OD_FILT_BSTRIDE + j - 2];
+      const int D = in[i * OD_FILT_BSTRIDE + j - 1];
+      const int E = in[i * OD_FILT_BSTRIDE + j + 1];
+      const int F = in[i * OD_FILT_BSTRIDE + j + 2];
+      const int G = in[(i + 1) * OD_FILT_BSTRIDE + j];
+      const int H = in[(i + 2) * OD_FILT_BSTRIDE + j];
+      const int delta =
+          av1_clpf_sample(xx, A, B, C, D, E, F, G, H, clpf_strength, clpf_damping);
       sum = 0;
       for (k = 0; k < 2; k++) {
         int16_t p0;
@@ -170,7 +204,13 @@ void od_filter_dering_direction_4x4_c(uint16_t *y, int ystride,
         sum += taps[k] * constrain(p1, threshold, damping);
       }
       sum = (sum + 8) >> 4;
-      yy = xx + sum;
+      if ((threshold & 1)&&0) {
+        if (OD_ABS(sum) > OD_ABS(delta))
+          yy = xx + sum;
+        else
+          yy = xx + delta;
+      } else
+        yy = clamp(xx + sum + delta, 0, 255);
       y[i * ystride + j] = yy;
     }
   }
@@ -319,9 +359,12 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
   int threshold = (level >> 1) << coeff_shift;
   int filter_skip = get_filter_skip(level);
   if (level == 1) threshold = 31 << coeff_shift;
-
+  skip_dering = 0;
+  int orig_clpf_strength = clpf_strength;
+  clpf_strength = 0;
+    
   od_filter_dering_direction_func filter_dering_direction[] = {
-    od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
+    od_filter_dering_direction_4x4_c, od_filter_dering_direction_8x8_c
   };
   clpf_damping += coeff_shift - (pli != AOM_PLANE_Y);
   dering_damping += coeff_shift - (pli != AOM_PLANE_Y);
@@ -355,13 +398,13 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
         (filter_dering_direction[bsize == BLOCK_8X8])(
             &y[bi << (bsizex + bsizey)], 1 << bsizex,
             &in[(by * OD_FILT_BSTRIDE << bsizey) + (bx << bsizex)],
-            pli ? t : od_adjust_thresh(t, var[by][bx]), dir[by][bx],
-            dering_damping);
+            (pli ? t : od_adjust_thresh(t, var[by][bx])) | (orig_clpf_strength << 8), dir[by][bx],
+            (clpf_damping << 8) + dering_damping);
       }
     }
   }
 
-  if (clpf_strength) {
+  if (clpf_strength||1) {
     if (threshold && !skip_dering)
       copy_dering_16bit_to_16bit(in, OD_FILT_BSTRIDE, y, dlist, dering_count,
                                  bsize);

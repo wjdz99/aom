@@ -225,7 +225,7 @@ void SIMD_FUNC(aom_clpf_block)(uint8_t *dst, const uint16_t *src, int dstride,
     aom_clpf_block_c(dst, src, dstride, sstride, sizex, sizey, strength, dmp);
   } else {
     (sizex == 4 ? SIMD_FUNC(clpf_block4) : SIMD_FUNC(clpf_block8))(
-        dst, src, dstride, sstride, sizey, strength, dmp - get_msb(strength));
+         dst, src, dstride, sstride, sizey, strength, dmp - (strength ? get_msb(strength) : 0));
   }
 }
 
@@ -239,7 +239,7 @@ void SIMD_FUNC(aom_clpf_hblock)(uint8_t *dst, const uint16_t *src, int dstride,
     aom_clpf_hblock_c(dst, src, dstride, sstride, sizex, sizey, strength, dmp);
   } else {
     (sizex == 4 ? SIMD_FUNC(clpf_hblock4) : SIMD_FUNC(clpf_hblock8))(
-        dst, src, dstride, sstride, sizey, strength, dmp - get_msb(strength));
+         dst, src, dstride, sstride, sizey, strength, dmp - (strength ? get_msb(strength) : 0));
   }
 }
 
@@ -425,7 +425,7 @@ void SIMD_FUNC(aom_clpf_block_hbd)(uint16_t *dst, const uint16_t *src,
                          dmp);
   } else {
     (sizex == 4 ? SIMD_FUNC(clpf_block_hbd4) : SIMD_FUNC(clpf_block_hbd))(
-        dst, src, dstride, sstride, sizey, strength, dmp - get_msb(strength));
+       dst, src, dstride, sstride, sizey, strength, dmp - (strength ? get_msb(strength) : 0));
   }
 }
 
@@ -441,6 +441,6 @@ void SIMD_FUNC(aom_clpf_hblock_hbd)(uint16_t *dst, const uint16_t *src,
                           dmp);
   } else {
     (sizex == 4 ? SIMD_FUNC(clpf_hblock_hbd4) : SIMD_FUNC(clpf_hblock_hbd))(
-        dst, src, dstride, sstride, sizey, strength, dmp - get_msb(strength));
+        dst, src, dstride, sstride, sizey, strength, dmp - (strength ? get_msb(strength) : 0));
   }
 }
