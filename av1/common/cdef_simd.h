@@ -20,7 +20,7 @@ SIMD_INLINE v128 constrain16(v128 a, v128 b, unsigned int threshold,
   const v128 sign = v128_shr_n_s16(diff, 15);
   diff = v128_abs_s16(diff);
   const v128 s =
-      v128_ssub_u16(v128_dup_16(threshold), v128_shr_u16(diff, adjdamp));
+    v128_ssub_u16(v128_dup_16(threshold), v128_shr_u16(v128_ssub_u16(diff, v128_dup_16(threshold)), adjdamp));
   return v128_xor(v128_add_16(sign, v128_min_s16(diff, s)), sign);
 }
 
