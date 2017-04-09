@@ -356,6 +356,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
       for (bi = 0; bi < dering_count; bi++) {
         by = dlist[bi].by;
         bx = dlist[bi].bx;
+	if (pli && dlist[bi].skip) threshold = 0;
         (filter_dering_direction[bsize == BLOCK_8X8])(
             &y[bi << (bsizex + bsizey)], 1 << bsizex,
             &in[(by * OD_FILT_BSTRIDE << bsizey) + (bx << bsizex)],
@@ -375,6 +376,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
       int py = by << bsizey;
       int px = bx << bsizex;
 
+      //if (pli && dlist[bi].skip) clpf_strength = 0;
       if (!dst || hbd) {
         // 16 bit destination if high bitdepth or 8 bit destination not given
         (!threshold || (dir[by][bx] < 4 && dir[by][bx]) ? aom_clpf_block_hbd
