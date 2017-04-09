@@ -41,7 +41,7 @@ int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
                  ->mbmi.skip;
     }
   }
-  return skip;
+  return 0*skip;
 }
 
 static int is_8x8_block_skip(MODE_INFO **grid, int mi_row, int mi_col,
