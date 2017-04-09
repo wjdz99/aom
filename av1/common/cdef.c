@@ -54,8 +54,23 @@ static int is_8x8_block_skip(MODE_INFO **grid, int mi_row, int mi_col,
   return is_skip;
 }
 
+static int has_8x8_block_subpel(MODE_INFO **grid, int mi_row, int mi_col,
+				int mi_stride) {
+  int has_subpel = 1;
+  for (int r = 0; r < mi_size_high[BLOCK_8X8]; ++r)
+    for (int c = 0; c < mi_size_wide[BLOCK_8X8]; ++c)
+      has_subpel &=
+	(grid[(mi_row + r) * mi_stride + (mi_col + c)]->mbmi.mv->as_mv.row & SUBPEL_MASK) ||
+	(grid[(mi_row + r) * mi_stride + (mi_col + c)]->mbmi.mv->as_mv.col & SUBPEL_MASK);
+
+  return has_subpel;
+}
+
 int sb_compute_dering_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
                            dering_list *dlist) {
+  if (sb_all_skip(cm, mi_row, mi_col))
+    return 0;
+
   int r, c;
   int maxc, maxr;
   MODE_INFO **grid;
@@ -75,17 +90,16 @@ int sb_compute_dering_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
   const int c_step = mi_size_wide[BLOCK_8X8];
   const int r_shift = (r_step == 2);
   const int c_shift = (c_step == 2);
-
   assert(r_step == 1 || r_step == 2);
   assert(c_step == 1 || c_step == 2);
 
   for (r = 0; r < maxr; r += r_step) {
     for (c = 0; c < maxc; c += c_step) {
-      if (!is_8x8_block_skip(grid, mi_row + r, mi_col + c, cm->mi_stride)) {
-        dlist[count].by = r >> r_shift;
-        dlist[count].bx = c >> c_shift;
-        count++;
-      }
+      dlist[count].by = r >> r_shift;
+      dlist[count].bx = c >> c_shift;
+      dlist[count].skip = is_8x8_block_skip(grid, mi_row + r, mi_col + c, cm->mi_stride);
+      dlist[count].subpel = has_8x8_block_subpel(grid, mi_row + r, mi_col + c, cm->mi_stride);
+      count++;
     }
   }
   return count;
