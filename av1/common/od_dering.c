@@ -324,7 +324,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
     od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
   };
   clpf_damping += coeff_shift - (pli != AOM_PLANE_Y);
-  dering_damping += coeff_shift - (pli != AOM_PLANE_Y);
+  dering_damping += coeff_shift - (pli != AOM_PLANE_Y) - 1;
   bsize =
       ydec ? (xdec ? BLOCK_4X4 : BLOCK_8X4) : (xdec ? BLOCK_4X8 : BLOCK_8X8);
   bsizex = 3 - xdec;
