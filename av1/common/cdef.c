@@ -212,8 +212,8 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     }
     dering_left = 1;
     for (sbc = 0; sbc < nhsb; sbc++) {
-      int level, clpf_strength;
-      int uv_level, uv_clpf_strength;
+      int level, sec_strength;
+      int uv_level, uv_sec_strength;
       int nhb, nvb;
       int cstart = 0;
       curr_row_dering[sbc] = 0;
@@ -255,15 +255,15 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
           cm->mi_grid_visible[MAX_MIB_SIZE * sbr * cm->mi_stride +
                               MAX_MIB_SIZE * sbc]
               ->mbmi.cdef_strength;
-      level = cm->cdef_strengths[mbmi_cdef_strength] / CLPF_STRENGTHS;
-      clpf_strength = cm->cdef_strengths[mbmi_cdef_strength] % CLPF_STRENGTHS;
-      clpf_strength += clpf_strength == 3;
-      uv_level = cm->cdef_uv_strengths[mbmi_cdef_strength] / CLPF_STRENGTHS;
-      uv_clpf_strength =
-          cm->cdef_uv_strengths[mbmi_cdef_strength] % CLPF_STRENGTHS;
-      uv_clpf_strength += uv_clpf_strength == 3;
-      if ((level == 0 && clpf_strength == 0 && uv_level == 0 &&
-           uv_clpf_strength == 0) ||
+      level = cm->cdef_strengths[mbmi_cdef_strength] / SEC_STRENGTHS;
+      sec_strength = cm->cdef_strengths[mbmi_cdef_strength] % SEC_STRENGTHS;
+      sec_strength += sec_strength == 3;
+      uv_level = cm->cdef_uv_strengths[mbmi_cdef_strength] / SEC_STRENGTHS;
+      uv_sec_strength =
+          cm->cdef_uv_strengths[mbmi_cdef_strength] % SEC_STRENGTHS;
+      uv_sec_strength += uv_sec_strength == 3;
+      if ((level == 0 && sec_strength == 0 && uv_level == 0 &&
+           uv_sec_strength == 0) ||
           (dering_count = sb_compute_dering_list(
                cm, sbr * MAX_MIB_SIZE, sbc * MAX_MIB_SIZE, dlist,
                get_filter_skip(level) || get_filter_skip(uv_level))) == 0) {
@@ -276,8 +276,8 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
         uint16_t dst[MAX_SB_SIZE * MAX_SB_SIZE];
         int coffset;
         int rend, cend;
-        int clpf_damping = cm->cdef_clpf_damping;
-        int dering_damping = cm->cdef_dering_damping;
+        int pri_damping = cm->cdef_pri_damping;
+        int sec_damping = cm->cdef_sec_damping;
         int hsize = nhb << mi_wide_l2[pli];
         int vsize = nvb << mi_high_l2[pli];
 
@@ -286,7 +286,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
             level = uv_level;
           else
             level = 0;
-          clpf_strength = uv_clpf_strength;
+          sec_strength = uv_sec_strength;
         }
 
         if (sbc == nhsb - 1)
@@ -406,8 +406,8 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
               xd->plane[pli].dst.stride, dst,
               &src[OD_FILT_VBORDER * OD_FILT_BSTRIDE + OD_FILT_HBORDER],
               xdec[pli], ydec[pli], dir, NULL, var, pli, dlist, dering_count,
-              level, clpf_strength, clpf_damping, dering_damping, coeff_shift,
-              0, 1);
+              level, sec_strength, pri_damping, sec_damping, coeff_shift,
+              1);
         } else {
 #endif
           od_dering(&xd->plane[pli]
@@ -417,8 +417,8 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                     xd->plane[pli].dst.stride, dst,
                     &src[OD_FILT_VBORDER * OD_FILT_BSTRIDE + OD_FILT_HBORDER],
                     xdec[pli], ydec[pli], dir, NULL, var, pli, dlist,
-                    dering_count, level, clpf_strength, clpf_damping,
-                    dering_damping, coeff_shift, 0, 0);
+                    dering_count, level, sec_strength, pri_damping,
+                    sec_damping, coeff_shift, 0);
 
 #if CONFIG_HIGHBITDEPTH
         }
