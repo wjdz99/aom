@@ -155,8 +155,8 @@ static INLINE void array_reverse_transpose_8x8(v128 *in, v128 *res) {
   res[0] = v128_ziphi_64(tr1_7, tr1_6);
 }
 
-int SIMD_FUNC(od_dir_find8)(const od_dering_in *img, int stride, int32_t *var,
-                            int coeff_shift) {
+int SIMD_FUNC(cdef_find_dir)(const cdef_in *img, int stride, int32_t *var,
+                             int coeff_shift) {
   int i;
   int32_t cost[8];
   int32_t best_cost = 0;
@@ -211,114 +211,190 @@ int SIMD_FUNC(od_dir_find8)(const od_dering_in *img, int stride, int32_t *var,
   return best_dir;
 }
 
-void SIMD_FUNC(od_filter_dering_direction_4x4)(uint16_t *y, int ystride,
-                                               const uint16_t *in,
-                                               int threshold, int dir,
-                                               int damping) {
+void SIMD_FUNC(cdef_filter_block_4x4)(uint16_t *y, int ystride,
+                                      const uint16_t *in, int pri_strength,
+                                      int sec_strength, int dir,
+                                      int pri_damping, int sec_damping,
+                                      int max) {
   int i;
-  v128 p0, p1, sum, row, res;
-  int o1 = OD_DIRECTION_OFFSETS_TABLE[dir][0];
-  int o2 = OD_DIRECTION_OFFSETS_TABLE[dir][1];
+  v128 p0, p1, p2, p3, sum, row, res;
+  int po1 = cdef_directions[dir][0];
+  int po2 = cdef_directions[dir][1];
+  int s1o1 = cdef_directions[(dir + 2) & 7][0];
+  int s1o2 = cdef_directions[(dir + 2) & 7][1];
+  int s2o1 = cdef_directions[(dir + 6) & 7][0];
+  int s2o2 = cdef_directions[(dir + 6) & 7][1];
 
-  if (threshold) damping -= get_msb(threshold);
+  if (pri_strength) pri_damping -= get_msb(pri_strength);
+  if (sec_strength) sec_damping -= get_msb(sec_strength);
   for (i = 0; i < 4; i += 2) {
     sum = v128_zero();
-    row = v128_from_v64(v64_load_aligned(&in[i * OD_FILT_BSTRIDE]),
-                        v64_load_aligned(&in[(i + 1) * OD_FILT_BSTRIDE]));
+    row = v128_from_v64(v64_load_aligned(&in[i * CDEF_BSTRIDE]),
+                        v64_load_aligned(&in[(i + 1) * CDEF_BSTRIDE]));
 
-    // p0 = constrain16(in[i*OD_FILT_BSTRIDE + offset], row, threshold, damping)
-    p0 = v128_from_v64(v64_load_unaligned(&in[i * OD_FILT_BSTRIDE + o1]),
-                       v64_load_unaligned(&in[(i + 1) * OD_FILT_BSTRIDE + o1]));
-    p0 = constrain16(p0, row, threshold, damping);
-
-    // p1 = constrain16(in[i*OD_FILT_BSTRIDE - offset], row, threshold, damping)
-    p1 = v128_from_v64(v64_load_unaligned(&in[i * OD_FILT_BSTRIDE - o1]),
-                       v64_load_unaligned(&in[(i + 1) * OD_FILT_BSTRIDE - o1]));
-    p1 = constrain16(p1, row, threshold, damping);
+    // Primary near taps
+    p0 = v128_from_v64(v64_load_unaligned(&in[i * CDEF_BSTRIDE + po1]),
+                       v64_load_unaligned(&in[(i + 1) * CDEF_BSTRIDE + po1]));
+    p0 = constrain16(p0, row, pri_strength, pri_damping);
+    p1 = v128_from_v64(v64_load_unaligned(&in[i * CDEF_BSTRIDE - po1]),
+                       v64_load_unaligned(&in[(i + 1) * CDEF_BSTRIDE - po1]));
+    p1 = constrain16(p1, row, pri_strength, pri_damping);
 
     // sum += 4 * (p0 + p1)
     sum = v128_add_16(sum, v128_shl_n_16(v128_add_16(p0, p1), 2));
 
-    // p0 = constrain16(in[i*OD_FILT_BSTRIDE + offset], row, threshold, damping)
-    p0 = v128_from_v64(v64_load_unaligned(&in[i * OD_FILT_BSTRIDE + o2]),
-                       v64_load_unaligned(&in[(i + 1) * OD_FILT_BSTRIDE + o2]));
-    p0 = constrain16(p0, row, threshold, damping);
-
-    // p1 = constrain16(in[i*OD_FILT_BSTRIDE - offset], row, threshold, damping)
-    p1 = v128_from_v64(v64_load_unaligned(&in[i * OD_FILT_BSTRIDE - o2]),
-                       v64_load_unaligned(&in[(i + 1) * OD_FILT_BSTRIDE - o2]));
-    p1 = constrain16(p1, row, threshold, damping);
-
-    // sum += 1 * (p0 + p1)
-    sum = v128_add_16(sum, v128_add_16(p0, p1));
-
-    // res = row + ((sum + 8) >> 4)
-    res = v128_add_16(sum, v128_dup_16(8));
-    res = v128_shr_n_s16(res, 4);
-    res = v128_add_16(row, res);
-    v64_store_aligned(&y[i * ystride], v128_high_v64(res));
-    v64_store_aligned(&y[(i + 1) * ystride], v128_low_v64(res));
-  }
-}
-
-void SIMD_FUNC(od_filter_dering_direction_8x8)(uint16_t *y, int ystride,
-                                               const uint16_t *in,
-                                               int threshold, int dir,
-                                               int damping) {
-  int i;
-  v128 sum, p0, p1, row, res;
-  int o1 = OD_DIRECTION_OFFSETS_TABLE[dir][0];
-  int o2 = OD_DIRECTION_OFFSETS_TABLE[dir][1];
-  int o3 = OD_DIRECTION_OFFSETS_TABLE[dir][2];
-
-  if (threshold) damping -= get_msb(threshold);
-  for (i = 0; i < 8; i++) {
-    sum = v128_zero();
-    row = v128_load_aligned(&in[i * OD_FILT_BSTRIDE]);
-
-    // p0 = constrain16(in[i*OD_FILT_BSTRIDE + offset], row, threshold, damping)
-    p0 = v128_load_unaligned(&in[i * OD_FILT_BSTRIDE + o1]);
-    p0 = constrain16(p0, row, threshold, damping);
-
-    // p1 = constrain16(in[i*OD_FILT_BSTRIDE - offset], row, threshold, damping)
-    p1 = v128_load_unaligned(&in[i * OD_FILT_BSTRIDE - o1]);
-    p1 = constrain16(p1, row, threshold, damping);
+    // Primary far taps
+    p0 = v128_from_v64(v64_load_unaligned(&in[i * CDEF_BSTRIDE + po2]),
+                       v64_load_unaligned(&in[(i + 1) * CDEF_BSTRIDE + po2]));
+    p0 = constrain16(p0, row, pri_strength, pri_damping);
+    p1 = v128_from_v64(v64_load_unaligned(&in[i * CDEF_BSTRIDE - po2]),
+                       v64_load_unaligned(&in[(i + 1) * CDEF_BSTRIDE - po2]));
+    p1 = constrain16(p1, row, pri_strength, pri_damping);
 
     // sum += 3 * (p0 + p1)
     p0 = v128_add_16(p0, p1);
     p0 = v128_add_16(p0, v128_shl_n_16(p0, 1));
     sum = v128_add_16(sum, p0);
 
-    // p0 = constrain16(in[i*OD_FILT_BSTRIDE + offset], row, threshold, damping)
-    p0 = v128_load_unaligned(&in[i * OD_FILT_BSTRIDE + o2]);
-    p0 = constrain16(p0, row, threshold, damping);
+    // Secondary near taps
+    p0 = v128_from_v64(v64_load_unaligned(&in[i * CDEF_BSTRIDE + s1o1]),
+                       v64_load_unaligned(&in[(i + 1) * CDEF_BSTRIDE + s1o1]));
+    p0 = constrain16(p0, row, sec_strength, sec_damping);
+    p1 = v128_from_v64(v64_load_unaligned(&in[i * CDEF_BSTRIDE - s1o1]),
+                       v64_load_unaligned(&in[(i + 1) * CDEF_BSTRIDE - s1o1]));
+    p1 = constrain16(p1, row, sec_strength, sec_damping);
+    p2 = v128_from_v64(v64_load_unaligned(&in[i * CDEF_BSTRIDE + s2o1]),
+                       v64_load_unaligned(&in[(i + 1) * CDEF_BSTRIDE + s2o1]));
+    p2 = constrain16(p2, row, sec_strength, sec_damping);
+    p3 = v128_from_v64(v64_load_unaligned(&in[i * CDEF_BSTRIDE - s2o1]),
+                       v64_load_unaligned(&in[(i + 1) * CDEF_BSTRIDE - s2o1]));
+    p3 = constrain16(p3, row, sec_strength, sec_damping);
 
-    // p1 = constrain16(in[i*OD_FILT_BSTRIDE - offset], row, threshold, damping)
-    p1 = v128_load_unaligned(&in[i * OD_FILT_BSTRIDE - o2]);
-    p1 = constrain16(p1, row, threshold, damping);
-
-    // sum += 2 * (p0 + p1)
-    p0 = v128_shl_n_16(v128_add_16(p0, p1), 1);
+    // sum += 2 * (p0 + p1 + p2 + p3)
+    p0 =
+        v128_shl_n_16(v128_add_16(v128_add_16(p0, p1), v128_add_16(p2, p3)), 1);
     sum = v128_add_16(sum, p0);
 
-    // p0 = constrain16(in[i*OD_FILT_BSTRIDE + offset], row, threshold, damping)
-    p0 = v128_load_unaligned(&in[i * OD_FILT_BSTRIDE + o3]);
-    p0 = constrain16(p0, row, threshold, damping);
+    // Secondary far taps
+    p0 = v128_from_v64(v64_load_unaligned(&in[i * CDEF_BSTRIDE + s1o2]),
+                       v64_load_unaligned(&in[(i + 1) * CDEF_BSTRIDE + s1o2]));
+    p0 = constrain16(p0, row, sec_strength, sec_damping);
+    p1 = v128_from_v64(v64_load_unaligned(&in[i * CDEF_BSTRIDE - s1o2]),
+                       v64_load_unaligned(&in[(i + 1) * CDEF_BSTRIDE - s1o2]));
+    p1 = constrain16(p1, row, sec_strength, sec_damping);
+    p2 = v128_from_v64(v64_load_unaligned(&in[i * CDEF_BSTRIDE + s2o2]),
+                       v64_load_unaligned(&in[(i + 1) * CDEF_BSTRIDE + s2o2]));
+    p2 = constrain16(p2, row, sec_strength, sec_damping);
+    p3 = v128_from_v64(v64_load_unaligned(&in[i * CDEF_BSTRIDE - s2o2]),
+                       v64_load_unaligned(&in[(i + 1) * CDEF_BSTRIDE - s2o2]));
+    p3 = constrain16(p3, row, sec_strength, sec_damping);
 
-    // p1 = constrain16(in[i*OD_FILT_BSTRIDE - offset], row, threshold, damping)
-    p1 = v128_load_unaligned(&in[i * OD_FILT_BSTRIDE - o3]);
-    p1 = constrain16(p1, row, threshold, damping);
-
-    // sum += (p0 + p1)
-    p0 = v128_add_16(p0, p1);
+    // sum += 1 * (p0 + p1 + p2 + p3)
+    p0 = v128_add_16(v128_add_16(p0, p1), v128_add_16(p2, p3));
     sum = v128_add_16(sum, p0);
 
-    // res = row + ((sum + 8) >> 4)
+    // res = row + ((sum - (sum < 0) + 8) >> 4)
+    sum = v128_add_16(sum, v128_cmplt_s16(sum, v128_zero()));
     res = v128_add_16(sum, v128_dup_16(8));
     res = v128_shr_n_s16(res, 4);
     res = v128_add_16(row, res);
+    res = v128_min_s16(v128_max_s16(res, v128_zero()), v128_dup_16(max));
+    v64_store_aligned(&y[i * ystride], v128_high_v64(res));
+    v64_store_aligned(&y[(i + 1) * ystride], v128_low_v64(res));
+  }
+}
+
+void SIMD_FUNC(cdef_filter_block_8x8)(uint16_t *y, int ystride,
+                                      const uint16_t *in, int pri_strength,
+                                      int sec_strength, int dir,
+                                      int pri_damping, int sec_damping,
+                                      int max) {
+  int i;
+  v128 sum, p0, p1, p2, p3, row, res;
+  int po1 = cdef_directions[dir][0];
+  int po2 = cdef_directions[dir][1];
+  int s1o1 = cdef_directions[(dir + 2) & 7][0];
+  int s1o2 = cdef_directions[(dir + 2) & 7][1];
+  int s2o1 = cdef_directions[(dir + 6) & 7][0];
+  int s2o2 = cdef_directions[(dir + 6) & 7][1];
+
+  if (pri_strength) pri_damping -= get_msb(pri_strength);
+  if (sec_strength) sec_damping -= get_msb(sec_strength);
+  for (i = 0; i < 8; i++) {
+    sum = v128_zero();
+    row = v128_load_aligned(&in[i * CDEF_BSTRIDE]);
+
+    // Primary near taps
+    p0 = v128_load_unaligned(&in[i * CDEF_BSTRIDE + po1]);
+    p0 = constrain16(p0, row, pri_strength, pri_damping);
+    p1 = v128_load_unaligned(&in[i * CDEF_BSTRIDE - po1]);
+    p1 = constrain16(p1, row, pri_strength, pri_damping);
+
+    // sum += 4 * (p0 + p1)
+    p0 = v128_shl_n_16(v128_add_16(p0, p1), 2);
+    sum = v128_add_16(sum, p0);
+
+    // Primary far taps
+    p0 = v128_load_unaligned(&in[i * CDEF_BSTRIDE + po2]);
+    p0 = constrain16(p0, row, pri_strength, pri_damping);
+    p1 = v128_load_unaligned(&in[i * CDEF_BSTRIDE - po2]);
+    p1 = constrain16(p1, row, pri_strength, pri_damping);
+
+    // sum += 3 * (p0 + p1)
+    p0 = v128_add_16(p0, p1);
+    p0 = v128_add_16(p0, v128_shl_n_16(p0, 1));
+    sum = v128_add_16(sum, p0);
+
+    // Secondary near taps
+    p0 = v128_load_unaligned(&in[i * CDEF_BSTRIDE + s1o1]);
+    p0 = constrain16(p0, row, sec_strength, sec_damping);
+    p1 = v128_load_unaligned(&in[i * CDEF_BSTRIDE - s1o1]);
+    p1 = constrain16(p1, row, sec_strength, sec_damping);
+    p2 = v128_load_unaligned(&in[i * CDEF_BSTRIDE + s2o1]);
+    p2 = constrain16(p2, row, sec_strength, sec_damping);
+    p3 = v128_load_unaligned(&in[i * CDEF_BSTRIDE - s2o1]);
+    p3 = constrain16(p3, row, sec_strength, sec_damping);
+
+    // sum += 2 * (p0 + p1 + p2 + p3)
+    p0 =
+        v128_shl_n_16(v128_add_16(v128_add_16(p0, p1), v128_add_16(p2, p3)), 1);
+    sum = v128_add_16(sum, p0);
+
+    // Secondary far taps
+    p0 = v128_load_unaligned(&in[i * CDEF_BSTRIDE + s1o2]);
+    p0 = constrain16(p0, row, sec_strength, sec_damping);
+    p1 = v128_load_unaligned(&in[i * CDEF_BSTRIDE - s1o2]);
+    p1 = constrain16(p1, row, sec_strength, sec_damping);
+    p2 = v128_load_unaligned(&in[i * CDEF_BSTRIDE + s2o2]);
+    p2 = constrain16(p2, row, sec_strength, sec_damping);
+    p3 = v128_load_unaligned(&in[i * CDEF_BSTRIDE - s2o2]);
+    p3 = constrain16(p3, row, sec_strength, sec_damping);
+
+    // sum += 1 * (p0 + p1 + p2 + p3)
+    p0 = v128_add_16(v128_add_16(p0, p1), v128_add_16(p2, p3));
+    sum = v128_add_16(sum, p0);
+
+    // res = row + ((sum - (sum < 0) + 8) >> 4)
+    sum = v128_add_16(sum, v128_cmplt_s16(sum, v128_zero()));
+    res = v128_add_16(sum, v128_dup_16(8));
+    res = v128_shr_n_s16(res, 4);
+    res = v128_add_16(row, res);
+    res = v128_min_s16(v128_max_s16(res, v128_zero()), v128_dup_16(max));
     v128_store_unaligned(&y[i * ystride], res);
   }
+}
+
+void SIMD_FUNC(cdef_filter_block)(uint16_t *y, int ystride, const uint16_t *in,
+                                  int strength, int sec_strength, int dir,
+                                  int damping, int sec_damping, int bsize,
+                                  int max) {
+  if (bsize == BLOCK_4X4 && 0)
+    cdef_filter_block_c(y, ystride, in, strength, sec_strength, dir, damping,
+                        sec_damping, bsize, max);
+  else
+    (bsize == BLOCK_8X8 ? SIMD_FUNC(cdef_filter_block_8x8)
+                        : SIMD_FUNC(cdef_filter_block_4x4))(
+        y, ystride, in, strength, sec_strength, dir, damping, sec_damping, max);
 }
 
 void SIMD_FUNC(copy_8x8_16bit_to_8bit)(uint8_t *dst, int dstride,
