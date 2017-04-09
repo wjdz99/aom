@@ -27,16 +27,15 @@ using libaom_test::ACMRandom;
 
 namespace {
 
-typedef std::tr1::tuple<od_filter_dering_direction_func,
-                        od_filter_dering_direction_func, int>
-    dering_dir_param_t;
+typedef std::tr1::tuple<cdef_filter_block_func, cdef_filter_block_func, int>
+    cdef_dir_param_t;
 
-class CDEFDeringDirTest : public ::testing::TestWithParam<dering_dir_param_t> {
- public:
-  virtual ~CDEFDeringDirTest() {}
+class CDEFTest : public ::testing::TestWithParam<cdef_dir_param_t> {
+public:
+  virtual ~CDEFTest() {}
   virtual void SetUp() {
-    dering = GET_PARAM(0);
-    ref_dering = GET_PARAM(1);
+    cdef = GET_PARAM(0);
+    ref_cdef = GET_PARAM(1);
     bsize = GET_PARAM(2);
   }
 
@@ -44,83 +43,95 @@ class CDEFDeringDirTest : public ::testing::TestWithParam<dering_dir_param_t> {
 
  protected:
   int bsize;
-  od_filter_dering_direction_func dering;
-  od_filter_dering_direction_func ref_dering;
+  cdef_filter_block_func cdef;
+  cdef_filter_block_func ref_cdef;
 };
 
-typedef CDEFDeringDirTest CDEFDeringSpeedTest;
+typedef CDEFTest CDEFSpeedTest;
 
-void test_dering(int bsize, int iterations,
-                 od_filter_dering_direction_func dering,
-                 od_filter_dering_direction_func ref_dering) {
+void test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
+               cdef_filter_block_func ref_cdef) {
   const int size = 8;
-  const int ysize = size + 2 * OD_FILT_VBORDER;
+  const int ysize = size + 2 * CDEF_VBORDER;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, uint16_t, s[ysize * OD_FILT_BSTRIDE]);
+  DECLARE_ALIGNED(16, uint16_t, s[ysize * CDEF_BSTRIDE]);
   DECLARE_ALIGNED(16, static uint16_t, d[size * size]);
   DECLARE_ALIGNED(16, static uint16_t, ref_d[size * size]);
   memset(ref_d, 0, sizeof(ref_d));
   memset(d, 0, sizeof(d));
 
-  int error = 0, threshold = 0, dir;
-  int boundary, damping, depth, bits, level, count,
-      errdepth = 0, errthreshold = 0, errboundary = 0, errdamping = 0;
+  int error = 0, pristrength = 0, secstrength, dir;
+  int boundary, pridamping, secdamping, depth, bits, level, count,
+      errdepth = 0, errpristrength = 0, errsecstrength = 0, errboundary = 0,
+      errpridamping = 0, errsecdamping = 0;
   unsigned int pos = 0;
 
   for (boundary = 0; boundary < 16; boundary++) {
     for (depth = 8; depth <= 12; depth += 2) {
-      for (damping = 5 + depth - 8; damping < 7 + depth - 8; damping++) {
-        for (count = 0; count < iterations; count++) {
-          for (level = 0; level < (1 << depth) && !error;
-               level += (1 + 4 * !!boundary) << (depth - 8)) {
-            for (bits = 1; bits <= depth && !error; bits++) {
-              for (unsigned int i = 0; i < sizeof(s) / sizeof(*s); i++)
-                s[i] = clamp((rnd.Rand16() & ((1 << bits) - 1)) + level, 0,
-                             (1 << depth) - 1);
-              if (boundary) {
-                if (boundary & 1) {  // Left
-                  for (int i = 0; i < ysize; i++)
-                    for (int j = 0; j < OD_FILT_HBORDER; j++)
-                      s[i * OD_FILT_BSTRIDE + j] = OD_DERING_VERY_LARGE;
+      for (pridamping = 5 + depth - 8; pridamping < 7 + depth - 8;
+           pridamping++) {
+        for (secdamping = 3 + depth - 8; secdamping < 7 + depth - 8;
+             secdamping++) {
+          for (count = 0; count < iterations; count++) {
+            for (level = 0; level < (1 << depth) && !error;
+                 level += (1 + 4 * !!boundary) << (depth - 8)) {
+              for (bits = 1; bits <= depth && !error; bits++) {
+                for (unsigned int i = 0; i < sizeof(s) / sizeof(*s); i++)
+                  s[i] = clamp((rnd.Rand16() & ((1 << bits) - 1)) + level, 0,
+                               (1 << depth) - 1);
+                if (boundary) {
+                  if (boundary & 1) { // Left
+                    for (int i = 0; i < ysize; i++)
+                      for (int j = 0; j < CDEF_HBORDER; j++)
+                        s[i * CDEF_BSTRIDE + j] = CDEF_VERY_LARGE;
+                  }
+                  if (boundary & 2) { // Right
+                    for (int i = 0; i < ysize; i++)
+                      for (int j = CDEF_HBORDER + size; j < CDEF_BSTRIDE; j++)
+                        s[i * CDEF_BSTRIDE + j] = CDEF_VERY_LARGE;
+                  }
+                  if (boundary & 4) { // Above
+                    for (int i = 0; i < CDEF_VBORDER; i++)
+                      for (int j = 0; j < CDEF_BSTRIDE; j++)
+                        s[i * CDEF_BSTRIDE + j] = CDEF_VERY_LARGE;
+                  }
+                  if (boundary & 8) { // Below
+                    for (int i = CDEF_VBORDER + size; i < ysize; i++)
+                      for (int j = 0; j < CDEF_BSTRIDE; j++)
+                        s[i * CDEF_BSTRIDE + j] = CDEF_VERY_LARGE;
+                  }
                 }
-                if (boundary & 2) {  // Right
-                  for (int i = 0; i < ysize; i++)
-                    for (int j = OD_FILT_HBORDER + size; j < OD_FILT_BSTRIDE;
-                         j++)
-                      s[i * OD_FILT_BSTRIDE + j] = OD_DERING_VERY_LARGE;
-                }
-                if (boundary & 4) {  // Above
-                  for (int i = 0; i < OD_FILT_VBORDER; i++)
-                    for (int j = 0; j < OD_FILT_BSTRIDE; j++)
-                      s[i * OD_FILT_BSTRIDE + j] = OD_DERING_VERY_LARGE;
-                }
-                if (boundary & 8) {  // Below
-                  for (int i = OD_FILT_VBORDER + size; i < ysize; i++)
-                    for (int j = 0; j < OD_FILT_BSTRIDE; j++)
-                      s[i * OD_FILT_BSTRIDE + j] = OD_DERING_VERY_LARGE;
-                }
-              }
-              for (dir = 0; dir < 8; dir++) {
-                for (threshold = 0; threshold < 64 << (depth - 8) && !error;
-                     threshold += (1 + 4 * !!boundary) << (depth - 8)) {
-                  ref_dering(ref_d, size, s + OD_FILT_HBORDER +
-                                              OD_FILT_VBORDER * OD_FILT_BSTRIDE,
-                             threshold, dir, damping);
-                  // If dering and ref_dering are the same, we're just testing
-                  // speed
-                  if (dering != ref_dering)
-                    ASM_REGISTER_STATE_CHECK(dering(
-                        d, size,
-                        s + OD_FILT_HBORDER + OD_FILT_VBORDER * OD_FILT_BSTRIDE,
-                        threshold, dir, damping));
-                  if (ref_dering != dering) {
-                    for (pos = 0; pos < sizeof(d) / sizeof(*d) && !error;
-                         pos++) {
-                      error = ref_d[pos] != d[pos];
-                      errdepth = depth;
-                      errthreshold = threshold;
-                      errboundary = boundary;
-                      errdamping = damping;
+                for (dir = 0; dir < 8; dir++) {
+                  for (pristrength = 0;
+                       pristrength <= 24 << (depth - 8) && !error;
+                       pristrength += (1 + 4 * !!boundary) << (depth - 8)) {
+                    for (secstrength = 0;
+                         secstrength <= 4 << (depth - 8) && !error;
+                         secstrength += 1 << (depth - 8)) {
+                      ref_cdef(ref_d, size,
+                               s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
+                               pristrength, secstrength, dir, pridamping,
+                               secdamping, bsize, (1 << depth) - 1);
+                      // If cdef and ref_cdef are the same, we're just testing
+                      // speed
+                      if (cdef != ref_cdef)
+                        ASM_REGISTER_STATE_CHECK(
+                            cdef(d, size,
+                                 s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
+                                 pristrength, secstrength, dir, pridamping,
+                                 secdamping, bsize, (1 << depth) - 1));
+                      if (ref_cdef != cdef) {
+                        for (pos = 0; pos < sizeof(d) / sizeof(*d) && !error;
+                             pos++) {
+                          error = ref_d[pos] != d[pos];
+                          errdepth = depth;
+                          errpristrength = pristrength;
+                          errsecstrength = secstrength;
+                          errboundary = boundary;
+                          errpridamping = pridamping;
+                          errsecdamping = secdamping;
+                        }
+                      }
                     }
                   }
                 }
@@ -131,34 +142,33 @@ void test_dering(int bsize, int iterations,
       }
     }
   }
-
   pos--;
-  EXPECT_EQ(0, error) << "Error: CDEFDeringDirTest, SIMD and C mismatch."
-                      << std::endl
+  EXPECT_EQ(0, error) << "Error: CDEFTest, SIMD and C mismatch." << std::endl
                       << "First error at " << pos % size << "," << pos / size
                       << " (" << (int16_t)ref_d[pos] << " : " << (int16_t)d[pos]
                       << ") " << std::endl
-                      << "threshold: " << errthreshold << std::endl
-                      << "damping: " << errdamping << std::endl
+                      << "pristrength: " << errpristrength << std::endl
+                      << "pridamping: " << errpridamping << std::endl
+                      << "secstrength: " << errsecstrength << std::endl
+                      << "secdamping: " << errsecdamping << std::endl
                       << "depth: " << errdepth << std::endl
                       << "size: " << bsize << std::endl
                       << "boundary: " << errboundary << std::endl
                       << std::endl;
 }
 
-void test_dering_speed(int bsize, int iterations,
-                       od_filter_dering_direction_func dering,
-                       od_filter_dering_direction_func ref_dering) {
+void test_cdef_speed(int bsize, int iterations, cdef_filter_block_func cdef,
+                     cdef_filter_block_func ref_cdef) {
   aom_usec_timer ref_timer;
   aom_usec_timer timer;
 
   aom_usec_timer_start(&ref_timer);
-  test_dering(bsize, iterations, ref_dering, ref_dering);
+  test_cdef(bsize, iterations, ref_cdef, ref_cdef);
   aom_usec_timer_mark(&ref_timer);
   int ref_elapsed_time = (int)aom_usec_timer_elapsed(&ref_timer);
 
   aom_usec_timer_start(&timer);
-  test_dering(bsize, iterations, dering, dering);
+  test_cdef(bsize, iterations, cdef, cdef);
   aom_usec_timer_mark(&timer);
   int elapsed_time = (int)aom_usec_timer_elapsed(&timer);
 
@@ -168,20 +178,19 @@ void test_dering_speed(int bsize, int iterations,
 #endif
 
   EXPECT_GT(ref_elapsed_time, elapsed_time)
-      << "Error: CDEFDeringSpeedTest, SIMD slower than C." << std::endl
+      << "Error: CDEFSpeedTest, SIMD slower than C." << std::endl
       << "C time: " << ref_elapsed_time << " us" << std::endl
       << "SIMD time: " << elapsed_time << " us" << std::endl;
 }
 
-typedef int (*find_dir_t)(const od_dering_in *img, int stride, int32_t *var,
+typedef int (*find_dir_t)(const cdef_in *img, int stride, int32_t *var,
                           int coeff_shift);
 
 typedef std::tr1::tuple<find_dir_t, find_dir_t> find_dir_param_t;
 
-class CDEFDeringFindDirTest
-    : public ::testing::TestWithParam<find_dir_param_t> {
- public:
-  virtual ~CDEFDeringFindDirTest() {}
+class CDEFFindDirTest : public ::testing::TestWithParam<find_dir_param_t> {
+public:
+  virtual ~CDEFFindDirTest() {}
   virtual void SetUp() {
     finddir = GET_PARAM(0);
     ref_finddir = GET_PARAM(1);
@@ -194,11 +203,11 @@ class CDEFDeringFindDirTest
   find_dir_t ref_finddir;
 };
 
-typedef CDEFDeringFindDirTest CDEFDeringFindDirSpeedTest;
+typedef CDEFFindDirTest CDEFFindDirSpeedTest;
 
-void test_finddir(int (*finddir)(const od_dering_in *img, int stride,
-                                 int32_t *var, int coeff_shift),
-                  int (*ref_finddir)(const od_dering_in *img, int stride,
+void test_finddir(int (*finddir)(const cdef_in *img, int stride, int32_t *var,
+                                 int coeff_shift),
+                  int (*ref_finddir)(const cdef_in *img, int stride,
                                      int32_t *var, int coeff_shift)) {
   const int size = 8;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
@@ -230,7 +239,7 @@ void test_finddir(int (*finddir)(const od_dering_in *img, int stride,
     }
   }
 
-  EXPECT_EQ(0, error) << "Error: CDEFDeringFindDirTest, SIMD and C mismatch."
+  EXPECT_EQ(0, error) << "Error: CDEFFindDirTest, SIMD and C mismatch."
                       << std::endl
                       << "return: " << res << " : " << ref_res << std::endl
                       << "var: " << var << " : " << ref_var << std::endl
@@ -238,9 +247,9 @@ void test_finddir(int (*finddir)(const od_dering_in *img, int stride,
                       << std::endl;
 }
 
-void test_finddir_speed(int (*finddir)(const od_dering_in *img, int stride,
+void test_finddir_speed(int (*finddir)(const cdef_in *img, int stride,
                                        int32_t *var, int coeff_shift),
-                        int (*ref_finddir)(const od_dering_in *img, int stride,
+                        int (*ref_finddir)(const cdef_in *img, int stride,
                                            int32_t *var, int coeff_shift)) {
   aom_usec_timer ref_timer;
   aom_usec_timer timer;
@@ -261,24 +270,22 @@ void test_finddir_speed(int (*finddir)(const od_dering_in *img, int stride,
 #endif
 
   EXPECT_GT(ref_elapsed_time, elapsed_time)
-      << "Error: CDEFDeringFindDirSpeedTest, SIMD slower than C." << std::endl
+      << "Error: CDEFFindDirSpeedTest, SIMD slower than C." << std::endl
       << "C time: " << ref_elapsed_time << " us" << std::endl
       << "SIMD time: " << elapsed_time << " us" << std::endl;
 }
 
-TEST_P(CDEFDeringDirTest, TestSIMDNoMismatch) {
-  test_dering(bsize, 1, dering, ref_dering);
+TEST_P(CDEFTest, TestSIMDNoMismatch) { test_cdef(bsize, 1, cdef, ref_cdef); }
+
+TEST_P(CDEFSpeedTest, DISABLED_TestSpeed) {
+  test_cdef_speed(bsize, 4, cdef, ref_cdef);
 }
 
-TEST_P(CDEFDeringSpeedTest, DISABLED_TestSpeed) {
-  test_dering_speed(bsize, 4, dering, ref_dering);
-}
-
-TEST_P(CDEFDeringFindDirTest, TestSIMDNoMismatch) {
+TEST_P(CDEFFindDirTest, TestSIMDNoMismatch) {
   test_finddir(finddir, ref_finddir);
 }
 
-TEST_P(CDEFDeringFindDirSpeedTest, DISABLED_TestSpeed) {
+TEST_P(CDEFFindDirSpeedTest, DISABLED_TestSpeed) {
   test_finddir_speed(finddir, ref_finddir);
 }
 
@@ -290,98 +297,92 @@ using std::tr1::make_tuple;
 #if defined(_WIN64) || !defined(_MSC_VER) || defined(__clang__)
 #if HAVE_SSE2
 INSTANTIATE_TEST_CASE_P(
-    SSE2, CDEFDeringDirTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_sse2,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_sse2,
-                                 &od_filter_dering_direction_8x8_c, 8)));
-INSTANTIATE_TEST_CASE_P(SSE2, CDEFDeringFindDirTest,
-                        ::testing::Values(make_tuple(&od_dir_find8_sse2,
-                                                     &od_dir_find8_c)));
+    SSE2, CDEFTest,
+    ::testing::Values(
+        make_tuple(&cdef_filter_block_sse2, &cdef_filter_block_c, BLOCK_4X4),
+        make_tuple(&cdef_filter_block_sse2, &cdef_filter_block_c, BLOCK_8X8)));
+INSTANTIATE_TEST_CASE_P(SSE2, CDEFFindDirTest,
+                        ::testing::Values(make_tuple(&cdef_find_dir_sse2,
+                                                     &cdef_find_dir_c)));
 #endif
 #if HAVE_SSSE3
 INSTANTIATE_TEST_CASE_P(
-    SSSE3, CDEFDeringDirTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_ssse3,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_ssse3,
-                                 &od_filter_dering_direction_8x8_c, 8)));
-INSTANTIATE_TEST_CASE_P(SSSE3, CDEFDeringFindDirTest,
-                        ::testing::Values(make_tuple(&od_dir_find8_ssse3,
-                                                     &od_dir_find8_c)));
+    SSSE3, CDEFTest,
+    ::testing::Values(
+        make_tuple(&cdef_filter_block_ssse3, &cdef_filter_block_c, BLOCK_4X4),
+        make_tuple(&cdef_filter_block_ssse3, &cdef_filter_block_c, BLOCK_8X8)));
+INSTANTIATE_TEST_CASE_P(SSSE3, CDEFFindDirTest,
+                        ::testing::Values(make_tuple(&cdef_find_dir_ssse3,
+                                                     &cdef_find_dir_c)));
 #endif
 
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_CASE_P(
-    SSE4_1, CDEFDeringDirTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_sse4_1,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_sse4_1,
-                                 &od_filter_dering_direction_8x8_c, 8)));
-INSTANTIATE_TEST_CASE_P(SSE4_1, CDEFDeringFindDirTest,
-                        ::testing::Values(make_tuple(&od_dir_find8_sse4_1,
-                                                     &od_dir_find8_c)));
+    SSE4_1, CDEFTest,
+    ::testing::Values(make_tuple(&cdef_filter_block_sse4_1,
+                                 &cdef_filter_block_c, BLOCK_4X4),
+                      make_tuple(&cdef_filter_block_sse4_1,
+                                 &cdef_filter_block_c, BLOCK_8X8)));
+INSTANTIATE_TEST_CASE_P(SSE4_1, CDEFFindDirTest,
+                        ::testing::Values(make_tuple(&cdef_find_dir_sse4_1,
+                                                     &cdef_find_dir_c)));
 #endif
 
 #if HAVE_NEON
 INSTANTIATE_TEST_CASE_P(
-    NEON, CDEFDeringDirTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_neon,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_neon,
-                                 &od_filter_dering_direction_8x8_c, 8)));
-INSTANTIATE_TEST_CASE_P(NEON, CDEFDeringFindDirTest,
-                        ::testing::Values(make_tuple(&od_dir_find8_neon,
-                                                     &od_dir_find8_c)));
+    NEON, CDEFTest,
+    ::testing::Values(
+        make_tuple(&cdef_filter_block_neon, &cdef_filter_block_c, BLOCK_4X4),
+        make_tuple(&cdef_filter_block_neon, &cdef_filter_block_c, BLOCK_8X8)));
+INSTANTIATE_TEST_CASE_P(NEON, CDEFFindDirTest,
+                        ::testing::Values(make_tuple(&cdef_find_dir_neon,
+                                                     &cdef_find_dir_c)));
 #endif
 
 // Test speed for all supported architectures
 #if HAVE_SSE2
 INSTANTIATE_TEST_CASE_P(
-    SSE2, CDEFDeringSpeedTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_sse2,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_sse2,
-                                 &od_filter_dering_direction_8x8_c, 8)));
-INSTANTIATE_TEST_CASE_P(SSE2, CDEFDeringFindDirSpeedTest,
-                        ::testing::Values(make_tuple(&od_dir_find8_sse2,
-                                                     &od_dir_find8_c)));
+    SSE2, CDEFSpeedTest,
+    ::testing::Values(
+        make_tuple(&cdef_filter_block_sse2, &cdef_filter_block_c, BLOCK_4X4),
+        make_tuple(&cdef_filter_block_sse2, &cdef_filter_block_c, BLOCK_8X8)));
+INSTANTIATE_TEST_CASE_P(SSE2, CDEFFindDirSpeedTest,
+                        ::testing::Values(make_tuple(&cdef_find_dir_sse2,
+                                                     &cdef_find_dir_c)));
 #endif
 
 #if HAVE_SSSE3
 INSTANTIATE_TEST_CASE_P(
-    SSSE3, CDEFDeringSpeedTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_ssse3,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_ssse3,
-                                 &od_filter_dering_direction_8x8_c, 8)));
-INSTANTIATE_TEST_CASE_P(SSSE3, CDEFDeringFindDirSpeedTest,
-                        ::testing::Values(make_tuple(&od_dir_find8_ssse3,
-                                                     &od_dir_find8_c)));
+    SSSE3, CDEFSpeedTest,
+    ::testing::Values(
+        make_tuple(&cdef_filter_block_ssse3, &cdef_filter_block_c, BLOCK_4X4),
+        make_tuple(&cdef_filter_block_ssse3, &cdef_filter_block_c, BLOCK_8X8)));
+INSTANTIATE_TEST_CASE_P(SSSE3, CDEFFindDirSpeedTest,
+                        ::testing::Values(make_tuple(&cdef_find_dir_ssse3,
+                                                     &cdef_find_dir_c)));
 #endif
 
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_CASE_P(
-    SSE4_1, CDEFDeringSpeedTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_sse4_1,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_sse4_1,
-                                 &od_filter_dering_direction_8x8_c, 8)));
-INSTANTIATE_TEST_CASE_P(SSE4_1, CDEFDeringFindDirSpeedTest,
-                        ::testing::Values(make_tuple(&od_dir_find8_sse4_1,
-                                                     &od_dir_find8_c)));
+    SSE4_1, CDEFSpeedTest,
+    ::testing::Values(make_tuple(&cdef_filter_block_sse4_1,
+                                 &cdef_filter_block_c, BLOCK_4X4),
+                      make_tuple(&cdef_filter_block_sse4_1,
+                                 &cdef_filter_block_c, BLOCK_8X8)));
+INSTANTIATE_TEST_CASE_P(SSE4_1, CDEFFindDirSpeedTest,
+                        ::testing::Values(make_tuple(&cdef_find_dir_sse4_1,
+                                                     &cdef_find_dir_c)));
 #endif
 
 #if HAVE_NEON
 INSTANTIATE_TEST_CASE_P(
-    NEON, CDEFDeringSpeedTest,
-    ::testing::Values(make_tuple(&od_filter_dering_direction_4x4_neon,
-                                 &od_filter_dering_direction_4x4_c, 4),
-                      make_tuple(&od_filter_dering_direction_8x8_neon,
-                                 &od_filter_dering_direction_8x8_c, 8)));
-INSTANTIATE_TEST_CASE_P(NEON, CDEFDeringFindDirSpeedTest,
-                        ::testing::Values(make_tuple(&od_dir_find8_neon,
-                                                     &od_dir_find8_c)));
+    NEON, CDEFSpeedTest,
+    ::testing::Values(
+        make_tuple(&cdef_filter_block_neon, &cdef_filter_block_c, BLOCK_4X4),
+        make_tuple(&cdef_filter_block_neon, &cdef_filter_block_c, BLOCK_8X8)));
+INSTANTIATE_TEST_CASE_P(NEON, CDEFFindDirSpeedTest,
+                        ::testing::Values(make_tuple(&cdef_find_dir_neon,
+                                                     &cdef_find_dir_c)));
 #endif
 
 #endif  // defined(_WIN64) || !defined(_MSC_VER)
