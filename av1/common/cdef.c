@@ -407,7 +407,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
               &src[OD_FILT_VBORDER * OD_FILT_BSTRIDE + OD_FILT_HBORDER],
               xdec[pli], ydec[pli], dir, NULL, var, pli, dlist, dering_count,
               level, clpf_strength, clpf_damping, dering_damping, coeff_shift,
-              0, 1);
+              1);
         } else {
 #endif
           od_dering(&xd->plane[pli]
@@ -418,7 +418,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                     &src[OD_FILT_VBORDER * OD_FILT_BSTRIDE + OD_FILT_HBORDER],
                     xdec[pli], ydec[pli], dir, NULL, var, pli, dlist,
                     dering_count, level, clpf_strength, clpf_damping,
-                    dering_damping, coeff_shift, 0, 0);
+                    dering_damping, coeff_shift, 0);
 
 #if CONFIG_HIGHBITDEPTH
         }
