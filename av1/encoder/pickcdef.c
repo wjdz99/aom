@@ -403,17 +403,16 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
           int xsize = (nhb << mi_wide_l2[pli]) +
                       OD_FILT_HBORDER * (sbc != nhsb - 1) + xoff;
           clpf_strength = gi % CLPF_STRENGTHS;
-          if (clpf_strength == 0)
-            copy_sb16_16(&in[(-yoff * OD_FILT_BSTRIDE - xoff)], OD_FILT_BSTRIDE,
-                         src[pli],
-                         (sbr * MAX_MIB_SIZE << mi_high_l2[pli]) - yoff,
-                         (sbc * MAX_MIB_SIZE << mi_wide_l2[pli]) - xoff,
-                         stride[pli], ysize, xsize);
-          od_dering(clpf_strength ? NULL : (uint8_t *)in, OD_FILT_BSTRIDE,
+	  copy_sb16_16(&in[(-yoff * OD_FILT_BSTRIDE - xoff)], OD_FILT_BSTRIDE,
+		       src[pli],
+		       (sbr * MAX_MIB_SIZE << mi_high_l2[pli]) - yoff,
+		       (sbc * MAX_MIB_SIZE << mi_wide_l2[pli]) - xoff,
+		       stride[pli], ysize, xsize);
+          od_dering(NULL, OD_FILT_BSTRIDE,
                     tmp_dst, in, xdec[pli], ydec[pli], dir, &dirinit, var, pli,
                     dlist, dering_count, threshold,
                     clpf_strength + (clpf_strength == 3), clpf_damping,
-                    dering_damping, coeff_shift, clpf_strength != 0, 1);
+                    dering_damping, coeff_shift, 1);
           curr_mse = compute_dering_dist(
               ref_coeff[pli] +
                   (sbr * MAX_MIB_SIZE << mi_high_l2[pli]) * stride[pli] +
