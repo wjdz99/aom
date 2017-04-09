@@ -155,8 +155,8 @@ static INLINE void array_reverse_transpose_8x8(v128 *in, v128 *res) {
   res[0] = v128_ziphi_64(tr1_7, tr1_6);
 }
 
-int SIMD_FUNC(od_dir_find8)(const od_dering_in *img, int stride, int32_t *var,
-                            int coeff_shift) {
+int SIMD_FUNC(cdef_find_dir)(const od_dering_in *img, int stride, int32_t *var,
+                             int coeff_shift) {
   int i;
   int32_t cost[8];
   int32_t best_cost = 0;
@@ -211,14 +211,14 @@ int SIMD_FUNC(od_dir_find8)(const od_dering_in *img, int stride, int32_t *var,
   return best_dir;
 }
 
-void SIMD_FUNC(od_filter_dering_direction_4x4)(uint16_t *y, int ystride,
-                                               const uint16_t *in,
-                                               int threshold, int dir,
-                                               int damping) {
+void SIMD_FUNC(cdef_filter_block_4x4)(uint16_t *y, int ystride,
+                                      const uint16_t *in, int threshold,
+                                      UNUSED int sec_threshold, int dir,
+                                      int damping, UNUSED int sec_damping) {
   int i;
   v128 p0, p1, sum, row, res;
-  int o1 = OD_DIRECTION_OFFSETS_TABLE[dir][0];
-  int o2 = OD_DIRECTION_OFFSETS_TABLE[dir][1];
+  int o1 = cdef_directions[dir][0];
+  int o2 = cdef_directions[dir][1];
 
   if (threshold) damping -= get_msb(threshold);
   for (i = 0; i < 4; i += 2) {
@@ -261,15 +261,15 @@ void SIMD_FUNC(od_filter_dering_direction_4x4)(uint16_t *y, int ystride,
   }
 }
 
-void SIMD_FUNC(od_filter_dering_direction_8x8)(uint16_t *y, int ystride,
-                                               const uint16_t *in,
-                                               int threshold, int dir,
-                                               int damping) {
+void SIMD_FUNC(cdef_filter_block_8x8)(uint16_t *y, int ystride,
+                                      const uint16_t *in, int threshold,
+                                      UNUSED int sec_threshold, int dir,
+                                      int damping, UNUSED int sec_damping) {
   int i;
   v128 sum, p0, p1, row, res;
-  int o1 = OD_DIRECTION_OFFSETS_TABLE[dir][0];
-  int o2 = OD_DIRECTION_OFFSETS_TABLE[dir][1];
-  int o3 = OD_DIRECTION_OFFSETS_TABLE[dir][2];
+  int o1 = cdef_directions[dir][0];
+  int o2 = cdef_directions[dir][1];
+  int o3 = cdef_directions[dir][2];
 
   if (threshold) damping -= get_msb(threshold);
   for (i = 0; i < 8; i++) {
@@ -319,6 +319,15 @@ void SIMD_FUNC(od_filter_dering_direction_8x8)(uint16_t *y, int ystride,
     res = v128_add_16(row, res);
     v128_store_unaligned(&y[i * ystride], res);
   }
+}
+
+void SIMD_FUNC(cdef_filter_block)(uint16_t *y, int ystride, const uint16_t *in,
+                                  int threshold, int sec_threshold, int dir,
+                                  int damping, int sec_damping, int bsize,
+                                  UNUSED int max) {
+  (bsize == BLOCK_8X8 ? SIMD_FUNC(cdef_filter_block_8x8)
+                      : SIMD_FUNC(cdef_filter_block_4x4))(
+      y, ystride, in, threshold, sec_threshold, dir, damping, sec_damping);
 }
 
 void SIMD_FUNC(copy_8x8_16bit_to_8bit)(uint8_t *dst, int dstride,
