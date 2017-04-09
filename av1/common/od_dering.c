@@ -315,10 +315,15 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
   int bx;
   int by;
   int bsize, bsizex, bsizey;
+  static int adj_threshold[][16] = {
+      {0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 15, 19, 21, 22},
+      {0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 18}};
 
-  int threshold = (level >> 1) << coeff_shift;
+  int threshold = adj_threshold[dering_damping - 5][(level >> 1)]
+                  << coeff_shift;
   int filter_skip = get_filter_skip(level);
-  if (level == 1) threshold = 31 << coeff_shift;
+  if (level == 1)
+    threshold = (dering_damping == 6 ? 19 : 23) << coeff_shift;
 
   od_filter_dering_direction_func filter_dering_direction[] = {
     od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
