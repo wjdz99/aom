@@ -119,7 +119,12 @@ void od_filter_dering_direction_8x8_c(uint16_t *y, int ystride,
   int i;
   int j;
   int k;
+  int clpf_strength = threshold >> 8;
+  int clpf_damping = damping >> 8;
+  damping &= 255;
+  threshold &= 255;
   static const int taps[3] = { 3, 2, 1 };
+  static const int clpf_taps[3] = { 4, 2, 0 };
   for (i = 0; i < 8; i++) {
     for (j = 0; j < 8; j++) {
       int16_t sum;
@@ -136,10 +141,23 @@ void od_filter_dering_direction_8x8_c(uint16_t *y, int ystride,
              xx;
         sum += taps[k] * constrain(p0, threshold, damping);
         sum += taps[k] * constrain(p1, threshold, damping);
+        if (k == 2) continue;
+        p0 = in[i * OD_FILT_BSTRIDE + j + OD_DIRECTION_OFFSETS_TABLE[(dir + 2) & 7][k]] -
+             xx;
+        p1 = in[i * OD_FILT_BSTRIDE + j - OD_DIRECTION_OFFSETS_TABLE[(dir + 2) & 7][k]] -
+             xx;
+        sum += clpf_taps[k] * constrain(p0, clpf_strength, clpf_damping);
+        sum += clpf_taps[k] * constrain(p1, clpf_strength, clpf_damping);
+        p0 = in[i * OD_FILT_BSTRIDE + j + OD_DIRECTION_OFFSETS_TABLE[(dir + 6) & 7][k]] -
+             xx;
+        p1 = in[i * OD_FILT_BSTRIDE + j - OD_DIRECTION_OFFSETS_TABLE[(dir + 6) & 7][k]] -
+             xx;
+        sum += clpf_taps[k] * constrain(p0, clpf_strength, clpf_damping);
+        sum += clpf_taps[k] * constrain(p1, clpf_strength, clpf_damping);
       }
       sum = (sum + 8) >> 4;
       yy = xx + sum;
-      y[i * ystride + j] = yy;
+      y[i * ystride + j] = clamp(yy, 0, 255);
     }
   }
 }
@@ -151,7 +169,12 @@ void od_filter_dering_direction_4x4_c(uint16_t *y, int ystride,
   int i;
   int j;
   int k;
+  int clpf_strength = threshold >> 8;
+  int clpf_damping = damping >> 8;
+  damping &= 255;
+  threshold &= 255;
   static const int taps[2] = { 4, 1 };
+  static const int clpf_taps[2] = { 4, 2 };
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 4; j++) {
       int16_t sum;
@@ -168,10 +191,23 @@ void od_filter_dering_direction_4x4_c(uint16_t *y, int ystride,
              xx;
         sum += taps[k] * constrain(p0, threshold, damping);
         sum += taps[k] * constrain(p1, threshold, damping);
+
+        p0 = in[i * OD_FILT_BSTRIDE + j + OD_DIRECTION_OFFSETS_TABLE[(dir + 2) & 7][k]] -
+             xx;
+        p1 = in[i * OD_FILT_BSTRIDE + j - OD_DIRECTION_OFFSETS_TABLE[(dir + 2) & 7][k]] -
+             xx;
+        sum += clpf_taps[k] * constrain(p0, clpf_strength, clpf_damping);
+        sum += clpf_taps[k] * constrain(p1, clpf_strength, clpf_damping);
+        p0 = in[i * OD_FILT_BSTRIDE + j + OD_DIRECTION_OFFSETS_TABLE[(dir + 6) & 7][k]] -
+             xx;
+        p1 = in[i * OD_FILT_BSTRIDE + j - OD_DIRECTION_OFFSETS_TABLE[(dir + 6) & 7][k]] -
+             xx;
+        sum += clpf_taps[k] * constrain(p0, clpf_strength, clpf_damping);
+        sum += clpf_taps[k] * constrain(p1, clpf_strength, clpf_damping);
       }
       sum = (sum + 8) >> 4;
       yy = xx + sum;
-      y[i * ystride + j] = yy;
+      y[i * ystride + j] = clamp(yy, 0, 255);
     }
   }
 }
@@ -319,9 +355,11 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
   int threshold = (level >> 1) << coeff_shift;
   int filter_skip = get_filter_skip(level);
   if (level == 1) threshold = 31 << coeff_shift;
+  skip_dering = 0;
+  int orig_clpf_strength = clpf_strength;
 
   od_filter_dering_direction_func filter_dering_direction[] = {
-    od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
+    od_filter_dering_direction_4x4_c, od_filter_dering_direction_8x8_c
   };
   clpf_damping += coeff_shift - (pli != AOM_PLANE_Y);
   dering_damping += coeff_shift - (pli != AOM_PLANE_Y);
@@ -347,16 +385,18 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
     // 4:2:2 or 4:4:0). If we don't dering, we still need to eventually write
     // something out in y[] later.
     if (threshold != 0) {
+      clpf_strength = 0;
       assert(bsize == BLOCK_8X8 || bsize == BLOCK_4X4);
       for (bi = 0; bi < dering_count; bi++) {
         int t = !filter_skip && dlist[bi].skip ? 0 : threshold;
+        int s = !filter_skip && dlist[bi].skip ? 0 : orig_clpf_strength;
         by = dlist[bi].by;
         bx = dlist[bi].bx;
         (filter_dering_direction[bsize == BLOCK_8X8])(
             &y[bi << (bsizex + bsizey)], 1 << bsizex,
             &in[(by * OD_FILT_BSTRIDE << bsizey) + (bx << bsizex)],
-            pli ? t : od_adjust_thresh(t, var[by][bx]), dir[by][bx],
-            dering_damping);
+            (pli ? t : od_adjust_thresh(t, var[by][bx])) | (s << 8), dir[by][bx],
+            (clpf_damping << 8) + dering_damping);
       }
     }
   }
@@ -392,11 +432,13 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
     }
   } else if (threshold != 0) {
     // No clpf, so copy instead
-    if (hbd) {
-      copy_dering_16bit_to_16bit((uint16_t *)dst, dstride, y, dlist,
-                                 dering_count, bsize);
-    } else {
-      copy_dering_16bit_to_8bit(dst, dstride, y, dlist, dering_count, bsize);
+    if (dst) {
+      if (hbd) {
+        copy_dering_16bit_to_16bit((uint16_t *)dst, dstride, y, dlist,
+                                   dering_count, bsize);
+      } else {
+        copy_dering_16bit_to_8bit(dst, dstride, y, dlist, dering_count, bsize);
+      }
     }
   } else if (dirinit) {
     // If we're here, both dering and clpf are off, and we still haven't written
