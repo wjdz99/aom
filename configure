@@ -259,6 +259,7 @@ EXPERIMENT_LIST="
     ext_intra
     intra_interp
     filter_intra
+    intra_edge
     intrabc
     ext_inter
     interintra
