@@ -27,7 +27,7 @@
 #define OD_DERING_INBUF_SIZE \
   (OD_FILT_BSTRIDE * (MAX_SB_SIZE + 2 * OD_FILT_VBORDER))
 
-extern const int OD_DIRECTION_OFFSETS_TABLE[8][3];
+extern const int cdef_directions[8][3];
 
 typedef struct {
   uint8_t by;
@@ -37,8 +37,8 @@ typedef struct {
 
 typedef void (*od_filter_dering_direction_func)(uint16_t *y, int ystride,
                                                 const uint16_t *in,
-                                                int threshold, int dir,
-                                                int damping);
+                                                int pri_strength, int sec_strength, int dir,
+                                                int pri_damping, int sec_damping, int bsize);
 void copy_dering_16bit_to_16bit(uint16_t *dst, int dstride, uint16_t *src,
                                 dering_list *dlist, int dering_count,
                                 int bsize);
@@ -49,6 +49,6 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
                int ydec, int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS],
                int *dirinit, int var[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS],
                int pli, dering_list *dlist, int dering_count, int level,
-               int clpf_strength, int clpf_damping, int dering_damping,
-               int coeff_shift, int skip_dering, int hbd);
+               int sec_strength, int pri_damping, int sec_damping,
+               int coeff_shift, int hbd);
 #endif
