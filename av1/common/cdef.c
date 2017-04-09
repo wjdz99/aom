@@ -46,10 +46,10 @@ int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
 
 static int is_8x8_block_skip(MODE_INFO **grid, int mi_row, int mi_col,
                              int mi_stride) {
-  int is_skip = 1;
+  int is_skip = 0;
   for (int r = 0; r < mi_size_high[BLOCK_8X8]; ++r)
     for (int c = 0; c < mi_size_wide[BLOCK_8X8]; ++c)
-      is_skip &= grid[(mi_row + r) * mi_stride + (mi_col + c)]->mbmi.skip;
+      is_skip |= grid[(mi_row + r) * mi_stride + (mi_col + c)]->mbmi.skip;
 
   return is_skip;
 }
