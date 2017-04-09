@@ -320,10 +320,13 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
   int bsize, bsizex, bsizey;
 
   int threshold = (level >> 1) << coeff_shift;
-  int dering_damping = 4 + !pli + (level & 1) + coeff_shift;
+  int dering_damping = 5 + !pli + coeff_shift;
+  int filter_skip = level & 1;
   if (level == 1) {
-    threshold = 1 << coeff_shift;
-    dering_damping = 3 + !pli + coeff_shift;
+    if (clpf_strength == 1) clpf_strength = 6;
+    if (clpf_strength == 2) clpf_strength = 10;
+    if (clpf_strength == 4) clpf_strength = 16;
+    clpf_damping++;
   }
 
   od_filter_dering_direction_func filter_dering_direction[] = {
@@ -356,11 +359,12 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
       for (bi = 0; bi < dering_count; bi++) {
         by = dlist[bi].by;
         bx = dlist[bi].bx;
+	if (!filter_skip && dlist[bi].skip) threshold = 0;
         (filter_dering_direction[bsize == BLOCK_8X8])(
             &y[bi << (bsizex + bsizey)], 1 << bsizex,
             &in[(by * OD_FILT_BSTRIDE << bsizey) + (bx << bsizex)],
             pli ? threshold : od_adjust_thresh(threshold, var[by][bx]),
-            dir[by][bx], dering_damping);
+            dir[by][bx], dering_damping - 1 + filter_skip);
       }
     }
   }
@@ -375,6 +379,8 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
       int py = by << bsizey;
       int px = bx << bsizex;
 
+      if (!filter_skip && dlist[bi].skip)
+        continue;
       if (!dst || hbd) {
         // 16 bit destination if high bitdepth or 8 bit destination not given
         (!threshold || (dir[by][bx] < 4 && dir[by][bx]) ? aom_clpf_block_hbd
