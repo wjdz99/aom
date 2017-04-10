@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f182abb0_d3354523",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 6350
+      },
+      "writtenOn": "2017-04-10T15:13:02Z",
+      "side": 1,
+      "message": "There\u0027s a difference here between stride (which is for the ref) and p_stride (for dst, I assume p stands for predicted but I\u0027m not sure). Is there a preferred convention I should change the names to?",
+      "parentUuid": "7d2d6c68_f1a1ccac",
+      "range": {
+        "startLine": 1023,
+        "startChar": 38,
+        "endLine": 1023,
+        "endChar": 40
+      },
+      "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab927738_989ebc60",
         "filename": "av1/common/warped_motion.c",
         "patchSetId": 6
@@ -36,6 +60,24 @@
       "writtenOn": "2017-04-06T22:34:42Z",
       "side": 1,
       "message": "scope these to the loop",
+      "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a6b8426_9b57da24",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1028,
+      "author": {
+        "id": 6350
+      },
+      "writtenOn": "2017-04-10T15:13:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab927738_989ebc60",
       "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "44753c56_eab2f07e",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1044,
+      "author": {
+        "id": 6350
+      },
+      "writtenOn": "2017-04-10T15:13:02Z",
+      "side": 1,
+      "message": "I see this style throughout the codebase and assumed it was for keeping C89 compatibility. Is this something that we shouldn\u0027t worry about?",
+      "parentUuid": "7c55d311_2d3ade9d",
+      "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b2da5871_fc946b67",
         "filename": "av1/common/warped_motion.c",
         "patchSetId": 6
@@ -70,6 +130,24 @@
       "writtenOn": "2017-04-06T22:34:42Z",
       "side": 1,
       "message": "this allocation should be checked; doing one at such a low level is a little unfortunate. it might be worth moving the tmp space to a data structure with longer life",
+      "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c99bfb9_9708b107",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1045,
+      "author": {
+        "id": 6350
+      },
+      "writtenOn": "2017-04-10T15:13:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2da5871_fc946b67",
       "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -93,6 +171,42 @@
     },
     {
       "key": {
+        "uuid": "a8a559dc_7961441b",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1286,
+      "author": {
+        "id": 6350
+      },
+      "writtenOn": "2017-04-10T15:13:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "641b3ae8_953618f6",
+      "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "80b784e7_00c4cf7d",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1286,
+      "author": {
+        "id": 6350
+      },
+      "writtenOn": "2017-04-10T15:13:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "641b3ae8_953618f6",
+      "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f5f6020_a17f2cbb",
         "filename": "av1/common/warped_motion.c",
         "patchSetId": 6
@@ -110,6 +224,24 @@
     },
     {
       "key": {
+        "uuid": "d9271afd_7164e8e0",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1301,
+      "author": {
+        "id": 6350
+      },
+      "writtenOn": "2017-04-10T15:13:02Z",
+      "side": 1,
+      "message": "See above",
+      "parentUuid": "4f5f6020_a17f2cbb",
+      "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "45172904_e78218c3",
         "filename": "av1/common/warped_motion.c",
         "patchSetId": 6
@@ -121,6 +253,24 @@
       "writtenOn": "2017-04-06T22:34:42Z",
       "side": 1,
       "message": "should be checked",
+      "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5ef5fd1_8a0d655f",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1302,
+      "author": {
+        "id": 6350
+      },
+      "writtenOn": "2017-04-10T15:13:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "45172904_e78218c3",
       "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
