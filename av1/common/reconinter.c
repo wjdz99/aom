@@ -1723,17 +1723,26 @@ void av1_build_obmc_inter_prediction(const AV1_COMMON *cm, MACROBLOCKD *xd,
       if (is_neighbor_overlappable(above_mbmi)) {
         neighbor_count++;
         if (neighbor_count > neighbor_limit) break;
+
+        if ((i + mi_step - 1) * MI_SIZE < ((xd->n8_w * MI_SIZE) / 2)) continue;
+
         for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
           const struct macroblockd_plane *pd = &xd->plane[plane];
-          const int bw = (mi_step * MI_SIZE) >> pd->subsampling_x;
+          int bw = (mi_step * MI_SIZE) >> pd->subsampling_x;
           const int bh = overlap >> pd->subsampling_y;
           const int dst_stride = pd->dst.stride;
-          uint8_t *const dst = &pd->dst.buf[(i * MI_SIZE) >> pd->subsampling_x];
+          uint8_t *dst = &pd->dst.buf[(i * MI_SIZE) >> pd->subsampling_x];
           const int tmp_stride = above_stride[plane];
-          const uint8_t *const tmp =
+          uint8_t *tmp =
               &above[plane][(i * MI_SIZE) >> pd->subsampling_x];
           const uint8_t *const mask = av1_get_obmc_mask(bh);
 
+          if (i * MI_SIZE < ((xd->n8_w * MI_SIZE) / 2)) {
+            dst = &pd->dst.buf[((xd->n8_w * MI_SIZE) / 2) >> pd->subsampling_x];
+            tmp = &above[plane][((xd->n8_w * MI_SIZE) / 2) >> pd->subsampling_x];
+            bw = ((i + mi_step) * MI_SIZE - (xd->n8_w * MI_SIZE) / 2) >>
+                pd->subsampling_x;
+          }
 #if CONFIG_AOM_HIGHBITDEPTH
           if (is_hbd)
             aom_highbd_blend_a64_vmask(dst, dst_stride, dst, dst_stride, tmp,
