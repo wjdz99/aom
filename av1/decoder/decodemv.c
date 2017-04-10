@@ -1698,6 +1698,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       zeromv[0].as_int = zeromv[1].as_int = 0;
 #endif
       for (ref = 0; ref < 1 + is_compound; ++ref) {
+        if (rf[ref] == NONE_FRAME) continue;
         lower_mv_precision(&ref_mvs[rf[ref]][0].as_mv, allow_hp);
         lower_mv_precision(&ref_mvs[rf[ref]][1].as_mv, allow_hp);
       }
