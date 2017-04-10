@@ -490,8 +490,18 @@ static aom_codec_err_t set_encoder_config(
   }
 
 #if CONFIG_FRAME_SUPERRES
-  oxcf->superres_enabled = 1;  // TODO(afergs): Check the config
-#endif                         // CONFIG_FRAME_SUPERRES
+  // Expand the mode from an int into a mode type and an initial scale numerator
+  oxcf->superres_initial_scale_numerator = SUPERRES_SCALE_DENOMINATOR;
+  oxcf->superres_mode = SUPERRES_FIXED;
+  if ((cfg->rc_superres_mode > 1 && cfg->rc_superres_mode < 8) ||
+      cfg->rc_superres_mode > 16) {
+    printf("superres-mode must be 0, 1, or 8-16 - using 16\n");
+  } else if (cfg->rc_superres_mode == 1) {
+    oxcf->superres_mode = SUPERRES_DYNAMIC;
+  } else if (cfg->rc_superres_mode > 1) {
+    oxcf->superres_initial_scale_numerator = (uint8_t)cfg->rc_superres_mode;
+  }
+#endif  // CONFIG_FRAME_SUPERRES
 
   oxcf->maximum_buffer_size_ms = is_vbr ? 240000 : cfg->rc_buf_sz;
   oxcf->starting_buffer_level_ms = is_vbr ? 60000 : cfg->rc_buf_initial_sz;
@@ -1555,6 +1565,10 @@ static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
         0,   // rc_scaled_height
         60,  // rc_resize_down_thresold
         30,  // rc_resize_up_thresold
+
+#if CONFIG_FRAME_SUPERRES
+        0,  // rc_superres_mode
+#endif      // CONFIG_FRAME_SUPERRES
 
         AOM_VBR,      // rc_end_usage
         { NULL, 0 },  // rc_twopass_stats_in
