@@ -130,6 +130,9 @@ typedef enum {
   RESIZE_FIXED = 1,   // All frames are coded at the specified dimension.
   RESIZE_DYNAMIC = 2  // Coded size of each frame is determined by the codec.
 } RESIZE_TYPE;
+#if CONFIG_FRAME_SUPERRES
+typedef enum { SUPERRES_FIXED = 0, SUPERRES_DYNAMIC = 1 } SUPERRES_MODE;
+#endif  // CONFIG_FRAME_SUPERRES
 
 typedef struct AV1EncoderConfig {
   BITSTREAM_PROFILE profile;
@@ -205,8 +208,9 @@ typedef struct AV1EncoderConfig {
   int scaled_frame_height;
 
 #if CONFIG_FRAME_SUPERRES
-  // Frame Super-Resolution size scaling
-  int superres_enabled;
+  // Frame Super-Resolution size scaling.
+  SUPERRES_MODE superres_mode;
+  uint8_t superres_initial_scale_numerator;
 #endif  // CONFIG_FRAME_SUPERRES
 
   // Enable feature to reduce the frame quantization every x frames.
