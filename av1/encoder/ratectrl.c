@@ -1697,25 +1697,24 @@ void av1_calculate_next_scaled_size(AV1_COMP *cpi, int *width, int *height) {
 }
 
 #if CONFIG_FRAME_SUPERRES
-#define RANDOM_SUPERRES 1
+// TODO(afergs): Rename av1_rc_update_superres_scale(...) ?
 int av1_calculate_next_superres_scale(AV1_COMP *cpi, int width, int height) {
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
-  (void)width;
-  (void)height;
-  (void)oxcf;
-#if RANDOM_SUPERRES
-  if (cpi->common.frame_type != KEY_FRAME) {
-    if (oxcf->pass == 2 || oxcf->pass == 0) {
-      static unsigned int seed = 34567;
-      int new_num = lcg_rand16(&seed) % 9 + 8;
-      if (new_num * width / SUPERRES_SCALE_DENOMINATOR * 2 < oxcf->width ||
-          new_num * height / SUPERRES_SCALE_DENOMINATOR * 2 < oxcf->height)
-        new_num = SUPERRES_SCALE_DENOMINATOR;
-      cpi->common.superres_scale_numerator = new_num;
-      return new_num;
+
+  if (oxcf->superres_mode == SUPERRES_DYNAMIC) {
+    // SUPERRES_DYNAMIC is just random for now
+    if (cpi->common.frame_type != KEY_FRAME) {
+      if (oxcf->pass == 2 || oxcf->pass == 0) {
+        static unsigned int seed = 34567;
+        int new_num = lcg_rand16(&seed) % 9 + 8;
+        if (new_num * width / SUPERRES_SCALE_DENOMINATOR * 2 < oxcf->width ||
+            new_num * height / SUPERRES_SCALE_DENOMINATOR * 2 < oxcf->height)
+          new_num = SUPERRES_SCALE_DENOMINATOR;
+        cpi->common.superres_scale_numerator = (uint8_t)new_num;
+      }
     }
   }
-#endif  // RANDOM_SUPERRES
-  return 16;
+
+  return cpi->common.superres_scale_numerator;
 }
 #endif  // CONFIG_FRAME_SUPERRES
