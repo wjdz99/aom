@@ -144,6 +144,13 @@ static inline int64_t get_token_bit_costs(
 
 int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
                    TX_SIZE tx_size, int ctx) {
+#if 1
+  (void)cm;
+  (void)tx_size;
+  (void)ctx;
+  struct macroblock_plane *const p = &mb->plane[plane];
+  return p->eobs[block];
+#else
 #if !CONFIG_PVQ
   MACROBLOCKD *const xd = &mb->e_mbd;
   struct macroblock_plane *const p = &mb->plane[plane];
@@ -492,6 +499,7 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
   struct macroblock_plane *const p = &mb->plane[plane];
   return p->eobs[block];
 #endif  // !CONFIG_PVQ
+#endif
 }
 
 #if !CONFIG_PVQ
