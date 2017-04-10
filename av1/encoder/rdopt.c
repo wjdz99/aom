@@ -2217,8 +2217,15 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     assert(IMPLIES(evaluate_rect_tx, is_rect_tx_allowed(xd, mbmi)));
   }
   if (evaluate_rect_tx) {
+    TX_TYPE tx_start = DCT_DCT;
+    TX_TYPE tx_end = TX_TYPES;
+#if CONFIG_LV_MAP
+    // The tx_type becomes dummy when lv_map is on. The tx_type search will be
+    // performed in av1_search_txk_type()
+    tx_end = DCT_DCT + 1;
+#endif
     TX_TYPE tx_type;
-    for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
+    for (tx_type = tx_start; tx_type < tx_end; ++tx_type) {
 #if CONFIG_REF_MV
       if (mbmi->ref_mv_idx > 0 && tx_type != DCT_DCT) continue;
 #endif  // CONFIG_REF_MV
@@ -2257,8 +2264,15 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 
   last_rd = INT64_MAX;
   for (n = start_tx; n >= end_tx; --n) {
+    TX_TYPE tx_start = DCT_DCT;
+    TX_TYPE tx_end = TX_TYPES;
+#if CONFIG_LV_MAP
+    // The tx_type becomes dummy when lv_map is on. The tx_type search will be
+    // performed in av1_search_txk_type()
+    tx_end = DCT_DCT + 1;
+#endif
     TX_TYPE tx_type;
-    for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
+    for (tx_type = tx_start; tx_type < tx_end; ++tx_type) {
       RD_STATS this_rd_stats;
       if (skip_txfm_search(cpi, x, bs, tx_type, n)) continue;
       rd = txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs, tx_type, n);
