@@ -2450,7 +2450,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   av1_loop_filter_init(cm);
 #if CONFIG_FRAME_SUPERRES
-  cm->superres_scale_numerator = SUPERRES_SCALE_DENOMINATOR;
+  cm->superres_scale_numerator = oxcf->superres_initial_scale_numerator;
   cm->superres_upscaled_width = oxcf->scaled_frame_width;
   cm->superres_upscaled_height = oxcf->scaled_frame_height;
 #endif  // CONFIG_FRAME_SUPERRES
@@ -3846,12 +3846,14 @@ static void setup_frame_size(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
   cm->superres_upscaled_width = encode_width;
   cm->superres_upscaled_height = encode_height;
-  cpi->common.superres_scale_numerator =
-      av1_calculate_next_superres_scale(cpi, encode_width, encode_width);
+  cm->superres_scale_numerator = (uint8_t)av1_calculate_next_superres_scale(
+      cpi, encode_width, encode_width);
   av1_calculate_superres_size(cm, &encode_width, &encode_height);
-// printf("Resize/superres %d x %d -> %d x %d\n", encode_width, encode_height,
-//        cm->superres_upscaled_width, cm->superres_upscaled_height);
+  // printf("Resize/superres %d x %d -> %d x %d\n", encode_width, encode_height,
+  //        cm->superres_upscaled_width, cm->superres_upscaled_height);
+  printf("superres numerator: %02d ", cm->superres_scale_numerator);
 #endif  // CONFIG_FRAME_SUPERRES
+  printf("encode size: %dx%d\n", encode_width, encode_height);
 
   set_frame_size(cpi, encode_width, encode_height);
 }
