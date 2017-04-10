@@ -32,6 +32,8 @@ extern "C" {
 
 #include "./aom_codec.h"
 
+#include "./aom_config.h"
+
 /*!\brief Current ABI version number
  *
  * \internal
@@ -401,6 +403,30 @@ typedef struct aom_codec_enc_cfg {
    * encoder will step down to a lower resolution version of the frame.
    */
   unsigned int rc_resize_down_thresh;
+
+#if CONFIG_FRAME_SUPERRES
+  /*!\brief Frame super-resolution scaling mode.
+   *
+   * Similar to spatial resampling, frame super-resolution integrates
+   * upscaling after the encode/decode process. Adding a restoration filter
+   * is fitted to each frame and should perform even better at lower data rates,
+   *
+   * Mode 0 is SUPERRES_FIXED, mode 1 is SUPERRES_DYNAMIC.
+   */
+  unsigned int rc_superres_mode;
+
+  /*!\brief Frame super-resolution numerator.
+   *
+   * The  numerator for superres to use. If fixed it will only change if the
+   * cumulative scale change over resizing and superres is greater than 1/2;
+   * forcing superres to reduce scaling.
+   *
+   * Valid numerators are 1/2 the denominator to the denominator. 8 to 16 for
+   * now.
+   */
+  // TODO(afergs): Make enum?
+  unsigned int rc_superres_numerator;
+#endif  // CONFIG_FRAME_SUPERRES
 
   /*!\brief Rate control algorithm to use.
    *
