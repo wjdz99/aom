@@ -973,7 +973,9 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
       return DCT_DCT;
   }
 
-  return mbmi->txk_type[block];
+  TX_TYPE tx_type = mbmi->txk_type[block];
+  assert(tx_type >= DCT_DCT && tx_type < TX_TYPES);
+  return tx_type;
 #endif  // !CONFIG_LV_MAP
 }
 
