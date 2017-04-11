@@ -225,7 +225,9 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
       int nhb, nvb;
       int cstart = 0;
       if (cm->mi_grid_visible[MAX_MIB_SIZE * sbr * cm->mi_stride +
-                              MAX_MIB_SIZE * sbc] == NULL) {
+                              MAX_MIB_SIZE * sbc] == NULL ||
+          cm->mi_grid_visible[MAX_MIB_SIZE * sbr * cm->mi_stride +
+                                        MAX_MIB_SIZE * sbc]->mbmi.cdef_strength == -1) {
         dering_left = 0;
         continue;
       }
