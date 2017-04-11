@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9b40dc58_fff6493d",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-11T07:39:52Z",
+      "side": 1,
+      "message": "Actually, what I think we should do is make sure that the decoder sets the cdef_strength to -1 when a SB is skipped. That way we don\u0027t have to scan each SB multiple times.",
+      "parentUuid": "841506c3_59433714",
+      "revId": "c9f15d94c60a54861bd4a619240a0683bd67fb37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc56a987_27d61363",
         "filename": "av1/common/od_dering.c",
         "patchSetId": 1
