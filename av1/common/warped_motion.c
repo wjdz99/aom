@@ -1346,8 +1346,15 @@ void av1_warp_plane(WarpedMotionParams *wm,
 #if CONFIG_WARPED_MOTION
 #define LEAST_SQUARES_ORDER 2
 
-#define LS_MV_MAX 256  // max mv in 1/8-pel
+#define LS_MV_MAX 8  // max mv in 1/8-pel
 #define LS_STEP 2
+
+#define LS_MAT_RANGE_BITS 23
+#define LS_MAT_BITS 20  // bits range of A, Bx and By after downshifting
+#define LS_MAT_MIN (-(1 << (LS_MAT_BITS - 1)))
+#define LS_MAT_MAX ((1 << (LS_MAT_BITS - 1)) - 1)
+// Downshift bits needed
+#define LS_MAT_DOWN_BITS (LS_MAT_RANGE_BITS - LS_MAT_BITS)
 
 #define LS_SUM(a) ((a)*4 + LS_STEP * 2)
 #define LS_SQUARE(a) \
@@ -1413,9 +1420,30 @@ static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
       n++;
     }
   }
-  int64_t Px[2], Py[2];
-  int64_t iDet, Det, v;
-  int16_t shift;
+
+  int32_t merge = abs(A[0][0]) | abs(A[0][1]) | abs(A[1][1]);
+  merge |= abs(Bx[0]) | abs(Bx[1]) | abs(By[0]) | abs(By[1]);
+  int16_t msb = merge ? get_msb(merge) : 0;
+  int downshift = AOMMAX(0, msb + 1 - LS_MAT_BITS);
+
+  // Reduce precision by LS_MAT_DOWN_BITS bits
+  A[0][0] = clamp(ROUND_POWER_OF_TWO_SIGNED(A[0][0], downshift), LS_MAT_MIN,
+                  LS_MAT_MAX);
+  A[0][1] = clamp(ROUND_POWER_OF_TWO_SIGNED(A[0][1], downshift), LS_MAT_MIN,
+                  LS_MAT_MAX);
+  A[1][1] = clamp(ROUND_POWER_OF_TWO_SIGNED(A[1][1], downshift), LS_MAT_MIN,
+                  LS_MAT_MAX);
+  Bx[0] = clamp(ROUND_POWER_OF_TWO_SIGNED(Bx[0], downshift), LS_MAT_MIN,
+                LS_MAT_MAX);
+  Bx[1] = clamp(ROUND_POWER_OF_TWO_SIGNED(Bx[1], downshift), LS_MAT_MIN,
+                LS_MAT_MAX);
+  By[0] = clamp(ROUND_POWER_OF_TWO_SIGNED(By[0], downshift), LS_MAT_MIN,
+                LS_MAT_MAX);
+  By[1] = clamp(ROUND_POWER_OF_TWO_SIGNED(By[1], downshift), LS_MAT_MIN,
+                LS_MAT_MAX);
+
+  int64_t Px[2], Py[2], Det;
+  int16_t iDet, shift;
 
   // These divided by the Det, are the least squares solutions
   Px[0] = (int64_t)A[1][1] * Bx[0] - (int64_t)A[0][1] * Bx[1];
@@ -1433,16 +1461,17 @@ static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
     shift = 0;
   }
 
-  v = Px[0] * iDet;
+  int64_t v;
+  v = Px[0] * (int64_t)iDet;
   wm->wmmat[2] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
-  v = Px[1] * iDet;
+  v = Px[1] * (int64_t)iDet;
   wm->wmmat[3] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
   v = (dux << WARPEDMODEL_PREC_BITS) - sux * wm->wmmat[2] - suy * wm->wmmat[3];
   wm->wmmat[0] = ROUND_POWER_OF_TWO_SIGNED(v, 3);
 
-  v = Py[0] * iDet;
+  v = Py[0] * (int64_t)iDet;
   wm->wmmat[4] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
-  v = Py[1] * iDet;
+  v = Py[1] * (int64_t)iDet;
   wm->wmmat[5] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
   v = (duy << WARPEDMODEL_PREC_BITS) - sux * wm->wmmat[4] - suy * wm->wmmat[5];
   wm->wmmat[1] = ROUND_POWER_OF_TWO_SIGNED(v, 3);
@@ -1555,7 +1584,7 @@ static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   C12 = (int64_t)A[0][1] * A[0][2] - (int64_t)A[0][0] * A[1][2];
   C22 = (int64_t)A[0][0] * A[1][1] - (int64_t)A[0][1] * A[0][1];
 
-  // Scale by 1/16
+  // Scale by 1/64
   C00 = ROUND_POWER_OF_TWO_SIGNED(C00, 6);
   C01 = ROUND_POWER_OF_TWO_SIGNED(C01, 6);
   C02 = ROUND_POWER_OF_TWO_SIGNED(C02, 6);
