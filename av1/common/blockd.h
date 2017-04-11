@@ -495,6 +495,13 @@ typedef struct RefBuffer {
   struct scale_factors sf;
 } RefBuffer;
 
+#if CONFIG_CFL
+typedef struct {
+  // CfL Performs its own block level DC_PRED for each chromatic plane
+  int dc_pred[2];
+} CFL_CTX;
+#endif
+
 typedef struct macroblockd {
   struct macroblockd_plane plane[MAX_MB_PLANE];
   uint8_t bmode_blocks_wl;
@@ -579,6 +586,9 @@ typedef struct macroblockd {
   int prev_qindex;
   int delta_qindex;
   int current_qindex;
+#endif
+#if CONFIG_CFL
+  CFL_CTX *cfl;
 #endif
 } MACROBLOCKD;
 
