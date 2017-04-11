@@ -421,7 +421,7 @@ static const uint16_t *const orders_verta[BLOCK_SIZES] = {
 #endif  // CONFIG_EXT_PARTITION
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
-static int has_top_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
+static int num_top_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
                          int top_available, int right_available,
 #if CONFIG_EXT_PARTITION_TYPES
                          PARTITION_TYPE partition,
@@ -429,28 +429,40 @@ static int has_top_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
                          TX_SIZE txsz, int row_off, int col_off, int ss_x) {
   if (!top_available || !right_available) return 0;
 
-#if !CONFIG_CB4X4
-  // TODO(bshacklett, huisu): Currently the RD loop traverses 4X8 blocks in
-  // inverted N order while in the bitstream the subblocks are stored in Z
-  // order. This discrepancy makes this function incorrect when considering 4X8
-  // blocks in the RD loop, so we disable the extended right edge for these
-  // blocks. The correct solution is to change the bitstream to store these
-  // blocks in inverted N order, and then update this function appropriately.
-  if (bsize == BLOCK_4X8 && row_off == 1) return 0;
-#endif
-
   const int bw_unit = block_size_wide[bsize] >> tx_size_wide_log2[0];
+  const int bh_unit = block_size_high[bsize] >> tx_size_high_log2[0];
+
+  // For vertical rectangular blocks, the square sub-block below does NOT have
+  // any top-right pixels available.
+  if (bw_unit < bh_unit && row_off > 0) {
+    assert(bw_unit == (bh_unit >> 1));
+    return 0;
+  }
+
   const int plane_bw_unit = AOMMAX(bw_unit >> ss_x, 1);
-  const int top_right_count_unit = tx_size_wide_unit[txsz];
 
   // Special handling for block sizes 4x8 and 4x4.
-  if (ss_x == 0 && bw_unit < 2 && col_off == 0) return 1;
+  // TODO(now): Should 'bw_unit' limit depend on CB4x4 or not?
+  if (ss_x == 0 && bw_unit < 2 && col_off == 0) {
+    assert(tx_size_wide[txsz] == 4);
+    return 4;
+  }
 
-  if (row_off > 0) {  // Just need to check if enough pixels on the right.
-    return col_off + top_right_count_unit < plane_bw_unit;
+  const int top_count_unit = tx_size_wide_unit[txsz];
+  const int top_right_count_unit = tx_size_high_unit[txsz];
+
+  if (row_off > 0) {  // Just need to check # of available pixels on the right.
+    const int available_top_right_count_unit =
+        AOMMIN(plane_bw_unit - col_off - top_count_unit, top_right_count_unit);
+    return available_top_right_count_unit > 0
+               ? available_top_right_count_unit << tx_size_wide_log2[0]
+               : 0;
   } else {
+    const int top_right_count = top_right_count_unit << tx_size_wide_log2[0];
     // All top-right pixels are in the block above, which is already available.
-    if (col_off + top_right_count_unit < plane_bw_unit) return 1;
+    if (col_off + top_count_unit + top_right_count_unit <= plane_bw_unit) {
+      return top_right_count;
+    }
 
     const int bw_in_mi_log2 = mi_width_log2_lookup[bsize];
     const int bh_in_mi_log2 = mi_height_log2_lookup[bsize];
@@ -459,7 +471,7 @@ static int has_top_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
 
     // Top row of superblock: so top-right pixels are in the top and/or
     // top-right superblocks, both of which are already available.
-    if (blk_row_in_sb == 0) return 1;
+    if (blk_row_in_sb == 0) return top_right_count;
 
     // Rightmost column of superblock (and not the top row): so top-right pixels
     // fall in the right superblock, which is not available yet.
@@ -480,11 +492,32 @@ static int has_top_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
         ((blk_row_in_sb - 1) << (MAX_MIB_SIZE_LOG2 - bw_in_mi_log2)) +
         blk_col_in_sb + 1;
     const uint16_t tr_blk_order = order[tr_blk_index];
-    return tr_blk_order < this_blk_order;
+    if (tr_blk_order < this_blk_order) {  // We have top-right block.
+      const int need_trr = (top_right_count_unit > top_count_unit);
+      int available_trr_count = 0;
+      if (need_trr) {  // Check if we have top-right-right block too.
+        const int trr_blk_index =
+            ((blk_row_in_sb - 1) << (MAX_MIB_SIZE_LOG2 - bw_in_mi_log2)) +
+            blk_col_in_sb + 2;
+        const uint16_t trr_blk_order = order[trr_blk_index];
+        available_trr_count =
+            (trr_blk_order < this_blk_order) ? tx_size_wide[txsz] : 0;
+      }
+      const int available_top_right_count =
+          tx_size_wide[txsz] + available_trr_count;
+      return AOMMIN(available_top_right_count, top_right_count);
+    }
+
+    // Finally, top-right block is not available: so return the available
+    // number of top-right pixels that fall in the top block.
+    // TODO(now): Can this ever happen?
+    const int available_top_right_from_top_unit =
+        AOMMAX(plane_bw_unit - col_off - top_count_unit, 0);
+    return available_top_right_from_top_unit << tx_size_wide_log2[0];
   }
 }
 
-static int has_bottom_left(BLOCK_SIZE bsize, int mi_row, int mi_col,
+static int num_bottom_left(BLOCK_SIZE bsize, int mi_row, int mi_col,
                            int bottom_available, int left_available,
                            TX_SIZE txsz, int row_off, int col_off, int ss_y) {
   if (!bottom_available || !left_available) return 0;
@@ -495,15 +528,25 @@ static int has_bottom_left(BLOCK_SIZE bsize, int mi_row, int mi_col,
   } else {
     const int bh_unit = block_size_high[bsize] >> tx_size_high_log2[0];
     const int plane_bh_unit = AOMMAX(bh_unit >> ss_y, 1);
-    const int bottom_left_count_unit = tx_size_high_unit[txsz];
 
 #if !CONFIG_CB4X4
     // Special handling for block sizes 8x4 and 4x4.
-    if (ss_y == 0 && bh_unit < 2 && row_off == 0) return 1;
+    // TODO(now): Should 'bh_unit' limit depend on CB4x4 or not?
+    if (ss_y == 0 && bh_unit < 2 && row_off == 0) {
+      assert(tx_size_high[txsz] == 4);
+      return 4;
+    }
 #endif
 
+    const int left_count_unit = tx_size_high_unit[txsz];
+    const int bottom_left_count_unit = tx_size_wide_unit[txsz];
+    const int bottom_left_count = bottom_left_count_unit
+                                  << tx_size_high_log2[0];
+
     // All bottom-left pixels are in the left block, which is already available.
-    if (row_off + bottom_left_count_unit < plane_bh_unit) return 1;
+    if (row_off + left_count_unit + bottom_left_count_unit <= plane_bh_unit) {
+      return bottom_left_count;
+    }
 
     const int bw_in_mi_log2 = mi_width_log2_lookup[bsize];
     const int bh_in_mi_log2 = mi_height_log2_lookup[bsize];
@@ -512,12 +555,14 @@ static int has_bottom_left(BLOCK_SIZE bsize, int mi_row, int mi_col,
 
     // Leftmost column of superblock: so bottom-left pixels maybe in the left
     // and/or bottom-left superblocks. But only the left superblock is
-    // available, so check if all required pixels fall in that superblock.
+    // available, so check if all/some required pixels fall in that superblock.
     if (blk_col_in_sb == 0) {
       const int blk_start_row_off = blk_row_in_sb << (bh_in_mi_log2 + !ss_y);
       const int row_off_in_sb = blk_start_row_off + row_off;
       const int sb_height_unit = MAX_MIB_SIZE << !ss_y;
-      return row_off_in_sb + bottom_left_count_unit < sb_height_unit;
+      const int available_bottom_left_count_unit =
+          AOMMAX(sb_height_unit - row_off_in_sb - left_count_unit, 0);
+      return available_bottom_left_count_unit << tx_size_high_log2[0];
     }
 
     // Bottom row of superblock (and not the leftmost column): so bottom-left
@@ -535,7 +580,27 @@ static int has_bottom_left(BLOCK_SIZE bsize, int mi_row, int mi_col,
         ((blk_row_in_sb + 1) << (MAX_MIB_SIZE_LOG2 - bw_in_mi_log2)) +
         blk_col_in_sb - 1;
     const uint16_t bl_blk_order = order[bl_blk_index];
-    return bl_blk_order < this_blk_order;
+    if (bl_blk_order < this_blk_order) {  // We have bottom-left block.
+      const int need_bbl = (bottom_left_count_unit > left_count_unit);
+      int available_bbl_count = 0;
+      if (need_bbl) {  // Check if we have bottom-bottom-left block too.
+        const int bbl_blk_index =
+            ((blk_row_in_sb + 2) << (MAX_MIB_SIZE_LOG2 - bw_in_mi_log2)) +
+            blk_col_in_sb - 1;
+        const uint16_t bbl_blk_order = order[bbl_blk_index];
+        available_bbl_count =
+            (bbl_blk_order < this_blk_order) ? tx_size_high[txsz] : 0;
+      }
+      const int available_bottom_left_count =
+          tx_size_high[txsz] + available_bbl_count;
+      return AOMMIN(available_bottom_left_count, bottom_left_count);
+    }
+
+    // Finally, bottom-left block is not available: so return the available
+    // number of bottom-left pixels that fall in the left block.
+    const int available_bottom_left_from_left_unit =
+        AOMMAX(plane_bh_unit - row_off - left_count_unit, 0);
+    return available_bottom_left_from_left_unit << tx_size_high_log2[0];
   }
 }
 
@@ -2247,14 +2312,14 @@ static void predict_intra_block_helper(const MACROBLOCKD *xd, int wpx, int hpx,
   bsize = scale_chroma_bsize(bsize, pd->subsampling_x, pd->subsampling_y);
 #endif
 
-  const int have_top_right =
-      has_top_right(bsize, mi_row, mi_col, have_top, right_available,
+  const int num_top_right_pix =
+      num_top_right(bsize, mi_row, mi_col, have_top, right_available,
 #if CONFIG_EXT_PARTITION_TYPES
                     partition,
 #endif
                     tx_size, row_off, col_off, pd->subsampling_x);
-  const int have_bottom_left =
-      has_bottom_left(bsize, mi_row, mi_col, bottom_available, have_left,
+  const int num_bottom_left_pix =
+      num_bottom_left(bsize, mi_row, mi_col, bottom_available, have_left,
                       tx_size, row_off, col_off, pd->subsampling_y);
 #if CONFIG_PALETTE
   if (xd->mi[0]->mbmi.palette_mode_info.palette_size[plane != 0] > 0) {
@@ -2295,17 +2360,17 @@ static void predict_intra_block_helper(const MACROBLOCKD *xd, int wpx, int hpx,
     build_intra_predictors_high(
         xd, ref, ref_stride, dst, dst_stride, mode, tx_size,
         have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
-        have_top_right ? AOMMIN(txwpx, xr) : 0,
+        AOMMAX(AOMMIN(num_top_right_pix, xr), 0),
         have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
-        have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane);
+        AOMMAX(AOMMIN(num_bottom_left_pix, yd), 0), plane);
     return;
   }
 #endif
   build_intra_predictors(xd, ref, ref_stride, dst, dst_stride, mode, tx_size,
                          have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
-                         have_top_right ? AOMMIN(txwpx, xr) : 0,
+                         AOMMAX(AOMMIN(num_top_right_pix, xr), 0),
                          have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
-                         have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane);
+                         AOMMAX(AOMMIN(num_bottom_left_pix, yd), 0), plane);
 }
 
 void av1_predict_intra_block_facade(MACROBLOCKD *xd, int plane, int block_idx,
