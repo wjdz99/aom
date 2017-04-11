@@ -115,7 +115,7 @@ int od_dir_find8_c(const uint16_t *img, int stride, int32_t *var,
 /* Smooth in the direction detected. */
 void od_filter_dering_direction_8x8_c(uint16_t *y, int ystride,
                                       const uint16_t *in, int threshold,
-                                      int dir, int damping) {
+                                      int dir, int damping, UNUSED int hbd) {
   int i;
   int j;
   int k;
@@ -147,7 +147,7 @@ void od_filter_dering_direction_8x8_c(uint16_t *y, int ystride,
 /* Smooth in the direction detected. */
 void od_filter_dering_direction_4x4_c(uint16_t *y, int ystride,
                                       const uint16_t *in, int threshold,
-                                      int dir, int damping) {
+                                      int dir, int damping, UNUSED int hbd) {
   int i;
   int j;
   int k;
@@ -360,7 +360,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
             &y[bi << (bsizex + bsizey)], 1 << bsizex,
             &in[(by * OD_FILT_BSTRIDE << bsizey) + (bx << bsizex)],
             pli ? threshold : od_adjust_thresh(threshold, var[by][bx]),
-            dir[by][bx], dering_damping);
+            dir[by][bx], dering_damping, hbd);
       }
     }
   }
