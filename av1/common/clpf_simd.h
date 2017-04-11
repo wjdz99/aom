@@ -14,20 +14,6 @@
 #include "aom_ports/bitops.h"
 #include "aom_ports/mem.h"
 
-// sign(a - b) * min(abs(a - b), max(0, strength - (abs(a - b) >> adjdamp)))
-SIMD_INLINE v128 constrain(v256 a, v256 b, unsigned int strength,
-                           unsigned int adjdamp) {
-  const v256 diff16 = v256_sub_16(a, b);
-  v128 diff = v128_pack_s16_s8(v256_high_v128(diff16), v256_low_v128(diff16));
-  const v128 sign = v128_cmplt_s8(diff, v128_zero());
-  diff = v128_abs_s8(diff);
-  return v128_xor(
-      v128_add_8(sign,
-                 v128_min_u8(diff, v128_ssub_u8(v128_dup_8(strength),
-                                                v128_shr_u8(diff, adjdamp)))),
-      sign);
-}
-
 // delta = 1/16 * constrain(a, x, s, d) + 3/16 * constrain(b, x, s, d) +
 //         1/16 * constrain(c, x, s, d) + 3/16 * constrain(d, x, s, d) +
 //         3/16 * constrain(e, x, s, d) + 1/16 * constrain(f, x, s, d) +

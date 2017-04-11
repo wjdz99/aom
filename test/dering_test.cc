@@ -101,18 +101,18 @@ void test_dering(int bsize, int iterations,
                 }
               }
               for (dir = 0; dir < 8; dir++) {
-                for (threshold = 0; threshold < 64 << (depth - 8) && !error;
+                for (threshold = 0; threshold < 48 << (depth - 8) && !error;
                      threshold += (1 + 4 * !!boundary) << (depth - 8)) {
                   ref_dering(ref_d, size, s + OD_FILT_HBORDER +
                                               OD_FILT_VBORDER * OD_FILT_BSTRIDE,
-                             threshold, dir, damping);
+                             threshold, dir, damping, depth > 8);
                   // If dering and ref_dering are the same, we're just testing
                   // speed
                   if (dering != ref_dering)
                     ASM_REGISTER_STATE_CHECK(dering(
                         d, size,
                         s + OD_FILT_HBORDER + OD_FILT_VBORDER * OD_FILT_BSTRIDE,
-                        threshold, dir, damping));
+                        threshold, dir, damping, depth > 8));
                   if (ref_dering != dering) {
                     for (pos = 0; pos < sizeof(d) / sizeof(*d) && !error;
                          pos++) {

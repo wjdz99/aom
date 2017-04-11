@@ -211,10 +211,71 @@ int SIMD_FUNC(od_dir_find8)(const od_dering_in *img, int stride, int32_t *var,
   return best_dir;
 }
 
-void SIMD_FUNC(od_filter_dering_direction_4x4)(uint16_t *y, int ystride,
-                                               const uint16_t *in,
-                                               int threshold, int dir,
-                                               int damping) {
+static void SIMD_FUNC(od_filter_dering_direction_lbd_4x4)(
+    uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir,
+    int damping) {
+  v128 p0, p1;
+  v256 sum, row, res;
+  int o1 = OD_DIRECTION_OFFSETS_TABLE[dir][0];
+  int o2 = OD_DIRECTION_OFFSETS_TABLE[dir][1];
+
+  if (threshold) damping -= get_msb(threshold);
+  row = v256_from_v64(v64_load_aligned(&in[0 * OD_FILT_BSTRIDE]),
+                      v64_load_aligned(&in[1 * OD_FILT_BSTRIDE]),
+                      v64_load_aligned(&in[2 * OD_FILT_BSTRIDE]),
+                      v64_load_aligned(&in[3 * OD_FILT_BSTRIDE]));
+
+  p0 = constrain(
+      v256_from_v64(v64_load_unaligned(&in[0 * OD_FILT_BSTRIDE + o1]),
+                    v64_load_unaligned(&in[1 * OD_FILT_BSTRIDE + o1]),
+                    v64_load_unaligned(&in[2 * OD_FILT_BSTRIDE + o1]),
+                    v64_load_unaligned(&in[3 * OD_FILT_BSTRIDE + o1])),
+      row, threshold, damping);
+
+  p1 = constrain(
+      v256_from_v64(v64_load_unaligned(&in[0 * OD_FILT_BSTRIDE - o1]),
+                    v64_load_unaligned(&in[1 * OD_FILT_BSTRIDE - o1]),
+                    v64_load_unaligned(&in[2 * OD_FILT_BSTRIDE - o1]),
+                    v64_load_unaligned(&in[3 * OD_FILT_BSTRIDE - o1])),
+      row, threshold, damping);
+
+  // sum = 4 * (p0 + p1)
+  sum = v256_add_16(v256_unpack_s8_s16(p0), v256_unpack_s8_s16(p1));
+  sum = v256_shl_n_16(sum, 2);
+
+  p0 = constrain(
+      v256_from_v64(v64_load_unaligned(&in[0 * OD_FILT_BSTRIDE + o2]),
+                    v64_load_unaligned(&in[1 * OD_FILT_BSTRIDE + o2]),
+                    v64_load_unaligned(&in[2 * OD_FILT_BSTRIDE + o2]),
+                    v64_load_unaligned(&in[3 * OD_FILT_BSTRIDE + o2])),
+      row, threshold, damping);
+
+  p1 = constrain(
+      v256_from_v64(v64_load_unaligned(&in[0 * OD_FILT_BSTRIDE - o2]),
+                    v64_load_unaligned(&in[1 * OD_FILT_BSTRIDE - o2]),
+                    v64_load_unaligned(&in[2 * OD_FILT_BSTRIDE - o2]),
+                    v64_load_unaligned(&in[3 * OD_FILT_BSTRIDE - o2])),
+      row, threshold, damping);
+
+  // sum += 1 * (p0 + p1)
+  p0 = v128_add_8(p0, p1);
+  sum = v256_add_16(sum, v256_unpack_s8_s16(p0));
+
+  // res = row + ((sum + 8) >> 4)
+  res = v256_add_16(sum, v256_dup_16(8));
+  res = v256_shr_n_s16(res, 4);
+  res = v256_add_16(row, res);
+  p0 = v256_high_v128(res);
+  p1 = v256_low_v128(res);
+  v64_store_aligned(&y[0 * ystride], v128_high_v64(p0));
+  v64_store_aligned(&y[1 * ystride], v128_low_v64(p0));
+  v64_store_aligned(&y[2 * ystride], v128_high_v64(p1));
+  v64_store_aligned(&y[3 * ystride], v128_low_v64(p1));
+}
+
+static void SIMD_FUNC(od_filter_dering_direction_hbd_4x4)(
+    uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir,
+    int damping) {
   int i;
   v128 p0, p1, sum, row, res;
   int o1 = OD_DIRECTION_OFFSETS_TABLE[dir][0];
@@ -261,10 +322,78 @@ void SIMD_FUNC(od_filter_dering_direction_4x4)(uint16_t *y, int ystride,
   }
 }
 
-void SIMD_FUNC(od_filter_dering_direction_8x8)(uint16_t *y, int ystride,
+void SIMD_FUNC(od_filter_dering_direction_4x4)(uint16_t *y, int ystride,
                                                const uint16_t *in,
                                                int threshold, int dir,
-                                               int damping) {
+                                               int damping, int hbd) {
+  (hbd ? SIMD_FUNC(od_filter_dering_direction_hbd_4x4)
+       : SIMD_FUNC(od_filter_dering_direction_lbd_4x4))(
+      y, ystride, in, threshold, dir, damping);
+}
+
+static void SIMD_FUNC(od_filter_dering_direction_lbd_8x8)(
+    uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir,
+    int damping) {
+  int i;
+  v128 p0, p1;
+  v256 sum, row, res;
+  const int o1 = OD_DIRECTION_OFFSETS_TABLE[dir][0];
+  const int o2 = OD_DIRECTION_OFFSETS_TABLE[dir][1];
+  const int o3 = OD_DIRECTION_OFFSETS_TABLE[dir][2];
+  const int ins = OD_FILT_BSTRIDE;
+
+  if (threshold) damping -= get_msb(threshold);
+  for (i = 0; i < 8; i += 2) {
+    sum = v256_zero();
+    row = v256_from_v128(v128_load_aligned(&in[i * ins]),
+                         v128_load_aligned(&in[(i + 1) * ins]));
+
+    p0 = constrain(v256_from_v128(v128_load_unaligned(&in[i * ins + o1]),
+                                  v128_load_unaligned(&in[(i + 1) * ins + o1])),
+                   row, threshold, damping);
+    p1 = constrain(v256_from_v128(v128_load_unaligned(&in[i * ins - o1]),
+                                  v128_load_unaligned(&in[(i + 1) * ins - o1])),
+                   row, threshold, damping);
+
+    // sum += 3 * (p0 + p1)
+    p0 = v128_add_8(p0, v128_shl_n_8(p0, 1));
+    p1 = v128_add_8(p1, v128_shl_n_8(p1, 1));
+    sum = v256_add_16(sum, v256_unpack_s8_s16(p0));
+    sum = v256_add_16(sum, v256_unpack_s8_s16(p1));
+
+    p0 = constrain(v256_from_v128(v128_load_unaligned(&in[i * ins + o2]),
+                                  v128_load_unaligned(&in[(i + 1) * ins + o2])),
+                   row, threshold, damping);
+    p1 = constrain(v256_from_v128(v128_load_unaligned(&in[i * ins - o2]),
+                                  v128_load_unaligned(&in[(i + 1) * ins - o2])),
+                   row, threshold, damping);
+
+    // sum += 2 * (p0 + p1)
+    p0 = v128_shl_n_8(v128_add_8(p0, p1), 1);
+    sum = v256_add_16(sum, v256_unpack_s8_s16(p0));
+
+    p0 = constrain(v256_from_v128(v128_load_unaligned(&in[i * ins + o3]),
+                                  v128_load_unaligned(&in[(i + 1) * ins + o3])),
+                   row, threshold, damping);
+
+    p1 = constrain(v256_from_v128(v128_load_unaligned(&in[i * ins - o3]),
+                                  v128_load_unaligned(&in[(i + 1) * ins - o3])),
+                   row, threshold, damping);
+
+    // sum += (p0 + p1)
+    p0 = v128_add_8(p0, p1);
+    sum = v256_add_16(sum, v256_unpack_s8_s16(p0));
+
+    // res = row + ((sum + 8) >> 4)
+    res = v256_add_16(row, v256_shr_n_s16(v256_add_16(sum, v256_dup_16(8)), 4));
+    v128_store_unaligned(&y[i * ystride], v256_high_v128(res));
+    v128_store_unaligned(&y[(i + 1) * ystride], v256_low_v128(res));
+  }
+}
+
+static void SIMD_FUNC(od_filter_dering_direction_hbd_8x8)(
+    uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir,
+    int damping) {
   int i;
   v128 sum, p0, p1, row, res;
   int o1 = OD_DIRECTION_OFFSETS_TABLE[dir][0];
@@ -319,6 +448,15 @@ void SIMD_FUNC(od_filter_dering_direction_8x8)(uint16_t *y, int ystride,
     res = v128_add_16(row, res);
     v128_store_unaligned(&y[i * ystride], res);
   }
+}
+
+void SIMD_FUNC(od_filter_dering_direction_8x8)(uint16_t *y, int ystride,
+                                               const uint16_t *in,
+                                               int threshold, int dir,
+                                               int damping, int hbd) {
+  (hbd ? SIMD_FUNC(od_filter_dering_direction_hbd_8x8)
+       : SIMD_FUNC(od_filter_dering_direction_lbd_8x8))(
+      y, ystride, in, threshold, dir, damping);
 }
 
 void SIMD_FUNC(copy_8x8_16bit_to_8bit)(uint8_t *dst, int dstride,
