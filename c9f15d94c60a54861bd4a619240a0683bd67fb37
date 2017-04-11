@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "841506c3_59433714",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-04-11T07:25:50Z",
+      "side": 1,
+      "message": "We do.  sb_all_skip() is elsewhere only called in the bit writing/reading.  Now sb_compute_dering_list() will return either 0 or 64 (16 for chroma).\n\nInstead of risking iterating over mi_grid_visible twice, it\u0027s probably better to check if everything is all skip in the loop below, though.",
+      "parentUuid": "92d088b0_3a3be722",
+      "revId": "c9f15d94c60a54861bd4a619240a0683bd67fb37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc56a987_27d61363",
         "filename": "av1/common/od_dering.c",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "52c7800b_7c7031fe",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-04-11T07:25:50Z",
+      "side": 1,
+      "message": "The 8x8 blocks not to be filtered are filtered with threshold \u003d 0 above.  This is likely suboptimal, though.  But I realise that the code above is totally broken.  The threshold is set to 0 for the first 8x8 skip encountered, and remains 0 for the rest of the superblock!  I need to rerun everything.  It\u0027s strange that I got the gains that I did.",
+      "parentUuid": "cc56a987_27d61363",
+      "revId": "c9f15d94c60a54861bd4a619240a0683bd67fb37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1d2552d2_56e460c1",
         "filename": "av1/common/od_dering.c",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2017-04-11T06:46:56Z",
       "side": 1,
       "message": "What happens if clpf is disabled and filter_skip\u003d0. It seems like we\u0027ll be updating the buffer with junk. Or did I miss something?",
+      "revId": "c9f15d94c60a54861bd4a619240a0683bd67fb37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e657209_2e0b8a39",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-04-11T07:25:50Z",
+      "side": 1,
+      "message": "See above.",
+      "parentUuid": "1d2552d2_56e460c1",
       "revId": "c9f15d94c60a54861bd4a619240a0683bd67fb37",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
