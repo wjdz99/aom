@@ -25,6 +25,10 @@ static int read_golomb(aom_reader *r) {
   while (!i) {
     i = aom_read_bit(r, ACCT_STR);
     ++length;
+    if (length >= 32) {
+      assert(0);
+      break;
+    }
   }
 
   for (i = 0; i < length - 1; ++i) {
