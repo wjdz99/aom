@@ -1727,6 +1727,10 @@ void av1_build_obmc_inter_prediction(const AV1_COMMON *cm, MACROBLOCKD *xd,
           const struct macroblockd_plane *pd = &xd->plane[plane];
           const int bw = (mi_step * MI_SIZE) >> pd->subsampling_x;
           const int bh = overlap >> pd->subsampling_y;
+
+          if (plane > 0 && (bsize == BLOCK_8X8 || bsize == BLOCK_16X8))
+            continue;
+
           const int dst_stride = pd->dst.stride;
           uint8_t *const dst = &pd->dst.buf[(i * MI_SIZE) >> pd->subsampling_x];
           const int tmp_stride = above_stride[plane];
@@ -1773,6 +1777,10 @@ void av1_build_obmc_inter_prediction(const AV1_COMMON *cm, MACROBLOCKD *xd,
           const struct macroblockd_plane *pd = &xd->plane[plane];
           const int bw = overlap >> pd->subsampling_x;
           const int bh = (mi_step * MI_SIZE) >> pd->subsampling_y;
+
+          if (plane > 0 && bsize == BLOCK_8X16)
+            continue;
+
           const int dst_stride = pd->dst.stride;
           uint8_t *const dst =
               &pd->dst.buf[(i * MI_SIZE * dst_stride) >> pd->subsampling_y];
