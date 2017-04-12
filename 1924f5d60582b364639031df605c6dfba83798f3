@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09b224af_fb1d7689",
+        "filename": "av1/decoder/generic_decoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-12T15:09:57Z",
+      "side": 1,
+      "message": "Can we update the comment here?  This says the generic_decode() function \"Encodes a random variable...\" which is wrong.",
+      "revId": "1924f5d60582b364639031df605c6dfba83798f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
