@@ -3026,21 +3026,21 @@ static void scale_and_extend_frame(const YV12_BUFFER_CONFIG *src,
     aom_extend_frame_borders(dst);
 }
 
-static int scale_down(AV1_COMP *cpi, int q) {
-  RATE_CONTROL *const rc = &cpi->rc;
-  GF_GROUP *const gf_group = &cpi->twopass.gf_group;
-  int scale = 0;
-  assert(frame_is_kf_gf_arf(cpi));
-
-  if (rc->frame_size_selector == UNSCALED &&
-      q >= rc->rf_level_maxq[gf_group->rf_level[gf_group->index]]) {
-    const int max_size_thresh =
-        (int)(rate_thresh_mult[SCALE_STEP1] *
-              AOMMAX(rc->this_frame_target, rc->avg_frame_bandwidth));
-    scale = rc->projected_frame_size > max_size_thresh ? 1 : 0;
-  }
-  return scale;
-}
+//static int scale_down(AV1_COMP *cpi, int q) {
+//  RATE_CONTROL *const rc = &cpi->rc;
+//  GF_GROUP *const gf_group = &cpi->twopass.gf_group;
+//  int scale = 0;
+//  assert(frame_is_kf_gf_arf(cpi));
+//
+//  if (rc->frame_size_selector == UNSCALED &&
+//      q >= rc->rf_level_maxq[gf_group->rf_level[gf_group->index]]) {
+//    const int max_size_thresh =
+//        (int)(rate_thresh_mult[SCALE_STEP1] *
+//              AOMMAX(rc->this_frame_target, rc->avg_frame_bandwidth));
+//    scale = rc->projected_frame_size > max_size_thresh ? 1 : 0;
+//  }
+//  return scale;
+//}
 
 #if CONFIG_GLOBAL_MOTION
 #define GM_RECODE_LOOP_NUM4X4_FACTOR 192
@@ -3078,10 +3078,13 @@ static int recode_loop_test(AV1_COMP *cpi, int high_limit, int low_limit, int q,
       (cpi->sf.recode_loop == ALLOW_RECODE) ||
       (frame_is_kfgfarf && (cpi->sf.recode_loop == ALLOW_RECODE_KFARFGF))) {
     if (frame_is_kfgfarf && (oxcf->resize_mode == RESIZE_DYNAMIC) &&
-        scale_down(cpi, q)) {
+        cpi->rc.frame_size_selector == UNSCALED) {
+//        cpi->resize_state == 0 && cpi->common.frame_type != KEY_FRAME)
+//        scale_down(cpi, q)) {
       // Code this group at a lower resolution.
       cpi->resize_pending = 1;
-      return 1;
+      force_recode = 1;
+      return force_recode;
     }
 
     // TODO(agrange) high_limit could be greater than the scale-down threshold.
