@@ -1394,6 +1394,8 @@ static const int partition_supertx_context_lookup[PARTITION_TYPES] = { -1, 0, 0,
 #endif  // CONFIG_EXT_PARTITION_TYPES
 #endif  // CONFIG_SUPERTX
 
+#define EOB_THRESHOLD_NUM (2)
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
