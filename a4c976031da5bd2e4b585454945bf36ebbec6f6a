@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7d03cd79_d880d389",
+        "filename": "aom_dsp/daalaboolreader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-12T18:10:54Z",
+      "side": 1,
+      "message": "\u003e The answer turns out to be no.\n\nYou are absolutely right.  I also exhaustively tested, and for prob in [0, 256]:\n\nint p_old \u003d ((prob \u003c\u003c 15) + 256 - prob) \u003e\u003e 8;\nint p \u003d (0x7FFFFF - (prob \u003c\u003c 15) + prob) \u003e\u003e 8;\n\nmeans that p \u003d\u003d OD_ICDF(p_old), (which has p \u003d 1 when prob \u003d 0).\n\nThis still seems like a bug, being able to code bits with probability 0.  If we knew that prob was always in (0, 256) we could reduce the above expression to:\n\nint p \u003d 32768 - (prob \u003c\u003c 7);\n\nwhich is identical to\n\nint p \u003d (0x7FFFFF - (prob \u003c\u003c 15) + prob) \u003e\u003e 8;\n\nexcept when prob \u003d\u003d 0 and has two fewer operations.\n\nThis will be moot when we remove all binary symbols, so r+.",
+      "parentUuid": "dca58933_f44e7228",
+      "revId": "a4c976031da5bd2e4b585454945bf36ebbec6f6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c03cb8b_c8fb9814",
         "filename": "aom_dsp/daalaboolwriter.h",
         "patchSetId": 5
