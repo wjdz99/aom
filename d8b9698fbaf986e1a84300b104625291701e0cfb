@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "72f49840_e7e1c5f3",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-12T02:49:27Z",
+      "side": 1,
+      "message": "\u003e There\u0027s a difference here between stride (which is for the ref) and p_stride (for dst, I assume p stands for predicted but I\u0027m not sure). Is there a preferred convention I should change the names to?\n\nI missed the second instance, dst_ would be more appropriate given your description. If they\u0027re common the base name would still suffice",
+      "parentUuid": "f182abb0_d3354523",
+      "range": {
+        "startLine": 1023,
+        "startChar": 38,
+        "endLine": 1023,
+        "endChar": 40
+      },
+      "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab927738_989ebc60",
         "filename": "av1/common/warped_motion.c",
         "patchSetId": 6
@@ -113,6 +137,24 @@
       "side": 1,
       "message": "I see this style throughout the codebase and assumed it was for keeping C89 compatibility. Is this something that we shouldn\u0027t worry about?",
       "parentUuid": "7c55d311_2d3ade9d",
+      "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bbb9a2db_0cec1e43",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1044,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-12T02:49:27Z",
+      "side": 1,
+      "message": "\u003e I see this style throughout the codebase and assumed it was for keeping C89 compatibility. Is this something that we shouldn\u0027t worry about?\n\nhistorically it was c90, but we\u0027ve since moved to c99; new code should take advantage of it.",
+      "parentUuid": "44753c56_eab2f07e",
       "revId": "d8b9698fbaf986e1a84300b104625291701e0cfb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
