@@ -21,16 +21,18 @@ extern "C" {
 #include "aom/aom_integer.h"
 #include "aom_dsp/bitreader.h"
 
-int16_t aom_read_primitive_symmetric(aom_reader *r, unsigned int mag_bits);
-
-uint16_t aom_read_primitive_quniform(aom_reader *r, uint16_t n);
+int16_t aom_read_primitive_symmetric(aom_reader *r,
+                                     unsigned int mag_bits ACCT_STR_PARAM);
+uint16_t aom_read_primitive_quniform(aom_reader *r, uint16_t n ACCT_STR_PARAM);
 uint16_t aom_read_primitive_refbilevel(aom_reader *r, uint16_t n, uint16_t p,
-                                       uint16_t ref);
-uint16_t aom_read_primitive_subexpfin(aom_reader *r, uint16_t n, uint16_t k);
+                                       uint16_t ref ACCT_STR_PARAM);
+uint16_t aom_read_primitive_subexpfin(aom_reader *r, uint16_t n,
+                                      uint16_t k ACCT_STR_PARAM);
 uint16_t aom_read_primitive_refsubexpfin(aom_reader *r, uint16_t n, uint16_t k,
-                                         uint16_t ref);
+                                         uint16_t ref ACCT_STR_PARAM);
 int16_t aom_read_signed_primitive_refsubexpfin(aom_reader *r, uint16_t n,
-                                               uint16_t k, int16_t ref);
+                                               uint16_t k,
+                                               int16_t ref ACCT_STR_PARAM);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
