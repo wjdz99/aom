@@ -241,6 +241,9 @@ static void set_good_speed_feature(AV1_COMP *cpi, AV1_COMMON *cm,
     sf->mv.reduce_first_step_size = 1;
     sf->simple_model_rd_from_var = 1;
   }
+
+  sf->use_transform_domain_distortion = 0;
+  sf->tx_size_search_method = USE_FULL_RD;
 }
 
 static void set_rt_speed_feature_framesize_dependent(AV1_COMP *cpi,
@@ -439,6 +442,9 @@ static void set_rt_speed_feature(AV1_COMP *cpi, SPEED_FEATURES *sf, int speed,
     sf->mv.subpel_force_stop = 2;
     sf->lpf_pick = LPF_PICK_MINIMAL_LPF;
   }
+
+  sf->use_transform_domain_distortion = 0;
+  sf->tx_size_search_method = USE_FULL_RD;
 }
 
 void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi) {
