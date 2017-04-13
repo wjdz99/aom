@@ -27,6 +27,7 @@
 #include "av1/common/entropymode.h"
 #include "av1/common/idct.h"
 #include "av1/common/mvref_common.h"
+
 #include "av1/common/pred_common.h"
 #include "av1/common/quant_common.h"
 #include "av1/common/reconinter.h"
@@ -603,13 +604,11 @@ static double od_compute_dist(int qm, int activity_masking, od_coeff *x,
 }
 
 static int64_t av1_daala_dist(const uint8_t *src, int src_stride,
-                              const uint8_t *dst, int dst_stride, int tx_size,
-                              int qm, int use_activity_masking, int qindex) {
+                              const uint8_t *dst, int dst_stride, int bsw,
+                              int bsh, int qm, int use_activity_masking,
+                              int qindex) {
   int i, j;
   int64_t d;
-  const BLOCK_SIZE tx_bsize = txsize_to_bsize[tx_size];
-  const int bsw = block_size_wide[tx_bsize];
-  const int bsh = block_size_high[tx_bsize];
   DECLARE_ALIGNED(16, od_coeff, orig[MAX_TX_SQUARE]);
   DECLARE_ALIGNED(16, od_coeff, rec[MAX_TX_SQUARE]);
 
@@ -1365,13 +1364,15 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                     OUTPUT_STATUS output_status) {
   MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblock_plane *const p = &x->plane[plane];
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
 #if CONFIG_DAALA_DIST
   int qm = OD_HVS_QM;
   int use_activity_masking = 0;
 #if CONFIG_PVQ
   use_activity_masking = x->daala_enc.use_activity_masking;
 #endif  // CONFIG_PVQ
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+#else   // CONFIG_DAALA_DIST
+  const struct macroblockd_plane *const pd = &xd->plane[plane];
 #endif  // CONFIG_DAALA_DIST
 
   if (cpi->sf.use_transform_domain_distortion && !CONFIG_DAALA_DIST) {
@@ -1429,26 +1430,23 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     assert(tx_size_wide_log2[0] == tx_size_high_log2[0]);
 
 #if CONFIG_DAALA_DIST
-    if (plane == 0) {
-      if (bsw >= 8 && bsh >= 8) {
-        if (output_status == OUTPUT_HAS_DECODED_PIXELS) {
-          const int pred_stride = block_size_wide[plane_bsize];
-          const int16_t *pred = &pd->pred[(blk_row * pred_stride + blk_col)
-                                          << tx_size_wide_log2[0]];
-          int i, j;
-          DECLARE_ALIGNED(16, uint8_t, pred8[MAX_TX_SQUARE]);
+    if (plane == 0 && bsw >= 8 && bsh >= 8) {
+      if (output_status == OUTPUT_HAS_DECODED_PIXELS) {
+        const int pred_stride = block_size_wide[plane_bsize];
+        const int pred_idx = (blk_row * pred_stride + blk_col)
+                             << tx_size_wide_log2[0];
+        const int16_t *pred = &pd->pred[pred_idx];
+        int i, j;
+        DECLARE_ALIGNED(16, uint8_t, pred8[MAX_TX_SQUARE]);
 
-          for (j = 0; j < bsh; j++)
-            for (i = 0; i < bsw; i++)
-              pred8[j * bsw + i] = pred[j * pred_stride + i];
-          tmp = av1_daala_dist(src, src_stride, pred8, bsw, tx_size, qm,
-                               use_activity_masking, x->qindex);
-        } else {
-          tmp = av1_daala_dist(src, src_stride, dst, dst_stride, tx_size, qm,
-                               use_activity_masking, x->qindex);
-        }
+        for (j = 0; j < bsh; j++)
+          for (i = 0; i < bsw; i++)
+            pred8[j * bsw + i] = pred[j * pred_stride + i];
+        tmp = av1_daala_dist(src, src_stride, pred8, bsw, bsw, bsh, qm,
+                             use_activity_masking, x->qindex);
       } else {
-        tmp = 0;
+        tmp = av1_daala_dist(src, src_stride, dst, dst_stride, bsw, bsh, qm,
+                             use_activity_masking, x->qindex);
       }
     } else
 #endif  // CONFIG_DAALA_DIST
@@ -1469,19 +1467,13 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (eob) {
       if (output_status == OUTPUT_HAS_DECODED_PIXELS) {
 #if CONFIG_DAALA_DIST
-        if (plane == 0) {
-          if (bsw >= 8 && bsh >= 8)
-            tmp = av1_daala_dist(src, src_stride, dst, dst_stride, tx_size, qm,
-                                 use_activity_masking, x->qindex);
-          else
-            tmp = 0;
-        } else {
+        if (plane == 0 && bsw >= 8 && bsh >= 8)
+          tmp = av1_daala_dist(src, src_stride, dst, dst_stride, bsw, bsh, qm,
+                               use_activity_masking, x->qindex);
+        else
 #endif  // CONFIG_DAALA_DIST
           tmp = pixel_sse(cpi, xd, plane, src, src_stride, dst, dst_stride,
                           blk_row, blk_col, plane_bsize, tx_bsize);
-#if CONFIG_DAALA_DIST
-        }
-#endif  // CONFIG_DAALA_DIST
       } else {
 #if CONFIG_HIGHBITDEPTH
         uint8_t *recon;
@@ -1518,13 +1510,22 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                     MAX_TX_SIZE, eob);
 
 #if CONFIG_DAALA_DIST
-        if (plane == 0) {
-          if (bsw >= 8 && bsh >= 8)
-            tmp = av1_daala_dist(src, src_stride, recon, MAX_TX_SIZE, tx_size,
-                                 qm, use_activity_masking, x->qindex);
-          else
-            tmp = 0;
+        if (plane == 0 && bsw >= 8 && bsh >= 8) {
+          tmp = av1_daala_dist(src, src_stride, recon, MAX_TX_SIZE, bsw, bsh,
+                               qm, use_activity_masking, x->qindex);
         } else {
+          // Save decoded pixels for inter block in pd->pred to avoid
+          // block_8x8_rd_txfm_daala_dist() need to produce them
+          // by calling av1_inverse_transform_block() again.
+          const int pred_stride = block_size_wide[plane_bsize];
+          const int pred_idx = (blk_row * pred_stride + blk_col)
+                               << tx_size_wide_log2[0];
+          int16_t *pred = &pd->pred[pred_idx];
+          int i, j;
+
+          for (j = 0; j < bsh; j++)
+            for (i = 0; i < bsw; i++)
+              pred[j * pred_stride + i] = recon[j * MAX_TX_SIZE + i];
 #endif  // CONFIG_DAALA_DIST
           tmp = pixel_sse(cpi, xd, plane, src, src_stride, recon, MAX_TX_SIZE,
                           blk_row, blk_col, plane_bsize, tx_bsize);
@@ -1619,9 +1620,15 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   rd = AOMMIN(rd1, rd2);
 
 #if CONFIG_DAALA_DIST
-  if (plane == 0 && tx_size <= TX_4X4) {
+  if (plane == 0 &&
+      (tx_size == TX_4X4 || tx_size == TX_4X8 || tx_size == TX_8X4)) {
+    this_rd_stats.dist = 0;
+    this_rd_stats.sse = 0;
     rd = 0;
-    x->rate_4x4[block] = this_rd_stats.rate;
+    if (rd1 < rd2)
+      x->rate_4x4[block] = this_rd_stats.rate;
+    else
+      x->rate_4x4[block] = 0;
   }
 #endif  // CONFIG_DAALA_DIST
 
@@ -1630,6 +1637,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
 #else
   this_rd_stats.skip &= x->pvq_skip[plane];
 #endif  // !CONFIG_PVQ
+
   av1_merge_rd_stats(&args->rd_stats, &this_rd_stats);
 
   args->this_rd += rd;
@@ -1647,23 +1655,24 @@ static void block_8x8_rd_txfm_daala_dist(int plane, int block, int blk_row,
   struct rdcost_block_args *args = arg;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
-  // MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  // const AV1_COMMON *cm = &args->cpi->common;
-  int64_t rd1, rd2, rd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  int64_t rd;
   RD_STATS this_rd_stats;
   int qm = OD_HVS_QM;
   int use_activity_masking = 0;
 
+  (void)tx_size;
 #if CONFIG_PVQ
   use_activity_masking = x->daala_enc.use_activity_masking;
 #endif  // CONFIG_PVQ
+
   av1_init_rd_stats(&this_rd_stats);
 
   if (args->exit_early) return;
 
   {
     const struct macroblock_plane *const p = &x->plane[plane];
-    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    struct macroblockd_plane *const pd = &xd->plane[plane];
 
     const int src_stride = p->src.stride;
     const int dst_stride = pd->dst.stride;
@@ -1674,30 +1683,35 @@ static void block_8x8_rd_txfm_daala_dist(int plane, int block, int blk_row,
     const uint8_t *dst =
         &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
 
-    unsigned int tmp;
-
+    unsigned int tmp1, tmp2;
     int qindex = x->qindex;
-
-    const int16_t *pred =
-        &pd->pred[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
+    const int pred_stride = block_size_wide[plane_bsize];
+    const int pred_idx = (blk_row * pred_stride + blk_col)
+                         << tx_size_wide_log2[0];
+    int16_t *pred = &pd->pred[pred_idx];
     int i, j;
-    const int tx_blk_size = 1 << (tx_size + 2);
-    DECLARE_ALIGNED(16, uint8_t, pred8[MAX_TX_SQUARE]);
+    const int tx_blk_size = 8;
+
+    DECLARE_ALIGNED(16, uint8_t, pred8[8 * 8]);
 
     for (j = 0; j < tx_blk_size; j++)
       for (i = 0; i < tx_blk_size; i++)
         pred8[j * tx_blk_size + i] = pred[j * diff_stride + i];
 
-    this_rd_stats.sse =
-        av1_daala_dist(src, src_stride, pred8, tx_blk_size, tx_size, qm,
-                       use_activity_masking, qindex);
+    tmp1 = av1_daala_dist(src, src_stride, pred8, tx_blk_size, 8, 8, qm,
+                          use_activity_masking, qindex);
+    tmp2 = av1_daala_dist(src, src_stride, dst, dst_stride, 8, 8, qm,
+                          use_activity_masking, qindex);
 
-    this_rd_stats.sse = this_rd_stats.sse * 16;
-
-    tmp = av1_daala_dist(src, src_stride, dst, dst_stride, tx_size, qm,
-                         use_activity_masking, qindex);
-
-    this_rd_stats.dist = (int64_t)tmp * 16;
+    if (!is_inter_block(mbmi)) {
+      this_rd_stats.sse = (int64_t)tmp1 * 16;
+      this_rd_stats.dist = (int64_t)tmp2 * 16;
+    } else {
+      // For inter mode, the decoded pixels are not provided in pd->pred,
+      // while the predicted pixels are in dst.
+      this_rd_stats.sse = (int64_t)tmp2 * 16;
+      this_rd_stats.dist = (int64_t)tmp1 * 16;
+    }
   }
 
   rd = RDCOST(x->rdmult, x->rddiv, 0, this_rd_stats.dist);
@@ -1713,10 +1727,8 @@ static void block_8x8_rd_txfm_daala_dist(int plane, int block, int blk_row,
                          x->rate_4x4[block - max_blocks_wide] +
                          x->rate_4x4[block - 1] + x->rate_4x4[block];
   }
-  rd1 = RDCOST(x->rdmult, x->rddiv, this_rd_stats.rate, this_rd_stats.dist);
-  rd2 = RDCOST(x->rdmult, x->rddiv, 0, this_rd_stats.sse);
 
-  rd = AOMMIN(rd1, rd2);
+  rd = RDCOST(x->rdmult, x->rddiv, this_rd_stats.rate, this_rd_stats.dist);
 
   args->rd_stats.dist += this_rd_stats.dist;
   args->rd_stats.sse += this_rd_stats.sse;
@@ -1757,7 +1769,6 @@ static void txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
 #endif  // CONFIG_DAALA_DIST
     av1_foreach_transformed_block_in_plane(xd, bsize, plane, block_rd_txfm,
                                            &args);
-
   if (args.exit_early) {
     av1_invalid_rd_stats(rd_stats);
   } else {
@@ -3160,7 +3171,7 @@ static int64_t rd_pick_intra_sub_8x8_y_mode(const AV1_COMP *const cpi,
     use_activity_masking = mb->daala_enc.use_activity_masking;
 #endif  // CONFIG_PVQ
     // Daala-defined distortion computed for the block of 8x8 pixels
-    total_distortion = av1_daala_dist(src, src_stride, dst, dst_stride, TX_8X8,
+    total_distortion = av1_daala_dist(src, src_stride, dst, dst_stride, 8, 8,
                                       qm, use_activity_masking, mb->qindex)
                        << 4;
   }
@@ -6622,12 +6633,12 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
 
     // Daala-defined distortion computed for 1) predicted pixels and
     // 2) decoded pixels of the block of 8x8 pixels
-    bsi->sse = av1_daala_dist(src, src_stride, pred, 8, TX_8X8, qm,
+    bsi->sse = av1_daala_dist(src, src_stride, pred, 8, 8, 8, qm,
                               use_activity_masking, x->qindex)
                << 4;
 
-    bsi->d = av1_daala_dist(src, src_stride, pd->dst.buf, dst_stride, TX_8X8,
-                            qm, use_activity_masking, x->qindex)
+    bsi->d = av1_daala_dist(src, src_stride, pd->dst.buf, dst_stride, 8, 8, qm,
+                            use_activity_masking, x->qindex)
              << 4;
   }
 #endif  // CONFIG_DAALA_DIST
