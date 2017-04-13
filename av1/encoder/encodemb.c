@@ -573,7 +573,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   uint8_t *dst;
   int16_t *pred;
   const int dst_stride = pd->dst.stride;
-  int tx_blk_size;
+  int tx_blk_size_w, tx_blk_size_h;
   int i, j;
 #endif
 
@@ -636,20 +636,21 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   pred = &pd->pred[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
 
   // transform block size in pixels
-  tx_blk_size = tx_size_wide[tx_size];
+  tx_blk_size_w = tx_size_wide[tx_size];
+  tx_blk_size_h = tx_size_high[tx_size];
 
 // copy uint8 orig and predicted block to int16 buffer
 // in order to use existing VP10 transform functions
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-    for (j = 0; j < tx_blk_size; j++)
-      for (i = 0; i < tx_blk_size; i++)
+    for (j = 0; j < tx_blk_size_h; j++)
+      for (i = 0; i < tx_blk_size_w; i++)
         pred[diff_stride * j + i] =
             CONVERT_TO_SHORTPTR(dst)[dst_stride * j + i];
   } else {
-#endif  // CONFIG_HIGHBITDEPTH
-    for (j = 0; j < tx_blk_size; j++)
-      for (i = 0; i < tx_blk_size; i++)
+#endif  // CONFIG_AOM_HIGHBITDEPTH
+    for (j = 0; j < tx_blk_size_h; j++)
+      for (i = 0; i < tx_blk_size_w; i++)
         pred[diff_stride * j + i] = dst[dst_stride * j + i];
 #if CONFIG_HIGHBITDEPTH
   }
