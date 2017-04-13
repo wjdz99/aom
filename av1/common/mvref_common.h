@@ -515,8 +515,56 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
                 int *pts, int *pts_inref);
 #endif  // CONFIG_WARPED_MOTION
 
+#if CONFIG_INTRABC
+static INLINE void av1_find_ref_dv(int_mv *ref_dv, int mi_row, int mi_col) {
+  // TODO(aconverse@google.com): Handle tiles and such
+  (void)mi_col;
+  if (mi_row < MAX_MIB_SIZE) {
+    ref_dv->as_mv.row = 0;
+    ref_dv->as_mv.col = -MI_SIZE * MAX_MIB_SIZE;
+  } else {
+    ref_dv->as_mv.row = -MI_SIZE * MAX_MIB_SIZE;
+    ref_dv->as_mv.col = 0;
+  }
+}
+
+static INLINE int is_dv_valid(const MV dv, const TileInfo *tile, int mi_row,
+                              int mi_col, BLOCK_SIZE bsize) {
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  const int SCALE_PX_TO_MV = 8;
+  // Disallow subpixel for now
+  // SUBPEL_MASK is not the correct scale
+  if ((dv.row & (SCALE_PX_TO_MV - 1) || dv.col & (SCALE_PX_TO_MV - 1)))
+    return 0;
+  // Is the source top-left inside the current tile?
+  if (mi_row * MI_SIZE * SCALE_PX_TO_MV + dv.row <
+      tile->mi_row_start * MI_SIZE * SCALE_PX_TO_MV)
+    return 0;
+  if ((mi_col * MI_SIZE) * SCALE_PX_TO_MV + dv.col <
+      tile->mi_col_start * MI_SIZE * SCALE_PX_TO_MV)
+    return 0;
+  // Is the bottom right inside the current tile?
+  if ((mi_row * MI_SIZE + bh) * SCALE_PX_TO_MV + dv.row >
+      tile->mi_row_end * MI_SIZE * SCALE_PX_TO_MV)
+    return 0;
+  if ((mi_col * MI_SIZE + bw) * SCALE_PX_TO_MV + dv.col >
+      tile->mi_col_end * MI_SIZE * SCALE_PX_TO_MV)
+    return 0;
+  // Is the bottom right within an already coded SB?
+  if ((mi_row * MI_SIZE + bh) * SCALE_PX_TO_MV + dv.row >
+      ((mi_row & ~MAX_MIB_MASK) + MAX_MIB_SIZE) * MI_SIZE * SCALE_PX_TO_MV)
+    return 0;
+  if ((mi_row * MI_SIZE + bh) * SCALE_PX_TO_MV + dv.row >
+          (mi_row & ~MAX_MIB_MASK) * MI_SIZE * SCALE_PX_TO_MV &&
+      (mi_col * MI_SIZE + bw) * SCALE_PX_TO_MV + dv.col >
+          (mi_col & ~MAX_MIB_MASK) * MI_SIZE * SCALE_PX_TO_MV)
+    return 0;
+  return 1;
+}
+#endif  // CONFIG_INTRABC
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
-
 #endif  // AV1_COMMON_MVREF_COMMON_H_
