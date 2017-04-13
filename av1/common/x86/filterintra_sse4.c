@@ -154,6 +154,9 @@ static INLINE void GetIntraFilterParams(int bs, int mode, __m128i *params) {
   const TX_SIZE tx_size =
       (bs == 32) ? TX_32X32
                  : ((bs == 16) ? TX_16X16 : ((bs == 8) ? TX_8X8 : (TX_4X4)));
+#if USE_3TAP_INTRA_FILTER
+  (void)bs; (void)mode; (void)params;
+#else
   // c0
   params[0] = _mm_set_epi32(av1_filter_intra_taps_4[tx_size][mode][0],
                             av1_filter_intra_taps_4[tx_size][mode][0],
@@ -174,6 +177,7 @@ static INLINE void GetIntraFilterParams(int bs, int mode, __m128i *params) {
                             av1_filter_intra_taps_4[tx_size][mode][3],
                             av1_filter_intra_taps_4[tx_size][mode][3],
                             av1_filter_intra_taps_4[tx_size][mode][3]);
+#endif
 }
 
 static const int maxBlkSize = 32;
