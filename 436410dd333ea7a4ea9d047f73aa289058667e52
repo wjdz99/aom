@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c44e9649_e9184d82",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1699,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-04-13T18:41:53Z",
+      "side": 1,
+      "message": "Probably need to make this line under #if CONFIG_CB4X4 flag to avoid compiler warnings.",
+      "range": {
+        "startLine": 1699,
+        "startChar": 2,
+        "endLine": 1699,
+        "endChar": 40
+      },
+      "revId": "436410dd333ea7a4ea9d047f73aa289058667e52",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
