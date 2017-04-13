@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7c7440ce_ea957130",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 6825,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-04-13T00:02:27Z",
+      "side": 1,
+      "message": "Nice.",
+      "parentUuid": "8462d1ba_8c8929d1",
+      "range": {
+        "startLine": 6822,
+        "startChar": 8,
+        "endLine": 6825,
+        "endChar": 16
+      },
+      "revId": "267bb5a1bd597d22759d19de2f60681184af1bb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d22e0a76_a43642d6",
         "filename": "av1/common/scan.c",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-04-12T23:19:10Z",
       "side": 1,
       "message": "Add const if possible. Also, could consider returning Eobthreshold instead of Eobthreshold*.",
+      "range": {
+        "startLine": 6835,
+        "startChar": 0,
+        "endLine": 6835,
+        "endChar": 14
+      },
+      "revId": "267bb5a1bd597d22759d19de2f60681184af1bb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e92e1a39_2ca19258",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 6835,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-04-13T00:02:27Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "d22e0a76_a43642d6",
       "range": {
         "startLine": 6835,
         "startChar": 0,
