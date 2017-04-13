@@ -4474,37 +4474,41 @@ static void read_global_motion_params(WarpedMotionParams *params,
         params->wmmat[6] =
             aom_read_signed_primitive_refsubexpfin(
                 r, GM_ROW3HOMO_MAX + 1, SUBEXPFIN_K,
-                (ref_params->wmmat[6] >> GM_ROW3HOMO_PREC_DIFF)) *
+                (ref_params->wmmat[6] >> GM_ROW3HOMO_PREC_DIFF), ACCT_STR) *
             GM_ROW3HOMO_DECODE_FACTOR;
       if (type != VERTRAPEZOID)
         params->wmmat[7] =
             aom_read_signed_primitive_refsubexpfin(
                 r, GM_ROW3HOMO_MAX + 1, SUBEXPFIN_K,
-                (ref_params->wmmat[7] >> GM_ROW3HOMO_PREC_DIFF)) *
+                (ref_params->wmmat[7] >> GM_ROW3HOMO_PREC_DIFF), ACCT_STR) *
             GM_ROW3HOMO_DECODE_FACTOR;
     case AFFINE:
     case ROTZOOM:
       params->wmmat[2] = aom_read_signed_primitive_refsubexpfin(
                              r, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
                              (ref_params->wmmat[2] >> GM_ALPHA_PREC_DIFF) -
-                                 (1 << GM_ALPHA_PREC_BITS)) *
+                                 (1 << GM_ALPHA_PREC_BITS),
+                             ACCT_STR) *
                              GM_ALPHA_DECODE_FACTOR +
                          (1 << WARPEDMODEL_PREC_BITS);
       if (type != VERTRAPEZOID)
-        params->wmmat[3] = aom_read_signed_primitive_refsubexpfin(
-                               r, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
-                               (ref_params->wmmat[3] >> GM_ALPHA_PREC_DIFF)) *
-                           GM_ALPHA_DECODE_FACTOR;
+        params->wmmat[3] =
+            aom_read_signed_primitive_refsubexpfin(
+                r, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
+                (ref_params->wmmat[3] >> GM_ALPHA_PREC_DIFF), ACCT_STR) *
+            GM_ALPHA_DECODE_FACTOR;
       if (type >= AFFINE) {
         if (type != HORTRAPEZOID)
-          params->wmmat[4] = aom_read_signed_primitive_refsubexpfin(
-                                 r, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
-                                 (ref_params->wmmat[4] >> GM_ALPHA_PREC_DIFF)) *
-                             GM_ALPHA_DECODE_FACTOR;
+          params->wmmat[4] =
+              aom_read_signed_primitive_refsubexpfin(
+                  r, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
+                  (ref_params->wmmat[4] >> GM_ALPHA_PREC_DIFF), ACCT_STR) *
+              GM_ALPHA_DECODE_FACTOR;
         params->wmmat[5] = aom_read_signed_primitive_refsubexpfin(
                                r, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
                                (ref_params->wmmat[5] >> GM_ALPHA_PREC_DIFF) -
-                                   (1 << GM_ALPHA_PREC_BITS)) *
+                                   (1 << GM_ALPHA_PREC_BITS),
+                               ACCT_STR) *
                                GM_ALPHA_DECODE_FACTOR +
                            (1 << WARPEDMODEL_PREC_BITS);
       } else {
@@ -4521,14 +4525,16 @@ static void read_global_motion_params(WarpedMotionParams *params,
       trans_prec_diff = (type == TRANSLATION)
                             ? GM_TRANS_ONLY_PREC_DIFF + !allow_hp
                             : GM_TRANS_PREC_DIFF;
-      params->wmmat[0] = aom_read_signed_primitive_refsubexpfin(
-                             r, (1 << trans_bits) + 1, SUBEXPFIN_K,
-                             (ref_params->wmmat[0] >> trans_prec_diff)) *
-                         trans_dec_factor;
-      params->wmmat[1] = aom_read_signed_primitive_refsubexpfin(
-                             r, (1 << trans_bits) + 1, SUBEXPFIN_K,
-                             (ref_params->wmmat[1] >> trans_prec_diff)) *
-                         trans_dec_factor;
+      params->wmmat[0] =
+          aom_read_signed_primitive_refsubexpfin(
+              r, (1 << trans_bits) + 1, SUBEXPFIN_K,
+              (ref_params->wmmat[0] >> trans_prec_diff), ACCT_STR) *
+          trans_dec_factor;
+      params->wmmat[1] =
+          aom_read_signed_primitive_refsubexpfin(
+              r, (1 << trans_bits) + 1, SUBEXPFIN_K,
+              (ref_params->wmmat[1] >> trans_prec_diff), ACCT_STR) *
+          trans_dec_factor;
     case IDENTITY: break;
     default: assert(0);
   }
