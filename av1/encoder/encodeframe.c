@@ -5820,13 +5820,22 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
   const int mis = cm->mi_stride;
   const int mi_width = mi_size_wide[bsize];
   const int mi_height = mi_size_high[bsize];
+#if CONFIG_INTRABC
+  const int is_inter = is_inter_block(mbmi) || is_intrabc_block(mbmi);
+#else
   const int is_inter = is_inter_block(mbmi);
+#endif  // CONFIG_INTRABC
 #if CONFIG_CB4X4
   const int unify_bsize = 1;
   const BLOCK_SIZE block_size = bsize;
 #else
   const int unify_bsize = 0;
   const BLOCK_SIZE block_size = AOMMAX(bsize, BLOCK_8X8);
+#endif
+#if CONFIG_INTRABC
+  if (is_intrabc_block(mbmi)) {
+    assert(mbmi->skip);
+  }
 #endif
 
 #if CONFIG_PVQ
@@ -5910,7 +5919,11 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       YV12_BUFFER_CONFIG *cfg = get_ref_frame_buffer(cpi, mbmi->ref_frame[ref]);
+#if CONFIG_INTRABC
+      assert(IMPLIES(!is_intrabc_block(mbmi), cfg));
+#else
       assert(cfg != NULL);
+#endif  // !CONFIG_INTRABC
       av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
                            &xd->block_refs[ref]->sf);
     }
