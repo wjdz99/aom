@@ -315,6 +315,9 @@ typedef struct {
 #if CONFIG_PALETTE
   PALETTE_MODE_INFO palette_mode_info;
 #endif  // CONFIG_PALETTE
+#if CONFIG_INTRABC
+  uint8_t use_intrabc;
+#endif  // CONFIG_INTRABC
 
 // Only for INTER blocks
 #if CONFIG_DUAL_FILTER
@@ -386,6 +389,12 @@ typedef struct MODE_INFO {
   MB_MODE_INFO mbmi;
   b_mode_info bmi[4];
 } MODE_INFO;
+
+#if CONFIG_INTRABC
+static INLINE int is_intrabc_block(const MB_MODE_INFO *mbmi) {
+  return mbmi->use_intrabc;
+}
+#endif
 
 static INLINE PREDICTION_MODE get_y_mode(const MODE_INFO *mi, int block) {
 #if CONFIG_CB4X4
@@ -906,6 +915,9 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
                                   int block, TX_SIZE tx_size) {
   const MODE_INFO *const mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
+#if CONFIG_INTRABC
+  if (is_intrabc_block(mbmi)) return DCT_DCT;
+#endif  // CONFIG_INTRABC
 #if !CONFIG_TXK_SEL
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
   if (FIXED_TX_TYPE)

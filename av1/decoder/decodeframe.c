@@ -1597,7 +1597,11 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
     const int tu_num_h_c = (max_4x4_h_c + tx_sz_c - 1) / tx_sz_c;
     const int tu_num_c = tu_num_w_c * tu_num_h_c;
 
-    if (!is_inter_block(mbmi)) {
+    if (!is_inter_block(mbmi)
+#if CONFIG_INTRABC
+        && !is_intrabc_block(mbmi)
+#endif  // CONFIG_INTRABC
+            ) {
       int tu_idx_c = 0;
       int row_y, col_y, row_c, col_c;
       int plane;
@@ -1685,7 +1689,11 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
     }
   }
 #else  // CONFIG_COEF_INTERLEAVE
-  if (!is_inter_block(mbmi)) {
+  if (!is_inter_block(mbmi)
+#if CONFIG_INTRABC
+      && !is_intrabc_block(mbmi)
+#endif  // CONFIG_INTRABC
+          ) {
     int plane;
 #if CONFIG_PALETTE
     for (plane = 0; plane <= 1; ++plane) {
@@ -1728,13 +1736,24 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 
     for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
       const MV_REFERENCE_FRAME frame = mbmi->ref_frame[ref];
-      RefBuffer *ref_buf = &cm->frame_refs[frame - LAST_FRAME];
+      if (frame < LAST_FRAME) {
+#if CONFIG_INTRABC
+        assert(is_intrabc_block(mbmi));
+        assert(frame == INTRA_FRAME);
+        assert(ref == 0);
+#else
+        assert(0);
+#endif  // CONFIG_INTRABC
+      } else {
+        RefBuffer *ref_buf = &cm->frame_refs[frame - LAST_FRAME];
 
-      xd->block_refs[ref] = ref_buf;
-      if ((!av1_is_valid_scale(&ref_buf->sf)))
-        aom_internal_error(xd->error_info, AOM_CODEC_UNSUP_BITSTREAM,
-                           "Reference frame has invalid dimensions");
-      av1_setup_pre_planes(xd, ref, ref_buf->buf, mi_row, mi_col, &ref_buf->sf);
+        xd->block_refs[ref] = ref_buf;
+        if ((!av1_is_valid_scale(&ref_buf->sf)))
+          aom_internal_error(xd->error_info, AOM_CODEC_UNSUP_BITSTREAM,
+                             "Reference frame has invalid dimensions");
+        av1_setup_pre_planes(xd, ref, ref_buf->buf, mi_row, mi_col,
+                             &ref_buf->sf);
+      }
     }
 
 #if CONFIG_CB4X4
