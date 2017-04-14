@@ -16,6 +16,24 @@
       "revId": "d642749567d6e4ade466874b379c53b95e510e5f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "738d883f_bf99b0ce",
+        "filename": "av1/common/x86/filterintra_sse4.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-04-14T00:04:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "028a1cdc_07b77612",
+      "revId": "d642749567d6e4ade466874b379c53b95e510e5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
