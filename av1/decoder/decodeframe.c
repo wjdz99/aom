@@ -532,7 +532,6 @@ static void predict_and_reconstruct_intra_block(
   av1_predict_intra_block_facade(xd, plane, block_idx, col, row, tx_size);
 
   if (!mbmi->skip) {
-    TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx, tx_size);
 #if !CONFIG_PVQ
     struct macroblockd_plane *const pd = &xd->plane[plane];
 #if CONFIG_LV_MAP
@@ -540,7 +539,10 @@ static void predict_and_reconstruct_intra_block(
     int eob;
     av1_read_coeffs_txb_facade(cm, xd, r, row, col, block_idx, plane,
                                pd->dqcoeff, &max_scan_line, &eob);
+    // tx_type will be read out in av1_read_coeffs_txb_facade
+    TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx, tx_size);
 #else   // CONFIG_LV_MAP
+    TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx, tx_size);
     const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, 0);
     int16_t max_scan_line = 0;
     const int eob =
