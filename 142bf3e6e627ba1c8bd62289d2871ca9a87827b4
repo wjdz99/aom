@@ -1,0 +1,418 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c91edbdc_4aa2853d",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "This looks rather complicated to me. \n\nWould it be possible that we use lfi_n-\u003elvl[segment_id][mbmi-\u003eref_frame[0]][mode_lf_lut[mbmi-\u003emode]] as base lf level and keep tracking an adaptive lf_delta. Then combined them.",
+      "range": {
+        "startLine": 305,
+        "startChar": 0,
+        "endLine": 322,
+        "endChar": 19
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e70222e_21279558",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "Would be better to keep the parameter order to be consistent similar to other functions.?",
+      "range": {
+        "startLine": 795,
+        "startChar": 0,
+        "endLine": 797,
+        "endChar": 6
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2476fb0b_38dd993f",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 896,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "similarly here.. parameter order..",
+      "range": {
+        "startLine": 894,
+        "startChar": 0,
+        "endLine": 896,
+        "endChar": 6
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3fb2b1a_e6736633",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 1072,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "indent appears to be wrong here.",
+      "range": {
+        "startLine": 1072,
+        "startChar": 12,
+        "endLine": 1072,
+        "endChar": 23
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "105c9bfd_358d90b3",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "indent..",
+      "range": {
+        "startLine": 1079,
+        "startChar": 12,
+        "endLine": 1079,
+        "endChar": 23
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "647aca24_452186e5",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 1090,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "indent",
+      "range": {
+        "startLine": 1090,
+        "startChar": 12,
+        "endLine": 1090,
+        "endChar": 23
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "813551d9_f4e780e1",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "indent",
+      "range": {
+        "startLine": 1108,
+        "startChar": 12,
+        "endLine": 1108,
+        "endChar": 23
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "645333b5_a2d7645c",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 1140,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "indent",
+      "range": {
+        "startLine": 1140,
+        "startChar": 18,
+        "endLine": 1140,
+        "endChar": 29
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb65d8a2_5a4a5497",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 1152,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "indent..",
+      "range": {
+        "startLine": 1152,
+        "startChar": 18,
+        "endLine": 1152,
+        "endChar": 29
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "207ba48a_1768559c",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "indent",
+      "range": {
+        "startLine": 1174,
+        "startChar": 18,
+        "endLine": 1174,
+        "endChar": 29
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37a640af_a31d3d2e",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 1207,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "indent",
+      "range": {
+        "startLine": 1207,
+        "startChar": 18,
+        "endLine": 1207,
+        "endChar": 29
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8283e692_63a69593",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "Can we use \"current_delta_lf\" ? more concise..",
+      "range": {
+        "startLine": 373,
+        "startChar": 6,
+        "endLine": 373,
+        "endChar": 33
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5ebdab2_e81abfcc",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "removing _frame_base to be consistent with naming scheme as delta_q..",
+      "range": {
+        "startLine": 592,
+        "startChar": 0,
+        "endLine": 593,
+        "endChar": 33
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffb62a02_fbf498da",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 3196,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "If this is common in both branches of #if CONFIG_EXT_DELTA_Q and #else, it should be moved out to reduce duplication.",
+      "range": {
+        "startLine": 3194,
+        "startChar": 0,
+        "endLine": 3196,
+        "endChar": 73
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2bc31c2_057e2289",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 1871,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 1871,
+        "startChar": 2,
+        "endLine": 1871,
+        "endChar": 5
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfa3cc52_330de3f7",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 1877,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 1877,
+        "startChar": 2,
+        "endLine": 1877,
+        "endChar": 6
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9006b3fd_ec090958",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 1881,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "If this is common in two branches, move the line out..",
+      "range": {
+        "startLine": 1881,
+        "startChar": 2,
+        "endLine": 1881,
+        "endChar": 75
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2b3b4fe_ea201d15",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 4647,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-14T17:30:55Z",
+      "side": 1,
+      "message": "This can go inside the if {} below given they are only used in that scope.",
+      "range": {
+        "startLine": 4645,
+        "startChar": 0,
+        "endLine": 4647,
+        "endChar": 29
+      },
+      "revId": "142bf3e6e627ba1c8bd62289d2871ca9a87827b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
