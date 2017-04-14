@@ -22,6 +22,30 @@
       "revId": "6c86ace0a5900584f946654d8badf133246d4399",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05b734e6_c9a0ea52",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-14T19:13:11Z",
+      "side": 1,
+      "message": "\u003e so when we add a new C file, we need to modify two make files: .mk and .cmake.\n\nThat would be good practice, but it\u0027s OK if they get missed, we\u0027re only doing a cmake build as fyi for now as Tom finishes up the implementation\n\n\u003e   What is the purpose of the Cmake build?\n\nUltimately we would switch away from the custom configure. CMake has generators for making e.g., ide projects like Visual Studio, Xcode. This would remove the burden of updating our local scripts for each new version of Visual Studio and adds other options which aren\u0027t available currently. Otherwise it\u0027s just a meta build system.",
+      "parentUuid": "ea385bb1_8c2bc40b",
+      "range": {
+        "startLine": 186,
+        "startChar": 31,
+        "endLine": 186,
+        "endChar": 53
+      },
+      "revId": "6c86ace0a5900584f946654d8badf133246d4399",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
