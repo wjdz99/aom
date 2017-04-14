@@ -483,7 +483,11 @@ post_process_cmdline() {
     soft_enable cdef
     soft_enable ec_adapt
     soft_enable new_tokenset
+<<<<<<< HEAD
     soft_enable ext_intra
+=======
+    soft_enable mv_compress
+>>>>>>> enable mv_compress by default
 
     # Backwards/jenkins compatibility with --enable-aom-highbitdepth
     enabled aom_highbitdepth && enable_feature highbitdepth
