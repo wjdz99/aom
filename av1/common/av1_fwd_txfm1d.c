@@ -11,23 +11,9 @@
 
 #include <stdlib.h>
 #include "av1/common/av1_fwd_txfm1d.h"
-#if CONFIG_COEFFICIENT_RANGE_CHECKING
 
-void range_check_func(int32_t stage, const int32_t *input, const int32_t *buf,
-                      int32_t size, int8_t bit);
-
-#define range_check(stage, input, buf, size, bit) \
-  range_check_func(stage, input, buf, size, bit)
-#else
-#define range_check(stage, input, buf, size, bit) \
-  {                                               \
-    (void)stage;                                  \
-    (void)input;                                  \
-    (void)buf;                                    \
-    (void)size;                                   \
-    (void)bit;                                    \
-  }
-#endif
+void range_check(int32_t stage, const int32_t *input, int32_t *buf,
+                 int32_t size, int8_t bit);
 
 // TODO(angiebird): Make 1-d txfm functions static
 void av1_fdct4_new(const int32_t *input, int32_t *output, const int8_t *cos_bit,
@@ -38,9 +24,6 @@ void av1_fdct4_new(const int32_t *input, int32_t *output, const int8_t *cos_bit,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[4];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -81,9 +64,6 @@ void av1_fdct8_new(const int32_t *input, int32_t *output, const int8_t *cos_bit,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[8];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -166,9 +146,6 @@ void av1_fdct16_new(const int32_t *input, int32_t *output,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[16];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -337,9 +314,6 @@ void av1_fdct32_new(const int32_t *input, int32_t *output,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[32];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -699,9 +673,6 @@ void av1_fadst4_new(const int32_t *input, int32_t *output,
   int32_t *bf0, *bf1;
   int32_t step[4];
 
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
-
   // stage 1;
   stage++;
   bf1 = output;
@@ -762,9 +733,6 @@ void av1_fadst8_new(const int32_t *input, int32_t *output,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[8];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -875,9 +843,6 @@ void av1_fadst16_new(const int32_t *input, int32_t *output,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[16];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -1089,9 +1054,6 @@ void av1_fadst32_new(const int32_t *input, int32_t *output,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[32];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -1525,9 +1487,6 @@ void av1_fdct64_new(const int32_t *input, int32_t *output,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[64];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
