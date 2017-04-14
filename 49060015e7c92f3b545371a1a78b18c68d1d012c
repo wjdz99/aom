@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "dcd4e824_50538db0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-14T19:36:21Z",
+      "side": 1,
+      "message": "there\u0027s nightly coverage for that, but if the idea is to drop the low bit depth path then this would make sense, but there should be a tracking bug to collect the changes and discussion:\n\nhttps://bugs.chromium.org/p/aomedia/issues/list",
+      "revId": "49060015e7c92f3b545371a1a78b18c68d1d012c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f4e5b563_0b91d5d9",
         "filename": "configure",
         "patchSetId": 17
