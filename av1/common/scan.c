@@ -6600,10 +6600,6 @@ static uint32_t *get_non_zero_counts(FRAME_COUNTS *counts, TX_SIZE tx_size,
   }
 }
 
-static INLINE int clamp_64(int64_t value, int low, int high) {
-  return value < low ? low : (value > high ? high : (int)value);
-}
-
 static void update_scan_prob(AV1_COMMON *cm, TX_SIZE tx_size, TX_TYPE tx_type,
                              int rate_16) {
   FRAME_CONTEXT *pre_fc = cm->pre_fc;
