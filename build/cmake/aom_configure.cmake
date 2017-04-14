@@ -13,6 +13,8 @@ include(FindPerl)
 include(FindThreads)
 include(FindwxWidgets)
 
+set(AOM_SUPPORTED_CPU_TARGETS "arm64 armv7 armv7s mips32 mips64 x86 x86_64")
+
 # Generate the user config settings. This must occur before include of
 # aom_config_defaults.cmake (because it turns every config variable into a cache
 # variable with its own help string).
@@ -77,8 +79,8 @@ string(STRIP "${AOM_CMAKE_CONFIG}" AOM_CMAKE_CONFIG)
 message("--- aom_configure: Detected CPU: ${AOM_TARGET_CPU}")
 set(AOM_TARGET_SYSTEM ${CMAKE_SYSTEM_NAME})
 
-if (NOT EXISTS "${AOM_ROOT}/build/cmake/targets/${AOM_TARGET_CPU}.cmake")
-  message(FATAL_ERROR "No RTCD template for ${AOM_TARGET_CPU}. Create one, or "
+if (NOT "${AOM_SUPPORTED_CPU_TARGETS}" MATCHES "${AOM_TARGET_CPU}")
+  message(FATAL_ERROR "No RTCD support for ${AOM_TARGET_CPU}. Create it, or "
           "add -DAOM_TARGET_CPU=generic to your cmake command line for a "
           "generic build of libaom and tools.")
 endif ()
@@ -110,7 +112,7 @@ elseif ("${AOM_TARGET_CPU}" MATCHES "arm")
   string(STRIP "${AOM_AS_FLAGS}" AOM_AS_FLAGS)
 endif ()
 
-include("${AOM_ROOT}/build/cmake/targets/${AOM_TARGET_CPU}.cmake")
+include("${AOM_ROOT}/build/cmake/cpu.cmake")
 
 # Test compiler flags.
 if (MSVC)
@@ -232,7 +234,7 @@ if (NOT PERL_FOUND)
   message(FATAL_ERROR "Perl is required to build libaom.")
 endif ()
 configure_file(
-  "${AOM_ROOT}/build/cmake/targets/rtcd_templates/${AOM_ARCH}.rtcd.cmake"
+  "${AOM_ROOT}/build/cmake/rtcd.cmake"
   "${AOM_CONFIG_DIR}/${AOM_ARCH}.rtcd")
 
 set(AOM_RTCD_CONFIG_FILE_LIST
