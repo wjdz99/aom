@@ -11,45 +11,19 @@
 
 #include <stdlib.h>
 #include "av1/common/av1_inv_txfm1d.h"
-#if CONFIG_COEFFICIENT_RANGE_CHECKING
 
-void range_check_func(int32_t stage, const int32_t *input, const int32_t *buf,
-                      int32_t size, int8_t bit) {
+void range_check(int32_t stage, const int32_t *input, int32_t *buf,
+                 int32_t size, int8_t bit) {
   const int64_t maxValue = (1LL << (bit - 1)) - 1;
   const int64_t minValue = -(1LL << (bit - 1));
 
-  for (int i = 0; i < size; ++i) {
-    if (buf[i] < minValue || buf[i] > maxValue) {
-      fprintf(stderr, "Error: coeffs contain out-of-range values\n");
-      fprintf(stderr, "stage: %d\n", stage);
-      fprintf(stderr, "node: %d\n", i);
-      fprintf(stderr, "allowed range: [%" PRId64 ";%" PRId64 "]\n", minValue,
-              maxValue);
-      fprintf(stderr, "coeffs: ");
+  (void)stage;
+  (void)input;
 
-      fprintf(stderr, "[");
-      for (int j = 0; j < size; j++) {
-        if (j > 0) fprintf(stderr, ", ");
-        fprintf(stderr, "%d", input[j]);
-      }
-      fprintf(stderr, "]\n");
-      assert(0);
-    }
+  for (int i = 0; i < size; ++i) {
+    buf[i] = clamp(buf[i], minValue, maxValue);
   }
 }
-
-#define range_check(stage, input, buf, size, bit) \
-  range_check_func(stage, input, buf, size, bit)
-#else
-#define range_check(stage, input, buf, size, bit) \
-  {                                               \
-    (void)stage;                                  \
-    (void)input;                                  \
-    (void)buf;                                    \
-    (void)size;                                   \
-    (void)bit;                                    \
-  }
-#endif
 
 // TODO(angiebird): Make 1-d txfm functions static
 void av1_idct4_new(const int32_t *input, int32_t *output, const int8_t *cos_bit,
@@ -60,9 +34,6 @@ void av1_idct4_new(const int32_t *input, int32_t *output, const int8_t *cos_bit,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[4];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -103,9 +74,6 @@ void av1_idct8_new(const int32_t *input, int32_t *output, const int8_t *cos_bit,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[8];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -188,9 +156,6 @@ void av1_idct16_new(const int32_t *input, int32_t *output,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[16];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -359,9 +324,6 @@ void av1_idct32_new(const int32_t *input, int32_t *output,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[32];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -721,9 +683,6 @@ void av1_iadst4_new(const int32_t *input, int32_t *output,
   int32_t *bf0, *bf1;
   int32_t step[4];
 
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
-
   // stage 1;
   stage++;
   bf1 = output;
@@ -784,9 +743,6 @@ void av1_iadst8_new(const int32_t *input, int32_t *output,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[8];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -897,9 +853,6 @@ void av1_iadst16_new(const int32_t *input, int32_t *output,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[16];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -1111,9 +1064,6 @@ void av1_iadst32_new(const int32_t *input, int32_t *output,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[32];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
@@ -1547,9 +1497,6 @@ void av1_idct64_new(const int32_t *input, int32_t *output,
   int32_t stage = 0;
   int32_t *bf0, *bf1;
   int32_t step[64];
-
-  // stage 0;
-  range_check(stage, input, input, size, stage_range[stage]);
 
   // stage 1;
   stage++;
