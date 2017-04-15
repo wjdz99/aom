@@ -534,22 +534,23 @@ static void compute_stats_highbd(uint8_t *dgd8, uint8_t *src8, int h_start,
 static int linsolve(int n, double *A, int stride, double *b, double *x) {
   int i, j, k;
   double c;
-  // Partial pivoting
-  for (i = n - 1; i > 0; i--) {
-    if (A[(i - 1) * stride] < A[i * stride]) {
-      for (j = 0; j < n; j++) {
-        c = A[i * stride + j];
-        A[i * stride + j] = A[(i - 1) * stride + j];
-        A[(i - 1) * stride + j] = c;
-      }
-      c = b[i];
-      b[i] = b[i - 1];
-      b[i - 1] = c;
-    }
-  }
   // Forward elimination
   for (k = 0; k < n - 1; k++) {
+    // Partial pivoting
+    for (i = n - 1; i > k; i--) {
+      if (fabs(A[(i - 1) * stride + k]) < fabs(A[i * stride + k])) {
+        for (j = 0; j < n; j++) {
+          c = A[i * stride + j];
+          A[i * stride + j] = A[(i - 1) * stride + j];
+          A[(i - 1) * stride + j] = c;
+        }
+        c = b[i];
+        b[i] = b[i - 1];
+        b[i - 1] = c;
+      }
+    }
     for (i = k; i < n - 1; i++) {
+      if (fabs(A[k * stride + k]) < 1e-10) return 0;
       c = A[(i + 1) * stride + k] / A[k * stride + k];
       for (j = 0; j < n; j++) A[(i + 1) * stride + j] -= c * A[k * stride + j];
       b[i + 1] -= c * b[k];
