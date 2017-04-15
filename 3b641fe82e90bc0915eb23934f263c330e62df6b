@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "738de858_9e7c3101",
+        "filename": "examples/inspect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2017-04-15T08:18:37Z",
+      "side": 1,
+      "message": "I wonder what happened here with clang-format.",
+      "revId": "3b641fe82e90bc0915eb23934f263c330e62df6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
