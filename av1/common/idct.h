@@ -34,6 +34,7 @@ typedef struct INV_TXFM_PARAM {
 #if CONFIG_HIGHBITDEPTH
   int bd;
 #endif
+  int16_t eob_threshold[EOB_THRESHOLD_NUM];
 } INV_TXFM_PARAM;
 
 typedef void (*transform_1d)(const tran_low_t *, tran_low_t *);
