@@ -1423,10 +1423,7 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 #if CONFIG_SUPERTX
                        const int supertx_enabled,
 #endif
-#if CONFIG_TXK_SEL
-                       int block, int plane,
-#endif
-                       aom_writer *w) {
+                       int block, int plane, aom_writer *w) {
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   const int is_inter = is_inter_block(mbmi);
 #if CONFIG_VAR_TX
@@ -1939,13 +1936,14 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_DUAL_FILTE || CONFIG_WARPED_MOTION
   }
 
-#if !CONFIG_TXK_SEL
-  av1_write_tx_type(cm, xd,
-#if CONFIG_SUPERTX
-                    supertx_enabled,
+#if CONFIG_TXK_SEL
+  if (!av1_use_txk_sel(xd))
 #endif
-                    w);
-#endif  // !CONFIG_TXK_SEL
+    av1_write_tx_type(cm, xd,
+#if CONFIG_SUPERTX
+                      supertx_enabled,
+#endif
+                      0, 0, w);
 }
 
 #if CONFIG_DELTA_Q
@@ -2046,13 +2044,14 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
     write_filter_intra_mode_info(cm, mbmi, w);
 #endif  // CONFIG_FILTER_INTRA
 
-#if !CONFIG_TXK_SEL
-  av1_write_tx_type(cm, xd,
-#if CONFIG_SUPERTX
-                    0,
+#if CONFIG_TXK_SEL
+  if (!av1_use_txk_sel(xd))
 #endif
-                    w);
-#endif  // !CONFIG_TXK_SEL
+    av1_write_tx_type(cm, xd,
+#if CONFIG_SUPERTX
+                      0,
+#endif
+                      0, 0, w);
 }
 
 #if CONFIG_SUPERTX
