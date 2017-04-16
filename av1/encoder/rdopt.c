@@ -1547,9 +1547,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   const AV1_COMP *cpi = args->cpi;
   ENTROPY_CONTEXT *a = args->t_above + blk_col;
   ENTROPY_CONTEXT *l = args->t_left + blk_row;
-#if !CONFIG_TXK_SEL
   const AV1_COMMON *cm = &cpi->common;
-#endif
   int64_t rd1, rd2, rd;
   RD_STATS this_rd_stats;
 
@@ -1564,47 +1562,51 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
     av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
   }
 
-#if !CONFIG_TXK_SEL
-  // full forward transform and quantization
-  int coeff_ctx = combine_entropy_contexts(*a, *l);
-  av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                  coeff_ctx, AV1_XFORM_QUANT_FP);
-  if (x->plane[plane].eobs[block] && !xd->lossless[mbmi->segment_id])
-    av1_optimize_b(cm, x, plane, block, tx_size, coeff_ctx);
+#if CONFIG_TXK_SEL
+  if (!av1_use_txk_sel(xd)) {
+#endif  // CONFIG_TXK_SEL
+    // full forward transform and quantization
+    int coeff_ctx = combine_entropy_contexts(*a, *l);
+    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+                    coeff_ctx, AV1_XFORM_QUANT_FP);
+    if (x->plane[plane].eobs[block] && !xd->lossless[mbmi->segment_id])
+      av1_optimize_b(cm, x, plane, block, tx_size, coeff_ctx);
 
-  if (!is_inter_block(mbmi)) {
-    struct macroblock_plane *const p = &x->plane[plane];
-    av1_inverse_transform_block_facade(xd, plane, block, blk_row, blk_col,
-                                       p->eobs[block]);
-    av1_dist_block(args->cpi, x, plane, plane_bsize, block, blk_row, blk_col,
-                   tx_size, &this_rd_stats.dist, &this_rd_stats.sse,
-                   OUTPUT_HAS_DECODED_PIXELS);
-  } else {
-    av1_dist_block(args->cpi, x, plane, plane_bsize, block, blk_row, blk_col,
-                   tx_size, &this_rd_stats.dist, &this_rd_stats.sse,
-                   OUTPUT_HAS_PREDICTED_PIXELS);
-  }
-  rd = RDCOST(x->rdmult, x->rddiv, 0, this_rd_stats.dist);
-  if (args->this_rd + rd > args->best_rd) {
-    args->exit_early = 1;
-    return;
-  }
+    if (!is_inter_block(mbmi)) {
+      struct macroblock_plane *const p = &x->plane[plane];
+      av1_inverse_transform_block_facade(xd, plane, block, blk_row, blk_col,
+                                         p->eobs[block]);
+      av1_dist_block(args->cpi, x, plane, plane_bsize, block, blk_row, blk_col,
+                     tx_size, &this_rd_stats.dist, &this_rd_stats.sse,
+                     OUTPUT_HAS_DECODED_PIXELS);
+    } else {
+      av1_dist_block(args->cpi, x, plane, plane_bsize, block, blk_row, blk_col,
+                     tx_size, &this_rd_stats.dist, &this_rd_stats.sse,
+                     OUTPUT_HAS_PREDICTED_PIXELS);
+    }
+    rd = RDCOST(x->rdmult, x->rddiv, 0, this_rd_stats.dist);
+    if (args->this_rd + rd > args->best_rd) {
+      args->exit_early = 1;
+      return;
+    }
 #if !CONFIG_PVQ
-  PLANE_TYPE plane_type = get_plane_type(plane);
-  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
-  const SCAN_ORDER *scan_order =
-      get_scan(cm, tx_size, tx_type, is_inter_block(mbmi));
-  this_rd_stats.rate =
-      av1_cost_coeffs(cpi, x, plane, block, tx_size, scan_order, a, l,
-                      args->use_fast_coef_costing);
+    PLANE_TYPE plane_type = get_plane_type(plane);
+    TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+    const SCAN_ORDER *scan_order =
+        get_scan(cm, tx_size, tx_type, is_inter_block(mbmi));
+    this_rd_stats.rate =
+        av1_cost_coeffs(cpi, x, plane, block, tx_size, scan_order, a, l,
+                        args->use_fast_coef_costing);
 #else   // !CONFIG_PVQ
   this_rd_stats.rate = x->rate;
 #endif  // !CONFIG_PVQ
-#else   // !CONFIG_TXK_SEL
-  av1_search_txk_type(cpi, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, a, l, args->use_fast_coef_costing,
-                      &this_rd_stats);
-#endif  // !CONFIG_TXK_SEL
+#if CONFIG_TXK_SEL
+  } else {
+    av1_search_txk_type(cpi, x, plane, block, blk_row, blk_col, plane_bsize,
+                        tx_size, a, l, args->use_fast_coef_costing,
+                        &this_rd_stats);
+  }
+#endif  // CONFIG_TXK_SEL
 
 #if !CONFIG_PVQ
 #if CONFIG_RD_DEBUG
@@ -2220,7 +2222,7 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 #if CONFIG_TXK_SEL
     // The tx_type becomes dummy when lv_map is on. The tx_type search will be
     // performed in av1_search_txk_type()
-    tx_end = DCT_DCT + 1;
+    if (av1_use_txk_sel(xd)) tx_end = DCT_DCT + 1;
 #endif
     TX_TYPE tx_type;
     for (tx_type = tx_start; tx_type < tx_end; ++tx_type) {
@@ -2237,8 +2239,9 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
                       rect_tx_size);
         if (rd < best_rd) {
 #if CONFIG_TXK_SEL
-          memcpy(best_txk_type, mbmi->txk_type,
-                 sizeof(best_txk_type[0]) * num_blk);
+          if (av1_use_txk_sel(xd))
+            memcpy(best_txk_type, mbmi->txk_type,
+                   sizeof(best_txk_type[0]) * num_blk);
 #endif
           best_tx_type = tx_type;
           best_tx_size = rect_tx_size;
@@ -2271,7 +2274,7 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 #if CONFIG_TXK_SEL
     // The tx_type becomes dummy when lv_map is on. The tx_type search will be
     // performed in av1_search_txk_type()
-    tx_end = DCT_DCT + 1;
+    if (av1_use_txk_sel(xd)) tx_end = DCT_DCT + 1;
 #endif
     TX_TYPE tx_type;
     for (tx_type = tx_start; tx_type < tx_end; ++tx_type) {
@@ -2291,8 +2294,9 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
       last_rd = rd;
       if (rd < best_rd) {
 #if CONFIG_TXK_SEL
-        memcpy(best_txk_type, mbmi->txk_type,
-               sizeof(best_txk_type[0]) * num_blk);
+        if (av1_use_txk_sel(xd))
+          memcpy(best_txk_type, mbmi->txk_type,
+                 sizeof(best_txk_type[0]) * num_blk);
 #endif
         best_tx_type = tx_type;
         best_tx_size = n;
@@ -2308,7 +2312,8 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   mbmi->tx_size = best_tx_size;
   mbmi->tx_type = best_tx_type;
 #if CONFIG_TXK_SEL
-  memcpy(mbmi->txk_type, best_txk_type, sizeof(best_txk_type[0]) * num_blk);
+  if (av1_use_txk_sel(xd))
+    memcpy(mbmi->txk_type, best_txk_type, sizeof(best_txk_type[0]) * num_blk);
 #endif
 
 #if CONFIG_VAR_TX

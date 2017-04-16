@@ -32,6 +32,11 @@ static int base_ref_offset[BASE_CONTEXT_POSITION_NUM][2] = {
   /* clang-format on*/
 };
 
+#if CONFIG_TXK_SEL
+struct macroblockd;
+int av1_use_txk_sel(const struct macroblockd *xd);
+#endif
+
 static INLINE int get_base_ctx(const tran_low_t *tcoeffs,
                                int c,  // raster order
                                const int bwl, const int level) {
@@ -299,6 +304,8 @@ static INLINE void get_txb_ctx(BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
   }
 }
 
-void av1_adapt_txb_probs(AV1_COMMON *cm, unsigned int count_sat,
+struct AV1Common;
+
+void av1_adapt_txb_probs(struct AV1Common *cm, unsigned int count_sat,
                          unsigned int update_factor);
 #endif  // AV1_COMMON_TXB_COMMON_H_
