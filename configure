@@ -312,6 +312,7 @@ EXPERIMENT_LIST="
     palette_throughput
     ref_adapt
     lv_map
+    txk_sel
     mv_compress
     frame_superres
     new_multisymbol
