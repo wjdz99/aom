@@ -90,7 +90,9 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   aom_write(w, eob == 0, cm->fc->txb_skip[tx_size][txb_ctx->txb_skip_ctx]);
 
   if (eob == 0) return;
+#if CONFIG_TXK_SEL
   av1_write_tx_type(cm, xd, block, plane, w);
+#endif
 
   nz_map = cm->fc->nz_map[tx_size][plane_type];
   eob_flag = cm->fc->eob_flag[tx_size][plane_type];
@@ -459,8 +461,10 @@ static void update_and_record_txb_context(int plane, int block, int blk_row,
     return;
   }
 
+#if CONFIG_TXK_SEL
   av1_update_tx_type_count(cm, xd, block, plane, mbmi->sb_type, tx_size,
                            td->counts);
+#endif
 
   for (c = 0; c < eob; ++c) {
     tran_low_t v = qcoeff[scan[c]];
@@ -715,6 +719,7 @@ void av1_write_txb_probs(AV1_COMP *cpi, aom_writer *w) {
     write_txb_probs(w, cpi, tx_size);
 }
 
+#if CONFIG_TXK_SEL
 int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                             int block, int blk_row, int blk_col,
                             BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
@@ -766,3 +771,4 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                      best_eob);
   return best_rd;
 }
+#endif  // CONFIG_TXK_SEL
