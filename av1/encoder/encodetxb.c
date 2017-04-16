@@ -91,7 +91,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
   if (eob == 0) return;
 #if CONFIG_TXK_SEL
-  av1_write_tx_type(cm, xd, block, plane, w);
+  if (av1_use_txk_sel(xd)) av1_write_tx_type(cm, xd, block, plane, w);
 #endif
 
   nz_map = cm->fc->nz_map[tx_size][plane_type];
@@ -288,7 +288,8 @@ int av1_cost_coeffs_txb(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
   cost = av1_cost_bit(xd->fc->txb_skip[tx_size][txb_skip_ctx], 0);
 
 #if CONFIG_TXK_SEL
-  cost += av1_tx_type_cost(cpi, xd, mbmi->sb_type, plane, tx_size, tx_type);
+  if (av1_use_txk_sel(xd))
+    cost += av1_tx_type_cost(cpi, xd, mbmi->sb_type, plane, tx_size, tx_type);
 #endif
 
   for (c = 0; c < eob; ++c) {
@@ -464,8 +465,9 @@ static void update_and_record_txb_context(int plane, int block, int blk_row,
   }
 
 #if CONFIG_TXK_SEL
-  av1_update_tx_type_count(cm, xd, block, plane, mbmi->sb_type, tx_size,
-                           td->counts);
+  if (av1_use_txk_sel(xd))
+    av1_update_tx_type_count(cm, xd, block, plane, mbmi->sb_type, tx_size,
+                             td->counts);
 #endif
 
   for (c = 0; c < eob; ++c) {

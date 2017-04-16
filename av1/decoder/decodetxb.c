@@ -77,7 +77,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   }
 
 #if CONFIG_TXK_SEL
-  av1_read_tx_type(cm, xd, block, plane, r);
+  if (av1_use_txk_sel(xd)) av1_read_tx_type(cm, xd, block, plane, r);
 #endif
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
   const SCAN_ORDER *const scan_order =

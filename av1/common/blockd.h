@@ -26,6 +26,9 @@
 #include "av1/common/scale.h"
 #include "av1/common/seg_common.h"
 #include "av1/common/tile_common.h"
+#if CONFIG_TXK_SEL
+#include "av1/common/txb_common.h"
+#endif
 #if CONFIG_PVQ
 #include "av1/common/pvq.h"
 #include "av1/common/pvq_state.h"
@@ -958,7 +961,10 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
       mbmi->tx_size >= TX_32X32) {
     tx_type = DCT_DCT;
   } else {
-    tx_type = mbmi->txk_type[block];
+    if (av1_use_txk_sel(xd))
+      tx_type = mbmi->txk_type[block];
+    else
+      tx_type = mbmi->tx_type;
   }
   assert(tx_type >= DCT_DCT && tx_type < TX_TYPES);
   return tx_type;

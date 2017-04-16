@@ -22,6 +22,9 @@
 #include "av1/common/reconintra.h"
 #endif  // CONFIG_EXT_INTRA
 #include "av1/common/seg_common.h"
+#if CONFIG_TXK_SEL
+#include "av1/common/txb_common.h"
+#endif
 #if CONFIG_WARPED_MOTION
 #include "av1/common/warped_motion.h"
 #endif  // CONFIG_WARPED_MOTION
@@ -743,10 +746,7 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 #if CONFIG_SUPERTX
                       int supertx_enabled,
 #endif
-#if CONFIG_TXK_SEL
-                      int block, int plane,
-#endif
-                      aom_reader *r) {
+                      int block, int plane, aom_reader *r) {
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   const int inter_block = is_inter_block(mbmi);
 #if CONFIG_VAR_TX
@@ -761,11 +761,17 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 #endif
 
 #if !CONFIG_TXK_SEL
+  (void)block;
+  (void)plane;
   TX_TYPE *tx_type = &mbmi->tx_type;
 #else
   // only y plane's tx_type is transmitted
   if (plane > 0) return;
-  TX_TYPE *tx_type = &mbmi->txk_type[block];
+  TX_TYPE *tx_type;
+  if (av1_use_txk_sel(xd))
+    tx_type = &mbmi->txk_type[block];
+  else
+    tx_type = &mbmi->tx_type;
 #endif
 
   if (!FIXED_TX_TYPE) {
@@ -980,13 +986,14 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     read_filter_intra_mode_info(cm, xd, r);
 #endif  // CONFIG_FILTER_INTRA
 
-#if !CONFIG_TXK_SEL
-  av1_read_tx_type(cm, xd,
-#if CONFIG_SUPERTX
-                   0,
+#if CONFIG_TXK_SEL
+  if (!av1_use_txk_sel(xd))
 #endif
-                   r);
-#endif  // !CONFIG_TXK_SEL
+    av1_read_tx_type(cm, xd,
+#if CONFIG_SUPERTX
+                     0,
+#endif
+                     0, 0, r);
 }
 
 static int read_mv_component(aom_reader *r, nmv_component *mvcomp, int usehp) {
@@ -2183,13 +2190,14 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   else
     read_intra_block_mode_info(cm, mi_row, mi_col, xd, mi, r);
 
-#if !CONFIG_TXK_SEL
-  av1_read_tx_type(cm, xd,
+#if CONFIG_TXK_SEL
+  if (!av1_use_txk_sel(xd))
+#endif  // CONFIG_TXK_SEL
+    av1_read_tx_type(cm, xd,
 #if CONFIG_SUPERTX
-                   supertx_enabled,
+                     supertx_enabled,
 #endif
-                   r);
-#endif  // !CONFIG_TXK_SEL
+                     0, 0, r);
 }
 
 void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd,

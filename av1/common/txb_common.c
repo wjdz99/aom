@@ -95,6 +95,13 @@ const int16_t av1_coeff_band_32x32[1024] = {
   22, 23, 23, 23, 23, 23, 23, 23, 23, 24, 24, 24, 24, 24, 24, 24, 24,
 };
 
+#if CONFIG_TXK_SEL
+int av1_use_txk_sel(const struct macroblockd *xd) {
+  (void)xd;
+  return 1;
+}
+#endif
+
 void av1_adapt_txb_probs(AV1_COMMON *cm, unsigned int count_sat,
                          unsigned int update_factor) {
   FRAME_CONTEXT *fc = cm->fc;
