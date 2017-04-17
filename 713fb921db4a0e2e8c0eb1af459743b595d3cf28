@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cca7a251_9983b6cc",
+        "filename": "examples/inspect.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-04-17T19:50:20Z",
+      "side": 1,
+      "message": "You\u0027re not compressing the JSON, but the MI and MV info. It would be nice to describe this a bit better.",
+      "revId": "713fb921db4a0e2e8c0eb1af459743b595d3cf28",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
