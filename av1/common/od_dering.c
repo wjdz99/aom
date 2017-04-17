@@ -328,8 +328,7 @@ void od_dering(uint8_t *dst, int dstride, uint16_t *y, uint16_t *in, int xdec,
   int threshold = (level >> 1) << coeff_shift;
   int dering_damping = 5 + !pli + coeff_shift;
   int filter_skip = get_filter_skip(level);
-  if (level == 1) threshold = 31 << coeff_shift;
-
+  if (level == 1) clpf_strength = 3 << coeff_shift;
   od_filter_dering_direction_func filter_dering_direction[] = {
     od_filter_dering_direction_4x4, od_filter_dering_direction_8x8
   };
