@@ -144,22 +144,20 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,  // ZEROMV
     MB_MODE_COUNT,  // NEWMV
 #if CONFIG_COMPOUND_SINGLEREF
-    NEARESTMV,  // SR_NEAREST_NEARMV
-    NEARESTMV,  // SR_NEAREST_NEWMV
-    NEARMV,     // SR_NEAR_NEWMV
-    ZEROMV,     // SR_ZERO_NEWMV
-    NEWMV,      // SR_NEW_NEWMV
-#endif          // CONFIG_COMPOUND_SINGLEREF
-    NEARESTMV,  // NEAREST_NEARESTMV
-    NEARESTMV,  // NEAREST_NEARMV
-    NEARMV,     // NEAR_NEARESTMV
-    NEARMV,     // NEAR_NEARMV
-    NEARESTMV,  // NEAREST_NEWMV
-    NEWMV,      // NEW_NEARESTMV
-    NEARMV,     // NEAR_NEWMV
-    NEWMV,      // NEW_NEARMV
-    ZEROMV,     // ZERO_ZEROMV
-    NEWMV,      // NEW_NEWMV
+    NEARESTMV,      // SR_NEAREST_NEARMV
+    NEARESTMV,      // SR_NEAREST_NEWMV
+    NEARMV,         // SR_NEAR_NEWMV
+    ZEROMV,         // SR_ZERO_NEWMV
+    NEWMV,          // SR_NEW_NEWMV
+#endif              // CONFIG_COMPOUND_SINGLEREF
+    NEARESTMV,      // NEAREST_NEARESTMV
+    NEARMV,         // NEAR_NEARMV
+    NEARESTMV,      // NEAREST_NEWMV
+    NEWMV,          // NEW_NEARESTMV
+    NEARMV,         // NEAR_NEWMV
+    NEWMV,          // NEW_NEARMV
+    ZEROMV,         // ZERO_ZEROMV
+    NEWMV,          // NEW_NEWMV
   };
   assert(is_inter_compound_mode(mode));
   return lut[mode];
@@ -185,22 +183,20 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,  // ZEROMV
     MB_MODE_COUNT,  // NEWMV
 #if CONFIG_COMPOUND_SINGLEREF
-    NEARMV,     // SR_NEAREST_NEARMV
-    NEWMV,      // SR_NEAREST_NEWMV
-    NEWMV,      // SR_NEAR_NEWMV
-    NEWMV,      // SR_ZERO_NEWMV
-    NEWMV,      // SR_NEW_NEWMV
-#endif          // CONFIG_COMPOUND_SINGLEREF
-    NEARESTMV,  // NEAREST_NEARESTMV
-    NEARMV,     // NEAREST_NEARMV
-    NEARESTMV,  // NEAR_NEARESTMV
-    NEARMV,     // NEAR_NEARMV
-    NEWMV,      // NEAREST_NEWMV
-    NEARESTMV,  // NEW_NEARESTMV
-    NEWMV,      // NEAR_NEWMV
-    NEARMV,     // NEW_NEARMV
-    ZEROMV,     // ZERO_ZEROMV
-    NEWMV,      // NEW_NEWMV
+    NEARMV,         // SR_NEAREST_NEARMV
+    NEWMV,          // SR_NEAREST_NEWMV
+    NEWMV,          // SR_NEAR_NEWMV
+    NEWMV,          // SR_ZERO_NEWMV
+    NEWMV,          // SR_NEW_NEWMV
+#endif              // CONFIG_COMPOUND_SINGLEREF
+    NEARESTMV,      // NEAREST_NEARESTMV
+    NEARMV,         // NEAR_NEARMV
+    NEWMV,          // NEAREST_NEWMV
+    NEARESTMV,      // NEW_NEARESTMV
+    NEWMV,          // NEAR_NEWMV
+    NEARMV,         // NEW_NEARMV
+    ZEROMV,         // ZERO_ZEROMV
+    NEWMV,          // NEW_NEWMV
   };
   assert(is_inter_compound_mode(mode));
   return lut[mode];
