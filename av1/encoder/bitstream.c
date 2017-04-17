@@ -73,8 +73,8 @@ static struct av1_token inter_mode_encodings[INTER_MODES];
 #if CONFIG_EXT_INTER
 static const struct av1_token
     inter_compound_mode_encodings[INTER_COMPOUND_MODES] = {
-      { 2, 2 },  { 50, 6 }, { 51, 6 }, { 24, 5 }, { 52, 6 },
-      { 53, 6 }, { 54, 6 }, { 55, 6 }, { 0, 1 },  { 7, 3 }
+      { 2, 2 },  { 50, 6 }, { 51, 6 }, { 24, 5 },
+      { 26, 5 }, { 27, 5 }, { 0, 1 },  { 7, 3 }
     };
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_PALETTE
@@ -1802,7 +1802,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
             }
           }
 #if CONFIG_EXT_INTER
-          else if (b_mode == NEAREST_NEWMV || b_mode == NEAR_NEWMV) {
+          else if (b_mode == NEAREST_NEWMV) {
 #if CONFIG_REF_MV
             int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
             int nmv_ctx = av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
@@ -1812,7 +1812,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif
             av1_encode_mv(cpi, w, &mi->bmi[j].as_mv[1].as_mv,
                           &mi->bmi[j].ref_mv[1].as_mv, nmvc, allow_hp);
-          } else if (b_mode == NEW_NEARESTMV || b_mode == NEW_NEARMV) {
+          } else if (b_mode == NEW_NEARESTMV) {
 #if CONFIG_REF_MV
             int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
             int nmv_ctx = av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
@@ -1846,7 +1846,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
                         allow_hp);
         }
 #if CONFIG_EXT_INTER
-      } else if (mode == NEAREST_NEWMV || mode == NEAR_NEWMV) {
+      } else if (mode == NEAREST_NEWMV) {
 #if CONFIG_REF_MV
         int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
         int nmv_ctx =
@@ -1857,7 +1857,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
         av1_encode_mv(cpi, w, &mbmi->mv[1].as_mv,
                       &mbmi_ext->ref_mvs[mbmi->ref_frame[1]][0].as_mv, nmvc,
                       allow_hp);
-      } else if (mode == NEW_NEARESTMV || mode == NEW_NEARMV) {
+      } else if (mode == NEW_NEARESTMV) {
 #if CONFIG_REF_MV
         int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
         int nmv_ctx =
