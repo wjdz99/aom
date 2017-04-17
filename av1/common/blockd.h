@@ -144,13 +144,7 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,  // ZEROMV
     MB_MODE_COUNT,  // NEWMV
     NEARESTMV,      // NEAREST_NEARESTMV
-    NEARESTMV,      // NEAREST_NEARMV
-    NEARMV,         // NEAR_NEARESTMV
     NEARMV,         // NEAR_NEARMV
-    NEARESTMV,      // NEAREST_NEWMV
-    NEWMV,          // NEW_NEARESTMV
-    NEARMV,         // NEAR_NEWMV
-    NEWMV,          // NEW_NEARMV
     ZEROMV,         // ZERO_ZEROMV
     NEWMV,          // NEW_NEWMV
   };
@@ -178,13 +172,7 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,  // ZEROMV
     MB_MODE_COUNT,  // NEWMV
     NEARESTMV,      // NEAREST_NEARESTMV
-    NEARMV,         // NEAREST_NEARMV
-    NEARESTMV,      // NEAR_NEARESTMV
     NEARMV,         // NEAR_NEARMV
-    NEWMV,          // NEAREST_NEWMV
-    NEARESTMV,      // NEW_NEARESTMV
-    NEWMV,          // NEAR_NEWMV
-    NEARMV,         // NEW_NEARMV
     ZEROMV,         // ZERO_ZEROMV
     NEWMV,          // NEW_NEWMV
   };
@@ -193,8 +181,7 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
 }
 
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
-  return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAREST_NEWMV ||
-          mode == NEW_NEARESTMV || mode == NEAR_NEWMV || mode == NEW_NEARMV);
+  return (mode == NEWMV || mode == NEW_NEWMV);
 }
 
 static INLINE int use_masked_motion_search(COMPOUND_TYPE type) {

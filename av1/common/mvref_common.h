@@ -65,13 +65,7 @@ static const int mode_2_counter[MB_MODE_COUNT] = {
   1,    // NEWMV
 #if CONFIG_EXT_INTER
   0,    // NEAREST_NEARESTMV
-  0,    // NEAREST_NEARMV
-  0,    // NEAR_NEARESTMV
   0,    // NEAR_NEARMV
-  1,    // NEAREST_NEWMV
-  1,    // NEW_NEARESTMV
-  1,    // NEAR_NEWMV
-  1,    // NEW_NEARMV
   3,    // ZERO_ZEROMV
   1,    // NEW_NEWMV
 #endif  // CONFIG_EXT_INTER
