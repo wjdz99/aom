@@ -99,8 +99,16 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
 
   uint8_t *input_ = new uint8_t[h * stride];
   uint8_t *input = input_ + border;
-  uint8_t *output = new uint8_t[out_w * out_h];
-  uint8_t *output2 = new uint8_t[out_w * out_h];
+
+  // The warp functions always write rows with widths that are multiples of 8.
+  // So to avoid a buffer overflow, we may need to add a "tail" to the buffer
+  // for the last row.
+  int output_n = out_w * out_h;
+  const int output_modulo = 8 - output_n % 8;
+  const int output_remainder = (output_modulo == 8) ? 0 : output_modulo;
+  output_n += output_remainder;
+  uint8_t *output = new uint8_t[output_n];
+  uint8_t *output2 = new uint8_t[output_n];
   int32_t mat[8];
   int16_t alpha, beta, gamma, delta;
 
@@ -128,6 +136,9 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
               << ", " << (j / out_w) << ") on iteration " << i;
       }
   }
+  delete[] input_;
+  delete[] output;
+  delete[] output2;
 }
 
 #if CONFIG_HIGHBITDEPTH
