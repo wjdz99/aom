@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f10adfba_031b089b",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-17T22:17:42Z",
+      "side": 1,
+      "message": "d -\u003e delta",
+      "revId": "a64e63b6ff8bae0434a9c778bc88d1be93fdda7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c440a8fe_af03454c",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1430,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-17T22:17:42Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 1430,
+        "startChar": 4,
+        "endLine": 1430,
+        "endChar": 7
+      },
+      "revId": "a64e63b6ff8bae0434a9c778bc88d1be93fdda7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "478bd609_09e11e25",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1431,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-17T22:17:42Z",
+      "side": 1,
+      "message": "const",
+      "revId": "a64e63b6ff8bae0434a9c778bc88d1be93fdda7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "800b3a35_a52d23ba",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1436,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-17T22:17:42Z",
+      "side": 1,
+      "message": "Suggest using local variables to make this condition clear:\n\nconst int rate_using_delta \u003d 2 + bit_depth + (bits + 1) * (n - 1) - zero_count;\nconst int rate_using_raw \u003d bit_depth * n;\nif (rate_using_delta \u003c rate_using_raw) {...",
+      "range": {
+        "startLine": 1436,
+        "startChar": 6,
+        "endLine": 1436,
+        "endChar": 55
+      },
+      "revId": "a64e63b6ff8bae0434a9c778bc88d1be93fdda7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2082e8e7_64a5cc7c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4652,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-17T22:17:42Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be \"-4\" like in other two files?",
+      "revId": "a64e63b6ff8bae0434a9c778bc88d1be93fdda7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95e23cc6_ebaa4b33",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4662,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-17T22:17:42Z",
+      "side": 1,
+      "message": "These lines (4652 to 4662) look like they are same as the other file. Refactor into common function.",
+      "range": {
+        "startLine": 4652,
+        "startChar": 0,
+        "endLine": 4662,
+        "endChar": 58
+      },
+      "revId": "a64e63b6ff8bae0434a9c778bc88d1be93fdda7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98d48dab_76fdfd3f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4666,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-17T22:17:42Z",
+      "side": 1,
+      "message": "These two values (rate with delta and rate with raw values) are in another file too. Create a common inline function for these two.",
+      "revId": "a64e63b6ff8bae0434a9c778bc88d1be93fdda7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
