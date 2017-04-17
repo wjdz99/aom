@@ -95,12 +95,16 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
   const int stride = w + 2 * border;
   const int out_w = GET_PARAM(0), out_h = GET_PARAM(1);
   const int num_iters = GET_PARAM(2);
-  int i, j, sub_x, sub_y;
+  int i, j, sub_x, sub_y, row, col;
 
   uint8_t *input_ = new uint8_t[h * stride];
   uint8_t *input = input_ + border;
-  uint8_t *output = new uint8_t[out_w * out_h];
-  uint8_t *output2 = new uint8_t[out_w * out_h];
+  int output_n = out_w * out_h;
+  const int output_modulo = 8 - output_n % 8;
+  const int output_remainder = (output_modulo == 8) ? 0 : output_modulo;
+  output_n += output_remainder;
+  uint8_t *output = new uint8_t[output_n];
+  uint8_t *output2 = new uint8_t[output_n];
   int32_t mat[8];
   int16_t alpha, beta, gamma, delta;
 
@@ -122,12 +126,18 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
         test_impl(mat, input, w, h, stride, output2, 32, 32, out_w, out_h,
                   out_w, sub_x, sub_y, 0, alpha, beta, gamma, delta);
 
-        for (j = 0; j < out_w * out_h; ++j)
-          ASSERT_EQ(output[j], output2[j])
-              << "Pixel mismatch at index " << j << " = (" << (j % out_w)
-              << ", " << (j / out_w) << ") on iteration " << i;
+        for (row = 0; row < out_h; ++row) {
+          for (col = 0; col < out_w; ++col) {
+            ASSERT_EQ(output[col + row * out_w], output2[col + row * out_w])
+                << "Pixel mismatch at index " << j << " = (" << (j % out_w)
+                << ", " << (j / out_w) << ") on iteration " << i;
+          }
+        }
       }
   }
+  delete[] input_;
+  delete[] output;
+  delete[] output2;
 }
 
 #if CONFIG_HIGHBITDEPTH
