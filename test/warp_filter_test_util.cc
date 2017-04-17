@@ -99,8 +99,8 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
 
   uint8_t *input_ = new uint8_t[h * stride];
   uint8_t *input = input_ + border;
-  uint8_t *output = new uint8_t[out_w * out_h];
-  uint8_t *output2 = new uint8_t[out_w * out_h];
+  uint8_t *output = new uint8_t[AOMMAX(out_w, 8) * out_h];
+  uint8_t *output2 = new uint8_t[AOMMAX(out_w, 8) * out_h];
   int32_t mat[8];
   int16_t alpha, beta, gamma, delta;
 
@@ -128,6 +128,9 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
               << ", " << (j / out_w) << ") on iteration " << i;
       }
   }
+  delete[] input_;
+  delete[] output;
+  delete[] output2;
 }
 
 #if CONFIG_HIGHBITDEPTH
@@ -218,8 +221,8 @@ void AV1HighbdWarpFilterTest::RunCheckOutput(
 
   uint16_t *input_ = new uint16_t[h * stride];
   uint16_t *input = input_ + border;
-  uint16_t *output = new uint16_t[out_w * out_h];
-  uint16_t *output2 = new uint16_t[out_w * out_h];
+  uint16_t *output = new uint16_t[AOMMAX(out_w, 8) * out_h];
+  uint16_t *output2 = new uint16_t[AOMMAX(out_w, 8) * out_h];
   int32_t mat[8];
   int16_t alpha, beta, gamma, delta;
 
@@ -250,5 +253,8 @@ void AV1HighbdWarpFilterTest::RunCheckOutput(
               << ", " << (j / out_w) << ") on iteration " << i;
       }
   }
+  delete[] input_;
+  delete[] output;
+  delete[] output2;
 }
 #endif  // CONFIG_HIGHBITDEPTH
