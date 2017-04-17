@@ -27,6 +27,7 @@
 #include "aom_ports/mem_ops.h"
 #include "aom_scale/aom_scale.h"
 #include "aom_util/aom_thread.h"
+#include "aom_util/debug_util.h"
 
 #include "av1/common/alloccommon.h"
 #if CONFIG_CDEF
