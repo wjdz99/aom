@@ -25,9 +25,9 @@ using libaom_test::AV1HighbdWarpFilter::HighbdWarpTestParam;
 ::testing::internal::ParamGenerator<WarpTestParam>
 libaom_test::AV1WarpFilter::GetDefaultParams() {
   const WarpTestParam defaultParams[] = {
-    make_tuple(4, 4, 50000),  make_tuple(8, 8, 50000),
-    make_tuple(64, 64, 1000), make_tuple(4, 16, 20000),
-    make_tuple(32, 8, 10000),
+      make_tuple(4, 4, 50000),  make_tuple(8, 8, 50000),
+      make_tuple(64, 64, 1000), make_tuple(4, 16, 20000),
+      make_tuple(32, 8, 10000),
   };
   return ::testing::ValuesIn(defaultParams);
 }
@@ -95,12 +95,17 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
   const int stride = w + 2 * border;
   const int out_w = GET_PARAM(0), out_h = GET_PARAM(1);
   const int num_iters = GET_PARAM(2);
-  int i, j, sub_x, sub_y;
+  int i, j, sub_x, sub_y, row, col;
 
   uint8_t *input_ = new uint8_t[h * stride];
   uint8_t *input = input_ + border;
-  uint8_t *output = new uint8_t[out_w * out_h];
-  uint8_t *output2 = new uint8_t[out_w * out_h];
+  const int line_modulo = 8 - out_w % 8;
+  const int line_remainder = (line_modulo == 8) ? 0 : line_modulo;
+  const int write_cols_per_line = out_w + line_remainder;
+  const int output_stride = out_w + 16;
+  const int output_n = output_stride * out_h;
+  uint8_t *output = new uint8_t[output_n];
+  uint8_t *output2 = new uint8_t[output_n];
   int32_t mat[8];
   int16_t alpha, beta, gamma, delta;
 
@@ -115,17 +120,31 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
   for (i = 0; i < num_iters; ++i) {
     for (sub_x = 0; sub_x < 2; ++sub_x)
       for (sub_y = 0; sub_y < 2; ++sub_y) {
+        // Reset arrays to 0 in order to detect overflows
+        memset(output, 0, output_n);
+        memset(output2, 0, output_n);
+
         generate_model(mat, &alpha, &beta, &gamma, &delta);
         av1_warp_affine_c(mat, input, w, h, stride, output, 32, 32, out_w,
-                          out_h, out_w, sub_x, sub_y, 0, alpha, beta, gamma,
-                          delta);
+                          out_h, output_stride, sub_x, sub_y, 0, alpha, beta,
+                          gamma, delta);
         test_impl(mat, input, w, h, stride, output2, 32, 32, out_w, out_h,
-                  out_w, sub_x, sub_y, 0, alpha, beta, gamma, delta);
+                  output_stride, sub_x, sub_y, 0, alpha, beta, gamma, delta);
 
-        for (j = 0; j < out_w * out_h; ++j)
-          ASSERT_EQ(output[j], output2[j])
-              << "Pixel mismatch at index " << j << " = (" << (j % out_w)
-              << ", " << (j / out_w) << ") on iteration " << i;
+        for (row = 0; row < out_h; ++row) {
+          for (col = 0; col < out_w; ++col) {
+            ASSERT_EQ(output[col + row * output_stride],
+                      output2[col + row * output_stride])
+                << "Pixel mismatch at index " << j << " = (" << (j % out_w)
+                << ", " << (j / out_w) << ") on iteration " << i;
+          }
+          for (col = write_cols_per_line; col < output_stride; ++col) {
+            ASSERT_EQ(output[col + row * output_stride], 0)
+                << "Array bounds overflow in reference";
+            ASSERT_EQ(output2[col + row * output_stride], 0)
+                << "Array bounds overflow in test implementaiton";
+          }
+        }
       }
   }
 }
@@ -134,14 +153,14 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
 ::testing::internal::ParamGenerator<HighbdWarpTestParam>
 libaom_test::AV1HighbdWarpFilter::GetDefaultParams() {
   const HighbdWarpTestParam defaultParams[] = {
-    make_tuple(4, 4, 50000, 8),   make_tuple(8, 8, 50000, 8),
-    make_tuple(64, 64, 1000, 8),  make_tuple(4, 16, 20000, 8),
-    make_tuple(32, 8, 10000, 8),  make_tuple(4, 4, 50000, 10),
-    make_tuple(8, 8, 50000, 10),  make_tuple(64, 64, 1000, 10),
-    make_tuple(4, 16, 20000, 10), make_tuple(32, 8, 10000, 10),
-    make_tuple(4, 4, 50000, 12),  make_tuple(8, 8, 50000, 12),
-    make_tuple(64, 64, 1000, 12), make_tuple(4, 16, 20000, 12),
-    make_tuple(32, 8, 10000, 12),
+      make_tuple(4, 4, 50000, 8),   make_tuple(8, 8, 50000, 8),
+      make_tuple(64, 64, 1000, 8),  make_tuple(4, 16, 20000, 8),
+      make_tuple(32, 8, 10000, 8),  make_tuple(4, 4, 50000, 10),
+      make_tuple(8, 8, 50000, 10),  make_tuple(64, 64, 1000, 10),
+      make_tuple(4, 16, 20000, 10), make_tuple(32, 8, 10000, 10),
+      make_tuple(4, 4, 50000, 12),  make_tuple(8, 8, 50000, 12),
+      make_tuple(64, 64, 1000, 12), make_tuple(4, 16, 20000, 12),
+      make_tuple(32, 8, 10000, 12),
   };
   return ::testing::ValuesIn(defaultParams);
 }
