@@ -22,6 +22,30 @@
       "revId": "b6531f918bc94536b18a8b4a132c92575dc3ab7c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fbb1c81d_b4176e7a",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-04-18T21:05:55Z",
+      "side": 1,
+      "message": "Yes, this was an oversight.  I added clpf_strength \u003d\u003d 0 to the test (so there now is a way to signal threshold \u003d\u003d 0 and clpf_strength \u003d\u003d 3), and I will check AWCY, though this is a very special case and I don\u0027t really expect any changes beyond the noise level no matter how this is dealt with.  But anything other than two different ways to signal threshold \u003d\u003d 0 \u0026\u0026 clpf_strength \u003d\u003d 0 ought to be slightly better regardless of what AWCY will say.",
+      "parentUuid": "f15a241c_fb434d4c",
+      "range": {
+        "startLine": 330,
+        "startChar": 18,
+        "endLine": 330,
+        "endChar": 31
+      },
+      "revId": "b6531f918bc94536b18a8b4a132c92575dc3ab7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
