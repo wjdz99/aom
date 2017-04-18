@@ -727,7 +727,8 @@ static void set_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols);
 #endif
 
-  av1_setup_dst_planes(xd->plane, get_frame_new_buffer(cm), mi_row, mi_col);
+  av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
+                       mi_col);
 }
 
 #if CONFIG_SUPERTX
@@ -804,7 +805,8 @@ static void set_offsets_topblock(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols);
 #endif
 
-  av1_setup_dst_planes(xd->plane, get_frame_new_buffer(cm), mi_row, mi_col);
+  av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
+                       mi_col);
 }
 
 static void set_param_topblock(AV1_COMMON *const cm, MACROBLOCKD *const xd,
@@ -2311,7 +2313,8 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #endif  // CONFIG_EXT_TX
     }
 
-    av1_setup_dst_planes(xd->plane, get_frame_new_buffer(cm), mi_row, mi_col);
+    av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
+                         mi_col);
     for (i = 0; i < MAX_MB_PLANE; i++) {
       dst_buf[i] = xd->plane[i].dst.buf;
       dst_stride[i] = xd->plane[i].dst.stride;
