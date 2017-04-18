@@ -94,8 +94,6 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
       ec_ctx->coef_head_cdfs[tx_size_ctx][type][ref];
   aom_cdf_prob(*coef_tail_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
       ec_ctx->coef_tail_cdfs[tx_size_ctx][type][ref];
-  aom_cdf_prob(*cdf_head)[CDF_SIZE(ENTROPY_TOKENS)];
-  aom_cdf_prob(*cdf_tail)[CDF_SIZE(ENTROPY_TOKENS)];
   int val = 0;
 
 #if !CONFIG_EC_ADAPT
@@ -118,6 +116,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
   int dq_shift;
   int v, token;
   int16_t dqv = dq[0];
+  int more_data = 1;
 #if CONFIG_NEW_QUANT
   const tran_low_t *dqv_val = &dq_val[0][0];
 #endif  // CONFIG_NEW_QUANT
@@ -139,8 +138,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 #if CONFIG_NEW_TOKENSET
   band = *band_translate++;
 
-  while (c < max_eob) {
-    int more_data;
+  while (more_data) {
     int comb_token;
     int last_pos = (c + 1 == max_eob);
     int first_pos = (c == 0);
@@ -149,10 +147,8 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
     dqv_val = &dq_val[band][0];
 #endif  // CONFIG_NEW_QUANT
 
-    cdf_head = &coef_head_cdfs[band][ctx];
-    cdf_tail = &coef_tail_cdfs[band][ctx];
     comb_token = last_pos ? 2 * aom_read_bit(r, ACCT_STR) + 2
-                          : aom_read_symbol(r, *cdf_head,
+                          : aom_read_symbol(r, coef_head_cdfs[band][ctx],
                                             HEAD_TOKENS + first_pos, ACCT_STR) +
                                 !first_pos;
     if (first_pos) {
@@ -162,25 +158,45 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
       if (comb_token == 0) return 0;
     }
     token = comb_token >> 1;
-    more_data = comb_token & 1;
-    if (counts && !last_pos) {
+
+    while (!token) {
+      *max_scan_line = AOMMAX(*max_scan_line, scan[c]);
+      token_cache[scan[c]] = 0;
 #if !CONFIG_EC_ADAPT
-      ++coef_counts[band][ctx][token];
+    if (counts && !last_pos) {
+      ++coef_counts[band][ctx][ZERO_TOKEN];
+    }
 #endif
-      if (token) {
-        ++eob_branch_count[band][ctx];
-        if (!more_data) ++coef_counts[band][ctx][EOB_MODEL_TOKEN];
-      }
+      ++c;
+      dqv = dq[1];
+      ctx = get_coef_context(nb, token_cache, c);
+      band = *band_translate++;
+
+      last_pos = (c + 1 == max_eob);
+
+      comb_token = last_pos ? 2 * aom_read_bit(r, ACCT_STR) + 2
+                          : aom_read_symbol(r, coef_head_cdfs[band][ctx],
+                                            HEAD_TOKENS, ACCT_STR) + 1;
+      token = comb_token >> 1;
     }
 
+    more_data = comb_token & 1;
+#if !CONFIG_EC_ADAPT
+    if (counts && !last_pos) {
+      ++coef_counts[band][ctx][token];
+      ++eob_branch_count[band][ctx];
+      if (!more_data) ++coef_counts[band][ctx][EOB_MODEL_TOKEN];
+    }
+#endif
+
+
     if (token > ONE_TOKEN)
-      token += aom_read_symbol(r, *cdf_tail, TAIL_TOKENS, ACCT_STR);
+      token += aom_read_symbol(r, coef_tail_cdfs[band][ctx], TAIL_TOKENS, ACCT_STR);
 #if CONFIG_NEW_QUANT
     dqv_val = &dq_val[band][0];
 #endif  // CONFIG_NEW_QUANT
 
     *max_scan_line = AOMMAX(*max_scan_line, scan[c]);
-
     token_cache[scan[c]] = av1_pt_energy_class[token];
 
     switch (token) {
@@ -228,19 +244,16 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
     v = (val * dqv) >> dq_shift;
 #endif
 
-    if (v) {
-      v = aom_read_bit(r, ACCT_STR) ? -v : v;
-
+    v = aom_read_bit(r, ACCT_STR) ? -v : v;
 #if CONFIG_COEFFICIENT_RANGE_CHECKING
 #if CONFIG_HIGHBITDEPTH
-      check_range(v, xd->bd);
+    check_range(v, xd->bd);
 #else
-      check_range(v, 8);
+    check_range(v, 8);
 #endif  // CONFIG_HIGHBITDEPTH
 #endif  // CONFIG_COEFFICIENT_RANGE_CHECKING
 
-      dqcoeff[scan[c]] = v;
-    }
+    dqcoeff[scan[c]] = v;
 
     ++c;
     more_data &= (c < max_eob);
