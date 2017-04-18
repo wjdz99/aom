@@ -1356,31 +1356,6 @@ void av1_inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest, int stride,
 }
 
 // These will be used by the masked-tx experiment in the future.
-#if CONFIG_MASKED_TX && 0
-static void inv_txfm_add_4x16(const tran_low_t *input, uint8_t *dest,
-                              int stride, int eob, TX_TYPE tx_type) {
-  (void)eob;
-  av1_iht4x16_64_add(input, dest, stride, tx_type);
-}
-
-static void inv_txfm_add_16x4(const tran_low_t *input, uint8_t *dest,
-                              int stride, int eob, TX_TYPE tx_type) {
-  (void)eob;
-  av1_iht16x4_64_add(input, dest, stride, tx_type);
-}
-
-static void inv_txfm_add_8x32(const tran_low_t *input, uint8_t *dest,
-                              int stride, int eob, TX_TYPE tx_type) {
-  (void)eob;
-  av1_iht8x32_256_add(input, dest, stride, tx_type);
-}
-
-static void inv_txfm_add_32x8(const tran_low_t *input, uint8_t *dest,
-                              int stride, int eob, TX_TYPE tx_type) {
-  (void)eob;
-  av1_iht32x8_256_add(input, dest, stride, tx_type);
-}
-#endif  // CONFIG_MASKED_TX
 
 static void inv_txfm_add_8x16(const tran_low_t *input, uint8_t *dest,
                               int stride, int eob, TX_TYPE tx_type) {
