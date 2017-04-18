@@ -4934,16 +4934,16 @@ static void choose_intra_uv_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
 }
 
 static int cost_mv_ref(const AV1_COMP *const cpi, PREDICTION_MODE mode,
-#if CONFIG_REF_MV && CONFIG_EXT_INTER
-                       int is_compound,
-#endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
                        int16_t mode_context) {
+#if CONFIG_EXT_INTER
+  int is_compound = is_inter_compound_mode(mode);
+#endif  // CONFIG_EXT_INTER
 #if CONFIG_REF_MV
   int mode_cost = 0;
 #if CONFIG_EXT_INTER
   int16_t mode_ctx =
       is_compound ? mode_context : (mode_context & NEWMV_CTX_MASK);
-#else
+#else  // !CONFIG_EXT_INTER
   int16_t mode_ctx = mode_context & NEWMV_CTX_MASK;
 #endif  // CONFIG_EXT_INTER
   int16_t is_all_zero_mv = mode_context & (1 << ALL_ZERO_FLAG_OFFSET);
@@ -4985,10 +4985,10 @@ static int cost_mv_ref(const AV1_COMP *const cpi, PREDICTION_MODE mode,
 #if CONFIG_EXT_INTER
   }
 #endif  // CONFIG_EXT_INTER
-#else
+#else  // !CONFIG_REF_MV
   assert(is_inter_mode(mode));
 #if CONFIG_EXT_INTER
-  if (is_inter_compound_mode(mode)) {
+  if (is_compound) {
     return cpi
         ->inter_compound_mode_cost[mode_context][INTER_COMPOUND_OFFSET(mode)];
   } else {
@@ -5189,11 +5189,7 @@ static int set_and_cost_bmi_mvs(
 #else  // CONFIG_REF_MV
   mode_ctx = mbmi_ext->mode_context[mbmi->ref_frame[0]];
 #endif  // CONFIG_REF_MV
-#if CONFIG_REF_MV && CONFIG_EXT_INTER
-  return cost_mv_ref(cpi, mode, is_compound, mode_ctx) + thismvcost;
-#else
   return cost_mv_ref(cpi, mode, mode_ctx) + thismvcost;
-#endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
 }
 
 static int64_t encode_inter_mb_segment_sub8x8(
@@ -5422,15 +5418,9 @@ static int check_best_zero_mv(
 #else
     int16_t rfc = mode_context[ref_frames[0]];
 #endif  // CONFIG_REF_MV
-#if CONFIG_REF_MV && CONFIG_EXT_INTER
-    int c1 = cost_mv_ref(cpi, NEARMV, ref_frames[1] > INTRA_FRAME, rfc);
-    int c2 = cost_mv_ref(cpi, NEARESTMV, ref_frames[1] > INTRA_FRAME, rfc);
-    int c3 = cost_mv_ref(cpi, ZEROMV, ref_frames[1] > INTRA_FRAME, rfc);
-#else
     int c1 = cost_mv_ref(cpi, NEARMV, rfc);
     int c2 = cost_mv_ref(cpi, NEARESTMV, rfc);
     int c3 = cost_mv_ref(cpi, ZEROMV, rfc);
-#endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
 
 #if !CONFIG_REF_MV
     (void)bsize;
@@ -5464,19 +5454,14 @@ static int check_best_zero_mv(
            frame_mv[this_mode][ref_frames[1]].as_int == zeromv[1].as_int) {
 #if CONFIG_REF_MV
     int16_t rfc = compound_mode_context[ref_frames[0]];
-    int c1 = cost_mv_ref(cpi, NEAREST_NEARMV, 1, rfc);
-    int c2 = cost_mv_ref(cpi, NEAREST_NEARESTMV, 1, rfc);
-    int c3 = cost_mv_ref(cpi, ZERO_ZEROMV, 1, rfc);
-    int c4 = cost_mv_ref(cpi, NEAR_NEARESTMV, 1, rfc);
-    int c5 = cost_mv_ref(cpi, NEAR_NEARMV, 1, rfc);
 #else
     int16_t rfc = mode_context[ref_frames[0]];
+#endif  // CONFIG_REF_MV
     int c1 = cost_mv_ref(cpi, NEAREST_NEARMV, rfc);
     int c2 = cost_mv_ref(cpi, NEAREST_NEARESTMV, rfc);
     int c3 = cost_mv_ref(cpi, ZERO_ZEROMV, rfc);
     int c4 = cost_mv_ref(cpi, NEAR_NEARESTMV, rfc);
     int c5 = cost_mv_ref(cpi, NEAR_NEARMV, rfc);
-#endif  // CONFIG_REF_MV
 
     if (this_mode == NEAREST_NEARMV) {
       if (c1 > c3) return 0;
@@ -7294,7 +7279,7 @@ static void do_masked_motion_search_indexed(
 }
 #endif  // CONFIG_EXT_INTER
 
-// In some situations we want to discount tha pparent cost of a new motion
+// In some situations we want to discount tha apparent cost of a new motion
 // vector. Where there is a subtle motion field and especially where there is
 // low spatial complexity then it can be hard to cover the cost of a new motion
 // vector in a single block, even if that motion vector reduces distortion.
@@ -8750,20 +8735,10 @@ static int64_t handle_inter_mode(
   // initiation of a motion field.
   if (discount_newmv_test(cpi, this_mode, frame_mv[refs[0]], mode_mv,
                           refs[0])) {
-#if CONFIG_REF_MV && CONFIG_EXT_INTER
-    rd_stats->rate +=
-        AOMMIN(cost_mv_ref(cpi, this_mode, is_comp_pred, mode_ctx),
-               cost_mv_ref(cpi, NEARESTMV, is_comp_pred, mode_ctx));
-#else
     rd_stats->rate += AOMMIN(cost_mv_ref(cpi, this_mode, mode_ctx),
                              cost_mv_ref(cpi, NEARESTMV, mode_ctx));
-#endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
   } else {
-#if CONFIG_REF_MV && CONFIG_EXT_INTER
-    rd_stats->rate += cost_mv_ref(cpi, this_mode, is_comp_pred, mode_ctx);
-#else
     rd_stats->rate += cost_mv_ref(cpi, this_mode, mode_ctx);
-#endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
   }
 
   if (RDCOST(x->rdmult, x->rddiv, rd_stats->rate, 0) > ref_best_rd &&
