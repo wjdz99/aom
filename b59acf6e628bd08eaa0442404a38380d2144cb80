@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "86072c35_e71593a0",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 6675
+      },
+      "writtenOn": "2017-04-18T19:14:30Z",
+      "side": 1,
+      "message": "The whole buffer needs to be a multiple of 8. Each line doesn\u0027t need extra, because the subsequent line will overwrite the extra written. Only at the end of the buffer is there a potential for buffer overflow.",
+      "parentUuid": "e42e47d4_03cf9507",
+      "range": {
+        "startLine": 106,
+        "startChar": 44,
+        "endLine": 106,
+        "endChar": 0
+      },
+      "revId": "b59acf6e628bd08eaa0442404a38380d2144cb80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bb111d7d_4e7aa533",
         "filename": "test/warp_filter_test_util.cc",
         "patchSetId": 11
@@ -36,6 +60,30 @@
       "writtenOn": "2017-04-18T18:41:37Z",
       "side": 1,
       "message": "ditto.",
+      "range": {
+        "startLine": 230,
+        "startChar": 44,
+        "endLine": 230,
+        "endChar": 0
+      },
+      "revId": "b59acf6e628bd08eaa0442404a38380d2144cb80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37eecbb0_9fd68826",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 6675
+      },
+      "writtenOn": "2017-04-18T19:14:30Z",
+      "side": 1,
+      "message": "See above",
+      "parentUuid": "bb111d7d_4e7aa533",
       "range": {
         "startLine": 230,
         "startChar": 44,
