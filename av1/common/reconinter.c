@@ -1325,6 +1325,7 @@ void av1_build_inter_predictors_sb(MACROBLOCKD *xd, int mi_row, int mi_col,
 }
 
 void av1_setup_dst_planes(struct macroblockd_plane planes[MAX_MB_PLANE],
+                          BLOCK_SIZE bsize,
                           const YV12_BUFFER_CONFIG *src, int mi_row,
                           int mi_col) {
   uint8_t *const buffers[MAX_MB_PLANE] = { src->y_buffer, src->u_buffer,
@@ -1339,8 +1340,8 @@ void av1_setup_dst_planes(struct macroblockd_plane planes[MAX_MB_PLANE],
 
   for (i = 0; i < MAX_MB_PLANE; ++i) {
     struct macroblockd_plane *const pd = &planes[i];
-    setup_pred_plane(&pd->dst, buffers[i], widths[i], heights[i], strides[i],
-                     mi_row, mi_col, NULL, pd->subsampling_x,
+    setup_pred_plane(&pd->dst, bsize, buffers[i], widths[i], heights[i],
+                     strides[i], mi_row, mi_col, NULL, pd->subsampling_x,
                      pd->subsampling_y);
   }
 }
@@ -1360,9 +1361,9 @@ void av1_setup_pre_planes(MACROBLOCKD *xd, int idx,
                                         src->uv_stride };
     for (i = 0; i < MAX_MB_PLANE; ++i) {
       struct macroblockd_plane *const pd = &xd->plane[i];
-      setup_pred_plane(&pd->pre[idx], buffers[i], widths[i], heights[i],
-                       strides[i], mi_row, mi_col, sf, pd->subsampling_x,
-                       pd->subsampling_y);
+      setup_pred_plane(&pd->pre[idx], xd->mi[0]->mbmi.sb_type, buffers[i],
+                       widths[i], heights[i], strides[i], mi_row, mi_col, sf,
+                       pd->subsampling_x, pd->subsampling_y);
     }
   }
 }
