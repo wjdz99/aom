@@ -732,12 +732,23 @@ static INLINE int is_chroma_reference(const int mi_row, const int mi_col,
 #if CONFIG_CHROMA_2X2
   return 1;
 #endif
+
+#if CONFIG_CHROMA_SUB8X8
+  const int bw = mi_size_wide[bsize];
+  const int bh = mi_size_high[bsize];
+
+  int ref_pos = ((mi_row & 0x01) || !(bh & 0x01) || !subsampling_y) &&
+                ((mi_col & 0x01) || !(bw & 0x01) || !subsampling_x);
+
+  return ref_pos;
+#else
   int ref_pos = !(((mi_row & 0x01) && subsampling_y) ||
                   ((mi_col & 0x01) && subsampling_x));
 
   if (bsize >= BLOCK_8X8) ref_pos = 1;
 
   return ref_pos;
+#endif
 }
 
 static INLINE BLOCK_SIZE scale_chroma_bsize(const BLOCK_SIZE bsize,
