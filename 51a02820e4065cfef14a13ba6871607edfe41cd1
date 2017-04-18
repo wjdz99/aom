@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b294f3b2_567b31d5",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-04-18T18:47:18Z",
+      "side": 1,
+      "message": "\u003e However it may be better to ask tj_davies what wants to do.  I\u0027d\n \u003e prefer to see a comment showing how this optimization works and\n \u003e remove code that shouldn\u0027t be executed again.\n\nI agree with your preference. #if 0\u0027s or #if 1\u0027s don\u0027t generally belong in production code.",
+      "parentUuid": "7f48544d_94441de7",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "551a4624_901d3981",
         "filename": "av1/common/entropy.c",
         "patchSetId": 20
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "665fd2fc_3cfe5743",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 6031,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-04-18T18:47:18Z",
+      "side": 1,
+      "message": "We can, but this patch didn\u0027t modify this line, so I don\u0027t think that change is related.",
+      "parentUuid": "3858e071_fa235720",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "065a8ffd_5deaceab",
         "filename": "av1/common/entropy.c",
         "patchSetId": 20
@@ -64,6 +100,24 @@
       "writtenOn": "2017-04-18T18:11:56Z",
       "side": 1,
       "message": "So interestingly, CDF_PROB_TOP \u003d 1 \u003c\u003c CDF_PROB_BITS which is currently 15.  AOM_ICDF(x) \u003d OD_ICDF(x) \u003d (32768U - (x)) when EC_SMALLMUL is enabled.  It seems like this constant should use CDF_PROB_BITS, but that is defined in aom_dsp/prob.h.\n\nSome kind of harmonization is needed before we start doing experiments with changing CDF_PROB_BITS.",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "826ee568_80724183",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 6034,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-04-18T18:47:18Z",
+      "side": 1,
+      "message": "I agree. I think the first thing we need to do is start removing the CONFIG flags around these things, and getting rid of some of the layers of abstraction we had in place to switch backends.",
+      "parentUuid": "065a8ffd_5deaceab",
       "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -87,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "c5ee5556_34addb34",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 6250,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-04-18T18:47:18Z",
+      "side": 1,
+      "message": "I think at least with this version you have a chance of figuring out what the expected memory layout is, whereas before I couldn\u0027t tell that this operated on more than one CDF until it started triggering assertions after I changed it.",
+      "parentUuid": "3a79a693_ba9c6459",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8292093f_9d87f61f",
         "filename": "av1/common/entropy.c",
         "patchSetId": 20
@@ -98,6 +170,24 @@
       "writtenOn": "2017-04-18T18:11:56Z",
       "side": 1,
       "message": "Hmm, clang-format probably suggested this.  Maybe just:\n\nwhile (i \u003c cdf_size \u0026\u0026 fc_cdf_ptr[i]) i++;",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f7e32bc_e3f38b4c",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 6252,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-04-18T18:47:18Z",
+      "side": 1,
+      "message": "This ugliness was indeed clang-format\u0027s fault. Yours is probably better, but the time required to upload a patch, see if it actually passes clang format, re-apply any new style changes it produces, and then wait for hours to get through the Jenkins queue to get my Verified tag back exceeds my level of caring.\n\nI\u0027ll leave it in as a warning to blindly trusting in automated tools when those tools are dumb.",
+      "parentUuid": "8292093f_9d87f61f",
       "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -121,6 +211,24 @@
     },
     {
       "key": {
+        "uuid": "18942854_dccd1153",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-04-18T18:47:18Z",
+      "side": 1,
+      "message": "Yes, and _q15 is probably not a great suffix for this function name if this is something that\u0027s intended to be changeable.",
+      "parentUuid": "894668e2_629fe688",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ad99aa8_935b6cbd",
         "filename": "av1/common/generic_code.c",
         "patchSetId": 20
@@ -132,6 +240,24 @@
       "writtenOn": "2017-04-18T18:11:56Z",
       "side": 1,
       "message": "Does this have a performance hit?  Will the compiler simplify the three subtractions?",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c67f4551_17d25c4f",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-04-18T18:47:18Z",
+      "side": 1,
+      "message": "The answer to the second question \"probably\" (the first two should exactly cancel, and the third should get folded into the computation of tmp), but this is dead code that is mostly kept around to allow it to be enabled for testing purposes, so I didn\u0027t think it was worth much effort to optimize it. We can look into it if it ever matters.",
+      "parentUuid": "5ad99aa8_935b6cbd",
       "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
