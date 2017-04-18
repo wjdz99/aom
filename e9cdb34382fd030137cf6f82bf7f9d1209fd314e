@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "540b485b_b41eb962",
+        "filename": "av1/common/mvref_common.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-04-18T23:29:37Z",
+      "side": 1,
+      "message": "May define some const values for these, e.g. const int top_row \u003d mi_row * MI_SIZE * SCALE_PX_TO_MV + dv.row;",
+      "range": {
+        "startLine": 541,
+        "startChar": 6,
+        "endLine": 541,
+        "endChar": 48
+      },
+      "revId": "e9cdb34382fd030137cf6f82bf7f9d1209fd314e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58a1415c_8022c1bb",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1600,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-04-18T23:29:37Z",
+      "side": 1,
+      "message": "Can we modify is_inter_block() so that it will return true when intrabc is enabled?",
+      "range": {
+        "startLine": 1600,
+        "startChar": 9,
+        "endLine": 1600,
+        "endChar": 23
+      },
+      "revId": "e9cdb34382fd030137cf6f82bf7f9d1209fd314e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
