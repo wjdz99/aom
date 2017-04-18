@@ -285,7 +285,8 @@ static void set_offsets_without_segment_id(const AV1_COMP *const cpi,
 #endif
 
   // Set up destination pointers.
-  av1_setup_dst_planes(xd->plane, get_frame_new_buffer(cm), mi_row, mi_col);
+  av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
+                       mi_col);
 
   // Set up limit values for MV components.
   // Mv beyond the range do not produce new/different prediction block.
@@ -1826,8 +1827,8 @@ void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
   x->e_mbd.cur_buf = src;
 
   for (i = 0; i < MAX_MB_PLANE; i++)
-    setup_pred_plane(&x->plane[i].src, buffers[i], widths[i], heights[i],
-                     strides[i], mi_row, mi_col, NULL,
+    setup_pred_plane(&x->plane[i].src, x->e_mbd.mi[0]->mbmi.sb_type, buffers[i],
+                     widths[i], heights[i], strides[i], mi_row, mi_col, NULL,
                      x->e_mbd.plane[i].subsampling_x,
                      x->e_mbd.plane[i].subsampling_y);
 }
