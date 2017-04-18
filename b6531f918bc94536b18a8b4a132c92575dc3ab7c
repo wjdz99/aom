@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f15a241c_fb434d4c",
+        "filename": "av1/common/od_dering.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-18T20:33:45Z",
+      "side": 1,
+      "message": "It seems like this is redundant because then for level\u003d\u003d1, the two clpf bits are wasted. Also, do we actually want a special case for all of \"level\u003d\u003d1\" maybe the special case should just be (level\u003d\u003d1 \u0026\u0026 clpf_strength\u003d\u003d0), no?",
+      "range": {
+        "startLine": 330,
+        "startChar": 18,
+        "endLine": 330,
+        "endChar": 31
+      },
+      "revId": "b6531f918bc94536b18a8b4a132c92575dc3ab7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
