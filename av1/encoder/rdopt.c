@@ -5648,7 +5648,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
             get_upsampled_ref(cpi, refs[id]);
 
         // Set pred for Y plane
-        setup_pred_plane(&pd->pre[0], upsampled_ref->y_buffer,
+        setup_pred_plane(&pd->pre[0], bsize, upsampled_ref->y_buffer,
                          upsampled_ref->y_crop_width,
                          upsampled_ref->y_crop_height, upsampled_ref->y_stride,
                          (mi_row << 3), (mi_col << 3), NULL, pd->subsampling_x,
@@ -6092,7 +6092,7 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
 
               // Set pred for Y plane
               setup_pred_plane(
-                  &pd->pre[0], upsampled_ref->y_buffer,
+                  &pd->pre[0], bsize, upsampled_ref->y_buffer,
                   upsampled_ref->y_crop_width, upsampled_ref->y_crop_height,
                   upsampled_ref->y_stride, (mi_row << 3), (mi_col << 3), NULL,
                   pd->subsampling_x, pd->subsampling_y);
@@ -7015,7 +7015,7 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
 
           // Set pred for Y plane
           setup_pred_plane(
-              &pd->pre[ref_idx], upsampled_ref->y_buffer,
+              &pd->pre[ref_idx], bsize, upsampled_ref->y_buffer,
               upsampled_ref->y_crop_width, upsampled_ref->y_crop_height,
               upsampled_ref->y_stride, (mi_row << 3), (mi_col << 3), NULL,
               pd->subsampling_x, pd->subsampling_y);

@@ -723,7 +723,8 @@ static void set_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols);
 #endif
 
-  av1_setup_dst_planes(xd->plane, get_frame_new_buffer(cm), mi_row, mi_col);
+  av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
+                       mi_col);
 }
 
 #if CONFIG_SUPERTX
