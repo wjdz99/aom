@@ -23,6 +23,14 @@ static aom_cdf_prob cdf_queue[QUEUE_MAX_SIZE][16];
 static int prob_queue[QUEUE_MAX_SIZE];
 #endif
 
+// TODO(afergs): remove
+// Where to break for debugging - do not merge!
+static const int queue_b = 145232;  // Likely changes on every rebase
+static const int frame_idx_b = 99;
+static const int window_b = 1;
+static int count_b = 0;
+// TODO(afergs): /remove
+
 static int queue_r = 0;
 static int queue_w = 0;
 static int queue_prev_w = -1;
@@ -59,6 +67,13 @@ void bitstream_queue_pop(int *result,
 #else
                          int *prob) {
 #endif  // CONFIG_DAALA_EC
+  // TODO(afergs): remove
+  if ((queue_r > queue_b - window_b) && (queue_r <= queue_b)
+      && (frame_idx_r == frame_idx_b)) {
+    fprintf(stderr, "\n *** bitstream queue at frame_idx_r %d queue_r %d\n",
+            frame_idx_r, queue_r);
+  }
+  // TODO(afergs): /remove
   if (!skip_r) {
     if (queue_w == queue_r) {
       printf("buffer underflow queue_w %d queue_r %d\n", queue_w, queue_r);
@@ -82,6 +97,14 @@ void bitstream_queue_push(int result,
                           int prob) {
 #endif  // CONFIG_DAALA_EC
   if (!skip_w) {
+    // TODO(afergs): remove
+    if ((queue_w > queue_b - window_b) && (queue_w <= queue_b) &&
+        (frame_idx_w == frame_idx_b)) {
+      count_b++;
+      fprintf(stderr, "\n *** bitstream queue at frame_idx_w %d queue_w %d\n",
+              frame_idx_w, queue_w);
+    }
+    // TODO(afergs): /remove
     result_queue[queue_w] = result;
 #if CONFIG_DAALA_EC
     nsymbs_queue[queue_w] = nsymbs;
