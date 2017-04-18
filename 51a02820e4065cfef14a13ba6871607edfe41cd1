@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f48544d_94441de7",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-18T18:11:56Z",
+      "side": 1,
+      "message": "So I\u0027m not sure what you want to do here.  The #if 1 means this code will never be executed.  It appears to compute the same thing and was perhaps left in the source as it shows what the simplification (above) was doing.\n\nThe safest path forward would be to modify both sides of this #if.  However it may be better to ask tj_davies what wants to do.  I\u0027d prefer to see a comment showing how this optimization works and remove code that shouldn\u0027t be executed again.",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "551a4624_901d3981",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 5942,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-18T18:11:56Z",
+      "side": 1,
+      "message": "Thank you.  This is faster and has the added benefit of being easier to follow.",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3858e071_fa235720",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 6031,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-18T18:11:56Z",
+      "side": 1,
+      "message": "So CDF_PROB_TOP \u003d 1 \u003c\u003c CDF_PROB_BITS which currently is 15. For some reason I had expected this MAX of MIN to be swapped to MIN of MAX.  Can we define and use AOMCLAMP instead?",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "065a8ffd_5deaceab",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 6034,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-18T18:11:56Z",
+      "side": 1,
+      "message": "So interestingly, CDF_PROB_TOP \u003d 1 \u003c\u003c CDF_PROB_BITS which is currently 15.  AOM_ICDF(x) \u003d OD_ICDF(x) \u003d (32768U - (x)) when EC_SMALLMUL is enabled.  It seems like this constant should use CDF_PROB_BITS, but that is defined in aom_dsp/prob.h.\n\nSome kind of harmonization is needed before we start doing experiments with changing CDF_PROB_BITS.",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79a693_ba9c6459",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 6250,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-18T18:11:56Z",
+      "side": 1,
+      "message": "This code is an improvement over what was here, but it is still hard to follow.  Part of this is that the loop ends when fc_cdf_ptr[i] \u003d\u003d AOM_ICDF(CDF_PROB_TOP), which will be 0 when EC_SMALLMUL is enabled, and then fills the rest of the array with 0\u0027s.  I couldn\u0027t think of anything better.",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8292093f_9d87f61f",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 6252,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-18T18:11:56Z",
+      "side": 1,
+      "message": "Hmm, clang-format probably suggested this.  Maybe just:\n\nwhile (i \u003c cdf_size \u0026\u0026 fc_cdf_ptr[i]) i++;",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "894668e2_629fe688",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-18T18:11:56Z",
+      "side": 1,
+      "message": "For a different patch, but we should probably define an OD_CDF_BITS and then have CDF_PROB_BITS defined to be that.",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ad99aa8_935b6cbd",
+        "filename": "av1/common/generic_code.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-18T18:11:56Z",
+      "side": 1,
+      "message": "Does this have a performance hit?  Will the compiler simplify the three subtractions?",
+      "revId": "51a02820e4065cfef14a13ba6871607edfe41cd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
