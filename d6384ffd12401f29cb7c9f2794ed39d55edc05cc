@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b33ff23_82d068b2",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1708,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-04-19T23:06:02Z",
+      "side": 1,
+      "message": "I think you mean \"are provided\" here",
+      "revId": "d6384ffd12401f29cb7c9f2794ed39d55edc05cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17731d94_e7f37234",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1728,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-04-19T23:06:02Z",
+      "side": 1,
+      "message": "extraneous linebreak",
+      "revId": "d6384ffd12401f29cb7c9f2794ed39d55edc05cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
