@@ -39,7 +39,7 @@ if (CONFIG_ADAPT_SCAN)
 endif ()
 
 if (CONFIG_GLOBAL_MOTION OR CONFIG_WARPED_MOTION)
-  if (HAVE_SSE2)
+  if (HAVE_SSSE3)
     set(AOM_UNIT_TEST_COMMON_SOURCES
         ${AOM_UNIT_TEST_COMMON_SOURCES}
         "${AOM_ROOT}/test/warp_filter_test.cc"

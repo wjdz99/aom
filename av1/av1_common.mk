@@ -171,7 +171,7 @@ AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/filterintra_sse4.c
 endif
 
 ifneq ($(findstring yes,$(CONFIG_GLOBAL_MOTION) $(CONFIG_WARPED_MOTION)),)
-AV1_COMMON_SRCS-$(HAVE_SSE2) += common/x86/warp_plane_sse2.c
+AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/x86/warp_plane_ssse3.c
 ifeq ($(CONFIG_HIGHBITDEPTH),yes)
 AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/x86/highbd_warp_plane_ssse3.c
 endif

@@ -22,9 +22,11 @@ using libaom_test::AV1HighbdWarpFilter::AV1HighbdWarpFilterTest;
 
 namespace {
 
-TEST_P(AV1WarpFilterTest, CheckOutput) { RunCheckOutput(av1_warp_affine_sse2); }
+TEST_P(AV1WarpFilterTest, CheckOutput) {
+  RunCheckOutput(av1_warp_affine_ssse3);
+}
 
-INSTANTIATE_TEST_CASE_P(SSE2, AV1WarpFilterTest,
+INSTANTIATE_TEST_CASE_P(SSSE3, AV1WarpFilterTest,
                         libaom_test::AV1WarpFilter::GetDefaultParams());
 
 #if CONFIG_HIGHBITDEPTH
