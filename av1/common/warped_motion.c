@@ -1290,12 +1290,26 @@ void av1_warp_affine_c(int32_t *mat, uint8_t *ref, int width, int height,
             for (m = 0; m < 8; ++m) {
               sum += ref[iy * stride + ix + m] * coeffs[m];
             }
+
             sum = ROUND_POWER_OF_TWO(sum, HORSHEAR_REDUCE_PREC_BITS);
             tmp[(k + 7) * 8 + (l + 4)] = saturate_int16(sum);
             sx += alpha;
           }
         }
       }
+
+      /*{
+        int16_t *t = (int16_t *)tmp;
+        printf("C:\n");
+        for (int p = 0; p < 15; ++p) {
+          printf("{");
+          for (int q = 0; q < 8; ++q) {
+            if (q > 0) printf(", ");
+            printf("%5d", t[8*p + q]);
+          }
+          printf("}\n");
+        }
+      }*/
 
       // Vertical filter
       for (k = -4; k < AOMMIN(4, p_row + p_height - i - 4); ++k) {
