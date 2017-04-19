@@ -1290,8 +1290,17 @@ void av1_warp_affine_c(int32_t *mat, uint8_t *ref, int width, int height,
             for (m = 0; m < 8; ++m) {
               sum += ref[iy * stride + ix + m] * coeffs[m];
             }
-            sum = ROUND_POWER_OF_TWO(sum, HORSHEAR_REDUCE_PREC_BITS);
-            tmp[(k + 7) * 8 + (l + 4)] = saturate_int16(sum);
+
+            // Here, we want to say
+            // sum = ROUND_POWER_OF_TWO(sum, HORSHEAR_REDUCE_PREC_BITS),
+            // but with a saturating addition inside the macro in order to allow
+            // SIMD hardware to evaluate everything within 16 bits.
+            // TODO(david.barker): Change the highbd filter to be consistent
+            // with this when bit_depth == 8
+            sum =
+                saturate_int16(sum + ((1 << HORSHEAR_REDUCE_PREC_BITS) >> 1)) >>
+                HORSHEAR_REDUCE_PREC_BITS;
+            tmp[(k + 7) * 8 + (l + 4)] = sum;
             sx += alpha;
           }
         }
