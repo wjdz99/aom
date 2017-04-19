@@ -946,7 +946,7 @@ static void highbd_warp_plane_old(WarpedMotionParams *wm, uint8_t *ref8,
 //
 // So, as long as HORSHEAR_REDUCE_PREC_BITS >= 5, we can safely use a 16-bit
 // intermediate array.
-void av1_highbd_warp_affine_c(int32_t *mat, uint16_t *ref, int width,
+void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref, int width,
                               int height, int stride, uint16_t *pred, int p_col,
                               int p_row, int p_width, int p_height,
                               int p_stride, int subsampling_x,
@@ -1043,7 +1043,7 @@ void av1_highbd_warp_affine_c(int32_t *mat, uint16_t *ref, int width,
       // Vertical filter
       for (k = -4; k < AOMMIN(4, p_row + p_height - i - 4); ++k) {
         int sy = sy4 + gamma * (-4) + delta * k;
-        for (l = -4; l < 4; ++l) {
+        for (l = -4; l < AOMMIN(4, p_col + p_width - j - 4); ++l) {
           uint16_t *p =
               &pred[(i - p_row + k + 4) * p_stride + (j - p_col + l + 4)];
           const int offs = ROUND_POWER_OF_TWO(sy, WARPEDDIFF_PREC_BITS) +
@@ -1196,7 +1196,7 @@ static void warp_plane_old(WarpedMotionParams *wm, uint8_t *ref, int width,
 
    TODO(david.barker): Maybe support scaled references?
 */
-void av1_warp_affine_c(int32_t *mat, uint8_t *ref, int width, int height,
+void av1_warp_affine_c(const int32_t *mat, const uint8_t *ref, int width, int height,
                        int stride, uint8_t *pred, int p_col, int p_row,
                        int p_width, int p_height, int p_stride,
                        int subsampling_x, int subsampling_y, int ref_frm,
@@ -1290,6 +1290,7 @@ void av1_warp_affine_c(int32_t *mat, uint8_t *ref, int width, int height,
             for (m = 0; m < 8; ++m) {
               sum += ref[iy * stride + ix + m] * coeffs[m];
             }
+
             sum = ROUND_POWER_OF_TWO(sum, HORSHEAR_REDUCE_PREC_BITS);
             tmp[(k + 7) * 8 + (l + 4)] = saturate_int16(sum);
             sx += alpha;
