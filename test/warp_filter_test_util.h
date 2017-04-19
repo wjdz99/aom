@@ -33,9 +33,10 @@ typedef void (*warp_affine_func)(int32_t *mat, uint8_t *ref, int width,
                                  int subsampling_y, int ref_frm, int16_t alpha,
                                  int16_t beta, int16_t gamma, int16_t delta);
 
-typedef std::tr1::tuple<int, int, int> WarpTestParam;
+typedef std::tr1::tuple<int, int, int, warp_affine_func> WarpTestParam;
 
-::testing::internal::ParamGenerator<WarpTestParam> GetDefaultParams();
+::testing::internal::ParamGenerator<WarpTestParam> BuildParams(
+    warp_affine_func filter);
 
 class AV1WarpFilterTest : public ::testing::TestWithParam<WarpTestParam> {
  public:
