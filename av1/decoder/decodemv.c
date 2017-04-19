@@ -1462,89 +1462,6 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       mv[1].as_int = near_mv[1].as_int;
       break;
     }
-    case NEW_NEARESTMV: {
-      FRAME_COUNTS *counts = xd->counts;
-#if CONFIG_REF_MV
-      int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-      int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
-                                xd->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
-      nmv_context_counts *const mv_counts =
-          counts ? &counts->mv[nmv_ctx] : NULL;
-      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc[nmv_ctx],
-              mv_counts, allow_hp);
-#else
-      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
-      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc, mv_counts,
-              allow_hp);
-#endif
-      assert(is_compound);
-      ret = ret && is_mv_valid(&mv[0].as_mv);
-      mv[1].as_int = nearest_mv[1].as_int;
-      break;
-    }
-    case NEAREST_NEWMV: {
-      FRAME_COUNTS *counts = xd->counts;
-#if CONFIG_REF_MV
-      int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-      int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
-                                xd->ref_mv_stack[rf_type], 1, mbmi->ref_mv_idx);
-      nmv_context_counts *const mv_counts =
-          counts ? &counts->mv[nmv_ctx] : NULL;
-      mv[0].as_int = nearest_mv[0].as_int;
-      read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, &ec_ctx->nmvc[nmv_ctx],
-              mv_counts, allow_hp);
-#else
-      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
-      mv[0].as_int = nearest_mv[0].as_int;
-      read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, &ec_ctx->nmvc, mv_counts,
-              allow_hp);
-#endif
-      assert(is_compound);
-      ret = ret && is_mv_valid(&mv[1].as_mv);
-      break;
-    }
-    case NEAR_NEWMV: {
-      FRAME_COUNTS *counts = xd->counts;
-#if CONFIG_REF_MV
-      int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-      int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
-                                xd->ref_mv_stack[rf_type], 1, mbmi->ref_mv_idx);
-      nmv_context_counts *const mv_counts =
-          counts ? &counts->mv[nmv_ctx] : NULL;
-      mv[0].as_int = near_mv[0].as_int;
-      read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, &ec_ctx->nmvc[nmv_ctx],
-              mv_counts, allow_hp);
-#else
-      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
-      mv[0].as_int = near_mv[0].as_int;
-      read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, &ec_ctx->nmvc, mv_counts,
-              allow_hp);
-#endif
-      assert(is_compound);
-
-      ret = ret && is_mv_valid(&mv[1].as_mv);
-      break;
-    }
-    case NEW_NEARMV: {
-      FRAME_COUNTS *counts = xd->counts;
-#if CONFIG_REF_MV
-      int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-      int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
-                                xd->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
-      nmv_context_counts *const mv_counts =
-          counts ? &counts->mv[nmv_ctx] : NULL;
-      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc[nmv_ctx],
-              mv_counts, allow_hp);
-#else
-      nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
-      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, &ec_ctx->nmvc, mv_counts,
-              allow_hp);
-#endif
-      assert(is_compound);
-      ret = ret && is_mv_valid(&mv[0].as_mv);
-      mv[1].as_int = near_mv[1].as_int;
-      break;
-    }
     case ZERO_ZEROMV: {
       assert(is_compound);
 #if CONFIG_GLOBAL_MOTION
@@ -1761,12 +1678,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         lower_mv_precision(&nearestmv[0].as_mv, allow_hp);
         lower_mv_precision(&nearestmv[1].as_mv, allow_hp);
 #if CONFIG_EXT_INTER
-      } else if (mbmi->mode == NEAREST_NEWMV) {
-        nearestmv[0] = xd->ref_mv_stack[ref_frame_type][0].this_mv;
-        lower_mv_precision(&nearestmv[0].as_mv, allow_hp);
-      } else if (mbmi->mode == NEW_NEARESTMV) {
-        nearestmv[1] = xd->ref_mv_stack[ref_frame_type][0].comp_mv;
-        lower_mv_precision(&nearestmv[1].as_mv, allow_hp);
       }
 #endif  // CONFIG_EXT_INTER
     }
@@ -1774,12 +1685,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_EXT_INTER
     if (xd->ref_mv_count[ref_frame_type] > 1) {
       int ref_mv_idx = 1 + mbmi->ref_mv_idx;
-      if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEAR_NEARMV) {
+      if (mbmi->mode == NEAR_NEARMV) {
         nearmv[0] = xd->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv;
         lower_mv_precision(&nearmv[0].as_mv, allow_hp);
       }
-
-      if (mbmi->mode == NEW_NEARMV || mbmi->mode == NEAR_NEARMV) {
+      if (mbmi->mode == NEAR_NEARMV) {
         nearmv[1] = xd->ref_mv_stack[ref_frame_type][ref_mv_idx].comp_mv;
         lower_mv_precision(&nearmv[1].as_mv, allow_hp);
       }

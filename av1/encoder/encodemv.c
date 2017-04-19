@@ -313,30 +313,6 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
 #endif
       av1_inc_mv(&diff, counts, 1);
     }
-  } else if (mode == NEAREST_NEWMV || mode == NEAR_NEWMV) {
-    const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame[1]][0].as_mv;
-    const MV diff = { mvs[1].as_mv.row - ref->row,
-                      mvs[1].as_mv.col - ref->col };
-#if CONFIG_REF_MV
-    int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-    int nmv_ctx =
-        av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
-                    mbmi_ext->ref_mv_stack[rf_type], 1, mbmi->ref_mv_idx);
-    nmv_context_counts *counts = &nmv_counts[nmv_ctx];
-#endif
-    av1_inc_mv(&diff, counts, 1);
-  } else if (mode == NEW_NEARESTMV || mode == NEW_NEARMV) {
-    const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0].as_mv;
-    const MV diff = { mvs[0].as_mv.row - ref->row,
-                      mvs[0].as_mv.col - ref->col };
-#if CONFIG_REF_MV
-    int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-    int nmv_ctx =
-        av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
-                    mbmi_ext->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
-    nmv_context_counts *counts = &nmv_counts[nmv_ctx];
-#endif
-    av1_inc_mv(&diff, counts, 1);
   }
 }
 
@@ -367,30 +343,6 @@ static void inc_mvs_sub8x8(const MODE_INFO *mi, int block, const int_mv mvs[2],
 #endif
       av1_inc_mv(&diff, counts, 1);
     }
-  } else if (mode == NEAREST_NEWMV || mode == NEAR_NEWMV) {
-    const MV *ref = &mi->bmi[block].ref_mv[1].as_mv;
-    const MV diff = { mvs[1].as_mv.row - ref->row,
-                      mvs[1].as_mv.col - ref->col };
-#if CONFIG_REF_MV
-    int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-    int nmv_ctx =
-        av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
-                    mbmi_ext->ref_mv_stack[rf_type], 1, mbmi->ref_mv_idx);
-    nmv_context_counts *counts = &nmv_counts[nmv_ctx];
-#endif
-    av1_inc_mv(&diff, counts, 1);
-  } else if (mode == NEW_NEARESTMV || mode == NEW_NEARMV) {
-    const MV *ref = &mi->bmi[block].ref_mv[0].as_mv;
-    const MV diff = { mvs[0].as_mv.row - ref->row,
-                      mvs[0].as_mv.col - ref->col };
-#if CONFIG_REF_MV
-    int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-    int nmv_ctx =
-        av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
-                    mbmi_ext->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
-    nmv_context_counts *counts = &nmv_counts[nmv_ctx];
-#endif
-    av1_inc_mv(&diff, counts, 1);
   }
 }
 #else
