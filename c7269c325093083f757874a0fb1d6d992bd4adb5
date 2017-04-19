@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b53b138f_8b4b9455",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2167,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-19T19:34:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ccb2d165_ee9924c8",
+      "range": {
+        "startLine": 2167,
+        "startChar": 17,
+        "endLine": 2167,
+        "endChar": 18
+      },
+      "revId": "c7269c325093083f757874a0fb1d6d992bd4adb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a9ee10f_df171304",
         "filename": "av1/common/reconintra.c",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-04-19T17:51:35Z",
       "side": 1,
       "message": "AOM_PLANE_Y",
+      "range": {
+        "startLine": 2303,
+        "startChar": 15,
+        "endLine": 2303,
+        "endChar": 16
+      },
+      "revId": "c7269c325093083f757874a0fb1d6d992bd4adb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "641674bf_83b43563",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2303,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-19T19:34:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a9ee10f_df171304",
       "range": {
         "startLine": 2303,
         "startChar": 15,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "e2d6bcc6_806056cf",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2304,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-19T19:34:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55e88bee_4beceef8",
+      "range": {
+        "startLine": 2304,
+        "startChar": 17,
+        "endLine": 2304,
+        "endChar": 18
+      },
+      "revId": "c7269c325093083f757874a0fb1d6d992bd4adb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86bedc5f_5d9f7447",
         "filename": "av1/common/reconintra.c",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2017-04-19T17:51:35Z",
       "side": 1,
       "message": "If you switch to the AOM_PLANE enums, you probably need something like \"plane \u003d\u003d AOM_PLANE_U ? AOM_PLANE_Y : AOM_PLANE_U\" here.\n\nDid you test that predicting V from U is better than predicting from Y?",
+      "range": {
+        "startLine": 2312,
+        "startChar": 39,
+        "endLine": 2312,
+        "endChar": 48
+      },
+      "revId": "c7269c325093083f757874a0fb1d6d992bd4adb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9683721_e307b096",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2312,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-19T19:34:31Z",
+      "side": 1,
+      "message": "This is not predicting V from U. It\u0027s just that I store U in dc_pred[0] and V in dc_pred[1] so plane - 1",
+      "parentUuid": "86bedc5f_5d9f7447",
       "range": {
         "startLine": 2312,
         "startChar": 39,
