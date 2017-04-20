@@ -4584,11 +4584,11 @@ static void write_uncompressed_header(AV1_COMP *cpi,
         aom_wb_write_literal(wb, get_ref_frame_map_idx(cpi, ref_frame),
                              REF_FRAMES_LOG2);
 #if CONFIG_AOM_SFRAME
-        if (!cm->is_sframe)
+        if (!cm->is_sframe) {
 #endif
         aom_wb_write_bit(wb, cm->ref_frame_sign_bias[ref_frame]);
 #if CONFIG_AOM_SFRAME
-        else {
+        } else {
           cm->ref_frame_sign_bias[ref_frame]=0;
         }
 #endif
@@ -4634,7 +4634,8 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 
 #if CONFIG_REFERENCE_BUFFER
 #if CONFIG_AOM_SFRAME
-  cm->refresh_mask = (cm->frame_type == KEY_FRAME) || (cm->frame_type == S_FRAME) ? 0xFF : get_refresh_mask(cpi);
+  cm->refresh_mask = (cm->frame_type == KEY_FRAME) ||
+  (cm->frame_type == S_FRAME) ? 0xFF : get_refresh_mask(cpi);
 #else
   cm->refresh_mask = (cm->frame_type == KEY_FRAME) ? 0xFF : get_refresh_mask(cpi);
 #endif

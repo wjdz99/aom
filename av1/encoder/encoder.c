@@ -301,7 +301,7 @@ static void setup_frame(AV1_COMP *cpi) {
 #if CONFIG_AOM_SFRAME
     || cm->is_sframe
 #endif
-	  ) {
+    ) {
     av1_setup_past_independence(cm);
   } else {
 #if CONFIG_EXT_REFS

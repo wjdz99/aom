@@ -1387,9 +1387,9 @@ void av1_rc_get_one_pass_vbr_params(AV1_COMP *cpi) {
 #if CONFIG_AOM_SFRAME
   altref_enabled = is_altref_enabled(cpi);
   if (altref_enabled) {
-    if (sframe_mode == 1) {  // mode 1 : insert sframe if it matches altref frame.
-      if (cm->current_video_frame%sframe_interval == 0 && 
-          cpi->refresh_alt_ref_frame && 
+    if (sframe_mode == 1) {  // mode 1 : insert sframe if it is altref.
+      if (cm->current_video_frame%sframe_interval == 0 &&
+          cpi->refresh_alt_ref_frame &&
           cm->frame_type != KEY_FRAME && cm->current_video_frame != 0) {
         cm->is_sframe = 1;
         cm->frame_type = S_FRAME;
@@ -1399,7 +1399,7 @@ void av1_rc_get_one_pass_vbr_params(AV1_COMP *cpi) {
             cm->frame_type = INTER_FRAME;
             // printf ("is not SFRAME \n");
         }
-      } else {  //2nd mode: if sframe due it will only be inserted at the closet next altref frame
+      } else {  //2nd mode: sframe inserted at the closet next altref frame
           if (cm->current_video_frame%sframe_interval == 0  &&
               cm->frame_type != KEY_FRAME && cm->current_video_frame != 0)
             rc->sframe_due = 1;
@@ -1415,7 +1415,7 @@ void av1_rc_get_one_pass_vbr_params(AV1_COMP *cpi) {
         }
     }
   } else {
-    if (cm->current_video_frame%sframe_interval == 0 && 
+    if (cm->current_video_frame%sframe_interval == 0 &&
         cm->frame_type != KEY_FRAME && cm->current_video_frame != 0) {
       cm->is_sframe = 1;
       cm->frame_type = S_FRAME;
