@@ -210,11 +210,23 @@ static void read_inter_mode_probs(FRAME_CONTEXT *fc, aom_reader *r) {
 static void read_inter_compound_mode_probs(FRAME_CONTEXT *fc, aom_reader *r) {
   int i, j;
   if (aom_read(r, GROUP_DIFF_UPDATE_PROB, ACCT_STR)) {
+#if CONFIG_REF_MV
+    for (j = 0; j < REFMV_MODE_CONTEXTS + 1; ++j)
+      for (i = 0; i < COMPOUND_NEARESTMV_MODES - 1; ++i)
+        av1_diff_update_prob(r, &fc->compound_nearestmv_mode_probs[j][i],
+                             ACCT_STR);
+
+    for (j = 0; j < REFMV_MODE_CONTEXTS; ++j)
+      for (i = 0; i < COMPOUND_NEARMV_MODES - 1; ++i)
+        av1_diff_update_prob(r, &fc->compound_nearmv_mode_probs[j][i],
+                             ACCT_STR);
+#else
     for (j = 0; j < INTER_MODE_CONTEXTS; ++j) {
       for (i = 0; i < INTER_COMPOUND_MODES - 1; ++i) {
         av1_diff_update_prob(r, &fc->inter_compound_mode_probs[j][i], ACCT_STR);
       }
     }
+#endif  // CONFIG_REF_MV
   }
 }
 #endif  // CONFIG_EXT_INTER
@@ -4774,9 +4786,18 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
   assert(!memcmp(cm->counts.inter_mode, zero_counts.inter_mode,
                  sizeof(cm->counts.inter_mode)));
 #if CONFIG_EXT_INTER
+#if CONFIG_REF_MV
+  assert(!memcmp(cm->counts.compound_nearestmv_mode,
+                 zero_counts.compound_nearestmv_mode,
+                 sizeof(cm->counts.compound_nearestmv_mode)));
+  assert(!memcmp(cm->counts.compound_nearmv_mode,
+                 zero_counts.compound_nearmv_mode,
+                 sizeof(cm->counts.compound_nearmv_mode)));
+#else
   assert(!memcmp(cm->counts.inter_compound_mode,
                  zero_counts.inter_compound_mode,
                  sizeof(cm->counts.inter_compound_mode)));
+#endif  // CONFIG_REF_MV
   assert(!memcmp(cm->counts.interintra, zero_counts.interintra,
                  sizeof(cm->counts.interintra)));
   assert(!memcmp(cm->counts.wedge_interintra, zero_counts.wedge_interintra,
