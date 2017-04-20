@@ -1093,6 +1093,21 @@ static void set_ref_and_pred_mvs(MACROBLOCK *const x, int_mv *const mi_pred_mv,
       mbmi->pred_mv[1] = this_mv;
       mi_pred_mv[1] = this_mv;
     }
+#if CONFIG_COMPOUND_SINGLEREF
+  } else if (is_inter_singleref_comp_mode(mbmi->mode)) {
+    // Special case: SR_NEAR_NEWMV uses 1 + mbmi->ref_mv_idx
+    // (like NEARMV) instead
+    if (mbmi->mode == SR_NEAR_NEWMV) ref_mv_idx += 1;
+
+    if (compound_ref0_mode(mbmi->mode) == NEWMV ||
+        compound_ref1_mode(mbmi->mode) == NEWMV) {
+      int_mv this_mv = curr_ref_mv_stack[ref_mv_idx].this_mv;
+      clamp_mv_ref(&this_mv.as_mv, bw, bh, xd);
+      mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0] = this_mv;
+      mbmi->pred_mv[0] = this_mv;
+      mi_pred_mv[0] = this_mv;
+    }
+#endif  // CONFIG_COMPOUND_SINGLEREF
   } else {
 #endif  // CONFIG_EXT_INTER
     if (mbmi->mode == NEWMV) {
@@ -6021,6 +6036,18 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
                            &xd->block_refs[ref]->sf);
     }
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    // Single ref compound mode
+    if (!is_compound && bsize >= BLOCK_8X8 &&
+        is_inter_singleref_comp_mode(mbmi->mode)) {
+      int i;
+      xd->block_refs[1] = xd->block_refs[0];
+      for (i = 0; i < MAX_MB_PLANE; i++)
+        xd->plane[i].pre[1] = xd->plane[i].pre[0];
+    }
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+
     if (!(cpi->sf.reuse_inter_pred_sby && ctx->pred_pixel_ready) || seg_skip)
       av1_build_inter_predictors_sby(xd, mi_row, mi_col, NULL, block_size);
 
@@ -6307,6 +6334,17 @@ static void predict_superblock(const AV1_COMP *const cpi, ThreadData *td,
     av1_setup_pre_planes(xd, ref, cfg, mi_row_pred, mi_col_pred,
                          &xd->block_refs[ref]->sf);
   }
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  // Single ref compound mode
+  if (!is_compound && bsize_pred >= BLOCK_8X8 &&
+      is_inter_singleref_comp_mode(mbmi->mode)) {
+    int i;
+    xd->block_refs[1] = xd->block_refs[0];
+    for (i = 0; i < MAX_MB_PLANE; i++)
+      xd->plane[i].pre[1] = xd->plane[i].pre[0];
+  }
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
   if (!b_sub8x8)
     av1_build_inter_predictors_sb_extend(xd,
