@@ -167,7 +167,11 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     ZEROMV,     // ZERO_ZEROMV
     NEWMV,      // NEW_NEWMV
   };
+#if CONFIG_COMPOUND_SINGLEREF
+  assert(is_inter_compound_mode(mode) || is_inter_singleref_comp_mode(mode));
+#else   // !CONFIG_COMPOUND_SINGLEREF
   assert(is_inter_compound_mode(mode));
+#endif  // CONFIG_COMPOUND_SINGLEREF
   return lut[mode];
 }
 
@@ -208,17 +212,28 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     ZEROMV,     // ZERO_ZEROMV
     NEWMV,      // NEW_NEWMV
   };
+#if CONFIG_COMPOUND_SINGLEREF
+  assert(is_inter_compound_mode(mode) || is_inter_singleref_comp_mode(mode));
+#else   // !CONFIG_COMPOUND_SINGLEREF
   assert(is_inter_compound_mode(mode));
+#endif  // CONFIG_COMPOUND_SINGLEREF
   return lut[mode];
 }
 
 static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEARMV || mode == NEAR_NEARMV || mode == NEAREST_NEARMV ||
+#if CONFIG_COMPOUND_SINGLEREF
+          mode == SR_NEAREST_NEARMV || mode == SR_NEAR_NEWMV ||
+#endif  // CONFIG_COMPOUND_SINGLEREF
           mode == NEAR_NEARESTMV || mode == NEAR_NEWMV || mode == NEW_NEARMV);
 }
 
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAREST_NEWMV ||
+#if CONFIG_COMPOUND_SINGLEREF
+          mode == SR_NEAREST_NEWMV || mode == SR_NEAR_NEWMV ||
+          mode == SR_ZERO_NEWMV || mode == SR_NEW_NEWMV ||
+#endif  // CONFIG_COMPOUND_SINGLEREF
           mode == NEW_NEARESTMV || mode == NEAR_NEWMV || mode == NEW_NEARMV);
 }
 
@@ -242,7 +257,8 @@ static INLINE int is_masked_compound_type(COMPOUND_TYPE type) {
   (void)type;
   return 0;
 }
-#else
+
+#else   // !CONFIG_EXT_INTER
 
 static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEARMV);
@@ -1218,7 +1234,11 @@ static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize) {
 
 static INLINE int is_motion_variation_allowed_compound(
     const MB_MODE_INFO *mbmi) {
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  if (!has_second_ref(mbmi) && !is_inter_singleref_comp_mode(mbmi->mode))
+#else
   if (!has_second_ref(mbmi))
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
     return 1;
   else
     return 0;
