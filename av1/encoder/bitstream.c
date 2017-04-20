@@ -4018,7 +4018,7 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
   struct aom_write_bit_buffer comp_hdr_len_wb;
   struct aom_write_bit_buffer tg_params_wb;
   struct aom_write_bit_buffer tile_size_bytes_wb;
-  int saved_offset;
+  uint32_t saved_offset;
   int mtu_size = cpi->oxcf.mtu;
   int curr_tg_data_size = 0;
   int hdr_size;
