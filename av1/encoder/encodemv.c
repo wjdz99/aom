@@ -356,6 +356,29 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
     nmv_context_counts *counts = &nmv_counts[nmv_ctx];
 #endif
     av1_inc_mv(&diff, counts, 1);
+#if CONFIG_COMPOUND_SINGLEREF
+  } else {
+    assert(mode == SR_NEAREST_NEWMV || mode == SR_NEAR_NEWMV ||
+           mode == SR_ZERO_NEWMV || mode == SR_NEW_NEWMV);
+    const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0].as_mv;
+#if CONFIG_REF_MV
+    int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
+    int nmv_ctx =
+        av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
+                    mbmi_ext->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
+    nmv_context_counts *counts = &nmv_counts[nmv_ctx];
+    (void)pred_mvs;
+#endif  // CONFIG_REF_MV
+    MV diff;
+    if (mode == SR_NEW_NEWMV) {
+      diff.row = mvs[0].as_mv.row - ref->row;
+      diff.col = mvs[0].as_mv.col - ref->col;
+      av1_inc_mv(&diff, counts, 1);
+    }
+    diff.row = mvs[1].as_mv.row - ref->row;
+    diff.col = mvs[1].as_mv.col - ref->col;
+    av1_inc_mv(&diff, counts, 1);
+#endif  // CONFIG_COMPOUND_SINGLEREF
   }
 }
 
@@ -412,7 +435,7 @@ static void inc_mvs_sub8x8(const MODE_INFO *mi, int block, const int_mv mvs[2],
     av1_inc_mv(&diff, counts, 1);
   }
 }
-#else
+#else  // !CONFIG_EXT_INTER
 static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
                     const int_mv mvs[2],
 #if CONFIG_REF_MV
