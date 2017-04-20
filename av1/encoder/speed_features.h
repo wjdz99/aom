@@ -35,6 +35,11 @@ enum {
 
 #if CONFIG_EXT_INTER
 enum {
+#if CONFIG_COMPOUND_SINGLEREF
+// TODO(zoeliu): To further consider following single ref comp modes:
+//               SR_NEAREST_NEARMV, SR_NEAREST_NEWMV, SR_NEAR_NEWMV,
+//               SR_ZERO_NEWMV, and SR_NEW_NEWMV.
+#endif  // CONFIG_COMPOUND_SINGLEREF
   INTER_ALL = (1 << NEARESTMV) | (1 << NEARMV) | (1 << ZEROMV) | (1 << NEWMV) |
               (1 << NEAREST_NEARESTMV) | (1 << NEAR_NEARMV) |
               (1 << NEAREST_NEARMV) | (1 << NEAR_NEARESTMV) | (1 << NEW_NEWMV) |
@@ -68,7 +73,7 @@ enum {
       (1 << NEAR_NEARESTMV) | (1 << NEAREST_NEWMV) | (1 << NEW_NEARESTMV) |
       (1 << NEW_NEARMV) | (1 << NEAR_NEWMV) | (1 << NEAR_NEARMV),
 };
-#else
+#else   // !CONFIG_EXT_INTER
 enum {
   INTER_ALL = (1 << NEARESTMV) | (1 << NEARMV) | (1 << ZEROMV) | (1 << NEWMV),
   INTER_NEAREST = (1 << NEARESTMV),
