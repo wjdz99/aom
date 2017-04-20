@@ -541,8 +541,15 @@ typedef struct AV1_COMP {
 
   unsigned int inter_mode_cost[INTER_MODE_CONTEXTS][INTER_MODES];
 #if CONFIG_EXT_INTER
+#if CONFIG_REF_MV
+  unsigned int compound_nearestmv_mode_cost[REFMV_MODE_CONTEXTS + 1]
+                                           [COMPOUND_NEARESTMV_MODES];
+  unsigned int compound_nearmv_mode_cost[REFMV_MODE_CONTEXTS]
+                                        [COMPOUND_NEARMV_MODES];
+#else
   unsigned int inter_compound_mode_cost[INTER_MODE_CONTEXTS]
                                        [INTER_COMPOUND_MODES];
+#endif  // CONFIG_REF_MV
   unsigned int interintra_mode_cost[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
