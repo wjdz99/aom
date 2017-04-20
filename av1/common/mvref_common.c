@@ -861,9 +861,6 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
 #if CONFIG_REF_MV
                       uint8_t *ref_mv_count, CANDIDATE_MV *ref_mv_stack,
-#if CONFIG_EXT_INTER
-                      int16_t *compound_mode_context,
-#endif  // CONFIG_EXT_INTER
 #endif
                       int_mv *mv_ref_list, int mi_row, int mi_col,
                       find_mv_refs_sync sync, void *const data,
@@ -876,14 +873,10 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   BLOCK_SIZE bsize = mi->mbmi.sb_type;
 #endif
 #endif
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && !CONFIG_REF_MV
   av1_update_mv_context(cm, xd, mi, ref_frame, mv_ref_list, -1, mi_row, mi_col,
-#if CONFIG_REF_MV
-                        compound_mode_context);
-#else
                         mode_context);
-#endif  // CONFIG_REF_MV
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && !CONFIG_REF_MV
 
 #if CONFIG_GLOBAL_MOTION
 #if CONFIG_REF_MV
