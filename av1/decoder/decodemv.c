@@ -360,17 +360,79 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_EXT_INTER
-static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
-                                                aom_reader *r, int16_t ctx) {
+static PREDICTION_MODE read_inter_compound_mode(FRAME_CONTEXT *ec_ctx,
+                                                MACROBLOCKD *xd, aom_reader *r,
+                                                const int16_t ctx) {
+#if CONFIG_REF_MV
+  FRAME_COUNTS *counts = xd->counts;
+  int16_t mode_ctx = ctx & NEWMV_CTX_MASK;
+  aom_prob mode_prob = ec_ctx->newmv_prob[mode_ctx];
+
+  if (aom_read(r, mode_prob, ACCT_STR) == 0) {
+    if (counts) ++counts->newmv_mode[mode_ctx][0];
+    return NEW_NEWMV;
+  }
+  if (counts) ++counts->newmv_mode[mode_ctx][1];
+
+  if (ctx & (1 << ALL_ZERO_FLAG_OFFSET)) {
+    // Mode is ZERO_ZEROMV, NEAREST_NEWMV or NEW_NEARESTMV
+    // When this flag is set, ZERO_ZEROMV and NEAREST_NEARESTMV code the same
+    // motion vector, so we reuse the nearestmv-type encodings.
+    mode_ctx = REFMV_MODE_CONTEXTS;
+    const int offset = aom_read_tree(
+        r, av1_compound_nearestmv_mode_tree,
+        ec_ctx->compound_nearestmv_mode_probs[mode_ctx], ACCT_STR);
+    ++counts->compound_nearestmv_mode[mode_ctx][offset];
+    PREDICTION_MODE coded_mode = compound_nearestmv_mode(offset);
+    return coded_mode == NEAREST_NEARESTMV ? ZERO_ZEROMV : coded_mode;
+  }
+
+  mode_ctx = (ctx >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
+
+  mode_prob = ec_ctx->zeromv_prob[mode_ctx];
+  if (aom_read(r, mode_prob, ACCT_STR) == 0) {
+    if (counts) ++counts->zeromv_mode[mode_ctx][0];
+    return ZERO_ZEROMV;
+  }
+  if (counts) ++counts->zeromv_mode[mode_ctx][1];
+
+  mode_ctx = (ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
+
+  if (ctx & (1 << SKIP_NEARESTMV_OFFSET)) mode_ctx = 6;
+  if (ctx & (1 << SKIP_NEARMV_OFFSET)) mode_ctx = 7;
+  if (ctx & (1 << SKIP_NEARESTMV_SUB8X8_OFFSET)) mode_ctx = 8;
+
+  mode_prob = ec_ctx->refmv_prob[mode_ctx];
+  int is_nearestmv_type = !aom_read(r, mode_prob, ACCT_STR);
+  if (counts) ++counts->refmv_mode[mode_ctx][!is_nearestmv_type];
+
+  if (is_nearestmv_type) {
+    const int offset = aom_read_tree(
+        r, av1_compound_nearestmv_mode_tree,
+        ec_ctx->compound_nearestmv_mode_probs[mode_ctx], ACCT_STR);
+    ++counts->compound_nearestmv_mode[mode_ctx][offset];
+    return compound_nearestmv_mode(offset);
+  } else {
+    const int offset =
+        aom_read_tree(r, av1_compound_nearmv_mode_tree,
+                      ec_ctx->compound_nearmv_mode_probs[mode_ctx], ACCT_STR);
+    ++counts->compound_nearmv_mode[mode_ctx][offset];
+    return compound_nearmv_mode(offset);
+  }
+
+  // Invalid prediction mode.
+  assert(0);
+#else
   const int mode =
       aom_read_tree(r, av1_inter_compound_mode_tree,
-                    cm->fc->inter_compound_mode_probs[ctx], ACCT_STR);
+                    ec_ctx->inter_compound_mode_probs[ctx], ACCT_STR);
   FRAME_COUNTS *counts = xd->counts;
 
   if (counts) ++counts->inter_compound_mode[ctx][mode];
 
   assert(is_inter_compound_mode(NEAREST_NEARESTMV + mode));
   return NEAREST_NEARESTMV + mode;
+#endif  // CONFIG_REF_MV
 }
 #endif  // CONFIG_EXT_INTER
 
@@ -1770,9 +1832,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   int_mv ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES];
   int ref, is_compound;
   int16_t inter_mode_ctx[MODE_CTX_REF_FRAMES];
-#if CONFIG_REF_MV && CONFIG_EXT_INTER
-  int16_t compound_inter_mode_ctx[MODE_CTX_REF_FRAMES];
-#endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
   int16_t mode_ctx = 0;
 #if CONFIG_WARPED_MOTION
   int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
@@ -1799,9 +1858,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     av1_find_mv_refs(cm, xd, mi, frame,
 #if CONFIG_REF_MV
                      &xd->ref_mv_count[frame], xd->ref_mv_stack[frame],
-#if CONFIG_EXT_INTER
-                     compound_inter_mode_ctx,
-#endif  // CONFIG_EXT_INTER
 #endif
                      ref_mvs[frame], mi_row, mi_col, fpm_sync, (void *)pbi,
                      inter_mode_ctx);
@@ -1811,12 +1867,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   if (is_compound) {
     MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
     av1_find_mv_refs(cm, xd, mi, ref_frame, &xd->ref_mv_count[ref_frame],
-                     xd->ref_mv_stack[ref_frame],
-#if CONFIG_EXT_INTER
-                     compound_inter_mode_ctx,
-#endif  // CONFIG_EXT_INTER
-                     ref_mvs[ref_frame], mi_row, mi_col, fpm_sync, (void *)pbi,
-                     inter_mode_ctx);
+                     xd->ref_mv_stack[ref_frame], ref_mvs[ref_frame], mi_row,
+                     mi_col, fpm_sync, (void *)pbi, inter_mode_ctx);
 
     if (xd->ref_mv_count[ref_frame] < 2) {
       MV_REFERENCE_FRAME rf[2];
@@ -1847,13 +1899,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
   }
 
-#if CONFIG_EXT_INTER
-  if (is_compound)
-    mode_ctx = compound_inter_mode_ctx[mbmi->ref_frame[0]];
-  else
-#endif  // CONFIG_EXT_INTER
-    mode_ctx =
-        av1_mode_context_analyzer(inter_mode_ctx, mbmi->ref_frame, bsize, -1);
+  mode_ctx =
+      av1_mode_context_analyzer(inter_mode_ctx, mbmi->ref_frame, bsize, -1);
   mbmi->ref_mv_idx = 0;
 #else
   mode_ctx = inter_mode_ctx[mbmi->ref_frame[0]];
@@ -1870,7 +1917,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     if (bsize >= BLOCK_8X8 || unify_bsize) {
 #if CONFIG_EXT_INTER
       if (is_compound)
-        mbmi->mode = read_inter_compound_mode(cm, xd, r, mode_ctx);
+        mbmi->mode = read_inter_compound_mode(ec_ctx, xd, r, mode_ctx);
       else
 #endif  // CONFIG_EXT_INTER
         mbmi->mode = read_inter_mode(ec_ctx, xd, r, mode_ctx);
@@ -1981,15 +2028,12 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         const int j = idy * 2 + idx;
         int_mv ref_mv_s8[2];
 #if CONFIG_REF_MV
-#if CONFIG_EXT_INTER
-        if (!is_compound)
-#endif  // CONFIG_EXT_INTER
-          mode_ctx = av1_mode_context_analyzer(inter_mode_ctx, mbmi->ref_frame,
-                                               bsize, j);
+        mode_ctx = av1_mode_context_analyzer(inter_mode_ctx, mbmi->ref_frame,
+                                             bsize, j);
 #endif
 #if CONFIG_EXT_INTER
         if (is_compound)
-          b_mode = read_inter_compound_mode(cm, xd, r, mode_ctx);
+          b_mode = read_inter_compound_mode(ec_ctx, xd, r, mode_ctx);
         else
 #endif  // CONFIG_EXT_INTER
           b_mode = read_inter_mode(ec_ctx, xd, r, mode_ctx);
