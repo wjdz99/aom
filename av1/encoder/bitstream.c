@@ -2340,7 +2340,8 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
       init_token_stats(&token_stats);
 
       if (is_inter_block(mbmi)) {
-        const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
+        const TX_SIZE max_tx_size = mbmi->sb_type < BLOCK_8X8
+          ? get_tx_size(plane, xd) : max_txsize_rect_lookup[plane_bsize];
         int block = 0;
         const int step =
             tx_size_wide_unit[max_tx_size] * tx_size_high_unit[max_tx_size];
