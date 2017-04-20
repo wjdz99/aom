@@ -1000,7 +1000,16 @@ static INLINE TX_SIZE get_uv_tx_size(const MB_MODE_INFO *mbmi,
 static INLINE TX_SIZE get_tx_size(int plane, const MACROBLOCKD *xd) {
   const MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   const MACROBLOCKD_PLANE *pd = &xd->plane[plane];
-  const TX_SIZE tx_size = plane ? get_uv_tx_size(mbmi, pd) : mbmi->tx_size;
+  TX_SIZE tx_size;
+#if CONFIG_VAR_TX
+  // TODO(sarahparker) this is a hack and should be cleaned up
+  if (mbmi->sb_type < BLOCK_8X8 && is_inter_block(mbmi))
+    tx_size = plane ? get_uv_tx_size(mbmi, pd) : mbmi->inter_tx_size[0][0];
+  else
+    tx_size = plane ? get_uv_tx_size(mbmi, pd) : mbmi->tx_size;
+#else
+  tx_size = plane ? get_uv_tx_size(mbmi, pd) : mbmi->tx_size;
+#endif  // CONFIG_VAR_TX
   return tx_size;
 }
 

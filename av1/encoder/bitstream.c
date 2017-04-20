@@ -1655,7 +1655,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       !(is_inter && skip) && !xd->lossless[segment_id]) {
 #if CONFIG_VAR_TX
     if (is_inter) {  // This implies skip flag is 0.
-      const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
+      //const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
+      const TX_SIZE max_tx_size = mbmi->sb_type < BLOCK_8X8
+        ? get_tx_size(0, xd) : max_txsize_rect_lookup[bsize];
       const int bh = tx_size_high_unit[max_tx_size];
       const int bw = tx_size_wide_unit[max_tx_size];
       const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
@@ -2340,7 +2342,8 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
       init_token_stats(&token_stats);
 
       if (is_inter_block(mbmi)) {
-        const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
+        const TX_SIZE max_tx_size = mbmi->sb_type < BLOCK_8X8
+          ? get_tx_size(plane, xd) : max_txsize_rect_lookup[plane_bsize];
         int block = 0;
         const int step =
             tx_size_wide_unit[max_tx_size] * tx_size_high_unit[max_tx_size];
