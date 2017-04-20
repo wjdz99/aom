@@ -710,7 +710,8 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
                                      int p_col, int p_row, int ref,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
                                      MACROBLOCKD *xd) {
-  MODE_INFO *mi = xd->mi[0];
+  const MODE_INFO *mi = xd->mi[0];
+
   const INTERINTER_COMPOUND_DATA comp_data = {
 #if CONFIG_WEDGE
     mi->mbmi.wedge_index,
@@ -900,6 +901,10 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
   const MODE_INFO *mi = xd->mi[0];
 #endif  // CONFIG_MOTION_VAR
   int is_compound = has_second_ref(&mi->mbmi);
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  int is_comp_mode_pred =
+      is_compound || is_inter_singleref_comp_mode(mi->mbmi.mode);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   int ref;
 #if CONFIG_INTRABC
   const int is_intrabc = is_intrabc_block(&mi->mbmi);
@@ -911,6 +916,9 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
     WarpedMotionParams *const wm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
     is_global[ref] = is_global_mv_block(mi, block, wm->wmtype);
   }
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  if (!is_compound && is_comp_mode_pred) is_global[1] = is_global[0];
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_GLOBAL_MOTION
 
 #if CONFIG_CB4X4
@@ -965,12 +973,27 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
       for (idx = 0; idx < b8_w; idx += b4_w) {
         MB_MODE_INFO *this_mbmi = &xd->mi[row * xd->mi_stride + col]->mbmi;
         is_compound = has_second_ref(this_mbmi);
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+        is_comp_mode_pred =
+            is_compound || is_inter_singleref_comp_mode(mi->mbmi.mode);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+        for (ref = 0; ref < 1 + is_comp_mode_pred; ++ref) {
+#else
         for (ref = 0; ref < 1 + is_compound; ++ref) {
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
           struct buf_2d *const dst_buf = &pd->dst;
 
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+          const RefBuffer *ref_buf =
+              is_compound
+                  ? &cm->frame_refs[this_mbmi->ref_frame[ref] - LAST_FRAME]
+                  : &cm->frame_refs[this_mbmi->ref_frame[0] - LAST_FRAME];
+#else
           const RefBuffer *ref_buf =
               &cm->frame_refs[this_mbmi->ref_frame[ref] - LAST_FRAME];
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
           const int c_offset = (mi_x + MI_SIZE * col_start) >> ss_x;
           const int r_offset = (mi_y + MI_SIZE * row_start) >> ss_y;
@@ -1062,7 +1085,7 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
                 mi_col_offset, mi_row_offset,
-#endif
+#endif  // CONFIG_MOTION_VAR
                 xs, ys, xd);
         }
         ++col;
@@ -1088,7 +1111,11 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
     av1_zero(tmp_dst);
 #endif  // CONFIG_CONVOLVE_ROUND
 
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (ref = 0; ref < 1 + is_comp_mode_pred; ++ref) {
+#else
     for (ref = 0; ref < 1 + is_compound; ++ref) {
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_INTRABC
       const struct scale_factors *const sf =
           is_intrabc ? &xd->sf_identity : &xd->block_refs[ref]->sf;
@@ -1146,7 +1173,12 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #else
     ConvolveParams conv_params = get_conv_params(ref, ref, plane);
 #endif  // CONFIG_CONVOLVE_ROUND
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (ref = 0; ref < 1 + is_comp_mode_pred; ++ref) {
+#else
     for (ref = 0; ref < 1 + is_compound; ++ref) {
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_INTRABC
       const struct scale_factors *const sf =
           is_intrabc ? &xd->sf_identity : &xd->block_refs[ref]->sf;
@@ -1194,7 +1226,7 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
             mi_col_offset, mi_row_offset,
-#endif
+#endif  // CONFIG_MOTION_VAR
             subpel_params[ref].xs, subpel_params[ref].ys, xd);
     }
 
@@ -1210,9 +1242,15 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
                                      xd->bd);
       else
 #endif  // CONFIG_HIGHBITDEPTH
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
         av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
-                              FILTER_BITS * 2 + is_compound -
+                              FILTER_BITS * 2 + is_comp_mode_pred -
                                   conv_params.round_0 - conv_params.round_1);
+#else   // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
+      av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
+                            FILTER_BITS * 2 + is_compound -
+                                conv_params.round_0 - conv_params.round_1);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
     }
 #endif  // CONFIG_CONVOLVE_ROUND
   }
@@ -1977,6 +2015,14 @@ void modify_neighbor_predictor_for_obmc(MB_MODE_INFO *mbmi) {
              is_masked_compound_type(mbmi->interinter_compound_type)) {
     mbmi->interinter_compound_type = COMPOUND_AVERAGE;
     mbmi->ref_frame[1] = NONE_FRAME;
+#if CONFIG_COMPOUND_SINGLEREF
+  } else if (!has_second_ref(mbmi) &&
+             is_inter_singleref_comp_mode(mbmi->mode)) {
+    // mbmi->mode = compound_ref0_mode(mbmi->mode);
+    mbmi->mode = compound_ref1_mode(mbmi->mode);
+    assert(is_inter_singleref_mode(mbmi->mode));
+    mbmi->mv[0].as_int = mbmi->mv[1].as_int;
+#endif  // CONFIG_COMPOUND_SINGLEREF
   }
 #endif  // CONFIG_EXT_INTER
   if (has_second_ref(mbmi)) mbmi->ref_frame[1] = NONE_FRAME;
@@ -2033,8 +2079,17 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                        tmp_height[j], tmp_stride[j], 0, i, NULL,
                        pd->subsampling_x, pd->subsampling_y);
     }
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (ref = 0; ref < 1 + (has_second_ref(above_mbmi) ||
+                             is_inter_singleref_comp_mode(above_mbmi->mode));
+         ++ref) {
+      const MV_REFERENCE_FRAME frame = has_second_ref(above_mbmi)
+                                           ? above_mbmi->ref_frame[ref]
+                                           : above_mbmi->ref_frame[0];
+#else   // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
     for (ref = 0; ref < 1 + has_second_ref(above_mbmi); ++ref) {
       const MV_REFERENCE_FRAME frame = above_mbmi->ref_frame[ref];
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
       const RefBuffer *const ref_buf = &cm->frame_refs[frame - LAST_FRAME];
 
       xd->block_refs[ref] = ref_buf;
@@ -2122,8 +2177,17 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                        tmp_height[j], tmp_stride[j], i, 0, NULL,
                        pd->subsampling_x, pd->subsampling_y);
     }
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (ref = 0; ref < 1 + (has_second_ref(left_mbmi) ||
+                             is_inter_singleref_comp_mode(left_mbmi->mode));
+         ++ref) {
+      const MV_REFERENCE_FRAME frame = has_second_ref(left_mbmi)
+                                           ? left_mbmi->ref_frame[ref]
+                                           : left_mbmi->ref_frame[0];
+#else   // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
     for (ref = 0; ref < 1 + has_second_ref(left_mbmi); ++ref) {
       const MV_REFERENCE_FRAME frame = left_mbmi->ref_frame[ref];
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
       const RefBuffer *const ref_buf = &cm->frame_refs[frame - LAST_FRAME];
 
       xd->block_refs[ref] = ref_buf;
@@ -2576,6 +2640,7 @@ void av1_build_ncobmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_HIGHBITDEPTH
 
   const BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
+  // TODO(zoeliu): COMPOUND_SINGLEREF has not worked with NCOBMC yet.
   av1_build_prediction_by_bottom_preds(cm, xd, mi_row, mi_col, dst_buf1,
                                        dst_width1, dst_height1, dst_stride1);
   av1_build_prediction_by_right_preds(cm, xd, mi_row, mi_col, dst_buf2,
@@ -2926,7 +2991,13 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
   WarpTypesAllowed warp_types;
 #if CONFIG_GLOBAL_MOTION
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  WarpedMotionParams *const wm =
+      mi->mbmi.ref_frame[ref] > 0 ? &xd->global_motion[mi->mbmi.ref_frame[ref]]
+                                  : &xd->global_motion[mi->mbmi.ref_frame[0]];
+#else   // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
   WarpedMotionParams *const wm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   warp_types.global_warp_allowed = is_global_mv_block(mi, block, wm->wmtype);
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
@@ -2981,6 +3052,10 @@ void av1_build_inter_predictors_for_planes_single_buf(
       const int num_4x4_w = num_4x4_blocks_wide_lookup[plane_bsize];
       const int num_4x4_h = num_4x4_blocks_high_lookup[plane_bsize];
       assert(bsize == BLOCK_8X8);
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+      assert(has_second_ref(&xd->mi[0]->mbmi) ||
+             !is_inter_singleref_comp_mode(xd->mi[0]->mbmi.mode));
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
       for (y = 0; y < num_4x4_h; ++y)
         for (x = 0; x < num_4x4_w; ++x)
           build_inter_predictors_single_buf(
@@ -3018,7 +3093,12 @@ static void build_wedge_inter_predictor_from_buf(
     mbmi->interinter_compound_type
   };
 
+#if CONFIG_COMPOUND_SINGLEREF
+  if ((is_compound || is_inter_singleref_comp_mode(mbmi->mode)) &&
+      is_masked_compound_type(mbmi->interinter_compound_type)) {
+#else   // !CONFIG_COMPOUND_SINGLEREF
   if (is_compound && is_masked_compound_type(mbmi->interinter_compound_type)) {
+#endif  // CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_COMPOUND_SEGMENT
     if (!plane && comp_data.interinter_compound_type == COMPOUND_SEG) {
 #if CONFIG_HIGHBITDEPTH
@@ -3049,7 +3129,7 @@ static void build_wedge_inter_predictor_from_buf(
           dst, dst_buf->stride, ext_dst0, ext_dst_stride0, ext_dst1,
           ext_dst_stride1, &comp_data, mbmi->sb_type, wedge_offset_x,
           wedge_offset_y, h, w);
-#else
+#else  // !CONFIG_SUPERTX
 #if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
       build_masked_compound_highbd(
