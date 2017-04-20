@@ -911,6 +911,10 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
   const MODE_INFO *mi = xd->mi[0];
 #endif  // CONFIG_MOTION_VAR
   const int is_compound = has_second_ref(&mi->mbmi);
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  const int is_comp_mode_pred =
+      is_compound || is_inter_singleref_comp_mode(mi->mbmi.mode);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   int ref;
 #if CONFIG_INTRABC
   const int is_intrabc = is_intrabc_block(&mi->mbmi);
@@ -930,11 +934,20 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
     WarpedMotionParams *const wm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
     is_global[ref] = is_global_mv_block(mi, block, wm->wmtype);
   }
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  if (!is_compound && is_inter_singleref_comp_mode(mi->mbmi.mode))
+    is_global[1] = is_global[0];
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_GLOBAL_MOTION
 
 #if CONFIG_CB4X4
   (void)block;
 #endif
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  assert(has_second_ref(&mi->mbmi) || is_inter_singleref_mode(mi->mbmi.mode) ||
+         is_inter_singleref_comp_mode(mi->mbmi.mode));
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
 #if CONFIG_SUB8X8_MC
 #if CONFIG_MOTION_VAR
@@ -942,6 +955,9 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #else
   if (mi->mbmi.sb_type < BLOCK_8X8 && plane > 0) {
 #endif  // CONFIG_MOTION_VAR
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    assert(!is_inter_singleref_comp_mode(mi->mbmi.mode));
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
     // block size in log2
     const int b4_wl = b_width_log2_lookup[mi->mbmi.sb_type];
     const int b4_hl = b_height_log2_lookup[mi->mbmi.sb_type];
@@ -1041,14 +1057,14 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
                 mi_col_offset, mi_row_offset,
-#endif
+#endif  // CONFIG_MOTION_VAR
                 xs, ys, xd);
         }
       }
     }
     return;
   }
-#endif
+#endif  // CONFIG_SUB8X8_MC
 
   {
     struct buf_2d *const dst_buf = &pd->dst;
@@ -1061,7 +1077,11 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
     av1_zero(tmp_dst);
 #endif  // CONFIG_CONVOLVE_ROUND
 
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (ref = 0; ref < 1 + is_comp_mode_pred; ++ref) {
+#else
     for (ref = 0; ref < 1 + is_compound; ++ref) {
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_INTRABC
       const struct scale_factors *const sf =
           is_intrabc ? &sf_identity : &xd->block_refs[ref]->sf;
@@ -1119,7 +1139,12 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #else
     ConvolveParams conv_params = get_conv_params(ref, plane);
 #endif  // CONFIG_CONVOLVE_ROUND
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (ref = 0; ref < 1 + is_comp_mode_pred; ++ref) {
+#else
     for (ref = 0; ref < 1 + is_compound; ++ref) {
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_INTRABC
       const struct scale_factors *const sf =
           is_intrabc ? &sf_identity : &xd->block_refs[ref]->sf;
@@ -1176,9 +1201,15 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #if CONFIG_HIGHBITDEPTH
     if (!(xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH))
 #endif  // CONFIG_HIGHBITDEPTH
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
       av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
-                            FILTER_BITS * 2 + is_compound -
+                            FILTER_BITS * 2 + is_comp_mode_pred -
                                 conv_params.round_0 - conv_params.round_1);
+#else   // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
+    av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
+                          FILTER_BITS * 2 + is_compound - conv_params.round_0 -
+                              conv_params.round_1);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_CONVOLVE_ROUND
   }
 }
@@ -2898,7 +2929,13 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
   WarpTypesAllowed warp_types;
 #if CONFIG_GLOBAL_MOTION
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  WarpedMotionParams *const wm =
+      mi->mbmi.ref_frame[ref] > 0 ? &xd->global_motion[mi->mbmi.ref_frame[ref]]
+                                  : &xd->global_motion[mi->mbmi.ref_frame[0]];
+#else   // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
   WarpedMotionParams *const wm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   warp_types.global_warp_allowed = is_global_mv_block(mi, block, wm->wmtype);
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
@@ -2953,6 +2990,10 @@ void av1_build_inter_predictors_for_planes_single_buf(
     if (xd->mi[0]->mbmi.sb_type < BLOCK_8X8 && !CONFIG_CB4X4) {
       int x, y;
       assert(bsize == BLOCK_8X8);
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+      assert(has_second_ref(&xd->mi[0]->mbmi) ||
+             !is_inter_singleref_comp_mode(xd->mi[0]->mbmi.mode));
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
       for (y = 0; y < num_4x4_h; ++y)
         for (x = 0; x < num_4x4_w; ++x)
           build_inter_predictors_single_buf(
@@ -2980,8 +3021,13 @@ static void build_wedge_inter_predictor_from_buf(
   uint8_t *const dst = dst_buf->buf + dst_buf->stride * y + x;
   INTERINTER_COMPOUND_DATA *comp_data = &mbmi->interinter_compound_data;
 
+#if CONFIG_COMPOUND_SINGLEREF
+  if ((is_compound || is_inter_singleref_comp_mode(mbmi->mode)) &&
+      is_masked_compound_type(mbmi->interinter_compound_data.type)) {
+#else   // !CONFIG_COMPOUND_SINGLEREF
   if (is_compound &&
       is_masked_compound_type(mbmi->interinter_compound_data.type)) {
+#endif  // CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_COMPOUND_SEGMENT
 #if CONFIG_HIGHBITDEPTH
     if (!plane && comp_data->type == COMPOUND_SEG) {
@@ -3017,7 +3063,7 @@ static void build_wedge_inter_predictor_from_buf(
           dst, dst_buf->stride, ext_dst0, ext_dst_stride0, ext_dst1,
           ext_dst_stride1, comp_data, mbmi->sb_type, wedge_offset_x,
           wedge_offset_y, h, w);
-#else
+#else  // !CONFIG_SUPERTX
 #if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
       build_masked_compound_highbd(
