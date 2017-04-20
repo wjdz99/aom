@@ -1288,6 +1288,7 @@ const aom_tree_index av1_inter_compound_mode_tree
 };
 
 #if CONFIG_COMPOUND_SINGLEREF
+// TODO(zoeliu): To redesign the tree structure once the number of mode changes.
 const aom_tree_index av1_inter_singleref_comp_mode_tree
     [TREE_SIZE(INTER_SINGLEREF_COMP_MODES)] = {
   -INTER_SINGLEREF_COMP_OFFSET(SR_ZERO_NEWMV), 2,
@@ -1376,7 +1377,7 @@ static const aom_prob default_single_ref_p[REF_CONTEXTS][SINGLE_REFS - 1] = {
 // TODO(zoeliu): Default values to be further adjusted based on the collected
 //               stats.
 static const aom_prob default_comp_inter_mode_p[COMP_INTER_MODE_CONTEXTS] = {
-  41, 119, 187, 225
+  40, 110, 160, 220
 };
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
