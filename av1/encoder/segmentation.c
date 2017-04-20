@@ -352,7 +352,11 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
   no_pred_cost = cost_segmap(no_pred_segcounts, no_pred_tree);
 
   // Key frames cannot use temporal prediction
-  if (!frame_is_intra_only(cm) && !cm->error_resilient_mode) {
+  if (!frame_is_intra_only(cm) && !cm->error_resilient_mode
+#if CONFIG_AOM_SFRAME
+    && !cm->is_sframe
+#endif
+    ) {
     // Work out probability tree for coding those segments not
     // predicted using the temporal method and the cost.
     calc_segtree_probs(t_unpred_seg_counts, t_pred_tree, segp->tree_probs,
