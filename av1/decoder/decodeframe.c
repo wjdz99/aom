@@ -872,7 +872,16 @@ static void dec_predict_b_extend(
   set_ref(cm, xd, 0, mi_row_pred, mi_col_pred);
   if (has_second_ref(&xd->mi[0]->mbmi))
     set_ref(cm, xd, 1, mi_row_pred, mi_col_pred);
-
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  // Single ref compound mode
+  if (!has_second_ref(mbmi) && mbmi->sb_type >= BLOCK_8X8 &&
+      is_inter_singleref_comp_mode(mbmi->mode)) {
+    xd->block_refs[1] = xd->block_refs[0];
+    int i;
+    for (i = 0; i < MAX_MB_PLANE; i++)
+      xd->plane[i].pre[1] = xd->plane[i].pre[0];
+  }
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   if (!bextend) mbmi->tx_size = max_txsize_lookup[bsize_top];
 
   xd->plane[0].dst.stride = dst_stride[0];
@@ -1779,6 +1788,16 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
                              &ref_buf->sf);
       }
     }
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    // Single ref compound mode
+    if (!has_second_ref(mbmi) && mbmi->sb_type >= BLOCK_8X8 &&
+        is_inter_singleref_comp_mode(mbmi->mode)) {
+      xd->block_refs[1] = xd->block_refs[0];
+      int i;
+      for (i = 0; i < MAX_MB_PLANE; i++)
+        xd->plane[i].pre[1] = xd->plane[i].pre[0];
+    }
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
 #if CONFIG_CB4X4
     av1_build_inter_predictors_sb(xd, mi_row, mi_col, NULL, bsize);
@@ -4735,6 +4754,11 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     for (i = 0; i < INTRA_INTER_CONTEXTS; i++)
       av1_diff_update_prob(&r, &fc->intra_inter_prob[i], ACCT_STR);
 
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (i = 0; i < COMP_INTER_MODE_CONTEXTS; i++)
+      av1_diff_update_prob(&r, &fc->comp_inter_mode_prob[i], ACCT_STR);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+
     if (cm->reference_mode != SINGLE_REFERENCE)
       setup_compound_reference_mode(cm);
     read_frame_reference_mode_probs(cm, &r);
@@ -4824,6 +4848,10 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   assert(!memcmp(cm->counts.intra_inter, zero_counts.intra_inter,
                  sizeof(cm->counts.intra_inter)));
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  assert(!memcmp(cm->counts.comp_inter_mode, zero_counts.comp_inter_mode,
+                 sizeof(cm->counts.comp_inter_mode)));
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   assert(!memcmp(cm->counts.comp_inter, zero_counts.comp_inter,
                  sizeof(cm->counts.comp_inter)));
   assert(!memcmp(cm->counts.single_ref, zero_counts.single_ref,
