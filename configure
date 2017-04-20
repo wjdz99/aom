@@ -518,6 +518,7 @@ post_process_cmdline() {
     enabled intra_edge && enable_feature ext_intra
     enabled chroma_2x2 && disable_feature chroma_sub8x8
     enabled dpcm_intra && enable_feature ext_tx
+    enabled compound_singleref && enable_feature ext_inter
 
     if ! enabled daala_ec && ! enabled ans && enabled cfl; then
       log_echo "cfl requires daala_ec or ans, so disabling cfl"
