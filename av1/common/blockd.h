@@ -124,6 +124,62 @@ static INLINE int is_inter_compound_mode(PREDICTION_MODE mode) {
   return mode >= NEAREST_NEARESTMV && mode <= NEW_NEWMV;
 }
 
+#if CONFIG_REF_MV
+// Is this a compound mode which is coded like a (non-compound) NEARESTMV mode?
+static INLINE int is_compound_nearestmv_mode(PREDICTION_MODE mode) {
+  return (mode == NEAREST_NEARESTMV || mode == NEAREST_NEWMV ||
+          mode == NEW_NEARESTMV);
+}
+
+static INLINE int compound_nearestmv_offset(PREDICTION_MODE mode) {
+  switch (mode) {
+    case NEAREST_NEARESTMV: return 0;
+    case NEAREST_NEWMV: return 1;
+    case NEW_NEARESTMV: return 2;
+    default:
+      assert(0);
+      return 0;
+  }
+}
+
+static INLINE int compound_nearmv_offset(PREDICTION_MODE mode) {
+  switch (mode) {
+    case NEAR_NEARMV: return 0;
+    case NEAR_NEWMV: return 1;
+    case NEW_NEARMV: return 2;
+    case NEAREST_NEARMV: return 3;
+    case NEAR_NEARESTMV: return 4;
+    default:
+      assert(0);
+      return 0;
+  }
+}
+
+static INLINE PREDICTION_MODE compound_nearestmv_mode(int offset) {
+  switch (offset) {
+    case 0: return NEAREST_NEARESTMV;
+    case 1: return NEAREST_NEWMV;
+    case 2: return NEW_NEARESTMV;
+    default:
+      assert(0);
+      return MB_MODE_COUNT;
+  }
+}
+
+static INLINE PREDICTION_MODE compound_nearmv_mode(int offset) {
+  switch (offset) {
+    case 0: return NEAR_NEARMV;
+    case 1: return NEAR_NEWMV;
+    case 2: return NEW_NEARMV;
+    case 3: return NEAREST_NEARMV;
+    case 4: return NEAR_NEARESTMV;
+    default:
+      assert(0);
+      return MB_MODE_COUNT;
+  }
+}
+#endif  // CONFIG_REF_MV
+
 static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
   static PREDICTION_MODE lut[MB_MODE_COUNT] = {
     MB_MODE_COUNT,  // DC_PRED

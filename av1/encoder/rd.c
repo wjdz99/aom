@@ -463,10 +463,21 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
                         cm->fc->inter_mode_probs[i], av1_inter_mode_tree);
 #endif  // CONFIG_REF_MV
 #if CONFIG_EXT_INTER
+#if CONFIG_REF_MV
+      for (i = 0; i < REFMV_MODE_CONTEXTS + 1; ++i)
+        av1_cost_tokens((int *)cpi->compound_nearestmv_mode_cost[i],
+                        cm->fc->compound_nearestmv_mode_probs[i],
+                        av1_compound_nearestmv_mode_tree);
+      for (i = 0; i < REFMV_MODE_CONTEXTS; ++i)
+        av1_cost_tokens((int *)cpi->compound_nearmv_mode_cost[i],
+                        cm->fc->compound_nearmv_mode_probs[i],
+                        av1_compound_nearmv_mode_tree);
+#else
       for (i = 0; i < INTER_MODE_CONTEXTS; ++i)
         av1_cost_tokens((int *)cpi->inter_compound_mode_cost[i],
                         cm->fc->inter_compound_mode_probs[i],
                         av1_inter_compound_mode_tree);
+#endif  // CONFIG_REF_MV
       for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
         av1_cost_tokens((int *)cpi->interintra_mode_cost[i],
                         cm->fc->interintra_mode_prob[i],
