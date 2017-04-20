@@ -663,9 +663,16 @@ static void selfguided_restoration_3_h(int32_t *A, int32_t *B, int width,
   }
 }
 
-void av1_selfguided_restoration_sse4_1(uint8_t *dgd, int width, int height,
-                                       int stride, int32_t *dst, int dst_stride,
-                                       int r, int eps, int32_t *tmpbuf) {
+void selfguided_restoration_sse4_1_helper(void *dgd_void, int width, int height,
+                                          int stride, int32_t *dst,
+                                          int dst_stride, int bit_depth, int r,
+                                          int eps, int32_t *tmpbuf) {
+#if CONFIG_HIGHBITDEPTH
+  uint16_t *dgd = (uint16_t *)dgd_void;
+#else
+    uint8_t *dgd = (uint8_t *)dgd_void;
+    (void)bit_depth;
+#endif  // CONFIG_HIGHBITDEPTH
   int32_t *A = tmpbuf;
   int32_t *B = A + SGRPROJ_OUTBUF_SIZE;
   int i, j;
@@ -677,18 +684,36 @@ void av1_selfguided_restoration_sse4_1(uint8_t *dgd, int width, int height,
   // Don't filter tiles with dimensions < 5 on any axis
   if ((width < 5) || (height < 5)) return;
 
+#if CONFIG_HIGHBITDEPTH
   if (r == 1) {
-    selfguided_restoration_1_v(dgd, width, height, stride, A, B, buf_stride);
-    selfguided_restoration_1_h(A, B, width, height, buf_stride, eps, 8);
+    highbd_selfguided_restoration_1_v(dgd, width, height, stride, A, B,
+                                      buf_stride);
+    selfguided_restoration_1_h(A, B, width, height, buf_stride, eps, bit_depth);
   } else if (r == 2) {
-    selfguided_restoration_2_v(dgd, width, height, stride, A, B, buf_stride);
-    selfguided_restoration_2_h(A, B, width, height, buf_stride, eps, 8);
+    highbd_selfguided_restoration_2_v(dgd, width, height, stride, A, B,
+                                      buf_stride);
+    selfguided_restoration_2_h(A, B, width, height, buf_stride, eps, bit_depth);
   } else if (r == 3) {
-    selfguided_restoration_3_v(dgd, width, height, stride, A, B, buf_stride);
-    selfguided_restoration_3_h(A, B, width, height, buf_stride, eps, 8);
+    highbd_selfguided_restoration_3_v(dgd, width, height, stride, A, B,
+                                      buf_stride);
+    selfguided_restoration_3_h(A, B, width, height, buf_stride, eps, bit_depth);
   } else {
     assert(0);
   }
+#else
+    if (r == 1) {
+      selfguided_restoration_1_v(dgd, width, height, stride, A, B, buf_stride);
+      selfguided_restoration_1_h(A, B, width, height, buf_stride, eps, 8);
+    } else if (r == 2) {
+      selfguided_restoration_2_v(dgd, width, height, stride, A, B, buf_stride);
+      selfguided_restoration_2_h(A, B, width, height, buf_stride, eps, 8);
+    } else if (r == 3) {
+      selfguided_restoration_3_v(dgd, width, height, stride, A, B, buf_stride);
+      selfguided_restoration_3_h(A, B, width, height, buf_stride, eps, 8);
+    } else {
+      assert(0);
+    }
+#endif  // CONFIG_HIGHBITDEPTH
 
   {
     i = 0;
@@ -789,8 +814,11 @@ void av1_selfguided_restoration_sse4_1(uint8_t *dgd, int width, int height,
                         _mm_add_epi32(_mm_alignr_epi8(tmp7, tmp6, 8),
                                       _mm_alignr_epi8(tmp11, tmp10, 8)));
       __m128i b = _mm_sub_epi32(_mm_slli_epi32(_mm_add_epi32(b0, b1), 2), b1);
-
-      __m128i src = _mm_cvtepu8_epi32(_mm_loadu_si128((__m128i *)&dgd[l]));
+#if CONFIG_HIGHBITDEPTH
+      __m128i src = _mm_cvtepu16_epi32(_mm_loadu_si128((__m128i *)&dgd[l]));
+#else
+        __m128i src = _mm_cvtepu8_epi32(_mm_loadu_si128((__m128i *)&dgd[l]));
+#endif  // CONFIG_HIGHBITDEPTH
 
       __m128i rounding = _mm_set1_epi32(
           (1 << (SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS)) >> 1);
@@ -881,6 +909,13 @@ void av1_selfguided_restoration_sse4_1(uint8_t *dgd, int width, int height,
       dst[m] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
     }
   }
+}
+
+void av1_selfguided_restoration_sse4_1(uint8_t *dgd, int width, int height,
+                                       int stride, int32_t *dst, int dst_stride,
+                                       int r, int eps, int32_t *tmpbuf) {
+  selfguided_restoration_sse4_1_helper(dgd, width, height, stride, dst,
+                                       dst_stride, 8, r, eps, tmpbuf);
 }
 
 void av1_highpass_filter_sse4_1(uint8_t *dgd, int width, int height, int stride,
@@ -1368,224 +1403,8 @@ void av1_selfguided_restoration_highbd_sse4_1(uint16_t *dgd, int width,
                                               int32_t *dst, int dst_stride,
                                               int bit_depth, int r, int eps,
                                               int32_t *tmpbuf) {
-  int32_t *A = tmpbuf;
-  int32_t *B = A + SGRPROJ_OUTBUF_SIZE;
-  int i, j;
-  // Adjusting the stride of A and B here appears to avoid bad cache effects,
-  // leading to a significant speed improvement.
-  // We also align the stride to a multiple of 16 bytes for efficiency.
-  int buf_stride = ((width + 3) & ~3) + 16;
-
-  // Don't filter tiles with dimensions < 5 on any axis
-  if ((width < 5) || (height < 5)) return;
-
-  if (r == 1) {
-    highbd_selfguided_restoration_1_v(dgd, width, height, stride, A, B,
-                                      buf_stride);
-    selfguided_restoration_1_h(A, B, width, height, buf_stride, eps, bit_depth);
-  } else if (r == 2) {
-    highbd_selfguided_restoration_2_v(dgd, width, height, stride, A, B,
-                                      buf_stride);
-    selfguided_restoration_2_h(A, B, width, height, buf_stride, eps, bit_depth);
-  } else if (r == 3) {
-    highbd_selfguided_restoration_3_v(dgd, width, height, stride, A, B,
-                                      buf_stride);
-    selfguided_restoration_3_h(A, B, width, height, buf_stride, eps, bit_depth);
-  } else {
-    assert(0);
-  }
-
-  {
-    i = 0;
-    j = 0;
-    {
-      const int k = i * buf_stride + j;
-      const int l = i * stride + j;
-      const int m = i * dst_stride + j;
-      const int nb = 3;
-      const int32_t a = 3 * A[k] + 2 * A[k + 1] + 2 * A[k + buf_stride] +
-                        A[k + buf_stride + 1];
-      const int32_t b = 3 * B[k] + 2 * B[k + 1] + 2 * B[k + buf_stride] +
-                        B[k + buf_stride + 1];
-      const int32_t v = a * dgd[l] + b;
-      dst[m] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
-    }
-    for (j = 1; j < width - 1; ++j) {
-      const int k = i * buf_stride + j;
-      const int l = i * stride + j;
-      const int m = i * dst_stride + j;
-      const int nb = 3;
-      const int32_t a = A[k] + 2 * (A[k - 1] + A[k + 1]) + A[k + buf_stride] +
-                        A[k + buf_stride - 1] + A[k + buf_stride + 1];
-      const int32_t b = B[k] + 2 * (B[k - 1] + B[k + 1]) + B[k + buf_stride] +
-                        B[k + buf_stride - 1] + B[k + buf_stride + 1];
-      const int32_t v = a * dgd[l] + b;
-      dst[m] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
-    }
-    j = width - 1;
-    {
-      const int k = i * buf_stride + j;
-      const int l = i * stride + j;
-      const int m = i * dst_stride + j;
-      const int nb = 3;
-      const int32_t a = 3 * A[k] + 2 * A[k - 1] + 2 * A[k + buf_stride] +
-                        A[k + buf_stride - 1];
-      const int32_t b = 3 * B[k] + 2 * B[k - 1] + 2 * B[k + buf_stride] +
-                        B[k + buf_stride - 1];
-      const int32_t v = a * dgd[l] + b;
-      dst[m] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
-    }
-  }
-  for (i = 1; i < height - 1; ++i) {
-    j = 0;
-    {
-      const int k = i * buf_stride + j;
-      const int l = i * stride + j;
-      const int m = i * dst_stride + j;
-      const int nb = 3;
-      const int32_t a = A[k] + 2 * (A[k - buf_stride] + A[k + buf_stride]) +
-                        A[k + 1] + A[k - buf_stride + 1] +
-                        A[k + buf_stride + 1];
-      const int32_t b = B[k] + 2 * (B[k - buf_stride] + B[k + buf_stride]) +
-                        B[k + 1] + B[k - buf_stride + 1] +
-                        B[k + buf_stride + 1];
-      const int32_t v = a * dgd[l] + b;
-      dst[m] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
-    }
-
-    // Vectorize the innermost loop
-    for (j = 1; j < width - 1; j += 4) {
-      const int k = i * buf_stride + j;
-      const int l = i * stride + j;
-      const int m = i * dst_stride + j;
-      const int nb = 5;
-
-      __m128i tmp0 = _mm_loadu_si128((__m128i *)&A[k - 1 - buf_stride]);
-      __m128i tmp1 = _mm_loadu_si128((__m128i *)&A[k + 3 - buf_stride]);
-      __m128i tmp2 = _mm_loadu_si128((__m128i *)&A[k - 1]);
-      __m128i tmp3 = _mm_loadu_si128((__m128i *)&A[k + 3]);
-      __m128i tmp4 = _mm_loadu_si128((__m128i *)&A[k - 1 + buf_stride]);
-      __m128i tmp5 = _mm_loadu_si128((__m128i *)&A[k + 3 + buf_stride]);
-
-      __m128i a0 = _mm_add_epi32(
-          _mm_add_epi32(_mm_add_epi32(_mm_alignr_epi8(tmp3, tmp2, 4), tmp2),
-                        _mm_add_epi32(_mm_alignr_epi8(tmp3, tmp2, 8),
-                                      _mm_alignr_epi8(tmp5, tmp4, 4))),
-          _mm_alignr_epi8(tmp1, tmp0, 4));
-      __m128i a1 = _mm_add_epi32(_mm_add_epi32(tmp0, tmp4),
-                                 _mm_add_epi32(_mm_alignr_epi8(tmp1, tmp0, 8),
-                                               _mm_alignr_epi8(tmp5, tmp4, 8)));
-      __m128i a = _mm_sub_epi32(_mm_slli_epi32(_mm_add_epi32(a0, a1), 2), a1);
-
-      __m128i tmp6 = _mm_loadu_si128((__m128i *)&B[k - 1 - buf_stride]);
-      __m128i tmp7 = _mm_loadu_si128((__m128i *)&B[k + 3 - buf_stride]);
-      __m128i tmp8 = _mm_loadu_si128((__m128i *)&B[k - 1]);
-      __m128i tmp9 = _mm_loadu_si128((__m128i *)&B[k + 3]);
-      __m128i tmp10 = _mm_loadu_si128((__m128i *)&B[k - 1 + buf_stride]);
-      __m128i tmp11 = _mm_loadu_si128((__m128i *)&B[k + 3 + buf_stride]);
-
-      __m128i b0 = _mm_add_epi32(
-          _mm_add_epi32(_mm_add_epi32(_mm_alignr_epi8(tmp9, tmp8, 4), tmp8),
-                        _mm_add_epi32(_mm_alignr_epi8(tmp9, tmp8, 8),
-                                      _mm_alignr_epi8(tmp11, tmp10, 4))),
-          _mm_alignr_epi8(tmp7, tmp6, 4));
-      __m128i b1 =
-          _mm_add_epi32(_mm_add_epi32(tmp6, tmp10),
-                        _mm_add_epi32(_mm_alignr_epi8(tmp7, tmp6, 8),
-                                      _mm_alignr_epi8(tmp11, tmp10, 8)));
-      __m128i b = _mm_sub_epi32(_mm_slli_epi32(_mm_add_epi32(b0, b1), 2), b1);
-
-      __m128i src = _mm_cvtepu16_epi32(_mm_loadu_si128((__m128i *)&dgd[l]));
-
-      __m128i rounding = _mm_set1_epi32(
-          (1 << (SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS)) >> 1);
-      __m128i v = _mm_add_epi32(_mm_mullo_epi32(a, src), b);
-      __m128i w = _mm_srai_epi32(_mm_add_epi32(v, rounding),
-                                 SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
-      _mm_storeu_si128((__m128i *)&dst[m], w);
-    }
-
-    // Deal with any extra pixels at the right-hand edge of the frame
-    // (typically have 2 such pixels, but may have anywhere between 0 and 3)
-    for (; j < width - 1; ++j) {
-      const int k = i * buf_stride + j;
-      const int l = i * stride + j;
-      const int m = i * dst_stride + j;
-      const int nb = 5;
-      const int32_t a =
-          (A[k] + A[k - 1] + A[k + 1] + A[k - buf_stride] + A[k + buf_stride]) *
-              4 +
-          (A[k - 1 - buf_stride] + A[k - 1 + buf_stride] +
-           A[k + 1 - buf_stride] + A[k + 1 + buf_stride]) *
-              3;
-      const int32_t b =
-          (B[k] + B[k - 1] + B[k + 1] + B[k - buf_stride] + B[k + buf_stride]) *
-              4 +
-          (B[k - 1 - buf_stride] + B[k - 1 + buf_stride] +
-           B[k + 1 - buf_stride] + B[k + 1 + buf_stride]) *
-              3;
-      const int32_t v = a * dgd[l] + b;
-      dst[m] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
-    }
-
-    j = width - 1;
-    {
-      const int k = i * buf_stride + j;
-      const int l = i * stride + j;
-      const int m = i * dst_stride + j;
-      const int nb = 3;
-      const int32_t a = A[k] + 2 * (A[k - buf_stride] + A[k + buf_stride]) +
-                        A[k - 1] + A[k - buf_stride - 1] +
-                        A[k + buf_stride - 1];
-      const int32_t b = B[k] + 2 * (B[k - buf_stride] + B[k + buf_stride]) +
-                        B[k - 1] + B[k - buf_stride - 1] +
-                        B[k + buf_stride - 1];
-      const int32_t v = a * dgd[l] + b;
-      dst[m] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
-    }
-  }
-
-  {
-    i = height - 1;
-    j = 0;
-    {
-      const int k = i * buf_stride + j;
-      const int l = i * stride + j;
-      const int m = i * dst_stride + j;
-      const int nb = 3;
-      const int32_t a = 3 * A[k] + 2 * A[k + 1] + 2 * A[k - buf_stride] +
-                        A[k - buf_stride + 1];
-      const int32_t b = 3 * B[k] + 2 * B[k + 1] + 2 * B[k - buf_stride] +
-                        B[k - buf_stride + 1];
-      const int32_t v = a * dgd[l] + b;
-      dst[m] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
-    }
-    for (j = 1; j < width - 1; ++j) {
-      const int k = i * buf_stride + j;
-      const int l = i * stride + j;
-      const int m = i * dst_stride + j;
-      const int nb = 3;
-      const int32_t a = A[k] + 2 * (A[k - 1] + A[k + 1]) + A[k - buf_stride] +
-                        A[k - buf_stride - 1] + A[k - buf_stride + 1];
-      const int32_t b = B[k] + 2 * (B[k - 1] + B[k + 1]) + B[k - buf_stride] +
-                        B[k - buf_stride - 1] + B[k - buf_stride + 1];
-      const int32_t v = a * dgd[l] + b;
-      dst[m] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
-    }
-    j = width - 1;
-    {
-      const int k = i * buf_stride + j;
-      const int l = i * stride + j;
-      const int m = i * dst_stride + j;
-      const int nb = 3;
-      const int32_t a = 3 * A[k] + 2 * A[k - 1] + 2 * A[k - buf_stride] +
-                        A[k - buf_stride - 1];
-      const int32_t b = 3 * B[k] + 2 * B[k - 1] + 2 * B[k - buf_stride] +
-                        B[k - buf_stride - 1];
-      const int32_t v = a * dgd[l] + b;
-      dst[m] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
-    }
-  }
+  selfguided_restoration_sse4_1_helper(dgd, width, height, stride, dst,
+                                       dst_stride, bit_depth, r, eps, tmpbuf);
 }
 
 void av1_highpass_filter_highbd_sse4_1(uint16_t *dgd, int width, int height,
