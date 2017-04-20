@@ -904,7 +904,9 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #else
   const MODE_INFO *mi = xd->mi[0];
 #endif  // CONFIG_MOTION_VAR
+#if !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
   const int is_compound = has_second_ref(&mi->mbmi);
+#endif  // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
   int ref;
 #if CONFIG_INTRABC
   const int is_intrabc = is_intrabc_block(&mi->mbmi);
@@ -929,6 +931,12 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #if CONFIG_CB4X4
   (void)block;
 #endif
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+  assert(is_compound || is_inter_singleref_mode(mi->mbmi.mode) ||
+         (is_inter_singleref_comp_mode(mi->mbmi.mode) &&
+          mi->mbmi.sb_type >= BLOCK_8X8));
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
 #if CONFIG_SUB8X8_MC
 #if CONFIG_MOTION_VAR
@@ -1035,14 +1043,14 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
                 mi_col_offset, mi_row_offset,
-#endif
+#endif  // CONFIG_MOTION_VAR
                 xs, ys, xd);
         }
       }
     }
     return;
   }
-#endif
+#endif  // CONFIG_SUB8X8_MC
 
   {
     struct buf_2d *const dst_buf = &pd->dst;
@@ -1055,7 +1063,12 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
     av1_zero(tmp_dst);
 #endif  // CONFIG_CONVOLVE_ROUND
 
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (ref = 0; ref < 1 + is_inter_singleref_comp_mode(mi->mbmi.mode);
+         ++ref) {
+#else
     for (ref = 0; ref < 1 + is_compound; ++ref) {
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_INTRABC
       const struct scale_factors *const sf =
           is_intrabc ? &sf_identity : &xd->block_refs[ref]->sf;
@@ -1113,7 +1126,13 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #else
     ConvolveParams conv_params = get_conv_params(ref, plane);
 #endif  // CONFIG_CONVOLVE_ROUND
+
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+    for (ref = 0; ref < 1 + is_inter_singleref_comp_mode(mi->mbmi.mode);
+         ++ref) {
+#else
     for (ref = 0; ref < 1 + is_compound; ++ref) {
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_INTRABC
       const struct scale_factors *const sf =
           is_intrabc ? &sf_identity : &xd->block_refs[ref]->sf;
@@ -1125,7 +1144,12 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
       WarpTypesAllowed warp_types;
 #if CONFIG_GLOBAL_MOTION
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+      warp_types.global_warp_allowed =
+          has_second_ref(&mi->mbmi) ? is_global[ref] : is_global[0];
+#else  // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
       warp_types.global_warp_allowed = is_global[ref];
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
       warp_types.local_warp_allowed = mi->mbmi.motion_mode == WARPED_CAUSAL;
@@ -1170,9 +1194,16 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 #if CONFIG_HIGHBITDEPTH
     if (!(xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH))
 #endif  // CONFIG_HIGHBITDEPTH
+#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+      av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
+                            FILTER_BITS * 2 +
+                                is_inter_singleref_comp_mode(mi->mbmi.mode) -
+                                conv_params.round_0 - conv_params.round_1);
+#else  // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
       av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
                             FILTER_BITS * 2 + is_compound -
                                 conv_params.round_0 - conv_params.round_1);
+#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_CONVOLVE_ROUND
   }
 }
