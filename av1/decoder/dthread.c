@@ -179,7 +179,7 @@ void av1_frameworker_copy_context(AVxWorker *const dst_worker,
     dst_cm->ref_frame_map[i] = src_cm->next_ref_frame_map[i];
 
   memcpy(dst_cm->lf_info.lfthr, src_cm->lf_info.lfthr,
-         (MAX_LOOP_FILTER + 1) * sizeof(loop_filter_thresh));
+         (MAX_LOOP_FILTER + 1) * sizeof(LoopFilterThresh));
   dst_cm->lf.last_sharpness_level = src_cm->lf.sharpness_level;
   dst_cm->lf.filter_level = src_cm->lf.filter_level;
   memcpy(dst_cm->lf.ref_deltas, src_cm->lf.ref_deltas, TOTAL_REFS_PER_FRAME);

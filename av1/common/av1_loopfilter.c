@@ -395,8 +395,8 @@ static void filter_selectively_vert_row2(int subsampling_factor, uint8_t *s,
   for (mask = mask_16x16_0 | mask_8x8_0 | mask_4x4_0 | mask_4x4_int_0 |
               mask_16x16_1 | mask_8x8_1 | mask_4x4_1 | mask_4x4_int_1;
        mask; mask >>= 1) {
-    const loop_filter_thresh *lfi0 = lfi_n->lfthr + *lfl;
-    const loop_filter_thresh *lfi1 = lfi_n->lfthr + *(lfl + lfl_forward);
+    const LoopFilterThresh *lfi0 = lfi_n->lfthr + *lfl;
+    const LoopFilterThresh *lfi1 = lfi_n->lfthr + *(lfl + lfl_forward);
 
     if (mask & 1) {
       if ((mask_16x16_0 | mask_16x16_1) & 1) {
@@ -488,8 +488,8 @@ static void highbd_filter_selectively_vert_row2(
   for (mask = mask_16x16_0 | mask_8x8_0 | mask_4x4_0 | mask_4x4_int_0 |
               mask_16x16_1 | mask_8x8_1 | mask_4x4_1 | mask_4x4_int_1;
        mask; mask >>= 1) {
-    const loop_filter_thresh *lfi0 = lfi_n->lfthr + *lfl;
-    const loop_filter_thresh *lfi1 = lfi_n->lfthr + *(lfl + lfl_forward);
+    const LoopFilterThresh *lfi0 = lfi_n->lfthr + *lfl;
+    const LoopFilterThresh *lfi1 = lfi_n->lfthr + *(lfl + lfl_forward);
 
     if (mask & 1) {
       if ((mask_16x16_0 | mask_16x16_1) & 1) {
@@ -571,7 +571,7 @@ static void filter_selectively_horiz(
 
   for (mask = mask_16x16 | mask_8x8 | mask_4x4 | mask_4x4_int; mask;
        mask >>= count) {
-    const loop_filter_thresh *lfi = lfi_n->lfthr + *lfl;
+    const LoopFilterThresh *lfi = lfi_n->lfthr + *lfl;
 
     count = 1;
     if (mask & 1) {
@@ -587,7 +587,7 @@ static void filter_selectively_horiz(
       } else if (mask_8x8 & 1) {
         if ((mask_8x8 & 3) == 3) {
           // Next block's thresholds.
-          const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + 1);
+          const LoopFilterThresh *lfin = lfi_n->lfthr + *(lfl + 1);
 
           aom_lpf_horizontal_8_dual(s, pitch, lfi->mblim, lfi->lim,
                                     lfi->hev_thr, lfin->mblim, lfin->lim,
@@ -616,7 +616,7 @@ static void filter_selectively_horiz(
       } else if (mask_4x4 & 1) {
         if ((mask_4x4 & 3) == 3) {
           // Next block's thresholds.
-          const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + 1);
+          const LoopFilterThresh *lfin = lfi_n->lfthr + *(lfl + 1);
 
           aom_lpf_horizontal_4_dual(s, pitch, lfi->mblim, lfi->lim,
                                     lfi->hev_thr, lfin->mblim, lfin->lim,
@@ -665,7 +665,7 @@ static void highbd_filter_selectively_horiz(
 
   for (mask = mask_16x16 | mask_8x8 | mask_4x4 | mask_4x4_int; mask;
        mask >>= count) {
-    const loop_filter_thresh *lfi = lfi_n->lfthr + *lfl;
+    const LoopFilterThresh *lfi = lfi_n->lfthr + *lfl;
 
     count = 1;
     if (mask & 1) {
@@ -681,7 +681,7 @@ static void highbd_filter_selectively_horiz(
       } else if (mask_8x8 & 1) {
         if ((mask_8x8 & 3) == 3) {
           // Next block's thresholds.
-          const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + 1);
+          const LoopFilterThresh *lfin = lfi_n->lfthr + *(lfl + 1);
 
           aom_highbd_lpf_horizontal_8_dual(s, pitch, lfi->mblim, lfi->lim,
                                            lfi->hev_thr, lfin->mblim, lfin->lim,
@@ -713,7 +713,7 @@ static void highbd_filter_selectively_horiz(
       } else if (mask_4x4 & 1) {
         if ((mask_4x4 & 3) == 3) {
           // Next block's thresholds.
-          const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + 1);
+          const LoopFilterThresh *lfin = lfi_n->lfthr + *(lfl + 1);
 
           aom_highbd_lpf_horizontal_4_dual(s, pitch, lfi->mblim, lfi->lim,
                                            lfi->hev_thr, lfin->mblim, lfin->lim,
@@ -1245,7 +1245,7 @@ static void filter_selectively_vert(
 
   for (mask = mask_16x16 | mask_8x8 | mask_4x4 | mask_4x4_int; mask;
        mask >>= 1) {
-    const loop_filter_thresh *lfi = lfi_n->lfthr + *lfl;
+    const LoopFilterThresh *lfi = lfi_n->lfthr + *lfl;
 
     if (mask & 1) {
       if (mask_16x16 & 1) {
@@ -1276,7 +1276,7 @@ static void highbd_filter_selectively_vert(
 
   for (mask = mask_16x16 | mask_8x8 | mask_4x4 | mask_4x4_int; mask;
        mask >>= 1) {
-    const loop_filter_thresh *lfi = lfi_n->lfthr + *lfl;
+    const LoopFilterThresh *lfi = lfi_n->lfthr + *lfl;
 
     if (mask & 1) {
       if (mask_16x16 & 1) {
@@ -2165,7 +2165,7 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
       }
       // prepare common parameters
       if (pParams->filterLength || pParams->filterLengthInternal) {
-        const loop_filter_thresh *const limits = cm->lf_info.lfthr + level;
+        const LoopFilterThresh *const limits = cm->lf_info.lfthr + level;
         pParams->lim = limits->lim;
         pParams->mblim = limits->mblim;
         pParams->hev_thr = limits->hev_thr;

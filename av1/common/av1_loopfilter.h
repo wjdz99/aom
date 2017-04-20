@@ -60,10 +60,10 @@ typedef struct {
   DECLARE_ALIGNED(SIMD_WIDTH, uint8_t, mblim[SIMD_WIDTH]);
   DECLARE_ALIGNED(SIMD_WIDTH, uint8_t, lim[SIMD_WIDTH]);
   DECLARE_ALIGNED(SIMD_WIDTH, uint8_t, hev_thr[SIMD_WIDTH]);
-} loop_filter_thresh;
+} LoopFilterThresh;
 
 typedef struct {
-  loop_filter_thresh lfthr[MAX_LOOP_FILTER + 1];
+  LoopFilterThresh lfthr[MAX_LOOP_FILTER + 1];
   uint8_t lvl[MAX_SEGMENTS][TOTAL_REFS_PER_FRAME][MAX_MODE_LF_DELTAS];
 } loop_filter_info_n;
 
