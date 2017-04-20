@@ -137,11 +137,11 @@ static struct av1_token switchable_restore_encodings[RESTORE_SWITCHABLE_TYPES];
 static void write_uncompressed_header(AV1_COMP *cpi,
                                       struct aom_write_bit_buffer *wb);
 static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data);
-static int remux_tiles(const AV1_COMMON *const cm, uint8_t *dst,
-                       const uint32_t data_size, const uint32_t max_tile_size,
-                       const uint32_t max_tile_col_size,
-                       int *const tile_size_bytes,
-                       int *const tile_col_size_bytes);
+static size_t remux_tiles(const AV1_COMMON *const cm, uint8_t *dst,
+                          const size_t data_size, const uint32_t max_tile_size,
+                          const uint32_t max_tile_col_size,
+                          int *const tile_size_bytes,
+                          int *const tile_col_size_bytes);
 
 void av1_encode_token_init(void) {
 #if CONFIG_EXT_TX || CONFIG_PALETTE
@@ -4013,15 +4013,15 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
   int tg_count = 1;
   int tile_size_bytes = 4;
   int tile_col_size_bytes;
-  int uncompressed_hdr_size = 0;
+  size_t uncompressed_hdr_size = 0;
   uint8_t *dst = NULL;
   struct aom_write_bit_buffer comp_hdr_len_wb;
   struct aom_write_bit_buffer tg_params_wb;
   struct aom_write_bit_buffer tile_size_bytes_wb;
-  int saved_offset;
-  int mtu_size = cpi->oxcf.mtu;
-  int curr_tg_data_size = 0;
-  int hdr_size;
+  size_t saved_offset;
+  unsigned int mtu_size = cpi->oxcf.mtu;
+  size_t curr_tg_data_size = 0;
+  size_t hdr_size;
 #endif
 #if CONFIG_EXT_TILE
   const int have_tiles = tile_cols * tile_rows > 1;
@@ -4188,7 +4188,7 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
              should therefore be tile_count-1.
              Move the last tile and insert headers before it
            */
-          int old_total_size = total_size - tile_size - 4;
+          size_t old_total_size = total_size - tile_size - 4;
           memmove(dst + old_total_size + hdr_size, dst + old_total_size,
                   (tile_size + 4) * sizeof(uint8_t));
           // Copy uncompressed header
@@ -4293,7 +4293,7 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
   // Remux if possible. TODO (Thomas Davies): do this for more than one tile
   // group
   if (have_tiles && tg_count == 1) {
-    int data_size = total_size - (uncompressed_hdr_size + comp_hdr_size);
+    size_t data_size = total_size - (uncompressed_hdr_size + comp_hdr_size);
     data_size = remux_tiles(cm, dst + uncompressed_hdr_size + comp_hdr_size,
                             data_size, *max_tile_size, *max_tile_col_size,
                             &tile_size_bytes, &tile_col_size_bytes);
@@ -5071,11 +5071,11 @@ static void mem_put_varsize(uint8_t *const dst, const int sz, const int val) {
     default: assert("Invalid size" && 0); break;
   }
 }
-static int remux_tiles(const AV1_COMMON *const cm, uint8_t *dst,
-                       const uint32_t data_size, const uint32_t max_tile_size,
-                       const uint32_t max_tile_col_size,
-                       int *const tile_size_bytes,
-                       int *const tile_col_size_bytes) {
+static size_t remux_tiles(const AV1_COMMON *const cm, uint8_t *dst,
+                          const size_t data_size, const uint32_t max_tile_size,
+                          const uint32_t max_tile_col_size,
+                          int *const tile_size_bytes,
+                          int *const tile_col_size_bytes) {
 // Choose the tile size bytes (tsb) and tile column size bytes (tcsb)
 #if CONFIG_EXT_TILE
   // The top bit in the tile size field indicates tile copy mode, so we
@@ -5147,7 +5147,7 @@ static int remux_tiles(const AV1_COMMON *const cm, uint8_t *dst,
       int tile_size;
 
       if (n == n_tiles - 1) {
-        tile_size = data_size - rpos;
+        tile_size = (int)(data_size - rpos);
       } else {
         tile_size = mem_get_le32(dst + rpos);
         rpos += 4;
