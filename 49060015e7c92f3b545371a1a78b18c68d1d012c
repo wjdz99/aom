@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "430e88e7_1fee74c4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-04-20T10:00:56Z",
+      "side": 1,
+      "message": "edit: as far as features are not incompatible and can be toggled dynamically, we should enable *their build* by default \nWe\u0027ve seen that the nightly coverage didn\u0027t test configurations like \"./configure --enable-highbitdepth --disable-av1-encoder\" (recently failed to build on master, now fixed).\nThis is an easy way to greatly improve the build coverage.",
+      "parentUuid": "e73b7bc0_580a834f",
+      "revId": "49060015e7c92f3b545371a1a78b18c68d1d012c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f4e5b563_0b91d5d9",
         "filename": "configure",
         "patchSetId": 17
