@@ -191,8 +191,17 @@ typedef struct frame_contexts {
 
   aom_prob inter_mode_probs[INTER_MODE_CONTEXTS][INTER_MODES - 1];
 #if CONFIG_EXT_INTER
+#if CONFIG_REF_MV
+  // Note: The nearestmv modes have one extra context,
+  // which is used when the ALL_ZERO flag is set
+  aom_prob compound_nearestmv_mode_probs[REFMV_MODE_CONTEXTS + 1]
+                                        [COMPOUND_NEARESTMV_MODES - 1];
+  aom_prob compound_nearmv_mode_probs[REFMV_MODE_CONTEXTS]
+                                     [COMPOUND_NEARMV_MODES - 1];
+#else
   aom_prob inter_compound_mode_probs[INTER_MODE_CONTEXTS]
                                     [INTER_COMPOUND_MODES - 1];
+#endif  // CONFIG_REF_MV
   aom_prob compound_type_prob[BLOCK_SIZES][COMPOUND_TYPES - 1];
   aom_prob interintra_prob[BLOCK_SIZE_GROUPS];
   aom_prob interintra_mode_prob[BLOCK_SIZE_GROUPS][INTERINTRA_MODES - 1];
@@ -353,7 +362,13 @@ typedef struct FRAME_COUNTS {
 
   unsigned int inter_mode[INTER_MODE_CONTEXTS][INTER_MODES];
 #if CONFIG_EXT_INTER
+#if CONFIG_REF_MV
+  unsigned int compound_nearestmv_mode[REFMV_MODE_CONTEXTS + 1]
+                                      [COMPOUND_NEARESTMV_MODES];
+  unsigned int compound_nearmv_mode[REFMV_MODE_CONTEXTS][COMPOUND_NEARMV_MODES];
+#else
   unsigned int inter_compound_mode[INTER_MODE_CONTEXTS][INTER_COMPOUND_MODES];
+#endif  // CONFIG_REF_MV
   unsigned int interintra[BLOCK_SIZE_GROUPS][2];
   unsigned int interintra_mode[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
   unsigned int wedge_interintra[BLOCK_SIZES][2];
@@ -464,8 +479,17 @@ extern int av1_ext_tx_inter_inv[EXT_TX_SETS_INTER][TX_TYPES];
 #if CONFIG_EXT_INTER
 extern const aom_tree_index
     av1_interintra_mode_tree[TREE_SIZE(INTERINTRA_MODES)];
+
+#if CONFIG_REF_MV
+const aom_tree_index
+    av1_compound_nearestmv_mode_tree[TREE_SIZE(INTER_COMPOUND_MODES)];
+const aom_tree_index
+    av1_compound_nearmv_mode_tree[TREE_SIZE(INTER_COMPOUND_MODES)];
+#else
 extern const aom_tree_index
     av1_inter_compound_mode_tree[TREE_SIZE(INTER_COMPOUND_MODES)];
+#endif  // CONFIG_REF_MV
+
 extern const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)];
 #endif  // CONFIG_EXT_INTER
 extern const aom_tree_index av1_partition_tree[TREE_SIZE(PARTITION_TYPES)];

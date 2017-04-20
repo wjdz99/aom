@@ -761,6 +761,21 @@ static const aom_prob
     };
 
 #if CONFIG_EXT_INTER
+#if CONFIG_REF_MV
+static const aom_prob
+    default_compound_nearestmv_mode_probs[REFMV_MODE_CONTEXTS +
+                                          1][COMPOUND_NEARESTMV_MODES - 1] = {
+      { 224, 170 }, { 224, 170 }, { 224, 170 }, { 224, 170 }, { 224, 170 },
+      { 224, 170 }, { 224, 170 }, { 224, 170 }, { 224, 170 }, { 224, 170 },
+    };
+
+static const aom_prob default_compound_nearmv_mode_probs
+    [REFMV_MODE_CONTEXTS][COMPOUND_NEARMV_MODES - 1] = {
+      { 64, 43, 128, 224 }, { 64, 43, 128, 224 }, { 64, 43, 128, 224 },
+      { 64, 43, 128, 224 }, { 64, 43, 128, 224 }, { 64, 43, 128, 224 },
+      { 64, 43, 128, 224 }, { 64, 43, 128, 224 }, { 64, 43, 128, 224 },
+    };
+#else
 static const aom_prob default_inter_compound_mode_probs
     [INTER_MODE_CONTEXTS][INTER_COMPOUND_MODES - 1] = {
       { 2, 173, 68, 192, 64, 192, 128, 180, 180 },   // 0 = both zero mv
@@ -771,6 +786,7 @@ static const aom_prob default_inter_compound_mode_probs
       { 17, 81, 52, 192, 64, 192, 128, 180, 180 },   // 5 = one intra neighbour
       { 25, 29, 50, 192, 64, 192, 128, 180, 180 },   // 6 = two intra neighbours
     };
+#endif  // CONFIG_REF_MV
 
 #if CONFIG_COMPOUND_SEGMENT && CONFIG_WEDGE
 static const aom_prob
@@ -969,6 +985,21 @@ const aom_tree_index av1_interintra_mode_tree[TREE_SIZE(INTERINTRA_MODES)] = {
   -II_D153_PRED, -II_D207_PRED      /* 8 = II_D153_NODE   */
 };
 
+#if CONFIG_REF_MV
+const aom_tree_index av1_compound_nearestmv_mode_tree
+    [TREE_SIZE(INTER_COMPOUND_MODES)] = {
+  -0, 2,  // NEAREST_NEARESTMV
+  -1, -2  // NEAREST_NEWMV, NEW_NEARESTMV
+};
+
+const aom_tree_index av1_compound_nearmv_mode_tree
+    [TREE_SIZE(INTER_COMPOUND_MODES)] = {
+  -0, 2,  // NEAR_NEARMV
+  4, 6,
+  -1, -2,  // NEAR_NEWMV, NEW_NEARMV
+  -3, -4  // NEAREST_NEARMV, NEAR_NEARESTMV
+};
+#else
 const aom_tree_index av1_inter_compound_mode_tree
     [TREE_SIZE(INTER_COMPOUND_MODES)] = {
   -INTER_COMPOUND_OFFSET(ZERO_ZEROMV), 2,
@@ -982,6 +1013,7 @@ const aom_tree_index av1_inter_compound_mode_tree
   -INTER_COMPOUND_OFFSET(NEAREST_NEWMV), -INTER_COMPOUND_OFFSET(NEW_NEARESTMV),
   -INTER_COMPOUND_OFFSET(NEAR_NEWMV), -INTER_COMPOUND_OFFSET(NEW_NEARMV)
 };
+#endif  // CONFIG_REF_MV
 
 #if CONFIG_COMPOUND_SEGMENT && CONFIG_WEDGE
 const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)] = {
@@ -3236,7 +3268,13 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_EXT_INTER
+#if CONFIG_REF_MV
+  av1_copy(fc->compound_nearestmv_mode_probs,
+           default_compound_nearestmv_mode_probs);
+  av1_copy(fc->compound_nearmv_mode_probs, default_compound_nearmv_mode_probs);
+#else
   av1_copy(fc->inter_compound_mode_probs, default_inter_compound_mode_probs);
+#endif  // CONFIG_REF_MV
   av1_copy(fc->compound_type_prob, default_compound_type_probs);
   av1_copy(fc->interintra_prob, default_interintra_prob);
   av1_copy(fc->interintra_mode_prob, default_interintra_mode_prob);
@@ -3471,10 +3509,22 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
 #endif  // CONFIG_SUPERTX
 
 #if CONFIG_EXT_INTER
+#if CONFIG_REF_MV
+  for (i = 0; i < REFMV_MODE_CONTEXTS + 1; i++)
+    aom_tree_merge_probs(av1_compound_nearestmv_mode_tree,
+                         pre_fc->compound_nearestmv_mode_probs[i],
+                         counts->compound_nearestmv_mode[i],
+                         fc->compound_nearestmv_mode_probs[i]);
+  for (i = 0; i < REFMV_MODE_CONTEXTS; i++)
+    aom_tree_merge_probs(
+        av1_compound_nearmv_mode_tree, pre_fc->compound_nearmv_mode_probs[i],
+        counts->compound_nearmv_mode[i], fc->compound_nearmv_mode_probs[i]);
+#else
   for (i = 0; i < INTER_MODE_CONTEXTS; i++)
     aom_tree_merge_probs(
         av1_inter_compound_mode_tree, pre_fc->inter_compound_mode_probs[i],
         counts->inter_compound_mode[i], fc->inter_compound_mode_probs[i]);
+#endif  // CONFIG_REF_MV
   for (i = 0; i < BLOCK_SIZE_GROUPS; ++i) {
     if (is_interintra_allowed_bsize_group(i))
       fc->interintra_prob[i] = av1_mode_mv_merge_probs(

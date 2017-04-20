@@ -2045,6 +2045,52 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   ctx->dist = rd_cost->dist;
 }
 
+#if CONFIG_REF_MV && CONFIG_EXT_INTER
+static void update_inter_compound_mode_stats(FRAME_COUNTS *counts,
+                                             PREDICTION_MODE mode,
+                                             const int16_t mode_context) {
+  int16_t mode_ctx = mode_context & NEWMV_CTX_MASK;
+  if (mode == NEW_NEWMV) {
+    ++counts->newmv_mode[mode_ctx][0];
+    return;
+  } else {
+    ++counts->newmv_mode[mode_ctx][1];
+
+    if (mode_context & (1 << ALL_ZERO_FLAG_OFFSET)) {
+      // See read_inter_compound_mode for details on this block
+      mode_ctx = REFMV_MODE_CONTEXTS;
+      PREDICTION_MODE coded_mode =
+          mode == ZERO_ZEROMV ? NEAREST_NEARESTMV : mode;
+      ++counts->compound_nearestmv_mode[mode_ctx]
+                                       [compound_nearestmv_offset(coded_mode)];
+      return;
+    }
+
+    mode_ctx = (mode_context >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
+    if (mode == ZERO_ZEROMV) {
+      ++counts->zeromv_mode[mode_ctx][0];
+      return;
+    } else {
+      ++counts->zeromv_mode[mode_ctx][1];
+      mode_ctx = (mode_context >> REFMV_OFFSET) & REFMV_CTX_MASK;
+      int is_nearestmv_type = (mode == NEAREST_NEARESTMV ||
+                               mode == NEAREST_NEWMV || mode == NEW_NEARESTMV);
+
+      if (mode_context & (1 << SKIP_NEARESTMV_OFFSET)) mode_ctx = 6;
+      if (mode_context & (1 << SKIP_NEARMV_OFFSET)) mode_ctx = 7;
+      if (mode_context & (1 << SKIP_NEARESTMV_SUB8X8_OFFSET)) mode_ctx = 8;
+
+      ++counts->refmv_mode[mode_ctx][!is_nearestmv_type];
+      if (is_nearestmv_type)
+        ++counts->compound_nearestmv_mode[mode_ctx]
+                                         [compound_nearestmv_offset(mode)];
+      else
+        ++counts->compound_nearmv_mode[mode_ctx][compound_nearmv_offset(mode)];
+    }
+  }
+}
+#endif  // CONFIG_REF_MV && CONFIG_EXT_INTER
+
 #if CONFIG_REF_MV
 static void update_inter_mode_stats(FRAME_COUNTS *counts, PREDICTION_MODE mode,
                                     int16_t mode_context) {
@@ -2261,18 +2307,14 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
       if (bsize >= BLOCK_8X8 || unify_bsize) {
         const PREDICTION_MODE mode = mbmi->mode;
 #if CONFIG_REF_MV
+        mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
+                                             mbmi->ref_frame, bsize, -1);
 #if CONFIG_EXT_INTER
-        if (has_second_ref(mbmi)) {
-          mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
-          ++counts->inter_compound_mode[mode_ctx][INTER_COMPOUND_OFFSET(mode)];
-        } else {
+        if (has_second_ref(mbmi))
+          update_inter_compound_mode_stats(counts, mode, mode_ctx);
+        else
 #endif  // CONFIG_EXT_INTER
-          mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
-                                               mbmi->ref_frame, bsize, -1);
           update_inter_mode_stats(counts, mode, mode_ctx);
-#if CONFIG_EXT_INTER
-        }
-#endif  // CONFIG_EXT_INTER
 
 #if CONFIG_EXT_INTER
         if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
@@ -2313,7 +2355,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
         }
 #else
 #if CONFIG_EXT_INTER
-        if (is_inter_compound_mode(mode))
+        if (has_second_ref(mbmi))
           ++counts->inter_compound_mode[mode_ctx][INTER_COMPOUND_OFFSET(mode)];
         else
 #endif  // CONFIG_EXT_INTER
@@ -2328,19 +2370,14 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
             const int j = idy * 2 + idx;
             const PREDICTION_MODE b_mode = mi->bmi[j].as_mode;
 #if CONFIG_REF_MV
+            mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
+                                                 mbmi->ref_frame, bsize, j);
 #if CONFIG_EXT_INTER
-            if (has_second_ref(mbmi)) {
-              mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
-              ++counts->inter_compound_mode[mode_ctx]
-                                           [INTER_COMPOUND_OFFSET(b_mode)];
-            } else {
+            if (has_second_ref(mbmi))
+              update_inter_compound_mode_stats(counts, b_mode, mode_ctx);
+            else
 #endif  // CONFIG_EXT_INTER
-              mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
-                                                   mbmi->ref_frame, bsize, j);
               update_inter_mode_stats(counts, b_mode, mode_ctx);
-#if CONFIG_EXT_INTER
-            }
-#endif  // CONFIG_EXT_INTER
 #else
 #if CONFIG_EXT_INTER
             if (is_inter_compound_mode(b_mode))
