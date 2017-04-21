@@ -21,7 +21,7 @@ void av1_quantize_fp_sse2(const int16_t *coeff_ptr, intptr_t n_coeffs,
                           const int16_t *quant_shift_ptr, int16_t *qcoeff_ptr,
                           int16_t *dqcoeff_ptr, const int16_t *dequant_ptr,
                           uint16_t *eob_ptr, const int16_t *scan_ptr,
-                          const int16_t *iscan_ptr) {
+                          const int16_t *iscan_ptr, const int log_scale) {
   __m128i zero;
   __m128i thr;
   int16_t nzflag;
