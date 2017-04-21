@@ -3517,7 +3517,10 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
     aom_usec_timer_start(&timer);
 
-    av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_pick);
+    if (cm->current_video_frame == 49 && cm->show_frame)
+      lf->filter_level = 0;
+    else
+      av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_pick);
 
     aom_usec_timer_mark(&timer);
     cpi->time_pick_lpf += aom_usec_timer_elapsed(&timer);
