@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "761b0bce_1df0ac91",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2831,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-04-21T09:16:36Z",
+      "side": 1,
+      "message": "Could you add a comment/TODO saying support for extrefs is currently disabled with xiphrc because it\u0027s not yet supported?",
+      "range": {
+        "startLine": 2831,
+        "startChar": 23,
+        "endLine": 2831,
+        "endChar": 37
+      },
+      "revId": "e04abf722e0d86840242a2a6272e00eb2b81ac3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9888a7da_d3b2d0b9",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5549,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-04-21T09:16:36Z",
+      "side": 1,
+      "message": "Unrelated change but okay.",
+      "revId": "e04abf722e0d86840242a2a6272e00eb2b81ac3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02ebf761_2042bb36",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5567,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-04-21T09:16:36Z",
+      "side": 1,
+      "message": "So as far as I understand, with xiphrc and extrefs enabled, the xiphrc rate control system will sill run but will only produce standard altrefs/goldrefs only. Is that correct?",
+      "revId": "e04abf722e0d86840242a2a6272e00eb2b81ac3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
