@@ -28,7 +28,7 @@ void av1_quantize_fp_neon(const int16_t *coeff_ptr, intptr_t count,
                           const int16_t *quant_shift_ptr, int16_t *qcoeff_ptr,
                           int16_t *dqcoeff_ptr, const int16_t *dequant_ptr,
                           uint16_t *eob_ptr, const int16_t *scan,
-                          const int16_t *iscan) {
+                          const int16_t *iscan, const int log_scale) {
   // TODO(jingning) Decide the need of these arguments after the
   // quantization process is completed.
   (void)zbin_ptr;
