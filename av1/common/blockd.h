@@ -949,9 +949,12 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
   if (is_intrabc_block(mbmi)) return DCT_DCT;
 #endif  // CONFIG_INTRABC
 #if !CONFIG_TXK_SEL
+#if CONFIG_EXT_TX || FIXED_TX_TYPE
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
-  if (FIXED_TX_TYPE)
-    return get_default_tx_type(plane_type, xd, block_raster_idx, tx_size);
+#endif
+#if FIXED_TX_TYPE
+  return get_default_tx_type(plane_type, xd, block_raster_idx, tx_size);
+#endif
 
 #if CONFIG_EXT_TX
   if (xd->lossless[mbmi->segment_id] || txsize_sqr_map[tx_size] > TX_32X32 ||
