@@ -1,0 +1,242 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd65ffef_8ab45c09",
+        "filename": "aom_dsp/binary_codes_reader.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "Is there any reason not to include these as INLINE functions in aom_dsp/binary_codes_reader.h?",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "780bc759_22c12350",
+        "filename": "aom_dsp/binary_codes_reader.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "See aom_dsp/bitreader.h for reference on how to do a #define for each of the new reader functions defined here that take an accounting string.  Essentially, you use a #define so that the last parameter is eaten by the macro when accounting is disabled.  For example, this function would look like this:\n\n#define aom_read_primitive_quniform(r, n, ACCT_STR_NAME) \\\n  aom_read_primitive_quniform_(r, n ACCT_STR_ARG(ACCT_STR_NAME))\n\nThen the actual function definition would read (note the trailing underscore):\n\nstatic INLINE uint16_t aom_read_primitive_quniform_(aom_reader *r, uint16_t n ACCT_STR_PARAM) {",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4dbe8a8c_5ee993c9",
+        "filename": "aom_dsp/binary_codes_reader.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "The convention in aom_dsp/bitreader.h has been to use a #define for the public API call that uses the ACCT_STR_ARG() macro to make the extra parameter disappear.  That way you don\u0027t have to use ACCT_STR_ARG(ACCT_STR_NAME) in code that calls into your public API.  This line would become:\n\nv \u003d aom_read_primitive_quniform(r, p, ACCT_STR_NAME)) + lolimit;\n\nWhich matches the aom_read_bit() line above it.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa7978c6_6f054b79",
+        "filename": "aom_dsp/binary_codes_reader.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "Same thing here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed375f1a_3112de12",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4439,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "This should just be:\n\naom_read_signed_primitive_refsubexpfin(\n    r, GM_ROW3HOMO_MAX + 1, SUBEXPFIN_K,\n    (ref_params-\u003ewmmat[6] \u003e\u003e\n     GM_ROW3HOMO_PREC_DIFF), ACCT_STR)) *\n\nNote that the ACCT_STR is written like an ordinary parameter.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9885b899_fe639809",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4445,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bfa68cca_454cdd9f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4453,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd70b7d3_6e0350c1",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4460,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9337e38f_6d19dde6",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4467,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "237966d9_0b8246d5",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4473,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "040b9ea4_14b1551d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4493,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c27ff8e_7f87f8bc",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4498,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "281682ae_5489fd5c",
+        "filename": "test/binary_codes_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "This can be passed as an ordinary parameter once you #define a macro for aom_read_primitive_refbilevel().",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f721d4e7_d9cb0430",
+        "filename": "test/binary_codes_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-04-21T23:24:52Z",
+      "side": 1,
+      "message": "Same thing for aom_read_primitive_refsubexpfin().",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
