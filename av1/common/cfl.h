@@ -21,4 +21,7 @@ void cfl_dc_pred(MACROBLOCKD *const xd, BLOCK_SIZE plane_bsize,
 void cfl_predict_block(uint8_t *const dst, int dst_stride, TX_SIZE tx_size,
                        int dc_pred);
 
+void cfl_store(CFL_CTX *const cfl, const uint8_t *const input, int input_stride,
+               int row, int col, TX_SIZE tx_size);
+
 #endif  // AV1_COMMON_CFL_H_
