@@ -156,14 +156,8 @@ static INLINE void highbd_inter_predictor(const uint8_t *src, int src_stride,
 #endif  // CONFIG_HIGHBITDEPTH
 
 #if CONFIG_EXT_INTER
-// Set to one to use larger codebooks
-#define USE_LARGE_WEDGE_CODEBOOK 0
 
-#if USE_LARGE_WEDGE_CODEBOOK
-#define MAX_WEDGE_TYPES (1 << 5)
-#else
 #define MAX_WEDGE_TYPES (1 << 4)
-#endif
 
 #define MAX_WEDGE_SIZE_LOG2 5  // 32x32
 #define MAX_WEDGE_SIZE (1 << MAX_WEDGE_SIZE_LOG2)
