@@ -86,3 +86,38 @@ void cfl_predict_block(uint8_t *const dst, int dst_stride, TX_SIZE tx_size,
     dst_row += dst_stride;
   }
 }
+
+void cfl_store(CFL_CTX *const cfl, const uint8_t *const input, int input_stride,
+               int row, int col, TX_SIZE tx_size) {
+  const int tx_width = tx_size_wide[tx_size];
+  const int tx_height = tx_size_high[tx_size];
+  const int tx_off_log2 = tx_size_wide_log2[0];
+
+  uint8_t *const y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << tx_off_log2];
+
+  int y_row_offset = 0;
+  int input_row_offset = 0;
+
+  // Check that we remain inside the pixel buffer.
+  assert(MAX_SB_SIZE * (row + tx_height - 1) + col + tx_width - 1 <
+         MAX_SB_SQUARE);
+
+  for (int j = 0; j < tx_height; j++) {
+    for (int i = 0; i < tx_width; i++) {
+      y_pix[y_row_offset + i] = input[input_row_offset + i];
+    }
+    y_row_offset += MAX_SB_SIZE;
+    input_row_offset += input_stride;
+  }
+
+  // Store the surface of the pixel buffer that was written to, this way we can
+  // manage chroma overrun (e.g. when the chroma surfaces goes beyond the frame
+  // boundary)
+  if (col == 0 && row == 0) {
+    cfl->y_width = tx_width;
+    cfl->y_height = tx_height;
+  } else {
+    cfl->y_width = OD_MAXI((col << tx_off_log2) + tx_width, cfl->y_width);
+    cfl->y_height = OD_MAXI((row << tx_off_log2) + tx_height, cfl->y_height);
+  }
+}
