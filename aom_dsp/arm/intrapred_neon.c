@@ -314,8 +314,8 @@ void aom_dc_128_predictor_32x32_neon(uint8_t *dst, ptrdiff_t stride,
 
 // -----------------------------------------------------------------------------
 
-void aom_d45_predictor_4x4_neon(uint8_t *dst, ptrdiff_t stride,
-                                const uint8_t *above, const uint8_t *left) {
+void aom_d45e_predictor_4x4_neon(uint8_t *dst, ptrdiff_t stride,
+                                 const uint8_t *above, const uint8_t *left) {
   const uint64x1_t A0 = vreinterpret_u64_u8(vld1_u8(above));  // top row
   const uint64x1_t A1 = vshr_n_u64(A0, 8);
   const uint64x1_t A2 = vshr_n_u64(A0, 16);
@@ -337,8 +337,8 @@ void aom_d45_predictor_4x4_neon(uint8_t *dst, ptrdiff_t stride,
   dst[3 * stride + 3] = above[7];
 }
 
-void aom_d45_predictor_8x8_neon(uint8_t *dst, ptrdiff_t stride,
-                                const uint8_t *above, const uint8_t *left) {
+void aom_d45e_predictor_8x8_neon(uint8_t *dst, ptrdiff_t stride,
+                                 const uint8_t *above, const uint8_t *left) {
   static const uint8_t shuffle1[8] = { 1, 2, 3, 4, 5, 6, 7, 7 };
   static const uint8_t shuffle2[8] = { 2, 3, 4, 5, 6, 7, 7, 7 };
   const uint8x8_t sh_12345677 = vld1_u8(shuffle1);
@@ -357,8 +357,8 @@ void aom_d45_predictor_8x8_neon(uint8_t *dst, ptrdiff_t stride,
   vst1_u8(dst + i * stride, row);
 }
 
-void aom_d45_predictor_16x16_neon(uint8_t *dst, ptrdiff_t stride,
-                                  const uint8_t *above, const uint8_t *left) {
+void aom_d45e_predictor_16x16_neon(uint8_t *dst, ptrdiff_t stride,
+                                   const uint8_t *above, const uint8_t *left) {
   const uint8x16_t A0 = vld1q_u8(above);  // top row
   const uint8x16_t above_right = vld1q_dup_u8(above + 15);
   const uint8x16_t A1 = vextq_u8(A0, above_right, 1);

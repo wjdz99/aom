@@ -45,7 +45,7 @@ SECTION .text
 %endmacro
 
 INIT_XMM sse2
-cglobal d45_predictor_4x4, 3, 4, 4, dst, stride, above, goffset
+cglobal d45e_predictor_4x4, 3, 4, 4, dst, stride, above, goffset
   GET_GOT     goffsetq
 
   movq                 m0, [aboveq]
@@ -71,7 +71,7 @@ cglobal d45_predictor_4x4, 3, 4, 4, dst, stride, above, goffset
   RET
 
 INIT_XMM sse2
-cglobal d45_predictor_8x8, 3, 4, 4, dst, stride, above, goffset
+cglobal d45e_predictor_8x8, 3, 4, 4, dst, stride, above, goffset
   GET_GOT     goffsetq
 
   movu                m1, [aboveq]
@@ -106,33 +106,6 @@ cglobal d45_predictor_8x8, 3, 4, 4, dst, stride, above, goffset
   psrldq                m3, 1
   movq    [dstq+stride3q ], m3
 
-  RESTORE_GOT
-  RET
-
-INIT_XMM sse2
-cglobal d207_predictor_4x4, 4, 4, 5, dst, stride, unused, left, goffset
-  GET_GOT     goffsetq
-
-  movd                m0, [leftq]                ; abcd [byte]
-  punpcklbw           m4, m0, m0                 ; aabb ccdd
-  punpcklwd           m4, m4                     ; aaaa bbbb cccc dddd
-  psrldq              m4, 12                     ; dddd
-  punpckldq           m0, m4                     ; abcd dddd
-  psrldq              m1, m0, 1                  ; bcdd
-  psrldq              m2, m0, 2                  ; cddd
-
-  X_PLUS_2Y_PLUS_Z_PLUS_2_RSH_2 m0, m1, m2, m3   ; a2bc b2cd c3d d
-  pavgb               m1, m0                     ; ab, bc, cd, d [byte]
-
-  punpcklbw           m1, m3             ; ab, a2bc, bc, b2cd, cd, c3d, d, d
-  movd    [dstq        ], m1
-  psrlq               m1, 16             ; bc, b2cd, cd, c3d, d, d
-  movd    [dstq+strideq], m1
-
-  lea               dstq, [dstq+strideq*2]
-  psrlq               m1, 16             ; cd, c3d, d, d
-  movd    [dstq        ], m1
-  movd    [dstq+strideq], m4             ; d, d, d, d
   RESTORE_GOT
   RET
 
