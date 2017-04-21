@@ -1455,8 +1455,9 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       const int diff_idx = (blk_row * diff_stride + blk_col)
                            << tx_size_wide_log2[0];
       const int16_t *diff = &p->src_diff[diff_idx];
-      tmp = sum_squares_visible(xd, plane, diff, diff_stride, blk_row, blk_col,
-                                plane_bsize, tx_bsize);
+      tmp = (unsigned int)sum_squares_visible(xd, plane, diff, diff_stride,
+                                              blk_row, blk_col, plane_bsize,
+                                              tx_bsize);
 #if CONFIG_HIGHBITDEPTH
       if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
         tmp = ROUND_POWER_OF_TWO(tmp, (xd->bd - 8) * 2);
