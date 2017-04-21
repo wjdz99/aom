@@ -203,8 +203,8 @@ void project_points_hortrapezoid(int32_t *mat, int *points, int *proj,
 
     if (subsampling_x) xp = (xp - (1 << (WARPEDPIXEL_PREC_BITS - 1))) / 2;
     if (subsampling_y) yp = (yp - (1 << (WARPEDPIXEL_PREC_BITS - 1))) / 2;
-    *(proj++) = xp;
-    *(proj++) = yp;
+    *(proj++) = (int)xp;
+    *(proj++) = (int)yp;
 
     points += stride_points - 2;
     proj += stride_proj - 2;
@@ -236,8 +236,8 @@ void project_points_vertrapezoid(int32_t *mat, int *points, int *proj,
 
     if (subsampling_x) xp = (xp - (1 << (WARPEDPIXEL_PREC_BITS - 1))) / 2;
     if (subsampling_y) yp = (yp - (1 << (WARPEDPIXEL_PREC_BITS - 1))) / 2;
-    *(proj++) = xp;
-    *(proj++) = yp;
+    *(proj++) = (int)xp;
+    *(proj++) = (int)yp;
 
     points += stride_points - 2;
     proj += stride_proj - 2;
@@ -269,8 +269,8 @@ void project_points_homography(int32_t *mat, int *points, int *proj,
 
     if (subsampling_x) xp = (xp - (1 << (WARPEDPIXEL_PREC_BITS - 1))) / 2;
     if (subsampling_y) yp = (yp - (1 << (WARPEDPIXEL_PREC_BITS - 1))) / 2;
-    *(proj++) = xp;
-    *(proj++) = yp;
+    *(proj++) = (int)xp;
+    *(proj++) = (int)yp;
 
     points += stride_points - 2;
     proj += stride_proj - 2;
@@ -707,7 +707,8 @@ static inline int16_t saturate_int16(int32_t v) {
 // at precision of DIV_LUT_PREC_BITS along with the shift.
 static int16_t resolve_divisor_64(uint64_t D, int16_t *shift) {
   int64_t e, f;
-  *shift = (D >> 32) ? get_msb(D >> 32) + 32 : get_msb(D);
+  *shift = (int16_t)((D >> 32) ? get_msb((unsigned int)(D >> 32)) + 32 :
+      get_msb((unsigned int)D));
   // e is obtained from D after resetting the most significant 1 bit.
   e = D - ((uint64_t)1 << *shift);
   // Get the most significant DIV_LUT_BITS (8) bits of e into f
@@ -763,12 +764,13 @@ int get_shear_params(WarpedMotionParams *wm) {
   int16_t y = resolve_divisor_32(abs(mat[2]), &shift) * (mat[2] < 0 ? -1 : 1);
   int64_t v;
   v = ((int64_t)mat[4] << WARPEDMODEL_PREC_BITS) * y;
-  wm->gamma =
-      clamp(ROUND_POWER_OF_TWO_SIGNED_64(v, shift), INT16_MIN, INT16_MAX);
+  wm->gamma = (int16_t)clamp((int)ROUND_POWER_OF_TWO_SIGNED_64(v, shift),
+                             INT16_MIN, INT16_MAX);
   v = ((int64_t)mat[3] * mat[4]) * y;
-  wm->delta = clamp(mat[5] - ROUND_POWER_OF_TWO_SIGNED_64(v, shift) -
-                        (1 << WARPEDMODEL_PREC_BITS),
-                    INT16_MIN, INT16_MAX);
+  wm->delta = (int16_t)clamp((int)(mat[5] -
+                                   ROUND_POWER_OF_TWO_SIGNED_64(v, shift) -
+                                   (1 << WARPEDMODEL_PREC_BITS)),
+                              INT16_MIN, INT16_MAX);
   if (!is_affine_shear_allowed(wm->alpha, wm->beta, wm->gamma, wm->delta))
     return 0;
   return 1;
@@ -1553,18 +1555,18 @@ static int find_affine_int(const int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
 
   int64_t v;
   v = Px[0] * (int64_t)iDet;
-  wm->wmmat[2] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
+  wm->wmmat[2] = (int32_t)(ROUND_POWER_OF_TWO_SIGNED_64(v, shift));
   v = Px[1] * (int64_t)iDet;
-  wm->wmmat[3] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
+  wm->wmmat[3] = (int32_t)(ROUND_POWER_OF_TWO_SIGNED_64(v, shift));
   v = (dux << WARPEDMODEL_PREC_BITS) - sux * wm->wmmat[2] - suy * wm->wmmat[3];
-  wm->wmmat[0] = ROUND_POWER_OF_TWO_SIGNED(v, 3);
+  wm->wmmat[0] = (int32_t)(ROUND_POWER_OF_TWO_SIGNED(v, 3));
 
   v = Py[0] * (int64_t)iDet;
-  wm->wmmat[4] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
+  wm->wmmat[4] = (int32_t)(ROUND_POWER_OF_TWO_SIGNED_64(v, shift));
   v = Py[1] * (int64_t)iDet;
-  wm->wmmat[5] = ROUND_POWER_OF_TWO_SIGNED_64(v, shift);
+  wm->wmmat[5] = (int32_t)(ROUND_POWER_OF_TWO_SIGNED_64(v, shift));
   v = (duy << WARPEDMODEL_PREC_BITS) - sux * wm->wmmat[4] - suy * wm->wmmat[5];
-  wm->wmmat[1] = ROUND_POWER_OF_TWO_SIGNED(v, 3);
+  wm->wmmat[1] = (int32_t)(ROUND_POWER_OF_TWO_SIGNED(v, 3));
 
   wm->wmmat[6] = wm->wmmat[7] = 0;
 
