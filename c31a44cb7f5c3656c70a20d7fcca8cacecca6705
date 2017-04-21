@@ -22,6 +22,30 @@
       "revId": "c31a44cb7f5c3656c70a20d7fcca8cacecca6705",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "45dc7a85_fc39988b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1460,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-21T21:37:11Z",
+      "side": 1,
+      "message": "\u003e This looks like it can overflow with 12-bit input\n\u003e log2(lb(32×32×2^12×2^12)) \u003d 34\n\nthanks for checking, I had that feeling, but was lazy when I was posting these",
+      "parentUuid": "05939cdc_671cce64",
+      "range": {
+        "startLine": 1458,
+        "startChar": 0,
+        "endLine": 1460,
+        "endChar": 56
+      },
+      "revId": "c31a44cb7f5c3656c70a20d7fcca8cacecca6705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
