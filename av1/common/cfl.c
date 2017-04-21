@@ -14,8 +14,7 @@
 
 // CfL computes its own block-level DC_PRED. This is required to compute both
 // alpha_cb and alpha_cr before the prediction are computed.
-void cfl_dc_pred(MACROBLOCKD *const xd, BLOCK_SIZE plane_bsize,
-                 TX_SIZE tx_size) {
+void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
   const struct macroblockd_plane *const pd_cb = &xd->plane[1];
   const struct macroblockd_plane *const pd_cr = &xd->plane[2];
 
@@ -73,16 +72,47 @@ void cfl_dc_pred(MACROBLOCKD *const xd, BLOCK_SIZE plane_bsize,
 
 // Predict the current transform block using CfL.
 // it is assumed that dst points at the start of the transform block
-void cfl_predict_block(uint8_t *const dst, int dst_stride, TX_SIZE tx_size,
+void cfl_predict_block(uint8_t *dst, int dst_stride, TX_SIZE tx_size,
                        int dc_pred) {
   const int tx_block_width = tx_size_wide[tx_size];
   const int tx_block_height = tx_size_high[tx_size];
 
-  int dst_row = 0;
   for (int j = 0; j < tx_block_height; j++) {
     for (int i = 0; i < tx_block_width; i++) {
-      dst[dst_row + i] = dc_pred;
+      dst[i] = dc_pred;
     }
-    dst_row += dst_stride;
+    dst += dst_stride;
+  }
+}
+
+void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
+               int col, TX_SIZE tx_size) {
+  const int tx_width = tx_size_wide[tx_size];
+  const int tx_height = tx_size_high[tx_size];
+  const int tx_off_log2 = tx_size_wide_log2[0];
+
+  uint8_t *y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << tx_off_log2];
+
+  // Check that we remain inside the pixel buffer.
+  assert(MAX_SB_SIZE * (row + tx_height - 1) + col + tx_width - 1 <
+         MAX_SB_SQUARE);
+
+  for (int j = 0; j < tx_height; j++) {
+    for (int i = 0; i < tx_width; i++) {
+      y_pix[i] = input[i];
+    }
+    y_pix += MAX_SB_SIZE;
+    input += input_stride;
+  }
+
+  // Store the surface of the pixel buffer that was written to, this way we can
+  // manage chroma overrun (e.g. when the chroma surfaces goes beyond the frame
+  // boundary)
+  if (col == 0 && row == 0) {
+    cfl->y_width = tx_width;
+    cfl->y_height = tx_height;
+  } else {
+    cfl->y_width = OD_MAXI((col << tx_off_log2) + tx_width, cfl->y_width);
+    cfl->y_height = OD_MAXI((row << tx_off_log2) + tx_height, cfl->y_height);
   }
 }
