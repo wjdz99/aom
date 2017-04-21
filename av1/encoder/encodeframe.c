@@ -5739,7 +5739,7 @@ static void tx_partition_count_update(const AV1_COMMON *const cm, MACROBLOCK *x,
   MACROBLOCKD *xd = &x->e_mbd;
   const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
   const int mi_height = block_size_high[plane_bsize] >> tx_size_wide_log2[0];
-  TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
+  TX_SIZE max_tx_size = max_txsize_rect_lookup[xd->mi[0]->mbmi.sb_type];
   const int bh = tx_size_high_unit[max_tx_size];
   const int bw = tx_size_wide_unit[max_tx_size];
   int idx, idy;
@@ -5797,7 +5797,7 @@ static void tx_partition_set_contexts(const AV1_COMMON *const cm,
                                       int mi_row, int mi_col) {
   const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
   const int mi_height = block_size_high[plane_bsize] >> tx_size_high_log2[0];
-  TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
+  TX_SIZE max_tx_size = max_txsize_rect_lookup[xd->mi[0]->mbmi.sb_type];
   const int bh = tx_size_high_unit[max_tx_size];
   const int bw = tx_size_wide_unit[max_tx_size];
   int idx, idy;
@@ -5966,6 +5966,9 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     int ref;
     const int is_compound = has_second_ref(mbmi);
 
+    if (mbmi->sb_type < BLOCK_8X8 && cm->current_video_frame == 1 && mi_row == 1 && mi_col == 0)
+      printf("here");
+
     set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       YV12_BUFFER_CONFIG *cfg = get_ref_frame_buffer(cpi, mbmi->ref_frame[ref]);
@@ -6071,6 +6074,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
           if (mi_col + i < cm->mi_cols && mi_row + j < cm->mi_rows)
             mi_8x8[mis * j + i]->mbmi.tx_size = intra_tx_size;
 
+      //sarahparker here
 #if CONFIG_VAR_TX
       mbmi->min_tx_size = get_min_tx_size(intra_tx_size);
       if (intra_tx_size != max_txsize_lookup[bsize]) ++x->txb_split_count;

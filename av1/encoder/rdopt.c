@@ -5820,13 +5820,12 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
 
   od_encode_checkpoint(&x->daala_enc, &pre_buf);
 #endif  // CONFIG_PVQ
-#if CONFIG_EXT_TX && CONFIG_RECT_TX
   mbmi->tx_size =
-      xd->lossless[mbmi->segment_id] ? TX_4X4 : max_txsize_rect_lookup[bsize];
-#else
-  mbmi->tx_size = TX_4X4;
+    get_sub8x8_tx_size(
+#if CONFIG_EXT_TX && CONFIG_RECT_TX
+                       xd->lossless[mbmi->segment_id],
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
-
+                       mbmi);
   av1_zero(*bsi);
 
   bsi->segment_rd = best_rd;
