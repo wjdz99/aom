@@ -156,6 +156,7 @@ static INLINE void highbd_inter_predictor(const uint8_t *src, int src_stride,
 #endif  // CONFIG_HIGHBITDEPTH
 
 #if CONFIG_EXT_INTER
+
 // Set to (1 << 5) if the 32-ary codebooks are used for any bock size
 #define MAX_WEDGE_TYPES (1 << 4)
 
@@ -206,7 +207,11 @@ static INLINE int is_interinter_compound_used(COMPOUND_TYPE type,
     case COMPOUND_WEDGE: return wedge_params_lookup[sb_type].bits > 0;
 #endif  // CONFIG_WEDGE
 #if CONFIG_COMPOUND_SEGMENT
+#if CONFIG_CB4X4
+    case COMPOUND_SEG: return sb_type >= BLOCK_4X4;
+#else
     case COMPOUND_SEG: return sb_type >= BLOCK_8X8;
+#endif  // CONFIG_CB4X4
 #endif  // CONFIG_COMPOUND_SEGMENT
     default: assert(0); return 0;
   }
