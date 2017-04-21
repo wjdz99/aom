@@ -295,6 +295,7 @@ EXPERIMENT_LIST="
     frame_size
     delta_q
     adapt_scan
+    compound_round
     filter_7bit
     parallel_deblocking
     parallel_deblocking_15tap
