@@ -121,7 +121,7 @@ static const int plane_rd_mult[REF_TYPES][PLANE_TYPES] = {
     rd_cost1 = RDCOST(rdmult, rddiv, rate1, error1); \
   }
 
-static inline int64_t get_token_bit_costs(
+static INLINE int64_t get_token_bit_costs(
     unsigned int token_costs[2][COEFF_CONTEXTS][ENTROPY_TOKENS], int skip_eob,
     int ctx, int token) {
 #if CONFIG_NEW_TOKENSET
