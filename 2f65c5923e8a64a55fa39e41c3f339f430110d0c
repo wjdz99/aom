@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "10c1720c_ac937b27",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1427,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-22T01:23:47Z",
+      "side": 1,
+      "message": "\u003e Optional: We probably can kill tmp and write straight to *out_sse. I think tmp is around from when we were getting the result from a variance function that computed sse into an unsigned*.\n\nI think so, but it seems to be used throughout in multiple #ifdefs post *out_sse. might be better in a followup",
+      "parentUuid": "41014806_6d511197",
+      "range": {
+        "startLine": 1427,
+        "startChar": 4,
+        "endLine": 1427,
+        "endChar": 15
+      },
+      "revId": "2f65c5923e8a64a55fa39e41c3f339f430110d0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f7d74e79_f24c5938",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "2f65c5923e8a64a55fa39e41c3f339f430110d0c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cb62b6d_045a54cc",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1459,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-22T01:23:47Z",
+      "side": 1,
+      "message": "\u003e indent here looks incorrect.\n\nhasty push, it\u0027s fixed now. no need to comment for these, the clang-format check should fail fast",
+      "parentUuid": "f7d74e79_f24c5938",
+      "range": {
+        "startLine": 1459,
+        "startChar": 45,
+        "endLine": 1459,
+        "endChar": 46
+      },
+      "revId": "2f65c5923e8a64a55fa39e41c3f339f430110d0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
