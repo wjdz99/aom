@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17ce0b87_49f324cc",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-22T00:52:09Z",
+      "side": 1,
+      "message": "In retrospect, we might want  to special case and have all-caps for \"AV1\" prefix.\ne.g. \"AV1Comp\" here. [Similar to \"AV1EncoderConfig\" above].",
+      "range": {
+        "startLine": 150,
+        "startChar": 9,
+        "endLine": 150,
+        "endChar": 10
+      },
+      "revId": "0af2a24c175a7a7aa5d007250f681d714f12126e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc532fc0_0f2bd18f",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-22T00:52:09Z",
+      "side": 1,
+      "message": "Not for this patch, but should be rename this to MotionVector maybe?\nI don\u0027t like such a short type name.",
+      "range": {
+        "startLine": 22,
+        "startChar": 7,
+        "endLine": 22,
+        "endChar": 9
+      },
+      "revId": "0af2a24c175a7a7aa5d007250f681d714f12126e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17a42ce9_553115aa",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-22T00:52:09Z",
+      "side": 1,
+      "message": "Also for later: our CamelCasing should include unions too I guess.",
+      "revId": "0af2a24c175a7a7aa5d007250f681d714f12126e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
