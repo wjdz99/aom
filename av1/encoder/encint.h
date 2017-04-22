@@ -13,17 +13,17 @@
 #if !defined(_encint_H)
 # define _encint_H (1)
 
-typedef struct daala_enc_ctx od_enc_ctx;
+typedef struct DaalaEncCtx od_enc_ctx;
 typedef struct od_params_ctx od_params_ctx;
-typedef struct od_rollback_buffer od_rollback_buffer;
+typedef struct OdRollbackBuffer od_rollback_buffer;
 
 # include "aom_dsp/entenc.h"
 # include "av1/common/odintrin.h"
 # include "av1/common/pvq_state.h"
 
-struct daala_enc_ctx{
+struct DaalaEncCtx{
   /* Stores context-adaptive CDFs for PVQ. */
-  od_state state;
+  OdState state;
   /* AOM entropy encoder. */
   aom_writer w;
   int use_activity_masking;
@@ -37,15 +37,15 @@ struct daala_enc_ctx{
 
 // from daalaenc.h
 /**The encoder context.*/
-typedef struct daala_enc_ctx daala_enc_ctx;
+typedef struct DaalaEncCtx daala_enc_ctx;
 
 /** Holds important encoder information so we can roll back decisions */
-struct od_rollback_buffer {
+struct OdRollbackBuffer {
   od_ec_enc ec;
-  od_adapt_ctx adapt;
+  OdAdaptCtx adapt;
 };
 
-void od_encode_checkpoint(const daala_enc_ctx *enc, od_rollback_buffer *rbuf);
-void od_encode_rollback(daala_enc_ctx *enc, const od_rollback_buffer *rbuf);
+void od_encode_checkpoint(const DaalaEncCtx *enc, OdRollbackBuffer *rbuf);
+void od_encode_rollback(DaalaEncCtx *enc, const OdRollbackBuffer *rbuf);
 
 #endif

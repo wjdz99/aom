@@ -35,7 +35,7 @@ int aom_read_symbol_pvq_(aom_reader *r, aom_cdf_prob *cdf, int nsymbs
   return aom_read_symbol(r, cdf, nsymbs, ACCT_STR_NAME);
 }
 
-static void aom_decode_pvq_codeword(aom_reader *r, od_pvq_codeword_ctx *ctx,
+static void aom_decode_pvq_codeword(aom_reader *r, OdPvqCodewordCtx *ctx,
  od_coeff *y, int n, int k) {
   int i;
   aom_decode_band_pvq_splits(r, ctx, y, n, k, 0);
@@ -122,7 +122,7 @@ static void pvq_decode_partition(aom_reader *r,
                                  int q0,
                                  int n,
                                  generic_encoder model[3],
-                                 od_adapt_ctx *adapt,
+                                 OdAdaptCtx *adapt,
                                  int *exg,
                                  int *ext,
                                  od_coeff *ref,
@@ -287,7 +287,7 @@ static void pvq_decode_partition(aom_reader *r,
  * @param [in]     qm          QM with magnitude compensation
  * @param [in]     qm_inv      Inverse of QM with magnitude compensation
  */
-void od_pvq_decode(daala_dec_ctx *dec,
+void od_pvq_decode(DaalaDecCtx *dec,
                    od_coeff *ref,
                    od_coeff *out,
                    int q0,

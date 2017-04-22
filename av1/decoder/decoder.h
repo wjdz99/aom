@@ -61,7 +61,7 @@ typedef struct TileData {
 typedef struct TileWorkerData {
   struct AV1Decoder *pbi;
   aom_reader bit_reader;
-  FRAME_COUNTS counts;
+  FrameCounts counts;
   DECLARE_ALIGNED(16, MACROBLOCKD, xd);
   /* dqcoeff are shared by all the planes. So planes must be decoded serially */
   DECLARE_ALIGNED(16, tran_low_t, dqcoeff[MAX_TX_SQUARE]);
@@ -95,7 +95,7 @@ typedef struct AV1Decoder {
 
   int refresh_frame_flags;
 
-  // TODO(hkuang): Combine this with cur_buf in macroblockd as they are
+  // TODO(hkuang): Combine this with cur_buf in Macroblockd as they are
   // the same.
   RefCntBuffer *cur_buf;  //  Current decoding frame buffer.
 

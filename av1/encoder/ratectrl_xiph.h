@@ -58,23 +58,23 @@
 /*A 2nd order low-pass Bessel follower.
   We use this for rate control because it has fast reaction time, but is
    critically damped.*/
-typedef struct od_iir_bessel2 {
+typedef struct OdIirBessel2 {
   int32_t c[2];
   int64_t g;
   int32_t x[2];
   int32_t y[2];
-} od_iir_bessel2;
+} OdIirBessel2;
 
 /* The 2-pass metrics associated with a single frame. */
-typedef struct od_frame_metrics {
+typedef struct OdFrameMetrics {
   /*The log base 2 of the scale factor for this frame in Q24 format.*/
   int64_t log_scale;
   /*The frame type from pass 1.*/
   unsigned frame_type : 1;
-} od_frame_metrics;
+} OdFrameMetrics;
 
 /*Rate control setup and working state information.*/
-typedef struct od_rc_state {
+typedef struct OdRcState {
   /* Image format */
   int frame_width;
   int frame_height;
@@ -102,7 +102,7 @@ typedef struct od_rc_state {
   int firstpass_quant;
 
   /* 2-pass metrics */
-  od_frame_metrics cur_metrics;
+  OdFrameMetrics cur_metrics;
 
   /* 2-pass state */
   int64_t scale_sum[OD_FRAME_NSUBTYPES];
@@ -167,34 +167,34 @@ typedef struct od_rc_state {
   /*The total drop count from the previous frame.*/
   uint32_t prev_drop_count[OD_FRAME_NSUBTYPES];
   /*Second-order lowpass filters to track scale and VFR/drops.*/
-  od_iir_bessel2 scalefilter[OD_FRAME_NSUBTYPES];
-  od_iir_bessel2 vfrfilter[OD_FRAME_NSUBTYPES];
+  OdIirBessel2 scalefilter[OD_FRAME_NSUBTYPES];
+  OdIirBessel2 vfrfilter[OD_FRAME_NSUBTYPES];
   int frame_count[OD_FRAME_NSUBTYPES];
   int inter_p_delay;
   int inter_delay_target;
   /*The total accumulated estimation bias.*/
   int64_t rate_bias;
-} od_rc_state;
+} OdRcState;
 
-int od_enc_rc_init(od_rc_state *rc, int64_t bitrate, int delay_ms);
+int od_enc_rc_init(OdRcState *rc, int64_t bitrate, int delay_ms);
 
-int od_enc_rc_select_quantizers_and_lambdas(od_rc_state *rc,
+int od_enc_rc_select_quantizers_and_lambdas(OdRcState *rc,
                                             int is_golden_frame,
                                             int is_altref_frame, int frame_type,
                                             int *bottom_idx, int *top_idx);
 
 /* Returns 1 if the frame should be dropped */
-int od_enc_rc_update_state(od_rc_state *rc, int64_t bits, int is_golden_frame,
+int od_enc_rc_update_state(OdRcState *rc, int64_t bits, int is_golden_frame,
                            int is_altref_frame, int frame_type, int droppable);
 
-int od_frame_type(od_rc_state *rc, int64_t coding_frame_count, int *is_golden,
+int od_frame_type(OdRcState *rc, int64_t coding_frame_count, int *is_golden,
                   int *is_altref, int64_t *ip_count);
 
-int od_enc_rc_resize(od_rc_state *rc);
+int od_enc_rc_resize(OdRcState *rc);
 
-int od_enc_rc_2pass_out(od_rc_state *rc, struct aom_codec_pkt_list *pkt_list,
+int od_enc_rc_2pass_out(OdRcState *rc, struct aom_codec_pkt_list *pkt_list,
                         int summary);
 
-int od_enc_rc_2pass_in(od_rc_state *rc);
+int od_enc_rc_2pass_in(OdRcState *rc);
 
 #endif

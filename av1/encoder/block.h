@@ -37,7 +37,7 @@ typedef struct {
   unsigned int var;
 } DIFF;
 
-typedef struct macroblock_plane {
+typedef struct MacroblockPlane {
   DECLARE_ALIGNED(16, int16_t, src_diff[MAX_SB_SQUARE]);
 #if CONFIG_PVQ
   DECLARE_ALIGNED(16, int16_t, src_int16[MAX_SB_SQUARE]);
@@ -48,7 +48,7 @@ typedef struct macroblock_plane {
 #if CONFIG_LV_MAP
   uint8_t *txb_entropy_ctx;
 #endif
-  struct buf_2d src;
+  struct Buf2d src;
 
   // Quantizer setings
   const int16_t *quant_fp;
@@ -97,7 +97,7 @@ typedef struct {
 
 typedef struct macroblock MACROBLOCK;
 struct macroblock {
-  struct macroblock_plane plane[MAX_MB_PLANE];
+  struct MacroblockPlane plane[MAX_MB_PLANE];
 
   MACROBLOCKD e_mbd;
   MB_MODE_INFO_EXT *mbmi_ext;
@@ -202,7 +202,7 @@ struct macroblock {
   int rate;
   // 1 if neither AC nor DC is coded. Only used during RDO.
   int pvq_skip[MAX_MB_PLANE];
-  PVQ_QUEUE *pvq_q;
+  PvqQueue *pvq_q;
 
   // Storage for PVQ tx block encodings in a superblock.
   // There can be max 16x16 of 4x4 blocks (and YUV) encode by PVQ
@@ -212,8 +212,8 @@ struct macroblock {
   // 3) AV1 allows using smaller tx size than block (i.e. partition) size
   // TODO(yushin) : The memory usage could be improved a lot, since this has
   // storage for 10 bands and 128 coefficients for every 4x4 block,
-  PVQ_INFO pvq[MAX_PVQ_BLOCKS_IN_SB][MAX_MB_PLANE];
-  daala_enc_ctx daala_enc;
+  PvqInfo pvq[MAX_PVQ_BLOCKS_IN_SB][MAX_MB_PLANE];
+  DaalaEncCtx daala_enc;
   int pvq_speed;
   int pvq_coded;  // Indicates whether pvq_info needs be stored to tokenize
 #endif

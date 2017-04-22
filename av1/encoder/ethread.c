@@ -31,7 +31,7 @@ static void accumulate_rd_opt(ThreadData *td, ThreadData *td_t) {
 }
 
 static int enc_worker_hook(EncWorkerData *const thread_data, void *unused) {
-  AV1_COMP *const cpi = thread_data->cpi;
+  Av1Comp *const cpi = thread_data->cpi;
   const AV1_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tile_cols;
   const int tile_rows = cm->tile_rows;
@@ -50,7 +50,7 @@ static int enc_worker_hook(EncWorkerData *const thread_data, void *unused) {
   return 0;
 }
 
-void av1_encode_tiles_mt(AV1_COMP *cpi) {
+void av1_encode_tiles_mt(Av1Comp *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tile_cols;
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();

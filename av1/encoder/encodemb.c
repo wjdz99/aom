@@ -77,8 +77,8 @@ static void subtract_block(const MACROBLOCKD *xd, int rows, int cols,
 void av1_subtract_txb(MACROBLOCK *x, int plane, BLOCK_SIZE plane_bsize,
                       int blk_col, int blk_row, TX_SIZE tx_size) {
   MACROBLOCKD *const xd = &x->e_mbd;
-  struct macroblock_plane *const p = &x->plane[plane];
-  const struct macroblockd_plane *const pd = &x->e_mbd.plane[plane];
+  struct MacroblockPlane *const p = &x->plane[plane];
+  const struct MacroblockdPlane *const pd = &x->e_mbd.plane[plane];
   const int diff_stride = block_size_wide[plane_bsize];
   const int src_stride = p->src.stride;
   const int dst_stride = pd->dst.stride;
@@ -95,8 +95,8 @@ void av1_subtract_txb(MACROBLOCK *x, int plane, BLOCK_SIZE plane_bsize,
 }
 
 void av1_subtract_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane) {
-  struct macroblock_plane *const p = &x->plane[plane];
-  const struct macroblockd_plane *const pd = &x->e_mbd.plane[plane];
+  struct MacroblockPlane *const p = &x->plane[plane];
+  const struct MacroblockdPlane *const pd = &x->e_mbd.plane[plane];
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
   const int bw = block_size_wide[plane_bsize];
   const int bh = block_size_high[plane_bsize];
@@ -146,8 +146,8 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
                    TX_SIZE tx_size, int ctx) {
 #if !CONFIG_PVQ
   MACROBLOCKD *const xd = &mb->e_mbd;
-  struct macroblock_plane *const p = &mb->plane[plane];
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct MacroblockPlane *const p = &mb->plane[plane];
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
   const int ref = is_inter_block(&xd->mi[0]->mbmi);
   av1_token_state tokens[MAX_TX_SQUARE + 1][2];
   uint8_t token_cache[MAX_TX_SQUARE];
@@ -484,7 +484,7 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
   (void)cm;
   (void)tx_size;
   (void)ctx;
-  struct macroblock_plane *const p = &mb->plane[plane];
+  struct MacroblockPlane *const p = &mb->plane[plane];
   return p->eobs[block];
 #endif  // !CONFIG_PVQ
 }
@@ -505,8 +505,8 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
                    TX_SIZE tx_size, int ctx) {
 #if !CONFIG_PVQ
   MACROBLOCKD *const xd = &mb->e_mbd;
-  struct macroblock_plane *const p = &mb->plane[plane];
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct MacroblockPlane *const p = &mb->plane[plane];
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
   const int ref = is_inter_block(&xd->mi[0]->mbmi);
   av1_token_state tokens[MAX_TX_SQUARE + 1][2];
   uint8_t token_cache[MAX_TX_SQUARE];
@@ -848,7 +848,7 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
   (void)cm;
   (void)tx_size;
   (void)ctx;
-  struct macroblock_plane *const p = &mb->plane[plane];
+  struct MacroblockPlane *const p = &mb->plane[plane];
   return p->eobs[block];
 #endif  // !CONFIG_PVQ
 }
@@ -907,11 +907,11 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
 #if !(CONFIG_PVQ || CONFIG_DAALA_DIST)
-  const struct macroblock_plane *const p = &x->plane[plane];
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const struct MacroblockPlane *const p = &x->plane[plane];
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
 #else
-  struct macroblock_plane *const p = &x->plane[plane];
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct MacroblockPlane *const p = &x->plane[plane];
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
 #endif
   PLANE_TYPE plane_type = get_plane_type(plane);
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
@@ -928,7 +928,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   const qm_val_t *iqmatrix = pd->seg_iqmatrix[seg_id][!is_inter][tx_size];
 #endif
 
-  FWD_TXFM_PARAM fwd_txfm_param;
+  FwdTxfmParam fwd_txfm_param;
 
 #if CONFIG_PVQ || CONFIG_DAALA_DIST
   uint8_t *dst;
@@ -940,7 +940,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
 #if !CONFIG_PVQ
   const int tx2d_size = tx_size_2d[tx_size];
-  QUANT_PARAM qparam;
+  QuantParam qparam;
   const int16_t *src_diff;
 
   src_diff =
@@ -957,7 +957,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #else
   tran_low_t *ref_coeff = BLOCK_OFFSET(pd->pvq_ref_coeff, block);
   int skip = 1;
-  PVQ_INFO *pvq_info = NULL;
+  PvqInfo *pvq_info = NULL;
   uint8_t *src;
   int16_t *src_int16;
   const int src_stride = p->src.stride;
@@ -1096,13 +1096,13 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
 static void encode_block(int plane, int block, int blk_row, int blk_col,
                          BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
-  struct encode_b_args *const args = arg;
+  struct EncodeBArgs *const args = arg;
   AV1_COMMON *cm = args->cm;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
   int ctx;
-  struct macroblock_plane *const p = &x->plane[plane];
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct MacroblockPlane *const p = &x->plane[plane];
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   uint8_t *dst;
 #if !CONFIG_PVQ
@@ -1167,12 +1167,12 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
                                BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
                                void *arg) {
-  struct encode_b_args *const args = arg;
+  struct EncodeBArgs *const args = arg;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
   TX_SIZE plane_tx_size;
@@ -1222,8 +1222,8 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
   AV1_COMMON *cm = args->cm;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
-  struct macroblock_plane *const p = &x->plane[plane];
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct MacroblockPlane *const p = &x->plane[plane];
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   uint8_t *dst;
   int ctx = 0;
@@ -1290,9 +1290,9 @@ void av1_encode_sby_pass1(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
 void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize,
                    const int mi_row, const int mi_col) {
   MACROBLOCKD *const xd = &x->e_mbd;
-  struct optimize_ctx ctx;
+  struct OptimizeCtx ctx;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  struct encode_b_args arg = { cm, x, &ctx, &mbmi->skip, NULL, NULL, 1 };
+  struct EncodeBArgs arg = { cm, x, &ctx, &mbmi->skip, NULL, NULL, 1 };
   int plane;
 
   mbmi->skip = 1;
@@ -1316,7 +1316,7 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize,
 
 #if CONFIG_VAR_TX
     // TODO(jingning): Clean this up.
-    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    const struct MacroblockdPlane *const pd = &xd->plane[plane];
     const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
     const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
     const int mi_height = block_size_high[plane_bsize] >> tx_size_wide_log2[0];
@@ -1329,7 +1329,7 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize,
     int step = tx_size_wide_unit[max_tx_size] * tx_size_high_unit[max_tx_size];
     av1_get_entropy_contexts(bsize, 0, pd, ctx.ta[plane], ctx.tl[plane]);
 #else
-    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    const struct MacroblockdPlane *const pd = &xd->plane[plane];
     const TX_SIZE tx_size = get_tx_size(plane, xd);
     av1_get_entropy_contexts(bsize, tx_size, pd, ctx.ta[plane], ctx.tl[plane]);
 #endif
@@ -1358,16 +1358,16 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize,
 #if CONFIG_SUPERTX
 void av1_encode_sb_supertx(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
   MACROBLOCKD *const xd = &x->e_mbd;
-  struct optimize_ctx ctx;
+  struct OptimizeCtx ctx;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  struct encode_b_args arg = { cm, x, &ctx, &mbmi->skip, NULL, NULL, 1 };
+  struct EncodeBArgs arg = { cm, x, &ctx, &mbmi->skip, NULL, NULL, 1 };
   int plane;
 
   mbmi->skip = 1;
   if (x->skip) return;
 
   for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
-    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    const struct MacroblockdPlane *const pd = &xd->plane[plane];
 #if CONFIG_VAR_TX
     const TX_SIZE tx_size = TX_4X4;
 #else
@@ -1387,7 +1387,7 @@ void av1_encode_sb_supertx(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
 void av1_set_txb_context(MACROBLOCK *x, int plane, int block, TX_SIZE tx_size,
                          ENTROPY_CONTEXT *a, ENTROPY_CONTEXT *l) {
   (void)tx_size;
-  struct macroblock_plane *p = &x->plane[plane];
+  struct MacroblockPlane *p = &x->plane[plane];
 
 #if !CONFIG_LV_MAP
   *a = *l = p->eobs[block] > 0;
@@ -1411,7 +1411,7 @@ static void encode_block_intra_and_set_context(int plane, int block,
   av1_encode_block_intra(plane, block, blk_row, blk_col, plane_bsize, tx_size,
                          arg);
 #if !CONFIG_PVQ
-  struct encode_b_args *const args = arg;
+  struct EncodeBArgs *const args = arg;
   MACROBLOCK *x = args->x;
   ENTROPY_CONTEXT *a = &args->ta[blk_col];
   ENTROPY_CONTEXT *l = &args->tl[blk_row];
@@ -1422,12 +1422,12 @@ static void encode_block_intra_and_set_context(int plane, int block,
 void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                             BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
                             void *arg) {
-  struct encode_b_args *const args = arg;
+  struct EncodeBArgs *const args = arg;
   AV1_COMMON *cm = args->cm;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
-  struct macroblock_plane *const p = &x->plane[plane];
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct MacroblockPlane *const p = &x->plane[plane];
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
@@ -1475,7 +1475,7 @@ void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
   ENTROPY_CONTEXT ta[2 * MAX_MIB_SIZE] = { 0 };
   ENTROPY_CONTEXT tl[2 * MAX_MIB_SIZE] = { 0 };
 
-  struct encode_b_args arg = {
+  struct EncodeBArgs arg = {
     cm, x, NULL, &xd->mi[0]->mbmi.skip, ta, tl, enable_optimize_b
   };
 
@@ -1490,7 +1490,7 @@ void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
 #endif
 
   if (enable_optimize_b) {
-    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    const struct MacroblockdPlane *const pd = &xd->plane[plane];
     const TX_SIZE tx_size = get_tx_size(plane, xd);
     av1_get_entropy_contexts(bsize, tx_size, pd, ta, tl);
   }
@@ -1504,9 +1504,9 @@ PVQ_SKIP_TYPE av1_pvq_encode_helper(MACROBLOCK *x, tran_low_t *const coeff,
                                     tran_low_t *const dqcoeff, uint16_t *eob,
                                     const int16_t *quant, int plane,
                                     int tx_size, TX_TYPE tx_type, int *rate,
-                                    int speed, PVQ_INFO *pvq_info) {
+                                    int speed, PvqInfo *pvq_info) {
   const int tx_blk_size = tx_size_wide[tx_size];
-  daala_enc_ctx *daala_enc = &x->daala_enc;
+  DaalaEncCtx *daala_enc = &x->daala_enc;
   PVQ_SKIP_TYPE ac_dc_coded;
   int coeff_shift = 3 - get_tx_scale(tx_size);
   int hbd_downshift = 0;
@@ -1627,7 +1627,7 @@ PVQ_SKIP_TYPE av1_pvq_encode_helper(MACROBLOCK *x, tran_low_t *const coeff,
   return ac_dc_coded;
 }
 
-void av1_store_pvq_enc_info(PVQ_INFO *pvq_info, int *qg, int *theta, int *k,
+void av1_store_pvq_enc_info(PvqInfo *pvq_info, int *qg, int *theta, int *k,
                             od_coeff *y, int nb_bands, const int *off,
                             int *size, int skip_rest, int skip_dir,
                             int bs) {  // block size in log_2 -2

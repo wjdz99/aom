@@ -21,17 +21,17 @@ extern "C" {
 
 typedef void (*aom_inspect_cb)(void *decoder, void *data);
 
-typedef struct insp_mv insp_mv;
+typedef struct InspMv insp_mv;
 
-struct insp_mv {
+struct InspMv {
   int16_t row;
   int16_t col;
 };
 
-typedef struct insp_mi_data insp_mi_data;
+typedef struct InspMiData insp_mi_data;
 
-struct insp_mi_data {
-  insp_mv mv[2];
+struct InspMiData {
+  InspMv mv[2];
   int8_t ref_frame[2];
   int8_t mode;
   int8_t uv_mode;
@@ -47,13 +47,13 @@ struct insp_mi_data {
 #endif
 };
 
-typedef struct insp_frame_data insp_frame_data;
+typedef struct InspFrameData insp_frame_data;
 
-struct insp_frame_data {
+struct InspFrameData {
 #if CONFIG_ACCOUNTING
   Accounting *accounting;
 #endif
-  insp_mi_data *mi_grid;
+  InspMiData *mi_grid;
   int show_frame;
   int frame_type;
   int base_qindex;
@@ -68,9 +68,9 @@ struct insp_frame_data {
 #endif
 };
 
-void ifd_init(insp_frame_data *fd, int frame_width, int frame_height);
-void ifd_clear(insp_frame_data *fd);
-int ifd_inspect(insp_frame_data *fd, void *decoder);
+void ifd_init(InspFrameData *fd, int frame_width, int frame_height);
+void ifd_clear(InspFrameData *fd);
+int ifd_inspect(InspFrameData *fd, void *decoder);
 
 #ifdef __cplusplus
 }  // extern "C"

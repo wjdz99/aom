@@ -44,7 +44,7 @@ int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
   return skip;
 }
 
-static int is_8x8_block_skip(MODE_INFO **grid, int mi_row, int mi_col,
+static int is_8x8_block_skip(ModeInfo **grid, int mi_row, int mi_col,
                              int mi_stride) {
   int is_skip = 1;
   for (int r = 0; r < mi_size_high[BLOCK_8X8]; ++r)
@@ -58,7 +58,7 @@ int sb_compute_dering_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
                            dering_list *dlist, int filter_skip) {
   int r, c;
   int maxc, maxr;
-  MODE_INFO **grid;
+  ModeInfo **grid;
   int count = 0;
   grid = cm->mi_grid_visible;
   maxc = cm->mi_cols - mi_col;

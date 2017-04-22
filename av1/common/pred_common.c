@@ -19,7 +19,7 @@
 
 // Returns a context number for the given MB prediction signal
 #if CONFIG_DUAL_FILTER
-static InterpFilter get_ref_filter_type(const MODE_INFO *mi,
+static InterpFilter get_ref_filter_type(const ModeInfo *mi,
                                         const MACROBLOCKD *xd, int dir,
                                         MV_REFERENCE_FRAME ref_frame) {
   InterpFilter ref_type = SWITCHABLE_FILTERS;

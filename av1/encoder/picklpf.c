@@ -27,7 +27,7 @@
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/picklpf.h"
 
-int av1_get_max_filter_level(const AV1_COMP *cpi) {
+int av1_get_max_filter_level(const Av1Comp *cpi) {
   if (cpi->oxcf.pass == 2) {
     return cpi->twopass.section_intra_rating > 8 ? MAX_LOOP_FILTER * 3 / 4
                                                  : MAX_LOOP_FILTER;
@@ -37,7 +37,7 @@ int av1_get_max_filter_level(const AV1_COMP *cpi) {
 }
 
 static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
-                                AV1_COMP *const cpi, int filt_level,
+                                Av1Comp *const cpi, int filt_level,
                                 int partial_frame) {
   AV1_COMMON *const cm = &cpi->common;
   int64_t filt_err;
@@ -71,7 +71,7 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
   return filt_err;
 }
 
-int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
+int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, Av1Comp *cpi,
                             int partial_frame, double *best_cost_ret) {
   const AV1_COMMON *const cm = &cpi->common;
   const struct loopfilter *const lf = &cm->lf;
@@ -159,7 +159,7 @@ int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   return filt_best;
 }
 
-void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
+void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, Av1Comp *cpi,
                            LPF_PICK_METHOD method) {
   AV1_COMMON *const cm = &cpi->common;
   struct loopfilter *const lf = &cm->lf;

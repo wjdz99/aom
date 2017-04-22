@@ -209,7 +209,7 @@ static void fadst4x4_sse4_1(__m128i *in, int bit) {
 void av1_fwd_txfm2d_4x4_sse4_1(const int16_t *input, int32_t *coeff,
                                int input_stride, int tx_type, int bd) {
   __m128i in[4];
-  const TXFM_2D_CFG *cfg = NULL;
+  const Txfm2dCfg *cfg = NULL;
 
   switch (tx_type) {
     case DCT_DCT:
@@ -930,7 +930,7 @@ static void fadst8x8_sse4_1(__m128i *in, __m128i *out, int bit) {
 void av1_fwd_txfm2d_8x8_sse4_1(const int16_t *input, int32_t *coeff, int stride,
                                int tx_type, int bd) {
   __m128i in[16], out[16];
-  const TXFM_2D_CFG *cfg = NULL;
+  const Txfm2dCfg *cfg = NULL;
 
   switch (tx_type) {
     case DCT_DCT:
@@ -1794,7 +1794,7 @@ static void write_buffer_16x16(const __m128i *in, tran_low_t *output) {
 void av1_fwd_txfm2d_16x16_sse4_1(const int16_t *input, int32_t *coeff,
                                  int stride, int tx_type, int bd) {
   __m128i in[64], out[64];
-  const TXFM_2D_CFG *cfg = NULL;
+  const Txfm2dCfg *cfg = NULL;
 
   switch (tx_type) {
     case DCT_DCT:

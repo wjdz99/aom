@@ -17,7 +17,7 @@
 #if CONFIG_REF_MV
 
 static uint8_t add_ref_mv_candidate(
-    const MODE_INFO *const candidate_mi, const MB_MODE_INFO *const candidate,
+    const ModeInfo *const candidate_mi, const MB_MODE_INFO *const candidate,
     const MV_REFERENCE_FRAME rf[2], uint8_t *refmv_count,
     CANDIDATE_MV *ref_mv_stack, const int use_hp, int len, int block, int col) {
   int index = 0, ref;
@@ -182,7 +182,7 @@ static uint8_t scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     mi_pos.row = row_offset;
     mi_pos.col = i;
     if (is_inside(tile, mi_col, mi_row, cm->mi_rows, cm, &mi_pos)) {
-      const MODE_INFO *const candidate_mi =
+      const ModeInfo *const candidate_mi =
           xd->mi[mi_pos.row * xd->mi_stride + mi_pos.col];
       const MB_MODE_INFO *const candidate = &candidate_mi->mbmi;
       int len = AOMMIN(xd->n8_w, mi_size_wide[candidate->sb_type]);
@@ -229,7 +229,7 @@ static uint8_t scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     mi_pos.row = i;
     mi_pos.col = col_offset;
     if (is_inside(tile, mi_col, mi_row, cm->mi_rows, cm, &mi_pos)) {
-      const MODE_INFO *const candidate_mi =
+      const ModeInfo *const candidate_mi =
           xd->mi[mi_pos.row * xd->mi_stride + mi_pos.col];
       const MB_MODE_INFO *const candidate = &candidate_mi->mbmi;
       int len = AOMMIN(xd->n8_h, mi_size_high[candidate->sb_type]);
@@ -263,7 +263,7 @@ static uint8_t scan_blk_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
   if (is_inside(tile, mi_col, mi_row, cm->mi_rows, cm, &mi_pos) &&
       *refmv_count < MAX_REF_MV_STACK_SIZE) {
-    const MODE_INFO *const candidate_mi =
+    const ModeInfo *const candidate_mi =
         xd->mi[mi_pos.row * xd->mi_stride + mi_pos.col];
     const MB_MODE_INFO *const candidate = &candidate_mi->mbmi;
     const int len = mi_size_wide[BLOCK_8X8];
@@ -561,7 +561,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 // This function searches the neighbourhood of a given MB/SB
 // to try and find candidate reference vectors.
 static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                             MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
+                             ModeInfo *mi, MV_REFERENCE_FRAME ref_frame,
                              int_mv *mv_ref_list, int block, int mi_row,
                              int mi_col, find_mv_refs_sync sync,
                              void *const data, int16_t *mode_context,
@@ -647,7 +647,7 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   for (i = 0; i < 2; ++i) {
     const POSITION *const mv_ref = &mv_ref_search[i];
     if (is_inside(tile, mi_col, mi_row, cm->mi_rows, cm, mv_ref)) {
-      const MODE_INFO *const candidate_mi =
+      const ModeInfo *const candidate_mi =
           xd->mi[mv_ref->col + mv_ref->row * xd->mi_stride];
       const MB_MODE_INFO *const candidate = &candidate_mi->mbmi;
       // Keep counts for entropy encoding.
@@ -776,7 +776,7 @@ Done:
 #if CONFIG_EXT_INTER
 // This function keeps a mode count for a given MB/SB
 void av1_update_mv_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                           MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
+                           ModeInfo *mi, MV_REFERENCE_FRAME ref_frame,
                            int_mv *mv_ref_list, int block, int mi_row,
                            int mi_col, int16_t *mode_context) {
   int i, refmv_count = 0;
@@ -833,7 +833,7 @@ void av1_update_mv_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   for (i = 0; i < 2; ++i) {
     const POSITION *const mv_ref = &mv_ref_search[i];
     if (is_inside(tile, mi_col, mi_row, cm->mi_rows, cm, mv_ref)) {
-      const MODE_INFO *const candidate_mi =
+      const ModeInfo *const candidate_mi =
           xd->mi[mv_ref->col + mv_ref->row * xd->mi_stride];
       const MB_MODE_INFO *const candidate = &candidate_mi->mbmi;
 
@@ -858,7 +858,7 @@ Done:
 #endif  // CONFIG_EXT_INTER
 
 void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                      MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
+                      ModeInfo *mi, MV_REFERENCE_FRAME ref_frame,
 #if CONFIG_REF_MV
                       uint8_t *ref_mv_count, CANDIDATE_MV *ref_mv_stack,
 #if CONFIG_EXT_INTER
@@ -972,7 +972,7 @@ void av1_append_sub8x8_mvs_for_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if !CONFIG_EXT_INTER
   int_mv mv_list[MAX_MV_REF_CANDIDATES];
 #endif  // !CONFIG_EXT_INTER
-  MODE_INFO *const mi = xd->mi[0];
+  ModeInfo *const mi = xd->mi[0];
   b_mode_info *bmi = mi->bmi;
   int n;
   int_mv zeromv;
@@ -1078,7 +1078,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
       int mi_row_offset = -1;
       int mi_col_offset = i;
 
-      MODE_INFO *mi = xd->mi[mi_col_offset + mi_row_offset * xd->mi_stride];
+      ModeInfo *mi = xd->mi[mi_col_offset + mi_row_offset * xd->mi_stride];
       MB_MODE_INFO *mbmi = &mi->mbmi;
 
       mi_step = AOMMIN(xd->n8_w, mi_size_wide[mbmi->sb_type]);
@@ -1109,7 +1109,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
       int mi_row_offset = i;
       int mi_col_offset = -1;
 
-      MODE_INFO *mi = xd->mi[mi_col_offset + mi_row_offset * xd->mi_stride];
+      ModeInfo *mi = xd->mi[mi_col_offset + mi_row_offset * xd->mi_stride];
       MB_MODE_INFO *mbmi = &mi->mbmi;
 
       mi_step = AOMMIN(xd->n8_h, mi_size_high[mbmi->sb_type]);
@@ -1138,7 +1138,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
     int mi_row_offset = -1;
     int mi_col_offset = -1;
 
-    MODE_INFO *mi = xd->mi[mi_col_offset + mi_row_offset * xd->mi_stride];
+    ModeInfo *mi = xd->mi[mi_col_offset + mi_row_offset * xd->mi_stride];
     MB_MODE_INFO *mbmi = &mi->mbmi;
 
     if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {

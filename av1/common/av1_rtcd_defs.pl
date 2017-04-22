@@ -13,12 +13,12 @@ print <<EOF
 #include "av1/common/av1_txfm.h"
 #include "av1/common/odintrin.h"
 
-struct macroblockd;
+struct Macroblockd;
 
 /* Encoder forward decls */
 struct macroblock;
 struct aom_variance_vtable;
-struct search_site_config;
+struct SearchSiteConfig;
 struct mv;
 union int_mv;
 struct yv12_buffer_config;
@@ -421,9 +421,9 @@ specialize qw/av1_full_search_sad sse3 sse4_1/;
 $av1_full_search_sad_sse3=av1_full_search_sadx3;
 $av1_full_search_sad_sse4_1=av1_full_search_sadx8;
 
-add_proto qw/int av1_diamond_search_sad/, "struct macroblock *x, const struct search_site_config *cfg,  struct mv *ref_mv, struct mv *best_mv, int search_param, int sad_per_bit, int *num00, const struct aom_variance_vtable *fn_ptr, const struct mv *center_mv";
+add_proto qw/int av1_diamond_search_sad/, "struct macroblock *x, const struct SearchSiteConfig *cfg,  struct mv *ref_mv, struct mv *best_mv, int search_param, int sad_per_bit, int *num00, const struct aom_variance_vtable *fn_ptr, const struct mv *center_mv";
 
-add_proto qw/int av1_full_range_search/, "const struct macroblock *x, const struct search_site_config *cfg, struct mv *ref_mv, struct mv *best_mv, int search_param, int sad_per_bit, int *num00, const struct aom_variance_vtable *fn_ptr, const struct mv *center_mv";
+add_proto qw/int av1_full_range_search/, "const struct macroblock *x, const struct SearchSiteConfig *cfg, struct mv *ref_mv, struct mv *best_mv, int search_param, int sad_per_bit, int *num00, const struct aom_variance_vtable *fn_ptr, const struct mv *center_mv";
 
 add_proto qw/void av1_temporal_filter_apply/, "uint8_t *frame1, unsigned int stride, uint8_t *frame2, unsigned int block_width, unsigned int block_height, int strength, int filter_weight, unsigned int *accumulator, uint16_t *count";
 specialize qw/av1_temporal_filter_apply sse2 msa/;

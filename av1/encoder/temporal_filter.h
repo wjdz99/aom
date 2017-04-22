@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 
-void av1_temporal_filter(AV1_COMP *cpi, int distance);
+void av1_temporal_filter(Av1Comp *cpi, int distance);
 
 #ifdef __cplusplus
 }  // extern "C"

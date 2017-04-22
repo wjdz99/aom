@@ -61,7 +61,7 @@ static PREDICTION_MODE read_intra_mode(aom_reader *r, const aom_prob *p) {
 #if CONFIG_DELTA_Q
 static int read_delta_qindex(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
                              MB_MODE_INFO *const mbmi, int mi_col, int mi_row) {
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
   int sign, abs, reduced_delta_qindex = 0;
   BLOCK_SIZE bsize = mbmi->sb_type;
   const int b_col = mi_col & MAX_MIB_MASK;
@@ -125,7 +125,7 @@ static PREDICTION_MODE read_intra_mode_y(AV1_COMMON *cm, MACROBLOCKD *xd,
 #else
       read_intra_mode(r, cm->fc->y_mode_prob[size_group]);
 #endif
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
 #if CONFIG_EC_ADAPT
   (void)cm;
 #endif
@@ -148,7 +148,7 @@ static PREDICTION_MODE read_intra_mode_uv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #else
       read_intra_mode(r, cm->fc->uv_mode_prob[y_mode]);
 #endif
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
 #if CONFIG_EC_ADAPT
   (void)cm;
 #endif
@@ -162,7 +162,7 @@ static INTERINTRA_MODE read_interintra_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   const INTERINTRA_MODE ii_mode = (INTERINTRA_MODE)aom_read_tree(
       r, av1_interintra_mode_tree, cm->fc->interintra_mode_prob[size_group],
       ACCT_STR);
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
   if (counts) ++counts->interintra_mode[size_group][ii_mode];
   return ii_mode;
 }
@@ -171,7 +171,7 @@ static INTERINTRA_MODE read_interintra_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
                                        aom_reader *r, int16_t ctx) {
 #if CONFIG_REF_MV
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
   int16_t mode_ctx = ctx & NEWMV_CTX_MASK;
   aom_prob mode_prob = ec_ctx->newmv_prob[mode_ctx];
 
@@ -219,7 +219,7 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
   const int mode = aom_read_tree(r, av1_inter_mode_tree,
                                  ec_ctx->inter_mode_probs[ctx], ACCT_STR);
 #endif
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
   if (counts) ++counts->inter_mode[ctx][mode];
 
   return NEARESTMV + mode;
@@ -277,7 +277,7 @@ static void read_drl_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
-                                    MODE_INFO *mi, aom_reader *r) {
+                                    ModeInfo *mi, aom_reader *r) {
   MB_MODE_INFO *mbmi = &mi->mbmi;
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
@@ -285,7 +285,7 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
       mi);
   int motion_mode;
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
 
   if (last_motion_mode_allowed == SIMPLE_TRANSLATION) return SIMPLE_TRANSLATION;
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
@@ -312,7 +312,7 @@ static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   const int mode =
       aom_read_tree(r, av1_inter_compound_mode_tree,
                     cm->fc->inter_compound_mode_probs[ctx], ACCT_STR);
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
 
   if (counts) ++counts->inter_compound_mode[ctx][mode];
 
@@ -321,7 +321,7 @@ static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 #endif  // CONFIG_EXT_INTER
 
-static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
+static int read_segment_id(aom_reader *r, struct SegmentationProbs *segp) {
 #if CONFIG_EC_MULTISYMBOL
   return aom_read_symbol(r, segp->tree_cdf, MAX_SEGMENTS, ACCT_STR);
 #else
@@ -331,7 +331,7 @@ static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
 
 #if CONFIG_VAR_TX
 static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
-                               MB_MODE_INFO *mbmi, FRAME_COUNTS *counts,
+                               MB_MODE_INFO *mbmi, FrameCounts *counts,
                                TX_SIZE tx_size, int depth, int blk_row,
                                int blk_col, aom_reader *r) {
   int is_split = 0;
@@ -407,7 +407,7 @@ static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
 
 static TX_SIZE read_selected_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd,
                                      int tx_size_cat, aom_reader *r) {
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
   const int ctx = get_tx_size_context(xd);
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -497,8 +497,8 @@ static int read_intra_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                  int mi_offset, int x_mis, int y_mis,
                                  aom_reader *r) {
   struct segmentation *const seg = &cm->seg;
-  FRAME_COUNTS *counts = xd->counts;
-  struct segmentation_probs *const segp = &cm->fc->seg;
+  FrameCounts *counts = xd->counts;
+  struct SegmentationProbs *const segp = &cm->fc->seg;
   int segment_id;
 
   if (!seg->enabled) return 0;  // Default for disabled segmentation
@@ -527,8 +527,8 @@ static void copy_segment_id(const AV1_COMMON *cm,
 static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                  int mi_row, int mi_col, aom_reader *r) {
   struct segmentation *const seg = &cm->seg;
-  FRAME_COUNTS *counts = xd->counts;
-  struct segmentation_probs *const segp = &cm->fc->seg;
+  FrameCounts *counts = xd->counts;
+  struct SegmentationProbs *const segp = &cm->fc->seg;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   int predicted_segment_id, segment_id;
   const int mi_offset = mi_row * cm->mi_cols + mi_col;
@@ -578,7 +578,7 @@ static int read_skip(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
   } else {
     const int ctx = av1_get_skip_context(xd);
     const int skip = aom_read(r, cm->fc->skip_probs[ctx], ACCT_STR);
-    FRAME_COUNTS *counts = xd->counts;
+    FrameCounts *counts = xd->counts;
     if (counts) ++counts->skip[ctx][skip];
     return skip;
   }
@@ -587,10 +587,10 @@ static int read_skip(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
 #if CONFIG_PALETTE
 static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                    aom_reader *r) {
-  MODE_INFO *const mi = xd->mi[0];
+  ModeInfo *const mi = xd->mi[0];
   MB_MODE_INFO *const mbmi = &mi->mbmi;
-  const MODE_INFO *const above_mi = xd->above_mi;
-  const MODE_INFO *const left_mi = xd->left_mi;
+  const ModeInfo *const above_mi = xd->above_mi;
+  const ModeInfo *const left_mi = xd->left_mi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   int i, n;
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
@@ -695,9 +695,9 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #if CONFIG_FILTER_INTRA
 static void read_filter_intra_mode_info(AV1_COMMON *const cm,
                                         MACROBLOCKD *const xd, aom_reader *r) {
-  MODE_INFO *const mi = xd->mi[0];
+  ModeInfo *const mi = xd->mi[0];
   MB_MODE_INFO *const mbmi = &mi->mbmi;
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
   FILTER_INTRA_MODE_INFO *filter_intra_mode_info =
       &mbmi->filter_intra_mode_info;
 
@@ -762,7 +762,7 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     p_angle = mode_to_angle_map[mbmi->mode] +
               mbmi->angle_delta[0] * av1_get_angle_step(mbmi->sb_type, 0);
     if (av1_is_intra_filter_switchable(p_angle)) {
-      FRAME_COUNTS *counts = xd->counts;
+      FrameCounts *counts = xd->counts;
 #if CONFIG_EC_MULTISYMBOL
       mbmi->intra_filter = aom_read_symbol(r, ec_ctx->intra_filter_cdf[ctx],
                                            INTRA_FILTERS, ACCT_STR);
@@ -827,7 +827,7 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
       const int eset = get_ext_tx_set(tx_size, mbmi->sb_type, inter_block,
                                       cm->reduced_tx_set_used);
-      FRAME_COUNTS *counts = xd->counts;
+      FrameCounts *counts = xd->counts;
 
       if (inter_block) {
         if (eset > 0) {
@@ -871,7 +871,7 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         !supertx_enabled &&
 #endif  // CONFIG_SUPERTX
         !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
-      FRAME_COUNTS *counts = xd->counts;
+      FrameCounts *counts = xd->counts;
 
       if (inter_block) {
 #if CONFIG_EC_MULTISYMBOL
@@ -918,7 +918,7 @@ static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
 #else
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
   nmv_context_counts *const dv_counts = counts ? &counts->dv : NULL;
   read_mv(r, &mv->as_mv, &ref_mv->as_mv, &ec_ctx->ndvc, dv_counts, 0);
   int valid = is_mv_valid(&mv->as_mv) &&
@@ -931,10 +931,10 @@ static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
 static void read_intra_frame_mode_info(AV1_COMMON *const cm,
                                        MACROBLOCKD *const xd, int mi_row,
                                        int mi_col, aom_reader *r) {
-  MODE_INFO *const mi = xd->mi[0];
+  ModeInfo *const mi = xd->mi[0];
   MB_MODE_INFO *const mbmi = &mi->mbmi;
-  const MODE_INFO *above_mi = xd->above_mi;
-  const MODE_INFO *left_mi = xd->left_mi;
+  const ModeInfo *above_mi = xd->above_mi;
+  const ModeInfo *left_mi = xd->left_mi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   int i;
   const int mi_offset = mi_row * cm->mi_cols + mi_col;
@@ -1153,7 +1153,7 @@ static REFERENCE_MODE read_block_reference_mode(AV1_COMMON *cm,
 
     const REFERENCE_MODE mode =
         (REFERENCE_MODE)aom_read(r, cm->fc->comp_inter_prob[ctx], ACCT_STR);
-    FRAME_COUNTS *counts = xd->counts;
+    FrameCounts *counts = xd->counts;
     if (counts) ++counts->comp_inter[ctx][mode];
     return mode;  // SINGLE_REFERENCE or COMPOUND_REFERENCE
   } else {
@@ -1166,7 +1166,7 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             aom_reader *r, int segment_id,
                             MV_REFERENCE_FRAME ref_frame[2]) {
   FRAME_CONTEXT *const fc = cm->fc;
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
 
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
     ref_frame[0] = (MV_REFERENCE_FRAME)get_segdata(&cm->seg, segment_id,
@@ -1265,7 +1265,7 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
                                          MACROBLOCKD *const xd,
                                          MB_MODE_INFO *const mbmi,
                                          aom_reader *r) {
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 #else
@@ -1343,7 +1343,7 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
 
 static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
                                        const int mi_col, MACROBLOCKD *const xd,
-                                       MODE_INFO *mi, aom_reader *r) {
+                                       ModeInfo *mi, aom_reader *r) {
   MB_MODE_INFO *const mbmi = &mi->mbmi;
   const BLOCK_SIZE bsize = mi->mbmi.sb_type;
   int i;
@@ -1443,7 +1443,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 
   switch (mode) {
     case NEWMV: {
-      FRAME_COUNTS *counts = xd->counts;
+      FrameCounts *counts = xd->counts;
 #if !CONFIG_REF_MV
       nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
 #endif
@@ -1513,7 +1513,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     }
 #if CONFIG_EXT_INTER
     case NEW_NEWMV: {
-      FRAME_COUNTS *counts = xd->counts;
+      FrameCounts *counts = xd->counts;
 #if !CONFIG_REF_MV
       nmv_context_counts *const mv_counts = counts ? &counts->mv : NULL;
 #endif
@@ -1561,7 +1561,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       break;
     }
     case NEW_NEARESTMV: {
-      FRAME_COUNTS *counts = xd->counts;
+      FrameCounts *counts = xd->counts;
 #if CONFIG_REF_MV
       int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
       int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
@@ -1581,7 +1581,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       break;
     }
     case NEAREST_NEWMV: {
-      FRAME_COUNTS *counts = xd->counts;
+      FrameCounts *counts = xd->counts;
 #if CONFIG_REF_MV
       int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
       int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
@@ -1602,7 +1602,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       break;
     }
     case NEAR_NEWMV: {
-      FRAME_COUNTS *counts = xd->counts;
+      FrameCounts *counts = xd->counts;
 #if CONFIG_REF_MV
       int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
       int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
@@ -1624,7 +1624,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       break;
     }
     case NEW_NEARMV: {
-      FRAME_COUNTS *counts = xd->counts;
+      FrameCounts *counts = xd->counts;
 #if CONFIG_REF_MV
       int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
       int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
@@ -1673,7 +1673,7 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   } else {
     const int ctx = av1_get_intra_inter_context(xd);
     const int is_inter = aom_read(r, cm->fc->intra_inter_prob[ctx], ACCT_STR);
-    FRAME_COUNTS *counts = xd->counts;
+    FrameCounts *counts = xd->counts;
     if (counts) ++counts->intra_inter[ctx][is_inter];
     return is_inter;
   }
@@ -1687,7 +1687,7 @@ static void fpm_sync(void *const data, int mi_row) {
 
 static void read_inter_block_mode_info(AV1Decoder *const pbi,
                                        MACROBLOCKD *const xd,
-                                       MODE_INFO *const mi,
+                                       ModeInfo *const mi,
 #if (CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION || CONFIG_EXT_INTER) && \
     CONFIG_SUPERTX
                                        int mi_row, int mi_col, aom_reader *r,
@@ -2205,7 +2205,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_SUPERTX
                                        int mi_row, int mi_col, aom_reader *r) {
   AV1_COMMON *const cm = &pbi->common;
-  MODE_INFO *const mi = xd->mi[0];
+  ModeInfo *const mi = xd->mi[0];
   MB_MODE_INFO *const mbmi = &mi->mbmi;
   int inter_block = 1;
 #if CONFIG_VAR_TX
@@ -2320,7 +2320,7 @@ void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd,
                         int mi_row, int mi_col, aom_reader *r, int x_mis,
                         int y_mis) {
   AV1_COMMON *const cm = &pbi->common;
-  MODE_INFO *const mi = xd->mi[0];
+  ModeInfo *const mi = xd->mi[0];
   MV_REF *frame_mvs = cm->cur_frame->mvs + mi_row * cm->mi_cols + mi_col;
   int w, h;
 

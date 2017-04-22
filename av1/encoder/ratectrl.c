@@ -183,7 +183,7 @@ int av1_estimate_bits_at_q(FRAME_TYPE frame_type, int q, int mbs,
                 (int)((uint64_t)bpm * mbs) >> BPER_MB_NORMBITS);
 }
 
-int av1_rc_clamp_pframe_target_size(const AV1_COMP *const cpi, int target) {
+int av1_rc_clamp_pframe_target_size(const Av1Comp *const cpi, int target) {
   const RATE_CONTROL *rc = &cpi->rc;
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
   const int min_frame_target =
@@ -214,7 +214,7 @@ int av1_rc_clamp_pframe_target_size(const AV1_COMP *const cpi, int target) {
   return target;
 }
 
-int av1_rc_clamp_iframe_target_size(const AV1_COMP *const cpi, int target) {
+int av1_rc_clamp_iframe_target_size(const Av1Comp *const cpi, int target) {
   const RATE_CONTROL *rc = &cpi->rc;
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
   if (oxcf->rc_max_intra_bitrate_pct) {
@@ -227,7 +227,7 @@ int av1_rc_clamp_iframe_target_size(const AV1_COMP *const cpi, int target) {
 }
 
 // Update the buffer level: leaky bucket model.
-static void update_buffer_level(AV1_COMP *cpi, int encoded_frame_size) {
+static void update_buffer_level(Av1Comp *cpi, int encoded_frame_size) {
   const AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
 
@@ -330,7 +330,7 @@ void av1_rc_init(const AV1EncoderConfig *oxcf, int pass, RATE_CONTROL *rc) {
   rc->baseline_gf_interval = (rc->min_gf_interval + rc->max_gf_interval) / 2;
 }
 
-int av1_rc_drop_frame(AV1_COMP *cpi) {
+int av1_rc_drop_frame(Av1Comp *cpi) {
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
   RATE_CONTROL *const rc = &cpi->rc;
 
@@ -366,7 +366,7 @@ int av1_rc_drop_frame(AV1_COMP *cpi) {
   }
 }
 
-static double get_rate_correction_factor(const AV1_COMP *cpi) {
+static double get_rate_correction_factor(const Av1Comp *cpi) {
   const RATE_CONTROL *const rc = &cpi->rc;
   double rcf;
 
@@ -388,7 +388,7 @@ static double get_rate_correction_factor(const AV1_COMP *cpi) {
   return fclamp(rcf, MIN_BPB_FACTOR, MAX_BPB_FACTOR);
 }
 
-static void set_rate_correction_factor(AV1_COMP *cpi, double factor) {
+static void set_rate_correction_factor(Av1Comp *cpi, double factor) {
   RATE_CONTROL *const rc = &cpi->rc;
 
   // Normalize RCF to account for the size-dependent scaling factor.
@@ -412,7 +412,7 @@ static void set_rate_correction_factor(AV1_COMP *cpi, double factor) {
   }
 }
 
-void av1_rc_update_rate_correction_factors(AV1_COMP *cpi) {
+void av1_rc_update_rate_correction_factors(Av1Comp *cpi) {
   const AV1_COMMON *const cm = &cpi->common;
   int correction_factor = 100;
   double rate_correction_factor = get_rate_correction_factor(cpi);
@@ -483,7 +483,7 @@ void av1_rc_update_rate_correction_factors(AV1_COMP *cpi) {
   set_rate_correction_factor(cpi, rate_correction_factor);
 }
 
-int av1_rc_regulate_q(const AV1_COMP *cpi, int target_bits_per_frame,
+int av1_rc_regulate_q(const Av1Comp *cpi, int target_bits_per_frame,
                       int active_best_quality, int active_worst_quality) {
   const AV1_COMMON *const cm = &cpi->common;
   int q = active_worst_quality;
@@ -565,7 +565,7 @@ static int get_gf_active_quality(const RATE_CONTROL *const rc, int q,
                             arfgf_low_motion_minq, arfgf_high_motion_minq);
 }
 
-static int calc_active_worst_quality_one_pass_vbr(const AV1_COMP *cpi) {
+static int calc_active_worst_quality_one_pass_vbr(const Av1Comp *cpi) {
   const RATE_CONTROL *const rc = &cpi->rc;
   const unsigned int curr_frame = cpi->common.current_video_frame;
   int active_worst_quality;
@@ -587,7 +587,7 @@ static int calc_active_worst_quality_one_pass_vbr(const AV1_COMP *cpi) {
 }
 
 // Adjust active_worst_quality level based on buffer level.
-static int calc_active_worst_quality_one_pass_cbr(const AV1_COMP *cpi) {
+static int calc_active_worst_quality_one_pass_cbr(const Av1Comp *cpi) {
   // Adjust active_worst_quality: If buffer is above the optimal/target level,
   // bring active_worst_quality down depending on fullness of buffer.
   // If buffer is below the optimal level, let the active_worst_quality go from
@@ -642,7 +642,7 @@ static int calc_active_worst_quality_one_pass_cbr(const AV1_COMP *cpi) {
   return active_worst_quality;
 }
 
-static int rc_pick_q_and_bounds_one_pass_cbr(const AV1_COMP *cpi,
+static int rc_pick_q_and_bounds_one_pass_cbr(const Av1Comp *cpi,
                                              int *bottom_index,
                                              int *top_index) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -765,7 +765,7 @@ static int get_active_cq_level(const RATE_CONTROL *rc,
   return active_cq_level;
 }
 
-static int rc_pick_q_and_bounds_one_pass_vbr(const AV1_COMP *cpi,
+static int rc_pick_q_and_bounds_one_pass_vbr(const Av1Comp *cpi,
                                              int *bottom_index,
                                              int *top_index) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -911,7 +911,7 @@ static int rc_pick_q_and_bounds_one_pass_vbr(const AV1_COMP *cpi,
   return q;
 }
 
-int av1_frame_type_qdelta(const AV1_COMP *cpi, int rf_level, int q) {
+int av1_frame_type_qdelta(const Av1Comp *cpi, int rf_level, int q) {
   static const double rate_factor_deltas[RATE_FACTOR_LEVELS] = {
     1.00,  // INTER_NORMAL
 #if CONFIG_EXT_REFS
@@ -940,7 +940,7 @@ int av1_frame_type_qdelta(const AV1_COMP *cpi, int rf_level, int q) {
 }
 
 #define STATIC_MOTION_THRESH 95
-static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int *bottom_index,
+static int rc_pick_q_and_bounds_two_pass(const Av1Comp *cpi, int *bottom_index,
                                          int *top_index) {
   const AV1_COMMON *const cm = &cpi->common;
   const RATE_CONTROL *const rc = &cpi->rc;
@@ -1121,7 +1121,7 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int *bottom_index,
   return q;
 }
 
-int av1_rc_pick_q_and_bounds(const AV1_COMP *cpi, int *bottom_index,
+int av1_rc_pick_q_and_bounds(const Av1Comp *cpi, int *bottom_index,
                              int *top_index) {
   int q;
   if (cpi->oxcf.pass == 0) {
@@ -1136,7 +1136,7 @@ int av1_rc_pick_q_and_bounds(const AV1_COMP *cpi, int *bottom_index,
   return q;
 }
 
-void av1_rc_compute_frame_size_bounds(const AV1_COMP *cpi, int frame_target,
+void av1_rc_compute_frame_size_bounds(const Av1Comp *cpi, int frame_target,
                                       int *frame_under_shoot_limit,
                                       int *frame_over_shoot_limit) {
   if (cpi->oxcf.rc_mode == AOM_Q) {
@@ -1152,7 +1152,7 @@ void av1_rc_compute_frame_size_bounds(const AV1_COMP *cpi, int frame_target,
   }
 }
 
-void av1_rc_set_frame_target(AV1_COMP *cpi, int target) {
+void av1_rc_set_frame_target(Av1Comp *cpi, int target) {
   const AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
 
@@ -1169,7 +1169,7 @@ void av1_rc_set_frame_target(AV1_COMP *cpi, int target) {
       ((int64_t)rc->this_frame_target * 64 * 64) / (cm->width * cm->height);
 }
 
-static void update_alt_ref_frame_stats(AV1_COMP *cpi) {
+static void update_alt_ref_frame_stats(Av1Comp *cpi) {
   // this frame refreshes means next frames don't unless specified by user
   RATE_CONTROL *const rc = &cpi->rc;
   rc->frames_since_golden = 0;
@@ -1181,7 +1181,7 @@ static void update_alt_ref_frame_stats(AV1_COMP *cpi) {
   rc->source_alt_ref_active = 1;
 }
 
-static void update_golden_frame_stats(AV1_COMP *cpi) {
+static void update_golden_frame_stats(Av1Comp *cpi) {
   RATE_CONTROL *const rc = &cpi->rc;
 
 #if CONFIG_EXT_REFS
@@ -1223,7 +1223,7 @@ static void update_golden_frame_stats(AV1_COMP *cpi) {
   }
 }
 
-void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
+void av1_rc_postencode_update(Av1Comp *cpi, uint64_t bytes_used) {
   const AV1_COMMON *const cm = &cpi->common;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -1326,7 +1326,7 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   }
 }
 
-void av1_rc_postencode_update_drop_frame(AV1_COMP *cpi) {
+void av1_rc_postencode_update_drop_frame(Av1Comp *cpi) {
   // Update buffer level with zero size, update frame counters, and return.
   update_buffer_level(cpi, 0);
   cpi->rc.frames_since_key++;
@@ -1338,7 +1338,7 @@ void av1_rc_postencode_update_drop_frame(AV1_COMP *cpi) {
 // Use this macro to turn on/off use of alt-refs in one-pass mode.
 #define USE_ALTREF_FOR_ONE_PASS 1
 
-static int calc_pframe_target_size_one_pass_vbr(const AV1_COMP *const cpi) {
+static int calc_pframe_target_size_one_pass_vbr(const Av1Comp *const cpi) {
   static const int af_ratio = 10;
   const RATE_CONTROL *const rc = &cpi->rc;
   int target;
@@ -1356,14 +1356,14 @@ static int calc_pframe_target_size_one_pass_vbr(const AV1_COMP *const cpi) {
   return av1_rc_clamp_pframe_target_size(cpi, target);
 }
 
-static int calc_iframe_target_size_one_pass_vbr(const AV1_COMP *const cpi) {
+static int calc_iframe_target_size_one_pass_vbr(const Av1Comp *const cpi) {
   static const int kf_ratio = 25;
   const RATE_CONTROL *rc = &cpi->rc;
   const int target = rc->avg_frame_bandwidth * kf_ratio;
   return av1_rc_clamp_iframe_target_size(cpi, target);
 }
 
-void av1_rc_get_one_pass_vbr_params(AV1_COMP *cpi) {
+void av1_rc_get_one_pass_vbr_params(Av1Comp *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
   int target;
@@ -1401,7 +1401,7 @@ void av1_rc_get_one_pass_vbr_params(AV1_COMP *cpi) {
   av1_rc_set_frame_target(cpi, target);
 }
 
-static int calc_pframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
+static int calc_pframe_target_size_one_pass_cbr(const Av1Comp *cpi) {
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
   const RATE_CONTROL *rc = &cpi->rc;
   const int64_t diff = rc->optimal_buffer_level - rc->buffer_level;
@@ -1440,7 +1440,7 @@ static int calc_pframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
   return AOMMAX(min_frame_target, target);
 }
 
-static int calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
+static int calc_iframe_target_size_one_pass_cbr(const Av1Comp *cpi) {
   const RATE_CONTROL *rc = &cpi->rc;
   int target;
   if (cpi->common.current_video_frame == 0) {
@@ -1460,7 +1460,7 @@ static int calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
   return av1_rc_clamp_iframe_target_size(cpi, target);
 }
 
-void av1_rc_get_one_pass_cbr_params(AV1_COMP *cpi) {
+void av1_rc_get_one_pass_cbr_params(Av1Comp *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
   int target;
@@ -1552,7 +1552,7 @@ int av1_compute_qdelta_by_rate(const RATE_CONTROL *rc, FRAME_TYPE frame_type,
   return target_index - qindex;
 }
 
-void av1_rc_set_gf_interval_range(const AV1_COMP *const cpi,
+void av1_rc_set_gf_interval_range(const Av1Comp *const cpi,
                                   RATE_CONTROL *const rc) {
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
 
@@ -1588,7 +1588,7 @@ void av1_rc_set_gf_interval_range(const AV1_COMP *const cpi,
   }
 }
 
-void av1_rc_update_framerate(AV1_COMP *cpi) {
+void av1_rc_update_framerate(Av1Comp *cpi) {
   const AV1_COMMON *const cm = &cpi->common;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -1619,7 +1619,7 @@ void av1_rc_update_framerate(AV1_COMP *cpi) {
 
 #define VBR_PCT_ADJUSTMENT_LIMIT 50
 // For VBR...adjustment to the frame target based on error from previous frames
-static void vbr_rate_correction(AV1_COMP *cpi, int *this_frame_target) {
+static void vbr_rate_correction(Av1Comp *cpi, int *this_frame_target) {
   RATE_CONTROL *const rc = &cpi->rc;
   int64_t vbr_bits_off_target = rc->vbr_bits_off_target;
   int max_delta;
@@ -1661,7 +1661,7 @@ static void vbr_rate_correction(AV1_COMP *cpi, int *this_frame_target) {
   }
 }
 
-void av1_set_target_rate(AV1_COMP *cpi) {
+void av1_set_target_rate(Av1Comp *cpi) {
   RATE_CONTROL *const rc = &cpi->rc;
   int target_rate = rc->base_frame_target;
 
@@ -1673,7 +1673,7 @@ void av1_set_target_rate(AV1_COMP *cpi) {
 
 // Check if we should resize, based on average QP from past x frames.
 // Only allow for resize at most one scale down for now, scaling factor is 2.
-int av1_resize_one_pass_cbr(AV1_COMP *cpi) {
+int av1_resize_one_pass_cbr(Av1Comp *cpi) {
   const AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
   int resize_now = 0;

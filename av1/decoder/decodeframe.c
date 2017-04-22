@@ -327,7 +327,7 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
                                     const TX_TYPE tx_type,
                                     const TX_SIZE tx_size, uint8_t *dst,
                                     int stride, int16_t scan_line, int eob) {
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
   tran_low_t *const dqcoeff = pd->dqcoeff;
   av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst, stride, eob);
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
@@ -440,7 +440,7 @@ static PVQ_SKIP_TYPE read_pvq_skip(AV1_COMMON *cm, MACROBLOCKD *const xd,
 static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   MB_MODE_INFO *const mbmi, int plane, int row,
                                   int col, TX_SIZE tx_size, TX_TYPE tx_type) {
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
   // transform block size in pixels
   int tx_blk_size = tx_size_wide[tx_size];
   int i, j;
@@ -459,7 +459,7 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
     int xdec = pd->subsampling_x;
     int seg_id = mbmi->segment_id;
     int16_t *quant;
-    FWD_TXFM_PARAM fwd_txfm_param;
+    FwdTxfmParam fwd_txfm_param;
     // ToDo(yaowu): correct this with optimal number from decoding process.
     const int max_scan_line = tx_size_2d[tx_size];
 #if CONFIG_HIGHBITDEPTH
@@ -507,7 +507,7 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
 static int get_block_idx(const MACROBLOCKD *xd, int plane, int row, int col) {
   const int bsize = xd->mi[0]->mbmi.sb_type;
-  const struct macroblockd_plane *pd = &xd->plane[plane];
+  const struct MacroblockdPlane *pd = &xd->plane[plane];
 #if CONFIG_CB4X4
 #if CONFIG_CHROMA_2X2
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
@@ -537,7 +537,7 @@ static void predict_and_reconstruct_intra_block(
 
   if (!mbmi->skip) {
 #if !CONFIG_PVQ
-    struct macroblockd_plane *const pd = &xd->plane[plane];
+    struct MacroblockdPlane *const pd = &xd->plane[plane];
 #if CONFIG_LV_MAP
     int16_t max_scan_line = 0;
     int eob;
@@ -572,7 +572,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   int plane, BLOCK_SIZE plane_bsize,
                                   int blk_row, int blk_col, TX_SIZE tx_size,
                                   int *eob_total) {
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
   const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
@@ -642,7 +642,7 @@ static int reconstruct_inter_block(AV1_COMMON *cm, MACROBLOCKD *const xd,
   (void)r;
   (void)segment_id;
 #else
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
 #endif
 
 #if !CONFIG_PVQ
@@ -1455,7 +1455,7 @@ static void set_segment_id_supertx(const AV1_COMMON *const cm, const int mi_row,
   const int miw = AOMMIN(mi_size_wide[bsize], cm->mi_cols - mi_col);
   const int mih = AOMMIN(mi_size_high[bsize], cm->mi_rows - mi_row);
   const int mi_offset = mi_row * cm->mi_stride + mi_col;
-  MODE_INFO **const mip = cm->mi_grid_visible + mi_offset;
+  ModeInfo **const mip = cm->mi_grid_visible + mi_offset;
   int r, c;
   int seg_id_supertx = MAX_SEGMENTS;
 
@@ -1570,8 +1570,8 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 
 #if CONFIG_COEF_INTERLEAVE
   {
-    const struct macroblockd_plane *const pd_y = &xd->plane[0];
-    const struct macroblockd_plane *const pd_c = &xd->plane[1];
+    const struct MacroblockdPlane *const pd_y = &xd->plane[0];
+    const struct MacroblockdPlane *const pd_c = &xd->plane[1];
     const TX_SIZE tx_log2_y = mbmi->tx_size;
     const TX_SIZE tx_log2_c = get_uv_tx_size(mbmi, pd_c);
     const int tx_sz_y = (1 << tx_log2_y);
@@ -1694,7 +1694,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
     }
 #endif  // CONFIG_PALETTE
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
-      const struct macroblockd_plane *const pd = &xd->plane[plane];
+      const struct MacroblockdPlane *const pd = &xd->plane[plane];
       const TX_SIZE tx_size = get_tx_size(plane, xd);
       const int stepr = tx_size_high_unit[tx_size];
       const int stepc = tx_size_wide_unit[tx_size];
@@ -1771,7 +1771,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       int plane;
 
       for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
-        const struct macroblockd_plane *const pd = &xd->plane[plane];
+        const struct MacroblockdPlane *const pd = &xd->plane[plane];
 #if CONFIG_CB4X4
 #if CONFIG_CHROMA_2X2
         const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
@@ -1935,11 +1935,11 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
       partition_plane_context(xd, mi_row, mi_col, has_rows, has_cols, bsize);
   const aom_prob *const probs =
       ctx < PARTITION_CONTEXTS ? cm->fc->partition_prob[ctx] : NULL;
-  FRAME_COUNTS *const counts = ctx < PARTITION_CONTEXTS ? xd->counts : NULL;
+  FrameCounts *const counts = ctx < PARTITION_CONTEXTS ? xd->counts : NULL;
 #else
   const int ctx = partition_plane_context(xd, mi_row, mi_col, bsize);
   const aom_prob *const probs = cm->fc->partition_prob[ctx];
-  FRAME_COUNTS *const counts = xd->counts;
+  FrameCounts *const counts = xd->counts;
 #endif
   PARTITION_TYPE p;
 #if CONFIG_EC_ADAPT
@@ -1998,7 +1998,7 @@ static int read_skip(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
   } else {
     const int ctx = av1_get_skip_context(xd);
     const int skip = aom_read(r, cm->fc->skip_probs[ctx], ACCT_STR);
-    FRAME_COUNTS *counts = xd->counts;
+    FrameCounts *counts = xd->counts;
     if (counts) ++counts->skip[ctx][skip];
     return skip;
   }
@@ -2303,7 +2303,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
       mbmi->tx_type = txfm;
       assert(mbmi->segment_id_supertx != MAX_SEGMENTS);
       for (i = 0; i < MAX_MB_PLANE; ++i) {
-        const struct macroblockd_plane *const pd = &xd->plane[i];
+        const struct MacroblockdPlane *const pd = &xd->plane[i];
         int row, col;
         const TX_SIZE tx_size = get_tx_size(i, xd);
         const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
@@ -3309,7 +3309,7 @@ static void get_tile_buffers(
 #endif  // CONFIG_EXT_TILE
 
 #if CONFIG_PVQ
-static void daala_dec_init(AV1_COMMON *const cm, daala_dec_ctx *daala_dec,
+static void daala_dec_init(AV1_COMMON *const cm, DaalaDecCtx *daala_dec,
                            aom_reader *r) {
   daala_dec->r = r;
 
@@ -4723,7 +4723,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 // Counts should only be incremented when frame_parallel_decoding_mode and
 // error_resilient_mode are disabled.
 static void debug_check_frame_counts(const AV1_COMMON *const cm) {
-  FRAME_COUNTS zero_counts;
+  FrameCounts zero_counts;
   av1_zero(zero_counts);
   assert(cm->refresh_frame_context != REFRESH_FRAME_CONTEXT_BACKWARD ||
          cm->error_resilient_mode);

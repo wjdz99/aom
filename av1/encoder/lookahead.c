@@ -20,9 +20,9 @@
 #include "av1/encoder/lookahead.h"
 
 /* Return the buffer at the given absolute index and increment the index */
-static struct lookahead_entry *pop(struct lookahead_ctx *ctx, int *idx) {
+static struct LookaheadEntry *pop(struct LookaheadCtx *ctx, int *idx) {
   int index = *idx;
-  struct lookahead_entry *buf = ctx->buf + index;
+  struct LookaheadEntry *buf = ctx->buf + index;
 
   assert(index < ctx->max_sz);
   if (++index >= ctx->max_sz) index -= ctx->max_sz;
@@ -30,7 +30,7 @@ static struct lookahead_entry *pop(struct lookahead_ctx *ctx, int *idx) {
   return buf;
 }
 
-void av1_lookahead_destroy(struct lookahead_ctx *ctx) {
+void av1_lookahead_destroy(struct LookaheadCtx *ctx) {
   if (ctx) {
     if (ctx->buf) {
       int i;
@@ -42,7 +42,7 @@ void av1_lookahead_destroy(struct lookahead_ctx *ctx) {
   }
 }
 
-struct lookahead_ctx *av1_lookahead_init(unsigned int width,
+struct LookaheadCtx *av1_lookahead_init(unsigned int width,
                                          unsigned int height,
                                          unsigned int subsampling_x,
                                          unsigned int subsampling_y,
@@ -50,7 +50,7 @@ struct lookahead_ctx *av1_lookahead_init(unsigned int width,
                                          int use_highbitdepth,
 #endif
                                          unsigned int depth) {
-  struct lookahead_ctx *ctx = NULL;
+  struct LookaheadCtx *ctx = NULL;
 
   // Clamp the lookahead queue depth
   depth = clamp(depth, 1, MAX_LAG_BUFFERS);
@@ -83,13 +83,13 @@ bail:
 
 #define USE_PARTIAL_COPY 0
 
-int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
+int av1_lookahead_push(struct LookaheadCtx *ctx, YV12_BUFFER_CONFIG *src,
                        int64_t ts_start, int64_t ts_end,
 #if CONFIG_HIGHBITDEPTH
                        int use_highbitdepth,
 #endif
                        aom_enc_frame_flags_t flags) {
-  struct lookahead_entry *buf;
+  struct LookaheadEntry *buf;
 #if USE_PARTIAL_COPY
   int row, col, active_end;
   int mb_rows = (src->y_height + 15) >> 4;
@@ -188,9 +188,9 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
   return 0;
 }
 
-struct lookahead_entry *av1_lookahead_pop(struct lookahead_ctx *ctx,
+struct LookaheadEntry *av1_lookahead_pop(struct LookaheadCtx *ctx,
                                           int drain) {
-  struct lookahead_entry *buf = NULL;
+  struct LookaheadEntry *buf = NULL;
 
   if (ctx && ctx->sz && (drain || ctx->sz == ctx->max_sz - MAX_PRE_FRAMES)) {
     buf = pop(ctx, &ctx->read_idx);
@@ -199,9 +199,9 @@ struct lookahead_entry *av1_lookahead_pop(struct lookahead_ctx *ctx,
   return buf;
 }
 
-struct lookahead_entry *av1_lookahead_peek(struct lookahead_ctx *ctx,
+struct LookaheadEntry *av1_lookahead_peek(struct LookaheadCtx *ctx,
                                            int index) {
-  struct lookahead_entry *buf = NULL;
+  struct LookaheadEntry *buf = NULL;
 
   if (index >= 0) {
     // Forward peek
@@ -222,4 +222,4 @@ struct lookahead_entry *av1_lookahead_peek(struct lookahead_ctx *ctx,
   return buf;
 }
 
-unsigned int av1_lookahead_depth(struct lookahead_ctx *ctx) { return ctx->sz; }
+unsigned int av1_lookahead_depth(struct LookaheadCtx *ctx) { return ctx->sz; }

@@ -14,8 +14,8 @@
 #if !defined(_state_H)
 # define _state_H (1)
 
-typedef struct od_state     od_state;
-typedef struct od_adapt_ctx od_adapt_ctx;
+typedef struct OdState     OdState;
+typedef struct OdAdaptCtx od_adapt_ctx;
 
 # include "generic_code.h"
 # include "odintrin.h"
@@ -24,9 +24,9 @@ typedef struct od_adapt_ctx od_adapt_ctx;
 /*Adaptation speed of scalar Laplace encoding.*/
 # define OD_SCALAR_ADAPT_SPEED (4)
 
-struct od_adapt_ctx {
+struct OdAdaptCtx {
   /* Support for PVQ encode/decode */
-  od_pvq_adapt_ctx pvq;
+  OdPvqAdaptCtx pvq;
 
   generic_encoder model_dc[OD_NPLANES_MAX];
 
@@ -37,15 +37,15 @@ struct od_adapt_ctx {
   uint16_t skip_cdf[OD_TXSIZES*2][CDF_SIZE(4)];
 };
 
-struct od_state {
-  od_adapt_ctx *adapt;
+struct OdState {
+  OdAdaptCtx *adapt;
   unsigned char pvq_qm_q4[OD_NPLANES_MAX][OD_QM_SIZE];
   /* Quantization matrices and their inverses. */
   int16_t qm[OD_QM_BUFFER_SIZE];
   int16_t qm_inv[OD_QM_BUFFER_SIZE];
 };
 
-void od_adapt_ctx_reset(od_adapt_ctx *state, int is_keyframe);
+void od_adapt_ctx_reset(OdAdaptCtx *state, int is_keyframe);
 void od_init_skipped_coeffs(int16_t *d, int16_t *pred, int is_keyframe,
  int bo, int n, int w);
 

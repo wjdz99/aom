@@ -116,18 +116,18 @@ typedef enum {
   AC_DC_CODED = 0x3,
 } PVQ_SKIP_TYPE;
 
-typedef struct od_pvq_adapt_ctx  od_pvq_adapt_ctx;
-typedef struct od_pvq_codeword_ctx od_pvq_codeword_ctx;
+typedef struct OdPvqAdaptCtx  OdPvqAdaptCtx;
+typedef struct OdPvqCodewordCtx od_pvq_codeword_ctx;
 
-struct od_pvq_codeword_ctx {
+struct OdPvqCodewordCtx {
   int                 pvq_adapt[2*OD_TXSIZES*OD_NSB_ADAPT_CTXS];
   /* CDFs are size 16 despite the fact that we're using less than that. */
   uint16_t            pvq_k1_cdf[12][CDF_SIZE(16)];
   uint16_t            pvq_split_cdf[22*7][CDF_SIZE(8)];
 };
 
-struct od_pvq_adapt_ctx {
-  od_pvq_codeword_ctx pvq_codeword_ctx;
+struct OdPvqAdaptCtx {
+  OdPvqCodewordCtx pvq_codeword_ctx;
   generic_encoder     pvq_param_model[3];
   int                 pvq_ext[OD_TXSIZES*PVQ_MAX_PARTITIONS];
   int                 pvq_exg[OD_NPLANES_MAX][OD_TXSIZES][PVQ_MAX_PARTITIONS];
@@ -135,15 +135,15 @@ struct od_pvq_adapt_ctx {
   uint16_t pvq_skip_dir_cdf[2*(OD_TXSIZES-1)][CDF_SIZE(7)];
 };
 
-typedef struct od_qm_entry {
+typedef struct OdQmEntry {
   int interp_q;
   int scale_q8;
   const unsigned char *qm_q4;
-} od_qm_entry;
+} OdQmEntry;
 
-extern const od_qm_entry OD_DEFAULT_QMS[2][2][OD_NPLANES_MAX];
+extern const OdQmEntry OD_DEFAULT_QMS[2][2][OD_NPLANES_MAX];
 
-void od_adapt_pvq_ctx_reset(od_pvq_adapt_ctx *state, int is_keyframe);
+void od_adapt_pvq_ctx_reset(OdPvqAdaptCtx *state, int is_keyframe);
 int od_pvq_size_ctx(int n);
 int od_pvq_k1_ctx(int n, int orig_size);
 
@@ -153,8 +153,8 @@ od_val16 od_pvq_cos(od_val32 x);
 int od_vector_log_mag(const od_coeff *x, int n);
 #endif
 
-void od_interp_qm(unsigned char *out, int q, const od_qm_entry *entry1,
-                  const od_qm_entry *entry2);
+void od_interp_qm(unsigned char *out, int q, const OdQmEntry *entry1,
+                  const OdQmEntry *entry2);
 
 int od_qm_get_index(int bs, int band);
 

@@ -21,7 +21,7 @@ extern "C" {
 
 #define MAX_LAG_BUFFERS 25
 
-struct lookahead_entry {
+struct LookaheadEntry {
   YV12_BUFFER_CONFIG img;
   int64_t ts_start;
   int64_t ts_end;
@@ -31,12 +31,12 @@ struct lookahead_entry {
 // The max of past frames we want to keep in the queue.
 #define MAX_PRE_FRAMES 1
 
-struct lookahead_ctx {
+struct LookaheadCtx {
   int max_sz;                  /* Absolute size of the queue */
   int sz;                      /* Number of buffers currently in the queue */
   int read_idx;                /* Read index */
   int write_idx;               /* Write index */
-  struct lookahead_entry *buf; /* Buffer list */
+  struct LookaheadEntry *buf; /* Buffer list */
 };
 
 /**\brief Initializes the lookahead stage
@@ -44,7 +44,7 @@ struct lookahead_ctx {
  * The lookahead stage is a queue of frame buffers on which some analysis
  * may be done when buffers are enqueued.
  */
-struct lookahead_ctx *av1_lookahead_init(unsigned int width,
+struct LookaheadCtx *av1_lookahead_init(unsigned int width,
                                          unsigned int height,
                                          unsigned int subsampling_x,
                                          unsigned int subsampling_y,
@@ -55,7 +55,7 @@ struct lookahead_ctx *av1_lookahead_init(unsigned int width,
 
 /**\brief Destroys the lookahead stage
  */
-void av1_lookahead_destroy(struct lookahead_ctx *ctx);
+void av1_lookahead_destroy(struct LookaheadCtx *ctx);
 
 /**\brief Enqueue a source buffer
  *
@@ -72,7 +72,7 @@ void av1_lookahead_destroy(struct lookahead_ctx *ctx);
  * \param[in] flags       Flags set on this frame
  * \param[in] active_map  Map that specifies which macroblock is active
  */
-int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
+int av1_lookahead_push(struct LookaheadCtx *ctx, YV12_BUFFER_CONFIG *src,
                        int64_t ts_start, int64_t ts_end,
 #if CONFIG_HIGHBITDEPTH
                        int use_highbitdepth,
@@ -89,7 +89,7 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
  * \retval NULL, if drain set and queue is empty
  * \retval NULL, if drain not set and queue not of the configured depth
  */
-struct lookahead_entry *av1_lookahead_pop(struct lookahead_ctx *ctx, int drain);
+struct LookaheadEntry *av1_lookahead_pop(struct LookaheadCtx *ctx, int drain);
 
 /**\brief Get a future source buffer to encode
  *
@@ -98,14 +98,14 @@ struct lookahead_entry *av1_lookahead_pop(struct lookahead_ctx *ctx, int drain);
  *
  * \retval NULL, if no buffer exists at the specified index
  */
-struct lookahead_entry *av1_lookahead_peek(struct lookahead_ctx *ctx,
+struct LookaheadEntry *av1_lookahead_peek(struct LookaheadCtx *ctx,
                                            int index);
 
 /**\brief Get the number of frames currently in the lookahead queue
  *
  * \param[in] ctx       Pointer to the lookahead context
  */
-unsigned int av1_lookahead_depth(struct lookahead_ctx *ctx);
+unsigned int av1_lookahead_depth(struct LookaheadCtx *ctx);
 
 #ifdef __cplusplus
 }  // extern "C"

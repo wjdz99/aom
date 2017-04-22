@@ -11,7 +11,7 @@
 
 #include "av1/encoder/treewriter.h"
 
-static void tree2tok(struct av1_token *tokens, const aom_tree_index *tree,
+static void tree2tok(struct Av1Token *tokens, const aom_tree_index *tree,
                      int i, int v, int l) {
   v += v;
   ++l;
@@ -27,7 +27,7 @@ static void tree2tok(struct av1_token *tokens, const aom_tree_index *tree,
   } while (++v & 1);
 }
 
-void av1_tokens_from_tree(struct av1_token *tokens,
+void av1_tokens_from_tree(struct Av1Token *tokens,
                           const aom_tree_index *tree) {
   tree2tok(tokens, tree, 0, 0, 0);
 }

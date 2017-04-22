@@ -81,7 +81,7 @@ typedef struct {
   const int16_t *neighbors;
 } SCAN_ORDER;
 
-struct seg_counts {
+struct SegCounts {
   unsigned int tree_total[MAX_SEGMENTS];
   unsigned int tree_mispred[MAX_SEGMENTS];
   unsigned int pred[PREDICTION_PROBS][2];
@@ -238,7 +238,7 @@ typedef struct frame_contexts {
 #if CONFIG_SUPERTX
   aom_prob supertx_prob[PARTITION_SUPERTX_CONTEXTS][TX_SIZES];
 #endif  // CONFIG_SUPERTX
-  struct segmentation_probs seg;
+  struct SegmentationProbs seg;
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
   aom_prob intra_filter_probs[INTRA_FILTERS + 1][INTRA_FILTERS - 1];
@@ -291,11 +291,11 @@ typedef struct frame_contexts {
 #if CONFIG_PVQ
   // TODO(any): If PVQ is enabled, most of coefficient related cdf,
   // such as coef_cdfs[], coef_tail_cdfs[], and coef_heaf_cdfs[] can be removed.
-  od_adapt_ctx pvq_context;
+  OdAdaptCtx pvq_context;
 #endif  // CONFIG_PVQ
 } FRAME_CONTEXT;
 
-typedef struct FRAME_COUNTS {
+typedef struct FrameCounts {
   // Note: This structure should only contain 'unsigned int' fields, or
   // aggregates built solely from 'unsigned int' fields/elements
   unsigned int kf_y_mode[INTRA_MODES][INTRA_MODES][INTRA_MODES];
@@ -409,7 +409,7 @@ typedef struct FRAME_COUNTS {
   unsigned int supertx[PARTITION_SUPERTX_CONTEXTS][TX_SIZES][2];
   unsigned int supertx_size[TX_SIZES];
 #endif  // CONFIG_SUPERTX
-  struct seg_counts seg;
+  struct SegCounts seg;
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
   unsigned int intra_filter[INTRA_FILTERS + 1][INTRA_FILTERS];
@@ -418,7 +418,7 @@ typedef struct FRAME_COUNTS {
 #if CONFIG_FILTER_INTRA
   unsigned int filter_intra[PLANE_TYPES][2];
 #endif  // CONFIG_FILTER_INTRA
-} FRAME_COUNTS;
+} FrameCounts;
 
 // Default probabilities for signaling Intra mode for Y plane -- used only for
 // intra-only frames. ('default_if_y_probs' is used for inter frames).

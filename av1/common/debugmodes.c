@@ -26,7 +26,7 @@ static void log_frame_info(AV1_COMMON *cm, const char *str, FILE *f) {
 static void print_mi_data(AV1_COMMON *cm, FILE *file, const char *descriptor,
                           size_t member_offset) {
   int mi_row, mi_col;
-  MODE_INFO **mi = cm->mi_grid_visible;
+  ModeInfo **mi = cm->mi_grid_visible;
   int rows = cm->mi_rows;
   int cols = cm->mi_cols;
   char prefix = descriptor[0];
@@ -48,7 +48,7 @@ void av1_print_modes_and_motion_vectors(AV1_COMMON *cm, const char *file) {
   int mi_row;
   int mi_col;
   FILE *mvs = fopen(file, "a");
-  MODE_INFO **mi = cm->mi_grid_visible;
+  ModeInfo **mi = cm->mi_grid_visible;
   int rows = cm->mi_rows;
   int cols = cm->mi_cols;
 

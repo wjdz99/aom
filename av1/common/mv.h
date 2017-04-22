@@ -261,7 +261,7 @@ static INLINE TransformationType get_gmtype(const WarpedMotionParams *gm) {
 #endif  // CONFIG_GLOBAL_MOTION
 
 #if CONFIG_REF_MV
-typedef struct candidate_mv {
+typedef struct CandidateMv {
   int_mv this_mv;
   int_mv comp_mv;
   uint8_t pred_diff[2];

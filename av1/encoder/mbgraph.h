@@ -28,9 +28,9 @@ typedef struct {
 
 typedef struct { MBGRAPH_MB_STATS *mb_stats; } MBGRAPH_FRAME_STATS;
 
-struct AV1_COMP;
+struct Av1Comp;
 
-void av1_update_mbgraph_stats(struct AV1_COMP *cpi);
+void av1_update_mbgraph_stats(struct Av1Comp *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -39,7 +39,7 @@ const RestorationType force_restore_type = RESTORE_NONE;
 #define NUM_WIENER_ITERS 10
 
 typedef double (*search_restore_type)(const YV12_BUFFER_CONFIG *src,
-                                      AV1_COMP *cpi, int partial_frame,
+                                      Av1Comp *cpi, int partial_frame,
                                       RestorationInfo *info,
                                       RestorationType *rest_level,
                                       double *best_tile_cost,
@@ -120,7 +120,7 @@ static int64_t sse_restoration_frame(AV1_COMMON *const cm,
 }
 
 static int64_t try_restoration_tile(const YV12_BUFFER_CONFIG *src,
-                                    AV1_COMP *const cpi, RestorationInfo *rsi,
+                                    Av1Comp *const cpi, RestorationInfo *rsi,
                                     int components_pattern, int partial_frame,
                                     int tile_idx, int subtile_idx,
                                     int subtile_bits,
@@ -159,7 +159,7 @@ static int64_t try_restoration_tile(const YV12_BUFFER_CONFIG *src,
 }
 
 static int64_t try_restoration_frame(const YV12_BUFFER_CONFIG *src,
-                                     AV1_COMP *const cpi, RestorationInfo *rsi,
+                                     Av1Comp *const cpi, RestorationInfo *rsi,
                                      int components_pattern, int partial_frame,
                                      YV12_BUFFER_CONFIG *dst_frame) {
   AV1_COMMON *const cm = &cpi->common;
@@ -346,7 +346,7 @@ static void search_selfguided_restoration(uint8_t *dat8, int width, int height,
   xqd[1] = bestxqd[1];
 }
 
-static double search_sgrproj(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
+static double search_sgrproj(const YV12_BUFFER_CONFIG *src, Av1Comp *cpi,
                              int partial_frame, RestorationInfo *info,
                              RestorationType *type, double *best_tile_cost,
                              YV12_BUFFER_CONFIG *dst_frame) {
@@ -751,7 +751,7 @@ static void quantize_sym_filter(double *f, InterpKernel fi) {
   fi[3] = -2 * (fi[0] + fi[1] + fi[2]);
 }
 
-static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
+static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, Av1Comp *cpi,
                                int partial_frame, int plane,
                                RestorationInfo *info, RestorationType *type,
                                YV12_BUFFER_CONFIG *dst_frame) {
@@ -889,7 +889,7 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                                                         : cost_norestore_frame;
 }
 
-static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
+static double search_wiener(const YV12_BUFFER_CONFIG *src, Av1Comp *cpi,
                             int partial_frame, RestorationInfo *info,
                             RestorationType *type, double *best_tile_cost,
                             YV12_BUFFER_CONFIG *dst_frame) {
@@ -1015,7 +1015,7 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   return cost_wiener;
 }
 
-static double search_norestore(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
+static double search_norestore(const YV12_BUFFER_CONFIG *src, Av1Comp *cpi,
                                int partial_frame, RestorationInfo *info,
                                RestorationType *type, double *best_tile_cost,
                                YV12_BUFFER_CONFIG *dst_frame) {
@@ -1052,7 +1052,7 @@ static double search_norestore(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
 }
 
 static double search_switchable_restoration(
-    AV1_COMP *cpi, int partial_frame, RestorationInfo *rsi,
+    Av1Comp *cpi, int partial_frame, RestorationInfo *rsi,
     double *tile_cost[RESTORE_SWITCHABLE_TYPES]) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *x = &cpi->td.mb;
@@ -1086,7 +1086,7 @@ static double search_switchable_restoration(
   return cost_switchable;
 }
 
-void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
+void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, Av1Comp *cpi,
                                  LPF_PICK_METHOD method) {
   static search_restore_type search_restore_fun[RESTORE_SWITCHABLE_TYPES] = {
     search_norestore, search_wiener, search_sgrproj,

@@ -85,7 +85,7 @@ static INLINE int is_inter_mode(PREDICTION_MODE mode) {
 }
 
 #if CONFIG_PVQ
-typedef struct PVQ_INFO {
+typedef struct PvqInfo {
   int theta[PVQ_MAX_PARTITIONS];
   int qg[PVQ_MAX_PARTITIONS];
   int k[PVQ_MAX_PARTITIONS];
@@ -100,14 +100,14 @@ typedef struct PVQ_INFO {
   // Block skip info, indicating whether DC/AC, is coded.
   PVQ_SKIP_TYPE ac_dc_coded;  // bit0: DC coded, bit1 : AC coded (1 means coded)
   tran_low_t dq_dc_residue;
-} PVQ_INFO;
+} PvqInfo;
 
-typedef struct PVQ_QUEUE {
-  PVQ_INFO *buf;  // buffer for pvq info, stored in encoding order
-  int curr_pos;   // curr position to write PVQ_INFO
+typedef struct PvqQueue {
+  PvqInfo *buf;  // buffer for pvq info, stored in encoding order
+  int curr_pos;   // curr position to write PvqInfo
   int buf_len;    // allocated buffer length
-  int last_pos;   // last written position of PVQ_INFO in a tile
-} PVQ_QUEUE;
+  int last_pos;   // last written position of PvqInfo in a tile
+} PvqQueue;
 #endif
 
 typedef struct {
@@ -272,8 +272,8 @@ typedef struct {
 #endif
 #endif
 
-// TODO(angiebird): Merge RD_COST and RD_STATS
-typedef struct RD_STATS {
+// TODO(angiebird): Merge RdCost and RdStats
+typedef struct RdStats {
   int rate;
   int64_t dist;
   int64_t sse;
@@ -285,7 +285,7 @@ typedef struct RD_STATS {
                         [TXB_COEFF_COST_MAP_SIZE];
 #endif  // CONFIG_VAR_TX
 #endif  // CONFIG_RD_DEBUG
-} RD_STATS;
+} RdStats;
 
 #if CONFIG_EXT_INTER
 typedef struct {
@@ -382,7 +382,7 @@ typedef struct {
   int current_q_index;
 #endif
 #if CONFIG_RD_DEBUG
-  RD_STATS rd_stats;
+  RdStats rd_stats;
   int mi_row;
   int mi_col;
 #endif
@@ -394,10 +394,10 @@ typedef struct {
   BOUNDARY_TYPE boundary_info;
 } MB_MODE_INFO;
 
-typedef struct MODE_INFO {
+typedef struct ModeInfo {
   MB_MODE_INFO mbmi;
   b_mode_info bmi[4];
-} MODE_INFO;
+} ModeInfo;
 
 #if CONFIG_INTRABC
 static INLINE int is_intrabc_block(const MB_MODE_INFO *mbmi) {
@@ -405,7 +405,7 @@ static INLINE int is_intrabc_block(const MB_MODE_INFO *mbmi) {
 }
 #endif
 
-static INLINE PREDICTION_MODE get_y_mode(const MODE_INFO *mi, int block) {
+static INLINE PREDICTION_MODE get_y_mode(const ModeInfo *mi, int block) {
 #if CONFIG_CB4X4
   (void)block;
   return mi->mbmi.mode;
@@ -425,14 +425,14 @@ static INLINE int has_second_ref(const MB_MODE_INFO *mbmi) {
   return mbmi->ref_frame[1] > INTRA_FRAME;
 }
 
-PREDICTION_MODE av1_left_block_mode(const MODE_INFO *cur_mi,
-                                    const MODE_INFO *left_mi, int b);
+PREDICTION_MODE av1_left_block_mode(const ModeInfo *cur_mi,
+                                    const ModeInfo *left_mi, int b);
 
-PREDICTION_MODE av1_above_block_mode(const MODE_INFO *cur_mi,
-                                     const MODE_INFO *above_mi, int b);
+PREDICTION_MODE av1_above_block_mode(const ModeInfo *cur_mi,
+                                     const ModeInfo *above_mi, int b);
 
 #if CONFIG_GLOBAL_MOTION
-static INLINE int is_global_mv_block(const MODE_INFO *mi, int block,
+static INLINE int is_global_mv_block(const ModeInfo *mi, int block,
                                      TransformationType type) {
   PREDICTION_MODE mode = get_y_mode(mi, block);
 #if GLOBAL_SUB8X8_USED
@@ -452,7 +452,7 @@ static INLINE int is_global_mv_block(const MODE_INFO *mi, int block,
 
 enum mv_precision { MV_PRECISION_Q3, MV_PRECISION_Q4 };
 
-struct buf_2d {
+struct Buf2d {
   uint8_t *buf;
   uint8_t *buf0;
   int width;
@@ -460,13 +460,13 @@ struct buf_2d {
   int stride;
 };
 
-typedef struct macroblockd_plane {
+typedef struct MacroblockdPlane {
   tran_low_t *dqcoeff;
   PLANE_TYPE plane_type;
   int subsampling_x;
   int subsampling_y;
-  struct buf_2d dst;
-  struct buf_2d pre[2];
+  struct Buf2d dst;
+  struct Buf2d pre[2];
   ENTROPY_CONTEXT *above_context;
   ENTROPY_CONTEXT *left_context;
   int16_t seg_dequant[MAX_SEGMENTS][2];
@@ -512,23 +512,23 @@ typedef struct RefBuffer {
   // is used in av1_onyxd_if.c
   int idx;
   YV12_BUFFER_CONFIG *buf;
-  struct scale_factors sf;
+  struct ScaleFactors sf;
 } RefBuffer;
 
 typedef int16_t EobThresholdMD[TX_SIZES_ALL][TX_TYPES];
-typedef struct macroblockd {
-  struct macroblockd_plane plane[MAX_MB_PLANE];
+typedef struct Macroblockd {
+  struct MacroblockdPlane plane[MAX_MB_PLANE];
   uint8_t bmode_blocks_wl;
   uint8_t bmode_blocks_hl;
 
-  FRAME_COUNTS *counts;
+  FrameCounts *counts;
   TileInfo tile;
 
   int mi_stride;
 
-  MODE_INFO **mi;
-  MODE_INFO *left_mi;
-  MODE_INFO *above_mi;
+  ModeInfo **mi;
+  ModeInfo *left_mi;
+  ModeInfo *above_mi;
   MB_MODE_INFO *left_mbmi;
   MB_MODE_INFO *above_mbmi;
 
@@ -578,7 +578,7 @@ typedef struct macroblockd {
 #endif
 
 #if CONFIG_PVQ
-  daala_dec_ctx daala_dec;
+  DaalaDecCtx daala_dec;
 #endif
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *tile_ctx;
@@ -921,7 +921,7 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
 
 static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
                                   int block, TX_SIZE tx_size) {
-  const MODE_INFO *const mi = xd->mi[0];
+  const ModeInfo *const mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
 #if CONFIG_INTRABC
   // TODO(aconverse@google.com): Revisit this decision
@@ -1001,7 +1001,7 @@ static INLINE TX_SIZE depth_to_tx_size(const int depth) {
 }
 
 static INLINE TX_SIZE get_uv_tx_size(const MB_MODE_INFO *mbmi,
-                                     const struct macroblockd_plane *pd) {
+                                     const struct MacroblockdPlane *pd) {
   TX_SIZE uv_txsize;
 #if CONFIG_CB4X4
   assert(mbmi->tx_size > TX_2X2);
@@ -1030,14 +1030,14 @@ static INLINE TX_SIZE get_tx_size(int plane, const MACROBLOCKD *xd) {
 }
 
 static INLINE BLOCK_SIZE
-get_plane_block_size(BLOCK_SIZE bsize, const struct macroblockd_plane *pd) {
+get_plane_block_size(BLOCK_SIZE bsize, const struct MacroblockdPlane *pd) {
   return ss_size_lookup[bsize][pd->subsampling_x][pd->subsampling_y];
 }
 
 static INLINE void reset_skip_context(MACROBLOCKD *xd, BLOCK_SIZE bsize) {
   int i;
   for (i = 0; i < MAX_MB_PLANE; i++) {
-    struct macroblockd_plane *const pd = &xd->plane[i];
+    struct MacroblockdPlane *const pd = &xd->plane[i];
     const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
     const int txs_wide = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
     const int txs_high = block_size_high[plane_bsize] >> tx_size_high_log2[0];
@@ -1080,7 +1080,7 @@ void av1_foreach_transformed_block_interleave(
     foreach_transformed_block_visitor visit, void *arg);
 #endif
 
-void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
+void av1_set_contexts(const MACROBLOCKD *xd, struct MacroblockdPlane *pd,
                       int plane, TX_SIZE tx_size, int has_eob, int aoff,
                       int loff);
 
@@ -1162,7 +1162,7 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
     int block, const WarpedMotionParams *gm_params,
 #endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
-    const MODE_INFO *mi) {
+    const ModeInfo *mi) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
   const TransformationType gm_type = gm_params[mbmi->ref_frame[0]].wmtype;
@@ -1199,7 +1199,7 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
                                             int block,
                                             const WarpedMotionParams *gm_params,
 #endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
-                                            const MODE_INFO *mi) {
+                                            const ModeInfo *mi) {
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
       block, gm_params,
@@ -1234,7 +1234,7 @@ static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
   const int block_cols = (xd->mb_to_right_edge >= 0)
                              ? block_width
                              : (xd->mb_to_right_edge >> 3) + block_width;
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
   assert(IMPLIES(plane == PLANE_TYPE_Y, pd->subsampling_x == 0));
   assert(IMPLIES(plane == PLANE_TYPE_Y, pd->subsampling_y == 0));
   assert(block_width >= block_cols);
@@ -1247,7 +1247,7 @@ static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
 
 #if CONFIG_GLOBAL_MOTION
 static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
-  const MODE_INFO *mi = xd->mi[0];
+  const ModeInfo *mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   int ref;
 #if CONFIG_CB4X4

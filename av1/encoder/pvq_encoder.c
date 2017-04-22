@@ -39,7 +39,7 @@ void aom_write_symbol_pvq(aom_writer *w, int symb, aom_cdf_prob *cdf,
   aom_write_symbol(w, symb, cdf, nsymbs);
 }
 
-static void aom_encode_pvq_codeword(aom_writer *w, od_pvq_codeword_ctx *adapt,
+static void aom_encode_pvq_codeword(aom_writer *w, OdPvqCodewordCtx *adapt,
  const od_coeff *in, int n, int k) {
   int i;
   aom_encode_band_pvq_splits(w, adapt, in, n, k, 0);
@@ -227,7 +227,7 @@ int od_vector_is_null(const od_coeff *x, int len) {
 }
 
 static double od_pvq_rate(int qg, int icgr, int theta, int ts,
-  const od_adapt_ctx *adapt, const od_coeff *y0, int k, int n, int speed) {
+  const OdAdaptCtx *adapt, const od_coeff *y0, int k, int n, int speed) {
   double rate;
   if (k == 0) rate = 0;
   else if (speed > 0) {
@@ -245,7 +245,7 @@ static double od_pvq_rate(int qg, int icgr, int theta, int ts,
   }
   else {
     aom_writer w;
-    od_pvq_codeword_ctx cd;
+    OdPvqCodewordCtx cd;
     int tell;
 #if CONFIG_DAALA_EC
     od_ec_enc_init(&w.ec, 1000);
@@ -319,7 +319,7 @@ int items_compare(pvq_search_item *a, pvq_search_item *b) {
 static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
     int n, int q0, od_coeff *y, int *itheta, int *vk,
     od_val16 beta, double *skip_diff, int is_keyframe, int pli,
-    const od_adapt_ctx *adapt, const int16_t *qm, const int16_t *qm_inv,
+    const OdAdaptCtx *adapt, const int16_t *qm, const int16_t *qm_inv,
     double pvq_norm_lambda, int speed) {
   od_val32 g;
   od_val32 gr;
@@ -647,7 +647,7 @@ void pvq_encode_partition(aom_writer *w,
                                  int n,
                                  int k,
                                  generic_encoder model[3],
-                                 od_adapt_ctx *adapt,
+                                 OdAdaptCtx *adapt,
                                  int *exg,
                                  int *ext,
                                  int cdf_ctx,
@@ -734,7 +734,7 @@ int od_rdo_quant(od_coeff x, int q, double delta0, double pvq_norm_lambda) {
  *                 bit0: DC is coded, bit1: AC is coded (1 means coded)
  *
  */
-PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
+PVQ_SKIP_TYPE od_pvq_encode(DaalaEncCtx *enc,
                    od_coeff *ref,
                    const od_coeff *in,
                    od_coeff *out,
@@ -747,7 +747,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
                    const int16_t *qm,
                    const int16_t *qm_inv,
                    int speed,
-                   PVQ_INFO *pvq_info){
+                   PvqInfo *pvq_info){
   int theta[PVQ_MAX_PARTITIONS];
   int qg[PVQ_MAX_PARTITIONS];
   int k[PVQ_MAX_PARTITIONS];
@@ -762,7 +762,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
   double skip_diff;
   int tell;
   uint16_t *skip_cdf;
-  od_rollback_buffer buf;
+  OdRollbackBuffer buf;
   int dc_quant;
   int flip;
   int cfl_encoded;
@@ -845,7 +845,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
       out[0] = 0;
     } else {
       int tell2;
-      od_rollback_buffer dc_buf;
+      OdRollbackBuffer dc_buf;
 
       dc_rate = -OD_LOG2((double)(skip_cdf[3] - skip_cdf[2])/
        (double)(skip_cdf[2] - skip_cdf[1]));
@@ -949,7 +949,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
         out[0] = 0;
       } else {
         int tell2;
-        od_rollback_buffer dc_buf;
+        OdRollbackBuffer dc_buf;
 
         dc_rate = -OD_LOG2((double)(skip_cdf[1] - skip_cdf[0])/
          (double)skip_cdf[0]);

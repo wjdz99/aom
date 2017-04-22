@@ -18,17 +18,17 @@ extern "C" {
 
 #include "av1/common/enums.h"
 
-struct AV1_COMP;
+struct Av1Comp;
 struct macroblock;
 
 // Select a segment for the current Block.
-void av1_caq_select_segment(const struct AV1_COMP *cpi, struct macroblock *,
+void av1_caq_select_segment(const struct Av1Comp *cpi, struct macroblock *,
                             BLOCK_SIZE bs, int mi_row, int mi_col,
                             int projected_rate);
 
 // This function sets up a set of segments with delta Q values around
 // the baseline frame quantizer.
-void av1_setup_in_frame_q_adj(struct AV1_COMP *cpi);
+void av1_setup_in_frame_q_adj(struct Av1Comp *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -44,7 +44,7 @@ unsigned int av1_vaq_segment_id(int energy) {
   return SEGMENT_ID(energy);
 }
 
-void av1_vaq_frame_setup(AV1_COMP *cpi) {
+void av1_vaq_frame_setup(Av1Comp *cpi) {
   AV1_COMMON *cm = &cpi->common;
   struct segmentation *seg = &cm->seg;
   int i;
@@ -141,7 +141,7 @@ static void aq_highbd_8_variance(const uint8_t *a8, int a_stride,
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
-static unsigned int block_variance(const AV1_COMP *const cpi, MACROBLOCK *x,
+static unsigned int block_variance(const Av1Comp *const cpi, MACROBLOCK *x,
                                    BLOCK_SIZE bs) {
   MACROBLOCKD *xd = &x->e_mbd;
   unsigned int var, sse;
@@ -189,14 +189,14 @@ static unsigned int block_variance(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 }
 
-double av1_log_block_var(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs) {
+double av1_log_block_var(const Av1Comp *cpi, MACROBLOCK *x, BLOCK_SIZE bs) {
   unsigned int var = block_variance(cpi, x, bs);
   aom_clear_system_state();
   return log(var + 1.0);
 }
 
 #define DEFAULT_E_MIDPOINT 10.0
-int av1_block_energy(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs) {
+int av1_block_energy(const Av1Comp *cpi, MACROBLOCK *x, BLOCK_SIZE bs) {
   double energy;
   double energy_midpoint;
   aom_clear_system_state();

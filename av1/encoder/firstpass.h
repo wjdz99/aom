@@ -163,23 +163,23 @@ typedef struct {
   GF_GROUP gf_group;
 } TWO_PASS;
 
-struct AV1_COMP;
+struct Av1Comp;
 
-void av1_init_first_pass(struct AV1_COMP *cpi);
-void av1_rc_get_first_pass_params(struct AV1_COMP *cpi);
-void av1_first_pass(struct AV1_COMP *cpi, const struct lookahead_entry *source);
-void av1_end_first_pass(struct AV1_COMP *cpi);
+void av1_init_first_pass(struct Av1Comp *cpi);
+void av1_rc_get_first_pass_params(struct Av1Comp *cpi);
+void av1_first_pass(struct Av1Comp *cpi, const struct LookaheadEntry *source);
+void av1_end_first_pass(struct Av1Comp *cpi);
 
-void av1_init_second_pass(struct AV1_COMP *cpi);
-void av1_rc_get_second_pass_params(struct AV1_COMP *cpi);
-void av1_twopass_postencode_update(struct AV1_COMP *cpi);
+void av1_init_second_pass(struct Av1Comp *cpi);
+void av1_rc_get_second_pass_params(struct Av1Comp *cpi);
+void av1_twopass_postencode_update(struct Av1Comp *cpi);
 
 // Post encode update of the rate control parameters for 2-pass
-void av1_twopass_postencode_update(struct AV1_COMP *cpi);
+void av1_twopass_postencode_update(struct Av1Comp *cpi);
 
-void av1_init_subsampling(struct AV1_COMP *cpi);
+void av1_init_subsampling(struct Av1Comp *cpi);
 
-void av1_calculate_coded_size(struct AV1_COMP *cpi, int *scaled_frame_width,
+void av1_calculate_coded_size(struct Av1Comp *cpi, int *scaled_frame_width,
                               int *scaled_frame_height);
 
 #if CONFIG_EXT_REFS

@@ -30,7 +30,7 @@ static INLINE TxfmFunc inv_txfm_type_to_func(TXFM_TYPE txfm_type) {
 }
 
 #if CONFIG_EXT_TX
-static const TXFM_2D_CFG *inv_txfm_cfg_ls[FLIPADST_ADST + 1][TX_SIZES] = {
+static const Txfm2dCfg *inv_txfm_cfg_ls[FLIPADST_ADST + 1][TX_SIZES] = {
   {
 #if CONFIG_CB4X4
       NULL,
@@ -87,7 +87,7 @@ static const TXFM_2D_CFG *inv_txfm_cfg_ls[FLIPADST_ADST + 1][TX_SIZES] = {
       &inv_txfm_2d_cfg_adst_adst_16, &inv_txfm_2d_cfg_adst_adst_32 },
 };
 #else
-static const TXFM_2D_CFG *inv_txfm_cfg_ls[TX_TYPES][TX_SIZES] = {
+static const Txfm2dCfg *inv_txfm_cfg_ls[TX_TYPES][TX_SIZES] = {
   {
 #if CONFIG_CB4X4
       NULL,
@@ -115,15 +115,15 @@ static const TXFM_2D_CFG *inv_txfm_cfg_ls[TX_TYPES][TX_SIZES] = {
 };
 #endif
 
-TXFM_2D_FLIP_CFG av1_get_inv_txfm_cfg(int tx_type, int tx_size) {
-  TXFM_2D_FLIP_CFG cfg;
+Txfm2dFlipCfg av1_get_inv_txfm_cfg(int tx_type, int tx_size) {
+  Txfm2dFlipCfg cfg;
   set_flip_cfg(tx_type, &cfg);
   cfg.cfg = inv_txfm_cfg_ls[tx_type][tx_size];
   return cfg;
 }
 
-TXFM_2D_FLIP_CFG av1_get_inv_txfm_64x64_cfg(int tx_type) {
-  TXFM_2D_FLIP_CFG cfg = { 0, 0, NULL };
+Txfm2dFlipCfg av1_get_inv_txfm_64x64_cfg(int tx_type) {
+  Txfm2dFlipCfg cfg = { 0, 0, NULL };
   switch (tx_type) {
     case DCT_DCT:
       cfg.cfg = &inv_txfm_2d_cfg_dct_dct_64;
@@ -135,7 +135,7 @@ TXFM_2D_FLIP_CFG av1_get_inv_txfm_64x64_cfg(int tx_type) {
 }
 
 static INLINE void inv_txfm2d_add_c(const int32_t *input, int16_t *output,
-                                    int stride, TXFM_2D_FLIP_CFG *cfg,
+                                    int stride, Txfm2dFlipCfg *cfg,
                                     int32_t *txfm_buf) {
   const int txfm_size = cfg->cfg->txfm_size;
   const int8_t *shift = cfg->cfg->shift;
@@ -190,7 +190,7 @@ void av1_inv_txfm2d_add_4x4_c(const int32_t *input, uint16_t *output,
   // than (1 << bd) - 1
   // since bd < 16-1, therefore we can treat the uint16_t* output buffer as an
   // int16_t*
-  TXFM_2D_FLIP_CFG cfg = av1_get_inv_txfm_cfg(tx_type, TX_4X4);
+  Txfm2dFlipCfg cfg = av1_get_inv_txfm_cfg(tx_type, TX_4X4);
   inv_txfm2d_add_c(input, (int16_t *)output, stride, &cfg, txfm_buf);
   clamp_block((int16_t *)output, 4, stride, 0, (1 << bd) - 1);
 }
@@ -202,7 +202,7 @@ void av1_inv_txfm2d_add_8x8_c(const int32_t *input, uint16_t *output,
   // than (1 << bd) - 1
   // since bd < 16-1, therefore we can treat the uint16_t* output buffer as an
   // int16_t*
-  TXFM_2D_FLIP_CFG cfg = av1_get_inv_txfm_cfg(tx_type, TX_8X8);
+  Txfm2dFlipCfg cfg = av1_get_inv_txfm_cfg(tx_type, TX_8X8);
   inv_txfm2d_add_c(input, (int16_t *)output, stride, &cfg, txfm_buf);
   clamp_block((int16_t *)output, 8, stride, 0, (1 << bd) - 1);
 }
@@ -214,7 +214,7 @@ void av1_inv_txfm2d_add_16x16_c(const int32_t *input, uint16_t *output,
   // than (1 << bd) - 1
   // since bd < 16-1, therefore we can treat the uint16_t* output buffer as an
   // int16_t*
-  TXFM_2D_FLIP_CFG cfg = av1_get_inv_txfm_cfg(tx_type, TX_16X16);
+  Txfm2dFlipCfg cfg = av1_get_inv_txfm_cfg(tx_type, TX_16X16);
   inv_txfm2d_add_c(input, (int16_t *)output, stride, &cfg, txfm_buf);
   clamp_block((int16_t *)output, 16, stride, 0, (1 << bd) - 1);
 }
@@ -226,7 +226,7 @@ void av1_inv_txfm2d_add_32x32_c(const int32_t *input, uint16_t *output,
   // than (1 << bd) - 1
   // since bd < 16-1, therefore we can treat the uint16_t* output buffer as an
   // int16_t*
-  TXFM_2D_FLIP_CFG cfg = av1_get_inv_txfm_cfg(tx_type, TX_32X32);
+  Txfm2dFlipCfg cfg = av1_get_inv_txfm_cfg(tx_type, TX_32X32);
   inv_txfm2d_add_c(input, (int16_t *)output, stride, &cfg, txfm_buf);
   clamp_block((int16_t *)output, 32, stride, 0, (1 << bd) - 1);
 }
@@ -238,7 +238,7 @@ void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
   // than (1 << bd) - 1
   // since bd < 16-1, therefore we can treat the uint16_t* output buffer as an
   // int16_t*
-  TXFM_2D_FLIP_CFG cfg = av1_get_inv_txfm_64x64_cfg(tx_type);
+  Txfm2dFlipCfg cfg = av1_get_inv_txfm_64x64_cfg(tx_type);
   inv_txfm2d_add_c(input, (int16_t *)output, stride, &cfg, txfm_buf);
   clamp_block((int16_t *)output, 64, stride, 0, (1 << bd) - 1);
 }

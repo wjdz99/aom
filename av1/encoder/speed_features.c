@@ -18,7 +18,7 @@
 #include "aom_dsp/aom_dsp_common.h"
 
 #define MAX_MESH_SPEED 5  // Max speed setting for mesh motion method
-static MESH_PATTERN
+static MeshPattern
     good_quality_mesh_patterns[MAX_MESH_SPEED + 1][MAX_MESH_STEP] = {
       { { 64, 8 }, { 28, 4 }, { 15, 1 }, { 7, 1 } },
       { { 64, 8 }, { 28, 4 }, { 15, 1 }, { 7, 1 } },
@@ -33,7 +33,7 @@ static unsigned char good_quality_max_mesh_pct[MAX_MESH_SPEED + 1] = {
 
 // Intra only frames, golden frames (except alt ref overlays) and
 // alt ref frames tend to be coded at a higher than ambient quality
-static int frame_is_boosted(const AV1_COMP *cpi) {
+static int frame_is_boosted(const Av1Comp *cpi) {
   return frame_is_kf_gf_arf(cpi);
 }
 
@@ -59,8 +59,8 @@ static BLOCK_SIZE set_partition_min_limit(AV1_COMMON *const cm) {
   }
 }
 
-static void set_good_speed_feature_framesize_dependent(AV1_COMP *cpi,
-                                                       SPEED_FEATURES *sf,
+static void set_good_speed_feature_framesize_dependent(Av1Comp *cpi,
+                                                       SpeedFeatures *sf,
                                                        int speed) {
   AV1_COMMON *const cm = &cpi->common;
 
@@ -124,8 +124,8 @@ static void set_good_speed_feature_framesize_dependent(AV1_COMP *cpi,
   }
 }
 
-static void set_good_speed_feature(AV1_COMP *cpi, AV1_COMMON *cm,
-                                   SPEED_FEATURES *sf, int speed) {
+static void set_good_speed_feature(Av1Comp *cpi, AV1_COMMON *cm,
+                                   SpeedFeatures *sf, int speed) {
   const int boosted = frame_is_boosted(cpi);
 
   if (speed >= 1) {
@@ -280,11 +280,11 @@ static void set_good_speed_feature(AV1_COMP *cpi, AV1_COMMON *cm,
   }
 }
 
-void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi) {
-  SPEED_FEATURES *const sf = &cpi->sf;
+void av1_set_speed_features_framesize_dependent(Av1Comp *cpi) {
+  SpeedFeatures *const sf = &cpi->sf;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   AV1_COMMON *const cm = &cpi->common;
-  RD_OPT *const rd = &cpi->rd;
+  RdOpt *const rd = &cpi->rd;
   int i;
 
 // Limit memory usage for high resolutions
@@ -324,8 +324,8 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi) {
   }
 }
 
-void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
-  SPEED_FEATURES *const sf = &cpi->sf;
+void av1_set_speed_features_framesize_independent(Av1Comp *cpi) {
+  SpeedFeatures *const sf = &cpi->sf;
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &cpi->td.mb;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;

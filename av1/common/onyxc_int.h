@@ -173,7 +173,7 @@ typedef struct AV1Common {
   YV12_BUFFER_CONFIG *frame_to_show;
   RefCntBuffer *prev_frame;
 
-  // TODO(hkuang): Combine this with cur_buf in macroblockd.
+  // TODO(hkuang): Combine this with cur_buf in Macroblockd.
   RefCntBuffer *cur_frame;
 
   int ref_frame_map[REF_FRAMES]; /* maps fb_idx to reference slot */
@@ -215,7 +215,7 @@ typedef struct AV1Common {
   RESET_FRAME_CONTEXT_MODE reset_frame_context;
 
   // MBs, mb_rows/cols is in 16-pixel units; mi_rows/cols is in
-  // MODE_INFO (8-pixel) units.
+  // ModeInfo (8-pixel) units.
   int MBs;
   int mb_rows, mi_rows;
   int mb_cols, mi_cols;
@@ -252,28 +252,28 @@ typedef struct AV1Common {
   dequant_val_type_nuq uv_dequant_nuq[MAX_SEGMENTS][QUANT_PROFILES][COEF_BANDS];
 #endif
 
-  /* We allocate a MODE_INFO struct for each macroblock, together with
+  /* We allocate a ModeInfo struct for each macroblock, together with
      an extra row on top and column on the left to simplify prediction. */
   int mi_alloc_size;
-  MODE_INFO *mip; /* Base of allocated array */
-  MODE_INFO *mi;  /* Corresponds to upper left visible macroblock */
+  ModeInfo *mip; /* Base of allocated array */
+  ModeInfo *mi;  /* Corresponds to upper left visible macroblock */
 
   // TODO(agrange): Move prev_mi into encoder structure.
   // prev_mip and prev_mi will only be allocated in encoder.
-  MODE_INFO *prev_mip; /* MODE_INFO array 'mip' from last decoded frame */
-  MODE_INFO *prev_mi;  /* 'mi' from last frame (points into prev_mip) */
+  ModeInfo *prev_mip; /* ModeInfo array 'mip' from last decoded frame */
+  ModeInfo *prev_mi;  /* 'mi' from last frame (points into prev_mip) */
 
   // Separate mi functions between encoder and decoder.
   int (*alloc_mi)(struct AV1Common *cm, int mi_size);
   void (*free_mi)(struct AV1Common *cm);
   void (*setup_mi)(struct AV1Common *cm);
 
-  // Grid of pointers to 8x8 MODE_INFO structs.  Any 8x8 not in the visible
+  // Grid of pointers to 8x8 ModeInfo structs.  Any 8x8 not in the visible
   // area will be NULL.
-  MODE_INFO **mi_grid_base;
-  MODE_INFO **mi_grid_visible;
-  MODE_INFO **prev_mi_grid_base;
-  MODE_INFO **prev_mi_grid_visible;
+  ModeInfo **mi_grid_base;
+  ModeInfo **mi_grid_visible;
+  ModeInfo **prev_mi_grid_base;
+  ModeInfo **prev_mi_grid_visible;
 
   // Whether to use previous frame's motion vectors for prediction.
   int use_prev_frame_mvs;
@@ -328,7 +328,7 @@ typedef struct AV1Common {
   FRAME_CONTEXT *fc;              /* this frame entropy */
   FRAME_CONTEXT *frame_contexts;  // FRAME_CONTEXTS
   unsigned int frame_context_idx; /* Context to use/update */
-  FRAME_COUNTS counts;
+  FrameCounts counts;
 
 #if CONFIG_SUBFRAME_PROB_UPDATE
   // The initial probabilities for a frame, before any subframe backward update,
@@ -562,7 +562,7 @@ static INLINE void set_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col) {
   const int left_idx = (mi_row * 2) & MAX_MIB_MASK_2;
   int i;
   for (i = 0; i < MAX_MB_PLANE; ++i) {
-    struct macroblockd_plane *const pd = &xd->plane[i];
+    struct MacroblockdPlane *const pd = &xd->plane[i];
     pd->above_context = &xd->above_context[i][above_idx >> pd->subsampling_x];
     pd->left_context = &xd->left_context[i][left_idx >> pd->subsampling_y];
   }
@@ -684,9 +684,9 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
 #endif
 
 static INLINE const aom_prob *get_y_mode_probs(const AV1_COMMON *cm,
-                                               const MODE_INFO *mi,
-                                               const MODE_INFO *above_mi,
-                                               const MODE_INFO *left_mi,
+                                               const ModeInfo *mi,
+                                               const ModeInfo *above_mi,
+                                               const ModeInfo *left_mi,
                                                int block) {
   const PREDICTION_MODE above = av1_above_block_mode(mi, above_mi, block);
   const PREDICTION_MODE left = av1_left_block_mode(mi, left_mi, block);
@@ -695,9 +695,9 @@ static INLINE const aom_prob *get_y_mode_probs(const AV1_COMMON *cm,
 
 #if CONFIG_EC_MULTISYMBOL
 static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
-                                           const MODE_INFO *mi,
-                                           const MODE_INFO *above_mi,
-                                           const MODE_INFO *left_mi,
+                                           const ModeInfo *mi,
+                                           const ModeInfo *above_mi,
+                                           const ModeInfo *left_mi,
                                            int block) {
   const PREDICTION_MODE above = av1_above_block_mode(mi, above_mi, block);
   const PREDICTION_MODE left = av1_left_block_mode(mi, left_mi, block);
@@ -844,7 +844,7 @@ static INLINE int partition_plane_context(const MACROBLOCKD *xd, int mi_row,
 static INLINE int max_block_wide(const MACROBLOCKD *xd, const BLOCK_SIZE bsize,
                                  const int plane) {
   int max_blocks_wide = block_size_wide[bsize];
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
 
   if (xd->mb_to_right_edge < 0)
     max_blocks_wide += xd->mb_to_right_edge >> (3 + pd->subsampling_x);
@@ -856,7 +856,7 @@ static INLINE int max_block_wide(const MACROBLOCKD *xd, const BLOCK_SIZE bsize,
 static INLINE int max_block_high(const MACROBLOCKD *xd, const BLOCK_SIZE bsize,
                                  const int plane) {
   int max_blocks_high = block_size_high[bsize];
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
 
   if (xd->mb_to_bottom_edge < 0)
     max_blocks_high += xd->mb_to_bottom_edge >> (3 + pd->subsampling_y);
@@ -972,7 +972,7 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
     return PARTITION_INVALID;
   } else {
     const int offset = mi_row * cm->mi_stride + mi_col;
-    MODE_INFO **mi = cm->mi_grid_visible + offset;
+    ModeInfo **mi = cm->mi_grid_visible + offset;
     const MB_MODE_INFO *const mbmi = &mi[0]->mbmi;
     const int bsl = b_width_log2_lookup[bsize];
     const PARTITION_TYPE partition = partition_lookup[bsl][mbmi->sb_type];

@@ -12,7 +12,7 @@
 #include "av1/common/pvq_state.h"
 #include "av1/common/odintrin.h"
 
-void od_adapt_ctx_reset(od_adapt_ctx *adapt, int is_keyframe) {
+void od_adapt_ctx_reset(OdAdaptCtx *adapt, int is_keyframe) {
   int pli;
   od_adapt_pvq_ctx_reset(&adapt->pvq, is_keyframe);
   OD_CDFS_INIT_Q15(adapt->skip_cdf);

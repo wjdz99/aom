@@ -43,9 +43,9 @@ static int read_golomb(MACROBLOCKD *xd, aom_reader *r) {
 
 uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                             aom_reader *r, int block, int plane,
-                            tran_low_t *tcoeffs, TXB_CTX *txb_ctx,
+                            tran_low_t *tcoeffs, TXB_CTX *TxbCtx,
                             int16_t *max_scan_line, int *eob) {
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
   TX_SIZE tx_size = get_tx_size(plane, xd);
   PLANE_TYPE plane_type = get_plane_type(plane);
   aom_prob *nz_map = cm->fc->nz_map[tx_size][plane_type];
@@ -66,9 +66,9 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   memset(tcoeffs, 0, sizeof(*tcoeffs) * seg_eob);
 
   int all_zero =
-      aom_read(r, cm->fc->txb_skip[tx_size][txb_ctx->txb_skip_ctx], ACCT_STR);
+      aom_read(r, cm->fc->txb_skip[tx_size][TxbCtx->txb_skip_ctx], ACCT_STR);
   if (xd->counts)
-    ++xd->counts->txb_skip[tx_size][txb_ctx->txb_skip_ctx][all_zero];
+    ++xd->counts->txb_skip[tx_size][TxbCtx->txb_skip_ctx][all_zero];
 
   *eob = 0;
   if (all_zero) {
@@ -136,7 +136,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         if (counts) ++counts->coeff_base[tx_size][plane_type][i][ctx][1];
 
         if (c == 0) {
-          int dc_sign_ctx = txb_ctx->dc_sign_ctx;
+          int dc_sign_ctx = TxbCtx->dc_sign_ctx;
           sign = aom_read(r, cm->fc->dc_sign[plane_type][dc_sign_ctx], tx_size);
           if (counts) ++counts->dc_sign[plane_type][dc_sign_ctx][sign];
         } else {
@@ -162,7 +162,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     if (*v <= NUM_BASE_LEVELS) continue;
 
     if (c == 0) {
-      int dc_sign_ctx = txb_ctx->dc_sign_ctx;
+      int dc_sign_ctx = TxbCtx->dc_sign_ctx;
       sign = aom_read(r, cm->fc->dc_sign[plane_type][dc_sign_ctx], tx_size);
       if (counts) ++counts->dc_sign[plane_type][dc_sign_ctx][sign];
     } else {
@@ -213,7 +213,7 @@ uint8_t av1_read_coeffs_txb_facade(AV1_COMMON *cm, MACROBLOCKD *xd,
                                    int plane, tran_low_t *tcoeffs,
                                    int16_t *max_scan_line, int *eob) {
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  struct macroblockd_plane *pd = &xd->plane[plane];
+  struct MacroblockdPlane *pd = &xd->plane[plane];
 
   const BLOCK_SIZE bsize = mbmi->sb_type;
 #if CONFIG_CB4X4
@@ -229,11 +229,11 @@ uint8_t av1_read_coeffs_txb_facade(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_CB4X4
 
   TX_SIZE tx_size = get_tx_size(plane, xd);
-  TXB_CTX txb_ctx;
+  TXB_CTX TxbCtx;
   get_txb_ctx(plane_bsize, tx_size, plane, pd->above_context + col,
-              pd->left_context + row, &txb_ctx);
+              pd->left_context + row, &TxbCtx);
   uint8_t cul_level = av1_read_coeffs_txb(cm, xd, r, block, plane, tcoeffs,
-                                          &txb_ctx, max_scan_line, eob);
+                                          &TxbCtx, max_scan_line, eob);
 #if CONFIG_ADAPT_SCAN
   PLANE_TYPE plane_type = get_plane_type(plane);
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);

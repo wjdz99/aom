@@ -117,7 +117,7 @@ static int cost_segmap(unsigned *segcounts, aom_prob *probs) {
 }
 
 static void count_segs(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                       const TileInfo *tile, MODE_INFO **mi,
+                       const TileInfo *tile, ModeInfo **mi,
                        unsigned *no_pred_segcounts,
                        unsigned (*temporal_predictor_count)[2],
                        unsigned *t_unpred_seg_counts, int bw, int bh,
@@ -159,7 +159,7 @@ static void count_segs(const AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 
 static void count_segs_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                          const TileInfo *tile, MODE_INFO **mi,
+                          const TileInfo *tile, ModeInfo **mi,
                           unsigned *no_pred_segcounts,
                           unsigned (*temporal_predictor_count)[2],
                           unsigned *t_unpred_seg_counts, int mi_row, int mi_col,
@@ -295,7 +295,7 @@ static void count_segs_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
 void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
   struct segmentation *seg = &cm->seg;
-  struct segmentation_probs *segp = &cm->fc->seg;
+  struct SegmentationProbs *segp = &cm->fc->seg;
 
   int no_pred_cost;
   int t_pred_cost = INT_MAX;
@@ -326,7 +326,7 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
     TileInfo tile_info;
     av1_tile_set_row(&tile_info, cm, tile_row);
     for (tile_col = 0; tile_col < cm->tile_cols; tile_col++) {
-      MODE_INFO **mi_ptr;
+      ModeInfo **mi_ptr;
       av1_tile_set_col(&tile_info, cm, tile_col);
 #if CONFIG_TILE_GROUPS && CONFIG_DEPENDENT_HORZTILES
       av1_tile_set_tg_boundary(&tile_info, cm, tile_row, tile_col);
@@ -335,7 +335,7 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
                tile_info.mi_col_start;
       for (mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
            mi_row += cm->mib_size, mi_ptr += cm->mib_size * cm->mi_stride) {
-        MODE_INFO **mi = mi_ptr;
+        ModeInfo **mi = mi_ptr;
         for (mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->mib_size, mi += cm->mib_size) {
           count_segs_sb(cm, xd, &tile_info, mi, no_pred_segcounts,

@@ -32,7 +32,7 @@ static INLINE TxfmFunc fwd_txfm_type_to_func(TXFM_TYPE txfm_type) {
 }
 
 static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
-                                const int stride, const TXFM_2D_FLIP_CFG *cfg,
+                                const int stride, const Txfm2dFlipCfg *cfg,
                                 int32_t *buf) {
   int c, r;
   const int txfm_size = cfg->cfg->txfm_size;
@@ -80,7 +80,7 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
 void av1_fwd_txfm2d_4x4_c(const int16_t *input, int32_t *output, int stride,
                           int tx_type, int bd) {
   int32_t txfm_buf[4 * 4];
-  TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_cfg(tx_type, TX_4X4);
+  Txfm2dFlipCfg cfg = av1_get_fwd_txfm_cfg(tx_type, TX_4X4);
   (void)bd;
   fwd_txfm2d_c(input, output, stride, &cfg, txfm_buf);
 }
@@ -88,7 +88,7 @@ void av1_fwd_txfm2d_4x4_c(const int16_t *input, int32_t *output, int stride,
 void av1_fwd_txfm2d_8x8_c(const int16_t *input, int32_t *output, int stride,
                           int tx_type, int bd) {
   int32_t txfm_buf[8 * 8];
-  TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_cfg(tx_type, TX_8X8);
+  Txfm2dFlipCfg cfg = av1_get_fwd_txfm_cfg(tx_type, TX_8X8);
   (void)bd;
   fwd_txfm2d_c(input, output, stride, &cfg, txfm_buf);
 }
@@ -96,7 +96,7 @@ void av1_fwd_txfm2d_8x8_c(const int16_t *input, int32_t *output, int stride,
 void av1_fwd_txfm2d_16x16_c(const int16_t *input, int32_t *output, int stride,
                             int tx_type, int bd) {
   int32_t txfm_buf[16 * 16];
-  TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_cfg(tx_type, TX_16X16);
+  Txfm2dFlipCfg cfg = av1_get_fwd_txfm_cfg(tx_type, TX_16X16);
   (void)bd;
   fwd_txfm2d_c(input, output, stride, &cfg, txfm_buf);
 }
@@ -104,7 +104,7 @@ void av1_fwd_txfm2d_16x16_c(const int16_t *input, int32_t *output, int stride,
 void av1_fwd_txfm2d_32x32_c(const int16_t *input, int32_t *output, int stride,
                             int tx_type, int bd) {
   int32_t txfm_buf[32 * 32];
-  TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_cfg(tx_type, TX_32X32);
+  Txfm2dFlipCfg cfg = av1_get_fwd_txfm_cfg(tx_type, TX_32X32);
   (void)bd;
   fwd_txfm2d_c(input, output, stride, &cfg, txfm_buf);
 }
@@ -112,13 +112,13 @@ void av1_fwd_txfm2d_32x32_c(const int16_t *input, int32_t *output, int stride,
 void av1_fwd_txfm2d_64x64_c(const int16_t *input, int32_t *output, int stride,
                             int tx_type, int bd) {
   int32_t txfm_buf[64 * 64];
-  TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_64x64_cfg(tx_type);
+  Txfm2dFlipCfg cfg = av1_get_fwd_txfm_64x64_cfg(tx_type);
   (void)bd;
   fwd_txfm2d_c(input, output, stride, &cfg, txfm_buf);
 }
 
 #if CONFIG_EXT_TX
-static const TXFM_2D_CFG *fwd_txfm_cfg_ls[FLIPADST_ADST + 1][TX_SIZES] = {
+static const Txfm2dCfg *fwd_txfm_cfg_ls[FLIPADST_ADST + 1][TX_SIZES] = {
   {
 #if CONFIG_CB4X4
       NULL,
@@ -175,7 +175,7 @@ static const TXFM_2D_CFG *fwd_txfm_cfg_ls[FLIPADST_ADST + 1][TX_SIZES] = {
       &fwd_txfm_2d_cfg_adst_adst_16, &fwd_txfm_2d_cfg_adst_adst_32 },
 };
 #else  // CONFIG_EXT_TX
-static const TXFM_2D_CFG *fwd_txfm_cfg_ls[TX_TYPES][TX_SIZES] = {
+static const Txfm2dCfg *fwd_txfm_cfg_ls[TX_TYPES][TX_SIZES] = {
   {
 #if CONFIG_CB4X4
       NULL,
@@ -203,15 +203,15 @@ static const TXFM_2D_CFG *fwd_txfm_cfg_ls[TX_TYPES][TX_SIZES] = {
 };
 #endif  // CONFIG_EXT_TX
 
-TXFM_2D_FLIP_CFG av1_get_fwd_txfm_cfg(int tx_type, int tx_size) {
-  TXFM_2D_FLIP_CFG cfg;
+Txfm2dFlipCfg av1_get_fwd_txfm_cfg(int tx_type, int tx_size) {
+  Txfm2dFlipCfg cfg;
   set_flip_cfg(tx_type, &cfg);
   cfg.cfg = fwd_txfm_cfg_ls[tx_type][tx_size];
   return cfg;
 }
 
-TXFM_2D_FLIP_CFG av1_get_fwd_txfm_64x64_cfg(int tx_type) {
-  TXFM_2D_FLIP_CFG cfg;
+Txfm2dFlipCfg av1_get_fwd_txfm_64x64_cfg(int tx_type) {
+  Txfm2dFlipCfg cfg;
   switch (tx_type) {
     case DCT_DCT:
       cfg.cfg = &fwd_txfm_2d_cfg_dct_dct_64;

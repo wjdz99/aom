@@ -262,14 +262,14 @@ const av1_extra_bit av1_extra_bits[ENTROPY_TOKENS] = {
 #endif
 
 #if !CONFIG_EC_MULTISYMBOL
-const struct av1_token av1_coef_encodings[ENTROPY_TOKENS] = {
+const struct Av1Token av1_coef_encodings[ENTROPY_TOKENS] = {
   { 2, 2 },  { 6, 3 },   { 28, 5 },  { 58, 6 },  { 59, 6 },  { 60, 6 },
   { 61, 6 }, { 124, 7 }, { 125, 7 }, { 126, 7 }, { 127, 7 }, { 0, 1 }
 };
 #endif  // !CONFIG_EC_MULTISYMBOL
 
 struct tokenize_b_args {
-  const AV1_COMP *cpi;
+  const Av1Comp *cpi;
   ThreadData *td;
   TOKENEXTRA **tp;
   int this_rate;
@@ -279,14 +279,14 @@ struct tokenize_b_args {
 static void cost_coeffs_b(int plane, int block, int blk_row, int blk_col,
                           BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
   struct tokenize_b_args *const args = arg;
-  const AV1_COMP *const cpi = args->cpi;
+  const Av1Comp *const cpi = args->cpi;
   const AV1_COMMON *cm = &cpi->common;
   ThreadData *const td = args->td;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  struct macroblock_plane *p = &x->plane[plane];
-  struct macroblockd_plane *pd = &xd->plane[plane];
+  struct MacroblockPlane *p = &x->plane[plane];
+  struct MacroblockdPlane *pd = &xd->plane[plane];
   const PLANE_TYPE type = pd->plane_type;
   const int ref = is_inter_block(mbmi);
   const TX_TYPE tx_type = get_tx_type(type, xd, block, tx_size);
@@ -307,8 +307,8 @@ static void set_entropy_context_b(int plane, int block, int blk_row,
   ThreadData *const td = args->td;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  struct macroblock_plane *p = &x->plane[plane];
-  struct macroblockd_plane *pd = &xd->plane[plane];
+  struct MacroblockPlane *p = &x->plane[plane];
+  struct MacroblockdPlane *pd = &xd->plane[plane];
   (void)plane_bsize;
   av1_set_contexts(xd, pd, plane, tx_size, p->eobs[block] > 0, blk_col,
                    blk_row);
@@ -350,7 +350,7 @@ static INLINE void add_token(
 #endif  // !CONFIG_PVQ || CONFIG_VAR_TX
 
 #if CONFIG_PALETTE
-void av1_tokenize_palette_sb(const AV1_COMP *cpi,
+void av1_tokenize_palette_sb(const Av1Comp *cpi,
                              const struct ThreadData *const td, int plane,
                              TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
                              int *rate) {
@@ -400,13 +400,13 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
 
 #if CONFIG_PVQ
 static void add_pvq_block(AV1_COMMON *const cm, MACROBLOCK *const x,
-                          PVQ_INFO *pvq) {
-  PVQ_QUEUE *q = x->pvq_q;
+                          PvqInfo *pvq) {
+  PvqQueue *q = x->pvq_q;
   if (q->curr_pos >= q->buf_len) {
     int new_buf_len = 2 * q->buf_len + 1;
-    PVQ_INFO *new_buf;
-    CHECK_MEM_ERROR(cm, new_buf, aom_malloc(new_buf_len * sizeof(PVQ_INFO)));
-    memcpy(new_buf, q->buf, q->buf_len * sizeof(PVQ_INFO));
+    PvqInfo *new_buf;
+    CHECK_MEM_ERROR(cm, new_buf, aom_malloc(new_buf_len * sizeof(PvqInfo)));
+    memcpy(new_buf, q->buf, q->buf_len * sizeof(PvqInfo));
     aom_free(q->buf);
     q->buf = new_buf;
     q->buf_len = new_buf_len;
@@ -421,11 +421,11 @@ static void add_pvq_block(AV1_COMMON *const cm, MACROBLOCK *const x,
 static void tokenize_pvq(int plane, int block, int blk_row, int blk_col,
                          BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
   struct tokenize_b_args *const args = arg;
-  const AV1_COMP *cpi = args->cpi;
+  const Av1Comp *cpi = args->cpi;
   const AV1_COMMON *const cm = &cpi->common;
   ThreadData *const td = args->td;
   MACROBLOCK *const x = &td->mb;
-  PVQ_INFO *pvq_info;
+  PvqInfo *pvq_info;
 
   (void)block;
   (void)blk_row;
@@ -443,15 +443,15 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
                        BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
 #if !CONFIG_PVQ
   struct tokenize_b_args *const args = arg;
-  const AV1_COMP *cpi = args->cpi;
+  const Av1Comp *cpi = args->cpi;
   const AV1_COMMON *const cm = &cpi->common;
   ThreadData *const td = args->td;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   TOKENEXTRA **tp = args->tp;
   uint8_t token_cache[MAX_TX_SQUARE];
-  struct macroblock_plane *p = &x->plane[plane];
-  struct macroblockd_plane *pd = &xd->plane[plane];
+  struct MacroblockPlane *p = &x->plane[plane];
+  struct MacroblockdPlane *pd = &xd->plane[plane];
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   int pt; /* near block/prev token context index */
   int c;
@@ -635,7 +635,7 @@ void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
   const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
@@ -681,7 +681,7 @@ void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
   }
 }
 
-void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
+void av1_tokenize_sb_vartx(const Av1Comp *cpi, ThreadData *td, TOKENEXTRA **t,
                            RUN_TYPE dry_run, int mi_row, int mi_col,
                            BLOCK_SIZE bsize, int *rate) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -722,7 +722,7 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
       continue;
     }
 #endif
-    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    const struct MacroblockdPlane *const pd = &xd->plane[plane];
 #if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
     const BLOCK_SIZE plane_bsize =
         AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
@@ -755,7 +755,7 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
 }
 #endif  // CONFIG_VAR_TX
 
-void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
+void av1_tokenize_sb(const Av1Comp *cpi, ThreadData *td, TOKENEXTRA **t,
                      RUN_TYPE dry_run, BLOCK_SIZE bsize, int *rate,
                      const int mi_row, const int mi_col) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -842,7 +842,7 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
 }
 
 #if CONFIG_SUPERTX
-void av1_tokenize_sb_supertx(const AV1_COMP *cpi, ThreadData *td,
+void av1_tokenize_sb_supertx(const Av1Comp *cpi, ThreadData *td,
                              TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
                              int *rate) {
   const AV1_COMMON *const cm = &cpi->common;

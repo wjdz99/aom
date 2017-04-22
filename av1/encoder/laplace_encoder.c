@@ -22,7 +22,7 @@
 #include "av1/common/pvq.h"
 #include "pvq_encoder.h"
 
-static void aom_encode_pvq_split(aom_writer *w, od_pvq_codeword_ctx *adapt,
+static void aom_encode_pvq_split(aom_writer *w, OdPvqCodewordCtx *adapt,
  int count, int sum, int ctx) {
   int shift;
   int rest;
@@ -39,7 +39,7 @@ static void aom_encode_pvq_split(aom_writer *w, od_pvq_codeword_ctx *adapt,
   if (shift) aom_write_literal(w, rest, shift);
 }
 
-void aom_encode_band_pvq_splits(aom_writer *w, od_pvq_codeword_ctx *adapt,
+void aom_encode_band_pvq_splits(aom_writer *w, OdPvqCodewordCtx *adapt,
  const int *y, int n, int k, int level) {
   int mid;
   int i;

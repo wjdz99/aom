@@ -216,7 +216,7 @@ typedef enum {
   ONE_LOOP_REDUCED = 1
 } FAST_COEFF_UPDATE;
 
-typedef struct MV_SPEED_FEATURES {
+typedef struct MvSpeedFeatures {
   // Motion search method (Diamond, NSTEP, Hex, Big Diamond, Square, etc).
   SEARCH_METHODS search_method;
 
@@ -242,17 +242,17 @@ typedef struct MV_SPEED_FEATURES {
 
   // This variable sets the step_param used in full pel motion search.
   int fullpel_search_step_param;
-} MV_SPEED_FEATURES;
+} MvSpeedFeatures;
 
 #define MAX_MESH_STEP 4
 
-typedef struct MESH_PATTERN {
+typedef struct MeshPattern {
   int range;
   int interval;
-} MESH_PATTERN;
+} MeshPattern;
 
-typedef struct SPEED_FEATURES {
-  MV_SPEED_FEATURES mv;
+typedef struct SpeedFeatures {
+  MvSpeedFeatures mv;
 
   // Frame level coding parameter update
   int frame_parameter_update;
@@ -350,7 +350,7 @@ typedef struct SPEED_FEATURES {
   int max_exaustive_pct;
 
   // Pattern to be used for any exhaustive mesh searches.
-  MESH_PATTERN mesh_patterns[MAX_MESH_STEP];
+  MeshPattern mesh_patterns[MAX_MESH_STEP];
 
   int schedule_mode_search;
 
@@ -470,12 +470,12 @@ typedef struct SPEED_FEATURES {
   // Whether to compute distortion in the image domain (slower but
   // more accurate), or in the transform domain (faster but less acurate).
   int use_transform_domain_distortion;
-} SPEED_FEATURES;
+} SpeedFeatures;
 
-struct AV1_COMP;
+struct Av1Comp;
 
-void av1_set_speed_features_framesize_independent(struct AV1_COMP *cpi);
-void av1_set_speed_features_framesize_dependent(struct AV1_COMP *cpi);
+void av1_set_speed_features_framesize_independent(struct Av1Comp *cpi);
+void av1_set_speed_features_framesize_dependent(struct Av1Comp *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"

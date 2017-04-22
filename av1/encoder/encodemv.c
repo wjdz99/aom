@@ -20,9 +20,9 @@
 
 #include "aom_dsp/aom_dsp_common.h"
 
-static struct av1_token mv_joint_encodings[MV_JOINTS];
-static struct av1_token mv_class_encodings[MV_CLASSES];
-static struct av1_token mv_fp_encodings[MV_FP_SIZE];
+static struct Av1Token mv_joint_encodings[MV_JOINTS];
+static struct Av1Token mv_class_encodings[MV_CLASSES];
+static struct Av1Token mv_fp_encodings[MV_FP_SIZE];
 
 void av1_entropy_mv_init(void) {
   av1_tokens_from_tree(mv_joint_encodings, av1_mv_joint_tree);
@@ -255,7 +255,7 @@ void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
 #endif
 }
 
-void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
+void av1_encode_mv(Av1Comp *cpi, aom_writer *w, const MV *mv, const MV *ref,
                    nmv_context *mvctx, int usehp) {
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
   const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
@@ -359,7 +359,7 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
   }
 }
 
-static void inc_mvs_sub8x8(const MODE_INFO *mi, int block, const int_mv mvs[2],
+static void inc_mvs_sub8x8(const ModeInfo *mi, int block, const int_mv mvs[2],
 #if CONFIG_REF_MV
                            const MB_MODE_INFO_EXT *mbmi_ext,
 #endif
@@ -444,7 +444,7 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
 
 void av1_update_mv_count(ThreadData *td) {
   const MACROBLOCKD *xd = &td->mb.e_mbd;
-  const MODE_INFO *mi = xd->mi[0];
+  const ModeInfo *mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const MB_MODE_INFO_EXT *mbmi_ext = td->mb.mbmi_ext;
 #if CONFIG_CB4X4

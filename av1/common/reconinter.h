@@ -35,7 +35,7 @@ extern "C" {
 static INLINE void inter_predictor(const uint8_t *src, int src_stride,
                                    uint8_t *dst, int dst_stride,
                                    const int subpel_x, const int subpel_y,
-                                   const struct scale_factors *sf, int w, int h,
+                                   const struct ScaleFactors *sf, int w, int h,
                                    ConvolveParams *conv_params,
 #if CONFIG_DUAL_FILTER
                                    const InterpFilter *interp_filter,
@@ -110,7 +110,7 @@ static INLINE void highbd_inter_predictor(const uint8_t *src, int src_stride,
                                           uint8_t *dst, int dst_stride,
                                           const int subpel_x,
                                           const int subpel_y,
-                                          const struct scale_factors *sf, int w,
+                                          const struct ScaleFactors *sf, int w,
                                           int h, int ref,
 #if CONFIG_DUAL_FILTER
                                           const InterpFilter *interp_filter,
@@ -273,7 +273,7 @@ void build_inter_predictors(MACROBLOCKD *xd, int plane,
 // prediction and return the appropriate motion model depending
 // on the configuration. Behavior will change with different
 // combinations of GLOBAL_MOTION, WARPED_MOTION and MOTION_VAR.
-static INLINE int allow_warp(const MODE_INFO *const mi,
+static INLINE int allow_warp(const ModeInfo *const mi,
                              const WarpTypesAllowed *const warp_types,
 #if CONFIG_GLOBAL_MOTION
                              const WarpedMotionParams *const gm_params,
@@ -372,7 +372,7 @@ static INLINE int allow_warp(const MODE_INFO *const mi,
 
 static INLINE void av1_make_inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
-    const int subpel_x, const int subpel_y, const struct scale_factors *sf,
+    const int subpel_x, const int subpel_y, const struct ScaleFactors *sf,
     int w, int h, ConvolveParams *conv_params,
 #if CONFIG_DUAL_FILTER
     const InterpFilter *interp_filter,
@@ -390,9 +390,9 @@ static INLINE void av1_make_inter_predictor(
   (void)xd;
 
 #if CONFIG_MOTION_VAR
-  const MODE_INFO *mi = xd->mi[mi_col_offset + xd->mi_stride * mi_row_offset];
+  const ModeInfo *mi = xd->mi[mi_col_offset + xd->mi_stride * mi_row_offset];
 #else
-  const MODE_INFO *mi = xd->mi[0];
+  const ModeInfo *mi = xd->mi[0];
   (void)mi;
 #endif  // CONFIG_MOTION_VAR
 
@@ -416,8 +416,8 @@ static INLINE void av1_make_inter_predictor(
 #endif  // CONFIG_MOTION_VAR
                                  &final_warp_params);
   if (do_warp) {
-    const struct macroblockd_plane *const pd = &xd->plane[plane];
-    const struct buf_2d *const pre_buf = &pd->pre[ref];
+    const struct MacroblockdPlane *const pd = &xd->plane[plane];
+    const struct Buf2d *const pre_buf = &pd->pre[ref];
     av1_warp_plane(&final_warp_params,
 #if CONFIG_HIGHBITDEPTH
                    xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
@@ -444,7 +444,7 @@ static INLINE void av1_make_inter_predictor(
 void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
                                      uint8_t *dst, int dst_stride,
                                      const int subpel_x, const int subpel_y,
-                                     const struct scale_factors *sf, int w,
+                                     const struct ScaleFactors *sf, int w,
                                      int h,
 #if CONFIG_DUAL_FILTER
                                      const InterpFilter *interp_filter,
@@ -467,7 +467,7 @@ static INLINE int round_mv_comp_q4(int value) {
   return (value < 0 ? value - 2 : value + 2) / 4;
 }
 
-static MV mi_mv_pred_q4(const MODE_INFO *mi, int idx) {
+static MV mi_mv_pred_q4(const ModeInfo *mi, int idx) {
   MV res = {
     round_mv_comp_q4(
         mi->bmi[0].as_mv[idx].as_mv.row + mi->bmi[1].as_mv[idx].as_mv.row +
@@ -483,7 +483,7 @@ static INLINE int round_mv_comp_q2(int value) {
   return (value < 0 ? value - 1 : value + 1) / 2;
 }
 
-static MV mi_mv_pred_q2(const MODE_INFO *mi, int idx, int block0, int block1) {
+static MV mi_mv_pred_q2(const ModeInfo *mi, int idx, int block0, int block1) {
   MV res = { round_mv_comp_q2(mi->bmi[block0].as_mv[idx].as_mv.row +
                               mi->bmi[block1].as_mv[idx].as_mv.row),
              round_mv_comp_q2(mi->bmi[block0].as_mv[idx].as_mv.col +
@@ -515,8 +515,8 @@ static INLINE MV clamp_mv_to_umv_border_sb(const MACROBLOCKD *xd,
   return clamped_mv;
 }
 
-static INLINE MV average_split_mvs(const struct macroblockd_plane *pd,
-                                   const MODE_INFO *mi, int ref, int block) {
+static INLINE MV average_split_mvs(const struct MacroblockdPlane *pd,
+                                   const ModeInfo *mi, int ref, int block) {
   const int ss_idx = ((pd->subsampling_x > 0) << 1) | (pd->subsampling_y > 0);
   MV res = { 0, 0 };
   switch (ss_idx) {
@@ -555,7 +555,7 @@ void av1_build_inter_predictors_sb_extend(MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_INTER
                                           int mi_row, int mi_col,
                                           BLOCK_SIZE bsize);
-struct macroblockd_plane;
+struct MacroblockdPlane;
 void av1_build_masked_inter_predictor_complex(
     MACROBLOCKD *xd, uint8_t *dst, int dst_stride, const uint8_t *pre,
     int pre_stride, int mi_row, int mi_col, int mi_row_ori, int mi_col_ori,
@@ -565,7 +565,7 @@ void av1_build_masked_inter_predictor_complex(
 
 void av1_build_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
                                int dst_stride, const MV *src_mv,
-                               const struct scale_factors *sf, int w, int h,
+                               const struct ScaleFactors *sf, int w, int h,
                                ConvolveParams *conv_params,
 #if CONFIG_DUAL_FILTER
                                const InterpFilter *interp_filter,
@@ -582,7 +582,7 @@ void av1_build_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
 #if CONFIG_HIGHBITDEPTH
 void av1_highbd_build_inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
-    const MV *mv_q3, const struct scale_factors *sf, int w, int h, int do_avg,
+    const MV *mv_q3, const struct ScaleFactors *sf, int w, int h, int do_avg,
 #if CONFIG_DUAL_FILTER
     const InterpFilter *interp_filter,
 #else
@@ -596,16 +596,16 @@ void av1_highbd_build_inter_predictor(
 #endif
 
 static INLINE int scaled_buffer_offset(int x_offset, int y_offset, int stride,
-                                       const struct scale_factors *sf) {
+                                       const struct ScaleFactors *sf) {
   const int x = sf ? sf->scale_value_x(x_offset, sf) : x_offset;
   const int y = sf ? sf->scale_value_y(y_offset, sf) : y_offset;
   return y * stride + x;
 }
 
-static INLINE void setup_pred_plane(struct buf_2d *dst, uint8_t *src, int width,
+static INLINE void setup_pred_plane(struct Buf2d *dst, uint8_t *src, int width,
                                     int height, int stride, int mi_row,
                                     int mi_col,
-                                    const struct scale_factors *scale,
+                                    const struct ScaleFactors *scale,
                                     int subsampling_x, int subsampling_y) {
   const int x = (MI_SIZE * mi_col) >> subsampling_x;
   const int y = (MI_SIZE * mi_row) >> subsampling_y;
@@ -616,18 +616,18 @@ static INLINE void setup_pred_plane(struct buf_2d *dst, uint8_t *src, int width,
   dst->stride = stride;
 }
 
-void av1_setup_dst_planes(struct macroblockd_plane planes[MAX_MB_PLANE],
+void av1_setup_dst_planes(struct MacroblockdPlane planes[MAX_MB_PLANE],
                           const YV12_BUFFER_CONFIG *src, int mi_row,
                           int mi_col);
 
 void av1_setup_pre_planes(MACROBLOCKD *xd, int idx,
                           const YV12_BUFFER_CONFIG *src, int mi_row, int mi_col,
-                          const struct scale_factors *sf);
+                          const struct ScaleFactors *sf);
 
 // Detect if the block have sub-pixel level motion vectors
 // per component.
 #define CHECK_SUBPEL 0
-static INLINE int has_subpel_mv_component(const MODE_INFO *const mi,
+static INLINE int has_subpel_mv_component(const ModeInfo *const mi,
                                           const MACROBLOCKD *const xd,
                                           int dir) {
 #if CHECK_SUBPEL
@@ -650,7 +650,7 @@ static INLINE int has_subpel_mv_component(const MODE_INFO *const mi,
   } else {
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       const PARTITION_TYPE bp = BLOCK_8X8 - bsize;
-      const struct macroblockd_plane *const pd = &xd->plane[plane];
+      const struct MacroblockdPlane *const pd = &xd->plane[plane];
       const int have_vsplit = bp != PARTITION_HORZ;
       const int have_hsplit = bp != PARTITION_VERT;
       const int num_4x4_w = 2 >> ((!have_vsplit) | pd->subsampling_x);
@@ -680,7 +680,7 @@ static INLINE int has_subpel_mv_component(const MODE_INFO *const mi,
 }
 
 static INLINE int av1_is_interp_needed(const MACROBLOCKD *const xd) {
-  MODE_INFO *const mi = xd->mi[0];
+  ModeInfo *const mi = xd->mi[0];
   const int is_compound = has_second_ref(&mi->mbmi);
   int ref;
   for (ref = 0; ref < 1 + is_compound; ++ref) {

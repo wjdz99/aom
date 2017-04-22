@@ -3379,7 +3379,7 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
   int i, j;
   FRAME_CONTEXT *fc = cm->fc;
   const FRAME_CONTEXT *pre_fc = &cm->frame_contexts[cm->frame_context_idx];
-  const FRAME_COUNTS *counts = &cm->counts;
+  const FrameCounts *counts = &cm->counts;
 
   for (i = 0; i < INTRA_INTER_CONTEXTS; i++)
     fc->intra_inter_prob[i] = av1_mode_mv_merge_probs(
@@ -3493,7 +3493,7 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
   int i, j;
   FRAME_CONTEXT *fc = cm->fc;
   const FRAME_CONTEXT *pre_fc = &cm->frame_contexts[cm->frame_context_idx];
-  const FRAME_COUNTS *counts = &cm->counts;
+  const FrameCounts *counts = &cm->counts;
 
   if (cm->tx_mode == TX_MODE_SELECT) {
     for (i = 0; i < MAX_TX_DEPTH; ++i) {

@@ -6387,14 +6387,14 @@ static void av1_average_pvq_ex(int *cxt_ptr[], int *fc_cxt_ptr, int cxt_size,
   av1_average_pvq_ex(cxt_ptr, fc_cxt_ptr, cxt_size, num_tiles);
 
 void av1_default_pvq_probs(AV1_COMMON *cm) {
-  od_adapt_ctx *adapt = &cm->fc->pvq_context;
+  OdAdaptCtx *adapt = &cm->fc->pvq_context;
 
   // Init with flat probabilities.
   od_adapt_ctx_reset(adapt, 0);
 
   // TODO(yushin): Prepare offline cdf and context table for PVQ,
-  // i.e. od_adapt_ctx, then load them from table,
-  // for example od_adapt_ctx default_pvq_context.
+  // i.e. OdAdaptCtx, then load them from table,
+  // for example OdAdaptCtx default_pvq_context.
   // Then do sth like this:
   // av1_copy(cm->fc->pvq_context, default_pvq_context);
 }

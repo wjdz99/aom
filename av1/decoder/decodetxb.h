@@ -20,7 +20,7 @@
 
 uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                             aom_reader *r, int block, int plane,
-                            tran_low_t *tcoeffs, TXB_CTX *txb_ctx,
+                            tran_low_t *tcoeffs, TXB_CTX *TxbCtx,
                             int16_t *max_scan_line, int *eob);
 
 uint8_t av1_read_coeffs_txb_facade(AV1_COMMON *cm, MACROBLOCKD *xd,

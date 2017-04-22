@@ -46,7 +46,7 @@ struct segmentation {
   unsigned int feature_mask[MAX_SEGMENTS];
 };
 
-struct segmentation_probs {
+struct SegmentationProbs {
   aom_prob tree_probs[SEG_TREE_PROBS];
 #if CONFIG_EC_MULTISYMBOL
   aom_cdf_prob tree_cdf[CDF_SIZE(MAX_SEGMENTS)];

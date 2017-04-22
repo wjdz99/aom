@@ -35,7 +35,7 @@
 static void temporal_filter_predictors_mb_c(
     MACROBLOCKD *xd, uint8_t *y_mb_ptr, uint8_t *u_mb_ptr, uint8_t *v_mb_ptr,
     int stride, int uv_block_width, int uv_block_height, int mv_row, int mv_col,
-    uint8_t *pred, struct scale_factors *scale, int x, int y) {
+    uint8_t *pred, struct ScaleFactors *scale, int x, int y) {
   const int which_mv = 0;
   const MV mv = { mv_row, mv_col };
   enum mv_precision mv_precision_uv;
@@ -245,13 +245,13 @@ void av1_highbd_temporal_filter_apply_c(
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
-static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
+static int temporal_filter_find_matching_mb_c(Av1Comp *cpi,
                                               uint8_t *arf_frame_buf,
                                               uint8_t *frame_ptr_buf,
                                               int stride) {
   MACROBLOCK *const x = &cpi->td.mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  const MV_SPEED_FEATURES *const mv_sf = &cpi->sf.mv;
+  const MvSpeedFeatures *const mv_sf = &cpi->sf.mv;
   int step_param;
   int sadpb = x->sadperbit16;
   int bestsme = INT_MAX;
@@ -263,8 +263,8 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
   MV best_ref_mv1_full; /* full-pixel value of best_ref_mv1 */
 
   // Save input state
-  struct buf_2d src = x->plane[0].src;
-  struct buf_2d pre = xd->plane[0].pre[0];
+  struct Buf2d src = x->plane[0].src;
+  struct Buf2d pre = xd->plane[0].pre[0];
 
   best_ref_mv1_full.col = best_ref_mv1.col >> 3;
   best_ref_mv1_full.row = best_ref_mv1.row >> 3;
@@ -306,11 +306,11 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
   return bestsme;
 }
 
-static void temporal_filter_iterate_c(AV1_COMP *cpi,
+static void temporal_filter_iterate_c(Av1Comp *cpi,
                                       YV12_BUFFER_CONFIG **frames,
                                       int frame_count, int alt_ref_index,
                                       int strength,
-                                      struct scale_factors *scale) {
+                                      struct ScaleFactors *scale) {
   int byte;
   int frame;
   int mb_col, mb_row;
@@ -586,7 +586,7 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
 }
 
 // Apply buffer limits and context specific adjustments to arnr filter.
-static void adjust_arnr_filter(AV1_COMP *cpi, int distance, int group_boost,
+static void adjust_arnr_filter(Av1Comp *cpi, int distance, int group_boost,
                                int *arnr_frames, int *arnr_strength) {
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   const int frames_after_arf =
@@ -644,7 +644,7 @@ static void adjust_arnr_filter(AV1_COMP *cpi, int distance, int group_boost,
   *arnr_strength = strength;
 }
 
-void av1_temporal_filter(AV1_COMP *cpi, int distance) {
+void av1_temporal_filter(Av1Comp *cpi, int distance) {
   RATE_CONTROL *const rc = &cpi->rc;
   int frame;
   int frames_to_blur;
@@ -652,7 +652,7 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
   int strength;
   int frames_to_blur_backward;
   int frames_to_blur_forward;
-  struct scale_factors sf;
+  struct ScaleFactors sf;
   YV12_BUFFER_CONFIG *frames[MAX_LAG_BUFFERS] = { NULL };
 #if CONFIG_EXT_REFS
   const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
@@ -686,7 +686,7 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
   // Setup frame pointers, NULL indicates frame not included in filter.
   for (frame = 0; frame < frames_to_blur; ++frame) {
     const int which_buffer = start_frame - frame;
-    struct lookahead_entry *buf =
+    struct LookaheadEntry *buf =
         av1_lookahead_peek(cpi->lookahead, which_buffer);
     frames[frames_to_blur - 1 - frame] = &buf->img;
   }

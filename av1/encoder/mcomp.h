@@ -32,19 +32,19 @@ extern "C" {
 #define BORDER_MV_PIXELS_B16 (16 + AOM_INTERP_EXTEND)
 
 // motion search site
-typedef struct search_site {
+typedef struct SearchSite {
   MV mv;
   int offset;
-} search_site;
+} SearchSite;
 
-typedef struct search_site_config {
-  search_site ss[8 * MAX_MVSEARCH_STEPS + 1];
+typedef struct SearchSiteConfig {
+  SearchSite ss[8 * MAX_MVSEARCH_STEPS + 1];
   int ss_count;
   int searches_per_step;
-} search_site_config;
+} SearchSiteConfig;
 
-void av1_init_dsmotion_compensation(search_site_config *cfg, int stride);
-void av1_init3smotion_compensation(search_site_config *cfg, int stride);
+void av1_init_dsmotion_compensation(SearchSiteConfig *cfg, int stride);
+void av1_init3smotion_compensation(SearchSiteConfig *cfg, int stride);
 
 void av1_set_mv_search_range(MACROBLOCK *x, const MV *mv);
 int av1_mv_bit_cost(const MV *mv, const MV *ref, const int *mvjcost,
@@ -58,8 +58,8 @@ int av1_get_mvpred_av_var(const MACROBLOCK *x, const MV *best_mv,
                           const MV *center_mv, const uint8_t *second_pred,
                           const aom_variance_fn_ptr_t *vfp, int use_mvcost);
 
-struct AV1_COMP;
-struct SPEED_FEATURES;
+struct Av1Comp;
+struct SpeedFeatures;
 
 int av1_init_search_range(int size);
 
@@ -69,14 +69,14 @@ int av1_refining_search_sad(struct macroblock *x, struct mv *ref_mv,
                             const struct mv *center_mv);
 
 // Runs sequence of diamond searches in smaller steps for RD.
-int av1_full_pixel_diamond(const struct AV1_COMP *cpi, MACROBLOCK *x,
+int av1_full_pixel_diamond(const struct Av1Comp *cpi, MACROBLOCK *x,
                            MV *mvp_full, int step_param, int sadpb,
                            int further_steps, int do_refine, int *cost_list,
                            const aom_variance_fn_ptr_t *fn_ptr,
                            const MV *ref_mv, MV *dst_mv);
 
 // Perform integral projection based motion estimation.
-unsigned int av1_int_pro_motion_estimation(const struct AV1_COMP *cpi,
+unsigned int av1_int_pro_motion_estimation(const struct Av1Comp *cpi,
                                            MACROBLOCK *x, BLOCK_SIZE bsize,
                                            int mi_row, int mi_col);
 
@@ -104,7 +104,7 @@ typedef int (*av1_full_search_fn_t)(const MACROBLOCK *x, const MV *ref_mv,
                                     const MV *center_mv, MV *best_mv);
 
 typedef int (*av1_diamond_search_fn_t)(
-    MACROBLOCK *x, const search_site_config *cfg, MV *ref_mv, MV *best_mv,
+    MACROBLOCK *x, const SearchSiteConfig *cfg, MV *ref_mv, MV *best_mv,
     int search_param, int sad_per_bit, int *num00,
     const aom_variance_fn_ptr_t *fn_ptr, const MV *center_mv);
 
@@ -112,9 +112,9 @@ int av1_refining_search_8p_c(MACROBLOCK *x, int error_per_bit, int search_range,
                              const aom_variance_fn_ptr_t *fn_ptr,
                              const MV *center_mv, const uint8_t *second_pred);
 
-struct AV1_COMP;
+struct Av1Comp;
 
-int av1_full_pixel_search(const struct AV1_COMP *cpi, MACROBLOCK *x,
+int av1_full_pixel_search(const struct Av1Comp *cpi, MACROBLOCK *x,
                           BLOCK_SIZE bsize, MV *mvp_full, int step_param,
                           int error_per_bit, int *cost_list, const MV *ref_mv,
                           int var_max, int rd);
@@ -127,12 +127,12 @@ int av1_find_best_masked_sub_pixel_tree(
     int *mvjcost, int *mvcost[2], int *distortion, unsigned int *sse1,
     int is_second);
 int av1_find_best_masked_sub_pixel_tree_up(
-    const struct AV1_COMP *cpi, MACROBLOCK *x, const uint8_t *mask,
+    const struct Av1Comp *cpi, MACROBLOCK *x, const uint8_t *mask,
     int mask_stride, int mi_row, int mi_col, MV *bestmv, const MV *ref_mv,
     int allow_hp, int error_per_bit, const aom_variance_fn_ptr_t *vfp,
     int forced_stop, int iters_per_step, int *mvjcost, int *mvcost[2],
     int *distortion, unsigned int *sse1, int is_second, int use_upsampled_ref);
-int av1_masked_full_pixel_diamond(const struct AV1_COMP *cpi, MACROBLOCK *x,
+int av1_masked_full_pixel_diamond(const struct Av1Comp *cpi, MACROBLOCK *x,
                                   const uint8_t *mask, int mask_stride,
                                   MV *mvp_full, int step_param, int sadpb,
                                   int further_steps, int do_refine,
@@ -141,13 +141,13 @@ int av1_masked_full_pixel_diamond(const struct AV1_COMP *cpi, MACROBLOCK *x,
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_MOTION_VAR
-int av1_obmc_full_pixel_diamond(const struct AV1_COMP *cpi, MACROBLOCK *x,
+int av1_obmc_full_pixel_diamond(const struct Av1Comp *cpi, MACROBLOCK *x,
                                 MV *mvp_full, int step_param, int sadpb,
                                 int further_steps, int do_refine,
                                 const aom_variance_fn_ptr_t *fn_ptr,
                                 const MV *ref_mv, MV *dst_mv, int is_second);
 int av1_find_best_obmc_sub_pixel_tree_up(
-    const struct AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
+    const struct Av1Comp *cpi, MACROBLOCK *x, int mi_row, int mi_col,
     MV *bestmv, const MV *ref_mv, int allow_hp, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *mvjcost, int *mvcost[2], int *distortion, unsigned int *sse1,

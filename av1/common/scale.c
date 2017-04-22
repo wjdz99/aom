@@ -14,15 +14,15 @@
 #include "av1/common/scale.h"
 #include "aom_dsp/aom_filter.h"
 
-static INLINE int scaled_x(int val, const struct scale_factors *sf) {
+static INLINE int scaled_x(int val, const struct ScaleFactors *sf) {
   return (int)((int64_t)val * sf->x_scale_fp >> REF_SCALE_SHIFT);
 }
 
-static INLINE int scaled_y(int val, const struct scale_factors *sf) {
+static INLINE int scaled_y(int val, const struct ScaleFactors *sf) {
   return (int)((int64_t)val * sf->y_scale_fp >> REF_SCALE_SHIFT);
 }
 
-static int unscaled_value(int val, const struct scale_factors *sf) {
+static int unscaled_value(int val, const struct ScaleFactors *sf) {
   (void)sf;
   return val;
 }
@@ -35,7 +35,7 @@ static int get_fixed_point_scale_factor(int other_size, int this_size) {
   return (other_size << REF_SCALE_SHIFT) / this_size;
 }
 
-MV32 av1_scale_mv(const MV *mv, int x, int y, const struct scale_factors *sf) {
+MV32 av1_scale_mv(const MV *mv, int x, int y, const struct ScaleFactors *sf) {
   const int x_off_q4 = scaled_x(x << SUBPEL_BITS, sf) & SUBPEL_MASK;
   const int y_off_q4 = scaled_y(y << SUBPEL_BITS, sf) & SUBPEL_MASK;
   const MV32 res = { scaled_y(mv->row, sf) + y_off_q4,
@@ -44,11 +44,11 @@ MV32 av1_scale_mv(const MV *mv, int x, int y, const struct scale_factors *sf) {
 }
 
 #if CONFIG_HIGHBITDEPTH
-void av1_setup_scale_factors_for_frame(struct scale_factors *sf, int other_w,
+void av1_setup_scale_factors_for_frame(struct ScaleFactors *sf, int other_w,
                                        int other_h, int this_w, int this_h,
                                        int use_highbd) {
 #else
-void av1_setup_scale_factors_for_frame(struct scale_factors *sf, int other_w,
+void av1_setup_scale_factors_for_frame(struct ScaleFactors *sf, int other_w,
                                        int other_h, int this_w, int this_h) {
 #endif
   if (!valid_ref_frame_size(other_w, other_h, this_w, this_h)) {

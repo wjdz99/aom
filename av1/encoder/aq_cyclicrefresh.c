@@ -134,7 +134,7 @@ static int candidate_refresh_aq(const CYCLIC_REFRESH *cr,
 }
 
 // Compute delta-q for the segment.
-static int compute_deltaq(const AV1_COMP *cpi, int q, double rate_factor) {
+static int compute_deltaq(const Av1Comp *cpi, int q, double rate_factor) {
   const CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
   const RATE_CONTROL *const rc = &cpi->rc;
   int deltaq = av1_compute_qdelta_by_rate(rc, cpi->common.frame_type, q,
@@ -149,7 +149,7 @@ static int compute_deltaq(const AV1_COMP *cpi, int q, double rate_factor) {
 // from non-base segment. For now ignore effect of multiple segments
 // (with different delta-q). Note this function is called in the postencode
 // (called from rc_update_rate_correction_factors()).
-int av1_cyclic_refresh_estimate_bits_at_q(const AV1_COMP *cpi,
+int av1_cyclic_refresh_estimate_bits_at_q(const Av1Comp *cpi,
                                           double correction_factor) {
   const AV1_COMMON *const cm = &cpi->common;
   const CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
@@ -181,7 +181,7 @@ int av1_cyclic_refresh_estimate_bits_at_q(const AV1_COMP *cpi,
 // rc_regulate_q() to set the base qp index.
 // Note: the segment map is set to either 0/CR_SEGMENT_ID_BASE (no refresh) or
 // to 1/CR_SEGMENT_ID_BOOST1 (refresh) for each superblock, prior to encoding.
-int av1_cyclic_refresh_rc_bits_per_mb(const AV1_COMP *cpi, int i,
+int av1_cyclic_refresh_rc_bits_per_mb(const Av1Comp *cpi, int i,
                                       double correction_factor) {
   const AV1_COMMON *const cm = &cpi->common;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
@@ -209,7 +209,7 @@ int av1_cyclic_refresh_rc_bits_per_mb(const AV1_COMP *cpi, int i,
 // Prior to coding a given prediction block, of size bsize at (mi_row, mi_col),
 // check if we should reset the segment_id, and update the cyclic_refresh map
 // and segmentation map.
-void av1_cyclic_refresh_update_segment(const AV1_COMP *cpi,
+void av1_cyclic_refresh_update_segment(const Av1Comp *cpi,
                                        MB_MODE_INFO *const mbmi, int mi_row,
                                        int mi_col, BLOCK_SIZE bsize,
                                        int64_t rate, int64_t dist, int skip) {
@@ -277,7 +277,7 @@ void av1_cyclic_refresh_update_segment(const AV1_COMP *cpi,
 }
 
 // Update the actual number of blocks that were applied the segment delta q.
-void av1_cyclic_refresh_postencode(AV1_COMP *const cpi) {
+void av1_cyclic_refresh_postencode(Av1Comp *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
   unsigned char *const seg_map = cpi->segmentation_map;
@@ -297,7 +297,7 @@ void av1_cyclic_refresh_postencode(AV1_COMP *const cpi) {
 }
 
 // Set golden frame update interval, for 1 pass CBR mode.
-void av1_cyclic_refresh_set_golden_update(AV1_COMP *const cpi) {
+void av1_cyclic_refresh_set_golden_update(Av1Comp *const cpi) {
   RATE_CONTROL *const rc = &cpi->rc;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
   // Set minimum gf_interval for GF update to a multiple (== 2) of refresh
@@ -313,14 +313,14 @@ void av1_cyclic_refresh_set_golden_update(AV1_COMP *const cpi) {
 // background has high motion, refresh the golden frame. Otherwise, if the
 // golden reference is to be updated check if we should NOT update the golden
 // ref.
-void av1_cyclic_refresh_check_golden_update(AV1_COMP *const cpi) {
+void av1_cyclic_refresh_check_golden_update(Av1Comp *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
   int mi_row, mi_col;
   double fraction_low = 0.0;
   int low_content_frame = 0;
 
-  MODE_INFO **mi;
+  ModeInfo **mi;
   RATE_CONTROL *const rc = &cpi->rc;
   const int rows = cm->mi_rows, cols = cm->mi_cols;
   int cnt1 = 0, cnt2 = 0;
@@ -385,7 +385,7 @@ void av1_cyclic_refresh_check_golden_update(AV1_COMP *const cpi) {
 // 1/CR_SEGMENT_ID_BOOST1 (refresh) for each superblock.
 // Blocks labeled as BOOST1 may later get set to BOOST2 (during the
 // encoding of the superblock).
-static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
+static void cyclic_refresh_update_map(Av1Comp *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
   unsigned char *const seg_map = cpi->segmentation_map;
@@ -451,7 +451,7 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
 }
 
 // Set cyclic refresh parameters.
-void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
+void av1_cyclic_refresh_update_parameters(Av1Comp *const cpi) {
   const RATE_CONTROL *const rc = &cpi->rc;
   const AV1_COMMON *const cm = &cpi->common;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
@@ -475,7 +475,7 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
 }
 
 // Setup cyclic background refresh: set delta q and segmentation map.
-void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
+void av1_cyclic_refresh_setup(Av1Comp *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const RATE_CONTROL *const rc = &cpi->rc;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
@@ -557,7 +557,7 @@ int av1_cyclic_refresh_get_rdmult(const CYCLIC_REFRESH *cr) {
   return cr->rdmult;
 }
 
-void av1_cyclic_refresh_reset_resize(AV1_COMP *const cpi) {
+void av1_cyclic_refresh_reset_resize(Av1Comp *const cpi) {
   const AV1_COMMON *const cm = &cpi->common;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
   memset(cr->map, 0, cm->mi_rows * cm->mi_cols);

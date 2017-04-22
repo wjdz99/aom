@@ -52,12 +52,12 @@ typedef struct {
 extern const aom_tree_index av1_coef_tree[];
 extern const aom_tree_index av1_coef_con_tree[];
 #if !CONFIG_EC_MULTISYMBOL
-extern const struct av1_token av1_coef_encodings[];
+extern const struct Av1Token av1_coef_encodings[];
 #endif  // !CONFIG_EC_MULTISYMBOL
 
 int av1_is_skippable_in_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane);
 
-struct AV1_COMP;
+struct Av1Comp;
 struct ThreadData;
 
 typedef enum {
@@ -70,21 +70,21 @@ typedef enum {
 // with the coefficient token cost only if dry_run = DRY_RUN_COSTCOEFS,
 // otherwise rate is not incremented.
 #if CONFIG_VAR_TX
-void av1_tokenize_sb_vartx(const struct AV1_COMP *cpi, struct ThreadData *td,
+void av1_tokenize_sb_vartx(const struct Av1Comp *cpi, struct ThreadData *td,
                            TOKENEXTRA **t, RUN_TYPE dry_run, int mi_row,
                            int mi_col, BLOCK_SIZE bsize, int *rate);
 #endif
 #if CONFIG_PALETTE
-void av1_tokenize_palette_sb(const struct AV1_COMP *cpi,
+void av1_tokenize_palette_sb(const struct Av1Comp *cpi,
                              const struct ThreadData *const td, int plane,
                              TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
                              int *rate);
 #endif  // CONFIG_PALETTE
-void av1_tokenize_sb(const struct AV1_COMP *cpi, struct ThreadData *td,
+void av1_tokenize_sb(const struct Av1Comp *cpi, struct ThreadData *td,
                      TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
                      int *rate, const int mi_row, const int mi_col);
 #if CONFIG_SUPERTX
-void av1_tokenize_sb_supertx(const struct AV1_COMP *cpi, struct ThreadData *td,
+void av1_tokenize_sb_supertx(const struct Av1Comp *cpi, struct ThreadData *td,
                              TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
                              int *rate);
 #endif

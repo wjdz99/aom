@@ -61,32 +61,32 @@
 #include "av1/encoder/pvq_encoder.h"
 #endif
 
-static struct av1_token intra_mode_encodings[INTRA_MODES];
-static struct av1_token switchable_interp_encodings[SWITCHABLE_FILTERS];
+static struct Av1Token intra_mode_encodings[INTRA_MODES];
+static struct Av1Token switchable_interp_encodings[SWITCHABLE_FILTERS];
 #if CONFIG_EXT_PARTITION_TYPES && !CONFIG_EC_MULTISYMBOL
-static const struct av1_token ext_partition_encodings[EXT_PARTITION_TYPES] = {
+static const struct Av1Token ext_partition_encodings[EXT_PARTITION_TYPES] = {
   { 0, 1 },  { 4, 3 },  { 12, 4 }, { 7, 3 },
   { 10, 4 }, { 11, 4 }, { 26, 5 }, { 27, 5 }
 };
 #endif
-static struct av1_token partition_encodings[PARTITION_TYPES];
+static struct Av1Token partition_encodings[PARTITION_TYPES];
 #if !CONFIG_REF_MV
-static struct av1_token inter_mode_encodings[INTER_MODES];
+static struct Av1Token inter_mode_encodings[INTER_MODES];
 #endif
 #if CONFIG_EXT_INTER
-static const struct av1_token
+static const struct Av1Token
     inter_compound_mode_encodings[INTER_COMPOUND_MODES] = {
       { 2, 2 },  { 50, 6 }, { 51, 6 }, { 24, 5 }, { 52, 6 },
       { 53, 6 }, { 54, 6 }, { 55, 6 }, { 0, 1 },  { 7, 3 }
     };
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_PALETTE
-static struct av1_token palette_size_encodings[PALETTE_SIZES];
-static struct av1_token palette_color_index_encodings[PALETTE_SIZES]
+static struct Av1Token palette_size_encodings[PALETTE_SIZES];
+static struct Av1Token palette_color_index_encodings[PALETTE_SIZES]
                                                      [PALETTE_COLORS];
 #endif  // CONFIG_PALETTE
 #if !CONFIG_EC_MULTISYMBOL
-static const struct av1_token tx_size_encodings[MAX_TX_DEPTH][TX_SIZES] = {
+static const struct Av1Token tx_size_encodings[MAX_TX_DEPTH][TX_SIZES] = {
   { { 0, 1 }, { 1, 1 } },                      // Max tx_size is 8X8
   { { 0, 1 }, { 2, 2 }, { 3, 2 } },            // Max tx_size is 16X16
   { { 0, 1 }, { 2, 2 }, { 6, 3 }, { 7, 3 } },  // Max tx_size is 32X32
@@ -111,32 +111,32 @@ static INLINE void write_uniform(aom_writer *w, int n, int v) {
 #endif  // CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
 
 #if CONFIG_EXT_TX
-static struct av1_token ext_tx_inter_encodings[EXT_TX_SETS_INTER][TX_TYPES];
-static struct av1_token ext_tx_intra_encodings[EXT_TX_SETS_INTRA][TX_TYPES];
+static struct Av1Token ext_tx_inter_encodings[EXT_TX_SETS_INTER][TX_TYPES];
+static struct Av1Token ext_tx_intra_encodings[EXT_TX_SETS_INTRA][TX_TYPES];
 #else
-static struct av1_token ext_tx_encodings[TX_TYPES];
+static struct Av1Token ext_tx_encodings[TX_TYPES];
 #endif  // CONFIG_EXT_TX
 #if CONFIG_GLOBAL_MOTION
-static struct av1_token global_motion_types_encodings[GLOBAL_TRANS_TYPES];
+static struct Av1Token global_motion_types_encodings[GLOBAL_TRANS_TYPES];
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
-static struct av1_token intra_filter_encodings[INTRA_FILTERS];
+static struct Av1Token intra_filter_encodings[INTRA_FILTERS];
 #endif  // CONFIG_INTRA_INTERP
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_EXT_INTER
-static struct av1_token interintra_mode_encodings[INTERINTRA_MODES];
-static struct av1_token compound_type_encodings[COMPOUND_TYPES];
+static struct Av1Token interintra_mode_encodings[INTERINTRA_MODES];
+static struct Av1Token compound_type_encodings[COMPOUND_TYPES];
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-static struct av1_token motion_mode_encodings[MOTION_MODES];
+static struct Av1Token motion_mode_encodings[MOTION_MODES];
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_LOOP_RESTORATION
-static struct av1_token switchable_restore_encodings[RESTORE_SWITCHABLE_TYPES];
+static struct Av1Token switchable_restore_encodings[RESTORE_SWITCHABLE_TYPES];
 #endif  // CONFIG_LOOP_RESTORATION
-static void write_uncompressed_header(AV1_COMP *cpi,
+static void write_uncompressed_header(Av1Comp *cpi,
                                       struct aom_write_bit_buffer *wb);
-static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data);
+static uint32_t write_compressed_header(Av1Comp *cpi, uint8_t *data);
 static int remux_tiles(const AV1_COMMON *const cm, uint8_t *dst,
                        const uint32_t data_size, const uint32_t max_tile_size,
                        const uint32_t max_tile_col_size,
@@ -218,8 +218,8 @@ void av1_encode_token_init(void) {
 }
 
 static void write_intra_mode_kf(const AV1_COMMON *cm, FRAME_CONTEXT *frame_ctx,
-                                const MODE_INFO *mi, const MODE_INFO *above_mi,
-                                const MODE_INFO *left_mi, int block,
+                                const ModeInfo *mi, const ModeInfo *above_mi,
+                                const ModeInfo *left_mi, int block,
                                 PREDICTION_MODE mode, aom_writer *w) {
 #if CONFIG_INTRABC
   assert(!is_intrabc_block(&mi->mbmi));
@@ -445,7 +445,7 @@ static void write_tx_size_vartx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 }
 
 static void update_txfm_partition_probs(AV1_COMMON *cm, aom_writer *w,
-                                        FRAME_COUNTS *counts, int probwt) {
+                                        FrameCounts *counts, int probwt) {
   int k;
   for (k = 0; k < TXFM_PARTITION_CONTEXTS; ++k)
     av1_cond_prob_diff_update(w, &cm->fc->txfm_partition_prob[k],
@@ -495,7 +495,7 @@ static void write_selected_tx_size(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
 #if CONFIG_REF_MV
 static void update_inter_mode_probs(AV1_COMMON *cm, aom_writer *w,
-                                    FRAME_COUNTS *counts) {
+                                    FrameCounts *counts) {
   int i;
 #if CONFIG_TILE_GROUPS
   const int probwt = cm->num_tg;
@@ -543,7 +543,7 @@ static void update_inter_compound_mode_probs(AV1_COMMON *cm, int probwt,
 #endif  // CONFIG_EXT_INTER
 
 static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                      int segment_id, const MODE_INFO *mi, aom_writer *w) {
+                      int segment_id, const ModeInfo *mi, aom_writer *w) {
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
     return 1;
   } else {
@@ -554,7 +554,7 @@ static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 }
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-static void write_motion_mode(const AV1_COMMON *cm, const MODE_INFO *mi,
+static void write_motion_mode(const AV1_COMMON *cm, const ModeInfo *mi,
                               aom_writer *w) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
   MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
@@ -619,7 +619,7 @@ static void write_delta_qindex(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
 #if !CONFIG_EC_ADAPT
 static void update_delta_q_probs(AV1_COMMON *cm, aom_writer *w,
-                                 FRAME_COUNTS *counts) {
+                                 FrameCounts *counts) {
   int k;
 #if CONFIG_TILE_GROUPS
   const int probwt = cm->num_tg;
@@ -635,7 +635,7 @@ static void update_delta_q_probs(AV1_COMMON *cm, aom_writer *w,
 #endif  // CONFIG_DELTA_Q
 
 static void update_skip_probs(AV1_COMMON *cm, aom_writer *w,
-                              FRAME_COUNTS *counts) {
+                              FrameCounts *counts) {
   int k;
 #if CONFIG_TILE_GROUPS
   const int probwt = cm->num_tg;
@@ -650,7 +650,7 @@ static void update_skip_probs(AV1_COMMON *cm, aom_writer *w,
 
 #if !CONFIG_EC_ADAPT
 static void update_switchable_interp_probs(AV1_COMMON *cm, aom_writer *w,
-                                           FRAME_COUNTS *counts) {
+                                           FrameCounts *counts) {
   int j;
   for (j = 0; j < SWITCHABLE_FILTER_CONTEXTS; ++j) {
 #if CONFIG_TILE_GROUPS
@@ -924,7 +924,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
   while (p < stop && p->token != EOSB_TOKEN) {
     const int token = p->token;
 #if !CONFIG_EC_MULTISYMBOL
-    const struct av1_token *const coef_encoding = &av1_coef_encodings[token];
+    const struct Av1Token *const coef_encoding = &av1_coef_encodings[token];
     int coef_value = coef_encoding->value;
     int coef_length = coef_encoding->len;
 #endif  // !CONFIG_EC_MULTISYMBOL
@@ -1002,8 +1002,8 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 #endif  // !CONFIG_LV_MAP
 #endif  // CONFIG_NEW_TOKENSET
 #else   // !CONFIG_PVQ
-static PVQ_INFO *get_pvq_block(PVQ_QUEUE *pvq_q) {
-  PVQ_INFO *pvq;
+static PvqInfo *get_pvq_block(PvqQueue *pvq_q) {
+  PvqInfo *pvq;
 
   assert(pvq_q->curr_pos <= pvq_q->last_pos);
   assert(pvq_q->curr_pos < pvq_q->buf_len);
@@ -1017,10 +1017,10 @@ static PVQ_INFO *get_pvq_block(PVQ_QUEUE *pvq_q) {
 static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
                             MACROBLOCKD *const xd, int plane, BLOCK_SIZE bsize,
                             const TX_SIZE tx_size) {
-  PVQ_INFO *pvq;
+  PvqInfo *pvq;
   int idx, idy;
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
-  od_adapt_ctx *adapt;
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
+  OdAdaptCtx *adapt;
   int max_blocks_wide;
   int max_blocks_high;
   int step = (1 << tx_size);
@@ -1096,7 +1096,7 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
                             BLOCK_SIZE plane_bsize, aom_bit_depth_t bit_depth,
                             int block, int blk_row, int blk_col,
                             TX_SIZE tx_size, TOKEN_STATS *token_stats) {
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
   const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
@@ -1149,7 +1149,7 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 #endif
 
 static void write_segment_id(aom_writer *w, const struct segmentation *seg,
-                             struct segmentation_probs *segp, int segment_id) {
+                             struct SegmentationProbs *segp, int segment_id) {
   if (seg->enabled && seg->update_map) {
 #if CONFIG_EC_MULTISYMBOL
     aom_write_symbol(w, segment_id, segp->tree_cdf, MAX_SEGMENTS);
@@ -1317,7 +1317,7 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
 }
 #endif  // CONFIG_EXT_INTRA
 
-static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
+static void write_mb_interp_filter(Av1Comp *cpi, const MACROBLOCKD *xd,
                                    aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
@@ -1447,10 +1447,10 @@ static void write_palette_colors_uv(const PALETTE_MODE_INFO *const pmi,
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
 
 static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                                    const MODE_INFO *const mi, aom_writer *w) {
+                                    const ModeInfo *const mi, aom_writer *w) {
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
-  const MODE_INFO *const above_mi = xd->above_mi;
-  const MODE_INFO *const left_mi = xd->left_mi;
+  const ModeInfo *const above_mi = xd->above_mi;
+  const ModeInfo *const left_mi = xd->left_mi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
 
@@ -1644,7 +1644,7 @@ static void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
 #endif
 }
 
-static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
+static void pack_inter_mode_mvs(Av1Comp *cpi, const int mi_row,
                                 const int mi_col,
 #if CONFIG_SUPERTX
                                 int supertx_enabled,
@@ -1666,10 +1666,10 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #if !CONFIG_REF_MV
   nmv_context *nmvc = &ec_ctx->nmvc;
 #endif
-  const MODE_INFO *mi = xd->mi[0];
+  const ModeInfo *mi = xd->mi[0];
 
   const struct segmentation *const seg = &cm->seg;
-  struct segmentation_probs *const segp = &cm->fc->seg;
+  struct SegmentationProbs *const segp = &cm->fc->seg;
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const PREDICTION_MODE mode = mbmi->mode;
@@ -2045,10 +2045,10 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
                               aom_writer *w) {
 #endif
   const struct segmentation *const seg = &cm->seg;
-  struct segmentation_probs *const segp = &cm->fc->seg;
-  const MODE_INFO *const mi = xd->mi[0];
-  const MODE_INFO *const above_mi = xd->above_mi;
-  const MODE_INFO *const left_mi = xd->left_mi;
+  struct SegmentationProbs *const segp = &cm->fc->seg;
+  const ModeInfo *const mi = xd->mi[0];
+  const ModeInfo *const above_mi = xd->above_mi;
+  const ModeInfo *const left_mi = xd->left_mi;
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
 #if CONFIG_CB4X4
@@ -2168,7 +2168,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
 #endif  // CONFIG_SUPERTX
 
 #if CONFIG_RD_DEBUG
-static void dump_mode_info(MODE_INFO *mi) {
+static void dump_mode_info(ModeInfo *mi) {
   printf("\nmi->mbmi.mi_row == %d\n", mi->mbmi.mi_row);
   printf("&& mi->mbmi.mi_col == %d\n", mi->mbmi.mi_col);
   printf("&& mi->mbmi.sb_type == %d\n", mi->mbmi.sb_type);
@@ -2179,7 +2179,7 @@ static void dump_mode_info(MODE_INFO *mi) {
     printf("&& mi->bmi[0].as_mode == %d\n", mi->bmi[0].as_mode);
   }
 }
-static int rd_token_stats_mismatch(RD_STATS *rd_stats, TOKEN_STATS *token_stats,
+static int rd_token_stats_mismatch(RdStats *rd_stats, TOKEN_STATS *token_stats,
                                    int plane) {
   if (rd_stats->txb_coeff_cost[plane] != token_stats->cost) {
 #if CONFIG_VAR_TX
@@ -2210,7 +2210,7 @@ static int rd_token_stats_mismatch(RD_STATS *rd_stats, TOKEN_STATS *token_stats,
 }
 #endif
 
-static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
+static void write_mbmi_b(Av1Comp *cpi, const TileInfo *const tile,
                          aom_writer *w,
 #if CONFIG_SUPERTX
                          int supertx_enabled,
@@ -2218,7 +2218,7 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
                          int mi_row, int mi_col) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
-  MODE_INFO *m;
+  ModeInfo *m;
   int bh, bw;
   xd->mi = cm->mi_grid_visible + (mi_row * cm->mi_stride + mi_col);
   m = xd->mi[0];
@@ -2283,13 +2283,13 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
   }
 }
 
-static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
+static void write_tokens_b(Av1Comp *cpi, const TileInfo *const tile,
                            aom_writer *w, const TOKENEXTRA **tok,
                            const TOKENEXTRA *const tok_end, int mi_row,
                            int mi_col) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
-  MODE_INFO *const m = xd->mi[0];
+  ModeInfo *const m = xd->mi[0];
   MB_MODE_INFO *const mbmi = &m->mbmi;
   int plane;
   int bh, bw;
@@ -2331,8 +2331,8 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 
 #if CONFIG_COEF_INTERLEAVE
   if (!mbmi->skip) {
-    const struct macroblockd_plane *const pd_y = &xd->plane[0];
-    const struct macroblockd_plane *const pd_c = &xd->plane[1];
+    const struct MacroblockdPlane *const pd_y = &xd->plane[0];
+    const struct MacroblockdPlane *const pd_c = &xd->plane[1];
     const TX_SIZE tx_log2_y = mbmi->tx_size;
     const TX_SIZE tx_log2_c = get_uv_tx_size(mbmi, pd_c);
     const int tx_sz_y = (1 << tx_log2_y);
@@ -2419,7 +2419,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
       }
 #endif
 #if CONFIG_VAR_TX
-      const struct macroblockd_plane *const pd = &xd->plane[plane];
+      const struct MacroblockdPlane *const pd = &xd->plane[plane];
       BLOCK_SIZE bsize = mbmi->sb_type;
 #if CONFIG_CB4X4
 #if CONFIG_CHROMA_2X2
@@ -2518,7 +2518,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 }
 
 #if CONFIG_MOTION_VAR && CONFIG_NCOBMC
-static void write_tokens_sb(AV1_COMP *cpi, const TileInfo *const tile,
+static void write_tokens_sb(Av1Comp *cpi, const TileInfo *const tile,
                             aom_writer *w, const TOKENEXTRA **tok,
                             const TOKENEXTRA *const tok_end, int mi_row,
                             int mi_col, BLOCK_SIZE bsize) {
@@ -2591,7 +2591,7 @@ static void write_tokens_sb(AV1_COMP *cpi, const TileInfo *const tile,
 }
 #endif
 
-static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
+static void write_modes_b(Av1Comp *cpi, const TileInfo *const tile,
                           aom_writer *w, const TOKENEXTRA **tok,
                           const TOKENEXTRA *const tok_end,
 #if CONFIG_SUPERTX
@@ -2688,7 +2688,7 @@ static void write_partition(const AV1_COMMON *const cm,
   write_modes_sb(cpi, tile, w, tok, tok_end, mi_row, mi_col, bsize)
 #endif  // CONFIG_SUPERTX
 
-static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
+static void write_modes_sb(Av1Comp *const cpi, const TileInfo *const tile,
                            aom_writer *const w, const TOKENEXTRA **tok,
                            const TOKENEXTRA *const tok_end,
 #if CONFIG_SUPERTX
@@ -2862,7 +2862,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
     if (!skip) {
       assert(*tok < tok_end);
       for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
-        const struct macroblockd_plane *const pd = &xd->plane[plane];
+        const struct MacroblockdPlane *const pd = &xd->plane[plane];
         const int mbmi_txb_size = txsize_to_bsize[mbmi->tx_size];
         const BLOCK_SIZE plane_bsize = get_plane_block_size(mbmi_txb_size, pd);
 
@@ -2923,7 +2923,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 #endif
 }
 
-static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
+static void write_modes(Av1Comp *const cpi, const TileInfo *const tile,
                         aom_writer *const w, const TOKENEXTRA **tok,
                         const TOKENEXTRA *const tok_end) {
   AV1_COMMON *const cm = &cpi->common;
@@ -2977,7 +2977,7 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
 
 #if !CONFIG_LV_MAP
 #if !CONFIG_PVQ && !(CONFIG_EC_ADAPT && CONFIG_NEW_TOKENSET)
-static void build_tree_distribution(AV1_COMP *cpi, TX_SIZE tx_size,
+static void build_tree_distribution(Av1Comp *cpi, TX_SIZE tx_size,
                                     av1_coeff_stats *coef_branch_ct,
                                     av1_coeff_probs_model *coef_probs) {
   av1_coeff_count *coef_counts = cpi->td.rd_counts.coef_counts[tx_size];
@@ -3008,7 +3008,7 @@ static void build_tree_distribution(AV1_COMP *cpi, TX_SIZE tx_size,
 }
 
 #if !(CONFIG_EC_ADAPT && CONFIG_NEW_TOKENSET)
-static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
+static void update_coef_probs_common(aom_writer *const bc, Av1Comp *cpi,
                                      TX_SIZE tx_size,
                                      av1_coeff_stats *frame_branch_ct,
                                      av1_coeff_probs_model *new_coef_probs) {
@@ -3162,7 +3162,7 @@ static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
 #if CONFIG_SUBFRAME_PROB_UPDATE
 // Calculate the token counts between subsequent subframe updates.
 static void get_coef_counts_diff(
-    AV1_COMP *cpi, int index,
+    Av1Comp *cpi, int index,
     av1_coeff_count coef_counts[TX_SIZES][PLANE_TYPES],
     unsigned int eob_counts[TX_SIZES][PLANE_TYPES][REF_TYPES][COEF_BANDS]
                            [COEFF_CONTEXTS]) {
@@ -3170,7 +3170,7 @@ static void get_coef_counts_diff(
   const int max_idx = cpi->common.coef_probs_update_idx;
   const TX_MODE tx_mode = cpi->common.tx_mode;
   const int max_tx_size = tx_mode_to_biggest_tx_size[tx_mode];
-  const SUBFRAME_STATS *subframe_stats = &cpi->subframe_stats;
+  const SubframeStats *subframe_stats = &cpi->subframe_stats;
 
   assert(max_idx < COEF_PROBS_BUFS);
 
@@ -3209,7 +3209,7 @@ static void get_coef_counts_diff(
 }
 
 static void update_coef_probs_subframe(
-    aom_writer *const bc, AV1_COMP *cpi, TX_SIZE tx_size,
+    aom_writer *const bc, Av1Comp *cpi, TX_SIZE tx_size,
     av1_coeff_stats branch_ct[COEF_PROBS_BUFS][TX_SIZES][PLANE_TYPES],
     av1_coeff_probs_model *new_coef_probs) {
   av1_coeff_probs_model *old_coef_probs = cpi->common.fc->coef_probs[tx_size];
@@ -3368,13 +3368,13 @@ static void update_coef_probs_subframe(
 #endif  // CONFIG_SUBFRAME_PROB_UPDATE
 
 #if !(CONFIG_EC_ADAPT && CONFIG_NEW_TOKENSET)
-static void update_coef_probs(AV1_COMP *cpi, aom_writer *w) {
+static void update_coef_probs(Av1Comp *cpi, aom_writer *w) {
   const TX_MODE tx_mode = cpi->common.tx_mode;
   const TX_SIZE max_tx_size = tx_mode_to_biggest_tx_size[tx_mode];
   TX_SIZE tx_size;
 #if CONFIG_SUBFRAME_PROB_UPDATE
   AV1_COMMON *cm = &cpi->common;
-  SUBFRAME_STATS *subframe_stats = &cpi->subframe_stats;
+  SubframeStats *subframe_stats = &cpi->subframe_stats;
   int i;
   av1_coeff_probs_model dummy_frame_coef_probs[PLANE_TYPES];
 
@@ -3709,7 +3709,7 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 
 #if !CONFIG_EC_ADAPT
-static void update_seg_probs(AV1_COMP *cpi, aom_writer *w) {
+static void update_seg_probs(Av1Comp *cpi, aom_writer *w) {
   AV1_COMMON *cm = &cpi->common;
 #if CONFIG_TILE_GROUPS
   const int probwt = cm->num_tg;
@@ -3767,7 +3767,7 @@ static void write_tx_mode(AV1_COMMON *cm, MACROBLOCKD *xd, TX_MODE *mode,
 
 #if !CONFIG_EC_ADAPT
 static void update_txfm_probs(AV1_COMMON *cm, aom_writer *w,
-                              FRAME_COUNTS *counts) {
+                              FrameCounts *counts) {
 #if CONFIG_TILE_GROUPS
   const int probwt = cm->num_tg;
 #else
@@ -3790,7 +3790,7 @@ static void write_frame_interp_filter(InterpFilter filter,
     aom_wb_write_literal(wb, filter, LOG_SWITCHABLE_FILTERS);
 }
 
-static void fix_interp_filter(AV1_COMMON *cm, FRAME_COUNTS *counts) {
+static void fix_interp_filter(AV1_COMMON *cm, FrameCounts *counts) {
   if (cm->interp_filter == SWITCHABLE) {
     // Check to see if only one of the filters is actually used
     int count[SWITCHABLE_FILTERS];
@@ -3874,7 +3874,7 @@ static void write_tile_info(const AV1_COMMON *const cm,
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 }
 
-static int get_refresh_mask(AV1_COMP *cpi) {
+static int get_refresh_mask(Av1Comp *cpi) {
   int refresh_mask = 0;
 
 #if CONFIG_EXT_REFS
@@ -3980,12 +3980,12 @@ static INLINE int find_identical_tile(
 #endif  // CONFIG_EXT_TILE
 
 #if CONFIG_TILE_GROUPS
-static uint32_t write_tiles(AV1_COMP *const cpi,
+static uint32_t write_tiles(Av1Comp *const cpi,
                             struct aom_write_bit_buffer *wb,
                             unsigned int *max_tile_size,
                             unsigned int *max_tile_col_size) {
 #else
-static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
+static uint32_t write_tiles(Av1Comp *const cpi, uint8_t *const dst,
                             unsigned int *max_tile_size,
                             unsigned int *max_tile_col_size) {
 #endif
@@ -4361,7 +4361,7 @@ static void write_frame_size(const AV1_COMMON *cm,
 #endif  // CONFIG_LOOP_RESTORATION && CONFIG_FRAME_SUPERRES
 }
 
-static void write_frame_size_with_refs(AV1_COMP *cpi,
+static void write_frame_size_with_refs(Av1Comp *cpi,
                                        struct aom_write_bit_buffer *wb) {
   AV1_COMMON *const cm = &cpi->common;
   int found = 0;
@@ -4437,7 +4437,7 @@ void write_sequence_header(SequenceHeader *seq_params) {
 }
 #endif
 
-static void write_uncompressed_header(AV1_COMP *cpi,
+static void write_uncompressed_header(Av1Comp *cpi,
                                       struct aom_write_bit_buffer *wb) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
@@ -4762,7 +4762,7 @@ static void write_global_motion_params(WarpedMotionParams *params,
   }
 }
 
-static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
+static void write_global_motion(Av1Comp *cpi, aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
   int frame;
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
@@ -4788,13 +4788,13 @@ static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
 }
 #endif
 
-static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
+static uint32_t write_compressed_header(Av1Comp *cpi, uint8_t *data) {
   AV1_COMMON *const cm = &cpi->common;
 #if CONFIG_SUPERTX
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
 #endif  // CONFIG_SUPERTX
   FRAME_CONTEXT *const fc = cm->fc;
-  FRAME_COUNTS *counts = cpi->td.counts;
+  FrameCounts *counts = cpi->td.counts;
   aom_writer *header_bc;
   int i, j;
 
@@ -5169,7 +5169,7 @@ static int remux_tiles(const AV1_COMMON *const cm, uint8_t *dst,
   }
 }
 
-void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
+void av1_pack_bitstream(Av1Comp *const cpi, uint8_t *dst, size_t *size) {
   uint8_t *data = dst;
 #if !CONFIG_TILE_GROUPS
   uint32_t compressed_header_size;

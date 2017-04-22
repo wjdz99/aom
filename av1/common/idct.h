@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-typedef struct INV_TXFM_PARAM {
+typedef struct InvTxfmParam {
 #if CONFIG_ADAPT_SCAN
   const int16_t *eob_threshold;
 #endif
@@ -37,7 +37,7 @@ typedef struct INV_TXFM_PARAM {
 #if CONFIG_HIGHBITDEPTH
   int bd;
 #endif
-} INV_TXFM_PARAM;
+} InvTxfmParam;
 
 typedef void (*transform_1d)(const tran_low_t *, tran_low_t *);
 
@@ -68,7 +68,7 @@ void av1_inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_inv_txfm_add_4x8(const tran_low_t *input, uint8_t *dest, int stride,
                           int eob, TX_TYPE tx_type);
 void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
-                      INV_TXFM_PARAM *inv_txfm_param);
+                      InvTxfmParam *inv_txfm_param);
 void av1_inverse_transform_block(MACROBLOCKD *xd, const tran_low_t *dqcoeff,
                                  const TX_TYPE tx_type, const TX_SIZE tx_size,
                                  uint8_t *dst, int stride, int eob);
@@ -87,7 +87,7 @@ void av1_highbd_inv_txfm_add_4x8(const tran_low_t *input, uint8_t *dest,
 void av1_highbd_inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest,
                                  int stride, int eob, int bd, TX_TYPE tx_type);
 void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
-                             INV_TXFM_PARAM *inv_txfm_param);
+                             InvTxfmParam *inv_txfm_param);
 #endif  // CONFIG_HIGHBITDEPTH
 #ifdef __cplusplus
 }  // extern "C"

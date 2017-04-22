@@ -2172,7 +2172,7 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
                                        uint8_t *dst, int dst_stride,
                                        int col_off, int row_off, int plane) {
   BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
   const int txw = tx_size_wide_unit[tx_size];
   const int have_top = row_off || xd->up_available;
   const int have_left = col_off || xd->left_available;
@@ -2277,7 +2277,7 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
 
 void av1_predict_intra_block_facade(MACROBLOCKD *xd, int plane, int block_idx,
                                     int blk_col, int blk_row, TX_SIZE tx_size) {
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
   const int dst_stride = pd->dst.stride;
   uint8_t *dst =
       &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];

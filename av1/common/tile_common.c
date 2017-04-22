@@ -84,7 +84,7 @@ void av1_update_boundary_info(const struct AV1Common *cm,
   int row, col;
   for (row = mi_row; row < (mi_row + cm->mib_size); row++)
     for (col = mi_col; col < (mi_col + cm->mib_size); col++) {
-      MODE_INFO *const mi = cm->mi + row * cm->mi_stride + col;
+      ModeInfo *const mi = cm->mi + row * cm->mi_stride + col;
       mi->mbmi.boundary_info = 0;
       if (cm->tile_cols * cm->tile_rows > 1) {
 #if CONFIG_DEPENDENT_HORZTILES

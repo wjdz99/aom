@@ -169,7 +169,7 @@ typedef struct {
   int rf_level_maxq[RATE_FACTOR_LEVELS];
 } RATE_CONTROL;
 
-struct AV1_COMP;
+struct Av1Comp;
 struct AV1EncoderConfig;
 
 void av1_rc_init(const struct AV1EncoderConfig *oxcf, int pass,
@@ -211,35 +211,35 @@ int av1_rc_get_default_max_gf_interval(double framerate, int min_frame_rate);
 
 // Functions to set parameters for encoding before the actual
 // encode_frame_to_data_rate() function.
-void av1_rc_get_one_pass_vbr_params(struct AV1_COMP *cpi);
-void av1_rc_get_one_pass_cbr_params(struct AV1_COMP *cpi);
+void av1_rc_get_one_pass_vbr_params(struct Av1Comp *cpi);
+void av1_rc_get_one_pass_cbr_params(struct Av1Comp *cpi);
 
 // Post encode update of the rate control parameters based
 // on bytes used
-void av1_rc_postencode_update(struct AV1_COMP *cpi, uint64_t bytes_used);
+void av1_rc_postencode_update(struct Av1Comp *cpi, uint64_t bytes_used);
 // Post encode update of the rate control parameters for dropped frames
-void av1_rc_postencode_update_drop_frame(struct AV1_COMP *cpi);
+void av1_rc_postencode_update_drop_frame(struct Av1Comp *cpi);
 
 // Updates rate correction factors
 // Changes only the rate correction factors in the rate control structure.
-void av1_rc_update_rate_correction_factors(struct AV1_COMP *cpi);
+void av1_rc_update_rate_correction_factors(struct Av1Comp *cpi);
 
 // Decide if we should drop this frame: For 1-pass CBR.
 // Changes only the decimation count in the rate control structure
-int av1_rc_drop_frame(struct AV1_COMP *cpi);
+int av1_rc_drop_frame(struct Av1Comp *cpi);
 
 // Computes frame size bounds.
-void av1_rc_compute_frame_size_bounds(const struct AV1_COMP *cpi,
+void av1_rc_compute_frame_size_bounds(const struct Av1Comp *cpi,
                                       int this_frame_target,
                                       int *frame_under_shoot_limit,
                                       int *frame_over_shoot_limit);
 
 // Picks q and q bounds given the target for bits
-int av1_rc_pick_q_and_bounds(const struct AV1_COMP *cpi, int *bottom_index,
+int av1_rc_pick_q_and_bounds(const struct Av1Comp *cpi, int *bottom_index,
                              int *top_index);
 
 // Estimates q to achieve a target bits per frame
-int av1_rc_regulate_q(const struct AV1_COMP *cpi, int target_bits_per_frame,
+int av1_rc_regulate_q(const struct Av1Comp *cpi, int target_bits_per_frame,
                       int active_best_quality, int active_worst_quality);
 
 // Estimates bits per mb for a given qindex and correction factor.
@@ -247,13 +247,13 @@ int av1_rc_bits_per_mb(FRAME_TYPE frame_type, int qindex,
                        double correction_factor, aom_bit_depth_t bit_depth);
 
 // Clamping utilities for bitrate targets for iframes and pframes.
-int av1_rc_clamp_iframe_target_size(const struct AV1_COMP *const cpi,
+int av1_rc_clamp_iframe_target_size(const struct Av1Comp *const cpi,
                                     int target);
-int av1_rc_clamp_pframe_target_size(const struct AV1_COMP *const cpi,
+int av1_rc_clamp_pframe_target_size(const struct Av1Comp *const cpi,
                                     int target);
 // Utility to set frame_target into the RATE_CONTROL structure
 // This function is called only from the av1_rc_get_..._params() functions.
-void av1_rc_set_frame_target(struct AV1_COMP *cpi, int target);
+void av1_rc_set_frame_target(struct Av1Comp *cpi, int target);
 
 // Computes a q delta (in "q index" terms) to get from a starting q value
 // to a target q value
@@ -266,16 +266,16 @@ int av1_compute_qdelta_by_rate(const RATE_CONTROL *rc, FRAME_TYPE frame_type,
                                int qindex, double rate_target_ratio,
                                aom_bit_depth_t bit_depth);
 
-int av1_frame_type_qdelta(const struct AV1_COMP *cpi, int rf_level, int q);
+int av1_frame_type_qdelta(const struct Av1Comp *cpi, int rf_level, int q);
 
-void av1_rc_update_framerate(struct AV1_COMP *cpi);
+void av1_rc_update_framerate(struct Av1Comp *cpi);
 
-void av1_rc_set_gf_interval_range(const struct AV1_COMP *const cpi,
+void av1_rc_set_gf_interval_range(const struct Av1Comp *const cpi,
                                   RATE_CONTROL *const rc);
 
-void av1_set_target_rate(struct AV1_COMP *cpi);
+void av1_set_target_rate(struct Av1Comp *cpi);
 
-int av1_resize_one_pass_cbr(struct AV1_COMP *cpi);
+int av1_resize_one_pass_cbr(struct Av1Comp *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"

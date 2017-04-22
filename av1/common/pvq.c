@@ -75,7 +75,7 @@ const unsigned char OD_CHROMA_QM_Q4[2][OD_QM_SIZE] = {
 /* No interpolation, always use od_flat_qm_q4, but use a different scale for
    each plane.
    FIXME: Add interpolation and properly tune chroma. */
-const od_qm_entry OD_DEFAULT_QMS[2][2][OD_NPLANES_MAX] = {
+const OdQmEntry OD_DEFAULT_QMS[2][2][OD_NPLANES_MAX] = {
   /* Masking disabled */
   { { { 4, 256, OD_LUMA_QM_Q4[OD_MASKING_DISABLED] },
       { 4, 256, OD_CHROMA_QM_Q4[OD_MASKING_DISABLED] },
@@ -142,8 +142,8 @@ const od_val16 *const OD_PVQ_BETA[2][OD_NPLANES_MAX][OD_TXSIZES + 1] = {
 };
 
 
-void od_interp_qm(unsigned char *out, int q, const od_qm_entry *entry1,
-  const od_qm_entry *entry2) {
+void od_interp_qm(unsigned char *out, int q, const OdQmEntry *entry1,
+  const OdQmEntry *entry2) {
   int i;
   if (entry2 == NULL || entry2->qm_q4 == NULL
    || q < entry1->interp_q << OD_COEFF_SHIFT) {
@@ -181,8 +181,8 @@ void od_interp_qm(unsigned char *out, int q, const od_qm_entry *entry1,
   }
 }
 
-void od_adapt_pvq_ctx_reset(od_pvq_adapt_ctx *state, int is_keyframe) {
-  od_pvq_codeword_ctx *ctx;
+void od_adapt_pvq_ctx_reset(OdPvqAdaptCtx *state, int is_keyframe) {
+  OdPvqCodewordCtx *ctx;
   int i;
   int pli;
   int bs;

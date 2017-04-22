@@ -83,7 +83,7 @@ static int av1_dec_alloc_mi(AV1_COMMON *cm, int mi_size) {
   cm->mip = aom_calloc(mi_size, sizeof(*cm->mip));
   if (!cm->mip) return 1;
   cm->mi_alloc_size = mi_size;
-  cm->mi_grid_base = (MODE_INFO **)aom_calloc(mi_size, sizeof(MODE_INFO *));
+  cm->mi_grid_base = (ModeInfo **)aom_calloc(mi_size, sizeof(ModeInfo *));
   if (!cm->mi_grid_base) return 1;
   return 0;
 }

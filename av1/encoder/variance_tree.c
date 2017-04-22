@@ -22,7 +22,7 @@ void av1_setup_var_tree(struct AV1Common *cm, ThreadData *td) {
   const int tree_nodes = 256 + 64 + 16 + 4 + 1;
 #endif  // CONFIG_EXT_PARTITION
   int index = 0;
-  VAR_TREE *this_var;
+  VarTree *this_var;
   int nodes;
 
   aom_free(td->var_tree);
@@ -33,7 +33,7 @@ void av1_setup_var_tree(struct AV1Common *cm, ThreadData *td) {
 
   // Sets up all the leaf nodes in the tree.
   for (index = 0; index < leaf_nodes; ++index) {
-    VAR_TREE *const leaf = &td->var_tree[index];
+    VarTree *const leaf = &td->var_tree[index];
     leaf->split[0] = NULL;
   }
 
@@ -41,7 +41,7 @@ void av1_setup_var_tree(struct AV1Common *cm, ThreadData *td) {
   // from leafs to the root.
   for (nodes = leaf_nodes >> 2; nodes > 0; nodes >>= 2) {
     for (i = 0; i < nodes; ++i, ++index) {
-      VAR_TREE *const node = &td->var_tree[index];
+      VarTree *const node = &td->var_tree[index];
       for (j = 0; j < 4; j++) node->split[j] = this_var++;
     }
   }

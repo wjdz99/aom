@@ -23,11 +23,11 @@
 #include "av1/common/reconinter.h"
 #include "av1/common/reconintra.h"
 
-static unsigned int do_16x16_motion_iteration(AV1_COMP *cpi, const MV *ref_mv,
+static unsigned int do_16x16_motion_iteration(Av1Comp *cpi, const MV *ref_mv,
                                               int mb_row, int mb_col) {
   MACROBLOCK *const x = &cpi->td.mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  const MV_SPEED_FEATURES *const mv_sf = &cpi->sf.mv;
+  const MvSpeedFeatures *const mv_sf = &cpi->sf.mv;
   const aom_variance_fn_ptr_t v_fn_ptr = cpi->fn_ptr[BLOCK_16X16];
 
   const int tmp_col_min = x->mv_col_min;
@@ -86,7 +86,7 @@ static unsigned int do_16x16_motion_iteration(AV1_COMP *cpi, const MV *ref_mv,
                       xd->plane[0].dst.buf, xd->plane[0].dst.stride);
 }
 
-static int do_16x16_motion_search(AV1_COMP *cpi, const MV *ref_mv, int mb_row,
+static int do_16x16_motion_search(Av1Comp *cpi, const MV *ref_mv, int mb_row,
                                   int mb_col) {
   MACROBLOCK *const x = &cpi->td.mb;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -123,7 +123,7 @@ static int do_16x16_motion_search(AV1_COMP *cpi, const MV *ref_mv, int mb_row,
   return err;
 }
 
-static int do_16x16_zerozero_search(AV1_COMP *cpi, int_mv *dst_mv) {
+static int do_16x16_zerozero_search(Av1Comp *cpi, int_mv *dst_mv) {
   MACROBLOCK *const x = &cpi->td.mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   unsigned int err;
@@ -137,7 +137,7 @@ static int do_16x16_zerozero_search(AV1_COMP *cpi, int_mv *dst_mv) {
 
   return err;
 }
-static int find_best_16x16_intra(AV1_COMP *cpi, PREDICTION_MODE *pbest_mode) {
+static int find_best_16x16_intra(Av1Comp *cpi, PREDICTION_MODE *pbest_mode) {
   MACROBLOCK *const x = &cpi->td.mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   PREDICTION_MODE best_mode = -1, mode;
@@ -167,7 +167,7 @@ static int find_best_16x16_intra(AV1_COMP *cpi, PREDICTION_MODE *pbest_mode) {
   return best_err;
 }
 
-static void update_mbgraph_mb_stats(AV1_COMP *cpi, MBGRAPH_MB_STATS *stats,
+static void update_mbgraph_mb_stats(Av1Comp *cpi, MBGRAPH_MB_STATS *stats,
                                     YV12_BUFFER_CONFIG *buf, int mb_y_offset,
                                     YV12_BUFFER_CONFIG *golden_ref,
                                     const MV *prev_golden_ref_mv,
@@ -220,7 +220,7 @@ static void update_mbgraph_mb_stats(AV1_COMP *cpi, MBGRAPH_MB_STATS *stats,
   }
 }
 
-static void update_mbgraph_frame_stats(AV1_COMP *cpi,
+static void update_mbgraph_frame_stats(Av1Comp *cpi,
                                        MBGRAPH_FRAME_STATS *stats,
                                        YV12_BUFFER_CONFIG *buf,
                                        YV12_BUFFER_CONFIG *golden_ref,
@@ -232,7 +232,7 @@ static void update_mbgraph_frame_stats(AV1_COMP *cpi,
   int mb_col, mb_row, offset = 0;
   int mb_y_offset = 0, arf_y_offset = 0, gld_y_offset = 0;
   MV gld_top_mv = { 0, 0 };
-  MODE_INFO mi_local;
+  ModeInfo mi_local;
 
   av1_zero(mi_local);
   // Set up limit values for motion vectors to prevent them extending outside
@@ -287,7 +287,7 @@ static void update_mbgraph_frame_stats(AV1_COMP *cpi,
 }
 
 // void separate_arf_mbs_byzz
-static void separate_arf_mbs(AV1_COMP *cpi) {
+static void separate_arf_mbs(Av1Comp *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   int mb_col, mb_row, offset, i;
   int mi_row, mi_col;
@@ -364,7 +364,7 @@ static void separate_arf_mbs(AV1_COMP *cpi) {
   aom_free(arf_not_zz);
 }
 
-void av1_update_mbgraph_stats(AV1_COMP *cpi) {
+void av1_update_mbgraph_stats(Av1Comp *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   int i, n_frames = av1_lookahead_depth(cpi->lookahead);
   YV12_BUFFER_CONFIG *golden_ref = get_ref_frame_buffer(cpi, GOLDEN_FRAME);
@@ -390,7 +390,7 @@ void av1_update_mbgraph_stats(AV1_COMP *cpi) {
   // the ARF MC search backwards, to get optimal results for MV caching
   for (i = 0; i < n_frames; i++) {
     MBGRAPH_FRAME_STATS *frame_stats = &cpi->mbgraph_stats[i];
-    struct lookahead_entry *q_cur = av1_lookahead_peek(cpi->lookahead, i);
+    struct LookaheadEntry *q_cur = av1_lookahead_peek(cpi->lookahead, i);
 
     assert(q_cur != NULL);
 

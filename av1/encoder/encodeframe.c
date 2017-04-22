@@ -70,7 +70,7 @@
 #define IF_HBD(...)
 #endif  // CONFIG_HIGHBITDEPTH
 
-static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
+static void encode_superblock(const Av1Comp *const cpi, ThreadData *td,
                               TOKENEXTRA **t, RUN_TYPE dry_run, int mi_row,
                               int mi_col, BLOCK_SIZE bsize,
                               PICK_MODE_CONTEXT *ctx, int *rate);
@@ -78,31 +78,31 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
 #if CONFIG_SUPERTX
 static int check_intra_b(PICK_MODE_CONTEXT *ctx);
 
-static int check_intra_sb(const AV1_COMP *cpi, const TileInfo *const tile,
+static int check_intra_sb(const Av1Comp *cpi, const TileInfo *const tile,
                           int mi_row, int mi_col, BLOCK_SIZE bsize,
-                          PC_TREE *pc_tree);
-static void predict_superblock(const AV1_COMP *const cpi, ThreadData *td,
+                          PcTree *pc_tree);
+static void predict_superblock(const Av1Comp *const cpi, ThreadData *td,
 #if CONFIG_EXT_INTER
                                int mi_row_ori, int mi_col_ori,
 #endif  // CONFIG_EXT_INTER
                                int mi_row_pred, int mi_col_pred,
                                BLOCK_SIZE bsize_pred, int b_sub8x8, int block);
 static int check_supertx_sb(BLOCK_SIZE bsize, TX_SIZE supertx_size,
-                            PC_TREE *pc_tree);
-static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
+                            PcTree *pc_tree);
+static void predict_sb_complex(const Av1Comp *const cpi, ThreadData *td,
                                const TileInfo *const tile, int mi_row,
                                int mi_col, int mi_row_ori, int mi_col_ori,
                                RUN_TYPE dry_run, BLOCK_SIZE bsize,
                                BLOCK_SIZE top_bsize, uint8_t *dst_buf[3],
-                               int dst_stride[3], PC_TREE *pc_tree);
-static void update_state_sb_supertx(const AV1_COMP *const cpi, ThreadData *td,
+                               int dst_stride[3], PcTree *pc_tree);
+static void update_state_sb_supertx(const Av1Comp *const cpi, ThreadData *td,
                                     const TileInfo *const tile, int mi_row,
                                     int mi_col, BLOCK_SIZE bsize,
-                                    RUN_TYPE dry_run, PC_TREE *pc_tree);
-static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
+                                    RUN_TYPE dry_run, PcTree *pc_tree);
+static void rd_supertx_sb(const Av1Comp *const cpi, ThreadData *td,
                           const TileInfo *const tile, int mi_row, int mi_col,
                           BLOCK_SIZE bsize, int *tmp_rate, int64_t *tmp_dist,
-                          TX_TYPE *best_tx, PC_TREE *pc_tree);
+                          TX_TYPE *best_tx, PcTree *pc_tree);
 #endif  // CONFIG_SUPERTX
 
 // This is used as a reference when computing the source variance for the
@@ -187,8 +187,8 @@ static const uint16_t AV1_HIGH_VAR_OFFS_12[MAX_SB_SIZE] = {
 };
 #endif  // CONFIG_HIGHBITDEPTH
 
-unsigned int av1_get_sby_perpixel_variance(const AV1_COMP *cpi,
-                                           const struct buf_2d *ref,
+unsigned int av1_get_sby_perpixel_variance(const Av1Comp *cpi,
+                                           const struct Buf2d *ref,
                                            BLOCK_SIZE bs) {
   unsigned int sse;
   const unsigned int var =
@@ -197,8 +197,8 @@ unsigned int av1_get_sby_perpixel_variance(const AV1_COMP *cpi,
 }
 
 #if CONFIG_HIGHBITDEPTH
-unsigned int av1_high_get_sby_perpixel_variance(const AV1_COMP *cpi,
-                                                const struct buf_2d *ref,
+unsigned int av1_high_get_sby_perpixel_variance(const Av1Comp *cpi,
+                                                const struct Buf2d *ref,
                                                 BLOCK_SIZE bs, int bd) {
   unsigned int var, sse;
   switch (bd) {
@@ -223,8 +223,8 @@ unsigned int av1_high_get_sby_perpixel_variance(const AV1_COMP *cpi,
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
-static unsigned int get_sby_perpixel_diff_variance(const AV1_COMP *const cpi,
-                                                   const struct buf_2d *ref,
+static unsigned int get_sby_perpixel_diff_variance(const Av1Comp *const cpi,
+                                                   const struct Buf2d *ref,
                                                    int mi_row, int mi_col,
                                                    BLOCK_SIZE bs) {
   unsigned int sse, var;
@@ -238,7 +238,7 @@ static unsigned int get_sby_perpixel_diff_variance(const AV1_COMP *const cpi,
   return ROUND_POWER_OF_TWO(var, num_pels_log2_lookup[bs]);
 }
 
-static BLOCK_SIZE get_rd_var_based_fixed_partition(AV1_COMP *cpi, MACROBLOCK *x,
+static BLOCK_SIZE get_rd_var_based_fixed_partition(Av1Comp *cpi, MACROBLOCK *x,
                                                    int mi_row, int mi_col) {
   unsigned int var = get_sby_perpixel_diff_variance(
       cpi, &x->plane[0].src, mi_row, mi_col, BLOCK_64X64);
@@ -254,7 +254,7 @@ static BLOCK_SIZE get_rd_var_based_fixed_partition(AV1_COMP *cpi, MACROBLOCK *x,
 
 // Lighter version of set_offsets that only sets the mode info
 // pointers.
-static void set_mode_info_offsets(const AV1_COMP *const cpi,
+static void set_mode_info_offsets(const Av1Comp *const cpi,
                                   MACROBLOCK *const x, MACROBLOCKD *const xd,
                                   int mi_row, int mi_col) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -264,7 +264,7 @@ static void set_mode_info_offsets(const AV1_COMP *const cpi,
   x->mbmi_ext = cpi->mbmi_ext_base + (mi_row * cm->mi_cols + mi_col);
 }
 
-static void set_offsets_without_segment_id(const AV1_COMP *const cpi,
+static void set_offsets_without_segment_id(const Av1Comp *const cpi,
                                            const TileInfo *const tile,
                                            MACROBLOCK *const x, int mi_row,
                                            int mi_col, BLOCK_SIZE bsize) {
@@ -317,7 +317,7 @@ static void set_offsets_without_segment_id(const AV1_COMP *const cpi,
   xd->tile = *tile;
 }
 
-static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
+static void set_offsets(const Av1Comp *const cpi, const TileInfo *const tile,
                         MACROBLOCK *const x, int mi_row, int mi_col,
                         BLOCK_SIZE bsize) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -347,7 +347,7 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
 }
 
 #if CONFIG_SUPERTX
-static void set_offsets_supertx(const AV1_COMP *const cpi, ThreadData *td,
+static void set_offsets_supertx(const Av1Comp *const cpi, ThreadData *td,
                                 const TileInfo *const tile, int mi_row,
                                 int mi_col, BLOCK_SIZE bsize) {
   MACROBLOCK *const x = &td->mb;
@@ -367,7 +367,7 @@ static void set_offsets_supertx(const AV1_COMP *const cpi, ThreadData *td,
                  cm->mi_cols);
 }
 
-static void set_offsets_extend(const AV1_COMP *const cpi, ThreadData *td,
+static void set_offsets_extend(const Av1Comp *const cpi, ThreadData *td,
                                const TileInfo *const tile, int mi_row_pred,
                                int mi_col_pred, int mi_row_ori, int mi_col_ori,
                                BLOCK_SIZE bsize_pred) {
@@ -409,7 +409,7 @@ static void set_offsets_extend(const AV1_COMP *const cpi, ThreadData *td,
   x->rdmult = cpi->rd.RDMULT;
 }
 
-static void set_segment_id_supertx(const AV1_COMP *const cpi,
+static void set_segment_id_supertx(const Av1Comp *const cpi,
                                    MACROBLOCK *const x, const int mi_row,
                                    const int mi_col, const BLOCK_SIZE bsize) {
   const AV1_COMMON *cm = &cpi->common;
@@ -417,7 +417,7 @@ static void set_segment_id_supertx(const AV1_COMP *const cpi,
   const int miw = AOMMIN(mi_size_wide[bsize], cm->mi_cols - mi_col);
   const int mih = AOMMIN(mi_size_high[bsize], cm->mi_rows - mi_row);
   const int mi_offset = mi_row * cm->mi_stride + mi_col;
-  MODE_INFO **const mip = cm->mi_grid_visible + mi_offset;
+  ModeInfo **const mip = cm->mi_grid_visible + mi_offset;
   int r, c;
   int seg_id_supertx = MAX_SEGMENTS;
 
@@ -442,7 +442,7 @@ static void set_segment_id_supertx(const AV1_COMP *const cpi,
 }
 #endif  // CONFIG_SUPERTX
 
-static void set_block_size(AV1_COMP *const cpi, MACROBLOCK *const x,
+static void set_block_size(Av1Comp *const cpi, MACROBLOCK *const x,
                            MACROBLOCKD *const xd, int mi_row, int mi_col,
                            BLOCK_SIZE bsize) {
   if (cpi->common.mi_cols > mi_col && cpi->common.mi_rows > mi_row) {
@@ -457,8 +457,8 @@ static void set_block_size(AV1_COMP *const cpi, MACROBLOCK *const x,
   }
 }
 
-static void set_vt_partitioning(AV1_COMP *cpi, MACROBLOCK *const x,
-                                MACROBLOCKD *const xd, VAR_TREE *vt, int mi_row,
+static void set_vt_partitioning(Av1Comp *cpi, MACROBLOCK *const x,
+                                MACROBLOCKD *const xd, VarTree *vt, int mi_row,
                                 int mi_col, const int64_t *const threshold,
                                 const BLOCK_SIZE *const bsize_min) {
   AV1_COMMON *const cm = &cpi->common;
@@ -551,7 +551,7 @@ split : {
 // 0 - threshold_64x64, 1 - threshold_32x32, 2 - threshold_16x16,
 // 3 - vbp_threshold_8x8. vbp_threshold_8x8 (to split to 4x4 partition) is
 // currently only used on key frame.
-static void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[], int q) {
+static void set_vbp_thresholds(Av1Comp *cpi, int64_t thresholds[], int q) {
   AV1_COMMON *const cm = &cpi->common;
   const int is_key_frame = (cm->frame_type == KEY_FRAME);
   const int threshold_multiplier = is_key_frame ? 20 : 1;
@@ -578,9 +578,9 @@ static void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[], int q) {
   thresholds[0] = INT64_MIN;
 }
 
-void av1_set_variance_partition_thresholds(AV1_COMP *cpi, int q) {
+void av1_set_variance_partition_thresholds(Av1Comp *cpi, int q) {
   AV1_COMMON *const cm = &cpi->common;
-  SPEED_FEATURES *const sf = &cpi->sf;
+  SpeedFeatures *const sf = &cpi->sf;
   const int is_key_frame = (cm->frame_type == KEY_FRAME);
   if (sf->partition_search_type != VAR_BASED_PARTITION &&
       sf->partition_search_type != REFERENCE_PARTITION) {
@@ -672,7 +672,7 @@ static INLINE int avg_8x8(const uint8_t *const src, const int stride) {
 }
 #endif
 
-static void init_variance_tree(VAR_TREE *const vt,
+static void init_variance_tree(VarTree *const vt,
 #if CONFIG_HIGHBITDEPTH
                                const int highbd,
 #endif
@@ -733,7 +733,7 @@ static void init_variance_tree(VAR_TREE *const vt,
 
 // Fill the variance tree based on averaging pixel values (sub-sampling), at
 // the leaf node size.
-static void fill_variance_tree(VAR_TREE *const vt, const BLOCK_SIZE leaf_size) {
+static void fill_variance_tree(VarTree *const vt, const BLOCK_SIZE leaf_size) {
   if (vt->bsize > leaf_size) {
     fill_variance_tree(vt->split[0], leaf_size);
     fill_variance_tree(vt->split[1], leaf_size);
@@ -761,7 +761,7 @@ static void fill_variance_tree(VAR_TREE *const vt, const BLOCK_SIZE leaf_size) {
   }
 }
 
-static void refine_variance_tree(VAR_TREE *const vt, const int64_t threshold) {
+static void refine_variance_tree(VarTree *const vt, const int64_t threshold) {
   if (vt->bsize >= BLOCK_8X8) {
     if (vt->bsize == BLOCK_16X16) {
       if (vt->variances.none.variance <= threshold)
@@ -788,7 +788,7 @@ static void refine_variance_tree(VAR_TREE *const vt, const int64_t threshold) {
   }
 }
 
-static int check_split_key_frame(VAR_TREE *const vt, const int64_t threshold) {
+static int check_split_key_frame(VarTree *const vt, const int64_t threshold) {
   if (vt->bsize == BLOCK_32X32) {
     vt->force_split = vt->variances.none.variance > threshold;
   } else {
@@ -800,7 +800,7 @@ static int check_split_key_frame(VAR_TREE *const vt, const int64_t threshold) {
   return vt->force_split;
 }
 
-static int check_split(AV1_COMP *const cpi, VAR_TREE *const vt,
+static int check_split(Av1Comp *const cpi, VarTree *const vt,
                        const int segment_id, const int64_t *const thresholds) {
   if (vt->bsize == BLOCK_16X16) {
     vt->force_split = vt->variances.none.variance > thresholds[0];
@@ -838,12 +838,12 @@ static int check_split(AV1_COMP *const cpi, VAR_TREE *const vt,
 // This function chooses partitioning based on the variance between source and
 // reconstructed last (or golden), where variance is computed for down-sampled
 // inputs.
-static void choose_partitioning(AV1_COMP *const cpi, ThreadData *const td,
+static void choose_partitioning(Av1Comp *const cpi, ThreadData *const td,
                                 const TileInfo *const tile, MACROBLOCK *const x,
                                 const int mi_row, const int mi_col) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
-  VAR_TREE *const vt = td->var_root[cm->mib_size_log2 - MIN_MIB_SIZE_LOG2];
+  VarTree *const vt = td->var_root[cm->mib_size_log2 - MIN_MIB_SIZE_LOG2];
 #if CONFIG_DUAL_FILTER
   int i;
 #endif
@@ -1014,7 +1014,7 @@ static void reset_intmv_filter_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   }
 }
 
-static void update_filter_type_count(FRAME_COUNTS *counts,
+static void update_filter_type_count(FrameCounts *counts,
                                      const MACROBLOCKD *xd,
                                      const MB_MODE_INFO *mbmi) {
   int dir;
@@ -1030,7 +1030,7 @@ static void update_filter_type_count(FRAME_COUNTS *counts,
 #endif
 #if CONFIG_GLOBAL_MOTION
 static void update_global_motion_used(PREDICTION_MODE mode, BLOCK_SIZE bsize,
-                                      const MB_MODE_INFO *mbmi, AV1_COMP *cpi) {
+                                      const MB_MODE_INFO *mbmi, Av1Comp *cpi) {
   if (mode == ZEROMV
 #if CONFIG_EXT_INTER
       || mode == ZERO_ZEROMV
@@ -1056,19 +1056,19 @@ static void reset_tx_size(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
   }
 }
 
-static void update_state(const AV1_COMP *const cpi, ThreadData *td,
+static void update_state(const Av1Comp *const cpi, ThreadData *td,
                          PICK_MODE_CONTEXT *ctx, int mi_row, int mi_col,
                          BLOCK_SIZE bsize, RUN_TYPE dry_run) {
   int i, x_idx, y;
   const AV1_COMMON *const cm = &cpi->common;
-  RD_COUNTS *const rdc = &td->rd_counts;
+  RdCounts *const rdc = &td->rd_counts;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  struct macroblock_plane *const p = x->plane;
-  struct macroblockd_plane *const pd = xd->plane;
-  MODE_INFO *mi = &ctx->mic;
+  struct MacroblockPlane *const p = x->plane;
+  struct MacroblockdPlane *const pd = xd->plane;
+  ModeInfo *mi = &ctx->mic;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  MODE_INFO *mi_addr = xd->mi[0];
+  ModeInfo *mi_addr = xd->mi[0];
   const struct segmentation *const seg = &cm->seg;
   const int bw = mi_size_wide[mi->mbmi.sb_type];
   const int bh = mi_size_high[mi->mbmi.sb_type];
@@ -1247,7 +1247,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
       if (bsize >= BLOCK_8X8) {
         // TODO(sarahparker): global motion stats need to be handled per-tile
         // to be compatible with tile-based threading.
-        update_global_motion_used(mbmi->mode, bsize, mbmi, (AV1_COMP *)cpi);
+        update_global_motion_used(mbmi->mode, bsize, mbmi, (Av1Comp *)cpi);
       } else {
         const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
         const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
@@ -1256,7 +1256,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
           for (idx = 0; idx < 2; idx += num_4x4_w) {
             const int j = idy * 2 + idx;
             update_global_motion_used(mi->bmi[j].as_mode, bsize, mbmi,
-                                      (AV1_COMP *)cpi);
+                                      (Av1Comp *)cpi);
           }
         }
       }
@@ -1296,7 +1296,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
 }
 
 #if CONFIG_SUPERTX
-static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
+static void update_state_supertx(const Av1Comp *const cpi, ThreadData *td,
                                  PICK_MODE_CONTEXT *ctx, int mi_row, int mi_col,
                                  BLOCK_SIZE bsize, RUN_TYPE dry_run) {
   int y, x_idx;
@@ -1304,12 +1304,12 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
   int i;
 #endif
   const AV1_COMMON *const cm = &cpi->common;
-  RD_COUNTS *const rdc = &td->rd_counts;
+  RdCounts *const rdc = &td->rd_counts;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  MODE_INFO *mi = &ctx->mic;
+  ModeInfo *mi = &ctx->mic;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  MODE_INFO *mi_addr = xd->mi[0];
+  ModeInfo *mi_addr = xd->mi[0];
   const struct segmentation *const seg = &cm->seg;
   const int mis = cm->mi_stride;
   const int mi_width = mi_size_wide[bsize];
@@ -1455,7 +1455,7 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
       if (bsize >= BLOCK_8X8) {
         // TODO(sarahparker): global motion stats need to be handled per-tile
         // to be compatible with tile-based threading.
-        update_global_motion_used(mbmi->mode, bsize, mbmi, (AV1_COMP *)cpi);
+        update_global_motion_used(mbmi->mode, bsize, mbmi, (Av1Comp *)cpi);
       } else {
         const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
         const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
@@ -1464,7 +1464,7 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
           for (idx = 0; idx < 2; idx += num_4x4_w) {
             const int j = idy * 2 + idx;
             update_global_motion_used(mi->bmi[j].as_mode, bsize, mbmi,
-                                      (AV1_COMP *)cpi);
+                                      (Av1Comp *)cpi);
           }
         }
       }
@@ -1501,15 +1501,15 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
   }
 }
 
-static void update_state_sb_supertx(const AV1_COMP *const cpi, ThreadData *td,
+static void update_state_sb_supertx(const Av1Comp *const cpi, ThreadData *td,
                                     const TileInfo *const tile, int mi_row,
                                     int mi_col, BLOCK_SIZE bsize,
-                                    RUN_TYPE dry_run, PC_TREE *pc_tree) {
+                                    RUN_TYPE dry_run, PcTree *pc_tree) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  struct macroblock_plane *const p = x->plane;
-  struct macroblockd_plane *const pd = xd->plane;
+  struct MacroblockPlane *const p = x->plane;
+  struct MacroblockdPlane *const pd = xd->plane;
   int hbs = mi_size_wide[bsize] / 2;
 #if CONFIG_CB4X4
   const int unify_bsize = 1;
@@ -1663,10 +1663,10 @@ static void update_supertx_param(ThreadData *td, PICK_MODE_CONTEXT *ctx,
   ctx->mic.mbmi.tx_type = best_tx;
 }
 
-static void update_supertx_param_sb(const AV1_COMP *const cpi, ThreadData *td,
+static void update_supertx_param_sb(const Av1Comp *const cpi, ThreadData *td,
                                     int mi_row, int mi_col, BLOCK_SIZE bsize,
                                     int best_tx, TX_SIZE supertx_size,
-                                    PC_TREE *pc_tree) {
+                                    PcTree *pc_tree) {
   const AV1_COMMON *const cm = &cpi->common;
   const int hbs = mi_size_wide[bsize] / 2;
   PARTITION_TYPE partition = pc_tree->partitioning;
@@ -1737,7 +1737,7 @@ static void update_supertx_param_sb(const AV1_COMP *const cpi, ThreadData *td,
 #endif  // CONFIG_SUPERTX
 
 #if CONFIG_MOTION_VAR && CONFIG_NCOBMC
-static void set_mode_info_b(const AV1_COMP *const cpi,
+static void set_mode_info_b(const Av1Comp *const cpi,
                             const TileInfo *const tile, ThreadData *td,
                             int mi_row, int mi_col, BLOCK_SIZE bsize,
                             PICK_MODE_CONTEXT *ctx) {
@@ -1746,10 +1746,10 @@ static void set_mode_info_b(const AV1_COMP *const cpi,
   update_state(cpi, td, ctx, mi_row, mi_col, bsize, 1);
 }
 
-static void set_mode_info_sb(const AV1_COMP *const cpi, ThreadData *td,
+static void set_mode_info_sb(const Av1Comp *const cpi, ThreadData *td,
                              const TileInfo *const tile, TOKENEXTRA **tp,
                              int mi_row, int mi_col, BLOCK_SIZE bsize,
-                             PC_TREE *pc_tree) {
+                             PcTree *pc_tree) {
   const AV1_COMMON *const cm = &cpi->common;
   const int hbs = mi_size_wide[bsize] / 2;
   const PARTITION_TYPE partition = pc_tree->partitioning;
@@ -1860,7 +1860,7 @@ void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
                      x->e_mbd.plane[i].subsampling_y);
 }
 
-static int set_segment_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
+static int set_segment_rdmult(const Av1Comp *const cpi, MACROBLOCK *const x,
                               int8_t segment_id) {
   int segment_qindex;
   const AV1_COMMON *const cm = &cpi->common;
@@ -1870,9 +1870,9 @@ static int set_segment_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   return av1_compute_rd_mult(cpi, segment_qindex + cm->y_dc_delta_q);
 }
 
-static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
+static void rd_pick_sb_modes(const Av1Comp *const cpi, TileDataEnc *tile_data,
                              MACROBLOCK *const x, int mi_row, int mi_col,
-                             RD_COST *rd_cost,
+                             RdCost *rd_cost,
 #if CONFIG_SUPERTX
                              int *totalrate_nocoef,
 #endif
@@ -1885,8 +1885,8 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   TileInfo *const tile_info = &tile_data->tile_info;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi;
-  struct macroblock_plane *const p = x->plane;
-  struct macroblockd_plane *const pd = xd->plane;
+  struct MacroblockPlane *const p = x->plane;
+  struct MacroblockdPlane *const pd = xd->plane;
   const AQ_MODE aq_mode = cpi->oxcf.aq_mode;
   int i, orig_rdmult;
   const int unify_bsize = CONFIG_CB4X4;
@@ -2041,7 +2041,7 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 }
 
 #if CONFIG_REF_MV
-static void update_inter_mode_stats(FRAME_COUNTS *counts, PREDICTION_MODE mode,
+static void update_inter_mode_stats(FrameCounts *counts, PREDICTION_MODE mode,
                                     int16_t mode_context) {
   int16_t mode_ctx = mode_context & NEWMV_CTX_MASK;
   if (mode == NEWMV) {
@@ -2086,7 +2086,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
   const MACROBLOCK *x = &td->mb;
   const MACROBLOCKD *const xd = &x->e_mbd;
 #endif
-  const MODE_INFO *const mi = xd->mi[0];
+  const ModeInfo *const mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const BLOCK_SIZE bsize = mbmi->sb_type;
@@ -2112,7 +2112,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
   (void)mi_col;
 #endif
   if (!frame_is_intra_only(cm)) {
-    FRAME_COUNTS *const counts = td->counts;
+    FrameCounts *const counts = td->counts;
     const int inter_block = is_inter_block(mbmi);
     const int seg_ref_active =
         segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_REF_FRAME);
@@ -2369,7 +2369,7 @@ static void restore_context(MACROBLOCK *x,
                             const RD_SEARCH_MACROBLOCK_CONTEXT *ctx, int mi_row,
                             int mi_col,
 #if CONFIG_PVQ
-                            od_rollback_buffer *rdo_buf,
+                            OdRollbackBuffer *rdo_buf,
 #endif
                             BLOCK_SIZE bsize) {
   MACROBLOCKD *xd = &x->e_mbd;
@@ -2411,7 +2411,7 @@ static void restore_context(MACROBLOCK *x,
 static void save_context(const MACROBLOCK *x, RD_SEARCH_MACROBLOCK_CONTEXT *ctx,
                          int mi_row, int mi_col,
 #if CONFIG_PVQ
-                         od_rollback_buffer *rdo_buf,
+                         OdRollbackBuffer *rdo_buf,
 #endif
                          BLOCK_SIZE bsize) {
   const MACROBLOCKD *xd = &x->e_mbd;
@@ -2452,7 +2452,7 @@ static void save_context(const MACROBLOCK *x, RD_SEARCH_MACROBLOCK_CONTEXT *ctx,
 #endif
 }
 
-static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
+static void encode_b(const Av1Comp *const cpi, const TileInfo *const tile,
                      ThreadData *td, TOKENEXTRA **tp, int mi_row, int mi_col,
                      RUN_TYPE dry_run, BLOCK_SIZE bsize,
 #if CONFIG_EXT_PARTITION_TYPES
@@ -2496,10 +2496,10 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
   }
 }
 
-static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
+static void encode_sb(const Av1Comp *const cpi, ThreadData *td,
                       const TileInfo *const tile, TOKENEXTRA **tp, int mi_row,
                       int mi_col, RUN_TYPE dry_run, BLOCK_SIZE bsize,
-                      PC_TREE *pc_tree, int *rate) {
+                      PcTree *pc_tree, int *rate) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -2739,11 +2739,11 @@ static BLOCK_SIZE find_partition_size(BLOCK_SIZE bsize, int rows_left,
   return bsize;
 }
 
-static void set_partial_sb_partition(const AV1_COMMON *const cm, MODE_INFO *mi,
+static void set_partial_sb_partition(const AV1_COMMON *const cm, ModeInfo *mi,
                                      int bh_in, int bw_in,
                                      int mi_rows_remaining,
                                      int mi_cols_remaining, BLOCK_SIZE bsize,
-                                     MODE_INFO **mib) {
+                                     ModeInfo **mib) {
   int bh = bh_in;
   int r, c;
   for (r = 0; r < cm->mib_size; r += bh) {
@@ -2762,14 +2762,14 @@ static void set_partial_sb_partition(const AV1_COMMON *const cm, MODE_INFO *mi,
 // However, at the bottom and right borders of the image the requested size
 // may not be allowed in which case this code attempts to choose the largest
 // allowable partition.
-static void set_fixed_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
-                                   MODE_INFO **mib, int mi_row, int mi_col,
+static void set_fixed_partitioning(Av1Comp *cpi, const TileInfo *const tile,
+                                   ModeInfo **mib, int mi_row, int mi_col,
                                    BLOCK_SIZE bsize) {
   AV1_COMMON *const cm = &cpi->common;
   const int mi_rows_remaining = tile->mi_row_end - mi_row;
   const int mi_cols_remaining = tile->mi_col_end - mi_col;
   int block_row, block_col;
-  MODE_INFO *const mi_upper_left = cm->mi + mi_row * cm->mi_stride + mi_col;
+  ModeInfo *const mi_upper_left = cm->mi + mi_row * cm->mi_stride + mi_col;
   int bh = mi_size_high[bsize];
   int bw = mi_size_wide[bsize];
 
@@ -2792,14 +2792,14 @@ static void set_fixed_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   }
 }
 
-static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
-                             TileDataEnc *tile_data, MODE_INFO **mib,
+static void rd_use_partition(Av1Comp *cpi, ThreadData *td,
+                             TileDataEnc *tile_data, ModeInfo **mib,
                              TOKENEXTRA **tp, int mi_row, int mi_col,
                              BLOCK_SIZE bsize, int *rate, int64_t *dist,
 #if CONFIG_SUPERTX
                              int *rate_nocoef,
 #endif
-                             int do_recon, PC_TREE *pc_tree) {
+                             int do_recon, PcTree *pc_tree) {
   AV1_COMMON *const cm = &cpi->common;
   TileInfo *const tile_info = &tile_data->tile_info;
   MACROBLOCK *const x = &td->mb;
@@ -2820,7 +2820,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
                            : PARTITION_NONE;
   const BLOCK_SIZE subsize = get_subsize(bsize, partition);
   RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
-  RD_COST last_part_rdc, none_rdc, chosen_rdc;
+  RdCost last_part_rdc, none_rdc, chosen_rdc;
   BLOCK_SIZE sub_subsize = BLOCK_4X4;
   int splits_below = 0;
   BLOCK_SIZE bs_type = mib[0]->mbmi.sb_type;
@@ -2833,7 +2833,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
   int chosen_rate_nocoef = INT_MAX;
 #endif
 #if CONFIG_PVQ
-  od_rollback_buffer pre_rdo_buf;
+  OdRollbackBuffer pre_rdo_buf;
 #endif
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
@@ -2871,7 +2871,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
       splits_below = 1;
       for (i = 0; i < 4; i++) {
         int jj = i >> 1, ii = i & 0x01;
-        MODE_INFO *this_mi = mib[jj * hbs * cm->mi_stride + ii * hbs];
+        ModeInfo *this_mi = mib[jj * hbs * cm->mi_stride + ii * hbs];
         if (this_mi && this_mi->mbmi.sb_type >= sub_subsize) {
           splits_below = 0;
         }
@@ -2933,7 +2933,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
                        subsize, &pc_tree->horizontal[0], INT64_MAX);
       if (last_part_rdc.rate != INT_MAX && bsize >= BLOCK_8X8 &&
           mi_row + hbs < cm->mi_rows) {
-        RD_COST tmp_rdc;
+        RdCost tmp_rdc;
 #if CONFIG_SUPERTX
         int rt_nocoef = 0;
 #endif
@@ -2976,7 +2976,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
                        subsize, &pc_tree->vertical[0], INT64_MAX);
       if (last_part_rdc.rate != INT_MAX && bsize >= BLOCK_8X8 &&
           mi_col + hbs < cm->mi_cols) {
-        RD_COST tmp_rdc;
+        RdCost tmp_rdc;
 #if CONFIG_SUPERTX
         int rt_nocoef = 0;
 #endif
@@ -3031,7 +3031,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
         int x_idx = (i & 1) * hbs;
         int y_idx = (i >> 1) * hbs;
         int jj = i >> 1, ii = i & 0x01;
-        RD_COST tmp_rdc;
+        RdCost tmp_rdc;
 #if CONFIG_SUPERTX
         int rt_nocoef;
 #endif
@@ -3101,12 +3101,12 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
     for (i = 0; i < 4; i++) {
       int x_idx = (i & 1) * hbs;
       int y_idx = (i >> 1) * hbs;
-      RD_COST tmp_rdc;
+      RdCost tmp_rdc;
 #if CONFIG_SUPERTX
       int rt_nocoef = 0;
 #endif
 #if CONFIG_PVQ
-      od_rollback_buffer buf;
+      OdRollbackBuffer buf;
 #endif
       if ((mi_row + y_idx >= cm->mi_rows) || (mi_col + x_idx >= cm->mi_cols))
         continue;
@@ -3269,7 +3269,7 @@ static const BLOCK_SIZE next_square_size[BLOCK_SIZES] = {
 // function so repeat calls can accumulate a min and max of more than one
 // superblock.
 static void get_sb_partition_size_range(const AV1_COMMON *const cm,
-                                        MACROBLOCKD *xd, MODE_INFO **mib,
+                                        MACROBLOCKD *xd, ModeInfo **mib,
                                         BLOCK_SIZE *min_block_size,
                                         BLOCK_SIZE *max_block_size) {
   int i, j;
@@ -3278,7 +3278,7 @@ static void get_sb_partition_size_range(const AV1_COMMON *const cm,
   // Check the sb_type for each block that belongs to this region.
   for (i = 0; i < cm->mib_size; ++i) {
     for (j = 0; j < cm->mib_size; ++j) {
-      MODE_INFO *mi = mib[index + j];
+      ModeInfo *mi = mib[index + j];
       BLOCK_SIZE sb_type = mi ? mi->mbmi.sb_type : BLOCK_4X4;
       *min_block_size = AOMMIN(*min_block_size, sb_type);
       *max_block_size = AOMMAX(*max_block_size, sb_type);
@@ -3289,12 +3289,12 @@ static void get_sb_partition_size_range(const AV1_COMMON *const cm,
 
 // Look at neighboring blocks and set a min and max partition size based on
 // what they chose.
-static void rd_auto_partition_range(AV1_COMP *cpi, const TileInfo *const tile,
+static void rd_auto_partition_range(Av1Comp *cpi, const TileInfo *const tile,
                                     MACROBLOCKD *const xd, int mi_row,
                                     int mi_col, BLOCK_SIZE *min_block_size,
                                     BLOCK_SIZE *max_block_size) {
   AV1_COMMON *const cm = &cpi->common;
-  MODE_INFO **mi = xd->mi;
+  ModeInfo **mi = xd->mi;
   const int left_in_image = xd->left_available && mi[-1];
   const int above_in_image = xd->up_available && mi[-xd->mi_stride];
   const int mi_rows_remaining = tile->mi_row_end - mi_row;
@@ -3313,18 +3313,18 @@ static void rd_auto_partition_range(AV1_COMP *cpi, const TileInfo *const tile,
     // passed in values for min and max as a starting point.
     // Find the min and max partition used in previous frame at this location
     if (cm->frame_type != KEY_FRAME) {
-      MODE_INFO **prev_mi =
+      ModeInfo **prev_mi =
           &cm->prev_mi_grid_visible[mi_row * xd->mi_stride + mi_col];
       get_sb_partition_size_range(cm, xd, prev_mi, &min_size, &max_size);
     }
     // Find the min and max partition sizes used in the left superblock
     if (left_in_image) {
-      MODE_INFO **left_sb_mi = &mi[-cm->mib_size];
+      ModeInfo **left_sb_mi = &mi[-cm->mib_size];
       get_sb_partition_size_range(cm, xd, left_sb_mi, &min_size, &max_size);
     }
     // Find the min and max partition sizes used in the above suprblock.
     if (above_in_image) {
-      MODE_INFO **above_sb_mi = &mi[-xd->mi_stride * cm->mib_size];
+      ModeInfo **above_sb_mi = &mi[-xd->mi_stride * cm->mib_size];
       get_sb_partition_size_range(cm, xd, above_sb_mi, &min_size, &max_size);
     }
 
@@ -3371,14 +3371,14 @@ static void set_partition_range(const AV1_COMMON *const cm,
   int idx, idy;
 
   const int idx_str = cm->mi_stride * mi_row + mi_col;
-  MODE_INFO **const prev_mi = &cm->prev_mi_grid_visible[idx_str];
+  ModeInfo **const prev_mi = &cm->prev_mi_grid_visible[idx_str];
   BLOCK_SIZE min_size = BLOCK_64X64;  // default values
   BLOCK_SIZE max_size = BLOCK_4X4;
 
   if (prev_mi) {
     for (idy = 0; idy < mi_height; ++idy) {
       for (idx = 0; idx < mi_width; ++idx) {
-        const MODE_INFO *const mi = prev_mi[idy * cm->mi_stride + idx];
+        const ModeInfo *const mi = prev_mi[idy * cm->mi_stride + idx];
         const BLOCK_SIZE bs = mi ? mi->mbmi.sb_type : bsize;
         min_size = AOMMIN(min_size, bs);
         max_size = AOMMAX(max_size, bs);
@@ -3388,7 +3388,7 @@ static void set_partition_range(const AV1_COMMON *const cm,
 
   if (xd->left_available) {
     for (idy = 0; idy < mi_height; ++idy) {
-      const MODE_INFO *const mi = xd->mi[idy * cm->mi_stride - 1];
+      const ModeInfo *const mi = xd->mi[idy * cm->mi_stride - 1];
       const BLOCK_SIZE bs = mi ? mi->mbmi.sb_type : bsize;
       min_size = AOMMIN(min_size, bs);
       max_size = AOMMAX(max_size, bs);
@@ -3397,7 +3397,7 @@ static void set_partition_range(const AV1_COMMON *const cm,
 
   if (xd->up_available) {
     for (idx = 0; idx < mi_width; ++idx) {
-      const MODE_INFO *const mi = xd->mi[idx - cm->mi_stride];
+      const ModeInfo *const mi = xd->mi[idx - cm->mi_stride];
       const BLOCK_SIZE bs = mi ? mi->mbmi.sb_type : bsize;
       min_size = AOMMIN(min_size, bs);
       max_size = AOMMAX(max_size, bs);
@@ -3521,8 +3521,8 @@ static INLINE int get_motion_inconsistency(MOTION_DIRECTION this_mv,
 
 #if CONFIG_EXT_PARTITION_TYPES
 static void rd_test_partition3(
-    const AV1_COMP *const cpi, ThreadData *td, TileDataEnc *tile_data,
-    TOKENEXTRA **tp, PC_TREE *pc_tree, RD_COST *best_rdc,
+    const Av1Comp *const cpi, ThreadData *td, TileDataEnc *tile_data,
+    TOKENEXTRA **tp, PcTree *pc_tree, RdCost *best_rdc,
     PICK_MODE_CONTEXT ctxs[3], PICK_MODE_CONTEXT *ctx, int mi_row, int mi_col,
     BLOCK_SIZE bsize, PARTITION_TYPE partition,
 #if CONFIG_SUPERTX
@@ -3532,7 +3532,7 @@ static void rd_test_partition3(
     BLOCK_SIZE subsize1, int mi_row2, int mi_col2, BLOCK_SIZE subsize2) {
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  RD_COST this_rdc, sum_rdc;
+  RdCost this_rdc, sum_rdc;
 #if CONFIG_SUPERTX
   const AV1_COMMON *const cm = &cpi->common;
   TileInfo *const tile_info = &tile_data->tile_info;
@@ -3652,7 +3652,7 @@ static void rd_test_partition3(
 
         if (!check_intra_sb(cpi, tile_info, mi_row, mi_col, bsize, pc_tree)) {
           TX_TYPE best_tx = DCT_DCT;
-          RD_COST tmp_rdc = { sum_rate_nocoef, 0, 0 };
+          RdCost tmp_rdc = { sum_rate_nocoef, 0, 0 };
 
           restore_context(x, x_ctx, mi_row, mi_col, bsize);
 
@@ -3705,14 +3705,14 @@ static void rd_test_partition3(
 // TODO(jingning,jimbankoski,rbultje): properly skip partition types that are
 // unlikely to be selected depending on previous rate-distortion optimization
 // results, for encoding speed-up.
-static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
+static void rd_pick_partition(const Av1Comp *const cpi, ThreadData *td,
                               TileDataEnc *tile_data, TOKENEXTRA **tp,
                               int mi_row, int mi_col, BLOCK_SIZE bsize,
-                              RD_COST *rd_cost,
+                              RdCost *rd_cost,
 #if CONFIG_SUPERTX
                               int *rate_nocoef,
 #endif
-                              int64_t best_rd, PC_TREE *pc_tree) {
+                              int64_t best_rd, PcTree *pc_tree) {
   const AV1_COMMON *const cm = &cpi->common;
   TileInfo *const tile_info = &tile_data->tile_info;
   MACROBLOCK *const x = &td->mb;
@@ -3729,7 +3729,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   int tmp_partition_cost[PARTITION_TYPES];
 #endif
   BLOCK_SIZE subsize;
-  RD_COST this_rdc, sum_rdc, best_rdc;
+  RdCost this_rdc, sum_rdc, best_rdc;
   const int bsize_at_least_8x8 = (bsize >= BLOCK_8X8);
   int do_square_split = bsize_at_least_8x8;
 #if CONFIG_CB4X4
@@ -3784,7 +3784,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       !force_horz_split && xss <= yss && bsize_at_least_8x8;
 
 #if CONFIG_PVQ
-  od_rollback_buffer pre_rdo_buf;
+  OdRollbackBuffer pre_rdo_buf;
 #endif
 
   (void)*tp_orig;
@@ -4090,7 +4090,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
         if (is_inter_mode(pc_tree->leaf_split[0]->mic.mbmi.mode)) {
           TX_TYPE best_tx = DCT_DCT;
-          RD_COST tmp_rdc = { sum_rate_nocoef, 0, 0 };
+          RdCost tmp_rdc = { sum_rate_nocoef, 0, 0 };
 
           restore_context(x, &x_ctx, mi_row, mi_col, bsize);
 
@@ -4172,7 +4172,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
         if (!check_intra_sb(cpi, tile_info, mi_row, mi_col, bsize, pc_tree)) {
           TX_TYPE best_tx = DCT_DCT;
-          RD_COST tmp_rdc = { sum_rate_nocoef, 0, 0 };
+          RdCost tmp_rdc = { sum_rate_nocoef, 0, 0 };
 
           restore_context(x, &x_ctx, mi_row, mi_col, bsize);
 
@@ -4321,7 +4321,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
       if (!check_intra_sb(cpi, tile_info, mi_row, mi_col, bsize, pc_tree)) {
         TX_TYPE best_tx = DCT_DCT;
-        RD_COST tmp_rdc = { sum_rate_nocoef, 0, 0 };
+        RdCost tmp_rdc = { sum_rate_nocoef, 0, 0 };
 
         restore_context(x, &x_ctx, mi_row, mi_col, bsize);
 
@@ -4465,7 +4465,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
       if (!check_intra_sb(cpi, tile_info, mi_row, mi_col, bsize, pc_tree)) {
         TX_TYPE best_tx = DCT_DCT;
-        RD_COST tmp_rdc = { sum_rate_nocoef, 0, 0 };
+        RdCost tmp_rdc = { sum_rate_nocoef, 0, 0 };
 
         restore_context(x, &x_ctx, mi_row, mi_col, bsize);
 
@@ -4606,14 +4606,14 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 }
 
-static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
+static void encode_rd_sb_row(Av1Comp *cpi, ThreadData *td,
                              TileDataEnc *tile_data, int mi_row,
                              TOKENEXTRA **tp) {
   AV1_COMMON *const cm = &cpi->common;
   const TileInfo *const tile_info = &tile_data->tile_info;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  SPEED_FEATURES *const sf = &cpi->sf;
+  SpeedFeatures *const sf = &cpi->sf;
   int mi_col;
 #if CONFIG_EXT_PARTITION
   const int leaf_nodes = 256;
@@ -4636,7 +4636,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     const struct segmentation *const seg = &cm->seg;
     int dummy_rate;
     int64_t dummy_dist;
-    RD_COST dummy_rdc;
+    RdCost dummy_rdc;
 #if CONFIG_SUPERTX
     int dummy_rate_nocoef;
 #endif  // CONFIG_SUPERTX
@@ -4644,8 +4644,8 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     int seg_skip = 0;
 
     const int idx_str = cm->mi_stride * mi_row + mi_col;
-    MODE_INFO **mi = cm->mi_grid_visible + idx_str;
-    PC_TREE *const pc_root = td->pc_root[cm->mib_size_log2 - MIN_MIB_SIZE_LOG2];
+    ModeInfo **mi = cm->mi_grid_visible + idx_str;
+    PcTree *const pc_root = td->pc_root[cm->mib_size_log2 - MIN_MIB_SIZE_LOG2];
 
     av1_update_boundary_info(cm, tile_info, mi_row, mi_col);
 
@@ -4753,7 +4753,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
         mi_row + MI_SIZE < cm->mi_rows &&
         cm->coef_probs_update_idx < COEF_PROBS_BUFS - 1) {
       TX_SIZE t;
-      SUBFRAME_STATS *subframe_stats = &cpi->subframe_stats;
+      SubframeStats *subframe_stats = &cpi->subframe_stats;
 
       for (t = 0; t < TX_SIZES; ++t)
         av1_full_to_model_counts(cpi->td.counts->coef[t],
@@ -4772,7 +4772,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
 #endif  // CONFIG_SUBFRAME_PROB_UPDATE
 }
 
-static void init_encode_frame_mb_context(AV1_COMP *cpi) {
+static void init_encode_frame_mb_context(Av1Comp *cpi) {
   MACROBLOCK *const x = &cpi->td.mb;
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -4784,7 +4784,7 @@ static void init_encode_frame_mb_context(AV1_COMP *cpi) {
 }
 
 #if !CONFIG_REF_ADAPT
-static int check_dual_ref_flags(AV1_COMP *cpi) {
+static int check_dual_ref_flags(Av1Comp *cpi) {
   const int ref_flags = cpi->ref_frame_flags;
 
   if (segfeature_active(&cpi->common.seg, 1, SEG_LVL_REF_FRAME)) {
@@ -4804,7 +4804,7 @@ static int check_dual_ref_flags(AV1_COMP *cpi) {
 static void reset_skip_tx_size(AV1_COMMON *cm, TX_SIZE max_tx_size) {
   int mi_row, mi_col;
   const int mis = cm->mi_stride;
-  MODE_INFO **mi_ptr = cm->mi_grid_visible;
+  ModeInfo **mi_ptr = cm->mi_grid_visible;
 
   for (mi_row = 0; mi_row < cm->mi_rows; ++mi_row, mi_ptr += mis) {
     for (mi_col = 0; mi_col < cm->mi_cols; ++mi_col) {
@@ -4815,7 +4815,7 @@ static void reset_skip_tx_size(AV1_COMMON *cm, TX_SIZE max_tx_size) {
 }
 #endif
 
-static MV_REFERENCE_FRAME get_frame_type(const AV1_COMP *cpi) {
+static MV_REFERENCE_FRAME get_frame_type(const Av1Comp *cpi) {
   if (frame_is_intra_only(&cpi->common)) return INTRA_FRAME;
 #if CONFIG_EXT_REFS
   // We will not update the golden frame with an internal overlay frame
@@ -4833,7 +4833,7 @@ static MV_REFERENCE_FRAME get_frame_type(const AV1_COMP *cpi) {
     return LAST_FRAME;
 }
 
-static TX_MODE select_tx_mode(const AV1_COMP *cpi, MACROBLOCKD *const xd) {
+static TX_MODE select_tx_mode(const Av1Comp *cpi, MACROBLOCKD *const xd) {
   int i, all_lossless = 1;
 
   if (cpi->common.seg.enabled) {
@@ -4856,7 +4856,7 @@ static TX_MODE select_tx_mode(const AV1_COMP *cpi, MACROBLOCKD *const xd) {
     return cpi->common.tx_mode;
 }
 
-void av1_init_tile_data(AV1_COMP *cpi) {
+void av1_init_tile_data(Av1Comp *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tile_cols;
   const int tile_rows = cm->tile_rows;
@@ -4886,7 +4886,7 @@ void av1_init_tile_data(AV1_COMP *cpi) {
         tile_data->pvq_q.buf_len = 1000;
         CHECK_MEM_ERROR(
             cm, tile_data->pvq_q.buf,
-            aom_malloc(tile_data->pvq_q.buf_len * sizeof(PVQ_INFO)));
+            aom_malloc(tile_data->pvq_q.buf_len * sizeof(PvqInfo)));
         tile_data->pvq_q.curr_pos = 0;
 #endif
       }
@@ -4908,7 +4908,7 @@ void av1_init_tile_data(AV1_COMP *cpi) {
   }
 }
 
-void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
+void av1_encode_tile(Av1Comp *cpi, ThreadData *td, int tile_row,
                      int tile_col) {
   AV1_COMMON *const cm = &cpi->common;
   TileDataEnc *const this_tile =
@@ -5045,7 +5045,7 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
 #endif
 }
 
-static void encode_tiles(AV1_COMP *cpi) {
+static void encode_tiles(Av1Comp *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   int tile_col, tile_row;
 
@@ -5138,12 +5138,12 @@ static int gm_get_params_cost(WarpedMotionParams *gm,
 }
 #endif  // CONFIG_GLOBAL_MOTION
 
-static void encode_frame_internal(AV1_COMP *cpi) {
+static void encode_frame_internal(Av1Comp *cpi) {
   ThreadData *const td = &cpi->td;
   MACROBLOCK *const x = &td->mb;
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
-  RD_COUNTS *const rdc = &cpi->td.rd_counts;
+  RdCounts *const rdc = &cpi->td.rd_counts;
   int i;
 #if CONFIG_TEMPMV_SIGNALING || CONFIG_EXT_REFS
   const int last_fb_buf_idx = get_ref_frame_buf_idx(cpi, LAST_FRAME);
@@ -5372,7 +5372,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #endif
 }
 
-void av1_encode_frame(AV1_COMP *cpi) {
+void av1_encode_frame(Av1Comp *cpi) {
   AV1_COMMON *const cm = &cpi->common;
 #if CONFIG_EXT_TX
   // Indicates whether or not to use a default reduced set for ext-tx
@@ -5414,9 +5414,9 @@ void av1_encode_frame(AV1_COMP *cpi) {
 
   if (cpi->sf.frame_parameter_update) {
     int i;
-    RD_OPT *const rd_opt = &cpi->rd;
-    FRAME_COUNTS *counts = cpi->td.counts;
-    RD_COUNTS *const rdc = &cpi->td.rd_counts;
+    RdOpt *const rd_opt = &cpi->rd;
+    FrameCounts *counts = cpi->td.counts;
+    RdCounts *const rdc = &cpi->td.rd_counts;
 
     // This code does a single RD pass over the whole frame assuming
     // either compound, single or hybrid prediction as per whatever has
@@ -5640,9 +5640,9 @@ void av1_encode_frame(AV1_COMP *cpi) {
   }
 }
 
-static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
-                            const MODE_INFO *mi, const MODE_INFO *above_mi,
-                            const MODE_INFO *left_mi, const int intraonly,
+static void sum_intra_stats(FrameCounts *counts, MACROBLOCKD *xd,
+                            const ModeInfo *mi, const ModeInfo *above_mi,
+                            const ModeInfo *left_mi, const int intraonly,
                             const int mi_row, const int mi_col) {
   const PREDICTION_MODE y_mode = mi->mbmi.mode;
   const PREDICTION_MODE uv_mode = mi->mbmi.uv_mode;
@@ -5689,7 +5689,7 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
 
 #if CONFIG_VAR_TX
 static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
-                              FRAME_COUNTS *counts, TX_SIZE tx_size, int depth,
+                              FrameCounts *counts, TX_SIZE tx_size, int depth,
                               int blk_row, int blk_col) {
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   const int tx_row = blk_row >> 1;
@@ -5735,7 +5735,7 @@ static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
 
 static void tx_partition_count_update(const AV1_COMMON *const cm, MACROBLOCK *x,
                                       BLOCK_SIZE plane_bsize, int mi_row,
-                                      int mi_col, FRAME_COUNTS *td_counts) {
+                                      int mi_col, FrameCounts *td_counts) {
   MACROBLOCKD *xd = &x->e_mbd;
   const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
   const int mi_height = block_size_high[plane_bsize] >> tx_size_wide_log2[0];
@@ -5817,7 +5817,7 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
                               int block, int plane,
 #endif
                               BLOCK_SIZE bsize, TX_SIZE tx_size,
-                              FRAME_COUNTS *counts) {
+                              FrameCounts *counts) {
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   int is_inter = is_inter_block(mbmi);
 #if !CONFIG_TXK_SEL
@@ -5859,15 +5859,15 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_TX
 }
 
-static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
+static void encode_superblock(const Av1Comp *const cpi, ThreadData *td,
                               TOKENEXTRA **t, RUN_TYPE dry_run, int mi_row,
                               int mi_col, BLOCK_SIZE bsize,
                               PICK_MODE_CONTEXT *ctx, int *rate) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  MODE_INFO **mi_8x8 = xd->mi;
-  MODE_INFO *mi = mi_8x8[0];
+  ModeInfo **mi_8x8 = xd->mi;
+  ModeInfo *mi = mi_8x8[0];
   MB_MODE_INFO *mbmi = &mi->mbmi;
   const int seg_skip =
       segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
@@ -5905,7 +5905,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
 
     // TODO(huisu): move this into sum_intra_stats().
     if (!dry_run && (bsize >= BLOCK_8X8 || unify_bsize)) {
-      FRAME_COUNTS *counts = td->counts;
+      FrameCounts *counts = td->counts;
       (void)counts;
 #if CONFIG_FILTER_INTRA
       if (mbmi->mode == DC_PRED
@@ -6116,9 +6116,9 @@ static int check_intra_b(PICK_MODE_CONTEXT *ctx) {
   return 0;
 }
 
-static int check_intra_sb(const AV1_COMP *const cpi, const TileInfo *const tile,
+static int check_intra_sb(const Av1Comp *const cpi, const TileInfo *const tile,
                           int mi_row, int mi_col, BLOCK_SIZE bsize,
-                          PC_TREE *pc_tree) {
+                          PcTree *pc_tree) {
   const AV1_COMMON *const cm = &cpi->common;
   const int hbs = mi_size_wide[bsize] / 2;
   const PARTITION_TYPE partition = pc_tree->partitioning;
@@ -6202,7 +6202,7 @@ static int check_supertx_b(TX_SIZE supertx_size, PICK_MODE_CONTEXT *ctx) {
 }
 
 static int check_supertx_sb(BLOCK_SIZE bsize, TX_SIZE supertx_size,
-                            PC_TREE *pc_tree) {
+                            PcTree *pc_tree) {
   PARTITION_TYPE partition;
   BLOCK_SIZE subsize;
 #if CONFIG_CB4X4
@@ -6238,7 +6238,7 @@ static int check_supertx_sb(BLOCK_SIZE bsize, TX_SIZE supertx_size,
   }
 }
 
-static void predict_superblock(const AV1_COMP *const cpi, ThreadData *td,
+static void predict_superblock(const Av1Comp *const cpi, ThreadData *td,
 #if CONFIG_EXT_INTER
                                int mi_row_ori, int mi_col_ori,
 #endif  // CONFIG_EXT_INTER
@@ -6250,8 +6250,8 @@ static void predict_superblock(const AV1_COMP *const cpi, ThreadData *td,
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  MODE_INFO *mi_8x8 = xd->mi[0];
-  MODE_INFO *mi = mi_8x8;
+  ModeInfo *mi_8x8 = xd->mi[0];
+  ModeInfo *mi = mi_8x8;
   MB_MODE_INFO *mbmi = &mi->mbmi;
   int ref;
   const int is_compound = has_second_ref(mbmi);
@@ -6279,7 +6279,7 @@ static void predict_superblock(const AV1_COMP *const cpi, ThreadData *td,
                                                 bsize_pred, block);
 }
 
-static void predict_b_extend(const AV1_COMP *const cpi, ThreadData *td,
+static void predict_b_extend(const Av1Comp *const cpi, ThreadData *td,
                              const TileInfo *const tile, int block,
                              int mi_row_ori, int mi_col_ori, int mi_row_pred,
                              int mi_col_pred, int mi_row_top, int mi_col_top,
@@ -6333,7 +6333,7 @@ static void predict_b_extend(const AV1_COMP *const cpi, ThreadData *td,
     update_stats(&cpi->common, td, mi_row_pred, mi_col_pred, 1);
 }
 
-static void extend_dir(const AV1_COMP *const cpi, ThreadData *td,
+static void extend_dir(const Av1Comp *const cpi, ThreadData *td,
                        const TileInfo *const tile, int block, BLOCK_SIZE bsize,
                        BLOCK_SIZE top_bsize, int mi_row, int mi_col,
                        int mi_row_top, int mi_col_top, RUN_TYPE dry_run,
@@ -6430,7 +6430,7 @@ static void extend_dir(const AV1_COMP *const cpi, ThreadData *td,
   }
 }
 
-static void extend_all(const AV1_COMP *const cpi, ThreadData *td,
+static void extend_all(const Av1Comp *const cpi, ThreadData *td,
                        const TileInfo *const tile, int block, BLOCK_SIZE bsize,
                        BLOCK_SIZE top_bsize, int mi_row, int mi_col,
                        int mi_row_top, int mi_col_top, RUN_TYPE dry_run,
@@ -6462,12 +6462,12 @@ static void extend_all(const AV1_COMP *const cpi, ThreadData *td,
 // then applied to the 2 masked prediction mentioned above in vertical direction
 // If the block is split into more than one level, at every stage, masked
 // prediction is stored in dst_buf[] passed from higher level.
-static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
+static void predict_sb_complex(const Av1Comp *const cpi, ThreadData *td,
                                const TileInfo *const tile, int mi_row,
                                int mi_col, int mi_row_top, int mi_col_top,
                                RUN_TYPE dry_run, BLOCK_SIZE bsize,
                                BLOCK_SIZE top_bsize, uint8_t *dst_buf[3],
-                               int dst_stride[3], PC_TREE *pc_tree) {
+                               int dst_stride[3], PcTree *pc_tree) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -6533,7 +6533,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
 
   if (!dry_run && ctx >= 0 && bsize < top_bsize) {
     // Explicitly cast away const.
-    FRAME_COUNTS *const frame_counts = (FRAME_COUNTS *)&cm->counts;
+    FrameCounts *const frame_counts = (FrameCounts *)&cm->counts;
     frame_counts->partition[ctx][partition]++;
   }
 
@@ -6925,10 +6925,10 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
 #endif  // CONFIG_EXT_PARTITION_TYPES
 }
 
-static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
+static void rd_supertx_sb(const Av1Comp *const cpi, ThreadData *td,
                           const TileInfo *const tile, int mi_row, int mi_col,
                           BLOCK_SIZE bsize, int *tmp_rate, int64_t *tmp_dist,
-                          TX_TYPE *best_tx, PC_TREE *pc_tree) {
+                          TX_TYPE *best_tx, PcTree *pc_tree) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -6974,8 +6974,8 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
 #if CONFIG_VAR_TX
     ENTROPY_CONTEXT ctxa[2 * MAX_MIB_SIZE];
     ENTROPY_CONTEXT ctxl[2 * MAX_MIB_SIZE];
-    const struct macroblockd_plane *const pd = &xd->plane[plane];
-    RD_STATS this_rd_stats;
+    const struct MacroblockdPlane *const pd = &xd->plane[plane];
+    RdStats this_rd_stats;
     av1_init_rd_stats(&this_rd_stats);
 
     tx_size = max_txsize_lookup[bsize];
@@ -7017,8 +7017,8 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
 #if CONFIG_VAR_TX
     ENTROPY_CONTEXT ctxa[2 * MAX_MIB_SIZE];
     ENTROPY_CONTEXT ctxl[2 * MAX_MIB_SIZE];
-    const struct macroblockd_plane *const pd = &xd->plane[0];
-    RD_STATS this_rd_stats;
+    const struct MacroblockdPlane *const pd = &xd->plane[0];
+    RdStats this_rd_stats;
 #endif  // CONFIG_VAR_TX
 
 #if CONFIG_EXT_TX

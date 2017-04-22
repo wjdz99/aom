@@ -274,7 +274,7 @@ static INLINE void clamp_mv_ref(MV *mv, int bw, int bh, const MACROBLOCKD *xd) {
 
 // This function returns either the appropriate sub block or block's mv
 // on whether the block_size < 8x8 and we have check_sub_blocks set.
-static INLINE int_mv get_sub_block_mv(const MODE_INFO *candidate, int which_mv,
+static INLINE int_mv get_sub_block_mv(const ModeInfo *candidate, int which_mv,
                                       int search_col, int block_idx) {
 #if CONFIG_REF_MV
   (void)search_col;
@@ -290,7 +290,7 @@ static INLINE int_mv get_sub_block_mv(const MODE_INFO *candidate, int which_mv,
 }
 
 #if CONFIG_REF_MV
-static INLINE int_mv get_sub_block_pred_mv(const MODE_INFO *candidate,
+static INLINE int_mv get_sub_block_pred_mv(const ModeInfo *candidate,
                                            int which_mv, int search_col,
                                            int block_idx) {
   (void)search_col;
@@ -474,7 +474,7 @@ static INLINE uint8_t av1_drl_ctx(const CANDIDATE_MV *ref_mv_stack,
 
 typedef void (*find_mv_refs_sync)(void *const data, int mi_row);
 void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                      MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
+                      ModeInfo *mi, MV_REFERENCE_FRAME ref_frame,
 #if CONFIG_REF_MV
                       uint8_t *ref_mv_count, CANDIDATE_MV *ref_mv_stack,
 #if CONFIG_EXT_INTER
@@ -505,7 +505,7 @@ void av1_append_sub8x8_mvs_for_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_EXT_INTER
 // This function keeps a mode count for a given MB/SB
 void av1_update_mv_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                           MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
+                           ModeInfo *mi, MV_REFERENCE_FRAME ref_frame,
                            int_mv *mv_ref_list, int block, int mi_row,
                            int mi_col, int16_t *mode_context);
 #endif  // CONFIG_EXT_INTER

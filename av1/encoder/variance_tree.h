@@ -40,10 +40,10 @@ typedef struct {
   VAR vert[2];
 } partition_variance;
 
-typedef struct VAR_TREE {
+typedef struct VarTree {
   int force_split;
   partition_variance variances;
-  struct VAR_TREE *split[4];
+  struct VarTree *split[4];
   BLOCK_SIZE bsize;
   const uint8_t *src;
   const uint8_t *ref;
@@ -54,7 +54,7 @@ typedef struct VAR_TREE {
 #if CONFIG_HIGHBITDEPTH
   int highbd;
 #endif  // CONFIG_HIGHBITDEPTH
-} VAR_TREE;
+} VarTree;
 
 void av1_setup_var_tree(struct AV1Common *cm, struct ThreadData *td);
 void av1_free_var_tree(struct ThreadData *td);
@@ -76,7 +76,7 @@ static INLINE void sum_2_variances(const VAR *a, const VAR *b, VAR *r) {
                 a->sum_error + b->sum_error, a->log2_count + 1, r);
 }
 
-static INLINE void fill_variance_node(VAR_TREE *vt) {
+static INLINE void fill_variance_node(VarTree *vt) {
   sum_2_variances(&vt->split[0]->variances.none, &vt->split[1]->variances.none,
                   &vt->variances.horz[0]);
   sum_2_variances(&vt->split[2]->variances.none, &vt->split[3]->variances.none,

@@ -271,7 +271,7 @@ static int32_t od_bexp64_q24(int64_t log_scale) {
    state is something that has to be done carefuly, but our design operates at
    high enough delays and with small enough time constant changes to make it
    safe.*/
-static void od_iir_bessel2_reinit(od_iir_bessel2 *f, int delay) {
+static void od_iir_bessel2_reinit(OdIirBessel2 *f, int delay) {
   int alpha;
   int64_t one48;
   int64_t warp;
@@ -313,12 +313,12 @@ static void od_iir_bessel2_reinit(od_iir_bessel2 *f, int delay) {
 /*Initialize a 2nd order low-pass Bessel filter with the corresponding delay
    and initial value.
   value is Q24.*/
-static void od_iir_bessel2_init(od_iir_bessel2 *f, int delay, int32_t value) {
+static void od_iir_bessel2_init(OdIirBessel2 *f, int delay, int32_t value) {
   od_iir_bessel2_reinit(f, delay);
   f->y[1] = f->y[0] = f->x[1] = f->x[0] = value;
 }
 
-static int64_t od_iir_bessel2_update(od_iir_bessel2 *f, int32_t x) {
+static int64_t od_iir_bessel2_update(OdIirBessel2 *f, int32_t x) {
   int64_t c0;
   int64_t c1;
   int64_t g;
@@ -342,7 +342,7 @@ static int64_t od_iir_bessel2_update(od_iir_bessel2 *f, int32_t x) {
   return ya;
 }
 
-static void od_enc_rc_reset(od_rc_state *rc) {
+static void od_enc_rc_reset(OdRcState *rc) {
   int64_t npixels;
   int64_t ibpp;
   rc->bits_per_frame = (int64_t)(rc->target_bitrate / rc->framerate);
@@ -429,7 +429,7 @@ static void od_enc_rc_reset(od_rc_state *rc) {
                       od_bexp64_q24(rc->log_drop_scale[OD_ALTREF_P_FRAME]));
 }
 
-int od_enc_rc_resize(od_rc_state *rc) {
+int od_enc_rc_resize(OdRcState *rc) {
   /*If encoding has not yet begun, reset the buffer state.*/
   if (rc->cur_frame == 0) {
     od_enc_rc_reset(rc);
@@ -466,7 +466,7 @@ int od_enc_rc_resize(od_rc_state *rc) {
   return 0;
 }
 
-int od_enc_rc_init(od_rc_state *rc, int64_t bitrate, int delay_ms) {
+int od_enc_rc_init(OdRcState *rc, int64_t bitrate, int delay_ms) {
   if (rc->framerate <= 0) return 1;
   if (rc->target_bitrate > 0) {
     /*State has already been initialized; rather than reinitialize,
@@ -499,7 +499,7 @@ int od_enc_rc_init(od_rc_state *rc, int64_t bitrate, int delay_ms) {
 }
 
 /*Scale the number of frames by the number of expected drops/duplicates.*/
-static int od_rc_scale_drop(od_rc_state *rc, int frame_type, int nframes) {
+static int od_rc_scale_drop(OdRcState *rc, int frame_type, int nframes) {
   if (rc->prev_drop_count[frame_type] > 0 ||
       rc->log_drop_scale[frame_type] > OD_Q57(0)) {
     int64_t dup_scale;
@@ -525,7 +525,7 @@ static int od_rc_scale_drop(od_rc_state *rc, int frame_type, int nframes) {
   No side effects, may be called any number of times.
   Note that it ignores end-of-file conditions; one-pass planning *should*
    ignore end-of-file. */
-int od_frame_type(od_rc_state *rc, int64_t coding_frame_count, int *is_golden,
+int od_frame_type(OdRcState *rc, int64_t coding_frame_count, int *is_golden,
                   int *is_altref, int64_t *ip_count) {
   int frame_type;
   if (coding_frame_count == 0) {
@@ -571,7 +571,7 @@ int od_frame_type(od_rc_state *rc, int64_t coding_frame_count, int *is_golden,
   TODO: replace with a virtual FIFO that keeps running totals as
    repeating the counting over-and-over will have a performance impact on
    whole-file 2pass usage.*/
-static int frame_type_count(od_rc_state *rc, int nframes[OD_FRAME_NSUBTYPES]) {
+static int frame_type_count(OdRcState *rc, int nframes[OD_FRAME_NSUBTYPES]) {
   int i;
   int j;
   int acc[OD_FRAME_NSUBTYPES];
@@ -643,7 +643,7 @@ static int convert_to_ac_quant(int q, int bit_depth) {
   return lrint(av1_convert_qindex_to_q(q, bit_depth));
 }
 
-int od_enc_rc_select_quantizers_and_lambdas(od_rc_state *rc,
+int od_enc_rc_select_quantizers_and_lambdas(OdRcState *rc,
                                             int is_golden_frame,
                                             int is_altref_frame, int frame_type,
                                             int *bottom_idx, int *top_idx) {
@@ -1029,7 +1029,7 @@ int od_enc_rc_select_quantizers_and_lambdas(od_rc_state *rc,
   return rc->target_quantizer;
 }
 
-int od_enc_rc_update_state(od_rc_state *rc, int64_t bits, int is_golden_frame,
+int od_enc_rc_update_state(OdRcState *rc, int64_t bits, int is_golden_frame,
                            int is_altref_frame, int frame_type, int droppable) {
   int dropped;
   dropped = 0;
@@ -1076,7 +1076,7 @@ int od_enc_rc_update_state(od_rc_state *rc, int64_t bits, int is_golden_frame,
     }
 
     if (bits > 0) {
-      od_iir_bessel2 *f;
+      OdIirBessel2 *f;
       /*If this is the first example of the given frame type we've
          seen, we immediately replace the default scale factor guess
          with the estimate we just computed using the first frame.*/
@@ -1145,14 +1145,14 @@ int od_enc_rc_update_state(od_rc_state *rc, int64_t bits, int is_golden_frame,
   return dropped;
 }
 
-static inline void od_rc_buffer_val(od_rc_state *rc, int64_t val, int bytes) {
+static inline void od_rc_buffer_val(OdRcState *rc, int64_t val, int bytes) {
   while (bytes-- > 0) {
     rc->twopass_buffer[rc->twopass_buffer_bytes++] = (uint8_t)(val & 0xFF);
     val >>= 8;
   }
 }
 
-static inline int64_t od_rc_unbuffer_val(od_rc_state *rc, int bytes) {
+static inline int64_t od_rc_unbuffer_val(OdRcState *rc, int bytes) {
   int64_t ret = 0;
   int shift = 0;
   while (bytes-- > 0) {
@@ -1162,7 +1162,7 @@ static inline int64_t od_rc_unbuffer_val(od_rc_state *rc, int bytes) {
   return ret;
 }
 
-int od_enc_rc_2pass_out(od_rc_state *rc, struct aom_codec_pkt_list *pkt_list,
+int od_enc_rc_2pass_out(OdRcState *rc, struct aom_codec_pkt_list *pkt_list,
                         int summary) {
   int i;
   struct aom_codec_cx_pkt pkt;
@@ -1198,7 +1198,7 @@ int od_enc_rc_2pass_out(od_rc_state *rc, struct aom_codec_pkt_list *pkt_list,
   return 0;
 }
 
-int od_enc_rc_2pass_in(od_rc_state *rc) {
+int od_enc_rc_2pass_in(OdRcState *rc) {
   /* Enable pass 2 mode if this is the first call. */
   if (rc->twopass_state == 0) {
     uint32_t i, total_frames = 0;

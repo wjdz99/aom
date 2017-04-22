@@ -108,7 +108,7 @@ static void free_mode_context(PICK_MODE_CONTEXT *ctx) {
 #endif  // CONFIG_PALETTE
 }
 
-static void alloc_tree_contexts(AV1_COMMON *cm, PC_TREE *tree,
+static void alloc_tree_contexts(AV1_COMMON *cm, PcTree *tree,
                                 int num_4x4_blk) {
 #if CONFIG_EXT_PARTITION_TYPES
   alloc_mode_context(cm, num_4x4_blk, PARTITION_NONE, &tree->none);
@@ -175,7 +175,7 @@ static void alloc_tree_contexts(AV1_COMMON *cm, PC_TREE *tree,
 #endif  // CONFIG_EXT_PARTITION_TYPES
 }
 
-static void free_tree_contexts(PC_TREE *tree) {
+static void free_tree_contexts(PcTree *tree) {
 #if CONFIG_EXT_PARTITION_TYPES
   int i;
   for (i = 0; i < 3; i++) {
@@ -230,7 +230,7 @@ void av1_setup_pc_tree(AV1_COMMON *cm, ThreadData *td) {
   const int tree_nodes = tree_nodes_inc + 64 + 16 + 4 + 1;
 #endif  // CONFIG_EXT_PARTITION
   int pc_tree_index = 0;
-  PC_TREE *this_pc;
+  PcTree *this_pc;
   PICK_MODE_CONTEXT *this_leaf;
   int square_index = 1;
   int nodes;
@@ -257,7 +257,7 @@ void av1_setup_pc_tree(AV1_COMMON *cm, ThreadData *td) {
 
   // Sets up all the leaf nodes in the tree.
   for (pc_tree_index = 0; pc_tree_index < leaf_nodes; ++pc_tree_index) {
-    PC_TREE *const tree = &td->pc_tree[pc_tree_index];
+    PcTree *const tree = &td->pc_tree[pc_tree_index];
     tree->block_size = square[0];
 #if CONFIG_CB4X4
     alloc_tree_contexts(cm, tree, 16);
@@ -272,7 +272,7 @@ void av1_setup_pc_tree(AV1_COMMON *cm, ThreadData *td) {
   // from leafs to the root.
   for (nodes = leaf_nodes >> 2; nodes > 0; nodes >>= 2) {
     for (i = 0; i < nodes; ++i) {
-      PC_TREE *const tree = &td->pc_tree[pc_tree_index];
+      PcTree *const tree = &td->pc_tree[pc_tree_index];
 #if CONFIG_CB4X4
       alloc_tree_contexts(cm, tree, 16 << (2 * square_index));
 #else

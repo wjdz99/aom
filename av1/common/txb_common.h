@@ -19,7 +19,7 @@ extern const int16_t av1_coeff_band_16x16[256];
 
 extern const int16_t av1_coeff_band_32x32[1024];
 
-typedef struct txb_ctx {
+typedef struct TxbCtx {
   int txb_skip_ctx;
   int dc_sign_ctx;
 } TXB_CTX;
@@ -244,7 +244,7 @@ static INLINE int get_dc_sign_ctx(int dc_sign) {
 
 static INLINE void get_txb_ctx(BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
                                int plane, const ENTROPY_CONTEXT *a,
-                               const ENTROPY_CONTEXT *l, TXB_CTX *txb_ctx) {
+                               const ENTROPY_CONTEXT *l, TXB_CTX *TxbCtx) {
   const int tx_size_in_blocks = 1 << tx_size;
   int ctx_offset = (plane == 0) ? 0 : 7;
   int k;
@@ -269,7 +269,7 @@ static INLINE void get_txb_ctx(BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
     else if (sign != 0)
       assert(0);
   }
-  txb_ctx->dc_sign_ctx = get_dc_sign_ctx(dc_sign);
+  TxbCtx->dc_sign_ctx = get_dc_sign_ctx(dc_sign);
 
   if (plane == 0) {
     int top = 0;
@@ -282,20 +282,20 @@ static INLINE void get_txb_ctx(BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
     left = AOMMIN(left, 255);
 
     if (plane_bsize == txsize_to_bsize[tx_size])
-      txb_ctx->txb_skip_ctx = 0;
+      TxbCtx->txb_skip_ctx = 0;
     else if (top == 0 && left == 0)
-      txb_ctx->txb_skip_ctx = 1;
+      TxbCtx->txb_skip_ctx = 1;
     else if (top == 0 || left == 0)
-      txb_ctx->txb_skip_ctx = 2 + (AOMMAX(top, left) > 3);
+      TxbCtx->txb_skip_ctx = 2 + (AOMMAX(top, left) > 3);
     else if (AOMMAX(top, left) <= 3)
-      txb_ctx->txb_skip_ctx = 4;
+      TxbCtx->txb_skip_ctx = 4;
     else if (AOMMIN(top, left) <= 3)
-      txb_ctx->txb_skip_ctx = 5;
+      TxbCtx->txb_skip_ctx = 5;
     else
-      txb_ctx->txb_skip_ctx = 6;
+      TxbCtx->txb_skip_ctx = 6;
   } else {
     int ctx_base = get_entropy_context(tx_size, a, l);
-    txb_ctx->txb_skip_ctx = ctx_offset + ctx_base;
+    TxbCtx->txb_skip_ctx = ctx_offset + ctx_base;
   }
 }
 

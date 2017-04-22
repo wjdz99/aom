@@ -147,7 +147,7 @@ struct aom_codec_alg_priv {
   aom_codec_enc_cfg_t cfg;
   struct av1_extracfg extra_cfg;
   AV1EncoderConfig oxcf;
-  AV1_COMP *cpi;
+  Av1Comp *cpi;
   unsigned char *cx_data;
   size_t cx_data_sz;
   unsigned char *pending_cx_data;
@@ -1028,7 +1028,7 @@ static int64_t ticks_to_timebase_units(const aom_rational_t *timebase,
   return (n * timebase->den + round) / timebase->num / TICKS_PER_SEC;
 }
 
-static aom_codec_frame_flags_t get_frame_pkt_flags(const AV1_COMP *cpi,
+static aom_codec_frame_flags_t get_frame_pkt_flags(const Av1Comp *cpi,
                                                    unsigned int lib_flags) {
   aom_codec_frame_flags_t flags = lib_flags << 16;
 
@@ -1048,7 +1048,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   const size_t kMinCompressedSize = 8192;
   volatile aom_codec_err_t res = AOM_CODEC_OK;
   volatile aom_enc_frame_flags_t flags = enc_flags;
-  AV1_COMP *const cpi = ctx->cpi;
+  Av1Comp *const cpi = ctx->cpi;
   const aom_rational_t *const timebase = &ctx->cfg.g_timebase;
   size_t data_sz;
 

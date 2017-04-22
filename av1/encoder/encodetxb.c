@@ -21,7 +21,7 @@
 #include "av1/encoder/subexp.h"
 #include "av1/encoder/tokenize.h"
 
-void av1_alloc_txb_buf(AV1_COMP *cpi) {
+void av1_alloc_txb_buf(Av1Comp *cpi) {
 #if 0
   AV1_COMMON *cm = &cpi->common;
   int mi_block_size = 1 << MI_SIZE_LOG2;
@@ -40,7 +40,7 @@ void av1_alloc_txb_buf(AV1_COMP *cpi) {
 #endif
 }
 
-void av1_free_txb_buf(AV1_COMP *cpi) {
+void av1_free_txb_buf(Av1Comp *cpi) {
 #if 0
   int i;
   for (i = 0; i < MAX_MB_PLANE; ++i) {
@@ -70,7 +70,7 @@ static void write_golomb(aom_writer *w, int level) {
 void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                           aom_writer *w, int block, int plane,
                           const tran_low_t *tcoeff, uint16_t eob,
-                          TXB_CTX *txb_ctx) {
+                          TXB_CTX *TxbCtx) {
   aom_prob *nz_map;
   aom_prob *eob_flag;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
@@ -87,7 +87,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   uint8_t txb_mask[32 * 32] = { 0 };
   uint16_t update_eob = 0;
 
-  aom_write(w, eob == 0, cm->fc->txb_skip[tx_size][txb_ctx->txb_skip_ctx]);
+  aom_write(w, eob == 0, cm->fc->txb_skip[tx_size][TxbCtx->txb_skip_ctx]);
 
   if (eob == 0) return;
 #if CONFIG_TXK_SEL
@@ -132,7 +132,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       if (level == i + 1) {
         aom_write(w, 1, coeff_base[ctx]);
         if (c == 0) {
-          aom_write(w, sign, cm->fc->dc_sign[plane_type][txb_ctx->dc_sign_ctx]);
+          aom_write(w, sign, cm->fc->dc_sign[plane_type][TxbCtx->dc_sign_ctx]);
         } else {
           aom_write_bit(w, sign);
         }
@@ -153,7 +153,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     if (level <= NUM_BASE_LEVELS) continue;
 
     if (c == 0) {
-      aom_write(w, sign, cm->fc->dc_sign[plane_type][txb_ctx->dc_sign_ctx]);
+      aom_write(w, sign, cm->fc->dc_sign[plane_type][TxbCtx->dc_sign_ctx]);
     } else {
       aom_write_bit(w, sign);
     }
@@ -179,7 +179,7 @@ void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x,
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   BLOCK_SIZE bsize = mbmi->sb_type;
-  struct macroblockd_plane *pd = &xd->plane[plane];
+  struct MacroblockdPlane *pd = &xd->plane[plane];
 
 #if CONFIG_CB4X4
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
@@ -199,9 +199,9 @@ void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x,
     for (col = 0; col < max_blocks_wide; col += bkw) {
       tran_low_t *tcoeff = BLOCK_OFFSET(x->mbmi_ext->tcoeff[plane], block);
       uint16_t eob = x->mbmi_ext->eobs[plane][block];
-      TXB_CTX txb_ctx = { x->mbmi_ext->txb_skip_ctx[plane][block],
+      TXB_CTX TxbCtx = { x->mbmi_ext->txb_skip_ctx[plane][block],
                           x->mbmi_ext->dc_sign_ctx[plane][block] };
-      av1_write_coeffs_txb(cm, xd, w, block, plane, tcoeff, eob, &txb_ctx);
+      av1_write_coeffs_txb(cm, xd, w, block, plane, tcoeff, eob, &TxbCtx);
       block += step;
     }
   }
@@ -251,20 +251,20 @@ static INLINE void get_base_ctx_set(const tran_low_t *tcoeffs,
   return;
 }
 
-int av1_cost_coeffs_txb(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
-                        int block, TXB_CTX *txb_ctx) {
+int av1_cost_coeffs_txb(const Av1Comp *const cpi, MACROBLOCK *x, int plane,
+                        int block, TXB_CTX *TxbCtx) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   const TX_SIZE tx_size = get_tx_size(plane, xd);
   const PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  const struct macroblock_plane *p = &x->plane[plane];
+  const struct MacroblockPlane *p = &x->plane[plane];
   const int eob = p->eobs[block];
   const tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
   int c, cost;
   const int seg_eob = AOMMIN(eob, tx_size_2d[tx_size] - 1);
-  int txb_skip_ctx = txb_ctx->txb_skip_ctx;
+  int txb_skip_ctx = TxbCtx->txb_skip_ctx;
   aom_prob *nz_map = xd->fc->nz_map[tx_size][plane_type];
 
   const int bwl = b_width_log2_lookup[txsize_to_bsize[tx_size]] + 2;
@@ -307,7 +307,7 @@ int av1_cost_coeffs_txb(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
 
       // sign bit cost
       if (c == 0) {
-        int dc_sign_ctx = txb_ctx->dc_sign_ctx;
+        int dc_sign_ctx = TxbCtx->dc_sign_ctx;
 
         cost += av1_cost_bit(xd->fc->dc_sign[plane_type][dc_sign_ctx], sign);
       } else {
@@ -374,7 +374,7 @@ int av1_cost_coeffs_txb(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
 }
 
 typedef struct TxbParams {
-  const AV1_COMP *cpi;
+  const Av1Comp *cpi;
   ThreadData *td;
   int rate;
 } TxbParams;
@@ -398,14 +398,14 @@ static void update_txb_context(int plane, int block, int blk_row, int blk_col,
                                BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
                                void *arg) {
   TxbParams *const args = arg;
-  const AV1_COMP *cpi = args->cpi;
+  const Av1Comp *cpi = args->cpi;
   const AV1_COMMON *cm = &cpi->common;
   ThreadData *const td = args->td;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  struct macroblock_plane *p = &x->plane[plane];
-  struct macroblockd_plane *pd = &xd->plane[plane];
+  struct MacroblockPlane *p = &x->plane[plane];
+  struct MacroblockdPlane *pd = &xd->plane[plane];
   const uint16_t eob = p->eobs[block];
   const tran_low_t *qcoeff = BLOCK_OFFSET(p->qcoeff, block);
   const PLANE_TYPE plane_type = pd->plane_type;
@@ -422,13 +422,13 @@ static void update_and_record_txb_context(int plane, int block, int blk_row,
                                           int blk_col, BLOCK_SIZE plane_bsize,
                                           TX_SIZE tx_size, void *arg) {
   TxbParams *const args = arg;
-  const AV1_COMP *cpi = args->cpi;
+  const Av1Comp *cpi = args->cpi;
   const AV1_COMMON *cm = &cpi->common;
   ThreadData *const td = args->td;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-  struct macroblock_plane *p = &x->plane[plane];
-  struct macroblockd_plane *pd = &xd->plane[plane];
+  struct MacroblockPlane *p = &x->plane[plane];
+  struct MacroblockdPlane *pd = &xd->plane[plane];
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   int eob = p->eobs[block], update_eob = 0;
   const PLANE_TYPE plane_type = pd->plane_type;
@@ -441,9 +441,9 @@ static void update_and_record_txb_context(int plane, int block, int blk_row,
   const int16_t *scan = scan_order->scan;
   const int seg_eob = get_tx_eob(&cpi->common.seg, segment_id, tx_size);
   int c, i;
-  TXB_CTX txb_ctx;
+  TXB_CTX TxbCtx;
   get_txb_ctx(plane_bsize, tx_size, plane, pd->above_context + blk_col,
-              pd->left_context + blk_row, &txb_ctx);
+              pd->left_context + blk_row, &TxbCtx);
   const int bwl = b_width_log2_lookup[txsize_to_bsize[tx_size]] + 2;
   int cul_level = 0;
   unsigned int(*nz_map_count)[SIG_COEF_CONTEXTS][2];
@@ -453,8 +453,8 @@ static void update_and_record_txb_context(int plane, int block, int blk_row,
 
   memcpy(tcoeff, qcoeff, sizeof(*tcoeff) * seg_eob);
 
-  ++td->counts->txb_skip[tx_size][txb_ctx.txb_skip_ctx][eob == 0];
-  x->mbmi_ext->txb_skip_ctx[plane][block] = txb_ctx.txb_skip_ctx;
+  ++td->counts->txb_skip[tx_size][TxbCtx.txb_skip_ctx][eob == 0];
+  x->mbmi_ext->txb_skip_ctx[plane][block] = TxbCtx.txb_skip_ctx;
 
   x->mbmi_ext->eobs[plane][block] = eob;
 
@@ -499,7 +499,7 @@ static void update_and_record_txb_context(int plane, int block, int blk_row,
       if (level == i + 1) {
         ++td->counts->coeff_base[tx_size][plane_type][i][ctx][1];
         if (c == 0) {
-          int dc_sign_ctx = txb_ctx.dc_sign_ctx;
+          int dc_sign_ctx = TxbCtx.dc_sign_ctx;
 
           ++td->counts->dc_sign[plane_type][dc_sign_ctx][v < 0];
           x->mbmi_ext->dc_sign_ctx[plane][block] = dc_sign_ctx;
@@ -522,7 +522,7 @@ static void update_and_record_txb_context(int plane, int block, int blk_row,
 
     cul_level += level;
     if (c == 0) {
-      int dc_sign_ctx = txb_ctx.dc_sign_ctx;
+      int dc_sign_ctx = TxbCtx.dc_sign_ctx;
 
       ++td->counts->dc_sign[plane_type][dc_sign_ctx][v < 0];
       x->mbmi_ext->dc_sign_ctx[plane][block] = dc_sign_ctx;
@@ -558,7 +558,7 @@ static void update_and_record_txb_context(int plane, int block, int blk_row,
 #endif
 }
 
-void av1_update_txb_context(const AV1_COMP *cpi, ThreadData *td,
+void av1_update_txb_context(const Av1Comp *cpi, ThreadData *td,
                             RUN_TYPE dry_run, BLOCK_SIZE bsize, int *rate,
                             const int mi_row, const int mi_col) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -618,10 +618,10 @@ static void find_new_prob(unsigned int *branch_cnt, aom_prob *oldp,
   }
 }
 
-static void write_txb_probs(aom_writer *const bc, AV1_COMP *cpi,
+static void write_txb_probs(aom_writer *const bc, Av1Comp *cpi,
                             TX_SIZE tx_size) {
   FRAME_CONTEXT *fc = cpi->common.fc;
-  FRAME_COUNTS *counts = cpi->td.counts;
+  FrameCounts *counts = cpi->td.counts;
   int savings = 0;
   int update[2] = { 0, 0 };
   int plane, ctx, level;
@@ -706,7 +706,7 @@ static void write_txb_probs(aom_writer *const bc, AV1_COMP *cpi,
   }
 }
 
-void av1_write_txb_probs(AV1_COMP *cpi, aom_writer *w) {
+void av1_write_txb_probs(Av1Comp *cpi, aom_writer *w) {
   const TX_MODE tx_mode = cpi->common.tx_mode;
   const TX_SIZE max_tx_size = tx_mode_to_biggest_tx_size[tx_mode];
   TX_SIZE tx_size;
@@ -722,11 +722,11 @@ void av1_write_txb_probs(AV1_COMP *cpi, aom_writer *w) {
 }
 
 #if CONFIG_TXK_SEL
-int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
+int64_t av1_search_txk_type(const Av1Comp *cpi, MACROBLOCK *x, int plane,
                             int block, int blk_row, int blk_col,
                             BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
                             const ENTROPY_CONTEXT *a, const ENTROPY_CONTEXT *l,
-                            int use_fast_coef_costing, RD_STATS *rd_stats) {
+                            int use_fast_coef_costing, RdStats *rd_stats) {
   const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
@@ -745,7 +745,7 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       // if it's not, we skip it here.
       continue;
     }
-    RD_STATS this_rd_stats;
+    RdStats this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     coeff_ctx, AV1_XFORM_QUANT_FP);

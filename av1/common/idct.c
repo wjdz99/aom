@@ -2747,7 +2747,7 @@ static void highbd_inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
 #endif  // CONFIG_HIGHBITDEPTH
 
 void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
-                      INV_TXFM_PARAM *inv_txfm_param) {
+                      InvTxfmParam *inv_txfm_param) {
   const TX_TYPE tx_type = inv_txfm_param->tx_type;
   const TX_SIZE tx_size = inv_txfm_param->tx_size;
   const int eob = inv_txfm_param->eob;
@@ -2782,7 +2782,7 @@ void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
 }
 
 static void init_inv_txfm_param(const MACROBLOCKD *xd, TX_SIZE tx_size,
-                                TX_TYPE tx_type, int eob, INV_TXFM_PARAM *inv) {
+                                TX_TYPE tx_type, int eob, InvTxfmParam *inv) {
   inv->tx_type = tx_type;
   inv->tx_size = tx_size;
   inv->eob = eob;
@@ -2818,7 +2818,7 @@ void av1_inverse_transform_block(MACROBLOCKD *xd, const tran_low_t *dqcoeff,
   }
 #endif  // CONFIG_HIGHBITDEPTH
 #endif  // CONFIG_PVQ
-  INV_TXFM_PARAM inv_txfm_param;
+  InvTxfmParam inv_txfm_param;
   init_inv_txfm_param(xd, tx_size, tx_type, eob, &inv_txfm_param);
 
 #if CONFIG_HIGHBITDEPTH
@@ -2834,7 +2834,7 @@ void av1_inverse_transform_block(MACROBLOCKD *xd, const tran_low_t *dqcoeff,
 
 void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
                                         int blk_row, int blk_col, int eob) {
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   const PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_SIZE tx_size = get_tx_size(plane, xd);
@@ -2848,7 +2848,7 @@ void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
 
 #if CONFIG_HIGHBITDEPTH
 void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
-                             INV_TXFM_PARAM *inv_txfm_param) {
+                             InvTxfmParam *inv_txfm_param) {
   const TX_TYPE tx_type = inv_txfm_param->tx_type;
   const TX_SIZE tx_size = inv_txfm_param->tx_size;
   const int eob = inv_txfm_param->eob;

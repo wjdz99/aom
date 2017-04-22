@@ -76,7 +76,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 #endif  // CONFIG_AOM_QM
                         int ctx, const int16_t *scan, const int16_t *nb,
                         int16_t *max_scan_line, aom_reader *r) {
-  FRAME_COUNTS *counts = xd->counts;
+  FrameCounts *counts = xd->counts;
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 #else
@@ -413,7 +413,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 #if CONFIG_PALETTE
 void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
                                aom_reader *r) {
-  const MODE_INFO *const mi = xd->mi[0];
+  const ModeInfo *const mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   uint8_t color_order[PALETTE_MAX_SIZE];
   const int n = mbmi->palette_mode_info.palette_size[plane];
@@ -478,7 +478,7 @@ int av1_decode_block_tokens(AV1_COMMON *cm, MACROBLOCKD *const xd, int plane,
                             const SCAN_ORDER *sc, int x, int y, TX_SIZE tx_size,
                             TX_TYPE tx_type, int16_t *max_scan_line,
                             aom_reader *r, int seg_id) {
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
   const int16_t *const dequant = pd->seg_dequant[seg_id];
   const int ctx =
       get_entropy_context(tx_size, pd->above_context + x, pd->left_context + y);

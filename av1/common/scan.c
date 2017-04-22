@@ -6578,7 +6578,7 @@ static int16_t *get_adapt_nb(FRAME_CONTEXT *fc, TX_SIZE tx_size,
   }
 }
 
-static uint32_t *get_non_zero_counts(FRAME_COUNTS *counts, TX_SIZE tx_size,
+static uint32_t *get_non_zero_counts(FrameCounts *counts, TX_SIZE tx_size,
                                      TX_TYPE tx_type) {
   switch (tx_size) {
 #if CONFIG_CB4X4
@@ -6635,7 +6635,7 @@ static void update_scan_count(int16_t *scan, int max_scan,
   }
 }
 
-void av1_update_scan_count_facade(AV1_COMMON *cm, FRAME_COUNTS *counts,
+void av1_update_scan_count_facade(AV1_COMMON *cm, FrameCounts *counts,
                                   TX_SIZE tx_size, TX_TYPE tx_type,
                                   const tran_low_t *dqcoeffs, int max_scan) {
   int16_t *scan = get_adapt_scan(cm->fc, tx_size, tx_type);

@@ -19,13 +19,13 @@
 extern "C" {
 #endif
 
-struct AV1_COMP;
+struct Av1Comp;
 struct AV1Common;
 struct ThreadData;
 
 // Structure to hold snapshot of coding context during the mode picking process
 typedef struct {
-  MODE_INFO mic;
+  ModeInfo mic;
   MB_MODE_INFO_EXT mbmi_ext;
 #if CONFIG_PALETTE
   uint8_t *color_index_map[2];
@@ -57,7 +57,7 @@ typedef struct {
   int comp_pred_diff;
   int single_pred_diff;
 
-  // TODO(jingning) Use RD_COST struct here instead. This involves a boarder
+  // TODO(jingning) Use RdCost struct here instead. This involves a boarder
   // scope of refactoring.
   int rate;
   int64_t dist;
@@ -71,7 +71,7 @@ typedef struct {
 #endif
 } PICK_MODE_CONTEXT;
 
-typedef struct PC_TREE {
+typedef struct PcTree {
   int index;
   PARTITION_TYPE partitioning;
   BLOCK_SIZE block_size;
@@ -85,7 +85,7 @@ typedef struct PC_TREE {
   PICK_MODE_CONTEXT verticalb[3];
 #endif
   union {
-    struct PC_TREE *split[4];
+    struct PcTree *split[4];
     PICK_MODE_CONTEXT *leaf_split[4];
   };
 #ifdef CONFIG_SUPERTX
@@ -99,7 +99,7 @@ typedef struct PC_TREE {
   PICK_MODE_CONTEXT verticalb_supertx;
 #endif
 #endif
-} PC_TREE;
+} PcTree;
 
 void av1_setup_pc_tree(struct AV1Common *cm, struct ThreadData *td);
 void av1_free_pc_tree(struct ThreadData *td);

@@ -46,13 +46,13 @@
 // Factor to weigh the rate for switchable interp filters.
 #define SWITCHABLE_INTERP_RATE_FACTOR 1
 
-void av1_rd_cost_reset(RD_COST *rd_cost) {
+void av1_rd_cost_reset(RdCost *rd_cost) {
   rd_cost->rate = INT_MAX;
   rd_cost->dist = INT64_MAX;
   rd_cost->rdcost = INT64_MAX;
 }
 
-void av1_rd_cost_init(RD_COST *rd_cost) {
+void av1_rd_cost_init(RdCost *rd_cost) {
   rd_cost->rate = 0;
   rd_cost->dist = 0;
   rd_cost->rdcost = 0;
@@ -72,7 +72,7 @@ static const uint8_t rd_thresh_block_size_factor[BLOCK_SIZES] = {
 #endif  // CONFIG_EXT_PARTITION
 };
 
-static void fill_mode_costs(AV1_COMP *cpi) {
+static void fill_mode_costs(Av1Comp *cpi) {
   const FRAME_CONTEXT *const fc = cpi->common.fc;
   int i, j;
 
@@ -232,7 +232,7 @@ static const int rd_frame_type_factor[FRAME_UPDATE_TYPES] = {
 #endif  // CONFIG_EXT_REFS
 };
 
-int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
+int av1_compute_rd_mult(const Av1Comp *cpi, int qindex) {
   const int64_t q = av1_dc_quant(qindex, 0, cpi->common.bit_depth);
 #if CONFIG_HIGHBITDEPTH
   int64_t rdmult = 0;
@@ -278,7 +278,7 @@ static int compute_rd_thresh_factor(int qindex, aom_bit_depth_t bit_depth) {
   return AOMMAX((int)(pow(q, RD_THRESH_POW) * 5.12), 8);
 }
 
-void av1_initialize_me_consts(const AV1_COMP *cpi, MACROBLOCK *x, int qindex) {
+void av1_initialize_me_consts(const Av1Comp *cpi, MACROBLOCK *x, int qindex) {
 #if CONFIG_HIGHBITDEPTH
   switch (cpi->common.bit_depth) {
     case AOM_BITS_8:
@@ -303,7 +303,7 @@ void av1_initialize_me_consts(const AV1_COMP *cpi, MACROBLOCK *x, int qindex) {
 #endif  // CONFIG_HIGHBITDEPTH
 }
 
-static void set_block_thresholds(const AV1_COMMON *cm, RD_OPT *rd) {
+static void set_block_thresholds(const AV1_COMMON *cm, RdOpt *rd) {
   int i, bsize, segment_id;
 
   for (segment_id = 0; segment_id < MAX_SEGMENTS; ++segment_id) {
@@ -357,10 +357,10 @@ void av1_set_mvcost(MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame, int ref,
 }
 #endif
 
-void av1_initialize_rd_consts(AV1_COMP *cpi) {
+void av1_initialize_rd_consts(Av1Comp *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &cpi->td.mb;
-  RD_OPT *const rd = &cpi->rd;
+  RdOpt *const rd = &cpi->rd;
   int i;
 #if CONFIG_REF_MV
   int nmv_ctx;
@@ -579,7 +579,7 @@ void av1_model_rd_from_var_lapndz(int64_t var, unsigned int n_log2,
 }
 
 static void get_entropy_contexts_plane(
-    BLOCK_SIZE plane_bsize, TX_SIZE tx_size, const struct macroblockd_plane *pd,
+    BLOCK_SIZE plane_bsize, TX_SIZE tx_size, const struct MacroblockdPlane *pd,
     ENTROPY_CONTEXT t_above[2 * MAX_MIB_SIZE],
     ENTROPY_CONTEXT t_left[2 * MAX_MIB_SIZE]) {
   const int num_4x4_w = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
@@ -737,14 +737,14 @@ static void get_entropy_contexts_plane(
 }
 
 void av1_get_entropy_contexts(BLOCK_SIZE bsize, TX_SIZE tx_size,
-                              const struct macroblockd_plane *pd,
+                              const struct MacroblockdPlane *pd,
                               ENTROPY_CONTEXT t_above[2 * MAX_MIB_SIZE],
                               ENTROPY_CONTEXT t_left[2 * MAX_MIB_SIZE]) {
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
   get_entropy_contexts_plane(plane_bsize, tx_size, pd, t_above, t_left);
 }
 
-void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
+void av1_mv_pred(const Av1Comp *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
                  int ref_y_stride, int ref_frame, BLOCK_SIZE block_size) {
   int i;
   int zero_seen = 0;
@@ -798,10 +798,10 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
 }
 
 void av1_setup_pred_block(const MACROBLOCKD *xd,
-                          struct buf_2d dst[MAX_MB_PLANE],
+                          struct Buf2d dst[MAX_MB_PLANE],
                           const YV12_BUFFER_CONFIG *src, int mi_row, int mi_col,
-                          const struct scale_factors *scale,
-                          const struct scale_factors *scale_uv) {
+                          const struct ScaleFactors *scale,
+                          const struct ScaleFactors *scale_uv) {
   int i;
 
   dst[0].buf = src->y_buffer;
@@ -833,7 +833,7 @@ int16_t *av1_raster_block_offset_int16(BLOCK_SIZE plane_bsize, int raster_block,
   return base + av1_raster_block_offset(plane_bsize, raster_block, stride);
 }
 
-YV12_BUFFER_CONFIG *av1_get_scaled_ref_frame(const AV1_COMP *cpi,
+YV12_BUFFER_CONFIG *av1_get_scaled_ref_frame(const Av1Comp *cpi,
                                              int ref_frame) {
   const AV1_COMMON *const cm = &cpi->common;
   const int scaled_idx = cpi->scaled_ref_idx[ref_frame - 1];
@@ -844,7 +844,7 @@ YV12_BUFFER_CONFIG *av1_get_scaled_ref_frame(const AV1_COMP *cpi,
 }
 
 #if CONFIG_DUAL_FILTER
-int av1_get_switchable_rate(const AV1_COMP *cpi, const MACROBLOCKD *xd) {
+int av1_get_switchable_rate(const Av1Comp *cpi, const MACROBLOCKD *xd) {
   const AV1_COMMON *const cm = &cpi->common;
   if (cm->interp_filter == SWITCHABLE) {
     const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
@@ -866,7 +866,7 @@ int av1_get_switchable_rate(const AV1_COMP *cpi, const MACROBLOCKD *xd) {
   }
 }
 #else
-int av1_get_switchable_rate(const AV1_COMP *cpi, const MACROBLOCKD *xd) {
+int av1_get_switchable_rate(const Av1Comp *cpi, const MACROBLOCKD *xd) {
   const AV1_COMMON *const cm = &cpi->common;
   if (cm->interp_filter == SWITCHABLE) {
     const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
@@ -878,10 +878,10 @@ int av1_get_switchable_rate(const AV1_COMP *cpi, const MACROBLOCKD *xd) {
 }
 #endif
 
-void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
+void av1_set_rd_speed_thresholds(Av1Comp *cpi) {
   int i;
-  RD_OPT *const rd = &cpi->rd;
-  SPEED_FEATURES *const sf = &cpi->sf;
+  RdOpt *const rd = &cpi->rd;
+  SpeedFeatures *const sf = &cpi->sf;
 
   // Set baseline threshold values.
   for (i = 0; i < MAX_MODES; ++i) rd->thresh_mult[i] = cpi->oxcf.mode == 0;
@@ -1141,7 +1141,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
 #endif  // CONFIG_EXT_INTER
 }
 
-void av1_set_rd_speed_thresholds_sub8x8(AV1_COMP *cpi) {
+void av1_set_rd_speed_thresholds_sub8x8(Av1Comp *cpi) {
   static const int thresh_mult[MAX_REFS] = {
 #if CONFIG_EXT_REFS
     2500,
@@ -1168,7 +1168,7 @@ void av1_set_rd_speed_thresholds_sub8x8(AV1_COMP *cpi) {
     2500
 #endif  // CONFIG_EXT_REFS
   };
-  RD_OPT *const rd = &cpi->rd;
+  RdOpt *const rd = &cpi->rd;
   memcpy(rd->thresh_mult_sub8x8, thresh_mult, sizeof(thresh_mult));
 }
 

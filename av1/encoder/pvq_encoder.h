@@ -22,7 +22,7 @@
 void aom_write_symbol_pvq(aom_writer *w, int symb, aom_cdf_prob *cdf,
     int nsymbs);
 
-void aom_encode_band_pvq_splits(aom_writer *w, od_pvq_codeword_ctx *adapt,
+void aom_encode_band_pvq_splits(aom_writer *w, OdPvqCodewordCtx *adapt,
  const int *y, int n, int k, int level);
 
 void aom_laplace_encode_special(aom_writer *w, int x, unsigned decay);
@@ -34,7 +34,7 @@ void pvq_encode_partition(aom_writer *w,
                                  int n,
                                  int k,
                                  generic_encoder model[3],
-                                 od_adapt_ctx *adapt,
+                                 OdAdaptCtx *adapt,
                                  int *exg,
                                  int *ext,
                                  int cdf_ctx,
@@ -44,10 +44,10 @@ void pvq_encode_partition(aom_writer *w,
                                  int encode_flip,
                                  int flip);
 
-PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc, od_coeff *ref,
+PVQ_SKIP_TYPE od_pvq_encode(DaalaEncCtx *enc, od_coeff *ref,
     const od_coeff *in, od_coeff *out, int q_dc, int q_ac, int pli, int bs,
     const od_val16 *beta, int is_keyframe,
     const int16_t *qm, const int16_t *qm_inv, int speed,
-    PVQ_INFO *pvq_info);
+    PvqInfo *pvq_info);
 
 #endif
