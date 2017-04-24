@@ -26,7 +26,6 @@
 
 #if CONFIG_CDEF
 #include "av1/common/cdef.h"
-#include "av1/common/clpf.h"
 #endif  // CONFIG_CDEF
 #include "av1/common/entropy.h"
 #include "av1/common/entropymode.h"
@@ -3268,11 +3267,15 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
 #if CONFIG_CDEF
-  if (bsize == cm->sb_size && !sb_all_skip(cm, mi_row, mi_col) &&
-      cm->cdef_bits != 0 && !cm->all_lossless) {
-    aom_write_literal(w, cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]
-                             ->mbmi.cdef_strength,
-                      cm->cdef_bits);
+  if (bsize == cm->sb_size && cm->cdef_bits != 0 && !cm->all_lossless) {
+    for (int y = 0; y < cm->mib_size; y += (cm->mib_size >> CDEF_SB_SHIFT))
+      for (int x = 0; x < cm->mib_size; x += (cm->mib_size >> CDEF_SB_SHIFT))
+        if (!sb_all_skip(cm, mi_row + y, mi_col + x)) {
+          aom_write_literal(
+              w, cm->mi_grid_visible[(mi_row + y) * cm->mi_stride + mi_col + x]
+                     ->mbmi.cdef_strength,
+              cm->cdef_bits);
+        }
   }
 #endif
 }
@@ -3782,8 +3785,8 @@ static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
 #if CONFIG_CDEF
 static void encode_cdef(const AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   int i;
-  aom_wb_write_literal(wb, cm->cdef_dering_damping - 5, 1);
-  aom_wb_write_literal(wb, cm->cdef_clpf_damping - 3, 2);
+  aom_wb_write_literal(wb, cm->cdef_pri_damping - 3, 2);
+  aom_wb_write_literal(wb, cm->cdef_sec_damping - 3, 2);
   aom_wb_write_literal(wb, cm->cdef_bits, 2);
   for (i = 0; i < cm->nb_cdef_strengths; i++) {
     aom_wb_write_literal(wb, cm->cdef_strengths[i], CDEF_STRENGTH_BITS);
