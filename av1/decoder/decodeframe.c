@@ -35,7 +35,6 @@
 #include "av1/common/alloccommon.h"
 #if CONFIG_CDEF
 #include "av1/common/cdef.h"
-#include "av1/common/clpf.h"
 #endif
 #if CONFIG_INSPECTION
 #include "av1/decoder/inspection.h"
@@ -2674,13 +2673,16 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 
 #if CONFIG_CDEF
   if (bsize == cm->sb_size) {
-    if (!sb_all_skip(cm, mi_row, mi_col) && !cm->all_lossless) {
-      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
-          aom_read_literal(r, cm->cdef_bits, ACCT_STR);
-    } else {
-      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
-          -1;
-    }
+    for (int y = 0; y < cm->mib_size; y += (cm->mib_size >> CDEF_SB_SHIFT))
+      for (int x = 0; x < cm->mib_size; x += (cm->mib_size >> CDEF_SB_SHIFT))
+        if (!sb_all_skip(cm, mi_row + y, mi_col + x) && !cm->all_lossless) {
+          cm->mi_grid_visible[(mi_row + y) * cm->mi_stride + mi_col + x]
+              ->mbmi.cdef_strength =
+              aom_read_literal(r, cm->cdef_bits, ACCT_STR);
+        } else {
+          cm->mi_grid_visible[(mi_row + y) * cm->mi_stride + mi_col + x]
+              ->mbmi.cdef_strength = -1;
+        }
   }
 #endif  // CONFIG_CDEF
 }
@@ -3012,8 +3014,8 @@ static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 #if CONFIG_CDEF
 static void setup_cdef(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   int i;
-  cm->cdef_dering_damping = aom_rb_read_literal(rb, 1) + 5;
-  cm->cdef_clpf_damping = aom_rb_read_literal(rb, 2) + 3;
+  cm->cdef_pri_damping = aom_rb_read_literal(rb, 2) + 3;
+  cm->cdef_sec_damping = aom_rb_read_literal(rb, 2) + 3;
   cm->cdef_bits = aom_rb_read_literal(rb, 2);
   cm->nb_cdef_strengths = 1 << cm->cdef_bits;
   for (i = 0; i < cm->nb_cdef_strengths; i++) {
