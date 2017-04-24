@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "569ec93b_f55f9aaf",
+        "filename": "aom_dsp/x86/masked_variance_intrin_ssse3.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-24T22:05:10Z",
+      "side": 1,
+      "message": "int w",
+      "range": {
+        "startLine": 1400,
+        "startChar": 69,
+        "endLine": 1400,
+        "endChar": 70
+      },
+      "revId": "deee0164dae5c016fa268e9a5e66c76ae9e9e367",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd406f85_6033f22c",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-24T22:05:10Z",
+      "side": 1,
+      "message": "Remove \u0027const\u0027",
+      "range": {
+        "startLine": 363,
+        "startChar": 42,
+        "endLine": 363,
+        "endChar": 47
+      },
+      "revId": "deee0164dae5c016fa268e9a5e66c76ae9e9e367",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
