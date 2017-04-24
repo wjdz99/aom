@@ -96,7 +96,7 @@ if (CONFIG_AV1)
   if (CONFIG_CDEF)
     set(AOM_UNIT_TEST_COMMON_SOURCES
         ${AOM_UNIT_TEST_COMMON_SOURCES}
-        "${AOM_ROOT}/test/clpf_test.cc")
+        "${AOM_ROOT}/test/cdef_test.cc")
   endif ()
 
   if (CONFIG_FILTER_INTRA)
