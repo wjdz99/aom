@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f7bfa93_c1b5cee2",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-04-24T17:54:38Z",
+      "side": 1,
+      "message": "redundant code?",
+      "range": {
+        "startLine": 210,
+        "startChar": 27,
+        "endLine": 210,
+        "endChar": 41
+      },
+      "revId": "d20e8a8494eb23620365b312adeb1456e4a3eff1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4147b271_6d6308b9",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-04-24T17:54:38Z",
+      "side": 1,
+      "message": "wedge is disabled in \u003e32x32 blocks. If so, is the compound type tree a 2-mode tree when compound_segment is also enabled? Can be fixed later.",
+      "range": {
+        "startLine": 212,
+        "startChar": 25,
+        "endLine": 212,
+        "endChar": 70
+      },
+      "revId": "d20e8a8494eb23620365b312adeb1456e4a3eff1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfb15986_1293dbc4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 7888,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-04-24T17:54:38Z",
+      "side": 1,
+      "message": "remove the unused code",
+      "range": {
+        "startLine": 7888,
+        "startChar": 4,
+        "endLine": 7888,
+        "endChar": 50
+      },
+      "revId": "d20e8a8494eb23620365b312adeb1456e4a3eff1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
