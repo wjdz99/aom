@@ -1647,6 +1647,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       break;
     }
     case NEAREST_NEWMV: {
+      printf("here1\n");
       FRAME_COUNTS *counts = xd->counts;
 #if CONFIG_REF_MV
       int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
@@ -1668,6 +1669,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       break;
     }
     case NEAR_NEWMV: {
+      printf("here2\n");
       FRAME_COUNTS *counts = xd->counts;
 #if CONFIG_REF_MV
       int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
