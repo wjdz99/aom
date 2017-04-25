@@ -64,9 +64,9 @@ void av1_idct4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest, int stride,
                           int eob, TX_TYPE tx_type, int lossless);
 void av1_inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest, int stride,
-                          int eob, TX_TYPE tx_type);
+                          TX_TYPE tx_type);
 void av1_inv_txfm_add_4x8(const tran_low_t *input, uint8_t *dest, int stride,
-                          int eob, TX_TYPE tx_type);
+                          TX_TYPE tx_type);
 void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                       INV_TXFM_PARAM *inv_txfm_param);
 void av1_inverse_transform_block(MACROBLOCKD *xd, const tran_low_t *dqcoeff,
@@ -83,9 +83,9 @@ void av1_highbd_inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest,
                                  int stride, int eob, int bd, TX_TYPE tx_type,
                                  int lossless);
 void av1_highbd_inv_txfm_add_4x8(const tran_low_t *input, uint8_t *dest,
-                                 int stride, int eob, int bd, TX_TYPE tx_type);
+                                 int stride, int bd, TX_TYPE tx_type);
 void av1_highbd_inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest,
-                                 int stride, int eob, int bd, TX_TYPE tx_type);
+                                 int stride, int bd, TX_TYPE tx_type);
 void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                              INV_TXFM_PARAM *inv_txfm_param);
 #endif  // CONFIG_HIGHBITDEPTH
