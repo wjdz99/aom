@@ -1087,9 +1087,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
   const int mi_height = mi_size_high[bsize];
   const int unify_bsize = CONFIG_CB4X4;
 
-#if CONFIG_REF_MV
   int8_t rf_type;
-#endif
 
 #if !CONFIG_SUPERTX
   assert(mi->mbmi.sb_type == bsize);
@@ -1102,7 +1100,6 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
   reset_intmv_filter_type(cm, xd, mbmi);
 #endif
 
-#if CONFIG_REF_MV
   rf_type = av1_ref_frame_type(mbmi->ref_frame);
   if (x->mbmi_ext->ref_mv_count[rf_type] > 1 &&
       (mbmi->sb_type >= BLOCK_8X8 || unify_bsize)) {
@@ -1150,7 +1147,6 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
     }
 #endif
   }
-#endif  // CONFIG_REF_MV
 
   // If segmentation in use
   if (seg->enabled) {
@@ -1305,9 +1301,7 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
                                  PICK_MODE_CONTEXT *ctx, int mi_row, int mi_col,
                                  BLOCK_SIZE bsize, RUN_TYPE dry_run) {
   int y, x_idx;
-#if CONFIG_VAR_TX || CONFIG_REF_MV
   int i;
-#endif
   const AV1_COMMON *const cm = &cpi->common;
   RD_COUNTS *const rdc = &td->rd_counts;
   MACROBLOCK *const x = &td->mb;
@@ -1325,9 +1319,7 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
   MV_REF *const frame_mvs = cm->cur_frame->mvs + mi_row * cm->mi_cols + mi_col;
   int w, h;
 
-#if CONFIG_REF_MV
   int8_t rf_type;
-#endif
 
   *mi_addr = *mi;
   *x->mbmi_ext = ctx->mbmi_ext;
@@ -1338,7 +1330,6 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
   reset_intmv_filter_type(cm, xd, mbmi);
 #endif
 
-#if CONFIG_REF_MV
   rf_type = av1_ref_frame_type(mbmi->ref_frame);
   if (x->mbmi_ext->ref_mv_count[rf_type] > 1 &&
       (mbmi->sb_type >= BLOCK_8X8 || unify_bsize)) {
@@ -1386,7 +1377,6 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
     }
 #endif
   }
-#endif  // CONFIG_REF_MV
 
   // If segmentation in use
   if (seg->enabled) {
@@ -2045,7 +2035,6 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   ctx->dist = rd_cost->dist;
 }
 
-#if CONFIG_REF_MV
 static void update_inter_mode_stats(FRAME_COUNTS *counts, PREDICTION_MODE mode,
                                     int16_t mode_context) {
   int16_t mode_ctx = mode_context & NEWMV_CTX_MASK;
@@ -2075,7 +2064,6 @@ static void update_inter_mode_stats(FRAME_COUNTS *counts, PREDICTION_MODE mode,
     }
   }
 }
-#endif
 
 static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
                          int mi_col
@@ -2255,12 +2243,8 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
     if (inter_block &&
         !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
       int16_t mode_ctx;
-#if !CONFIG_REF_MV
-      mode_ctx = mbmi_ext->mode_context[mbmi->ref_frame[0]];
-#endif
       if (bsize >= BLOCK_8X8 || unify_bsize) {
         const PREDICTION_MODE mode = mbmi->mode;
-#if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
         if (has_second_ref(mbmi)) {
           mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
@@ -2311,14 +2295,6 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
             }
           }
         }
-#else
-#if CONFIG_EXT_INTER
-        if (is_inter_compound_mode(mode))
-          ++counts->inter_compound_mode[mode_ctx][INTER_COMPOUND_OFFSET(mode)];
-        else
-#endif  // CONFIG_EXT_INTER
-          ++counts->inter_mode[mode_ctx][INTER_OFFSET(mode)];
-#endif
       } else {
         const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
         const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
@@ -2327,7 +2303,6 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
           for (idx = 0; idx < 2; idx += num_4x4_w) {
             const int j = idy * 2 + idx;
             const PREDICTION_MODE b_mode = mi->bmi[j].as_mode;
-#if CONFIG_REF_MV
 #if CONFIG_EXT_INTER
             if (has_second_ref(mbmi)) {
               mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
@@ -2341,15 +2316,6 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #if CONFIG_EXT_INTER
             }
 #endif  // CONFIG_EXT_INTER
-#else
-#if CONFIG_EXT_INTER
-            if (is_inter_compound_mode(b_mode))
-              ++counts->inter_compound_mode[mode_ctx]
-                                           [INTER_COMPOUND_OFFSET(b_mode)];
-            else
-#endif  // CONFIG_EXT_INTER
-              ++counts->inter_mode[mode_ctx][INTER_OFFSET(b_mode)];
-#endif
           }
         }
       }
@@ -5166,9 +5132,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
   x->min_partition_size = AOMMIN(x->min_partition_size, cm->sb_size);
   x->max_partition_size = AOMMIN(x->max_partition_size, cm->sb_size);
-#if CONFIG_REF_MV
   cm->setup_mi(cm);
-#endif
 
   xd->mi = cm->mi_grid_visible;
   xd->mi[0] = cm->mi;
@@ -5348,9 +5312,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
 #if CONFIG_VAR_TX
   x->txb_split_count = 0;
-#if CONFIG_REF_MV
   av1_zero(x->blk_skip_drl);
-#endif
 #endif
 
   if (cpi->sf.partition_search_type == VAR_BASED_PARTITION &&
