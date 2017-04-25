@@ -4977,6 +4977,7 @@ static int cost_mv_ref(const AV1_COMP *const cpi, PREDICTION_MODE mode,
 static int get_interinter_compound_type_bits(BLOCK_SIZE bsize,
                                              COMPOUND_TYPE comp_type) {
   (void)bsize;
+
   switch (comp_type) {
     case COMPOUND_AVERAGE: return 0;
 #if CONFIG_WEDGE
@@ -8802,7 +8803,7 @@ static int64_t handle_inter_mode(
     int best_tmp_rate_mv = rate_mv;
     int tmp_skip_txfm_sb;
     int64_t tmp_skip_sse_sb;
-    int compound_type_cost[COMPOUND_TYPES];
+    int compound_type_cost[COMPOUND_TYPES] = { 0 };
     uint8_t pred0[2 * MAX_SB_SQUARE];
     uint8_t pred1[2 * MAX_SB_SQUARE];
     uint8_t *preds0[1] = { pred0 };
@@ -8815,8 +8816,10 @@ static int64_t handle_inter_mode(
     best_mv[0].as_int = cur_mv[0].as_int;
     best_mv[1].as_int = cur_mv[1].as_int;
     memset(&best_compound_data, 0, sizeof(INTERINTER_COMPOUND_DATA));
-    av1_cost_tokens(compound_type_cost, cm->fc->compound_type_prob[bsize],
-                    av1_compound_type_tree);
+
+    if (COMPOUND_TYPES > 1)
+      av1_cost_tokens(compound_type_cost, cm->fc->compound_type_prob[bsize],
+                      av1_compound_type_tree);
 
     if (masked_compound_used) {
       // get inter predictors to use for masked compound modes
@@ -8831,6 +8834,7 @@ static int64_t handle_inter_mode(
       tmp_rate_mv = rate_mv;
       best_rd_cur = INT64_MAX;
       mbmi->interinter_compound_data.type = cur_type;
+
       rs2 = av1_cost_literal(get_interinter_compound_type_bits(
                 bsize, mbmi->interinter_compound_data.type)) +
             (masked_compound_used
