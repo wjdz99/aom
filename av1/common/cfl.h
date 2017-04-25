@@ -14,10 +14,6 @@
 
 #include "av1/common/enums.h"
 
-#define CFL_PRED_PLANES 2
-#define CFL_PRED_U 0
-#define CFL_PRED_V 1
-
 // Forward declaration of AV1_COMMON, in order to avoid creating a cyclic
 // dependency by importing av1/common/onyxc_int.h
 typedef struct AV1Common AV1_COMMON;
@@ -25,6 +21,10 @@ typedef struct AV1Common AV1_COMMON;
 // Forward declaration of MACROBLOCK, in order to avoid creating a cyclic
 // dependency by importing av1/common/blockd.h
 typedef struct macroblockd MACROBLOCKD;
+
+// Forward declaration of MB_MODE_INFO, in order to avoid creating a cyclic
+// dependency by importing av1/common/blockd.h
+typedef struct MB_MODE_INFO MB_MODE_INFO;
 
 typedef struct {
   // Pixel buffer containing the luma pixels used as prediction for chroma
@@ -38,7 +38,20 @@ typedef struct {
 
   // CfL Performs its own block level DC_PRED for each chromatic plane
   int dc_pred[CFL_PRED_PLANES];
+
+  // Count the number of TX blocks in a predicted block to know when you are at
+  // the last one, so you can check for skips.
+  // TODO(any) Is there a better way to do this?
+  int num_tx_blk[CFL_PRED_PLANES];
 } CFL_CTX;
+
+static const double cfl_alpha_codes[CFL_ALPHABET_SIZE][CFL_PRED_PLANES] = {
+  // barrbrain's 1D quant inspired by subset 3
+  { 0., 0. },    { 0.125, 0. },   { 0.125, 0.125 }, { 0., 0.125 },
+  { 0.25, 0. },  { 0.25, 0.125 }, { 0.25, 0.25 },   { 0., 0.25 },
+  { 0.5, 0.5 },  { 0.125, 0.25 }, { 0.5, 0. },      { 0.25, 0.5 },
+  { 0.5, 0.25 }, { 0., 0.5 },     { 0.5, 0.125 },   { 0.125, 0.5 }
+};
 
 void cfl_init(CFL_CTX *const cfl, AV1_COMMON *const cm, int subsample_x,
               int subsample_y);
@@ -46,9 +59,12 @@ void cfl_init(CFL_CTX *const cfl, AV1_COMMON *const cm, int subsample_x,
 void cfl_dc_pred(MACROBLOCKD *const xd, BLOCK_SIZE plane_bsize,
                  TX_SIZE tx_size);
 
+double cfl_ind_to_alpha(const MB_MODE_INFO *const mbmi,
+                        CFL_PRED_TYPE pred_type);
+
 void cfl_predict_block(const CFL_CTX *const cfl, uint8_t *const dst,
                        int dst_stride, int row, int col, TX_SIZE tx_size,
-                       int dc_pred);
+                       int dc_pred, double alpha);
 
 void cfl_store(CFL_CTX *const cfl, const uint8_t *const input, int input_stride,
                int row, int col, TX_SIZE tx_size);

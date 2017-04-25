@@ -2512,6 +2512,14 @@ static const aom_cdf_prob
     };
 #endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 
+#if CONFIG_CFL
+static const aom_cdf_prob default_cfl_alpha_cdf[CFL_ALPHABET_SIZE] = {
+  // CDF after 6 iterations of RD-optimal alpha choice
+  19500, 20420, 23688, 24075, 24797, 26979, 28246, 28570,
+  29594, 30169, 30450, 31455, 32049, 32196, 32480, 32768
+};
+#endif
+
 // CDF version of 'av1_kf_y_mode_prob'.
 const aom_cdf_prob
     av1_kf_y_mode_cdf[INTRA_MODES][INTRA_MODES][CDF_SIZE(INTRA_MODES)] = {
@@ -3295,6 +3303,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif  // CONFIG_EC_MULTISYMBOL
 #endif
 #endif  // CONFIG_DELTA_Q
+#if CONFIG_CFL
+  av1_copy(fc->cfl_alpha_cdf, default_cfl_alpha_cdf);
+#endif
 }
 
 #if CONFIG_EC_MULTISYMBOL
