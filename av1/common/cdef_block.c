@@ -45,6 +45,17 @@ const int cdef_directions[8][2] = {
 };
 #endif
 
+const int cdef_directions2[8][2] = {
+  { -1 * CDEF_BSTRIDE + 1, -2 * CDEF_BSTRIDE + 2 },
+  { -1 * CDEF_BSTRIDE + 1, -1 * CDEF_BSTRIDE + 2 },
+  { 0 * CDEF_BSTRIDE + 1, 0 * CDEF_BSTRIDE + 2 },
+  { 1 * CDEF_BSTRIDE + 1, 1 * CDEF_BSTRIDE + 2 },
+  { 1 * CDEF_BSTRIDE + 1, 2 * CDEF_BSTRIDE + 2 },
+  { 1 * CDEF_BSTRIDE + 1, 2 * CDEF_BSTRIDE + 1 },
+  { 1 * CDEF_BSTRIDE + 0, 2 * CDEF_BSTRIDE + 0 },
+  { 1 * CDEF_BSTRIDE - 1, 2 * CDEF_BSTRIDE - 1 }
+};
+
 /* Detect direction. 0 means 45-degree up-right, 2 is horizontal, and so on.
    The search minimizes the weighted variance along all the lines in a
    particular direction, i.e. the squared error between the input and a
@@ -173,10 +184,10 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
 #if CDEF_FULL
         if (k == 2) continue;
 #endif
-        int16_t s0 = in[i * s + j + cdef_directions[(dir + 2) & 7][k]];
-        int16_t s1 = in[i * s + j - cdef_directions[(dir + 2) & 7][k]];
-        int16_t s2 = in[i * s + j + cdef_directions[(dir + 6) & 7][k]];
-        int16_t s3 = in[i * s + j - cdef_directions[(dir + 6) & 7][k]];
+        int16_t s0 = in[i * s + j + cdef_directions2[(dir + 2) & 7][k]];
+        int16_t s1 = in[i * s + j - cdef_directions2[(dir + 2) & 7][k]];
+        int16_t s2 = in[i * s + j + cdef_directions2[(dir + 6) & 7][k]];
+        int16_t s3 = in[i * s + j - cdef_directions2[(dir + 6) & 7][k]];
 #if CDEF_CAP
         if (s0 != CDEF_VERY_LARGE) max = AOMMAX(s0, max);
         if (s1 != CDEF_VERY_LARGE) max = AOMMAX(s1, max);

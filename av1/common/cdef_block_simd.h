@@ -259,10 +259,10 @@ void SIMD_FUNC(cdef_filter_block_4x4_8)(uint8_t *dst, int dstride,
 #if CDEF_FULL
   int po3 = cdef_directions[dir][2];
 #endif
-  int s1o1 = cdef_directions[(dir + 2) & 7][0];
-  int s1o2 = cdef_directions[(dir + 2) & 7][1];
-  int s2o1 = cdef_directions[(dir + 6) & 7][0];
-  int s2o2 = cdef_directions[(dir + 6) & 7][1];
+  int s1o1 = cdef_directions2[(dir + 2) & 7][0];
+  int s1o2 = cdef_directions2[(dir + 2) & 7][1];
+  int s2o1 = cdef_directions2[(dir + 6) & 7][0];
+  int s2o2 = cdef_directions2[(dir + 6) & 7][1];
 
   if (pri_strength) pri_damping -= get_msb(pri_strength);
   if (sec_strength) sec_damping -= get_msb(sec_strength);
@@ -493,10 +493,10 @@ void SIMD_FUNC(cdef_filter_block_8x8_8)(uint8_t *dst, int dstride,
 #if CDEF_FULL
   int po3 = cdef_directions[dir][2];
 #endif
-  int s1o1 = cdef_directions[(dir + 2) & 7][0];
-  int s1o2 = cdef_directions[(dir + 2) & 7][1];
-  int s2o1 = cdef_directions[(dir + 6) & 7][0];
-  int s2o2 = cdef_directions[(dir + 6) & 7][1];
+  int s1o1 = cdef_directions2[(dir + 2) & 7][0];
+  int s1o2 = cdef_directions2[(dir + 2) & 7][1];
+  int s2o1 = cdef_directions2[(dir + 6) & 7][0];
+  int s2o2 = cdef_directions2[(dir + 6) & 7][1];
 
   if (pri_strength) pri_damping -= get_msb(pri_strength);
   if (sec_strength) sec_damping -= get_msb(sec_strength);
@@ -709,10 +709,10 @@ void SIMD_FUNC(cdef_filter_block_4x4_16)(uint16_t *dst, int dstride,
 #if CDEF_FULL
   int po3 = cdef_directions[dir][2];
 #endif
-  int s1o1 = cdef_directions[(dir + 2) & 7][0];
-  int s1o2 = cdef_directions[(dir + 2) & 7][1];
-  int s2o1 = cdef_directions[(dir + 6) & 7][0];
-  int s2o2 = cdef_directions[(dir + 6) & 7][1];
+  int s1o1 = cdef_directions2[(dir + 2) & 7][0];
+  int s1o2 = cdef_directions2[(dir + 2) & 7][1];
+  int s2o1 = cdef_directions2[(dir + 6) & 7][0];
+  int s2o2 = cdef_directions2[(dir + 6) & 7][1];
 
   if (pri_strength) pri_damping -= get_msb(pri_strength);
   if (sec_strength) sec_damping -= get_msb(sec_strength);
@@ -890,10 +890,10 @@ void SIMD_FUNC(cdef_filter_block_8x8_16)(uint16_t *dst, int dstride,
 #if CDEF_FULL
   int po3 = cdef_directions[dir][2];
 #endif
-  int s1o1 = cdef_directions[(dir + 2) & 7][0];
-  int s1o2 = cdef_directions[(dir + 2) & 7][1];
-  int s2o1 = cdef_directions[(dir + 6) & 7][0];
-  int s2o2 = cdef_directions[(dir + 6) & 7][1];
+  int s1o1 = cdef_directions2[(dir + 2) & 7][0];
+  int s1o2 = cdef_directions2[(dir + 2) & 7][1];
+  int s2o1 = cdef_directions2[(dir + 6) & 7][0];
+  int s2o2 = cdef_directions2[(dir + 6) & 7][1];
 
   if (pri_strength) pri_damping -= get_msb(pri_strength);
   if (sec_strength) sec_damping -= get_msb(sec_strength);
