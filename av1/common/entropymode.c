@@ -2544,6 +2544,14 @@ static const aom_cdf_prob
     };
 #endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 
+#if CONFIG_CFL
+static const aom_cdf_prob default_cfl_alpha_cdf[CFL_ALPHABET_SIZE] = {
+  // decreasing likelihood, after 6 iterations of alpha RDO on subset 3
+  23928, 26267, 27319, 28330, 29341, 30160, 30581, 30983,
+  31353, 31634, 31907, 32171, 32407, 32558, 32669, 32768
+};
+#endif
+
 // CDF version of 'av1_kf_y_mode_prob'.
 const aom_cdf_prob
     av1_kf_y_mode_cdf[INTRA_MODES][INTRA_MODES][CDF_SIZE(INTRA_MODES)] = {
@@ -3332,6 +3340,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif  // CONFIG_EC_MULTISYMBOL
 #endif
 #endif  // CONFIG_DELTA_Q
+#if CONFIG_CFL
+  av1_copy(fc->cfl_alpha_cdf, default_cfl_alpha_cdf);
+#endif
 }
 
 #if CONFIG_EC_MULTISYMBOL
