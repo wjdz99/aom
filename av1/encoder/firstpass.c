@@ -1230,27 +1230,17 @@ static void setup_rf_level_maxq(AV1_COMP *cpi) {
   }
 }
 
-void av1_init_subsampling(AV1_COMP *cpi) {
-  const AV1_COMMON *const cm = &cpi->common;
-  RATE_CONTROL *const rc = &cpi->rc;
-  const int w = cm->width;
-  const int h = cm->height;
-  int i;
+// TODO(afergs): Remove, doesn't do much anymore
+void av1_init_subsampling(AV1_COMP *cpi) { setup_rf_level_maxq(cpi); }
 
-  for (i = 0; i < FRAME_SCALE_STEPS; ++i) {
-    // Note: Frames with odd-sized dimensions may result from this scaling.
-    rc->frame_width[i] = (w * 16) / frame_scale_factor[i];
-    rc->frame_height[i] = (h * 16) / frame_scale_factor[i];
-  }
-
-  setup_rf_level_maxq(cpi);
-}
-
-void av1_calculate_coded_size(AV1_COMP *cpi, int *scaled_frame_width,
+void av1_calculate_coded_size(const AV1_COMP *const cpi,
+                              int *scaled_frame_width,
                               int *scaled_frame_height) {
-  RATE_CONTROL *const rc = &cpi->rc;
-  *scaled_frame_width = rc->frame_width[rc->frame_size_selector];
-  *scaled_frame_height = rc->frame_height[rc->frame_size_selector];
+  const RATE_CONTROL *const rc = &cpi->rc;
+  *scaled_frame_width =
+      cpi->oxcf.width * rc->frame_size_num / rc->frame_size_den;
+  *scaled_frame_height =
+      cpi->oxcf.height * rc->frame_size_num / rc->frame_size_den;
 }
 
 void av1_init_second_pass(AV1_COMP *cpi) {
@@ -2295,7 +2285,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   if (oxcf->resize_mode == RESIZE_DYNAMIC) {
     // Default to starting GF groups at normal frame size.
-    cpi->rc.next_frame_size_selector = UNSCALED;
+    // TODO(afergs): Make a function for this
+    cpi->rc.next_frame_size_num = cpi->rc.next_frame_size_den;
   }
 }
 
@@ -2641,7 +2632,8 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   if (oxcf->resize_mode == RESIZE_DYNAMIC) {
     // Default to normal-sized frame on keyframes.
-    cpi->rc.next_frame_size_selector = UNSCALED;
+    // TODO(afergs): Make a function for this
+    cpi->rc.next_frame_size_num = cpi->rc.next_frame_size_den;
   }
 }
 

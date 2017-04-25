@@ -93,6 +93,11 @@ static int gf_low = 400;
 static int kf_high = 5000;
 static int kf_low = 400;
 
+double resize_rate_factor(const AV1_COMP *cpi) {
+  return (double)(cpi->rc.frame_size_den * cpi->rc.frame_size_den) /
+         (cpi->rc.frame_size_num * cpi->rc.frame_size_num);
+}
+
 // Functions to compute the active minq lookup table entries based on a
 // formulaic approach to facilitate easier adjustment of the Q tables.
 // The formulae were derived from computing a 3rd order polynomial best
@@ -328,6 +333,11 @@ void av1_rc_init(const AV1EncoderConfig *oxcf, int pass, RATE_CONTROL *rc) {
     rc->max_gf_interval = av1_rc_get_default_max_gf_interval(
         oxcf->init_framerate, rc->min_gf_interval);
   rc->baseline_gf_interval = (rc->min_gf_interval + rc->max_gf_interval) / 2;
+
+  rc->frame_size_num = 16;
+  rc->frame_size_den = 16;
+  rc->next_frame_size_num = 16;
+  rc->next_frame_size_den = 16;
 }
 
 int av1_rc_drop_frame(AV1_COMP *cpi) {
@@ -384,7 +394,7 @@ static double get_rate_correction_factor(const AV1_COMP *cpi) {
     else
       rcf = rc->rate_correction_factors[INTER_NORMAL];
   }
-  rcf *= rcf_mult[rc->frame_size_selector];
+  rcf *= resize_rate_factor(cpi);
   return fclamp(rcf, MIN_BPB_FACTOR, MAX_BPB_FACTOR);
 }
 
@@ -392,7 +402,7 @@ static void set_rate_correction_factor(AV1_COMP *cpi, double factor) {
   RATE_CONTROL *const rc = &cpi->rc;
 
   // Normalize RCF to account for the size-dependent scaling factor.
-  factor /= rcf_mult[cpi->rc.frame_size_selector];
+  factor /= resize_rate_factor(cpi);
 
   factor = fclamp(factor, MIN_BPB_FACTOR, MAX_BPB_FACTOR);
 
@@ -1076,7 +1086,7 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int *bottom_index,
   }
 
   // Modify active_best_quality for downscaled normal frames.
-  if (rc->frame_size_selector != UNSCALED && !frame_is_kf_gf_arf(cpi)) {
+  if (rc->frame_size_num != rc->frame_size_den && !frame_is_kf_gf_arf(cpi)) {
     int qdelta = av1_compute_qdelta_by_rate(
         rc, cm->frame_type, active_best_quality, 2.0, cm->bit_depth);
     active_best_quality =
@@ -1160,9 +1170,9 @@ void av1_rc_set_frame_target(AV1_COMP *cpi, int target) {
 
   // Modify frame size target when down-scaling.
   if (cpi->oxcf.resize_mode == RESIZE_DYNAMIC &&
-      rc->frame_size_selector != UNSCALED)
-    rc->this_frame_target = (int)(rc->this_frame_target *
-                                  rate_thresh_mult[rc->frame_size_selector]);
+      rc->frame_size_num != rc->frame_size_den)
+    rc->this_frame_target =
+        (int)(rc->this_frame_target * resize_rate_factor(cpi));
 
   // Target rate per SB64 (including partial SB64s.
   rc->sb64_target_rate = (int)((int64_t)rc->this_frame_target * 64 * 64) /
@@ -1320,9 +1330,10 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   // Trigger the resizing of the next frame if it is scaled.
   if (oxcf->pass != 0) {
-    cpi->resize_pending =
-        rc->next_frame_size_selector != rc->frame_size_selector;
-    rc->frame_size_selector = rc->next_frame_size_selector;
+    cpi->resize_pending = (rc->next_frame_size_num != rc->frame_size_num ||
+                           rc->next_frame_size_den != rc->frame_size_den);
+    rc->frame_size_num = rc->next_frame_size_num;
+    rc->frame_size_den = rc->next_frame_size_den;
   }
 }
 

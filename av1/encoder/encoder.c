@@ -3033,17 +3033,26 @@ static void scale_and_extend_frame(const YV12_BUFFER_CONFIG *src,
     aom_extend_frame_borders(dst);
 }
 
+// TODO(afergs): Redo this function
 static int scale_down(AV1_COMP *cpi, int q) {
   RATE_CONTROL *const rc = &cpi->rc;
   GF_GROUP *const gf_group = &cpi->twopass.gf_group;
   int scale = 0;
   assert(frame_is_kf_gf_arf(cpi));
 
-  if (rc->frame_size_selector == UNSCALED &&
+  if (rc->frame_size_num == rc->frame_size_den &&
       q >= rc->rf_level_maxq[gf_group->rf_level[gf_group->index]]) {
+    int old_num = rc->frame_size_num;
+    printf("num/den: %d,%d\n", rc->frame_size_num, rc->frame_size_den);
+    --rc->frame_size_num;
+    if (rc->frame_size_num <= 0) {
+      rc->frame_size_num = old_num;
+      return 0;
+    }
     const int max_size_thresh =
-        (int)(rate_thresh_mult[SCALE_STEP1] *
+        (int)(resize_rate_factor(cpi) *
               AOMMAX(rc->this_frame_target, rc->avg_frame_bandwidth));
+    rc->frame_size_num = old_num;
     scale = rc->projected_frame_size > max_size_thresh ? 1 : 0;
   }
   return scale;
@@ -4313,9 +4322,13 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
 
         if (cpi->resize_pending == 1) {
           // Change in frame size so go back around the recode loop.
-          cpi->rc.frame_size_selector =
-              SCALE_STEP1 - cpi->rc.frame_size_selector;
-          cpi->rc.next_frame_size_selector = cpi->rc.frame_size_selector;
+          // 11/16 is close to old 2/3, then goes back to 16/16
+          ++cpi->rc.frame_size_num;
+          if (cpi->rc.frame_size_num < 8 || cpi->rc.frame_size_num > 16)
+            cpi->rc.frame_size_num = 16;
+          cpi->rc.frame_size_den = 16;
+          cpi->rc.next_frame_size_num = cpi->rc.frame_size_num;
+          cpi->rc.next_frame_size_den = cpi->rc.frame_size_den;
 
 #if CONFIG_INTERNAL_STATS
           ++cpi->tot_recode_hits;
