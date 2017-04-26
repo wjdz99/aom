@@ -1042,7 +1042,7 @@ static const aom_prob default_inter_singleref_comp_mode_probs
 #if CONFIG_COMPOUND_SEGMENT && CONFIG_WEDGE
 static const aom_prob
     default_compound_type_probs[BLOCK_SIZES][COMPOUND_TYPES - 1] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
       { 255, 128 }, { 255, 128 }, { 255, 128 },
 #endif
       { 208, 128 }, { 208, 128 }, { 208, 128 }, { 208, 128 }, { 208, 128 },
@@ -1055,7 +1055,7 @@ static const aom_prob
 #elif !CONFIG_COMPOUND_SEGMENT && CONFIG_WEDGE
 static const aom_prob
     default_compound_type_probs[BLOCK_SIZES][COMPOUND_TYPES - 1] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
       { 255 }, { 255 }, { 255 },
 #endif
       { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 216 },
@@ -1067,7 +1067,7 @@ static const aom_prob
 #elif CONFIG_COMPOUND_SEGMENT && !CONFIG_WEDGE
 static const aom_prob
     default_compound_type_probs[BLOCK_SIZES][COMPOUND_TYPES - 1] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
       { 255 }, { 255 }, { 255 },
 #endif
       { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 216 },
@@ -1115,7 +1115,7 @@ static const aom_prob
 #endif  // REDUCED_INTERINTRA_MODES
 
 static const aom_prob default_wedge_interintra_prob[BLOCK_SIZES] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
   208, 208, 208,
 #endif
   208, 208, 208, 208, 208, 208, 216, 216, 216, 224, 224, 224, 240,
@@ -1133,7 +1133,7 @@ const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
 };
 static const aom_prob default_motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1] =
     {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
       { 255 }, { 255 }, { 255 },
 #endif
       { 255 }, { 255 }, { 255 }, { 151 }, { 153 }, { 144 }, { 178 },
@@ -1151,7 +1151,7 @@ const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
 
 static const aom_prob default_motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1] =
     {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
       { 255 }, { 255 }, { 255 },
 #endif
       { 255 }, { 255 }, { 255 }, { 151 }, { 153 }, { 144 }, { 178 },
@@ -1168,7 +1168,7 @@ const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
 };
 static const aom_prob default_motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1] =
     {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
       { 255, 200 }, { 255, 200 }, { 255, 200 },
 #endif
       { 255, 200 }, { 255, 200 }, { 255, 200 }, { 151, 200 }, { 153, 200 },
@@ -1181,7 +1181,7 @@ static const aom_prob default_motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1] =
 
 // Probability for the case that only 1 additional motion mode is allowed
 static const aom_prob default_obmc_prob[BLOCK_SIZES] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
   255, 255, 255,
 #endif
   255, 255, 255, 151, 153, 144, 178, 165, 160, 207, 195, 168, 244,
