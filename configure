@@ -321,6 +321,7 @@ EXPERIMENT_LIST="
     frame_superres
     new_multisymbol
     compound_singleref
+    frame_context_signaling
 "
 CONFIG_LIST="
     dependency_tracking
