@@ -51,7 +51,7 @@
 // This table is used to correct for block size.
 // The factors here are << 2 (2 = x0.5, 32 = x8 etc).
 static const uint8_t rd_thresh_block_size_factor[BLOCK_SIZES] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   2,  2,  2,
 #endif
   2,  3,  3, 4, 6, 6, 8, 12, 12, 16, 24, 24, 32,
@@ -577,7 +577,7 @@ static void get_entropy_contexts_plane(
 
   int i;
 
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   switch (tx_size) {
     case TX_2X2:
       memcpy(t_above, above, sizeof(ENTROPY_CONTEXT) * num_4x4_w);
@@ -651,7 +651,7 @@ static void get_entropy_contexts_plane(
     default: assert(0 && "Invalid transform size."); break;
   }
   return;
-#endif
+#endif  // CONFIG_CHROMA_2X2
 
   switch (tx_size) {
     case TX_4X4:
