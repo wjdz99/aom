@@ -1499,6 +1499,25 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
   (void)mi_col;
 #endif
 
+#if CONFIG_CFL
+  // Apply CfL in intra prediction blocks inside inter frames
+  if (mbmi->uv_mode == DC_PRED) {
+    if (mbmi->skip) {
+      mbmi->cfl_alpha_ind = 0;
+      mbmi->cfl_alpha_signs[CFL_PRED_U] = CFL_SIGN_POS;
+      mbmi->cfl_alpha_signs[CFL_PRED_V] = CFL_SIGN_POS;
+    } else {
+      mbmi->cfl_alpha_ind = read_cfl_alphas(
+#if CONFIG_EC_ADAPT
+          xd,
+#elif CONFIG_EC_MULTISYMBOL
+          cm,
+#endif
+          r, mbmi->cfl_alpha_signs);
+    }
+  }
+#endif
+
 #if CONFIG_EXT_INTRA
   read_intra_angle_info(cm, xd, r);
 #endif  // CONFIG_EXT_INTRA
