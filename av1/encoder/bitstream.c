@@ -126,7 +126,9 @@ static struct av1_token intra_filter_encodings[INTRA_FILTERS];
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_EXT_INTER
 static struct av1_token interintra_mode_encodings[INTERINTRA_MODES];
+#if CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
 static struct av1_token compound_type_encodings[COMPOUND_TYPES];
+#endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 static struct av1_token motion_mode_encodings[MOTION_MODES];
@@ -177,7 +179,9 @@ void av1_encode_token_init(void) {
 #endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 #if CONFIG_EXT_INTER
   av1_tokens_from_tree(interintra_mode_encodings, av1_interintra_mode_tree);
+#if CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
   av1_tokens_from_tree(compound_type_encodings, av1_compound_type_tree);
+#endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   av1_tokens_from_tree(motion_mode_encodings, av1_motion_mode_tree);
@@ -2069,16 +2073,20 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
         && mbmi->motion_mode == SIMPLE_TRANSLATION
 #endif  // CONFIG_MOTION_VAR
         && is_any_masked_compound_used(bsize)) {
+#if CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
       av1_write_token(
           w, av1_compound_type_tree, cm->fc->compound_type_prob[bsize],
           &compound_type_encodings[mbmi->interinter_compound_data.type]);
+#endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
+#if CONFIG_WEDGE
       if (mbmi->interinter_compound_data.type == COMPOUND_WEDGE) {
         aom_write_literal(w, mbmi->interinter_compound_data.wedge_index,
                           get_wedge_bits_lookup(bsize));
         aom_write_bit(w, mbmi->interinter_compound_data.wedge_sign);
       }
+#endif  // CONFIG_WEDGE
 #if CONFIG_COMPOUND_SEGMENT
-      else if (mbmi->interinter_compound_data.type == COMPOUND_SEG) {
+      if (mbmi->interinter_compound_data.type == COMPOUND_SEG) {
         aom_write_literal(w, mbmi->interinter_compound_data.mask_type,
                           MAX_SEG_MASK_BITS);
       }
@@ -5029,12 +5037,14 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                                     cm->counts.wedge_interintra[i], probwt);
       }
     }
+#if CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
     if (cm->reference_mode != SINGLE_REFERENCE) {
       for (i = 0; i < BLOCK_SIZES; i++)
         prob_diff_update(av1_compound_type_tree, fc->compound_type_prob[i],
                          cm->counts.compound_interinter[i], COMPOUND_TYPES,
                          probwt, header_bc);
     }
+#endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
