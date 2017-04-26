@@ -3520,8 +3520,13 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
       av1_loop_filter_frame_mt(cm->frame_to_show, cm, xd->plane,
                                lf->filter_level, 0, 0, cpi->workers,
                                cpi->num_workers, &cpi->lf_row_sync);
-    else
+    else {
+#if CONFIG_CDEF
+      av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 1, 0);
+#else
       av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
+#endif
+    }
 #endif
   }
 #if CONFIG_CDEF
