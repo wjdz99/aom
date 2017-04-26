@@ -130,7 +130,7 @@ const map_entry refs_map[] = { ENUM(INTRA_FRAME),  ENUM(LAST_FRAME),
                                LAST_ENUM };
 
 const map_entry block_size_map[] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   ENUM(BLOCK_2X2),    ENUM(BLOCK_2X4),    ENUM(BLOCK_4X2),
 #endif
   ENUM(BLOCK_4X4),    ENUM(BLOCK_4X8),    ENUM(BLOCK_8X4),
@@ -145,7 +145,7 @@ const map_entry block_size_map[] = {
 };
 
 const map_entry tx_size_map[] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   ENUM(TX_2X2),
 #endif
   ENUM(TX_4X4),   ENUM(TX_8X8),   ENUM(TX_16X16), ENUM(TX_32X32),

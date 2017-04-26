@@ -18,7 +18,7 @@
 
 #if CONFIG_LV_MAP
 const aom_prob default_txb_skip[TX_SIZES][TXB_SKIP_CONTEXTS] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   { 252, 71, 126, 184, 178, 218, 251, 49, 133, 221, 27, 92, 197 },
 #endif
   { 252, 71, 126, 184, 178, 218, 251, 49, 133, 221, 27, 92, 197 },
@@ -32,7 +32,7 @@ const aom_prob default_dc_sign[PLANE_TYPES][DC_SIGN_CONTEXTS] = {
 
 const aom_prob default_coeff_base
     [TX_SIZES][PLANE_TYPES][NUM_BASE_LEVELS][COEFF_BASE_CONTEXTS] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       { // TX_2X2
         {
             { 73,  128, 131, 204, 165, 226, 169, 236, 18,  128, 51,
@@ -168,7 +168,7 @@ const aom_prob default_coeff_base
     };
 
 const aom_prob default_nz_map[TX_SIZES][PLANE_TYPES][SIG_COEF_CONTEXTS] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   {
       { 34, 103, 61, 106, 62,  160, 112, 54, 173, 121,
         75, 157, 92, 75,  157, 129, 94,  65, 52,  37 },
@@ -203,7 +203,7 @@ const aom_prob default_nz_map[TX_SIZES][PLANE_TYPES][SIG_COEF_CONTEXTS] = {
 };
 
 const aom_prob default_eob_flag[TX_SIZES][PLANE_TYPES][EOB_COEF_CONTEXTS] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   {
       { 229, 236, 231, 222, 239, 236, 214, 201, 236, 226, 195, 134, 228,
         210, 150, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128 },
@@ -238,7 +238,7 @@ const aom_prob default_eob_flag[TX_SIZES][PLANE_TYPES][EOB_COEF_CONTEXTS] = {
 };
 
 const aom_prob default_coeff_lps[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   {
       { 164, 128, 134, 165, 128, 137, 168, 128, 97,  136, 167, 128,
         182, 205, 143, 172, 200, 145, 173, 193, 103, 137, 170, 191,
@@ -775,7 +775,7 @@ static const aom_prob default_inter_compound_mode_probs
 #if CONFIG_COMPOUND_SEGMENT && CONFIG_WEDGE
 static const aom_prob
     default_compound_type_probs[BLOCK_SIZES][COMPOUND_TYPES - 1] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       { 255, 255 }, { 255, 255 }, { 255, 255 },
 #endif
       { 208, 200 }, { 208, 200 }, { 208, 200 }, { 208, 200 }, { 208, 200 },
@@ -788,7 +788,7 @@ static const aom_prob
 #elif !CONFIG_COMPOUND_SEGMENT && CONFIG_WEDGE
 static const aom_prob
     default_compound_type_probs[BLOCK_SIZES][COMPOUND_TYPES - 1] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       { 208 }, { 208 }, { 208 },
 #endif
       { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 216 },
@@ -800,7 +800,7 @@ static const aom_prob
 #elif CONFIG_COMPOUND_SEGMENT && !CONFIG_WEDGE
 static const aom_prob
     default_compound_type_probs[BLOCK_SIZES][COMPOUND_TYPES - 1] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       { 208 }, { 208 }, { 208 },
 #endif
       { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 216 },
@@ -827,7 +827,7 @@ static const aom_prob
     };
 
 static const aom_prob default_wedge_interintra_prob[BLOCK_SIZES] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   208, 208, 208,
 #endif
   208, 208, 208, 208, 208, 208, 216, 216, 216, 224, 224, 224, 240,
@@ -844,7 +844,7 @@ const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
 };
 static const aom_prob default_motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1] =
     {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       { 255 }, { 255 }, { 255 },
 #endif
       { 255 }, { 255 }, { 255 }, { 151 }, { 153 }, { 144 }, { 178 },
@@ -862,7 +862,7 @@ const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
 
 static const aom_prob default_motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1] =
     {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       { 255 }, { 255 }, { 255 },
 #endif
       { 255 }, { 255 }, { 255 }, { 151 }, { 153 }, { 144 }, { 178 },
@@ -879,7 +879,7 @@ const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
 };
 static const aom_prob default_motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1] =
     {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       { 255, 200 }, { 255, 200 }, { 255, 200 },
 #endif
       { 255, 200 }, { 255, 200 }, { 255, 200 }, { 151, 200 }, { 153, 200 },
@@ -892,7 +892,7 @@ static const aom_prob default_motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1] =
 
 // Probability for the case that only 1 additional motion mode is allowed
 static const aom_prob default_obmc_prob[BLOCK_SIZES] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   255, 255, 255,
 #endif
   255, 255, 255, 151, 153, 144, 178, 165, 160, 207, 195, 168, 244,
@@ -1540,7 +1540,7 @@ static const aom_prob
     default_inter_ext_tx_prob[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES - 1] = {
       {
 // ToDo(yaowu): remove unused entry 0.
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
           { 0 },
 #endif
           { 0 },
@@ -1549,7 +1549,7 @@ static const aom_prob
           { 0 },
       },
       {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
           { 0 },
 #endif
           { 10, 24, 30, 128, 128, 128, 128, 112, 160, 128, 128, 128, 128, 128,
@@ -1562,7 +1562,7 @@ static const aom_prob
             128 },
       },
       {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
           { 0 },
 #endif
           { 10, 30, 128, 112, 160, 128, 128, 128, 128, 128, 128 },
@@ -1571,7 +1571,7 @@ static const aom_prob
           { 10, 30, 128, 112, 160, 128, 128, 128, 128, 128, 128 },
       },
       {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
           { 0 },
 #endif
           { 12 },
@@ -1588,7 +1588,7 @@ static const aom_prob
                              [TX_TYPES - 1] = {
                                {
 // ToDo(yaowu): remove unused entry 0.
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
                                    {
                                        { 0 },
                                    },
@@ -1655,7 +1655,7 @@ static const aom_prob
                                    },
                                },
                                {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
                                    {
                                        { 0 },
                                    },
@@ -1722,7 +1722,7 @@ static const aom_prob
                                    },
                                },
                                {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
                                    {
                                        { 0 },
                                    },
@@ -1804,7 +1804,7 @@ int av1_ext_tx_inv[TX_TYPES];
 
 static const aom_prob
     default_intra_ext_tx_prob[EXT_TX_SIZES][TX_TYPES][TX_TYPES - 1] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       { { 240, 85, 128 }, { 4, 1, 248 }, { 4, 1, 8 }, { 4, 248, 128 } },
 #endif
       { { 240, 85, 128 }, { 4, 1, 248 }, { 4, 1, 8 }, { 4, 248, 128 } },
@@ -1813,7 +1813,7 @@ static const aom_prob
     };
 
 static const aom_prob default_inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   { 160, 85, 128 },
 #endif
   { 160, 85, 128 },
@@ -1845,7 +1845,7 @@ static const aom_prob default_filter_intra_probs[2] = { 230, 230 };
 #if CONFIG_SUPERTX
 static const aom_prob
     default_supertx_prob[PARTITION_SUPERTX_CONTEXTS][TX_SIZES] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
 #if CONFIG_TX64X64
       { 1, 1, 160, 160, 170, 180 }, { 1, 1, 200, 200, 210, 220 },
 #else
@@ -1856,8 +1856,8 @@ static const aom_prob
       { 1, 160, 160, 170, 180 }, { 1, 200, 200, 210, 220 },
 #else
       { 1, 160, 160, 170 }, { 1, 200, 200, 210 },
-#endif  // CONFIG_CB4X4
 #endif  // CONFIG_TX64X64
+#endif  // CONFIG_CHROMA_2X2
     };
 #endif  // CONFIG_SUPERTX
 
@@ -2127,7 +2127,7 @@ static const aom_cdf_prob default_intra_ext_tx_cdf
     [EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES][CDF_SIZE(TX_TYPES)] = {
       {
 // FIXME: unused zero positions, from uncoded trivial transform set
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
           {
               { 0 },
           },
@@ -2398,7 +2398,7 @@ static const aom_cdf_prob
     default_inter_ext_tx_cdf[EXT_TX_SETS_INTER][EXT_TX_SIZES][CDF_SIZE(
         TX_TYPES)] = {
       {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
           { 0 },
 #endif
           { 0 },
@@ -2406,7 +2406,7 @@ static const aom_cdf_prob
           { 0 },
           { 0 } },
       {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
           { 0 },
 #endif
           { AOM_ICDF(1280), AOM_ICDF(1453), AOM_ICDF(1626), AOM_ICDF(2277),
@@ -2430,7 +2430,7 @@ static const aom_cdf_prob
             AOM_ICDF(28253), AOM_ICDF(29758), AOM_ICDF(31263), AOM_ICDF(32768),
             0 } },
       {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
           { 0 },
 #endif
           { AOM_ICDF(1280), AOM_ICDF(3125), AOM_ICDF(4970), AOM_ICDF(17132),
@@ -2450,7 +2450,7 @@ static const aom_cdf_prob
             AOM_ICDF(28370), AOM_ICDF(29836), AOM_ICDF(31302), AOM_ICDF(32768),
             0 } },
       {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
           { 0 },
 #endif
           { AOM_ICDF(1536), AOM_ICDF(32768), 0 },
@@ -2461,7 +2461,7 @@ static const aom_cdf_prob
 #else
 static const aom_cdf_prob
     default_intra_ext_tx_cdf[EXT_TX_SIZES][TX_TYPES][CDF_SIZE(TX_TYPES)] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       { { AOM_ICDF(30720), AOM_ICDF(31400), AOM_ICDF(32084), AOM_ICDF(32768),
           0 },
         { AOM_ICDF(512), AOM_ICDF(638), AOM_ICDF(31764), AOM_ICDF(32768), 0 },
@@ -2492,7 +2492,7 @@ static const aom_cdf_prob
 
 static const aom_cdf_prob
     default_inter_ext_tx_cdf[EXT_TX_SIZES][CDF_SIZE(TX_TYPES)] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       { AOM_ICDF(20480), AOM_ICDF(24560), AOM_ICDF(28664), AOM_ICDF(32768), 0 },
 #endif
       { AOM_ICDF(20480), AOM_ICDF(24560), AOM_ICDF(28664), AOM_ICDF(32768), 0 },

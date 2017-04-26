@@ -509,12 +509,7 @@ static int get_block_idx(const MACROBLOCKD *xd, int plane, int row, int col) {
   const int bsize = xd->mi[0]->mbmi.sb_type;
   const struct macroblockd_plane *pd = &xd->plane[plane];
 #if CONFIG_CB4X4
-#if CONFIG_CHROMA_2X2
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
-#else
-  const BLOCK_SIZE plane_bsize =
-      AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
-#endif  // CONFIG_CHROMA_2X2
 #else
   const BLOCK_SIZE plane_bsize =
       get_plane_block_size(AOMMAX(BLOCK_8X8, bsize), pd);
@@ -1721,12 +1716,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       const int stepr = tx_size_high_unit[tx_size];
       const int stepc = tx_size_wide_unit[tx_size];
 #if CONFIG_CB4X4
-#if CONFIG_CHROMA_2X2
       const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
-#else
-      const BLOCK_SIZE plane_bsize =
-          AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
-#endif  // CONFIG_CHROMA_2X2
 #else
       const BLOCK_SIZE plane_bsize =
           get_plane_block_size(AOMMAX(BLOCK_8X8, bsize), pd);
@@ -1795,12 +1785,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
         const struct macroblockd_plane *const pd = &xd->plane[plane];
 #if CONFIG_CB4X4
-#if CONFIG_CHROMA_2X2
         const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
-#else
-        const BLOCK_SIZE plane_bsize =
-            AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
-#endif  // CONFIG_CHROMA_2X2
 #else
         const BLOCK_SIZE plane_bsize =
             get_plane_block_size(AOMMAX(BLOCK_8X8, bsize), pd);
