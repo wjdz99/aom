@@ -51,7 +51,7 @@
 // This table is used to correct for block size.
 // The factors here are << 2 (2 = x0.5, 32 = x8 etc).
 static const uint8_t rd_thresh_block_size_factor[BLOCK_SIZES] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
   2,  2,  2,
 #endif
   2,  3,  3, 4, 6, 6, 8, 12, 12, 16, 24, 24, 32,
