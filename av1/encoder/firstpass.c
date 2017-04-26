@@ -1236,11 +1236,10 @@ void av1_init_subsampling(AV1_COMP *cpi) { setup_rf_level_maxq(cpi); }
 void av1_calculate_coded_size(const AV1_COMP *const cpi,
                               int *scaled_frame_width,
                               int *scaled_frame_height) {
-  const RATE_CONTROL *const rc = &cpi->rc;
   *scaled_frame_width =
-      cpi->oxcf.width * rc->frame_size_num / rc->frame_size_den;
+      cpi->oxcf.width * cpi->resize_scale_num / cpi->resize_scale_den;
   *scaled_frame_height =
-      cpi->oxcf.height * rc->frame_size_num / rc->frame_size_den;
+      cpi->oxcf.height * cpi->resize_scale_num / cpi->resize_scale_den;
 }
 
 void av1_init_second_pass(AV1_COMP *cpi) {
@@ -2286,7 +2285,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   if (oxcf->resize_mode == RESIZE_DYNAMIC) {
     // Default to starting GF groups at normal frame size.
     // TODO(afergs): Make a function for this
-    cpi->rc.next_frame_size_num = cpi->rc.next_frame_size_den;
+    cpi->next_resize_scale_num = cpi->next_resize_scale_den;
   }
 }
 
@@ -2633,7 +2632,7 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   if (oxcf->resize_mode == RESIZE_DYNAMIC) {
     // Default to normal-sized frame on keyframes.
     // TODO(afergs): Make a function for this
-    cpi->rc.next_frame_size_num = cpi->rc.next_frame_size_den;
+    cpi->next_resize_scale_num = cpi->next_resize_scale_den;
   }
 }
 

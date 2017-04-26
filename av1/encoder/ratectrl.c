@@ -94,8 +94,8 @@ static int kf_high = 5000;
 static int kf_low = 400;
 
 double resize_rate_factor(const AV1_COMP *cpi) {
-  return (double)(cpi->rc.frame_size_den * cpi->rc.frame_size_den) /
-         (cpi->rc.frame_size_num * cpi->rc.frame_size_num);
+  return (double)(cpi->resize_scale_den * cpi->resize_scale_den) /
+         (cpi->resize_scale_num * cpi->resize_scale_num);
 }
 
 // Functions to compute the active minq lookup table entries based on a
@@ -333,11 +333,6 @@ void av1_rc_init(const AV1EncoderConfig *oxcf, int pass, RATE_CONTROL *rc) {
     rc->max_gf_interval = av1_rc_get_default_max_gf_interval(
         oxcf->init_framerate, rc->min_gf_interval);
   rc->baseline_gf_interval = (rc->min_gf_interval + rc->max_gf_interval) / 2;
-
-  rc->frame_size_num = 16;
-  rc->frame_size_den = 16;
-  rc->next_frame_size_num = 16;
-  rc->next_frame_size_den = 16;
 }
 
 int av1_rc_drop_frame(AV1_COMP *cpi) {
@@ -1086,7 +1081,8 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int *bottom_index,
   }
 
   // Modify active_best_quality for downscaled normal frames.
-  if (rc->frame_size_num != rc->frame_size_den && !frame_is_kf_gf_arf(cpi)) {
+  if (cpi->resize_scale_num != cpi->resize_scale_den &&
+      !frame_is_kf_gf_arf(cpi)) {
     int qdelta = av1_compute_qdelta_by_rate(
         rc, cm->frame_type, active_best_quality, 2.0, cm->bit_depth);
     active_best_quality =
@@ -1170,7 +1166,7 @@ void av1_rc_set_frame_target(AV1_COMP *cpi, int target) {
 
   // Modify frame size target when down-scaling.
   if (cpi->oxcf.resize_mode == RESIZE_DYNAMIC &&
-      rc->frame_size_num != rc->frame_size_den)
+      cpi->resize_scale_num != cpi->resize_scale_den)
     rc->this_frame_target =
         (int)(rc->this_frame_target * resize_rate_factor(cpi));
 
@@ -1330,10 +1326,11 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   // Trigger the resizing of the next frame if it is scaled.
   if (oxcf->pass != 0) {
-    cpi->resize_pending = (rc->next_frame_size_num != rc->frame_size_num ||
-                           rc->next_frame_size_den != rc->frame_size_den);
-    rc->frame_size_num = rc->next_frame_size_num;
-    rc->frame_size_den = rc->next_frame_size_den;
+    cpi->resize_pending =
+        (cpi->next_resize_scale_num != cpi->resize_scale_num ||
+         cpi->next_resize_scale_den != cpi->resize_scale_den);
+    cpi->resize_scale_num = cpi->next_resize_scale_num;
+    cpi->resize_scale_den = cpi->next_resize_scale_den;
   }
 }
 

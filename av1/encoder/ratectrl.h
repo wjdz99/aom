@@ -145,10 +145,6 @@ typedef struct {
   int q_2_frame;
 
   // Auto frame-scaling variables.
-  int frame_size_num;
-  int frame_size_den;
-  int next_frame_size_num;
-  int next_frame_size_den;
   int rf_level_maxq[RATE_FACTOR_LEVELS];
 } RATE_CONTROL;
 
