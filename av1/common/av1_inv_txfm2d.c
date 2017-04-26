@@ -32,55 +32,55 @@ static INLINE TxfmFunc inv_txfm_type_to_func(TXFM_TYPE txfm_type) {
 #if CONFIG_EXT_TX
 static const TXFM_2D_CFG *inv_txfm_cfg_ls[FLIPADST_ADST + 1][TX_SIZES] = {
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_dct_dct_4, &inv_txfm_2d_cfg_dct_dct_8,
       &inv_txfm_2d_cfg_dct_dct_16, &inv_txfm_2d_cfg_dct_dct_32 },
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_adst_dct_4, &inv_txfm_2d_cfg_adst_dct_8,
       &inv_txfm_2d_cfg_adst_dct_16, &inv_txfm_2d_cfg_adst_dct_32 },
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_dct_adst_4, &inv_txfm_2d_cfg_dct_adst_8,
       &inv_txfm_2d_cfg_dct_adst_16, &inv_txfm_2d_cfg_dct_adst_32 },
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_adst_adst_4, &inv_txfm_2d_cfg_adst_adst_8,
       &inv_txfm_2d_cfg_adst_adst_16, &inv_txfm_2d_cfg_adst_adst_32 },
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_adst_dct_4, &inv_txfm_2d_cfg_adst_dct_8,
       &inv_txfm_2d_cfg_adst_dct_16, &inv_txfm_2d_cfg_adst_dct_32 },
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_dct_adst_4, &inv_txfm_2d_cfg_dct_adst_8,
       &inv_txfm_2d_cfg_dct_adst_16, &inv_txfm_2d_cfg_dct_adst_32 },
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_adst_adst_4, &inv_txfm_2d_cfg_adst_adst_8,
       &inv_txfm_2d_cfg_adst_adst_16, &inv_txfm_2d_cfg_adst_adst_32 },
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_adst_adst_4, &inv_txfm_2d_cfg_adst_adst_8,
       &inv_txfm_2d_cfg_adst_adst_16, &inv_txfm_2d_cfg_adst_adst_32 },
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_adst_adst_4, &inv_txfm_2d_cfg_adst_adst_8,
@@ -89,25 +89,25 @@ static const TXFM_2D_CFG *inv_txfm_cfg_ls[FLIPADST_ADST + 1][TX_SIZES] = {
 #else
 static const TXFM_2D_CFG *inv_txfm_cfg_ls[TX_TYPES][TX_SIZES] = {
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_dct_dct_4, &inv_txfm_2d_cfg_dct_dct_8,
       &inv_txfm_2d_cfg_dct_dct_16, &inv_txfm_2d_cfg_dct_dct_32 },
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_adst_dct_4, &inv_txfm_2d_cfg_adst_dct_8,
       &inv_txfm_2d_cfg_adst_dct_16, &inv_txfm_2d_cfg_adst_dct_32 },
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_dct_adst_4, &inv_txfm_2d_cfg_dct_adst_8,
       &inv_txfm_2d_cfg_dct_adst_16, &inv_txfm_2d_cfg_dct_adst_32 },
   {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_2d_cfg_adst_adst_4, &inv_txfm_2d_cfg_adst_adst_8,
