@@ -1993,8 +1993,15 @@ static void build_intra_predictors_high(
 
   // predict
   if (mode == DC_PRED) {
-    dc_pred_high[n_left_px > 0][n_top_px > 0][tx_size](
-        dst, dst_stride, const_above_row, left_col, xd->bd);
+#if CONFIG_CFL
+    // CFL predict its own DC_PRED for Chromatic planes
+    if (plane == AOM_PLANE_Y) {
+#endif
+      dc_pred_high[n_left_px > 0][n_top_px > 0][tx_size](
+          dst, dst_stride, const_above_row, left_col, xd->bd);
+#if CONFIG_CFL
+    }
+#endif
   } else {
     pred_high[mode][tx_size](dst, dst_stride, const_above_row, left_col,
                              xd->bd);
