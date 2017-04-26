@@ -293,13 +293,15 @@ static const uint16_t orders_4x4[1024] = {
 /* clang-format off */
 static const uint16_t *const orders[BLOCK_SIZES] = {
 #if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
   // 2X2,         2X4,            4X2
   orders_4x4,     orders_4x4,     orders_4x4,
+#endif
   //                              4X4
                                   orders_4x4,
   // 4X8,         8X4,            8X8
   orders_4x8,     orders_8x4,     orders_8x8,
-#else
+#else  // CONFIG_CB4X4 || CONFIG_CHROMA_SUB8X8
   //                              4X4
                                   orders_8x8,
   // 4X8,         8X4,            8X8
@@ -319,13 +321,15 @@ static const uint16_t *const orders[BLOCK_SIZES] = {
 /* clang-format off */
 static const uint16_t *const orders[BLOCK_SIZES] = {
 #if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
   // 2X2,         2X4,            4X2
   orders_8x8,     orders_8x8,     orders_8x8,
+#endif
   //                              4X4
                                   orders_8x8,
   // 4X8,         8X4,            8X8
   orders_8x16,    orders_16x8,    orders_16x16,
-#else
+#else  // CONFIG_CB4X4 || CONFIG_CHROMA_SUB8X8
   //                              4X4
                                   orders_16x16,
   // 4X8,         8X4,            8X8
@@ -380,7 +384,7 @@ static const uint16_t orders_verta_8x8[256] = {
 #if CONFIG_EXT_PARTITION
 /* clang-format off */
 static const uint16_t *const orders_verta[BLOCK_SIZES] = {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
   // 2X2,           2X4,              4X2
   orders_4x4,       orders_4x4,       orders_4x4,
 #endif
@@ -402,13 +406,15 @@ static const uint16_t *const orders_verta[BLOCK_SIZES] = {
 /* clang-format off */
 static const uint16_t *const orders_verta[BLOCK_SIZES] = {
 #if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
   // 2X2,             2X4,                4X2
   orders_verta_8x8,   orders_verta_8x8,   orders_verta_8x8,
+#endif
   //                                      4X4
                                           orders_verta_8x8,
   // 4X8,             8X4,                8X8
   orders_verta_8x8,   orders_verta_8x8,   orders_verta_16x16,
-#else
+#else  // CONFIG_CB4X4 || CONFIG_CHROMA_SUB8X8
   //                                      4X4
                                           orders_verta_16x16,
   // 4X8,             8X4,                8X8
