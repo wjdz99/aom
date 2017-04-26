@@ -1822,22 +1822,15 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       MV_REFERENCE_FRAME rf[2];
       int_mv zeromv[2];
       av1_set_ref_frame(rf, ref_frame);
-#if CONFIG_GLOBAL_MOTION
-      zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[rf[0]],
-                                              cm->allow_high_precision_mv,
-                                              bsize, mi_col, mi_row, 0)
-                             .as_int;
-      zeromv[1].as_int = (rf[1] != NONE_FRAME)
-                             ? gm_get_motion_vector(&cm->global_motion[rf[1]],
-                                                    cm->allow_high_precision_mv,
-                                                    bsize, mi_col, mi_row, 0)
-                                   .as_int
-                             : 0;
-#else
-      zeromv[0].as_int = zeromv[1].as_int = 0;
-#endif
       for (ref = 0; ref < 2; ++ref) {
-        if (rf[ref] == NONE_FRAME) continue;
+#if CONFIG_GLOBAL_MOTION
+        zeromv[ref].as_int = gm_get_motion_vector(&cm->global_motion[rf[ref]],
+                                                  cm->allow_high_precision_mv,
+                                                  bsize, mi_col, mi_row, 0)
+                                 .as_int;
+#else
+        zeromv[ref].as_int = 0;
+#endif  // CONFIG_GLOBAL_MOTION
         lower_mv_precision(&ref_mvs[rf[ref]][0].as_mv, allow_hp);
         lower_mv_precision(&ref_mvs[rf[ref]][1].as_mv, allow_hp);
         if (ref_mvs[rf[ref]][0].as_int != zeromv[ref].as_int ||
