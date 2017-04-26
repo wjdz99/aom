@@ -39,6 +39,7 @@
 #endif
 
 #if CONFIG_CFL
+#include "aom_ports/mem.h"
 #include "av1/common/cfl.h"
 #endif
 
@@ -1581,7 +1582,12 @@ static int cfl_alpha_dist(const uint8_t *y_pix, int y_stride, double y_avg,
 
 // Temporary pixel buffer used to store the CfL prediction when we compute the
 // alpha index.
+#if CONFIG_HIGHBITDEPTH
+static uint16_t tmp_pix16[MAX_SB_SQUARE];
+static const uint8_t *tmp_pix = CONVERT_TO_BYTEPTR(tmp_pix16);
+#else
 static uint8_t tmp_pix[MAX_SB_SQUARE];
+#endif
 
 static int cfl_compute_alpha_ind(MACROBLOCK *const x, const CFL_CTX *const cfl,
                                  BLOCK_SIZE bsize, int *const cfl_cost,
