@@ -28,7 +28,7 @@ typedef struct MB_MODE_INFO MB_MODE_INFO;
 
 typedef struct {
   // Pixel buffer containing the luma pixels used as prediction for chroma
-  uint8_t y_pix[MAX_SB_SQUARE];
+  uint16_t y_pix[MAX_SB_SQUARE];
 
   // Height and width of the luma prediction block currently in the pixel buffer
   int y_height, y_width;
@@ -60,13 +60,13 @@ void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size);
 
 double cfl_ind_to_alpha(const MB_MODE_INFO *mbmi, CFL_PRED_TYPE pred_type);
 
-void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
+void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst8, int dst_stride,
                        int row, int col, TX_SIZE tx_size, int dc_pred,
                        double alpha);
 
-void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
+void cfl_store(CFL_CTX *cfl, const uint8_t *input8, int input_stride, int row,
                int col, TX_SIZE tx_size);
 
-double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
-                int col, TX_SIZE tx_size);
+double cfl_load(const CFL_CTX *cfl, uint8_t *output8, int output_stride,
+                int row, int col, TX_SIZE tx_size);
 #endif  // AV1_COMMON_CFL_H_
