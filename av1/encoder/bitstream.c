@@ -1852,6 +1852,18 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     write_intra_uv_mode(ec_ctx, mbmi->uv_mode, mode, w);
 #endif  // CONFIG_CB4X4
 
+#if CONFIG_CFL
+    if (mbmi->uv_mode == DC_PRED) {
+      if (mbmi->skip) {
+        assert(mbmi->cfl_alpha_ind == 0);
+        assert(mbmi->cfl_alpha_signs[CFL_PRED_U] == CFL_SIGN_POS);
+        assert(mbmi->cfl_alpha_signs[CFL_PRED_V] == CFL_SIGN_POS);
+      } else {
+        write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_ind, mbmi->cfl_alpha_signs, w);
+      }
+    }
+#endif
+
 #if CONFIG_EXT_INTRA
     write_intra_angle_info(xd, ec_ctx, w);
 #endif  // CONFIG_EXT_INTRA
