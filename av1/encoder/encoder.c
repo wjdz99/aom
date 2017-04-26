@@ -3497,7 +3497,7 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
 static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
   struct loopfilter *lf = &cm->lf;
-  if (is_lossless_requested(&cpi->oxcf)) {
+  if (1||is_lossless_requested(&cpi->oxcf)) {
     lf->filter_level = 0;
   } else {
     struct aom_usec_timer timer;
