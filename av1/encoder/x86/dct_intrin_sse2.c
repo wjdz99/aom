@@ -25,30 +25,27 @@ static INLINE void load_buffer_4x4(const int16_t *input, __m128i *in,
   const __m128i k__nonzero_bias_a = _mm_setr_epi16(0, 1, 1, 1, 1, 1, 1, 1);
   const __m128i k__nonzero_bias_b = _mm_setr_epi16(1, 0, 0, 0, 0, 0, 0, 0);
   __m128i mask;
+  int i;
 
   if (!flipud) {
-    in[0] = _mm_loadl_epi64((const __m128i *)(input + 0 * stride));
-    in[1] = _mm_loadl_epi64((const __m128i *)(input + 1 * stride));
-    in[2] = _mm_loadl_epi64((const __m128i *)(input + 2 * stride));
-    in[3] = _mm_loadl_epi64((const __m128i *)(input + 3 * stride));
+    for (i = 0; i < 4; ++i) {
+      in[i] = _mm_loadl_epi64((const __m128i *)(input + i * stride));
+    }
   } else {
-    in[0] = _mm_loadl_epi64((const __m128i *)(input + 3 * stride));
-    in[1] = _mm_loadl_epi64((const __m128i *)(input + 2 * stride));
-    in[2] = _mm_loadl_epi64((const __m128i *)(input + 1 * stride));
-    in[3] = _mm_loadl_epi64((const __m128i *)(input + 0 * stride));
+    for (i = 0; i < 4; ++i) {
+      in[i] = _mm_loadl_epi64((const __m128i *)(input + (3 - i) * stride));
+    }
   }
 
   if (fliplr) {
-    in[0] = _mm_shufflelo_epi16(in[0], 0x1b);
-    in[1] = _mm_shufflelo_epi16(in[1], 0x1b);
-    in[2] = _mm_shufflelo_epi16(in[2], 0x1b);
-    in[3] = _mm_shufflelo_epi16(in[3], 0x1b);
+    for (i = 0; i < 4; ++i) {
+      in[i] = _mm_shufflelo_epi16(in[i], 0x1b);
+    }
   }
 
-  in[0] = _mm_slli_epi16(in[0], 4);
-  in[1] = _mm_slli_epi16(in[1], 4);
-  in[2] = _mm_slli_epi16(in[2], 4);
-  in[3] = _mm_slli_epi16(in[3], 4);
+  for (i = 0; i < 4; ++i) {
+    in[i] = _mm_slli_epi16(in[i], 4);
+  }
 
   mask = _mm_cmpeq_epi16(in[0], k__nonzero_bias_a);
   in[0] = _mm_add_epi16(in[0], mask);
@@ -105,14 +102,13 @@ static void fdct4_sse2(__m128i *in) {
   u[2] = _mm_madd_epi16(v[1], k__cospi_p08_p24);  // 1
   u[3] = _mm_madd_epi16(v[1], k__cospi_p24_m08);  // 3
 
-  v[0] = _mm_add_epi32(u[0], k__DCT_CONST_ROUNDING);
-  v[1] = _mm_add_epi32(u[1], k__DCT_CONST_ROUNDING);
-  v[2] = _mm_add_epi32(u[2], k__DCT_CONST_ROUNDING);
-  v[3] = _mm_add_epi32(u[3], k__DCT_CONST_ROUNDING);
-  u[0] = _mm_srai_epi32(v[0], DCT_CONST_BITS);
-  u[1] = _mm_srai_epi32(v[1], DCT_CONST_BITS);
-  u[2] = _mm_srai_epi32(v[2], DCT_CONST_BITS);
-  u[3] = _mm_srai_epi32(v[3], DCT_CONST_BITS);
+  int i;
+  for (i = 0; i < 4; ++i) {
+    v[i] = _mm_add_epi32(u[i], k__DCT_CONST_ROUNDING);
+  }
+  for (i = 0; i < 4; ++i) {
+    u[i] = _mm_srai_epi32(v[i], DCT_CONST_BITS);
+  }
 
   in[0] = _mm_packs_epi32(u[0], u[1]);
   in[1] = _mm_packs_epi32(u[2], u[3]);
@@ -157,10 +153,10 @@ static void fadst4_sse2(__m128i *in) {
   v[2] = _mm_add_epi32(u[2], k__DCT_CONST_ROUNDING);
   v[3] = _mm_add_epi32(u[6], k__DCT_CONST_ROUNDING);
 
-  u[0] = _mm_srai_epi32(v[0], DCT_CONST_BITS);
-  u[1] = _mm_srai_epi32(v[1], DCT_CONST_BITS);
-  u[2] = _mm_srai_epi32(v[2], DCT_CONST_BITS);
-  u[3] = _mm_srai_epi32(v[3], DCT_CONST_BITS);
+  int i;
+  for (i = 0; i < 4; ++i) {
+    u[i] = _mm_srai_epi32(v[i], DCT_CONST_BITS);
+  }
 
   in[0] = _mm_packs_epi32(u[0], u[2]);
   in[1] = _mm_packs_epi32(u[1], u[3]);
@@ -748,45 +744,26 @@ void av1_fdct8x8_quant_sse2(const int16_t *input, int stride,
 // load 8x8 array
 static INLINE void load_buffer_8x8(const int16_t *input, __m128i *in,
                                    int stride, int flipud, int fliplr) {
+  int i;
   if (!flipud) {
-    in[0] = _mm_load_si128((const __m128i *)(input + 0 * stride));
-    in[1] = _mm_load_si128((const __m128i *)(input + 1 * stride));
-    in[2] = _mm_load_si128((const __m128i *)(input + 2 * stride));
-    in[3] = _mm_load_si128((const __m128i *)(input + 3 * stride));
-    in[4] = _mm_load_si128((const __m128i *)(input + 4 * stride));
-    in[5] = _mm_load_si128((const __m128i *)(input + 5 * stride));
-    in[6] = _mm_load_si128((const __m128i *)(input + 6 * stride));
-    in[7] = _mm_load_si128((const __m128i *)(input + 7 * stride));
+    for (i = 0; i < 8; ++i) {
+      in[i] = _mm_load_si128((const __m128i *)(input + i * stride));
+    }
   } else {
-    in[0] = _mm_load_si128((const __m128i *)(input + 7 * stride));
-    in[1] = _mm_load_si128((const __m128i *)(input + 6 * stride));
-    in[2] = _mm_load_si128((const __m128i *)(input + 5 * stride));
-    in[3] = _mm_load_si128((const __m128i *)(input + 4 * stride));
-    in[4] = _mm_load_si128((const __m128i *)(input + 3 * stride));
-    in[5] = _mm_load_si128((const __m128i *)(input + 2 * stride));
-    in[6] = _mm_load_si128((const __m128i *)(input + 1 * stride));
-    in[7] = _mm_load_si128((const __m128i *)(input + 0 * stride));
+    for (i = 0; i < 8; ++i) {
+      in[i] = _mm_load_si128((const __m128i *)(input + (7 - i) * stride));
+    }
   }
 
   if (fliplr) {
-    in[0] = mm_reverse_epi16(in[0]);
-    in[1] = mm_reverse_epi16(in[1]);
-    in[2] = mm_reverse_epi16(in[2]);
-    in[3] = mm_reverse_epi16(in[3]);
-    in[4] = mm_reverse_epi16(in[4]);
-    in[5] = mm_reverse_epi16(in[5]);
-    in[6] = mm_reverse_epi16(in[6]);
-    in[7] = mm_reverse_epi16(in[7]);
+    for (i = 0; i < 8; ++i) {
+      in[i] = mm_reverse_epi16(in[i]);
+    }
   }
 
-  in[0] = _mm_slli_epi16(in[0], 2);
-  in[1] = _mm_slli_epi16(in[1], 2);
-  in[2] = _mm_slli_epi16(in[2], 2);
-  in[3] = _mm_slli_epi16(in[3], 2);
-  in[4] = _mm_slli_epi16(in[4], 2);
-  in[5] = _mm_slli_epi16(in[5], 2);
-  in[6] = _mm_slli_epi16(in[6], 2);
-  in[7] = _mm_slli_epi16(in[7], 2);
+  for (i = 0; i < 8; ++i) {
+    in[i] = _mm_slli_epi16(in[i], 2);
+  }
 }
 
 // right shift and rounding
@@ -799,17 +776,13 @@ static INLINE void right_shift_8x8(__m128i *res, const int bit) {
   __m128i sign5 = _mm_srai_epi16(res[5], 15);
   __m128i sign6 = _mm_srai_epi16(res[6], 15);
   __m128i sign7 = _mm_srai_epi16(res[7], 15);
+  int i;
 
   if (bit == 2) {
     const __m128i const_rounding = _mm_set1_epi16(1);
-    res[0] = _mm_adds_epi16(res[0], const_rounding);
-    res[1] = _mm_adds_epi16(res[1], const_rounding);
-    res[2] = _mm_adds_epi16(res[2], const_rounding);
-    res[3] = _mm_adds_epi16(res[3], const_rounding);
-    res[4] = _mm_adds_epi16(res[4], const_rounding);
-    res[5] = _mm_adds_epi16(res[5], const_rounding);
-    res[6] = _mm_adds_epi16(res[6], const_rounding);
-    res[7] = _mm_adds_epi16(res[7], const_rounding);
+    for (i = 0; i < 8; ++i) {
+      res[i] = _mm_adds_epi16(res[i], const_rounding);
+    }
   }
 
   res[0] = _mm_sub_epi16(res[0], sign0);
@@ -822,37 +795,22 @@ static INLINE void right_shift_8x8(__m128i *res, const int bit) {
   res[7] = _mm_sub_epi16(res[7], sign7);
 
   if (bit == 1) {
-    res[0] = _mm_srai_epi16(res[0], 1);
-    res[1] = _mm_srai_epi16(res[1], 1);
-    res[2] = _mm_srai_epi16(res[2], 1);
-    res[3] = _mm_srai_epi16(res[3], 1);
-    res[4] = _mm_srai_epi16(res[4], 1);
-    res[5] = _mm_srai_epi16(res[5], 1);
-    res[6] = _mm_srai_epi16(res[6], 1);
-    res[7] = _mm_srai_epi16(res[7], 1);
+    for (i = 0; i < 8; ++i) {
+      res[i] = _mm_srai_epi16(res[i], 1);
+    }
   } else {
-    res[0] = _mm_srai_epi16(res[0], 2);
-    res[1] = _mm_srai_epi16(res[1], 2);
-    res[2] = _mm_srai_epi16(res[2], 2);
-    res[3] = _mm_srai_epi16(res[3], 2);
-    res[4] = _mm_srai_epi16(res[4], 2);
-    res[5] = _mm_srai_epi16(res[5], 2);
-    res[6] = _mm_srai_epi16(res[6], 2);
-    res[7] = _mm_srai_epi16(res[7], 2);
+    for (i = 0; i < 8; ++i) {
+      res[i] = _mm_srai_epi16(res[i], 2);
+    }
   }
 }
 
 // write 8x8 array
 static INLINE void write_buffer_8x8(tran_low_t *output, __m128i *res,
                                     int stride) {
-  store_output(&res[0], (output + 0 * stride));
-  store_output(&res[1], (output + 1 * stride));
-  store_output(&res[2], (output + 2 * stride));
-  store_output(&res[3], (output + 3 * stride));
-  store_output(&res[4], (output + 4 * stride));
-  store_output(&res[5], (output + 5 * stride));
-  store_output(&res[6], (output + 6 * stride));
-  store_output(&res[7], (output + 7 * stride));
+  for (int i = 0; i < 8; ++i) {
+    store_output(&res[i], (output + i * stride));
+  }
 }
 
 // perform in-place transpose
@@ -1477,14 +1435,9 @@ static INLINE void array_transpose_16x16(__m128i *res0, __m128i *res1) {
   array_transpose_8x8(res0 + 8, res1);
   array_transpose_8x8(res1 + 8, res1 + 8);
 
-  res0[8] = tbuf[0];
-  res0[9] = tbuf[1];
-  res0[10] = tbuf[2];
-  res0[11] = tbuf[3];
-  res0[12] = tbuf[4];
-  res0[13] = tbuf[5];
-  res0[14] = tbuf[6];
-  res0[15] = tbuf[7];
+  for (int i = 0; i < 8; ++i) {
+    res0[i + 8] = tbuf[i];
+  }
 }
 
 static INLINE void right_shift_16x16(__m128i *res0, __m128i *res1) {
@@ -2471,45 +2424,26 @@ static INLINE void prepare_4x8_row_first(__m128i *in) {
 static INLINE void load_buffer_4x8(const int16_t *input, __m128i *in,
                                    int stride, int flipud, int fliplr) {
   const int shift = 2;
+  int i;
   if (!flipud) {
-    in[0] = _mm_loadl_epi64((const __m128i *)(input + 0 * stride));
-    in[1] = _mm_loadl_epi64((const __m128i *)(input + 1 * stride));
-    in[2] = _mm_loadl_epi64((const __m128i *)(input + 2 * stride));
-    in[3] = _mm_loadl_epi64((const __m128i *)(input + 3 * stride));
-    in[4] = _mm_loadl_epi64((const __m128i *)(input + 4 * stride));
-    in[5] = _mm_loadl_epi64((const __m128i *)(input + 5 * stride));
-    in[6] = _mm_loadl_epi64((const __m128i *)(input + 6 * stride));
-    in[7] = _mm_loadl_epi64((const __m128i *)(input + 7 * stride));
+    for (i = 0; i < 8; ++i) {
+      in[i] = _mm_loadl_epi64((const __m128i *)(input + i * stride));
+    }
   } else {
-    in[0] = _mm_loadl_epi64((const __m128i *)(input + 7 * stride));
-    in[1] = _mm_loadl_epi64((const __m128i *)(input + 6 * stride));
-    in[2] = _mm_loadl_epi64((const __m128i *)(input + 5 * stride));
-    in[3] = _mm_loadl_epi64((const __m128i *)(input + 4 * stride));
-    in[4] = _mm_loadl_epi64((const __m128i *)(input + 3 * stride));
-    in[5] = _mm_loadl_epi64((const __m128i *)(input + 2 * stride));
-    in[6] = _mm_loadl_epi64((const __m128i *)(input + 1 * stride));
-    in[7] = _mm_loadl_epi64((const __m128i *)(input + 0 * stride));
+    for (i = 0; i < 8; ++i) {
+      in[i] = _mm_loadl_epi64((const __m128i *)(input + (7 - i) * stride));
+    }
   }
 
   if (fliplr) {
-    in[0] = _mm_shufflelo_epi16(in[0], 0x1b);
-    in[1] = _mm_shufflelo_epi16(in[1], 0x1b);
-    in[2] = _mm_shufflelo_epi16(in[2], 0x1b);
-    in[3] = _mm_shufflelo_epi16(in[3], 0x1b);
-    in[4] = _mm_shufflelo_epi16(in[4], 0x1b);
-    in[5] = _mm_shufflelo_epi16(in[5], 0x1b);
-    in[6] = _mm_shufflelo_epi16(in[6], 0x1b);
-    in[7] = _mm_shufflelo_epi16(in[7], 0x1b);
+    for (i = 0; i < 8; ++i) {
+      in[i] = _mm_shufflelo_epi16(in[i], 0x1b);
+    }
   }
 
-  in[0] = _mm_slli_epi16(in[0], shift);
-  in[1] = _mm_slli_epi16(in[1], shift);
-  in[2] = _mm_slli_epi16(in[2], shift);
-  in[3] = _mm_slli_epi16(in[3], shift);
-  in[4] = _mm_slli_epi16(in[4], shift);
-  in[5] = _mm_slli_epi16(in[5], shift);
-  in[6] = _mm_slli_epi16(in[6], shift);
-  in[7] = _mm_slli_epi16(in[7], shift);
+  for (i = 0; i < 8; ++i) {
+    in[i] = _mm_slli_epi16(in[i], shift);
+  }
 
   scale_sqrt2_8x4(in);
   scale_sqrt2_8x4(in + 4);
@@ -2667,36 +2601,32 @@ void av1_fht4x8_sse2(const int16_t *input, tran_low_t *output, int stride,
 static INLINE void load_buffer_8x4(const int16_t *input, __m128i *in,
                                    int stride, int flipud, int fliplr) {
   const int shift = 2;
+  int i;
   if (!flipud) {
-    in[0] = _mm_loadu_si128((const __m128i *)(input + 0 * stride));
-    in[1] = _mm_loadu_si128((const __m128i *)(input + 1 * stride));
-    in[2] = _mm_loadu_si128((const __m128i *)(input + 2 * stride));
-    in[3] = _mm_loadu_si128((const __m128i *)(input + 3 * stride));
+    for (i = 0; i < 4; ++i) {
+      in[i] = _mm_loadu_si128((const __m128i *)(input + i * stride));
+    }
   } else {
-    in[0] = _mm_loadu_si128((const __m128i *)(input + 3 * stride));
-    in[1] = _mm_loadu_si128((const __m128i *)(input + 2 * stride));
-    in[2] = _mm_loadu_si128((const __m128i *)(input + 1 * stride));
-    in[3] = _mm_loadu_si128((const __m128i *)(input + 0 * stride));
+    for (i = 0; i < 4; ++i) {
+      in[i] = _mm_loadu_si128((const __m128i *)(input + (3 - i) * stride));
+    }
   }
 
   if (fliplr) {
-    in[0] = mm_reverse_epi16(in[0]);
-    in[1] = mm_reverse_epi16(in[1]);
-    in[2] = mm_reverse_epi16(in[2]);
-    in[3] = mm_reverse_epi16(in[3]);
+    for (i = 0; i < 4; ++i) {
+      in[i] = mm_reverse_epi16(in[i]);
+    }
   }
 
-  in[0] = _mm_slli_epi16(in[0], shift);
-  in[1] = _mm_slli_epi16(in[1], shift);
-  in[2] = _mm_slli_epi16(in[2], shift);
-  in[3] = _mm_slli_epi16(in[3], shift);
+  for (i = 0; i < 4; ++i) {
+    in[i] = _mm_slli_epi16(in[i], shift);
+  }
 
   scale_sqrt2_8x4(in);
 
-  in[4] = _mm_shuffle_epi32(in[0], 0xe);
-  in[5] = _mm_shuffle_epi32(in[1], 0xe);
-  in[6] = _mm_shuffle_epi32(in[2], 0xe);
-  in[7] = _mm_shuffle_epi32(in[3], 0xe);
+  for (i = 0; i < 4; ++i) {
+    in[i + 4] = _mm_shuffle_epi32(in[i], 0xe);
+  }
 }
 
 static INLINE void write_buffer_8x4(tran_low_t *output, __m128i *res) {
@@ -3271,14 +3201,9 @@ static INLINE void round_signed_8x8(__m128i *in, const int bit) {
   in[6] = _mm_add_epi16(_mm_add_epi16(in[6], rounding), sign6);
   in[7] = _mm_add_epi16(_mm_add_epi16(in[7], rounding), sign7);
 
-  in[0] = _mm_srai_epi16(in[0], bit);
-  in[1] = _mm_srai_epi16(in[1], bit);
-  in[2] = _mm_srai_epi16(in[2], bit);
-  in[3] = _mm_srai_epi16(in[3], bit);
-  in[4] = _mm_srai_epi16(in[4], bit);
-  in[5] = _mm_srai_epi16(in[5], bit);
-  in[6] = _mm_srai_epi16(in[6], bit);
-  in[7] = _mm_srai_epi16(in[7], bit);
+  for (int i = 0; i < 8; ++i) {
+    in[i] = _mm_srai_epi16(in[i], bit);
+  }
 }
 
 static INLINE void round_signed_16x16(__m128i *in0, __m128i *in1) {
