@@ -277,8 +277,8 @@ void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
 
   assert(bsize == BLOCK_8X8 || bsize == BLOCK_4X4);
   for (bi = 0; bi < cdef_count; bi++) {
-    int t = !filter_skip && list[bi].skip ? 0 : pri_strength;
-    int s = !filter_skip && list[bi].skip ? 0 : sec_strength;
+    int t = !filter_skip && list[bi].skip && !pli ? 0 : pri_strength;
+    int s = !filter_skip && list[bi].skip && !pli ? 0 : sec_strength;
     by = list[bi].by;
     bx = list[bi].bx;
     if (dst8)
