@@ -217,12 +217,7 @@ uint8_t av1_read_coeffs_txb_facade(AV1_COMMON *cm, MACROBLOCKD *xd,
 
   const BLOCK_SIZE bsize = mbmi->sb_type;
 #if CONFIG_CB4X4
-#if CONFIG_CHROMA_2X2
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
-#else
-  const BLOCK_SIZE plane_bsize =
-      AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
-#endif  // CONFIG_CHROMA_2X2
 #else   // CONFIG_CB4X4
   const BLOCK_SIZE plane_bsize =
       get_plane_block_size(AOMMAX(BLOCK_8X8, bsize), pd);

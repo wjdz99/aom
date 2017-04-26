@@ -934,11 +934,7 @@ static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
   for (plane = plane_from; plane <= plane_to; ++plane) {
     struct macroblock_plane *const p = &x->plane[plane];
     struct macroblockd_plane *const pd = &xd->plane[plane];
-#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
-    const BLOCK_SIZE bs = AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
-#else
     const BLOCK_SIZE bs = get_plane_block_size(bsize, pd);
-#endif  // CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
 
     unsigned int sse;
     int rate;
@@ -1237,12 +1233,7 @@ int av1_cost_coeffs(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
   const struct macroblockd_plane *pd = &xd->plane[plane];
   const BLOCK_SIZE bsize = mbmi->sb_type;
 #if CONFIG_CB4X4
-#if CONFIG_CHROMA_2X2
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
-#else
-  const BLOCK_SIZE plane_bsize =
-      AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
-#endif  // CONFIG_CHROMA_2X2
 #else   // CONFIG_CB4X4
   const BLOCK_SIZE plane_bsize =
       get_plane_block_size(AOMMAX(BLOCK_8X8, bsize), pd);
@@ -2567,7 +2558,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
   const int dst_stride = pd->dst.stride;
   const uint8_t *src_init = &p->src.buf[row * 4 * src_stride + col * 4];
   uint8_t *dst_init = &pd->dst.buf[row * 4 * dst_stride + col * 4];
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   // TODO(jingning): This is a temporal change. The whole function should be
   // out when cb4x4 is enabled.
   ENTROPY_CONTEXT ta[4], tempa[4];
@@ -2575,7 +2566,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 #else
   ENTROPY_CONTEXT ta[2], tempa[2];
   ENTROPY_CONTEXT tl[2], templ[2];
-#endif  // CONFIG_CB4X4
+#endif  // CONFIG_CHROMA_2X2
 
   const int pred_width_in_4x4_blocks = num_4x4_blocks_wide_lookup[bsize];
   const int pred_height_in_4x4_blocks = num_4x4_blocks_high_lookup[bsize];
@@ -4887,7 +4878,6 @@ static void choose_intra_uv_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
   rd_pick_intra_sbuv_mode(cpi, x, rate_uv, rate_uv_tokenonly, dist_uv, skip_uv,
                           bsize, max_tx_size);
 #else
-  max_tx_size = AOMMAX(max_tx_size, TX_4X4);
   if (x->skip_chroma_rd) {
     *rate_uv = 0;
     *rate_uv_tokenonly = 0;
@@ -5283,13 +5273,13 @@ typedef struct {
   int_mv ref_mv[2];
 #endif  // CONFIG_EXT_INTER
 
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   ENTROPY_CONTEXT ta[4];
   ENTROPY_CONTEXT tl[4];
 #else
   ENTROPY_CONTEXT ta[2];
   ENTROPY_CONTEXT tl[2];
-#endif  // CONFIG_CB4X4
+#endif  // CONFIG_CHROMA_2X2
 } SEG_RDSTAT;
 
 typedef struct {
@@ -5745,11 +5735,11 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const int num_4x4_blocks_wide = num_4x4_blocks_wide_lookup[bsize];
   const int num_4x4_blocks_high = num_4x4_blocks_high_lookup[bsize];
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   ENTROPY_CONTEXT t_above[4], t_left[4];
 #else
   ENTROPY_CONTEXT t_above[2], t_left[2];
-#endif  // CONFIG_CB4X4
+#endif  // CONFIG_CHROMA_2X2
   int subpelmv = 1, have_ref = 0;
   const int has_second_rf = has_second_ref(mbmi);
   const int inter_mode_mask = cpi->sf.inter_mode_mask[bsize];
@@ -9140,9 +9130,6 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
                                    [pd[1].subsampling_x][pd[1].subsampling_y];
 
 #if CONFIG_CB4X4
-#if !CONFIG_CHROMA_2X2
-  max_uv_tx_size = AOMMAX(max_uv_tx_size, TX_4X4);
-#endif  // !CONFIG_CHROMA_2X2
   if (!x->skip_chroma_rd)
     rd_pick_intra_sbuv_mode(cpi, x, &rate_uv, &rate_uv_tokenonly, &dist_uv,
                             &uv_skip, bsize, max_uv_tx_size);

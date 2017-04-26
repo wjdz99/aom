@@ -16,7 +16,7 @@
 #include "av1/common/idct.h"
 #include "av1/encoder/hybrid_fwd_txfm.h"
 
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
 static void fwd_txfm_2x2(const int16_t *src_diff, tran_low_t *coeff,
                          int diff_stride, TX_TYPE tx_type, int lossless) {
   tran_high_t a1 = src_diff[0];
@@ -133,7 +133,7 @@ static void fwd_txfm_64x64(const int16_t *src_diff, tran_low_t *coeff,
 #endif  // CONFIG_TX64X64
 
 #if CONFIG_HIGHBITDEPTH
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
 static void highbd_fwd_txfm_2x2(const int16_t *src_diff, tran_low_t *coeff,
                                 int diff_stride, TX_TYPE tx_type, int lossless,
                                 const int bd) {
@@ -425,7 +425,7 @@ void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
     case TX_4X4:
       fwd_txfm_4x4(src_diff, coeff, diff_stride, tx_type, lossless);
       break;
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
     case TX_2X2:
       fwd_txfm_2x2(src_diff, coeff, diff_stride, tx_type, lossless);
       break;
@@ -488,7 +488,7 @@ void av1_highbd_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff,
     case TX_4X4:
       highbd_fwd_txfm_4x4(src_diff, coeff, diff_stride, tx_type, lossless, bd);
       break;
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
     case TX_2X2:
       highbd_fwd_txfm_2x2(src_diff, coeff, diff_stride, tx_type, lossless, bd);
       break;
