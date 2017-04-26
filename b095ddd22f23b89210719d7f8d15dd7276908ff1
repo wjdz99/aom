@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0d3ff7c2_a5db8cc5",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1065,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-04-26T19:22:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ebf68b7_ab752919",
+      "range": {
+        "startLine": 1065,
+        "startChar": 71,
+        "endLine": 1065,
+        "endChar": 73
+      },
+      "revId": "b095ddd22f23b89210719d7f8d15dd7276908ff1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9e34c267_df132327",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-04-26T17:54:57Z",
       "side": 1,
       "message": "No \"const\" for parameters passed by value.",
+      "range": {
+        "startLine": 1066,
+        "startChar": 33,
+        "endLine": 1066,
+        "endChar": 38
+      },
+      "revId": "b095ddd22f23b89210719d7f8d15dd7276908ff1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16bf4b87_39566853",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1066,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-04-26T19:22:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e34c267_df132327",
       "range": {
         "startLine": 1066,
         "startChar": 33,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "bac904db_101b39fe",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-04-26T19:22:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8461db15_d9187759",
+      "range": {
+        "startLine": 1067,
+        "startChar": 8,
+        "endLine": 1067,
+        "endChar": 0
+      },
+      "revId": "b095ddd22f23b89210719d7f8d15dd7276908ff1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8f62bb99_ce9e9559",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 2
@@ -82,6 +154,24 @@
       "writtenOn": "2017-04-26T17:54:57Z",
       "side": 1,
       "message": "You can move this declaration out of the \u0027if\u0027. Then, the code at line#1101 can also use it.",
+      "revId": "b095ddd22f23b89210719d7f8d15dd7276908ff1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74834edd_96fe55a3",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1073,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-04-26T19:22:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f62bb99_ce9e9559",
       "revId": "b095ddd22f23b89210719d7f8d15dd7276908ff1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -105,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "d88a6e51_4c01e2c9",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1080,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-04-26T19:22:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e47933f3_d09cbeb3",
+      "revId": "b095ddd22f23b89210719d7f8d15dd7276908ff1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6057b71a_06e5190b",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 2
@@ -116,6 +224,24 @@
       "writtenOn": "2017-04-26T17:54:57Z",
       "side": 1,
       "message": "Both of these constants can be declared as local const variables at the top, to avoid copy paste. A meaningful variable name for that would also make it easy to understand what it exactly is.",
+      "revId": "b095ddd22f23b89210719d7f8d15dd7276908ff1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63059996_ad6232bc",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1082,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-04-26T19:22:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6057b71a_06e5190b",
       "revId": "b095ddd22f23b89210719d7f8d15dd7276908ff1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -139,6 +265,24 @@
     },
     {
       "key": {
+        "uuid": "0966bcf5_1d2ca527",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1083,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-04-26T19:22:44Z",
+      "side": 1,
+      "message": "Currently they all serve for different purposes, e.g. ref_mvs are used for the encoding of the current block mvs, and pred_mv used as the initial motion search points. Definitely a further code clean (could be big) is needed.",
+      "parentUuid": "1c57e19b_7c2207e7",
+      "revId": "b095ddd22f23b89210719d7f8d15dd7276908ff1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "528c73cd_41eb587b",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 2
@@ -150,6 +294,24 @@
       "writtenOn": "2017-04-26T17:54:57Z",
       "side": 1,
       "message": "\"  // CONFIG_EXT_INTER\"",
+      "revId": "b095ddd22f23b89210719d7f8d15dd7276908ff1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6045a087_56f1e577",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1112,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-04-26T19:22:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "528c73cd_41eb587b",
       "revId": "b095ddd22f23b89210719d7f8d15dd7276908ff1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
