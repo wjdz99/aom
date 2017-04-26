@@ -33,8 +33,13 @@ void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
   const struct macroblockd_plane *const pd_u = &xd->plane[AOM_PLANE_U];
   const struct macroblockd_plane *const pd_v = &xd->plane[AOM_PLANE_V];
 
+#if CONFIG_HIGHBITDEPTH
+  const uint16_t *const dst_u = CONVERT_TO_SHORTPTR(pd_u->dst.buf);
+  const uint16_t *const dst_v = CONVERT_TO_SHORTPTR(pd_v->dst.buf);
+#else
   const uint8_t *const dst_u = pd_u->dst.buf;
   const uint8_t *const dst_v = pd_v->dst.buf;
+#endif
 
   const int dst_u_stride = pd_u->dst.stride;
   const int dst_v_stride = pd_v->dst.stride;
@@ -99,30 +104,46 @@ double cfl_ind_to_alpha(const MB_MODE_INFO *const mbmi,
 }
 
 // Predict the current transform block using CfL.
-void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
+void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst8, int dst_stride,
                        int row, int col, TX_SIZE tx_size, int dc_pred,
                        double alpha) {
   const int tx_block_width = tx_size_wide[tx_size];
   const int tx_block_height = tx_size_high[tx_size];
 
-  const double y_avg = cfl_load(cfl, dst, dst_stride, row, col, tx_size);
+  const double y_avg = cfl_load(cfl, dst8, dst_stride, row, col, tx_size);
+
+#if CONFIG_HIGHBITDEPTH
+  uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
+#else
+  uint8_t *dst = dst8;
+#endif
 
   for (int j = 0; j < tx_block_height; j++) {
     for (int i = 0; i < tx_block_width; i++) {
+#if CONFIG_HIGHBITDEPTH
+      dst[i] = (uint16_t)(alpha * (dst[i] - y_avg) + dc_pred + 0.5);
+#else
       dst[i] = (uint8_t)(alpha * (dst[i] - y_avg) + dc_pred + 0.5);
+#endif
     }
     dst += dst_stride;
   }
 }
 
-void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
+void cfl_store(CFL_CTX *cfl, const uint8_t *input8, int input_stride, int row,
                int col, TX_SIZE tx_size) {
   const int tx_width = tx_size_wide[tx_size];
   const int tx_height = tx_size_high[tx_size];
   const int tx_off_log2 = tx_size_wide_log2[0];
 
+#if CONFIG_HIGHBITDEPTH
+  const uint16_t *input = CONVERT_TO_SHORTPTR(input8);
+#else
+  const uint8_t *input = input8;
+#endif
+
   // Store the input into the CfL pixel buffer
-  uint8_t *y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << tx_off_log2];
+  uint16_t *y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << tx_off_log2];
 
   // Check that we remain inside the pixel buffer.
   assert(MAX_SB_SIZE * (row + tx_height - 1) + col + tx_width - 1 <
@@ -149,15 +170,21 @@ void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
 }
 
 // Load from the CfL pixel buffer into output
-double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
-                int col, TX_SIZE tx_size) {
+double cfl_load(const CFL_CTX *cfl, uint8_t *output8, int output_stride,
+                int row, int col, TX_SIZE tx_size) {
   const int tx_width = tx_size_wide[tx_size];
   const int tx_height = tx_size_high[tx_size];
   const int sub_x = cfl->subsampling_x;
   const int sub_y = cfl->subsampling_y;
   const int tx_off_log2 = tx_size_wide_log2[0];
 
-  const uint8_t *y_pix;
+  const uint16_t *y_pix;
+
+#if CONFIG_HIGHBITDEPTH
+  uint16_t *output = CONVERT_TO_SHORTPTR(output8);
+#else
+  uint8_t *output = output8;
+#endif
 
   int diff_width = 0;
   int diff_height = 0;

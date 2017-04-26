@@ -1576,9 +1576,14 @@ static int cfl_compute_alpha_ind(MACROBLOCK *const x, const CFL_CTX *const cfl,
   const double dc_pred_u = cfl->dc_pred[CFL_PRED_U];
   const double dc_pred_v = cfl->dc_pred[CFL_PRED_V];
 
-  // Temporary pixel buffer used to store the CfL prediction when we compute the
-  // alpha index.
+// Temporary pixel buffer used to store the CfL prediction when we compute the
+// alpha index.
+#if CONFIG_HIGHBITDEPTH
+  static uint16_t tmp_pix16[MAX_SB_SQUARE];
+  static const uint8_t *tmp_pix = CONVERT_TO_BYTEPTR(tmp_pix16);
+#else
   static uint8_t tmp_pix[MAX_SB_SQUARE];
+#endif
   // Load CfL Prediction over the entire block
   const double y_avg =
       cfl_load(cfl, tmp_pix, MAX_SB_SIZE, 0, 0, max_txsize_lookup[bsize]);
