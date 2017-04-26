@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1dc8077a_9b46e4a0",
+        "filename": "build/cmake/generate_aom_config_templates.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-26T20:00:13Z",
+      "side": 1,
+      "message": "could update this to be style compliant while you\u0027re here -\u003e AOM_CONFIG_H_",
+      "range": {
+        "startLine": 38,
+        "startChar": 9,
+        "endLine": 38,
+        "endChar": 21
+      },
+      "revId": "c2f19938fa7d1c2ff8870360ea4b01b685af36b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a1c4cd9_8a86473c",
+        "filename": "build/cmake/generate_aom_config_templates.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-26T20:00:13Z",
+      "side": 1,
+      "message": "is that the common way to escape things? I would have expected \\${{...",
+      "range": {
+        "startLine": 70,
+        "startChar": 59,
+        "endLine": 70,
+        "endChar": 62
+      },
+      "revId": "c2f19938fa7d1c2ff8870360ea4b01b685af36b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
