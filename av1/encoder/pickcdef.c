@@ -235,7 +235,7 @@ uint64_t compute_dering_dist(uint16_t *dst, int dstride, uint16_t *src,
                               &src[bi << (3 + 3)], 8, coeff_shift);
       } else {
         sum += mse_8x8_16bit(&dst[(by << 3) * dstride + (bx << 3)], dstride,
-                             &src[bi << (3 + 3)], 8);
+                             &src[bi << (3 + 3)], 8) * 2;
       }
     }
   } else if (bsize == BLOCK_4X8) {
@@ -243,18 +243,18 @@ uint64_t compute_dering_dist(uint16_t *dst, int dstride, uint16_t *src,
       by = dlist[bi].by;
       bx = dlist[bi].bx;
       sum += mse_4x4_16bit(&dst[(by << 3) * dstride + (bx << 2)], dstride,
-                           &src[bi << (3 + 2)], 4);
+                           &src[bi << (3 + 2)], 4) << !!pli;
       sum += mse_4x4_16bit(&dst[((by << 3) + 4) * dstride + (bx << 2)], dstride,
-                           &src[(bi << (3 + 2)) + 4 * 4], 4);
+                           &src[(bi << (3 + 2)) + 4 * 4], 4) << !!pli;
     }
   } else if (bsize == BLOCK_8X4) {
     for (bi = 0; bi < dering_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
       sum += mse_4x4_16bit(&dst[(by << 2) * dstride + (bx << 3)], dstride,
-                           &src[bi << (2 + 3)], 8);
+                           &src[bi << (2 + 3)], 8) << !!pli;
       sum += mse_4x4_16bit(&dst[(by << 2) * dstride + (bx << 3) + 4], dstride,
-                           &src[(bi << (2 + 3)) + 4], 8);
+                           &src[(bi << (2 + 3)) + 4], 8) << !!pli;
     }
   } else {
     assert(bsize == BLOCK_4X4);
@@ -262,7 +262,7 @@ uint64_t compute_dering_dist(uint16_t *dst, int dstride, uint16_t *src,
       by = dlist[bi].by;
       bx = dlist[bi].bx;
       sum += mse_4x4_16bit(&dst[(by << 2) * dstride + (bx << 2)], dstride,
-                           &src[bi << (2 + 2)], 4);
+                           &src[bi << (2 + 2)], 4) << !!pli;
     }
   }
   return sum >> 2 * coeff_shift;
