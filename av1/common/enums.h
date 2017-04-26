@@ -87,7 +87,7 @@ typedef enum BITSTREAM_PROFILE {
 // type, so that we can save memory when they are used in structs/arrays.
 
 typedef enum ATTRIBUTE_PACKED {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   BLOCK_2X2,
   BLOCK_2X4,
   BLOCK_4X2,
@@ -144,7 +144,7 @@ typedef char PARTITION_CONTEXT;
 
 // block transform size
 typedef enum ATTRIBUTE_PACKED {
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
   TX_2X2,  // 2x2 transform
 #endif
   TX_4X4,    // 4x4 transform
@@ -239,15 +239,15 @@ typedef enum {
 } BOUNDARY_TYPE;
 
 #if CONFIG_EXT_TX
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
 #define EXT_TX_SIZES 5  // number of sizes that use extended transforms
 #else
 #define EXT_TX_SIZES 4       // number of sizes that use extended transforms
-#endif                       // CONFIG_CB4X4
+#endif                       // CONFIG_CHROMA_2X2
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER
 #define EXT_TX_SETS_INTRA 3  // Sets of transform selections for INTRA
 #else
-#if CONFIG_CB4X4
+#if CONFIG_CHROMA_2X2
 #define EXT_TX_SIZES 4  // number of sizes that use extended transforms
 #else
 #define EXT_TX_SIZES 3  // number of sizes that use extended transforms
