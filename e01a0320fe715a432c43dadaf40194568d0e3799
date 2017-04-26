@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6b19542_dc23d52a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-04-26T20:47:32Z",
+      "side": 1,
+      "message": "Please add:\nBUG\u003daomedia:462",
+      "revId": "e01a0320fe715a432c43dadaf40194568d0e3799",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
