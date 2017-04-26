@@ -6138,7 +6138,7 @@ void av1_default_coef_probs(AV1_COMMON *cm) {
 static void adapt_coef_probs(AV1_COMMON *cm, TX_SIZE tx_size,
                              unsigned int count_sat,
                              unsigned int update_factor) {
-  const FRAME_CONTEXT *pre_fc = &cm->frame_contexts[cm->frame_context_idx];
+  const FRAME_CONTEXT *pre_fc = cm->pre_fc;
   av1_coeff_probs_model *const probs = cm->fc->coef_probs[tx_size];
 #if CONFIG_SUBFRAME_PROB_UPDATE
   const av1_coeff_probs_model *const pre_probs =

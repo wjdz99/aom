@@ -333,6 +333,7 @@ static void setup_frame(AV1_COMP *cpi) {
     *cm->fc = cm->frame_contexts[cm->frame_context_idx];
     av1_zero(cpi->interp_filter_selected[0]);
   }
+  cm->pre_fc = &cm->frame_contexts[cm->frame_context_idx];
 
   cpi->vaq_refresh = 0;
 
