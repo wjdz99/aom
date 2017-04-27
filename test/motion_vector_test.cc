@@ -17,6 +17,16 @@
 #include "test/yuv_video_source.h"
 
 namespace {
+// On the 32-bit system, if using 4k test clip, an "out of memory" error occurs
+// because of the AddressSanitizer instrumentation memory overhead. Here, reduce
+// test clip's resolution while testing on 32-bit system and AddressSanitizer is
+// enabled.
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer) && ARCH_X86
+#define TESTING_LOWRES_CLIP
+#endif
+#endif
+
 #define MAX_EXTREME_MV 1
 #define MIN_EXTREME_MV 2
 
@@ -82,7 +92,12 @@ TEST_P(MotionVectorTestLarge, OverallTest) {
 
   testing::internal::scoped_ptr<libaom_test::VideoSource> video;
   video.reset(new libaom_test::YUVVideoSource(
-      "niklas_640_480_30.yuv", AOM_IMG_FMT_I420, 3840, 2160,  // 2048, 1080,
+      "niklas_640_480_30.yuv", AOM_IMG_FMT_I420,
+#ifdef TESTING_LOWRES_CLIP
+      2048, 1080,
+#else
+      3840, 2160,
+#endif
       30, 1, 0, 5));
 
   ASSERT_TRUE(video.get() != NULL);
