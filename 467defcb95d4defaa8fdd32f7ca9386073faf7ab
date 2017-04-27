@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "00b49e7c_eb91d9cf",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-27T23:15:06Z",
+      "side": 1,
+      "message": "Before these switch { } blocks, \u0027val\u0027 was initialized differently in different places (e.g. \"0\" vs \"-1\"). And I wasn\u0027t sure if those initial values mattered, given there is no \"default\" in these switch cases.\nShould the \u0027default\u0027 never happen in any of the 3 cases?",
+      "parentUuid": "db50f49b_9bf55690",
+      "range": {
+        "startLine": 70,
+        "startChar": 42,
+        "endLine": 70,
+        "endChar": 56
+      },
+      "revId": "467defcb95d4defaa8fdd32f7ca9386073faf7ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da427f32_dbfc25f6",
         "filename": "av1/decoder/detokenize.c",
         "patchSetId": 1
