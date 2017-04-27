@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd9cabb1_5a7ebcd5",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 9070,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-04-27T18:21:43Z",
+      "side": 1,
+      "message": "This line can be moved to after the if().",
+      "range": {
+        "startLine": 9070,
+        "startChar": 2,
+        "endLine": 9070,
+        "endChar": 36
+      },
+      "revId": "5668520598f4fa03095c024b476e534a47f6979e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5eb6be3_7b0f1703",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 9078,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-04-27T18:21:43Z",
+      "side": 1,
+      "message": "Better to use block_size_wide[] and block_size_high[].",
+      "range": {
+        "startLine": 9077,
+        "startChar": 2,
+        "endLine": 9078,
+        "endChar": 54
+      },
+      "revId": "5668520598f4fa03095c024b476e534a47f6979e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b7e2230_fdff8775",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 9095,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-04-27T18:21:43Z",
+      "side": 1,
+      "message": "I think we should initialize x-\u003emv_limits first (e.g. x-\u003emv_limits.col_min\u003d(tile-\u003emi_col_start - mi_col) * MI_SIZE), then run av1_set_mv_search_range().",
+      "range": {
+        "startLine": 9086,
+        "startChar": 2,
+        "endLine": 9095,
+        "endChar": 80
+      },
+      "revId": "5668520598f4fa03095c024b476e534a47f6979e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
