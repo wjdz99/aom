@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a3f5391_eb1ff338",
+        "filename": "test/motion_vector_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-04-27T20:46:16Z",
+      "side": 1,
+      "message": "This should probably be a generic 32-bit check.\n\nsizeof(void*) \u003d\u003d 4 maybe?",
+      "range": {
+        "startLine": 25,
+        "startChar": 40,
+        "endLine": 25,
+        "endChar": 48
+      },
+      "revId": "7eadbb3101b52230b1574ce0c91a403cce68ffed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
