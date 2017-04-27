@@ -1868,6 +1868,7 @@ static void build_intra_predictors_high(
 // 129  C   D  ..  W   X
 // 129  E   F  ..  U   V
 // 129  G   H  ..  S   T   T   T   T   T
+  aom_memset16(left_data, 129, sizeof(left_data));
 
 #if CONFIG_EXT_INTRA
   if (is_dr_mode) {
@@ -2037,6 +2038,7 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
 // 129  E   F  ..  U   V
 // 129  G   H  ..  S   T   T   T   T   T
 // ..
+  memset(left_data, 129, sizeof(left_data));
 
 #if CONFIG_EXT_INTRA
   if (is_dr_mode) {
