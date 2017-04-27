@@ -2311,12 +2311,12 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
 
   cpi->td.mb.mbmi_ext = cpi->mbmi_ext_base + (mi_row * cm->mi_cols + mi_col);
 
+  set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols
 #if CONFIG_DEPENDENT_HORZTILES
-  set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols,
-                 cm->dependent_horz_tiles);
-#else
-  set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols);
-#endif
+                 ,
+                 cm->dependent_horz_tiles
+#endif  // CONFIG_DEPENDENT_HORZTILES
+                 );
 
   if (frame_is_intra_only(cm)) {
     write_mb_modes_kf(cm, xd, mi_row, mi_col, w);
@@ -2387,12 +2387,12 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
   bw = mi_size_wide[mbmi->sb_type];
   cpi->td.mb.mbmi_ext = cpi->mbmi_ext_base + (mi_row * cm->mi_cols + mi_col);
 
+  set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols
 #if CONFIG_DEPENDENT_HORZTILES
-  set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols,
-                 cm->dependent_horz_tiles);
-#else
-  set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols);
-#endif
+                 ,
+                 cm->dependent_horz_tiles
+#endif  // CONFIG_DEPENDENT_HORZTILES
+                 );
 
 #if CONFIG_PALETTE
   for (plane = 0; plane <= 1; ++plane) {

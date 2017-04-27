@@ -299,13 +299,13 @@ static void set_offsets_without_segment_id(const AV1_COMP *const cpi,
 
   // Set up distance of MB to edge of frame in 1/8th pel units.
   assert(!(mi_col & (mi_width - 1)) && !(mi_row & (mi_height - 1)));
+  set_mi_row_col(xd, tile, mi_row, mi_height, mi_col, mi_width, cm->mi_rows,
+                 cm->mi_cols
 #if CONFIG_DEPENDENT_HORZTILES
-  set_mi_row_col(xd, tile, mi_row, mi_height, mi_col, mi_width, cm->mi_rows,
-                 cm->mi_cols, cm->dependent_horz_tiles);
-#else
-  set_mi_row_col(xd, tile, mi_row, mi_height, mi_col, mi_width, cm->mi_rows,
-                 cm->mi_cols);
-#endif
+                 ,
+                 cm->dependent_horz_tiles
+#endif  // CONFIG_DEPENDENT_HORZTILES
+                 );
 
   // Set up source buffers.
   av1_setup_src_planes(x, cpi->source, mi_row, mi_col);

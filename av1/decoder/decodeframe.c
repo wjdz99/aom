@@ -714,14 +714,14 @@ static void set_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   xd->max_tx_size = max_txsize_lookup[bsize];
 #endif
 
-// Distance of Mb to the various image edges. These are specified to 8th pel
-// as they are always compared to values that are in 1/8th pel units
+  // Distance of Mb to the various image edges. These are specified to 8th pel
+  // as they are always compared to values that are in 1/8th pel units
+  set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols
 #if CONFIG_DEPENDENT_HORZTILES
-  set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols,
-                 cm->dependent_horz_tiles);
-#else
-  set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols);
-#endif
+                 ,
+                 cm->dependent_horz_tiles
+#endif  // CONFIG_DEPENDENT_HORZTILES
+                 );
 
   av1_setup_dst_planes(xd->plane, get_frame_new_buffer(cm), mi_row, mi_col);
 }
