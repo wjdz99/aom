@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c918323a_a7753fe8",
+        "filename": "test/motion_vector_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-04-27T22:23:14Z",
+      "side": 1,
+      "message": "This line is not inside the if",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 18
+      },
+      "revId": "7c99c856c43d91a0838258178acf2184cd396195",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
