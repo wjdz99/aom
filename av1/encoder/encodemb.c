@@ -1536,6 +1536,116 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 }
 
 #if CONFIG_CFL
+static int cfl_alpha_dist(const uint8_t *y_pix, int y_stride, double y_avg,
+                          const uint8_t *src, int src_stride, int blk_width,
+                          int blk_height, double dc_pred, double alpha,
+                          int *dist_neg_out) {
+  const double dc_pred_bias = dc_pred + 0.5;
+  int dist = 0;
+  int diff;
+
+  if (alpha == 0.0) {
+    const int dc_pred_i = (int)dc_pred_bias;
+    for (int j = 0; j < blk_height; j++) {
+      for (int i = 0; i < blk_width; i++) {
+        diff = src[i] - dc_pred_i;
+        dist += diff * diff;
+      }
+      src += src_stride;
+    }
+
+    if (dist_neg_out) *dist_neg_out = dist;
+
+    return dist;
+  }
+
+  int dist_neg = 0;
+  for (int j = 0; j < blk_height; j++) {
+    for (int i = 0; i < blk_width; i++) {
+      const double luma = y_pix[i] - y_avg;
+      const double scaled_luma = alpha * luma;
+      const int uv = src[i];
+      diff = uv - (int)(scaled_luma + dc_pred_bias);
+      dist += diff * diff;
+      diff = uv + (int)(scaled_luma - dc_pred_bias);
+      dist_neg += diff * diff;
+    }
+    y_pix += y_stride;
+    src += src_stride;
+  }
+
+  if (dist_neg_out) *dist_neg_out = dist_neg;
+
+  return dist;
+}
+
+// Temporary pixel buffer used to store the CfL prediction when we compute the
+// alpha index.
+static uint8_t tmp_pix[MAX_SB_SQUARE];
+
+static int cfl_compute_alpha_ind(MACROBLOCK *const x, const CFL_CTX *const cfl,
+                                 BLOCK_SIZE bsize, int *const cfl_cost,
+                                 CFL_SIGN_TYPE *signs) {
+  const struct macroblock_plane *const p_u = &x->plane[AOM_PLANE_U];
+  const struct macroblock_plane *const p_v = &x->plane[AOM_PLANE_V];
+  const uint8_t *const src_u = p_u->src.buf;
+  const uint8_t *const src_v = p_v->src.buf;
+  const int src_stride_u = p_u->src.stride;
+  const int src_stride_v = p_v->src.stride;
+  const int block_width = block_size_wide[bsize];
+  const int block_height = block_size_high[bsize];
+  const double dc_pred_u = cfl->dc_pred[CFL_PRED_U];
+  const double dc_pred_v = cfl->dc_pred[CFL_PRED_V];
+
+  // Load CfL Prediction over the entire block
+  const double y_avg =
+      cfl_load(cfl, tmp_pix, MAX_SB_SIZE, 0, 0, max_txsize_lookup[bsize]);
+
+  int dist_u, dist_v;
+  int dist_u_neg, dist_v_neg;
+  int dist;
+  int64_t cost;
+  int64_t best_cost;
+
+  // Compute least squares parameter of the entire block
+  // IMPORTANT: We assume that the first code is 0,0
+  int ind = 0;
+  signs[CFL_PRED_U] = CFL_SIGN_POS;
+  signs[CFL_PRED_V] = CFL_SIGN_POS;
+
+  dist = cfl_alpha_dist(tmp_pix, MAX_SB_SIZE, y_avg, src_u, src_stride_u,
+                        block_width, block_height, dc_pred_u, 0, NULL) +
+         cfl_alpha_dist(tmp_pix, MAX_SB_SIZE, y_avg, src_v, src_stride_v,
+                        block_width, block_height, dc_pred_v, 0, NULL);
+  dist *= 16;
+  best_cost = RDCOST(x->rdmult, x->rddiv, *cfl_cost, dist);
+
+  for (int c = 1; c < CFL_ALPHABET_SIZE; c++) {
+    dist_u = cfl_alpha_dist(tmp_pix, MAX_SB_SIZE, y_avg, src_u, src_stride_u,
+                            block_width, block_height, dc_pred_u,
+                            cfl_alpha_codes[c][CFL_PRED_U], &dist_u_neg);
+    dist_v = cfl_alpha_dist(tmp_pix, MAX_SB_SIZE, y_avg, src_v, src_stride_v,
+                            block_width, block_height, dc_pred_v,
+                            cfl_alpha_codes[c][CFL_PRED_V], &dist_v_neg);
+    for (int sign_u = 0; sign_u < CFL_SIGNS; sign_u++) {
+      for (int sign_v = 0; sign_v < CFL_SIGNS; sign_v++) {
+        dist = (sign_u == CFL_SIGN_POS ? dist_u : dist_u_neg) +
+               (sign_v == CFL_SIGN_POS ? dist_v : dist_v_neg);
+        dist *= 16;
+        cost = RDCOST(x->rdmult, x->rddiv, cfl_cost[c], dist);
+        if (cost < best_cost) {
+          best_cost = cost;
+          ind = c;
+          signs[CFL_PRED_U] = sign_u;
+          signs[CFL_PRED_V] = sign_v;
+        }
+      }
+    }
+  }
+
+  return ind;
+}
+
 void av1_predict_intra_block_encoder_facade(MACROBLOCKD *xd, int plane,
                                             int block_idx, int blk_col,
                                             int blk_row, TX_SIZE tx_size) {
