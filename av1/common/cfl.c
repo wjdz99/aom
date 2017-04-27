@@ -87,9 +87,13 @@ void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
 
 double cfl_ind_to_alpha(const MB_MODE_INFO *const mbmi,
                         CFL_PRED_TYPE pred_type) {
-  return (mbmi->cfl_alpha_signs[pred_type] == CFL_SIGN_POS)
-             ? cfl_alpha_codes[mbmi->cfl_alpha_ind][pred_type]
-             : -cfl_alpha_codes[mbmi->cfl_alpha_ind][pred_type];
+  double const abs_alpha = cfl_alpha_codes[mbmi->cfl_alpha_ind][pred_type];
+  if (mbmi->cfl_alpha_signs[pred_type] == CFL_SIGN_POS) {
+    return abs_alpha;
+  } else {
+    assert(abs_alpha != 0.0);
+    return -abs_alpha;
+  }
 }
 
 // Predict the current transform block using CfL.
