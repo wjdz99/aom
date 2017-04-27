@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bdc0bab7_8ac23dd4",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-27T14:59:07Z",
+      "side": 1,
+      "message": "Done, we can\u0027t test this code until we have alphas values. So if you could just review the conversion to shift to make sure I did not brake anything",
+      "parentUuid": "27d624d1_690aa51c",
+      "revId": "4374e3c6f29b9331c4d1901224afd4a925173de9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26e7c112_6fc0274e",
         "filename": "av1/common/cfl.c",
         "patchSetId": 14
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-26T20:43:35Z",
       "side": 1,
       "message": "Can you add an else with an assert() for the case when we are not 4:4:4 or 4:2:0?",
+      "revId": "4374e3c6f29b9331c4d1901224afd4a925173de9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b9d14ec_791a2b31",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-27T14:59:07Z",
+      "side": 1,
+      "message": "Done, an error is also signaled in cfl_init. I\u0027ve changed it to test more than just 4:2:2",
+      "parentUuid": "26e7c112_6fc0274e",
       "revId": "4374e3c6f29b9331c4d1901224afd4a925173de9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
