@@ -124,11 +124,11 @@ int cdef_find_dir_c(const uint16_t *img, int stride, int32_t *var,
 }
 
 #if CDEF_FULL
-const int cdef_pri_taps[3] = { 3, 3, 1 };
-const int cdef_sec_taps[2] = { 3, 1 };
+const int cdef_pri_taps[2][3] = { { 3, 2, 1 }, { 2, 2, 2 } };
+const int cdef_sec_taps[2][2] = { { 3, 1 }, { 3, 1 } };
 #else
-const int cdef_pri_taps[2] = { 4, 3 };
-const int cdef_sec_taps[2] = { 2, 1 };
+const int cdef_pri_taps[2][2] = { { 4, 3 }, { 4, 4 } };
+const int cdef_sec_taps[2][2] = { { 2, 1 }, { 2, 1 } };
 #endif
 
 /* Smooth in the direction detected. */
@@ -146,6 +146,8 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
 {
   int i, j, k;
   const int s = CDEF_BSTRIDE;
+  const int *pri_taps = cdef_pri_taps[pri_strength & 1];
+  const int *sec_taps = cdef_sec_taps[pri_strength & 1];
   for (i = 0; i < 4 << (bsize == BLOCK_8X8); i++) {
     for (j = 0; j < 4 << (bsize == BLOCK_8X8); j++) {
       int16_t sum = 0;
@@ -163,8 +165,8 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
       {
         int16_t p0 = in[i * s + j + cdef_directions[dir][k]];
         int16_t p1 = in[i * s + j - cdef_directions[dir][k]];
-        sum += cdef_pri_taps[k] * constrain(p0 - x, pri_strength, pri_damping);
-        sum += cdef_pri_taps[k] * constrain(p1 - x, pri_strength, pri_damping);
+        sum += pri_taps[k] * constrain(p0 - x, pri_strength, pri_damping);
+        sum += pri_taps[k] * constrain(p1 - x, pri_strength, pri_damping);
 #if CDEF_CAP
         if (p0 != CDEF_VERY_LARGE) max = AOMMAX(p0, max);
         if (p1 != CDEF_VERY_LARGE) max = AOMMAX(p1, max);
@@ -188,10 +190,10 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
         min = AOMMIN(s2, min);
         min = AOMMIN(s3, min);
 #endif
-        sum += cdef_sec_taps[k] * constrain(s0 - x, sec_strength, sec_damping);
-        sum += cdef_sec_taps[k] * constrain(s1 - x, sec_strength, sec_damping);
-        sum += cdef_sec_taps[k] * constrain(s2 - x, sec_strength, sec_damping);
-        sum += cdef_sec_taps[k] * constrain(s3 - x, sec_strength, sec_damping);
+        sum += sec_taps[k] * constrain(s0 - x, sec_strength, sec_damping);
+        sum += sec_taps[k] * constrain(s1 - x, sec_strength, sec_damping);
+        sum += sec_taps[k] * constrain(s2 - x, sec_strength, sec_damping);
+        sum += sec_taps[k] * constrain(s3 - x, sec_strength, sec_damping);
       }
 #if CDEF_CAP
       y = clamp((int16_t)x + ((8 + sum - (sum < 0)) >> 4), min, max);
