@@ -28,10 +28,15 @@
 
 // Filter configuration
 #define CDEF_CAP 1   // 1 = Cap change to largest diff
-#define CDEF_FULL 1  // 1 = 7x7 filter, 0 = 5x5 filter
+#define CDEF_FULL 0  // 1 = 7x7 filter, 0 = 5x5 filter
 
-extern const int cdef_pri_taps[];
-extern const int cdef_sec_taps[];
+#if CDEF_FULL
+extern const int cdef_pri_taps[2][3];
+extern const int cdef_sec_taps[2][2];
+#else
+extern const int cdef_pri_taps[2][2];
+extern const int cdef_sec_taps[2][2];
+#endif
 
 #if CDEF_FULL
 extern const int cdef_directions[8][3];
