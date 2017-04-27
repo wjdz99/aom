@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bde6765_a8afb0fc",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1610,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-27T15:20:31Z",
+      "side": 1,
+      "message": "Is it still really least squares or should we call this an RDO alpha search",
+      "revId": "8ca03c532d7d0d4daca55ea984cddb2389379c2c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0d34e60_3e0d1832",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1620,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-27T15:20:31Z",
+      "side": 1,
+      "message": "We might need a comment here. I remember codeview gave an explanation: \nx16 is only applied to the distortion computed in pixel domain and the same lambda is shared by transform and pixel domain distortions.\n\nmaybe that\u0027s too much...",
+      "revId": "8ca03c532d7d0d4daca55ea984cddb2389379c2c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48834cd0_60786e8c",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1655,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-27T15:20:31Z",
+      "side": 1,
+      "message": "You can remove this whole if statement it was just a placeholder",
+      "revId": "8ca03c532d7d0d4daca55ea984cddb2389379c2c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "910c3de7_1e193ceb",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1660,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-27T15:20:31Z",
+      "side": 1,
+      "message": "plane !\u003d AOM_PLANE_Y and plane \u003d\u003d AOM_PLANE_U are redundant (not your fault comes from my code :), because I was also doing CfL prediction it was moved out )",
+      "revId": "8ca03c532d7d0d4daca55ea984cddb2389379c2c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
