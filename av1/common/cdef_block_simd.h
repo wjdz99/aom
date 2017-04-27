@@ -264,6 +264,9 @@ void SIMD_FUNC(cdef_filter_block_4x4_8)(uint8_t *dst, int dstride,
   int s2o1 = cdef_directions[(dir + 6) & 7][0];
   int s2o2 = cdef_directions[(dir + 6) & 7][1];
 
+  const int *pri_taps = cdef_pri_taps[pri_strength & 1];
+  const int *sec_taps = cdef_sec_taps[pri_strength & 1];
+
   if (pri_strength) pri_damping -= get_msb(pri_strength);
   if (sec_strength) sec_damping -= get_msb(sec_strength);
 
@@ -296,8 +299,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_8)(uint8_t *dst, int dstride,
 #endif
   p1 = constrain(tap, row, pri_strength, pri_damping);
 
-  // sum += cdef_pri_taps[0] * (p0 + p1)
-  sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(cdef_pri_taps[0]),
+  // sum += pri_taps[0] * (p0 + p1)
+  sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(pri_taps[0]),
                                        v256_from_v128(v128_ziphi_8(p0, p1),
                                                       v128_ziplo_8(p0, p1))));
 
@@ -321,8 +324,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_8)(uint8_t *dst, int dstride,
 #endif
   p1 = constrain(tap, row, pri_strength, pri_damping);
 
-  // sum += cdef_pri_taps[1] * (p0 + p1)
-  sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(cdef_pri_taps[1]),
+  // sum += pri_taps[1] * (p0 + p1)
+  sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(pri_taps[1]),
                                        v256_from_v128(v128_ziphi_8(p0, p1),
                                                       v128_ziplo_8(p0, p1))));
 
@@ -347,8 +350,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_8)(uint8_t *dst, int dstride,
 #endif
   p1 = constrain(tap, row, pri_strength, pri_damping);
 
-  // sum += cdef_pri_taps[2] * (p0 + p1)
-  sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(cdef_pri_taps[2]),
+  // sum += pri_taps[2] * (p0 + p1)
+  sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(pri_taps[2]),
                                        v256_from_v128(v128_ziphi_8(p0, p1),
                                                       v128_ziplo_8(p0, p1))));
 #endif
@@ -391,10 +394,10 @@ void SIMD_FUNC(cdef_filter_block_4x4_8)(uint8_t *dst, int dstride,
 #endif
   p3 = constrain(tap, row, sec_strength, sec_damping);
 
-  // sum += cdef_sec_taps[0] * (p0 + p1 + p2 + p3)
+  // sum += sec_taps[0] * (p0 + p1 + p2 + p3)
   p0 = v128_add_8(p0, p1);
   p2 = v128_add_8(p2, p3);
-  sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(cdef_sec_taps[0]),
+  sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(sec_taps[0]),
                                        v256_from_v128(v128_ziphi_8(p0, p2),
                                                       v128_ziplo_8(p0, p2))));
 
@@ -436,10 +439,10 @@ void SIMD_FUNC(cdef_filter_block_4x4_8)(uint8_t *dst, int dstride,
 #endif
   p3 = constrain(tap, row, sec_strength, sec_damping);
 
-  // sum += cdef_sec_taps[1] * (p0 + p1 + p2 + p3)
+  // sum += sec_taps[1] * (p0 + p1 + p2 + p3)
   p0 = v128_add_8(p0, p1);
   p2 = v128_add_8(p2, p3);
-  sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(cdef_sec_taps[1]),
+  sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(sec_taps[1]),
                                        v256_from_v128(v128_ziphi_8(p0, p2),
                                                       v128_ziplo_8(p0, p2))));
 
@@ -492,6 +495,9 @@ void SIMD_FUNC(cdef_filter_block_8x8_8)(uint8_t *dst, int dstride,
   int s2o1 = cdef_directions[(dir + 6) & 7][0];
   int s2o2 = cdef_directions[(dir + 6) & 7][1];
 
+  const int *pri_taps = cdef_pri_taps[pri_strength & 1];
+  const int *sec_taps = cdef_sec_taps[pri_strength & 1];
+
   if (pri_strength) pri_damping -= get_msb(pri_strength);
   if (sec_strength) sec_damping -= get_msb(sec_strength);
   for (i = 0; i < 8; i += 2) {
@@ -520,8 +526,8 @@ void SIMD_FUNC(cdef_filter_block_8x8_8)(uint8_t *dst, int dstride,
 #endif
     p1 = constrain(tap, row, pri_strength, pri_damping);
 
-    // sum += cdef_pri_taps[0] * (p0 + p1)
-    sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(cdef_pri_taps[0]),
+    // sum += pri_taps[0] * (p0 + p1)
+    sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(pri_taps[0]),
                                          v256_from_v128(v128_ziphi_8(p0, p1),
                                                         v128_ziplo_8(p0, p1))));
 
@@ -543,8 +549,8 @@ void SIMD_FUNC(cdef_filter_block_8x8_8)(uint8_t *dst, int dstride,
 #endif
     p1 = constrain(tap, row, pri_strength, pri_damping);
 
-    // sum += cdef_pri_taps[1] * (p0 + p1)
-    sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(cdef_pri_taps[1]),
+    // sum += pri_taps[1] * (p0 + p1)
+    sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(pri_taps[1]),
                                          v256_from_v128(v128_ziphi_8(p0, p1),
                                                         v128_ziplo_8(p0, p1))));
 
@@ -567,8 +573,8 @@ void SIMD_FUNC(cdef_filter_block_8x8_8)(uint8_t *dst, int dstride,
 #endif
     p1 = constrain(tap, row, pri_strength, pri_damping);
 
-    // sum += cdef_pri_taps[2] * (p0 + p1)
-    sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(cdef_pri_taps[2]),
+    // sum += pri_taps[2] * (p0 + p1)
+    sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(pri_taps[2]),
                                          v256_from_v128(v128_ziphi_8(p0, p1),
                                                         v128_ziplo_8(p0, p1))));
 #endif
@@ -607,10 +613,10 @@ void SIMD_FUNC(cdef_filter_block_8x8_8)(uint8_t *dst, int dstride,
 #endif
     p3 = constrain(tap, row, sec_strength, sec_damping);
 
-    // sum += cdef_sec_taps[0] * (p0 + p1 + p2 + p3)
+    // sum += sec_taps[0] * (p0 + p1 + p2 + p3)
     p0 = v128_add_8(p0, p1);
     p2 = v128_add_8(p2, p3);
-    sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(cdef_sec_taps[0]),
+    sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(sec_taps[0]),
                                          v256_from_v128(v128_ziphi_8(p0, p2),
                                                         v128_ziplo_8(p0, p2))));
 
@@ -648,10 +654,10 @@ void SIMD_FUNC(cdef_filter_block_8x8_8)(uint8_t *dst, int dstride,
 #endif
     p3 = constrain(tap, row, sec_strength, sec_damping);
 
-    // sum += cdef_sec_taps[1] * (p0 + p1 + p2 + p3)
+    // sum += sec_taps[1] * (p0 + p1 + p2 + p3)
     p0 = v128_add_8(p0, p1);
     p2 = v128_add_8(p2, p3);
-    sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(cdef_sec_taps[1]),
+    sum = v256_add_16(sum, v256_madd_us8(v256_dup_8(sec_taps[1]),
                                          v256_from_v128(v128_ziphi_8(p0, p2),
                                                         v128_ziplo_8(p0, p2))));
 
@@ -702,6 +708,9 @@ void SIMD_FUNC(cdef_filter_block_4x4_16)(uint16_t *dst, int dstride,
   int s2o1 = cdef_directions[(dir + 6) & 7][0];
   int s2o2 = cdef_directions[(dir + 6) & 7][1];
 
+  const int *pri_taps = cdef_pri_taps[pri_strength & 1];
+  const int *sec_taps = cdef_sec_taps[pri_strength & 1];
+
   if (pri_strength) pri_damping -= get_msb(pri_strength);
   if (sec_strength) sec_damping -= get_msb(sec_strength);
   for (i = 0; i < 4; i += 2) {
@@ -726,8 +735,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_16)(uint16_t *dst, int dstride,
     p0 = constrain16(p0, row, pri_strength, pri_damping);
     p1 = constrain16(p1, row, pri_strength, pri_damping);
 
-    // sum += cdef_pri_taps[0] * (p0 + p1)
-    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(cdef_pri_taps[0]),
+    // sum += pri_taps[0] * (p0 + p1)
+    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(pri_taps[0]),
                                           v128_add_16(p0, p1)));
 
     // Primary far taps
@@ -744,8 +753,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_16)(uint16_t *dst, int dstride,
     p0 = constrain16(p0, row, pri_strength, pri_damping);
     p1 = constrain16(p1, row, pri_strength, pri_damping);
 
-    // sum += cdef_pri_taps[1] * (p0 + p1)
-    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(cdef_pri_taps[1]),
+    // sum += pri_taps[1] * (p0 + p1)
+    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(pri_taps[1]),
                                           v128_add_16(p0, p1)));
 
 #if CDEF_FULL
@@ -763,8 +772,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_16)(uint16_t *dst, int dstride,
     p0 = constrain16(p0, row, pri_strength, pri_damping);
     p1 = constrain16(p1, row, pri_strength, pri_damping);
 
-    // sum += cdef_pri_taps[2] * (p0 + p1)
-    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(cdef_pri_taps[2]),
+    // sum += pri_taps[2] * (p0 + p1)
+    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(pri_taps[2]),
                                           v128_add_16(p0, p1)));
 #endif
 
@@ -792,8 +801,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_16)(uint16_t *dst, int dstride,
     p2 = constrain16(p2, row, sec_strength, sec_damping);
     p3 = constrain16(p3, row, sec_strength, sec_damping);
 
-    // sum += cdef_sec_taps[0] * (p0 + p1 + p2 + p3)
-    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(cdef_sec_taps[0]),
+    // sum += sec_taps[0] * (p0 + p1 + p2 + p3)
+    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(sec_taps[0]),
                                           v128_add_16(v128_add_16(p0, p1),
                                                       v128_add_16(p2, p3))));
 
@@ -821,8 +830,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_16)(uint16_t *dst, int dstride,
     p2 = constrain16(p2, row, sec_strength, sec_damping);
     p3 = constrain16(p3, row, sec_strength, sec_damping);
 
-    // sum += cdef_sec_taps[1] * (p0 + p1 + p2 + p3)
-    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(cdef_sec_taps[1]),
+    // sum += sec_taps[1] * (p0 + p1 + p2 + p3)
+    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(sec_taps[1]),
                                           v128_add_16(v128_add_16(p0, p1),
                                                       v128_add_16(p2, p3))));
 
@@ -870,8 +879,12 @@ void SIMD_FUNC(cdef_filter_block_8x8_16)(uint16_t *dst, int dstride,
   int s2o1 = cdef_directions[(dir + 6) & 7][0];
   int s2o2 = cdef_directions[(dir + 6) & 7][1];
 
+  const int *pri_taps = cdef_pri_taps[pri_strength & 1];
+  const int *sec_taps = cdef_sec_taps[pri_strength & 1];
+
   if (pri_strength) pri_damping -= get_msb(pri_strength);
   if (sec_strength) sec_damping -= get_msb(sec_strength);
+
   for (i = 0; i < 8; i++) {
     sum = v128_zero();
     row = v128_load_aligned(&in[i * CDEF_BSTRIDE]);
@@ -891,8 +904,8 @@ void SIMD_FUNC(cdef_filter_block_8x8_16)(uint16_t *dst, int dstride,
     p0 = constrain16(p0, row, pri_strength, pri_damping);
     p1 = constrain16(p1, row, pri_strength, pri_damping);
 
-    // sum += cdef_pri_taps[0] * (p0 + p1)
-    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(cdef_pri_taps[0]),
+    // sum += pri_taps[0] * (p0 + p1)
+    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(pri_taps[0]),
                                           v128_add_16(p0, p1)));
 
     // Primary far taps
@@ -907,8 +920,8 @@ void SIMD_FUNC(cdef_filter_block_8x8_16)(uint16_t *dst, int dstride,
     p0 = constrain16(p0, row, pri_strength, pri_damping);
     p1 = constrain16(p1, row, pri_strength, pri_damping);
 
-    // sum += cdef_pri_taps[1] * (p0 + p1)
-    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(cdef_pri_taps[1]),
+    // sum += pri_taps[1] * (p0 + p1)
+    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(pri_taps[1]),
                                           v128_add_16(p0, p1)));
 
 #if CDEF_FULL
@@ -924,8 +937,8 @@ void SIMD_FUNC(cdef_filter_block_8x8_16)(uint16_t *dst, int dstride,
     p0 = constrain16(p0, row, pri_strength, pri_damping);
     p1 = constrain16(p1, row, pri_strength, pri_damping);
 
-    // sum += cdef_pri_taps[2] * (p0 + p1)
-    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(cdef_pri_taps[2]),
+    // sum += pri_taps[2] * (p0 + p1)
+    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(pri_taps[2]),
                                           v128_add_16(p0, p1)));
 #endif
 
@@ -949,8 +962,8 @@ void SIMD_FUNC(cdef_filter_block_8x8_16)(uint16_t *dst, int dstride,
     p2 = constrain16(p2, row, sec_strength, sec_damping);
     p3 = constrain16(p3, row, sec_strength, sec_damping);
 
-    // sum += cdef_sec_taps[0] * (p0 + p1 + p2 + p3)
-    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(cdef_sec_taps[0]),
+    // sum += sec_taps[0] * (p0 + p1 + p2 + p3)
+    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(sec_taps[0]),
                                           v128_add_16(v128_add_16(p0, p1),
                                                       v128_add_16(p2, p3))));
 
@@ -974,8 +987,8 @@ void SIMD_FUNC(cdef_filter_block_8x8_16)(uint16_t *dst, int dstride,
     p2 = constrain16(p2, row, sec_strength, sec_damping);
     p3 = constrain16(p3, row, sec_strength, sec_damping);
 
-    // sum += cdef_sec_taps[1] * (p0 + p1 + p2 + p3)
-    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(cdef_sec_taps[1]),
+    // sum += sec_taps[1] * (p0 + p1 + p2 + p3)
+    sum = v128_add_16(sum, v128_mullo_s16(v128_dup_16(sec_taps[1]),
                                           v128_add_16(v128_add_16(p0, p1),
                                                       v128_add_16(p2, p3))));
 
