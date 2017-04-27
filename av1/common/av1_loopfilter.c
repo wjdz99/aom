@@ -800,9 +800,7 @@ static void highbd_filter_selectively_horiz(
 // 1's we produce.
 // TODO(JBB) Need another function for different resolution color..
 static void build_masks(
-#if CONFIG_EXT_DELTA_Q
     AV1_COMMON *const cm,
-#endif
     const loop_filter_info_n *const lfi_n, const MODE_INFO *mi,
     const int shift_y, const int shift_uv, LOOP_FILTER_MASK *lfm) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
@@ -822,6 +820,7 @@ static void build_masks(
   const int filter_level = get_filter_level(cm, lfi_n, mbmi);
 #else
   const int filter_level = get_filter_level(lfi_n, mbmi);
+  (void)cm;
 #endif
   uint64_t *const left_y = &lfm->left_y[tx_size_y_left];
   uint64_t *const above_y = &lfm->above_y[tx_size_y_above];
@@ -895,9 +894,7 @@ static void build_masks(
 // it only affects the y masks. It exists because for blocks < 16x16 in size,
 // we only update u and v masks on the first block.
 static void build_y_mask(
-#if CONFIG_EXT_DELTA_Q
     AV1_COMMON *const cm,
-#endif
     const loop_filter_info_n *const lfi_n, const MODE_INFO *mi,
     const int shift_y,
 #if CONFIG_SUPERTX
@@ -918,6 +915,7 @@ static void build_y_mask(
   const int filter_level = get_filter_level(cm, lfi_n, mbmi);
 #else
   const int filter_level = get_filter_level(lfi_n, mbmi);
+  (void)cm;
 #endif
   uint64_t *const left_y = &lfm->left_y[tx_size_y_left];
   uint64_t *const above_y = &lfm->above_y[tx_size_y_above];
@@ -1022,48 +1020,27 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
   // loop and storing lfm in the mbmi structure so that we don't have to go
   // through the recursive loop structure multiple times.
   switch (mip[0]->mbmi.sb_type) {
-#if CONFIG_EXT_DELTA_Q
     case BLOCK_64X64: build_masks(cm, lfi_n, mip[0], 0, 0, lfm); break;
     case BLOCK_64X32: build_masks(cm, lfi_n, mip[0], 0, 0, lfm);
-#else
-    case BLOCK_64X64: build_masks(lfi_n, mip[0], 0, 0, lfm); break;
-    case BLOCK_64X32: build_masks(lfi_n, mip[0], 0, 0, lfm);
-#endif
 #if CONFIG_SUPERTX && CONFIG_TX64X64
       if (supertx_enabled(&mip[0]->mbmi)) break;
 #endif  // CONFIG_SUPERTX && CONFIG_TX64X64
       mip2 = mip + mode_info_stride * 4;
       if (4 >= max_rows) break;
-#if CONFIG_EXT_DELTA_Q
       build_masks(cm, lfi_n, mip2[0], 32, 8, lfm);
-#else
-      build_masks(lfi_n, mip2[0], 32, 8, lfm);
-#endif
       break;
-#if CONFIG_EXT_DELTA_Q
     case BLOCK_32X64: build_masks(cm, lfi_n, mip[0], 0, 0, lfm);
-#else
-    case BLOCK_32X64: build_masks(lfi_n, mip[0], 0, 0, lfm);
-#endif
 #if CONFIG_SUPERTX && CONFIG_TX64X64
       if (supertx_enabled(&mip[0]->mbmi)) break;
 #endif  // CONFIG_SUPERTX && CONFIG_TX64X64
       mip2 = mip + 4;
       if (4 >= max_cols) break;
-#if CONFIG_EXT_DELTA_Q
       build_masks(cm, lfi_n, mip2[0], 4, 2, lfm);
-#else
-      build_masks(lfi_n, mip2[0], 4, 2, lfm);
-#endif
       break;
     default:
 #if CONFIG_SUPERTX && CONFIG_TX64X64
       if (mip[0]->mbmi.tx_size == TX_64X64) {
-#if CONFIG_EXT_DELTA_Q
         build_masks(cm, lfi_n, mip[0], 0, 0, lfm);
-#else
-        build_masks(lfi_n, mip[0], 0, 0, lfm);
-#endif
       } else {
 #endif  // CONFIG_SUPERTX && CONFIG_TX64X64
         for (idx_32 = 0; idx_32 < 4; mip += offset_32[idx_32], ++idx_32) {
@@ -1075,56 +1052,32 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
             continue;
           switch (mip[0]->mbmi.sb_type) {
             case BLOCK_32X32:
-#if CONFIG_EXT_DELTA_Q
               build_masks(cm, lfi_n, mip[0], shift_y_32, shift_uv_32, lfm);
-#else
-            build_masks(lfi_n, mip[0], shift_y_32, shift_uv_32, lfm);
-#endif
               break;
             case BLOCK_32X16:
-#if CONFIG_EXT_DELTA_Q
               build_masks(cm, lfi_n, mip[0], shift_y_32, shift_uv_32, lfm);
-#else
-            build_masks(lfi_n, mip[0], shift_y_32, shift_uv_32, lfm);
-#endif
 #if CONFIG_SUPERTX
               if (supertx_enabled(&mip[0]->mbmi)) break;
 #endif
               if (mi_32_row_offset + 2 >= max_rows) continue;
               mip2 = mip + mode_info_stride * 2;
-#if CONFIG_EXT_DELTA_Q
               build_masks(cm, lfi_n, mip2[0], shift_y_32 + 16, shift_uv_32 + 4,
                           lfm);
-#else
-            build_masks(lfi_n, mip2[0], shift_y_32 + 16, shift_uv_32 + 4, lfm);
-#endif
               break;
             case BLOCK_16X32:
-#if CONFIG_EXT_DELTA_Q
               build_masks(cm, lfi_n, mip[0], shift_y_32, shift_uv_32, lfm);
-#else
-            build_masks(lfi_n, mip[0], shift_y_32, shift_uv_32, lfm);
-#endif
 #if CONFIG_SUPERTX
               if (supertx_enabled(&mip[0]->mbmi)) break;
 #endif
               if (mi_32_col_offset + 2 >= max_cols) continue;
               mip2 = mip + 2;
-#if CONFIG_EXT_DELTA_Q
               build_masks(cm, lfi_n, mip2[0], shift_y_32 + 2, shift_uv_32 + 1,
                           lfm);
-#else
-            build_masks(lfi_n, mip2[0], shift_y_32 + 2, shift_uv_32 + 1, lfm);
-#endif
               break;
             default:
 #if CONFIG_SUPERTX
               if (mip[0]->mbmi.tx_size == TX_32X32) {
-#if CONFIG_EXT_DELTA_Q
                 build_masks(cm, lfi_n, mip[0], shift_y_32, shift_uv_32, lfm);
-#else
-                build_masks(lfi_n, mip[0], shift_y_32, shift_uv_32, lfm);
-#endif
                 break;
               }
 #endif
@@ -1142,31 +1095,19 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
 
                 switch (mip[0]->mbmi.sb_type) {
                   case BLOCK_16X16:
-#if CONFIG_EXT_DELTA_Q
                     build_masks(cm, lfi_n, mip[0], shift_y_32_16,
                                 shift_uv_32_16, lfm);
-#else
-                  build_masks(lfi_n, mip[0], shift_y_32_16, shift_uv_32_16,
-                              lfm);
-#endif
                     break;
                   case BLOCK_16X8:
 #if CONFIG_SUPERTX
                     if (supertx_enabled(&mip[0]->mbmi)) break;
 #endif
-#if CONFIG_EXT_DELTA_Q
                     build_masks(cm, lfi_n, mip[0], shift_y_32_16,
                                 shift_uv_32_16, lfm);
-#else
-                  build_masks(lfi_n, mip[0], shift_y_32_16, shift_uv_32_16,
-                              lfm);
-#endif
                     if (mi_16_row_offset + 1 >= max_rows) continue;
                     mip2 = mip + mode_info_stride;
                     build_y_mask(
-#if CONFIG_EXT_DELTA_Q
                         cm,
-#endif
                         lfi_n, mip2[0], shift_y_32_16 + 8,
 #if CONFIG_SUPERTX
                         0,
@@ -1177,19 +1118,12 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
 #if CONFIG_SUPERTX
                     if (supertx_enabled(&mip[0]->mbmi)) break;
 #endif
-#if CONFIG_EXT_DELTA_Q
                     build_masks(cm, lfi_n, mip[0], shift_y_32_16,
                                 shift_uv_32_16, lfm);
-#else
-                  build_masks(lfi_n, mip[0], shift_y_32_16, shift_uv_32_16,
-                              lfm);
-#endif
                     if (mi_16_col_offset + 1 >= max_cols) continue;
                     mip2 = mip + 1;
                     build_y_mask(
-#if CONFIG_EXT_DELTA_Q
                         cm,
-#endif
                         lfi_n, mip2[0], shift_y_32_16 + 1,
 #if CONFIG_SUPERTX
                         0,
@@ -1201,23 +1135,13 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
                         shift_y_32_16 + shift_8_y[0];
 #if CONFIG_SUPERTX
                     if (mip[0]->mbmi.tx_size == TX_16X16) {
-#if CONFIG_EXT_DELTA_Q
                       build_masks(cm, lfi_n, mip[0], shift_y_32_16_8_zero,
                                   shift_uv_32_16, lfm);
-#else
-                      build_masks(lfi_n, mip[0], shift_y_32_16_8_zero,
-                                  shift_uv_32_16, lfm);
-#endif
                       break;
                     }
 #endif
-#if CONFIG_EXT_DELTA_Q
                     build_masks(cm, lfi_n, mip[0], shift_y_32_16_8_zero,
                                 shift_uv_32_16, lfm);
-#else
-                  build_masks(lfi_n, mip[0], shift_y_32_16_8_zero,
-                              shift_uv_32_16, lfm);
-#endif
                     mip += offset[0];
                     for (idx_8 = 1; idx_8 < 4; mip += offset[idx_8], ++idx_8) {
                       const int shift_y_32_16_8 =
@@ -1231,9 +1155,7 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
                           mi_8_row_offset >= max_rows)
                         continue;
                       build_y_mask(
-#if CONFIG_EXT_DELTA_Q
                           cm,
-#endif
                           lfi_n, mip[0], shift_y_32_16_8,
 #if CONFIG_SUPERTX
                           supertx_enabled(&mip[0]->mbmi),
