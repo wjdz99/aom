@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae94652b_523912ab",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-27T21:05:39Z",
+      "side": 1,
+      "message": "This found a bug in the decoder signaling. I pushed a patch with the fix\n\nsee https://aomedia-review.googlesource.com/c/10567/",
+      "revId": "125227e99de1f4208e9a6b29548e534588e3d915",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
