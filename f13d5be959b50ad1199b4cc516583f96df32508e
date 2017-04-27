@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b7b52aa8_bc64e0b5",
+        "filename": "aom_dsp/variance.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 995,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-04-27T21:39:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f2a29e77_880a0b12",
+      "range": {
+        "startLine": 995,
+        "startChar": 69,
+        "endLine": 995,
+        "endChar": 0
+      },
+      "revId": "f13d5be959b50ad1199b4cc516583f96df32508e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a16e107c_2d323d24",
         "filename": "aom_dsp/x86/obmc_variance_sse4.c",
         "patchSetId": 10
@@ -45,6 +69,30 @@
       "revId": "f13d5be959b50ad1199b4cc516583f96df32508e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30111719_447af5dc",
+        "filename": "aom_dsp/x86/obmc_variance_sse4.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-04-27T21:39:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a16e107c_2d323d24",
+      "range": {
+        "startLine": 127,
+        "startChar": 72,
+        "endLine": 127,
+        "endChar": 0
+      },
+      "revId": "f13d5be959b50ad1199b4cc516583f96df32508e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
