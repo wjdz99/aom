@@ -333,6 +333,14 @@ static void setup_frame(AV1_COMP *cpi) {
     *cm->fc = cm->frame_contexts[cm->frame_context_idx];
     av1_zero(cpi->interp_filter_selected[0]);
   }
+#if CONFIG_EXT_REFS
+#if CONFIG_LOWDELAY_COMPOUND  // No change to bitstream
+  if (cpi->sf.recode_loop == DISALLOW_RECODE) {
+    cpi->refresh_bwd_ref_frame = cpi->refresh_last_frame;
+    cpi->rc.is_bipred_frame = 1;
+  }
+#endif
+#endif
 
   cpi->vaq_refresh = 0;
 
@@ -4474,10 +4482,15 @@ static int get_ref_frame_flags(const AV1_COMP *cpi) {
 
   if (gld_is_last2 || gld_is_last3) flags &= ~AOM_GOLD_FLAG;
 
+#if CONFIG_LOWDELAY_COMPOUND  // Changes LL & HL bitstream
+  /* Allow biprediction between two identical frames (e.g. bwd_is_last = 1) */
+  if (bwd_is_alt && (flags & AOM_BWD_FLAG)) flags &= ~AOM_BWD_FLAG;
+#else
   if ((bwd_is_last || bwd_is_last2 || bwd_is_last3 || bwd_is_gld ||
        bwd_is_alt) &&
       (flags & AOM_BWD_FLAG))
     flags &= ~AOM_BWD_FLAG;
+#endif
 #endif  // CONFIG_EXT_REFS
 
   return flags;
