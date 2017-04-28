@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d58e7d0_f5ab8f2c",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1565,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-28T17:19:05Z",
+      "side": 1,
+      "message": "Since this is not really luma, could we put it directly in scaled_luma\ni.e.: scaled_luma \u003d alpha * (y_pix[i] - y_avg)\n\nI don\u0027t see luma used anywhere",
+      "revId": "b8141dd7488298ca2bc3efd2cb0046985ebcf281",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
