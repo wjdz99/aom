@@ -276,11 +276,20 @@ void av1_warp_affine_sse2(int32_t *mat, uint8_t *ref, int width, int height,
         // Store, blending with 'pred' if needed
         __m128i *p = (__m128i *)&pred[(i + k + 4) * p_stride + j];
 
+        // Note: If we're outputting a 4x4 block, we need to be very careful
+        // to only output 4 pixels at this point, to avoid encode/decode
+        // mismatches when encoding with multiple threads.
         if (ref_frm) {
-          __m128i orig = _mm_loadl_epi64(p);
-          _mm_storel_epi64(p, _mm_avg_epu8(res_8bit, orig));
+          __m128i data = _mm_avg_epu8(res_8bit, _mm_loadl_epi64(p));
+          if (p_width == 4)
+            *(uint32_t *)p = _mm_cvtsi128_si32(data);
+          else
+            _mm_storel_epi64(p, data);
         } else {
-          _mm_storel_epi64(p, res_8bit);
+          if (p_width == 4)
+            *(uint32_t *)p = _mm_cvtsi128_si32(res_8bit);
+          else
+            _mm_storel_epi64(p, res_8bit);
         }
       }
     }
