@@ -140,6 +140,7 @@ ifneq ($(CONFIG_HIGHBITDEPTH),yes)
 AV1_COMMON_SRCS-$(HAVE_DSPR2)  += common/mips/dspr2/av1_itrans4_dspr2.c
 AV1_COMMON_SRCS-$(HAVE_DSPR2)  += common/mips/dspr2/av1_itrans8_dspr2.c
 AV1_COMMON_SRCS-$(HAVE_DSPR2)  += common/mips/dspr2/av1_itrans16_dspr2.c
+AV1_COMMON_SRCS-$(HAVE_NEON)   += common/arm/neon/dct_neon.c
 endif
 
 # common (msa)

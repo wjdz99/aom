@@ -223,7 +223,7 @@ if (CONFIG_HIGHBITDEPTH)
 else ()
   set(AOM_AV1_COMMON_INTRIN_NEON
       ${AOM_AV1_COMMON_INTRIN_NEON}
-      "${AOM_ROOT}/av1/encoder/arm/neon/dct_neon.c"
+      "${AOM_ROOT}/av1/common/arm/neon/dct_neon.c"
       "${AOM_ROOT}/av1/common/arm/neon/iht4x4_add_neon.c"
       "${AOM_ROOT}/av1/common/arm/neon/iht8x8_add_neon.c")
 

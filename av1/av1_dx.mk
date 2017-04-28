@@ -58,10 +58,6 @@ AV1_DX_SRCS-$(HAVE_SSE2) += encoder/x86/dct_sse2.asm
 AV1_DX_SRCS-$(HAVE_SSE2) += encoder/x86/dct_intrin_sse2.c
 AV1_DX_SRCS-$(HAVE_SSSE3) += encoder/x86/dct_ssse3.c
 
-ifneq ($(CONFIG_HIGHBITDEPTH),yes)
-AV1_DX_SRCS-$(HAVE_NEON) += encoder/arm/neon/dct_neon.c
-endif
-
 AV1_DX_SRCS-$(HAVE_MSA) += encoder/mips/msa/fdct4x4_msa.c
 AV1_DX_SRCS-$(HAVE_MSA) += encoder/mips/msa/fdct8x8_msa.c
 AV1_DX_SRCS-$(HAVE_MSA) += encoder/mips/msa/fdct16x16_msa.c
