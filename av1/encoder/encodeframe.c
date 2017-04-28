@@ -1912,6 +1912,15 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   x->skip_chroma_rd =
       !is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                            xd->plane[1].subsampling_y);
+#if CONFIG_CFL
+  if (x->skip_chroma_rd) {
+    // Disable CfL when chroma rd is skipped
+    // TODO(ltrudeau) check the impact on the bitstream, this could be implicit
+    mbmi->cfl_alpha_ind = 0;
+    mbmi->cfl_alpha_signs[CFL_PRED_U] = CFL_SIGN_POS;
+    mbmi->cfl_alpha_signs[CFL_PRED_V] = CFL_SIGN_POS;
+  }
+#endif
 #endif
 
 #if CONFIG_HIGHBITDEPTH
