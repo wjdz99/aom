@@ -52,7 +52,7 @@ void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
                                : tx_size_high[tx_size];
 
   // Number of pixel on the top and left borders.
-  const int num_pel = block_width + block_height;
+  const double num_pel = block_width + block_height;
 
   int sum_u = 0;
   int sum_v = 0;
@@ -88,8 +88,8 @@ void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
     sum_v += block_height * 129;
   }
 
-  xd->cfl->dc_pred[CFL_PRED_U] = (sum_u + (num_pel >> 1)) / num_pel;
-  xd->cfl->dc_pred[CFL_PRED_V] = (sum_v + (num_pel >> 1)) / num_pel;
+  xd->cfl->dc_pred[CFL_PRED_U] = sum_u / num_pel;
+  xd->cfl->dc_pred[CFL_PRED_V] = sum_v / num_pel;
 }
 
 double cfl_ind_to_alpha(const MB_MODE_INFO *const mbmi,
@@ -105,7 +105,7 @@ double cfl_ind_to_alpha(const MB_MODE_INFO *const mbmi,
 
 // Predict the current transform block using CfL.
 void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst8, int dst_stride,
-                       int row, int col, TX_SIZE tx_size, int dc_pred,
+                       int row, int col, TX_SIZE tx_size, double dc_pred,
                        double alpha) {
   const int tx_block_width = tx_size_wide[tx_size];
   const int tx_block_height = tx_size_high[tx_size];
