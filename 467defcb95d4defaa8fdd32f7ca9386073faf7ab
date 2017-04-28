@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "2220d11e_17f332bf",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-28T00:08:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eaf80683_ab259bb3",
+      "range": {
+        "startLine": 70,
+        "startChar": 42,
+        "endLine": 70,
+        "endChar": 56
+      },
+      "revId": "467defcb95d4defaa8fdd32f7ca9386073faf7ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da427f32_dbfc25f6",
         "filename": "av1/decoder/detokenize.c",
         "patchSetId": 1
@@ -96,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "760b076a_40c35932",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-28T00:08:41Z",
+      "side": 1,
+      "message": "It\u0027s needed actually, because a case doesn\u0027t have it\u0027s own scope.\nRemoving the braces will generate this error:\n\n\"../../av1/decoder/detokenize.c:92:7: error: a label can only be part of a statement and a declaration is not a statement\n       const int skip_bits \u003d (int)sizeof(av1_cat6_prob) -\"",
+      "parentUuid": "da427f32_dbfc25f6",
+      "range": {
+        "startLine": 92,
+        "startChar": 25,
+        "endLine": 92,
+        "endChar": 27
+      },
+      "revId": "467defcb95d4defaa8fdd32f7ca9386073faf7ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aefb9d75_c94a0b07",
         "filename": "av1/decoder/detokenize.c",
         "patchSetId": 1
@@ -107,6 +155,30 @@
       "writtenOn": "2017-04-27T22:57:16Z",
       "side": 1,
       "message": "You have already forced bit_depth to 8 in the callers.",
+      "range": {
+        "startLine": 98,
+        "startChar": 74,
+        "endLine": 98,
+        "endChar": 77
+      },
+      "revId": "467defcb95d4defaa8fdd32f7ca9386073faf7ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "18ab6102_880e960c",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-04-28T00:08:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aefb9d75_c94a0b07",
       "range": {
         "startLine": 98,
         "startChar": 74,
