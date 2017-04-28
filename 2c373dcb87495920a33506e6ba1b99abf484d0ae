@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "894f496f_12518c0c",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1657,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-04-28T02:32:07Z",
+      "side": 1,
+      "message": "The problem with removing this block appears to be caused by the fact that CB4X4 is now on by default. \nThe mbmi of blocks smaller than 8x8 are not initialized properly. I will look into fixing this tomorrow",
+      "revId": "2c373dcb87495920a33506e6ba1b99abf484d0ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
