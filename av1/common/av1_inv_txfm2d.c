@@ -30,7 +30,7 @@ static INLINE TxfmFunc inv_txfm_type_to_func(TXFM_TYPE txfm_type) {
 }
 
 #if CONFIG_EXT_TX
-static const TXFM_2D_CFG *inv_txfm_cfg_ls[FLIPADST_ADST + 1][TX_SIZES] = {
+static const TXFM_2D_CFG *inv_txfm_cfg_ls[TX_TYPES][TX_SIZES] = {
   {
 #if CONFIG_CB4X4
       NULL,
@@ -85,6 +85,48 @@ static const TXFM_2D_CFG *inv_txfm_cfg_ls[FLIPADST_ADST + 1][TX_SIZES] = {
 #endif
       &inv_txfm_2d_cfg_adst_adst_4, &inv_txfm_2d_cfg_adst_adst_8,
       &inv_txfm_2d_cfg_adst_adst_16, &inv_txfm_2d_cfg_adst_adst_32 },
+  { // IDTX
+#if CONFIG_CB4X4
+    NULL,
+#endif
+    &inv_txfm_2d_cfg_adst_adst_4, &inv_txfm_2d_cfg_adst_adst_8,
+    &inv_txfm_2d_cfg_adst_adst_16, &inv_txfm_2d_cfg_adst_adst_32 },
+  { // V_DCT
+#if CONFIG_CB4X4
+    NULL,
+#endif
+    &inv_txfm_2d_cfg_dct_adst_4, &inv_txfm_2d_cfg_dct_adst_8,
+    &inv_txfm_2d_cfg_dct_adst_16, &inv_txfm_2d_cfg_dct_adst_32 },
+  { // H_DCT
+#if CONFIG_CB4X4
+    NULL,
+#endif
+    &inv_txfm_2d_cfg_adst_dct_4, &inv_txfm_2d_cfg_adst_dct_8,
+    &inv_txfm_2d_cfg_adst_dct_16, &inv_txfm_2d_cfg_adst_dct_32 },
+  { // V_ADST
+#if CONFIG_CB4X4
+    NULL,
+#endif
+    &inv_txfm_2d_cfg_adst_adst_4, &inv_txfm_2d_cfg_adst_adst_8,
+    &inv_txfm_2d_cfg_adst_adst_16, &inv_txfm_2d_cfg_adst_adst_32 },
+  { // H_ADST
+#if CONFIG_CB4X4
+    NULL,
+#endif
+    &inv_txfm_2d_cfg_adst_adst_4, &inv_txfm_2d_cfg_adst_adst_8,
+    &inv_txfm_2d_cfg_adst_adst_16, &inv_txfm_2d_cfg_adst_adst_32 },
+  { // V_FLIP_ADST
+#if CONFIG_CB4X4
+    NULL,
+#endif
+    &inv_txfm_2d_cfg_adst_adst_4, &inv_txfm_2d_cfg_adst_adst_8,
+    &inv_txfm_2d_cfg_adst_adst_16, &inv_txfm_2d_cfg_adst_adst_32 },
+  { // H_FLIP_ADST
+#if CONFIG_CB4X4
+    NULL,
+#endif
+    &inv_txfm_2d_cfg_adst_adst_4, &inv_txfm_2d_cfg_adst_adst_8,
+    &inv_txfm_2d_cfg_adst_adst_16, &inv_txfm_2d_cfg_adst_adst_32 },
 };
 #else
 static const TXFM_2D_CFG *inv_txfm_cfg_ls[TX_TYPES][TX_SIZES] = {
