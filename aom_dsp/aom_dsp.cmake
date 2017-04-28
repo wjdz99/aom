@@ -63,7 +63,8 @@ set(AOM_DSP_COMMON_INTRIN_SSE4_1
 set(AOM_DSP_COMMON_INTRIN_AVX2
     "${AOM_ROOT}/aom_dsp/x86/aom_subpixel_8t_intrin_avx2.c"
     "${AOM_ROOT}/aom_dsp/x86/fwd_txfm_avx2.c"
-    "${AOM_ROOT}/aom_dsp/x86/loopfilter_avx2.c")
+    "${AOM_ROOT}/aom_dsp/x86/loopfilter_avx2.c"
+    "${AOM_ROOT}/aom_dsp/x86/inv_txfm_avx2.c")
 
 set(AOM_DSP_COMMON_ASM_NEON
     "${AOM_ROOT}/aom_dsp/arm/aom_convolve8_avg_neon_asm.asm"
