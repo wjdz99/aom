@@ -3595,7 +3595,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_VAR_TX || CONFIG_CB4X4
   // Loopfilter the whole frame.
   av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
-                        cm->lf.filter_level, CONFIG_CDEF, 0);
+                        cm->lf.filter_level, CONFIG_CDEF && cm->base_qindex < 144, 0);
 #else
 #if CONFIG_PARALLEL_DEBLOCKING
   // Loopfilter all rows in the frame in the frame.
@@ -4986,7 +4986,7 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
         // If multiple threads are used to decode tiles, then we use those
         // threads to do parallel loopfiltering.
         av1_loop_filter_frame_mt(new_fb, cm, pbi->mb.plane, cm->lf.filter_level,
-                                 0, CONFIG_CDEF, pbi->tile_workers,
+                                 0, CONFIG_CDEF && cm->base_qindex > 192, pbi->tile_workers,
                                  pbi->num_tile_workers, &pbi->lf_row_sync);
       }
     } else {

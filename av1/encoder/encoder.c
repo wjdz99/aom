@@ -3498,7 +3498,7 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
 static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
   struct loopfilter *lf = &cm->lf;
-  if (is_lossless_requested(&cpi->oxcf)) {
+  if (is_lossless_requested(&cpi->oxcf) || cm->base_qindex < 144) {
     lf->filter_level = 0;
   } else {
     struct aom_usec_timer timer;
@@ -3516,15 +3516,15 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   if (lf->filter_level > 0) {
 #if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
     av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level,
-                          CONFIG_CDEF, 0);
+                          CONFIG_CDEF && cm->base_qindex < 144, 0);
 #else
     if (cpi->num_workers > 1)
       av1_loop_filter_frame_mt(cm->frame_to_show, cm, xd->plane,
-                               lf->filter_level, 0, CONFIG_CDEF, cpi->workers,
+                               lf->filter_level, 0, CONFIG_CDEF && cm->base_qindex < 144, cpi->workers,
                                cpi->num_workers, &cpi->lf_row_sync);
     else
       av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level,
-                            CONFIG_CDEF, 0);
+                            CONFIG_CDEF && cm->base_qindex < 144, 0);
 #endif
   }
 #if CONFIG_CDEF
