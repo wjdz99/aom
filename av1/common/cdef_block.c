@@ -44,7 +44,17 @@ const int cdef_directions[8][2] = {
   { 1 * CDEF_BSTRIDE + 0, 2 * CDEF_BSTRIDE - 1 }
 };
 #endif
-
+const int cdef_directions2[8][2] = {
+  { -1 * CDEF_BSTRIDE + 1, -2 * CDEF_BSTRIDE + 2 },
+  { -1 * CDEF_BSTRIDE + 1, -1 * CDEF_BSTRIDE + 2 },
+  { 0 * CDEF_BSTRIDE + 1, 0 * CDEF_BSTRIDE + 2 },
+  { 1 * CDEF_BSTRIDE + 1, 1 * CDEF_BSTRIDE + 2 },
+  { 1 * CDEF_BSTRIDE + 1, 2 * CDEF_BSTRIDE + 2 },
+  { 1 * CDEF_BSTRIDE + 1, 2 * CDEF_BSTRIDE + 1 },
+  { 1 * CDEF_BSTRIDE + 0, 2 * CDEF_BSTRIDE + 0 },
+  { 1 * CDEF_BSTRIDE - 1, 2 * CDEF_BSTRIDE - 1 }
+};
+  
 /* Detect direction. 0 means 45-degree up-right, 2 is horizontal, and so on.
    The search minimizes the weighted variance along all the lines in a
    particular direction, i.e. the squared error between the input and a
@@ -124,11 +134,11 @@ int cdef_find_dir_c(const uint16_t *img, int stride, int32_t *var,
 }
 
 #if CDEF_FULL
-const int cdef_pri_taps[2][3] = { { 3, 2, 1 }, { 2, 2, 2 } };
-const int cdef_sec_taps[2][2] = { { 3, 1 }, { 3, 1 } };
+const int cdef_pri_taps[2][3] = { { 6, 4, 2 }, { 3, 3, 3 } };
+const int cdef_sec_taps[2][2] = { { 6, 2 }, { 2, 2 } };
 #else
-const int cdef_pri_taps[2][2] = { { 4, 2 }, { 3, 3 } };
-const int cdef_sec_taps[2][2] = { { 2, 1 }, { 2, 1 } };
+const int cdef_pri_taps[2][2] = { { 8, 6 }, { 4, 3 } };
+const int cdef_sec_taps[2][2] = { { 4, 2 }, { 2, 1 } };
 #endif
 
 /* Smooth in the direction detected. */
@@ -145,9 +155,11 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
 #endif
 {
   int i, j, k;
+  sec_strength = (sec_strength - (sec_strength == 4)) | ((pri_strength & 1) << 3);
+  pri_strength &= ~1;
   const int s = CDEF_BSTRIDE;
-  const int *pri_taps = cdef_pri_taps[pri_strength & 1];
-  const int *sec_taps = cdef_sec_taps[pri_strength & 1];
+  const int *pri_taps = cdef_pri_taps[0];  //pri_strength & 1];
+  const int *sec_taps = cdef_sec_taps[0];  //pri_strength & 1];
   for (i = 0; i < 4 << (bsize == BLOCK_8X8); i++) {
     for (j = 0; j < 4 << (bsize == BLOCK_8X8); j++) {
       int16_t sum = 0;
@@ -176,10 +188,10 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
 #if CDEF_FULL
         if (k == 2) continue;
 #endif
-        int16_t s0 = in[i * s + j + cdef_directions[(dir + 2) & 7][k]];
-        int16_t s1 = in[i * s + j - cdef_directions[(dir + 2) & 7][k]];
-        int16_t s2 = in[i * s + j + cdef_directions[(dir + 6) & 7][k]];
-        int16_t s3 = in[i * s + j - cdef_directions[(dir + 6) & 7][k]];
+        int16_t s0 = in[i * s + j + cdef_directions2[(dir + 2) & 7][k]];
+        int16_t s1 = in[i * s + j - cdef_directions2[(dir + 2) & 7][k]];
+        int16_t s2 = in[i * s + j + cdef_directions2[(dir + 6) & 7][k]];
+        int16_t s3 = in[i * s + j - cdef_directions2[(dir + 6) & 7][k]];
 #if CDEF_CAP
         if (s0 != CDEF_VERY_LARGE) max = AOMMAX(s0, max);
         if (s1 != CDEF_VERY_LARGE) max = AOMMAX(s1, max);
@@ -196,9 +208,9 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
         sum += sec_taps[k] * constrain(s3 - x, sec_strength, sec_damping);
       }
 #if CDEF_CAP
-      y = clamp((int16_t)x + ((8 + sum - (sum < 0)) >> 4), min, max);
+      y = clamp((int16_t)x + ((16 + sum - (sum < 0)) >> 5), min, max);
 #else
-      y = clamp((int16_t)x + ((8 + sum - (sum < 0)) >> 4), 0, max);
+      y = clamp((int16_t)x + ((16 + sum - (sum < 0)) >> 5), 0, max);
 #endif
       if (dst8)
         dst8[i * dstride + j] = (uint8_t)y;
