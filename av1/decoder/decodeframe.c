@@ -2641,7 +2641,7 @@ static void setup_cdef(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   int i;
   cm->cdef_pri_damping = aom_rb_read_literal(rb, 1) + 5;
   cm->cdef_sec_damping = aom_rb_read_literal(rb, 2) + 3;
-  cm->cdef_bits = aom_rb_read_literal(rb, 2);
+  cm->cdef_bits = aom_rb_read_literal(rb, 3);
   cm->nb_cdef_strengths = 1 << cm->cdef_bits;
   for (i = 0; i < cm->nb_cdef_strengths; i++) {
     cm->cdef_strengths[i] = aom_rb_read_literal(rb, CDEF_STRENGTH_BITS);
