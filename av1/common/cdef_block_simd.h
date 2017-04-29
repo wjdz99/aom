@@ -259,10 +259,10 @@ void SIMD_FUNC(cdef_filter_block_4x4_8)(uint8_t *dst, int dstride,
 #if CDEF_FULL
   int po3 = cdef_directions[dir][2];
 #endif
-  int s1o1 = cdef_directions[(dir + 2) & 7][0];
-  int s1o2 = cdef_directions[(dir + 2) & 7][1];
-  int s2o1 = cdef_directions[(dir + 6) & 7][0];
-  int s2o2 = cdef_directions[(dir + 6) & 7][1];
+  int s1o1 = cdef_directions2[(dir + 2) & 7][0];
+  int s1o2 = cdef_directions2[(dir + 2) & 7][1];
+  int s2o1 = cdef_directions2[(dir + 6) & 7][0];
+  int s2o2 = cdef_directions2[(dir + 6) & 7][1];
 
   const int *pri_taps = cdef_pri_taps[pri_strength & 1];
   const int *sec_taps = cdef_sec_taps[pri_strength & 1];
@@ -448,8 +448,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_8)(uint8_t *dst, int dstride,
 
   // res = row + ((sum - (sum < 0) + 8) >> 4)
   sum = v256_add_16(sum, v256_cmplt_s16(sum, v256_zero()));
-  res = v256_add_16(sum, v256_dup_16(8));
-  res = v256_shr_n_s16(res, 4);
+  res = v256_add_16(sum, v256_dup_16(16));
+  res = v256_shr_n_s16(res, 5);
   res = v256_add_16(row, res);
 #if CDEF_CAP
   res = v256_min_s16(v256_max_s16(res, min), max);
@@ -490,10 +490,10 @@ void SIMD_FUNC(cdef_filter_block_8x8_8)(uint8_t *dst, int dstride,
 #if CDEF_FULL
   int po3 = cdef_directions[dir][2];
 #endif
-  int s1o1 = cdef_directions[(dir + 2) & 7][0];
-  int s1o2 = cdef_directions[(dir + 2) & 7][1];
-  int s2o1 = cdef_directions[(dir + 6) & 7][0];
-  int s2o2 = cdef_directions[(dir + 6) & 7][1];
+  int s1o1 = cdef_directions2[(dir + 2) & 7][0];
+  int s1o2 = cdef_directions2[(dir + 2) & 7][1];
+  int s2o1 = cdef_directions2[(dir + 6) & 7][0];
+  int s2o2 = cdef_directions2[(dir + 6) & 7][1];
 
   const int *pri_taps = cdef_pri_taps[pri_strength & 1];
   const int *sec_taps = cdef_sec_taps[pri_strength & 1];
@@ -663,8 +663,8 @@ void SIMD_FUNC(cdef_filter_block_8x8_8)(uint8_t *dst, int dstride,
 
     // res = row + ((sum - (sum < 0) + 8) >> 4)
     sum = v256_add_16(sum, v256_cmplt_s16(sum, v256_zero()));
-    res = v256_add_16(sum, v256_dup_16(8));
-    res = v256_shr_n_s16(res, 4);
+    res = v256_add_16(sum, v256_dup_16(16));
+    res = v256_shr_n_s16(res, 5);
     res = v256_add_16(row, res);
 #if CDEF_CAP
     res = v256_min_s16(v256_max_s16(res, min), max);
@@ -703,10 +703,10 @@ void SIMD_FUNC(cdef_filter_block_4x4_16)(uint16_t *dst, int dstride,
 #if CDEF_FULL
   int po3 = cdef_directions[dir][2];
 #endif
-  int s1o1 = cdef_directions[(dir + 2) & 7][0];
-  int s1o2 = cdef_directions[(dir + 2) & 7][1];
-  int s2o1 = cdef_directions[(dir + 6) & 7][0];
-  int s2o2 = cdef_directions[(dir + 6) & 7][1];
+  int s1o1 = cdef_directions2[(dir + 2) & 7][0];
+  int s1o2 = cdef_directions2[(dir + 2) & 7][1];
+  int s2o1 = cdef_directions2[(dir + 6) & 7][0];
+  int s2o2 = cdef_directions2[(dir + 6) & 7][1];
 
   const int *pri_taps = cdef_pri_taps[pri_strength & 1];
   const int *sec_taps = cdef_sec_taps[pri_strength & 1];
@@ -837,8 +837,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_16)(uint16_t *dst, int dstride,
 
     // res = row + ((sum - (sum < 0) + 8) >> 4)
     sum = v128_add_16(sum, v128_cmplt_s16(sum, v128_zero()));
-    res = v128_add_16(sum, v128_dup_16(8));
-    res = v128_shr_n_s16(res, 4);
+    res = v128_add_16(sum, v128_dup_16(16));
+    res = v128_shr_n_s16(res, 5);
     res = v128_add_16(row, res);
 #if CDEF_CAP
     res = v128_min_s16(v128_max_s16(res, min), max);
@@ -874,10 +874,10 @@ void SIMD_FUNC(cdef_filter_block_8x8_16)(uint16_t *dst, int dstride,
 #if CDEF_FULL
   int po3 = cdef_directions[dir][2];
 #endif
-  int s1o1 = cdef_directions[(dir + 2) & 7][0];
-  int s1o2 = cdef_directions[(dir + 2) & 7][1];
-  int s2o1 = cdef_directions[(dir + 6) & 7][0];
-  int s2o2 = cdef_directions[(dir + 6) & 7][1];
+  int s1o1 = cdef_directions2[(dir + 2) & 7][0];
+  int s1o2 = cdef_directions2[(dir + 2) & 7][1];
+  int s2o1 = cdef_directions2[(dir + 6) & 7][0];
+  int s2o2 = cdef_directions2[(dir + 6) & 7][1];
 
   const int *pri_taps = cdef_pri_taps[pri_strength & 1];
   const int *sec_taps = cdef_sec_taps[pri_strength & 1];
@@ -994,8 +994,8 @@ void SIMD_FUNC(cdef_filter_block_8x8_16)(uint16_t *dst, int dstride,
 
     // res = row + ((sum - (sum < 0) + 8) >> 4)
     sum = v128_add_16(sum, v128_cmplt_s16(sum, v128_zero()));
-    res = v128_add_16(sum, v128_dup_16(8));
-    res = v128_shr_n_s16(res, 4);
+    res = v128_add_16(sum, v128_dup_16(16));
+    res = v128_shr_n_s16(res, 5);
     res = v128_add_16(row, res);
 #if CDEF_CAP
     res = v128_min_s16(v128_max_s16(res, min), max);
