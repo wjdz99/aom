@@ -146,8 +146,8 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
 {
   int i, j, k;
   const int s = CDEF_BSTRIDE;
-  const int *pri_taps = cdef_pri_taps[pri_strength & 1];
-  const int *sec_taps = cdef_sec_taps[pri_strength & 1];
+  const int *pri_taps = cdef_pri_taps[pri_strength > 7];
+  const int *sec_taps = cdef_sec_taps[pri_strength > 7];
   for (i = 0; i < 4 << (bsize == BLOCK_8X8); i++) {
     for (j = 0; j < 4 << (bsize == BLOCK_8X8); j++) {
       int16_t sum = 0;
