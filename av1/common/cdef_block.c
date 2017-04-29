@@ -124,11 +124,11 @@ int cdef_find_dir_c(const uint16_t *img, int stride, int32_t *var,
 }
 
 #if CDEF_FULL
-const int cdef_pri_taps[2][3] = { { 3, 2, 1 }, { 2, 2, 2 } };
-const int cdef_sec_taps[2][2] = { { 3, 1 }, { 3, 1 } };
+const int cdef_pri_taps[2][3] = { { 6, 4, 2 }, { 3, 2, 1 } };
+const int cdef_sec_taps[2][2] = { { 6, 2 }, { 3, 1 } };
 #else
-const int cdef_pri_taps[2][2] = { { 4, 2 }, { 3, 3 } };
-const int cdef_sec_taps[2][2] = { { 2, 1 }, { 2, 1 } };
+const int cdef_pri_taps[2][2] = { { 8, 6 }, { 4, 3 } };
+const int cdef_sec_taps[2][2] = { { 4, 2 }, { 2, 1 } };
 #endif
 
 /* Smooth in the direction detected. */
@@ -196,9 +196,9 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
         sum += sec_taps[k] * constrain(s3 - x, sec_strength, sec_damping);
       }
 #if CDEF_CAP
-      y = clamp((int16_t)x + ((8 + sum - (sum < 0)) >> 4), min, max);
+      y = clamp((int16_t)x + ((16 + sum - (sum < 0)) >> 5), min, max);
 #else
-      y = clamp((int16_t)x + ((8 + sum - (sum < 0)) >> 4), 0, max);
+      y = clamp((int16_t)x + ((16 + sum - (sum < 0)) >> 5), 0, max);
 #endif
       if (dst8)
         dst8[i * dstride + j] = (uint8_t)y;
