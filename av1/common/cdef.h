@@ -13,8 +13,8 @@
 
 #define CDEF_STRENGTH_BITS 7
 
-#define CDEF_PRI_STRENGTHS 32
-#define CDEF_SEC_STRENGTHS 4
+#define CDEF_PRI_STRENGTHS 16
+#define CDEF_SEC_STRENGTHS 8
 
 #include "./aom_config.h"
 #include "aom/aom_integer.h"
