@@ -43,6 +43,7 @@ extern const int cdef_directions[8][3];
 #else
 extern const int cdef_directions[8][2];
 #endif
+extern const int cdef_directions2[8][2];
 
 typedef struct {
   uint8_t by;
