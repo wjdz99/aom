@@ -294,8 +294,8 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
   int *sb_index = aom_malloc(nvsb * nhsb * sizeof(*sb_index));
   int *selected_strength = aom_malloc(nvsb * nhsb * sizeof(*sb_index));
   uint64_t(*mse[2])[TOTAL_STRENGTHS];
+  int pri_damping = 3 + (cm->base_qindex >> 6);
   int sec_damping = 3 + (cm->base_qindex >> 6);
-  int pri_damping = 6;
   int i;
   int nb_strengths;
   int nb_strength_bits;
