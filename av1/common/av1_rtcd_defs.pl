@@ -562,7 +562,7 @@ if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
 
 if (aom_config("CONFIG_CDEF") eq "yes") {
   add_proto qw/int cdef_find_dir/, "const cdef_in *img, int stride, int32_t *var, int coeff_shift";
-  add_proto qw/void cdef_filter_block/, "uint8_t *dst8, uint16_t *dst16, int dstride, const uint16_t *in, int pri_strength, int sec_strength, int dir, int pri_damping, int sec_damping, int bsize, int max";
+  add_proto qw/void cdef_filter_block/, "uint8_t *dst8, uint16_t *dst16, int dstride, const uint16_t *in, int pri_strength, int sec_strength, int dir, int damping, int bsize, int max";
 
   add_proto qw/void copy_rect8_8bit_to_16bit/, "uint16_t *dst, int dstride, const uint8_t *src, int sstride, int v, int h";
   add_proto qw/void copy_rect8_16bit_to_16bit/, "uint16_t *dst, int dstride, const uint16_t *src, int sstride, int v, int h";

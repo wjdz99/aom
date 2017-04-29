@@ -61,81 +61,77 @@ void test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
   memset(d, 0, sizeof(d));
 
   int error = 0, pristrength = 0, secstrength, dir;
-  int boundary, pridamping, secdamping, depth, bits, level, count,
+  int boundary, damping, depth, bits, level, count,
       errdepth = 0, errpristrength = 0, errsecstrength = 0, errboundary = 0,
-      errpridamping = 0, errsecdamping = 0;
+      errdamping = 0;
   unsigned int pos = 0;
 
   for (boundary = 0; boundary < 16; boundary++) {
     for (depth = 8; depth <= 12; depth += 2) {
-      for (pridamping = 5 + depth - 8; pridamping < 7 - !!boundary + depth - 8;
-           pridamping++) {
-        for (secdamping = 3 + depth - 8; secdamping < 7 + depth - 8;
-             secdamping++) {
-          for (count = 0; count < iterations; count++) {
-            for (level = 0; level < (1 << depth) && !error;
-                 level += (2 + 6 * !!boundary) << (depth - 8)) {
-              for (bits = 1; bits <= depth && !error;
-                   bits += 1 + 3 * !!boundary) {
-                for (unsigned int i = 0; i < sizeof(s) / sizeof(*s); i++)
-                  s[i] = clamp((rnd.Rand16() & ((1 << bits) - 1)) + level, 0,
-                               (1 << depth) - 1);
-                if (boundary) {
-                  if (boundary & 1) {  // Left
-                    for (int i = 0; i < ysize; i++)
-                      for (int j = 0; j < CDEF_HBORDER; j++)
-                        s[i * CDEF_BSTRIDE + j] = CDEF_VERY_LARGE;
-                  }
-                  if (boundary & 2) {  // Right
-                    for (int i = 0; i < ysize; i++)
-                      for (int j = CDEF_HBORDER + size; j < CDEF_BSTRIDE; j++)
-                        s[i * CDEF_BSTRIDE + j] = CDEF_VERY_LARGE;
-                  }
-                  if (boundary & 4) {  // Above
-                    for (int i = 0; i < CDEF_VBORDER; i++)
-                      for (int j = 0; j < CDEF_BSTRIDE; j++)
-                        s[i * CDEF_BSTRIDE + j] = CDEF_VERY_LARGE;
-                  }
-                  if (boundary & 8) {  // Below
-                    for (int i = CDEF_VBORDER + size; i < ysize; i++)
-                      for (int j = 0; j < CDEF_BSTRIDE; j++)
-                        s[i * CDEF_BSTRIDE + j] = CDEF_VERY_LARGE;
-                  }
+      for (damping = 3 + depth - 8; damping < 7 + depth - 8; damping++) {
+        for (count = 0; count < iterations; count++) {
+          for (level = 0; level < (1 << depth) && !error;
+               level += (2 + 6 * !!boundary) << (depth - 8)) {
+            for (bits = 1; bits <= depth && !error;
+                 bits += 1 + 3 * !!boundary) {
+              for (unsigned int i = 0; i < sizeof(s) / sizeof(*s); i++)
+                s[i] = clamp((rnd.Rand16() & ((1 << bits) - 1)) + level, 0,
+                             (1 << depth) - 1);
+              if (boundary) {
+                if (boundary & 1) { // Left
+                  for (int i = 0; i < ysize; i++)
+                    for (int j = 0; j < CDEF_HBORDER; j++)
+                      s[i * CDEF_BSTRIDE + j] = CDEF_VERY_LARGE;
                 }
-                for (dir = 0; dir < 8; dir++) {
-                  for (pristrength = 0;
-                       pristrength <= 19 << (depth - 8) && !error;
-                       pristrength += (1 + 4 * !!boundary) << (depth - 8)) {
-                    if (pristrength == 16) pristrength = 19;
-                    for (secstrength = 0;
-                         secstrength <= 4 << (depth - 8) && !error;
-                         secstrength += 1 << (depth - 8)) {
-                      if (secstrength == 3 << (depth - 8)) continue;
-                      ref_cdef(depth == 8 ? (uint8_t *)ref_d : 0, ref_d, size,
+                if (boundary & 2) { // Right
+                  for (int i = 0; i < ysize; i++)
+                    for (int j = CDEF_HBORDER + size; j < CDEF_BSTRIDE; j++)
+                      s[i * CDEF_BSTRIDE + j] = CDEF_VERY_LARGE;
+                }
+                if (boundary & 4) { // Above
+                  for (int i = 0; i < CDEF_VBORDER; i++)
+                    for (int j = 0; j < CDEF_BSTRIDE; j++)
+                      s[i * CDEF_BSTRIDE + j] = CDEF_VERY_LARGE;
+                }
+                if (boundary & 8) { // Below
+                  for (int i = CDEF_VBORDER + size; i < ysize; i++)
+                    for (int j = 0; j < CDEF_BSTRIDE; j++)
+                      s[i * CDEF_BSTRIDE + j] = CDEF_VERY_LARGE;
+                }
+              }
+              for (dir = 0; dir < 8; dir++) {
+                for (pristrength = 0;
+                     pristrength <= 19 << (depth - 8) && !error;
+                     pristrength += (1 + 4 * !!boundary) << (depth - 8)) {
+                  if (pristrength == 16)
+                    pristrength = 19;
+                  for (secstrength = 0;
+                       secstrength <= 4 << (depth - 8) && !error;
+                       secstrength += 1 << (depth - 8)) {
+                    if (secstrength == 3 << (depth - 8))
+                      continue;
+                    ref_cdef(depth == 8 ? (uint8_t *)ref_d : 0, ref_d, size,
+                             s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
+                             pristrength, secstrength, dir, damping, bsize,
+                             (1 << depth) - 1);
+                    // If cdef and ref_cdef are the same, we're just testing
+                    // speed
+                    if (cdef != ref_cdef)
+                      ASM_REGISTER_STATE_CHECK(
+                          cdef(depth == 8 ? (uint8_t *)d : 0, d, size,
                                s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
-                               pristrength, secstrength, dir, pridamping,
-                               secdamping, bsize, (1 << depth) - 1);
-                      // If cdef and ref_cdef are the same, we're just testing
-                      // speed
-                      if (cdef != ref_cdef)
-                        ASM_REGISTER_STATE_CHECK(
-                            cdef(depth == 8 ? (uint8_t *)d : 0, d, size,
-                                 s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
-                                 pristrength, secstrength, dir, pridamping,
-                                 secdamping, bsize, (1 << depth) - 1));
-                      if (ref_cdef != cdef) {
-                        for (pos = 0;
-                             pos<sizeof(d) / sizeof(*d)>> (depth == 8) &&
-                             !error;
-                             pos++) {
-                          error = ref_d[pos] != d[pos];
-                          errdepth = depth;
-                          errpristrength = pristrength;
-                          errsecstrength = secstrength;
-                          errboundary = boundary;
-                          errpridamping = pridamping;
-                          errsecdamping = secdamping;
-                        }
+                               pristrength, secstrength, dir, damping, bsize,
+                               (1 << depth) - 1));
+                    if (ref_cdef != cdef) {
+                      for (pos = 0;
+                           pos<sizeof(d) / sizeof(*d)>> (depth == 8) && !error;
+                           pos++) {
+                        error = ref_d[pos] != d[pos];
+                        errdepth = depth;
+                        errpristrength = pristrength;
+                        errsecstrength = secstrength;
+                        errboundary = boundary;
+                        errdamping = damping;
                       }
                     }
                   }
@@ -154,9 +150,8 @@ void test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
                       << " (" << (int16_t)ref_d[pos] << " : " << (int16_t)d[pos]
                       << ") " << std::endl
                       << "pristrength: " << errpristrength << std::endl
-                      << "pridamping: " << errpridamping << std::endl
+                      << "damping: " << errdamping << std::endl
                       << "secstrength: " << errsecstrength << std::endl
-                      << "secdamping: " << errsecdamping << std::endl
                       << "depth: " << errdepth << std::endl
                       << "size: " << bsize << std::endl
                       << "boundary: " << errboundary << std::endl

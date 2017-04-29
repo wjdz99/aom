@@ -294,8 +294,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
   int *sb_index = aom_malloc(nvsb * nhsb * sizeof(*sb_index));
   int *selected_strength = aom_malloc(nvsb * nhsb * sizeof(*sb_index));
   uint64_t(*mse[2])[TOTAL_STRENGTHS];
-  int sec_damping = 3 + (cm->base_qindex >> 6);
-  int pri_damping = 6;
+  int damping = 3 + (cm->base_qindex >> 6);
   int i;
   int nb_strengths;
   int nb_strength_bits;
@@ -407,8 +406,8 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
                        stride[pli], ysize, xsize);
           cdef_filter_sb(NULL, tmp_dst, CDEF_BSTRIDE, in, xdec[pli], ydec[pli],
                          dir, &dirinit, var, pli, dlist, cdef_count, threshold,
-                         sec_strength + (sec_strength == 3), pri_damping,
-                         sec_damping, coeff_shift);
+                         sec_strength + (sec_strength == 3), damping,
+                         coeff_shift);
           curr_mse = compute_cdef_dist(
               ref_coeff[pli] +
                   (sbr * MAX_MIB_SIZE << mi_high_l2[pli]) * stride[pli] +
@@ -472,8 +471,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
     selected_strength[i] = best_gi;
     cm->mi_grid_visible[sb_index[i]]->mbmi.cdef_strength = best_gi;
   }
-  cm->cdef_pri_damping = pri_damping;
-  cm->cdef_sec_damping = sec_damping;
+  cm->cdef_damping = damping;
   aom_free(mse[0]);
   aom_free(mse[1]);
   for (pli = 0; pli < nplanes; pli++) {

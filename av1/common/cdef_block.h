@@ -53,8 +53,8 @@ typedef struct {
 typedef void (*cdef_filter_block_func)(uint8_t *dst8, uint16_t *dst16,
                                        int dstride, const uint16_t *in,
                                        int pri_strength, int sec_strength,
-                                       int dir, int pri_damping,
-                                       int sec_damping, int bsize, int max);
+                                       int dir, int damping, int bsize,
+                                       int max);
 void copy_cdef_16bit_to_16bit(uint16_t *dst, int dstride, uint16_t *src,
                               cdef_list *dlist, int cdef_count, int bsize);
 
@@ -64,6 +64,5 @@ void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
                     int xdec, int ydec, int dir[CDEF_NBLOCKS][CDEF_NBLOCKS],
                     int *dirinit, int var[CDEF_NBLOCKS][CDEF_NBLOCKS], int pli,
                     cdef_list *dlist, int cdef_count, int level,
-                    int sec_strength, int pri_damping, int sec_damping,
-                    int coeff_shift);
+                    int sec_strength, int damping, int coeff_shift);
 #endif

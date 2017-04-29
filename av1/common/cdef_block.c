@@ -135,13 +135,11 @@ const int cdef_sec_taps[2][2] = { { 2, 1 }, { 2, 1 } };
 #if CDEF_CAP
 void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
                          const uint16_t *in, int pri_strength, int sec_strength,
-                         int dir, int pri_damping, int sec_damping, int bsize,
-                         UNUSED int max_unused)
+                         int dir, int damping, int bsize, UNUSED int max_unused)
 #else
 void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
                          const uint16_t *in, int pri_strength, int sec_strength,
-                         int dir, int pri_damping, int sec_damping, int bsize,
-                         int max)
+                         int dir, int damping, int bsize, int max)
 #endif
 {
   int i, j, k;
@@ -165,8 +163,8 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
       {
         int16_t p0 = in[i * s + j + cdef_directions[dir][k]];
         int16_t p1 = in[i * s + j - cdef_directions[dir][k]];
-        sum += pri_taps[k] * constrain(p0 - x, pri_strength, pri_damping);
-        sum += pri_taps[k] * constrain(p1 - x, pri_strength, pri_damping);
+        sum += pri_taps[k] * constrain(p0 - x, pri_strength, damping);
+        sum += pri_taps[k] * constrain(p1 - x, pri_strength, damping);
 #if CDEF_CAP
         if (p0 != CDEF_VERY_LARGE) max = AOMMAX(p0, max);
         if (p1 != CDEF_VERY_LARGE) max = AOMMAX(p1, max);
@@ -190,10 +188,10 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
         min = AOMMIN(s2, min);
         min = AOMMIN(s3, min);
 #endif
-        sum += sec_taps[k] * constrain(s0 - x, sec_strength, sec_damping);
-        sum += sec_taps[k] * constrain(s1 - x, sec_strength, sec_damping);
-        sum += sec_taps[k] * constrain(s2 - x, sec_strength, sec_damping);
-        sum += sec_taps[k] * constrain(s3 - x, sec_strength, sec_damping);
+        sum += sec_taps[k] * constrain(s0 - x, sec_strength, damping);
+        sum += sec_taps[k] * constrain(s1 - x, sec_strength, damping);
+        sum += sec_taps[k] * constrain(s2 - x, sec_strength, damping);
+        sum += sec_taps[k] * constrain(s3 - x, sec_strength, damping);
       }
 #if CDEF_CAP
       y = clamp((int16_t)x + ((8 + sum - (sum < 0)) >> 4), min, max);
@@ -230,8 +228,7 @@ void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
                     int xdec, int ydec, int dir[CDEF_NBLOCKS][CDEF_NBLOCKS],
                     int *dirinit, int var[CDEF_NBLOCKS][CDEF_NBLOCKS], int pli,
                     cdef_list *list, int cdef_count, int level,
-                    int sec_strength, int pri_damping, int sec_damping,
-                    int coeff_shift) {
+                    int sec_strength, int damping, int coeff_shift) {
   int bi;
   int bx;
   int by;
@@ -241,8 +238,7 @@ void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
   int filter_skip = get_filter_skip(level);
   if (level == 1) pri_strength = 19 << coeff_shift;
 
-  sec_damping += coeff_shift - (pli != AOM_PLANE_Y);
-  pri_damping += coeff_shift - (pli != AOM_PLANE_Y);
+  damping += coeff_shift - (pli != AOM_PLANE_Y);
   bsize =
       ydec ? (xdec ? BLOCK_4X4 : BLOCK_8X4) : (xdec ? BLOCK_4X8 : BLOCK_8X8);
   bsizex = 3 - xdec;
@@ -285,12 +281,11 @@ void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
     by = list[bi].by;
     bx = list[bi].bx;
     if (dst8)
-      cdef_filter_block(&dst8[(by << bsizey) * dstride + (bx << bsizex)], NULL,
-                        dstride,
-                        &in[(by * CDEF_BSTRIDE << bsizey) + (bx << bsizex)],
-                        (pli ? t : od_adjust_strength(t, var[by][bx])), s,
-                        t ? dir[by][bx] : 0, pri_damping, sec_damping, bsize,
-                        (256 << coeff_shift) - 1);
+      cdef_filter_block(
+          &dst8[(by << bsizey) * dstride + (bx << bsizex)], NULL, dstride,
+          &in[(by * CDEF_BSTRIDE << bsizey) + (bx << bsizex)],
+          (pli ? t : od_adjust_strength(t, var[by][bx])), s,
+          t ? dir[by][bx] : 0, damping, bsize, (256 << coeff_shift) - 1);
     else
       cdef_filter_block(
           NULL, &dst16[dirinit ? bi << (bsizex + bsizey)
@@ -298,7 +293,6 @@ void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
           dirinit ? 1 << bsizex : dstride,
           &in[(by * CDEF_BSTRIDE << bsizey) + (bx << bsizex)],
           (pli ? t : od_adjust_strength(t, var[by][bx])), s,
-          t ? dir[by][bx] : 0, pri_damping, sec_damping, bsize,
-          (256 << coeff_shift) - 1);
+          t ? dir[by][bx] : 0, damping, bsize, (256 << coeff_shift) - 1);
   }
 }
