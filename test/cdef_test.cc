@@ -68,10 +68,10 @@ void test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
 
   for (boundary = 0; boundary < 16; boundary++) {
     for (depth = 8; depth <= 12; depth += 2) {
-      for (pridamping = 5 + depth - 8; pridamping < 7 - !!boundary + depth - 8;
-           pridamping++) {
-        for (secdamping = 3 + depth - 8; secdamping < 7 + depth - 8;
-             secdamping++) {
+      for (pridamping = 3 + depth - 8;
+           pridamping < 7 - 3 * !!boundary + depth - 8; pridamping++) {
+        for (secdamping = 3 + depth - 8;
+             secdamping < 7 - 3 * !!boundary + depth - 8; secdamping++) {
           for (count = 0; count < iterations; count++) {
             for (level = 0; level < (1 << depth) && !error;
                  level += (2 + 6 * !!boundary) << (depth - 8)) {
