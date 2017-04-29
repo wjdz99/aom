@@ -260,11 +260,9 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
       level = cm->cdef_strengths[mbmi_cdef_strength] / CDEF_SEC_STRENGTHS;
       sec_strength =
           cm->cdef_strengths[mbmi_cdef_strength] % CDEF_SEC_STRENGTHS;
-      sec_strength += sec_strength == 3;
       uv_level = cm->cdef_uv_strengths[mbmi_cdef_strength] / CDEF_SEC_STRENGTHS;
       uv_sec_strength =
           cm->cdef_uv_strengths[mbmi_cdef_strength] % CDEF_SEC_STRENGTHS;
-      uv_sec_strength += uv_sec_strength == 3;
       if ((level == 0 && sec_strength == 0 && uv_level == 0 &&
            uv_sec_strength == 0) ||
           (cdef_count = sb_compute_cdef_list(
