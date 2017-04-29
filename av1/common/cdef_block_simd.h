@@ -448,8 +448,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_8)(uint8_t *dst, int dstride,
 
   // res = row + ((sum - (sum < 0) + 8) >> 4)
   sum = v256_add_16(sum, v256_cmplt_s16(sum, v256_zero()));
-  res = v256_add_16(sum, v256_dup_16(8));
-  res = v256_shr_n_s16(res, 4);
+  res = v256_add_16(sum, v256_dup_16(16));
+  res = v256_shr_n_s16(res, 5);
   res = v256_add_16(row, res);
 #if CDEF_CAP
   res = v256_min_s16(v256_max_s16(res, min), max);
@@ -663,8 +663,8 @@ void SIMD_FUNC(cdef_filter_block_8x8_8)(uint8_t *dst, int dstride,
 
     // res = row + ((sum - (sum < 0) + 8) >> 4)
     sum = v256_add_16(sum, v256_cmplt_s16(sum, v256_zero()));
-    res = v256_add_16(sum, v256_dup_16(8));
-    res = v256_shr_n_s16(res, 4);
+    res = v256_add_16(sum, v256_dup_16(16));
+    res = v256_shr_n_s16(res, 5);
     res = v256_add_16(row, res);
 #if CDEF_CAP
     res = v256_min_s16(v256_max_s16(res, min), max);
@@ -837,8 +837,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_16)(uint16_t *dst, int dstride,
 
     // res = row + ((sum - (sum < 0) + 8) >> 4)
     sum = v128_add_16(sum, v128_cmplt_s16(sum, v128_zero()));
-    res = v128_add_16(sum, v128_dup_16(8));
-    res = v128_shr_n_s16(res, 4);
+    res = v128_add_16(sum, v128_dup_16(16));
+    res = v128_shr_n_s16(res, 5);
     res = v128_add_16(row, res);
 #if CDEF_CAP
     res = v128_min_s16(v128_max_s16(res, min), max);
@@ -994,8 +994,8 @@ void SIMD_FUNC(cdef_filter_block_8x8_16)(uint16_t *dst, int dstride,
 
     // res = row + ((sum - (sum < 0) + 8) >> 4)
     sum = v128_add_16(sum, v128_cmplt_s16(sum, v128_zero()));
-    res = v128_add_16(sum, v128_dup_16(8));
-    res = v128_shr_n_s16(res, 4);
+    res = v128_add_16(sum, v128_dup_16(16));
+    res = v128_shr_n_s16(res, 5);
     res = v128_add_16(row, res);
 #if CDEF_CAP
     res = v128_min_s16(v128_max_s16(res, min), max);
