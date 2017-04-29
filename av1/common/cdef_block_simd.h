@@ -264,8 +264,8 @@ void SIMD_FUNC(cdef_filter_block_4x4_8)(uint8_t *dst, int dstride,
   int s2o1 = cdef_directions[(dir + 6) & 7][0];
   int s2o2 = cdef_directions[(dir + 6) & 7][1];
 
-  const int *pri_taps = cdef_pri_taps[pri_strength & 1];
-  const int *sec_taps = cdef_sec_taps[pri_strength & 1];
+  const int *pri_taps = cdef_pri_taps[pri_strength < 8];
+  const int *sec_taps = cdef_sec_taps[pri_strength < 8];
 
   if (pri_strength) pri_damping -= get_msb(pri_strength);
   if (sec_strength) sec_damping -= get_msb(sec_strength);
