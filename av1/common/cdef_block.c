@@ -237,7 +237,7 @@ void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
   int by;
   int bsize, bsizex, bsizey;
 
-  int pri_strength = (level >> 1) << coeff_shift;
+  int pri_strength = (level & ~1) << coeff_shift;
   int filter_skip = get_filter_skip(level);
   if (level == 1) pri_strength = 19 << coeff_shift;
 
