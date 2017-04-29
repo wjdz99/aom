@@ -35,13 +35,13 @@ const int cdef_directions[8][3] = {
 #else
 const int cdef_directions[8][2] = {
   { -1 * CDEF_BSTRIDE + 1, -2 * CDEF_BSTRIDE + 2 },
-  { 0 * CDEF_BSTRIDE + 1, -1 * CDEF_BSTRIDE + 2 },
+  { -1 * CDEF_BSTRIDE + 1, -1 * CDEF_BSTRIDE + 2 },
   { 0 * CDEF_BSTRIDE + 1, 0 * CDEF_BSTRIDE + 2 },
-  { 0 * CDEF_BSTRIDE + 1, 1 * CDEF_BSTRIDE + 2 },
+  { 1 * CDEF_BSTRIDE + 1, 1 * CDEF_BSTRIDE + 2 },
   { 1 * CDEF_BSTRIDE + 1, 2 * CDEF_BSTRIDE + 2 },
-  { 1 * CDEF_BSTRIDE + 0, 2 * CDEF_BSTRIDE + 1 },
+  { 1 * CDEF_BSTRIDE + 1, 2 * CDEF_BSTRIDE + 1 },
   { 1 * CDEF_BSTRIDE + 0, 2 * CDEF_BSTRIDE + 0 },
-  { 1 * CDEF_BSTRIDE + 0, 2 * CDEF_BSTRIDE - 1 }
+  { 1 * CDEF_BSTRIDE - 1, 2 * CDEF_BSTRIDE - 1 }
 };
 #endif
 
@@ -236,11 +236,11 @@ void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
   int bx;
   int by;
   int bsize, bsizex, bsizey;
-
-  int pri_strength = (level >> 1) << coeff_shift;
+  static int adj[8] = { 0, 1, 2, 4, 6, 8, 11, 15 };
+  int pri_strength = adj[(level >> 1)] << coeff_shift;
+  sec_strength = adj[sec_strength];
   int filter_skip = get_filter_skip(level);
   if (level == 1) pri_strength = 19 << coeff_shift;
-
   sec_damping += coeff_shift - (pli != AOM_PLANE_Y);
   pri_damping += coeff_shift - (pli != AOM_PLANE_Y);
   bsize =
