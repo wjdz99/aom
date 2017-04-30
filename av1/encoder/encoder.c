@@ -2189,7 +2189,6 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   memset(cm->fc, 0, sizeof(*cm->fc));
   memset(cm->frame_contexts, 0, FRAME_CONTEXTS * sizeof(*cm->frame_contexts));
 
-  cpi->resize_pending = 0;
   cpi->resize_state = 0;
   cpi->resize_avg_qp = 0;
   cpi->resize_buffer_underflow = 0;
@@ -3905,11 +3904,13 @@ static void set_frame_size(AV1_COMP *cpi) {
   AV1EncoderConfig *const oxcf = &cpi->oxcf;
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
 
+  // TODO(afergs): Allow fixed resizing in AOM_CBR mode?
+
   if (oxcf->pass == 2 && oxcf->rc_mode == AOM_VBR &&
       ((oxcf->resize_mode == RESIZE_FIXED && cm->current_video_frame == 0) ||
-       (oxcf->resize_mode == RESIZE_DYNAMIC && cpi->resize_pending))) {
-    av1_calculate_coded_size(cpi, &oxcf->scaled_frame_width,
-                             &oxcf->scaled_frame_height);
+       (oxcf->resize_mode == RESIZE_DYNAMIC && resize_pending(cpi)))) {
+    av1_calculate_next_coded_size(cpi, &oxcf->scaled_frame_width,
+                                  &oxcf->scaled_frame_height);
 
     // There has been a change in frame size.
     av1_set_size_literal(cpi, oxcf->scaled_frame_width,
@@ -3917,25 +3918,16 @@ static void set_frame_size(AV1_COMP *cpi) {
   }
 
   if (oxcf->pass == 0 && oxcf->rc_mode == AOM_CBR &&
-      oxcf->resize_mode == RESIZE_DYNAMIC) {
-    if (cpi->resize_pending == 1) {
-      oxcf->scaled_frame_width =
-          (cm->width * cpi->resize_scale_num) / cpi->resize_scale_den;
-      oxcf->scaled_frame_height =
-          (cm->height * cpi->resize_scale_num) / cpi->resize_scale_den;
-    } else if (cpi->resize_pending == -1) {
-      // Go back up to original size.
-      oxcf->scaled_frame_width = oxcf->width;
-      oxcf->scaled_frame_height = oxcf->height;
-    }
-    if (cpi->resize_pending != 0) {
-      // There has been a change in frame size.
-      av1_set_size_literal(cpi, oxcf->scaled_frame_width,
-                           oxcf->scaled_frame_height);
+      oxcf->resize_mode == RESIZE_DYNAMIC && resize_pending(cpi)) {
+    av1_calculate_next_coded_size(cpi, &oxcf->scaled_frame_width,
+                                  &oxcf->scaled_frame_height);
 
-      // TODO(agrange) Scale cpi->max_mv_magnitude if frame-size has changed.
-      set_mv_search_params(cpi);
-    }
+    // There has been a change in frame size.
+    av1_set_size_literal(cpi, oxcf->scaled_frame_width,
+                         oxcf->scaled_frame_height);
+
+    // TODO(agrange) Scale cpi->max_mv_magnitude if frame-size has changed.
+    set_mv_search_params(cpi);
   }
 
 #if !CONFIG_XIPHRC
@@ -4023,6 +4015,8 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
   aom_clear_system_state();
 
   set_frame_size(cpi);
+
+  resize_step(cpi);
 
   // For 1 pass CBR under dynamic resize mode: use faster scaling for source.
   // Only for 2x2 scaling for now.
@@ -4121,7 +4115,7 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
 
     set_frame_size(cpi);
 
-    if (loop_count == 0 || cpi->resize_pending != 0) {
+    if (loop_count == 0 || resize_pending(cpi)) {
       set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
 
       // cpi->sf.use_upsampled_references can be different from frame to frame.
@@ -4142,8 +4136,8 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
       undershoot_seen = 0;
 #endif
 
-      // Reconfiguration for change in frame size has concluded.
-      cpi->resize_pending = 0;
+      // Advance resize to next state now that updates are done
+      resize_step(cpi);
 
       q_low = bottom_index;
       q_high = top_index;

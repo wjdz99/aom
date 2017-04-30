@@ -1238,13 +1238,13 @@ static void setup_rf_level_maxq(AV1_COMP *cpi) {
 // TODO(afergs): Remove? Doesn't do much anymore.
 void av1_init_subsampling(AV1_COMP *cpi) { setup_rf_level_maxq(cpi); }
 
-void av1_calculate_coded_size(const AV1_COMP *const cpi,
-                              int *scaled_frame_width,
-                              int *scaled_frame_height) {
+void av1_calculate_next_coded_size(const AV1_COMP *const cpi,
+                                   int *scaled_frame_width,
+                                   int *scaled_frame_height) {
   *scaled_frame_width =
-      cpi->oxcf.width * cpi->resize_scale_num / cpi->resize_scale_den;
-  *scaled_frame_height =
-      cpi->oxcf.height * cpi->resize_scale_num / cpi->resize_scale_den;
+      cpi->oxcf.width * cpi->resize_next_scale_num / cpi->resize_next_scale_den;
+  *scaled_frame_height = cpi->oxcf.height * cpi->resize_next_scale_num /
+                         cpi->resize_next_scale_den;
 }
 
 void av1_init_second_pass(AV1_COMP *cpi) {
