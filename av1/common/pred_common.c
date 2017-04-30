@@ -153,6 +153,46 @@ int av1_get_pred_context_intra_interp(const MACROBLOCKD *xd) {
 #endif  // CONFIG_INTRA_INTERP
 #endif  // CONFIG_EXT_INTRA
 
+#if CONFIG_PALETTE && CONFIG_PALETTE_DELTA_ENCODING
+int av1_get_palette_cache(const MODE_INFO *above_mi, const MODE_INFO *left_mi,
+                          int plane, unsigned int *cache) {
+  int above_n = 0, left_n = 0;
+  if (above_mi)
+    above_n = above_mi->mbmi.palette_mode_info.palette_size[plane != 0];
+  if (left_mi)
+    left_n = left_mi->mbmi.palette_mode_info.palette_size[plane != 0];
+  if (above_n == 0 && left_n == 0) return 0;
+  int above_idx = plane * PALETTE_MAX_SIZE;
+  int left_idx = plane * PALETTE_MAX_SIZE;
+  int n = 0;
+  while (above_n > 0 && left_n > 0) {
+    const unsigned int v_above =
+        above_mi->mbmi.palette_mode_info.palette_colors[above_idx];
+    const unsigned int v_left =
+        left_mi->mbmi.palette_mode_info.palette_colors[left_idx];
+    if (v_left < v_above) {
+      if (n == 0 || v_left != cache[n - 1]) cache[n++] = v_left;
+      ++left_idx, --left_n;
+    } else {
+      if (n == 0 || v_above != cache[n - 1]) cache[n++] = v_above;
+      ++above_idx, --above_n;
+      if (v_left == v_above) ++left_idx, --left_n;
+    }
+  }
+  while (above_n-- > 0) {
+    const unsigned int val =
+        above_mi->mbmi.palette_mode_info.palette_colors[above_idx++];
+    if (n == 0 || val != cache[n - 1]) cache[n++] = val;
+  }
+  while (left_n-- > 0) {
+    const unsigned int val =
+        left_mi->mbmi.palette_mode_info.palette_colors[left_idx++];
+    if (n == 0 || val != cache[n - 1]) cache[n++] = val;
+  }
+  return n;
+}
+#endif  // CONFIG_PALETTE && CONFIG_PALETTE_DELTA_ENCODING
+
 // The mode info data structure has a one element border above and to the
 // left of the entries corresponding to real macroblocks.
 // The prediction flags in these dummy entries are initialized to 0.
