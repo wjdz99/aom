@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cc0839a_da62583d",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1601,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-05-01T02:01:55Z",
+      "side": 1,
+      "message": "This needs to be revised. The size for cfl_load() and cfl_alpha_dist() don\u0027t necessarily match.",
+      "range": {
+        "startLine": 1601,
+        "startChar": 48,
+        "endLine": 1601,
+        "endChar": 72
+      },
+      "revId": "25a76a269ef3f0c0ca1d447edc880b617774de51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
