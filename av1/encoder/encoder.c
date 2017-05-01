@@ -86,17 +86,14 @@ FRAME_COUNTS aggregate_fc;
                                        // mv. Choose a very high value for
                                        // now so that HIGH_PRECISION is always
                                        // chosen.
-// #define OUTPUT_YUV_REC
 #ifdef OUTPUT_YUV_DENOISED
 FILE *yuv_denoised_file = NULL;
 #endif
 #ifdef OUTPUT_YUV_SKINMAP
 FILE *yuv_skinmap_file = NULL;
 #endif
-#ifdef OUTPUT_YUV_REC
-FILE *yuv_rec_file;
-#define FILE_NAME_LEN 100
-#endif
+
+static FILE *yuv_rec_file = NULL;
 
 #if 0
 FILE *framepsnr;
@@ -2257,6 +2254,8 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cpi->multi_arf_last_grp_enabled = 0;
 
   cpi->b_calculate_psnr = CONFIG_INTERNAL_STATS;
+  cpi->b_output_recon = CONFIG_INTERNAL_STATS;
+
 #if CONFIG_INTERNAL_STATS
   cpi->b_calculate_blockiness = 1;
   cpi->b_calculate_consistency = 1;
@@ -2320,9 +2319,6 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
 #ifdef OUTPUT_YUV_SKINMAP
   yuv_skinmap_file = fopen("skinmap.yuv", "ab");
-#endif
-#ifdef OUTPUT_YUV_REC
-  yuv_rec_file = fopen("rec.yuv", "wb");
 #endif
 
 #if 0
@@ -2709,9 +2705,8 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 #ifdef OUTPUT_YUV_SKINMAP
   fclose(yuv_skinmap_file);
 #endif
-#ifdef OUTPUT_YUV_REC
-  fclose(yuv_rec_file);
-#endif
+
+  if (yuv_rec_file) fclose(yuv_rec_file);
 
 #if 0
 
@@ -2874,10 +2869,11 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
 }
 #endif  // CONFIG_EXT_REFS && !CONFIG_XIPHRC
 
-#ifdef OUTPUT_YUV_REC
 void aom_write_one_yuv_frame(AV1_COMMON *cm, YV12_BUFFER_CONFIG *s) {
   uint8_t *src = s->y_buffer;
   int h = cm->height;
+
+  if (!yuv_rec_file) yuv_rec_file = fopen("rec.yuv", "wb");
 
 #if CONFIG_HIGHBITDEPTH
   if (s->flags & YV12_FLAG_HIGHBITDEPTH) {
@@ -2932,7 +2928,6 @@ void aom_write_one_yuv_frame(AV1_COMMON *cm, YV12_BUFFER_CONFIG *s) {
 
   fflush(yuv_rec_file);
 }
-#endif  // OUTPUT_YUV_REC
 
 #if CONFIG_HIGHBITDEPTH
 static void scale_and_extend_frame_nonnormative(const YV12_BUFFER_CONFIG *src,
@@ -5833,6 +5828,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   if (cpi->b_calculate_psnr && oxcf->pass != 1 && cm->show_frame)
     generate_psnr_packet(cpi);
+
+  if (cpi->b_output_recon && oxcf->pass != 1 && cm->show_frame)
+    aom_write_one_yuv_frame(cm, cpi->common.frame_to_show);
 
 #if CONFIG_INTERNAL_STATS
   if (oxcf->pass != 1) {

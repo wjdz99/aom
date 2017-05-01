@@ -18,6 +18,10 @@
 
 #include "av1/encoder/ransac.h"
 
+#if defined(_MSC_VER)
+#define rand_r rand
+#endif
+
 #define MAX_MINPTS 4
 #define MAX_DEGENERATE_ITER 10
 #define MINPTS_MULTIPLIER 5
