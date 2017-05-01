@@ -2169,7 +2169,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #endif  // CONFIG_EXT_REFS
         }
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && CONFIG_INTERINTRA
         if (cm->reference_mode != COMPOUND_REFERENCE &&
 #if CONFIG_SUPERTX
             !supertx_enabled &&
@@ -2185,7 +2185,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
             counts->interintra[bsize_group][0]++;
           }
         }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && CONFIG_INTERINTRA
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
         const MOTION_MODE motion_allowed = motion_mode_allowed(

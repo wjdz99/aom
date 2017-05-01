@@ -9541,8 +9541,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   uint8_t ref_frame_skip_mask[2] = { 0 };
 #if CONFIG_EXT_INTER
   uint32_t mode_skip_mask[TOTAL_REFS_PER_FRAME] = { 0 };
+#if CONFIG_INTERINTRA
   MV_REFERENCE_FRAME best_single_inter_ref = LAST_FRAME;
   int64_t best_single_inter_rd = INT64_MAX;
+#endif  // CONFIG_INTERINTRA
 #else
   uint16_t mode_skip_mask[TOTAL_REFS_PER_FRAME] = { 0 };
 #endif  // CONFIG_EXT_INTER
@@ -10074,9 +10076,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       if (comp_pred) xd->plane[i].pre[1] = yv12_mb[second_ref_frame][i];
     }
 
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && CONFIG_INTERINTRA
     mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && CONFIG_INTERINTRA
 
     if (ref_frame == INTRA_FRAME) {
       RD_STATS rd_stats_y;
@@ -10238,7 +10240,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
       backup_ref_mv[0] = mbmi_ext->ref_mvs[ref_frame][0];
       if (comp_pred) backup_ref_mv[1] = mbmi_ext->ref_mvs[second_ref_frame][0];
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && CONFIG_INTERINTRA
       if (second_ref_frame == INTRA_FRAME) {
         if (best_single_inter_ref != ref_frame) continue;
         mbmi->interintra_mode = intra_to_interintra_mode[best_intra_mode];
@@ -10256,7 +10258,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
 #endif  // CONFIG_FILTER_INTRA
       }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && CONFIG_INTERINTRA
       mbmi->ref_mv_idx = 0;
       ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
 
@@ -10657,13 +10659,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         best_intra_rd = this_rd;
         best_intra_mode = mbmi->mode;
       }
-#if CONFIG_EXT_INTER
+#if CONFIG_EXT_INTER && CONFIG_INTERINTRA
     } else if (second_ref_frame == NONE_FRAME) {
       if (this_rd < best_single_inter_rd) {
         best_single_inter_rd = this_rd;
         best_single_inter_ref = mbmi->ref_frame[0];
       }
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_EXT_INTER && CONFIG_INTERINTRA
     }
 
     if (!disable_skip && ref_frame == INTRA_FRAME) {

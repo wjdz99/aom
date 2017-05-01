@@ -4683,6 +4683,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 
 #if CONFIG_EXT_INTER
     read_inter_compound_mode_probs(fc, &r);
+#if CONFIG_INTERINTRA
     if (cm->reference_mode != COMPOUND_REFERENCE) {
       for (i = 0; i < BLOCK_SIZE_GROUPS; i++) {
         if (is_interintra_allowed_bsize_group(i)) {
@@ -4699,6 +4700,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
         }
       }
     }
+#endif  // CONFIG_INTERINTRA
 #if CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
     if (cm->reference_mode != SINGLE_REFERENCE) {
       for (i = 0; i < BLOCK_SIZES; i++) {
