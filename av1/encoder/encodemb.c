@@ -78,8 +78,23 @@ static void subtract_block(const MACROBLOCKD *xd, int rows, int cols,
                      pred_stride);
 }
 
+static void transpose_block16(int16_t *dst, ptrdiff_t stride, int width) {
+  int i;
+  for (i = 0; i < width; ++i) {
+    int j;
+    for (j = i + 1; j < width; ++j) {
+      int16_t *const dst_i_j = dst + j * stride + i;
+      int16_t *const dst_j_i = dst + i * stride + j;
+      int16_t temp = *dst_i_j;
+      *dst_i_j = *dst_j_i;
+      *dst_j_i = temp;
+    }
+  }
+}
+
 void av1_subtract_txb(MACROBLOCK *x, int plane, BLOCK_SIZE plane_bsize,
-                      int blk_col, int blk_row, TX_SIZE tx_size) {
+                      int blk_col, int blk_row, TX_SIZE tx_size,
+                      int need_transpose) {
   MACROBLOCKD *const xd = &x->e_mbd;
   struct macroblock_plane *const p = &x->plane[plane];
   const struct macroblockd_plane *const pd = &x->e_mbd.plane[plane];
@@ -96,6 +111,9 @@ void av1_subtract_txb(MACROBLOCK *x, int plane, BLOCK_SIZE plane_bsize,
       &p->src_diff[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
   subtract_block(xd, tx1d_height, tx1d_width, src_diff, diff_stride, src,
                  src_stride, dst, dst_stride);
+  if (need_transpose) {
+    transpose_block16(src_diff, diff_stride, tx1d_width);
+  }
 }
 
 void av1_subtract_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane) {
@@ -1159,8 +1177,9 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   if (x->pvq_skip[plane]) return;
 #endif
   TX_TYPE tx_type = get_tx_type(pd->plane_type, xd, block, tx_size);
+  // TODO(now): Is always '0' OK?
   av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst,
-                              pd->dst.stride, p->eobs[block]);
+                              pd->dst.stride, p->eobs[block], 0);
 }
 
 #if CONFIG_VAR_TX
@@ -1436,12 +1455,14 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   uint8_t *dst =
       &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
 #if CONFIG_CFL
-  av1_predict_intra_block_encoder_facade(x, plane, block, blk_col, blk_row,
-                                         tx_size, plane_bsize);
+  const int need_transpose = av1_predict_intra_block_encoder_facade(
+      x, plane, block, blk_col, blk_row, tx_size, plane_bsize);
 #else
-  av1_predict_intra_block_facade(xd, plane, block, blk_col, blk_row, tx_size);
+  const int need_transpose = av1_predict_intra_block_facade(
+      xd, plane, block, blk_col, blk_row, tx_size);
 #endif
-  av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
+  av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size,
+                   need_transpose);
 
   const ENTROPY_CONTEXT *a = &args->ta[blk_col];
   const ENTROPY_CONTEXT *l = &args->tl[blk_row];
@@ -1462,7 +1483,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   if (x->pvq_skip[plane]) return;
 #endif  // CONFIG_PVQ
   av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst, dst_stride,
-                              *eob);
+                              *eob, need_transpose);
 #if !CONFIG_PVQ
   if (*eob) *(args->skip) = 0;
 #else

@@ -550,179 +550,179 @@ static const aom_prob default_uv_probs[INTRA_MODES][INTRA_MODES - 1] = {
 const aom_prob av1_kf_y_mode_prob[INTRA_MODES][INTRA_MODES][INTRA_MODES - 1] = {
   {
       // above = dc
-      { 121, 30, 54, 128, 164, 158, 45, 41, 57, 91 },   // left = dc
-      { 91, 38, 101, 102, 124, 141, 49, 48, 45, 73 },   // left = v
-      { 66, 28, 27, 177, 225, 178, 32, 27, 52, 114 },   // left = h
-      { 106, 23, 50, 101, 134, 148, 64, 50, 49, 107 },  // left = d45
-      { 75, 24, 32, 118, 66, 143, 42, 28, 57, 74 },     // left = d135
-      { 95, 24, 40, 142, 56, 141, 72, 121, 129, 255 },  // left = d117
-      { 71, 14, 25, 126, 117, 201, 28, 21, 117, 89 },   // left = d153
-      { 85, 16, 37, 110, 163, 178, 41, 28, 48, 134 },   // left = d207
-      { 86, 25, 32, 83, 105, 133, 58, 81, 46, 95 },     // left = d63
-      { 79, 25, 38, 75, 150, 255, 30, 49, 34, 51 },     // left = smooth
-      { 68, 59, 48, 122, 193, 158, 43, 46, 46, 112 },   // left = paeth
+      { 125, 41, 40, 110, 179, 146, 27, 33, 35, 58 },  // left = dc
+      { 91, 38, 85, 96, 137, 119, 26, 41, 27, 40 },    // left = v
+      { 49, 33, 20, 168, 231, 177, 19, 17, 44, 68 },   // left = h
+      { 109, 24, 35, 78, 156, 152, 48, 37, 30, 74 },   // left = d45
+      { 64, 14, 23, 146, 46, 172, 30, 24, 77, 44 },    // left = d135
+      { 99, 23, 46, 169, 53, 92, 61, 106, 125, 180 },  // left = d117
+      { 54, 13, 16, 120, 119, 200, 14, 14, 123, 58 },  // left = d153
+      { 63, 14, 20, 88, 184, 177, 21, 15, 32, 126 },   // left = d207
+      { 89, 23, 34, 78, 125, 117, 32, 65, 26, 51 },    // left = d63
+      { 69, 22, 35, 79, 177, 223, 19, 30, 27, 41 },    // left = smooth
+      { 65, 76, 40, 134, 210, 153, 31, 30, 38, 69 },   // left = paeth
   },
   {
       // above = v
-      { 66, 21, 118, 111, 145, 107, 27, 50, 27, 54 },    // left = dc
-      { 52, 25, 167, 81, 120, 101, 34, 55, 19, 32 },     // left = v
-      { 56, 18, 72, 134, 208, 139, 31, 34, 27, 89 },     // left = h
-      { 75, 21, 94, 88, 134, 123, 49, 57, 30, 68 },      // left = d45
-      { 54, 18, 95, 96, 78, 107, 33, 49, 28, 65 },       // left = d135
-      { 61, 19, 121, 131, 58, 101, 56, 143, 120, 255 },  // left = d117
-      { 53, 13, 78, 103, 110, 147, 31, 41, 64, 77 },     // left = d153
-      { 69, 14, 78, 93, 167, 121, 31, 39, 25, 113 },     // left = d207
-      { 64, 18, 103, 79, 90, 108, 34, 73, 27, 69 },      // left = d63
-      { 52, 20, 103, 61, 161, 255, 22, 42, 16, 35 },     // left = smooth
-      { 50, 31, 124, 92, 161, 120, 50, 53, 23, 60 },     // left = paeth
+      { 44, 32, 108, 112, 133, 80, 15, 51, 20, 30 },   // left = dc
+      { 31, 32, 156, 84, 149, 72, 14, 55, 10, 17 },    // left = v
+      { 31, 30, 70, 132, 218, 118, 20, 35, 20, 42 },   // left = h
+      { 63, 21, 74, 80, 152, 105, 43, 62, 16, 55 },    // left = d45
+      { 33, 17, 73, 127, 72, 122, 24, 47, 33, 38 },    // left = d135
+      { 43, 21, 110, 166, 67, 66, 39, 150, 89, 160 },  // left = d117
+      { 28, 16, 58, 105, 129, 154, 16, 34, 79, 38 },   // left = d153
+      { 42, 17, 65, 86, 167, 122, 20, 35, 18, 81 },    // left = d207
+      { 47, 19, 97, 73, 116, 91, 29, 94, 13, 35 },     // left = d63
+      { 34, 23, 102, 72, 180, 185, 14, 43, 13, 26 },   // left = smooth
+      { 30, 53, 117, 108, 197, 92, 25, 48, 14, 32 },   // left = paeth
   },
   {
       // above = h
-      { 94, 29, 31, 158, 214, 178, 35, 31, 72, 111 },   // left = dc
-      { 72, 37, 72, 149, 184, 177, 43, 40, 53, 105 },   // left = v
-      { 53, 21, 14, 196, 242, 209, 29, 19, 55, 145 },   // left = h
-      { 93, 36, 36, 104, 176, 166, 56, 37, 49, 141 },   // left = d45
-      { 84, 32, 27, 124, 108, 143, 38, 36, 76, 134 },   // left = d135
-      { 82, 31, 47, 142, 122, 161, 83, 73, 126, 255 },  // left = d117
-      { 66, 16, 20, 133, 148, 210, 30, 17, 113, 104 },  // left = d153
-      { 76, 16, 17, 129, 207, 181, 41, 20, 46, 163 },   // left = d207
-      { 72, 38, 21, 100, 142, 171, 37, 70, 49, 111 },   // left = d63
-      { 61, 30, 27, 115, 208, 255, 27, 31, 44, 63 },    // left = smooth
-      { 53, 45, 29, 157, 222, 185, 49, 37, 55, 102 },   // left = paeth
+      { 85, 34, 28, 139, 219, 148, 18, 22, 40, 77 },    // left = dc
+      { 48, 39, 67, 144, 216, 136, 18, 37, 22, 53 },    // left = v
+      { 37, 26, 14, 181, 245, 191, 15, 15, 35, 88 },    // left = h
+      { 71, 26, 23, 95, 200, 156, 43, 27, 30, 111 },    // left = d45
+      { 50, 25, 22, 134, 130, 160, 24, 31, 63, 75 },    // left = d135
+      { 66, 30, 47, 174, 129, 106, 50, 94, 101, 185 },  // left = d117
+      { 44, 17, 14, 120, 188, 209, 12, 13, 111, 75 },   // left = d153
+      { 53, 16, 13, 110, 224, 187, 14, 13, 30, 142 },   // left = d207
+      { 58, 29, 31, 97, 183, 138, 26, 60, 27, 65 },     // left = d63
+      { 49, 25, 25, 112, 228, 229, 16, 23, 27, 53 },    // left = smooth
+      { 38, 49, 31, 159, 235, 155, 25, 26, 28, 63 },    // left = paeth
   },
   {
       // above = d45
-      { 96, 18, 37, 98, 138, 154, 68, 56, 59, 96 },    // left = dc
-      { 73, 18, 92, 81, 125, 132, 75, 64, 27, 67 },    // left = v
-      { 73, 17, 27, 128, 213, 154, 56, 44, 32, 105 },  // left = h
-      { 101, 20, 21, 75, 138, 138, 82, 56, 23, 154 },  // left = d45
-      { 71, 15, 33, 91, 70, 150, 62, 55, 38, 118 },    // left = d135
-      { 80, 19, 38, 116, 69, 122, 88, 132, 92, 255 },  // left = d117
-      { 68, 11, 22, 101, 116, 179, 52, 44, 85, 96 },   // left = d153
-      { 101, 8, 59, 77, 151, 170, 53, 41, 35, 172 },   // left = d207
-      { 82, 19, 24, 81, 172, 129, 82, 128, 43, 108 },  // left = d63
-      { 66, 18, 42, 64, 143, 255, 52, 52, 25, 83 },    // left = smooth
-      { 57, 24, 42, 85, 169, 145, 104, 71, 34, 86 },   // left = paeth
+      { 81, 18, 27, 82, 151, 139, 62, 60, 34, 68 },    // left = dc
+      { 60, 16, 55, 69, 143, 117, 68, 70, 20, 54 },    // left = v
+      { 44, 19, 22, 108, 212, 158, 67, 42, 30, 86 },   // left = h
+      { 86, 11, 12, 36, 196, 131, 131, 61, 10, 114 },  // left = d45
+      { 43, 13, 21, 111, 60, 145, 45, 57, 50, 85 },    // left = d135
+      { 63, 19, 35, 144, 63, 101, 79, 128, 91, 202 },  // left = d117
+      { 41, 9, 16, 102, 115, 192, 35, 29, 78, 71 },    // left = d153
+      { 76, 8, 27, 62, 170, 177, 64, 36, 29, 138 },    // left = d207
+      { 74, 14, 18, 53, 160, 125, 86, 117, 22, 64 },   // left = d63
+      { 54, 13, 31, 58, 160, 227, 62, 54, 21, 67 },    // left = smooth
+      { 44, 25, 32, 75, 189, 142, 92, 72, 27, 63 },    // left = paeth
   },
   {
       // above = d135
-      { 85, 15, 29, 113, 83, 176, 26, 29, 70, 110 },    // left = dc
-      { 78, 28, 49, 111, 91, 141, 30, 42, 48, 75 },     // left = v
-      { 56, 21, 16, 146, 190, 178, 23, 31, 49, 92 },    // left = h
-      { 70, 19, 20, 65, 90, 173, 97, 36, 57, 98 },      // left = d45
-      { 77, 14, 26, 110, 51, 156, 34, 35, 54, 74 },     // left = d135
-      { 78, 18, 36, 153, 47, 131, 62, 102, 155, 255 },  // left = d117
-      { 56, 11, 15, 115, 85, 196, 32, 45, 81, 96 },     // left = d153
-      { 90, 18, 24, 95, 126, 159, 34, 31, 46, 136 },    // left = d207
-      { 80, 23, 28, 90, 75, 141, 39, 50, 46, 87 },      // left = d63
-      { 63, 22, 31, 91, 110, 255, 26, 43, 51, 51 },     // left = smooth
-      { 66, 32, 31, 122, 145, 165, 40, 43, 56, 79 },    // left = paeth
+      { 63, 11, 20, 140, 51, 182, 12, 21, 78, 73 },    // left = dc
+      { 51, 18, 38, 125, 61, 157, 17, 42, 53, 50 },    // left = v
+      { 34, 19, 15, 137, 168, 180, 14, 18, 52, 72 },   // left = h
+      { 63, 16, 17, 86, 78, 190, 53, 30, 49, 80 },     // left = d45
+      { 34, 7, 12, 170, 19, 197, 18, 23, 83, 47 },     // left = d135
+      { 54, 10, 27, 186, 30, 124, 37, 77, 167, 183 },  // left = d117
+      { 29, 8, 10, 128, 62, 206, 16, 20, 118, 63 },    // left = d153
+      { 46, 12, 15, 104, 103, 179, 18, 19, 49, 109 },  // left = d207
+      { 55, 17, 25, 104, 60, 147, 29, 53, 44, 58 },    // left = d63
+      { 47, 14, 25, 104, 84, 229, 17, 30, 48, 46 },    // left = smooth
+      { 44, 24, 27, 131, 129, 171, 22, 33, 55, 56 },   // left = paeth
   },
   {
       // above = d117
-      { 81, 16, 61, 170, 74, 105, 54, 105, 113, 255 },  // left = dc
-      { 74, 20, 86, 163, 64, 97, 65, 129, 101, 255 },   // left = v
-      { 63, 15, 47, 168, 141, 176, 69, 77, 77, 255 },   // left = h
-      { 70, 17, 59, 97, 78, 114, 74, 122, 80, 255 },    // left = d45
-      { 78, 13, 50, 153, 34, 126, 75, 114, 120, 255 },  // left = d135
-      { 72, 16, 69, 159, 28, 108, 63, 134, 107, 255 },  // left = d117
-      { 66, 9, 47, 131, 79, 148, 41, 88, 105, 255 },    // left = d153
-      { 78, 12, 60, 119, 105, 133, 47, 95, 63, 255 },   // left = d207
-      { 82, 21, 58, 128, 61, 98, 64, 136, 91, 255 },    // left = d63
-      { 23, 26, 28, 96, 85, 128, 51, 64, 85, 128 },     // left = smooth
-      { 58, 27, 62, 162, 109, 151, 75, 106, 78, 255 },  // left = paeth
+      { 52, 15, 55, 204, 46, 85, 33, 88, 105, 172 },   // left = dc
+      { 49, 18, 79, 196, 51, 68, 32, 116, 71, 142 },   // left = v
+      { 38, 21, 43, 181, 130, 115, 39, 68, 64, 177 },  // left = h
+      { 65, 17, 50, 125, 84, 131, 55, 102, 48, 218 },  // left = d45
+      { 35, 9, 32, 203, 23, 110, 45, 88, 143, 184 },   // left = d135
+      { 42, 11, 47, 210, 23, 66, 47, 136, 84, 175 },   // left = d117
+      { 35, 10, 33, 159, 62, 151, 23, 52, 157, 187 },  // left = d153
+      { 48, 14, 41, 127, 85, 123, 40, 77, 50, 210 },   // left = d207
+      { 57, 16, 58, 163, 51, 105, 34, 134, 80, 179 },  // left = d63
+      { 26, 17, 45, 126, 55, 90, 23, 42, 35, 58 },     // left = smooth
+      { 39, 25, 60, 180, 94, 96, 50, 80, 65, 185 },    // left = paeth
   },
   {
       // above = d153
-      { 91, 18, 25, 121, 166, 173, 25, 25, 128, 102 },  // left = dc
-      { 80, 27, 51, 111, 141, 147, 45, 38, 70, 85 },    // left = v
-      { 53, 12, 11, 154, 197, 225, 17, 17, 74, 145 },   // left = h
-      { 93, 27, 23, 111, 143, 188, 43, 39, 69, 112 },   // left = d45
-      { 83, 15, 21, 118, 67, 178, 40, 33, 73, 92 },     // left = d135
-      { 94, 13, 31, 132, 66, 110, 61, 82, 148, 255 },   // left = d117
-      { 76, 9, 11, 96, 105, 201, 16, 13, 157, 97 },     // left = d153
-      { 70, 10, 12, 100, 172, 201, 23, 17, 53, 158 },   // left = d207
-      { 114, 25, 21, 104, 108, 163, 30, 47, 53, 111 },  // left = d63
-      { 70, 16, 21, 80, 157, 255, 25, 30, 81, 69 },     // left = smooth
-      { 87, 32, 26, 120, 191, 168, 32, 33, 70, 118 },   // left = paeth
+      { 83, 15, 19, 99, 143, 185, 11, 14, 123, 77 },   // left = dc
+      { 66, 21, 37, 101, 135, 162, 16, 28, 76, 57 },   // left = v
+      { 35, 12, 9, 137, 210, 208, 9, 11, 81, 102 },    // left = h
+      { 76, 19, 17, 87, 129, 201, 38, 23, 52, 102 },   // left = d45
+      { 55, 9, 14, 131, 54, 191, 17, 20, 106, 63 },    // left = d135
+      { 83, 12, 30, 152, 60, 139, 31, 58, 167, 199 },  // left = d117
+      { 38, 6, 7, 86, 111, 216, 5, 7, 171, 67 },       // left = d153
+      { 45, 9, 9, 91, 172, 201, 11, 12, 78, 124 },     // left = d207
+      { 76, 16, 24, 91, 124, 169, 15, 47, 60, 67 },    // left = d63
+      { 56, 12, 18, 83, 157, 237, 12, 21, 75, 59 },    // left = smooth
+      { 58, 31, 22, 117, 188, 177, 17, 23, 75, 81 },   // left = paeth
   },
   {
       // above = d207
-      { 98, 20, 39, 122, 168, 188, 38, 36, 54, 132 },   // left = dc
-      { 81, 37, 62, 97, 122, 153, 38, 43, 36, 118 },    // left = v
-      { 71, 21, 22, 154, 227, 183, 37, 31, 46, 140 },   // left = h
-      { 90, 34, 19, 93, 144, 194, 65, 47, 41, 163 },    // left = d45
-      { 78, 20, 27, 91, 93, 173, 57, 52, 49, 113 },     // left = d135
-      { 79, 25, 45, 121, 101, 147, 69, 56, 122, 255 },  // left = d117
-      { 73, 13, 19, 105, 122, 206, 40, 28, 91, 126 },   // left = d153
-      { 101, 14, 22, 87, 153, 169, 33, 25, 26, 175 },   // left = d207
-      { 81, 28, 23, 86, 115, 169, 48, 56, 41, 111 },    // left = d63
-      { 70, 24, 30, 90, 180, 255, 38, 26, 36, 82 },     // left = smooth
-      { 61, 37, 30, 94, 189, 163, 76, 50, 36, 127 },    // left = paeth
+      { 97, 19, 25, 95, 189, 174, 24, 25, 34, 101 },   // left = dc
+      { 74, 27, 45, 81, 148, 128, 26, 42, 22, 83 },    // left = v
+      { 49, 19, 12, 133, 233, 186, 22, 21, 33, 118 },  // left = h
+      { 84, 21, 12, 59, 154, 174, 67, 41, 19, 132 },   // left = d45
+      { 56, 15, 19, 94, 99, 170, 35, 35, 56, 79 },     // left = d135
+      { 76, 19, 36, 135, 83, 110, 59, 67, 95, 188 },   // left = d117
+      { 51, 9, 11, 92, 163, 208, 21, 18, 103, 99 },    // left = d153
+      { 75, 9, 11, 55, 188, 157, 22, 13, 11, 186 },    // left = d207
+      { 73, 16, 22, 63, 141, 167, 40, 53, 22, 85 },    // left = d63
+      { 61, 15, 20, 75, 198, 233, 27, 21, 22, 84 },    // left = smooth
+      { 60, 31, 22, 98, 211, 155, 46, 31, 24, 108 },   // left = paeth
   },
   {
       // above = d63
-      { 77, 13, 46, 86, 138, 117, 55, 88, 34, 68 },     // left = dc
-      { 68, 17, 80, 64, 105, 108, 66, 115, 32, 45 },    // left = v
-      { 62, 13, 37, 124, 210, 131, 46, 57, 28, 103 },   // left = h
-      { 88, 15, 45, 73, 134, 145, 73, 101, 37, 87 },    // left = d45
-      { 68, 16, 35, 78, 81, 133, 54, 71, 33, 67 },      // left = d135
-      { 71, 16, 57, 108, 61, 135, 71, 184, 113, 255 },  // left = d117
-      { 55, 10, 27, 69, 107, 158, 39, 76, 82, 95 },     // left = d153
-      { 80, 9, 38, 78, 153, 145, 50, 63, 28, 123 },     // left = d207
-      { 86, 12, 33, 49, 107, 135, 64, 134, 57, 89 },    // left = d63
-      { 56, 19, 55, 60, 163, 255, 38, 84, 22, 36 },     // left = smooth
-      { 53, 17, 60, 69, 151, 126, 73, 113, 26, 80 },    // left = paeth
+      { 58, 16, 43, 72, 132, 106, 32, 110, 24, 43 },   // left = dc
+      { 47, 14, 67, 53, 135, 99, 38, 135, 15, 31 },    // left = v
+      { 38, 15, 35, 97, 209, 125, 40, 79, 19, 63 },    // left = h
+      { 73, 12, 29, 45, 150, 137, 74, 102, 12, 78 },   // left = d45
+      { 35, 12, 28, 87, 66, 136, 44, 85, 40, 42 },     // left = d135
+      { 47, 14, 53, 108, 63, 112, 47, 197, 74, 184 },  // left = d117
+      { 32, 10, 24, 82, 105, 174, 27, 65, 54, 61 },    // left = d153
+      { 54, 8, 29, 60, 160, 158, 41, 63, 19, 106 },    // left = d207
+      { 59, 9, 31, 35, 135, 132, 48, 162, 21, 47 },    // left = d63
+      { 42, 14, 46, 50, 169, 215, 35, 86, 18, 38 },    // left = smooth
+      { 35, 19, 53, 63, 170, 106, 52, 124, 14, 47 },   // left = paeth
   },
   {
       // above = smooth
-      { 79, 16, 46, 89, 167, 255, 22, 36, 29, 42 },   // left = dc
-      { 63, 22, 88, 71, 131, 255, 26, 41, 21, 35 },   // left = v
-      { 51, 18, 28, 142, 232, 255, 26, 25, 25, 75 },  // left = h
-      { 75, 18, 43, 70, 140, 255, 37, 49, 34, 89 },   // left = d45
-      { 70, 14, 35, 87, 83, 255, 30, 36, 34, 50 },    // left = d135
-      { 23, 26, 28, 96, 85, 128, 51, 64, 85, 128 },   // left = d117
-      { 74, 12, 33, 83, 128, 255, 27, 33, 58, 68 },   // left = d153
-      { 66, 11, 30, 77, 179, 255, 21, 27, 23, 113 },  // left = d207
-      { 68, 22, 40, 65, 118, 255, 28, 61, 30, 50 },   // left = d63
-      { 60, 18, 44, 69, 141, 255, 18, 32, 22, 40 },   // left = smooth
-      { 52, 32, 54, 96, 194, 255, 33, 37, 25, 53 },   // left = paeth
+      { 73, 18, 40, 82, 182, 219, 16, 29, 25, 42 },   // left = dc
+      { 52, 22, 79, 68, 177, 207, 17, 40, 16, 31 },   // left = v
+      { 37, 19, 22, 134, 236, 236, 16, 21, 23, 57 },  // left = h
+      { 66, 14, 28, 53, 169, 229, 49, 44, 20, 80 },   // left = d45
+      { 49, 12, 28, 99, 87, 227, 21, 35, 38, 41 },    // left = d135
+      { 40, 17, 39, 108, 67, 101, 27, 54, 43, 52 },   // left = d117
+      { 48, 11, 20, 89, 155, 240, 15, 23, 76, 59 },   // left = d153
+      { 52, 11, 22, 72, 196, 236, 18, 21, 21, 110 },  // left = d207
+      { 58, 17, 40, 58, 154, 226, 27, 64, 18, 44 },   // left = d63
+      { 53, 15, 38, 73, 181, 229, 17, 32, 20, 44 },   // left = smooth
+      { 45, 31, 46, 100, 214, 225, 23, 35, 19, 46 },  // left = paeth
   },
   {
       // above = paeth
-      { 76, 47, 67, 123, 182, 150, 41, 52, 55, 97 },    // left = dc
-      { 69, 40, 125, 102, 138, 138, 42, 55, 32, 70 },   // left = v
-      { 46, 28, 27, 160, 232, 169, 34, 21, 32, 122 },   // left = h
-      { 78, 35, 41, 99, 128, 124, 49, 43, 35, 111 },    // left = d45
-      { 66, 28, 47, 100, 113, 145, 37, 40, 72, 93 },    // left = d135
-      { 77, 37, 76, 134, 124, 124, 65, 122, 88, 255 },  // left = d117
-      { 53, 23, 38, 108, 128, 204, 26, 32, 115, 114 },  // left = d153
-      { 65, 20, 29, 101, 202, 186, 29, 24, 29, 188 },   // left = d207
-      { 71, 24, 49, 81, 126, 151, 36, 65, 28, 93 },     // left = d63
-      { 54, 36, 53, 94, 193, 255, 25, 38, 20, 64 },     // left = smooth
-      { 52, 54, 60, 108, 176, 168, 47, 44, 50, 105 },   // left = paeth
+      { 66, 86, 66, 125, 197, 121, 27, 46, 32, 67 },    // left = dc
+      { 42, 66, 114, 113, 196, 114, 22, 44, 15, 48 },   // left = v
+      { 31, 45, 32, 162, 240, 158, 24, 21, 23, 76 },    // left = h
+      { 67, 33, 30, 79, 172, 120, 56, 36, 22, 106 },    // left = d45
+      { 40, 28, 37, 122, 115, 145, 27, 38, 50, 64 },    // left = d135
+      { 58, 40, 70, 168, 138, 105, 42, 114, 69, 185 },  // left = d117
+      { 39, 27, 40, 118, 161, 205, 18, 22, 96, 65 },    // left = d153
+      { 42, 23, 27, 89, 215, 187, 16, 17, 19, 155 },    // left = d207
+      { 60, 29, 49, 83, 158, 126, 33, 63, 17, 60 },     // left = d63
+      { 40, 41, 54, 99, 213, 223, 19, 33, 16, 54 },     // left = smooth
+      { 37, 85, 71, 127, 221, 137, 34, 33, 20, 71 },    // left = paeth
   },
 };
 
 static const aom_prob default_if_y_probs[BLOCK_SIZE_GROUPS][INTRA_MODES - 1] = {
-  { 88, 16, 47, 133, 143, 150, 70, 48, 84, 122 },  // block_size < 8x8
-  { 75, 26, 51, 120, 158, 157, 44, 45, 56, 102 },  // block_size < 16x16
-  { 73, 24, 60, 115, 184, 164, 26, 36, 32, 63 },   // block_size < 32x32
-  { 96, 27, 50, 107, 221, 148, 16, 22, 14, 39 },   // block_size >= 32x32
+  { 95, 111, 14, 142, 129, 150, 33, 51, 67, 82 },  // block_size < 8x8
+  { 95, 93, 44, 107, 137, 112, 23, 56, 47, 70 },   // block_size < 16x16
+  { 119, 89, 50, 112, 196, 97, 13, 40, 22, 43 },   // block_size < 32x32
+  { 153, 145, 45, 134, 230, 27, 17, 26, 5, 28 },   // block_size >= 32x32
 };
 
 static const aom_prob default_uv_probs[INTRA_MODES][INTRA_MODES - 1] = {
-  { 199, 3, 79, 179, 220, 109, 38, 50, 68, 138 },   // y = dc
-  { 17, 2, 219, 136, 131, 58, 21, 106, 23, 41 },    // y = v
-  { 26, 1, 5, 244, 253, 138, 16, 21, 68, 205 },     // y = h
-  { 183, 3, 66, 94, 195, 97, 101, 104, 41, 178 },   // y = d45
-  { 178, 2, 36, 158, 99, 175, 21, 29, 105, 77 },    // y = d135
-  { 154, 3, 65, 219, 40, 48, 45, 95, 146, 255 },    // y = d117
-  { 167, 1, 16, 160, 214, 187, 10, 10, 200, 155 },  // y = d153
-  { 154, 2, 18, 178, 238, 132, 25, 21, 34, 221 },   // y = d207
-  { 153, 4, 76, 85, 157, 90, 38, 165, 46, 104 },    // y = d63
-  { 163, 3, 68, 87, 190, 255, 19, 27, 25, 46 },     // y = smooth
-  { 185, 7, 113, 171, 203, 57, 18, 69, 49, 104 },   // y = paeth
+  { 226, 4, 66, 138, 190, 112, 37, 43, 45, 92 },    // y = dc
+  { 54, 5, 216, 105, 126, 65, 12, 57, 10, 15 },     // y = v
+  { 87, 2, 5, 231, 251, 138, 13, 16, 59, 146 },     // y = h
+  { 195, 2, 30, 33, 169, 108, 139, 133, 18, 151 },  // y = d45
+  { 192, 1, 12, 183, 31, 175, 13, 18, 102, 39 },    // y = d135
+  { 171, 3, 43, 238, 19, 33, 50, 101, 128, 180 },   // y = d117
+  { 182, 1, 7, 117, 145, 209, 5, 5, 213, 88 },      // y = d153
+  { 182, 2, 8, 103, 229, 129, 28, 14, 15, 213 },    // y = d207
+  { 172, 4, 57, 42, 145, 88, 33, 193, 21, 51 },     // y = d63
+  { 185, 4, 44, 66, 175, 229, 16, 23, 16, 34 },     // y = smooth
+  { 191, 17, 85, 180, 230, 72, 15, 48, 28, 65 },    // y = paeth
 };
 
 #endif  // CONFIG_SMOOTH_HV
@@ -2351,55 +2351,55 @@ static const aom_cdf_prob
 #else   // !CONFIG_SMOOTH_HV
 static const aom_cdf_prob
     default_if_y_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(INTRA_MODES)] = {
-      { AOM_ICDF(11264), AOM_ICDF(12608), AOM_ICDF(16309), AOM_ICDF(21086),
-        AOM_ICDF(23297), AOM_ICDF(24860), AOM_ICDF(27022), AOM_ICDF(28099),
-        AOM_ICDF(29631), AOM_ICDF(31126), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(9600), AOM_ICDF(11953), AOM_ICDF(16100), AOM_ICDF(20922),
-        AOM_ICDF(22756), AOM_ICDF(23913), AOM_ICDF(25435), AOM_ICDF(26724),
-        AOM_ICDF(28046), AOM_ICDF(29927), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(9344), AOM_ICDF(11540), AOM_ICDF(16515), AOM_ICDF(21763),
-        AOM_ICDF(23078), AOM_ICDF(23816), AOM_ICDF(24725), AOM_ICDF(25856),
-        AOM_ICDF(26720), AOM_ICDF(28208), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(12288), AOM_ICDF(14448), AOM_ICDF(18026), AOM_ICDF(23346),
-        AOM_ICDF(23833), AOM_ICDF(24188), AOM_ICDF(24724), AOM_ICDF(25415),
-        AOM_ICDF(25817), AOM_ICDF(26876), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(12160), AOM_ICDF(21096), AOM_ICDF(21734), AOM_ICDF(24818),
+        AOM_ICDF(26597), AOM_ICDF(27854), AOM_ICDF(28487), AOM_ICDF(29340),
+        AOM_ICDF(30237), AOM_ICDF(31048), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(12160), AOM_ICDF(19647), AOM_ICDF(21902), AOM_ICDF(24333),
+        AOM_ICDF(25257), AOM_ICDF(26444), AOM_ICDF(27012), AOM_ICDF(28271),
+        AOM_ICDF(29097), AOM_ICDF(30101), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(15232), AOM_ICDF(21329), AOM_ICDF(23563), AOM_ICDF(26646),
+        AOM_ICDF(27004), AOM_ICDF(27590), AOM_ICDF(27853), AOM_ICDF(28621),
+        AOM_ICDF(28977), AOM_ICDF(29614), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(19584), AOM_ICDF(27051), AOM_ICDF(28056), AOM_ICDF(30272),
+        AOM_ICDF(30298), AOM_ICDF(30522), AOM_ICDF(30671), AOM_ICDF(30884),
+        AOM_ICDF(30921), AOM_ICDF(31123), AOM_ICDF(32768), 0 },
     };
 
 static const aom_cdf_prob
     default_uv_mode_cdf[INTRA_MODES][CDF_SIZE(INTRA_MODES)] = {
-      { AOM_ICDF(25472), AOM_ICDF(25558), AOM_ICDF(27783), AOM_ICDF(30779),
-        AOM_ICDF(30988), AOM_ICDF(31269), AOM_ICDF(31492), AOM_ICDF(31741),
-        AOM_ICDF(32014), AOM_ICDF(32420), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(2176), AOM_ICDF(2415), AOM_ICDF(28381), AOM_ICDF(29574),
-        AOM_ICDF(29832), AOM_ICDF(30712), AOM_ICDF(30881), AOM_ICDF(31662),
-        AOM_ICDF(31761), AOM_ICDF(31922), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(3328), AOM_ICDF(3443), AOM_ICDF(4016), AOM_ICDF(31099),
-        AOM_ICDF(31272), AOM_ICDF(31420), AOM_ICDF(31504), AOM_ICDF(31608),
-        AOM_ICDF(31916), AOM_ICDF(32598), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(23424), AOM_ICDF(23534), AOM_ICDF(25915), AOM_ICDF(27831),
-        AOM_ICDF(28058), AOM_ICDF(28431), AOM_ICDF(30142), AOM_ICDF(31209),
-        AOM_ICDF(31459), AOM_ICDF(32369), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(22784), AOM_ICDF(22862), AOM_ICDF(24255), AOM_ICDF(26287),
-        AOM_ICDF(28490), AOM_ICDF(29509), AOM_ICDF(29776), AOM_ICDF(30115),
-        AOM_ICDF(31203), AOM_ICDF(31674), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(19712), AOM_ICDF(19865), AOM_ICDF(23141), AOM_ICDF(24428),
-        AOM_ICDF(25731), AOM_ICDF(31377), AOM_ICDF(31622), AOM_ICDF(32047),
-        AOM_ICDF(32458), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(21376), AOM_ICDF(21421), AOM_ICDF(22130), AOM_ICDF(27688),
-        AOM_ICDF(28485), AOM_ICDF(28779), AOM_ICDF(28935), AOM_ICDF(29085),
-        AOM_ICDF(31962), AOM_ICDF(32450), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(19712), AOM_ICDF(19814), AOM_ICDF(20725), AOM_ICDF(28510),
-        AOM_ICDF(28814), AOM_ICDF(29099), AOM_ICDF(29457), AOM_ICDF(29729),
-        AOM_ICDF(30133), AOM_ICDF(32408), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(19584), AOM_ICDF(19790), AOM_ICDF(23643), AOM_ICDF(25501),
-        AOM_ICDF(25913), AOM_ICDF(26673), AOM_ICDF(27578), AOM_ICDF(30923),
-        AOM_ICDF(31255), AOM_ICDF(31870), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(20864), AOM_ICDF(21004), AOM_ICDF(24129), AOM_ICDF(26308),
-        AOM_ICDF(27062), AOM_ICDF(27065), AOM_ICDF(27488), AOM_ICDF(28045),
-        AOM_ICDF(28506), AOM_ICDF(29272), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(23680), AOM_ICDF(23929), AOM_ICDF(27831), AOM_ICDF(30446),
-        AOM_ICDF(30598), AOM_ICDF(31129), AOM_ICDF(31244), AOM_ICDF(31655),
-        AOM_ICDF(31868), AOM_ICDF(32234), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(28928), AOM_ICDF(28988), AOM_ICDF(29963), AOM_ICDF(31085),
+        AOM_ICDF(31256), AOM_ICDF(31475), AOM_ICDF(31662), AOM_ICDF(31848),
+        AOM_ICDF(32010), AOM_ICDF(32282), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(6912), AOM_ICDF(7417), AOM_ICDF(28807), AOM_ICDF(29607),
+        AOM_ICDF(29816), AOM_ICDF(30432), AOM_ICDF(30542), AOM_ICDF(31038),
+        AOM_ICDF(31106), AOM_ICDF(31203), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(11136), AOM_ICDF(11305), AOM_ICDF(11724), AOM_ICDF(30342),
+        AOM_ICDF(30542), AOM_ICDF(30713), AOM_ICDF(30817), AOM_ICDF(30939),
+        AOM_ICDF(31361), AOM_ICDF(32163), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(24960), AOM_ICDF(25021), AOM_ICDF(25929), AOM_ICDF(26511),
+        AOM_ICDF(26638), AOM_ICDF(26811), AOM_ICDF(30045), AOM_ICDF(31460),
+        AOM_ICDF(31552), AOM_ICDF(32269), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(24576), AOM_ICDF(24608), AOM_ICDF(24991), AOM_ICDF(25664),
+        AOM_ICDF(29004), AOM_ICDF(30550), AOM_ICDF(30663), AOM_ICDF(30811),
+        AOM_ICDF(31591), AOM_ICDF(31770), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(21888), AOM_ICDF(22016), AOM_ICDF(23822), AOM_ICDF(24439),
+        AOM_ICDF(25432), AOM_ICDF(32139), AOM_ICDF(32262), AOM_ICDF(32462),
+        AOM_ICDF(32615), AOM_ICDF(32723), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(23296), AOM_ICDF(23333), AOM_ICDF(23591), AOM_ICDF(25967),
+        AOM_ICDF(27451), AOM_ICDF(27785), AOM_ICDF(27882), AOM_ICDF(27977),
+        AOM_ICDF(31963), AOM_ICDF(32240), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(23296), AOM_ICDF(23370), AOM_ICDF(23664), AOM_ICDF(26941),
+        AOM_ICDF(27136), AOM_ICDF(27327), AOM_ICDF(27922), AOM_ICDF(28187),
+        AOM_ICDF(28455), AOM_ICDF(32044), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(22016), AOM_ICDF(22184), AOM_ICDF(24541), AOM_ICDF(25306),
+        AOM_ICDF(25507), AOM_ICDF(25891), AOM_ICDF(26777), AOM_ICDF(31294),
+        AOM_ICDF(31415), AOM_ICDF(31685), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(23680), AOM_ICDF(23822), AOM_ICDF(25360), AOM_ICDF(26666),
+        AOM_ICDF(27206), AOM_ICDF(27270), AOM_ICDF(27614), AOM_ICDF(28077),
+        AOM_ICDF(28370), AOM_ICDF(28954), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(24448), AOM_ICDF(25001), AOM_ICDF(27580), AOM_ICDF(30857),
+        AOM_ICDF(30961), AOM_ICDF(31228), AOM_ICDF(31318), AOM_ICDF(31590),
+        AOM_ICDF(31719), AOM_ICDF(31985), AOM_ICDF(32768), 0 },
     };
 #endif  // CONFIG_SMOOTH_HV
 #else   // !CONFIG_ALT_INTRA
@@ -3649,389 +3649,389 @@ const aom_cdf_prob
       },
 #else
       {
-          { AOM_ICDF(15488), AOM_ICDF(17513), AOM_ICDF(20731), AOM_ICDF(24586),
-            AOM_ICDF(25921), AOM_ICDF(26749), AOM_ICDF(27807), AOM_ICDF(28602),
-            AOM_ICDF(29530), AOM_ICDF(30681), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(11648), AOM_ICDF(14783), AOM_ICDF(21879), AOM_ICDF(23981),
-            AOM_ICDF(25213), AOM_ICDF(26218), AOM_ICDF(27472), AOM_ICDF(28465),
-            AOM_ICDF(29221), AOM_ICDF(30232), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8448), AOM_ICDF(11108), AOM_ICDF(13392), AOM_ICDF(25167),
-            AOM_ICDF(26295), AOM_ICDF(26789), AOM_ICDF(27536), AOM_ICDF(28088),
-            AOM_ICDF(29039), AOM_ICDF(30700), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(13568), AOM_ICDF(15293), AOM_ICDF(18706), AOM_ICDF(21610),
-            AOM_ICDF(23139), AOM_ICDF(24254), AOM_ICDF(26383), AOM_ICDF(27630),
-            AOM_ICDF(28613), AOM_ICDF(30350), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9600), AOM_ICDF(11772), AOM_ICDF(14397), AOM_ICDF(16580),
-            AOM_ICDF(20091), AOM_ICDF(22865), AOM_ICDF(24490), AOM_ICDF(25395),
-            AOM_ICDF(27037), AOM_ICDF(28694), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(12160), AOM_ICDF(14092), AOM_ICDF(17010), AOM_ICDF(18922),
-            AOM_ICDF(22683), AOM_ICDF(25751), AOM_ICDF(27725), AOM_ICDF(30109),
-            AOM_ICDF(31449), AOM_ICDF(32763), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9088), AOM_ICDF(10383), AOM_ICDF(12569), AOM_ICDF(17113),
-            AOM_ICDF(21351), AOM_ICDF(22511), AOM_ICDF(23633), AOM_ICDF(24382),
-            AOM_ICDF(28215), AOM_ICDF(29798), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10880), AOM_ICDF(12248), AOM_ICDF(15214), AOM_ICDF(20017),
-            AOM_ICDF(21922), AOM_ICDF(22757), AOM_ICDF(24360), AOM_ICDF(25280),
-            AOM_ICDF(26684), AOM_ICDF(29869), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(11008), AOM_ICDF(13133), AOM_ICDF(15587), AOM_ICDF(17872),
-            AOM_ICDF(19579), AOM_ICDF(21157), AOM_ICDF(23788), AOM_ICDF(26629),
-            AOM_ICDF(27732), AOM_ICDF(29601), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10112), AOM_ICDF(12325), AOM_ICDF(15360), AOM_ICDF(18348),
-            AOM_ICDF(20452), AOM_ICDF(20460), AOM_ICDF(21902), AOM_ICDF(23982),
-            AOM_ICDF(25149), AOM_ICDF(26667), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8704), AOM_ICDF(14250), AOM_ICDF(17722), AOM_ICDF(23128),
-            AOM_ICDF(24217), AOM_ICDF(24892), AOM_ICDF(26215), AOM_ICDF(27392),
-            AOM_ICDF(28358), AOM_ICDF(30287), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(16000), AOM_ICDF(18686), AOM_ICDF(20886), AOM_ICDF(24456),
+            AOM_ICDF(25332), AOM_ICDF(25992), AOM_ICDF(26707), AOM_ICDF(27488),
+            AOM_ICDF(28210), AOM_ICDF(29243), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(11648), AOM_ICDF(14783), AOM_ICDF(20755), AOM_ICDF(23166),
+            AOM_ICDF(24139), AOM_ICDF(25260), AOM_ICDF(26023), AOM_ICDF(27103),
+            AOM_ICDF(27700), AOM_ICDF(28492), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6272), AOM_ICDF(9688), AOM_ICDF(11491), AOM_ICDF(24090),
+            AOM_ICDF(25033), AOM_ICDF(25454), AOM_ICDF(25997), AOM_ICDF(26447),
+            AOM_ICDF(27533), AOM_ICDF(28924), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(13952), AOM_ICDF(15716), AOM_ICDF(18047), AOM_ICDF(20780),
+            AOM_ICDF(21820), AOM_ICDF(22532), AOM_ICDF(24451), AOM_ICDF(25653),
+            AOM_ICDF(26487), AOM_ICDF(28303), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8192), AOM_ICDF(9536), AOM_ICDF(11623), AOM_ICDF(13790),
+            AOM_ICDF(20436), AOM_ICDF(23682), AOM_ICDF(24747), AOM_ICDF(25499),
+            AOM_ICDF(27685), AOM_ICDF(28559), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(12672), AOM_ICDF(14478), AOM_ICDF(17764), AOM_ICDF(19815),
+            AOM_ICDF(22638), AOM_ICDF(27669), AOM_ICDF(28884), AOM_ICDF(30492),
+            AOM_ICDF(31603), AOM_ICDF(32422), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6912), AOM_ICDF(8225), AOM_ICDF(9759), AOM_ICDF(14772),
+            AOM_ICDF(19281), AOM_ICDF(20544), AOM_ICDF(21213), AOM_ICDF(21845),
+            AOM_ICDF(27093), AOM_ICDF(28379), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8064), AOM_ICDF(9415), AOM_ICDF(11239), AOM_ICDF(16558),
+            AOM_ICDF(17998), AOM_ICDF(18640), AOM_ICDF(19799), AOM_ICDF(20559),
+            AOM_ICDF(22085), AOM_ICDF(27343), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(11392), AOM_ICDF(13313), AOM_ICDF(15897), AOM_ICDF(18407),
+            AOM_ICDF(19609), AOM_ICDF(21037), AOM_ICDF(22503), AOM_ICDF(25109),
+            AOM_ICDF(25887), AOM_ICDF(27258), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8832), AOM_ICDF(10889), AOM_ICDF(13880), AOM_ICDF(17910),
+            AOM_ICDF(19477), AOM_ICDF(19709), AOM_ICDF(20678), AOM_ICDF(22095),
+            AOM_ICDF(23221), AOM_ICDF(24750), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8320), AOM_ICDF(15578), AOM_ICDF(18264), AOM_ICDF(24492),
+            AOM_ICDF(25307), AOM_ICDF(25856), AOM_ICDF(26693), AOM_ICDF(27405),
+            AOM_ICDF(28201), AOM_ICDF(29432), AOM_ICDF(32768), 0 },
       },
       {
-          { AOM_ICDF(8448), AOM_ICDF(10443), AOM_ICDF(20733), AOM_ICDF(23689),
-            AOM_ICDF(24634), AOM_ICDF(25951), AOM_ICDF(26670), AOM_ICDF(27861),
-            AOM_ICDF(28379), AOM_ICDF(29305), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6656), AOM_ICDF(9206), AOM_ICDF(24577), AOM_ICDF(25792),
-            AOM_ICDF(26335), AOM_ICDF(27169), AOM_ICDF(27913), AOM_ICDF(28956),
-            AOM_ICDF(29239), AOM_ICDF(29680), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(7168), AOM_ICDF(8968), AOM_ICDF(15662), AOM_ICDF(22937),
-            AOM_ICDF(23849), AOM_ICDF(24616), AOM_ICDF(25603), AOM_ICDF(26555),
-            AOM_ICDF(27210), AOM_ICDF(29142), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9600), AOM_ICDF(11501), AOM_ICDF(19310), AOM_ICDF(21731),
-            AOM_ICDF(22790), AOM_ICDF(23936), AOM_ICDF(25627), AOM_ICDF(27217),
-            AOM_ICDF(27868), AOM_ICDF(29170), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6912), AOM_ICDF(8730), AOM_ICDF(17650), AOM_ICDF(19377),
-            AOM_ICDF(21025), AOM_ICDF(23319), AOM_ICDF(24537), AOM_ICDF(26112),
-            AOM_ICDF(26840), AOM_ICDF(28345), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(7808), AOM_ICDF(9661), AOM_ICDF(20583), AOM_ICDF(21996),
-            AOM_ICDF(23898), AOM_ICDF(26818), AOM_ICDF(28120), AOM_ICDF(30716),
-            AOM_ICDF(31678), AOM_ICDF(32764), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6784), AOM_ICDF(8104), AOM_ICDF(15619), AOM_ICDF(18584),
-            AOM_ICDF(20844), AOM_ICDF(22519), AOM_ICDF(23760), AOM_ICDF(25203),
-            AOM_ICDF(27094), AOM_ICDF(28801), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8832), AOM_ICDF(10141), AOM_ICDF(17035), AOM_ICDF(20764),
-            AOM_ICDF(21703), AOM_ICDF(22751), AOM_ICDF(23964), AOM_ICDF(25305),
-            AOM_ICDF(26034), AOM_ICDF(29006), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8192), AOM_ICDF(9920), AOM_ICDF(19113), AOM_ICDF(20594),
-            AOM_ICDF(21747), AOM_ICDF(23327), AOM_ICDF(24581), AOM_ICDF(26916),
-            AOM_ICDF(27533), AOM_ICDF(28944), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6656), AOM_ICDF(8696), AOM_ICDF(18381), AOM_ICDF(20537),
-            AOM_ICDF(21804), AOM_ICDF(21809), AOM_ICDF(22751), AOM_ICDF(24394),
-            AOM_ICDF(24917), AOM_ICDF(25990), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6400), AOM_ICDF(9593), AOM_ICDF(20818), AOM_ICDF(23519),
-            AOM_ICDF(24266), AOM_ICDF(25113), AOM_ICDF(26608), AOM_ICDF(27883),
-            AOM_ICDF(28322), AOM_ICDF(29364), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5632), AOM_ICDF(9024), AOM_ICDF(19041), AOM_ICDF(22161),
+            AOM_ICDF(23063), AOM_ICDF(25047), AOM_ICDF(25499), AOM_ICDF(26947),
+            AOM_ICDF(27402), AOM_ICDF(28031), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(3968), AOM_ICDF(7568), AOM_ICDF(22924), AOM_ICDF(24804),
+            AOM_ICDF(25184), AOM_ICDF(26154), AOM_ICDF(26516), AOM_ICDF(27859),
+            AOM_ICDF(28051), AOM_ICDF(28364), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(3968), AOM_ICDF(7343), AOM_ICDF(14295), AOM_ICDF(22406),
+            AOM_ICDF(23058), AOM_ICDF(23820), AOM_ICDF(24519), AOM_ICDF(25647),
+            AOM_ICDF(26203), AOM_ICDF(27280), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8064), AOM_ICDF(10091), AOM_ICDF(16646), AOM_ICDF(19637),
+            AOM_ICDF(20477), AOM_ICDF(21684), AOM_ICDF(23546), AOM_ICDF(25779),
+            AOM_ICDF(26216), AOM_ICDF(27624), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4224), AOM_ICDF(6120), AOM_ICDF(13719), AOM_ICDF(16377),
+            AOM_ICDF(19614), AOM_ICDF(23169), AOM_ICDF(24069), AOM_ICDF(25666),
+            AOM_ICDF(26581), AOM_ICDF(27499), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5504), AOM_ICDF(7741), AOM_ICDF(18495), AOM_ICDF(20917),
+            AOM_ICDF(22679), AOM_ICDF(27750), AOM_ICDF(28514), AOM_ICDF(31007),
+            AOM_ICDF(31619), AOM_ICDF(32337), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(3584), AOM_ICDF(5408), AOM_ICDF(11607), AOM_ICDF(15980),
+            AOM_ICDF(18570), AOM_ICDF(20286), AOM_ICDF(21066), AOM_ICDF(22620),
+            AOM_ICDF(25752), AOM_ICDF(26793), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5376), AOM_ICDF(7195), AOM_ICDF(13688), AOM_ICDF(17870),
+            AOM_ICDF(18932), AOM_ICDF(20098), AOM_ICDF(21088), AOM_ICDF(22685),
+            AOM_ICDF(23394), AOM_ICDF(26360), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6016), AOM_ICDF(8002), AOM_ICDF(17386), AOM_ICDF(19373),
+            AOM_ICDF(20226), AOM_ICDF(21772), AOM_ICDF(23018), AOM_ICDF(26598),
+            AOM_ICDF(26911), AOM_ICDF(27712), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4352), AOM_ICDF(6905), AOM_ICDF(17210), AOM_ICDF(20287),
+            AOM_ICDF(21226), AOM_ICDF(21586), AOM_ICDF(22198), AOM_ICDF(23973),
+            AOM_ICDF(24420), AOM_ICDF(25268), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(3840), AOM_ICDF(9829), AOM_ICDF(20313), AOM_ICDF(24356),
+            AOM_ICDF(24791), AOM_ICDF(25567), AOM_ICDF(26270), AOM_ICDF(27488),
+            AOM_ICDF(27777), AOM_ICDF(28401), AOM_ICDF(32768), 0 },
       },
       {
-          { AOM_ICDF(12032), AOM_ICDF(14381), AOM_ICDF(16608), AOM_ICDF(24946),
-            AOM_ICDF(26084), AOM_ICDF(26582), AOM_ICDF(27428), AOM_ICDF(28075),
-            AOM_ICDF(29395), AOM_ICDF(30858), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9216), AOM_ICDF(12620), AOM_ICDF(18287), AOM_ICDF(24345),
-            AOM_ICDF(25984), AOM_ICDF(26715), AOM_ICDF(27732), AOM_ICDF(28519),
-            AOM_ICDF(29399), AOM_ICDF(30781), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6784), AOM_ICDF(8916), AOM_ICDF(10220), AOM_ICDF(26539),
-            AOM_ICDF(27310), AOM_ICDF(27483), AOM_ICDF(28082), AOM_ICDF(28430),
-            AOM_ICDF(29362), AOM_ICDF(31291), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(11904), AOM_ICDF(14838), AOM_ICDF(17359), AOM_ICDF(21663),
-            AOM_ICDF(22931), AOM_ICDF(23619), AOM_ICDF(25620), AOM_ICDF(26653),
-            AOM_ICDF(27823), AOM_ICDF(30547), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10752), AOM_ICDF(13504), AOM_ICDF(15536), AOM_ICDF(19057),
-            AOM_ICDF(21753), AOM_ICDF(23883), AOM_ICDF(25202), AOM_ICDF(26266),
-            AOM_ICDF(28196), AOM_ICDF(30589), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10496), AOM_ICDF(13193), AOM_ICDF(16787), AOM_ICDF(21011),
-            AOM_ICDF(23929), AOM_ICDF(25651), AOM_ICDF(27958), AOM_ICDF(29330),
-            AOM_ICDF(31022), AOM_ICDF(32761), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8448), AOM_ICDF(9968), AOM_ICDF(11749), AOM_ICDF(18062),
-            AOM_ICDF(21841), AOM_ICDF(22669), AOM_ICDF(23852), AOM_ICDF(24444),
-            AOM_ICDF(28118), AOM_ICDF(30007), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9728), AOM_ICDF(11168), AOM_ICDF(12602), AOM_ICDF(20819),
-            AOM_ICDF(22194), AOM_ICDF(22764), AOM_ICDF(24366), AOM_ICDF(25022),
-            AOM_ICDF(26414), AOM_ICDF(30460), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9216), AOM_ICDF(12712), AOM_ICDF(14357), AOM_ICDF(18346),
-            AOM_ICDF(20486), AOM_ICDF(21549), AOM_ICDF(23170), AOM_ICDF(25794),
-            AOM_ICDF(27129), AOM_ICDF(29574), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(7808), AOM_ICDF(10733), AOM_ICDF(13057), AOM_ICDF(20252),
-            AOM_ICDF(21906), AOM_ICDF(21912), AOM_ICDF(23057), AOM_ICDF(24233),
-            AOM_ICDF(25700), AOM_ICDF(27439), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6784), AOM_ICDF(11352), AOM_ICDF(13778), AOM_ICDF(23877),
-            AOM_ICDF(24995), AOM_ICDF(25424), AOM_ICDF(26830), AOM_ICDF(27688),
-            AOM_ICDF(28779), AOM_ICDF(30368), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(10880), AOM_ICDF(13787), AOM_ICDF(15863), AOM_ICDF(23715),
+            AOM_ICDF(24482), AOM_ICDF(25042), AOM_ICDF(25585), AOM_ICDF(26202),
+            AOM_ICDF(27228), AOM_ICDF(28894), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6144), AOM_ICDF(10200), AOM_ICDF(16106), AOM_ICDF(24014),
+            AOM_ICDF(24792), AOM_ICDF(25478), AOM_ICDF(25991), AOM_ICDF(26970),
+            AOM_ICDF(27468), AOM_ICDF(28565), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4736), AOM_ICDF(7583), AOM_ICDF(8960), AOM_ICDF(25070),
+            AOM_ICDF(25609), AOM_ICDF(25793), AOM_ICDF(26202), AOM_ICDF(26587),
+            AOM_ICDF(27432), AOM_ICDF(29266), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(9088), AOM_ICDF(11493), AOM_ICDF(13404), AOM_ICDF(19018),
+            AOM_ICDF(19976), AOM_ICDF(20590), AOM_ICDF(22636), AOM_ICDF(23705),
+            AOM_ICDF(24767), AOM_ICDF(28236), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6400), AOM_ICDF(8975), AOM_ICDF(11020), AOM_ICDF(16801),
+            AOM_ICDF(20303), AOM_ICDF(22404), AOM_ICDF(23376), AOM_ICDF(24513),
+            AOM_ICDF(26545), AOM_ICDF(28368), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8448), AOM_ICDF(11298), AOM_ICDF(15240), AOM_ICDF(21244),
+            AOM_ICDF(23691), AOM_ICDF(27154), AOM_ICDF(28250), AOM_ICDF(29909),
+            AOM_ICDF(31037), AOM_ICDF(32288), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5632), AOM_ICDF(7434), AOM_ICDF(8819), AOM_ICDF(17063),
+            AOM_ICDF(19498), AOM_ICDF(20045), AOM_ICDF(20641), AOM_ICDF(21257),
+            AOM_ICDF(26248), AOM_ICDF(28158), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6784), AOM_ICDF(8408), AOM_ICDF(9645), AOM_ICDF(18339),
+            AOM_ICDF(19246), AOM_ICDF(19581), AOM_ICDF(20302), AOM_ICDF(20935),
+            AOM_ICDF(22322), AOM_ICDF(28116), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7424), AOM_ICDF(10295), AOM_ICDF(13016), AOM_ICDF(18366),
+            AOM_ICDF(19516), AOM_ICDF(20500), AOM_ICDF(21746), AOM_ICDF(24329),
+            AOM_ICDF(25219), AOM_ICDF(27136), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6272), AOM_ICDF(8860), AOM_ICDF(11195), AOM_ICDF(19601),
+            AOM_ICDF(20524), AOM_ICDF(20633), AOM_ICDF(21391), AOM_ICDF(22413),
+            AOM_ICDF(23505), AOM_ICDF(25423), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4864), AOM_ICDF(10205), AOM_ICDF(12937), AOM_ICDF(24244),
+            AOM_ICDF(24856), AOM_ICDF(25254), AOM_ICDF(25988), AOM_ICDF(26677),
+            AOM_ICDF(27343), AOM_ICDF(28678), AOM_ICDF(32768), 0 },
       },
       {
-          { AOM_ICDF(12288), AOM_ICDF(13728), AOM_ICDF(16480), AOM_ICDF(19841),
-            AOM_ICDF(21570), AOM_ICDF(22715), AOM_ICDF(25385), AOM_ICDF(27000),
-            AOM_ICDF(28329), AOM_ICDF(29994), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9344), AOM_ICDF(10991), AOM_ICDF(18817), AOM_ICDF(20972),
-            AOM_ICDF(22137), AOM_ICDF(23231), AOM_ICDF(26025), AOM_ICDF(27711),
-            AOM_ICDF(28244), AOM_ICDF(29428), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9344), AOM_ICDF(10900), AOM_ICDF(13206), AOM_ICDF(21344),
-            AOM_ICDF(22332), AOM_ICDF(22987), AOM_ICDF(25127), AOM_ICDF(26440),
-            AOM_ICDF(27231), AOM_ICDF(29502), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(12928), AOM_ICDF(14478), AOM_ICDF(15978), AOM_ICDF(18630),
-            AOM_ICDF(19852), AOM_ICDF(20897), AOM_ICDF(24699), AOM_ICDF(26464),
-            AOM_ICDF(27030), AOM_ICDF(30482), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9088), AOM_ICDF(10476), AOM_ICDF(13350), AOM_ICDF(15237),
-            AOM_ICDF(18175), AOM_ICDF(20252), AOM_ICDF(23283), AOM_ICDF(25321),
-            AOM_ICDF(26426), AOM_ICDF(29349), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10240), AOM_ICDF(11912), AOM_ICDF(15008), AOM_ICDF(17177),
-            AOM_ICDF(19979), AOM_ICDF(23056), AOM_ICDF(26395), AOM_ICDF(29681),
-            AOM_ICDF(30790), AOM_ICDF(32760), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8704), AOM_ICDF(9738), AOM_ICDF(11717), AOM_ICDF(15480),
-            AOM_ICDF(18656), AOM_ICDF(20022), AOM_ICDF(22611), AOM_ICDF(24357),
-            AOM_ICDF(27150), AOM_ICDF(29257), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(12928), AOM_ICDF(13548), AOM_ICDF(17978), AOM_ICDF(20602),
-            AOM_ICDF(21814), AOM_ICDF(22427), AOM_ICDF(24568), AOM_ICDF(25881),
-            AOM_ICDF(26823), AOM_ICDF(30817), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10496), AOM_ICDF(12149), AOM_ICDF(14082), AOM_ICDF(18054),
-            AOM_ICDF(19032), AOM_ICDF(19994), AOM_ICDF(24086), AOM_ICDF(28427),
-            AOM_ICDF(29156), AOM_ICDF(30680), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8448), AOM_ICDF(10158), AOM_ICDF(13867), AOM_ICDF(16506),
-            AOM_ICDF(18584), AOM_ICDF(18592), AOM_ICDF(21472), AOM_ICDF(23767),
-            AOM_ICDF(24646), AOM_ICDF(27279), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(7296), AOM_ICDF(9684), AOM_ICDF(13471), AOM_ICDF(17701),
-            AOM_ICDF(18934), AOM_ICDF(19878), AOM_ICDF(25115), AOM_ICDF(27238),
-            AOM_ICDF(27972), AOM_ICDF(29583), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(10368), AOM_ICDF(11943), AOM_ICDF(14139), AOM_ICDF(17659),
+            AOM_ICDF(18988), AOM_ICDF(20106), AOM_ICDF(23173), AOM_ICDF(25422),
+            AOM_ICDF(26398), AOM_ICDF(28090), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7680), AOM_ICDF(9248), AOM_ICDF(14301), AOM_ICDF(17081),
+            AOM_ICDF(18085), AOM_ICDF(19278), AOM_ICDF(22861), AOM_ICDF(25570),
+            AOM_ICDF(26132), AOM_ICDF(27532), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5632), AOM_ICDF(7646), AOM_ICDF(9805), AOM_ICDF(17828),
+            AOM_ICDF(18856), AOM_ICDF(19493), AOM_ICDF(22967), AOM_ICDF(24575),
+            AOM_ICDF(25535), AOM_ICDF(27965), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(11008), AOM_ICDF(11943), AOM_ICDF(12919), AOM_ICDF(15056),
+            AOM_ICDF(15391), AOM_ICDF(15710), AOM_ICDF(24439), AOM_ICDF(26424),
+            AOM_ICDF(26672), AOM_ICDF(29387), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5504), AOM_ICDF(6889), AOM_ICDF(9012), AOM_ICDF(11426),
+            AOM_ICDF(15893), AOM_ICDF(19312), AOM_ICDF(21677), AOM_ICDF(24146),
+            AOM_ICDF(25830), AOM_ICDF(28134), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8064), AOM_ICDF(9898), AOM_ICDF(13025), AOM_ICDF(15758),
+            AOM_ICDF(19061), AOM_ICDF(24130), AOM_ICDF(26796), AOM_ICDF(29782),
+            AOM_ICDF(30843), AOM_ICDF(32362), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5248), AOM_ICDF(6216), AOM_ICDF(7876), AOM_ICDF(12331),
+            AOM_ICDF(16428), AOM_ICDF(17794), AOM_ICDF(19841), AOM_ICDF(21305),
+            AOM_ICDF(24798), AOM_ICDF(27008), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(9728), AOM_ICDF(10448), AOM_ICDF(12802), AOM_ICDF(16013),
+            AOM_ICDF(17137), AOM_ICDF(17638), AOM_ICDF(21421), AOM_ICDF(23017),
+            AOM_ICDF(24122), AOM_ICDF(28783), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(9472), AOM_ICDF(10746), AOM_ICDF(12294), AOM_ICDF(14943),
+            AOM_ICDF(15719), AOM_ICDF(16533), AOM_ICDF(21987), AOM_ICDF(26914),
+            AOM_ICDF(27417), AOM_ICDF(28755), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6912), AOM_ICDF(8225), AOM_ICDF(11197), AOM_ICDF(14251),
+            AOM_ICDF(15876), AOM_ICDF(16084), AOM_ICDF(20125), AOM_ICDF(22792),
+            AOM_ICDF(23610), AOM_ICDF(26007), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5632), AOM_ICDF(8282), AOM_ICDF(11343), AOM_ICDF(15977),
+            AOM_ICDF(16888), AOM_ICDF(17620), AOM_ICDF(23064), AOM_ICDF(25793),
+            AOM_ICDF(26529), AOM_ICDF(28064), AOM_ICDF(32768), 0 },
       },
       {
-          { AOM_ICDF(10880), AOM_ICDF(12163), AOM_ICDF(14497), AOM_ICDF(17112),
-            AOM_ICDF(20859), AOM_ICDF(22562), AOM_ICDF(23599), AOM_ICDF(24638),
-            AOM_ICDF(26861), AOM_ICDF(29399), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9984), AOM_ICDF(12476), AOM_ICDF(16360), AOM_ICDF(18889),
-            AOM_ICDF(21414), AOM_ICDF(23474), AOM_ICDF(24563), AOM_ICDF(25909),
-            AOM_ICDF(27195), AOM_ICDF(28828), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(7168), AOM_ICDF(9268), AOM_ICDF(10737), AOM_ICDF(20063),
-            AOM_ICDF(22315), AOM_ICDF(23302), AOM_ICDF(24152), AOM_ICDF(25195),
-            AOM_ICDF(26645), AOM_ICDF(28845), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8960), AOM_ICDF(10727), AOM_ICDF(12449), AOM_ICDF(14263),
-            AOM_ICDF(16523), AOM_ICDF(17608), AOM_ICDF(23352), AOM_ICDF(24676),
-            AOM_ICDF(26478), AOM_ICDF(28886), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9856), AOM_ICDF(11109), AOM_ICDF(13309), AOM_ICDF(14975),
-            AOM_ICDF(19055), AOM_ICDF(21670), AOM_ICDF(23144), AOM_ICDF(24460),
-            AOM_ICDF(26212), AOM_ICDF(28107), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9984), AOM_ICDF(11586), AOM_ICDF(14565), AOM_ICDF(16562),
-            AOM_ICDF(21107), AOM_ICDF(25444), AOM_ICDF(27218), AOM_ICDF(29429),
-            AOM_ICDF(31451), AOM_ICDF(32763), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(7168), AOM_ICDF(8268), AOM_ICDF(9704), AOM_ICDF(13144),
-            AOM_ICDF(18443), AOM_ICDF(20065), AOM_ICDF(21653), AOM_ICDF(23607),
-            AOM_ICDF(26506), AOM_ICDF(28854), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(11520), AOM_ICDF(13014), AOM_ICDF(14866), AOM_ICDF(18136),
-            AOM_ICDF(20231), AOM_ICDF(21509), AOM_ICDF(23004), AOM_ICDF(24186),
-            AOM_ICDF(25728), AOM_ICDF(29468), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10240), AOM_ICDF(12264), AOM_ICDF(14507), AOM_ICDF(16388),
-            AOM_ICDF(18888), AOM_ICDF(20927), AOM_ICDF(22731), AOM_ICDF(24691),
-            AOM_ICDF(26142), AOM_ICDF(28394), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8064), AOM_ICDF(10187), AOM_ICDF(12921), AOM_ICDF(15952),
-            AOM_ICDF(19960), AOM_ICDF(19976), AOM_ICDF(21275), AOM_ICDF(23205),
-            AOM_ICDF(25110), AOM_ICDF(26636), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8448), AOM_ICDF(11488), AOM_ICDF(14065), AOM_ICDF(19113),
-            AOM_ICDF(21604), AOM_ICDF(22978), AOM_ICDF(24508), AOM_ICDF(25895),
-            AOM_ICDF(27398), AOM_ICDF(29055), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8064), AOM_ICDF(9126), AOM_ICDF(10973), AOM_ICDF(13347),
+            AOM_ICDF(20133), AOM_ICDF(22892), AOM_ICDF(23355), AOM_ICDF(24127),
+            AOM_ICDF(26760), AOM_ICDF(28473), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6528), AOM_ICDF(8373), AOM_ICDF(11994), AOM_ICDF(14411),
+            AOM_ICDF(19150), AOM_ICDF(22138), AOM_ICDF(22844), AOM_ICDF(24472),
+            AOM_ICDF(26190), AOM_ICDF(27475), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4352), AOM_ICDF(6461), AOM_ICDF(8002), AOM_ICDF(16700),
+            AOM_ICDF(19903), AOM_ICDF(21256), AOM_ICDF(21886), AOM_ICDF(22651),
+            AOM_ICDF(24706), AOM_ICDF(26973), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8064), AOM_ICDF(9608), AOM_ICDF(11146), AOM_ICDF(13359),
+            AOM_ICDF(17108), AOM_ICDF(18410), AOM_ICDF(21383), AOM_ICDF(22717),
+            AOM_ICDF(24641), AOM_ICDF(27181), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4352), AOM_ICDF(5129), AOM_ICDF(6425), AOM_ICDF(7723),
+            AOM_ICDF(20186), AOM_ICDF(23918), AOM_ICDF(24540), AOM_ICDF(25279),
+            AOM_ICDF(27707), AOM_ICDF(28636), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6912), AOM_ICDF(7922), AOM_ICDF(10542), AOM_ICDF(12434),
+            AOM_ICDF(19340), AOM_ICDF(26691), AOM_ICDF(27569), AOM_ICDF(29133),
+            AOM_ICDF(31504), AOM_ICDF(32408), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(3712), AOM_ICDF(4620), AOM_ICDF(5720), AOM_ICDF(8995),
+            AOM_ICDF(17242), AOM_ICDF(19244), AOM_ICDF(20089), AOM_ICDF(21080),
+            AOM_ICDF(26467), AOM_ICDF(28018), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5888), AOM_ICDF(7148), AOM_ICDF(8649), AOM_ICDF(12591),
+            AOM_ICDF(16686), AOM_ICDF(18447), AOM_ICDF(19454), AOM_ICDF(20442),
+            AOM_ICDF(22801), AOM_ICDF(27045), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7040), AOM_ICDF(8749), AOM_ICDF(11095), AOM_ICDF(13159),
+            AOM_ICDF(17030), AOM_ICDF(19900), AOM_ICDF(21358), AOM_ICDF(23720),
+            AOM_ICDF(25275), AOM_ICDF(26973), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6016), AOM_ICDF(7479), AOM_ICDF(9949), AOM_ICDF(12991),
+            AOM_ICDF(18562), AOM_ICDF(19219), AOM_ICDF(20119), AOM_ICDF(21601),
+            AOM_ICDF(23695), AOM_ICDF(25325), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5632), AOM_ICDF(8176), AOM_ICDF(10770), AOM_ICDF(16442),
+            AOM_ICDF(20173), AOM_ICDF(22027), AOM_ICDF(22950), AOM_ICDF(24216),
+            AOM_ICDF(26053), AOM_ICDF(27522), AOM_ICDF(32768), 0 },
       },
       {
-          { AOM_ICDF(10368), AOM_ICDF(11768), AOM_ICDF(16772), AOM_ICDF(19842),
-            AOM_ICDF(22940), AOM_ICDF(27394), AOM_ICDF(28528), AOM_ICDF(30267),
-            AOM_ICDF(31371), AOM_ICDF(32763), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9472), AOM_ICDF(11292), AOM_ICDF(18507), AOM_ICDF(20777),
-            AOM_ICDF(23357), AOM_ICDF(27587), AOM_ICDF(28902), AOM_ICDF(30850),
-            AOM_ICDF(31607), AOM_ICDF(32763), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8064), AOM_ICDF(9512), AOM_ICDF(13782), AOM_ICDF(20645),
-            AOM_ICDF(24493), AOM_ICDF(26242), AOM_ICDF(28001), AOM_ICDF(29435),
-            AOM_ICDF(30438), AOM_ICDF(32759), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8960), AOM_ICDF(10541), AOM_ICDF(15664), AOM_ICDF(17639),
-            AOM_ICDF(19646), AOM_ICDF(22145), AOM_ICDF(25216), AOM_ICDF(28815),
-            AOM_ICDF(30050), AOM_ICDF(32757), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9984), AOM_ICDF(11141), AOM_ICDF(15365), AOM_ICDF(16746),
-            AOM_ICDF(21186), AOM_ICDF(25766), AOM_ICDF(27817), AOM_ICDF(30022),
-            AOM_ICDF(31309), AOM_ICDF(32762), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9216), AOM_ICDF(10688), AOM_ICDF(16639), AOM_ICDF(17735),
-            AOM_ICDF(21499), AOM_ICDF(26657), AOM_ICDF(28161), AOM_ICDF(30572),
-            AOM_ICDF(31490), AOM_ICDF(32763), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8448), AOM_ICDF(9303), AOM_ICDF(13611), AOM_ICDF(16636),
-            AOM_ICDF(20555), AOM_ICDF(23414), AOM_ICDF(24912), AOM_ICDF(27613),
-            AOM_ICDF(29727), AOM_ICDF(32756), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9984), AOM_ICDF(11052), AOM_ICDF(16142), AOM_ICDF(19312),
-            AOM_ICDF(21680), AOM_ICDF(23870), AOM_ICDF(25504), AOM_ICDF(28200),
-            AOM_ICDF(29324), AOM_ICDF(32755), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10496), AOM_ICDF(12323), AOM_ICDF(16955), AOM_ICDF(18839),
-            AOM_ICDF(21144), AOM_ICDF(24861), AOM_ICDF(26838), AOM_ICDF(29988),
-            AOM_ICDF(30976), AOM_ICDF(32761), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(2944), AOM_ICDF(5973), AOM_ICDF(8904), AOM_ICDF(11875),
-            AOM_ICDF(14864), AOM_ICDF(17853), AOM_ICDF(20824), AOM_ICDF(23810),
-            AOM_ICDF(26784), AOM_ICDF(29776), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(7424), AOM_ICDF(10097), AOM_ICDF(15588), AOM_ICDF(20217),
-            AOM_ICDF(23899), AOM_ICDF(26460), AOM_ICDF(28308), AOM_ICDF(30155),
-            AOM_ICDF(30951), AOM_ICDF(32761), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6656), AOM_ICDF(8186), AOM_ICDF(13467), AOM_ICDF(16231),
+            AOM_ICDF(20420), AOM_ICDF(28847), AOM_ICDF(29352), AOM_ICDF(30526),
+            AOM_ICDF(31446), AOM_ICDF(32334), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6272), AOM_ICDF(8135), AOM_ICDF(15737), AOM_ICDF(18335),
+            AOM_ICDF(21108), AOM_ICDF(28776), AOM_ICDF(29275), AOM_ICDF(30858),
+            AOM_ICDF(31388), AOM_ICDF(32153), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4864), AOM_ICDF(7153), AOM_ICDF(11456), AOM_ICDF(19108),
+            AOM_ICDF(22439), AOM_ICDF(26524), AOM_ICDF(27475), AOM_ICDF(28881),
+            AOM_ICDF(29853), AOM_ICDF(31868), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8320), AOM_ICDF(9944), AOM_ICDF(14402), AOM_ICDF(17345),
+            AOM_ICDF(20428), AOM_ICDF(23370), AOM_ICDF(25389), AOM_ICDF(28329),
+            AOM_ICDF(29161), AOM_ICDF(32233), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4480), AOM_ICDF(5475), AOM_ICDF(8887), AOM_ICDF(10588),
+            AOM_ICDF(17994), AOM_ICDF(27824), AOM_ICDF(28693), AOM_ICDF(30094),
+            AOM_ICDF(31588), AOM_ICDF(32436), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5376), AOM_ICDF(6553), AOM_ICDF(11366), AOM_ICDF(12943),
+            AOM_ICDF(17063), AOM_ICDF(28922), AOM_ICDF(29628), AOM_ICDF(31296),
+            AOM_ICDF(31779), AOM_ICDF(32455), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4480), AOM_ICDF(5585), AOM_ICDF(9089), AOM_ICDF(12651),
+            AOM_ICDF(19225), AOM_ICDF(23796), AOM_ICDF(24602), AOM_ICDF(26261),
+            AOM_ICDF(30252), AOM_ICDF(32090), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6144), AOM_ICDF(7600), AOM_ICDF(11631), AOM_ICDF(15113),
+            AOM_ICDF(18478), AOM_ICDF(22117), AOM_ICDF(23781), AOM_ICDF(26484),
+            AOM_ICDF(27711), AOM_ICDF(31859), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7296), AOM_ICDF(8888), AOM_ICDF(14298), AOM_ICDF(16641),
+            AOM_ICDF(20503), AOM_ICDF(26058), AOM_ICDF(26949), AOM_ICDF(29995),
+            AOM_ICDF(30862), AOM_ICDF(32195), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(3328), AOM_ICDF(5283), AOM_ICDF(10114), AOM_ICDF(12510),
+            AOM_ICDF(15588), AOM_ICDF(21264), AOM_ICDF(22298), AOM_ICDF(24016),
+            AOM_ICDF(25213), AOM_ICDF(26925), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4992), AOM_ICDF(7705), AOM_ICDF(13579), AOM_ICDF(18533),
+            AOM_ICDF(21735), AOM_ICDF(27071), AOM_ICDF(28184), AOM_ICDF(29617),
+            AOM_ICDF(30417), AOM_ICDF(32116), AOM_ICDF(32768), 0 },
       },
       {
-          { AOM_ICDF(11648), AOM_ICDF(13133), AOM_ICDF(15050), AOM_ICDF(20481),
-            AOM_ICDF(22470), AOM_ICDF(23425), AOM_ICDF(24337), AOM_ICDF(25160),
-            AOM_ICDF(28964), AOM_ICDF(30480), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10240), AOM_ICDF(12616), AOM_ICDF(16631), AOM_ICDF(20485),
-            AOM_ICDF(22290), AOM_ICDF(23628), AOM_ICDF(25235), AOM_ICDF(26353),
-            AOM_ICDF(28107), AOM_ICDF(29655), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6784), AOM_ICDF(8002), AOM_ICDF(9066), AOM_ICDF(20038),
-            AOM_ICDF(22926), AOM_ICDF(23324), AOM_ICDF(23951), AOM_ICDF(24537),
-            AOM_ICDF(26916), AOM_ICDF(30231), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(11904), AOM_ICDF(14105), AOM_ICDF(15782), AOM_ICDF(19896),
-            AOM_ICDF(22283), AOM_ICDF(23147), AOM_ICDF(24763), AOM_ICDF(25983),
-            AOM_ICDF(27812), AOM_ICDF(29980), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10624), AOM_ICDF(11922), AOM_ICDF(13632), AOM_ICDF(15941),
-            AOM_ICDF(20469), AOM_ICDF(22453), AOM_ICDF(24065), AOM_ICDF(25187),
-            AOM_ICDF(27349), AOM_ICDF(29296), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(12032), AOM_ICDF(13085), AOM_ICDF(15468), AOM_ICDF(17768),
-            AOM_ICDF(20613), AOM_ICDF(24388), AOM_ICDF(26385), AOM_ICDF(28430),
-            AOM_ICDF(30938), AOM_ICDF(32761), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9728), AOM_ICDF(10538), AOM_ICDF(11493), AOM_ICDF(14765),
-            AOM_ICDF(18460), AOM_ICDF(19471), AOM_ICDF(20302), AOM_ICDF(20935),
-            AOM_ICDF(28192), AOM_ICDF(29926), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8960), AOM_ICDF(9890), AOM_ICDF(10962), AOM_ICDF(16685),
-            AOM_ICDF(18880), AOM_ICDF(19480), AOM_ICDF(20674), AOM_ICDF(21477),
-            AOM_ICDF(23815), AOM_ICDF(29341), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(14592), AOM_ICDF(16367), AOM_ICDF(17712), AOM_ICDF(20293),
-            AOM_ICDF(22544), AOM_ICDF(23829), AOM_ICDF(24877), AOM_ICDF(26326),
-            AOM_ICDF(27660), AOM_ICDF(29875), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8960), AOM_ICDF(10448), AOM_ICDF(12279), AOM_ICDF(16206),
-            AOM_ICDF(18672), AOM_ICDF(18682), AOM_ICDF(20058), AOM_ICDF(21547),
-            AOM_ICDF(25097), AOM_ICDF(27165), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(11136), AOM_ICDF(13840), AOM_ICDF(15762), AOM_ICDF(21710),
-            AOM_ICDF(23038), AOM_ICDF(23734), AOM_ICDF(24863), AOM_ICDF(25882),
-            AOM_ICDF(27765), AOM_ICDF(30071), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(10624), AOM_ICDF(11922), AOM_ICDF(13469), AOM_ICDF(17638),
+            AOM_ICDF(20018), AOM_ICDF(20932), AOM_ICDF(21441), AOM_ICDF(22060),
+            AOM_ICDF(27205), AOM_ICDF(28878), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8448), AOM_ICDF(10443), AOM_ICDF(13670), AOM_ICDF(17644),
+            AOM_ICDF(19897), AOM_ICDF(21205), AOM_ICDF(21928), AOM_ICDF(23114),
+            AOM_ICDF(25980), AOM_ICDF(27491), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4480), AOM_ICDF(5806), AOM_ICDF(6754), AOM_ICDF(18174),
+            AOM_ICDF(20207), AOM_ICDF(20676), AOM_ICDF(21101), AOM_ICDF(21602),
+            AOM_ICDF(25135), AOM_ICDF(28176), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(9728), AOM_ICDF(11438), AOM_ICDF(12854), AOM_ICDF(16264),
+            AOM_ICDF(18901), AOM_ICDF(19622), AOM_ICDF(21573), AOM_ICDF(22579),
+            AOM_ICDF(24649), AOM_ICDF(27884), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7040), AOM_ICDF(7945), AOM_ICDF(9303), AOM_ICDF(11836),
+            AOM_ICDF(18904), AOM_ICDF(21310), AOM_ICDF(22071), AOM_ICDF(22907),
+            AOM_ICDF(26990), AOM_ICDF(28412), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(10624), AOM_ICDF(11662), AOM_ICDF(14135), AOM_ICDF(16728),
+            AOM_ICDF(21327), AOM_ICDF(25198), AOM_ICDF(26115), AOM_ICDF(27622),
+            AOM_ICDF(30979), AOM_ICDF(32370), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4864), AOM_ICDF(5518), AOM_ICDF(6263), AOM_ICDF(10124),
+            AOM_ICDF(14379), AOM_ICDF(15167), AOM_ICDF(15511), AOM_ICDF(15983),
+            AOM_ICDF(27195), AOM_ICDF(28654), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5760), AOM_ICDF(6710), AOM_ICDF(7626), AOM_ICDF(13631),
+            AOM_ICDF(15933), AOM_ICDF(16563), AOM_ICDF(17259), AOM_ICDF(17986),
+            AOM_ICDF(22490), AOM_ICDF(27468), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(9728), AOM_ICDF(11168), AOM_ICDF(13193), AOM_ICDF(16563),
+            AOM_ICDF(18932), AOM_ICDF(20151), AOM_ICDF(20890), AOM_ICDF(23071),
+            AOM_ICDF(25344), AOM_ICDF(27287), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7168), AOM_ICDF(8368), AOM_ICDF(10084), AOM_ICDF(14595),
+            AOM_ICDF(17228), AOM_ICDF(17439), AOM_ICDF(18158), AOM_ICDF(19356),
+            AOM_ICDF(23285), AOM_ICDF(25471), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7424), AOM_ICDF(10493), AOM_ICDF(12407), AOM_ICDF(19241),
+            AOM_ICDF(20950), AOM_ICDF(21713), AOM_ICDF(22447), AOM_ICDF(23374),
+            AOM_ICDF(26126), AOM_ICDF(28228), AOM_ICDF(32768), 0 },
       },
       {
-          { AOM_ICDF(12544), AOM_ICDF(14124), AOM_ICDF(16964), AOM_ICDF(21907),
-            AOM_ICDF(23808), AOM_ICDF(24496), AOM_ICDF(25724), AOM_ICDF(26715),
-            AOM_ICDF(27992), AOM_ICDF(30455), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10368), AOM_ICDF(13606), AOM_ICDF(18247), AOM_ICDF(20869),
-            AOM_ICDF(22590), AOM_ICDF(23749), AOM_ICDF(25088), AOM_ICDF(26378),
-            AOM_ICDF(27277), AOM_ICDF(29808), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9088), AOM_ICDF(11031), AOM_ICDF(12899), AOM_ICDF(23497),
-            AOM_ICDF(24465), AOM_ICDF(24851), AOM_ICDF(25995), AOM_ICDF(26815),
-            AOM_ICDF(27885), AOM_ICDF(30555), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(11520), AOM_ICDF(14342), AOM_ICDF(15710), AOM_ICDF(19196),
-            AOM_ICDF(21250), AOM_ICDF(21907), AOM_ICDF(24665), AOM_ICDF(26153),
-            AOM_ICDF(27212), AOM_ICDF(30750), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9984), AOM_ICDF(11764), AOM_ICDF(13979), AOM_ICDF(16405),
-            AOM_ICDF(19279), AOM_ICDF(20658), AOM_ICDF(23354), AOM_ICDF(25266),
-            AOM_ICDF(26702), AOM_ICDF(29380), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10112), AOM_ICDF(12325), AOM_ICDF(15918), AOM_ICDF(19060),
-            AOM_ICDF(21829), AOM_ICDF(23882), AOM_ICDF(26277), AOM_ICDF(27697),
-            AOM_ICDF(30114), AOM_ICDF(32758), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9344), AOM_ICDF(10534), AOM_ICDF(12184), AOM_ICDF(16208),
-            AOM_ICDF(19764), AOM_ICDF(20627), AOM_ICDF(22524), AOM_ICDF(23644),
-            AOM_ICDF(26887), AOM_ICDF(29782), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(12928), AOM_ICDF(14013), AOM_ICDF(15625), AOM_ICDF(19107),
-            AOM_ICDF(20654), AOM_ICDF(21451), AOM_ICDF(22910), AOM_ICDF(23873),
-            AOM_ICDF(24776), AOM_ICDF(30239), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10368), AOM_ICDF(12818), AOM_ICDF(14610), AOM_ICDF(17350),
-            AOM_ICDF(19568), AOM_ICDF(20710), AOM_ICDF(22971), AOM_ICDF(25114),
-            AOM_ICDF(26340), AOM_ICDF(29127), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8960), AOM_ICDF(11192), AOM_ICDF(13720), AOM_ICDF(18429),
-            AOM_ICDF(20409), AOM_ICDF(20417), AOM_ICDF(22250), AOM_ICDF(23318),
-            AOM_ICDF(24647), AOM_ICDF(27248), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(7808), AOM_ICDF(11416), AOM_ICDF(13918), AOM_ICDF(19028),
-            AOM_ICDF(20181), AOM_ICDF(20839), AOM_ICDF(24380), AOM_ICDF(26018),
-            AOM_ICDF(26967), AOM_ICDF(29845), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(12416), AOM_ICDF(13927), AOM_ICDF(15767), AOM_ICDF(20425),
+            AOM_ICDF(21547), AOM_ICDF(22076), AOM_ICDF(23078), AOM_ICDF(24024),
+            AOM_ICDF(25185), AOM_ICDF(28177), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(9472), AOM_ICDF(11929), AOM_ICDF(15592), AOM_ICDF(18734),
+            AOM_ICDF(19880), AOM_ICDF(21027), AOM_ICDF(22219), AOM_ICDF(23950),
+            AOM_ICDF(24708), AOM_ICDF(27321), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6272), AOM_ICDF(8239), AOM_ICDF(9389), AOM_ICDF(20444),
+            AOM_ICDF(21237), AOM_ICDF(21535), AOM_ICDF(22500), AOM_ICDF(23342),
+            AOM_ICDF(24557), AOM_ICDF(28342), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(10752), AOM_ICDF(12558), AOM_ICDF(13505), AOM_ICDF(16176),
+            AOM_ICDF(17378), AOM_ICDF(17945), AOM_ICDF(21824), AOM_ICDF(23577),
+            AOM_ICDF(24259), AOM_ICDF(28646), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7168), AOM_ICDF(8668), AOM_ICDF(10457), AOM_ICDF(13625),
+            AOM_ICDF(16961), AOM_ICDF(18649), AOM_ICDF(20579), AOM_ICDF(22245),
+            AOM_ICDF(24547), AOM_ICDF(27084), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(9728), AOM_ICDF(11438), AOM_ICDF(14438), AOM_ICDF(17572),
+            AOM_ICDF(20379), AOM_ICDF(24104), AOM_ICDF(26101), AOM_ICDF(27846),
+            AOM_ICDF(29673), AOM_ICDF(31946), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6528), AOM_ICDF(7451), AOM_ICDF(8539), AOM_ICDF(14083),
+            AOM_ICDF(16653), AOM_ICDF(17246), AOM_ICDF(18519), AOM_ICDF(19521),
+            AOM_ICDF(24851), AOM_ICDF(27913), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(9600), AOM_ICDF(10415), AOM_ICDF(11375), AOM_ICDF(14750),
+            AOM_ICDF(15499), AOM_ICDF(15971), AOM_ICDF(17414), AOM_ICDF(18194),
+            AOM_ICDF(18820), AOM_ICDF(28954), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(9344), AOM_ICDF(10808), AOM_ICDF(12695), AOM_ICDF(15416),
+            AOM_ICDF(16864), AOM_ICDF(17635), AOM_ICDF(20000), AOM_ICDF(22643),
+            AOM_ICDF(23513), AOM_ICDF(26586), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7808), AOM_ICDF(9271), AOM_ICDF(11107), AOM_ICDF(16015),
+            AOM_ICDF(17324), AOM_ICDF(17453), AOM_ICDF(19068), AOM_ICDF(20192),
+            AOM_ICDF(21273), AOM_ICDF(25045), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7680), AOM_ICDF(10718), AOM_ICDF(12613), AOM_ICDF(18973),
+            AOM_ICDF(19794), AOM_ICDF(20329), AOM_ICDF(22564), AOM_ICDF(23800),
+            AOM_ICDF(24641), AOM_ICDF(28070), AOM_ICDF(32768), 0 },
       },
       {
-          { AOM_ICDF(9856), AOM_ICDF(11020), AOM_ICDF(14928), AOM_ICDF(18159),
-            AOM_ICDF(19421), AOM_ICDF(20921), AOM_ICDF(23466), AOM_ICDF(26664),
-            AOM_ICDF(27475), AOM_ICDF(28881), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8704), AOM_ICDF(10302), AOM_ICDF(17323), AOM_ICDF(18907),
-            AOM_ICDF(19868), AOM_ICDF(21184), AOM_ICDF(24171), AOM_ICDF(28033),
-            AOM_ICDF(28625), AOM_ICDF(29353), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(7936), AOM_ICDF(9197), AOM_ICDF(12604), AOM_ICDF(20616),
-            AOM_ICDF(21514), AOM_ICDF(22371), AOM_ICDF(24239), AOM_ICDF(26138),
-            AOM_ICDF(26863), AOM_ICDF(29239), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(11264), AOM_ICDF(12524), AOM_ICDF(16083), AOM_ICDF(18574),
-            AOM_ICDF(19858), AOM_ICDF(20841), AOM_ICDF(24242), AOM_ICDF(27606),
-            AOM_ICDF(28352), AOM_ICDF(29853), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8704), AOM_ICDF(10208), AOM_ICDF(13292), AOM_ICDF(15170),
-            AOM_ICDF(17277), AOM_ICDF(19226), AOM_ICDF(22083), AOM_ICDF(25046),
-            AOM_ICDF(26041), AOM_ICDF(27802), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9088), AOM_ICDF(10568), AOM_ICDF(15511), AOM_ICDF(17246),
-            AOM_ICDF(20170), AOM_ICDF(22791), AOM_ICDF(25558), AOM_ICDF(30740),
-            AOM_ICDF(31635), AOM_ICDF(32764), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(7040), AOM_ICDF(8045), AOM_ICDF(10653), AOM_ICDF(13145),
-            AOM_ICDF(15286), AOM_ICDF(16614), AOM_ICDF(19075), AOM_ICDF(23140),
-            AOM_ICDF(26224), AOM_ICDF(28652), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(10240), AOM_ICDF(11032), AOM_ICDF(14258), AOM_ICDF(17629),
-            AOM_ICDF(18914), AOM_ICDF(19898), AOM_ICDF(22412), AOM_ICDF(24961),
-            AOM_ICDF(25815), AOM_ICDF(29156), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(11008), AOM_ICDF(12028), AOM_ICDF(14702), AOM_ICDF(16147),
-            AOM_ICDF(17209), AOM_ICDF(18160), AOM_ICDF(21812), AOM_ICDF(27547),
-            AOM_ICDF(28709), AOM_ICDF(30120), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(7168), AOM_ICDF(9068), AOM_ICDF(14160), AOM_ICDF(16937),
-            AOM_ICDF(18515), AOM_ICDF(18521), AOM_ICDF(20636), AOM_ICDF(24617),
-            AOM_ICDF(25317), AOM_ICDF(26365), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6784), AOM_ICDF(8510), AOM_ICDF(14195), AOM_ICDF(17148),
-            AOM_ICDF(18158), AOM_ICDF(19201), AOM_ICDF(23070), AOM_ICDF(27351),
-            AOM_ICDF(27901), AOM_ICDF(29422), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7424), AOM_ICDF(9008), AOM_ICDF(12999), AOM_ICDF(15866),
+            AOM_ICDF(16981), AOM_ICDF(18559), AOM_ICDF(20335), AOM_ICDF(25677),
+            AOM_ICDF(26342), AOM_ICDF(27421), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6016), AOM_ICDF(7479), AOM_ICDF(14098), AOM_ICDF(16136),
+            AOM_ICDF(16843), AOM_ICDF(17963), AOM_ICDF(20161), AOM_ICDF(26809),
+            AOM_ICDF(27158), AOM_ICDF(27837), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4864), AOM_ICDF(6499), AOM_ICDF(10090), AOM_ICDF(17105),
+            AOM_ICDF(17876), AOM_ICDF(18683), AOM_ICDF(20884), AOM_ICDF(24551),
+            AOM_ICDF(25161), AOM_ICDF(27033), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(9344), AOM_ICDF(10442), AOM_ICDF(12971), AOM_ICDF(15010),
+            AOM_ICDF(15781), AOM_ICDF(16451), AOM_ICDF(21168), AOM_ICDF(25790),
+            AOM_ICDF(26117), AOM_ICDF(28143), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4480), AOM_ICDF(5806), AOM_ICDF(8755), AOM_ICDF(10859),
+            AOM_ICDF(14077), AOM_ICDF(16916), AOM_ICDF(19641), AOM_ICDF(24000),
+            AOM_ICDF(25370), AOM_ICDF(26584), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6016), AOM_ICDF(7479), AOM_ICDF(12715), AOM_ICDF(14797),
+            AOM_ICDF(17587), AOM_ICDF(21175), AOM_ICDF(23303), AOM_ICDF(30587),
+            AOM_ICDF(31217), AOM_ICDF(32332), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4096), AOM_ICDF(5216), AOM_ICDF(7799), AOM_ICDF(11079),
+            AOM_ICDF(14286), AOM_ICDF(15797), AOM_ICDF(17587), AOM_ICDF(21442),
+            AOM_ICDF(23831), AOM_ICDF(25961), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6912), AOM_ICDF(7720), AOM_ICDF(10557), AOM_ICDF(13811),
+            AOM_ICDF(15016), AOM_ICDF(15763), AOM_ICDF(18486), AOM_ICDF(22001),
+            AOM_ICDF(22800), AOM_ICDF(26927), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7552), AOM_ICDF(8439), AOM_ICDF(11385), AOM_ICDF(12926),
+            AOM_ICDF(13639), AOM_ICDF(14308), AOM_ICDF(17769), AOM_ICDF(27261),
+            AOM_ICDF(27713), AOM_ICDF(28641), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5376), AOM_ICDF(6874), AOM_ICDF(11527), AOM_ICDF(14266),
+            AOM_ICDF(15450), AOM_ICDF(15676), AOM_ICDF(18013), AOM_ICDF(22970),
+            AOM_ICDF(23659), AOM_ICDF(25011), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4480), AOM_ICDF(6580), AOM_ICDF(12002), AOM_ICDF(15395),
+            AOM_ICDF(16106), AOM_ICDF(17112), AOM_ICDF(20292), AOM_ICDF(26335),
+            AOM_ICDF(26687), AOM_ICDF(27803), AOM_ICDF(32768), 0 },
       },
       {
-          { AOM_ICDF(10112), AOM_ICDF(11528), AOM_ICDF(15345), AOM_ICDF(19296),
-            AOM_ICDF(21394), AOM_ICDF(21402), AOM_ICDF(22379), AOM_ICDF(23840),
-            AOM_ICDF(24851), AOM_ICDF(26150), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8064), AOM_ICDF(10187), AOM_ICDF(17949), AOM_ICDF(20052),
-            AOM_ICDF(22051), AOM_ICDF(22059), AOM_ICDF(23147), AOM_ICDF(24688),
-            AOM_ICDF(25351), AOM_ICDF(26365), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6528), AOM_ICDF(8373), AOM_ICDF(11041), AOM_ICDF(21963),
-            AOM_ICDF(23089), AOM_ICDF(23093), AOM_ICDF(24076), AOM_ICDF(24925),
-            AOM_ICDF(25691), AOM_ICDF(27764), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9600), AOM_ICDF(11229), AOM_ICDF(14847), AOM_ICDF(17527),
-            AOM_ICDF(19738), AOM_ICDF(19747), AOM_ICDF(21629), AOM_ICDF(23761),
-            AOM_ICDF(24957), AOM_ICDF(27673), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8960), AOM_ICDF(10262), AOM_ICDF(13339), AOM_ICDF(15480),
-            AOM_ICDF(19925), AOM_ICDF(19942), AOM_ICDF(21445), AOM_ICDF(23037),
-            AOM_ICDF(24329), AOM_ICDF(25977), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(2944), AOM_ICDF(5973), AOM_ICDF(8904), AOM_ICDF(11875),
-            AOM_ICDF(14864), AOM_ICDF(17853), AOM_ICDF(20824), AOM_ICDF(23810),
-            AOM_ICDF(26784), AOM_ICDF(29776), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9472), AOM_ICDF(10564), AOM_ICDF(13426), AOM_ICDF(16561),
-            AOM_ICDF(19685), AOM_ICDF(19697), AOM_ICDF(21076), AOM_ICDF(22583),
-            AOM_ICDF(24891), AOM_ICDF(26983), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8448), AOM_ICDF(9493), AOM_ICDF(12221), AOM_ICDF(16542),
-            AOM_ICDF(18394), AOM_ICDF(18401), AOM_ICDF(19580), AOM_ICDF(20971),
-            AOM_ICDF(22031), AOM_ICDF(26770), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8704), AOM_ICDF(10772), AOM_ICDF(14209), AOM_ICDF(16381),
-            AOM_ICDF(18911), AOM_ICDF(18921), AOM_ICDF(20436), AOM_ICDF(23374),
-            AOM_ICDF(24475), AOM_ICDF(26095), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(7680), AOM_ICDF(9444), AOM_ICDF(13453), AOM_ICDF(16320),
-            AOM_ICDF(18650), AOM_ICDF(18659), AOM_ICDF(19651), AOM_ICDF(21291),
-            AOM_ICDF(22277), AOM_ICDF(23916), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6656), AOM_ICDF(9920), AOM_ICDF(14740), AOM_ICDF(19864),
-            AOM_ICDF(21495), AOM_ICDF(21501), AOM_ICDF(22953), AOM_ICDF(24372),
-            AOM_ICDF(25192), AOM_ICDF(26760), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(9344), AOM_ICDF(10991), AOM_ICDF(14394), AOM_ICDF(18578),
+            AOM_ICDF(20033), AOM_ICDF(20279), AOM_ICDF(21060), AOM_ICDF(22386),
+            AOM_ICDF(23400), AOM_ICDF(24937), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6656), AOM_ICDF(8900), AOM_ICDF(16266), AOM_ICDF(19296),
+            AOM_ICDF(20390), AOM_ICDF(20649), AOM_ICDF(21454), AOM_ICDF(23222),
+            AOM_ICDF(23819), AOM_ICDF(24903), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4736), AOM_ICDF(6817), AOM_ICDF(9047), AOM_ICDF(20493),
+            AOM_ICDF(21387), AOM_ICDF(21463), AOM_ICDF(22170), AOM_ICDF(23039),
+            AOM_ICDF(23913), AOM_ICDF(25885), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8448), AOM_ICDF(9778), AOM_ICDF(12293), AOM_ICDF(15091),
+            AOM_ICDF(16380), AOM_ICDF(16532), AOM_ICDF(19640), AOM_ICDF(21896),
+            AOM_ICDF(22745), AOM_ICDF(25877), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6272), AOM_ICDF(7514), AOM_ICDF(10276), AOM_ICDF(13232),
+            AOM_ICDF(18324), AOM_ICDF(18974), AOM_ICDF(20106), AOM_ICDF(21837),
+            AOM_ICDF(23460), AOM_ICDF(24951), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5120), AOM_ICDF(6956), AOM_ICDF(10888), AOM_ICDF(13304),
+            AOM_ICDF(15993), AOM_ICDF(20119), AOM_ICDF(21453), AOM_ICDF(23840),
+            AOM_ICDF(25340), AOM_ICDF(26849), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6144), AOM_ICDF(7288), AOM_ICDF(9279), AOM_ICDF(14223),
+            AOM_ICDF(17244), AOM_ICDF(17445), AOM_ICDF(18343), AOM_ICDF(19639),
+            AOM_ICDF(23537), AOM_ICDF(25664), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6656), AOM_ICDF(7778), AOM_ICDF(9926), AOM_ICDF(14844),
+            AOM_ICDF(16232), AOM_ICDF(16350), AOM_ICDF(17504), AOM_ICDF(18756),
+            AOM_ICDF(19905), AOM_ICDF(25432), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7424), AOM_ICDF(9107), AOM_ICDF(12804), AOM_ICDF(15525),
+            AOM_ICDF(17116), AOM_ICDF(17327), AOM_ICDF(18956), AOM_ICDF(22409),
+            AOM_ICDF(23137), AOM_ICDF(24792), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(6784), AOM_ICDF(8307), AOM_ICDF(11938), AOM_ICDF(16138),
+            AOM_ICDF(17694), AOM_ICDF(17878), AOM_ICDF(18867), AOM_ICDF(20605),
+            AOM_ICDF(21555), AOM_ICDF(23482), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5760), AOM_ICDF(9031), AOM_ICDF(13296), AOM_ICDF(19654),
+            AOM_ICDF(20751), AOM_ICDF(20902), AOM_ICDF(21968), AOM_ICDF(23445),
+            AOM_ICDF(24137), AOM_ICDF(25688), AOM_ICDF(32768), 0 },
       },
       {
-          { AOM_ICDF(9728), AOM_ICDF(13958), AOM_ICDF(18881), AOM_ICDF(23624),
-            AOM_ICDF(24754), AOM_ICDF(25553), AOM_ICDF(26709), AOM_ICDF(27940),
-            AOM_ICDF(28977), AOM_ICDF(30413), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8832), AOM_ICDF(12572), AOM_ICDF(22433), AOM_ICDF(24653),
-            AOM_ICDF(25676), AOM_ICDF(26551), AOM_ICDF(27571), AOM_ICDF(28688),
-            AOM_ICDF(29198), AOM_ICDF(30174), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(5888), AOM_ICDF(8828), AOM_ICDF(11353), AOM_ICDF(23482),
-            AOM_ICDF(24310), AOM_ICDF(24737), AOM_ICDF(25804), AOM_ICDF(26375),
-            AOM_ICDF(27174), AOM_ICDF(29840), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9984), AOM_ICDF(13099), AOM_ICDF(16249), AOM_ICDF(19443),
-            AOM_ICDF(20990), AOM_ICDF(22637), AOM_ICDF(24576), AOM_ICDF(25952),
-            AOM_ICDF(26884), AOM_ICDF(29435), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8448), AOM_ICDF(11108), AOM_ICDF(15085), AOM_ICDF(18134),
-            AOM_ICDF(20319), AOM_ICDF(21992), AOM_ICDF(23549), AOM_ICDF(24989),
-            AOM_ICDF(27177), AOM_ICDF(29208), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9856), AOM_ICDF(13168), AOM_ICDF(18987), AOM_ICDF(22481),
-            AOM_ICDF(24282), AOM_ICDF(26200), AOM_ICDF(27868), AOM_ICDF(30203),
-            AOM_ICDF(31085), AOM_ICDF(32761), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6784), AOM_ICDF(9119), AOM_ICDF(12629), AOM_ICDF(16877),
-            AOM_ICDF(20262), AOM_ICDF(21125), AOM_ICDF(22307), AOM_ICDF(23615),
-            AOM_ICDF(27727), AOM_ICDF(29972), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(8320), AOM_ICDF(10230), AOM_ICDF(12783), AOM_ICDF(19005),
-            AOM_ICDF(20213), AOM_ICDF(20668), AOM_ICDF(22039), AOM_ICDF(23045),
-            AOM_ICDF(24146), AOM_ICDF(30478), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(9088), AOM_ICDF(11308), AOM_ICDF(15416), AOM_ICDF(18118),
-            AOM_ICDF(19762), AOM_ICDF(20906), AOM_ICDF(22574), AOM_ICDF(25162),
-            AOM_ICDF(25994), AOM_ICDF(28455), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6912), AOM_ICDF(10548), AOM_ICDF(15148), AOM_ICDF(20026),
-            AOM_ICDF(21612), AOM_ICDF(21618), AOM_ICDF(22707), AOM_ICDF(24200),
-            AOM_ICDF(24869), AOM_ICDF(26844), AOM_ICDF(32768), 0 },
-          { AOM_ICDF(6656), AOM_ICDF(12164), AOM_ICDF(16993), AOM_ICDF(21568),
-            AOM_ICDF(22933), AOM_ICDF(23648), AOM_ICDF(25322), AOM_ICDF(26602),
-            AOM_ICDF(27806), AOM_ICDF(29841), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8448), AOM_ICDF(16618), AOM_ICDF(20782), AOM_ICDF(25286),
+            AOM_ICDF(25924), AOM_ICDF(26635), AOM_ICDF(27282), AOM_ICDF(28268),
+            AOM_ICDF(28831), AOM_ICDF(29861), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5376), AOM_ICDF(12438), AOM_ICDF(21491), AOM_ICDF(25302),
+            AOM_ICDF(25822), AOM_ICDF(26469), AOM_ICDF(27010), AOM_ICDF(28000),
+            AOM_ICDF(28279), AOM_ICDF(29121), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(3968), AOM_ICDF(9031), AOM_ICDF(11998), AOM_ICDF(24320),
+            AOM_ICDF(24827), AOM_ICDF(25142), AOM_ICDF(25857), AOM_ICDF(26424),
+            AOM_ICDF(26994), AOM_ICDF(28708), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(8576), AOM_ICDF(11695), AOM_ICDF(14164), AOM_ICDF(18021),
+            AOM_ICDF(18904), AOM_ICDF(19905), AOM_ICDF(22719), AOM_ICDF(24132),
+            AOM_ICDF(24874), AOM_ICDF(28143), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5120), AOM_ICDF(8144), AOM_ICDF(11703), AOM_ICDF(16213),
+            AOM_ICDF(19345), AOM_ICDF(21742), AOM_ICDF(22905), AOM_ICDF(24369),
+            AOM_ICDF(26009), AOM_ICDF(27699), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7424), AOM_ICDF(11384), AOM_ICDF(17231), AOM_ICDF(22727),
+            AOM_ICDF(24655), AOM_ICDF(27427), AOM_ICDF(28303), AOM_ICDF(30291),
+            AOM_ICDF(30959), AOM_ICDF(32266), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4992), AOM_ICDF(7922), AOM_ICDF(11804), AOM_ICDF(17881),
+            AOM_ICDF(20753), AOM_ICDF(21467), AOM_ICDF(22262), AOM_ICDF(23165),
+            AOM_ICDF(26766), AOM_ICDF(28290), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5376), AOM_ICDF(7837), AOM_ICDF(10466), AOM_ICDF(16977),
+            AOM_ICDF(17884), AOM_ICDF(18219), AOM_ICDF(19128), AOM_ICDF(20034),
+            AOM_ICDF(20979), AOM_ICDF(28117), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(7680), AOM_ICDF(10522), AOM_ICDF(14780), AOM_ICDF(18379),
+            AOM_ICDF(19478), AOM_ICDF(20612), AOM_ICDF(22179), AOM_ICDF(24785),
+            AOM_ICDF(25315), AOM_ICDF(27062), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(5120), AOM_ICDF(9548), AOM_ICDF(14446), AOM_ICDF(20341),
+            AOM_ICDF(21378), AOM_ICDF(21531), AOM_ICDF(22365), AOM_ICDF(23706),
+            AOM_ICDF(24272), AOM_ICDF(26064), AOM_ICDF(32768), 0 },
+          { AOM_ICDF(4736), AOM_ICDF(14044), AOM_ICDF(19237), AOM_ICDF(25032),
+            AOM_ICDF(25523), AOM_ICDF(25950), AOM_ICDF(26856), AOM_ICDF(27618),
+            AOM_ICDF(28020), AOM_ICDF(29337), AOM_ICDF(32768), 0 },
       },
 #endif  // CONFIG_SMOOTH_HV
 #else   // CONFIG_ALT_INTRA

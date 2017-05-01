@@ -2794,11 +2794,32 @@ static void init_inv_txfm_param(const MACROBLOCKD *xd, TX_SIZE tx_size,
 #endif
 }
 
+static void transpose_block8(uint8_t *dst, ptrdiff_t stride, int width) {
+  int i;
+  for (i = 0; i < width; ++i) {
+    int j;
+    for (j = i + 1; j < width; ++j) {
+      uint8_t *const dst_i_j = dst + j * stride + i;
+      uint8_t *const dst_j_i = dst + i * stride + j;
+      uint8_t temp = *dst_i_j;
+      *dst_i_j = *dst_j_i;
+      *dst_j_i = temp;
+    }
+  }
+}
+
 void av1_inverse_transform_block(const MACROBLOCKD *xd,
                                  const tran_low_t *dqcoeff, TX_TYPE tx_type,
                                  TX_SIZE tx_size, uint8_t *dst, int stride,
-                                 int eob) {
+                                 int eob, int need_transpose) {
   if (!eob) return;
+  if (need_transpose) {
+    // Transpose predicted block, as inverse transform is also transposed.
+    transpose_block8(dst, stride, tx_size_wide[tx_size]);
+  }
+
+// Get (transposed) reconstruction by adding (transposed) prediction to
+// (transposed) inverse transform.
 #if CONFIG_PVQ
   const BLOCK_SIZE tx_bsize = txsize_to_bsize[tx_size];
   const int txb_width = block_size_wide[tx_bsize];
@@ -2820,7 +2841,6 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
 #endif  // CONFIG_PVQ
   INV_TXFM_PARAM inv_txfm_param;
   init_inv_txfm_param(xd, tx_size, tx_type, eob, &inv_txfm_param);
-
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     av1_highbd_inv_txfm_add(dqcoeff, dst, stride, &inv_txfm_param);
@@ -2830,10 +2850,16 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
 #if CONFIG_HIGHBITDEPTH
   }
 #endif  // CONFIG_HIGHBITDEPTH
+
+  if (need_transpose) {
+    // Get the reconstruction by transposing the transposed reconstruction.
+    transpose_block8(dst, stride, tx_size_wide[tx_size]);
+  }
 }
 
 void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
-                                        int blk_row, int blk_col, int eob) {
+                                        int blk_row, int blk_col, int eob,
+                                        int need_transpose) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   const PLANE_TYPE plane_type = get_plane_type(plane);
@@ -2843,7 +2869,7 @@ void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
   uint8_t *dst =
       &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
   av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst, dst_stride,
-                              eob);
+                              eob, need_transpose);
 }
 
 #if CONFIG_HIGHBITDEPTH

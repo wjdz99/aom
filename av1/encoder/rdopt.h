@@ -60,7 +60,7 @@ typedef enum OUTPUT_STATUS {
 void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                     BLOCK_SIZE plane_bsize, int block, int blk_row, int blk_col,
                     TX_SIZE tx_size, int64_t *out_dist, int64_t *out_sse,
-                    OUTPUT_STATUS output_status);
+                    OUTPUT_STATUS output_status, int need_transpose);
 
 #if !CONFIG_PVQ || CONFIG_VAR_TX
 int av1_cost_coeffs(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,

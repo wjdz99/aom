@@ -1334,7 +1334,7 @@ static int64_t sum_squares_visible(const MACROBLOCKD *xd, int plane,
 void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                     BLOCK_SIZE plane_bsize, int block, int blk_row, int blk_col,
                     TX_SIZE tx_size, int64_t *out_dist, int64_t *out_sse,
-                    OUTPUT_STATUS output_status) {
+                    OUTPUT_STATUS output_status, int need_transpose) {
   MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblock_plane *const p = &x->plane[plane];
 #if CONFIG_DAALA_DIST
@@ -1479,7 +1479,7 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
         TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
 
         av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, recon,
-                                    MAX_TX_SIZE, eob);
+                                    MAX_TX_SIZE, eob, need_transpose);
 
 #if CONFIG_DAALA_DIST
         if (plane == 0 && bsw >= 8 && bsh >= 8) {
@@ -1536,14 +1536,17 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
 
   if (args->exit_early) return;
 
+  int need_transpose = 0;
   if (!is_inter_block(mbmi)) {
 #if CONFIG_CFL
-    av1_predict_intra_block_encoder_facade(x, plane, block, blk_col, blk_row,
-                                           tx_size, plane_bsize);
+    need_transpose = av1_predict_intra_block_encoder_facade(
+        x, plane, block, blk_col, blk_row, tx_size, plane_bsize);
 #else
-    av1_predict_intra_block_facade(xd, plane, block, blk_col, blk_row, tx_size);
+    need_transpose = av1_predict_intra_block_facade(xd, plane, block, blk_col,
+                                                    blk_row, tx_size);
 #endif
-    av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
+    av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size,
+                     need_transpose);
   }
 
 #if !CONFIG_TXK_SEL
@@ -1556,14 +1559,14 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   if (!is_inter_block(mbmi)) {
     struct macroblock_plane *const p = &x->plane[plane];
     av1_inverse_transform_block_facade(xd, plane, block, blk_row, blk_col,
-                                       p->eobs[block]);
+                                       p->eobs[block], need_transpose);
     av1_dist_block(args->cpi, x, plane, plane_bsize, block, blk_row, blk_col,
                    tx_size, &this_rd_stats.dist, &this_rd_stats.sse,
-                   OUTPUT_HAS_DECODED_PIXELS);
+                   OUTPUT_HAS_DECODED_PIXELS, need_transpose);
   } else {
     av1_dist_block(args->cpi, x, plane, plane_bsize, block, blk_row, blk_col,
                    tx_size, &this_rd_stats.dist, &this_rd_stats.sse,
-                   OUTPUT_HAS_PREDICTED_PIXELS);
+                   OUTPUT_HAS_PREDICTED_PIXELS, need_transpose);
   }
 #if CONFIG_CFL
   if (plane == AOM_PLANE_Y && x->cfl_store_y) {
@@ -2356,11 +2359,13 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
 #if CONFIG_CFL
       const struct macroblockd_plane *const pd = &xd->plane[0];
       const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
-      av1_predict_intra_block_encoder_facade(x, 0, block, col, row, tx_size,
-                                             plane_bsize);
+      const int need_transpose = av1_predict_intra_block_encoder_facade(
+          x, 0, block, col, row, tx_size, plane_bsize);
 #else
-      av1_predict_intra_block_facade(xd, 0, block, col, row, tx_size);
+      const int need_transpose =
+          av1_predict_intra_block_facade(xd, 0, block, col, row, tx_size);
 #endif
+      (void)need_transpose;
       block += step;
     }
   }
@@ -2589,6 +2594,21 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   return rate_overhead;
 }
 #endif  // CONFIG_PALETTE
+
+// TODO(now): From encodemb.c.
+static void transpose_block16(int16_t *dst, ptrdiff_t stride, int width) {
+  int i;
+  for (i = 0; i < width; ++i) {
+    int j;
+    for (j = i + 1; j < width; ++j) {
+      int16_t *const dst_i_j = dst + j * stride + i;
+      int16_t *const dst_j_i = dst + i * stride + j;
+      int16_t temp = *dst_i_j;
+      *dst_i_j = *dst_j_i;
+      *dst_j_i = temp;
+    }
+  }
+}
 
 static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
     const AV1_COMP *const cpi, MACROBLOCK *x, int row, int col,
@@ -2895,18 +2915,21 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
         assert(IMPLIES(tx_size == TX_4X8 || tx_size == TX_8X4,
                        block == 0 || block == 2));
         xd->mi[0]->bmi[block_raster_idx].as_mode = mode;
-        av1_predict_intra_block(xd, pd->width, pd->height,
-                                txsize_to_bsize[tx_size], mode, dst, dst_stride,
-                                dst, dst_stride,
+        const int need_transpose = av1_predict_intra_block(
+            xd, pd->width, pd->height, txsize_to_bsize[tx_size], mode, dst,
+            dst_stride, dst, dst_stride,
 #if CONFIG_CB4X4
-                                2 * (col + idx), 2 * (row + idy),
+            2 * (col + idx), 2 * (row + idy),
 #else
-                                col + idx, row + idy,
+            col + idx, row + idy,
 #endif  // CONFIG_CB4X4
-                                0);
+            0);
 #if !CONFIG_PVQ
         aom_subtract_block(tx_height, tx_width, src_diff, 8, src, src_stride,
                            dst, dst_stride);
+        if (need_transpose) {
+          transpose_block16(src_diff, 8, tx_width);
+        }
 #endif  // !CONFIG_PVQ
 
         TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size);
@@ -2970,7 +2993,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 #endif  // CONFIG_PVQ
             av1_inverse_transform_block(xd, BLOCK_OFFSET(pd->dqcoeff, block),
                                         tx_type, tx_size, dst, dst_stride,
-                                        p->eobs[block]);
+                                        p->eobs[block], need_transpose);
           unsigned int tmp;
           cpi->fn_ptr[sub_bsize].vf(src, src_stride, dst, dst_stride, &tmp);
           const int64_t dist = (int64_t)tmp << 4;
@@ -2986,7 +3009,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 #endif  // CONFIG_PVQ
             av1_inverse_transform_block(xd, BLOCK_OFFSET(pd->dqcoeff, block),
                                         DCT_DCT, tx_size, dst, dst_stride,
-                                        p->eobs[block]);
+                                        p->eobs[block], need_transpose);
         }
       }
     }
@@ -5224,7 +5247,7 @@ static int64_t encode_inter_mb_segment_sub8x8(
       av1_optimize_b(cm, x, 0, block, tx_size, coeff_ctx);
       av1_dist_block(cpi, x, 0, BLOCK_8X8, block, idy + (i >> 1),
                      idx + (i & 0x1), tx_size, &dist, &ssz,
-                     OUTPUT_HAS_PREDICTED_PIXELS);
+                     OUTPUT_HAS_PREDICTED_PIXELS, 0);
       thisdistortion += dist;
       thissse += ssz;
 #if !CONFIG_PVQ

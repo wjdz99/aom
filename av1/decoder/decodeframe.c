@@ -321,10 +321,12 @@ static void read_mv_probs(nmv_context *ctx, int allow_hp, aom_reader *r) {
 static void inverse_transform_block(MACROBLOCKD *xd, int plane,
                                     const TX_TYPE tx_type,
                                     const TX_SIZE tx_size, uint8_t *dst,
-                                    int stride, int16_t scan_line, int eob) {
+                                    int stride, int16_t scan_line, int eob,
+                                    int need_transpose) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *const dqcoeff = pd->dqcoeff;
-  av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst, stride, eob);
+  av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst, stride, eob,
+                              need_transpose);
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
 }
 
@@ -526,7 +528,8 @@ static void predict_and_reconstruct_intra_block(
 #if CONFIG_PVQ
   (void)r;
 #endif
-  av1_predict_intra_block_facade(xd, plane, block_idx, col, row, tx_size);
+  const int need_transpose =
+      av1_predict_intra_block_facade(xd, plane, block_idx, col, row, tx_size);
 
   if (!mbmi->skip) {
 #if !CONFIG_PVQ
@@ -550,7 +553,7 @@ static void predict_and_reconstruct_intra_block(
       uint8_t *dst =
           &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
       inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
-                              max_scan_line, eob);
+                              max_scan_line, eob, need_transpose);
     }
 #else
     TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx, tx_size);
@@ -667,7 +670,7 @@ static int reconstruct_inter_block(AV1_COMMON *cm, MACROBLOCKD *const xd,
       &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
   if (eob)
     inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
-                            max_scan_line, eob);
+                            max_scan_line, eob, 0);
 #else
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx, tx_size);
   eob = av1_pvq_decode_helper2(cm, xd, &xd->mi[0]->mbmi, plane, row, col,
