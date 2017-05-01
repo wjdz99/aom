@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e50b910a_d6689918",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5376
+      },
+      "writtenOn": "2017-05-01T18:20:32Z",
+      "side": 1,
+      "message": "Yes. we can do that refactoring independently.",
+      "parentUuid": "578a151d_4dfe05d5",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 61
+      },
+      "revId": "91be396defec12af2ef9c9918fceb4e85bd9dfd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9d37db8f_3cc189d7",
         "filename": "av1/common/av1_inv_txfm2d.c",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-01T18:13:01Z",
       "side": 1,
       "message": "Is it correct? Can you refer to low bit depth version: av1_iht4x4_16_add_c()?",
+      "range": {
+        "startLine": 92,
+        "startChar": 5,
+        "endLine": 92,
+        "endChar": 32
+      },
+      "revId": "91be396defec12af2ef9c9918fceb4e85bd9dfd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0132458_631e4b6c",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5376
+      },
+      "writtenOn": "2017-05-01T18:20:32Z",
+      "side": 1,
+      "message": "This is not a reference to low-bitdepth version but to configuration.",
+      "parentUuid": "9d37db8f_3cc189d7",
       "range": {
         "startLine": 92,
         "startChar": 5,
