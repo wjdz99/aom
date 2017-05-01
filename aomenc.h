@@ -47,6 +47,7 @@ struct AvxEncoderConfig {
   int skip_frames;
   int show_psnr;
   enum TestDecodeFatality test_decode;
+  int enable_recon;
   int have_framerate;
   struct aom_rational framerate;
   int out_part;
