@@ -1155,6 +1155,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
     // Set up internal flags
     if (ctx->base.init_flags & AOM_CODEC_USE_PSNR) cpi->b_calculate_psnr = 1;
+    if (ctx->base.init_flags & AOM_CODEC_USE_RECON) cpi->b_output_recon = 1;
 
     if (img != NULL) {
       res = image2yuvconfig(img, &sd);
@@ -1579,7 +1580,8 @@ CODEC_INTERFACE(aom_codec_av1_cx) = {
 #if CONFIG_HIGHBITDEPTH
   AOM_CODEC_CAP_HIGHBITDEPTH |
 #endif
-      AOM_CODEC_CAP_ENCODER | AOM_CODEC_CAP_PSNR,  // aom_codec_caps_t
+      AOM_CODEC_CAP_ENCODER | AOM_CODEC_CAP_PSNR |
+      AOM_CODEC_CAP_RECON,                          // aom_codec_caps_t
   encoder_init,                                    // aom_codec_init_fn_t
   encoder_destroy,                                 // aom_codec_destroy_fn_t
   encoder_ctrl_maps,                               // aom_codec_ctrl_fn_map_t
