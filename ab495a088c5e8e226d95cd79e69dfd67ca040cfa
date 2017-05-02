@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0ea50a74_1684cbea",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1022,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-05-02T01:00:39Z",
+      "side": 1,
+      "message": "Done but doing this for *_warp_error was maybe more of a change than you intended, lmk if you want me to split it out.",
+      "parentUuid": "c28dc773_f402dc2d",
+      "range": {
+        "startLine": 1022,
+        "startChar": 34,
+        "endLine": 1022,
+        "endChar": 41
+      },
+      "revId": "ab495a088c5e8e226d95cd79e69dfd67ca040cfa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c91bfac_82cbc384",
         "filename": "av1/common/warped_motion.c",
         "patchSetId": 8
@@ -36,6 +60,24 @@
       "writtenOn": "2017-04-12T03:02:31Z",
       "side": 1,
       "message": "these too",
+      "revId": "ab495a088c5e8e226d95cd79e69dfd67ca040cfa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe8568e1_4faa9e06",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1026,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-05-02T01:00:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c91bfac_82cbc384",
       "revId": "ab495a088c5e8e226d95cd79e69dfd67ca040cfa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "f164685b_1429bf54",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1287,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-05-02T01:00:39Z",
+      "side": 1,
+      "message": "I\u0027ll look at this",
+      "parentUuid": "26ff5293_90e7fa0b",
+      "revId": "ab495a088c5e8e226d95cd79e69dfd67ca040cfa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5fedc835_eee72ad0",
         "filename": "av1/encoder/global_motion.c",
         "patchSetId": 8
@@ -70,6 +130,30 @@
       "writtenOn": "2017-04-12T03:02:31Z",
       "side": 1,
       "message": "this shift from double to int could be a separate change to isolate the split that the commit message describes",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 7
+      },
+      "revId": "ab495a088c5e8e226d95cd79e69dfd67ca040cfa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a59de8b_8321070e",
+        "filename": "av1/encoder/global_motion.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-05-02T01:00:39Z",
+      "side": 1,
+      "message": "I think this sort of goes with this change. av1_warp_error has been changed from returning the ratio between a warped prediction and reference to just returning a variant of sse for a warped prediction.",
+      "parentUuid": "5fedc835_eee72ad0",
       "range": {
         "startLine": 128,
         "startChar": 0,
