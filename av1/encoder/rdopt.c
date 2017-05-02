@@ -9120,6 +9120,16 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   MV dv = {.row = mvp_full.row * 8, .col = mvp_full.col * 8 };
   if (mv_check_bounds(&x->mv_limits, &dv)) return INT64_MAX;
   if (!is_dv_valid(dv, tile, mi_row, mi_col, bsize)) return INT64_MAX;
+  int dis;
+  unsigned int pred_sse;
+  int subsme =
+  cpi->find_fractional_mv_step(
+      x, &dv_ref.as_mv, /*cm->allow_high_precision_mv*/0, x->errorperbit,
+      &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
+      cpi->sf.mv.subpel_iters_per_step, cond_cost_list(cpi, cost_list),
+      x->nmvjointcost, x->mvcost, &dis, &pred_sse, NULL, w, h, 0);
+  if (is_dv_valid(x->best_mv.as_mv, tile, mi_row, mi_col, bsize))
+    dv = x->best_mv.as_mv;
   MB_MODE_INFO *mbmi = &mi->mbmi;
   MB_MODE_INFO best_mbmi = *mbmi;
   RD_STATS best_rdcost = *rd_cost;

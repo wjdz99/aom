@@ -542,8 +542,8 @@ static INLINE int is_dv_valid(const MV dv, const TileInfo *const tile,
   const int SCALE_PX_TO_MV = 8;
   // Disallow subpixel for now
   // SUBPEL_MASK is not the correct scale
-  if ((dv.row & (SCALE_PX_TO_MV - 1) || dv.col & (SCALE_PX_TO_MV - 1)))
-    return 0;
+//  if ((dv.row & (SCALE_PX_TO_MV - 1) || dv.col & (SCALE_PX_TO_MV - 1)))
+//    return 0;
   // Is the source top-left inside the current tile?
   const int src_top_edge = mi_row * MI_SIZE * SCALE_PX_TO_MV + dv.row;
   const int tile_top_edge = tile->mi_row_start * MI_SIZE * SCALE_PX_TO_MV;
