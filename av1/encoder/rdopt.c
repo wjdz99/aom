@@ -11573,6 +11573,21 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
 #endif  // CONFIG_DUAL_FILTER
   }
 
+#if CONFIG_GLOBAL_MOTION
+  if (is_nontrans_global_motion(xd)) {
+#if CONFIG_DUAL_FILTER
+    int dir;
+    for (dir = 0; dir < 4; ++dir)
+      mbmi->interp_filter[dir] = cm->interp_filter == SWITCHABLE
+                                     ? EIGHTTAP_REGULAR
+                                     : cm->interp_filter;
+#else
+    mbmi->interp_filter =
+        cm->interp_filter == SWITCHABLE ? EIGHTTAP_REGULAR : cm->interp_filter;
+#endif  // CONFIG_DUAL_FILTER
+  }
+#endif  // CONFIG_GLOBAL_MOTION
+
   if (cm->reference_mode == REFERENCE_MODE_SELECT)
     rate2 += av1_cost_bit(comp_mode_p, comp_pred);
 
