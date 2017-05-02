@@ -164,6 +164,30 @@
       "revId": "91be396defec12af2ef9c9918fceb4e85bd9dfd6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b85ac396_3eadb037",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5376
+      },
+      "writtenOn": "2017-05-02T17:24:55Z",
+      "side": 1,
+      "message": "Actually inv ADST is not call here as only cos_bit and stage_range arrays are used in the current remapping. But you\u0027re right we need for sure some new configurations for new transformations. We may do that in a next patch about EXT_TX experiment.",
+      "parentUuid": "5fdf81d0_87650ddb",
+      "range": {
+        "startLine": 92,
+        "startChar": 5,
+        "endLine": 92,
+        "endChar": 32
+      },
+      "revId": "91be396defec12af2ef9c9918fceb4e85bd9dfd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
