@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8426e69c_68b88381",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 8830,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-05-02T18:08:28Z",
+      "side": 1,
+      "message": "I guess mask_type is needed by both wedge and compound_segment? If yes, then wrap it by #if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT",
+      "range": {
+        "startLine": 8830,
+        "startChar": 8,
+        "endLine": 8830,
+        "endChar": 55
+      },
+      "revId": "2fbf476f8e1126133478a6384f9b48e3c03dee4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
