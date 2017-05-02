@@ -1389,7 +1389,19 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
 #endif
 
 #if CONFIG_GLOBAL_MOTION
-  if (is_nontrans_global_motion(xd)) return;
+  if (is_nontrans_global_motion(xd)) {
+#if CONFIG_DUAL_FILTER
+    for (int i = 0; i < 4; ++i)
+      assert(mbmi->interp_filter[i] == (cm->interp_filter == SWITCHABLE
+                                            ? EIGHTTAP_REGULAR
+                                            : cm->interp_filter));
+#else
+    assert(mbmi->interp_filter == (cm->interp_filter == SWITCHABLE
+                                       ? EIGHTTAP_REGULAR
+                                       : cm->interp_filter));
+#endif  // CONFIG_DUAL_FILTER
+    return;
+  }
 #endif  // CONFIG_GLOBAL_MOTION
   if (cm->interp_filter == SWITCHABLE) {
 #if CONFIG_DUAL_FILTER
