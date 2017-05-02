@@ -973,10 +973,6 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
                                   int block, TX_SIZE tx_size) {
   const MODE_INFO *const mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
-#if CONFIG_INTRABC
-  // TODO(aconverse@google.com): Revisit this decision
-  if (is_intrabc_block(mbmi)) return DCT_DCT;
-#endif  // CONFIG_INTRABC
 #if !CONFIG_TXK_SEL
 #if FIXED_TX_TYPE
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
