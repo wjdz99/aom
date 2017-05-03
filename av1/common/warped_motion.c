@@ -973,6 +973,15 @@ void av1_highbd_warp_affine_c(int32_t *mat, uint16_t *ref, int width,
     }
   }*/
 
+  alpha = ROUND_POWER_OF_TWO_SIGNED(alpha, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+  beta = ROUND_POWER_OF_TWO_SIGNED(beta, WARP_BETA_PARAM_REDUCE_BITS)
+         << WARP_BETA_PARAM_REDUCE_BITS;
+  gamma = ROUND_POWER_OF_TWO_SIGNED(gamma, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+  delta = ROUND_POWER_OF_TWO_SIGNED(delta, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+
   for (i = p_row; i < p_row + p_height; i += 8) {
     for (j = p_col; j < p_col + p_width; j += 8) {
       int32_t x4, y4, ix4, sx4, iy4, sy4;
@@ -996,6 +1005,11 @@ void av1_highbd_warp_affine_c(int32_t *mat, uint16_t *ref, int width,
       sx4 = x4 & ((1 << WARPEDMODEL_PREC_BITS) - 1);
       iy4 = y4 >> WARPEDMODEL_PREC_BITS;
       sy4 = y4 & ((1 << WARPEDMODEL_PREC_BITS) - 1);
+
+      sx4 = ROUND_POWER_OF_TWO_SIGNED(sx4, WARP_FRACTION_REDUCE_BITS)
+            << WARP_FRACTION_REDUCE_BITS;
+      sy4 = ROUND_POWER_OF_TWO_SIGNED(sy4, WARP_FRACTION_REDUCE_BITS)
+            << WARP_FRACTION_REDUCE_BITS;
 
       // Horizontal filter
       for (k = -7; k < 8; ++k) {
@@ -1217,6 +1231,14 @@ void av1_warp_affine_c(int32_t *mat, uint8_t *ref, int width, int height,
       assert(ref[i * stride + width + j] == ref[i * stride + (width - 1)]);
     }
   }*/
+  alpha = ROUND_POWER_OF_TWO_SIGNED(alpha, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+  beta = ROUND_POWER_OF_TWO_SIGNED(beta, WARP_BETA_PARAM_REDUCE_BITS)
+         << WARP_BETA_PARAM_REDUCE_BITS;
+  gamma = ROUND_POWER_OF_TWO_SIGNED(gamma, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+  delta = ROUND_POWER_OF_TWO_SIGNED(delta, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
 
   for (i = p_row; i < p_row + p_height; i += 8) {
     for (j = p_col; j < p_col + p_width; j += 8) {
@@ -1241,6 +1263,11 @@ void av1_warp_affine_c(int32_t *mat, uint8_t *ref, int width, int height,
       sx4 = x4 & ((1 << WARPEDMODEL_PREC_BITS) - 1);
       iy4 = y4 >> WARPEDMODEL_PREC_BITS;
       sy4 = y4 & ((1 << WARPEDMODEL_PREC_BITS) - 1);
+
+      sx4 = ROUND_POWER_OF_TWO_SIGNED(sx4, WARP_FRACTION_REDUCE_BITS)
+            << WARP_FRACTION_REDUCE_BITS;
+      sy4 = ROUND_POWER_OF_TWO_SIGNED(sy4, WARP_FRACTION_REDUCE_BITS)
+            << WARP_FRACTION_REDUCE_BITS;
 
       // Horizontal filter
       for (k = -7; k < 8; ++k) {
