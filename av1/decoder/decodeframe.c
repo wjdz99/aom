@@ -92,7 +92,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
                                        struct aom_read_bit_buffer *rb);
 
 static int is_compound_reference_allowed(const AV1_COMMON *cm) {
-#if CONFIG_LOWDELAY_COMPOUND  // Normative in decoder
+#if CONFIG_LOWDELAY_COMPOUND || CONFIG_EXT_COMP_REFS  // Normative in decoder
   return !frame_is_intra_only(cm);
 #else
   int i;
@@ -101,7 +101,7 @@ static int is_compound_reference_allowed(const AV1_COMMON *cm) {
     if (cm->ref_frame_sign_bias[i + 1] != cm->ref_frame_sign_bias[1]) return 1;
 
   return 0;
-#endif
+#endif  // CONFIG_LOWDELAY_COMPOUND || CONFIG_EXT_COMP_REFS
 }
 
 static void setup_compound_reference_mode(AV1_COMMON *cm) {

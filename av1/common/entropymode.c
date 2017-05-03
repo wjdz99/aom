@@ -1221,6 +1221,45 @@ int av1_ext_tx_inter_inv[EXT_TX_SETS_INTER][TX_TYPES];
 #endif
 #endif
 
+#if CONFIG_EXT_COMP_REFS
+/* clang-format off */
+const aom_tree_index
+av1_single_or_comp_ref0_tree[TREE_SIZE(INTER_REFS_PER_FRAME)] = {
+  LAST_FRAME, 2,
+  4, 8,
+  LAST2_FRAME, 6,
+  LAST3_FRAME, GOLDEN_FRAME,
+  BWDREF_FRAME, ALTREF_FRAME
+};
+
+const aom_tree_index
+av1_comp_lastref0_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 1)] = {
+  LAST2_FRAME, 2,
+  4, 6,
+  LAST3_FRAME, GOLDEN_FRAME,
+  BWDREF_FRAME, ALTREF_FRAME
+};
+
+const aom_tree_index
+av1_comp_last2ref0_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 2)] = {
+  LAST3_FRAME, 2,
+  GOLDEN_FRAME, 4,
+  BWDREF_FRAME, ALTREF_FRAME
+};
+
+const aom_tree_index
+av1_comp_last3ref0_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 3)] = {
+  GOLDEN_FRAME, 2,
+  BWDREF_FRAME, ALTREF_FRAME
+};
+
+const aom_tree_index
+av1_comp_gldref0_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 4)] = {
+  BWDREF_FRAME, ALTREF_FRAME
+};
+/* clang-format on */
+#endif  // CONFIG_EXT_COMP_REFS
+
 #if CONFIG_ALT_INTRA
 #if CONFIG_SMOOTH_HV
 const aom_tree_index av1_intra_mode_tree[TREE_SIZE(INTRA_MODES)] = {

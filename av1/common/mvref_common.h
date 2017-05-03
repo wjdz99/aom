@@ -25,6 +25,65 @@ typedef struct position {
   int col;
 } POSITION;
 
+#if CONFIG_EXT_COMP_REFS
+typedef enum {
+  BOTH_NEAR_FWD = 0,
+  NEAR_FWD_PLUS_FAR_FWD = 1,
+  BOTH_FAR_FWD = 2,
+  NEAR_FWD_PLUS_NEAR_BWD = 3,
+  FAR_FWD_PLUS_NEAR_BWD = 4,
+  BOTH_NEAR_BWD = 5,
+  NEAR_FWD_PLUS_FAR_BWD = 6,
+  FAR_FWD_PLUS_FAR_BWD = 7,
+  NEAR_BWD_PLUS_FAR_BWD = 8,
+  BOTH_FAR_BWD = 9,
+  INTER_PLUS_INTRA = 10,
+  BOTH_INTRA_REFS = 11,
+  TOTAL_REFFRAMES = 12,
+  INVALID_REFFRAME = TOTAL_REFFRAMES
+} REFFRAME_CONTEXT;
+
+// This is used to identify a context from the neighboring blocks for the
+// coding of the first reference frame. The code flattens an array that would
+// have two counts for 4 choices, namely:
+// NEAR_FWD (LAST) +0,
+// FAR_FWD  (LAST2, LAST3 & GOLDEN) +1,
+// NEAR_BWD (BWDREF) +3,
+// FAR_BWD  (ALTREF) +7.
+// (INTRA is handled separately).
+// This single number is then converted into a context with a single lookup
+// ( refframe_counter_to_context ).
+static const int refframe_2_counter[TOTAL_REFS_PER_FRAME] = {
+  0,  // INTRA_FRAME, handled separately
+  0,  // LAST_FRAME,
+  1,  // LAST2_FRAME,
+  1,  // LAST3_FRAME,
+  1,  // GOLDEN_FRMAE,
+  3,  // BWDREF_FRAME,
+  7,  // ALTREF_FRAME
+};
+
+static const int refframe_counter_to_context[15] = {
+  BOTH_NEAR_FWD,           // 0
+  NEAR_FWD_PLUS_FAR_FWD,   // 1
+  BOTH_FAR_FWD,            // 2
+  NEAR_FWD_PLUS_NEAR_BWD,  // 3
+  FAR_FWD_PLUS_NEAR_BWD,   // 4
+  INVALID_REFFRAME,        // 5
+  BOTH_NEAR_BWD,           // 6
+  NEAR_FWD_PLUS_FAR_BWD,   // 7
+  FAR_FWD_PLUS_FAR_BWD,    // 8
+  INVALID_REFFRAME,        // 9
+  NEAR_BWD_PLUS_FAR_BWD,   // 10
+  INVALID_REFFRAME,        // 11
+  INVALID_REFFRAME,        // 12
+  INVALID_REFFRAME,        // 13
+  BOTH_FAR_BWD             // 14
+};
+
+REFFRAME_CONTEXT av1_get_ref_frame0_context(const MACROBLOCKD *xd);
+#endif  // CONFIG_EXT_COMP_REFS
+
 typedef enum {
   BOTH_ZERO = 0,
   ZERO_PLUS_PREDICTED = 1,
