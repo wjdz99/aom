@@ -1496,23 +1496,23 @@ static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #if CONFIG_ACCOUNTING
   aom_accounting_set_context(&pbi->accounting, mi_col, mi_row);
 #endif
+
 #if CONFIG_SUPERTX
-  if (supertx_enabled) {
+  if (supertx_enabled)
     set_mb_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
-  } else {
-    set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
-  }
-#if CONFIG_EXT_PARTITION_TYPES
-  xd->mi[0]->mbmi.partition = partition;
-#endif
-  av1_read_mode_info(pbi, xd, supertx_enabled, mi_row, mi_col, r, x_mis, y_mis);
-#else
-  set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
-#if CONFIG_EXT_PARTITION_TYPES
-  xd->mi[0]->mbmi.partition = partition;
-#endif
-  av1_read_mode_info(pbi, xd, mi_row, mi_col, r, x_mis, y_mis);
+  else
 #endif  // CONFIG_SUPERTX
+    set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
+
+#if CONFIG_EXT_PARTITION_TYPES
+  xd->mi[0]->mbmi.partition = partition;
+#endif
+
+  av1_read_mode_info(pbi, xd,
+#if CONFIG_SUPERTX
+                     supertx_enabled,
+#endif  // CONFIG_SUPERTX
+                     mi_row, mi_col, r, x_mis, y_mis);
 
   if (bsize >= BLOCK_8X8 && (cm->subsampling_x || cm->subsampling_y)) {
     const BLOCK_SIZE uv_subsize =
@@ -1977,27 +1977,22 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (has_rows && has_cols)
 #if CONFIG_EXT_PARTITION_TYPES
     if (bsize <= BLOCK_8X8)
+#endif  // CONFIG_EXT_PARTITION_TYPES
 #if CONFIG_EC_MULTISYMBOL
       p = (PARTITION_TYPE)aom_read_symbol(r, partition_cdf, PARTITION_TYPES,
                                           ACCT_STR);
-#else
+#else   // !CONFIG_EC_MULTISYMBOL
       p = (PARTITION_TYPE)aom_read_tree(r, av1_partition_tree, probs, ACCT_STR);
-#endif
+#endif  // CONFIG_EC_MULTISYMBOL
+#if CONFIG_EXT_PARTITION_TYPES
     else
 #if CONFIG_EC_MULTISYMBOL
       p = (PARTITION_TYPE)aom_read_symbol(r, partition_cdf, EXT_PARTITION_TYPES,
                                           ACCT_STR);
-#else
+#else   // !CONFIG_EC_MULTISYMBOL
       p = (PARTITION_TYPE)aom_read_tree(r, av1_ext_partition_tree, probs,
                                         ACCT_STR);
-#endif
-#else
-#if CONFIG_EC_MULTISYMBOL
-    p = (PARTITION_TYPE)aom_read_symbol(r, partition_cdf, PARTITION_TYPES,
-                                        ACCT_STR);
-#else
-    p = (PARTITION_TYPE)aom_read_tree(r, av1_partition_tree, probs, ACCT_STR);
-#endif
+#endif  // CONFIG_EC_MULTISYMBOL
 #endif  // CONFIG_EXT_PARTITION_TYPES
   else if (!has_rows && has_cols)
     p = aom_read(r, probs[1], ACCT_STR) ? PARTITION_SPLIT : PARTITION_HORZ;
