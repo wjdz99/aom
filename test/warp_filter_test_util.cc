@@ -13,21 +13,17 @@
 
 using std::tr1::tuple;
 using std::tr1::make_tuple;
-using std::vector;
-using libaom_test::ACMRandom;
-using libaom_test::AV1WarpFilter::AV1WarpFilterTest;
-using libaom_test::AV1WarpFilter::WarpTestParam;
-#if CONFIG_HIGHBITDEPTH
-using libaom_test::AV1HighbdWarpFilter::AV1HighbdWarpFilterTest;
-using libaom_test::AV1HighbdWarpFilter::HighbdWarpTestParam;
-#endif
+
+namespace libaom_test {
+
+namespace AV1WarpFilter {
 
 ::testing::internal::ParamGenerator<WarpTestParam>
-libaom_test::AV1WarpFilter::BuildParams(warp_affine_func filter) {
+BuildParams(warp_affine_func filter) {
   const WarpTestParam params[] = {
-    make_tuple(4, 4, 50000, filter),  make_tuple(8, 8, 50000, filter),
-    make_tuple(64, 64, 1000, filter), make_tuple(4, 16, 20000, filter),
-    make_tuple(32, 8, 10000, filter),
+      make_tuple(4, 4, 50000, filter),  make_tuple(8, 8, 50000, filter),
+      make_tuple(64, 64, 1000, filter), make_tuple(4, 16, 20000, filter),
+      make_tuple(32, 8, 10000, filter),
   };
   return ::testing::ValuesIn(params);
 }
@@ -39,11 +35,13 @@ void AV1WarpFilterTest::TearDown() { libaom_test::ClearSystemState(); }
 
 int32_t AV1WarpFilterTest::random_param(int bits) {
   // 1 in 8 chance of generating zero (arbitrarily chosen)
-  if (((rnd_.Rand8()) & 7) == 0) return 0;
+  if (((rnd_.Rand8()) & 7) == 0)
+    return 0;
   // Otherwise, enerate uniform values in the range
   // [-(1 << bits), 1] U [1, 1<<bits]
   int32_t v = 1 + (rnd_.Rand16() & ((1 << bits) - 1));
-  if ((rnd_.Rand8()) & 1) return -v;
+  if ((rnd_.Rand8()) & 1)
+    return -v;
   return v;
 }
 
@@ -110,7 +108,8 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
 
   // Generate an input block and extend its borders horizontally
   for (i = 0; i < h; ++i)
-    for (j = 0; j < w; ++j) input[i * stride + j] = rnd_.Rand8();
+    for (j = 0; j < w; ++j)
+      input[i * stride + j] = rnd_.Rand8();
   for (i = 0; i < h; ++i) {
     memset(input + i * stride - border, input[i * stride], border);
     memset(input + i * stride + w, input[i * stride + (w - 1)], border);
@@ -136,19 +135,21 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
   delete[] output;
   delete[] output2;
 }
+} // namespace AV1WarpFilter
 
 #if CONFIG_HIGHBITDEPTH
-::testing::internal::ParamGenerator<HighbdWarpTestParam>
-libaom_test::AV1HighbdWarpFilter::GetDefaultParams() {
+namespace AV1HighbdWarpFilter {
+
+::testing::internal::ParamGenerator<HighbdWarpTestParam> GetDefaultParams() {
   const HighbdWarpTestParam defaultParams[] = {
-    make_tuple(4, 4, 50000, 8),   make_tuple(8, 8, 50000, 8),
-    make_tuple(64, 64, 1000, 8),  make_tuple(4, 16, 20000, 8),
-    make_tuple(32, 8, 10000, 8),  make_tuple(4, 4, 50000, 10),
-    make_tuple(8, 8, 50000, 10),  make_tuple(64, 64, 1000, 10),
-    make_tuple(4, 16, 20000, 10), make_tuple(32, 8, 10000, 10),
-    make_tuple(4, 4, 50000, 12),  make_tuple(8, 8, 50000, 12),
-    make_tuple(64, 64, 1000, 12), make_tuple(4, 16, 20000, 12),
-    make_tuple(32, 8, 10000, 12),
+      make_tuple(4, 4, 50000, 8),   make_tuple(8, 8, 50000, 8),
+      make_tuple(64, 64, 1000, 8),  make_tuple(4, 16, 20000, 8),
+      make_tuple(32, 8, 10000, 8),  make_tuple(4, 4, 50000, 10),
+      make_tuple(8, 8, 50000, 10),  make_tuple(64, 64, 1000, 10),
+      make_tuple(4, 16, 20000, 10), make_tuple(32, 8, 10000, 10),
+      make_tuple(4, 4, 50000, 12),  make_tuple(8, 8, 50000, 12),
+      make_tuple(64, 64, 1000, 12), make_tuple(4, 16, 20000, 12),
+      make_tuple(32, 8, 10000, 12),
   };
   return ::testing::ValuesIn(defaultParams);
 }
@@ -162,11 +163,13 @@ void AV1HighbdWarpFilterTest::TearDown() { libaom_test::ClearSystemState(); }
 
 int32_t AV1HighbdWarpFilterTest::random_param(int bits) {
   // 1 in 8 chance of generating zero (arbitrarily chosen)
-  if (((rnd_.Rand8()) & 7) == 0) return 0;
+  if (((rnd_.Rand8()) & 7) == 0)
+    return 0;
   // Otherwise, enerate uniform values in the range
   // [-(1 << bits), 1] U [1, 1<<bits]
   int32_t v = 1 + (rnd_.Rand16() & ((1 << bits) - 1));
-  if ((rnd_.Rand8()) & 1) return -v;
+  if ((rnd_.Rand8()) & 1)
+    return -v;
   return v;
 }
 
@@ -235,7 +238,8 @@ void AV1HighbdWarpFilterTest::RunCheckOutput(
 
   // Generate an input block and extend its borders horizontally
   for (i = 0; i < h; ++i)
-    for (j = 0; j < w; ++j) input[i * stride + j] = rnd_.Rand16() & mask;
+    for (j = 0; j < w; ++j)
+      input[i * stride + j] = rnd_.Rand16() & mask;
   for (i = 0; i < h; ++i) {
     for (j = 0; j < border; ++j) {
       input[i * stride - border + j] = input[i * stride];
@@ -265,4 +269,6 @@ void AV1HighbdWarpFilterTest::RunCheckOutput(
   delete[] output;
   delete[] output2;
 }
-#endif  // CONFIG_HIGHBITDEPTH
+} // namespace AV1HighbdWarpFilter
+#endif // CONFIG_HIGHBITDEPTH
+} // namespace libaom_test
