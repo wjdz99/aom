@@ -323,6 +323,7 @@ EXPERIMENT_LIST="
     compound_singleref
     aom_qm
     lowdelay_compound
+    comp_refs
 "
 CONFIG_LIST="
     dependency_tracking
