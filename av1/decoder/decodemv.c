@@ -1236,7 +1236,9 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     const REFERENCE_MODE mode = read_block_reference_mode(cm, xd, r);
     // FIXME(rbultje) I'm pretty sure this breaks segmentation ref frame coding
     if (mode == COMPOUND_REFERENCE) {
-#if CONFIG_LOWDELAY_COMPOUND  // Normative in decoder (for low delay)
+#if CONFIG_LOWDELAY_COMPOUND || CONFIG_COMP_REFS
+      // Normative in decoder (for low delay)
+      // TODO(zoeliu): To further unify the sign bias assignment
       const int idx = 1;
 #else
 #if CONFIG_EXT_REFS
