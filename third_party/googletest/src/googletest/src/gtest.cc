@@ -310,7 +310,7 @@ namespace internal {
 // than kMaxRange.
 UInt32 Random::Generate(UInt32 range) {
   // These constants are the same as are used in glibc's rand(3).
-  state_ = (1103515245U*state_ + 12345U) % kMaxRange;
+  state_ = (Uint32)((1103515245U * (UInt64)state_ + 12345U) % kMaxRange);
 
   GTEST_CHECK_(range > 0)
       << "Cannot generate a number in the range [0, 0).";
