@@ -14,13 +14,10 @@
 using std::tr1::tuple;
 using std::tr1::make_tuple;
 using std::vector;
-using libaom_test::ACMRandom;
-using libaom_test::AV1WarpFilter::AV1WarpFilterTest;
-using libaom_test::AV1WarpFilter::WarpTestParam;
-#if CONFIG_HIGHBITDEPTH
-using libaom_test::AV1HighbdWarpFilter::AV1HighbdWarpFilterTest;
-using libaom_test::AV1HighbdWarpFilter::HighbdWarpTestParam;
-#endif
+
+namespace libaom_test {
+
+namespace AV1WarpFilter {
 
 ::testing::internal::ParamGenerator<WarpTestParam>
 libaom_test::AV1WarpFilter::GetDefaultParams() {
@@ -136,8 +133,11 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
   delete[] output;
   delete[] output2;
 }
+}
 
 #if CONFIG_HIGHBITDEPTH
+namespace AV1HighbdWarpFilter {
+
 ::testing::internal::ParamGenerator<HighbdWarpTestParam>
 libaom_test::AV1HighbdWarpFilter::GetDefaultParams() {
   const HighbdWarpTestParam defaultParams[] = {
@@ -265,4 +265,6 @@ void AV1HighbdWarpFilterTest::RunCheckOutput(
   delete[] output;
   delete[] output2;
 }
+}
 #endif  // CONFIG_HIGHBITDEPTH
+}
