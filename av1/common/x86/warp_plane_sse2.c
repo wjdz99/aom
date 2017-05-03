@@ -26,6 +26,15 @@ void av1_warp_affine_sse2(int32_t *mat, uint8_t *ref, int width, int height,
   __m128i tmp[15];
   int i, j, k;
 
+  alpha = ROUND_POWER_OF_TWO_SIGNED(alpha, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+  beta = ROUND_POWER_OF_TWO_SIGNED(beta, WARP_BETA_PARAM_REDUCE_BITS)
+         << WARP_BETA_PARAM_REDUCE_BITS;
+  gamma = ROUND_POWER_OF_TWO_SIGNED(gamma, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+  delta = ROUND_POWER_OF_TWO_SIGNED(delta, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+
   /* Note: For this code to work, the left/right frame borders need to be
      extended by at least 13 pixels each. By the time we get here, other
      code will have set up this border, but we allow an explicit check
@@ -67,6 +76,14 @@ void av1_warp_affine_sse2(int32_t *mat, uint8_t *ref, int width, int height,
       iy4 = y4 >> WARPEDMODEL_PREC_BITS;
       sy4 = y4 & ((1 << WARPEDMODEL_PREC_BITS) - 1);
 
+      sx4 += alpha * (-4) + beta * (-4);
+      sy4 += gamma * (-4) + delta * (-4);
+
+      sx4 = ROUND_POWER_OF_TWO_SIGNED(sx4, WARP_FRACTIONX_REDUCE_BITS)
+            << WARP_FRACTIONX_REDUCE_BITS;
+      sy4 = ROUND_POWER_OF_TWO_SIGNED(sy4, WARP_FRACTIONY_REDUCE_BITS)
+            << WARP_FRACTIONY_REDUCE_BITS;
+
       // Horizontal filter
       for (k = -7; k < AOMMIN(8, p_height - i); ++k) {
         int iy = iy4 + k;
@@ -87,7 +104,7 @@ void av1_warp_affine_sse2(int32_t *mat, uint8_t *ref, int width, int height,
               ref[iy * stride + (width - 1)] *
               (1 << (WARPEDPIXEL_FILTER_BITS - HORSHEAR_REDUCE_PREC_BITS)));
         } else {
-          int sx = sx4 + alpha * (-4) + beta * k +
+          int sx = sx4 + beta * (k + 4) +
                    // Include rounding and offset here
                    (1 << (WARPEDDIFF_PREC_BITS - 1)) +
                    (WARPEDPIXEL_PREC_SHIFTS << WARPEDDIFF_PREC_BITS);
@@ -186,8 +203,7 @@ void av1_warp_affine_sse2(int32_t *mat, uint8_t *ref, int width, int height,
 
       // Vertical filter
       for (k = -4; k < AOMMIN(4, p_height - i - 4); ++k) {
-        int sy = sy4 + gamma * (-4) + delta * k +
-                 (1 << (WARPEDDIFF_PREC_BITS - 1)) +
+        int sy = sy4 + delta * (k + 4) + (1 << (WARPEDDIFF_PREC_BITS - 1)) +
                  (WARPEDPIXEL_PREC_SHIFTS << WARPEDDIFF_PREC_BITS);
 
         // Load from tmp and rearrange pairs of consecutive rows into the

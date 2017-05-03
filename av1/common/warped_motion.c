@@ -973,6 +973,15 @@ void av1_highbd_warp_affine_c(int32_t *mat, uint16_t *ref, int width,
     }
   }*/
 
+  alpha = ROUND_POWER_OF_TWO_SIGNED(alpha, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+  beta = ROUND_POWER_OF_TWO_SIGNED(beta, WARP_BETA_PARAM_REDUCE_BITS)
+         << WARP_BETA_PARAM_REDUCE_BITS;
+  gamma = ROUND_POWER_OF_TWO_SIGNED(gamma, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+  delta = ROUND_POWER_OF_TWO_SIGNED(delta, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+
   for (i = p_row; i < p_row + p_height; i += 8) {
     for (j = p_col; j < p_col + p_width; j += 8) {
       int32_t x4, y4, ix4, sx4, iy4, sy4;
@@ -997,6 +1006,14 @@ void av1_highbd_warp_affine_c(int32_t *mat, uint16_t *ref, int width,
       iy4 = y4 >> WARPEDMODEL_PREC_BITS;
       sy4 = y4 & ((1 << WARPEDMODEL_PREC_BITS) - 1);
 
+      sx4 += alpha * (-4) + beta * (-4);
+      sy4 += gamma * (-4) + delta * (-4);
+
+      sx4 = ROUND_POWER_OF_TWO_SIGNED(sx4, WARP_FRACTIONX_REDUCE_BITS)
+            << WARP_FRACTIONX_REDUCE_BITS;
+      sy4 = ROUND_POWER_OF_TWO_SIGNED(sy4, WARP_FRACTIONY_REDUCE_BITS)
+            << WARP_FRACTIONY_REDUCE_BITS;
+
       // Horizontal filter
       for (k = -7; k < 8; ++k) {
         int iy = iy4 + k;
@@ -1018,7 +1035,7 @@ void av1_highbd_warp_affine_c(int32_t *mat, uint16_t *ref, int width,
                 (1 << (WARPEDPIXEL_FILTER_BITS - HORSHEAR_REDUCE_PREC_BITS));
           }
         } else {
-          int sx = sx4 + alpha * (-4) + beta * k;
+          int sx = sx4 + beta * (k + 4);
 
           for (l = -4; l < 4; ++l) {
             int ix = ix4 + l - 3;
@@ -1043,7 +1060,7 @@ void av1_highbd_warp_affine_c(int32_t *mat, uint16_t *ref, int width,
 
       // Vertical filter
       for (k = -4; k < AOMMIN(4, p_row + p_height - i - 4); ++k) {
-        int sy = sy4 + gamma * (-4) + delta * k;
+        int sy = sy4 + delta * (k + 4);
         for (l = -4; l < 4; ++l) {
           uint16_t *p =
               &pred[(i - p_row + k + 4) * p_stride + (j - p_col + l + 4)];
@@ -1217,6 +1234,14 @@ void av1_warp_affine_c(int32_t *mat, uint8_t *ref, int width, int height,
       assert(ref[i * stride + width + j] == ref[i * stride + (width - 1)]);
     }
   }*/
+  alpha = ROUND_POWER_OF_TWO_SIGNED(alpha, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+  beta = ROUND_POWER_OF_TWO_SIGNED(beta, WARP_BETA_PARAM_REDUCE_BITS)
+         << WARP_BETA_PARAM_REDUCE_BITS;
+  gamma = ROUND_POWER_OF_TWO_SIGNED(gamma, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+  delta = ROUND_POWER_OF_TWO_SIGNED(delta, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
 
   for (i = p_row; i < p_row + p_height; i += 8) {
     for (j = p_col; j < p_col + p_width; j += 8) {
@@ -1241,6 +1266,14 @@ void av1_warp_affine_c(int32_t *mat, uint8_t *ref, int width, int height,
       sx4 = x4 & ((1 << WARPEDMODEL_PREC_BITS) - 1);
       iy4 = y4 >> WARPEDMODEL_PREC_BITS;
       sy4 = y4 & ((1 << WARPEDMODEL_PREC_BITS) - 1);
+
+      sx4 += alpha * (-4) + beta * (-4);
+      sy4 += gamma * (-4) + delta * (-4);
+
+      sx4 = ROUND_POWER_OF_TWO_SIGNED(sx4, WARP_FRACTIONX_REDUCE_BITS)
+            << WARP_FRACTIONX_REDUCE_BITS;
+      sy4 = ROUND_POWER_OF_TWO_SIGNED(sy4, WARP_FRACTIONY_REDUCE_BITS)
+            << WARP_FRACTIONY_REDUCE_BITS;
 
       // Horizontal filter
       for (k = -7; k < 8; ++k) {
@@ -1278,7 +1311,7 @@ void av1_warp_affine_c(int32_t *mat, uint8_t *ref, int width, int height,
           // ix4 + 3 + 7 - 3 = ix4 + 7 <= width + 12
           // So, assuming that border extension has been done, we
           // don't need to explicitly clamp values.
-          int sx = sx4 + alpha * (-4) + beta * k;
+          int sx = sx4 + alpha * (4 - 4) + beta * (k + 4);
 
           for (l = -4; l < 4; ++l) {
             int ix = ix4 + l - 3;
@@ -1300,7 +1333,7 @@ void av1_warp_affine_c(int32_t *mat, uint8_t *ref, int width, int height,
 
       // Vertical filter
       for (k = -4; k < AOMMIN(4, p_row + p_height - i - 4); ++k) {
-        int sy = sy4 + gamma * (-4) + delta * k;
+        int sy = sy4 + gamma * (4 - 4) + delta * (k + 4);
         for (l = -4; l < AOMMIN(4, p_col + p_width - j - 4); ++l) {
           uint8_t *p =
               &pred[(i - p_row + k + 4) * p_stride + (j - p_col + l + 4)];

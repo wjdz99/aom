@@ -58,6 +58,23 @@ typedef struct mv32 {
 // Precision of filter taps
 #define WARPEDPIXEL_FILTER_BITS 7
 
+// Since an 8x8 is calculated at a time, and the center is projected,
+// most parameters need precision out to 4 pixels from the center at 1/64 pel.
+//  (1 / (2^8)) * 4 = 1/64.
+// 16 bit integers are used, which have 15 fractional bits, so 15 - 8 = 7
+#define WARP_DEFAULT_PARAM_REDUCE_BITS 7
+// The 8x8 calculation actually goes 8 pixels from the center for beta, because
+// of the separable convolution.
+//  (1 / (2^9)) * 8 = 1/64
+// 16 bit integers are used, which have 15 fractional bits, so 15 - 9 = 6
+#define WARP_BETA_PARAM_REDUCE_BITS 6
+// 1/64'th pixel precision, but alpha (7 frac bits) * 3 bit + beta (8 frac bits)
+// * 3 bit added
+#define WARP_FRACTIONX_REDUCE_BITS 6
+// 1/64'th pixel precision, but alpha (7 frac bits) * 3 bit + beta (7 frac bits)
+// * 3 bit added
+#define WARP_FRACTIONY_REDUCE_BITS 7
+
 // Precision bits reduction after horizontal shear
 #define HORSHEAR_REDUCE_PREC_BITS 5
 #define VERSHEAR_REDUCE_PREC_BITS \
