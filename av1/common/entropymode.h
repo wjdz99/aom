@@ -39,6 +39,9 @@ extern "C" {
 #endif  // CONFIG_COMPOUND_SINGLEREF
 #define INTER_COMPOUND_OFFSET(mode) ((mode)-NEAREST_NEARESTMV)
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_EXT_COMP_REFS
+#define INTER_REFS_OFFSET(ref) ((ref)-LAST_FRAME)
+#endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_PALETTE
 // Number of possible contexts for a color index.
@@ -213,7 +216,11 @@ typedef struct frame_contexts {
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   aom_prob intra_inter_prob[INTRA_INTER_CONTEXTS];
   aom_prob comp_inter_prob[COMP_INTER_CONTEXTS];
+#if CONFIG_EXT_COMP_REFS
+  aom_prob inter_ref0_probs[REF0_CONTEXTS][INTER_REFS_PER_FRAME - 1];
+#else
   aom_prob single_ref_prob[REF_CONTEXTS][SINGLE_REFS - 1];
+#endif  // CONFIG_EXT_COMP_REFS
 #if CONFIG_EXT_REFS
   aom_prob comp_ref_prob[REF_CONTEXTS][FWD_REFS - 1];
   aom_prob comp_bwdref_prob[REF_CONTEXTS][BWD_REFS - 1];
@@ -386,7 +393,11 @@ typedef struct FRAME_COUNTS {
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   unsigned int intra_inter[INTRA_INTER_CONTEXTS][2];
   unsigned int comp_inter[COMP_INTER_CONTEXTS][2];
+#if CONFIG_EXT_COMP_REFS
+  unsigned int inter_ref0[REF0_CONTEXTS][INTER_REFS_PER_FRAME];
+#else
   unsigned int single_ref[REF_CONTEXTS][SINGLE_REFS - 1][2];
+#endif  // CONFIG_EXT_COMP_REFS
 #if CONFIG_EXT_REFS
   unsigned int comp_ref[REF_CONTEXTS][FWD_REFS - 1][2];
   unsigned int comp_bwdref[REF_CONTEXTS][BWD_REFS - 1][2];
@@ -481,6 +492,19 @@ extern int av1_ext_tx_inter_ind[EXT_TX_SETS_INTER][TX_TYPES];
 extern int av1_ext_tx_inter_inv[EXT_TX_SETS_INTER][TX_TYPES];
 #endif
 #endif
+
+#if CONFIG_EXT_COMP_REFS
+extern const aom_tree_index
+    av1_single_or_comp_ref0_tree[TREE_SIZE(INTER_REFS_PER_FRAME)];
+extern const aom_tree_index
+    av1_comp_last_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 1)];
+extern const aom_tree_index
+    av1_comp_last2_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 2)];
+extern const aom_tree_index
+    av1_comp_last3_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 3)];
+extern const aom_tree_index
+    av1_comp_gld_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 4)];
+#endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_EXT_INTER
 #if CONFIG_INTERINTRA
