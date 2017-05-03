@@ -293,6 +293,23 @@ if (CONFIG_ACCOUNTING)
       "${AOM_ROOT}/av1/decoder/accounting.h")
 endif ()
 
+if (CONFIG_GLOBAL_MOTION)
+  set(AOM_AV1_ENCODER_SOURCES
+      ${AOM_AV1_ENCODER_SOURCES}
+      "${AOM_ROOT}/av1/encoder/corner_detect.c"
+      "${AOM_ROOT}/av1/encoder/corner_detect.h"
+      "${AOM_ROOT}/av1/encoder/corner_match.c"
+      "${AOM_ROOT}/av1/encoder/corner_match.h"
+      "${AOM_ROOT}/av1/encoder/global_motion.c"
+      "${AOM_ROOT}/av1/encoder/global_motion.h"
+      "${AOM_ROOT}/av1/encoder/ransac.c"
+      "${AOM_ROOT}/av1/encoder/ransac.h"
+      "${AOM_ROOT}/third_party/fastfeat/fast_9.c"
+      "${AOM_ROOT}/third_party/fastfeat/fast.c"
+      "${AOM_ROOT}/third_party/fastfeat/fast.h"
+      "${AOM_ROOT}/third_party/fastfeat/nonmax.c")
+endif ()
+
 if (CONFIG_INSPECTION)
   set(AOM_AV1_DECODER_SOURCES
       ${AOM_AV1_DECODER_SOURCES}
