@@ -1692,6 +1692,8 @@ int main(int argc, const char **argv_) {
   int res = 0;
   int profile_updated = 0;
 
+  srand(0);
+
   memset(&input, 0, sizeof(input));
   exec_name = argv_[0];
 
