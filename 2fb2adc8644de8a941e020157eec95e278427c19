@@ -22,6 +22,30 @@
       "revId": "2fb2adc8644de8a941e020157eec95e278427c19",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c91d951_038ab51d",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-03T01:23:25Z",
+      "side": 1,
+      "message": "\u003e Couldn\u0027t figure out why there is a diff here..\n\n-set(CONFIG_ANALYZER 0 CACHE BOOL \"Internal flag.\")\n\\ No newline at end of file\n+set(CONFIG_ANALYZER 0 CACHE BOOL \"Internal flag.\")\n\nyou happened to touch the file after it was originally added by an editor which didn\u0027t add one by default; should be fine",
+      "parentUuid": "f40cd8b1_27d0ea92",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 50
+      },
+      "revId": "2fb2adc8644de8a941e020157eec95e278427c19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
