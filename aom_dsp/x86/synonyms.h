@@ -89,6 +89,9 @@ static INLINE __m128i xx_roundn_epi32(__m128i v_val_d, int bits) {
   return _mm_srai_epi32(v_tmp_d, bits);
 }
 
+#if defined(_MSC_VER) && HAVE_SSSE3
+#define __SSSE3__
+#endif
 #ifdef __SSSE3__
 static INLINE int32_t xx_hsum_epi32_si32(__m128i v_d) {
   v_d = _mm_hadd_epi32(v_d, v_d);
@@ -116,5 +119,9 @@ static INLINE int64_t xx_hsum_epi32_si64(__m128i v_d) {
   return xx_hsum_epi64_si64(_mm_add_epi64(v_0_q, v_1_q));
 }
 #endif  // __SSSE3__
+
+#if defined(_MSC_VER) && HAVE_SSSE3
+#undef __SSSE3__
+#endif
 
 #endif  // AOM_DSP_X86_SYNONYMS_H_
