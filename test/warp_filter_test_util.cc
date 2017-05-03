@@ -15,9 +15,11 @@ using std::tr1::tuple;
 using std::tr1::make_tuple;
 using std::vector;
 using libaom_test::ACMRandom;
+using libaom_test::AV1WarpFilter::warp_affine_func;
 using libaom_test::AV1WarpFilter::AV1WarpFilterTest;
 using libaom_test::AV1WarpFilter::WarpTestParam;
 #if CONFIG_HIGHBITDEPTH
+using libaom_test::AV1HighbdWarpFilter::highbd_warp_affine_func;
 using libaom_test::AV1HighbdWarpFilter::AV1HighbdWarpFilterTest;
 using libaom_test::AV1HighbdWarpFilter::HighbdWarpTestParam;
 #endif
