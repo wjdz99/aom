@@ -16,6 +16,24 @@
       "revId": "ff9e1811a58b7be95b855c60157ac6eb0d5a1d43",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0db7377c_c270091e",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-03T00:14:27Z",
+      "side": 1,
+      "message": "This naming is pretty inconsistent in the codebase right now: but in most of the places, the convention is to put \"av1_\" prefix on any function that is declared in the header inside the \u0027av1/\" directory.",
+      "parentUuid": "e95e830d_267e5fd5",
+      "revId": "ff9e1811a58b7be95b855c60157ac6eb0d5a1d43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
