@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "545ba5fc_e59f6603",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3406,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-03T18:17:31Z",
+      "side": 1,
+      "message": "This change doesn\u0027t seem to be mentioned in the description. Is this a change in functionality?\nAlso, what will the value in \"directional_mode_skip_mask\" in this case?",
+      "revId": "d4470668f83b5f933c8ddc0df80319e6d919accf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
