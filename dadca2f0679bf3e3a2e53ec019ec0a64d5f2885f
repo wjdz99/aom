@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9904188d_d9e3db0e",
+        "filename": "aom_dsp/binary_codes_reader.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Not really. We certainly could move everything to the .h files, but would prefer to do that separately.",
+      "parentUuid": "bd65ffef_8ab45c09",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "780bc759_22c12350",
         "filename": "aom_dsp/binary_codes_reader.c",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-21T23:24:52Z",
       "side": 1,
       "message": "See aom_dsp/bitreader.h for reference on how to do a #define for each of the new reader functions defined here that take an accounting string.  Essentially, you use a #define so that the last parameter is eaten by the macro when accounting is disabled.  For example, this function would look like this:\n\n#define aom_read_primitive_quniform(r, n, ACCT_STR_NAME) \\\n  aom_read_primitive_quniform_(r, n ACCT_STR_ARG(ACCT_STR_NAME))\n\nThen the actual function definition would read (note the trailing underscore):\n\nstatic INLINE uint16_t aom_read_primitive_quniform_(aom_reader *r, uint16_t n ACCT_STR_PARAM) {",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "502325fd_8fef611e",
+        "filename": "aom_dsp/binary_codes_reader.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "780bc759_22c12350",
       "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "f2d4a526_bf15bdfa",
+        "filename": "aom_dsp/binary_codes_reader.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4dbe8a8c_5ee993c9",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa7978c6_6f054b79",
         "filename": "aom_dsp/binary_codes_reader.c",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-04-21T23:24:52Z",
       "side": 1,
       "message": "Same thing here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e0362a7_210e5b37",
+        "filename": "aom_dsp/binary_codes_reader.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa7978c6_6f054b79",
       "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "cf1069e8_a688e4eb",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4439,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed375f1a_3112de12",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9885b899_fe639809",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 1
@@ -98,6 +188,24 @@
       "writtenOn": "2017-04-21T23:24:52Z",
       "side": 1,
       "message": "Same here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f4676f5_7a66e82e",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4445,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9885b899_fe639809",
       "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "e5cb772a_2c67f3ff",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4453,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfa68cca_454cdd9f",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bd70b7d3_6e0350c1",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 1
@@ -132,6 +258,24 @@
       "writtenOn": "2017-04-21T23:24:52Z",
       "side": 1,
       "message": "Same here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4fe033ac_17b67241",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4460,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd70b7d3_6e0350c1",
       "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "96fd3abe_cb990b4d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4467,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9337e38f_6d19dde6",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "237966d9_0b8246d5",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 1
@@ -166,6 +328,24 @@
       "writtenOn": "2017-04-21T23:24:52Z",
       "side": 1,
       "message": "Same here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e0224452_d1327df9",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4473,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "237966d9_0b8246d5",
       "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "a479f9e6_6e39bc43",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4493,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "040b9ea4_14b1551d",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c27ff8e_7f87f8bc",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 1
@@ -200,6 +398,24 @@
       "writtenOn": "2017-04-21T23:24:52Z",
       "side": 1,
       "message": "Same here.",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "077545e8_c77b6edb",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4498,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c27ff8e_7f87f8bc",
       "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "5bc8a7ae_0f2f3a7d",
+        "filename": "test/binary_codes_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "281682ae_5489fd5c",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f721d4e7_d9cb0430",
         "filename": "test/binary_codes_test.cc",
         "patchSetId": 1
@@ -234,6 +468,24 @@
       "writtenOn": "2017-04-21T23:24:52Z",
       "side": 1,
       "message": "Same thing for aom_read_primitive_refsubexpfin().",
+      "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5600c0f2_cf0083a0",
+        "filename": "test/binary_codes_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-05-03T03:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f721d4e7_d9cb0430",
       "revId": "dadca2f0679bf3e3a2e53ec019ec0a64d5f2885f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
