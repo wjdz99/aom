@@ -89,6 +89,7 @@ void AV1WarpFilterTest::generate_model(int32_t *mat, int16_t *alpha,
   }
 }
 
+using namespace libaom_test::AV1WarpFilter;
 void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
   const int w = 128, h = 128;
   const int border = 16;
@@ -138,6 +139,7 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
 }
 
 #if CONFIG_HIGHBITDEPTH
+using namespace libaom_test::AV1HighbdWarpFilter;
 ::testing::internal::ParamGenerator<HighbdWarpTestParam>
 libaom_test::AV1HighbdWarpFilter::GetDefaultParams() {
   const HighbdWarpTestParam defaultParams[] = {
