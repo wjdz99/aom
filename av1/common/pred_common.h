@@ -131,6 +131,7 @@ static INLINE aom_prob av1_get_pred_prob_comp_bwdref_p(const AV1_COMMON *cm,
 }
 #endif  // CONFIG_EXT_REFS
 
+#if !CONFIG_EXT_COMP_REFS
 int av1_get_pred_context_single_ref_p1(const MACROBLOCKD *xd);
 
 static INLINE aom_prob av1_get_pred_prob_single_ref_p1(const AV1_COMMON *cm,
@@ -167,6 +168,7 @@ static INLINE aom_prob av1_get_pred_prob_single_ref_p5(const AV1_COMMON *cm,
   return cm->fc->single_ref_prob[av1_get_pred_context_single_ref_p5(xd)][4];
 }
 #endif  // CONFIG_EXT_REFS
+#endif  // !CONFIG_EXT_COMP_REFS
 
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 int av1_get_inter_mode_context(const MACROBLOCKD *xd);

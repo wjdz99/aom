@@ -986,6 +986,23 @@ static const aom_prob
     };
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
+#if CONFIG_EXT_COMP_REFS
+static const aom_prob default_inter_ref0_prob[REF0_CONTEXTS] = {
+  { 180, 140, 100,  60, 128 },  // BOTH_NEAR_FWD = 0,
+  { 120, 180, 100,  60, 128 },  // NEAR_FWD_PLUS_FAR_FWD = 1,
+  {  60, 200, 100,  60, 128 },  // BOTH_FAR_FWD = 2,
+  { 120,  40, 100,  60, 200 },  // NEAR_FWD_PLUS_NEAR_BWD = 3,
+  {  60, 128, 100,  60, 200 },  // FAR_FWD_PLUS_NEAR_BWD = 4,
+  {  60,  40, 100,  60, 210 },  // BOTH_NEAR_BWD = 5,
+  { 120,  40, 100,  60,  40 },  // NEAR_FWD_PLUS_FAR_BWD = 6,
+  {  60, 130, 100,  60,  40 },  // FAR_FWD_PLUS_FAR_BWD = 7,
+  {  50,  20, 100,  60,  40 },  // NEAR_BWD_PLUS_FAR_BWD = 8,
+  {  50,  20, 100,  60,  30 },  // BOTH_FAR_BWD = 9,
+  { 100,  80, 100,  60, 128 },  // INTER_PLUS_INTRA = 10,
+  { 120,  80, 100,  60, 128 }   // BOTH_INTRA_REFS = 11,
+};
+#endif  // CONFIG_EXT_COMP_REFS
+
 static const aom_prob default_newmv_prob[NEWMV_MODE_CONTEXTS] = {
   200, 180, 150, 150, 110, 70, 60,
 };
@@ -1220,6 +1237,45 @@ int av1_ext_tx_inter_ind[EXT_TX_SETS_INTER][TX_TYPES];
 int av1_ext_tx_inter_inv[EXT_TX_SETS_INTER][TX_TYPES];
 #endif
 #endif
+
+#if CONFIG_EXT_COMP_REFS
+/* clang-format off */
+const aom_tree_index
+av1_single_or_comp_ref0_tree[TREE_SIZE(INTER_REFS_PER_FRAME)] = {
+  LAST_FRAME, 2,
+  4, 8,
+  LAST2_FRAME, 6,
+  LAST3_FRAME, GOLDEN_FRAME,
+  BWDREF_FRAME, ALTREF_FRAME
+};
+
+const aom_tree_index
+av1_comp_last_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 1)] = {
+  LAST2_FRAME, 2,
+  4, 6,
+  LAST3_FRAME, GOLDEN_FRAME,
+  BWDREF_FRAME, ALTREF_FRAME
+};
+
+const aom_tree_index
+av1_comp_last2_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 2)] = {
+  LAST3_FRAME, 2,
+  GOLDEN_FRAME, 4,
+  BWDREF_FRAME, ALTREF_FRAME
+};
+
+const aom_tree_index
+av1_comp_last3_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 3)] = {
+  GOLDEN_FRAME, 2,
+  BWDREF_FRAME, ALTREF_FRAME
+};
+
+const aom_tree_index
+av1_comp_gld_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 4)] = {
+  BWDREF_FRAME, ALTREF_FRAME
+};
+/* clang-format on */
+#endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_ALT_INTRA
 #if CONFIG_SMOOTH_HV

@@ -810,6 +810,7 @@ int av1_get_pred_context_comp_ref_p(const AV1_COMMON *cm,
 
 #endif  // CONFIG_EXT_REFS
 
+#if !CONFIG_EXT_COMP_REFS
 #if CONFIG_EXT_REFS
 
 // For the bit to signal whether the single reference is a ALTREF_FRAME
@@ -1406,3 +1407,4 @@ int av1_get_pred_context_single_ref_p2(const MACROBLOCKD *xd) {
 }
 
 #endif  // CONFIG_EXT_REFS
+#endif  // !CONFIG_EXT_COMP_REFS
