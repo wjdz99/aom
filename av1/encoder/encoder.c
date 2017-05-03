@@ -4324,6 +4324,8 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
 #endif
     }
   } while (loop);
+
+  printf("Loop count: %d ", loop_count);
 }
 
 static int get_ref_frame_flags(const AV1_COMP *cpi) {
@@ -5682,6 +5684,18 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   }
 #endif
 
+  // DO NOT SUBMIT
+  // Resize at "random" to see what breaks
+  printf("ShowFrame: %d Frame: %d Pass: %d ", cm->show_frame,
+         cm->current_video_frame, oxcf->pass);
+  if (oxcf->resize_mode == RESIZE_DYNAMIC && oxcf->pass != 1) {
+    cpi->resize_next_scale_num = rand() % 9 + 8;
+    cpi->resize_next_scale_den = 16;
+    printf("Scale: %d:%d ", cpi->resize_next_scale_num,
+           cpi->resize_next_scale_den);
+  }
+  // / DO NOT SUBMIT
+
 #if CONFIG_XIPHRC
   if (oxcf->pass == 1) {
     size_t tmp;
@@ -5740,6 +5754,11 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 #endif
 
   aom_clear_system_state();
+
+  // DO NOT SUBMIT
+  // TODO(afergs): Delete
+  printf("\n");
+  // / DO NOT SUBMIT
 
   return 0;
 }
