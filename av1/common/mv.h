@@ -58,6 +58,10 @@ typedef struct mv32 {
 // Precision of filter taps
 #define WARPEDPIXEL_FILTER_BITS 7
 
+#define WARP_DEFAULT_PARAM_REDUCE_BITS 7
+#define WARP_BETA_PARAM_REDUCE_BITS 8
+#define WARP_FRACTION_REDUCE_BITS 9
+
 // Precision bits reduction after horizontal shear
 #define HORSHEAR_REDUCE_PREC_BITS 5
 #define VERSHEAR_REDUCE_PREC_BITS \
