@@ -103,6 +103,24 @@
       "revId": "ff9e1811a58b7be95b855c60157ac6eb0d5a1d43",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a56967f7_d58ed778",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-05-03T00:19:09Z",
+      "side": 1,
+      "message": "Ok, so would you lean toward renaming this or moving it? Renaming is a little easier, and I think it\u0027s fair to say this is part of rate control.",
+      "parentUuid": "0db7377c_c270091e",
+      "revId": "ff9e1811a58b7be95b855c60157ac6eb0d5a1d43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
