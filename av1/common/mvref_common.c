@@ -761,6 +761,41 @@ Done:
     mv_ref_list[i].as_int = zeromv.as_int;
 }
 
+#if CONFIG_EXT_COMP_REFS
+// This function obtains the context for the coding of the reference frames.
+REF0_CONTEXT av1_get_ref0_context(const MACROBLOCKD *xd) {
+  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+  const int above_in_image = xd->up_available;
+  const int left_in_image = xd->left_available;
+  int ref0[2] = { LAST_FRAME };
+
+  if (above_in_image && left_in_image) {  // both edges available
+    ref0[0] = above_mbmi->ref_frame[0];
+    ref0[1] = left_mbmi->ref_frame[0];
+  } else {
+    if (!above_in_image) ref0[0] = left_in_image ? ref0[1] : LAST_FRAME;
+    if (!left_in_image) ref0[1] = ref0[0];
+  }
+
+  const int above_intra = !is_inter_block(above_mbmi);
+  const int left_intra = !is_inter_block(left_mbmi);
+  REF0_CONTEXT ref0_context;
+
+  if (above_intra && left_intra) {
+    ref0_context = BOTH_INTRA_REFS;
+  } else if (above_intra || left_intra) {
+    ref0_context = INTER_PLUS_INTRA;
+  } else {
+    const int context_counter =
+        ref0_2_counter[ref0[0]] + ref0_2_counter[ref0[1]];
+    ref0_context = ref0_counter_to_context[context_counter];
+  }
+
+  return ref0_context;
+}
+#endif  // CONFIG_EXT_COMP_REFS
+
 #if CONFIG_EXT_INTER
 // This function keeps a mode count for a given MB/SB
 void av1_update_mv_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,

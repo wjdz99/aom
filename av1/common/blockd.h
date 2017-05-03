@@ -111,6 +111,8 @@ typedef struct {
   int stride[MAX_MB_PLANE];
 } BUFFER_SET;
 
+typedef int8_t MV_REFERENCE_FRAME;
+
 #if CONFIG_EXT_INTER
 static INLINE int is_inter_singleref_mode(PREDICTION_MODE mode) {
   return mode >= NEARESTMV && mode <= NEWMV;
@@ -259,8 +261,6 @@ typedef struct {
   int_mv ref_mv[2];
 #endif  // CONFIG_EXT_INTER
 } b_mode_info;
-
-typedef int8_t MV_REFERENCE_FRAME;
 
 #if CONFIG_PALETTE
 typedef struct {

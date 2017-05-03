@@ -92,7 +92,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
                                        struct aom_read_bit_buffer *rb);
 
 static int is_compound_reference_allowed(const AV1_COMMON *cm) {
-#if CONFIG_LOWDELAY_COMPOUND  // Normative in decoder
+#if CONFIG_LOWDELAY_COMPOUND || CONFIG_EXT_COMP_REFS  // Normative in decoder
   return !frame_is_intra_only(cm);
 #else
   int i;
@@ -101,7 +101,7 @@ static int is_compound_reference_allowed(const AV1_COMMON *cm) {
     if (cm->ref_frame_sign_bias[i + 1] != cm->ref_frame_sign_bias[1]) return 1;
 
   return 0;
-#endif
+#endif  // CONFIG_LOWDELAY_COMPOUND || CONFIG_EXT_COMP_REFS
 }
 
 static void setup_compound_reference_mode(AV1_COMMON *cm) {
@@ -259,11 +259,19 @@ static void read_frame_reference_mode_probs(AV1_COMMON *cm, aom_reader *r) {
       av1_diff_update_prob(r, &fc->comp_inter_prob[i], ACCT_STR);
 
   if (cm->reference_mode != COMPOUND_REFERENCE) {
+#if CONFIG_EXT_COMP_REFS
+    for (i = 0; i < REF0_CONTEXTS; ++i) {
+      for (j = 0; j < (INTER_REFS_PER_FRAME - 1); ++j) {
+        av1_diff_update_prob(r, &fc->inter_ref0_prob[i][j], ACCT_STR);
+      }
+    }
+#else
     for (i = 0; i < REF_CONTEXTS; ++i) {
       for (j = 0; j < (SINGLE_REFS - 1); ++j) {
         av1_diff_update_prob(r, &fc->single_ref_prob[i][j], ACCT_STR);
       }
     }
+#endif  // CONFIG_EXT_COMP_REFS
   }
 
   if (cm->reference_mode != SINGLE_REFERENCE) {
@@ -4807,8 +4815,13 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
                  sizeof(cm->counts.intra_inter)));
   assert(!memcmp(cm->counts.comp_inter, zero_counts.comp_inter,
                  sizeof(cm->counts.comp_inter)));
+#if CONFIG_EXT_COMP_REFS
+  assert(!memcmp(cm->counts.inter_ref0, zero_counts.inter_ref0,
+                 sizeof(cm->counts.inter_ref0)));
+#else
   assert(!memcmp(cm->counts.single_ref, zero_counts.single_ref,
                  sizeof(cm->counts.single_ref)));
+#endif  // CONFIG_EXT_COMP_REFS
   assert(!memcmp(cm->counts.comp_ref, zero_counts.comp_ref,
                  sizeof(cm->counts.comp_ref)));
 #if CONFIG_EXT_REFS

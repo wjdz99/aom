@@ -986,6 +986,23 @@ static const aom_prob
     };
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
+#if CONFIG_EXT_COMP_REFS
+static const aom_prob default_inter_ref0_prob[REF0_CONTEXTS] = {
+  { 160, 140, 100, 60, 128 },  // BOTH_NEAR_FWD = 0,
+  { 120, 180, 100, 60, 128 },  // NEAR_FWD_PLUS_FAR_FWD = 1,
+  { 60, 200, 100, 60, 128 },   // BOTH_FAR_FWD = 2,
+  { 100, 40, 100, 60, 200 },   // NEAR_FWD_PLUS_NEAR_BWD = 3,
+  { 60, 128, 100, 60, 200 },   // FAR_FWD_PLUS_NEAR_BWD = 4,
+  { 60, 40, 100, 60, 210 },    // BOTH_NEAR_BWD = 5,
+  { 100, 40, 100, 60, 40 },    // NEAR_FWD_PLUS_FAR_BWD = 6,
+  { 60, 130, 100, 60, 40 },    // FAR_FWD_PLUS_FAR_BWD = 7,
+  { 40, 20, 100, 60, 40 },     // NEAR_BWD_PLUS_FAR_BWD = 8,
+  { 40, 20, 100, 60, 30 },     // BOTH_FAR_BWD = 9,
+  { 80, 80, 100, 60, 128 },   // INTER_PLUS_INTRA = 10,
+  { 120, 80, 100, 60, 128 }    // BOTH_INTRA_REFS = 11,
+};
+#endif  // CONFIG_EXT_COMP_REFS
+
 static const aom_prob default_newmv_prob[NEWMV_MODE_CONTEXTS] = {
   200, 180, 150, 150, 110, 70, 60,
 };
@@ -1220,6 +1237,45 @@ int av1_ext_tx_inter_ind[EXT_TX_SETS_INTER][TX_TYPES];
 int av1_ext_tx_inter_inv[EXT_TX_SETS_INTER][TX_TYPES];
 #endif
 #endif
+
+#if CONFIG_EXT_COMP_REFS
+/* clang-format off */
+const aom_tree_index
+av1_single_or_comp_ref0_tree[TREE_SIZE(INTER_REFS_PER_FRAME)] = {
+  -INTER_REFS_OFFSET(LAST_FRAME), 2,
+  4, 8,
+  -INTER_REFS_OFFSET(LAST2_FRAME), 6,
+  -INTER_REFS_OFFSET(LAST3_FRAME), -INTER_REFS_OFFSET(GOLDEN_FRAME),
+  -INTER_REFS_OFFSET(BWDREF_FRAME), -INTER_REFS_OFFSET(ALTREF_FRAME)
+};
+
+const aom_tree_index
+av1_comp_last_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 1)] = {
+  -INTER_REFS_OFFSET(LAST2_FRAME), 2,
+  4, 6,
+  -INTER_REFS_OFFSET(LAST3_FRAME), -INTER_REFS_OFFSET(GOLDEN_FRAME),
+  -INTER_REFS_OFFSET(BWDREF_FRAME), -INTER_REFS_OFFSET(ALTREF_FRAME)
+};
+
+const aom_tree_index
+av1_comp_last2_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 2)] = {
+  -INTER_REFS_OFFSET(LAST3_FRAME), 2,
+  -INTER_REFS_OFFSET(GOLDEN_FRAME), 4,
+  -INTER_REFS_OFFSET(BWDREF_FRAME), -INTER_REFS_OFFSET(ALTREF_FRAME)
+};
+
+const aom_tree_index
+av1_comp_last3_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 3)] = {
+  -INTER_REFS_OFFSET(GOLDEN_FRAME), 2,
+  -INTER_REFS_OFFSET(BWDREF_FRAME), -INTER_REFS_OFFSET(ALTREF_FRAME)
+};
+
+const aom_tree_index
+av1_comp_gld_ref1_tree[TREE_SIZE(INTER_REFS_PER_FRAME - 4)] = {
+  -INTER_REFS_OFFSET(BWDREF_FRAME), -INTER_REFS_OFFSET(ALTREF_FRAME)
+};
+/* clang-format on */
+#endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_ALT_INTRA
 #if CONFIG_SMOOTH_HV
@@ -4384,7 +4440,11 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_EXT_REFS
   av1_copy(fc->comp_bwdref_prob, default_comp_bwdref_p);
 #endif  // CONFIG_EXT_REFS
+#if CONFIG_EXT_COMP_REFS
+  av1_copy(fc->inter_ref0_prob, default_inter_ref0_p);
+#else
   av1_copy(fc->single_ref_prob, default_single_ref_p);
+#endif  // CONFIG_EXT_COMP_REFS
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   av1_copy(fc->comp_inter_mode_prob, default_comp_inter_mode_p);
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
@@ -4610,10 +4670,17 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
                                                     counts->comp_ref[i][j]);
 #endif  // CONFIG_EXT_REFS
 
+#if CONFIG_EXT_COMP_REFS
+  for (i = 0; i < REF0_CONTEXTS; i++)
+    for (j = 0; j < (INTER_REFS_PER_FRAME - 1); j++)
+      fc->inter_ref0_prob[i][j] = av1_mode_mv_merge_probs(
+          pre_fc->inter_ref0_prob[i][j], counts->inter_ref0[i][j]);
+#else
   for (i = 0; i < REF_CONTEXTS; i++)
     for (j = 0; j < (SINGLE_REFS - 1); j++)
       fc->single_ref_prob[i][j] = av1_mode_mv_merge_probs(
           pre_fc->single_ref_prob[i][j], counts->single_ref[i][j]);
+#endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   for (i = 0; i < COMP_INTER_MODE_CONTEXTS; i++)
