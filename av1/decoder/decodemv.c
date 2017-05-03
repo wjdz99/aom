@@ -1254,6 +1254,24 @@ static REFERENCE_MODE read_block_reference_mode(AV1_COMMON *cm,
   }
 }
 
+#if CONFIG_EXT_COMP_REFS
+static MV_REFERENCE_FRAME read_ref0_frame(AV1_COMMON *const cm,
+                                          MACROBLOCKD *const xd,
+                                          aom_reader *r) {
+  REF0_CONTEXT ref0_ctx = av1_get_ref0_context(xd);
+  const int ref_frame =
+      aom_read_tree(r, av1_single_or_comp_ref0_tree,
+                    cm->fc->single_ref0_probs[ref0_ctx], ACCT_STR);
+  FRAME_COUNTS *counts = xd->counts;
+
+  if (counts) ++counts->single_ref0[ref0_ctx][ref_frame];
+
+  assert((LAST_FRAME + ref_frame) >= LAST_FRAME &&
+         (LAST_FRAME + ref_frame) <= ALTREF_FRAME);
+  return LAST_FRAME + ref_frame;
+}
+#endif  // CONFIG_EXT_COMP_REFS
+
 // Read the referncence frame
 static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             aom_reader *r, int segment_id,
@@ -1269,7 +1287,9 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     const REFERENCE_MODE mode = read_block_reference_mode(cm, xd, r);
     // FIXME(rbultje) I'm pretty sure this breaks segmentation ref frame coding
     if (mode == COMPOUND_REFERENCE) {
-#if CONFIG_LOWDELAY_COMPOUND  // Normative in decoder (for low delay)
+#if CONFIG_LOWDELAY_COMPOUND
+      // Normative in decoder (for low delay)
+      // TODO(zoeliu): To further unify the sign bias assignment
       const int idx = 1;
 #else
 #if CONFIG_EXT_REFS
@@ -1310,6 +1330,9 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
       ref_frame[idx] = cm->comp_fixed_ref;
 #endif  // CONFIG_EXT_REFS
     } else if (mode == SINGLE_REFERENCE) {
+#if CONFIG_EXT_COMP_REFS
+      ref_frame[0] = read_ref0_frame(cm, xd, r);
+#else  // !CONFIG_EXT_COMP_REFS
 #if CONFIG_EXT_REFS
       const int ctx0 = av1_get_pred_context_single_ref_p1(xd);
       const int bit0 = aom_read(r, fc->single_ref_prob[ctx0][0], ACCT_STR);
@@ -1336,7 +1359,7 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
           ref_frame[0] = bit3 ? LAST2_FRAME : LAST_FRAME;
         }
       }
-#else
+#else   // !CONFIG_EXT_REFS
       const int ctx0 = av1_get_pred_context_single_ref_p1(xd);
       const int bit0 = aom_read(r, fc->single_ref_prob[ctx0][0], ACCT_STR);
       if (counts) ++counts->single_ref[ctx0][0][bit0];
@@ -1350,6 +1373,7 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
         ref_frame[0] = LAST_FRAME;
       }
 #endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_EXT_COMP_REFS
 
       ref_frame[1] = NONE_FRAME;
     } else {
@@ -2186,6 +2210,27 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
   read_mb_interp_filter(cm, xd, mbmi, r);
 #endif  // CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION
+
+#if 0
+  // NOTE(zoeliu): For debug
+  {
+#define FRAME_TO_CHECK 1
+    if (cm->current_video_frame == FRAME_TO_CHECK &&
+        cm->reference_mode == SINGLE_REFERENCE &&
+        cm->show_frame == 0
+        ) {
+      printf(
+          "=== DECODER ===: "
+          "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
+          "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
+          "ref[1]=%d\n",
+          cm->current_video_frame, mi_row, mi_col, mbmi->mode, mbmi->sb_type,
+          cm->show_frame, mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+          mbmi->mv[1].as_mv.row, mbmi->mv[1].as_mv.col, mbmi->ref_frame[0],
+          mbmi->ref_frame[1]);
+    }
+  }
+#endif  // 0
 }
 
 static void read_inter_frame_mode_info(AV1Decoder *const pbi,

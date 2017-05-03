@@ -810,6 +810,47 @@ int av1_get_pred_context_comp_ref_p(const AV1_COMMON *cm,
 
 #endif  // CONFIG_EXT_REFS
 
+#if CONFIG_EXT_COMP_REFS
+// This function obtains the context for the coding of the reference frames.
+REF0_CONTEXT av1_get_ref0_context(const MACROBLOCKD *xd) {
+  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+  const int above_in_image = xd->up_available;
+  const int left_in_image = xd->left_available;
+  int ref0[2] = { LAST_FRAME, LAST_FRAME };
+
+  if (above_in_image && left_in_image) {  // both edges available
+    ref0[0] = above_mbmi->ref_frame[0];
+    ref0[1] = left_mbmi->ref_frame[0];
+  } else if (above_in_image || left_in_image) {  // only one edge available
+    const MB_MODE_INFO *const edge_mbmi =
+        above_in_image ? above_mbmi : left_mbmi;
+    ref0[0] = ref0[1] = edge_mbmi->ref_frame[0];
+  }
+
+  assert(ref0[0] >= INTRA_FRAME && ref0[0] <= ALTREF_FRAME &&
+         ref0[1] >= INTRA_FRAME && ref0[1] <= ALTREF_FRAME);
+
+  const int above_intra = (ref0[0] == INTRA_FRAME);
+  const int left_intra = (ref0[1] == INTRA_FRAME);
+  REF0_CONTEXT ref0_ctx;
+
+  if (above_intra && left_intra) {
+    ref0_ctx = BOTH_INTRA_REFS;
+  } else if (above_intra || left_intra) {
+    ref0_ctx = INTER_PLUS_INTRA;
+  } else {
+    const int context_counter =
+        ref0_2_counter[ref0[0]] + ref0_2_counter[ref0[1]];
+    ref0_ctx = ref0_counter_to_context[context_counter];
+    assert(ref0_ctx != INVALID_REF0_CONTEXT);
+  }
+
+  return ref0_ctx;
+}
+
+#else  // !CONFIG_EXT_COMP_REFS
+
 #if CONFIG_EXT_REFS
 
 // For the bit to signal whether the single reference is a ALTREF_FRAME
@@ -1406,3 +1447,4 @@ int av1_get_pred_context_single_ref_p2(const MACROBLOCKD *xd) {
 }
 
 #endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_EXT_COMP_REFS

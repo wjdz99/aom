@@ -4390,7 +4390,14 @@ static int get_ref_frame_flags(const AV1_COMP *cpi) {
 
   if (last3_is_last || last3_is_last2 || last3_is_alt) flags &= ~AOM_LAST3_FLAG;
 
+  // TODO(zoeliu): To consider same-side comp refs.
+#if 0  // CONFIG_EXT_COMP_REFS
+  if (gld_is_last2) flags &= ~AOM_GOLD_FLAG;
+  // Keep GOLDEN instead of LAST3.
+  if (gld_is_last3) flags &= ~AOM_LAST3_FLAG;
+#else   // !CONFIG_EXT_COMP_REFS
   if (gld_is_last2 || gld_is_last3) flags &= ~AOM_GOLD_FLAG;
+#endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_LOWDELAY_COMPOUND  // Changes LL & HL bitstream
   /* Allow biprediction between two identical frames (e.g. bwd_is_last = 1) */

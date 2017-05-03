@@ -603,6 +603,10 @@ typedef struct AV1_COMP {
   int gmparams_cost[TOTAL_REFS_PER_FRAME];
 #endif  // CONFIG_GLOBAL_MOTION
 
+#if CONFIG_EXT_COMP_REFS
+  unsigned int single_ref0_costs[REF0_CONTEXTS][INTER_REFS_PER_FRAME];
+#endif  // CONFIG_EXT_COMP_REFS
+
   int multi_arf_allowed;
   int multi_arf_enabled;
   int multi_arf_last_grp_enabled;
