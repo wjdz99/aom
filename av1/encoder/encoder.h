@@ -403,6 +403,13 @@ typedef struct AV1_COMP {
 #endif             // CONFIG_EXT_REFS
   int alt_fb_idx;
 
+#if CONFIG_HIGHDELAY_COMP
+  int backup_lst_fb_idxes[LAST_REF_FRAMES];
+  int backup_gld_fb_idx;
+  int backup_bwd_fb_idx;
+  int backup_alt_fb_idx;
+#endif  // CONFIG_HIGHDELAY_COMP
+
   int last_show_frame_buf_idx;  // last show frame buffer index
 
   int refresh_last_frame;
@@ -602,6 +609,10 @@ typedef struct AV1_COMP {
   int gmtype_cost[TRANS_TYPES];
   int gmparams_cost[TOTAL_REFS_PER_FRAME];
 #endif  // CONFIG_GLOBAL_MOTION
+
+#if CONFIG_EXT_COMP_REFS
+  unsigned int single_ref0_costs[REF0_CONTEXTS][INTER_REFS_PER_FRAME];
+#endif  // CONFIG_EXT_COMP_REFS
 
   int multi_arf_allowed;
   int multi_arf_enabled;

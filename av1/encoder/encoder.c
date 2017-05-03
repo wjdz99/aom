@@ -3153,6 +3153,28 @@ static void dump_ref_frame_images(AV1_COMP *cpi) {
 }
 #endif  // DUMP_REF_FRAME_IMAGES == 1
 
+#if CONFIG_HIGHDELAY_COMP
+static void backup_ref_frame_map_indexes(AV1_COMP *cpi) {
+  int ref_frame;
+  for (ref_frame = 0; ref_frame < LAST_REF_FRAMES; ++ref_frame)
+    cpi->backup_lst_fb_idxes[ref_frame] = cpi->lst_fb_idxes[ref_frame];
+  cpi->backup_gld_fb_idx = cpi->gld_fb_idx;
+  cpi->backup_bwd_fb_idx = cpi->bwd_fb_idx;
+  cpi->backup_alt_fb_idx = cpi->alt_fb_idx;
+}
+#endif  // CONFIG_HIGHDELAY_COMP
+
+#if CONFIG_HIGHDELAY_COMP
+static void restore_ref_frame_map_indexes(AV1_COMP *cpi) {
+  int ref_frame;
+  for (ref_frame = 0; ref_frame < LAST_REF_FRAMES; ++ref_frame)
+    cpi->lst_fb_idxes[ref_frame] = cpi->backup_lst_fb_idxes[ref_frame];
+  cpi->gld_fb_idx = cpi->backup_gld_fb_idx;
+  cpi->bwd_fb_idx = cpi->backup_bwd_fb_idx;
+  cpi->alt_fb_idx = cpi->backup_alt_fb_idx;
+}
+#endif  // CONFIG_HIGHDELAY_COMP
+
 #if CONFIG_EXT_REFS
 // This function is used to shift the virtual indices of last reference frames
 // as follows:
@@ -3183,6 +3205,10 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
   // NOTE: Save the new show frame buffer index for --test-code=warn, i.e.,
   //       for the purpose to verify no mismatch between encoder and decoder.
   if (cm->show_frame) cpi->last_show_frame_buf_idx = cm->new_fb_idx;
+
+#if CONFIG_HIGHDELAY_COMP
+  if (cm->current_video_frame > 0) restore_ref_frame_map_indexes(cpi);
+#endif  // CONFIG_HIGHDELAY_COMP
 
   if (use_upsampled_ref) {
 #if CONFIG_EXT_REFS
@@ -4330,7 +4356,11 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
   } while (loop);
 }
 
+#if CONFIG_HIGHDELAY_COMP
+static int get_ref_frame_flags(AV1_COMP *cpi) {
+#else
 static int get_ref_frame_flags(const AV1_COMP *cpi) {
+#endif  // CONFIG_HIGHDELAY_COMP
   const int *const map = cpi->common.ref_frame_map;
 
 #if CONFIG_EXT_REFS
@@ -4339,27 +4369,19 @@ static int get_ref_frame_flags(const AV1_COMP *cpi) {
   const int last3_is_last =
       map[cpi->lst_fb_idxes[2]] == map[cpi->lst_fb_idxes[0]];
   const int gld_is_last = map[cpi->gld_fb_idx] == map[cpi->lst_fb_idxes[0]];
-#if CONFIG_LOWDELAY_COMPOUND
   const int alt_is_last = map[cpi->alt_fb_idx] == map[cpi->lst_fb_idxes[0]];
   const int last3_is_last2 =
       map[cpi->lst_fb_idxes[2]] == map[cpi->lst_fb_idxes[1]];
   const int gld_is_last2 = map[cpi->gld_fb_idx] == map[cpi->lst_fb_idxes[1]];
   const int gld_is_last3 = map[cpi->gld_fb_idx] == map[cpi->lst_fb_idxes[2]];
-#else
+#if !CONFIG_LOWDELAY_COMPOUND || CONFIG_HIGHDELAY_COMP
   const int bwd_is_last = map[cpi->bwd_fb_idx] == map[cpi->lst_fb_idxes[0]];
-  const int alt_is_last = map[cpi->alt_fb_idx] == map[cpi->lst_fb_idxes[0]];
 
-  const int last3_is_last2 =
-      map[cpi->lst_fb_idxes[2]] == map[cpi->lst_fb_idxes[1]];
-  const int gld_is_last2 = map[cpi->gld_fb_idx] == map[cpi->lst_fb_idxes[1]];
   const int bwd_is_last2 = map[cpi->bwd_fb_idx] == map[cpi->lst_fb_idxes[1]];
-
-  const int gld_is_last3 = map[cpi->gld_fb_idx] == map[cpi->lst_fb_idxes[2]];
   const int bwd_is_last3 = map[cpi->bwd_fb_idx] == map[cpi->lst_fb_idxes[2]];
 
   const int bwd_is_gld = map[cpi->bwd_fb_idx] == map[cpi->gld_fb_idx];
-
-#endif
+#endif  // !CONFIG_LOWDELAY_COMPOUND || CONFIG_HIGHDELAY_COMP
   const int last2_is_alt = map[cpi->lst_fb_idxes[1]] == map[cpi->alt_fb_idx];
   const int last3_is_alt = map[cpi->lst_fb_idxes[2]] == map[cpi->alt_fb_idx];
   const int gld_is_alt = map[cpi->gld_fb_idx] == map[cpi->alt_fb_idx];
@@ -4390,7 +4412,14 @@ static int get_ref_frame_flags(const AV1_COMP *cpi) {
 
   if (last3_is_last || last3_is_last2 || last3_is_alt) flags &= ~AOM_LAST3_FLAG;
 
+  // TODO(zoeliu): To consider same-side comp refs.
+#if 0  // CONFIG_EXT_COMP_REFS
+  if (gld_is_last2) flags &= ~AOM_GOLD_FLAG;
+  // Keep GOLDEN instead of LAST3.
+  if (gld_is_last3) flags &= ~AOM_LAST3_FLAG;
+#else   // !CONFIG_EXT_COMP_REFS
   if (gld_is_last2 || gld_is_last3) flags &= ~AOM_GOLD_FLAG;
+#endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_LOWDELAY_COMPOUND  // Changes LL & HL bitstream
   /* Allow biprediction between two identical frames (e.g. bwd_is_last = 1) */
@@ -4401,6 +4430,30 @@ static int get_ref_frame_flags(const AV1_COMP *cpi) {
       (flags & AOM_BWD_FLAG))
     flags &= ~AOM_BWD_FLAG;
 #endif
+
+#if CONFIG_HIGHDELAY_COMP
+  if ((flags & AOM_BWD_FLAG) &&
+      !(bwd_is_last || bwd_is_last2 || bwd_is_last3 || bwd_is_gld)) {
+    AV1_COMMON *const cm = &cpi->common;
+    if (!(flags & AOM_LAST2_FLAG)) {
+      flags &= AOM_LAST2_FLAG;
+      cpi->lst_fb_idxes[LAST2_FRAME - LAST_FRAME] = cpi->bwd_fb_idx;
+      cm->ref_frame_sign_bias[LAST2_FRAME] =
+          cm->ref_frame_sign_bias[BWDREF_FRAME];
+/*
+    } else if (!(flags & AOM_LAST3_FLAG)) {
+      flags &= AOM_LAST3_FLAG;
+      cpi->lst_fb_idxes[LAST3_FRAME - LAST_FRAME] = cpi->bwd_fb_idx;
+      cm->ref_frame_sign_bias[LAST3_FRAME] =
+          cm->ref_frame_sign_bias[BWDREF_FRAME];
+    } else if (!(flags & AOM_GOLD_FLAG)) {
+      flags &= AOM_GOLD_FLAG;
+      cpi->gld_fb_idx = cpi->bwd_fb_idx;
+      cm->ref_frame_sign_bias[GOLDEN_FRAME] =
+          cm->ref_frame_sign_bias[BWDREF_FRAME];*/
+    }
+  }
+#endif  // CONFIG_HIGHDELAY_COMP
 #endif  // CONFIG_EXT_REFS
 
   return flags;
@@ -4536,7 +4589,7 @@ static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
   return mask;
 }
 
-#define DUMP_RECON_FRAMES 0
+#define DUMP_RECON_FRAMES 1
 
 #if DUMP_RECON_FRAMES == 1
 // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
@@ -4639,8 +4692,15 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   //     determined by the current frame properties;
   // (2) The setup of the ref_frame_flags applies to both show_existing_frame's
   //     and the other cases.
-  if (cm->current_video_frame > 0)
+  if (cm->current_video_frame > 0) {
+#if CONFIG_HIGHDELAY_COMP
+    backup_ref_frame_map_indexes(cpi);
+#endif  // CONFIG_HIGHDELAY_COMP
+    // TODO(zoeliu): To change the name of the following functions as there are
+    //               some manipulations on the virtual indexes of the reference
+    //               frames.
     cpi->ref_frame_flags = get_ref_frame_flags(cpi);
+  }
 
   if (cm->show_existing_frame) {
     // NOTE(zoeliu): In BIDIR_PRED, the existing frame to show is the current

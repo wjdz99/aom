@@ -131,6 +131,49 @@ static INLINE aom_prob av1_get_pred_prob_comp_bwdref_p(const AV1_COMMON *cm,
 }
 #endif  // CONFIG_EXT_REFS
 
+#if CONFIG_EXT_COMP_REFS
+// This is used to identify a context from the neighboring blocks for the
+// coding of the first reference frame. The code flattens an array that would
+// have two counts for 4 choices, namely:
+// NEAR_FWD (LAST) +0,
+// FAR_FWD  (LAST2, LAST3 & GOLDEN) +1,
+// NEAR_BWD (BWDREF) +3,
+// FAR_BWD  (ALTREF) +7.
+// (INTRA is handled separately).
+// This single number is then converted into a context with a single lookup
+// ( refframe_counter_to_context ).
+static const int ref0_2_counter[TOTAL_REFS_PER_FRAME] = {
+  0,  // INTRA_FRAME, handled separately
+  0,  // LAST_FRAME,
+  1,  // LAST2_FRAME,
+  1,  // LAST3_FRAME,
+  1,  // GOLDEN_FRMAE,
+  3,  // BWDREF_FRAME,
+  7,  // ALTREF_FRAME
+};
+
+static const int ref0_counter_to_context[15] = {
+  BOTH_NEAR_FWD,           // 0
+  NEAR_FWD_PLUS_FAR_FWD,   // 1
+  BOTH_FAR_FWD,            // 2
+  NEAR_FWD_PLUS_NEAR_BWD,  // 3
+  FAR_FWD_PLUS_NEAR_BWD,   // 4
+  INVALID_REF0_CONTEXT,    // 5
+  BOTH_NEAR_BWD,           // 6
+  NEAR_FWD_PLUS_FAR_BWD,   // 7
+  FAR_FWD_PLUS_FAR_BWD,    // 8
+  INVALID_REF0_CONTEXT,    // 9
+  NEAR_BWD_PLUS_FAR_BWD,   // 10
+  INVALID_REF0_CONTEXT,    // 11
+  INVALID_REF0_CONTEXT,    // 12
+  INVALID_REF0_CONTEXT,    // 13
+  BOTH_FAR_BWD             // 14
+};
+
+REF0_CONTEXT av1_get_ref0_context(const MACROBLOCKD *xd);
+
+#else  // !CONFIG_EXT_COMP_REFS
+
 int av1_get_pred_context_single_ref_p1(const MACROBLOCKD *xd);
 
 static INLINE aom_prob av1_get_pred_prob_single_ref_p1(const AV1_COMMON *cm,
@@ -167,6 +210,7 @@ static INLINE aom_prob av1_get_pred_prob_single_ref_p5(const AV1_COMMON *cm,
   return cm->fc->single_ref_prob[av1_get_pred_context_single_ref_p5(xd)][4];
 }
 #endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 int av1_get_inter_mode_context(const MACROBLOCKD *xd);

@@ -2144,6 +2144,10 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
                           [ref0 == GOLDEN_FRAME]++;
 #endif  // CONFIG_EXT_REFS
         } else {
+#if CONFIG_EXT_COMP_REFS
+          ++counts
+                ->single_ref0[av1_get_ref0_context(xd)][INTER_REF_OFFSET(ref0)];
+#else  // !CONFIG_EXT_COMP_REFS
 #if CONFIG_EXT_REFS
           const int bit = (ref0 == ALTREF_FRAME || ref0 == BWDREF_FRAME);
 
@@ -2171,6 +2175,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
                               [ref0 != GOLDEN_FRAME]++;
           }
 #endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_EXT_COMP_REFS
         }
 
 #if CONFIG_EXT_INTER && CONFIG_INTERINTRA
