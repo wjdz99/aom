@@ -12,8 +12,14 @@
 #ifndef AOM_PORTS_MSVC_H_
 #define AOM_PORTS_MSVC_H_
 #ifdef _MSC_VER
+#include <stdlib.h>
 
 #include "./aom_config.h"
+
+static INLINE int rand_r(int* seed) {
+  (void)seed;
+  return rand();
+}
 
 #if _MSC_VER < 1900  // VS2015 provides snprintf
 #define snprintf _snprintf
