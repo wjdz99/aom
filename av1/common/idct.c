@@ -1589,8 +1589,6 @@ static void inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
 
 #if CONFIG_HIGHBITDEPTH
 
-const TXFM_2D_CFG *inv_txfm_cfg_ls[TX_TYPES][TX_SIZES];
-
 typedef struct {
   const int8_t *cos_bit;
   const int8_t *stage_range;
