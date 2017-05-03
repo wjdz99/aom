@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "252ccd1b_ade67476",
+        "filename": "third_party/googletest/src/googletest/src/gtest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-03T00:54:27Z",
+      "side": 1,
+      "message": "We probably want to fix these upstream in googletest repo.\nOR\nput a note about this change in https://aomedia.googlesource.com/aom/+/master/third_party/googletest/README.libaom\n(something like: \u003cchange git hash\u003e: \u003cOne line title of patch\u003e\"",
+      "revId": "2ca52b5ef9c8002050fbeb0b2485d415f36c33dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81f6a6c6_fc7040bc",
+        "filename": "third_party/googletest/src/googletest/src/gtest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-03T00:54:27Z",
+      "side": 1,
+      "message": "uint64_t --\u003e UInt64 (to be consistent locally)?",
+      "range": {
+        "startLine": 313,
+        "startChar": 27,
+        "endLine": 313,
+        "endChar": 35
+      },
+      "revId": "2ca52b5ef9c8002050fbeb0b2485d415f36c33dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c2f603d_88ca8ea4",
+        "filename": "third_party/googletest/src/googletest/src/gtest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-03T00:54:27Z",
+      "side": 1,
+      "message": "You probably need to explicitly cast the final result down to UInt32 at the end to avoid a new warning.",
+      "revId": "2ca52b5ef9c8002050fbeb0b2485d415f36c33dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
