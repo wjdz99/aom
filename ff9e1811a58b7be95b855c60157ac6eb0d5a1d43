@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "a92ab50e_f649d369",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1239,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-05-03T00:17:40Z",
+      "side": 1,
+      "message": "Should I just remove this? It\u0027s part of the interface so I\u0027m a little hesitant but it\u0027s just a one-liner that calls another function.",
+      "range": {
+        "startLine": 1238,
+        "startChar": 0,
+        "endLine": 1239,
+        "endChar": 70
+      },
+      "revId": "ff9e1811a58b7be95b855c60157ac6eb0d5a1d43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bde3b7f_699490b3",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1245,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-05-03T00:17:40Z",
+      "side": 1,
+      "message": "Scales from the original resolution instead of the current resolution. This seems more reliable to me.",
+      "range": {
+        "startLine": 1245,
+        "startChar": 6,
+        "endLine": 1245,
+        "endChar": 21
+      },
+      "revId": "ff9e1811a58b7be95b855c60157ac6eb0d5a1d43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "376a6973_ebe06dd3",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-05-03T00:17:40Z",
+      "side": 1,
+      "message": "This isn\u0027t really needed. Remove?",
+      "range": {
+        "startLine": 182,
+        "startChar": 53,
+        "endLine": 182,
+        "endChar": 58
+      },
+      "revId": "ff9e1811a58b7be95b855c60157ac6eb0d5a1d43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e95e830d_267e5fd5",
         "filename": "av1/encoder/ratectrl.h",
         "patchSetId": 3
