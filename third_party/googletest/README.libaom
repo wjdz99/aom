@@ -22,3 +22,5 @@ Local Modifications:
     CONTRIBUTORS
     LICENSE
     README.md
+
+- 2cf5e7a: Silence integer sanitizaton warnings
