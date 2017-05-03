@@ -947,6 +947,32 @@ int av1_ext_tx_inter_inv[EXT_TX_SETS_INTER][TX_TYPES];
 #endif
 #endif
 
+#if CONFIG_COMP_REFS
+/* clang-format off */
+const aom_tree_index av1_single_ref_tree[TREE_SIZE(INTER_REFS_PER_FRAME)] = {
+  LAST_FRAME, 2,
+  LAST2_FRAME, 4,
+  6, 8,
+  LAST3_FRAME, GOLDEN_FRAME,
+  BWDREF_FRAME, ALTREF_FRAME
+};
+
+const aom_tree_index av1_comp_ref_tree[TREE_SIZE(COMP_REF_TYPES)] = {
+  2, 20,
+  4, BWDREF_ALTREF_FRAME,
+  6, 12,
+  LAST_LAST2_FRAME, 8,
+  LAST_GOLDEN_FRAME, 10,
+  LAST_BWDREF_FRAME, LAST_ALTREF_FRAME,
+  14, 18,
+  LAST2_GOLDEN_FRAME, 16,
+  LAST2_BWDREF_FRAME, LAST2_ALTREF_FRAME,
+  GOLDEN_BWDREF_FRAME, GOLDEN_ALTREF_FRAME,
+  LAST3_BWDREF_FRAME, LAST3_ALTREF_FRAME
+};
+/* clang-format on */
+#endif  // CONFIG_COMP_REFS
+
 #if CONFIG_ALT_INTRA
 const aom_tree_index av1_intra_mode_tree[TREE_SIZE(INTRA_MODES)] = {
   -DC_PRED,   2,            /* 0 = DC_NODE */

@@ -106,8 +106,14 @@ static const int filter_sets[DUAL_FILTER_SET_SIZE][2] = {
 #endif  // CONFIG_EXT_REFS
 
 #if CONFIG_EXT_REFS
+#if CONFIG_COMP_REFS
+#define SECOND_REF_FRAME_MASK                                       \
+  ((1 << ALTREF_FRAME) | (1 << BWDREF_FRAME) | (1 << LAST2_FRAME) | \
+   (1 << GOLDEN_FRAME) | 0x01)
+#else  // !CONFIG_COMP_REFS
 #define SECOND_REF_FRAME_MASK ((1 << ALTREF_FRAME) | (1 << BWDREF_FRAME) | 0x01)
-#else
+#endif  // CONFIG_COMP_REFS
+#else   // !CONFIG_EXT_REFS
 #define SECOND_REF_FRAME_MASK ((1 << ALTREF_FRAME) | 0x01)
 #endif  // CONFIG_EXT_REFS
 
@@ -195,6 +201,11 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { NEAREST_NEARESTMV, { LAST2_FRAME, BWDREF_FRAME } },
   { NEAREST_NEARESTMV, { LAST3_FRAME, BWDREF_FRAME } },
   { NEAREST_NEARESTMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+#if CONFIG_COMP_REFS
+  { NEAREST_NEARESTMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEAREST_NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEAREST_NEARESTMV, { BWDREF_FRAME, ALTREF_FRAME } },
+#endif  // CONFIG_COMP_REFS
 #endif  // CONFIG_EXT_REFS
 
 #else  // CONFIG_EXT_INTER
@@ -302,6 +313,38 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { NEAR_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
   { NEW_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
   { ZERO_ZEROMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+
+#if CONFIG_COMP_REFS
+  { NEAR_NEARESTMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEAREST_NEARMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEAR_NEARMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEW_NEARESTMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEAREST_NEWMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEW_NEARMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEAR_NEWMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEW_NEWMV, { LAST_FRAME, LAST2_FRAME } },
+  { ZERO_ZEROMV, { LAST_FRAME, LAST2_FRAME } },
+
+  { NEAR_NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEAREST_NEARMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEAR_NEARMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEW_NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEAREST_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEW_NEARMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEAR_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEW_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { ZERO_ZEROMV, { LAST_FRAME, GOLDEN_FRAME } },
+
+  { NEAR_NEARESTMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEAREST_NEARMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEAR_NEARMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEW_NEARESTMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEAREST_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEW_NEARMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEAR_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEW_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { ZERO_ZEROMV, { BWDREF_FRAME, ALTREF_FRAME } },
+#endif  // CONFIG_COMP_REFS
 #endif  // CONFIG_EXT_REFS
 
 #else  // CONFIG_EXT_INTER
@@ -9840,6 +9883,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 // Skip checking missing references in both single and compound reference
 // modes. Note that a mode will be skipped iff both reference frames
 // are masked out.
+#if CONFIG_EXT_REFS && CONFIG_COMP_REFS
+      ref_frame_skip_mask[0] |= (1 << ref_frame);
+      ref_frame_skip_mask[1] |= ((1 << ref_frame) | 0x01);
+#else  // !(CONFIG_EXT_REFS && CONFIG_COMP_REFS)
 #if CONFIG_EXT_REFS
       if (ref_frame == BWDREF_FRAME || ref_frame == ALTREF_FRAME) {
         ref_frame_skip_mask[0] |= (1 << ref_frame);
@@ -9851,6 +9898,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_EXT_REFS
       }
 #endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_EXT_REFS && CONFIG_COMP_REFS
     } else {
       for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
         // Skip fixed mv modes for poor references

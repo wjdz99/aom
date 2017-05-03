@@ -117,6 +117,95 @@ typedef struct {
   int stride[MAX_MB_PLANE];
 } BUFFER_SET;
 
+typedef int8_t MV_REFERENCE_FRAME;
+
+#if CONFIG_COMP_REFS
+static INLINE MV_REFERENCE_FRAME comp_ref_frame0(COMP_REF_TYPE comp_ref_type) {
+  static int lut[COMP_REF_TYPES] = {
+    LAST_FRAME,    // LAST_LAST2_FRAME,
+    LAST_FRAME,    // LAST_GOLDEN_FRAME,
+    LAST_FRAME,    // LAST_BWDREF_FRAME,
+    LAST_FRAME,    // LAST_ALTREF_FRAME,
+    LAST2_FRAME,   // LAST2_GOLDEN_FRAME,
+    LAST2_FRAME,   // LAST2_BWDREF_FRAME,
+    LAST2_FRAME,   // LAST2_ALTREF_FRAME,
+    GOLDEN_FRAME,  // GOLDEN_BWDREF_FRAME,
+    GOLDEN_FRAME,  // GOLDEN_ALTREF_FRAME,
+    BWDREF_FRAME,  // BWDREF_ALTREF_FRAME,
+    LAST3_FRAME,   // LAST3_BWDREF_FRAME,
+    LAST3_FRAME    // LAST3_ALTREF_FRAME,
+  };
+  return lut[comp_ref_type];
+}
+
+static INLINE MV_REFERENCE_FRAME comp_ref_frame1(COMP_REF_TYPE comp_ref_type) {
+  static int lut[COMP_REF_TYPES] = {
+    LAST2_FRAME,   // LAST_LAST2_FRAME,
+    GOLDEN_FRAME,  // LAST_GOLDEN_FRAME,
+    BWDREF_FRAME,  // LAST_BWDREF_FRAME,
+    ALTREF_FRAME,  // LAST_ALTREF_FRAME,
+    GOLDEN_FRAME,  // LAST2_GOLDEN_FRAME,
+    BWDREF_FRAME,  // LAST2_BWDREF_FRAME,
+    ALTREF_FRAME,  // LAST2_ALTREF_FRAME,
+    BWDREF_FRAME,  // GOLDEN_BWDREF_FRAME,
+    ALTREF_FRAME,  // GOLDEN_ALTREF_FRAME,
+    ALTREF_FRAME,  // BWDREF_ALTREF_FRAME,
+    BWDREF_FRAME,  // LAST3_BWDREF_FRAME,
+    ALTREF_FRAME   // LAST3_ALTREF_FRAME,
+  };
+  return lut[comp_ref_type];
+}
+
+static INLINE COMP_REF_TYPE get_comp_ref_type(MV_REFERENCE_FRAME ref_frame[2]) {
+  COMP_REF_TYPE comp_ref_type;
+
+  if (ref_frame[0] == LAST_FRAME) {
+    if (ref_frame[1] == LAST2_FRAME)
+      comp_ref_type = LAST_LAST2_FRAME;
+    else if (ref_frame[1] == GOLDEN_FRAME)
+      comp_ref_type = LAST_GOLDEN_FRAME;
+    else if (ref_frame[1] == BWDREF_FRAME)
+      comp_ref_type = LAST_BWDREF_FRAME;
+    else if (ref_frame[1] == ALTREF_FRAME)
+      comp_ref_type = LAST_ALTREF_FRAME;
+    else
+      comp_ref_type = COMP_REF_INVALID;
+  } else if (ref_frame[0] == LAST2_FRAME) {
+    if (ref_frame[1] == GOLDEN_FRAME)
+      comp_ref_type = LAST2_GOLDEN_FRAME;
+    else if (ref_frame[1] == BWDREF_FRAME)
+      comp_ref_type = LAST2_BWDREF_FRAME;
+    else if (ref_frame[1] == ALTREF_FRAME)
+      comp_ref_type = LAST2_ALTREF_FRAME;
+    else
+      comp_ref_type = COMP_REF_INVALID;
+  } else if (ref_frame[0] == GOLDEN_FRAME) {
+    if (ref_frame[1] == BWDREF_FRAME)
+      comp_ref_type = GOLDEN_BWDREF_FRAME;
+    else if (ref_frame[1] == ALTREF_FRAME)
+      comp_ref_type = GOLDEN_ALTREF_FRAME;
+    else
+      comp_ref_type = COMP_REF_INVALID;
+  } else if (ref_frame[0] == BWDREF_FRAME) {
+    if (ref_frame[1] == ALTREF_FRAME)
+      comp_ref_type = BWDREF_ALTREF_FRAME;
+    else
+      comp_ref_type = COMP_REF_INVALID;
+  } else if (ref_frame[0] == LAST3_FRAME) {
+    if (ref_frame[1] == BWDREF_FRAME)
+      comp_ref_type = LAST3_BWDREF_FRAME;
+    else if (ref_frame[1] == ALTREF_FRAME)
+      comp_ref_type = LAST3_ALTREF_FRAME;
+    else
+      comp_ref_type = COMP_REF_INVALID;
+  } else {
+    comp_ref_type = COMP_REF_INVALID;
+  }
+
+  return comp_ref_type;
+}
+#endif  // CONFIG_COMP_REFS
+
 #if CONFIG_EXT_INTER
 static INLINE int is_inter_singleref_mode(PREDICTION_MODE mode) {
   return mode >= NEARESTMV && mode <= NEWMV;
@@ -267,8 +356,6 @@ typedef struct {
   int_mv ref_mv[2];
 #endif  // CONFIG_EXT_INTER
 } b_mode_info;
-
-typedef int8_t MV_REFERENCE_FRAME;
 
 #if CONFIG_PALETTE
 typedef struct {
