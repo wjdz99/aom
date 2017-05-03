@@ -11311,14 +11311,20 @@ PALETTE_EXIT:
 #if CONFIG_GLOBAL_MOTION
       const MV_REFERENCE_FRAME refs[2] = { best_mbmode.ref_frame[0],
                                            best_mbmode.ref_frame[1] };
-      zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]],
-                                              cm->allow_high_precision_mv,
-                                              bsize, mi_col, mi_row, 0)
-                             .as_int;
-      zeromv[1].as_int = gm_get_motion_vector(&cm->global_motion[refs[1]],
-                                              cm->allow_high_precision_mv,
-                                              bsize, mi_col, mi_row, 0)
-                             .as_int;
+      if (refs[0] > INTRA_FRAME)
+        zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]],
+                                                cm->allow_high_precision_mv,
+                                                bsize, mi_col, mi_row, 0)
+            .as_int;
+      else
+        zeromv[0].as_int = 0;
+      if (refs[1] > INTRA_FRAME)
+        zeromv[1].as_int = gm_get_motion_vector(&cm->global_motion[refs[1]],
+                                                cm->allow_high_precision_mv,
+                                                bsize, mi_col, mi_row, 0)
+            .as_int;
+      else
+        zeromv[1].as_int = 0;
       lower_mv_precision(&zeromv[0].as_mv, cm->allow_high_precision_mv);
       lower_mv_precision(&zeromv[1].as_mv, cm->allow_high_precision_mv);
 #else
