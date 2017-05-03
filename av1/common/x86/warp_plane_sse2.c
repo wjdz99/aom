@@ -26,6 +26,15 @@ void av1_warp_affine_sse2(int32_t *mat, uint8_t *ref, int width, int height,
   __m128i tmp[15];
   int i, j, k;
 
+  alpha = ROUND_POWER_OF_TWO_SIGNED(alpha, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+  beta = ROUND_POWER_OF_TWO_SIGNED(beta, WARP_BETA_PARAM_REDUCE_BITS)
+         << WARP_BETA_PARAM_REDUCE_BITS;
+  gamma = ROUND_POWER_OF_TWO_SIGNED(gamma, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+  delta = ROUND_POWER_OF_TWO_SIGNED(delta, WARP_DEFAULT_PARAM_REDUCE_BITS)
+          << WARP_DEFAULT_PARAM_REDUCE_BITS;
+
   /* Note: For this code to work, the left/right frame borders need to be
      extended by at least 13 pixels each. By the time we get here, other
      code will have set up this border, but we allow an explicit check
@@ -66,6 +75,11 @@ void av1_warp_affine_sse2(int32_t *mat, uint8_t *ref, int width, int height,
       sx4 = x4 & ((1 << WARPEDMODEL_PREC_BITS) - 1);
       iy4 = y4 >> WARPEDMODEL_PREC_BITS;
       sy4 = y4 & ((1 << WARPEDMODEL_PREC_BITS) - 1);
+
+      sx4 = ROUND_POWER_OF_TWO_SIGNED(sx4, WARP_FRACTION_REDUCE_BITS)
+            << WARP_FRACTION_REDUCE_BITS;
+      sy4 = ROUND_POWER_OF_TWO_SIGNED(sy4, WARP_FRACTION_REDUCE_BITS)
+            << WARP_FRACTION_REDUCE_BITS;
 
       // Horizontal filter
       for (k = -7; k < AOMMIN(8, p_height - i); ++k) {
