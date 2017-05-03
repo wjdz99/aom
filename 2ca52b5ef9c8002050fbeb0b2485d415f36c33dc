@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "ca8af615_c938ccf8",
+        "filename": "third_party/googletest/src/googletest/src/gtest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-03T01:59:34Z",
+      "side": 1,
+      "message": "\u003e I split this change up to a different commit with these canges.\n\nAlex already upstreamed something, I don\u0027t know what the state is. In any case don\u0027t bother with things from /usr or third_party/ they won\u0027t fail a build. Nor will unaligned access warnings on platform\u0027s where it\u0027s defined, e.g., x86/. You\u0027re just after what comes up as normal on the ubsan dashboard.\nHaving none would be easiest, but getting rid of the regular warnings will help bisect nightly failures",
+      "parentUuid": "206d2225_f75bb541",
+      "revId": "2ca52b5ef9c8002050fbeb0b2485d415f36c33dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "81f6a6c6_fc7040bc",
         "filename": "third_party/googletest/src/googletest/src/gtest.cc",
         "patchSetId": 1
