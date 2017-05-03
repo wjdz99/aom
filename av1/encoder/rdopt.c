@@ -106,8 +106,14 @@ static const int filter_sets[DUAL_FILTER_SET_SIZE][2] = {
 #endif  // CONFIG_EXT_REFS
 
 #if CONFIG_EXT_REFS
+#if 0  // CONFIG_EXT_COMP_REFS
+#define SECOND_REF_FRAME_MASK                                       \
+  ((1 << ALTREF_FRAME) | (1 << BWDREF_FRAME) | (1 << LAST2_FRAME) | \
+   (1 << LAST3_FRAME) | (1 << GOLDEN_FRAME) | 0x01)
+#else  // !CONFIG_EXT_COMP_REFS
 #define SECOND_REF_FRAME_MASK ((1 << ALTREF_FRAME) | (1 << BWDREF_FRAME) | 0x01)
-#else
+#endif  // CONFIG_EXT_COMP_REFS
+#else   // !CONFIG_EXT_REFS
 #define SECOND_REF_FRAME_MASK ((1 << ALTREF_FRAME) | 0x01)
 #endif  // CONFIG_EXT_REFS
 
@@ -195,6 +201,11 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { NEAREST_NEARESTMV, { LAST2_FRAME, BWDREF_FRAME } },
   { NEAREST_NEARESTMV, { LAST3_FRAME, BWDREF_FRAME } },
   { NEAREST_NEARESTMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+#if 0  // CONFIG_EXT_COMP_REFS
+  { NEAREST_NEARESTMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEAREST_NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEAREST_NEARESTMV, { BWDREF_FRAME, ALTREF_FRAME } },
+#endif  // CONFIG_EXT_COMP_REFS
 #endif  // CONFIG_EXT_REFS
 
 #else  // CONFIG_EXT_INTER
@@ -306,6 +317,38 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { NEAR_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
   { NEW_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
   { ZERO_ZEROMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+
+#if 0  // CONFIG_EXT_COMP_REFS
+  { NEAR_NEARESTMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEAREST_NEARMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEAR_NEARMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEW_NEARESTMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEAREST_NEWMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEW_NEARMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEAR_NEWMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEW_NEWMV, { LAST_FRAME, LAST2_FRAME } },
+  { ZERO_ZEROMV, { LAST_FRAME, LAST2_FRAME } },
+
+  { NEAR_NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEAREST_NEARMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEAR_NEARMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEW_NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEAREST_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEW_NEARMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEAR_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { NEW_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
+  { ZERO_ZEROMV, { LAST_FRAME, GOLDEN_FRAME } },
+
+  { NEAR_NEARESTMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEAREST_NEARMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEAR_NEARMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEW_NEARESTMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEAREST_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEW_NEARMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEAR_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { NEW_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
+  { ZERO_ZEROMV, { BWDREF_FRAME, ALTREF_FRAME } },
+#endif  // CONFIG_EXT_COMP_REFS
 #endif  // CONFIG_EXT_REFS
 
 #else  // CONFIG_EXT_INTER
@@ -6588,11 +6631,20 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
   return bsi->segment_rd;
 }
 
+#if CONFIG_EXT_COMP_REFS
+static void estimate_ref_frame_costs(const AV1_COMP *cpi, const MACROBLOCKD *xd,
+                                     int segment_id,
+                                     unsigned int *ref_costs_single,
+                                     unsigned int *ref_costs_comp,
+                                     aom_prob *comp_mode_p) {
+  const AV1_COMMON *const cm = &cpi->common;
+#else   // !CONFIG_EXT_COMP_REFS
 static void estimate_ref_frame_costs(const AV1_COMMON *cm,
                                      const MACROBLOCKD *xd, int segment_id,
                                      unsigned int *ref_costs_single,
                                      unsigned int *ref_costs_comp,
                                      aom_prob *comp_mode_p) {
+#endif  // CONFIG_EXT_COMP_REFS
   int seg_ref_active =
       segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME);
   if (seg_ref_active) {
@@ -6614,6 +6666,14 @@ static void estimate_ref_frame_costs(const AV1_COMMON *cm,
     ref_costs_single[INTRA_FRAME] = av1_cost_bit(intra_inter_p, 0);
 
     if (cm->reference_mode != COMPOUND_REFERENCE) {
+#if CONFIG_EXT_COMP_REFS
+      MV_REFERENCE_FRAME ref_frame;
+      for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+        ref_costs_single[ref_frame] =
+            cpi->inter_ref0_costs[av1_get_ref0_context(xd)]
+                                 [INTER_REFS_OFFSET(ref_frame)];
+      }
+#else  // !CONFIG_EXT_COMP_REFS
       aom_prob ref_single_p1 = av1_get_pred_prob_single_ref_p1(cm, xd);
       aom_prob ref_single_p2 = av1_get_pred_prob_single_ref_p2(cm, xd);
 #if CONFIG_EXT_REFS
@@ -6661,6 +6721,7 @@ static void estimate_ref_frame_costs(const AV1_COMMON *cm,
       ref_costs_single[GOLDEN_FRAME] += av1_cost_bit(ref_single_p2, 0);
       ref_costs_single[ALTREF_FRAME] += av1_cost_bit(ref_single_p2, 1);
 #endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_EXT_COMP_REFS
     } else {
       ref_costs_single[LAST_FRAME] = 512;
 #if CONFIG_EXT_REFS
@@ -9662,8 +9723,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   }
 #endif  // CONFIG_PALETTE
 
+#if CONFIG_EXT_COMP_REFS
+  estimate_ref_frame_costs(cpi, xd, segment_id, ref_costs_single,
+                           ref_costs_comp, &comp_mode_p);
+#else   // !CONFIG_EXT_COMP_REFS
   estimate_ref_frame_costs(cm, xd, segment_id, ref_costs_single, ref_costs_comp,
                            &comp_mode_p);
+#endif  // CONFIG_EXT_COMP_REFS
 
   for (i = 0; i < REFERENCE_MODES; ++i) best_pred_rd[i] = INT64_MAX;
   for (i = 0; i < TX_SIZES_ALL; i++) rate_uv_intra[i] = INT_MAX;
@@ -9764,6 +9830,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 // Skip checking missing references in both single and compound reference
 // modes. Note that a mode will be skipped iff both reference frames
 // are masked out.
+#if 0  // CONFIG_EXT_COMP_REFS
+      ref_frame_skip_mask[0] |= (1 << ref_frame);
+      ref_frame_skip_mask[1] |= ((1 << ref_frame) | 0x01);
+#else  // !CONFIG_EXT_COMP_REFS
 #if CONFIG_EXT_REFS
       if (ref_frame == BWDREF_FRAME || ref_frame == ALTREF_FRAME) {
         ref_frame_skip_mask[0] |= (1 << ref_frame);
@@ -9775,6 +9845,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_EXT_REFS
       }
 #endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_EXT_COMP_REFS
     } else {
       for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
         // Skip fixed mv modes for poor references
@@ -9803,6 +9874,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     // because they may result in zero-zero MVs but be cheaper.
     if (cpi->rc.is_src_frame_alt_ref && (cpi->oxcf.arnr_max_frames == 0)) {
       int_mv zeromv;
+      // NOTE: Only ALTREF_FRAME is used.
       ref_frame_skip_mask[0] = (1 << LAST_FRAME) |
 #if CONFIG_EXT_REFS
                                (1 << LAST2_FRAME) | (1 << LAST3_FRAME) |
@@ -9810,8 +9882,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_EXT_REFS
                                (1 << GOLDEN_FRAME);
       ref_frame_skip_mask[1] = SECOND_REF_FRAME_MASK;
-      // TODO(zoeliu): To further explore whether following needs to be done for
-      //               BWDREF_FRAME as well.
       mode_skip_mask[ALTREF_FRAME] = ~INTER_NEAREST_NEAR_ZERO;
 #if CONFIG_GLOBAL_MOTION
       zeromv.as_int = gm_get_motion_vector(&cm->global_motion[ALTREF_FRAME],
@@ -11304,8 +11374,13 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   (void)mi_row;
   (void)mi_col;
 
+#if CONFIG_EXT_COMP_REFS
+  estimate_ref_frame_costs(cpi, xd, segment_id, ref_costs_single,
+                           ref_costs_comp, &comp_mode_p);
+#else   // !CONFIG_EXT_COMP_REFS
   estimate_ref_frame_costs(cm, xd, segment_id, ref_costs_single, ref_costs_comp,
                            &comp_mode_p);
+#endif  // CONFIG_EXT_COMP_REFS
 
   for (i = 0; i < TOTAL_REFS_PER_FRAME; ++i) x->pred_sse[i] = INT_MAX;
   for (i = LAST_FRAME; i < TOTAL_REFS_PER_FRAME; ++i)
@@ -11518,8 +11593,13 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
       seg_mvs[i][j].as_int = INVALID_MV;
   }
 
+#if CONFIG_EXT_COMP_REFS
+  estimate_ref_frame_costs(cpi, xd, segment_id, ref_costs_single,
+                           ref_costs_comp, &comp_mode_p);
+#else   // !CONFIG_EXT_COMP_REFS
   estimate_ref_frame_costs(cm, xd, segment_id, ref_costs_single, ref_costs_comp,
                            &comp_mode_p);
+#endif  // CONFIG_EXT_COMP_REFS
 
   for (i = 0; i < REFERENCE_MODES; ++i) best_pred_rd[i] = INT64_MAX;
   rate_uv_intra = INT_MAX;

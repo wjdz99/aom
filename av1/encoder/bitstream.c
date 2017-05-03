@@ -70,6 +70,10 @@ static const struct av1_token ext_partition_encodings[EXT_PARTITION_TYPES] = {
 };
 #endif
 static struct av1_token partition_encodings[PARTITION_TYPES];
+
+#if CONFIG_EXT_COMP_REFS
+static struct av1_token inter_ref0_encodings[INTER_REFS_PER_FRAME];
+#endif  // CONFIG_EXT_COMP_REFS
 #if CONFIG_EXT_INTER
 static const struct av1_token
     inter_compound_mode_encodings[INTER_COMPOUND_MODES] = {
@@ -161,6 +165,10 @@ void av1_encode_token_init(void) {
   av1_tokens_from_tree(intra_mode_encodings, av1_intra_mode_tree);
   av1_tokens_from_tree(switchable_interp_encodings, av1_switchable_interp_tree);
   av1_tokens_from_tree(partition_encodings, av1_partition_tree);
+
+#if CONFIG_EXT_COMP_REFS
+  av1_tokens_from_tree(inter_ref0_encodings, av1_single_or_comp_ref0_tree);
+#endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_PALETTE
   av1_tokens_from_tree(palette_size_encodings, av1_palette_size_tree);
@@ -1201,6 +1209,18 @@ static void write_segment_id(aom_writer *w, const struct segmentation *seg,
   }
 }
 
+#if CONFIG_EXT_COMP_REFS
+static void write_ref0_frame(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                             const MV_REFERENCE_FRAME ref0_frame,
+                             aom_writer *w) {
+  const REF0_CONTEXT ref0_ctx = av1_get_ref0_context(xd);
+  const aom_prob *const inter_ref0_probs = cm->fc->inter_ref0_probs[ref0_ctx];
+
+  av1_write_token(w, av1_single_or_comp_ref0_tree, inter_ref0_probs,
+                  &inter_ref0_encodings[INTER_REFS_OFFSET(ref0_frame)]);
+}
+#endif  // CONFIG_EXT_COMP_REFS
+
 // This function encodes the reference frame
 static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                              aom_writer *w) {
@@ -1250,6 +1270,9 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       aom_write(w, bit_bwd, av1_get_pred_prob_comp_bwdref_p(cm, xd));
 #endif  // CONFIG_EXT_REFS
     } else {
+#if CONFIG_EXT_COMP_REFS
+      write_ref0_frame(cm, xd, mbmi->ref_frame[0], w);
+#else  // !CONFIG_EXT_COMP_REFS
 #if CONFIG_EXT_REFS
       const int bit0 = (mbmi->ref_frame[0] == ALTREF_FRAME ||
                         mbmi->ref_frame[0] == BWDREF_FRAME);
@@ -1280,6 +1303,7 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         aom_write(w, bit1, av1_get_pred_prob_single_ref_p2(cm, xd));
       }
 #endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_EXT_COMP_REFS
     }
   }
 }
@@ -2335,26 +2359,24 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_DUAL_FILTER
 #if 0
     // NOTE(zoeliu): For debug
-    if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
-      const PREDICTION_MODE mode = m->mbmi.mode;
-      const int segment_id = m->mbmi.segment_id;
-      const BLOCK_SIZE bsize = m->mbmi.sb_type;
+    if (is_inter_block(&m->mbmi)) {
+#define FRAME_TO_CHECK 1
+      if (cm->current_video_frame == FRAME_TO_CHECK &&
+          cm->reference_mode == SINGLE_REFERENCE &&
+          cm->show_frame == 0
+          ) {
+        const MB_MODE_INFO *const mbmi = &m->mbmi;
 
-      // For sub8x8, simply dump out the first sub8x8 block info
-      const PREDICTION_MODE b_mode =
-          (bsize < BLOCK_8X8) ? m->bmi[0].as_mode : -1;
-      const int mv_x = (bsize < BLOCK_8X8) ?
-          m->bmi[0].as_mv[0].as_mv.row : m->mbmi.mv[0].as_mv.row;
-      const int mv_y = (bsize < BLOCK_8X8) ?
-          m->bmi[0].as_mv[0].as_mv.col : m->mbmi.mv[0].as_mv.col;
-
-      printf("Before pack_inter_mode_mvs(): "
-             "Frame=%d, (mi_row,mi_col)=(%d,%d), "
-             "mode=%d, segment_id=%d, bsize=%d, b_mode=%d, "
-             "mv[0]=(%d, %d), ref[0]=%d, ref[1]=%d\n",
-             cm->current_video_frame, mi_row, mi_col,
-             mode, segment_id, bsize, b_mode, mv_x, mv_y,
-             m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
+        printf(
+            "=== ENCODER ===: "
+            "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
+            "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
+            "ref[1]=%d\n",
+            cm->current_video_frame, mi_row, mi_col, mbmi->mode, mbmi->sb_type,
+            cm->show_frame, mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+            mbmi->mv[1].as_mv.row, mbmi->mv[1].as_mv.col, mbmi->ref_frame[0],
+            mbmi->ref_frame[1]);
+      }
     }
 #endif  // 0
     pack_inter_mode_mvs(cpi, mi_row, mi_col,
@@ -4801,13 +4823,22 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     }
 
     if (cm->reference_mode != COMPOUND_REFERENCE) {
+#if CONFIG_EXT_COMP_REFS
+      for (i = 0; i < REF0_CONTEXTS; i++) {
+        prob_diff_update(
+            av1_single_or_comp_ref0_tree, fc->inter_ref0_probs[i],
+            counts->inter_ref0[i], INTER_REFS_PER_FRAME, probwt, header_bc);
+      }
+#else
       for (i = 0; i < REF_CONTEXTS; i++) {
         for (j = 0; j < (SINGLE_REFS - 1); j++) {
           av1_cond_prob_diff_update(header_bc, &fc->single_ref_prob[i][j],
                                     counts->single_ref[i][j], probwt);
         }
       }
+#endif  // CONFIG_EXT_COMP_REFS
     }
+
     if (cm->reference_mode != SINGLE_REFERENCE) {
       for (i = 0; i < REF_CONTEXTS; i++) {
 #if CONFIG_EXT_REFS
