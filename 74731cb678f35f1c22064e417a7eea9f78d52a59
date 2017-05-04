@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4ee3db1_757b8f07",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-04T01:12:37Z",
+      "side": 1,
+      "message": "these links aren\u0027t stable or easy to use with local history, better to put:\n2cf73eb84 Move compound segment mask buffer from mbmi to xd\n\nBUG\u003daomedia:463",
+      "revId": "74731cb678f35f1c22064e417a7eea9f78d52a59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
