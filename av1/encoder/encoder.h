@@ -639,6 +639,8 @@ typedef struct AV1_COMP {
   // VARIANCE_AQ segment map refresh
   int vaq_refresh;
 
+  int unused_dummy_gap;
+
   // Multi-threading
   int num_workers;
   AVxWorker *workers;
