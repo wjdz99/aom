@@ -1915,7 +1915,6 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_PALETTE
 
   ctx->skippable = 0;
-  ctx->pred_pixel_ready = 0;
 
   // Set to zero to make sure we do not use the previous encoded frame stats
   mbmi->skip = 0;
@@ -6039,8 +6038,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
                            &xd->block_refs[ref]->sf);
     }
-    if (!(cpi->sf.reuse_inter_pred_sby && ctx->pred_pixel_ready) || seg_skip)
-      av1_build_inter_predictors_sby(xd, mi_row, mi_col, NULL, block_size);
+    av1_build_inter_predictors_sby(xd, mi_row, mi_col, NULL, block_size);
 
     av1_build_inter_predictors_sbuv(xd, mi_row, mi_col, NULL, block_size);
 #if CONFIG_MOTION_VAR
