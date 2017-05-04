@@ -19,6 +19,8 @@ set(AOM_DSP_COMMON_SOURCES
     "${AOM_ROOT}/aom_dsp/blend_a64_hmask.c"
     "${AOM_ROOT}/aom_dsp/blend_a64_mask.c"
     "${AOM_ROOT}/aom_dsp/blend_a64_vmask.c"
+    "${AOM_ROOT}/aom_dsp/fwd_txfm.c"
+    "${AOM_ROOT}/aom_dsp/fwd_txfm.h"
     "${AOM_ROOT}/aom_dsp/intrapred.c"
     "${AOM_ROOT}/aom_dsp/loopfilter.c"
     "${AOM_ROOT}/aom_dsp/prob.c"
@@ -43,6 +45,8 @@ set(AOM_DSP_COMMON_ASM_SSE2
 set(AOM_DSP_COMMON_INTRIN_SSE2
     "${AOM_ROOT}/aom_dsp/x86/aom_asm_stubs.c"
     "${AOM_ROOT}/aom_dsp/x86/convolve.h"
+    "${AOM_ROOT}/aom_dsp/x86/fwd_txfm_sse2.c"
+    "${AOM_ROOT}/aom_dsp/x86/fwd_txfm_sse2.h"
     "${AOM_ROOT}/aom_dsp/x86/txfm_common_sse2.h"
     "${AOM_ROOT}/aom_dsp/x86/loopfilter_sse2.c")
 
@@ -50,6 +54,9 @@ set(AOM_DSP_COMMON_ASM_SSSE3
     "${AOM_ROOT}/aom_dsp/x86/aom_subpixel_8t_ssse3.asm"
     "${AOM_ROOT}/aom_dsp/x86/aom_subpixel_bilinear_ssse3.asm"
     "${AOM_ROOT}/aom_dsp/x86/intrapred_ssse3.asm")
+
+set(AOM_DSP_COMMON_ASM_SSSE3_X86_64
+    "${AOM_ROOT}/aom_dsp/x86/fwd_txfm_ssse3_x86_64.asm")
 
 set(AOM_DSP_COMMON_INTRIN_SSSE3
     "${AOM_ROOT}/aom_dsp/x86/aom_subpixel_8t_intrin_ssse3.c"
@@ -275,7 +282,6 @@ if (CONFIG_ENCODERS)
       "${AOM_ROOT}/aom_dsp/x86/sad_ssse3.asm")
 
   set(AOM_DSP_ENCODER_ASM_SSSE3_X86_64
-      "${AOM_ROOT}/aom_dsp/x86/fwd_txfm_ssse3_x86_64.asm"
       "${AOM_ROOT}/aom_dsp/x86/ssim_opt_x86_64.asm")
 
   set(AOM_DSP_ENCODER_INTRIN_SSE3 "${AOM_ROOT}/aom_dsp/x86/sad_sse3.asm")
@@ -292,8 +298,6 @@ if (CONFIG_ENCODERS)
     set(AOM_DSP_ENCODER_SOURCES
         ${AOM_DSP_ENCODER_SOURCES}
         "${AOM_ROOT}/aom_dsp/avg.c"
-        "${AOM_ROOT}/aom_dsp/fwd_txfm.c"
-        "${AOM_ROOT}/aom_dsp/fwd_txfm.h"
         "${AOM_ROOT}/aom_dsp/quantize.c"
         "${AOM_ROOT}/aom_dsp/quantize.h"
         "${AOM_ROOT}/aom_dsp/sum_squares.c")
@@ -304,8 +308,6 @@ if (CONFIG_ENCODERS)
         "${AOM_ROOT}/aom_dsp/x86/fwd_dct32_8cols_sse2.c"
         "${AOM_ROOT}/aom_dsp/x86/fwd_dct32x32_impl_sse2.h"
         "${AOM_ROOT}/aom_dsp/x86/fwd_txfm_impl_sse2.h"
-        "${AOM_ROOT}/aom_dsp/x86/fwd_txfm_sse2.c"
-        "${AOM_ROOT}/aom_dsp/x86/fwd_txfm_sse2.h"
         "${AOM_ROOT}/aom_dsp/x86/halfpix_variance_sse2.c"
         "${AOM_ROOT}/aom_dsp/x86/variance_sse2.c"
         "${AOM_ROOT}/aom_dsp/x86/sum_squares_sse2.c")
@@ -437,6 +439,11 @@ function (setup_aom_dsp_targets)
     add_asm_library("aom_dsp_common_ssse3" "AOM_DSP_COMMON_ASM_SSSE3" "aom")
     add_intrinsics_object_library("-mssse3" "ssse3" "aom_dsp_common"
                                   "AOM_DSP_COMMON_INTRIN_SSSE3")
+
+    if ("${AOM_TARGET_CPU}" STREQUAL "x86_64")
+      add_asm_library("aom_dsp_common_ssse3_x86_64"
+                      "AOM_DSP_COMMON_ASM_SSSE3_X86_64" "aom")
+    endif ()
 
     if (CONFIG_ENCODERS)
       if ("${AOM_TARGET_CPU}" STREQUAL "x86_64")

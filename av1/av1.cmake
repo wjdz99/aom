@@ -30,6 +30,7 @@ set(AOM_AV1_COMMON_SOURCES
     "${AOM_ROOT}/av1/common/common_data.h"
     "${AOM_ROOT}/av1/common/convolve.c"
     "${AOM_ROOT}/av1/common/convolve.h"
+    "${AOM_ROOT}/av1/common/dct.c"
     "${AOM_ROOT}/av1/common/debugmodes.c"
     "${AOM_ROOT}/av1/common/entropy.c"
     "${AOM_ROOT}/av1/common/entropy.h"
@@ -104,7 +105,6 @@ set(AOM_AV1_ENCODER_SOURCES
     "${AOM_ROOT}/av1/encoder/context_tree.h"
     "${AOM_ROOT}/av1/encoder/cost.c"
     "${AOM_ROOT}/av1/encoder/cost.h"
-    "${AOM_ROOT}/av1/encoder/dct.c"
     "${AOM_ROOT}/av1/encoder/encodeframe.c"
     "${AOM_ROOT}/av1/encoder/encodeframe.h"
     "${AOM_ROOT}/av1/encoder/encodemb.c"
@@ -150,13 +150,16 @@ set(AOM_AV1_ENCODER_SOURCES
     "${AOM_ROOT}/av1/encoder/variance_tree.c"
     "${AOM_ROOT}/av1/encoder/variance_tree.h")
 
+set(AOM_AV1_COMMON_ASM_SSE2
+    "${AOM_ROOT}/av1/common/x86/dct_sse2.asm")
+
 set(AOM_AV1_COMMON_INTRIN_SSE2
-    # Requires CONFIG_GLOBAL_MOTION or CONFIG_WARPED_MOTION
-    #"${AOM_ROOT}/av1/common/x86/warp_plane_sse2.c"
+    "${AOM_ROOT}/av1/common/x86/dct_intrin_sse2.c"
     "${AOM_ROOT}/av1/common/x86/idct_intrin_sse2.c")
 
 set(AOM_AV1_COMMON_INTRIN_SSSE3
-    "${AOM_ROOT}/av1/common/x86/av1_convolve_ssse3.c")
+    "${AOM_ROOT}/av1/common/x86/av1_convolve_ssse3.c"
+    "${AOM_ROOT}/av1/common/x86/dct_ssse3.c")
 
 set(AOM_AV1_COMMON_INTRIN_SSE4_1
     "${AOM_ROOT}/av1/common/x86/av1_fwd_txfm1d_sse4.c"
@@ -176,20 +179,15 @@ set(AOM_AV1_COMMON_INTRIN_MSA
     "${AOM_ROOT}/av1/common/mips/msa/av1_idct8x8_msa.c")
 
 set(AOM_AV1_ENCODER_ASM_SSE2
-    "${AOM_ROOT}/av1/encoder/x86/dct_sse2.asm"
     "${AOM_ROOT}/av1/encoder/x86/error_sse2.asm"
     "${AOM_ROOT}/av1/encoder/x86/temporal_filter_apply_sse2.asm")
 
 set(AOM_AV1_ENCODER_INTRIN_SSE2
-    "${AOM_ROOT}/av1/encoder/x86/dct_intrin_sse2.c"
     "${AOM_ROOT}/av1/encoder/x86/highbd_block_error_intrin_sse2.c"
     "${AOM_ROOT}/av1/encoder/x86/av1_quantize_sse2.c")
 
 set(AOM_AV1_ENCODER_ASM_SSSE3_X86_64
     "${AOM_ROOT}/av1/encoder/x86/av1_quantize_ssse3_x86_64.asm")
-
-set(AOM_AV1_ENCODER_INTRIN_SSSE3
-    "${AOM_ROOT}/av1/encoder/x86/dct_ssse3.c")
 
 set(AOM_AV1_ENCODER_INTRIN_AVX2
     "${AOM_ROOT}/av1/encoder/x86/error_intrin_avx2.c"
@@ -223,7 +221,7 @@ if (CONFIG_HIGHBITDEPTH)
 else ()
   set(AOM_AV1_COMMON_INTRIN_NEON
       ${AOM_AV1_COMMON_INTRIN_NEON}
-      "${AOM_ROOT}/av1/encoder/arm/neon/dct_neon.c"
+      "${AOM_ROOT}/av1/common/arm/neon/dct_neon.c"
       "${AOM_ROOT}/av1/common/arm/neon/iht4x4_add_neon.c"
       "${AOM_ROOT}/av1/common/arm/neon/iht8x8_add_neon.c")
 
@@ -367,18 +365,6 @@ if (CONFIG_PVQ)
           "${AOM_ROOT}/av1/encoder/dct.c"
           "${AOM_ROOT}/av1/encoder/hybrid_fwd_txfm.c"
           "${AOM_ROOT}/av1/encoder/hybrid_fwd_txfm.h")
-
-      set(AOM_AV1_DECODER_ASM_SSE2
-          ${AOM_AV1_DECODER_ASM_SSE2}
-          "${AOM_ROOT}/av1/encoder/x86/dct_sse2.asm")
-
-      set(AOM_AV1_DECODER_INTRIN_SSE2
-          ${AOM_AV1_DECODER_INTRIN_SSE2}
-          "${AOM_ROOT}/av1/encoder/x86/dct_intrin_sse2.c")
-
-      set(AOM_AV1_DECODER_INTRIN_SSSE3
-          ${AOM_AV1_DECODER_INTRIN_SSSE3}
-          "${AOM_ROOT}/av1/encoder/x86/dct_ssse3.c")
     endif ()
 endif ()
 
@@ -414,6 +400,7 @@ function (setup_av1_targets)
 
   if (HAVE_SSE2)
     require_flag_nomsvc("-msse2" NO)
+    add_asm_library("aom_av1_common_sse2" "AOM_AV1_COMMON_ASM_SSE2" "aom")
     add_intrinsics_object_library("-msse2" "sse2" "aom_av1_common"
                                   "AOM_AV1_COMMON_INTRIN_SSE2")
     if (CONFIG_AV1_DECODER)
