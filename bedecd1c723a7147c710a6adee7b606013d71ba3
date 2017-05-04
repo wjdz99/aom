@@ -16,6 +16,24 @@
       "revId": "bedecd1c723a7147c710a6adee7b606013d71ba3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1bdf2e1_629b6853",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-04T02:27:33Z",
+      "side": 1,
+      "message": "\u003e actually these bugs are unrelated now as the fix for them was included in the revert:\n\u003e 2dbdf68 Revert \"Move compound segment mask buffer from mbmi to xd\"\n\ndropped and restored the original commit message",
+      "parentUuid": "ad0ad5c9_4fb2fd98",
+      "revId": "bedecd1c723a7147c710a6adee7b606013d71ba3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
