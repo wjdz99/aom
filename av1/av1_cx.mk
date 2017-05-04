@@ -27,7 +27,6 @@ AV1_CX_SRCS-yes += encoder/variance_tree.c
 AV1_CX_SRCS-yes += encoder/variance_tree.h
 AV1_CX_SRCS-yes += encoder/cost.h
 AV1_CX_SRCS-yes += encoder/cost.c
-AV1_CX_SRCS-yes += encoder/dct.c
 AV1_CX_SRCS-yes += encoder/hybrid_fwd_txfm.c
 AV1_CX_SRCS-yes += encoder/hybrid_fwd_txfm.h
 AV1_CX_SRCS-yes += encoder/encodeframe.c
@@ -127,15 +126,12 @@ ifeq ($(CONFIG_HIGHBITDEPTH),yes)
 AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/highbd_block_error_intrin_sse2.c
 endif
 
-AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/dct_sse2.asm
 AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/error_sse2.asm
 
 ifeq ($(ARCH_X86_64),yes)
 AV1_CX_SRCS-$(HAVE_SSSE3) += encoder/x86/av1_quantize_ssse3_x86_64.asm
 endif
 
-AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/dct_intrin_sse2.c
-AV1_CX_SRCS-$(HAVE_SSSE3) += encoder/x86/dct_ssse3.c
 AV1_CX_SRCS-$(HAVE_AVX2) += encoder/x86/hybrid_fwd_txfm_avx2.c
 ifeq ($(CONFIG_HIGHBITDEPTH),yes)
 AV1_CX_SRCS-$(HAVE_SSE4_1) += encoder/x86/av1_highbd_quantize_sse4.c
@@ -150,7 +146,6 @@ endif
 AV1_CX_SRCS-$(HAVE_AVX2) += encoder/x86/error_intrin_avx2.c
 
 ifneq ($(CONFIG_HIGHBITDEPTH),yes)
-AV1_CX_SRCS-$(HAVE_NEON) += encoder/arm/neon/dct_neon.c
 AV1_CX_SRCS-$(HAVE_NEON) += encoder/arm/neon/error_neon.c
 endif
 AV1_CX_SRCS-$(HAVE_NEON) += encoder/arm/neon/quantize_neon.c
