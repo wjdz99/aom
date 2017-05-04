@@ -65,7 +65,7 @@ static void alloc_mode_context(AV1_COMMON *cm, int num_4x4_blk,
   }
 
 #if CONFIG_PALETTE
-  if (cm->allow_screen_content_tools) {
+  if (cm->allow_screen_content_tools || cm->auto_tune_content) {
     for (i = 0; i < 2; ++i) {
       CHECK_MEM_ERROR(
           cm, ctx->color_index_map[i],
