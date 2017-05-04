@@ -52,6 +52,8 @@
 #endif
 #include "./y4minput.h"
 
+extern char reconfile_name[512];
+
 /* Swallow warnings about unused results of fread/fwrite */
 static size_t wrap_fread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
   return fread(ptr, size, nmemb, stream);
@@ -164,6 +166,7 @@ static const arg_def_t verbosearg =
     ARG_DEF("v", "verbose", 0, "Show encoder parameters");
 static const arg_def_t psnrarg =
     ARG_DEF(NULL, "psnr", 0, "Show PSNR in status line");
+static const arg_def_t reconarg = ARG_DEF("r", "recon", 1, "Recon output file");
 
 static const struct arg_enum_list test_decode_enum[] = {
   { "off", TEST_DECODE_OFF },
@@ -210,6 +213,7 @@ static const arg_def_t inbitdeptharg =
 
 static const arg_def_t *main_args[] = { &debugmode,
                                         &outputfile,
+                                        &reconarg,
                                         &codecarg,
                                         &passes,
                                         &pass_arg,
@@ -752,7 +756,10 @@ static void parse_global_config(struct AvxEncoderConfig *global, char **argv) {
       global->skip_frames = arg_parse_uint(&arg);
     else if (arg_match(&arg, &psnrarg, argi))
       global->show_psnr = 1;
-    else if (arg_match(&arg, &recontest, argi))
+    else if (arg_match(&arg, &reconarg, argi)) {
+      global->enable_recon = 1;
+      snprintf(reconfile_name, strlen(arg.val) + 1, "%s", arg.val);
+    } else if (arg_match(&arg, &recontest, argi))
       global->test_decode = arg_parse_enum_or_int(&arg);
     else if (arg_match(&arg, &framerate, argi)) {
       global->framerate = arg_parse_rational(&arg);
@@ -1325,6 +1332,8 @@ static void initialize_encoder(struct stream_state *stream,
 #if CONFIG_HIGHBITDEPTH
   flags |= stream->config.use_16bit_internal ? AOM_CODEC_USE_HIGHBITDEPTH : 0;
 #endif
+
+  flags |= global->enable_recon ? AOM_CODEC_USE_RECON : 0;
 
   /* Construct Encoder Context */
   aom_codec_enc_init(&stream->encoder, global->codec->codec_interface(),
