@@ -486,8 +486,7 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   av1_free_var_tree(&cpi->td);
 
 #if CONFIG_PALETTE
-  if (cpi->common.allow_screen_content_tools)
-    aom_free(cpi->td.mb.palette_buffer);
+  aom_free(cpi->td.mb.palette_buffer);
 #endif  // CONFIG_PALETTE
 
   if (cpi->source_diff_var != NULL) {
@@ -1996,7 +1995,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
 #if CONFIG_PALETTE
   cm->allow_screen_content_tools = (cpi->oxcf.content == AOM_CONTENT_SCREEN);
-  if (cm->allow_screen_content_tools) {
+  cm->auto_tune_content = (cpi->oxcf.content == AOM_CONTENT_AUTO);
+  if (cm->allow_screen_content_tools || cm->auto_tune_content) {
     MACROBLOCK *x = &cpi->td.mb;
     if (x->palette_buffer == 0) {
       CHECK_MEM_ERROR(cm, x->palette_buffer,
@@ -2632,8 +2632,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     // Deallocate allocated thread data.
     if (t < cpi->num_workers - 1) {
 #if CONFIG_PALETTE
-      if (cpi->common.allow_screen_content_tools)
-        aom_free(thread_data->td->palette_buffer);
+      aom_free(thread_data->td->palette_buffer);
 #endif  // CONFIG_PALETTE
       aom_free(thread_data->td->counts);
       av1_free_pc_tree(thread_data->td);
