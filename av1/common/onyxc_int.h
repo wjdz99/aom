@@ -212,6 +212,11 @@ typedef struct AV1Common {
 
 #if CONFIG_PALETTE
   int allow_screen_content_tools;
+  // Specify if encoder does automatical classification of source video as
+  // screen content or not.
+  // TODO(huisu): It is not needed by decoder. We have to put it in AV1_COMMON
+  // now because the encoder need to access it in alloc_mode_context().
+  int auto_tune_content;
 #endif  // CONFIG_PALETTE
 
   // Flag signaling which frame contexts should be reset to default values.

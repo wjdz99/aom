@@ -56,6 +56,9 @@
 #endif
 #include "av1/encoder/ethread.h"
 #include "av1/encoder/extend.h"
+#if CONFIG_PALETTE
+#include "av1/encoder/palette.h"
+#endif  // CONFIG_PALETTE
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/segmentation.h"
@@ -5188,6 +5191,27 @@ static int gm_get_params_cost(WarpedMotionParams *gm,
 }
 #endif  // CONFIG_GLOBAL_MOTION
 
+#if CONFIG_PALETTE
+// Estimate if the source frame is screen content, based on the portion of
+// blocks that have no more than 4 colors(luma).
+static int is_screen_content(const uint8_t *src, int stride, int width,
+                             int height) {
+  assert(src != NULL);
+  int r, c;
+  int counts = 0;
+  const int blk_w = 16;
+  const int blk_h = 16;
+  for (r = 0; r + blk_h <= height; r += blk_h) {
+    for (c = 0; c + blk_w <= width; c += blk_w) {
+      const int n_colors =
+          av1_count_colors(src + r * stride + c, stride, blk_w, blk_h);
+      if (n_colors > 1 && n_colors <= 4) counts++;
+    }
+  }
+  return counts * blk_h * blk_w * 10 > width * height;
+}
+#endif  // CONFIG_PALETTE
+
 static void encode_frame_internal(AV1_COMP *cpi) {
   ThreadData *const td = &cpi->td;
   MACROBLOCK *const x = &td->mb;
@@ -5215,6 +5239,14 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   av1_zero(*td->counts);
   av1_zero(rdc->coef_counts);
   av1_zero(rdc->comp_pred_diff);
+
+#if CONFIG_PALETTE
+  if (cm->auto_tune_content && frame_is_intra_only(&cpi->common)) {
+    cpi->common.allow_screen_content_tools =
+        is_screen_content(cpi->source->y_buffer, cpi->source->y_stride,
+                          cpi->source->y_width, cpi->source->y_height);
+  }
+#endif  // CONFIG_PALETTE
 
 #if CONFIG_GLOBAL_MOTION
   av1_zero(rdc->global_motion_used);
