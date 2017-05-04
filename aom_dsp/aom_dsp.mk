@@ -210,17 +210,17 @@ DSP_SRCS-$(HAVE_MSA)    += mips/txfm_macros_msa.h
 # forward transform
 ifneq ($(findstring yes,$(CONFIG_AV1)$(CONFIG_PVQ)),)
 DSP_SRCS-$(HAVE_AVX2)   += x86/txfm_common_avx2.h
-ifeq ($(CONFIG_AV1_ENCODER),yes)
-DSP_SRCS-yes            += fwd_txfm.c
-DSP_SRCS-yes            += fwd_txfm.h
 DSP_SRCS-$(HAVE_SSE2)   += x86/fwd_txfm_sse2.h
 DSP_SRCS-$(HAVE_SSE2)   += x86/fwd_txfm_sse2.c
-DSP_SRCS-$(HAVE_SSE2)   += x86/fwd_dct32_8cols_sse2.c
-DSP_SRCS-$(HAVE_SSE2)   += x86/fwd_txfm_impl_sse2.h
-DSP_SRCS-$(HAVE_SSE2)   += x86/fwd_dct32x32_impl_sse2.h
 ifeq ($(ARCH_X86_64),yes)
 DSP_SRCS-$(HAVE_SSSE3)  += x86/fwd_txfm_ssse3_x86_64.asm
 endif
+ifeq ($(CONFIG_AV1_ENCODER),yes)
+DSP_SRCS-yes            += fwd_txfm.c
+DSP_SRCS-yes            += fwd_txfm.h
+DSP_SRCS-$(HAVE_SSE2)   += x86/fwd_dct32_8cols_sse2.c
+DSP_SRCS-$(HAVE_SSE2)   += x86/fwd_txfm_impl_sse2.h
+DSP_SRCS-$(HAVE_SSE2)   += x86/fwd_dct32x32_impl_sse2.h
 DSP_SRCS-$(HAVE_AVX2)   += x86/fwd_txfm_avx2.h
 DSP_SRCS-$(HAVE_AVX2)   += x86/fwd_txfm_avx2.c
 DSP_SRCS-$(HAVE_AVX2)   += x86/fwd_dct32x32_impl_avx2.h
