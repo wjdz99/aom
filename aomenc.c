@@ -461,6 +461,7 @@ static const arg_def_t input_color_space =
 static const struct arg_enum_list tune_content_enum[] = {
   { "default", AOM_CONTENT_DEFAULT },
   { "screen", AOM_CONTENT_SCREEN },
+  { "auto", AOM_CONTENT_AUTO },
   { NULL, 0 }
 };
 
