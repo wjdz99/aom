@@ -98,8 +98,8 @@ static struct av1_extracfg default_extra_cfg = {
   UINT_MAX,  // tile_columns
   UINT_MAX,  // tile_rows
 #else
-  0,  // tile_columns
-  0,  // tile_rows
+  0,                    // tile_columns
+  0,                    // tile_rows
 #endif  // CONFIG_EXT_TILE
 #if CONFIG_DEPENDENT_HORZTILES
   0,  // Depdendent Horizontal tiles
@@ -134,9 +134,13 @@ static struct av1_extracfg default_extra_cfg = {
 #if CONFIG_EXT_DELTA_Q
   NO_DELTA_Q,  // deltaq_mode
 #endif
-  CONFIG_XIPHRC,                // frame_periodic_delta_q
-  AOM_BITS_8,                   // Bit depth
-  AOM_CONTENT_DEFAULT,          // content
+  CONFIG_XIPHRC,  // frame_periodic_delta_q
+  AOM_BITS_8,     // Bit depth
+#if CONFIG_PALETTE
+  AOM_CONTENT_AUTO,  // content
+#else
+  AOM_CONTENT_DEFAULT,  // content
+#endif                          // CONFIG_PALETTE
   AOM_CS_UNKNOWN,               // color space
   0,                            // color range
   0,                            // render width
