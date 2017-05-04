@@ -779,11 +779,6 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(&av1_fht16x16_c, &av1_iht16x16_256_add_c, 1, AOM_BITS_8),
         make_tuple(&av1_fht16x16_c, &av1_iht16x16_256_add_c, 2, AOM_BITS_8),
         make_tuple(&av1_fht16x16_c, &av1_iht16x16_256_add_c, 3, AOM_BITS_8)));
-INSTANTIATE_TEST_CASE_P(
-    C, PartialTrans16x16Test,
-    ::testing::Values(make_tuple(&aom_highbd_fdct16x16_1_c, AOM_BITS_8),
-                      make_tuple(&aom_highbd_fdct16x16_1_c, AOM_BITS_10),
-                      make_tuple(&aom_highbd_fdct16x16_1_c, AOM_BITS_12)));
 #else
 INSTANTIATE_TEST_CASE_P(
     C, Trans16x16HT,
