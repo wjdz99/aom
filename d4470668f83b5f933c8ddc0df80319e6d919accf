@@ -16,6 +16,24 @@
       "revId": "d4470668f83b5f933c8ddc0df80319e6d919accf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28ef9b5b_0ec3834c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3406,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-05-04T23:28:27Z",
+      "side": 1,
+      "message": "No, extra directions are not enabled for blocks smaller than 8x8, so we can terminate early. I added a comment line. directional_mode_skip_mask was initialized as 0 out of this function before, I move the initialization inside now.",
+      "parentUuid": "545ba5fc_e59f6603",
+      "revId": "d4470668f83b5f933c8ddc0df80319e6d919accf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
