@@ -254,9 +254,9 @@ static void down2_symeven(const uint8_t *const input, int length,
     for (i = 0; i < length; i += 2) {
       int sum = (1 << (FILTER_BITS - 1));
       for (j = 0; j < filter_len_half; ++j) {
-        sum += (input[(i - j < 0 ? 0 : i - j)] +
-                input[(i + 1 + j >= length ? length - 1 : i + 1 + j)]) *
-               filter[j];
+        sum +=
+            (input[AOMMAX(i - j, 0)] + input[AOMMIN(i + 1 + j, length - 1)]) *
+            filter[j];
       }
       sum >>= FILTER_BITS;
       *optr++ = clip_pixel(sum);
@@ -266,7 +266,7 @@ static void down2_symeven(const uint8_t *const input, int length,
     for (i = 0; i < l1; i += 2) {
       int sum = (1 << (FILTER_BITS - 1));
       for (j = 0; j < filter_len_half; ++j) {
-        sum += (input[(i - j < 0 ? 0 : i - j)] + input[i + 1 + j]) * filter[j];
+        sum += (input[AOMMAX(i - j, 0)] + input[i + 1 + j]) * filter[j];
       }
       sum >>= FILTER_BITS;
       *optr++ = clip_pixel(sum);
@@ -284,9 +284,8 @@ static void down2_symeven(const uint8_t *const input, int length,
     for (; i < length; i += 2) {
       int sum = (1 << (FILTER_BITS - 1));
       for (j = 0; j < filter_len_half; ++j) {
-        sum += (input[i - j] +
-                input[(i + 1 + j >= length ? length - 1 : i + 1 + j)]) *
-               filter[j];
+        sum +=
+            (input[i - j] + input[AOMMIN(i + 1 + j, length - 1)]) * filter[j];
       }
       sum >>= FILTER_BITS;
       *optr++ = clip_pixel(sum);
@@ -556,9 +555,9 @@ static void highbd_down2_symeven(const uint16_t *const input, int length,
     for (i = 0; i < length; i += 2) {
       int sum = (1 << (FILTER_BITS - 1));
       for (j = 0; j < filter_len_half; ++j) {
-        sum += (input[(i - j < 0 ? 0 : i - j)] +
-                input[(i + 1 + j >= length ? length - 1 : i + 1 + j)]) *
-               filter[j];
+        sum +=
+            (input[AOMMAX(0, i - j)] + input[AOMMIN(i + 1 + j, length - 1)]) *
+            filter[j];
       }
       sum >>= FILTER_BITS;
       *optr++ = clip_pixel_highbd(sum, bd);
@@ -568,7 +567,7 @@ static void highbd_down2_symeven(const uint16_t *const input, int length,
     for (i = 0; i < l1; i += 2) {
       int sum = (1 << (FILTER_BITS - 1));
       for (j = 0; j < filter_len_half; ++j) {
-        sum += (input[(i - j < 0 ? 0 : i - j)] + input[i + 1 + j]) * filter[j];
+        sum += (input[AOMMAX(0, i - j)] + input[i + 1 + j]) * filter[j];
       }
       sum >>= FILTER_BITS;
       *optr++ = clip_pixel_highbd(sum, bd);
@@ -586,9 +585,8 @@ static void highbd_down2_symeven(const uint16_t *const input, int length,
     for (; i < length; i += 2) {
       int sum = (1 << (FILTER_BITS - 1));
       for (j = 0; j < filter_len_half; ++j) {
-        sum += (input[i - j] +
-                input[(i + 1 + j >= length ? length - 1 : i + 1 + j)]) *
-               filter[j];
+        sum +=
+            (input[i - j] + input[AOMMIN(i + 1 + j, length - 1)]) * filter[j];
       }
       sum >>= FILTER_BITS;
       *optr++ = clip_pixel_highbd(sum, bd);
