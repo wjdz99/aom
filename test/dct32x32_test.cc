@@ -350,11 +350,6 @@ INSTANTIATE_TEST_CASE_P(
                                  AOM_BITS_8),
                       make_tuple(&aom_fdct32x32_rd_c, &aom_idct32x32_1024_add_c,
                                  1, AOM_BITS_8)));
-INSTANTIATE_TEST_CASE_P(
-    C, PartialTrans32x32Test,
-    ::testing::Values(make_tuple(&aom_highbd_fdct32x32_1_c, AOM_BITS_8),
-                      make_tuple(&aom_highbd_fdct32x32_1_c, AOM_BITS_10),
-                      make_tuple(&aom_highbd_fdct32x32_1_c, AOM_BITS_12)));
 #else
 INSTANTIATE_TEST_CASE_P(
     C, Trans32x32Test,
