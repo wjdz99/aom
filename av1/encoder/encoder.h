@@ -523,6 +523,7 @@ typedef struct AV1_COMP {
   Metrics metrics;
 #endif
   int b_calculate_psnr;
+  int b_output_recon;
 
   int droppable;
 
