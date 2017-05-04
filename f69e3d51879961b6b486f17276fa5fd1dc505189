@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "279a9014_e451e8df",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4336,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-04T00:39:25Z",
+      "side": 0,
+      "message": "Optional: Is \"cpi-\u003eresize_pending\" even used anymore? If not, you can remove it for now, unless you are planning to use it very soon (in next few patches)",
+      "range": {
+        "startLine": 4336,
+        "startChar": 17,
+        "endLine": 4336,
+        "endChar": 31
+      },
+      "revId": "f69e3d51879961b6b486f17276fa5fd1dc505189",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
