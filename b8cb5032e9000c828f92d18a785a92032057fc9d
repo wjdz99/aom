@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8d7f7ddf_141f5fe5",
+        "filename": "av1/common/mv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 6675
+      },
+      "writtenOn": "2017-05-04T23:29:19Z",
+      "side": 1,
+      "message": "Let\u0027s chat more about this in realtime. I sent you a hangouts invite.",
+      "parentUuid": "70c782ad_d405dcd9",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 0
+      },
+      "revId": "b8cb5032e9000c828f92d18a785a92032057fc9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ed5b4bff_313d4dd4",
         "filename": "av1/common/warped_motion.c",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9912cff0_0524dbf1",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 984,
+      "author": {
+        "id": 6675
+      },
+      "writtenOn": "2017-05-04T23:29:19Z",
+      "side": 1,
+      "message": "That could be a good idea, since it would also avoid a lot of duplication of code. The only issue I can see is if these parameters might be used somewhere else? Maybe Deb or Sarah could weigh in.",
+      "parentUuid": "ed5b4bff_313d4dd4",
+      "range": {
+        "startLine": 976,
+        "startChar": 0,
+        "endLine": 984,
+        "endChar": 0
+      },
+      "revId": "b8cb5032e9000c828f92d18a785a92032057fc9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "05d789c1_2314f7c5",
         "filename": "av1/common/warped_motion.c",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2017-05-04T10:03:37Z",
       "side": 1,
       "message": "I\u0027d prefer if this rounding were applied to x4 and y4 as soon as they\u0027re calculated - in particular, so that we can avoid double-rounding when warping the chroma planes",
+      "range": {
+        "startLine": 1009,
+        "startChar": 0,
+        "endLine": 1012,
+        "endChar": 41
+      },
+      "revId": "b8cb5032e9000c828f92d18a785a92032057fc9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22f747e9_c5dab4b6",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 6675
+      },
+      "writtenOn": "2017-05-04T23:29:19Z",
+      "side": 1,
+      "message": "I\u0027ve changed this in the latest revision. I added more precision (less rounding), so I try to do more calculation before rounding (round later). Please review again.",
+      "parentUuid": "05d789c1_2314f7c5",
       "range": {
         "startLine": 1009,
         "startChar": 0,
