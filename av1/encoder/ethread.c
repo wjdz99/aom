@@ -103,7 +103,8 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
 
 #if CONFIG_PALETTE
         // Allocate buffers used by palette coding mode.
-        if (cpi->common.allow_screen_content_tools) {
+        if (cpi->common.allow_screen_content_tools ||
+            cpi->common.auto_tune_content) {
           CHECK_MEM_ERROR(
               cm, thread_data->td->palette_buffer,
               aom_memalign(16, sizeof(*thread_data->td->palette_buffer)));
@@ -143,7 +144,9 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
     }
 
 #if CONFIG_PALETTE
-    if (cpi->common.allow_screen_content_tools && i < num_workers - 1)
+    if ((cpi->common.allow_screen_content_tools ||
+         cpi->common.auto_tune_content) &&
+        i < num_workers - 1)
       thread_data->td->mb.palette_buffer = thread_data->td->palette_buffer;
 #endif  // CONFIG_PALETTE
   }
