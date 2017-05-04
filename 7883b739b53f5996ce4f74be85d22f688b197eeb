@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b83b05d_5b4b37ce",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3407,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-04T23:30:51Z",
+      "side": 1,
+      "message": "Bug: should be: \"sizeof(* ...)\"",
+      "range": {
+        "startLine": 3407,
+        "startChar": 30,
+        "endLine": 3407,
+        "endChar": 56
+      },
+      "revId": "7883b739b53f5996ce4f74be85d22f688b197eeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
