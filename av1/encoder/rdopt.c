@@ -8714,8 +8714,6 @@ static int64_t handle_inter_mode(
     uint8_t tmp_mask_buf[2 * MAX_SB_SQUARE];
     best_compound_data.seg_mask = tmp_mask_buf;
 #endif  // CONFIG_COMPOUND_SEGMENT
-    av1_cost_tokens(compound_type_cost, cm->fc->compound_type_prob[bsize],
-                    av1_compound_type_tree);
 
     if (masked_compound_used) {
       av1_cost_tokens(compound_type_cost, cm->fc->compound_type_prob[bsize],
