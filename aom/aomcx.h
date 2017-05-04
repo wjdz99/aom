@@ -590,6 +590,7 @@ typedef struct aom_scaling_mode {
 typedef enum {
   AOM_CONTENT_DEFAULT,
   AOM_CONTENT_SCREEN,
+  AOM_CONTENT_AUTO,
   AOM_CONTENT_INVALID
 } aom_tune_content;
 

@@ -136,7 +136,11 @@ static struct av1_extracfg default_extra_cfg = {
 #endif
   CONFIG_XIPHRC,                // frame_periodic_delta_q
   AOM_BITS_8,                   // Bit depth
+#if CONFIG_PALETTE
+  AOM_CONTENT_AUTO,             // content
+#else
   AOM_CONTENT_DEFAULT,          // content
+#endif  // CONFIG_PALETTE
   AOM_CS_UNKNOWN,               // color space
   0,                            // color range
   0,                            // render width
