@@ -22,7 +22,7 @@
 #undef CONFIG_COEFFICIENT_RANGE_CHECKING
 #define CONFIG_COEFFICIENT_RANGE_CHECKING 1
 #define AV1_DCT_GTEST
-#include "av1/encoder/dct.c"
+#include "av1/common/dct.c"
 
 using libaom_test::ACMRandom;
 
