@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "930ddfeb_324103ae",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 6270
+      },
+      "writtenOn": "2017-05-05T14:38:36Z",
+      "side": 1,
+      "message": "Yes, this is needed for the forward declaration in cfl.h\n\nhttps://aomedia-review.googlesource.com/c/10567/19/av1/common/cfl.h#27",
+      "parentUuid": "f4a28f31_42d40c34",
+      "revId": "f2d3dddfecfb94c1b221371754ef50c274426120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b27788b8_06207175",
         "filename": "av1/common/entropymode.c",
         "patchSetId": 19
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "5be0717a_cf3ed13c",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2551,
+      "author": {
+        "id": 6270
+      },
+      "writtenOn": "2017-05-05T14:38:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b27788b8_06207175",
+      "revId": "f2d3dddfecfb94c1b221371754ef50c274426120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d8b952e3_27c4beb1",
         "filename": "av1/encoder/encodemb.c",
         "patchSetId": 19
@@ -47,6 +83,24 @@
       "writtenOn": "2017-05-05T14:12:01Z",
       "side": 1,
       "message": "Since av1_predict_intra_block_encoder_facade() calls av1_predict_intra_block_facade() and is only 3 lines long, it might be easier to follow if you just put those 3 lines from below inside the #if CONFIG_CFL ... #endif and not create an extra function.  I realize this code is used in 3 places, but you already have a #if CONFIG_CFL in all 3 of them.\n\nAlternatively, you could add the same #if CONFIG_CFL lines inside av1_predict_intra_block_facade() and then you know the default values will be set in the decoder as well.\n\nJust my two cents.",
+      "revId": "f2d3dddfecfb94c1b221371754ef50c274426120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4de69c62_3b19cc8d",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1439,
+      "author": {
+        "id": 6270
+      },
+      "writtenOn": "2017-05-05T14:38:36Z",
+      "side": 1,
+      "message": "the encoder facade grows considerably in the upcoming patches. In order to do encoder side CfL work. As such, it cannot be merged. It looks weird here because it\u0027s a place holder for the subsequent patches\n\nsee https://aomedia-review.googlesource.com/c/10700/15/av1/encoder/encodemb.c#1634",
+      "parentUuid": "d8b952e3_27c4beb1",
       "revId": "f2d3dddfecfb94c1b221371754ef50c274426120",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
