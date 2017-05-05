@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4a28f31_42d40c34",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-05T14:12:01Z",
+      "side": 1,
+      "message": "Is this change needed?  Generally I\u0027m for putting unrelated cosmetic changes into their own patch.",
+      "revId": "f2d3dddfecfb94c1b221371754ef50c274426120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b27788b8_06207175",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2551,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-05T14:12:01Z",
+      "side": 1,
+      "message": "Should these be wrapped in AOM_ICDF() macros?  The DAALA_EC experiment (on by default) proxies AOM_ICDF(x) to OD_ICDF(x) and the EC_SMALLMUL experiment (disabled by default) flips all entropy coder calls to use ICDF\u0027s by defining OD_ICDF(x).\n\nSee line 46 of aom_dsp/entcode.h",
+      "revId": "f2d3dddfecfb94c1b221371754ef50c274426120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8b952e3_27c4beb1",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1439,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-05T14:12:01Z",
+      "side": 1,
+      "message": "Since av1_predict_intra_block_encoder_facade() calls av1_predict_intra_block_facade() and is only 3 lines long, it might be easier to follow if you just put those 3 lines from below inside the #if CONFIG_CFL ... #endif and not create an extra function.  I realize this code is used in 3 places, but you already have a #if CONFIG_CFL in all 3 of them.\n\nAlternatively, you could add the same #if CONFIG_CFL lines inside av1_predict_intra_block_facade() and then you know the default values will be set in the decoder as well.\n\nJust my two cents.",
+      "revId": "f2d3dddfecfb94c1b221371754ef50c274426120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
