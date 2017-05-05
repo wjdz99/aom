@@ -5160,6 +5160,27 @@ static int gm_get_params_cost(WarpedMotionParams *gm,
   }
   return (params_cost << AV1_PROB_COST_SHIFT);
 }
+
+static int do_gm_search_logic(SPEED_FEATURES *const sf, int num_refs_using_gm,
+                              int frame) {
+  switch (sf->gm_search_type) {
+    case GM_FULL_SEARCH:
+      return 1;
+    case GM_REDUCED_REF_SEARCH:
+#if CONFIG_EXT_REFS
+      return !(frame == LAST2_FRAME || frame == LAST3_FRAME ||
+               num_refs_using_gm >= 2);
+#else
+      return (num_refs_using_gm < 2);
+#endif  // CONFIG_EXT_REFS
+    case GM_DISABLE_SEARCH:
+      return 0;
+      break;
+    default:
+      assert(0);
+  }
+  return 1;
+}
 #endif  // CONFIG_GLOBAL_MOTION
 
 static void encode_frame_internal(AV1_COMP *cpi) {
@@ -5204,9 +5225,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     static const double kIdentityParams[MAX_PARAMDIM - 1] = {
       0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0
     };
+    int num_refs_using_gm = 0;
 
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
       ref_buf = get_ref_frame_buffer(cpi, frame);
+      if (!do_gm_search_logic(&cpi->sf, num_refs_using_gm, frame)) continue;
       if (ref_buf) {
         TransformationType model;
         aom_clear_system_state();
@@ -5276,7 +5299,10 @@ static void encode_frame_internal(AV1_COMP *cpi) {
             set_default_warp_params(&cm->global_motion[frame]);
           }
 
-          if (cm->global_motion[frame].wmtype != IDENTITY) break;
+          if (cm->global_motion[frame].wmtype != IDENTITY) {
+            num_refs_using_gm++;
+            break;
+          }
         }
         aom_clear_system_state();
       }
