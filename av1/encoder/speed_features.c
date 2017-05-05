@@ -79,6 +79,9 @@ static void set_good_speed_feature_framesize_dependent(AV1_COMP *cpi,
                                                        int speed) {
   AV1_COMMON *const cm = &cpi->common;
 
+#if CONFIG_GLOBAL_MOTION
+  sf->gm_search_type = GM_REDUCED_REF_SEARCH;
+#endif  // CONFIG_GLOBAL_MOTION
   if (speed >= 1) {
     if (AOMMIN(cm->width, cm->height) >= 720) {
       sf->disable_split_mask =
@@ -205,6 +208,9 @@ static void set_good_speed_feature(AV1_COMP *cpi, AV1_COMMON *cm,
 #if CONFIG_EXT_TX
     sf->tx_type_search.prune_mode = PRUNE_TWO;
 #endif
+#if CONFIG_GLOBAL_MOTION
+    sf->gm_search_type = GM_DISABLE_SEARCH;
+#endif  // CONFIG_GLOBAL_MOTION
   }
 
   if (speed >= 4) {
@@ -503,4 +509,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
     cpi->find_fractional_mv_step = av1_return_max_sub_pixel_mv;
   else if (cpi->oxcf.motion_vector_unit_test == 2)
     cpi->find_fractional_mv_step = av1_return_min_sub_pixel_mv;
+#if CONFIG_GLOBAL_MOTION
+  sf->gm_search_type = GM_FULL_SEARCH;
+#endif  // CONFIG_GLOBAL_MOTION
 }
