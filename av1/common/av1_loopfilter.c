@@ -22,7 +22,7 @@
 
 #include "av1/common/seg_common.h"
 
-#define CONFIG_PARALLEL_DEBLOCKING_15TAPLUMAONLY 0
+#define CONFIG_PARALLEL_DEBLOCKING_15TAPLUMAONLY CONFIG_PARALLEL_DEBLOCKING_15TAP
 
 // 64 bit masks for left transform size. Each 1 represents a position where
 // we should apply a loop filter across the left border of an 8x8 block
@@ -1995,7 +1995,11 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
   {
     const TX_SIZE ts =
         av1_get_transform_size(ppCurr[0], edgeDir, scaleHorz, scaleVert);
+#if CONFIG_EXT_DELTA_Q
+    const uint32_t currLevel = get_filter_level(cm, &cm->lf_info, &ppCurr[0]->mbmi);
+#else
     const uint32_t currLevel = get_filter_level(&cm->lf_info, &ppCurr[0]->mbmi);
+#endif
     const int currSkipped =
         ppCurr[0]->mbmi.skip && is_inter_block(&ppCurr[0]->mbmi);
     const uint32_t coord = (VERT_EDGE == edgeDir) ? (x) : (y);
@@ -2016,7 +2020,11 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
           const MODE_INFO *const pPrev = *(ppCurr - modeStep);
           const TX_SIZE pvTs =
               av1_get_transform_size(pPrev, edgeDir, scaleHorz, scaleVert);
+#if CONFIG_EXT_DELTA_Q
+          const uint32_t pvLvl = get_filter_level(cm, &cm->lf_info, &pPrev->mbmi);
+#else
           const uint32_t pvLvl = get_filter_level(&cm->lf_info, &pPrev->mbmi);
+#endif
           const int pvSkip = pPrev->mbmi.skip && is_inter_block(&pPrev->mbmi);
           const int32_t puEdge =
               (coord &

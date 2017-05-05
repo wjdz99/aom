@@ -21,7 +21,7 @@ static INLINE int8_t signed_char_clamp(int t) {
 }
 
 #define PARALLEL_DEBLOCKING_11_TAP 0
-#define PARALLEL_DEBLOCKING_9_TAP 0
+#define PARALLEL_DEBLOCKING_9_TAP 1
 
 #if CONFIG_HIGHBITDEPTH
 static INLINE int16_t signed_char_clamp_high(int t, int bd) {
