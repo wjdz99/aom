@@ -101,7 +101,7 @@ static void extend_plane(uint8_t *const src, int src_stride, int width,
   }
 }
 
-static void extend_frame(YV12_BUFFER_CONFIG *const ybf, int ext_size) {
+static void extend_frame(Yv12BufferConfig *const ybf, int ext_size) {
   const int c_w = ybf->uv_crop_width;
   const int c_h = ybf->uv_crop_height;
   const int ss_x = ybf->uv_width < ybf->y_width;
@@ -126,11 +126,11 @@ static void extend_frame(YV12_BUFFER_CONFIG *const ybf, int ext_size) {
   extend_plane(ybf->v_buffer, ybf->uv_stride, c_w, c_h, c_et, c_el, c_eb, c_er);
 }
 
-void aom_extend_frame_borders_dspr2(YV12_BUFFER_CONFIG *ybf) {
+void aom_extend_frame_borders_dspr2(Yv12BufferConfig *ybf) {
   extend_frame(ybf, ybf->border);
 }
 
-void aom_extend_frame_inner_borders_dspr2(YV12_BUFFER_CONFIG *ybf) {
+void aom_extend_frame_inner_borders_dspr2(Yv12BufferConfig *ybf) {
   const int inner_bw = (ybf->border > AOMINNERBORDERINPIXELS)
                            ? AOMINNERBORDERINPIXELS
                            : ybf->border;

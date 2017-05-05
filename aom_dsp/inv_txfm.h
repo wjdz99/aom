@@ -22,12 +22,12 @@
 extern "C" {
 #endif
 
-static INLINE tran_high_t dct_const_round_shift(tran_high_t input) {
-  tran_high_t rv = ROUND_POWER_OF_TWO(input, DCT_CONST_BITS);
+static INLINE TranHighT dct_const_round_shift(TranHighT input) {
+  TranHighT rv = ROUND_POWER_OF_TWO(input, DCT_CONST_BITS);
   return rv;
 }
 
-static INLINE tran_high_t check_range(tran_high_t input, int bd) {
+static INLINE TranHighT check_range(TranHighT input, int bd) {
 #if CONFIG_COEFFICIENT_RANGE_CHECKING
   // For valid AV1 input streams, intermediate stage coefficients should always
   // stay within the range of a signed 16 bit integer. Coefficients can go out
@@ -55,32 +55,32 @@ static INLINE tran_high_t check_range(tran_high_t input, int bd) {
 #define HIGHBD_WRAPLOW(x, bd) ((int32_t)check_range((x), bd))
 #endif  // CONFIG_HIGHBITDEPTH
 
-void aom_idct4_c(const tran_low_t *input, tran_low_t *output);
-void aom_idct8_c(const tran_low_t *input, tran_low_t *output);
-void aom_idct16_c(const tran_low_t *input, tran_low_t *output);
-void aom_idct32_c(const tran_low_t *input, tran_low_t *output);
-void aom_iadst4_c(const tran_low_t *input, tran_low_t *output);
-void aom_iadst8_c(const tran_low_t *input, tran_low_t *output);
-void aom_iadst16_c(const tran_low_t *input, tran_low_t *output);
+void aom_idct4_c(const TranLowT *input, TranLowT *output);
+void aom_idct8_c(const TranLowT *input, TranLowT *output);
+void aom_idct16_c(const TranLowT *input, TranLowT *output);
+void aom_idct32_c(const TranLowT *input, TranLowT *output);
+void aom_iadst4_c(const TranLowT *input, TranLowT *output);
+void aom_iadst8_c(const TranLowT *input, TranLowT *output);
+void aom_iadst16_c(const TranLowT *input, TranLowT *output);
 
 #if CONFIG_HIGHBITDEPTH
-void aom_highbd_idct4_c(const tran_low_t *input, tran_low_t *output, int bd);
-void aom_highbd_idct8_c(const tran_low_t *input, tran_low_t *output, int bd);
-void aom_highbd_idct16_c(const tran_low_t *input, tran_low_t *output, int bd);
-void aom_highbd_idct32_c(const tran_low_t *input, tran_low_t *output, int bd);
+void aom_highbd_idct4_c(const TranLowT *input, TranLowT *output, int bd);
+void aom_highbd_idct8_c(const TranLowT *input, TranLowT *output, int bd);
+void aom_highbd_idct16_c(const TranLowT *input, TranLowT *output, int bd);
+void aom_highbd_idct32_c(const TranLowT *input, TranLowT *output, int bd);
 
-void aom_highbd_iadst4_c(const tran_low_t *input, tran_low_t *output, int bd);
-void aom_highbd_iadst8_c(const tran_low_t *input, tran_low_t *output, int bd);
-void aom_highbd_iadst16_c(const tran_low_t *input, tran_low_t *output, int bd);
+void aom_highbd_iadst4_c(const TranLowT *input, TranLowT *output, int bd);
+void aom_highbd_iadst8_c(const TranLowT *input, TranLowT *output, int bd);
+void aom_highbd_iadst16_c(const TranLowT *input, TranLowT *output, int bd);
 
-static INLINE uint16_t highbd_clip_pixel_add(uint16_t dest, tran_high_t trans,
+static INLINE uint16_t highbd_clip_pixel_add(uint16_t dest, TranHighT trans,
                                              int bd) {
   trans = HIGHBD_WRAPLOW(trans, bd);
   return clip_pixel_highbd(dest + (int)trans, bd);
 }
 #endif
 
-static INLINE uint8_t clip_pixel_add(uint8_t dest, tran_high_t trans) {
+static INLINE uint8_t clip_pixel_add(uint8_t dest, TranHighT trans) {
   trans = WRAPLOW(trans);
   return clip_pixel(dest + (int)trans);
 }

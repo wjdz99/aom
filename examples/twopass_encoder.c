@@ -66,14 +66,14 @@ void usage_exit(void) {
   exit(EXIT_FAILURE);
 }
 
-static int get_frame_stats(aom_codec_ctx_t *ctx, const aom_image_t *img,
-                           aom_codec_pts_t pts, unsigned int duration,
-                           aom_enc_frame_flags_t flags, unsigned int deadline,
-                           aom_fixed_buf_t *stats) {
+static int get_frame_stats(AomCodecCtxT *ctx, const AomImageT *img,
+                           AomCodecPtsT pts, unsigned int duration,
+                           AomEncFrameFlagsT flags, unsigned int deadline,
+                           AomFixedBufT *stats) {
   int got_pkts = 0;
-  aom_codec_iter_t iter = NULL;
-  const aom_codec_cx_pkt_t *pkt = NULL;
-  const aom_codec_err_t res =
+  AomCodecIterT iter = NULL;
+  const AomCodecCxPktT *pkt = NULL;
+  const AomCodecErrT res =
       aom_codec_encode(ctx, img, pts, duration, flags, deadline);
   if (res != AOM_CODEC_OK) die_codec(ctx, "Failed to get frame stats.");
 
@@ -92,14 +92,14 @@ static int get_frame_stats(aom_codec_ctx_t *ctx, const aom_image_t *img,
   return got_pkts;
 }
 
-static int encode_frame(aom_codec_ctx_t *ctx, const aom_image_t *img,
-                        aom_codec_pts_t pts, unsigned int duration,
-                        aom_enc_frame_flags_t flags, unsigned int deadline,
+static int encode_frame(AomCodecCtxT *ctx, const AomImageT *img,
+                        AomCodecPtsT pts, unsigned int duration,
+                        AomEncFrameFlagsT flags, unsigned int deadline,
                         AvxVideoWriter *writer) {
   int got_pkts = 0;
-  aom_codec_iter_t iter = NULL;
-  const aom_codec_cx_pkt_t *pkt = NULL;
-  const aom_codec_err_t res =
+  AomCodecIterT iter = NULL;
+  const AomCodecCxPktT *pkt = NULL;
+  const AomCodecErrT res =
       aom_codec_encode(ctx, img, pts, duration, flags, deadline);
   if (res != AOM_CODEC_OK) die_codec(ctx, "Failed to encode frame.");
 
@@ -120,12 +120,12 @@ static int encode_frame(aom_codec_ctx_t *ctx, const aom_image_t *img,
   return got_pkts;
 }
 
-static aom_fixed_buf_t pass0(aom_image_t *raw, FILE *infile,
-                             const AvxInterface *encoder,
-                             const aom_codec_enc_cfg_t *cfg, int limit) {
-  aom_codec_ctx_t codec;
+static AomFixedBufT pass0(AomImageT *raw, FILE *infile,
+                          const AvxInterface *encoder,
+                          const AomCodecEncCfgT *cfg, int limit) {
+  AomCodecCtxT codec;
   int frame_count = 0;
-  aom_fixed_buf_t stats = { NULL, 0 };
+  AomFixedBufT stats = { NULL, 0 };
 
   if (aom_codec_enc_init(&codec, encoder->codec_interface(), cfg, 0))
     die_codec(&codec, "Failed to initialize encoder");
@@ -148,15 +148,15 @@ static aom_fixed_buf_t pass0(aom_image_t *raw, FILE *infile,
   return stats;
 }
 
-static void pass1(aom_image_t *raw, FILE *infile, const char *outfile_name,
-                  const AvxInterface *encoder, const aom_codec_enc_cfg_t *cfg,
+static void pass1(AomImageT *raw, FILE *infile, const char *outfile_name,
+                  const AvxInterface *encoder, const AomCodecEncCfgT *cfg,
                   int limit) {
   AvxVideoInfo info = { encoder->fourcc,
                         cfg->g_w,
                         cfg->g_h,
                         { cfg->g_timebase.num, cfg->g_timebase.den } };
   AvxVideoWriter *writer = NULL;
-  aom_codec_ctx_t codec;
+  AomCodecCtxT codec;
   int frame_count = 0;
 
   writer = aom_video_writer_open(outfile_name, kContainerIVF, &info);
@@ -187,11 +187,11 @@ static void pass1(aom_image_t *raw, FILE *infile, const char *outfile_name,
 int main(int argc, char **argv) {
   FILE *infile = NULL;
   int w, h;
-  aom_codec_ctx_t codec;
-  aom_codec_enc_cfg_t cfg;
-  aom_image_t raw;
-  aom_codec_err_t res;
-  aom_fixed_buf_t stats;
+  AomCodecCtxT codec;
+  AomCodecEncCfgT cfg;
+  AomImageT raw;
+  AomCodecErrT res;
+  AomFixedBufT stats;
 
   const AvxInterface *encoder = NULL;
   const int fps = 30;       // TODO(dkovalev) add command line argument

@@ -19,7 +19,7 @@ namespace libaom_test {
 namespace AV1WarpFilter {
 
 ::testing::internal::ParamGenerator<WarpTestParam> BuildParams(
-    warp_affine_func filter) {
+    WarpAffineFunc filter) {
   const WarpTestParam params[] = {
     make_tuple(4, 4, 50000, filter),  make_tuple(8, 8, 50000, filter),
     make_tuple(64, 64, 1000, filter), make_tuple(4, 16, 20000, filter),
@@ -85,7 +85,7 @@ void AV1WarpFilterTest::generate_model(int32_t *mat, int16_t *alpha,
   }
 }
 
-void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
+void AV1WarpFilterTest::RunCheckOutput(WarpAffineFunc test_impl) {
   const int w = 128, h = 128;
   const int border = 16;
   const int stride = w + 2 * border;
@@ -210,8 +210,7 @@ void AV1HighbdWarpFilterTest::generate_model(int32_t *mat, int16_t *alpha,
   }
 }
 
-void AV1HighbdWarpFilterTest::RunCheckOutput(
-    highbd_warp_affine_func test_impl) {
+void AV1HighbdWarpFilterTest::RunCheckOutput(HighbdWarpAffineFunc test_impl) {
   const int w = 128, h = 128;
   const int border = 16;
   const int stride = w + 2 * border;

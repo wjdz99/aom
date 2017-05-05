@@ -11,7 +11,7 @@
 
 #include "aom_dsp/daalaboolreader.h"
 
-int aom_daala_reader_init(daala_reader *r, const uint8_t *buffer, int size) {
+int aom_daala_reader_init(DaalaReader *r, const uint8_t *buffer, int size) {
   if (size && !buffer) {
     return 1;
   }
@@ -24,14 +24,14 @@ int aom_daala_reader_init(daala_reader *r, const uint8_t *buffer, int size) {
   return 0;
 }
 
-const uint8_t *aom_daala_reader_find_end(daala_reader *r) {
+const uint8_t *aom_daala_reader_find_end(DaalaReader *r) {
   return r->buffer_end;
 }
 
-uint32_t aom_daala_reader_tell(const daala_reader *r) {
+uint32_t aom_daala_reader_tell(const DaalaReader *r) {
   return od_ec_dec_tell(&r->ec);
 }
 
-uint32_t aom_daala_reader_tell_frac(const daala_reader *r) {
+uint32_t aom_daala_reader_tell_frac(const DaalaReader *r) {
   return od_ec_dec_tell_frac(&r->ec);
 }

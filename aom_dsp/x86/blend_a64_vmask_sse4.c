@@ -151,7 +151,7 @@ void aom_blend_a64_vmask_sse4_1(uint8_t *dst, uint32_t dst_stride,
 static INLINE void blend_a64_vmask_bn_w4_sse4_1(
     uint16_t *dst, uint32_t dst_stride, const uint16_t *src0,
     uint32_t src0_stride, const uint16_t *src1, uint32_t src1_stride,
-    const uint8_t *mask, int h, blend_unit_fn blend) {
+    const uint8_t *mask, int h, BlendUnitFn blend) {
   const __m128i v_maxval_w = _mm_set1_epi16(AOM_BLEND_A64_MAX_ALPHA);
 
   do {
@@ -194,7 +194,7 @@ static void blend_a64_vmask_b12_w4_sse4_1(uint16_t *dst, uint32_t dst_stride,
 static INLINE void blend_a64_vmask_bn_w8n_sse4_1(
     uint16_t *dst, uint32_t dst_stride, const uint16_t *src0,
     uint32_t src0_stride, const uint16_t *src1, uint32_t src1_stride,
-    const uint8_t *mask, int h, int w, blend_unit_fn blend) {
+    const uint8_t *mask, int h, int w, BlendUnitFn blend) {
   const __m128i v_maxval_w = _mm_set1_epi16(AOM_BLEND_A64_MAX_ALPHA);
 
   do {

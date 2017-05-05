@@ -52,7 +52,7 @@ TEST(AV1, TestBitIO) {
         const int random_seed = 6432;
         const int kBufferSize = 10000;
         ACMRandom bit_rnd(random_seed);
-        aom_writer bw;
+        AomWriter bw;
         uint8_t bw_buffer[kBufferSize];
         aom_start_encode(&bw, bw_buffer);
 
@@ -73,7 +73,7 @@ TEST(AV1, TestBitIO) {
         GTEST_ASSERT_EQ(bw_buffer[0] & 0x80, 0);
 #endif
 
-        aom_reader br;
+        AomReader br;
         aom_reader_init(&br, bw_buffer, bw.pos, NULL, NULL);
         bit_rnd.Reset(random_seed);
         for (int i = 0; i < kBitsToTest; ++i) {
@@ -99,7 +99,7 @@ TEST(AV1, TestBitIO) {
 
 TEST(AV1, TestTell) {
   const int kBufferSize = 10000;
-  aom_writer bw;
+  AomWriter bw;
   uint8_t bw_buffer[kBufferSize];
   const int kSymbols = 1024;
   // Coders are noisier at low probabilities, so we start at p = 4.
@@ -110,7 +110,7 @@ TEST(AV1, TestTell) {
       aom_write(&bw, 0, p);
     }
     aom_stop_encode(&bw);
-    aom_reader br;
+    AomReader br;
     aom_reader_init(&br, bw_buffer, bw.pos, NULL, NULL);
     uint32_t last_tell = aom_reader_tell(&br);
     uint32_t last_tell_frac = aom_reader_tell_frac(&br);

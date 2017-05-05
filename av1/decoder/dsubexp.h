@@ -24,7 +24,7 @@ extern "C" {
 #define av1_diff_update_prob(r, p, str) av1_diff_update_prob_(r, p)
 #endif
 
-void av1_diff_update_prob_(aom_reader *r, aom_prob *p ACCT_STR_PARAM);
+void av1_diff_update_prob_(AomReader *r, AomProb *p ACCT_STR_PARAM);
 
 #ifdef __cplusplus
 }  // extern "C"

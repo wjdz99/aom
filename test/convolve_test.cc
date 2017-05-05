@@ -88,7 +88,7 @@ typedef std::tr1::tuple<int, int, const ConvolveFunctions *> ConvolveParam;
       make_tuple(64, 64, &convolve_fn)
 #endif  // CONFIG_AV1 && CONFIG_EXT_PARTITION
 
-// Reference 8-tap subpixel filter, slightly modified to fit into this test.
+// reference 8-tap subpixel filter, slightly modified to fit into this test.
 #define AV1_FILTER_WEIGHT 128
 #define AV1_FILTER_SHIFT 7
 uint8_t clip_pixel(int x) { return x < 0 ? 0 : x > 255 ? 255 : x; }
@@ -946,7 +946,7 @@ TEST_P(ConvolveTest, DISABLED_Copy_Speed) {
   const int kNumTests = 5000000;
   const int width = Width();
   const int height = Height();
-  aom_usec_timer timer;
+  AomUsecTimer timer;
 
   aom_usec_timer_start(&timer);
   for (int n = 0; n < kNumTests; ++n) {
@@ -966,7 +966,7 @@ TEST_P(ConvolveTest, DISABLED_Avg_Speed) {
   const int kNumTests = 5000000;
   const int width = Width();
   const int height = Height();
-  aom_usec_timer timer;
+  AomUsecTimer timer;
 
   aom_usec_timer_start(&timer);
   for (int n = 0; n < kNumTests; ++n) {
@@ -1022,7 +1022,7 @@ TEST_P(ConvolveTest, DISABLED_Speed) {
   wrapper_filter_average_block2d_8_c(in, kInputStride, filters[1], filters[1],
                                      out, kOutputStride, Width(), Height());
 
-  aom_usec_timer timer;
+  AomUsecTimer timer;
   int tests_num = 1000;
 
   aom_usec_timer_start(&timer);

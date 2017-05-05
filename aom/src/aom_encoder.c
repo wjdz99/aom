@@ -26,15 +26,14 @@
 
 #define SAVE_STATUS(ctx, var) (ctx ? (ctx->err = var) : var)
 
-static aom_codec_alg_priv_t *get_alg_priv(aom_codec_ctx_t *ctx) {
-  return (aom_codec_alg_priv_t *)ctx->priv;
+static AomCodecAlgPrivT *get_alg_priv(AomCodecCtxT *ctx) {
+  return (AomCodecAlgPrivT *)ctx->priv;
 }
 
-aom_codec_err_t aom_codec_enc_init_ver(aom_codec_ctx_t *ctx,
-                                       aom_codec_iface_t *iface,
-                                       const aom_codec_enc_cfg_t *cfg,
-                                       aom_codec_flags_t flags, int ver) {
-  aom_codec_err_t res;
+AomCodecErrT aom_codec_enc_init_ver(AomCodecCtxT *ctx, AomCodecIfaceT *iface,
+                                    const AomCodecEncCfgT *cfg,
+                                    AomCodecFlagsT flags, int ver) {
+  AomCodecErrT res;
 
   if (ver != AOM_ENCODER_ABI_VERSION)
     res = AOM_CODEC_ABI_MISMATCH;
@@ -66,10 +65,12 @@ aom_codec_err_t aom_codec_enc_init_ver(aom_codec_ctx_t *ctx,
   return SAVE_STATUS(ctx, res);
 }
 
-aom_codec_err_t aom_codec_enc_init_multi_ver(
-    aom_codec_ctx_t *ctx, aom_codec_iface_t *iface, aom_codec_enc_cfg_t *cfg,
-    int num_enc, aom_codec_flags_t flags, aom_rational_t *dsf, int ver) {
-  aom_codec_err_t res = AOM_CODEC_OK;
+AomCodecErrT aom_codec_enc_init_multi_ver(AomCodecCtxT *ctx,
+                                          AomCodecIfaceT *iface,
+                                          AomCodecEncCfgT *cfg, int num_enc,
+                                          AomCodecFlagsT flags,
+                                          AomRationalT *dsf, int ver) {
+  AomCodecErrT res = AOM_CODEC_OK;
 
   if (ver != AOM_ENCODER_ABI_VERSION)
     res = AOM_CODEC_ABI_MISMATCH;
@@ -90,7 +91,7 @@ aom_codec_err_t aom_codec_enc_init_multi_ver(
 
     if (!(res = iface->enc.mr_get_mem_loc(cfg, &mem_loc))) {
       for (i = 0; i < num_enc; i++) {
-        aom_codec_priv_enc_mr_cfg_t mr_cfg;
+        AomCodecPrivEncMrCfgT mr_cfg;
 
         /* Validate down-sampling factor. */
         if (dsf->num < 1 || dsf->num > 4096 || dsf->den < 1 ||
@@ -146,11 +147,11 @@ aom_codec_err_t aom_codec_enc_init_multi_ver(
   return SAVE_STATUS(ctx, res);
 }
 
-aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
-                                             aom_codec_enc_cfg_t *cfg,
-                                             unsigned int usage) {
-  aom_codec_err_t res;
-  aom_codec_enc_cfg_map_t *map;
+AomCodecErrT aom_codec_enc_config_default(AomCodecIfaceT *iface,
+                                          AomCodecEncCfgT *cfg,
+                                          unsigned int usage) {
+  AomCodecErrT res;
+  AomCodecEncCfgMapT *map;
   int i;
 
   if (!iface || !cfg || usage > INT_MAX)
@@ -211,11 +212,10 @@ aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
   FLOATING_POINT_RESTORE_PRECISION  \
   FLOATING_POINT_END_SCOPE
 
-aom_codec_err_t aom_codec_encode(aom_codec_ctx_t *ctx, const aom_image_t *img,
-                                 aom_codec_pts_t pts, unsigned long duration,
-                                 aom_enc_frame_flags_t flags,
-                                 unsigned long deadline) {
-  aom_codec_err_t res = AOM_CODEC_OK;
+AomCodecErrT aom_codec_encode(AomCodecCtxT *ctx, const AomImageT *img,
+                              AomCodecPtsT pts, unsigned long duration,
+                              AomEncFrameFlagsT flags, unsigned long deadline) {
+  AomCodecErrT res = AOM_CODEC_OK;
 
   if (!ctx || (img && !duration))
     res = AOM_CODEC_INVALID_PARAM;
@@ -262,9 +262,9 @@ aom_codec_err_t aom_codec_encode(aom_codec_ctx_t *ctx, const aom_image_t *img,
   return SAVE_STATUS(ctx, res);
 }
 
-const aom_codec_cx_pkt_t *aom_codec_get_cx_data(aom_codec_ctx_t *ctx,
-                                                aom_codec_iter_t *iter) {
-  const aom_codec_cx_pkt_t *pkt = NULL;
+const AomCodecCxPktT *aom_codec_get_cx_data(AomCodecCtxT *ctx,
+                                            AomCodecIterT *iter) {
+  const AomCodecCxPktT *pkt = NULL;
 
   if (ctx) {
     if (!iter)
@@ -281,14 +281,14 @@ const aom_codec_cx_pkt_t *aom_codec_get_cx_data(aom_codec_ctx_t *ctx,
     // If the application has specified a destination area for the
     // compressed data, and the codec has not placed the data there,
     // and it fits, copy it.
-    aom_codec_priv_t *const priv = ctx->priv;
+    AomCodecPrivT *const priv = ctx->priv;
     char *const dst_buf = (char *)priv->enc.cx_data_dst_buf.buf;
 
     if (dst_buf && pkt->data.raw.buf != dst_buf &&
         pkt->data.raw.sz + priv->enc.cx_data_pad_before +
                 priv->enc.cx_data_pad_after <=
             priv->enc.cx_data_dst_buf.sz) {
-      aom_codec_cx_pkt_t *modified_pkt = &priv->enc.cx_data_pkt;
+      AomCodecCxPktT *modified_pkt = &priv->enc.cx_data_pkt;
 
       memcpy(dst_buf + priv->enc.cx_data_pad_before, pkt->data.raw.buf,
              pkt->data.raw.sz);
@@ -308,10 +308,10 @@ const aom_codec_cx_pkt_t *aom_codec_get_cx_data(aom_codec_ctx_t *ctx,
   return pkt;
 }
 
-aom_codec_err_t aom_codec_set_cx_data_buf(aom_codec_ctx_t *ctx,
-                                          const aom_fixed_buf_t *buf,
-                                          unsigned int pad_before,
-                                          unsigned int pad_after) {
+AomCodecErrT aom_codec_set_cx_data_buf(AomCodecCtxT *ctx,
+                                       const AomFixedBufT *buf,
+                                       unsigned int pad_before,
+                                       unsigned int pad_after) {
   if (!ctx || !ctx->priv) return AOM_CODEC_INVALID_PARAM;
 
   if (buf) {
@@ -328,8 +328,8 @@ aom_codec_err_t aom_codec_set_cx_data_buf(aom_codec_ctx_t *ctx,
   return AOM_CODEC_OK;
 }
 
-const aom_image_t *aom_codec_get_preview_frame(aom_codec_ctx_t *ctx) {
-  aom_image_t *img = NULL;
+const AomImageT *aom_codec_get_preview_frame(AomCodecCtxT *ctx) {
+  AomImageT *img = NULL;
 
   if (ctx) {
     if (!ctx->iface || !ctx->priv)
@@ -345,8 +345,8 @@ const aom_image_t *aom_codec_get_preview_frame(aom_codec_ctx_t *ctx) {
   return img;
 }
 
-aom_fixed_buf_t *aom_codec_get_global_headers(aom_codec_ctx_t *ctx) {
-  aom_fixed_buf_t *buf = NULL;
+AomFixedBufT *aom_codec_get_global_headers(AomCodecCtxT *ctx) {
+  AomFixedBufT *buf = NULL;
 
   if (ctx) {
     if (!ctx->iface || !ctx->priv)
@@ -362,9 +362,9 @@ aom_fixed_buf_t *aom_codec_get_global_headers(aom_codec_ctx_t *ctx) {
   return buf;
 }
 
-aom_codec_err_t aom_codec_enc_config_set(aom_codec_ctx_t *ctx,
-                                         const aom_codec_enc_cfg_t *cfg) {
-  aom_codec_err_t res;
+AomCodecErrT aom_codec_enc_config_set(AomCodecCtxT *ctx,
+                                      const AomCodecEncCfgT *cfg) {
+  AomCodecErrT res;
 
   if (!ctx || !ctx->iface || !ctx->priv || !cfg)
     res = AOM_CODEC_INVALID_PARAM;
@@ -376,8 +376,8 @@ aom_codec_err_t aom_codec_enc_config_set(aom_codec_ctx_t *ctx,
   return SAVE_STATUS(ctx, res);
 }
 
-int aom_codec_pkt_list_add(struct aom_codec_pkt_list *list,
-                           const struct aom_codec_cx_pkt *pkt) {
+int aom_codec_pkt_list_add(struct AomCodecPktList *list,
+                           const struct AomCodecCxPkt *pkt) {
   if (list->cnt < list->max) {
     list->pkts[list->cnt++] = *pkt;
     return 0;
@@ -386,15 +386,15 @@ int aom_codec_pkt_list_add(struct aom_codec_pkt_list *list,
   return 1;
 }
 
-const aom_codec_cx_pkt_t *aom_codec_pkt_list_get(
-    struct aom_codec_pkt_list *list, aom_codec_iter_t *iter) {
-  const aom_codec_cx_pkt_t *pkt;
+const AomCodecCxPktT *aom_codec_pkt_list_get(struct AomCodecPktList *list,
+                                             AomCodecIterT *iter) {
+  const AomCodecCxPktT *pkt;
 
   if (!(*iter)) {
     *iter = list->pkts;
   }
 
-  pkt = (const aom_codec_cx_pkt_t *)*iter;
+  pkt = (const AomCodecCxPktT *)*iter;
 
   if ((size_t)(pkt - list->pkts) < list->cnt)
     *iter = pkt + 1;

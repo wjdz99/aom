@@ -37,7 +37,7 @@ extern "C" {
 typedef struct {
   uint8_t *mb_stats_start;
   uint8_t *mb_stats_end;
-} FIRSTPASS_MB_STATS;
+} FirstpassMbStats;
 #endif
 
 #if CONFIG_EXT_REFS
@@ -77,7 +77,7 @@ typedef struct {
   double new_mv_count;
   double duration;
   double count;
-} FIRSTPASS_STATS;
+} FirstpassStats;
 
 typedef enum {
   KF_UPDATE = 0,
@@ -86,7 +86,7 @@ typedef enum {
   ARF_UPDATE = 3,
   OVERLAY_UPDATE = 4,
 #if CONFIG_EXT_REFS
-  BRF_UPDATE = 5,            // Backward Reference Frame
+  BRF_UPDATE = 5,            // Backward reference Frame
   LAST_BIPRED_UPDATE = 6,    // Last Bi-predictive Frame
   BIPRED_UPDATE = 7,         // Bi-predictive Frame, but not the last one
   INTNL_OVERLAY_UPDATE = 8,  // Internal Overlay Frame
@@ -94,19 +94,19 @@ typedef enum {
 #else
   FRAME_UPDATE_TYPES = 5
 #endif  // CONFIG_EXT_REFS
-} FRAME_UPDATE_TYPE;
+} FrameUpdateType;
 
 #define FC_ANIMATION_THRESH 0.15
 typedef enum {
   FC_NORMAL = 0,
   FC_GRAPHICS_ANIMATION = 1,
   FRAME_CONTENT_TYPES = 2
-} FRAME_CONTENT_TYPE;
+} FrameContentType;
 
 typedef struct {
   unsigned char index;
-  RATE_FACTOR_LEVEL rf_level[(MAX_LAG_BUFFERS * 2) + 1];
-  FRAME_UPDATE_TYPE update_type[(MAX_LAG_BUFFERS * 2) + 1];
+  RateFactorLevel rf_level[(MAX_LAG_BUFFERS * 2) + 1];
+  FrameUpdateType update_type[(MAX_LAG_BUFFERS * 2) + 1];
   unsigned char arf_src_offset[(MAX_LAG_BUFFERS * 2) + 1];
   unsigned char arf_update_idx[(MAX_LAG_BUFFERS * 2) + 1];
   unsigned char arf_ref_idx[(MAX_LAG_BUFFERS * 2) + 1];
@@ -115,16 +115,16 @@ typedef struct {
   unsigned char bidir_pred_enabled[(MAX_LAG_BUFFERS * 2) + 1];
 #endif  // CONFIG_EXT_REFS
   int bit_allocation[(MAX_LAG_BUFFERS * 2) + 1];
-} GF_GROUP;
+} GfGroup;
 
 typedef struct {
   unsigned int section_intra_rating;
-  FIRSTPASS_STATS total_stats;
-  FIRSTPASS_STATS this_frame_stats;
-  const FIRSTPASS_STATS *stats_in;
-  const FIRSTPASS_STATS *stats_in_start;
-  const FIRSTPASS_STATS *stats_in_end;
-  FIRSTPASS_STATS total_left_stats;
+  FirstpassStats total_stats;
+  FirstpassStats this_frame_stats;
+  const FirstpassStats *stats_in;
+  const FirstpassStats *stats_in_start;
+  const FirstpassStats *stats_in_end;
+  FirstpassStats total_left_stats;
   int first_pass_done;
   int64_t bits_left;
   double modified_error_min;
@@ -135,10 +135,10 @@ typedef struct {
 #if CONFIG_FP_MB_STATS
   uint8_t *frame_mb_stats_buf;
   uint8_t *this_frame_mb_stats;
-  FIRSTPASS_MB_STATS firstpass_mb_stats;
+  FirstpassMbStats firstpass_mb_stats;
 #endif
   // An indication of the content type of the current frame
-  FRAME_CONTENT_TYPE fr_content_type;
+  FrameContentType fr_content_type;
 
   // Projected total bits available for a key frame group of frames
   int64_t kf_group_bits;
@@ -160,24 +160,24 @@ typedef struct {
   int extend_maxq;
   int extend_minq_fast;
 
-  GF_GROUP gf_group;
-} TWO_PASS;
+  GfGroup gf_group;
+} TwoPass;
 
-struct AV1_COMP;
+struct Av1Comp;
 
-void av1_init_first_pass(struct AV1_COMP *cpi);
-void av1_rc_get_first_pass_params(struct AV1_COMP *cpi);
-void av1_first_pass(struct AV1_COMP *cpi, const struct lookahead_entry *source);
-void av1_end_first_pass(struct AV1_COMP *cpi);
+void av1_init_first_pass(struct Av1Comp *cpi);
+void av1_rc_get_first_pass_params(struct Av1Comp *cpi);
+void av1_first_pass(struct Av1Comp *cpi, const struct LookaheadEntry *source);
+void av1_end_first_pass(struct Av1Comp *cpi);
 
-void av1_init_second_pass(struct AV1_COMP *cpi);
-void av1_rc_get_second_pass_params(struct AV1_COMP *cpi);
-void av1_twopass_postencode_update(struct AV1_COMP *cpi);
+void av1_init_second_pass(struct Av1Comp *cpi);
+void av1_rc_get_second_pass_params(struct Av1Comp *cpi);
+void av1_twopass_postencode_update(struct Av1Comp *cpi);
 
 // Post encode update of the rate control parameters for 2-pass
-void av1_twopass_postencode_update(struct AV1_COMP *cpi);
+void av1_twopass_postencode_update(struct Av1Comp *cpi);
 
-void av1_calculate_coded_size(const struct AV1_COMP *cpi,
+void av1_calculate_coded_size(const struct Av1Comp *cpi,
                               int *scaled_frame_width,
                               int *scaled_frame_height);
 

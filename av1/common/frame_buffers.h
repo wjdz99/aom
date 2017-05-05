@@ -41,11 +41,11 @@ void av1_free_internal_frame_buffers(InternalFrameBufferList *list);
 // |min_size| is the minimum size in bytes needed to decode the next frame.
 // |fb| pointer to the frame buffer.
 int av1_get_frame_buffer(void *cb_priv, size_t min_size,
-                         aom_codec_frame_buffer_t *fb);
+                         AomCodecFrameBufferT *fb);
 
 // Callback used by libaom when there are no references to the frame buffer.
 // |cb_priv| is not used. |fb| pointer to the frame buffer.
-int av1_release_frame_buffer(void *cb_priv, aom_codec_frame_buffer_t *fb);
+int av1_release_frame_buffer(void *cb_priv, AomCodecFrameBufferT *fb);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -41,14 +41,14 @@ static const double aq_c_var_thresholds[AQ_C_STRENGTHS][AQ_C_SEGMENTS] = {
 
 #define DEFAULT_COMPLEXITY 64
 
-static int get_aq_c_strength(int q_index, aom_bit_depth_t bit_depth) {
+static int get_aq_c_strength(int q_index, AomBitDepthT bit_depth) {
   // Approximate base quatizer (truncated to int)
   const int base_quant = av1_ac_quant(q_index, 0, bit_depth) / 4;
   return (base_quant > 10) + (base_quant > 25);
 }
 
-void av1_setup_in_frame_q_adj(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
+void av1_setup_in_frame_q_adj(Av1Comp *cpi) {
+  Av1Common *const cm = &cpi->common;
   struct segmentation *const seg = &cm->seg;
 
   // Make SURE use of floating point in this function is safe.
@@ -111,9 +111,9 @@ void av1_setup_in_frame_q_adj(AV1_COMP *cpi) {
 // Select a segment for the current block.
 // The choice of segment for a block depends on the ratio of the projected
 // bits for the block vs a target average and its spatial complexity.
-void av1_caq_select_segment(const AV1_COMP *cpi, MACROBLOCK *mb, BLOCK_SIZE bs,
+void av1_caq_select_segment(const Av1Comp *cpi, Macroblock *mb, BlockSize bs,
                             int mi_row, int mi_col, int projected_rate) {
-  const AV1_COMMON *const cm = &cpi->common;
+  const Av1Common *const cm = &cpi->common;
 
   const int mi_offset = mi_row * cm->mi_cols + mi_col;
   const int xmis = AOMMIN(cm->mi_cols - mi_col, mi_size_wide[bs]);

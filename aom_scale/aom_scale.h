@@ -14,7 +14,7 @@
 
 #include "aom_scale/yv12config.h"
 
-extern void aom_scale_frame(YV12_BUFFER_CONFIG *src, YV12_BUFFER_CONFIG *dst,
+extern void aom_scale_frame(Yv12BufferConfig *src, Yv12BufferConfig *dst,
                             unsigned char *temp_area, unsigned char temp_height,
                             unsigned int hscale, unsigned int hratio,
                             unsigned int vscale, unsigned int vratio,

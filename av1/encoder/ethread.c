@@ -37,8 +37,8 @@ static void accumulate_rd_opt(ThreadData *td, ThreadData *td_t) {
 }
 
 static int enc_worker_hook(EncWorkerData *const thread_data, void *unused) {
-  AV1_COMP *const cpi = thread_data->cpi;
-  const AV1_COMMON *const cm = &cpi->common;
+  Av1Comp *const cpi = thread_data->cpi;
+  const Av1Common *const cm = &cpi->common;
   const int tile_cols = cm->tile_cols;
   const int tile_rows = cm->tile_rows;
   int t;
@@ -56,8 +56,8 @@ static int enc_worker_hook(EncWorkerData *const thread_data, void *unused) {
   return 0;
 }
 
-void av1_encode_tiles_mt(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
+void av1_encode_tiles_mt(Av1Comp *cpi) {
+  Av1Common *const cm = &cpi->common;
   const int tile_cols = cm->tile_cols;
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();
   const int num_workers = AOMMIN(cpi->oxcf.max_threads, tile_cols);
@@ -136,7 +136,7 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
 #if CONFIG_PALETTE
     // Allocate buffers used by palette coding mode.
     if (cpi->common.allow_screen_content_tools && i < num_workers - 1) {
-      MACROBLOCK *x = &thread_data->td->mb;
+      Macroblock *x = &thread_data->td->mb;
       CHECK_MEM_ERROR(cm, x->palette_buffer,
                       aom_memalign(16, sizeof(*x->palette_buffer)));
     }

@@ -11,7 +11,7 @@
 
 #include "encint.h"
 
-void od_encode_checkpoint(const daala_enc_ctx *enc, od_rollback_buffer *rbuf) {
+void od_encode_checkpoint(const DaalaEncCtx *enc, OdRollbackBuffer *rbuf) {
 #if CONFIG_DAALA_EC
   od_ec_enc_checkpoint(&rbuf->ec, &enc->w.ec);
 #else
@@ -20,7 +20,7 @@ void od_encode_checkpoint(const daala_enc_ctx *enc, od_rollback_buffer *rbuf) {
   OD_COPY(&rbuf->adapt, enc->state.adapt, 1);
 }
 
-void od_encode_rollback(daala_enc_ctx *enc, const od_rollback_buffer *rbuf) {
+void od_encode_rollback(DaalaEncCtx *enc, const OdRollbackBuffer *rbuf) {
 #if CONFIG_DAALA_EC
   od_ec_enc_rollback(&enc->w.ec, &rbuf->ec);
 #else

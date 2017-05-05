@@ -56,10 +56,9 @@ static int32_t get_16x16_sum(const int16_t *input, int stride) {
   return (int32_t)_mm_extract_epi32(v0, 0);
 }
 
-void aom_fdct16x16_1_avx2(const int16_t *input, tran_low_t *output,
-                          int stride) {
+void aom_fdct16x16_1_avx2(const int16_t *input, TranLowT *output, int stride) {
   int32_t dc = get_16x16_sum(input, stride);
-  output[0] = (tran_low_t)(dc >> 1);
+  output[0] = (TranLowT)(dc >> 1);
   _mm256_zeroupper();
 }
 
@@ -138,7 +137,7 @@ static INLINE void load_buffer_16x16(const int16_t *input, int stride,
   in[15] = _mm256_slli_epi16(in[15], 2);
 }
 
-static INLINE void write_buffer_16x16(const __m256i *in, tran_low_t *output) {
+static INLINE void write_buffer_16x16(const __m256i *in, TranLowT *output) {
   int i;
   for (i = 0; i < 16; ++i) {
     storeu_output_avx2(&in[i], output + (i << 4));
@@ -956,7 +955,7 @@ void fadst16_avx2(__m256i *in) {
 static void fidtx16_avx2(__m256i *in) { txfm_scaling16_avx2(Sqrt2, in); }
 #endif
 
-void av1_fht16x16_avx2(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht16x16_avx2(const int16_t *input, TranLowT *output, int stride,
                        int tx_type) {
   __m256i in[16];
 
@@ -1082,8 +1081,7 @@ void av1_fht16x16_avx2(const int16_t *input, tran_low_t *output, int stride,
   _mm256_zeroupper();
 }
 
-void aom_fdct32x32_1_avx2(const int16_t *input, tran_low_t *output,
-                          int stride) {
+void aom_fdct32x32_1_avx2(const int16_t *input, TranLowT *output, int stride) {
   // left and upper corner
   int32_t sum = get_16x16_sum(input, stride);
   // right and upper corner
@@ -1094,7 +1092,7 @@ void aom_fdct32x32_1_avx2(const int16_t *input, tran_low_t *output,
   sum += get_16x16_sum(input + (stride << 4) + 16, stride);
 
   sum >>= 3;
-  output[0] = (tran_low_t)sum;
+  output[0] = (TranLowT)sum;
   _mm256_zeroupper();
 }
 
@@ -1448,10 +1446,10 @@ static void fdct32_avx2(__m256i *in0, __m256i *in1) {
 }
 
 static INLINE void write_buffer_32x32(const __m256i *in0, const __m256i *in1,
-                                      tran_low_t *output) {
+                                      TranLowT *output) {
   int i = 0;
   const int stride = 32;
-  tran_low_t *coeff = output;
+  TranLowT *coeff = output;
   while (i < 32) {
     storeu_output_avx2(&in0[i], coeff);
     storeu_output_avx2(&in1[i], coeff + 16);
@@ -1567,7 +1565,7 @@ static void fidtx32_avx2(__m256i *in0, __m256i *in1) {
 }
 #endif
 
-void av1_fht32x32_avx2(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht32x32_avx2(const int16_t *input, TranLowT *output, int stride,
                        int tx_type) {
   __m256i in0[32];  // left 32 columns
   __m256i in1[32];  // right 32 columns

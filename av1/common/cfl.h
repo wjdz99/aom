@@ -14,17 +14,17 @@
 
 #include "av1/common/enums.h"
 
-// Forward declaration of AV1_COMMON, in order to avoid creating a cyclic
+// Forward declaration of Av1Common, in order to avoid creating a cyclic
 // dependency by importing av1/common/onyxc_int.h
-typedef struct AV1Common AV1_COMMON;
+typedef struct AV1Common Av1Common;
 
-// Forward declaration of MACROBLOCK, in order to avoid creating a cyclic
+// Forward declaration of Macroblock, in order to avoid creating a cyclic
 // dependency by importing av1/common/blockd.h
-typedef struct macroblockd MACROBLOCKD;
+typedef struct Macroblockd Macroblockd;
 
-// Forward declaration of MB_MODE_INFO, in order to avoid creating a cyclic
+// Forward declaration of MbModeInfo, in order to avoid creating a cyclic
 // dependency by importing av1/common/blockd.h
-typedef struct MB_MODE_INFO MB_MODE_INFO;
+typedef struct MbModeInfo MbModeInfo;
 
 typedef struct {
   // Pixel buffer containing the luma pixels used as prediction for chroma
@@ -53,20 +53,20 @@ static const double cfl_alpha_codes[CFL_ALPHABET_SIZE][CFL_PRED_PLANES] = {
   { 0., 0.25 },  { 0.5, 0.125 },   { 0.125, 0.5 }, { 0., 0.5 }
 };
 
-void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm, int subsampling_x,
+void cfl_init(CFL_CTX *cfl, Av1Common *cm, int subsampling_x,
               int subsampling_y);
 
-void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size);
+void cfl_dc_pred(Macroblockd *xd, BlockSize plane_bsize, TxSize tx_size);
 
-double cfl_ind_to_alpha(const MB_MODE_INFO *mbmi, CFL_PRED_TYPE pred_type);
+double cfl_ind_to_alpha(const MbModeInfo *mbmi, CFL_PRED_TYPE pred_type);
 
 void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
-                       int row, int col, TX_SIZE tx_size, int dc_pred,
+                       int row, int col, TxSize tx_size, int dc_pred,
                        double alpha);
 
 void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
-               int col, TX_SIZE tx_size);
+               int col, TxSize tx_size);
 
 double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
-                int col, TX_SIZE tx_size);
+                int col, TxSize tx_size);
 #endif  // AV1_COMMON_CFL_H_

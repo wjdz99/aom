@@ -167,7 +167,7 @@ int av1_count_colors(const uint8_t *src, int stride, int rows, int cols) {
 }
 
 #if CONFIG_PALETTE_DELTA_ENCODING
-int av1_get_palette_delta_bits_y(const PALETTE_MODE_INFO *const pmi,
+int av1_get_palette_delta_bits_y(const PaletteModeInfo *const pmi,
                                  int bit_depth, int *min_bits) {
   const int n = pmi->palette_size[0];
   int max_d = 0, i;
@@ -180,7 +180,7 @@ int av1_get_palette_delta_bits_y(const PALETTE_MODE_INFO *const pmi,
   return AOMMAX(av1_ceil_log2(max_d), *min_bits);
 }
 
-int av1_get_palette_delta_bits_u(const PALETTE_MODE_INFO *const pmi,
+int av1_get_palette_delta_bits_u(const PaletteModeInfo *const pmi,
                                  int bit_depth, int *min_bits) {
   const int n = pmi->palette_size[1];
   int max_d = 0, i;
@@ -194,7 +194,7 @@ int av1_get_palette_delta_bits_u(const PALETTE_MODE_INFO *const pmi,
   return AOMMAX(av1_ceil_log2(max_d + 1), *min_bits);
 }
 
-int av1_get_palette_delta_bits_v(const PALETTE_MODE_INFO *const pmi,
+int av1_get_palette_delta_bits_v(const PaletteModeInfo *const pmi,
                                  int bit_depth, int *zero_count,
                                  int *min_bits) {
   const int n = pmi->palette_size[1];
@@ -214,8 +214,7 @@ int av1_get_palette_delta_bits_v(const PALETTE_MODE_INFO *const pmi,
 }
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
 
-int av1_palette_color_cost_y(const PALETTE_MODE_INFO *const pmi,
-                             int bit_depth) {
+int av1_palette_color_cost_y(const PaletteModeInfo *const pmi, int bit_depth) {
   const int n = pmi->palette_size[0];
 #if CONFIG_PALETTE_DELTA_ENCODING
   int min_bits = 0;
@@ -226,8 +225,7 @@ int av1_palette_color_cost_y(const PALETTE_MODE_INFO *const pmi,
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
 }
 
-int av1_palette_color_cost_uv(const PALETTE_MODE_INFO *const pmi,
-                              int bit_depth) {
+int av1_palette_color_cost_uv(const PaletteModeInfo *const pmi, int bit_depth) {
   const int n = pmi->palette_size[1];
 #if CONFIG_PALETTE_DELTA_ENCODING
   int cost = 0;

@@ -40,28 +40,28 @@ enum TestMode { kRealTime, kOnePassGood, kTwoPassGood };
 // Provides an object to handle the libaom get_cx_data() iteration pattern
 class CxDataIterator {
  public:
-  explicit CxDataIterator(aom_codec_ctx_t *encoder)
+  explicit CxDataIterator(AomCodecCtxT *encoder)
       : encoder_(encoder), iter_(NULL) {}
 
-  const aom_codec_cx_pkt_t *Next() {
+  const AomCodecCxPktT *Next() {
     return aom_codec_get_cx_data(encoder_, &iter_);
   }
 
  private:
-  aom_codec_ctx_t *encoder_;
-  aom_codec_iter_t iter_;
+  AomCodecCtxT *encoder_;
+  AomCodecIterT iter_;
 };
 
 // Implements an in-memory store for libaom twopass statistics
 class TwopassStatsStore {
  public:
-  void Append(const aom_codec_cx_pkt_t &pkt) {
+  void Append(const AomCodecCxPktT &pkt) {
     buffer_.append(reinterpret_cast<char *>(pkt.data.twopass_stats.buf),
                    pkt.data.twopass_stats.sz);
   }
 
-  aom_fixed_buf_t buf() {
-    const aom_fixed_buf_t buf = { &buffer_[0], buffer_.size() };
+  AomFixedBufT buf() {
+    const AomFixedBufT buf = { &buffer_[0], buffer_.size() };
     return buf;
   }
 
@@ -78,7 +78,7 @@ class TwopassStatsStore {
 // level of abstraction will be fleshed out as more tests are written.
 class Encoder {
  public:
-  Encoder(aom_codec_enc_cfg_t cfg, unsigned long deadline,
+  Encoder(AomCodecEncCfgT cfg, unsigned long deadline,
           const unsigned long init_flags, TwopassStatsStore *stats)
       : cfg_(cfg), deadline_(deadline), init_flags_(init_flags), stats_(stats) {
     memset(&encoder_, 0, sizeof(encoder_));
@@ -90,7 +90,7 @@ class Encoder {
 
   void InitEncoder(VideoSource *video);
 
-  const aom_image_t *GetPreviewFrame() {
+  const AomImageT *GetPreviewFrame() {
     return aom_codec_get_preview_frame(&encoder_);
   }
   // This is a thin wrapper around aom_codec_encode(), so refer to
@@ -101,29 +101,29 @@ class Encoder {
   void EncodeFrame(VideoSource *video) { EncodeFrame(video, 0); }
 
   void Control(int ctrl_id, int arg) {
-    const aom_codec_err_t res = aom_codec_control_(&encoder_, ctrl_id, arg);
+    const AomCodecErrT res = aom_codec_control_(&encoder_, ctrl_id, arg);
     ASSERT_EQ(AOM_CODEC_OK, res) << EncoderError();
   }
 
   void Control(int ctrl_id, int *arg) {
-    const aom_codec_err_t res = aom_codec_control_(&encoder_, ctrl_id, arg);
+    const AomCodecErrT res = aom_codec_control_(&encoder_, ctrl_id, arg);
     ASSERT_EQ(AOM_CODEC_OK, res) << EncoderError();
   }
 
-  void Control(int ctrl_id, struct aom_scaling_mode *arg) {
-    const aom_codec_err_t res = aom_codec_control_(&encoder_, ctrl_id, arg);
+  void Control(int ctrl_id, struct AomScalingMode *arg) {
+    const AomCodecErrT res = aom_codec_control_(&encoder_, ctrl_id, arg);
     ASSERT_EQ(AOM_CODEC_OK, res) << EncoderError();
   }
 
 #if CONFIG_AV1_ENCODER
-  void Control(int ctrl_id, aom_active_map_t *arg) {
-    const aom_codec_err_t res = aom_codec_control_(&encoder_, ctrl_id, arg);
+  void Control(int ctrl_id, AomActiveMapT *arg) {
+    const AomCodecErrT res = aom_codec_control_(&encoder_, ctrl_id, arg);
     ASSERT_EQ(AOM_CODEC_OK, res) << EncoderError();
   }
 #endif
 
-  void Config(const aom_codec_enc_cfg_t *cfg) {
-    const aom_codec_err_t res = aom_codec_enc_config_set(&encoder_, cfg);
+  void Config(const AomCodecEncCfgT *cfg) {
+    const AomCodecErrT res = aom_codec_enc_config_set(&encoder_, cfg);
     ASSERT_EQ(AOM_CODEC_OK, res) << EncoderError();
     cfg_ = *cfg;
   }
@@ -131,7 +131,7 @@ class Encoder {
   void set_deadline(unsigned long deadline) { deadline_ = deadline; }
 
  protected:
-  virtual aom_codec_iface_t *CodecInterface() const = 0;
+  virtual AomCodecIfaceT *CodecInterface() const = 0;
 
   const char *EncoderError() {
     const char *detail = aom_codec_error_detail(&encoder_);
@@ -145,8 +145,8 @@ class Encoder {
   // Flush the encoder on EOS
   void Flush();
 
-  aom_codec_ctx_t encoder_;
-  aom_codec_enc_cfg_t cfg_;
+  AomCodecCtxT encoder_;
+  AomCodecEncCfgT cfg_;
   unsigned long deadline_;
   unsigned long init_flags_;
   TwopassStatsStore *stats_;
@@ -196,10 +196,10 @@ class EncoderTest {
                                   Encoder * /*encoder*/) {}
 
   // Hook to be called on every compressed data packet.
-  virtual void FramePktHook(const aom_codec_cx_pkt_t * /*pkt*/) {}
+  virtual void FramePktHook(const AomCodecCxPktT * /*pkt*/) {}
 
   // Hook to be called on every PSNR packet.
-  virtual void PSNRPktHook(const aom_codec_cx_pkt_t * /*pkt*/) {}
+  virtual void PSNRPktHook(const AomCodecCxPktT * /*pkt*/) {}
 
   // Hook to determine whether the encode loop should continue.
   virtual bool Continue() const {
@@ -211,34 +211,34 @@ class EncoderTest {
   virtual bool DoDecode() const { return 1; }
 
   // Hook to handle encode/decode mismatch
-  virtual void MismatchHook(const aom_image_t *img1, const aom_image_t *img2);
+  virtual void MismatchHook(const AomImageT *img1, const AomImageT *img2);
 
   // Hook to be called on every decompressed frame.
-  virtual void DecompressedFrameHook(const aom_image_t & /*img*/,
-                                     aom_codec_pts_t /*pts*/) {}
+  virtual void DecompressedFrameHook(const AomImageT & /*img*/,
+                                     AomCodecPtsT /*pts*/) {}
 
   // Hook to be called to handle decode result. Return true to continue.
-  virtual bool HandleDecodeResult(const aom_codec_err_t res_dec,
+  virtual bool HandleDecodeResult(const AomCodecErrT res_dec,
                                   Decoder *decoder) {
     EXPECT_EQ(AOM_CODEC_OK, res_dec) << decoder->DecodeError();
     return AOM_CODEC_OK == res_dec;
   }
 
   // Hook that can modify the encoder's output data
-  virtual const aom_codec_cx_pkt_t *MutateEncoderOutputHook(
-      const aom_codec_cx_pkt_t *pkt) {
+  virtual const AomCodecCxPktT *MutateEncoderOutputHook(
+      const AomCodecCxPktT *pkt) {
     return pkt;
   }
 
   bool abort_;
-  aom_codec_enc_cfg_t cfg_;
-  aom_codec_dec_cfg_t dec_cfg_;
+  AomCodecEncCfgT cfg_;
+  AomCodecDecCfgT dec_cfg_;
   unsigned int passes_;
   unsigned long deadline_;
   TwopassStatsStore stats_;
   unsigned long init_flags_;
   unsigned long frame_flags_;
-  aom_codec_pts_t last_pts_;
+  AomCodecPtsT last_pts_;
   TestMode mode_;
 };
 

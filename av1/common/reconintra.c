@@ -421,12 +421,12 @@ static const uint16_t *const orders_verta[BLOCK_SIZES] = {
 #endif  // CONFIG_EXT_PARTITION
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
-static int has_top_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
+static int has_top_right(BlockSize bsize, int mi_row, int mi_col,
                          int top_available, int right_available,
 #if CONFIG_EXT_PARTITION_TYPES
-                         PARTITION_TYPE partition,
+                         PartitionType partition,
 #endif
-                         TX_SIZE txsz, int row_off, int col_off, int ss_x) {
+                         TxSize txsz, int row_off, int col_off, int ss_x) {
   if (!top_available || !right_available) return 0;
 
 #if !CONFIG_CB4X4
@@ -484,9 +484,9 @@ static int has_top_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
   }
 }
 
-static int has_bottom_left(BLOCK_SIZE bsize, int mi_row, int mi_col,
+static int has_bottom_left(BlockSize bsize, int mi_row, int mi_col,
                            int bottom_available, int left_available,
-                           TX_SIZE txsz, int row_off, int col_off, int ss_y) {
+                           TxSize txsz, int row_off, int col_off, int ss_y) {
   if (!bottom_available || !left_available) return 0;
 
   if (col_off > 0) {
@@ -629,7 +629,7 @@ static void av1_init_intra_predictors_internal(void) {
 #if CONFIG_INTRA_INTERP
 static int intra_subpel_interp(int base, int shift, const uint8_t *ref,
                                int ref_start_idx, int ref_end_idx,
-                               INTRA_FILTER filter_type) {
+                               IntraFilter filter_type) {
   int val, k, idx, filter_idx = 0;
   const int16_t *filter = NULL;
 
@@ -661,7 +661,7 @@ static int intra_subpel_interp(int base, int shift, const uint8_t *ref,
 static void dr_prediction_z1(uint8_t *dst, ptrdiff_t stride, int bs,
                              const uint8_t *above, const uint8_t *left,
 #if CONFIG_INTRA_INTERP
-                             INTRA_FILTER filter_type,
+                             IntraFilter filter_type,
 #endif  // CONFIG_INTRA_INTERP
                              int dx, int dy) {
   int r, c, x, base, shift, val;
@@ -762,7 +762,7 @@ static void dr_prediction_z1(uint8_t *dst, ptrdiff_t stride, int bs,
 static void dr_prediction_z2(uint8_t *dst, ptrdiff_t stride, int bs,
                              const uint8_t *above, const uint8_t *left,
 #if CONFIG_INTRA_INTERP
-                             INTRA_FILTER filter_type,
+                             IntraFilter filter_type,
 #endif  // CONFIG_INTRA_INTERP
                              int dx, int dy) {
   int r, c, x, y, shift1, shift2, val, base1, base2;
@@ -803,7 +803,7 @@ static void dr_prediction_z2(uint8_t *dst, ptrdiff_t stride, int bs,
 static void dr_prediction_z3(uint8_t *dst, ptrdiff_t stride, int bs,
                              const uint8_t *above, const uint8_t *left,
 #if CONFIG_INTRA_INTERP
-                             INTRA_FILTER filter_type,
+                             IntraFilter filter_type,
 #endif  // CONFIG_INTRA_INTERP
                              int dx, int dy) {
   int r, c, y, base, shift, val;
@@ -933,10 +933,10 @@ static INLINE int get_dy(int angle) {
   }
 }
 
-static void dr_predictor(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
+static void dr_predictor(uint8_t *dst, ptrdiff_t stride, TxSize tx_size,
                          const uint8_t *above, const uint8_t *left,
 #if CONFIG_INTRA_INTERP
-                         INTRA_FILTER filter_type,
+                         IntraFilter filter_type,
 #endif  // CONFIG_INTRA_INTERP
                          int angle) {
   const int dx = get_dx(angle);
@@ -973,7 +973,7 @@ static void dr_predictor(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
 #if CONFIG_INTRA_INTERP
 static int highbd_intra_subpel_interp(int base, int shift, const uint16_t *ref,
                                       int ref_start_idx, int ref_end_idx,
-                                      INTRA_FILTER filter_type) {
+                                      IntraFilter filter_type) {
   int val, k, idx, filter_idx = 0;
   const int16_t *filter = NULL;
 
@@ -1005,7 +1005,7 @@ static int highbd_intra_subpel_interp(int base, int shift, const uint16_t *ref,
 static void highbd_dr_prediction_z1(uint16_t *dst, ptrdiff_t stride, int bs,
                                     const uint16_t *above, const uint16_t *left,
 #if CONFIG_INTRA_INTERP
-                                    INTRA_FILTER filter_type,
+                                    IntraFilter filter_type,
 #endif  // CONFIG_INTRA_INTERP
                                     int dx, int dy, int bd) {
   int r, c, x, base, shift, val;
@@ -1050,7 +1050,7 @@ static void highbd_dr_prediction_z1(uint16_t *dst, ptrdiff_t stride, int bs,
 static void highbd_dr_prediction_z2(uint16_t *dst, ptrdiff_t stride, int bs,
                                     const uint16_t *above, const uint16_t *left,
 #if CONFIG_INTRA_INTERP
-                                    INTRA_FILTER filter_type,
+                                    IntraFilter filter_type,
 #endif  // CONFIG_INTRA_INTERP
                                     int dx, int dy, int bd) {
   int r, c, x, y, shift, val, base;
@@ -1095,7 +1095,7 @@ static void highbd_dr_prediction_z2(uint16_t *dst, ptrdiff_t stride, int bs,
 static void highbd_dr_prediction_z3(uint16_t *dst, ptrdiff_t stride, int bs,
                                     const uint16_t *above, const uint16_t *left,
 #if CONFIG_INTRA_INTERP
-                                    INTRA_FILTER filter_type,
+                                    IntraFilter filter_type,
 #endif  // CONFIG_INTRA_INTERP
                                     int dx, int dy, int bd) {
   int r, c, y, base, shift, val;
@@ -1155,7 +1155,7 @@ static INLINE void highbd_h_predictor(uint16_t *dst, ptrdiff_t stride, int bs,
 static void highbd_dr_predictor(uint16_t *dst, ptrdiff_t stride, int bs,
                                 const uint16_t *above, const uint16_t *left,
 #if CONFIG_INTRA_INTERP
-                                INTRA_FILTER filter,
+                                IntraFilter filter,
 #endif  // CONFIG_INTRA_INTERP
                                 int angle, int bd) {
   const int dx = get_dx(angle);
@@ -1350,7 +1350,7 @@ int av1_filter_intra_taps_4[TX_SIZES][INTRA_MODES][4] = {
 };
 #endif
 
-static INLINE TX_SIZE get_txsize_from_blocklen(int bs) {
+static INLINE TxSize get_txsize_from_blocklen(int bs) {
   switch (bs) {
     case 4: return TX_4X4;
     case 8: return TX_8X8;
@@ -1374,7 +1374,7 @@ static void filter_intra_predictors_3tap(uint8_t *dst, ptrdiff_t stride, int bs,
 #else
   int buffer[33][33];
 #endif  // CONFIG_TX64X64
-  const TX_SIZE tx_size = get_txsize_from_blocklen(bs);
+  const TxSize tx_size = get_txsize_from_blocklen(bs);
   const int c0 = av1_filter_intra_taps_3[tx_size][mode][0];
   const int c1 = av1_filter_intra_taps_3[tx_size][mode][1];
   const int c2 = av1_filter_intra_taps_3[tx_size][mode][2];
@@ -1418,7 +1418,7 @@ static void filter_intra_predictors_4tap(uint8_t *dst, ptrdiff_t stride, int bs,
 #else
   int buffer[33][65];
 #endif  // CONFIG_TX64X64
-  const TX_SIZE tx_size = get_txsize_from_blocklen(bs);
+  const TxSize tx_size = get_txsize_from_blocklen(bs);
   const int c0 = av1_filter_intra_taps_4[tx_size][mode][0];
   const int c1 = av1_filter_intra_taps_4[tx_size][mode][1];
   const int c2 = av1_filter_intra_taps_4[tx_size][mode][2];
@@ -1544,7 +1544,7 @@ void av1_tm_filter_predictor_c(uint8_t *dst, ptrdiff_t stride, int bs,
 #endif
 }
 
-static void filter_intra_predictors(FILTER_INTRA_MODE mode, uint8_t *dst,
+static void filter_intra_predictors(FilterIntraMode mode, uint8_t *dst,
                                     ptrdiff_t stride, int bs,
                                     const uint8_t *above, const uint8_t *left) {
   switch (mode) {
@@ -1594,7 +1594,7 @@ static void highbd_filter_intra_predictors_3tap(uint16_t *dst, ptrdiff_t stride,
 #else
   int preds[33][33];
 #endif  // CONFIG_TX64X64
-  const TX_SIZE tx_size = get_txsize_from_blocklen(bs);
+  const TxSize tx_size = get_txsize_from_blocklen(bs);
   const int c0 = av1_filter_intra_taps_3[tx_size][mode][0];
   const int c1 = av1_filter_intra_taps_3[tx_size][mode][1];
   const int c2 = av1_filter_intra_taps_3[tx_size][mode][2];
@@ -1639,7 +1639,7 @@ static void highbd_filter_intra_predictors_4tap(uint16_t *dst, ptrdiff_t stride,
 #else
   int preds[33][65];
 #endif  // CONFIG_TX64X64
-  const TX_SIZE tx_size = get_txsize_from_blocklen(bs);
+  const TxSize tx_size = get_txsize_from_blocklen(bs);
   const int c0 = av1_filter_intra_taps_4[tx_size][mode][0];
   const int c1 = av1_filter_intra_taps_4[tx_size][mode][1];
   const int c2 = av1_filter_intra_taps_4[tx_size][mode][2];
@@ -1791,9 +1791,9 @@ void av1_highbd_tm_filter_predictor_c(uint16_t *dst, ptrdiff_t stride, int bs,
 #endif
 }
 
-static void highbd_filter_intra_predictors(FILTER_INTRA_MODE mode,
-                                           uint16_t *dst, ptrdiff_t stride,
-                                           int bs, const uint16_t *above,
+static void highbd_filter_intra_predictors(FilterIntraMode mode, uint16_t *dst,
+                                           ptrdiff_t stride, int bs,
+                                           const uint16_t *above,
                                            const uint16_t *left, int bd) {
   switch (mode) {
     case FILTER_DC_PRED:
@@ -1834,8 +1834,8 @@ static void highbd_filter_intra_predictors(FILTER_INTRA_MODE mode,
 
 #if CONFIG_HIGHBITDEPTH
 static void build_intra_predictors_high(
-    const MACROBLOCKD *xd, const uint8_t *ref8, int ref_stride, uint8_t *dst8,
-    int dst_stride, PREDICTION_MODE mode, TX_SIZE tx_size, int n_top_px,
+    const Macroblockd *xd, const uint8_t *ref8, int ref_stride, uint8_t *dst8,
+    int dst_stride, PredictionMode mode, TxSize tx_size, int n_top_px,
     int n_topright_px, int n_left_px, int n_bottomleft_px, int plane) {
   int i;
   uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
@@ -1855,9 +1855,9 @@ static void build_intra_predictors_high(
   const int is_dr_mode = av1_is_directional_mode(mode, xd->mi[0]->mbmi.sb_type);
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
-  const FILTER_INTRA_MODE_INFO *filter_intra_mode_info =
+  const FilterIntraModeInfo *filter_intra_mode_info =
       &xd->mi[0]->mbmi.filter_intra_mode_info;
-  const FILTER_INTRA_MODE filter_intra_mode =
+  const FilterIntraMode filter_intra_mode =
       filter_intra_mode_info->filter_intra_mode[plane != 0];
 #endif  // CONFIG_FILTER_INTRA
   int base = 128 << (xd->bd - 8);
@@ -1978,7 +1978,7 @@ static void build_intra_predictors_high(
 #if CONFIG_EXT_INTRA
   if (is_dr_mode) {
 #if CONFIG_INTRA_INTERP
-    INTRA_FILTER filter = INTRA_FILTER_LINEAR;
+    IntraFilter filter = INTRA_FILTER_LINEAR;
     if (plane == 0 && av1_is_intra_filter_switchable(p_angle))
       filter = xd->mi[0]->mbmi.intra_filter;
 #endif  // CONFIG_INTRA_INTERP
@@ -2002,9 +2002,9 @@ static void build_intra_predictors_high(
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
-static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
+static void build_intra_predictors(const Macroblockd *xd, const uint8_t *ref,
                                    int ref_stride, uint8_t *dst, int dst_stride,
-                                   PREDICTION_MODE mode, TX_SIZE tx_size,
+                                   PredictionMode mode, TxSize tx_size,
                                    int n_top_px, int n_topright_px,
                                    int n_left_px, int n_bottomleft_px,
                                    int plane) {
@@ -2021,13 +2021,13 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   int need_above_left = extend_modes[mode] & NEED_ABOVELEFT;
 #if CONFIG_EXT_INTRA
   int p_angle = 0;
-  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  const MbModeInfo *const mbmi = &xd->mi[0]->mbmi;
   const int is_dr_mode = av1_is_directional_mode(mode, mbmi->sb_type);
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
-  const FILTER_INTRA_MODE_INFO *filter_intra_mode_info =
+  const FilterIntraModeInfo *filter_intra_mode_info =
       &xd->mi[0]->mbmi.filter_intra_mode_info;
-  const FILTER_INTRA_MODE filter_intra_mode =
+  const FilterIntraMode filter_intra_mode =
       filter_intra_mode_info->filter_intra_mode[plane != 0];
 #endif  // CONFIG_FILTER_INTRA
   assert(tx_size_wide[tx_size] == tx_size_high[tx_size]);
@@ -2146,7 +2146,7 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
 #if CONFIG_EXT_INTRA
   if (is_dr_mode) {
 #if CONFIG_INTRA_INTERP
-    INTRA_FILTER filter = INTRA_FILTER_LINEAR;
+    IntraFilter filter = INTRA_FILTER_LINEAR;
     if (plane == 0 && av1_is_intra_filter_switchable(p_angle))
       filter = xd->mi[0]->mbmi.intra_filter;
 #endif  // CONFIG_INTRA_INTERP
@@ -2176,13 +2176,13 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   }
 }
 
-static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
-                                       TX_SIZE tx_size, PREDICTION_MODE mode,
+static void predict_square_intra_block(const Macroblockd *xd, int wpx, int hpx,
+                                       TxSize tx_size, PredictionMode mode,
                                        const uint8_t *ref, int ref_stride,
                                        uint8_t *dst, int dst_stride,
                                        int col_off, int row_off, int plane) {
-  BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  BlockSize bsize = xd->mi[0]->mbmi.sb_type;
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
   const int txw = tx_size_wide_unit[tx_size];
 #if CONFIG_CB4X4 && CONFIG_CHROMA_SUB8X8
   const int have_top = row_off || (pd->subsampling_y ? xd->chroma_up_available
@@ -2221,7 +2221,7 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
       xd->tile.mi_col_end;
   const int bottom_available = (yd > 0);
 #if CONFIG_EXT_PARTITION_TYPES
-  const PARTITION_TYPE partition = xd->mi[0]->mbmi.partition;
+  const PartitionType partition = xd->mi[0]->mbmi.partition;
 #endif
 
 #if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
@@ -2293,16 +2293,16 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
                          have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane);
 }
 
-void av1_predict_intra_block_facade(MACROBLOCKD *xd, int plane, int block_idx,
-                                    int blk_col, int blk_row, TX_SIZE tx_size) {
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+void av1_predict_intra_block_facade(Macroblockd *xd, int plane, int block_idx,
+                                    int blk_col, int blk_row, TxSize tx_size) {
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
   const int dst_stride = pd->dst.stride;
   uint8_t *dst =
       &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
-  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  const MbModeInfo *const mbmi = &xd->mi[0]->mbmi;
   const int block_raster_idx =
       av1_block_index_to_raster_order(tx_size, block_idx);
-  const PREDICTION_MODE mode =
+  const PredictionMode mode =
       (plane == 0) ? get_y_mode(xd->mi[0], block_raster_idx) : mbmi->uv_mode;
   av1_predict_intra_block(xd, pd->width, pd->height, txsize_to_bsize[tx_size],
                           mode, dst, dst_stride, dst, dst_stride, blk_col,
@@ -2324,14 +2324,14 @@ void av1_predict_intra_block_facade(MACROBLOCKD *xd, int plane, int block_idx,
 #endif
 }
 
-void av1_predict_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
-                             BLOCK_SIZE bsize, PREDICTION_MODE mode,
+void av1_predict_intra_block(const Macroblockd *xd, int wpx, int hpx,
+                             BlockSize bsize, PredictionMode mode,
                              const uint8_t *ref, int ref_stride, uint8_t *dst,
                              int dst_stride, int col_off, int row_off,
                              int plane) {
   const int block_width = block_size_wide[bsize];
   const int block_height = block_size_high[bsize];
-  TX_SIZE tx_size = max_txsize_lookup[bsize];
+  TxSize tx_size = max_txsize_lookup[bsize];
   assert(tx_size < TX_SIZES);
   if (block_width == block_height) {
     predict_square_intra_block(xd, wpx, hpx, tx_size, mode, ref, ref_stride,

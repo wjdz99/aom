@@ -39,7 +39,7 @@ void av1_free_internal_frame_buffers(InternalFrameBufferList *list) {
 }
 
 int av1_get_frame_buffer(void *cb_priv, size_t min_size,
-                         aom_codec_frame_buffer_t *fb) {
+                         AomCodecFrameBufferT *fb) {
   int i;
   InternalFrameBufferList *const int_fb_list =
       (InternalFrameBufferList *)cb_priv;
@@ -71,7 +71,7 @@ int av1_get_frame_buffer(void *cb_priv, size_t min_size,
   return 0;
 }
 
-int av1_release_frame_buffer(void *cb_priv, aom_codec_frame_buffer_t *fb) {
+int av1_release_frame_buffer(void *cb_priv, AomCodecFrameBufferT *fb) {
   InternalFrameBuffer *const int_fb = (InternalFrameBuffer *)fb->priv;
   (void)cb_priv;
   if (int_fb) int_fb->in_use = 0;

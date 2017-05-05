@@ -14,27 +14,27 @@
 
 #include "./aom_config.h"
 
-typedef enum FWD_TXFM_OPT { FWD_TXFM_OPT_NORMAL } FWD_TXFM_OPT;
+typedef enum FwdTxfmOpt { FWD_TXFM_OPT_NORMAL } FwdTxfmOpt;
 
-typedef struct FWD_TXFM_PARAM {
-  TX_TYPE tx_type;
-  TX_SIZE tx_size;
+typedef struct FwdTxfmParam {
+  TxType tx_type;
+  TxSize tx_size;
   int lossless;
 #if CONFIG_HIGHBITDEPTH
   int bd;
 #endif  // CONFIG_HIGHBITDEPTH
-} FWD_TXFM_PARAM;
+} FwdTxfmParam;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
-                  FWD_TXFM_PARAM *fwd_txfm_param);
+void av1_fwd_txfm(const int16_t *src_diff, TranLowT *coeff, int diff_stride,
+                  FwdTxfmParam *fwd_txfm_param);
 
 #if CONFIG_HIGHBITDEPTH
-void av1_highbd_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff,
-                         int diff_stride, FWD_TXFM_PARAM *fwd_txfm_param);
+void av1_highbd_fwd_txfm(const int16_t *src_diff, TranLowT *coeff,
+                         int diff_stride, FwdTxfmParam *fwd_txfm_param);
 #endif  // CONFIG_HIGHBITDEPTH
 
 #ifdef __cplusplus
