@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d8bcefe_8689e6fc",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1581,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-05-05T23:44:25Z",
+      "side": 1,
+      "message": "I think we need to drop the static keyword if we want this to be on the stack.",
+      "range": {
+        "startLine": 1581,
+        "startChar": 2,
+        "endLine": 1581,
+        "endChar": 8
+      },
+      "revId": "6e5a4e25f6435f467917292675b2b0914cd8d6b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75570ebe_20534934",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1656,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-05-05T23:44:25Z",
+      "side": 1,
+      "message": "This is correct but it is non-obvious why that is so. I\u0027d rather replace both cases with:\n\n    assert(ec_ctx-\u003ecfl_alpha_cdf[CFL_ALPHABET_SIZE - 1] \u003d\u003d AOM_ICDF(32768U));\n    int prob_den \u003d 32768U;",
+      "revId": "6e5a4e25f6435f467917292675b2b0914cd8d6b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
