@@ -71,7 +71,7 @@ typedef enum {
   INTRA_FILTER_8TAP_SHARP,
   INTRA_FILTER_8TAP_SMOOTH,
   INTRA_FILTERS,
-} INTRA_FILTER;
+} IntraFilter;
 
 extern const InterpKernel *av1_intra_filter_kernels[INTRA_FILTERS];
 #endif  // CONFIG_INTRA_INTERP

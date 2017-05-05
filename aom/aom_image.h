@@ -65,7 +65,7 @@ typedef enum aom_img_fmt {
   AOM_IMG_FMT_I42216 = AOM_IMG_FMT_I422 | AOM_IMG_FMT_HIGHBITDEPTH,
   AOM_IMG_FMT_I44416 = AOM_IMG_FMT_I444 | AOM_IMG_FMT_HIGHBITDEPTH,
   AOM_IMG_FMT_I44016 = AOM_IMG_FMT_I440 | AOM_IMG_FMT_HIGHBITDEPTH
-} aom_img_fmt_t; /**< alias for enum aom_img_fmt */
+} AomImgFmtT; /**< alias for enum aom_img_fmt */
 
 /*!\brief List of supported color spaces */
 typedef enum aom_color_space {
@@ -77,19 +77,19 @@ typedef enum aom_color_space {
   AOM_CS_BT_2020 = 5,   /**< BT.2020 */
   AOM_CS_RESERVED = 6,  /**< Reserved */
   AOM_CS_SRGB = 7       /**< sRGB */
-} aom_color_space_t;    /**< alias for enum aom_color_space */
+} AomColorSpaceT;       /**< alias for enum aom_color_space */
 
 /*!\brief List of supported color range */
 typedef enum aom_color_range {
   AOM_CR_STUDIO_RANGE = 0, /**< Y [16..235], UV [16..240] */
   AOM_CR_FULL_RANGE = 1    /**< YUV/RGB [0..255] */
-} aom_color_range_t;       /**< alias for enum aom_color_range */
+} AomColorRangeT;          /**< alias for enum aom_color_range */
 
 /**\brief Image Descriptor */
 typedef struct aom_image {
-  aom_img_fmt_t fmt;       /**< Image Format */
-  aom_color_space_t cs;    /**< Color Space */
-  aom_color_range_t range; /**< Color Range */
+  AomImgFmtT fmt;       /**< Image Format */
+  AomColorSpaceT cs;    /**< Color Space */
+  AomColorRangeT range; /**< Color Range */
 
   /* Image storage dimensions */
   unsigned int w;         /**< Stored image width */
@@ -130,15 +130,15 @@ typedef struct aom_image {
   int self_allocd;         /**< private */
 
   void *fb_priv; /**< Frame buffer data associated with the image. */
-} aom_image_t;   /**< alias for struct aom_image */
+} AomImageT;     /**< alias for struct aom_image */
 
 /**\brief Representation of a rectangle on a surface */
-typedef struct aom_image_rect {
-  unsigned int x;   /**< leftmost column */
-  unsigned int y;   /**< topmost row */
-  unsigned int w;   /**< width */
-  unsigned int h;   /**< height */
-} aom_image_rect_t; /**< alias for struct aom_image_rect */
+typedef struct AomImageRect {
+  unsigned int x; /**< leftmost column */
+  unsigned int y; /**< topmost row */
+  unsigned int w; /**< width */
+  unsigned int h; /**< height */
+} AomImageRectT;  /**< alias for struct AomImageRect */
 
 /*!\brief Open a descriptor, allocating storage for the underlying image
  *
@@ -158,9 +158,8 @@ typedef struct aom_image_rect {
  *         parameter is non-null, the value of the img parameter will be
  *         returned.
  */
-aom_image_t *aom_img_alloc(aom_image_t *img, aom_img_fmt_t fmt,
-                           unsigned int d_w, unsigned int d_h,
-                           unsigned int align);
+AomImageT *aom_img_alloc(AomImageT *img, AomImgFmtT fmt, unsigned int d_w,
+                         unsigned int d_h, unsigned int align);
 
 /*!\brief Open a descriptor, using existing storage for the underlying image
  *
@@ -181,9 +180,9 @@ aom_image_t *aom_img_alloc(aom_image_t *img, aom_img_fmt_t fmt,
  *         parameter is non-null, the value of the img parameter will be
  *         returned.
  */
-aom_image_t *aom_img_wrap(aom_image_t *img, aom_img_fmt_t fmt, unsigned int d_w,
-                          unsigned int d_h, unsigned int align,
-                          unsigned char *img_data);
+AomImageT *aom_img_wrap(AomImageT *img, AomImgFmtT fmt, unsigned int d_w,
+                        unsigned int d_h, unsigned int align,
+                        unsigned char *img_data);
 
 /*!\brief Set the rectangle identifying the displayed portion of the image
  *
@@ -198,7 +197,7 @@ aom_image_t *aom_img_wrap(aom_image_t *img, aom_img_fmt_t fmt, unsigned int d_w,
  *
  * \return 0 if the requested rectangle is valid, nonzero otherwise.
  */
-int aom_img_set_rect(aom_image_t *img, unsigned int x, unsigned int y,
+int aom_img_set_rect(AomImageT *img, unsigned int x, unsigned int y,
                      unsigned int w, unsigned int h);
 
 /*!\brief Flip the image vertically (top for bottom)
@@ -208,7 +207,7 @@ int aom_img_set_rect(aom_image_t *img, unsigned int x, unsigned int y,
  *
  * \param[in]    img       Image descriptor
  */
-void aom_img_flip(aom_image_t *img);
+void aom_img_flip(AomImageT *img);
 
 /*!\brief Close an image descriptor
  *
@@ -216,7 +215,7 @@ void aom_img_flip(aom_image_t *img);
  *
  * \param[in]    img       Image descriptor
  */
-void aom_img_free(aom_image_t *img);
+void aom_img_free(AomImageT *img);
 
 #ifdef __cplusplus
 }  // extern "C"

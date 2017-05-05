@@ -32,15 +32,15 @@
    dot-product of the 1st band of chroma with the luma ref doesn't overflow.*/
 #define OD_CFL_FLIP_SHIFT (OD_LIMIT_BSIZE_MAX + 0)
 
-void aom_write_symbol_pvq(aom_writer *w, int symb, aom_cdf_prob *cdf,
+void aom_write_symbol_pvq(AomWriter *w, int symb, AomCdfProb *cdf,
     int nsymbs) {
   if (cdf[0] == 0)
     aom_cdf_init_q15_1D(cdf, nsymbs, CDF_SIZE(nsymbs));
   aom_write_symbol(w, symb, cdf, nsymbs);
 }
 
-static void aom_encode_pvq_codeword(aom_writer *w, od_pvq_codeword_ctx *adapt,
- const od_coeff *in, int n, int k) {
+static void aom_encode_pvq_codeword(AomWriter *w, OdPvqCodewordCtx *adapt,
+ const OdCoeff *in, int n, int k) {
   int i;
   aom_encode_band_pvq_splits(w, adapt, in, n, k, 0);
   for (i = 0; i < n; i++) if (in[i]) aom_write_bit(w, in[i] < 0);
@@ -88,8 +88,8 @@ static void od_fill_dynamic_rsqrt_table(double *table, const int table_size,
  *                          reuse for the search (or 0 for a new search)
  * @return                  cosine distance between x and y (between 0 and 1)
  */
-double pvq_search_rdo_double_c(const od_val16 *xcoeff, int n, int k,
- od_coeff *ypulse, double g2, double pvq_norm_lambda, int prev_k) {
+double pvq_search_rdo_double_c(const OdVal16 *xcoeff, int n, int k,
+ OdCoeff *ypulse, double g2, double pvq_norm_lambda, int prev_k) {
   int i, j;
   double xy;
   double yy;
@@ -220,14 +220,14 @@ static int neg_interleave(int x, int ref) {
   else return x-1;
 }
 
-int od_vector_is_null(const od_coeff *x, int len) {
+int od_vector_is_null(const OdCoeff *x, int len) {
   int i;
   for (i = 0; i < len; i++) if (x[i]) return 0;
   return 1;
 }
 
 static double od_pvq_rate(int qg, int icgr, int theta, int ts,
-  const od_adapt_ctx *adapt, const od_coeff *y0, int k, int n, int speed) {
+  const OdAdaptCtx *adapt, const OdCoeff *y0, int k, int n, int speed) {
   double rate;
   if (k == 0) rate = 0;
   else if (speed > 0) {
@@ -244,8 +244,8 @@ static double od_pvq_rate(int qg, int icgr, int theta, int ts,
     rate = (1 + .4*f)*n*OD_LOG2(1 + OD_MAXF(0, log(n*2*(1*f + .025))*k/n)) + 3;
   }
   else {
-    aom_writer w;
-    od_pvq_codeword_ctx cd;
+    AomWriter w;
+    OdPvqCodewordCtx cd;
     int tell;
 #if CONFIG_DAALA_EC
     od_ec_enc_init(&w.ec, 1000);
@@ -280,10 +280,10 @@ static double od_pvq_rate(int qg, int icgr, int theta, int ts,
 typedef struct {
   int gain;
   int k;
-  od_val32 qtheta;
+  OdVal32 qtheta;
   int theta;
   int ts;
-  od_val32 qcg;
+  OdVal32 qcg;
 } pvq_search_item;
 
 int items_compare(pvq_search_item *a, pvq_search_item *b) {
@@ -316,20 +316,20 @@ int items_compare(pvq_search_item *a, pvq_search_item *b) {
  * @param [in]     speed       Make search faster by making approximations
  * @return         gain        index of the quatized gain
 */
-static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
-    int n, int q0, od_coeff *y, int *itheta, int *vk,
-    od_val16 beta, double *skip_diff, int is_keyframe, int pli,
-    const od_adapt_ctx *adapt, const int16_t *qm, const int16_t *qm_inv,
+static int pvq_theta(OdCoeff *out, const OdCoeff *x0, const OdCoeff *r0,
+    int n, int q0, OdCoeff *y, int *itheta, int *vk,
+    OdVal16 beta, double *skip_diff, int is_keyframe, int pli,
+    const OdAdaptCtx *adapt, const int16_t *qm, const int16_t *qm_inv,
     double pvq_norm_lambda, int speed) {
-  od_val32 g;
-  od_val32 gr;
-  od_coeff y_tmp[MAXN + 3];
+  OdVal32 g;
+  OdVal32 gr;
+  OdCoeff y_tmp[MAXN + 3];
   int i;
   /* Number of pulses. */
   int k;
   /* Companded gain of x and reference, normalized to q. */
-  od_val32 cg;
-  od_val32 cgr;
+  OdVal32 cg;
+  OdVal32 cgr;
   int icgr;
   int qg;
   /* Best RDO cost (D + lamdba*R) so far. */
@@ -342,18 +342,18 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
   int s;
   /* Dimension on which Householder reflects. */
   int m;
-  od_val32 theta;
+  OdVal32 theta;
   double corr;
   int best_k;
-  od_val32 best_qtheta;
-  od_val32 gain_offset;
+  OdVal32 best_qtheta;
+  OdVal32 gain_offset;
   int noref;
   double skip_dist;
   int cfl_enabled;
   int skip;
   double gain_weight;
-  od_val16 x16[MAXN];
-  od_val16 r16[MAXN];
+  OdVal16 x16[MAXN];
+  OdVal16 r16[MAXN];
   int xshift;
   int rshift;
   /* Give more weight to gain error when calculating the total distortion. */
@@ -377,7 +377,7 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
 #if defined(OD_FLOAT_PVQ)
     /*This is slightly different from the original float PVQ code,
        where the qm was applied in the accumulation in od_pvq_compute_gain and
-       the vectors were od_coeffs, not od_val16 (i.e. double).*/
+       the vectors were od_coeffs, not OdVal16 (i.e. double).*/
     x16[i] = x0[i]*(double)qm[i]*OD_QM_SCALE_1;
     r16[i] = r0[i]*(double)qm[i]*OD_QM_SCALE_1;
 #else
@@ -421,7 +421,7 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
   }
   if (!is_keyframe) {
     /* noref, gain=0 isn't allowed, but skip is allowed. */
-    od_val32 scgr;
+    OdVal32 scgr;
     scgr = OD_MAXF(0,gain_offset);
     if (icgr == 0) {
       best_dist = gain_weight*(cg - scgr)*(cg - scgr)
@@ -436,7 +436,7 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
   }
   dist0 = best_dist;
   if (n <= OD_MAX_PVQ_SIZE && !od_vector_is_null(r0, n) && corr > 0) {
-    od_val16 xr[MAXN];
+    OdVal16 xr[MAXN];
     int gain_bound;
     int prev_k;
     pvq_search_item items[MAX_PVQ_ITEMS];
@@ -455,7 +455,7 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
        and theta. */
     for (i = OD_MAXI(1, gain_bound - 1); i <= gain_bound + 1; i++) {
       int j;
-      od_val32 qcg;
+      OdVal32 qcg;
       int ts;
       int theta_lower;
       int theta_upper;
@@ -468,7 +468,7 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
       theta_upper = OD_MINI(ts - 1, (int)ceil(theta*OD_THETA_SCALE_1*2/M_PI*ts));
       /* Include the angles within a reasonable range. */
       for (j = theta_lower; j <= theta_upper; j++) {
-        od_val32 qtheta;
+        OdVal32 qtheta;
         qtheta = od_pvq_compute_theta(j, ts);
         k = od_pvq_compute_k(qcg, j, 0, n, beta);
         items[idx].gain = i;
@@ -490,12 +490,12 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
     /* Search for the best gain/theta in order. */
     for (idx = 0; idx < nitems; idx++) {
       int j;
-      od_val32 qcg;
+      OdVal32 qcg;
       int ts;
       double cost;
       double dist_theta;
       double sin_prod;
-      od_val32 qtheta;
+      OdVal32 qtheta;
       /* Quantized companded gain */
       qcg = items[idx].qcg;
       i = items[idx].gain;
@@ -550,7 +550,7 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
   /* Don't bother with no-reference version if there's a reasonable
      correlation. */
   if (n <= OD_MAX_PVQ_SIZE && (corr < .5
-        || cg < (od_val32)(OD_SHL(2, OD_CGAIN_SHIFT)))) {
+        || cg < (OdVal32)(OD_SHL(2, OD_CGAIN_SHIFT)))) {
     int gain_bound;
     int prev_k;
     gain_bound = OD_SHR(cg, OD_CGAIN_SHIFT);
@@ -559,7 +559,7 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
     for (i = OD_MAXI(1, gain_bound); i <= gain_bound + 1; i++) {
       double cos_dist;
       double cost;
-      od_val32 qcg;
+      OdVal32 qcg;
       qcg = OD_SHL(i, OD_CGAIN_SHIFT);
       k = od_pvq_compute_k(qcg, -1, 1, n, beta);
       /* Compute the minimal possible distortion by not taking the PVQ
@@ -640,14 +640,14 @@ static int pvq_theta(od_coeff *out, const od_coeff *x0, const od_coeff *r0,
  * @param [in]     encode_flip whether we need to encode the CfL flip flag now
  * @param [in]     flip       value of the CfL flip flag
  */
-void pvq_encode_partition(aom_writer *w,
+void pvq_encode_partition(AomWriter *w,
                                  int qg,
                                  int theta,
-                                 const od_coeff *in,
+                                 const OdCoeff *in,
                                  int n,
                                  int k,
-                                 generic_encoder model[3],
-                                 od_adapt_ctx *adapt,
+                                 GenericEncoder model[3],
+                                 OdAdaptCtx *adapt,
                                  int *exg,
                                  int *ext,
                                  int cdf_ctx,
@@ -702,7 +702,7 @@ void pvq_encode_partition(aom_writer *w,
  * @param [in] pvq_norm_lambda enc->pvq_norm_lambda for quantized RDO
  * @retval quantized value
  */
-int od_rdo_quant(od_coeff x, int q, double delta0, double pvq_norm_lambda) {
+int od_rdo_quant(OdCoeff x, int q, double delta0, double pvq_norm_lambda) {
   int n;
   /* Optimal quantization threshold is 1/2 + lambda*delta_rate/2. See
      Jmspeex' Journal of Dubious Theoretical Results for details. */
@@ -734,35 +734,35 @@ int od_rdo_quant(od_coeff x, int q, double delta0, double pvq_norm_lambda) {
  *                 bit0: DC is coded, bit1: AC is coded (1 means coded)
  *
  */
-PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
-                   od_coeff *ref,
-                   const od_coeff *in,
-                   od_coeff *out,
+PvqSkipType od_pvq_encode(DaalaEncCtx *enc,
+                   OdCoeff *ref,
+                   const OdCoeff *in,
+                   OdCoeff *out,
                    int q_dc,
                    int q_ac,
                    int pli,
                    int bs,
-                   const od_val16 *beta,
+                   const OdVal16 *beta,
                    int is_keyframe,
                    const int16_t *qm,
                    const int16_t *qm_inv,
                    int speed,
-                   PVQ_INFO *pvq_info){
+                   PvqInfo *pvq_info){
   int theta[PVQ_MAX_PARTITIONS];
   int qg[PVQ_MAX_PARTITIONS];
   int k[PVQ_MAX_PARTITIONS];
-  od_coeff y[OD_TXSIZE_MAX*OD_TXSIZE_MAX];
+  OdCoeff y[OD_TXSIZE_MAX*OD_TXSIZE_MAX];
   int *exg;
   int *ext;
   int nb_bands;
   int i;
   const int *off;
   int size[PVQ_MAX_PARTITIONS];
-  generic_encoder *model;
+  GenericEncoder *model;
   double skip_diff;
   int tell;
   uint16_t *skip_cdf;
-  od_rollback_buffer buf;
+  OdRollbackBuffer buf;
   int dc_quant;
   int flip;
   int cfl_encoded;
@@ -772,7 +772,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
   const unsigned char *pvq_qm;
   double dc_rate;
   int use_masking;
-  PVQ_SKIP_TYPE ac_dc_coded;
+  PvqSkipType ac_dc_coded;
 
   aom_clear_system_state();
 
@@ -801,7 +801,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
   flip = 0;
   /*If we are coding a chroma block of a keyframe, we are doing CfL.*/
   if (pli != 0 && is_keyframe) {
-    od_val32 xy;
+    OdVal32 xy;
     xy = 0;
     /*Compute the dot-product of the first band of chroma with the luma ref.*/
     for (i = off[0]; i < off[1]; i++) {
@@ -809,8 +809,8 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
       xy += ref[i]*(double)qm[i]*OD_QM_SCALE_1*
        (double)in[i]*(double)qm[i]*OD_QM_SCALE_1;
 #else
-      od_val32 rq;
-      od_val32 inq;
+      OdVal32 rq;
+      OdVal32 inq;
       rq = ref[i]*qm[i];
       inq = in[i]*qm[i];
       xy += OD_SHR(rq*(int64_t)inq, OD_SHL(OD_QM_SHIFT + OD_CFL_FLIP_SHIFT,
@@ -845,7 +845,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
       out[0] = 0;
     } else {
       int tell2;
-      od_rollback_buffer dc_buf;
+      OdRollbackBuffer dc_buf;
 
       dc_rate = -OD_LOG2((double)(skip_cdf[3] - skip_cdf[2])/
        (double)(skip_cdf[2] - skip_cdf[1]));
@@ -949,7 +949,7 @@ PVQ_SKIP_TYPE od_pvq_encode(daala_enc_ctx *enc,
         out[0] = 0;
       } else {
         int tell2;
-        od_rollback_buffer dc_buf;
+        OdRollbackBuffer dc_buf;
 
         dc_rate = -OD_LOG2((double)(skip_cdf[1] - skip_cdf[0])/
          (double)skip_cdf[0]);

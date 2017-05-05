@@ -23,7 +23,7 @@ TEST(IntrabcTest, DvValidation) {
     MV dv;
     int mi_row_offset;
     int mi_col_offset;
-    BLOCK_SIZE bsize;
+    BlockSize bsize;
     bool valid;
   };
   const int kSubPelScale = 8;

@@ -56,94 +56,94 @@ struct AvxDecInputContext {
   struct WebmInputContext *webm_ctx;
 };
 
-static const arg_def_t looparg =
+static const ArgDefT looparg =
     ARG_DEF(NULL, "loops", 1, "Number of times to decode the file");
-static const arg_def_t codecarg = ARG_DEF(NULL, "codec", 1, "Codec to use");
-static const arg_def_t use_yv12 =
+static const ArgDefT codecarg = ARG_DEF(NULL, "codec", 1, "Codec to use");
+static const ArgDefT use_yv12 =
     ARG_DEF(NULL, "yv12", 0, "Output raw YV12 frames");
-static const arg_def_t use_i420 =
+static const ArgDefT use_i420 =
     ARG_DEF(NULL, "i420", 0, "Output raw I420 frames");
-static const arg_def_t flipuvarg =
+static const ArgDefT flipuvarg =
     ARG_DEF(NULL, "flipuv", 0, "Flip the chroma planes in the output");
-static const arg_def_t rawvideo =
+static const ArgDefT rawvideo =
     ARG_DEF(NULL, "rawvideo", 0, "Output raw YUV frames");
-static const arg_def_t noblitarg =
+static const ArgDefT noblitarg =
     ARG_DEF(NULL, "noblit", 0, "Don't process the decoded frames");
-static const arg_def_t progressarg =
+static const ArgDefT progressarg =
     ARG_DEF(NULL, "progress", 0, "Show progress after each frame decodes");
-static const arg_def_t limitarg =
+static const ArgDefT limitarg =
     ARG_DEF(NULL, "limit", 1, "Stop decoding after n frames");
-static const arg_def_t skiparg =
+static const ArgDefT skiparg =
     ARG_DEF(NULL, "skip", 1, "Skip the first n input frames");
-static const arg_def_t postprocarg =
+static const ArgDefT postprocarg =
     ARG_DEF(NULL, "postproc", 0, "Postprocess decoded frames");
-static const arg_def_t summaryarg =
+static const ArgDefT summaryarg =
     ARG_DEF(NULL, "summary", 0, "Show timing summary");
-static const arg_def_t outputfile =
+static const ArgDefT outputfile =
     ARG_DEF("o", "output", 1, "Output file name pattern (see below)");
-static const arg_def_t threadsarg =
+static const ArgDefT threadsarg =
     ARG_DEF("t", "threads", 1, "Max threads to use");
-static const arg_def_t frameparallelarg =
+static const ArgDefT frameparallelarg =
     ARG_DEF(NULL, "frame-parallel", 0, "Frame parallel decode");
-static const arg_def_t verbosearg =
+static const ArgDefT verbosearg =
     ARG_DEF("v", "verbose", 0, "Show version string");
-static const arg_def_t error_concealment =
+static const ArgDefT error_concealment =
     ARG_DEF(NULL, "error-concealment", 0, "Enable decoder error-concealment");
-static const arg_def_t scalearg =
+static const ArgDefT scalearg =
     ARG_DEF("S", "scale", 0, "Scale output frames uniformly");
-static const arg_def_t continuearg =
+static const ArgDefT continuearg =
     ARG_DEF("k", "keep-going", 0, "(debug) Continue decoding after error");
-static const arg_def_t fb_arg =
+static const ArgDefT fb_arg =
     ARG_DEF(NULL, "frame-buffers", 1, "Number of frame buffers to use");
-static const arg_def_t md5arg =
+static const ArgDefT md5arg =
     ARG_DEF(NULL, "md5", 0, "Compute the MD5 sum of the decoded frame");
-static const arg_def_t framestatsarg =
+static const ArgDefT framestatsarg =
     ARG_DEF(NULL, "framestats", 1, "Output per-frame stats (.csv format)");
 #if CONFIG_HIGHBITDEPTH
-static const arg_def_t outbitdeptharg =
+static const ArgDefT outbitdeptharg =
     ARG_DEF(NULL, "output-bit-depth", 1, "Output bit-depth for decoded frames");
 #endif
 #if CONFIG_EXT_TILE
-static const arg_def_t tiler = ARG_DEF(NULL, "tile-row", 1,
-                                       "Row index of tile to decode "
-                                       "(-1 for all rows)");
-static const arg_def_t tilec = ARG_DEF(NULL, "tile-column", 1,
-                                       "Column index of tile to decode "
-                                       "(-1 for all columns)");
+static const ArgDefT tiler = ARG_DEF(NULL, "tile-row", 1,
+                                     "Row index of tile to decode "
+                                     "(-1 for all rows)");
+static const ArgDefT tilec = ARG_DEF(NULL, "tile-column", 1,
+                                     "Column index of tile to decode "
+                                     "(-1 for all columns)");
 #endif  // CONFIG_EXT_TILE
 
-static const arg_def_t *all_args[] = { &codecarg,
-                                       &use_yv12,
-                                       &use_i420,
-                                       &flipuvarg,
-                                       &rawvideo,
-                                       &noblitarg,
-                                       &progressarg,
-                                       &limitarg,
-                                       &skiparg,
-                                       &postprocarg,
-                                       &summaryarg,
-                                       &outputfile,
-                                       &threadsarg,
-                                       &frameparallelarg,
-                                       &verbosearg,
-                                       &scalearg,
-                                       &fb_arg,
-                                       &md5arg,
-                                       &framestatsarg,
-                                       &error_concealment,
-                                       &continuearg,
+static const ArgDefT *all_args[] = { &codecarg,
+                                     &use_yv12,
+                                     &use_i420,
+                                     &flipuvarg,
+                                     &rawvideo,
+                                     &noblitarg,
+                                     &progressarg,
+                                     &limitarg,
+                                     &skiparg,
+                                     &postprocarg,
+                                     &summaryarg,
+                                     &outputfile,
+                                     &threadsarg,
+                                     &frameparallelarg,
+                                     &verbosearg,
+                                     &scalearg,
+                                     &fb_arg,
+                                     &md5arg,
+                                     &framestatsarg,
+                                     &error_concealment,
+                                     &continuearg,
 #if CONFIG_HIGHBITDEPTH
-                                       &outbitdeptharg,
+                                     &outbitdeptharg,
 #endif
 #if CONFIG_EXT_TILE
-                                       &tiler,
-                                       &tilec,
+                                     &tiler,
+                                     &tilec,
 #endif  // CONFIG_EXT_TILE
-                                       NULL };
+                                     NULL };
 
 #if CONFIG_LIBYUV
-static INLINE int libyuv_scale(aom_image_t *src, aom_image_t *dst,
+static INLINE int libyuv_scale(AomImageT *src, AomImageT *dst,
                                FilterModeEnum mode) {
 #if CONFIG_HIGHBITDEPTH
   if (src->fmt == AOM_IMG_FMT_I42016) {
@@ -265,7 +265,7 @@ static int read_frame(struct AvxDecInputContext *input, uint8_t **buf,
   }
 }
 
-static void update_image_md5(const aom_image_t *img, const int planes[3],
+static void update_image_md5(const AomImageT *img, const int planes[3],
                              MD5Context *md5) {
   int i, y;
 
@@ -284,7 +284,7 @@ static void update_image_md5(const aom_image_t *img, const int planes[3],
   }
 }
 
-static void write_image_file(const aom_image_t *img, const int planes[3],
+static void write_image_file(const AomImageT *img, const int planes[3],
                              FILE *file) {
   int i, y;
 #if CONFIG_HIGHBITDEPTH
@@ -310,7 +310,7 @@ static void write_image_file(const aom_image_t *img, const int planes[3],
 static int file_is_raw(struct AvxInputContext *input) {
   uint8_t buf[32];
   int is_raw = 0;
-  aom_codec_stream_info_t si;
+  AomCodecStreamInfoT si;
 
   if (fread(buf, 1, 32, input->file) == 32) {
     int i;
@@ -359,7 +359,7 @@ struct ExternalFrameBufferList {
 // minimum size in bytes needed to decode the next frame. |fb| pointer to the
 // frame buffer.
 static int get_av1_frame_buffer(void *cb_priv, size_t min_size,
-                                aom_codec_frame_buffer_t *fb) {
+                                AomCodecFrameBufferT *fb) {
   int i;
   struct ExternalFrameBufferList *const ext_fb_list =
       (struct ExternalFrameBufferList *)cb_priv;
@@ -392,8 +392,7 @@ static int get_av1_frame_buffer(void *cb_priv, size_t min_size,
 // Callback used by libaom when there are no references to the frame buffer.
 // |cb_priv| user private data passed into the set function. |fb| pointer
 // to the frame buffer.
-static int release_av1_frame_buffer(void *cb_priv,
-                                    aom_codec_frame_buffer_t *fb) {
+static int release_av1_frame_buffer(void *cb_priv, AomCodecFrameBufferT *fb) {
   struct ExternalFrameBuffer *const ext_fb =
       (struct ExternalFrameBuffer *)fb->priv;
   (void)cb_priv;
@@ -487,16 +486,16 @@ static FILE *open_outfile(const char *name) {
 }
 
 #if CONFIG_HIGHBITDEPTH
-static int img_shifted_realloc_required(const aom_image_t *img,
-                                        const aom_image_t *shifted,
-                                        aom_img_fmt_t required_fmt) {
+static int img_shifted_realloc_required(const AomImageT *img,
+                                        const AomImageT *shifted,
+                                        AomImgFmtT required_fmt) {
   return img->d_w != shifted->d_w || img->d_h != shifted->d_h ||
          required_fmt != shifted->fmt;
 }
 #endif
 
 static int main_loop(int argc, const char **argv_) {
-  aom_codec_ctx_t decoder;
+  AomCodecCtxT decoder;
   char *fn = NULL;
   int i;
   int ret = EXIT_FAILURE;
@@ -519,7 +518,7 @@ static int main_loop(int argc, const char **argv_) {
   int use_y4m = 1;
   int opt_yv12 = 0;
   int opt_i420 = 0;
-  aom_codec_dec_cfg_t cfg = { 0, 0, 0 };
+  AomCodecDecCfgT cfg = { 0, 0, 0 };
 #if CONFIG_HIGHBITDEPTH
   unsigned int output_bit_depth = 0;
 #endif
@@ -530,9 +529,9 @@ static int main_loop(int argc, const char **argv_) {
   int frames_corrupted = 0;
   int dec_flags = 0;
   int do_scale = 0;
-  aom_image_t *scaled_img = NULL;
+  AomImageT *scaled_img = NULL;
 #if CONFIG_HIGHBITDEPTH
-  aom_image_t *img_shifted = NULL;
+  AomImageT *img_shifted = NULL;
 #endif
   int frame_avail, got_data, flush_decoder = 0;
   int num_external_frame_buffers = 0;
@@ -770,9 +769,9 @@ static int main_loop(int argc, const char **argv_) {
 
   /* Decode file */
   while (frame_avail || got_data) {
-    aom_codec_iter_t iter = NULL;
-    aom_image_t *img;
-    struct aom_usec_timer timer;
+    AomCodecIterT iter = NULL;
+    AomImageT *img;
+    struct AomUsecTimer timer;
     int corrupted = 0;
 
     frame_avail = 0;
@@ -891,7 +890,7 @@ static int main_loop(int argc, const char **argv_) {
       }
       // Shift up or down if necessary
       if (output_bit_depth != 0 && output_bit_depth != img->bit_depth) {
-        const aom_img_fmt_t shifted_fmt =
+        const AomImgFmtT shifted_fmt =
             output_bit_depth == 8
                 ? img->fmt ^ (img->fmt & AOM_IMG_FMT_HIGHBITDEPTH)
                 : img->fmt | AOM_IMG_FMT_HIGHBITDEPTH;

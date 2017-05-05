@@ -200,8 +200,8 @@ void test_clpf_speed(int w, int h, unsigned int depth, unsigned int iterations,
                                       int dstride, int sstride, int sizex,
                                       int sizey, unsigned int strength,
                                       unsigned int bitdepth)) {
-  aom_usec_timer ref_timer;
-  aom_usec_timer timer;
+  AomUsecTimer ref_timer;
+  AomUsecTimer timer;
 
   aom_usec_timer_start(&ref_timer);
   test_clpf(w, h, depth, iterations, ref_clpf, ref_clpf);

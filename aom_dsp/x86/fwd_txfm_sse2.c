@@ -16,7 +16,7 @@
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_dsp/x86/fwd_txfm_sse2.h"
 
-void aom_fdct4x4_1_sse2(const int16_t *input, tran_low_t *output, int stride) {
+void aom_fdct4x4_1_sse2(const int16_t *input, TranLowT *output, int stride) {
   __m128i in0, in1;
   __m128i tmp;
   const __m128i zero = _mm_setzero_si128();
@@ -42,10 +42,10 @@ void aom_fdct4x4_1_sse2(const int16_t *input, tran_low_t *output, int stride) {
 
   in1 = _mm_add_epi32(tmp, in0);
   in0 = _mm_slli_epi32(in1, 1);
-  output[0] = (tran_low_t)_mm_cvtsi128_si32(in0);
+  output[0] = (TranLowT)_mm_cvtsi128_si32(in0);
 }
 
-void aom_fdct8x8_1_sse2(const int16_t *input, tran_low_t *output, int stride) {
+void aom_fdct8x8_1_sse2(const int16_t *input, TranLowT *output, int stride) {
   __m128i in0 = _mm_load_si128((const __m128i *)(input + 0 * stride));
   __m128i in1 = _mm_load_si128((const __m128i *)(input + 1 * stride));
   __m128i in2 = _mm_load_si128((const __m128i *)(input + 2 * stride));
@@ -82,11 +82,10 @@ void aom_fdct8x8_1_sse2(const int16_t *input, tran_low_t *output, int stride) {
   in0 = _mm_srli_si128(sum, 8);
 
   in1 = _mm_add_epi32(sum, in0);
-  output[0] = (tran_low_t)_mm_cvtsi128_si32(in1);
+  output[0] = (TranLowT)_mm_cvtsi128_si32(in1);
 }
 
-void aom_fdct16x16_1_sse2(const int16_t *input, tran_low_t *output,
-                          int stride) {
+void aom_fdct16x16_1_sse2(const int16_t *input, TranLowT *output, int stride) {
   __m128i in0, in1, in2, in3;
   __m128i u0, u1;
   __m128i sum = _mm_setzero_si128();
@@ -151,11 +150,10 @@ void aom_fdct16x16_1_sse2(const int16_t *input, tran_low_t *output,
 
   in1 = _mm_add_epi32(sum, in0);
   in1 = _mm_srai_epi32(in1, 1);
-  output[0] = (tran_low_t)_mm_cvtsi128_si32(in1);
+  output[0] = (TranLowT)_mm_cvtsi128_si32(in1);
 }
 
-void aom_fdct32x32_1_sse2(const int16_t *input, tran_low_t *output,
-                          int stride) {
+void aom_fdct32x32_1_sse2(const int16_t *input, TranLowT *output, int stride) {
   __m128i in0, in1, in2, in3;
   __m128i u0, u1;
   __m128i sum = _mm_setzero_si128();
@@ -223,7 +221,7 @@ void aom_fdct32x32_1_sse2(const int16_t *input, tran_low_t *output,
 
   in1 = _mm_add_epi32(sum, in0);
   in1 = _mm_srai_epi32(in1, 3);
-  output[0] = (tran_low_t)_mm_cvtsi128_si32(in1);
+  output[0] = (TranLowT)_mm_cvtsi128_si32(in1);
 }
 
 #define DCT_HIGH_BIT_DEPTH 0

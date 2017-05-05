@@ -18,12 +18,12 @@
 extern "C" {
 #endif
 
-typedef struct od_ec_enc od_ec_enc;
+typedef struct OdEcEnc OdEcEnc;
 
 #define OD_MEASURE_EC_OVERHEAD (0)
 
 /*The entropy encoder context.*/
-struct od_ec_enc {
+struct OdEcEnc {
   /*Buffered output.
     This contains only the raw bits until the final call to od_ec_enc_done(),
      where all the arithmetic-coded data gets prepended to it.*/
@@ -33,7 +33,7 @@ struct od_ec_enc {
   /*The offset at which the last byte containing raw bits was written.*/
   uint32_t end_offs;
   /*Bits that will be read from/written at the end.*/
-  od_ec_window end_window;
+  OdEcWindow end_window;
   /*Number of valid bits in end_window.*/
   int nend_bits;
   /*A buffer for output bytes with their associated carry flags.*/
@@ -43,7 +43,7 @@ struct od_ec_enc {
   /*The offset at which the next entropy-coded byte will be written.*/
   uint32_t offs;
   /*The low end of the current range.*/
-  od_ec_window low;
+  OdEcWindow low;
   /*The number of values in the current range.*/
   uint16_t rng;
   /*The number of bits of data in the current value.*/
@@ -58,31 +58,29 @@ struct od_ec_enc {
 
 /*See entenc.c for further documentation.*/
 
-void od_ec_enc_init(od_ec_enc *enc, uint32_t size) OD_ARG_NONNULL(1);
-void od_ec_enc_reset(od_ec_enc *enc) OD_ARG_NONNULL(1);
-void od_ec_enc_clear(od_ec_enc *enc) OD_ARG_NONNULL(1);
+void od_ec_enc_init(OdEcEnc *enc, uint32_t size) OD_ARG_NONNULL(1);
+void od_ec_enc_reset(OdEcEnc *enc) OD_ARG_NONNULL(1);
+void od_ec_enc_clear(OdEcEnc *enc) OD_ARG_NONNULL(1);
 
-void od_ec_encode_bool_q15(od_ec_enc *enc, int val, unsigned f_q15)
+void od_ec_encode_bool_q15(OdEcEnc *enc, int val, unsigned f_q15)
     OD_ARG_NONNULL(1);
-void od_ec_encode_cdf_q15(od_ec_enc *enc, int s, const uint16_t *cdf, int nsyms)
+void od_ec_encode_cdf_q15(OdEcEnc *enc, int s, const uint16_t *cdf, int nsyms)
     OD_ARG_NONNULL(1) OD_ARG_NONNULL(3);
 
-void od_ec_enc_bits(od_ec_enc *enc, uint32_t fl, unsigned ftb)
-    OD_ARG_NONNULL(1);
+void od_ec_enc_bits(OdEcEnc *enc, uint32_t fl, unsigned ftb) OD_ARG_NONNULL(1);
 
-void od_ec_enc_patch_initial_bits(od_ec_enc *enc, unsigned val, int nbits)
+void od_ec_enc_patch_initial_bits(OdEcEnc *enc, unsigned val, int nbits)
     OD_ARG_NONNULL(1);
-OD_WARN_UNUSED_RESULT unsigned char *od_ec_enc_done(od_ec_enc *enc,
+OD_WARN_UNUSED_RESULT unsigned char *od_ec_enc_done(OdEcEnc *enc,
                                                     uint32_t *nbytes)
     OD_ARG_NONNULL(1) OD_ARG_NONNULL(2);
 
-OD_WARN_UNUSED_RESULT int od_ec_enc_tell(const od_ec_enc *enc)
-    OD_ARG_NONNULL(1);
-OD_WARN_UNUSED_RESULT uint32_t od_ec_enc_tell_frac(const od_ec_enc *enc)
+OD_WARN_UNUSED_RESULT int od_ec_enc_tell(const OdEcEnc *enc) OD_ARG_NONNULL(1);
+OD_WARN_UNUSED_RESULT uint32_t od_ec_enc_tell_frac(const OdEcEnc *enc)
     OD_ARG_NONNULL(1);
 
-void od_ec_enc_checkpoint(od_ec_enc *dst, const od_ec_enc *src);
-void od_ec_enc_rollback(od_ec_enc *dst, const od_ec_enc *src);
+void od_ec_enc_checkpoint(OdEcEnc *dst, const OdEcEnc *src);
+void od_ec_enc_rollback(OdEcEnc *dst, const OdEcEnc *src);
 
 #ifdef __cplusplus
 }  // extern "C"

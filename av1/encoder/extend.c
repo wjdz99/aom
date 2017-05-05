@@ -102,8 +102,8 @@ static void highbd_copy_and_extend_plane(const uint8_t *src8, int src_pitch,
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
-void av1_copy_and_extend_frame(const YV12_BUFFER_CONFIG *src,
-                               YV12_BUFFER_CONFIG *dst) {
+void av1_copy_and_extend_frame(const Yv12BufferConfig *src,
+                               Yv12BufferConfig *dst) {
   // Extend src frame in buffer
   // Altref filtering assumes 16 pixel extension
   const int et_y = 16;
@@ -154,8 +154,8 @@ void av1_copy_and_extend_frame(const YV12_BUFFER_CONFIG *src,
                         et_uv, el_uv, eb_uv, er_uv);
 }
 
-void av1_copy_and_extend_frame_with_rect(const YV12_BUFFER_CONFIG *src,
-                                         YV12_BUFFER_CONFIG *dst, int srcy,
+void av1_copy_and_extend_frame_with_rect(const Yv12BufferConfig *src,
+                                         Yv12BufferConfig *dst, int srcy,
                                          int srcx, int srch, int srcw) {
   // If the side is not touching the bounder then don't extend.
   const int et_y = srcy ? 0 : dst->border;

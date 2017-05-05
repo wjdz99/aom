@@ -49,7 +49,7 @@ enum aom_com_control_id {
   AOM_COPY_REFERENCE = 2, /**< get a copy of reference frame from the decoder */
   AOM_SET_POSTPROC = 3,   /**< set the decoder's post processing settings  */
   AOM_SET_DBG_COLOR_REF_FRAME =
-      4, /**< set the reference frames to color for each macroblock */
+      4, /**< set the reference frames to color for each Macroblock */
   AOM_SET_DBG_COLOR_MB_MODES = 5, /**< set which macro block modes to color */
   AOM_SET_DBG_COLOR_B_MODES = 6,  /**< set which blocks modes to color */
   AOM_SET_DBG_DISPLAY_MV = 7,     /**< set which motion vector modes to draw */
@@ -90,13 +90,13 @@ enum aom_postproc_level {
  * to AOM_DEBLOCK and deblocking_level to 1.
  */
 
-typedef struct aom_postproc_cfg {
+typedef struct AomPostprocCfg {
   /*!\brief the types of post processing to be done, should be combination of
    * "aom_postproc_level" */
   int post_proc_flag;
   int deblocking_level; /**< the strength of deblocking, valid range [0, 16] */
   int noise_level; /**< the strength of additive noise, valid range [0, 16] */
-} aom_postproc_cfg_t;
+} AomPostprocCfgT;
 
 /*!\brief reference frame type
  *
@@ -106,36 +106,36 @@ typedef enum aom_ref_frame_type {
   AOM_LAST_FRAME = 1,
   AOM_GOLD_FRAME = 2,
   AOM_ALTR_FRAME = 4
-} aom_ref_frame_type_t;
+} AomRefFrameTypeT;
 
 /*!\brief reference frame data struct
  *
  * Define the data struct to access aom reference frames.
  */
-typedef struct aom_ref_frame {
-  aom_ref_frame_type_t frame_type; /**< which reference frame */
-  aom_image_t img;                 /**< reference frame data in image format */
-} aom_ref_frame_t;
+typedef struct AomRefFrame {
+  AomRefFrameTypeT frame_type; /**< which reference frame */
+  AomImageT img;               /**< reference frame data in image format */
+} AomRefFrameT;
 
 /*!\brief AV1 specific reference frame data struct
  *
  * Define the data struct to access av1 reference frames.
  */
-typedef struct av1_ref_frame {
-  int idx;         /**< frame index to get (input) */
-  aom_image_t img; /**< img structure to populate (output) */
-} av1_ref_frame_t;
+typedef struct Av1RefFrame {
+  int idx;       /**< frame index to get (input) */
+  AomImageT img; /**< img structure to populate (output) */
+} Av1RefFrameT;
 
 /*!\cond */
 /*!\brief aom decoder control function parameter type
  *
  * defines the data type for each of AOM decoder control function requires
  */
-AOM_CTRL_USE_TYPE(AOM_SET_REFERENCE, aom_ref_frame_t *)
+AOM_CTRL_USE_TYPE(AOM_SET_REFERENCE, AomRefFrameT *)
 #define AOM_CTRL_AOM_SET_REFERENCE
-AOM_CTRL_USE_TYPE(AOM_COPY_REFERENCE, aom_ref_frame_t *)
+AOM_CTRL_USE_TYPE(AOM_COPY_REFERENCE, AomRefFrameT *)
 #define AOM_CTRL_AOM_COPY_REFERENCE
-AOM_CTRL_USE_TYPE(AOM_SET_POSTPROC, aom_postproc_cfg_t *)
+AOM_CTRL_USE_TYPE(AOM_SET_POSTPROC, AomPostprocCfgT *)
 #define AOM_CTRL_AOM_SET_POSTPROC
 AOM_CTRL_USE_TYPE(AOM_SET_DBG_COLOR_REF_FRAME, int)
 #define AOM_CTRL_AOM_SET_DBG_COLOR_REF_FRAME
@@ -145,9 +145,9 @@ AOM_CTRL_USE_TYPE(AOM_SET_DBG_COLOR_B_MODES, int)
 #define AOM_CTRL_AOM_SET_DBG_COLOR_B_MODES
 AOM_CTRL_USE_TYPE(AOM_SET_DBG_DISPLAY_MV, int)
 #define AOM_CTRL_AOM_SET_DBG_DISPLAY_MV
-AOM_CTRL_USE_TYPE(AV1_GET_REFERENCE, av1_ref_frame_t *)
+AOM_CTRL_USE_TYPE(AV1_GET_REFERENCE, Av1RefFrameT *)
 #define AOM_CTRL_AV1_GET_REFERENCE
-AOM_CTRL_USE_TYPE(AV1_GET_NEW_FRAME_IMAGE, aom_image_t *)
+AOM_CTRL_USE_TYPE(AV1_GET_NEW_FRAME_IMAGE, AomImageT *)
 #define AOM_CTRL_AV1_GET_NEW_FRAME_IMAGE
 
 /*!\endcond */

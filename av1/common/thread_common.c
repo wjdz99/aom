@@ -86,7 +86,7 @@ static INLINE void sync_write(AV1LfSync *const lf_sync, int r, int c,
 
 #if !CONFIG_EXT_PARTITION_TYPES
 static INLINE enum lf_path get_loop_filter_path(
-    int y_only, struct macroblockd_plane planes[MAX_MB_PLANE]) {
+    int y_only, struct MacroblockdPlane planes[MAX_MB_PLANE]) {
   if (y_only)
     return LF_PATH_444;
   else if (planes[1].subsampling_y == 1 && planes[1].subsampling_x == 1)
@@ -98,9 +98,9 @@ static INLINE enum lf_path get_loop_filter_path(
 }
 
 static INLINE void loop_filter_block_plane_ver(
-    AV1_COMMON *cm, struct macroblockd_plane planes[MAX_MB_PLANE], int plane,
-    MODE_INFO **mi, int mi_row, int mi_col, enum lf_path path,
-    LOOP_FILTER_MASK *lfm) {
+    Av1Common *cm, struct MacroblockdPlane planes[MAX_MB_PLANE], int plane,
+    ModeInfo **mi, int mi_row, int mi_col, enum lf_path path,
+    LoopFilterMask *lfm) {
   if (plane == 0) {
     av1_filter_block_plane_ss00_ver(cm, &planes[0], mi_row, lfm);
   } else {
@@ -120,9 +120,9 @@ static INLINE void loop_filter_block_plane_ver(
 }
 
 static INLINE void loop_filter_block_plane_hor(
-    AV1_COMMON *cm, struct macroblockd_plane planes[MAX_MB_PLANE], int plane,
-    MODE_INFO **mi, int mi_row, int mi_col, enum lf_path path,
-    LOOP_FILTER_MASK *lfm) {
+    Av1Common *cm, struct MacroblockdPlane planes[MAX_MB_PLANE], int plane,
+    ModeInfo **mi, int mi_row, int mi_col, enum lf_path path,
+    LoopFilterMask *lfm) {
   if (plane == 0) {
     av1_filter_block_plane_ss00_hor(cm, &planes[0], mi_row, lfm);
   } else {
@@ -141,7 +141,7 @@ static INLINE void loop_filter_block_plane_hor(
   }
 }
 #endif
-// Row-based multi-threaded loopfilter hook
+// Row-based multi-threaded Loopfilter hook
 #if CONFIG_PARALLEL_DEBLOCKING
 static int loop_filter_ver_row_worker(AV1LfSync *const lf_sync,
                                       LFWorkerData *const lf_data) {
@@ -152,12 +152,12 @@ static int loop_filter_ver_row_worker(AV1LfSync *const lf_sync,
 #endif
   for (mi_row = lf_data->start; mi_row < lf_data->stop;
        mi_row += lf_sync->num_workers * lf_data->cm->mib_size) {
-    MODE_INFO **const mi =
+    ModeInfo **const mi =
         lf_data->cm->mi_grid_visible + mi_row * lf_data->cm->mi_stride;
 
     for (mi_col = 0; mi_col < lf_data->cm->mi_cols;
          mi_col += lf_data->cm->mib_size) {
-      LOOP_FILTER_MASK lfm;
+      LoopFilterMask lfm;
       int plane;
 
       av1_setup_dst_planes(lf_data->planes, lf_data->cm->sb_size,
@@ -192,14 +192,14 @@ static int loop_filter_hor_row_worker(AV1LfSync *const lf_sync,
 
   for (mi_row = lf_data->start; mi_row < lf_data->stop;
        mi_row += lf_sync->num_workers * lf_data->cm->mib_size) {
-    MODE_INFO **const mi =
+    ModeInfo **const mi =
         lf_data->cm->mi_grid_visible + mi_row * lf_data->cm->mi_stride;
 
     for (mi_col = 0; mi_col < lf_data->cm->mi_cols;
          mi_col += lf_data->cm->mib_size) {
       const int r = mi_row >> lf_data->cm->mib_size_log2;
       const int c = mi_col >> lf_data->cm->mib_size_log2;
-      LOOP_FILTER_MASK lfm;
+      LoopFilterMask lfm;
       int plane;
 
       // TODO(wenhao.zhang@intel.com): For better parallelization, reorder
@@ -244,7 +244,7 @@ static int loop_filter_row_worker(AV1LfSync *const lf_sync,
 
   for (mi_row = lf_data->start; mi_row < lf_data->stop;
        mi_row += lf_sync->num_workers * lf_data->cm->mib_size) {
-    MODE_INFO **const mi =
+    ModeInfo **const mi =
         lf_data->cm->mi_grid_visible + mi_row * lf_data->cm->mi_stride;
 
     for (mi_col = 0; mi_col < lf_data->cm->mi_cols;
@@ -252,7 +252,7 @@ static int loop_filter_row_worker(AV1LfSync *const lf_sync,
       const int r = mi_row >> lf_data->cm->mib_size_log2;
       const int c = mi_col >> lf_data->cm->mib_size_log2;
 #if !CONFIG_EXT_PARTITION_TYPES
-      LOOP_FILTER_MASK lfm;
+      LoopFilterMask lfm;
 #endif
       int plane;
 
@@ -285,8 +285,8 @@ static int loop_filter_row_worker(AV1LfSync *const lf_sync,
 }
 #endif  //  CONFIG_PARALLEL_DEBLOCKING
 
-static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
-                                struct macroblockd_plane planes[MAX_MB_PLANE],
+static void loop_filter_rows_mt(Yv12BufferConfig *frame, Av1Common *cm,
+                                struct MacroblockdPlane planes[MAX_MB_PLANE],
                                 int start, int stop, int y_only,
                                 AVxWorker *workers, int nworkers,
                                 AV1LfSync *lf_sync) {
@@ -312,14 +312,14 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     av1_loop_filter_alloc(lf_sync, cm, sb_rows, cm->width, num_workers);
   }
 
-// Set up loopfilter thread data.
+// Set up Loopfilter thread data.
 // The decoder is capping num_workers because it has been observed that using
-// more threads on the loopfilter than there are cores will hurt performance
+// more threads on the Loopfilter than there are cores will hurt performance
 // on Android. This is because the system will only schedule the tile decode
 // workers on cores equal to the number of tile columns. Then if the decoder
-// tries to use more threads for the loopfilter, it will hurt performance
+// tries to use more threads for the Loopfilter, it will hurt performance
 // because of contention. If the multithreading code changes in the future
-// then the number of workers used by the loopfilter should be revisited.
+// then the number of workers used by the Loopfilter should be revisited.
 
 #if CONFIG_PARALLEL_DEBLOCKING
   // Initialize cur_sb_col to -1 for all SB rows.
@@ -414,8 +414,8 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #endif  // CONFIG_PARALLEL_DEBLOCKING
 }
 
-void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
-                              struct macroblockd_plane planes[MAX_MB_PLANE],
+void av1_loop_filter_frame_mt(Yv12BufferConfig *frame, Av1Common *cm,
+                              struct MacroblockdPlane planes[MAX_MB_PLANE],
                               int frame_filter_level, int y_only,
                               int partial_frame, AVxWorker *workers,
                               int num_workers, AV1LfSync *lf_sync) {
@@ -452,7 +452,7 @@ static INLINE int get_sync_range(int width) {
 }
 
 // Allocate memory for lf row synchronization
-void av1_loop_filter_alloc(AV1LfSync *lf_sync, AV1_COMMON *cm, int rows,
+void av1_loop_filter_alloc(AV1LfSync *lf_sync, Av1Common *cm, int rows,
                            int width, int num_workers) {
   lf_sync->rows = rows;
 #if CONFIG_MULTITHREAD
@@ -515,14 +515,13 @@ void av1_loop_filter_dealloc(AV1LfSync *lf_sync) {
   }
 }
 
-// Accumulate frame counts. FRAME_COUNTS consist solely of 'unsigned int'
+// Accumulate frame counts. FrameCounts consist solely of 'unsigned int'
 // members, so we treat it as an array, and sum over the whole length.
-void av1_accumulate_frame_counts(FRAME_COUNTS *acc_counts,
-                                 FRAME_COUNTS *counts) {
+void av1_accumulate_frame_counts(FrameCounts *acc_counts, FrameCounts *counts) {
   unsigned int *const acc = (unsigned int *)acc_counts;
   const unsigned int *const cnt = (unsigned int *)counts;
 
-  const unsigned int n_counts = sizeof(FRAME_COUNTS) / sizeof(unsigned int);
+  const unsigned int n_counts = sizeof(FrameCounts) / sizeof(unsigned int);
   unsigned int i;
 
   for (i = 0; i < n_counts; i++) acc[i] += cnt[i];

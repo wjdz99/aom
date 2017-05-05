@@ -38,7 +38,7 @@ class TestIntrinsic : public ::testing::TestWithParam<param_signature> {
 // Create one typedef for each function signature
 #define TYPEDEF_SIMD(name)                                                  \
   typedef TestIntrinsic<std::tr1::tuple<uint32_t, uint32_t, const char *> > \
-      ARCH_POSTFIX(name)
+      ArchPostfix(name)
 
 TYPEDEF_SIMD(V64_U8);
 TYPEDEF_SIMD(V64_U16);
@@ -69,11 +69,11 @@ TYPEDEF_SIMD(V128_V128U32);
 TYPEDEF_SIMD(U32_V128V128);
 
 // Google Test allows up to 50 tests per case, so split the largest
-typedef ARCH_POSTFIX(V64_V64) ARCH_POSTFIX(V64_V64_Part2);
-typedef ARCH_POSTFIX(V64_V64V64) ARCH_POSTFIX(V64_V64V64_Part2);
-typedef ARCH_POSTFIX(V128_V128) ARCH_POSTFIX(V128_V128_Part2);
-typedef ARCH_POSTFIX(V128_V128) ARCH_POSTFIX(V128_V128_Part3);
-typedef ARCH_POSTFIX(V128_V128V128) ARCH_POSTFIX(V128_V128V128_Part2);
+typedef ArchPostfix(V64_V64) ArchPostfix(V64_V64_Part2);
+typedef ArchPostfix(V64_V64V64) ArchPostfix(V64_V64V64_Part2);
+typedef ArchPostfix(V128_V128) ArchPostfix(V128_V128_Part2);
+typedef ArchPostfix(V128_V128) ArchPostfix(V128_V128_Part3);
+typedef ArchPostfix(V128_V128V128) ArchPostfix(V128_V128V128_Part2);
 
 // These functions are machine tuned located elsewhere
 template <typename c_ret, typename c_arg>
@@ -90,132 +90,132 @@ const int kIterations = 65536;
 // expand it first with the prefix.
 #define MY_TEST_P(name, test) TEST_P(name, test)
 
-MY_TEST_P(ARCH_POSTFIX(V64_U8), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V64_U8), TestIntrinsics) {
   TestSimd1Arg<c_v64, uint8_t>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V64_U16), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V64_U16), TestIntrinsics) {
   TestSimd1Arg<c_v64, uint16_t>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V64_U32), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V64_U32), TestIntrinsics) {
   TestSimd1Arg<c_v64, uint32_t>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V64_V64), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V64_V64), TestIntrinsics) {
   TestSimd1Arg<c_v64, c_v64>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(U64_V64), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(U64_V64), TestIntrinsics) {
   TestSimd1Arg<uint64_t, c_v64>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(S64_V64), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(S64_V64), TestIntrinsics) {
   TestSimd1Arg<int64_t, c_v64>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(U32_V64), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(U32_V64), TestIntrinsics) {
   TestSimd1Arg<uint32_t, c_v64>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(S32_V64), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(S32_V64), TestIntrinsics) {
   TestSimd1Arg<int32_t, c_v64>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V64_U32U32), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V64_U32U32), TestIntrinsics) {
   TestSimd2Args<c_v64, uint32_t, uint32_t>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V64_V64V64), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V64_V64V64), TestIntrinsics) {
   TestSimd2Args<c_v64, c_v64, c_v64>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(S64_V64V64), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(S64_V64V64), TestIntrinsics) {
   TestSimd2Args<int64_t, c_v64, c_v64>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(U32_V64V64), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(U32_V64V64), TestIntrinsics) {
   TestSimd2Args<uint32_t, c_v64, c_v64>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V64_V64U32), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V64_V64U32), TestIntrinsics) {
   TestSimd2Args<c_v64, c_v64, uint32_t>(kIterations, mask, maskwidth, name);
 }
 
 // Google Test allows up to 50 tests per case, so split the largest
-MY_TEST_P(ARCH_POSTFIX(V64_V64_Part2), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V64_V64_Part2), TestIntrinsics) {
   TestSimd1Arg<c_v64, c_v64>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V64_V64V64_Part2), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V64_V64V64_Part2), TestIntrinsics) {
   TestSimd2Args<c_v64, c_v64, c_v64>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(U32_V128), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(U32_V128), TestIntrinsics) {
   TestSimd1Arg<uint32_t, c_v128>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(U64_V128), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(U64_V128), TestIntrinsics) {
   TestSimd1Arg<uint64_t, c_v128>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V64_V128), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V64_V128), TestIntrinsics) {
   TestSimd1Arg<c_v64, c_v128>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V128_V128), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V128_V128), TestIntrinsics) {
   TestSimd1Arg<c_v128, c_v128>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V128_U8), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V128_U8), TestIntrinsics) {
   TestSimd1Arg<c_v128, uint8_t>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V128_U16), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V128_U16), TestIntrinsics) {
   TestSimd1Arg<c_v128, uint16_t>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V128_U32), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V128_U32), TestIntrinsics) {
   TestSimd1Arg<c_v128, uint32_t>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V128_V64), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V128_V64), TestIntrinsics) {
   TestSimd1Arg<c_v128, c_v64>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V128_V128V128), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V128_V128V128), TestIntrinsics) {
   TestSimd2Args<c_v128, c_v128, c_v128>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(U32_V128V128), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(U32_V128V128), TestIntrinsics) {
   TestSimd2Args<uint32_t, c_v128, c_v128>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(S64_V128V128), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(S64_V128V128), TestIntrinsics) {
   TestSimd2Args<int64_t, c_v128, c_v128>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V128_U64U64), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V128_U64U64), TestIntrinsics) {
   TestSimd2Args<c_v128, uint64_t, uint64_t>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V128_V64V64), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V128_V64V64), TestIntrinsics) {
   TestSimd2Args<c_v128, c_v64, c_v64>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V128_V128U32), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V128_V128U32), TestIntrinsics) {
   TestSimd2Args<c_v128, c_v128, uint32_t>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V128_V128V128_Part2), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V128_V128V128_Part2), TestIntrinsics) {
   TestSimd2Args<c_v128, c_v128, c_v128>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V128_V128_Part2), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V128_V128_Part2), TestIntrinsics) {
   TestSimd1Arg<c_v128, c_v128>(kIterations, mask, maskwidth, name);
 }
 
-MY_TEST_P(ARCH_POSTFIX(V128_V128_Part3), TestIntrinsics) {
+MY_TEST_P(ArchPostfix(V128_V128_Part3), TestIntrinsics) {
   TestSimd1Arg<c_v128, c_v128>(kIterations, mask, maskwidth, name);
 }
 
@@ -227,11 +227,11 @@ MY_TEST_P(ARCH_POSTFIX(V128_V128_Part3), TestIntrinsics) {
 #define SIMD_TUPLE(name, mask, maskwidth) \
   std::tr1::make_tuple(mask, maskwidth, static_cast<const char *>(#name))
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(U32_V64V64),
+INSTANTIATE(ARCH, ArchPostfix(U32_V64V64),
             (SIMD_TUPLE(v64_sad_u8, 0U, 0U), SIMD_TUPLE(v64_ssd_u8, 0U, 0U)));
 
 INSTANTIATE(
-    ARCH, ARCH_POSTFIX(V64_V64V64), SIMD_TUPLE(v64_add_8, 0U, 0U),
+    ARCH, ArchPostfix(V64_V64V64), SIMD_TUPLE(v64_add_8, 0U, 0U),
     SIMD_TUPLE(v64_add_16, 0U, 0U), SIMD_TUPLE(v64_sadd_s16, 0U, 0U),
     SIMD_TUPLE(v64_add_32, 0U, 0U), SIMD_TUPLE(v64_sub_8, 0U, 0U),
     SIMD_TUPLE(v64_ssub_u8, 0U, 0U), SIMD_TUPLE(v64_ssub_s8, 0U, 0U),
@@ -258,13 +258,13 @@ INSTANTIATE(
     SIMD_TUPLE(v64_cmpeq_16, 0U, 0U));
 
 INSTANTIATE(
-    ARCH, ARCH_POSTFIX(V64_V64V64_Part2), SIMD_TUPLE(v64_shuffle_8, 7U, 8U),
+    ARCH, ArchPostfix(V64_V64V64_Part2), SIMD_TUPLE(v64_shuffle_8, 7U, 8U),
     SIMD_TUPLE(imm_v64_align<1>, 0U, 0U), SIMD_TUPLE(imm_v64_align<2>, 0U, 0U),
     SIMD_TUPLE(imm_v64_align<3>, 0U, 0U), SIMD_TUPLE(imm_v64_align<4>, 0U, 0U),
     SIMD_TUPLE(imm_v64_align<5>, 0U, 0U), SIMD_TUPLE(imm_v64_align<6>, 0U, 0U),
     SIMD_TUPLE(imm_v64_align<7>, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V64_V64), SIMD_TUPLE(v64_abs_s8, 0U, 0U),
+INSTANTIATE(ARCH, ArchPostfix(V64_V64), SIMD_TUPLE(v64_abs_s8, 0U, 0U),
             SIMD_TUPLE(v64_abs_s16, 0U, 0U),
             SIMD_TUPLE(v64_unpacklo_u8_s16, 0U, 0U),
             SIMD_TUPLE(v64_unpackhi_u8_s16, 0U, 0U),
@@ -315,7 +315,7 @@ INSTANTIATE(ARCH, ARCH_POSTFIX(V64_V64), SIMD_TUPLE(v64_abs_s8, 0U, 0U),
             SIMD_TUPLE(imm_v64_shl_n_16<6>, 0U, 0U),
             SIMD_TUPLE(imm_v64_shl_n_16<8>, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V64_V64_Part2),
+INSTANTIATE(ARCH, ArchPostfix(V64_V64_Part2),
             SIMD_TUPLE(imm_v64_shl_n_16<10>, 0U, 0U),
             SIMD_TUPLE(imm_v64_shl_n_16<12>, 0U, 0U),
             SIMD_TUPLE(imm_v64_shl_n_16<14>, 0U, 0U),
@@ -360,40 +360,40 @@ INSTANTIATE(ARCH, ARCH_POSTFIX(V64_V64_Part2),
             SIMD_TUPLE(imm_v64_shr_n_s32<24>, 0U, 0U),
             SIMD_TUPLE(imm_v64_shr_n_s32<28>, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V64_V64U32), SIMD_TUPLE(v64_shl_8, 7U, 32U),
+INSTANTIATE(ARCH, ArchPostfix(V64_V64U32), SIMD_TUPLE(v64_shl_8, 7U, 32U),
             SIMD_TUPLE(v64_shr_u8, 7U, 32U), SIMD_TUPLE(v64_shr_s8, 7U, 32U),
             SIMD_TUPLE(v64_shl_16, 15U, 32U), SIMD_TUPLE(v64_shr_u16, 15U, 32U),
             SIMD_TUPLE(v64_shr_s16, 15U, 32U), SIMD_TUPLE(v64_shl_32, 31U, 32U),
             SIMD_TUPLE(v64_shr_u32, 31U, 32U),
             SIMD_TUPLE(v64_shr_s32, 31U, 32U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(U64_V64), SIMD_TUPLE(v64_hadd_u8, 0U, 0U),
+INSTANTIATE(ARCH, ArchPostfix(U64_V64), SIMD_TUPLE(v64_hadd_u8, 0U, 0U),
             SIMD_TUPLE(v64_u64, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(S64_V64), SIMD_TUPLE(v64_hadd_s16, 0U, 0U));
+INSTANTIATE(ARCH, ArchPostfix(S64_V64), SIMD_TUPLE(v64_hadd_s16, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(U32_V64), SIMD_TUPLE(v64_low_u32, 0U, 0U),
+INSTANTIATE(ARCH, ArchPostfix(U32_V64), SIMD_TUPLE(v64_low_u32, 0U, 0U),
             SIMD_TUPLE(v64_high_u32, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(S32_V64), SIMD_TUPLE(v64_low_s32, 0U, 0U),
+INSTANTIATE(ARCH, ArchPostfix(S32_V64), SIMD_TUPLE(v64_low_s32, 0U, 0U),
             SIMD_TUPLE(v64_high_s32, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(S64_V64V64), SIMD_TUPLE(v64_dotp_s16, 0U, 0U),
+INSTANTIATE(ARCH, ArchPostfix(S64_V64V64), SIMD_TUPLE(v64_dotp_s16, 0U, 0U),
             SIMD_TUPLE(v64_dotp_su8, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V64_U8), SIMD_TUPLE(v64_dup_8, 0U, 0U));
+INSTANTIATE(ARCH, ArchPostfix(V64_U8), SIMD_TUPLE(v64_dup_8, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V64_U16), SIMD_TUPLE(v64_dup_16, 0U, 0U));
+INSTANTIATE(ARCH, ArchPostfix(V64_U16), SIMD_TUPLE(v64_dup_16, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V64_U32), SIMD_TUPLE(v64_dup_32, 0U, 0U));
+INSTANTIATE(ARCH, ArchPostfix(V64_U32), SIMD_TUPLE(v64_dup_32, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V64_U32U32), SIMD_TUPLE(v64_from_32, 0U, 0U));
+INSTANTIATE(ARCH, ArchPostfix(V64_U32U32), SIMD_TUPLE(v64_from_32, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(U32_V128V128), SIMD_TUPLE(v128_sad_u8, 0U, 0U),
+INSTANTIATE(ARCH, ArchPostfix(U32_V128V128), SIMD_TUPLE(v128_sad_u8, 0U, 0U),
             SIMD_TUPLE(v128_ssd_u8, 0U, 0U));
 
 INSTANTIATE(
-    ARCH, ARCH_POSTFIX(V128_V128V128), SIMD_TUPLE(v128_add_8, 0U, 0U),
+    ARCH, ArchPostfix(V128_V128V128), SIMD_TUPLE(v128_add_8, 0U, 0U),
     SIMD_TUPLE(v128_add_16, 0U, 0U), SIMD_TUPLE(v128_sadd_s16, 0U, 0U),
     SIMD_TUPLE(v128_add_32, 0U, 0U), SIMD_TUPLE(v128_sub_8, 0U, 0U),
     SIMD_TUPLE(v128_ssub_u8, 0U, 0U), SIMD_TUPLE(v128_ssub_s8, 0U, 0U),
@@ -420,7 +420,7 @@ INSTANTIATE(
     SIMD_TUPLE(v128_cmplt_s8, 0U, 0U), SIMD_TUPLE(v128_cmpeq_8, 0U, 0U),
     SIMD_TUPLE(v128_cmpgt_s16, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V128_V128V128_Part2),
+INSTANTIATE(ARCH, ArchPostfix(V128_V128V128_Part2),
             SIMD_TUPLE(v128_cmpeq_16, 0U, 0U),
             SIMD_TUPLE(v128_cmplt_s16, 0U, 0U),
             SIMD_TUPLE(v128_shuffle_8, 15U, 8U),
@@ -440,7 +440,7 @@ INSTANTIATE(ARCH, ARCH_POSTFIX(V128_V128V128_Part2),
             SIMD_TUPLE(imm_v128_align<14>, 0U, 0U),
             SIMD_TUPLE(imm_v128_align<15>, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V128_V128), SIMD_TUPLE(v128_abs_s8, 0U, 0U),
+INSTANTIATE(ARCH, ArchPostfix(V128_V128), SIMD_TUPLE(v128_abs_s8, 0U, 0U),
             SIMD_TUPLE(v128_abs_s16, 0U, 0U), SIMD_TUPLE(v128_padd_s16, 0U, 0U),
             SIMD_TUPLE(v128_unpacklo_u8_s16, 0U, 0U),
             SIMD_TUPLE(v128_unpacklo_s8_s16, 0U, 0U),
@@ -489,7 +489,7 @@ INSTANTIATE(ARCH, ARCH_POSTFIX(V128_V128), SIMD_TUPLE(v128_abs_s8, 0U, 0U),
             SIMD_TUPLE(imm_v128_shl_n_8<7>, 0U, 0U),
             SIMD_TUPLE(imm_v128_shr_n_u8<1>, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V128_V128_Part2),
+INSTANTIATE(ARCH, ArchPostfix(V128_V128_Part2),
             SIMD_TUPLE(imm_v128_shr_n_u8<2>, 0U, 0U),
             SIMD_TUPLE(imm_v128_shr_n_u8<3>, 0U, 0U),
             SIMD_TUPLE(imm_v128_shr_n_u8<4>, 0U, 0U),
@@ -538,7 +538,7 @@ INSTANTIATE(ARCH, ARCH_POSTFIX(V128_V128_Part2),
             SIMD_TUPLE(imm_v128_shr_n_u32<1>, 0U, 0U),
             SIMD_TUPLE(imm_v128_shr_n_u32<4>, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V128_V128_Part3),
+INSTANTIATE(ARCH, ArchPostfix(V128_V128_Part3),
             SIMD_TUPLE(imm_v128_shr_n_u32<8>, 0U, 0U),
             SIMD_TUPLE(imm_v128_shr_n_u32<12>, 0U, 0U),
             SIMD_TUPLE(imm_v128_shr_n_u32<16>, 0U, 0U),
@@ -554,19 +554,18 @@ INSTANTIATE(ARCH, ARCH_POSTFIX(V128_V128_Part3),
             SIMD_TUPLE(imm_v128_shr_n_s32<24>, 0U, 0U),
             SIMD_TUPLE(imm_v128_shr_n_s32<28>, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V128_V64V64), SIMD_TUPLE(v128_from_v64, 0U, 0U),
+INSTANTIATE(ARCH, ArchPostfix(V128_V64V64), SIMD_TUPLE(v128_from_v64, 0U, 0U),
             SIMD_TUPLE(v128_zip_8, 0U, 0U), SIMD_TUPLE(v128_zip_16, 0U, 0U),
             SIMD_TUPLE(v128_zip_32, 0U, 0U), SIMD_TUPLE(v128_mul_s16, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V128_U64U64), SIMD_TUPLE(v128_from_64, 0U, 0U));
+INSTANTIATE(ARCH, ArchPostfix(V128_U64U64), SIMD_TUPLE(v128_from_64, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V128_V64),
-            SIMD_TUPLE(v128_unpack_u8_s16, 0U, 0U),
+INSTANTIATE(ARCH, ArchPostfix(V128_V64), SIMD_TUPLE(v128_unpack_u8_s16, 0U, 0U),
             SIMD_TUPLE(v128_unpack_s8_s16, 0U, 0U),
             SIMD_TUPLE(v128_unpack_u16_s32, 0U, 0U),
             SIMD_TUPLE(v128_unpack_s16_s32, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V128_V128U32), SIMD_TUPLE(v128_shl_8, 7U, 32U),
+INSTANTIATE(ARCH, ArchPostfix(V128_V128U32), SIMD_TUPLE(v128_shl_8, 7U, 32U),
             SIMD_TUPLE(v128_shr_u8, 7U, 32U), SIMD_TUPLE(v128_shr_s8, 7U, 32U),
             SIMD_TUPLE(v128_shl_16, 15U, 32U),
             SIMD_TUPLE(v128_shr_u16, 15U, 32U),
@@ -575,20 +574,19 @@ INSTANTIATE(ARCH, ARCH_POSTFIX(V128_V128U32), SIMD_TUPLE(v128_shl_8, 7U, 32U),
             SIMD_TUPLE(v128_shr_u32, 31U, 32U),
             SIMD_TUPLE(v128_shr_s32, 31U, 32U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(U32_V128), SIMD_TUPLE(v128_low_u32, 0U, 0U));
+INSTANTIATE(ARCH, ArchPostfix(U32_V128), SIMD_TUPLE(v128_low_u32, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(U64_V128), SIMD_TUPLE(v128_hadd_u8, 0U, 0U));
+INSTANTIATE(ARCH, ArchPostfix(U64_V128), SIMD_TUPLE(v128_hadd_u8, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V64_V128), SIMD_TUPLE(v128_low_v64, 0U, 0U),
+INSTANTIATE(ARCH, ArchPostfix(V64_V128), SIMD_TUPLE(v128_low_v64, 0U, 0U),
             SIMD_TUPLE(v128_high_v64, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V128_U8), SIMD_TUPLE(v128_dup_8, 0U, 0U));
+INSTANTIATE(ARCH, ArchPostfix(V128_U8), SIMD_TUPLE(v128_dup_8, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V128_U16), SIMD_TUPLE(v128_dup_16, 0U, 0U));
+INSTANTIATE(ARCH, ArchPostfix(V128_U16), SIMD_TUPLE(v128_dup_16, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(V128_U32), SIMD_TUPLE(v128_dup_32, 0U, 0U));
+INSTANTIATE(ARCH, ArchPostfix(V128_U32), SIMD_TUPLE(v128_dup_32, 0U, 0U));
 
-INSTANTIATE(ARCH, ARCH_POSTFIX(S64_V128V128),
-            SIMD_TUPLE(v128_dotp_s16, 0U, 0U));
+INSTANTIATE(ARCH, ArchPostfix(S64_V128V128), SIMD_TUPLE(v128_dotp_s16, 0U, 0U));
 
 }  // namespace SIMD_NAMESPACE

@@ -19,8 +19,8 @@
 
 #define mmin(a, b) ((a) < (b) ? (a) : (b))
 
-static void find_mismatch_plane(const aom_image_t *const img1,
-                                const aom_image_t *const img2, int plane,
+static void find_mismatch_plane(const AomImageT *const img1,
+                                const AomImageT *const img2, int plane,
                                 int use_highbitdepth, int loc[4]) {
   const unsigned char *const p1 = img1->planes[plane];
   const int p1_stride = img1->stride[plane] >> use_highbitdepth;
@@ -75,8 +75,8 @@ static void find_mismatch_plane(const aom_image_t *const img1,
   }
 }
 
-static void find_mismatch_helper(const aom_image_t *const img1,
-                                 const aom_image_t *const img2,
+static void find_mismatch_helper(const AomImageT *const img1,
+                                 const AomImageT *const img2,
                                  int use_highbitdepth, int yloc[4], int uloc[4],
                                  int vloc[4]) {
 #if !CONFIG_HIGHBITDEPTH
@@ -88,21 +88,19 @@ static void find_mismatch_helper(const aom_image_t *const img1,
 }
 
 #if CONFIG_HIGHBITDEPTH
-void aom_find_mismatch_high(const aom_image_t *const img1,
-                            const aom_image_t *const img2, int yloc[4],
+void aom_find_mismatch_high(const AomImageT *const img1,
+                            const AomImageT *const img2, int yloc[4],
                             int uloc[4], int vloc[4]) {
   find_mismatch_helper(img1, img2, 1, yloc, uloc, vloc);
 }
 #endif
 
-void aom_find_mismatch(const aom_image_t *const img1,
-                       const aom_image_t *const img2, int yloc[4], int uloc[4],
-                       int vloc[4]) {
+void aom_find_mismatch(const AomImageT *const img1, const AomImageT *const img2,
+                       int yloc[4], int uloc[4], int vloc[4]) {
   find_mismatch_helper(img1, img2, 0, yloc, uloc, vloc);
 }
 
-int aom_compare_img(const aom_image_t *const img1,
-                    const aom_image_t *const img2) {
+int aom_compare_img(const AomImageT *const img1, const AomImageT *const img2) {
   uint32_t l_w = img1->d_w;
   uint32_t c_w = (img1->d_w + img1->x_chroma_shift) >> img1->x_chroma_shift;
   const uint32_t c_h =

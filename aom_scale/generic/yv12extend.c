@@ -100,7 +100,7 @@ static void extend_plane_high(uint8_t *const src8, int src_stride, int width,
 }
 #endif
 
-void aom_yv12_extend_frame_borders_c(YV12_BUFFER_CONFIG *ybf) {
+void aom_yv12_extend_frame_borders_c(Yv12BufferConfig *ybf) {
   const int uv_border = ybf->border / 2;
 
   assert(ybf->border % 2 == 0);
@@ -145,7 +145,7 @@ void aom_yv12_extend_frame_borders_c(YV12_BUFFER_CONFIG *ybf) {
 }
 
 #if CONFIG_AV1
-static void extend_frame(YV12_BUFFER_CONFIG *const ybf, int ext_size) {
+static void extend_frame(Yv12BufferConfig *const ybf, int ext_size) {
   const int c_w = ybf->uv_crop_width;
   const int c_h = ybf->uv_crop_height;
   const int ss_x = ybf->uv_width < ybf->y_width;
@@ -183,18 +183,18 @@ static void extend_frame(YV12_BUFFER_CONFIG *const ybf, int ext_size) {
   extend_plane(ybf->v_buffer, ybf->uv_stride, c_w, c_h, c_et, c_el, c_eb, c_er);
 }
 
-void aom_extend_frame_borders_c(YV12_BUFFER_CONFIG *ybf) {
+void aom_extend_frame_borders_c(Yv12BufferConfig *ybf) {
   extend_frame(ybf, ybf->border);
 }
 
-void aom_extend_frame_inner_borders_c(YV12_BUFFER_CONFIG *ybf) {
+void aom_extend_frame_inner_borders_c(Yv12BufferConfig *ybf) {
   const int inner_bw = (ybf->border > AOMINNERBORDERINPIXELS)
                            ? AOMINNERBORDERINPIXELS
                            : ybf->border;
   extend_frame(ybf, inner_bw);
 }
 
-void aom_extend_frame_borders_y_c(YV12_BUFFER_CONFIG *ybf) {
+void aom_extend_frame_borders_y_c(Yv12BufferConfig *ybf) {
   int ext_size = ybf->border;
   assert(ybf->y_height - ybf->y_crop_height < 16);
   assert(ybf->y_width - ybf->y_crop_width < 16);
@@ -228,8 +228,8 @@ static void memcpy_short_addr(uint8_t *dst8, const uint8_t *src8, int num) {
 // Copies the source image into the destination image and updates the
 // destination's UMV borders.
 // Note: The frames are assumed to be identical in size.
-void aom_yv12_copy_frame_c(const YV12_BUFFER_CONFIG *src_bc,
-                           YV12_BUFFER_CONFIG *dst_bc) {
+void aom_yv12_copy_frame_c(const Yv12BufferConfig *src_bc,
+                           Yv12BufferConfig *dst_bc) {
   int row;
   const uint8_t *src = src_bc->y_buffer;
   uint8_t *dst = dst_bc->y_buffer;
@@ -303,8 +303,8 @@ void aom_yv12_copy_frame_c(const YV12_BUFFER_CONFIG *src_bc,
   aom_yv12_extend_frame_borders_c(dst_bc);
 }
 
-void aom_yv12_copy_y_c(const YV12_BUFFER_CONFIG *src_ybc,
-                       YV12_BUFFER_CONFIG *dst_ybc) {
+void aom_yv12_copy_y_c(const Yv12BufferConfig *src_ybc,
+                       Yv12BufferConfig *dst_ybc) {
   int row;
   const uint8_t *src = src_ybc->y_buffer;
   uint8_t *dst = dst_ybc->y_buffer;
@@ -329,8 +329,8 @@ void aom_yv12_copy_y_c(const YV12_BUFFER_CONFIG *src_ybc,
   }
 }
 
-void aom_yv12_copy_u_c(const YV12_BUFFER_CONFIG *src_bc,
-                       YV12_BUFFER_CONFIG *dst_bc) {
+void aom_yv12_copy_u_c(const Yv12BufferConfig *src_bc,
+                       Yv12BufferConfig *dst_bc) {
   int row;
   const uint8_t *src = src_bc->u_buffer;
   uint8_t *dst = dst_bc->u_buffer;
@@ -355,8 +355,8 @@ void aom_yv12_copy_u_c(const YV12_BUFFER_CONFIG *src_bc,
   }
 }
 
-void aom_yv12_copy_v_c(const YV12_BUFFER_CONFIG *src_bc,
-                       YV12_BUFFER_CONFIG *dst_bc) {
+void aom_yv12_copy_v_c(const Yv12BufferConfig *src_bc,
+                       Yv12BufferConfig *dst_bc) {
   int row;
   const uint8_t *src = src_bc->v_buffer;
   uint8_t *dst = dst_bc->v_buffer;

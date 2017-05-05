@@ -13,19 +13,19 @@
 #if !defined(_encint_H)
 # define _encint_H (1)
 
-typedef struct daala_enc_ctx od_enc_ctx;
-typedef struct od_params_ctx od_params_ctx;
-typedef struct od_rollback_buffer od_rollback_buffer;
+typedef struct DaalaEncCtx OdEncCtx;
+typedef struct OdParamsCtx OdParamsCtx;
+typedef struct OdRollbackBuffer OdRollbackBuffer;
 
 # include "aom_dsp/entenc.h"
 # include "av1/common/odintrin.h"
 # include "av1/common/pvq_state.h"
 
-struct daala_enc_ctx{
+struct DaalaEncCtx{
   /* Stores context-adaptive CDFs for PVQ. */
-  od_state state;
+  OdState state;
   /* AOM entropy encoder. */
-  aom_writer w;
+  AomWriter w;
   int use_activity_masking;
   /* Mode of quantization matrice : FLAT (0) or HVS (1) */
   int qm;
@@ -37,15 +37,15 @@ struct daala_enc_ctx{
 
 // from daalaenc.h
 /**The encoder context.*/
-typedef struct daala_enc_ctx daala_enc_ctx;
+typedef struct DaalaEncCtx DaalaEncCtx;
 
 /** Holds important encoder information so we can roll back decisions */
-struct od_rollback_buffer {
-  od_ec_enc ec;
-  od_adapt_ctx adapt;
+struct OdRollbackBuffer {
+  OdEcEnc ec;
+  OdAdaptCtx adapt;
 };
 
-void od_encode_checkpoint(const daala_enc_ctx *enc, od_rollback_buffer *rbuf);
-void od_encode_rollback(daala_enc_ctx *enc, const od_rollback_buffer *rbuf);
+void od_encode_checkpoint(const DaalaEncCtx *enc, OdRollbackBuffer *rbuf);
+void od_encode_rollback(DaalaEncCtx *enc, const OdRollbackBuffer *rbuf);
 
 #endif

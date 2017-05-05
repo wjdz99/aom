@@ -51,7 +51,7 @@ static int file_read(void *buf, size_t size, FILE *file) {
   return len == size;
 }
 
-static int y4m_parse_tags(y4m_input *_y4m, char *_tags) {
+static int y4m_parse_tags(Y4mInput *_y4m, char *_tags) {
   int got_w;
   int got_h;
   int got_fps;
@@ -218,7 +218,7 @@ static void y4m_42xmpeg2_42xjpeg_helper(unsigned char *_dst,
 }
 
 /*Handles both 422 and 420mpeg2 to 422jpeg and 420jpeg, respectively.*/
-static void y4m_convert_42xmpeg2_42xjpeg(y4m_input *_y4m, unsigned char *_dst,
+static void y4m_convert_42xmpeg2_42xjpeg(Y4mInput *_y4m, unsigned char *_dst,
                                          unsigned char *_aux) {
   int c_w;
   int c_h;
@@ -280,7 +280,7 @@ static void y4m_convert_42xmpeg2_42xjpeg(y4m_input *_y4m, unsigned char *_dst,
    the chroma plane's resolution) to the right.
   Then we use another filter to move the C_r location down one quarter pixel,
    and the C_b location up one quarter pixel.*/
-static void y4m_convert_42xpaldv_42xjpeg(y4m_input *_y4m, unsigned char *_dst,
+static void y4m_convert_42xpaldv_42xjpeg(Y4mInput *_y4m, unsigned char *_dst,
                                          unsigned char *_aux) {
   unsigned char *tmp;
   int c_w;
@@ -464,7 +464,7 @@ static void y4m_422jpeg_420jpeg_helper(unsigned char *_dst,
 
   We use a resampling filter to decimate the chroma planes by two in the
    vertical direction.*/
-static void y4m_convert_422jpeg_420jpeg(y4m_input *_y4m, unsigned char *_dst,
+static void y4m_convert_422jpeg_420jpeg(Y4mInput *_y4m, unsigned char *_dst,
                                         unsigned char *_aux) {
   int c_w;
   int c_h;
@@ -529,7 +529,7 @@ static void y4m_convert_422jpeg_420jpeg(y4m_input *_y4m, unsigned char *_dst,
    pixel (at the original chroma resolution) to the right.
   Then we use a second resampling filter to decimate the chroma planes by two
    in the vertical direction.*/
-static void y4m_convert_422_420jpeg(y4m_input *_y4m, unsigned char *_dst,
+static void y4m_convert_422_420jpeg(Y4mInput *_y4m, unsigned char *_dst,
                                     unsigned char *_aux) {
   unsigned char *tmp;
   int c_w;
@@ -601,7 +601,7 @@ static void y4m_convert_422_420jpeg(y4m_input *_y4m, unsigned char *_dst,
    right.
   Then we use another filter to decimate the planes by 2 in the vertical
    direction.*/
-static void y4m_convert_411_420jpeg(y4m_input *_y4m, unsigned char *_dst,
+static void y4m_convert_411_420jpeg(Y4mInput *_y4m, unsigned char *_dst,
                                     unsigned char *_aux) {
   unsigned char *tmp;
   int c_w;
@@ -683,7 +683,7 @@ static void y4m_convert_411_420jpeg(y4m_input *_y4m, unsigned char *_dst,
 }
 
 /*Convert 444 to 420jpeg.*/
-static void y4m_convert_444_420jpeg(y4m_input *_y4m, unsigned char *_dst,
+static void y4m_convert_444_420jpeg(Y4mInput *_y4m, unsigned char *_dst,
                                     unsigned char *_aux) {
   unsigned char *tmp;
   int c_w;
@@ -744,7 +744,7 @@ static void y4m_convert_444_420jpeg(y4m_input *_y4m, unsigned char *_dst,
 }
 
 /*The image is padded with empty chroma components at 4:2:0.*/
-static void y4m_convert_mono_420jpeg(y4m_input *_y4m, unsigned char *_dst,
+static void y4m_convert_mono_420jpeg(Y4mInput *_y4m, unsigned char *_dst,
                                      unsigned char *_aux) {
   int c_sz;
   (void)_aux;
@@ -755,14 +755,14 @@ static void y4m_convert_mono_420jpeg(y4m_input *_y4m, unsigned char *_dst,
 }
 
 /*No conversion function needed.*/
-static void y4m_convert_null(y4m_input *_y4m, unsigned char *_dst,
+static void y4m_convert_null(Y4mInput *_y4m, unsigned char *_dst,
                              unsigned char *_aux) {
   (void)_y4m;
   (void)_dst;
   (void)_aux;
 }
 
-int y4m_input_open(y4m_input *_y4m, FILE *_fin, char *_skip, int _nskip,
+int y4m_input_open(Y4mInput *_y4m, FILE *_fin, char *_skip, int _nskip,
                    int only_420) {
   char buffer[80] = { 0 };
   int ret;
@@ -1058,12 +1058,12 @@ int y4m_input_open(y4m_input *_y4m, FILE *_fin, char *_skip, int _nskip,
   return 0;
 }
 
-void y4m_input_close(y4m_input *_y4m) {
+void y4m_input_close(Y4mInput *_y4m) {
   free(_y4m->dst_buf);
   free(_y4m->aux_buf);
 }
 
-int y4m_input_fetch_frame(y4m_input *_y4m, FILE *_fin, aom_image_t *_img) {
+int y4m_input_fetch_frame(Y4mInput *_y4m, FILE *_fin, AomImageT *_img) {
   char frame[6];
   int pic_sz;
   int c_w;

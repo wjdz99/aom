@@ -43,8 +43,8 @@ TEST_P(AV1SubtractBlockTest, SimpleSubtract) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
 
   // FIXME(rbultje) split in its own file
-  for (BLOCK_SIZE bsize = BLOCK_4X4; bsize < BLOCK_SIZES;
-       bsize = static_cast<BLOCK_SIZE>(static_cast<int>(bsize) + 1)) {
+  for (BlockSize bsize = BLOCK_4X4; bsize < BLOCK_SIZES;
+       bsize = static_cast<BlockSize>(static_cast<int>(bsize) + 1)) {
     const int block_width = block_size_wide[bsize];
     const int block_height = block_size_high[bsize];
     int16_t *diff = reinterpret_cast<int16_t *>(
@@ -125,7 +125,7 @@ class AV1HBDSubtractBlockTest : public ::testing::TestWithParam<Params> {
   virtual void SetUp() {
     block_width_ = GET_PARAM(0);
     block_height_ = GET_PARAM(1);
-    bit_depth_ = static_cast<aom_bit_depth_t>(GET_PARAM(2));
+    bit_depth_ = static_cast<AomBitDepthT>(GET_PARAM(2));
     func_ = GET_PARAM(3);
 
     rnd_.Reset(ACMRandom::DeterministicSeed());
@@ -154,7 +154,7 @@ class AV1HBDSubtractBlockTest : public ::testing::TestWithParam<Params> {
   ACMRandom rnd_;
   int block_height_;
   int block_width_;
-  aom_bit_depth_t bit_depth_;
+  AomBitDepthT bit_depth_;
   HBDSubtractFunc func_;
   uint8_t *src_;
   uint8_t *pred_;

@@ -26,7 +26,7 @@ static int inv_recenter_nonneg(int v, int m) {
 #define decode_term_subexp(r, ACCT_STR_NAME) \
   decode_term_subexp_(r ACCT_STR_ARG(ACCT_STR_NAME))
 
-static int decode_uniform_(aom_reader *r ACCT_STR_PARAM) {
+static int decode_uniform_(AomReader *r ACCT_STR_PARAM) {
   const int l = 8;
   const int m = (1 << l) - 190;
   const int v = aom_read_literal(r, l - 1, ACCT_STR_NAME);
@@ -64,7 +64,7 @@ static int inv_remap_prob(int v, int m) {
   }
 }
 
-static int decode_term_subexp_(aom_reader *r ACCT_STR_PARAM) {
+static int decode_term_subexp_(AomReader *r ACCT_STR_PARAM) {
   if (!aom_read_bit(r, ACCT_STR_NAME))
     return aom_read_literal(r, 4, ACCT_STR_NAME);
   if (!aom_read_bit(r, ACCT_STR_NAME))
@@ -74,9 +74,9 @@ static int decode_term_subexp_(aom_reader *r ACCT_STR_PARAM) {
   return decode_uniform(r, ACCT_STR_NAME) + 64;
 }
 
-void av1_diff_update_prob_(aom_reader *r, aom_prob *p ACCT_STR_PARAM) {
+void av1_diff_update_prob_(AomReader *r, AomProb *p ACCT_STR_PARAM) {
   if (aom_read(r, DIFF_UPDATE_PROB, ACCT_STR_NAME)) {
     const int delp = decode_term_subexp(r, ACCT_STR_NAME);
-    *p = (aom_prob)inv_remap_prob(delp, *p);
+    *p = (AomProb)inv_remap_prob(delp, *p);
   }
 }

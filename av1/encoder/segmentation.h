@@ -23,9 +23,9 @@ void av1_enable_segmentation(struct segmentation *seg);
 void av1_disable_segmentation(struct segmentation *seg);
 
 void av1_disable_segfeature(struct segmentation *seg, int segment_id,
-                            SEG_LVL_FEATURES feature_id);
+                            SegLvlFeatures feature_id);
 void av1_clear_segdata(struct segmentation *seg, int segment_id,
-                       SEG_LVL_FEATURES feature_id);
+                       SegLvlFeatures feature_id);
 
 // The values given for each segment can be either deltas (from the default
 // value chosen for the frame) or absolute values.
@@ -40,9 +40,9 @@ void av1_clear_segdata(struct segmentation *seg, int segment_id,
 void av1_set_segment_data(struct segmentation *seg, signed char *feature_data,
                           unsigned char abs_delta);
 
-void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd);
+void av1_choose_segmap_coding_method(Av1Common *cm, Macroblockd *xd);
 
-void av1_reset_segment_features(AV1_COMMON *cm);
+void av1_reset_segment_features(Av1Common *cm);
 
 #ifdef __cplusplus
 }  // extern "C"

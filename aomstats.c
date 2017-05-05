@@ -17,7 +17,7 @@
 
 #include "./tools_common.h"
 
-int stats_open_file(stats_io_t *stats, const char *fpf, int pass) {
+int stats_open_file(StatsIoT *stats, const char *fpf, int pass) {
   int res;
   stats->pass = pass;
 
@@ -52,7 +52,7 @@ int stats_open_file(stats_io_t *stats, const char *fpf, int pass) {
   return res;
 }
 
-int stats_open_mem(stats_io_t *stats, int pass) {
+int stats_open_mem(StatsIoT *stats, int pass) {
   int res;
   stats->pass = pass;
 
@@ -67,7 +67,7 @@ int stats_open_mem(stats_io_t *stats, int pass) {
   return res;
 }
 
-void stats_close(stats_io_t *stats, int last_pass) {
+void stats_close(StatsIoT *stats, int last_pass) {
   if (stats->file) {
     if (stats->pass == last_pass) {
       free(stats->buf.buf);
@@ -80,7 +80,7 @@ void stats_close(stats_io_t *stats, int last_pass) {
   }
 }
 
-void stats_write(stats_io_t *stats, const void *pkt, size_t len) {
+void stats_write(StatsIoT *stats, const void *pkt, size_t len) {
   if (stats->file) {
     (void)fwrite(pkt, 1, len, stats->file);
   } else {
@@ -103,4 +103,4 @@ void stats_write(stats_io_t *stats, const void *pkt, size_t len) {
   }
 }
 
-aom_fixed_buf_t stats_get(stats_io_t *stats) { return stats->buf; }
+AomFixedBufT stats_get(StatsIoT *stats) { return stats->buf; }

@@ -29,11 +29,11 @@
 typedef struct {
   /** cdf for multiple expectations of x */
   uint16_t cdf[GENERIC_TABLES][CDF_SIZE(16)];
-} generic_encoder;
+} GenericEncoder;
 
 #define OD_IIR_DIADIC(y, x, shift) ((y) += ((x) - (y)) >> (shift))
 
-void generic_model_init(generic_encoder *model);
+void generic_model_init(GenericEncoder *model);
 
 /* Initialize a CDF for use by aom_write_symbol_pvq()/aom_read_symbol_pvq().
    This is used for CDFs whose size might not match the declared array size.
@@ -59,19 +59,19 @@ void aom_cdf_init_q15_1D(uint16_t *cdf, int nsyms, int cdf_size);
 
 void aom_cdf_adapt_q15(int val, uint16_t *cdf, int n, int *count, int rate);
 
-void aom_encode_cdf_adapt_q15(aom_writer *w, int val, uint16_t *cdf, int n,
+void aom_encode_cdf_adapt_q15(AomWriter *w, int val, uint16_t *cdf, int n,
  int *count, int rate);
 
-void generic_encode(aom_writer *w, generic_encoder *model, int x,
+void generic_encode(AomWriter *w, GenericEncoder *model, int x,
  int *ex_q16, int integration);
-double generic_encode_cost(generic_encoder *model, int x, int *ex_q16);
+double generic_encode_cost(GenericEncoder *model, int x, int *ex_q16);
 
 double od_encode_cdf_cost(int val, uint16_t *cdf, int n);
 
-int aom_decode_cdf_adapt_q15_(aom_reader *r, uint16_t *cdf, int n,
+int aom_decode_cdf_adapt_q15_(AomReader *r, uint16_t *cdf, int n,
  int *count, int rate ACCT_STR_PARAM);
 
-int generic_decode_(aom_reader *r, generic_encoder *model,
+int generic_decode_(AomReader *r, GenericEncoder *model,
  int *ex_q16, int integration ACCT_STR_PARAM);
 
 int log_ex(int ex_q16);
