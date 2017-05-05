@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adaa84eb_933fb563",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-05T18:15:18Z",
+      "side": 1,
+      "message": "Unrelated to this patch, but, you can remove these two consts.\n(const is not needed when parameter is passed by value).",
+      "range": {
+        "startLine": 39,
+        "startChar": 35,
+        "endLine": 39,
+        "endChar": 40
+      },
+      "revId": "514e02b95cda4da534ffda4f0c1a5994709c6364",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46db015d_c0b806fa",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-05T18:15:18Z",
+      "side": 1,
+      "message": "both can be const (here and in #if above)",
+      "revId": "514e02b95cda4da534ffda4f0c1a5994709c6364",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "389494a5_47351ce4",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-05T18:15:18Z",
+      "side": 1,
+      "message": "Just \" ... \u003d  interp_filter_params_x;\" is simpler.",
+      "revId": "514e02b95cda4da534ffda4f0c1a5994709c6364",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d846091b_e01ac0f1",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-05T18:15:18Z",
+      "side": 1,
+      "message": "Here too: Just \" ... \u003d  interp_filter_params_x;\" is simpler.",
+      "revId": "514e02b95cda4da534ffda4f0c1a5994709c6364",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03f1c15e_d10a2c9b",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-05T18:15:18Z",
+      "side": 1,
+      "message": "const",
+      "revId": "514e02b95cda4da534ffda4f0c1a5994709c6364",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
