@@ -15,11 +15,11 @@
 #include <stddef.h>
 #include "av1/common/odintrin.h"
 
-/*OPT: od_ec_window must be at least 32 bits, but if you have fast arithmetic
+/*OPT: OdEcWindow must be at least 32 bits, but if you have fast arithmetic
    on a larger type, you can speed up the decoder by using it here.*/
-typedef uint32_t od_ec_window;
+typedef uint32_t OdEcWindow;
 
-#define OD_EC_WINDOW_SIZE ((int)sizeof(od_ec_window) * CHAR_BIT)
+#define OD_EC_WINDOW_SIZE ((int)sizeof(OdEcWindow) * CHAR_BIT)
 
 /*The number of bits to use for the range-coded part of unsigned integers.*/
 #define OD_EC_UINT_BITS (4)

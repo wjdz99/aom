@@ -138,7 +138,7 @@ static const uint8_t num_pels_log2_lookup[BLOCK_SIZES] = {
 };
 
 /* clang-format off */
-static const PARTITION_TYPE
+static const PartitionType
   partition_lookup[MAX_SB_SIZE_LOG2 - 1][BLOCK_SIZES] = {
   {     // 4X4 ->
 #if CONFIG_CB4X4
@@ -255,9 +255,9 @@ static const PARTITION_TYPE
 };
 
 #if CONFIG_EXT_PARTITION_TYPES
-static const BLOCK_SIZE subsize_lookup[EXT_PARTITION_TYPES][BLOCK_SIZES] =
+static const BlockSize subsize_lookup[EXT_PARTITION_TYPES][BLOCK_SIZES] =
 #else
-static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES] =
+static const BlockSize subsize_lookup[PARTITION_TYPES][BLOCK_SIZES] =
 #endif  // CONFIG_EXT_PARTITION_TYPES
 {
   {     // PARTITION_NONE
@@ -423,7 +423,7 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES] =
   }
 };
 
-static const TX_SIZE max_txsize_lookup[BLOCK_SIZES] = {
+static const TxSize max_txsize_lookup[BLOCK_SIZES] = {
 #if CONFIG_CB4X4
   // 2X2,    2X4,      4X2,
   TX_2X2,    TX_2X2,   TX_2X2,
@@ -456,7 +456,7 @@ static const TX_SIZE max_txsize_lookup[BLOCK_SIZES] = {
 };
 
 #if CONFIG_RECT_TX && (CONFIG_EXT_TX || CONFIG_VAR_TX)
-static const TX_SIZE max_txsize_rect_lookup[BLOCK_SIZES] = {
+static const TxSize max_txsize_rect_lookup[BLOCK_SIZES] = {
 #if CONFIG_CB4X4
   // 2X2,    2X4,      4X2,
   TX_2X2,    TX_2X2,   TX_2X2,
@@ -570,7 +570,7 @@ static const int32_t intra_tx_size_cat_lookup[BLOCK_SIZES] = {
 
 /* clang-format on */
 
-static const TX_SIZE sub_tx_size_map[TX_SIZES_ALL] = {
+static const TxSize sub_tx_size_map[TX_SIZES_ALL] = {
 #if CONFIG_CB4X4
   TX_2X2,  // TX_2X2
 #endif
@@ -593,7 +593,7 @@ static const TX_SIZE sub_tx_size_map[TX_SIZES_ALL] = {
   TX_8X8,    // TX_32X8
 };
 
-static const TX_SIZE txsize_horz_map[TX_SIZES_ALL] = {
+static const TxSize txsize_horz_map[TX_SIZES_ALL] = {
 #if CONFIG_CB4X4
   TX_2X2,  // TX_2X2
 #endif
@@ -616,7 +616,7 @@ static const TX_SIZE txsize_horz_map[TX_SIZES_ALL] = {
   TX_32X32,  // TX_32X8
 };
 
-static const TX_SIZE txsize_vert_map[TX_SIZES_ALL] = {
+static const TxSize txsize_vert_map[TX_SIZES_ALL] = {
 #if CONFIG_CB4X4
   TX_2X2,  // TX_2X2
 #endif
@@ -744,7 +744,7 @@ static const int tx_size_2d[TX_SIZES_ALL] = {
   32,   32, 128, 128,  512, 512, 64, 64, 256, 256
 };
 
-static const BLOCK_SIZE txsize_to_bsize[TX_SIZES_ALL] = {
+static const BlockSize txsize_to_bsize[TX_SIZES_ALL] = {
 #if CONFIG_CB4X4
   BLOCK_2X2,  // TX_2X2
 #endif
@@ -767,7 +767,7 @@ static const BLOCK_SIZE txsize_to_bsize[TX_SIZES_ALL] = {
   BLOCK_INVALID,  // TX_32X8
 };
 
-static const TX_SIZE txsize_sqr_map[TX_SIZES_ALL] = {
+static const TxSize txsize_sqr_map[TX_SIZES_ALL] = {
 #if CONFIG_CB4X4
   TX_2X2,  // TX_2X2
 #endif
@@ -790,7 +790,7 @@ static const TX_SIZE txsize_sqr_map[TX_SIZES_ALL] = {
   TX_8X8,    // TX_32X8
 };
 
-static const TX_SIZE txsize_sqr_up_map[TX_SIZES_ALL] = {
+static const TxSize txsize_sqr_up_map[TX_SIZES_ALL] = {
 #if CONFIG_CB4X4
   TX_2X2,  // TX_2X2
 #endif
@@ -814,7 +814,7 @@ static const TX_SIZE txsize_sqr_up_map[TX_SIZES_ALL] = {
 };
 
 /* clang-format off */
-static const TX_SIZE tx_mode_to_biggest_tx_size[TX_MODES] = {
+static const TxSize tx_mode_to_biggest_tx_size[TX_MODES] = {
   TX_4X4,    // ONLY_4X4
   TX_8X8,    // ALLOW_8X8
   TX_16X16,  // ALLOW_16X16
@@ -828,7 +828,7 @@ static const TX_SIZE tx_mode_to_biggest_tx_size[TX_MODES] = {
 };
 /* clang-format on */
 
-static const BLOCK_SIZE ss_size_lookup[BLOCK_SIZES][2][2] = {
+static const BlockSize ss_size_lookup[BLOCK_SIZES][2][2] = {
 //  ss_x == 0    ss_x == 0        ss_x == 1      ss_x == 1
 //  ss_y == 0    ss_y == 1        ss_y == 0      ss_y == 1
 #if CONFIG_CB4X4
@@ -860,7 +860,7 @@ static const BLOCK_SIZE ss_size_lookup[BLOCK_SIZES][2][2] = {
 #endif  // CONFIG_EXT_PARTITION
 };
 
-static const TX_SIZE uv_txsize_lookup[BLOCK_SIZES][TX_SIZES_ALL][2][2] = {
+static const TxSize uv_txsize_lookup[BLOCK_SIZES][TX_SIZES_ALL][2][2] = {
 //  ss_x == 0    ss_x == 0        ss_x == 1      ss_x == 1
 //  ss_y == 0    ss_y == 1        ss_y == 0      ss_y == 1
 #if CONFIG_CB4X4
@@ -1319,8 +1319,8 @@ static const TX_SIZE uv_txsize_lookup[BLOCK_SIZES][TX_SIZES_ALL][2][2] = {
 // and 8x8.  1000 means we just split the 64x64 to 32x32
 /* clang-format off */
 static const struct {
-  PARTITION_CONTEXT above;
-  PARTITION_CONTEXT left;
+  PartitionContext above;
+  PartitionContext left;
 } partition_context_lookup[BLOCK_SIZES] = {
 #if CONFIG_EXT_PARTITION
 #if CONFIG_CB4X4
@@ -1368,7 +1368,7 @@ static const struct {
 /* clang-format on */
 
 #if CONFIG_SUPERTX
-static const TX_SIZE uvsupertx_size_lookup[TX_SIZES][2][2] = {
+static const TxSize uvsupertx_size_lookup[TX_SIZES][2][2] = {
 //  ss_x == 0 ss_x == 0   ss_x == 1 ss_x == 1
 //  ss_y == 0 ss_y == 1   ss_y == 0 ss_y == 1
 #if CONFIG_CB4X4

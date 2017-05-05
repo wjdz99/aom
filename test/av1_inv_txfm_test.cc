@@ -44,7 +44,7 @@ void reference_idct_1d(const double *in, double *out, int size) {
 }
 
 typedef void (*IdctFuncRef)(const double *in, double *out, int size);
-typedef void (*IdctFunc)(const tran_low_t *in, tran_low_t *out);
+typedef void (*IdctFunc)(const TranLowT *in, TranLowT *out);
 
 class TransTestBase {
  public:
@@ -52,8 +52,8 @@ class TransTestBase {
 
  protected:
   void RunInvAccuracyCheck() {
-    tran_low_t *input = new tran_low_t[txfm_size_];
-    tran_low_t *output = new tran_low_t[txfm_size_];
+    TranLowT *input = new TranLowT[txfm_size_];
+    TranLowT *output = new TranLowT[txfm_size_];
     double *ref_input = new double[txfm_size_];
     double *ref_output = new double[txfm_size_];
 
@@ -70,7 +70,7 @@ class TransTestBase {
 
       for (int ni = 0; ni < txfm_size_; ++ni) {
         EXPECT_LE(
-            abs(output[ni] - static_cast<tran_low_t>(round(ref_output[ni]))),
+            abs(output[ni] - static_cast<TranLowT>(round(ref_output[ni]))),
             max_error_);
       }
     }
@@ -110,9 +110,9 @@ INSTANTIATE_TEST_CASE_P(
                       IdctParam(&aom_idct32_c, &reference_idct_1d, 32, 6)));
 
 #if CONFIG_AV1_ENCODER
-typedef void (*FwdTxfmFunc)(const int16_t *in, tran_low_t *out, int stride);
-typedef void (*InvTxfmFunc)(const tran_low_t *in, uint8_t *out, int stride);
-typedef std::tr1::tuple<FwdTxfmFunc, InvTxfmFunc, InvTxfmFunc, TX_SIZE, int>
+typedef void (*FwdTxfmFunc)(const int16_t *in, TranLowT *out, int stride);
+typedef void (*InvTxfmFunc)(const TranLowT *in, uint8_t *out, int stride);
+typedef std::tr1::tuple<FwdTxfmFunc, InvTxfmFunc, InvTxfmFunc, TxSize, int>
     PartialInvTxfmParam;
 #if !CONFIG_ADAPT_SCAN
 const int kMaxNumCoeffs = 1024;
@@ -133,7 +133,7 @@ class AV1PartialIDctTest
 
  protected:
   int last_nonzero_;
-  TX_SIZE tx_size_;
+  TxSize tx_size_;
   FwdTxfmFunc ftxfm_;
   InvTxfmFunc full_itxfm_;
   InvTxfmFunc partial_itxfm_;
@@ -149,8 +149,8 @@ TEST_P(AV1PartialIDctTest, RunQuantCheck) {
     case TX_32X32: size = 32; break;
     default: FAIL() << "Wrong Size!"; break;
   }
-  DECLARE_ALIGNED(16, tran_low_t, test_coef_block1[kMaxNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, test_coef_block2[kMaxNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, test_coef_block1[kMaxNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, test_coef_block2[kMaxNumCoeffs]);
   DECLARE_ALIGNED(16, uint8_t, dst1[kMaxNumCoeffs]);
   DECLARE_ALIGNED(16, uint8_t, dst2[kMaxNumCoeffs]);
 
@@ -158,7 +158,7 @@ TEST_P(AV1PartialIDctTest, RunQuantCheck) {
   const int block_size = size * size;
 
   DECLARE_ALIGNED(16, int16_t, input_extreme_block[kMaxNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, output_ref_block[kMaxNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, output_ref_block[kMaxNumCoeffs]);
 
   int max_error = 0;
   for (int m = 0; m < count_test_block; ++m) {
@@ -187,8 +187,7 @@ TEST_P(AV1PartialIDctTest, RunQuantCheck) {
       // quantization with maximum allowed step sizes
       test_coef_block1[0] = (output_ref_block[0] / 1336) * 1336;
       for (int j = 1; j < last_nonzero_; ++j)
-        test_coef_block1[get_scan((const AV1_COMMON *)NULL, tx_size_, DCT_DCT,
-                                  0)
+        test_coef_block1[get_scan((const Av1Common *)NULL, tx_size_, DCT_DCT, 0)
                              ->scan[j]] = (output_ref_block[j] / 1828) * 1828;
     }
 
@@ -216,8 +215,8 @@ TEST_P(AV1PartialIDctTest, ResultsMatch) {
     case TX_32X32: size = 32; break;
     default: FAIL() << "Wrong Size!"; break;
   }
-  DECLARE_ALIGNED(16, tran_low_t, test_coef_block1[kMaxNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, test_coef_block2[kMaxNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, test_coef_block1[kMaxNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, test_coef_block2[kMaxNumCoeffs]);
   DECLARE_ALIGNED(16, uint8_t, dst1[kMaxNumCoeffs]);
   DECLARE_ALIGNED(16, uint8_t, dst2[kMaxNumCoeffs]);
   const int count_test_block = 1000;
@@ -239,7 +238,7 @@ TEST_P(AV1PartialIDctTest, ResultsMatch) {
         max_energy_leftover = 0;
         coef = 0;
       }
-      test_coef_block1[get_scan((const AV1_COMMON *)NULL, tx_size_, DCT_DCT, 0)
+      test_coef_block1[get_scan((const Av1Common *)NULL, tx_size_, DCT_DCT, 0)
                            ->scan[j]] = coef;
     }
 

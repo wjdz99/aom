@@ -19,7 +19,7 @@
 #include "av1/common/entropymv.h"
 #include "av1/common/onyxc_int.h"
 
-void av1_set_mb_mi(AV1_COMMON *cm, int width, int height) {
+void av1_set_mb_mi(Av1Common *cm, int width, int height) {
   // TODO(jingning): Fine tune the loop filter operations and bring this
   // back to integer multiple of 4 for cb4x4.
   const int aligned_width = ALIGN_POWER_OF_TWO(width, 3);
@@ -39,7 +39,7 @@ void av1_set_mb_mi(AV1_COMMON *cm, int width, int height) {
   cm->MBs = cm->mb_rows * cm->mb_cols;
 }
 
-static int alloc_seg_map(AV1_COMMON *cm, int seg_map_size) {
+static int alloc_seg_map(Av1Common *cm, int seg_map_size) {
   int i;
 
   for (i = 0; i < NUM_PING_PONG_BUFFERS; ++i) {
@@ -59,7 +59,7 @@ static int alloc_seg_map(AV1_COMMON *cm, int seg_map_size) {
   return 0;
 }
 
-static void free_seg_map(AV1_COMMON *cm) {
+static void free_seg_map(Av1Common *cm) {
   int i;
 
   for (i = 0; i < NUM_PING_PONG_BUFFERS; ++i) {
@@ -91,7 +91,7 @@ void av1_free_ref_frame_buffers(BufferPool *pool) {
 
 #if CONFIG_LOOP_RESTORATION
 // Assumes cm->rst_info[p].restoration_tilesize is already initialized
-void av1_alloc_restoration_buffers(AV1_COMMON *cm) {
+void av1_alloc_restoration_buffers(Av1Common *cm) {
   int p;
   av1_alloc_restoration_struct(cm, &cm->rst_info[0], cm->width, cm->height);
   for (p = 1; p < MAX_MB_PLANE; ++p)
@@ -103,7 +103,7 @@ void av1_alloc_restoration_buffers(AV1_COMMON *cm) {
                   (int32_t *)aom_memalign(16, RESTORATION_TMPBUF_SIZE));
 }
 
-void av1_free_restoration_buffers(AV1_COMMON *cm) {
+void av1_free_restoration_buffers(Av1Common *cm) {
   int p;
   for (p = 0; p < MAX_MB_PLANE; ++p)
     av1_free_restoration_struct(&cm->rst_info[p]);
@@ -112,7 +112,7 @@ void av1_free_restoration_buffers(AV1_COMMON *cm) {
 }
 #endif  // CONFIG_LOOP_RESTORATION
 
-void av1_free_context_buffers(AV1_COMMON *cm) {
+void av1_free_context_buffers(Av1Common *cm) {
   int i;
   cm->free_mi(cm);
   free_seg_map(cm);
@@ -128,7 +128,7 @@ void av1_free_context_buffers(AV1_COMMON *cm) {
 #endif
 }
 
-int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
+int av1_alloc_context_buffers(Av1Common *cm, int width, int height) {
   int new_mi_size;
 
   av1_set_mb_mi(cm, width, height);
@@ -154,19 +154,19 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
 
     for (i = 0; i < MAX_MB_PLANE; i++) {
       aom_free(cm->above_context[i]);
-      cm->above_context[i] = (ENTROPY_CONTEXT *)aom_calloc(
+      cm->above_context[i] = (EntropyContext *)aom_calloc(
           2 * aligned_mi_cols, sizeof(*cm->above_context[0]));
       if (!cm->above_context[i]) goto fail;
     }
 
     aom_free(cm->above_seg_context);
-    cm->above_seg_context = (PARTITION_CONTEXT *)aom_calloc(
+    cm->above_seg_context = (PartitionContext *)aom_calloc(
         aligned_mi_cols, sizeof(*cm->above_seg_context));
     if (!cm->above_seg_context) goto fail;
 
 #if CONFIG_VAR_TX
     aom_free(cm->above_txfm_context);
-    cm->above_txfm_context = (TXFM_CONTEXT *)aom_calloc(
+    cm->above_txfm_context = (TxfmContext *)aom_calloc(
         aligned_mi_cols, sizeof(*cm->above_txfm_context));
     if (!cm->above_txfm_context) goto fail;
 #endif
@@ -183,22 +183,22 @@ fail:
   return 1;
 }
 
-void av1_remove_common(AV1_COMMON *cm) {
+void av1_remove_common(Av1Common *cm) {
   av1_free_context_buffers(cm);
 
   aom_free(cm->fc);
   cm->fc = NULL;
-  aom_free(cm->frame_contexts);
-  cm->frame_contexts = NULL;
+  aom_free(cm->FrameContexts);
+  cm->FrameContexts = NULL;
 }
 
-void av1_init_context_buffers(AV1_COMMON *cm) {
+void av1_init_context_buffers(Av1Common *cm) {
   cm->setup_mi(cm);
   if (cm->last_frame_seg_map && !cm->frame_parallel_decode)
     memset(cm->last_frame_seg_map, 0, cm->mi_rows * cm->mi_cols);
 }
 
-void av1_swap_current_and_last_seg_map(AV1_COMMON *cm) {
+void av1_swap_current_and_last_seg_map(Av1Common *cm) {
   // Swap indices.
   const int tmp = cm->seg_map_idx;
   cm->seg_map_idx = cm->prev_seg_map_idx;

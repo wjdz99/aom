@@ -41,10 +41,10 @@ class IMkvWriter {
 
   // Returns the offset of the output position from the beginning of the
   // output.
-  virtual int64 Position() const = 0;
+  virtual int64 position() const = 0;
 
   // Set the current File position. Returns 0 on success.
-  virtual int32 Position(int64 position) = 0;
+  virtual int32 position(int64 position) = 0;
 
   // Returns true if the writer is seekable.
   virtual bool Seekable() const = 0;
@@ -163,7 +163,7 @@ class Frame {
   // Discard padding for the frame.
   int64_t discard_padding_;
 
-  // Reference block timestamp.
+  // reference block timestamp.
   int64_t reference_block_timestamp_;
 
   // Flag indicating if |reference_block_timestamp_| has been set.
@@ -1290,8 +1290,8 @@ class Segment {
   enum Mode { kLive = 0x1, kFile = 0x2 };
 
   enum CuesPosition {
-    kAfterClusters = 0x0,  // Position Cues after Clusters - Default
-    kBeforeClusters = 0x1  // Position Cues before Clusters
+    kAfterClusters = 0x0,  // position Cues after Clusters - Default
+    kBeforeClusters = 0x1  // position Cues before Clusters
   };
 
   const static uint32_t kDefaultDocTypeVersion = 2;

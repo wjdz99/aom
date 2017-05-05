@@ -16,7 +16,7 @@
 #include "aom/internal/aom_codec_internal.h"
 
 void aom_buf_ans_alloc(struct BufAnsCoder *c,
-                       struct aom_internal_error_info *error, int size) {
+                       struct AomInternalErrorInfo *error, int size) {
   c->error = error;
   c->size = size;
   assert(c->size > 1);
@@ -33,7 +33,7 @@ void aom_buf_ans_free(struct BufAnsCoder *c) {
 
 #if !ANS_MAX_SYMBOLS
 void aom_buf_ans_grow(struct BufAnsCoder *c) {
-  struct buffered_ans_symbol *new_buf = NULL;
+  struct BufferedAnsSymbol *new_buf = NULL;
   int new_size = c->size * 2;
   AOM_CHECK_MEM_ERROR(c->error, new_buf,
                       aom_malloc(new_size * sizeof(*new_buf)));

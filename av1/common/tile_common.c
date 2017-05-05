@@ -13,18 +13,18 @@
 #include "av1/common/onyxc_int.h"
 #include "aom_dsp/aom_dsp_common.h"
 
-void av1_tile_set_row(TileInfo *tile, const AV1_COMMON *cm, int row) {
+void av1_tile_set_row(TileInfo *tile, const Av1Common *cm, int row) {
   tile->mi_row_start = row * cm->tile_height;
   tile->mi_row_end = AOMMIN(tile->mi_row_start + cm->tile_height, cm->mi_rows);
 }
 
-void av1_tile_set_col(TileInfo *tile, const AV1_COMMON *cm, int col) {
+void av1_tile_set_col(TileInfo *tile, const Av1Common *cm, int col) {
   tile->mi_col_start = col * cm->tile_width;
   tile->mi_col_end = AOMMIN(tile->mi_col_start + cm->tile_width, cm->mi_cols);
 }
 
 #if CONFIG_DEPENDENT_HORZTILES && CONFIG_TILE_GROUPS
-void av1_tile_set_tg_boundary(TileInfo *tile, const AV1_COMMON *const cm,
+void av1_tile_set_tg_boundary(TileInfo *tile, const Av1Common *const cm,
                               int row, int col) {
   if (row < cm->tile_rows - 1) {
     tile->tg_horz_boundary =
@@ -38,7 +38,7 @@ void av1_tile_set_tg_boundary(TileInfo *tile, const AV1_COMMON *const cm,
   }
 }
 #endif
-void av1_tile_init(TileInfo *tile, const AV1_COMMON *cm, int row, int col) {
+void av1_tile_init(TileInfo *tile, const Av1Common *cm, int row, int col) {
   av1_tile_set_row(tile, cm, row);
   av1_tile_set_col(tile, cm, col);
 #if CONFIG_DEPENDENT_HORZTILES && CONFIG_TILE_GROUPS
@@ -84,7 +84,7 @@ void av1_update_boundary_info(const struct AV1Common *cm,
   int row, col;
   for (row = mi_row; row < (mi_row + cm->mib_size); row++)
     for (col = mi_col; col < (mi_col + cm->mib_size); col++) {
-      MODE_INFO *const mi = cm->mi + row * cm->mi_stride + col;
+      ModeInfo *const mi = cm->mi + row * cm->mi_stride + col;
       mi->mbmi.boundary_info = 0;
       if (cm->tile_cols * cm->tile_rows > 1) {
 #if CONFIG_DEPENDENT_HORZTILES

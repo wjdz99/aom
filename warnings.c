@@ -77,7 +77,7 @@ static void check_quantizer(int min_q, int max_q,
 
 void check_encoder_config(int disable_prompt,
                           const struct AvxEncoderConfig *global_config,
-                          const struct aom_codec_enc_cfg *stream_config) {
+                          const struct AomCodecEncCfg *stream_config) {
   int num_warnings = 0;
   struct WarningListNode *warning = NULL;
   struct WarningList warning_list = { 0 };

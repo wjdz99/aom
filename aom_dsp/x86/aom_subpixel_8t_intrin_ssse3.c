@@ -45,9 +45,9 @@ DECLARE_ALIGNED(16, static const uint8_t, filt4_global[16]) = {
 };
 
 // These are reused by the avx2 intrinsics.
-filter8_1dfunction aom_filter_block1d8_v8_intrin_ssse3;
-filter8_1dfunction aom_filter_block1d8_h8_intrin_ssse3;
-filter8_1dfunction aom_filter_block1d4_h8_intrin_ssse3;
+Filter81dfunction aom_filter_block1d8_v8_intrin_ssse3;
+Filter81dfunction aom_filter_block1d8_h8_intrin_ssse3;
+Filter81dfunction aom_filter_block1d4_h8_intrin_ssse3;
 
 void aom_filter_block1d4_h8_intrin_ssse3(
     const uint8_t *src_ptr, ptrdiff_t src_pixels_per_line, uint8_t *output_ptr,
@@ -279,39 +279,39 @@ void aom_filter_block1d8_v8_intrin_ssse3(
   }
 }
 
-filter8_1dfunction aom_filter_block1d16_v8_ssse3;
-filter8_1dfunction aom_filter_block1d16_h8_ssse3;
-filter8_1dfunction aom_filter_block1d8_v8_ssse3;
-filter8_1dfunction aom_filter_block1d8_h8_ssse3;
-filter8_1dfunction aom_filter_block1d4_v8_ssse3;
-filter8_1dfunction aom_filter_block1d4_h8_ssse3;
-filter8_1dfunction aom_filter_block1d16_v8_avg_ssse3;
-filter8_1dfunction aom_filter_block1d16_h8_avg_ssse3;
-filter8_1dfunction aom_filter_block1d8_v8_avg_ssse3;
-filter8_1dfunction aom_filter_block1d8_h8_avg_ssse3;
-filter8_1dfunction aom_filter_block1d4_v8_avg_ssse3;
-filter8_1dfunction aom_filter_block1d4_h8_avg_ssse3;
+Filter81dfunction aom_filter_block1d16_v8_ssse3;
+Filter81dfunction aom_filter_block1d16_h8_ssse3;
+Filter81dfunction aom_filter_block1d8_v8_ssse3;
+Filter81dfunction aom_filter_block1d8_h8_ssse3;
+Filter81dfunction aom_filter_block1d4_v8_ssse3;
+Filter81dfunction aom_filter_block1d4_h8_ssse3;
+Filter81dfunction aom_filter_block1d16_v8_avg_ssse3;
+Filter81dfunction aom_filter_block1d16_h8_avg_ssse3;
+Filter81dfunction aom_filter_block1d8_v8_avg_ssse3;
+Filter81dfunction aom_filter_block1d8_h8_avg_ssse3;
+Filter81dfunction aom_filter_block1d4_v8_avg_ssse3;
+Filter81dfunction aom_filter_block1d4_h8_avg_ssse3;
 #if CONFIG_LOOP_RESTORATION
-filter8_1dfunction aom_filter_block1d16_v8_add_src_ssse3;
-filter8_1dfunction aom_filter_block1d16_h8_add_src_ssse3;
-filter8_1dfunction aom_filter_block1d8_v8_add_src_ssse3;
-filter8_1dfunction aom_filter_block1d8_h8_add_src_ssse3;
-filter8_1dfunction aom_filter_block1d4_v8_add_src_ssse3;
-filter8_1dfunction aom_filter_block1d4_h8_add_src_ssse3;
+Filter81dfunction aom_filter_block1d16_v8_add_src_ssse3;
+Filter81dfunction aom_filter_block1d16_h8_add_src_ssse3;
+Filter81dfunction aom_filter_block1d8_v8_add_src_ssse3;
+Filter81dfunction aom_filter_block1d8_h8_add_src_ssse3;
+Filter81dfunction aom_filter_block1d4_v8_add_src_ssse3;
+Filter81dfunction aom_filter_block1d4_h8_add_src_ssse3;
 #endif
 
-filter8_1dfunction aom_filter_block1d16_v2_ssse3;
-filter8_1dfunction aom_filter_block1d16_h2_ssse3;
-filter8_1dfunction aom_filter_block1d8_v2_ssse3;
-filter8_1dfunction aom_filter_block1d8_h2_ssse3;
-filter8_1dfunction aom_filter_block1d4_v2_ssse3;
-filter8_1dfunction aom_filter_block1d4_h2_ssse3;
-filter8_1dfunction aom_filter_block1d16_v2_avg_ssse3;
-filter8_1dfunction aom_filter_block1d16_h2_avg_ssse3;
-filter8_1dfunction aom_filter_block1d8_v2_avg_ssse3;
-filter8_1dfunction aom_filter_block1d8_h2_avg_ssse3;
-filter8_1dfunction aom_filter_block1d4_v2_avg_ssse3;
-filter8_1dfunction aom_filter_block1d4_h2_avg_ssse3;
+Filter81dfunction aom_filter_block1d16_v2_ssse3;
+Filter81dfunction aom_filter_block1d16_h2_ssse3;
+Filter81dfunction aom_filter_block1d8_v2_ssse3;
+Filter81dfunction aom_filter_block1d8_h2_ssse3;
+Filter81dfunction aom_filter_block1d4_v2_ssse3;
+Filter81dfunction aom_filter_block1d4_h2_ssse3;
+Filter81dfunction aom_filter_block1d16_v2_avg_ssse3;
+Filter81dfunction aom_filter_block1d16_h2_avg_ssse3;
+Filter81dfunction aom_filter_block1d8_v2_avg_ssse3;
+Filter81dfunction aom_filter_block1d8_h2_avg_ssse3;
+Filter81dfunction aom_filter_block1d4_v2_avg_ssse3;
+Filter81dfunction aom_filter_block1d4_h2_avg_ssse3;
 
 // void aom_convolve8_horiz_ssse3(const uint8_t *src, ptrdiff_t src_stride,
 //                                uint8_t *dst, ptrdiff_t dst_stride,

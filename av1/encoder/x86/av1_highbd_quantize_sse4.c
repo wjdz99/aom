@@ -42,8 +42,8 @@ static INLINE void quantize_coeff_phase1(__m128i *coeff, const __m128i *param,
 static INLINE void quantize_coeff_phase2(__m128i *qcoeff, __m128i *dquan,
                                          const __m128i *sign,
                                          const __m128i *param, const int shift,
-                                         const int scale, tran_low_t *qAddr,
-                                         tran_low_t *dqAddr) {
+                                         const int scale, TranLowT *qAddr,
+                                         TranLowT *dqAddr) {
   __m128i mask0L = _mm_set_epi32(-1, -1, 0, 0);
   __m128i mask0H = _mm_set_epi32(0, 0, -1, -1);
 
@@ -75,7 +75,7 @@ static INLINE void quantize_coeff_phase2(__m128i *qcoeff, __m128i *dquan,
   _mm_storeu_si128((__m128i *)dqAddr, dquan[0]);
 }
 
-static INLINE void find_eob(tran_low_t *qcoeff_ptr, const int16_t *iscan,
+static INLINE void find_eob(TranLowT *qcoeff_ptr, const int16_t *iscan,
                             __m128i *eob) {
   const __m128i zero = _mm_setzero_si128();
   __m128i mask, iscanIdx;
@@ -108,16 +108,16 @@ static INLINE uint16_t get_accumulated_eob(__m128i *eob) {
 }
 
 void av1_highbd_quantize_fp_sse4_1(
-    const tran_low_t *coeff_ptr, intptr_t count, int skip_block,
+    const TranLowT *coeff_ptr, intptr_t count, int skip_block,
     const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr,
-    const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
-    tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr,
-    const int16_t *scan, const int16_t *iscan, int log_scale) {
+    const int16_t *quant_shift_ptr, TranLowT *qcoeff_ptr, TranLowT *dqcoeff_ptr,
+    const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan,
+    const int16_t *iscan, int log_scale) {
   __m128i coeff[2], qcoeff[2], dequant[2], qparam[3], coeff_sign;
   __m128i eob = _mm_setzero_si128();
-  const tran_low_t *src = coeff_ptr;
-  tran_low_t *quanAddr = qcoeff_ptr;
-  tran_low_t *dquanAddr = dqcoeff_ptr;
+  const TranLowT *src = coeff_ptr;
+  TranLowT *quanAddr = qcoeff_ptr;
+  TranLowT *dquanAddr = dqcoeff_ptr;
   const int shift = 16 - log_scale;
   const int coeff_stride = 4;
   const int quan_stride = coeff_stride;

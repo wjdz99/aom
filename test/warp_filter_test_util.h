@@ -26,18 +26,17 @@ namespace libaom_test {
 
 namespace AV1WarpFilter {
 
-typedef void (*warp_affine_func)(const int32_t *mat, const uint8_t *ref,
-                                 int width, int height, int stride,
-                                 uint8_t *pred, int p_col, int p_row,
-                                 int p_width, int p_height, int p_stride,
-                                 int subsampling_x, int subsampling_y,
-                                 int ref_frm, int16_t alpha, int16_t beta,
-                                 int16_t gamma, int16_t delta);
+typedef void (*WarpAffineFunc)(const int32_t *mat, const uint8_t *ref,
+                               int width, int height, int stride, uint8_t *pred,
+                               int p_col, int p_row, int p_width, int p_height,
+                               int p_stride, int subsampling_x,
+                               int subsampling_y, int ref_frm, int16_t alpha,
+                               int16_t beta, int16_t gamma, int16_t delta);
 
-typedef std::tr1::tuple<int, int, int, warp_affine_func> WarpTestParam;
+typedef std::tr1::tuple<int, int, int, WarpAffineFunc> WarpTestParam;
 
 ::testing::internal::ParamGenerator<WarpTestParam> BuildParams(
-    warp_affine_func filter);
+    WarpAffineFunc filter);
 
 class AV1WarpFilterTest : public ::testing::TestWithParam<WarpTestParam> {
  public:
@@ -51,7 +50,7 @@ class AV1WarpFilterTest : public ::testing::TestWithParam<WarpTestParam> {
   void generate_model(int32_t *mat, int16_t *alpha, int16_t *beta,
                       int16_t *gamma, int16_t *delta);
 
-  void RunCheckOutput(warp_affine_func test_impl);
+  void RunCheckOutput(WarpAffineFunc test_impl);
 
   libaom_test::ACMRandom rnd_;
 };
@@ -60,7 +59,7 @@ class AV1WarpFilterTest : public ::testing::TestWithParam<WarpTestParam> {
 
 #if CONFIG_HIGHBITDEPTH
 namespace AV1HighbdWarpFilter {
-typedef void (*highbd_warp_affine_func)(
+typedef void (*HighbdWarpAffineFunc)(
     const int32_t *mat, const uint16_t *ref, int width, int height, int stride,
     uint16_t *pred, int p_col, int p_row, int p_width, int p_height,
     int p_stride, int subsampling_x, int subsampling_y, int bd, int ref_frm,
@@ -83,7 +82,7 @@ class AV1HighbdWarpFilterTest
   void generate_model(int32_t *mat, int16_t *alpha, int16_t *beta,
                       int16_t *gamma, int16_t *delta);
 
-  void RunCheckOutput(highbd_warp_affine_func test_impl);
+  void RunCheckOutput(HighbdWarpAffineFunc test_impl);
 
   libaom_test::ACMRandom rnd_;
 };

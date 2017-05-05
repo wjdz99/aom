@@ -16,11 +16,11 @@
 #include "aom/aom_integer.h"
 #include "aom_mem/aom_mem.h"
 
-static aom_image_t *img_alloc_helper(aom_image_t *img, aom_img_fmt_t fmt,
-                                     unsigned int d_w, unsigned int d_h,
-                                     unsigned int buf_align,
-                                     unsigned int stride_align,
-                                     unsigned char *img_data) {
+static AomImageT *img_alloc_helper(AomImageT *img, AomImgFmtT fmt,
+                                   unsigned int d_w, unsigned int d_h,
+                                   unsigned int buf_align,
+                                   unsigned int stride_align,
+                                   unsigned char *img_data) {
   unsigned int h, w, s, xcs, ycs, bps;
   unsigned int stride_in_bytes;
   int align;
@@ -100,13 +100,13 @@ static aom_image_t *img_alloc_helper(aom_image_t *img, aom_img_fmt_t fmt,
 
   /* Allocate the new image */
   if (!img) {
-    img = (aom_image_t *)calloc(1, sizeof(aom_image_t));
+    img = (AomImageT *)calloc(1, sizeof(AomImageT));
 
     if (!img) goto fail;
 
     img->self_allocd = 1;
   } else {
-    memset(img, 0, sizeof(aom_image_t));
+    memset(img, 0, sizeof(AomImageT));
   }
 
   img->img_data = img_data;
@@ -144,21 +144,20 @@ fail:
   return NULL;
 }
 
-aom_image_t *aom_img_alloc(aom_image_t *img, aom_img_fmt_t fmt,
-                           unsigned int d_w, unsigned int d_h,
-                           unsigned int align) {
+AomImageT *aom_img_alloc(AomImageT *img, AomImgFmtT fmt, unsigned int d_w,
+                         unsigned int d_h, unsigned int align) {
   return img_alloc_helper(img, fmt, d_w, d_h, align, align, NULL);
 }
 
-aom_image_t *aom_img_wrap(aom_image_t *img, aom_img_fmt_t fmt, unsigned int d_w,
-                          unsigned int d_h, unsigned int stride_align,
-                          unsigned char *img_data) {
+AomImageT *aom_img_wrap(AomImageT *img, AomImgFmtT fmt, unsigned int d_w,
+                        unsigned int d_h, unsigned int stride_align,
+                        unsigned char *img_data) {
   /* By setting buf_align = 1, we don't change buffer alignment in this
    * function. */
   return img_alloc_helper(img, fmt, d_w, d_h, 1, stride_align, img_data);
 }
 
-int aom_img_set_rect(aom_image_t *img, unsigned int x, unsigned int y,
+int aom_img_set_rect(AomImageT *img, unsigned int x, unsigned int y,
                      unsigned int w, unsigned int h) {
   unsigned char *data;
 
@@ -208,7 +207,7 @@ int aom_img_set_rect(aom_image_t *img, unsigned int x, unsigned int y,
   return -1;
 }
 
-void aom_img_flip(aom_image_t *img) {
+void aom_img_flip(AomImageT *img) {
   /* Note: In the calculation pointer adjustment calculation, we want the
    * rhs to be promoted to a signed type. Section 6.3.1.8 of the ISO C99
    * standard indicates that if the adjustment parameter is unsigned, the
@@ -231,7 +230,7 @@ void aom_img_flip(aom_image_t *img) {
   img->stride[AOM_PLANE_ALPHA] = -img->stride[AOM_PLANE_ALPHA];
 }
 
-void aom_img_free(aom_image_t *img) {
+void aom_img_free(AomImageT *img) {
   if (img) {
     if (img->img_data && img->img_data_owner) aom_free(img->img_data);
 

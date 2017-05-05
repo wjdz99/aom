@@ -67,7 +67,7 @@ void fatal(const char *fmt, ...) {
 
 void warn(const char *fmt, ...) { LOG_ERROR("Warning"); }
 
-void die_codec(aom_codec_ctx_t *ctx, const char *s) {
+void die_codec(AomCodecCtxT *ctx, const char *s) {
   const char *detail = aom_codec_error_detail(ctx);
 
   printf("%s: %s\n", s, aom_codec_error(ctx));
@@ -75,7 +75,7 @@ void die_codec(aom_codec_ctx_t *ctx, const char *s) {
   exit(EXIT_FAILURE);
 }
 
-int read_yuv_frame(struct AvxInputContext *input_ctx, aom_image_t *yuv_frame) {
+int read_yuv_frame(struct AvxInputContext *input_ctx, AomImageT *yuv_frame) {
   FILE *f = input_ctx->file;
   struct FileTypeDetectionBuffer *detect = &input_ctx->detect;
   int plane = 0;
@@ -194,22 +194,22 @@ const AvxInterface *get_aom_decoder_by_fourcc(uint32_t fourcc) {
 #endif  // CONFIG_DECODERS
 
 // TODO(dkovalev): move this function to aom_image.{c, h}, so it will be part
-// of aom_image_t support
-int aom_img_plane_width(const aom_image_t *img, int plane) {
+// of AomImageT support
+int aom_img_plane_width(const AomImageT *img, int plane) {
   if (plane > 0 && img->x_chroma_shift > 0)
     return (img->d_w + 1) >> img->x_chroma_shift;
   else
     return img->d_w;
 }
 
-int aom_img_plane_height(const aom_image_t *img, int plane) {
+int aom_img_plane_height(const AomImageT *img, int plane) {
   if (plane > 0 && img->y_chroma_shift > 0)
     return (img->d_h + 1) >> img->y_chroma_shift;
   else
     return img->d_h;
 }
 
-void aom_img_write(const aom_image_t *img, FILE *file) {
+void aom_img_write(const AomImageT *img, FILE *file) {
   int plane;
 
   for (plane = 0; plane < 3; ++plane) {
@@ -227,7 +227,7 @@ void aom_img_write(const aom_image_t *img, FILE *file) {
   }
 }
 
-int aom_img_read(aom_image_t *img, FILE *file) {
+int aom_img_read(AomImageT *img, FILE *file) {
   int plane;
 
   for (plane = 0; plane < 3; ++plane) {
@@ -261,7 +261,7 @@ double sse_to_psnr(double samples, double peak, double sse) {
 
 // TODO(debargha): Consolidate the functions below into a separate file.
 #if CONFIG_HIGHBITDEPTH
-static void highbd_img_upshift(aom_image_t *dst, aom_image_t *src,
+static void highbd_img_upshift(AomImageT *dst, AomImageT *src,
                                int input_shift) {
   // Note the offset is 1 less than half.
   const int offset = input_shift > 0 ? (1 << (input_shift - 1)) - 1 : 0;
@@ -297,8 +297,7 @@ static void highbd_img_upshift(aom_image_t *dst, aom_image_t *src,
   }
 }
 
-static void lowbd_img_upshift(aom_image_t *dst, aom_image_t *src,
-                              int input_shift) {
+static void lowbd_img_upshift(AomImageT *dst, AomImageT *src, int input_shift) {
   // Note the offset is 1 less than half.
   const int offset = input_shift > 0 ? (1 << (input_shift - 1)) - 1 : 0;
   int plane;
@@ -334,7 +333,7 @@ static void lowbd_img_upshift(aom_image_t *dst, aom_image_t *src,
   }
 }
 
-void aom_img_upshift(aom_image_t *dst, aom_image_t *src, int input_shift) {
+void aom_img_upshift(AomImageT *dst, AomImageT *src, int input_shift) {
   if (src->fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
     highbd_img_upshift(dst, src, input_shift);
   } else {
@@ -342,7 +341,7 @@ void aom_img_upshift(aom_image_t *dst, aom_image_t *src, int input_shift) {
   }
 }
 
-void aom_img_truncate_16_to_8(aom_image_t *dst, aom_image_t *src) {
+void aom_img_truncate_16_to_8(AomImageT *dst, AomImageT *src) {
   int plane;
   if (dst->fmt + AOM_IMG_FMT_HIGHBITDEPTH != src->fmt || dst->d_w != src->d_w ||
       dst->d_h != src->d_h || dst->x_chroma_shift != src->x_chroma_shift ||
@@ -375,7 +374,7 @@ void aom_img_truncate_16_to_8(aom_image_t *dst, aom_image_t *src) {
   }
 }
 
-static void highbd_img_downshift(aom_image_t *dst, aom_image_t *src,
+static void highbd_img_downshift(AomImageT *dst, AomImageT *src,
                                  int down_shift) {
   int plane;
   if (dst->d_w != src->d_w || dst->d_h != src->d_h ||
@@ -409,7 +408,7 @@ static void highbd_img_downshift(aom_image_t *dst, aom_image_t *src,
   }
 }
 
-static void lowbd_img_downshift(aom_image_t *dst, aom_image_t *src,
+static void lowbd_img_downshift(AomImageT *dst, AomImageT *src,
                                 int down_shift) {
   int plane;
   if (dst->d_w != src->d_w || dst->d_h != src->d_h ||
@@ -444,7 +443,7 @@ static void lowbd_img_downshift(aom_image_t *dst, aom_image_t *src,
   }
 }
 
-void aom_img_downshift(aom_image_t *dst, aom_image_t *src, int down_shift) {
+void aom_img_downshift(AomImageT *dst, AomImageT *src, int down_shift) {
   if (dst->fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
     highbd_img_downshift(dst, src, down_shift);
   } else {

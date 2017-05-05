@@ -124,37 +124,37 @@ SIMD_INLINE uint64_t c_v128_hadd_u8(c_v128 a) {
   return c_v64_hadd_u8(a.v64[1]) + c_v64_hadd_u8(a.v64[0]);
 }
 
-typedef uint32_t c_sad128_internal;
+typedef uint32_t CSad128Internal;
 
-SIMD_INLINE c_sad128_internal c_v128_sad_u8_init() { return 0; }
+SIMD_INLINE CSad128Internal c_v128_sad_u8_init() { return 0; }
 
 /* Implementation dependent return value.  Result must be finalised with
    v128_sad_u8_sum().
    The result for more than 32 v128_sad_u8() calls is undefined. */
-SIMD_INLINE c_sad128_internal c_v128_sad_u8(c_sad128_internal s, c_v128 a,
-                                            c_v128 b) {
+SIMD_INLINE CSad128Internal c_v128_sad_u8(CSad128Internal s, c_v128 a,
+                                          c_v128 b) {
   int c;
   for (c = 0; c < 16; c++)
     s += a.u8[c] > b.u8[c] ? a.u8[c] - b.u8[c] : b.u8[c] - a.u8[c];
   return s;
 }
 
-SIMD_INLINE uint32_t c_v128_sad_u8_sum(c_sad128_internal s) { return s; }
+SIMD_INLINE uint32_t c_v128_sad_u8_sum(CSad128Internal s) { return s; }
 
-typedef uint32_t c_ssd128_internal;
+typedef uint32_t CSsd128Internal;
 
-SIMD_INLINE c_ssd128_internal c_v128_ssd_u8_init() { return 0; }
+SIMD_INLINE CSsd128Internal c_v128_ssd_u8_init() { return 0; }
 
 /* Implementation dependent return value.  Result must be finalised with
  * v128_ssd_u8_sum(). */
-SIMD_INLINE c_ssd128_internal c_v128_ssd_u8(c_ssd128_internal s, c_v128 a,
-                                            c_v128 b) {
+SIMD_INLINE CSsd128Internal c_v128_ssd_u8(CSsd128Internal s, c_v128 a,
+                                          c_v128 b) {
   int c;
   for (c = 0; c < 16; c++) s += (a.u8[c] - b.u8[c]) * (a.u8[c] - b.u8[c]);
   return s;
 }
 
-SIMD_INLINE uint32_t c_v128_ssd_u8_sum(c_ssd128_internal s) { return s; }
+SIMD_INLINE uint32_t c_v128_ssd_u8_sum(CSsd128Internal s) { return s; }
 
 SIMD_INLINE c_v128 c_v128_or(c_v128 a, c_v128 b) {
   return c_v128_from_v64(c_v64_or(a.v64[1], b.v64[1]),

@@ -9,7 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-// AV1 Set Reference Frame
+// AV1 Set reference Frame
 // ============================
 //
 // This is an example demonstrating how to overwrite the AV1 encoder's
@@ -68,10 +68,10 @@ void usage_exit() {
   exit(EXIT_FAILURE);
 }
 
-static void testing_decode(aom_codec_ctx_t *encoder, aom_codec_ctx_t *decoder,
+static void testing_decode(AomCodecCtxT *encoder, AomCodecCtxT *decoder,
                            unsigned int frame_out, int *mismatch_seen) {
-  aom_image_t enc_img, dec_img;
-  struct av1_ref_frame ref_enc, ref_dec;
+  AomImageT enc_img, dec_img;
+  struct Av1RefFrame ref_enc, ref_dec;
 
   if (*mismatch_seen) return;
 
@@ -103,15 +103,15 @@ static void testing_decode(aom_codec_ctx_t *encoder, aom_codec_ctx_t *decoder,
   aom_img_free(&dec_img);
 }
 
-static int encode_frame(aom_codec_ctx_t *ecodec, aom_image_t *img,
+static int encode_frame(AomCodecCtxT *ecodec, AomImageT *img,
                         unsigned int frame_in, AvxVideoWriter *writer,
-                        int test_decode, aom_codec_ctx_t *dcodec,
+                        int test_decode, AomCodecCtxT *dcodec,
                         unsigned int *frame_out, int *mismatch_seen) {
   int got_pkts = 0;
-  aom_codec_iter_t iter = NULL;
-  const aom_codec_cx_pkt_t *pkt = NULL;
+  AomCodecIterT iter = NULL;
+  const AomCodecCxPktT *pkt = NULL;
   int got_data;
-  const aom_codec_err_t res =
+  const AomCodecErrT res =
       aom_codec_encode(ecodec, img, frame_in, 1, 0, AOM_DL_GOOD_QUALITY);
   if (res != AOM_CODEC_OK) die_codec(ecodec, "Failed to encode frame");
 
@@ -156,11 +156,11 @@ static int encode_frame(aom_codec_ctx_t *ecodec, aom_image_t *img,
 int main(int argc, char **argv) {
   FILE *infile = NULL;
   // Encoder
-  aom_codec_ctx_t ecodec;
-  aom_codec_enc_cfg_t cfg;
+  AomCodecCtxT ecodec;
+  AomCodecEncCfgT cfg;
   unsigned int frame_in = 0;
-  aom_image_t raw;
-  aom_codec_err_t res;
+  AomImageT raw;
+  AomCodecErrT res;
   AvxVideoInfo info;
   AvxVideoWriter *writer = NULL;
   const AvxInterface *encoder = NULL;
@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
   // Test encoder/decoder mismatch.
   int test_decode = 1;
   // Decoder
-  aom_codec_ctx_t dcodec;
+  AomCodecCtxT dcodec;
   unsigned int frame_out = 0;
 
   // The frame number to set reference frame on
@@ -270,7 +270,7 @@ int main(int argc, char **argv) {
   while (aom_img_read(&raw, infile)) {
     if (limit && frame_in >= limit) break;
     if (update_frame_num > 1 && frame_out + 1 == update_frame_num) {
-      aom_ref_frame_t ref;
+      AomRefFrameT ref;
       ref.frame_type = AOM_LAST_FRAME;
       ref.img = raw;
       // Set reference frame in encoder.

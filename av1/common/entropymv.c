@@ -15,12 +15,12 @@
 // Integer pel reference mv threshold for use of high-precision 1/8 mv
 #define COMPANDED_MVREF_THRESH 8
 
-const aom_tree_index av1_mv_joint_tree[TREE_SIZE(MV_JOINTS)] = {
+const AomTreeIndex av1_mv_joint_tree[TREE_SIZE(MV_JOINTS)] = {
   -MV_JOINT_ZERO, 2, -MV_JOINT_HNZVZ, 4, -MV_JOINT_HZVNZ, -MV_JOINT_HNZVNZ
 };
 
 /* clang-format off */
-const aom_tree_index av1_mv_class_tree[TREE_SIZE(MV_CLASSES)] = {
+const AomTreeIndex av1_mv_class_tree[TREE_SIZE(MV_CLASSES)] = {
   -MV_CLASS_0, 2,
   -MV_CLASS_1, 4,
   6, 8,
@@ -34,14 +34,14 @@ const aom_tree_index av1_mv_class_tree[TREE_SIZE(MV_CLASSES)] = {
 };
 /* clang-format on */
 
-const aom_tree_index av1_mv_class0_tree[TREE_SIZE(CLASS0_SIZE)] = {
+const AomTreeIndex av1_mv_class0_tree[TREE_SIZE(CLASS0_SIZE)] = {
   -0, -1,
 };
 
-const aom_tree_index av1_mv_fp_tree[TREE_SIZE(MV_FP_SIZE)] = { -0, 2,  -1,
-                                                               4,  -2, -3 };
+const AomTreeIndex av1_mv_fp_tree[TREE_SIZE(MV_FP_SIZE)] = { -0, 2,  -1,
+                                                             4,  -2, -3 };
 
-static const nmv_context default_nmv_context = {
+static const NmvContext default_nmv_context = {
   { 32, 64, 96 },  // joints
 #if CONFIG_EC_MULTISYMBOL
   { AOM_ICDF(4096), AOM_ICDF(11264), AOM_ICDF(19328), AOM_ICDF(32768),
@@ -142,54 +142,51 @@ static const uint8_t log_in_base_2[] = {
 
 #if CONFIG_GLOBAL_MOTION
 #if GLOBAL_TRANS_TYPES == 7  // All models
-const aom_tree_index av1_global_motion_types_tree[TREE_SIZE(
-    GLOBAL_TRANS_TYPES)] = { -IDENTITY,   2,  -TRANSLATION,  4,
-                             -ROTZOOM,    6,  -AFFINE,       8,
-                             -HOMOGRAPHY, 10, -HORTRAPEZOID, -VERTRAPEZOID };
+const AomTreeIndex av1_global_motion_types_tree[TREE_SIZE(GLOBAL_TRANS_TYPES)] =
+    { -IDENTITY, 2, -TRANSLATION, 4,  -ROTZOOM,      6,
+      -AFFINE,   8, -HOMOGRAPHY,  10, -HORTRAPEZOID, -VERTRAPEZOID };
 
-static const aom_prob default_global_motion_types_prob[GLOBAL_TRANS_TYPES - 1] =
+static const AomProb default_global_motion_types_prob[GLOBAL_TRANS_TYPES - 1] =
     { 224, 128, 192, 192, 32, 128 };
 
 #elif GLOBAL_TRANS_TYPES == 6  // Do not allow full homography
-const aom_tree_index
-    av1_global_motion_types_tree[TREE_SIZE(GLOBAL_TRANS_TYPES)] = {
-      -IDENTITY,    2, -TRANSLATION, 4, -ROTZOOM, 6, -AFFINE, 8, -HORTRAPEZOID,
-      -VERTRAPEZOID
-    };
+const AomTreeIndex av1_global_motion_types_tree[TREE_SIZE(GLOBAL_TRANS_TYPES)] =
+    { -IDENTITY,    2, -TRANSLATION, 4, -ROTZOOM, 6, -AFFINE, 8, -HORTRAPEZOID,
+      -VERTRAPEZOID };
 
-static const aom_prob default_global_motion_types_prob[GLOBAL_TRANS_TYPES - 1] =
+static const AomProb default_global_motion_types_prob[GLOBAL_TRANS_TYPES - 1] =
     { 224, 128, 192, 192, 128 };
 
 #elif GLOBAL_TRANS_TYPES == 4  // Upto Affine
-const aom_tree_index av1_global_motion_types_tree[TREE_SIZE(
-    GLOBAL_TRANS_TYPES)] = { -IDENTITY, 2, -TRANSLATION, 4, -ROTZOOM, -AFFINE };
+const AomTreeIndex av1_global_motion_types_tree[TREE_SIZE(GLOBAL_TRANS_TYPES)] =
+    { -IDENTITY, 2, -TRANSLATION, 4, -ROTZOOM, -AFFINE };
 
-static const aom_prob default_global_motion_types_prob[GLOBAL_TRANS_TYPES - 1] =
+static const AomProb default_global_motion_types_prob[GLOBAL_TRANS_TYPES - 1] =
     { 224, 128, 240 };
 
 #elif GLOBAL_TRANS_TYPES == 3  // Upto rotation-zoom
 
-const aom_tree_index av1_global_motion_types_tree[TREE_SIZE(
-    GLOBAL_TRANS_TYPES)] = { -IDENTITY, 2, -TRANSLATION, -ROTZOOM };
+const AomTreeIndex av1_global_motion_types_tree[TREE_SIZE(GLOBAL_TRANS_TYPES)] =
+    { -IDENTITY, 2, -TRANSLATION, -ROTZOOM };
 
-static const aom_prob default_global_motion_types_prob[GLOBAL_TRANS_TYPES - 1] =
+static const AomProb default_global_motion_types_prob[GLOBAL_TRANS_TYPES - 1] =
     { 224, 128 };
 #endif                         // GLOBAL_TRANS_TYPES
 #endif                         // CONFIG_GLOBAL_MOTION
 
-static INLINE int mv_class_base(MV_CLASS_TYPE c) {
+static INLINE int mv_class_base(MvClassType c) {
   return c ? CLASS0_SIZE << (c + 2) : 0;
 }
 
-MV_CLASS_TYPE av1_get_mv_class(int z, int *offset) {
-  const MV_CLASS_TYPE c = (z >= CLASS0_SIZE * 4096)
-                              ? MV_CLASS_10
-                              : (MV_CLASS_TYPE)log_in_base_2[z >> 3];
+MvClassType av1_get_mv_class(int z, int *offset) {
+  const MvClassType c = (z >= CLASS0_SIZE * 4096)
+                            ? MV_CLASS_10
+                            : (MvClassType)log_in_base_2[z >> 3];
   if (offset) *offset = z - mv_class_base(c);
   return c;
 }
 
-static void inc_mv_component(int v, nmv_component_counts *comp_counts, int incr,
+static void inc_mv_component(int v, NmvComponentCounts *comp_counts, int incr,
                              int usehp) {
   int s, z, c, o, d, e, f;
   assert(v != 0); /* should not be zero */
@@ -217,9 +214,9 @@ static void inc_mv_component(int v, nmv_component_counts *comp_counts, int incr,
   }
 }
 
-void av1_inc_mv(const MV *mv, nmv_context_counts *counts, const int usehp) {
+void av1_inc_mv(const MV *mv, NmvContextCounts *counts, const int usehp) {
   if (counts != NULL) {
-    const MV_JOINT_TYPE j = av1_get_mv_joint(mv);
+    const MvJointType j = av1_get_mv_joint(mv);
     ++counts->joints[j];
 
     if (mv_joint_vertical(j))
@@ -230,19 +227,19 @@ void av1_inc_mv(const MV *mv, nmv_context_counts *counts, const int usehp) {
   }
 }
 
-void av1_adapt_mv_probs(AV1_COMMON *cm, int allow_hp) {
+void av1_adapt_mv_probs(Av1Common *cm, int allow_hp) {
   int i, j;
   int idx;
   for (idx = 0; idx < NMV_CONTEXTS; ++idx) {
-    nmv_context *nmvc = &cm->fc->nmvc[idx];
-    const nmv_context *pre_nmvc = &cm->pre_fc->nmvc[idx];
-    const nmv_context_counts *counts = &cm->counts.mv[idx];
+    NmvContext *nmvc = &cm->fc->nmvc[idx];
+    const NmvContext *pre_nmvc = &cm->pre_fc->nmvc[idx];
+    const NmvContextCounts *counts = &cm->counts.mv[idx];
     aom_tree_merge_probs(av1_mv_joint_tree, pre_nmvc->joints, counts->joints,
                          nmvc->joints);
     for (i = 0; i < 2; ++i) {
-      nmv_component *comp = &nmvc->comps[i];
-      const nmv_component *pre_comp = &pre_nmvc->comps[i];
-      const nmv_component_counts *c = &counts->comps[i];
+      NmvComponent *comp = &nmvc->comps[i];
+      const NmvComponent *pre_comp = &pre_nmvc->comps[i];
+      const NmvComponentCounts *c = &counts->comps[i];
 
       comp->sign = av1_mode_mv_merge_probs(pre_comp->sign, c->sign);
       aom_tree_merge_probs(av1_mv_class_tree, pre_comp->classes, c->classes,
@@ -269,13 +266,13 @@ void av1_adapt_mv_probs(AV1_COMMON *cm, int allow_hp) {
 }
 
 #if CONFIG_EC_MULTISYMBOL && !CONFIG_EC_ADAPT
-void av1_set_mv_cdfs(nmv_context *ctx) {
+void av1_set_mv_cdfs(NmvContext *ctx) {
   int i;
   int j;
   av1_tree_to_cdf(av1_mv_joint_tree, ctx->joints, ctx->joint_cdf);
 
   for (i = 0; i < 2; ++i) {
-    nmv_component *const comp_ctx = &ctx->comps[i];
+    NmvComponent *const comp_ctx = &ctx->comps[i];
     av1_tree_to_cdf(av1_mv_class_tree, comp_ctx->classes, comp_ctx->class_cdf);
 
     for (j = 0; j < CLASS0_SIZE; ++j) {
@@ -287,7 +284,7 @@ void av1_set_mv_cdfs(nmv_context *ctx) {
 }
 #endif
 
-void av1_init_mv_probs(AV1_COMMON *cm) {
+void av1_init_mv_probs(Av1Common *cm) {
   int i;
   for (i = 0; i < NMV_CONTEXTS; ++i) {
     // NB: this sets CDFs too

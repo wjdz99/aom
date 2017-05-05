@@ -32,7 +32,7 @@
  * @param [in,out] count number of symbols encoded with that cdf so far
  * @param [in]     rate  adaptation rate shift (smaller is faster)
  */
-void aom_encode_cdf_adapt_q15(aom_writer *w, int val, uint16_t *cdf, int n,
+void aom_encode_cdf_adapt_q15(AomWriter *w, int val, uint16_t *cdf, int n,
  int *count, int rate) {
   int i;
   if (*count == 0) {
@@ -60,7 +60,7 @@ void aom_encode_cdf_adapt_q15(aom_writer *w, int val, uint16_t *cdf, int n,
  * @param [in]     integration integration period of ExQ16 (leaky average over
  * 1<<integration samples)
  */
-void generic_encode(aom_writer *w, generic_encoder *model, int x,
+void generic_encode(AomWriter *w, GenericEncoder *model, int x,
  int *ex_q16, int integration) {
   int lg_q1;
   int shift;
@@ -114,7 +114,7 @@ void generic_encode(aom_writer *w, generic_encoder *model, int x,
  * @param [in,out] ExQ16 expectation of x (adapted)
  * @return number of bits (approximation)
  */
-double generic_encode_cost(generic_encoder *model, int x, int *ex_q16) {
+double generic_encode_cost(GenericEncoder *model, int x, int *ex_q16) {
   int lg_q1;
   int shift;
   int id;

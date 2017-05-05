@@ -41,7 +41,7 @@ typedef enum {
   AOM_CPU_VIA,
 
   AOM_CPU_LAST
-} aom_cpu_t;
+} AomCpuT;
 
 #if defined(__GNUC__) && __GNUC__ || defined(__ANDROID__)
 #if ARCH_X86_64

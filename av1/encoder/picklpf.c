@@ -27,7 +27,7 @@
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/picklpf.h"
 
-int av1_get_max_filter_level(const AV1_COMP *cpi) {
+int av1_get_max_filter_level(const Av1Comp *cpi) {
   if (cpi->oxcf.pass == 2) {
     return cpi->twopass.section_intra_rating > 8 ? MAX_LOOP_FILTER * 3 / 4
                                                  : MAX_LOOP_FILTER;
@@ -36,10 +36,9 @@ int av1_get_max_filter_level(const AV1_COMP *cpi) {
   }
 }
 
-static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
-                                AV1_COMP *const cpi, int filt_level,
-                                int partial_frame) {
-  AV1_COMMON *const cm = &cpi->common;
+static int64_t try_filter_frame(const Yv12BufferConfig *sd, Av1Comp *const cpi,
+                                int filt_level, int partial_frame) {
+  Av1Common *const cm = &cpi->common;
   int64_t filt_err;
 
 #if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
@@ -71,16 +70,16 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
   return filt_err;
 }
 
-int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
+int av1_search_filter_level(const Yv12BufferConfig *sd, Av1Comp *cpi,
                             int partial_frame, double *best_cost_ret) {
-  const AV1_COMMON *const cm = &cpi->common;
-  const struct loopfilter *const lf = &cm->lf;
+  const Av1Common *const cm = &cpi->common;
+  const struct Loopfilter *const lf = &cm->lf;
   const int min_filter_level = 0;
   const int max_filter_level = av1_get_max_filter_level(cpi);
   int filt_direction = 0;
   int64_t best_err;
   int filt_best;
-  MACROBLOCK *x = &cpi->td.mb;
+  Macroblock *x = &cpi->td.mb;
 
   // Start the search at the previous frame filter level unless it is now out of
   // range.
@@ -159,10 +158,10 @@ int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   return filt_best;
 }
 
-void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
-                           LPF_PICK_METHOD method) {
-  AV1_COMMON *const cm = &cpi->common;
-  struct loopfilter *const lf = &cm->lf;
+void av1_pick_filter_level(const Yv12BufferConfig *sd, Av1Comp *cpi,
+                           LpfPickMethod method) {
+  Av1Common *const cm = &cpi->common;
+  struct Loopfilter *const lf = &cm->lf;
 
   lf->sharpness_level = cm->frame_type == KEY_FRAME ? 0 : cpi->oxcf.sharpness;
 
@@ -203,7 +202,7 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   }
 
 #if CONFIG_EXT_TILE
-  // TODO(any): 0 loopfilter level is only necessary if individual tile
+  // TODO(any): 0 Loopfilter level is only necessary if individual tile
   // decoding is required. We need to communicate this requirement to this
   // code and force loop filter level 0 only if required.
   if (cm->tile_encoding_mode) lf->filter_level = 0;

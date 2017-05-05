@@ -27,7 +27,7 @@ class AV1FrameSizeTests : public ::libaom_test::EncoderTest,
     SetMode(::libaom_test::kRealTime);
   }
 
-  virtual bool HandleDecodeResult(const aom_codec_err_t res_dec,
+  virtual bool HandleDecodeResult(const AomCodecErrT res_dec,
                                   libaom_test::Decoder *decoder) {
     EXPECT_EQ(expected_res_, res_dec) << decoder->DecodeError();
     return !::testing::Test::HasFailure();

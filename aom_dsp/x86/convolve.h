@@ -18,9 +18,9 @@
 #include "aom_ports/mem.h"
 #include "aom_dsp/aom_convolve.h"
 
-typedef void filter8_1dfunction(const uint8_t *src_ptr, ptrdiff_t src_pitch,
-                                uint8_t *output_ptr, ptrdiff_t out_pitch,
-                                uint32_t output_height, const int16_t *filter);
+typedef void Filter81dfunction(const uint8_t *src_ptr, ptrdiff_t src_pitch,
+                               uint8_t *output_ptr, ptrdiff_t out_pitch,
+                               uint32_t output_height, const int16_t *filter);
 
 #define FUN_CONV_1D(name, step_q4, filter, dir, src_start, avg, opt)         \
   void aom_convolve8_##name##_##opt(                                         \
@@ -180,12 +180,11 @@ typedef void filter8_1dfunction(const uint8_t *src_ptr, ptrdiff_t src_pitch,
 #endif
 
 #if CONFIG_HIGHBITDEPTH
-typedef void highbd_filter8_1dfunction(const uint16_t *src_ptr,
-                                       const ptrdiff_t src_pitch,
-                                       uint16_t *output_ptr,
-                                       ptrdiff_t out_pitch,
-                                       unsigned int output_height,
-                                       const int16_t *filter, int bd);
+typedef void HighbdFilter81dfunction(const uint16_t *src_ptr,
+                                     const ptrdiff_t src_pitch,
+                                     uint16_t *output_ptr, ptrdiff_t out_pitch,
+                                     unsigned int output_height,
+                                     const int16_t *filter, int bd);
 
 #define HIGH_FUN_CONV_1D(name, step_q4, filter, dir, src_start, avg, opt)  \
   void aom_highbd_convolve8_##name##_##opt(                                \

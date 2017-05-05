@@ -303,7 +303,7 @@ typedef enum {
   THR_COMP_INTERINTRA_NEWA,
 #endif  // CONFIG_EXT_INTER
   MAX_MODES
-} THR_MODES;
+} ThrModes;
 
 typedef enum {
   THR_LAST,
@@ -330,9 +330,9 @@ typedef enum {
 #endif  // CONFIG_EXT_REFS
 
   THR_INTRA,
-} THR_MODES_SUB8X8;
+} ThrModesSub8x8;
 
-typedef struct RD_OPT {
+typedef struct RdOpt {
   // Thresh_mult is used to set a threshold for the rd score. A higher value
   // means that we will accept the best mode so far more often. This number
   // is used in combination with the current block size, and thresh_freq_fact
@@ -346,9 +346,9 @@ typedef struct RD_OPT {
 
   int RDMULT;
   int RDDIV;
-} RD_OPT;
+} RdOpt;
 
-static INLINE void av1_init_rd_stats(RD_STATS *rd_stats) {
+static INLINE void av1_init_rd_stats(RdStats *rd_stats) {
 #if CONFIG_RD_DEBUG
   int plane;
 #endif
@@ -372,7 +372,7 @@ static INLINE void av1_init_rd_stats(RD_STATS *rd_stats) {
 #endif
 }
 
-static INLINE void av1_invalid_rd_stats(RD_STATS *rd_stats) {
+static INLINE void av1_invalid_rd_stats(RdStats *rd_stats) {
 #if CONFIG_RD_DEBUG
   int plane;
 #endif
@@ -396,8 +396,8 @@ static INLINE void av1_invalid_rd_stats(RD_STATS *rd_stats) {
 #endif
 }
 
-static INLINE void av1_merge_rd_stats(RD_STATS *rd_stats_dst,
-                                      const RD_STATS *rd_stats_src) {
+static INLINE void av1_merge_rd_stats(RdStats *rd_stats_dst,
+                                      const RdStats *rd_stats_src) {
 #if CONFIG_RD_DEBUG
   int plane;
 #endif
@@ -428,73 +428,71 @@ static INLINE void av1_merge_rd_stats(RD_STATS *rd_stats_dst,
 
 struct TileInfo;
 struct TileDataEnc;
-struct AV1_COMP;
-struct macroblock;
+struct Av1Comp;
+struct Macroblock;
 
-int av1_compute_rd_mult(const struct AV1_COMP *cpi, int qindex);
+int av1_compute_rd_mult(const struct Av1Comp *cpi, int qindex);
 
-void av1_initialize_rd_consts(struct AV1_COMP *cpi);
+void av1_initialize_rd_consts(struct Av1Comp *cpi);
 
-void av1_initialize_me_consts(const struct AV1_COMP *cpi, MACROBLOCK *x,
+void av1_initialize_me_consts(const struct Av1Comp *cpi, Macroblock *x,
                               int qindex);
 
 void av1_model_rd_from_var_lapndz(int64_t var, unsigned int n,
                                   unsigned int qstep, int *rate, int64_t *dist);
 
-int av1_get_switchable_rate(const struct AV1_COMP *cpi, const MACROBLOCKD *xd);
+int av1_get_switchable_rate(const struct Av1Comp *cpi, const Macroblockd *xd);
 
-int av1_raster_block_offset(BLOCK_SIZE plane_bsize, int raster_block,
+int av1_raster_block_offset(BlockSize plane_bsize, int raster_block,
                             int stride);
 
-int16_t *av1_raster_block_offset_int16(BLOCK_SIZE plane_bsize, int raster_block,
+int16_t *av1_raster_block_offset_int16(BlockSize plane_bsize, int raster_block,
                                        int16_t *base);
 
-YV12_BUFFER_CONFIG *av1_get_scaled_ref_frame(const struct AV1_COMP *cpi,
-                                             int ref_frame);
+Yv12BufferConfig *av1_get_scaled_ref_frame(const struct Av1Comp *cpi,
+                                           int ref_frame);
 
 void av1_init_me_luts(void);
 
-void av1_set_mvcost(MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame, int ref,
+void av1_set_mvcost(Macroblock *x, MvReferenceFrame ref_frame, int ref,
                     int ref_mv_idx);
 
-void av1_get_entropy_contexts(BLOCK_SIZE bsize, TX_SIZE tx_size,
-                              const struct macroblockd_plane *pd,
-                              ENTROPY_CONTEXT t_above[2 * MAX_MIB_SIZE],
-                              ENTROPY_CONTEXT t_left[2 * MAX_MIB_SIZE]);
+void av1_get_entropy_contexts(BlockSize bsize, TxSize tx_size,
+                              const struct MacroblockdPlane *pd,
+                              EntropyContext t_above[2 * MAX_MIB_SIZE],
+                              EntropyContext t_left[2 * MAX_MIB_SIZE]);
 
-void av1_set_rd_speed_thresholds(struct AV1_COMP *cpi);
+void av1_set_rd_speed_thresholds(struct Av1Comp *cpi);
 
-void av1_set_rd_speed_thresholds_sub8x8(struct AV1_COMP *cpi);
+void av1_set_rd_speed_thresholds_sub8x8(struct Av1Comp *cpi);
 
-void av1_update_rd_thresh_fact(const AV1_COMMON *const cm,
+void av1_update_rd_thresh_fact(const Av1Common *const cm,
                                int (*fact)[MAX_MODES], int rd_thresh, int bsize,
                                int best_mode_index);
 
-void av1_fill_token_costs(av1_coeff_cost *c,
-                          av1_coeff_probs_model (*p)[PLANE_TYPES]);
+void av1_fill_token_costs(Av1CoeffCost *c,
+                          Av1CoeffProbsModel (*p)[PLANE_TYPES]);
 
 static INLINE int rd_less_than_thresh(int64_t best_rd, int thresh,
                                       int thresh_fact) {
   return best_rd < ((int64_t)thresh * thresh_fact >> 5) || thresh == INT_MAX;
 }
 
-void av1_mv_pred(const struct AV1_COMP *cpi, MACROBLOCK *x,
+void av1_mv_pred(const struct Av1Comp *cpi, Macroblock *x,
                  uint8_t *ref_y_buffer, int ref_y_stride, int ref_frame,
-                 BLOCK_SIZE block_size);
+                 BlockSize block_size);
 
-static INLINE void set_error_per_bit(MACROBLOCK *x, int rdmult) {
+static INLINE void set_error_per_bit(Macroblock *x, int rdmult) {
   x->errorperbit = rdmult >> RD_EPB_SHIFT;
   x->errorperbit += (x->errorperbit == 0);
 }
 
-void av1_setup_pred_block(const MACROBLOCKD *xd,
-                          struct buf_2d dst[MAX_MB_PLANE],
-                          const YV12_BUFFER_CONFIG *src, int mi_row, int mi_col,
-                          const struct scale_factors *scale,
-                          const struct scale_factors *scale_uv);
+void av1_setup_pred_block(const Macroblockd *xd, struct Buf2d dst[MAX_MB_PLANE],
+                          const Yv12BufferConfig *src, int mi_row, int mi_col,
+                          const struct ScaleFactors *scale,
+                          const struct ScaleFactors *scale_uv);
 
-int av1_get_intra_cost_penalty(int qindex, int qdelta,
-                               aom_bit_depth_t bit_depth);
+int av1_get_intra_cost_penalty(int qindex, int qdelta, AomBitDepthT bit_depth);
 
 #ifdef __cplusplus
 }  // extern "C"

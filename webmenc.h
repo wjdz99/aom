@@ -36,16 +36,15 @@ typedef enum stereo_format {
   STEREO_FORMAT_BOTTOM_TOP = 2,
   STEREO_FORMAT_TOP_BOTTOM = 3,
   STEREO_FORMAT_RIGHT_LEFT = 11
-} stereo_format_t;
+} StereoFormatT;
 
 void write_webm_file_header(struct WebmOutputContext *webm_ctx,
-                            const aom_codec_enc_cfg_t *cfg,
-                            stereo_format_t stereo_fmt, unsigned int fourcc,
+                            const AomCodecEncCfgT *cfg,
+                            StereoFormatT stereo_fmt, unsigned int fourcc,
                             const struct AvxRational *par);
 
 void write_webm_block(struct WebmOutputContext *webm_ctx,
-                      const aom_codec_enc_cfg_t *cfg,
-                      const aom_codec_cx_pkt_t *pkt);
+                      const AomCodecEncCfgT *cfg, const AomCodecCxPktT *pkt);
 
 void write_webm_file_footer(struct WebmOutputContext *webm_ctx);
 

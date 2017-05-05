@@ -20,26 +20,26 @@
 extern "C" {
 #endif
 
-typedef void (*aom_rb_error_handler)(void *data);
+typedef void (*AomRbErrorHandler)(void *data);
 
-struct aom_read_bit_buffer {
+struct AomReadBitBuffer {
   const uint8_t *bit_buffer;
   const uint8_t *bit_buffer_end;
   uint32_t bit_offset;
 
   void *error_handler_data;
-  aom_rb_error_handler error_handler;
+  AomRbErrorHandler error_handler;
 };
 
-size_t aom_rb_bytes_read(struct aom_read_bit_buffer *rb);
+size_t aom_rb_bytes_read(struct AomReadBitBuffer *rb);
 
-int aom_rb_read_bit(struct aom_read_bit_buffer *rb);
+int aom_rb_read_bit(struct AomReadBitBuffer *rb);
 
-int aom_rb_read_literal(struct aom_read_bit_buffer *rb, int bits);
+int aom_rb_read_literal(struct AomReadBitBuffer *rb, int bits);
 
-int aom_rb_read_signed_literal(struct aom_read_bit_buffer *rb, int bits);
+int aom_rb_read_signed_literal(struct AomReadBitBuffer *rb, int bits);
 
-int aom_rb_read_inv_signed_literal(struct aom_read_bit_buffer *rb, int bits);
+int aom_rb_read_inv_signed_literal(struct AomReadBitBuffer *rb, int bits);
 
 #ifdef __cplusplus
 }  // extern "C"

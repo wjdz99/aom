@@ -39,19 +39,18 @@ void av1_set_segment_data(struct segmentation *seg, signed char *feature_data,
   memcpy(seg->feature_data, feature_data, sizeof(seg->feature_data));
 }
 void av1_disable_segfeature(struct segmentation *seg, int segment_id,
-                            SEG_LVL_FEATURES feature_id) {
+                            SegLvlFeatures feature_id) {
   seg->feature_mask[segment_id] &= ~(1 << feature_id);
 }
 
 void av1_clear_segdata(struct segmentation *seg, int segment_id,
-                       SEG_LVL_FEATURES feature_id) {
+                       SegLvlFeatures feature_id) {
   seg->feature_data[segment_id][feature_id] = 0;
 }
 
 // Based on set of segment counts calculate a probability tree
-static void calc_segtree_probs(unsigned *segcounts,
-                               aom_prob *segment_tree_probs,
-                               const aom_prob *cur_tree_probs,
+static void calc_segtree_probs(unsigned *segcounts, AomProb *segment_tree_probs,
+                               const AomProb *cur_tree_probs,
                                const int probwt) {
   // Work out probabilities of each segment
   const unsigned cc[4] = { segcounts[0] + segcounts[1],
@@ -79,7 +78,7 @@ static void calc_segtree_probs(unsigned *segcounts,
 }
 
 // Based on set of segment counts and probabilities calculate a cost estimate
-static int cost_segmap(unsigned *segcounts, aom_prob *probs) {
+static int cost_segmap(unsigned *segcounts, AomProb *probs) {
   const int c01 = segcounts[0] + segcounts[1];
   const int c23 = segcounts[2] + segcounts[3];
   const int c45 = segcounts[4] + segcounts[5];
@@ -116,8 +115,8 @@ static int cost_segmap(unsigned *segcounts, aom_prob *probs) {
   return cost;
 }
 
-static void count_segs(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                       const TileInfo *tile, MODE_INFO **mi,
+static void count_segs(const Av1Common *cm, Macroblockd *xd,
+                       const TileInfo *tile, ModeInfo **mi,
                        unsigned *no_pred_segcounts,
                        unsigned (*temporal_predictor_count)[2],
                        unsigned *t_unpred_seg_counts, int bw, int bh,
@@ -140,7 +139,7 @@ static void count_segs(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
   // Temporal prediction not allowed on key frames
   if (cm->frame_type != KEY_FRAME) {
-    const BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
+    const BlockSize bsize = xd->mi[0]->mbmi.sb_type;
     // Test to see if the segment id matches the predicted value.
     const int pred_segment_id =
         get_segment_id(cm, cm->last_frame_seg_map, bsize, mi_row, mi_col);
@@ -157,16 +156,16 @@ static void count_segs(const AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 }
 
-static void count_segs_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                          const TileInfo *tile, MODE_INFO **mi,
+static void count_segs_sb(const Av1Common *cm, Macroblockd *xd,
+                          const TileInfo *tile, ModeInfo **mi,
                           unsigned *no_pred_segcounts,
                           unsigned (*temporal_predictor_count)[2],
                           unsigned *t_unpred_seg_counts, int mi_row, int mi_col,
-                          BLOCK_SIZE bsize) {
+                          BlockSize bsize) {
   const int mis = cm->mi_stride;
   const int bs = mi_size_wide[bsize], hbs = bs / 2;
 #if CONFIG_EXT_PARTITION_TYPES
-  PARTITION_TYPE partition;
+  PartitionType partition;
 #else
   int bw, bh;
 #endif  // CONFIG_EXT_PARTITION_TYPES
@@ -238,7 +237,7 @@ static void count_segs_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                  mi_row + hbs, mi_col + hbs);
       break;
     case PARTITION_SPLIT: {
-      const BLOCK_SIZE subsize = subsize_lookup[PARTITION_SPLIT][bsize];
+      const BlockSize subsize = subsize_lookup[PARTITION_SPLIT][bsize];
       int n;
 
       assert(num_8x8_blocks_wide_lookup[mi[0]->mbmi.sb_type] < bs &&
@@ -275,7 +274,7 @@ static void count_segs_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                temporal_predictor_count, t_unpred_seg_counts, hbs, bs, mi_row,
                mi_col + hbs);
   } else {
-    const BLOCK_SIZE subsize = subsize_lookup[PARTITION_SPLIT][bsize];
+    const BlockSize subsize = subsize_lookup[PARTITION_SPLIT][bsize];
     int n;
 
     assert(bw < bs && bh < bs);
@@ -292,9 +291,9 @@ static void count_segs_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_PARTITION_TYPES
 }
 
-void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
+void av1_choose_segmap_coding_method(Av1Common *cm, Macroblockd *xd) {
   struct segmentation *seg = &cm->seg;
-  struct segmentation_probs *segp = &cm->fc->seg;
+  struct SegmentationProbs *segp = &cm->fc->seg;
 
   int no_pred_cost;
   int t_pred_cost = INT_MAX;
@@ -310,9 +309,9 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
   unsigned *no_pred_segcounts = cm->counts.seg.tree_total;
   unsigned *t_unpred_seg_counts = cm->counts.seg.tree_mispred;
 
-  aom_prob no_pred_tree[SEG_TREE_PROBS];
-  aom_prob t_pred_tree[SEG_TREE_PROBS];
-  aom_prob t_nopred_prob[PREDICTION_PROBS];
+  AomProb no_pred_tree[SEG_TREE_PROBS];
+  AomProb t_pred_tree[SEG_TREE_PROBS];
+  AomProb t_nopred_prob[PREDICTION_PROBS];
 
   (void)xd;
 
@@ -325,7 +324,7 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
     TileInfo tile_info;
     av1_tile_set_row(&tile_info, cm, tile_row);
     for (tile_col = 0; tile_col < cm->tile_cols; tile_col++) {
-      MODE_INFO **mi_ptr;
+      ModeInfo **mi_ptr;
       av1_tile_set_col(&tile_info, cm, tile_col);
 #if CONFIG_TILE_GROUPS && CONFIG_DEPENDENT_HORZTILES
       av1_tile_set_tg_boundary(&tile_info, cm, tile_row, tile_col);
@@ -334,7 +333,7 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
                tile_info.mi_col_start;
       for (mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
            mi_row += cm->mib_size, mi_ptr += cm->mib_size * cm->mi_stride) {
-        MODE_INFO **mi = mi_ptr;
+        ModeInfo **mi = mi_ptr;
         for (mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->mib_size, mi += cm->mib_size) {
           count_segs_sb(cm, xd, &tile_info, mi, no_pred_segcounts,
@@ -383,7 +382,7 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
   }
 }
 
-void av1_reset_segment_features(AV1_COMMON *cm) {
+void av1_reset_segment_features(Av1Common *cm) {
   struct segmentation *seg = &cm->seg;
 
   // Set up default state for MB feature flags

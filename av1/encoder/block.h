@@ -35,18 +35,18 @@ typedef struct {
   unsigned int var;
 } DIFF;
 
-typedef struct macroblock_plane {
+typedef struct MacroblockPlane {
   DECLARE_ALIGNED(16, int16_t, src_diff[MAX_SB_SQUARE]);
 #if CONFIG_PVQ
   DECLARE_ALIGNED(16, int16_t, src_int16[MAX_SB_SQUARE]);
 #endif
-  tran_low_t *qcoeff;
-  tran_low_t *coeff;
+  TranLowT *qcoeff;
+  TranLowT *coeff;
   uint16_t *eobs;
 #if CONFIG_LV_MAP
   uint8_t *txb_entropy_ctx;
 #endif
-  struct buf_2d src;
+  struct Buf2d src;
 
   // Quantizer setings
   const int16_t *quant_fp;
@@ -56,21 +56,21 @@ typedef struct macroblock_plane {
   const int16_t *zbin;
   const int16_t *round;
 #if CONFIG_NEW_QUANT
-  const cuml_bins_type_nuq *cuml_bins_nuq[QUANT_PROFILES];
+  const CumlBinsTypeNuq *cuml_bins_nuq[QUANT_PROFILES];
 #endif  // CONFIG_NEW_QUANT
-} MACROBLOCK_PLANE;
+} MacroblockPlane;
 
 /* The [2] dimension is for whether we skip the EOB node (i.e. if previous
  * coefficient in this block was zero) or not. */
-typedef unsigned int av1_coeff_cost[PLANE_TYPES][REF_TYPES][COEF_BANDS][2]
-                                   [COEFF_CONTEXTS][ENTROPY_TOKENS];
+typedef unsigned int Av1CoeffCost[PLANE_TYPES][REF_TYPES][COEF_BANDS][2]
+                                 [COEFF_CONTEXTS][ENTROPY_TOKENS];
 
 typedef struct {
-  int_mv ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES];
+  IntMv ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES];
   int16_t mode_context[MODE_CTX_REF_FRAMES];
 #if CONFIG_LV_MAP
   // TODO(angiebird): Reduce the buffer size according to sb_type
-  tran_low_t tcoeff[MAX_MB_PLANE][MAX_SB_SQUARE];
+  TranLowT tcoeff[MAX_MB_PLANE][MAX_SB_SQUARE];
   uint16_t eobs[MAX_MB_PLANE][MAX_SB_SQUARE / (TX_SIZE_W_MIN * TX_SIZE_H_MIN)];
   uint8_t txb_skip_ctx[MAX_MB_PLANE]
                       [MAX_SB_SQUARE / (TX_SIZE_W_MIN * TX_SIZE_H_MIN)];
@@ -78,11 +78,11 @@ typedef struct {
                  [MAX_SB_SQUARE / (TX_SIZE_W_MIN * TX_SIZE_H_MIN)];
 #endif
   uint8_t ref_mv_count[MODE_CTX_REF_FRAMES];
-  CANDIDATE_MV ref_mv_stack[MODE_CTX_REF_FRAMES][MAX_REF_MV_STACK_SIZE];
+  CandidateMv ref_mv_stack[MODE_CTX_REF_FRAMES][MAX_REF_MV_STACK_SIZE];
 #if CONFIG_EXT_INTER
   int16_t compound_mode_context[MODE_CTX_REF_FRAMES];
 #endif  // CONFIG_EXT_INTER
-} MB_MODE_INFO_EXT;
+} MbModeInfoExt;
 
 typedef struct {
   int col_min;
@@ -95,15 +95,15 @@ typedef struct {
 typedef struct {
   uint8_t best_palette_color_map[MAX_SB_SQUARE];
   float kmeans_data_buf[2 * MAX_SB_SQUARE];
-} PALETTE_BUFFER;
+} PaletteBuffer;
 #endif  // CONFIG_PALETTE
 
-typedef struct macroblock MACROBLOCK;
-struct macroblock {
-  struct macroblock_plane plane[MAX_MB_PLANE];
+typedef struct Macroblock Macroblock;
+struct Macroblock {
+  struct MacroblockPlane plane[MAX_MB_PLANE];
 
-  MACROBLOCKD e_mbd;
-  MB_MODE_INFO_EXT *mbmi_ext;
+  Macroblockd e_mbd;
+  MbModeInfoExt *mbmi_ext;
   int skip_block;
   int qindex;
 
@@ -128,8 +128,8 @@ struct macroblock {
 
   // These are set to their default values at the beginning, and then adjusted
   // further in the encoding process.
-  BLOCK_SIZE min_partition_size;
-  BLOCK_SIZE max_partition_size;
+  BlockSize min_partition_size;
+  BlockSize max_partition_size;
 
   int mv_best_ref_index[TOTAL_REFS_PER_FRAME];
   unsigned int max_mv_context[TOTAL_REFS_PER_FRAME];
@@ -154,7 +154,7 @@ struct macroblock {
 #endif  // CONFIG_MOTION_VAR
 
 #if CONFIG_PALETTE
-  PALETTE_BUFFER *palette_buffer;
+  PaletteBuffer *palette_buffer;
 #endif  // CONFIG_PALETTE
 
   // These define limits to motion vector components to prevent them
@@ -173,7 +173,7 @@ struct macroblock {
 #endif
 
   // note that token_costs is the cost when eob node is skipped
-  av1_coeff_cost token_costs[TX_SIZES];
+  Av1CoeffCost token_costs[TX_SIZES];
 
   int optimize;
 
@@ -181,9 +181,9 @@ struct macroblock {
   MV pred_mv[TOTAL_REFS_PER_FRAME];
 
   // Store the best motion vector during motion search
-  int_mv best_mv;
+  IntMv best_mv;
   // Store the second best motion vector during full-pixel motion search
-  int_mv second_best_mv;
+  IntMv second_best_mv;
 
   // use default transform and skip transform type search for intra modes
   int use_default_intra_tx_type;
@@ -193,7 +193,7 @@ struct macroblock {
   int rate;
   // 1 if neither AC nor DC is coded. Only used during RDO.
   int pvq_skip[MAX_MB_PLANE];
-  PVQ_QUEUE *pvq_q;
+  PvqQueue *pvq_q;
 
   // Storage for PVQ tx block encodings in a superblock.
   // There can be max 16x16 of 4x4 blocks (and YUV) encode by PVQ
@@ -203,13 +203,13 @@ struct macroblock {
   // 3) AV1 allows using smaller tx size than block (i.e. partition) size
   // TODO(yushin) : The memory usage could be improved a lot, since this has
   // storage for 10 bands and 128 coefficients for every 4x4 block,
-  PVQ_INFO pvq[MAX_PVQ_BLOCKS_IN_SB][MAX_MB_PLANE];
-  daala_enc_ctx daala_enc;
+  PvqInfo pvq[MAX_PVQ_BLOCKS_IN_SB][MAX_MB_PLANE];
+  DaalaEncCtx daala_enc;
   int pvq_speed;
   int pvq_coded;  // Indicates whether pvq_info needs be stored to tokenize
 #endif
 #if CONFIG_DAALA_DIST
-  // Keep rate of each 4x4 block in the current macroblock during RDO
+  // Keep rate of each 4x4 block in the current Macroblock during RDO
   // This is needed when using the 8x8 Daala distortion metric during RDO,
   // because it evaluates distortion in a different order than the underlying
   // 4x4 blocks are coded.

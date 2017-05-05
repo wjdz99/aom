@@ -95,13 +95,13 @@ struct AvxInputContext {
   uint32_t width;
   uint32_t height;
   struct AvxRational pixel_aspect_ratio;
-  aom_img_fmt_t fmt;
-  aom_bit_depth_t bit_depth;
+  AomImgFmtT fmt;
+  AomBitDepthT bit_depth;
   int only_i420;
   uint32_t fourcc;
   struct AvxRational framerate;
 #if CONFIG_ENCODERS
-  y4m_input y4m;
+  Y4mInput y4m;
 #endif
 };
 
@@ -122,19 +122,19 @@ void die(const char *fmt, ...) AOM_NO_RETURN;
 void fatal(const char *fmt, ...) AOM_NO_RETURN;
 void warn(const char *fmt, ...);
 
-void die_codec(aom_codec_ctx_t *ctx, const char *s) AOM_NO_RETURN;
+void die_codec(AomCodecCtxT *ctx, const char *s) AOM_NO_RETURN;
 
 /* The tool including this file must define usage_exit() */
 void usage_exit(void) AOM_NO_RETURN;
 
 #undef AOM_NO_RETURN
 
-int read_yuv_frame(struct AvxInputContext *input_ctx, aom_image_t *yuv_frame);
+int read_yuv_frame(struct AvxInputContext *input_ctx, AomImageT *yuv_frame);
 
 typedef struct AvxInterface {
   const char *const name;
   const uint32_t fourcc;
-  aom_codec_iface_t *(*const codec_interface)();
+  AomCodecIfaceT *(*const codec_interface)();
 } AvxInterface;
 
 int get_aom_encoder_count(void);
@@ -147,18 +147,18 @@ const AvxInterface *get_aom_decoder_by_name(const char *name);
 const AvxInterface *get_aom_decoder_by_fourcc(uint32_t fourcc);
 
 // TODO(dkovalev): move this function to aom_image.{c, h}, so it will be part
-// of aom_image_t support
-int aom_img_plane_width(const aom_image_t *img, int plane);
-int aom_img_plane_height(const aom_image_t *img, int plane);
-void aom_img_write(const aom_image_t *img, FILE *file);
-int aom_img_read(aom_image_t *img, FILE *file);
+// of AomImageT support
+int aom_img_plane_width(const AomImageT *img, int plane);
+int aom_img_plane_height(const AomImageT *img, int plane);
+void aom_img_write(const AomImageT *img, FILE *file);
+int aom_img_read(AomImageT *img, FILE *file);
 
 double sse_to_psnr(double samples, double peak, double mse);
 
 #if CONFIG_HIGHBITDEPTH
-void aom_img_upshift(aom_image_t *dst, aom_image_t *src, int input_shift);
-void aom_img_downshift(aom_image_t *dst, aom_image_t *src, int down_shift);
-void aom_img_truncate_16_to_8(aom_image_t *dst, aom_image_t *src);
+void aom_img_upshift(AomImageT *dst, AomImageT *src, int input_shift);
+void aom_img_downshift(AomImageT *dst, AomImageT *src, int down_shift);
+void aom_img_truncate_16_to_8(AomImageT *dst, AomImageT *src);
 #endif
 
 #ifdef __cplusplus

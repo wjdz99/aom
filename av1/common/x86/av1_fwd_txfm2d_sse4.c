@@ -27,7 +27,7 @@ static INLINE void int16_array_with_stride_to_int32_array_without_stride(
 typedef void (*TxfmFuncSSE2)(const __m128i *input, __m128i *output,
                              const int8_t *cos_bit, const int8_t *stage_range);
 
-static INLINE TxfmFuncSSE2 fwd_txfm_type_to_func(TXFM_TYPE txfm_type) {
+static INLINE TxfmFuncSSE2 fwd_txfm_type_to_func(TxfmType txfm_type) {
   switch (txfm_type) {
     case TXFM_TYPE_DCT32: return av1_fdct32_new_sse4_1; break;
     case TXFM_TYPE_ADST32: return av1_fadst32_new_sse4_1; break;
@@ -37,7 +37,7 @@ static INLINE TxfmFuncSSE2 fwd_txfm_type_to_func(TXFM_TYPE txfm_type) {
 }
 
 static INLINE void fwd_txfm2d_sse4_1(const int16_t *input, int32_t *output,
-                                     const int stride, const TXFM_2D_CFG *cfg,
+                                     const int stride, const Txfm2dCfg *cfg,
                                      int32_t *txfm_buf) {
   const int txfm_size = cfg->txfm_size;
   const int8_t *shift = cfg->shift;
@@ -67,7 +67,7 @@ static INLINE void fwd_txfm2d_sse4_1(const int16_t *input, int32_t *output,
 void av1_fwd_txfm2d_32x32_sse4_1(const int16_t *input, int32_t *output,
                                  int stride, int tx_type, int bd) {
   DECLARE_ALIGNED(16, int32_t, txfm_buf[1024]);
-  TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_cfg(tx_type, TX_32X32);
+  Txfm2dFlipCfg cfg = av1_get_fwd_txfm_cfg(tx_type, TX_32X32);
   (void)bd;
   fwd_txfm2d_sse4_1(input, output, stride, cfg.cfg, txfm_buf);
 }
@@ -75,7 +75,7 @@ void av1_fwd_txfm2d_32x32_sse4_1(const int16_t *input, int32_t *output,
 void av1_fwd_txfm2d_64x64_sse4_1(const int16_t *input, int32_t *output,
                                  int stride, int tx_type, int bd) {
   DECLARE_ALIGNED(16, int32_t, txfm_buf[4096]);
-  TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_64x64_cfg(tx_type);
+  Txfm2dFlipCfg cfg = av1_get_fwd_txfm_64x64_cfg(tx_type);
   (void)bd;
   fwd_txfm2d_sse4_1(input, output, stride, cfg.cfg, txfm_buf);
 }

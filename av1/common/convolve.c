@@ -208,13 +208,13 @@ void av1_convolve_rounding(const int32_t *src, int src_stride, uint8_t *dst,
   }
 }
 
-void av1_convolve_2d(const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst,
+void av1_convolve_2d(const uint8_t *src, int src_stride, ConvBufType *dst,
                      int dst_stride, int w, int h,
                      InterpFilterParams *filter_params_x,
                      InterpFilterParams *filter_params_y, const int subpel_x_q4,
                      const int subpel_y_q4, ConvolveParams *conv_params) {
   int x, y, k;
-  CONV_BUF_TYPE im_block[(MAX_SB_SIZE + MAX_FILTER_TAP - 1) * MAX_SB_SIZE];
+  ConvBufType im_block[(MAX_SB_SIZE + MAX_FILTER_TAP - 1) * MAX_SB_SIZE];
   int im_h = h + filter_params_y->taps - 1;
   int im_stride = w;
   const int fo_vert = filter_params_y->taps / 2 - 1;
@@ -226,7 +226,7 @@ void av1_convolve_2d(const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst,
       *filter_params_x, subpel_x_q4 & SUBPEL_MASK);
   for (y = 0; y < im_h; ++y) {
     for (x = 0; x < w; ++x) {
-      CONV_BUF_TYPE sum = 0;
+      ConvBufType sum = 0;
       for (k = 0; k < filter_params_x->taps; ++k) {
         sum += x_filter[k] * src_horiz[y * src_stride + x - fo_horiz + k];
       }
@@ -241,12 +241,12 @@ void av1_convolve_2d(const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst,
   }
 
   // vertical filter
-  CONV_BUF_TYPE *src_vert = im_block + fo_vert * im_stride;
+  ConvBufType *src_vert = im_block + fo_vert * im_stride;
   const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
       *filter_params_y, subpel_y_q4 & SUBPEL_MASK);
   for (y = 0; y < h; ++y) {
     for (x = 0; x < w; ++x) {
-      CONV_BUF_TYPE sum = 0;
+      ConvBufType sum = 0;
       for (k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_vert[(y - fo_vert + k) * im_stride + x];
       }
@@ -307,7 +307,7 @@ void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
     uint8_t tr_src[(MAX_SB_SIZE + MAX_FILTER_TAP - 1) *
                    (MAX_SB_SIZE + MAX_FILTER_TAP - 1)];
     int tr_src_stride = MAX_SB_SIZE + MAX_FILTER_TAP - 1;
-    CONV_BUF_TYPE tr_dst[MAX_SB_SIZE * MAX_SB_SIZE];
+    ConvBufType tr_dst[MAX_SB_SIZE * MAX_SB_SIZE];
     int tr_dst_stride = MAX_SB_SIZE;
     int fo_vert = filter_params_y.taps / 2 - 1;
     int fo_horiz = filter_params_x.taps / 2 - 1;
@@ -501,7 +501,7 @@ void av1_highbd_convolve_init_c(void) {
   return;
 }
 
-void av1_convolve_init(AV1_COMMON *cm) {
+void av1_convolve_init(Av1Common *cm) {
 #if CONFIG_HIGHBITDEPTH
   if (cm->use_highbitdepth)
     av1_highbd_convolve_init();

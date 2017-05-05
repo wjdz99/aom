@@ -76,7 +76,7 @@ static INLINE int16_t quant_to_doff_fixed(int band, int q_profile) {
 }
 
 // get cumulative bins
-static INLINE void get_cuml_bins_nuq(int q, int band, tran_low_t *cuml_bins,
+static INLINE void get_cuml_bins_nuq(int q, int band, TranLowT *cuml_bins,
                                      int q_profile) {
   const uint8_t *knots = get_nuq_knots(band, q_profile);
   int16_t cuml_knots[NUQ_KNOTS];
@@ -87,11 +87,11 @@ static INLINE void get_cuml_bins_nuq(int q, int band, tran_low_t *cuml_bins,
     cuml_bins[i] = ROUND_POWER_OF_TWO(cuml_knots[i] * q, 7);
 }
 
-void av1_get_dequant_val_nuq(int q, int band, tran_low_t *dq,
-                             tran_low_t *cuml_bins, int q_profile) {
+void av1_get_dequant_val_nuq(int q, int band, TranLowT *dq, TranLowT *cuml_bins,
+                             int q_profile) {
   const uint8_t *knots = get_nuq_knots(band, q_profile);
-  tran_low_t cuml_bins_[NUQ_KNOTS], *cuml_bins_ptr;
-  tran_low_t doff;
+  TranLowT cuml_bins_[NUQ_KNOTS], *cuml_bins_ptr;
+  TranLowT doff;
   int i;
   cuml_bins_ptr = (cuml_bins ? cuml_bins : cuml_bins_);
   get_cuml_bins_nuq(q, band, cuml_bins_ptr, q_profile);
@@ -107,15 +107,15 @@ void av1_get_dequant_val_nuq(int q, int band, tran_low_t *dq,
       cuml_bins_ptr[NUQ_KNOTS - 1] + ROUND_POWER_OF_TWO((64 - doff) * q, 7);
 }
 
-tran_low_t av1_dequant_abscoeff_nuq(int v, int q, const tran_low_t *dq) {
+TranLowT av1_dequant_abscoeff_nuq(int v, int q, const TranLowT *dq) {
   if (v <= NUQ_KNOTS)
     return dq[v];
   else
     return dq[NUQ_KNOTS] + (v - NUQ_KNOTS) * q;
 }
 
-tran_low_t av1_dequant_coeff_nuq(int v, int q, const tran_low_t *dq) {
-  tran_low_t dqmag = av1_dequant_abscoeff_nuq(abs(v), q, dq);
+TranLowT av1_dequant_coeff_nuq(int v, int q, const TranLowT *dq) {
+  TranLowT dqmag = av1_dequant_abscoeff_nuq(abs(v), q, dq);
   return (v < 0 ? -dqmag : dqmag);
 }
 #endif  // CONFIG_NEW_QUANT
@@ -269,7 +269,7 @@ static const int16_t ac_qlookup_12[QINDEX_RANGE] = {
 };
 #endif
 
-int16_t av1_dc_quant(int qindex, int delta, aom_bit_depth_t bit_depth) {
+int16_t av1_dc_quant(int qindex, int delta, AomBitDepthT bit_depth) {
 #if CONFIG_HIGHBITDEPTH
   switch (bit_depth) {
     case AOM_BITS_8: return dc_qlookup[clamp(qindex + delta, 0, MAXQ)];
@@ -285,7 +285,7 @@ int16_t av1_dc_quant(int qindex, int delta, aom_bit_depth_t bit_depth) {
 #endif
 }
 
-int16_t av1_ac_quant(int qindex, int delta, aom_bit_depth_t bit_depth) {
+int16_t av1_ac_quant(int qindex, int delta, AomBitDepthT bit_depth) {
 #if CONFIG_HIGHBITDEPTH
   switch (bit_depth) {
     case AOM_BITS_8: return ac_qlookup[clamp(qindex + delta, 0, MAXQ)];
@@ -301,7 +301,7 @@ int16_t av1_ac_quant(int qindex, int delta, aom_bit_depth_t bit_depth) {
 #endif
 }
 
-int16_t av1_qindex_from_ac(int ac, aom_bit_depth_t bit_depth) {
+int16_t av1_qindex_from_ac(int ac, AomBitDepthT bit_depth) {
   int i;
   const int16_t *tab = ac_qlookup;
   ac *= 4;
@@ -342,12 +342,12 @@ int av1_get_qindex(const struct segmentation *seg, int segment_id,
 }
 
 #if CONFIG_AOM_QM
-qm_val_t *aom_iqmatrix(AV1_COMMON *cm, int qmlevel, int is_chroma,
-                       int log2sizem2, int is_intra) {
+QmValT *aom_iqmatrix(Av1Common *cm, int qmlevel, int is_chroma, int log2sizem2,
+                     int is_intra) {
   return &cm->giqmatrix[qmlevel][!!is_chroma][!!is_intra][log2sizem2][0];
 }
-qm_val_t *aom_qmatrix(AV1_COMMON *cm, int qmlevel, int is_chroma,
-                      int log2sizem2, int is_intra) {
+QmValT *aom_qmatrix(Av1Common *cm, int qmlevel, int is_chroma, int log2sizem2,
+                    int is_intra) {
   return &cm->gqmatrix[qmlevel][!!is_chroma][!!is_intra][log2sizem2][0];
 }
 
@@ -356,7 +356,7 @@ static uint16_t iwt_matrix_ref[NUM_QM_LEVELS][2][2]
 static uint16_t wt_matrix_ref[NUM_QM_LEVELS][2][2]
                              [4 * 4 + 8 * 8 + 16 * 16 + 32 * 32];
 
-void aom_qm_init(AV1_COMMON *cm) {
+void aom_qm_init(Av1Common *cm) {
   int q, c, f, t, size;
   int current;
   for (q = 0; q < NUM_QM_LEVELS; ++q) {

@@ -28,7 +28,7 @@ typedef void (*Predictor)(uint8_t *dst, ptrdiff_t stride, int bs,
 
 // Note:
 //  Test parameter list:
-//  Reference predictor, optimized predictor, prediction mode, block size
+//  reference predictor, optimized predictor, prediction mode, block size
 //
 typedef tuple<Predictor, Predictor, int> PredFuncMode;
 typedef tuple<PredFuncMode, int> PredParams;
@@ -40,7 +40,7 @@ typedef void (*HbdPredictor)(uint16_t *dst, ptrdiff_t stride, int bs,
 
 // Note:
 //  Test parameter list:
-//  Reference predictor, optimized predictor, prediction mode, block size,
+//  reference predictor, optimized predictor, prediction mode, block size,
 //  bit depth
 //
 typedef tuple<HbdPredictor, HbdPredictor, int> HbdPredFuncMode;

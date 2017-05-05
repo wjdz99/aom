@@ -76,13 +76,13 @@ extern "C" {
 // 110: Profile 3. 10-bit and 12-bit color only, with 4:2:2/4:4:4/4:4:0
 //                 sampling.
 // 111: Undefined profile.
-typedef enum BITSTREAM_PROFILE {
+typedef enum BitstreamProfile {
   PROFILE_0,
   PROFILE_1,
   PROFILE_2,
   PROFILE_3,
   MAX_PROFILES
-} BITSTREAM_PROFILE;
+} BitstreamProfile;
 
 // Note: Some enums use the attribute 'packed' to use smallest possible integer
 // type, so that we can save memory when they are used in structs/arrays.
@@ -114,7 +114,7 @@ typedef enum ATTRIBUTE_PACKED {
   BLOCK_SIZES,
   BLOCK_INVALID = BLOCK_SIZES,
   BLOCK_LARGEST = (BLOCK_SIZES - 1)
-} BLOCK_SIZE;
+} BlockSize;
 
 typedef enum {
   PARTITION_NONE,
@@ -130,9 +130,9 @@ typedef enum {
 #endif  // CONFIG_EXT_PARTITION_TYPES
   PARTITION_TYPES = PARTITION_SPLIT + 1,
   PARTITION_INVALID = 255
-} PARTITION_TYPE;
+} PartitionType;
 
-typedef char PARTITION_CONTEXT;
+typedef char PartitionContext;
 #define PARTITION_PLOFFSET 4  // number of probability models per block size
 #define PARTITION_BLOCK_SIZES (4 + CONFIG_EXT_PARTITION)
 #define PARTITION_CONTEXTS_PRIMARY (PARTITION_BLOCK_SIZES * PARTITION_PLOFFSET)
@@ -168,7 +168,7 @@ typedef enum ATTRIBUTE_PACKED {
   TX_SIZES_ALL,       // Includes rectangular transforms
   TX_SIZES = TX_4X8,  // Does NOT include rectangular transforms
   TX_INVALID = 255    // Invalid transform size
-} TX_SIZE;
+} TxSize;
 
 #define MAX_TX_DEPTH (TX_SIZES - 1 - TX_4X4)
 
@@ -195,7 +195,7 @@ typedef enum {
 #endif
   TX_MODE_SELECT,  // transform specified for each block
   TX_MODES,
-} TX_MODE;
+} TxMode;
 
 // 1D tx types
 typedef enum {
@@ -204,7 +204,7 @@ typedef enum {
   FLIPADST_1D = 2,
   IDTX_1D = 3,
   TX_TYPES_1D = 4,
-} TX_TYPE_1D;
+} TxType1d;
 
 typedef enum {
   DCT_DCT = 0,    // DCT  in both horizontal and vertical
@@ -226,7 +226,7 @@ typedef enum {
   H_FLIPADST = 15,
 #endif  // CONFIG_EXT_TX
   TX_TYPES,
-} TX_TYPE;
+} TxType;
 
 typedef enum {
   TILE_LEFT_BOUNDARY = 1,
@@ -237,7 +237,7 @@ typedef enum {
   FRAME_RIGHT_BOUNDARY = 32,
   FRAME_ABOVE_BOUNDARY = 64,
   FRAME_BOTTOM_BOUNDARY = 128,
-} BOUNDARY_TYPE;
+} BoundaryType;
 
 #if CONFIG_EXT_TX
 #if CONFIG_CB4X4
@@ -269,9 +269,9 @@ typedef enum {
   AOM_ALT_FLAG = 1 << 2,
   AOM_REFFRAME_ALL = (1 << 3) - 1
 #endif  // CONFIG_EXT_REFS
-} AOM_REFFRAME;
+} AomRefframe;
 
-typedef enum { PLANE_TYPE_Y = 0, PLANE_TYPE_UV = 1, PLANE_TYPES } PLANE_TYPE;
+typedef enum { PLANE_TYPE_Y = 0, PLANE_TYPE_UV = 1, PLANE_TYPES } PlaneType;
 
 #if CONFIG_CFL
 // TODO(ltrudeau) this should change based on QP size
@@ -293,7 +293,7 @@ typedef enum {
   SEVEN_COLORS,
   EIGHT_COLORS,
   PALETTE_SIZES
-} PALETTE_SIZE;
+} PaletteSize;
 
 typedef enum {
   PALETTE_COLOR_ONE,
@@ -305,7 +305,7 @@ typedef enum {
   PALETTE_COLOR_SEVEN,
   PALETTE_COLOR_EIGHT,
   PALETTE_COLORS
-} PALETTE_COLOR;
+} PaletteColor;
 #endif  // CONFIG_PALETTE
 
 typedef enum ATTRIBUTE_PACKED {
@@ -350,7 +350,7 @@ typedef enum ATTRIBUTE_PACKED {
   MB_MODE_COUNT,
   INTRA_MODES = TM_PRED + 1,
   INTRA_INVALID = MB_MODE_COUNT  // For uv_mode in inter blocks
-} PREDICTION_MODE;
+} PredictionMode;
 
 typedef enum {
   SIMPLE_TRANSLATION = 0,
@@ -361,7 +361,7 @@ typedef enum {
   WARPED_CAUSAL,  // 2-sided WARPED
 #endif            // CONFIG_WARPED_MOTION
   MOTION_MODES
-} MOTION_MODE;
+} MotionMode;
 
 // TODO(urvang): Consider adding II_SMOOTH_PRED if it's helpful.
 
@@ -378,7 +378,7 @@ typedef enum {
   II_D63_PRED,
   II_TM_PRED,
   INTERINTRA_MODES
-} INTERINTRA_MODE;
+} InterintraMode;
 
 typedef enum {
   COMPOUND_AVERAGE = 0,
@@ -389,10 +389,10 @@ typedef enum {
   COMPOUND_SEG,
 #endif  // CONFIG_COMPOUND_SEGMENT
   COMPOUND_TYPES,
-} COMPOUND_TYPE;
+} CompoundType;
 #endif  // CONFIG_EXT_INTER
 
-// TODO(huisu): Consider adding FILTER_SMOOTH_PRED to "FILTER_INTRA_MODE".
+// TODO(huisu): Consider adding FILTER_SMOOTH_PRED to "FilterIntraMode".
 #if CONFIG_FILTER_INTRA
 typedef enum {
   FILTER_DC_PRED,
@@ -406,7 +406,7 @@ typedef enum {
   FILTER_D63_PRED,
   FILTER_TM_PRED,
   FILTER_INTRA_MODES,
-} FILTER_INTRA_MODE;
+} FilterIntraMode;
 #endif  // CONFIG_FILTER_INTRA
 
 #if CONFIG_EXT_INTRA
@@ -475,7 +475,7 @@ typedef enum {
 
 #if CONFIG_VAR_TX
 #define TXFM_PARTITION_CONTEXTS ((TX_SIZES - TX_8X8) * 6 - 2)
-typedef uint8_t TXFM_CONTEXT;
+typedef uint8_t TxfmContext;
 #endif
 
 #define NONE_FRAME -1
