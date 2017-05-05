@@ -20,8 +20,10 @@ static INLINE int8_t signed_char_clamp(int t) {
   return (int8_t)clamp(t, -128, 127);
 }
 
-#define PARALLEL_DEBLOCKING_11_TAP 0
-#define PARALLEL_DEBLOCKING_9_TAP 0
+#if CONFIG_PARALLEL_DEBLOCKING && CONFIG_PARALLEL_DEBLOCKING_15TAP
+//#define PARALLEL_DEBLOCKING_11_TAP
+#define PARALLEL_DEBLOCKING_9_TAP
+#endif
 
 #if CONFIG_HIGHBITDEPTH
 static INLINE int16_t signed_char_clamp_high(int t, int bd) {
@@ -71,7 +73,8 @@ static INLINE int8_t flat_mask4(uint8_t thresh, uint8_t p3, uint8_t p2,
   return ~mask;
 }
 
-#if PARALLEL_DEBLOCKING_9_TAP
+#if CONFIG_PARALLEL_DEBLOCKING_15TAP
+#if defined(PARALLEL_DEBLOCKING_9_TAP)
 static INLINE int8_t flat_mask2(uint8_t thresh, uint8_t p4, uint8_t p0,
                                 uint8_t q0, uint8_t q4) {
   int8_t mask = 0;
@@ -79,9 +82,7 @@ static INLINE int8_t flat_mask2(uint8_t thresh, uint8_t p4, uint8_t p0,
   mask |= (abs(q4 - q0) > thresh) * -1;
   return ~mask;
 }
-#endif
-
-#if PARALLEL_DEBLOCKING_11_TAP
+#elif defined(PARALLEL_DEBLOCKING_11_TAP)
 static INLINE int8_t flat_mask3(uint8_t thresh, uint8_t p5, uint8_t p4,
                                 uint8_t p0, uint8_t q0, uint8_t q4,
                                 uint8_t q5) {
@@ -92,6 +93,7 @@ static INLINE int8_t flat_mask3(uint8_t thresh, uint8_t p5, uint8_t p4,
   mask |= (abs(q5 - q0) > thresh) * -1;
   return ~mask;
 }
+#endif
 #endif
 
 static INLINE int8_t flat_mask5(uint8_t thresh, uint8_t p4, uint8_t p3,
@@ -277,7 +279,8 @@ void aom_lpf_vertical_8_dual_c(uint8_t *s, int pitch, const uint8_t *blimit0,
   aom_lpf_vertical_8_c(s + 8 * pitch, pitch, blimit1, limit1, thresh1);
 }
 
-#if PARALLEL_DEBLOCKING_11_TAP
+#if CONFIG_PARALLEL_DEBLOCKING_15TAP
+#if defined(PARALLEL_DEBLOCKING_11_TAP)
 static INLINE void filter12(int8_t mask, uint8_t thresh, uint8_t flat,
                             uint8_t flat2, uint8_t *op5, uint8_t *op4,
                             uint8_t *op3, uint8_t *op2, uint8_t *op1,
@@ -305,9 +308,7 @@ static INLINE void filter12(int8_t mask, uint8_t thresh, uint8_t flat,
     filter8(mask, thresh, flat, op3, op2, op1, op0, oq0, oq1, oq2, oq3);
   }
 }
-#endif
-
-#if PARALLEL_DEBLOCKING_9_TAP
+#elif defined(PARALLEL_DEBLOCKING_9_TAP)
 static INLINE void filter10(int8_t mask, uint8_t thresh, uint8_t flat,
                             uint8_t flat2, uint8_t *op4, uint8_t *op3,
                             uint8_t *op2, uint8_t *op1, uint8_t *op0,
@@ -330,6 +331,7 @@ static INLINE void filter10(int8_t mask, uint8_t thresh, uint8_t flat,
     filter8(mask, thresh, flat, op3, op2, op1, op0, oq0, oq1, oq2, oq3);
   }
 }
+#endif
 #endif
 
 static INLINE void filter16(int8_t mask, uint8_t thresh, uint8_t flat,
@@ -394,29 +396,32 @@ static void mb_lpf_horizontal_edge_w(uint8_t *s, int p, const uint8_t *blimit,
   // loop filter designed to work using chars so that we can make maximum use
   // of 8 bit simd instructions.
   for (i = 0; i < 8 * count; ++i) {
-    const uint8_t p7 = s[-8 * p], p6 = s[-7 * p], p5 = s[-6 * p],
-                  p4 = s[-5 * p], p3 = s[-4 * p], p2 = s[-3 * p],
+    const uint8_t p4 = s[-5 * p], p3 = s[-4 * p], p2 = s[-3 * p],
                   p1 = s[-2 * p], p0 = s[-p];
     const uint8_t q0 = s[0 * p], q1 = s[1 * p], q2 = s[2 * p], q3 = s[3 * p],
-                  q4 = s[4 * p], q5 = s[5 * p], q6 = s[6 * p], q7 = s[7 * p];
+                  q4 = s[4 * p];
     const int8_t mask =
         filter_mask(*limit, *blimit, p3, p2, p1, p0, q0, q1, q2, q3);
     const int8_t flat = flat_mask4(1, p3, p2, p1, p0, q0, q1, q2, q3);
 
-#if PARALLEL_DEBLOCKING_11_TAP
+#if defined(PARALLEL_DEBLOCKING_11_TAP)
+    const uint8_t p5 = s[-6 * p];
+    const uint8_t q5 = s[5 * p];
     const int8_t flat2 = flat_mask3(1, p5, p4, p0, q0, q4, q5);
 
     filter12(mask, *thresh, flat, flat2, s - 6 * p, s - 5 * p, s - 4 * p,
              s - 3 * p, s - 2 * p, s - 1 * p, s, s + 1 * p, s + 2 * p,
              s + 3 * p, s + 4 * p, s + 5 * p);
 
-#elif PARALLEL_DEBLOCKING_9_TAP
+#elif defined(PARALLEL_DEBLOCKING_9_TAP)
     const int8_t flat2 = flat_mask2(1, p4, p0, q0, q4);
 
     filter10(mask, *thresh, flat, flat2, s - 5 * p, s - 4 * p, s - 3 * p,
              s - 2 * p, s - 1 * p, s, s + 1 * p, s + 2 * p, s + 3 * p,
              s + 4 * p);
 #else
+    const uint8_t p7 = s[-8 * p], p6 = s[-7 * p], p5 = s[-6 * p];
+    const uint8_t q5 = s[5 * p], q6 = s[6 * p], q7 = s[7 * p];
     const int8_t flat2 = flat_mask5(1, p7, p6, p5, p4, p0, q0, q4, q5, q6, q7);
 
     filter16(mask, *thresh, flat, flat2, s - 8 * p, s - 7 * p, s - 6 * p,
@@ -445,26 +450,28 @@ static void mb_lpf_vertical_edge_w(uint8_t *s, int p, const uint8_t *blimit,
   int i;
 
   for (i = 0; i < count; ++i) {
-    const uint8_t p7 = s[-8], p6 = s[-7], p5 = s[-6], p4 = s[-5], p3 = s[-4],
-                  p2 = s[-3], p1 = s[-2], p0 = s[-1];
-    const uint8_t q0 = s[0], q1 = s[1], q2 = s[2], q3 = s[3], q4 = s[4],
-                  q5 = s[5], q6 = s[6], q7 = s[7];
+    const uint8_t p4 = s[-5], p3 = s[-4], p2 = s[-3], p1 = s[-2], p0 = s[-1];
+    const uint8_t q0 = s[0], q1 = s[1], q2 = s[2], q3 = s[3], q4 = s[4];
     const int8_t mask =
         filter_mask(*limit, *blimit, p3, p2, p1, p0, q0, q1, q2, q3);
     const int8_t flat = flat_mask4(1, p3, p2, p1, p0, q0, q1, q2, q3);
 
-#if PARALLEL_DEBLOCKING_11_TAP
+#if defined(PARALLEL_DEBLOCKING_11_TAP)
+    const uint8_t p5 = s[-6];
+    const uint8_t q5 = s[5];
     const int8_t flat2 = flat_mask3(1, p5, p4, p0, q0, q4, q5);
 
     filter12(mask, *thresh, flat, flat2, s - 6, s - 5, s - 4, s - 3, s - 2,
              s - 1, s, s + 1, s + 2, s + 3, s + 4, s + 5);
-#elif PARALLEL_DEBLOCKING_9_TAP
+#elif defined(PARALLEL_DEBLOCKING_9_TAP)
     const int8_t flat2 = flat_mask2(1, p4, p0, q0, q4);
 
     filter10(mask, *thresh, flat, flat2, s - 5, s - 4, s - 3, s - 2, s - 1, s,
              s + 1, s + 2, s + 3, s + 4);
 
 #else
+    const uint8_t p7 = s[-8], p6 = s[-7], p5 = s[-6];
+    const uint8_t q5 = s[5], q6 = s[6], q7 = s[7];
     const int8_t flat2 = flat_mask5(1, p7, p6, p5, p4, p0, q0, q4, q5, q6, q7);
 
     filter16(mask, *thresh, flat, flat2, s - 8, s - 7, s - 6, s - 5, s - 4,
