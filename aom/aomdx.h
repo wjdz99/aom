@@ -33,8 +33,8 @@ extern "C" {
  * This interface provides the capability to decode AV1 streams.
  * @{
  */
-extern aom_codec_iface_t aom_codec_av1_dx_algo;
-extern aom_codec_iface_t *aom_codec_av1_dx(void);
+extern AomCodecIfaceT aom_codec_av1_dx_algo;
+extern AomCodecIfaceT *aom_codec_av1_dx(void);
 /*!@} - end algorithm interface member group*/
 
 /** Data structure that stores bit accounting for debug
@@ -43,20 +43,20 @@ typedef struct Accounting Accounting;
 
 /** Callback that inspects decoder frame data.
  */
-typedef void (*aom_inspect_cb)(void *decoder, void *ctx);
+typedef void (*AomInspectCb)(void *decoder, void *ctx);
 
 /*!\brief Structure to hold inspection callback and context.
  *
  * Defines a structure to hold the inspection callback function and calling
  * context.
  */
-typedef struct aom_inspect_init {
+typedef struct AomInspectInit {
   /*! Inspection callback. */
-  aom_inspect_cb inspect_cb;
+  AomInspectCb inspect_cb;
 
   /*! Inspection context. */
   void *inspect_ctx;
-} aom_inspect_init;
+} AomInspectInit;
 
 /*!\enum aom_dec_control_id
  * \brief AOM decoder control functions
@@ -81,7 +81,7 @@ enum aom_dec_control_id {
   AOMD_GET_LAST_REF_USED,
 
   /** decryption function to decrypt encoded buffer data immediately
-   * before decoding. Takes a aom_decrypt_init, which contains
+   * before decoding. Takes a AomDecryptInit, which contains
    * a callback function and opaque context pointer.
    */
   AOMD_SET_DECRYPTOR,
@@ -146,7 +146,7 @@ enum aom_dec_control_id {
   AV1_SET_DECODE_TILE_ROW,
   AV1_SET_DECODE_TILE_COL,
 
-  /** control function to set an aom_inspect_cb callback that is invoked each
+  /** control function to set an AomInspectCb callback that is invoked each
    * time a frame is decoded.  When compiled without --enable-inspection, this
    * returns AOM_CODEC_INCAPABLE.
    */
@@ -158,20 +158,20 @@ enum aom_dec_control_id {
 /** Decrypt n bytes of data from input -> output, using the decrypt_state
  *  passed in AOMD_SET_DECRYPTOR.
  */
-typedef void (*aom_decrypt_cb)(void *decrypt_state, const unsigned char *input,
-                               unsigned char *output, int count);
+typedef void (*AomDecryptCb)(void *decrypt_state, const unsigned char *input,
+                             unsigned char *output, int count);
 
 /*!\brief Structure to hold decryption state
  *
  * Defines a structure to hold the decryption state and access function.
  */
-typedef struct aom_decrypt_init {
+typedef struct AomDecryptInit {
   /*! Decrypt callback. */
-  aom_decrypt_cb decrypt_cb;
+  AomDecryptCb decrypt_cb;
 
   /*! Decryption state. */
   void *decrypt_state;
-} aom_decrypt_init;
+} AomDecryptInit;
 
 /*!\cond */
 /*!\brief AOM decoder control function parameter type
@@ -189,9 +189,9 @@ AOM_CTRL_USE_TYPE(AOMD_GET_LAST_REF_USED, int *)
 #define AOM_CTRL_AOMD_GET_LAST_REF_USED
 AOM_CTRL_USE_TYPE(AOMD_GET_LAST_QUANTIZER, int *)
 #define AOM_CTRL_AOMD_GET_LAST_QUANTIZER
-AOM_CTRL_USE_TYPE(AOMD_SET_DECRYPTOR, aom_decrypt_init *)
+AOM_CTRL_USE_TYPE(AOMD_SET_DECRYPTOR, AomDecryptInit *)
 #define AOM_CTRL_AOMD_SET_DECRYPTOR
-// AOM_CTRL_USE_TYPE(AOMD_SET_DECRYPTOR, aom_decrypt_init *)
+// AOM_CTRL_USE_TYPE(AOMD_SET_DECRYPTOR, AomDecryptInit *)
 //#define AOM_CTRL_AOMD_SET_DECRYPTOR
 AOM_CTRL_USE_TYPE(AV1D_GET_DISPLAY_SIZE, int *)
 #define AOM_CTRL_AV1D_GET_DISPLAY_SIZE
@@ -207,7 +207,7 @@ AOM_CTRL_USE_TYPE(AV1_SET_DECODE_TILE_ROW, int)
 #define AOM_CTRL_AV1_SET_DECODE_TILE_ROW
 AOM_CTRL_USE_TYPE(AV1_SET_DECODE_TILE_COL, int)
 #define AOM_CTRL_AV1_SET_DECODE_TILE_COL
-AOM_CTRL_USE_TYPE(AV1_SET_INSPECTION_CALLBACK, aom_inspect_init *)
+AOM_CTRL_USE_TYPE(AV1_SET_INSPECTION_CALLBACK, AomInspectInit *)
 #define AOM_CTRL_AV1_SET_INSPECTION_CALLBACK
 /*!\endcond */
 /*! @} - end defgroup aom_decoder */

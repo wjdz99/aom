@@ -59,7 +59,7 @@ void MkvWriter::Close() {
   file_ = NULL;
 }
 
-int64 MkvWriter::Position() const {
+int64 MkvWriter::position() const {
   if (!file_)
     return 0;
 
@@ -70,7 +70,7 @@ int64 MkvWriter::Position() const {
 #endif
 }
 
-int32 MkvWriter::Position(int64 position) {
+int32 MkvWriter::position(int64 position) {
   if (!file_)
     return -1;
 

@@ -29,7 +29,7 @@ class TileIndependenceTest
       : EncoderTest(GET_PARAM(0)), md5_fw_order_(), md5_inv_order_(),
         n_tile_cols_(GET_PARAM(1)), n_tile_rows_(GET_PARAM(2)) {
     init_flags_ = AOM_CODEC_USE_PSNR;
-    aom_codec_dec_cfg_t cfg = aom_codec_dec_cfg_t();
+    AomCodecDecCfgT cfg = AomCodecDecCfgT();
     cfg.w = 704;
     cfg.h = 144;
     cfg.threads = 1;
@@ -77,25 +77,25 @@ class TileIndependenceTest
     encoder->Control(AOME_SET_CPUUSED, kCpuUsed);
   }
 
-  void UpdateMD5(::libaom_test::Decoder *dec, const aom_codec_cx_pkt_t *pkt,
+  void UpdateMD5(::libaom_test::Decoder *dec, const AomCodecCxPktT *pkt,
                  ::libaom_test::MD5 *md5) {
-    const aom_codec_err_t res = dec->DecodeFrame(
+    const AomCodecErrT res = dec->DecodeFrame(
         reinterpret_cast<uint8_t *>(pkt->data.frame.buf), pkt->data.frame.sz);
     if (res != AOM_CODEC_OK) {
       abort_ = true;
       ASSERT_EQ(AOM_CODEC_OK, res);
     }
-    const aom_image_t *img = dec->GetDxData().Next();
+    const AomImageT *img = dec->GetDxData().Next();
     md5->Add(img);
   }
 
-  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void FramePktHook(const AomCodecCxPktT *pkt) {
     UpdateMD5(fw_dec_, pkt, &md5_fw_order_);
     UpdateMD5(inv_dec_, pkt, &md5_inv_order_);
   }
 
   void DoTest() {
-    const aom_rational timebase = { 33333333, 1000000000 };
+    const AomRational timebase = { 33333333, 1000000000 };
     cfg_.g_timebase = timebase;
     cfg_.rc_target_bitrate = 500;
     cfg_.g_lag_in_frames = 12;

@@ -48,7 +48,7 @@ class AltRefForcedKeyTestLarge
         (video->frame() == forced_kf_frame_num_) ? AOM_EFLAG_FORCE_KF : 0;
   }
 
-  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void FramePktHook(const AomCodecCxPktT *pkt) {
     if (frame_num_ == forced_kf_frame_num_) {
       ASSERT_TRUE(!!(pkt->data.frame.flags & AOM_FRAME_IS_KEY))
           << "Frame #" << frame_num_ << " isn't a keyframe!";
@@ -63,7 +63,7 @@ class AltRefForcedKeyTestLarge
 };
 
 TEST_P(AltRefForcedKeyTestLarge, Frame1IsKey) {
-  const aom_rational timebase = { 1, 30 };
+  const AomRational timebase = { 1, 30 };
   const int lag_values[] = { 3, 15, 25, -1 };
 
   forced_kf_frame_num_ = 1;
@@ -77,7 +77,7 @@ TEST_P(AltRefForcedKeyTestLarge, Frame1IsKey) {
 }
 
 TEST_P(AltRefForcedKeyTestLarge, ForcedFrameIsKey) {
-  const aom_rational timebase = { 1, 30 };
+  const AomRational timebase = { 1, 30 };
   const int lag_values[] = { 3, 15, 25, -1 };
 
   for (int i = 0; lag_values[i] != -1; ++i) {

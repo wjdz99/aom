@@ -16,16 +16,16 @@
 extern "C" {
 #endif
 
-struct AV1_COMP;
+struct Av1Comp;
 struct ThreadData;
 
 typedef struct EncWorkerData {
-  struct AV1_COMP *cpi;
+  struct Av1Comp *cpi;
   struct ThreadData *td;
   int start;
 } EncWorkerData;
 
-void av1_encode_tiles_mt(struct AV1_COMP *cpi);
+void av1_encode_tiles_mt(struct Av1Comp *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"

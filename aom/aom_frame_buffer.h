@@ -37,11 +37,11 @@ extern "C" {
  *
  * This structure holds allocated frame buffers used by the decoder.
  */
-typedef struct aom_codec_frame_buffer {
+typedef struct AomCodecFrameBuffer {
   uint8_t *data; /**< Pointer to the data buffer */
   size_t size;   /**< Size of data in bytes */
   void *priv;    /**< Frame's private data */
-} aom_codec_frame_buffer_t;
+} AomCodecFrameBufferT;
 
 /*!\brief get frame buffer callback prototype
  *
@@ -59,10 +59,10 @@ typedef struct aom_codec_frame_buffer {
  *
  * \param[in] priv         Callback's private data
  * \param[in] new_size     Size in bytes needed by the buffer
- * \param[in,out] fb       Pointer to aom_codec_frame_buffer_t
+ * \param[in,out] fb       Pointer to AomCodecFrameBufferT
  */
-typedef int (*aom_get_frame_buffer_cb_fn_t)(void *priv, size_t min_size,
-                                            aom_codec_frame_buffer_t *fb);
+typedef int (*AomGetFrameBufferCbFnT)(void *priv, size_t min_size,
+                                      AomCodecFrameBufferT *fb);
 
 /*!\brief release frame buffer callback prototype
  *
@@ -72,10 +72,9 @@ typedef int (*aom_get_frame_buffer_cb_fn_t)(void *priv, size_t min_size,
  * a value less than 0.
  *
  * \param[in] priv         Callback's private data
- * \param[in] fb           Pointer to aom_codec_frame_buffer_t
+ * \param[in] fb           Pointer to AomCodecFrameBufferT
  */
-typedef int (*aom_release_frame_buffer_cb_fn_t)(void *priv,
-                                                aom_codec_frame_buffer_t *fb);
+typedef int (*AomReleaseFrameBufferCbFnT)(void *priv, AomCodecFrameBufferT *fb);
 
 #ifdef __cplusplus
 }  // extern "C"

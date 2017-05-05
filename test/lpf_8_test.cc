@@ -170,7 +170,7 @@ TEST_P(Loop8Test6Param, OperationCheck) {
   }
   EXPECT_EQ(0, err_count_total)
       << "Error: Loop8Test6Param, C output doesn't match SSE2 "
-         "loopfilter output. "
+         "Loopfilter output. "
       << "First failed at test case " << first_failure;
 }
 
@@ -189,7 +189,7 @@ TEST_P(Loop8Test6Param, ValueCheck) {
   int first_failure = -1;
 
   // NOTE: The code in av1_loopfilter.c:update_sharpness computes mblim as a
-  // function of sharpness_lvl and the loopfilter lvl as:
+  // function of sharpness_lvl and the Loopfilter lvl as:
   // block_inside_limit = lvl >> ((sharpness_lvl > 0) + (sharpness_lvl > 4));
   // ...
   // memset(lfi->lfthr[lvl].mblim, (2 * (lvl + 2) + block_inside_limit),
@@ -238,7 +238,7 @@ TEST_P(Loop8Test6Param, ValueCheck) {
   }
   EXPECT_EQ(0, err_count_total)
       << "Error: Loop8Test6Param, C output doesn't match SSE2 "
-         "loopfilter output. "
+         "Loopfilter output. "
       << "First failed at test case " << first_failure;
 }
 
@@ -334,7 +334,7 @@ TEST_P(Loop8Test9Param, OperationCheck) {
   }
   EXPECT_EQ(0, err_count_total)
       << "Error: Loop8Test9Param, C output doesn't match SSE2 "
-         "loopfilter output. "
+         "Loopfilter output. "
       << "First failed at test case " << first_failure;
 }
 
@@ -404,7 +404,7 @@ TEST_P(Loop8Test9Param, ValueCheck) {
   }
   EXPECT_EQ(0, err_count_total)
       << "Error: Loop8Test9Param, C output doesn't match SSE2"
-         "loopfilter output. "
+         "Loopfilter output. "
       << "First failed at test case " << first_failure;
 }
 

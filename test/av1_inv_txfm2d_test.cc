@@ -31,7 +31,7 @@ namespace {
 #if CONFIG_HIGHBITDEPTH
 // AV1InvTxfm2dParam argument list:
 // tx_type_, tx_size_, max_error_, max_avg_error_
-typedef std::tr1::tuple<TX_TYPE, TX_SIZE, int, double> AV1InvTxfm2dParam;
+typedef std::tr1::tuple<TxType, TxSize, int, double> AV1InvTxfm2dParam;
 
 class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
  public:
@@ -98,8 +98,8 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
   int count_;
   int max_error_;
   double max_avg_error_;
-  TX_TYPE tx_type_;
-  TX_SIZE tx_size_;
+  TxType tx_type_;
+  TxSize tx_size_;
   int txfm1d_size_;
   int txfm2d_size_;
   int16_t *input_;

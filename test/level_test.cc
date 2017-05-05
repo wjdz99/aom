@@ -91,9 +91,9 @@ TEST_P(LevelTest, TestTargetLevel255) {
 
 TEST_P(LevelTest, TestTargetLevelApi) {
   ::libaom_test::I420VideoSource video("hantro_odd.yuv", 208, 144, 30, 1, 0, 1);
-  static const aom_codec_iface_t *codec = &aom_codec_av1_cx_algo;
-  aom_codec_ctx_t enc;
-  aom_codec_enc_cfg_t cfg;
+  static const AomCodecIfaceT *codec = &aom_codec_av1_cx_algo;
+  AomCodecCtxT enc;
+  AomCodecEncCfgT cfg;
   EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_config_default(codec, &cfg, 0));
   EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_init(&enc, codec, &cfg, 0));
   for (int level = 0; level <= 256; ++level) {

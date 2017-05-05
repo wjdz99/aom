@@ -17,17 +17,16 @@ extern "C" {
 #endif
 
 struct AV1Decoder;
-struct aom_read_bit_buffer;
+struct AomReadBitBuffer;
 
 #if CONFIG_REFERENCE_BUFFER
 /* Placeholder for now */
 void read_sequence_header(SequenceHeader *seq_params);
 #endif
 
-int av1_read_sync_code(struct aom_read_bit_buffer *const rb);
-void av1_read_frame_size(struct aom_read_bit_buffer *rb, int *width,
-                         int *height);
-BITSTREAM_PROFILE av1_read_profile(struct aom_read_bit_buffer *rb);
+int av1_read_sync_code(struct AomReadBitBuffer *const rb);
+void av1_read_frame_size(struct AomReadBitBuffer *rb, int *width, int *height);
+BitstreamProfile av1_read_profile(struct AomReadBitBuffer *rb);
 
 void av1_decode_frame(struct AV1Decoder *pbi, const uint8_t *data,
                       const uint8_t *data_end, const uint8_t **p_data_end);

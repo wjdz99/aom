@@ -25,38 +25,38 @@ extern "C" {
 
 #define MAX_NEIGHBORS 2
 
-extern const SCAN_ORDER av1_default_scan_orders[TX_SIZES];
-extern const SCAN_ORDER av1_intra_scan_orders[TX_SIZES_ALL][TX_TYPES];
-extern const SCAN_ORDER av1_inter_scan_orders[TX_SIZES_ALL][TX_TYPES];
+extern const ScanOrder av1_default_scan_orders[TX_SIZES];
+extern const ScanOrder av1_intra_scan_orders[TX_SIZES_ALL][TX_TYPES];
+extern const ScanOrder av1_inter_scan_orders[TX_SIZES_ALL][TX_TYPES];
 
 #if CONFIG_ADAPT_SCAN
-void av1_update_scan_count_facade(AV1_COMMON *cm, FRAME_COUNTS *counts,
-                                  TX_SIZE tx_size, TX_TYPE tx_type,
-                                  const tran_low_t *dqcoeffs, int max_scan);
+void av1_update_scan_count_facade(Av1Common *cm, FrameCounts *counts,
+                                  TxSize tx_size, TxType tx_type,
+                                  const TranLowT *dqcoeffs, int max_scan);
 
 // embed r + c and coeff_idx info with nonzero probabilities. When sorting the
 // nonzero probabilities, if there is a tie, the coefficient with smaller r + c
 // will be scanned first
-void av1_augment_prob(TX_SIZE tx_size, TX_TYPE tx_type, uint32_t *prob);
+void av1_augment_prob(TxSize tx_size, TxType tx_type, uint32_t *prob);
 
 // apply quick sort on nonzero probabilities to obtain a sort order
-void av1_update_sort_order(TX_SIZE tx_size, TX_TYPE tx_type,
+void av1_update_sort_order(TxSize tx_size, TxType tx_type,
                            const uint32_t *non_zero_prob, int16_t *sort_order);
 
 // apply topological sort on the nonzero probabilities sorting order to
 // guarantee each to-be-scanned coefficient's upper and left coefficient will be
 // scanned before the to-be-scanned coefficient.
-void av1_update_scan_order(TX_SIZE tx_size, int16_t *sort_order, int16_t *scan,
+void av1_update_scan_order(TxSize tx_size, int16_t *sort_order, int16_t *scan,
                            int16_t *iscan);
 
 // For each coeff_idx in scan[], update its above and left neighbors in
 // neighbors[] accordingly.
 void av1_update_neighbors(int tx_size, const int16_t *scan,
                           const int16_t *iscan, int16_t *neighbors);
-void av1_init_scan_order(AV1_COMMON *cm);
-void av1_adapt_scan_order(AV1_COMMON *cm);
+void av1_init_scan_order(Av1Common *cm);
+void av1_adapt_scan_order(Av1Common *cm);
 #endif
-void av1_deliver_eob_threshold(const AV1_COMMON *cm, MACROBLOCKD *xd);
+void av1_deliver_eob_threshold(const Av1Common *cm, Macroblockd *xd);
 
 static INLINE int get_coef_context(const int16_t *neighbors,
                                    const uint8_t *token_cache, int c) {
@@ -65,9 +65,8 @@ static INLINE int get_coef_context(const int16_t *neighbors,
          1;
 }
 
-static INLINE const SCAN_ORDER *get_default_scan(TX_SIZE tx_size,
-                                                 TX_TYPE tx_type,
-                                                 int is_inter) {
+static INLINE const ScanOrder *get_default_scan(TxSize tx_size, TxType tx_type,
+                                                int is_inter) {
 #if CONFIG_EXT_TX || CONFIG_VAR_TX
   return is_inter ? &av1_inter_scan_orders[tx_size][tx_type]
                   : &av1_intra_scan_orders[tx_size][tx_type];
@@ -77,8 +76,8 @@ static INLINE const SCAN_ORDER *get_default_scan(TX_SIZE tx_size,
 #endif  // CONFIG_EXT_TX
 }
 
-static INLINE const SCAN_ORDER *get_scan(const AV1_COMMON *cm, TX_SIZE tx_size,
-                                         TX_TYPE tx_type, int is_inter) {
+static INLINE const ScanOrder *get_scan(const Av1Common *cm, TxSize tx_size,
+                                        TxType tx_type, int is_inter) {
 #if CONFIG_ADAPT_SCAN
   (void)is_inter;
   return &cm->fc->sc[tx_size][tx_type];

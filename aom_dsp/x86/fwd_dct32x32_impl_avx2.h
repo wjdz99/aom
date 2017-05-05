@@ -34,8 +34,7 @@ static INLINE __m256i k_packs_epi64_avx2(__m256i a, __m256i b) {
 
 #ifndef STORE_COEFF_FUNC
 #define STORE_COEFF_FUNC
-static void store_coeff(const __m256i *coeff, tran_low_t *curr,
-                        tran_low_t *next) {
+static void store_coeff(const __m256i *coeff, TranLowT *curr, TranLowT *next) {
   __m128i u = _mm256_castsi256_si128(*coeff);
   storeu_output(&u, curr);
   u = _mm256_extractf128_si256(*coeff, 1);
@@ -43,8 +42,7 @@ static void store_coeff(const __m256i *coeff, tran_low_t *curr,
 }
 #endif
 
-void FDCT32x32_2D_AVX2(const int16_t *input, tran_low_t *output_org,
-                       int stride) {
+void FDCT32x32_2D_AVX2(const int16_t *input, TranLowT *output_org, int stride) {
   // Calculate pre-multiplied strides
   const int str1 = stride;
   const int str2 = 2 * stride;
@@ -2855,7 +2853,7 @@ void FDCT32x32_2D_AVX2(const int16_t *input, tran_low_t *output_org,
       {
         int transpose_block;
         int16_t *output_currStep, *output_nextStep;
-        tran_low_t *curr_out, *next_out;
+        TranLowT *curr_out, *next_out;
         // Pass 0
         output_currStep = &intermediate[column_start * 32];
         output_nextStep = &intermediate[(column_start + 8) * 32];

@@ -55,7 +55,7 @@ bool check_rabs(const PvVec &pv_vec, uint8_t *buf) {
   buf_ans_write_init(&a, buf);
 
   std::clock_t start = std::clock();
-  for (PvVec::const_iterator it = pv_vec.begin(); it != pv_vec.end(); ++it) {
+  for (PvVec::ConstIterator it = pv_vec.begin(); it != pv_vec.end(); ++it) {
     buf_rabs_write(&a, it->second, 256 - it->first);
   }
   aom_buf_ans_flush(&a);
@@ -69,7 +69,7 @@ bool check_rabs(const PvVec &pv_vec, uint8_t *buf) {
 #endif
   if (ans_read_init(&d, buf, offset)) return false;
   start = std::clock();
-  for (PvVec::const_iterator it = pv_vec.begin(); it != pv_vec.end(); ++it) {
+  for (PvVec::ConstIterator it = pv_vec.begin(); it != pv_vec.end(); ++it) {
     okay = okay && (rabs_read(&d, 256 - it->first) != 0) == it->second;
   }
   std::clock_t dec_time = std::clock() - start;
@@ -81,19 +81,19 @@ bool check_rabs(const PvVec &pv_vec, uint8_t *buf) {
   return ans_read_end(&d) != 0;
 }
 
-const aom_cdf_prob spareto65[] = { 8320, 6018, 4402, 3254, 4259,
-                                   3919, 2057, 492,  45,   2 };
+const AomCdfProb spareto65[] = { 8320, 6018, 4402, 3254, 4259,
+                                 3919, 2057, 492,  45,   2 };
 
 const int kRansSymbols =
     static_cast<int>(sizeof(spareto65) / sizeof(spareto65[0]));
 
 struct rans_sym {
-  aom_cdf_prob prob;
-  aom_cdf_prob cum_prob;  // not-inclusive
+  AomCdfProb prob;
+  AomCdfProb cum_prob;  // not-inclusive
 };
 
 std::vector<int> ans_encode_build_vals(rans_sym *const tab, int iters) {
-  aom_cdf_prob sum = 0;
+  AomCdfProb sum = 0;
   for (int i = 0; i < kRansSymbols; ++i) {
     tab[i].cum_prob = sum;
     tab[i].prob = spareto65[i];
@@ -114,8 +114,7 @@ std::vector<int> ans_encode_build_vals(rans_sym *const tab, int iters) {
   return ret;
 }
 
-void rans_build_dec_tab(const struct rans_sym sym_tab[],
-                        aom_cdf_prob *dec_tab) {
+void rans_build_dec_tab(const struct rans_sym sym_tab[], AomCdfProb *dec_tab) {
   unsigned int sum = 0;
   for (int i = 0; sum < RANS_PRECISION; ++i) {
     dec_tab[i] = sum += sym_tab[i].prob;
@@ -127,11 +126,11 @@ bool check_rans(const std::vector<int> &sym_vec, const rans_sym *const tab,
   BufAnsCoder a;
   aom_buf_ans_alloc(&a, NULL, kBufAnsSize);
   buf_ans_write_init(&a, buf);
-  aom_cdf_prob dec_tab[kRansSymbols];
+  AomCdfProb dec_tab[kRansSymbols];
   rans_build_dec_tab(tab, dec_tab);
 
   std::clock_t start = std::clock();
-  for (std::vector<int>::const_iterator it = sym_vec.begin();
+  for (std::vector<int>::ConstIterator it = sym_vec.begin();
        it != sym_vec.end(); ++it) {
     buf_rans_write(&a, tab[*it].cum_prob, tab[*it].prob);
   }
@@ -146,7 +145,7 @@ bool check_rans(const std::vector<int> &sym_vec, const rans_sym *const tab,
 #endif
   if (ans_read_init(&d, buf, offset)) return false;
   start = std::clock();
-  for (std::vector<int>::const_iterator it = sym_vec.begin();
+  for (std::vector<int>::ConstIterator it = sym_vec.begin();
        it != sym_vec.end(); ++it) {
     okay &= rans_read(&d, dec_tab) == *it;
   }

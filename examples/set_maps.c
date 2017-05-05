@@ -16,19 +16,19 @@
 // ROI and Active maps.
 //
 // ROI (Reigon of Interest) maps are a way for the application to assign
-// each macroblock in the image to a region, and then set quantizer and
+// each Macroblock in the image to a region, and then set quantizer and
 // filtering parameters on that image.
 //
 // Active maps are a way for the application to specify on a
-// macroblock-by-macroblock basis whether there is any activity in that
-// macroblock.
+// Macroblock-by-Macroblock basis whether there is any activity in that
+// Macroblock.
 //
 //
 // Configuration
 // -------------
 // An ROI map is set on frame 22. If the width of the image in macroblocks
 // is evenly divisble by 4, then the output will appear to have distinct
-// columns, where the quantizer, loopfilter, and static threshold differ
+// columns, where the quantizer, Loopfilter, and static threshold differ
 // from column to column.
 //
 // An active map is set on frame 33. If the width of the image in macroblocks
@@ -61,10 +61,9 @@ void usage_exit(void) {
   exit(EXIT_FAILURE);
 }
 
-static void set_active_map(const aom_codec_enc_cfg_t *cfg,
-                           aom_codec_ctx_t *codec) {
+static void set_active_map(const AomCodecEncCfgT *cfg, AomCodecCtxT *codec) {
   unsigned int i;
-  aom_active_map_t map = { 0, 0, 0 };
+  AomActiveMapT map = { 0, 0, 0 };
 
   map.rows = (cfg->g_h + 15) / 16;
   map.cols = (cfg->g_w + 15) / 16;
@@ -78,9 +77,8 @@ static void set_active_map(const aom_codec_enc_cfg_t *cfg,
   free(map.active_map);
 }
 
-static void unset_active_map(const aom_codec_enc_cfg_t *cfg,
-                             aom_codec_ctx_t *codec) {
-  aom_active_map_t map = { 0, 0, 0 };
+static void unset_active_map(const AomCodecEncCfgT *cfg, AomCodecCtxT *codec) {
+  AomActiveMapT map = { 0, 0, 0 };
 
   map.rows = (cfg->g_h + 15) / 16;
   map.cols = (cfg->g_w + 15) / 16;
@@ -90,12 +88,12 @@ static void unset_active_map(const aom_codec_enc_cfg_t *cfg,
     die_codec(codec, "Failed to set active map");
 }
 
-static int encode_frame(aom_codec_ctx_t *codec, aom_image_t *img,
-                        int frame_index, AvxVideoWriter *writer) {
+static int encode_frame(AomCodecCtxT *codec, AomImageT *img, int frame_index,
+                        AvxVideoWriter *writer) {
   int got_pkts = 0;
-  aom_codec_iter_t iter = NULL;
-  const aom_codec_cx_pkt_t *pkt = NULL;
-  const aom_codec_err_t res =
+  AomCodecIterT iter = NULL;
+  const AomCodecCxPktT *pkt = NULL;
+  const AomCodecErrT res =
       aom_codec_encode(codec, img, frame_index, 1, 0, AOM_DL_GOOD_QUALITY);
   if (res != AOM_CODEC_OK) die_codec(codec, "Failed to encode frame");
 
@@ -120,12 +118,12 @@ static int encode_frame(aom_codec_ctx_t *codec, aom_image_t *img,
 
 int main(int argc, char **argv) {
   FILE *infile = NULL;
-  aom_codec_ctx_t codec;
-  aom_codec_enc_cfg_t cfg;
+  AomCodecCtxT codec;
+  AomCodecEncCfgT cfg;
   int frame_count = 0;
   const int limit = 30;
-  aom_image_t raw;
-  aom_codec_err_t res;
+  AomImageT raw;
+  AomCodecErrT res;
   AvxVideoInfo info;
   AvxVideoWriter *writer = NULL;
   const AvxInterface *encoder = NULL;

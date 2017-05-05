@@ -28,7 +28,7 @@
 #endif
 #include <string.h>
 
-static void od_bin_fdct8x8(tran_low_t *y, int ystride, const int16_t *x,
+static void od_bin_fdct8x8(TranLowT *y, int ystride, const int16_t *x,
                            int xstride) {
   int i, j;
   (void)xstride;
@@ -39,7 +39,7 @@ static void od_bin_fdct8x8(tran_low_t *y, int ystride, const int16_t *x,
 }
 
 #if CONFIG_HIGHBITDEPTH
-static void hbd_od_bin_fdct8x8(tran_low_t *y, int ystride, const int16_t *x,
+static void hbd_od_bin_fdct8x8(TranLowT *y, int ystride, const int16_t *x,
                                int xstride) {
   int i, j;
   (void)xstride;
@@ -130,7 +130,7 @@ static double calc_psnrhvs(const unsigned char *src, int _systride,
   const uint16_t *_src16 = CONVERT_TO_SHORTPTR(src);
   const uint16_t *_dst16 = CONVERT_TO_SHORTPTR(dst);
   int16_t dct_s[8 * 8], dct_d[8 * 8];
-  tran_low_t dct_s_coef[8 * 8], dct_d_coef[8 * 8];
+  TranLowT dct_s_coef[8 * 8], dct_d_coef[8 * 8];
   double mask[8][8];
   int pixels;
   int x;
@@ -248,7 +248,7 @@ static double calc_psnrhvs(const unsigned char *src, int _systride,
   return ret;
 }
 
-double aom_psnrhvs(const YV12_BUFFER_CONFIG *src, const YV12_BUFFER_CONFIG *dst,
+double aom_psnrhvs(const Yv12BufferConfig *src, const Yv12BufferConfig *dst,
                    double *y_psnrhvs, double *u_psnrhvs, double *v_psnrhvs,
                    uint32_t bd, uint32_t in_bd) {
   double psnrhvs;

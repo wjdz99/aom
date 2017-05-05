@@ -34,8 +34,8 @@ typedef struct {
   int VScale;
   int VRatio;
 
-  YV12_BUFFER_CONFIG *src_yuv_config;
-  YV12_BUFFER_CONFIG *dst_yuv_config;
+  Yv12BufferConfig *src_yuv_config;
+  Yv12BufferConfig *dst_yuv_config;
 
 } SCALE_VARS;
 
@@ -445,9 +445,9 @@ static void Scale2D(
  *
  *  ROUTINE       : aom_scale_frame
  *
- *  INPUTS        : YV12_BUFFER_CONFIG *src        : Pointer to frame to be
+ *  INPUTS        : Yv12BufferConfig *src        : Pointer to frame to be
  *                                                   scaled.
- *                  YV12_BUFFER_CONFIG *dst        : Pointer to buffer to hold
+ *                  Yv12BufferConfig *dst        : Pointer to buffer to hold
  *                                                   scaled frame.
  *                  unsigned char *temp_area       : Pointer to temp work area.
  *                  unsigned char temp_area_height : Height of temp work area.
@@ -471,7 +471,7 @@ static void Scale2D(
  *                  caching.
  *
  ****************************************************************************/
-void aom_scale_frame(YV12_BUFFER_CONFIG *src, YV12_BUFFER_CONFIG *dst,
+void aom_scale_frame(Yv12BufferConfig *src, Yv12BufferConfig *dst,
                      unsigned char *temp_area, unsigned char temp_height,
                      unsigned int hscale, unsigned int hratio,
                      unsigned int vscale, unsigned int vratio,

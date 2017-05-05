@@ -156,7 +156,7 @@ static INLINE int CalcRefPixelsMeanValue(const uint8_t *above,
 //  params[0-3] : 4-tap filter coefficients (int32_t per coefficient)
 //
 static INLINE void GetIntraFilterParams(int bs, int mode, __m128i *params) {
-  const TX_SIZE tx_size =
+  const TxSize tx_size =
       (bs == 32) ? TX_32X32
                  : ((bs == 16) ? TX_16X16 : ((bs == 8) ? TX_8X8 : (TX_4X4)));
   // c0

@@ -63,10 +63,10 @@ void reference_32x32_dct_2d(const int16_t input[kNumCoeffs],
   }
 }
 
-typedef void (*FwdTxfmFunc)(const int16_t *in, tran_low_t *out, int stride);
-typedef void (*InvTxfmFunc)(const tran_low_t *in, uint8_t *out, int stride);
+typedef void (*FwdTxfmFunc)(const int16_t *in, TranLowT *out, int stride);
+typedef void (*InvTxfmFunc)(const TranLowT *in, uint8_t *out, int stride);
 
-typedef std::tr1::tuple<FwdTxfmFunc, InvTxfmFunc, int, aom_bit_depth_t>
+typedef std::tr1::tuple<FwdTxfmFunc, InvTxfmFunc, int, AomBitDepthT>
     Trans32x32Param;
 
 class Trans32x32Test : public ::testing::TestWithParam<Trans32x32Param> {
@@ -85,7 +85,7 @@ class Trans32x32Test : public ::testing::TestWithParam<Trans32x32Param> {
 
  protected:
   int version_;
-  aom_bit_depth_t bit_depth_;
+  AomBitDepthT bit_depth_;
   int mask_;
   FwdTxfmFunc fwd_txfm_;
   InvTxfmFunc inv_txfm_;
@@ -97,7 +97,7 @@ TEST_P(Trans32x32Test, AccuracyCheck) {
   int64_t total_error = 0;
   const int count_test_block = 10000;
   DECLARE_ALIGNED(16, int16_t, test_input_block[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, test_temp_block[kNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, test_temp_block[kNumCoeffs]);
   DECLARE_ALIGNED(16, uint8_t, dst[kNumCoeffs]);
   DECLARE_ALIGNED(16, uint8_t, src[kNumCoeffs]);
 #if CONFIG_HIGHBITDEPTH
@@ -161,8 +161,8 @@ TEST_P(Trans32x32Test, CoeffCheck) {
   const int count_test_block = 1000;
 
   DECLARE_ALIGNED(16, int16_t, input_block[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, output_ref_block[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, output_block[kNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, output_ref_block[kNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, output_block[kNumCoeffs]);
 
   for (int i = 0; i < count_test_block; ++i) {
     for (int j = 0; j < kNumCoeffs; ++j)
@@ -189,8 +189,8 @@ TEST_P(Trans32x32Test, MemCheck) {
   const int count_test_block = 2000;
 
   DECLARE_ALIGNED(16, int16_t, input_extreme_block[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, output_ref_block[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, output_block[kNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, output_ref_block[kNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, output_block[kNumCoeffs]);
 
   for (int i = 0; i < count_test_block; ++i) {
     // Initialize a test block with input range [-mask_, mask_].
@@ -230,7 +230,7 @@ TEST_P(Trans32x32Test, InverseAccuracy) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
   const int count_test_block = 1000;
   DECLARE_ALIGNED(16, int16_t, in[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, coeff[kNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, coeff[kNumCoeffs]);
   DECLARE_ALIGNED(16, uint8_t, dst[kNumCoeffs]);
   DECLARE_ALIGNED(16, uint8_t, src[kNumCoeffs]);
 #if CONFIG_HIGHBITDEPTH
@@ -258,7 +258,7 @@ TEST_P(Trans32x32Test, InverseAccuracy) {
 
     reference_32x32_dct_2d(in, out_r);
     for (int j = 0; j < kNumCoeffs; ++j)
-      coeff[j] = static_cast<tran_low_t>(round(out_r[j]));
+      coeff[j] = static_cast<TranLowT>(round(out_r[j]));
     if (bit_depth_ == AOM_BITS_8) {
       ASM_REGISTER_STATE_CHECK(inv_txfm_(coeff, dst, 32));
 #if CONFIG_HIGHBITDEPTH
@@ -280,9 +280,8 @@ TEST_P(Trans32x32Test, InverseAccuracy) {
   }
 }
 
-class PartialTrans32x32Test
-    : public ::testing::TestWithParam<
-          std::tr1::tuple<FwdTxfmFunc, aom_bit_depth_t> > {
+class PartialTrans32x32Test : public ::testing::TestWithParam<
+                                  std::tr1::tuple<FwdTxfmFunc, AomBitDepthT> > {
  public:
   virtual ~PartialTrans32x32Test() {}
   virtual void SetUp() {
@@ -293,7 +292,7 @@ class PartialTrans32x32Test
   virtual void TearDown() { libaom_test::ClearSystemState(); }
 
  protected:
-  aom_bit_depth_t bit_depth_;
+  AomBitDepthT bit_depth_;
   FwdTxfmFunc fwd_txfm_;
 };
 
@@ -306,7 +305,7 @@ TEST_P(PartialTrans32x32Test, Extremes) {
 #endif
   const int minval = -maxval;
   DECLARE_ALIGNED(16, int16_t, input[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, output[kNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, output[kNumCoeffs]);
 
   for (int i = 0; i < kNumCoeffs; ++i) input[i] = maxval;
   output[0] = 0;
@@ -327,7 +326,7 @@ TEST_P(PartialTrans32x32Test, Random) {
   const int16_t maxval = 255;
 #endif
   DECLARE_ALIGNED(16, int16_t, input[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, output[kNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, output[kNumCoeffs]);
   ACMRandom rnd(ACMRandom::DeterministicSeed());
 
   int sum = 0;

@@ -20,7 +20,7 @@
  * into the global namespace:
  *     <pre>
  *     my_codec.c:
- *       aom_codec_iface_t my_codec = {
+ *       AomCodecIfaceT my_codec = {
  *           "My Codec v1.0",
  *           AOM_CODEC_ALG_ABI_VERSION,
  *           ...
@@ -31,9 +31,9 @@
  * aom_codec_init() and a pointer to the algorithm's interface structure:
  *     <pre>
  *     my_app.c:
- *       extern aom_codec_iface_t my_codec;
+ *       extern AomCodecIfaceT my_codec;
  *       {
- *           aom_codec_ctx_t algo;
+ *           AomCodecCtxT algo;
  *           res = aom_codec_init(&algo, &my_codec);
  *       }
  *     </pre>
@@ -62,8 +62,8 @@ extern "C" {
  */
 #define AOM_CODEC_INTERNAL_ABI_VERSION (5) /**<\hideinitializer*/
 
-typedef struct aom_codec_alg_priv aom_codec_alg_priv_t;
-typedef struct aom_codec_priv_enc_mr_cfg aom_codec_priv_enc_mr_cfg_t;
+typedef struct aom_codec_alg_priv AomCodecAlgPrivT;
+typedef struct AomCodecPrivEncMrCfg AomCodecPrivEncMrCfgT;
 
 /*!\brief init function pointer prototype
  *
@@ -78,8 +78,8 @@ typedef struct aom_codec_priv_enc_mr_cfg aom_codec_priv_enc_mr_cfg_t;
  * \retval #AOM_CODEC_MEM_ERROR
  *     Memory operation failed.
  */
-typedef aom_codec_err_t (*aom_codec_init_fn_t)(
-    aom_codec_ctx_t *ctx, aom_codec_priv_enc_mr_cfg_t *data);
+typedef AomCodecErrT (*AomCodecInitFnT)(AomCodecCtxT *ctx,
+                                        AomCodecPrivEncMrCfgT *data);
 
 /*!\brief destroy function pointer prototype
  *
@@ -94,7 +94,7 @@ typedef aom_codec_err_t (*aom_codec_init_fn_t)(
  * \retval #AOM_CODEC_MEM_ERROR
  *     Memory operation failed.
  */
-typedef aom_codec_err_t (*aom_codec_destroy_fn_t)(aom_codec_alg_priv_t *ctx);
+typedef AomCodecErrT (*AomCodecDestroyFnT)(AomCodecAlgPrivT *ctx);
 
 /*!\brief parse stream info function pointer prototype
  *
@@ -113,9 +113,9 @@ typedef aom_codec_err_t (*aom_codec_destroy_fn_t)(aom_codec_alg_priv_t *ctx);
  * \retval #AOM_CODEC_OK
  *     Bitstream is parsable and stream information updated
  */
-typedef aom_codec_err_t (*aom_codec_peek_si_fn_t)(const uint8_t *data,
-                                                  unsigned int data_sz,
-                                                  aom_codec_stream_info_t *si);
+typedef AomCodecErrT (*AomCodecPeekSiFnT)(const uint8_t *data,
+                                          unsigned int data_sz,
+                                          AomCodecStreamInfoT *si);
 
 /*!\brief Return information about the current stream.
  *
@@ -130,8 +130,8 @@ typedef aom_codec_err_t (*aom_codec_peek_si_fn_t)(const uint8_t *data,
  * \retval #AOM_CODEC_OK
  *     Bitstream is parsable and stream information updated
  */
-typedef aom_codec_err_t (*aom_codec_get_si_fn_t)(aom_codec_alg_priv_t *ctx,
-                                                 aom_codec_stream_info_t *si);
+typedef AomCodecErrT (*AomCodecGetSiFnT)(AomCodecAlgPrivT *ctx,
+                                         AomCodecStreamInfoT *si);
 
 /*!\brief control function pointer prototype
  *
@@ -145,7 +145,7 @@ typedef aom_codec_err_t (*aom_codec_get_si_fn_t)(aom_codec_alg_priv_t *ctx,
  * provide type safety for the exchanged data or assign meanings to the
  * control codes. Those details should be specified in the algorithm's
  * header file. In particular, the ctrl_id parameter is guaranteed to exist
- * in the algorithm's control mapping table, and the data parameter may be NULL.
+ * in the algorithm's control Mapping table, and the data parameter may be NULL.
  *
  *
  * \param[in]     ctx              Pointer to this instance's context
@@ -155,24 +155,23 @@ typedef aom_codec_err_t (*aom_codec_get_si_fn_t)(aom_codec_alg_priv_t *ctx,
  * \retval #AOM_CODEC_OK
  *     The internal state data was deserialized.
  */
-typedef aom_codec_err_t (*aom_codec_control_fn_t)(aom_codec_alg_priv_t *ctx,
-                                                  va_list ap);
+typedef AomCodecErrT (*AomCodecControlFnT)(AomCodecAlgPrivT *ctx, va_list ap);
 
-/*!\brief control function pointer mapping
+/*!\brief control function pointer Mapping
  *
- * This structure stores the mapping between control identifiers and
+ * This structure stores the Mapping between control identifiers and
  * implementing functions. Each algorithm provides a list of these
  * mappings. This list is searched by the aom_codec_control() wrapper
  * function to determine which function to invoke. The special
  * value {0, NULL} is used to indicate end-of-list, and must be
  * present. The special value {0, <non-null>} can be used as a catch-all
- * mapping. This implies that ctrl_id values chosen by the algorithm
+ * Mapping. This implies that ctrl_id values chosen by the algorithm
  * \ref MUST be non-zero.
  */
-typedef const struct aom_codec_ctrl_fn_map {
+typedef const struct AomCodecCtrlFnMap {
   int ctrl_id;
-  aom_codec_control_fn_t fn;
-} aom_codec_ctrl_fn_map_t;
+  AomCodecControlFnT fn;
+} AomCodecCtrlFnMapT;
 
 /*!\brief decode data function pointer prototype
  *
@@ -191,14 +190,13 @@ typedef const struct aom_codec_ctrl_fn_map {
  *
  * \return Returns #AOM_CODEC_OK if the coded data was processed completely
  *         and future pictures can be decoded without error. Otherwise,
- *         see the descriptions of the other error codes in ::aom_codec_err_t
+ *         see the descriptions of the other error codes in ::AomCodecErrT
  *         for recoverability capabilities.
  */
-typedef aom_codec_err_t (*aom_codec_decode_fn_t)(aom_codec_alg_priv_t *ctx,
-                                                 const uint8_t *data,
-                                                 unsigned int data_sz,
-                                                 void *user_priv,
-                                                 long deadline);
+typedef AomCodecErrT (*AomCodecDecodeFnT)(AomCodecAlgPrivT *ctx,
+                                          const uint8_t *data,
+                                          unsigned int data_sz, void *user_priv,
+                                          long deadline);
 
 /*!\brief Decoded frames iterator
  *
@@ -216,8 +214,8 @@ typedef aom_codec_err_t (*aom_codec_decode_fn_t)(aom_codec_alg_priv_t *ctx,
  * \return Returns a pointer to an image, if one is ready for display. Frames
  *         produced will always be in PTS (presentation time stamp) order.
  */
-typedef aom_image_t *(*aom_codec_get_frame_fn_t)(aom_codec_alg_priv_t *ctx,
-                                                 aom_codec_iter_t *iter);
+typedef AomImageT *(*AomCodecGetFrameFnT)(AomCodecAlgPrivT *ctx,
+                                          AomCodecIterT *iter);
 
 /*!\brief Pass in external frame buffers for the decoder to use.
  *
@@ -245,90 +243,82 @@ typedef aom_image_t *(*aom_codec_get_frame_fn_t)(aom_codec_alg_priv_t *ctx,
  * #AOM_MAXIMUM_WORK_BUFFERS external frame
  * buffers.
  */
-typedef aom_codec_err_t (*aom_codec_set_fb_fn_t)(
-    aom_codec_alg_priv_t *ctx, aom_get_frame_buffer_cb_fn_t cb_get,
-    aom_release_frame_buffer_cb_fn_t cb_release, void *cb_priv);
+typedef AomCodecErrT (*AomCodecSetFbFnT)(AomCodecAlgPrivT *ctx,
+                                         AomGetFrameBufferCbFnT cb_get,
+                                         AomReleaseFrameBufferCbFnT cb_release,
+                                         void *cb_priv);
 
-typedef aom_codec_err_t (*aom_codec_encode_fn_t)(aom_codec_alg_priv_t *ctx,
-                                                 const aom_image_t *img,
-                                                 aom_codec_pts_t pts,
-                                                 unsigned long duration,
-                                                 aom_enc_frame_flags_t flags,
-                                                 unsigned long deadline);
-typedef const aom_codec_cx_pkt_t *(*aom_codec_get_cx_data_fn_t)(
-    aom_codec_alg_priv_t *ctx, aom_codec_iter_t *iter);
+typedef AomCodecErrT (*AomCodecEncodeFnT)(
+    AomCodecAlgPrivT *ctx, const AomImageT *img, AomCodecPtsT pts,
+    unsigned long duration, AomEncFrameFlagsT flags, unsigned long deadline);
+typedef const AomCodecCxPktT *(*AomCodecGetCxDataFnT)(AomCodecAlgPrivT *ctx,
+                                                      AomCodecIterT *iter);
 
-typedef aom_codec_err_t (*aom_codec_enc_config_set_fn_t)(
-    aom_codec_alg_priv_t *ctx, const aom_codec_enc_cfg_t *cfg);
-typedef aom_fixed_buf_t *(*aom_codec_get_global_headers_fn_t)(
-    aom_codec_alg_priv_t *ctx);
+typedef AomCodecErrT (*AomCodecEncConfigSetFnT)(AomCodecAlgPrivT *ctx,
+                                                const AomCodecEncCfgT *cfg);
+typedef AomFixedBufT *(*AomCodecGetGlobalHeadersFnT)(AomCodecAlgPrivT *ctx);
 
-typedef aom_image_t *(*aom_codec_get_preview_frame_fn_t)(
-    aom_codec_alg_priv_t *ctx);
+typedef AomImageT *(*AomCodecGetPreviewFrameFnT)(AomCodecAlgPrivT *ctx);
 
-typedef aom_codec_err_t (*aom_codec_enc_mr_get_mem_loc_fn_t)(
-    const aom_codec_enc_cfg_t *cfg, void **mem_loc);
+typedef AomCodecErrT (*AomCodecEncMrGetMemLocFnT)(const AomCodecEncCfgT *cfg,
+                                                  void **mem_loc);
 
-/*!\brief usage configuration mapping
+/*!\brief usage configuration Mapping
  *
- * This structure stores the mapping between usage identifiers and
+ * This structure stores the Mapping between usage identifiers and
  * configuration structures. Each algorithm provides a list of these
  * mappings. This list is searched by the aom_codec_enc_config_default()
  * wrapper function to determine which config to return. The special value
  * {-1, {0}} is used to indicate end-of-list, and must be present. At least
- * one mapping must be present, in addition to the end-of-list.
+ * one Mapping must be present, in addition to the end-of-list.
  *
  */
-typedef const struct aom_codec_enc_cfg_map {
+typedef const struct AomCodecEncCfgMap {
   int usage;
-  aom_codec_enc_cfg_t cfg;
-} aom_codec_enc_cfg_map_t;
+  AomCodecEncCfgT cfg;
+} AomCodecEncCfgMapT;
 
 /*!\brief Decoder algorithm interface interface
  *
  * All decoders \ref MUST expose a variable of this type.
  */
-struct aom_codec_iface {
-  const char *name;                   /**< Identification String  */
-  int abi_version;                    /**< Implemented ABI version */
-  aom_codec_caps_t caps;              /**< Decoder capabilities */
-  aom_codec_init_fn_t init;           /**< \copydoc ::aom_codec_init_fn_t */
-  aom_codec_destroy_fn_t destroy;     /**< \copydoc ::aom_codec_destroy_fn_t */
-  aom_codec_ctrl_fn_map_t *ctrl_maps; /**< \copydoc ::aom_codec_ctrl_fn_map_t */
-  struct aom_codec_dec_iface {
-    aom_codec_peek_si_fn_t peek_si; /**< \copydoc ::aom_codec_peek_si_fn_t */
-    aom_codec_get_si_fn_t get_si;   /**< \copydoc ::aom_codec_get_si_fn_t */
-    aom_codec_decode_fn_t decode;   /**< \copydoc ::aom_codec_decode_fn_t */
-    aom_codec_get_frame_fn_t
-        get_frame;                   /**< \copydoc ::aom_codec_get_frame_fn_t */
-    aom_codec_set_fb_fn_t set_fb_fn; /**< \copydoc ::aom_codec_set_fb_fn_t */
+struct AomCodecIface {
+  const char *name;              /**< Identification String  */
+  int abi_version;               /**< Implemented ABI version */
+  AomCodecCapsT caps;            /**< Decoder capabilities */
+  AomCodecInitFnT init;          /**< \copydoc ::AomCodecInitFnT */
+  AomCodecDestroyFnT destroy;    /**< \copydoc ::AomCodecDestroyFnT */
+  AomCodecCtrlFnMapT *ctrl_maps; /**< \copydoc ::AomCodecCtrlFnMapT */
+  struct AomCodecDecIface {
+    AomCodecPeekSiFnT peek_si;     /**< \copydoc ::AomCodecPeekSiFnT */
+    AomCodecGetSiFnT get_si;       /**< \copydoc ::AomCodecGetSiFnT */
+    AomCodecDecodeFnT decode;      /**< \copydoc ::AomCodecDecodeFnT */
+    AomCodecGetFrameFnT get_frame; /**< \copydoc ::AomCodecGetFrameFnT */
+    AomCodecSetFbFnT set_fb_fn;    /**< \copydoc ::AomCodecSetFbFnT */
   } dec;
-  struct aom_codec_enc_iface {
+  struct AomCodecEncIface {
     int cfg_map_count;
-    aom_codec_enc_cfg_map_t
-        *cfg_maps;                /**< \copydoc ::aom_codec_enc_cfg_map_t */
-    aom_codec_encode_fn_t encode; /**< \copydoc ::aom_codec_encode_fn_t */
-    aom_codec_get_cx_data_fn_t
-        get_cx_data; /**< \copydoc ::aom_codec_get_cx_data_fn_t */
-    aom_codec_enc_config_set_fn_t
-        cfg_set; /**< \copydoc ::aom_codec_enc_config_set_fn_t */
-    aom_codec_get_global_headers_fn_t
-        get_glob_hdrs; /**< \copydoc ::aom_codec_get_global_headers_fn_t */
-    aom_codec_get_preview_frame_fn_t
-        get_preview; /**< \copydoc ::aom_codec_get_preview_frame_fn_t */
-    aom_codec_enc_mr_get_mem_loc_fn_t
-        mr_get_mem_loc; /**< \copydoc ::aom_codec_enc_mr_get_mem_loc_fn_t */
+    AomCodecEncCfgMapT *cfg_maps;     /**< \copydoc ::AomCodecEncCfgMapT */
+    AomCodecEncodeFnT encode;         /**< \copydoc ::AomCodecEncodeFnT */
+    AomCodecGetCxDataFnT get_cx_data; /**< \copydoc ::AomCodecGetCxDataFnT */
+    AomCodecEncConfigSetFnT cfg_set;  /**< \copydoc ::AomCodecEncConfigSetFnT */
+    AomCodecGetGlobalHeadersFnT
+        get_glob_hdrs; /**< \copydoc ::AomCodecGetGlobalHeadersFnT */
+    AomCodecGetPreviewFrameFnT
+        get_preview; /**< \copydoc ::AomCodecGetPreviewFrameFnT */
+    AomCodecEncMrGetMemLocFnT
+        mr_get_mem_loc; /**< \copydoc ::AomCodecEncMrGetMemLocFnT */
   } enc;
 };
 
 /*!\brief Callback function pointer / user data pair storage */
-typedef struct aom_codec_priv_cb_pair {
+typedef struct AomCodecPrivCbPair {
   union {
-    aom_codec_put_frame_cb_fn_t put_frame;
-    aom_codec_put_slice_cb_fn_t put_slice;
+    AomCodecPutFrameCbFnT put_frame;
+    AomCodecPutSliceCbFnT put_slice;
   } u;
   void *user_priv;
-} aom_codec_priv_cb_pair_t;
+} AomCodecPrivCbPairT;
 
 /*!\brief Instance private storage
  *
@@ -338,18 +328,18 @@ typedef struct aom_codec_priv_cb_pair {
  * structure can be made the first member of the algorithm specific structure,
  * and the pointer cast to the proper type.
  */
-struct aom_codec_priv {
+struct AomCodecPriv {
   const char *err_detail;
-  aom_codec_flags_t init_flags;
+  AomCodecFlagsT init_flags;
   struct {
-    aom_codec_priv_cb_pair_t put_frame_cb;
-    aom_codec_priv_cb_pair_t put_slice_cb;
+    AomCodecPrivCbPairT put_frame_cb;
+    AomCodecPrivCbPairT put_slice_cb;
   } dec;
   struct {
-    aom_fixed_buf_t cx_data_dst_buf;
+    AomFixedBufT cx_data_dst_buf;
     unsigned int cx_data_pad_before;
     unsigned int cx_data_pad_after;
-    aom_codec_cx_pkt_t cx_data_pkt;
+    AomCodecCxPktT cx_data_pkt;
     unsigned int total_encoders;
   } enc;
 };
@@ -357,10 +347,10 @@ struct aom_codec_priv {
 /*
  * Multi-resolution encoding internal configuration
  */
-struct aom_codec_priv_enc_mr_cfg {
+struct AomCodecPrivEncMrCfg {
   unsigned int mr_total_resolutions;
   unsigned int mr_encoder_id;
-  struct aom_rational mr_down_sampling_factor;
+  struct AomRational mr_down_sampling_factor;
   void *mr_low_res_mode_info;
 };
 
@@ -383,45 +373,45 @@ struct aom_codec_priv_enc_mr_cfg {
  * the same name as the struct, less the _algo suffix. The CODEC_INTERFACE
  * macro is provided to define this getter function automatically.
  */
-#define CODEC_INTERFACE(id)                          \
-  aom_codec_iface_t *id(void) { return &id##_algo; } \
-  aom_codec_iface_t id##_algo
+#define CODEC_INTERFACE(id)                       \
+  AomCodecIfaceT *id(void) { return &id##_algo; } \
+  AomCodecIfaceT id##_algo
 
 /* Internal Utility Functions
  *
  * The following functions are intended to be used inside algorithms as
  * utilities for manipulating aom_codec_* data structures.
  */
-struct aom_codec_pkt_list {
+struct AomCodecPktList {
   unsigned int cnt;
   unsigned int max;
-  struct aom_codec_cx_pkt pkts[1];
+  struct AomCodecCxPkt pkts[1];
 };
 
-#define aom_codec_pkt_list_decl(n)     \
-  union {                              \
-    struct aom_codec_pkt_list head;    \
-    struct {                           \
-      struct aom_codec_pkt_list head;  \
-      struct aom_codec_cx_pkt pkts[n]; \
-    } alloc;                           \
+#define aom_codec_pkt_list_decl(n)  \
+  union {                           \
+    struct AomCodecPktList head;    \
+    struct {                        \
+      struct AomCodecPktList head;  \
+      struct AomCodecCxPkt pkts[n]; \
+    } alloc;                        \
   }
 
 #define aom_codec_pkt_list_init(m) \
   (m)->alloc.head.cnt = 0,         \
   (m)->alloc.head.max = sizeof((m)->alloc.pkts) / sizeof((m)->alloc.pkts[0])
 
-int aom_codec_pkt_list_add(struct aom_codec_pkt_list *,
-                           const struct aom_codec_cx_pkt *);
+int aom_codec_pkt_list_add(struct AomCodecPktList *,
+                           const struct AomCodecCxPkt *);
 
-const aom_codec_cx_pkt_t *aom_codec_pkt_list_get(
-    struct aom_codec_pkt_list *list, aom_codec_iter_t *iter);
+const AomCodecCxPktT *aom_codec_pkt_list_get(struct AomCodecPktList *list,
+                                             AomCodecIterT *iter);
 
 #include <stdio.h>
 #include <setjmp.h>
 
-struct aom_internal_error_info {
-  aom_codec_err_t error_code;
+struct AomInternalErrorInfo {
+  AomCodecErrT error_code;
   int has_detail;
   char detail[80];
   int setjmp;
@@ -436,9 +426,8 @@ struct aom_internal_error_info {
 #endif
 #endif
 
-void aom_internal_error(struct aom_internal_error_info *info,
-                        aom_codec_err_t error, const char *fmt,
-                        ...) CLANG_ANALYZER_NORETURN;
+void aom_internal_error(struct AomInternalErrorInfo *info, AomCodecErrT error,
+                        const char *fmt, ...) CLANG_ANALYZER_NORETURN;
 
 void aom_merge_corrupted_flag(int *corrupted, int value);
 

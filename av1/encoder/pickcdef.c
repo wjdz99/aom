@@ -222,8 +222,8 @@ static INLINE uint64_t mse_4x4_16bit(uint16_t *dst, int dstride, uint16_t *src,
 
 /* Compute MSE only on the blocks we filtered. */
 uint64_t compute_dering_dist(uint16_t *dst, int dstride, uint16_t *src,
-                             dering_list *dlist, int dering_count,
-                             BLOCK_SIZE bsize, int coeff_shift, int pli) {
+                             DeringList *dlist, int dering_count,
+                             BlockSize bsize, int coeff_shift, int pli) {
   uint64_t sum = 0;
   int bi, bx, by;
   if (bsize == BLOCK_8X8) {
@@ -268,13 +268,13 @@ uint64_t compute_dering_dist(uint16_t *dst, int dstride, uint16_t *src,
   return sum >> 2 * coeff_shift;
 }
 
-void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
-                     AV1_COMMON *cm, MACROBLOCKD *xd) {
+void av1_cdef_search(Yv12BufferConfig *frame, const Yv12BufferConfig *ref,
+                     Av1Common *cm, Macroblockd *xd) {
   int r, c;
   int sbr, sbc;
   uint16_t *src[3];
   uint16_t *ref_coeff[3];
-  dering_list dlist[MAX_MIB_SIZE * MAX_MIB_SIZE];
+  DeringList dlist[MAX_MIB_SIZE * MAX_MIB_SIZE];
   int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS] = { { 0 } };
   int var[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS] = { { 0 } };
   int stride[3];
