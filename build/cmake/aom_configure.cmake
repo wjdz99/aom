@@ -115,6 +115,26 @@ endif ()
 
 include("${AOM_ROOT}/build/cmake/cpu.cmake")
 
+if (CONFIG_CCACHE)
+  find_program(CCACHE "ccache")
+  if (NOT "${CCACHE}" STREQUAL "")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE}")
+  else ()
+    message("--- Cannot find ccache, CONFIG_CCACHE ignored.")
+  endif ()
+endif ()
+
+if (CONFIG_DISTCC)
+  find_program(DISTCC "distcc")
+  if (NOT "${DISTCC}" STREQUAL "")
+    set(CMAKE_C_COMPILER_LAUNCHER "${DISTCC}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${DISTCC}")
+  else ()
+    message("--- Cannot find distcc, CONFIG_DISTCC ignored.")
+  endif ()
+endif ()
+
 # Test compiler flags.
 if (MSVC)
   add_compiler_flag_if_supported("/W3")
