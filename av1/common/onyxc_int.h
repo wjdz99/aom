@@ -569,8 +569,9 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 
 static INLINE void set_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col) {
-  const int above_idx = mi_col * 2;
-  const int left_idx = (mi_row * 2) & MAX_MIB_MASK_2;
+  const int above_idx = mi_col << (MI_SIZE_LOG2 - tx_size_wide_log2[0]);
+  const int left_idx = (mi_row & MAX_MIB_MASK)
+                       << (MI_SIZE_LOG2 - tx_size_high_log2[0]);
   int i;
   for (i = 0; i < MAX_MB_PLANE; ++i) {
     struct macroblockd_plane *const pd = &xd->plane[i];
@@ -877,8 +878,8 @@ static INLINE void av1_zero_above_context(AV1_COMMON *const cm,
                                           int mi_col_start, int mi_col_end) {
   const int width = mi_col_end - mi_col_start;
 
-  const int offset_y = 2 * mi_col_start;
-  const int width_y = 2 * width;
+  const int offset_y = mi_col_start << (MI_SIZE_LOG2 - tx_size_wide_log2[0]);
+  const int width_y = width << (MI_SIZE_LOG2 - tx_size_wide_log2[0]);
   const int offset_uv = offset_y >> cm->subsampling_x;
   const int width_uv = width_y >> cm->subsampling_x;
 
