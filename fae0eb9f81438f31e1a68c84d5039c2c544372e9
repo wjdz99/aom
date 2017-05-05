@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4727874d_f19b25b2",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1567,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-05T18:21:02Z",
+      "side": 1,
+      "message": "I\u0027d prefer to see this temporary buffer declared inside cfl_compute_alpha_ind().  MAX_SB_SQUARE is either 64*64 or 128*128 which means this buffer is at max 16k big and should fit on the stack.  Also, this is done in elsewhere, see:\n\nav1/encoder/palette.c:104\nav1/encoder/rdopt.c:5456\nav1/encoder/rdopt.c:5459\nav1/encoder/rdopt.c:7142\n...\n\nIf it were a lot larger I\u0027d be concerned, but I the default stack size is 8MB in linux.",
+      "revId": "fae0eb9f81438f31e1a68c84d5039c2c544372e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "984bf2c1_e560f12d",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-05T18:21:02Z",
+      "side": 1,
+      "message": "Does this work with EC_SMALLMUL?  When this experiment is enabled, the cfl_alpha_cdf[] will hold ICDF\u0027s instead of CDF\u0027s",
+      "revId": "fae0eb9f81438f31e1a68c84d5039c2c544372e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
