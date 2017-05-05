@@ -32,11 +32,12 @@
 extern "C" {
 #endif
 
+static INLINE int has_scale(int xs, int ys) { return xs != 16 || ys != 16; }
+
 static INLINE void inter_predictor(const uint8_t *src, int src_stride,
-                                   uint8_t *dst, int dst_stride,
-                                   const int subpel_x, const int subpel_y,
-                                   const struct scale_factors *sf, int w, int h,
-                                   ConvolveParams *conv_params,
+                                   uint8_t *dst, int dst_stride, int subpel_x,
+                                   int subpel_y, const struct scale_factors *sf,
+                                   int w, int h, ConvolveParams *conv_params,
 #if CONFIG_DUAL_FILTER
                                    const InterpFilter *interp_filter,
 #else
@@ -53,54 +54,43 @@ static INLINE void inter_predictor(const uint8_t *src, int src_stride,
   InterpFilterParams interp_filter_params_y =
       av1_get_interp_filter_params(filter_y);
 #else
-  InterpFilterParams interp_filter_params =
+  InterpFilterParams interp_filter_params_x =
       av1_get_interp_filter_params(interp_filter);
+  InterpFilterParams interp_filter_params_y = interp_filter_params_x;
 #endif
 
   assert(sf);
-#if CONFIG_DUAL_FILTER
-  if (interp_filter_params_x.taps == SUBPEL_TAPS &&
-      interp_filter_params_y.taps == SUBPEL_TAPS && w > 2 && h > 2 &&
-      conv_params->round == CONVOLVE_OPT_ROUND && xs == 16 && ys == 16) {
-    const int16_t *kernel_x =
-        av1_get_interp_filter_subpel_kernel(interp_filter_params_x, subpel_x);
-    const int16_t *kernel_y =
-        av1_get_interp_filter_subpel_kernel(interp_filter_params_y, subpel_y);
-#else
-  if (interp_filter_params.taps == SUBPEL_TAPS && w > 2 && h > 2 &&
-      conv_params->round == CONVOLVE_OPT_ROUND && xs == 16 && ys == 16) {
-    const int16_t *kernel_x =
-        av1_get_interp_filter_subpel_kernel(interp_filter_params, subpel_x);
-    const int16_t *kernel_y =
-        av1_get_interp_filter_subpel_kernel(interp_filter_params, subpel_y);
-#endif
-    sf->predict[subpel_x != 0][subpel_y != 0][conv_params->ref](
-        src, src_stride, dst, dst_stride, kernel_x, xs, kernel_y, ys, w, h);
-  } else {
-// ref_idx > 0 means this is the second reference frame
-// first reference frame's prediction result is already in dst
-// therefore we need to average the first and second results
+  if (has_scale(xs, ys)) {
+    av1_convolve_c(src, src_stride, dst, dst_stride, w, h, interp_filter,
+                   subpel_x, xs, subpel_y, ys, conv_params);
+  } else if (conv_params->round == CONVOLVE_OPT_NO_ROUND) {
 #if CONFIG_CONVOLVE_ROUND
-    if (conv_params->round == CONVOLVE_OPT_NO_ROUND && xs == 16 && ys == 16)
-      av1_convolve_2d_facade(src, src_stride, dst, dst_stride, w, h,
+    av1_convolve_2d_facade(src, src_stride, dst, dst_stride, w, h,
 #if CONFIG_DUAL_FILTER
-                             interp_filter,
+                           interp_filter,
+#else   // CONFIG_DUAL_FILTER
+                           &interp_filter,
+#endif  // CONFIG_DUAL_FILTER
+                           subpel_x, xs, subpel_y, ys, conv_params);
 #else
-                             &interp_filter,
-#endif
-                             subpel_x, xs, subpel_y, ys, conv_params);
-    else
-#endif
-    {
-      if (xs == 16 && ys == 16) {
-        av1_convolve(src, src_stride, dst, dst_stride, w, h, interp_filter,
+    assert(0);
+#endif  // CONFIG_CONVOLVE_ROUND
+  } else {
+    assert(conv_params->round == CONVOLVE_OPT_ROUND);
+    if (w <= 2 || h <= 2) {
+      av1_convolve_c(src, src_stride, dst, dst_stride, w, h, interp_filter,
                      subpel_x, xs, subpel_y, ys, conv_params);
-      } else {
-        // If xs == 16 || ys == 16 scaling is happening and the SSE2
-        // instructions don't support scaling; use the C versions to be safe.
-        av1_convolve_c(src, src_stride, dst, dst_stride, w, h, interp_filter,
-                       subpel_x, xs, subpel_y, ys, conv_params);
-      }
+    } else if (interp_filter_params_x.taps == SUBPEL_TAPS &&
+               interp_filter_params_y.taps == SUBPEL_TAPS) {
+      const int16_t *kernel_x =
+          av1_get_interp_filter_subpel_kernel(interp_filter_params_x, subpel_x);
+      const int16_t *kernel_y =
+          av1_get_interp_filter_subpel_kernel(interp_filter_params_y, subpel_y);
+      sf->predict[subpel_x != 0][subpel_y != 0][conv_params->ref](
+          src, src_stride, dst, dst_stride, kernel_x, xs, kernel_y, ys, w, h);
+    } else {
+      av1_convolve(src, src_stride, dst, dst_stride, w, h, interp_filter,
+                   subpel_x, xs, subpel_y, ys, conv_params);
     }
   }
 }
@@ -124,31 +114,24 @@ static INLINE void highbd_inter_predictor(const uint8_t *src, int src_stride,
   InterpFilterParams interp_filter_params_y =
       av1_get_interp_filter_params(interp_filter[0 + 2 * ref]);
 #else
-  InterpFilterParams interp_filter_params =
+  InterpFilterParams interp_filter_params_x =
       av1_get_interp_filter_params(interp_filter);
+  InterpFilterParams interp_filter_params_y = interp_filter_params_x;
 #endif
 
-#if CONFIG_DUAL_FILTER
   if (interp_filter_params_x.taps == SUBPEL_TAPS &&
       interp_filter_params_y.taps == SUBPEL_TAPS && w > 2 && h > 2) {
     const int16_t *kernel_x =
         av1_get_interp_filter_subpel_kernel(interp_filter_params_x, subpel_x);
     const int16_t *kernel_y =
         av1_get_interp_filter_subpel_kernel(interp_filter_params_y, subpel_y);
-#else
-  if (interp_filter_params.taps == SUBPEL_TAPS && w > 2 && h > 2) {
-    const int16_t *kernel_x =
-        av1_get_interp_filter_subpel_kernel(interp_filter_params, subpel_x);
-    const int16_t *kernel_y =
-        av1_get_interp_filter_subpel_kernel(interp_filter_params, subpel_y);
-#endif  // CONFIG_DUAL_FILTER
     sf->highbd_predict[subpel_x != 0][subpel_y != 0][ref](
         src, src_stride, dst, dst_stride, kernel_x, xs, kernel_y, ys, w, h, bd);
   } else {
     // ref > 0 means this is the second reference frame
     // first reference frame's prediction result is already in dst
     // therefore we need to average the first and second results
-    int avg = ref > 0;
+    const int avg = ref > 0;
     av1_highbd_convolve(src, src_stride, dst, dst_stride, w, h, interp_filter,
                         subpel_x, xs, subpel_y, ys, avg, bd);
   }
