@@ -40,13 +40,13 @@ class AV1Decoder {
   const AvxVideoInfo *info;
   const AvxInterface *decoder;
 
-  insp_frame_data frame_data;
+  InspFrameData frame_data;
 
-  aom_codec_ctx_t codec;
+  AomCodecCtxT codec;
   bool show_padding;
 
  public:
-  aom_image_t *image;
+  AomImageT *image;
   int frame;
 
   int plane_mask;
@@ -112,7 +112,7 @@ bool AV1Decoder::step() {
       fprintf(stderr, "Failed to decode frame.");
       return false;
     } else {
-      aom_codec_iter_t iter = NULL;
+      AomCodecIterT iter = NULL;
       image = aom_codec_get_frame(&codec, &iter);
       if (image != NULL) {
         frame++;
@@ -154,7 +154,7 @@ bool AV1Decoder::getAccountingStruct(Accounting **accounting) {
 }
 
 bool AV1Decoder::setInspectionCallback() {
-  aom_inspect_init ii;
+  AomInspectInit ii;
   ii.inspect_cb = AV1Decoder::inspect;
   ii.inspect_ctx = (void *)this;
   return aom_codec_control(&codec, AV1_SET_INSPECTION_CALLBACK, &ii) ==
@@ -232,7 +232,7 @@ void AnalyzerPanel::setShowPlane(bool show_plane, int mask) {
 }
 
 void AnalyzerPanel::render() {
-  aom_image_t *img = decoder.image;
+  AomImageT *img = decoder.image;
   int y_stride = img->stride[0];
   int cb_stride = img->stride[1];
   int cr_stride = img->stride[2];

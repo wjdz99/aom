@@ -95,7 +95,7 @@ class SADTestBase : public ::testing::Test {
 #if CONFIG_HIGHBITDEPTH
     } else {
       use_high_bit_depth_ = true;
-      bit_depth_ = static_cast<aom_bit_depth_t>(bd_);
+      bit_depth_ = static_cast<AomBitDepthT>(bd_);
       source_data_ = CONVERT_TO_BYTEPTR(source_data16_);
       reference_data_ = CONVERT_TO_BYTEPTR(reference_data16_);
       second_pred_ = CONVERT_TO_BYTEPTR(second_pred16_);
@@ -214,7 +214,7 @@ class SADTestBase : public ::testing::Test {
   }
 
   int width_, height_, mask_, bd_;
-  aom_bit_depth_t bit_depth_;
+  AomBitDepthT bit_depth_;
   static uint8_t *source_data_;
   static uint8_t *reference_data_;
   static uint8_t *second_pred_;

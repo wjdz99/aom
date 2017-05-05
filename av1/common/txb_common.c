@@ -95,12 +95,12 @@ const int16_t av1_coeff_band_32x32[1024] = {
   22, 23, 23, 23, 23, 23, 23, 23, 23, 24, 24, 24, 24, 24, 24, 24, 24,
 };
 
-void av1_adapt_txb_probs(AV1_COMMON *cm, unsigned int count_sat,
+void av1_adapt_txb_probs(Av1Common *cm, unsigned int count_sat,
                          unsigned int update_factor) {
-  FRAME_CONTEXT *fc = cm->fc;
-  const FRAME_CONTEXT *pre_fc = cm->pre_fc;
-  const FRAME_COUNTS *counts = &cm->counts;
-  TX_SIZE tx_size;
+  FrameContext *fc = cm->fc;
+  const FrameContext *pre_fc = cm->pre_fc;
+  const FrameCounts *counts = &cm->counts;
+  TxSize tx_size;
   int plane, ctx, level;
 
   // Update probability models for transform block skip flag

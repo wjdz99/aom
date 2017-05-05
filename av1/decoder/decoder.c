@@ -72,23 +72,23 @@ static void initialize_dec(void) {
   }
 }
 
-static void av1_dec_setup_mi(AV1_COMMON *cm) {
+static void av1_dec_setup_mi(Av1Common *cm) {
   cm->mi = cm->mip + cm->mi_stride + 1;
   cm->mi_grid_visible = cm->mi_grid_base + cm->mi_stride + 1;
   memset(cm->mi_grid_base, 0,
          cm->mi_stride * (cm->mi_rows + 1) * sizeof(*cm->mi_grid_base));
 }
 
-static int av1_dec_alloc_mi(AV1_COMMON *cm, int mi_size) {
+static int av1_dec_alloc_mi(Av1Common *cm, int mi_size) {
   cm->mip = aom_calloc(mi_size, sizeof(*cm->mip));
   if (!cm->mip) return 1;
   cm->mi_alloc_size = mi_size;
-  cm->mi_grid_base = (MODE_INFO **)aom_calloc(mi_size, sizeof(MODE_INFO *));
+  cm->mi_grid_base = (ModeInfo **)aom_calloc(mi_size, sizeof(ModeInfo *));
   if (!cm->mi_grid_base) return 1;
   return 0;
 }
 
-static void av1_dec_free_mi(AV1_COMMON *cm) {
+static void av1_dec_free_mi(Av1Common *cm) {
   aom_free(cm->mip);
   cm->mip = NULL;
   aom_free(cm->mi_grid_base);
@@ -97,7 +97,7 @@ static void av1_dec_free_mi(AV1_COMMON *cm) {
 
 AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   AV1Decoder *volatile const pbi = aom_memalign(32, sizeof(*pbi));
-  AV1_COMMON *volatile const cm = pbi ? &pbi->common : NULL;
+  Av1Common *volatile const cm = pbi ? &pbi->common : NULL;
 
   if (!cm) return NULL;
 
@@ -112,12 +112,12 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   cm->error.setjmp = 1;
 
   CHECK_MEM_ERROR(cm, cm->fc,
-                  (FRAME_CONTEXT *)aom_memalign(32, sizeof(*cm->fc)));
-  CHECK_MEM_ERROR(cm, cm->frame_contexts,
-                  (FRAME_CONTEXT *)aom_memalign(
-                      32, FRAME_CONTEXTS * sizeof(*cm->frame_contexts)));
+                  (FrameContext *)aom_memalign(32, sizeof(*cm->fc)));
+  CHECK_MEM_ERROR(cm, cm->FrameContexts,
+                  (FrameContext *)aom_memalign(
+                      32, FRAME_CONTEXTS * sizeof(*cm->FrameContexts)));
   memset(cm->fc, 0, sizeof(*cm->fc));
-  memset(cm->frame_contexts, 0, FRAME_CONTEXTS * sizeof(*cm->frame_contexts));
+  memset(cm->FrameContexts, 0, FRAME_CONTEXTS * sizeof(*cm->FrameContexts));
 
   pbi->need_resync = 1;
   once(initialize_dec);
@@ -184,16 +184,15 @@ void av1_decoder_remove(AV1Decoder *pbi) {
   aom_free(pbi);
 }
 
-static int equal_dimensions(const YV12_BUFFER_CONFIG *a,
-                            const YV12_BUFFER_CONFIG *b) {
+static int equal_dimensions(const Yv12BufferConfig *a,
+                            const Yv12BufferConfig *b) {
   return a->y_height == b->y_height && a->y_width == b->y_width &&
          a->uv_height == b->uv_height && a->uv_width == b->uv_width;
 }
 
-aom_codec_err_t av1_copy_reference_dec(AV1Decoder *pbi,
-                                       AOM_REFFRAME ref_frame_flag,
-                                       YV12_BUFFER_CONFIG *sd) {
-  AV1_COMMON *cm = &pbi->common;
+AomCodecErrT av1_copy_reference_dec(AV1Decoder *pbi, AomRefframe ref_frame_flag,
+                                    Yv12BufferConfig *sd) {
+  Av1Common *cm = &pbi->common;
 
   /* TODO(jkoleszar): The decoder doesn't have any real knowledge of what the
    * encoder is using the frame buffers for. This is just a stub to keep the
@@ -201,7 +200,7 @@ aom_codec_err_t av1_copy_reference_dec(AV1Decoder *pbi,
    * later commit that adds AV1-specific controls for this functionality.
    */
   if (ref_frame_flag == AOM_LAST_FLAG) {
-    const YV12_BUFFER_CONFIG *const cfg = get_ref_frame(cm, 0);
+    const Yv12BufferConfig *const cfg = get_ref_frame(cm, 0);
     if (cfg == NULL) {
       aom_internal_error(&cm->error, AOM_CODEC_ERROR,
                          "No 'last' reference frame");
@@ -219,11 +218,10 @@ aom_codec_err_t av1_copy_reference_dec(AV1Decoder *pbi,
   return cm->error.error_code;
 }
 
-aom_codec_err_t av1_set_reference_dec(AV1_COMMON *cm,
-                                      AOM_REFFRAME ref_frame_flag,
-                                      YV12_BUFFER_CONFIG *sd) {
+AomCodecErrT av1_set_reference_dec(Av1Common *cm, AomRefframe ref_frame_flag,
+                                   Yv12BufferConfig *sd) {
   int idx;
-  YV12_BUFFER_CONFIG *ref_buf = NULL;
+  Yv12BufferConfig *ref_buf = NULL;
 
   // TODO(jkoleszar): The decoder doesn't have any real knowledge of what the
   // encoder is using the frame buffers for. This is just a stub to keep the
@@ -293,7 +291,7 @@ aom_codec_err_t av1_set_reference_dec(AV1_COMMON *cm,
 /* If any buffer updating is signaled it should be done here. */
 static void swap_frame_buffers(AV1Decoder *pbi) {
   int ref_index = 0, mask;
-  AV1_COMMON *const cm = &pbi->common;
+  Av1Common *const cm = &pbi->common;
   BufferPool *const pool = cm->buffer_pool;
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
 
@@ -338,7 +336,7 @@ static void swap_frame_buffers(AV1Decoder *pbi) {
 
 int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
                                 const uint8_t **psource) {
-  AV1_COMMON *volatile const cm = &pbi->common;
+  Av1Common *volatile const cm = &pbi->common;
   BufferPool *volatile const pool = cm->buffer_pool;
   RefCntBuffer *volatile const frame_bufs = cm->buffer_pool->frame_bufs;
   const uint8_t *source = *psource;
@@ -492,8 +490,8 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   return retcode;
 }
 
-int av1_get_raw_frame(AV1Decoder *pbi, YV12_BUFFER_CONFIG *sd) {
-  AV1_COMMON *const cm = &pbi->common;
+int av1_get_raw_frame(AV1Decoder *pbi, Yv12BufferConfig *sd) {
+  Av1Common *const cm = &pbi->common;
   int ret = -1;
   if (pbi->ready_for_new_data == 1) return ret;
 
@@ -509,8 +507,8 @@ int av1_get_raw_frame(AV1Decoder *pbi, YV12_BUFFER_CONFIG *sd) {
   return ret;
 }
 
-int av1_get_frame_to_show(AV1Decoder *pbi, YV12_BUFFER_CONFIG *frame) {
-  AV1_COMMON *const cm = &pbi->common;
+int av1_get_frame_to_show(AV1Decoder *pbi, Yv12BufferConfig *frame) {
+  Av1Common *const cm = &pbi->common;
 
   if (!cm->show_frame || !cm->frame_to_show) return -1;
 
@@ -518,10 +516,10 @@ int av1_get_frame_to_show(AV1Decoder *pbi, YV12_BUFFER_CONFIG *frame) {
   return 0;
 }
 
-aom_codec_err_t av1_parse_superframe_index(const uint8_t *data, size_t data_sz,
-                                           uint32_t sizes[8], int *count,
-                                           aom_decrypt_cb decrypt_cb,
-                                           void *decrypt_state) {
+AomCodecErrT av1_parse_superframe_index(const uint8_t *data, size_t data_sz,
+                                        uint32_t sizes[8], int *count,
+                                        AomDecryptCb decrypt_cb,
+                                        void *decrypt_state) {
   // A chunk ending with a byte matching 0xc0 is an invalid chunk unless
   // it is a super frame index. If the last byte of real video compression
   // data is 0xc0 the encoder must add a 0 byte. If we have the marker but

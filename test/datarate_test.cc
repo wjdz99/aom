@@ -65,14 +65,14 @@ class DatarateTestLarge
 
     encoder->Control(AV1E_SET_NOISE_SENSITIVITY, denoiser_on_);
 
-    const aom_rational_t tb = video->timebase();
+    const AomRationalT tb = video->timebase();
     timebase_ = static_cast<double>(tb.num) / tb.den;
     duration_ = 0;
   }
 
-  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void FramePktHook(const AomCodecCxPktT *pkt) {
     // Time since last timestamp = duration.
-    aom_codec_pts_t duration = pkt->data.frame.pts - last_pts_;
+    AomCodecPtsT duration = pkt->data.frame.pts - last_pts_;
 
     if (duration > 1) {
       // If first drop not set and we have a drop set it to this time.
@@ -109,7 +109,7 @@ class DatarateTestLarge
     effective_datarate_ = (bits_total_ / 1000.0) / duration_;
   }
 
-  aom_codec_pts_t last_pts_;
+  AomCodecPtsT last_pts_;
   double timebase_;
   int frame_number_;      // Counter for number of non-dropped/encoded frames.
   int tot_frame_number_;  // Counter for total number of input frames.
@@ -118,7 +118,7 @@ class DatarateTestLarge
   double effective_datarate_;
   int set_cpu_used_;
   int64_t bits_in_buffer_model_;
-  aom_codec_pts_t first_drop_;
+  AomCodecPtsT first_drop_;
   int num_drops_;
   int denoiser_on_;
   int denoiser_offon_test_;
@@ -223,7 +223,7 @@ TEST_P(DatarateTestLarge, ChangingDropFrameThresh) {
                                        30, 1, 0, 100);
 
   const int kDropFrameThreshTestStep = 30;
-  aom_codec_pts_t last_drop = 140;
+  AomCodecPtsT last_drop = 140;
   int last_num_drops = 0;
   for (int i = 40; i < 100; i += kDropFrameThreshTestStep) {
     cfg_.rc_dropframe_thresh = i;

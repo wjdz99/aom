@@ -15,13 +15,13 @@
 using libaom_test::ACMRandom;
 using libaom_test::input_base;
 using libaom_test::reference_hybrid_1d;
-using libaom_test::TYPE_TXFM;
+using libaom_test::TypeTxfm;
 using libaom_test::TYPE_DCT;
 using libaom_test::TYPE_ADST;
 
 namespace {
 const int txfm_type_num = 2;
-const TYPE_TXFM txfm_type_ls[2] = { TYPE_DCT, TYPE_ADST };
+const TypeTxfm txfm_type_ls[2] = { TYPE_DCT, TYPE_ADST };
 
 const int txfm_size_num = 5;
 const int txfm_size_ls[5] = { 4, 8, 16, 32, 64 };
@@ -100,7 +100,7 @@ TEST(av1_fwd_txfm1d, accuracy) {
     double *ref_output = new double[txfm_size];
 
     for (int ti = 0; ti < txfm_type_num; ++ti) {
-      TYPE_TXFM txfm_type = txfm_type_ls[ti];
+      TypeTxfm txfm_type = txfm_type_ls[ti];
       TxfmFunc fwd_txfm_func = fwd_txfm_func_ls[ti][si];
       int max_error = 7;
 

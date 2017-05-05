@@ -23,7 +23,7 @@
 
 // Unconstrained Node Tree
 /* clang-format off */
-const aom_tree_index av1_coef_con_tree[TREE_SIZE(ENTROPY_TOKENS)] = {
+const AomTreeIndex av1_coef_con_tree[TREE_SIZE(ENTROPY_TOKENS)] = {
   2, 6,                                // 0 = LOW_VAL
   -TWO_TOKEN, 4,                       // 1 = TWO
   -THREE_TOKEN, -FOUR_TOKEN,           // 2 = THREE
@@ -37,102 +37,100 @@ const aom_tree_index av1_coef_con_tree[TREE_SIZE(ENTROPY_TOKENS)] = {
 
 #if CONFIG_NEW_MULTISYMBOL
 /* Extra bits coded from LSB to MSB */
-const aom_cdf_prob av1_cat1_cdf0[CDF_SIZE(2)] = { AOM_ICDF(20352),
-                                                  AOM_ICDF(32768), 0 };
-const aom_cdf_prob *av1_cat1_cdf[] = { av1_cat1_cdf0 };
+const AomCdfProb av1_cat1_cdf0[CDF_SIZE(2)] = { AOM_ICDF(20352),
+                                                AOM_ICDF(32768), 0 };
+const AomCdfProb *av1_cat1_cdf[] = { av1_cat1_cdf0 };
 
-const aom_cdf_prob av1_cat2_cdf0[CDF_SIZE(4)] = {
+const AomCdfProb av1_cat2_cdf0[CDF_SIZE(4)] = {
   AOM_ICDF(11963), AOM_ICDF(21121), AOM_ICDF(27719), AOM_ICDF(32768), 0
 };
-const aom_cdf_prob *av1_cat2_cdf[] = { av1_cat2_cdf0 };
-const aom_cdf_prob av1_cat3_cdf0[CDF_SIZE(8)] = {
+const AomCdfProb *av1_cat2_cdf[] = { av1_cat2_cdf0 };
+const AomCdfProb av1_cat3_cdf0[CDF_SIZE(8)] = {
   AOM_ICDF(7001),  AOM_ICDF(12802), AOM_ICDF(17911),
   AOM_ICDF(22144), AOM_ICDF(25503), AOM_ICDF(28286),
   AOM_ICDF(30737), AOM_ICDF(32768), 0
 };
-const aom_cdf_prob *av1_cat3_cdf[] = { av1_cat3_cdf0 };
+const AomCdfProb *av1_cat3_cdf[] = { av1_cat3_cdf0 };
 
-const aom_cdf_prob av1_cat4_cdf0[CDF_SIZE(16)] = { AOM_ICDF(3934),
-                                                   AOM_ICDF(7460),
-                                                   AOM_ICDF(10719),
-                                                   AOM_ICDF(13640),
-                                                   AOM_ICDF(16203),
-                                                   AOM_ICDF(18500),
-                                                   AOM_ICDF(20624),
-                                                   AOM_ICDF(22528),
-                                                   AOM_ICDF(24316),
-                                                   AOM_ICDF(25919),
-                                                   AOM_ICDF(27401),
-                                                   AOM_ICDF(28729),
-                                                   AOM_ICDF(29894),
-                                                   AOM_ICDF(30938),
-                                                   AOM_ICDF(31903),
-                                                   AOM_ICDF(32768),
-                                                   0 };
-const aom_cdf_prob *av1_cat4_cdf[] = { av1_cat4_cdf0 };
+const AomCdfProb av1_cat4_cdf0[CDF_SIZE(16)] = { AOM_ICDF(3934),
+                                                 AOM_ICDF(7460),
+                                                 AOM_ICDF(10719),
+                                                 AOM_ICDF(13640),
+                                                 AOM_ICDF(16203),
+                                                 AOM_ICDF(18500),
+                                                 AOM_ICDF(20624),
+                                                 AOM_ICDF(22528),
+                                                 AOM_ICDF(24316),
+                                                 AOM_ICDF(25919),
+                                                 AOM_ICDF(27401),
+                                                 AOM_ICDF(28729),
+                                                 AOM_ICDF(29894),
+                                                 AOM_ICDF(30938),
+                                                 AOM_ICDF(31903),
+                                                 AOM_ICDF(32768),
+                                                 0 };
+const AomCdfProb *av1_cat4_cdf[] = { av1_cat4_cdf0 };
 
-const aom_cdf_prob av1_cat5_cdf0[CDF_SIZE(16)] = { AOM_ICDF(2942),
-                                                   AOM_ICDF(5794),
-                                                   AOM_ICDF(8473),
-                                                   AOM_ICDF(11069),
-                                                   AOM_ICDF(13469),
-                                                   AOM_ICDF(15795),
-                                                   AOM_ICDF(17980),
-                                                   AOM_ICDF(20097),
-                                                   AOM_ICDF(21952),
-                                                   AOM_ICDF(23750),
-                                                   AOM_ICDF(25439),
-                                                   AOM_ICDF(27076),
-                                                   AOM_ICDF(28589),
-                                                   AOM_ICDF(30056),
-                                                   AOM_ICDF(31434),
-                                                   AOM_ICDF(32768),
-                                                   0 };
-const aom_cdf_prob av1_cat5_cdf1[CDF_SIZE(2)] = { AOM_ICDF(23040),
-                                                  AOM_ICDF(32768), 0 };
-const aom_cdf_prob *av1_cat5_cdf[] = { av1_cat5_cdf0, av1_cat5_cdf1 };
+const AomCdfProb av1_cat5_cdf0[CDF_SIZE(16)] = { AOM_ICDF(2942),
+                                                 AOM_ICDF(5794),
+                                                 AOM_ICDF(8473),
+                                                 AOM_ICDF(11069),
+                                                 AOM_ICDF(13469),
+                                                 AOM_ICDF(15795),
+                                                 AOM_ICDF(17980),
+                                                 AOM_ICDF(20097),
+                                                 AOM_ICDF(21952),
+                                                 AOM_ICDF(23750),
+                                                 AOM_ICDF(25439),
+                                                 AOM_ICDF(27076),
+                                                 AOM_ICDF(28589),
+                                                 AOM_ICDF(30056),
+                                                 AOM_ICDF(31434),
+                                                 AOM_ICDF(32768),
+                                                 0 };
+const AomCdfProb av1_cat5_cdf1[CDF_SIZE(2)] = { AOM_ICDF(23040),
+                                                AOM_ICDF(32768), 0 };
+const AomCdfProb *av1_cat5_cdf[] = { av1_cat5_cdf0, av1_cat5_cdf1 };
 
-const aom_cdf_prob av1_cat6_cdf0[CDF_SIZE(16)] = {
+const AomCdfProb av1_cat6_cdf0[CDF_SIZE(16)] = {
   AOM_ICDF(2382),  AOM_ICDF(4727),  AOM_ICDF(7036),  AOM_ICDF(9309),
   AOM_ICDF(11512), AOM_ICDF(13681), AOM_ICDF(15816), AOM_ICDF(17918),
   AOM_ICDF(19892), AOM_ICDF(21835), AOM_ICDF(23748), AOM_ICDF(25632),
   AOM_ICDF(27458), AOM_ICDF(29255), AOM_ICDF(31024), AOM_ICDF(32768)
 };
-const aom_cdf_prob av1_cat6_cdf1[CDF_SIZE(16)] = {
+const AomCdfProb av1_cat6_cdf1[CDF_SIZE(16)] = {
   AOM_ICDF(9314),  AOM_ICDF(15584), AOM_ICDF(19741), AOM_ICDF(22540),
   AOM_ICDF(25391), AOM_ICDF(27310), AOM_ICDF(28583), AOM_ICDF(29440),
   AOM_ICDF(30493), AOM_ICDF(31202), AOM_ICDF(31672), AOM_ICDF(31988),
   AOM_ICDF(32310), AOM_ICDF(32527), AOM_ICDF(32671), AOM_ICDF(32768)
 };
-const aom_cdf_prob av1_cat6_cdf2[CDF_SIZE(16)] = {
+const AomCdfProb av1_cat6_cdf2[CDF_SIZE(16)] = {
   AOM_ICDF(29548), AOM_ICDF(31129), AOM_ICDF(31960), AOM_ICDF(32004),
   AOM_ICDF(32473), AOM_ICDF(32498), AOM_ICDF(32511), AOM_ICDF(32512),
   AOM_ICDF(32745), AOM_ICDF(32757), AOM_ICDF(32763), AOM_ICDF(32764),
   AOM_ICDF(32765), AOM_ICDF(32766), AOM_ICDF(32767), AOM_ICDF(32768)
 };
-const aom_cdf_prob av1_cat6_cdf3[CDF_SIZE(16)] = {
+const AomCdfProb av1_cat6_cdf3[CDF_SIZE(16)] = {
   AOM_ICDF(32006), AOM_ICDF(32258), AOM_ICDF(32510), AOM_ICDF(32512),
   AOM_ICDF(32638), AOM_ICDF(32639), AOM_ICDF(32640), AOM_ICDF(32641),
   AOM_ICDF(32761), AOM_ICDF(32762), AOM_ICDF(32763), AOM_ICDF(32764),
   AOM_ICDF(32765), AOM_ICDF(32766), AOM_ICDF(32767), AOM_ICDF(32768)
 };
-const aom_cdf_prob av1_cat6_cdf4[CDF_SIZE(4)] = {
+const AomCdfProb av1_cat6_cdf4[CDF_SIZE(4)] = {
   AOM_ICDF(32513), AOM_ICDF(32641), AOM_ICDF(32767), AOM_ICDF(32768)
 };
-const aom_cdf_prob *av1_cat6_cdf[] = {
+const AomCdfProb *av1_cat6_cdf[] = {
   av1_cat6_cdf0, av1_cat6_cdf1, av1_cat6_cdf2, av1_cat6_cdf3, av1_cat6_cdf4
 };
 #endif
 /* Extra bits coded from MSB to LSB */
-const aom_prob av1_cat1_prob[] = { 159 };
-const aom_prob av1_cat2_prob[] = { 165, 145 };
-const aom_prob av1_cat3_prob[] = { 173, 148, 140 };
-const aom_prob av1_cat4_prob[] = { 176, 155, 140, 135 };
-const aom_prob av1_cat5_prob[] = { 180, 157, 141, 134, 130 };
-const aom_prob av1_cat6_prob[] = {
-  255, 255, 255, 255, 254, 254, 254, 252, 249,
-  243, 230, 196, 177, 153, 140, 133, 130, 129
-};
+const AomProb av1_cat1_prob[] = { 159 };
+const AomProb av1_cat2_prob[] = { 165, 145 };
+const AomProb av1_cat3_prob[] = { 173, 148, 140 };
+const AomProb av1_cat4_prob[] = { 176, 155, 140, 135 };
+const AomProb av1_cat5_prob[] = { 180, 157, 141, 134, 130 };
+const AomProb av1_cat6_prob[] = { 255, 255, 255, 255, 254, 254, 254, 252, 249,
+                                  243, 230, 196, 177, 153, 140, 133, 130, 129 };
 
 const uint16_t band_count_table[TX_SIZES_ALL][8] = {
 #if CONFIG_CB4X4
@@ -358,7 +356,7 @@ const uint8_t av1_pt_energy_class[ENTROPY_TOKENS] = { 0, 1, 2, 3, 3, 4,
 // av1_pareto8_full[l][node] = (av1_pareto8_full[l-1][node] +
 //                              av1_pareto8_full[l+1][node] ) >> 1;
 // Values for tokens ONE_TOKEN through CATEGORY6_TOKEN included here.
-const aom_prob av1_pareto8_full[COEFF_PROB_MODELS][MODEL_NODES] = {
+const AomProb av1_pareto8_full[COEFF_PROB_MODELS][MODEL_NODES] = {
   { 3, 86, 128, 6, 86, 23, 88, 29 },
   { 6, 86, 128, 11, 87, 42, 91, 52 },
   { 9, 86, 129, 17, 88, 61, 94, 76 },
@@ -634,7 +632,7 @@ const aom_prob av1_pareto8_full[COEFF_PROB_MODELS][MODEL_NODES] = {
 //
 // ZERO_TOKEN and ONE_TOKEN are coded as one CDF,
 // and EOB_TOKEN is coded as flags outside this coder.
-const aom_cdf_prob av1_pareto8_tail_probs[COEFF_PROB_MODELS][TAIL_NODES] = {
+const AomCdfProb av1_pareto8_tail_probs[COEFF_PROB_MODELS][TAIL_NODES] = {
   { 128, 127, 127, 252, 497, 969, 1839, 3318, 25511 },
   { 256, 254, 251, 496, 966, 1834, 3308, 5408, 19995 },
   { 383, 378, 373, 732, 1408, 2605, 4470, 6646, 15773 },
@@ -894,7 +892,7 @@ const aom_cdf_prob av1_pareto8_tail_probs[COEFF_PROB_MODELS][TAIL_NODES] = {
 #elif CONFIG_EC_MULTISYMBOL
 // Values for tokens ONE_TOKEN through CATEGORY6_TOKEN included here.
 // ZERO_TOKEN and EOB_TOKEN are coded as flags outside this coder.
-const aom_cdf_prob
+const AomCdfProb
     av1_pareto8_token_probs[COEFF_PROB_MODELS][ENTROPY_TOKENS - 2] = {
       { 128, 127, 127, 126, 251, 495, 965, 1832, 3305, 25412 },
       { 256, 254, 252, 249, 492, 959, 1820, 3283, 5365, 19838 },
@@ -1156,11 +1154,11 @@ const aom_cdf_prob
 
 /* clang-format off */
 #if CONFIG_Q_ADAPT_PROBS
-const av1_coeff_probs_model
+const Av1CoeffProbsModel
 default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
     {  // Q_Index 0
 #if CONFIG_CB4X4
-        {  // TX_SIZE 0
+        {  // TxSize 0
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -1271,7 +1269,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
             },
         },
 #endif
-        {  // TX_SIZE 0
+        {  // TxSize 0
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -1381,7 +1379,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
                 },
             },
         },
-        {  // TX_SIZE 1
+        {  // TxSize 1
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -1491,7 +1489,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
                 },
             },
         },
-        {  // TX_SIZE 2
+        {  // TxSize 2
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -1601,7 +1599,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
                 },
             },
         },
-        {  // TX_SIZE 3
+        {  // TxSize 3
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -1712,7 +1710,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
             },
         },
 #if CONFIG_TX64X64
-        {  // TX_SIZE 4
+        {  // TxSize 4
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -1826,7 +1824,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
     },
     {  // Q_Index 1
 #if CONFIG_CB4X4
-        {  // TX_SIZE 0
+        {  // TxSize 0
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -1937,7 +1935,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
             },
         },
 #endif
-        {  // TX_SIZE 0
+        {  // TxSize 0
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -2047,7 +2045,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
                 },
             },
         },
-        {  // TX_SIZE 1
+        {  // TxSize 1
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -2157,7 +2155,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
                 },
             },
         },
-        {  // TX_SIZE 2
+        {  // TxSize 2
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -2267,7 +2265,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
                 },
             },
         },
-        {  // TX_SIZE 3
+        {  // TxSize 3
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -2378,7 +2376,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
             },
         },
 #if CONFIG_TX64X64
-        {  // TX_SIZE 4
+        {  // TxSize 4
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -2492,7 +2490,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
     },
     {  // Q_Index 2
 #if CONFIG_CB4X4
-        {  // TX_SIZE 0
+        {  // TxSize 0
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -2603,7 +2601,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
             },
         },
 #endif
-        {  // TX_SIZE 0
+        {  // TxSize 0
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -2713,7 +2711,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
                 },
             },
         },
-        {  // TX_SIZE 1
+        {  // TxSize 1
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -2823,7 +2821,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
                 },
             },
         },
-        {  // TX_SIZE 2
+        {  // TxSize 2
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -2933,7 +2931,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
                 },
             },
         },
-        {  // TX_SIZE 3
+        {  // TxSize 3
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -3044,7 +3042,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
             },
         },
 #if CONFIG_TX64X64
-        {  // TX_SIZE 4
+        {  // TxSize 4
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -3158,7 +3156,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
     },
     {  // Q_Index 3
 #if CONFIG_CB4X4
-        {  // TX_SIZE 0
+        {  // TxSize 0
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -3269,7 +3267,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
             },
         },
 #endif
-        {  // TX_SIZE 0
+        {  // TxSize 0
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -3379,7 +3377,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
                 },
             },
         },
-        {  // TX_SIZE 1
+        {  // TxSize 1
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -3489,7 +3487,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
                 },
             },
         },
-        {  // TX_SIZE 2
+        {  // TxSize 2
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -3599,7 +3597,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
                 },
             },
         },
-        {  // TX_SIZE 3
+        {  // TxSize 3
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -3710,7 +3708,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
             },
         },
 #if CONFIG_TX64X64
-        {  // TX_SIZE 4
+        {  // TxSize 4
             {  // Y plane
                 {  // Intra
                     {  // band 0
@@ -3825,7 +3823,7 @@ default_qctx_coef_probs[QCTX_BINS][TX_SIZES][PLANE_TYPES] = {
 };
 #else
 #if CONFIG_NEW_TOKENSET
-static const av1_coeff_probs_model default_coef_probs_4x4[PLANE_TYPES] = {
+static const Av1CoeffProbsModel default_coef_probs_4x4[PLANE_TYPES] = {
   { // Y plane
     { // Intra
       { // Band 0
@@ -3931,7 +3929,7 @@ static const av1_coeff_probs_model default_coef_probs_4x4[PLANE_TYPES] = {
     }
   }
 };
-static const av1_coeff_probs_model default_coef_probs_8x8[PLANE_TYPES] = {
+static const Av1CoeffProbsModel default_coef_probs_8x8[PLANE_TYPES] = {
   { // Y plane
     { // Intra
       { // Band 0
@@ -4037,7 +4035,7 @@ static const av1_coeff_probs_model default_coef_probs_8x8[PLANE_TYPES] = {
     }
   }
 };
-static const av1_coeff_probs_model default_coef_probs_16x16[PLANE_TYPES] = {
+static const Av1CoeffProbsModel default_coef_probs_16x16[PLANE_TYPES] = {
   { // Y plane
     { // Intra
       { // Band 0
@@ -4143,7 +4141,7 @@ static const av1_coeff_probs_model default_coef_probs_16x16[PLANE_TYPES] = {
     }
   }
 };
-static const av1_coeff_probs_model default_coef_probs_32x32[PLANE_TYPES] = {
+static const Av1CoeffProbsModel default_coef_probs_32x32[PLANE_TYPES] = {
   { // Y plane
     { // Intra
       { // Band 0
@@ -4250,7 +4248,7 @@ static const av1_coeff_probs_model default_coef_probs_32x32[PLANE_TYPES] = {
   }
 };
 #else  // CONFIG_NEW_TOKENSET
-static const av1_coeff_probs_model default_coef_probs_4x4[PLANE_TYPES] = {
+static const Av1CoeffProbsModel default_coef_probs_4x4[PLANE_TYPES] = {
   {  // Y plane
     {  // Intra
       {  // Band 0
@@ -4334,7 +4332,7 @@ static const av1_coeff_probs_model default_coef_probs_4x4[PLANE_TYPES] = {
   }
 };
 
-static const av1_coeff_probs_model default_coef_probs_8x8[PLANE_TYPES] = {
+static const Av1CoeffProbsModel default_coef_probs_8x8[PLANE_TYPES] = {
   {  // Y plane
     {  // Intra
       {  // Band 0
@@ -4418,7 +4416,7 @@ static const av1_coeff_probs_model default_coef_probs_8x8[PLANE_TYPES] = {
   }
 };
 
-static const av1_coeff_probs_model default_coef_probs_16x16[PLANE_TYPES] = {
+static const Av1CoeffProbsModel default_coef_probs_16x16[PLANE_TYPES] = {
   {  // Y plane
     {  // Intra
       {  // Band 0
@@ -4502,7 +4500,7 @@ static const av1_coeff_probs_model default_coef_probs_16x16[PLANE_TYPES] = {
   }
 };
 
-static const av1_coeff_probs_model default_coef_probs_32x32[PLANE_TYPES] = {
+static const Av1CoeffProbsModel default_coef_probs_32x32[PLANE_TYPES] = {
   {  // Y plane
     {  // Intra
       {  // Band 0
@@ -4589,7 +4587,7 @@ static const av1_coeff_probs_model default_coef_probs_32x32[PLANE_TYPES] = {
 
 #if CONFIG_TX64X64
 // FIXME. Optimize for EC_MULTISYMBOL
-static const av1_coeff_probs_model default_coef_probs_64x64[PLANE_TYPES] = {
+static const Av1CoeffProbsModel default_coef_probs_64x64[PLANE_TYPES] = {
   {  // Y plane
     {  // Intra
       {  // Band 0
@@ -4675,7 +4673,7 @@ static const av1_coeff_probs_model default_coef_probs_64x64[PLANE_TYPES] = {
 #endif  // CONFIG_TX64X64
 #endif  // CONFIG_Q_ADAPT_PROBS
 #if CONFIG_NEW_TOKENSET
-static const aom_prob av1_default_blockzero_probs[TX_SIZES][PLANE_TYPES]
+static const AomProb av1_default_blockzero_probs[TX_SIZES][PLANE_TYPES]
                                            [REF_TYPES][BLOCKZ_CONTEXTS] = {
   { // TX_4x4
     { // Y plane
@@ -4731,7 +4729,7 @@ static const aom_prob av1_default_blockzero_probs[TX_SIZES][PLANE_TYPES]
 #endif
 };
 
-static const coeff_cdf_model default_coef_head_cdf_4x4[PLANE_TYPES] = {
+static const CoeffCdfModel default_coef_head_cdf_4x4[PLANE_TYPES] = {
   {     // Y plane
     {   // Intra
       { // Band 0
@@ -5027,7 +5025,7 @@ static const coeff_cdf_model default_coef_head_cdf_4x4[PLANE_TYPES] = {
         {AOM_ICDF(3009), AOM_ICDF(3246), AOM_ICDF(10158), AOM_ICDF(10533),
          AOM_ICDF(32768) } } } }
 };
-static const coeff_cdf_model default_coef_head_cdf_8x8[PLANE_TYPES] = {
+static const CoeffCdfModel default_coef_head_cdf_8x8[PLANE_TYPES] = {
   {     // Y plane
     {   // Intra
       { // Band 0
@@ -5323,7 +5321,7 @@ static const coeff_cdf_model default_coef_head_cdf_8x8[PLANE_TYPES] = {
         {AOM_ICDF(3009), AOM_ICDF(3246), AOM_ICDF(10158), AOM_ICDF(10533),
          AOM_ICDF(32768) } } } }
 };
-static const coeff_cdf_model default_coef_head_cdf_16x16[PLANE_TYPES] = {
+static const CoeffCdfModel default_coef_head_cdf_16x16[PLANE_TYPES] = {
   {     // Y plane
     {   // Intra
       { // Band 0
@@ -5619,7 +5617,7 @@ static const coeff_cdf_model default_coef_head_cdf_16x16[PLANE_TYPES] = {
         {AOM_ICDF(3009), AOM_ICDF(3246), AOM_ICDF(10158), AOM_ICDF(10533),
          AOM_ICDF(32768) } } } }
 };
-static const coeff_cdf_model default_coef_head_cdf_32x32[PLANE_TYPES] = {
+static const CoeffCdfModel default_coef_head_cdf_32x32[PLANE_TYPES] = {
   {     // Y plane
     {   // Intra
       { // Band 0
@@ -5919,26 +5917,25 @@ static const coeff_cdf_model default_coef_head_cdf_32x32[PLANE_TYPES] = {
 
 /* clang-format on */
 
-static void extend_to_full_distribution(aom_prob *probs, aom_prob p) {
+static void extend_to_full_distribution(AomProb *probs, AomProb p) {
   assert(p != 0);
-  memcpy(probs, av1_pareto8_full[p - 1], MODEL_NODES * sizeof(aom_prob));
+  memcpy(probs, av1_pareto8_full[p - 1], MODEL_NODES * sizeof(AomProb));
 }
 
-void av1_model_to_full_probs(const aom_prob *model, aom_prob *full) {
-  if (full != model)
-    memcpy(full, model, sizeof(aom_prob) * UNCONSTRAINED_NODES);
+void av1_model_to_full_probs(const AomProb *model, AomProb *full) {
+  if (full != model) memcpy(full, model, sizeof(AomProb) * UNCONSTRAINED_NODES);
   extend_to_full_distribution(&full[UNCONSTRAINED_NODES], model[PIVOT_NODE]);
 }
 
 #if CONFIG_NEW_TOKENSET
 
-static void build_tail_cdfs(aom_cdf_prob cdf_tail[CDF_SIZE(ENTROPY_TOKENS)],
-                            aom_cdf_prob cdf_head[CDF_SIZE(ENTROPY_TOKENS)],
+static void build_tail_cdfs(AomCdfProb cdf_tail[CDF_SIZE(ENTROPY_TOKENS)],
+                            AomCdfProb cdf_head[CDF_SIZE(ENTROPY_TOKENS)],
                             int band_zero) {
   int probNZ, prob1, prob_idx, i;
   int phead[HEAD_TOKENS + 1], sum;
   const int is_dc = !!band_zero;
-  aom_cdf_prob prev_cdf;
+  AomCdfProb prev_cdf;
   prev_cdf = 0;
   for (i = 0; i < HEAD_TOKENS + is_dc; ++i) {
     phead[i] = AOM_ICDF(cdf_head[i]) - prev_cdf;
@@ -5957,9 +5954,9 @@ static void build_tail_cdfs(aom_cdf_prob cdf_tail[CDF_SIZE(ENTROPY_TOKENS)],
   }
 }
 
-static void build_head_cdfs(const aom_prob *pdf_model,
-                            const aom_prob *blockz_model,
-                            aom_cdf_prob cdf_head[ENTROPY_TOKENS + 1]) {
+static void build_head_cdfs(const AomProb *pdf_model,
+                            const AomProb *blockz_model,
+                            AomCdfProb cdf_head[ENTROPY_TOKENS + 1]) {
   int i, p, p1, p2, phead[6], prob_NZ, prob_EOB_1, prob_EOB_2p, prob_NEOB_1,
       prob_NEOB_2p;
   int prob8_blocknz;
@@ -6035,7 +6032,7 @@ static void build_head_cdfs(const aom_prob *pdf_model,
   cdf_head[last_head_val] = AOM_ICDF(CDF_PROB_TOP);
 }
 
-static void av1_default_coef_cdfs(FRAME_CONTEXT *fc) {
+static void av1_default_coef_cdfs(FrameContext *fc) {
   int i, j, k, l;
   for (i = 0; i < PLANE_TYPES; ++i)
     for (j = 0; j < REF_TYPES; ++j)
@@ -6060,8 +6057,8 @@ static void av1_default_coef_cdfs(FRAME_CONTEXT *fc) {
         }
 }
 
-void av1_coef_head_cdfs(FRAME_CONTEXT *fc) {
-  TX_SIZE t;
+void av1_coef_head_cdfs(FrameContext *fc) {
+  TxSize t;
   int i, j, k, l;
   for (t = 0; t < TX_SIZES; ++t)
     for (i = 0; i < PLANE_TYPES; ++i)
@@ -6075,8 +6072,8 @@ void av1_coef_head_cdfs(FRAME_CONTEXT *fc) {
 }
 
 #elif CONFIG_EC_MULTISYMBOL
-static void build_token_cdfs(const aom_prob *pdf_model,
-                             aom_cdf_prob cdf[ENTROPY_TOKENS + 1]) {
+static void build_token_cdfs(const AomProb *pdf_model,
+                             AomCdfProb cdf[ENTROPY_TOKENS + 1]) {
   int i, sum = 0;
   assert(pdf_model[2] != 0);
   for (i = 0; i < ENTROPY_TOKENS - 2; ++i) {
@@ -6087,9 +6084,9 @@ static void build_token_cdfs(const aom_prob *pdf_model,
 #endif  // CONFIG_NEW_TOKENSET
 
 #if CONFIG_EC_MULTISYMBOL
-void av1_coef_pareto_cdfs(FRAME_CONTEXT *fc) {
+void av1_coef_pareto_cdfs(FrameContext *fc) {
   /* Build the tail based on a Pareto distribution */
-  TX_SIZE t;
+  TxSize t;
   int i, j, k, l;
   for (t = 0; t < TX_SIZES; ++t)
     for (i = 0; i < PLANE_TYPES; ++i)
@@ -6106,7 +6103,7 @@ void av1_coef_pareto_cdfs(FRAME_CONTEXT *fc) {
 }
 #endif
 
-void av1_default_coef_probs(AV1_COMMON *cm) {
+void av1_default_coef_probs(Av1Common *cm) {
 #if CONFIG_Q_ADAPT_PROBS
   const int index = AOMMIN(
       ROUND_POWER_OF_TWO(cm->base_qindex, 8 - QCTX_BIN_BITS), QCTX_BINS - 1);
@@ -6136,23 +6133,23 @@ void av1_default_coef_probs(AV1_COMMON *cm) {
 }
 
 #if !CONFIG_LV_MAP
-static void adapt_coef_probs(AV1_COMMON *cm, TX_SIZE tx_size,
+static void adapt_coef_probs(Av1Common *cm, TxSize tx_size,
                              unsigned int count_sat,
                              unsigned int update_factor) {
-  const FRAME_CONTEXT *pre_fc = cm->pre_fc;
-  av1_coeff_probs_model *const probs = cm->fc->coef_probs[tx_size];
-  const av1_coeff_probs_model *const pre_probs = pre_fc->coef_probs[tx_size];
-  const av1_coeff_count_model *const counts =
-      (const av1_coeff_count_model *)cm->counts.coef[tx_size];
+  const FrameContext *pre_fc = cm->pre_fc;
+  Av1CoeffProbsModel *const probs = cm->fc->coef_probs[tx_size];
+  const Av1CoeffProbsModel *const pre_probs = pre_fc->coef_probs[tx_size];
+  const Av1CoeffCountModel *const counts =
+      (const Av1CoeffCountModel *)cm->counts.coef[tx_size];
   const unsigned int(*eob_counts)[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS] =
       (const unsigned int(*)[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS])
           cm->counts.eob_branch[tx_size];
 #if CONFIG_NEW_TOKENSET
-  const av1_blockz_probs_model *const pre_blockz_probs =
+  const Av1BlockzProbsModel *const pre_blockz_probs =
       pre_fc->blockzero_probs[tx_size];
-  av1_blockz_probs_model *const blockz_probs = cm->fc->blockzero_probs[tx_size];
-  const av1_blockz_count_model *const blockz_counts =
-      (const av1_blockz_count_model *)&cm->counts.blockz_count[tx_size][0];
+  Av1BlockzProbsModel *const blockz_probs = cm->fc->blockzero_probs[tx_size];
+  const Av1BlockzCountModel *const blockz_counts =
+      (const Av1BlockzCountModel *)&cm->counts.blockz_count[tx_size][0];
 #endif
   int i, j, k, l, m;
 #if CONFIG_RECT_TX
@@ -6192,7 +6189,7 @@ static void adapt_coef_probs(AV1_COMMON *cm, TX_SIZE tx_size,
 }
 #endif  // !CONFIG_LV_MAP
 
-void av1_adapt_coef_probs(AV1_COMMON *cm) {
+void av1_adapt_coef_probs(Av1Common *cm) {
   unsigned int count_sat, update_factor;
 
   if (!frame_is_intra_only(cm) && cm->last_frame_type == KEY_FRAME) {
@@ -6206,14 +6203,14 @@ void av1_adapt_coef_probs(AV1_COMMON *cm) {
 #if CONFIG_LV_MAP
   av1_adapt_txb_probs(cm, count_sat, update_factor);
 #else
-  TX_SIZE tx_size;
+  TxSize tx_size;
   for (tx_size = 0; tx_size < TX_SIZES; tx_size++)
     adapt_coef_probs(cm, tx_size, count_sat, update_factor);
 #endif
 }
 
 #if CONFIG_EC_ADAPT
-static void av1_average_cdf(aom_cdf_prob *cdf_ptr[], aom_cdf_prob *fc_cdf_ptr,
+static void av1_average_cdf(AomCdfProb *cdf_ptr[], AomCdfProb *fc_cdf_ptr,
                             int cdf_size, const int num_tiles) {
   int i;
   for (i = 0; i < cdf_size;) {
@@ -6233,18 +6230,18 @@ static void av1_average_cdf(aom_cdf_prob *cdf_ptr[], aom_cdf_prob *fc_cdf_ptr,
   }
 }
 
-#define AVERAGE_TILE_CDFS(cname)                            \
-  for (i = 0; i < num_tiles; ++i)                           \
-    cdf_ptr[i] = (aom_cdf_prob *)&ec_ctxs[i]->cname;        \
-  fc_cdf_ptr = (aom_cdf_prob *)&fc->cname;                  \
-  cdf_size = (int)sizeof(fc->cname) / sizeof(aom_cdf_prob); \
+#define AVERAGE_TILE_CDFS(cname)                          \
+  for (i = 0; i < num_tiles; ++i)                         \
+    cdf_ptr[i] = (AomCdfProb *)&ec_ctxs[i]->cname;        \
+  fc_cdf_ptr = (AomCdfProb *)&fc->cname;                  \
+  cdf_size = (int)sizeof(fc->cname) / sizeof(AomCdfProb); \
   av1_average_cdf(cdf_ptr, fc_cdf_ptr, cdf_size, num_tiles);
 
-void av1_average_tile_coef_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
-                                aom_cdf_prob *cdf_ptr[], int num_tiles) {
+void av1_average_tile_coef_cdfs(FrameContext *fc, FrameContext *ec_ctxs[],
+                                AomCdfProb *cdf_ptr[], int num_tiles) {
   int i, cdf_size;
 
-  aom_cdf_prob *fc_cdf_ptr;
+  AomCdfProb *fc_cdf_ptr;
 
 #if CONFIG_NEW_TOKENSET
   AVERAGE_TILE_CDFS(coef_head_cdfs)
@@ -6254,11 +6251,11 @@ void av1_average_tile_coef_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
 #endif
 }
 
-void av1_average_tile_mv_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
-                              aom_cdf_prob *cdf_ptr[], int num_tiles) {
+void av1_average_tile_mv_cdfs(FrameContext *fc, FrameContext *ec_ctxs[],
+                              AomCdfProb *cdf_ptr[], int num_tiles) {
   int i, k, cdf_size;
 
-  aom_cdf_prob *fc_cdf_ptr;
+  AomCdfProb *fc_cdf_ptr;
 
   int j;
   for (j = 0; j < NMV_CONTEXTS; ++j) {
@@ -6272,11 +6269,11 @@ void av1_average_tile_mv_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
   }
 }
 
-void av1_average_tile_intra_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
-                                 aom_cdf_prob *cdf_ptr[], int num_tiles) {
+void av1_average_tile_intra_cdfs(FrameContext *fc, FrameContext *ec_ctxs[],
+                                 AomCdfProb *cdf_ptr[], int num_tiles) {
   int i, cdf_size;
 
-  aom_cdf_prob *fc_cdf_ptr;
+  AomCdfProb *fc_cdf_ptr;
 
   AVERAGE_TILE_CDFS(tx_size_cdf);
 
@@ -6307,12 +6304,12 @@ void av1_average_tile_intra_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
 #endif  // CONFIG_FILTER_INTRA
 }
 
-void av1_average_tile_inter_cdfs(AV1_COMMON *cm, FRAME_CONTEXT *fc,
-                                 FRAME_CONTEXT *ec_ctxs[],
-                                 aom_cdf_prob *cdf_ptr[], int num_tiles) {
+void av1_average_tile_inter_cdfs(Av1Common *cm, FrameContext *fc,
+                                 FrameContext *ec_ctxs[], AomCdfProb *cdf_ptr[],
+                                 int num_tiles) {
   int i, cdf_size;
 
-  aom_cdf_prob *fc_cdf_ptr;
+  AomCdfProb *fc_cdf_ptr;
 
   // FIXME: comp_inter_cdf not defined
 
@@ -6354,25 +6351,25 @@ static void av1_average_pvq_ex(int *cxt_ptr[], int *fc_cxt_ptr, int cxt_size,
   cxt_size = (int)sizeof(fc->cname) / sizeof(int);                        \
   av1_average_pvq_ex(cxt_ptr, fc_cxt_ptr, cxt_size, num_tiles);
 
-void av1_default_pvq_probs(AV1_COMMON *cm) {
-  od_adapt_ctx *adapt = &cm->fc->pvq_context;
+void av1_default_pvq_probs(Av1Common *cm) {
+  OdAdaptCtx *adapt = &cm->fc->pvq_context;
 
   // Init with flat probabilities.
   od_adapt_ctx_reset(adapt, 0);
 
   // TODO(yushin): Prepare offline cdf and context table for PVQ,
-  // i.e. od_adapt_ctx, then load them from table,
-  // for example od_adapt_ctx default_pvq_context.
+  // i.e. OdAdaptCtx, then load them from table,
+  // for example OdAdaptCtx default_pvq_context.
   // Then do sth like this:
   // av1_copy(cm->fc->pvq_context, default_pvq_context);
 }
 
-void av1_average_tile_pvq_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
+void av1_average_tile_pvq_cdfs(FrameContext *fc, FrameContext *ec_ctxs[],
                                const int num_tiles) {
   int i, j, cdf_size, cxt_size;
 
-  aom_cdf_prob *cdf_ptr[MAX_TILE_ROWS * MAX_TILE_COLS];
-  aom_cdf_prob *fc_cdf_ptr;
+  AomCdfProb *cdf_ptr[MAX_TILE_ROWS * MAX_TILE_COLS];
+  AomCdfProb *fc_cdf_ptr;
   int *cxt_ptr[MAX_TILE_ROWS * MAX_TILE_COLS];
   int *fc_cxt_ptr;
 

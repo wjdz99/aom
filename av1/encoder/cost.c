@@ -38,15 +38,14 @@ const uint16_t av1_prob_cost[256] = {
   26,   23,   20,   18,   15,   12,   9,    6,    3
 };
 
-static void cost(int *costs, aom_tree tree, const aom_prob *probs, int i,
-                 int c) {
-  const aom_prob prob = probs[i / 2];
+static void cost(int *costs, AomTree tree, const AomProb *probs, int i, int c) {
+  const AomProb prob = probs[i / 2];
   int b;
 
   assert(prob != 0);
   for (b = 0; b <= 1; ++b) {
     const int cc = c + av1_cost_bit(prob, b);
-    const aom_tree_index ii = tree[i + b];
+    const AomTreeIndex ii = tree[i + b];
 
     if (ii <= 0)
       costs[-ii] = cc;
@@ -55,11 +54,11 @@ static void cost(int *costs, aom_tree tree, const aom_prob *probs, int i,
   }
 }
 
-void av1_cost_tokens(int *costs, const aom_prob *probs, aom_tree tree) {
+void av1_cost_tokens(int *costs, const AomProb *probs, AomTree tree) {
   cost(costs, tree, probs, 0, 0);
 }
 
-void av1_cost_tokens_skip(int *costs, const aom_prob *probs, aom_tree tree) {
+void av1_cost_tokens_skip(int *costs, const AomProb *probs, AomTree tree) {
   assert(tree[0] <= 0 && tree[1] > 0);
 
   costs[-tree[0]] = av1_cost_bit(probs[0], 0);

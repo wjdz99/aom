@@ -23,17 +23,17 @@
 using libaom_test::ACMRandom;
 
 namespace {
-typedef void (*IhtFunc)(const tran_low_t *in, uint8_t *out, int stride,
+typedef void (*IhtFunc)(const TranLowT *in, uint8_t *out, int stride,
                         int tx_type);
 using std::tr1::tuple;
 using libaom_test::FhtFunc;
-typedef tuple<FhtFunc, IhtFunc, int, aom_bit_depth_t, int> Ht8x16Param;
+typedef tuple<FhtFunc, IhtFunc, int, AomBitDepthT, int> Ht8x16Param;
 
-void fht8x16_ref(const int16_t *in, tran_low_t *out, int stride, int tx_type) {
+void fht8x16_ref(const int16_t *in, TranLowT *out, int stride, int tx_type) {
   av1_fht8x16_c(in, out, stride, tx_type);
 }
 
-void iht8x16_ref(const tran_low_t *in, uint8_t *out, int stride, int tx_type) {
+void iht8x16_ref(const TranLowT *in, uint8_t *out, int stride, int tx_type) {
   av1_iht8x16_128_add_c(in, out, stride, tx_type);
 }
 
@@ -57,11 +57,11 @@ class AV1Trans8x16HT : public libaom_test::TransformTestBase,
   virtual void TearDown() { libaom_test::ClearSystemState(); }
 
  protected:
-  void RunFwdTxfm(const int16_t *in, tran_low_t *out, int stride) {
+  void RunFwdTxfm(const int16_t *in, TranLowT *out, int stride) {
     fwd_txfm_(in, out, stride, tx_type_);
   }
 
-  void RunInvTxfm(const tran_low_t *out, uint8_t *dst, int stride) {
+  void RunInvTxfm(const TranLowT *out, uint8_t *dst, int stride) {
     inv_txfm_(out, dst, stride, tx_type_);
   }
 

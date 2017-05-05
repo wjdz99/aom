@@ -13,7 +13,7 @@
 #include <assert.h>
 #include "./aom_dsp_rtcd.h"
 
-void aom_fdct4x4_c(const int16_t *input, tran_low_t *output, int stride) {
+void aom_fdct4x4_c(const int16_t *input, TranLowT *output, int stride) {
   // The 2D transform is done with two passes which are actually pretty
   // similar. In the first one, we transform the columns and transpose
   // the results. In the second one, we transform the rows. To achieve that,
@@ -22,14 +22,14 @@ void aom_fdct4x4_c(const int16_t *input, tran_low_t *output, int stride) {
   // in normal/row positions).
   int pass;
   // We need an intermediate buffer between passes.
-  tran_low_t intermediate[4 * 4];
-  const tran_low_t *in_low = NULL;
-  tran_low_t *out = intermediate;
+  TranLowT intermediate[4 * 4];
+  const TranLowT *in_low = NULL;
+  TranLowT *out = intermediate;
   // Do the two transform/transpose passes
   for (pass = 0; pass < 2; ++pass) {
-    tran_high_t in_high[4];    // canbe16
-    tran_high_t step[4];       // canbe16
-    tran_high_t temp1, temp2;  // needs32
+    TranHighT in_high[4];    // canbe16
+    TranHighT step[4];       // canbe16
+    TranHighT temp1, temp2;  // needs32
     int i;
     for (i = 0; i < 4; ++i) {
       // Load inputs.
@@ -56,12 +56,12 @@ void aom_fdct4x4_c(const int16_t *input, tran_low_t *output, int stride) {
       step[3] = in_high[0] - in_high[3];
       temp1 = (step[0] + step[1]) * cospi_16_64;
       temp2 = (step[0] - step[1]) * cospi_16_64;
-      out[0] = (tran_low_t)fdct_round_shift(temp1);
-      out[2] = (tran_low_t)fdct_round_shift(temp2);
+      out[0] = (TranLowT)fdct_round_shift(temp1);
+      out[2] = (TranLowT)fdct_round_shift(temp2);
       temp1 = step[2] * cospi_24_64 + step[3] * cospi_8_64;
       temp2 = -step[2] * cospi_8_64 + step[3] * cospi_24_64;
-      out[1] = (tran_low_t)fdct_round_shift(temp1);
-      out[3] = (tran_low_t)fdct_round_shift(temp2);
+      out[1] = (TranLowT)fdct_round_shift(temp1);
+      out[3] = (TranLowT)fdct_round_shift(temp2);
       // Do next column (which is a transposed row in second/horizontal pass)
       ++input;
       out += 4;
@@ -79,27 +79,27 @@ void aom_fdct4x4_c(const int16_t *input, tran_low_t *output, int stride) {
   }
 }
 
-void aom_fdct4x4_1_c(const int16_t *input, tran_low_t *output, int stride) {
+void aom_fdct4x4_1_c(const int16_t *input, TranLowT *output, int stride) {
   int r, c;
-  tran_low_t sum = 0;
+  TranLowT sum = 0;
   for (r = 0; r < 4; ++r)
     for (c = 0; c < 4; ++c) sum += input[r * stride + c];
 
   output[0] = sum << 1;
 }
 
-void aom_fdct8x8_c(const int16_t *input, tran_low_t *final_output, int stride) {
+void aom_fdct8x8_c(const int16_t *input, TranLowT *final_output, int stride) {
   int i, j;
-  tran_low_t intermediate[64];
+  TranLowT intermediate[64];
   int pass;
-  tran_low_t *output = intermediate;
-  const tran_low_t *in = NULL;
+  TranLowT *output = intermediate;
+  const TranLowT *in = NULL;
 
   // Transform columns
   for (pass = 0; pass < 2; ++pass) {
-    tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;  // canbe16
-    tran_high_t t0, t1, t2, t3;                  // needs32
-    tran_high_t x0, x1, x2, x3;                  // canbe16
+    TranHighT s0, s1, s2, s3, s4, s5, s6, s7;  // canbe16
+    TranHighT t0, t1, t2, t3;                  // needs32
+    TranHighT x0, x1, x2, x3;                  // canbe16
 
     for (i = 0; i < 8; i++) {
       // stage 1
@@ -134,10 +134,10 @@ void aom_fdct8x8_c(const int16_t *input, tran_low_t *final_output, int stride) {
       t1 = (x0 - x1) * cospi_16_64;
       t2 = x2 * cospi_24_64 + x3 * cospi_8_64;
       t3 = -x2 * cospi_8_64 + x3 * cospi_24_64;
-      output[0] = (tran_low_t)fdct_round_shift(t0);
-      output[2] = (tran_low_t)fdct_round_shift(t2);
-      output[4] = (tran_low_t)fdct_round_shift(t1);
-      output[6] = (tran_low_t)fdct_round_shift(t3);
+      output[0] = (TranLowT)fdct_round_shift(t0);
+      output[2] = (TranLowT)fdct_round_shift(t2);
+      output[4] = (TranLowT)fdct_round_shift(t1);
+      output[6] = (TranLowT)fdct_round_shift(t3);
 
       // Stage 2
       t0 = (s6 - s5) * cospi_16_64;
@@ -156,10 +156,10 @@ void aom_fdct8x8_c(const int16_t *input, tran_low_t *final_output, int stride) {
       t1 = x1 * cospi_12_64 + x2 * cospi_20_64;
       t2 = x2 * cospi_12_64 + x1 * -cospi_20_64;
       t3 = x3 * cospi_28_64 + x0 * -cospi_4_64;
-      output[1] = (tran_low_t)fdct_round_shift(t0);
-      output[3] = (tran_low_t)fdct_round_shift(t2);
-      output[5] = (tran_low_t)fdct_round_shift(t1);
-      output[7] = (tran_low_t)fdct_round_shift(t3);
+      output[1] = (TranLowT)fdct_round_shift(t0);
+      output[3] = (TranLowT)fdct_round_shift(t2);
+      output[5] = (TranLowT)fdct_round_shift(t1);
+      output[7] = (TranLowT)fdct_round_shift(t3);
       output += 8;
     }
     in = intermediate;
@@ -172,16 +172,16 @@ void aom_fdct8x8_c(const int16_t *input, tran_low_t *final_output, int stride) {
   }
 }
 
-void aom_fdct8x8_1_c(const int16_t *input, tran_low_t *output, int stride) {
+void aom_fdct8x8_1_c(const int16_t *input, TranLowT *output, int stride) {
   int r, c;
-  tran_low_t sum = 0;
+  TranLowT sum = 0;
   for (r = 0; r < 8; ++r)
     for (c = 0; c < 8; ++c) sum += input[r * stride + c];
 
   output[0] = sum;
 }
 
-void aom_fdct16x16_c(const int16_t *input, tran_low_t *output, int stride) {
+void aom_fdct16x16_c(const int16_t *input, TranLowT *output, int stride) {
   // The 2D transform is done with two passes which are actually pretty
   // similar. In the first one, we transform the columns and transpose
   // the results. In the second one, we transform the rows. To achieve that,
@@ -190,16 +190,16 @@ void aom_fdct16x16_c(const int16_t *input, tran_low_t *output, int stride) {
   // in normal/row positions).
   int pass;
   // We need an intermediate buffer between passes.
-  tran_low_t intermediate[256];
-  const tran_low_t *in_low = NULL;
-  tran_low_t *out = intermediate;
+  TranLowT intermediate[256];
+  const TranLowT *in_low = NULL;
+  TranLowT *out = intermediate;
   // Do the two transform/transpose passes
   for (pass = 0; pass < 2; ++pass) {
-    tran_high_t step1[8];      // canbe16
-    tran_high_t step2[8];      // canbe16
-    tran_high_t step3[8];      // canbe16
-    tran_high_t in_high[8];    // canbe16
-    tran_high_t temp1, temp2;  // needs32
+    TranHighT step1[8];      // canbe16
+    TranHighT step2[8];      // canbe16
+    TranHighT step3[8];      // canbe16
+    TranHighT in_high[8];    // canbe16
+    TranHighT temp1, temp2;  // needs32
     int i;
     for (i = 0; i < 16; i++) {
       if (0 == pass) {
@@ -245,9 +245,9 @@ void aom_fdct16x16_c(const int16_t *input, tran_low_t *output, int stride) {
       }
       // Work on the first eight values; fdct8(input, even_results);
       {
-        tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;  // canbe16
-        tran_high_t t0, t1, t2, t3;                  // needs32
-        tran_high_t x0, x1, x2, x3;                  // canbe16
+        TranHighT s0, s1, s2, s3, s4, s5, s6, s7;  // canbe16
+        TranHighT t0, t1, t2, t3;                  // needs32
+        TranHighT x0, x1, x2, x3;                  // canbe16
 
         // stage 1
         s0 = in_high[0] + in_high[7];
@@ -268,10 +268,10 @@ void aom_fdct16x16_c(const int16_t *input, tran_low_t *output, int stride) {
         t1 = (x0 - x1) * cospi_16_64;
         t2 = x3 * cospi_8_64 + x2 * cospi_24_64;
         t3 = x3 * cospi_24_64 - x2 * cospi_8_64;
-        out[0] = (tran_low_t)fdct_round_shift(t0);
-        out[4] = (tran_low_t)fdct_round_shift(t2);
-        out[8] = (tran_low_t)fdct_round_shift(t1);
-        out[12] = (tran_low_t)fdct_round_shift(t3);
+        out[0] = (TranLowT)fdct_round_shift(t0);
+        out[4] = (TranLowT)fdct_round_shift(t2);
+        out[8] = (TranLowT)fdct_round_shift(t1);
+        out[12] = (TranLowT)fdct_round_shift(t3);
 
         // Stage 2
         t0 = (s6 - s5) * cospi_16_64;
@@ -290,10 +290,10 @@ void aom_fdct16x16_c(const int16_t *input, tran_low_t *output, int stride) {
         t1 = x1 * cospi_12_64 + x2 * cospi_20_64;
         t2 = x2 * cospi_12_64 + x1 * -cospi_20_64;
         t3 = x3 * cospi_28_64 + x0 * -cospi_4_64;
-        out[2] = (tran_low_t)fdct_round_shift(t0);
-        out[6] = (tran_low_t)fdct_round_shift(t2);
-        out[10] = (tran_low_t)fdct_round_shift(t1);
-        out[14] = (tran_low_t)fdct_round_shift(t3);
+        out[2] = (TranLowT)fdct_round_shift(t0);
+        out[6] = (TranLowT)fdct_round_shift(t2);
+        out[10] = (TranLowT)fdct_round_shift(t1);
+        out[14] = (TranLowT)fdct_round_shift(t3);
       }
       // Work on the next eight values; step1 -> odd_results
       {
@@ -336,20 +336,20 @@ void aom_fdct16x16_c(const int16_t *input, tran_low_t *output, int stride) {
         // step 6
         temp1 = step1[0] * cospi_30_64 + step1[7] * cospi_2_64;
         temp2 = step1[1] * cospi_14_64 + step1[6] * cospi_18_64;
-        out[1] = (tran_low_t)fdct_round_shift(temp1);
-        out[9] = (tran_low_t)fdct_round_shift(temp2);
+        out[1] = (TranLowT)fdct_round_shift(temp1);
+        out[9] = (TranLowT)fdct_round_shift(temp2);
         temp1 = step1[2] * cospi_22_64 + step1[5] * cospi_10_64;
         temp2 = step1[3] * cospi_6_64 + step1[4] * cospi_26_64;
-        out[5] = (tran_low_t)fdct_round_shift(temp1);
-        out[13] = (tran_low_t)fdct_round_shift(temp2);
+        out[5] = (TranLowT)fdct_round_shift(temp1);
+        out[13] = (TranLowT)fdct_round_shift(temp2);
         temp1 = step1[3] * -cospi_26_64 + step1[4] * cospi_6_64;
         temp2 = step1[2] * -cospi_10_64 + step1[5] * cospi_22_64;
-        out[3] = (tran_low_t)fdct_round_shift(temp1);
-        out[11] = (tran_low_t)fdct_round_shift(temp2);
+        out[3] = (TranLowT)fdct_round_shift(temp1);
+        out[11] = (TranLowT)fdct_round_shift(temp2);
         temp1 = step1[1] * -cospi_18_64 + step1[6] * cospi_14_64;
         temp2 = step1[0] * -cospi_2_64 + step1[7] * cospi_30_64;
-        out[7] = (tran_low_t)fdct_round_shift(temp1);
-        out[15] = (tran_low_t)fdct_round_shift(temp2);
+        out[7] = (TranLowT)fdct_round_shift(temp1);
+        out[15] = (TranLowT)fdct_round_shift(temp2);
       }
       // Do next column (which is a transposed row in second/horizontal pass)
       input++;
@@ -361,30 +361,30 @@ void aom_fdct16x16_c(const int16_t *input, tran_low_t *output, int stride) {
   }
 }
 
-void aom_fdct16x16_1_c(const int16_t *input, tran_low_t *output, int stride) {
+void aom_fdct16x16_1_c(const int16_t *input, TranLowT *output, int stride) {
   int r, c;
   int sum = 0;
   for (r = 0; r < 16; ++r)
     for (c = 0; c < 16; ++c) sum += input[r * stride + c];
 
-  output[0] = (tran_low_t)(sum >> 1);
+  output[0] = (TranLowT)(sum >> 1);
 }
 
-static INLINE tran_high_t dct_32_round(tran_high_t input) {
-  tran_high_t rv = ROUND_POWER_OF_TWO(input, DCT_CONST_BITS);
+static INLINE TranHighT dct_32_round(TranHighT input) {
+  TranHighT rv = ROUND_POWER_OF_TWO(input, DCT_CONST_BITS);
   // TODO(debargha, peter.derivaz): Find new bounds for this assert,
   // and make the bounds consts.
   // assert(-131072 <= rv && rv <= 131071);
   return rv;
 }
 
-static INLINE tran_high_t half_round_shift(tran_high_t input) {
-  tran_high_t rv = (input + 1 + (input < 0)) >> 2;
+static INLINE TranHighT half_round_shift(TranHighT input) {
+  TranHighT rv = (input + 1 + (input < 0)) >> 2;
   return rv;
 }
 
-void aom_fdct32(const tran_high_t *input, tran_high_t *output, int round) {
-  tran_high_t step[32];
+void aom_fdct32(const TranHighT *input, TranHighT *output, int round) {
+  TranHighT step[32];
   // Stage 1
   step[0] = input[0] + input[(32 - 1)];
   step[1] = input[1] + input[(32 - 2)];
@@ -706,13 +706,13 @@ void aom_fdct32(const tran_high_t *input, tran_high_t *output, int round) {
   output[31] = dct_32_round(step[31] * cospi_31_64 + step[16] * -cospi_1_64);
 }
 
-void aom_fdct32x32_c(const int16_t *input, tran_low_t *out, int stride) {
+void aom_fdct32x32_c(const int16_t *input, TranLowT *out, int stride) {
   int i, j;
-  tran_high_t output[32 * 32];
+  TranHighT output[32 * 32];
 
   // Columns
   for (i = 0; i < 32; ++i) {
-    tran_high_t temp_in[32], temp_out[32];
+    TranHighT temp_in[32], temp_out[32];
     for (j = 0; j < 32; ++j) temp_in[j] = input[j * stride + i] * 4;
     aom_fdct32(temp_in, temp_out, 0);
     for (j = 0; j < 32; ++j)
@@ -721,25 +721,24 @@ void aom_fdct32x32_c(const int16_t *input, tran_low_t *out, int stride) {
 
   // Rows
   for (i = 0; i < 32; ++i) {
-    tran_high_t temp_in[32], temp_out[32];
+    TranHighT temp_in[32], temp_out[32];
     for (j = 0; j < 32; ++j) temp_in[j] = output[j + i * 32];
     aom_fdct32(temp_in, temp_out, 0);
     for (j = 0; j < 32; ++j)
-      out[j + i * 32] =
-          (tran_low_t)((temp_out[j] + 1 + (temp_out[j] < 0)) >> 2);
+      out[j + i * 32] = (TranLowT)((temp_out[j] + 1 + (temp_out[j] < 0)) >> 2);
   }
 }
 
 // Note that although we use dct_32_round in dct32 computation flow,
 // this 2d fdct32x32 for rate-distortion optimization loop is operating
 // within 16 bits precision.
-void aom_fdct32x32_rd_c(const int16_t *input, tran_low_t *out, int stride) {
+void aom_fdct32x32_rd_c(const int16_t *input, TranLowT *out, int stride) {
   int i, j;
-  tran_high_t output[32 * 32];
+  TranHighT output[32 * 32];
 
   // Columns
   for (i = 0; i < 32; ++i) {
-    tran_high_t temp_in[32], temp_out[32];
+    TranHighT temp_in[32], temp_out[32];
     for (j = 0; j < 32; ++j) temp_in[j] = input[j * stride + i] * 4;
     aom_fdct32(temp_in, temp_out, 0);
     for (j = 0; j < 32; ++j)
@@ -751,59 +750,57 @@ void aom_fdct32x32_rd_c(const int16_t *input, tran_low_t *out, int stride) {
 
   // Rows
   for (i = 0; i < 32; ++i) {
-    tran_high_t temp_in[32], temp_out[32];
+    TranHighT temp_in[32], temp_out[32];
     for (j = 0; j < 32; ++j) temp_in[j] = output[j + i * 32];
     aom_fdct32(temp_in, temp_out, 1);
-    for (j = 0; j < 32; ++j) out[j + i * 32] = (tran_low_t)temp_out[j];
+    for (j = 0; j < 32; ++j) out[j + i * 32] = (TranLowT)temp_out[j];
   }
 }
 
-void aom_fdct32x32_1_c(const int16_t *input, tran_low_t *output, int stride) {
+void aom_fdct32x32_1_c(const int16_t *input, TranLowT *output, int stride) {
   int r, c;
   int sum = 0;
   for (r = 0; r < 32; ++r)
     for (c = 0; c < 32; ++c) sum += input[r * stride + c];
 
-  output[0] = (tran_low_t)(sum >> 3);
+  output[0] = (TranLowT)(sum >> 3);
 }
 
 #if CONFIG_HIGHBITDEPTH
-void aom_highbd_fdct4x4_c(const int16_t *input, tran_low_t *output,
-                          int stride) {
+void aom_highbd_fdct4x4_c(const int16_t *input, TranLowT *output, int stride) {
   aom_fdct4x4_c(input, output, stride);
 }
 
-void aom_highbd_fdct8x8_c(const int16_t *input, tran_low_t *final_output,
+void aom_highbd_fdct8x8_c(const int16_t *input, TranLowT *final_output,
                           int stride) {
   aom_fdct8x8_c(input, final_output, stride);
 }
 
-void aom_highbd_fdct8x8_1_c(const int16_t *input, tran_low_t *final_output,
+void aom_highbd_fdct8x8_1_c(const int16_t *input, TranLowT *final_output,
                             int stride) {
   aom_fdct8x8_1_c(input, final_output, stride);
 }
 
-void aom_highbd_fdct16x16_c(const int16_t *input, tran_low_t *output,
+void aom_highbd_fdct16x16_c(const int16_t *input, TranLowT *output,
                             int stride) {
   aom_fdct16x16_c(input, output, stride);
 }
 
-void aom_highbd_fdct16x16_1_c(const int16_t *input, tran_low_t *output,
+void aom_highbd_fdct16x16_1_c(const int16_t *input, TranLowT *output,
                               int stride) {
   aom_fdct16x16_1_c(input, output, stride);
 }
 
-void aom_highbd_fdct32x32_c(const int16_t *input, tran_low_t *out, int stride) {
+void aom_highbd_fdct32x32_c(const int16_t *input, TranLowT *out, int stride) {
   aom_fdct32x32_c(input, out, stride);
 }
 
-void aom_highbd_fdct32x32_rd_c(const int16_t *input, tran_low_t *out,
+void aom_highbd_fdct32x32_rd_c(const int16_t *input, TranLowT *out,
                                int stride) {
   aom_fdct32x32_rd_c(input, out, stride);
 }
 
-void aom_highbd_fdct32x32_1_c(const int16_t *input, tran_low_t *out,
-                              int stride) {
+void aom_highbd_fdct32x32_1_c(const int16_t *input, TranLowT *out, int stride) {
   aom_fdct32x32_1_c(input, out, stride);
 }
 #endif  // CONFIG_HIGHBITDEPTH

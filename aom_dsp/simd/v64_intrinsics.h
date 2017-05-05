@@ -120,20 +120,20 @@ SIMD_INLINE v64 v64_shuffle_8(v64 a, v64 pattern) {
   return c_v64_shuffle_8(a, pattern);
 }
 
-typedef uint32_t sad64_internal;
-SIMD_INLINE sad64_internal v64_sad_u8_init() { return c_v64_sad_u8_init(); }
-SIMD_INLINE sad64_internal v64_sad_u8(sad64_internal s, v64 a, v64 b) {
+typedef uint32_t Sad64Internal;
+SIMD_INLINE Sad64Internal v64_sad_u8_init() { return c_v64_sad_u8_init(); }
+SIMD_INLINE Sad64Internal v64_sad_u8(Sad64Internal s, v64 a, v64 b) {
   return c_v64_sad_u8(s, a, b);
 }
-SIMD_INLINE uint32_t v64_sad_u8_sum(sad64_internal s) {
+SIMD_INLINE uint32_t v64_sad_u8_sum(Sad64Internal s) {
   return c_v64_sad_u8_sum(s);
 }
-typedef uint32_t ssd64_internal;
-SIMD_INLINE ssd64_internal v64_ssd_u8_init() { return c_v64_ssd_u8_init(); }
-SIMD_INLINE ssd64_internal v64_ssd_u8(ssd64_internal s, v64 a, v64 b) {
+typedef uint32_t Ssd64Internal;
+SIMD_INLINE Ssd64Internal v64_ssd_u8_init() { return c_v64_ssd_u8_init(); }
+SIMD_INLINE Ssd64Internal v64_ssd_u8(Ssd64Internal s, v64 a, v64 b) {
   return c_v64_ssd_u8(s, a, b);
 }
-SIMD_INLINE uint32_t v64_ssd_u8_sum(ssd64_internal s) {
+SIMD_INLINE uint32_t v64_ssd_u8_sum(Ssd64Internal s) {
   return c_v64_ssd_u8_sum(s);
 }
 SIMD_INLINE int64_t v64_dotp_su8(v64 a, v64 b) { return c_v64_dotp_su8(a, b); }

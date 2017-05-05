@@ -40,7 +40,7 @@ class AV1ExtTileTest
       : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
         set_cpu_used_(GET_PARAM(2)) {
     init_flags_ = AOM_CODEC_USE_PSNR;
-    aom_codec_dec_cfg_t cfg = aom_codec_dec_cfg_t();
+    AomCodecDecCfgT cfg = AomCodecDecCfgT();
     cfg.w = kImgWidth;
     cfg.h = kImgHeight;
 
@@ -96,11 +96,10 @@ class AV1ExtTileTest
     }
   }
 
-  virtual void DecompressedFrameHook(const aom_image_t &img,
-                                     aom_codec_pts_t pts) {
+  virtual void DecompressedFrameHook(const AomImageT &img, AomCodecPtsT pts) {
     // Skip 1 already decoded frame to be consistent with the decoder in this
     // test.
-    if (pts == (aom_codec_pts_t)kSkip) return;
+    if (pts == (AomCodecPtsT)kSkip) return;
 
     // Calculate MD5 as the reference.
     ::libaom_test::MD5 md5_res;
@@ -108,11 +107,11 @@ class AV1ExtTileTest
     md5_.push_back(md5_res.Get());
   }
 
-  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void FramePktHook(const AomCodecCxPktT *pkt) {
     // Skip decoding 1 frame.
-    if (pkt->data.frame.pts == (aom_codec_pts_t)kSkip) return;
+    if (pkt->data.frame.pts == (AomCodecPtsT)kSkip) return;
 
-    bool IsLastFrame = (pkt->data.frame.pts == (aom_codec_pts_t)(kLimit - 1));
+    bool IsLastFrame = (pkt->data.frame.pts == (AomCodecPtsT)(kLimit - 1));
 
     // Decode the first (kLimit - 1) frames as whole frame, and decode the last
     // frame in single tiles.
@@ -126,14 +125,14 @@ class AV1ExtTileTest
           decoder_->Control(AV1_SET_DECODE_TILE_COL, c);
         }
 
-        const aom_codec_err_t res = decoder_->DecodeFrame(
+        const AomCodecErrT res = decoder_->DecodeFrame(
             reinterpret_cast<uint8_t *>(pkt->data.frame.buf),
             pkt->data.frame.sz);
         if (res != AOM_CODEC_OK) {
           abort_ = true;
           ASSERT_EQ(AOM_CODEC_OK, res);
         }
-        const aom_image_t *img = decoder_->GetDxData().Next();
+        const AomImageT *img = decoder_->GetDxData().Next();
 
         if (!IsLastFrame) {
           if (img) {
@@ -172,7 +171,7 @@ class AV1ExtTileTest
   ::libaom_test::TestMode encoding_mode_;
   int set_cpu_used_;
   ::libaom_test::Decoder *decoder_;
-  aom_image_t tile_img_;
+  AomImageT tile_img_;
   std::vector<std::string> md5_;
   std::vector<std::string> tile_md5_;
 };

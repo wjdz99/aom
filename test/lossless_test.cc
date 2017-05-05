@@ -53,7 +53,7 @@ class LosslessTestLarge
     nframes_ = 0;
   }
 
-  virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void PSNRPktHook(const AomCodecCxPktT *pkt) {
     if (pkt->data.psnr.psnr[0] < psnr_) psnr_ = pkt->data.psnr.psnr[0];
   }
 
@@ -66,7 +66,7 @@ class LosslessTestLarge
 };
 
 TEST_P(LosslessTestLarge, TestLossLessEncoding) {
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const AomRational timebase = { 33333333, 1000000000 };
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = 2000;
   cfg_.g_lag_in_frames = 25;
@@ -101,7 +101,7 @@ TEST_P(LosslessTestLarge, TestLossLessEncoding444) {
 }
 
 TEST_P(LosslessTestLarge, TestLossLessEncodingCtrl) {
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const AomRational timebase = { 33333333, 1000000000 };
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = 2000;
   cfg_.g_lag_in_frames = 25;

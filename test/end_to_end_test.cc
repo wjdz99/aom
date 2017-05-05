@@ -47,7 +47,7 @@ typedef struct {
   const char *filename;
   unsigned int input_bit_depth;
   aom_img_fmt fmt;
-  aom_bit_depth_t bit_depth;
+  AomBitDepthT bit_depth;
   unsigned int profile;
 } TestVideoParam;
 
@@ -118,7 +118,7 @@ class EndToEndTest
     nframes_ = 0;
   }
 
-  virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void PSNRPktHook(const AomCodecCxPktT *pkt) {
     psnr_ += pkt->data.psnr.psnr[0];
     nframes_++;
   }

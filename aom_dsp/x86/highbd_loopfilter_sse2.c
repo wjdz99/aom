@@ -182,7 +182,7 @@ void aom_highbd_lpf_horizontal_edge_8_sse2(uint16_t *s, int p,
                        t80);
 
   // end highbd_filter4
-  // loopfilter done
+  // Loopfilter done
 
   // highbd_flat_mask4
   flat = _mm_max_epi16(

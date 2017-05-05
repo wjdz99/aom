@@ -93,12 +93,12 @@ SIMD_INLINE uint64_t v256_hadd_u8(v256 a) {
 }
 
 typedef struct {
-  sad128_internal hi;
-  sad128_internal lo;
-} sad256_internal;
+  Sad128Internal hi;
+  Sad128Internal lo;
+} Sad256Internal;
 
-SIMD_INLINE sad256_internal v256_sad_u8_init() {
-  sad256_internal t;
+SIMD_INLINE Sad256Internal v256_sad_u8_init() {
+  Sad256Internal t;
   t.hi = v128_sad_u8_init();
   t.lo = v128_sad_u8_init();
   return t;
@@ -107,24 +107,24 @@ SIMD_INLINE sad256_internal v256_sad_u8_init() {
 /* Implementation dependent return value.  Result must be finalised with
    v256_sad_u8_sum().
    The result for more than 16 v256_sad_u8() calls is undefined. */
-SIMD_INLINE sad256_internal v256_sad_u8(sad256_internal s, v256 a, v256 b) {
-  sad256_internal t;
+SIMD_INLINE Sad256Internal v256_sad_u8(Sad256Internal s, v256 a, v256 b) {
+  Sad256Internal t;
   t.hi = v128_sad_u8(s.hi, a.hi, b.hi);
   t.lo = v128_sad_u8(s.lo, a.lo, b.lo);
   return t;
 }
 
-SIMD_INLINE uint32_t v256_sad_u8_sum(sad256_internal s) {
+SIMD_INLINE uint32_t v256_sad_u8_sum(Sad256Internal s) {
   return v128_sad_u8_sum(s.hi) + v128_sad_u8_sum(s.lo);
 }
 
 typedef struct {
-  ssd128_internal hi;
-  ssd128_internal lo;
-} ssd256_internal;
+  Ssd128Internal hi;
+  Ssd128Internal lo;
+} Ssd256Internal;
 
-SIMD_INLINE ssd256_internal v256_ssd_u8_init() {
-  ssd256_internal t;
+SIMD_INLINE Ssd256Internal v256_ssd_u8_init() {
+  Ssd256Internal t;
   t.hi = v128_ssd_u8_init();
   t.lo = v128_ssd_u8_init();
   return t;
@@ -132,14 +132,14 @@ SIMD_INLINE ssd256_internal v256_ssd_u8_init() {
 
 /* Implementation dependent return value.  Result must be finalised with
  * v256_ssd_u8_sum(). */
-SIMD_INLINE ssd256_internal v256_ssd_u8(ssd256_internal s, v256 a, v256 b) {
-  ssd256_internal t;
+SIMD_INLINE Ssd256Internal v256_ssd_u8(Ssd256Internal s, v256 a, v256 b) {
+  Ssd256Internal t;
   t.hi = v128_ssd_u8(s.hi, a.hi, b.hi);
   t.lo = v128_ssd_u8(s.lo, a.lo, b.lo);
   return t;
 }
 
-SIMD_INLINE uint32_t v256_ssd_u8_sum(ssd256_internal s) {
+SIMD_INLINE uint32_t v256_ssd_u8_sum(Ssd256Internal s) {
   return v128_ssd_u8_sum(s.hi) + v128_ssd_u8_sum(s.lo);
 }
 

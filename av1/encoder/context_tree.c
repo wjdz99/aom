@@ -12,7 +12,7 @@
 #include "av1/encoder/context_tree.h"
 #include "av1/encoder/encoder.h"
 
-static const BLOCK_SIZE square[MAX_SB_SIZE_LOG2 - 1] = {
+static const BlockSize square[MAX_SB_SIZE_LOG2 - 1] = {
 #if CONFIG_CB4X4
   BLOCK_4X4,
 #endif
@@ -22,11 +22,11 @@ static const BLOCK_SIZE square[MAX_SB_SIZE_LOG2 - 1] = {
 #endif  // CONFIG_EXT_PARTITION
 };
 
-static void alloc_mode_context(AV1_COMMON *cm, int num_4x4_blk,
+static void alloc_mode_context(Av1Common *cm, int num_4x4_blk,
 #if CONFIG_EXT_PARTITION_TYPES
-                               PARTITION_TYPE partition,
+                               PartitionType partition,
 #endif
-                               PICK_MODE_CONTEXT *ctx) {
+                               PickModeContext *ctx) {
   const int num_blk = (num_4x4_blk < 4 ? 4 : num_4x4_blk);
   const int num_pix = num_blk * tx_size_2d[0];
   int i;
@@ -75,7 +75,7 @@ static void alloc_mode_context(AV1_COMMON *cm, int num_4x4_blk,
 #endif  // CONFIG_PALETTE
 }
 
-static void free_mode_context(PICK_MODE_CONTEXT *ctx) {
+static void free_mode_context(PickModeContext *ctx) {
   int i;
   for (i = 0; i < MAX_MB_PLANE; ++i) {
 #if CONFIG_VAR_TX
@@ -108,8 +108,7 @@ static void free_mode_context(PICK_MODE_CONTEXT *ctx) {
 #endif  // CONFIG_PALETTE
 }
 
-static void alloc_tree_contexts(AV1_COMMON *cm, PC_TREE *tree,
-                                int num_4x4_blk) {
+static void alloc_tree_contexts(Av1Common *cm, PcTree *tree, int num_4x4_blk) {
 #if CONFIG_EXT_PARTITION_TYPES
   alloc_mode_context(cm, num_4x4_blk, PARTITION_NONE, &tree->none);
   alloc_mode_context(cm, num_4x4_blk / 2, PARTITION_HORZ, &tree->horizontal[0]);
@@ -175,7 +174,7 @@ static void alloc_tree_contexts(AV1_COMMON *cm, PC_TREE *tree,
 #endif  // CONFIG_EXT_PARTITION_TYPES
 }
 
-static void free_tree_contexts(PC_TREE *tree) {
+static void free_tree_contexts(PcTree *tree) {
 #if CONFIG_EXT_PARTITION_TYPES
   int i;
   for (i = 0; i < 3; i++) {
@@ -207,7 +206,7 @@ static void free_tree_contexts(PC_TREE *tree) {
 // partition level. There are contexts for none, horizontal, vertical, and
 // split.  Along with a block_size value and a selected block_size which
 // represents the state of our search.
-void av1_setup_pc_tree(AV1_COMMON *cm, ThreadData *td) {
+void av1_setup_pc_tree(Av1Common *cm, ThreadData *td) {
   int i, j;
 // TODO(jingning): The pc_tree allocation is redundant. We can take out all
 // the leaf nodes after cb4x4 mode is enabled.
@@ -230,8 +229,8 @@ void av1_setup_pc_tree(AV1_COMMON *cm, ThreadData *td) {
   const int tree_nodes = tree_nodes_inc + 64 + 16 + 4 + 1;
 #endif  // CONFIG_EXT_PARTITION
   int pc_tree_index = 0;
-  PC_TREE *this_pc;
-  PICK_MODE_CONTEXT *this_leaf;
+  PcTree *this_pc;
+  PickModeContext *this_leaf;
   int square_index = 1;
   int nodes;
 
@@ -257,7 +256,7 @@ void av1_setup_pc_tree(AV1_COMMON *cm, ThreadData *td) {
 
   // Sets up all the leaf nodes in the tree.
   for (pc_tree_index = 0; pc_tree_index < leaf_nodes; ++pc_tree_index) {
-    PC_TREE *const tree = &td->pc_tree[pc_tree_index];
+    PcTree *const tree = &td->pc_tree[pc_tree_index];
     tree->block_size = square[0];
 #if CONFIG_CB4X4
     alloc_tree_contexts(cm, tree, 16);
@@ -272,7 +271,7 @@ void av1_setup_pc_tree(AV1_COMMON *cm, ThreadData *td) {
   // from leafs to the root.
   for (nodes = leaf_nodes >> 2; nodes > 0; nodes >>= 2) {
     for (i = 0; i < nodes; ++i) {
-      PC_TREE *const tree = &td->pc_tree[pc_tree_index];
+      PcTree *const tree = &td->pc_tree[pc_tree_index];
 #if CONFIG_CB4X4
       alloc_tree_contexts(cm, tree, 16 << (2 * square_index));
 #else

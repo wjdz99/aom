@@ -20,9 +20,9 @@
 
 #include "aom_dsp/aom_dsp_common.h"
 
-static struct av1_token mv_joint_encodings[MV_JOINTS];
-static struct av1_token mv_class_encodings[MV_CLASSES];
-static struct av1_token mv_fp_encodings[MV_FP_SIZE];
+static struct Av1Token mv_joint_encodings[MV_JOINTS];
+static struct Av1Token mv_class_encodings[MV_CLASSES];
+static struct Av1Token mv_fp_encodings[MV_FP_SIZE];
 
 void av1_entropy_mv_init(void) {
   av1_tokens_from_tree(mv_joint_encodings, av1_mv_joint_tree);
@@ -30,7 +30,7 @@ void av1_entropy_mv_init(void) {
   av1_tokens_from_tree(mv_fp_encodings, av1_mv_fp_tree);
 }
 
-static void encode_mv_component(aom_writer *w, int comp, nmv_component *mvcomp,
+static void encode_mv_component(AomWriter *w, int comp, NmvComponent *mvcomp,
                                 int usehp) {
   int offset;
   const int sign = comp < 0;
@@ -79,7 +79,7 @@ static void encode_mv_component(aom_writer *w, int comp, nmv_component *mvcomp,
 }
 
 static void build_nmv_component_cost_table(int *mvcost,
-                                           const nmv_component *const mvcomp,
+                                           const NmvComponent *const mvcomp,
                                            int usehp) {
   int i, v;
   int sign_cost[2], class_cost[MV_CLASSES], class0_cost[CLASS0_SIZE];
@@ -138,8 +138,8 @@ static void build_nmv_component_cost_table(int *mvcost,
   }
 }
 
-static void update_mv(aom_writer *w, const unsigned int ct[2], aom_prob *cur_p,
-                      aom_prob upd_p) {
+static void update_mv(AomWriter *w, const unsigned int ct[2], AomProb *cur_p,
+                      AomProb upd_p) {
   (void)upd_p;
 #if CONFIG_TILE_GROUPS
   // Just use the default maximum number of tile groups to avoid passing in the
@@ -152,10 +152,9 @@ static void update_mv(aom_writer *w, const unsigned int ct[2], aom_prob *cur_p,
 }
 
 #if !CONFIG_EC_ADAPT
-static void write_mv_update(const aom_tree_index *tree,
-                            aom_prob probs[/*n - 1*/],
+static void write_mv_update(const AomTreeIndex *tree, AomProb probs[/*n - 1*/],
                             const unsigned int counts[/*n - 1*/], int n,
-                            aom_writer *w) {
+                            AomWriter *w) {
   int i;
   unsigned int branch_ct[32][2];
 
@@ -168,21 +167,21 @@ static void write_mv_update(const aom_tree_index *tree,
 }
 #endif
 
-void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
-                         nmv_context_counts *const nmv_counts) {
+void av1_write_nmv_probs(Av1Common *cm, int usehp, AomWriter *w,
+                         NmvContextCounts *const nmv_counts) {
   int i;
   int nmv_ctx = 0;
   for (nmv_ctx = 0; nmv_ctx < NMV_CONTEXTS; ++nmv_ctx) {
-    nmv_context *const mvc = &cm->fc->nmvc[nmv_ctx];
-    nmv_context_counts *const counts = &nmv_counts[nmv_ctx];
+    NmvContext *const mvc = &cm->fc->nmvc[nmv_ctx];
+    NmvContextCounts *const counts = &nmv_counts[nmv_ctx];
 #if !CONFIG_EC_ADAPT
     write_mv_update(av1_mv_joint_tree, mvc->joints, counts->joints, MV_JOINTS,
                     w);
 
     for (i = 0; i < 2; ++i) {
       int j;
-      nmv_component *comp = &mvc->comps[i];
-      nmv_component_counts *comp_counts = &counts->comps[i];
+      NmvComponent *comp = &mvc->comps[i];
+      NmvComponentCounts *comp_counts = &counts->comps[i];
 
       update_mv(w, comp_counts->sign, &comp->sign, MV_UPDATE_PROB);
       write_mv_update(av1_mv_class_tree, comp->classes, comp_counts->classes,
@@ -214,10 +213,10 @@ void av1_write_nmv_probs(AV1_COMMON *cm, int usehp, aom_writer *w,
   }
 }
 
-void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
-                   nmv_context *mvctx, int usehp) {
+void av1_encode_mv(Av1Comp *cpi, AomWriter *w, const MV *mv, const MV *ref,
+                   NmvContext *mvctx, int usehp) {
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
-  const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
+  const MvJointType j = av1_get_mv_joint(&diff);
 #if CONFIG_EC_MULTISYMBOL
   aom_write_symbol(w, j, mvctx->joint_cdf, MV_JOINTS);
 #else
@@ -238,10 +237,10 @@ void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
 }
 
 #if CONFIG_INTRABC
-void av1_encode_dv(aom_writer *w, const MV *mv, const MV *ref,
-                   nmv_context *mvctx) {
+void av1_encode_dv(AomWriter *w, const MV *mv, const MV *ref,
+                   NmvContext *mvctx) {
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
-  const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
+  const MvJointType j = av1_get_mv_joint(&diff);
 
 #if CONFIG_EC_MULTISYMBOL
   aom_write_symbol(w, j, mvctx->joint_cdf, MV_JOINTS);
@@ -257,18 +256,18 @@ void av1_encode_dv(aom_writer *w, const MV *mv, const MV *ref,
 #endif  // CONFIG_INTRABC
 
 void av1_build_nmv_cost_table(int *mvjoint, int *mvcost[2],
-                              const nmv_context *ctx, int usehp) {
+                              const NmvContext *ctx, int usehp) {
   av1_cost_tokens(mvjoint, ctx->joints, av1_mv_joint_tree);
   build_nmv_component_cost_table(mvcost[0], &ctx->comps[0], usehp);
   build_nmv_component_cost_table(mvcost[1], &ctx->comps[1], usehp);
 }
 
 #if CONFIG_EXT_INTER
-static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
-                    const int_mv mvs[2], const int_mv pred_mvs[2],
-                    nmv_context_counts *nmv_counts) {
+static void inc_mvs(const MbModeInfo *mbmi, const MbModeInfoExt *mbmi_ext,
+                    const IntMv mvs[2], const IntMv pred_mvs[2],
+                    NmvContextCounts *nmv_counts) {
   int i;
-  PREDICTION_MODE mode = mbmi->mode;
+  PredictionMode mode = mbmi->mode;
 
   if (mode == NEWMV || mode == NEW_NEWMV) {
     for (i = 0; i < 1 + has_second_ref(mbmi); ++i) {
@@ -279,7 +278,7 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
       int nmv_ctx =
           av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
                       mbmi_ext->ref_mv_stack[rf_type], i, mbmi->ref_mv_idx);
-      nmv_context_counts *counts = &nmv_counts[nmv_ctx];
+      NmvContextCounts *counts = &nmv_counts[nmv_ctx];
       (void)pred_mvs;
       av1_inc_mv(&diff, counts, 1);
     }
@@ -291,7 +290,7 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
     int nmv_ctx =
         av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
                     mbmi_ext->ref_mv_stack[rf_type], 1, mbmi->ref_mv_idx);
-    nmv_context_counts *counts = &nmv_counts[nmv_ctx];
+    NmvContextCounts *counts = &nmv_counts[nmv_ctx];
     av1_inc_mv(&diff, counts, 1);
   } else if (mode == NEW_NEARESTMV || mode == NEW_NEARMV) {
     const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0].as_mv;
@@ -301,17 +300,17 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
     int nmv_ctx =
         av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
                     mbmi_ext->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
-    nmv_context_counts *counts = &nmv_counts[nmv_ctx];
+    NmvContextCounts *counts = &nmv_counts[nmv_ctx];
     av1_inc_mv(&diff, counts, 1);
   }
 }
 
-static void inc_mvs_sub8x8(const MODE_INFO *mi, int block, const int_mv mvs[2],
-                           const MB_MODE_INFO_EXT *mbmi_ext,
-                           nmv_context_counts *nmv_counts) {
+static void inc_mvs_sub8x8(const ModeInfo *mi, int block, const IntMv mvs[2],
+                           const MbModeInfoExt *mbmi_ext,
+                           NmvContextCounts *nmv_counts) {
   int i;
-  PREDICTION_MODE mode = mi->bmi[block].as_mode;
-  const MB_MODE_INFO *mbmi = &mi->mbmi;
+  PredictionMode mode = mi->bmi[block].as_mode;
+  const MbModeInfo *mbmi = &mi->mbmi;
 
   if (mode == NEWMV || mode == NEW_NEWMV) {
     for (i = 0; i < 1 + has_second_ref(&mi->mbmi); ++i) {
@@ -322,7 +321,7 @@ static void inc_mvs_sub8x8(const MODE_INFO *mi, int block, const int_mv mvs[2],
       int nmv_ctx =
           av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
                       mbmi_ext->ref_mv_stack[rf_type], i, mbmi->ref_mv_idx);
-      nmv_context_counts *counts = &nmv_counts[nmv_ctx];
+      NmvContextCounts *counts = &nmv_counts[nmv_ctx];
       av1_inc_mv(&diff, counts, 1);
     }
   } else if (mode == NEAREST_NEWMV || mode == NEAR_NEWMV) {
@@ -333,7 +332,7 @@ static void inc_mvs_sub8x8(const MODE_INFO *mi, int block, const int_mv mvs[2],
     int nmv_ctx =
         av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
                     mbmi_ext->ref_mv_stack[rf_type], 1, mbmi->ref_mv_idx);
-    nmv_context_counts *counts = &nmv_counts[nmv_ctx];
+    NmvContextCounts *counts = &nmv_counts[nmv_ctx];
     av1_inc_mv(&diff, counts, 1);
   } else if (mode == NEW_NEARESTMV || mode == NEW_NEARMV) {
     const MV *ref = &mi->bmi[block].ref_mv[0].as_mv;
@@ -343,14 +342,14 @@ static void inc_mvs_sub8x8(const MODE_INFO *mi, int block, const int_mv mvs[2],
     int nmv_ctx =
         av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
                     mbmi_ext->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
-    nmv_context_counts *counts = &nmv_counts[nmv_ctx];
+    NmvContextCounts *counts = &nmv_counts[nmv_ctx];
     av1_inc_mv(&diff, counts, 1);
   }
 }
 #else
-static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
-                    const int_mv mvs[2], const int_mv pred_mvs[2],
-                    nmv_context_counts *nmv_counts) {
+static void inc_mvs(const MbModeInfo *mbmi, const MbModeInfoExt *mbmi_ext,
+                    const IntMv mvs[2], const IntMv pred_mvs[2],
+                    NmvContextCounts *nmv_counts) {
   int i;
 
   for (i = 0; i < 1 + has_second_ref(mbmi); ++i) {
@@ -358,7 +357,7 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
     int nmv_ctx =
         av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
                     mbmi_ext->ref_mv_stack[rf_type], i, mbmi->ref_mv_idx);
-    nmv_context_counts *counts = &nmv_counts[nmv_ctx];
+    NmvContextCounts *counts = &nmv_counts[nmv_ctx];
     const MV *ref = &pred_mvs[i].as_mv;
     const MV diff = { mvs[i].as_mv.row - ref->row,
                       mvs[i].as_mv.col - ref->col };
@@ -368,10 +367,10 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
 #endif  // CONFIG_EXT_INTER
 
 void av1_update_mv_count(ThreadData *td) {
-  const MACROBLOCKD *xd = &td->mb.e_mbd;
-  const MODE_INFO *mi = xd->mi[0];
-  const MB_MODE_INFO *const mbmi = &mi->mbmi;
-  const MB_MODE_INFO_EXT *mbmi_ext = td->mb.mbmi_ext;
+  const Macroblockd *xd = &td->mb.e_mbd;
+  const ModeInfo *mi = xd->mi[0];
+  const MbModeInfo *const mbmi = &mi->mbmi;
+  const MbModeInfoExt *mbmi_ext = td->mb.mbmi_ext;
 #if CONFIG_CB4X4
   const int unify_bsize = 1;
 #else

@@ -29,7 +29,7 @@
 #define SUB_EPI16 _mm_sub_epi16
 #endif
 
-void FDCT4x4_2D(const int16_t *input, tran_low_t *output, int stride) {
+void FDCT4x4_2D(const int16_t *input, TranLowT *output, int stride) {
   // This 2D transform implements 4 vertical 1D transforms followed
   // by 4 horizontal 1D transforms.  The multiplies and adds are as given
   // by Chen, Smith and Fralick ('77).  The commands for moving the data
@@ -256,7 +256,7 @@ void FDCT4x4_2D(const int16_t *input, tran_low_t *output, int stride) {
   storeu_output(&in1, output + 2 * 4);
 }
 
-void FDCT8x8_2D(const int16_t *input, tran_low_t *output, int stride) {
+void FDCT8x8_2D(const int16_t *input, TranLowT *output, int stride) {
   int pass;
   // Constants
   //    When we use them, in one case, they are all the same. In all others
@@ -566,7 +566,7 @@ void FDCT8x8_2D(const int16_t *input, tran_low_t *output, int stride) {
   }
 }
 
-void FDCT16x16_2D(const int16_t *input, tran_low_t *output, int stride) {
+void FDCT16x16_2D(const int16_t *input, TranLowT *output, int stride) {
   // The 2D transform is done with two passes which are actually pretty
   // similar. In the first one, we transform the columns and transpose
   // the results. In the second one, we transform the rows. To achieve that,
@@ -578,7 +578,7 @@ void FDCT16x16_2D(const int16_t *input, tran_low_t *output, int stride) {
   DECLARE_ALIGNED(16, int16_t, intermediate[256]);
   const int16_t *in = input;
   int16_t *out0 = intermediate;
-  tran_low_t *out1 = output;
+  TranLowT *out1 = output;
   // Constants
   //    When we use them, in one case, they are all the same. In all others
   //    it's a pair of them that we need to repeat four times. This is done

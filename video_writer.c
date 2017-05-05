@@ -23,7 +23,7 @@ struct AvxVideoWriterStruct {
 
 static void write_header(FILE *file, const AvxVideoInfo *info,
                          int frame_count) {
-  struct aom_codec_enc_cfg cfg;
+  struct AomCodecEncCfg cfg;
   cfg.g_w = info->frame_width;
   cfg.g_h = info->frame_height;
   cfg.g_timebase.num = info->time_base.numerator;

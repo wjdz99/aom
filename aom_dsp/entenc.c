@@ -47,8 +47,7 @@
    necessary), and stores them back in the encoder context.
   low: The new value of low.
   rng: The new value of the range.*/
-static void od_ec_enc_normalize(od_ec_enc *enc, od_ec_window low,
-                                unsigned rng) {
+static void od_ec_enc_normalize(OdEcEnc *enc, OdEcWindow low, unsigned rng) {
   int d;
   int c;
   int s;
@@ -57,7 +56,7 @@ static void od_ec_enc_normalize(od_ec_enc *enc, od_ec_window low,
   d = 16 - OD_ILOG_NZ(rng);
   s = c + d;
   /*TODO: Right now we flush every time we have at least one byte available.
-    Instead we should use an od_ec_window and flush right before we're about to
+    Instead we should use an OdEcWindow and flush right before we're about to
      shift bits off the end of the window.
     For a 32-bit window this is about the same amount of work, but for a 64-bit
      window it should be a fair win.*/
@@ -102,7 +101,7 @@ static void od_ec_enc_normalize(od_ec_enc *enc, od_ec_window low,
 
 /*Initializes the encoder.
   size: The initial size of the buffer, in bytes.*/
-void od_ec_enc_init(od_ec_enc *enc, uint32_t size) {
+void od_ec_enc_init(OdEcEnc *enc, uint32_t size) {
   od_ec_enc_reset(enc);
   enc->buf = (unsigned char *)malloc(sizeof(*enc->buf) * size);
   enc->storage = size;
@@ -119,7 +118,7 @@ void od_ec_enc_init(od_ec_enc *enc, uint32_t size) {
 }
 
 /*Reinitializes the encoder.*/
-void od_ec_enc_reset(od_ec_enc *enc) {
+void od_ec_enc_reset(OdEcEnc *enc) {
   enc->end_offs = 0;
   enc->end_window = 0;
   enc->nend_bits = 0;
@@ -137,7 +136,7 @@ void od_ec_enc_reset(od_ec_enc *enc) {
 }
 
 /*Frees the buffers used by the encoder.*/
-void od_ec_enc_clear(od_ec_enc *enc) {
+void od_ec_enc_clear(OdEcEnc *enc) {
   free(enc->precarry_buf);
   free(enc->buf);
 }
@@ -148,8 +147,8 @@ void od_ec_enc_clear(od_ec_enc *enc) {
   fh: The cumulative frequency of all symbols up to and including the one to
        be encoded.
   {EC_SMALLMUL} Both values are 32768 minus that.*/
-static void od_ec_encode_q15(od_ec_enc *enc, unsigned fl, unsigned fh) {
-  od_ec_window l;
+static void od_ec_encode_q15(OdEcEnc *enc, unsigned fl, unsigned fh) {
+  OdEcWindow l;
   unsigned r;
   unsigned u;
   unsigned v;
@@ -186,8 +185,8 @@ static void od_ec_encode_q15(od_ec_enc *enc, unsigned fl, unsigned fh) {
   val: The value to encode (0 or 1).
   {EC_SMALLMUL} f: The probability that the val is one, scaled by 32768.
   {else} f: The probability that val is zero, scaled by 32768.*/
-void od_ec_encode_bool_q15(od_ec_enc *enc, int val, unsigned f) {
-  od_ec_window l;
+void od_ec_encode_bool_q15(OdEcEnc *enc, int val, unsigned f) {
+  OdEcWindow l;
   unsigned r;
   unsigned v;
   OD_ASSERT(0 < f);
@@ -220,8 +219,7 @@ void od_ec_encode_bool_q15(od_ec_enc *enc, int val, unsigned f) {
         must be exactly 32768.
   nsyms: The number of symbols in the alphabet.
          This should be at most 16.*/
-void od_ec_encode_cdf_q15(od_ec_enc *enc, int s, const uint16_t *cdf,
-                          int nsyms) {
+void od_ec_encode_cdf_q15(OdEcEnc *enc, int s, const uint16_t *cdf, int nsyms) {
   (void)nsyms;
   OD_ASSERT(s >= 0);
   OD_ASSERT(s < nsyms);
@@ -234,8 +232,8 @@ void od_ec_encode_cdf_q15(od_ec_enc *enc, int s, const uint16_t *cdf,
   fl: The bits to encode.
   ftb: The number of bits to encode.
        This must be between 0 and 25, inclusive.*/
-void od_ec_enc_bits(od_ec_enc *enc, uint32_t fl, unsigned ftb) {
-  od_ec_window end_window;
+void od_ec_enc_bits(OdEcEnc *enc, uint32_t fl, unsigned ftb) {
+  OdEcWindow end_window;
   int nend_bits;
   OD_ASSERT(ftb <= 25);
   OD_ASSERT(fl < (uint32_t)1 << ftb);
@@ -277,7 +275,7 @@ void od_ec_enc_bits(od_ec_enc *enc, uint32_t fl, unsigned ftb) {
     enc->end_offs = end_offs;
   }
   OD_ASSERT(nend_bits + ftb <= OD_EC_WINDOW_SIZE);
-  end_window |= (od_ec_window)fl << nend_bits;
+  end_window |= (OdEcWindow)fl << nend_bits;
   nend_bits += ftb;
   enc->end_window = end_window;
   enc->nend_bits = nend_bits;
@@ -298,7 +296,7 @@ void od_ec_enc_bits(od_ec_enc *enc, uint32_t fl, unsigned ftb) {
        They will be decoded in order from most-significant to least.
   nbits: The number of bits to overwrite.
          This must be no more than 8.*/
-void od_ec_enc_patch_initial_bits(od_ec_enc *enc, unsigned val, int nbits) {
+void od_ec_enc_patch_initial_bits(OdEcEnc *enc, unsigned val, int nbits) {
   int shift;
   unsigned mask;
   OD_ASSERT(nbits >= 0);
@@ -312,8 +310,8 @@ void od_ec_enc_patch_initial_bits(od_ec_enc *enc, unsigned val, int nbits) {
         (uint16_t)((enc->precarry_buf[0] & ~mask) | val << shift);
   } else if (9 + enc->cnt + (enc->rng == 0x8000) > nbits) {
     /*The first byte has yet to be output.*/
-    enc->low = (enc->low & ~((od_ec_window)mask << (16 + enc->cnt))) |
-               (od_ec_window)val << (16 + enc->cnt + shift);
+    enc->low = (enc->low & ~((OdEcWindow)mask << (16 + enc->cnt))) |
+               (OdEcWindow)val << (16 + enc->cnt + shift);
   } else {
     /*The encoder hasn't even encoded _nbits of data yet.*/
     enc->error = -1;
@@ -330,16 +328,16 @@ void od_ec_enc_patch_initial_bits(od_ec_enc *enc, unsigned val, int nbits) {
   bytes: Returns the size of the encoded data in the returned buffer.
   Return: A pointer to the start of the final buffer, or NULL if there was an
            encoding error.*/
-unsigned char *od_ec_enc_done(od_ec_enc *enc, uint32_t *nbytes) {
+unsigned char *od_ec_enc_done(OdEcEnc *enc, uint32_t *nbytes) {
   unsigned char *out;
   uint32_t storage;
   uint16_t *buf;
   uint32_t offs;
   uint32_t end_offs;
   int nend_bits;
-  od_ec_window m;
-  od_ec_window e;
-  od_ec_window l;
+  OdEcWindow m;
+  OdEcWindow e;
+  OdEcWindow l;
   unsigned r;
   int c;
   int s;
@@ -455,7 +453,7 @@ unsigned char *od_ec_enc_done(od_ec_enc *enc, uint32_t *nbytes) {
   Return: The number of bits.
           This will always be slightly larger than the exact value (e.g., all
            rounding error is in the positive direction).*/
-int od_ec_enc_tell(const od_ec_enc *enc) {
+int od_ec_enc_tell(const OdEcEnc *enc) {
   /*The 10 here counteracts the offset of -9 baked into cnt, and adds 1 extra
      bit, which we reserve for terminating the stream.*/
   return (enc->offs + enc->end_offs) * 8 + enc->cnt + enc->nend_bits + 10;
@@ -470,7 +468,7 @@ int od_ec_enc_tell(const od_ec_enc *enc) {
   Return: The number of bits scaled by 2**OD_BITRES.
           This will always be slightly larger than the exact value (e.g., all
            rounding error is in the positive direction).*/
-uint32_t od_ec_enc_tell_frac(const od_ec_enc *enc) {
+uint32_t od_ec_enc_tell_frac(const OdEcEnc *enc) {
   return od_ec_tell_frac(od_ec_enc_tell(enc), enc->rng);
 }
 
@@ -478,7 +476,7 @@ uint32_t od_ec_enc_tell_frac(const od_ec_enc *enc) {
   This allows an encoder to reverse a series of entropy coder
    decisions if it decides that the information would have been
    better coded some other way.*/
-void od_ec_enc_checkpoint(od_ec_enc *dst, const od_ec_enc *src) {
+void od_ec_enc_checkpoint(OdEcEnc *dst, const OdEcEnc *src) {
   OD_COPY(dst, src, 1);
 }
 
@@ -488,7 +486,7 @@ void od_ec_enc_checkpoint(od_ec_enc *dst, const od_ec_enc *src) {
    switch to a state which isn't a casual ancestor of the current state.
   Restore is also incompatible with patching the initial bits, as the
    changes will remain in the restored version.*/
-void od_ec_enc_rollback(od_ec_enc *dst, const od_ec_enc *src) {
+void od_ec_enc_rollback(OdEcEnc *dst, const OdEcEnc *src) {
   unsigned char *buf;
   uint32_t storage;
   uint16_t *precarry_buf;
