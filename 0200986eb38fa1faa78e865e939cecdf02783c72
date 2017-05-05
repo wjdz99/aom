@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3daf3548_fc04d8cc",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-05-05T18:21:21Z",
+      "side": 1,
+      "message": "this speed feature is not dependent on framesize, better to only set it in set_good_speed_feature().",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 31
+      },
+      "revId": "0200986eb38fa1faa78e865e939cecdf02783c72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f2c6d55_ad013642",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-05-05T18:21:21Z",
+      "side": 1,
+      "message": "Only need to set it in this function, and maybe initialize it to proper default setting before the if () statement, just to set it properly if oxcf-\u003emode is not good.",
+      "range": {
+        "startLine": 433,
+        "startChar": 4,
+        "endLine": 433,
+        "endChar": 53
+      },
+      "revId": "0200986eb38fa1faa78e865e939cecdf02783c72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90099f1c_418ff555",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-05-05T18:21:21Z",
+      "side": 1,
+      "message": "If it has been correctly set in set_good_speed_feature(), no need to reset it to FULL_SEARCH",
+      "range": {
+        "startLine": 512,
+        "startChar": 0,
+        "endLine": 514,
+        "endChar": 31
+      },
+      "revId": "0200986eb38fa1faa78e865e939cecdf02783c72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
