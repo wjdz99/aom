@@ -22,7 +22,7 @@
 #include "av1/common/av1_fwd_txfm2d_cfg.h"
 #include "av1/common/idct.h"
 
-static INLINE void range_check(const tran_low_t *input, const int size,
+static INLINE void range_check(const TranLowT *input, const int size,
                                const int bit) {
 #if 0  // CONFIG_COEFFICIENT_RANGE_CHECKING
 // TODO(angiebird): the range_check is not used because the bit range
@@ -39,9 +39,9 @@ static INLINE void range_check(const tran_low_t *input, const int size,
 #endif
 }
 
-static void fdct4(const tran_low_t *input, tran_low_t *output) {
-  tran_high_t temp;
-  tran_low_t step[4];
+static void fdct4(const TranLowT *input, TranLowT *output) {
+  TranHighT temp;
+  TranLowT step[4];
 
   // stage 0
   range_check(input, 4, 14);
@@ -56,13 +56,13 @@ static void fdct4(const tran_low_t *input, tran_low_t *output) {
 
   // stage 2
   temp = output[0] * cospi_16_64 + output[1] * cospi_16_64;
-  step[0] = (tran_low_t)fdct_round_shift(temp);
+  step[0] = (TranLowT)fdct_round_shift(temp);
   temp = output[1] * -cospi_16_64 + output[0] * cospi_16_64;
-  step[1] = (tran_low_t)fdct_round_shift(temp);
+  step[1] = (TranLowT)fdct_round_shift(temp);
   temp = output[2] * cospi_24_64 + output[3] * cospi_8_64;
-  step[2] = (tran_low_t)fdct_round_shift(temp);
+  step[2] = (TranLowT)fdct_round_shift(temp);
   temp = output[3] * cospi_24_64 + output[2] * -cospi_8_64;
-  step[3] = (tran_low_t)fdct_round_shift(temp);
+  step[3] = (TranLowT)fdct_round_shift(temp);
 
   range_check(step, 4, 16);
 
@@ -75,9 +75,9 @@ static void fdct4(const tran_low_t *input, tran_low_t *output) {
   range_check(output, 4, 16);
 }
 
-static void fdct8(const tran_low_t *input, tran_low_t *output) {
-  tran_high_t temp;
-  tran_low_t step[8];
+static void fdct8(const TranLowT *input, TranLowT *output) {
+  TranHighT temp;
+  TranLowT step[8];
 
   // stage 0
   range_check(input, 8, 13);
@@ -101,22 +101,22 @@ static void fdct8(const tran_low_t *input, tran_low_t *output) {
   step[3] = output[0] - output[3];
   step[4] = output[4];
   temp = output[5] * -cospi_16_64 + output[6] * cospi_16_64;
-  step[5] = (tran_low_t)fdct_round_shift(temp);
+  step[5] = (TranLowT)fdct_round_shift(temp);
   temp = output[6] * cospi_16_64 + output[5] * cospi_16_64;
-  step[6] = (tran_low_t)fdct_round_shift(temp);
+  step[6] = (TranLowT)fdct_round_shift(temp);
   step[7] = output[7];
 
   range_check(step, 8, 15);
 
   // stage 3
   temp = step[0] * cospi_16_64 + step[1] * cospi_16_64;
-  output[0] = (tran_low_t)fdct_round_shift(temp);
+  output[0] = (TranLowT)fdct_round_shift(temp);
   temp = step[1] * -cospi_16_64 + step[0] * cospi_16_64;
-  output[1] = (tran_low_t)fdct_round_shift(temp);
+  output[1] = (TranLowT)fdct_round_shift(temp);
   temp = step[2] * cospi_24_64 + step[3] * cospi_8_64;
-  output[2] = (tran_low_t)fdct_round_shift(temp);
+  output[2] = (TranLowT)fdct_round_shift(temp);
   temp = step[3] * cospi_24_64 + step[2] * -cospi_8_64;
-  output[3] = (tran_low_t)fdct_round_shift(temp);
+  output[3] = (TranLowT)fdct_round_shift(temp);
   output[4] = step[4] + step[5];
   output[5] = step[4] - step[5];
   output[6] = step[7] - step[6];
@@ -130,13 +130,13 @@ static void fdct8(const tran_low_t *input, tran_low_t *output) {
   step[2] = output[2];
   step[3] = output[3];
   temp = output[4] * cospi_28_64 + output[7] * cospi_4_64;
-  step[4] = (tran_low_t)fdct_round_shift(temp);
+  step[4] = (TranLowT)fdct_round_shift(temp);
   temp = output[5] * cospi_12_64 + output[6] * cospi_20_64;
-  step[5] = (tran_low_t)fdct_round_shift(temp);
+  step[5] = (TranLowT)fdct_round_shift(temp);
   temp = output[6] * cospi_12_64 + output[5] * -cospi_20_64;
-  step[6] = (tran_low_t)fdct_round_shift(temp);
+  step[6] = (TranLowT)fdct_round_shift(temp);
   temp = output[7] * cospi_28_64 + output[4] * -cospi_4_64;
-  step[7] = (tran_low_t)fdct_round_shift(temp);
+  step[7] = (TranLowT)fdct_round_shift(temp);
 
   range_check(step, 8, 16);
 
@@ -153,9 +153,9 @@ static void fdct8(const tran_low_t *input, tran_low_t *output) {
   range_check(output, 8, 16);
 }
 
-static void fdct16(const tran_low_t *input, tran_low_t *output) {
-  tran_high_t temp;
-  tran_low_t step[16];
+static void fdct16(const TranLowT *input, TranLowT *output) {
+  TranHighT temp;
+  TranLowT step[16];
 
   // stage 0
   range_check(input, 16, 13);
@@ -192,13 +192,13 @@ static void fdct16(const tran_low_t *input, tran_low_t *output) {
   step[8] = output[8];
   step[9] = output[9];
   temp = output[10] * -cospi_16_64 + output[13] * cospi_16_64;
-  step[10] = (tran_low_t)fdct_round_shift(temp);
+  step[10] = (TranLowT)fdct_round_shift(temp);
   temp = output[11] * -cospi_16_64 + output[12] * cospi_16_64;
-  step[11] = (tran_low_t)fdct_round_shift(temp);
+  step[11] = (TranLowT)fdct_round_shift(temp);
   temp = output[12] * cospi_16_64 + output[11] * cospi_16_64;
-  step[12] = (tran_low_t)fdct_round_shift(temp);
+  step[12] = (TranLowT)fdct_round_shift(temp);
   temp = output[13] * cospi_16_64 + output[10] * cospi_16_64;
-  step[13] = (tran_low_t)fdct_round_shift(temp);
+  step[13] = (TranLowT)fdct_round_shift(temp);
   step[14] = output[14];
   step[15] = output[15];
 
@@ -211,9 +211,9 @@ static void fdct16(const tran_low_t *input, tran_low_t *output) {
   output[3] = step[0] - step[3];
   output[4] = step[4];
   temp = step[5] * -cospi_16_64 + step[6] * cospi_16_64;
-  output[5] = (tran_low_t)fdct_round_shift(temp);
+  output[5] = (TranLowT)fdct_round_shift(temp);
   temp = step[6] * cospi_16_64 + step[5] * cospi_16_64;
-  output[6] = (tran_low_t)fdct_round_shift(temp);
+  output[6] = (TranLowT)fdct_round_shift(temp);
   output[7] = step[7];
   output[8] = step[8] + step[11];
   output[9] = step[9] + step[10];
@@ -228,28 +228,28 @@ static void fdct16(const tran_low_t *input, tran_low_t *output) {
 
   // stage 4
   temp = output[0] * cospi_16_64 + output[1] * cospi_16_64;
-  step[0] = (tran_low_t)fdct_round_shift(temp);
+  step[0] = (TranLowT)fdct_round_shift(temp);
   temp = output[1] * -cospi_16_64 + output[0] * cospi_16_64;
-  step[1] = (tran_low_t)fdct_round_shift(temp);
+  step[1] = (TranLowT)fdct_round_shift(temp);
   temp = output[2] * cospi_24_64 + output[3] * cospi_8_64;
-  step[2] = (tran_low_t)fdct_round_shift(temp);
+  step[2] = (TranLowT)fdct_round_shift(temp);
   temp = output[3] * cospi_24_64 + output[2] * -cospi_8_64;
-  step[3] = (tran_low_t)fdct_round_shift(temp);
+  step[3] = (TranLowT)fdct_round_shift(temp);
   step[4] = output[4] + output[5];
   step[5] = output[4] - output[5];
   step[6] = output[7] - output[6];
   step[7] = output[7] + output[6];
   step[8] = output[8];
   temp = output[9] * -cospi_8_64 + output[14] * cospi_24_64;
-  step[9] = (tran_low_t)fdct_round_shift(temp);
+  step[9] = (TranLowT)fdct_round_shift(temp);
   temp = output[10] * -cospi_24_64 + output[13] * -cospi_8_64;
-  step[10] = (tran_low_t)fdct_round_shift(temp);
+  step[10] = (TranLowT)fdct_round_shift(temp);
   step[11] = output[11];
   step[12] = output[12];
   temp = output[13] * cospi_24_64 + output[10] * -cospi_8_64;
-  step[13] = (tran_low_t)fdct_round_shift(temp);
+  step[13] = (TranLowT)fdct_round_shift(temp);
   temp = output[14] * cospi_8_64 + output[9] * cospi_24_64;
-  step[14] = (tran_low_t)fdct_round_shift(temp);
+  step[14] = (TranLowT)fdct_round_shift(temp);
   step[15] = output[15];
 
   range_check(step, 16, 16);
@@ -260,13 +260,13 @@ static void fdct16(const tran_low_t *input, tran_low_t *output) {
   output[2] = step[2];
   output[3] = step[3];
   temp = step[4] * cospi_28_64 + step[7] * cospi_4_64;
-  output[4] = (tran_low_t)fdct_round_shift(temp);
+  output[4] = (TranLowT)fdct_round_shift(temp);
   temp = step[5] * cospi_12_64 + step[6] * cospi_20_64;
-  output[5] = (tran_low_t)fdct_round_shift(temp);
+  output[5] = (TranLowT)fdct_round_shift(temp);
   temp = step[6] * cospi_12_64 + step[5] * -cospi_20_64;
-  output[6] = (tran_low_t)fdct_round_shift(temp);
+  output[6] = (TranLowT)fdct_round_shift(temp);
   temp = step[7] * cospi_28_64 + step[4] * -cospi_4_64;
-  output[7] = (tran_low_t)fdct_round_shift(temp);
+  output[7] = (TranLowT)fdct_round_shift(temp);
   output[8] = step[8] + step[9];
   output[9] = step[8] - step[9];
   output[10] = step[11] - step[10];
@@ -288,21 +288,21 @@ static void fdct16(const tran_low_t *input, tran_low_t *output) {
   step[6] = output[6];
   step[7] = output[7];
   temp = output[8] * cospi_30_64 + output[15] * cospi_2_64;
-  step[8] = (tran_low_t)fdct_round_shift(temp);
+  step[8] = (TranLowT)fdct_round_shift(temp);
   temp = output[9] * cospi_14_64 + output[14] * cospi_18_64;
-  step[9] = (tran_low_t)fdct_round_shift(temp);
+  step[9] = (TranLowT)fdct_round_shift(temp);
   temp = output[10] * cospi_22_64 + output[13] * cospi_10_64;
-  step[10] = (tran_low_t)fdct_round_shift(temp);
+  step[10] = (TranLowT)fdct_round_shift(temp);
   temp = output[11] * cospi_6_64 + output[12] * cospi_26_64;
-  step[11] = (tran_low_t)fdct_round_shift(temp);
+  step[11] = (TranLowT)fdct_round_shift(temp);
   temp = output[12] * cospi_6_64 + output[11] * -cospi_26_64;
-  step[12] = (tran_low_t)fdct_round_shift(temp);
+  step[12] = (TranLowT)fdct_round_shift(temp);
   temp = output[13] * cospi_22_64 + output[10] * -cospi_10_64;
-  step[13] = (tran_low_t)fdct_round_shift(temp);
+  step[13] = (TranLowT)fdct_round_shift(temp);
   temp = output[14] * cospi_14_64 + output[9] * -cospi_18_64;
-  step[14] = (tran_low_t)fdct_round_shift(temp);
+  step[14] = (TranLowT)fdct_round_shift(temp);
   temp = output[15] * cospi_30_64 + output[8] * -cospi_2_64;
-  step[15] = (tran_low_t)fdct_round_shift(temp);
+  step[15] = (TranLowT)fdct_round_shift(temp);
 
   range_check(step, 16, 16);
 
@@ -327,9 +327,9 @@ static void fdct16(const tran_low_t *input, tran_low_t *output) {
   range_check(output, 16, 16);
 }
 
-static void fdct32(const tran_low_t *input, tran_low_t *output) {
-  tran_high_t temp;
-  tran_low_t step[32];
+static void fdct32(const TranLowT *input, TranLowT *output) {
+  TranHighT temp;
+  TranLowT step[32];
 
   // stage 0
   range_check(input, 32, 14);
@@ -392,21 +392,21 @@ static void fdct32(const tran_low_t *input, tran_low_t *output) {
   step[18] = output[18];
   step[19] = output[19];
   temp = output[20] * -cospi_16_64 + output[27] * cospi_16_64;
-  step[20] = (tran_low_t)fdct_round_shift(temp);
+  step[20] = (TranLowT)fdct_round_shift(temp);
   temp = output[21] * -cospi_16_64 + output[26] * cospi_16_64;
-  step[21] = (tran_low_t)fdct_round_shift(temp);
+  step[21] = (TranLowT)fdct_round_shift(temp);
   temp = output[22] * -cospi_16_64 + output[25] * cospi_16_64;
-  step[22] = (tran_low_t)fdct_round_shift(temp);
+  step[22] = (TranLowT)fdct_round_shift(temp);
   temp = output[23] * -cospi_16_64 + output[24] * cospi_16_64;
-  step[23] = (tran_low_t)fdct_round_shift(temp);
+  step[23] = (TranLowT)fdct_round_shift(temp);
   temp = output[24] * cospi_16_64 + output[23] * cospi_16_64;
-  step[24] = (tran_low_t)fdct_round_shift(temp);
+  step[24] = (TranLowT)fdct_round_shift(temp);
   temp = output[25] * cospi_16_64 + output[22] * cospi_16_64;
-  step[25] = (tran_low_t)fdct_round_shift(temp);
+  step[25] = (TranLowT)fdct_round_shift(temp);
   temp = output[26] * cospi_16_64 + output[21] * cospi_16_64;
-  step[26] = (tran_low_t)fdct_round_shift(temp);
+  step[26] = (TranLowT)fdct_round_shift(temp);
   temp = output[27] * cospi_16_64 + output[20] * cospi_16_64;
-  step[27] = (tran_low_t)fdct_round_shift(temp);
+  step[27] = (TranLowT)fdct_round_shift(temp);
   step[28] = output[28];
   step[29] = output[29];
   step[30] = output[30];
@@ -426,13 +426,13 @@ static void fdct32(const tran_low_t *input, tran_low_t *output) {
   output[8] = step[8];
   output[9] = step[9];
   temp = step[10] * -cospi_16_64 + step[13] * cospi_16_64;
-  output[10] = (tran_low_t)fdct_round_shift(temp);
+  output[10] = (TranLowT)fdct_round_shift(temp);
   temp = step[11] * -cospi_16_64 + step[12] * cospi_16_64;
-  output[11] = (tran_low_t)fdct_round_shift(temp);
+  output[11] = (TranLowT)fdct_round_shift(temp);
   temp = step[12] * cospi_16_64 + step[11] * cospi_16_64;
-  output[12] = (tran_low_t)fdct_round_shift(temp);
+  output[12] = (TranLowT)fdct_round_shift(temp);
   temp = step[13] * cospi_16_64 + step[10] * cospi_16_64;
-  output[13] = (tran_low_t)fdct_round_shift(temp);
+  output[13] = (TranLowT)fdct_round_shift(temp);
   output[14] = step[14];
   output[15] = step[15];
   output[16] = step[16] + step[23];
@@ -461,9 +461,9 @@ static void fdct32(const tran_low_t *input, tran_low_t *output) {
   step[3] = output[0] - output[3];
   step[4] = output[4];
   temp = output[5] * -cospi_16_64 + output[6] * cospi_16_64;
-  step[5] = (tran_low_t)fdct_round_shift(temp);
+  step[5] = (TranLowT)fdct_round_shift(temp);
   temp = output[6] * cospi_16_64 + output[5] * cospi_16_64;
-  step[6] = (tran_low_t)fdct_round_shift(temp);
+  step[6] = (TranLowT)fdct_round_shift(temp);
   step[7] = output[7];
   step[8] = output[8] + output[11];
   step[9] = output[9] + output[10];
@@ -476,25 +476,25 @@ static void fdct32(const tran_low_t *input, tran_low_t *output) {
   step[16] = output[16];
   step[17] = output[17];
   temp = output[18] * -cospi_8_64 + output[29] * cospi_24_64;
-  step[18] = (tran_low_t)fdct_round_shift(temp);
+  step[18] = (TranLowT)fdct_round_shift(temp);
   temp = output[19] * -cospi_8_64 + output[28] * cospi_24_64;
-  step[19] = (tran_low_t)fdct_round_shift(temp);
+  step[19] = (TranLowT)fdct_round_shift(temp);
   temp = output[20] * -cospi_24_64 + output[27] * -cospi_8_64;
-  step[20] = (tran_low_t)fdct_round_shift(temp);
+  step[20] = (TranLowT)fdct_round_shift(temp);
   temp = output[21] * -cospi_24_64 + output[26] * -cospi_8_64;
-  step[21] = (tran_low_t)fdct_round_shift(temp);
+  step[21] = (TranLowT)fdct_round_shift(temp);
   step[22] = output[22];
   step[23] = output[23];
   step[24] = output[24];
   step[25] = output[25];
   temp = output[26] * cospi_24_64 + output[21] * -cospi_8_64;
-  step[26] = (tran_low_t)fdct_round_shift(temp);
+  step[26] = (TranLowT)fdct_round_shift(temp);
   temp = output[27] * cospi_24_64 + output[20] * -cospi_8_64;
-  step[27] = (tran_low_t)fdct_round_shift(temp);
+  step[27] = (TranLowT)fdct_round_shift(temp);
   temp = output[28] * cospi_8_64 + output[19] * cospi_24_64;
-  step[28] = (tran_low_t)fdct_round_shift(temp);
+  step[28] = (TranLowT)fdct_round_shift(temp);
   temp = output[29] * cospi_8_64 + output[18] * cospi_24_64;
-  step[29] = (tran_low_t)fdct_round_shift(temp);
+  step[29] = (TranLowT)fdct_round_shift(temp);
   step[30] = output[30];
   step[31] = output[31];
 
@@ -502,28 +502,28 @@ static void fdct32(const tran_low_t *input, tran_low_t *output) {
 
   // stage 5
   temp = step[0] * cospi_16_64 + step[1] * cospi_16_64;
-  output[0] = (tran_low_t)fdct_round_shift(temp);
+  output[0] = (TranLowT)fdct_round_shift(temp);
   temp = step[1] * -cospi_16_64 + step[0] * cospi_16_64;
-  output[1] = (tran_low_t)fdct_round_shift(temp);
+  output[1] = (TranLowT)fdct_round_shift(temp);
   temp = step[2] * cospi_24_64 + step[3] * cospi_8_64;
-  output[2] = (tran_low_t)fdct_round_shift(temp);
+  output[2] = (TranLowT)fdct_round_shift(temp);
   temp = step[3] * cospi_24_64 + step[2] * -cospi_8_64;
-  output[3] = (tran_low_t)fdct_round_shift(temp);
+  output[3] = (TranLowT)fdct_round_shift(temp);
   output[4] = step[4] + step[5];
   output[5] = step[4] - step[5];
   output[6] = step[7] - step[6];
   output[7] = step[7] + step[6];
   output[8] = step[8];
   temp = step[9] * -cospi_8_64 + step[14] * cospi_24_64;
-  output[9] = (tran_low_t)fdct_round_shift(temp);
+  output[9] = (TranLowT)fdct_round_shift(temp);
   temp = step[10] * -cospi_24_64 + step[13] * -cospi_8_64;
-  output[10] = (tran_low_t)fdct_round_shift(temp);
+  output[10] = (TranLowT)fdct_round_shift(temp);
   output[11] = step[11];
   output[12] = step[12];
   temp = step[13] * cospi_24_64 + step[10] * -cospi_8_64;
-  output[13] = (tran_low_t)fdct_round_shift(temp);
+  output[13] = (TranLowT)fdct_round_shift(temp);
   temp = step[14] * cospi_8_64 + step[9] * cospi_24_64;
-  output[14] = (tran_low_t)fdct_round_shift(temp);
+  output[14] = (TranLowT)fdct_round_shift(temp);
   output[15] = step[15];
   output[16] = step[16] + step[19];
   output[17] = step[17] + step[18];
@@ -550,13 +550,13 @@ static void fdct32(const tran_low_t *input, tran_low_t *output) {
   step[2] = output[2];
   step[3] = output[3];
   temp = output[4] * cospi_28_64 + output[7] * cospi_4_64;
-  step[4] = (tran_low_t)fdct_round_shift(temp);
+  step[4] = (TranLowT)fdct_round_shift(temp);
   temp = output[5] * cospi_12_64 + output[6] * cospi_20_64;
-  step[5] = (tran_low_t)fdct_round_shift(temp);
+  step[5] = (TranLowT)fdct_round_shift(temp);
   temp = output[6] * cospi_12_64 + output[5] * -cospi_20_64;
-  step[6] = (tran_low_t)fdct_round_shift(temp);
+  step[6] = (TranLowT)fdct_round_shift(temp);
   temp = output[7] * cospi_28_64 + output[4] * -cospi_4_64;
-  step[7] = (tran_low_t)fdct_round_shift(temp);
+  step[7] = (TranLowT)fdct_round_shift(temp);
   step[8] = output[8] + output[9];
   step[9] = output[8] - output[9];
   step[10] = output[11] - output[10];
@@ -567,27 +567,27 @@ static void fdct32(const tran_low_t *input, tran_low_t *output) {
   step[15] = output[15] + output[14];
   step[16] = output[16];
   temp = output[17] * -cospi_4_64 + output[30] * cospi_28_64;
-  step[17] = (tran_low_t)fdct_round_shift(temp);
+  step[17] = (TranLowT)fdct_round_shift(temp);
   temp = output[18] * -cospi_28_64 + output[29] * -cospi_4_64;
-  step[18] = (tran_low_t)fdct_round_shift(temp);
+  step[18] = (TranLowT)fdct_round_shift(temp);
   step[19] = output[19];
   step[20] = output[20];
   temp = output[21] * -cospi_20_64 + output[26] * cospi_12_64;
-  step[21] = (tran_low_t)fdct_round_shift(temp);
+  step[21] = (TranLowT)fdct_round_shift(temp);
   temp = output[22] * -cospi_12_64 + output[25] * -cospi_20_64;
-  step[22] = (tran_low_t)fdct_round_shift(temp);
+  step[22] = (TranLowT)fdct_round_shift(temp);
   step[23] = output[23];
   step[24] = output[24];
   temp = output[25] * cospi_12_64 + output[22] * -cospi_20_64;
-  step[25] = (tran_low_t)fdct_round_shift(temp);
+  step[25] = (TranLowT)fdct_round_shift(temp);
   temp = output[26] * cospi_20_64 + output[21] * cospi_12_64;
-  step[26] = (tran_low_t)fdct_round_shift(temp);
+  step[26] = (TranLowT)fdct_round_shift(temp);
   step[27] = output[27];
   step[28] = output[28];
   temp = output[29] * cospi_28_64 + output[18] * -cospi_4_64;
-  step[29] = (tran_low_t)fdct_round_shift(temp);
+  step[29] = (TranLowT)fdct_round_shift(temp);
   temp = output[30] * cospi_4_64 + output[17] * cospi_28_64;
-  step[30] = (tran_low_t)fdct_round_shift(temp);
+  step[30] = (TranLowT)fdct_round_shift(temp);
   step[31] = output[31];
 
   range_check(step, 32, 18);
@@ -602,21 +602,21 @@ static void fdct32(const tran_low_t *input, tran_low_t *output) {
   output[6] = step[6];
   output[7] = step[7];
   temp = step[8] * cospi_30_64 + step[15] * cospi_2_64;
-  output[8] = (tran_low_t)fdct_round_shift(temp);
+  output[8] = (TranLowT)fdct_round_shift(temp);
   temp = step[9] * cospi_14_64 + step[14] * cospi_18_64;
-  output[9] = (tran_low_t)fdct_round_shift(temp);
+  output[9] = (TranLowT)fdct_round_shift(temp);
   temp = step[10] * cospi_22_64 + step[13] * cospi_10_64;
-  output[10] = (tran_low_t)fdct_round_shift(temp);
+  output[10] = (TranLowT)fdct_round_shift(temp);
   temp = step[11] * cospi_6_64 + step[12] * cospi_26_64;
-  output[11] = (tran_low_t)fdct_round_shift(temp);
+  output[11] = (TranLowT)fdct_round_shift(temp);
   temp = step[12] * cospi_6_64 + step[11] * -cospi_26_64;
-  output[12] = (tran_low_t)fdct_round_shift(temp);
+  output[12] = (TranLowT)fdct_round_shift(temp);
   temp = step[13] * cospi_22_64 + step[10] * -cospi_10_64;
-  output[13] = (tran_low_t)fdct_round_shift(temp);
+  output[13] = (TranLowT)fdct_round_shift(temp);
   temp = step[14] * cospi_14_64 + step[9] * -cospi_18_64;
-  output[14] = (tran_low_t)fdct_round_shift(temp);
+  output[14] = (TranLowT)fdct_round_shift(temp);
   temp = step[15] * cospi_30_64 + step[8] * -cospi_2_64;
-  output[15] = (tran_low_t)fdct_round_shift(temp);
+  output[15] = (TranLowT)fdct_round_shift(temp);
   output[16] = step[16] + step[17];
   output[17] = step[16] - step[17];
   output[18] = step[19] - step[18];
@@ -654,37 +654,37 @@ static void fdct32(const tran_low_t *input, tran_low_t *output) {
   step[14] = output[14];
   step[15] = output[15];
   temp = output[16] * cospi_31_64 + output[31] * cospi_1_64;
-  step[16] = (tran_low_t)fdct_round_shift(temp);
+  step[16] = (TranLowT)fdct_round_shift(temp);
   temp = output[17] * cospi_15_64 + output[30] * cospi_17_64;
-  step[17] = (tran_low_t)fdct_round_shift(temp);
+  step[17] = (TranLowT)fdct_round_shift(temp);
   temp = output[18] * cospi_23_64 + output[29] * cospi_9_64;
-  step[18] = (tran_low_t)fdct_round_shift(temp);
+  step[18] = (TranLowT)fdct_round_shift(temp);
   temp = output[19] * cospi_7_64 + output[28] * cospi_25_64;
-  step[19] = (tran_low_t)fdct_round_shift(temp);
+  step[19] = (TranLowT)fdct_round_shift(temp);
   temp = output[20] * cospi_27_64 + output[27] * cospi_5_64;
-  step[20] = (tran_low_t)fdct_round_shift(temp);
+  step[20] = (TranLowT)fdct_round_shift(temp);
   temp = output[21] * cospi_11_64 + output[26] * cospi_21_64;
-  step[21] = (tran_low_t)fdct_round_shift(temp);
+  step[21] = (TranLowT)fdct_round_shift(temp);
   temp = output[22] * cospi_19_64 + output[25] * cospi_13_64;
-  step[22] = (tran_low_t)fdct_round_shift(temp);
+  step[22] = (TranLowT)fdct_round_shift(temp);
   temp = output[23] * cospi_3_64 + output[24] * cospi_29_64;
-  step[23] = (tran_low_t)fdct_round_shift(temp);
+  step[23] = (TranLowT)fdct_round_shift(temp);
   temp = output[24] * cospi_3_64 + output[23] * -cospi_29_64;
-  step[24] = (tran_low_t)fdct_round_shift(temp);
+  step[24] = (TranLowT)fdct_round_shift(temp);
   temp = output[25] * cospi_19_64 + output[22] * -cospi_13_64;
-  step[25] = (tran_low_t)fdct_round_shift(temp);
+  step[25] = (TranLowT)fdct_round_shift(temp);
   temp = output[26] * cospi_11_64 + output[21] * -cospi_21_64;
-  step[26] = (tran_low_t)fdct_round_shift(temp);
+  step[26] = (TranLowT)fdct_round_shift(temp);
   temp = output[27] * cospi_27_64 + output[20] * -cospi_5_64;
-  step[27] = (tran_low_t)fdct_round_shift(temp);
+  step[27] = (TranLowT)fdct_round_shift(temp);
   temp = output[28] * cospi_7_64 + output[19] * -cospi_25_64;
-  step[28] = (tran_low_t)fdct_round_shift(temp);
+  step[28] = (TranLowT)fdct_round_shift(temp);
   temp = output[29] * cospi_23_64 + output[18] * -cospi_9_64;
-  step[29] = (tran_low_t)fdct_round_shift(temp);
+  step[29] = (TranLowT)fdct_round_shift(temp);
   temp = output[30] * cospi_15_64 + output[17] * -cospi_17_64;
-  step[30] = (tran_low_t)fdct_round_shift(temp);
+  step[30] = (TranLowT)fdct_round_shift(temp);
   temp = output[31] * cospi_31_64 + output[16] * -cospi_1_64;
-  step[31] = (tran_low_t)fdct_round_shift(temp);
+  step[31] = (TranLowT)fdct_round_shift(temp);
 
   range_check(step, 32, 18);
 
@@ -727,9 +727,9 @@ static void fdct32(const tran_low_t *input, tran_low_t *output) {
 
 #ifndef AV1_DCT_GTEST
 
-static void fadst4(const tran_low_t *input, tran_low_t *output) {
-  tran_high_t x0, x1, x2, x3;
-  tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;
+static void fadst4(const TranLowT *input, TranLowT *output) {
+  TranHighT x0, x1, x2, x3;
+  TranHighT s0, s1, s2, s3, s4, s5, s6, s7;
 
   x0 = input[0];
   x1 = input[1];
@@ -761,23 +761,23 @@ static void fadst4(const tran_low_t *input, tran_low_t *output) {
   s3 = x2 - x0 + x3;
 
   // 1-D transform scaling factor is sqrt(2).
-  output[0] = (tran_low_t)fdct_round_shift(s0);
-  output[1] = (tran_low_t)fdct_round_shift(s1);
-  output[2] = (tran_low_t)fdct_round_shift(s2);
-  output[3] = (tran_low_t)fdct_round_shift(s3);
+  output[0] = (TranLowT)fdct_round_shift(s0);
+  output[1] = (TranLowT)fdct_round_shift(s1);
+  output[2] = (TranLowT)fdct_round_shift(s2);
+  output[3] = (TranLowT)fdct_round_shift(s3);
 }
 
-static void fadst8(const tran_low_t *input, tran_low_t *output) {
-  tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;
+static void fadst8(const TranLowT *input, TranLowT *output) {
+  TranHighT s0, s1, s2, s3, s4, s5, s6, s7;
 
-  tran_high_t x0 = input[7];
-  tran_high_t x1 = input[0];
-  tran_high_t x2 = input[5];
-  tran_high_t x3 = input[2];
-  tran_high_t x4 = input[3];
-  tran_high_t x5 = input[4];
-  tran_high_t x6 = input[1];
-  tran_high_t x7 = input[6];
+  TranHighT x0 = input[7];
+  TranHighT x1 = input[0];
+  TranHighT x2 = input[5];
+  TranHighT x3 = input[2];
+  TranHighT x4 = input[3];
+  TranHighT x5 = input[4];
+  TranHighT x6 = input[1];
+  TranHighT x7 = input[6];
 
   // stage 1
   s0 = cospi_2_64 * x0 + cospi_30_64 * x1;
@@ -828,36 +828,36 @@ static void fadst8(const tran_low_t *input, tran_low_t *output) {
   x6 = fdct_round_shift(s6);
   x7 = fdct_round_shift(s7);
 
-  output[0] = (tran_low_t)x0;
-  output[1] = (tran_low_t)-x4;
-  output[2] = (tran_low_t)x6;
-  output[3] = (tran_low_t)-x2;
-  output[4] = (tran_low_t)x3;
-  output[5] = (tran_low_t)-x7;
-  output[6] = (tran_low_t)x5;
-  output[7] = (tran_low_t)-x1;
+  output[0] = (TranLowT)x0;
+  output[1] = (TranLowT)-x4;
+  output[2] = (TranLowT)x6;
+  output[3] = (TranLowT)-x2;
+  output[4] = (TranLowT)x3;
+  output[5] = (TranLowT)-x7;
+  output[6] = (TranLowT)x5;
+  output[7] = (TranLowT)-x1;
 }
 
-static void fadst16(const tran_low_t *input, tran_low_t *output) {
-  tran_high_t s0, s1, s2, s3, s4, s5, s6, s7, s8;
-  tran_high_t s9, s10, s11, s12, s13, s14, s15;
+static void fadst16(const TranLowT *input, TranLowT *output) {
+  TranHighT s0, s1, s2, s3, s4, s5, s6, s7, s8;
+  TranHighT s9, s10, s11, s12, s13, s14, s15;
 
-  tran_high_t x0 = input[15];
-  tran_high_t x1 = input[0];
-  tran_high_t x2 = input[13];
-  tran_high_t x3 = input[2];
-  tran_high_t x4 = input[11];
-  tran_high_t x5 = input[4];
-  tran_high_t x6 = input[9];
-  tran_high_t x7 = input[6];
-  tran_high_t x8 = input[7];
-  tran_high_t x9 = input[8];
-  tran_high_t x10 = input[5];
-  tran_high_t x11 = input[10];
-  tran_high_t x12 = input[3];
-  tran_high_t x13 = input[12];
-  tran_high_t x14 = input[1];
-  tran_high_t x15 = input[14];
+  TranHighT x0 = input[15];
+  TranHighT x1 = input[0];
+  TranHighT x2 = input[13];
+  TranHighT x3 = input[2];
+  TranHighT x4 = input[11];
+  TranHighT x5 = input[4];
+  TranHighT x6 = input[9];
+  TranHighT x7 = input[6];
+  TranHighT x8 = input[7];
+  TranHighT x9 = input[8];
+  TranHighT x10 = input[5];
+  TranHighT x11 = input[10];
+  TranHighT x12 = input[3];
+  TranHighT x13 = input[12];
+  TranHighT x14 = input[1];
+  TranHighT x15 = input[14];
 
   // stage 1
   s0 = x0 * cospi_1_64 + x1 * cospi_31_64;
@@ -988,58 +988,58 @@ static void fadst16(const tran_low_t *input, tran_low_t *output) {
   x14 = fdct_round_shift(s14);
   x15 = fdct_round_shift(s15);
 
-  output[0] = (tran_low_t)x0;
-  output[1] = (tran_low_t)-x8;
-  output[2] = (tran_low_t)x12;
-  output[3] = (tran_low_t)-x4;
-  output[4] = (tran_low_t)x6;
-  output[5] = (tran_low_t)x14;
-  output[6] = (tran_low_t)x10;
-  output[7] = (tran_low_t)x2;
-  output[8] = (tran_low_t)x3;
-  output[9] = (tran_low_t)x11;
-  output[10] = (tran_low_t)x15;
-  output[11] = (tran_low_t)x7;
-  output[12] = (tran_low_t)x5;
-  output[13] = (tran_low_t)-x13;
-  output[14] = (tran_low_t)x9;
-  output[15] = (tran_low_t)-x1;
+  output[0] = (TranLowT)x0;
+  output[1] = (TranLowT)-x8;
+  output[2] = (TranLowT)x12;
+  output[3] = (TranLowT)-x4;
+  output[4] = (TranLowT)x6;
+  output[5] = (TranLowT)x14;
+  output[6] = (TranLowT)x10;
+  output[7] = (TranLowT)x2;
+  output[8] = (TranLowT)x3;
+  output[9] = (TranLowT)x11;
+  output[10] = (TranLowT)x15;
+  output[11] = (TranLowT)x7;
+  output[12] = (TranLowT)x5;
+  output[13] = (TranLowT)-x13;
+  output[14] = (TranLowT)x9;
+  output[15] = (TranLowT)-x1;
 }
 
 // For use in lieu of ADST
-static void fhalfright32(const tran_low_t *input, tran_low_t *output) {
+static void fhalfright32(const TranLowT *input, TranLowT *output) {
   int i;
-  tran_low_t inputhalf[16];
+  TranLowT inputhalf[16];
   for (i = 0; i < 16; ++i) {
     output[16 + i] = input[i] * 4;
   }
   // Multiply input by sqrt(2)
   for (i = 0; i < 16; ++i) {
-    inputhalf[i] = (tran_low_t)fdct_round_shift(input[i + 16] * Sqrt2);
+    inputhalf[i] = (TranLowT)fdct_round_shift(input[i + 16] * Sqrt2);
   }
   fdct16(inputhalf, output);
   // Note overall scaling factor is 4 times orthogonal
 }
 
 #if CONFIG_EXT_TX
-static void fidtx4(const tran_low_t *input, tran_low_t *output) {
+static void fidtx4(const TranLowT *input, TranLowT *output) {
   int i;
   for (i = 0; i < 4; ++i)
-    output[i] = (tran_low_t)fdct_round_shift(input[i] * Sqrt2);
+    output[i] = (TranLowT)fdct_round_shift(input[i] * Sqrt2);
 }
 
-static void fidtx8(const tran_low_t *input, tran_low_t *output) {
+static void fidtx8(const TranLowT *input, TranLowT *output) {
   int i;
   for (i = 0; i < 8; ++i) output[i] = input[i] * 2;
 }
 
-static void fidtx16(const tran_low_t *input, tran_low_t *output) {
+static void fidtx16(const TranLowT *input, TranLowT *output) {
   int i;
   for (i = 0; i < 16; ++i)
-    output[i] = (tran_low_t)fdct_round_shift(input[i] * 2 * Sqrt2);
+    output[i] = (TranLowT)fdct_round_shift(input[i] * 2 * Sqrt2);
 }
 
-static void fidtx32(const tran_low_t *input, tran_low_t *output) {
+static void fidtx32(const TranLowT *input, TranLowT *output) {
   int i;
   for (i = 0; i < 32; ++i) output[i] = input[i] * 4;
 }
@@ -1139,12 +1139,12 @@ static void maybe_flip_input(const int16_t **src, int *src_stride, int l, int w,
 }
 #endif  // CONFIG_EXT_TX
 
-void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht4x4_c(const int16_t *input, TranLowT *output, int stride,
                   int tx_type) {
   if (tx_type == DCT_DCT) {
     aom_fdct4x4_c(input, output, stride);
   } else {
-    static const transform_2d FHT[] = {
+    static const Transform2d FHT[] = {
       { fdct4, fdct4 },    // DCT_DCT
       { fadst4, fdct4 },   // ADST_DCT
       { fdct4, fadst4 },   // DCT_ADST
@@ -1164,10 +1164,10 @@ void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
       { fidtx4, fadst4 },  // H_FLIPADST
 #endif                     // CONFIG_EXT_TX
     };
-    const transform_2d ht = FHT[tx_type];
-    tran_low_t out[4 * 4];
+    const Transform2d ht = FHT[tx_type];
+    TranLowT out[4 * 4];
     int i, j;
-    tran_low_t temp_in[4], temp_out[4];
+    TranLowT temp_in[4], temp_out[4];
 
 #if CONFIG_EXT_TX
     int16_t flipped_input[4 * 4];
@@ -1191,9 +1191,9 @@ void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
   }
 }
 
-void av1_fht4x8_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht4x8_c(const int16_t *input, TranLowT *output, int stride,
                   int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct8, fdct4 },    // DCT_DCT
     { fadst8, fdct4 },   // ADST_DCT
     { fdct8, fadst4 },   // DCT_ADST
@@ -1213,11 +1213,11 @@ void av1_fht4x8_c(const int16_t *input, tran_low_t *output, int stride,
     { fidtx8, fadst4 },  // H_FLIPADST
 #endif
   };
-  const transform_2d ht = FHT[tx_type];
+  const Transform2d ht = FHT[tx_type];
   const int n = 4;
   const int n2 = 8;
-  tran_low_t out[8 * 4];
-  tran_low_t temp_in[8], temp_out[8];
+  TranLowT out[8 * 4];
+  TranLowT temp_in[8], temp_out[8];
   int i, j;
 #if CONFIG_EXT_TX
   int16_t flipped_input[8 * 4];
@@ -1228,7 +1228,7 @@ void av1_fht4x8_c(const int16_t *input, tran_low_t *output, int stride,
   for (i = 0; i < n2; ++i) {
     for (j = 0; j < n; ++j)
       temp_in[j] =
-          (tran_low_t)fdct_round_shift(input[i * stride + j] * 4 * Sqrt2);
+          (TranLowT)fdct_round_shift(input[i * stride + j] * 4 * Sqrt2);
     ht.rows(temp_in, temp_out);
     for (j = 0; j < n; ++j) out[j * n2 + i] = temp_out[j];
   }
@@ -1243,9 +1243,9 @@ void av1_fht4x8_c(const int16_t *input, tran_low_t *output, int stride,
   // Note: overall scale factor of transform is 8 times unitary
 }
 
-void av1_fht8x4_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht8x4_c(const int16_t *input, TranLowT *output, int stride,
                   int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct4, fdct8 },    // DCT_DCT
     { fadst4, fdct8 },   // ADST_DCT
     { fdct4, fadst8 },   // DCT_ADST
@@ -1265,11 +1265,11 @@ void av1_fht8x4_c(const int16_t *input, tran_low_t *output, int stride,
     { fidtx4, fadst8 },  // H_FLIPADST
 #endif
   };
-  const transform_2d ht = FHT[tx_type];
+  const Transform2d ht = FHT[tx_type];
   const int n = 4;
   const int n2 = 8;
-  tran_low_t out[8 * 4];
-  tran_low_t temp_in[8], temp_out[8];
+  TranLowT out[8 * 4];
+  TranLowT temp_in[8], temp_out[8];
   int i, j;
 #if CONFIG_EXT_TX
   int16_t flipped_input[8 * 4];
@@ -1280,7 +1280,7 @@ void av1_fht8x4_c(const int16_t *input, tran_low_t *output, int stride,
   for (i = 0; i < n2; ++i) {
     for (j = 0; j < n; ++j)
       temp_in[j] =
-          (tran_low_t)fdct_round_shift(input[j * stride + i] * 4 * Sqrt2);
+          (TranLowT)fdct_round_shift(input[j * stride + i] * 4 * Sqrt2);
     ht.cols(temp_in, temp_out);
     for (j = 0; j < n; ++j) out[j * n2 + i] = temp_out[j];
   }
@@ -1295,9 +1295,9 @@ void av1_fht8x4_c(const int16_t *input, tran_low_t *output, int stride,
   // Note: overall scale factor of transform is 8 times unitary
 }
 
-void av1_fht4x16_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht4x16_c(const int16_t *input, TranLowT *output, int stride,
                    int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct16, fdct4 },    // DCT_DCT
     { fadst16, fdct4 },   // ADST_DCT
     { fdct16, fadst4 },   // DCT_ADST
@@ -1317,11 +1317,11 @@ void av1_fht4x16_c(const int16_t *input, tran_low_t *output, int stride,
     { fidtx16, fadst4 },  // H_FLIPADST
 #endif
   };
-  const transform_2d ht = FHT[tx_type];
+  const Transform2d ht = FHT[tx_type];
   const int n = 4;
   const int n4 = 16;
-  tran_low_t out[16 * 4];
-  tran_low_t temp_in[16], temp_out[16];
+  TranLowT out[16 * 4];
+  TranLowT temp_in[16], temp_out[16];
   int i, j;
 #if CONFIG_EXT_TX
   int16_t flipped_input[16 * 4];
@@ -1345,9 +1345,9 @@ void av1_fht4x16_c(const int16_t *input, tran_low_t *output, int stride,
   // Note: overall scale factor of transform is 8 times unitary
 }
 
-void av1_fht16x4_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht16x4_c(const int16_t *input, TranLowT *output, int stride,
                    int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct4, fdct16 },    // DCT_DCT
     { fadst4, fdct16 },   // ADST_DCT
     { fdct4, fadst16 },   // DCT_ADST
@@ -1367,11 +1367,11 @@ void av1_fht16x4_c(const int16_t *input, tran_low_t *output, int stride,
     { fidtx4, fadst16 },  // H_FLIPADST
 #endif
   };
-  const transform_2d ht = FHT[tx_type];
+  const Transform2d ht = FHT[tx_type];
   const int n = 4;
   const int n4 = 16;
-  tran_low_t out[16 * 4];
-  tran_low_t temp_in[16], temp_out[16];
+  TranLowT out[16 * 4];
+  TranLowT temp_in[16], temp_out[16];
   int i, j;
 #if CONFIG_EXT_TX
   int16_t flipped_input[16 * 4];
@@ -1395,9 +1395,9 @@ void av1_fht16x4_c(const int16_t *input, tran_low_t *output, int stride,
   // Note: overall scale factor of transform is 8 times unitary
 }
 
-void av1_fht8x16_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht8x16_c(const int16_t *input, TranLowT *output, int stride,
                    int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct16, fdct8 },    // DCT_DCT
     { fadst16, fdct8 },   // ADST_DCT
     { fdct16, fadst8 },   // DCT_ADST
@@ -1417,11 +1417,11 @@ void av1_fht8x16_c(const int16_t *input, tran_low_t *output, int stride,
     { fidtx16, fadst8 },  // H_FLIPADST
 #endif
   };
-  const transform_2d ht = FHT[tx_type];
+  const Transform2d ht = FHT[tx_type];
   const int n = 8;
   const int n2 = 16;
-  tran_low_t out[16 * 8];
-  tran_low_t temp_in[16], temp_out[16];
+  TranLowT out[16 * 8];
+  TranLowT temp_in[16], temp_out[16];
   int i, j;
 #if CONFIG_EXT_TX
   int16_t flipped_input[16 * 8];
@@ -1432,7 +1432,7 @@ void av1_fht8x16_c(const int16_t *input, tran_low_t *output, int stride,
   for (i = 0; i < n2; ++i) {
     for (j = 0; j < n; ++j)
       temp_in[j] =
-          (tran_low_t)fdct_round_shift(input[i * stride + j] * 4 * Sqrt2);
+          (TranLowT)fdct_round_shift(input[i * stride + j] * 4 * Sqrt2);
     ht.rows(temp_in, temp_out);
     for (j = 0; j < n; ++j)
       out[j * n2 + i] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
@@ -1447,9 +1447,9 @@ void av1_fht8x16_c(const int16_t *input, tran_low_t *output, int stride,
   // Note: overall scale factor of transform is 8 times unitary
 }
 
-void av1_fht16x8_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht16x8_c(const int16_t *input, TranLowT *output, int stride,
                    int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct8, fdct16 },    // DCT_DCT
     { fadst8, fdct16 },   // ADST_DCT
     { fdct8, fadst16 },   // DCT_ADST
@@ -1469,11 +1469,11 @@ void av1_fht16x8_c(const int16_t *input, tran_low_t *output, int stride,
     { fidtx8, fadst16 },  // H_FLIPADST
 #endif
   };
-  const transform_2d ht = FHT[tx_type];
+  const Transform2d ht = FHT[tx_type];
   const int n = 8;
   const int n2 = 16;
-  tran_low_t out[16 * 8];
-  tran_low_t temp_in[16], temp_out[16];
+  TranLowT out[16 * 8];
+  TranLowT temp_in[16], temp_out[16];
   int i, j;
 #if CONFIG_EXT_TX
   int16_t flipped_input[16 * 8];
@@ -1484,7 +1484,7 @@ void av1_fht16x8_c(const int16_t *input, tran_low_t *output, int stride,
   for (i = 0; i < n2; ++i) {
     for (j = 0; j < n; ++j)
       temp_in[j] =
-          (tran_low_t)fdct_round_shift(input[j * stride + i] * 4 * Sqrt2);
+          (TranLowT)fdct_round_shift(input[j * stride + i] * 4 * Sqrt2);
     ht.cols(temp_in, temp_out);
     for (j = 0; j < n; ++j)
       out[j * n2 + i] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
@@ -1499,9 +1499,9 @@ void av1_fht16x8_c(const int16_t *input, tran_low_t *output, int stride,
   // Note: overall scale factor of transform is 8 times unitary
 }
 
-void av1_fht8x32_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht8x32_c(const int16_t *input, TranLowT *output, int stride,
                    int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct32, fdct8 },         // DCT_DCT
     { fhalfright32, fdct8 },   // ADST_DCT
     { fdct32, fadst8 },        // DCT_ADST
@@ -1521,11 +1521,11 @@ void av1_fht8x32_c(const int16_t *input, tran_low_t *output, int stride,
     { fidtx32, fadst8 },       // H_FLIPADST
 #endif
   };
-  const transform_2d ht = FHT[tx_type];
+  const Transform2d ht = FHT[tx_type];
   const int n = 8;
   const int n4 = 32;
-  tran_low_t out[32 * 8];
-  tran_low_t temp_in[32], temp_out[32];
+  TranLowT out[32 * 8];
+  TranLowT temp_in[32], temp_out[32];
   int i, j;
 #if CONFIG_EXT_TX
   int16_t flipped_input[32 * 8];
@@ -1549,9 +1549,9 @@ void av1_fht8x32_c(const int16_t *input, tran_low_t *output, int stride,
   // Note: overall scale factor of transform is 4 times unitary
 }
 
-void av1_fht32x8_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht32x8_c(const int16_t *input, TranLowT *output, int stride,
                    int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct8, fdct32 },         // DCT_DCT
     { fadst8, fdct32 },        // ADST_DCT
     { fdct8, fhalfright32 },   // DCT_ADST
@@ -1571,11 +1571,11 @@ void av1_fht32x8_c(const int16_t *input, tran_low_t *output, int stride,
     { fidtx8, fhalfright32 },  // H_FLIPADST
 #endif
   };
-  const transform_2d ht = FHT[tx_type];
+  const Transform2d ht = FHT[tx_type];
   const int n = 8;
   const int n4 = 32;
-  tran_low_t out[32 * 8];
-  tran_low_t temp_in[32], temp_out[32];
+  TranLowT out[32 * 8];
+  TranLowT temp_in[32], temp_out[32];
   int i, j;
 #if CONFIG_EXT_TX
   int16_t flipped_input[32 * 8];
@@ -1599,9 +1599,9 @@ void av1_fht32x8_c(const int16_t *input, tran_low_t *output, int stride,
   // Note: overall scale factor of transform is 4 times unitary
 }
 
-void av1_fht16x32_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht16x32_c(const int16_t *input, TranLowT *output, int stride,
                     int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct32, fdct16 },         // DCT_DCT
     { fhalfright32, fdct16 },   // ADST_DCT
     { fdct32, fadst16 },        // DCT_ADST
@@ -1621,11 +1621,11 @@ void av1_fht16x32_c(const int16_t *input, tran_low_t *output, int stride,
     { fidtx32, fadst16 },       // H_FLIPADST
 #endif
   };
-  const transform_2d ht = FHT[tx_type];
+  const Transform2d ht = FHT[tx_type];
   const int n = 16;
   const int n2 = 32;
-  tran_low_t out[32 * 16];
-  tran_low_t temp_in[32], temp_out[32];
+  TranLowT out[32 * 16];
+  TranLowT temp_in[32], temp_out[32];
   int i, j;
 #if CONFIG_EXT_TX
   int16_t flipped_input[32 * 16];
@@ -1636,7 +1636,7 @@ void av1_fht16x32_c(const int16_t *input, tran_low_t *output, int stride,
   for (i = 0; i < n2; ++i) {
     for (j = 0; j < n; ++j)
       temp_in[j] =
-          (tran_low_t)fdct_round_shift(input[i * stride + j] * 4 * Sqrt2);
+          (TranLowT)fdct_round_shift(input[i * stride + j] * 4 * Sqrt2);
     ht.rows(temp_in, temp_out);
     for (j = 0; j < n; ++j)
       out[j * n2 + i] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 4);
@@ -1651,9 +1651,9 @@ void av1_fht16x32_c(const int16_t *input, tran_low_t *output, int stride,
   // Note: overall scale factor of transform is 4 times unitary
 }
 
-void av1_fht32x16_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht32x16_c(const int16_t *input, TranLowT *output, int stride,
                     int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct16, fdct32 },         // DCT_DCT
     { fadst16, fdct32 },        // ADST_DCT
     { fdct16, fhalfright32 },   // DCT_ADST
@@ -1673,11 +1673,11 @@ void av1_fht32x16_c(const int16_t *input, tran_low_t *output, int stride,
     { fidtx16, fhalfright32 },  // H_FLIPADST
 #endif
   };
-  const transform_2d ht = FHT[tx_type];
+  const Transform2d ht = FHT[tx_type];
   const int n = 16;
   const int n2 = 32;
-  tran_low_t out[32 * 16];
-  tran_low_t temp_in[32], temp_out[32];
+  TranLowT out[32 * 16];
+  TranLowT temp_in[32], temp_out[32];
   int i, j;
 #if CONFIG_EXT_TX
   int16_t flipped_input[32 * 16];
@@ -1688,7 +1688,7 @@ void av1_fht32x16_c(const int16_t *input, tran_low_t *output, int stride,
   for (i = 0; i < n2; ++i) {
     for (j = 0; j < n; ++j)
       temp_in[j] =
-          (tran_low_t)fdct_round_shift(input[j * stride + i] * 4 * Sqrt2);
+          (TranLowT)fdct_round_shift(input[j * stride + i] * 4 * Sqrt2);
     ht.cols(temp_in, temp_out);
     for (j = 0; j < n; ++j)
       out[j * n2 + i] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 4);
@@ -1703,30 +1703,30 @@ void av1_fht32x16_c(const int16_t *input, tran_low_t *output, int stride,
   // Note: overall scale factor of transform is 4 times unitary
 }
 
-void av1_fdct8x8_quant_c(const int16_t *input, int stride,
-                         tran_low_t *coeff_ptr, intptr_t n_coeffs,
-                         int skip_block, const int16_t *zbin_ptr,
-                         const int16_t *round_ptr, const int16_t *quant_ptr,
-                         const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
-                         tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr,
+void av1_fdct8x8_quant_c(const int16_t *input, int stride, TranLowT *coeff_ptr,
+                         intptr_t n_coeffs, int skip_block,
+                         const int16_t *zbin_ptr, const int16_t *round_ptr,
+                         const int16_t *quant_ptr,
+                         const int16_t *quant_shift_ptr, TranLowT *qcoeff_ptr,
+                         TranLowT *dqcoeff_ptr, const int16_t *dequant_ptr,
                          uint16_t *eob_ptr, const int16_t *scan,
                          const int16_t *iscan
 #if CONFIG_AOM_QM
                          ,
-                         const qm_val_t *qm_ptr, const qm_val_t *iqm_ptr
+                         const QmValT *qm_ptr, const QmValT *iqm_ptr
 #endif
                          ) {
   int eob = -1;
 
   int i, j;
-  tran_low_t intermediate[64];
+  TranLowT intermediate[64];
 
   // Transform columns
   {
-    tran_low_t *output = intermediate;
-    tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;  // canbe16
-    tran_high_t t0, t1, t2, t3;                  // needs32
-    tran_high_t x0, x1, x2, x3;                  // canbe16
+    TranLowT *output = intermediate;
+    TranHighT s0, s1, s2, s3, s4, s5, s6, s7;  // canbe16
+    TranHighT t0, t1, t2, t3;                  // needs32
+    TranHighT x0, x1, x2, x3;                  // canbe16
 
     for (i = 0; i < 8; i++) {
       // stage 1
@@ -1748,10 +1748,10 @@ void av1_fdct8x8_quant_c(const int16_t *input, int stride,
       t1 = (x0 - x1) * cospi_16_64;
       t2 = x2 * cospi_24_64 + x3 * cospi_8_64;
       t3 = -x2 * cospi_8_64 + x3 * cospi_24_64;
-      output[0 * 8] = (tran_low_t)fdct_round_shift(t0);
-      output[2 * 8] = (tran_low_t)fdct_round_shift(t2);
-      output[4 * 8] = (tran_low_t)fdct_round_shift(t1);
-      output[6 * 8] = (tran_low_t)fdct_round_shift(t3);
+      output[0 * 8] = (TranLowT)fdct_round_shift(t0);
+      output[2 * 8] = (TranLowT)fdct_round_shift(t2);
+      output[4 * 8] = (TranLowT)fdct_round_shift(t1);
+      output[6 * 8] = (TranLowT)fdct_round_shift(t3);
 
       // stage 2
       t0 = (s6 - s5) * cospi_16_64;
@@ -1770,10 +1770,10 @@ void av1_fdct8x8_quant_c(const int16_t *input, int stride,
       t1 = x1 * cospi_12_64 + x2 * cospi_20_64;
       t2 = x2 * cospi_12_64 + x1 * -cospi_20_64;
       t3 = x3 * cospi_28_64 + x0 * -cospi_4_64;
-      output[1 * 8] = (tran_low_t)fdct_round_shift(t0);
-      output[3 * 8] = (tran_low_t)fdct_round_shift(t2);
-      output[5 * 8] = (tran_low_t)fdct_round_shift(t1);
-      output[7 * 8] = (tran_low_t)fdct_round_shift(t3);
+      output[1 * 8] = (TranLowT)fdct_round_shift(t0);
+      output[3 * 8] = (TranLowT)fdct_round_shift(t2);
+      output[5 * 8] = (TranLowT)fdct_round_shift(t1);
+      output[7 * 8] = (TranLowT)fdct_round_shift(t3);
       input++;
       output++;
     }
@@ -1801,8 +1801,8 @@ void av1_fdct8x8_quant_c(const int16_t *input, int stride,
       const int rc = scan[i];
       const int coeff = coeff_ptr[rc];
 #if CONFIG_AOM_QM
-      const qm_val_t wt = qm_ptr[rc];
-      const qm_val_t iwt = iqm_ptr[rc];
+      const QmValT wt = qm_ptr[rc];
+      const QmValT iwt = iqm_ptr[rc];
       const int dequant =
           (dequant_ptr[rc != 0] * iwt + (1 << (AOM_QM_BITS - 1))) >>
           AOM_QM_BITS;
@@ -1828,12 +1828,12 @@ void av1_fdct8x8_quant_c(const int16_t *input, int stride,
   *eob_ptr = eob + 1;
 }
 
-void av1_fht8x8_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht8x8_c(const int16_t *input, TranLowT *output, int stride,
                   int tx_type) {
   if (tx_type == DCT_DCT) {
     aom_fdct8x8_c(input, output, stride);
   } else {
-    static const transform_2d FHT[] = {
+    static const Transform2d FHT[] = {
       { fdct8, fdct8 },    // DCT_DCT
       { fadst8, fdct8 },   // ADST_DCT
       { fdct8, fadst8 },   // DCT_ADST
@@ -1853,10 +1853,10 @@ void av1_fht8x8_c(const int16_t *input, tran_low_t *output, int stride,
       { fidtx8, fadst8 },  // H_FLIPADST
 #endif                     // CONFIG_EXT_TX
     };
-    const transform_2d ht = FHT[tx_type];
-    tran_low_t out[64];
+    const Transform2d ht = FHT[tx_type];
+    TranLowT out[64];
     int i, j;
-    tran_low_t temp_in[8], temp_out[8];
+    TranLowT temp_in[8], temp_out[8];
 
 #if CONFIG_EXT_TX
     int16_t flipped_input[8 * 8];
@@ -1882,12 +1882,12 @@ void av1_fht8x8_c(const int16_t *input, tran_low_t *output, int stride,
 
 /* 4-point reversible, orthonormal Walsh-Hadamard in 3.5 adds, 0.5 shifts per
    pixel. */
-void av1_fwht4x4_c(const int16_t *input, tran_low_t *output, int stride) {
+void av1_fwht4x4_c(const int16_t *input, TranLowT *output, int stride) {
   int i;
-  tran_high_t a1, b1, c1, d1, e1;
+  TranHighT a1, b1, c1, d1, e1;
   const int16_t *ip_pass0 = input;
-  const tran_low_t *ip = NULL;
-  tran_low_t *op = output;
+  const TranLowT *ip = NULL;
+  TranLowT *op = output;
 
   for (i = 0; i < 4; i++) {
     a1 = ip_pass0[0 * stride];
@@ -1902,10 +1902,10 @@ void av1_fwht4x4_c(const int16_t *input, tran_low_t *output, int stride) {
     c1 = e1 - c1;
     a1 -= c1;
     d1 += b1;
-    op[0] = (tran_low_t)a1;
-    op[4] = (tran_low_t)c1;
-    op[8] = (tran_low_t)d1;
-    op[12] = (tran_low_t)b1;
+    op[0] = (TranLowT)a1;
+    op[4] = (TranLowT)c1;
+    op[8] = (TranLowT)d1;
+    op[12] = (TranLowT)b1;
 
     ip_pass0++;
     op++;
@@ -1926,19 +1926,19 @@ void av1_fwht4x4_c(const int16_t *input, tran_low_t *output, int stride) {
     c1 = e1 - c1;
     a1 -= c1;
     d1 += b1;
-    op[0] = (tran_low_t)(a1 * UNIT_QUANT_FACTOR);
-    op[1] = (tran_low_t)(c1 * UNIT_QUANT_FACTOR);
-    op[2] = (tran_low_t)(d1 * UNIT_QUANT_FACTOR);
-    op[3] = (tran_low_t)(b1 * UNIT_QUANT_FACTOR);
+    op[0] = (TranLowT)(a1 * UNIT_QUANT_FACTOR);
+    op[1] = (TranLowT)(c1 * UNIT_QUANT_FACTOR);
+    op[2] = (TranLowT)(d1 * UNIT_QUANT_FACTOR);
+    op[3] = (TranLowT)(b1 * UNIT_QUANT_FACTOR);
 
     ip += 4;
     op += 4;
   }
 }
 
-void av1_fht16x16_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht16x16_c(const int16_t *input, TranLowT *output, int stride,
                     int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct16, fdct16 },    // DCT_DCT
     { fadst16, fdct16 },   // ADST_DCT
     { fdct16, fadst16 },   // DCT_ADST
@@ -1959,10 +1959,10 @@ void av1_fht16x16_c(const int16_t *input, tran_low_t *output, int stride,
 #endif                     // CONFIG_EXT_TX
   };
 
-  const transform_2d ht = FHT[tx_type];
-  tran_low_t out[256];
+  const Transform2d ht = FHT[tx_type];
+  TranLowT out[256];
   int i, j;
-  tran_low_t temp_in[16], temp_out[16];
+  TranLowT temp_in[16], temp_out[16];
 
 #if CONFIG_EXT_TX
   int16_t flipped_input[16 * 16];
@@ -1986,80 +1986,79 @@ void av1_fht16x16_c(const int16_t *input, tran_low_t *output, int stride,
 }
 
 #if CONFIG_HIGHBITDEPTH
-void av1_highbd_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht4x4_c(const int16_t *input, TranLowT *output, int stride,
                          int tx_type) {
   av1_fht4x4_c(input, output, stride, tx_type);
 }
 
-void av1_highbd_fht4x8_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht4x8_c(const int16_t *input, TranLowT *output, int stride,
                          int tx_type) {
   av1_fht4x8_c(input, output, stride, tx_type);
 }
 
-void av1_highbd_fht8x4_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht8x4_c(const int16_t *input, TranLowT *output, int stride,
                          int tx_type) {
   av1_fht8x4_c(input, output, stride, tx_type);
 }
 
-void av1_highbd_fht8x16_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht8x16_c(const int16_t *input, TranLowT *output, int stride,
                           int tx_type) {
   av1_fht8x16_c(input, output, stride, tx_type);
 }
 
-void av1_highbd_fht16x8_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht16x8_c(const int16_t *input, TranLowT *output, int stride,
                           int tx_type) {
   av1_fht16x8_c(input, output, stride, tx_type);
 }
 
-void av1_highbd_fht16x32_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht16x32_c(const int16_t *input, TranLowT *output, int stride,
                            int tx_type) {
   av1_fht16x32_c(input, output, stride, tx_type);
 }
 
-void av1_highbd_fht32x16_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht32x16_c(const int16_t *input, TranLowT *output, int stride,
                            int tx_type) {
   av1_fht32x16_c(input, output, stride, tx_type);
 }
 
-void av1_highbd_fht4x16_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht4x16_c(const int16_t *input, TranLowT *output, int stride,
                           int tx_type) {
   av1_fht4x16_c(input, output, stride, tx_type);
 }
 
-void av1_highbd_fht16x4_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht16x4_c(const int16_t *input, TranLowT *output, int stride,
                           int tx_type) {
   av1_fht16x4_c(input, output, stride, tx_type);
 }
 
-void av1_highbd_fht8x32_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht8x32_c(const int16_t *input, TranLowT *output, int stride,
                           int tx_type) {
   av1_fht8x32_c(input, output, stride, tx_type);
 }
 
-void av1_highbd_fht32x8_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht32x8_c(const int16_t *input, TranLowT *output, int stride,
                           int tx_type) {
   av1_fht32x8_c(input, output, stride, tx_type);
 }
 
-void av1_highbd_fht8x8_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht8x8_c(const int16_t *input, TranLowT *output, int stride,
                          int tx_type) {
   av1_fht8x8_c(input, output, stride, tx_type);
 }
 
-void av1_highbd_fwht4x4_c(const int16_t *input, tran_low_t *output,
-                          int stride) {
+void av1_highbd_fwht4x4_c(const int16_t *input, TranLowT *output, int stride) {
   av1_fwht4x4_c(input, output, stride);
 }
 
-void av1_highbd_fht16x16_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht16x16_c(const int16_t *input, TranLowT *output, int stride,
                            int tx_type) {
   av1_fht16x16_c(input, output, stride, tx_type);
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
-void av1_fht32x32_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht32x32_c(const int16_t *input, TranLowT *output, int stride,
                     int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct32, fdct32 },  // DCT_DCT
 #if CONFIG_EXT_TX
     { fhalfright32, fdct32 },        // ADST_DCT
@@ -2079,10 +2078,10 @@ void av1_fht32x32_c(const int16_t *input, tran_low_t *output, int stride,
     { fidtx32, fhalfright32 },       // H_FLIPADST
 #endif
   };
-  const transform_2d ht = FHT[tx_type];
-  tran_low_t out[1024];
+  const Transform2d ht = FHT[tx_type];
+  TranLowT out[1024];
   int i, j;
-  tran_low_t temp_in[32], temp_out[32];
+  TranLowT temp_in[32], temp_out[32];
 
 #if CONFIG_EXT_TX
   int16_t flipped_input[32 * 32];
@@ -2107,49 +2106,49 @@ void av1_fht32x32_c(const int16_t *input, tran_low_t *output, int stride,
 
 #if CONFIG_TX64X64
 #if CONFIG_EXT_TX
-static void fidtx64(const tran_low_t *input, tran_low_t *output) {
+static void fidtx64(const TranLowT *input, TranLowT *output) {
   int i;
   for (i = 0; i < 64; ++i)
-    output[i] = (tran_low_t)fdct_round_shift(input[i] * 4 * Sqrt2);
+    output[i] = (TranLowT)fdct_round_shift(input[i] * 4 * Sqrt2);
 }
 
 // For use in lieu of ADST
-static void fhalfright64(const tran_low_t *input, tran_low_t *output) {
+static void fhalfright64(const TranLowT *input, TranLowT *output) {
   int i;
-  tran_low_t inputhalf[32];
+  TranLowT inputhalf[32];
   for (i = 0; i < 32; ++i) {
-    output[32 + i] = (tran_low_t)fdct_round_shift(input[i] * 4 * Sqrt2);
+    output[32 + i] = (TranLowT)fdct_round_shift(input[i] * 4 * Sqrt2);
   }
   // Multiply input by sqrt(2)
   for (i = 0; i < 32; ++i) {
-    inputhalf[i] = (tran_low_t)fdct_round_shift(input[i + 32] * Sqrt2);
+    inputhalf[i] = (TranLowT)fdct_round_shift(input[i + 32] * Sqrt2);
   }
   fdct32(inputhalf, output);
   // Note overall scaling factor is 2 times unitary
 }
 #endif  // CONFIG_EXT_TX
 
-static void fdct64_col(const tran_low_t *input, tran_low_t *output) {
+static void fdct64_col(const TranLowT *input, TranLowT *output) {
   int32_t in[64], out[64];
   int i;
   for (i = 0; i < 64; ++i) in[i] = (int32_t)input[i];
   av1_fdct64_new(in, out, fwd_cos_bit_col_dct_dct_64,
                  fwd_stage_range_col_dct_dct_64);
-  for (i = 0; i < 64; ++i) output[i] = (tran_low_t)out[i];
+  for (i = 0; i < 64; ++i) output[i] = (TranLowT)out[i];
 }
 
-static void fdct64_row(const tran_low_t *input, tran_low_t *output) {
+static void fdct64_row(const TranLowT *input, TranLowT *output) {
   int32_t in[64], out[64];
   int i;
   for (i = 0; i < 64; ++i) in[i] = (int32_t)input[i];
   av1_fdct64_new(in, out, fwd_cos_bit_row_dct_dct_64,
                  fwd_stage_range_row_dct_dct_64);
-  for (i = 0; i < 64; ++i) output[i] = (tran_low_t)out[i];
+  for (i = 0; i < 64; ++i) output[i] = (TranLowT)out[i];
 }
 
-void av1_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht64x64_c(const int16_t *input, TranLowT *output, int stride,
                     int tx_type) {
-  static const transform_2d FHT[] = {
+  static const Transform2d FHT[] = {
     { fdct64_col, fdct64_row },  // DCT_DCT
 #if CONFIG_EXT_TX
     { fhalfright64, fdct64_row },    // ADST_DCT
@@ -2169,10 +2168,10 @@ void av1_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
     { fidtx64, fhalfright64 },       // H_FLIPADST
 #endif
   };
-  const transform_2d ht = FHT[tx_type];
-  tran_low_t out[4096];
+  const Transform2d ht = FHT[tx_type];
+  TranLowT out[4096];
   int i, j;
-  tran_low_t temp_in[64], temp_out[64];
+  TranLowT temp_in[64], temp_out[64];
 #if CONFIG_EXT_TX
   int16_t flipped_input[64 * 64];
   maybe_flip_input(&input, &stride, 64, 64, flipped_input, tx_type);
@@ -2191,14 +2190,14 @@ void av1_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
     ht.rows(temp_in, temp_out);
     for (j = 0; j < 64; ++j)
       output[j + i * 64] =
-          (tran_low_t)((temp_out[j] + 1 + (temp_out[j] < 0)) >> 2);
+          (TranLowT)((temp_out[j] + 1 + (temp_out[j] < 0)) >> 2);
   }
 }
 #endif  // CONFIG_TX64X64
 
 #if CONFIG_EXT_TX
 // Forward identity transform.
-void av1_fwd_idtx_c(const int16_t *src_diff, tran_low_t *coeff, int stride,
+void av1_fwd_idtx_c(const int16_t *src_diff, TranLowT *coeff, int stride,
                     int bs, int tx_type) {
   int r, c;
   const int shift = bs < 32 ? 3 : (bs < 64 ? 2 : 1);
@@ -2213,13 +2212,13 @@ void av1_fwd_idtx_c(const int16_t *src_diff, tran_low_t *coeff, int stride,
 #endif  // CONFIG_EXT_TX
 
 #if CONFIG_HIGHBITDEPTH
-void av1_highbd_fht32x32_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht32x32_c(const int16_t *input, TranLowT *output, int stride,
                            int tx_type) {
   av1_fht32x32_c(input, output, stride, tx_type);
 }
 
 #if CONFIG_TX64X64
-void av1_highbd_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
+void av1_highbd_fht64x64_c(const int16_t *input, TranLowT *output, int stride,
                            int tx_type) {
   av1_fht64x64_c(input, output, stride, tx_type);
 }

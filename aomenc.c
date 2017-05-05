@@ -66,8 +66,8 @@ static size_t wrap_fwrite(const void *ptr, size_t size, size_t nmemb,
 
 static const char *exec_name;
 
-static void warn_or_exit_on_errorv(aom_codec_ctx_t *ctx, int fatal,
-                                   const char *s, va_list ap) {
+static void warn_or_exit_on_errorv(AomCodecCtxT *ctx, int fatal, const char *s,
+                                   va_list ap) {
   if (ctx->err) {
     const char *detail = aom_codec_error_detail(ctx);
 
@@ -80,7 +80,7 @@ static void warn_or_exit_on_errorv(aom_codec_ctx_t *ctx, int fatal,
   }
 }
 
-static void ctx_exit_on_error(aom_codec_ctx_t *ctx, const char *s, ...) {
+static void ctx_exit_on_error(AomCodecCtxT *ctx, const char *s, ...) {
   va_list ap;
 
   va_start(ap, s);
@@ -88,8 +88,8 @@ static void ctx_exit_on_error(aom_codec_ctx_t *ctx, const char *s, ...) {
   va_end(ap);
 }
 
-static void warn_or_exit_on_error(aom_codec_ctx_t *ctx, int fatal,
-                                  const char *s, ...) {
+static void warn_or_exit_on_error(AomCodecCtxT *ctx, int fatal, const char *s,
+                                  ...) {
   va_list ap;
 
   va_start(ap, s);
@@ -97,9 +97,9 @@ static void warn_or_exit_on_error(aom_codec_ctx_t *ctx, int fatal,
   va_end(ap);
 }
 
-static int read_frame(struct AvxInputContext *input_ctx, aom_image_t *img) {
+static int read_frame(struct AvxInputContext *input_ctx, AomImageT *img) {
   FILE *f = input_ctx->file;
-  y4m_input *y4m = &input_ctx->y4m;
+  Y4mInput *y4m = &input_ctx->y4m;
   int shortread = 0;
 
   if (input_ctx->file_type == FILE_TYPE_Y4M) {
@@ -125,122 +125,117 @@ static int fourcc_is_ivf(const char detect[4]) {
   return 0;
 }
 
-static const arg_def_t debugmode =
+static const ArgDefT debugmode =
     ARG_DEF("D", "debug", 0, "Debug mode (makes output deterministic)");
-static const arg_def_t outputfile =
-    ARG_DEF("o", "output", 1, "Output filename");
-static const arg_def_t use_yv12 =
-    ARG_DEF(NULL, "yv12", 0, "Input file is YV12 ");
-static const arg_def_t use_i420 =
+static const ArgDefT outputfile = ARG_DEF("o", "output", 1, "Output filename");
+static const ArgDefT use_yv12 = ARG_DEF(NULL, "yv12", 0, "Input file is YV12 ");
+static const ArgDefT use_i420 =
     ARG_DEF(NULL, "i420", 0, "Input file is I420 (default)");
-static const arg_def_t use_i422 =
-    ARG_DEF(NULL, "i422", 0, "Input file is I422");
-static const arg_def_t use_i444 =
-    ARG_DEF(NULL, "i444", 0, "Input file is I444");
-static const arg_def_t use_i440 =
-    ARG_DEF(NULL, "i440", 0, "Input file is I440");
-static const arg_def_t codecarg = ARG_DEF(NULL, "codec", 1, "Codec to use");
-static const arg_def_t passes =
+static const ArgDefT use_i422 = ARG_DEF(NULL, "i422", 0, "Input file is I422");
+static const ArgDefT use_i444 = ARG_DEF(NULL, "i444", 0, "Input file is I444");
+static const ArgDefT use_i440 = ARG_DEF(NULL, "i440", 0, "Input file is I440");
+static const ArgDefT codecarg = ARG_DEF(NULL, "codec", 1, "Codec to use");
+static const ArgDefT passes =
     ARG_DEF("p", "passes", 1, "Number of passes (1/2)");
-static const arg_def_t pass_arg =
+static const ArgDefT pass_arg =
     ARG_DEF(NULL, "pass", 1, "Pass to execute (1/2)");
-static const arg_def_t fpf_name =
+static const ArgDefT fpf_name =
     ARG_DEF(NULL, "fpf", 1, "First pass statistics file name");
 #if CONFIG_FP_MB_STATS
-static const arg_def_t fpmbf_name =
+static const ArgDefT fpmbf_name =
     ARG_DEF(NULL, "fpmbf", 1, "First pass block statistics file name");
 #endif
-static const arg_def_t limit =
+static const ArgDefT limit =
     ARG_DEF(NULL, "limit", 1, "Stop encoding after n input frames");
-static const arg_def_t skip =
+static const ArgDefT skip =
     ARG_DEF(NULL, "skip", 1, "Skip the first n input frames");
-static const arg_def_t deadline =
+static const ArgDefT deadline =
     ARG_DEF("d", "deadline", 1, "Deadline per frame (usec)");
-static const arg_def_t good_dl =
+static const ArgDefT good_dl =
     ARG_DEF(NULL, "good", 0, "Use Good Quality Deadline");
-static const arg_def_t quietarg =
+static const ArgDefT quietarg =
     ARG_DEF("q", "quiet", 0, "Do not print encode progress");
-static const arg_def_t verbosearg =
+static const ArgDefT verbosearg =
     ARG_DEF("v", "verbose", 0, "Show encoder parameters");
-static const arg_def_t psnrarg =
+static const ArgDefT psnrarg =
     ARG_DEF(NULL, "psnr", 0, "Show PSNR in status line");
 
-static const struct arg_enum_list test_decode_enum[] = {
+static const struct ArgEnumList test_decode_enum[] = {
   { "off", TEST_DECODE_OFF },
   { "fatal", TEST_DECODE_FATAL },
   { "warn", TEST_DECODE_WARN },
   { NULL, 0 }
 };
-static const arg_def_t recontest = ARG_DEF_ENUM(
+static const ArgDefT recontest = ARG_DEF_ENUM(
     NULL, "test-decode", 1, "Test encode/decode mismatch", test_decode_enum);
-static const arg_def_t framerate =
+static const ArgDefT framerate =
     ARG_DEF(NULL, "fps", 1, "Stream frame rate (rate/scale)");
-static const arg_def_t use_webm =
+static const ArgDefT use_webm =
     ARG_DEF(NULL, "webm", 0, "Output WebM (default when WebM IO is enabled)");
-static const arg_def_t use_ivf = ARG_DEF(NULL, "ivf", 0, "Output IVF");
-static const arg_def_t out_part =
+static const ArgDefT use_ivf = ARG_DEF(NULL, "ivf", 0, "Output IVF");
+static const ArgDefT out_part =
     ARG_DEF("P", "output-partitions", 0,
             "Makes encoder output partitions. Requires IVF output!");
-static const arg_def_t q_hist_n =
+static const ArgDefT q_hist_n =
     ARG_DEF(NULL, "q-hist", 1, "Show quantizer histogram (n-buckets)");
-static const arg_def_t rate_hist_n =
+static const ArgDefT rate_hist_n =
     ARG_DEF(NULL, "rate-hist", 1, "Show rate histogram (n-buckets)");
-static const arg_def_t disable_warnings =
+static const ArgDefT disable_warnings =
     ARG_DEF(NULL, "disable-warnings", 0,
             "Disable warnings about potentially incorrect encode settings.");
-static const arg_def_t disable_warning_prompt =
+static const ArgDefT disable_warning_prompt =
     ARG_DEF("y", "disable-warning-prompt", 0,
             "Display warnings, but do not prompt user to continue.");
 
 #if CONFIG_HIGHBITDEPTH
-static const arg_def_t test16bitinternalarg = ARG_DEF(
+static const ArgDefT test16bitinternalarg = ARG_DEF(
     NULL, "test-16bit-internal", 0, "Force use of 16 bit internal buffer");
 
-static const struct arg_enum_list bitdepth_enum[] = {
+static const struct ArgEnumList bitdepth_enum[] = {
   { "8", AOM_BITS_8 }, { "10", AOM_BITS_10 }, { "12", AOM_BITS_12 }, { NULL, 0 }
 };
 
-static const arg_def_t bitdeptharg = ARG_DEF_ENUM(
+static const ArgDefT bitdeptharg = ARG_DEF_ENUM(
     "b", "bit-depth", 1,
     "Bit depth for codec (8 for version <=1, 10 or 12 for version 2)",
     bitdepth_enum);
-static const arg_def_t inbitdeptharg =
+static const ArgDefT inbitdeptharg =
     ARG_DEF(NULL, "input-bit-depth", 1, "Bit depth of input");
 #endif
 
-static const arg_def_t *main_args[] = { &debugmode,
-                                        &outputfile,
-                                        &codecarg,
-                                        &passes,
-                                        &pass_arg,
-                                        &fpf_name,
-                                        &limit,
-                                        &skip,
-                                        &deadline,
-                                        &good_dl,
-                                        &quietarg,
-                                        &verbosearg,
-                                        &psnrarg,
-                                        &use_webm,
-                                        &use_ivf,
-                                        &out_part,
-                                        &q_hist_n,
-                                        &rate_hist_n,
-                                        &disable_warnings,
-                                        &disable_warning_prompt,
-                                        &recontest,
-                                        NULL };
+static const ArgDefT *main_args[] = { &debugmode,
+                                      &outputfile,
+                                      &codecarg,
+                                      &passes,
+                                      &pass_arg,
+                                      &fpf_name,
+                                      &limit,
+                                      &skip,
+                                      &deadline,
+                                      &good_dl,
+                                      &quietarg,
+                                      &verbosearg,
+                                      &psnrarg,
+                                      &use_webm,
+                                      &use_ivf,
+                                      &out_part,
+                                      &q_hist_n,
+                                      &rate_hist_n,
+                                      &disable_warnings,
+                                      &disable_warning_prompt,
+                                      &recontest,
+                                      NULL };
 
-static const arg_def_t usage =
+static const ArgDefT usage =
     ARG_DEF("u", "usage", 1, "Usage profile number to use");
-static const arg_def_t threads =
+static const ArgDefT threads =
     ARG_DEF("t", "threads", 1, "Max number of threads to use");
-static const arg_def_t profile =
+static const ArgDefT profile =
     ARG_DEF(NULL, "profile", 1, "Bitstream profile number to use");
-static const arg_def_t width = ARG_DEF("w", "width", 1, "Frame width");
-static const arg_def_t height = ARG_DEF("h", "height", 1, "Frame height");
+static const ArgDefT width = ARG_DEF("w", "width", 1, "Frame width");
+static const ArgDefT height = ARG_DEF("h", "height", 1, "Frame height");
 #if CONFIG_WEBM_IO
-static const struct arg_enum_list stereo_mode_enum[] = {
+static const struct ArgEnumList stereo_mode_enum[] = {
   { "mono", STEREO_FORMAT_MONO },
   { "left-right", STEREO_FORMAT_LEFT_RIGHT },
   { "bottom-top", STEREO_FORMAT_BOTTOM_TOP },
@@ -248,201 +243,201 @@ static const struct arg_enum_list stereo_mode_enum[] = {
   { "right-left", STEREO_FORMAT_RIGHT_LEFT },
   { NULL, 0 }
 };
-static const arg_def_t stereo_mode = ARG_DEF_ENUM(
+static const ArgDefT stereo_mode = ARG_DEF_ENUM(
     NULL, "stereo-mode", 1, "Stereo 3D video format", stereo_mode_enum);
 #endif
-static const arg_def_t timebase = ARG_DEF(
+static const ArgDefT timebase = ARG_DEF(
     NULL, "timebase", 1, "Output timestamp precision (fractional seconds)");
-static const arg_def_t error_resilient =
+static const ArgDefT error_resilient =
     ARG_DEF(NULL, "error-resilient", 1, "Enable error resiliency features");
-static const arg_def_t lag_in_frames =
+static const ArgDefT lag_in_frames =
     ARG_DEF(NULL, "lag-in-frames", 1, "Max number of frames to lag");
 
-static const arg_def_t *global_args[] = { &use_yv12,
-                                          &use_i420,
-                                          &use_i422,
-                                          &use_i444,
-                                          &use_i440,
-                                          &usage,
-                                          &threads,
-                                          &profile,
-                                          &width,
-                                          &height,
+static const ArgDefT *global_args[] = { &use_yv12,
+                                        &use_i420,
+                                        &use_i422,
+                                        &use_i444,
+                                        &use_i440,
+                                        &usage,
+                                        &threads,
+                                        &profile,
+                                        &width,
+                                        &height,
 #if CONFIG_WEBM_IO
-                                          &stereo_mode,
+                                        &stereo_mode,
 #endif
-                                          &timebase,
-                                          &framerate,
-                                          &error_resilient,
+                                        &timebase,
+                                        &framerate,
+                                        &error_resilient,
 #if CONFIG_HIGHBITDEPTH
-                                          &test16bitinternalarg,
-                                          &bitdeptharg,
+                                        &test16bitinternalarg,
+                                        &bitdeptharg,
 #endif
-                                          &lag_in_frames,
-                                          NULL };
+                                        &lag_in_frames,
+                                        NULL };
 
-static const arg_def_t dropframe_thresh =
+static const ArgDefT dropframe_thresh =
     ARG_DEF(NULL, "drop-frame", 1, "Temporal resampling threshold (buf %)");
-static const arg_def_t resize_allowed =
+static const ArgDefT resize_allowed =
     ARG_DEF(NULL, "resize-allowed", 1, "Spatial resampling enabled (bool)");
-static const arg_def_t resize_width =
+static const ArgDefT resize_width =
     ARG_DEF(NULL, "resize-width", 1, "Width of encoded frame");
-static const arg_def_t resize_height =
+static const ArgDefT resize_height =
     ARG_DEF(NULL, "resize-height", 1, "Height of encoded frame");
-static const arg_def_t resize_up_thresh =
+static const ArgDefT resize_up_thresh =
     ARG_DEF(NULL, "resize-up", 1, "Upscale threshold (buf %)");
-static const arg_def_t resize_down_thresh =
+static const ArgDefT resize_down_thresh =
     ARG_DEF(NULL, "resize-down", 1, "Downscale threshold (buf %)");
-static const struct arg_enum_list end_usage_enum[] = { { "vbr", AOM_VBR },
-                                                       { "cbr", AOM_CBR },
-                                                       { "cq", AOM_CQ },
-                                                       { "q", AOM_Q },
-                                                       { NULL, 0 } };
-static const arg_def_t end_usage =
+static const struct ArgEnumList end_usage_enum[] = { { "vbr", AOM_VBR },
+                                                     { "cbr", AOM_CBR },
+                                                     { "cq", AOM_CQ },
+                                                     { "q", AOM_Q },
+                                                     { NULL, 0 } };
+static const ArgDefT end_usage =
     ARG_DEF_ENUM(NULL, "end-usage", 1, "Rate control mode", end_usage_enum);
-static const arg_def_t target_bitrate =
+static const ArgDefT target_bitrate =
     ARG_DEF(NULL, "target-bitrate", 1, "Bitrate (kbps)");
-static const arg_def_t min_quantizer =
+static const ArgDefT min_quantizer =
     ARG_DEF(NULL, "min-q", 1, "Minimum (best) quantizer");
-static const arg_def_t max_quantizer =
+static const ArgDefT max_quantizer =
     ARG_DEF(NULL, "max-q", 1, "Maximum (worst) quantizer");
-static const arg_def_t undershoot_pct =
+static const ArgDefT undershoot_pct =
     ARG_DEF(NULL, "undershoot-pct", 1, "Datarate undershoot (min) target (%)");
-static const arg_def_t overshoot_pct =
+static const ArgDefT overshoot_pct =
     ARG_DEF(NULL, "overshoot-pct", 1, "Datarate overshoot (max) target (%)");
-static const arg_def_t buf_sz =
+static const ArgDefT buf_sz =
     ARG_DEF(NULL, "buf-sz", 1, "Client buffer size (ms)");
-static const arg_def_t buf_initial_sz =
+static const ArgDefT buf_initial_sz =
     ARG_DEF(NULL, "buf-initial-sz", 1, "Client initial buffer size (ms)");
-static const arg_def_t buf_optimal_sz =
+static const ArgDefT buf_optimal_sz =
     ARG_DEF(NULL, "buf-optimal-sz", 1, "Client optimal buffer size (ms)");
-static const arg_def_t *rc_args[] = {
+static const ArgDefT *rc_args[] = {
   &dropframe_thresh, &resize_allowed,     &resize_width,   &resize_height,
   &resize_up_thresh, &resize_down_thresh, &end_usage,      &target_bitrate,
   &min_quantizer,    &max_quantizer,      &undershoot_pct, &overshoot_pct,
   &buf_sz,           &buf_initial_sz,     &buf_optimal_sz, NULL
 };
 
-static const arg_def_t bias_pct =
+static const ArgDefT bias_pct =
     ARG_DEF(NULL, "bias-pct", 1, "CBR/VBR bias (0=CBR, 100=VBR)");
-static const arg_def_t minsection_pct =
+static const ArgDefT minsection_pct =
     ARG_DEF(NULL, "minsection-pct", 1, "GOP min bitrate (% of target)");
-static const arg_def_t maxsection_pct =
+static const ArgDefT maxsection_pct =
     ARG_DEF(NULL, "maxsection-pct", 1, "GOP max bitrate (% of target)");
-static const arg_def_t *rc_twopass_args[] = { &bias_pct, &minsection_pct,
-                                              &maxsection_pct, NULL };
+static const ArgDefT *rc_twopass_args[] = { &bias_pct, &minsection_pct,
+                                            &maxsection_pct, NULL };
 
-static const arg_def_t kf_min_dist =
+static const ArgDefT kf_min_dist =
     ARG_DEF(NULL, "kf-min-dist", 1, "Minimum keyframe interval (frames)");
-static const arg_def_t kf_max_dist =
+static const ArgDefT kf_max_dist =
     ARG_DEF(NULL, "kf-max-dist", 1, "Maximum keyframe interval (frames)");
-static const arg_def_t kf_disabled =
+static const ArgDefT kf_disabled =
     ARG_DEF(NULL, "disable-kf", 0, "Disable keyframe placement");
-static const arg_def_t *kf_args[] = { &kf_min_dist, &kf_max_dist, &kf_disabled,
-                                      NULL };
+static const ArgDefT *kf_args[] = { &kf_min_dist, &kf_max_dist, &kf_disabled,
+                                    NULL };
 
-static const arg_def_t noise_sens =
+static const ArgDefT noise_sens =
     ARG_DEF(NULL, "noise-sensitivity", 1, "Noise sensitivity (frames to blur)");
-static const arg_def_t sharpness =
+static const ArgDefT sharpness =
     ARG_DEF(NULL, "sharpness", 1, "Loop filter sharpness (0..7)");
-static const arg_def_t static_thresh =
+static const ArgDefT static_thresh =
     ARG_DEF(NULL, "static-thresh", 1, "Motion detection threshold");
-static const arg_def_t auto_altref =
+static const ArgDefT auto_altref =
     ARG_DEF(NULL, "auto-alt-ref", 1, "Enable automatic alt reference frames");
-static const arg_def_t arnr_maxframes =
+static const ArgDefT arnr_maxframes =
     ARG_DEF(NULL, "arnr-maxframes", 1, "AltRef max frames (0..15)");
-static const arg_def_t arnr_strength =
+static const ArgDefT arnr_strength =
     ARG_DEF(NULL, "arnr-strength", 1, "AltRef filter strength (0..6)");
-static const struct arg_enum_list tuning_enum[] = {
+static const struct ArgEnumList tuning_enum[] = {
   { "psnr", AOM_TUNE_PSNR }, { "ssim", AOM_TUNE_SSIM }, { NULL, 0 }
 };
-static const arg_def_t tune_ssim =
+static const ArgDefT tune_ssim =
     ARG_DEF_ENUM(NULL, "tune", 1, "Material to favor", tuning_enum);
-static const arg_def_t cq_level =
+static const ArgDefT cq_level =
     ARG_DEF(NULL, "cq-level", 1, "Constant/Constrained Quality level");
-static const arg_def_t max_intra_rate_pct =
+static const ArgDefT max_intra_rate_pct =
     ARG_DEF(NULL, "max-intra-rate", 1, "Max I-frame bitrate (pct)");
 
 #if CONFIG_AV1_ENCODER
-static const arg_def_t cpu_used_av1 =
+static const ArgDefT cpu_used_av1 =
     ARG_DEF(NULL, "cpu-used", 1, "CPU Used (0..8)");
-static const arg_def_t tile_cols =
+static const ArgDefT tile_cols =
     ARG_DEF(NULL, "tile-columns", 1, "Number of tile columns to use, log2");
-static const arg_def_t tile_rows =
+static const ArgDefT tile_rows =
     ARG_DEF(NULL, "tile-rows", 1,
             "Number of tile rows to use, log2 (set to 0 while threads > 1)");
 #if CONFIG_EXT_TILE
-static const arg_def_t tile_encoding_mode =
+static const ArgDefT tile_encoding_mode =
     ARG_DEF(NULL, "tile-encoding-mode", 1,
             "Tile encoding mode (0: normal"
             " (default), 1: vr)");
 #endif
 #if CONFIG_DEPENDENT_HORZTILES
-static const arg_def_t tile_dependent_rows =
+static const ArgDefT tile_dependent_rows =
     ARG_DEF(NULL, "tile-dependent-rows", 1, "Enable dependent Tile rows");
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-static const arg_def_t tile_loopfilter = ARG_DEF(
-    NULL, "tile-loopfilter", 1, "Enable loop filter across tile boundary");
+static const ArgDefT tile_loopfilter = ARG_DEF(
+    NULL, "tile-Loopfilter", 1, "Enable loop filter across tile boundary");
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
-static const arg_def_t lossless =
+static const ArgDefT lossless =
     ARG_DEF(NULL, "lossless", 1, "Lossless mode (0: false (default), 1: true)");
 #if CONFIG_AOM_QM
-static const arg_def_t enable_qm =
+static const ArgDefT enable_qm =
     ARG_DEF(NULL, "enable-qm", 1,
             "Enable quantisation matrices (0: false (default), 1: true)");
-static const arg_def_t qm_min = ARG_DEF(
+static const ArgDefT qm_min = ARG_DEF(
     NULL, "qm-min", 1, "Min quant matrix flatness (0..15), default is 8");
-static const arg_def_t qm_max = ARG_DEF(
+static const ArgDefT qm_max = ARG_DEF(
     NULL, "qm-max", 1, "Max quant matrix flatness (0..15), default is 16");
 #endif
 #if CONFIG_TILE_GROUPS
-static const arg_def_t num_tg = ARG_DEF(
+static const ArgDefT num_tg = ARG_DEF(
     NULL, "num-tile-groups", 1, "Maximum number of tile groups, default is 1");
-static const arg_def_t mtu_size =
+static const ArgDefT mtu_size =
     ARG_DEF(NULL, "mtu-size", 1,
             "MTU size for a tile group, default is 0 (no MTU targeting), "
             "overrides maximum number of tile groups");
 #endif
 #if CONFIG_TEMPMV_SIGNALING
-static const arg_def_t disable_tempmv = ARG_DEF(
+static const ArgDefT disable_tempmv = ARG_DEF(
     NULL, "disable-tempmv", 1, "Disable temporal mv prediction (default is 0)");
 #endif
-static const arg_def_t frame_parallel_decoding =
+static const ArgDefT frame_parallel_decoding =
     ARG_DEF(NULL, "frame-parallel", 1,
             "Enable frame parallel decodability features "
             "(0: false (default), 1: true)");
 #if CONFIG_DELTA_Q && !CONFIG_EXT_DELTA_Q
-static const arg_def_t aq_mode = ARG_DEF(
+static const ArgDefT aq_mode = ARG_DEF(
     NULL, "aq-mode", 1,
     "Adaptive quantization mode (0: off (default), 1: variance 2: complexity, "
     "3: cyclic refresh, 4: delta quant)");
 #else
-static const arg_def_t aq_mode = ARG_DEF(
+static const ArgDefT aq_mode = ARG_DEF(
     NULL, "aq-mode", 1,
     "Adaptive quantization mode (0: off (default), 1: variance 2: complexity, "
     "3: cyclic refresh)");
 #endif
 #if CONFIG_EXT_DELTA_Q
-static const arg_def_t deltaq_mode = ARG_DEF(
+static const ArgDefT deltaq_mode = ARG_DEF(
     NULL, "deltaq-mode", 1,
     "Delta qindex mode (0: off (default), 1: deltaq 2: deltaq + deltalf)");
 #endif
-static const arg_def_t frame_periodic_boost =
+static const ArgDefT frame_periodic_boost =
     ARG_DEF(NULL, "frame-boost", 1,
             "Enable frame periodic boost (0: off (default), 1: on)");
-static const arg_def_t gf_cbr_boost_pct = ARG_DEF(
+static const ArgDefT gf_cbr_boost_pct = ARG_DEF(
     NULL, "gf-cbr-boost", 1, "Boost for Golden Frame in CBR mode (pct)");
-static const arg_def_t max_inter_rate_pct =
+static const ArgDefT max_inter_rate_pct =
     ARG_DEF(NULL, "max-inter-rate", 1, "Max P-frame bitrate (pct)");
-static const arg_def_t min_gf_interval = ARG_DEF(
+static const ArgDefT min_gf_interval = ARG_DEF(
     NULL, "min-gf-interval", 1,
     "min gf/arf frame interval (default 0, indicating in-built behavior)");
-static const arg_def_t max_gf_interval = ARG_DEF(
+static const ArgDefT max_gf_interval = ARG_DEF(
     NULL, "max-gf-interval", 1,
     "max gf/arf frame interval (default 0, indicating in-built behavior)");
 
-static const struct arg_enum_list color_space_enum[] = {
+static const struct ArgEnumList color_space_enum[] = {
   { "unknown", AOM_CS_UNKNOWN },
   { "bt601", AOM_CS_BT_601 },
   { "bt709", AOM_CS_BT_709 },
@@ -454,86 +449,86 @@ static const struct arg_enum_list color_space_enum[] = {
   { NULL, 0 }
 };
 
-static const arg_def_t input_color_space =
+static const ArgDefT input_color_space =
     ARG_DEF_ENUM(NULL, "color-space", 1, "The color space of input content:",
                  color_space_enum);
 
-static const struct arg_enum_list tune_content_enum[] = {
+static const struct ArgEnumList tune_content_enum[] = {
   { "default", AOM_CONTENT_DEFAULT },
   { "screen", AOM_CONTENT_SCREEN },
   { NULL, 0 }
 };
 
-static const arg_def_t tune_content = ARG_DEF_ENUM(
+static const ArgDefT tune_content = ARG_DEF_ENUM(
     NULL, "tune-content", 1, "Tune content type", tune_content_enum);
 #endif
 
 #if CONFIG_AV1_ENCODER
 #if CONFIG_EXT_PARTITION
-static const struct arg_enum_list superblock_size_enum[] = {
+static const struct ArgEnumList superblock_size_enum[] = {
   { "dynamic", AOM_SUPERBLOCK_SIZE_DYNAMIC },
   { "64", AOM_SUPERBLOCK_SIZE_64X64 },
   { "128", AOM_SUPERBLOCK_SIZE_128X128 },
   { NULL, 0 }
 };
-static const arg_def_t superblock_size = ARG_DEF_ENUM(
+static const ArgDefT superblock_size = ARG_DEF_ENUM(
     NULL, "sb-size", 1, "Superblock size to use", superblock_size_enum);
 #endif  // CONFIG_EXT_PARTITION
 
-static const arg_def_t *av1_args[] = { &cpu_used_av1,
-                                       &auto_altref,
-                                       &sharpness,
-                                       &static_thresh,
-                                       &tile_cols,
-                                       &tile_rows,
+static const ArgDefT *av1_args[] = { &cpu_used_av1,
+                                     &auto_altref,
+                                     &sharpness,
+                                     &static_thresh,
+                                     &tile_cols,
+                                     &tile_rows,
 #if CONFIG_EXT_TILE
-                                       &tile_encoding_mode,
+                                     &tile_encoding_mode,
 #endif
 #if CONFIG_DEPENDENT_HORZTILES
-                                       &tile_dependent_rows,
+                                     &tile_dependent_rows,
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-                                       &tile_loopfilter,
+                                     &tile_loopfilter,
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
-                                       &arnr_maxframes,
-                                       &arnr_strength,
-                                       &tune_ssim,
-                                       &cq_level,
-                                       &max_intra_rate_pct,
-                                       &max_inter_rate_pct,
-                                       &gf_cbr_boost_pct,
-                                       &lossless,
+                                     &arnr_maxframes,
+                                     &arnr_strength,
+                                     &tune_ssim,
+                                     &cq_level,
+                                     &max_intra_rate_pct,
+                                     &max_inter_rate_pct,
+                                     &gf_cbr_boost_pct,
+                                     &lossless,
 #if CONFIG_AOM_QM
-                                       &enable_qm,
-                                       &qm_min,
-                                       &qm_max,
+                                     &enable_qm,
+                                     &qm_min,
+                                     &qm_max,
 #endif
-                                       &frame_parallel_decoding,
-                                       &aq_mode,
+                                     &frame_parallel_decoding,
+                                     &aq_mode,
 #if CONFIG_EXT_DELTA_Q
-                                       &deltaq_mode,
+                                     &deltaq_mode,
 #endif
-                                       &frame_periodic_boost,
-                                       &noise_sens,
-                                       &tune_content,
-                                       &input_color_space,
-                                       &min_gf_interval,
-                                       &max_gf_interval,
+                                     &frame_periodic_boost,
+                                     &noise_sens,
+                                     &tune_content,
+                                     &input_color_space,
+                                     &min_gf_interval,
+                                     &max_gf_interval,
 #if CONFIG_EXT_PARTITION
-                                       &superblock_size,
+                                     &superblock_size,
 #endif  // CONFIG_EXT_PARTITION
 #if CONFIG_TILE_GROUPS
-                                       &num_tg,
-                                       &mtu_size,
+                                     &num_tg,
+                                     &mtu_size,
 #endif
 #if CONFIG_TEMPMV_SIGNALING
-                                       &disable_tempmv,
+                                     &disable_tempmv,
 #endif
 #if CONFIG_HIGHBITDEPTH
-                                       &bitdeptharg,
-                                       &inbitdeptharg,
+                                     &bitdeptharg,
+                                     &inbitdeptharg,
 #endif  // CONFIG_HIGHBITDEPTH
-                                       NULL };
+                                     NULL };
 static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AOME_SET_ENABLEAUTOALTREF,
                                         AOME_SET_SHARPNESS,
@@ -586,7 +581,7 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         0 };
 #endif
 
-static const arg_def_t *no_args[] = { NULL };
+static const ArgDefT *no_args[] = { NULL };
 
 void usage_exit(void) {
   int i;
@@ -633,7 +628,7 @@ void usage_exit(void) {
 #endif
 
 #if !CONFIG_WEBM_IO
-typedef int stereo_format_t;
+typedef int StereoFormatT;
 struct WebmOutputContext {
   int debug;
 };
@@ -641,13 +636,13 @@ struct WebmOutputContext {
 
 /* Per-stream configuration */
 struct stream_config {
-  struct aom_codec_enc_cfg cfg;
+  struct AomCodecEncCfg cfg;
   const char *out_fn;
   const char *stats_fn;
 #if CONFIG_FP_MB_STATS
   const char *fpmb_stats_fn;
 #endif
-  stereo_format_t stereo_fmt;
+  StereoFormatT stereo_fmt;
   int arg_ctrls[ARG_CTRL_CNT_MAX][2];
   int arg_ctrl_cnt;
   int write_webm;
@@ -669,21 +664,21 @@ struct stream_state {
   double psnr_totals[4];
   int psnr_count;
   int counts[64];
-  aom_codec_ctx_t encoder;
+  AomCodecCtxT encoder;
   unsigned int frames_out;
   uint64_t cx_time;
   size_t nbytes;
-  stats_io_t stats;
+  StatsIoT stats;
 #if CONFIG_FP_MB_STATS
-  stats_io_t fpmb_stats;
+  StatsIoT fpmb_stats;
 #endif
   struct aom_image *img;
-  aom_codec_ctx_t decoder;
+  AomCodecCtxT decoder;
   int mismatch_seen;
 };
 
 static void validate_positive_rational(const char *msg,
-                                       struct aom_rational *rat) {
+                                       struct AomRational *rat) {
   if (rat->den < 0) {
     rat->num *= -1;
     rat->den *= -1;
@@ -860,7 +855,7 @@ static struct stream_state *new_stream(struct AvxEncoderConfig *global,
     stream->index++;
     prev->next = stream;
   } else {
-    aom_codec_err_t res;
+    AomCodecErrT res;
 
     /* Populate encoder configuration */
     res = aom_codec_enc_config_default(global->codec->codec_interface(),
@@ -902,7 +897,7 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
                                struct stream_state *stream, char **argv) {
   char **argi, **argj;
   struct arg arg;
-  static const arg_def_t **ctrl_args = no_args;
+  static const ArgDefT **ctrl_args = no_args;
   static const int *ctrl_args_map = NULL;
   struct stream_config *config = &stream->config;
   int eos_mark_found = 0;
@@ -1159,7 +1154,7 @@ static const char *file_type_to_string(enum VideoFileType t) {
   }
 }
 
-static const char *image_format_to_string(aom_img_fmt_t f) {
+static const char *image_format_to_string(AomImgFmtT f) {
   switch (f) {
     case AOM_IMG_FMT_I420: return "I420";
     case AOM_IMG_FMT_I422: return "I422";
@@ -1231,7 +1226,7 @@ static void open_output_file(struct stream_state *stream,
                              struct AvxEncoderConfig *global,
                              const struct AvxRational *pixel_aspect_ratio) {
   const char *fn = stream->config.out_fn;
-  const struct aom_codec_enc_cfg *const cfg = &stream->config.cfg;
+  const struct AomCodecEncCfg *const cfg = &stream->config.cfg;
 
   if (cfg->g_pass == AOM_RC_FIRST_PASS) return;
 
@@ -1259,7 +1254,7 @@ static void open_output_file(struct stream_state *stream,
 
 static void close_output_file(struct stream_state *stream,
                               unsigned int fourcc) {
-  const struct aom_codec_enc_cfg *const cfg = &stream->config.cfg;
+  const struct AomCodecEncCfg *const cfg = &stream->config.cfg;
 
   if (cfg->g_pass == AOM_RC_FIRST_PASS) return;
 
@@ -1347,7 +1342,7 @@ static void initialize_encoder(struct stream_state *stream,
 #if CONFIG_DECODERS
   if (global->test_decode != TEST_DECODE_OFF) {
     const AvxInterface *decoder = get_aom_decoder_by_name(global->codec->name);
-    aom_codec_dec_cfg_t cfg = { 0, 0, 0 };
+    AomCodecDecCfgT cfg = { 0, 0, 0 };
     aom_codec_dec_init(&stream->decoder, decoder->codec_interface(), &cfg, 0);
 
 #if CONFIG_AV1_DECODER && CONFIG_EXT_TILE
@@ -1366,9 +1361,9 @@ static void initialize_encoder(struct stream_state *stream,
 static void encode_frame(struct stream_state *stream,
                          struct AvxEncoderConfig *global, struct aom_image *img,
                          unsigned int frames_in) {
-  aom_codec_pts_t frame_start, next_frame_start;
-  struct aom_codec_enc_cfg *cfg = &stream->config.cfg;
-  struct aom_usec_timer timer;
+  AomCodecPtsT frame_start, next_frame_start;
+  struct AomCodecEncCfg *cfg = &stream->config.cfg;
+  struct AomUsecTimer timer;
 
   frame_start =
       (cfg->g_timebase.den * (int64_t)(frames_in - 1) * global->framerate.den) /
@@ -1464,9 +1459,9 @@ static void update_quantizer_histogram(struct stream_state *stream) {
 
 static void get_cx_data(struct stream_state *stream,
                         struct AvxEncoderConfig *global, int *got_data) {
-  const aom_codec_cx_pkt_t *pkt;
-  const struct aom_codec_enc_cfg *cfg = &stream->config.cfg;
-  aom_codec_iter_t iter = NULL;
+  const AomCodecCxPktT *pkt;
+  const struct AomCodecEncCfg *cfg = &stream->config.cfg;
+  AomCodecIterT iter = NULL;
 
   *got_data = 0;
   while ((pkt = aom_codec_get_cx_data(&stream->encoder, &iter))) {
@@ -1582,13 +1577,13 @@ static float usec_to_fps(uint64_t usec, unsigned int frames) {
 static void test_decode(struct stream_state *stream,
                         enum TestDecodeFatality fatal,
                         const AvxInterface *codec) {
-  aom_image_t enc_img, dec_img;
+  AomImageT enc_img, dec_img;
 
   if (stream->mismatch_seen) return;
 
   /* Get the internal reference frame */
   if (strcmp(codec->name, "vp8") == 0) {
-    struct aom_ref_frame ref_enc, ref_dec;
+    struct AomRefFrame ref_enc, ref_dec;
     const unsigned int frame_width = (stream->config.cfg.g_w + 15) & ~15;
     const unsigned int frame_height = (stream->config.cfg.g_h + 15) & ~15;
     aom_img_alloc(&ref_enc.img, AOM_IMG_FMT_I420, frame_width, frame_height, 1);
@@ -1608,14 +1603,14 @@ static void test_decode(struct stream_state *stream,
     if ((enc_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) !=
         (dec_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH)) {
       if (enc_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
-        aom_image_t enc_hbd_img;
+        AomImageT enc_hbd_img;
         aom_img_alloc(&enc_hbd_img, enc_img.fmt - AOM_IMG_FMT_HIGHBITDEPTH,
                       enc_img.d_w, enc_img.d_h, 16);
         aom_img_truncate_16_to_8(&enc_hbd_img, &enc_img);
         enc_img = enc_hbd_img;
       }
       if (dec_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
-        aom_image_t dec_hbd_img;
+        AomImageT dec_hbd_img;
         aom_img_alloc(&dec_hbd_img, dec_img.fmt - AOM_IMG_FMT_HIGHBITDEPTH,
                       dec_img.d_w, dec_img.d_h, 16);
         aom_img_truncate_16_to_8(&dec_hbd_img, &dec_img);
@@ -1674,9 +1669,9 @@ static void print_time(const char *label, int64_t etl) {
 
 int main(int argc, const char **argv_) {
   int pass;
-  aom_image_t raw;
+  AomImageT raw;
 #if CONFIG_HIGHBITDEPTH
-  aom_image_t raw_shift;
+  AomImageT raw_shift;
   int allocated_raw_shift = 0;
   int use_16bit_internal = 0;
   int input_shift = 0;
@@ -1947,7 +1942,7 @@ int main(int argc, const char **argv_) {
     got_data = 0;
 
     while (frame_avail || got_data) {
-      struct aom_usec_timer timer;
+      struct AomUsecTimer timer;
 
       if (!global.limit || frames_in < global.limit) {
         frame_avail = read_frame(&input, &raw);
@@ -1979,7 +1974,7 @@ int main(int argc, const char **argv_) {
 
       if (frames_in > global.skip_frames) {
 #if CONFIG_HIGHBITDEPTH
-        aom_image_t *frame_to_encode;
+        AomImageT *frame_to_encode;
         if (input_shift || (use_16bit_internal && input.bit_depth == 8)) {
           assert(use_16bit_internal);
           // Input bit depth and stream bit depth do not match, so up

@@ -129,8 +129,8 @@ static INLINE void rabs_write(struct AnsCoder *ans, int value, AnsP8 p0) {
 // the symbol in the symbol cycle)
 // prob: The probability of this symbol (l_s from the paper)
 // RANS_PRECISION takes the place of m from the paper.
-static INLINE void rans_write(struct AnsCoder *ans, aom_cdf_prob cum_prob,
-                              aom_cdf_prob prob) {
+static INLINE void rans_write(struct AnsCoder *ans, AomCdfProb cum_prob,
+                              AomCdfProb prob) {
   unsigned quotient, remainder;
   while (ans->state >= L_BASE / RANS_PRECISION * IO_BASE * prob) {
     ans->buf[ans->buf_offset++] = ans->state % IO_BASE;

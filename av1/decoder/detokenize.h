@@ -23,14 +23,14 @@ extern "C" {
 #endif
 
 #if CONFIG_PALETTE
-void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane, aom_reader *r);
+void av1_decode_palette_tokens(Macroblockd *const xd, int plane, AomReader *r);
 #endif  // CONFIG_PALETTE
 
 #if !CONFIG_PVQ || CONFIG_VAR_TX
-int av1_decode_block_tokens(AV1_COMMON *cm, MACROBLOCKD *const xd, int plane,
-                            const SCAN_ORDER *sc, int x, int y, TX_SIZE tx_size,
-                            TX_TYPE tx_type, int16_t *max_scan_line,
-                            aom_reader *r, int seg_id);
+int av1_decode_block_tokens(Av1Common *cm, Macroblockd *const xd, int plane,
+                            const ScanOrder *sc, int x, int y, TxSize tx_size,
+                            TxType tx_type, int16_t *max_scan_line,
+                            AomReader *r, int seg_id);
 #endif  // !CONFIG_PVQ
 #ifdef __cplusplus
 }  // extern "C"

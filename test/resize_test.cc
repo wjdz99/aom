@@ -36,7 +36,7 @@ static void mem_put_le32(char *const mem, unsigned int val) {
   mem[3] = val >> 24;
 }
 
-static void write_ivf_file_header(const aom_codec_enc_cfg_t *const cfg,
+static void write_ivf_file_header(const AomCodecEncCfgT *const cfg,
                                   int frame_cnt, FILE *const outfile) {
   char header[32];
 
@@ -63,10 +63,10 @@ static void write_ivf_frame_size(FILE *const outfile, const size_t size) {
   (void)fwrite(header, 1, 4, outfile);
 }
 
-static void write_ivf_frame_header(const aom_codec_cx_pkt_t *const pkt,
+static void write_ivf_frame_header(const AomCodecCxPktT *const pkt,
                                    FILE *const outfile) {
   char header[12];
-  aom_codec_pts_t pts;
+  AomCodecPtsT pts;
 
   if (pkt->kind != AOM_CODEC_CX_FRAME_PKT) return;
 
@@ -83,10 +83,10 @@ const unsigned int kInitialWidth = 320;
 const unsigned int kInitialHeight = 240;
 
 struct FrameInfo {
-  FrameInfo(aom_codec_pts_t _pts, unsigned int _w, unsigned int _h)
+  FrameInfo(AomCodecPtsT _pts, unsigned int _w, unsigned int _h)
       : pts(_pts), w(_w), h(_h) {}
 
-  aom_codec_pts_t pts;
+  AomCodecPtsT pts;
   unsigned int w;
   unsigned int h;
 };
@@ -277,8 +277,7 @@ class ResizeTest
     SetMode(GET_PARAM(1));
   }
 
-  virtual void DecompressedFrameHook(const aom_image_t &img,
-                                     aom_codec_pts_t pts) {
+  virtual void DecompressedFrameHook(const AomImageT &img, AomCodecPtsT pts) {
     frame_info_list_.push_back(FrameInfo(pts, img.d_w, img.d_h));
   }
 
@@ -291,7 +290,7 @@ TEST_P(ResizeTest, TestExternalResizeWorks) {
   cfg_.g_lag_in_frames = 0;
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 
-  for (std::vector<FrameInfo>::const_iterator info = frame_info_list_.begin();
+  for (std::vector<FrameInfo>::ConstIterator info = frame_info_list_.begin();
        info != frame_info_list_.end(); ++info) {
     const unsigned int frame = static_cast<unsigned>(info->pts);
     unsigned int expected_w;
@@ -341,34 +340,34 @@ class ResizeInternalTest : public ResizeTest {
     if (change_config_) {
       int new_q = 60;
       if (video->frame() == 0) {
-        struct aom_scaling_mode mode = { AOME_ONETWO, AOME_ONETWO };
+        struct AomScalingMode mode = { AOME_ONETWO, AOME_ONETWO };
         encoder->Control(AOME_SET_SCALEMODE, &mode);
       }
       if (video->frame() == 1) {
-        struct aom_scaling_mode mode = { AOME_NORMAL, AOME_NORMAL };
+        struct AomScalingMode mode = { AOME_NORMAL, AOME_NORMAL };
         encoder->Control(AOME_SET_SCALEMODE, &mode);
         cfg_.rc_min_quantizer = cfg_.rc_max_quantizer = new_q;
         encoder->Config(&cfg_);
       }
     } else {
       if (video->frame() == kStepDownFrame) {
-        struct aom_scaling_mode mode = { AOME_FOURFIVE, AOME_THREEFIVE };
+        struct AomScalingMode mode = { AOME_FOURFIVE, AOME_THREEFIVE };
         encoder->Control(AOME_SET_SCALEMODE, &mode);
       }
       if (video->frame() == kStepUpFrame) {
-        struct aom_scaling_mode mode = { AOME_NORMAL, AOME_NORMAL };
+        struct AomScalingMode mode = { AOME_NORMAL, AOME_NORMAL };
         encoder->Control(AOME_SET_SCALEMODE, &mode);
       }
     }
   }
 
-  virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void PSNRPktHook(const AomCodecCxPktT *pkt) {
     if (frame0_psnr_ == 0.) frame0_psnr_ = pkt->data.psnr.psnr[0];
     EXPECT_NEAR(pkt->data.psnr.psnr[0], frame0_psnr_, 2.0);
   }
 
 #if WRITE_COMPRESSED_STREAM
-  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void FramePktHook(const AomCodecCxPktT *pkt) {
     ++out_frames_;
 
     // Write initial file header if first frame.
@@ -404,9 +403,9 @@ TEST_P(ResizeInternalTest, TestInternalResizeWorks) {
   cfg_.g_lag_in_frames = 0;
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 
-  for (std::vector<FrameInfo>::const_iterator info = frame_info_list_.begin();
+  for (std::vector<FrameInfo>::ConstIterator info = frame_info_list_.begin();
        info != frame_info_list_.end(); ++info) {
-    const aom_codec_pts_t pts = info->pts;
+    const AomCodecPtsT pts = info->pts;
     if (pts >= kStepDownFrame && pts < kStepUpFrame) {
       ASSERT_EQ(282U, info->w) << "Frame " << pts << " had unexpected width";
       ASSERT_EQ(173U, info->h) << "Frame " << pts << " had unexpected height";
@@ -453,12 +452,11 @@ class ResizeRealtimeTest
     set_cpu_used_ = GET_PARAM(2);
   }
 
-  virtual void DecompressedFrameHook(const aom_image_t &img,
-                                     aom_codec_pts_t pts) {
+  virtual void DecompressedFrameHook(const AomImageT &img, AomCodecPtsT pts) {
     frame_info_list_.push_back(FrameInfo(pts, img.d_w, img.d_h));
   }
 
-  virtual void MismatchHook(const aom_image_t *img1, const aom_image_t *img2) {
+  virtual void MismatchHook(const AomImageT *img1, const AomImageT *img2) {
     double mismatch_psnr = compute_psnr(img1, img2);
     mismatch_psnr_ += mismatch_psnr;
     ++mismatch_nframes_;
@@ -506,7 +504,7 @@ TEST_P(ResizeRealtimeTest, TestExternalResizeWorks) {
   mismatch_nframes_ = 0;
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 
-  for (std::vector<FrameInfo>::const_iterator info = frame_info_list_.begin();
+  for (std::vector<FrameInfo>::ConstIterator info = frame_info_list_.begin();
        info != frame_info_list_.end(); ++info) {
     const unsigned int frame = static_cast<unsigned>(info->pts);
     unsigned int expected_w;
@@ -538,7 +536,7 @@ TEST_P(ResizeRealtimeTest, TestInternalResizeDown) {
   unsigned int last_w = cfg_.g_w;
   unsigned int last_h = cfg_.g_h;
   int resize_count = 0;
-  for (std::vector<FrameInfo>::const_iterator info = frame_info_list_.begin();
+  for (std::vector<FrameInfo>::ConstIterator info = frame_info_list_.begin();
        info != frame_info_list_.end(); ++info) {
     if (info->w != last_w || info->h != last_h) {
       // Verify that resize down occurs.
@@ -580,7 +578,7 @@ TEST_P(ResizeRealtimeTest, TestInternalResizeDownUpChangeBitRate) {
   unsigned int last_w = cfg_.g_w;
   unsigned int last_h = cfg_.g_h;
   int resize_count = 0;
-  for (std::vector<FrameInfo>::const_iterator info = frame_info_list_.begin();
+  for (std::vector<FrameInfo>::ConstIterator info = frame_info_list_.begin();
        info != frame_info_list_.end(); ++info) {
     if (info->w != last_w || info->h != last_h) {
       resize_count++;
@@ -607,7 +605,7 @@ TEST_P(ResizeRealtimeTest, TestInternalResizeDownUpChangeBitRate) {
 #endif
 }
 
-aom_img_fmt_t CspForFrameNumber(int frame) {
+AomImgFmtT CspForFrameNumber(int frame) {
   if (frame < 10) return AOM_IMG_FMT_I420;
   if (frame < 20) return AOM_IMG_FMT_I444;
   return AOM_IMG_FMT_I420;
@@ -655,13 +653,13 @@ class ResizeCspTest : public ResizeTest {
     }
   }
 
-  virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void PSNRPktHook(const AomCodecCxPktT *pkt) {
     if (frame0_psnr_ == 0.) frame0_psnr_ = pkt->data.psnr.psnr[0];
     EXPECT_NEAR(pkt->data.psnr.psnr[0], frame0_psnr_, 2.0);
   }
 
 #if WRITE_COMPRESSED_STREAM
-  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void FramePktHook(const AomCodecCxPktT *pkt) {
     ++out_frames_;
 
     // Write initial file header if first frame.

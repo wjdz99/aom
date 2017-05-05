@@ -21,7 +21,7 @@
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem.h"
 
-const sgr_params_type sgr_params[SGRPROJ_PARAMS] = {
+const SgrParamsType sgr_params[SGRPROJ_PARAMS] = {
 #if USE_HIGHPASS_IN_SGRPROJ
   // corner, edge, r2, eps2
   { -1, 2, 1, 1 }, { -1, 2, 1, 2 }, { -1, 2, 1, 3 }, { -1, 2, 1, 4 },
@@ -47,7 +47,7 @@ typedef void (*restore_func_highbd_type)(uint8_t *data8, int width, int height,
                                          int dst_stride);
 #endif  // CONFIG_HIGHBITDEPTH
 
-int av1_alloc_restoration_struct(AV1_COMMON *cm, RestorationInfo *rst_info,
+int av1_alloc_restoration_struct(Av1Common *cm, RestorationInfo *rst_info,
                                  int width, int height) {
   const int ntiles = av1_get_rest_ntiles(
       width, height, rst_info->restoration_tilesize, NULL, NULL, NULL, NULL);
@@ -1218,10 +1218,10 @@ static void loop_switchable_filter_highbd(uint8_t *data8, int width, int height,
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
-static void loop_restoration_rows(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
+static void loop_restoration_rows(Yv12BufferConfig *frame, Av1Common *cm,
                                   int start_mi_row, int end_mi_row,
                                   int components_pattern, RestorationInfo *rsi,
-                                  YV12_BUFFER_CONFIG *dst) {
+                                  Yv12BufferConfig *dst) {
   const int ywidth = frame->y_crop_width;
   const int ystride = frame->y_stride;
   const int uvwidth = frame->uv_crop_width;
@@ -1243,7 +1243,7 @@ static void loop_restoration_rows(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #if CONFIG_HIGHBITDEPTH
   restore_func_highbd_type restore_func_highbd;
 #endif  // CONFIG_HIGHBITDEPTH
-  YV12_BUFFER_CONFIG dst_;
+  Yv12BufferConfig dst_;
 
   yend = AOMMIN(yend, cm->height);
   uvend = AOMMIN(uvend, cm->subsampling_y ? (cm->height + 1) >> 1 : cm->height);
@@ -1279,7 +1279,7 @@ static void loop_restoration_rows(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 
   if (!dst) {
     dst = &dst_;
-    memset(dst, 0, sizeof(YV12_BUFFER_CONFIG));
+    memset(dst, 0, sizeof(Yv12BufferConfig));
     if (aom_realloc_frame_buffer(
             dst, cm->width, cm->height, cm->subsampling_x, cm->subsampling_y,
 #if CONFIG_HIGHBITDEPTH
@@ -1383,9 +1383,9 @@ static void loop_restoration_rows(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   }
 }
 
-void av1_loop_restoration_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
+void av1_loop_restoration_frame(Yv12BufferConfig *frame, Av1Common *cm,
                                 RestorationInfo *rsi, int components_pattern,
-                                int partial_frame, YV12_BUFFER_CONFIG *dst) {
+                                int partial_frame, Yv12BufferConfig *dst) {
   int start_mi_row, end_mi_row, mi_rows_to_filter;
   start_mi_row = 0;
   mi_rows_to_filter = cm->mi_rows;

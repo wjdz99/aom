@@ -16,12 +16,12 @@
 #include "aom_ports/mem.h"
 
 #if CONFIG_HIGHBITDEPTH
-void aom_highbd_quantize_b_sse2(const tran_low_t *coeff_ptr, intptr_t count,
+void aom_highbd_quantize_b_sse2(const TranLowT *coeff_ptr, intptr_t count,
                                 int skip_block, const int16_t *zbin_ptr,
                                 const int16_t *round_ptr,
                                 const int16_t *quant_ptr,
                                 const int16_t *quant_shift_ptr,
-                                tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr,
+                                TranLowT *qcoeff_ptr, TranLowT *dqcoeff_ptr,
                                 const int16_t *dequant_ptr, uint16_t *eob_ptr,
                                 const int16_t *scan, const int16_t *iscan) {
   int i, j, non_zero_regs = (int)count / 4, eob_i = -1;
@@ -93,11 +93,11 @@ void aom_highbd_quantize_b_sse2(const tran_low_t *coeff_ptr, intptr_t count,
 }
 
 void aom_highbd_quantize_b_32x32_sse2(
-    const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block,
+    const TranLowT *coeff_ptr, intptr_t n_coeffs, int skip_block,
     const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr,
-    const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
-    tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr,
-    const int16_t *scan, const int16_t *iscan) {
+    const int16_t *quant_shift_ptr, TranLowT *qcoeff_ptr, TranLowT *dqcoeff_ptr,
+    const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan,
+    const int16_t *iscan) {
   __m128i zbins[2];
   __m128i nzbins[2];
   int idx = 0;

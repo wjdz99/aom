@@ -33,11 +33,11 @@ typedef enum {
   TYPE_IDCT,
   TYPE_IADST,
   TYPE_LAST
-} TYPE_TXFM;
+} TypeTxfm;
 
-int get_txfm1d_size(TX_SIZE tx_size);
+int get_txfm1d_size(TxSize tx_size);
 
-void get_txfm1d_type(TX_TYPE txfm2d_type, TYPE_TXFM *type0, TYPE_TXFM *type1);
+void get_txfm1d_type(TxType txfm2d_type, TypeTxfm *type0, TypeTxfm *type1);
 
 void reference_dct_1d(const double *in, double *out, int size);
 

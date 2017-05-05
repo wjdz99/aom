@@ -20,25 +20,25 @@
 extern "C" {
 #endif
 
-void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd,
+void av1_read_mode_info(AV1Decoder *const pbi, Macroblockd *xd,
 #if CONFIG_SUPERTX
                         int supertx_enabled,
 #endif
 
-                        int mi_row, int mi_col, aom_reader *r, int x_mis,
+                        int mi_row, int mi_col, AomReader *r, int x_mis,
                         int y_mis);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
+void av1_read_tx_type(const Av1Common *const cm, Macroblockd *xd,
 #if CONFIG_SUPERTX
                       int supertx_enabled,
 #endif
 #if CONFIG_TXK_SEL
                       int block, int plane,
 #endif
-                      aom_reader *r);
+                      AomReader *r);
 
 #endif  // AV1_DECODER_DECODEMV_H_

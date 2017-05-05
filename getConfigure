@@ -1,0 +1,1 @@
+sed '/export CC=/,/CROSS=/!d' consoleFull | sed 's/<span.*span>+ //' | sed 's;/var/jenkins.*configure;../aom/configure;'|sed '/FLAGS/ s/=\(.*\)/="\1"/'|grep -v "args="

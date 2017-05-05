@@ -34,8 +34,8 @@ int bitstream_queue_get_read(void);
 void bitstream_queue_record_write(void);
 void bitstream_queue_reset_write(void);
 #if CONFIG_DAALA_EC
-void bitstream_queue_pop(int *result, aom_cdf_prob *cdf, int *nsymbs);
-void bitstream_queue_push(int result, const aom_cdf_prob *cdf, int nsymbs);
+void bitstream_queue_pop(int *result, AomCdfProb *cdf, int *nsymbs);
+void bitstream_queue_push(int result, const AomCdfProb *cdf, int nsymbs);
 #else
 void bitstream_queue_pop(int *result, int *prob);
 void bitstream_queue_push(int result, int prob);

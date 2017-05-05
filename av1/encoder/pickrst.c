@@ -40,19 +40,18 @@ const RestorationType force_restore_type = RESTORE_NONE;
 // Number of Wiener iterations
 #define NUM_WIENER_ITERS 10
 
-typedef double (*search_restore_type)(const YV12_BUFFER_CONFIG *src,
-                                      AV1_COMP *cpi, int partial_frame,
-                                      RestorationInfo *info,
+typedef double (*search_restore_type)(const Yv12BufferConfig *src, Av1Comp *cpi,
+                                      int partial_frame, RestorationInfo *info,
                                       RestorationType *rest_level,
                                       double *best_tile_cost,
-                                      YV12_BUFFER_CONFIG *dst_frame);
+                                      Yv12BufferConfig *dst_frame);
 
 const int frame_level_restore_bits[RESTORE_TYPES] = { 2, 2, 2, 2 };
 
-static int64_t sse_restoration_tile(const YV12_BUFFER_CONFIG *src,
-                                    const YV12_BUFFER_CONFIG *dst,
-                                    const AV1_COMMON *cm, int h_start,
-                                    int width, int v_start, int height,
+static int64_t sse_restoration_tile(const Yv12BufferConfig *src,
+                                    const Yv12BufferConfig *dst,
+                                    const Av1Common *cm, int h_start, int width,
+                                    int v_start, int height,
                                     int components_pattern) {
   int64_t filt_err = 0;
   (void)cm;
@@ -88,9 +87,9 @@ static int64_t sse_restoration_tile(const YV12_BUFFER_CONFIG *src,
   return filt_err;
 }
 
-static int64_t sse_restoration_frame(AV1_COMMON *const cm,
-                                     const YV12_BUFFER_CONFIG *src,
-                                     const YV12_BUFFER_CONFIG *dst,
+static int64_t sse_restoration_frame(Av1Common *const cm,
+                                     const Yv12BufferConfig *src,
+                                     const Yv12BufferConfig *dst,
                                      int components_pattern) {
   int64_t filt_err = 0;
 #if CONFIG_HIGHBITDEPTH
@@ -121,13 +120,13 @@ static int64_t sse_restoration_frame(AV1_COMMON *const cm,
   return filt_err;
 }
 
-static int64_t try_restoration_tile(const YV12_BUFFER_CONFIG *src,
-                                    AV1_COMP *const cpi, RestorationInfo *rsi,
+static int64_t try_restoration_tile(const Yv12BufferConfig *src,
+                                    Av1Comp *const cpi, RestorationInfo *rsi,
                                     int components_pattern, int partial_frame,
                                     int tile_idx, int subtile_idx,
                                     int subtile_bits,
-                                    YV12_BUFFER_CONFIG *dst_frame) {
-  AV1_COMMON *const cm = &cpi->common;
+                                    Yv12BufferConfig *dst_frame) {
+  Av1Common *const cm = &cpi->common;
   int64_t filt_err;
   int tile_width, tile_height, nhtiles, nvtiles;
   int h_start, h_end, v_start, v_end;
@@ -160,11 +159,11 @@ static int64_t try_restoration_tile(const YV12_BUFFER_CONFIG *src,
   return filt_err;
 }
 
-static int64_t try_restoration_frame(const YV12_BUFFER_CONFIG *src,
-                                     AV1_COMP *const cpi, RestorationInfo *rsi,
+static int64_t try_restoration_frame(const Yv12BufferConfig *src,
+                                     Av1Comp *const cpi, RestorationInfo *rsi,
                                      int components_pattern, int partial_frame,
-                                     YV12_BUFFER_CONFIG *dst_frame) {
-  AV1_COMMON *const cm = &cpi->common;
+                                     Yv12BufferConfig *dst_frame) {
+  Av1Common *const cm = &cpi->common;
   int64_t filt_err;
   av1_loop_restoration_frame(cm->frame_to_show, cm, rsi, components_pattern,
                              partial_frame, dst_frame);
@@ -364,16 +363,16 @@ static int count_sgrproj_bits(SgrprojInfo *sgrproj_info,
   return bits;
 }
 
-static double search_sgrproj(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
+static double search_sgrproj(const Yv12BufferConfig *src, Av1Comp *cpi,
                              int partial_frame, RestorationInfo *info,
                              RestorationType *type, double *best_tile_cost,
-                             YV12_BUFFER_CONFIG *dst_frame) {
+                             Yv12BufferConfig *dst_frame) {
   SgrprojInfo *sgrproj_info = info->sgrproj_info;
   double err, cost_norestore, cost_sgrproj;
   int bits;
-  MACROBLOCK *x = &cpi->td.mb;
-  AV1_COMMON *const cm = &cpi->common;
-  const YV12_BUFFER_CONFIG *dgd = cm->frame_to_show;
+  Macroblock *x = &cpi->td.mb;
+  Av1Common *const cm = &cpi->common;
+  const Yv12BufferConfig *dgd = cm->frame_to_show;
   RestorationInfo *rsi = &cpi->rst_search[0];
   int tile_idx, tile_width, tile_height, nhtiles, nvtiles;
   int h_start, h_end, v_start, v_end;
@@ -775,21 +774,21 @@ static int count_wiener_bits(WienerInfo *wiener_info,
   return bits;
 }
 
-static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
+static double search_wiener_uv(const Yv12BufferConfig *src, Av1Comp *cpi,
                                int partial_frame, int plane,
                                RestorationInfo *info, RestorationType *type,
-                               YV12_BUFFER_CONFIG *dst_frame) {
+                               Yv12BufferConfig *dst_frame) {
   WienerInfo *wiener_info = info->wiener_info;
-  AV1_COMMON *const cm = &cpi->common;
+  Av1Common *const cm = &cpi->common;
   RestorationInfo *rsi = cpi->rst_search;
   int64_t err;
   int bits;
   double cost_wiener, cost_norestore, cost_wiener_frame, cost_norestore_frame;
-  MACROBLOCK *x = &cpi->td.mb;
+  Macroblock *x = &cpi->td.mb;
   double M[WIENER_WIN2];
   double H[WIENER_WIN2 * WIENER_WIN2];
   double vfilterd[WIENER_WIN], hfilterd[WIENER_WIN];
-  const YV12_BUFFER_CONFIG *dgd = cm->frame_to_show;
+  const Yv12BufferConfig *dgd = cm->frame_to_show;
   const int width = src->uv_crop_width;
   const int height = src->uv_crop_height;
   const int src_stride = src->uv_stride;
@@ -926,21 +925,21 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                                                         : cost_norestore_frame;
 }
 
-static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
+static double search_wiener(const Yv12BufferConfig *src, Av1Comp *cpi,
                             int partial_frame, RestorationInfo *info,
                             RestorationType *type, double *best_tile_cost,
-                            YV12_BUFFER_CONFIG *dst_frame) {
+                            Yv12BufferConfig *dst_frame) {
   WienerInfo *wiener_info = info->wiener_info;
-  AV1_COMMON *const cm = &cpi->common;
+  Av1Common *const cm = &cpi->common;
   RestorationInfo *rsi = cpi->rst_search;
   int64_t err;
   int bits;
   double cost_wiener, cost_norestore;
-  MACROBLOCK *x = &cpi->td.mb;
+  Macroblock *x = &cpi->td.mb;
   double M[WIENER_WIN2];
   double H[WIENER_WIN2 * WIENER_WIN2];
   double vfilterd[WIENER_WIN], hfilterd[WIENER_WIN];
-  const YV12_BUFFER_CONFIG *dgd = cm->frame_to_show;
+  const Yv12BufferConfig *dgd = cm->frame_to_show;
   const int width = cm->width;
   const int height = cm->height;
   const int src_stride = src->y_stride;
@@ -1062,14 +1061,14 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   return cost_wiener;
 }
 
-static double search_norestore(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
+static double search_norestore(const Yv12BufferConfig *src, Av1Comp *cpi,
                                int partial_frame, RestorationInfo *info,
                                RestorationType *type, double *best_tile_cost,
-                               YV12_BUFFER_CONFIG *dst_frame) {
+                               Yv12BufferConfig *dst_frame) {
   double err, cost_norestore;
   int bits;
-  MACROBLOCK *x = &cpi->td.mb;
-  AV1_COMMON *const cm = &cpi->common;
+  Macroblock *x = &cpi->td.mb;
+  Av1Common *const cm = &cpi->common;
   int tile_idx, tile_width, tile_height, nhtiles, nvtiles;
   int h_start, h_end, v_start, v_end;
   const int ntiles = av1_get_rest_ntiles(
@@ -1097,10 +1096,10 @@ static double search_norestore(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
 }
 
 static double search_switchable_restoration(
-    AV1_COMP *cpi, int partial_frame, RestorationInfo *rsi,
+    Av1Comp *cpi, int partial_frame, RestorationInfo *rsi,
     double *tile_cost[RESTORE_SWITCHABLE_TYPES]) {
-  AV1_COMMON *const cm = &cpi->common;
-  MACROBLOCK *x = &cpi->td.mb;
+  Av1Common *const cm = &cpi->common;
+  Macroblock *x = &cpi->td.mb;
   double cost_switchable = 0;
   int bits, tile_idx;
   RestorationType r;
@@ -1156,12 +1155,12 @@ static double search_switchable_restoration(
   return cost_switchable;
 }
 
-void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
-                                 LPF_PICK_METHOD method) {
+void av1_pick_filter_restoration(const Yv12BufferConfig *src, Av1Comp *cpi,
+                                 LpfPickMethod method) {
   static search_restore_type search_restore_fun[RESTORE_SWITCHABLE_TYPES] = {
     search_norestore, search_wiener, search_sgrproj,
   };
-  AV1_COMMON *const cm = &cpi->common;
+  Av1Common *const cm = &cpi->common;
   double cost_restore[RESTORE_TYPES];
   double *tile_cost[RESTORE_SWITCHABLE_TYPES];
   RestorationType *restore_types[RESTORE_SWITCHABLE_TYPES];

@@ -14,9 +14,9 @@
 
 namespace libaom_test {
 
-int get_txfm1d_size(TX_SIZE tx_size) { return tx_size_wide[tx_size]; }
+int get_txfm1d_size(TxSize tx_size) { return tx_size_wide[tx_size]; }
 
-void get_txfm1d_type(TX_TYPE txfm2d_type, TYPE_TXFM *type0, TYPE_TXFM *type1) {
+void get_txfm1d_type(TxType txfm2d_type, TypeTxfm *type0, TypeTxfm *type1) {
   switch (txfm2d_type) {
     case DCT_DCT:
       *type0 = TYPE_DCT;

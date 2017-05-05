@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-typedef struct od_ec_dec od_ec_dec;
+typedef struct OdEcDec OdEcDec;
 
 #if defined(OD_ACCOUNTING) && OD_ACCOUNTING
 #define OD_ACC_STR , char *acc_str
@@ -29,13 +29,13 @@ typedef struct od_ec_dec od_ec_dec;
 #endif
 
 /*The entropy decoder context.*/
-struct od_ec_dec {
+struct OdEcDec {
   /*The start of the current input buffer.*/
   const unsigned char *buf;
   /*The read pointer for the raw bits.*/
   const unsigned char *eptr;
   /*Bits that will be read from/written at the end.*/
-  od_ec_window end_window;
+  OdEcWindow end_window;
   /*Number of valid bits in end_window.*/
   int nend_bits;
   /*An offset used to keep track of tell after reaching the end of the stream.
@@ -56,7 +56,7 @@ struct od_ec_dec {
     As we shift up during renormalization, if we don't have enough bits left in
      the window to fill the top 16, we'll read in more bits of the coded
      value.*/
-  od_ec_window dif;
+  OdEcWindow dif;
   /*The number of values in the current range.*/
   uint16_t rng;
   /*The number of bits of data in the current value.*/
@@ -67,21 +67,20 @@ struct od_ec_dec {
 
 /*See entdec.c for further documentation.*/
 
-void od_ec_dec_init(od_ec_dec *dec, const unsigned char *buf, uint32_t storage)
+void od_ec_dec_init(OdEcDec *dec, const unsigned char *buf, uint32_t storage)
     OD_ARG_NONNULL(1) OD_ARG_NONNULL(2);
 
-OD_WARN_UNUSED_RESULT int od_ec_decode_bool_q15(od_ec_dec *dec, unsigned f)
+OD_WARN_UNUSED_RESULT int od_ec_decode_bool_q15(OdEcDec *dec, unsigned f)
     OD_ARG_NONNULL(1);
-OD_WARN_UNUSED_RESULT int od_ec_decode_cdf_q15(od_ec_dec *dec,
+OD_WARN_UNUSED_RESULT int od_ec_decode_cdf_q15(OdEcDec *dec,
                                                const uint16_t *cdf, int nsyms)
     OD_ARG_NONNULL(1) OD_ARG_NONNULL(2);
 
-OD_WARN_UNUSED_RESULT uint32_t od_ec_dec_bits_(od_ec_dec *dec, unsigned ftb)
+OD_WARN_UNUSED_RESULT uint32_t od_ec_dec_bits_(OdEcDec *dec, unsigned ftb)
     OD_ARG_NONNULL(1);
 
-OD_WARN_UNUSED_RESULT int od_ec_dec_tell(const od_ec_dec *dec)
-    OD_ARG_NONNULL(1);
-OD_WARN_UNUSED_RESULT uint32_t od_ec_dec_tell_frac(const od_ec_dec *dec)
+OD_WARN_UNUSED_RESULT int od_ec_dec_tell(const OdEcDec *dec) OD_ARG_NONNULL(1);
+OD_WARN_UNUSED_RESULT uint32_t od_ec_dec_tell_frac(const OdEcDec *dec)
     OD_ARG_NONNULL(1);
 
 #ifdef __cplusplus

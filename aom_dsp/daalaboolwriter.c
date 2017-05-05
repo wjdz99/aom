@@ -12,13 +12,13 @@
 #include <string.h>
 #include "aom_dsp/daalaboolwriter.h"
 
-void aom_daala_start_encode(daala_writer *br, uint8_t *source) {
+void aom_daala_start_encode(DaalaWriter *br, uint8_t *source) {
   br->buffer = source;
   br->pos = 0;
   od_ec_enc_init(&br->ec, 62025);
 }
 
-void aom_daala_stop_encode(daala_writer *br) {
+void aom_daala_stop_encode(DaalaWriter *br) {
   uint32_t daala_bytes;
   unsigned char *daala_data;
   daala_data = od_ec_enc_done(&br->ec, &daala_bytes);

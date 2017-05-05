@@ -15,7 +15,7 @@
 #include "./aom_dsp_rtcd.h"
 #include "aom/aom_integer.h"
 
-static INLINE __m128i load_coefficients(const tran_low_t *coeff_ptr) {
+static INLINE __m128i load_coefficients(const TranLowT *coeff_ptr) {
 #if CONFIG_HIGHBITDEPTH
   return _mm_setr_epi16((int16_t)coeff_ptr[0], (int16_t)coeff_ptr[1],
                         (int16_t)coeff_ptr[2], (int16_t)coeff_ptr[3],
@@ -26,8 +26,7 @@ static INLINE __m128i load_coefficients(const tran_low_t *coeff_ptr) {
 #endif
 }
 
-static INLINE void store_coefficients(__m128i coeff_vals,
-                                      tran_low_t *coeff_ptr) {
+static INLINE void store_coefficients(__m128i coeff_vals, TranLowT *coeff_ptr) {
 #if CONFIG_HIGHBITDEPTH
   __m128i one = _mm_set1_epi16(1);
   __m128i coeff_vals_hi = _mm_mulhi_epi16(coeff_vals, one);
@@ -41,11 +40,11 @@ static INLINE void store_coefficients(__m128i coeff_vals,
 #endif
 }
 
-void aom_quantize_b_sse2(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
+void aom_quantize_b_sse2(const TranLowT *coeff_ptr, intptr_t n_coeffs,
                          int skip_block, const int16_t *zbin_ptr,
                          const int16_t *round_ptr, const int16_t *quant_ptr,
-                         const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
-                         tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr,
+                         const int16_t *quant_shift_ptr, TranLowT *qcoeff_ptr,
+                         TranLowT *dqcoeff_ptr, const int16_t *dequant_ptr,
                          uint16_t *eob_ptr, const int16_t *scan_ptr,
                          const int16_t *iscan_ptr) {
   __m128i zero;

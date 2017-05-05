@@ -46,25 +46,24 @@ int av1_count_colors_highbd(const uint8_t *src8, int stride, int rows, int cols,
 
 #if CONFIG_PALETTE_DELTA_ENCODING
 // Return the number of bits used to transmit each luma palette color delta.
-int av1_get_palette_delta_bits_y(const PALETTE_MODE_INFO *const pmi,
+int av1_get_palette_delta_bits_y(const PaletteModeInfo *const pmi,
                                  int bit_depth, int *min_bits);
 
 // Return the number of bits used to transmit each U palette color delta.
-int av1_get_palette_delta_bits_u(const PALETTE_MODE_INFO *const pmi,
+int av1_get_palette_delta_bits_u(const PaletteModeInfo *const pmi,
                                  int bit_depth, int *min_bits);
 
 // Return the number of bits used to transmit each v palette color delta;
 // assign zero_count with the number of deltas being 0.
-int av1_get_palette_delta_bits_v(const PALETTE_MODE_INFO *const pmi,
+int av1_get_palette_delta_bits_v(const PaletteModeInfo *const pmi,
                                  int bit_depth, int *zero_count, int *min_bits);
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
 
 // Return the rate cost for transmitting luma palette color values.
-int av1_palette_color_cost_y(const PALETTE_MODE_INFO *const pmi, int bit_depth);
+int av1_palette_color_cost_y(const PaletteModeInfo *const pmi, int bit_depth);
 
 // Return the rate cost for transmitting chroma palette color values.
-int av1_palette_color_cost_uv(const PALETTE_MODE_INFO *const pmi,
-                              int bit_depth);
+int av1_palette_color_cost_uv(const PaletteModeInfo *const pmi, int bit_depth);
 
 #ifdef __cplusplus
 }  // extern "C"

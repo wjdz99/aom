@@ -78,7 +78,7 @@ Build options:
   ${toggle_werror}            treat warnings as errors, if possible
                               (not available with all compilers)
   ${toggle_optimizations}     turn on/off compiler optimization flags
-  ${toggle_pic}               turn on/off Position Independent Code
+  ${toggle_pic}               turn on/off position Independent Code
   ${toggle_ccache}            turn on/off compiler cache
   ${toggle_debug}             enable/disable debug mode
   ${toggle_gprof}             enable/disable gprof profiling instrumentation
@@ -1395,7 +1395,7 @@ EOF
     fi
   fi
 
-  # Position Independent Code (PIC) support, for building relocatable
+  # position Independent Code (PIC) support, for building relocatable
   # shared objects
   enabled gcc && enabled pic && check_add_cflags -fPIC
 

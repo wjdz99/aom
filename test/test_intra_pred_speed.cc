@@ -71,7 +71,7 @@ void TestIntraPred(const char name[], AvxPredFunc const *pred_funcs,
   for (int k = 0; k < num_funcs; ++k) {
     if (pred_funcs[k] == NULL) continue;
     memcpy(src, ref_src, sizeof(src));
-    aom_usec_timer timer;
+    AomUsecTimer timer;
     aom_usec_timer_start(&timer);
     for (int num_tests = 0; num_tests < kNumTests; ++num_tests) {
       pred_funcs[k](src, kBPS, above, left);

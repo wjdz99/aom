@@ -33,18 +33,17 @@ class CodecFactory {
 
   virtual ~CodecFactory() {}
 
-  virtual Decoder *CreateDecoder(aom_codec_dec_cfg_t cfg) const = 0;
+  virtual Decoder *CreateDecoder(AomCodecDecCfgT cfg) const = 0;
 
-  virtual Decoder *CreateDecoder(aom_codec_dec_cfg_t cfg,
-                                 const aom_codec_flags_t flags) const = 0;
+  virtual Decoder *CreateDecoder(AomCodecDecCfgT cfg,
+                                 const AomCodecFlagsT flags) const = 0;
 
-  virtual Encoder *CreateEncoder(aom_codec_enc_cfg_t cfg,
-                                 unsigned long deadline,
+  virtual Encoder *CreateEncoder(AomCodecEncCfgT cfg, unsigned long deadline,
                                  const unsigned long init_flags,
                                  TwopassStatsStore *stats) const = 0;
 
-  virtual aom_codec_err_t DefaultEncoderConfig(aom_codec_enc_cfg_t *cfg,
-                                               int usage) const = 0;
+  virtual AomCodecErrT DefaultEncoderConfig(AomCodecEncCfgT *cfg,
+                                            int usage) const = 0;
 };
 
 /* Provide CodecTestWith<n>Params classes for a variable number of parameters
@@ -72,13 +71,13 @@ class CodecTestWith3Params
 #if CONFIG_AV1
 class AV1Decoder : public Decoder {
  public:
-  explicit AV1Decoder(aom_codec_dec_cfg_t cfg) : Decoder(cfg) {}
+  explicit AV1Decoder(AomCodecDecCfgT cfg) : Decoder(cfg) {}
 
-  AV1Decoder(aom_codec_dec_cfg_t cfg, const aom_codec_flags_t flag)
+  AV1Decoder(AomCodecDecCfgT cfg, const AomCodecFlagsT flag)
       : Decoder(cfg, flag) {}
 
  protected:
-  virtual aom_codec_iface_t *CodecInterface() const {
+  virtual AomCodecIfaceT *CodecInterface() const {
 #if CONFIG_AV1_DECODER
     return &aom_codec_av1_dx_algo;
 #else
@@ -89,12 +88,12 @@ class AV1Decoder : public Decoder {
 
 class AV1Encoder : public Encoder {
  public:
-  AV1Encoder(aom_codec_enc_cfg_t cfg, unsigned long deadline,
+  AV1Encoder(AomCodecEncCfgT cfg, unsigned long deadline,
              const unsigned long init_flags, TwopassStatsStore *stats)
       : Encoder(cfg, deadline, init_flags, stats) {}
 
  protected:
-  virtual aom_codec_iface_t *CodecInterface() const {
+  virtual AomCodecIfaceT *CodecInterface() const {
 #if CONFIG_AV1_ENCODER
     return &aom_codec_av1_cx_algo;
 #else
@@ -107,12 +106,12 @@ class AV1CodecFactory : public CodecFactory {
  public:
   AV1CodecFactory() : CodecFactory() {}
 
-  virtual Decoder *CreateDecoder(aom_codec_dec_cfg_t cfg) const {
+  virtual Decoder *CreateDecoder(AomCodecDecCfgT cfg) const {
     return CreateDecoder(cfg, 0);
   }
 
-  virtual Decoder *CreateDecoder(aom_codec_dec_cfg_t cfg,
-                                 const aom_codec_flags_t flags) const {
+  virtual Decoder *CreateDecoder(AomCodecDecCfgT cfg,
+                                 const AomCodecFlagsT flags) const {
 #if CONFIG_AV1_DECODER
     return new AV1Decoder(cfg, flags);
 #else
@@ -122,8 +121,7 @@ class AV1CodecFactory : public CodecFactory {
 #endif
   }
 
-  virtual Encoder *CreateEncoder(aom_codec_enc_cfg_t cfg,
-                                 unsigned long deadline,
+  virtual Encoder *CreateEncoder(AomCodecEncCfgT cfg, unsigned long deadline,
                                  const unsigned long init_flags,
                                  TwopassStatsStore *stats) const {
 #if CONFIG_AV1_ENCODER
@@ -137,8 +135,8 @@ class AV1CodecFactory : public CodecFactory {
 #endif
   }
 
-  virtual aom_codec_err_t DefaultEncoderConfig(aom_codec_enc_cfg_t *cfg,
-                                               int usage) const {
+  virtual AomCodecErrT DefaultEncoderConfig(AomCodecEncCfgT *cfg,
+                                            int usage) const {
 #if CONFIG_AV1_ENCODER
     return aom_codec_enc_config_default(&aom_codec_av1_cx_algo, cfg, usage);
 #else

@@ -28,15 +28,15 @@
 #include "av1/decoder/pvq_decoder.h"
 #include "aom_ports/system_state.h"
 
-int aom_read_symbol_pvq_(aom_reader *r, aom_cdf_prob *cdf, int nsymbs
+int aom_read_symbol_pvq_(AomReader *r, AomCdfProb *cdf, int nsymbs
  ACCT_STR_PARAM) {
   if (cdf[0] == 0)
     aom_cdf_init_q15_1D(cdf, nsymbs, CDF_SIZE(nsymbs));
   return aom_read_symbol(r, cdf, nsymbs, ACCT_STR_NAME);
 }
 
-static void aom_decode_pvq_codeword(aom_reader *r, od_pvq_codeword_ctx *ctx,
- od_coeff *y, int n, int k) {
+static void aom_decode_pvq_codeword(AomReader *r, OdPvqCodewordCtx *ctx,
+ OdCoeff *y, int n, int k) {
   int i;
   aom_decode_band_pvq_splits(r, ctx, y, n, k, 0);
   for (i = 0; i < n; i++) {
@@ -75,8 +75,8 @@ static int neg_deinterleave(int x, int ref) {
  * @param [in]      qm      QM with magnitude compensation
  * @param [in]      qm_inv  Inverse of QM with magnitude compensation
  */
-static void pvq_synthesis(od_coeff *xcoeff, od_coeff *ypulse, od_val16 *r16,
- int n, od_val32 gr, int noref, od_val32 g, od_val32 theta, const int16_t *qm_inv,
+static void pvq_synthesis(OdCoeff *xcoeff, OdCoeff *ypulse, OdVal16 *r16,
+ int n, OdVal32 gr, int noref, OdVal32 g, OdVal32 theta, const int16_t *qm_inv,
  int shift) {
   int s;
   int m;
@@ -89,7 +89,7 @@ static void pvq_synthesis(od_coeff *xcoeff, od_coeff *ypulse, od_val16 *r16,
 }
 
 typedef struct {
-  od_coeff *ref;
+  OdCoeff *ref;
   int nb_coeffs;
   int allow_flip;
 } cfl_ctx;
@@ -118,17 +118,17 @@ typedef struct {
  * @param [in]     qm          QM with magnitude compensation
  * @param [in]     qm_inv      Inverse of QM with magnitude compensation
  */
-static void pvq_decode_partition(aom_reader *r,
+static void pvq_decode_partition(AomReader *r,
                                  int q0,
                                  int n,
-                                 generic_encoder model[3],
-                                 od_adapt_ctx *adapt,
+                                 GenericEncoder model[3],
+                                 OdAdaptCtx *adapt,
                                  int *exg,
                                  int *ext,
-                                 od_coeff *ref,
-                                 od_coeff *out,
+                                 OdCoeff *ref,
+                                 OdCoeff *out,
                                  int *noref,
-                                 od_val16 beta,
+                                 OdVal16 beta,
                                  int is_keyframe,
                                  int pli,
                                  int cdf_ctx,
@@ -140,16 +140,16 @@ static void pvq_decode_partition(aom_reader *r,
                                  const int16_t *qm,
                                  const int16_t *qm_inv) {
   int k;
-  od_val32 qcg;
+  OdVal32 qcg;
   int itheta;
-  od_val32 theta;
-  od_val32 gr;
-  od_val32 gain_offset;
-  od_coeff y[MAXN];
+  OdVal32 theta;
+  OdVal32 gr;
+  OdVal32 gain_offset;
+  OdCoeff y[MAXN];
   int qg;
   int id;
   int i;
-  od_val16 ref16[MAXN];
+  OdVal16 ref16[MAXN];
   int rshift;
   theta = 0;
   gr = 0;
@@ -213,7 +213,7 @@ static void pvq_decode_partition(aom_reader *r,
   }
   if(!*noref){
     /* we have a reference; compute its gain */
-    od_val32 cgr;
+    OdVal32 cgr;
     int icgr;
     int cfl_enabled;
     cfl_enabled = pli != 0 && is_keyframe && !OD_DISABLE_CFL;
@@ -264,7 +264,7 @@ static void pvq_decode_partition(aom_reader *r,
     else OD_CLEAR(out, n);
   }
   else {
-    od_val32 g;
+    OdVal32 g;
     g = od_gain_expand(qcg, q0, beta);
     pvq_synthesis(out, y, ref16, n, gr, *noref, g, theta, qm_inv, rshift);
   }
@@ -287,16 +287,16 @@ static void pvq_decode_partition(aom_reader *r,
  * @param [in]     qm          QM with magnitude compensation
  * @param [in]     qm_inv      Inverse of QM with magnitude compensation
  */
-void od_pvq_decode(daala_dec_ctx *dec,
-                   od_coeff *ref,
-                   od_coeff *out,
+void od_pvq_decode(DaalaDecCtx *dec,
+                   OdCoeff *ref,
+                   OdCoeff *out,
                    int q0,
                    int pli,
                    int bs,
-                   const od_val16 *beta,
+                   const OdVal16 *beta,
                    int is_keyframe,
                    unsigned int *flags,
-                   PVQ_SKIP_TYPE ac_dc_coded,
+                   PvqSkipType ac_dc_coded,
                    const int16_t *qm,
                    const int16_t *qm_inv){
 
@@ -308,7 +308,7 @@ void od_pvq_decode(daala_dec_ctx *dec,
   int i;
   const int *off;
   int size[PVQ_MAX_PARTITIONS];
-  generic_encoder *model;
+  GenericEncoder *model;
   int skip_rest[3] = {0};
   cfl_ctx cfl;
   const unsigned char *pvq_qm;

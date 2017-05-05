@@ -22,13 +22,13 @@
 extern "C" {
 #endif
 
-typedef struct y4m_input y4m_input;
+typedef struct Y4mInput Y4mInput;
 
 /*The function used to perform chroma conversion.*/
-typedef void (*y4m_convert_func)(y4m_input *_y4m, unsigned char *_dst,
-                                 unsigned char *_src);
+typedef void (*Y4mConvertFunc)(Y4mInput *_y4m, unsigned char *_dst,
+                               unsigned char *_src);
 
-struct y4m_input {
+struct Y4mInput {
   int pic_w;
   int pic_h;
   int fps_n;
@@ -49,7 +49,7 @@ struct y4m_input {
   size_t aux_buf_sz;
   /*The amount to read into the auxilliary buffer.*/
   size_t aux_buf_read_sz;
-  y4m_convert_func convert;
+  Y4mConvertFunc convert;
   unsigned char *dst_buf;
   unsigned char *aux_buf;
   enum aom_img_fmt aom_fmt;
@@ -57,10 +57,10 @@ struct y4m_input {
   unsigned int bit_depth;
 };
 
-int y4m_input_open(y4m_input *_y4m, FILE *_fin, char *_skip, int _nskip,
+int y4m_input_open(Y4mInput *_y4m, FILE *_fin, char *_skip, int _nskip,
                    int only_420);
-void y4m_input_close(y4m_input *_y4m);
-int y4m_input_fetch_frame(y4m_input *_y4m, FILE *_fin, aom_image_t *img);
+void y4m_input_close(Y4mInput *_y4m);
+int y4m_input_fetch_frame(Y4mInput *_y4m, FILE *_fin, AomImageT *img);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -44,7 +44,7 @@ struct av1_extracfg {
   unsigned int arnr_strength;
   unsigned int min_gf_interval;
   unsigned int max_gf_interval;
-  aom_tune_metric tuning;
+  AomTuneMetric tuning;
   unsigned int cq_level;  // constrained quality level
   unsigned int rc_max_intra_bitrate_pct;
   unsigned int rc_max_inter_bitrate_pct;
@@ -63,18 +63,18 @@ struct av1_extracfg {
   unsigned int disable_tempmv;
 #endif
   unsigned int frame_parallel_decoding_mode;
-  AQ_MODE aq_mode;
+  AqMode aq_mode;
 #if CONFIG_EXT_DELTA_Q
   DELTAQ_MODE deltaq_mode;
 #endif
   unsigned int frame_periodic_boost;
-  aom_bit_depth_t bit_depth;
-  aom_tune_content content;
-  aom_color_space_t color_space;
+  AomBitDepthT bit_depth;
+  AomTuneContent content;
+  AomColorSpaceT color_space;
   int color_range;
   int render_width;
   int render_height;
-  aom_superblock_size_t superblock_size;
+  AomSuperblockSizeT superblock_size;
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
   int ans_window_size_log2;
 #endif
@@ -153,29 +153,29 @@ static struct av1_extracfg default_extra_cfg = {
 };
 
 struct aom_codec_alg_priv {
-  aom_codec_priv_t base;
-  aom_codec_enc_cfg_t cfg;
+  AomCodecPrivT base;
+  AomCodecEncCfgT cfg;
   struct av1_extracfg extra_cfg;
   AV1EncoderConfig oxcf;
-  AV1_COMP *cpi;
+  Av1Comp *cpi;
   unsigned char *cx_data;
   size_t cx_data_sz;
   unsigned char *pending_cx_data;
   size_t pending_cx_data_sz;
   int pending_frame_count;
   size_t pending_frame_sizes[8];
-  aom_image_t preview_img;
-  aom_enc_frame_flags_t next_frame_flags;
-  aom_postproc_cfg_t preview_ppcfg;
+  AomImageT preview_img;
+  AomEncFrameFlagsT next_frame_flags;
+  AomPostprocCfgT preview_ppcfg;
   aom_codec_pkt_list_decl(256) pkt_list;
   unsigned int fixed_kf_cntr;
   // BufferPool that holds all reference frames.
   BufferPool *buffer_pool;
 };
 
-static aom_codec_err_t update_error_state(
-    aom_codec_alg_priv_t *ctx, const struct aom_internal_error_info *error) {
-  const aom_codec_err_t res = error->error_code;
+static AomCodecErrT update_error_state(
+    AomCodecAlgPrivT *ctx, const struct AomInternalErrorInfo *error) {
+  const AomCodecErrT res = error->error_code;
 
   if (res != AOM_CODEC_OK)
     ctx->base.err_detail = error->has_detail ? error->detail : NULL;
@@ -211,9 +211,9 @@ static aom_codec_err_t update_error_state(
     if (!!((p)->memb) != (p)->memb) ERROR(#memb " expected boolean"); \
   } while (0)
 
-static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
-                                       const aom_codec_enc_cfg_t *cfg,
-                                       const struct av1_extracfg *extra_cfg) {
+static AomCodecErrT validate_config(AomCodecAlgPrivT *ctx,
+                                    const AomCodecEncCfgT *cfg,
+                                    const struct av1_extracfg *extra_cfg) {
   RANGE_CHECK(cfg, g_w, 1, 65535);  // 16 bits available
   RANGE_CHECK(cfg, g_h, 1, 65535);  // 16 bits available
   RANGE_CHECK(cfg, g_timebase.den, 1, 1000000000);
@@ -315,9 +315,9 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
 
   if (cfg->g_pass == AOM_RC_LAST_PASS) {
 #if !CONFIG_XIPHRC
-    const size_t packet_sz = sizeof(FIRSTPASS_STATS);
+    const size_t packet_sz = sizeof(FirstpassStats);
     const int n_packets = (int)(cfg->rc_twopass_stats_in.sz / packet_sz);
-    const FIRSTPASS_STATS *stats;
+    const FirstpassStats *stats;
 #endif
 
     if (cfg->rc_twopass_stats_in.buf == NULL)
@@ -331,7 +331,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
       ERROR("rc_twopass_stats_in requires at least two packets.");
 
     stats =
-        (const FIRSTPASS_STATS *)cfg->rc_twopass_stats_in.buf + n_packets - 1;
+        (const FirstpassStats *)cfg->rc_twopass_stats_in.buf + n_packets - 1;
 
     if ((int)(stats->count + 0.5) != n_packets - 1)
       ERROR("rc_twopass_stats_in missing EOS stats packet");
@@ -362,8 +362,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_OK;
 }
 
-static aom_codec_err_t validate_img(aom_codec_alg_priv_t *ctx,
-                                    const aom_image_t *img) {
+static AomCodecErrT validate_img(AomCodecAlgPrivT *ctx, const AomImageT *img) {
   switch (img->fmt) {
     case AOM_IMG_FMT_YV12:
     case AOM_IMG_FMT_I420:
@@ -400,7 +399,7 @@ static aom_codec_err_t validate_img(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_OK;
 }
 
-static int get_image_bps(const aom_image_t *img) {
+static int get_image_bps(const AomImageT *img) {
   switch (img->fmt) {
     case AOM_IMG_FMT_YV12:
     case AOM_IMG_FMT_I420: return 12;
@@ -416,9 +415,9 @@ static int get_image_bps(const aom_image_t *img) {
   return 0;
 }
 
-static aom_codec_err_t set_encoder_config(
-    AV1EncoderConfig *oxcf, const aom_codec_enc_cfg_t *cfg,
-    const struct av1_extracfg *extra_cfg) {
+static AomCodecErrT set_encoder_config(AV1EncoderConfig *oxcf,
+                                       const AomCodecEncCfgT *cfg,
+                                       const struct av1_extracfg *extra_cfg) {
   const int is_vbr = cfg->rc_end_usage == AOM_VBR;
   oxcf->profile = cfg->g_profile;
   oxcf->max_threads = (int)cfg->g_threads;
@@ -599,9 +598,9 @@ static aom_codec_err_t set_encoder_config(
   return AOM_CODEC_OK;
 }
 
-static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
-                                          const aom_codec_enc_cfg_t *cfg) {
-  aom_codec_err_t res;
+static AomCodecErrT encoder_set_config(AomCodecAlgPrivT *ctx,
+                                       const AomCodecEncCfgT *cfg) {
+  AomCodecErrT res;
   int force_key = 0;
 
   if (cfg->g_w != ctx->cfg.g_w || cfg->g_h != ctx->cfg.g_h) {
@@ -635,25 +634,23 @@ static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
   return res;
 }
 
-static aom_codec_err_t ctrl_get_quantizer(aom_codec_alg_priv_t *ctx,
-                                          va_list args) {
+static AomCodecErrT ctrl_get_quantizer(AomCodecAlgPrivT *ctx, va_list args) {
   int *const arg = va_arg(args, int *);
   if (arg == NULL) return AOM_CODEC_INVALID_PARAM;
   *arg = av1_get_quantizer(ctx->cpi);
   return AOM_CODEC_OK;
 }
 
-static aom_codec_err_t ctrl_get_quantizer64(aom_codec_alg_priv_t *ctx,
-                                            va_list args) {
+static AomCodecErrT ctrl_get_quantizer64(AomCodecAlgPrivT *ctx, va_list args) {
   int *const arg = va_arg(args, int *);
   if (arg == NULL) return AOM_CODEC_INVALID_PARAM;
   *arg = av1_qindex_to_quantizer(av1_get_quantizer(ctx->cpi));
   return AOM_CODEC_OK;
 }
 
-static aom_codec_err_t update_extra_cfg(aom_codec_alg_priv_t *ctx,
-                                        const struct av1_extracfg *extra_cfg) {
-  const aom_codec_err_t res = validate_config(ctx, &ctx->cfg, extra_cfg);
+static AomCodecErrT update_extra_cfg(AomCodecAlgPrivT *ctx,
+                                     const struct av1_extracfg *extra_cfg) {
+  const AomCodecErrT res = validate_config(ctx, &ctx->cfg, extra_cfg);
   if (res == AOM_CODEC_OK) {
     ctx->extra_cfg = *extra_cfg;
     set_encoder_config(&ctx->oxcf, &ctx->cfg, &ctx->extra_cfg);
@@ -662,74 +659,70 @@ static aom_codec_err_t update_extra_cfg(aom_codec_alg_priv_t *ctx,
   return res;
 }
 
-static aom_codec_err_t ctrl_set_cpuused(aom_codec_alg_priv_t *ctx,
-                                        va_list args) {
+static AomCodecErrT ctrl_set_cpuused(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.cpu_used = CAST(AOME_SET_CPUUSED, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_enable_auto_alt_ref(aom_codec_alg_priv_t *ctx,
-                                                    va_list args) {
+static AomCodecErrT ctrl_set_enable_auto_alt_ref(AomCodecAlgPrivT *ctx,
+                                                 va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.enable_auto_alt_ref = CAST(AOME_SET_ENABLEAUTOALTREF, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
 #if CONFIG_EXT_REFS
-static aom_codec_err_t ctrl_set_enable_auto_bwd_ref(aom_codec_alg_priv_t *ctx,
-                                                    va_list args) {
+static AomCodecErrT ctrl_set_enable_auto_bwd_ref(AomCodecAlgPrivT *ctx,
+                                                 va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.enable_auto_bwd_ref = CAST(AOME_SET_ENABLEAUTOBWDREF, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 #endif  // CONFIG_EXT_REFS
 
-static aom_codec_err_t ctrl_set_noise_sensitivity(aom_codec_alg_priv_t *ctx,
-                                                  va_list args) {
+static AomCodecErrT ctrl_set_noise_sensitivity(AomCodecAlgPrivT *ctx,
+                                               va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.noise_sensitivity = CAST(AV1E_SET_NOISE_SENSITIVITY, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_sharpness(aom_codec_alg_priv_t *ctx,
-                                          va_list args) {
+static AomCodecErrT ctrl_set_sharpness(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.sharpness = CAST(AOME_SET_SHARPNESS, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_static_thresh(aom_codec_alg_priv_t *ctx,
-                                              va_list args) {
+static AomCodecErrT ctrl_set_static_thresh(AomCodecAlgPrivT *ctx,
+                                           va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.static_thresh = CAST(AOME_SET_STATIC_THRESHOLD, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_tile_columns(aom_codec_alg_priv_t *ctx,
-                                             va_list args) {
+static AomCodecErrT ctrl_set_tile_columns(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.tile_columns = CAST(AV1E_SET_TILE_COLUMNS, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_tile_rows(aom_codec_alg_priv_t *ctx,
-                                          va_list args) {
+static AomCodecErrT ctrl_set_tile_rows(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.tile_rows = CAST(AV1E_SET_TILE_ROWS, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 #if CONFIG_DEPENDENT_HORZTILES
-static aom_codec_err_t ctrl_set_tile_dependent_rows(aom_codec_alg_priv_t *ctx,
-                                                    va_list args) {
+static AomCodecErrT ctrl_set_tile_dependent_rows(AomCodecAlgPrivT *ctx,
+                                                 va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.dependent_horz_tiles = CAST(AV1E_SET_TILE_DEPENDENT_ROWS, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-static aom_codec_err_t ctrl_set_tile_loopfilter(aom_codec_alg_priv_t *ctx,
-                                                va_list args) {
+static AomCodecErrT ctrl_set_tile_loopfilter(AomCodecAlgPrivT *ctx,
+                                             va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.loop_filter_across_tiles_enabled =
       CAST(AV1E_SET_TILE_LOOPFILTER, args);
@@ -737,81 +730,75 @@ static aom_codec_err_t ctrl_set_tile_loopfilter(aom_codec_alg_priv_t *ctx,
 }
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
-static aom_codec_err_t ctrl_set_arnr_max_frames(aom_codec_alg_priv_t *ctx,
-                                                va_list args) {
+static AomCodecErrT ctrl_set_arnr_max_frames(AomCodecAlgPrivT *ctx,
+                                             va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.arnr_max_frames = CAST(AOME_SET_ARNR_MAXFRAMES, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_arnr_strength(aom_codec_alg_priv_t *ctx,
-                                              va_list args) {
+static AomCodecErrT ctrl_set_arnr_strength(AomCodecAlgPrivT *ctx,
+                                           va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.arnr_strength = CAST(AOME_SET_ARNR_STRENGTH, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_tuning(aom_codec_alg_priv_t *ctx,
-                                       va_list args) {
+static AomCodecErrT ctrl_set_tuning(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.tuning = CAST(AOME_SET_TUNING, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_cq_level(aom_codec_alg_priv_t *ctx,
-                                         va_list args) {
+static AomCodecErrT ctrl_set_cq_level(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.cq_level = CAST(AOME_SET_CQ_LEVEL, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_rc_max_intra_bitrate_pct(
-    aom_codec_alg_priv_t *ctx, va_list args) {
+static AomCodecErrT ctrl_set_rc_max_intra_bitrate_pct(AomCodecAlgPrivT *ctx,
+                                                      va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.rc_max_intra_bitrate_pct =
       CAST(AOME_SET_MAX_INTRA_BITRATE_PCT, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_rc_max_inter_bitrate_pct(
-    aom_codec_alg_priv_t *ctx, va_list args) {
+static AomCodecErrT ctrl_set_rc_max_inter_bitrate_pct(AomCodecAlgPrivT *ctx,
+                                                      va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.rc_max_inter_bitrate_pct =
       CAST(AOME_SET_MAX_INTER_BITRATE_PCT, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_rc_gf_cbr_boost_pct(aom_codec_alg_priv_t *ctx,
-                                                    va_list args) {
+static AomCodecErrT ctrl_set_rc_gf_cbr_boost_pct(AomCodecAlgPrivT *ctx,
+                                                 va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.gf_cbr_boost_pct = CAST(AV1E_SET_GF_CBR_BOOST_PCT, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_lossless(aom_codec_alg_priv_t *ctx,
-                                         va_list args) {
+static AomCodecErrT ctrl_set_lossless(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.lossless = CAST(AV1E_SET_LOSSLESS, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
 #if CONFIG_AOM_QM
-static aom_codec_err_t ctrl_set_enable_qm(aom_codec_alg_priv_t *ctx,
-                                          va_list args) {
+static AomCodecErrT ctrl_set_enable_qm(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.enable_qm = CAST(AV1E_SET_ENABLE_QM, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_qm_min(aom_codec_alg_priv_t *ctx,
-                                       va_list args) {
+static AomCodecErrT ctrl_set_qm_min(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.qm_min = CAST(AV1E_SET_QM_MIN, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_qm_max(aom_codec_alg_priv_t *ctx,
-                                       va_list args) {
+static AomCodecErrT ctrl_set_qm_max(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.qm_max = CAST(AV1E_SET_QM_MAX, args);
   return update_extra_cfg(ctx, &extra_cfg);
@@ -819,29 +806,28 @@ static aom_codec_err_t ctrl_set_qm_max(aom_codec_alg_priv_t *ctx,
 #endif
 
 #if CONFIG_TILE_GROUPS
-static aom_codec_err_t ctrl_set_num_tg(aom_codec_alg_priv_t *ctx,
-                                       va_list args) {
+static AomCodecErrT ctrl_set_num_tg(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.num_tg = CAST(AV1E_SET_NUM_TG, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_mtu(aom_codec_alg_priv_t *ctx, va_list args) {
+static AomCodecErrT ctrl_set_mtu(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.mtu_size = CAST(AV1E_SET_MTU, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 #endif
 #if CONFIG_TEMPMV_SIGNALING
-static aom_codec_err_t ctrl_set_disable_tempmv(aom_codec_alg_priv_t *ctx,
-                                               va_list args) {
+static AomCodecErrT ctrl_set_disable_tempmv(AomCodecAlgPrivT *ctx,
+                                            va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.disable_tempmv = CAST(AV1E_SET_DISABLE_TEMPMV, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 #endif
-static aom_codec_err_t ctrl_set_frame_parallel_decoding_mode(
-    aom_codec_alg_priv_t *ctx, va_list args) {
+static AomCodecErrT ctrl_set_frame_parallel_decoding_mode(AomCodecAlgPrivT *ctx,
+                                                          va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.frame_parallel_decoding_mode =
       CAST(AV1E_SET_FRAME_PARALLEL_DECODING, args);
@@ -849,68 +835,66 @@ static aom_codec_err_t ctrl_set_frame_parallel_decoding_mode(
 }
 
 #if CONFIG_EXT_TILE
-static aom_codec_err_t ctrl_set_tile_encoding_mode(aom_codec_alg_priv_t *ctx,
-                                                   va_list args) {
+static AomCodecErrT ctrl_set_tile_encoding_mode(AomCodecAlgPrivT *ctx,
+                                                va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.tile_encoding_mode = CAST(AV1E_SET_TILE_ENCODING_MODE, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 #endif  // CONFIG_EXT_TILE
 
-static aom_codec_err_t ctrl_set_aq_mode(aom_codec_alg_priv_t *ctx,
-                                        va_list args) {
+static AomCodecErrT ctrl_set_aq_mode(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.aq_mode = CAST(AV1E_SET_AQ_MODE, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
 #if CONFIG_EXT_DELTA_Q
-static aom_codec_err_t ctrl_set_deltaq_mode(aom_codec_alg_priv_t *ctx,
-                                            va_list args) {
+static AomCodecErrT ctrl_set_deltaq_mode(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.deltaq_mode = CAST(AV1E_SET_DELTAQ_MODE, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 #endif
-static aom_codec_err_t ctrl_set_min_gf_interval(aom_codec_alg_priv_t *ctx,
-                                                va_list args) {
+static AomCodecErrT ctrl_set_min_gf_interval(AomCodecAlgPrivT *ctx,
+                                             va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.min_gf_interval = CAST(AV1E_SET_MIN_GF_INTERVAL, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_max_gf_interval(aom_codec_alg_priv_t *ctx,
-                                                va_list args) {
+static AomCodecErrT ctrl_set_max_gf_interval(AomCodecAlgPrivT *ctx,
+                                             va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.max_gf_interval = CAST(AV1E_SET_MAX_GF_INTERVAL, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_frame_periodic_boost(aom_codec_alg_priv_t *ctx,
-                                                     va_list args) {
+static AomCodecErrT ctrl_set_frame_periodic_boost(AomCodecAlgPrivT *ctx,
+                                                  va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.frame_periodic_boost = CAST(AV1E_SET_FRAME_PERIODIC_BOOST, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_enable_motion_vector_unit_test(
-    aom_codec_alg_priv_t *ctx, va_list args) {
+static AomCodecErrT ctrl_enable_motion_vector_unit_test(AomCodecAlgPrivT *ctx,
+                                                        va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.motion_vector_unit_test =
       CAST(AV1E_ENABLE_MOTION_VECTOR_UNIT_TEST, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
-                                    aom_codec_priv_enc_mr_cfg_t *data) {
-  aom_codec_err_t res = AOM_CODEC_OK;
+static AomCodecErrT encoder_init(AomCodecCtxT *ctx,
+                                 AomCodecPrivEncMrCfgT *data) {
+  AomCodecErrT res = AOM_CODEC_OK;
   (void)data;
 
   if (ctx->priv == NULL) {
-    aom_codec_alg_priv_t *const priv = aom_calloc(1, sizeof(*priv));
+    AomCodecAlgPrivT *const priv = aom_calloc(1, sizeof(*priv));
     if (priv == NULL) return AOM_CODEC_MEM_ERROR;
 
-    ctx->priv = (aom_codec_priv_t *)priv;
+    ctx->priv = (AomCodecPrivT *)priv;
     ctx->priv->init_flags = ctx->init_flags;
     ctx->priv->enc.total_encoders = 1;
     priv->buffer_pool = (BufferPool *)aom_calloc(1, sizeof(BufferPool));
@@ -950,7 +934,7 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
   return res;
 }
 
-static aom_codec_err_t encoder_destroy(aom_codec_alg_priv_t *ctx) {
+static AomCodecErrT encoder_destroy(AomCodecAlgPrivT *ctx) {
   free(ctx->cx_data);
   av1_remove_compressor(ctx->cpi);
 #if CONFIG_MULTITHREAD
@@ -961,7 +945,7 @@ static aom_codec_err_t encoder_destroy(aom_codec_alg_priv_t *ctx) {
   return AOM_CODEC_OK;
 }
 
-static void pick_quickcompress_mode(aom_codec_alg_priv_t *ctx,
+static void pick_quickcompress_mode(AomCodecAlgPrivT *ctx,
                                     unsigned long deadline) {
   MODE new_mode = GOOD;
 
@@ -983,7 +967,7 @@ static void pick_quickcompress_mode(aom_codec_alg_priv_t *ctx,
 
 // Turn on to test if supplemental superframe data breaks decoding
 // #define TEST_SUPPLEMENTAL_SUPERFRAME_DATA
-static int write_superframe_index(aom_codec_alg_priv_t *ctx) {
+static int write_superframe_index(AomCodecAlgPrivT *ctx) {
   uint8_t marker = 0xc0;
   unsigned int mask;
   int mag, index_sz;
@@ -1051,20 +1035,20 @@ static int write_superframe_index(aom_codec_alg_priv_t *ctx) {
 // av1 uses 10,000,000 ticks/second as time stamp
 #define TICKS_PER_SEC 10000000LL
 
-static int64_t timebase_units_to_ticks(const aom_rational_t *timebase,
+static int64_t timebase_units_to_ticks(const AomRationalT *timebase,
                                        int64_t n) {
   return n * TICKS_PER_SEC * timebase->num / timebase->den;
 }
 
-static int64_t ticks_to_timebase_units(const aom_rational_t *timebase,
+static int64_t ticks_to_timebase_units(const AomRationalT *timebase,
                                        int64_t n) {
   const int64_t round = TICKS_PER_SEC * timebase->num / 2 - 1;
   return (n * timebase->den + round) / timebase->num / TICKS_PER_SEC;
 }
 
-static aom_codec_frame_flags_t get_frame_pkt_flags(const AV1_COMP *cpi,
-                                                   unsigned int lib_flags) {
-  aom_codec_frame_flags_t flags = lib_flags << 16;
+static AomCodecFrameFlagsT get_frame_pkt_flags(const Av1Comp *cpi,
+                                               unsigned int lib_flags) {
+  AomCodecFrameFlagsT flags = lib_flags << 16;
 
   if (lib_flags & FRAMEFLAGS_KEY) flags |= AOM_FRAME_IS_KEY;
 
@@ -1073,17 +1057,15 @@ static aom_codec_frame_flags_t get_frame_pkt_flags(const AV1_COMP *cpi,
   return flags;
 }
 
-static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
-                                      const aom_image_t *img,
-                                      aom_codec_pts_t pts,
-                                      unsigned long duration,
-                                      aom_enc_frame_flags_t enc_flags,
-                                      unsigned long deadline) {
+static AomCodecErrT encoder_encode(AomCodecAlgPrivT *ctx, const AomImageT *img,
+                                   AomCodecPtsT pts, unsigned long duration,
+                                   AomEncFrameFlagsT enc_flags,
+                                   unsigned long deadline) {
   const size_t kMinCompressedSize = 8192;
-  volatile aom_codec_err_t res = AOM_CODEC_OK;
-  volatile aom_enc_frame_flags_t flags = enc_flags;
-  AV1_COMP *const cpi = ctx->cpi;
-  const aom_rational_t *const timebase = &ctx->cfg.g_timebase;
+  volatile AomCodecErrT res = AOM_CODEC_OK;
+  volatile AomEncFrameFlagsT flags = enc_flags;
+  Av1Comp *const cpi = ctx->cpi;
+  const AomRationalT *const timebase = &ctx->cfg.g_timebase;
   size_t data_sz;
 
   if (cpi == NULL) return AOM_CODEC_INVALID_PARAM;
@@ -1146,7 +1128,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
   if (res == AOM_CODEC_OK) {
     unsigned int lib_flags = 0;
-    YV12_BUFFER_CONFIG sd;
+    Yv12BufferConfig sd;
     int64_t dst_time_stamp = timebase_units_to_ticks(timebase, pts);
     int64_t dst_end_time_stamp =
         timebase_units_to_ticks(timebase, pts + duration);
@@ -1199,7 +1181,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       }
 #endif
       if (size) {
-        aom_codec_cx_pkt_t pkt;
+        AomCodecCxPktT pkt;
 
         // Pack invisible frames with the next visible frame
         if (!cpi->common.show_frame) {
@@ -1246,17 +1228,16 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   return res;
 }
 
-static const aom_codec_cx_pkt_t *encoder_get_cxdata(aom_codec_alg_priv_t *ctx,
-                                                    aom_codec_iter_t *iter) {
+static const AomCodecCxPktT *encoder_get_cxdata(AomCodecAlgPrivT *ctx,
+                                                AomCodecIterT *iter) {
   return aom_codec_pkt_list_get(&ctx->pkt_list.head, iter);
 }
 
-static aom_codec_err_t ctrl_set_reference(aom_codec_alg_priv_t *ctx,
-                                          va_list args) {
-  aom_ref_frame_t *const frame = va_arg(args, aom_ref_frame_t *);
+static AomCodecErrT ctrl_set_reference(AomCodecAlgPrivT *ctx, va_list args) {
+  AomRefFrameT *const frame = va_arg(args, AomRefFrameT *);
 
   if (frame != NULL) {
-    YV12_BUFFER_CONFIG sd;
+    Yv12BufferConfig sd;
 
     image2yuvconfig(&frame->img, &sd);
     av1_set_reference_enc(ctx->cpi, ref_frame_to_av1_reframe(frame->frame_type),
@@ -1267,12 +1248,11 @@ static aom_codec_err_t ctrl_set_reference(aom_codec_alg_priv_t *ctx,
   }
 }
 
-static aom_codec_err_t ctrl_copy_reference(aom_codec_alg_priv_t *ctx,
-                                           va_list args) {
-  aom_ref_frame_t *const frame = va_arg(args, aom_ref_frame_t *);
+static AomCodecErrT ctrl_copy_reference(AomCodecAlgPrivT *ctx, va_list args) {
+  AomRefFrameT *const frame = va_arg(args, AomRefFrameT *);
 
   if (frame != NULL) {
-    YV12_BUFFER_CONFIG sd;
+    Yv12BufferConfig sd;
 
     image2yuvconfig(&frame->img, &sd);
     av1_copy_reference_enc(ctx->cpi,
@@ -1283,12 +1263,11 @@ static aom_codec_err_t ctrl_copy_reference(aom_codec_alg_priv_t *ctx,
   }
 }
 
-static aom_codec_err_t ctrl_get_reference(aom_codec_alg_priv_t *ctx,
-                                          va_list args) {
-  av1_ref_frame_t *const frame = va_arg(args, av1_ref_frame_t *);
+static AomCodecErrT ctrl_get_reference(AomCodecAlgPrivT *ctx, va_list args) {
+  Av1RefFrameT *const frame = va_arg(args, Av1RefFrameT *);
 
   if (frame != NULL) {
-    YV12_BUFFER_CONFIG *fb = get_ref_frame(&ctx->cpi->common, frame->idx);
+    Yv12BufferConfig *fb = get_ref_frame(&ctx->cpi->common, frame->idx);
     if (fb == NULL) return AOM_CODEC_ERROR;
 
     yuvconfig2image(&frame->img, fb, NULL);
@@ -1298,12 +1277,12 @@ static aom_codec_err_t ctrl_get_reference(aom_codec_alg_priv_t *ctx,
   }
 }
 
-static aom_codec_err_t ctrl_get_new_frame_image(aom_codec_alg_priv_t *ctx,
-                                                va_list args) {
-  aom_image_t *const new_img = va_arg(args, aom_image_t *);
+static AomCodecErrT ctrl_get_new_frame_image(AomCodecAlgPrivT *ctx,
+                                             va_list args) {
+  AomImageT *const new_img = va_arg(args, AomImageT *);
 
   if (new_img != NULL) {
-    YV12_BUFFER_CONFIG new_frame;
+    Yv12BufferConfig new_frame;
 
     if (av1_get_last_show_frame(ctx->cpi, &new_frame) == 0) {
       yuvconfig2image(new_img, &new_frame, NULL);
@@ -1316,15 +1295,14 @@ static aom_codec_err_t ctrl_get_new_frame_image(aom_codec_alg_priv_t *ctx,
   }
 }
 
-static aom_codec_err_t ctrl_set_previewpp(aom_codec_alg_priv_t *ctx,
-                                          va_list args) {
+static AomCodecErrT ctrl_set_previewpp(AomCodecAlgPrivT *ctx, va_list args) {
   (void)ctx;
   (void)args;
   return AOM_CODEC_INCAPABLE;
 }
 
-static aom_image_t *encoder_get_preview(aom_codec_alg_priv_t *ctx) {
-  YV12_BUFFER_CONFIG sd;
+static AomImageT *encoder_get_preview(AomCodecAlgPrivT *ctx) {
+  Yv12BufferConfig sd;
 
   if (av1_get_preview_raw_frame(ctx->cpi, &sd) == 0) {
     yuvconfig2image(&ctx->preview_img, &sd, NULL);
@@ -1334,16 +1312,14 @@ static aom_image_t *encoder_get_preview(aom_codec_alg_priv_t *ctx) {
   }
 }
 
-static aom_codec_err_t ctrl_use_reference(aom_codec_alg_priv_t *ctx,
-                                          va_list args) {
+static AomCodecErrT ctrl_use_reference(AomCodecAlgPrivT *ctx, va_list args) {
   const int reference_flag = va_arg(args, int);
 
   av1_use_as_reference(ctx->cpi, reference_flag);
   return AOM_CODEC_OK;
 }
 
-static aom_codec_err_t ctrl_set_roi_map(aom_codec_alg_priv_t *ctx,
-                                        va_list args) {
+static AomCodecErrT ctrl_set_roi_map(AomCodecAlgPrivT *ctx, va_list args) {
   (void)ctx;
   (void)args;
 
@@ -1351,9 +1327,8 @@ static aom_codec_err_t ctrl_set_roi_map(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_INVALID_PARAM;
 }
 
-static aom_codec_err_t ctrl_set_active_map(aom_codec_alg_priv_t *ctx,
-                                           va_list args) {
-  aom_active_map_t *const map = va_arg(args, aom_active_map_t *);
+static AomCodecErrT ctrl_set_active_map(AomCodecAlgPrivT *ctx, va_list args) {
+  AomActiveMapT *const map = va_arg(args, AomActiveMapT *);
 
   if (map) {
     if (!av1_set_active_map(ctx->cpi, map->active_map, (int)map->rows,
@@ -1366,9 +1341,8 @@ static aom_codec_err_t ctrl_set_active_map(aom_codec_alg_priv_t *ctx,
   }
 }
 
-static aom_codec_err_t ctrl_get_active_map(aom_codec_alg_priv_t *ctx,
-                                           va_list args) {
-  aom_active_map_t *const map = va_arg(args, aom_active_map_t *);
+static AomCodecErrT ctrl_get_active_map(AomCodecAlgPrivT *ctx, va_list args) {
+  AomActiveMapT *const map = va_arg(args, AomActiveMapT *);
 
   if (map) {
     if (!av1_get_active_map(ctx->cpi, map->active_map, (int)map->rows,
@@ -1381,43 +1355,38 @@ static aom_codec_err_t ctrl_get_active_map(aom_codec_alg_priv_t *ctx,
   }
 }
 
-static aom_codec_err_t ctrl_set_scale_mode(aom_codec_alg_priv_t *ctx,
-                                           va_list args) {
-  aom_scaling_mode_t *const mode = va_arg(args, aom_scaling_mode_t *);
+static AomCodecErrT ctrl_set_scale_mode(AomCodecAlgPrivT *ctx, va_list args) {
+  AomScalingModeT *const mode = va_arg(args, AomScalingModeT *);
 
   if (mode) {
     const int res =
-        av1_set_internal_size(ctx->cpi, (AOM_SCALING)mode->h_scaling_mode,
-                              (AOM_SCALING)mode->v_scaling_mode);
+        av1_set_internal_size(ctx->cpi, (AomScaling)mode->h_scaling_mode,
+                              (AomScaling)mode->v_scaling_mode);
     return (res == 0) ? AOM_CODEC_OK : AOM_CODEC_INVALID_PARAM;
   } else {
     return AOM_CODEC_INVALID_PARAM;
   }
 }
 
-static aom_codec_err_t ctrl_set_tune_content(aom_codec_alg_priv_t *ctx,
-                                             va_list args) {
+static AomCodecErrT ctrl_set_tune_content(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.content = CAST(AV1E_SET_TUNE_CONTENT, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_color_space(aom_codec_alg_priv_t *ctx,
-                                            va_list args) {
+static AomCodecErrT ctrl_set_color_space(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.color_space = CAST(AV1E_SET_COLOR_SPACE, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_color_range(aom_codec_alg_priv_t *ctx,
-                                            va_list args) {
+static AomCodecErrT ctrl_set_color_range(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.color_range = CAST(AV1E_SET_COLOR_RANGE, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_render_size(aom_codec_alg_priv_t *ctx,
-                                            va_list args) {
+static AomCodecErrT ctrl_set_render_size(AomCodecAlgPrivT *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   int *const render_size = va_arg(args, int *);
   extra_cfg.render_width = render_size[0];
@@ -1425,23 +1394,23 @@ static aom_codec_err_t ctrl_set_render_size(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-static aom_codec_err_t ctrl_set_superblock_size(aom_codec_alg_priv_t *ctx,
-                                                va_list args) {
+static AomCodecErrT ctrl_set_superblock_size(AomCodecAlgPrivT *ctx,
+                                             va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.superblock_size = CAST(AV1E_SET_SUPERBLOCK_SIZE, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
-static aom_codec_err_t ctrl_set_ans_window_size_log2(aom_codec_alg_priv_t *ctx,
-                                                     va_list args) {
+static AomCodecErrT ctrl_set_ans_window_size_log2(AomCodecAlgPrivT *ctx,
+                                                  va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.ans_window_size_log2 = CAST(AV1E_SET_ANS_WINDOW_SIZE_LOG2, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 #endif
 
-static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
+static AomCodecCtrlFnMapT encoder_ctrl_maps[] = {
   { AOM_COPY_REFERENCE, ctrl_copy_reference },
   { AOME_USE_REFERENCE, ctrl_use_reference },
 
@@ -1518,7 +1487,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { -1, NULL },
 };
 
-static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
+static AomCodecEncCfgMapT encoder_usage_cfg_map[] = {
   { 0,
     {
         // NOLINT
@@ -1579,27 +1548,27 @@ CODEC_INTERFACE(aom_codec_av1_cx) = {
 #if CONFIG_HIGHBITDEPTH
   AOM_CODEC_CAP_HIGHBITDEPTH |
 #endif
-      AOM_CODEC_CAP_ENCODER | AOM_CODEC_CAP_PSNR,  // aom_codec_caps_t
-  encoder_init,                                    // aom_codec_init_fn_t
-  encoder_destroy,                                 // aom_codec_destroy_fn_t
-  encoder_ctrl_maps,                               // aom_codec_ctrl_fn_map_t
+      AOM_CODEC_CAP_ENCODER | AOM_CODEC_CAP_PSNR,  // AomCodecCapsT
+  encoder_init,                                    // AomCodecInitFnT
+  encoder_destroy,                                 // AomCodecDestroyFnT
+  encoder_ctrl_maps,                               // AomCodecCtrlFnMapT
   {
       // NOLINT
-      NULL,  // aom_codec_peek_si_fn_t
-      NULL,  // aom_codec_get_si_fn_t
-      NULL,  // aom_codec_decode_fn_t
+      NULL,  // AomCodecPeekSiFnT
+      NULL,  // AomCodecGetSiFnT
+      NULL,  // AomCodecDecodeFnT
       NULL,  // aom_codec_frame_get_fn_t
-      NULL   // aom_codec_set_fb_fn_t
+      NULL   // AomCodecSetFbFnT
   },
   {
       // NOLINT
       1,                      // 1 cfg map
-      encoder_usage_cfg_map,  // aom_codec_enc_cfg_map_t
-      encoder_encode,         // aom_codec_encode_fn_t
-      encoder_get_cxdata,     // aom_codec_get_cx_data_fn_t
-      encoder_set_config,     // aom_codec_enc_config_set_fn_t
-      NULL,                   // aom_codec_get_global_headers_fn_t
-      encoder_get_preview,    // aom_codec_get_preview_frame_fn_t
-      NULL                    // aom_codec_enc_mr_get_mem_loc_fn_t
+      encoder_usage_cfg_map,  // AomCodecEncCfgMapT
+      encoder_encode,         // AomCodecEncodeFnT
+      encoder_get_cxdata,     // AomCodecGetCxDataFnT
+      encoder_set_config,     // AomCodecEncConfigSetFnT
+      NULL,                   // AomCodecGetGlobalHeadersFnT
+      encoder_get_preview,    // AomCodecGetPreviewFrameFnT
+      NULL                    // AomCodecEncMrGetMemLocFnT
   }
 };
