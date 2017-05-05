@@ -69,6 +69,24 @@
       "revId": "fae0eb9f81438f31e1a68c84d5039c2c544372e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6394cac_4d22f5fe",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-05-05T23:54:58Z",
+      "side": 1,
+      "message": "The issue was fixed here: https://aomedia.googlesource.com/aom/+/e180478aba4949d0280de55c166564c7354ea5d4",
+      "parentUuid": "6a3bfa72_4e09c0f8",
+      "revId": "fae0eb9f81438f31e1a68c84d5039c2c544372e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
