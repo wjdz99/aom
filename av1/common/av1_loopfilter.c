@@ -599,6 +599,20 @@ static void highbd_filter_selectively_vert_row2(
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
+#if CONFIG_ASYMMETRIC_LPF
+typedef struct {
+  unsigned int m16x16;
+  unsigned int m8x8;
+  unsigned int m4x4;
+  unsigned int m4x8;
+  unsigned int m4x16;
+  unsigned int m8x4;
+  unsigned int m8x16;
+  unsigned int m16x4;
+  unsigned int m16x8;
+} FilterMasks;
+#endif  // CONFIG_ASYMMETRIC_LPF
+
 static void filter_selectively_horiz(
     uint8_t *s, int pitch, unsigned int mask_16x16, unsigned int mask_8x8,
     unsigned int mask_4x4, unsigned int mask_4x4_int,
@@ -683,6 +697,7 @@ static void filter_selectively_horiz(
                              lfi->hev_thr);
       }
     }
+
     s += 8 * count;
     lfl += count;
     mask_16x16 >>= count;
@@ -1287,6 +1302,71 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
   assert(!(lfm->above_int_4x4_uv & lfm->above_uv[TX_16X16]));
 }
 
+#if CONFIG_ASYMMETRIC_LPF
+static void filter_selectively_vert_asymmetric(uint8_t *s, int pitch,
+                                               FilterMasks masks,
+                                               unsigned int border_mask,
+                                               unsigned int mask_4x4_int,
+                                               const loop_filter_info_n *lfi_n,
+                                               const uint8_t *lfl) {
+  unsigned int mask;
+  masks.m16x16 &= border_mask;
+  masks.m8x8 &= border_mask;
+  masks.m4x4 &= border_mask;
+  masks.m4x8 &= border_mask;
+  masks.m4x16 &= border_mask;
+  masks.m8x4 &= border_mask;
+  masks.m8x16 &= border_mask;
+  masks.m16x4 &= border_mask;
+  masks.m16x8 &= border_mask;
+
+  for (mask = masks.m16x16 | masks.m8x8 | masks.m4x4 | masks.m4x8 |
+              masks.m4x16 | masks.m8x4 | masks.m8x16 | masks.m16x4 |
+              masks.m16x8 | mask_4x4_int;
+       mask; mask >>= 1) {
+    const loop_filter_thresh *lfi = lfi_n->lfthr + *lfl;
+
+    if (mask & 1) {
+      if (masks.m16x16 & 1) {
+        aom_lpf_vertical_16(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
+      } else if (masks.m8x8 & 1) {
+        aom_lpf_vertical_8(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
+      } else if (masks.m4x4 & 1) {
+        aom_lpf_vertical_4(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
+      } else if (masks.m4x8 & 1) {
+        // apply vertical 4x8 filtering
+      } else if (masks.m4x16 & 1) {
+        // apply vertical 4x16 filtering
+      } else if (masks.m8x4 & 1) {
+        // apply vertical 8x4 filtering
+      } else if (masks.m8x16 & 1) {
+        // apply vertical 8x16 filtering
+      } else if (masks.m16x4 & 1) {
+        // apply vertical 16x4 filtering
+      } else if (masks.m16x8 & 1) {
+        // apply vertical 16x8 filtering
+      }
+    }
+
+    if (mask_4x4_int & 1)
+      aom_lpf_vertical_4(s + 4, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
+
+    s += 8;
+    lfl += 1;
+    mask_4x4_int >>= 1;
+    masks.m16x16 >>= 1;
+    masks.m8x8 >>= 1;
+    masks.m4x4 >>= 1;
+    masks.m4x8 >>= 1;
+    masks.m4x16 >>= 1;
+    masks.m8x4 >>= 1;
+    masks.m8x16 >>= 1;
+    masks.m16x4 >>= 1;
+    masks.m16x8 >>= 1;
+  }
+}
+
+#else   // CONFIG_ASYMMETRIC_LPF
 static void filter_selectively_vert(
     uint8_t *s, int pitch, unsigned int mask_16x16, unsigned int mask_8x8,
     unsigned int mask_4x4, unsigned int mask_4x4_int,
@@ -1306,8 +1386,10 @@ static void filter_selectively_vert(
         aom_lpf_vertical_4(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
       }
     }
+
     if (mask_4x4_int & 1)
       aom_lpf_vertical_4(s + 4, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
+
     s += 8;
     lfl += 1;
     mask_16x16 >>= 1;
@@ -1316,6 +1398,7 @@ static void filter_selectively_vert(
     mask_4x4_int >>= 1;
   }
 }
+#endif  // CONFIG_ASYMMETRIC_LPF
 
 #if CONFIG_HIGHBITDEPTH
 static void highbd_filter_selectively_vert(
@@ -1353,11 +1436,224 @@ static void highbd_filter_selectively_vert(
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
+#if CONFIG_ASYMMETRIC_LPF
+#define VERTICAL 0
+#define HORIZONTAL 1
+
+static void get_filter_level_row(AV1_COMMON *const cm,
+                                 const struct macroblockd_plane *const plane,
+                                 MODE_INFO **mib, int mi_col, int idx_r,
+                                 uint8_t *const lfl_r) {
+  const int ss_x = plane->subsampling_x;
+  const int col_step = mi_size_wide[BLOCK_8X8] << ss_x;
+
+  // Determine the vertical edges that need filtering
+  int idx_c;
+  for (idx_c = 0; idx_c < cm->mib_size && mi_col + idx_c < cm->mi_cols;
+       idx_c += col_step) {
+    // Get mbmi info of current block
+    const MODE_INFO *mi = mib[idx_r * cm->mi_stride + idx_c];
+    const MB_MODE_INFO *mbmi = &mi[0].mbmi;
+    const int c = idx_c >> mi_width_log2_lookup[BLOCK_8X8];
+    const int c_step = (c >> ss_x);
+// Filter level can vary per MI
+#if CONFIG_EXT_DELTA_Q
+    if (!(lfl_r[c_step] = get_filter_level(cm, &cm->lf_info, mbmi))) continue;
+#else
+    if (!(lfl_r[c_step] = get_filter_level(&cm->lf_info, mbmi))) continue;
+#endif
+  }
+}
+
+static void build_asymmetric_masks(AV1_COMMON *const cm,
+                                   const struct macroblockd_plane *const plane,
+                                   int pl, MODE_INFO **mib, int mi_row,
+                                   int mi_col, int idx_r,
+                                   unsigned int *const mask_4x4_int,
+                                   FilterMasks *const masks, int direction) {
+  assert((direction == VERTICAL) || (direction == HORIZONTAL));
+
+  const int ss_x = plane->subsampling_x;
+  const int ss_y = plane->subsampling_y;
+  const int col_step = mi_size_wide[BLOCK_8X8] << ss_x;
+  memset(masks, 0, sizeof(FilterMasks));
+  *mask_4x4_int = 0;
+  const int r = idx_r >> mi_height_log2_lookup[BLOCK_8X8];
+
+  // Determine the vertical edges that need filtering
+  int idx_c;
+  for (idx_c = 0; idx_c < cm->mib_size && mi_col + idx_c < cm->mi_cols;
+       idx_c += col_step) {
+    // Get mbmi info of current block
+    const MODE_INFO *mi = mib[idx_r * cm->mi_stride + idx_c];
+    const MB_MODE_INFO *mbmi = &mi[0].mbmi;
+    const BLOCK_SIZE sb_type = mbmi->sb_type;
+    const int skip_this = mbmi->skip && is_inter_block(mbmi);
+    const int c = idx_c >> mi_width_log2_lookup[BLOCK_8X8];
+
+    const int blk_row = r & (num_8x8_blocks_high_lookup[sb_type] - 1);
+    const int blk_col = c & (num_8x8_blocks_wide_lookup[sb_type] - 1);
+
+    // left edge of current unit is block/partition edge -> no skip
+    const int block_edge_left =
+        (num_4x4_blocks_wide_lookup[sb_type] > 1) ? !blk_col : 1;
+    const int skip_this_c = skip_this && !block_edge_left;
+    // top edge of current unit is block/partition edge -> no skip
+    const int block_edge_above =
+        (num_4x4_blocks_high_lookup[sb_type] > 1) ? !blk_row : 1;
+    const int skip_this_r = skip_this && !block_edge_above;
+
+    TX_SIZE tx_size = (plane->plane_type == PLANE_TYPE_UV)
+                          ? get_uv_tx_size(mbmi, plane)
+                          : mbmi->tx_size;
+
+    const int skip_border_4x4_c =
+        ss_x && mi_col + idx_c >= cm->mi_cols - mi_size_wide[BLOCK_8X8];
+    const int skip_border_4x4_r =
+        ss_y && mi_row + idx_r >= cm->mi_rows - mi_size_high[BLOCK_8X8];
+
+#if CONFIG_VAR_TX
+    if (is_inter_block(mbmi) && !mbmi->skip) {
+      const int tx_row_idx =
+          (blk_row * mi_size_high[BLOCK_8X8] << TX_UNIT_HIGH_LOG2) >> 1;
+      const int tx_col_idx =
+          (blk_col * mi_size_wide[BLOCK_8X8] << TX_UNIT_WIDE_LOG2) >> 1;
+      const BLOCK_SIZE bsize =
+          AOMMAX(BLOCK_4X4, get_plane_block_size(mbmi->sb_type, plane));
+      const TX_SIZE mb_tx_size = mbmi->inter_tx_size[tx_row_idx][tx_col_idx];
+      tx_size = (plane->plane_type == PLANE_TYPE_UV)
+                    ? uv_txsize_lookup[bsize][mb_tx_size][0][0]
+                    : mb_tx_size;
+    }
+
+    TX_SIZE tx_size_r, tx_size_c, tx_size_prev_r, tx_size_prev_c;
+
+    const int tx_wide = tx_size_wide[tx_size];
+    const int tx_high = tx_size_high[tx_size];
+
+    const int tx_wide_prev =
+        tx_size_wide[cm->top_txfm_context[pl][(mi_col + idx_c)
+                                              << TX_UNIT_WIDE_LOG2]];
+    const int tx_high_prev =
+        tx_size_high[cm->left_txfm_context[pl][((mi_row + idx_r) & MAX_MIB_MASK)
+                                               << TX_UNIT_HIGH_LOG2]];
+
+    tx_size_c = get_sqr_tx_size(tx_wide);
+    tx_size_r = get_sqr_tx_size(tx_high);
+    tx_size_prev_c = get_sqr_tx_size(tx_wide_prev);
+    tx_size_prev_r = get_sqr_tx_size(tx_high_prev);
+
+    memset(cm->top_txfm_context[pl] + ((mi_col + idx_c) << TX_UNIT_WIDE_LOG2),
+           tx_size, mi_size_wide[BLOCK_8X8] << TX_UNIT_WIDE_LOG2);
+    memset(cm->left_txfm_context[pl] +
+               (((mi_row + idx_r) & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2),
+           tx_size, mi_size_high[BLOCK_8X8] << TX_UNIT_HIGH_LOG2);
+#else
+    TX_SIZE tx_size_c = txsize_horz_map[tx_size];
+    TX_SIZE tx_size_r = txsize_vert_map[tx_size];
+    (void)pl;
+#endif  // CONFIG_VAR_TX
+
+    int tx_size_mask = 0;
+    const int c_step = (c >> ss_x);
+    const int r_step = (r >> ss_y);
+    const int col_mask = 1 << c_step;
+
+    // Build vertical masks based on transform sizes of blocks
+    // on the two sides of edge.
+    TX_SIZE tx_size_tmp, tx_size_prev_tmp;
+    int skip_this_tmp, skip_border_4x4_tmp, step_tmp;
+
+    switch (direction) {
+      case VERTICAL:
+        tx_size_tmp = tx_size_c;
+        skip_this_tmp = skip_this_c;
+        skip_border_4x4_tmp = skip_border_4x4_c;
+        step_tmp = c_step;
+        tx_size_prev_tmp = tx_size_prev_c;
+        break;
+      case HORIZONTAL:
+        tx_size_tmp = tx_size_r;
+        skip_this_tmp = skip_this_r;
+        skip_border_4x4_tmp = skip_border_4x4_r;
+        step_tmp = r_step;
+        tx_size_prev_tmp = tx_size_prev_r;
+        break;
+    }
+
+    if (tx_size_tmp == TX_32X32)
+      tx_size_mask = 3;
+    else if (tx_size_tmp == TX_16X16)
+      tx_size_mask = 1;
+    else
+      tx_size_mask = 0;
+
+    // current filter is up to 15 tap, so TX_32X32 is the same as TX_16X16
+    if (tx_size_tmp == TX_32X32 || tx_size_tmp == TX_16X16) {
+      if (!skip_this_tmp && (step_tmp & tx_size_mask) == 0) {
+        if (!skip_border_4x4_tmp) {
+          switch (tx_size_prev_tmp) {
+            case TX_4X4: (*masks).m4x16 |= col_mask; break;
+            case TX_8X8: (*masks).m8x16 |= col_mask; break;
+            case TX_16X16: (*masks).m16x16 |= col_mask; break;
+            case TX_32X32: (*masks).m16x16 |= col_mask; break;
+            default: break;
+          }
+        } else {
+          switch (tx_size_prev_tmp) {
+            case TX_4X4: (*masks).m4x8 |= col_mask; break;
+            case TX_8X8: (*masks).m8x8 |= col_mask; break;
+            case TX_16X16: (*masks).m16x8 |= col_mask; break;
+            case TX_32X32: (*masks).m16x8 |= col_mask; break;
+            default: break;
+          }
+        }
+      }
+    } else if (tx_size_tmp == TX_8X8) {
+      if (!skip_this_tmp && (step_tmp & tx_size_mask) == 0) {
+        if (!skip_border_4x4_tmp) {
+          switch (tx_size_prev_tmp) {
+            case TX_4X4: (*masks).m4x8 |= col_mask; break;
+            case TX_8X8: (*masks).m8x8 |= col_mask; break;
+            case TX_16X16: (*masks).m16x8 |= col_mask; break;
+            case TX_32X32: (*masks).m16x8 |= col_mask; break;
+            default: break;
+          }
+        } else {
+          switch (tx_size_prev_tmp) {
+            case TX_4X4: (*masks).m4x4 |= col_mask; break;
+            case TX_8X8: (*masks).m8x4 |= col_mask; break;
+            case TX_16X16: (*masks).m16x4 |= col_mask; break;
+            case TX_32X32: (*masks).m16x4 |= col_mask; break;
+            default: break;
+          }
+        }
+      }
+    } else {  // TX_4X4
+      if (!skip_this_tmp && (step_tmp & tx_size_mask) == 0) {
+        switch (tx_size_prev_tmp) {
+          case TX_4X4: (*masks).m4x4 |= col_mask; break;
+          case TX_8X8: (*masks).m8x4 |= col_mask; break;
+          case TX_16X16: (*masks).m16x4 |= col_mask; break;
+          case TX_32X32: (*masks).m16x4 |= col_mask; break;
+          default: break;
+        }
+      }
+
+      if (!skip_this && !skip_border_4x4_tmp && (step_tmp & tx_size_mask) == 0)
+        *mask_4x4_int |= col_mask;
+    }
+  }
+}
+#endif  // CONFIG_ASYMMETRIC_LPF
+
+#if !CONFIG_ASYMMETRIC_LPF
 typedef struct {
   unsigned int m16x16;
   unsigned int m8x8;
   unsigned int m4x4;
 } FilterMasks;
+#endif  // CONFIG_ASYMMETRIC_LPF
 
 // Get filter level and masks for the given row index 'idx_r'. (Only used for
 // the non420 case).
@@ -1558,9 +1854,15 @@ void av1_filter_block_plane_non420_ver(AV1_COMMON *const cm,
     unsigned int mask_4x4_int;
     FilterMasks col_masks;
     const int r = idx_r >> mi_height_log2_lookup[BLOCK_8X8];
+#if CONFIG_ASYMMETRIC_LPF
+    get_filter_level_row(cm, plane, mib, mi_col, idx_r, &lfl[r][0]);
+    build_asymmetric_masks(cm, plane, pl, mib, mi_row, mi_col, idx_r,
+                           &mask_4x4_int, &col_masks, VERTICAL);
+#else
     get_filter_level_and_masks_non420(cm, plane, pl, mib, mi_row, mi_col, idx_r,
                                       &lfl[r][0], NULL, &mask_4x4_int, NULL,
                                       &col_masks);
+#endif  // CONFIG_ASYMMETRIC_LPF
 
     // Disable filtering on the leftmost column or tile boundary
     unsigned int border_mask = ~(mi_col == 0);
@@ -1580,10 +1882,16 @@ void av1_filter_block_plane_non420_ver(AV1_COMMON *const cm,
           (int)cm->bit_depth);
     else
 #endif  // CONFIG_HIGHBITDEPTH
-      filter_selectively_vert(
-          dst->buf, dst->stride, col_masks.m16x16 & border_mask,
-          col_masks.m8x8 & border_mask, col_masks.m4x4 & border_mask,
-          mask_4x4_int, &cm->lf_info, &lfl[r][0]);
+#if CONFIG_ASYMMETRIC_LPF
+      filter_selectively_vert_asymmetric(dst->buf, dst->stride, col_masks,
+                                         border_mask, mask_4x4_int,
+                                         &cm->lf_info, &lfl[r][0]);
+#else
+    filter_selectively_vert(
+        dst->buf, dst->stride, col_masks.m16x16 & border_mask,
+        col_masks.m8x8 & border_mask, col_masks.m4x4 & border_mask,
+        mask_4x4_int, &cm->lf_info, &lfl[r][0]);
+#endif  // CONFIG_ASYMMETRIC_LPF
     dst->buf += 8 * dst->stride;
   }
 
