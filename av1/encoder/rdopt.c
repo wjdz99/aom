@@ -2494,14 +2494,25 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     for (n = colors > PALETTE_MAX_SIZE ? PALETTE_MAX_SIZE : colors; n >= 2;
          --n) {
-      for (i = 0; i < n; ++i)
-        centroids[i] = lb + (2 * i + 1) * (ub - lb) / n / 2;
-      av1_k_means(data, centroids, color_map, rows * cols, n, 1, max_itr);
-      k = av1_remove_duplicates(centroids, n);
-      if (k < PALETTE_MIN_SIZE) {
-        // Too few unique colors to create a palette. And DC_PRED will work well
-        // for that case anyway. So skip.
-        continue;
+      if (colors == PALETTE_MIN_SIZE) {
+        // Special case: These colors automatically become the centroids.
+        assert(colors == n);
+        assert(colors == 2);
+        centroids[0] = lb;
+        centroids[1] = ub;
+        k = 2;
+      } else {
+        for (i = 0; i < n; ++i) {
+          centroids[i] = lb + (2 * i + 1) * (ub - lb) / n / 2;
+        }
+        av1_k_means(data, centroids, color_map, rows * cols, n, 1, max_itr);
+        k = av1_remove_duplicates(centroids, n);
+        if (k < PALETTE_MIN_SIZE) {
+          // Too few unique colors to create a palette. And DC_PRED will work
+          // well
+          // for that case anyway. So skip.
+          continue;
+        }
       }
 
 #if CONFIG_HIGHBITDEPTH
@@ -4536,27 +4547,38 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     for (n = colors > PALETTE_MAX_SIZE ? PALETTE_MAX_SIZE : colors; n >= 2;
          --n) {
-      for (i = 0; i < n; ++i) {
-        centroids[i * 2] = lb_u + (2 * i + 1) * (ub_u - lb_u) / n / 2;
-        centroids[i * 2 + 1] = lb_v + (2 * i + 1) * (ub_v - lb_v) / n / 2;
-      }
-      av1_k_means(data, centroids, color_map, rows * cols, n, 2, max_itr);
-#if CONFIG_PALETTE_DELTA_ENCODING
-      // Sort the U channel colors in ascending order.
-      for (i = 0; i < 2 * (n - 1); i += 2) {
-        int min_idx = i;
-        float min_val = centroids[i];
-        for (j = i + 2; j < 2 * n; j += 2)
-          if (centroids[j] < min_val) min_val = centroids[j], min_idx = j;
-        if (min_idx != i) {
-          float temp_u = centroids[i], temp_v = centroids[i + 1];
-          centroids[i] = centroids[min_idx];
-          centroids[i + 1] = centroids[min_idx + 1];
-          centroids[min_idx] = temp_u, centroids[min_idx + 1] = temp_v;
+      if (colors == PALETTE_MIN_SIZE) {
+        // Special case: These colors automatically become the centroids.
+        assert(colors == n);
+        assert(colors == 2);
+        centroids[0 * 2] = lb_u;
+        centroids[0 * 2 + 1] = lb_v;
+        centroids[1 * 2] = ub_u;
+        centroids[1 * 2 + 1] = ub_v;
+        av1_calc_indices(data, centroids, color_map, rows * cols, n, 2);
+      } else {
+        for (i = 0; i < n; ++i) {
+          centroids[i * 2] = lb_u + (2 * i + 1) * (ub_u - lb_u) / n / 2;
+          centroids[i * 2 + 1] = lb_v + (2 * i + 1) * (ub_v - lb_v) / n / 2;
         }
-      }
-      av1_calc_indices(data, centroids, color_map, rows * cols, n, 2);
+        av1_k_means(data, centroids, color_map, rows * cols, n, 2, max_itr);
+#if CONFIG_PALETTE_DELTA_ENCODING
+        // Sort the U channel colors in ascending order.
+        for (i = 0; i < 2 * (n - 1); i += 2) {
+          int min_idx = i;
+          float min_val = centroids[i];
+          for (j = i + 2; j < 2 * n; j += 2)
+            if (centroids[j] < min_val) min_val = centroids[j], min_idx = j;
+          if (min_idx != i) {
+            float temp_u = centroids[i], temp_v = centroids[i + 1];
+            centroids[i] = centroids[min_idx];
+            centroids[i + 1] = centroids[min_idx + 1];
+            centroids[min_idx] = temp_u, centroids[min_idx + 1] = temp_v;
+          }
+        }
+        av1_calc_indices(data, centroids, color_map, rows * cols, n, 2);
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
+      }
       extend_palette_color_map(color_map, cols, rows, plane_block_width,
                                plane_block_height);
       pmi->palette_size[1] = n;
