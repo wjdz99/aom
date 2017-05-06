@@ -953,7 +953,7 @@ static void choose_partitioning(AV1_COMP *const cpi, ThreadData *const td,
       x->pred_mv[LAST_FRAME] = mbmi->mv[0].as_mv;
     }
 
-    av1_build_inter_predictors_sb(xd, mi_row, mi_col, NULL, cm->sb_size);
+    av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, cm->sb_size);
 
     ref = xd->plane[0].dst.buf;
     ref_stride = xd->plane[0].dst.stride;
@@ -6014,9 +6014,9 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
                            &xd->block_refs[ref]->sf);
     }
     if (!(cpi->sf.reuse_inter_pred_sby && ctx->pred_pixel_ready) || seg_skip)
-      av1_build_inter_predictors_sby(xd, mi_row, mi_col, NULL, block_size);
+      av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, NULL, block_size);
 
-    av1_build_inter_predictors_sbuv(xd, mi_row, mi_col, NULL, block_size);
+    av1_build_inter_predictors_sbuv(cm, xd, mi_row, mi_col, NULL, block_size);
 #if CONFIG_MOTION_VAR
     if (mbmi->motion_mode == OBMC_CAUSAL) {
 #if CONFIG_NCOBMC

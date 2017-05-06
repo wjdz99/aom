@@ -254,7 +254,7 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
 #endif  // CONFIG_COMPOUND_SEGMENT
 #endif  // CONFIG_EXT_INTER
 
-void build_inter_predictors(MACROBLOCKD *xd, int plane,
+void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #if CONFIG_MOTION_VAR
                             int mi_col_offset, int mi_row_offset,
 #endif  // CONFIG_MOTION_VAR
@@ -526,17 +526,21 @@ static INLINE MV average_split_mvs(const struct macroblockd_plane *pd,
   return res;
 }
 
-void av1_build_inter_predictor_sub8x8(MACROBLOCKD *xd, int plane, int i, int ir,
-                                      int ic, int mi_row, int mi_col);
+void av1_build_inter_predictor_sub8x8(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                      int plane, int i, int ir, int ic,
+                                      int mi_row, int mi_col);
 
-void av1_build_inter_predictors_sby(MACROBLOCKD *xd, int mi_row, int mi_col,
-                                    BUFFER_SET *ctx, BLOCK_SIZE bsize);
+void av1_build_inter_predictors_sby(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                    int mi_row, int mi_col, BUFFER_SET *ctx,
+                                    BLOCK_SIZE bsize);
 
-void av1_build_inter_predictors_sbuv(MACROBLOCKD *xd, int mi_row, int mi_col,
-                                     BUFFER_SET *ctx, BLOCK_SIZE bsize);
+void av1_build_inter_predictors_sbuv(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                     int mi_row, int mi_col, BUFFER_SET *ctx,
+                                     BLOCK_SIZE bsize);
 
-void av1_build_inter_predictors_sb(MACROBLOCKD *xd, int mi_row, int mi_col,
-                                   BUFFER_SET *ctx, BLOCK_SIZE bsize);
+void av1_build_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                   int mi_row, int mi_col, BUFFER_SET *ctx,
+                                   BLOCK_SIZE bsize);
 
 #if CONFIG_SUPERTX
 void av1_build_inter_predictors_sb_sub8x8_extend(MACROBLOCKD *xd,

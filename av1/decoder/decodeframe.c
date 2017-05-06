@@ -1768,9 +1768,9 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
     }
 
 #if CONFIG_CB4X4
-    av1_build_inter_predictors_sb(xd, mi_row, mi_col, NULL, bsize);
+    av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
 #else
-    av1_build_inter_predictors_sb(xd, mi_row, mi_col, NULL,
+    av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL,
                                   AOMMAX(bsize, BLOCK_8X8));
 #endif
 
