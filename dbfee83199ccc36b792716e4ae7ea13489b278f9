@@ -1,0 +1,193 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe8601dc_387f4748",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1119,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-06T03:06:15Z",
+      "side": 1,
+      "message": "though it may not true there are a couple things to consider with this pattern:\n- input size, this can rollover [1][2]\n- dst +\u003d stride can result in better assembly on both x86 and arm\n\nthis is all right for now, but should be avoided in new code\n\n[1] https://chromium.googlesource.com/webm/libwebp/+/deb1b83199276a6e8dea62d06c026c10474c8712\n[2] https://chromium.googlesource.com/webm/libwebp/+/259e98286acf546258cd1fe00735f510cbf12c36",
+      "range": {
+        "startLine": 1119,
+        "startChar": 18,
+        "endLine": 1119,
+        "endChar": 30
+      },
+      "revId": "dbfee83199ccc36b792716e4ae7ea13489b278f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17d48758_be768a49",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1132,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-06T03:06:15Z",
+      "side": 1,
+      "message": "drop this line",
+      "revId": "dbfee83199ccc36b792716e4ae7ea13489b278f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb1dc295_a639dc3f",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1135,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-06T03:06:15Z",
+      "side": 1,
+      "message": "given these are all high-bitdepth related it would be good audit the calls (later). my feeling is this could simply be a uint16 avoiding this shift/unshift",
+      "range": {
+        "startLine": 1135,
+        "startChar": 52,
+        "endLine": 1135,
+        "endChar": 76
+      },
+      "revId": "dbfee83199ccc36b792716e4ae7ea13489b278f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f44c577_c8f4a96f",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1139,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-06T03:06:15Z",
+      "side": 1,
+      "message": "this one should be made uint16 now though",
+      "range": {
+        "startLine": 1139,
+        "startChar": 33,
+        "endLine": 1139,
+        "endChar": 56
+      },
+      "revId": "dbfee83199ccc36b792716e4ae7ea13489b278f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c6f423f_2a355907",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1378,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-06T03:06:15Z",
+      "side": 1,
+      "message": "what\u0027s the possible range here, is int sufficient?",
+      "range": {
+        "startLine": 1378,
+        "startChar": 6,
+        "endLine": 1378,
+        "endChar": 32
+      },
+      "revId": "dbfee83199ccc36b792716e4ae7ea13489b278f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39e172ea_0e5a07f8",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1393,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-06T03:06:15Z",
+      "side": 1,
+      "message": "drop this line",
+      "revId": "dbfee83199ccc36b792716e4ae7ea13489b278f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db277524_7b92dcd3",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1394,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-06T03:06:15Z",
+      "side": 1,
+      "message": "what\u0027s the effect of a 0 return here, should this be a large positive value instead?",
+      "range": {
+        "startLine": 1394,
+        "startChar": 12,
+        "endLine": 1394,
+        "endChar": 20
+      },
+      "revId": "dbfee83199ccc36b792716e4ae7ea13489b278f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "312c394a_f968a264",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1414,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-06T03:06:15Z",
+      "side": 1,
+      "message": "{]s are optional, but preferable on if statements that continue on another line for readability\n\nhttps://google.github.io/styleguide/cppguide.html#Conditionals",
+      "revId": "dbfee83199ccc36b792716e4ae7ea13489b278f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df670ecd_0f5d8f09",
+        "filename": "av1/encoder/global_motion.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-06T03:06:15Z",
+      "side": 1,
+      "message": "global_motion could use a const pass (later)",
+      "range": {
+        "startLine": 37,
+        "startChar": 33,
+        "endLine": 37,
+        "endChar": 46
+      },
+      "revId": "dbfee83199ccc36b792716e4ae7ea13489b278f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
