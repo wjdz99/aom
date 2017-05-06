@@ -5174,7 +5174,7 @@ static int64_t encode_inter_mb_segment_sub8x8(
 
   assert(tx_type == DCT_DCT);
 
-  av1_build_inter_predictor_sub8x8(xd, 0, i, ir, ic, mi_row, mi_col);
+  av1_build_inter_predictor_sub8x8(cm, xd, 0, i, ir, ic, mi_row, mi_col);
 
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
@@ -7981,7 +7981,7 @@ int64_t interpolation_filter_search(
   set_default_interp_filters(mbmi, assign_filter);
 
   *switchable_rate = av1_get_switchable_rate(cpi, xd);
-  av1_build_inter_predictors_sb(xd, mi_row, mi_col, orig_dst, bsize);
+  av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
   model_rd_for_sb(cpi, bsize, x, xd, 0, MAX_MB_PLANE - 1, &tmp_rate, &tmp_dist,
                   skip_txfm_sb, skip_sse_sb);
   *rd = RDCOST(x->rdmult, x->rddiv, *switchable_rate + tmp_rate, tmp_dist);
@@ -8017,7 +8017,7 @@ int64_t interpolation_filter_search(
         mbmi->interp_filter = (InterpFilter)i;
 #endif  // CONFIG_DUAL_FILTER
         tmp_rs = av1_get_switchable_rate(cpi, xd);
-        av1_build_inter_predictors_sb(xd, mi_row, mi_col, orig_dst, bsize);
+        av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
         model_rd_for_sb(cpi, bsize, x, xd, 0, MAX_MB_PLANE - 1, &tmp_rate,
                         &tmp_dist, &tmp_skip_sb, &tmp_skip_sse);
         tmp_rd = RDCOST(x->rdmult, x->rddiv, tmp_rs + tmp_rate, tmp_dist);
@@ -10893,7 +10893,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     }
 
     if (is_inter_mode(mbmi->mode)) {
-      av1_build_inter_predictors_sb(xd, mi_row, mi_col, NULL, bsize);
+      av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
 #if CONFIG_MOTION_VAR
       if (mbmi->motion_mode == OBMC_CAUSAL) {
         av1_build_obmc_inter_prediction(
@@ -12146,7 +12146,7 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
         // then dont bother looking at UV
         int is_cost_valid_uv;
         RD_STATS rd_stats_uv;
-        av1_build_inter_predictors_sbuv(&x->e_mbd, mi_row, mi_col, NULL,
+        av1_build_inter_predictors_sbuv(cm, &x->e_mbd, mi_row, mi_col, NULL,
                                         BLOCK_8X8);
 #if CONFIG_VAR_TX
         is_cost_valid_uv =
