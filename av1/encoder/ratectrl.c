@@ -1006,7 +1006,8 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int *bottom_index,
           av1_compute_qdelta(rc, q_val, q_val * q_adj_factor, cm->bit_depth);
     }
   } else if (!rc->is_src_frame_alt_ref &&
-             (cpi->refresh_golden_frame || cpi->refresh_alt_ref_frame)) {
+             (cpi->refresh_golden_frame || cpi->refresh_alt_ref_frame ||
+              cpi->refresh_bwd_ref_frame)) {
     // Use the lower of active_worst_quality and recent
     // average Q as basis for GF/ARF best Q limit unless last frame was
     // a key frame.
@@ -1026,13 +1027,13 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int *bottom_index,
       active_best_quality = active_best_quality * 15 / 16;
 
     } else if (oxcf->rc_mode == AOM_Q) {
-      if (!cpi->refresh_alt_ref_frame) {
+      if (!(cpi->refresh_alt_ref_frame || cpi->refresh_bwd_ref_frame)) {
         active_best_quality = cq_level;
       } else {
         active_best_quality = get_gf_active_quality(rc, q, cm->bit_depth);
 
-        // Modify best quality for second level arfs. For mode AOM_Q this
-        // becomes the baseline frame q.
+        // Modify best quality for second level arfs and brfs. For mode AOM_Q
+        // this becomes the baseline frame q.
         if (gf_group->rf_level[gf_group->index] == GF_ARF_LOW)
           active_best_quality = (active_best_quality + cq_level + 1) / 2;
       }
