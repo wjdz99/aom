@@ -190,26 +190,16 @@ const wedge_params_type wedge_params_lookup[BLOCK_SIZES] = {
   { 0, wedge_codebook_16_heqw, wedge_signflip_lookup[BLOCK_64X64], 0,
     wedge_masks[BLOCK_64X64] },
 #else
-  { 0, wedge_codebook_16_heqw, wedge_signflip_lookup[BLOCK_8X8], 0,
-    wedge_masks[BLOCK_8X8] },
-  { 0, wedge_codebook_16_hgtw, wedge_signflip_lookup[BLOCK_8X16], 0,
-    wedge_masks[BLOCK_8X16] },
-  { 0, wedge_codebook_16_hltw, wedge_signflip_lookup[BLOCK_16X8], 0,
-    wedge_masks[BLOCK_16X8] },
-  { 0, wedge_codebook_16_heqw, wedge_signflip_lookup[BLOCK_16X16], 0,
-    wedge_masks[BLOCK_16X16] },
-  { 0, wedge_codebook_16_hgtw, wedge_signflip_lookup[BLOCK_16X32], 0,
-    wedge_masks[BLOCK_16X32] },
-  { 0, wedge_codebook_16_hltw, wedge_signflip_lookup[BLOCK_32X16], 0,
-    wedge_masks[BLOCK_32X16] },
-  { 0, wedge_codebook_16_heqw, wedge_signflip_lookup[BLOCK_32X32], 0,
-    wedge_masks[BLOCK_32X32] },
-  { 0, wedge_codebook_16_hgtw, wedge_signflip_lookup[BLOCK_32X64], 0,
-    wedge_masks[BLOCK_32X64] },
-  { 0, wedge_codebook_16_hltw, wedge_signflip_lookup[BLOCK_64X32], 0,
-    wedge_masks[BLOCK_64X32] },
-  { 0, wedge_codebook_16_heqw, wedge_signflip_lookup[BLOCK_64X64], 0,
-    wedge_masks[BLOCK_64X64] },
+  { 0, NULL, NULL, 0, NULL },
+  { 0, NULL, NULL, 0, NULL },
+  { 0, NULL, NULL, 0, NULL },
+  { 0, NULL, NULL, 0, NULL },
+  { 0, NULL, NULL, 0, NULL },
+  { 0, NULL, NULL, 0, NULL },
+  { 0, NULL, NULL, 0, NULL },
+  { 0, NULL, NULL, 0, NULL },
+  { 0, NULL, NULL, 0, NULL },
+  { 0, NULL, NULL, 0, NULL },
 #endif  // CONFIG_WEDGE
 #if CONFIG_EXT_PARTITION
   { 0, NULL, NULL, 0, NULL },
@@ -428,23 +418,23 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
 static const uint8_t wedge_master_oblique_odd[NSMOOTHERS][MASK_MASTER_SIZE] = {
   {
       0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  6,  18,
-      37, 53, 60, 63, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  7,  19,
+      37, 52, 60, 63, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
       64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
   }
 };
 static const uint8_t wedge_master_oblique_even[NSMOOTHERS][MASK_MASTER_SIZE] = {
   {
       0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  4,  11, 27,
-      46, 58, 62, 63, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  4,  12, 27,
+      45, 57, 62, 63, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
       64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
   }
 };
 static const uint8_t wedge_master_vertical[NSMOOTHERS][MASK_MASTER_SIZE] = { {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  7,  21,
-    43, 57, 62, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  8,  22,
+    42, 56, 62, 63, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
     64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
 } };
 
@@ -459,7 +449,7 @@ static void shift_copy(const uint8_t *src, uint8_t *dst, int shift, int width) {
   }
 }
 #else
-static const double smoother_param[NSMOOTHERS] = { 2.83 };
+static const double smoother_param[NSMOOTHERS] = { 3.0 };
 #endif  // MASK_MASTER_SIZE == 64
 
 static void init_wedge_master_masks() {
