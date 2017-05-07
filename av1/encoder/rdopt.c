@@ -10040,6 +10040,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         continue;
     }
 
+    // TODO(zoeliu): To explore to remove LAST3_FRAME
+    if (ref_frame == LAST3_FRAME) continue;
+
     mbmi->mode = this_mode;
     mbmi->uv_mode = DC_PRED;
     mbmi->ref_frame[0] = ref_frame;
@@ -11674,6 +11677,9 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
       if (cpi->rc.is_src_frame_alt_ref && (cpi->oxcf.arnr_max_frames == 0))
         continue;
     }
+
+    // TODO(zoeliu): To explore to remove LAST3_FRAME
+    if (ref_frame == LAST3_FRAME) continue;
 
     mbmi->tx_size = TX_4X4;
     mbmi->uv_mode = DC_PRED;
