@@ -505,6 +505,7 @@ post_process_cmdline() {
     soft_enable palette
     soft_enable alt_intra
     soft_enable palette_throughput
+    soft_enable dependent_horztiles
 
     # Fix up experiment dependencies
     enabled pvq && enable_feature ec_adapt
