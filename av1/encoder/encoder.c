@@ -4392,16 +4392,19 @@ static int get_ref_frame_flags(const AV1_COMP *cpi) {
 
   if (last3_is_last || last3_is_last2 || last3_is_alt) flags &= ~AOM_LAST3_FLAG;
 
-  if (gld_is_last2 || gld_is_last3) flags &= ~AOM_GOLD_FLAG;
+  if (gld_is_last2) flags &= ~AOM_GOLD_FLAG;
+  // TODO(zoeliu): To explore the RD performance impact from LAST3 removal
+  if (gld_is_last3) flags &= ~AOM_LAST3_FLAG;
 
 #if CONFIG_LOWDELAY_COMPOUND  // Changes LL & HL bitstream
   /* Allow biprediction between two identical frames (e.g. bwd_is_last = 1) */
   if (bwd_is_alt && (flags & AOM_BWD_FLAG)) flags &= ~AOM_BWD_FLAG;
 #else
-  if ((bwd_is_last || bwd_is_last2 || bwd_is_last3 || bwd_is_gld ||
-       bwd_is_alt) &&
+  if ((bwd_is_last || bwd_is_last2 || bwd_is_gld || bwd_is_alt) &&
       (flags & AOM_BWD_FLAG))
     flags &= ~AOM_BWD_FLAG;
+  // TODO(zoeliu): To explore the RD performance impact from LAST3 removal
+  if (bwd_is_last3 && (flags & AOM_BWD_FLAG)) flags &= ~AOM_LAST3_FLAG;
 #endif
 #endif  // CONFIG_EXT_REFS
 
