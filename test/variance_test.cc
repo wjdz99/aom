@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <cstdlib>
 #include <new>
@@ -77,7 +77,7 @@ static unsigned int mb_ss_ref(const int16_t *src) {
 static uint32_t variance_ref(const uint8_t *src, const uint8_t *ref, int l2w,
                              int l2h, int src_stride, int ref_stride,
                              uint32_t *sse_ptr, bool use_high_bit_depth_,
-                             aom_bit_depth_t bit_depth) {
+                             AomBitDepthT bit_depth) {
   int64_t se = 0;
   uint64_t sse = 0;
   const int w = 1 << l2w;
@@ -113,7 +113,7 @@ static uint32_t variance_ref(const uint8_t *src, const uint8_t *ref, int l2w,
 static uint32_t subpel_variance_ref(const uint8_t *ref, const uint8_t *src,
                                     int l2w, int l2h, int xoff, int yoff,
                                     uint32_t *sse_ptr, bool use_high_bit_depth_,
-                                    aom_bit_depth_t bit_depth) {
+                                    AomBitDepthT bit_depth) {
   int64_t se = 0;
   uint64_t sse = 0;
   const int w = 1 << l2w;
@@ -164,7 +164,7 @@ static uint32_t subpel_avg_variance_ref(const uint8_t *ref, const uint8_t *src,
                                         int l2h, int xoff, int yoff,
                                         uint32_t *sse_ptr,
                                         bool use_high_bit_depth,
-                                        aom_bit_depth_t bit_depth) {
+                                        AomBitDepthT bit_depth) {
   int64_t se = 0;
   uint64_t sse = 0;
   const int w = 1 << l2w;
@@ -266,7 +266,7 @@ struct TestParams {
       : log2width(log2w), log2height(log2h), func(function) {
     use_high_bit_depth = (bit_depth_value > 0);
     if (use_high_bit_depth) {
-      bit_depth = static_cast<aom_bit_depth_t>(bit_depth_value);
+      bit_depth = static_cast<AomBitDepthT>(bit_depth_value);
     } else {
       bit_depth = AOM_BITS_8;
     }
@@ -280,7 +280,7 @@ struct TestParams {
   int width, height;
   int block_size;
   Func func;
-  aom_bit_depth_t bit_depth;
+  AomBitDepthT bit_depth;
   bool use_high_bit_depth;
   uint32_t mask;
 };
@@ -545,7 +545,7 @@ class SubpelVarianceTest
     height_ = 1 << log2height_;
     subpel_variance_ = get<2>(params);
     if (get<3>(params)) {
-      bit_depth_ = (aom_bit_depth_t)get<3>(params);
+      bit_depth_ = (AomBitDepthT)get<3>(params);
       use_high_bit_depth_ = true;
     } else {
       bit_depth_ = AOM_BITS_8;
@@ -598,7 +598,7 @@ class SubpelVarianceTest
   uint8_t *ref_;
   uint8_t *sec_;
   bool use_high_bit_depth_;
-  aom_bit_depth_t bit_depth_;
+  AomBitDepthT bit_depth_;
   int width_, log2width_;
   int height_, log2height_;
   int block_size_, mask_;
@@ -704,7 +704,7 @@ void SubpelVarianceTest<SubpixAvgVarMxNFunc>::RefTest() {
                                                     src_, width_, &sse1, sec_));
       var2 = subpel_avg_variance_ref(ref_, src_, sec_, log2width_, log2height_,
                                      x, y, &sse2, use_high_bit_depth_,
-                                     static_cast<aom_bit_depth_t>(bit_depth_));
+                                     static_cast<AomBitDepthT>(bit_depth_));
       EXPECT_EQ(sse1, sse2) << "at position " << x << ", " << y;
       EXPECT_EQ(var1, var2) << "at position " << x << ", " << y;
     }

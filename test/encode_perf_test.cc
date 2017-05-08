@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <string>
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
@@ -100,7 +100,7 @@ class AV1EncodePerfTest
     nframes_ = 0;
   }
 
-  virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void PSNRPktHook(const AomCodecCxPktT *pkt) {
     if (pkt->data.psnr.psnr[0] < min_psnr_) {
       min_psnr_ = pkt->data.psnr.psnr[0];
     }
@@ -137,7 +137,7 @@ TEST_P(AV1EncodePerfTest, PerfTest) {
         set_threads(kEncodePerfTestThreads[k]);
         SetUp();
 
-        const aom_rational timebase = { 33333333, 1000000000 };
+        const AomRational timebase = { 33333333, 1000000000 };
         cfg_.g_timebase = timebase;
         cfg_.rc_target_bitrate = kAV1EncodePerfTestVectors[i].bitrate;
 
@@ -151,7 +151,7 @@ TEST_P(AV1EncodePerfTest, PerfTest) {
             kAV1EncodePerfTestVectors[i].frames);
         set_speed(kEncodePerfTestSpeeds[j]);
 
-        aom_usec_timer t;
+        AomUsecTimer t;
         aom_usec_timer_start(&t);
 
         ASSERT_NO_FATAL_FAILURE(RunLoop(&video));

@@ -44,8 +44,8 @@ class YUVVideoSource : public VideoSource {
   virtual void Begin() {
     if (input_file_) fclose(input_file_);
     input_file_ = OpenTestDataFile(file_name_);
-    ASSERT_TRUE(input_file_ != NULL) << "Input file open failed. Filename: "
-                                     << file_name_;
+    ASSERT_TRUE(input_file_ != NULL)
+        << "Input file open failed. Filename: " << file_name_;
     if (start_)
       fseek(input_file_, static_cast<unsigned>(raw_size_) * start_, SEEK_SET);
 
@@ -58,15 +58,15 @@ class YUVVideoSource : public VideoSource {
     FillFrame();
   }
 
-  virtual aom_image_t *img() const { return (frame_ < limit_) ? img_ : NULL; }
+  virtual AomImageT *img() const { return (frame_ < limit_) ? img_ : NULL; }
 
   // Models a stream where Timebase = 1/FPS, so pts == frame.
-  virtual aom_codec_pts_t pts() const { return frame_; }
+  virtual AomCodecPtsT pts() const { return frame_; }
 
   virtual unsigned long duration() const { return 1; }
 
-  virtual aom_rational_t timebase() const {
-    const aom_rational_t t = { framerate_denominator_, framerate_numerator_ };
+  virtual AomRationalT timebase() const {
+    const AomRationalT t = { framerate_denominator_, framerate_numerator_ };
     return t;
   }
 
@@ -108,7 +108,7 @@ class YUVVideoSource : public VideoSource {
  protected:
   std::string file_name_;
   FILE *input_file_;
-  aom_image_t *img_;
+  AomImageT *img_;
   size_t raw_size_;
   unsigned int start_;
   unsigned int limit_;

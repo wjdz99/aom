@@ -60,8 +60,8 @@ static const uint8_t rd_thresh_block_size_factor[BLOCK_SIZES] = {
 #endif  // CONFIG_EXT_PARTITION
 };
 
-static void fill_mode_costs(AV1_COMP *cpi) {
-  const FRAME_CONTEXT *const fc = cpi->common.fc;
+static void fill_mode_costs(Av1Comp *cpi) {
+  const FrameContext *const fc = cpi->common.fc;
   int i, j;
 
   for (i = 0; i < INTRA_MODES; ++i)
@@ -152,16 +152,16 @@ static void fill_mode_costs(AV1_COMP *cpi) {
 #endif  // CONFIG_GLOBAL_MOTION
 }
 
-void av1_fill_token_costs(av1_coeff_cost *c,
-                          av1_coeff_probs_model (*p)[PLANE_TYPES]) {
+void av1_fill_token_costs(Av1CoeffCost *c,
+                          Av1CoeffProbsModel (*p)[PLANE_TYPES]) {
   int i, j, k, l;
-  TX_SIZE t;
+  TxSize t;
   for (t = 0; t < TX_SIZES; ++t)
     for (i = 0; i < PLANE_TYPES; ++i)
       for (j = 0; j < REF_TYPES; ++j)
         for (k = 0; k < COEF_BANDS; ++k)
           for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l) {
-            aom_prob probs[ENTROPY_NODES];
+            AomProb probs[ENTROPY_NODES];
             av1_model_to_full_probs(p[t][i][j][k][l], probs);
             av1_cost_tokens((int *)c[t][i][j][k][0][l], probs, av1_coef_tree);
             av1_cost_tokens_skip((int *)c[t][i][j][k][1][l], probs,
@@ -183,7 +183,7 @@ static int sad_per_bit4lut_12[QINDEX_RANGE];
 #endif
 
 static void init_me_luts_bd(int *bit16lut, int *bit4lut, int range,
-                            aom_bit_depth_t bit_depth) {
+                            AomBitDepthT bit_depth) {
   int i;
   // Initialize the sad lut tables using a formulaic calculation for now.
   // This is to make it easier to resolve the impact of experimental changes
@@ -212,7 +212,8 @@ static const int rd_frame_type_factor[FRAME_UPDATE_TYPES] = {
   128, 144, 128, 128, 144,
 #if CONFIG_EXT_REFS
   // TODO(zoeliu): To adjust further following factor values.
-  128, 128, 128
+  128, 128,
+  128
   // TODO(weitinglin): We should investigate if the values should be the same
   //                   as the value used by OVERLAY frame
   ,
@@ -220,7 +221,7 @@ static const int rd_frame_type_factor[FRAME_UPDATE_TYPES] = {
 #endif  // CONFIG_EXT_REFS
 };
 
-int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
+int av1_compute_rd_mult(const Av1Comp *cpi, int qindex) {
   const int64_t q = av1_dc_quant(qindex, 0, cpi->common.bit_depth);
 #if CONFIG_HIGHBITDEPTH
   int64_t rdmult = 0;
@@ -236,8 +237,8 @@ int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
   int64_t rdmult = 88 * q * q / 24;
 #endif  // CONFIG_HIGHBITDEPTH
   if (cpi->oxcf.pass == 2 && (cpi->common.frame_type != KEY_FRAME)) {
-    const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
-    const FRAME_UPDATE_TYPE frame_type = gf_group->update_type[gf_group->index];
+    const GfGroup *const gf_group = &cpi->twopass.gf_group;
+    const FrameUpdateType frame_type = gf_group->update_type[gf_group->index];
     const int boost_index = AOMMIN(15, (cpi->rc.gfu_boost / 100));
 
     rdmult = (rdmult * rd_frame_type_factor[frame_type]) >> 7;
@@ -247,7 +248,7 @@ int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
   return (int)rdmult;
 }
 
-static int compute_rd_thresh_factor(int qindex, aom_bit_depth_t bit_depth) {
+static int compute_rd_thresh_factor(int qindex, AomBitDepthT bit_depth) {
   double q;
 #if CONFIG_HIGHBITDEPTH
   switch (bit_depth) {
@@ -266,7 +267,7 @@ static int compute_rd_thresh_factor(int qindex, aom_bit_depth_t bit_depth) {
   return AOMMAX((int)(pow(q, RD_THRESH_POW) * 5.12), 8);
 }
 
-void av1_initialize_me_consts(const AV1_COMP *cpi, MACROBLOCK *x, int qindex) {
+void av1_initialize_me_consts(const Av1Comp *cpi, Macroblock *x, int qindex) {
 #if CONFIG_HIGHBITDEPTH
   switch (cpi->common.bit_depth) {
     case AOM_BITS_8:
@@ -291,7 +292,7 @@ void av1_initialize_me_consts(const AV1_COMP *cpi, MACROBLOCK *x, int qindex) {
 #endif  // CONFIG_HIGHBITDEPTH
 }
 
-static void set_block_thresholds(const AV1_COMMON *cm, RD_OPT *rd) {
+static void set_block_thresholds(const Av1Common *cm, RdOpt *rd) {
   int i, bsize, segment_id;
 
   for (segment_id = 0; segment_id < MAX_SEGMENTS; ++segment_id) {
@@ -330,9 +331,9 @@ static void set_block_thresholds(const AV1_COMMON *cm, RD_OPT *rd) {
   }
 }
 
-void av1_set_mvcost(MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame, int ref,
+void av1_set_mvcost(Macroblock *x, MvReferenceFrame ref_frame, int ref,
                     int ref_mv_idx) {
-  MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
+  MbModeInfoExt *mbmi_ext = x->mbmi_ext;
   int8_t rf_type = av1_ref_frame_type(x->e_mbd.mi[0]->mbmi.ref_frame);
   int nmv_ctx = av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
                             mbmi_ext->ref_mv_stack[rf_type], ref, ref_mv_idx);
@@ -343,10 +344,10 @@ void av1_set_mvcost(MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame, int ref,
   x->nmvjointsadcost = x->nmvjointcost;
 }
 
-void av1_initialize_rd_consts(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
-  MACROBLOCK *const x = &cpi->td.mb;
-  RD_OPT *const rd = &cpi->rd;
+void av1_initialize_rd_consts(Av1Comp *cpi) {
+  Av1Common *const cm = &cpi->common;
+  Macroblock *const x = &cpi->td.mb;
+  RdOpt *const rd = &cpi->rd;
   int i;
   int nmv_ctx;
 
@@ -390,7 +391,7 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 #endif  // CONFIG_EXT_PARTITION_TYPES
 #if CONFIG_UNPOISON_PARTITION_CTX
       for (; i < PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES; ++i) {
-        aom_prob p = cm->fc->partition_prob[i][PARTITION_VERT];
+        AomProb p = cm->fc->partition_prob[i][PARTITION_VERT];
         assert(p > 0);
         cpi->partition_cost[i][PARTITION_NONE] = INT_MAX;
         cpi->partition_cost[i][PARTITION_HORZ] = INT_MAX;
@@ -398,7 +399,7 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
         cpi->partition_cost[i][PARTITION_SPLIT] = av1_cost_bit(p, 1);
       }
       for (; i < PARTITION_CONTEXTS_PRIMARY + 2 * PARTITION_BLOCK_SIZES; ++i) {
-        aom_prob p = cm->fc->partition_prob[i][PARTITION_HORZ];
+        AomProb p = cm->fc->partition_prob[i][PARTITION_HORZ];
         assert(p > 0);
         cpi->partition_cost[i][PARTITION_NONE] = INT_MAX;
         cpi->partition_cost[i][PARTITION_HORZ] = av1_cost_bit(p, 0);
@@ -551,21 +552,21 @@ void av1_model_rd_from_var_lapndz(int64_t var, unsigned int n_log2,
 }
 
 static void get_entropy_contexts_plane(
-    BLOCK_SIZE plane_bsize, TX_SIZE tx_size, const struct macroblockd_plane *pd,
-    ENTROPY_CONTEXT t_above[2 * MAX_MIB_SIZE],
-    ENTROPY_CONTEXT t_left[2 * MAX_MIB_SIZE]) {
+    BlockSize plane_bsize, TxSize tx_size, const struct MacroblockdPlane *pd,
+    EntropyContext t_above[2 * MAX_MIB_SIZE],
+    EntropyContext t_left[2 * MAX_MIB_SIZE]) {
   const int num_4x4_w = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
   const int num_4x4_h = block_size_high[plane_bsize] >> tx_size_high_log2[0];
-  const ENTROPY_CONTEXT *const above = pd->above_context;
-  const ENTROPY_CONTEXT *const left = pd->left_context;
+  const EntropyContext *const above = pd->above_context;
+  const EntropyContext *const left = pd->left_context;
 
   int i;
 
 #if CONFIG_CB4X4
   switch (tx_size) {
     case TX_2X2:
-      memcpy(t_above, above, sizeof(ENTROPY_CONTEXT) * num_4x4_w);
-      memcpy(t_left, left, sizeof(ENTROPY_CONTEXT) * num_4x4_h);
+      memcpy(t_above, above, sizeof(EntropyContext) * num_4x4_w);
+      memcpy(t_left, left, sizeof(EntropyContext) * num_4x4_h);
       break;
     case TX_4X4:
       for (i = 0; i < num_4x4_w; i += 2)
@@ -639,8 +640,8 @@ static void get_entropy_contexts_plane(
 
   switch (tx_size) {
     case TX_4X4:
-      memcpy(t_above, above, sizeof(ENTROPY_CONTEXT) * num_4x4_w);
-      memcpy(t_left, left, sizeof(ENTROPY_CONTEXT) * num_4x4_h);
+      memcpy(t_above, above, sizeof(EntropyContext) * num_4x4_w);
+      memcpy(t_left, left, sizeof(EntropyContext) * num_4x4_h);
       break;
     case TX_8X8:
       for (i = 0; i < num_4x4_w; i += 2)
@@ -671,14 +672,14 @@ static void get_entropy_contexts_plane(
       break;
 #endif  // CONFIG_TX64X64
     case TX_4X8:
-      memcpy(t_above, above, sizeof(ENTROPY_CONTEXT) * num_4x4_w);
+      memcpy(t_above, above, sizeof(EntropyContext) * num_4x4_w);
       for (i = 0; i < num_4x4_h; i += 2)
         t_left[i] = !!*(const uint16_t *)&left[i];
       break;
     case TX_8X4:
       for (i = 0; i < num_4x4_w; i += 2)
         t_above[i] = !!*(const uint16_t *)&above[i];
-      memcpy(t_left, left, sizeof(ENTROPY_CONTEXT) * num_4x4_h);
+      memcpy(t_left, left, sizeof(EntropyContext) * num_4x4_h);
       break;
     case TX_8X16:
       for (i = 0; i < num_4x4_w; i += 2)
@@ -708,16 +709,16 @@ static void get_entropy_contexts_plane(
   }
 }
 
-void av1_get_entropy_contexts(BLOCK_SIZE bsize, TX_SIZE tx_size,
-                              const struct macroblockd_plane *pd,
-                              ENTROPY_CONTEXT t_above[2 * MAX_MIB_SIZE],
-                              ENTROPY_CONTEXT t_left[2 * MAX_MIB_SIZE]) {
-  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+void av1_get_entropy_contexts(BlockSize bsize, TxSize tx_size,
+                              const struct MacroblockdPlane *pd,
+                              EntropyContext t_above[2 * MAX_MIB_SIZE],
+                              EntropyContext t_left[2 * MAX_MIB_SIZE]) {
+  const BlockSize plane_bsize = get_plane_block_size(bsize, pd);
   get_entropy_contexts_plane(plane_bsize, tx_size, pd, t_above, t_left);
 }
 
-void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
-                 int ref_y_stride, int ref_frame, BLOCK_SIZE block_size) {
+void av1_mv_pred(const Av1Comp *cpi, Macroblock *x, uint8_t *ref_y_buffer,
+                 int ref_y_stride, int ref_frame, BlockSize block_size) {
   int i;
   int zero_seen = 0;
   int best_index = 0;
@@ -769,11 +770,10 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
   x->pred_mv_sad[ref_frame] = best_sad;
 }
 
-void av1_setup_pred_block(const MACROBLOCKD *xd,
-                          struct buf_2d dst[MAX_MB_PLANE],
-                          const YV12_BUFFER_CONFIG *src, int mi_row, int mi_col,
-                          const struct scale_factors *scale,
-                          const struct scale_factors *scale_uv) {
+void av1_setup_pred_block(const Macroblockd *xd, struct Buf2d dst[MAX_MB_PLANE],
+                          const Yv12BufferConfig *src, int mi_row, int mi_col,
+                          const struct ScaleFactors *scale,
+                          const struct ScaleFactors *scale_uv) {
   int i;
 
   dst[0].buf = src->y_buffer;
@@ -791,7 +791,7 @@ void av1_setup_pred_block(const MACROBLOCKD *xd,
   }
 }
 
-int av1_raster_block_offset(BLOCK_SIZE plane_bsize, int raster_block,
+int av1_raster_block_offset(BlockSize plane_bsize, int raster_block,
                             int stride) {
   const int bw = b_width_log2_lookup[plane_bsize];
   const int y = 4 * (raster_block >> bw);
@@ -799,15 +799,14 @@ int av1_raster_block_offset(BLOCK_SIZE plane_bsize, int raster_block,
   return y * stride + x;
 }
 
-int16_t *av1_raster_block_offset_int16(BLOCK_SIZE plane_bsize, int raster_block,
+int16_t *av1_raster_block_offset_int16(BlockSize plane_bsize, int raster_block,
                                        int16_t *base) {
   const int stride = block_size_wide[plane_bsize];
   return base + av1_raster_block_offset(plane_bsize, raster_block, stride);
 }
 
-YV12_BUFFER_CONFIG *av1_get_scaled_ref_frame(const AV1_COMP *cpi,
-                                             int ref_frame) {
-  const AV1_COMMON *const cm = &cpi->common;
+Yv12BufferConfig *av1_get_scaled_ref_frame(const Av1Comp *cpi, int ref_frame) {
+  const Av1Common *const cm = &cpi->common;
   const int scaled_idx = cpi->scaled_ref_idx[ref_frame - 1];
   const int ref_idx = get_ref_frame_buf_idx(cpi, ref_frame);
   return (scaled_idx != ref_idx && scaled_idx != INVALID_IDX)
@@ -816,10 +815,10 @@ YV12_BUFFER_CONFIG *av1_get_scaled_ref_frame(const AV1_COMP *cpi,
 }
 
 #if CONFIG_DUAL_FILTER
-int av1_get_switchable_rate(const AV1_COMP *cpi, const MACROBLOCKD *xd) {
-  const AV1_COMMON *const cm = &cpi->common;
+int av1_get_switchable_rate(const Av1Comp *cpi, const Macroblockd *xd) {
+  const Av1Common *const cm = &cpi->common;
   if (cm->interp_filter == SWITCHABLE) {
-    const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+    const MbModeInfo *const mbmi = &xd->mi[0]->mbmi;
     int inter_filter_cost = 0;
     int dir;
 
@@ -838,10 +837,10 @@ int av1_get_switchable_rate(const AV1_COMP *cpi, const MACROBLOCKD *xd) {
   }
 }
 #else
-int av1_get_switchable_rate(const AV1_COMP *cpi, const MACROBLOCKD *xd) {
-  const AV1_COMMON *const cm = &cpi->common;
+int av1_get_switchable_rate(const Av1Comp *cpi, const Macroblockd *xd) {
+  const Av1Common *const cm = &cpi->common;
   if (cm->interp_filter == SWITCHABLE) {
-    const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+    const MbModeInfo *const mbmi = &xd->mi[0]->mbmi;
     const int ctx = av1_get_pred_context_switchable_interp(xd);
     return SWITCHABLE_INTERP_RATE_FACTOR *
            cpi->switchable_interp_costs[ctx][mbmi->interp_filter];
@@ -850,10 +849,10 @@ int av1_get_switchable_rate(const AV1_COMP *cpi, const MACROBLOCKD *xd) {
 }
 #endif
 
-void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
+void av1_set_rd_speed_thresholds(Av1Comp *cpi) {
   int i;
-  RD_OPT *const rd = &cpi->rd;
-  SPEED_FEATURES *const sf = &cpi->sf;
+  RdOpt *const rd = &cpi->rd;
+  SpeedFeatures *const sf = &cpi->sf;
 
   // Set baseline threshold values.
   for (i = 0; i < MAX_MODES; ++i) rd->thresh_mult[i] = cpi->oxcf.mode == 0;
@@ -1113,7 +1112,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
 #endif  // CONFIG_EXT_INTER
 }
 
-void av1_set_rd_speed_thresholds_sub8x8(AV1_COMP *cpi) {
+void av1_set_rd_speed_thresholds_sub8x8(Av1Comp *cpi) {
   static const int thresh_mult[MAX_REFS] = {
 #if CONFIG_EXT_REFS
     2500,
@@ -1140,11 +1139,11 @@ void av1_set_rd_speed_thresholds_sub8x8(AV1_COMP *cpi) {
     2500
 #endif  // CONFIG_EXT_REFS
   };
-  RD_OPT *const rd = &cpi->rd;
+  RdOpt *const rd = &cpi->rd;
   memcpy(rd->thresh_mult_sub8x8, thresh_mult, sizeof(thresh_mult));
 }
 
-void av1_update_rd_thresh_fact(const AV1_COMMON *const cm,
+void av1_update_rd_thresh_fact(const Av1Common *const cm,
                                int (*factor_buf)[MAX_MODES], int rd_thresh,
                                int bsize, int best_mode_index) {
   if (rd_thresh > 0) {
@@ -1155,9 +1154,9 @@ void av1_update_rd_thresh_fact(const AV1_COMMON *const cm,
 #endif
     int mode;
     for (mode = 0; mode < top_mode; ++mode) {
-      const BLOCK_SIZE min_size = AOMMAX(bsize - 1, BLOCK_4X4);
-      const BLOCK_SIZE max_size = AOMMIN(bsize + 2, (int)cm->sb_size);
-      BLOCK_SIZE bs;
+      const BlockSize min_size = AOMMAX(bsize - 1, BLOCK_4X4);
+      const BlockSize max_size = AOMMIN(bsize + 2, (int)cm->sb_size);
+      BlockSize bs;
       for (bs = min_size; bs <= max_size; ++bs) {
         int *const fact = &factor_buf[bs][mode];
         if (mode == best_mode_index) {
@@ -1170,8 +1169,7 @@ void av1_update_rd_thresh_fact(const AV1_COMMON *const cm,
   }
 }
 
-int av1_get_intra_cost_penalty(int qindex, int qdelta,
-                               aom_bit_depth_t bit_depth) {
+int av1_get_intra_cost_penalty(int qindex, int qdelta, AomBitDepthT bit_depth) {
   const int q = av1_dc_quant(qindex, qdelta, bit_depth);
 #if CONFIG_HIGHBITDEPTH
   switch (bit_depth) {

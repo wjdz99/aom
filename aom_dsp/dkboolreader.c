@@ -20,12 +20,12 @@
 #include "aom_mem/aom_mem.h"
 #include "aom_util/endian_inl.h"
 
-static INLINE int aom_dk_read_bit(struct aom_dk_reader *r) {
+static INLINE int aom_dk_read_bit(struct AomDkReader *r) {
   return aom_dk_read(r, 128);  // aom_prob_half
 }
 
-int aom_dk_reader_init(struct aom_dk_reader *r, const uint8_t *buffer,
-                       size_t size, aom_decrypt_cb decrypt_cb,
+int aom_dk_reader_init(struct AomDkReader *r, const uint8_t *buffer,
+                       size_t size, AomDecryptCb decrypt_cb,
                        void *decrypt_state) {
   if (size && !buffer) {
     return 1;
@@ -45,11 +45,11 @@ int aom_dk_reader_init(struct aom_dk_reader *r, const uint8_t *buffer,
   }
 }
 
-void aom_dk_reader_fill(struct aom_dk_reader *r) {
+void aom_dk_reader_fill(struct AomDkReader *r) {
   const uint8_t *const buffer_end = r->buffer_end;
   const uint8_t *buffer = r->buffer;
   const uint8_t *buffer_start = buffer;
-  BD_VALUE value = r->value;
+  BdValue value = r->value;
   int count = r->count;
   const size_t bytes_left = buffer_end - buffer;
   const size_t bits_left = bytes_left * CHAR_BIT;
@@ -63,9 +63,9 @@ void aom_dk_reader_fill(struct aom_dk_reader *r) {
   }
   if (bits_left > BD_VALUE_SIZE) {
     const int bits = (shift & 0xfffffff8) + CHAR_BIT;
-    BD_VALUE nv;
-    BD_VALUE big_endian_values;
-    memcpy(&big_endian_values, buffer, sizeof(BD_VALUE));
+    BdValue nv;
+    BdValue big_endian_values;
+    memcpy(&big_endian_values, buffer, sizeof(BdValue));
 #if SIZE_MAX == 0xffffffffffffffffULL
     big_endian_values = HToBE64(big_endian_values);
 #else
@@ -86,7 +86,7 @@ void aom_dk_reader_fill(struct aom_dk_reader *r) {
     if (bits_over < 0 || bits_left) {
       while (shift >= loop_end) {
         count += CHAR_BIT;
-        value |= (BD_VALUE)*buffer++ << shift;
+        value |= (BdValue)*buffer++ << shift;
         shift -= CHAR_BIT;
       }
     }
@@ -100,7 +100,7 @@ void aom_dk_reader_fill(struct aom_dk_reader *r) {
   r->count = count;
 }
 
-const uint8_t *aom_dk_reader_find_end(struct aom_dk_reader *r) {
+const uint8_t *aom_dk_reader_find_end(struct AomDkReader *r) {
   // Find the end of the coded buffer
   while (r->count > CHAR_BIT && r->count < BD_VALUE_SIZE) {
     r->count -= CHAR_BIT;

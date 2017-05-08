@@ -74,7 +74,7 @@ void usage_exit(void) {
 int main(int argc, char **argv) {
   int frame_cnt = 0;
   FILE *outfile = NULL;
-  aom_codec_ctx_t codec;
+  AomCodecCtxT codec;
   const AvxInterface *decoder = NULL;
   AvxVideoReader *reader = NULL;
   const AvxVideoInfo *info = NULL;
@@ -110,8 +110,8 @@ int main(int argc, char **argv) {
     die_codec(&codec, "Failed to initialize decoder.");
 
   while (aom_video_reader_read_frame(reader)) {
-    aom_codec_iter_t iter = NULL;
-    aom_image_t *img = NULL;
+    AomCodecIterT iter = NULL;
+    AomImageT *img = NULL;
     size_t frame_size = 0;
     int skip;
     const unsigned char *frame =

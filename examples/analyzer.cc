@@ -40,13 +40,13 @@ class AV1Decoder {
   const AvxVideoInfo *info;
   const AvxInterface *decoder;
 
-  insp_frame_data frame_data;
+  InspFrameData frame_data;
 
-  aom_codec_ctx_t codec;
+  AomCodecCtxT codec;
   bool show_padding;
 
  public:
-  aom_image_t *image;
+  AomImageT *image;
   int frame;
 
   int plane_mask;
@@ -112,7 +112,7 @@ bool AV1Decoder::step() {
       fprintf(stderr, "Failed to decode frame.");
       return false;
     } else {
-      aom_codec_iter_t iter = NULL;
+      AomCodecIterT iter = NULL;
       image = aom_codec_get_frame(&codec, &iter);
       if (image != NULL) {
         frame++;
@@ -129,11 +129,10 @@ int AV1Decoder::getWidth() const {
 }
 
 int AV1Decoder::getWidthPadding() const {
-  return show_padding
-             ? AOMMAX(info->frame_width + 16,
-                      ALIGN_POWER_OF_TWO(info->frame_width, 6)) -
-                   info->frame_width
-             : 0;
+  return show_padding ? AOMMAX(info->frame_width + 16,
+                               ALIGN_POWER_OF_TWO(info->frame_width, 6)) -
+                            info->frame_width
+                      : 0;
 }
 
 int AV1Decoder::getHeight() const {
@@ -141,11 +140,10 @@ int AV1Decoder::getHeight() const {
 }
 
 int AV1Decoder::getHeightPadding() const {
-  return show_padding
-             ? AOMMAX(info->frame_height + 16,
-                      ALIGN_POWER_OF_TWO(info->frame_height, 6)) -
-                   info->frame_height
-             : 0;
+  return show_padding ? AOMMAX(info->frame_height + 16,
+                               ALIGN_POWER_OF_TWO(info->frame_height, 6)) -
+                            info->frame_height
+                      : 0;
 }
 
 bool AV1Decoder::getAccountingStruct(Accounting **accounting) {
@@ -154,7 +152,7 @@ bool AV1Decoder::getAccountingStruct(Accounting **accounting) {
 }
 
 bool AV1Decoder::setInspectionCallback() {
-  aom_inspect_init ii;
+  AomInspectInit ii;
   ii.inspect_cb = AV1Decoder::inspect;
   ii.inspect_ctx = (void *)this;
   return aom_codec_control(&codec, AV1_SET_INSPECTION_CALLBACK, &ii) ==
@@ -232,7 +230,7 @@ void AnalyzerPanel::setShowPlane(bool show_plane, int mask) {
 }
 
 void AnalyzerPanel::render() {
-  aom_image_t *img = decoder.image;
+  AomImageT *img = decoder.image;
   int y_stride = img->stride[0];
   int cb_stride = img->stride[1];
   int cr_stride = img->stride[2];
@@ -272,19 +270,22 @@ void AnalyzerPanel::render() {
       cbval = ((pmask & OD_CB_MASK) >> 1) * (cbval - 128);
       crval = ((pmask & OD_CR_MASK) >> 2) * (crval - 128);
       /*This is intentionally slow and very accurate.*/
-      rval = OD_CLAMPI(0, (int32_t)OD_DIV_ROUND(
-                              2916394880000LL * yval + 4490222169144LL * crval,
-                              9745792000LL),
+      rval = OD_CLAMPI(
+          0,
+          (int32_t)OD_DIV_ROUND(
+              2916394880000LL * yval + 4490222169144LL * crval, 9745792000LL),
+          65535);
+      gval = OD_CLAMPI(0,
+                       (int32_t)OD_DIV_ROUND(2916394880000LL * yval -
+                                                 534117096223LL * cbval -
+                                                 1334761232047LL * crval,
+                                             9745792000LL),
                        65535);
-      gval = OD_CLAMPI(0, (int32_t)OD_DIV_ROUND(2916394880000LL * yval -
-                                                    534117096223LL * cbval -
-                                                    1334761232047LL * crval,
-                                                9745792000LL),
-                       65535);
-      bval = OD_CLAMPI(0, (int32_t)OD_DIV_ROUND(
-                              2916394880000LL * yval + 5290866304968LL * cbval,
-                              9745792000LL),
-                       65535);
+      bval = OD_CLAMPI(
+          0,
+          (int32_t)OD_DIV_ROUND(
+              2916394880000LL * yval + 5290866304968LL * cbval, 9745792000LL),
+          65535);
       unsigned char *px_row = p;
       for (int v = 0; v < zoom; v++) {
         unsigned char *px = px_row;

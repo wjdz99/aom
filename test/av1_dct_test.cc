@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <math.h>
 #include <stdlib.h>
@@ -40,8 +40,8 @@ void reference_dct_1d(const double *in, double *out, int size) {
 
 typedef void (*FdctFuncRef)(const double *in, double *out, int size);
 typedef void (*IdctFuncRef)(const double *in, double *out, int size);
-typedef void (*FdctFunc)(const tran_low_t *in, tran_low_t *out);
-typedef void (*IdctFunc)(const tran_low_t *in, tran_low_t *out);
+typedef void (*FdctFunc)(const TranLowT *in, TranLowT *out);
+typedef void (*IdctFunc)(const TranLowT *in, TranLowT *out);
 
 class TransTestBase {
  public:
@@ -49,8 +49,8 @@ class TransTestBase {
 
  protected:
   void RunFwdAccuracyCheck() {
-    tran_low_t *input = new tran_low_t[txfm_size_];
-    tran_low_t *output = new tran_low_t[txfm_size_];
+    TranLowT *input = new TranLowT[txfm_size_];
+    TranLowT *output = new TranLowT[txfm_size_];
     double *ref_input = new double[txfm_size_];
     double *ref_output = new double[txfm_size_];
 
@@ -67,7 +67,7 @@ class TransTestBase {
 
       for (int ni = 0; ni < txfm_size_; ++ni) {
         EXPECT_LE(
-            abs(output[ni] - static_cast<tran_low_t>(round(ref_output[ni]))),
+            abs(output[ni] - static_cast<TranLowT>(round(ref_output[ni]))),
             max_error_);
       }
     }

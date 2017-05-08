@@ -26,9 +26,9 @@
  * aom_codec_init() and a pointer to the algorithm's interface structure:
  *     <pre>
  *     my_app.c:
- *       extern aom_codec_iface_t my_codec;
+ *       extern AomCodecIfaceT my_codec;
  *       {
- *           aom_codec_ctx_t algo;
+ *           AomCodecCtxT algo;
  *           res = aom_codec_init(&algo, &my_codec);
  *       }
  *     </pre>
@@ -150,17 +150,17 @@ typedef enum {
    */
   AOM_CODEC_LIST_END
 
-} aom_codec_err_t;
+} AomCodecErrT;
 
 /*! \brief Codec capabilities bitfield
  *
  *  Each codec advertises the capabilities it supports as part of its
- *  ::aom_codec_iface_t interface structure. Capabilities are extra interfaces
+ *  ::AomCodecIfaceT interface structure. Capabilities are extra interfaces
  *  or functionality, and are not required to be supported.
  *
  *  The available flags are specified by AOM_CODEC_CAP_* defines.
  */
-typedef long aom_codec_caps_t;
+typedef long AomCodecCapsT;
 #define AOM_CODEC_CAP_DECODER 0x1 /**< Is a decoder */
 #define AOM_CODEC_CAP_ENCODER 0x2 /**< Is an encoder */
 
@@ -171,27 +171,27 @@ typedef long aom_codec_caps_t;
  *
  *  The available flags are specified by AOM_CODEC_USE_* defines.
  */
-typedef long aom_codec_flags_t;
+typedef long AomCodecFlagsT;
 
 /*!\brief Codec interface structure.
  *
  * Contains function pointers and other data private to the codec
  * implementation. This structure is opaque to the application.
  */
-typedef const struct aom_codec_iface aom_codec_iface_t;
+typedef const struct AomCodecIface AomCodecIfaceT;
 
 /*!\brief Codec private data structure.
  *
  * Contains data private to the codec implementation. This structure is opaque
  * to the application.
  */
-typedef struct aom_codec_priv aom_codec_priv_t;
+typedef struct AomCodecPriv AomCodecPrivT;
 
 /*!\brief Iterator
  *
  * Opaque storage used for iterating over lists.
  */
-typedef const void *aom_codec_iter_t;
+typedef const void *AomCodecIterT;
 
 /*!\brief Codec context structure
  *
@@ -201,21 +201,21 @@ typedef const void *aom_codec_iter_t;
  * may reference the 'name' member to get a printable description of the
  * algorithm.
  */
-typedef struct aom_codec_ctx {
-  const char *name;             /**< Printable interface name */
-  aom_codec_iface_t *iface;     /**< Interface pointers */
-  aom_codec_err_t err;          /**< Last returned error */
-  const char *err_detail;       /**< Detailed info, if available */
-  aom_codec_flags_t init_flags; /**< Flags passed at init time */
+typedef struct AomCodecCtx {
+  const char *name;          /**< Printable interface name */
+  AomCodecIfaceT *iface;     /**< Interface pointers */
+  AomCodecErrT err;          /**< Last returned error */
+  const char *err_detail;    /**< Detailed info, if available */
+  AomCodecFlagsT init_flags; /**< Flags passed at init time */
   union {
     /**< Decoder Configuration Pointer */
-    const struct aom_codec_dec_cfg *dec;
+    const struct AomCodecDecCfg *dec;
     /**< Encoder Configuration Pointer */
-    const struct aom_codec_enc_cfg *enc;
+    const struct AomCodecEncCfg *enc;
     const void *raw;
-  } config;               /**< Configuration pointer aliasing union */
-  aom_codec_priv_t *priv; /**< Algorithm private storage */
-} aom_codec_ctx_t;
+  } config;            /**< Configuration pointer aliasing union */
+  AomCodecPrivT *priv; /**< Algorithm private storage */
+} AomCodecCtxT;
 
 /*!\brief Bit depth for codec
  * *
@@ -225,7 +225,7 @@ typedef enum aom_bit_depth {
   AOM_BITS_8 = 8,   /**<  8 bits */
   AOM_BITS_10 = 10, /**< 10 bits */
   AOM_BITS_12 = 12, /**< 12 bits */
-} aom_bit_depth_t;
+} AomBitDepthT;
 
 /*!\brief Superblock size selection.
  *
@@ -237,7 +237,7 @@ typedef enum aom_superblock_size {
   AOM_SUPERBLOCK_SIZE_64X64,   /**< Always use 64x64 superblocks. */
   AOM_SUPERBLOCK_SIZE_128X128, /**< Always use 128x128 superblocks. */
   AOM_SUPERBLOCK_SIZE_DYNAMIC  /**< Select superblock size dynamically. */
-} aom_superblock_size_t;
+} AomSuperblockSizeT;
 
 /*
  * Library Version Number Interface
@@ -310,7 +310,7 @@ const char *aom_codec_build_config(void);
  * \param[in]    iface     Interface pointer
  *
  */
-const char *aom_codec_iface_name(aom_codec_iface_t *iface);
+const char *aom_codec_iface_name(AomCodecIfaceT *iface);
 
 /*!\brief Convert error number to printable string
  *
@@ -322,7 +322,7 @@ const char *aom_codec_iface_name(aom_codec_iface_t *iface);
  * \param[in]    err     Error number.
  *
  */
-const char *aom_codec_err_to_string(aom_codec_err_t err);
+const char *aom_codec_err_to_string(AomCodecErrT err);
 
 /*!\brief Retrieve error synopsis for codec context
  *
@@ -334,7 +334,7 @@ const char *aom_codec_err_to_string(aom_codec_err_t err);
  * \param[in]    ctx     Pointer to this instance's context.
  *
  */
-const char *aom_codec_error(aom_codec_ctx_t *ctx);
+const char *aom_codec_error(AomCodecCtxT *ctx);
 
 /*!\brief Retrieve detailed error information for codec context
  *
@@ -346,7 +346,7 @@ const char *aom_codec_error(aom_codec_ctx_t *ctx);
  * \retval NULL
  *     No detailed information is available.
  */
-const char *aom_codec_error_detail(aom_codec_ctx_t *ctx);
+const char *aom_codec_error_detail(AomCodecCtxT *ctx);
 
 /* REQUIRED FUNCTIONS
  *
@@ -365,7 +365,7 @@ const char *aom_codec_error_detail(aom_codec_ctx_t *ctx);
  * \retval #AOM_CODEC_MEM_ERROR
  *     Memory allocation failed.
  */
-aom_codec_err_t aom_codec_destroy(aom_codec_ctx_t *ctx);
+AomCodecErrT aom_codec_destroy(AomCodecCtxT *ctx);
 
 /*!\brief Get the capabilities of an algorithm.
  *
@@ -374,7 +374,7 @@ aom_codec_err_t aom_codec_destroy(aom_codec_ctx_t *ctx);
  * \param[in] iface   Pointer to the algorithm interface
  *
  */
-aom_codec_caps_t aom_codec_get_caps(aom_codec_iface_t *iface);
+AomCodecCapsT aom_codec_get_caps(AomCodecIfaceT *iface);
 
 /*!\brief Control algorithm
  *
@@ -400,7 +400,7 @@ aom_codec_caps_t aom_codec_get_caps(aom_codec_iface_t *iface);
  * \retval #AOM_CODEC_INVALID_PARAM
  *     The data was not valid.
  */
-aom_codec_err_t aom_codec_control_(aom_codec_ctx_t *ctx, int ctrl_id, ...);
+AomCodecErrT aom_codec_control_(AomCodecCtxT *ctx, int ctrl_id, ...);
 #if defined(AOM_DISABLE_CTRL_TYPECHECKS) && AOM_DISABLE_CTRL_TYPECHECKS
 #define aom_codec_control(ctx, id, data) aom_codec_control_(ctx, id, data)
 #define AOM_CTRL_USE_TYPE(id, typ)
@@ -431,13 +431,12 @@ aom_codec_err_t aom_codec_control_(aom_codec_ctx_t *ctx, int ctrl_id, ...);
  * the correctly typed arguments as a wrapper to the type-unsafe internal
  * function.
  */
-#define AOM_CTRL_USE_TYPE(id, typ)                                           \
-  static aom_codec_err_t aom_codec_control_##id(aom_codec_ctx_t *, int, typ) \
-      UNUSED;                                                                \
-                                                                             \
-  static aom_codec_err_t aom_codec_control_##id(aom_codec_ctx_t *ctx,        \
-                                                int ctrl_id, typ data) {     \
-    return aom_codec_control_(ctx, ctrl_id, data);                           \
+#define AOM_CTRL_USE_TYPE(id, typ)                                             \
+  static AomCodecErrT aom_codec_control_##id(AomCodecCtxT *, int, typ) UNUSED; \
+                                                                               \
+  static AomCodecErrT aom_codec_control_##id(AomCodecCtxT *ctx, int ctrl_id,   \
+                                             typ data) {                       \
+    return aom_codec_control_(ctx, ctrl_id, data);                             \
   } /**<\hideinitializer*/
 
 /*!\brief aom_codec_control deprecated type definition macro
@@ -450,13 +449,13 @@ aom_codec_err_t aom_codec_control_(aom_codec_ctx_t *ctx, int ctrl_id, ...);
  * It defines a static function with the correctly typed arguments as a
  * wrapper to the type-unsafe internal function.
  */
-#define AOM_CTRL_USE_TYPE_DEPRECATED(id, typ)                        \
-  DECLSPEC_DEPRECATED static aom_codec_err_t aom_codec_control_##id( \
-      aom_codec_ctx_t *, int, typ) DEPRECATED UNUSED;                \
-                                                                     \
-  DECLSPEC_DEPRECATED static aom_codec_err_t aom_codec_control_##id( \
-      aom_codec_ctx_t *ctx, int ctrl_id, typ data) {                 \
-    return aom_codec_control_(ctx, ctrl_id, data);                   \
+#define AOM_CTRL_USE_TYPE_DEPRECATED(id, typ)                     \
+  DECLSPEC_DEPRECATED static AomCodecErrT aom_codec_control_##id( \
+      AomCodecCtxT *, int, typ) DEPRECATED UNUSED;                \
+                                                                  \
+  DECLSPEC_DEPRECATED static AomCodecErrT aom_codec_control_##id( \
+      AomCodecCtxT *ctx, int ctrl_id, typ data) {                 \
+    return aom_codec_control_(ctx, ctrl_id, data);                \
   } /**<\hideinitializer*/
 
 /*!\brief aom_codec_control void type definition macro
@@ -469,13 +468,11 @@ aom_codec_err_t aom_codec_control_(aom_codec_ctx_t *ctx, int ctrl_id, ...);
  * It defines a static function without a data argument as a wrapper to the
  * type-unsafe internal function.
  */
-#define AOM_CTRL_VOID(id)                                               \
-  static aom_codec_err_t aom_codec_control_##id(aom_codec_ctx_t *, int) \
-      UNUSED;                                                           \
-                                                                        \
-  static aom_codec_err_t aom_codec_control_##id(aom_codec_ctx_t *ctx,   \
-                                                int ctrl_id) {          \
-    return aom_codec_control_(ctx, ctrl_id);                            \
+#define AOM_CTRL_VOID(id)                                                      \
+  static AomCodecErrT aom_codec_control_##id(AomCodecCtxT *, int) UNUSED;      \
+                                                                               \
+  static AomCodecErrT aom_codec_control_##id(AomCodecCtxT *ctx, int ctrl_id) { \
+    return aom_codec_control_(ctx, ctrl_id);                                   \
   } /**<\hideinitializer*/
 
 #endif

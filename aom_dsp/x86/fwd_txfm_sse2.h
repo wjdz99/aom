@@ -246,7 +246,7 @@ static INLINE int k_check_epi32_overflow_32(
   return overflow;
 }
 
-static INLINE void store_output(const __m128i *poutput, tran_low_t *dst_ptr) {
+static INLINE void store_output(const __m128i *poutput, TranLowT *dst_ptr) {
 #if CONFIG_HIGHBITDEPTH
   const __m128i zero = _mm_setzero_si128();
   const __m128i sign_bits = _mm_cmplt_epi16(*poutput, zero);
@@ -275,7 +275,7 @@ static INLINE void transpose_and_output8x8(
     const __m128i *pin00, const __m128i *pin01, const __m128i *pin02,
     const __m128i *pin03, const __m128i *pin04, const __m128i *pin05,
     const __m128i *pin06, const __m128i *pin07, int pass, int16_t *out0_ptr,
-    tran_low_t *out1_ptr) {
+    TranLowT *out1_ptr) {
   // 00 01 02 03 04 05 06 07
   // 10 11 12 13 14 15 16 17
   // 20 21 22 23 24 25 26 27

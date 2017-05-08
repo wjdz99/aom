@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <assert.h>
 #include <string>
@@ -20,7 +20,7 @@
 
 // Machine tuned code goes into this file. This file is included from
 // simd_cmp_sse2.cc, simd_cmp_ssse3.cc etc which define the macros
-// ARCH (=neon, sse2, ssse3, etc), SIMD_NAMESPACE and ARCH_POSTFIX().
+// ARCH (=neon, sse2, ssse3, etc), SIMD_NAMESPACE and ArchPostfix().
 
 using libaom_test::ACMRandom;
 
@@ -259,15 +259,15 @@ typedef struct {
   const char *name;
   fptr ref;
   fptr simd;
-} mapping;
+} Mapping;
 
-#define MAP(name)                                                      \
-  {                                                                    \
-    #name, reinterpret_cast < fptr > (c_##name),                       \
-                                      reinterpret_cast < fptr > (name) \
+#define MAP(name)                                \
+  {                                              \
+    #name, reinterpret_cast < fptr > (c_##name), \
+        reinterpret_cast < fptr > (name)         \
   }
 
-const mapping m[] = { MAP(v64_sad_u8),
+const Mapping m[] = { MAP(v64_sad_u8),
                       MAP(v64_ssd_u8),
                       MAP(v64_add_8),
                       MAP(v64_add_16),
@@ -663,7 +663,7 @@ const mapping m[] = { MAP(v64_sad_u8),
 // Map reference functions to machine tuned functions. Since the
 // functions depend on machine tuned types, the non-machine tuned
 // instantiations of the test can't refer to these functions directly,
-// so we refer to them by name and do the mapping here.
+// so we refer to them by name and do the Mapping here.
 void Map(const char *name, fptr *ref, fptr *simd) {
   unsigned int i;
   for (i = 0; m[i].name && strcmp(name, m[i].name); i++) {

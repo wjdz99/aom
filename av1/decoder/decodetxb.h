@@ -18,14 +18,14 @@
 #include "av1/common/txb_common.h"
 #include "aom_dsp/bitreader.h"
 
-uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
-                            aom_reader *r, int block, int plane,
-                            tran_low_t *tcoeffs, TXB_CTX *txb_ctx,
+uint8_t av1_read_coeffs_txb(const Av1Common *const cm, Macroblockd *xd,
+                            AomReader *r, int block, int plane,
+                            TranLowT *tcoeffs, TxbCtx *TxbCtx,
                             int16_t *max_scan_line, int *eob);
 
-uint8_t av1_read_coeffs_txb_facade(AV1_COMMON *cm, MACROBLOCKD *xd,
-                                   aom_reader *r, int row, int col, int block,
-                                   int plane, tran_low_t *tcoeffs,
-                                   int16_t *max_scan_line, int *eob);
-void av1_read_txb_probs(FRAME_CONTEXT *fc, TX_MODE tx_mode, aom_reader *r);
+uint8_t av1_read_coeffs_txb_facade(Av1Common *cm, Macroblockd *xd, AomReader *r,
+                                   int row, int col, int block, int plane,
+                                   TranLowT *tcoeffs, int16_t *max_scan_line,
+                                   int *eob);
+void av1_read_txb_probs(FrameContext *fc, TxMode tx_mode, AomReader *r);
 #endif  //  DECODETXB_H_

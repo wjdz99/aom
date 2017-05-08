@@ -100,7 +100,7 @@ typedef enum {
   SQUARE = 4,
   FAST_HEX = 5,
   FAST_DIAMOND = 6
-} SEARCH_METHODS;
+} SearchMethods;
 
 typedef enum {
   // No recode.
@@ -111,7 +111,7 @@ typedef enum {
   ALLOW_RECODE_KFARFGF = 2,
   // Allow recode for all frames based on bitrate constraints.
   ALLOW_RECODE = 3,
-} RECODE_LOOP_TYPE;
+} RecodeLoopType;
 
 typedef enum {
   SUBPEL_TREE = 0,
@@ -119,23 +119,16 @@ typedef enum {
   SUBPEL_TREE_PRUNED_MORE = 2,      // Prunes 1/2-pel searches more aggressively
   SUBPEL_TREE_PRUNED_EVENMORE = 3,  // Prunes 1/2- and 1/4-pel searches
   // Other methods to come
-} SUBPEL_SEARCH_METHODS;
+} SubpelSearchMethods;
 
 typedef enum {
   NO_MOTION_THRESHOLD = 0,
   LOW_MOTION_THRESHOLD = 7
-} MOTION_THRESHOLD;
+} MotionThreshold;
 
-typedef enum {
-  USE_FULL_RD = 0,
-  USE_LARGESTALL,
-  USE_TX_8X8
-} TX_SIZE_SEARCH_METHOD;
+typedef enum { USE_FULL_RD = 0, USE_LARGESTALL, USE_TX_8X8 } TxSizeSearchMethod;
 
-typedef enum {
-  NOT_IN_USE = 0,
-  RELAXED_NEIGHBORING_MIN_MAX = 1
-} AUTO_MIN_MAX_MODE;
+typedef enum { NOT_IN_USE = 0, RELAXED_NEIGHBORING_MIN_MAX = 1 } AutoMinMaxMode;
 
 typedef enum {
   // Try the full image with different values.
@@ -146,7 +139,7 @@ typedef enum {
   LPF_PICK_FROM_Q,
   // Pick 0 to disable LPF if LPF was enabled last frame
   LPF_PICK_MINIMAL_LPF
-} LPF_PICK_METHOD;
+} LpfPickMethod;
 
 typedef enum {
   // Terminate search early based on distortion so far compared to
@@ -165,13 +158,13 @@ typedef enum {
 
   // Skips intra modes other than DC_PRED if the source variance is small
   FLAG_SKIP_INTRA_LOWVAR = 1 << 5,
-} MODE_SEARCH_SKIP_LOGIC;
+} ModeSearchSkipLogic;
 
 typedef enum {
   FLAG_SKIP_EIGHTTAP_REGULAR = 1 << EIGHTTAP_REGULAR,
   FLAG_SKIP_EIGHTTAP_SMOOTH = 1 << EIGHTTAP_SMOOTH,
   FLAG_SKIP_MULTITAP_SHARP = 1 << MULTITAP_SHARP,
-} INTERP_FILTER_MASK;
+} InterpFilterMask;
 
 typedef enum {
   NO_PRUNE = 0,
@@ -181,13 +174,13 @@ typedef enum {
   // eliminates two tx types in each direction
   PRUNE_TWO = 2,
 #endif
-} TX_TYPE_PRUNE_MODE;
+} TxTypePruneMode;
 
 typedef struct {
-  TX_TYPE_PRUNE_MODE prune_mode;
+  TxTypePruneMode prune_mode;
   int fast_intra_tx_type_search;
   int fast_inter_tx_type_search;
-} TX_TYPE_SEARCH;
+} TxTypeSearch;
 
 typedef enum {
   // Search partitions using RD criterion
@@ -204,7 +197,7 @@ typedef enum {
 
   // Use non-fixed partitions based on source variance
   SOURCE_VAR_BASED_PARTITION
-} PARTITION_SEARCH_TYPE;
+} PartitionSearchType;
 
 typedef enum {
   // Does a dry run to see if any of the contexts need to be updated or not,
@@ -214,11 +207,11 @@ typedef enum {
   // No dry run, also only half the coef contexts and bands are updated.
   // The rest are not updated at all.
   ONE_LOOP_REDUCED = 1
-} FAST_COEFF_UPDATE;
+} FastCoeffUpdate;
 
-typedef struct MV_SPEED_FEATURES {
+typedef struct MvSpeedFeatures {
   // Motion search method (Diamond, NSTEP, Hex, Big Diamond, Square, etc).
-  SEARCH_METHODS search_method;
+  SearchMethods search_method;
 
   // This parameter controls which step in the n-step process we start at.
   // It's changed adaptively based on circumstances.
@@ -232,7 +225,7 @@ typedef struct MV_SPEED_FEATURES {
   // logarithmic search that keeps stepping at 1/2 pixel units until
   // you stop getting a gain, and then goes on to 1/4 and repeats
   // the same process. Along the way it skips many diagonals.
-  SUBPEL_SEARCH_METHODS subpel_search_method;
+  SubpelSearchMethods subpel_search_method;
 
   // Maximum number of steps in logarithmic subpel search before giving up.
   int subpel_iters_per_step;
@@ -242,22 +235,22 @@ typedef struct MV_SPEED_FEATURES {
 
   // This variable sets the step_param used in full pel motion search.
   int fullpel_search_step_param;
-} MV_SPEED_FEATURES;
+} MvSpeedFeatures;
 
 #define MAX_MESH_STEP 4
 
-typedef struct MESH_PATTERN {
+typedef struct MeshPattern {
   int range;
   int interval;
-} MESH_PATTERN;
+} MeshPattern;
 
-typedef struct SPEED_FEATURES {
-  MV_SPEED_FEATURES mv;
+typedef struct SpeedFeatures {
+  MvSpeedFeatures mv;
 
   // Frame level coding parameter update
   int frame_parameter_update;
 
-  RECODE_LOOP_TYPE recode_loop;
+  RecodeLoopType recode_loop;
 
   // Trellis (dynamic programming) optimization of quantized values (+1, 0).
   int optimize_coefficients;
@@ -273,7 +266,7 @@ typedef struct SPEED_FEATURES {
   // a log search that iterates 4 times (check around mv for last for best
   // error of combined predictor then check around mv for alt). If 0 we
   // we just use the best motion vector found for each frame by itself.
-  BLOCK_SIZE comp_inter_joint_search_thresh;
+  BlockSize comp_inter_joint_search_thresh;
 
   // This variable is used to cap the maximum number of times we skip testing a
   // mode to be evaluated. A high value means we will be faster.
@@ -284,24 +277,24 @@ typedef struct SPEED_FEATURES {
 
   // The threshold is to determine how slow the motino is, it is used when
   // use_lastframe_partitioning is set to LAST_FRAME_PARTITION_LOW_MOTION
-  MOTION_THRESHOLD lf_motion_threshold;
+  MotionThreshold lf_motion_threshold;
 
   // Determine which method we use to determine transform size. We can choose
   // between options like full rd, largest for prediction size, largest
   // for intra and model coefs for the rest.
-  TX_SIZE_SEARCH_METHOD tx_size_search_method;
+  TxSizeSearchMethod tx_size_search_method;
 
   // After looking at the first set of modes (set by index here), skip
   // checking modes for reference frames that don't match the reference frame
   // of the best so far.
   int mode_skip_start;
 
-  PARTITION_SEARCH_TYPE partition_search_type;
+  PartitionSearchType partition_search_type;
 
-  TX_TYPE_SEARCH tx_type_search;
+  TxTypeSearch tx_type_search;
 
   // Used if partition_search_type = FIXED_SIZE_PARTITION
-  BLOCK_SIZE always_this_block_size;
+  BlockSize always_this_block_size;
 
   // Skip rectangular partition test when partition type none gives better
   // rd than partition type split.
@@ -312,15 +305,15 @@ typedef struct SPEED_FEATURES {
 
   // Sets min and max partition sizes for this superblock based on the
   // same superblock in last encoded frame, and the left and above neighbor.
-  AUTO_MIN_MAX_MODE auto_min_max_partition_size;
+  AutoMinMaxMode auto_min_max_partition_size;
   // Ensures the rd based auto partition search will always
   // go down at least to the specified level.
-  BLOCK_SIZE rd_auto_partition_min_limit;
+  BlockSize rd_auto_partition_min_limit;
 
   // Min and max partition size we enable (block_size) as per auto
   // min max, but also used by adjust partitioning, and pick_partitioning.
-  BLOCK_SIZE default_min_partition_size;
-  BLOCK_SIZE default_max_partition_size;
+  BlockSize default_min_partition_size;
+  BlockSize default_max_partition_size;
 
   // Whether or not we allow partitions one smaller or one greater than the last
   // frame's partitioning. Only used if use_lastframe_partitioning is set.
@@ -350,7 +343,7 @@ typedef struct SPEED_FEATURES {
   int max_exaustive_pct;
 
   // Pattern to be used for any exhaustive mesh searches.
-  MESH_PATTERN mesh_patterns[MAX_MESH_STEP];
+  MeshPattern mesh_patterns[MAX_MESH_STEP];
 
   int schedule_mode_search;
 
@@ -409,14 +402,14 @@ typedef struct SPEED_FEATURES {
   int use_rd_breakout;
 
   // This feature controls how the loop filter level is determined.
-  LPF_PICK_METHOD lpf_pick;
+  LpfPickMethod lpf_pick;
 
   // This feature limits the number of coefficients updates we actually do
   // by only looking at counts from 1/2 the bands.
-  FAST_COEFF_UPDATE use_fast_coef_updates;
+  FastCoeffUpdate use_fast_coef_updates;
 
   // A binary mask indicating if NEARESTMV, NEARMV, ZEROMV, NEWMV
-  // modes are used in order from LSB to MSB for each BLOCK_SIZE.
+  // modes are used in order from LSB to MSB for each BlockSize.
   int inter_mode_mask[BLOCK_SIZES];
 
   // This feature controls whether we do the expensive context update and
@@ -430,7 +423,7 @@ typedef struct SPEED_FEATURES {
   // This variable controls the maximum block size where intra blocks can be
   // used in inter frames.
   // TODO(aconverse): Fold this into one of the other many mode skips
-  BLOCK_SIZE max_intra_bsize;
+  BlockSize max_intra_bsize;
 
   // The frequency that we check if SOURCE_VAR_BASED_PARTITION or
   // FIXED_PARTITION search type should be used.
@@ -452,7 +445,7 @@ typedef struct SPEED_FEATURES {
   int adaptive_interp_filter_search;
 
   // mask for skip evaluation of certain interp_filter type.
-  INTERP_FILTER_MASK interp_filter_search_mask;
+  InterpFilterMask interp_filter_search_mask;
 
   // Partition search early breakout thresholds.
   int64_t partition_search_breakout_dist_thr;
@@ -470,12 +463,12 @@ typedef struct SPEED_FEATURES {
   // Whether to compute distortion in the image domain (slower but
   // more accurate), or in the transform domain (faster but less acurate).
   int use_transform_domain_distortion;
-} SPEED_FEATURES;
+} SpeedFeatures;
 
-struct AV1_COMP;
+struct Av1Comp;
 
-void av1_set_speed_features_framesize_independent(struct AV1_COMP *cpi);
-void av1_set_speed_features_framesize_dependent(struct AV1_COMP *cpi);
+void av1_set_speed_features_framesize_independent(struct Av1Comp *cpi);
+void av1_set_speed_features_framesize_dependent(struct Av1Comp *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"

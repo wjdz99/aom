@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <string>
 
@@ -23,8 +23,8 @@
 
 namespace libaom_test {
 void Encoder::InitEncoder(VideoSource *video) {
-  aom_codec_err_t res;
-  const aom_image_t *img = video->img();
+  AomCodecErrT res;
+  const AomImageT *img = video->img();
 
   if (video->img() && !encoder_.priv) {
     cfg_.g_w = img->d_w;
@@ -61,7 +61,7 @@ void Encoder::EncodeFrame(VideoSource *video, const unsigned long frame_flags) {
   // Handle twopass stats
   CxDataIterator iter = GetCxData();
 
-  while (const aom_codec_cx_pkt_t *pkt = iter.Next()) {
+  while (const AomCodecCxPktT *pkt = iter.Next()) {
     if (pkt->kind != AOM_CODEC_STATS_PKT) continue;
 
     stats_->Append(*pkt);
@@ -70,8 +70,8 @@ void Encoder::EncodeFrame(VideoSource *video, const unsigned long frame_flags) {
 
 void Encoder::EncodeFrameInternal(const VideoSource &video,
                                   const unsigned long frame_flags) {
-  aom_codec_err_t res;
-  const aom_image_t *img = video.img();
+  AomCodecErrT res;
+  const AomImageT *img = video.img();
 
   // Handle frame resizing
   if (cfg_.g_w != img->d_w || cfg_.g_h != img->d_h) {
@@ -89,7 +89,7 @@ void Encoder::EncodeFrameInternal(const VideoSource &video,
 }
 
 void Encoder::Flush() {
-  const aom_codec_err_t res =
+  const AomCodecErrT res =
       aom_codec_encode(&encoder_, NULL, 0, 0, 0, deadline_);
   if (!encoder_.priv)
     ASSERT_EQ(AOM_CODEC_ERROR, res) << EncoderError();
@@ -98,8 +98,8 @@ void Encoder::Flush() {
 }
 
 void EncoderTest::InitializeConfig() {
-  const aom_codec_err_t res = codec_->DefaultEncoderConfig(&cfg_, 0);
-  dec_cfg_ = aom_codec_dec_cfg_t();
+  const AomCodecErrT res = codec_->DefaultEncoderConfig(&cfg_, 0);
+  dec_cfg_ = AomCodecDecCfgT();
   ASSERT_EQ(AOM_CODEC_OK, res);
 }
 
@@ -146,7 +146,7 @@ static bool compare_plane(const uint8_t *const buf1, int stride1,
 
 // The function should return "true" most of the time, therefore no early
 // break-out is implemented within the match checking process.
-static bool compare_img(const aom_image_t *img1, const aom_image_t *img2,
+static bool compare_img(const AomImageT *img1, const AomImageT *img2,
                         int *const mismatch_row, int *const mismatch_col,
                         int *const mismatch_plane, int *const mismatch_pix1,
                         int *const mismatch_pix2) {
@@ -189,8 +189,8 @@ static bool compare_img(const aom_image_t *img1, const aom_image_t *img2,
   return true;
 }
 
-void EncoderTest::MismatchHook(const aom_image_t *img_enc,
-                               const aom_image_t *img_dec) {
+void EncoderTest::MismatchHook(const AomImageT *img_enc,
+                               const AomImageT *img_dec) {
   int mismatch_row = 0;
   int mismatch_col = 0;
   int mismatch_plane = 0;
@@ -210,7 +210,7 @@ void EncoderTest::MismatchHook(const aom_image_t *img_enc,
 }
 
 void EncoderTest::RunLoop(VideoSource *video) {
-  aom_codec_dec_cfg_t dec_cfg = aom_codec_dec_cfg_t();
+  AomCodecDecCfgT dec_cfg = AomCodecDecCfgT();
 
   stats_.Reset();
 
@@ -267,14 +267,14 @@ void EncoderTest::RunLoop(VideoSource *video) {
 
       bool has_cxdata = false;
       bool has_dxdata = false;
-      while (const aom_codec_cx_pkt_t *pkt = iter.Next()) {
+      while (const AomCodecCxPktT *pkt = iter.Next()) {
         pkt = MutateEncoderOutputHook(pkt);
         again = true;
         switch (pkt->kind) {
           case AOM_CODEC_CX_FRAME_PKT:
             has_cxdata = true;
             if (decoder.get() != NULL && DoDecode()) {
-              aom_codec_err_t res_dec = decoder->DecodeFrame(
+              AomCodecErrT res_dec = decoder->DecodeFrame(
                   (const uint8_t *)pkt->data.frame.buf, pkt->data.frame.sz);
 
               if (!HandleDecodeResult(res_dec, decoder.get())) break;
@@ -294,14 +294,14 @@ void EncoderTest::RunLoop(VideoSource *video) {
 
       // Flush the decoder when there are no more fragments.
       if ((init_flags_ & AOM_CODEC_USE_OUTPUT_PARTITION) && has_dxdata) {
-        const aom_codec_err_t res_dec = decoder->DecodeFrame(NULL, 0);
+        const AomCodecErrT res_dec = decoder->DecodeFrame(NULL, 0);
         if (!HandleDecodeResult(res_dec, decoder.get())) break;
       }
 
       if (has_dxdata && has_cxdata) {
-        const aom_image_t *img_enc = encoder->GetPreviewFrame();
+        const AomImageT *img_enc = encoder->GetPreviewFrame();
         DxDataIterator dec_iter = decoder->GetDxData();
-        const aom_image_t *img_dec = dec_iter.Next();
+        const AomImageT *img_dec = dec_iter.Next();
         if (img_enc && img_dec) {
           const bool res =
               compare_img(img_enc, img_dec, NULL, NULL, NULL, NULL, NULL);

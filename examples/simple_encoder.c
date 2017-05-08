@@ -115,12 +115,12 @@ void usage_exit(void) {
   exit(EXIT_FAILURE);
 }
 
-static int encode_frame(aom_codec_ctx_t *codec, aom_image_t *img,
-                        int frame_index, int flags, AvxVideoWriter *writer) {
+static int encode_frame(AomCodecCtxT *codec, AomImageT *img, int frame_index,
+                        int flags, AvxVideoWriter *writer) {
   int got_pkts = 0;
-  aom_codec_iter_t iter = NULL;
-  const aom_codec_cx_pkt_t *pkt = NULL;
-  const aom_codec_err_t res =
+  AomCodecIterT iter = NULL;
+  const AomCodecCxPktT *pkt = NULL;
+  const AomCodecErrT res =
       aom_codec_encode(codec, img, frame_index, 1, flags, AOM_DL_GOOD_QUALITY);
   if (res != AOM_CODEC_OK) die_codec(codec, "Failed to encode frame");
 
@@ -145,11 +145,11 @@ static int encode_frame(aom_codec_ctx_t *codec, aom_image_t *img,
 // TODO(tomfinegan): Improve command line parsing and add args for bitrate/fps.
 int main(int argc, char **argv) {
   FILE *infile = NULL;
-  aom_codec_ctx_t codec;
-  aom_codec_enc_cfg_t cfg;
+  AomCodecCtxT codec;
+  AomCodecEncCfgT cfg;
   int frame_count = 0;
-  aom_image_t raw;
-  aom_codec_err_t res;
+  AomImageT raw;
+  AomCodecErrT res;
   AvxVideoInfo info;
   AvxVideoWriter *writer = NULL;
   const AvxInterface *encoder = NULL;
@@ -213,7 +213,7 @@ int main(int argc, char **argv) {
   cfg.g_timebase.num = info.time_base.numerator;
   cfg.g_timebase.den = info.time_base.denominator;
   cfg.rc_target_bitrate = bitrate;
-  cfg.g_error_resilient = (aom_codec_er_flags_t)strtoul(argv[7], NULL, 0);
+  cfg.g_error_resilient = (AomCodecErFlagsT)strtoul(argv[7], NULL, 0);
 
   writer = aom_video_writer_open(outfile_arg, kContainerIVF, &info);
   if (!writer) die("Failed to open %s for writing.", outfile_arg);

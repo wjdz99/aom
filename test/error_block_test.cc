@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <cmath>
 #include <cstdlib>
@@ -31,11 +31,11 @@ namespace {
 #if CONFIG_HIGHBITDEPTH
 const int kNumIterations = 1000;
 
-typedef int64_t (*ErrorBlockFunc)(const tran_low_t *coeff,
-                                  const tran_low_t *dqcoeff,
-                                  intptr_t block_size, int64_t *ssz, int bps);
+typedef int64_t (*ErrorBlockFunc)(const TranLowT *coeff,
+                                  const TranLowT *dqcoeff, intptr_t block_size,
+                                  int64_t *ssz, int bps);
 
-typedef std::tr1::tuple<ErrorBlockFunc, ErrorBlockFunc, aom_bit_depth_t>
+typedef std::tr1::tuple<ErrorBlockFunc, ErrorBlockFunc, AomBitDepthT>
     ErrorBlockParam;
 
 class ErrorBlockTest : public ::testing::TestWithParam<ErrorBlockParam> {
@@ -50,15 +50,15 @@ class ErrorBlockTest : public ::testing::TestWithParam<ErrorBlockParam> {
   virtual void TearDown() { libaom_test::ClearSystemState(); }
 
  protected:
-  aom_bit_depth_t bit_depth_;
+  AomBitDepthT bit_depth_;
   ErrorBlockFunc error_block_op_;
   ErrorBlockFunc ref_error_block_op_;
 };
 
 TEST_P(ErrorBlockTest, OperationCheck) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, tran_low_t, coeff[4096]);
-  DECLARE_ALIGNED(16, tran_low_t, dqcoeff[4096]);
+  DECLARE_ALIGNED(16, TranLowT, coeff[4096]);
+  DECLARE_ALIGNED(16, TranLowT, dqcoeff[4096]);
   int err_count_total = 0;
   int first_failure = -1;
   intptr_t block_size;
@@ -100,8 +100,8 @@ TEST_P(ErrorBlockTest, OperationCheck) {
 
 TEST_P(ErrorBlockTest, ExtremeValues) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, tran_low_t, coeff[4096]);
-  DECLARE_ALIGNED(16, tran_low_t, dqcoeff[4096]);
+  DECLARE_ALIGNED(16, TranLowT, coeff[4096]);
+  DECLARE_ALIGNED(16, TranLowT, dqcoeff[4096]);
   int err_count_total = 0;
   int first_failure = -1;
   intptr_t block_size;

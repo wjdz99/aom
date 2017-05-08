@@ -24,68 +24,68 @@ extern "C" {
 #define EOSB_TOKEN 127  // Not signalled, encoder only
 
 #if CONFIG_HIGHBITDEPTH
-typedef int32_t EXTRABIT;
+typedef int32_t Extrabit;
 #else
-typedef int16_t EXTRABIT;
+typedef int16_t Extrabit;
 #endif
 
 typedef struct {
   int16_t token;
-  EXTRABIT extra;
-} TOKENVALUE;
+  Extrabit extra;
+} Tokenvalue;
 
 typedef struct {
 #if CONFIG_NEW_TOKENSET
-  aom_cdf_prob (*tail_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
-  aom_cdf_prob (*head_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
+  AomCdfProb (*tail_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
+  AomCdfProb (*head_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
   int eob_val;
   int first_val;
 #elif CONFIG_EC_MULTISYMBOL
-  aom_cdf_prob (*token_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
+  AomCdfProb (*token_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
 #endif
-  const aom_prob *context_tree;
-  EXTRABIT extra;
+  const AomProb *context_tree;
+  Extrabit extra;
   uint8_t token;
   uint8_t skip_eob_node;
-} TOKENEXTRA;
+} Tokenextra;
 
-extern const aom_tree_index av1_coef_tree[];
-extern const aom_tree_index av1_coef_con_tree[];
+extern const AomTreeIndex av1_coef_tree[];
+extern const AomTreeIndex av1_coef_con_tree[];
 #if !CONFIG_EC_MULTISYMBOL
-extern const struct av1_token av1_coef_encodings[];
+extern const struct Av1Token av1_coef_encodings[];
 #endif  // !CONFIG_EC_MULTISYMBOL
 
-int av1_is_skippable_in_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane);
+int av1_is_skippable_in_plane(Macroblock *x, BlockSize bsize, int plane);
 
-struct AV1_COMP;
+struct Av1Comp;
 struct ThreadData;
 
 typedef enum {
   OUTPUT_ENABLED = 0,
   DRY_RUN_NORMAL,
   DRY_RUN_COSTCOEFFS,
-} RUN_TYPE;
+} RunType;
 
 // Note in all the tokenize functions rate if non NULL is incremented
 // with the coefficient token cost only if dry_run = DRY_RUN_COSTCOEFS,
 // otherwise rate is not incremented.
 #if CONFIG_VAR_TX
-void av1_tokenize_sb_vartx(const struct AV1_COMP *cpi, struct ThreadData *td,
-                           TOKENEXTRA **t, RUN_TYPE dry_run, int mi_row,
-                           int mi_col, BLOCK_SIZE bsize, int *rate);
+void av1_tokenize_sb_vartx(const struct Av1Comp *cpi, struct ThreadData *td,
+                           Tokenextra **t, RunType dry_run, int mi_row,
+                           int mi_col, BlockSize bsize, int *rate);
 #endif
 #if CONFIG_PALETTE
-void av1_tokenize_palette_sb(const struct AV1_COMP *cpi,
+void av1_tokenize_palette_sb(const struct Av1Comp *cpi,
                              const struct ThreadData *const td, int plane,
-                             TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
+                             Tokenextra **t, RunType dry_run, BlockSize bsize,
                              int *rate);
 #endif  // CONFIG_PALETTE
-void av1_tokenize_sb(const struct AV1_COMP *cpi, struct ThreadData *td,
-                     TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
+void av1_tokenize_sb(const struct Av1Comp *cpi, struct ThreadData *td,
+                     Tokenextra **t, RunType dry_run, BlockSize bsize,
                      int *rate, const int mi_row, const int mi_col);
 #if CONFIG_SUPERTX
-void av1_tokenize_sb_supertx(const struct AV1_COMP *cpi, struct ThreadData *td,
-                             TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
+void av1_tokenize_sb_supertx(const struct Av1Comp *cpi, struct ThreadData *td,
+                             Tokenextra **t, RunType dry_run, BlockSize bsize,
                              int *rate);
 #endif
 
@@ -94,8 +94,8 @@ extern const int16_t *av1_dct_value_cost_ptr;
  *  improve cache locality, since it's needed for costing when the rest of the
  *  fields are not.
  */
-extern const TOKENVALUE *av1_dct_value_tokens_ptr;
-extern const TOKENVALUE *av1_dct_cat_lt_10_value_tokens;
+extern const Tokenvalue *av1_dct_value_tokens_ptr;
+extern const Tokenvalue *av1_dct_cat_lt_10_value_tokens;
 extern const int *av1_dct_cat_lt_10_value_cost;
 extern const int16_t av1_cat6_low_cost[256];
 #if CONFIG_HIGHBITDEPTH
@@ -106,7 +106,7 @@ extern const int16_t av1_cat6_low_cost[256];
 extern const int av1_cat6_high_cost[CAT6_HIGH_COST_ENTRIES];
 extern const uint8_t av1_cat6_skipped_bits_discount[8];
 
-static INLINE void av1_get_token_extra(int v, int16_t *token, EXTRABIT *extra) {
+static INLINE void av1_get_token_extra(int v, int16_t *token, Extrabit *extra) {
   if (v >= CAT6_MIN_VAL || v <= -CAT6_MIN_VAL) {
     *token = CATEGORY6_TOKEN;
     if (v >= CAT6_MIN_VAL)
@@ -125,7 +125,7 @@ static INLINE int16_t av1_get_token(int v) {
 
 static INLINE int av1_get_token_cost(int v, int16_t *token, int cat6_bits) {
   if (v >= CAT6_MIN_VAL || v <= -CAT6_MIN_VAL) {
-    EXTRABIT extrabits;
+    Extrabit extrabits;
     *token = CATEGORY6_TOKEN;
     extrabits = abs(v) - CAT6_MIN_VAL;
     return av1_cat6_low_cost[extrabits & 0xff] +
@@ -138,7 +138,7 @@ static INLINE int av1_get_token_cost(int v, int16_t *token, int cat6_bits) {
 
 #if !CONFIG_PVQ || CONFIG_VAR_TX
 static INLINE int get_tx_eob(const struct segmentation *seg, int segment_id,
-                             TX_SIZE tx_size) {
+                             TxSize tx_size) {
   const int eob_max = tx_size_2d[tx_size];
   return segfeature_active(seg, segment_id, SEG_LVL_SKIP) ? 0 : eob_max;
 }

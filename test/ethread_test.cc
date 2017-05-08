@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <string>
 #include <vector>
@@ -27,7 +27,7 @@ class AVxEncoderThreadTest
       : EncoderTest(GET_PARAM(0)), encoder_initialized_(false),
         encoding_mode_(GET_PARAM(1)), set_cpu_used_(GET_PARAM(2)) {
     init_flags_ = AOM_CODEC_USE_PSNR;
-    aom_codec_dec_cfg_t cfg = aom_codec_dec_cfg_t();
+    AomCodecDecCfgT cfg = AomCodecDecCfgT();
     cfg.w = 1280;
     cfg.h = 720;
     decoder_ = codec_->CreateDecoder(cfg, 0);
@@ -100,7 +100,7 @@ class AVxEncoderThreadTest
     }
   }
 
-  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void FramePktHook(const AomCodecCxPktT *pkt) {
     size_enc_.push_back(pkt->data.frame.sz);
 
     ::libaom_test::MD5 md5_enc;
@@ -108,13 +108,13 @@ class AVxEncoderThreadTest
                 pkt->data.frame.sz);
     md5_enc_.push_back(md5_enc.Get());
 
-    const aom_codec_err_t res = decoder_->DecodeFrame(
+    const AomCodecErrT res = decoder_->DecodeFrame(
         reinterpret_cast<uint8_t *>(pkt->data.frame.buf), pkt->data.frame.sz);
     if (res != AOM_CODEC_OK) {
       abort_ = true;
       ASSERT_EQ(AOM_CODEC_OK, res);
     }
-    const aom_image_t *img = decoder_->GetDxData().Next();
+    const AomImageT *img = decoder_->GetDxData().Next();
 
     if (img) {
       ::libaom_test::MD5 md5_res;

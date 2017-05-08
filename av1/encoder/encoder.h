@@ -67,8 +67,8 @@ typedef struct {
   // 0 = ZERO_MV, MV
   signed char last_mode_lf_deltas[MAX_MODE_LF_DELTAS];
 
-  FRAME_CONTEXT fc;
-} CODING_CONTEXT;
+  FrameContext fc;
+} CodingContext;
 
 typedef enum {
   // regular inter frame
@@ -85,14 +85,9 @@ typedef enum {
   // extra alternate reference frame
   EXT_ARF_FRAME = 5
 #endif
-} FRAME_CONTEXT_INDEX;
+} FrameContextIndex;
 
-typedef enum {
-  NORMAL = 0,
-  FOURFIVE = 1,
-  THREEFIVE = 2,
-  ONETWO = 3
-} AOM_SCALING;
+typedef enum { NORMAL = 0, FOURFIVE = 1, THREEFIVE = 2, ONETWO = 3 } AomScaling;
 
 typedef enum {
   // Good Quality Fast Encoding. The encoder balances quality with the amount of
@@ -109,7 +104,7 @@ typedef enum {
 #else
   FRAMEFLAGS_ALTREF = 1 << 2,
 #endif  // CONFIG_EXT_REFS
-} FRAMETYPE_FLAGS;
+} FrametypeFlags;
 
 typedef enum {
   NO_AQ = 0,
@@ -120,24 +115,24 @@ typedef enum {
   DELTA_AQ = 4,
 #endif
   AQ_MODE_COUNT  // This should always be the last member of the enum
-} AQ_MODE;
+} AqMode;
 #if CONFIG_EXT_DELTA_Q
 typedef enum {
   NO_DELTA_Q = 0,
   DELTA_Q_ONLY = 1,
   DELTA_Q_LF = 2,
   DELTAQ_MODE_COUNT  // This should always be the last member of the enum
-} DELTAQ_MODE;
+} DeltaqMode;
 #endif
 typedef enum {
   RESIZE_NONE = 0,    // No frame resizing allowed.
   RESIZE_FIXED = 1,   // All frames are coded at the specified dimension.
   RESIZE_DYNAMIC = 2  // Coded size of each frame is determined by the codec.
-} RESIZE_TYPE;
+} ResizeType;
 
 typedef struct AV1EncoderConfig {
-  BITSTREAM_PROFILE profile;
-  aom_bit_depth_t bit_depth;     // Codec bit-depth.
+  BitstreamProfile profile;
+  AomBitDepthT bit_depth;        // Codec bit-depth.
   int width;                     // width of data passed to the compressor
   int height;                    // height of data passed to the compressor
   unsigned int input_bit_depth;  // Input bit depth.
@@ -186,9 +181,9 @@ typedef struct AV1EncoderConfig {
   int worst_allowed_q;
   int best_allowed_q;
   int cq_level;
-  AQ_MODE aq_mode;  // Adaptive Quantization mode
+  AqMode aq_mode;  // Adaptive Quantization mode
 #if CONFIG_EXT_DELTA_Q
-  DELTAQ_MODE deltaq_mode;
+  DeltaqMode deltaq_mode;
 #endif
 #if CONFIG_AOM_QM
   int using_qm;
@@ -204,7 +199,7 @@ typedef struct AV1EncoderConfig {
   unsigned int disable_tempmv;
 #endif
   // Internal frame size scaling.
-  RESIZE_TYPE resize_mode;
+  ResizeType resize_mode;
   int scaled_frame_width;
   int scaled_frame_height;
 
@@ -252,25 +247,25 @@ typedef struct AV1EncoderConfig {
 
   int max_threads;
 
-  aom_fixed_buf_t two_pass_stats_in;
-  struct aom_codec_pkt_list *output_pkt_list;
+  AomFixedBufT two_pass_stats_in;
+  struct AomCodecPktList *output_pkt_list;
 
 #if CONFIG_FP_MB_STATS
-  aom_fixed_buf_t firstpass_mb_stats_in;
+  AomFixedBufT firstpass_mb_stats_in;
 #endif
 
-  aom_tune_metric tuning;
-  aom_tune_content content;
+  AomTuneMetric tuning;
+  AomTuneContent content;
 #if CONFIG_HIGHBITDEPTH
   int use_highbitdepth;
 #endif
-  aom_color_space_t color_space;
+  AomColorSpaceT color_space;
   int color_range;
   int render_width;
   int render_height;
 
 #if CONFIG_EXT_PARTITION
-  aom_superblock_size_t superblock_size;
+  AomSuperblockSizeT superblock_size;
 #endif  // CONFIG_EXT_PARTITION
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
   int ans_window_size_log2;
@@ -294,36 +289,36 @@ typedef struct TileDataEnc {
   int m_search_count;
   int ex_search_count;
 #if CONFIG_PVQ
-  PVQ_QUEUE pvq_q;
+  PvqQueue pvq_q;
 #endif
 #if CONFIG_CFL
-  CFL_CTX cfl;
+  CflCtx cfl;
 #endif
 #if CONFIG_EC_ADAPT
-  DECLARE_ALIGNED(16, FRAME_CONTEXT, tctx);
+  DECLARE_ALIGNED(16, FrameContext, tctx);
 #endif
 } TileDataEnc;
 
-typedef struct RD_COUNTS {
-  av1_coeff_count coef_counts[TX_SIZES][PLANE_TYPES];
+typedef struct RdCounts {
+  Av1CoeffCount coef_counts[TX_SIZES][PLANE_TYPES];
   int64_t comp_pred_diff[REFERENCE_MODES];
 #if CONFIG_GLOBAL_MOTION
   // Stores number of 4x4 blocks using global motion per reference frame.
   int global_motion_used[TOTAL_REFS_PER_FRAME];
 #endif  // CONFIG_GLOBAL_MOTION
-} RD_COUNTS;
+} RdCounts;
 
 typedef struct ThreadData {
-  MACROBLOCK mb;
-  RD_COUNTS rd_counts;
-  FRAME_COUNTS *counts;
+  Macroblock mb;
+  RdCounts rd_counts;
+  FrameCounts *counts;
 
-  PICK_MODE_CONTEXT *leaf_tree;
-  PC_TREE *pc_tree;
-  PC_TREE *pc_root[MAX_MIB_SIZE_LOG2 - MIN_MIB_SIZE_LOG2 + 1];
+  PickModeContext *leaf_tree;
+  PcTree *pc_tree;
+  PcTree *pc_root[MAX_MIB_SIZE_LOG2 - MIN_MIB_SIZE_LOG2 + 1];
 
-  VAR_TREE *var_tree;
-  VAR_TREE *var_root[MAX_MIB_SIZE_LOG2 - MIN_MIB_SIZE_LOG2 + 1];
+  VarTree *var_tree;
+  VarTree *var_root[MAX_MIB_SIZE_LOG2 - MIN_MIB_SIZE_LOG2 + 1];
 } ThreadData;
 
 struct EncWorkerData;
@@ -336,7 +331,7 @@ typedef struct ActiveMap {
 
 #define NUM_STAT_TYPES 4  // types of stats: Y, U, V and ALL
 
-typedef struct IMAGE_STAT {
+typedef struct ImageStat {
   double stat[NUM_STAT_TYPES];
   double worst;
 } ImageStat;
@@ -345,7 +340,7 @@ typedef struct IMAGE_STAT {
 
 typedef struct {
   int ref_count;
-  YV12_BUFFER_CONFIG buf;
+  Yv12BufferConfig buf;
 } EncRefCntBuffer;
 
 typedef struct TileBufferEnc {
@@ -353,29 +348,29 @@ typedef struct TileBufferEnc {
   size_t size;
 } TileBufferEnc;
 
-typedef struct AV1_COMP {
-  QUANTS quants;
+typedef struct Av1Comp {
+  Quants quants;
   ThreadData td;
-  MB_MODE_INFO_EXT *mbmi_ext_base;
+  MbModeInfoExt *mbmi_ext_base;
   DECLARE_ALIGNED(16, int16_t, y_dequant[QINDEX_RANGE][8]);   // 8: SIMD width
   DECLARE_ALIGNED(16, int16_t, uv_dequant[QINDEX_RANGE][8]);  // 8: SIMD width
 #if CONFIG_NEW_QUANT
-  DECLARE_ALIGNED(16, dequant_val_type_nuq,
+  DECLARE_ALIGNED(16, DequantValTypeNuq,
                   y_dequant_val_nuq[QUANT_PROFILES][QINDEX_RANGE][COEF_BANDS]);
-  DECLARE_ALIGNED(16, dequant_val_type_nuq,
+  DECLARE_ALIGNED(16, DequantValTypeNuq,
                   uv_dequant_val_nuq[QUANT_PROFILES][QINDEX_RANGE][COEF_BANDS]);
 #endif  // CONFIG_NEW_QUANT
-  AV1_COMMON common;
+  Av1Common common;
   AV1EncoderConfig oxcf;
-  struct lookahead_ctx *lookahead;
-  struct lookahead_entry *alt_ref_source;
+  struct LookaheadCtx *lookahead;
+  struct LookaheadEntry *alt_ref_source;
 
-  YV12_BUFFER_CONFIG *source;
-  YV12_BUFFER_CONFIG *last_source;  // NULL for first frame and alt_ref frames
-  YV12_BUFFER_CONFIG *un_scaled_source;
-  YV12_BUFFER_CONFIG scaled_source;
-  YV12_BUFFER_CONFIG *unscaled_last_source;
-  YV12_BUFFER_CONFIG scaled_last_source;
+  Yv12BufferConfig *source;
+  Yv12BufferConfig *last_source;  // NULL for first frame and alt_ref frames
+  Yv12BufferConfig *un_scaled_source;
+  Yv12BufferConfig scaled_source;
+  Yv12BufferConfig *unscaled_last_source;
+  Yv12BufferConfig scaled_last_source;
 
   // Up-sampled reference buffers
   // NOTE(zoeliu): It is needed to allocate sufficient space to the up-sampled
@@ -416,10 +411,10 @@ typedef struct AV1_COMP {
   int ext_refresh_frame_context_pending;
   int ext_refresh_frame_context;
 
-  YV12_BUFFER_CONFIG last_frame_uf;
+  Yv12BufferConfig last_frame_uf;
 #if CONFIG_LOOP_RESTORATION
-  YV12_BUFFER_CONFIG last_frame_db;
-  YV12_BUFFER_CONFIG trial_frame_rst;
+  Yv12BufferConfig last_frame_db;
+  Yv12BufferConfig trial_frame_rst;
   uint8_t *extra_rstbuf;  // Extra buffers used in restoration search
   RestorationInfo rst_search[MAX_MB_PLANE];  // Used for encoder side search
 #endif                                       // CONFIG_LOOP_RESTORATION
@@ -427,9 +422,9 @@ typedef struct AV1_COMP {
   // Ambient reconstruction err target for force key frames
   int64_t ambient_err;
 
-  RD_OPT rd;
+  RdOpt rd;
 
-  CODING_CONTEXT coding_context;
+  CodingContext coding_context;
 
   int nmv_costs[NMV_CONTEXTS][2][MV_VALS];
   int nmv_costs_hp[NMV_CONTEXTS][2][MV_VALS];
@@ -443,9 +438,9 @@ typedef struct AV1_COMP {
   int64_t last_end_time_stamp_seen;
   int64_t first_time_stamp_ever;
 
-  RATE_CONTROL rc;
+  RateControl rc;
 #if CONFIG_XIPHRC
-  od_rc_state od_rc;
+  OdRcState od_rc;
 #endif
   double framerate;
 
@@ -454,14 +449,14 @@ typedef struct AV1_COMP {
   // sufficient space to the size of the maximum possible number of frames.
   int interp_filter_selected[REF_FRAMES + 1][SWITCHABLE];
 
-  struct aom_codec_pkt_list *output_pkt_list;
+  struct AomCodecPktList *output_pkt_list;
 
-  MBGRAPH_FRAME_STATS mbgraph_stats[MAX_LAG_BUFFERS];
+  MbgraphFrameStats mbgraph_stats[MAX_LAG_BUFFERS];
   int mbgraph_n_frames;  // number of frames filled in the above
   int static_mb_pct;     // % forced skip mbs by segmentation
   int ref_frame_flags;
 
-  SPEED_FEATURES sf;
+  SpeedFeatures sf;
 
   unsigned int max_mv_magnitude;
   int mv_step_param;
@@ -470,13 +465,13 @@ typedef struct AV1_COMP {
 
   uint8_t *segmentation_map;
 
-  CYCLIC_REFRESH *cyclic_refresh;
+  CyclicRefresh *cyclic_refresh;
   ActiveMap active_map;
 
-  fractional_mv_step_fp *find_fractional_mv_step;
-  av1_full_search_fn_t full_search_sad;  // It is currently unused.
-  av1_diamond_search_fn_t diamond_search_sad;
-  aom_variance_fn_ptr_t fn_ptr[BLOCK_SIZES];
+  FractionalMvStepFp *find_fractional_mv_step;
+  Av1FullSearchFnT full_search_sad;  // It is currently unused.
+  Av1DiamondSearchFnT diamond_search_sad;
+  AomVarianceFnPtrT fn_ptr[BLOCK_SIZES];
   uint64_t time_receive_data;
   uint64_t time_compress_data;
   uint64_t time_pick_lpf;
@@ -486,9 +481,9 @@ typedef struct AV1_COMP {
   int use_fp_mb_stats;
 #endif
 
-  TWO_PASS twopass;
+  TwoPass twopass;
 
-  YV12_BUFFER_CONFIG alt_ref_buffer;
+  Yv12BufferConfig alt_ref_buffer;
 
 #if CONFIG_INTERNAL_STATS
   unsigned int mode_chosen_counts[MAX_MODES];
@@ -537,7 +532,7 @@ typedef struct AV1_COMP {
 
   int frame_flags;
 
-  search_site_config ss_cfg;
+  SearchSiteConfig ss_cfg;
 
   int mbmode_cost[BLOCK_SIZE_GROUPS][INTRA_MODES];
   int newmv_mode_cost[NEWMV_MODE_CONTEXTS][2];
@@ -604,7 +599,7 @@ typedef struct AV1_COMP {
   TileDataEnc *tile_data;
   int allocated_tiles;  // Keep track of memory allocated for tiles.
 
-  TOKENEXTRA *tile_tok[MAX_TILE_ROWS][MAX_TILE_COLS];
+  Tokenextra *tile_tok[MAX_TILE_ROWS][MAX_TILE_COLS];
   unsigned int tok_count[MAX_TILE_ROWS][MAX_TILE_COLS];
 
   TileBufferEnc tile_buffers[MAX_TILE_ROWS][MAX_TILE_COLS];
@@ -628,7 +623,7 @@ typedef struct AV1_COMP {
   int64_t vbp_thresholds[5];
   int64_t vbp_threshold_minmax;
   int64_t vbp_threshold_sad;
-  BLOCK_SIZE vbp_bsize_min;
+  BlockSize vbp_bsize_min;
 
   // VARIANCE_AQ segment map refresh
   int vaq_refresh;
@@ -655,66 +650,65 @@ typedef struct AV1_COMP {
   SequenceHeader seq_params;
 #endif
 #if CONFIG_LV_MAP
-  tran_low_t *tcoeff_buf[MAX_MB_PLANE];
+  TranLowT *tcoeff_buf[MAX_MB_PLANE];
 #endif
-} AV1_COMP;
+} Av1Comp;
 
 void av1_initialize_enc(void);
 
-struct AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
-                                       BufferPool *const pool);
-void av1_remove_compressor(AV1_COMP *cpi);
+struct Av1Comp *av1_create_compressor(AV1EncoderConfig *oxcf,
+                                      BufferPool *const pool);
+void av1_remove_compressor(Av1Comp *cpi);
 
-void av1_change_config(AV1_COMP *cpi, const AV1EncoderConfig *oxcf);
+void av1_change_config(Av1Comp *cpi, const AV1EncoderConfig *oxcf);
 
 // receive a frames worth of data. caller can assume that a copy of this
 // frame is made and not just a copy of the pointer..
-int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
-                          YV12_BUFFER_CONFIG *sd, int64_t time_stamp,
+int av1_receive_raw_frame(Av1Comp *cpi, AomEncFrameFlagsT frame_flags,
+                          Yv12BufferConfig *sd, int64_t time_stamp,
                           int64_t end_time_stamp);
 
-int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
+int av1_get_compressed_data(Av1Comp *cpi, unsigned int *frame_flags,
                             size_t *size, uint8_t *dest, int64_t *time_stamp,
                             int64_t *time_end, int flush);
 
-int av1_get_preview_raw_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *dest);
+int av1_get_preview_raw_frame(Av1Comp *cpi, Yv12BufferConfig *dest);
 
-int av1_get_last_show_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *frame);
+int av1_get_last_show_frame(Av1Comp *cpi, Yv12BufferConfig *frame);
 
-int av1_use_as_reference(AV1_COMP *cpi, int ref_frame_flags);
+int av1_use_as_reference(Av1Comp *cpi, int ref_frame_flags);
 
-void av1_update_reference(AV1_COMP *cpi, int ref_frame_flags);
+void av1_update_reference(Av1Comp *cpi, int ref_frame_flags);
 
-int av1_copy_reference_enc(AV1_COMP *cpi, AOM_REFFRAME ref_frame_flag,
-                           YV12_BUFFER_CONFIG *sd);
+int av1_copy_reference_enc(Av1Comp *cpi, AomRefframe ref_frame_flag,
+                           Yv12BufferConfig *sd);
 
-int av1_set_reference_enc(AV1_COMP *cpi, AOM_REFFRAME ref_frame_flag,
-                          YV12_BUFFER_CONFIG *sd);
+int av1_set_reference_enc(Av1Comp *cpi, AomRefframe ref_frame_flag,
+                          Yv12BufferConfig *sd);
 
-int av1_update_entropy(AV1_COMP *cpi, int update);
+int av1_update_entropy(Av1Comp *cpi, int update);
 
-int av1_set_active_map(AV1_COMP *cpi, unsigned char *map, int rows, int cols);
+int av1_set_active_map(Av1Comp *cpi, unsigned char *map, int rows, int cols);
 
-int av1_get_active_map(AV1_COMP *cpi, unsigned char *map, int rows, int cols);
+int av1_get_active_map(Av1Comp *cpi, unsigned char *map, int rows, int cols);
 
-int av1_set_internal_size(AV1_COMP *cpi, AOM_SCALING horiz_mode,
-                          AOM_SCALING vert_mode);
+int av1_set_internal_size(Av1Comp *cpi, AomScaling horiz_mode,
+                          AomScaling vert_mode);
 
-int av1_set_size_literal(AV1_COMP *cpi, unsigned int width,
-                         unsigned int height);
+int av1_set_size_literal(Av1Comp *cpi, unsigned int width, unsigned int height);
 
-int av1_get_quantizer(struct AV1_COMP *cpi);
+int av1_get_quantizer(struct Av1Comp *cpi);
 
-void av1_full_to_model_counts(av1_coeff_count_model *model_count,
-                              av1_coeff_count *full_count);
+void av1_full_to_model_counts(Av1CoeffCountModel *model_count,
+                              Av1CoeffCount *full_count);
 
-static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
+static INLINE int frame_is_kf_gf_arf(const Av1Comp *cpi) {
   return frame_is_intra_only(&cpi->common) || cpi->refresh_alt_ref_frame ||
          (cpi->refresh_golden_frame && !cpi->rc.is_src_frame_alt_ref);
 }
 
-static INLINE int get_ref_frame_map_idx(const AV1_COMP *cpi,
-                                        MV_REFERENCE_FRAME ref_frame) {
+static INLINE int get_ref_frame_map_idx(const Av1Comp *cpi,
+                                        MvReferenceFrame ref_frame) {
 #if CONFIG_EXT_REFS
   if (ref_frame >= LAST_FRAME && ref_frame <= LAST3_FRAME)
     return cpi->lst_fb_idxes[ref_frame - 1];
@@ -731,23 +725,23 @@ static INLINE int get_ref_frame_map_idx(const AV1_COMP *cpi,
     return cpi->alt_fb_idx;
 }
 
-static INLINE int get_ref_frame_buf_idx(const AV1_COMP *cpi,
-                                        MV_REFERENCE_FRAME ref_frame) {
-  const AV1_COMMON *const cm = &cpi->common;
+static INLINE int get_ref_frame_buf_idx(const Av1Comp *cpi,
+                                        MvReferenceFrame ref_frame) {
+  const Av1Common *const cm = &cpi->common;
   const int map_idx = get_ref_frame_map_idx(cpi, ref_frame);
   return (map_idx != INVALID_IDX) ? cm->ref_frame_map[map_idx] : INVALID_IDX;
 }
 
-static INLINE YV12_BUFFER_CONFIG *get_ref_frame_buffer(
-    const AV1_COMP *cpi, MV_REFERENCE_FRAME ref_frame) {
-  const AV1_COMMON *const cm = &cpi->common;
+static INLINE Yv12BufferConfig *get_ref_frame_buffer(
+    const Av1Comp *cpi, MvReferenceFrame ref_frame) {
+  const Av1Common *const cm = &cpi->common;
   const int buf_idx = get_ref_frame_buf_idx(cpi, ref_frame);
   return buf_idx != INVALID_IDX ? &cm->buffer_pool->frame_bufs[buf_idx].buf
                                 : NULL;
 }
 
-static INLINE const YV12_BUFFER_CONFIG *get_upsampled_ref(
-    const AV1_COMP *cpi, const MV_REFERENCE_FRAME ref_frame) {
+static INLINE const Yv12BufferConfig *get_upsampled_ref(
+    const Av1Comp *cpi, const MvReferenceFrame ref_frame) {
   // Use up-sampled reference frames.
   const int buf_idx =
       cpi->upsampled_ref_idx[get_ref_frame_map_idx(cpi, ref_frame)];
@@ -755,9 +749,9 @@ static INLINE const YV12_BUFFER_CONFIG *get_upsampled_ref(
 }
 
 #if CONFIG_EXT_REFS
-static INLINE int enc_is_ref_frame_buf(AV1_COMP *cpi, RefCntBuffer *frame_buf) {
-  MV_REFERENCE_FRAME ref_frame;
-  AV1_COMMON *const cm = &cpi->common;
+static INLINE int enc_is_ref_frame_buf(Av1Comp *cpi, RefCntBuffer *frame_buf) {
+  MvReferenceFrame ref_frame;
+  Av1Common *const cm = &cpi->common;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     const int buf_idx = get_ref_frame_buf_idx(cpi, ref_frame);
     if (buf_idx == INVALID_IDX) continue;
@@ -788,34 +782,34 @@ static INLINE unsigned int allocated_tokens(TileInfo tile) {
   return get_token_alloc(tile_mb_rows, tile_mb_cols);
 }
 
-void av1_alloc_compressor_data(AV1_COMP *cpi);
+void av1_alloc_compressor_data(Av1Comp *cpi);
 
-void av1_scale_references(AV1_COMP *cpi);
+void av1_scale_references(Av1Comp *cpi);
 
-void av1_update_reference_frames(AV1_COMP *cpi);
+void av1_update_reference_frames(Av1Comp *cpi);
 
-void av1_set_high_precision_mv(AV1_COMP *cpi, int allow_high_precision_mv);
+void av1_set_high_precision_mv(Av1Comp *cpi, int allow_high_precision_mv);
 #if CONFIG_TEMPMV_SIGNALING
-void av1_set_temporal_mv_prediction(AV1_COMP *cpi, int allow_tempmv_prediction);
+void av1_set_temporal_mv_prediction(Av1Comp *cpi, int allow_tempmv_prediction);
 #endif
 
-YV12_BUFFER_CONFIG *av1_scale_if_required_fast(AV1_COMMON *cm,
-                                               YV12_BUFFER_CONFIG *unscaled,
-                                               YV12_BUFFER_CONFIG *scaled);
+Yv12BufferConfig *av1_scale_if_required_fast(Av1Common *cm,
+                                             Yv12BufferConfig *unscaled,
+                                             Yv12BufferConfig *scaled);
 
-YV12_BUFFER_CONFIG *av1_scale_if_required(AV1_COMMON *cm,
-                                          YV12_BUFFER_CONFIG *unscaled,
-                                          YV12_BUFFER_CONFIG *scaled);
+Yv12BufferConfig *av1_scale_if_required(Av1Common *cm,
+                                        Yv12BufferConfig *unscaled,
+                                        Yv12BufferConfig *scaled);
 
-void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags);
+void av1_apply_encoding_flags(Av1Comp *cpi, AomEncFrameFlagsT flags);
 
-static INLINE int is_altref_enabled(const AV1_COMP *const cpi) {
+static INLINE int is_altref_enabled(const Av1Comp *const cpi) {
   return cpi->oxcf.lag_in_frames > 0 && cpi->oxcf.enable_auto_arf;
 }
 
 // TODO(zoeliu): To set up cpi->oxcf.enable_auto_brf
 #if 0 && CONFIG_EXT_REFS
-static INLINE int is_bwdref_enabled(const AV1_COMP *const cpi) {
+static INLINE int is_bwdref_enabled(const Av1Comp *const cpi) {
   // NOTE(zoeliu): The enabling of bi-predictive frames depends on the use of
   //               alt_ref, and now will be off when the alt_ref interval is
   //               not sufficiently large.
@@ -823,9 +817,8 @@ static INLINE int is_bwdref_enabled(const AV1_COMP *const cpi) {
 }
 #endif  // CONFIG_EXT_REFS
 
-static INLINE void set_ref_ptrs(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                                MV_REFERENCE_FRAME ref0,
-                                MV_REFERENCE_FRAME ref1) {
+static INLINE void set_ref_ptrs(const Av1Common *cm, Macroblockd *xd,
+                                MvReferenceFrame ref0, MvReferenceFrame ref1) {
   xd->block_refs[0] =
       &cm->frame_refs[ref0 >= LAST_FRAME ? ref0 - LAST_FRAME : 0];
   xd->block_refs[1] =
@@ -836,11 +829,11 @@ static INLINE int get_chessboard_index(int frame_index) {
   return frame_index & 0x1;
 }
 
-static INLINE int *cond_cost_list(const struct AV1_COMP *cpi, int *cost_list) {
+static INLINE int *cond_cost_list(const struct Av1Comp *cpi, int *cost_list) {
   return cpi->sf.mv.subpel_search_method != SUBPEL_TREE ? cost_list : NULL;
 }
 
-void av1_new_framerate(AV1_COMP *cpi, double framerate);
+void av1_new_framerate(Av1Comp *cpi, double framerate);
 
 #define LAYER_IDS_TO_IDX(sl, tl, num_tl) ((sl) * (num_tl) + (tl))
 

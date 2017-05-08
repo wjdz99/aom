@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <math.h>
 #include <stdlib.h>
@@ -25,7 +25,7 @@ using libaom_test::ACMRandom;
 TEST(AV1, TestAccounting) {
   const int kBufferSize = 10000;
   const int kSymbols = 1024;
-  aom_writer bw;
+  AomWriter bw;
   uint8_t bw_buffer[kBufferSize];
   aom_start_encode(&bw, bw_buffer);
   for (int i = 0; i < kSymbols; i++) {
@@ -34,7 +34,7 @@ TEST(AV1, TestAccounting) {
     aom_write(&bw, 0, 32);
   }
   aom_stop_encode(&bw);
-  aom_reader br;
+  AomReader br;
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
   br.window_size = 1 << 16;
 #endif

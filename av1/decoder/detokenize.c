@@ -44,8 +44,8 @@
 
 #if CONFIG_NEW_MULTISYMBOL
 #define READ_COEFF(prob_name, cdf_name, num, r) read_coeff(cdf_name, num, r);
-static INLINE int read_coeff(const aom_cdf_prob *const *cdf, int n,
-                             aom_reader *r) {
+static INLINE int read_coeff(const AomCdfProb *const *cdf, int n,
+                             AomReader *r) {
   int val = 0;
   int i = 0;
   int count = 0;
@@ -58,7 +58,7 @@ static INLINE int read_coeff(const aom_cdf_prob *const *cdf, int n,
 }
 #else
 #define READ_COEFF(prob_name, cdf_name, num, r) read_coeff(prob_name, num, r);
-static INLINE int read_coeff(const aom_prob *probs, int n, aom_reader *r) {
+static INLINE int read_coeff(const AomProb *probs, int n, AomReader *r) {
   int i, val = 0;
   for (i = 0; i < n; ++i) val = (val << 1) | aom_read(r, probs[i], ACCT_STR);
   return val;
@@ -66,7 +66,7 @@ static INLINE int read_coeff(const aom_prob *probs, int n, aom_reader *r) {
 
 #endif
 
-static int token_to_value(aom_reader *const r, int token, TX_SIZE tx_size,
+static int token_to_value(AomReader *const r, int token, TxSize tx_size,
                           int bit_depth) {
 #if !CONFIG_HIGHBITDEPTH
   assert(bit_depth == 8);
@@ -100,33 +100,33 @@ static int token_to_value(aom_reader *const r, int token, TX_SIZE tx_size,
   }
 }
 
-static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
-                        TX_SIZE tx_size, TX_TYPE tx_type, const int16_t *dq,
+static int decode_coefs(Macroblockd *xd, PlaneType type, TranLowT *dqcoeff,
+                        TxSize tx_size, TxType tx_type, const int16_t *dq,
 #if CONFIG_NEW_QUANT
-                        dequant_val_type_nuq *dq_val,
+                        DequantValTypeNuq *dq_val,
 #endif  // CONFIG_NEW_QUANT
 #if CONFIG_AOM_QM
-                        const qm_val_t *iqm[2][TX_SIZES],
+                        const QmValT *iqm[2][TX_SIZES],
 #endif  // CONFIG_AOM_QM
                         int ctx, const int16_t *scan, const int16_t *nb,
-                        int16_t *max_scan_line, aom_reader *r) {
-  FRAME_COUNTS *counts = xd->counts;
+                        int16_t *max_scan_line, AomReader *r) {
+  FrameCounts *counts = xd->counts;
 #if CONFIG_EC_ADAPT
-  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  FrameContext *ec_ctx = xd->tile_ctx;
 #else
-  FRAME_CONTEXT *const ec_ctx = xd->fc;
+  FrameContext *const ec_ctx = xd->fc;
 #endif
   const int max_eob = tx_size_2d[tx_size];
   const int ref = is_inter_block(&xd->mi[0]->mbmi);
 #if CONFIG_AOM_QM
-  const qm_val_t *iqmatrix = iqm[!ref][tx_size];
+  const QmValT *iqmatrix = iqm[!ref][tx_size];
 #endif  // CONFIG_AOM_QM
   int band, c = 0;
   const int tx_size_ctx = txsize_sqr_map[tx_size];
 #if CONFIG_NEW_TOKENSET
-  aom_cdf_prob(*coef_head_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
+  AomCdfProb(*coef_head_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
       ec_ctx->coef_head_cdfs[tx_size_ctx][type][ref];
-  aom_cdf_prob(*coef_tail_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
+  AomCdfProb(*coef_tail_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
       ec_ctx->coef_tail_cdfs[tx_size_ctx][type][ref];
   int val = 0;
 
@@ -136,13 +136,13 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
   unsigned int(*eob_branch_count)[COEFF_CONTEXTS] = NULL;
 #endif
 #else
-  aom_prob(*coef_probs)[COEFF_CONTEXTS][UNCONSTRAINED_NODES] =
+  AomProb(*coef_probs)[COEFF_CONTEXTS][UNCONSTRAINED_NODES] =
       ec_ctx->coef_probs[tx_size_ctx][type][ref];
-  const aom_prob *prob;
+  const AomProb *prob;
 #if CONFIG_EC_MULTISYMBOL
-  aom_cdf_prob(*coef_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
+  AomCdfProb(*coef_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
       ec_ctx->coef_cdfs[tx_size_ctx][type][ref];
-  aom_cdf_prob(*cdf)[CDF_SIZE(ENTROPY_TOKENS)];
+  AomCdfProb(*cdf)[CDF_SIZE(ENTROPY_TOKENS)];
 #endif  // CONFIG_EC_MULTISYMBOL
   unsigned int(*coef_counts)[COEFF_CONTEXTS][UNCONSTRAINED_NODES + 1] = NULL;
   unsigned int(*eob_branch_count)[COEFF_CONTEXTS] = NULL;
@@ -153,7 +153,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
   int v, token;
   int16_t dqv = dq[0];
 #if CONFIG_NEW_QUANT
-  const tran_low_t *dqv_val = &dq_val[0][0];
+  const TranLowT *dqv_val = &dq_val[0][0];
 #endif  // CONFIG_NEW_QUANT
   (void)tx_type;
 #if CONFIG_AOM_QM
@@ -345,16 +345,14 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 #endif  // !CONFIG_PVQ
 
 #if CONFIG_PALETTE
-void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
-                               aom_reader *r) {
-  const MODE_INFO *const mi = xd->mi[0];
-  const MB_MODE_INFO *const mbmi = &mi->mbmi;
+void av1_decode_palette_tokens(Macroblockd *const xd, int plane, AomReader *r) {
+  const ModeInfo *const mi = xd->mi[0];
+  const MbModeInfo *const mbmi = &mi->mbmi;
   uint8_t color_order[PALETTE_MAX_SIZE];
   const int n = mbmi->palette_mode_info.palette_size[plane];
   int i, j;
   uint8_t *const color_map = xd->plane[plane].color_index_map;
-  const aom_prob(
-      *const prob)[PALETTE_COLOR_INDEX_CONTEXTS][PALETTE_COLORS - 1] =
+  const AomProb(*const prob)[PALETTE_COLOR_INDEX_CONTEXTS][PALETTE_COLORS - 1] =
       plane ? av1_default_palette_uv_color_index_prob
             : av1_default_palette_y_color_index_prob;
   int plane_block_width, plane_block_height, rows, cols;
@@ -408,11 +406,11 @@ void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
 #endif  // CONFIG_PALETTE
 
 #if !CONFIG_PVQ || CONFIG_VAR_TX
-int av1_decode_block_tokens(AV1_COMMON *cm, MACROBLOCKD *const xd, int plane,
-                            const SCAN_ORDER *sc, int x, int y, TX_SIZE tx_size,
-                            TX_TYPE tx_type, int16_t *max_scan_line,
-                            aom_reader *r, int seg_id) {
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+int av1_decode_block_tokens(Av1Common *cm, Macroblockd *const xd, int plane,
+                            const ScanOrder *sc, int x, int y, TxSize tx_size,
+                            TxType tx_type, int16_t *max_scan_line,
+                            AomReader *r, int seg_id) {
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
   const int16_t *const dequant = pd->seg_dequant[seg_id];
   const int ctx =
       get_entropy_context(tx_size, pd->above_context + x, pd->left_context + y);

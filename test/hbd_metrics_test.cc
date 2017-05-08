@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <math.h>
 #include <stdlib.h>
@@ -27,63 +27,63 @@ using libaom_test::ACMRandom;
 
 namespace {
 
-typedef double (*LBDMetricFunc)(const YV12_BUFFER_CONFIG *source,
-                                const YV12_BUFFER_CONFIG *dest);
-typedef double (*HBDMetricFunc)(const YV12_BUFFER_CONFIG *source,
-                                const YV12_BUFFER_CONFIG *dest, uint32_t in_bd,
+typedef double (*LBDMetricFunc)(const Yv12BufferConfig *source,
+                                const Yv12BufferConfig *dest);
+typedef double (*HBDMetricFunc)(const Yv12BufferConfig *source,
+                                const Yv12BufferConfig *dest, uint32_t in_bd,
                                 uint32_t bd);
 
-double compute_hbd_psnr(const YV12_BUFFER_CONFIG *source,
-                        const YV12_BUFFER_CONFIG *dest, uint32_t in_bd,
+double compute_hbd_psnr(const Yv12BufferConfig *source,
+                        const Yv12BufferConfig *dest, uint32_t in_bd,
                         uint32_t bd) {
-  PSNR_STATS psnr;
+  PsnrStats psnr;
   aom_calc_highbd_psnr(source, dest, &psnr, bd, in_bd);
   return psnr.psnr[0];
 }
 
-double compute_psnr(const YV12_BUFFER_CONFIG *source,
-                    const YV12_BUFFER_CONFIG *dest) {
-  PSNR_STATS psnr;
+double compute_psnr(const Yv12BufferConfig *source,
+                    const Yv12BufferConfig *dest) {
+  PsnrStats psnr;
   aom_calc_psnr(source, dest, &psnr);
   return psnr.psnr[0];
 }
 
-double compute_hbd_psnrhvs(const YV12_BUFFER_CONFIG *source,
-                           const YV12_BUFFER_CONFIG *dest, uint32_t in_bd,
+double compute_hbd_psnrhvs(const Yv12BufferConfig *source,
+                           const Yv12BufferConfig *dest, uint32_t in_bd,
                            uint32_t bd) {
   double tempy, tempu, tempv;
   return aom_psnrhvs(source, dest, &tempy, &tempu, &tempv, bd, in_bd);
 }
 
-double compute_psnrhvs(const YV12_BUFFER_CONFIG *source,
-                       const YV12_BUFFER_CONFIG *dest) {
+double compute_psnrhvs(const Yv12BufferConfig *source,
+                       const Yv12BufferConfig *dest) {
   double tempy, tempu, tempv;
   return aom_psnrhvs(source, dest, &tempy, &tempu, &tempv, 8, 8);
 }
 
-double compute_hbd_fastssim(const YV12_BUFFER_CONFIG *source,
-                            const YV12_BUFFER_CONFIG *dest, uint32_t in_bd,
+double compute_hbd_fastssim(const Yv12BufferConfig *source,
+                            const Yv12BufferConfig *dest, uint32_t in_bd,
                             uint32_t bd) {
   double tempy, tempu, tempv;
   return aom_calc_fastssim(source, dest, &tempy, &tempu, &tempv, bd, in_bd);
 }
 
-double compute_fastssim(const YV12_BUFFER_CONFIG *source,
-                        const YV12_BUFFER_CONFIG *dest) {
+double compute_fastssim(const Yv12BufferConfig *source,
+                        const Yv12BufferConfig *dest) {
   double tempy, tempu, tempv;
   return aom_calc_fastssim(source, dest, &tempy, &tempu, &tempv, 8, 8);
 }
 
-double compute_hbd_aomssim(const YV12_BUFFER_CONFIG *source,
-                           const YV12_BUFFER_CONFIG *dest, uint32_t in_bd,
+double compute_hbd_aomssim(const Yv12BufferConfig *source,
+                           const Yv12BufferConfig *dest, uint32_t in_bd,
                            uint32_t bd) {
   double ssim, weight;
   ssim = aom_highbd_calc_ssim(source, dest, &weight, bd, in_bd);
   return 100 * pow(ssim / weight, 8.0);
 }
 
-double compute_aomssim(const YV12_BUFFER_CONFIG *source,
-                       const YV12_BUFFER_CONFIG *dest) {
+double compute_aomssim(const Yv12BufferConfig *source,
+                       const Yv12BufferConfig *dest) {
   double ssim, weight;
   ssim = aom_calc_ssim(source, dest, &weight);
   return 100 * pow(ssim / weight, 8.0);
@@ -99,8 +99,8 @@ class HBDMetricsTestBase {
     const int height = 1080;
     size_t i = 0;
     const uint8_t kPixFiller = 128;
-    YV12_BUFFER_CONFIG lbd_src, lbd_dst;
-    YV12_BUFFER_CONFIG hbd_src, hbd_dst;
+    Yv12BufferConfig lbd_src, lbd_dst;
+    Yv12BufferConfig hbd_src, hbd_dst;
     ACMRandom rnd(ACMRandom::DeterministicSeed());
     double lbd_db, hbd_db;
 

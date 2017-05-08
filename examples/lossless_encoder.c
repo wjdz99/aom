@@ -29,12 +29,12 @@ void usage_exit(void) {
   exit(EXIT_FAILURE);
 }
 
-static int encode_frame(aom_codec_ctx_t *codec, aom_image_t *img,
-                        int frame_index, int flags, AvxVideoWriter *writer) {
+static int encode_frame(AomCodecCtxT *codec, AomImageT *img, int frame_index,
+                        int flags, AvxVideoWriter *writer) {
   int got_pkts = 0;
-  aom_codec_iter_t iter = NULL;
-  const aom_codec_cx_pkt_t *pkt = NULL;
-  const aom_codec_err_t res =
+  AomCodecIterT iter = NULL;
+  const AomCodecCxPktT *pkt = NULL;
+  const AomCodecErrT res =
       aom_codec_encode(codec, img, frame_index, 1, flags, AOM_DL_GOOD_QUALITY);
   if (res != AOM_CODEC_OK) die_codec(codec, "Failed to encode frame");
 
@@ -58,11 +58,11 @@ static int encode_frame(aom_codec_ctx_t *codec, aom_image_t *img,
 
 int main(int argc, char **argv) {
   FILE *infile = NULL;
-  aom_codec_ctx_t codec;
-  aom_codec_enc_cfg_t cfg;
+  AomCodecCtxT codec;
+  AomCodecEncCfgT cfg;
   int frame_count = 0;
-  aom_image_t raw;
-  aom_codec_err_t res;
+  AomImageT raw;
+  AomCodecErrT res;
   AvxVideoInfo info;
   AvxVideoWriter *writer = NULL;
   const AvxInterface *encoder = NULL;

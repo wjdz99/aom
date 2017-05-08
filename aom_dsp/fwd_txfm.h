@@ -14,16 +14,16 @@
 
 #include "aom_dsp/txfm_common.h"
 
-static INLINE tran_high_t saturate_int16(tran_high_t value) {
-  tran_high_t result;
+static INLINE TranHighT saturate_int16(TranHighT value) {
+  TranHighT result;
   result = value > INT16_MAX ? INT16_MAX : value;
   return result < INT16_MIN ? INT16_MIN : result;
 }
 
-static INLINE tran_high_t fdct_round_shift(tran_high_t input) {
-  tran_high_t rv = ROUND_POWER_OF_TWO(input, DCT_CONST_BITS);
+static INLINE TranHighT fdct_round_shift(TranHighT input) {
+  TranHighT rv = ROUND_POWER_OF_TWO(input, DCT_CONST_BITS);
   return rv;
 }
 
-void aom_fdct32(const tran_high_t *input, tran_high_t *output, int round);
+void aom_fdct32(const TranHighT *input, TranHighT *output, int round);
 #endif  // AOM_DSP_FWD_TXFM_H_

@@ -54,8 +54,8 @@ static INLINE __m128i blend_8(const uint8_t *src0, const uint8_t *src1,
 }
 
 #if CONFIG_HIGHBITDEPTH
-typedef __m128i (*blend_unit_fn)(const uint16_t *src0, const uint16_t *src1,
-                                 const __m128i v_m0_w, const __m128i v_m1_w);
+typedef __m128i (*BlendUnitFn)(const uint16_t *src0, const uint16_t *src1,
+                               const __m128i v_m0_w, const __m128i v_m1_w);
 
 static INLINE __m128i blend_4_b10(const uint16_t *src0, const uint16_t *src1,
                                   const __m128i v_m0_w, const __m128i v_m1_w) {

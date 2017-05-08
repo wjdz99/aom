@@ -33,8 +33,8 @@ extern "C" {
  * This interface provides the capability to encode raw AV1 streams.
  * @{
  */
-extern aom_codec_iface_t aom_codec_av1_cx_algo;
-extern aom_codec_iface_t *aom_codec_av1_cx(void);
+extern AomCodecIfaceT aom_codec_av1_cx_algo;
+extern AomCodecIfaceT *aom_codec_av1_cx(void);
 /*!@} - end algorithm interface member group*/
 
 /*
@@ -180,7 +180,7 @@ enum aome_enc_control_id {
 
   /*!\brief Codec control function to set constrained quality level.
    *
-   * \attention For this value to be used aom_codec_enc_cfg_t::g_usage must be
+   * \attention For this value to be used AomCodecEncCfgT::g_usage must be
    *            set to #AOM_CQ.
    * \note Valid range: 0..63
    */
@@ -457,15 +457,15 @@ enum aome_enc_control_id {
   AV1E_SET_MTU,
 
   /*!\brief Codec control function to set dependent_horz_tiles.
-  *
-  * In encoding and decoding, AV1 allows enabling dependent horizontal tile
-  * The parameter for this control describes the value of this flag,
-  * which has a valid range [0, 1]:
-  *            0 = disable dependent horizontal tile
-  *            1 = enable dependent horizontal tile,
-  *
-  * By default, the value is 0, i.e. disable dependent horizontal tile.
-  */
+   *
+   * In encoding and decoding, AV1 allows enabling dependent horizontal tile
+   * The parameter for this control describes the value of this flag,
+   * which has a valid range [0, 1]:
+   *            0 = disable dependent horizontal tile
+   *            1 = enable dependent horizontal tile,
+   *
+   * By default, the value is 0, i.e. disable dependent horizontal tile.
+   */
   AV1E_SET_TILE_DEPENDENT_ROWS,
 
   /*!\brief Codec control function to set the number of symbols in an ANS data
@@ -481,12 +481,12 @@ enum aome_enc_control_id {
   AV1E_SET_ANS_WINDOW_SIZE_LOG2,
 
   /*!\brief Codec control function to set temporal mv prediction
-  * enabling/disabling.
-  *
-  * This will enable or disable temporal mv predicton. The default value is 0.
-  *
-  * Experiment: TEMPMV_SIGNALING
-  */
+   * enabling/disabling.
+   *
+   * This will enable or disable temporal mv predicton. The default value is 0.
+   *
+   * Experiment: TEMPMV_SIGNALING
+   */
   AV1E_SET_DISABLE_TEMPMV,
 
   /*!\brief Codec control function to set loop_filter_across_tiles_enabled.
@@ -504,15 +504,15 @@ enum aome_enc_control_id {
   AV1E_SET_TILE_LOOPFILTER,
 
   /*!\brief Codec control function to set the delta q mode
-  *
-  * AV1 has a segment based feature that allows encoder to adaptively change
-  * quantization parameter for each segment within a frame to improve the
-  * subjective quality. the delta q mode is added on top of segment based
-  * feature, and allows control per 64x64 q and lf delta.This control makes
-  * encoder operate in one of the several DELTA_Q_modes supported.
-  *
-  * By default, encoder operates with DELTAQ_Mode 0(deltaq signaling off).
-  */
+   *
+   * AV1 has a segment based feature that allows encoder to adaptively change
+   * quantization parameter for each segment within a frame to improve the
+   * subjective quality. the delta q mode is added on top of segment based
+   * feature, and allows control per 64x64 q and lf delta.This control makes
+   * encoder operate in one of the several DELTA_Q_modes supported.
+   *
+   * By default, encoder operates with DELTAQ_Mode 0(deltaq signaling off).
+   */
   AV1E_SET_DELTAQ_MODE,
 
   /*!\brief Codec control function to set the tile encoding mode to 0 or 1.
@@ -541,7 +541,7 @@ typedef enum aom_scaling_mode_1d {
   AOME_FOURFIVE = 1,
   AOME_THREEFIVE = 2,
   AOME_ONETWO = 3
-} AOM_SCALING_MODE;
+} AomScalingMode;
 
 /*!\brief  aom region of interest map
  *
@@ -549,7 +549,7 @@ typedef enum aom_scaling_mode_1d {
  *
  */
 
-typedef struct aom_roi_map {
+typedef struct AomRoiMap {
   /*! An id between 0 and 3 for each 16x16 region within a frame. */
   unsigned char *roi_map;
   unsigned int rows; /**< Number of rows. */
@@ -561,7 +561,7 @@ typedef struct aom_roi_map {
   int delta_lf[4]; /**< Loop filter deltas. */
   /*! Static breakout threshold for each segment. */
   unsigned int static_threshold[4];
-} aom_roi_map_t;
+} AomRoiMapT;
 
 /*!\brief  aom active region map
  *
@@ -569,12 +569,12 @@ typedef struct aom_roi_map {
  *
  */
 
-typedef struct aom_active_map {
+typedef struct AomActiveMap {
   /*!\brief specify an on (1) or off (0) each 16x16 region within a frame */
   unsigned char *active_map;
   unsigned int rows; /**< number of rows */
   unsigned int cols; /**< number of cols */
-} aom_active_map_t;
+} AomActiveMapT;
 
 /*!\brief  aom image scaling mode
  *
@@ -582,8 +582,8 @@ typedef struct aom_active_map {
  *
  */
 typedef struct aom_scaling_mode {
-  AOM_SCALING_MODE h_scaling_mode; /**< horizontal scaling mode */
-  AOM_SCALING_MODE v_scaling_mode; /**< vertical scaling mode   */
+  AomScalingMode h_scaling_mode; /**< horizontal scaling mode */
+  AomScalingMode v_scaling_mode; /**< vertical scaling mode   */
 } aom_scaling_mode_t;
 
 /*!brief AV1 encoder content type */
@@ -591,14 +591,14 @@ typedef enum {
   AOM_CONTENT_DEFAULT,
   AOM_CONTENT_SCREEN,
   AOM_CONTENT_INVALID
-} aom_tune_content;
+} AomTuneContent;
 
 /*!\brief Model tuning parameters
  *
  * Changes the encoder to tune for certain types of input material.
  *
  */
-typedef enum { AOM_TUNE_PSNR, AOM_TUNE_SSIM } aom_tune_metric;
+typedef enum { AOM_TUNE_PSNR, AOM_TUNE_SSIM } AomTuneMetric;
 
 /*!\cond */
 /*!\brief Encoder control function parameter type
@@ -610,9 +610,9 @@ typedef enum { AOM_TUNE_PSNR, AOM_TUNE_SSIM } aom_tune_metric;
 
 AOM_CTRL_USE_TYPE_DEPRECATED(AOME_USE_REFERENCE, int)
 #define AOM_CTRL_AOME_USE_REFERENCE
-AOM_CTRL_USE_TYPE(AOME_SET_ROI_MAP, aom_roi_map_t *)
+AOM_CTRL_USE_TYPE(AOME_SET_ROI_MAP, AomRoiMapT *)
 #define AOM_CTRL_AOME_SET_ROI_MAP
-AOM_CTRL_USE_TYPE(AOME_SET_ACTIVEMAP, aom_active_map_t *)
+AOM_CTRL_USE_TYPE(AOME_SET_ACTIVEMAP, AomActiveMapT *)
 #define AOM_CTRL_AOME_SET_ACTIVEMAP
 AOM_CTRL_USE_TYPE(AOME_SET_SCALEMODE, aom_scaling_mode_t *)
 #define AOM_CTRL_AOME_SET_SCALEMODE
@@ -634,7 +634,7 @@ AOM_CTRL_USE_TYPE(AOME_SET_ARNR_MAXFRAMES, unsigned int)
 #define AOM_CTRL_AOME_SET_ARNR_MAXFRAMES
 AOM_CTRL_USE_TYPE(AOME_SET_ARNR_STRENGTH, unsigned int)
 #define AOM_CTRL_AOME_SET_ARNR_STRENGTH
-AOM_CTRL_USE_TYPE(AOME_SET_TUNING, int) /* aom_tune_metric */
+AOM_CTRL_USE_TYPE(AOME_SET_TUNING, int) /* AomTuneMetric */
 #define AOM_CTRL_AOME_SET_TUNING
 AOM_CTRL_USE_TYPE(AOME_SET_CQ_LEVEL, unsigned int)
 #define AOM_CTRL_AOME_SET_CQ_LEVEL
@@ -698,7 +698,7 @@ AOM_CTRL_USE_TYPE(AV1E_SET_FRAME_PERIODIC_BOOST, unsigned int)
 AOM_CTRL_USE_TYPE(AV1E_SET_NOISE_SENSITIVITY, unsigned int)
 #define AOM_CTRL_AV1E_SET_NOISE_SENSITIVITY
 
-AOM_CTRL_USE_TYPE(AV1E_SET_TUNE_CONTENT, int) /* aom_tune_content */
+AOM_CTRL_USE_TYPE(AV1E_SET_TUNE_CONTENT, int) /* AomTuneContent */
 #define AOM_CTRL_AV1E_SET_TUNE_CONTENT
 
 AOM_CTRL_USE_TYPE(AV1E_SET_COLOR_SPACE, int)
@@ -710,7 +710,7 @@ AOM_CTRL_USE_TYPE(AV1E_SET_MIN_GF_INTERVAL, unsigned int)
 AOM_CTRL_USE_TYPE(AV1E_SET_MAX_GF_INTERVAL, unsigned int)
 #define AOM_CTRL_AV1E_SET_MAX_GF_INTERVAL
 
-AOM_CTRL_USE_TYPE(AV1E_GET_ACTIVEMAP, aom_active_map_t *)
+AOM_CTRL_USE_TYPE(AV1E_GET_ACTIVEMAP, AomActiveMapT *)
 #define AOM_CTRL_AV1E_GET_ACTIVEMAP
 
 AOM_CTRL_USE_TYPE(AV1E_SET_COLOR_RANGE, int)

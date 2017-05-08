@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <string>
 #include "test/codec_factory.h"
@@ -61,11 +61,11 @@ TEST_P(DecodePerfTest, PerfTest) {
   libaom_test::WebMVideoSource video(video_name);
   video.Init();
 
-  aom_codec_dec_cfg_t cfg = aom_codec_dec_cfg_t();
+  AomCodecDecCfgT cfg = AomCodecDecCfgT();
   cfg.threads = threads;
   libaom_test::AV1Decoder decoder(cfg, 0);
 
-  aom_usec_timer t;
+  AomUsecTimer t;
   aom_usec_timer_start(&t);
 
   for (video.Begin(); video.cxdata() != NULL; video.Next()) {
@@ -144,7 +144,7 @@ class AV1NewEncodeDecodePerfTest
     }
   }
 
-  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void FramePktHook(const AomCodecCxPktT *pkt) {
     ++out_frames_;
 
     // Write initial file header if first frame.
@@ -189,7 +189,7 @@ TEST_P(AV1NewEncodeDecodePerfTest, PerfTest) {
 
   // TODO(JBB): Make this work by going through the set of given files.
   const int i = 0;
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const AomRational timebase = { 33333333, 1000000000 };
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = kAV1EncodePerfTestVectors[i].bitrate;
 
@@ -209,11 +209,11 @@ TEST_P(AV1NewEncodeDecodePerfTest, PerfTest) {
   libaom_test::IVFVideoSource decode_video(kNewEncodeOutputFile);
   decode_video.Init();
 
-  aom_codec_dec_cfg_t cfg = aom_codec_dec_cfg_t();
+  AomCodecDecCfgT cfg = AomCodecDecCfgT();
   cfg.threads = threads;
   libaom_test::AV1Decoder decoder(cfg, 0);
 
-  aom_usec_timer t;
+  AomUsecTimer t;
   aom_usec_timer_start(&t);
 
   for (decode_video.Begin(); decode_video.cxdata() != NULL;

@@ -64,52 +64,51 @@ static LayerType layers = 0;
 static int stop_after = 0;
 static int compress = 0;
 
-static const arg_def_t limit_arg =
+static const ArgDefT limit_arg =
     ARG_DEF(NULL, "limit", 1, "Stop decoding after n frames");
-static const arg_def_t dump_all_arg = ARG_DEF("A", "all", 0, "Dump All");
-static const arg_def_t compress_arg =
+static const ArgDefT dump_all_arg = ARG_DEF("A", "all", 0, "Dump All");
+static const ArgDefT compress_arg =
     ARG_DEF("x", "compress", 0, "Compress JSON using RLE");
-static const arg_def_t dump_accounting_arg =
+static const ArgDefT dump_accounting_arg =
     ARG_DEF("a", "accounting", 0, "Dump Accounting");
-static const arg_def_t dump_block_size_arg =
+static const ArgDefT dump_block_size_arg =
     ARG_DEF("bs", "blockSize", 0, "Dump Block Size");
-static const arg_def_t dump_motion_vectors_arg =
+static const ArgDefT dump_motion_vectors_arg =
     ARG_DEF("mv", "motionVectors", 0, "Dump Motion Vectors");
-static const arg_def_t dump_transform_size_arg =
+static const ArgDefT dump_transform_size_arg =
     ARG_DEF("ts", "transformSize", 0, "Dump Transform Size");
-static const arg_def_t dump_transform_type_arg =
+static const ArgDefT dump_transform_type_arg =
     ARG_DEF("tt", "transformType", 0, "Dump Transform Type");
-static const arg_def_t dump_mode_arg = ARG_DEF("m", "mode", 0, "Dump Mode");
-static const arg_def_t dump_uv_mode_arg =
+static const ArgDefT dump_mode_arg = ARG_DEF("m", "mode", 0, "Dump Mode");
+static const ArgDefT dump_uv_mode_arg =
     ARG_DEF("uvm", "uv_mode", 0, "Dump UV Intra Prediction Modes");
-static const arg_def_t dump_skip_arg = ARG_DEF("s", "skip", 0, "Dump Skip");
-static const arg_def_t dump_filter_arg =
-    ARG_DEF("f", "filter", 0, "Dump Filter");
-static const arg_def_t dump_cdef_arg = ARG_DEF("c", "cdef", 0, "Dump CDEF");
-static const arg_def_t dump_reference_frame_arg =
+static const ArgDefT dump_skip_arg = ARG_DEF("s", "skip", 0, "Dump Skip");
+static const ArgDefT dump_filter_arg = ARG_DEF("f", "filter", 0, "Dump Filter");
+static const ArgDefT dump_cdef_arg = ARG_DEF("c", "cdef", 0, "Dump CDEF");
+static const ArgDefT dump_reference_frame_arg =
     ARG_DEF("r", "referenceFrame", 0, "Dump Reference Frame");
-static const arg_def_t usage_arg = ARG_DEF("h", "help", 0, "Help");
+static const ArgDefT usage_arg = ARG_DEF("h", "help", 0, "Help");
 
-static const arg_def_t *main_args[] = { &limit_arg,
-                                        &dump_all_arg,
-                                        &compress_arg,
+static const ArgDefT *main_args[] = { &limit_arg,
+                                      &dump_all_arg,
+                                      &compress_arg,
 #if CONFIG_ACCOUNTING
-                                        &dump_accounting_arg,
+                                      &dump_accounting_arg,
 #endif
-                                        &dump_block_size_arg,
-                                        &dump_transform_size_arg,
-                                        &dump_transform_type_arg,
-                                        &dump_mode_arg,
-                                        &dump_uv_mode_arg,
-                                        &dump_skip_arg,
-                                        &dump_filter_arg,
+                                      &dump_block_size_arg,
+                                      &dump_transform_size_arg,
+                                      &dump_transform_type_arg,
+                                      &dump_mode_arg,
+                                      &dump_uv_mode_arg,
+                                      &dump_skip_arg,
+                                      &dump_filter_arg,
 #if CONFIG_CDEF
-                                        &dump_cdef_arg,
+                                      &dump_cdef_arg,
 #endif
-                                        &dump_reference_frame_arg,
-                                        &dump_motion_vectors_arg,
-                                        &usage_arg,
-                                        NULL };
+                                      &dump_reference_frame_arg,
+                                      &dump_motion_vectors_arg,
+                                      &usage_arg,
+                                      NULL };
 #define ENUM(name) \
   { #name, name }
 #define LAST_ENUM \
@@ -209,13 +208,13 @@ const map_entry config_map[] = { ENUM(MI_SIZE), LAST_ENUM };
 
 static const char *exec_name;
 
-insp_frame_data frame_data;
+InspFrameData frame_data;
 int frame_count = 0;
 int decoded_frame_count = 0;
-aom_codec_ctx_t codec;
+AomCodecCtxT codec;
 AvxVideoReader *reader = NULL;
 const AvxVideoInfo *info = NULL;
-aom_image_t *img = NULL;
+AomImageT *img = NULL;
 
 void on_frame_decoded_dump(char *json) {
 #ifdef __EMSCRIPTEN__
@@ -300,12 +299,12 @@ int put_reference_frame(char *buffer) {
   for (r = 0; r < mi_rows; ++r) {
     *(buf++) = '[';
     for (c = 0; c < mi_cols; ++c) {
-      insp_mi_data *mi = &frame_data.mi_grid[r * mi_cols + c];
+      InspMiData *mi = &frame_data.mi_grid[r * mi_cols + c];
       buf += put_num(buf, '[', mi->ref_frame[0], 0);
       buf += put_num(buf, ',', mi->ref_frame[1], ']');
       if (compress) {  // RLE
         for (t = c + 1; t < mi_cols; ++t) {
-          insp_mi_data *next_mi = &frame_data.mi_grid[r * mi_cols + t];
+          InspMiData *next_mi = &frame_data.mi_grid[r * mi_cols + t];
           if (mi->ref_frame[0] != next_mi->ref_frame[0] ||
               mi->ref_frame[1] != next_mi->ref_frame[1]) {
             break;
@@ -335,14 +334,14 @@ int put_motion_vectors(char *buffer) {
   for (r = 0; r < mi_rows; ++r) {
     *(buf++) = '[';
     for (c = 0; c < mi_cols; ++c) {
-      insp_mi_data *mi = &frame_data.mi_grid[r * mi_cols + c];
+      InspMiData *mi = &frame_data.mi_grid[r * mi_cols + c];
       buf += put_num(buf, '[', mi->mv[0].col, 0);
       buf += put_num(buf, ',', mi->mv[0].row, 0);
       buf += put_num(buf, ',', mi->mv[1].col, 0);
       buf += put_num(buf, ',', mi->mv[1].row, ']');
       if (compress) {  // RLE
         for (t = c + 1; t < mi_cols; ++t) {
-          insp_mi_data *next_mi = &frame_data.mi_grid[r * mi_cols + t];
+          InspMiData *next_mi = &frame_data.mi_grid[r * mi_cols + t];
           if (mi->mv[0].col != next_mi->mv[0].col ||
               mi->mv[0].row != next_mi->mv[0].row ||
               mi->mv[1].col != next_mi->mv[1].col ||
@@ -380,12 +379,12 @@ int put_block_info(char *buffer, const map_entry *map, const char *name,
   for (r = 0; r < mi_rows; ++r) {
     *(buf++) = '[';
     for (c = 0; c < mi_cols; ++c) {
-      insp_mi_data *curr_mi = &frame_data.mi_grid[r * mi_cols + c];
+      InspMiData *curr_mi = &frame_data.mi_grid[r * mi_cols + c];
       v = *(((int8_t *)curr_mi) + offset);
       buf += put_num(buf, 0, v, 0);
       if (compress) {  // RLE
         for (t = c + 1; t < mi_cols; ++t) {
-          insp_mi_data *next_mi = &frame_data.mi_grid[r * mi_cols + t];
+          InspMiData *next_mi = &frame_data.mi_grid[r * mi_cols + t];
           if (v != *(((int8_t *)next_mi) + offset)) {
             break;
           }
@@ -457,36 +456,36 @@ void inspect(void *pbi, void *data) {
   buf += put_str(buf, "{\n");
   if (layers & BLOCK_SIZE_LAYER) {
     buf += put_block_info(buf, block_size_map, "blockSize",
-                          offsetof(insp_mi_data, sb_type));
+                          offsetof(InspMiData, sb_type));
   }
   if (layers & TRANSFORM_SIZE_LAYER) {
     buf += put_block_info(buf, tx_size_map, "transformSize",
-                          offsetof(insp_mi_data, tx_size));
+                          offsetof(InspMiData, tx_size));
   }
   if (layers & TRANSFORM_TYPE_LAYER) {
     buf += put_block_info(buf, tx_type_map, "transformType",
-                          offsetof(insp_mi_data, tx_type));
+                          offsetof(InspMiData, tx_type));
   }
   if (layers & MODE_LAYER) {
     buf += put_block_info(buf, prediction_mode_map, "mode",
-                          offsetof(insp_mi_data, mode));
+                          offsetof(InspMiData, mode));
   }
   if (layers & UV_MODE_LAYER) {
     buf += put_block_info(buf, prediction_mode_map, "uv_mode",
-                          offsetof(insp_mi_data, uv_mode));
+                          offsetof(InspMiData, uv_mode));
   }
   if (layers & SKIP_LAYER) {
-    buf += put_block_info(buf, skip_map, "skip", offsetof(insp_mi_data, skip));
+    buf += put_block_info(buf, skip_map, "skip", offsetof(InspMiData, skip));
   }
   if (layers & FILTER_LAYER) {
-    buf += put_block_info(buf, NULL, "filter", offsetof(insp_mi_data, filter));
+    buf += put_block_info(buf, NULL, "filter", offsetof(InspMiData, filter));
   }
 #if CONFIG_CDEF
   if (layers & CDEF_LAYER) {
     buf += put_block_info(buf, NULL, "cdef_level",
-                          offsetof(insp_mi_data, cdef_level));
+                          offsetof(InspMiData, cdef_level));
     buf += put_block_info(buf, NULL, "cdef_strength",
-                          offsetof(insp_mi_data, cdef_strength));
+                          offsetof(InspMiData, cdef_strength));
   }
 #endif
   if (layers & MOTION_VECTORS_LAYER) {
@@ -524,7 +523,7 @@ void inspect(void *pbi, void *data) {
 }
 
 void ifd_init_cb() {
-  aom_inspect_init ii;
+  AomInspectInit ii;
   ii.inspect_cb = inspect;
   ii.inspect_ctx = NULL;
   aom_codec_control(&codec, AV1_SET_INSPECTION_CALLBACK, &ii);
@@ -554,7 +553,7 @@ EMSCRIPTEN_KEEPALIVE
 int read_frame() {
   if (!aom_video_reader_read_frame(reader)) return EXIT_FAILURE;
   img = NULL;
-  aom_codec_iter_t iter = NULL;
+  AomCodecIterT iter = NULL;
   size_t frame_size = 0;
   const unsigned char *frame = aom_video_reader_get_frame(reader, &frame_size);
   if (aom_codec_decode(&codec, frame, (unsigned int)frame_size, NULL, 0) !=
