@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a777e862_36229689",
+        "filename": "av1/common/pred_common.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T18:22:11Z",
+      "side": 1,
+      "message": "I\u0027d put a short comment to explain what the code does:\n\"Merge the sorted list of palette base colors from above and left to get combined sorted color cache\".",
+      "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d8b5e4b_9577ec5f",
+        "filename": "av1/common/pred_common.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T18:22:11Z",
+      "side": 1,
+      "message": "Create a variable for \"above_mi-\u003embmi.palette_mode_info.palette_colors\" and similarly \"left_mi ....\"",
+      "range": {
+        "startLine": 170,
+        "startChar": 8,
+        "endLine": 170,
+        "endChar": 55
+      },
+      "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59e5f679_c5d3ef03",
+        "filename": "av1/common/pred_common.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T18:22:11Z",
+      "side": 1,
+      "message": "Maybe add \"(max return value is 2 * PALETTE_MAX_SIZE)\"?",
+      "range": {
+        "startLine": 85,
+        "startChar": 3,
+        "endLine": 85,
+        "endChar": 8
+      },
+      "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2711d726_0d24f1ea",
+        "filename": "av1/common/pred_common.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T18:22:11Z",
+      "side": 1,
+      "message": "\"non-descending\" --\u003e \"ascending\", as the colors are unique I\u0027m guessing?",
+      "range": {
+        "startLine": 85,
+        "startChar": 53,
+        "endLine": 85,
+        "endChar": 67
+      },
+      "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c2832e8_6d2cf912",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T18:22:11Z",
+      "side": 1,
+      "message": "This kind of trick is only needed for a \u0027float\u0027 comparer function.\nFor int/uint, just \"return (va - vb)\" would work.",
+      "range": {
+        "startLine": 644,
+        "startChar": 0,
+        "endLine": 644,
+        "endChar": 31
+      },
+      "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
