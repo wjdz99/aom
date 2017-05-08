@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "806ff2bb_9a557d26",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T23:16:45Z",
+      "side": 1,
+      "message": "It\u0027s OK to keep this in commit message, if you are explaining the difference.",
+      "parentUuid": "10ba6c02_1d41e19d",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 15
+      },
+      "revId": "e3dc129a243e558b8ba461a2fbd51f7242ab7939",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "84a380ff_8a08b450",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 5
