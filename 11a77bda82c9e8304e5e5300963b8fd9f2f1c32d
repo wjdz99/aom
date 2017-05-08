@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "87b520cb_eb3bf0ec",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T19:42:19Z",
+      "side": 1,
+      "message": "clang-format insists on this formatting unfortunately.",
+      "parentUuid": "1edb560d_ee80874e",
+      "range": {
+        "startLine": 50,
+        "startChar": 27,
+        "endLine": 50,
+        "endChar": 36
+      },
+      "revId": "11a77bda82c9e8304e5e5300963b8fd9f2f1c32d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1ff06795_f331a1e0",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "11a77bda82c9e8304e5e5300963b8fd9f2f1c32d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4db5ac16_523f83b6",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 9551,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T19:42:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ff06795_f331a1e0",
+      "range": {
+        "startLine": 9551,
+        "startChar": 2,
+        "endLine": 9551,
+        "endChar": 56
+      },
+      "revId": "11a77bda82c9e8304e5e5300963b8fd9f2f1c32d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
