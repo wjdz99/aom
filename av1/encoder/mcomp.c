@@ -2348,10 +2348,7 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
 #define MVC(r, c)                                                         \
   (mvcost                                                                 \
        ? ((mvjcost[((r) != rr) * 2 + ((c) != rc)] + mvcost[0][((r)-rr)] + \
-           mvcost[1][((c)-rc)]) *                                         \
-              error_per_bit +                                             \
-          4096) >>                                                        \
-             13                                                           \
+           (int64_t)mvcost[1][((c)-rc)]) *  error_per_bit +  4096) >> 13  \
        : 0)
 
 #define CHECK_BETTER(v, r, c)                             \
