@@ -964,28 +964,28 @@ void av1_fht16x16_avx2(const int16_t *input, tran_low_t *output, int stride,
     case DCT_DCT:
       load_buffer_16x16(input, stride, 0, 0, in);
       fdct16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fdct16_avx2(in);
       break;
     case ADST_DCT:
       load_buffer_16x16(input, stride, 0, 0, in);
       fadst16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fdct16_avx2(in);
       break;
     case DCT_ADST:
       load_buffer_16x16(input, stride, 0, 0, in);
       fdct16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fadst16_avx2(in);
       break;
     case ADST_ADST:
       load_buffer_16x16(input, stride, 0, 0, in);
       fadst16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fadst16_avx2(in);
       break;
@@ -993,91 +993,91 @@ void av1_fht16x16_avx2(const int16_t *input, tran_low_t *output, int stride,
     case FLIPADST_DCT:
       load_buffer_16x16(input, stride, 1, 0, in);
       fadst16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fdct16_avx2(in);
       break;
     case DCT_FLIPADST:
       load_buffer_16x16(input, stride, 0, 1, in);
       fdct16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fadst16_avx2(in);
       break;
     case FLIPADST_FLIPADST:
       load_buffer_16x16(input, stride, 1, 1, in);
       fadst16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fadst16_avx2(in);
       break;
     case ADST_FLIPADST:
       load_buffer_16x16(input, stride, 0, 1, in);
       fadst16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fadst16_avx2(in);
       break;
     case FLIPADST_ADST:
       load_buffer_16x16(input, stride, 1, 0, in);
       fadst16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fadst16_avx2(in);
       break;
     case IDTX:
       load_buffer_16x16(input, stride, 0, 0, in);
       fidtx16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fidtx16_avx2(in);
       break;
     case V_DCT:
       load_buffer_16x16(input, stride, 0, 0, in);
       fdct16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fidtx16_avx2(in);
       break;
     case H_DCT:
       load_buffer_16x16(input, stride, 0, 0, in);
       fidtx16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fdct16_avx2(in);
       break;
     case V_ADST:
       load_buffer_16x16(input, stride, 0, 0, in);
       fadst16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fidtx16_avx2(in);
       break;
     case H_ADST:
       load_buffer_16x16(input, stride, 0, 0, in);
       fidtx16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fadst16_avx2(in);
       break;
     case V_FLIPADST:
       load_buffer_16x16(input, stride, 1, 0, in);
       fadst16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fidtx16_avx2(in);
       break;
     case H_FLIPADST:
       load_buffer_16x16(input, stride, 0, 1, in);
       fidtx16_avx2(in);
-      mm256_transpose_16x16(in);
+      mm256_transpose_16x16(in, in);
       right_shift_16x16(in);
       fadst16_avx2(in);
       break;
 #endif  // CONFIG_EXT_TX
     default: assert(0); break;
   }
-  mm256_transpose_16x16(in);
+  mm256_transpose_16x16(in, in);
   write_buffer_16x16(in, output);
   _mm256_zeroupper();
 }
@@ -1110,10 +1110,10 @@ static void mm256_vectors_swap(__m256i *a0, __m256i *a1, const int size) {
 }
 
 static void mm256_transpose_32x32(__m256i *in0, __m256i *in1) {
-  mm256_transpose_16x16(in0);
-  mm256_transpose_16x16(&in0[16]);
-  mm256_transpose_16x16(in1);
-  mm256_transpose_16x16(&in1[16]);
+  mm256_transpose_16x16(in0, in0);
+  mm256_transpose_16x16(&in0[16], &in0[16]);
+  mm256_transpose_16x16(in1, in1);
+  mm256_transpose_16x16(&in1[16], &in1[16]);
   mm256_vectors_swap(&in0[16], in1, 16);
 }
 
