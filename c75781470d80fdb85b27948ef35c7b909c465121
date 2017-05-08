@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "51a84503_51c88cac",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1138,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-08T23:23:48Z",
+      "side": 1,
+      "message": "Oops, it looks like I was totally wrong.  The read_cfl_alphas() is conditional on is_chroma_reference() when CONFIG_CB4X4.  My mistake!",
+      "parentUuid": "41a2d71f_f1dd1e27",
+      "revId": "c75781470d80fdb85b27948ef35c7b909c465121",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b4b1dbf6_fc4086a3",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 13
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-08T21:19:47Z",
       "side": 1,
       "message": "It seems like you could simply move this #if block above the preceding one, and then move the close bracket inside the #if CONFIG_CB4X4 above that.",
+      "revId": "c75781470d80fdb85b27948ef35c7b909c465121",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "649811c7_a2733c23",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2204,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-08T23:23:48Z",
+      "side": 1,
+      "message": "Oops, it looks like I was totally wrong.  The write_cfl_alphas() is conditional on is_chroma_reference() when CONFIG_CB4X4.  My mistake!",
+      "parentUuid": "b4b1dbf6_fc4086a3",
       "revId": "c75781470d80fdb85b27948ef35c7b909c465121",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
