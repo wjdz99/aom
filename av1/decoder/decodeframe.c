@@ -4134,11 +4134,17 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #if CONFIG_PALETTE
     cm->allow_screen_content_tools = aom_rb_read_bit(rb);
 #endif  // CONFIG_PALETTE
+#if CONFIG_TEMPMV_SIGNALING
+    cm->use_prev_frame_mvs = 0;
+#endif
   } else {
     cm->intra_only = cm->show_frame ? 0 : aom_rb_read_bit(rb);
 #if CONFIG_PALETTE
     if (cm->intra_only) cm->allow_screen_content_tools = aom_rb_read_bit(rb);
 #endif  // CONFIG_PALETTE
+#if CONFIG_TEMPMV_SIGNALING
+    if (cm->intra_only || cm->error_resilient_mode) cm->use_prev_frame_mvs = 0;
+#endif
     if (cm->error_resilient_mode) {
       cm->reset_frame_context = RESET_FRAME_CONTEXT_ALL;
     } else {
@@ -4948,13 +4954,17 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
   cm->setup_mi(cm);
 
 #if CONFIG_TEMPMV_SIGNALING
-  if (cm->use_prev_frame_mvs) {
-    RefBuffer *last_fb_ref_buf = &cm->frame_refs[LAST_FRAME - LAST_FRAME];
-    cm->prev_frame = &cm->buffer_pool->frame_bufs[last_fb_ref_buf->idx];
-    assert(!cm->error_resilient_mode &&
-           cm->width == last_fb_ref_buf->buf->y_width &&
-           cm->height == last_fb_ref_buf->buf->y_height &&
-           !cm->prev_frame->intra_only);
+  RefBuffer *last_ref_buf = &cm->frame_refs[LAST_FRAME - LAST_FRAME];
+  if (last_ref_buf->idx != INVALID_IDX) {
+    cm->prev_frame = &cm->buffer_pool->frame_bufs[last_ref_buf->idx];
+    if (cm->use_prev_frame_mvs) {
+      assert(!cm->error_resilient_mode &&
+             cm->width == last_ref_buf->buf->y_width &&
+             cm->height == last_ref_buf->buf->y_height &&
+             !cm->prev_frame->intra_only);
+    }
+  } else {
+    assert(cm->use_prev_frame_mvs == 0);
   }
 #else
   cm->use_prev_frame_mvs =
@@ -4962,7 +4972,8 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
       cm->height == cm->last_height && !cm->last_intra_only &&
       cm->last_show_frame && (cm->last_frame_type != KEY_FRAME);
 #endif
-#if CONFIG_EXT_REFS
+
+#if CONFIG_EXT_REFS && !CONFIG_TEMPMV_SIGNALING
   // NOTE(zoeliu): As cm->prev_frame can take neither a frame of
   //               show_exisiting_frame=1, nor can it take a frame not used as
   //               a reference, it is probable that by the time it is being
@@ -4978,7 +4989,7 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
     RefBuffer *last_fb_ref_buf = &cm->frame_refs[LAST_FRAME - LAST_FRAME];
     cm->prev_frame = &cm->buffer_pool->frame_bufs[last_fb_ref_buf->idx];
   }
-#endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_EXT_REFS && !CONFIG_TEMPMV_SIGNALING
 
   av1_setup_block_planes(xd, cm->subsampling_x, cm->subsampling_y);
 

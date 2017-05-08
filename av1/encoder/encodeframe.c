@@ -5324,14 +5324,16 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                               cm->width == cm->prev_frame->buf.y_width &&
                               cm->height == cm->prev_frame->buf.y_height &&
                               !cm->intra_only && !cm->prev_frame->intra_only;
+  } else {
+    cm->use_prev_frame_mvs = 0;
   }
 #else
   cm->use_prev_frame_mvs =
       !cm->error_resilient_mode && cm->width == cm->last_width &&
       cm->height == cm->last_height && !cm->intra_only && cm->last_show_frame;
-#endif
+#endif  // CONFIG_TEMPMV_SIGNALING
 
-#if CONFIG_EXT_REFS
+#if CONFIG_EXT_REFS && !CONFIG_TEMPMV_SIGNALING
   // NOTE(zoeliu): As cm->prev_frame can take neither a frame of
   //               show_exisiting_frame=1, nor can it take a frame not used as
   //               a reference, it is probable that by the time it is being
@@ -5346,7 +5348,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     // Reassign the LAST_FRAME buffer to cm->prev_frame.
     cm->prev_frame = &cm->buffer_pool->frame_bufs[last_fb_buf_idx];
   }
-#endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_EXT_REFS && !CONFIG_TEMPMV_SIGNALING
 
   // Special case: set prev_mi to NULL when the previous mode info
   // context cannot be used.
