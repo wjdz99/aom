@@ -108,6 +108,23 @@
       "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0d32231_20c5fbe0",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T18:26:45Z",
+      "side": 1,
+      "message": "I think you need to look at \"if (cpi-\u003ecommon.use_highbitdepth)\" as well.",
+      "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
