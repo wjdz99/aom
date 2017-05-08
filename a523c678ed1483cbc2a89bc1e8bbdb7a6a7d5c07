@@ -125,6 +125,108 @@
       "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7eea37c_567621e6",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1482,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T19:14:48Z",
+      "side": 1,
+      "message": "const",
+      "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24515ae2_b41610ab",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1485,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T19:14:48Z",
+      "side": 1,
+      "message": "Add this assert maybe:\nassert(n_in_cache + n_out_cache \u003c\u003d PALETTE_MAX_SIZE);",
+      "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29b0e756_e38ab033",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1515,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T19:14:48Z",
+      "side": 1,
+      "message": "const",
+      "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9fddea6_b9025814",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1521,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T19:14:48Z",
+      "side": 1,
+      "message": "So, no color cache for \"V\", because they aren\u0027t sorted I guess?",
+      "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "614fbd13_10964fe7",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T19:14:48Z",
+      "side": 1,
+      "message": "Here too, you might have to check \"if (cpi-\u003ecommon.use_highbitdepth)\"",
+      "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d250a784_a92f38ce",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 4566,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-08T19:14:48Z",
+      "side": 1,
+      "message": "This block is same as the one above (except indexing). Pls refactor.",
+      "revId": "a523c678ed1483cbc2a89bc1e8bbdb7a6a7d5c07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
