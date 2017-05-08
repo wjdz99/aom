@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
@@ -47,7 +47,7 @@ typedef struct {
   const char *filename;
   unsigned int input_bit_depth;
   aom_img_fmt fmt;
-  aom_bit_depth_t bit_depth;
+  AomBitDepthT bit_depth;
   unsigned int profile;
 } TestVideoParam;
 
@@ -118,7 +118,7 @@ class EndToEndTest
     nframes_ = 0;
   }
 
-  virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void PSNRPktHook(const AomCodecCxPktT *pkt) {
     psnr_ += pkt->data.psnr.psnr[0];
     nframes_++;
   }

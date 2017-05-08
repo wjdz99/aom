@@ -15,23 +15,23 @@
 #include "av1/common/cdef.h"
 #endif
 
-void ifd_init(insp_frame_data *fd, int frame_width, int frame_height) {
+void ifd_init(InspFrameData *fd, int frame_width, int frame_height) {
   fd->mi_cols = ALIGN_POWER_OF_TWO(frame_width, 3) >> MI_SIZE_LOG2;
   fd->mi_rows = ALIGN_POWER_OF_TWO(frame_height, 3) >> MI_SIZE_LOG2;
-  fd->mi_grid = (insp_mi_data *)aom_malloc(sizeof(insp_mi_data) * fd->mi_rows *
-                                           fd->mi_cols);
+  fd->mi_grid =
+      (InspMiData *)aom_malloc(sizeof(InspMiData) * fd->mi_rows * fd->mi_cols);
 }
 
-void ifd_clear(insp_frame_data *fd) {
+void ifd_clear(InspFrameData *fd) {
   aom_free(fd->mi_grid);
   fd->mi_grid = NULL;
 }
 
 /* TODO(negge) This function may be called by more than one thread when using
                a multi-threaded decoder and this may cause a data race. */
-int ifd_inspect(insp_frame_data *fd, void *decoder) {
+int ifd_inspect(InspFrameData *fd, void *decoder) {
   struct AV1Decoder *pbi = (struct AV1Decoder *)decoder;
-  AV1_COMMON *const cm = &pbi->common;
+  Av1Common *const cm = &pbi->common;
   // TODO(negge): Should this function just call ifd_clear() and ifd_init()?
   if (fd->mi_rows != cm->mi_rows || fd->mi_cols != cm->mi_cols) {
     return 0;
@@ -56,9 +56,9 @@ int ifd_inspect(insp_frame_data *fd, void *decoder) {
   }
   for (j = 0; j < cm->mi_rows; j++) {
     for (i = 0; i < cm->mi_cols; i++) {
-      const MB_MODE_INFO *mbmi =
+      const MbModeInfo *mbmi =
           &cm->mi_grid_visible[j * cm->mi_stride + i]->mbmi;
-      insp_mi_data *mi = &fd->mi_grid[j * cm->mi_cols + i];
+      InspMiData *mi = &fd->mi_grid[j * cm->mi_cols + i];
       // Segment
       mi->segment_id = mbmi->segment_id;
       // Motion Vectors

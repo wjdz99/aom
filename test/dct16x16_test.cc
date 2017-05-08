@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <math.h>
 #include <stdlib.h>
@@ -223,43 +223,41 @@ void reference_16x16_dct_2d(int16_t input[256], double output[256]) {
   }
 }
 
-typedef void (*FdctFunc)(const int16_t *in, tran_low_t *out, int stride);
-typedef void (*IdctFunc)(const tran_low_t *in, uint8_t *out, int stride);
-typedef void (*FhtFunc)(const int16_t *in, tran_low_t *out, int stride,
+typedef void (*FdctFunc)(const int16_t *in, TranLowT *out, int stride);
+typedef void (*IdctFunc)(const TranLowT *in, uint8_t *out, int stride);
+typedef void (*FhtFunc)(const int16_t *in, TranLowT *out, int stride,
                         int tx_type);
-typedef void (*IhtFunc)(const tran_low_t *in, uint8_t *out, int stride,
+typedef void (*IhtFunc)(const TranLowT *in, uint8_t *out, int stride,
                         int tx_type);
 
-typedef std::tr1::tuple<FdctFunc, IdctFunc, int, aom_bit_depth_t> Dct16x16Param;
-typedef std::tr1::tuple<FhtFunc, IhtFunc, int, aom_bit_depth_t> Ht16x16Param;
-typedef std::tr1::tuple<IdctFunc, IdctFunc, int, aom_bit_depth_t>
-    Idct16x16Param;
+typedef std::tr1::tuple<FdctFunc, IdctFunc, int, AomBitDepthT> Dct16x16Param;
+typedef std::tr1::tuple<FhtFunc, IhtFunc, int, AomBitDepthT> Ht16x16Param;
+typedef std::tr1::tuple<IdctFunc, IdctFunc, int, AomBitDepthT> Idct16x16Param;
 
-void fdct16x16_ref(const int16_t *in, tran_low_t *out, int stride,
+void fdct16x16_ref(const int16_t *in, TranLowT *out, int stride,
                    int /*tx_type*/) {
   aom_fdct16x16_c(in, out, stride);
 }
 
-void idct16x16_ref(const tran_low_t *in, uint8_t *dest, int stride,
+void idct16x16_ref(const TranLowT *in, uint8_t *dest, int stride,
                    int /*tx_type*/) {
   aom_idct16x16_256_add_c(in, dest, stride);
 }
 
-void fht16x16_ref(const int16_t *in, tran_low_t *out, int stride, int tx_type) {
+void fht16x16_ref(const int16_t *in, TranLowT *out, int stride, int tx_type) {
   av1_fht16x16_c(in, out, stride, tx_type);
 }
 
-void iht16x16_ref(const tran_low_t *in, uint8_t *dest, int stride,
-                  int tx_type) {
+void iht16x16_ref(const TranLowT *in, uint8_t *dest, int stride, int tx_type) {
   av1_iht16x16_256_add_c(in, dest, stride, tx_type);
 }
 
 #if CONFIG_HIGHBITDEPTH
-void iht16x16_10(const tran_low_t *in, uint8_t *out, int stride, int tx_type) {
+void iht16x16_10(const TranLowT *in, uint8_t *out, int stride, int tx_type) {
   av1_highbd_iht16x16_256_add_c(in, out, stride, tx_type, 10);
 }
 
-void iht16x16_12(const tran_low_t *in, uint8_t *out, int stride, int tx_type) {
+void iht16x16_12(const TranLowT *in, uint8_t *out, int stride, int tx_type) {
   av1_highbd_iht16x16_256_add_c(in, out, stride, tx_type, 12);
 }
 #endif  // CONFIG_HIGHBITDEPTH
@@ -269,9 +267,9 @@ class Trans16x16TestBase {
   virtual ~Trans16x16TestBase() {}
 
  protected:
-  virtual void RunFwdTxfm(int16_t *in, tran_low_t *out, int stride) = 0;
+  virtual void RunFwdTxfm(int16_t *in, TranLowT *out, int stride) = 0;
 
-  virtual void RunInvTxfm(tran_low_t *out, uint8_t *dst, int stride) = 0;
+  virtual void RunInvTxfm(TranLowT *out, uint8_t *dst, int stride) = 0;
 
   void RunAccuracyCheck() {
     ACMRandom rnd(ACMRandom::DeterministicSeed());
@@ -280,7 +278,7 @@ class Trans16x16TestBase {
     const int count_test_block = 10000;
     for (int i = 0; i < count_test_block; ++i) {
       DECLARE_ALIGNED(16, int16_t, test_input_block[kNumCoeffs]);
-      DECLARE_ALIGNED(16, tran_low_t, test_temp_block[kNumCoeffs]);
+      DECLARE_ALIGNED(16, TranLowT, test_temp_block[kNumCoeffs]);
       DECLARE_ALIGNED(16, uint8_t, dst[kNumCoeffs]);
       DECLARE_ALIGNED(16, uint8_t, src[kNumCoeffs]);
 #if CONFIG_HIGHBITDEPTH
@@ -338,8 +336,8 @@ class Trans16x16TestBase {
     ACMRandom rnd(ACMRandom::DeterministicSeed());
     const int count_test_block = 1000;
     DECLARE_ALIGNED(16, int16_t, input_block[kNumCoeffs]);
-    DECLARE_ALIGNED(16, tran_low_t, output_ref_block[kNumCoeffs]);
-    DECLARE_ALIGNED(16, tran_low_t, output_block[kNumCoeffs]);
+    DECLARE_ALIGNED(16, TranLowT, output_ref_block[kNumCoeffs]);
+    DECLARE_ALIGNED(16, TranLowT, output_block[kNumCoeffs]);
 
     for (int i = 0; i < count_test_block; ++i) {
       // Initialize a test block with input range [-mask_, mask_].
@@ -359,8 +357,8 @@ class Trans16x16TestBase {
     ACMRandom rnd(ACMRandom::DeterministicSeed());
     const int count_test_block = 1000;
     DECLARE_ALIGNED(16, int16_t, input_extreme_block[kNumCoeffs]);
-    DECLARE_ALIGNED(16, tran_low_t, output_ref_block[kNumCoeffs]);
-    DECLARE_ALIGNED(16, tran_low_t, output_block[kNumCoeffs]);
+    DECLARE_ALIGNED(16, TranLowT, output_ref_block[kNumCoeffs]);
+    DECLARE_ALIGNED(16, TranLowT, output_block[kNumCoeffs]);
 
     for (int i = 0; i < count_test_block; ++i) {
       // Initialize a test block with input range [-mask_, mask_].
@@ -390,7 +388,7 @@ class Trans16x16TestBase {
     ACMRandom rnd(ACMRandom::DeterministicSeed());
     const int count_test_block = 100000;
     DECLARE_ALIGNED(16, int16_t, input_extreme_block[kNumCoeffs]);
-    DECLARE_ALIGNED(16, tran_low_t, output_ref_block[kNumCoeffs]);
+    DECLARE_ALIGNED(16, TranLowT, output_ref_block[kNumCoeffs]);
 
     DECLARE_ALIGNED(16, uint8_t, dst[kNumCoeffs]);
     DECLARE_ALIGNED(16, uint8_t, ref[kNumCoeffs]);
@@ -448,7 +446,7 @@ class Trans16x16TestBase {
     ACMRandom rnd(ACMRandom::DeterministicSeed());
     const int count_test_block = 1000;
     DECLARE_ALIGNED(16, int16_t, in[kNumCoeffs]);
-    DECLARE_ALIGNED(16, tran_low_t, coeff[kNumCoeffs]);
+    DECLARE_ALIGNED(16, TranLowT, coeff[kNumCoeffs]);
     DECLARE_ALIGNED(16, uint8_t, dst[kNumCoeffs]);
     DECLARE_ALIGNED(16, uint8_t, src[kNumCoeffs]);
 #if CONFIG_HIGHBITDEPTH
@@ -476,7 +474,7 @@ class Trans16x16TestBase {
 
       reference_16x16_dct_2d(in, out_r);
       for (int j = 0; j < kNumCoeffs; ++j)
-        coeff[j] = static_cast<tran_low_t>(round(out_r[j]));
+        coeff[j] = static_cast<TranLowT>(round(out_r[j]));
 
       if (bit_depth_ == AOM_BITS_8) {
         ASM_REGISTER_STATE_CHECK(RunInvTxfm(coeff, dst, 16));
@@ -506,7 +504,7 @@ class Trans16x16TestBase {
     const int count_test_block = 10000;
     const int eob = 10;
     const int16_t *scan = av1_default_scan_orders[TX_16X16].scan;
-    DECLARE_ALIGNED(16, tran_low_t, coeff[kNumCoeffs]);
+    DECLARE_ALIGNED(16, TranLowT, coeff[kNumCoeffs]);
     DECLARE_ALIGNED(16, uint8_t, dst[kNumCoeffs]);
     DECLARE_ALIGNED(16, uint8_t, ref[kNumCoeffs]);
 #if CONFIG_HIGHBITDEPTH
@@ -559,7 +557,7 @@ class Trans16x16TestBase {
 
   int pitch_;
   int tx_type_;
-  aom_bit_depth_t bit_depth_;
+  AomBitDepthT bit_depth_;
   int mask_;
   FhtFunc fwd_txfm_ref;
   IhtFunc inv_txfm_ref;
@@ -584,10 +582,10 @@ class Trans16x16DCT : public Trans16x16TestBase,
   virtual void TearDown() { libaom_test::ClearSystemState(); }
 
  protected:
-  void RunFwdTxfm(int16_t *in, tran_low_t *out, int stride) {
+  void RunFwdTxfm(int16_t *in, TranLowT *out, int stride) {
     fwd_txfm_(in, out, stride);
   }
-  void RunInvTxfm(tran_low_t *out, uint8_t *dst, int stride) {
+  void RunInvTxfm(TranLowT *out, uint8_t *dst, int stride) {
     inv_txfm_(out, dst, stride);
   }
 
@@ -636,10 +634,10 @@ class Trans16x16HT : public Trans16x16TestBase,
   virtual void TearDown() { libaom_test::ClearSystemState(); }
 
  protected:
-  void RunFwdTxfm(int16_t *in, tran_low_t *out, int stride) {
+  void RunFwdTxfm(int16_t *in, TranLowT *out, int stride) {
     fwd_txfm_(in, out, stride, tx_type_);
   }
-  void RunInvTxfm(tran_low_t *out, uint8_t *dst, int stride) {
+  void RunInvTxfm(TranLowT *out, uint8_t *dst, int stride) {
     inv_txfm_(out, dst, stride, tx_type_);
   }
 
@@ -675,8 +673,8 @@ class InvTrans16x16DCT : public Trans16x16TestBase,
   virtual void TearDown() { libaom_test::ClearSystemState(); }
 
  protected:
-  void RunFwdTxfm(int16_t * /*in*/, tran_low_t * /*out*/, int /*stride*/) {}
-  void RunInvTxfm(tran_low_t *out, uint8_t *dst, int stride) {
+  void RunFwdTxfm(int16_t * /*in*/, TranLowT * /*out*/, int /*stride*/) {}
+  void RunInvTxfm(TranLowT *out, uint8_t *dst, int stride) {
     inv_txfm_(out, dst, stride);
   }
 
@@ -690,7 +688,7 @@ TEST_P(InvTrans16x16DCT, CompareReference) {
 }
 
 class PartialTrans16x16Test : public ::testing::TestWithParam<
-                                  std::tr1::tuple<FdctFunc, aom_bit_depth_t> > {
+                                  std::tr1::tuple<FdctFunc, AomBitDepthT> > {
  public:
   virtual ~PartialTrans16x16Test() {}
   virtual void SetUp() {
@@ -701,7 +699,7 @@ class PartialTrans16x16Test : public ::testing::TestWithParam<
   virtual void TearDown() { libaom_test::ClearSystemState(); }
 
  protected:
-  aom_bit_depth_t bit_depth_;
+  AomBitDepthT bit_depth_;
   FdctFunc fwd_txfm_;
 };
 
@@ -714,7 +712,7 @@ TEST_P(PartialTrans16x16Test, Extremes) {
 #endif
   const int minval = -maxval;
   DECLARE_ALIGNED(16, int16_t, input[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, output[kNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, output[kNumCoeffs]);
 
   for (int i = 0; i < kNumCoeffs; ++i) input[i] = maxval;
   output[0] = 0;
@@ -735,7 +733,7 @@ TEST_P(PartialTrans16x16Test, Random) {
   const int16_t maxval = 255;
 #endif
   DECLARE_ALIGNED(16, int16_t, input[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, output[kNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, output[kNumCoeffs]);
   ACMRandom rnd(ACMRandom::DeterministicSeed());
 
   int sum = 0;

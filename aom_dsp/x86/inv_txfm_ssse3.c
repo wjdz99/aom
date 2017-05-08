@@ -14,7 +14,7 @@
 #include "aom_dsp/x86/inv_txfm_sse2.h"
 #include "aom_dsp/x86/txfm_common_sse2.h"
 
-void aom_idct8x8_64_add_ssse3(const tran_low_t *input, uint8_t *dest,
+void aom_idct8x8_64_add_ssse3(const TranLowT *input, uint8_t *dest,
                               int stride) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i rounding = _mm_set1_epi32(DCT_CONST_ROUNDING);
@@ -216,7 +216,7 @@ void aom_idct8x8_64_add_ssse3(const tran_low_t *input, uint8_t *dest,
   RECON_AND_STORE(dest + 7 * stride, in7);
 }
 
-void aom_idct8x8_12_add_ssse3(const tran_low_t *input, uint8_t *dest,
+void aom_idct8x8_12_add_ssse3(const TranLowT *input, uint8_t *dest,
                               int stride) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i rounding = _mm_set1_epi32(DCT_CONST_ROUNDING);
@@ -616,7 +616,7 @@ static void idct32_34_second_half(const __m128i *in, __m128i *stp1) {
 }
 
 // Only upper-left 8x8 has non-zero coeff
-void aom_idct32x32_34_add_ssse3(const tran_low_t *input, uint8_t *dest,
+void aom_idct32x32_34_add_ssse3(const TranLowT *input, uint8_t *dest,
                                 int stride) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i final_rounding = _mm_set1_epi16(1 << 5);
@@ -662,7 +662,7 @@ void aom_idct32x32_34_add_ssse3(const tran_low_t *input, uint8_t *dest,
 
 // in0[16] represents the left 8x16 block
 // in1[16] represents the right 8x16 block
-static void load_buffer_16x16(const tran_low_t *input, __m128i *in0,
+static void load_buffer_16x16(const TranLowT *input, __m128i *in0,
                               __m128i *in1) {
   int i;
   for (i = 0; i < 16; i++) {
@@ -1005,7 +1005,7 @@ static void transpose_and_copy_16x16(__m128i *in0, __m128i *in1, __m128i *store,
 }
 
 // Only upper-left 16x16 has non-zero coeff
-void aom_idct32x32_135_add_ssse3(const tran_low_t *input, uint8_t *dest,
+void aom_idct32x32_135_add_ssse3(const TranLowT *input, uint8_t *dest,
                                  int stride) {
   // Each array represents an 8x32 block
   __m128i col0[32], col1[32];
@@ -1287,7 +1287,7 @@ static void idct32_full_8x32(const __m128i *in /*in[32]*/,
   add_sub_butterfly(temp, out, 32);
 }
 
-static void load_buffer_8x32(const tran_low_t *input, __m128i *in) {
+static void load_buffer_8x32(const TranLowT *input, __m128i *in) {
   int i;
   for (i = 0; i < 8; ++i) {
     in[i] = load_input_data(input);
@@ -1298,7 +1298,7 @@ static void load_buffer_8x32(const tran_low_t *input, __m128i *in) {
   }
 }
 
-void aom_idct32x32_1024_add_ssse3(const tran_low_t *input, uint8_t *dest,
+void aom_idct32x32_1024_add_ssse3(const TranLowT *input, uint8_t *dest,
                                   int stride) {
   __m128i col[128], in[32];
   int i, j;

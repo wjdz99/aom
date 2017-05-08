@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <math.h>
 #include <stdlib.h>
@@ -30,61 +30,60 @@
 using libaom_test::ACMRandom;
 
 namespace {
-typedef void (*FdctFunc)(const int16_t *in, tran_low_t *out, int stride);
-typedef void (*IdctFunc)(const tran_low_t *in, uint8_t *out, int stride);
-typedef void (*IhtFunc)(const tran_low_t *in, uint8_t *out, int stride,
+typedef void (*FdctFunc)(const int16_t *in, TranLowT *out, int stride);
+typedef void (*IdctFunc)(const TranLowT *in, uint8_t *out, int stride);
+typedef void (*IhtFunc)(const TranLowT *in, uint8_t *out, int stride,
                         int tx_type);
 using libaom_test::FhtFunc;
 
-typedef std::tr1::tuple<FdctFunc, IdctFunc, int, aom_bit_depth_t, int>
-    Dct4x4Param;
-typedef std::tr1::tuple<FhtFunc, IhtFunc, int, aom_bit_depth_t, int> Ht4x4Param;
+typedef std::tr1::tuple<FdctFunc, IdctFunc, int, AomBitDepthT, int> Dct4x4Param;
+typedef std::tr1::tuple<FhtFunc, IhtFunc, int, AomBitDepthT, int> Ht4x4Param;
 
-void fdct4x4_ref(const int16_t *in, tran_low_t *out, int stride,
+void fdct4x4_ref(const int16_t *in, TranLowT *out, int stride,
                  int /*tx_type*/) {
   aom_fdct4x4_c(in, out, stride);
 }
 
-void fht4x4_ref(const int16_t *in, tran_low_t *out, int stride, int tx_type) {
+void fht4x4_ref(const int16_t *in, TranLowT *out, int stride, int tx_type) {
   av1_fht4x4_c(in, out, stride, tx_type);
 }
 
-void fwht4x4_ref(const int16_t *in, tran_low_t *out, int stride,
+void fwht4x4_ref(const int16_t *in, TranLowT *out, int stride,
                  int /*tx_type*/) {
   av1_fwht4x4_c(in, out, stride);
 }
 
 #if CONFIG_HIGHBITDEPTH
-void idct4x4_10(const tran_low_t *in, uint8_t *out, int stride) {
+void idct4x4_10(const TranLowT *in, uint8_t *out, int stride) {
   aom_highbd_idct4x4_16_add_c(in, out, stride, 10);
 }
 
-void idct4x4_12(const tran_low_t *in, uint8_t *out, int stride) {
+void idct4x4_12(const TranLowT *in, uint8_t *out, int stride) {
   aom_highbd_idct4x4_16_add_c(in, out, stride, 12);
 }
 
-void iht4x4_10(const tran_low_t *in, uint8_t *out, int stride, int tx_type) {
+void iht4x4_10(const TranLowT *in, uint8_t *out, int stride, int tx_type) {
   av1_highbd_iht4x4_16_add_c(in, out, stride, tx_type, 10);
 }
 
-void iht4x4_12(const tran_low_t *in, uint8_t *out, int stride, int tx_type) {
+void iht4x4_12(const TranLowT *in, uint8_t *out, int stride, int tx_type) {
   av1_highbd_iht4x4_16_add_c(in, out, stride, tx_type, 12);
 }
 
-void iwht4x4_10(const tran_low_t *in, uint8_t *out, int stride) {
+void iwht4x4_10(const TranLowT *in, uint8_t *out, int stride) {
   aom_highbd_iwht4x4_16_add_c(in, out, stride, 10);
 }
 
-void iwht4x4_12(const tran_low_t *in, uint8_t *out, int stride) {
+void iwht4x4_12(const TranLowT *in, uint8_t *out, int stride) {
   aom_highbd_iwht4x4_16_add_c(in, out, stride, 12);
 }
 
 #if HAVE_SSE2
-void idct4x4_10_sse2(const tran_low_t *in, uint8_t *out, int stride) {
+void idct4x4_10_sse2(const TranLowT *in, uint8_t *out, int stride) {
   aom_highbd_idct4x4_16_add_sse2(in, out, stride, 10);
 }
 
-void idct4x4_12_sse2(const tran_low_t *in, uint8_t *out, int stride) {
+void idct4x4_12_sse2(const TranLowT *in, uint8_t *out, int stride) {
   aom_highbd_idct4x4_16_add_sse2(in, out, stride, 12);
 }
 #endif  // HAVE_SSE2
@@ -109,10 +108,10 @@ class Trans4x4DCT : public libaom_test::TransformTestBase,
   virtual void TearDown() { libaom_test::ClearSystemState(); }
 
  protected:
-  void RunFwdTxfm(const int16_t *in, tran_low_t *out, int stride) {
+  void RunFwdTxfm(const int16_t *in, TranLowT *out, int stride) {
     fwd_txfm_(in, out, stride);
   }
-  void RunInvTxfm(const tran_low_t *out, uint8_t *dst, int stride) {
+  void RunInvTxfm(const TranLowT *out, uint8_t *dst, int stride) {
     inv_txfm_(out, dst, stride);
   }
 
@@ -147,11 +146,11 @@ class Trans4x4HT : public libaom_test::TransformTestBase,
   virtual void TearDown() { libaom_test::ClearSystemState(); }
 
  protected:
-  void RunFwdTxfm(const int16_t *in, tran_low_t *out, int stride) {
+  void RunFwdTxfm(const int16_t *in, TranLowT *out, int stride) {
     fwd_txfm_(in, out, stride, tx_type_);
   }
 
-  void RunInvTxfm(const tran_low_t *out, uint8_t *dst, int stride) {
+  void RunInvTxfm(const TranLowT *out, uint8_t *dst, int stride) {
     inv_txfm_(out, dst, stride, tx_type_);
   }
 
@@ -186,10 +185,10 @@ class Trans4x4WHT : public libaom_test::TransformTestBase,
   virtual void TearDown() { libaom_test::ClearSystemState(); }
 
  protected:
-  void RunFwdTxfm(const int16_t *in, tran_low_t *out, int stride) {
+  void RunFwdTxfm(const int16_t *in, TranLowT *out, int stride) {
     fwd_txfm_(in, out, stride);
   }
-  void RunInvTxfm(const tran_low_t *out, uint8_t *dst, int stride) {
+  void RunInvTxfm(const TranLowT *out, uint8_t *dst, int stride) {
     inv_txfm_(out, dst, stride);
   }
 

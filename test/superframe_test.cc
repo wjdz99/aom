@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <climits>
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
@@ -58,8 +58,8 @@ class SuperframeTest
     }
   }
 
-  virtual const aom_codec_cx_pkt_t *MutateEncoderOutputHook(
-      const aom_codec_cx_pkt_t *pkt) {
+  virtual const AomCodecCxPktT *MutateEncoderOutputHook(
+      const AomCodecCxPktT *pkt) {
     if (pkt->kind != AOM_CODEC_CX_FRAME_PKT) return pkt;
 
     const uint8_t *buffer = reinterpret_cast<uint8_t *>(pkt->data.frame.buf);
@@ -90,9 +90,9 @@ class SuperframeTest
 
   int sf_count_;
   int sf_count_max_;
-  aom_codec_cx_pkt_t modified_pkt_;
+  AomCodecCxPktT modified_pkt_;
   uint8_t *modified_buf_;
-  aom_codec_pts_t last_sf_pts_;
+  AomCodecPtsT last_sf_pts_;
 
  private:
   int n_tile_cols_;

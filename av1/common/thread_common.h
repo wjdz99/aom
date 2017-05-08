@@ -20,7 +20,7 @@ extern "C" {
 #endif
 
 struct AV1Common;
-struct FRAME_COUNTS;
+struct FrameCounts;
 
 // Loopfilter row synchronization
 typedef struct AV1LfSyncData {
@@ -35,27 +35,27 @@ typedef struct AV1LfSyncData {
   int sync_range;
   int rows;
 
-  // Row-based parallel loopfilter data
+  // Row-based parallel Loopfilter data
   LFWorkerData *lfdata;
   int num_workers;
 } AV1LfSync;
 
-// Allocate memory for loopfilter row synchronization.
+// Allocate memory for Loopfilter row synchronization.
 void av1_loop_filter_alloc(AV1LfSync *lf_sync, struct AV1Common *cm, int rows,
                            int width, int num_workers);
 
-// Deallocate loopfilter synchronization related mutex and data.
+// Deallocate Loopfilter synchronization related mutex and data.
 void av1_loop_filter_dealloc(AV1LfSync *lf_sync);
 
-// Multi-threaded loopfilter that uses the tile threads.
-void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
-                              struct macroblockd_plane planes[MAX_MB_PLANE],
+// Multi-threaded Loopfilter that uses the tile threads.
+void av1_loop_filter_frame_mt(Yv12BufferConfig *frame, struct AV1Common *cm,
+                              struct MacroblockdPlane planes[MAX_MB_PLANE],
                               int frame_filter_level, int y_only,
                               int partial_frame, AVxWorker *workers,
                               int num_workers, AV1LfSync *lf_sync);
 
-void av1_accumulate_frame_counts(struct FRAME_COUNTS *acc_counts,
-                                 struct FRAME_COUNTS *counts);
+void av1_accumulate_frame_counts(struct FrameCounts *acc_counts,
+                                 struct FrameCounts *counts);
 
 #ifdef __cplusplus
 }  // extern "C"

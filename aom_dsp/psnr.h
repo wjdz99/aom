@@ -24,55 +24,52 @@ typedef struct {
   double psnr[4];       // total/y/u/v
   uint64_t sse[4];      // total/y/u/v
   uint32_t samples[4];  // total/y/u/v
-} PSNR_STATS;
+} PsnrStats;
 
 /*!\brief Converts SSE to PSNR
-*
-* Converts sum of squared errros (SSE) to peak signal-to-noise ratio (PNSR).
-*
-* \param[in]    samples       Number of samples
-* \param[in]    peak          Max sample value
-* \param[in]    sse           Sum of squared errors
-*/
+ *
+ * Converts sum of squared errros (SSE) to peak signal-to-noise ratio (PNSR).
+ *
+ * \param[in]    samples       Number of samples
+ * \param[in]    peak          Max sample value
+ * \param[in]    sse           Sum of squared errors
+ */
 double aom_sse_to_psnr(double samples, double peak, double sse);
-int64_t aom_get_y_sse_part(const YV12_BUFFER_CONFIG *a,
-                           const YV12_BUFFER_CONFIG *b, int hstart, int width,
-                           int vstart, int height);
-int64_t aom_get_y_sse(const YV12_BUFFER_CONFIG *a, const YV12_BUFFER_CONFIG *b);
-int64_t aom_get_u_sse_part(const YV12_BUFFER_CONFIG *a,
-                           const YV12_BUFFER_CONFIG *b, int hstart, int width,
-                           int vstart, int height);
-int64_t aom_get_u_sse(const YV12_BUFFER_CONFIG *a, const YV12_BUFFER_CONFIG *b);
-int64_t aom_get_v_sse_part(const YV12_BUFFER_CONFIG *a,
-                           const YV12_BUFFER_CONFIG *b, int hstart, int width,
-                           int vstart, int height);
-int64_t aom_get_v_sse(const YV12_BUFFER_CONFIG *a, const YV12_BUFFER_CONFIG *b);
+int64_t aom_get_y_sse_part(const Yv12BufferConfig *a, const Yv12BufferConfig *b,
+                           int hstart, int width, int vstart, int height);
+int64_t aom_get_y_sse(const Yv12BufferConfig *a, const Yv12BufferConfig *b);
+int64_t aom_get_u_sse_part(const Yv12BufferConfig *a, const Yv12BufferConfig *b,
+                           int hstart, int width, int vstart, int height);
+int64_t aom_get_u_sse(const Yv12BufferConfig *a, const Yv12BufferConfig *b);
+int64_t aom_get_v_sse_part(const Yv12BufferConfig *a, const Yv12BufferConfig *b,
+                           int hstart, int width, int vstart, int height);
+int64_t aom_get_v_sse(const Yv12BufferConfig *a, const Yv12BufferConfig *b);
 #if CONFIG_HIGHBITDEPTH
-int64_t aom_highbd_get_y_sse_part(const YV12_BUFFER_CONFIG *a,
-                                  const YV12_BUFFER_CONFIG *b, int hstart,
+int64_t aom_highbd_get_y_sse_part(const Yv12BufferConfig *a,
+                                  const Yv12BufferConfig *b, int hstart,
                                   int width, int vstart, int height);
-int64_t aom_highbd_get_y_sse(const YV12_BUFFER_CONFIG *a,
-                             const YV12_BUFFER_CONFIG *b);
-int64_t aom_highbd_get_u_sse_part(const YV12_BUFFER_CONFIG *a,
-                                  const YV12_BUFFER_CONFIG *b, int hstart,
+int64_t aom_highbd_get_y_sse(const Yv12BufferConfig *a,
+                             const Yv12BufferConfig *b);
+int64_t aom_highbd_get_u_sse_part(const Yv12BufferConfig *a,
+                                  const Yv12BufferConfig *b, int hstart,
                                   int width, int vstart, int height);
-int64_t aom_highbd_get_u_sse(const YV12_BUFFER_CONFIG *a,
-                             const YV12_BUFFER_CONFIG *b);
-int64_t aom_highbd_get_v_sse_part(const YV12_BUFFER_CONFIG *a,
-                                  const YV12_BUFFER_CONFIG *b, int hstart,
+int64_t aom_highbd_get_u_sse(const Yv12BufferConfig *a,
+                             const Yv12BufferConfig *b);
+int64_t aom_highbd_get_v_sse_part(const Yv12BufferConfig *a,
+                                  const Yv12BufferConfig *b, int hstart,
                                   int width, int vstart, int height);
-int64_t aom_highbd_get_v_sse(const YV12_BUFFER_CONFIG *a,
-                             const YV12_BUFFER_CONFIG *b);
-void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
-                          const YV12_BUFFER_CONFIG *b, PSNR_STATS *psnr,
-                          unsigned int bit_depth, unsigned int in_bit_depth);
+int64_t aom_highbd_get_v_sse(const Yv12BufferConfig *a,
+                             const Yv12BufferConfig *b);
+void aom_calc_highbd_psnr(const Yv12BufferConfig *a, const Yv12BufferConfig *b,
+                          PsnrStats *psnr, unsigned int bit_depth,
+                          unsigned int in_bit_depth);
 #endif
-void aom_calc_psnr(const YV12_BUFFER_CONFIG *a, const YV12_BUFFER_CONFIG *b,
-                   PSNR_STATS *psnr);
+void aom_calc_psnr(const Yv12BufferConfig *a, const Yv12BufferConfig *b,
+                   PsnrStats *psnr);
 
-double aom_psnrhvs(const YV12_BUFFER_CONFIG *source,
-                   const YV12_BUFFER_CONFIG *dest, double *phvs_y,
-                   double *phvs_u, double *phvs_v, uint32_t bd, uint32_t in_bd);
+double aom_psnrhvs(const Yv12BufferConfig *source, const Yv12BufferConfig *dest,
+                   double *phvs_y, double *phvs_u, double *phvs_v, uint32_t bd,
+                   uint32_t in_bd);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

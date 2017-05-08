@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include "./aom_config.h"
 #include "./aom_rtcd.h"
@@ -119,4 +119,4 @@ INSTANTIATE_TEST_CASE_P(MMX, IDCTTest,
 INSTANTIATE_TEST_CASE_P(MSA, IDCTTest,
                         ::testing::Values(aom_short_idct4x4llm_msa));
 #endif
-}
+}  // namespace

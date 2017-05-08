@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
@@ -34,7 +34,7 @@ typedef struct {
   unsigned int framerate_den;
   unsigned int input_bit_depth;
   aom_img_fmt fmt;
-  aom_bit_depth_t bit_depth;
+  AomBitDepthT bit_depth;
   unsigned int profile;
 } TestVideoParam;
 
@@ -107,7 +107,7 @@ class ArfFreqTestLarge
     run_of_visible_frames_ = 0;
   }
 
-  int GetNumFramesInPkt(const aom_codec_cx_pkt_t *pkt) {
+  int GetNumFramesInPkt(const AomCodecCxPktT *pkt) {
     const uint8_t *buffer = reinterpret_cast<uint8_t *>(pkt->data.frame.buf);
     const uint8_t marker = buffer[pkt->data.frame.sz - 1];
     const int mag = ((marker >> 3) & 3) + 1;
@@ -124,7 +124,7 @@ class ArfFreqTestLarge
     return frames;
   }
 
-  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void FramePktHook(const AomCodecCxPktT *pkt) {
     if (pkt->kind != AOM_CODEC_CX_FRAME_PKT) return;
     const int frames = GetNumFramesInPkt(pkt);
     if (frames == 1) {

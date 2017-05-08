@@ -34,15 +34,14 @@ extern const uint16_t av1_prob_cost[256];
 // for each bit.
 #define av1_cost_literal(n) ((n) * (1 << AV1_PROB_COST_SHIFT))
 
-static INLINE unsigned int cost_branch256(const unsigned int ct[2],
-                                          aom_prob p) {
+static INLINE unsigned int cost_branch256(const unsigned int ct[2], AomProb p) {
   return ct[0] * av1_cost_zero(p) + ct[1] * av1_cost_one(p);
 }
 
-static INLINE int treed_cost(aom_tree tree, const aom_prob *probs, int bits,
+static INLINE int treed_cost(AomTree tree, const AomProb *probs, int bits,
                              int len) {
   int cost = 0;
-  aom_tree_index i = 0;
+  AomTreeIndex i = 0;
 
   do {
     const int bit = (bits >> --len) & 1;
@@ -53,8 +52,8 @@ static INLINE int treed_cost(aom_tree tree, const aom_prob *probs, int bits,
   return cost;
 }
 
-void av1_cost_tokens(int *costs, const aom_prob *probs, aom_tree tree);
-void av1_cost_tokens_skip(int *costs, const aom_prob *probs, aom_tree tree);
+void av1_cost_tokens(int *costs, const AomProb *probs, AomTree tree);
+void av1_cost_tokens_skip(int *costs, const AomProb *probs, AomTree tree);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -51,7 +51,7 @@ double refine_integerized_param(WarpedMotionParams *wm,
   num_inliers entry is 0 should be ignored by the caller.
 */
 int compute_global_motion_feature_based(
-    TransformationType type, YV12_BUFFER_CONFIG *frm, YV12_BUFFER_CONFIG *ref,
+    TransformationType type, Yv12BufferConfig *frm, Yv12BufferConfig *ref,
 #if CONFIG_HIGHBITDEPTH
     int bit_depth,
 #endif

@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <string.h>
 
@@ -40,7 +40,7 @@ using libaom_test::ACMRandom;
 using std::tr1::make_tuple;
 
 // Create and populate a VP8_COMP instance which has a complete set of
-// quantization inputs as well as a second MACROBLOCKD for output.
+// quantization inputs as well as a second Macroblockd for output.
 class QuantizeTestBase {
  public:
   virtual ~QuantizeTestBase() {
@@ -67,8 +67,8 @@ class QuantizeTestBase {
     // Set up all the block/blockd pointers for the mb in vp8_comp_.
     vp8cx_frame_init_quantizer(vp8_comp_);
 
-    // Copy macroblockd from the reference to get pre-set-up dequant values.
-    macroblockd_dst_ = reinterpret_cast<MACROBLOCKD *>(
+    // Copy Macroblockd from the reference to get pre-set-up dequant values.
+    macroblockd_dst_ = reinterpret_cast<Macroblockd *>(
         aom_memalign(32, sizeof(*macroblockd_dst_)));
     memcpy(macroblockd_dst_, &vp8_comp_->mb.e_mbd, sizeof(*macroblockd_dst_));
     // Fix block pointers - currently they point to the blocks in the reference
@@ -110,7 +110,7 @@ class QuantizeTestBase {
   }
 
   VP8_COMP *vp8_comp_;
-  MACROBLOCKD *macroblockd_dst_;
+  Macroblockd *macroblockd_dst_;
 
  private:
   ACMRandom rnd_;

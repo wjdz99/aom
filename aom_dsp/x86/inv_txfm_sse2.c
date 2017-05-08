@@ -22,8 +22,7 @@
     *(int *)(dest) = _mm_cvtsi128_si32(d0);               \
   }
 
-void aom_idct4x4_16_add_sse2(const tran_low_t *input, uint8_t *dest,
-                             int stride) {
+void aom_idct4x4_16_add_sse2(const TranLowT *input, uint8_t *dest, int stride) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i eight = _mm_set1_epi16(8);
   const __m128i cst = _mm_setr_epi16(
@@ -153,8 +152,7 @@ void aom_idct4x4_16_add_sse2(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-void aom_idct4x4_1_add_sse2(const tran_low_t *input, uint8_t *dest,
-                            int stride) {
+void aom_idct4x4_1_add_sse2(const TranLowT *input, uint8_t *dest, int stride) {
   __m128i dc_value;
   const __m128i zero = _mm_setzero_si128();
   int a;
@@ -386,8 +384,7 @@ void aom_iadst4_sse2(__m128i *in) {
     out7 = _mm_subs_epi16(stp1_0, stp2_7);                                    \
   }
 
-void aom_idct8x8_64_add_sse2(const tran_low_t *input, uint8_t *dest,
-                             int stride) {
+void aom_idct8x8_64_add_sse2(const TranLowT *input, uint8_t *dest, int stride) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i rounding = _mm_set1_epi32(DCT_CONST_ROUNDING);
   const __m128i final_rounding = _mm_set1_epi16(1 << 4);
@@ -456,8 +453,7 @@ void aom_idct8x8_64_add_sse2(const tran_low_t *input, uint8_t *dest,
   RECON_AND_STORE(dest + 7 * stride, in7);
 }
 
-void aom_idct8x8_1_add_sse2(const tran_low_t *input, uint8_t *dest,
-                            int stride) {
+void aom_idct8x8_1_add_sse2(const TranLowT *input, uint8_t *dest, int stride) {
   __m128i dc_value;
   const __m128i zero = _mm_setzero_si128();
   int a;
@@ -733,8 +729,7 @@ void aom_iadst8_sse2(__m128i *in) {
   in[7] = _mm_sub_epi16(k__const_0, s1);
 }
 
-void aom_idct8x8_12_add_sse2(const tran_low_t *input, uint8_t *dest,
-                             int stride) {
+void aom_idct8x8_12_add_sse2(const TranLowT *input, uint8_t *dest, int stride) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i rounding = _mm_set1_epi32(DCT_CONST_ROUNDING);
   const __m128i final_rounding = _mm_set1_epi16(1 << 4);
@@ -1103,7 +1098,7 @@ void aom_idct8x8_12_add_sse2(const tran_low_t *input, uint8_t *dest,
                            stp2_12)                                            \
   }
 
-void aom_idct16x16_256_add_sse2(const tran_low_t *input, uint8_t *dest,
+void aom_idct16x16_256_add_sse2(const TranLowT *input, uint8_t *dest,
                                 int stride) {
   const __m128i rounding = _mm_set1_epi32(DCT_CONST_ROUNDING);
   const __m128i final_rounding = _mm_set1_epi16(1 << 5);
@@ -1228,7 +1223,7 @@ void aom_idct16x16_256_add_sse2(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-void aom_idct16x16_1_add_sse2(const tran_low_t *input, uint8_t *dest,
+void aom_idct16x16_1_add_sse2(const TranLowT *input, uint8_t *dest,
                               int stride) {
   __m128i dc_value;
   const __m128i zero = _mm_setzero_si128();
@@ -2075,7 +2070,7 @@ void aom_iadst16_sse2(__m128i *in0, __m128i *in1) {
   iadst16_8col(in1);
 }
 
-void aom_idct16x16_10_add_sse2(const tran_low_t *input, uint8_t *dest,
+void aom_idct16x16_10_add_sse2(const TranLowT *input, uint8_t *dest,
                                int stride) {
   const __m128i rounding = _mm_set1_epi32(DCT_CONST_ROUNDING);
   const __m128i final_rounding = _mm_set1_epi16(1 << 5);
@@ -2945,7 +2940,7 @@ void aom_idct16x16_10_add_sse2(const tran_low_t *input, uint8_t *dest,
   }
 
 // Only upper-left 8x8 has non-zero coeff
-void aom_idct32x32_34_add_sse2(const tran_low_t *input, uint8_t *dest,
+void aom_idct32x32_34_add_sse2(const TranLowT *input, uint8_t *dest,
                                int stride) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i rounding = _mm_set1_epi32(DCT_CONST_ROUNDING);
@@ -3102,7 +3097,7 @@ void aom_idct32x32_34_add_sse2(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-void aom_idct32x32_1024_add_sse2(const tran_low_t *input, uint8_t *dest,
+void aom_idct32x32_1024_add_sse2(const TranLowT *input, uint8_t *dest,
                                  int stride) {
   const __m128i rounding = _mm_set1_epi32(DCT_CONST_ROUNDING);
   const __m128i final_rounding = _mm_set1_epi16(1 << 5);
@@ -3376,7 +3371,7 @@ void aom_idct32x32_1024_add_sse2(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-void aom_idct32x32_1_add_sse2(const tran_low_t *input, uint8_t *dest,
+void aom_idct32x32_1_add_sse2(const TranLowT *input, uint8_t *dest,
                               int stride) {
   __m128i dc_value;
   const __m128i zero = _mm_setzero_si128();
@@ -3513,10 +3508,10 @@ static INLINE __m128i clamp_high_sse2(__m128i value, int bd) {
   return retval;
 }
 
-void aom_highbd_idct4x4_16_add_sse2(const tran_low_t *input, uint8_t *dest8,
+void aom_highbd_idct4x4_16_add_sse2(const TranLowT *input, uint8_t *dest8,
                                     int stride, int bd) {
-  tran_low_t out[4 * 4];
-  tran_low_t *outptr = out;
+  TranLowT out[4 * 4];
+  TranLowT *outptr = out;
   int i, j;
   __m128i inptr[4];
   __m128i sign_bits[2];
@@ -3615,7 +3610,7 @@ void aom_highbd_idct4x4_16_add_sse2(const tran_low_t *input, uint8_t *dest8,
     }
   } else {
     // Run the un-optimised column transform
-    tran_low_t temp_in[4], temp_out[4];
+    TranLowT temp_in[4], temp_out[4];
     // Columns
     for (i = 0; i < 4; ++i) {
       for (j = 0; j < 4; ++j) temp_in[j] = out[j * 4 + i];
@@ -3628,10 +3623,10 @@ void aom_highbd_idct4x4_16_add_sse2(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void aom_highbd_idct8x8_10_add_sse2(const tran_low_t *input, uint8_t *dest8,
+void aom_highbd_idct8x8_10_add_sse2(const TranLowT *input, uint8_t *dest8,
                                     int stride, int bd) {
-  tran_low_t out[8 * 8] = { 0 };
-  tran_low_t *outptr = out;
+  TranLowT out[8 * 8] = { 0 };
+  TranLowT *outptr = out;
   int i, j, test;
   __m128i inptr[8];
   __m128i min_input, max_input, temp1, temp2, sign_bits;
@@ -3719,7 +3714,7 @@ void aom_highbd_idct8x8_10_add_sse2(const tran_low_t *input, uint8_t *dest8,
     }
   } else {
     // Run the un-optimised column transform
-    tran_low_t temp_in[8], temp_out[8];
+    TranLowT temp_in[8], temp_out[8];
     for (i = 0; i < 8; ++i) {
       for (j = 0; j < 8; ++j) temp_in[j] = out[j * 8 + i];
       aom_highbd_idct8_c(temp_in, temp_out, bd);

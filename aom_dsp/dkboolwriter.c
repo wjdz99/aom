@@ -13,11 +13,11 @@
 
 #include "./dkboolwriter.h"
 
-static INLINE void aom_dk_write_bit(aom_dk_writer *w, int bit) {
+static INLINE void aom_dk_write_bit(AomDkWriter *w, int bit) {
   aom_dk_write(w, bit, 128);  // aom_prob_half
 }
 
-void aom_dk_start_encode(aom_dk_writer *br, uint8_t *source) {
+void aom_dk_start_encode(AomDkWriter *br, uint8_t *source) {
   br->lowvalue = 0;
   br->range = 255;
   br->count = -24;
@@ -26,7 +26,7 @@ void aom_dk_start_encode(aom_dk_writer *br, uint8_t *source) {
   aom_dk_write_bit(br, 0);
 }
 
-void aom_dk_stop_encode(aom_dk_writer *br) {
+void aom_dk_stop_encode(AomDkWriter *br) {
   int i;
 
 #if CONFIG_BITSTREAM_DEBUG

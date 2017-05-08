@@ -17,11 +17,11 @@ extern "C" {
 
 #include "av1/encoder/encoder.h"
 
-struct yv12_buffer_config;
-struct AV1_COMP;
+struct Yv12BufferConfig;
+struct Av1Comp;
 
-void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
-                                 LPF_PICK_METHOD method);
+void av1_pick_filter_restoration(const Yv12BufferConfig *sd, Av1Comp *cpi,
+                                 LpfPickMethod method);
 
 #ifdef __cplusplus
 }  // extern "C"

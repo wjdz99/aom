@@ -468,8 +468,8 @@ static double calc_ssim(const uint8_t *_src, int _systride, const uint8_t *_dst,
   return ret;
 }
 
-double aom_calc_fastssim(const YV12_BUFFER_CONFIG *source,
-                         const YV12_BUFFER_CONFIG *dest, double *ssim_y,
+double aom_calc_fastssim(const Yv12BufferConfig *source,
+                         const Yv12BufferConfig *dest, double *ssim_y,
                          double *ssim_u, double *ssim_v, uint32_t bd,
                          uint32_t in_bd) {
   double ssimv;

@@ -13,12 +13,12 @@
 
 #include "aom_ports/mem.h"
 
-static void yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
+static void yuvconfig2image(AomImageT *img, const Yv12BufferConfig *yv12,
                             void *user_priv) {
   /** aom_img_wrap() doesn't allow specifying independent strides for
-    * the Y, U, and V planes, nor other alignment adjustments that
-    * might be representable by a YV12_BUFFER_CONFIG, so we just
-    * initialize all the fields.*/
+   * the Y, U, and V planes, nor other alignment adjustments that
+   * might be representable by a Yv12BufferConfig, so we just
+   * initialize all the fields.*/
   int bps;
   if (!yv12->subsampling_y) {
     if (!yv12->subsampling_x) {
@@ -58,9 +58,9 @@ static void yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
   img->stride[AOM_PLANE_ALPHA] = yv12->y_stride;
 #if CONFIG_HIGHBITDEPTH
   if (yv12->flags & YV12_FLAG_HIGHBITDEPTH) {
-    // aom_image_t uses byte strides and a pointer to the first byte
+    // AomImageT uses byte strides and a pointer to the first byte
     // of the image.
-    img->fmt = (aom_img_fmt_t)(img->fmt | AOM_IMG_FMT_HIGHBITDEPTH);
+    img->fmt = (AomImgFmtT)(img->fmt | AOM_IMG_FMT_HIGHBITDEPTH);
     img->bit_depth = yv12->bit_depth;
     img->planes[AOM_PLANE_Y] = (uint8_t *)CONVERT_TO_SHORTPTR(yv12->y_buffer);
     img->planes[AOM_PLANE_U] = (uint8_t *)CONVERT_TO_SHORTPTR(yv12->u_buffer);
@@ -79,8 +79,8 @@ static void yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
   img->self_allocd = 0;
 }
 
-static aom_codec_err_t image2yuvconfig(const aom_image_t *img,
-                                       YV12_BUFFER_CONFIG *yv12) {
+static AomCodecErrT image2yuvconfig(const AomImageT *img,
+                                    Yv12BufferConfig *yv12) {
   yv12->y_buffer = img->planes[AOM_PLANE_Y];
   yv12->u_buffer = img->planes[AOM_PLANE_U];
   yv12->v_buffer = img->planes[AOM_PLANE_V];
@@ -106,10 +106,10 @@ static aom_codec_err_t image2yuvconfig(const aom_image_t *img,
 
 #if CONFIG_HIGHBITDEPTH
   if (img->fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
-    // In aom_image_t
+    // In AomImageT
     //     planes point to uint8 address of start of data
     //     stride counts uint8s to reach next row
-    // In YV12_BUFFER_CONFIG
+    // In Yv12BufferConfig
     //     y_buffer, u_buffer, v_buffer point to uint16 address of data
     //     stride and border counts in uint16s
     // This means that all the address calculations in the main body of code
@@ -134,7 +134,7 @@ static aom_codec_err_t image2yuvconfig(const aom_image_t *img,
   return AOM_CODEC_OK;
 }
 
-static AOM_REFFRAME ref_frame_to_av1_reframe(aom_ref_frame_type_t frame) {
+static AomRefframe ref_frame_to_av1_reframe(AomRefFrameTypeT frame) {
   switch (frame) {
     case AOM_LAST_FRAME: return AOM_LAST_FLAG;
     case AOM_GOLD_FRAME: return AOM_GOLD_FLAG;

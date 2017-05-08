@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <string>
 
@@ -55,7 +55,7 @@ const Y4mTestParam kY4mTestVectors[] = {
     "5a6481a550821dab6d0192f5c63845e9" },
 };
 
-static void write_image_file(const aom_image_t *img, FILE *file) {
+static void write_image_file(const AomImageT *img, FILE *file) {
   int plane, y;
   for (plane = 0; plane < 3; ++plane) {
     const unsigned char *buf = img->planes[plane];
@@ -90,7 +90,7 @@ class Y4mVideoSourceTest : public ::testing::TestWithParam<Y4mTestParam>,
   }
 
   // Checks y4m header information
-  void HeaderChecks(unsigned int bit_depth, aom_img_fmt_t fmt) {
+  void HeaderChecks(unsigned int bit_depth, AomImgFmtT fmt) {
     ASSERT_TRUE(input_file_ != NULL);
     ASSERT_EQ(y4m_.pic_w, (int)kWidth);
     ASSERT_EQ(y4m_.pic_h, (int)kHeight);

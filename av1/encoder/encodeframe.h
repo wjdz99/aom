@@ -20,9 +20,9 @@
 extern "C" {
 #endif
 
-struct macroblock;
-struct yv12_buffer_config;
-struct AV1_COMP;
+struct Macroblock;
+struct Yv12BufferConfig;
+struct Av1Comp;
 struct ThreadData;
 
 // Constants used in SOURCE_VAR_BASED_PARTITION
@@ -32,24 +32,24 @@ struct ThreadData;
 #define VAR_HIST_LARGE_CUT_OFF 75
 #define VAR_HIST_SMALL_CUT_OFF 45
 
-void av1_setup_src_planes(struct macroblock *x,
-                          const struct yv12_buffer_config *src, int mi_row,
+void av1_setup_src_planes(struct Macroblock *x,
+                          const struct Yv12BufferConfig *src, int mi_row,
                           int mi_col);
 
-void av1_encode_frame(struct AV1_COMP *cpi);
+void av1_encode_frame(struct Av1Comp *cpi);
 
-void av1_init_tile_data(struct AV1_COMP *cpi);
-void av1_encode_tile(struct AV1_COMP *cpi, struct ThreadData *td, int tile_row,
+void av1_init_tile_data(struct Av1Comp *cpi);
+void av1_encode_tile(struct Av1Comp *cpi, struct ThreadData *td, int tile_row,
                      int tile_col);
 
-void av1_set_variance_partition_thresholds(struct AV1_COMP *cpi, int q);
+void av1_set_variance_partition_thresholds(struct Av1Comp *cpi, int q);
 
-void av1_update_tx_type_count(const struct AV1Common *cm, MACROBLOCKD *xd,
+void av1_update_tx_type_count(const struct AV1Common *cm, Macroblockd *xd,
 #if CONFIG_TXK_SEL
                               int block, int plane,
 #endif
-                              BLOCK_SIZE bsize, TX_SIZE tx_size,
-                              FRAME_COUNTS *counts);
+                              BlockSize bsize, TxSize tx_size,
+                              FrameCounts *counts);
 
 #ifdef __cplusplus
 }  // extern "C"

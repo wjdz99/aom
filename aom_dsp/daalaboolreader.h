@@ -27,23 +27,23 @@
 extern "C" {
 #endif
 
-struct daala_reader {
+struct DaalaReader {
   const uint8_t *buffer;
   const uint8_t *buffer_end;
-  od_ec_dec ec;
+  OdEcDec ec;
 #if CONFIG_ACCOUNTING
   Accounting *accounting;
 #endif
 };
 
-typedef struct daala_reader daala_reader;
+typedef struct DaalaReader DaalaReader;
 
-int aom_daala_reader_init(daala_reader *r, const uint8_t *buffer, int size);
-const uint8_t *aom_daala_reader_find_end(daala_reader *r);
-uint32_t aom_daala_reader_tell(const daala_reader *r);
-uint32_t aom_daala_reader_tell_frac(const daala_reader *r);
+int aom_daala_reader_init(DaalaReader *r, const uint8_t *buffer, int size);
+const uint8_t *aom_daala_reader_find_end(DaalaReader *r);
+uint32_t aom_daala_reader_tell(const DaalaReader *r);
+uint32_t aom_daala_reader_tell_frac(const DaalaReader *r);
 
-static INLINE int aom_daala_read(daala_reader *r, int prob) {
+static INLINE int aom_daala_read(DaalaReader *r, int prob) {
   int bit;
 #if CONFIG_EC_SMALLMUL
   int p = (0x7FFFFF - (prob << 15) + prob) >> 8;
@@ -67,7 +67,7 @@ static INLINE int aom_daala_read(daala_reader *r, int prob) {
   {
     int i;
     int ref_bit, ref_nsymbs;
-    aom_cdf_prob ref_cdf[16];
+    AomCdfProb ref_cdf[16];
     const int queue_r = bitstream_queue_get_read();
     const int frame_idx = bitstream_queue_get_frame_read();
     bitstream_queue_pop(&ref_bit, ref_cdf, &ref_nsymbs);
@@ -78,7 +78,7 @@ static INLINE int aom_daala_read(daala_reader *r, int prob) {
               frame_idx, 2, ref_nsymbs, queue_r);
       assert(0);
     }
-    if ((ref_nsymbs != 2) || (ref_cdf[0] != (aom_cdf_prob)p) ||
+    if ((ref_nsymbs != 2) || (ref_cdf[0] != (AomCdfProb)p) ||
         (ref_cdf[1] != 32767)) {
       fprintf(stderr,
               "\n *** [bit] cdf error, frame_idx_r %d cdf {%d, %d} ref_cdf {%d",
@@ -101,16 +101,16 @@ static INLINE int aom_daala_read(daala_reader *r, int prob) {
 }
 
 #if CONFIG_RAWBITS
-static INLINE int aom_daala_read_bit(daala_reader *r) {
+static INLINE int aom_daala_read_bit(DaalaReader *r) {
   return od_ec_dec_bits(&r->ec, 1, "aom_bits");
 }
 #endif
 
-static INLINE int aom_daala_reader_has_error(daala_reader *r) {
+static INLINE int aom_daala_reader_has_error(DaalaReader *r) {
   return r->ec.error;
 }
 
-static INLINE int daala_read_symbol(daala_reader *r, const aom_cdf_prob *cdf,
+static INLINE int daala_read_symbol(DaalaReader *r, const AomCdfProb *cdf,
                                     int nsymbs) {
   int symb;
   symb = od_ec_decode_cdf_q15(&r->ec, cdf, nsymbs);
@@ -120,7 +120,7 @@ static INLINE int daala_read_symbol(daala_reader *r, const aom_cdf_prob *cdf,
     int i;
     int cdf_error = 0;
     int ref_symb, ref_nsymbs;
-    aom_cdf_prob ref_cdf[16];
+    AomCdfProb ref_cdf[16];
     const int queue_r = bitstream_queue_get_read();
     const int frame_idx = bitstream_queue_get_frame_read();
     bitstream_queue_pop(&ref_symb, ref_cdf, &ref_nsymbs);

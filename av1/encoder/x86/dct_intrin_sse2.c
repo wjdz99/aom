@@ -55,7 +55,7 @@ static INLINE void load_buffer_4x4(const int16_t *input, __m128i *in,
   in[0] = _mm_add_epi16(in[0], k__nonzero_bias_b);
 }
 
-static INLINE void write_buffer_4x4(tran_low_t *output, __m128i *res) {
+static INLINE void write_buffer_4x4(TranLowT *output, __m128i *res) {
   const __m128i kOne = _mm_set1_epi16(1);
   __m128i in01 = _mm_unpacklo_epi64(res[0], res[1]);
   __m128i in23 = _mm_unpacklo_epi64(res[2], res[3]);
@@ -202,7 +202,7 @@ static void fidtx4_sse2(__m128i *in) {
 }
 #endif  // CONFIG_EXT_TX
 
-void av1_fht4x4_sse2(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht4x4_sse2(const int16_t *input, TranLowT *output, int stride,
                      int tx_type) {
   __m128i in[4];
 
@@ -843,7 +843,7 @@ static INLINE void right_shift_8x8(__m128i *res, const int bit) {
 }
 
 // write 8x8 array
-static INLINE void write_buffer_8x8(tran_low_t *output, __m128i *res,
+static INLINE void write_buffer_8x8(TranLowT *output, __m128i *res,
                                     int stride) {
   store_output(&res[0], (output + 0 * stride));
   store_output(&res[1], (output + 1 * stride));
@@ -1300,7 +1300,7 @@ static void fidtx8_sse2(__m128i *in) {
 }
 #endif  // CONFIG_EXT_TX
 
-void av1_fht8x8_sse2(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht8x8_sse2(const int16_t *input, TranLowT *output, int stride,
                      int tx_type) {
   __m128i in[8];
 
@@ -1459,7 +1459,7 @@ static INLINE void load_buffer_16x16(const int16_t *input, __m128i *in0,
   load_buffer_8x8(botR, in1 + 8, stride, flipud, fliplr);
 }
 
-static INLINE void write_buffer_16x16(tran_low_t *output, __m128i *in0,
+static INLINE void write_buffer_16x16(TranLowT *output, __m128i *in0,
                                       __m128i *in1, int stride) {
   // write first 8 columns
   write_buffer_8x8(output, in0, stride);
@@ -2333,7 +2333,7 @@ static void fidtx16_sse2(__m128i *in0, __m128i *in1) {
 }
 #endif  // CONFIG_EXT_TX
 
-void av1_fht16x16_sse2(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht16x16_sse2(const int16_t *input, TranLowT *output, int stride,
                        int tx_type) {
   __m128i in0[16], in1[16];
 
@@ -2516,7 +2516,7 @@ static INLINE void load_buffer_4x8(const int16_t *input, __m128i *in,
   prepare_4x8_row_first(in);
 }
 
-static INLINE void write_buffer_4x8(tran_low_t *output, __m128i *res) {
+static INLINE void write_buffer_4x8(TranLowT *output, __m128i *res) {
   __m128i in01, in23, in45, in67, sign01, sign23, sign45, sign67;
   const int shift = 1;
 
@@ -2549,7 +2549,7 @@ static INLINE void write_buffer_4x8(tran_low_t *output, __m128i *res) {
   store_output(&in67, (output + 3 * 8));
 }
 
-void av1_fht4x8_sse2(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht4x8_sse2(const int16_t *input, TranLowT *output, int stride,
                      int tx_type) {
   __m128i in[8];
 
@@ -2699,7 +2699,7 @@ static INLINE void load_buffer_8x4(const int16_t *input, __m128i *in,
   in[7] = _mm_shuffle_epi32(in[3], 0xe);
 }
 
-static INLINE void write_buffer_8x4(tran_low_t *output, __m128i *res) {
+static INLINE void write_buffer_8x4(TranLowT *output, __m128i *res) {
   __m128i out0, out1, out2, out3, sign0, sign1, sign2, sign3;
   const int shift = 1;
   sign0 = _mm_srai_epi16(res[0], 15);
@@ -2723,7 +2723,7 @@ static INLINE void write_buffer_8x4(tran_low_t *output, __m128i *res) {
   store_output(&out3, (output + 3 * 8));
 }
 
-void av1_fht8x4_sse2(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht8x4_sse2(const int16_t *input, TranLowT *output, int stride,
                      int tx_type) {
   __m128i in[8];
 
@@ -2863,7 +2863,7 @@ static void row_8x16_rounding(__m128i *in, int bits) {
   }
 }
 
-void av1_fht8x16_sse2(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht8x16_sse2(const int16_t *input, TranLowT *output, int stride,
                       int tx_type) {
   __m128i in[16];
 
@@ -3044,7 +3044,7 @@ static INLINE void load_buffer_16x8(const int16_t *input, __m128i *in,
 
 #define col_16x8_rounding row_8x16_rounding
 
-void av1_fht16x8_sse2(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht16x8_sse2(const int16_t *input, TranLowT *output, int stride,
                       int tx_type) {
   __m128i in[16];
 
@@ -3239,7 +3239,7 @@ static INLINE void load_buffer_16x32(const int16_t *input, __m128i *intl,
   scale_sqrt2_8x16(inbr);
 }
 
-static INLINE void write_buffer_16x32(tran_low_t *output, __m128i *restl,
+static INLINE void write_buffer_16x32(TranLowT *output, __m128i *restl,
                                       __m128i *restr, __m128i *resbl,
                                       __m128i *resbr) {
   int i;
@@ -3354,7 +3354,7 @@ static INLINE void fhalfright32_16col(__m128i *tl, __m128i *tr, __m128i *bl,
 // we want to split the input into 8x16 blocks.
 // For 16x32, this means the input is a 2x2 grid of such blocks.
 // For 32x16, it means the input is a 4x1 grid.
-void av1_fht16x32_sse2(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht16x32_sse2(const int16_t *input, TranLowT *output, int stride,
                        int tx_type) {
   __m128i intl[16], intr[16], inbl[16], inbr[16];
 
@@ -3531,7 +3531,7 @@ static INLINE void load_buffer_32x16(const int16_t *input, __m128i *in0,
   scale_sqrt2_8x16(in3);
 }
 
-static INLINE void write_buffer_32x16(tran_low_t *output, __m128i *res0,
+static INLINE void write_buffer_32x16(TranLowT *output, __m128i *res0,
                                       __m128i *res1, __m128i *res2,
                                       __m128i *res3) {
   int i;
@@ -3543,7 +3543,7 @@ static INLINE void write_buffer_32x16(tran_low_t *output, __m128i *res0,
   }
 }
 
-void av1_fht32x16_sse2(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht32x16_sse2(const int16_t *input, TranLowT *output, int stride,
                        int tx_type) {
   __m128i in0[16], in1[16], in2[16], in3[16];
 
@@ -3773,7 +3773,7 @@ static INLINE void round_signed_32x32(__m128i *in0, __m128i *in1, __m128i *in2,
 }
 
 static INLINE void write_buffer_32x32(__m128i *in0, __m128i *in1, __m128i *in2,
-                                      __m128i *in3, tran_low_t *output) {
+                                      __m128i *in3, TranLowT *output) {
   int i;
   for (i = 0; i < 32; ++i) {
     store_output(&in0[i], output + i * 32 + 0);
@@ -3783,7 +3783,7 @@ static INLINE void write_buffer_32x32(__m128i *in0, __m128i *in1, __m128i *in2,
   }
 }
 
-void av1_fht32x32_sse2(const int16_t *input, tran_low_t *output, int stride,
+void av1_fht32x32_sse2(const int16_t *input, TranLowT *output, int stride,
                        int tx_type) {
   __m128i in0[32], in1[32], in2[32], in3[32];
 

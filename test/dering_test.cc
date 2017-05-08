@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <cstdlib>
 #include <string>
@@ -27,8 +27,8 @@ using libaom_test::ACMRandom;
 
 namespace {
 
-typedef std::tr1::tuple<od_filter_dering_direction_func,
-                        od_filter_dering_direction_func, int>
+typedef std::tr1::tuple<OdFilterDeringDirectionFunc,
+                        OdFilterDeringDirectionFunc, int>
     dering_dir_param_t;
 
 class CDEFDeringDirTest : public ::testing::TestWithParam<dering_dir_param_t> {
@@ -44,15 +44,14 @@ class CDEFDeringDirTest : public ::testing::TestWithParam<dering_dir_param_t> {
 
  protected:
   int bsize;
-  od_filter_dering_direction_func dering;
-  od_filter_dering_direction_func ref_dering;
+  OdFilterDeringDirectionFunc dering;
+  OdFilterDeringDirectionFunc ref_dering;
 };
 
 typedef CDEFDeringDirTest CDEFDeringSpeedTest;
 
-void test_dering(int bsize, int iterations,
-                 od_filter_dering_direction_func dering,
-                 od_filter_dering_direction_func ref_dering) {
+void test_dering(int bsize, int iterations, OdFilterDeringDirectionFunc dering,
+                 OdFilterDeringDirectionFunc ref_dering) {
   const int size = 8;
   const int ysize = size + 2 * OD_FILT_VBORDER;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
@@ -147,10 +146,10 @@ void test_dering(int bsize, int iterations,
 }
 
 void test_dering_speed(int bsize, int iterations,
-                       od_filter_dering_direction_func dering,
-                       od_filter_dering_direction_func ref_dering) {
-  aom_usec_timer ref_timer;
-  aom_usec_timer timer;
+                       OdFilterDeringDirectionFunc dering,
+                       OdFilterDeringDirectionFunc ref_dering) {
+  AomUsecTimer ref_timer;
+  AomUsecTimer timer;
 
   aom_usec_timer_start(&ref_timer);
   test_dering(bsize, iterations, ref_dering, ref_dering);
@@ -242,8 +241,8 @@ void test_finddir_speed(int (*finddir)(const od_dering_in *img, int stride,
                                        int32_t *var, int coeff_shift),
                         int (*ref_finddir)(const od_dering_in *img, int stride,
                                            int32_t *var, int coeff_shift)) {
-  aom_usec_timer ref_timer;
-  aom_usec_timer timer;
+  AomUsecTimer ref_timer;
+  AomUsecTimer timer;
 
   aom_usec_timer_start(&ref_timer);
   test_finddir(ref_finddir, ref_finddir);

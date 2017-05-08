@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include "./webmenc.h"
 
@@ -23,8 +23,8 @@ const int kVideoTrackNumber = 1;
 }  // namespace
 
 void write_webm_file_header(struct WebmOutputContext *webm_ctx,
-                            const aom_codec_enc_cfg_t *cfg,
-                            stereo_format_t stereo_fmt, unsigned int fourcc,
+                            const AomCodecEncCfgT *cfg,
+                            StereoFormatT stereo_fmt, unsigned int fourcc,
                             const struct AvxRational *par) {
   mkvmuxer::MkvWriter *const writer = new mkvmuxer::MkvWriter(webm_ctx->stream);
   mkvmuxer::Segment *const segment = new mkvmuxer::Segment();
@@ -69,8 +69,7 @@ void write_webm_file_header(struct WebmOutputContext *webm_ctx,
 }
 
 void write_webm_block(struct WebmOutputContext *webm_ctx,
-                      const aom_codec_enc_cfg_t *cfg,
-                      const aom_codec_cx_pkt_t *pkt) {
+                      const AomCodecEncCfgT *cfg, const AomCodecCxPktT *pkt) {
   mkvmuxer::Segment *const segment =
       reinterpret_cast<mkvmuxer::Segment *>(webm_ctx->segment);
   int64_t pts_ns = pkt->data.frame.pts * 1000000000ll * cfg->g_timebase.num /

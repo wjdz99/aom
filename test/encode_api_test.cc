@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
@@ -20,15 +20,15 @@ namespace {
 #define NELEMENTS(x) static_cast<int>(sizeof(x) / sizeof(x[0]))
 
 TEST(EncodeAPI, InvalidParams) {
-  static const aom_codec_iface_t *kCodecs[] = {
+  static const AomCodecIfaceT *kCodecs[] = {
 #if CONFIG_AV1_ENCODER
     &aom_codec_av1_cx_algo,
 #endif
   };
   uint8_t buf[1] = { 0 };
-  aom_image_t img;
-  aom_codec_ctx_t enc;
-  aom_codec_enc_cfg_t cfg;
+  AomImageT img;
+  AomCodecCtxT enc;
+  AomCodecEncCfgT cfg;
 
   EXPECT_EQ(&img, aom_img_wrap(&img, AOM_IMG_FMT_I420, 1, 1, 1, buf));
 

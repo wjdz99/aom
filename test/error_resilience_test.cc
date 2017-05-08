@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 #include "test/codec_factory.h"
@@ -50,7 +50,7 @@ class ErrorResilienceTestLarge
     mismatch_nframes_ = 0;
   }
 
-  virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void PSNRPktHook(const AomCodecCxPktT *pkt) {
     psnr_ += pkt->data.psnr.psnr[0];
     nframes_++;
   }
@@ -96,7 +96,7 @@ class ErrorResilienceTestLarge
     return 1;
   }
 
-  virtual void MismatchHook(const aom_image_t *img1, const aom_image_t *img2) {
+  virtual void MismatchHook(const AomImageT *img1, const AomImageT *img2) {
     double mismatch_psnr = compute_psnr(img1, img2);
     mismatch_psnr_ += mismatch_psnr;
     ++mismatch_nframes_;
@@ -142,7 +142,7 @@ class ErrorResilienceTestLarge
 };
 
 TEST_P(ErrorResilienceTestLarge, OnVersusOff) {
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const AomRational timebase = { 33333333, 1000000000 };
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = 2000;
   cfg_.g_lag_in_frames = 10;
@@ -177,7 +177,7 @@ TEST_P(ErrorResilienceTestLarge, OnVersusOff) {
 // frames (i.e., frames that don't update any reference buffers).
 // Check both isolated and consecutive loss.
 TEST_P(ErrorResilienceTestLarge, DropFramesWithoutRecovery) {
-  const aom_rational timebase = { 33333333, 1000000000 };
+  const AomRational timebase = { 33333333, 1000000000 };
   cfg_.g_timebase = timebase;
   cfg_.rc_target_bitrate = 500;
   // FIXME(debargha): Fix this to work for any lag.

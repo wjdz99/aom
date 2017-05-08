@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <math.h>
 #include <stdlib.h>
@@ -33,7 +33,7 @@ namespace {
 TEST(AV1, TestPrimitiveRefbilivel) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
   const int kBufferSize = 65536;
-  aom_writer bw;
+  AomWriter bw;
   uint8_t bw_buffer[kBufferSize];
   const uint16_t kRanges = 8;
   const uint16_t kNearRanges = 8;
@@ -60,7 +60,7 @@ TEST(AV1, TestPrimitiveRefbilivel) {
     }
   }
   aom_stop_encode(&bw);
-  aom_reader br;
+  AomReader br;
   aom_reader_init(&br, bw_buffer, bw.pos, NULL, NULL);
   GTEST_ASSERT_GE(aom_reader_tell(&br), 0u);
   GTEST_ASSERT_LE(aom_reader_tell(&br), 1u);
@@ -84,7 +84,7 @@ TEST(AV1, TestPrimitiveRefbilivel) {
 TEST(AV1, TestPrimitiveRefsubexpfin) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
   const int kBufferSize = 65536;
-  aom_writer bw;
+  AomWriter bw;
   uint8_t bw_buffer[kBufferSize];
   const uint16_t kRanges = 8;
   const uint16_t kSubexpParams = 6;
@@ -110,7 +110,7 @@ TEST(AV1, TestPrimitiveRefsubexpfin) {
     }
   }
   aom_stop_encode(&bw);
-  aom_reader br;
+  AomReader br;
   aom_reader_init(&br, bw_buffer, bw.pos, NULL, NULL);
   GTEST_ASSERT_GE(aom_reader_tell(&br), 0u);
   GTEST_ASSERT_LE(aom_reader_tell(&br), 1u);

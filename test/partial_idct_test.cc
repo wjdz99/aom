@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <math.h>
 #include <stdlib.h>
@@ -30,26 +30,26 @@
 using libaom_test::ACMRandom;
 
 namespace {
-typedef void (*FwdTxfmFunc)(const int16_t *in, tran_low_t *out, int stride);
-typedef void (*InvTxfmFunc)(const tran_low_t *in, uint8_t *out, int stride);
-typedef void (*InvTxfmWithBdFunc)(const tran_low_t *in, uint8_t *out,
-                                  int stride, int bd);
+typedef void (*FwdTxfmFunc)(const int16_t *in, TranLowT *out, int stride);
+typedef void (*InvTxfmFunc)(const TranLowT *in, uint8_t *out, int stride);
+typedef void (*InvTxfmWithBdFunc)(const TranLowT *in, uint8_t *out, int stride,
+                                  int bd);
 
 template <InvTxfmFunc fn>
-void wrapper(const tran_low_t *in, uint8_t *out, int stride, int bd) {
+void wrapper(const TranLowT *in, uint8_t *out, int stride, int bd) {
   (void)bd;
   fn(in, out, stride);
 }
 
 #if CONFIG_HIGHBITDEPTH
 template <InvTxfmWithBdFunc fn>
-void highbd_wrapper(const tran_low_t *in, uint8_t *out, int stride, int bd) {
+void highbd_wrapper(const TranLowT *in, uint8_t *out, int stride, int bd) {
   fn(in, CONVERT_TO_BYTEPTR(out), stride, bd);
 }
 #endif
 
 typedef std::tr1::tuple<FwdTxfmFunc, InvTxfmWithBdFunc, InvTxfmWithBdFunc,
-                        TX_SIZE, int, int, int>
+                        TxSize, int, int, int>
     PartialInvTxfmParam;
 const int kMaxNumCoeffs = 1024;
 const int kCountTestBlock = 1000;
@@ -89,7 +89,7 @@ class PartialIDctTest : public ::testing::TestWithParam<PartialInvTxfmParam> {
     input_block_size_ = size_ * size_;
     output_block_size_ = size_ * stride_;
 
-    input_block_ = reinterpret_cast<tran_low_t *>(
+    input_block_ = reinterpret_cast<TranLowT *>(
         aom_memalign(16, sizeof(*input_block_) * input_block_size_));
     output_block_ = reinterpret_cast<uint8_t *>(
         aom_memalign(16, pixel_size_ * output_block_size_));
@@ -141,8 +141,8 @@ class PartialIDctTest : public ::testing::TestWithParam<PartialInvTxfmParam> {
 
  protected:
   int last_nonzero_;
-  TX_SIZE tx_size_;
-  tran_low_t *input_block_;
+  TxSize tx_size_;
+  TranLowT *input_block_;
   uint8_t *output_block_;
   uint8_t *output_block_ref_;
   int size_;
@@ -160,7 +160,7 @@ class PartialIDctTest : public ::testing::TestWithParam<PartialInvTxfmParam> {
 
 TEST_P(PartialIDctTest, RunQuantCheck) {
   DECLARE_ALIGNED(16, int16_t, input_extreme_block[kMaxNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, output_ref_block[kMaxNumCoeffs]);
+  DECLARE_ALIGNED(16, TranLowT, output_ref_block[kMaxNumCoeffs]);
 
   InitMem();
   for (int i = 0; i < kCountTestBlock; ++i) {
@@ -265,7 +265,7 @@ TEST_P(PartialIDctTest, DISABLED_Speed) {
     ASM_REGISTER_STATE_CHECK(
         full_itxfm_(input_block_, output_block_ref_, stride_, bit_depth_));
   }
-  aom_usec_timer timer;
+  AomUsecTimer timer;
   aom_usec_timer_start(&timer);
   for (int i = 0; i < kCountSpeedTestBlock; ++i) {
     partial_itxfm_(input_block_, output_block_, stride_, bit_depth_);

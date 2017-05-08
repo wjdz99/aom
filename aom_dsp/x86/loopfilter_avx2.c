@@ -124,7 +124,7 @@ void aom_lpf_horizontal_edge_8_avx2(unsigned char *s, int p,
                             filt);
     filt = _mm_packs_epi16(filt, _mm_subs_epi16(zero, filt));
     qs1ps1 = _mm_xor_si128(_mm_adds_epi8(qs1ps1, filt), t80);
-    // loopfilter done
+    // Loopfilter done
 
     {
       __m128i work;
@@ -513,7 +513,7 @@ void aom_lpf_horizontal_edge_16_avx2(unsigned char *s, int p,
     filt = _mm_andnot_si128(hev, filt);
     ps1 = _mm_xor_si128(_mm_adds_epi8(ps1, filt), t80);
     qs1 = _mm_xor_si128(_mm_subs_epi8(qs1, filt), t80);
-    // loopfilter done
+    // Loopfilter done
 
     {
       __m128i work;

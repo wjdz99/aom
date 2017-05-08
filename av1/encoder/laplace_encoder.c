@@ -22,7 +22,7 @@
 #include "av1/common/pvq.h"
 #include "pvq_encoder.h"
 
-static void aom_encode_pvq_split(aom_writer *w, od_pvq_codeword_ctx *adapt,
+static void aom_encode_pvq_split(AomWriter *w, OdPvqCodewordCtx *adapt,
  int count, int sum, int ctx) {
   int shift;
   int rest;
@@ -39,7 +39,7 @@ static void aom_encode_pvq_split(aom_writer *w, od_pvq_codeword_ctx *adapt,
   if (shift) aom_write_literal(w, rest, shift);
 }
 
-void aom_encode_band_pvq_splits(aom_writer *w, od_pvq_codeword_ctx *adapt,
+void aom_encode_band_pvq_splits(AomWriter *w, OdPvqCodewordCtx *adapt,
  const int *y, int n, int k, int level) {
   int mid;
   int i;
@@ -72,7 +72,7 @@ void aom_encode_band_pvq_splits(aom_writer *w, od_pvq_codeword_ctx *adapt,
  * @param [in]     decay   decay factor of the distribution in Q8 format,
  * i.e. pdf ~= decay^x
  */
-void aom_laplace_encode_special(aom_writer *w, int x, unsigned decay) {
+void aom_laplace_encode_special(AomWriter *w, int x, unsigned decay) {
   int shift;
   int xs;
   int sym;

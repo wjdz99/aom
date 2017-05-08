@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <climits>
 #include <vector>
@@ -41,7 +41,7 @@ class BordersTest
     }
   }
 
-  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void FramePktHook(const AomCodecCxPktT *pkt) {
     if (pkt->data.frame.flags & AOM_FRAME_IS_KEY) {
     }
   }

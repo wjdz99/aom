@@ -114,70 +114,70 @@ typedef enum {
   DC_CODED = 0x1,
   AC_CODED = 0x2,
   AC_DC_CODED = 0x3,
-} PVQ_SKIP_TYPE;
+} PvqSkipType;
 
-typedef struct od_pvq_adapt_ctx  od_pvq_adapt_ctx;
-typedef struct od_pvq_codeword_ctx od_pvq_codeword_ctx;
+typedef struct OdPvqAdaptCtx  OdPvqAdaptCtx;
+typedef struct OdPvqCodewordCtx OdPvqCodewordCtx;
 
-struct od_pvq_codeword_ctx {
+struct OdPvqCodewordCtx {
   int                 pvq_adapt[2*OD_TXSIZES*OD_NSB_ADAPT_CTXS];
   /* CDFs are size 16 despite the fact that we're using less than that. */
   uint16_t            pvq_k1_cdf[12][CDF_SIZE(16)];
   uint16_t            pvq_split_cdf[22*7][CDF_SIZE(8)];
 };
 
-struct od_pvq_adapt_ctx {
-  od_pvq_codeword_ctx pvq_codeword_ctx;
-  generic_encoder     pvq_param_model[3];
+struct OdPvqAdaptCtx {
+  OdPvqCodewordCtx pvq_codeword_ctx;
+  GenericEncoder     pvq_param_model[3];
   int                 pvq_ext[OD_TXSIZES*PVQ_MAX_PARTITIONS];
   int                 pvq_exg[OD_NPLANES_MAX][OD_TXSIZES][PVQ_MAX_PARTITIONS];
   uint16_t pvq_gaintheta_cdf[2*OD_TXSIZES*PVQ_MAX_PARTITIONS][CDF_SIZE(16)];
   uint16_t pvq_skip_dir_cdf[2*(OD_TXSIZES-1)][CDF_SIZE(7)];
 };
 
-typedef struct od_qm_entry {
+typedef struct OdQmEntry {
   int interp_q;
   int scale_q8;
   const unsigned char *qm_q4;
-} od_qm_entry;
+} OdQmEntry;
 
-extern const od_qm_entry OD_DEFAULT_QMS[2][2][OD_NPLANES_MAX];
+extern const OdQmEntry OD_DEFAULT_QMS[2][2][OD_NPLANES_MAX];
 
-void od_adapt_pvq_ctx_reset(od_pvq_adapt_ctx *state, int is_keyframe);
+void od_adapt_pvq_ctx_reset(OdPvqAdaptCtx *state, int is_keyframe);
 int od_pvq_size_ctx(int n);
 int od_pvq_k1_ctx(int n, int orig_size);
 
-od_val16 od_pvq_sin(od_val32 x);
-od_val16 od_pvq_cos(od_val32 x);
+OdVal16 od_pvq_sin(OdVal32 x);
+OdVal16 od_pvq_cos(OdVal32 x);
 #if !defined(OD_FLOAT_PVQ)
-int od_vector_log_mag(const od_coeff *x, int n);
+int od_vector_log_mag(const OdCoeff *x, int n);
 #endif
 
-void od_interp_qm(unsigned char *out, int q, const od_qm_entry *entry1,
-                  const od_qm_entry *entry2);
+void od_interp_qm(unsigned char *out, int q, const OdQmEntry *entry1,
+                  const OdQmEntry *entry2);
 
 int od_qm_get_index(int bs, int band);
 
-extern const od_val16 *const OD_PVQ_BETA[2][OD_NPLANES_MAX][OD_TXSIZES + 1];
+extern const OdVal16 *const OD_PVQ_BETA[2][OD_NPLANES_MAX][OD_TXSIZES + 1];
 
 void od_init_qm(int16_t *x, int16_t *x_inv, const int *qm);
-int od_compute_householder(od_val16 *r, int n, od_val32 gr, int *sign,
+int od_compute_householder(OdVal16 *r, int n, OdVal32 gr, int *sign,
  int shift);
-void od_apply_householder(od_val16 *out, const od_val16 *x, const od_val16 *r,
+void od_apply_householder(OdVal16 *out, const OdVal16 *x, const OdVal16 *r,
  int n);
-void od_pvq_synthesis_partial(od_coeff *xcoeff, const od_coeff *ypulse,
-                                  const od_val16 *r, int n,
-                                  int noref, od_val32 g,
-                                  od_val32 theta, int m, int s,
+void od_pvq_synthesis_partial(OdCoeff *xcoeff, const OdCoeff *ypulse,
+                                  const OdVal16 *r, int n,
+                                  int noref, OdVal32 g,
+                                  OdVal32 theta, int m, int s,
                                   const int16_t *qm_inv);
-od_val32 od_gain_expand(od_val32 cg, int q0, od_val16 beta);
-od_val32 od_pvq_compute_gain(const od_val16 *x, int n, int q0, od_val32 *g,
- od_val16 beta, int bshift);
-int od_pvq_compute_max_theta(od_val32 qcg, od_val16 beta);
-od_val32 od_pvq_compute_theta(int t, int max_theta);
-int od_pvq_compute_k(od_val32 qcg, int itheta, int noref, int n, od_val16 beta);
+OdVal32 od_gain_expand(OdVal32 cg, int q0, OdVal16 beta);
+OdVal32 od_pvq_compute_gain(const OdVal16 *x, int n, int q0, OdVal32 *g,
+ OdVal16 beta, int bshift);
+int od_pvq_compute_max_theta(OdVal32 qcg, OdVal16 beta);
+OdVal32 od_pvq_compute_theta(int t, int max_theta);
+int od_pvq_compute_k(OdVal32 qcg, int itheta, int noref, int n, OdVal16 beta);
 
-int od_vector_is_null(const od_coeff *x, int len);
+int od_vector_is_null(const OdCoeff *x, int len);
 int od_qm_offset(int bs, int xydec);
 
 #endif

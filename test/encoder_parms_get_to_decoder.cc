@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
@@ -39,8 +39,8 @@ struct EncodeParameters {
   int32_t lossless;
   int32_t error_resilient;
   int32_t frame_parallel;
-  aom_color_range_t color_range;
-  aom_color_space_t cs;
+  AomColorRangeT color_range;
+  AomColorSpaceT cs;
   int render_size[2];
   // TODO(JBB): quantizers / bitrate
 };
@@ -92,14 +92,14 @@ class AvxEncoderParmsGetToDecoder
     }
   }
 
-  virtual bool HandleDecodeResult(const aom_codec_err_t res_dec,
+  virtual bool HandleDecodeResult(const AomCodecErrT res_dec,
                                   libaom_test::Decoder *decoder) {
-    aom_codec_ctx_t *const av1_decoder = decoder->GetDecoder();
-    aom_codec_alg_priv_t *const priv =
-        reinterpret_cast<aom_codec_alg_priv_t *>(av1_decoder->priv);
+    AomCodecCtxT *const av1_decoder = decoder->GetDecoder();
+    AomCodecAlgPrivT *const priv =
+        reinterpret_cast<AomCodecAlgPrivT *>(av1_decoder->priv);
     FrameWorkerData *const worker_data =
         reinterpret_cast<FrameWorkerData *>(priv->frame_workers[0].data1);
-    AV1_COMMON *const common = &worker_data->pbi->common;
+    Av1Common *const common = &worker_data->pbi->common;
 
     if (encode_parms.lossless) {
       EXPECT_EQ(0, common->base_qindex);

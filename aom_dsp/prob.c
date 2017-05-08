@@ -31,10 +31,10 @@ const uint8_t aom_norm[256] = {
 };
 
 static unsigned int tree_merge_probs_impl(unsigned int i,
-                                          const aom_tree_index *tree,
-                                          const aom_prob *pre_probs,
+                                          const AomTreeIndex *tree,
+                                          const AomProb *pre_probs,
                                           const unsigned int *counts,
-                                          aom_prob *probs) {
+                                          AomProb *probs) {
   const int l = tree[i];
   const unsigned int left_count =
       (l <= 0) ? counts[-l]
@@ -48,8 +48,8 @@ static unsigned int tree_merge_probs_impl(unsigned int i,
   return left_count + right_count;
 }
 
-void aom_tree_merge_probs(const aom_tree_index *tree, const aom_prob *pre_probs,
-                          const unsigned int *counts, aom_prob *probs) {
+void aom_tree_merge_probs(const AomTreeIndex *tree, const AomProb *pre_probs,
+                          const unsigned int *counts, AomProb *probs) {
   tree_merge_probs_impl(0, tree, pre_probs, counts, probs);
 }
 
@@ -57,14 +57,14 @@ void aom_tree_merge_probs(const aom_tree_index *tree, const aom_prob *pre_probs,
 typedef struct tree_node tree_node;
 
 struct tree_node {
-  aom_tree_index index;
+  AomTreeIndex index;
   uint8_t probs[16];
   uint8_t prob;
   int path;
   int len;
   int l;
   int r;
-  aom_cdf_prob pdf;
+  AomCdfProb pdf;
 };
 
 /* Compute the probability of this node in Q23 */
@@ -92,8 +92,8 @@ static int tree_node_cmp(tree_node a, tree_node b) {
 /* Given a Q15 probability for symbol subtree rooted at tree[n], this function
     computes the probability of each symbol (defined as a node that has no
     children). */
-static aom_cdf_prob tree_node_compute_probs(tree_node *tree, int n,
-                                            aom_cdf_prob pdf) {
+static AomCdfProb tree_node_compute_probs(tree_node *tree, int n,
+                                          AomCdfProb pdf) {
   if (tree[n].l == 0) {
     /* This prevents probability computations in Q15 that underflow from
         producing a symbol that has zero probability. */
@@ -103,15 +103,15 @@ static aom_cdf_prob tree_node_compute_probs(tree_node *tree, int n,
   } else {
     /* We process the smaller probability first,  */
     if (tree[n].prob < 128) {
-      aom_cdf_prob lp;
-      aom_cdf_prob rp;
+      AomCdfProb lp;
+      AomCdfProb rp;
       lp = (((uint32_t)pdf) * tree[n].prob + 128) >> 8;
       lp = tree_node_compute_probs(tree, tree[n].l, lp);
       rp = tree_node_compute_probs(tree, tree[n].r, lp > pdf ? 0 : pdf - lp);
       return lp + rp;
     } else {
-      aom_cdf_prob rp;
-      aom_cdf_prob lp;
+      AomCdfProb rp;
+      AomCdfProb lp;
       rp = (((uint32_t)pdf) * (256 - tree[n].prob) + 128) >> 8;
       rp = tree_node_compute_probs(tree, tree[n].r, rp);
       lp = tree_node_compute_probs(tree, tree[n].l, rp > pdf ? 0 : pdf - rp);
@@ -120,9 +120,8 @@ static aom_cdf_prob tree_node_compute_probs(tree_node *tree, int n,
   }
 }
 
-static int tree_node_extract(tree_node *tree, int n, int symb,
-                             aom_cdf_prob *pdf, aom_tree_index *index,
-                             int *path, int *len) {
+static int tree_node_extract(tree_node *tree, int n, int symb, AomCdfProb *pdf,
+                             AomTreeIndex *index, int *path, int *len) {
   if (tree[n].l == 0) {
     pdf[symb] = tree[n].pdf;
     if (index != NULL) index[symb] = tree[n].index;
@@ -135,8 +134,8 @@ static int tree_node_extract(tree_node *tree, int n, int symb,
   }
 }
 
-int tree_to_cdf(const aom_tree_index *tree, const aom_prob *probs,
-                aom_tree_index root, aom_cdf_prob *cdf, aom_tree_index *index,
+int tree_to_cdf(const AomTreeIndex *tree, const AomProb *probs,
+                AomTreeIndex root, AomCdfProb *cdf, AomTreeIndex *index,
                 int *path, int *len) {
   tree_node symb[2 * 16 - 1];
   int nodes;
@@ -156,7 +155,7 @@ int tree_to_cdf(const aom_tree_index *tree, const aom_prob *probs,
   while (size > 0 && nsymbs < 16) {
     int m;
     tree_node n;
-    aom_tree_index j;
+    AomTreeIndex j;
     uint8_t prob;
     m = 0;
     /* Find the internal node with the largest probability. */
@@ -210,14 +209,14 @@ int tree_to_cdf(const aom_tree_index *tree, const aom_prob *probs,
 }
 
 /* This code assumes that tree contains as unique leaf nodes the integer values
-    0 to len - 1 and produces the forward and inverse mapping tables in ind[]
+    0 to len - 1 and produces the forward and inverse Mapping tables in ind[]
     and inv[] respectively. */
 static void tree_to_index(int *stack_index, int *ind, int *inv,
-                          const aom_tree_index *tree, int value, int index) {
+                          const AomTreeIndex *tree, int value, int index) {
   value *= 2;
 
   do {
-    const aom_tree_index content = tree[index];
+    const AomTreeIndex content = tree[index];
     ++index;
     if (content <= 0) {
       inv[*stack_index] = -content;
@@ -229,7 +228,7 @@ static void tree_to_index(int *stack_index, int *ind, int *inv,
   } while (++value & 1);
 }
 
-void av1_indices_from_tree(int *ind, int *inv, const aom_tree_index *tree) {
+void av1_indices_from_tree(int *ind, int *inv, const AomTreeIndex *tree) {
   int stack_index = 0;
   tree_to_index(&stack_index, ind, inv, tree, 0, 0);
 }

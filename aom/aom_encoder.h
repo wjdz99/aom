@@ -46,7 +46,7 @@ extern "C" {
 /*! \brief Encoder capabilities bitfield
  *
  *  Each encoder advertises the capabilities it supports as part of its
- *  ::aom_codec_iface_t interface structure. Capabilities are extra
+ *  ::AomCodecIfaceT interface structure. Capabilities are extra
  *  interfaces or functionality, and are not required to be supported
  *  by an encoder.
  *
@@ -81,17 +81,17 @@ extern "C" {
  *
  * This structure is able to hold a reference to any fixed size buffer.
  */
-typedef struct aom_fixed_buf {
-  void *buf;       /**< Pointer to the data */
-  size_t sz;       /**< Length of the buffer, in chars */
-} aom_fixed_buf_t; /**< alias for struct aom_fixed_buf */
+typedef struct AomFixedBuf {
+  void *buf;    /**< Pointer to the data */
+  size_t sz;    /**< Length of the buffer, in chars */
+} AomFixedBufT; /**< alias for struct AomFixedBuf */
 
 /*!\brief Time Stamp Type
  *
  * An integer, which when multiplied by the stream's time base, provides
  * the absolute time of a sample.
  */
-typedef int64_t aom_codec_pts_t;
+typedef int64_t AomCodecPtsT;
 
 /*!\brief Compressed Frame Flags
  *
@@ -100,7 +100,7 @@ typedef int64_t aom_codec_pts_t;
  * can be used by an algorithm to provide additional detail, for example to
  * support frame types that are codec specific (MPEG-1 D-frames for example)
  */
-typedef uint32_t aom_codec_frame_flags_t;
+typedef uint32_t AomCodecFrameFlagsT;
 #define AOM_FRAME_IS_KEY 0x1 /**< frame is the start of a GOP */
 /*!\brief frame can be dropped without affecting the stream (no future frame
  * depends on this one) */
@@ -114,9 +114,9 @@ typedef uint32_t aom_codec_frame_flags_t;
  *
  * These flags define which error resilient features to enable in the
  * encoder. The flags are specified through the
- * aom_codec_enc_cfg::g_error_resilient variable.
+ * AomCodecEncCfg::g_error_resilient variable.
  */
-typedef uint32_t aom_codec_er_flags_t;
+typedef uint32_t AomCodecErFlagsT;
 /*!\brief Improve resiliency against losses of whole frames */
 #define AOM_ERROR_RESILIENT_DEFAULT 0x1
 /*!\brief The frame partitions are independently decodable by the bool decoder,
@@ -144,30 +144,30 @@ enum aom_codec_cx_pkt_kind {
  * This structure contains the different kinds of output data the encoder
  * may produce while compressing a frame.
  */
-typedef struct aom_codec_cx_pkt {
+typedef struct AomCodecCxPkt {
   enum aom_codec_cx_pkt_kind kind; /**< packet variant */
   union {
     struct {
       void *buf; /**< compressed data buffer */
       size_t sz; /**< length of compressed data */
       /*!\brief time stamp to show frame (in timebase units) */
-      aom_codec_pts_t pts;
+      AomCodecPtsT pts;
       /*!\brief duration to show frame (in timebase units) */
       unsigned long duration;
-      aom_codec_frame_flags_t flags; /**< flags for this frame */
+      AomCodecFrameFlagsT flags; /**< flags for this frame */
       /*!\brief the partition id defines the decoding order of the partitions.
        * Only applicable when "output partition" mode is enabled. First
        * partition has id 0.*/
       int partition_id;
-    } frame;                            /**< data for compressed frame packet */
-    aom_fixed_buf_t twopass_stats;      /**< data for two-pass packet */
-    aom_fixed_buf_t firstpass_mb_stats; /**< first pass mb packet */
-    struct aom_psnr_pkt {
+    } frame;                         /**< data for compressed frame packet */
+    AomFixedBufT twopass_stats;      /**< data for two-pass packet */
+    AomFixedBufT firstpass_mb_stats; /**< first pass mb packet */
+    struct AomPsnrPkt {
       unsigned int samples[4]; /**< Number of samples, total/y/u/v */
       uint64_t sse[4];         /**< sum squared error, total/y/u/v */
       double psnr[4];          /**< PSNR, total/y/u/v */
     } psnr;                    /**< data for PSNR packet */
-    aom_fixed_buf_t raw;       /**< data for arbitrary packets */
+    AomFixedBufT raw;          /**< data for arbitrary packets */
 
     /* This packet size is fixed to allow codecs to extend this
      * interface without having to manage storage for raw packets,
@@ -176,16 +176,16 @@ typedef struct aom_codec_cx_pkt {
      */
     char pad[128 - sizeof(enum aom_codec_cx_pkt_kind)]; /**< fixed sz */
   } data;                                               /**< packet data */
-} aom_codec_cx_pkt_t; /**< alias for struct aom_codec_cx_pkt */
+} AomCodecCxPktT; /**< alias for struct AomCodecCxPkt */
 
 /*!\brief Rational Number
  *
  * This structure holds a fractional value.
  */
-typedef struct aom_rational {
-  int num;        /**< fraction numerator */
-  int den;        /**< fraction denominator */
-} aom_rational_t; /**< alias for struct aom_rational */
+typedef struct AomRational {
+  int num;      /**< fraction numerator */
+  int den;      /**< fraction denominator */
+} AomRationalT; /**< alias for struct AomRational */
 
 /*!\brief Multi-pass Encoding Pass */
 enum aom_enc_pass {
@@ -223,7 +223,7 @@ enum aom_kf_mode {
  * named AOM_EFLAG_*, and bits specific to an algorithm will be named
  * /algo/_eflag_*. The lower order 16 bits are reserved for common use.
  */
-typedef long aom_enc_frame_flags_t;
+typedef long AomEncFrameFlagsT;
 #define AOM_EFLAG_FORCE_KF (1 << 0) /**< Force this frame to be a keyframe */
 
 /*!\brief Encoder configuration structure
@@ -232,7 +232,7 @@ typedef long aom_enc_frame_flags_t;
  * across all codecs. This doesn't imply that all codecs support all features,
  * however.
  */
-typedef struct aom_codec_enc_cfg {
+typedef struct AomCodecEncCfg {
   /*
    * generic settings (g)
    */
@@ -286,9 +286,9 @@ typedef struct aom_codec_enc_cfg {
    *
    * This value identifies the bit_depth of the codec,
    * Only certain bit-depths are supported as identified in the
-   * aom_bit_depth_t enum.
+   * AomBitDepthT enum.
    */
-  aom_bit_depth_t g_bit_depth;
+  AomBitDepthT g_bit_depth;
 
   /*!\brief Bit-depth of the input frames
    *
@@ -310,7 +310,7 @@ typedef struct aom_codec_enc_cfg {
    * \ref RECOMMENDED method is to set the timebase to that of the parent
    * container or multimedia framework (ex: 1/1000 for ms, as in FLV).
    */
-  struct aom_rational g_timebase;
+  struct AomRational g_timebase;
 
   /*!\brief Enable error resilient modes.
    *
@@ -318,7 +318,7 @@ typedef struct aom_codec_enc_cfg {
    * it should enable to take measures for streaming over lossy or noisy
    * links.
    */
-  aom_codec_er_flags_t g_error_resilient;
+  AomCodecErFlagsT g_error_resilient;
 
   /*!\brief Multi-pass Encoding Mode
    *
@@ -417,14 +417,14 @@ typedef struct aom_codec_enc_cfg {
    * A buffer containing all of the stats packets produced in the first
    * pass, concatenated.
    */
-  aom_fixed_buf_t rc_twopass_stats_in;
+  AomFixedBufT rc_twopass_stats_in;
 
   /*!\brief first pass mb stats buffer.
    *
    * A buffer containing all of the first pass mb stats packets produced
    * in the first pass, concatenated.
    */
-  aom_fixed_buf_t rc_firstpass_mb_stats_in;
+  AomFixedBufT rc_firstpass_mb_stats_in;
 
   /*!\brief Target data rate
    *
@@ -574,7 +574,7 @@ typedef struct aom_codec_enc_cfg {
    * equal to kf_max_dist for a fixed interval.
    */
   unsigned int kf_max_dist;
-} aom_codec_enc_cfg_t; /**< alias for struct aom_codec_enc_cfg */
+} AomCodecEncCfgT; /**< alias for struct AomCodecEncCfg */
 
 /*!\brief Initialize an encoder instance
  *
@@ -598,10 +598,9 @@ typedef struct aom_codec_enc_cfg {
  * \retval #AOM_CODEC_MEM_ERROR
  *     Memory allocation failed.
  */
-aom_codec_err_t aom_codec_enc_init_ver(aom_codec_ctx_t *ctx,
-                                       aom_codec_iface_t *iface,
-                                       const aom_codec_enc_cfg_t *cfg,
-                                       aom_codec_flags_t flags, int ver);
+AomCodecErrT aom_codec_enc_init_ver(AomCodecCtxT *ctx, AomCodecIfaceT *iface,
+                                    const AomCodecEncCfgT *cfg,
+                                    AomCodecFlagsT flags, int ver);
 
 /*!\brief Convenience macro for aom_codec_enc_init_ver()
  *
@@ -630,9 +629,11 @@ aom_codec_err_t aom_codec_enc_init_ver(aom_codec_ctx_t *ctx,
  * \retval #AOM_CODEC_MEM_ERROR
  *     Memory allocation failed.
  */
-aom_codec_err_t aom_codec_enc_init_multi_ver(
-    aom_codec_ctx_t *ctx, aom_codec_iface_t *iface, aom_codec_enc_cfg_t *cfg,
-    int num_enc, aom_codec_flags_t flags, aom_rational_t *dsf, int ver);
+AomCodecErrT aom_codec_enc_init_multi_ver(AomCodecCtxT *ctx,
+                                          AomCodecIfaceT *iface,
+                                          AomCodecEncCfgT *cfg, int num_enc,
+                                          AomCodecFlagsT flags,
+                                          AomRationalT *dsf, int ver);
 
 /*!\brief Convenience macro for aom_codec_enc_init_multi_ver()
  *
@@ -661,9 +662,9 @@ aom_codec_err_t aom_codec_enc_init_multi_ver(
  * \retval #AOM_CODEC_INVALID_PARAM
  *     A parameter was NULL, or the usage value was not recognized.
  */
-aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
-                                             aom_codec_enc_cfg_t *cfg,
-                                             unsigned int reserved);
+AomCodecErrT aom_codec_enc_config_default(AomCodecIfaceT *iface,
+                                          AomCodecEncCfgT *cfg,
+                                          unsigned int reserved);
 
 /*!\brief Set or change configuration
  *
@@ -679,8 +680,8 @@ aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
  * \retval #AOM_CODEC_INVALID_PARAM
  *     A parameter was NULL, or the usage value was not recognized.
  */
-aom_codec_err_t aom_codec_enc_config_set(aom_codec_ctx_t *ctx,
-                                         const aom_codec_enc_cfg_t *cfg);
+AomCodecErrT aom_codec_enc_config_set(AomCodecCtxT *ctx,
+                                      const AomCodecEncCfgT *cfg);
 
 /*!\brief Get global stream headers
  *
@@ -693,7 +694,7 @@ aom_codec_err_t aom_codec_enc_config_set(aom_codec_ctx_t *ctx,
  * \retval Non-NULL
  *     Pointer to buffer containing global header packet
  */
-aom_fixed_buf_t *aom_codec_get_global_headers(aom_codec_ctx_t *ctx);
+AomFixedBufT *aom_codec_get_global_headers(AomCodecCtxT *ctx);
 
 /*!\brief deadline parameter analogous to  AVx GOOD QUALITY mode. */
 #define AOM_DL_GOOD_QUALITY (1000000)
@@ -732,10 +733,9 @@ aom_fixed_buf_t *aom_codec_get_global_headers(aom_codec_ctx_t *ctx);
  * \retval #AOM_CODEC_INVALID_PARAM
  *     A parameter was NULL, the image format is unsupported, etc.
  */
-aom_codec_err_t aom_codec_encode(aom_codec_ctx_t *ctx, const aom_image_t *img,
-                                 aom_codec_pts_t pts, unsigned long duration,
-                                 aom_enc_frame_flags_t flags,
-                                 unsigned long deadline);
+AomCodecErrT aom_codec_encode(AomCodecCtxT *ctx, const AomImageT *img,
+                              AomCodecPtsT pts, unsigned long duration,
+                              AomEncFrameFlagsT flags, unsigned long deadline);
 
 /*!\brief Set compressed data output buffer
  *
@@ -780,10 +780,10 @@ aom_codec_err_t aom_codec_encode(aom_codec_ctx_t *ctx, const aom_image_t *img,
  * \retval #AOM_CODEC_INVALID_PARAM
  *     A parameter was NULL, the image format is unsupported, etc.
  */
-aom_codec_err_t aom_codec_set_cx_data_buf(aom_codec_ctx_t *ctx,
-                                          const aom_fixed_buf_t *buf,
-                                          unsigned int pad_before,
-                                          unsigned int pad_after);
+AomCodecErrT aom_codec_set_cx_data_buf(AomCodecCtxT *ctx,
+                                       const AomFixedBufT *buf,
+                                       unsigned int pad_before,
+                                       unsigned int pad_after);
 
 /*!\brief Encoded data iterator
  *
@@ -808,8 +808,8 @@ aom_codec_err_t aom_codec_set_cx_data_buf(aom_codec_ctx_t *ctx,
  *         two-pass statistics, etc.) or NULL to signal end-of-list.
  *
  */
-const aom_codec_cx_pkt_t *aom_codec_get_cx_data(aom_codec_ctx_t *ctx,
-                                                aom_codec_iter_t *iter);
+const AomCodecCxPktT *aom_codec_get_cx_data(AomCodecCtxT *ctx,
+                                            AomCodecIterT *iter);
 
 /*!\brief Get Preview Frame
  *
@@ -823,7 +823,7 @@ const aom_codec_cx_pkt_t *aom_codec_get_cx_data(aom_codec_ctx_t *ctx,
  *         available.
  *
  */
-const aom_image_t *aom_codec_get_preview_frame(aom_codec_ctx_t *ctx);
+const AomImageT *aom_codec_get_preview_frame(AomCodecCtxT *ctx);
 
 /*!@} - end defgroup encoder*/
 #ifdef __cplusplus

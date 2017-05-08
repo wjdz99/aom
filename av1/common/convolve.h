@@ -17,18 +17,18 @@
 extern "C" {
 #endif
 
-typedef enum CONVOLVE_OPT {
+typedef enum ConvolveOpt {
   // indicate the results in dst buf is rounded by FILTER_BITS or not
   CONVOLVE_OPT_ROUND,
   CONVOLVE_OPT_NO_ROUND,
-} CONVOLVE_OPT;
+} ConvolveOpt;
 
-typedef int32_t CONV_BUF_TYPE;
+typedef int32_t ConvBufType;
 
 typedef struct ConvolveParams {
   int ref;
-  CONVOLVE_OPT round;
-  CONV_BUF_TYPE *dst;
+  ConvolveOpt round;
+  ConvBufType *dst;
   int dst_stride;
   int round_0;
   int round_1;
@@ -45,7 +45,7 @@ static INLINE ConvolveParams get_conv_params(int ref, int plane) {
 struct AV1Common;
 void av1_convolve_init(struct AV1Common *cm);
 #if CONFIG_CONVOLVE_ROUND
-void av1_convolve_2d(const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst,
+void av1_convolve_2d(const uint8_t *src, int src_stride, ConvBufType *dst,
                      int dst_stride, int w, int h,
                      InterpFilterParams *filter_params_x,
                      InterpFilterParams *filter_params_y, const int subpel_x_q4,

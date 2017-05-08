@@ -33,7 +33,7 @@ extern "C" {
 // to improve the decoder performance.
 #define AOM_BORDER_IN_PIXELS 160
 
-typedef struct yv12_buffer_config {
+typedef struct Yv12BufferConfig {
   int y_width;
   int y_height;
   int y_crop_width;
@@ -68,18 +68,18 @@ typedef struct yv12_buffer_config {
   int subsampling_x;
   int subsampling_y;
   unsigned int bit_depth;
-  aom_color_space_t color_space;
-  aom_color_range_t color_range;
+  AomColorSpaceT color_space;
+  AomColorRangeT color_range;
   int render_width;
   int render_height;
 
   int corrupted;
   int flags;
-} YV12_BUFFER_CONFIG;
+} Yv12BufferConfig;
 
 #define YV12_FLAG_HIGHBITDEPTH 8
 
-int aom_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
+int aom_alloc_frame_buffer(Yv12BufferConfig *ybf, int width, int height,
                            int ss_x, int ss_y,
 #if CONFIG_HIGHBITDEPTH
                            int use_highbitdepth,
@@ -93,15 +93,15 @@ int aom_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
 // to decode the current frame. If cb is NULL, libaom will allocate memory
 // internally to decode the current frame. Returns 0 on success. Returns < 0
 // on failure.
-int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
+int aom_realloc_frame_buffer(Yv12BufferConfig *ybf, int width, int height,
                              int ss_x, int ss_y,
 #if CONFIG_HIGHBITDEPTH
                              int use_highbitdepth,
 #endif
                              int border, int byte_alignment,
-                             aom_codec_frame_buffer_t *fb,
-                             aom_get_frame_buffer_cb_fn_t cb, void *cb_priv);
-int aom_free_frame_buffer(YV12_BUFFER_CONFIG *ybf);
+                             AomCodecFrameBufferT *fb,
+                             AomGetFrameBufferCbFnT cb, void *cb_priv);
+int aom_free_frame_buffer(Yv12BufferConfig *ybf);
 
 #ifdef __cplusplus
 }
