@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6af32df_425ac869",
+        "filename": "aomenc.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-09T15:43:14Z",
+      "side": 1,
+      "message": "this should be stored in a config, like the first pass file if it\u0027s meant to stick around",
+      "revId": "bc4ba8cedf985c2cf090d5b5d38404ce9c3e32e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
