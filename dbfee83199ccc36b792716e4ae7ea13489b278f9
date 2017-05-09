@@ -154,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "f2e6f782_869b1198",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1139,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-09T04:45:30Z",
+      "side": 1,
+      "message": "\u003e I am confused, do you mean uint8? highbd_frame_error expects uint8 and shifts it up to uint16.\n\nCorrect. It\u0027s a new local function so it can be corrected now to avoid the unnecessary shift",
+      "parentUuid": "605d7237_97ebab68",
+      "range": {
+        "startLine": 1139,
+        "startChar": 33,
+        "endLine": 1139,
+        "endChar": 56
+      },
+      "revId": "dbfee83199ccc36b792716e4ae7ea13489b278f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c6f423f_2a355907",
         "filename": "av1/common/warped_motion.c",
         "patchSetId": 19
@@ -189,6 +213,30 @@
       "side": 1,
       "message": "This was changed in a recent patch, just rebased.",
       "parentUuid": "9c6f423f_2a355907",
+      "range": {
+        "startLine": 1378,
+        "startChar": 6,
+        "endLine": 1378,
+        "endChar": 32
+      },
+      "revId": "dbfee83199ccc36b792716e4ae7ea13489b278f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d560ed5_de344309",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1378,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-09T04:45:30Z",
+      "side": 1,
+      "message": "\u003e This was changed in a recent patch, just rebased.\n\nI must have been using a relative diff. You can treat it as a followup or drop the int64 cast here, it will naturally be promoted",
+      "parentUuid": "82d706fd_9b7a4bcb",
       "range": {
         "startLine": 1378,
         "startChar": 6,
