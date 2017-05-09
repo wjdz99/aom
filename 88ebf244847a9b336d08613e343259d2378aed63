@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abc47b32_c639dcfb",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4960,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-05-09T22:03:10Z",
+      "side": 1,
+      "message": "Now I finally understand the logic. When ext_refs is on, we should check whether last_fb_ref_buf-\u003eidx is valid, suggesting as follows:\n\nif (!dec_is_ref_frame_buf(pbi, cm-\u003eprev_frame)) {\n  // Reassign the LAST_FRAME buffer to cm-\u003eprev_frame.\n  if (last_fb_ref_buf-\u003eidx !\u003d INVALID_IDX)\n    cm-\u003eprev_frame \u003d \u0026cm-\u003ebuffer_pool-\u003eframe_bufs[last_fb_ref_buf-\u003eidx];\n  else\n    cm-\u003euse_prev_frame_mvs \u003d 0;\n}\n\nThe encoder should make such changes as well.",
+      "revId": "88ebf244847a9b336d08613e343259d2378aed63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
