@@ -261,12 +261,12 @@ const av1_extra_bit av1_extra_bits[ENTROPY_TOKENS] = {
 };
 #endif
 
-#if !CONFIG_EC_MULTISYMBOL
+#if !CONFIG_EC_ADAPT
 const struct av1_token av1_coef_encodings[ENTROPY_TOKENS] = {
   { 2, 2 },  { 6, 3 },   { 28, 5 },  { 58, 6 },  { 59, 6 },  { 60, 6 },
   { 61, 6 }, { 124, 7 }, { 125, 7 }, { 126, 7 }, { 127, 7 }, { 0, 1 }
 };
-#endif  // !CONFIG_EC_MULTISYMBOL
+#endif  // !CONFIG_EC_ADAPT
 
 struct tokenize_b_args {
   const AV1_COMP *cpi;
@@ -332,16 +332,16 @@ static INLINE void add_token(TOKENEXTRA **t,
 #else  // CONFIG_NEW_TOKENSET
 static INLINE void add_token(
     TOKENEXTRA **t, const aom_prob *context_tree,
-#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
     aom_cdf_prob (*token_cdf)[CDF_SIZE(ENTROPY_TOKENS)],
-#endif  // CONFIG_EC_MULTISYMBOL
+#endif  // CONFIG_EC_ADAPT
     int32_t extra, uint8_t token, uint8_t skip_eob_node, unsigned int *counts) {
   (*t)->token = token;
   (*t)->extra = extra;
   (*t)->context_tree = context_tree;
-#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
   (*t)->token_cdf = token_cdf;
-#endif  // CONFIG_EC_MULTISYMBOL
+#endif  // CONFIG_EC_ADAPT
   (*t)->skip_eob_node = skip_eob_node;
   (*t)++;
   ++counts[token];
@@ -477,9 +477,7 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
 #endif  // !CONFIG_NEW_TOKENSET
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#elif CONFIG_EC_MULTISYMBOL
-  FRAME_CONTEXT *ec_ctx = cpi->common.fc;
-#endif
+#endif  // CONFIG_EC_ADAPT
 #if CONFIG_NEW_TOKENSET
   aom_cdf_prob(
       *const coef_head_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
@@ -492,7 +490,7 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   int eob_val;
   int first_val = 1;
 #else
-#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
   aom_cdf_prob(*const coef_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
       ec_ctx->coef_cdfs[txsize_sqr_map[tx_size]][type][ref];
 #endif
@@ -555,7 +553,7 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
     av1_get_token_extra(v, &token, &extra);
 
     add_token(&t, coef_probs[band[c]][pt],
-#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
               &coef_cdfs[band[c]][pt],
 #endif
               extra, (uint8_t)token, (uint8_t)skip_eob, counts[band[c]][pt]);
@@ -567,7 +565,7 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   }
   if (c < seg_eob) {
     add_token(&t, coef_probs[band[c]][pt],
-#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
               NULL,
 #endif
               0, EOB_TOKEN, 0, counts[band[c]][pt]);

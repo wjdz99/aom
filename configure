@@ -268,7 +268,6 @@ EXPERIMENT_LIST="
     new_quant
     supertx
     ans
-    ec_multisymbol
     new_tokenset
     loop_restoration
     ext_partition
@@ -503,19 +502,17 @@ post_process_cmdline() {
     soft_enable lowbitdepth
 
     ! enabled ans && soft_enable daala_ec
-    soft_enable ec_multisymbol
     soft_enable palette
     soft_enable alt_intra
     soft_enable palette_throughput
 
     # Fix up experiment dependencies
     enabled pvq && enable_feature ec_adapt
-    enabled cfl && enable_feature ec_multisymbol
-    enabled ec_adapt && enable_feature ec_multisymbol
-    enabled new_tokenset && enable_feature ec_multisymbol
-    enabled new_multisymbol && enable_feature ec_multisymbol
-    enabled ec_multisymbol && ! enabled ans && soft_enable daala_ec
-    enabled ec_multisymbol && ! enabled daala_ec && soft_enable ans
+    enabled cfl && enable_feature ec_adapt
+    enabled new_tokenset && enable_feature ec_adapt
+    enabled new_multisymbol && enable_feature ec_adapt
+    enabled ec_adapt && ! enabled ans && soft_enable daala_ec
+    enabled ec_adapt && ! enabled daala_ec && soft_enable ans
     enabled palette_throughput && soft_enable palette
     enabled ext_delta_q && soft_enable delta_q
     enabled txk_sel && soft_enable lv_map
