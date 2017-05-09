@@ -133,7 +133,7 @@ static INLINE void aom_write_bit_record(aom_writer *w, int bit,
 
 static INLINE void aom_write_literal(aom_writer *w, int data, int bits) {
   int bit;
-
+  assert(bits > 0);
   for (bit = bits - 1; bit >= 0; bit--) aom_write_bit(w, 1 & (data >> bit));
 }
 

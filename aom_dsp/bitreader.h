@@ -186,7 +186,7 @@ static INLINE int aom_read_bit_(aom_reader *r ACCT_STR_PARAM) {
 
 static INLINE int aom_read_literal_(aom_reader *r, int bits ACCT_STR_PARAM) {
   int literal = 0, bit;
-
+  assert(bits > 0);
   for (bit = bits - 1; bit >= 0; bit--) literal |= aom_read_bit(r, NULL) << bit;
 #if CONFIG_ACCOUNTING
   if (ACCT_STR_NAME) aom_process_accounting(r, ACCT_STR_NAME);
