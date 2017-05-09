@@ -354,11 +354,7 @@ static void set_offsets_supertx(const AV1_COMP *const cpi, ThreadData *td,
   MACROBLOCKD *const xd = &x->e_mbd;
   const int mi_width = mi_size_wide[bsize];
   const int mi_height = mi_size_high[bsize];
-#if CONFIG_DEPENDENT_HORZTILES
-  set_mode_info_offsets(cpi, x, xd, mi_row, mi_col, cm->dependent_horz_tiles);
-#else
   set_mode_info_offsets(cpi, x, xd, mi_row, mi_col);
-#endif
 
   // Set up distance of MB to edge of frame in 1/8th pel units.
   assert(!(mi_col & (mi_width - 1)) && !(mi_row & (mi_height - 1)));
