@@ -4978,7 +4978,9 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
   if (cm->use_prev_frame_mvs && !dec_is_ref_frame_buf(pbi, cm->prev_frame)) {
     // Reassign the LAST_FRAME buffer to cm->prev_frame.
     RefBuffer *last_fb_ref_buf = &cm->frame_refs[LAST_FRAME - LAST_FRAME];
-    cm->prev_frame = &cm->buffer_pool->frame_bufs[last_fb_ref_buf->idx];
+    cm->prev_frame = last_fb_ref_buf->idx >= 0
+                         ? &cm->buffer_pool->frame_bufs[last_fb_ref_buf->idx]
+                         : NULL;
   }
 #endif  // CONFIG_EXT_REFS
 
