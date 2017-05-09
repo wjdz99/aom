@@ -891,7 +891,7 @@ const aom_cdf_prob av1_pareto8_tail_probs[COEFF_PROB_MODELS][TAIL_NODES] = {
   { 31131, 1448, 152, 31, 2, 1, 1, 1, 1 },
   { 31486, 1150, 107, 20, 1, 1, 1, 1, 1 },
 };
-#elif CONFIG_EC_MULTISYMBOL
+#elif CONFIG_EC_ADAPT
 // Values for tokens ONE_TOKEN through CATEGORY6_TOKEN included here.
 // ZERO_TOKEN and EOB_TOKEN are coded as flags outside this coder.
 const aom_cdf_prob
@@ -4588,7 +4588,7 @@ static const av1_coeff_probs_model default_coef_probs_32x32[PLANE_TYPES] = {
 #endif  // CONFIG_NEW_TOKENSET
 
 #if CONFIG_TX64X64
-// FIXME. Optimize for EC_MULTISYMBOL
+// FIXME. Optimize for EC_ADAPT
 static const av1_coeff_probs_model default_coef_probs_64x64[PLANE_TYPES] = {
   {  // Y plane
     {  // Intra
@@ -6074,7 +6074,7 @@ void av1_coef_head_cdfs(FRAME_CONTEXT *fc) {
           }
 }
 
-#elif CONFIG_EC_MULTISYMBOL
+#elif CONFIG_EC_ADAPT
 static void build_token_cdfs(const aom_prob *pdf_model,
                              aom_cdf_prob cdf[ENTROPY_TOKENS + 1]) {
   int i, sum = 0;
@@ -6086,7 +6086,7 @@ static void build_token_cdfs(const aom_prob *pdf_model,
 }
 #endif  // CONFIG_NEW_TOKENSET
 
-#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
 void av1_coef_pareto_cdfs(FRAME_CONTEXT *fc) {
   /* Build the tail based on a Pareto distribution */
   TX_SIZE t;
@@ -6104,7 +6104,7 @@ void av1_coef_pareto_cdfs(FRAME_CONTEXT *fc) {
                              fc->coef_cdfs[t][i][j][k][l]);
 #endif
 }
-#endif
+#endif  // CONFIG_EC_ADAPT
 
 void av1_default_coef_probs(AV1_COMMON *cm) {
 #if CONFIG_Q_ADAPT_PROBS
@@ -6130,9 +6130,9 @@ void av1_default_coef_probs(AV1_COMMON *cm) {
   /* Load the head tokens */
   av1_default_coef_cdfs(cm->fc);
 #endif
-#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
   av1_coef_pareto_cdfs(cm->fc);
-#endif  // CONFIG_EC_MULTISYMBOL
+#endif  // CONFIG_EC_ADAPT
 }
 
 #if !CONFIG_LV_MAP

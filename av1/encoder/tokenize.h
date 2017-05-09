@@ -40,7 +40,7 @@ typedef struct {
   aom_cdf_prob (*head_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
   int eob_val;
   int first_val;
-#elif CONFIG_EC_MULTISYMBOL
+#elif CONFIG_EC_ADAPT
   aom_cdf_prob (*token_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
 #endif
   const aom_prob *context_tree;
@@ -51,9 +51,9 @@ typedef struct {
 
 extern const aom_tree_index av1_coef_tree[];
 extern const aom_tree_index av1_coef_con_tree[];
-#if !CONFIG_EC_MULTISYMBOL
+#if !CONFIG_EC_ADAPT
 extern const struct av1_token av1_coef_encodings[];
-#endif  // !CONFIG_EC_MULTISYMBOL
+#endif  // !CONFIG_EC_ADAPT
 
 int av1_is_skippable_in_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane);
 

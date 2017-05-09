@@ -16,9 +16,6 @@
 #include <limits.h>
 
 #include "./aom_config.h"
-#if CONFIG_EC_ADAPT && !CONFIG_EC_MULTISYMBOL
-#error "CONFIG_EC_ADAPT is enabled without enabling CONFIG_EC_MULTISYMBOL."
-#endif
 
 #include "aom/aomdx.h"
 #include "aom/aom_integer.h"
@@ -203,7 +200,7 @@ static INLINE int aom_read_tree_as_bits(aom_reader *r,
   return -i;
 }
 
-#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
 static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
                                 int nsymbs ACCT_STR_PARAM) {
   int ret;
@@ -214,7 +211,7 @@ static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
   ret = daala_read_symbol(r, cdf, nsymbs);
 #else
 #error \
-    "CONFIG_EC_MULTISYMBOL is selected without a valid backing entropy " \
+    "CONFIG_EC_ADAPT is selected without a valid backing entropy " \
   "coder. Enable daala_ec or ans for a valid configuration."
 #endif
 
@@ -229,9 +226,7 @@ static INLINE int aom_read_symbol_(aom_reader *r, aom_cdf_prob *cdf,
                                    int nsymbs ACCT_STR_PARAM) {
   int ret;
   ret = aom_read_cdf(r, cdf, nsymbs, ACCT_STR_NAME);
-#if CONFIG_EC_ADAPT
   update_cdf(cdf, ret, nsymbs);
-#endif
   return ret;
 }
 
@@ -253,12 +248,12 @@ static INLINE int aom_read_tree_as_cdf(aom_reader *r,
   } while (i > 0);
   return -i;
 }
-#endif  // CONFIG_EC_MULTISYMBOL
+#endif  // CONFIG_EC_ADAPT
 
 static INLINE int aom_read_tree_(aom_reader *r, const aom_tree_index *tree,
                                  const aom_prob *probs ACCT_STR_PARAM) {
   int ret;
-#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
   ret = aom_read_tree_as_cdf(r, tree, probs);
 #else
   ret = aom_read_tree_as_bits(r, tree, probs);

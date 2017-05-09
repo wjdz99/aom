@@ -673,7 +673,7 @@ static INLINE const aom_prob *get_y_mode_probs(const AV1_COMMON *cm,
   return cm->kf_y_prob[above][left];
 }
 
-#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
 static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
                                            const MODE_INFO *mi,
                                            const MODE_INFO *above_mi,

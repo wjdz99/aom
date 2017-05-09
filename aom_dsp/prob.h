@@ -33,7 +33,7 @@ typedef uint8_t aom_prob;
 // TODO(negge): Rename this aom_prob once we remove vpxbool.
 typedef uint16_t aom_cdf_prob;
 
-#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
 #define CDF_SIZE(x) ((x) + 1)
 #endif
 
@@ -117,7 +117,7 @@ static INLINE aom_prob mode_mv_merge_probs(aom_prob pre_prob,
 void aom_tree_merge_probs(const aom_tree_index *tree, const aom_prob *pre_probs,
                           const unsigned int *counts, aom_prob *probs);
 
-#if CONFIG_EC_MULTISYMBOL
+#if CONFIG_EC_ADAPT
 int tree_to_cdf(const aom_tree_index *tree, const aom_prob *probs,
                 aom_tree_index root, aom_cdf_prob *cdf, aom_tree_index *ind,
                 int *pth, int *len);
