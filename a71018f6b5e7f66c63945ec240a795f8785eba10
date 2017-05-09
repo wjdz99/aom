@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83e43a17_0c069060",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5349,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-05-09T16:38:43Z",
+      "side": 1,
+      "message": "@Fangwen Fu: Does this seem like the correct condition for the non-TEMPMV_SIGNALLING case to you? In my tests it looks like y_crop_{width, height} were better to use than y_{width, height}, but I notice that the TEMPMV_SIGNALLING experiment uses the latter.",
+      "range": {
+        "startLine": 5348,
+        "startChar": 0,
+        "endLine": 5349,
+        "endChar": 77
+      },
+      "revId": "a71018f6b5e7f66c63945ec240a795f8785eba10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
