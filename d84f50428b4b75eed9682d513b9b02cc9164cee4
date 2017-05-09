@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79208a5f_20167f19",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-05-09T17:58:53Z",
+      "side": 1,
+      "message": "You can replace 1 with TX_4X4 and move the #endif from line 384 to below 370.\nHence you don\u0027t need to have two for loops here.",
+      "range": {
+        "startLine": 371,
+        "startChar": 17,
+        "endLine": 371,
+        "endChar": 18
+      },
+      "revId": "d84f50428b4b75eed9682d513b9b02cc9164cee4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
