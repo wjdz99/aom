@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a68db3e_673898ee",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2978,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-05-09T17:29:52Z",
+      "side": 0,
+      "message": "Why remove this if(). Nathan is telling me that while it works, he was going to add an assert to make sure we never do it.",
+      "range": {
+        "startLine": 2978,
+        "startChar": 12,
+        "endLine": 2978,
+        "endChar": 21
+      },
+      "revId": "7467eaccca1fae5a3f70f2e25e83bfd7a73ba9fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
