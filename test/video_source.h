@@ -99,7 +99,7 @@ class TempOutFile {
 };
 
 // Abstract base class for test video sources, which provide a stream of
-// aom_image_t images with associated timestamps and duration.
+// AomImageT images with associated timestamps and duration.
 class VideoSource {
  public:
   virtual ~VideoSource() {}
@@ -111,16 +111,16 @@ class VideoSource {
   virtual void Next() = 0;
 
   // Get the current video frame, or NULL on End-Of-Stream.
-  virtual aom_image_t *img() const = 0;
+  virtual AomImageT *img() const = 0;
 
   // Get the presentation timestamp of the current frame.
-  virtual aom_codec_pts_t pts() const = 0;
+  virtual AomCodecPtsT pts() const = 0;
 
   // Get the current frame's duration
   virtual unsigned long duration() const = 0;
 
   // Get the timebase for the stream
-  virtual aom_rational_t timebase() const = 0;
+  virtual AomRationalT timebase() const = 0;
 
   // Get the current frame counter, starting at 0.
   virtual unsigned int frame() const = 0;
@@ -149,15 +149,15 @@ class DummyVideoSource : public VideoSource {
     FillFrame();
   }
 
-  virtual aom_image_t *img() const { return (frame_ < limit_) ? img_ : NULL; }
+  virtual AomImageT *img() const { return (frame_ < limit_) ? img_ : NULL; }
 
   // Models a stream where Timebase = 1/FPS, so pts == frame.
-  virtual aom_codec_pts_t pts() const { return frame_; }
+  virtual AomCodecPtsT pts() const { return frame_; }
 
   virtual unsigned long duration() const { return 1; }
 
-  virtual aom_rational_t timebase() const {
-    const aom_rational_t t = { 1, 30 };
+  virtual AomRationalT timebase() const {
+    const AomRationalT t = { 1, 30 };
     return t;
   }
 
@@ -175,7 +175,7 @@ class DummyVideoSource : public VideoSource {
     }
   }
 
-  void SetImageFormat(aom_img_fmt_t format) {
+  void SetImageFormat(AomImgFmtT format) {
     if (format_ != format) {
       format_ = format;
       ReallocImage();
@@ -193,13 +193,13 @@ class DummyVideoSource : public VideoSource {
     raw_sz_ = ((img_->w + 31) & ~31) * img_->h * img_->bps / 8;
   }
 
-  aom_image_t *img_;
+  AomImageT *img_;
   size_t raw_sz_;
   unsigned int limit_;
   unsigned int frame_;
   unsigned int width_;
   unsigned int height_;
-  aom_img_fmt_t format_;
+  AomImgFmtT format_;
 };
 
 class RandomVideoSource : public DummyVideoSource {

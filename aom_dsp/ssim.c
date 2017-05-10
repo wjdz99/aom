@@ -166,8 +166,8 @@ static double aom_highbd_ssim2(const uint8_t *img1, const uint8_t *img2,
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
-double aom_calc_ssim(const YV12_BUFFER_CONFIG *source,
-                     const YV12_BUFFER_CONFIG *dest, double *weight) {
+double aom_calc_ssim(const Yv12BufferConfig *source,
+                     const Yv12BufferConfig *dest, double *weight) {
   double a, b, c;
   double ssimv;
 
@@ -430,8 +430,8 @@ double aom_get_ssim_metrics(uint8_t *img1, int img1_pitch, uint8_t *img2,
 }
 
 #if CONFIG_HIGHBITDEPTH
-double aom_highbd_calc_ssim(const YV12_BUFFER_CONFIG *source,
-                            const YV12_BUFFER_CONFIG *dest, double *weight,
+double aom_highbd_calc_ssim(const Yv12BufferConfig *source,
+                            const Yv12BufferConfig *dest, double *weight,
                             uint32_t bd, uint32_t in_bd) {
   double a, b, c;
   double ssimv;

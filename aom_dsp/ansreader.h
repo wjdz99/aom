@@ -97,16 +97,16 @@ static INLINE int rabs_read_bit(struct AnsDecoder *ans) {
   return value;
 }
 
-struct rans_dec_sym {
+struct RansDecSym {
   uint8_t val;
-  aom_cdf_prob prob;
-  aom_cdf_prob cum_prob;  // not-inclusive
+  AomCdfProb prob;
+  AomCdfProb cum_prob;  // not-inclusive
 };
 
-static INLINE void fetch_sym(struct rans_dec_sym *out, const aom_cdf_prob *cdf,
-                             aom_cdf_prob rem) {
+static INLINE void fetch_sym(struct RansDecSym *out, const AomCdfProb *cdf,
+                             AomCdfProb rem) {
   int i;
-  aom_cdf_prob cum_prob = 0, top_prob;
+  AomCdfProb cum_prob = 0, top_prob;
   // TODO(skal): if critical, could be a binary search.
   // Or, better, an O(1) alias-table.
   for (i = 0; rem >= (top_prob = cdf[i]); ++i) {
@@ -117,10 +117,10 @@ static INLINE void fetch_sym(struct rans_dec_sym *out, const aom_cdf_prob *cdf,
   out->cum_prob = cum_prob;
 }
 
-static INLINE int rans_read(struct AnsDecoder *ans, const aom_cdf_prob *tab) {
+static INLINE int rans_read(struct AnsDecoder *ans, const AomCdfProb *tab) {
   unsigned rem;
   unsigned quo;
-  struct rans_dec_sym sym;
+  struct RansDecSym sym;
 #if ANS_MAX_SYMBOLS
   if (ans->symbols_left-- == 0) {
     ans_read_reinit(ans);

@@ -20,7 +20,7 @@ class MD5 {
  public:
   MD5() { MD5Init(&md5_); }
 
-  void Add(const aom_image_t *img) {
+  void Add(const AomImageT *img) {
     for (int plane = 0; plane < 3; ++plane) {
       const uint8_t *buf = img->planes[plane];
       // Calculate the width and height to do the md5 check. For the chroma

@@ -16,8 +16,8 @@
 namespace {
 
 TEST(ScanTest, av1_augment_prob) {
-  const TX_SIZE tx_size = TX_4X4;
-  const TX_TYPE tx_type = DCT_DCT;
+  const TxSize tx_size = TX_4X4;
+  const TxType tx_type = DCT_DCT;
   const int tx1d_size = tx_size_wide[tx_size];
   uint32_t prob[16] = { 8, 8, 7, 7, 8, 8, 4, 2, 3, 3, 2, 2, 2, 2, 2, 2 };
   const uint32_t ref_prob[16] = {
@@ -31,7 +31,7 @@ TEST(ScanTest, av1_augment_prob) {
     }
   }
 
-  const SCAN_ORDER *sc = get_default_scan(tx_size, tx_type, 0);
+  const ScanOrder *sc = get_default_scan(tx_size, tx_type, 0);
   const uint32_t mask = (1 << 16) - 1;
   for (int r = 0; r < tx1d_size; ++r) {
     for (int c = 0; c < tx1d_size; ++c) {
@@ -44,8 +44,8 @@ TEST(ScanTest, av1_augment_prob) {
 }
 
 TEST(ScanTest, av1_update_sort_order) {
-  const TX_SIZE tx_size = TX_4X4;
-  const TX_TYPE tx_type = DCT_DCT;
+  const TxSize tx_size = TX_4X4;
+  const TxType tx_type = DCT_DCT;
   const uint32_t prob[16] = { 15, 14, 11, 10, 13, 12, 9, 5,
                               8,  7,  4,  2,  6,  3,  1, 0 };
   const int16_t ref_sort_order[16] = { 0, 1,  4, 5,  2,  3,  6,  8,
@@ -56,8 +56,8 @@ TEST(ScanTest, av1_update_sort_order) {
 }
 
 TEST(ScanTest, av1_update_scan_order) {
-  TX_SIZE tx_size = TX_4X4;
-  const TX_TYPE tx_type = DCT_DCT;
+  TxSize tx_size = TX_4X4;
+  const TxType tx_type = DCT_DCT;
   const uint32_t prob[16] = { 10, 12, 14, 9, 11, 13, 15, 5,
                               8,  7,  4,  2, 6,  3,  1,  0 };
   int16_t sort_order[16];
@@ -76,7 +76,7 @@ TEST(ScanTest, av1_update_scan_order) {
 }
 
 TEST(ScanTest, av1_update_neighbors) {
-  TX_SIZE tx_size = TX_4X4;
+  TxSize tx_size = TX_4X4;
   // raster order
   const int16_t scan[16] = { 0, 1, 2,  3,  4,  5,  6,  7,
                              8, 9, 10, 11, 12, 13, 14, 15 };

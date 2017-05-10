@@ -23,12 +23,12 @@
 #include "av1/common/reconinter.h"
 #include "av1/common/reconintra.h"
 
-static unsigned int do_16x16_motion_iteration(AV1_COMP *cpi, const MV *ref_mv,
+static unsigned int do_16x16_motion_iteration(Av1Comp *cpi, const MV *ref_mv,
                                               int mb_row, int mb_col) {
-  MACROBLOCK *const x = &cpi->td.mb;
-  MACROBLOCKD *const xd = &x->e_mbd;
-  const MV_SPEED_FEATURES *const mv_sf = &cpi->sf.mv;
-  const aom_variance_fn_ptr_t v_fn_ptr = cpi->fn_ptr[BLOCK_16X16];
+  Macroblock *const x = &cpi->td.mb;
+  Macroblockd *const xd = &x->e_mbd;
+  const MvSpeedFeatures *const mv_sf = &cpi->sf.mv;
+  const AomVarianceFnPtrT v_fn_ptr = cpi->fn_ptr[BLOCK_16X16];
 
   const MvLimits tmp_mv_limits = x->mv_limits;
   MV ref_full;
@@ -80,10 +80,10 @@ static unsigned int do_16x16_motion_iteration(AV1_COMP *cpi, const MV *ref_mv,
                       xd->plane[0].dst.buf, xd->plane[0].dst.stride);
 }
 
-static int do_16x16_motion_search(AV1_COMP *cpi, const MV *ref_mv, int mb_row,
+static int do_16x16_motion_search(Av1Comp *cpi, const MV *ref_mv, int mb_row,
                                   int mb_col) {
-  MACROBLOCK *const x = &cpi->td.mb;
-  MACROBLOCKD *const xd = &x->e_mbd;
+  Macroblock *const x = &cpi->td.mb;
+  Macroblockd *const xd = &x->e_mbd;
   unsigned int err, tmp_err;
   MV best_mv;
 
@@ -117,9 +117,9 @@ static int do_16x16_motion_search(AV1_COMP *cpi, const MV *ref_mv, int mb_row,
   return err;
 }
 
-static int do_16x16_zerozero_search(AV1_COMP *cpi, int_mv *dst_mv) {
-  MACROBLOCK *const x = &cpi->td.mb;
-  MACROBLOCKD *const xd = &x->e_mbd;
+static int do_16x16_zerozero_search(Av1Comp *cpi, IntMv *dst_mv) {
+  Macroblock *const x = &cpi->td.mb;
+  Macroblockd *const xd = &x->e_mbd;
   unsigned int err;
 
   // Try zero MV first
@@ -131,10 +131,10 @@ static int do_16x16_zerozero_search(AV1_COMP *cpi, int_mv *dst_mv) {
 
   return err;
 }
-static int find_best_16x16_intra(AV1_COMP *cpi, PREDICTION_MODE *pbest_mode) {
-  MACROBLOCK *const x = &cpi->td.mb;
-  MACROBLOCKD *const xd = &x->e_mbd;
-  PREDICTION_MODE best_mode = -1, mode;
+static int find_best_16x16_intra(Av1Comp *cpi, PredictionMode *pbest_mode) {
+  Macroblock *const x = &cpi->td.mb;
+  Macroblockd *const xd = &x->e_mbd;
+  PredictionMode best_mode = -1, mode;
   unsigned int best_err = INT_MAX;
 
   // calculate SATD for each intra prediction mode;
@@ -161,16 +161,16 @@ static int find_best_16x16_intra(AV1_COMP *cpi, PREDICTION_MODE *pbest_mode) {
   return best_err;
 }
 
-static void update_mbgraph_mb_stats(AV1_COMP *cpi, MBGRAPH_MB_STATS *stats,
-                                    YV12_BUFFER_CONFIG *buf, int mb_y_offset,
-                                    YV12_BUFFER_CONFIG *golden_ref,
+static void update_mbgraph_mb_stats(Av1Comp *cpi, MbgraphMbStats *stats,
+                                    Yv12BufferConfig *buf, int mb_y_offset,
+                                    Yv12BufferConfig *golden_ref,
                                     const MV *prev_golden_ref_mv,
-                                    YV12_BUFFER_CONFIG *alt_ref, int mb_row,
+                                    Yv12BufferConfig *alt_ref, int mb_row,
                                     int mb_col) {
-  MACROBLOCK *const x = &cpi->td.mb;
-  MACROBLOCKD *const xd = &x->e_mbd;
+  Macroblock *const x = &cpi->td.mb;
+  Macroblockd *const xd = &x->e_mbd;
   int intra_error;
-  AV1_COMMON *cm = &cpi->common;
+  Av1Common *cm = &cpi->common;
 
   // FIXME in practice we're completely ignoring chroma here
   x->plane[0].src.buf = buf->y_buffer + mb_y_offset;
@@ -214,19 +214,18 @@ static void update_mbgraph_mb_stats(AV1_COMP *cpi, MBGRAPH_MB_STATS *stats,
   }
 }
 
-static void update_mbgraph_frame_stats(AV1_COMP *cpi,
-                                       MBGRAPH_FRAME_STATS *stats,
-                                       YV12_BUFFER_CONFIG *buf,
-                                       YV12_BUFFER_CONFIG *golden_ref,
-                                       YV12_BUFFER_CONFIG *alt_ref) {
-  MACROBLOCK *const x = &cpi->td.mb;
-  MACROBLOCKD *const xd = &x->e_mbd;
-  AV1_COMMON *const cm = &cpi->common;
+static void update_mbgraph_frame_stats(Av1Comp *cpi, MbgraphFrameStats *stats,
+                                       Yv12BufferConfig *buf,
+                                       Yv12BufferConfig *golden_ref,
+                                       Yv12BufferConfig *alt_ref) {
+  Macroblock *const x = &cpi->td.mb;
+  Macroblockd *const xd = &x->e_mbd;
+  Av1Common *const cm = &cpi->common;
 
   int mb_col, mb_row, offset = 0;
   int mb_y_offset = 0, arf_y_offset = 0, gld_y_offset = 0;
   MV gld_top_mv = { 0, 0 };
-  MODE_INFO mi_local;
+  ModeInfo mi_local;
 
   av1_zero(mi_local);
   // Set up limit values for motion vectors to prevent them extending outside
@@ -255,7 +254,7 @@ static void update_mbgraph_frame_stats(AV1_COMP *cpi,
     xd->left_available = 0;
 
     for (mb_col = 0; mb_col < cm->mb_cols; mb_col++) {
-      MBGRAPH_MB_STATS *mb_stats = &stats->mb_stats[offset + mb_col];
+      MbgraphMbStats *mb_stats = &stats->mb_stats[offset + mb_col];
 
       update_mbgraph_mb_stats(cpi, mb_stats, buf, mb_y_in_offset, golden_ref,
                               &gld_left_mv, alt_ref, mb_row, mb_col);
@@ -281,8 +280,8 @@ static void update_mbgraph_frame_stats(AV1_COMP *cpi,
 }
 
 // void separate_arf_mbs_byzz
-static void separate_arf_mbs(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
+static void separate_arf_mbs(Av1Comp *cpi) {
+  Av1Common *const cm = &cpi->common;
   int mb_col, mb_row, offset, i;
   int mi_row, mi_col;
   int ncnt[4] = { 0 };
@@ -300,12 +299,12 @@ static void separate_arf_mbs(AV1_COMP *cpi) {
 
   // defer cost to reference frames
   for (i = n_frames - 1; i >= 0; i--) {
-    MBGRAPH_FRAME_STATS *frame_stats = &cpi->mbgraph_stats[i];
+    MbgraphFrameStats *frame_stats = &cpi->mbgraph_stats[i];
 
     for (offset = 0, mb_row = 0; mb_row < cm->mb_rows;
          offset += cm->mb_cols, mb_row++) {
       for (mb_col = 0; mb_col < cm->mb_cols; mb_col++) {
-        MBGRAPH_MB_STATS *mb_stats = &frame_stats->mb_stats[offset + mb_col];
+        MbgraphMbStats *mb_stats = &frame_stats->mb_stats[offset + mb_col];
 
         int altref_err = mb_stats->ref[ALTREF_FRAME].err;
         int intra_err = mb_stats->ref[INTRA_FRAME].err;
@@ -358,10 +357,10 @@ static void separate_arf_mbs(AV1_COMP *cpi) {
   aom_free(arf_not_zz);
 }
 
-void av1_update_mbgraph_stats(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
+void av1_update_mbgraph_stats(Av1Comp *cpi) {
+  Av1Common *const cm = &cpi->common;
   int i, n_frames = av1_lookahead_depth(cpi->lookahead);
-  YV12_BUFFER_CONFIG *golden_ref = get_ref_frame_buffer(cpi, GOLDEN_FRAME);
+  Yv12BufferConfig *golden_ref = get_ref_frame_buffer(cpi, GOLDEN_FRAME);
 
   assert(golden_ref != NULL);
 
@@ -373,7 +372,7 @@ void av1_update_mbgraph_stats(AV1_COMP *cpi) {
 
   cpi->mbgraph_n_frames = n_frames;
   for (i = 0; i < n_frames; i++) {
-    MBGRAPH_FRAME_STATS *frame_stats = &cpi->mbgraph_stats[i];
+    MbgraphFrameStats *frame_stats = &cpi->mbgraph_stats[i];
     memset(frame_stats->mb_stats, 0,
            cm->mb_rows * cm->mb_cols * sizeof(*cpi->mbgraph_stats[i].mb_stats));
   }
@@ -383,8 +382,8 @@ void av1_update_mbgraph_stats(AV1_COMP *cpi) {
   // FIXME really, the GF/last MC search should be done forward, and
   // the ARF MC search backwards, to get optimal results for MV caching
   for (i = 0; i < n_frames; i++) {
-    MBGRAPH_FRAME_STATS *frame_stats = &cpi->mbgraph_stats[i];
-    struct lookahead_entry *q_cur = av1_lookahead_peek(cpi->lookahead, i);
+    MbgraphFrameStats *frame_stats = &cpi->mbgraph_stats[i];
+    struct LookaheadEntry *q_cur = av1_lookahead_peek(cpi->lookahead, i);
 
     assert(q_cur != NULL);
 

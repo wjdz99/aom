@@ -20,7 +20,7 @@
 #include "av1/common/enums.h"
 #include "av1/common/idct.h"
 
-int av1_get_tx_scale(const TX_SIZE tx_size) {
+int av1_get_tx_scale(const TxSize tx_size) {
   if (txsize_sqr_up_map[tx_size] == TX_32X32) return 1;
 #if CONFIG_TX64X64
   else if (txsize_sqr_up_map[tx_size] == TX_64X64)
@@ -34,44 +34,44 @@ int av1_get_tx_scale(const TX_SIZE tx_size) {
 // that input and output could be the same buffer.
 
 #if CONFIG_EXT_TX
-static void iidtx4_c(const tran_low_t *input, tran_low_t *output) {
+static void iidtx4_c(const TranLowT *input, TranLowT *output) {
   int i;
   for (i = 0; i < 4; ++i)
-    output[i] = (tran_low_t)dct_const_round_shift(input[i] * Sqrt2);
+    output[i] = (TranLowT)dct_const_round_shift(input[i] * Sqrt2);
 }
 
-static void iidtx8_c(const tran_low_t *input, tran_low_t *output) {
+static void iidtx8_c(const TranLowT *input, TranLowT *output) {
   int i;
   for (i = 0; i < 8; ++i) output[i] = input[i] * 2;
 }
 
-static void iidtx16_c(const tran_low_t *input, tran_low_t *output) {
+static void iidtx16_c(const TranLowT *input, TranLowT *output) {
   int i;
   for (i = 0; i < 16; ++i)
-    output[i] = (tran_low_t)dct_const_round_shift(input[i] * 2 * Sqrt2);
+    output[i] = (TranLowT)dct_const_round_shift(input[i] * 2 * Sqrt2);
 }
 
-static void iidtx32_c(const tran_low_t *input, tran_low_t *output) {
+static void iidtx32_c(const TranLowT *input, TranLowT *output) {
   int i;
   for (i = 0; i < 32; ++i) output[i] = input[i] * 4;
 }
 
 #if CONFIG_TX64X64
-static void iidtx64_c(const tran_low_t *input, tran_low_t *output) {
+static void iidtx64_c(const TranLowT *input, TranLowT *output) {
   int i;
   for (i = 0; i < 64; ++i)
-    output[i] = (tran_low_t)dct_const_round_shift(input[i] * 4 * Sqrt2);
+    output[i] = (TranLowT)dct_const_round_shift(input[i] * 4 * Sqrt2);
 }
 #endif  // CONFIG_TX64X64
 #endif  // CONFIG_EXT_TX
 
 // For use in lieu of ADST
-static void ihalfright32_c(const tran_low_t *input, tran_low_t *output) {
+static void ihalfright32_c(const TranLowT *input, TranLowT *output) {
   int i;
-  tran_low_t inputhalf[16];
+  TranLowT inputhalf[16];
   // Multiply input by sqrt(2)
   for (i = 0; i < 16; ++i) {
-    inputhalf[i] = (tran_low_t)dct_const_round_shift(input[i] * Sqrt2);
+    inputhalf[i] = (TranLowT)dct_const_round_shift(input[i] * Sqrt2);
   }
   for (i = 0; i < 16; ++i) {
     output[i] = input[16 + i] * 4;
@@ -81,34 +81,34 @@ static void ihalfright32_c(const tran_low_t *input, tran_low_t *output) {
 }
 
 #if CONFIG_TX64X64
-static void idct64_col_c(const tran_low_t *input, tran_low_t *output) {
+static void idct64_col_c(const TranLowT *input, TranLowT *output) {
   int32_t in[64], out[64];
   int i;
   for (i = 0; i < 64; ++i) in[i] = (int32_t)input[i];
   av1_idct64_new(in, out, inv_cos_bit_col_dct_dct_64,
                  inv_stage_range_col_dct_dct_64);
-  for (i = 0; i < 64; ++i) output[i] = (tran_low_t)out[i];
+  for (i = 0; i < 64; ++i) output[i] = (TranLowT)out[i];
 }
 
-static void idct64_row_c(const tran_low_t *input, tran_low_t *output) {
+static void idct64_row_c(const TranLowT *input, TranLowT *output) {
   int32_t in[64], out[64];
   int i;
   for (i = 0; i < 64; ++i) in[i] = (int32_t)input[i];
   av1_idct64_new(in, out, inv_cos_bit_row_dct_dct_64,
                  inv_stage_range_row_dct_dct_64);
-  for (i = 0; i < 64; ++i) output[i] = (tran_low_t)out[i];
+  for (i = 0; i < 64; ++i) output[i] = (TranLowT)out[i];
 }
 
 // For use in lieu of ADST
-static void ihalfright64_c(const tran_low_t *input, tran_low_t *output) {
+static void ihalfright64_c(const TranLowT *input, TranLowT *output) {
   int i;
-  tran_low_t inputhalf[32];
+  TranLowT inputhalf[32];
   // Multiply input by sqrt(2)
   for (i = 0; i < 32; ++i) {
-    inputhalf[i] = (tran_low_t)dct_const_round_shift(input[i] * Sqrt2);
+    inputhalf[i] = (TranLowT)dct_const_round_shift(input[i] * Sqrt2);
   }
   for (i = 0; i < 32; ++i) {
-    output[i] = (tran_low_t)dct_const_round_shift(input[32 + i] * 4 * Sqrt2);
+    output[i] = (TranLowT)dct_const_round_shift(input[32 + i] * 4 * Sqrt2);
   }
   aom_idct32_c(inputhalf, output + 32);
   // Note overall scaling factor is 4 * sqrt(2)  times orthogonal
@@ -117,39 +117,35 @@ static void ihalfright64_c(const tran_low_t *input, tran_low_t *output) {
 
 #if CONFIG_HIGHBITDEPTH
 #if CONFIG_EXT_TX
-static void highbd_iidtx4_c(const tran_low_t *input, tran_low_t *output,
-                            int bd) {
+static void highbd_iidtx4_c(const TranLowT *input, TranLowT *output, int bd) {
   int i;
   for (i = 0; i < 4; ++i)
     output[i] = HIGHBD_WRAPLOW(dct_const_round_shift(input[i] * Sqrt2), bd);
 }
 
-static void highbd_iidtx8_c(const tran_low_t *input, tran_low_t *output,
-                            int bd) {
+static void highbd_iidtx8_c(const TranLowT *input, TranLowT *output, int bd) {
   int i;
   (void)bd;
   for (i = 0; i < 8; ++i) output[i] = input[i] * 2;
 }
 
-static void highbd_iidtx16_c(const tran_low_t *input, tran_low_t *output,
-                             int bd) {
+static void highbd_iidtx16_c(const TranLowT *input, TranLowT *output, int bd) {
   int i;
   for (i = 0; i < 16; ++i)
     output[i] = HIGHBD_WRAPLOW(dct_const_round_shift(input[i] * 2 * Sqrt2), bd);
 }
 
-static void highbd_iidtx32_c(const tran_low_t *input, tran_low_t *output,
-                             int bd) {
+static void highbd_iidtx32_c(const TranLowT *input, TranLowT *output, int bd) {
   int i;
   (void)bd;
   for (i = 0; i < 32; ++i) output[i] = input[i] * 4;
 }
 #endif  // CONFIG_EXT_TX
 
-static void highbd_ihalfright32_c(const tran_low_t *input, tran_low_t *output,
+static void highbd_ihalfright32_c(const TranLowT *input, TranLowT *output,
                                   int bd) {
   int i;
-  tran_low_t inputhalf[16];
+  TranLowT inputhalf[16];
   // Multiply input by sqrt(2)
   for (i = 0; i < 16; ++i) {
     inputhalf[i] = HIGHBD_WRAPLOW(dct_const_round_shift(input[i] * Sqrt2), bd);
@@ -163,8 +159,7 @@ static void highbd_ihalfright32_c(const tran_low_t *input, tran_low_t *output,
 
 #if CONFIG_EXT_TX
 #if CONFIG_TX64X64
-static void highbd_iidtx64_c(const tran_low_t *input, tran_low_t *output,
-                             int bd) {
+static void highbd_iidtx64_c(const TranLowT *input, TranLowT *output, int bd) {
   int i;
   for (i = 0; i < 64; ++i)
     output[i] = HIGHBD_WRAPLOW(dct_const_round_shift(input[i] * 4 * Sqrt2), bd);
@@ -174,10 +169,10 @@ static void highbd_iidtx64_c(const tran_low_t *input, tran_low_t *output,
 
 #if CONFIG_TX64X64
 // For use in lieu of ADST
-static void highbd_ihalfright64_c(const tran_low_t *input, tran_low_t *output,
+static void highbd_ihalfright64_c(const TranLowT *input, TranLowT *output,
                                   int bd) {
   int i;
-  tran_low_t inputhalf[32];
+  TranLowT inputhalf[32];
   // Multiply input by sqrt(2)
   for (i = 0; i < 32; ++i) {
     inputhalf[i] = HIGHBD_WRAPLOW(dct_const_round_shift(input[i] * Sqrt2), bd);
@@ -190,7 +185,7 @@ static void highbd_ihalfright64_c(const tran_low_t *input, tran_low_t *output,
   // Note overall scaling factor is 4 * sqrt(2)  times orthogonal
 }
 
-static void highbd_idct64_col_c(const tran_low_t *input, tran_low_t *output,
+static void highbd_idct64_col_c(const TranLowT *input, TranLowT *output,
                                 int bd) {
   int32_t in[64], out[64];
   int i;
@@ -198,10 +193,10 @@ static void highbd_idct64_col_c(const tran_low_t *input, tran_low_t *output,
   for (i = 0; i < 64; ++i) in[i] = (int32_t)input[i];
   av1_idct64_new(in, out, inv_cos_bit_col_dct_dct_64,
                  inv_stage_range_col_dct_dct_64);
-  for (i = 0; i < 64; ++i) output[i] = (tran_low_t)out[i];
+  for (i = 0; i < 64; ++i) output[i] = (TranLowT)out[i];
 }
 
-static void highbd_idct64_row_c(const tran_low_t *input, tran_low_t *output,
+static void highbd_idct64_row_c(const TranLowT *input, TranLowT *output,
                                 int bd) {
   int32_t in[64], out[64];
   int i;
@@ -209,14 +204,14 @@ static void highbd_idct64_row_c(const tran_low_t *input, tran_low_t *output,
   for (i = 0; i < 64; ++i) in[i] = (int32_t)input[i];
   av1_idct64_new(in, out, inv_cos_bit_row_dct_dct_64,
                  inv_stage_range_row_dct_dct_64);
-  for (i = 0; i < 64; ++i) output[i] = (tran_low_t)out[i];
+  for (i = 0; i < 64; ++i) output[i] = (TranLowT)out[i];
 }
 #endif  // CONFIG_TX64X64
 #endif  // CONFIG_HIGHBITDEPTH
 
 // Inverse identity transform and add.
 #if CONFIG_EXT_TX
-static void inv_idtx_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+static void inv_idtx_add_c(const TranLowT *input, uint8_t *dest, int stride,
                            int bs, int tx_type) {
   int r, c;
   const int shift = bs < 32 ? 3 : (bs < 64 ? 2 : 1);
@@ -238,7 +233,7 @@ static void inv_idtx_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   } while (0)
 
 #if CONFIG_EXT_TX
-static void maybe_flip_strides(uint8_t **dst, int *dstride, tran_low_t **src,
+static void maybe_flip_strides(uint8_t **dst, int *dstride, TranLowT **src,
                                int *sstride, int tx_type, int sizey,
                                int sizex) {
   // Note that the transpose of src will be added to dst. In order to LR
@@ -279,7 +274,7 @@ static void maybe_flip_strides(uint8_t **dst, int *dstride, tran_low_t **src,
 
 #if CONFIG_HIGHBITDEPTH
 #if CONFIG_EXT_TX
-static void highbd_inv_idtx_add_c(const tran_low_t *input, uint8_t *dest8,
+static void highbd_inv_idtx_add_c(const TranLowT *input, uint8_t *dest8,
                                   int stride, int bs, int tx_type, int bd) {
   int r, c;
   const int shift = bs < 32 ? 3 : 2;
@@ -295,7 +290,7 @@ static void highbd_inv_idtx_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-static void maybe_flip_strides16(uint16_t **dst, int *dstride, tran_low_t **src,
+static void maybe_flip_strides16(uint16_t **dst, int *dstride, TranLowT **src,
                                  int *sstride, int tx_type, int sizey,
                                  int sizex) {
   // Note that the transpose of src will be added to dst. In order to LR
@@ -335,9 +330,9 @@ static void maybe_flip_strides16(uint16_t **dst, int *dstride, tran_low_t **src,
 #endif  // CONFIG_EXT_TX
 #endif  // CONFIG_HIGHBITDEPTH
 
-void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht4x4_16_add_c(const TranLowT *input, uint8_t *dest, int stride,
                          int tx_type) {
-  static const transform_2d IHT_4[] = {
+  static const Transform2d IHT_4[] = {
     { aom_idct4_c, aom_idct4_c },    // DCT_DCT  = 0
     { aom_iadst4_c, aom_idct4_c },   // ADST_DCT = 1
     { aom_idct4_c, aom_iadst4_c },   // DCT_ADST = 2
@@ -359,9 +354,9 @@ void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   };
 
   int i, j;
-  tran_low_t tmp;
-  tran_low_t out[4][4];
-  tran_low_t *outp = &out[0][0];
+  TranLowT tmp;
+  TranLowT out[4][4];
+  TranLowT *outp = &out[0][0];
   int outstride = 4;
 
   // inverse transform row vectors
@@ -398,9 +393,9 @@ void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht4x8_32_add_c(const TranLowT *input, uint8_t *dest, int stride,
                          int tx_type) {
-  static const transform_2d IHT_4x8[] = {
+  static const Transform2d IHT_4x8[] = {
     { aom_idct8_c, aom_idct4_c },    // DCT_DCT
     { aom_iadst8_c, aom_idct4_c },   // ADST_DCT
     { aom_idct8_c, aom_iadst4_c },   // DCT_ADST
@@ -424,15 +419,15 @@ void av1_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   const int n = 4;
   const int n2 = 8;
   int i, j;
-  tran_low_t out[4][8], outtmp[4];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[4][8], outtmp[4];
+  TranLowT *outp = &out[0][0];
   int outstride = n2;
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n2; ++i) {
     IHT_4x8[tx_type].rows(input, outtmp);
     for (j = 0; j < n; ++j)
-      out[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
+      out[j][i] = (TranLowT)dct_const_round_shift(outtmp[j] * Sqrt2);
     input += n;
   }
 
@@ -455,9 +450,9 @@ void av1_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht8x4_32_add_c(const TranLowT *input, uint8_t *dest, int stride,
                          int tx_type) {
-  static const transform_2d IHT_8x4[] = {
+  static const Transform2d IHT_8x4[] = {
     { aom_idct4_c, aom_idct8_c },    // DCT_DCT
     { aom_iadst4_c, aom_idct8_c },   // ADST_DCT
     { aom_idct4_c, aom_iadst8_c },   // DCT_ADST
@@ -481,15 +476,15 @@ void av1_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   const int n2 = 8;
 
   int i, j;
-  tran_low_t out[8][4], outtmp[8];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[8][4], outtmp[8];
+  TranLowT *outp = &out[0][0];
   int outstride = n;
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n; ++i) {
     IHT_8x4[tx_type].rows(input, outtmp);
     for (j = 0; j < n2; ++j)
-      out[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
+      out[j][i] = (TranLowT)dct_const_round_shift(outtmp[j] * Sqrt2);
     input += n2;
   }
 
@@ -512,9 +507,9 @@ void av1_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht4x16_64_add_c(const TranLowT *input, uint8_t *dest, int stride,
                           int tx_type) {
-  static const transform_2d IHT_4x16[] = {
+  static const Transform2d IHT_4x16[] = {
     { aom_idct16_c, aom_idct4_c },    // DCT_DCT
     { aom_iadst16_c, aom_idct4_c },   // ADST_DCT
     { aom_idct16_c, aom_iadst4_c },   // DCT_ADST
@@ -538,8 +533,8 @@ void av1_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   const int n = 4;
   const int n4 = 16;
   int i, j;
-  tran_low_t out[4][16], outtmp[4];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[4][16], outtmp[4];
+  TranLowT *outp = &out[0][0];
   int outstride = n4;
 
   // inverse transform row vectors and transpose
@@ -566,9 +561,9 @@ void av1_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht16x4_64_add_c(const TranLowT *input, uint8_t *dest, int stride,
                           int tx_type) {
-  static const transform_2d IHT_16x4[] = {
+  static const Transform2d IHT_16x4[] = {
     { aom_idct4_c, aom_idct16_c },    // DCT_DCT
     { aom_iadst4_c, aom_idct16_c },   // ADST_DCT
     { aom_idct4_c, aom_iadst16_c },   // DCT_ADST
@@ -592,8 +587,8 @@ void av1_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   const int n4 = 16;
 
   int i, j;
-  tran_low_t out[16][4], outtmp[16];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[16][4], outtmp[16];
+  TranLowT *outp = &out[0][0];
   int outstride = n;
 
   // inverse transform row vectors and transpose
@@ -620,9 +615,9 @@ void av1_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht8x16_128_add_c(const TranLowT *input, uint8_t *dest, int stride,
                            int tx_type) {
-  static const transform_2d IHT_8x16[] = {
+  static const Transform2d IHT_8x16[] = {
     { aom_idct16_c, aom_idct8_c },    // DCT_DCT
     { aom_iadst16_c, aom_idct8_c },   // ADST_DCT
     { aom_idct16_c, aom_iadst8_c },   // DCT_ADST
@@ -646,15 +641,15 @@ void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   const int n = 8;
   const int n2 = 16;
   int i, j;
-  tran_low_t out[8][16], outtmp[8];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[8][16], outtmp[8];
+  TranLowT *outp = &out[0][0];
   int outstride = n2;
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n2; ++i) {
     IHT_8x16[tx_type].rows(input, outtmp);
     for (j = 0; j < n; ++j)
-      out[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
+      out[j][i] = (TranLowT)dct_const_round_shift(outtmp[j] * Sqrt2);
     input += n;
   }
 
@@ -677,9 +672,9 @@ void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht16x8_128_add_c(const TranLowT *input, uint8_t *dest, int stride,
                            int tx_type) {
-  static const transform_2d IHT_16x8[] = {
+  static const Transform2d IHT_16x8[] = {
     { aom_idct8_c, aom_idct16_c },    // DCT_DCT
     { aom_iadst8_c, aom_idct16_c },   // ADST_DCT
     { aom_idct8_c, aom_iadst16_c },   // DCT_ADST
@@ -703,15 +698,15 @@ void av1_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   const int n2 = 16;
 
   int i, j;
-  tran_low_t out[16][8], outtmp[16];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[16][8], outtmp[16];
+  TranLowT *outp = &out[0][0];
   int outstride = n;
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n; ++i) {
     IHT_16x8[tx_type].rows(input, outtmp);
     for (j = 0; j < n2; ++j)
-      out[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
+      out[j][i] = (TranLowT)dct_const_round_shift(outtmp[j] * Sqrt2);
     input += n2;
   }
 
@@ -734,9 +729,9 @@ void av1_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht8x32_256_add_c(const TranLowT *input, uint8_t *dest, int stride,
                            int tx_type) {
-  static const transform_2d IHT_8x32[] = {
+  static const Transform2d IHT_8x32[] = {
     { aom_idct32_c, aom_idct8_c },     // DCT_DCT
     { ihalfright32_c, aom_idct8_c },   // ADST_DCT
     { aom_idct32_c, aom_iadst8_c },    // DCT_ADST
@@ -760,8 +755,8 @@ void av1_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   const int n = 8;
   const int n4 = 32;
   int i, j;
-  tran_low_t out[8][32], outtmp[8];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[8][32], outtmp[8];
+  TranLowT *outp = &out[0][0];
   int outstride = n4;
 
   // inverse transform row vectors and transpose
@@ -788,9 +783,9 @@ void av1_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht32x8_256_add_c(const TranLowT *input, uint8_t *dest, int stride,
                            int tx_type) {
-  static const transform_2d IHT_32x8[] = {
+  static const Transform2d IHT_32x8[] = {
     { aom_idct8_c, aom_idct32_c },     // DCT_DCT
     { aom_iadst8_c, aom_idct32_c },    // ADST_DCT
     { aom_idct8_c, ihalfright32_c },   // DCT_ADST
@@ -814,8 +809,8 @@ void av1_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   const int n4 = 32;
 
   int i, j;
-  tran_low_t out[32][8], outtmp[32];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[32][8], outtmp[32];
+  TranLowT *outp = &out[0][0];
   int outstride = n;
 
   // inverse transform row vectors and transpose
@@ -842,9 +837,9 @@ void av1_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht16x32_512_add_c(const TranLowT *input, uint8_t *dest, int stride,
                             int tx_type) {
-  static const transform_2d IHT_16x32[] = {
+  static const Transform2d IHT_16x32[] = {
     { aom_idct32_c, aom_idct16_c },     // DCT_DCT
     { ihalfright32_c, aom_idct16_c },   // ADST_DCT
     { aom_idct32_c, aom_iadst16_c },    // DCT_ADST
@@ -868,15 +863,15 @@ void av1_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   const int n = 16;
   const int n2 = 32;
   int i, j;
-  tran_low_t out[16][32], outtmp[16];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[16][32], outtmp[16];
+  TranLowT *outp = &out[0][0];
   int outstride = n2;
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n2; ++i) {
     IHT_16x32[tx_type].rows(input, outtmp);
     for (j = 0; j < n; ++j)
-      out[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
+      out[j][i] = (TranLowT)dct_const_round_shift(outtmp[j] * Sqrt2);
     input += n;
   }
 
@@ -899,9 +894,9 @@ void av1_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht32x16_512_add_c(const TranLowT *input, uint8_t *dest, int stride,
                             int tx_type) {
-  static const transform_2d IHT_32x16[] = {
+  static const Transform2d IHT_32x16[] = {
     { aom_idct16_c, aom_idct32_c },     // DCT_DCT
     { aom_iadst16_c, aom_idct32_c },    // ADST_DCT
     { aom_idct16_c, ihalfright32_c },   // DCT_ADST
@@ -925,15 +920,15 @@ void av1_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   const int n2 = 32;
 
   int i, j;
-  tran_low_t out[32][16], outtmp[32];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[32][16], outtmp[32];
+  TranLowT *outp = &out[0][0];
   int outstride = n;
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n; ++i) {
     IHT_32x16[tx_type].rows(input, outtmp);
     for (j = 0; j < n2; ++j)
-      out[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
+      out[j][i] = (TranLowT)dct_const_round_shift(outtmp[j] * Sqrt2);
     input += n2;
   }
 
@@ -956,9 +951,9 @@ void av1_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht8x8_64_add_c(const TranLowT *input, uint8_t *dest, int stride,
                          int tx_type) {
-  static const transform_2d IHT_8[] = {
+  static const Transform2d IHT_8[] = {
     { aom_idct8_c, aom_idct8_c },    // DCT_DCT  = 0
     { aom_iadst8_c, aom_idct8_c },   // ADST_DCT = 1
     { aom_idct8_c, aom_iadst8_c },   // DCT_ADST = 2
@@ -980,9 +975,9 @@ void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   };
 
   int i, j;
-  tran_low_t tmp;
-  tran_low_t out[8][8];
-  tran_low_t *outp = &out[0][0];
+  TranLowT tmp;
+  TranLowT out[8][8];
+  TranLowT *outp = &out[0][0];
   int outstride = 8;
 
   // inverse transform row vectors
@@ -1019,9 +1014,9 @@ void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_iht16x16_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht16x16_256_add_c(const TranLowT *input, uint8_t *dest, int stride,
                             int tx_type) {
-  static const transform_2d IHT_16[] = {
+  static const Transform2d IHT_16[] = {
     { aom_idct16_c, aom_idct16_c },    // DCT_DCT  = 0
     { aom_iadst16_c, aom_idct16_c },   // ADST_DCT = 1
     { aom_idct16_c, aom_iadst16_c },   // DCT_ADST = 2
@@ -1043,9 +1038,9 @@ void av1_iht16x16_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   };
 
   int i, j;
-  tran_low_t tmp;
-  tran_low_t out[16][16];
-  tran_low_t *outp = &out[0][0];
+  TranLowT tmp;
+  TranLowT out[16][16];
+  TranLowT *outp = &out[0][0];
   int outstride = 16;
 
   // inverse transform row vectors
@@ -1083,9 +1078,9 @@ void av1_iht16x16_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 }
 
 #if CONFIG_EXT_TX
-void av1_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht32x32_1024_add_c(const TranLowT *input, uint8_t *dest, int stride,
                              int tx_type) {
-  static const transform_2d IHT_32[] = {
+  static const Transform2d IHT_32[] = {
     { aom_idct32_c, aom_idct32_c },      // DCT_DCT
     { ihalfright32_c, aom_idct32_c },    // ADST_DCT
     { aom_idct32_c, ihalfright32_c },    // DCT_ADST
@@ -1105,9 +1100,9 @@ void av1_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   };
 
   int i, j;
-  tran_low_t tmp;
-  tran_low_t out[32][32];
-  tran_low_t *outp = &out[0][0];
+  TranLowT tmp;
+  TranLowT out[32][32];
+  TranLowT *outp = &out[0][0];
   int outstride = 32;
 
   // inverse transform row vectors
@@ -1144,9 +1139,9 @@ void av1_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 #endif  // CONFIG_EXT_TX
 
 #if CONFIG_TX64X64
-void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iht64x64_4096_add_c(const TranLowT *input, uint8_t *dest, int stride,
                              int tx_type) {
-  static const transform_2d IHT_64[] = {
+  static const Transform2d IHT_64[] = {
     { idct64_col_c, idct64_row_c },      // DCT_DCT
     { ihalfright64_c, idct64_row_c },    // ADST_DCT
     { idct64_col_c, ihalfright64_c },    // DCT_ADST
@@ -1168,9 +1163,9 @@ void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   };
 
   int i, j;
-  tran_low_t tmp;
-  tran_low_t out[64][64];
-  tran_low_t *outp = &out[0][0];
+  TranLowT tmp;
+  TranLowT out[64][64];
+  TranLowT *outp = &out[0][0];
   int outstride = 64;
 
   // inverse transform row vectors
@@ -1210,7 +1205,7 @@ void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 #endif  // CONFIG_TX64X64
 
 // idct
-void av1_idct4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_idct4x4_add(const TranLowT *input, uint8_t *dest, int stride,
                      int eob) {
   if (eob > 1)
     aom_idct4x4_16_add(input, dest, stride);
@@ -1218,7 +1213,7 @@ void av1_idct4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
     aom_idct4x4_1_add(input, dest, stride);
 }
 
-void av1_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_iwht4x4_add(const TranLowT *input, uint8_t *dest, int stride,
                      int eob) {
   if (eob > 1)
     aom_iwht4x4_16_add(input, dest, stride);
@@ -1226,7 +1221,7 @@ void av1_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
     aom_iwht4x4_1_add(input, dest, stride);
 }
 
-static void idct8x8_add(const tran_low_t *input, uint8_t *dest, int stride,
+static void idct8x8_add(const TranLowT *input, uint8_t *dest, int stride,
                         int eob) {
   // If dc is 1, then input[0] is the reconstructed value, do not need
   // dequantization. Also, when dc is 1, dc is counted in eobs, namely eobs >=1.
@@ -1246,7 +1241,7 @@ static void idct8x8_add(const tran_low_t *input, uint8_t *dest, int stride,
     aom_idct8x8_64_add(input, dest, stride);
 }
 
-static void idct16x16_add(const tran_low_t *input, uint8_t *dest, int stride,
+static void idct16x16_add(const TranLowT *input, uint8_t *dest, int stride,
                           int eob) {
   /* The calculation can be simplified if there are not many non-zero dct
    * coefficients. Use eobs to separate different cases. */
@@ -1260,7 +1255,7 @@ static void idct16x16_add(const tran_low_t *input, uint8_t *dest, int stride,
     aom_idct16x16_256_add(input, dest, stride);
 }
 
-static void idct32x32_add(const tran_low_t *input, uint8_t *dest, int stride,
+static void idct32x32_add(const TranLowT *input, uint8_t *dest, int stride,
                           int eob) {
   if (eob == 1) aom_idct32x32_1_add(input, dest, stride);
 #if !CONFIG_ADAPT_SCAN
@@ -1273,7 +1268,7 @@ static void idct32x32_add(const tran_low_t *input, uint8_t *dest, int stride,
 }
 
 #if CONFIG_TX64X64
-static void idct64x64_add(const tran_low_t *input, uint8_t *dest, int stride,
+static void idct64x64_add(const TranLowT *input, uint8_t *dest, int stride,
                           int eob) {
   (void)eob;
   av1_iht64x64_4096_add(input, dest, stride, DCT_DCT);
@@ -1281,17 +1276,17 @@ static void idct64x64_add(const tran_low_t *input, uint8_t *dest, int stride,
 #endif  // CONFIG_TX64X64
 
 #if CONFIG_CB4X4
-static void inv_txfm_add_2x2(const tran_low_t *input, uint8_t *dest, int stride,
-                             int eob, TX_TYPE tx_type, int lossless) {
-  tran_high_t a1 = input[0] >> UNIT_QUANT_SHIFT;
-  tran_high_t b1 = input[1] >> UNIT_QUANT_SHIFT;
-  tran_high_t c1 = input[2] >> UNIT_QUANT_SHIFT;
-  tran_high_t d1 = input[3] >> UNIT_QUANT_SHIFT;
+static void inv_txfm_add_2x2(const TranLowT *input, uint8_t *dest, int stride,
+                             int eob, TxType tx_type, int lossless) {
+  TranHighT a1 = input[0] >> UNIT_QUANT_SHIFT;
+  TranHighT b1 = input[1] >> UNIT_QUANT_SHIFT;
+  TranHighT c1 = input[2] >> UNIT_QUANT_SHIFT;
+  TranHighT d1 = input[3] >> UNIT_QUANT_SHIFT;
 
-  tran_high_t a2 = a1 + c1;
-  tran_high_t b2 = b1 + d1;
-  tran_high_t c2 = a1 - c1;
-  tran_high_t d2 = b1 - d1;
+  TranHighT a2 = a1 + c1;
+  TranHighT b2 = b1 + d1;
+  TranHighT c2 = a1 - c1;
+  TranHighT d2 = b1 - d1;
 
   (void)tx_type;
   (void)lossless;
@@ -1309,8 +1304,8 @@ static void inv_txfm_add_2x2(const tran_low_t *input, uint8_t *dest, int stride,
 }
 #endif
 
-void av1_inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest, int stride,
-                          int eob, TX_TYPE tx_type, int lossless) {
+void av1_inv_txfm_add_4x4(const TranLowT *input, uint8_t *dest, int stride,
+                          int eob, TxType tx_type, int lossless) {
   if (lossless) {
     assert(tx_type == DCT_DCT);
     av1_iwht4x4_add(input, dest, stride, eob);
@@ -1343,71 +1338,71 @@ void av1_inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-void av1_inv_txfm_add_4x8(const tran_low_t *input, uint8_t *dest, int stride,
-                          int eob, TX_TYPE tx_type) {
+void av1_inv_txfm_add_4x8(const TranLowT *input, uint8_t *dest, int stride,
+                          int eob, TxType tx_type) {
   (void)eob;
   av1_iht4x8_32_add(input, dest, stride, tx_type);
 }
 
-void av1_inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest, int stride,
-                          int eob, TX_TYPE tx_type) {
+void av1_inv_txfm_add_8x4(const TranLowT *input, uint8_t *dest, int stride,
+                          int eob, TxType tx_type) {
   (void)eob;
   av1_iht8x4_32_add(input, dest, stride, tx_type);
 }
 
 // These will be used by the masked-tx experiment in the future.
 #if CONFIG_MASKED_TX && 0
-static void inv_txfm_add_4x16(const tran_low_t *input, uint8_t *dest,
-                              int stride, int eob, TX_TYPE tx_type) {
+static void inv_txfm_add_4x16(const TranLowT *input, uint8_t *dest, int stride,
+                              int eob, TxType tx_type) {
   (void)eob;
   av1_iht4x16_64_add(input, dest, stride, tx_type);
 }
 
-static void inv_txfm_add_16x4(const tran_low_t *input, uint8_t *dest,
-                              int stride, int eob, TX_TYPE tx_type) {
+static void inv_txfm_add_16x4(const TranLowT *input, uint8_t *dest, int stride,
+                              int eob, TxType tx_type) {
   (void)eob;
   av1_iht16x4_64_add(input, dest, stride, tx_type);
 }
 
-static void inv_txfm_add_8x32(const tran_low_t *input, uint8_t *dest,
-                              int stride, int eob, TX_TYPE tx_type) {
+static void inv_txfm_add_8x32(const TranLowT *input, uint8_t *dest, int stride,
+                              int eob, TxType tx_type) {
   (void)eob;
   av1_iht8x32_256_add(input, dest, stride, tx_type);
 }
 
-static void inv_txfm_add_32x8(const tran_low_t *input, uint8_t *dest,
-                              int stride, int eob, TX_TYPE tx_type) {
+static void inv_txfm_add_32x8(const TranLowT *input, uint8_t *dest, int stride,
+                              int eob, TxType tx_type) {
   (void)eob;
   av1_iht32x8_256_add(input, dest, stride, tx_type);
 }
 #endif  // CONFIG_MASKED_TX
 
-static void inv_txfm_add_8x16(const tran_low_t *input, uint8_t *dest,
-                              int stride, int eob, TX_TYPE tx_type) {
+static void inv_txfm_add_8x16(const TranLowT *input, uint8_t *dest, int stride,
+                              int eob, TxType tx_type) {
   (void)eob;
   av1_iht8x16_128_add(input, dest, stride, tx_type);
 }
 
-static void inv_txfm_add_16x8(const tran_low_t *input, uint8_t *dest,
-                              int stride, int eob, TX_TYPE tx_type) {
+static void inv_txfm_add_16x8(const TranLowT *input, uint8_t *dest, int stride,
+                              int eob, TxType tx_type) {
   (void)eob;
   av1_iht16x8_128_add(input, dest, stride, tx_type);
 }
 
-static void inv_txfm_add_16x32(const tran_low_t *input, uint8_t *dest,
-                               int stride, int eob, TX_TYPE tx_type) {
+static void inv_txfm_add_16x32(const TranLowT *input, uint8_t *dest, int stride,
+                               int eob, TxType tx_type) {
   (void)eob;
   av1_iht16x32_512_add(input, dest, stride, tx_type);
 }
 
-static void inv_txfm_add_32x16(const tran_low_t *input, uint8_t *dest,
-                               int stride, int eob, TX_TYPE tx_type) {
+static void inv_txfm_add_32x16(const TranLowT *input, uint8_t *dest, int stride,
+                               int eob, TxType tx_type) {
   (void)eob;
   av1_iht32x16_512_add(input, dest, stride, tx_type);
 }
 
-static void inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest, int stride,
-                             int eob, TX_TYPE tx_type) {
+static void inv_txfm_add_8x8(const TranLowT *input, uint8_t *dest, int stride,
+                             int eob, TxType tx_type) {
   switch (tx_type) {
     case DCT_DCT: idct8x8_add(input, dest, stride, eob); break;
     case ADST_DCT:
@@ -1434,8 +1429,8 @@ static void inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-static void inv_txfm_add_16x16(const tran_low_t *input, uint8_t *dest,
-                               int stride, int eob, TX_TYPE tx_type) {
+static void inv_txfm_add_16x16(const TranLowT *input, uint8_t *dest, int stride,
+                               int eob, TxType tx_type) {
   switch (tx_type) {
     case DCT_DCT: idct16x16_add(input, dest, stride, eob); break;
     case ADST_DCT:
@@ -1459,8 +1454,8 @@ static void inv_txfm_add_16x16(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-static void inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest,
-                               int stride, int eob, TX_TYPE tx_type) {
+static void inv_txfm_add_32x32(const TranLowT *input, uint8_t *dest, int stride,
+                               int eob, TxType tx_type) {
   switch (tx_type) {
     case DCT_DCT: idct32x32_add(input, dest, stride, eob); break;
 #if CONFIG_EXT_TX
@@ -1487,8 +1482,8 @@ static void inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest,
 }
 
 #if CONFIG_TX64X64
-static void inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
-                               int stride, int eob, TX_TYPE tx_type) {
+static void inv_txfm_add_64x64(const TranLowT *input, uint8_t *dest, int stride,
+                               int eob, TxType tx_type) {
   switch (tx_type) {
     case DCT_DCT: idct64x64_add(input, dest, stride, eob); break;
 #if CONFIG_EXT_TX
@@ -1516,9 +1511,9 @@ static void inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
 #endif  // CONFIG_TX64X64
 
 #if CONFIG_HIGHBITDEPTH
-void av1_highbd_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht4x4_16_add_c(const TranLowT *input, uint8_t *dest8,
                                 int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_4[] = {
+  static const HighbdTransform2d HIGH_IHT_4[] = {
     { aom_highbd_idct4_c, aom_highbd_idct4_c },    // DCT_DCT
     { aom_highbd_iadst4_c, aom_highbd_idct4_c },   // ADST_DCT
     { aom_highbd_idct4_c, aom_highbd_iadst4_c },   // DCT_ADST
@@ -1542,9 +1537,9 @@ void av1_highbd_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t tmp;
-  tran_low_t out[4][4];
-  tran_low_t *outp = &out[0][0];
+  TranLowT tmp;
+  TranLowT out[4][4];
+  TranLowT *outp = &out[0][0];
   int outstride = 4;
 
   // inverse transform row vectors
@@ -1582,9 +1577,9 @@ void av1_highbd_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void av1_highbd_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht4x8_32_add_c(const TranLowT *input, uint8_t *dest8,
                                 int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_4x8[] = {
+  static const HighbdTransform2d HIGH_IHT_4x8[] = {
     { aom_highbd_idct8_c, aom_highbd_idct4_c },    // DCT_DCT
     { aom_highbd_iadst8_c, aom_highbd_idct4_c },   // ADST_DCT
     { aom_highbd_idct8_c, aom_highbd_iadst4_c },   // DCT_ADST
@@ -1610,8 +1605,8 @@ void av1_highbd_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t out[4][8], outtmp[4];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[4][8], outtmp[4];
+  TranLowT *outp = &out[0][0];
   int outstride = n2;
 
   // inverse transform row vectors, and transpose
@@ -1643,9 +1638,9 @@ void av1_highbd_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void av1_highbd_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht8x4_32_add_c(const TranLowT *input, uint8_t *dest8,
                                 int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_8x4[] = {
+  static const HighbdTransform2d HIGH_IHT_8x4[] = {
     { aom_highbd_idct4_c, aom_highbd_idct8_c },    // DCT_DCT
     { aom_highbd_iadst4_c, aom_highbd_idct8_c },   // ADST_DCT
     { aom_highbd_idct4_c, aom_highbd_iadst8_c },   // DCT_ADST
@@ -1671,8 +1666,8 @@ void av1_highbd_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t out[8][4], outtmp[8];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[8][4], outtmp[8];
+  TranLowT *outp = &out[0][0];
   int outstride = n;
 
   // inverse transform row vectors, and transpose
@@ -1704,9 +1699,9 @@ void av1_highbd_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void av1_highbd_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht4x16_64_add_c(const TranLowT *input, uint8_t *dest8,
                                  int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_4x16[] = {
+  static const HighbdTransform2d HIGH_IHT_4x16[] = {
     { aom_highbd_idct16_c, aom_highbd_idct4_c },    // DCT_DCT
     { aom_highbd_iadst16_c, aom_highbd_idct4_c },   // ADST_DCT
     { aom_highbd_idct16_c, aom_highbd_iadst4_c },   // DCT_ADST
@@ -1732,8 +1727,8 @@ void av1_highbd_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t out[4][16], outtmp[4];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[4][16], outtmp[4];
+  TranLowT *outp = &out[0][0];
   int outstride = n4;
 
   // inverse transform row vectors, and transpose
@@ -1761,9 +1756,9 @@ void av1_highbd_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void av1_highbd_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht16x4_64_add_c(const TranLowT *input, uint8_t *dest8,
                                  int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_16x4[] = {
+  static const HighbdTransform2d HIGH_IHT_16x4[] = {
     { aom_highbd_idct4_c, aom_highbd_idct16_c },    // DCT_DCT
     { aom_highbd_iadst4_c, aom_highbd_idct16_c },   // ADST_DCT
     { aom_highbd_idct4_c, aom_highbd_iadst16_c },   // DCT_ADST
@@ -1789,8 +1784,8 @@ void av1_highbd_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t out[16][4], outtmp[16];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[16][4], outtmp[16];
+  TranLowT *outp = &out[0][0];
   int outstride = n;
 
   // inverse transform row vectors, and transpose
@@ -1820,9 +1815,9 @@ void av1_highbd_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void av1_highbd_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht8x16_128_add_c(const TranLowT *input, uint8_t *dest8,
                                   int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_8x16[] = {
+  static const HighbdTransform2d HIGH_IHT_8x16[] = {
     { aom_highbd_idct16_c, aom_highbd_idct8_c },    // DCT_DCT
     { aom_highbd_iadst16_c, aom_highbd_idct8_c },   // ADST_DCT
     { aom_highbd_idct16_c, aom_highbd_iadst8_c },   // DCT_ADST
@@ -1848,8 +1843,8 @@ void av1_highbd_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t out[8][16], outtmp[8];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[8][16], outtmp[8];
+  TranLowT *outp = &out[0][0];
   int outstride = n2;
 
   // inverse transform row vectors, and transpose
@@ -1880,9 +1875,9 @@ void av1_highbd_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void av1_highbd_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht16x8_128_add_c(const TranLowT *input, uint8_t *dest8,
                                   int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_16x8[] = {
+  static const HighbdTransform2d HIGH_IHT_16x8[] = {
     { aom_highbd_idct8_c, aom_highbd_idct16_c },    // DCT_DCT
     { aom_highbd_iadst8_c, aom_highbd_idct16_c },   // ADST_DCT
     { aom_highbd_idct8_c, aom_highbd_iadst16_c },   // DCT_ADST
@@ -1908,8 +1903,8 @@ void av1_highbd_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t out[16][8], outtmp[16];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[16][8], outtmp[16];
+  TranLowT *outp = &out[0][0];
   int outstride = n;
 
   // inverse transform row vectors, and transpose
@@ -1940,9 +1935,9 @@ void av1_highbd_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void av1_highbd_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht8x32_256_add_c(const TranLowT *input, uint8_t *dest8,
                                   int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_8x32[] = {
+  static const HighbdTransform2d HIGH_IHT_8x32[] = {
     { aom_highbd_idct32_c, aom_highbd_idct8_c },     // DCT_DCT
     { highbd_ihalfright32_c, aom_highbd_idct8_c },   // ADST_DCT
     { aom_highbd_idct32_c, aom_highbd_iadst8_c },    // DCT_ADST
@@ -1968,8 +1963,8 @@ void av1_highbd_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t out[8][32], outtmp[8];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[8][32], outtmp[8];
+  TranLowT *outp = &out[0][0];
   int outstride = n4;
 
   // inverse transform row vectors, and transpose
@@ -1997,9 +1992,9 @@ void av1_highbd_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void av1_highbd_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht32x8_256_add_c(const TranLowT *input, uint8_t *dest8,
                                   int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_32x8[] = {
+  static const HighbdTransform2d HIGH_IHT_32x8[] = {
     { aom_highbd_idct8_c, aom_highbd_idct32_c },     // DCT_DCT
     { aom_highbd_iadst8_c, aom_highbd_idct32_c },    // ADST_DCT
     { aom_highbd_idct8_c, highbd_ihalfright32_c },   // DCT_ADST
@@ -2025,8 +2020,8 @@ void av1_highbd_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t out[32][8], outtmp[32];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[32][8], outtmp[32];
+  TranLowT *outp = &out[0][0];
   int outstride = n;
 
   // inverse transform row vectors, and transpose
@@ -2054,9 +2049,9 @@ void av1_highbd_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void av1_highbd_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht16x32_512_add_c(const TranLowT *input, uint8_t *dest8,
                                    int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_16x32[] = {
+  static const HighbdTransform2d HIGH_IHT_16x32[] = {
     { aom_highbd_idct32_c, aom_highbd_idct16_c },     // DCT_DCT
     { highbd_ihalfright32_c, aom_highbd_idct16_c },   // ADST_DCT
     { aom_highbd_idct32_c, aom_highbd_iadst16_c },    // DCT_ADST
@@ -2082,8 +2077,8 @@ void av1_highbd_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t out[16][32], outtmp[16];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[16][32], outtmp[16];
+  TranLowT *outp = &out[0][0];
   int outstride = n2;
 
   // inverse transform row vectors, and transpose
@@ -2114,9 +2109,9 @@ void av1_highbd_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void av1_highbd_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht32x16_512_add_c(const TranLowT *input, uint8_t *dest8,
                                    int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_32x16[] = {
+  static const HighbdTransform2d HIGH_IHT_32x16[] = {
     { aom_highbd_idct16_c, aom_highbd_idct32_c },     // DCT_DCT
     { aom_highbd_iadst16_c, aom_highbd_idct32_c },    // ADST_DCT
     { aom_highbd_idct16_c, highbd_ihalfright32_c },   // DCT_ADST
@@ -2142,8 +2137,8 @@ void av1_highbd_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t out[32][16], outtmp[32];
-  tran_low_t *outp = &out[0][0];
+  TranLowT out[32][16], outtmp[32];
+  TranLowT *outp = &out[0][0];
   int outstride = n;
 
   // inverse transform row vectors, and transpose
@@ -2174,9 +2169,9 @@ void av1_highbd_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void av1_highbd_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht8x8_64_add_c(const TranLowT *input, uint8_t *dest8,
                                 int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_8[] = {
+  static const HighbdTransform2d HIGH_IHT_8[] = {
     { aom_highbd_idct8_c, aom_highbd_idct8_c },    // DCT_DCT
     { aom_highbd_iadst8_c, aom_highbd_idct8_c },   // ADST_DCT
     { aom_highbd_idct8_c, aom_highbd_iadst8_c },   // DCT_ADST
@@ -2200,9 +2195,9 @@ void av1_highbd_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t tmp;
-  tran_low_t out[8][8];
-  tran_low_t *outp = &out[0][0];
+  TranLowT tmp;
+  TranLowT out[8][8];
+  TranLowT *outp = &out[0][0];
   int outstride = 8;
 
   // inverse transform row vectors
@@ -2240,9 +2235,9 @@ void av1_highbd_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void av1_highbd_iht16x16_256_add_c(const tran_low_t *input, uint8_t *dest8,
+void av1_highbd_iht16x16_256_add_c(const TranLowT *input, uint8_t *dest8,
                                    int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_16[] = {
+  static const HighbdTransform2d HIGH_IHT_16[] = {
     { aom_highbd_idct16_c, aom_highbd_idct16_c },    // DCT_DCT
     { aom_highbd_iadst16_c, aom_highbd_idct16_c },   // ADST_DCT
     { aom_highbd_idct16_c, aom_highbd_iadst16_c },   // DCT_ADST
@@ -2266,9 +2261,9 @@ void av1_highbd_iht16x16_256_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t tmp;
-  tran_low_t out[16][16];
-  tran_low_t *outp = &out[0][0];
+  TranLowT tmp;
+  TranLowT out[16][16];
+  TranLowT *outp = &out[0][0];
   int outstride = 16;
 
   // inverse transform row vectors
@@ -2307,9 +2302,9 @@ void av1_highbd_iht16x16_256_add_c(const tran_low_t *input, uint8_t *dest8,
 }
 
 #if CONFIG_EXT_TX
-static void highbd_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest8,
+static void highbd_iht32x32_1024_add_c(const TranLowT *input, uint8_t *dest8,
                                        int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_32[] = {
+  static const HighbdTransform2d HIGH_IHT_32[] = {
     { aom_highbd_idct32_c, aom_highbd_idct32_c },      // DCT_DCT
     { highbd_ihalfright32_c, aom_highbd_idct32_c },    // ADST_DCT
     { aom_highbd_idct32_c, highbd_ihalfright32_c },    // DCT_ADST
@@ -2331,9 +2326,9 @@ static void highbd_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t tmp;
-  tran_low_t out[32][32];
-  tran_low_t *outp = &out[0][0];
+  TranLowT tmp;
+  TranLowT out[32][32];
+  TranLowT *outp = &out[0][0];
   int outstride = 32;
 
   // inverse transform row vectors
@@ -2371,9 +2366,9 @@ static void highbd_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest8,
 #endif  // CONFIG_EXT_TX
 
 #if CONFIG_TX64X64
-static void highbd_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest8,
+static void highbd_iht64x64_4096_add_c(const TranLowT *input, uint8_t *dest8,
                                        int stride, int tx_type, int bd) {
-  static const highbd_transform_2d HIGH_IHT_64[] = {
+  static const HighbdTransform2d HIGH_IHT_64[] = {
     { highbd_idct64_col_c, highbd_idct64_row_c },      // DCT_DCT
     { highbd_ihalfright64_c, highbd_idct64_row_c },    // ADST_DCT
     { highbd_idct64_col_c, highbd_ihalfright64_c },    // DCT_ADST
@@ -2397,9 +2392,9 @@ static void highbd_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest8,
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   int i, j;
-  tran_low_t tmp;
-  tran_low_t out[64][64];
-  tran_low_t *outp = &out[0][0];
+  TranLowT tmp;
+  TranLowT out[64][64];
+  TranLowT *outp = &out[0][0];
   int outstride = 64;
 
   // inverse transform row vectors
@@ -2440,7 +2435,7 @@ static void highbd_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest8,
 #endif  // CONFIG_TX64X64
 
 // idct
-void av1_highbd_idct4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_highbd_idct4x4_add(const TranLowT *input, uint8_t *dest, int stride,
                             int eob, int bd) {
   if (eob > 1)
     aom_highbd_idct4x4_16_add(input, dest, stride, bd);
@@ -2448,7 +2443,7 @@ void av1_highbd_idct4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
     aom_highbd_idct4x4_1_add(input, dest, stride, bd);
 }
 
-void av1_highbd_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
+void av1_highbd_iwht4x4_add(const TranLowT *input, uint8_t *dest, int stride,
                             int eob, int bd) {
   if (eob > 1)
     aom_highbd_iwht4x4_16_add(input, dest, stride, bd);
@@ -2457,18 +2452,18 @@ void av1_highbd_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
 }
 
 #if CONFIG_CB4X4
-static void highbd_inv_txfm_add_2x2(const tran_low_t *input, uint8_t *dest,
-                                    int stride, int eob, int bd,
-                                    TX_TYPE tx_type, int lossless) {
-  tran_high_t a1 = input[0] >> UNIT_QUANT_SHIFT;
-  tran_high_t b1 = input[1] >> UNIT_QUANT_SHIFT;
-  tran_high_t c1 = input[2] >> UNIT_QUANT_SHIFT;
-  tran_high_t d1 = input[3] >> UNIT_QUANT_SHIFT;
+static void highbd_inv_txfm_add_2x2(const TranLowT *input, uint8_t *dest,
+                                    int stride, int eob, int bd, TxType tx_type,
+                                    int lossless) {
+  TranHighT a1 = input[0] >> UNIT_QUANT_SHIFT;
+  TranHighT b1 = input[1] >> UNIT_QUANT_SHIFT;
+  TranHighT c1 = input[2] >> UNIT_QUANT_SHIFT;
+  TranHighT d1 = input[3] >> UNIT_QUANT_SHIFT;
 
-  tran_high_t a2 = a1 + c1;
-  tran_high_t b2 = b1 + d1;
-  tran_high_t c2 = a1 - c1;
-  tran_high_t d2 = b1 - d1;
+  TranHighT a2 = a1 + c1;
+  TranHighT b2 = b1 + d1;
+  TranHighT c2 = a1 - c1;
+  TranHighT d2 = b1 - d1;
 
   uint16_t *dst = CONVERT_TO_SHORTPTR(dest);
 
@@ -2488,8 +2483,8 @@ static void highbd_inv_txfm_add_2x2(const tran_low_t *input, uint8_t *dest,
 }
 #endif
 
-void av1_highbd_inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest,
-                                 int stride, int eob, int bd, TX_TYPE tx_type,
+void av1_highbd_inv_txfm_add_4x4(const TranLowT *input, uint8_t *dest,
+                                 int stride, int eob, int bd, TxType tx_type,
                                  int lossless) {
   if (lossless) {
     assert(tx_type == DCT_DCT);
@@ -2530,77 +2525,73 @@ void av1_highbd_inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-void av1_highbd_inv_txfm_add_4x8(const tran_low_t *input, uint8_t *dest,
-                                 int stride, int eob, int bd, TX_TYPE tx_type) {
+void av1_highbd_inv_txfm_add_4x8(const TranLowT *input, uint8_t *dest,
+                                 int stride, int eob, int bd, TxType tx_type) {
   (void)eob;
   av1_highbd_iht4x8_32_add_c(input, dest, stride, tx_type, bd);
 }
 
-void av1_highbd_inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest,
-                                 int stride, int eob, int bd, TX_TYPE tx_type) {
+void av1_highbd_inv_txfm_add_8x4(const TranLowT *input, uint8_t *dest,
+                                 int stride, int eob, int bd, TxType tx_type) {
   (void)eob;
   av1_highbd_iht8x4_32_add_c(input, dest, stride, tx_type, bd);
 }
 
-void av1_highbd_inv_txfm_add_4x16(const tran_low_t *input, uint8_t *dest,
-                                  int stride, int eob, int bd,
-                                  TX_TYPE tx_type) {
+void av1_highbd_inv_txfm_add_4x16(const TranLowT *input, uint8_t *dest,
+                                  int stride, int eob, int bd, TxType tx_type) {
   (void)eob;
   av1_highbd_iht4x16_64_add_c(input, dest, stride, tx_type, bd);
 }
 
-void av1_highbd_inv_txfm_add_16x4(const tran_low_t *input, uint8_t *dest,
-                                  int stride, int eob, int bd,
-                                  TX_TYPE tx_type) {
+void av1_highbd_inv_txfm_add_16x4(const TranLowT *input, uint8_t *dest,
+                                  int stride, int eob, int bd, TxType tx_type) {
   (void)eob;
   av1_highbd_iht16x4_64_add_c(input, dest, stride, tx_type, bd);
 }
 
-static void highbd_inv_txfm_add_8x16(const tran_low_t *input, uint8_t *dest,
+static void highbd_inv_txfm_add_8x16(const TranLowT *input, uint8_t *dest,
                                      int stride, int eob, int bd,
-                                     TX_TYPE tx_type) {
+                                     TxType tx_type) {
   (void)eob;
   av1_highbd_iht8x16_128_add_c(input, dest, stride, tx_type, bd);
 }
 
-static void highbd_inv_txfm_add_16x8(const tran_low_t *input, uint8_t *dest,
+static void highbd_inv_txfm_add_16x8(const TranLowT *input, uint8_t *dest,
                                      int stride, int eob, int bd,
-                                     TX_TYPE tx_type) {
+                                     TxType tx_type) {
   (void)eob;
   av1_highbd_iht16x8_128_add_c(input, dest, stride, tx_type, bd);
 }
 
-void av1_highbd_inv_txfm_add_8x32(const tran_low_t *input, uint8_t *dest,
-                                  int stride, int eob, int bd,
-                                  TX_TYPE tx_type) {
+void av1_highbd_inv_txfm_add_8x32(const TranLowT *input, uint8_t *dest,
+                                  int stride, int eob, int bd, TxType tx_type) {
   (void)eob;
   av1_highbd_iht8x32_256_add_c(input, dest, stride, tx_type, bd);
 }
 
-void av1_highbd_inv_txfm_add_32x8(const tran_low_t *input, uint8_t *dest,
-                                  int stride, int eob, int bd,
-                                  TX_TYPE tx_type) {
+void av1_highbd_inv_txfm_add_32x8(const TranLowT *input, uint8_t *dest,
+                                  int stride, int eob, int bd, TxType tx_type) {
   (void)eob;
   av1_highbd_iht32x8_256_add_c(input, dest, stride, tx_type, bd);
 }
 
-static void highbd_inv_txfm_add_16x32(const tran_low_t *input, uint8_t *dest,
+static void highbd_inv_txfm_add_16x32(const TranLowT *input, uint8_t *dest,
                                       int stride, int eob, int bd,
-                                      TX_TYPE tx_type) {
+                                      TxType tx_type) {
   (void)eob;
   av1_highbd_iht16x32_512_add_c(input, dest, stride, tx_type, bd);
 }
 
-static void highbd_inv_txfm_add_32x16(const tran_low_t *input, uint8_t *dest,
+static void highbd_inv_txfm_add_32x16(const TranLowT *input, uint8_t *dest,
                                       int stride, int eob, int bd,
-                                      TX_TYPE tx_type) {
+                                      TxType tx_type) {
   (void)eob;
   av1_highbd_iht32x16_512_add_c(input, dest, stride, tx_type, bd);
 }
 
-static void highbd_inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest,
+static void highbd_inv_txfm_add_8x8(const TranLowT *input, uint8_t *dest,
                                     int stride, int eob, int bd,
-                                    TX_TYPE tx_type) {
+                                    TxType tx_type) {
   (void)eob;
   switch (tx_type) {
     case DCT_DCT:
@@ -2635,9 +2626,9 @@ static void highbd_inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-static void highbd_inv_txfm_add_16x16(const tran_low_t *input, uint8_t *dest,
+static void highbd_inv_txfm_add_16x16(const TranLowT *input, uint8_t *dest,
                                       int stride, int eob, int bd,
-                                      TX_TYPE tx_type) {
+                                      TxType tx_type) {
   (void)eob;
   switch (tx_type) {
     case DCT_DCT:
@@ -2672,9 +2663,9 @@ static void highbd_inv_txfm_add_16x16(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-static void highbd_inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest,
+static void highbd_inv_txfm_add_32x32(const TranLowT *input, uint8_t *dest,
                                       int stride, int eob, int bd,
-                                      TX_TYPE tx_type) {
+                                      TxType tx_type) {
   (void)eob;
   switch (tx_type) {
     case DCT_DCT:
@@ -2707,9 +2698,9 @@ static void highbd_inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest,
 }
 
 #if CONFIG_TX64X64
-static void highbd_inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
+static void highbd_inv_txfm_add_64x64(const TranLowT *input, uint8_t *dest,
                                       int stride, int eob, int bd,
-                                      TX_TYPE tx_type) {
+                                      TxType tx_type) {
   (void)eob;
   switch (tx_type) {
     case DCT_DCT:
@@ -2743,10 +2734,10 @@ static void highbd_inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
 #endif  // CONFIG_TX64X64
 #endif  // CONFIG_HIGHBITDEPTH
 
-void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
-                      INV_TXFM_PARAM *inv_txfm_param) {
-  const TX_TYPE tx_type = inv_txfm_param->tx_type;
-  const TX_SIZE tx_size = inv_txfm_param->tx_size;
+void av1_inv_txfm_add(const TranLowT *input, uint8_t *dest, int stride,
+                      InvTxfmParam *inv_txfm_param) {
+  const TxType tx_type = inv_txfm_param->tx_type;
+  const TxSize tx_size = inv_txfm_param->tx_size;
   const int eob = inv_txfm_param->eob;
   const int lossless = inv_txfm_param->lossless;
 
@@ -2778,8 +2769,8 @@ void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
   }
 }
 
-static void init_inv_txfm_param(const MACROBLOCKD *xd, TX_SIZE tx_size,
-                                TX_TYPE tx_type, int eob, INV_TXFM_PARAM *inv) {
+static void init_inv_txfm_param(const Macroblockd *xd, TxSize tx_size,
+                                TxType tx_type, int eob, InvTxfmParam *inv) {
   inv->tx_type = tx_type;
   inv->tx_size = tx_size;
   inv->eob = eob;
@@ -2792,13 +2783,12 @@ static void init_inv_txfm_param(const MACROBLOCKD *xd, TX_SIZE tx_size,
 #endif
 }
 
-void av1_inverse_transform_block(const MACROBLOCKD *xd,
-                                 const tran_low_t *dqcoeff, TX_TYPE tx_type,
-                                 TX_SIZE tx_size, uint8_t *dst, int stride,
-                                 int eob) {
+void av1_inverse_transform_block(const Macroblockd *xd, const TranLowT *dqcoeff,
+                                 TxType tx_type, TxSize tx_size, uint8_t *dst,
+                                 int stride, int eob) {
   if (!eob) return;
 #if CONFIG_PVQ
-  const BLOCK_SIZE tx_bsize = txsize_to_bsize[tx_size];
+  const BlockSize tx_bsize = txsize_to_bsize[tx_size];
   const int txb_width = block_size_wide[tx_bsize];
   const int txb_height = block_size_high[tx_bsize];
   int r, c;
@@ -2816,7 +2806,7 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
   }
 #endif  // CONFIG_HIGHBITDEPTH
 #endif  // CONFIG_PVQ
-  INV_TXFM_PARAM inv_txfm_param;
+  InvTxfmParam inv_txfm_param;
   init_inv_txfm_param(xd, tx_size, tx_type, eob, &inv_txfm_param);
 
 #if CONFIG_HIGHBITDEPTH
@@ -2830,13 +2820,13 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
 #endif  // CONFIG_HIGHBITDEPTH
 }
 
-void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
+void av1_inverse_transform_block_facade(Macroblockd *xd, int plane, int block,
                                         int blk_row, int blk_col, int eob) {
-  struct macroblockd_plane *const pd = &xd->plane[plane];
-  tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
-  const PLANE_TYPE plane_type = get_plane_type(plane);
-  const TX_SIZE tx_size = get_tx_size(plane, xd);
-  const TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  struct MacroblockdPlane *const pd = &xd->plane[plane];
+  TranLowT *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
+  const PlaneType plane_type = get_plane_type(plane);
+  const TxSize tx_size = get_tx_size(plane, xd);
+  const TxType tx_type = get_tx_type(plane_type, xd, block, tx_size);
   const int dst_stride = pd->dst.stride;
   uint8_t *dst =
       &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
@@ -2845,10 +2835,10 @@ void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
 }
 
 #if CONFIG_HIGHBITDEPTH
-void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
-                             INV_TXFM_PARAM *inv_txfm_param) {
-  const TX_TYPE tx_type = inv_txfm_param->tx_type;
-  const TX_SIZE tx_size = inv_txfm_param->tx_size;
+void av1_highbd_inv_txfm_add(const TranLowT *input, uint8_t *dest, int stride,
+                             InvTxfmParam *inv_txfm_param) {
+  const TxType tx_type = inv_txfm_param->tx_type;
+  const TxSize tx_size = inv_txfm_param->tx_size;
   const int eob = inv_txfm_param->eob;
   const int bd = inv_txfm_param->bd;
   const int lossless = inv_txfm_param->lossless;

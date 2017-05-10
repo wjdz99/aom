@@ -42,7 +42,7 @@ class RealtimeTest
     // which overrides the one specified in SetUp() above.
     cfg_.g_pass = AOM_RC_FIRST_PASS;
   }
-  virtual void FramePktHook(const aom_codec_cx_pkt_t * /*pkt*/) {
+  virtual void FramePktHook(const AomCodecCxPktT * /*pkt*/) {
     frame_packets_++;
   }
 

@@ -40,7 +40,7 @@
 //    10101010
 //    10101010
 //
-// A loopfilter should be applied to every other 8x8 horizontally.
+// A Loopfilter should be applied to every other 8x8 horizontally.
 static const uint64_t left_64x64_txform_mask[TX_SIZES] = {
 #if CONFIG_CB4X4
   0xffffffffffffffffULL,  // TX_2X2
@@ -70,7 +70,7 @@ static const uint64_t left_64x64_txform_mask[TX_SIZES] = {
 //    00000000
 //    00000000
 //
-// A loopfilter should be applied to every other 4 the row vertically.
+// A Loopfilter should be applied to every other 4 the row vertically.
 static const uint64_t above_64x64_txform_mask[TX_SIZES] = {
 #if CONFIG_CB4X4
   0xffffffffffffffffULL,  // TX_4X4
@@ -274,7 +274,7 @@ static const int mode_lf_lut[] = {
 #endif                          // CONFIG_EXT_INTER
 };
 
-static void update_sharpness(loop_filter_info_n *lfi, int sharpness_lvl) {
+static void update_sharpness(LoopFilterInfoN *lfi, int sharpness_lvl) {
   int lvl;
 
   // For each possible value for the loop filter fill out limits
@@ -295,9 +295,9 @@ static void update_sharpness(loop_filter_info_n *lfi, int sharpness_lvl) {
   }
 }
 #if CONFIG_EXT_DELTA_Q
-static uint8_t get_filter_level(const AV1_COMMON *cm,
-                                const loop_filter_info_n *lfi_n,
-                                const MB_MODE_INFO *mbmi) {
+static uint8_t get_filter_level(const Av1Common *cm,
+                                const LoopFilterInfoN *lfi_n,
+                                const MbModeInfo *mbmi) {
 #if CONFIG_SUPERTX
   const int segment_id = AOMMIN(mbmi->segment_id, mbmi->segment_id_supertx);
   assert(
@@ -330,8 +330,8 @@ static uint8_t get_filter_level(const AV1_COMMON *cm,
   }
 }
 #else
-static uint8_t get_filter_level(const loop_filter_info_n *lfi_n,
-                                const MB_MODE_INFO *mbmi) {
+static uint8_t get_filter_level(const LoopFilterInfoN *lfi_n,
+                                const MbModeInfo *mbmi) {
 #if CONFIG_SUPERTX
   const int segment_id = AOMMIN(mbmi->segment_id, mbmi->segment_id_supertx);
   assert(
@@ -347,10 +347,10 @@ static uint8_t get_filter_level(const loop_filter_info_n *lfi_n,
 
 #define NELEMENTS(x) (sizeof((x)) / sizeof((x)[0]))
 
-void av1_loop_filter_init(AV1_COMMON *cm) {
+void av1_loop_filter_init(Av1Common *cm) {
   assert(MB_MODE_COUNT == NELEMENTS(mode_lf_lut));
-  loop_filter_info_n *lfi = &cm->lf_info;
-  struct loopfilter *lf = &cm->lf;
+  LoopFilterInfoN *lfi = &cm->lf_info;
+  struct Loopfilter *lf = &cm->lf;
   int lvl;
 
   // init limits for given sharpness
@@ -362,14 +362,14 @@ void av1_loop_filter_init(AV1_COMMON *cm) {
     memset(lfi->lfthr[lvl].hev_thr, (lvl >> 4), SIMD_WIDTH);
 }
 
-void av1_loop_filter_frame_init(AV1_COMMON *cm, int default_filt_lvl) {
+void av1_loop_filter_frame_init(Av1Common *cm, int default_filt_lvl) {
   int seg_id;
   // n_shift is the multiplier for lf_deltas
   // the multiplier is 1 for when filter_lvl is between 0 and 31;
   // 2 when filter_lvl is between 32 and 63
   const int scale = 1 << (default_filt_lvl >> 5);
-  loop_filter_info_n *const lfi = &cm->lf_info;
-  struct loopfilter *const lf = &cm->lf;
+  LoopFilterInfoN *const lfi = &cm->lf_info;
+  struct Loopfilter *const lf = &cm->lf;
   const struct segmentation *const seg = &cm->seg;
 
   // update limits if sharpness has changed
@@ -412,7 +412,7 @@ static void filter_selectively_vert_row2(int subsampling_factor, uint8_t *s,
                                          unsigned int mask_8x8_l,
                                          unsigned int mask_4x4_l,
                                          unsigned int mask_4x4_int_l,
-                                         const loop_filter_info_n *lfi_n,
+                                         const LoopFilterInfoN *lfi_n,
                                          const uint8_t *lfl) {
   const int mask_shift = subsampling_factor ? 4 : 8;
   const int mask_cutoff = subsampling_factor ? 0xf : 0xff;
@@ -431,8 +431,8 @@ static void filter_selectively_vert_row2(int subsampling_factor, uint8_t *s,
   for (mask = mask_16x16_0 | mask_8x8_0 | mask_4x4_0 | mask_4x4_int_0 |
               mask_16x16_1 | mask_8x8_1 | mask_4x4_1 | mask_4x4_int_1;
        mask; mask >>= 1) {
-    const loop_filter_thresh *lfi0 = lfi_n->lfthr + *lfl;
-    const loop_filter_thresh *lfi1 = lfi_n->lfthr + *(lfl + lfl_forward);
+    const LoopFilterThresh *lfi0 = lfi_n->lfthr + *lfl;
+    const LoopFilterThresh *lfi1 = lfi_n->lfthr + *(lfl + lfl_forward);
 
     if (mask & 1) {
       if ((mask_16x16_0 | mask_16x16_1) & 1) {
@@ -505,7 +505,7 @@ static void filter_selectively_vert_row2(int subsampling_factor, uint8_t *s,
 static void highbd_filter_selectively_vert_row2(
     int subsampling_factor, uint16_t *s, int pitch, unsigned int mask_16x16_l,
     unsigned int mask_8x8_l, unsigned int mask_4x4_l,
-    unsigned int mask_4x4_int_l, const loop_filter_info_n *lfi_n,
+    unsigned int mask_4x4_int_l, const LoopFilterInfoN *lfi_n,
     const uint8_t *lfl, int bd) {
   const int mask_shift = subsampling_factor ? 4 : 8;
   const int mask_cutoff = subsampling_factor ? 0xf : 0xff;
@@ -524,8 +524,8 @@ static void highbd_filter_selectively_vert_row2(
   for (mask = mask_16x16_0 | mask_8x8_0 | mask_4x4_0 | mask_4x4_int_0 |
               mask_16x16_1 | mask_8x8_1 | mask_4x4_1 | mask_4x4_int_1;
        mask; mask >>= 1) {
-    const loop_filter_thresh *lfi0 = lfi_n->lfthr + *lfl;
-    const loop_filter_thresh *lfi1 = lfi_n->lfthr + *(lfl + lfl_forward);
+    const LoopFilterThresh *lfi0 = lfi_n->lfthr + *lfl;
+    const LoopFilterThresh *lfi1 = lfi_n->lfthr + *(lfl + lfl_forward);
 
     if (mask & 1) {
       if ((mask_16x16_0 | mask_16x16_1) & 1) {
@@ -601,13 +601,13 @@ static void highbd_filter_selectively_vert_row2(
 static void filter_selectively_horiz(
     uint8_t *s, int pitch, unsigned int mask_16x16, unsigned int mask_8x8,
     unsigned int mask_4x4, unsigned int mask_4x4_int,
-    const loop_filter_info_n *lfi_n, const uint8_t *lfl) {
+    const LoopFilterInfoN *lfi_n, const uint8_t *lfl) {
   unsigned int mask;
   int count;
 
   for (mask = mask_16x16 | mask_8x8 | mask_4x4 | mask_4x4_int; mask;
        mask >>= count) {
-    const loop_filter_thresh *lfi = lfi_n->lfthr + *lfl;
+    const LoopFilterThresh *lfi = lfi_n->lfthr + *lfl;
 
     count = 1;
     if (mask & 1) {
@@ -623,7 +623,7 @@ static void filter_selectively_horiz(
       } else if (mask_8x8 & 1) {
         if ((mask_8x8 & 3) == 3) {
           // Next block's thresholds.
-          const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + 1);
+          const LoopFilterThresh *lfin = lfi_n->lfthr + *(lfl + 1);
 
           aom_lpf_horizontal_8_dual(s, pitch, lfi->mblim, lfi->lim,
                                     lfi->hev_thr, lfin->mblim, lfin->lim,
@@ -652,7 +652,7 @@ static void filter_selectively_horiz(
       } else if (mask_4x4 & 1) {
         if ((mask_4x4 & 3) == 3) {
           // Next block's thresholds.
-          const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + 1);
+          const LoopFilterThresh *lfin = lfi_n->lfthr + *(lfl + 1);
 
           aom_lpf_horizontal_4_dual(s, pitch, lfi->mblim, lfi->lim,
                                     lfi->hev_thr, lfin->mblim, lfin->lim,
@@ -695,13 +695,13 @@ static void filter_selectively_horiz(
 static void highbd_filter_selectively_horiz(
     uint16_t *s, int pitch, unsigned int mask_16x16, unsigned int mask_8x8,
     unsigned int mask_4x4, unsigned int mask_4x4_int,
-    const loop_filter_info_n *lfi_n, const uint8_t *lfl, int bd) {
+    const LoopFilterInfoN *lfi_n, const uint8_t *lfl, int bd) {
   unsigned int mask;
   int count;
 
   for (mask = mask_16x16 | mask_8x8 | mask_4x4 | mask_4x4_int; mask;
        mask >>= count) {
-    const loop_filter_thresh *lfi = lfi_n->lfthr + *lfl;
+    const LoopFilterThresh *lfi = lfi_n->lfthr + *lfl;
 
     count = 1;
     if (mask & 1) {
@@ -717,7 +717,7 @@ static void highbd_filter_selectively_horiz(
       } else if (mask_8x8 & 1) {
         if ((mask_8x8 & 3) == 3) {
           // Next block's thresholds.
-          const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + 1);
+          const LoopFilterThresh *lfin = lfi_n->lfthr + *(lfl + 1);
 
           aom_highbd_lpf_horizontal_8_dual(s, pitch, lfi->mblim, lfi->lim,
                                            lfi->hev_thr, lfin->mblim, lfin->lim,
@@ -749,7 +749,7 @@ static void highbd_filter_selectively_horiz(
       } else if (mask_4x4 & 1) {
         if ((mask_4x4 & 3) == 3) {
           // Next block's thresholds.
-          const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + 1);
+          const LoopFilterThresh *lfin = lfi_n->lfthr + *(lfl + 1);
 
           aom_highbd_lpf_horizontal_4_dual(s, pitch, lfi->mblim, lfi->lim,
                                            lfi->hev_thr, lfin->mblim, lfin->lim,
@@ -799,22 +799,21 @@ static void highbd_filter_selectively_horiz(
 // block we are currently looking at. Shift is used to position the
 // 1's we produce.
 // TODO(JBB) Need another function for different resolution color..
-static void build_masks(AV1_COMMON *const cm,
-                        const loop_filter_info_n *const lfi_n,
-                        const MODE_INFO *mi, const int shift_y,
-                        const int shift_uv, LOOP_FILTER_MASK *lfm) {
-  const MB_MODE_INFO *mbmi = &mi->mbmi;
-  const BLOCK_SIZE block_size = mbmi->sb_type;
+static void build_masks(Av1Common *const cm, const LoopFilterInfoN *const lfi_n,
+                        const ModeInfo *mi, const int shift_y,
+                        const int shift_uv, LoopFilterMask *lfm) {
+  const MbModeInfo *mbmi = &mi->mbmi;
+  const BlockSize block_size = mbmi->sb_type;
   // TODO(debargha): Check if masks can be setup correctly when
   // rectangular transfroms are used with the EXT_TX expt.
-  const TX_SIZE tx_size_y = txsize_sqr_map[mbmi->tx_size];
-  const TX_SIZE tx_size_y_left = txsize_horz_map[mbmi->tx_size];
-  const TX_SIZE tx_size_y_above = txsize_vert_map[mbmi->tx_size];
-  const TX_SIZE tx_size_uv =
+  const TxSize tx_size_y = txsize_sqr_map[mbmi->tx_size];
+  const TxSize tx_size_y_left = txsize_horz_map[mbmi->tx_size];
+  const TxSize tx_size_y_above = txsize_vert_map[mbmi->tx_size];
+  const TxSize tx_size_uv =
       txsize_sqr_map[uv_txsize_lookup[block_size][mbmi->tx_size][1][1]];
-  const TX_SIZE tx_size_uv_left =
+  const TxSize tx_size_uv_left =
       txsize_horz_map[uv_txsize_lookup[block_size][mbmi->tx_size][1][1]];
-  const TX_SIZE tx_size_uv_above =
+  const TxSize tx_size_uv_above =
       txsize_vert_map[uv_txsize_lookup[block_size][mbmi->tx_size][1][1]];
 #if CONFIG_EXT_DELTA_Q
   const int filter_level = get_filter_level(cm, lfi_n, mbmi);
@@ -893,22 +892,22 @@ static void build_masks(AV1_COMMON *const cm,
 // This function does the same thing as the one above with the exception that
 // it only affects the y masks. It exists because for blocks < 16x16 in size,
 // we only update u and v masks on the first block.
-static void build_y_mask(AV1_COMMON *const cm,
-                         const loop_filter_info_n *const lfi_n,
-                         const MODE_INFO *mi, const int shift_y,
+static void build_y_mask(Av1Common *const cm,
+                         const LoopFilterInfoN *const lfi_n, const ModeInfo *mi,
+                         const int shift_y,
 #if CONFIG_SUPERTX
                          int supertx_enabled,
 #endif  // CONFIG_SUPERTX
-                         LOOP_FILTER_MASK *lfm) {
-  const MB_MODE_INFO *mbmi = &mi->mbmi;
-  const TX_SIZE tx_size_y = txsize_sqr_map[mbmi->tx_size];
-  const TX_SIZE tx_size_y_left = txsize_horz_map[mbmi->tx_size];
-  const TX_SIZE tx_size_y_above = txsize_vert_map[mbmi->tx_size];
+                         LoopFilterMask *lfm) {
+  const MbModeInfo *mbmi = &mi->mbmi;
+  const TxSize tx_size_y = txsize_sqr_map[mbmi->tx_size];
+  const TxSize tx_size_y_left = txsize_horz_map[mbmi->tx_size];
+  const TxSize tx_size_y_above = txsize_vert_map[mbmi->tx_size];
 #if CONFIG_SUPERTX
-  const BLOCK_SIZE block_size =
-      supertx_enabled ? (BLOCK_SIZE)(3 * tx_size_y) : mbmi->sb_type;
+  const BlockSize block_size =
+      supertx_enabled ? (BlockSize)(3 * tx_size_y) : mbmi->sb_type;
 #else
-  const BLOCK_SIZE block_size = mbmi->sb_type;
+  const BlockSize block_size = mbmi->sb_type;
 #endif
 #if CONFIG_EXT_DELTA_Q
   const int filter_level = get_filter_level(cm, lfi_n, mbmi);
@@ -953,11 +952,11 @@ static void build_y_mask(AV1_COMMON *const cm,
 // for that edge is disabled. This function only check the tile boundary info
 // for the top left corner mi to determine the boundary information for the
 // top and left edge of the whole super block
-static void update_tile_boundary_filter_mask(AV1_COMMON *const cm,
+static void update_tile_boundary_filter_mask(Av1Common *const cm,
                                              const int mi_row, const int mi_col,
-                                             LOOP_FILTER_MASK *lfm) {
+                                             LoopFilterMask *lfm) {
   int i;
-  MODE_INFO *const mi = cm->mi + mi_row * cm->mi_stride + mi_col;
+  ModeInfo *const mi = cm->mi + mi_row * cm->mi_stride + mi_col;
 
   if (mi->mbmi.boundary_info & TILE_LEFT_BOUNDARY) {
     for (i = 0; i <= TX_32X32; i++) {
@@ -978,13 +977,13 @@ static void update_tile_boundary_filter_mask(AV1_COMMON *const cm,
 // This function sets up the bit masks for the entire 64x64 region represented
 // by mi_row, mi_col.
 // TODO(JBB): This function only works for yv12.
-void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
-                    MODE_INFO **mi, const int mode_info_stride,
-                    LOOP_FILTER_MASK *lfm) {
+void av1_setup_mask(Av1Common *const cm, const int mi_row, const int mi_col,
+                    ModeInfo **mi, const int mode_info_stride,
+                    LoopFilterMask *lfm) {
   int idx_32, idx_16, idx_8;
-  const loop_filter_info_n *const lfi_n = &cm->lf_info;
-  MODE_INFO **mip = mi;
-  MODE_INFO **mip2 = mi;
+  const LoopFilterInfoN *const lfi_n = &cm->lf_info;
+  ModeInfo **mip = mi;
+  ModeInfo **mip2 = mi;
 
   // These are offsets to the next mi in the 64x64 block. It is what gets
   // added to the mi ptr as we go through each loop. It helps us to avoid
@@ -1167,7 +1166,7 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
 #endif  // CONFIG_SUPERTX && CONFIG_TX64X64
       break;
   }
-  // The largest loopfilter we have is 16x16 so we use the 16x16 mask
+  // The largest Loopfilter we have is 16x16 so we use the 16x16 mask
   // for 32x32 transforms also.
   lfm->left_y[TX_16X16] |= lfm->left_y[TX_32X32];
   lfm->above_y[TX_16X16] |= lfm->above_y[TX_32X32];
@@ -1289,12 +1288,12 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
 static void filter_selectively_vert(
     uint8_t *s, int pitch, unsigned int mask_16x16, unsigned int mask_8x8,
     unsigned int mask_4x4, unsigned int mask_4x4_int,
-    const loop_filter_info_n *lfi_n, const uint8_t *lfl) {
+    const LoopFilterInfoN *lfi_n, const uint8_t *lfl) {
   unsigned int mask;
 
   for (mask = mask_16x16 | mask_8x8 | mask_4x4 | mask_4x4_int; mask;
        mask >>= 1) {
-    const loop_filter_thresh *lfi = lfi_n->lfthr + *lfl;
+    const LoopFilterThresh *lfi = lfi_n->lfthr + *lfl;
 
     if (mask & 1) {
       if (mask_16x16 & 1) {
@@ -1320,12 +1319,12 @@ static void filter_selectively_vert(
 static void highbd_filter_selectively_vert(
     uint16_t *s, int pitch, unsigned int mask_16x16, unsigned int mask_8x8,
     unsigned int mask_4x4, unsigned int mask_4x4_int,
-    const loop_filter_info_n *lfi_n, const uint8_t *lfl, int bd) {
+    const LoopFilterInfoN *lfi_n, const uint8_t *lfl, int bd) {
   unsigned int mask;
 
   for (mask = mask_16x16 | mask_8x8 | mask_4x4 | mask_4x4_int; mask;
        mask >>= 1) {
-    const loop_filter_thresh *lfi = lfi_n->lfthr + *lfl;
+    const LoopFilterThresh *lfi = lfi_n->lfthr + *lfl;
 
     if (mask & 1) {
       if (mask_16x16 & 1) {
@@ -1362,8 +1361,8 @@ typedef struct {
 // the non420 case).
 // Note: 'row_masks_ptr' and/or 'col_masks_ptr' can be passed NULL.
 static void get_filter_level_and_masks_non420(
-    AV1_COMMON *const cm, const struct macroblockd_plane *const plane,
-    MODE_INFO **mib, int mi_row, int mi_col, int idx_r, uint8_t *const lfl_r,
+    Av1Common *const cm, const struct MacroblockdPlane *const plane,
+    ModeInfo **mib, int mi_row, int mi_col, int idx_r, uint8_t *const lfl_r,
     unsigned int *const mask_4x4_int_r, FilterMasks *const row_masks_ptr,
     FilterMasks *const col_masks_ptr) {
   const int ss_x = plane->subsampling_x;
@@ -1379,9 +1378,9 @@ static void get_filter_level_and_masks_non420(
   int idx_c;
   for (idx_c = 0; idx_c < cm->mib_size && mi_col + idx_c < cm->mi_cols;
        idx_c += col_step) {
-    const MODE_INFO *mi = mib[idx_r * cm->mi_stride + idx_c];
-    const MB_MODE_INFO *mbmi = &mi[0].mbmi;
-    const BLOCK_SIZE sb_type = mbmi->sb_type;
+    const ModeInfo *mi = mib[idx_r * cm->mi_stride + idx_c];
+    const MbModeInfo *mbmi = &mi[0].mbmi;
+    const BlockSize sb_type = mbmi->sb_type;
     const int skip_this = mbmi->skip && is_inter_block(mbmi);
     // Map index to 8x8 unit
     const int c = idx_c >> mi_width_log2_lookup[BLOCK_8X8];
@@ -1399,20 +1398,20 @@ static void get_filter_level_and_masks_non420(
     const int skip_this_r = skip_this && !block_edge_above;
 
 #if CONFIG_VAR_TX
-    const TX_SIZE mb_tx_size = mbmi->inter_tx_size[blk_row][blk_col];
+    const TxSize mb_tx_size = mbmi->inter_tx_size[blk_row][blk_col];
 #endif
 
-    TX_SIZE tx_size = (plane->plane_type == PLANE_TYPE_UV)
-                          ? get_uv_tx_size(mbmi, plane)
-                          : mbmi->tx_size;
+    TxSize tx_size = (plane->plane_type == PLANE_TYPE_UV)
+                         ? get_uv_tx_size(mbmi, plane)
+                         : mbmi->tx_size;
 
     const int skip_border_4x4_c =
         ss_x && mi_col + idx_c >= cm->mi_cols - mi_size_wide[BLOCK_8X8];
     const int skip_border_4x4_r =
         ss_y && mi_row + idx_r >= cm->mi_rows - mi_size_high[BLOCK_8X8];
 
-    TX_SIZE tx_size_c = txsize_horz_map[tx_size];
-    TX_SIZE tx_size_r = txsize_vert_map[tx_size];
+    TxSize tx_size_c = txsize_horz_map[tx_size];
+    TxSize tx_size_r = txsize_vert_map[tx_size];
 
     int tx_size_mask = 0;
     const int c_step = (c >> ss_x);
@@ -1521,13 +1520,12 @@ static void get_filter_level_and_masks_non420(
   if (col_masks_ptr) *col_masks_ptr = col_masks;
 }
 
-void av1_filter_block_plane_non420_ver(AV1_COMMON *const cm,
-                                       struct macroblockd_plane *plane,
-                                       MODE_INFO **mib, int mi_row,
-                                       int mi_col) {
+void av1_filter_block_plane_non420_ver(Av1Common *const cm,
+                                       struct MacroblockdPlane *plane,
+                                       ModeInfo **mib, int mi_row, int mi_col) {
   const int ss_y = plane->subsampling_y;
   const int row_step = mi_size_high[BLOCK_8X8] << ss_y;
-  struct buf_2d *const dst = &plane->dst;
+  struct Buf2d *const dst = &plane->dst;
   uint8_t *const dst0 = dst->buf;
   uint8_t lfl[MAX_MIB_SIZE][MAX_MIB_SIZE] = { { 0 } };
 
@@ -1570,13 +1568,12 @@ void av1_filter_block_plane_non420_ver(AV1_COMMON *const cm,
   dst->buf = dst0;
 }
 
-void av1_filter_block_plane_non420_hor(AV1_COMMON *const cm,
-                                       struct macroblockd_plane *plane,
-                                       MODE_INFO **mib, int mi_row,
-                                       int mi_col) {
+void av1_filter_block_plane_non420_hor(Av1Common *const cm,
+                                       struct MacroblockdPlane *plane,
+                                       ModeInfo **mib, int mi_row, int mi_col) {
   const int ss_y = plane->subsampling_y;
   const int row_step = mi_size_high[BLOCK_8X8] << ss_y;
-  struct buf_2d *const dst = &plane->dst;
+  struct Buf2d *const dst = &plane->dst;
   uint8_t *const dst0 = dst->buf;
   FilterMasks row_masks_array[MAX_MIB_SIZE];
   unsigned int mask_4x4_int[MAX_MIB_SIZE] = { 0 };
@@ -1599,7 +1596,7 @@ void av1_filter_block_plane_non420_hor(AV1_COMMON *const cm,
 
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
     // Disable filtering on the abovemost row or tile boundary
-    const MODE_INFO *mi = cm->mi + (mi_row + r) * cm->mi_stride;
+    const ModeInfo *mi = cm->mi + (mi_row + r) * cm->mi_stride;
     if ((av1_disable_loopfilter_on_tile_boundary(cm) &&
          (mi->mbmi.boundary_info & TILE_ABOVE_BOUNDARY)) ||
         (mi_row + idx_r == 0)) {
@@ -1627,10 +1624,10 @@ void av1_filter_block_plane_non420_hor(AV1_COMMON *const cm,
   dst->buf = dst0;
 }
 
-void av1_filter_block_plane_ss00_ver(AV1_COMMON *const cm,
-                                     struct macroblockd_plane *const plane,
-                                     int mi_row, LOOP_FILTER_MASK *lfm) {
-  struct buf_2d *const dst = &plane->dst;
+void av1_filter_block_plane_ss00_ver(Av1Common *const cm,
+                                     struct MacroblockdPlane *const plane,
+                                     int mi_row, LoopFilterMask *lfm) {
+  struct Buf2d *const dst = &plane->dst;
   uint8_t *const dst0 = dst->buf;
   int r;
   uint64_t mask_16x16 = lfm->left_y[TX_16X16];
@@ -1671,10 +1668,10 @@ void av1_filter_block_plane_ss00_ver(AV1_COMMON *const cm,
   dst->buf = dst0;
 }
 
-void av1_filter_block_plane_ss00_hor(AV1_COMMON *const cm,
-                                     struct macroblockd_plane *const plane,
-                                     int mi_row, LOOP_FILTER_MASK *lfm) {
-  struct buf_2d *const dst = &plane->dst;
+void av1_filter_block_plane_ss00_hor(Av1Common *const cm,
+                                     struct MacroblockdPlane *const plane,
+                                     int mi_row, LoopFilterMask *lfm) {
+  struct Buf2d *const dst = &plane->dst;
   uint8_t *const dst0 = dst->buf;
   int r;
   uint64_t mask_16x16 = lfm->above_y[TX_16X16];
@@ -1721,10 +1718,10 @@ void av1_filter_block_plane_ss00_hor(AV1_COMMON *const cm,
   dst->buf = dst0;
 }
 
-void av1_filter_block_plane_ss11_ver(AV1_COMMON *const cm,
-                                     struct macroblockd_plane *const plane,
-                                     int mi_row, LOOP_FILTER_MASK *lfm) {
-  struct buf_2d *const dst = &plane->dst;
+void av1_filter_block_plane_ss11_ver(Av1Common *const cm,
+                                     struct MacroblockdPlane *const plane,
+                                     int mi_row, LoopFilterMask *lfm) {
+  struct Buf2d *const dst = &plane->dst;
   uint8_t *const dst0 = dst->buf;
   int r, c;
 
@@ -1776,10 +1773,10 @@ void av1_filter_block_plane_ss11_ver(AV1_COMMON *const cm,
   dst->buf = dst0;
 }
 
-void av1_filter_block_plane_ss11_hor(AV1_COMMON *const cm,
-                                     struct macroblockd_plane *const plane,
-                                     int mi_row, LOOP_FILTER_MASK *lfm) {
-  struct buf_2d *const dst = &plane->dst;
+void av1_filter_block_plane_ss11_hor(Av1Common *const cm,
+                                     struct MacroblockdPlane *const plane,
+                                     int mi_row, LoopFilterMask *lfm) {
+  struct Buf2d *const dst = &plane->dst;
   uint8_t *const dst0 = dst->buf;
   int r, c;
   uint64_t mask_16x16 = lfm->above_uv[TX_16X16];
@@ -1945,12 +1942,12 @@ static const uint32_t av1_transform_masks[NUM_EDGE_DIRS][TX_SIZES_ALL] = {
   }
 };
 
-static TX_SIZE av1_get_transform_size(const MODE_INFO *const pCurr,
-                                      const EDGE_DIR edgeDir,
-                                      const uint32_t scaleHorz,
-                                      const uint32_t scaleVert) {
-  const BLOCK_SIZE bs = pCurr->mbmi.sb_type;
-  TX_SIZE txSize;
+static TxSize av1_get_transform_size(const ModeInfo *const pCurr,
+                                     const EDGE_DIR edgeDir,
+                                     const uint32_t scaleHorz,
+                                     const uint32_t scaleVert) {
+  const BlockSize bs = pCurr->mbmi.sb_type;
+  TxSize txSize;
   // since in case of chrominance or non-square transorm need to convert
   // transform size into transform size in particular direction.
   txSize = uv_txsize_lookup[bs][pCurr->mbmi.tx_size][scaleHorz][scaleVert];
@@ -1973,14 +1970,11 @@ typedef struct AV1_DEBLOCKING_PARAMETERS {
   const uint8_t *hev_thr;
 } AV1_DEBLOCKING_PARAMETERS;
 
-static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
-                               const MODE_INFO **const ppCurr,
-                               const ptrdiff_t modeStep,
-                               const AV1_COMMON *const cm,
-                               const EDGE_DIR edgeDir, const uint32_t x,
-                               const uint32_t y, const uint32_t width,
-                               const uint32_t height, const uint32_t scaleHorz,
-                               const uint32_t scaleVert) {
+static void set_lpf_parameters(
+    AV1_DEBLOCKING_PARAMETERS *const pParams, const ModeInfo **const ppCurr,
+    const ptrdiff_t modeStep, const Av1Common *const cm, const EDGE_DIR edgeDir,
+    const uint32_t x, const uint32_t y, const uint32_t width,
+    const uint32_t height, const uint32_t scaleHorz, const uint32_t scaleVert) {
   // reset to initial values
   pParams->filterLength = 0;
   pParams->filterLengthInternal = 0;
@@ -1993,7 +1987,7 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
   assert(0 && "Not yet updated");
 #endif  // CONFIG_EXT_PARTITION
   {
-    const TX_SIZE ts =
+    const TxSize ts =
         av1_get_transform_size(ppCurr[0], edgeDir, scaleHorz, scaleVert);
     const uint32_t currLevel = get_filter_level(&cm->lf_info, &ppCurr[0]->mbmi);
     const int currSkipped =
@@ -2013,8 +2007,8 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
         const int32_t tuEdge =
             (coord & av1_transform_masks[edgeDir][ts]) ? (0) : (1);
         if (tuEdge) {
-          const MODE_INFO *const pPrev = *(ppCurr - modeStep);
-          const TX_SIZE pvTs =
+          const ModeInfo *const pPrev = *(ppCurr - modeStep);
+          const TxSize pvTs =
               av1_get_transform_size(pPrev, edgeDir, scaleHorz, scaleVert);
           const uint32_t pvLvl = get_filter_level(&cm->lf_info, &pPrev->mbmi);
           const int pvSkip = pPrev->mbmi.skip && is_inter_block(&pPrev->mbmi);
@@ -2029,7 +2023,7 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
           // deblock the edge if the edge belongs to a PU's edge only.
           if ((currLevel || pvLvl) && (!pvSkip || !currSkipped || puEdge)) {
 #if CONFIG_PARALLEL_DEBLOCKING_15TAP || CONFIG_PARALLEL_DEBLOCKING_15TAPLUMAONLY
-            const TX_SIZE minTs = AOMMIN(ts, pvTs);
+            const TxSize minTs = AOMMIN(ts, pvTs);
             if (TX_4X4 >= minTs) {
               pParams->filterLength = 4;
             } else if (TX_8X8 == minTs) {
@@ -2060,7 +2054,7 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
       }
       // prepare common parameters
       if (pParams->filterLength || pParams->filterLengthInternal) {
-        const loop_filter_thresh *const limits = cm->lf_info.lfthr + level;
+        const LoopFilterThresh *const limits = cm->lf_info.lfthr + level;
         pParams->lim = limits->lim;
         pParams->mblim = limits->mblim;
         pParams->hev_thr = limits->hev_thr;
@@ -2069,9 +2063,9 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
   }
 }
 
-static void av1_filter_block_plane_vert(const AV1_COMMON *const cm,
-                                        const MACROBLOCKD_PLANE *const pPlane,
-                                        const MODE_INFO **ppModeInfo,
+static void av1_filter_block_plane_vert(const Av1Common *const cm,
+                                        const MacroblockdPlane *const pPlane,
+                                        const ModeInfo **ppModeInfo,
                                         const ptrdiff_t modeStride,
                                         const uint32_t cuX,
                                         const uint32_t cuY) {
@@ -2084,7 +2078,7 @@ static void av1_filter_block_plane_vert(const AV1_COMMON *const cm,
   for (int y = 0; y < (MAX_MIB_SIZE >> scaleVert); y += 1) {
     uint8_t *p = pDst + y * MI_SIZE * dstStride;
     for (int x = 0; x < (MAX_MIB_SIZE >> scaleHorz); x += 1) {
-      const MODE_INFO **const pCurr =
+      const ModeInfo **const pCurr =
           ppModeInfo + (y << scaleVert) * modeStride + (x << scaleHorz);
       AV1_DEBLOCKING_PARAMETERS params;
       memset(&params, 0, sizeof(params));
@@ -2123,9 +2117,9 @@ static void av1_filter_block_plane_vert(const AV1_COMMON *const cm,
   }
 }
 
-static void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
-                                        const MACROBLOCKD_PLANE *const pPlane,
-                                        const MODE_INFO **ppModeInfo,
+static void av1_filter_block_plane_horz(const Av1Common *const cm,
+                                        const MacroblockdPlane *const pPlane,
+                                        const ModeInfo **ppModeInfo,
                                         const ptrdiff_t modeStride,
                                         const uint32_t cuX,
                                         const uint32_t cuY) {
@@ -2138,7 +2132,7 @@ static void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
   for (int y = 0; y < (MAX_MIB_SIZE >> scaleVert); y += 1) {
     uint8_t *p = pDst + y * MI_SIZE * dstStride;
     for (int x = 0; x < (MAX_MIB_SIZE >> scaleHorz); x += 1) {
-      const MODE_INFO **const pCurr =
+      const ModeInfo **const pCurr =
           ppModeInfo + (y << scaleVert) * modeStride + (x << scaleHorz);
       AV1_DEBLOCKING_PARAMETERS params;
       memset(&params, 0, sizeof(params));
@@ -2179,8 +2173,8 @@ static void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
 #endif  // CONFIG_PARALLEL_DEBLOCKING
 #endif
 
-void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
-                          struct macroblockd_plane planes[MAX_MB_PLANE],
+void av1_loop_filter_rows(Yv12BufferConfig *frame_buffer, Av1Common *cm,
+                          struct MacroblockdPlane planes[MAX_MB_PLANE],
                           int start, int stop, int y_only) {
 #if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_EXT_PARTITION_TYPES || \
     CONFIG_CB4X4
@@ -2191,7 +2185,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   memset(cm->above_txfm_context, TX_SIZES, cm->mi_cols);
 #endif  // CONFIG_VAR_TX
   for (mi_row = start; mi_row < stop; mi_row += cm->mib_size) {
-    MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
+    ModeInfo **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
 #if CONFIG_VAR_TX
     memset(cm->left_txfm_context, TX_SIZES, MAX_MIB_SIZE);
 #endif  // CONFIG_VAR_TX
@@ -2213,7 +2207,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   int mi_row, mi_col;
 #if !CONFIG_PARALLEL_DEBLOCKING
   enum lf_path path;
-  LOOP_FILTER_MASK lfm;
+  LoopFilterMask lfm;
 
   if (y_only)
     path = LF_PATH_444;
@@ -2226,28 +2220,28 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
 #endif
 #if CONFIG_PARALLEL_DEBLOCKING
   for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
-    MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
+    ModeInfo **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(planes, cm->sb_size, frame_buffer, mi_row, mi_col);
       for (int planeIdx = 0; planeIdx < num_planes; planeIdx += 1) {
         const int32_t scaleHorz = planes[planeIdx].subsampling_x;
         const int32_t scaleVert = planes[planeIdx].subsampling_y;
         av1_filter_block_plane_vert(
-            cm, planes + planeIdx, (const MODE_INFO **)(mi + mi_col),
+            cm, planes + planeIdx, (const ModeInfo **)(mi + mi_col),
             cm->mi_stride, (mi_col * MI_SIZE) >> scaleHorz,
             (mi_row * MI_SIZE) >> scaleVert);
       }
     }
   }
   for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
-    MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
+    ModeInfo **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(planes, cm->sb_size, frame_buffer, mi_row, mi_col);
       for (int planeIdx = 0; planeIdx < num_planes; planeIdx += 1) {
         const int32_t scaleHorz = planes[planeIdx].subsampling_x;
         const int32_t scaleVert = planes[planeIdx].subsampling_y;
         av1_filter_block_plane_horz(
-            cm, planes + planeIdx, (const MODE_INFO **)(mi + mi_col),
+            cm, planes + planeIdx, (const ModeInfo **)(mi + mi_col),
             cm->mi_stride, (mi_col * MI_SIZE) >> scaleHorz,
             (mi_row * MI_SIZE) >> scaleVert);
       }
@@ -2255,7 +2249,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   }
 #else   // CONFIG_PARALLEL_DEBLOCKING
   for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
-    MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
+    ModeInfo **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
       int plane;
 
@@ -2291,8 +2285,8 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
 #endif  // CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_EXT_PARTITION_TYPES
 }
 
-void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
-                           MACROBLOCKD *xd, int frame_filter_level, int y_only,
+void av1_loop_filter_frame(Yv12BufferConfig *frame, Av1Common *cm,
+                           Macroblockd *xd, int frame_filter_level, int y_only,
                            int partial_frame) {
   int start_mi_row, end_mi_row, mi_rows_to_filter;
 #if CONFIG_EXT_DELTA_Q
@@ -2318,8 +2312,8 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 }
 
 void av1_loop_filter_data_reset(
-    LFWorkerData *lf_data, YV12_BUFFER_CONFIG *frame_buffer,
-    struct AV1Common *cm, const struct macroblockd_plane planes[MAX_MB_PLANE]) {
+    LFWorkerData *lf_data, Yv12BufferConfig *frame_buffer, struct AV1Common *cm,
+    const struct MacroblockdPlane planes[MAX_MB_PLANE]) {
   lf_data->frame_buffer = frame_buffer;
   lf_data->cm = cm;
   lf_data->start = 0;

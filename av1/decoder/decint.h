@@ -17,16 +17,16 @@
 # include "aom_dsp/bitreader.h"
 # include "aom_dsp/entdec.h"
 
-typedef struct daala_dec_ctx daala_dec_ctx;
+typedef struct DaalaDecCtx DaalaDecCtx;
 
-typedef struct daala_dec_ctx od_dec_ctx;
+typedef struct DaalaDecCtx OdDecCtx;
 
 
-struct daala_dec_ctx {
+struct DaalaDecCtx {
   /* Stores context-adaptive CDFs for PVQ. */
-  od_state state;
+  OdState state;
   /* AOM entropy decoder. */
-  aom_reader *r;
+  AomReader *r;
   int use_activity_masking;
   /* Mode of quantization matrice : FLAT (0) or HVS (1) */
   int qm;

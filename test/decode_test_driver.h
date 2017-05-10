@@ -24,14 +24,14 @@ class CompressedVideoSource;
 // Provides an object to handle decoding output
 class DxDataIterator {
  public:
-  explicit DxDataIterator(aom_codec_ctx_t *decoder)
+  explicit DxDataIterator(AomCodecCtxT *decoder)
       : decoder_(decoder), iter_(NULL) {}
 
-  const aom_image_t *Next() { return aom_codec_get_frame(decoder_, &iter_); }
+  const AomImageT *Next() { return aom_codec_get_frame(decoder_, &iter_); }
 
  private:
-  aom_codec_ctx_t *decoder_;
-  aom_codec_iter_t iter_;
+  AomCodecCtxT *decoder_;
+  AomCodecIterT iter_;
 };
 
 // Provides a simplified interface to manage one video decoding.
@@ -39,25 +39,24 @@ class DxDataIterator {
 // as more tests are added.
 class Decoder {
  public:
-  explicit Decoder(aom_codec_dec_cfg_t cfg)
+  explicit Decoder(AomCodecDecCfgT cfg)
       : cfg_(cfg), flags_(0), init_done_(false) {
     memset(&decoder_, 0, sizeof(decoder_));
   }
 
-  Decoder(aom_codec_dec_cfg_t cfg, const aom_codec_flags_t flag)
+  Decoder(AomCodecDecCfgT cfg, const AomCodecFlagsT flag)
       : cfg_(cfg), flags_(flag), init_done_(false) {
     memset(&decoder_, 0, sizeof(decoder_));
   }
 
   virtual ~Decoder() { aom_codec_destroy(&decoder_); }
 
-  aom_codec_err_t PeekStream(const uint8_t *cxdata, size_t size,
-                             aom_codec_stream_info_t *stream_info);
+  AomCodecErrT PeekStream(const uint8_t *cxdata, size_t size,
+                          AomCodecStreamInfoT *stream_info);
 
-  aom_codec_err_t DecodeFrame(const uint8_t *cxdata, size_t size);
+  AomCodecErrT DecodeFrame(const uint8_t *cxdata, size_t size);
 
-  aom_codec_err_t DecodeFrame(const uint8_t *cxdata, size_t size,
-                              void *user_priv);
+  AomCodecErrT DecodeFrame(const uint8_t *cxdata, size_t size, void *user_priv);
 
   DxDataIterator GetDxData() { return DxDataIterator(&decoder_); }
 
@@ -65,13 +64,13 @@ class Decoder {
 
   void Control(int ctrl_id, const void *arg) {
     InitOnce();
-    const aom_codec_err_t res = aom_codec_control_(&decoder_, ctrl_id, arg);
+    const AomCodecErrT res = aom_codec_control_(&decoder_, ctrl_id, arg);
     ASSERT_EQ(AOM_CODEC_OK, res) << DecodeError();
   }
 
-  void Control(int ctrl_id, int arg, aom_codec_err_t expected_value) {
+  void Control(int ctrl_id, int arg, AomCodecErrT expected_value) {
     InitOnce();
-    const aom_codec_err_t res = aom_codec_control_(&decoder_, ctrl_id, arg);
+    const AomCodecErrT res = aom_codec_control_(&decoder_, ctrl_id, arg);
     ASSERT_EQ(expected_value, res) << DecodeError();
   }
 
@@ -81,9 +80,9 @@ class Decoder {
   }
 
   // Passes the external frame buffer information to libaom.
-  aom_codec_err_t SetFrameBufferFunctions(
-      aom_get_frame_buffer_cb_fn_t cb_get,
-      aom_release_frame_buffer_cb_fn_t cb_release, void *user_priv) {
+  AomCodecErrT SetFrameBufferFunctions(AomGetFrameBufferCbFnT cb_get,
+                                       AomReleaseFrameBufferCbFnT cb_release,
+                                       void *user_priv) {
     InitOnce();
     return aom_codec_set_frame_buffer_functions(&decoder_, cb_get, cb_release,
                                                 user_priv);
@@ -97,23 +96,23 @@ class Decoder {
 
   bool IsAV1() const;
 
-  aom_codec_ctx_t *GetDecoder() { return &decoder_; }
+  AomCodecCtxT *GetDecoder() { return &decoder_; }
 
  protected:
-  virtual aom_codec_iface_t *CodecInterface() const = 0;
+  virtual AomCodecIfaceT *CodecInterface() const = 0;
 
   void InitOnce() {
     if (!init_done_) {
-      const aom_codec_err_t res =
+      const AomCodecErrT res =
           aom_codec_dec_init(&decoder_, CodecInterface(), &cfg_, flags_);
       ASSERT_EQ(AOM_CODEC_OK, res) << DecodeError();
       init_done_ = true;
     }
   }
 
-  aom_codec_ctx_t decoder_;
-  aom_codec_dec_cfg_t cfg_;
-  aom_codec_flags_t flags_;
+  AomCodecCtxT decoder_;
+  AomCodecDecCfgT cfg_;
+  AomCodecFlagsT flags_;
   bool init_done_;
 };
 
@@ -123,30 +122,30 @@ class DecoderTest {
   // Main decoding loop
   virtual void RunLoop(CompressedVideoSource *video);
   virtual void RunLoop(CompressedVideoSource *video,
-                       const aom_codec_dec_cfg_t &dec_cfg);
+                       const AomCodecDecCfgT &dec_cfg);
 
-  virtual void set_cfg(const aom_codec_dec_cfg_t &dec_cfg);
-  virtual void set_flags(const aom_codec_flags_t flags);
+  virtual void set_cfg(const AomCodecDecCfgT &dec_cfg);
+  virtual void set_flags(const AomCodecFlagsT flags);
 
   // Hook to be called before decompressing every frame.
   virtual void PreDecodeFrameHook(const CompressedVideoSource & /*video*/,
                                   Decoder * /*decoder*/) {}
 
   // Hook to be called to handle decode result. Return true to continue.
-  virtual bool HandleDecodeResult(const aom_codec_err_t res_dec,
+  virtual bool HandleDecodeResult(const AomCodecErrT res_dec,
                                   Decoder *decoder) {
     EXPECT_EQ(AOM_CODEC_OK, res_dec) << decoder->DecodeError();
     return AOM_CODEC_OK == res_dec;
   }
 
   // Hook to be called on every decompressed frame.
-  virtual void DecompressedFrameHook(const aom_image_t & /*img*/,
+  virtual void DecompressedFrameHook(const AomImageT & /*img*/,
                                      const unsigned int /*frame_number*/) {}
 
   // Hook to be called on peek result
   virtual void HandlePeekResult(Decoder *const decoder,
                                 CompressedVideoSource *video,
-                                const aom_codec_err_t res_peek);
+                                const AomCodecErrT res_peek);
 
  protected:
   explicit DecoderTest(const CodecFactory *codec)
@@ -155,8 +154,8 @@ class DecoderTest {
   virtual ~DecoderTest() {}
 
   const CodecFactory *codec_;
-  aom_codec_dec_cfg_t cfg_;
-  aom_codec_flags_t flags_;
+  AomCodecDecCfgT cfg_;
+  AomCodecFlagsT flags_;
 };
 
 }  // namespace libaom_test

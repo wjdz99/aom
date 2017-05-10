@@ -48,7 +48,7 @@ string DecodeFile(const string &filename) {
   libaom_test::WebMVideoSource video(filename);
   video.Init();
 
-  aom_codec_dec_cfg_t cfg = aom_codec_dec_cfg_t();
+  AomCodecDecCfgT cfg = AomCodecDecCfgT();
   libaom_test::AV1Decoder decoder(cfg, 0);
 
   libaom_test::MD5 md5;
@@ -56,7 +56,7 @@ string DecodeFile(const string &filename) {
   for (video.Begin(); !::testing::Test::HasFailure() && video.cxdata();
        video.Next()) {
     void *user_priv = reinterpret_cast<void *>(&frame_num);
-    const aom_codec_err_t res =
+    const AomCodecErrT res =
         decoder.DecodeFrame(video.cxdata(), video.frame_size(),
                             (frame_num == 0) ? NULL : user_priv);
     if (res != AOM_CODEC_OK) {
@@ -64,7 +64,7 @@ string DecodeFile(const string &filename) {
       break;
     }
     libaom_test::DxDataIterator dec_iter = decoder.GetDxData();
-    const aom_image_t *img = NULL;
+    const AomImageT *img = NULL;
 
     // Get decompressed data.
     while ((img = dec_iter.Next())) {
@@ -74,7 +74,7 @@ string DecodeFile(const string &filename) {
         CheckUserPrivateData(img->user_priv, &frame_num);
 
         // Also test ctrl_get_reference api.
-        struct av1_ref_frame ref;
+        struct Av1RefFrame ref;
         // Randomly fetch a reference frame.
         ref.idx = rnd.Rand8() % 3;
         decoder.Control(AV1_GET_REFERENCE, &ref);

@@ -21,7 +21,7 @@
 
 /* Fallback to plain, unoptimised C. */
 
-typedef c_v256 v256;
+typedef Cv256 v256;
 
 SIMD_INLINE uint32_t v256_low_u32(v256 a) { return c_v256_low_u32(a); }
 SIMD_INLINE v64 v256_low_v64(v256 a) { return c_v256_low_v64(a); }
@@ -60,20 +60,20 @@ SIMD_INLINE v256 v256_dup_8(uint8_t x) { return c_v256_dup_8(x); }
 SIMD_INLINE v256 v256_dup_16(uint16_t x) { return c_v256_dup_16(x); }
 SIMD_INLINE v256 v256_dup_32(uint32_t x) { return c_v256_dup_32(x); }
 
-typedef uint32_t sad256_internal;
-SIMD_INLINE sad256_internal v256_sad_u8_init() { return c_v256_sad_u8_init(); }
-SIMD_INLINE sad256_internal v256_sad_u8(sad256_internal s, v256 a, v256 b) {
+typedef uint32_t Sad256Internal;
+SIMD_INLINE Sad256Internal v256_sad_u8_init() { return c_v256_sad_u8_init(); }
+SIMD_INLINE Sad256Internal v256_sad_u8(Sad256Internal s, v256 a, v256 b) {
   return c_v256_sad_u8(s, a, b);
 }
-SIMD_INLINE uint32_t v256_sad_u8_sum(sad256_internal s) {
+SIMD_INLINE uint32_t v256_sad_u8_sum(Sad256Internal s) {
   return c_v256_sad_u8_sum(s);
 }
-typedef uint32_t ssd256_internal;
-SIMD_INLINE ssd256_internal v256_ssd_u8_init() { return c_v256_ssd_u8_init(); }
-SIMD_INLINE ssd256_internal v256_ssd_u8(ssd256_internal s, v256 a, v256 b) {
+typedef uint32_t Ssd256Internal;
+SIMD_INLINE Ssd256Internal v256_ssd_u8_init() { return c_v256_ssd_u8_init(); }
+SIMD_INLINE Ssd256Internal v256_ssd_u8(Ssd256Internal s, v256 a, v256 b) {
   return c_v256_ssd_u8(s, a, b);
 }
-SIMD_INLINE uint32_t v256_ssd_u8_sum(ssd256_internal s) {
+SIMD_INLINE uint32_t v256_ssd_u8_sum(Ssd256Internal s) {
   return c_v256_ssd_u8_sum(s);
 }
 SIMD_INLINE int64_t v256_dotp_s16(v256 a, v256 b) {

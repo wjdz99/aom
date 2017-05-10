@@ -20,7 +20,7 @@
 #include "av1/common/onyxc_int.h"
 #include "av1/common/reconinter.h"
 
-int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
+int sb_all_skip(const Av1Common *const cm, int mi_row, int mi_col) {
   int r, c;
   int maxc, maxr;
   int skip = 1;
@@ -44,7 +44,7 @@ int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
   return skip;
 }
 
-static int is_8x8_block_skip(MODE_INFO **grid, int mi_row, int mi_col,
+static int is_8x8_block_skip(ModeInfo **grid, int mi_row, int mi_col,
                              int mi_stride) {
   int is_skip = 1;
   for (int r = 0; r < mi_size_high[BLOCK_8X8]; ++r)
@@ -54,11 +54,11 @@ static int is_8x8_block_skip(MODE_INFO **grid, int mi_row, int mi_col,
   return is_skip;
 }
 
-int sb_compute_dering_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
-                           dering_list *dlist, int filter_skip) {
+int sb_compute_dering_list(const Av1Common *const cm, int mi_row, int mi_col,
+                           DeringList *dlist, int filter_skip) {
   int r, c;
   int maxc, maxr;
-  MODE_INFO **grid;
+  ModeInfo **grid;
   int count = 0;
   grid = cm->mi_grid_visible;
   maxc = cm->mi_cols - mi_col;
@@ -125,7 +125,7 @@ void copy_rect8_16bit_to_16bit_c(uint16_t *dst, int dstride,
   }
 }
 
-void copy_sb8_16(UNUSED AV1_COMMON *cm, uint16_t *dst, int dstride,
+void copy_sb8_16(UNUSED Av1Common *cm, uint16_t *dst, int dstride,
                  const uint8_t *src, int src_voffset, int src_hoffset,
                  int sstride, int vsize, int hsize) {
 #if CONFIG_HIGHBITDEPTH
@@ -162,14 +162,13 @@ static INLINE void copy_rect(uint16_t *dst, int dstride, const uint16_t *src,
   }
 }
 
-void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
-                    MACROBLOCKD *xd) {
+void av1_cdef_frame(Yv12BufferConfig *frame, Av1Common *cm, Macroblockd *xd) {
   int sbr, sbc;
   int nhsb, nvsb;
   uint16_t src[OD_DERING_INBUF_SIZE];
   uint16_t *linebuf[3];
   uint16_t *colbuf[3];
-  dering_list dlist[MAX_MIB_SIZE * MAX_MIB_SIZE];
+  DeringList dlist[MAX_MIB_SIZE * MAX_MIB_SIZE];
   unsigned char *row_dering, *prev_row_dering, *curr_row_dering;
   int dering_count;
   int dir[OD_DERING_NBLOCKS][OD_DERING_NBLOCKS] = { { 0 } };
@@ -234,7 +233,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
       nvb = AOMMIN(MAX_MIB_SIZE, cm->mi_rows - MAX_MIB_SIZE * sbr);
       int tile_top, tile_left, tile_bottom, tile_right;
       int mi_idx = MAX_MIB_SIZE * sbr * cm->mi_stride + MAX_MIB_SIZE * sbc;
-      BOUNDARY_TYPE boundary_tl =
+      BoundaryType boundary_tl =
           cm->mi_grid_visible[MAX_MIB_SIZE * sbr * cm->mi_stride +
                               MAX_MIB_SIZE * sbc]
               ->mbmi.boundary_info;
