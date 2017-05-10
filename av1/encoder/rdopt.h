@@ -68,7 +68,7 @@ int av1_cost_coeffs(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
                     const ENTROPY_CONTEXT *a, const ENTROPY_CONTEXT *l,
                     int use_fast_coef_costing);
 #endif
-void av1_rd_pick_intra_mode_sb(const struct AV1_COMP *cpi, struct macroblock *x,
+void av1_rd_pick_intra_mode_cb(const struct AV1_COMP *cpi, struct macroblock *x,
                                struct RD_STATS *rd_cost, BLOCK_SIZE bsize,
                                PICK_MODE_CONTEXT *ctx, int64_t best_rd);
 
@@ -81,7 +81,7 @@ unsigned int av1_high_get_sby_perpixel_variance(const AV1_COMP *cpi,
                                                 BLOCK_SIZE bs, int bd);
 #endif
 
-void av1_rd_pick_inter_mode_sb(const struct AV1_COMP *cpi,
+void av1_rd_pick_inter_mode_cb(const struct AV1_COMP *cpi,
                                struct TileDataEnc *tile_data,
                                struct macroblock *x, int mi_row, int mi_col,
                                struct RD_STATS *rd_cost,
@@ -91,7 +91,7 @@ void av1_rd_pick_inter_mode_sb(const struct AV1_COMP *cpi,
                                BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx,
                                int64_t best_rd_so_far);
 
-void av1_rd_pick_inter_mode_sb_seg_skip(
+void av1_rd_pick_inter_mode_cb_seg_skip(
     const struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
     struct macroblock *x, int mi_row, int mi_col, struct RD_STATS *rd_cost,
     BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx, int64_t best_rd_so_far);
