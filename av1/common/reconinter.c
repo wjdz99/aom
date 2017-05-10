@@ -348,7 +348,7 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
 #endif  // CONFIG_HIGHBITDEPTH
 
 #elif COMPOUND_SEGMENT_TYPE == 1
-#define DIFF_FACTOR 16
+#define DIFF_FACTOR 4
 static void diffwtd_mask(uint8_t *mask, int which_inverse, int mask_base,
                          const uint8_t *src0, int src0_stride,
                          const uint8_t *src1, int src1_stride,
@@ -359,7 +359,8 @@ static void diffwtd_mask(uint8_t *mask, int which_inverse, int mask_base,
     for (j = 0; j < w; ++j) {
       diff =
           abs((int)src0[i * src0_stride + j] - (int)src1[i * src1_stride + j]);
-      m = clamp(mask_base + (diff / DIFF_FACTOR), 0, AOM_BLEND_A64_MAX_ALPHA);
+      m = clamp(mask_base + ROUND_POWER_OF_TWO(diff, DIFF_FACTOR), 0,
+                AOM_BLEND_A64_MAX_ALPHA);
       mask[i * block_stride + j] =
           which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
     }
@@ -395,7 +396,8 @@ static void diffwtd_mask_highbd(uint8_t *mask, int which_inverse, int mask_base,
       diff = abs((int)src0[i * src0_stride + j] -
                  (int)src1[i * src1_stride + j]) >>
              (bd - 8);
-      m = clamp(mask_base + (diff / DIFF_FACTOR), 0, AOM_BLEND_A64_MAX_ALPHA);
+      m = clamp(mask_base + ROUND_POWER_OF_TWO(diff, DIFF_FACTOR), 0,
+                AOM_BLEND_A64_MAX_ALPHA);
       mask[i * block_stride + j] =
           which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
     }
