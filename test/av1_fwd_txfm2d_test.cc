@@ -24,12 +24,12 @@ using libaom_test::input_base;
 using libaom_test::bd;
 using libaom_test::compute_avg_abs_error;
 using libaom_test::Fwd_Txfm2d_Func;
-using libaom_test::TYPE_TXFM;
+using libaom_test::TypeTxfm;
 
 namespace {
 #if CONFIG_HIGHBITDEPTH
 // tx_type_, tx_size_, max_error_, max_avg_error_
-typedef std::tr1::tuple<TX_TYPE, TX_SIZE, double, double> AV1FwdTxfm2dParam;
+typedef std::tr1::tuple<TxType, TxSize, double, double> AV1FwdTxfm2dParam;
 
 class AV1FwdTxfm2d : public ::testing::TestWithParam<AV1FwdTxfm2dParam> {
  public:
@@ -39,9 +39,8 @@ class AV1FwdTxfm2d : public ::testing::TestWithParam<AV1FwdTxfm2dParam> {
     max_error_ = GET_PARAM(2);
     max_avg_error_ = GET_PARAM(3);
     count_ = 500;
-    TXFM_2D_FLIP_CFG fwd_txfm_flip_cfg =
-        av1_get_fwd_txfm_cfg(tx_type_, tx_size_);
-    const TXFM_2D_CFG *fwd_txfm_cfg = fwd_txfm_flip_cfg.cfg;
+    Txfm2dFlipCfg fwd_txfm_flip_cfg = av1_get_fwd_txfm_cfg(tx_type_, tx_size_);
+    const Txfm2dCfg *fwd_txfm_cfg = fwd_txfm_flip_cfg.cfg;
     int amplify_bit = fwd_txfm_cfg->shift[0] + fwd_txfm_cfg->shift[1] +
                       fwd_txfm_cfg->shift[2];
     ud_flip_ = fwd_txfm_flip_cfg.ud_flip;
@@ -115,13 +114,13 @@ class AV1FwdTxfm2d : public ::testing::TestWithParam<AV1FwdTxfm2dParam> {
   double max_avg_error_;
   int count_;
   double amplify_factor_;
-  TX_TYPE tx_type_;
-  TX_SIZE tx_size_;
+  TxType tx_type_;
+  TxSize tx_size_;
   int txfm1d_size_;
   int txfm2d_size_;
   Fwd_Txfm2d_Func fwd_txfm_;
-  TYPE_TXFM type0_;
-  TYPE_TXFM type1_;
+  TypeTxfm type0_;
+  TypeTxfm type1_;
   int16_t *input_;
   int32_t *output_;
   double *ref_input_;

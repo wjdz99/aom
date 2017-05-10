@@ -139,7 +139,7 @@ typedef struct {
 #endif  // USE_HIGHPASS_IN_SGRPROJ
   int r2;
   int e2;
-} sgr_params_type;
+} SgrParamsType;
 
 typedef struct {
   int ep;
@@ -231,7 +231,7 @@ static INLINE void av1_get_rest_tile_limits(
   }
 }
 
-extern const sgr_params_type sgr_params[SGRPROJ_PARAMS];
+extern const SgrParamsType sgr_params[SGRPROJ_PARAMS];
 extern int sgrproj_mtable[MAX_EPS][MAX_NELEM];
 extern const int32_t x_by_xplus1[256];
 extern const int32_t one_by_x[MAX_NELEM];
@@ -246,9 +246,9 @@ void extend_frame(uint8_t *data, int width, int height, int stride);
 void extend_frame_highbd(uint16_t *data, int width, int height, int stride);
 #endif  // CONFIG_HIGHBITDEPTH
 void decode_xq(int *xqd, int *xq);
-void av1_loop_restoration_frame(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
+void av1_loop_restoration_frame(Yv12BufferConfig *frame, struct AV1Common *cm,
                                 RestorationInfo *rsi, int components_pattern,
-                                int partial_frame, YV12_BUFFER_CONFIG *dst);
+                                int partial_frame, Yv12BufferConfig *dst);
 void av1_loop_restoration_precal();
 #ifdef __cplusplus
 }  // extern "C"

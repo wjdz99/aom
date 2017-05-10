@@ -57,7 +57,7 @@ class CpuSpeedTest
     }
   }
 
-  virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
+  virtual void PSNRPktHook(const AomCodecCxPktT *pkt) {
     if (pkt->data.psnr.psnr[0] < min_psnr_) min_psnr_ = pkt->data.psnr.psnr[0];
   }
 

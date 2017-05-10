@@ -22,11 +22,11 @@
 namespace {
 
 typedef void (*QuantizeFpFunc)(
-    const tran_low_t *coeff_ptr, intptr_t count, int skip_block,
+    const TranLowT *coeff_ptr, intptr_t count, int skip_block,
     const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr,
-    const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
-    tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr,
-    const int16_t *scan, const int16_t *iscan, int log_scale);
+    const int16_t *quant_shift_ptr, TranLowT *qcoeff_ptr, TranLowT *dqcoeff_ptr,
+    const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan,
+    const int16_t *iscan, int log_scale);
 
 struct QuantizeFuncParams {
   QuantizeFuncParams(QuantizeFpFunc qF = NULL, QuantizeFpFunc qRefF = NULL,
@@ -49,15 +49,15 @@ class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
  public:
   void RunQuantizeTest() {
     ACMRandom rnd(ACMRandom::DeterministicSeed());
-    DECLARE_ALIGNED(16, tran_low_t, coeff_ptr[maxSize]);
+    DECLARE_ALIGNED(16, TranLowT, coeff_ptr[maxSize]);
     DECLARE_ALIGNED(16, int16_t, zbin_ptr[2]);
     DECLARE_ALIGNED(16, int16_t, round_ptr[2]);
     DECLARE_ALIGNED(16, int16_t, quant_ptr[2]);
     DECLARE_ALIGNED(16, int16_t, quant_shift_ptr[2]);
-    DECLARE_ALIGNED(16, tran_low_t, qcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, tran_low_t, dqcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, tran_low_t, ref_qcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, tran_low_t, ref_dqcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(16, TranLowT, qcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(16, TranLowT, dqcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(16, TranLowT, ref_qcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(16, TranLowT, ref_dqcoeff_ptr[maxSize]);
     DECLARE_ALIGNED(16, int16_t, dequant_ptr[2]);
     uint16_t eob;
     uint16_t ref_eob;
@@ -65,12 +65,12 @@ class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
     int first_failure = -1;
     int skip_block = 0;
     int count = params_.coeffCount;
-    const TX_SIZE txSize = getTxSize(count);
+    const TxSize txSize = getTxSize(count);
     int log_scale = (txSize == TX_32X32);
     QuantizeFpFunc quanFunc = params_.qFunc;
     QuantizeFpFunc quanFuncRef = params_.qFuncRef;
 
-    const SCAN_ORDER scanOrder = av1_default_scan_orders[txSize];
+    const ScanOrder scanOrder = av1_default_scan_orders[txSize];
     for (int i = 0; i < numTests; i++) {
       int err_count = 0;
       ref_eob = eob = -1;
@@ -99,8 +99,8 @@ class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
       for (int j = 0; j < count; ++j) {
         err_count += (ref_qcoeff_ptr[j] != qcoeff_ptr[j]) |
                      (ref_dqcoeff_ptr[j] != dqcoeff_ptr[j]);
-        EXPECT_EQ(ref_qcoeff_ptr[j], qcoeff_ptr[j]) << "qcoeff error: i = " << i
-                                                    << " j = " << j << "\n";
+        EXPECT_EQ(ref_qcoeff_ptr[j], qcoeff_ptr[j])
+            << "qcoeff error: i = " << i << " j = " << j << "\n";
         EXPECT_EQ(ref_dqcoeff_ptr[j], dqcoeff_ptr[j])
             << "dqcoeff error: i = " << i << " j = " << j << "\n";
       }
@@ -119,25 +119,25 @@ class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
 
   void RunEobTest() {
     ACMRandom rnd(ACMRandom::DeterministicSeed());
-    DECLARE_ALIGNED(16, tran_low_t, coeff_ptr[maxSize]);
+    DECLARE_ALIGNED(16, TranLowT, coeff_ptr[maxSize]);
     DECLARE_ALIGNED(16, int16_t, zbin_ptr[2]);
     DECLARE_ALIGNED(16, int16_t, round_ptr[2]);
     DECLARE_ALIGNED(16, int16_t, quant_ptr[2]);
     DECLARE_ALIGNED(16, int16_t, quant_shift_ptr[2]);
-    DECLARE_ALIGNED(16, tran_low_t, qcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, tran_low_t, dqcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, tran_low_t, ref_qcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, tran_low_t, ref_dqcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(16, TranLowT, qcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(16, TranLowT, dqcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(16, TranLowT, ref_qcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(16, TranLowT, ref_dqcoeff_ptr[maxSize]);
     DECLARE_ALIGNED(16, int16_t, dequant_ptr[2]);
     uint16_t eob;
     uint16_t ref_eob;
     int skip_block = 0;
     int count = params_.coeffCount;
-    const TX_SIZE txSize = getTxSize(count);
+    const TxSize txSize = getTxSize(count);
     int log_scale = (txSize == TX_32X32);
     QuantizeFpFunc quanFunc = params_.qFunc;
     QuantizeFpFunc quanFuncRef = params_.qFuncRef;
-    const SCAN_ORDER scanOrder = av1_default_scan_orders[txSize];
+    const ScanOrder scanOrder = av1_default_scan_orders[txSize];
 
     for (int i = 0; i < numTests; i++) {
       ref_eob = eob = -1;
@@ -178,7 +178,7 @@ class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
   virtual ~AV1QuantizeTest() {}
 
  private:
-  TX_SIZE getTxSize(int count) {
+  TxSize getTxSize(int count) {
     switch (count) {
       case 16: return TX_4X4;
       case 64: return TX_8X8;

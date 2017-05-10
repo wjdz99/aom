@@ -60,15 +60,15 @@ extern "C" {
 #endif
 
 #if CONFIG_ANS
-typedef struct AnsDecoder aom_reader;
+typedef struct AnsDecoder AomReader;
 #elif CONFIG_DAALA_EC
-typedef struct daala_reader aom_reader;
+typedef struct DaalaReader AomReader;
 #else
-typedef struct aom_dk_reader aom_reader;
+typedef struct AomDkReader AomReader;
 #endif
 
-static INLINE int aom_reader_init(aom_reader *r, const uint8_t *buffer,
-                                  size_t size, aom_decrypt_cb decrypt_cb,
+static INLINE int aom_reader_init(AomReader *r, const uint8_t *buffer,
+                                  size_t size, AomDecryptCb decrypt_cb,
                                   void *decrypt_state) {
 #if CONFIG_ANS
   (void)decrypt_cb;
@@ -84,7 +84,7 @@ static INLINE int aom_reader_init(aom_reader *r, const uint8_t *buffer,
 #endif
 }
 
-static INLINE const uint8_t *aom_reader_find_end(aom_reader *r) {
+static INLINE const uint8_t *aom_reader_find_end(AomReader *r) {
 #if CONFIG_ANS
   (void)r;
   assert(0 && "Use the raw buffer size with ANS");
@@ -96,7 +96,7 @@ static INLINE const uint8_t *aom_reader_find_end(aom_reader *r) {
 #endif
 }
 
-static INLINE int aom_reader_has_error(aom_reader *r) {
+static INLINE int aom_reader_has_error(AomReader *r) {
 #if CONFIG_ANS
   return ans_reader_has_error(r);
 #elif CONFIG_DAALA_EC
@@ -107,7 +107,7 @@ static INLINE int aom_reader_has_error(aom_reader *r) {
 }
 
 // Returns the position in the bit reader in bits.
-static INLINE uint32_t aom_reader_tell(const aom_reader *r) {
+static INLINE uint32_t aom_reader_tell(const AomReader *r) {
 #if CONFIG_ANS
   (void)r;
   assert(0 && "aom_reader_tell() is unimplemented for ANS");
@@ -120,7 +120,7 @@ static INLINE uint32_t aom_reader_tell(const aom_reader *r) {
 }
 
 // Returns the position in the bit reader in 1/8th bits.
-static INLINE uint32_t aom_reader_tell_frac(const aom_reader *r) {
+static INLINE uint32_t aom_reader_tell_frac(const AomReader *r) {
 #if CONFIG_ANS
   (void)r;
   assert(0 && "aom_reader_tell_frac() is unimplemented for ANS");
@@ -133,7 +133,7 @@ static INLINE uint32_t aom_reader_tell_frac(const aom_reader *r) {
 }
 
 #if CONFIG_ACCOUNTING
-static INLINE void aom_process_accounting(const aom_reader *r ACCT_STR_PARAM) {
+static INLINE void aom_process_accounting(const AomReader *r ACCT_STR_PARAM) {
   if (r->accounting != NULL) {
     uint32_t tell_frac;
     tell_frac = aom_reader_tell_frac(r);
@@ -143,7 +143,7 @@ static INLINE void aom_process_accounting(const aom_reader *r ACCT_STR_PARAM) {
   }
 }
 
-static INLINE void aom_update_symb_counts(const aom_reader *r, int is_binary) {
+static INLINE void aom_update_symb_counts(const AomReader *r, int is_binary) {
   if (r->accounting != NULL) {
     r->accounting->syms.num_multi_syms += !is_binary;
     r->accounting->syms.num_binary_syms += !!is_binary;
@@ -151,7 +151,7 @@ static INLINE void aom_update_symb_counts(const aom_reader *r, int is_binary) {
 }
 #endif
 
-static INLINE int aom_read_(aom_reader *r, int prob ACCT_STR_PARAM) {
+static INLINE int aom_read_(AomReader *r, int prob ACCT_STR_PARAM) {
   int ret;
 #if CONFIG_ANS
   ret = rabs_read(r, prob);
@@ -167,7 +167,7 @@ static INLINE int aom_read_(aom_reader *r, int prob ACCT_STR_PARAM) {
   return ret;
 }
 
-static INLINE int aom_read_bit_(aom_reader *r ACCT_STR_PARAM) {
+static INLINE int aom_read_bit_(AomReader *r ACCT_STR_PARAM) {
   int ret;
 #if CONFIG_ANS
   ret = rabs_read_bit(r);  // Non trivial optimization at half probability
@@ -184,7 +184,7 @@ static INLINE int aom_read_bit_(aom_reader *r ACCT_STR_PARAM) {
   return ret;
 }
 
-static INLINE int aom_read_literal_(aom_reader *r, int bits ACCT_STR_PARAM) {
+static INLINE int aom_read_literal_(AomReader *r, int bits ACCT_STR_PARAM) {
   int literal = 0, bit;
 
   for (bit = bits - 1; bit >= 0; bit--) literal |= aom_read_bit(r, NULL) << bit;
@@ -194,17 +194,16 @@ static INLINE int aom_read_literal_(aom_reader *r, int bits ACCT_STR_PARAM) {
   return literal;
 }
 
-static INLINE int aom_read_tree_as_bits(aom_reader *r,
-                                        const aom_tree_index *tree,
-                                        const aom_prob *probs) {
-  aom_tree_index i = 0;
+static INLINE int aom_read_tree_as_bits(AomReader *r, const AomTreeIndex *tree,
+                                        const AomProb *probs) {
+  AomTreeIndex i = 0;
 
   while ((i = tree[i + aom_read(r, probs[i >> 1], NULL)]) > 0) continue;
   return -i;
 }
 
 #if CONFIG_EC_MULTISYMBOL
-static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
+static INLINE int aom_read_cdf_(AomReader *r, const AomCdfProb *cdf,
                                 int nsymbs ACCT_STR_PARAM) {
   int ret;
 #if CONFIG_ANS
@@ -225,7 +224,7 @@ static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
   return ret;
 }
 
-static INLINE int aom_read_symbol_(aom_reader *r, aom_cdf_prob *cdf,
+static INLINE int aom_read_symbol_(AomReader *r, AomCdfProb *cdf,
                                    int nsymbs ACCT_STR_PARAM) {
   int ret;
   ret = aom_read_cdf(r, cdf, nsymbs, ACCT_STR_NAME);
@@ -235,13 +234,12 @@ static INLINE int aom_read_symbol_(aom_reader *r, aom_cdf_prob *cdf,
   return ret;
 }
 
-static INLINE int aom_read_tree_as_cdf(aom_reader *r,
-                                       const aom_tree_index *tree,
-                                       const aom_prob *probs) {
-  aom_tree_index i = 0;
+static INLINE int aom_read_tree_as_cdf(AomReader *r, const AomTreeIndex *tree,
+                                       const AomProb *probs) {
+  AomTreeIndex i = 0;
   do {
-    aom_cdf_prob cdf[16];
-    aom_tree_index index[16];
+    AomCdfProb cdf[16];
+    AomTreeIndex index[16];
     int path[16];
     int dist[16];
     int nsymbs;
@@ -255,8 +253,8 @@ static INLINE int aom_read_tree_as_cdf(aom_reader *r,
 }
 #endif  // CONFIG_EC_MULTISYMBOL
 
-static INLINE int aom_read_tree_(aom_reader *r, const aom_tree_index *tree,
-                                 const aom_prob *probs ACCT_STR_PARAM) {
+static INLINE int aom_read_tree_(AomReader *r, const AomTreeIndex *tree,
+                                 const AomProb *probs ACCT_STR_PARAM) {
   int ret;
 #if CONFIG_EC_MULTISYMBOL
   ret = aom_read_tree_as_cdf(r, tree, probs);

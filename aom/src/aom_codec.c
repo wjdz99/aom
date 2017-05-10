@@ -27,11 +27,11 @@ const char *aom_codec_version_str(void) { return VERSION_STRING_NOSP; }
 
 const char *aom_codec_version_extra_str(void) { return VERSION_EXTRA; }
 
-const char *aom_codec_iface_name(aom_codec_iface_t *iface) {
+const char *aom_codec_iface_name(AomCodecIfaceT *iface) {
   return iface ? iface->name : "<invalid interface>";
 }
 
-const char *aom_codec_err_to_string(aom_codec_err_t err) {
+const char *aom_codec_err_to_string(AomCodecErrT err) {
   switch (err) {
     case AOM_CODEC_OK: return "Success";
     case AOM_CODEC_ERROR: return "Unspecified internal error";
@@ -51,27 +51,27 @@ const char *aom_codec_err_to_string(aom_codec_err_t err) {
   return "Unrecognized error code";
 }
 
-const char *aom_codec_error(aom_codec_ctx_t *ctx) {
+const char *aom_codec_error(AomCodecCtxT *ctx) {
   return (ctx) ? aom_codec_err_to_string(ctx->err)
                : aom_codec_err_to_string(AOM_CODEC_INVALID_PARAM);
 }
 
-const char *aom_codec_error_detail(aom_codec_ctx_t *ctx) {
+const char *aom_codec_error_detail(AomCodecCtxT *ctx) {
   if (ctx && ctx->err)
     return ctx->priv ? ctx->priv->err_detail : ctx->err_detail;
 
   return NULL;
 }
 
-aom_codec_err_t aom_codec_destroy(aom_codec_ctx_t *ctx) {
-  aom_codec_err_t res;
+AomCodecErrT aom_codec_destroy(AomCodecCtxT *ctx) {
+  AomCodecErrT res;
 
   if (!ctx)
     res = AOM_CODEC_INVALID_PARAM;
   else if (!ctx->iface || !ctx->priv)
     res = AOM_CODEC_ERROR;
   else {
-    ctx->iface->destroy((aom_codec_alg_priv_t *)ctx->priv);
+    ctx->iface->destroy((AomCodecAlgPrivT *)ctx->priv);
 
     ctx->iface = NULL;
     ctx->name = NULL;
@@ -82,19 +82,19 @@ aom_codec_err_t aom_codec_destroy(aom_codec_ctx_t *ctx) {
   return SAVE_STATUS(ctx, res);
 }
 
-aom_codec_caps_t aom_codec_get_caps(aom_codec_iface_t *iface) {
+AomCodecCapsT aom_codec_get_caps(AomCodecIfaceT *iface) {
   return (iface) ? iface->caps : 0;
 }
 
-aom_codec_err_t aom_codec_control_(aom_codec_ctx_t *ctx, int ctrl_id, ...) {
-  aom_codec_err_t res;
+AomCodecErrT aom_codec_control_(AomCodecCtxT *ctx, int ctrl_id, ...) {
+  AomCodecErrT res;
 
   if (!ctx || !ctrl_id)
     res = AOM_CODEC_INVALID_PARAM;
   else if (!ctx->iface || !ctx->priv || !ctx->iface->ctrl_maps)
     res = AOM_CODEC_ERROR;
   else {
-    aom_codec_ctrl_fn_map_t *entry;
+    AomCodecCtrlFnMapT *entry;
 
     res = AOM_CODEC_ERROR;
 
@@ -103,7 +103,7 @@ aom_codec_err_t aom_codec_control_(aom_codec_ctx_t *ctx, int ctrl_id, ...) {
         va_list ap;
 
         va_start(ap, ctrl_id);
-        res = entry->fn((aom_codec_alg_priv_t *)ctx->priv, ap);
+        res = entry->fn((AomCodecAlgPrivT *)ctx->priv, ap);
         va_end(ap);
         break;
       }
@@ -113,8 +113,8 @@ aom_codec_err_t aom_codec_control_(aom_codec_ctx_t *ctx, int ctrl_id, ...) {
   return SAVE_STATUS(ctx, res);
 }
 
-void aom_internal_error(struct aom_internal_error_info *info,
-                        aom_codec_err_t error, const char *fmt, ...) {
+void aom_internal_error(struct AomInternalErrorInfo *info, AomCodecErrT error,
+                        const char *fmt, ...) {
   va_list ap;
 
   info->error_code = error;

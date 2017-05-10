@@ -457,7 +457,7 @@ static INLINE void IADST8X8_1D(int16x8_t *q8s16, int16x8_t *q9s16,
   return;
 }
 
-void av1_iht8x8_64_add_neon(const tran_low_t *input, uint8_t *dest,
+void av1_iht8x8_64_add_neon(const TranLowT *input, uint8_t *dest,
                             int dest_stride, int tx_type) {
   int i;
   uint8_t *d1, *d2;

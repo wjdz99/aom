@@ -18,13 +18,13 @@ extern "C" {
 
 #include "av1/encoder/encoder.h"
 
-struct yv12_buffer_config;
-struct AV1_COMP;
-int av1_get_max_filter_level(const AV1_COMP *cpi);
-int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
+struct Yv12BufferConfig;
+struct Av1Comp;
+int av1_get_max_filter_level(const Av1Comp *cpi);
+int av1_search_filter_level(const Yv12BufferConfig *sd, Av1Comp *cpi,
                             int partial_frame, double *err);
-void av1_pick_filter_level(const struct yv12_buffer_config *sd,
-                           struct AV1_COMP *cpi, LPF_PICK_METHOD method);
+void av1_pick_filter_level(const struct Yv12BufferConfig *sd,
+                           struct Av1Comp *cpi, LpfPickMethod method);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

@@ -15,7 +15,7 @@
 
 #include "aom/internal/aom_codec_internal.h"
 
-void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm, int subsampling_x,
+void cfl_init(CflCtx *cfl, Av1Common *cm, int subsampling_x,
               int subsampling_y) {
   if (!((subsampling_x == 0 && subsampling_y == 0) ||
         (subsampling_x == 1 && subsampling_y == 1))) {
@@ -29,9 +29,9 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm, int subsampling_x,
 
 // CfL computes its own block-level DC_PRED. This is required to compute both
 // alpha_cb and alpha_cr before the prediction are computed.
-void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
-  const struct macroblockd_plane *const pd_u = &xd->plane[AOM_PLANE_U];
-  const struct macroblockd_plane *const pd_v = &xd->plane[AOM_PLANE_V];
+void cfl_dc_pred(Macroblockd *xd, BlockSize plane_bsize, TxSize tx_size) {
+  const struct MacroblockdPlane *const pd_u = &xd->plane[AOM_PLANE_U];
+  const struct MacroblockdPlane *const pd_v = &xd->plane[AOM_PLANE_V];
 
   const uint8_t *const dst_u = pd_u->dst.buf;
   const uint8_t *const dst_v = pd_v->dst.buf;
@@ -87,8 +87,7 @@ void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
   xd->cfl->dc_pred[CFL_PRED_V] = (sum_v + (num_pel >> 1)) / num_pel;
 }
 
-double cfl_ind_to_alpha(const MB_MODE_INFO *const mbmi,
-                        CFL_PRED_TYPE pred_type) {
+double cfl_ind_to_alpha(const MbModeInfo *const mbmi, CflPredType pred_type) {
   double const abs_alpha = cfl_alpha_codes[mbmi->cfl_alpha_ind][pred_type];
   if (mbmi->cfl_alpha_signs[pred_type] == CFL_SIGN_POS) {
     return abs_alpha;
@@ -99,9 +98,8 @@ double cfl_ind_to_alpha(const MB_MODE_INFO *const mbmi,
 }
 
 // Predict the current transform block using CfL.
-void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
-                       int row, int col, TX_SIZE tx_size, int dc_pred,
-                       double alpha) {
+void cfl_predict_block(const CflCtx *cfl, uint8_t *dst, int dst_stride, int row,
+                       int col, TxSize tx_size, int dc_pred, double alpha) {
   const int tx_block_width = tx_size_wide[tx_size];
   const int tx_block_height = tx_size_high[tx_size];
 
@@ -115,8 +113,8 @@ void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
   }
 }
 
-void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
-               int col, TX_SIZE tx_size) {
+void cfl_store(CflCtx *cfl, const uint8_t *input, int input_stride, int row,
+               int col, TxSize tx_size) {
   const int tx_width = tx_size_wide[tx_size];
   const int tx_height = tx_size_high[tx_size];
   const int tx_off_log2 = tx_size_wide_log2[0];
@@ -149,8 +147,8 @@ void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
 }
 
 // Load from the CfL pixel buffer into output
-double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
-                int col, TX_SIZE tx_size) {
+double cfl_load(const CflCtx *cfl, uint8_t *output, int output_stride, int row,
+                int col, TxSize tx_size) {
   const int tx_width = tx_size_wide[tx_size];
   const int tx_height = tx_size_high[tx_size];
   const int sub_x = cfl->subsampling_x;

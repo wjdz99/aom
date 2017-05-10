@@ -20,7 +20,7 @@
 
 // Machine tuned code goes into this file. This file is included from
 // simd_cmp_sse2.cc, simd_cmp_ssse3.cc etc which define the macros
-// ARCH (=neon, sse2, ssse3, etc), SIMD_NAMESPACE and ARCH_POSTFIX().
+// ARCH (=neon, sse2, ssse3, etc), SIMD_NAMESPACE and ArchPostfix().
 
 using libaom_test::ACMRandom;
 
@@ -78,51 +78,51 @@ v64 imm_v64_align(v64 a, v64 b) {
 
 // Wrap templates around corresponding C implementations of the above
 template <int shift>
-c_v64 c_imm_v64_shl_n_byte(c_v64 a) {
+CV64 c_imm_v64_shl_n_byte(CV64 a) {
   return c_v64_shl_n_byte(a, shift);
 }
 template <int shift>
-c_v64 c_imm_v64_shr_n_byte(c_v64 a) {
+CV64 c_imm_v64_shr_n_byte(CV64 a) {
   return c_v64_shr_n_byte(a, shift);
 }
 template <int shift>
-c_v64 c_imm_v64_shl_n_8(c_v64 a) {
+CV64 c_imm_v64_shl_n_8(CV64 a) {
   return c_v64_shl_n_8(a, shift);
 }
 template <int shift>
-c_v64 c_imm_v64_shr_n_u8(c_v64 a) {
+CV64 c_imm_v64_shr_n_u8(CV64 a) {
   return c_v64_shr_n_u8(a, shift);
 }
 template <int shift>
-c_v64 c_imm_v64_shr_n_s8(c_v64 a) {
+CV64 c_imm_v64_shr_n_s8(CV64 a) {
   return c_v64_shr_n_s8(a, shift);
 }
 template <int shift>
-c_v64 c_imm_v64_shl_n_16(c_v64 a) {
+CV64 c_imm_v64_shl_n_16(CV64 a) {
   return c_v64_shl_n_16(a, shift);
 }
 template <int shift>
-c_v64 c_imm_v64_shr_n_u16(c_v64 a) {
+CV64 c_imm_v64_shr_n_u16(CV64 a) {
   return c_v64_shr_n_u16(a, shift);
 }
 template <int shift>
-c_v64 c_imm_v64_shr_n_s16(c_v64 a) {
+CV64 c_imm_v64_shr_n_s16(CV64 a) {
   return c_v64_shr_n_s16(a, shift);
 }
 template <int shift>
-c_v64 c_imm_v64_shl_n_32(c_v64 a) {
+CV64 c_imm_v64_shl_n_32(CV64 a) {
   return c_v64_shl_n_32(a, shift);
 }
 template <int shift>
-c_v64 c_imm_v64_shr_n_u32(c_v64 a) {
+CV64 c_imm_v64_shr_n_u32(CV64 a) {
   return c_v64_shr_n_u32(a, shift);
 }
 template <int shift>
-c_v64 c_imm_v64_shr_n_s32(c_v64 a) {
+CV64 c_imm_v64_shr_n_s32(CV64 a) {
   return c_v64_shr_n_s32(a, shift);
 }
 template <int shift>
-c_v64 c_imm_v64_align(c_v64 a, c_v64 b) {
+CV64 c_imm_v64_align(CV64 a, CV64 b) {
   return c_v64_align(a, b, shift);
 }
 
@@ -176,51 +176,51 @@ v128 imm_v128_align(v128 a, v128 b) {
 }
 
 template <int shift>
-c_v128 c_imm_v128_shl_n_byte(c_v128 a) {
+Cv128 c_imm_v128_shl_n_byte(Cv128 a) {
   return c_v128_shl_n_byte(a, shift);
 }
 template <int shift>
-c_v128 c_imm_v128_shr_n_byte(c_v128 a) {
+Cv128 c_imm_v128_shr_n_byte(Cv128 a) {
   return c_v128_shr_n_byte(a, shift);
 }
 template <int shift>
-c_v128 c_imm_v128_shl_n_8(c_v128 a) {
+Cv128 c_imm_v128_shl_n_8(Cv128 a) {
   return c_v128_shl_n_8(a, shift);
 }
 template <int shift>
-c_v128 c_imm_v128_shr_n_u8(c_v128 a) {
+Cv128 c_imm_v128_shr_n_u8(Cv128 a) {
   return c_v128_shr_n_u8(a, shift);
 }
 template <int shift>
-c_v128 c_imm_v128_shr_n_s8(c_v128 a) {
+Cv128 c_imm_v128_shr_n_s8(Cv128 a) {
   return c_v128_shr_n_s8(a, shift);
 }
 template <int shift>
-c_v128 c_imm_v128_shl_n_16(c_v128 a) {
+Cv128 c_imm_v128_shl_n_16(Cv128 a) {
   return c_v128_shl_n_16(a, shift);
 }
 template <int shift>
-c_v128 c_imm_v128_shr_n_u16(c_v128 a) {
+Cv128 c_imm_v128_shr_n_u16(Cv128 a) {
   return c_v128_shr_n_u16(a, shift);
 }
 template <int shift>
-c_v128 c_imm_v128_shr_n_s16(c_v128 a) {
+Cv128 c_imm_v128_shr_n_s16(Cv128 a) {
   return c_v128_shr_n_s16(a, shift);
 }
 template <int shift>
-c_v128 c_imm_v128_shl_n_32(c_v128 a) {
+Cv128 c_imm_v128_shl_n_32(Cv128 a) {
   return c_v128_shl_n_32(a, shift);
 }
 template <int shift>
-c_v128 c_imm_v128_shr_n_u32(c_v128 a) {
+Cv128 c_imm_v128_shr_n_u32(Cv128 a) {
   return c_v128_shr_n_u32(a, shift);
 }
 template <int shift>
-c_v128 c_imm_v128_shr_n_s32(c_v128 a) {
+Cv128 c_imm_v128_shr_n_s32(Cv128 a) {
   return c_v128_shr_n_s32(a, shift);
 }
 template <int shift>
-c_v128 c_imm_v128_align(c_v128 a, c_v128 b) {
+Cv128 c_imm_v128_align(Cv128 a, Cv128 b) {
   return c_v128_align(a, b, shift);
 }
 
@@ -232,10 +232,10 @@ uint32_t v64_ssd_u8(v64 a, v64 b) {
   return v64_ssd_u8_sum(::v64_ssd_u8(v64_ssd_u8_init(), a, b));
 }
 
-uint32_t c_v64_sad_u8(c_v64 a, c_v64 b) {
+uint32_t c_v64_sad_u8(CV64 a, CV64 b) {
   return c_v64_sad_u8_sum(::c_v64_sad_u8(c_v64_sad_u8_init(), a, b));
 }
-uint32_t c_v64_ssd_u8(c_v64 a, c_v64 b) {
+uint32_t c_v64_ssd_u8(CV64 a, CV64 b) {
   return c_v64_ssd_u8_sum(::c_v64_ssd_u8(c_v64_ssd_u8_init(), a, b));
 }
 uint32_t v128_sad_u8(v128 a, v128 b) {
@@ -244,10 +244,10 @@ uint32_t v128_sad_u8(v128 a, v128 b) {
 uint32_t v128_ssd_u8(v128 a, v128 b) {
   return v128_ssd_u8_sum(::v128_ssd_u8(v128_ssd_u8_init(), a, b));
 }
-uint32_t c_v128_sad_u8(c_v128 a, c_v128 b) {
+uint32_t c_v128_sad_u8(Cv128 a, Cv128 b) {
   return c_v128_sad_u8_sum(::c_v128_sad_u8(c_v128_sad_u8_init(), a, b));
 }
-uint32_t c_v128_ssd_u8(c_v128 a, c_v128 b) {
+uint32_t c_v128_ssd_u8(Cv128 a, Cv128 b) {
   return c_v128_ssd_u8_sum(::c_v128_ssd_u8(c_v128_ssd_u8_init(), a, b));
 }
 
@@ -259,15 +259,15 @@ typedef struct {
   const char *name;
   fptr ref;
   fptr simd;
-} mapping;
+} Mapping;
 
-#define MAP(name)                                                      \
-  {                                                                    \
-    #name, reinterpret_cast < fptr > (c_##name),                       \
-                                      reinterpret_cast < fptr > (name) \
+#define MAP(name)                                                              \
+  {                                                                            \
+    #name,                                                                     \
+        reinterpret_cast < fptr > (c_##name), reinterpret_cast < fptr > (name) \
   }
 
-const mapping m[] = { MAP(v64_sad_u8),
+const Mapping m[] = { MAP(v64_sad_u8),
                       MAP(v64_ssd_u8),
                       MAP(v64_add_8),
                       MAP(v64_add_16),
@@ -663,7 +663,7 @@ const mapping m[] = { MAP(v64_sad_u8),
 // Map reference functions to machine tuned functions. Since the
 // functions depend on machine tuned types, the non-machine tuned
 // instantiations of the test can't refer to these functions directly,
-// so we refer to them by name and do the mapping here.
+// so we refer to them by name and do the Mapping here.
 void Map(const char *name, fptr *ref, fptr *simd) {
   unsigned int i;
   for (i = 0; m[i].name && strcmp(name, m[i].name); i++) {
@@ -843,14 +843,14 @@ void TestSimd1Arg(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
       SetMask(s, sizeof(CArg), mask, maskwidth);
     }
 
-    if (typeid(CRet) == typeid(c_v64) && typeid(CArg) == typeid(c_v64)) {
+    if (typeid(CRet) == typeid(CV64) && typeid(CArg) == typeid(CV64)) {
       // V64_V64
       error = CompareSimd1Arg<v64, v64, CRet, CArg>(
           reinterpret_cast<fptr>(v64_store_aligned),
           reinterpret_cast<fptr>(v64_load_aligned), simd, d,
           reinterpret_cast<fptr>(c_v64_store_aligned),
           reinterpret_cast<fptr>(c_v64_load_aligned), ref_simd, ref_d, s);
-    } else if (typeid(CRet) == typeid(c_v64) &&
+    } else if (typeid(CRet) == typeid(CV64) &&
                typeid(CArg) == typeid(uint8_t)) {
       // V64_U8
       error = CompareSimd1Arg<v64, uint8_t, CRet, CArg>(
@@ -858,7 +858,7 @@ void TestSimd1Arg(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(u8_load_aligned), simd, d,
           reinterpret_cast<fptr>(c_v64_store_aligned),
           reinterpret_cast<fptr>(c_u8_load_aligned), ref_simd, ref_d, s);
-    } else if (typeid(CRet) == typeid(c_v64) &&
+    } else if (typeid(CRet) == typeid(CV64) &&
                typeid(CArg) == typeid(uint16_t)) {
       // V64_U16
       error = CompareSimd1Arg<v64, uint16_t, CRet, CArg>(
@@ -866,7 +866,7 @@ void TestSimd1Arg(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(u16_load_aligned), simd, d,
           reinterpret_cast<fptr>(c_v64_store_aligned),
           reinterpret_cast<fptr>(c_u16_load_aligned), ref_simd, ref_d, s);
-    } else if (typeid(CRet) == typeid(c_v64) &&
+    } else if (typeid(CRet) == typeid(CV64) &&
                typeid(CArg) == typeid(uint32_t)) {
       // V64_U32
       error = CompareSimd1Arg<v64, uint32_t, CRet, CArg>(
@@ -875,7 +875,7 @@ void TestSimd1Arg(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_v64_store_aligned),
           reinterpret_cast<fptr>(c_u32_load_aligned), ref_simd, ref_d, s);
     } else if (typeid(CRet) == typeid(uint64_t) &&
-               typeid(CArg) == typeid(c_v64)) {
+               typeid(CArg) == typeid(CV64)) {
       // U64_V64
       error = CompareSimd1Arg<uint64_t, v64, CRet, CArg>(
           reinterpret_cast<fptr>(u64_store_aligned),
@@ -883,7 +883,7 @@ void TestSimd1Arg(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_u64_store_aligned),
           reinterpret_cast<fptr>(c_v64_load_aligned), ref_simd, ref_d, s);
     } else if (typeid(CRet) == typeid(int64_t) &&
-               typeid(CArg) == typeid(c_v64)) {
+               typeid(CArg) == typeid(CV64)) {
       // S64_V64
       error = CompareSimd1Arg<int64_t, v64, CRet, CArg>(
           reinterpret_cast<fptr>(s64_store_aligned),
@@ -891,7 +891,7 @@ void TestSimd1Arg(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_s64_store_aligned),
           reinterpret_cast<fptr>(c_v64_load_aligned), ref_simd, ref_d, s);
     } else if (typeid(CRet) == typeid(uint32_t) &&
-               typeid(CArg) == typeid(c_v64)) {
+               typeid(CArg) == typeid(CV64)) {
       // U32_V64
       error = CompareSimd1Arg<uint32_t, v64, CRet, CArg>(
           reinterpret_cast<fptr>(u32_store_aligned),
@@ -899,7 +899,7 @@ void TestSimd1Arg(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_u32_store_aligned),
           reinterpret_cast<fptr>(c_v64_load_aligned), ref_simd, ref_d, s);
     } else if (typeid(CRet) == typeid(int32_t) &&
-               typeid(CArg) == typeid(c_v64)) {
+               typeid(CArg) == typeid(CV64)) {
       // S32_V64
       error = CompareSimd1Arg<int32_t, v64, CRet, CArg>(
           reinterpret_cast<fptr>(s32_store_aligned),
@@ -907,7 +907,7 @@ void TestSimd1Arg(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_s32_store_aligned),
           reinterpret_cast<fptr>(c_v64_load_aligned), ref_simd, ref_d, s);
     } else if (typeid(CRet) == typeid(uint32_t) &&
-               typeid(CArg) == typeid(c_v128)) {
+               typeid(CArg) == typeid(Cv128)) {
       // U32_V128
       error = CompareSimd1Arg<uint32_t, v128, CRet, CArg>(
           reinterpret_cast<fptr>(u32_store_aligned),
@@ -915,38 +915,35 @@ void TestSimd1Arg(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_u32_store_aligned),
           reinterpret_cast<fptr>(c_v128_load_aligned), ref_simd, ref_d, s);
     } else if (typeid(CRet) == typeid(uint64_t) &&
-               typeid(CArg) == typeid(c_v128)) {
+               typeid(CArg) == typeid(Cv128)) {
       // U64_V128
       error = CompareSimd1Arg<uint64_t, v128, CRet, CArg>(
           reinterpret_cast<fptr>(u64_store_aligned),
           reinterpret_cast<fptr>(v128_load_aligned), simd, d,
           reinterpret_cast<fptr>(c_u64_store_aligned),
           reinterpret_cast<fptr>(c_v128_load_aligned), ref_simd, ref_d, s);
-    } else if (typeid(CRet) == typeid(c_v64) &&
-               typeid(CArg) == typeid(c_v128)) {
+    } else if (typeid(CRet) == typeid(CV64) && typeid(CArg) == typeid(Cv128)) {
       // V64_V128
       error = CompareSimd1Arg<v64, v128, CRet, CArg>(
           reinterpret_cast<fptr>(v64_store_aligned),
           reinterpret_cast<fptr>(v128_load_aligned), simd, d,
           reinterpret_cast<fptr>(c_v64_store_aligned),
           reinterpret_cast<fptr>(c_v128_load_aligned), ref_simd, ref_d, s);
-    } else if (typeid(CRet) == typeid(c_v128) &&
-               typeid(CArg) == typeid(c_v128)) {
+    } else if (typeid(CRet) == typeid(Cv128) && typeid(CArg) == typeid(Cv128)) {
       // V128_V128
       error = CompareSimd1Arg<v128, v128, CRet, CArg>(
           reinterpret_cast<fptr>(v128_store_aligned),
           reinterpret_cast<fptr>(v128_load_aligned), simd, d,
           reinterpret_cast<fptr>(c_v128_store_aligned),
           reinterpret_cast<fptr>(c_v128_load_aligned), ref_simd, ref_d, s);
-    } else if (typeid(CRet) == typeid(c_v128) &&
-               typeid(CArg) == typeid(c_v64)) {
+    } else if (typeid(CRet) == typeid(Cv128) && typeid(CArg) == typeid(CV64)) {
       // V128_V64
       error = CompareSimd1Arg<v128, v64, CRet, CArg>(
           reinterpret_cast<fptr>(v128_store_aligned),
           reinterpret_cast<fptr>(v64_load_aligned), simd, d,
           reinterpret_cast<fptr>(c_v128_store_aligned),
           reinterpret_cast<fptr>(c_v64_load_aligned), ref_simd, ref_d, s);
-    } else if (typeid(CRet) == typeid(c_v128) &&
+    } else if (typeid(CRet) == typeid(Cv128) &&
                typeid(CArg) == typeid(uint8_t)) {
       // V128_U8
       error = CompareSimd1Arg<v128, uint8_t, CRet, CArg>(
@@ -954,7 +951,7 @@ void TestSimd1Arg(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(u8_load_aligned), simd, d,
           reinterpret_cast<fptr>(c_v128_store_aligned),
           reinterpret_cast<fptr>(c_u8_load_aligned), ref_simd, ref_d, s);
-    } else if (typeid(CRet) == typeid(c_v128) &&
+    } else if (typeid(CRet) == typeid(Cv128) &&
                typeid(CArg) == typeid(uint16_t)) {
       // V128_U16
       error = CompareSimd1Arg<v128, uint16_t, CRet, CArg>(
@@ -962,7 +959,7 @@ void TestSimd1Arg(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(u16_load_aligned), simd, d,
           reinterpret_cast<fptr>(c_v128_store_aligned),
           reinterpret_cast<fptr>(c_u16_load_aligned), ref_simd, ref_d, s);
-    } else if (typeid(CRet) == typeid(c_v128) &&
+    } else if (typeid(CRet) == typeid(Cv128) &&
                typeid(CArg) == typeid(uint32_t)) {
       // V128_U32
       error = CompareSimd1Arg<v128, uint32_t, CRet, CArg>(
@@ -1009,8 +1006,8 @@ void TestSimd2Args(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
 
     if (maskwidth) SetMask(s2, sizeof(CArg2), mask, maskwidth);
 
-    if (typeid(CRet) == typeid(c_v64) && typeid(CArg1) == typeid(c_v64) &&
-        typeid(CArg2) == typeid(c_v64)) {
+    if (typeid(CRet) == typeid(CV64) && typeid(CArg1) == typeid(CV64) &&
+        typeid(CArg2) == typeid(CV64)) {
       // V64_V64V64
       error = CompareSimd2Args<v64, v64, v64, CRet, CArg1, CArg2>(
           reinterpret_cast<fptr>(v64_store_aligned),
@@ -1020,7 +1017,7 @@ void TestSimd2Args(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_v64_load_aligned),
           reinterpret_cast<fptr>(c_v64_load_aligned),
           reinterpret_cast<fptr>(ref_simd), ref_d, s1, s2);
-    } else if (typeid(CRet) == typeid(c_v64) &&
+    } else if (typeid(CRet) == typeid(CV64) &&
                typeid(CArg1) == typeid(uint32_t) &&
                typeid(CArg2) == typeid(uint32_t)) {
       // V64_U32U32
@@ -1033,8 +1030,7 @@ void TestSimd2Args(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_u32_load_aligned),
           reinterpret_cast<fptr>(ref_simd), ref_d, s1, s2);
     } else if (typeid(CRet) == typeid(uint32_t) &&
-               typeid(CArg1) == typeid(c_v64) &&
-               typeid(CArg2) == typeid(c_v64)) {
+               typeid(CArg1) == typeid(CV64) && typeid(CArg2) == typeid(CV64)) {
       // U32_V64V64
       error = CompareSimd2Args<uint32_t, v64, v64, CRet, CArg1, CArg2>(
           reinterpret_cast<fptr>(u32_store_aligned),
@@ -1045,8 +1041,7 @@ void TestSimd2Args(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_v64_load_aligned),
           reinterpret_cast<fptr>(ref_simd), ref_d, s1, s2);
     } else if (typeid(CRet) == typeid(int64_t) &&
-               typeid(CArg1) == typeid(c_v64) &&
-               typeid(CArg2) == typeid(c_v64)) {
+               typeid(CArg1) == typeid(CV64) && typeid(CArg2) == typeid(CV64)) {
       // S64_V64V64
       error = CompareSimd2Args<int64_t, v64, v64, CRet, CArg1, CArg2>(
           reinterpret_cast<fptr>(s64_store_aligned),
@@ -1056,8 +1051,7 @@ void TestSimd2Args(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_v64_load_aligned),
           reinterpret_cast<fptr>(c_v64_load_aligned),
           reinterpret_cast<fptr>(ref_simd), ref_d, s1, s2);
-    } else if (typeid(CRet) == typeid(c_v64) &&
-               typeid(CArg1) == typeid(c_v64) &&
+    } else if (typeid(CRet) == typeid(CV64) && typeid(CArg1) == typeid(CV64) &&
                typeid(CArg2) == typeid(uint32_t)) {
       // V64_V64U32
       error = CompareSimd2Args<v64, v64, uint32_t, CRet, CArg1, CArg2>(
@@ -1068,9 +1062,9 @@ void TestSimd2Args(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_v64_load_aligned),
           reinterpret_cast<fptr>(c_u32_load_aligned),
           reinterpret_cast<fptr>(ref_simd), ref_d, s1, s2);
-    } else if (typeid(CRet) == typeid(c_v128) &&
-               typeid(CArg1) == typeid(c_v128) &&
-               typeid(CArg2) == typeid(c_v128)) {
+    } else if (typeid(CRet) == typeid(Cv128) &&
+               typeid(CArg1) == typeid(Cv128) &&
+               typeid(CArg2) == typeid(Cv128)) {
       // V128_V128V128
       error = CompareSimd2Args<v128, v128, v128, CRet, CArg1, CArg2>(
           reinterpret_cast<fptr>(v128_store_aligned),
@@ -1081,8 +1075,8 @@ void TestSimd2Args(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_v128_load_aligned),
           reinterpret_cast<fptr>(ref_simd), ref_d, s1, s2);
     } else if (typeid(CRet) == typeid(uint32_t) &&
-               typeid(CArg1) == typeid(c_v128) &&
-               typeid(CArg2) == typeid(c_v128)) {
+               typeid(CArg1) == typeid(Cv128) &&
+               typeid(CArg2) == typeid(Cv128)) {
       // U32_V128V128
       error = CompareSimd2Args<uint32_t, v128, v128, CRet, CArg1, CArg2>(
           reinterpret_cast<fptr>(u32_store_aligned),
@@ -1093,8 +1087,8 @@ void TestSimd2Args(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_v128_load_aligned),
           reinterpret_cast<fptr>(ref_simd), ref_d, s1, s2);
     } else if (typeid(CRet) == typeid(int64_t) &&
-               typeid(CArg1) == typeid(c_v128) &&
-               typeid(CArg2) == typeid(c_v128)) {
+               typeid(CArg1) == typeid(Cv128) &&
+               typeid(CArg2) == typeid(Cv128)) {
       // S64_V128V128
       error = CompareSimd2Args<int64_t, v128, v128, CRet, CArg1, CArg2>(
           reinterpret_cast<fptr>(s64_store_aligned),
@@ -1104,7 +1098,7 @@ void TestSimd2Args(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_v128_load_aligned),
           reinterpret_cast<fptr>(c_v128_load_aligned),
           reinterpret_cast<fptr>(ref_simd), ref_d, s1, s2);
-    } else if (typeid(CRet) == typeid(c_v128) &&
+    } else if (typeid(CRet) == typeid(Cv128) &&
                typeid(CArg1) == typeid(uint64_t) &&
                typeid(CArg2) == typeid(uint64_t)) {
       // V128_U64U64
@@ -1116,9 +1110,8 @@ void TestSimd2Args(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_u64_load_aligned),
           reinterpret_cast<fptr>(c_u64_load_aligned),
           reinterpret_cast<fptr>(ref_simd), ref_d, s1, s2);
-    } else if (typeid(CRet) == typeid(c_v128) &&
-               typeid(CArg1) == typeid(c_v64) &&
-               typeid(CArg2) == typeid(c_v64)) {
+    } else if (typeid(CRet) == typeid(Cv128) && typeid(CArg1) == typeid(CV64) &&
+               typeid(CArg2) == typeid(CV64)) {
       // V128_V64V64
       error = CompareSimd2Args<v128, v64, v64, CRet, CArg1, CArg2>(
           reinterpret_cast<fptr>(v128_store_aligned),
@@ -1128,8 +1121,8 @@ void TestSimd2Args(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
           reinterpret_cast<fptr>(c_v64_load_aligned),
           reinterpret_cast<fptr>(c_v64_load_aligned),
           reinterpret_cast<fptr>(ref_simd), ref_d, s1, s2);
-    } else if (typeid(CRet) == typeid(c_v128) &&
-               typeid(CArg1) == typeid(c_v128) &&
+    } else if (typeid(CRet) == typeid(Cv128) &&
+               typeid(CArg1) == typeid(Cv128) &&
                typeid(CArg2) == typeid(uint32_t)) {
       // V128_V128U32
       error = CompareSimd2Args<v128, v128, uint32_t, CRet, CArg1, CArg2>(
@@ -1154,59 +1147,59 @@ void TestSimd2Args(uint32_t iterations, uint32_t mask, uint32_t maskwidth,
 }
 
 // Instantiations to make the functions callable from another files
-template void TestSimd1Arg<c_v64, uint8_t>(uint32_t, uint32_t, uint32_t,
-                                           const char *);
-template void TestSimd1Arg<c_v64, uint16_t>(uint32_t, uint32_t, uint32_t,
-                                            const char *);
-template void TestSimd1Arg<c_v64, uint32_t>(uint32_t, uint32_t, uint32_t,
-                                            const char *);
-template void TestSimd1Arg<c_v64, c_v64>(uint32_t, uint32_t, uint32_t,
-                                         const char *);
-template void TestSimd1Arg<uint32_t, c_v64>(uint32_t, uint32_t, uint32_t,
-                                            const char *);
-template void TestSimd1Arg<int32_t, c_v64>(uint32_t, uint32_t, uint32_t,
-                                           const char *);
-template void TestSimd1Arg<uint64_t, c_v64>(uint32_t, uint32_t, uint32_t,
-                                            const char *);
-template void TestSimd1Arg<int64_t, c_v64>(uint32_t, uint32_t, uint32_t,
-                                           const char *);
-template void TestSimd2Args<c_v64, uint32_t, uint32_t>(uint32_t, uint32_t,
-                                                       uint32_t, const char *);
-template void TestSimd2Args<c_v64, c_v64, c_v64>(uint32_t, uint32_t, uint32_t,
-                                                 const char *);
-template void TestSimd2Args<c_v64, c_v64, uint32_t>(uint32_t, uint32_t,
-                                                    uint32_t, const char *);
-template void TestSimd2Args<int64_t, c_v64, c_v64>(uint32_t, uint32_t, uint32_t,
-                                                   const char *);
-template void TestSimd2Args<uint32_t, c_v64, c_v64>(uint32_t, uint32_t,
-                                                    uint32_t, const char *);
-template void TestSimd1Arg<c_v128, c_v128>(uint32_t, uint32_t, uint32_t,
-                                           const char *);
-template void TestSimd1Arg<c_v128, uint8_t>(uint32_t, uint32_t, uint32_t,
-                                            const char *);
-template void TestSimd1Arg<c_v128, uint16_t>(uint32_t, uint32_t, uint32_t,
-                                             const char *);
-template void TestSimd1Arg<c_v128, uint32_t>(uint32_t, uint32_t, uint32_t,
-                                             const char *);
-template void TestSimd1Arg<c_v128, c_v64>(uint32_t, uint32_t, uint32_t,
+template void TestSimd1Arg<CV64, uint8_t>(uint32_t, uint32_t, uint32_t,
                                           const char *);
-template void TestSimd1Arg<uint32_t, c_v128>(uint32_t, uint32_t, uint32_t,
-                                             const char *);
-template void TestSimd1Arg<uint64_t, c_v128>(uint32_t, uint32_t, uint32_t,
-                                             const char *);
-template void TestSimd1Arg<c_v64, c_v128>(uint32_t, uint32_t, uint32_t,
+template void TestSimd1Arg<CV64, uint16_t>(uint32_t, uint32_t, uint32_t,
+                                           const char *);
+template void TestSimd1Arg<CV64, uint32_t>(uint32_t, uint32_t, uint32_t,
+                                           const char *);
+template void TestSimd1Arg<CV64, CV64>(uint32_t, uint32_t, uint32_t,
+                                       const char *);
+template void TestSimd1Arg<uint32_t, CV64>(uint32_t, uint32_t, uint32_t,
+                                           const char *);
+template void TestSimd1Arg<int32_t, CV64>(uint32_t, uint32_t, uint32_t,
                                           const char *);
-template void TestSimd2Args<c_v128, c_v128, c_v128>(uint32_t, uint32_t,
-                                                    uint32_t, const char *);
-template void TestSimd2Args<c_v128, c_v128, uint32_t>(uint32_t, uint32_t,
+template void TestSimd1Arg<uint64_t, CV64>(uint32_t, uint32_t, uint32_t,
+                                           const char *);
+template void TestSimd1Arg<int64_t, CV64>(uint32_t, uint32_t, uint32_t,
+                                          const char *);
+template void TestSimd2Args<CV64, uint32_t, uint32_t>(uint32_t, uint32_t,
                                                       uint32_t, const char *);
-template void TestSimd2Args<c_v128, uint64_t, uint64_t>(uint32_t, uint32_t,
-                                                        uint32_t, const char *);
-template void TestSimd2Args<c_v128, c_v64, c_v64>(uint32_t, uint32_t, uint32_t,
+template void TestSimd2Args<CV64, CV64, CV64>(uint32_t, uint32_t, uint32_t,
+                                              const char *);
+template void TestSimd2Args<CV64, CV64, uint32_t>(uint32_t, uint32_t, uint32_t,
                                                   const char *);
-template void TestSimd2Args<int64_t, c_v128, c_v128>(uint32_t, uint32_t,
-                                                     uint32_t, const char *);
-template void TestSimd2Args<uint32_t, c_v128, c_v128>(uint32_t, uint32_t,
-                                                      uint32_t, const char *);
+template void TestSimd2Args<int64_t, CV64, CV64>(uint32_t, uint32_t, uint32_t,
+                                                 const char *);
+template void TestSimd2Args<uint32_t, CV64, CV64>(uint32_t, uint32_t, uint32_t,
+                                                  const char *);
+template void TestSimd1Arg<Cv128, Cv128>(uint32_t, uint32_t, uint32_t,
+                                         const char *);
+template void TestSimd1Arg<Cv128, uint8_t>(uint32_t, uint32_t, uint32_t,
+                                           const char *);
+template void TestSimd1Arg<Cv128, uint16_t>(uint32_t, uint32_t, uint32_t,
+                                            const char *);
+template void TestSimd1Arg<Cv128, uint32_t>(uint32_t, uint32_t, uint32_t,
+                                            const char *);
+template void TestSimd1Arg<Cv128, CV64>(uint32_t, uint32_t, uint32_t,
+                                        const char *);
+template void TestSimd1Arg<uint32_t, Cv128>(uint32_t, uint32_t, uint32_t,
+                                            const char *);
+template void TestSimd1Arg<uint64_t, Cv128>(uint32_t, uint32_t, uint32_t,
+                                            const char *);
+template void TestSimd1Arg<CV64, Cv128>(uint32_t, uint32_t, uint32_t,
+                                        const char *);
+template void TestSimd2Args<Cv128, Cv128, Cv128>(uint32_t, uint32_t, uint32_t,
+                                                 const char *);
+template void TestSimd2Args<Cv128, Cv128, uint32_t>(uint32_t, uint32_t,
+                                                    uint32_t, const char *);
+template void TestSimd2Args<Cv128, uint64_t, uint64_t>(uint32_t, uint32_t,
+                                                       uint32_t, const char *);
+template void TestSimd2Args<Cv128, CV64, CV64>(uint32_t, uint32_t, uint32_t,
+                                               const char *);
+template void TestSimd2Args<int64_t, Cv128, Cv128>(uint32_t, uint32_t, uint32_t,
+                                                   const char *);
+template void TestSimd2Args<uint32_t, Cv128, Cv128>(uint32_t, uint32_t,
+                                                    uint32_t, const char *);
 
 }  // namespace SIMD_NAMESPACE

@@ -25,10 +25,10 @@ typedef struct mv {
   int16_t col;
 } MV;
 
-typedef union int_mv {
+typedef union IntMv {
   uint32_t as_int;
   MV as_mv;
-} int_mv; /* facilitates faster equality tests and copies */
+} IntMv; /* facilitates faster equality tests and copies */
 
 typedef struct mv32 {
   int32_t row;
@@ -179,12 +179,12 @@ static INLINE void set_default_warp_params(WarpedMotionParams *wm) {
 // Use global motion parameters for sub8x8 blocks
 #define GLOBAL_SUB8X8_USED 0
 
-static INLINE int block_center_x(int mi_col, BLOCK_SIZE bs) {
+static INLINE int block_center_x(int mi_col, BlockSize bs) {
   const int bw = block_size_wide[bs];
   return mi_col * MI_SIZE + bw / 2 - 1;
 }
 
-static INLINE int block_center_y(int mi_row, BLOCK_SIZE bs) {
+static INLINE int block_center_y(int mi_row, BlockSize bs) {
   const int bh = block_size_high[bs];
   return mi_row * MI_SIZE + bh / 2 - 1;
 }
@@ -198,12 +198,12 @@ static INLINE int convert_to_trans_prec(int allow_hp, int coor) {
 
 // Convert a global motion translation vector (which may have more bits than a
 // regular motion vector) into a motion vector
-static INLINE int_mv gm_get_motion_vector(const WarpedMotionParams *gm,
-                                          int allow_hp, BLOCK_SIZE bsize,
-                                          int mi_col, int mi_row,
-                                          int block_idx) {
+static INLINE IntMv gm_get_motion_vector(const WarpedMotionParams *gm,
+                                         int allow_hp, BlockSize bsize,
+                                         int mi_col, int mi_row,
+                                         int block_idx) {
   const int unify_bsize = CONFIG_CB4X4;
-  int_mv res;
+  IntMv res;
   const int32_t *mat = gm->wmmat;
   int x, y, tx, ty;
 
@@ -269,12 +269,12 @@ static INLINE TransformationType get_gmtype(const WarpedMotionParams *gm) {
 }
 #endif  // CONFIG_GLOBAL_MOTION
 
-typedef struct candidate_mv {
-  int_mv this_mv;
-  int_mv comp_mv;
+typedef struct CandidateMv {
+  IntMv this_mv;
+  IntMv comp_mv;
   uint8_t pred_diff[2];
   int weight;
-} CANDIDATE_MV;
+} CandidateMv;
 
 static INLINE int is_zero_mv(const MV *mv) {
   return *((const uint32_t *)mv) == 0;

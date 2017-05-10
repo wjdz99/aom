@@ -38,9 +38,9 @@ extern "C" {
 
 struct AV1Common;
 
-int16_t av1_dc_quant(int qindex, int delta, aom_bit_depth_t bit_depth);
-int16_t av1_ac_quant(int qindex, int delta, aom_bit_depth_t bit_depth);
-int16_t av1_qindex_from_ac(int ac, aom_bit_depth_t bit_depth);
+int16_t av1_dc_quant(int qindex, int delta, AomBitDepthT bit_depth);
+int16_t av1_ac_quant(int qindex, int delta, AomBitDepthT bit_depth);
+int16_t av1_qindex_from_ac(int ac, AomBitDepthT bit_depth);
 
 int av1_get_qindex(const struct segmentation *seg, int segment_id,
                    int base_qindex);
@@ -53,10 +53,10 @@ static INLINE int aom_get_qmlevel(int qindex, int first, int last) {
   return qmlevel;
 }
 void aom_qm_init(struct AV1Common *cm);
-qm_val_t *aom_iqmatrix(struct AV1Common *cm, int qindex, int comp,
-                       int log2sizem2, int is_intra);
-qm_val_t *aom_qmatrix(struct AV1Common *cm, int qindex, int comp,
-                      int log2sizem2, int is_intra);
+QmValT *aom_iqmatrix(struct AV1Common *cm, int qindex, int comp, int log2sizem2,
+                     int is_intra);
+QmValT *aom_qmatrix(struct AV1Common *cm, int qindex, int comp, int log2sizem2,
+                    int is_intra);
 #endif
 
 #if CONFIG_NEW_QUANT
@@ -65,19 +65,19 @@ qm_val_t *aom_qmatrix(struct AV1Common *cm, int qindex, int comp,
 #define QUANT_RANGES 2
 #define NUQ_KNOTS 3
 
-typedef tran_low_t dequant_val_type_nuq[NUQ_KNOTS + 1];
-typedef tran_low_t cuml_bins_type_nuq[NUQ_KNOTS];
-void av1_get_dequant_val_nuq(int q, int band, tran_low_t *dq,
-                             tran_low_t *cuml_bins, int dq_off_index);
-tran_low_t av1_dequant_abscoeff_nuq(int v, int q, const tran_low_t *dq);
-tran_low_t av1_dequant_coeff_nuq(int v, int q, const tran_low_t *dq);
+typedef TranLowT DequantValTypeNuq[NUQ_KNOTS + 1];
+typedef TranLowT CumlBinsTypeNuq[NUQ_KNOTS];
+void av1_get_dequant_val_nuq(int q, int band, TranLowT *dq, TranLowT *cuml_bins,
+                             int dq_off_index);
+TranLowT av1_dequant_abscoeff_nuq(int v, int q, const TranLowT *dq);
+TranLowT av1_dequant_coeff_nuq(int v, int q, const TranLowT *dq);
 
 static INLINE int qindex_to_qrange(int qindex) {
   return (qindex < 140 ? 1 : 0);
 }
 
 static INLINE int get_dq_profile_from_ctx(int qindex, int q_ctx, int is_inter,
-                                          PLANE_TYPE plane_type) {
+                                          PlaneType plane_type) {
   // intra/inter, Y/UV, ctx, qrange
   static const int
       def_dq_profile_lookup[REF_TYPES][PLANE_TYPES][COEFF_CONTEXTS0]

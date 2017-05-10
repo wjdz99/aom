@@ -35,40 +35,40 @@
 extern "C" {
 #endif
 
-typedef size_t BD_VALUE;
+typedef size_t BdValue;
 
-#define BD_VALUE_SIZE ((int)sizeof(BD_VALUE) * CHAR_BIT)
+#define BD_VALUE_SIZE ((int)sizeof(BdValue) * CHAR_BIT)
 
 // This is meant to be a large, positive constant that can still be efficiently
 // loaded as an immediate (on platforms like ARM, for example).
 // Even relatively modest values like 100 would work fine.
 #define LOTS_OF_BITS 0x40000000
 
-struct aom_dk_reader {
+struct AomDkReader {
   // Be careful when reordering this struct, it may impact the cache negatively.
-  BD_VALUE value;
+  BdValue value;
   unsigned int range;
   int count;
   const uint8_t *buffer_start;
   const uint8_t *buffer_end;
   const uint8_t *buffer;
-  aom_decrypt_cb decrypt_cb;
+  AomDecryptCb decrypt_cb;
   void *decrypt_state;
-  uint8_t clear_buffer[sizeof(BD_VALUE) + 1];
+  uint8_t clear_buffer[sizeof(BdValue) + 1];
 #if CONFIG_ACCOUNTING
   Accounting *accounting;
 #endif
 };
 
-int aom_dk_reader_init(struct aom_dk_reader *r, const uint8_t *buffer,
-                       size_t size, aom_decrypt_cb decrypt_cb,
+int aom_dk_reader_init(struct AomDkReader *r, const uint8_t *buffer,
+                       size_t size, AomDecryptCb decrypt_cb,
                        void *decrypt_state);
 
-void aom_dk_reader_fill(struct aom_dk_reader *r);
+void aom_dk_reader_fill(struct AomDkReader *r);
 
-const uint8_t *aom_dk_reader_find_end(struct aom_dk_reader *r);
+const uint8_t *aom_dk_reader_find_end(struct AomDkReader *r);
 
-static INLINE uint32_t aom_dk_reader_tell(const struct aom_dk_reader *r) {
+static INLINE uint32_t aom_dk_reader_tell(const struct AomDkReader *r) {
   const uint32_t bits_read =
       (uint32_t)((r->buffer - r->buffer_start) * CHAR_BIT);
   const int count =
@@ -81,7 +81,7 @@ static INLINE uint32_t aom_dk_reader_tell(const struct aom_dk_reader *r) {
    3 => 1/8th bits.*/
 #define DK_BITRES (3)
 
-static INLINE uint32_t aom_dk_reader_tell_frac(const struct aom_dk_reader *r) {
+static INLINE uint32_t aom_dk_reader_tell_frac(const struct AomDkReader *r) {
   uint32_t num_bits;
   uint32_t range;
   int l;
@@ -99,7 +99,7 @@ static INLINE uint32_t aom_dk_reader_tell_frac(const struct aom_dk_reader *r) {
   return num_bits - l;
 }
 
-static INLINE int aom_dk_reader_has_error(struct aom_dk_reader *r) {
+static INLINE int aom_dk_reader_has_error(struct AomDkReader *r) {
   // Check if we have reached the end of the buffer.
   //
   // Variable 'count' stores the number of bits in the 'value' buffer, minus
@@ -117,10 +117,10 @@ static INLINE int aom_dk_reader_has_error(struct aom_dk_reader *r) {
   return r->count > BD_VALUE_SIZE && r->count < LOTS_OF_BITS;
 }
 
-static INLINE int aom_dk_read(struct aom_dk_reader *r, int prob) {
+static INLINE int aom_dk_read(struct AomDkReader *r, int prob) {
   unsigned int bit = 0;
-  BD_VALUE value;
-  BD_VALUE bigsplit;
+  BdValue value;
+  BdValue bigsplit;
   int count;
   unsigned int range;
   unsigned int split = (r->range * prob + (256 - prob)) >> CHAR_BIT;
@@ -130,7 +130,7 @@ static INLINE int aom_dk_read(struct aom_dk_reader *r, int prob) {
   value = r->value;
   count = r->count;
 
-  bigsplit = (BD_VALUE)split << (BD_VALUE_SIZE - CHAR_BIT);
+  bigsplit = (BdValue)split << (BD_VALUE_SIZE - CHAR_BIT);
 
   range = split;
 

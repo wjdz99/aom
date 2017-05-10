@@ -28,10 +28,10 @@
 extern "C" {
 #endif
 
-typedef uint8_t aom_prob;
+typedef uint8_t AomProb;
 
-// TODO(negge): Rename this aom_prob once we remove vpxbool.
-typedef uint16_t aom_cdf_prob;
+// TODO(negge): Rename this AomProb once we remove vpxbool.
+typedef uint16_t AomCdfProb;
 
 #if CONFIG_EC_MULTISYMBOL
 #define CDF_SIZE(x) ((x) + 1)
@@ -48,9 +48,9 @@ typedef uint16_t aom_cdf_prob;
 
 #define MAX_PROB 255
 
-#define aom_prob_half ((aom_prob)128)
+#define aom_prob_half ((AomProb)128)
 
-typedef int8_t aom_tree_index;
+typedef int8_t AomTreeIndex;
 
 #define TREE_SIZE(leaf_count) (-2 + 2 * (leaf_count))
 
@@ -63,33 +63,33 @@ typedef int8_t aom_tree_index;
    Index > 0 means need another bit, specification at index.
    Nonnegative indices are always even;  processing begins at node 0. */
 
-typedef const aom_tree_index aom_tree[];
+typedef const AomTreeIndex AomTree[];
 
-static INLINE aom_prob get_prob(unsigned int num, unsigned int den) {
+static INLINE AomProb get_prob(unsigned int num, unsigned int den) {
   assert(den != 0);
   {
     const int p = (int)(((uint64_t)num * 256 + (den >> 1)) / den);
     // (p > 255) ? 255 : (p < 1) ? 1 : p;
     const int clipped_prob = p | ((255 - p) >> 23) | (p == 0);
-    return (aom_prob)clipped_prob;
+    return (AomProb)clipped_prob;
   }
 }
 
-static INLINE aom_prob get_binary_prob(unsigned int n0, unsigned int n1) {
+static INLINE AomProb get_binary_prob(unsigned int n0, unsigned int n1) {
   const unsigned int den = n0 + n1;
   if (den == 0) return 128u;
   return get_prob(n0, den);
 }
 
 /* This function assumes prob1 and prob2 are already within [1,255] range. */
-static INLINE aom_prob weighted_prob(int prob1, int prob2, int factor) {
+static INLINE AomProb weighted_prob(int prob1, int prob2, int factor) {
   return ROUND_POWER_OF_TWO(prob1 * (256 - factor) + prob2 * factor, 8);
 }
 
-static INLINE aom_prob merge_probs(aom_prob pre_prob, const unsigned int ct[2],
-                                   unsigned int count_sat,
-                                   unsigned int max_update_factor) {
-  const aom_prob prob = get_binary_prob(ct[0], ct[1]);
+static INLINE AomProb merge_probs(AomProb pre_prob, const unsigned int ct[2],
+                                  unsigned int count_sat,
+                                  unsigned int max_update_factor) {
+  const AomProb prob = get_binary_prob(ct[0], ct[1]);
   const unsigned int count = AOMMIN(ct[0] + ct[1], count_sat);
   const unsigned int factor = max_update_factor * count / count_sat;
   return weighted_prob(pre_prob, prob, factor);
@@ -101,30 +101,30 @@ static const int count_to_update_factor[MODE_MV_COUNT_SAT + 1] = {
   70, 76, 83, 89, 96, 102, 108, 115, 121, 128
 };
 
-static INLINE aom_prob mode_mv_merge_probs(aom_prob pre_prob,
-                                           const unsigned int ct[2]) {
+static INLINE AomProb mode_mv_merge_probs(AomProb pre_prob,
+                                          const unsigned int ct[2]) {
   const unsigned int den = ct[0] + ct[1];
   if (den == 0) {
     return pre_prob;
   } else {
     const unsigned int count = AOMMIN(den, MODE_MV_COUNT_SAT);
     const unsigned int factor = count_to_update_factor[count];
-    const aom_prob prob = get_prob(ct[0], den);
+    const AomProb prob = get_prob(ct[0], den);
     return weighted_prob(pre_prob, prob, factor);
   }
 }
 
-void aom_tree_merge_probs(const aom_tree_index *tree, const aom_prob *pre_probs,
-                          const unsigned int *counts, aom_prob *probs);
+void aom_tree_merge_probs(const AomTreeIndex *tree, const AomProb *pre_probs,
+                          const unsigned int *counts, AomProb *probs);
 
 #if CONFIG_EC_MULTISYMBOL
-int tree_to_cdf(const aom_tree_index *tree, const aom_prob *probs,
-                aom_tree_index root, aom_cdf_prob *cdf, aom_tree_index *ind,
-                int *pth, int *len);
+int tree_to_cdf(const AomTreeIndex *tree, const AomProb *probs,
+                AomTreeIndex root, AomCdfProb *cdf, AomTreeIndex *ind, int *pth,
+                int *len);
 
-static INLINE void av1_tree_to_cdf(const aom_tree_index *tree,
-                                   const aom_prob *probs, aom_cdf_prob *cdf) {
-  aom_tree_index index[16];
+static INLINE void av1_tree_to_cdf(const AomTreeIndex *tree,
+                                   const AomProb *probs, AomCdfProb *cdf) {
+  AomTreeIndex index[16];
   int path[16];
   int dist[16];
   tree_to_cdf(tree, probs, 0, cdf, index, path, dist);
@@ -149,13 +149,13 @@ static INLINE void av1_tree_to_cdf(const aom_tree_index *tree,
     }                                                  \
   } while (0)
 
-void av1_indices_from_tree(int *ind, int *inv, const aom_tree_index *tree);
+void av1_indices_from_tree(int *ind, int *inv, const AomTreeIndex *tree);
 #endif
 
 DECLARE_ALIGNED(16, extern const uint8_t, aom_norm[256]);
 
 #if CONFIG_EC_ADAPT
-static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
+static INLINE void update_cdf(AomCdfProb *cdf, int val, int nsymbs) {
   const int rate = 4 + (cdf[nsymbs] > 31) + get_msb(nsymbs);
   const int rate2 = 5;
   int i, tmp;

@@ -334,33 +334,29 @@ SIMD_INLINE uint64_t v256_hadd_u8(v256 a) {
   return v64_low_u32(v128_low_v64(lo)) + v128_low_u32(v128_high_v64(lo));
 }
 
-typedef v256 sad256_internal;
+typedef v256 Sad256Internal;
 
-SIMD_INLINE sad256_internal v256_sad_u8_init() {
-  return _mm256_setzero_si256();
-}
+SIMD_INLINE Sad256Internal v256_sad_u8_init() { return _mm256_setzero_si256(); }
 
 /* Implementation dependent return value.  Result must be finalised with
    v256_sad_sum().
    The result for more than 32 v256_sad_u8() calls is undefined. */
-SIMD_INLINE sad256_internal v256_sad_u8(sad256_internal s, v256 a, v256 b) {
+SIMD_INLINE Sad256Internal v256_sad_u8(Sad256Internal s, v256 a, v256 b) {
   return _mm256_add_epi64(s, _mm256_sad_epu8(a, b));
 }
 
-SIMD_INLINE uint32_t v256_sad_u8_sum(sad256_internal s) {
+SIMD_INLINE uint32_t v256_sad_u8_sum(Sad256Internal s) {
   v256 t = _mm256_add_epi32(s, _mm256_unpackhi_epi64(s, s));
   return v128_low_u32(_mm_add_epi32(v256_high_v128(t), v256_low_v128(t)));
 }
 
-typedef v256 ssd256_internal;
+typedef v256 Ssd256Internal;
 
-SIMD_INLINE ssd256_internal v256_ssd_u8_init() {
-  return _mm256_setzero_si256();
-}
+SIMD_INLINE Ssd256Internal v256_ssd_u8_init() { return _mm256_setzero_si256(); }
 
 /* Implementation dependent return value.  Result must be finalised with
  * v256_ssd_sum(). */
-SIMD_INLINE ssd256_internal v256_ssd_u8(ssd256_internal s, v256 a, v256 b) {
+SIMD_INLINE Ssd256Internal v256_ssd_u8(Ssd256Internal s, v256 a, v256 b) {
   v256 l = _mm256_sub_epi16(_mm256_unpacklo_epi8(a, _mm256_setzero_si256()),
                             _mm256_unpacklo_epi8(b, _mm256_setzero_si256()));
   v256 h = _mm256_sub_epi16(_mm256_unpackhi_epi8(a, _mm256_setzero_si256()),
@@ -377,7 +373,7 @@ SIMD_INLINE ssd256_internal v256_ssd_u8(ssd256_internal s, v256 a, v256 b) {
       _mm256_srl_epi64(_mm256_sll_epi64(_mm256_unpacklo_epi64(rl, rh), c), c));
 }
 
-SIMD_INLINE uint32_t v256_ssd_u8_sum(ssd256_internal s) {
+SIMD_INLINE uint32_t v256_ssd_u8_sum(Ssd256Internal s) {
   v256 t = _mm256_add_epi32(s, _mm256_unpackhi_epi64(s, s));
   return v128_low_u32(_mm_add_epi32(v256_high_v128(t), v256_low_v128(t)));
 }

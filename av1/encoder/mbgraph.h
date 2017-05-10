@@ -20,17 +20,17 @@ typedef struct {
   struct {
     int err;
     union {
-      int_mv mv;
-      PREDICTION_MODE mode;
+      IntMv mv;
+      PredictionMode mode;
     } m;
   } ref[TOTAL_REFS_PER_FRAME];
-} MBGRAPH_MB_STATS;
+} MbgraphMbStats;
 
-typedef struct { MBGRAPH_MB_STATS *mb_stats; } MBGRAPH_FRAME_STATS;
+typedef struct { MbgraphMbStats *mb_stats; } MbgraphFrameStats;
 
-struct AV1_COMP;
+struct Av1Comp;
 
-void av1_update_mbgraph_stats(struct AV1_COMP *cpi);
+void av1_update_mbgraph_stats(struct Av1Comp *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"

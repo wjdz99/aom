@@ -238,8 +238,7 @@ static INLINE RansacFunc get_ransac_type(TransformationType type) {
 }
 
 #if CONFIG_HIGHBITDEPTH
-static unsigned char *downconvert_frame(YV12_BUFFER_CONFIG *frm,
-                                        int bit_depth) {
+static unsigned char *downconvert_frame(Yv12BufferConfig *frm, int bit_depth) {
   int i, j;
   uint16_t *orig_buf = CONVERT_TO_SHORTPTR(frm->y_buffer);
   uint8_t *buf = malloc(frm->y_height * frm->y_stride * sizeof(*buf));
@@ -254,7 +253,7 @@ static unsigned char *downconvert_frame(YV12_BUFFER_CONFIG *frm,
 #endif
 
 int compute_global_motion_feature_based(
-    TransformationType type, YV12_BUFFER_CONFIG *frm, YV12_BUFFER_CONFIG *ref,
+    TransformationType type, Yv12BufferConfig *frm, Yv12BufferConfig *ref,
 #if CONFIG_HIGHBITDEPTH
     int bit_depth,
 #endif

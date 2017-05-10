@@ -23,7 +23,7 @@ namespace libaom_test {
 class Y4mVideoSource : public VideoSource {
  public:
   Y4mVideoSource(const std::string &file_name, unsigned int start, int limit)
-      : file_name_(file_name), input_file_(NULL), img_(new aom_image_t()),
+      : file_name_(file_name), input_file_(NULL), img_(new AomImageT()),
         start_(start), limit_(limit), frame_(0), framerate_numerator_(0),
         framerate_denominator_(0), y4m_() {}
 
@@ -35,8 +35,8 @@ class Y4mVideoSource : public VideoSource {
   virtual void OpenSource() {
     CloseSource();
     input_file_ = OpenTestDataFile(file_name_);
-    ASSERT_TRUE(input_file_ != NULL) << "Input file open failed. Filename: "
-                                     << file_name_;
+    ASSERT_TRUE(input_file_ != NULL)
+        << "Input file open failed. Filename: " << file_name_;
   }
 
   virtual void ReadSourceToStart() {
@@ -61,17 +61,17 @@ class Y4mVideoSource : public VideoSource {
     FillFrame();
   }
 
-  virtual aom_image_t *img() const {
+  virtual AomImageT *img() const {
     return (frame_ < limit_) ? img_.get() : NULL;
   }
 
   // Models a stream where Timebase = 1/FPS, so pts == frame.
-  virtual aom_codec_pts_t pts() const { return frame_; }
+  virtual AomCodecPtsT pts() const { return frame_; }
 
   virtual unsigned long duration() const { return 1; }
 
-  virtual aom_rational_t timebase() const {
-    const aom_rational_t t = { framerate_denominator_, framerate_numerator_ };
+  virtual AomRationalT timebase() const {
+    const AomRationalT t = { framerate_denominator_, framerate_numerator_ };
     return t;
   }
 
@@ -87,11 +87,11 @@ class Y4mVideoSource : public VideoSource {
 
   // Swap buffers with another y4m source. This allows reading a new frame
   // while keeping the old frame around. A whole Y4mSource is required and
-  // not just a aom_image_t because of how the y4m reader manipulates
-  // aom_image_t internals,
+  // not just a AomImageT because of how the y4m reader manipulates
+  // AomImageT internals,
   void SwapBuffers(Y4mVideoSource *other) {
     std::swap(other->y4m_.dst_buf, y4m_.dst_buf);
-    aom_image_t *tmp;
+    AomImageT *tmp;
     tmp = other->img_.release();
     other->img_.reset(img_.release());
     img_.reset(tmp);
@@ -100,7 +100,7 @@ class Y4mVideoSource : public VideoSource {
  protected:
   void CloseSource() {
     y4m_input_close(&y4m_);
-    y4m_ = y4m_input();
+    y4m_ = Y4mInput();
     if (input_file_ != NULL) {
       fclose(input_file_);
       input_file_ = NULL;
@@ -109,13 +109,13 @@ class Y4mVideoSource : public VideoSource {
 
   std::string file_name_;
   FILE *input_file_;
-  testing::internal::scoped_ptr<aom_image_t> img_;
+  testing::internal::scoped_ptr<AomImageT> img_;
   unsigned int start_;
   unsigned int limit_;
   unsigned int frame_;
   int framerate_numerator_;
   int framerate_denominator_;
-  y4m_input y4m_;
+  Y4mInput y4m_;
 };
 
 }  // namespace libaom_test

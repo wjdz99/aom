@@ -20,28 +20,28 @@
 #include "partition.h"
 #include "zigzag.h"
 
-OD_EXTERN const index_pair *OD_ZIGZAG4[4] = {
+OD_EXTERN const IndexPair *OD_ZIGZAG4[4] = {
   OD_ZIGZAG4_DCT_DCT,
   OD_ZIGZAG4_ADST_DCT,
   OD_ZIGZAG4_DCT_ADST,
   OD_ZIGZAG4_ADST_ADST
 };
 
-OD_EXTERN const index_pair *OD_ZIGZAG8[4] = {
+OD_EXTERN const IndexPair *OD_ZIGZAG8[4] = {
   OD_ZIGZAG8_DCT_DCT,
   OD_ZIGZAG8_ADST_DCT,
   OD_ZIGZAG8_DCT_ADST,
   OD_ZIGZAG8_ADST_ADST
 };
 
-OD_EXTERN const index_pair *OD_ZIGZAG16[4] = {
+OD_EXTERN const IndexPair *OD_ZIGZAG16[4] = {
   OD_ZIGZAG16_DCT_DCT,
   OD_ZIGZAG16_ADST_DCT,
   OD_ZIGZAG16_DCT_ADST,
   OD_ZIGZAG16_ADST_ADST
 };
 
-OD_EXTERN const index_pair *OD_ZIGZAG32[4] = {
+OD_EXTERN const IndexPair *OD_ZIGZAG32[4] = {
   OD_ZIGZAG32_DCT_DCT,
   OD_ZIGZAG32_DCT_DCT,
   OD_ZIGZAG32_DCT_DCT,
@@ -52,7 +52,7 @@ OD_EXTERN const index_pair *OD_ZIGZAG32[4] = {
    and from PVQ partition coding scan order for 4x4, 8x8 and 16x16 */
 
 static const int OD_LAYOUT32_OFFSETS[4] = { 0, 128, 256, 768 };
-const band_layout OD_LAYOUT32 = {
+const BandLayout OD_LAYOUT32 = {
   OD_ZIGZAG32,
   32,
   3,
@@ -60,7 +60,7 @@ const band_layout OD_LAYOUT32 = {
 };
 
 static const int OD_LAYOUT16_OFFSETS[4] = { 0, 32, 64, 192 };
-const band_layout OD_LAYOUT16 = {
+const BandLayout OD_LAYOUT16 = {
   OD_ZIGZAG16,
   16,
   3,
@@ -68,7 +68,7 @@ const band_layout OD_LAYOUT16 = {
 };
 
 const int OD_LAYOUT8_OFFSETS[4] = { 0, 8, 16, 48 };
-const band_layout OD_LAYOUT8 = {
+const BandLayout OD_LAYOUT8 = {
   OD_ZIGZAG8,
   8,
   3,
@@ -76,7 +76,7 @@ const band_layout OD_LAYOUT8 = {
 };
 
 static const int OD_LAYOUT4_OFFSETS[2] = { 0, 15 };
-const band_layout OD_LAYOUT4 = {
+const BandLayout OD_LAYOUT4 = {
   OD_ZIGZAG4,
   4,
   1,
@@ -109,8 +109,8 @@ const int *const OD_BAND_OFFSETS[OD_TXSIZES + 1] = {
  * @param [in]     src     source coefficient block
  * @param [int]    int     source vector row stride
  */
-static void od_band_from_raster(const band_layout *layout, tran_low_t *dst,
- const tran_low_t *src, int stride, TX_TYPE tx_type) {
+static void od_band_from_raster(const BandLayout *layout, TranLowT *dst,
+ const TranLowT *src, int stride, TxType tx_type) {
   int i;
   int len;
   len = layout->band_offsets[layout->nb_bands];
@@ -127,8 +127,8 @@ static void od_band_from_raster(const band_layout *layout, tran_low_t *dst,
  * @param [in]     src     source vector
  * @param [int]    stride  destination vector row stride
  */
-static void od_raster_from_band(const band_layout *layout, tran_low_t *dst,
- int stride, TX_TYPE tx_type, const tran_low_t *src) {
+static void od_raster_from_band(const BandLayout *layout, TranLowT *dst,
+ int stride, TxType tx_type, const TranLowT *src) {
   int i;
   int len;
   len = layout->band_offsets[layout->nb_bands];
@@ -137,7 +137,7 @@ static void od_raster_from_band(const band_layout *layout, tran_low_t *dst,
   }
 }
 
-static const band_layout *const OD_LAYOUTS[] = {&OD_LAYOUT4, &OD_LAYOUT8,
+static const BandLayout *const OD_LAYOUTS[] = {&OD_LAYOUT4, &OD_LAYOUT8,
  &OD_LAYOUT16, &OD_LAYOUT32};
 
 /** Converts a coefficient block in raster order into a vector in
@@ -153,8 +153,8 @@ static const band_layout *const OD_LAYOUTS[] = {&OD_LAYOUT4, &OD_LAYOUT8,
  * @param [in]     src        source coefficient block
  * @param [in]     stride     source vector row stride
  */
-void od_raster_to_coding_order(tran_low_t *dst, int n, TX_TYPE ty_type,
- const tran_low_t *src, int stride) {
+void od_raster_to_coding_order(TranLowT *dst, int n, TxType ty_type,
+ const TranLowT *src, int stride) {
   int bs;
   /* dst + 1 because DC is not included for 4x4 blocks. */
   od_band_from_raster(OD_LAYOUTS[0], dst + 1, src, stride, ty_type);
@@ -185,8 +185,8 @@ void od_raster_to_coding_order(tran_low_t *dst, int n, TX_TYPE ty_type,
  * @param [in]     src        source vector
  * @param [in]     n          block size (along one side)
  */
-void od_coding_order_to_raster(tran_low_t *dst, int stride, TX_TYPE ty_type,
- const tran_low_t *src, int n) {
+void od_coding_order_to_raster(TranLowT *dst, int stride, TxType ty_type,
+ const TranLowT *src, int n) {
   int bs;
   /* src + 1 because DC is not included for 4x4 blocks. */
   od_raster_from_band(OD_LAYOUTS[0], dst, stride, ty_type, src + 1);
@@ -213,7 +213,7 @@ void od_coding_order_to_raster(tran_low_t *dst, int stride, TX_TYPE ty_type,
  * @param [in]     src     source coefficient block
  * @param [int]    int     source vector row stride
  */
-static void od_band_from_raster_16(const band_layout *layout, int16_t *dst,
+static void od_band_from_raster_16(const BandLayout *layout, int16_t *dst,
  const int16_t *src, int stride) {
   int i;
   int len;

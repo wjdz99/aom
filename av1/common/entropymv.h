@@ -37,13 +37,13 @@ typedef enum {
   MV_JOINT_HNZVZ = 1,  /* Vert zero, hor nonzero */
   MV_JOINT_HZVNZ = 2,  /* Hor zero, vert nonzero */
   MV_JOINT_HNZVNZ = 3, /* Both components nonzero */
-} MV_JOINT_TYPE;
+} MvJointType;
 
-static INLINE int mv_joint_vertical(MV_JOINT_TYPE type) {
+static INLINE int mv_joint_vertical(MvJointType type) {
   return type == MV_JOINT_HZVNZ || type == MV_JOINT_HNZVNZ;
 }
 
-static INLINE int mv_joint_horizontal(MV_JOINT_TYPE type) {
+static INLINE int mv_joint_horizontal(MvJointType type) {
   return type == MV_JOINT_HNZVZ || type == MV_JOINT_HNZVNZ;
 }
 
@@ -61,7 +61,7 @@ typedef enum {
   MV_CLASS_8 = 8,   /* (256, 512] integer pel */
   MV_CLASS_9 = 9,   /* (512, 1024] integer pel */
   MV_CLASS_10 = 10, /* (1024,2048] integer pel */
-} MV_CLASS_TYPE;
+} MvClassType;
 
 #define CLASS0_BITS 1 /* bits at integer precision for class 0 */
 #define CLASS0_SIZE (1 << CLASS0_BITS)
@@ -76,38 +76,38 @@ typedef enum {
 #define MV_UPP ((1 << MV_IN_USE_BITS) - 1)
 #define MV_LOW (-(1 << MV_IN_USE_BITS))
 
-extern const aom_tree_index av1_mv_joint_tree[];
-extern const aom_tree_index av1_mv_class_tree[];
-extern const aom_tree_index av1_mv_class0_tree[];
-extern const aom_tree_index av1_mv_fp_tree[];
+extern const AomTreeIndex av1_mv_joint_tree[];
+extern const AomTreeIndex av1_mv_class_tree[];
+extern const AomTreeIndex av1_mv_class0_tree[];
+extern const AomTreeIndex av1_mv_fp_tree[];
 
 typedef struct {
-  aom_prob sign;
-  aom_prob classes[MV_CLASSES - 1];
+  AomProb sign;
+  AomProb classes[MV_CLASSES - 1];
 #if CONFIG_EC_MULTISYMBOL
-  aom_cdf_prob class_cdf[CDF_SIZE(MV_CLASSES)];
+  AomCdfProb class_cdf[CDF_SIZE(MV_CLASSES)];
 #endif
-  aom_prob class0[CLASS0_SIZE - 1];
-  aom_prob bits[MV_OFFSET_BITS];
-  aom_prob class0_fp[CLASS0_SIZE][MV_FP_SIZE - 1];
-  aom_prob fp[MV_FP_SIZE - 1];
+  AomProb class0[CLASS0_SIZE - 1];
+  AomProb bits[MV_OFFSET_BITS];
+  AomProb class0_fp[CLASS0_SIZE][MV_FP_SIZE - 1];
+  AomProb fp[MV_FP_SIZE - 1];
 #if CONFIG_EC_MULTISYMBOL
-  aom_cdf_prob class0_fp_cdf[CLASS0_SIZE][CDF_SIZE(MV_FP_SIZE)];
-  aom_cdf_prob fp_cdf[CDF_SIZE(MV_FP_SIZE)];
+  AomCdfProb class0_fp_cdf[CLASS0_SIZE][CDF_SIZE(MV_FP_SIZE)];
+  AomCdfProb fp_cdf[CDF_SIZE(MV_FP_SIZE)];
 #endif
-  aom_prob class0_hp;
-  aom_prob hp;
-} nmv_component;
+  AomProb class0_hp;
+  AomProb hp;
+} NmvComponent;
 
 typedef struct {
-  aom_prob joints[MV_JOINTS - 1];
+  AomProb joints[MV_JOINTS - 1];
 #if CONFIG_EC_MULTISYMBOL
-  aom_cdf_prob joint_cdf[CDF_SIZE(MV_JOINTS)];
+  AomCdfProb joint_cdf[CDF_SIZE(MV_JOINTS)];
 #endif
-  nmv_component comps[2];
-} nmv_context;
+  NmvComponent comps[2];
+} NmvContext;
 
-static INLINE MV_JOINT_TYPE av1_get_mv_joint(const MV *mv) {
+static INLINE MvJointType av1_get_mv_joint(const MV *mv) {
   if (mv->row == 0) {
     return mv->col == 0 ? MV_JOINT_ZERO : MV_JOINT_HNZVZ;
   } else {
@@ -115,7 +115,7 @@ static INLINE MV_JOINT_TYPE av1_get_mv_joint(const MV *mv) {
   }
 }
 
-MV_CLASS_TYPE av1_get_mv_class(int z, int *offset);
+MvClassType av1_get_mv_class(int z, int *offset);
 
 typedef struct {
   unsigned int sign[2];
@@ -126,20 +126,20 @@ typedef struct {
   unsigned int fp[MV_FP_SIZE];
   unsigned int class0_hp[2];
   unsigned int hp[2];
-} nmv_component_counts;
+} NmvComponentCounts;
 
 typedef struct {
   unsigned int joints[MV_JOINTS];
-  nmv_component_counts comps[2];
-} nmv_context_counts;
+  NmvComponentCounts comps[2];
+} NmvContextCounts;
 
-void av1_inc_mv(const MV *mv, nmv_context_counts *mvctx, const int usehp);
+void av1_inc_mv(const MV *mv, NmvContextCounts *mvctx, const int usehp);
 #if CONFIG_GLOBAL_MOTION
-extern const aom_tree_index
+extern const AomTreeIndex
     av1_global_motion_types_tree[TREE_SIZE(GLOBAL_TRANS_TYPES)];
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_EC_MULTISYMBOL
-void av1_set_mv_cdfs(nmv_context *ctx);
+void av1_set_mv_cdfs(NmvContext *ctx);
 #endif
 
 #ifdef __cplusplus

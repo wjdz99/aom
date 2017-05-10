@@ -23,7 +23,7 @@
 #define aom_decode_pvq_split(r, adapt, sum, ctx, ACCT_STR_NAME) \
   aom_decode_pvq_split_(r, adapt, sum, ctx ACCT_STR_ARG(ACCT_STR_NAME))
 
-static int aom_decode_pvq_split_(aom_reader *r, od_pvq_codeword_ctx *adapt,
+static int aom_decode_pvq_split_(AomReader *r, OdPvqCodewordCtx *adapt,
  int sum, int ctx ACCT_STR_PARAM) {
   int shift;
   int count;
@@ -48,8 +48,8 @@ static int aom_decode_pvq_split_(aom_reader *r, od_pvq_codeword_ctx *adapt,
   return count;
 }
 
-void aom_decode_band_pvq_splits(aom_reader *r, od_pvq_codeword_ctx *adapt,
- od_coeff *y, int n, int k, int level) {
+void aom_decode_band_pvq_splits(AomReader *r, OdPvqCodewordCtx *adapt,
+ OdCoeff *y, int n, int k, int level) {
   int mid;
   int count_right;
   if (n == 1) {
@@ -84,7 +84,7 @@ void aom_decode_band_pvq_splits(aom_reader *r, od_pvq_codeword_ctx *adapt,
  *
  * @retval decoded variable x
  */
-int aom_laplace_decode_special_(aom_reader *r, unsigned decay ACCT_STR_PARAM) {
+int aom_laplace_decode_special_(AomReader *r, unsigned decay ACCT_STR_PARAM) {
   int pos;
   int shift;
   int xs;

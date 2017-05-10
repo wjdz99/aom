@@ -28,9 +28,9 @@ static INLINE int sign(int i) { return i < 0 ? -1 : 1; }
 static INLINE int constrain(int diff, int threshold, unsigned int damping) {
   return threshold
              ? sign(diff) *
-                   AOMMIN(
-                       abs(diff),
-                       AOMMAX(0, threshold - (abs(diff) >>
+                   AOMMIN(abs(diff),
+                          AOMMAX(0,
+                                 threshold - (abs(diff) >>
                                               (damping - get_msb(threshold)))))
              : 0;
 }
@@ -39,13 +39,13 @@ static INLINE int constrain(int diff, int threshold, unsigned int damping) {
 extern "C" {
 #endif
 
-int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col);
-int sb_compute_dering_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
-                           dering_list *dlist, int filter_skip);
-void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd);
+int sb_all_skip(const Av1Common *const cm, int mi_row, int mi_col);
+int sb_compute_dering_list(const Av1Common *const cm, int mi_row, int mi_col,
+                           DeringList *dlist, int filter_skip);
+void av1_cdef_frame(Yv12BufferConfig *frame, Av1Common *cm, Macroblockd *xd);
 
-void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
-                     AV1_COMMON *cm, MACROBLOCKD *xd);
+void av1_cdef_search(Yv12BufferConfig *frame, const Yv12BufferConfig *ref,
+                     Av1Common *cm, Macroblockd *xd);
 
 #ifdef __cplusplus
 }  // extern "C"
