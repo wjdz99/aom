@@ -399,6 +399,13 @@ if (aom_config("CONFIG_HIGHBITDEPTH") ne "yes") {
 
 add_proto qw/void av1_fwd_idtx/, "const int16_t *src_diff, tran_low_t *coeff, int stride, int bs, int tx_type";
 
+if (aom_config("CONFIG_DPCM_INTRA") eq "yes") {
+  add_proto qw/void av1_dpcm_ft4/, "const int16_t *input, int stride, int tx_type, tran_low_t *output";
+  add_proto qw/void av1_dpcm_ft8/, "const int16_t *input, int stride, int tx_type, tran_low_t *output";
+  add_proto qw/void av1_dpcm_ft16/, "const int16_t *input, int stride, int tx_type, tran_low_t *output";
+  add_proto qw/void av1_dpcm_ft32/, "const int16_t *input, int stride, int tx_type, tran_low_t *output";
+}
+
 if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
   #fwd txfm
   add_proto qw/void av1_fwd_txfm2d_4x4/, "const int16_t *input, int32_t *output, int stride, int tx_type, int bd";
