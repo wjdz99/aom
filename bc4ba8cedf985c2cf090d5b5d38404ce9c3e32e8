@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "3a288b00_3fccd725",
+        "filename": "aomenc.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2017-05-10T17:03:09Z",
+      "side": 1,
+      "message": "Hi, James\n\nit is a little different for the first pass stat file. if you look at the code, all file open and handling for the stat file are done in aomenc.c (higher level). after processing a frame for the first pass, aomenc.c calls get_cx_data to get the stats buffer out of the underline encoder, and then write into the file. so the underline encoder doesn\u0027t see the file name or the file handler. for recon file, there is no interface to get the recon surface out of the underline encoder, so I have to pass either the file name or the file handler into the underline encoder. to avoid the interface change, I used a global variable. another solution is to just open the file in the underline encoder using a fixed temporary name, like the original code does. the problem is multiple encoding sessions will access the same file, which cause conflict.",
+      "parentUuid": "0d58037d_588732be",
+      "revId": "bc4ba8cedf985c2cf090d5b5d38404ce9c3e32e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fadde776_47c7c3e2",
         "filename": "aomenc.c",
         "patchSetId": 6
@@ -66,6 +84,24 @@
       "writtenOn": "2017-05-10T05:53:50Z",
       "side": 1,
       "message": "s/strlen(arg.val)/sizeof(reconfile_name)/\nright?",
+      "revId": "bc4ba8cedf985c2cf090d5b5d38404ce9c3e32e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5dc50f6_a727ce2c",
+        "filename": "aomenc.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2017-05-10T17:03:09Z",
+      "side": 1,
+      "message": "I allocated 512 bytes for reconfile_name. I agree it may not be the safest way.",
+      "parentUuid": "fadde776_47c7c3e2",
       "revId": "bc4ba8cedf985c2cf090d5b5d38404ce9c3e32e8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
