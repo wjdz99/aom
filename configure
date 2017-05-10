@@ -253,6 +253,7 @@ EXPERIMENT_LIST="
     convolve_round
     compound_round
     ext_tx
+    dpcm_intra
     tx64x64
     sub8x8_mc
     ext_intra
