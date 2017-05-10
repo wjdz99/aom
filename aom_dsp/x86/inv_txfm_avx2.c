@@ -38,8 +38,9 @@ static INLINE void transpose_col_to_row_nz4x4(__m256i *in /*in[4]*/) {
   in[3] = _mm256_permute4x64_epi64(v1, 0xA9);
 }
 
-#define SHUFFLE_EPI64(x0, x1, imm8) \
-  (__m256i) _mm256_shuffle_pd((__m256d)x0, (__m256d)x1, imm8)
+#define MM256_SHUFFLE_EPI64(x0, x1, imm8)                        \
+  _mm256_castpd_si256(_mm256_shuffle_pd(_mm256_castsi256_pd(x0), \
+                                        _mm256_castsi256_pd(x1), imm8))
 
 static INLINE void transpose_col_to_row_nz4x16(__m256i *in /*in[16]*/) {
   int i;
@@ -48,8 +49,8 @@ static INLINE void transpose_col_to_row_nz4x16(__m256i *in /*in[16]*/) {
   }
 
   for (i = 0; i < 4; ++i) {
-    in[i] = SHUFFLE_EPI64(in[i], in[i + 4], 0);
-    in[i + 8] = SHUFFLE_EPI64(in[i + 8], in[i + 12], 0);
+    in[i] = MM256_SHUFFLE_EPI64(in[i], in[i + 4], 0);
+    in[i + 8] = MM256_SHUFFLE_EPI64(in[i + 8], in[i + 12], 0);
   }
 
   for (i = 0; i < 4; ++i) {
@@ -181,14 +182,14 @@ void transpose_col_to_row_nz8x8(__m256i *in /*in[8]*/) {
   const __m256i v6 = _mm256_unpacklo_epi32(u1, u3);
   const __m256i v7 = _mm256_unpackhi_epi32(u1, u3);
 
-  in[0] = SHUFFLE_EPI64(v0, v4, 0);
-  in[1] = SHUFFLE_EPI64(v0, v4, 3);
-  in[2] = SHUFFLE_EPI64(v1, v5, 0);
-  in[3] = SHUFFLE_EPI64(v1, v5, 3);
-  in[4] = SHUFFLE_EPI64(v2, v6, 0);
-  in[5] = SHUFFLE_EPI64(v2, v6, 3);
-  in[6] = SHUFFLE_EPI64(v3, v7, 0);
-  in[7] = SHUFFLE_EPI64(v3, v7, 3);
+  in[0] = MM256_SHUFFLE_EPI64(v0, v4, 0);
+  in[1] = MM256_SHUFFLE_EPI64(v0, v4, 3);
+  in[2] = MM256_SHUFFLE_EPI64(v1, v5, 0);
+  in[3] = MM256_SHUFFLE_EPI64(v1, v5, 3);
+  in[4] = MM256_SHUFFLE_EPI64(v2, v6, 0);
+  in[5] = MM256_SHUFFLE_EPI64(v2, v6, 3);
+  in[6] = MM256_SHUFFLE_EPI64(v3, v7, 0);
+  in[7] = MM256_SHUFFLE_EPI64(v3, v7, 3);
 }
 
 // Note:
