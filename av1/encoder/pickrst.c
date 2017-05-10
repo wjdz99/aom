@@ -1300,11 +1300,11 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
              nt * sizeof(restore_types[best_restore][0]));
     }
   }
-  /*
   printf("Frame %d/%d restore types: %d %d %d\n", cm->current_video_frame,
          cm->show_frame, cm->rst_info[0].frame_restoration_type,
          cm->rst_info[1].frame_restoration_type,
          cm->rst_info[2].frame_restoration_type);
+  /*
   printf("Frame %d/%d frame_restore_type %d : %f %f %f %f\n",
          cm->current_video_frame, cm->show_frame,
          cm->rst_info[0].frame_restoration_type, cost_restore[0],
