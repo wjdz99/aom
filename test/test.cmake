@@ -8,6 +8,8 @@
 ## Media Patent License 1.0 was not distributed with this source code in the
 ## PATENTS file, you can obtain it at www.aomedia.org/license/patent.
 ##
+include(ProcessorCount)
+
 include("${AOM_ROOT}/test/test_data_util.cmake")
 
 set(AOM_UNIT_TEST_WRAPPER_SOURCES
@@ -304,10 +306,37 @@ function (setup_aom_test_targets)
                                     "AOM_UNIT_TEST_COMMON_INTRIN_NEON")
   endif ()
 
+  # Create a custom build target for downloading test data.
   add_custom_target(testdata
                     COMMAND ${CMAKE_COMMAND}
                       -DAOM_CONFIG_DIR="${AOM_CONFIG_DIR}"
                       -DAOM_ROOT="${AOM_ROOT}"
-                      -P "${AOM_ROOT}/test/test_worker.cmake"
+                      -P "${AOM_ROOT}/test/test_data_download_worker.cmake"
                     SOURCES ${AOM_TEST_DATA_LIST})
+
+  # Create a custom build target for running the tests.
+  ProcessorCount(num_test_shards)
+  if (num_test_shards EQUAL 0)
+    # Use the configure build's default shards when the number of processors
+    # isn't available.
+    set(num_test_shards 10)
+  endif ()
+  # TODO(tomfinegan): This needs some work for MSVC and Xcode. Executable suffix
+  # and config based executable output paths are the obvious issues.
+  math(EXPR max_shard_index "${num_test_shards} - 1")
+  foreach (shard_index RANGE ${max_shard_index})
+    set(test_name "test_${shard_index}")
+    add_custom_target(${test_name}
+                      COMMAND ${CMAKE_COMMAND}
+                      -DAOM_CONFIG_DIR="${AOM_CONFIG_DIR}"
+                      -DAOM_ROOT="${AOM_ROOT}"
+                      -DAOM_TEST_TARGET=test_libaom
+                      -DGTEST_SHARD_INDEX=${shard_index}
+                      -DGTEST_TOTAL_SHARDS=${num_test_shards}
+                      -P "${AOM_ROOT}/test/test_runner.cmake"
+                      DEPENDS testdata test_libaom)
+    set(test_targets ${test_targets} ${test_name})
+  endforeach ()
+  add_custom_target(runtests)
+  add_dependencies(runtests ${test_targets})
 endfunction ()
