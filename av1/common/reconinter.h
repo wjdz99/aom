@@ -499,7 +499,7 @@ static MV mi_mv_pred_q2(const MODE_INFO *mi, int idx, int block0, int block1) {
 }
 
 // TODO(jkoleszar): yet another mv clamping function :-(
-static INLINE MV clamp_mv_to_umv_border_sb(const MACROBLOCKD *xd,
+static INLINE MV clamp_mv_to_umv_border_cb(const MACROBLOCKD *xd,
                                            const MV *src_mv, int bw, int bh,
                                            int ss_x, int ss_y) {
   // If the MV points so far into the UMV border that no visible pixels
@@ -540,20 +540,20 @@ void av1_build_inter_predictor_sub8x8(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                       int plane, int i, int ir, int ic,
                                       int mi_row, int mi_col);
 
-void av1_build_inter_predictors_sby(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                                    int mi_row, int mi_col, BUFFER_SET *ctx,
-                                    BLOCK_SIZE bsize);
-
-void av1_build_inter_predictors_sbuv(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void av1_build_inter_predictors_cb_y(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                      int mi_row, int mi_col, BUFFER_SET *ctx,
                                      BLOCK_SIZE bsize);
 
-void av1_build_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void av1_build_inter_predictors_cb_uv(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                      int mi_row, int mi_col, BUFFER_SET *ctx,
+                                      BLOCK_SIZE bsize);
+
+void av1_build_inter_predictors_cb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                    int mi_row, int mi_col, BUFFER_SET *ctx,
                                    BLOCK_SIZE bsize);
 
 #if CONFIG_SUPERTX
-void av1_build_inter_predictors_sb_sub8x8_extend(const AV1_COMMON *cm,
+void av1_build_inter_predictors_cb_sub8x8_extend(const AV1_COMMON *cm,
                                                  MACROBLOCKD *xd,
 #if CONFIG_EXT_INTER
                                                  int mi_row_ori, int mi_col_ori,
@@ -561,7 +561,7 @@ void av1_build_inter_predictors_sb_sub8x8_extend(const AV1_COMMON *cm,
                                                  int mi_row, int mi_col,
                                                  BLOCK_SIZE bsize, int block);
 
-void av1_build_inter_predictors_sb_extend(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void av1_build_inter_predictors_cb_extend(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_EXT_INTER
                                           int mi_row_ori, int mi_col_ori,
 #endif  // CONFIG_EXT_INTER
@@ -803,16 +803,16 @@ void av1_build_interintra_predictors(MACROBLOCKD *xd, uint8_t *ypred,
                                      uint8_t *upred, uint8_t *vpred,
                                      int ystride, int ustride, int vstride,
                                      BUFFER_SET *ctx, BLOCK_SIZE bsize);
-void av1_build_interintra_predictors_sby(MACROBLOCKD *xd, uint8_t *ypred,
-                                         int ystride, BUFFER_SET *ctx,
-                                         BLOCK_SIZE bsize);
-void av1_build_interintra_predictors_sbc(MACROBLOCKD *xd, uint8_t *upred,
-                                         int ustride, BUFFER_SET *ctx,
-                                         int plane, BLOCK_SIZE bsize);
-void av1_build_interintra_predictors_sbuv(MACROBLOCKD *xd, uint8_t *upred,
-                                          uint8_t *vpred, int ustride,
-                                          int vstride, BUFFER_SET *ctx,
+void av1_build_interintra_predictors_cb_y(MACROBLOCKD *xd, uint8_t *ypred,
+                                          int ystride, BUFFER_SET *ctx,
                                           BLOCK_SIZE bsize);
+void av1_build_interintra_predictors_cb_c(MACROBLOCKD *xd, uint8_t *upred,
+                                          int ustride, BUFFER_SET *ctx,
+                                          int plane, BLOCK_SIZE bsize);
+void av1_build_interintra_predictors_cb_uv(MACROBLOCKD *xd, uint8_t *upred,
+                                           uint8_t *vpred, int ustride,
+                                           int vstride, BUFFER_SET *ctx,
+                                           BLOCK_SIZE bsize);
 
 void av1_build_intra_predictors_for_interintra(MACROBLOCKD *xd,
                                                BLOCK_SIZE bsize, int plane,

@@ -987,7 +987,7 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 
           const MV mv = this_mbmi->mv[ref].as_mv;
 
-          const MV mv_q4 = clamp_mv_to_umv_border_sb(
+          const MV mv_q4 = clamp_mv_to_umv_border_cb(
               xd, &mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
           uint8_t *pre;
           MV32 scaled_mv;
@@ -1106,7 +1106,7 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
       // MV. Note however that it performs the subsampling aware scaling so
       // that the result is always q4.
       // mv_precision precision is MV_PRECISION_Q4.
-      const MV mv_q4 = clamp_mv_to_umv_border_sb(
+      const MV mv_q4 = clamp_mv_to_umv_border_cb(
           xd, &mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
 
       const int is_scaled = av1_is_scaled(sf);
@@ -1329,26 +1329,26 @@ static void build_inter_predictors_for_planes(const AV1_COMMON *cm,
   }
 }
 
-void av1_build_inter_predictors_sby(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                                    int mi_row, int mi_col, BUFFER_SET *ctx,
-                                    BLOCK_SIZE bsize) {
+void av1_build_inter_predictors_cb_y(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                     int mi_row, int mi_col, BUFFER_SET *ctx,
+                                     BLOCK_SIZE bsize) {
   build_inter_predictors_for_planes(cm, xd, bsize, mi_row, mi_col, 0, 0);
 #if CONFIG_EXT_INTER
   if (is_interintra_pred(&xd->mi[0]->mbmi)) {
     BUFFER_SET default_ctx = { { xd->plane[0].dst.buf, NULL, NULL },
                                { xd->plane[0].dst.stride, 0, 0 } };
     if (!ctx) ctx = &default_ctx;
-    av1_build_interintra_predictors_sby(xd, xd->plane[0].dst.buf,
-                                        xd->plane[0].dst.stride, ctx, bsize);
+    av1_build_interintra_predictors_cb_y(xd, xd->plane[0].dst.buf,
+                                         xd->plane[0].dst.stride, ctx, bsize);
   }
 #else
   (void)ctx;
 #endif  // CONFIG_EXT_INTER
 }
 
-void av1_build_inter_predictors_sbuv(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                                     int mi_row, int mi_col, BUFFER_SET *ctx,
-                                     BLOCK_SIZE bsize) {
+void av1_build_inter_predictors_cb_uv(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                      int mi_row, int mi_col, BUFFER_SET *ctx,
+                                      BLOCK_SIZE bsize) {
   build_inter_predictors_for_planes(cm, xd, bsize, mi_row, mi_col, 1,
                                     MAX_MB_PLANE - 1);
 #if CONFIG_EXT_INTER
@@ -1358,7 +1358,7 @@ void av1_build_inter_predictors_sbuv(const AV1_COMMON *cm, MACROBLOCKD *xd,
       { 0, xd->plane[1].dst.stride, xd->plane[2].dst.stride }
     };
     if (!ctx) ctx = &default_ctx;
-    av1_build_interintra_predictors_sbuv(
+    av1_build_interintra_predictors_cb_uv(
         xd, xd->plane[1].dst.buf, xd->plane[2].dst.buf, xd->plane[1].dst.stride,
         xd->plane[2].dst.stride, ctx, bsize);
   }
@@ -1368,7 +1368,7 @@ void av1_build_inter_predictors_sbuv(const AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 
 // TODO(afergs): Check if ctx can be made constant
-void av1_build_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void av1_build_inter_predictors_cb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                    int mi_row, int mi_col, BUFFER_SET *ctx,
                                    BLOCK_SIZE bsize) {
   build_inter_predictors_for_planes(cm, xd, bsize, mi_row, mi_col, 0,
@@ -1566,7 +1566,7 @@ void av1_build_masked_inter_predictor_complex(
   } while (--h_remain);
 }
 
-void av1_build_inter_predictors_sb_sub8x8_extend(const AV1_COMMON *cm,
+void av1_build_inter_predictors_cb_sub8x8_extend(const AV1_COMMON *cm,
                                                  MACROBLOCKD *xd,
 #if CONFIG_EXT_INTER
                                                  int mi_row_ori, int mi_col_ori,
@@ -1622,7 +1622,7 @@ void av1_build_inter_predictors_sb_sub8x8_extend(const AV1_COMMON *cm,
 #endif  // CONFIG_EXT_INTER
 }
 
-void av1_build_inter_predictors_sb_extend(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void av1_build_inter_predictors_cb_extend(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_EXT_INTER
                                           int mi_row_ori, int mi_col_ori,
 #endif  // CONFIG_EXT_INTER
@@ -2840,9 +2840,9 @@ void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
                      inter_pred, inter_stride, intra_pred, intra_stride);
 }
 
-void av1_build_interintra_predictors_sby(MACROBLOCKD *xd, uint8_t *ypred,
-                                         int ystride, BUFFER_SET *ctx,
-                                         BLOCK_SIZE bsize) {
+void av1_build_interintra_predictors_cb_y(MACROBLOCKD *xd, uint8_t *ypred,
+                                          int ystride, BUFFER_SET *ctx,
+                                          BLOCK_SIZE bsize) {
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     DECLARE_ALIGNED(16, uint16_t, intrapredictor[MAX_SB_SQUARE]);
@@ -2862,9 +2862,9 @@ void av1_build_interintra_predictors_sby(MACROBLOCKD *xd, uint8_t *ypred,
   }
 }
 
-void av1_build_interintra_predictors_sbc(MACROBLOCKD *xd, uint8_t *upred,
-                                         int ustride, BUFFER_SET *ctx,
-                                         int plane, BLOCK_SIZE bsize) {
+void av1_build_interintra_predictors_cb_c(MACROBLOCKD *xd, uint8_t *upred,
+                                          int ustride, BUFFER_SET *ctx,
+                                          int plane, BLOCK_SIZE bsize) {
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     DECLARE_ALIGNED(16, uint16_t, uintrapredictor[MAX_SB_SQUARE]);
@@ -2885,21 +2885,21 @@ void av1_build_interintra_predictors_sbc(MACROBLOCKD *xd, uint8_t *upred,
   }
 }
 
-void av1_build_interintra_predictors_sbuv(MACROBLOCKD *xd, uint8_t *upred,
-                                          uint8_t *vpred, int ustride,
-                                          int vstride, BUFFER_SET *ctx,
-                                          BLOCK_SIZE bsize) {
-  av1_build_interintra_predictors_sbc(xd, upred, ustride, ctx, 1, bsize);
-  av1_build_interintra_predictors_sbc(xd, vpred, vstride, ctx, 2, bsize);
+void av1_build_interintra_predictors_cb_uv(MACROBLOCKD *xd, uint8_t *upred,
+                                           uint8_t *vpred, int ustride,
+                                           int vstride, BUFFER_SET *ctx,
+                                           BLOCK_SIZE bsize) {
+  av1_build_interintra_predictors_cb_c(xd, upred, ustride, ctx, 1, bsize);
+  av1_build_interintra_predictors_cb_c(xd, vpred, vstride, ctx, 2, bsize);
 }
 
 void av1_build_interintra_predictors(MACROBLOCKD *xd, uint8_t *ypred,
                                      uint8_t *upred, uint8_t *vpred,
                                      int ystride, int ustride, int vstride,
                                      BUFFER_SET *ctx, BLOCK_SIZE bsize) {
-  av1_build_interintra_predictors_sby(xd, ypred, ystride, ctx, bsize);
-  av1_build_interintra_predictors_sbuv(xd, upred, vpred, ustride, vstride, ctx,
-                                       bsize);
+  av1_build_interintra_predictors_cb_y(xd, ypred, ystride, ctx, bsize);
+  av1_build_interintra_predictors_cb_uv(xd, upred, vpred, ustride, vstride, ctx,
+                                        bsize);
 }
 
 // Builds the inter-predictor for the single ref case
@@ -2932,7 +2932,7 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
   // MV. Note however that it performs the subsampling aware scaling so
   // that the result is always q4.
   // mv_precision precision is MV_PRECISION_Q4.
-  const MV mv_q4 = clamp_mv_to_umv_border_sb(xd, &mv, bw, bh, pd->subsampling_x,
+  const MV mv_q4 = clamp_mv_to_umv_border_cb(xd, &mv, bw, bh, pd->subsampling_x,
                                              pd->subsampling_y);
 
   uint8_t *pre;
