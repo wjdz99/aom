@@ -730,10 +730,12 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
   const int num_mv_refs =
       MAX_MV_REF_CANDIDATES +
       (cpi->sf.adaptive_motion_search && block_size < x->max_partition_size);
-
+  MB_MODE_INFO *const mbmi = &x->e_mbd.mi[0]->mbmi;
   MV pred_mv[3];
   pred_mv[0] = x->mbmi_ext->ref_mvs[ref_frame][0].as_mv;
-  pred_mv[1] = x->mbmi_ext->ref_mvs[ref_frame][1].as_mv;
+  if (has_second_ref(mbmi)) {
+    pred_mv[1] = x->mbmi_ext->ref_mvs[ref_frame][1].as_mv;
+  }
   pred_mv[2] = x->pred_mv[ref_frame];
   assert(num_mv_refs <= (int)(sizeof(pred_mv) / sizeof(pred_mv[0])));
 
@@ -743,7 +745,7 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
   for (i = 0; i < num_mv_refs; ++i) {
     const MV *this_mv = &pred_mv[i];
     int fp_row, fp_col;
-
+    if (i == 1 && !has_second_ref(mbmi)) continue;
     if (i == 1 && near_same_nearest) continue;
     fp_row = (this_mv->row + 3 + (this_mv->row >= 0)) >> 3;
     fp_col = (this_mv->col + 3 + (this_mv->col >= 0)) >> 3;
