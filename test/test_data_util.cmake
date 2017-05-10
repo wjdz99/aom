@@ -62,7 +62,9 @@ function (check_file local_path expected_checksum out_needs_update)
     unset(${out_needs_update} PARENT_SCOPE)
   else ()
     set(${out_needs_update} 1 PARENT_SCOPE)
+    return ()
   endif ()
+  message("${local_path} up to date.")
 endfunction ()
 
 # Downloads data from $file_url, confirms that $file_checksum matches, and
