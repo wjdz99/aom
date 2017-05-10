@@ -3978,7 +3978,7 @@ static void init_motion_estimation(AV1_COMP *cpi) {
 }
 
 #if CONFIG_LOOP_RESTORATION
-#define COUPLED_CHROMA_FROM_LUMA_RESTORATION 0
+#define COUPLED_CHROMA_FROM_LUMA_RESTORATION 1
 static void set_restoration_tilesize(int width, int height, int sx, int sy,
                                      RestorationInfo *rst) {
   (void)width;
