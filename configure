@@ -250,6 +250,7 @@ EXPERIMENT_LIST="
     convolve_round
     compound_round
     ext_tx
+    dpcm_intra
     tx64x64
     sub8x8_mc
     ext_intra
@@ -522,6 +523,7 @@ post_process_cmdline() {
     enabled compound_round && soft_enable convolve_round
     enabled smooth_hv && soft_enable alt_intra
     enabled intra_edge && enable_feature ext_intra
+    enabled dpcm_intra && enable_feature ext_tx
 
     if ! enabled delta_q && enabled ext_delta_q; then
       log_echo "ext_delta_q requires delta_q, so disabling ext_delta_q"
