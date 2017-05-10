@@ -952,7 +952,7 @@ static void choose_partitioning(AV1_COMP *const cpi, ThreadData *const td,
       x->pred_mv[LAST_FRAME] = mbmi->mv[0].as_mv;
     }
 
-    av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, cm->sb_size);
+    av1_build_inter_predictors_cb(cm, xd, mi_row, mi_col, NULL, cm->sb_size);
 
     ref = xd->plane[0].dst.buf;
     ref_stride = xd->plane[0].dst.stride;
@@ -1839,7 +1839,7 @@ static int set_segment_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   return av1_compute_rd_mult(cpi, segment_qindex + cm->y_dc_delta_q);
 }
 
-static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
+static void rd_pick_cb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                              MACROBLOCK *const x, int mi_row, int mi_col,
                              RD_STATS *rd_cost,
 #if CONFIG_SUPERTX
@@ -1954,20 +1954,20 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   // Find best coding mode & reconstruct the MB so it is available
   // as a predictor for MBs that follow in the SB
   if (frame_is_intra_only(cm)) {
-    av1_rd_pick_intra_mode_sb(cpi, x, rd_cost, bsize, ctx, best_rd);
+    av1_rd_pick_intra_mode_cb(cpi, x, rd_cost, bsize, ctx, best_rd);
 #if CONFIG_SUPERTX
     *totalrate_nocoef = 0;
 #endif  // CONFIG_SUPERTX
   } else {
     if (bsize >= BLOCK_8X8 || unify_bsize) {
       if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
-        av1_rd_pick_inter_mode_sb_seg_skip(cpi, tile_data, x, mi_row, mi_col,
+        av1_rd_pick_inter_mode_cb_seg_skip(cpi, tile_data, x, mi_row, mi_col,
                                            rd_cost, bsize, ctx, best_rd);
 #if CONFIG_SUPERTX
         *totalrate_nocoef = rd_cost->rate;
 #endif  // CONFIG_SUPERTX
       } else {
-        av1_rd_pick_inter_mode_sb(cpi, tile_data, x, mi_row, mi_col, rd_cost,
+        av1_rd_pick_inter_mode_cb(cpi, tile_data, x, mi_row, mi_col, rd_cost,
 #if CONFIG_SUPERTX
                                   totalrate_nocoef,
 #endif  // CONFIG_SUPERTX
@@ -2853,7 +2853,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
     if (partition != PARTITION_NONE && !splits_below &&
         mi_row + hbs < cm->mi_rows && mi_col + hbs < cm->mi_cols) {
       pc_tree->partitioning = PARTITION_NONE;
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &none_rdc,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col, &none_rdc,
 #if CONFIG_SUPERTX
                        &none_rate_nocoef,
 #endif
@@ -2883,7 +2883,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
 
   switch (partition) {
     case PARTITION_NONE:
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
 #if CONFIG_SUPERTX
                        &last_part_rate_nocoef,
 #endif
@@ -2893,7 +2893,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
                        bsize, ctx_none, INT64_MAX);
       break;
     case PARTITION_HORZ:
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
 #if CONFIG_SUPERTX
                        &last_part_rate_nocoef,
 #endif
@@ -2912,7 +2912,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
         update_state(cpi, td, ctx_h, mi_row, mi_col, subsize, 1);
         encode_superblock(cpi, td, tp, DRY_RUN_NORMAL, mi_row, mi_col, subsize,
                           NULL);
-        rd_pick_sb_modes(cpi, tile_data, x, mi_row + hbs, mi_col, &tmp_rdc,
+        rd_pick_cb_modes(cpi, tile_data, x, mi_row + hbs, mi_col, &tmp_rdc,
 #if CONFIG_SUPERTX
                          &rt_nocoef,
 #endif
@@ -2936,7 +2936,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
       }
       break;
     case PARTITION_VERT:
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
 #if CONFIG_SUPERTX
                        &last_part_rate_nocoef,
 #endif
@@ -2955,7 +2955,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
         update_state(cpi, td, ctx_v, mi_row, mi_col, subsize, 1);
         encode_superblock(cpi, td, tp, DRY_RUN_NORMAL, mi_row, mi_col, subsize,
                           NULL);
-        rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col + hbs, &tmp_rdc,
+        rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col + hbs, &tmp_rdc,
 #if CONFIG_SUPERTX
                          &rt_nocoef,
 #endif
@@ -2981,7 +2981,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
       break;
     case PARTITION_SPLIT:
       if (bsize == BLOCK_8X8 && !unify_bsize) {
-        rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
+        rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
 #if CONFIG_SUPERTX
                          &last_part_rate_nocoef,
 #endif
@@ -3087,7 +3087,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
       save_context(x, &x_ctx, mi_row, mi_col, &buf, bsize);
 #endif
       pc_tree->split[i]->partitioning = PARTITION_NONE;
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row + y_idx, mi_col + x_idx,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row + y_idx, mi_col + x_idx,
                        &tmp_rdc,
 #if CONFIG_SUPERTX
                        &rt_nocoef,
@@ -3514,7 +3514,7 @@ static void rd_test_partition3(
 #endif
   if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx);
 
-  rd_pick_sb_modes(cpi, tile_data, x, mi_row0, mi_col0, &sum_rdc,
+  rd_pick_cb_modes(cpi, tile_data, x, mi_row0, mi_col0, &sum_rdc,
 #if CONFIG_SUPERTX
                    &sum_rate_nocoef,
 #endif
@@ -3539,14 +3539,14 @@ static void rd_test_partition3(
     if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_0);
 
 #if CONFIG_SUPERTX
-    rd_pick_sb_modes(cpi, tile_data, x, mi_row1, mi_col1, &this_rdc,
+    rd_pick_cb_modes(cpi, tile_data, x, mi_row1, mi_col1, &this_rdc,
                      &this_rate_nocoef,
 #if CONFIG_EXT_PARTITION_TYPES
                      partition,
 #endif
                      subsize1, &ctxs[1], INT64_MAX - sum_rdc.rdcost);
 #else
-    rd_pick_sb_modes(cpi, tile_data, x, mi_row1, mi_col1, &this_rdc,
+    rd_pick_cb_modes(cpi, tile_data, x, mi_row1, mi_col1, &this_rdc,
 #if CONFIG_EXT_PARTITION_TYPES
                      partition,
 #endif
@@ -3580,14 +3580,14 @@ static void rd_test_partition3(
       if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_1);
 
 #if CONFIG_SUPERTX
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row2, mi_col2, &this_rdc,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row2, mi_col2, &this_rdc,
                        &this_rate_nocoef,
 #if CONFIG_EXT_PARTITION_TYPES
                        partition,
 #endif
                        subsize2, &ctxs[2], INT64_MAX - sum_rdc.rdcost);
 #else
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row2, mi_col2, &this_rdc,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row2, mi_col2, &this_rdc,
 #if CONFIG_EXT_PARTITION_TYPES
                        partition,
 #endif
@@ -3904,7 +3904,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
   // PARTITION_NONE
   if (partition_none_allowed) {
-    rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
+    rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
 #if CONFIG_SUPERTX
                      &this_rate_nocoef,
 #endif
@@ -4025,14 +4025,14 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
             ctx_none->mic.mbmi.interp_filter;
 #endif
 #if CONFIG_SUPERTX
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &sum_rdc,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col, &sum_rdc,
                        &sum_rate_nocoef,
 #if CONFIG_EXT_PARTITION_TYPES
                        PARTITION_SPLIT,
 #endif
                        subsize, pc_tree->leaf_split[0], INT64_MAX);
 #else
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &sum_rdc,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col, &sum_rdc,
 #if CONFIG_EXT_PARTITION_TYPES
                        PARTITION_SPLIT,
 #endif
@@ -4214,7 +4214,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       pc_tree->horizontal[0].pred_interp_filter =
           ctx_none->mic.mbmi.interp_filter;
 #endif
-    rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &sum_rdc,
+    rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col, &sum_rdc,
 #if CONFIG_SUPERTX
                      &sum_rate_nocoef,
 #endif  // CONFIG_SUPERTX
@@ -4251,14 +4251,14 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
             ctx_none->mic.mbmi.interp_filter;
 #endif
 #if CONFIG_SUPERTX
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row + mi_step, mi_col, &this_rdc,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row + mi_step, mi_col, &this_rdc,
                        &this_rate_nocoef,
 #if CONFIG_EXT_PARTITION_TYPES
                        PARTITION_HORZ,
 #endif
                        subsize, &pc_tree->horizontal[1], INT64_MAX);
 #else
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row + mi_step, mi_col, &this_rdc,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row + mi_step, mi_col, &this_rdc,
 #if CONFIG_EXT_PARTITION_TYPES
                        PARTITION_HORZ,
 #endif
@@ -4362,7 +4362,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       pc_tree->vertical[0].pred_interp_filter =
           ctx_none->mic.mbmi.interp_filter;
 #endif
-    rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &sum_rdc,
+    rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col, &sum_rdc,
 #if CONFIG_SUPERTX
                      &sum_rate_nocoef,
 #endif  // CONFIG_SUPERTX
@@ -4397,7 +4397,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
             ctx_none->mic.mbmi.interp_filter;
 #endif
 #if CONFIG_SUPERTX
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col + mi_step, &this_rdc,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col + mi_step, &this_rdc,
                        &this_rate_nocoef,
 #if CONFIG_EXT_PARTITION_TYPES
                        PARTITION_VERT,
@@ -4405,7 +4405,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                        subsize, &pc_tree->vertical[1],
                        INT64_MAX - sum_rdc.rdcost);
 #else
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col + mi_step, &this_rdc,
+      rd_pick_cb_modes(cpi, tile_data, x, mi_row, mi_col + mi_step, &this_rdc,
 #if CONFIG_EXT_PARTITION_TYPES
                        PARTITION_VERT,
 #endif
@@ -6005,9 +6005,9 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
                            &xd->block_refs[ref]->sf);
     }
-    av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, NULL, block_size);
+    av1_build_inter_predictors_cb_y(cm, xd, mi_row, mi_col, NULL, block_size);
 
-    av1_build_inter_predictors_sbuv(cm, xd, mi_row, mi_col, NULL, block_size);
+    av1_build_inter_predictors_cb_uv(cm, xd, mi_row, mi_col, NULL, block_size);
 #if CONFIG_MOTION_VAR
     if (mbmi->motion_mode == OBMC_CAUSAL) {
 #if CONFIG_NCOBMC
@@ -6292,13 +6292,13 @@ static void predict_superblock(const AV1_COMP *const cpi, ThreadData *td,
   }
 
   if (!b_sub8x8)
-    av1_build_inter_predictors_sb_extend(cm, xd,
+    av1_build_inter_predictors_cb_extend(cm, xd,
 #if CONFIG_EXT_INTER
                                          mi_row_ori, mi_col_ori,
 #endif  // CONFIG_EXT_INTER
                                          mi_row_pred, mi_col_pred, bsize_pred);
   else
-    av1_build_inter_predictors_sb_sub8x8_extend(cm, xd,
+    av1_build_inter_predictors_cb_sub8x8_extend(cm, xd,
 #if CONFIG_EXT_INTER
                                                 mi_row_ori, mi_col_ori,
 #endif  // CONFIG_EXT_INTER
