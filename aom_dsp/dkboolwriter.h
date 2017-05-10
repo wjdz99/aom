@@ -26,18 +26,18 @@
 extern "C" {
 #endif
 
-typedef struct aom_dk_writer {
+typedef struct AomDkWriter {
   unsigned int lowvalue;
   unsigned int range;
   int count;
   unsigned int pos;
   uint8_t *buffer;
-} aom_dk_writer;
+} AomDkWriter;
 
-void aom_dk_start_encode(aom_dk_writer *bc, uint8_t *buffer);
-void aom_dk_stop_encode(aom_dk_writer *bc);
+void aom_dk_start_encode(AomDkWriter *bc, uint8_t *buffer);
+void aom_dk_stop_encode(AomDkWriter *bc);
 
-static INLINE void aom_dk_write(aom_dk_writer *br, int bit, int probability) {
+static INLINE void aom_dk_write(AomDkWriter *br, int bit, int probability) {
   unsigned int split;
   int count = br->count;
   unsigned int range = br->range;

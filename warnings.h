@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-struct aom_codec_enc_cfg;
+struct AomCodecEncCfg;
 struct AvxEncoderConfig;
 
 /*
@@ -25,7 +25,7 @@ struct AvxEncoderConfig;
  */
 void check_encoder_config(int disable_prompt,
                           const struct AvxEncoderConfig *global_config,
-                          const struct aom_codec_enc_cfg *stream_config);
+                          const struct AomCodecEncCfg *stream_config);
 
 #ifdef __cplusplus
 }  // extern "C"

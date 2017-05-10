@@ -217,10 +217,10 @@ typedef struct {
 typedef struct {
   void *(*start_)(void *);
   void *arg_;
-} thread_arg;
+} ThreadArg;
 
 static void thread_start(void *arg) {
-  thread_arg targ = *(thread_arg *)arg;
+  ThreadArg targ = *(ThreadArg *)arg;
   free(arg);
 
   targ.start_(targ.arg_);
@@ -229,7 +229,7 @@ static void thread_start(void *arg) {
 static INLINE int pthread_create(pthread_t *const thread, const void *attr,
                                  void *(*start)(void *), void *arg) {
   int tid;
-  thread_arg *targ = (thread_arg *)malloc(sizeof(*targ));
+  ThreadArg *targ = (ThreadArg *)malloc(sizeof(*targ));
   if (targ == NULL) return 1;
 
   (void)attr;

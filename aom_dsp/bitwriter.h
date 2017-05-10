@@ -37,23 +37,23 @@ extern "C" {
 #endif
 
 #if CONFIG_ANS
-typedef struct BufAnsCoder aom_writer;
+typedef struct BufAnsCoder AomWriter;
 #elif CONFIG_DAALA_EC
-typedef struct daala_writer aom_writer;
+typedef struct DaalaWriter AomWriter;
 #else
-typedef struct aom_dk_writer aom_writer;
+typedef struct AomDkWriter AomWriter;
 #endif
 
-typedef struct TOKEN_STATS {
+typedef struct TokenStats {
   int cost;
 #if CONFIG_VAR_TX
 #if CONFIG_RD_DEBUG
   int txb_coeff_cost_map[TXB_COEFF_COST_MAP_SIZE][TXB_COEFF_COST_MAP_SIZE];
 #endif
 #endif
-} TOKEN_STATS;
+} TokenStats;
 
-static INLINE void init_token_stats(TOKEN_STATS *token_stats) {
+static INLINE void init_token_stats(TokenStats *token_stats) {
 #if CONFIG_VAR_TX
 #if CONFIG_RD_DEBUG
   int r, c;
@@ -67,7 +67,7 @@ static INLINE void init_token_stats(TOKEN_STATS *token_stats) {
   token_stats->cost = 0;
 }
 
-static INLINE void aom_start_encode(aom_writer *bc, uint8_t *buffer) {
+static INLINE void aom_start_encode(AomWriter *bc, uint8_t *buffer) {
 #if CONFIG_ANS
   (void)bc;
   (void)buffer;
@@ -79,7 +79,7 @@ static INLINE void aom_start_encode(aom_writer *bc, uint8_t *buffer) {
 #endif
 }
 
-static INLINE void aom_stop_encode(aom_writer *bc) {
+static INLINE void aom_stop_encode(AomWriter *bc) {
 #if CONFIG_ANS
   (void)bc;
   assert(0 && "buf_ans requires a more complicated shutdown procedure");
@@ -90,7 +90,7 @@ static INLINE void aom_stop_encode(aom_writer *bc) {
 #endif
 }
 
-static INLINE void aom_write(aom_writer *br, int bit, int probability) {
+static INLINE void aom_write(AomWriter *br, int bit, int probability) {
 #if CONFIG_ANS
   buf_rabs_write(br, bit, probability);
 #elif CONFIG_DAALA_EC
@@ -100,8 +100,8 @@ static INLINE void aom_write(aom_writer *br, int bit, int probability) {
 #endif
 }
 
-static INLINE void aom_write_record(aom_writer *br, int bit, int probability,
-                                    TOKEN_STATS *token_stats) {
+static INLINE void aom_write_record(AomWriter *br, int bit, int probability,
+                                    TokenStats *token_stats) {
   aom_write(br, bit, probability);
 #if CONFIG_RD_DEBUG
   token_stats->cost += av1_cost_bit(probability, bit);
@@ -110,7 +110,7 @@ static INLINE void aom_write_record(aom_writer *br, int bit, int probability,
 #endif
 }
 
-static INLINE void aom_write_bit(aom_writer *w, int bit) {
+static INLINE void aom_write_bit(AomWriter *w, int bit) {
 #if CONFIG_ANS
   buf_rabs_write_bit(w, bit);
 #elif CONFIG_DAALA_EC && CONFIG_RAWBITS
@@ -121,8 +121,8 @@ static INLINE void aom_write_bit(aom_writer *w, int bit) {
 #endif
 }
 
-static INLINE void aom_write_bit_record(aom_writer *w, int bit,
-                                        TOKEN_STATS *token_stats) {
+static INLINE void aom_write_bit_record(AomWriter *w, int bit,
+                                        TokenStats *token_stats) {
   aom_write_bit(w, bit);
 #if CONFIG_RD_DEBUG
   token_stats->cost += av1_cost_bit(128, bit);  // aom_prob_half
@@ -131,16 +131,15 @@ static INLINE void aom_write_bit_record(aom_writer *w, int bit,
 #endif
 }
 
-static INLINE void aom_write_literal(aom_writer *w, int data, int bits) {
+static INLINE void aom_write_literal(AomWriter *w, int data, int bits) {
   int bit;
 
   for (bit = bits - 1; bit >= 0; bit--) aom_write_bit(w, 1 & (data >> bit));
 }
 
-static INLINE void aom_write_tree_as_bits(aom_writer *w,
-                                          const aom_tree_index *tr,
-                                          const aom_prob *probs, int bits,
-                                          int len, aom_tree_index i) {
+static INLINE void aom_write_tree_as_bits(AomWriter *w, const AomTreeIndex *tr,
+                                          const AomProb *probs, int bits,
+                                          int len, AomTreeIndex i) {
   do {
     const int bit = (bits >> --len) & 1;
     aom_write(w, bit, probs[i >> 1]);
@@ -148,9 +147,11 @@ static INLINE void aom_write_tree_as_bits(aom_writer *w,
   } while (len);
 }
 
-static INLINE void aom_write_tree_as_bits_record(
-    aom_writer *w, const aom_tree_index *tr, const aom_prob *probs, int bits,
-    int len, aom_tree_index i, TOKEN_STATS *token_stats) {
+static INLINE void aom_write_tree_as_bits_record(AomWriter *w,
+                                                 const AomTreeIndex *tr,
+                                                 const AomProb *probs, int bits,
+                                                 int len, AomTreeIndex i,
+                                                 TokenStats *token_stats) {
   do {
     const int bit = (bits >> --len) & 1;
     aom_write_record(w, bit, probs[i >> 1], token_stats);
@@ -159,13 +160,13 @@ static INLINE void aom_write_tree_as_bits_record(
 }
 
 #if CONFIG_EC_MULTISYMBOL
-static INLINE void aom_write_cdf(aom_writer *w, int symb,
-                                 const aom_cdf_prob *cdf, int nsymbs) {
+static INLINE void aom_write_cdf(AomWriter *w, int symb, const AomCdfProb *cdf,
+                                 int nsymbs) {
 #if CONFIG_ANS
   (void)nsymbs;
   assert(cdf);
-  const aom_cdf_prob cum_prob = symb > 0 ? cdf[symb - 1] : 0;
-  const aom_cdf_prob prob = cdf[symb] - cum_prob;
+  const AomCdfProb cum_prob = symb > 0 ? cdf[symb - 1] : 0;
+  const AomCdfProb prob = cdf[symb] - cum_prob;
   buf_rans_write(w, cum_prob, prob);
 #elif CONFIG_DAALA_EC
   daala_write_symbol(w, symb, cdf, nsymbs);
@@ -176,7 +177,7 @@ static INLINE void aom_write_cdf(aom_writer *w, int symb,
 #endif
 }
 
-static INLINE void aom_write_symbol(aom_writer *w, int symb, aom_cdf_prob *cdf,
+static INLINE void aom_write_symbol(AomWriter *w, int symb, AomCdfProb *cdf,
                                     int nsymbs) {
   aom_write_cdf(w, symb, cdf, nsymbs);
 #if CONFIG_EC_ADAPT
@@ -184,15 +185,14 @@ static INLINE void aom_write_symbol(aom_writer *w, int symb, aom_cdf_prob *cdf,
 #endif
 }
 
-static INLINE void aom_write_tree_as_cdf(aom_writer *w,
-                                         const aom_tree_index *tree,
-                                         const aom_prob *probs, int bits,
-                                         int len, aom_tree_index i) {
-  aom_tree_index root;
+static INLINE void aom_write_tree_as_cdf(AomWriter *w, const AomTreeIndex *tree,
+                                         const AomProb *probs, int bits,
+                                         int len, AomTreeIndex i) {
+  AomTreeIndex root;
   root = i;
   do {
-    aom_cdf_prob cdf[16];
-    aom_tree_index index[16];
+    AomCdfProb cdf[16];
+    AomTreeIndex index[16];
     int path[16];
     int dist[16];
     int nsymbs;
@@ -225,9 +225,9 @@ static INLINE void aom_write_tree_as_cdf(aom_writer *w,
 
 #endif  // CONFIG_EC_MULTISYMBOL
 
-static INLINE void aom_write_tree(aom_writer *w, const aom_tree_index *tree,
-                                  const aom_prob *probs, int bits, int len,
-                                  aom_tree_index i) {
+static INLINE void aom_write_tree(AomWriter *w, const AomTreeIndex *tree,
+                                  const AomProb *probs, int bits, int len,
+                                  AomTreeIndex i) {
 #if CONFIG_EC_MULTISYMBOL
   aom_write_tree_as_cdf(w, tree, probs, bits, len, i);
 #else
@@ -235,11 +235,10 @@ static INLINE void aom_write_tree(aom_writer *w, const aom_tree_index *tree,
 #endif
 }
 
-static INLINE void aom_write_tree_record(aom_writer *w,
-                                         const aom_tree_index *tree,
-                                         const aom_prob *probs, int bits,
-                                         int len, aom_tree_index i,
-                                         TOKEN_STATS *token_stats) {
+static INLINE void aom_write_tree_record(AomWriter *w, const AomTreeIndex *tree,
+                                         const AomProb *probs, int bits,
+                                         int len, AomTreeIndex i,
+                                         TokenStats *token_stats) {
 #if CONFIG_EC_MULTISYMBOL
   (void)token_stats;
   aom_write_tree_as_cdf(w, tree, probs, bits, len, i);

@@ -16,8 +16,8 @@
 #include "av1/common/blockd.h"
 #include "av1/common/onyxc_int.h"
 
-PREDICTION_MODE av1_left_block_mode(const MODE_INFO *cur_mi,
-                                    const MODE_INFO *left_mi, int b) {
+PredictionMode av1_left_block_mode(const ModeInfo *cur_mi,
+                                   const ModeInfo *left_mi, int b) {
   if (b == 0 || b == 2) {
     if (!left_mi || is_inter_block(&left_mi->mbmi)) return DC_PRED;
 
@@ -28,8 +28,8 @@ PREDICTION_MODE av1_left_block_mode(const MODE_INFO *cur_mi,
   }
 }
 
-PREDICTION_MODE av1_above_block_mode(const MODE_INFO *cur_mi,
-                                     const MODE_INFO *above_mi, int b) {
+PredictionMode av1_above_block_mode(const ModeInfo *cur_mi,
+                                    const ModeInfo *above_mi, int b) {
   if (b == 0 || b == 1) {
     if (!above_mi || is_inter_block(&above_mi->mbmi)) return DC_PRED;
 
@@ -42,19 +42,19 @@ PREDICTION_MODE av1_above_block_mode(const MODE_INFO *cur_mi,
 
 #if CONFIG_COEF_INTERLEAVE
 void av1_foreach_transformed_block_interleave(
-    const MACROBLOCKD *const xd, BLOCK_SIZE bsize,
-    foreach_transformed_block_visitor visit, void *arg) {
-  const struct macroblockd_plane *const pd_y = &xd->plane[0];
-  const struct macroblockd_plane *const pd_c = &xd->plane[1];
-  const MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+    const Macroblockd *const xd, BlockSize bsize,
+    ForeachTransformedBlockVisitor visit, void *arg) {
+  const struct MacroblockdPlane *const pd_y = &xd->plane[0];
+  const struct MacroblockdPlane *const pd_c = &xd->plane[1];
+  const MbModeInfo *mbmi = &xd->mi[0]->mbmi;
 
-  const TX_SIZE tx_log2_y = mbmi->tx_size;
-  const TX_SIZE tx_log2_c = get_uv_tx_size(mbmi, pd_c);
+  const TxSize tx_log2_y = mbmi->tx_size;
+  const TxSize tx_log2_c = get_uv_tx_size(mbmi, pd_c);
   const int tx_sz_y = (1 << tx_log2_y);
   const int tx_sz_c = (1 << tx_log2_c);
 
-  const BLOCK_SIZE plane_bsize_y = get_plane_block_size(bsize, pd_y);
-  const BLOCK_SIZE plane_bsize_c = get_plane_block_size(bsize, pd_c);
+  const BlockSize plane_bsize_y = get_plane_block_size(bsize, pd_y);
+  const BlockSize plane_bsize_c = get_plane_block_size(bsize, pd_c);
 
   const int num_4x4_w_y = num_4x4_blocks_wide_lookup[plane_bsize_y];
   const int num_4x4_w_c = num_4x4_blocks_wide_lookup[plane_bsize_c];
@@ -121,18 +121,18 @@ void av1_foreach_transformed_block_interleave(
 #endif
 
 void av1_foreach_transformed_block_in_plane(
-    const MACROBLOCKD *const xd, BLOCK_SIZE bsize, int plane,
-    foreach_transformed_block_visitor visit, void *arg) {
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+    const Macroblockd *const xd, BlockSize bsize, int plane,
+    ForeachTransformedBlockVisitor visit, void *arg) {
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
   // block and transform sizes, in number of 4x4 blocks log 2 ("*_b")
   // 4x4=0, 8x8=2, 16x16=4, 32x32=6, 64x64=8
   // transform size varies per plane, look it up in a common way.
-  const TX_SIZE tx_size = get_tx_size(plane, xd);
+  const TxSize tx_size = get_tx_size(plane, xd);
 #if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
-  const BLOCK_SIZE plane_bsize =
+  const BlockSize plane_bsize =
       AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
 #else
-  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+  const BlockSize plane_bsize = get_plane_block_size(bsize, pd);
 #endif
   const uint8_t txw_unit = tx_size_wide_unit[tx_size];
   const uint8_t txh_unit = tx_size_high_unit[tx_size];
@@ -157,9 +157,9 @@ void av1_foreach_transformed_block_in_plane(
 }
 
 #if CONFIG_LV_MAP
-void av1_foreach_transformed_block(const MACROBLOCKD *const xd,
-                                   BLOCK_SIZE bsize, int mi_row, int mi_col,
-                                   foreach_transformed_block_visitor visit,
+void av1_foreach_transformed_block(const Macroblockd *const xd, BlockSize bsize,
+                                   int mi_row, int mi_col,
+                                   ForeachTransformedBlockVisitor visit,
                                    void *arg) {
   int plane;
 
@@ -180,15 +180,15 @@ void av1_foreach_transformed_block(const MACROBLOCKD *const xd,
 
 #if CONFIG_DAALA_DIST
 void av1_foreach_8x8_transformed_block_in_plane(
-    const MACROBLOCKD *const xd, BLOCK_SIZE bsize, int plane,
-    foreach_transformed_block_visitor visit,
-    foreach_transformed_block_visitor mi_visit, void *arg) {
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+    const Macroblockd *const xd, BlockSize bsize, int plane,
+    ForeachTransformedBlockVisitor visit,
+    ForeachTransformedBlockVisitor mi_visit, void *arg) {
+  const struct MacroblockdPlane *const pd = &xd->plane[plane];
   // block and transform sizes, in number of 4x4 blocks log 2 ("*_b")
   // 4x4=0, 8x8=2, 16x16=4, 32x32=6, 64x64=8
   // transform size varies per plane, look it up in a common way.
-  const TX_SIZE tx_size = get_tx_size(plane, xd);
-  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+  const TxSize tx_size = get_tx_size(plane, xd);
+  const BlockSize plane_bsize = get_plane_block_size(bsize, pd);
   const uint8_t txw_unit = tx_size_wide_unit[tx_size];
   const uint8_t txh_unit = tx_size_high_unit[tx_size];
   const int step = txw_unit * txh_unit;
@@ -216,19 +216,19 @@ void av1_foreach_8x8_transformed_block_in_plane(
 #endif
 
 #if !CONFIG_PVQ || CONFIG_VAR_TX
-void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
-                      int plane, TX_SIZE tx_size, int has_eob, int aoff,
+void av1_set_contexts(const Macroblockd *xd, struct MacroblockdPlane *pd,
+                      int plane, TxSize tx_size, int has_eob, int aoff,
                       int loff) {
-  ENTROPY_CONTEXT *const a = pd->above_context + aoff;
-  ENTROPY_CONTEXT *const l = pd->left_context + loff;
+  EntropyContext *const a = pd->above_context + aoff;
+  EntropyContext *const l = pd->left_context + loff;
   const int txs_wide = tx_size_wide_unit[tx_size];
   const int txs_high = tx_size_high_unit[tx_size];
 #if CONFIG_CB4X4
-  const BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
+  const BlockSize bsize = xd->mi[0]->mbmi.sb_type;
 #else
-  const BLOCK_SIZE bsize = AOMMAX(xd->mi[0]->mbmi.sb_type, BLOCK_8X8);
+  const BlockSize bsize = AOMMAX(xd->mi[0]->mbmi.sb_type, BLOCK_8X8);
 #endif
-  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+  const BlockSize plane_bsize = get_plane_block_size(bsize, pd);
 
   // above
   if (has_eob && xd->mb_to_right_edge < 0) {
@@ -241,7 +241,7 @@ void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
     for (i = 0; i < above_contexts; ++i) a[i] = has_eob;
     for (i = above_contexts; i < txs_wide; ++i) a[i] = 0;
   } else {
-    memset(a, has_eob, sizeof(ENTROPY_CONTEXT) * txs_wide);
+    memset(a, has_eob, sizeof(EntropyContext) * txs_wide);
   }
 
   // left
@@ -254,12 +254,12 @@ void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
     for (i = 0; i < left_contexts; ++i) l[i] = has_eob;
     for (i = left_contexts; i < txs_high; ++i) l[i] = 0;
   } else {
-    memset(l, has_eob, sizeof(ENTROPY_CONTEXT) * txs_high);
+    memset(l, has_eob, sizeof(EntropyContext) * txs_high);
   }
 }
 #endif
 
-void av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y) {
+void av1_setup_block_planes(Macroblockd *xd, int ss_x, int ss_y) {
   int i;
 
   for (i = 0; i < MAX_MB_PLANE; i++) {

@@ -15,14 +15,14 @@
 #include "./aom_dsp_rtcd.h"
 #include "aom_dsp/inv_txfm.h"
 
-void aom_iwht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
+void aom_iwht4x4_16_add_c(const TranLowT *input, uint8_t *dest, int stride) {
   /* 4-point reversible, orthonormal inverse Walsh-Hadamard in 3.5 adds,
      0.5 shifts per pixel. */
   int i;
-  tran_low_t output[16];
-  tran_high_t a1, b1, c1, d1, e1;
-  const tran_low_t *ip = input;
-  tran_low_t *op = output;
+  TranLowT output[16];
+  TranHighT a1, b1, c1, d1, e1;
+  const TranLowT *ip = input;
+  TranLowT *op = output;
 
   for (i = 0; i < 4; i++) {
     a1 = ip[0] >> UNIT_QUANT_SHIFT;
@@ -67,12 +67,12 @@ void aom_iwht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
   }
 }
 
-void aom_iwht4x4_1_add_c(const tran_low_t *in, uint8_t *dest, int dest_stride) {
+void aom_iwht4x4_1_add_c(const TranLowT *in, uint8_t *dest, int dest_stride) {
   int i;
-  tran_high_t a1, e1;
-  tran_low_t tmp[4];
-  const tran_low_t *ip = in;
-  tran_low_t *op = tmp;
+  TranHighT a1, e1;
+  TranLowT tmp[4];
+  const TranLowT *ip = in;
+  TranLowT *op = tmp;
 
   a1 = ip[0] >> UNIT_QUANT_SHIFT;
   e1 = a1 >> 1;
@@ -93,9 +93,9 @@ void aom_iwht4x4_1_add_c(const tran_low_t *in, uint8_t *dest, int dest_stride) {
   }
 }
 
-void aom_idct4_c(const tran_low_t *input, tran_low_t *output) {
-  tran_low_t step[4];
-  tran_high_t temp1, temp2;
+void aom_idct4_c(const TranLowT *input, TranLowT *output) {
+  TranLowT step[4];
+  TranHighT temp1, temp2;
   // stage 1
   temp1 = (input[0] + input[2]) * cospi_16_64;
   temp2 = (input[0] - input[2]) * cospi_16_64;
@@ -113,11 +113,11 @@ void aom_idct4_c(const tran_low_t *input, tran_low_t *output) {
   output[3] = WRAPLOW(step[0] - step[3]);
 }
 
-void aom_idct4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
-  tran_low_t out[4 * 4];
-  tran_low_t *outptr = out;
+void aom_idct4x4_16_add_c(const TranLowT *input, uint8_t *dest, int stride) {
+  TranLowT out[4 * 4];
+  TranLowT *outptr = out;
   int i, j;
-  tran_low_t temp_in[4], temp_out[4];
+  TranLowT temp_in[4], temp_out[4];
 
   // Rows
   for (i = 0; i < 4; ++i) {
@@ -137,11 +137,11 @@ void aom_idct4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
   }
 }
 
-void aom_idct4x4_1_add_c(const tran_low_t *input, uint8_t *dest,
+void aom_idct4x4_1_add_c(const TranLowT *input, uint8_t *dest,
                          int dest_stride) {
   int i;
-  tran_high_t a1;
-  tran_low_t out = WRAPLOW(dct_const_round_shift(input[0] * cospi_16_64));
+  TranHighT a1;
+  TranLowT out = WRAPLOW(dct_const_round_shift(input[0] * cospi_16_64));
   out = WRAPLOW(dct_const_round_shift(out * cospi_16_64));
   a1 = ROUND_POWER_OF_TWO(out, 4);
 
@@ -156,9 +156,9 @@ void aom_idct4x4_1_add_c(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-void aom_idct8_c(const tran_low_t *input, tran_low_t *output) {
-  tran_low_t step1[8], step2[8];
-  tran_high_t temp1, temp2;
+void aom_idct8_c(const TranLowT *input, TranLowT *output) {
+  TranLowT step1[8], step2[8];
+  TranHighT temp1, temp2;
   // stage 1
   step1[0] = input[0];
   step1[2] = input[4];
@@ -210,11 +210,11 @@ void aom_idct8_c(const tran_low_t *input, tran_low_t *output) {
   output[7] = WRAPLOW(step1[0] - step1[7]);
 }
 
-void aom_idct8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
-  tran_low_t out[8 * 8];
-  tran_low_t *outptr = out;
+void aom_idct8x8_64_add_c(const TranLowT *input, uint8_t *dest, int stride) {
+  TranLowT out[8 * 8];
+  TranLowT *outptr = out;
   int i, j;
-  tran_low_t temp_in[8], temp_out[8];
+  TranLowT temp_in[8], temp_out[8];
 
   // First transform rows
   for (i = 0; i < 8; ++i) {
@@ -234,10 +234,10 @@ void aom_idct8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
   }
 }
 
-void aom_idct8x8_1_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
+void aom_idct8x8_1_add_c(const TranLowT *input, uint8_t *dest, int stride) {
   int i, j;
-  tran_high_t a1;
-  tran_low_t out = WRAPLOW(dct_const_round_shift(input[0] * cospi_16_64));
+  TranHighT a1;
+  TranLowT out = WRAPLOW(dct_const_round_shift(input[0] * cospi_16_64));
   out = WRAPLOW(dct_const_round_shift(out * cospi_16_64));
   a1 = ROUND_POWER_OF_TWO(out, 5);
   if (a1 == 0) return;
@@ -247,13 +247,13 @@ void aom_idct8x8_1_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
   }
 }
 
-void aom_iadst4_c(const tran_low_t *input, tran_low_t *output) {
-  tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;
+void aom_iadst4_c(const TranLowT *input, TranLowT *output) {
+  TranHighT s0, s1, s2, s3, s4, s5, s6, s7;
 
-  tran_low_t x0 = input[0];
-  tran_low_t x1 = input[1];
-  tran_low_t x2 = input[2];
-  tran_low_t x3 = input[3];
+  TranLowT x0 = input[0];
+  TranLowT x1 = input[1];
+  TranLowT x2 = input[2];
+  TranLowT x3 = input[3];
 
   if (!(x0 | x1 | x2 | x3)) {
     output[0] = output[1] = output[2] = output[3] = 0;
@@ -284,17 +284,17 @@ void aom_iadst4_c(const tran_low_t *input, tran_low_t *output) {
   output[3] = WRAPLOW(dct_const_round_shift(s0 + s1 - s3));
 }
 
-void aom_iadst8_c(const tran_low_t *input, tran_low_t *output) {
+void aom_iadst8_c(const TranLowT *input, TranLowT *output) {
   int s0, s1, s2, s3, s4, s5, s6, s7;
 
-  tran_high_t x0 = input[7];
-  tran_high_t x1 = input[0];
-  tran_high_t x2 = input[5];
-  tran_high_t x3 = input[2];
-  tran_high_t x4 = input[3];
-  tran_high_t x5 = input[4];
-  tran_high_t x6 = input[1];
-  tran_high_t x7 = input[6];
+  TranHighT x0 = input[7];
+  TranHighT x1 = input[0];
+  TranHighT x2 = input[5];
+  TranHighT x3 = input[2];
+  TranHighT x4 = input[3];
+  TranHighT x5 = input[4];
+  TranHighT x6 = input[1];
+  TranHighT x7 = input[6];
 
   if (!(x0 | x1 | x2 | x3 | x4 | x5 | x6 | x7)) {
     output[0] = output[1] = output[2] = output[3] = output[4] = output[5] =
@@ -361,11 +361,11 @@ void aom_iadst8_c(const tran_low_t *input, tran_low_t *output) {
   output[7] = WRAPLOW(-x1);
 }
 
-void aom_idct8x8_12_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
-  tran_low_t out[8 * 8] = { 0 };
-  tran_low_t *outptr = out;
+void aom_idct8x8_12_add_c(const TranLowT *input, uint8_t *dest, int stride) {
+  TranLowT out[8 * 8] = { 0 };
+  TranLowT *outptr = out;
   int i, j;
-  tran_low_t temp_in[8], temp_out[8];
+  TranLowT temp_in[8], temp_out[8];
 
   // First transform rows
   // only first 4 row has non-zero coefs
@@ -386,9 +386,9 @@ void aom_idct8x8_12_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
   }
 }
 
-void aom_idct16_c(const tran_low_t *input, tran_low_t *output) {
-  tran_low_t step1[16], step2[16];
-  tran_high_t temp1, temp2;
+void aom_idct16_c(const TranLowT *input, TranLowT *output) {
+  TranLowT step1[16], step2[16];
+  TranHighT temp1, temp2;
 
   // stage 1
   step1[0] = input[0 / 2];
@@ -551,12 +551,11 @@ void aom_idct16_c(const tran_low_t *input, tran_low_t *output) {
   output[15] = WRAPLOW(step2[0] - step2[15]);
 }
 
-void aom_idct16x16_256_add_c(const tran_low_t *input, uint8_t *dest,
-                             int stride) {
-  tran_low_t out[16 * 16];
-  tran_low_t *outptr = out;
+void aom_idct16x16_256_add_c(const TranLowT *input, uint8_t *dest, int stride) {
+  TranLowT out[16 * 16];
+  TranLowT *outptr = out;
   int i, j;
-  tran_low_t temp_in[16], temp_out[16];
+  TranLowT temp_in[16], temp_out[16];
 
   // First transform rows
   for (i = 0; i < 16; ++i) {
@@ -576,26 +575,26 @@ void aom_idct16x16_256_add_c(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-void aom_iadst16_c(const tran_low_t *input, tran_low_t *output) {
-  tran_high_t s0, s1, s2, s3, s4, s5, s6, s7, s8;
-  tran_high_t s9, s10, s11, s12, s13, s14, s15;
+void aom_iadst16_c(const TranLowT *input, TranLowT *output) {
+  TranHighT s0, s1, s2, s3, s4, s5, s6, s7, s8;
+  TranHighT s9, s10, s11, s12, s13, s14, s15;
 
-  tran_high_t x0 = input[15];
-  tran_high_t x1 = input[0];
-  tran_high_t x2 = input[13];
-  tran_high_t x3 = input[2];
-  tran_high_t x4 = input[11];
-  tran_high_t x5 = input[4];
-  tran_high_t x6 = input[9];
-  tran_high_t x7 = input[6];
-  tran_high_t x8 = input[7];
-  tran_high_t x9 = input[8];
-  tran_high_t x10 = input[5];
-  tran_high_t x11 = input[10];
-  tran_high_t x12 = input[3];
-  tran_high_t x13 = input[12];
-  tran_high_t x14 = input[1];
-  tran_high_t x15 = input[14];
+  TranHighT x0 = input[15];
+  TranHighT x1 = input[0];
+  TranHighT x2 = input[13];
+  TranHighT x3 = input[2];
+  TranHighT x4 = input[11];
+  TranHighT x5 = input[4];
+  TranHighT x6 = input[9];
+  TranHighT x7 = input[6];
+  TranHighT x8 = input[7];
+  TranHighT x9 = input[8];
+  TranHighT x10 = input[5];
+  TranHighT x11 = input[10];
+  TranHighT x12 = input[3];
+  TranHighT x13 = input[12];
+  TranHighT x14 = input[1];
+  TranHighT x15 = input[14];
 
   if (!(x0 | x1 | x2 | x3 | x4 | x5 | x6 | x7 | x8 | x9 | x10 | x11 | x12 |
         x13 | x14 | x15)) {
@@ -747,12 +746,11 @@ void aom_iadst16_c(const tran_low_t *input, tran_low_t *output) {
   output[15] = WRAPLOW(-x1);
 }
 
-void aom_idct16x16_38_add_c(const tran_low_t *input, uint8_t *dest,
-                            int stride) {
+void aom_idct16x16_38_add_c(const TranLowT *input, uint8_t *dest, int stride) {
   int i, j;
-  tran_low_t out[16 * 16] = { 0 };
-  tran_low_t *outptr = out;
-  tran_low_t temp_in[16], temp_out[16];
+  TranLowT out[16 * 16] = { 0 };
+  TranLowT *outptr = out;
+  TranLowT temp_in[16], temp_out[16];
 
   // First transform rows. Since all non-zero dct coefficients are in
   // upper-left 8x8 area, we only need to calculate first 8 rows here.
@@ -773,12 +771,11 @@ void aom_idct16x16_38_add_c(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-void aom_idct16x16_10_add_c(const tran_low_t *input, uint8_t *dest,
-                            int stride) {
-  tran_low_t out[16 * 16] = { 0 };
-  tran_low_t *outptr = out;
+void aom_idct16x16_10_add_c(const TranLowT *input, uint8_t *dest, int stride) {
+  TranLowT out[16 * 16] = { 0 };
+  TranLowT *outptr = out;
   int i, j;
-  tran_low_t temp_in[16], temp_out[16];
+  TranLowT temp_in[16], temp_out[16];
 
   // First transform rows. Since all non-zero dct coefficients are in
   // upper-left 4x4 area, we only need to calculate first 4 rows here.
@@ -799,10 +796,10 @@ void aom_idct16x16_10_add_c(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-void aom_idct16x16_1_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
+void aom_idct16x16_1_add_c(const TranLowT *input, uint8_t *dest, int stride) {
   int i, j;
-  tran_high_t a1;
-  tran_low_t out = WRAPLOW(dct_const_round_shift(input[0] * cospi_16_64));
+  TranHighT a1;
+  TranLowT out = WRAPLOW(dct_const_round_shift(input[0] * cospi_16_64));
   out = WRAPLOW(dct_const_round_shift(out * cospi_16_64));
   a1 = ROUND_POWER_OF_TWO(out, 6);
   if (a1 == 0) return;
@@ -812,9 +809,9 @@ void aom_idct16x16_1_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
   }
 }
 
-void aom_idct32_c(const tran_low_t *input, tran_low_t *output) {
-  tran_low_t step1[32], step2[32];
-  tran_high_t temp1, temp2;
+void aom_idct32_c(const TranLowT *input, TranLowT *output) {
+  TranLowT step1[32], step2[32];
+  TranHighT temp1, temp2;
 
   // stage 1
   step1[0] = input[0];
@@ -1179,12 +1176,12 @@ void aom_idct32_c(const tran_low_t *input, tran_low_t *output) {
   output[31] = WRAPLOW(step1[0] - step1[31]);
 }
 
-void aom_idct32x32_1024_add_c(const tran_low_t *input, uint8_t *dest,
+void aom_idct32x32_1024_add_c(const TranLowT *input, uint8_t *dest,
                               int stride) {
-  tran_low_t out[32 * 32];
-  tran_low_t *outptr = out;
+  TranLowT out[32 * 32];
+  TranLowT *outptr = out;
   int i, j;
-  tran_low_t temp_in[32], temp_out[32];
+  TranLowT temp_in[32], temp_out[32];
 
   // Rows
   for (i = 0; i < 32; ++i) {
@@ -1200,7 +1197,7 @@ void aom_idct32x32_1024_add_c(const tran_low_t *input, uint8_t *dest,
     if (zero_coeff[0] | zero_coeff[1])
       aom_idct32_c(input, outptr);
     else
-      memset(outptr, 0, sizeof(tran_low_t) * 32);
+      memset(outptr, 0, sizeof(TranLowT) * 32);
     input += 32;
     outptr += 32;
   }
@@ -1216,12 +1213,11 @@ void aom_idct32x32_1024_add_c(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-void aom_idct32x32_135_add_c(const tran_low_t *input, uint8_t *dest,
-                             int stride) {
-  tran_low_t out[32 * 32] = { 0 };
-  tran_low_t *outptr = out;
+void aom_idct32x32_135_add_c(const TranLowT *input, uint8_t *dest, int stride) {
+  TranLowT out[32 * 32] = { 0 };
+  TranLowT *outptr = out;
   int i, j;
-  tran_low_t temp_in[32], temp_out[32];
+  TranLowT temp_in[32], temp_out[32];
 
   // Rows
   // only upper-left 16x16 has non-zero coeff
@@ -1242,12 +1238,11 @@ void aom_idct32x32_135_add_c(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-void aom_idct32x32_34_add_c(const tran_low_t *input, uint8_t *dest,
-                            int stride) {
-  tran_low_t out[32 * 32] = { 0 };
-  tran_low_t *outptr = out;
+void aom_idct32x32_34_add_c(const TranLowT *input, uint8_t *dest, int stride) {
+  TranLowT out[32 * 32] = { 0 };
+  TranLowT *outptr = out;
   int i, j;
-  tran_low_t temp_in[32], temp_out[32];
+  TranLowT temp_in[32], temp_out[32];
 
   // Rows
   // only upper-left 8x8 has non-zero coeff
@@ -1268,11 +1263,11 @@ void aom_idct32x32_34_add_c(const tran_low_t *input, uint8_t *dest,
   }
 }
 
-void aom_idct32x32_1_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
+void aom_idct32x32_1_add_c(const TranLowT *input, uint8_t *dest, int stride) {
   int i, j;
-  tran_high_t a1;
+  TranHighT a1;
 
-  tran_low_t out = WRAPLOW(dct_const_round_shift(input[0] * cospi_16_64));
+  TranLowT out = WRAPLOW(dct_const_round_shift(input[0] * cospi_16_64));
   out = WRAPLOW(dct_const_round_shift(out * cospi_16_64));
   a1 = ROUND_POWER_OF_TWO(out, 6);
   if (a1 == 0) return;
@@ -1284,15 +1279,15 @@ void aom_idct32x32_1_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
 }
 
 #if CONFIG_HIGHBITDEPTH
-void aom_highbd_iwht4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
+void aom_highbd_iwht4x4_16_add_c(const TranLowT *input, uint8_t *dest8,
                                  int stride, int bd) {
   /* 4-point reversible, orthonormal inverse Walsh-Hadamard in 3.5 adds,
      0.5 shifts per pixel. */
   int i;
-  tran_low_t output[16];
-  tran_high_t a1, b1, c1, d1, e1;
-  const tran_low_t *ip = input;
-  tran_low_t *op = output;
+  TranLowT output[16];
+  TranHighT a1, b1, c1, d1, e1;
+  const TranLowT *ip = input;
+  TranLowT *op = output;
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   for (i = 0; i < 4; i++) {
@@ -1342,13 +1337,13 @@ void aom_highbd_iwht4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void aom_highbd_iwht4x4_1_add_c(const tran_low_t *in, uint8_t *dest8,
+void aom_highbd_iwht4x4_1_add_c(const TranLowT *in, uint8_t *dest8,
                                 int dest_stride, int bd) {
   int i;
-  tran_high_t a1, e1;
-  tran_low_t tmp[4];
-  const tran_low_t *ip = in;
-  tran_low_t *op = tmp;
+  TranHighT a1, e1;
+  TranLowT tmp[4];
+  const TranLowT *ip = in;
+  TranLowT *op = tmp;
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
   (void)bd;
 
@@ -1375,9 +1370,9 @@ void aom_highbd_iwht4x4_1_add_c(const tran_low_t *in, uint8_t *dest8,
   }
 }
 
-void aom_highbd_idct4_c(const tran_low_t *input, tran_low_t *output, int bd) {
-  tran_low_t step[4];
-  tran_high_t temp1, temp2;
+void aom_highbd_idct4_c(const TranLowT *input, TranLowT *output, int bd) {
+  TranLowT step[4];
+  TranHighT temp1, temp2;
   (void)bd;
   // stage 1
   temp1 = (input[0] + input[2]) * cospi_16_64;
@@ -1396,12 +1391,12 @@ void aom_highbd_idct4_c(const tran_low_t *input, tran_low_t *output, int bd) {
   output[3] = HIGHBD_WRAPLOW(step[0] - step[3], bd);
 }
 
-void aom_highbd_idct4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
+void aom_highbd_idct4x4_16_add_c(const TranLowT *input, uint8_t *dest8,
                                  int stride, int bd) {
-  tran_low_t out[4 * 4];
-  tran_low_t *outptr = out;
+  TranLowT out[4 * 4];
+  TranLowT *outptr = out;
   int i, j;
-  tran_low_t temp_in[4], temp_out[4];
+  TranLowT temp_in[4], temp_out[4];
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
   // Rows
@@ -1422,11 +1417,11 @@ void aom_highbd_idct4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void aom_highbd_idct4x4_1_add_c(const tran_low_t *input, uint8_t *dest8,
+void aom_highbd_idct4x4_1_add_c(const TranLowT *input, uint8_t *dest8,
                                 int dest_stride, int bd) {
   int i;
-  tran_high_t a1;
-  tran_low_t out =
+  TranHighT a1;
+  TranLowT out =
       HIGHBD_WRAPLOW(dct_const_round_shift(input[0] * cospi_16_64), bd);
   uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
 
@@ -1442,9 +1437,9 @@ void aom_highbd_idct4x4_1_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void aom_highbd_idct8_c(const tran_low_t *input, tran_low_t *output, int bd) {
-  tran_low_t step1[8], step2[8];
-  tran_high_t temp1, temp2;
+void aom_highbd_idct8_c(const TranLowT *input, TranLowT *output, int bd) {
+  TranLowT step1[8], step2[8];
+  TranHighT temp1, temp2;
   // stage 1
   step1[0] = input[0];
   step1[2] = input[4];
@@ -1487,13 +1482,13 @@ void aom_highbd_idct8_c(const tran_low_t *input, tran_low_t *output, int bd) {
   output[7] = HIGHBD_WRAPLOW(step1[0] - step1[7], bd);
 }
 
-void aom_highbd_iadst4_c(const tran_low_t *input, tran_low_t *output, int bd) {
-  tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;
+void aom_highbd_iadst4_c(const TranLowT *input, TranLowT *output, int bd) {
+  TranHighT s0, s1, s2, s3, s4, s5, s6, s7;
 
-  tran_low_t x0 = input[0];
-  tran_low_t x1 = input[1];
-  tran_low_t x2 = input[2];
-  tran_low_t x3 = input[3];
+  TranLowT x0 = input[0];
+  TranLowT x1 = input[1];
+  TranLowT x2 = input[2];
+  TranLowT x3 = input[3];
   (void)bd;
 
   if (!(x0 | x1 | x2 | x3)) {
@@ -1508,7 +1503,7 @@ void aom_highbd_iadst4_c(const tran_low_t *input, tran_low_t *output, int bd) {
   s4 = sinpi_1_9 * x2;
   s5 = sinpi_2_9 * x3;
   s6 = sinpi_4_9 * x3;
-  s7 = (tran_high_t)HIGHBD_WRAPLOW(x0 - x2 + x3, bd);
+  s7 = (TranHighT)HIGHBD_WRAPLOW(x0 - x2 + x3, bd);
 
   s0 = s0 + s3 + s5;
   s1 = s1 - s4 - s6;
@@ -1525,17 +1520,17 @@ void aom_highbd_iadst4_c(const tran_low_t *input, tran_low_t *output, int bd) {
   output[3] = HIGHBD_WRAPLOW(dct_const_round_shift(s0 + s1 - s3), bd);
 }
 
-void aom_highbd_iadst8_c(const tran_low_t *input, tran_low_t *output, int bd) {
-  tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;
+void aom_highbd_iadst8_c(const TranLowT *input, TranLowT *output, int bd) {
+  TranHighT s0, s1, s2, s3, s4, s5, s6, s7;
 
-  tran_low_t x0 = input[7];
-  tran_low_t x1 = input[0];
-  tran_low_t x2 = input[5];
-  tran_low_t x3 = input[2];
-  tran_low_t x4 = input[3];
-  tran_low_t x5 = input[4];
-  tran_low_t x6 = input[1];
-  tran_low_t x7 = input[6];
+  TranLowT x0 = input[7];
+  TranLowT x1 = input[0];
+  TranLowT x2 = input[5];
+  TranLowT x3 = input[2];
+  TranLowT x4 = input[3];
+  TranLowT x5 = input[4];
+  TranLowT x6 = input[1];
+  TranLowT x7 = input[6];
   (void)bd;
 
   if (!(x0 | x1 | x2 | x3 | x4 | x5 | x6 | x7)) {
@@ -1602,9 +1597,9 @@ void aom_highbd_iadst8_c(const tran_low_t *input, tran_low_t *output, int bd) {
   output[7] = HIGHBD_WRAPLOW(-x1, bd);
 }
 
-void aom_highbd_idct16_c(const tran_low_t *input, tran_low_t *output, int bd) {
-  tran_low_t step1[16], step2[16];
-  tran_high_t temp1, temp2;
+void aom_highbd_idct16_c(const TranLowT *input, TranLowT *output, int bd) {
+  TranLowT step1[16], step2[16];
+  TranHighT temp1, temp2;
   (void)bd;
 
   // stage 1
@@ -1768,26 +1763,26 @@ void aom_highbd_idct16_c(const tran_low_t *input, tran_low_t *output, int bd) {
   output[15] = HIGHBD_WRAPLOW(step2[0] - step2[15], bd);
 }
 
-void aom_highbd_iadst16_c(const tran_low_t *input, tran_low_t *output, int bd) {
-  tran_high_t s0, s1, s2, s3, s4, s5, s6, s7, s8;
-  tran_high_t s9, s10, s11, s12, s13, s14, s15;
+void aom_highbd_iadst16_c(const TranLowT *input, TranLowT *output, int bd) {
+  TranHighT s0, s1, s2, s3, s4, s5, s6, s7, s8;
+  TranHighT s9, s10, s11, s12, s13, s14, s15;
 
-  tran_low_t x0 = input[15];
-  tran_low_t x1 = input[0];
-  tran_low_t x2 = input[13];
-  tran_low_t x3 = input[2];
-  tran_low_t x4 = input[11];
-  tran_low_t x5 = input[4];
-  tran_low_t x6 = input[9];
-  tran_low_t x7 = input[6];
-  tran_low_t x8 = input[7];
-  tran_low_t x9 = input[8];
-  tran_low_t x10 = input[5];
-  tran_low_t x11 = input[10];
-  tran_low_t x12 = input[3];
-  tran_low_t x13 = input[12];
-  tran_low_t x14 = input[1];
-  tran_low_t x15 = input[14];
+  TranLowT x0 = input[15];
+  TranLowT x1 = input[0];
+  TranLowT x2 = input[13];
+  TranLowT x3 = input[2];
+  TranLowT x4 = input[11];
+  TranLowT x5 = input[4];
+  TranLowT x6 = input[9];
+  TranLowT x7 = input[6];
+  TranLowT x8 = input[7];
+  TranLowT x9 = input[8];
+  TranLowT x10 = input[5];
+  TranLowT x11 = input[10];
+  TranLowT x12 = input[3];
+  TranLowT x13 = input[12];
+  TranLowT x14 = input[1];
+  TranLowT x15 = input[14];
   (void)bd;
 
   if (!(x0 | x1 | x2 | x3 | x4 | x5 | x6 | x7 | x8 | x9 | x10 | x11 | x12 |
@@ -1938,9 +1933,9 @@ void aom_highbd_iadst16_c(const tran_low_t *input, tran_low_t *output, int bd) {
   output[15] = HIGHBD_WRAPLOW(-x1, bd);
 }
 
-void aom_highbd_idct32_c(const tran_low_t *input, tran_low_t *output, int bd) {
-  tran_low_t step1[32], step2[32];
-  tran_high_t temp1, temp2;
+void aom_highbd_idct32_c(const TranLowT *input, TranLowT *output, int bd) {
+  TranLowT step1[32], step2[32];
+  TranHighT temp1, temp2;
   (void)bd;
 
   // stage 1

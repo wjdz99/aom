@@ -18,7 +18,7 @@
 static int result_queue[QUEUE_MAX_SIZE];
 #if CONFIG_DAALA_EC
 static int nsymbs_queue[QUEUE_MAX_SIZE];
-static aom_cdf_prob cdf_queue[QUEUE_MAX_SIZE][16];
+static AomCdfProb cdf_queue[QUEUE_MAX_SIZE][16];
 #else
 static int prob_queue[QUEUE_MAX_SIZE];
 #endif
@@ -55,7 +55,7 @@ int bitstream_queue_get_read(void) { return queue_r; }
 
 void bitstream_queue_pop(int *result,
 #if CONFIG_DAALA_EC
-                         aom_cdf_prob *cdf, int *nsymbs) {
+                         AomCdfProb *cdf, int *nsymbs) {
 #else
                          int *prob) {
 #endif  // CONFIG_DAALA_EC
@@ -77,7 +77,7 @@ void bitstream_queue_pop(int *result,
 
 void bitstream_queue_push(int result,
 #if CONFIG_DAALA_EC
-                          const aom_cdf_prob *cdf, int nsymbs) {
+                          const AomCdfProb *cdf, int nsymbs) {
 #else
                           int prob) {
 #endif  // CONFIG_DAALA_EC

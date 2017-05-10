@@ -16,7 +16,7 @@
 
 #include "aom_dsp/x86/txfm_common_avx2.h"
 
-static INLINE void load_coeff(const tran_low_t *coeff, __m256i *in) {
+static INLINE void load_coeff(const TranLowT *coeff, __m256i *in) {
 #if CONFIG_HIGHBITDEPTH
   *in = _mm256_setr_epi16(
       (int16_t)coeff[0], (int16_t)coeff[1], (int16_t)coeff[2],
@@ -30,7 +30,7 @@ static INLINE void load_coeff(const tran_low_t *coeff, __m256i *in) {
 #endif
 }
 
-static void load_buffer_16x16(const tran_low_t *coeff, __m256i *in) {
+static void load_buffer_16x16(const TranLowT *coeff, __m256i *in) {
   int i = 0;
   while (i < 16) {
     load_coeff(coeff + (i << 4), &in[i]);
@@ -421,8 +421,8 @@ static void iidtx16(__m256i *in) {
 }
 #endif
 
-void av1_iht16x16_256_add_avx2(const tran_low_t *input, uint8_t *dest,
-                               int stride, int tx_type) {
+void av1_iht16x16_256_add_avx2(const TranLowT *input, uint8_t *dest, int stride,
+                               int tx_type) {
   __m256i in[16];
 
   load_buffer_16x16(input, in);

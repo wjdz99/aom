@@ -946,7 +946,7 @@ TEST_P(ConvolveTest, DISABLED_Copy_Speed) {
   const int kNumTests = 5000000;
   const int width = Width();
   const int height = Height();
-  aom_usec_timer timer;
+  AomUsecTimer timer;
 
   aom_usec_timer_start(&timer);
   for (int n = 0; n < kNumTests; ++n) {
@@ -966,7 +966,7 @@ TEST_P(ConvolveTest, DISABLED_Avg_Speed) {
   const int kNumTests = 5000000;
   const int width = Width();
   const int height = Height();
-  aom_usec_timer timer;
+  AomUsecTimer timer;
 
   aom_usec_timer_start(&timer);
   for (int n = 0; n < kNumTests; ++n) {
@@ -1022,7 +1022,7 @@ TEST_P(ConvolveTest, DISABLED_Speed) {
   wrapper_filter_average_block2d_8_c(in, kInputStride, filters[1], filters[1],
                                      out, kOutputStride, Width(), Height());
 
-  aom_usec_timer timer;
+  AomUsecTimer timer;
   int tests_num = 1000;
 
   aom_usec_timer_start(&timer);

@@ -75,9 +75,9 @@
   Even relatively modest values like 100 would work fine.*/
 #define OD_EC_LOTS_OF_BITS (0x4000)
 
-static void od_ec_dec_refill(od_ec_dec *dec) {
+static void od_ec_dec_refill(OdEcDec *dec) {
   int s;
-  od_ec_window dif;
+  OdEcWindow dif;
   int16_t cnt;
   const unsigned char *bptr;
   const unsigned char *end;
@@ -88,7 +88,7 @@ static void od_ec_dec_refill(od_ec_dec *dec) {
   s = OD_EC_WINDOW_SIZE - 9 - (cnt + 15);
   for (; s >= 0 && bptr < end; s -= 8, bptr++) {
     OD_ASSERT(s <= OD_EC_WINDOW_SIZE - 8);
-    dif ^= (od_ec_window)bptr[0] << s;
+    dif ^= (OdEcWindow)bptr[0] << s;
     cnt += 8;
   }
   if (bptr >= end) {
@@ -108,7 +108,7 @@ static void od_ec_dec_refill(od_ec_dec *dec) {
   ret: The value to return.
   Return: ret.
           This allows the compiler to jump to this function via a tail-call.*/
-static int od_ec_dec_normalize(od_ec_dec *dec, od_ec_window dif, unsigned rng,
+static int od_ec_dec_normalize(OdEcDec *dec, OdEcWindow dif, unsigned rng,
                                int ret) {
   int d;
   OD_ASSERT(rng <= 65535U);
@@ -128,8 +128,7 @@ static int od_ec_dec_normalize(od_ec_dec *dec, od_ec_window dif, unsigned rng,
 /*Initializes the decoder.
   buf: The input buffer to use.
   Return: 0 on success, or a negative value on error.*/
-void od_ec_dec_init(od_ec_dec *dec, const unsigned char *buf,
-                    uint32_t storage) {
+void od_ec_dec_init(OdEcDec *dec, const unsigned char *buf, uint32_t storage) {
   dec->buf = buf;
   dec->eptr = buf + storage;
   dec->end_window = 0;
@@ -138,7 +137,7 @@ void od_ec_dec_init(od_ec_dec *dec, const unsigned char *buf,
   dec->end = buf + storage;
   dec->bptr = buf;
 #if CONFIG_EC_SMALLMUL
-  dec->dif = ((od_ec_window)1 << (OD_EC_WINDOW_SIZE - 1)) - 1;
+  dec->dif = ((OdEcWindow)1 << (OD_EC_WINDOW_SIZE - 1)) - 1;
 #else
   dec->dif = 0;
 #endif
@@ -152,9 +151,9 @@ void od_ec_dec_init(od_ec_dec *dec, const unsigned char *buf,
   {EC_SMALLMUL} f: The probability that the bit is one, scaled by 32768.
   {else} f: The probability that the bit is zero, scaled by 32768.
   Return: The value decoded (0 or 1).*/
-int od_ec_decode_bool_q15(od_ec_dec *dec, unsigned f) {
-  od_ec_window dif;
-  od_ec_window vw;
+int od_ec_decode_bool_q15(OdEcDec *dec, unsigned f) {
+  OdEcWindow dif;
+  OdEcWindow vw;
   unsigned r;
   unsigned r_new;
   unsigned v;
@@ -167,7 +166,7 @@ int od_ec_decode_bool_q15(od_ec_dec *dec, unsigned f) {
   OD_ASSERT(32768U <= r);
 #if CONFIG_EC_SMALLMUL
   v = (r >> 8) * (uint32_t)f >> 7;
-  vw = (od_ec_window)v << (OD_EC_WINDOW_SIZE - 16);
+  vw = (OdEcWindow)v << (OD_EC_WINDOW_SIZE - 16);
   ret = 1;
   r_new = v;
   if (dif >= vw) {
@@ -177,7 +176,7 @@ int od_ec_decode_bool_q15(od_ec_dec *dec, unsigned f) {
   }
 #else
   v = f * (uint32_t)r >> 15;
-  vw = (od_ec_window)v << (OD_EC_WINDOW_SIZE - 16);
+  vw = (OdEcWindow)v << (OD_EC_WINDOW_SIZE - 16);
   ret = 0;
   r_new = v;
   if (dif >= vw) {
@@ -198,8 +197,8 @@ int od_ec_decode_bool_q15(od_ec_dec *dec, unsigned f) {
   nsyms: The number of symbols in the alphabet.
          This should be at most 16.
   Return: The decoded symbol s.*/
-int od_ec_decode_cdf_q15(od_ec_dec *dec, const uint16_t *cdf, int nsyms) {
-  od_ec_window dif;
+int od_ec_decode_cdf_q15(OdEcDec *dec, const uint16_t *cdf, int nsyms) {
+  OdEcWindow dif;
   unsigned r;
   unsigned c;
   unsigned u;
@@ -222,7 +221,7 @@ int od_ec_decode_cdf_q15(od_ec_dec *dec, const uint16_t *cdf, int nsyms) {
   OD_ASSERT(v < u);
   OD_ASSERT(u <= r);
   r = u - v;
-  dif -= (od_ec_window)v << (OD_EC_WINDOW_SIZE - 16);
+  dif -= (OdEcWindow)v << (OD_EC_WINDOW_SIZE - 16);
 #else
   c = (unsigned)(dif >> (OD_EC_WINDOW_SIZE - 16));
   v = 0;
@@ -234,7 +233,7 @@ int od_ec_decode_cdf_q15(od_ec_dec *dec, const uint16_t *cdf, int nsyms) {
   OD_ASSERT(u < v);
   OD_ASSERT(v <= r);
   r = v - u;
-  dif -= (od_ec_window)u << (OD_EC_WINDOW_SIZE - 16);
+  dif -= (OdEcWindow)u << (OD_EC_WINDOW_SIZE - 16);
 #endif
   return od_ec_dec_normalize(dec, dif, r, ret);
 }
@@ -245,8 +244,8 @@ int od_ec_decode_cdf_q15(od_ec_dec *dec, const uint16_t *cdf, int nsyms) {
   ftb: The number of bits to extract.
        This must be between 0 and 25, inclusive.
   Return: The decoded bits.*/
-uint32_t od_ec_dec_bits_(od_ec_dec *dec, unsigned ftb) {
-  od_ec_window window;
+uint32_t od_ec_dec_bits_(OdEcDec *dec, unsigned ftb) {
+  OdEcWindow window;
   int available;
   uint32_t ret;
   OD_ASSERT(ftb <= 25);
@@ -264,7 +263,7 @@ uint32_t od_ec_dec_bits_(od_ec_dec *dec, unsigned ftb) {
         available = OD_EC_LOTS_OF_BITS;
         break;
       }
-      window |= (od_ec_window) * --eptr << available;
+      window |= (OdEcWindow) * --eptr << available;
       available += 8;
     } while (available <= OD_EC_WINDOW_SIZE - 8);
     dec->eptr = eptr;
@@ -284,7 +283,7 @@ uint32_t od_ec_dec_bits_(od_ec_dec *dec, unsigned ftb) {
   Return: The number of bits.
           This will always be slightly larger than the exact value (e.g., all
            rounding error is in the positive direction).*/
-int od_ec_dec_tell(const od_ec_dec *dec) {
+int od_ec_dec_tell(const OdEcDec *dec) {
   return (int)(((dec->end - dec->eptr) + (dec->bptr - dec->buf)) * 8 -
                dec->cnt - dec->nend_bits + dec->tell_offs);
 }
@@ -295,6 +294,6 @@ int od_ec_dec_tell(const od_ec_dec *dec) {
   Return: The number of bits scaled by 2**OD_BITRES.
           This will always be slightly larger than the exact value (e.g., all
            rounding error is in the positive direction).*/
-uint32_t od_ec_dec_tell_frac(const od_ec_dec *dec) {
+uint32_t od_ec_dec_tell_frac(const OdEcDec *dec) {
   return od_ec_tell_frac(od_ec_dec_tell(dec), dec->rng);
 }

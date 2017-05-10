@@ -24,25 +24,25 @@
 extern "C" {
 #endif
 
-struct daala_writer {
+struct DaalaWriter {
   unsigned int pos;
   uint8_t *buffer;
-  od_ec_enc ec;
+  OdEcEnc ec;
 };
 
-typedef struct daala_writer daala_writer;
+typedef struct DaalaWriter DaalaWriter;
 
-void aom_daala_start_encode(daala_writer *w, uint8_t *buffer);
-void aom_daala_stop_encode(daala_writer *w);
+void aom_daala_start_encode(DaalaWriter *w, uint8_t *buffer);
+void aom_daala_stop_encode(DaalaWriter *w);
 
-static INLINE void aom_daala_write(daala_writer *w, int bit, int prob) {
+static INLINE void aom_daala_write(DaalaWriter *w, int bit, int prob) {
 #if CONFIG_EC_SMALLMUL
   int p = (0x7FFFFF - (prob << 15) + prob) >> 8;
 #else
   int p = ((prob << 15) + 256 - prob) >> 8;
 #endif
 #if CONFIG_BITSTREAM_DEBUG
-  aom_cdf_prob cdf[2] = { (aom_cdf_prob)p, 32767 };
+  AomCdfProb cdf[2] = { (AomCdfProb)p, 32767 };
   /*int queue_r = 0;
   int frame_idx_r = 0;
   int queue_w = bitstream_queue_get_write();
@@ -58,13 +58,13 @@ static INLINE void aom_daala_write(daala_writer *w, int bit, int prob) {
 }
 
 #if CONFIG_RAWBITS
-static INLINE void aom_daala_write_bit(daala_writer *w, int bit) {
+static INLINE void aom_daala_write_bit(DaalaWriter *w, int bit) {
   od_ec_enc_bits(&w->ec, bit, 1);
 }
 #endif
 
-static INLINE void daala_write_symbol(daala_writer *w, int symb,
-                                      const aom_cdf_prob *cdf, int nsymbs) {
+static INLINE void daala_write_symbol(DaalaWriter *w, int symb,
+                                      const AomCdfProb *cdf, int nsymbs) {
 #if CONFIG_BITSTREAM_DEBUG
   /*int queue_r = 0;
   int frame_idx_r = 0;

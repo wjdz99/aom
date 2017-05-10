@@ -250,7 +250,7 @@ TEST_P(MaskedSubPixelVarianceTest, ExtremeValues) {
 }
 
 #if CONFIG_HIGHBITDEPTH
-typedef std::tr1::tuple<MaskedVarianceFunc, MaskedVarianceFunc, aom_bit_depth_t>
+typedef std::tr1::tuple<MaskedVarianceFunc, MaskedVarianceFunc, AomBitDepthT>
     HighbdMaskedVarianceParam;
 
 class HighbdMaskedVarianceTest
@@ -268,7 +268,7 @@ class HighbdMaskedVarianceTest
  protected:
   MaskedVarianceFunc opt_func_;
   MaskedVarianceFunc ref_func_;
-  aom_bit_depth_t bit_depth_;
+  AomBitDepthT bit_depth_;
 };
 
 TEST_P(HighbdMaskedVarianceTest, OperationCheck) {
@@ -350,7 +350,7 @@ TEST_P(HighbdMaskedVarianceTest, ExtremeValues) {
 }
 
 typedef std::tr1::tuple<MaskedSubPixelVarianceFunc, MaskedSubPixelVarianceFunc,
-                        aom_bit_depth_t>
+                        AomBitDepthT>
     HighbdMaskedSubPixelVarianceParam;
 
 class HighbdMaskedSubPixelVarianceTest
@@ -368,7 +368,7 @@ class HighbdMaskedSubPixelVarianceTest
  protected:
   MaskedSubPixelVarianceFunc opt_func_;
   MaskedSubPixelVarianceFunc ref_func_;
-  aom_bit_depth_t bit_depth_;
+  AomBitDepthT bit_depth_;
 };
 
 TEST_P(HighbdMaskedSubPixelVarianceTest, OperationCheck) {

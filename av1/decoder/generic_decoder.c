@@ -32,7 +32,7 @@
  * @param [in]     rate  adaptation rate shift (smaller is faster)
  * @return decoded variable
  */
-int aom_decode_cdf_adapt_q15_(aom_reader *r, uint16_t *cdf, int n,
+int aom_decode_cdf_adapt_q15_(AomReader *r, uint16_t *cdf, int n,
  int *count, int rate ACCT_STR_PARAM) {
   int val;
   int i;
@@ -61,7 +61,7 @@ int aom_decode_cdf_adapt_q15_(aom_reader *r, uint16_t *cdf, int n,
  *
  * @retval decoded variable x
  */
-int generic_decode_(aom_reader *r, generic_encoder *model,
+int generic_decode_(AomReader *r, GenericEncoder *model,
  int *ex_q16, int integration ACCT_STR_PARAM) {
   int lg_q1;
   int shift;

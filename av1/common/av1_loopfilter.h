@@ -35,7 +35,7 @@ enum lf_path {
   LF_PATH_SLOW,
 };
 
-struct loopfilter {
+struct Loopfilter {
   int filter_level;
 
   int sharpness_level;
@@ -60,12 +60,12 @@ typedef struct {
   DECLARE_ALIGNED(SIMD_WIDTH, uint8_t, mblim[SIMD_WIDTH]);
   DECLARE_ALIGNED(SIMD_WIDTH, uint8_t, lim[SIMD_WIDTH]);
   DECLARE_ALIGNED(SIMD_WIDTH, uint8_t, hev_thr[SIMD_WIDTH]);
-} loop_filter_thresh;
+} LoopFilterThresh;
 
 typedef struct {
-  loop_filter_thresh lfthr[MAX_LOOP_FILTER + 1];
+  LoopFilterThresh lfthr[MAX_LOOP_FILTER + 1];
   uint8_t lvl[MAX_SEGMENTS][TOTAL_REFS_PER_FRAME][MAX_MODE_LF_DELTAS];
-} loop_filter_info_n;
+} LoopFilterInfoN;
 
 // This structure holds bit masks for all 8x8 blocks in a 64x64 region.
 // Each 1 bit represents a position in which we want to apply the loop filter.
@@ -86,39 +86,39 @@ typedef struct {
   uint16_t above_int_4x4_uv;
   uint8_t lfl_y[MAX_MIB_SIZE][MAX_MIB_SIZE];
   uint8_t lfl_uv[MAX_MIB_SIZE / 2][MAX_MIB_SIZE / 2];
-} LOOP_FILTER_MASK;
+} LoopFilterMask;
 
-/* assorted loopfilter functions which get used elsewhere */
+/* assorted Loopfilter functions which get used elsewhere */
 struct AV1Common;
-struct macroblockd;
+struct Macroblockd;
 struct AV1LfSyncData;
 
 // This function sets up the bit masks for the entire 64x64 region represented
 // by mi_row, mi_col.
 void av1_setup_mask(struct AV1Common *const cm, const int mi_row,
-                    const int mi_col, MODE_INFO **mi_8x8,
-                    const int mode_info_stride, LOOP_FILTER_MASK *lfm);
+                    const int mi_col, ModeInfo **mi_8x8,
+                    const int mode_info_stride, LoopFilterMask *lfm);
 
 void av1_filter_block_plane_ss00_ver(struct AV1Common *const cm,
-                                     struct macroblockd_plane *const plane,
-                                     int mi_row, LOOP_FILTER_MASK *lfm);
+                                     struct MacroblockdPlane *const plane,
+                                     int mi_row, LoopFilterMask *lfm);
 void av1_filter_block_plane_ss00_hor(struct AV1Common *const cm,
-                                     struct macroblockd_plane *const plane,
-                                     int mi_row, LOOP_FILTER_MASK *lfm);
+                                     struct MacroblockdPlane *const plane,
+                                     int mi_row, LoopFilterMask *lfm);
 void av1_filter_block_plane_ss11_ver(struct AV1Common *const cm,
-                                     struct macroblockd_plane *const plane,
-                                     int mi_row, LOOP_FILTER_MASK *lfm);
+                                     struct MacroblockdPlane *const plane,
+                                     int mi_row, LoopFilterMask *lfm);
 void av1_filter_block_plane_ss11_hor(struct AV1Common *const cm,
-                                     struct macroblockd_plane *const plane,
-                                     int mi_row, LOOP_FILTER_MASK *lfm);
+                                     struct MacroblockdPlane *const plane,
+                                     int mi_row, LoopFilterMask *lfm);
 
 void av1_filter_block_plane_non420_ver(struct AV1Common *const cm,
-                                       struct macroblockd_plane *plane,
-                                       MODE_INFO **mi_8x8, int mi_row,
+                                       struct MacroblockdPlane *plane,
+                                       ModeInfo **mi_8x8, int mi_row,
                                        int mi_col);
 void av1_filter_block_plane_non420_hor(struct AV1Common *const cm,
-                                       struct macroblockd_plane *plane,
-                                       MODE_INFO **mi_8x8, int mi_row,
+                                       struct MacroblockdPlane *plane,
+                                       ModeInfo **mi_8x8, int mi_row,
                                        int mi_col);
 
 void av1_loop_filter_init(struct AV1Common *cm);
@@ -129,20 +129,19 @@ void av1_loop_filter_init(struct AV1Common *cm);
 // calls this function directly.
 void av1_loop_filter_frame_init(struct AV1Common *cm, int default_filt_lvl);
 
-void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
-                           struct macroblockd *mbd, int filter_level,
+void av1_loop_filter_frame(Yv12BufferConfig *frame, struct AV1Common *cm,
+                           struct Macroblockd *mbd, int filter_level,
                            int y_only, int partial_frame);
 
 // Apply the loop filter to [start, stop) macro block rows in frame_buffer.
-void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer,
-                          struct AV1Common *cm,
-                          struct macroblockd_plane planes[MAX_MB_PLANE],
+void av1_loop_filter_rows(Yv12BufferConfig *frame_buffer, struct AV1Common *cm,
+                          struct MacroblockdPlane planes[MAX_MB_PLANE],
                           int start, int stop, int y_only);
 
 typedef struct LoopFilterWorkerData {
-  YV12_BUFFER_CONFIG *frame_buffer;
+  Yv12BufferConfig *frame_buffer;
   struct AV1Common *cm;
-  struct macroblockd_plane planes[MAX_MB_PLANE];
+  struct MacroblockdPlane planes[MAX_MB_PLANE];
 
   int start;
   int stop;
@@ -150,8 +149,8 @@ typedef struct LoopFilterWorkerData {
 } LFWorkerData;
 
 void av1_loop_filter_data_reset(
-    LFWorkerData *lf_data, YV12_BUFFER_CONFIG *frame_buffer,
-    struct AV1Common *cm, const struct macroblockd_plane planes[MAX_MB_PLANE]);
+    LFWorkerData *lf_data, Yv12BufferConfig *frame_buffer, struct AV1Common *cm,
+    const struct MacroblockdPlane planes[MAX_MB_PLANE]);
 
 // Operates on the rows described by 'lf_data'.
 int av1_loop_filter_worker(LFWorkerData *const lf_data, void *unused);

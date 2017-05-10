@@ -11,7 +11,7 @@
 
 #if defined(__OPTIMIZE__) && __OPTIMIZE__
 #define ARCH NEON
-#define ARCH_POSTFIX(name) name##_neon
+#define ArchPostfix(name) name##_neon
 #define SIMD_NAMESPACE simd_test_neon
 #include "./simd_cmp_impl.h"
 #endif

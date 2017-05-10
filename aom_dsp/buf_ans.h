@@ -28,7 +28,7 @@ extern "C" {
 #define ANS_METHOD_RABS 0
 #define ANS_METHOD_RANS 1
 
-struct buffered_ans_symbol {
+struct BufferedAnsSymbol {
   unsigned int method : 1;  // one of ANS_METHOD_RABS or ANS_METHOD_RANS
   // TODO(aconverse): Should be possible to write this in terms of start for ABS
   unsigned int val_start : RANS_PROB_BITS;  // Boolean value for ABS
@@ -37,8 +37,8 @@ struct buffered_ans_symbol {
 };
 
 struct BufAnsCoder {
-  struct aom_internal_error_info *error;
-  struct buffered_ans_symbol *buf;
+  struct AomInternalErrorInfo *error;
+  struct BufferedAnsSymbol *buf;
   struct AnsCoder ans;
   int size;
   int offset;
@@ -54,7 +54,7 @@ struct BufAnsCoder {
 // When ANS_MAX_SYMBOLS is turned off, size is merely an initial hint and the
 // buffer will grow on demand
 void aom_buf_ans_alloc(struct BufAnsCoder *c,
-                       struct aom_internal_error_info *error, int hint);
+                       struct AomInternalErrorInfo *error, int hint);
 
 void aom_buf_ans_free(struct BufAnsCoder *c);
 
@@ -94,7 +94,7 @@ static INLINE void buf_rabs_write(struct BufAnsCoder *const c, uint8_t val,
 // prob: The probability of this symbol (l_s from the paper)
 // RANS_PRECISION takes the place of m from the paper.
 static INLINE void buf_rans_write(struct BufAnsCoder *const c,
-                                  aom_cdf_prob cum_prob, aom_cdf_prob prob) {
+                                  AomCdfProb cum_prob, AomCdfProb prob) {
   assert(c->offset <= c->size);
 #if !ANS_MAX_SYMBOLS
   if (c->offset == c->size) {

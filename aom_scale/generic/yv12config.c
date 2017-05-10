@@ -28,7 +28,7 @@
 #if CONFIG_AV1
 // TODO(jkoleszar): Maybe replace this with struct aom_image
 
-int aom_free_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
+int aom_free_frame_buffer(Yv12BufferConfig *ybf) {
   if (ybf) {
     if (ybf->buffer_alloc_sz > 0) {
       aom_free(ybf->buffer_alloc);
@@ -41,7 +41,7 @@ int aom_free_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
     /* buffer_alloc isn't accessed by most functions.  Rather y_buffer,
       u_buffer and v_buffer point to buffer_alloc and are used.  Clear out
       all of this so that a freed pointer isn't inadvertently used */
-    memset(ybf, 0, sizeof(YV12_BUFFER_CONFIG));
+    memset(ybf, 0, sizeof(Yv12BufferConfig));
   } else {
     return -1;
   }
@@ -49,14 +49,14 @@ int aom_free_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
   return 0;
 }
 
-int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
+int aom_realloc_frame_buffer(Yv12BufferConfig *ybf, int width, int height,
                              int ss_x, int ss_y,
 #if CONFIG_HIGHBITDEPTH
                              int use_highbitdepth,
 #endif
                              int border, int byte_alignment,
-                             aom_codec_frame_buffer_t *fb,
-                             aom_get_frame_buffer_cb_fn_t cb, void *cb_priv) {
+                             AomCodecFrameBufferT *fb,
+                             AomGetFrameBufferCbFnT cb, void *cb_priv) {
   if (ybf) {
     const int aom_byte_align = (byte_alignment == 0) ? 1 : byte_alignment;
     const int aligned_width = (width + 7) & ~7;
@@ -180,7 +180,7 @@ int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
   return -2;
 }
 
-int aom_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
+int aom_alloc_frame_buffer(Yv12BufferConfig *ybf, int width, int height,
                            int ss_x, int ss_y,
 #if CONFIG_HIGHBITDEPTH
                            int use_highbitdepth,

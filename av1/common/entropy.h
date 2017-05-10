@@ -96,32 +96,32 @@ DECLARE_ALIGNED(16, extern const uint8_t, av1_cat4_prob[4]);
 DECLARE_ALIGNED(16, extern const uint8_t, av1_cat5_prob[5]);
 DECLARE_ALIGNED(16, extern const uint8_t, av1_cat6_prob[18]);
 #if CONFIG_NEW_MULTISYMBOL
-extern const aom_cdf_prob *av1_cat1_cdf[];
-extern const aom_cdf_prob *av1_cat2_cdf[];
-extern const aom_cdf_prob *av1_cat3_cdf[];
-extern const aom_cdf_prob *av1_cat4_cdf[];
-extern const aom_cdf_prob *av1_cat5_cdf[];
-extern const aom_cdf_prob *av1_cat6_cdf[];
+extern const AomCdfProb *av1_cat1_cdf[];
+extern const AomCdfProb *av1_cat2_cdf[];
+extern const AomCdfProb *av1_cat3_cdf[];
+extern const AomCdfProb *av1_cat4_cdf[];
+extern const AomCdfProb *av1_cat5_cdf[];
+extern const AomCdfProb *av1_cat6_cdf[];
 #endif
 
 #define EOB_MODEL_TOKEN 3
 
 typedef struct {
 #if CONFIG_NEW_MULTISYMBOL
-  const aom_cdf_prob **cdf;
+  const AomCdfProb **cdf;
 #else
-  const aom_prob *prob;
+  const AomProb *prob;
 #endif
   int len;
   int base_val;
   const int16_t *cost;
-} av1_extra_bit;
+} Av1ExtraBit;
 
 // indexed by token value
-extern const av1_extra_bit av1_extra_bits[ENTROPY_TOKENS];
+extern const Av1ExtraBit av1_extra_bits[ENTROPY_TOKENS];
 
-static INLINE int av1_get_cat6_extrabits_size(TX_SIZE tx_size,
-                                              aom_bit_depth_t bit_depth) {
+static INLINE int av1_get_cat6_extrabits_size(TxSize tx_size,
+                                              AomBitDepthT bit_depth) {
   tx_size = txsize_sqr_up_map[tx_size];
 #if CONFIG_TX64X64
   // TODO(debargha): Does TX_64X64 require an additional extrabit?
@@ -180,20 +180,20 @@ static INLINE int av1_get_cat6_extrabits_size(TX_SIZE tx_size,
 
 // #define ENTROPY_STATS
 
-typedef unsigned int av1_coeff_count[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
-                                    [ENTROPY_TOKENS];
-typedef unsigned int av1_coeff_stats[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
-                                    [ENTROPY_NODES][2];
+typedef unsigned int Av1CoeffCount[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
+                                  [ENTROPY_TOKENS];
+typedef unsigned int Av1CoeffStats[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
+                                  [ENTROPY_NODES][2];
 
 #define SUBEXP_PARAM 4   /* Subexponential code parameter */
 #define MODULUS_PARAM 13 /* Modulus parameter */
 
 struct AV1Common;
-struct frame_contexts;
+struct FrameContexts;
 void av1_default_coef_probs(struct AV1Common *cm);
 void av1_adapt_coef_probs(struct AV1Common *cm);
 #if CONFIG_EC_ADAPT
-void av1_adapt_coef_cdfs(struct AV1Common *cm, struct frame_contexts *pre_fc);
+void av1_adapt_coef_cdfs(struct AV1Common *cm, struct FrameContexts *pre_fc);
 #endif
 
 // This is the index in the scan order beyond which all coefficients for
@@ -210,7 +210,7 @@ DECLARE_ALIGNED(16, extern const uint16_t, band_count_table[TX_SIZES_ALL][8]);
 DECLARE_ALIGNED(16, extern const uint16_t,
                 band_cum_count_table[TX_SIZES_ALL][8]);
 
-static INLINE const uint8_t *get_band_translate(TX_SIZE tx_size) {
+static INLINE const uint8_t *get_band_translate(TxSize tx_size) {
   switch (tx_size) {
     case TX_4X4: return av1_coefband_trans_4x4;
     case TX_8X4:
@@ -231,44 +231,42 @@ static INLINE const uint8_t *get_band_translate(TX_SIZE tx_size) {
 
 #define MODEL_NODES (ENTROPY_NODES - UNCONSTRAINED_NODES)
 #define TAIL_NODES (MODEL_NODES + 1)
-extern const aom_tree_index av1_coef_con_tree[TREE_SIZE(ENTROPY_TOKENS)];
-extern const aom_prob av1_pareto8_full[COEFF_PROB_MODELS][MODEL_NODES];
+extern const AomTreeIndex av1_coef_con_tree[TREE_SIZE(ENTROPY_TOKENS)];
+extern const AomProb av1_pareto8_full[COEFF_PROB_MODELS][MODEL_NODES];
 
-typedef aom_prob av1_coeff_probs_model[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
-                                      [UNCONSTRAINED_NODES];
+typedef AomProb Av1CoeffProbsModel[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
+                                  [UNCONSTRAINED_NODES];
 
-typedef unsigned int av1_coeff_count_model[REF_TYPES][COEF_BANDS]
-                                          [COEFF_CONTEXTS]
-                                          [UNCONSTRAINED_NODES + 1];
+typedef unsigned int Av1CoeffCountModel[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
+                                       [UNCONSTRAINED_NODES + 1];
 
-void av1_model_to_full_probs(const aom_prob *model, aom_prob *full);
+void av1_model_to_full_probs(const AomProb *model, AomProb *full);
 
 #if CONFIG_EC_MULTISYMBOL
-typedef aom_cdf_prob coeff_cdf_model[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
-                                    [CDF_SIZE(ENTROPY_TOKENS)];
-typedef aom_prob av1_blockz_probs_model[REF_TYPES][BLOCKZ_CONTEXTS];
-typedef unsigned int av1_blockz_count_model[REF_TYPES][BLOCKZ_CONTEXTS][2];
-extern const aom_cdf_prob av1_pareto8_token_probs[COEFF_PROB_MODELS]
-                                                 [ENTROPY_TOKENS - 2];
-extern const aom_cdf_prob av1_pareto8_tail_probs[COEFF_PROB_MODELS]
-                                                [ENTROPY_TOKENS - 3];
-struct frame_contexts;
+typedef AomCdfProb CoeffCdfModel[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
+                                [CDF_SIZE(ENTROPY_TOKENS)];
+typedef AomProb Av1BlockzProbsModel[REF_TYPES][BLOCKZ_CONTEXTS];
+typedef unsigned int Av1BlockzCountModel[REF_TYPES][BLOCKZ_CONTEXTS][2];
+extern const AomCdfProb av1_pareto8_token_probs[COEFF_PROB_MODELS]
+                                               [ENTROPY_TOKENS - 2];
+extern const AomCdfProb av1_pareto8_tail_probs[COEFF_PROB_MODELS]
+                                              [ENTROPY_TOKENS - 3];
+struct FrameContexts;
 #if CONFIG_NEW_TOKENSET
-void av1_coef_head_cdfs(struct frame_contexts *fc);
+void av1_coef_head_cdfs(struct FrameContexts *fc);
 #endif
-void av1_coef_pareto_cdfs(struct frame_contexts *fc);
+void av1_coef_pareto_cdfs(struct FrameContexts *fc);
 #endif  // CONFIG_EC_MULTISYMBOL
 
-typedef char ENTROPY_CONTEXT;
+typedef char EntropyContext;
 
-static INLINE int combine_entropy_contexts(ENTROPY_CONTEXT a,
-                                           ENTROPY_CONTEXT b) {
+static INLINE int combine_entropy_contexts(EntropyContext a, EntropyContext b) {
   return (a != 0) + (b != 0);
 }
 
-static INLINE int get_entropy_context(TX_SIZE tx_size, const ENTROPY_CONTEXT *a,
-                                      const ENTROPY_CONTEXT *l) {
-  ENTROPY_CONTEXT above_ec = 0, left_ec = 0;
+static INLINE int get_entropy_context(TxSize tx_size, const EntropyContext *a,
+                                      const EntropyContext *l) {
+  EntropyContext above_ec = 0, left_ec = 0;
 
 #if CONFIG_CB4X4
   switch (tx_size) {
@@ -382,36 +380,35 @@ static INLINE int get_entropy_context(TX_SIZE tx_size, const ENTROPY_CONTEXT *a,
 #define ADAPT_SCAN_UPDATE_RATE_16 (1 << 13)
 #endif
 
-static INLINE aom_prob av1_merge_probs(aom_prob pre_prob,
-                                       const unsigned int ct[2],
-                                       unsigned int count_sat,
-                                       unsigned int max_update_factor) {
+static INLINE AomProb av1_merge_probs(AomProb pre_prob,
+                                      const unsigned int ct[2],
+                                      unsigned int count_sat,
+                                      unsigned int max_update_factor) {
   return merge_probs(pre_prob, ct, count_sat, max_update_factor);
 }
 
-static INLINE aom_prob av1_mode_mv_merge_probs(aom_prob pre_prob,
-                                               const unsigned int ct[2]) {
+static INLINE AomProb av1_mode_mv_merge_probs(AomProb pre_prob,
+                                              const unsigned int ct[2]) {
   return mode_mv_merge_probs(pre_prob, ct);
 }
 
 #if CONFIG_EC_ADAPT
-void av1_average_tile_coef_cdfs(struct frame_contexts *fc,
-                                struct frame_contexts *ec_ctxs[],
-                                aom_cdf_prob *cdf_ptrs[], int num_tiles);
-void av1_average_tile_mv_cdfs(struct frame_contexts *fc,
-                              struct frame_contexts *ec_ctxs[],
-                              aom_cdf_prob *cdf_ptrs[], int num_tiles);
-void av1_average_tile_intra_cdfs(struct frame_contexts *fc,
-                                 struct frame_contexts *ec_ctxs[],
-                                 aom_cdf_prob *cdf_ptrs[], int num_tiles);
-void av1_average_tile_inter_cdfs(struct AV1Common *cm,
-                                 struct frame_contexts *fc,
-                                 struct frame_contexts *ec_ctxs[],
-                                 aom_cdf_prob *cdf_ptrs[], int num_tiles);
+void av1_average_tile_coef_cdfs(struct FrameContexts *fc,
+                                struct FrameContexts *ec_ctxs[],
+                                AomCdfProb *cdf_ptrs[], int num_tiles);
+void av1_average_tile_mv_cdfs(struct FrameContexts *fc,
+                              struct FrameContexts *ec_ctxs[],
+                              AomCdfProb *cdf_ptrs[], int num_tiles);
+void av1_average_tile_intra_cdfs(struct FrameContexts *fc,
+                                 struct FrameContexts *ec_ctxs[],
+                                 AomCdfProb *cdf_ptrs[], int num_tiles);
+void av1_average_tile_inter_cdfs(struct AV1Common *cm, struct FrameContexts *fc,
+                                 struct FrameContexts *ec_ctxs[],
+                                 AomCdfProb *cdf_ptrs[], int num_tiles);
 #if CONFIG_PVQ
 void av1_default_pvq_probs(struct AV1Common *cm);
-void av1_average_tile_pvq_cdfs(struct frame_contexts *fc,
-                               struct frame_contexts *ec_ctxs[], int num_tiles);
+void av1_average_tile_pvq_cdfs(struct FrameContexts *fc,
+                               struct FrameContexts *ec_ctxs[], int num_tiles);
 #endif  // CONFIG_PVQ
 #endif  // CONFIG_EC_ADAPT
 #ifdef __cplusplus

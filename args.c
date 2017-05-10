@@ -34,7 +34,7 @@ struct arg arg_init(char **argv) {
   return a;
 }
 
-int arg_match(struct arg *arg_, const struct arg_def *def, char **argv) {
+int arg_match(struct arg *arg_, const struct ArgDef *def, char **argv) {
   struct arg arg;
 
   if (!argv[0] || argv[0][0] != '-') return 0;
@@ -88,11 +88,11 @@ char **argv_dup(int argc, const char **argv) {
   return new_argv;
 }
 
-void arg_show_usage(FILE *fp, const struct arg_def *const *defs) {
+void arg_show_usage(FILE *fp, const struct ArgDef *const *defs) {
   char option_text[40] = { 0 };
 
   for (; *defs; defs++) {
-    const struct arg_def *def = *defs;
+    const struct ArgDef *def = *defs;
     char *short_val = def->has_val ? " <arg>" : "";
     char *long_val = def->has_val ? "=<arg>" : "";
 
@@ -109,7 +109,7 @@ void arg_show_usage(FILE *fp, const struct arg_def *const *defs) {
     fprintf(fp, "  %-37s\t%s\n", option_text, def->desc);
 
     if (def->enums) {
-      const struct arg_enum_list *listptr;
+      const struct ArgEnumList *listptr;
 
       fprintf(fp, "  %-37s\t  ", "");
 
@@ -149,14 +149,14 @@ int arg_parse_int(const struct arg *arg) {
   return 0;
 }
 
-struct aom_rational {
+struct AomRational {
   int num; /**< fraction numerator */
   int den; /**< fraction denominator */
 };
-struct aom_rational arg_parse_rational(const struct arg *arg) {
+struct AomRational arg_parse_rational(const struct arg *arg) {
   long int rawval;
   char *endptr;
-  struct aom_rational rat;
+  struct AomRational rat;
 
   /* parse numerator */
   rawval = strtol(arg->val, &endptr, 10);
@@ -186,7 +186,7 @@ struct aom_rational arg_parse_rational(const struct arg *arg) {
 }
 
 int arg_parse_enum(const struct arg *arg) {
-  const struct arg_enum_list *listptr;
+  const struct ArgEnumList *listptr;
   long int rawval;
   char *endptr;
 

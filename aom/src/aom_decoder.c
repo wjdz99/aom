@@ -18,15 +18,14 @@
 
 #define SAVE_STATUS(ctx, var) (ctx ? (ctx->err = var) : var)
 
-static aom_codec_alg_priv_t *get_alg_priv(aom_codec_ctx_t *ctx) {
-  return (aom_codec_alg_priv_t *)ctx->priv;
+static AomCodecAlgPrivT *get_alg_priv(AomCodecCtxT *ctx) {
+  return (AomCodecAlgPrivT *)ctx->priv;
 }
 
-aom_codec_err_t aom_codec_dec_init_ver(aom_codec_ctx_t *ctx,
-                                       aom_codec_iface_t *iface,
-                                       const aom_codec_dec_cfg_t *cfg,
-                                       aom_codec_flags_t flags, int ver) {
-  aom_codec_err_t res;
+AomCodecErrT aom_codec_dec_init_ver(AomCodecCtxT *ctx, AomCodecIfaceT *iface,
+                                    const AomCodecDecCfgT *cfg,
+                                    AomCodecFlagsT flags, int ver) {
+  AomCodecErrT res;
 
   if (ver != AOM_DECODER_ABI_VERSION)
     res = AOM_CODEC_ABI_MISMATCH;
@@ -63,11 +62,11 @@ aom_codec_err_t aom_codec_dec_init_ver(aom_codec_ctx_t *ctx,
   return SAVE_STATUS(ctx, res);
 }
 
-aom_codec_err_t aom_codec_peek_stream_info(aom_codec_iface_t *iface,
-                                           const uint8_t *data,
-                                           unsigned int data_sz,
-                                           aom_codec_stream_info_t *si) {
-  aom_codec_err_t res;
+AomCodecErrT aom_codec_peek_stream_info(AomCodecIfaceT *iface,
+                                        const uint8_t *data,
+                                        unsigned int data_sz,
+                                        AomCodecStreamInfoT *si) {
+  AomCodecErrT res;
 
   if (!iface || !data || !data_sz || !si) {
     res = AOM_CODEC_INVALID_PARAM;
@@ -82,9 +81,9 @@ aom_codec_err_t aom_codec_peek_stream_info(aom_codec_iface_t *iface,
   return res;
 }
 
-aom_codec_err_t aom_codec_get_stream_info(aom_codec_ctx_t *ctx,
-                                          aom_codec_stream_info_t *si) {
-  aom_codec_err_t res;
+AomCodecErrT aom_codec_get_stream_info(AomCodecCtxT *ctx,
+                                       AomCodecStreamInfoT *si) {
+  AomCodecErrT res;
 
   if (!ctx || !si) {
     res = AOM_CODEC_INVALID_PARAM;
@@ -101,10 +100,10 @@ aom_codec_err_t aom_codec_get_stream_info(aom_codec_ctx_t *ctx,
   return SAVE_STATUS(ctx, res);
 }
 
-aom_codec_err_t aom_codec_decode(aom_codec_ctx_t *ctx, const uint8_t *data,
-                                 unsigned int data_sz, void *user_priv,
-                                 long deadline) {
-  aom_codec_err_t res;
+AomCodecErrT aom_codec_decode(AomCodecCtxT *ctx, const uint8_t *data,
+                              unsigned int data_sz, void *user_priv,
+                              long deadline) {
+  AomCodecErrT res;
 
   /* Sanity checks */
   /* NULL data ptr allowed if data_sz is 0 too */
@@ -120,8 +119,8 @@ aom_codec_err_t aom_codec_decode(aom_codec_ctx_t *ctx, const uint8_t *data,
   return SAVE_STATUS(ctx, res);
 }
 
-aom_image_t *aom_codec_get_frame(aom_codec_ctx_t *ctx, aom_codec_iter_t *iter) {
-  aom_image_t *img;
+AomImageT *aom_codec_get_frame(AomCodecCtxT *ctx, AomCodecIterT *iter) {
+  AomImageT *img;
 
   if (!ctx || !iter || !ctx->iface || !ctx->priv)
     img = NULL;
@@ -131,10 +130,10 @@ aom_image_t *aom_codec_get_frame(aom_codec_ctx_t *ctx, aom_codec_iter_t *iter) {
   return img;
 }
 
-aom_codec_err_t aom_codec_register_put_frame_cb(aom_codec_ctx_t *ctx,
-                                                aom_codec_put_frame_cb_fn_t cb,
-                                                void *user_priv) {
-  aom_codec_err_t res;
+AomCodecErrT aom_codec_register_put_frame_cb(AomCodecCtxT *ctx,
+                                             AomCodecPutFrameCbFnT cb,
+                                             void *user_priv) {
+  AomCodecErrT res;
 
   if (!ctx || !cb)
     res = AOM_CODEC_INVALID_PARAM;
@@ -150,10 +149,10 @@ aom_codec_err_t aom_codec_register_put_frame_cb(aom_codec_ctx_t *ctx,
   return SAVE_STATUS(ctx, res);
 }
 
-aom_codec_err_t aom_codec_register_put_slice_cb(aom_codec_ctx_t *ctx,
-                                                aom_codec_put_slice_cb_fn_t cb,
-                                                void *user_priv) {
-  aom_codec_err_t res;
+AomCodecErrT aom_codec_register_put_slice_cb(AomCodecCtxT *ctx,
+                                             AomCodecPutSliceCbFnT cb,
+                                             void *user_priv) {
+  AomCodecErrT res;
 
   if (!ctx || !cb)
     res = AOM_CODEC_INVALID_PARAM;
@@ -169,10 +168,10 @@ aom_codec_err_t aom_codec_register_put_slice_cb(aom_codec_ctx_t *ctx,
   return SAVE_STATUS(ctx, res);
 }
 
-aom_codec_err_t aom_codec_set_frame_buffer_functions(
-    aom_codec_ctx_t *ctx, aom_get_frame_buffer_cb_fn_t cb_get,
-    aom_release_frame_buffer_cb_fn_t cb_release, void *cb_priv) {
-  aom_codec_err_t res;
+AomCodecErrT aom_codec_set_frame_buffer_functions(
+    AomCodecCtxT *ctx, AomGetFrameBufferCbFnT cb_get,
+    AomReleaseFrameBufferCbFnT cb_release, void *cb_priv) {
+  AomCodecErrT res;
 
   if (!ctx || !cb_get || !cb_release) {
     res = AOM_CODEC_INVALID_PARAM;

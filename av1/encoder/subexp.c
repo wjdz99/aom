@@ -76,12 +76,12 @@ static int remap_prob(int v, int m) {
   return i;
 }
 
-static int prob_diff_update_cost(aom_prob newp, aom_prob oldp) {
+static int prob_diff_update_cost(AomProb newp, AomProb oldp) {
   int delp = remap_prob(newp, oldp);
   return update_bits[delp] << AV1_PROB_COST_SHIFT;
 }
 
-static void encode_uniform(aom_writer *w, int v) {
+static void encode_uniform(AomWriter *w, int v) {
   const int l = 8;
   const int m = (1 << l) - 190;
   if (v < m) {
@@ -92,12 +92,12 @@ static void encode_uniform(aom_writer *w, int v) {
   }
 }
 
-static INLINE int write_bit_gte(aom_writer *w, int word, int test) {
+static INLINE int write_bit_gte(AomWriter *w, int word, int test) {
   aom_write_literal(w, word >= test, 1);
   return word >= test;
 }
 
-static void encode_term_subexp(aom_writer *w, int word) {
+static void encode_term_subexp(AomWriter *w, int word) {
   if (!write_bit_gte(w, word, 16)) {
     aom_write_literal(w, word, 4);
   } else if (!write_bit_gte(w, word, 32)) {
@@ -109,17 +109,17 @@ static void encode_term_subexp(aom_writer *w, int word) {
   }
 }
 
-void av1_write_prob_diff_update(aom_writer *w, aom_prob newp, aom_prob oldp) {
+void av1_write_prob_diff_update(AomWriter *w, AomProb newp, AomProb oldp) {
   const int delp = remap_prob(newp, oldp);
   encode_term_subexp(w, delp);
 }
 
-int av1_prob_diff_update_savings_search(const unsigned int *ct, aom_prob oldp,
-                                        aom_prob *bestp, aom_prob upd,
+int av1_prob_diff_update_savings_search(const unsigned int *ct, AomProb oldp,
+                                        AomProb *bestp, AomProb upd,
                                         int probwt) {
   const uint32_t old_b = cost_branch256(ct, oldp);
   int bestsavings = 0;
-  aom_prob newp, bestnewp = oldp;
+  AomProb newp, bestnewp = oldp;
   const int step = *bestp > oldp ? -1 : 1;
   const int upd_cost = av1_cost_one(upd) - av1_cost_zero(upd);
 
@@ -139,16 +139,16 @@ int av1_prob_diff_update_savings_search(const unsigned int *ct, aom_prob oldp,
 }
 
 int av1_prob_diff_update_savings_search_model(const unsigned int *ct,
-                                              const aom_prob oldp,
-                                              aom_prob *bestp, aom_prob upd,
+                                              const AomProb oldp,
+                                              AomProb *bestp, AomProb upd,
                                               int stepsize, int probwt) {
   int i, old_b, new_b, update_b, savings, bestsavings;
   int newp;
   const int step_sign = *bestp > oldp ? -1 : 1;
   const int step = stepsize * step_sign;
   const int upd_cost = av1_cost_one(upd) - av1_cost_zero(upd);
-  const aom_prob *newplist, *oldplist;
-  aom_prob bestnewp;
+  const AomProb *newplist, *oldplist;
+  AomProb bestnewp;
   oldplist = av1_pareto8_full[oldp - 1];
   old_b = cost_branch256(ct + 2 * PIVOT_NODE, oldp);
   for (i = UNCONSTRAINED_NODES; i < ENTROPY_NODES; ++i)
@@ -179,10 +179,10 @@ int av1_prob_diff_update_savings_search_model(const unsigned int *ct,
   return bestsavings;
 }
 
-void av1_cond_prob_diff_update(aom_writer *w, aom_prob *oldp,
+void av1_cond_prob_diff_update(AomWriter *w, AomProb *oldp,
                                const unsigned int ct[2], int probwt) {
-  const aom_prob upd = DIFF_UPDATE_PROB;
-  aom_prob newp = get_binary_prob(ct[0], ct[1]);
+  const AomProb upd = DIFF_UPDATE_PROB;
+  AomProb newp = get_binary_prob(ct[0], ct[1]);
   const int savings =
       av1_prob_diff_update_savings_search(ct, *oldp, &newp, upd, probwt);
   assert(newp >= 1);
@@ -195,10 +195,10 @@ void av1_cond_prob_diff_update(aom_writer *w, aom_prob *oldp,
   }
 }
 
-int av1_cond_prob_diff_update_savings(aom_prob *oldp, const unsigned int ct[2],
+int av1_cond_prob_diff_update_savings(AomProb *oldp, const unsigned int ct[2],
                                       int probwt) {
-  const aom_prob upd = DIFF_UPDATE_PROB;
-  aom_prob newp = get_binary_prob(ct[0], ct[1]);
+  const AomProb upd = DIFF_UPDATE_PROB;
+  AomProb newp = get_binary_prob(ct[0], ct[1]);
   const int savings =
       av1_prob_diff_update_savings_search(ct, *oldp, &newp, upd, probwt);
   return savings;

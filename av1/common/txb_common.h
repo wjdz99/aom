@@ -19,7 +19,7 @@ extern const int16_t av1_coeff_band_16x16[256];
 
 extern const int16_t av1_coeff_band_32x32[1024];
 
-typedef struct txb_ctx {
+typedef struct TxbCtx {
   int txb_skip_ctx;
   int dc_sign_ctx;
 } TXB_CTX;
@@ -32,7 +32,7 @@ static int base_ref_offset[BASE_CONTEXT_POSITION_NUM][2] = {
   /* clang-format on*/
 };
 
-static INLINE int get_base_ctx(const tran_low_t *tcoeffs,
+static INLINE int get_base_ctx(const TranLowT *tcoeffs,
                                int c,  // raster order
                                const int bwl, const int level) {
   const int row = c >> bwl;
@@ -43,7 +43,7 @@ static INLINE int get_base_ctx(const tran_low_t *tcoeffs,
   int mag = 0;
   int idx;
   int ctx_idx = -1;
-  tran_low_t abs_coeff;
+  TranLowT abs_coeff;
 
   ctx = 0;
   for (idx = 0; idx < BASE_CONTEXT_POSITION_NUM; ++idx) {
@@ -89,7 +89,7 @@ static int br_level_map[9] = {
   0, 0, 1, 1, 2, 2, 3, 3, 3,
 };
 
-static INLINE int get_level_ctx(const tran_low_t *tcoeffs,
+static INLINE int get_level_ctx(const TranLowT *tcoeffs,
                                 const int c,  // raster order
                                 const int bwl) {
   const int row = c >> bwl;
@@ -98,7 +98,7 @@ static INLINE int get_level_ctx(const tran_low_t *tcoeffs,
   const int level_minus_1 = NUM_BASE_LEVELS;
   int ctx = 0;
   int idx;
-  tran_low_t abs_coeff;
+  TranLowT abs_coeff;
   int mag = 0, offset = 0;
 
   for (idx = 0; idx < BR_CONTEXT_POSITION_NUM; ++idx) {
@@ -147,7 +147,7 @@ static int sig_ref_offset[11][2] = {
   { -1, 1 },  { 0, -2 }, { 0, -1 }, { 1, -2 },  { 1, -1 },
 };
 
-static INLINE int get_nz_map_ctx(const tran_low_t *tcoeffs,
+static INLINE int get_nz_map_ctx(const TranLowT *tcoeffs,
                                  const uint8_t *txb_mask,
                                  const int c,  // raster order
                                  const int bwl) {
@@ -212,7 +212,7 @@ static INLINE int get_nz_map_ctx(const tran_low_t *tcoeffs,
   return 14 + ctx;
 }
 
-static INLINE int get_eob_ctx(const tran_low_t *tcoeffs,
+static INLINE int get_eob_ctx(const TranLowT *tcoeffs,
                               const int c,  // raster order
                               const int bwl) {
   (void)tcoeffs;
@@ -225,7 +225,7 @@ static INLINE int get_eob_ctx(const tran_low_t *tcoeffs,
   return 0;
 }
 
-static INLINE void set_dc_sign(int *cul_level, tran_low_t v) {
+static INLINE void set_dc_sign(int *cul_level, TranLowT v) {
   if (v < 0)
     *cul_level |= 1 << COEFF_CONTEXT_BITS;
   else if (v > 0)
@@ -242,9 +242,9 @@ static INLINE int get_dc_sign_ctx(int dc_sign) {
   return dc_sign_ctx;
 }
 
-static INLINE void get_txb_ctx(BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
-                               int plane, const ENTROPY_CONTEXT *a,
-                               const ENTROPY_CONTEXT *l, TXB_CTX *txb_ctx) {
+static INLINE void get_txb_ctx(BlockSize plane_bsize, TxSize tx_size, int plane,
+                               const EntropyContext *a, const EntropyContext *l,
+                               TXB_CTX *TxbCtx) {
   const int tx_size_in_blocks = 1 << tx_size;
   int ctx_offset = (plane == 0) ? 0 : 7;
   int k;
@@ -269,7 +269,7 @@ static INLINE void get_txb_ctx(BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
     else if (sign != 0)
       assert(0);
   }
-  txb_ctx->dc_sign_ctx = get_dc_sign_ctx(dc_sign);
+  TxbCtx->dc_sign_ctx = get_dc_sign_ctx(dc_sign);
 
   if (plane == 0) {
     int top = 0;
@@ -282,23 +282,23 @@ static INLINE void get_txb_ctx(BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
     left = AOMMIN(left, 255);
 
     if (plane_bsize == txsize_to_bsize[tx_size])
-      txb_ctx->txb_skip_ctx = 0;
+      TxbCtx->txb_skip_ctx = 0;
     else if (top == 0 && left == 0)
-      txb_ctx->txb_skip_ctx = 1;
+      TxbCtx->txb_skip_ctx = 1;
     else if (top == 0 || left == 0)
-      txb_ctx->txb_skip_ctx = 2 + (AOMMAX(top, left) > 3);
+      TxbCtx->txb_skip_ctx = 2 + (AOMMAX(top, left) > 3);
     else if (AOMMAX(top, left) <= 3)
-      txb_ctx->txb_skip_ctx = 4;
+      TxbCtx->txb_skip_ctx = 4;
     else if (AOMMIN(top, left) <= 3)
-      txb_ctx->txb_skip_ctx = 5;
+      TxbCtx->txb_skip_ctx = 5;
     else
-      txb_ctx->txb_skip_ctx = 6;
+      TxbCtx->txb_skip_ctx = 6;
   } else {
     int ctx_base = get_entropy_context(tx_size, a, l);
-    txb_ctx->txb_skip_ctx = ctx_offset + ctx_base;
+    TxbCtx->txb_skip_ctx = ctx_offset + ctx_base;
   }
 }
 
-void av1_adapt_txb_probs(AV1_COMMON *cm, unsigned int count_sat,
+void av1_adapt_txb_probs(Av1Common *cm, unsigned int count_sat,
                          unsigned int update_factor);
 #endif  // AV1_COMMON_TXB_COMMON_H_

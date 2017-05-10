@@ -310,28 +310,28 @@ SIMD_INLINE uint64_t v128_hadd_u8(v128 a) {
   return v64_low_u32(v128_low_v64(t)) + v64_low_u32(v128_high_v64(t));
 }
 
-typedef v128 sad128_internal;
+typedef v128 Sad128Internal;
 
-SIMD_INLINE sad128_internal v128_sad_u8_init() { return _mm_setzero_si128(); }
+SIMD_INLINE Sad128Internal v128_sad_u8_init() { return _mm_setzero_si128(); }
 
 /* Implementation dependent return value.  Result must be finalised with
    v128_sad_sum().
    The result for more than 32 v128_sad_u8() calls is undefined. */
-SIMD_INLINE sad128_internal v128_sad_u8(sad128_internal s, v128 a, v128 b) {
+SIMD_INLINE Sad128Internal v128_sad_u8(Sad128Internal s, v128 a, v128 b) {
   return _mm_add_epi64(s, _mm_sad_epu8(a, b));
 }
 
-SIMD_INLINE uint32_t v128_sad_u8_sum(sad128_internal s) {
+SIMD_INLINE uint32_t v128_sad_u8_sum(Sad128Internal s) {
   return v128_low_u32(_mm_add_epi32(s, _mm_unpackhi_epi64(s, s)));
 }
 
-typedef v128 ssd128_internal;
+typedef v128 Ssd128Internal;
 
-SIMD_INLINE ssd128_internal v128_ssd_u8_init() { return _mm_setzero_si128(); }
+SIMD_INLINE Ssd128Internal v128_ssd_u8_init() { return _mm_setzero_si128(); }
 
 /* Implementation dependent return value.  Result must be finalised with
  * v128_ssd_sum(). */
-SIMD_INLINE ssd128_internal v128_ssd_u8(ssd128_internal s, v128 a, v128 b) {
+SIMD_INLINE Ssd128Internal v128_ssd_u8(Ssd128Internal s, v128 a, v128 b) {
   v128 l = _mm_sub_epi16(_mm_unpacklo_epi8(a, _mm_setzero_si128()),
                          _mm_unpacklo_epi8(b, _mm_setzero_si128()));
   v128 h = _mm_sub_epi16(_mm_unpackhi_epi8(a, _mm_setzero_si128()),
@@ -347,7 +347,7 @@ SIMD_INLINE ssd128_internal v128_ssd_u8(ssd128_internal s, v128 a, v128 b) {
       s, _mm_srl_epi64(_mm_sll_epi64(_mm_unpacklo_epi64(rl, rh), c), c));
 }
 
-SIMD_INLINE uint32_t v128_ssd_u8_sum(ssd128_internal s) {
+SIMD_INLINE uint32_t v128_ssd_u8_sum(Ssd128Internal s) {
   return v128_low_u32(_mm_add_epi32(s, _mm_unpackhi_epi64(s, s)));
 }
 

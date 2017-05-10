@@ -11,11 +11,11 @@
 #include "./aom_config.h"
 #include "./bitreader_buffer.h"
 
-size_t aom_rb_bytes_read(struct aom_read_bit_buffer *rb) {
+size_t aom_rb_bytes_read(struct AomReadBitBuffer *rb) {
   return (rb->bit_offset + 7) >> 3;
 }
 
-int aom_rb_read_bit(struct aom_read_bit_buffer *rb) {
+int aom_rb_read_bit(struct AomReadBitBuffer *rb) {
   const uint32_t off = rb->bit_offset;
   const uint32_t p = off >> 3;
   const int q = 7 - (int)(off & 0x7);
@@ -29,18 +29,18 @@ int aom_rb_read_bit(struct aom_read_bit_buffer *rb) {
   }
 }
 
-int aom_rb_read_literal(struct aom_read_bit_buffer *rb, int bits) {
+int aom_rb_read_literal(struct AomReadBitBuffer *rb, int bits) {
   int value = 0, bit;
   for (bit = bits - 1; bit >= 0; bit--) value |= aom_rb_read_bit(rb) << bit;
   return value;
 }
 
-int aom_rb_read_signed_literal(struct aom_read_bit_buffer *rb, int bits) {
+int aom_rb_read_signed_literal(struct AomReadBitBuffer *rb, int bits) {
   const int value = aom_rb_read_literal(rb, bits);
   return aom_rb_read_bit(rb) ? -value : value;
 }
 
-int aom_rb_read_inv_signed_literal(struct aom_read_bit_buffer *rb, int bits) {
+int aom_rb_read_inv_signed_literal(struct AomReadBitBuffer *rb, int bits) {
   const int nbits = sizeof(unsigned) * 8 - bits - 1;
   const unsigned value = (unsigned)aom_rb_read_literal(rb, bits + 1) << nbits;
   return ((int)value) >> nbits;

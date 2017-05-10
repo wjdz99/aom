@@ -22,11 +22,11 @@ extern "C" {
 void write_sequence_header(SequenceHeader *seq_params);
 #endif
 
-void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dest, size_t *size);
+void av1_pack_bitstream(Av1Comp *const cpi, uint8_t *dest, size_t *size);
 
 void av1_encode_token_init(void);
 
-static INLINE int av1_preserve_existing_gf(AV1_COMP *cpi) {
+static INLINE int av1_preserve_existing_gf(Av1Comp *cpi) {
 #if CONFIG_EXT_REFS
   // Do not swap gf and arf indices for internal overlay frames
   return !cpi->multi_arf_allowed && cpi->rc.is_src_frame_alt_ref &&
@@ -37,14 +37,14 @@ static INLINE int av1_preserve_existing_gf(AV1_COMP *cpi) {
 #endif  // CONFIG_EXT_REFS
 }
 
-void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
+void av1_write_tx_type(const Av1Common *const cm, const Macroblockd *xd,
 #if CONFIG_SUPERTX
                        const int supertx_enabled,
 #endif
 #if CONFIG_TXK_SEL
                        int block, int plane,
 #endif
-                       aom_writer *w);
+                       AomWriter *w);
 
 #ifdef __cplusplus
 }  // extern "C"

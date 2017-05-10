@@ -24,18 +24,18 @@ extern "C" {
  * first pass statistics
  */
 typedef struct {
-  aom_fixed_buf_t buf;
+  AomFixedBufT buf;
   int pass;
   FILE *file;
   char *buf_ptr;
   size_t buf_alloc_sz;
-} stats_io_t;
+} StatsIoT;
 
-int stats_open_file(stats_io_t *stats, const char *fpf, int pass);
-int stats_open_mem(stats_io_t *stats, int pass);
-void stats_close(stats_io_t *stats, int last_pass);
-void stats_write(stats_io_t *stats, const void *pkt, size_t len);
-aom_fixed_buf_t stats_get(stats_io_t *stats);
+int stats_open_file(StatsIoT *stats, const char *fpf, int pass);
+int stats_open_mem(StatsIoT *stats, int pass);
+void stats_close(StatsIoT *stats, int last_pass);
+void stats_write(StatsIoT *stats, const void *pkt, size_t len);
+AomFixedBufT stats_get(StatsIoT *stats);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -35,8 +35,8 @@ struct rate_hist {
   int total;
 };
 
-struct rate_hist *init_rate_histogram(const aom_codec_enc_cfg_t *cfg,
-                                      const aom_rational_t *fps) {
+struct rate_hist *init_rate_histogram(const AomCodecEncCfgT *cfg,
+                                      const AomRationalT *fps) {
   int i;
   struct rate_hist *hist = malloc(sizeof(*hist));
 
@@ -70,9 +70,8 @@ void destroy_rate_histogram(struct rate_hist *hist) {
   }
 }
 
-void update_rate_histogram(struct rate_hist *hist,
-                           const aom_codec_enc_cfg_t *cfg,
-                           const aom_codec_cx_pkt_t *pkt) {
+void update_rate_histogram(struct rate_hist *hist, const AomCodecEncCfgT *cfg,
+                           const AomCodecCxPktT *pkt) {
   int i;
   int64_t then = 0;
   int64_t avg_bitrate = 0;
@@ -255,7 +254,7 @@ void show_q_histogram(const int counts[64], int max_buckets) {
   show_histogram(bucket, buckets, total, scale);
 }
 
-void show_rate_histogram(struct rate_hist *hist, const aom_codec_enc_cfg_t *cfg,
+void show_rate_histogram(struct rate_hist *hist, const AomCodecEncCfgT *cfg,
                          int max_buckets) {
   int i, scale;
   int buckets = 0;
