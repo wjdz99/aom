@@ -2202,7 +2202,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, const MACROBLOCKD *xd,
 
 #if CONFIG_CFL
     if (mbmi->uv_mode == DC_PRED) {
-      write_cfl_alphas(ec_ctx, mbmi->skip, mbmi->cfl_alpha_ind,
+      write_cfl_alphas(ec_ctx, mbmi->skip, mbmi->cfl_alpha_idx,
                        mbmi->cfl_alpha_signs, w);
     }
 #endif
