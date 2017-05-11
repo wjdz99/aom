@@ -2464,45 +2464,80 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 #endif  // CONFIG_MOTION_VAR
 
 #if CONFIG_EXT_INTER
-#define MBFP(BT, MSDF, MVF, MSVF) \
-  cpi->fn_ptr[BT].msdf = MSDF;    \
-  cpi->fn_ptr[BT].mvf = MVF;      \
-  cpi->fn_ptr[BT].msvf = MSVF;
+#define MBFP(BT, MSDF, MVF, MSVF, MCSDF, MCVF, MCSVF) \
+  cpi->fn_ptr[BT].msdf = MSDF;                        \
+  cpi->fn_ptr[BT].mvf = MVF;                          \
+  cpi->fn_ptr[BT].msvf = MSVF;                        \
+  cpi->fn_ptr[BT].mcsdf = MCSDF;                      \
+  cpi->fn_ptr[BT].mcvf = MCVF;                        \
+  cpi->fn_ptr[BT].mcsvf = MCSVF;
 
 #if CONFIG_EXT_PARTITION
   MBFP(BLOCK_128X128, aom_masked_sad128x128, aom_masked_variance128x128,
-       aom_masked_sub_pixel_variance128x128)
+       aom_masked_sub_pixel_variance128x128, aom_masked_compound_sad128x128,
+       aom_masked_compound_variance128x128,
+       aom_masked_compound_sub_pixel_variance128x128)
   MBFP(BLOCK_128X64, aom_masked_sad128x64, aom_masked_variance128x64,
-       aom_masked_sub_pixel_variance128x64)
+       aom_masked_sub_pixel_variance128x64, aom_masked_compound_sad128x64,
+       aom_masked_compound_variance128x64,
+       aom_masked_compound_sub_pixel_variance128x64)
   MBFP(BLOCK_64X128, aom_masked_sad64x128, aom_masked_variance64x128,
-       aom_masked_sub_pixel_variance64x128)
+       aom_masked_sub_pixel_variance64x128, aom_masked_compound_sad64x128,
+       aom_masked_compound_variance64x128,
+       aom_masked_compound_sub_pixel_variance64x128)
 #endif  // CONFIG_EXT_PARTITION
   MBFP(BLOCK_64X64, aom_masked_sad64x64, aom_masked_variance64x64,
-       aom_masked_sub_pixel_variance64x64)
+       aom_masked_sub_pixel_variance64x64, aom_masked_compound_sad64x64,
+       aom_masked_compound_variance64x64,
+       aom_masked_compound_sub_pixel_variance64x64)
   MBFP(BLOCK_64X32, aom_masked_sad64x32, aom_masked_variance64x32,
-       aom_masked_sub_pixel_variance64x32)
+       aom_masked_sub_pixel_variance64x32, aom_masked_compound_sad64x32,
+       aom_masked_compound_variance64x32,
+       aom_masked_compound_sub_pixel_variance64x32)
   MBFP(BLOCK_32X64, aom_masked_sad32x64, aom_masked_variance32x64,
-       aom_masked_sub_pixel_variance32x64)
+       aom_masked_sub_pixel_variance32x64, aom_masked_compound_sad32x64,
+       aom_masked_compound_variance32x64,
+       aom_masked_compound_sub_pixel_variance32x64)
   MBFP(BLOCK_32X32, aom_masked_sad32x32, aom_masked_variance32x32,
-       aom_masked_sub_pixel_variance32x32)
+       aom_masked_sub_pixel_variance32x32, aom_masked_compound_sad32x32,
+       aom_masked_compound_variance32x32,
+       aom_masked_compound_sub_pixel_variance32x32)
   MBFP(BLOCK_32X16, aom_masked_sad32x16, aom_masked_variance32x16,
-       aom_masked_sub_pixel_variance32x16)
+       aom_masked_sub_pixel_variance32x16, aom_masked_compound_sad32x16,
+       aom_masked_compound_variance32x16,
+       aom_masked_compound_sub_pixel_variance32x16)
   MBFP(BLOCK_16X32, aom_masked_sad16x32, aom_masked_variance16x32,
-       aom_masked_sub_pixel_variance16x32)
+       aom_masked_sub_pixel_variance16x32, aom_masked_compound_sad16x32,
+       aom_masked_compound_variance16x32,
+       aom_masked_compound_sub_pixel_variance16x32)
   MBFP(BLOCK_16X16, aom_masked_sad16x16, aom_masked_variance16x16,
-       aom_masked_sub_pixel_variance16x16)
+       aom_masked_sub_pixel_variance16x16, aom_masked_compound_sad16x16,
+       aom_masked_compound_variance16x16,
+       aom_masked_compound_sub_pixel_variance16x16)
   MBFP(BLOCK_16X8, aom_masked_sad16x8, aom_masked_variance16x8,
-       aom_masked_sub_pixel_variance16x8)
+       aom_masked_sub_pixel_variance16x8, aom_masked_compound_sad16x8,
+       aom_masked_compound_variance16x8,
+       aom_masked_compound_sub_pixel_variance16x8)
   MBFP(BLOCK_8X16, aom_masked_sad8x16, aom_masked_variance8x16,
-       aom_masked_sub_pixel_variance8x16)
+       aom_masked_sub_pixel_variance8x16, aom_masked_compound_sad8x16,
+       aom_masked_compound_variance8x16,
+       aom_masked_compound_sub_pixel_variance8x16)
   MBFP(BLOCK_8X8, aom_masked_sad8x8, aom_masked_variance8x8,
-       aom_masked_sub_pixel_variance8x8)
+       aom_masked_sub_pixel_variance8x8, aom_masked_compound_sad8x8,
+       aom_masked_compound_variance8x8,
+       aom_masked_compound_sub_pixel_variance8x8)
   MBFP(BLOCK_4X8, aom_masked_sad4x8, aom_masked_variance4x8,
-       aom_masked_sub_pixel_variance4x8)
+       aom_masked_sub_pixel_variance4x8, aom_masked_compound_sad4x8,
+       aom_masked_compound_variance4x8,
+       aom_masked_compound_sub_pixel_variance4x8)
   MBFP(BLOCK_8X4, aom_masked_sad8x4, aom_masked_variance8x4,
-       aom_masked_sub_pixel_variance8x4)
+       aom_masked_sub_pixel_variance8x4, aom_masked_compound_sad8x4,
+       aom_masked_compound_variance8x4,
+       aom_masked_compound_sub_pixel_variance8x4)
   MBFP(BLOCK_4X4, aom_masked_sad4x4, aom_masked_variance4x4,
-       aom_masked_sub_pixel_variance4x4)
+       aom_masked_sub_pixel_variance4x4, aom_masked_compound_sad4x4,
+       aom_masked_compound_variance4x4,
+       aom_masked_compound_sub_pixel_variance4x4)
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_HIGHBITDEPTH
