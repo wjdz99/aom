@@ -22,6 +22,30 @@
       "revId": "8dab895caf76b19c1fffe116dedf976327b3b2fa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf5eaa6b_ef609a92",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-05-11T23:01:13Z",
+      "side": 1,
+      "message": "This is old - please ignore.",
+      "parentUuid": "f6a527f4_8d83c37d",
+      "range": {
+        "startLine": 68,
+        "startChar": 5,
+        "endLine": 68,
+        "endChar": 37
+      },
+      "revId": "8dab895caf76b19c1fffe116dedf976327b3b2fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
