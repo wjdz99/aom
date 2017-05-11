@@ -2584,7 +2584,7 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
       } else {
         xd->mi[0]->mbmi.skip = 1;
         if (!dry_run) td->counts->skip[av1_get_skip_context(xd)][1]++;
-        reset_skip_context(xd, bsize);
+        av1_reset_skip_context(xd, mi_row, mi_col, bsize);
       }
       if (!dry_run) {
         for (y_idx = 0; y_idx < mi_height; y_idx++)
