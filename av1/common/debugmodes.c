@@ -32,14 +32,15 @@ static void print_mi_data(AV1_COMMON *cm, FILE *file, const char *descriptor,
   char prefix = descriptor[0];
 
   log_frame_info(cm, descriptor, file);
-  for (mi_row = 0; mi_row < rows; mi_row++) {
+  for (mi_row = 0; mi_row < rows; mi_row += 2) {
     fprintf(file, "%c ", prefix);
-    for (mi_col = 0; mi_col < cols; mi_col++) {
-      fprintf(file, "%2d ", *((int *)((char *)(&mi[0]->mbmi) + member_offset)));
-      mi++;
+    for (mi_col = 0; mi_col < cols; mi_col += 2) {
+      fprintf(file, "%2d ",
+              *((char *)((char *)(&mi[0]->mbmi) + member_offset)));
+      mi += 2;
     }
     fprintf(file, "\n");
-    mi += 8;
+    mi += 16;
   }
   fprintf(file, "\n");
 }
@@ -60,29 +61,29 @@ void av1_print_modes_and_motion_vectors(AV1_COMMON *cm, const char *file) {
 
   // output skip infomation.
   log_frame_info(cm, "Skips:", mvs);
-  for (mi_row = 0; mi_row < rows; mi_row++) {
+  for (mi_row = 0; mi_row < rows; mi_row += 2) {
     fprintf(mvs, "S ");
-    for (mi_col = 0; mi_col < cols; mi_col++) {
+    for (mi_col = 0; mi_col < cols; mi_col += 2) {
       fprintf(mvs, "%2d ", mi[0]->mbmi.skip);
-      mi++;
+      mi += 2;
     }
     fprintf(mvs, "\n");
-    mi += 8;
+    mi += 16;
   }
   fprintf(mvs, "\n");
 
   // output motion vectors.
   log_frame_info(cm, "Vectors ", mvs);
   mi = cm->mi_grid_visible;
-  for (mi_row = 0; mi_row < rows; mi_row++) {
+  for (mi_row = 0; mi_row < rows; mi_row += 2) {
     fprintf(mvs, "V ");
-    for (mi_col = 0; mi_col < cols; mi_col++) {
+    for (mi_col = 0; mi_col < cols; mi_col += 2) {
       fprintf(mvs, "%4d:%4d ", mi[0]->mbmi.mv[0].as_mv.row,
               mi[0]->mbmi.mv[0].as_mv.col);
-      mi++;
+      mi += 2;
     }
     fprintf(mvs, "\n");
-    mi += 8;
+    mi += 16;
   }
   fprintf(mvs, "\n");
 
