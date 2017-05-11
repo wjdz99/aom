@@ -676,7 +676,7 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
 
   if (mbmi->skip) {
     if (!dry_run) td->counts->skip[ctx][1] += skip_inc;
-    reset_skip_context(xd, bsize);
+    av1_reset_skip_context(xd, mi_row, mi_col, bsize);
     if (dry_run) *t = t_backup;
     return;
   }
@@ -746,7 +746,7 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
   struct tokenize_b_args arg = { cpi, td, t, 0 };
   if (mbmi->skip) {
     if (!dry_run) td->counts->skip[ctx][1] += skip_inc;
-    reset_skip_context(xd, bsize);
+    av1_reset_skip_context(xd, mi_row, mi_col, bsize);
     return;
   }
 
@@ -821,8 +821,8 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
 
 #if CONFIG_SUPERTX
 void av1_tokenize_sb_supertx(const AV1_COMP *cpi, ThreadData *td,
-                             TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
-                             int *rate) {
+                             TOKENEXTRA **t, RUN_TYPE dry_run, int mi_row,
+                             int mi_col, BLOCK_SIZE bsize, int *rate) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &td->mb.e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
@@ -833,7 +833,7 @@ void av1_tokenize_sb_supertx(const AV1_COMP *cpi, ThreadData *td,
   struct tokenize_b_args arg = { cpi, td, t, 0 };
   if (mbmi->skip) {
     if (!dry_run) td->counts->skip[ctx][1] += skip_inc;
-    reset_skip_context(xd, bsize);
+    av1_reset_skip_context(xd, mi_row, mi_col, bsize);
     if (dry_run) *t = t_backup;
     return;
   }
