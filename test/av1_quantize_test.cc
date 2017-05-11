@@ -196,16 +196,16 @@ TEST_P(AV1QuantizeTest, EobVerify) { RunEobTest(); }
 
 #if HAVE_SSE4_1
 #if !CONFIG_AOM_QM
+const QuantizeFuncParams qfps[] = {
+	{ &av1_highbd_quantize_fp_sse4_1, &av1_highbd_quantize_fp_c, 16 },
+	{ &av1_highbd_quantize_fp_sse4_1, &av1_highbd_quantize_fp_c, 64 },
+	{ &av1_highbd_quantize_fp_sse4_1, &av1_highbd_quantize_fp_c, 256 },
+	{ &av1_highbd_quantize_fp_sse4_1, &av1_highbd_quantize_fp_c, 1024 },
+};
+
 INSTANTIATE_TEST_CASE_P(
     SSE4_1, AV1QuantizeTest,
-    ::testing::Values(QuantizeFuncParams(&av1_highbd_quantize_fp_sse4_1,
-                                         &av1_highbd_quantize_fp_c, 16),
-                      QuantizeFuncParams(&av1_highbd_quantize_fp_sse4_1,
-                                         &av1_highbd_quantize_fp_c, 64),
-                      QuantizeFuncParams(&av1_highbd_quantize_fp_sse4_1,
-                                         &av1_highbd_quantize_fp_c, 256),
-                      QuantizeFuncParams(&av1_highbd_quantize_fp_sse4_1,
-                                         &av1_highbd_quantize_fp_c, 1024)));
+    ::testing::ValuesIn(qfps));
 #endif  // !CONFIG_AOM_QM
 #endif  // HAVE_SSE4_1
 }  // namespace
