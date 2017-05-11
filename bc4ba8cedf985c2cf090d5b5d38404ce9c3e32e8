@@ -159,6 +159,24 @@
       "revId": "bc4ba8cedf985c2cf090d5b5d38404ce9c3e32e8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b771b625_bffbfdf5",
+        "filename": "aomenc.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-05-11T08:32:44Z",
+      "side": 1,
+      "message": "The way it\u0027s currently written is equivalent to the following call to \u0027sprintf\u0027:\nsprintf(reconfile_name, \"%s\", arg.val);\nAnd it\u0027s indeed unsafe, as it will corrupt the program\u0027s memory with a long file path.\n\nHere\u0027s what I was suggesting:\nsnprintf(reconfile_name, sizeof(reconfile_name), \"%s\", arg.val);",
+      "parentUuid": "b5dc50f6_a727ce2c",
+      "revId": "bc4ba8cedf985c2cf090d5b5d38404ce9c3e32e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
