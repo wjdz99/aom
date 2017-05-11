@@ -16,6 +16,7 @@
 
 #include "aom/aom_integer.h"
 #include "aom_ports/mem.h"
+#include "aom_dsp/blend.h"
 
 /* Sum the difference between every corresponding element of the buffers. */
 static INLINE unsigned int sad(const uint8_t *a, int a_stride, const uint8_t *b,
@@ -329,12 +330,48 @@ highbd_sadMxNx4D(4, 4)
   return sad;
 }
 
+static INLINE unsigned int masked_compound_sad(const uint8_t *src,
+                                               int src_stride, const uint8_t *a,
+                                               int a_stride, const uint8_t *b,
+                                               int b_stride, const uint8_t *m,
+                                               int m_stride, int width,
+                                               int height) {
+  int y, x;
+  unsigned int sad = 0;
+
+  for (y = 0; y < height; y++) {
+    for (x = 0; x < width; x++) {
+      const uint8_t pred = AOM_BLEND_A64(m[x], a[x], b[x]);
+      sad += abs(pred - src[x]);
+    }
+
+    a += a_stride;
+    b += b_stride;
+    src += src_stride;
+    m += m_stride;
+  }
+  sad = (sad + 31) >> 6;
+
+  return sad;
+}
+
 #define MASKSADMxN(m, n)                                                      \
   unsigned int aom_masked_sad##m##x##n##_c(                                   \
       const uint8_t *src, int src_stride, const uint8_t *ref, int ref_stride, \
       const uint8_t *msk, int msk_stride) {                                   \
     return masked_sad(src, src_stride, ref, ref_stride, msk, msk_stride, m,   \
                       n);                                                     \
+  }                                                                           \
+  unsigned int aom_masked_compound_sad##m##x##n##_c(                          \
+      const uint8_t *src, int src_stride, const uint8_t *ref, int ref_stride, \
+      const uint8_t *second_pred, const uint8_t *msk, int msk_stride,         \
+      int invert_mask) {                                                      \
+    if (!invert_mask)                                                         \
+      return masked_compound_sad(src, src_stride, ref, ref_stride,            \
+                                 second_pred, m, msk, msk_stride, m, n);      \
+    else                                                                      \
+      return masked_compound_sad(src, src_stride, second_pred, m, ref,        \
+                                 ref_stride, msk, msk_stride, m, n);          \
   }
 
 /* clang-format off */
