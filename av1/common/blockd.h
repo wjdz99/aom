@@ -888,9 +888,15 @@ static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
 #define ANGLE_STEP_UV 3
 
 static const uint8_t av1_angle_step_y[TX_SIZES] = {
+#if CONFIG_CB4X4
+  0,
+#endif
   0, 3, 3, 3,
 };
 static const uint8_t av1_max_angle_delta_y[TX_SIZES] = {
+#if CONFIG_CB4X4
+  0,
+#endif
   0, 3, 3, 3,
 };
 
