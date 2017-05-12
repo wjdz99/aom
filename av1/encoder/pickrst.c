@@ -830,9 +830,8 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     // best_tile_cost[tile_idx] = DBL_MAX;
 
     av1_get_rest_tile_limits(tile_idx, 0, 0, nhtiles, nvtiles, tile_width,
-                             tile_height, width, height, WIENER_HALFWIN,
-                             WIENER_HALFWIN, &h_start, &h_end, &v_start,
-                             &v_end);
+                             tile_height, width, height, 0, 0, &h_start, &h_end,
+                             &v_start, &v_end);
     if (plane == AOM_PLANE_U) {
 #if CONFIG_HIGHBITDEPTH
       if (cm->use_highbitdepth)
@@ -876,8 +875,11 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     aom_clear_system_state();
 
     rsi[plane].restoration_type[tile_idx] = RESTORE_WIENER;
+    int64_t errnone = err;
     err = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
                                tile_idx, 0, 0, dst_frame);
+    printf("scrore %f, errnone %" PRId64 " err %" PRId64 "\n", score, errnone,
+           err);
     bits =
         count_wiener_bits(&rsi[plane].wiener_info[tile_idx], &ref_wiener_info)
         << AV1_PROB_COST_SHIFT;
@@ -1215,12 +1217,11 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                    &cm->rst_info[AOM_PLANE_V],
                    cm->rst_info[AOM_PLANE_V].restoration_type,
                    &cpi->trial_frame_rst);
-  /*
-  printf("Frame %d/%d restore types: %d %d %d\n",
-         cm->current_video_frame, cm->show_frame,
-         cm->rst_info[0].frame_restoration_type,
+  printf("Frame %d/%d restore types: %d %d %d\n", cm->current_video_frame,
+         cm->show_frame, cm->rst_info[0].frame_restoration_type,
          cm->rst_info[1].frame_restoration_type,
          cm->rst_info[2].frame_restoration_type);
+  /*
   printf("Frame %d/%d frame_restore_type %d : %f %f %f %f\n",
          cm->current_video_frame, cm->show_frame,
          cm->rst_info[0].frame_restoration_type, cost_restore[0],
