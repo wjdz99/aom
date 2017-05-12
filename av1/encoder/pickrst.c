@@ -1307,6 +1307,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                    &cm->rst_info[AOM_PLANE_V],
                    cm->rst_info[AOM_PLANE_V].restoration_type,
                    &cpi->trial_frame_rst);
+<<<<<<< HEAD
   /*
   printf("Frame %d/%d restore types: %d %d %d\n", cm->current_video_frame,
          cm->show_frame, cm->rst_info[0].frame_restoration_type,
