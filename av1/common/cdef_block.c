@@ -226,7 +226,7 @@ int get_filter_skip(int level) {
   return filter_skip;
 }
 
-void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
+void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, const uint16_t *in,
                     int xdec, int ydec, int dir[CDEF_NBLOCKS][CDEF_NBLOCKS],
                     int *dirinit, int var[CDEF_NBLOCKS][CDEF_NBLOCKS], int pli,
                     cdef_list *list, int cdef_count, int level,

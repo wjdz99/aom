@@ -94,7 +94,11 @@ int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
 
   //  Make a copy of the unfiltered / processed recon buffer
   aom_yv12_copy_y(cm->frame_to_show, &cpi->last_frame_uf);
-
+#if CONFIG_CDEF
+  aom_yv12_copy_u(cm->frame_to_show, &cpi->last_frame_uf);
+  aom_yv12_copy_v(cm->frame_to_show, &cpi->last_frame_uf);
+#endif
+  
   best_err = try_filter_frame(sd, cpi, filt_mid, partial_frame);
   filt_best = filt_mid;
   ss_err[filt_mid] = best_err;

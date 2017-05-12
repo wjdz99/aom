@@ -21,6 +21,9 @@
 #include "aom_ports/mem.h"
 
 #include "av1/common/seg_common.h"
+#ifdef CONFIG_CDEF
+#include "av1/common/cdef.h"
+#endif
 
 #define CONFIG_PARALLEL_DEBLOCKING_15TAPLUMAONLY 0
 
@@ -330,7 +333,7 @@ static uint8_t get_filter_level(const AV1_COMMON *cm,
   }
 }
 #else
-static uint8_t get_filter_level(const loop_filter_info_n *lfi_n,
+static uint8_t get_filter_level(AV1_COMMON *cm, const loop_filter_info_n *lfi_n,
                                 const MB_MODE_INFO *mbmi) {
 #if CONFIG_SUPERTX
   const int segment_id = AOMMIN(mbmi->segment_id, mbmi->segment_id_supertx);
@@ -816,12 +819,7 @@ static void build_masks(AV1_COMMON *const cm,
       txsize_horz_map[uv_txsize_lookup[block_size][mbmi->tx_size][1][1]];
   const TX_SIZE tx_size_uv_above =
       txsize_vert_map[uv_txsize_lookup[block_size][mbmi->tx_size][1][1]];
-#if CONFIG_EXT_DELTA_Q
   const int filter_level = get_filter_level(cm, lfi_n, mbmi);
-#else
-  const int filter_level = get_filter_level(lfi_n, mbmi);
-  (void)cm;
-#endif
   uint64_t *const left_y = &lfm->left_y[tx_size_y_left];
   uint64_t *const above_y = &lfm->above_y[tx_size_y_above];
   uint64_t *const int_4x4_y = &lfm->int_4x4_y;
@@ -910,12 +908,7 @@ static void build_y_mask(AV1_COMMON *const cm,
 #else
   const BLOCK_SIZE block_size = mbmi->sb_type;
 #endif
-#if CONFIG_EXT_DELTA_Q
   const int filter_level = get_filter_level(cm, lfi_n, mbmi);
-#else
-  const int filter_level = get_filter_level(lfi_n, mbmi);
-  (void)cm;
-#endif
   uint64_t *const left_y = &lfm->left_y[tx_size_y_left];
   uint64_t *const above_y = &lfm->above_y[tx_size_y_above];
   uint64_t *const int_4x4_y = &lfm->int_4x4_y;
@@ -1428,11 +1421,7 @@ static void get_filter_level_and_masks_non420(
 #endif
 
 // Filter level can vary per MI
-#if CONFIG_EXT_DELTA_Q
     if (!(lfl_r[c_step] = get_filter_level(cm, &cm->lf_info, mbmi))) continue;
-#else
-    if (!(lfl_r[c_step] = get_filter_level(&cm->lf_info, mbmi))) continue;
-#endif
 
 #if CONFIG_VAR_TX
     tx_size_r = AOMMIN(tx_size, cm->above_txfm_context[mi_col + c]);
@@ -1995,7 +1984,7 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
   {
     const TX_SIZE ts =
         av1_get_transform_size(ppCurr[0], edgeDir, scaleHorz, scaleVert);
-    const uint32_t currLevel = get_filter_level(&cm->lf_info, &ppCurr[0]->mbmi);
+    const uint32_t currLevel = get_filter_level(cm, &cm->lf_info, &ppCurr[0]->mbmi);
     const int currSkipped =
         ppCurr[0]->mbmi.skip && is_inter_block(&ppCurr[0]->mbmi);
     const uint32_t coord = (VERT_EDGE == edgeDir) ? (x) : (y);
@@ -2016,7 +2005,7 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
           const MODE_INFO *const pPrev = *(ppCurr - modeStep);
           const TX_SIZE pvTs =
               av1_get_transform_size(pPrev, edgeDir, scaleHorz, scaleVert);
-          const uint32_t pvLvl = get_filter_level(&cm->lf_info, &pPrev->mbmi);
+          const uint32_t pvLvl = get_filter_level(cm, &cm->lf_info, &pPrev->mbmi);
           const int pvSkip = pPrev->mbmi.skip && is_inter_block(&pPrev->mbmi);
           const int32_t puEdge =
               (coord &
@@ -2198,9 +2187,18 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += cm->mib_size) {
       int plane;
 
+#if CONFIG_CDEF
+      const MB_MODE_INFO *mbmi = &mi[mi_col]->mbmi;
+      int disable_y = (cm->cdef_strengths[mbmi->cdef_strength] / CDEF_SEC_STRENGTHS) & 1;
+      int disable_uv = (cm->cdef_uv_strengths[mbmi->cdef_strength] / CDEF_SEC_STRENGTHS) & 1;
+#endif
       av1_setup_dst_planes(planes, cm->sb_size, frame_buffer, mi_row, mi_col);
 
       for (plane = 0; plane < num_planes; ++plane) {
+#if CONFIG_CDEF
+        if (!plane && disable_y) continue;
+        if (plane && disable_uv) break;
+#endif
         av1_filter_block_plane_non420_ver(cm, &planes[plane], mi + mi_col,
                                           mi_row, mi_col);
         av1_filter_block_plane_non420_hor(cm, &planes[plane], mi + mi_col,

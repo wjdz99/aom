@@ -268,11 +268,11 @@ uint64_t compute_cdef_dist(uint16_t *dst, int dstride, uint16_t *src,
   return sum >> 2 * coeff_shift;
 }
 
-void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
+void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *uf_frame, const YV12_BUFFER_CONFIG *ref,
                      AV1_COMMON *cm, MACROBLOCKD *xd) {
   int r, c;
   int sbr, sbc;
-  uint16_t *src[3];
+  uint16_t *src[3], *uf_src[3];
   uint16_t *ref_coeff[3];
   cdef_list dlist[MAX_MIB_SIZE * MAX_MIB_SIZE];
   int dir[CDEF_NBLOCKS][CDEF_NBLOCKS] = { { 0 } };
@@ -305,12 +305,18 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
   DECLARE_ALIGNED(32, uint16_t, inbuf[CDEF_INBUF_SIZE]);
   uint16_t *in;
   DECLARE_ALIGNED(32, uint16_t, tmp_dst[MAX_SB_SQUARE]);
+  struct macroblockd_plane uf_plane[MAX_MB_PLANE];
   int chroma_cdef = xd->plane[1].subsampling_x == xd->plane[1].subsampling_y &&
                     xd->plane[2].subsampling_x == xd->plane[2].subsampling_y;
   quantizer =
       av1_ac_quant(cm->base_qindex, 0, cm->bit_depth) >> (cm->bit_depth - 8);
   lambda = .12 * quantizer * quantizer / 256.;
 
+  if (uf_frame) {
+    for (pli = 0; pli < nplanes; pli++)
+      uf_plane[pli] = xd->plane[pli];
+    av1_setup_dst_planes(uf_plane, cm->sb_size, uf_frame, 0, 0);
+  }
   av1_setup_dst_planes(xd->plane, cm->sb_size, frame, 0, 0);
   mse[0] = aom_malloc(sizeof(**mse) * nvsb * nhsb);
   mse[1] = aom_malloc(sizeof(**mse) * nvsb * nhsb);
@@ -333,6 +339,8 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
     }
     src[pli] = aom_memalign(
         32, sizeof(*src) * cm->mi_rows * cm->mi_cols * MI_SIZE * MI_SIZE);
+    uf_src[pli] = aom_memalign(
+        32, sizeof(*uf_src) * cm->mi_rows * cm->mi_cols * MI_SIZE * MI_SIZE);
     ref_coeff[pli] = aom_memalign(
         32, sizeof(*ref_coeff) * cm->mi_rows * cm->mi_cols * MI_SIZE * MI_SIZE);
     xdec[pli] = xd->plane[pli].subsampling_x;
@@ -354,12 +362,16 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
         if (cm->use_highbitdepth) {
           src[pli][r * stride[pli] + c] = CONVERT_TO_SHORTPTR(
               xd->plane[pli].dst.buf)[r * xd->plane[pli].dst.stride + c];
+          uf_src[pli][r * stride[pli] + c] = CONVERT_TO_SHORTPTR(
+              uf_plane[pli].dst.buf)[r * uf_plane[pli].dst.stride + c];
           ref_coeff[pli][r * stride[pli] + c] =
               CONVERT_TO_SHORTPTR(ref_buffer)[r * ref_stride + c];
         } else {
 #endif
           src[pli][r * stride[pli] + c] =
               xd->plane[pli].dst.buf[r * xd->plane[pli].dst.stride + c];
+          uf_src[pli][r * stride[pli] + c] =
+              uf_plane[pli].dst.buf[r * uf_plane[pli].dst.stride + c];
           ref_coeff[pli][r * stride[pli] + c] = ref_buffer[r * ref_stride + c];
 #if CONFIG_HIGHBITDEPTH
         }
@@ -390,7 +402,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
           int sec_strength;
           threshold = gi / CDEF_SEC_STRENGTHS;
           if (pli > 0 && !chroma_cdef) threshold = 0;
-          /* We avoid filtering the pixels for which some of the pixels to
+            /* We avoid filtering the pixels for which some of the pixels to
              average
              are outside the frame. We could change the filter instead, but it
              would add special cases for any future vectorization. */
@@ -402,7 +414,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
                       CDEF_HBORDER * (sbc != nhsb - 1) + xoff;
           sec_strength = gi % CDEF_SEC_STRENGTHS;
           copy_sb16_16(&in[(-yoff * CDEF_BSTRIDE - xoff)], CDEF_BSTRIDE,
-                       src[pli], (sbr * MAX_MIB_SIZE << mi_high_l2[pli]) - yoff,
+                       (threshold & 1 ? uf_src : src)[pli], (sbr * MAX_MIB_SIZE << mi_high_l2[pli]) - yoff,
                        (sbc * MAX_MIB_SIZE << mi_wide_l2[pli]) - xoff,
                        stride[pli], ysize, xsize);
           cdef_filter_sb(NULL, tmp_dst, CDEF_BSTRIDE, in, xdec[pli], ydec[pli],
@@ -478,6 +490,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
   aom_free(mse[1]);
   for (pli = 0; pli < nplanes; pli++) {
     aom_free(src[pli]);
+    aom_free(uf_src[pli]);
     aom_free(ref_coeff[pli]);
   }
   aom_free(sb_index);
