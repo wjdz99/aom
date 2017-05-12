@@ -160,9 +160,10 @@ static void loop_wiener_filter_tile(uint8_t *data, int tile_idx, int width,
       int h = AOMMIN(MAX_SB_SIZE, (v_end - i + 15) & ~15);
       const uint8_t *data_p = data + i * stride + j;
       uint8_t *dst_p = dst + i * dst_stride + j;
-      aom_convolve8_add_src(data_p, stride, dst_p, dst_stride,
-                            rst->rsi->wiener_info[tile_idx].hfilter, 16,
-                            rst->rsi->wiener_info[tile_idx].vfilter, 16, w, h);
+      aom_convolve8_add_src_hip(data_p, stride, dst_p, dst_stride,
+                                rst->rsi->wiener_info[tile_idx].hfilter, 16,
+                                rst->rsi->wiener_info[tile_idx].vfilter, 16, w,
+                                h);
     }
 }
 
