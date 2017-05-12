@@ -309,6 +309,7 @@ EXPERIMENT_LIST="
     coef_interleave
     entropy_stats
     masked_tx
+    flexible_tile
     dependent_horztiles
     daala_dist
     tripred
