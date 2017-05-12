@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ea2d440_1f978a66",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2370,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-12T15:52:33Z",
+      "side": 1,
+      "message": "If I disable EC_ADAPT I get the following build errors:\n\n../av1/encoder/rdopt.c: In function ‘intra_model_yrd’:\n../av1/encoder/rdopt.c:2370:37: error: ‘cm’ undeclared (first use in this function)\n       FRAME_CONTEXT *const ec_ctx \u003d cm-\u003efc;\n                                     ^\n../av1/encoder/rdopt.c:2370:37: note: each undeclared identifier is reported only once for each function it appears in\nMakefile:162: recipe for target \u0027av1/encoder/rdopt.c.o\u0027 failed\nmake[1]: *** [av1/encoder/rdopt.c.o] Error 1\nmake[1]: *** Waiting for unfinished jobs....\nMakefile:17: recipe for target \u0027.DEFAULT\u0027 failed",
+      "revId": "e8dfbcf3485d00975406dc6220ce237ce6255056",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
