@@ -40,9 +40,14 @@ void Encoder::InitEncoder(VideoSource *video) {
 // Default to 1 tile column for AV1. With CONFIG_EXT_TILE, the
 // default is already the largest possible tile size
 #if !CONFIG_EXT_TILE
+#if CONFIG_FLEXIBLE_TILE
+      res = aom_codec_control_(&encoder_, AV1E_SET_TILE_COLUMNS, 1);
+      res = aom_codec_control_(&encoder_, AV1E_SET_TILE_ROWS, 1);
+#else
       const int log2_tile_columns = 0;
       res = aom_codec_control_(&encoder_, AV1E_SET_TILE_COLUMNS,
                                log2_tile_columns);
+#endif  // CONFIG_FLEXIBLE_TILE
       ASSERT_EQ(AOM_CODEC_OK, res) << EncoderError();
 #endif  // !CONFIG_EXT_TILE
     } else

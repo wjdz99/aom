@@ -58,11 +58,21 @@ extern "C" {
 #define TILE_NORMAL 0
 #define TILE_VR 1
 
+#if CONFIG_FLEXIBLE_TILE
+#define MAX_TILE_ROWS 64
+#define MAX_TILE_COLS 64
+#else
 #define MAX_TILE_ROWS 1024
 #define MAX_TILE_COLS 1024
+#endif  // CONFIG_FLEXIBLE_TILE
+#else
+#if CONFIG_FLEXIBLE_TILE
+#define MAX_TILE_ROWS 64
+#define MAX_TILE_COLS 64
 #else
 #define MAX_TILE_ROWS 4
 #define MAX_TILE_COLS 64
+#endif  // CONFIG_FLEXIBLE_TILE
 #endif  // CONFIG_EXT_TILE
 
 #if CONFIG_VAR_TX

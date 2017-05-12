@@ -36,7 +36,13 @@ class TileIndependenceTest
     fw_dec_ = codec_->CreateDecoder(cfg, 0);
     inv_dec_ = codec_->CreateDecoder(cfg, 0);
     inv_dec_->Control(AV1_INVERT_TILE_DECODE_ORDER, 1);
-
+#if CONFIG_FLEXIBLE_TILE
+    // didn't find the right place to set n_tile_cols_ and n_tile_rows_,
+    // so we hack here but the correct way is to set n_tile_cols_ and
+    // n_tile_rows_ outside
+    n_tile_cols_ = 1 << n_tile_cols_;
+    n_tile_rows_ = 1 << n_tile_rows_;
+#endif
 #if CONFIG_AV1 && CONFIG_EXT_TILE
     if (fw_dec_->IsAV1() && inv_dec_->IsAV1()) {
       fw_dec_->Control(AV1_SET_DECODE_TILE_ROW, -1);
