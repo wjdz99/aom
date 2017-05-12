@@ -98,9 +98,15 @@ static struct av1_extracfg default_extra_cfg = {
   UINT_MAX,  // tile_columns
   UINT_MAX,  // tile_rows
 #else
+#if CONFIG_FLEXIBLE_TILE
+  1,  // tile_columns
+  1,  // tile_rows
+#else
   0,  // tile_columns
   0,  // tile_rows
-#endif  // CONFIG_EXT_TILE
+#endif            // CONFIG_FLEXIBLE_TILE
+#endif            // CONFIG_EXT_TILE
+
 #if CONFIG_DEPENDENT_HORZTILES
   0,  // Depdendent Horizontal tiles
 #endif
@@ -292,8 +298,13 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   }
   RANGE_CHECK_HI(extra_cfg, tile_encoding_mode, 1);
 #else
+#if CONFIG_FLEXIBLE_TILE
+  RANGE_CHECK(extra_cfg, tile_columns, 1, 64);
+  RANGE_CHECK(extra_cfg, tile_rows, 1, 64);
+#else
   RANGE_CHECK_HI(extra_cfg, tile_columns, 6);
   RANGE_CHECK_HI(extra_cfg, tile_rows, 2);
+#endif  // CONFIG_FLEXIBLE_TILE
 #endif  // CONFIG_EXT_TILE
 #if CONFIG_DEPENDENT_HORZTILES
   RANGE_CHECK_HI(extra_cfg, dependent_horz_tiles, 1);

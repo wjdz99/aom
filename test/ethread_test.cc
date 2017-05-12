@@ -80,8 +80,13 @@ class AVxEncoderThreadTest
       }
 #else
       // Encode 4 tile columns.
+#if CONFIG_FLEXIBLE_TILE
+      encoder->Control(AV1E_SET_TILE_COLUMNS, 4);
+      encoder->Control(AV1E_SET_TILE_ROWS, 1);
+#else
       encoder->Control(AV1E_SET_TILE_COLUMNS, 2);
       encoder->Control(AV1E_SET_TILE_ROWS, 0);
+#endif
 #endif  // CONFIG_AV1 && CONFIG_EXT_TILE
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
       encoder->Control(AV1E_SET_TILE_LOOPFILTER, 0);
