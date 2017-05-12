@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0341e38b_9773ac6c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2426,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-05-12T16:31:20Z",
+      "side": 1,
+      "message": "These can fold together",
+      "range": {
+        "startLine": 2425,
+        "startChar": 2,
+        "endLine": 2426,
+        "endChar": 12
+      },
+      "revId": "e21caa9dcdecdbce1f41751ae269276922f93b32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1d59477b_2edbe273",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2427,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-05-12T16:31:20Z",
+      "side": 1,
+      "message": "fabsf",
+      "range": {
+        "startLine": 2427,
+        "startChar": 21,
+        "endLine": 2427,
+        "endChar": 32
+      },
+      "revId": "e21caa9dcdecdbce1f41751ae269276922f93b32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25678972_7c089b0e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2430,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-05-12T16:31:20Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 2429,
+        "startChar": 4,
+        "endLine": 2430,
+        "endChar": 14
+      },
+      "revId": "e21caa9dcdecdbce1f41751ae269276922f93b32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bbc10d8a_dce3a6e5",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2431,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-05-12T16:31:20Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 2431,
+        "startChar": 24,
+        "endLine": 2431,
+        "endChar": 35
+      },
+      "revId": "e21caa9dcdecdbce1f41751ae269276922f93b32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
