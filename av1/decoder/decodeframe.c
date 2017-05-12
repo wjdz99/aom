@@ -5043,7 +5043,7 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
 
 #if CONFIG_CDEF
   if (!cm->skip_loop_filter) {
-    av1_cdef_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
+    av1_cdef_frame(&pbi->cur_buf->buf, NULL, cm, &pbi->mb);
   }
 #endif  // CONFIG_CDEF
 

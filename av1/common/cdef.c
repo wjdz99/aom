@@ -162,7 +162,7 @@ static INLINE void copy_rect(uint16_t *dst, int dstride, const uint16_t *src,
   }
 }
 
-void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
+void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *uf_frame, AV1_COMMON *cm,
                     MACROBLOCKD *xd) {
   int sbr, sbc;
   int nhsb, nvsb;
@@ -183,6 +183,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   int cdef_left;
   int coeff_shift = AOMMAX(cm->bit_depth - 8, 0);
   int nplanes = 3;
+  struct macroblockd_plane uf_plane[MAX_MB_PLANE];
   int chroma_cdef = xd->plane[1].subsampling_x == xd->plane[1].subsampling_y &&
                     xd->plane[2].subsampling_x == xd->plane[2].subsampling_y;
   nvsb = (cm->mi_rows + MAX_MIB_SIZE - 1) / MAX_MIB_SIZE;
@@ -290,7 +291,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
             level = 0;
           sec_strength = uv_sec_strength;
         }
-
+	
         if (sbc == nhsb - 1)
           cend = hsize;
         else
@@ -391,6 +392,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
           fill_rect(&src[hsize + CDEF_HBORDER], CDEF_BSTRIDE,
                     vsize + 2 * CDEF_VBORDER, CDEF_HBORDER, CDEF_VERY_LARGE);
         }
+
 #if CONFIG_HIGHBITDEPTH
         if (cm->use_highbitdepth) {
           cdef_filter_sb(

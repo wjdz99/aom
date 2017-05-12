@@ -3449,6 +3449,13 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
 static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
   struct loopfilter *lf = &cm->lf;
+#if CONFIG_CDEF
+  for (int i = 0; i < CDEF_MAX_STRENGTHS; i++)
+    cm->cdef_strengths[i] = cm->cdef_uv_strengths[i] = 0;
+  for (int i = 0; i < cm->mi_rows; i++)
+    for (int j = 0; j < cm->mi_cols; j++)
+      cm->mi_grid_visible[i * cm->mi_stride + j]->mbmi.cdef_strength = 0;
+#endif
   if (is_lossless_requested(&cpi->oxcf)) {
     lf->filter_level = 0;
   } else {
@@ -3463,7 +3470,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     aom_usec_timer_mark(&timer);
     cpi->time_pick_lpf += aom_usec_timer_elapsed(&timer);
   }
-
+  
   if (lf->filter_level > 0) {
 #if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
     av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
@@ -3483,10 +3490,62 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     cm->nb_cdef_strengths = 1;
   } else {
     // Find CDEF parameters
-    av1_cdef_search(cm->frame_to_show, cpi->source, cm, xd);
-
-    // Apply the filter
-    av1_cdef_frame(cm->frame_to_show, cm, xd);
+    av1_cdef_search(cm->frame_to_show, &cpi->last_frame_uf, cpi->source, cm, xd);
+#if 1
+    // Undo deblocking for blocks not to be deblocked
+    const int nvsb = (cm->mi_rows + MAX_MIB_SIZE - 1) / MAX_MIB_SIZE;
+    const int nhsb = (cm->mi_cols + MAX_MIB_SIZE - 1) / MAX_MIB_SIZE;
+    int mi_wide_l2[3];
+    int mi_high_l2[3];
+    const int nplanes = 3;
+    struct macroblockd_plane uf_plane[MAX_MB_PLANE];
+    for (int pli = 0; pli < nplanes; pli++) {
+      mi_wide_l2[pli] = MI_SIZE_LOG2 - xd->plane[pli].subsampling_x;
+      mi_high_l2[pli] = MI_SIZE_LOG2 - xd->plane[pli].subsampling_y;
+      uf_plane[pli] = xd->plane[pli];
+    }
+    av1_setup_dst_planes(uf_plane, cm->sb_size, &cpi->last_frame_uf, 0, 0);
+    for (int pli = 0; pli < nplanes; pli++) {
+      for (int sbr = 0; sbr < nvsb; sbr++) {
+        for (int sbc = 0; sbc < nhsb; sbc++) {
+          if (((pli ? cm->cdef_uv_strengths : cm->cdef_strengths)[cm->mi_grid_visible[MAX_MIB_SIZE * sbr * cm->mi_stride +
+                                                                                      MAX_MIB_SIZE * sbc]->mbmi.cdef_strength] / CDEF_SEC_STRENGTHS) & 1) {
+	    int xpos = sbc * MAX_MIB_SIZE << mi_wide_l2[pli];
+	    int ypos = sbr * MAX_MIB_SIZE << mi_high_l2[pli];
+	    for (int y = ypos + 8; y < ypos + (MAX_MIB_SIZE << mi_high_l2[pli]) - 8; y++) {
+	      for (int x = xpos + 8; x < xpos + (MAX_MIB_SIZE << mi_wide_l2[pli]) - 8; x++) {
+		xd->plane[pli].dst.buf[y * xd->plane[pli].dst.stride + x] =
+		  uf_plane[pli].dst.buf[y * uf_plane[pli].dst.stride + x];
+	      }
+	    }
+	  }
+	}
+      }
+    }
+#if 0
+    // TODO: Replace deblocking below with code copying blocks not
+    // deblocked to frame_to_show.
+    
+    aom_yv12_copy_y(&cpi->last_frame_uf, cm->frame_to_show);
+    aom_yv12_copy_u(&cpi->last_frame_uf, cm->frame_to_show);
+    aom_yv12_copy_v(&cpi->last_frame_uf, cm->frame_to_show);
+  if (lf->filter_level > 0) {
+#if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
+    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
+#else
+    if (cpi->num_workers > 1)
+      av1_loop_filter_frame_mt(cm->frame_to_show, cm, xd->plane,
+                               lf->filter_level, 0, 0, cpi->workers,
+                               cpi->num_workers, &cpi->lf_row_sync);
+    else
+      av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
+#endif
+  }
+#endif
+  av1_setup_dst_planes(xd->plane, cm->sb_size, cm->frame_to_show, 0, 0);
+#endif
+  // Apply the filter
+  av1_cdef_frame(cm->frame_to_show, NULL/*&cpi->last_frame_uf*/, cm, xd);
   }
 #endif
 #if CONFIG_LOOP_RESTORATION
