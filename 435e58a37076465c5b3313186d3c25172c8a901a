@@ -46,6 +46,30 @@
       "revId": "435e58a37076465c5b3313186d3c25172c8a901a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "312ad85f_778ea20b",
+        "filename": "av1/common/x86/idct_intrin_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-05-12T16:33:14Z",
+      "side": 1,
+      "message": "Then if we walk further, those contants in \"txfm_common.h\",  should they be int16_t instead of tran_high_t?",
+      "parentUuid": "f7955a2d_630641bf",
+      "range": {
+        "startLine": 359,
+        "startChar": 52,
+        "endLine": 359,
+        "endChar": 57
+      },
+      "revId": "435e58a37076465c5b3313186d3c25172c8a901a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
