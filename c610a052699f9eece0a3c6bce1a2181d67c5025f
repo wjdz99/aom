@@ -22,6 +22,30 @@
       "revId": "c610a052699f9eece0a3c6bce1a2181d67c5025f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3ddc92e_734279f3",
+        "filename": "aom_dsp/x86/inv_txfm_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1009,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-05-12T18:26:40Z",
+      "side": 1,
+      "message": "Theoretical yes.  The 16x16 transpose does not access the in[16-32], that might be the reason the warning didn\u0027t come from this function.",
+      "parentUuid": "655d4991_c706ae18",
+      "range": {
+        "startLine": 1009,
+        "startChar": 2,
+        "endLine": 1009,
+        "endChar": 17
+      },
+      "revId": "c610a052699f9eece0a3c6bce1a2181d67c5025f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
