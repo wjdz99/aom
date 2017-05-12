@@ -216,11 +216,51 @@ static void highbd_idct64_row_c(const tran_low_t *input, tran_low_t *output,
 
 // Inverse identity transform and add.
 #if CONFIG_EXT_TX
+#define MAX_DIFF_RANGE (1 << 16)
+
+static int count_colors_16bit(const tran_low_t *src, int stride, int rows,
+                              int cols, int shift) {
+  int r, c;
+  int val_count_positive[MAX_DIFF_RANGE] = { 0 };
+  int val_count_negative[MAX_DIFF_RANGE] = { 0 };
+  for (r = 0; r < rows; ++r) {
+    for (c = 0; c < cols; ++c) {
+      const tran_low_t val = src[r * stride + c] >> shift;
+      if (val >= 0) {
+        assert(val < MAX_DIFF_RANGE);
+        const uint16_t mod_val = (uint16_t)val;
+        ++val_count_positive[mod_val];
+      } else {
+        assert((-val) <= MAX_DIFF_RANGE);
+        const uint16_t mod_val = (uint16_t)(-val) - 1;
+        ++val_count_negative[mod_val];
+      }
+    }
+  }
+
+  int n = 0;
+  int i;
+  for (i = 0; i < MAX_DIFF_RANGE; ++i) {
+    if (val_count_positive[i]) {
+      ++n;
+    }
+    if (val_count_negative[i]) {
+      ++n;
+    }
+  }
+
+  return n;
+}
+
+#undef MAX_DIFF_RANGE
+
 static void inv_idtx_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                            int bs, int tx_type) {
   int r, c;
   const int shift = bs < 32 ? 3 : (bs < 64 ? 2 : 1);
   if (tx_type == IDTX) {
+    const int colors = count_colors_16bit(input, bs, bs, bs, shift);
+    fprintf(stderr, "%d %d %d\n", bs, bs, colors);
     for (r = 0; r < bs; ++r) {
       for (c = 0; c < bs; ++c)
         dest[c] = clip_pixel_add(dest[c], input[c] >> shift);
