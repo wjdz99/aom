@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ba66343_231f605d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2376,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-05-12T00:24:34Z",
+      "side": 1,
+      "message": "This patch produces a lot of \"CONFIG_EC_ADAPT \u0026\u0026 CONFIG_EC_MULTISYMBOL\" conditions, but unlike new_tokenset, you cannot enable ec_adapt without enabling ec_multisymbol. So I think you can simplify them all to just \"CONFIG_EC_ADAPT\".",
+      "revId": "7c6f5fba5a59462ad11bc3e47dddf902a77a90d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ca7ddfa_4a16ab91",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-05-12T00:24:34Z",
+      "side": 1,
+      "message": "In case you\u0027re grepping based on the prior comment, !CONFIG_EC_ADAPT implies !CONFIG_EC_MULTISYMBOL, too.",
+      "revId": "7c6f5fba5a59462ad11bc3e47dddf902a77a90d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8091446_f8f33335",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 950,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-05-12T00:24:34Z",
+      "side": 1,
+      "message": "Since you\u0027re updating this, that\u0027s not actually the condition for which this is the #else clause.",
+      "revId": "7c6f5fba5a59462ad11bc3e47dddf902a77a90d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
