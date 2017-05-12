@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "64a63cd4_83a73e81",
+        "filename": "av1/common/debugmodes.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-12T16:50:59Z",
+      "side": 1,
+      "message": "I wanted to print out less data, so choose every 8x8. But, I think you are right, we should print mode_info for every 4x4 to be accurate. Will do. Thanks.",
+      "parentUuid": "c96735b9_c98a2dab",
+      "revId": "61ef3d1307df10c592af7a6ae4ae8f3db431e9ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d4e2b1f2_5d51da65",
         "filename": "av1/common/debugmodes.c",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2017-05-12T04:51:24Z",
       "side": 1,
       "message": "mi +\u003d 8 or 16 is a bit confusing to me.\n\nFrom line 30 - 31, it reads like to print out the mode_info across the entire frame.\nWhy one needs this extra offset after printing out each row?",
+      "range": {
+        "startLine": 43,
+        "startChar": 10,
+        "endLine": 43,
+        "endChar": 12
+      },
+      "revId": "61ef3d1307df10c592af7a6ae4ae8f3db431e9ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7baf081c_0e7014ea",
+        "filename": "av1/common/debugmodes.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-12T16:50:59Z",
+      "side": 1,
+      "message": "Adding 16 here because cm-\u003emi_stride \u003d cm-\u003emi_cols + 16. 16 is MAX_MIB_SIZE",
+      "parentUuid": "d4e2b1f2_5d51da65",
       "range": {
         "startLine": 43,
         "startChar": 10,
