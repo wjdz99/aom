@@ -1483,13 +1483,8 @@ static void write_palette_colors_uv(const MACROBLOCKD *const xd,
                                     const PALETTE_MODE_INFO *const pmi,
                                     int bit_depth, aom_writer *w) {
   const int n = pmi->palette_size[1];
-#if CONFIG_HIGHBITDEPTH
   const uint16_t *colors_u = pmi->palette_colors + PALETTE_MAX_SIZE;
   const uint16_t *colors_v = pmi->palette_colors + 2 * PALETTE_MAX_SIZE;
-#else
-  const uint8_t *colors_u = pmi->palette_colors + PALETTE_MAX_SIZE;
-  const uint8_t *colors_v = pmi->palette_colors + 2 * PALETTE_MAX_SIZE;
-#endif  // CONFIG_HIGHBITDEPTH
   // U channel colors.
   const MODE_INFO *const above_mi = xd->above_mi;
   const MODE_INFO *const left_mi = xd->left_mi;

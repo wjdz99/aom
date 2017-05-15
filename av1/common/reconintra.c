@@ -2250,13 +2250,8 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
     const int stride = wpx;
     int r, c;
     const uint8_t *const map = xd->plane[plane != 0].color_index_map;
-#if CONFIG_HIGHBITDEPTH
     uint16_t *palette = xd->mi[0]->mbmi.palette_mode_info.palette_colors +
                         plane * PALETTE_MAX_SIZE;
-#else
-    uint8_t *palette = xd->mi[0]->mbmi.palette_mode_info.palette_colors +
-                       plane * PALETTE_MAX_SIZE;
-#endif  // CONFIG_HIGHBITDEPTH
 
 #if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
@@ -2265,15 +2260,15 @@ static void predict_square_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
         for (c = 0; c < bs; ++c)
           dst16[r * dst_stride + c] = palette[map[(r + y) * stride + c + x]];
     } else {
-      for (r = 0; r < bs; ++r)
-        for (c = 0; c < bs; ++c)
+#endif  // CONFIG_HIGHBITDEPTH
+      for (r = 0; r < bs; ++r) {
+        for (c = 0; c < bs; ++c) {
           dst[r * dst_stride + c] =
-              (uint8_t)(palette[map[(r + y) * stride + c + x]]);
+              (uint8_t)palette[map[(r + y) * stride + c + x]];
+        }
+      }
+#if CONFIG_HIGHBITDEPTH
     }
-#else
-    for (r = 0; r < bs; ++r)
-      for (c = 0; c < bs; ++c)
-        dst[r * dst_stride + c] = palette[map[(r + y) * stride + c + x]];
 #endif  // CONFIG_HIGHBITDEPTH
     return;
   }
