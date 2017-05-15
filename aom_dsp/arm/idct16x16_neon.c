@@ -22,24 +22,10 @@ void aom_idct16x16_10_add_neon_pass2(const int16_t *src, int16_t *output,
                                      int16_t *pass1Output, int16_t skip_adding,
                                      uint8_t *dest, int dest_stride);
 
-#if HAVE_NEON_ASM
-/* For ARM NEON, d8-d15 are callee-saved registers, and need to be saved. */
-extern void aom_push_neon(int64_t *store);
-extern void aom_pop_neon(int64_t *store);
-#endif  // HAVE_NEON_ASM
-
 void aom_idct16x16_256_add_neon(const int16_t *input, uint8_t *dest,
                                 int dest_stride) {
-#if HAVE_NEON_ASM
-  int64_t store_reg[8];
-#endif
   int16_t pass1_output[16 * 16] = { 0 };
   int16_t row_idct_output[16 * 16] = { 0 };
-
-#if HAVE_NEON_ASM
-  // save d8-d15 register values.
-  aom_push_neon(store_reg);
-#endif
 
   /* Parallel idct on the upper 8 rows */
   // First pass processes even elements 0, 2, 4, 6, 8, 10, 12, 14 and save the
@@ -86,26 +72,13 @@ void aom_idct16x16_256_add_neon(const int16_t *input, uint8_t *dest,
                                    row_idct_output + 8, pass1_output, 1,
                                    dest + 8, dest_stride);
 
-#if HAVE_NEON_ASM
-  // restore d8-d15 register values.
-  aom_pop_neon(store_reg);
-#endif
-
   return;
 }
 
 void aom_idct16x16_10_add_neon(const int16_t *input, uint8_t *dest,
                                int dest_stride) {
-#if HAVE_NEON_ASM
-  int64_t store_reg[8];
-#endif
   int16_t pass1_output[16 * 16] = { 0 };
   int16_t row_idct_output[16 * 16] = { 0 };
-
-#if HAVE_NEON_ASM
-  // save d8-d15 register values.
-  aom_push_neon(store_reg);
-#endif
 
   /* Parallel idct on the upper 8 rows */
   // First pass processes even elements 0, 2, 4, 6, 8, 10, 12, 14 and save the
@@ -142,11 +115,6 @@ void aom_idct16x16_10_add_neon(const int16_t *input, uint8_t *dest,
   aom_idct16x16_256_add_neon_pass2(row_idct_output + 8 * 16 + 1,
                                    row_idct_output + 8, pass1_output, 1,
                                    dest + 8, dest_stride);
-
-#if HAVE_NEON_ASM
-  // restore d8-d15 register values.
-  aom_pop_neon(store_reg);
-#endif
 
   return;
 }

@@ -627,13 +627,6 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(&av1_fht8x8_c, &av1_iht8x8_64_add_c, 3, AOM_BITS_8)));
 #endif  // CONFIG_HIGHBITDEPTH
 
-#if HAVE_NEON_ASM && !CONFIG_HIGHBITDEPTH
-INSTANTIATE_TEST_CASE_P(NEON, FwdTrans8x8DCT,
-                        ::testing::Values(make_tuple(&aom_fdct8x8_neon,
-                                                     &aom_idct8x8_64_add_neon,
-                                                     0, AOM_BITS_8)));
-#endif  // HAVE_NEON_ASM && !CONFIG_HIGHBITDEPTH
-
 #if HAVE_NEON && !CONFIG_HIGHBITDEPTH
 INSTANTIATE_TEST_CASE_P(
     NEON, FwdTrans8x8HT,
