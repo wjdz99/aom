@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b29efee0_22ed0366",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1991,
+      "author": {
+        "id": 5550
+      },
+      "writtenOn": "2017-05-15T21:53:46Z",
+      "side": 1,
+      "message": "For this optimized case, use the spatially nearest sample, when available.  This matches the behavior of the regular case below.",
+      "range": {
+        "startLine": 1991,
+        "startChar": 4,
+        "endLine": 1991,
+        "endChar": 21
+      },
+      "revId": "5886cb5b1cda8ec1c561aa7c66580e318faff2b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
