@@ -1015,9 +1015,9 @@ void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
       sy4 += gamma * (-4) + delta * (-4);
 
       sx4 = ROUND_POWER_OF_TWO_SIGNED(sx4, WARP_PARAM_REDUCE_BITS)
-            << WARP_PARAM_REDUCE_BITS;
+            * (1 << WARP_PARAM_REDUCE_BITS);
       sy4 = ROUND_POWER_OF_TWO_SIGNED(sy4, WARP_PARAM_REDUCE_BITS)
-            << WARP_PARAM_REDUCE_BITS;
+            * (1 << WARP_PARAM_REDUCE_BITS);
 
       // Horizontal filter
       for (k = -7; k < 8; ++k) {
@@ -1273,9 +1273,9 @@ void av1_warp_affine_c(const int32_t *mat, const uint8_t *ref, int width,
       sy4 += gamma * (-4) + delta * (-4);
 
       sx4 = ROUND_POWER_OF_TWO_SIGNED(sx4, WARP_PARAM_REDUCE_BITS)
-            << WARP_PARAM_REDUCE_BITS;
+            * (1 << WARP_PARAM_REDUCE_BITS);
       sy4 = ROUND_POWER_OF_TWO_SIGNED(sy4, WARP_PARAM_REDUCE_BITS)
-            << WARP_PARAM_REDUCE_BITS;
+            * (1 << WARP_PARAM_REDUCE_BITS);
 
       // Horizontal filter
       for (k = -7; k < 8; ++k) {
