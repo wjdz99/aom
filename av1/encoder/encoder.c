@@ -3428,14 +3428,18 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
   if (lf->filter_level > 0) {
 #if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
-    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
+    for (int pli = 0; pli < MAX_MB_PLANE; pli++) {
+      av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, pli, 0);
+    }
 #else
-    if (cpi->num_workers > 1)
-      av1_loop_filter_frame_mt(cm->frame_to_show, cm, xd->plane,
-                               lf->filter_level, 0, 0, cpi->workers,
-                               cpi->num_workers, &cpi->lf_row_sync);
-    else
-      av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
+    for (int pli = 0; pli < MAX_MB_PLANE; pli++) {
+      if (cpi->num_workers > 1)
+	av1_loop_filter_frame_mt(cm->frame_to_show, cm, xd->plane,
+				 lf->filter_level, pli, 0, cpi->workers,
+				 cpi->num_workers, &cpi->lf_row_sync);
+      else
+	av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, pli, 0);
+    }
 #endif
   }
 #if CONFIG_CDEF

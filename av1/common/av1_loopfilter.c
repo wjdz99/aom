@@ -2184,10 +2184,9 @@ static void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
 
 void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
                           struct macroblockd_plane planes[MAX_MB_PLANE],
-                          int start, int stop, int y_only) {
+                          int start, int stop, int pli) {
 #if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_EXT_PARTITION_TYPES || \
     CONFIG_CB4X4
-  const int num_planes = y_only ? 1 : MAX_MB_PLANE;
   int mi_row, mi_col;
 
 #if CONFIG_VAR_TX
@@ -2199,26 +2198,21 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     memset(cm->left_txfm_context, TX_SIZES, MAX_MIB_SIZE);
 #endif  // CONFIG_VAR_TX
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += cm->mib_size) {
-      int plane;
-
       av1_setup_dst_planes(planes, cm->sb_size, frame_buffer, mi_row, mi_col);
 
-      for (plane = 0; plane < num_planes; ++plane) {
-        av1_filter_block_plane_non420_ver(cm, &planes[plane], mi + mi_col,
-                                          mi_row, mi_col);
-        av1_filter_block_plane_non420_hor(cm, &planes[plane], mi + mi_col,
-                                          mi_row, mi_col);
-      }
+      av1_filter_block_plane_non420_ver(cm, &planes[pli], mi + mi_col,
+					mi_row, mi_col);
+      av1_filter_block_plane_non420_hor(cm, &planes[pli], mi + mi_col,
+					mi_row, mi_col);
     }
   }
 #else  // CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_EXT_PARTITION_TYPES
-  const int num_planes = y_only ? 1 : MAX_MB_PLANE;
   int mi_row, mi_col;
 #if !CONFIG_PARALLEL_DEBLOCKING
   enum lf_path path;
   LOOP_FILTER_MASK lfm;
 
-  if (y_only)
+  if (!pli)
     path = LF_PATH_444;
   else if (planes[1].subsampling_y == 1 && planes[1].subsampling_x == 1)
     path = LF_PATH_420;
@@ -2232,13 +2226,12 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(planes, cm->sb_size, frame_buffer, mi_row, mi_col);
-      for (int planeIdx = 0; planeIdx < num_planes; planeIdx += 1) {
-        const int32_t scaleHorz = planes[planeIdx].subsampling_x;
-        const int32_t scaleVert = planes[planeIdx].subsampling_y;
-        av1_filter_block_plane_vert(
-            cm, planes + planeIdx, (const MODE_INFO **)(mi + mi_col),
-            cm->mi_stride, (mi_col * MI_SIZE) >> scaleHorz,
-            (mi_row * MI_SIZE) >> scaleVert);
+      const int32_t scaleHorz = planes[pli].subsampling_x;
+      const int32_t scaleVert = planes[pli].subsampling_y;
+      av1_filter_block_plane_vert(
+          cm, planes + pli, (const MODE_INFO **)(mi + mi_col),
+          cm->mi_stride, (mi_col * MI_SIZE) >> scaleHorz,
+          (mi_row * MI_SIZE) >> scaleVert);
       }
     }
   }
@@ -2246,14 +2239,12 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(planes, cm->sb_size, frame_buffer, mi_row, mi_col);
-      for (int planeIdx = 0; planeIdx < num_planes; planeIdx += 1) {
-        const int32_t scaleHorz = planes[planeIdx].subsampling_x;
-        const int32_t scaleVert = planes[planeIdx].subsampling_y;
-        av1_filter_block_plane_horz(
-            cm, planes + planeIdx, (const MODE_INFO **)(mi + mi_col),
-            cm->mi_stride, (mi_col * MI_SIZE) >> scaleHorz,
-            (mi_row * MI_SIZE) >> scaleVert);
-      }
+      const int32_t scaleHorz = planes[pli].subsampling_x;
+      const int32_t scaleVert = planes[pli].subsampling_y;
+      av1_filter_block_plane_horz(
+          cm, planes + pli, (const MODE_INFO **)(mi + mi_col),
+          cm->mi_stride, (mi_col * MI_SIZE) >> scaleHorz,
+          (mi_row * MI_SIZE) >> scaleVert);
     }
   }
 #else   // CONFIG_PARALLEL_DEBLOCKING
@@ -2267,22 +2258,23 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
       // TODO(JBB): Make setup_mask work for non 420.
       av1_setup_mask(cm, mi_row, mi_col, mi + mi_col, cm->mi_stride, &lfm);
 
-      av1_filter_block_plane_ss00_ver(cm, &planes[0], mi_row, &lfm);
-      av1_filter_block_plane_ss00_hor(cm, &planes[0], mi_row, &lfm);
-      for (plane = 1; plane < num_planes; ++plane) {
-        switch (path) {
+      if (!pli) {
+	av1_filter_block_plane_ss00_ver(cm, planes, mi_row, &lfm);
+	av1_filter_block_plane_ss00_hor(cm, planes, mi_row, &lfm);
+      } else {
+	switch (path) {
           case LF_PATH_420:
-            av1_filter_block_plane_ss11_ver(cm, &planes[plane], mi_row, &lfm);
-            av1_filter_block_plane_ss11_hor(cm, &planes[plane], mi_row, &lfm);
+            av1_filter_block_plane_ss11_ver(cm, planes + pli, mi_row, &lfm);
+            av1_filter_block_plane_ss11_hor(cm, planes + pli, mi_row, &lfm);
             break;
           case LF_PATH_444:
-            av1_filter_block_plane_ss00_ver(cm, &planes[plane], mi_row, &lfm);
-            av1_filter_block_plane_ss00_hor(cm, &planes[plane], mi_row, &lfm);
+            av1_filter_block_plane_ss00_ver(cm, planes + pli, mi_row, &lfm);
+            av1_filter_block_plane_ss00_hor(cm, planes + pli mi_row, &lfm);
             break;
           case LF_PATH_SLOW:
-            av1_filter_block_plane_non420_ver(cm, &planes[plane], mi + mi_col,
+            av1_filter_block_plane_non420_ver(cm, planes + pli mi + mi_col,
                                               mi_row, mi_col);
-            av1_filter_block_plane_non420_hor(cm, &planes[plane], mi + mi_col,
+            av1_filter_block_plane_non420_hor(cm, planes + pli, mi + mi_col,
                                               mi_row, mi_col);
 
             break;
@@ -2295,7 +2287,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
 }
 
 void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
-                           MACROBLOCKD *xd, int frame_filter_level, int y_only,
+                           MACROBLOCKD *xd, int frame_filter_level, int pli,
                            int partial_frame) {
   int start_mi_row, end_mi_row, mi_rows_to_filter;
 #if CONFIG_EXT_DELTA_Q
@@ -2314,7 +2306,7 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #if CONFIG_EXT_DELTA_Q
   cm->lf.filter_level = frame_filter_level;
 #endif
-  av1_loop_filter_rows(frame, cm, xd->plane, start_mi_row, end_mi_row, y_only);
+  av1_loop_filter_rows(frame, cm, xd->plane, start_mi_row, end_mi_row, pli);
 #if CONFIG_EXT_DELTA_Q
   cm->lf.filter_level = orig_filter_level;
 #endif
@@ -2327,13 +2319,13 @@ void av1_loop_filter_data_reset(
   lf_data->cm = cm;
   lf_data->start = 0;
   lf_data->stop = 0;
-  lf_data->y_only = 0;
+  lf_data->pli = 0;
   memcpy(lf_data->planes, planes, sizeof(lf_data->planes));
 }
 
 int av1_loop_filter_worker(LFWorkerData *const lf_data, void *unused) {
   (void)unused;
   av1_loop_filter_rows(lf_data->frame_buffer, lf_data->cm, lf_data->planes,
-                       lf_data->start, lf_data->stop, lf_data->y_only);
+                       lf_data->start, lf_data->stop, lf_data->pli);
   return 1;
 }
