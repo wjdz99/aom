@@ -16,6 +16,24 @@
       "revId": "f9f1325807e92041181b717cbfa73a01bb842913",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee85c6d1_3490361a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2840,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-05-15T23:34:44Z",
+      "side": 1,
+      "message": "This is as it was before a previous patch of mine. It had to be that way because I thought the setup_superres_size function affected the size of the context buffers.\n\nFrame size was encoded, then render size, then superres scale. The frame size and superres scale affected the required context buffer size, but it turned out I was wrong to have the superres scale affect them. The context buffers need to be at the frame size for decoding.\n\nThe render size does not affect the context buffers, so it only makes sense to me to place the resize_context_buffers call as close as possible to where the width and height get set.",
+      "parentUuid": "c6eb2bcf_bde6088b",
+      "revId": "f9f1325807e92041181b717cbfa73a01bb842913",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
