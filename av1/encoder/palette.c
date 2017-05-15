@@ -192,16 +192,11 @@ static int delta_encode_cost(const int *colors, int num, int bit_depth,
   return bits_cost;
 }
 
-int av1_index_color_cache(uint16_t *color_cache, int n_cache,
-                          const void *colors, int n_colors,
+int av1_index_color_cache(const uint16_t *color_cache, int n_cache,
+                          const uint16_t *colors, int n_colors,
                           uint8_t *cache_color_found, int *out_cache_colors) {
-#if CONFIG_HIGHBITDEPTH
-  const uint16_t *colors_in = (const uint16_t *)colors;
-#else
-  const uint8_t *colors_in = (const uint8_t *)colors;
-#endif  // CONFIG_HIGHBITDEPTH
   if (n_cache <= 0) {
-    for (int i = 0; i < n_colors; ++i) out_cache_colors[i] = colors_in[i];
+    for (int i = 0; i < n_colors; ++i) out_cache_colors[i] = colors[i];
     return n_colors;
   }
   memset(cache_color_found, 0, n_cache * sizeof(*cache_color_found));
@@ -210,7 +205,7 @@ int av1_index_color_cache(uint16_t *color_cache, int n_cache,
   memset(in_cache_flags, 0, sizeof(in_cache_flags));
   for (int i = 0; i < n_cache && n_in_cache < n_colors; ++i) {
     for (int j = 0; j < n_colors; ++j) {
-      if (colors_in[j] == color_cache[i]) {
+      if (colors[j] == color_cache[i]) {
         in_cache_flags[j] = 1;
         cache_color_found[i] = 1;
         ++n_in_cache;
@@ -220,7 +215,7 @@ int av1_index_color_cache(uint16_t *color_cache, int n_cache,
   }
   int j = 0;
   for (int i = 0; i < n_colors; ++i)
-    if (!in_cache_flags[i]) out_cache_colors[j++] = colors_in[i];
+    if (!in_cache_flags[i]) out_cache_colors[j++] = colors[i];
   assert(j == n_colors - n_in_cache);
   return j;
 }
