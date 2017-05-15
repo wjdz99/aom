@@ -81,6 +81,30 @@
       "revId": "61ef3d1307df10c592af7a6ae4ae8f3db431e9ac",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37c38475_1ef07dc6",
+        "filename": "av1/common/debugmodes.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-05-15T17:10:15Z",
+      "side": 1,
+      "message": "just a side note that we probably don\u0027t need to always extend the mi array by + MAX_MIB_SIZE in both dimension. Reads a bit redundant. But probably not a big issue at this point.",
+      "parentUuid": "7baf081c_0e7014ea",
+      "range": {
+        "startLine": 43,
+        "startChar": 10,
+        "endLine": 43,
+        "endChar": 12
+      },
+      "revId": "61ef3d1307df10c592af7a6ae4ae8f3db431e9ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
