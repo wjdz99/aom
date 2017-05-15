@@ -1301,21 +1301,12 @@ INSTANTIATE_TEST_CASE_P(AVX2, ConvolveTest,
 
 // TODO(any): Make NEON versions support 128x128 128x64 64x128 block sizes
 #if HAVE_NEON && !(CONFIG_AV1 && CONFIG_EXT_PARTITION)
-#if HAVE_NEON_ASM
 const ConvolveFunctions convolve8_neon(
     aom_convolve_copy_neon, aom_convolve_avg_neon, aom_convolve8_horiz_neon,
     aom_convolve8_avg_horiz_neon, aom_convolve8_vert_neon,
     aom_convolve8_avg_vert_neon, aom_convolve8_neon, aom_convolve8_avg_neon,
     aom_scaled_horiz_c, aom_scaled_avg_horiz_c, aom_scaled_vert_c,
     aom_scaled_avg_vert_c, aom_scaled_2d_c, aom_scaled_avg_2d_c, 0);
-#else   // HAVE_NEON
-const ConvolveFunctions convolve8_neon(
-    aom_convolve_copy_neon, aom_convolve_avg_neon, aom_convolve8_horiz_neon,
-    aom_convolve8_avg_horiz_neon, aom_convolve8_vert_neon,
-    aom_convolve8_avg_vert_neon, aom_convolve8_neon, aom_convolve8_avg_neon,
-    aom_scaled_horiz_c, aom_scaled_avg_horiz_c, aom_scaled_vert_c,
-    aom_scaled_avg_vert_c, aom_scaled_2d_c, aom_scaled_avg_2d_c, 0);
-#endif  // HAVE_NEON_ASM
 
 const ConvolveParam kArrayConvolve8_neon[] = { ALL_SIZES(convolve8_neon) };
 INSTANTIATE_TEST_CASE_P(NEON, ConvolveTest,
