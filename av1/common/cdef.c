@@ -257,21 +257,26 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
       uv_sec_strength =
           cm->cdef_uv_strengths[mbmi_cdef_strength] % CDEF_SEC_STRENGTHS;
       uv_sec_strength += uv_sec_strength == 3;
-      if ((level == 0 && sec_strength == 0 && uv_level == 0 &&
-           uv_sec_strength == 0) ||
+      int pri_damping = cm->cdef_pri_damping;
+      int sec_damping = cm->cdef_sec_damping;
+      if (/*(level == 0 && sec_strength == 0 && uv_level == 0 &&
+	    uv_sec_strength == 0) ||*/
           (cdef_count = sb_compute_cdef_list(
                cm, sbr * MAX_MIB_SIZE, sbc * MAX_MIB_SIZE, dlist,
                get_filter_skip(level) || get_filter_skip(uv_level))) == 0) {
         cdef_left = 0;
         continue;
       }
+      if (!level && !sec_strength && !uv_level && uv_sec_strength) {
+	level = uv_level = 1;
+	sec_strength = uv_sec_strength = 1;
+	pri_damping = sec_damping = 2;
+      }
 
       curr_row_cdef[sbc] = 1;
       for (pli = 0; pli < nplanes; pli++) {
         int coffset;
         int rend, cend;
-        int pri_damping = cm->cdef_pri_damping;
-        int sec_damping = cm->cdef_sec_damping;
         int hsize = nhb << mi_wide_l2[pli];
         int vsize = nvb << mi_high_l2[pli];
 
