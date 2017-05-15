@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9c46a47_d4e5eaa6",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 1344,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-15T20:46:48Z",
+      "side": 1,
+      "message": "this could be grouped with the other similar varieties as the end of this hunk",
+      "revId": "cd7f639acee7b3b75fc54f5d6f5f35a475c998f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
