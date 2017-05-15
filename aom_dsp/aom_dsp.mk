@@ -86,7 +86,6 @@ DSP_SRCS-$(HAVE_SSE)  += x86/highbd_intrapred_sse2.asm
 DSP_SRCS-$(HAVE_SSE2) += x86/highbd_intrapred_sse2.asm
 endif  # CONFIG_HIGHBITDEPTH
 
-DSP_SRCS-$(HAVE_NEON_ASM) += arm/intrapred_neon_asm$(ASM)
 DSP_SRCS-$(HAVE_NEON) += arm/intrapred_neon.c
 DSP_SRCS-$(HAVE_MSA) += mips/intrapred_msa.c
 DSP_SRCS-$(HAVE_DSPR2)  += mips/intrapred4_dspr2.c
@@ -126,13 +125,6 @@ DSP_SRCS-$(HAVE_AVX2)  += x86/highbd_convolve_avx2.c
 endif
 DSP_SRCS-$(HAVE_SSE2)  += x86/aom_convolve_copy_sse2.asm
 
-ifeq ($(HAVE_NEON_ASM),yes)
-DSP_SRCS-yes += arm/aom_convolve_copy_neon_asm$(ASM)
-DSP_SRCS-yes += arm/aom_convolve8_avg_neon_asm$(ASM)
-DSP_SRCS-yes += arm/aom_convolve8_neon_asm$(ASM)
-DSP_SRCS-yes += arm/aom_convolve_avg_neon_asm$(ASM)
-DSP_SRCS-yes += arm/aom_convolve_neon.c
-else
 ifeq ($(HAVE_NEON),yes)
 DSP_SRCS-yes += arm/aom_convolve_copy_neon.c
 DSP_SRCS-yes += arm/aom_convolve8_avg_neon.c
@@ -140,7 +132,6 @@ DSP_SRCS-yes += arm/aom_convolve8_neon.c
 DSP_SRCS-yes += arm/aom_convolve_avg_neon.c
 DSP_SRCS-yes += arm/aom_convolve_neon.c
 endif  # HAVE_NEON
-endif  # HAVE_NEON_ASM
 
 # common (msa)
 DSP_SRCS-$(HAVE_MSA) += mips/aom_convolve8_avg_horiz_msa.c
@@ -173,18 +164,11 @@ DSP_SRCS-$(ARCH_X86)$(ARCH_X86_64)   += x86/loopfilter_sse2.c
 DSP_SRCS-$(HAVE_AVX2)                += x86/loopfilter_avx2.c
 
 DSP_SRCS-$(HAVE_NEON)   += arm/loopfilter_neon.c
-ifeq ($(HAVE_NEON_ASM),yes)
-DSP_SRCS-yes  += arm/loopfilter_mb_neon$(ASM)
-DSP_SRCS-yes  += arm/loopfilter_16_neon$(ASM)
-DSP_SRCS-yes  += arm/loopfilter_8_neon$(ASM)
-DSP_SRCS-yes  += arm/loopfilter_4_neon$(ASM)
-else
 ifeq ($(HAVE_NEON),yes)
 DSP_SRCS-yes   += arm/loopfilter_16_neon.c
 DSP_SRCS-yes   += arm/loopfilter_8_neon.c
 DSP_SRCS-yes   += arm/loopfilter_4_neon.c
 endif  # HAVE_NEON
-endif  # HAVE_NEON_ASM
 
 DSP_SRCS-$(HAVE_MSA)    += mips/loopfilter_msa.h
 DSP_SRCS-$(HAVE_MSA)    += mips/loopfilter_16_msa.c
@@ -243,17 +227,6 @@ DSP_SRCS-$(HAVE_SSSE3)  += x86/inv_txfm_ssse3.c
 DSP_SRCS-$(HAVE_AVX2)   += x86/inv_txfm_common_avx2.h
 DSP_SRCS-$(HAVE_AVX2)   += x86/inv_txfm_avx2.c
 
-ifeq ($(HAVE_NEON_ASM),yes)
-DSP_SRCS-yes  += arm/save_reg_neon$(ASM)
-DSP_SRCS-yes  += arm/idct4x4_1_add_neon$(ASM)
-DSP_SRCS-yes  += arm/idct4x4_add_neon$(ASM)
-DSP_SRCS-yes  += arm/idct8x8_1_add_neon$(ASM)
-DSP_SRCS-yes  += arm/idct8x8_add_neon$(ASM)
-DSP_SRCS-yes  += arm/idct16x16_1_add_neon$(ASM)
-DSP_SRCS-yes  += arm/idct16x16_add_neon$(ASM)
-DSP_SRCS-yes  += arm/idct32x32_1_add_neon$(ASM)
-DSP_SRCS-yes  += arm/idct32x32_add_neon$(ASM)
-else
 ifeq ($(HAVE_NEON),yes)
 DSP_SRCS-yes  += arm/idct4x4_1_add_neon.c
 DSP_SRCS-yes  += arm/idct4x4_add_neon.c
@@ -264,7 +237,6 @@ DSP_SRCS-yes  += arm/idct16x16_add_neon.c
 DSP_SRCS-yes  += arm/idct32x32_1_add_neon.c
 DSP_SRCS-yes  += arm/idct32x32_add_neon.c
 endif  # HAVE_NEON
-endif  # HAVE_NEON_ASM
 DSP_SRCS-$(HAVE_NEON)  += arm/idct16x16_neon.c
 
 DSP_SRCS-$(HAVE_MSA)   += mips/inv_txfm_msa.h

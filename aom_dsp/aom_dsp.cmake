@@ -67,26 +67,6 @@ set(AOM_DSP_COMMON_INTRIN_AVX2
     "${AOM_ROOT}/aom_dsp/x86/inv_txfm_common_avx2.h"
     "${AOM_ROOT}/aom_dsp/x86/txfm_common_avx2.h")
 
-set(AOM_DSP_COMMON_ASM_NEON
-    "${AOM_ROOT}/aom_dsp/arm/aom_convolve8_avg_neon_asm.asm"
-    "${AOM_ROOT}/aom_dsp/arm/aom_convolve8_neon_asm.asm"
-    "${AOM_ROOT}/aom_dsp/arm/aom_convolve_avg_neon_asm.asm"
-    "${AOM_ROOT}/aom_dsp/arm/aom_convolve_copy_neon_asm.asm"
-    "${AOM_ROOT}/aom_dsp/arm/idct16x16_1_add_neon.asm"
-    "${AOM_ROOT}/aom_dsp/arm/idct16x16_add_neon.asm"
-    "${AOM_ROOT}/aom_dsp/arm/idct32x32_1_add_neon.asm"
-    "${AOM_ROOT}/aom_dsp/arm/idct32x32_add_neon.asm"
-    "${AOM_ROOT}/aom_dsp/arm/idct4x4_1_add_neon.asm"
-    "${AOM_ROOT}/aom_dsp/arm/idct4x4_add_neon.asm"
-    "${AOM_ROOT}/aom_dsp/arm/idct8x8_1_add_neon.asm"
-    "${AOM_ROOT}/aom_dsp/arm/idct8x8_add_neon.asm"
-    "${AOM_ROOT}/aom_dsp/arm/intrapred_neon_asm.asm"
-    "${AOM_ROOT}/aom_dsp/arm/loopfilter_16_neon.asm"
-    "${AOM_ROOT}/aom_dsp/arm/loopfilter_4_neon.asm"
-    "${AOM_ROOT}/aom_dsp/arm/loopfilter_8_neon.asm"
-    "${AOM_ROOT}/aom_dsp/arm/loopfilter_mb_neon.asm"
-    "${AOM_ROOT}/aom_dsp/arm/save_reg_neon.asm")
-
 set(AOM_DSP_COMMON_INTRIN_NEON
     "${AOM_ROOT}/aom_dsp/arm/aom_convolve_neon.c"
     "${AOM_ROOT}/aom_dsp/arm/avg_neon.c"
@@ -478,14 +458,6 @@ function (setup_aom_dsp_targets)
     if (CONFIG_ENCODERS)
       add_intrinsics_object_library("-mavx2" "avx2" "aom_dsp_encoder"
                                     "AOM_DSP_ENCODER_INTRIN_AVX2")
-    endif ()
-  endif ()
-
-  if (HAVE_NEON_ASM)
-    if (AOM_ADS2GAS_REQUIRED)
-      add_gas_asm_library("aom_dsp_common_neon" "AOM_DSP_COMMON_ASM_NEON" "aom")
-    else ()
-      add_asm_library("aom_dsp_common_neon" "AOM_DSP_COMMON_ASM_NEON" "aom")
     endif ()
   endif ()
 

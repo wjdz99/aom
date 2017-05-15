@@ -260,13 +260,6 @@ INSTANTIATE_TEST_CASE_P(C, Trans4x4WHT,
                                                      AOM_BITS_8, 16)));
 #endif  // CONFIG_HIGHBITDEPTH
 
-#if HAVE_NEON_ASM && !CONFIG_HIGHBITDEPTH
-INSTANTIATE_TEST_CASE_P(NEON, Trans4x4DCT,
-                        ::testing::Values(make_tuple(&aom_fdct4x4_c,
-                                                     &aom_idct4x4_16_add_neon,
-                                                     0, AOM_BITS_8, 16)));
-#endif  // HAVE_NEON_ASM && !CONFIG_HIGHBITDEPTH
-
 #if HAVE_NEON && !CONFIG_HIGHBITDEPTH
 INSTANTIATE_TEST_CASE_P(
     NEON, Trans4x4HT,

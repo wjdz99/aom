@@ -797,13 +797,6 @@ INSTANTIATE_TEST_CASE_P(C, PartialTrans16x16Test,
                                                      AOM_BITS_8)));
 #endif  // CONFIG_HIGHBITDEPTH
 
-#if HAVE_NEON_ASM && !CONFIG_HIGHBITDEPTH
-INSTANTIATE_TEST_CASE_P(
-    NEON, Trans16x16DCT,
-    ::testing::Values(make_tuple(&aom_fdct16x16_c, &aom_idct16x16_256_add_neon,
-                                 0, AOM_BITS_8)));
-#endif
-
 #if HAVE_SSE2 && !CONFIG_HIGHBITDEPTH
 INSTANTIATE_TEST_CASE_P(
     SSE2, Trans16x16DCT,
