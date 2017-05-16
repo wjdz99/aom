@@ -15,7 +15,7 @@
 #include "./av1_rtcd.h"
 #include "aom_dsp/inv_txfm.h"
 #include "aom_ports/mem.h"
-#include "av1/common/av1_inv_txfm2d_cfg.h"
+#include "av1/common/av1_inv_txfm1d_cfg.h"
 #include "av1/common/blockd.h"
 #include "av1/common/enums.h"
 #include "av1/common/idct.h"
