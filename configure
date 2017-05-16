@@ -504,11 +504,6 @@ post_process_cmdline() {
     soft_enable alt_intra
     soft_enable palette_throughput
 
-    # Workaround features currently incompatible with highbitdepth
-    enabled daala_dist && disable_feature highbitdepth
-    enabled tx64x64 && disable_feature highbitdepth
-    enabled ext_partition && disable_feature highbitdepth
-
     # Fix up experiment dependencies
     enabled pvq && enable_feature ec_adapt
     enabled cfl && enable_feature ec_multisymbol
@@ -550,6 +545,9 @@ post_process_cmdline() {
       soft_enable accounting
       soft_enable inspection
     fi
+    enabled daala_dist && enabled highbitdepth && die "daala_dist is incompatible with highbitdepth"
+    enabled tx64x64 && enabled highbitdepth && die "tx64x64 is incompatible with highbitdepth"
+    enabled ext_partition && enabled highbitdepth && die "ext_partition is incompatible with highbitdepth"
 }
 
 process_targets() {
