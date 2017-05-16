@@ -504,7 +504,7 @@ post_process_cmdline() {
     soft_enable tempmv_signaling
 
     # Workaround features currently incompatible with highbitdepth
-    enabled ext_partition && disable_feature highbitdepth
+    enabled ext_partition && enabled highbitdepth && die "ext_partition is currently incompatible with highbitdepth"
 
     # Fix up experiment dependencies
     enabled pvq && enable_feature ec_adapt
