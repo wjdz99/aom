@@ -204,10 +204,7 @@ int SIMD_FUNC(od_dir_find8)(const od_dering_in *img, int stride, int32_t *var,
 
   /* Difference between the optimal variance and the variance along the
      orthogonal direction. Again, the sum(x^2) terms cancel out. */
-  *var = best_cost - cost[(best_dir + 4) & 7];
-  /* We'd normally divide by 840, but dividing by 1024 is close enough
-     for what we're going to do with this. */
-  *var >>= 10;
+  *var = (best_cost - cost[(best_dir + 4) & 7]) >> 16;
   return best_dir;
 }
 
