@@ -52,7 +52,8 @@ extern "C" {
 // Set COMPOUND_SEGMENT_TYPE to one of the three
 // 0: Uniform
 // 1: Difference weighted
-#define COMPOUND_SEGMENT_TYPE 1
+// 2: Hist based mmsearch + Difference weighted
+#define COMPOUND_SEGMENT_TYPE 2
 #define MAX_SEG_MASK_BITS 1
 
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
@@ -63,6 +64,11 @@ typedef enum {
 #elif COMPOUND_SEGMENT_TYPE == 1
   DIFFWTD_38 = 0,
   DIFFWTD_38_INV,
+#elif COMPOUND_SEGMENT_TYPE == 2
+  DIFFWTD_38 = 0,
+  DIFFWTD_38_INV,
+  COLOR_SEG,
+  COLOR_SEG_INV,
 #endif  // COMPOUND_SEGMENT_TYPE
   SEG_MASK_TYPES,
 } SEG_MASK_TYPE;
@@ -217,8 +223,12 @@ static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
 }
 
 static INLINE int use_masked_motion_search(COMPOUND_TYPE type) {
-#if CONFIG_WEDGE
+#if CONFIG_WEDGE && !CONFIG_COMPOUND_SEGMENT
   return (type == COMPOUND_WEDGE);
+#elif CONFIG_COMPOUND_SEGMENT && COMPOUND_SEGMENT_TYPE == 2 && !CONFIG_WEDGE
+  return (type == COMPOUND_SEG);
+#elif CONFIG_COMPOUND_SEGMENT && COMPOUND_SEGMENT_TYPE == 2 && CONFIG_WEDGE
+  return (type == COMPOUND_WEDGE || type == COMPOUND_SEG);
 #else
   (void)type;
   return 0;
