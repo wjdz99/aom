@@ -245,6 +245,10 @@ static INLINE int get_interintra_wedge_bits(BLOCK_SIZE sb_type) {
 }
 
 #if CONFIG_COMPOUND_SEGMENT
+void color_seg_mask(uint8_t *mask, int which_inverse,
+                    const uint8_t *src, int src_stride,
+                    BLOCK_SIZE sb_type, int h, int w);
+
 void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
                              const uint8_t *src0, int src0_stride,
                              const uint8_t *src1, int src1_stride,

@@ -7582,6 +7582,13 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
     aom_subtract_block(bh, bw, r1, bw, src->buf, src->stride, p1, bw);
     aom_subtract_block(bh, bw, d10, bw, p1, bw, p0, bw);
   }
+#if COMPOUND_SEGMENT_TYPE == 2
+   if (have_newmv_in_inter_mode(mbmi->mode) && mbmi->mode != NEW_NEWMV) {
+      mbmi->mask_type = COLOR_SEG;
+      color_seg_mask(xd->seg_mask, 0, src->buf, src->stride, bsize, bh, bw);
+      return INT64_MAX;
+   }
+#endif  // COMPOUND_SEGMENT_TYPE == 2
 
   // try each mask type and its inverse
   for (cur_mask_type = 0; cur_mask_type < SEG_MASK_TYPES; cur_mask_type++) {
@@ -7686,6 +7693,11 @@ static int interinter_compound_motion_search(const AV1_COMP *const cpi,
     mbmi->interinter_compound_type
   };
   if (this_mode == NEW_NEWMV) {
+//sarahparker temporary, do not do search for new new, just experimenting with the others
+#if CONFIG_COMPOUND_SEGMENT
+    if (mbmi->interinter_compound_type == COMPOUND_SEG)
+      return INT64_MAX;
+#endif
     do_masked_motion_search_indexed(cpi, x, &compound_data, bsize, mi_row,
                                     mi_col, tmp_mv, rate_mvs, 2);
     tmp_rate_mv = rate_mvs[0] + rate_mvs[1];
