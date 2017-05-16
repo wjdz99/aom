@@ -901,7 +901,13 @@ static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
   const TX_SIZE max_tx_size = max_txsize_lookup[bsize];
 #endif  // (CONFIG_VAR_TX || CONFIG_EXT_TX) && CONFIG_RECT_TX
   (void)is_inter;
-#if CONFIG_VAR_TX && CONFIG_RECT_TX
+#if CONFIG_EXT_TX && CONFIG_RECT_TX
+  if (txsize_sqr_up_map[max_rect_tx_size] <= largest_tx_size) {
+    return max_rect_tx_size;
+  } else {
+    return largest_tx_size;
+  }
+#elif CONFIG_VAR_TX && CONFIG_RECT_TX
 #if CONFIG_CB4X4
   if (bsize == BLOCK_4X4)
     return AOMMIN(max_txsize_lookup[bsize], largest_tx_size);
@@ -913,12 +919,6 @@ static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
     return max_rect_tx_size;
   else
     return largest_tx_size;
-#elif CONFIG_EXT_TX && CONFIG_RECT_TX
-  if (txsize_sqr_up_map[max_rect_tx_size] <= largest_tx_size) {
-    return max_rect_tx_size;
-  } else {
-    return largest_tx_size;
-  }
 #else
   return AOMMIN(max_tx_size, largest_tx_size);
 #endif  // CONFIG_VAR_TX && CONFIG_RECT_TX
