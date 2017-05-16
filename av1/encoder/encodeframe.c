@@ -5993,6 +5993,8 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
   } else {
     int ref;
     const int is_compound = has_second_ref(mbmi);
+    if (mbmi->interinter_compound_type == COMPOUND_SEG && have_newmv_in_inter_mode(mbmi->mode))
+      printf("here\n");
 
     set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
     for (ref = 0; ref < 1 + is_compound; ++ref) {

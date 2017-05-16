@@ -248,12 +248,14 @@ static INLINE int get_interintra_wedge_bits(BLOCK_SIZE sb_type) {
 void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
                              const uint8_t *src0, int src0_stride,
                              const uint8_t *src1, int src1_stride,
-                             BLOCK_SIZE sb_type, int h, int w);
+                             BLOCK_SIZE sb_type, int h, int w,
+                             PREDICTION_MODE mode);
 #if CONFIG_HIGHBITDEPTH
 void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
                                     const uint8_t *src0, int src0_stride,
                                     const uint8_t *src1, int src1_stride,
-                                    BLOCK_SIZE sb_type, int h, int w, int bd);
+                                    BLOCK_SIZE sb_type, int h, int w, int bd,
+                                    PREDICTION_MODE mode);
 #endif  // CONFIG_HIGHBITDEPTH
 #endif  // CONFIG_COMPOUND_SEGMENT
 #endif  // CONFIG_EXT_INTER

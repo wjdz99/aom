@@ -2137,7 +2137,12 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_WEDGE
 #if CONFIG_COMPOUND_SEGMENT
       if (mbmi->interinter_compound_type == COMPOUND_SEG) {
-        aom_write_literal(w, mbmi->mask_type, MAX_SEG_MASK_BITS);
+        // currently the mask types are mode dependent and we just need
+        // to specify which compliment regardless of the function used
+        if (have_newmv_in_inter_mode(mbmi->mode) && mbmi->mode != NEW_NEWMV)
+          aom_write_literal(w, mbmi->mask_type, MAX_SEG_MASK_BITS + 1);
+        else
+          aom_write_literal(w, mbmi->mask_type, MAX_SEG_MASK_BITS);
       }
 #endif  // CONFIG_COMPOUND_SEGMENT
     }

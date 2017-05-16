@@ -317,11 +317,13 @@ static void uniform_mask(uint8_t *mask, int which_inverse, BLOCK_SIZE sb_type,
 void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
                              const uint8_t *src0, int src0_stride,
                              const uint8_t *src1, int src1_stride,
-                             BLOCK_SIZE sb_type, int h, int w) {
+                             BLOCK_SIZE sb_type, int h, int w,
+                             PREDICTION_MODE mode) {
   (void)src0;
   (void)src1;
   (void)src0_stride;
   (void)src1_stride;
+  (void)mode;
   switch (mask_type) {
     case UNIFORM_45: uniform_mask(mask, 0, sb_type, h, w, 45); break;
     case UNIFORM_45_INV: uniform_mask(mask, 1, sb_type, h, w, 45); break;
@@ -333,12 +335,14 @@ void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
 void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
                                     const uint8_t *src0, int src0_stride,
                                     const uint8_t *src1, int src1_stride,
-                                    BLOCK_SIZE sb_type, int h, int w, int bd) {
+                                    BLOCK_SIZE sb_type, int h, int w, int bd,
+                                    PREDICTION_MODE mode) {
   (void)src0;
   (void)src1;
   (void)src0_stride;
   (void)src1_stride;
   (void)bd;
+  (void)mode;
   switch (mask_type) {
     case UNIFORM_45: uniform_mask(mask, 0, sb_type, h, w, 45); break;
     case UNIFORM_45_INV: uniform_mask(mask, 1, sb_type, h, w, 45); break;
@@ -347,7 +351,7 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
-#elif COMPOUND_SEGMENT_TYPE == 1
+#elif COMPOUND_SEGMENT_TYPE > 0
 #define DIFF_FACTOR 16
 static void diffwtd_mask(uint8_t *mask, int which_inverse, int mask_base,
                          const uint8_t *src0, int src0_stride,
@@ -366,10 +370,89 @@ static void diffwtd_mask(uint8_t *mask, int which_inverse, int mask_base,
   }
 }
 
+#if COMPOUND_SEGMENT_TYPE == 2
+// Fill a histogram with the pixels in src
+static void hist(const uint8_t *src, int stride, int *histogram,
+                 int block_height, int block_width) {
+  int i, j;
+  for (i = 0; i < block_height; ++i, src += stride) {
+    for (j = 0; j < block_width; ++j) {
+      histogram[src[j]]++;
+    }
+  }
+}
+
+// Pick a split value by examining a histogram to insure that divides at
+// least 1/10th of the pixels,  looking for the one that separates the most
+// pixels and the smallest histogram.
+int pick_split(const int *hist, double *score) {
+  int i;
+  int sum = 0, count = 0, min_split;
+  int max = 0;
+  int first = -1, last = 255;
+  int newsum = 0;
+  int best_split = -1;
+  double best_score = 0;
+  for (i = 0; i < 256; ++i) {
+    if (hist[i] != 0 && first == -1)
+      first = i;
+    if (hist[i] != 0)
+      last = i;
+    max = hist[i] > max ? hist[i] : max;
+    count++;
+    sum += hist[i];
+  }
+  min_split = sum / 10;
+  for (i = first; i < last; ++i) {
+    newsum += hist[i];
+    if (newsum > min_split && sum - newsum > min_split) {
+      double this_score = (newsum < sum - newsum) ? newsum : sum - newsum;
+      this_score *= max - hist[i];
+      if (this_score > best_score) {
+        best_score = this_score;
+        best_split = i;
+      }
+    }
+  }
+  *score = best_score;
+  // best_split is off by 1 since we use < not <=..
+  return best_split + 1;
+}
+
+void color_seg_mask(uint8_t *mask, int which_inverse, int mask_base,
+                    const uint8_t *src, int src_stride,
+                    BLOCK_SIZE sb_type, int h, int w) {
+  int i, j, m;
+  double score;
+  int block_stride = block_size_wide[sb_type];
+  int histogram[256];
+  memset(histogram, 0, 256 * sizeof(*histogram));
+  hist(src, src_stride, histogram, h, w);
+  int split = pick_split(histogram, &score);
+  for (i = 0; i < h; ++i) {
+    for (j = 0; j < w; ++j) {
+      m =
+          src[i * src_stride + j] < split ? mask_base : 0;
+      mask[i * block_stride + j] =
+          which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+    }
+  }
+}
+#endif  // COMPOUND_SEGMENT_TYPE == 2
+
 void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
                              const uint8_t *src0, int src0_stride,
                              const uint8_t *src1, int src1_stride,
-                             BLOCK_SIZE sb_type, int h, int w) {
+                             BLOCK_SIZE sb_type, int h, int w,
+                             PREDICTION_MODE mode) {
+#if COMPOUND_SEGMENT_TYPE == 2
+  const uint8_t *selected_src = (mode == NEW_NEARESTMV || mode == NEW_NEARMV) ?
+    src1 : src0;
+  const int selected_stride = (mode == NEW_NEARESTMV || mode == NEW_NEARMV) ?
+    src1_stride : src0_stride;
+#else
+  (void)mode;
+#endif
   switch (mask_type) {
     case DIFFWTD_38:
       diffwtd_mask(mask, 0, 38, src0, src0_stride, src1, src1_stride, sb_type,
@@ -379,6 +462,16 @@ void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
       diffwtd_mask(mask, 1, 38, src0, src0_stride, src1, src1_stride, sb_type,
                    h, w);
       break;
+#if COMPOUND_SEGMENT_TYPE == 2
+    case COLOR_SEG:
+      assert(have_newmv_in_inter_mode(mode));
+      color_seg_mask(mask, 0, 35, selected_src, selected_stride, sb_type, h, w);
+      break;
+    case COLOR_SEG_INV:
+      assert(have_newmv_in_inter_mode(mode));
+      color_seg_mask(mask, 1, 35, selected_src, selected_stride, sb_type, h, w);
+      break;
+#endif  // COMPOUND_SEGMENT_TYPE == 2
     default: assert(0);
   }
 }
@@ -402,10 +495,16 @@ static void diffwtd_mask_highbd(uint8_t *mask, int which_inverse, int mask_base,
   }
 }
 
+#if COMPOUND_SEGMENT_TYPE == 2
+
+#endif  // COMPOUND_SEGMENT_TYPE == 2
+
 void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
                                     const uint8_t *src0, int src0_stride,
                                     const uint8_t *src1, int src1_stride,
-                                    BLOCK_SIZE sb_type, int h, int w, int bd) {
+                                    BLOCK_SIZE sb_type, int h, int w, int bd,
+                                    PREDICTION_MODE mode) {
+  (void)mode;
   switch (mask_type) {
     case DIFFWTD_38:
       diffwtd_mask_highbd(mask, 0, 42, CONVERT_TO_SHORTPTR(src0), src0_stride,
@@ -417,6 +516,18 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
                           CONVERT_TO_SHORTPTR(src1), src1_stride, sb_type, h, w,
                           bd);
       break;
+#if COMPOUND_SEGMENT_TYPE == 2
+    case COLOR_SEG:
+      color_seg_mask_highbd(mask, 0, 42, CONVERT_TO_SHORTPTR(src0), src0_stride,
+                          CONVERT_TO_SHORTPTR(src1), src1_stride, sb_type, h, w,
+                          bd);
+      break;
+    case COLOR_SEG_INV:
+      color_seg_mask_highbd(mask, 1, 42, CONVERT_TO_SHORTPTR(src0), src0_stride,
+                          CONVERT_TO_SHORTPTR(src1), src1_stride, sb_type, h, w,
+                          bd);
+      break;
+#endif  // COMPOUND_SEGMENT_TYPE == 2
     default: assert(0);
   }
 }
@@ -752,11 +863,12 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
       build_compound_seg_mask_highbd(comp_data.seg_mask, comp_data.mask_type,
                                      dst, dst_stride, tmp_dst, MAX_SB_SIZE,
-                                     mi->mbmi.sb_type, h, w, xd->bd);
+                                     mi->mbmi.sb_type, h, w, xd->bd,
+                                     mi->mbmi.mode);
     else
       build_compound_seg_mask(comp_data.seg_mask, comp_data.mask_type, dst,
                               dst_stride, tmp_dst, MAX_SB_SIZE,
-                              mi->mbmi.sb_type, h, w);
+                              mi->mbmi.sb_type, h, w, mi->mbmi.mode);
   }
 #endif  // CONFIG_COMPOUND_SEGMENT
 
@@ -794,12 +906,13 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
   if (!plane && comp_data.interinter_compound_type == COMPOUND_SEG)
     build_compound_seg_mask(comp_data.seg_mask, comp_data.mask_type, dst,
                             dst_stride, tmp_dst, MAX_SB_SIZE, mi->mbmi.sb_type,
-                            h, w);
+                            h, w, mi->mbmi.mode);
 #endif  // CONFIG_COMPOUND_SEGMENT
 #if CONFIG_SUPERTX
   build_masked_compound_wedge_extend(dst, dst_stride, dst, dst_stride, tmp_dst,
                                      MAX_SB_SIZE, &comp_data, mi->mbmi.sb_type,
-                                     wedge_offset_x, wedge_offset_y, h, w);
+                                     wedge_offset_x, wedge_offset_y, h, w,
+                                     mi->mbmi.mode);
 #else
   build_masked_compound(dst, dst_stride, dst, dst_stride, tmp_dst, MAX_SB_SIZE,
                         &comp_data, mi->mbmi.sb_type, h, w);
@@ -2978,12 +3091,12 @@ static void build_wedge_inter_predictor_from_buf(
             comp_data.seg_mask, comp_data.mask_type,
             CONVERT_TO_BYTEPTR(ext_dst0), ext_dst_stride0,
             CONVERT_TO_BYTEPTR(ext_dst1), ext_dst_stride1, mbmi->sb_type, h, w,
-            xd->bd);
+            xd->bd, mbmi->mode);
       else
 #endif  // CONFIG_HIGHBITDEPTH
         build_compound_seg_mask(comp_data.seg_mask, comp_data.mask_type,
                                 ext_dst0, ext_dst_stride0, ext_dst1,
-                                ext_dst_stride1, mbmi->sb_type, h, w);
+                                ext_dst_stride1, mbmi->sb_type, h, w, mbmi->mode);
     }
 #endif  // CONFIG_COMPOUND_SEGMENT
 

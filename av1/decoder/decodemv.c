@@ -2238,6 +2238,12 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_WEDGE
 #if CONFIG_COMPOUND_SEGMENT
       if (mbmi->interinter_compound_type == COMPOUND_SEG) {
+#if COMPOUND_SEGMENT_TYPE == 2
+        if (have_newmv_in_inter_mode(mbmi->mode) && mbmi->mode != NEW_NEWMV)
+          mbmi->mask_type = aom_read_literal(r, MAX_SEG_MASK_BITS + 1, ACCT_STR);// +
+            //COLOR_SEG;
+        else
+#endif
         mbmi->mask_type = aom_read_literal(r, MAX_SEG_MASK_BITS, ACCT_STR);
       }
 #endif  // CONFIG_COMPOUND_SEGMENT
