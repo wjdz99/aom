@@ -19,7 +19,7 @@
 #include "aom_ports/mem.h"
 #include "av1/common/blockd.h"
 #include "av1/common/av1_fwd_txfm1d.h"
-#include "av1/common/av1_fwd_txfm2d_cfg.h"
+#include "av1/common/av1_fwd_txfm1d_cfg.h"
 #include "av1/common/idct.h"
 
 static INLINE void range_check(const tran_low_t *input, const int size,
