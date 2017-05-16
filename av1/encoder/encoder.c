@@ -5770,8 +5770,7 @@ int av1_set_internal_size(AV1_COMP *cpi, AOM_SCALING horiz_mode,
   return 0;
 }
 
-int av1_set_size_literal(AV1_COMP *cpi, unsigned int width,
-                         unsigned int height) {
+int av1_set_size_literal(AV1_COMP *cpi, int width, int height) {
   AV1_COMMON *cm = &cpi->common;
 #if CONFIG_HIGHBITDEPTH
   check_initial_width(cpi, cm->use_highbitdepth, 1, 1);
@@ -5779,7 +5778,7 @@ int av1_set_size_literal(AV1_COMP *cpi, unsigned int width,
   check_initial_width(cpi, 1, 1);
 #endif  // CONFIG_HIGHBITDEPTH
 
-  if (width) {
+  if (width > 0) {
     cm->width = width;
     if (cm->width > cpi->initial_width) {
       cm->width = cpi->initial_width;
@@ -5787,7 +5786,7 @@ int av1_set_size_literal(AV1_COMP *cpi, unsigned int width,
     }
   }
 
-  if (height) {
+  if (height > 0) {
     cm->height = height;
     if (cm->height > cpi->initial_height) {
       cm->height = cpi->initial_height;
