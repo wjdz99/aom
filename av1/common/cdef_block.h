@@ -58,8 +58,6 @@ typedef void (*cdef_filter_block_func)(uint8_t *dst8, uint16_t *dst16,
 void copy_cdef_16bit_to_16bit(uint16_t *dst, int dstride, uint16_t *src,
                               cdef_list *dlist, int cdef_count, int bsize);
 
-int get_filter_skip(int level);
-
 void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
                     int xdec, int ydec, int dir[CDEF_NBLOCKS][CDEF_NBLOCKS],
                     int *dirinit, int var[CDEF_NBLOCKS][CDEF_NBLOCKS], int pli,
