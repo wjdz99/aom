@@ -221,9 +221,7 @@ static INLINE int od_adjust_strength(int strength, int32_t var) {
 }
 
 int get_filter_skip(int level) {
-  int filter_skip = level & 1;
-  if (level == 1) filter_skip = 0;
-  return filter_skip;
+  return level & 1;
 }
 
 void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
@@ -241,10 +239,10 @@ void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
   int filter_skip = get_filter_skip(level);
   if (!pri_strength && !sec_strength && filter_skip) {
     pri_strength = 19 << coeff_shift;
-    sec_strength = 8 << coeff_shift;
+    sec_strength = 7 << coeff_shift;
     filter_skip = 0;
   }
-
+  
   sec_damping += coeff_shift - (pli != AOM_PLANE_Y);
   pri_damping += coeff_shift - (pli != AOM_PLANE_Y);
   bsize =
