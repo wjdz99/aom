@@ -504,11 +504,6 @@ post_process_cmdline() {
     soft_enable alt_intra
     soft_enable palette_throughput
 
-    # Workaround features currently incompatible with highbitdepth
-    enabled daala_dist && disable_feature highbitdepth
-    enabled tx64x64 && disable_feature highbitdepth
-    enabled ext_partition && disable_feature highbitdepth
-
     # Fix up experiment dependencies
     enabled pvq && enable_feature ec_adapt
     enabled cfl && enable_feature ec_multisymbol
@@ -534,6 +529,21 @@ post_process_cmdline() {
     if enabled ec_smallmul && ! enabled daala_ec; then
       log_echo "ec_smallmul requires daala_ec, so disabling ec_smallmul"
       disable_feature ec_smallmul
+    fi
+    if enabled daala_dist && enabled highbitdepth ; then
+      log_echo "daala_dist not compatible with highbitdepth, so"
+      log_echo "disabling daala_dist"
+      disable_feature daala_dist
+    fi
+    if enabled tx64x64 && enabled highbitdepth ; then
+      log_echo "tx64x64 not compatible with highbitdepth, so"
+      log_echo "disabling tx64x64"
+      disable_feature tx64x64
+    fi
+    if enabled ext_partition && enabled highbitdepth ; then
+      log_echo "ext_partition not compatible with highbitdepth, so"
+      log_echo "disabling ext_partition"
+      disable_feature ext_partition
     fi
     if enabled ext_tile; then
       log_echo "ext_tile not compatible with reference_buffer, so"
