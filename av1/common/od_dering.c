@@ -105,10 +105,7 @@ int od_dir_find8_c(const uint16_t *img, int stride, int32_t *var,
   }
   /* Difference between the optimal variance and the variance along the
      orthogonal direction. Again, the sum(x^2) terms cancel out. */
-  *var = best_cost - cost[(best_dir + 4) & 7];
-  /* We'd normally divide by 840, but dividing by 1024 is close enough
-     for what we're going to do with this. */
-  *var >>= 10;
+  *var = (best_cost - cost[(best_dir + 4) & 7]) >> 16;
   return best_dir;
 }
 
@@ -183,7 +180,7 @@ void od_filter_dering_direction_4x4_c(uint16_t *y, int ystride,
    contrast edge, or a non-directional texture, so we want to be careful not
    to blur. */
 static INLINE int od_adjust_thresh(int threshold, int32_t var) {
-  const int i = var >> 6 ? AOMMIN(get_msb(var >> 6), 12) : 0;
+  const int i = var ? AOMMIN(get_msb(var), 12) : 0;
   /* We use the variance of 8x8 blocks to adjust the threshold. */
   return var ? (threshold * (4 + i) + 8) >> 4 : 0;
 }
