@@ -302,6 +302,75 @@ const uint8_t *av1_get_compound_type_mask(
 }
 
 #if CONFIG_COMPOUND_SEGMENT
+// Fill a histogram with the pixels in src
+static void hist(const uint8_t *src, int stride, int *histogram,
+                 int block_height, int block_width) {
+  int i, j;
+  for (i = 0; i < block_height; ++i, src += stride) {
+    for (j = 0; j < block_width; ++j) {
+      histogram[src[j]]++;
+    }
+  }
+}
+
+// Pick a split value by examining a histogram to insure that divides at
+// least 1/10th of the pixels,  looking for the one that separates the most
+// pixels and the smallest histogram.
+int pick_split(const int *hist, double *score) {
+  int i;
+  int sum = 0, count = 0, min_split;
+  int max = 0;
+  int first = -1, last = 255;
+  int newsum = 0;
+  int best_split = -1;
+  double best_score = 0;
+  for (i = 0; i < 256; ++i) {
+    if (hist[i] != 0 && first == -1)
+      first = i;
+    if (hist[i] != 0)
+      last = i;
+    max = hist[i] > max ? hist[i] : max;
+    count++;
+    sum += hist[i];
+  }
+  min_split = sum / 10;
+  for (i = first; i < last; ++i) {
+    newsum += hist[i];
+    if (newsum > min_split && sum - newsum > min_split) {
+      double this_score = (newsum < sum - newsum) ? newsum : sum - newsum;
+      this_score *= max - hist[i];
+      if (this_score > best_score) {
+        best_score = this_score;
+        best_split = i;
+      }
+    }
+  }
+  *score = best_score;
+  // best_split is off by 1 since we use < not <=..
+  return best_split + 1;
+}
+
+static void hist_based_mask(uint8_t *mask, int which_inverse,
+                            const uint8_t *src, int src_stride,
+                            BLOCK_SIZE sb_type, int h, int w) {
+  int i, j, m;
+  double score;
+  int block_stride = block_size_wide[sb_type];
+  int histogram[256];
+  memset(histogram, 0, 256 * sizeof(*histogram));
+  hist(src, src_stride, histogram, h, w);
+  int split = pick_split(histogram, &score);
+  for (i = 0; i < h; ++i) {
+    for (j = 0; j < w; ++j) {
+      m =
+          src[i * src_stride + j] < split ? AOM_BLEND_A64_MAX_ALPHA : 0;
+      mask[i * block_stride + j] =
+          which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+    }
+  }
+}
+
+
 #if COMPOUND_SEGMENT_TYPE == 0
 static void uniform_mask(uint8_t *mask, int which_inverse, BLOCK_SIZE sb_type,
                          int h, int w, int mask_val) {
