@@ -1204,7 +1204,7 @@ static void highbd_dr_predictor(uint16_t *dst, ptrdiff_t stride, int bs,
 
 #if CONFIG_FILTER_INTRA
 #if USE_3TAP_INTRA_FILTER
-int av1_filter_intra_taps_3[TX_SIZES][INTRA_MODES][3] = {
+int av1_filter_intra_taps_3[TX_SIZES][FILTER_INTRA_MODES][3] = {
 #if CONFIG_CB4X4
   {
       { 697, 836, -509 },
@@ -1283,7 +1283,7 @@ int av1_filter_intra_taps_3[TX_SIZES][INTRA_MODES][3] = {
 #endif  // CONFIG_TX64X64
 };
 #else
-int av1_filter_intra_taps_4[TX_SIZES][INTRA_MODES][4] = {
+int av1_filter_intra_taps_4[TX_SIZES][FILTER_INTRA_MODES][4] = {
 #if CONFIG_CB4X4
   {
       { 735, 881, -537, -54 },
