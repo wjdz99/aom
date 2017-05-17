@@ -725,15 +725,48 @@ static double compute_score(double *M, double *H, InterpKernel vfilt,
   return Score - iScore;
 }
 
-static void quantize_sym_filter(double *f, InterpKernel fi) {
+static void quantize_sym_filter(double *f, InterpKernel fi, PLANE_TYPE plane) {
   int i;
   for (i = 0; i < WIENER_HALFWIN; ++i) {
     fi[i] = RINT(f[i] * WIENER_FILT_STEP);
   }
   // Specialize for 7-tap filter
-  fi[0] = CLIP(fi[0], WIENER_FILT_TAP0_MINV, WIENER_FILT_TAP0_MAXV);
-  fi[1] = CLIP(fi[1], WIENER_FILT_TAP1_MINV, WIENER_FILT_TAP1_MAXV);
-  fi[2] = CLIP(fi[2], WIENER_FILT_TAP2_MINV, WIENER_FILT_TAP2_MAXV);
+  switch (plane) {
+    case PLANE_TYPE_Y:
+      fi[0] = CLIP(fi[0], WIENER_FILT_TAP0_MINV, WIENER_FILT_TAP0_MAXV);
+      fi[1] = CLIP(fi[1], WIENER_FILT_TAP1_MINV, WIENER_FILT_TAP1_MAXV);
+      fi[2] = CLIP(fi[2], WIENER_FILT_TAP2_MINV, WIENER_FILT_TAP2_MAXV);
+
+      fi[0] = (fi[0] - WIENER_FILT_TAP0_MINV) >> WIENER_FILT_TAP0_STEP_BITS;
+      fi[1] = (fi[1] - WIENER_FILT_TAP1_MINV) >> WIENER_FILT_TAP1_STEP_BITS;
+      fi[2] = (fi[2] - WIENER_FILT_TAP2_MINV) >> WIENER_FILT_TAP2_STEP_BITS;
+
+      fi[0] = (fi[0] << WIENER_FILT_TAP0_STEP_BITS) + WIENER_FILT_TAP0_MINV;
+      fi[1] = (fi[1] << WIENER_FILT_TAP1_STEP_BITS) + WIENER_FILT_TAP1_MINV;
+      fi[2] = (fi[2] << WIENER_FILT_TAP2_STEP_BITS) + WIENER_FILT_TAP2_MINV;
+      break;
+    case PLANE_TYPE_UV:
+      fi[0] = CLIP(fi[0], WIENER_UV_FILT_TAP0_MINV, WIENER_UV_FILT_TAP0_MAXV);
+      fi[1] = CLIP(fi[1], WIENER_UV_FILT_TAP1_MINV, WIENER_UV_FILT_TAP1_MAXV);
+      fi[2] = CLIP(fi[2], WIENER_UV_FILT_TAP2_MINV, WIENER_UV_FILT_TAP2_MAXV);
+
+      fi[0] =
+          (fi[0] - WIENER_UV_FILT_TAP0_MINV) >> WIENER_UV_FILT_TAP0_STEP_BITS;
+      fi[1] =
+          (fi[1] - WIENER_UV_FILT_TAP1_MINV) >> WIENER_UV_FILT_TAP1_STEP_BITS;
+      fi[2] =
+          (fi[2] - WIENER_UV_FILT_TAP2_MINV) >> WIENER_UV_FILT_TAP2_STEP_BITS;
+
+      fi[0] =
+          (fi[0] << WIENER_UV_FILT_TAP0_STEP_BITS) + WIENER_UV_FILT_TAP0_MINV;
+      fi[1] =
+          (fi[1] << WIENER_UV_FILT_TAP1_STEP_BITS) + WIENER_UV_FILT_TAP1_MINV;
+      fi[2] =
+          (fi[2] << WIENER_UV_FILT_TAP2_STEP_BITS) + WIENER_UV_FILT_TAP2_MINV;
+      break;
+    default: assert(0);
+  }
+
   // Satisfy filter constraints
   fi[WIENER_WIN - 1] = fi[0];
   fi[WIENER_WIN - 2] = fi[1];
@@ -743,38 +776,87 @@ static void quantize_sym_filter(double *f, InterpKernel fi) {
 }
 
 static int count_wiener_bits(WienerInfo *wiener_info,
-                             WienerInfo *ref_wiener_info) {
+                             WienerInfo *ref_wiener_info, PLANE_TYPE plane) {
   int bits = 0;
-  bits += aom_count_primitive_refsubexpfin(
-      WIENER_FILT_TAP0_MAXV - WIENER_FILT_TAP0_MINV + 1,
-      WIENER_FILT_TAP0_SUBEXP_K,
-      ref_wiener_info->vfilter[0] - WIENER_FILT_TAP0_MINV,
-      wiener_info->vfilter[0] - WIENER_FILT_TAP0_MINV);
-  bits += aom_count_primitive_refsubexpfin(
-      WIENER_FILT_TAP1_MAXV - WIENER_FILT_TAP1_MINV + 1,
-      WIENER_FILT_TAP1_SUBEXP_K,
-      ref_wiener_info->vfilter[1] - WIENER_FILT_TAP1_MINV,
-      wiener_info->vfilter[1] - WIENER_FILT_TAP1_MINV);
-  bits += aom_count_primitive_refsubexpfin(
-      WIENER_FILT_TAP2_MAXV - WIENER_FILT_TAP2_MINV + 1,
-      WIENER_FILT_TAP2_SUBEXP_K,
-      ref_wiener_info->vfilter[2] - WIENER_FILT_TAP2_MINV,
-      wiener_info->vfilter[2] - WIENER_FILT_TAP2_MINV);
-  bits += aom_count_primitive_refsubexpfin(
-      WIENER_FILT_TAP0_MAXV - WIENER_FILT_TAP0_MINV + 1,
-      WIENER_FILT_TAP0_SUBEXP_K,
-      ref_wiener_info->hfilter[0] - WIENER_FILT_TAP0_MINV,
-      wiener_info->hfilter[0] - WIENER_FILT_TAP0_MINV);
-  bits += aom_count_primitive_refsubexpfin(
-      WIENER_FILT_TAP1_MAXV - WIENER_FILT_TAP1_MINV + 1,
-      WIENER_FILT_TAP1_SUBEXP_K,
-      ref_wiener_info->hfilter[1] - WIENER_FILT_TAP1_MINV,
-      wiener_info->hfilter[1] - WIENER_FILT_TAP1_MINV);
-  bits += aom_count_primitive_refsubexpfin(
-      WIENER_FILT_TAP2_MAXV - WIENER_FILT_TAP2_MINV + 1,
-      WIENER_FILT_TAP2_SUBEXP_K,
-      ref_wiener_info->hfilter[2] - WIENER_FILT_TAP2_MINV,
-      wiener_info->hfilter[2] - WIENER_FILT_TAP2_MINV);
+  switch (plane) {
+    case PLANE_TYPE_Y:
+      bits += aom_count_primitive_refsubexpfin(
+          WIENER_FILT_TAP0_BITS, WIENER_FILT_TAP0_SUBEXP_K,
+          (ref_wiener_info->vfilter[0] - WIENER_FILT_TAP0_MINV) >>
+              WIENER_FILT_TAP0_STEP_BITS,
+          (wiener_info->vfilter[0] - WIENER_FILT_TAP0_MINV) >>
+              WIENER_FILT_TAP0_STEP_BITS);
+      bits += aom_count_primitive_refsubexpfin(
+          WIENER_FILT_TAP1_BITS, WIENER_FILT_TAP1_SUBEXP_K,
+          (ref_wiener_info->vfilter[1] - WIENER_FILT_TAP1_MINV) >>
+              WIENER_FILT_TAP1_STEP_BITS,
+          (wiener_info->vfilter[1] - WIENER_FILT_TAP1_MINV) >>
+              WIENER_FILT_TAP1_STEP_BITS);
+      bits += aom_count_primitive_refsubexpfin(
+          WIENER_FILT_TAP2_BITS, WIENER_FILT_TAP2_SUBEXP_K,
+          (ref_wiener_info->vfilter[2] - WIENER_FILT_TAP2_MINV) >>
+              WIENER_FILT_TAP2_STEP_BITS,
+          (wiener_info->vfilter[2] - WIENER_FILT_TAP2_MINV) >>
+              WIENER_FILT_TAP2_STEP_BITS);
+      bits += aom_count_primitive_refsubexpfin(
+          WIENER_FILT_TAP0_BITS, WIENER_FILT_TAP0_SUBEXP_K,
+          (ref_wiener_info->hfilter[0] - WIENER_FILT_TAP0_MINV) >>
+              WIENER_FILT_TAP0_STEP_BITS,
+          (wiener_info->hfilter[0] - WIENER_FILT_TAP0_MINV) >>
+              WIENER_FILT_TAP0_STEP_BITS);
+      bits += aom_count_primitive_refsubexpfin(
+          WIENER_FILT_TAP1_BITS, WIENER_FILT_TAP1_SUBEXP_K,
+          (ref_wiener_info->hfilter[1] - WIENER_FILT_TAP1_MINV) >>
+              WIENER_FILT_TAP1_STEP_BITS,
+          (wiener_info->hfilter[1] - WIENER_FILT_TAP1_MINV) >>
+              WIENER_FILT_TAP1_STEP_BITS);
+      bits += aom_count_primitive_refsubexpfin(
+          WIENER_FILT_TAP2_BITS, WIENER_FILT_TAP2_SUBEXP_K,
+          (ref_wiener_info->hfilter[2] - WIENER_FILT_TAP2_MINV) >>
+              WIENER_FILT_TAP2_STEP_BITS,
+          (wiener_info->hfilter[2] - WIENER_FILT_TAP2_MINV) >>
+              WIENER_FILT_TAP2_STEP_BITS);
+      break;
+    case PLANE_TYPE_UV:
+      bits += aom_count_primitive_refsubexpfin(
+          WIENER_UV_FILT_TAP0_BITS, WIENER_UV_FILT_TAP0_SUBEXP_K,
+          (ref_wiener_info->vfilter[0] - WIENER_UV_FILT_TAP0_MINV) >>
+              WIENER_UV_FILT_TAP0_STEP_BITS,
+          (wiener_info->vfilter[0] - WIENER_UV_FILT_TAP0_MINV) >>
+              WIENER_UV_FILT_TAP0_STEP_BITS);
+      bits += aom_count_primitive_refsubexpfin(
+          WIENER_UV_FILT_TAP1_BITS, WIENER_UV_FILT_TAP1_SUBEXP_K,
+          (ref_wiener_info->vfilter[1] - WIENER_UV_FILT_TAP1_MINV) >>
+              WIENER_UV_FILT_TAP1_STEP_BITS,
+          (wiener_info->vfilter[1] - WIENER_UV_FILT_TAP1_MINV) >>
+              WIENER_UV_FILT_TAP1_STEP_BITS);
+      bits += aom_count_primitive_refsubexpfin(
+          WIENER_UV_FILT_TAP2_BITS, WIENER_UV_FILT_TAP2_SUBEXP_K,
+          (ref_wiener_info->vfilter[2] - WIENER_UV_FILT_TAP2_MINV) >>
+              WIENER_UV_FILT_TAP2_STEP_BITS,
+          (wiener_info->vfilter[2] - WIENER_UV_FILT_TAP2_MINV) >>
+              WIENER_UV_FILT_TAP2_STEP_BITS);
+      bits += aom_count_primitive_refsubexpfin(
+          WIENER_UV_FILT_TAP0_BITS, WIENER_UV_FILT_TAP0_SUBEXP_K,
+          (ref_wiener_info->hfilter[0] - WIENER_UV_FILT_TAP0_MINV) >>
+              WIENER_UV_FILT_TAP0_STEP_BITS,
+          (wiener_info->hfilter[0] - WIENER_UV_FILT_TAP0_MINV) >>
+              WIENER_UV_FILT_TAP0_STEP_BITS);
+      bits += aom_count_primitive_refsubexpfin(
+          WIENER_UV_FILT_TAP1_BITS, WIENER_UV_FILT_TAP1_SUBEXP_K,
+          (ref_wiener_info->hfilter[1] - WIENER_UV_FILT_TAP1_MINV) >>
+              WIENER_UV_FILT_TAP1_STEP_BITS,
+          (wiener_info->hfilter[1] - WIENER_UV_FILT_TAP1_MINV) >>
+              WIENER_UV_FILT_TAP1_STEP_BITS);
+      bits += aom_count_primitive_refsubexpfin(
+          WIENER_UV_FILT_TAP2_BITS, WIENER_UV_FILT_TAP2_SUBEXP_K,
+          (ref_wiener_info->hfilter[2] - WIENER_UV_FILT_TAP2_MINV) >>
+              WIENER_UV_FILT_TAP2_STEP_BITS,
+          (wiener_info->hfilter[2] - WIENER_UV_FILT_TAP2_MINV) >>
+              WIENER_UV_FILT_TAP2_STEP_BITS);
+      break;
+    default: assert(0);
+  }
   return bits;
 }
 
@@ -784,18 +866,42 @@ static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
                                         int start_step, int plane, int tile_idx,
                                         int partial_frame,
                                         YV12_BUFFER_CONFIG *dst_frame) {
+  (void)start_step;
   int64_t err = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
                                      tile_idx, 0, 0, dst_frame);
 #if USE_WIENER_REFINEMENT_SEARCH
   int64_t err2;
-  int tap_min[] = { WIENER_FILT_TAP0_MINV, WIENER_FILT_TAP1_MINV,
-                    WIENER_FILT_TAP2_MINV };
-  int tap_max[] = { WIENER_FILT_TAP0_MAXV, WIENER_FILT_TAP1_MAXV,
-                    WIENER_FILT_TAP2_MAXV };
+  int ytap_step[] = { 1 << WIENER_FILT_TAP0_STEP_BITS,
+                      1 << WIENER_FILT_TAP1_STEP_BITS,
+                      1 << WIENER_FILT_TAP2_STEP_BITS };
+  int ytap_min[] = { WIENER_FILT_TAP0_MINV, WIENER_FILT_TAP1_MINV,
+                     WIENER_FILT_TAP2_MINV };
+  int ytap_max[] = { WIENER_FILT_TAP0_MAXV, WIENER_FILT_TAP1_MAXV,
+                     WIENER_FILT_TAP2_MAXV };
+  int ctap_step[] = { 1 << WIENER_UV_FILT_TAP0_STEP_BITS,
+                      1 << WIENER_UV_FILT_TAP1_STEP_BITS,
+                      1 << WIENER_UV_FILT_TAP2_STEP_BITS };
+  int ctap_min[] = { WIENER_UV_FILT_TAP0_MINV, WIENER_UV_FILT_TAP1_MINV,
+                     WIENER_UV_FILT_TAP2_MINV };
+  int ctap_max[] = { WIENER_UV_FILT_TAP0_MAXV, WIENER_UV_FILT_TAP1_MAXV,
+                     WIENER_UV_FILT_TAP2_MAXV };
+  int *tap_step;
+  int *tap_min;
+  int *tap_max;
+  if (plane == 0) {
+    tap_step = ytap_step;
+    tap_min = ytap_min;
+    tap_max = ytap_max;
+  } else {
+    tap_step = ctap_step;
+    tap_min = ctap_min;
+    tap_max = ctap_max;
+  }
   // printf("err  pre = %"PRId64"\n", err);
   for (int s = start_step; s >= 1; s >>= 1) {
     for (int p = 0; p < WIENER_HALFWIN; ++p) {
       int skip = 0;
+      if (s < tap_step[p]) continue;
       do {
         if (rsi[plane].wiener_info[tile_idx].hfilter[p] - s >= tap_min[p]) {
           rsi[plane].wiener_info[tile_idx].hfilter[p] -= s;
@@ -839,6 +945,7 @@ static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
     }
     for (int p = 0; p < WIENER_HALFWIN; ++p) {
       int skip = 0;
+      if (s < tap_step[p]) continue;
       do {
         if (rsi[plane].wiener_info[tile_idx].vfilter[p] - s >= tap_min[p]) {
           rsi[plane].wiener_info[tile_idx].vfilter[p] -= s;
@@ -982,8 +1089,10 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
       type[tile_idx] = RESTORE_NONE;
       continue;
     }
-    quantize_sym_filter(vfilterd, rsi[plane].wiener_info[tile_idx].vfilter);
-    quantize_sym_filter(hfilterd, rsi[plane].wiener_info[tile_idx].hfilter);
+    quantize_sym_filter(vfilterd, rsi[plane].wiener_info[tile_idx].vfilter,
+                        PLANE_TYPE_UV);
+    quantize_sym_filter(hfilterd, rsi[plane].wiener_info[tile_idx].hfilter,
+                        PLANE_TYPE_UV);
 
     // Filter score computes the value of the function x'*A*x - x'*b for the
     // learned filter and compares it against identity filer. If there is no
@@ -999,10 +1108,9 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     rsi[plane].restoration_type[tile_idx] = RESTORE_WIENER;
     err = finer_tile_search_wiener(src, cpi, rsi, 4, plane, tile_idx,
                                    partial_frame, dst_frame);
-    bits =
-        count_wiener_bits(&rsi[plane].wiener_info[tile_idx], &ref_wiener_info)
-        << AV1_PROB_COST_SHIFT;
-    // bits = WIENER_FILT_BITS << AV1_PROB_COST_SHIFT;
+    bits = count_wiener_bits(&rsi[plane].wiener_info[tile_idx],
+                             &ref_wiener_info, PLANE_TYPE_UV)
+           << AV1_PROB_COST_SHIFT;
     bits += av1_cost_bit(RESTORE_NONE_WIENER_PROB, 1);
     cost_wiener = RDCOST_DBL(x->rdmult, x->rddiv, (bits >> 4), err);
     if (cost_wiener >= cost_norestore) {
@@ -1025,9 +1133,9 @@ static double search_wiener_uv(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     memcpy(&rsi[plane].wiener_info[tile_idx], &wiener_info[tile_idx],
            sizeof(wiener_info[tile_idx]));
     if (type[tile_idx] == RESTORE_WIENER) {
-      bits +=
-          count_wiener_bits(&rsi[plane].wiener_info[tile_idx], &ref_wiener_info)
-          << AV1_PROB_COST_SHIFT;
+      bits += count_wiener_bits(&rsi[plane].wiener_info[tile_idx],
+                                &ref_wiener_info, PLANE_TYPE_UV)
+              << AV1_PROB_COST_SHIFT;
       memcpy(&ref_wiener_info, &rsi[plane].wiener_info[tile_idx],
              sizeof(ref_wiener_info));
     }
@@ -1125,8 +1233,10 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
       type[tile_idx] = RESTORE_NONE;
       continue;
     }
-    quantize_sym_filter(vfilterd, rsi->wiener_info[tile_idx].vfilter);
-    quantize_sym_filter(hfilterd, rsi->wiener_info[tile_idx].hfilter);
+    quantize_sym_filter(vfilterd, rsi->wiener_info[tile_idx].vfilter,
+                        PLANE_TYPE_Y);
+    quantize_sym_filter(hfilterd, rsi->wiener_info[tile_idx].hfilter,
+                        PLANE_TYPE_Y);
 
     // Filter score computes the value of the function x'*A*x - x'*b for the
     // learned filter and compares it against identity filer. If there is no
@@ -1142,7 +1252,8 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     rsi->restoration_type[tile_idx] = RESTORE_WIENER;
     err = finer_tile_search_wiener(src, cpi, rsi, 4, 0, tile_idx, partial_frame,
                                    dst_frame);
-    bits = count_wiener_bits(&rsi->wiener_info[tile_idx], &ref_wiener_info)
+    bits = count_wiener_bits(&rsi->wiener_info[tile_idx], &ref_wiener_info,
+                             PLANE_TYPE_Y)
            << AV1_PROB_COST_SHIFT;
     bits += av1_cost_bit(RESTORE_NONE_WIENER_PROB, 1);
     cost_wiener = RDCOST_DBL(x->rdmult, x->rddiv, (bits >> 4), err);
@@ -1154,7 +1265,8 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
              sizeof(wiener_info[tile_idx]));
       memcpy(&ref_wiener_info, &rsi->wiener_info[tile_idx],
              sizeof(ref_wiener_info));
-      bits = count_wiener_bits(&wiener_info[tile_idx], &ref_wiener_info)
+      bits = count_wiener_bits(&wiener_info[tile_idx], &ref_wiener_info,
+                               PLANE_TYPE_Y)
              << AV1_PROB_COST_SHIFT;
       best_tile_cost[tile_idx] = err;
     }
@@ -1170,7 +1282,8 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     memcpy(&rsi->wiener_info[tile_idx], &wiener_info[tile_idx],
            sizeof(wiener_info[tile_idx]));
     if (type[tile_idx] == RESTORE_WIENER) {
-      bits += count_wiener_bits(&rsi->wiener_info[tile_idx], &ref_wiener_info)
+      bits += count_wiener_bits(&rsi->wiener_info[tile_idx], &ref_wiener_info,
+                                PLANE_TYPE_Y)
               << AV1_PROB_COST_SHIFT;
       memcpy(&ref_wiener_info, &rsi->wiener_info[tile_idx],
              sizeof(ref_wiener_info));
@@ -1248,8 +1361,8 @@ static double search_switchable_restoration(
         if (r != force_restore_type) continue;
       int tilebits = 0;
       if (r == RESTORE_WIENER)
-        tilebits +=
-            count_wiener_bits(&rsi->wiener_info[tile_idx], &ref_wiener_info);
+        tilebits += count_wiener_bits(&rsi->wiener_info[tile_idx],
+                                      &ref_wiener_info, PLANE_TYPE_Y);
       else if (r == RESTORE_SGRPROJ)
         tilebits +=
             count_sgrproj_bits(&rsi->sgrproj_info[tile_idx], &ref_sgrproj_info);
