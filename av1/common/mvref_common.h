@@ -236,10 +236,39 @@ static INLINE int av1_nmv_ctx(const uint8_t ref_mv_count,
   return 0;
 }
 
+#if CONFIG_EXT_COMP_REFS
+static INLINE int8_t av1_uni_comp_ref_idx(const MV_REFERENCE_FRAME *const rf) {
+  // Single ref pred
+  if (rf[1] <= INTRA_FRAME) return -1;
+
+  // Bi-directional comp ref pred
+  if ((rf[0] < BWDREF_FRAME) && (rf[1] >= BWDREF_FRAME)) return -1;
+
+  UNIDIR_COMP_REF ref_idx;
+  for (ref_idx = (UNIDIR_COMP_REF)0; ref_idx < UNIDIR_COMP_REFS; ++ref_idx) {
+    if (rf[0] == comp_ref0(ref_idx) && rf[1] == comp_ref1(ref_idx))
+      return (int8_t)ref_idx;
+  }
+  return -1;
+}
+#endif  // CONFIG_EXT_COMP_REFS
+
 static INLINE int8_t av1_ref_frame_type(const MV_REFERENCE_FRAME *const rf) {
   if (rf[1] > INTRA_FRAME) {
+#if CONFIG_EXT_COMP_REFS
+    int8_t ref_frame_type = TOTAL_REFS_PER_FRAME + FWD_RF_OFFSET(rf[0]) +
+        BWD_RF_OFFSET(rf[1]) * FWD_REFS;
+    int8_t uni_comp_ref_idx = av1_uni_comp_ref_idx(rf);
+    if (uni_comp_ref_idx < 0) {
+      return ref_frame_type;
+    } else {
+      assert((ref_frame_type + uni_comp_ref_idx) < MODE_CTX_REF_FRAMES);
+      return ref_frame_type + uni_comp_ref_idx;
+    }
+#else
     return TOTAL_REFS_PER_FRAME + FWD_RF_OFFSET(rf[0]) +
            BWD_RF_OFFSET(rf[1]) * FWD_REFS;
+#endif  // CONFIG_EXT_COMP_REFS
   }
 
   return rf[0];
@@ -253,9 +282,13 @@ static MV_REFERENCE_FRAME ref_frame_map[COMP_REFS][2] = {
 
   { LAST_FRAME, ALTREF_FRAME },  { LAST2_FRAME, ALTREF_FRAME },
   { LAST3_FRAME, ALTREF_FRAME }, { GOLDEN_FRAME, ALTREF_FRAME }
-#else
+
+#if CONFIG_EXT_COMP_REFS
+  ,{ LAST_FRAME, GOLDEN_FRAME },  { BWDREF_FRAME, ALTREF_FRAME }
+#endif  // CONFIG_EXT_COMP_REFS
+#else  // !CONFIG_EXT_REFS
   { LAST_FRAME, ALTREF_FRAME }, { GOLDEN_FRAME, ALTREF_FRAME }
-#endif
+#endif  // CONFIG_EXT_REFS
 };
 // clang-format on
 
