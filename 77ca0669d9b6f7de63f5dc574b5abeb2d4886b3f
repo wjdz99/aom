@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "f24f9c4b_d119e8cc",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5781,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-05-17T22:55:46Z",
+      "side": 1,
+      "message": "Ok, that makes sense.",
+      "parentUuid": "063d346f_c2e4c1d8",
+      "revId": "77ca0669d9b6f7de63f5dc574b5abeb2d4886b3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7fc7e27d_ef6270d2",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 1
@@ -99,6 +117,30 @@
       "revId": "77ca0669d9b6f7de63f5dc574b5abeb2d4886b3f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29257524_f1c87131",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5797,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-05-17T22:55:46Z",
+      "side": 1,
+      "message": "And I guess it only affects debug builds. Fair enough.",
+      "parentUuid": "92733a9d_297abd1a",
+      "range": {
+        "startLine": 5796,
+        "startChar": 0,
+        "endLine": 5797,
+        "endChar": 44
+      },
+      "revId": "77ca0669d9b6f7de63f5dc574b5abeb2d4886b3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
