@@ -474,6 +474,14 @@ static INLINE int has_second_ref(const MB_MODE_INFO *mbmi) {
   return mbmi->ref_frame[1] > INTRA_FRAME;
 }
 
+#if CONFIG_EXT_COMP_REFS
+static INLINE int has_uni_comp_refs(const MB_MODE_INFO *mbmi) {
+  return has_second_ref(mbmi) &&
+      (!((mbmi->ref_frame[0] >= BWDREF_FRAME) ^
+         (mbmi->ref_frame[1] >= BWDREF_FRAME)));
+}
+#endif  // CONFIG_EXT_COMP_REFS
+
 PREDICTION_MODE av1_left_block_mode(const MODE_INFO *cur_mi,
                                     const MODE_INFO *left_mi, int b);
 

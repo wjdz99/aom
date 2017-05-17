@@ -308,6 +308,187 @@ int av1_get_reference_mode_context(const AV1_COMMON *cm,
   return ctx;
 }
 
+#if CONFIG_EXT_COMP_REFS
+#define CHECK_BWDREF_OR_ALTREF(ref_frame) \
+      ((ref_frame) == BWDREF_FRAME || (ref_frame) == ALTREF_FRAME)
+int av1_get_comp_reference_type_context(const AV1_COMMON *cm,
+                                        const MACROBLOCKD *xd) {
+  int pred_context;
+  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+  const int above_in_image = xd->up_available;
+  const int left_in_image = xd->left_available;
+
+  (void)cm;
+
+  if (above_in_image && left_in_image) {  // both edges available
+    const int above_intra = !is_inter_block(above_mbmi);
+    const int left_intra = !is_inter_block(left_mbmi);
+
+    if (above_intra && left_intra) {  // intra/intra
+      pred_context = 2;
+    } else if (above_intra || left_intra) {  // intra/inter
+      const MB_MODE_INFO *inter_mbmi = above_intra ? left_mbmi : above_mbmi;
+
+      if (!has_second_ref(inter_mbmi))  // single pred
+        pred_context = 2;
+      else  // comp pred
+        pred_context = 1 + 2 * has_uni_comp_refs(inter_mbmi);
+    } else {  // inter/inter
+      const int a_sg = !has_second_ref(above_mbmi);
+      const int l_sg = !has_second_ref(left_mbmi);
+      const MV_REFERENCE_FRAME frfa = above_mbmi->ref_frame[0];
+      const MV_REFERENCE_FRAME frfl = left_mbmi->ref_frame[0];
+
+      if (a_sg && l_sg) {  // single/single
+        pred_context = 1 + 2 *
+            (!(CHECK_BWDREF_OR_ALTREF(frfa) ^ CHECK_BWDREF_OR_ALTREF(frfl)));
+      } else if (l_sg || a_sg) {  // single/comp
+        const int uni_rfc =
+            a_sg ? has_uni_comp_refs(left_mbmi) : has_uni_comp_refs(above_mbmi);
+
+        if (!uni_rfc)  // comp bidir
+          pred_context = 1;
+        else  // comp unidir
+          pred_context = 3 +
+            (!(CHECK_BWDREF_OR_ALTREF(frfa) ^ CHECK_BWDREF_OR_ALTREF(frfl)));
+      } else {  // comp/comp
+        const int a_uni_rfc = has_uni_comp_refs(above_mbmi);
+        const int l_uni_rfc = has_uni_comp_refs(left_mbmi);
+
+        if (!a_uni_rfc && !l_uni_rfc)  // bidir/bidir
+          pred_context = 0;
+        else if (!a_uni_rfc || !l_uni_rfc)  // unidir/bidir
+          pred_context = 2;
+        else  // unidir/unidir
+          pred_context =
+              2 + 2 * (!((frfa == BWDREF_FRAME) ^ (frfl == BWDREF_FRAME)));
+      }
+    }
+  } else if (above_in_image || left_in_image) {  // one edge available
+    const MB_MODE_INFO *edge_mbmi = above_in_image ? above_mbmi : left_mbmi;
+
+    if (!is_inter_block(edge_mbmi)) {  // intra
+      pred_context = 2;
+    } else {  // inter
+      if (!has_second_ref(edge_mbmi))  // single pred
+        pred_context = 2;
+      else  // comp pred
+        pred_context = 4 * has_uni_comp_refs(edge_mbmi);
+    }
+  } else {  // no edges available
+    pred_context = 2;
+  }
+
+  assert(pred_context >= 0 && pred_context < COMP_REF_TYPE_CONTEXTS);
+  return pred_context;
+}
+
+// Returns a context number for the given MB prediction signal
+// Signal the uni-directional compound reference frame pair as
+// either (BWDREF, ALTREF), or (LAST, GOLDEN), conditioning on
+// the pair is known as uni-directional.
+#define CHECK_LAST_OR_GOLDEN(ref_frame) \
+      ((ref_frame) == LAST_FRAME || (ref_frame) == GOLDEN_FRAME)
+int av1_get_pred_context_uni_comp_ref(const AV1_COMMON *cm,
+                                      const MACROBLOCKD *xd) {
+  int pred_context;
+  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+  const int above_in_image = xd->up_available;
+  const int left_in_image = xd->left_available;
+
+  (void)cm;
+
+  if (above_in_image && left_in_image) {  // both edges available
+    const int above_intra = !is_inter_block(above_mbmi);
+    const int left_intra = !is_inter_block(left_mbmi);
+
+    if (above_intra && left_intra) {  // intra/intra
+      pred_context = 2;
+    } else if (above_intra || left_intra) {  // intra/inter
+      const MB_MODE_INFO *inter_mbmi = above_intra ? left_mbmi : above_mbmi;
+
+      if (!has_second_ref(inter_mbmi)) {  // single pred
+        if (CHECK_LAST_OR_GOLDEN(inter_mbmi->ref_frame[0]))
+          pred_context = 4;
+        else
+          pred_context =
+              1 + 2 * (!CHECK_BWDREF_OR_ALTREF(inter_mbmi->ref_frame[0]));
+      } else {  // comp pred
+        if (has_uni_comp_refs(inter_mbmi))  // comp unidir
+          pred_context = 4 * (inter_mbmi->ref_frame[0] != BWDREF_FRAME);
+        else  // comp_bidir
+          pred_context = 2;
+      }
+    } else {  // inter/inter
+      const int a_sg = !has_second_ref(above_mbmi);
+      const int l_sg = !has_second_ref(left_mbmi);
+      const MV_REFERENCE_FRAME frfa = above_mbmi->ref_frame[0];
+      const MV_REFERENCE_FRAME frfl = left_mbmi->ref_frame[0];
+
+      if (CHECK_BWDREF_OR_ALTREF(frfa) && CHECK_BWDREF_OR_ALTREF(frfl)) {
+        pred_context = 0;
+      } else if (a_sg && l_sg) {  // single/single
+        if (CHECK_LAST_OR_GOLDEN(frfa) && CHECK_LAST_OR_GOLDEN(frfl))
+          pred_context = 4;
+        else
+          pred_context = 2 +
+              (!CHECK_BWDREF_OR_ALTREF(frfa) && !CHECK_BWDREF_OR_ALTREF(frfl));
+      } else if (l_sg || a_sg) {  // single/comp
+        const MV_REFERENCE_FRAME frfc = a_sg ? frfl : frfa;
+        const MV_REFERENCE_FRAME rfs = a_sg ? frfa : frfl;
+        const int uni_rfc =
+            a_sg ? has_uni_comp_refs(left_mbmi) : has_uni_comp_refs(above_mbmi);
+
+        if (uni_rfc && (frfc == BWDREF_FRAME))
+          pred_context = 1;
+        else if (uni_rfc && (frfc == LAST_FRAME))
+          pred_context = 3 + (!CHECK_BWDREF_OR_ALTREF(rfs));
+        else if (CHECK_BWDREF_OR_ALTREF(rfs))
+          pred_context = 2;
+        else
+          pred_context = 3 + CHECK_LAST_OR_GOLDEN(rfs);
+      } else {  // comp/comp
+        const int a_uni_rfc = has_uni_comp_refs(above_mbmi);
+        const int l_uni_rfc = has_uni_comp_refs(left_mbmi);
+
+        if (a_uni_rfc && l_uni_rfc)
+          pred_context = 2 + 2 * (frfa != BWDREF_FRAME && frfl != BWDREF_FRAME);
+        else if (a_uni_rfc || l_uni_rfc)
+          pred_context = 1 + 2 * (frfa != BWDREF_FRAME && frfl != BWDREF_FRAME);
+        else
+          pred_context = 2;
+      }
+    }
+  } else if (above_in_image || left_in_image) {  // one edge available
+    const MB_MODE_INFO *edge_mbmi = above_in_image ? above_mbmi : left_mbmi;
+
+    if (!is_inter_block(edge_mbmi)) {  // intra
+      pred_context = 2;
+    } else {  // inter
+      if (!has_second_ref(edge_mbmi)) {  // single pred
+        if (CHECK_LAST_OR_GOLDEN(edge_mbmi->ref_frame[0]))
+          pred_context = 4;
+        else
+          pred_context =
+              1 + 2 * (!CHECK_BWDREF_OR_ALTREF(edge_mbmi->ref_frame[0]));
+      } else {  // comp pred
+        if (has_uni_comp_refs(edge_mbmi))  // comp unidir
+          pred_context = 4 * (edge_mbmi->ref_frame[0] != BWDREF_FRAME);
+        else  // comp bidir
+          pred_context = 2;
+      }
+    }
+  } else {  // no edges available
+    pred_context = 2;
+  }
+
+  assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
+  return pred_context;
+}
+#endif  // CONFIG_EXT_COMP_REFS
+
 #if CONFIG_EXT_REFS
 
 // TODO(zoeliu): Future work will be conducted to optimize the context design
