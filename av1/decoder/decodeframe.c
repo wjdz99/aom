@@ -92,7 +92,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
                                        struct aom_read_bit_buffer *rb);
 
 static int is_compound_reference_allowed(const AV1_COMMON *cm) {
-#if CONFIG_LOWDELAY_COMPOUND  // Normative in decoder
+#if CONFIG_LOWDELAY_COMPOUND || CONFIG_EXT_COMP_REFS  // Normative in decoder
   return !frame_is_intra_only(cm);
 #else
   int i;
@@ -101,7 +101,7 @@ static int is_compound_reference_allowed(const AV1_COMMON *cm) {
     if (cm->ref_frame_sign_bias[i + 1] != cm->ref_frame_sign_bias[1]) return 1;
 
   return 0;
-#endif
+#endif  // CONFIG_LOWDELAY_COMPOUND || CONFIG_EXT_COMP_REFS
 }
 
 static void setup_compound_reference_mode(AV1_COMMON *cm) {
@@ -267,6 +267,14 @@ static void read_frame_reference_mode_probs(AV1_COMMON *cm, aom_reader *r) {
   }
 
   if (cm->reference_mode != SINGLE_REFERENCE) {
+#if CONFIG_EXT_COMP_REFS
+    for (i = 0; i < COMP_REF_TYPE_CONTEXTS; ++i)
+      av1_diff_update_prob(r, &fc->comp_ref_type_prob[i], ACCT_STR);
+
+    for (i = 0; i < UNI_COMP_REF_CONTEXTS; ++i)
+      av1_diff_update_prob(r, &fc->uni_comp_ref_prob[i], ACCT_STR);
+#endif  // CONFIG_EXT_COMP_REFS
+
     for (i = 0; i < REF_CONTEXTS; ++i) {
 #if CONFIG_EXT_REFS
       for (j = 0; j < (FWD_REFS - 1); ++j)
@@ -4279,6 +4287,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
       }
 #endif  // CONFIG_EXT_REFS
 
+#if 0
+      printf("\n===DECODER===: Frame=%d, show_frame=%d\n",
+             cm->current_video_frame, cm->show_frame);
+#endif  // 0
       for (i = 0; i < INTER_REFS_PER_FRAME; ++i) {
         const int ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
         const int idx = cm->ref_frame_map[ref];
@@ -4286,6 +4298,11 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
         ref_frame->idx = idx;
         ref_frame->buf = &frame_bufs[idx].buf;
         cm->ref_frame_sign_bias[LAST_FRAME + i] = aom_rb_read_bit(rb);
+#if 0
+        // NOTE(zoeliu): For debug
+        printf("DECODER: map_idx[%d]=%d, buf_idx=ref_frame_map[%d]=%d\n",
+               LAST_FRAME+i, ref, LAST_FRAME+i, idx);
+#endif  // 0
 #if CONFIG_REFERENCE_BUFFER
         if (pbi->seq_params.frame_id_numbers_present_flag) {
           int frame_id_length = pbi->seq_params.frame_id_length_minus7 + 7;
@@ -4915,6 +4932,12 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
                  sizeof(cm->counts.intra_inter)));
   assert(!memcmp(cm->counts.comp_inter, zero_counts.comp_inter,
                  sizeof(cm->counts.comp_inter)));
+#if CONFIG_EXT_COMP_REFS
+  assert(!memcmp(cm->counts.comp_ref_type, zero_counts.comp_ref_type,
+                 sizeof(cm->counts.comp_ref_type)));
+  assert(!memcmp(cm->counts.uni_comp_ref, zero_counts.uni_comp_ref,
+                 sizeof(cm->counts.uni_comp_ref)));
+#endif  // CONFIG_EXT_COMP_REFS
   assert(!memcmp(cm->counts.single_ref, zero_counts.single_ref,
                  sizeof(cm->counts.single_ref)));
   assert(!memcmp(cm->counts.comp_ref, zero_counts.comp_ref,
