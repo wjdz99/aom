@@ -102,6 +102,25 @@ static INLINE aom_prob av1_get_reference_mode_prob(const AV1_COMMON *cm,
   return cm->fc->comp_inter_prob[av1_get_reference_mode_context(cm, xd)];
 }
 
+#if CONFIG_EXT_COMP_REFS
+int av1_get_comp_reference_type_context(const AV1_COMMON *cm,
+                                        const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_comp_reference_type_prob(const AV1_COMMON *cm,
+                                                        const MACROBLOCKD *xd) {
+  return cm->fc->comp_ref_type_prob[av1_get_comp_reference_type_context(cm, xd)];
+}
+
+int av1_get_pred_context_uni_comp_ref(const AV1_COMMON *cm,
+                                      const MACROBLOCKD *xd);
+
+static INLINE aom_prob av1_get_pred_prob_uni_comp_ref(const AV1_COMMON *cm,
+                                                        const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_uni_comp_ref(cm, xd);
+  return cm->fc->uni_comp_ref_prob[pred_context];
+}
+#endif  // CONFIG_EXT_COMP_REFS
+
 int av1_get_pred_context_comp_ref_p(const AV1_COMMON *cm,
                                     const MACROBLOCKD *xd);
 

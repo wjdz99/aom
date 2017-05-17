@@ -1229,6 +1229,19 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
 
     if (is_compound) {
+#if CONFIG_EXT_COMP_REFS
+      const COMP_REFERENCE_TYPE comp_ref_type = has_uni_comp_refs(mbmi)
+          ? UNIDIR_COMP_REFERENCE : BIDIR_COMP_REFERENCE;
+      aom_write(w, comp_ref_type, av1_get_comp_reference_type_prob(cm, xd));
+
+      if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
+        const int bit = mbmi->ref_frame[0] == BWDREF_FRAME;
+        aom_write(w, bit, av1_get_pred_prob_uni_comp_ref(cm, xd));
+
+        return;
+      }
+#endif  // CONFIG_EXT_COMP_REFS
+
 #if CONFIG_EXT_REFS
       const int bit = (mbmi->ref_frame[0] == GOLDEN_FRAME ||
                        mbmi->ref_frame[0] == LAST3_FRAME);
@@ -4868,6 +4881,16 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
       }
     }
     if (cm->reference_mode != SINGLE_REFERENCE) {
+#if CONFIG_EXT_COMP_REFS
+      for (i = 0; i < COMP_REF_TYPE_CONTEXTS; i++)
+        av1_cond_prob_diff_update(header_bc, &fc->comp_ref_type_prob[i],
+                                  counts->comp_ref_type[i], probwt);
+
+      for (i = 0; i < UNI_COMP_REF_CONTEXTS; i++)
+        av1_cond_prob_diff_update(header_bc, &fc->uni_comp_ref_prob[i],
+                                  counts->uni_comp_ref[i], probwt);
+#endif  // CONFIG_EXT_COMP_REFS
+
       for (i = 0; i < REF_CONTEXTS; i++) {
 #if CONFIG_EXT_REFS
         for (j = 0; j < (FWD_REFS - 1); j++) {
