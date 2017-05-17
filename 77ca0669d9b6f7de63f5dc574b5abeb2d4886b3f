@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "063d346f_c2e4c1d8",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5781,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T22:44:38Z",
+      "side": 1,
+      "message": "This looks OK.\nassert() is only to check for programming errors. The input to the API (any function part of .h) could be passed invalid and should be checked with an if.",
+      "parentUuid": "1a98ece4_888c12f2",
+      "revId": "77ca0669d9b6f7de63f5dc574b5abeb2d4886b3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7fc7e27d_ef6270d2",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 1
@@ -48,6 +66,30 @@
       "writtenOn": "2017-05-17T22:34:47Z",
       "side": 1,
       "message": "Aren\u0027t these redundant since the code above won\u0027t set cm-\u003ewidth or cm-\u003eheight to larger than the initial width or height anyways? I think these asserts could only be triggered if the width and height were changed elsewhere, and I\u0027d expect bad behavior if they were.",
+      "range": {
+        "startLine": 5796,
+        "startChar": 0,
+        "endLine": 5797,
+        "endChar": 44
+      },
+      "revId": "77ca0669d9b6f7de63f5dc574b5abeb2d4886b3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92733a9d_297abd1a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5797,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T22:44:38Z",
+      "side": 1,
+      "message": "I think it\u0027s OK to be redundant I think. For example, in future if more logic is added to this function, it would be nice to assert at the end that there\u0027s no programming error this way.",
+      "parentUuid": "7fc7e27d_ef6270d2",
       "range": {
         "startLine": 5796,
         "startChar": 0,
