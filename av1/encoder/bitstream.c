@@ -1229,6 +1229,26 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
 
     if (is_compound) {
+#if CONFIG_EXT_COMP_REFS
+      const COMP_REFERENCE_TYPE comp_ref_type = has_uni_comp_refs(mbmi)
+                                                    ? UNIDIR_COMP_REFERENCE
+                                                    : BIDIR_COMP_REFERENCE;
+
+#if USE_UNI_COMP_REFS
+      aom_write(w, comp_ref_type, av1_get_comp_reference_type_prob(cm, xd));
+#else   // !USE_UNI_COMP_REFS
+      // TODO(zoeliu): Temporarily turn off uni-directional comp refs
+      assert(comp_ref_type == BIDIR_COMP_REFERENCE);
+#endif  // USE_UNI_COMP_REFS
+
+      if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
+        const int bit = mbmi->ref_frame[0] == BWDREF_FRAME;
+        aom_write(w, bit, av1_get_pred_prob_uni_comp_ref(cm, xd));
+
+        return;
+      }
+#endif  // CONFIG_EXT_COMP_REFS
+
 #if CONFIG_EXT_REFS
       const int bit = (mbmi->ref_frame[0] == GOLDEN_FRAME ||
                        mbmi->ref_frame[0] == LAST3_FRAME);
@@ -2397,26 +2417,24 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_DUAL_FILTER
 #if 0
     // NOTE(zoeliu): For debug
-    if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
-      const PREDICTION_MODE mode = m->mbmi.mode;
-      const int segment_id = m->mbmi.segment_id;
-      const BLOCK_SIZE bsize = m->mbmi.sb_type;
+    if (is_inter_block(&m->mbmi)) {
+#define FRAME_TO_CHECK 2
+      if ((cm->current_video_frame == FRAME_TO_CHECK || cm->current_video_frame == 1) &&
+          // cm->reference_mode == SINGLE_REFERENCE &&
+          cm->show_frame == 1
+          ) {
+        const MB_MODE_INFO *const mbmi = &m->mbmi;
 
-      // For sub8x8, simply dump out the first sub8x8 block info
-      const PREDICTION_MODE b_mode =
-          (bsize < BLOCK_8X8) ? m->bmi[0].as_mode : -1;
-      const int mv_x = (bsize < BLOCK_8X8) ?
-          m->bmi[0].as_mv[0].as_mv.row : m->mbmi.mv[0].as_mv.row;
-      const int mv_y = (bsize < BLOCK_8X8) ?
-          m->bmi[0].as_mv[0].as_mv.col : m->mbmi.mv[0].as_mv.col;
-
-      printf("Before pack_inter_mode_mvs(): "
-             "Frame=%d, (mi_row,mi_col)=(%d,%d), "
-             "mode=%d, segment_id=%d, bsize=%d, b_mode=%d, "
-             "mv[0]=(%d, %d), ref[0]=%d, ref[1]=%d\n",
-             cm->current_video_frame, mi_row, mi_col,
-             mode, segment_id, bsize, b_mode, mv_x, mv_y,
-             m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
+        printf(
+            "=== ENCODER ===: "
+            "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
+            "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
+            "ref[1]=%d\n",
+            cm->current_video_frame, mi_row, mi_col, mbmi->mode, mbmi->sb_type,
+            cm->show_frame, mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+            mbmi->mv[1].as_mv.row, mbmi->mv[1].as_mv.col, mbmi->ref_frame[0],
+            mbmi->ref_frame[1]);
+      }
     }
 #endif  // 0
     pack_inter_mode_mvs(cpi, mi_row, mi_col,
@@ -4491,6 +4509,17 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 #endif
       }
 
+#if 0
+      // NOTE(zoeliu): For debug
+      printf("\n===ENCODER===: Frame=%d, show_frame=%d\n",
+             cm->current_video_frame, cm->show_frame);
+      for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+        printf("ENCODER: map_idx[%d]=%d, buf_idx=ref_frame_map[%d]=%d\n",
+               ref_frame, get_ref_frame_map_idx(cpi, ref_frame),
+               ref_frame, get_ref_frame_buf_idx(cpi, ref_frame));
+      }
+#endif  // 0
+
 #if CONFIG_FRAME_SIZE
       if (cm->error_resilient_mode == 0) {
         write_frame_size_with_refs(cpi, wb);
@@ -4868,6 +4897,16 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
       }
     }
     if (cm->reference_mode != SINGLE_REFERENCE) {
+#if CONFIG_EXT_COMP_REFS
+      for (i = 0; i < COMP_REF_TYPE_CONTEXTS; i++)
+        av1_cond_prob_diff_update(header_bc, &fc->comp_ref_type_prob[i],
+                                  counts->comp_ref_type[i], probwt);
+
+      for (i = 0; i < UNI_COMP_REF_CONTEXTS; i++)
+        av1_cond_prob_diff_update(header_bc, &fc->uni_comp_ref_prob[i],
+                                  counts->uni_comp_ref[i], probwt);
+#endif  // CONFIG_EXT_COMP_REFS
+
       for (i = 0; i < REF_CONTEXTS; i++) {
 #if CONFIG_EXT_REFS
         for (j = 0; j < (FWD_REFS - 1); j++) {
