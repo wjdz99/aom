@@ -1,0 +1,221 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd8668a7_bcfa25c6",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 6
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T00:46:20Z",
+      "side": 1,
+      "message": "Pls create an array with the transform block sizes 4, 8, 16, 32 and write a for loop here instead.\n\n[I know there\u0027s copy-paste in the whole file, but that can be refactored later on].",
+      "revId": "c62f5120abc5f84e18b3ed65f8ea9f1c1d5e5691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24e5fa0b_a2a52e77",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2936,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T00:46:20Z",
+      "side": 1,
+      "message": "\"TX_TYPE_1D tx_type\"?",
+      "range": {
+        "startLine": 2936,
+        "startChar": 68,
+        "endLine": 2936,
+        "endChar": 71
+      },
+      "revId": "c62f5120abc5f84e18b3ed65f8ea9f1c1d5e5691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0edc9017_dbd2ec83",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3012,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T00:46:20Z",
+      "side": 1,
+      "message": "common helper for hbd versions too",
+      "range": {
+        "startLine": 3012,
+        "startChar": 5,
+        "endLine": 3012,
+        "endChar": 34
+      },
+      "revId": "c62f5120abc5f84e18b3ed65f8ea9f1c1d5e5691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c988b5c0_95a7251f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T00:46:20Z",
+      "side": 1,
+      "message": "This block could be a helper function:\ninverse_tx \u003d get_inv_txfm_func(tx1d_width);",
+      "range": {
+        "startLine": 529,
+        "startChar": 0,
+        "endLine": 536,
+        "endChar": 3
+      },
+      "revId": "c62f5120abc5f84e18b3ed65f8ea9f1c1d5e5691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c6b9b97_e19294cb",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T00:46:20Z",
+      "side": 1,
+      "message": "this too",
+      "range": {
+        "startLine": 582,
+        "startChar": 2,
+        "endLine": 588,
+        "endChar": 3
+      },
+      "revId": "c62f5120abc5f84e18b3ed65f8ea9f1c1d5e5691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5328a659_1586c850",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T00:46:20Z",
+      "side": 1,
+      "message": "\"else\" and \"#else\" calls can be common:\n#if\n  if ()\n    hbd_process....\n  else\n#endif\n    process_...",
+      "revId": "c62f5120abc5f84e18b3ed65f8ea9f1c1d5e5691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b48831d_aac3fff2",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T00:46:20Z",
+      "side": 1,
+      "message": "same",
+      "revId": "c62f5120abc5f84e18b3ed65f8ea9f1c1d5e5691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec0089a8_dcf04163",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1423,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T00:46:20Z",
+      "side": 1,
+      "message": "const tran_low_t *",
+      "range": {
+        "startLine": 1423,
+        "startChar": 19,
+        "endLine": 1423,
+        "endChar": 29
+      },
+      "revId": "c62f5120abc5f84e18b3ed65f8ea9f1c1d5e5691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "331bd1cc_a53e787d",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1459,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T00:46:20Z",
+      "side": 1,
+      "message": "These function pointer definitions are present in multiple places I think. Could be part of .h?",
+      "revId": "c62f5120abc5f84e18b3ed65f8ea9f1c1d5e5691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08f51840_1f015458",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1761,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T00:46:20Z",
+      "side": 1,
+      "message": "Refactor \u0027else\u0027 and \"#else\u0027",
+      "revId": "c62f5120abc5f84e18b3ed65f8ea9f1c1d5e5691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9175d83_17c942c1",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1778,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-17T00:46:20Z",
+      "side": 1,
+      "message": "same",
+      "revId": "c62f5120abc5f84e18b3ed65f8ea9f1c1d5e5691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
