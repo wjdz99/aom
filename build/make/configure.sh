@@ -1260,6 +1260,7 @@ EOF
                 && echo "Unsupported version of nasm: ${apple}" \
                 && AS=""
             fi
+            add_asflags -DPIC
             [ "${AS}" = auto ] || [ -z "${AS}" ] \
               && die "Neither yasm nor nasm have been found." \
                      "See the prerequisites section in the README for more info."
