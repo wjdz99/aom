@@ -267,6 +267,14 @@ static void read_frame_reference_mode_probs(AV1_COMMON *cm, aom_reader *r) {
   }
 
   if (cm->reference_mode != SINGLE_REFERENCE) {
+#if CONFIG_EXT_COMP_REFS
+    for (i = 0; i < COMP_REF_TYPE_CONTEXTS; ++i)
+      av1_diff_update_prob(r, &fc->comp_ref_type_prob[i], ACCT_STR);
+
+    for (i = 0; i < UNI_COMP_REF_CONTEXTS; ++i)
+      av1_diff_update_prob(r, &fc->uni_comp_ref_prob[i], ACCT_STR);
+#endif  // CONFIG_EXT_COMP_REFS
+
     for (i = 0; i < REF_CONTEXTS; ++i) {
 #if CONFIG_EXT_REFS
       for (j = 0; j < (FWD_REFS - 1); ++j)
@@ -4797,6 +4805,12 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
                  sizeof(cm->counts.intra_inter)));
   assert(!memcmp(cm->counts.comp_inter, zero_counts.comp_inter,
                  sizeof(cm->counts.comp_inter)));
+#if CONFIG_EXT_COMP_REFS
+  assert(!memcmp(cm->counts.comp_ref_type, zero_counts.comp_ref_type,
+                 sizeof(cm->counts.comp_ref_type)));
+  assert(!memcmp(cm->counts.uni_comp_ref, zero_counts.uni_comp_ref,
+                 sizeof(cm->counts.uni_comp_ref)));
+#endif  // CONFIG_EXT_COMP_REFS
   assert(!memcmp(cm->counts.single_ref, zero_counts.single_ref,
                  sizeof(cm->counts.single_ref)));
   assert(!memcmp(cm->counts.comp_ref, zero_counts.comp_ref,

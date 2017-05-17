@@ -1332,6 +1332,19 @@ static REFERENCE_MODE read_block_reference_mode(AV1_COMMON *cm,
   }
 }
 
+#if CONFIG_EXT_COMP_REFS
+static REFERENCE_MODE read_comp_reference_type(AV1_COMMON *cm,
+                                              const MACROBLOCKD *xd,
+                                              aom_reader *r) {
+  const int ctx = av1_get_comp_reference_type_context(cm, xd);
+  const COMP_REFERENCE_TYPE comp_ref_type =
+      (COMP_REFERENCE_TYPE)aom_read(r, cm->fc->comp_ref_type_prob[ctx], ACCT_STR);
+  FRAME_COUNTS *counts = xd->counts;
+  if (counts) ++counts->comp_ref_type[ctx][comp_ref_type];
+  return comp_ref_type;  // UNIDIR_COMP_REFERENCE or BIDIR_COMP_REFERENCE
+}
+#endif  // CONFIG_EXT_COMP_REFS
+
 // Read the referncence frame
 static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             aom_reader *r, int segment_id,
@@ -1347,6 +1360,28 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     const REFERENCE_MODE mode = read_block_reference_mode(cm, xd, r);
     // FIXME(rbultje) I'm pretty sure this breaks segmentation ref frame coding
     if (mode == COMPOUND_REFERENCE) {
+#if CONFIG_EXT_COMP_REFS
+      const COMP_REFERENCE_TYPE
+          comp_ref_type = read_comp_reference_type(cm, xd, r);
+
+      if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
+        const int ctx = av1_get_pred_context_uni_comp_ref(cm, xd);
+        const int bit = aom_read(r, fc->uni_comp_ref_prob[ctx], ACCT_STR);
+        if (counts) ++counts->uni_comp_ref[ctx][bit];
+
+        if (bit) {
+          ref_frame[0] = BWDREF_FRAME;
+          ref_frame[1] = ALTREF_FRAME;
+        } else {
+          // TODO(zoeliu): To consider to add the pair (LAST_FRAME, LAST2_FRAME)
+          ref_frame[0] = LAST_FRAME;
+          ref_frame[1] = GOLDEN_FRAME;
+        }
+
+        return;
+      }
+#endif  // CONFIG_EXT_COMP_REFS
+
 #if CONFIG_LOWDELAY_COMPOUND  // Normative in decoder (for low delay)
       const int idx = 1;
 #else
