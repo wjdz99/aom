@@ -68,11 +68,6 @@ TEST(AV1, TestBitIO) {
 
         aom_stop_encode(&bw);
 
-#if !CONFIG_DAALA_EC
-        // First bit should be zero
-        GTEST_ASSERT_EQ(bw_buffer[0] & 0x80, 0);
-#endif
-
         aom_reader br;
         aom_reader_init(&br, bw_buffer, bw.pos, NULL, NULL);
         bit_rnd.Reset(random_seed);
