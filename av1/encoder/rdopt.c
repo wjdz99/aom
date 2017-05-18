@@ -4126,7 +4126,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
     if ((RDCOST(x->rdmult, x->rddiv, rd_stats->rate, rd_stats->dist) >=
              RDCOST(x->rdmult, x->rddiv, zero_blk_rate, rd_stats->sse) ||
-         rd_stats->skip == 1) &&
+         rd_stats->skip == 1) && 0 &&
         !xd->lossless[mbmi->segment_id]) {
 #if CONFIG_RD_DEBUG
       av1_update_txb_coeff_cost(rd_stats, plane, tx_size, blk_row, blk_col,
