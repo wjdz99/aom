@@ -358,11 +358,9 @@ function (setup_aom_test_targets)
     set(test_name "test_${shard_index}")
     add_custom_target(${test_name}
                       COMMAND ${CMAKE_COMMAND}
-                      -DAOM_CONFIG_DIR="${AOM_CONFIG_DIR}"
-                      -DAOM_ROOT="${AOM_ROOT}"
-                      -DAOM_TEST_TARGET=test_libaom
                       -DGTEST_SHARD_INDEX=${shard_index}
                       -DGTEST_TOTAL_SHARDS=${num_test_targets}
+                      -DTEST_LIBAOM=$<TARGET_FILE:test_libaom>
                       -P "${AOM_ROOT}/test/test_runner.cmake"
                       DEPENDS testdata test_libaom)
     set(test_targets ${test_targets} ${test_name})
