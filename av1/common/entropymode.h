@@ -398,7 +398,7 @@ typedef struct FRAME_COUNTS {
   // to use forward updates for the coeff probs, and as such it does not really
   // belong into this structure.
   unsigned int tx_size_totals[TX_SIZES];
-  unsigned int tx_size[MAX_TX_DEPTH][TX_SIZE_CONTEXTS][TX_SIZES];
+  unsigned int tx_size[MAX_TX_DEPTH][TX_SIZE_CONTEXTS][MAX_TX_DEPTH + 1];
 #if CONFIG_VAR_TX
   unsigned int txfm_partition[TXFM_PARTITION_CONTEXTS][2];
 #endif
