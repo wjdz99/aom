@@ -16,14 +16,22 @@
 #include "aom/internal/aom_codec_internal.h"
 
 void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
-  if (!((cm->subsampling_x == 0 && cm->subsampling_y == 0) ||
-        (cm->subsampling_x == 1 && cm->subsampling_y == 1))) {
-    aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                       "Only 4:4:4 and 4:2:0 are currently supported by CfL");
-  }
   memset(&cfl->y_pix, 0, sizeof(uint8_t) * MAX_SB_SQUARE);
-  cfl->subsampling_x = cm->subsampling_x;
-  cfl->subsampling_y = cm->subsampling_y;
+
+  if (cm->subsampling_x == 0 && cm->subsampling_y == 0) {
+    cfl->subsampling_x = 0;
+    cfl->subsampling_y = 0;
+  } else if (cm->subsampling_x == 1 && cm->subsampling_y == 1) {
+    cfl->subsampling_x = 1;
+    cfl->subsampling_y = 1;
+  } else if (cm->subsampling_x == 1 && cm->subsampling_y == 0) {
+    cfl->subsampling_x = 1;
+    cfl->subsampling_y = 0;
+  } else {
+    aom_internal_error(
+        &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+        "Only 4:4:4, 4:2:2 and 4:2:0 are currently supported by CfL");
+  }
 }
 
 // CfL computes its own block-level DC_PRED. This is required to compute both
@@ -151,14 +159,11 @@ double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
   const int sub_y = cfl->subsampling_y;
   const int off_log2 = tx_size_wide_log2[0];
 
-  const uint8_t *y_pix;
-
   int pred_row_offset = 0;
   int output_row_offset = 0;
 
-  // TODO(ltrudeau) add support for 4:2:2
   if (sub_y == 0 && sub_x == 0) {
-    y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << off_log2];
+    const uint8_t *y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << off_log2];
     for (int j = 0; j < height; j++) {
       for (int i = 0; i < width; i++) {
         // In 4:4:4, pixels match 1 to 1
@@ -167,24 +172,41 @@ double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
       pred_row_offset += MAX_SB_SIZE;
       output_row_offset += output_stride;
     }
-  } else if (sub_y == 1 && sub_x == 1) {
-    y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << (off_log2 + sub_y)];
-    for (int j = 0; j < height; j++) {
-      for (int i = 0; i < width; i++) {
-        int top_left = (pred_row_offset + i) << sub_y;
-        int bot_left = top_left + MAX_SB_SIZE;
-        // In 4:2:0, average pixels in 2x2 grid
-        output[output_row_offset + i] = OD_SHR_ROUND(
-            y_pix[top_left] + y_pix[top_left + 1]        // Top row
-                + y_pix[bot_left] + y_pix[bot_left + 1]  // Bottom row
-            ,
-            2);
-      }
-      pred_row_offset += MAX_SB_SIZE;
-      output_row_offset += output_stride;
-    }
   } else {
-    assert(0);  // Unsupported chroma subsampling
+    if (sub_y == 1 && sub_x == 0) {
+      // This was already managed in cfl_init(), but just in case.
+      assert(0);
+    }
+    if (sub_y == 1 && sub_x == 1) {
+      const uint8_t *y_pix =
+          &cfl->y_pix[(row * MAX_SB_SIZE + col) << (off_log2 + sub_y)];
+      for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
+          int top_left = (pred_row_offset + i) << sub_y;
+          int bot_left = top_left + MAX_SB_SIZE;
+          // In 4:2:0, average pixels in 2x2 grid
+          output[output_row_offset + i] = OD_SHR_ROUND(
+              y_pix[top_left] + y_pix[top_left + 1]        // Top row
+                  + y_pix[bot_left] + y_pix[bot_left + 1]  // Bottom row
+              ,
+              2);
+        }
+        pred_row_offset += MAX_SB_SIZE;
+        output_row_offset += output_stride;
+      }
+    } else {
+      const uint8_t *y_pix =
+          &cfl->y_pix[(row * MAX_SB_SIZE + (col << sub_x)) << off_log2];
+      for (int j = 0; j < height; j++) {
+        for (int i = 0, p = pred_row_offset; i < width; i++, p += 2) {
+          // In 4:2:2, average of two consecutive pixels
+          output[output_row_offset + i] =
+              OD_SHR_ROUND(y_pix[p] + y_pix[p + 1], 1);
+        }
+        pred_row_offset += MAX_SB_SIZE;
+        output_row_offset += output_stride;
+      }
+    }
   }
   // Due to frame boundary issues, it is possible that the total area of
   // covered by Chroma exceeds that of Luma. When this happens, we write over
@@ -224,13 +246,13 @@ double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
     }
   }
 
-  int avg = 0;
+  int sum = 0;
   output_row_offset = 0;
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
-      avg += output[output_row_offset + i];
+      sum += output[output_row_offset + i];
     }
     output_row_offset += output_stride;
   }
-  return avg / (double)(width * height);
+  return sum / (double)(width * height);
 }
