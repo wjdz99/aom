@@ -11,9 +11,7 @@
 
 #include "./aom_config.h"
 
-#if CONFIG_DAALA_EC || CONFIG_ANS
 #include <string.h>
-#endif  // CONFIG_DAALA_EC || CONFIG_ANS
 
 #include "aom_dsp/prob.h"
 
@@ -53,7 +51,6 @@ void aom_tree_merge_probs(const aom_tree_index *tree, const aom_prob *pre_probs,
   tree_merge_probs_impl(0, tree, pre_probs, counts, probs);
 }
 
-#if CONFIG_DAALA_EC || CONFIG_ANS
 typedef struct tree_node tree_node;
 
 struct tree_node {
@@ -233,4 +230,3 @@ void av1_indices_from_tree(int *ind, int *inv, const aom_tree_index *tree) {
   int stack_index = 0;
   tree_to_index(&stack_index, ind, inv, tree, 0, 0);
 }
-#endif  // CONFIG_DAALA_EC || CONFIG_ANS
