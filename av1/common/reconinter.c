@@ -1015,10 +1015,10 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
           WarpTypesAllowed warp_types;
 #if CONFIG_GLOBAL_MOTION
-          warp_types.global_warp_allowed = is_global[ref];
+          warp_types.global_warp_allowed = 0;
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
-          warp_types.local_warp_allowed = mi->mbmi.motion_mode == WARPED_CAUSAL;
+          warp_types.local_warp_allowed = 0;
 #endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
@@ -1065,8 +1065,8 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
                 pre, pre_buf->stride, dst, dst_buf->stride, subpel_x, subpel_y,
                 sf, b4_w, b4_h, &conv_params, this_mbmi->interp_filter,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-                &warp_types, ((mi_x + MI_SIZE * col) >> pd->subsampling_x) + x,
-                ((mi_y + MI_SIZE * row) >> pd->subsampling_y) + y, plane, ref,
+                &warp_types, (mi_x >> pd->subsampling_x) + x,
+                (mi_y >> pd->subsampling_y) + y, plane, ref,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
                 mi_col_offset, mi_row_offset,
