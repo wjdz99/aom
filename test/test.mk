@@ -160,10 +160,17 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += hadamard_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += minmax_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += variance_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += error_block_test.cc
-#LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_quantize_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += subtract_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += arf_freq_test.cc
-
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += cx_iface_helper.c
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += cx_iface_helper.h
+ifneq ($(CONFIG_HIGHBITDEPTH), yes)
+ifneq ($(CONFIG_AOM_QM), yes)
+ifneq ($(CONFIG_NEW_QUANT), yes)
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += quantize_func_test.cc
+endif
+endif
+endif
 
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_inv_txfm_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_dct_test.cc
