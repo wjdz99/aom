@@ -160,7 +160,9 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += hadamard_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += minmax_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += variance_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += error_block_test.cc
-#LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_quantize_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += cx_iface_helper.c
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += cx_iface_helper.h
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += quantize_func_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += subtract_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += arf_freq_test.cc
 
