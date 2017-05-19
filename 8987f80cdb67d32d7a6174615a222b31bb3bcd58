@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd574716_8691118b",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-05-19T18:36:47Z",
+      "side": 1,
+      "message": "remove this condition, confusing. why changes in this file are necessary?",
+      "range": {
+        "startLine": 932,
+        "startChar": 29,
+        "endLine": 932,
+        "endChar": 58
+      },
+      "revId": "8987f80cdb67d32d7a6174615a222b31bb3bcd58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38e70070_6391eaab",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 938,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-05-19T18:36:47Z",
+      "side": 1,
+      "message": "why enable sub8x8_inter when build_for_obmc is on?",
+      "range": {
+        "startLine": 938,
+        "startChar": 51,
+        "endLine": 938,
+        "endChar": 65
+      },
+      "revId": "8987f80cdb67d32d7a6174615a222b31bb3bcd58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe658176_4656921c",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 953,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-05-19T18:36:47Z",
+      "side": 1,
+      "message": "will be enough to bypass sub8x8 pred in obmc",
+      "range": {
+        "startLine": 953,
+        "startChar": 7,
+        "endLine": 953,
+        "endChar": 21
+      },
+      "revId": "8987f80cdb67d32d7a6174615a222b31bb3bcd58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
