@@ -93,7 +93,6 @@ class AV1Encoder : public Encoder {
              const unsigned long init_flags, TwopassStatsStore *stats)
       : Encoder(cfg, deadline, init_flags, stats) {}
 
- protected:
   virtual aom_codec_iface_t *CodecInterface() const {
 #if CONFIG_AV1_ENCODER
     return &aom_codec_av1_cx_algo;
