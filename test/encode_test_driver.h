@@ -130,6 +130,8 @@ class Encoder {
 
   void set_deadline(unsigned long deadline) { deadline_ = deadline; }
 
+  aom_codec_ctx_t *GetEncoder() { return &encoder_; }
+
  protected:
   virtual aom_codec_iface_t *CodecInterface() const = 0;
 
