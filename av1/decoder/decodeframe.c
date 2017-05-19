@@ -2451,21 +2451,15 @@ static void setup_segmentation(AV1_COMMON *const cm,
 static void decode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_read_bit_buffer *rb) {
   int p;
-  RestorationInfo *rsi = &cm->rst_info[0];
-  if (aom_rb_read_bit(rb)) {
-    rsi->frame_restoration_type =
-        aom_rb_read_bit(rb) ? RESTORE_SGRPROJ : RESTORE_WIENER;
-  } else {
-    rsi->frame_restoration_type =
-        aom_rb_read_bit(rb) ? RESTORE_SWITCHABLE : RESTORE_NONE;
-  }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+  RestorationInfo *rsi;
+  for (p = 0; p < MAX_MB_PLANE; ++p) {
     rsi = &cm->rst_info[p];
     if (aom_rb_read_bit(rb)) {
       rsi->frame_restoration_type =
           aom_rb_read_bit(rb) ? RESTORE_SGRPROJ : RESTORE_WIENER;
     } else {
-      rsi->frame_restoration_type = RESTORE_NONE;
+      rsi->frame_restoration_type =
+          aom_rb_read_bit(rb) ? RESTORE_SWITCHABLE : RESTORE_NONE;
     }
   }
 
@@ -2555,79 +2549,59 @@ static void decode_restoration(AV1_COMMON *cm, aom_reader *rb) {
   int i, p;
   SgrprojInfo ref_sgrproj_info;
   WienerInfo ref_wiener_info;
-  set_default_wiener(&ref_wiener_info);
-  set_default_sgrproj(&ref_sgrproj_info);
-  const int ntiles = av1_get_rest_ntiles(cm->width, cm->height,
-                                         cm->rst_info[0].restoration_tilesize,
-                                         NULL, NULL, NULL, NULL);
+  const int ntiles_y = av1_get_rest_ntiles(cm->width, cm->height,
+                                           cm->rst_info[0].restoration_tilesize,
+                                           NULL, NULL, NULL, NULL);
   const int ntiles_uv = av1_get_rest_ntiles(
       ROUND_POWER_OF_TWO(cm->width, cm->subsampling_x),
       ROUND_POWER_OF_TWO(cm->height, cm->subsampling_y),
       cm->rst_info[1].restoration_tilesize, NULL, NULL, NULL, NULL);
-  RestorationInfo *rsi = &cm->rst_info[0];
-  if (rsi->frame_restoration_type != RESTORE_NONE) {
-    if (rsi->frame_restoration_type == RESTORE_SWITCHABLE) {
-      for (i = 0; i < ntiles; ++i) {
-        rsi->restoration_type[i] =
-            aom_read_tree(rb, av1_switchable_restore_tree,
-                          cm->fc->switchable_restore_prob, ACCT_STR);
-        if (rsi->restoration_type[i] == RESTORE_WIENER) {
-          read_wiener_filter(&rsi->wiener_info[i], &ref_wiener_info, rb);
-        } else if (rsi->restoration_type[i] == RESTORE_SGRPROJ) {
-          read_sgrproj_filter(&rsi->sgrproj_info[i], &ref_sgrproj_info, rb);
-        }
-      }
-    } else if (rsi->frame_restoration_type == RESTORE_WIENER) {
-      for (i = 0; i < ntiles; ++i) {
-        if (aom_read(rb, RESTORE_NONE_WIENER_PROB, ACCT_STR)) {
-          rsi->restoration_type[i] = RESTORE_WIENER;
-          read_wiener_filter(&rsi->wiener_info[i], &ref_wiener_info, rb);
-        } else {
-          rsi->restoration_type[i] = RESTORE_NONE;
-        }
-      }
-    } else if (rsi->frame_restoration_type == RESTORE_SGRPROJ) {
-      for (i = 0; i < ntiles; ++i) {
-        if (aom_read(rb, RESTORE_NONE_SGRPROJ_PROB, ACCT_STR)) {
-          rsi->restoration_type[i] = RESTORE_SGRPROJ;
-          read_sgrproj_filter(&rsi->sgrproj_info[i], &ref_sgrproj_info, rb);
-        } else {
-          rsi->restoration_type[i] = RESTORE_NONE;
-        }
-      }
-    }
-  }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+  for (p = 0; p < MAX_MB_PLANE; ++p) {
+    const int ntiles = p == AOM_PLANE_Y ? ntiles_y : ntiles_uv;
     set_default_wiener(&ref_wiener_info);
     set_default_sgrproj(&ref_sgrproj_info);
-    rsi = &cm->rst_info[p];
-    if (rsi->frame_restoration_type == RESTORE_WIENER) {
-      for (i = 0; i < ntiles_uv; ++i) {
-        if (ntiles_uv > 1)
+    RestorationInfo *rsi = &cm->rst_info[p];
+    if (rsi->frame_restoration_type != RESTORE_NONE) {
+      if (rsi->frame_restoration_type == RESTORE_SWITCHABLE) {
+        for (i = 0; i < ntiles; ++i) {
           rsi->restoration_type[i] =
-              aom_read(rb, RESTORE_NONE_WIENER_PROB, ACCT_STR) ? RESTORE_WIENER
-                                                               : RESTORE_NONE;
-        else
-          rsi->restoration_type[i] = RESTORE_WIENER;
-        if (rsi->restoration_type[i] == RESTORE_WIENER) {
-          read_wiener_filter(&rsi->wiener_info[i], &ref_wiener_info, rb);
+              aom_read_tree(rb, av1_switchable_restore_tree,
+                            cm->fc->switchable_restore_prob, ACCT_STR);
+          if (rsi->restoration_type[i] == RESTORE_WIENER) {
+            read_wiener_filter(&rsi->wiener_info[i], &ref_wiener_info, rb);
+          } else if (rsi->restoration_type[i] == RESTORE_SGRPROJ) {
+            read_sgrproj_filter(&rsi->sgrproj_info[i], &ref_sgrproj_info, rb);
+          }
+        }
+      } else if (rsi->frame_restoration_type == RESTORE_WIENER) {
+        for (i = 0; i < ntiles; ++i) {
+          if (ntiles > 1) {
+            if (aom_read(rb, RESTORE_NONE_WIENER_PROB, ACCT_STR)) {
+              rsi->restoration_type[i] = RESTORE_WIENER;
+            } else {
+              rsi->restoration_type[i] = RESTORE_NONE;
+            }
+          } else {
+            rsi->restoration_type[i] = RESTORE_WIENER;
+          }
+          if (rsi->restoration_type[i] == RESTORE_WIENER)
+            read_wiener_filter(&rsi->wiener_info[i], &ref_wiener_info, rb);
+        }
+      } else if (rsi->frame_restoration_type == RESTORE_SGRPROJ) {
+        for (i = 0; i < ntiles; ++i) {
+          if (ntiles > 1) {
+            if (aom_read(rb, RESTORE_NONE_SGRPROJ_PROB, ACCT_STR)) {
+              rsi->restoration_type[i] = RESTORE_SGRPROJ;
+            } else {
+              rsi->restoration_type[i] = RESTORE_NONE;
+            }
+          } else {
+            rsi->restoration_type[i] = RESTORE_SGRPROJ;
+          }
+          if (rsi->restoration_type[i] == RESTORE_SGRPROJ)
+            read_sgrproj_filter(&rsi->sgrproj_info[i], &ref_sgrproj_info, rb);
         }
       }
-    } else if (rsi->frame_restoration_type == RESTORE_SGRPROJ) {
-      for (i = 0; i < ntiles_uv; ++i) {
-        if (ntiles_uv > 1)
-          rsi->restoration_type[i] =
-              aom_read(rb, RESTORE_NONE_SGRPROJ_PROB, ACCT_STR)
-                  ? RESTORE_SGRPROJ
-                  : RESTORE_NONE;
-        else
-          rsi->restoration_type[i] = RESTORE_SGRPROJ;
-        if (rsi->restoration_type[i] == RESTORE_SGRPROJ) {
-          read_sgrproj_filter(&rsi->sgrproj_info[i], &ref_sgrproj_info, rb);
-        }
-      }
-    } else if (rsi->frame_restoration_type != RESTORE_NONE) {
-      assert(0);
     }
   }
 }
