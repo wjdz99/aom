@@ -1211,12 +1211,9 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                                 plane, &cm->rst_info[plane], restore_types[r],
                                 tile_cost[r], &cpi->trial_frame_rst);
     }
-    if (plane == AOM_PLANE_Y)
-      cost_restore[RESTORE_SWITCHABLE] =
-          search_switchable_restoration(cpi, method == LPF_PICK_FROM_SUBIMAGE,
-                                        plane, &cm->rst_info[plane], tile_cost);
-    else
-      cost_restore[RESTORE_SWITCHABLE] = DBL_MAX;
+    cost_restore[RESTORE_SWITCHABLE] =
+        search_switchable_restoration(cpi, method == LPF_PICK_FROM_SUBIMAGE,
+                                      plane, &cm->rst_info[plane], tile_cost);
     best_cost_restore = DBL_MAX;
     best_restore = 0;
     for (r = 0; r < RESTORE_TYPES; ++r) {
