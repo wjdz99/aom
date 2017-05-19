@@ -928,12 +928,17 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #endif
 
 #if CONFIG_MOTION_VAR && (CONFIG_CHROMA_SUB8X8 || !CONFIG_CB4X4)
-  const int build_for_obmc = !(mi_col_offset == 0 && mi_row_offset == 0);
+  const int build_for_obmc = !(mi_col_offset == 0 && mi_row_offset == 0) &&
+                             mi->mbmi.sb_type >= BLOCK_8X8;
 #endif  // CONFIG_MOTION_VAR && (CONFIG_CHROMA_SUB8X8 || !CONFIG_CB4X4)
 
 #if CONFIG_CHROMA_SUB8X8
   const BLOCK_SIZE bsize = mi->mbmi.sb_type;
+#if CONFIG_MOTION_VAR
+  int sub8x8_inter = bsize < BLOCK_8X8 && plane && build_for_obmc;
+#else
   int sub8x8_inter = bsize < BLOCK_8X8 && plane;
+#endif
   const int row_start = (block_size_high[bsize] == 4) ? -1 : 0;
   const int col_start = (block_size_wide[bsize] == 4) ? -1 : 0;
 
