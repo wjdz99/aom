@@ -116,6 +116,30 @@
       "revId": "2d285e3d8b9caa1a5f1314d2f7f378344a3c91c3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dbd9b83_75d2d6e9",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5644,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-05-19T18:34:08Z",
+      "side": 1,
+      "message": "No, I forgot it before. It wasn\u0027t harmful since all this really does is flag that the resize has been set up. Without it, it will do the setup for the same target resolution again.",
+      "parentUuid": "5468cd8b_7baf957c",
+      "range": {
+        "startLine": 5644,
+        "startChar": 4,
+        "endLine": 5644,
+        "endChar": 19
+      },
+      "revId": "2d285e3d8b9caa1a5f1314d2f7f378344a3c91c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
