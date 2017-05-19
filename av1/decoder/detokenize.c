@@ -131,7 +131,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
   int val = 0;
 
 #if !CONFIG_EC_ADAPT
-  unsigned int *blockz_count;
+  unsigned int *blockz_count = NULL;
   unsigned int(*coef_counts)[COEFF_CONTEXTS][UNCONSTRAINED_NODES + 1] = NULL;
   unsigned int(*eob_branch_count)[COEFF_CONTEXTS] = NULL;
 #endif
@@ -155,14 +155,15 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
   (void)iqmatrix;
 #endif  // CONFIG_AOM_QM
 
+#if !CONFIG_EC_ADAPT
   if (counts) {
-#if !CONFIG_EC_MULTISYMBOL
     coef_counts = counts->coef[tx_size_ctx][type][ref];
     eob_branch_count = counts->eob_branch[tx_size_ctx][type][ref];
-#elif !CONFIG_EC_ADAPT
+#if CONFIG_EC_MULTISYMBOL
     blockz_count = counts->blockz_count[tx_size_ctx][type][ref][ctx];
 #endif
   }
+#endif
 
   dq_shift = av1_get_tx_scale(tx_size);
 
