@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88f23578_323c203e",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-19T19:30:38Z",
+      "side": 1,
+      "message": "\"automatic\"",
+      "range": {
+        "startLine": 220,
+        "startChar": 29,
+        "endLine": 220,
+        "endChar": 40
+      },
+      "revId": "3300fc6896f07535120dda6547aab3d69811828b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4253b13e_81fa36f5",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 5156,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-19T19:30:38Z",
+      "side": 1,
+      "message": "Was the number 4 based on experiments?",
+      "revId": "3300fc6896f07535120dda6547aab3d69811828b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e380b0d_b14b096a",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 5170,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-19T19:30:38Z",
+      "side": 1,
+      "message": "So, this is \u003e\u003d10% of blocks, if I understand correctly?",
+      "revId": "3300fc6896f07535120dda6547aab3d69811828b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95abb65f_94762c16",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 5202,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-19T19:30:38Z",
+      "side": 1,
+      "message": "\"cpi-\u003ecommon\" --\u003e \"cm\"",
+      "range": {
+        "startLine": 5202,
+        "startChar": 4,
+        "endLine": 5202,
+        "endChar": 15
+      },
+      "revId": "3300fc6896f07535120dda6547aab3d69811828b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
