@@ -1377,8 +1377,9 @@ static void search_switchable_for_rtile(const struct rest_search_ctxt *ctxt,
                  swctxt->tile_cost[RESTORE_NONE][rtile_idx]);
   rsi->restoration_type[rtile_idx] = RESTORE_NONE;
   for (RestorationType r = 1; r < RESTORE_SWITCHABLE_TYPES; r++) {
-    if (force_restore_type != 0)
-      if (r != force_restore_type) continue;
+    if (force_restore_type != RESTORE_TYPES)
+      if (r != RESTORE_NONE && r != force_restore_type) continue;
+      // if (r != force_restore_type) continue;
     int tilebits = 0;
     if (swctxt->restore_types[r][rtile_idx] != r) continue;
     if (r == RESTORE_WIENER)
@@ -1402,7 +1403,7 @@ static void search_switchable_for_rtile(const struct rest_search_ctxt *ctxt,
     swctxt->wiener_info = rsi->wiener_info[rtile_idx];
   else if (rsi->restoration_type[rtile_idx] == RESTORE_SGRPROJ)
     swctxt->sgrproj_info = rsi->sgrproj_info[rtile_idx];
-  if (force_restore_type != 0)
+  if (force_restore_type != RESTORE_TYPES)
     assert(rsi->restoration_type[rtile_idx] == force_restore_type ||
            rsi->restoration_type[rtile_idx] == RESTORE_NONE);
   swctxt->cost_switchable += best_cost;
@@ -1468,6 +1469,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   }
 
   for (int plane = AOM_PLANE_Y; plane <= AOM_PLANE_V; ++plane) {
+    const int ntiles = (plane == AOM_PLANE_Y ? ntiles_y : ntiles_uv);
     for (r = 0; r < RESTORE_SWITCHABLE_TYPES; ++r) {
       cost_restore[r] = DBL_MAX;
       if (force_restore_type != RESTORE_TYPES)
@@ -1477,7 +1479,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                                 plane, &cm->rst_info[plane], restore_types[r],
                                 tile_cost[r], &cpi->trial_frame_rst);
     }
-    if (plane == AOM_PLANE_Y)
+    if (ntiles > 1)
       cost_restore[RESTORE_SWITCHABLE] = search_switchable_restoration(
           src, cpi, method == LPF_PICK_FROM_SUBIMAGE, plane, restore_types,
           tile_cost, &cm->rst_info[plane]);
@@ -1498,9 +1500,8 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
       assert(best_restore == force_restore_type ||
              best_restore == RESTORE_NONE);
     if (best_restore != RESTORE_SWITCHABLE) {
-      const int nt = (plane == AOM_PLANE_Y ? ntiles_y : ntiles_uv);
       memcpy(cm->rst_info[plane].restoration_type, restore_types[best_restore],
-             nt * sizeof(restore_types[best_restore][0]));
+             ntiles * sizeof(restore_types[best_restore][0]));
     }
   }
   /*
