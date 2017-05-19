@@ -130,9 +130,11 @@ class Encoder {
 
   void set_deadline(unsigned long deadline) { deadline_ = deadline; }
 
- protected:
+  aom_codec_ctx_t *GetEncoder() { return &encoder_; }
+
   virtual aom_codec_iface_t *CodecInterface() const = 0;
 
+ protected:
   const char *EncoderError() {
     const char *detail = aom_codec_error_detail(&encoder_);
     return detail ? detail : aom_codec_error(&encoder_);
