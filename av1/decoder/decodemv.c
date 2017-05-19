@@ -184,21 +184,30 @@ static PREDICTION_MODE read_intra_mode_y(AV1_COMMON *cm, MACROBLOCKD *xd,
   return y_mode;
 }
 
-static PREDICTION_MODE read_intra_mode_uv(AV1_COMMON *cm, MACROBLOCKD *xd,
-                                          aom_reader *r,
-                                          PREDICTION_MODE y_mode) {
+#if CONFIG_CFL
+static UV_PREDICTION_MODE read_intra_mode_uv(
+#else
+static PREDICTION_MODE read_intra_mode_uv(
+#endif  // CONFIG_CFL
+    AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r, PREDICTION_MODE y_mode) {
+
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 #elif CONFIG_EC_MULTISYMBOL
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
 
+#if CONFIG_CFL
+  const UV_PREDICTION_MODE uv_mode =
+      aom_read_symbol(r, ec_ctx->uv_mode_cdf[y_mode], UV_INTRA_MODES, ACCT_STR);
+#else
   const PREDICTION_MODE uv_mode =
 #if CONFIG_EC_MULTISYMBOL
       read_intra_mode(r, ec_ctx->uv_mode_cdf[y_mode]);
 #else
       read_intra_mode(r, cm->fc->uv_mode_prob[y_mode]);
-#endif
+#endif  // CONFIG_EC_MULTISYMBOL
+#endif  // CONFIG_CFL
   FRAME_COUNTS *counts = xd->counts;
 #if CONFIG_EC_ADAPT
   (void)cm;
@@ -208,27 +217,21 @@ static PREDICTION_MODE read_intra_mode_uv(AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 
 #if CONFIG_CFL
-static int read_cfl_alphas(FRAME_CONTEXT *const ec_ctx, aom_reader *r, int skip,
+static int read_cfl_alphas(FRAME_CONTEXT *const ec_ctx, aom_reader *r,
                            CFL_SIGN_TYPE signs_out[CFL_PRED_PLANES]) {
-  if (skip) {
-    signs_out[CFL_PRED_U] = CFL_SIGN_POS;
-    signs_out[CFL_PRED_V] = CFL_SIGN_POS;
-    return 0;
-  } else {
-    const int ind = aom_read_symbol(r, ec_ctx->cfl_alpha_cdf, CFL_ALPHABET_SIZE,
-                                    "cfl:alpha");
-    // Signs are only coded for nonzero values
-    // sign == 0 implies negative alpha
-    // sign == 1 implies positive alpha
-    signs_out[CFL_PRED_U] = (cfl_alpha_codes[ind][CFL_PRED_U] != 0.0)
-                                ? aom_read_bit(r, "cfl:sign")
-                                : CFL_SIGN_POS;
-    signs_out[CFL_PRED_V] = (cfl_alpha_codes[ind][CFL_PRED_V] != 0.0)
-                                ? aom_read_bit(r, "cfl:sign")
-                                : CFL_SIGN_POS;
+  const int ind =
+      aom_read_symbol(r, ec_ctx->cfl_alpha_cdf, CFL_ALPHABET_SIZE, "cfl:alpha");
+  // Signs are only coded for nonzero values
+  // sign == 0 implies negative alpha
+  // sign == 1 implies positive alpha
+  signs_out[CFL_PRED_U] = (cfl_alpha_codes[ind][CFL_PRED_U] != 0.0)
+                              ? aom_read_bit(r, "cfl:sign")
+                              : CFL_SIGN_POS;
+  signs_out[CFL_PRED_V] = (cfl_alpha_codes[ind][CFL_PRED_V] != 0.0)
+                              ? aom_read_bit(r, "cfl:sign")
+                              : CFL_SIGN_POS;
 
-    return ind;
-  }
+  return ind;
 }
 #endif
 
@@ -782,7 +785,11 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     }
   }
 
+#if CONFIG_CFL
+  if (mbmi->uv_mode == UV_DC_PRED) {
+#else
   if (mbmi->uv_mode == DC_PRED) {
+#endif
     const int palette_uv_mode_ctx = (pmi->palette_size[0] > 0);
     if (aom_read(r, av1_default_palette_uv_mode_prob[palette_uv_mode_ctx],
                  ACCT_STR)) {
@@ -835,7 +842,11 @@ static void read_filter_intra_mode_info(AV1_COMMON *const cm,
             ->filter_intra[0][filter_intra_mode_info->use_filter_intra_mode[0]];
     }
   }
+#if CONFIG_CFL
+  if (mbmi->uv_mode == UV_DC_PRED
+#else
   if (mbmi->uv_mode == DC_PRED
+#endif
 #if CONFIG_PALETTE
       && mbmi->palette_mode_info.palette_size[1] == 0
 #endif  // CONFIG_PALETTE
@@ -892,8 +903,12 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     }
 #endif  // CONFIG_INTRA_INTERP
   }
-
+#if CONFIG_CFL
+  if (av1_is_directional_mode(get_pred_mode(mbmi->uv_mode), bsize)) {
+#else
   if (av1_is_directional_mode(mbmi->uv_mode, bsize)) {
+#endif  // CONFIG_CFL
+
     mbmi->angle_delta[1] =
         read_uniform(r, 2 * MAX_ANGLE_DELTA + 1) - MAX_ANGLE_DELTA;
   }
@@ -978,7 +993,6 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       *tx_type = DCT_DCT;
     }
 #else
-
     if (tx_size < TX_32X32 &&
         ((!cm->seg.enabled && cm->base_qindex > 0) ||
          (cm->seg.enabled && xd->qindex[mbmi->segment_id] > 0)) &&
@@ -1096,7 +1110,11 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   if (bsize >= BLOCK_8X8 && cm->allow_screen_content_tools) {
     mbmi->use_intrabc = aom_read(r, INTRABC_PROB, ACCT_STR);
     if (mbmi->use_intrabc) {
+#if CONFIG_CFL
+      mbmi->mode = mbmi->uv_mode = UV_DC_PRED;
+#else
       mbmi->mode = mbmi->uv_mode = DC_PRED;
+#endif
 #if CONFIG_DUAL_FILTER
       for (int idx = 0; idx < 4; ++idx) mbmi->interp_filter[idx] = BILINEAR;
 #else
@@ -1201,15 +1219,8 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 #endif
 
 #if CONFIG_CFL
-    // TODO(ltrudeau) support PALETTE
-    if (mbmi->uv_mode == DC_PRED) {
-      mbmi->cfl_alpha_idx = read_cfl_alphas(
-#if CONFIG_EC_ADAPT
-          xd->tile_ctx,
-#else
-          cm->fc,
-#endif  // CONFIG_EC_ADAPT
-          r, mbmi->skip, mbmi->cfl_alpha_signs);
+    if (mbmi->uv_mode == UV_CFL_PRED) {
+      mbmi->cfl_alpha_idx = read_cfl_alphas(ec_ctx, r, mbmi->cfl_alpha_signs);
     }
 #endif  // CONFIG_CFL
 
@@ -1546,15 +1557,13 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
 #endif
 
 #if CONFIG_CFL
-    // TODO(ltrudeau) support PALETTE
-    if (mbmi->uv_mode == DC_PRED) {
-      mbmi->cfl_alpha_idx = read_cfl_alphas(
+    if (mbmi->uv_mode == UV_CFL_PRED) {
 #if CONFIG_EC_ADAPT
-          xd->tile_ctx,
-#else
-          cm->fc,
-#endif  // CONFIG_EC_ADAPT
-          r, mbmi->skip, mbmi->cfl_alpha_signs);
+      FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#elif CONFIG_EC_MULTISYMBOL
+      FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+      mbmi->cfl_alpha_idx = read_cfl_alphas(ec_ctx, r, mbmi->cfl_alpha_signs);
     }
 #endif  // CONFIG_CFL
 

@@ -2361,16 +2361,8 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
 
   // predict
   if (mode == DC_PRED) {
-#if CONFIG_CFL
-    // CFL predict its own DC_PRED for Chromatic planes
-    if (plane == AOM_PLANE_Y) {
-#endif
-      dc_pred[n_left_px > 0][n_top_px > 0][tx_size](dst, dst_stride, above_row,
-                                                    left_col);
-#if CONFIG_CFL
-    }
-#endif
-
+    dc_pred[n_left_px > 0][n_top_px > 0][tx_size](dst, dst_stride, above_row,
+                                                  left_col);
   } else {
     pred[mode][tx_size](dst, dst_stride, above_row, left_col);
   }
@@ -2499,27 +2491,41 @@ void av1_predict_intra_block_facade(MACROBLOCKD *xd, int plane, int block_idx,
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const int block_raster_idx =
       av1_block_index_to_raster_order(tx_size, block_idx);
+#if CONFIG_CFL
+  if (plane == AOM_PLANE_Y) {
+    const PREDICTION_MODE mode = get_y_mode(xd->mi[0], block_raster_idx);
+    av1_predict_intra_block(xd, pd->width, pd->height, txsize_to_bsize[tx_size],
+                            mode, dst, dst_stride, dst, dst_stride, blk_col,
+                            blk_row, plane);
+  } else {
+    if (mbmi->uv_mode == UV_CFL_PRED) {
+      if (plane == AOM_PLANE_U && blk_col == 0 && blk_row == 0) {
+        // Compute the block-level DC_PRED for both chromatic planes prior to
+        // processing the first chromatic plane in order to compute alpha_cb and
+        // alpha_cr. Note: This is not required on the decoder side because
+        // alpha
+        // is signaled.
+        cfl_dc_pred(xd, get_plane_block_size(block_idx, pd), tx_size);
+      }
+
+      cfl_predict_block(
+          xd->cfl, dst, pd->dst.stride, blk_row, blk_col, tx_size,
+          xd->cfl->dc_pred[plane - 1],
+          cfl_idx_to_alpha(mbmi->cfl_alpha_idx,
+                           mbmi->cfl_alpha_signs[plane - 1], plane - 1));
+    } else {
+      const PREDICTION_MODE mode = get_pred_mode(mbmi->uv_mode);
+      av1_predict_intra_block(xd, pd->width, pd->height,
+                              txsize_to_bsize[tx_size], mode, dst, dst_stride,
+                              dst, dst_stride, blk_col, blk_row, plane);
+    }
+  }
+#else
   const PREDICTION_MODE mode =
       (plane == 0) ? get_y_mode(xd->mi[0], block_raster_idx) : mbmi->uv_mode;
   av1_predict_intra_block(xd, pd->width, pd->height, txsize_to_bsize[tx_size],
                           mode, dst, dst_stride, dst, dst_stride, blk_col,
                           blk_row, plane);
-#if CONFIG_CFL
-  if (plane != AOM_PLANE_Y && mbmi->uv_mode == DC_PRED) {
-    if (plane == AOM_PLANE_U && blk_col == 0 && blk_row == 0) {
-      // Compute the block-level DC_PRED for both chromatic planes prior to
-      // processing the first chromatic plane in order to compute alpha_cb and
-      // alpha_cr. Note: This is not required on the decoder side because alpha
-      // is signaled.
-      cfl_dc_pred(xd, get_plane_block_size(block_idx, pd), tx_size);
-    }
-
-    cfl_predict_block(
-        xd->cfl, dst, pd->dst.stride, blk_row, blk_col, tx_size,
-        xd->cfl->dc_pred[plane - 1],
-        cfl_idx_to_alpha(mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs[plane - 1],
-                         plane - 1));
-  }
 #endif
 }
 
@@ -2554,7 +2560,8 @@ void av1_predict_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
         const int half_block_height = block_height >> 1;
         const int half_block_height_unit =
             half_block_height >> tx_size_wide_log2[0];
-        // Cast away const to modify 'ref' temporarily; will be restored later.
+        // Cast away const to modify 'ref' temporarily; will be restored
+        // later.
         uint8_t *src_2 = (uint8_t *)ref + half_block_height * ref_stride;
         uint8_t *dst_2 = dst + half_block_height * dst_stride;
         const int row_off_2 = row_off + half_block_height_unit;
@@ -2607,7 +2614,8 @@ void av1_predict_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
         const int half_block_width = block_width >> 1;
         const int half_block_width_unit =
             half_block_width >> tx_size_wide_log2[0];
-        // Cast away const to modify 'ref' temporarily; will be restored later.
+        // Cast away const to modify 'ref' temporarily; will be restored
+        // later.
         uint8_t *src_2 = (uint8_t *)ref + half_block_width;
         uint8_t *dst_2 = dst + half_block_width;
         const int col_off_2 = col_off + half_block_width_unit;

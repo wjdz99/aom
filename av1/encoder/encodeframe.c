@@ -5681,7 +5681,11 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
                             const int mi_row, const int mi_col) {
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const PREDICTION_MODE y_mode = mbmi->mode;
+#if CONFIG_CFL
+  const UV_PREDICTION_MODE uv_mode = mbmi->uv_mode;
+#else
   const PREDICTION_MODE uv_mode = mbmi->uv_mode;
+#endif
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const int unify_bsize = CONFIG_CB4X4;
 
@@ -5719,7 +5723,11 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
           mbmi->filter_intra_mode_info.use_filter_intra_mode[0];
       ++counts->filter_intra[0][use_filter_intra_mode];
     }
+#if CONFIG_CFL
+    if (uv_mode == UV_DC_PRED
+#else
     if (mbmi->uv_mode == DC_PRED
+#endif  // CONFIG_CFL
 #if CONFIG_PALETTE
         && mbmi->palette_mode_info.palette_size[1] == 0
 #endif  // CONFIG_PALETTE

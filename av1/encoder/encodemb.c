@@ -1447,7 +1447,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                                          blk_row, tx_size, plane_bsize);
 #else
   av1_predict_intra_block_facade(xd, plane, block, blk_col, blk_row, tx_size);
-#endif
+#endif  // CONFIG_CFL
   av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
 
   const ENTROPY_CONTEXT *a = &args->ta[blk_col];
@@ -1476,52 +1476,8 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 // Note : *(args->skip) == mbmi->skip
 #endif
 #if CONFIG_CFL
-  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   if (plane == AOM_PLANE_Y && x->cfl_store_y) {
     cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_size);
-  }
-
-  if (mbmi->uv_mode == DC_PRED) {
-    // TODO(ltrudeau) find a cleaner way to detect last transform block
-    if (plane == AOM_PLANE_U) {
-      xd->cfl->num_tx_blk[CFL_PRED_U] =
-          (blk_row == 0 && blk_col == 0) ? 1
-                                         : xd->cfl->num_tx_blk[CFL_PRED_U] + 1;
-    }
-
-    if (plane == AOM_PLANE_V) {
-      xd->cfl->num_tx_blk[CFL_PRED_V] =
-          (blk_row == 0 && blk_col == 0) ? 1
-                                         : xd->cfl->num_tx_blk[CFL_PRED_V] + 1;
-
-      if (mbmi->skip &&
-          xd->cfl->num_tx_blk[CFL_PRED_U] == xd->cfl->num_tx_blk[CFL_PRED_V]) {
-        assert(plane_bsize != BLOCK_INVALID);
-        const int block_width = block_size_wide[plane_bsize];
-        const int block_height = block_size_high[plane_bsize];
-
-        // if SKIP is chosen at the block level, and ind != 0, we must change
-        // the prediction
-        if (mbmi->cfl_alpha_idx != 0) {
-          const struct macroblockd_plane *const pd_cb = &xd->plane[AOM_PLANE_U];
-          uint8_t *const dst_cb = pd_cb->dst.buf;
-          const int dst_stride_cb = pd_cb->dst.stride;
-          uint8_t *const dst_cr = pd->dst.buf;
-          const int dst_stride_cr = pd->dst.stride;
-          for (int j = 0; j < block_height; j++) {
-            for (int i = 0; i < block_width; i++) {
-              dst_cb[dst_stride_cb * j + i] =
-                  (uint8_t)(xd->cfl->dc_pred[CFL_PRED_U] + 0.5);
-              dst_cr[dst_stride_cr * j + i] =
-                  (uint8_t)(xd->cfl->dc_pred[CFL_PRED_V] + 0.5);
-            }
-          }
-          mbmi->cfl_alpha_idx = 0;
-          mbmi->cfl_alpha_signs[CFL_PRED_U] = CFL_SIGN_POS;
-          mbmi->cfl_alpha_signs[CFL_PRED_V] = CFL_SIGN_POS;
-        }
-      }
-    }
   }
 #endif
 }
@@ -1662,7 +1618,7 @@ void av1_predict_intra_block_encoder_facade(MACROBLOCK *x,
                                             BLOCK_SIZE plane_bsize) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  if (plane != AOM_PLANE_Y && mbmi->uv_mode == DC_PRED) {
+  if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED) {
     if (blk_col == 0 && blk_row == 0 && plane == AOM_PLANE_U) {
       CFL_CTX *const cfl = xd->cfl;
       cfl_update_costs(cfl, ec_ctx);

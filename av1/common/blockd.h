@@ -84,6 +84,27 @@ static INLINE int is_inter_mode(PREDICTION_MODE mode) {
 #endif  // CONFIG_EXT_INTER
 }
 
+#if CONFIG_CFL
+static INLINE PREDICTION_MODE get_pred_mode(UV_PREDICTION_MODE mode) {
+  static PREDICTION_MODE uv2y[UV_INTRA_MODES] = {
+    DC_PRED,    // UV_DC_PRED
+    V_PRED,     // UV_V_PRED
+    H_PRED,     // UV_H_PRED
+    D45_PRED,   // UV_D45_PRED
+    D135_PRED,  // UV_D135_PRED
+    D117_PRED,  // UV_D117_PRED
+    D153_PRED,  // UV_D153_PRED
+    D207_PRED,  // UV_D207_PRED
+    D63_PRED,   // UV_D63_PRED
+#if CONFIG_ALT_INTRA
+    SMOOTH_PRED,  // UV_SMOOTH_PRED
+#endif            // CONFIG_ALT_INTRA
+    TM_PRED,      // UV_TM_PRED
+    DC_PRED,      // CFL_PRED
+  };
+  return uv2y[mode];
+}
+#endif  // CONFIG_CFL
 #if CONFIG_PVQ
 typedef struct PVQ_INFO {
   int theta[PVQ_MAX_PARTITIONS];
@@ -345,8 +366,12 @@ typedef struct MB_MODE_INFO {
 #endif                      // CONFIG_SUPERTX
   int8_t seg_id_predicted;  // valid only when temporal_update is enabled
 
-  // Only for INTRA blocks
+// Only for INTRA blocks
+#if CONFIG_CFL
+  UV_PREDICTION_MODE uv_mode;
+#else
   PREDICTION_MODE uv_mode;
+#endif  // CONFIG_CFL
 #if CONFIG_PALETTE
   PALETTE_MODE_INFO palette_mode_info;
 #endif  // CONFIG_PALETTE
@@ -1015,7 +1040,11 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
 
   return intra_mode_to_tx_type_context[plane_type == PLANE_TYPE_Y
                                            ? get_y_mode(xd->mi[0], block_idx)
+#if CONFIG_CFL
+                                           : get_pred_mode(mbmi->uv_mode)];
+#else
                                            : mbmi->uv_mode];
+#endif  // CONFIG_CFL
 }
 
 static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
@@ -1061,7 +1090,11 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
   if (tx_size < TX_4X4)
     return DCT_DCT;
   else
+#if CONFIG_CFL
+    return intra_mode_to_tx_type_context[get_pred_mode(mbmi->uv_mode)];
+#else
     return intra_mode_to_tx_type_context[mbmi->uv_mode];
+#endif  // CONFIG_CFL
 #else
 
   // Sub8x8-Inter/Intra OR UV-Intra
@@ -1070,7 +1103,11 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
   else  // Sub8x8 Intra OR UV-Intra
     return intra_mode_to_tx_type_context[plane_type == PLANE_TYPE_Y
                                              ? get_y_mode(mi, block_raster_idx)
+#if CONFIG_CFL
+                                             : mbmi->get_pred_mode(uv_mode)];
+#else
                                              : mbmi->uv_mode];
+#endif  // CONFIG_CFL
 #endif  // CONFIG_CB4X4
 #else   // CONFIG_EXT_TX
   (void)block;
