@@ -3347,29 +3347,27 @@ static void encode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_write_bit_buffer *wb) {
   int p;
   RestorationInfo *rsi = &cm->rst_info[0];
-  switch (rsi->frame_restoration_type) {
-    case RESTORE_NONE:
-      aom_wb_write_bit(wb, 0);
-      aom_wb_write_bit(wb, 0);
-      break;
-    case RESTORE_WIENER:
-      aom_wb_write_bit(wb, 1);
-      aom_wb_write_bit(wb, 0);
-      break;
-    case RESTORE_SGRPROJ:
-      aom_wb_write_bit(wb, 1);
-      aom_wb_write_bit(wb, 1);
-      break;
-    case RESTORE_SWITCHABLE:
-      aom_wb_write_bit(wb, 0);
-      aom_wb_write_bit(wb, 1);
-      break;
-    default: assert(0);
+  aom_wb_write_bit(
+      wb, rsi->restoration_tilesize != (RESTORATION_TILESIZE_MAX >> 2));
+  if (rsi->restoration_tilesize != (RESTORATION_TILESIZE_MAX >> 2)) {
+    aom_wb_write_bit(
+        wb, rsi->restoration_tilesize != (RESTORATION_TILESIZE_MAX >> 1));
   }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+  const int ntiles_y = av1_get_rest_ntiles(cm->width, cm->height,
+                                           cm->rst_info[0].restoration_tilesize,
+                                           NULL, NULL, NULL, NULL);
+  const int ntiles_uv = av1_get_rest_ntiles(
+      ROUND_POWER_OF_TWO(cm->width, cm->subsampling_x),
+      ROUND_POWER_OF_TWO(cm->height, cm->subsampling_y),
+      cm->rst_info[1].restoration_tilesize, NULL, NULL, NULL, NULL);
+  for (p = 0; p < MAX_MB_PLANE; ++p) {
+    const int ntiles = p == AOM_PLANE_Y ? ntiles_y : ntiles_uv;
     rsi = &cm->rst_info[p];
     switch (rsi->frame_restoration_type) {
-      case RESTORE_NONE: aom_wb_write_bit(wb, 0); break;
+      case RESTORE_NONE:
+        aom_wb_write_bit(wb, 0);
+        if (ntiles > 1) aom_wb_write_bit(wb, 0);
+        break;
       case RESTORE_WIENER:
         aom_wb_write_bit(wb, 1);
         aom_wb_write_bit(wb, 0);
@@ -3378,17 +3376,15 @@ static void encode_restoration_mode(AV1_COMMON *cm,
         aom_wb_write_bit(wb, 1);
         aom_wb_write_bit(wb, 1);
         break;
+      case RESTORE_SWITCHABLE:
+        if (ntiles > 1) {
+          aom_wb_write_bit(wb, 0);
+          aom_wb_write_bit(wb, 1);
+        } else {
+          assert(0);
+        }
+        break;
       default: assert(0);
-    }
-  }
-  if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
-    rsi = &cm->rst_info[0];
-    aom_wb_write_bit(wb, rsi->restoration_tilesize != RESTORATION_TILESIZE_MAX);
-    if (rsi->restoration_tilesize != RESTORATION_TILESIZE_MAX) {
-      aom_wb_write_bit(
-          wb, rsi->restoration_tilesize != (RESTORATION_TILESIZE_MAX >> 1));
     }
   }
 }
@@ -3445,73 +3441,52 @@ static void write_sgrproj_filter(SgrprojInfo *sgrproj_info,
 
 static void encode_restoration(AV1_COMMON *cm, aom_writer *wb) {
   int i, p;
-  const int ntiles = av1_get_rest_ntiles(cm->width, cm->height,
-                                         cm->rst_info[0].restoration_tilesize,
-                                         NULL, NULL, NULL, NULL);
-  WienerInfo ref_wiener_info;
-  SgrprojInfo ref_sgrproj_info;
-  set_default_wiener(&ref_wiener_info);
-  set_default_sgrproj(&ref_sgrproj_info);
+  const int ntiles_y = av1_get_rest_ntiles(cm->width, cm->height,
+                                           cm->rst_info[0].restoration_tilesize,
+                                           NULL, NULL, NULL, NULL);
   const int ntiles_uv = av1_get_rest_ntiles(
       ROUND_POWER_OF_TWO(cm->width, cm->subsampling_x),
       ROUND_POWER_OF_TWO(cm->height, cm->subsampling_y),
       cm->rst_info[1].restoration_tilesize, NULL, NULL, NULL, NULL);
-  RestorationInfo *rsi = &cm->rst_info[0];
-  if (rsi->frame_restoration_type != RESTORE_NONE) {
-    if (rsi->frame_restoration_type == RESTORE_SWITCHABLE) {
-      // RESTORE_SWITCHABLE
-      for (i = 0; i < ntiles; ++i) {
-        av1_write_token(
-            wb, av1_switchable_restore_tree, cm->fc->switchable_restore_prob,
-            &switchable_restore_encodings[rsi->restoration_type[i]]);
-        if (rsi->restoration_type[i] == RESTORE_WIENER) {
-          write_wiener_filter(&rsi->wiener_info[i], &ref_wiener_info, wb);
-        } else if (rsi->restoration_type[i] == RESTORE_SGRPROJ) {
-          write_sgrproj_filter(&rsi->sgrproj_info[i], &ref_sgrproj_info, wb);
-        }
-      }
-    } else if (rsi->frame_restoration_type == RESTORE_WIENER) {
-      for (i = 0; i < ntiles; ++i) {
-        aom_write(wb, rsi->restoration_type[i] != RESTORE_NONE,
-                  RESTORE_NONE_WIENER_PROB);
-        if (rsi->restoration_type[i] != RESTORE_NONE) {
-          write_wiener_filter(&rsi->wiener_info[i], &ref_wiener_info, wb);
-        }
-      }
-    } else if (rsi->frame_restoration_type == RESTORE_SGRPROJ) {
-      for (i = 0; i < ntiles; ++i) {
-        aom_write(wb, rsi->restoration_type[i] != RESTORE_NONE,
-                  RESTORE_NONE_SGRPROJ_PROB);
-        if (rsi->restoration_type[i] != RESTORE_NONE) {
-          write_sgrproj_filter(&rsi->sgrproj_info[i], &ref_sgrproj_info, wb);
-        }
-      }
-    }
-  }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+  WienerInfo ref_wiener_info;
+  SgrprojInfo ref_sgrproj_info;
+  for (p = 0; p < MAX_MB_PLANE; ++p) {
+    const int ntiles = p == AOM_PLANE_Y ? ntiles_y : ntiles_uv;
     set_default_wiener(&ref_wiener_info);
     set_default_sgrproj(&ref_sgrproj_info);
-    rsi = &cm->rst_info[p];
-    if (rsi->frame_restoration_type == RESTORE_WIENER) {
-      for (i = 0; i < ntiles_uv; ++i) {
-        if (ntiles_uv > 1)
-          aom_write(wb, rsi->restoration_type[i] != RESTORE_NONE,
-                    RESTORE_NONE_WIENER_PROB);
-        if (rsi->restoration_type[i] != RESTORE_NONE) {
-          write_wiener_filter(&rsi->wiener_info[i], &ref_wiener_info, wb);
+    RestorationInfo *rsi = &cm->rst_info[p];
+    if (rsi->frame_restoration_type != RESTORE_NONE) {
+      if (rsi->frame_restoration_type == RESTORE_SWITCHABLE) {
+        // RESTORE_SWITCHABLE
+        for (i = 0; i < ntiles; ++i) {
+          av1_write_token(
+              wb, av1_switchable_restore_tree, cm->fc->switchable_restore_prob,
+              &switchable_restore_encodings[rsi->restoration_type[i]]);
+          if (rsi->restoration_type[i] == RESTORE_WIENER) {
+            write_wiener_filter(&rsi->wiener_info[i], &ref_wiener_info, wb);
+          } else if (rsi->restoration_type[i] == RESTORE_SGRPROJ) {
+            write_sgrproj_filter(&rsi->sgrproj_info[i], &ref_sgrproj_info, wb);
+          }
+        }
+      } else if (rsi->frame_restoration_type == RESTORE_WIENER) {
+        for (i = 0; i < ntiles; ++i) {
+          if (ntiles > 1)
+            aom_write(wb, rsi->restoration_type[i] != RESTORE_NONE,
+                      RESTORE_NONE_WIENER_PROB);
+          if (rsi->restoration_type[i] != RESTORE_NONE) {
+            write_wiener_filter(&rsi->wiener_info[i], &ref_wiener_info, wb);
+          }
+        }
+      } else if (rsi->frame_restoration_type == RESTORE_SGRPROJ) {
+        for (i = 0; i < ntiles; ++i) {
+          if (ntiles > 1)
+            aom_write(wb, rsi->restoration_type[i] != RESTORE_NONE,
+                      RESTORE_NONE_SGRPROJ_PROB);
+          if (rsi->restoration_type[i] != RESTORE_NONE) {
+            write_sgrproj_filter(&rsi->sgrproj_info[i], &ref_sgrproj_info, wb);
+          }
         }
       }
-    } else if (rsi->frame_restoration_type == RESTORE_SGRPROJ) {
-      for (i = 0; i < ntiles_uv; ++i) {
-        if (ntiles_uv > 1)
-          aom_write(wb, rsi->restoration_type[i] != RESTORE_NONE,
-                    RESTORE_NONE_SGRPROJ_PROB);
-        if (rsi->restoration_type[i] != RESTORE_NONE) {
-          write_sgrproj_filter(&rsi->sgrproj_info[i], &ref_sgrproj_info, wb);
-        }
-      }
-    } else if (rsi->frame_restoration_type != RESTORE_NONE) {
-      assert(0);
     }
   }
 }
