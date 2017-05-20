@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9d96e3f3_541c9cf7",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-05-20T22:53:35Z",
+      "side": 1,
+      "message": "I wanted to provide 3 options for palette: always on(screen), always off(default), and automatic on/off(auto).",
+      "parentUuid": "55ffe908_2c9d658b",
+      "range": {
+        "startLine": 140,
+        "startChar": 2,
+        "endLine": 140,
+        "endChar": 18
+      },
+      "revId": "3300fc6896f07535120dda6547aab3d69811828b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "88f23578_323c203e",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 16
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f84ba8f0_6202aecc",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-05-20T22:53:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88f23578_323c203e",
+      "range": {
+        "startLine": 220,
+        "startChar": 29,
+        "endLine": 220,
+        "endChar": 40
+      },
+      "revId": "3300fc6896f07535120dda6547aab3d69811828b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4253b13e_81fa36f5",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 16
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "aeba96ad_8d476363",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 5156,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-05-20T22:53:35Z",
+      "side": 1,
+      "message": "Yes. Comments added.",
+      "parentUuid": "4253b13e_81fa36f5",
+      "revId": "3300fc6896f07535120dda6547aab3d69811828b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e380b0d_b14b096a",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 16
@@ -76,6 +142,24 @@
       "writtenOn": "2017-05-19T19:30:38Z",
       "side": 1,
       "message": "So, this is \u003e\u003d10% of blocks, if I understand correctly?",
+      "revId": "3300fc6896f07535120dda6547aab3d69811828b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9abbb57_39946abd",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 5170,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-05-20T22:53:35Z",
+      "side": 1,
+      "message": "Correct. Comments added.",
+      "parentUuid": "0e380b0d_b14b096a",
       "revId": "3300fc6896f07535120dda6547aab3d69811828b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -102,6 +186,30 @@
       "revId": "3300fc6896f07535120dda6547aab3d69811828b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "509afe39_33231e8e",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 5202,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-05-20T22:53:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95abb65f_94762c16",
+      "range": {
+        "startLine": 5202,
+        "startChar": 4,
+        "endLine": 5202,
+        "endChar": 15
+      },
+      "revId": "3300fc6896f07535120dda6547aab3d69811828b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
