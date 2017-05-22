@@ -715,7 +715,7 @@ void aom_comp_mask_upsampled_pred_c(uint8_t *comp_pred, const uint8_t *pred,
 }
 
 #define MASK_SUBPIX_VAR(W, H)                                               \
-  unsigned int aom_masked_compound_sub_pixel_variance##W##x##H##_c(         \
+  unsigned int aom_masked_sub_pixel_variance##W##x##H##_c(                  \
       const uint8_t *src, int src_stride, int xoffset, int yoffset,         \
       const uint8_t *ref, int ref_stride, const uint8_t *second_pred,       \
       const uint8_t *msk, int msk_stride, int invert_mask,                  \
@@ -800,7 +800,7 @@ void aom_highbd_comp_mask_upsampled_pred_c(uint16_t *comp_pred,
 }
 
 #define HIGHBD_MASK_SUBPIX_VAR(W, H)                                           \
-  unsigned int aom_highbd_masked_compound_sub_pixel_variance##W##x##H##_c(     \
+  unsigned int aom_highbd_8_masked_sub_pixel_variance##W##x##H##_c(            \
       const uint8_t *src, int src_stride, int xoffset, int yoffset,            \
       const uint8_t *ref, int ref_stride, const uint8_t *second_pred,          \
       const uint8_t *msk, int msk_stride, int invert_mask,                     \
@@ -822,7 +822,7 @@ void aom_highbd_comp_mask_upsampled_pred_c(uint16_t *comp_pred,
                                               ref, ref_stride, sse);           \
   }                                                                            \
                                                                                \
-  unsigned int aom_highbd_10_masked_compound_sub_pixel_variance##W##x##H##_c(  \
+  unsigned int aom_highbd_10_masked_sub_pixel_variance##W##x##H##_c(           \
       const uint8_t *src, int src_stride, int xoffset, int yoffset,            \
       const uint8_t *ref, int ref_stride, const uint8_t *second_pred,          \
       const uint8_t *msk, int msk_stride, int invert_mask,                     \
@@ -844,7 +844,7 @@ void aom_highbd_comp_mask_upsampled_pred_c(uint16_t *comp_pred,
                                                ref, ref_stride, sse);          \
   }                                                                            \
                                                                                \
-  unsigned int aom_highbd_12_masked_compound_sub_pixel_variance##W##x##H##_c(  \
+  unsigned int aom_highbd_12_masked_sub_pixel_variance##W##x##H##_c(           \
       const uint8_t *src, int src_stride, int xoffset, int yoffset,            \
       const uint8_t *ref, int ref_stride, const uint8_t *second_pred,          \
       const uint8_t *msk, int msk_stride, int invert_mask,                     \
