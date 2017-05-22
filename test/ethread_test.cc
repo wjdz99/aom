@@ -74,7 +74,11 @@ class AVxEncoderThreadTest
       if (codec_ == &libaom_test::kAV1) {
         // TODO(geza): Start using multiple tile rows when the multi-threaded
         // encoder can handle them
+#if CONFIG_DEPENDENT_HORZTILES
+        encoder->Control(AV1E_SET_TILE_ROWS, 0);
+#else
         encoder->Control(AV1E_SET_TILE_ROWS, 32);
+#endif
       } else {
         encoder->Control(AV1E_SET_TILE_ROWS, 0);
       }
