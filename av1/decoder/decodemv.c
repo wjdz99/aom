@@ -2120,7 +2120,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   mbmi->motion_mode = SIMPLE_TRANSLATION;
 #if CONFIG_WARPED_MOTION
-  if (mbmi->sb_type >= BLOCK_8X8 && !has_second_ref(mbmi))
+  if (mbmi->sb_type >= BLOCK_8X8)
     mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
