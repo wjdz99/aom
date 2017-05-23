@@ -8340,6 +8340,7 @@ static int64_t motion_mode_rd(
     int mi_col, HandleInterModeArgs *const args, const int64_t ref_best_rd,
     const int *refs, int rate_mv,
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+    int_mv *const single_newmv,
 #if CONFIG_EXT_INTER
     int rate2_bmc_nocoeff, MB_MODE_INFO *best_bmc_mbmi,
 #if CONFIG_MOTION_VAR
@@ -8477,9 +8478,72 @@ static int64_t motion_mode_rd(
                                                             : cm->interp_filter;
 #endif  // CONFIG_DUAL_FILTER
 
-      if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
-                          mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
-                          &mbmi->wm_params[0], mi_row, mi_col) == 0) {
+      if (!find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
+                           mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                           &mbmi->wm_params[0], mi_row, mi_col)) {
+        // Refine MV for NEWMV mode
+        if (!is_comp_pred && have_newmv_in_inter_mode(this_mode)) {
+          // && cm->allow_high_precision_mv) {
+          int tmp_rate_mv = 0;
+          unsigned int cur_mse;
+          const int_mv mv0 = mbmi->mv[0];
+          WarpedMotionParams wm_params0 = mbmi->wm_params[0];
+          int find_better = 0;
+
+          // Refine MV in a small range.
+          av1_refine_mv(cpi, x, bsize, mi_row, mi_col, &cur_mse, pts, pts_inref);
+
+          // Evaluate the found MV.
+          if (mv0.as_int != mbmi->mv[0].as_int) {
+            if (!find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
+                                 mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                                 &mbmi->wm_params[0], mi_row, mi_col)) {
+              unsigned int thismse;
+              thismse = av1_compute_motion_cost(cpi, x, bsize, mi_row, mi_col,
+                                                &mbmi->mv[0].as_mv);
+
+              // Keep the refined MV and WM parameters.
+              if (thismse < cur_mse) {
+                const int ref = refs[0];
+                const MV ref_mv = x->mbmi_ext->ref_mvs[ref][0].as_mv;
+
+                find_better = 1;
+                tmp_rate_mv =
+                    av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv,
+                                    x->nmvjointcost, x->mvcost, MV_COST_WEIGHT);
+
+                if (cpi->sf.adaptive_motion_search)
+                  x->pred_mv[ref] = mbmi->mv[0].as_mv;
+
+                single_newmv[ref] = mbmi->mv[0];
+
+                if (discount_newmv_test(cpi, this_mode, mbmi->mv[0], mode_mv,
+                                        refs[0])) {
+                  tmp_rate_mv =
+                      AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
+                }
+#if CONFIG_EXT_INTER
+                tmp_rate2 = rate2_bmc_nocoeff - rate_mv_bmc + tmp_rate_mv;
+#else
+                tmp_rate2 = rate2_nocoeff - rate_mv + tmp_rate_mv;
+#endif  // CONFIG_EXT_INTER
+#if CONFIG_DUAL_FILTER
+                if (!has_subpel_mv_component(xd->mi[0], xd, 0))
+                  mbmi->interp_filter[0] = EIGHTTAP_REGULAR;
+                if (!has_subpel_mv_component(xd->mi[0], xd, 1))
+                  mbmi->interp_filter[1] = EIGHTTAP_REGULAR;
+#endif  // CONFIG_DUAL_FILTER
+              }
+            }
+          }
+
+          // Restore the old MV and WM parameters.
+          if (!find_better) {
+            mbmi->mv[0] = mv0;
+            mbmi->wm_params[0] = wm_params0;
+          }
+        }
+
         av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
         model_rd_for_sb(cpi, bsize, x, xd, 0, MAX_MB_PLANE - 1, &tmp_rate,
                         &tmp_dist, skip_txfm_sb, skip_sse_sb);
@@ -9295,6 +9359,7 @@ static int64_t handle_inter_mode(
                            disable_skip, mode_mv, mi_row, mi_col, args,
                            ref_best_rd, refs, rate_mv,
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+                           single_newmv,
 #if CONFIG_EXT_INTER
                            rate2_bmc_nocoeff, &best_bmc_mbmi,
 #if CONFIG_MOTION_VAR
