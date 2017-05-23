@@ -94,8 +94,9 @@ static int kf_high = 5000;
 static int kf_low = 400;
 
 double av1_resize_rate_factor(const AV1_COMP *cpi) {
-  return (double)(cpi->resize_scale_den * cpi->resize_scale_den) /
-         (cpi->resize_scale_num * cpi->resize_scale_num);
+  const AV1EncoderConfig *oxcf = &cpi->oxcf;
+  return (double)(cpi->common.width * cpi->common.height) /
+         (oxcf->width * oxcf->height);
 }
 
 // Functions to compute the active minq lookup table entries based on a
@@ -1164,7 +1165,7 @@ void av1_rc_set_frame_target(AV1_COMP *cpi, int target) {
   rc->this_frame_target = target;
 
   // Modify frame size target when down-scaled.
-  if (cpi->oxcf.resize_mode == RESIZE_DYNAMIC && !av1_resize_unscaled(cpi))
+  if (!av1_resize_unscaled(cpi))
     rc->this_frame_target =
         (int)(rc->this_frame_target * av1_resize_rate_factor(cpi));
 
@@ -1663,3 +1664,59 @@ void av1_set_target_rate(AV1_COMP *cpi) {
     vbr_rate_correction(cpi, &target_rate);
   av1_rc_set_frame_target(cpi, target_rate);
 }
+
+#define RANDOM_RESIZE 1
+#define RANDOM_SUPERRES 1
+void av1_calculate_next_scaled_size(const AV1_COMP *cpi, int *width,
+                                    int *height) {
+  const AV1EncoderConfig *oxcf = &cpi->oxcf;
+
+  // TODO(afergs): Get width from frame instead?
+  *width = oxcf->width;
+  *height = oxcf->height;
+
+  if (oxcf->resize_mode == RESIZE_FIXED) {
+    // TODO(afergs): Modify av1_resize_pending too? I don't think it was ever
+    //               set for fixed resizes before...
+    *width = oxcf->scaled_frame_width;
+    *height = oxcf->scaled_frame_height;
+    return;
+  }
+#if RANDOM_RESIZE
+  if (cpi->common.frame_type != KEY_FRAME) {
+    if (oxcf->pass == 2 || oxcf->pass == 0) {
+      int scale_num = rand() % 4 + 13;
+      int scale_den = 16;
+      if (cpi->oxcf.width * scale_num / scale_den * 2 < oxcf->width ||
+          cpi->oxcf.height * scale_num / scale_den * 2 < oxcf->height) {
+        scale_num = 16;
+      } else {
+        *width = cpi->oxcf.width * scale_num / scale_den;
+        *height = cpi->oxcf.height * scale_num / scale_den;
+      }
+    }
+  }
+#endif  // RANDOM_RESIZE
+}
+
+#if CONFIG_FRAME_SUPERRES
+int av1_calculate_next_superres_scale(const AV1_COMP *cpi, int width,
+                                      int height) {
+  const AV1EncoderConfig *oxcf = &cpi->oxcf;
+  (void)width;
+  (void)height;
+  (void)oxcf;
+#if RANDOM_SUPERRES
+  if (cpi->common.frame_type != KEY_FRAME) {
+    if (oxcf->pass == 2 || oxcf->pass == 0) {
+      int new_num = rand() % 9 + 8;
+      if (new_num * width / SUPERRES_SCALE_DENOMINATOR * 2 < oxcf->width ||
+          new_num * height / SUPERRES_SCALE_DENOMINATOR * 2 < oxcf->height)
+        new_num = SUPERRES_SCALE_DENOMINATOR;
+      return new_num;
+    }
+  }
+#endif  // RANDOM_SUPERRES
+  return 16;
+}
+#endif  // CONFIG_FRAME_SUPERRES
