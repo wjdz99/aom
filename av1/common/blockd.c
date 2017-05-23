@@ -200,15 +200,24 @@ void av1_foreach_8x8_transformed_block_in_plane(
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
 
+  assert(plane == 0);
+  assert(plane_bsize >= BLOCK_8X8);
+  assert(tx_size == TX_4X4 || tx_size == TX_4X8 || tx_size == TX_8X4);
+
   // Keep track of the row and column of the blocks we use so that we know
   // if we are in the unrestricted motion border.
   for (r = 0; r < max_blocks_high; r += txh_unit) {
     // Skip visiting the sub blocks that are wholly within the UMV.
     for (c = 0; c < max_blocks_wide; c += txw_unit) {
       visit(plane, i, r, c, plane_bsize, tx_size, arg);
-      // Call whenever each 8x8 block is done
+// Call whenever each 8x8 block is done
+#if CONFIG_CB4X4
+      if ((r & 2) && (c & 2))
+        mi_visit(plane, i, r - 2, c - 2, plane_bsize, tx_size, arg);
+#else
       if ((r & 1) && (c & 1))
-        mi_visit(plane, i, r - 1, c - 1, plane_bsize, TX_8X8, arg);
+        mi_visit(plane, i, r - 1, c - 1, plane_bsize, tx_size, arg);
+#endif
       i += step;
     }
   }
