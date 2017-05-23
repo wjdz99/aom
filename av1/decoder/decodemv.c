@@ -523,6 +523,8 @@ static TX_SIZE read_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd, int is_inter,
 
         return max_txsize_rect_lookup[bsize];
       }
+#elif CONFIG_RECT_TX
+      assert(coded_tx_size <= max_txsize_rect_lookup[bsize]);
 #else
       assert(coded_tx_size <= max_txsize_lookup[bsize]);
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
