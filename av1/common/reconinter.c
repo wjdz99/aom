@@ -1018,7 +1018,7 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
           warp_types.local_warp_allowed =
-              this_mbmi->motion_mode == WARPED_CAUSAL;
+              this_mbmi->motion_mode == WARPED_CAUSAL && !ref;
 #endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
@@ -1169,7 +1169,8 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
       warp_types.global_warp_allowed = is_global[ref];
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
-      warp_types.local_warp_allowed = mi->mbmi.motion_mode == WARPED_CAUSAL;
+      warp_types.local_warp_allowed =
+          mi->mbmi.motion_mode == WARPED_CAUSAL && !ref;
 #endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
       conv_params.ref = ref;
@@ -1259,7 +1260,8 @@ void av1_build_inter_predictor_sub8x8(const AV1_COMMON *cm, MACROBLOCKD *xd,
     warp_types.global_warp_allowed = is_global[ref];
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
-    warp_types.local_warp_allowed = mi->mbmi.motion_mode == WARPED_CAUSAL;
+    warp_types.local_warp_allowed =
+        mi->mbmi.motion_mode == WARPED_CAUSAL && !ref;
 #endif  // CONFIG_WARPED_MOTION
 
 #if CONFIG_HIGHBITDEPTH
@@ -2887,7 +2889,7 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
   warp_types.global_warp_allowed = is_global_mv_block(mi, block, wm->wmtype);
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
-  warp_types.local_warp_allowed = mi->mbmi.motion_mode == WARPED_CAUSAL;
+  warp_types.local_warp_allowed = mi->mbmi.motion_mode == WARPED_CAUSAL && !ref;
 #endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
