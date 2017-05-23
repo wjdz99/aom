@@ -1784,6 +1784,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #else
 // Note : *(args->skip) == mbmi->skip
 #endif
+
 #if CONFIG_CFL
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   if (plane == AOM_PLANE_Y && x->cfl_store_y) {
