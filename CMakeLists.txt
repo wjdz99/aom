@@ -18,6 +18,7 @@ endif ()
 
 option(ENABLE_CCACHE "Enable ccache support." OFF)
 option(ENABLE_DISTCC "Enable distcc support." OFF)
+option(ENABLE_DOCS "Enable documentation generation (doxygen required)." OFF)
 
 project(AOM C CXX)
 
@@ -241,7 +242,7 @@ if (CONFIG_AV1_DECODER)
                    "${AOM_ROOT}/examples/inspect.c"
                    $<TARGET_OBJECTS:aom_common_app_util>
                    $<TARGET_OBJECTS:aom_decoder_app_util>)
-    set(AOM_APP_TARGETS ${AOM_APP_TARGETS} inspect)
+    set(AOM_DECODER_EXAMPLE_TARGETS ${AOM_DECODER_EXAMPLE_TARGETS} inspect)
 
     if (EMSCRIPTEN)
       add_preproc_definition(_POSIX_SOURCE)
@@ -257,9 +258,10 @@ if (CONFIG_AV1_DECODER)
     endif ()
   endif ()
 
-  # Add decoder apps to app target list.
-  set(AOM_APP_TARGETS ${AOM_APP_TARGETS} aomdec decode_to_md5 decode_with_drops
-      simple_decoder)
+  # Maintain lists of example and app targets.
+  set(AOM_DECODER_EXAMPLE_TARGETS ${AOM_DECODER_EXAMPLE_TARGETS}
+      decode_to_md5 decode_with_drops simple_decoder)
+  set(AOM_APP_TARGETS ${AOM_APP_TARGETS} aomdec ${AOM_DECODER_EXAMPLE_TARGETS})
 endif ()
 
 
@@ -287,10 +289,14 @@ if (CONFIG_AV1_ENCODER)
                  $<TARGET_OBJECTS:aom_common_app_util>
                  $<TARGET_OBJECTS:aom_encoder_app_util>)
 
-  # Add encoder apps to app target list.
-  set(AOM_APP_TARGETS ${AOM_APP_TARGETS} aomenc lossless_encoder set_maps
-      simple_encoder twopass_encoder)
+  # Add encoder apps and examples to target lists.
+  set(AOM_ENCODER_EXAMPLE_TARGETS
+      lossless_encoder set_maps simple_encoder twopass_encoder)
+  set(AOM_APP_TARGETS ${AOM_APP_TARGETS} aomenc ${AOM_ENCODER_EXAMPLE_TARGETS})
 endif ()
+
+set(AOM_EXAMPLE_TARGETS
+    ${AOM_DECODER_EXAMPLE_TARGETS} ${AOM_ENCODER_EXAMPLE_TARGETS})
 
 if (CONFIG_AV1_DECODER AND CONFIG_AV1_ENCODER)
   add_executable(aom_cx_set_ref
@@ -370,6 +376,37 @@ if (XCODE)
       target_sources(${aom_app} PUBLIC "${XCODE_DUMMY_CXX_FILE}")
     endforeach ()
   endif ()
+endif ()
+
+# Aomedia Doxygen documentation rule.
+if (ENABLE_DOCS)
+  include(FindDoxygen)
+  if (NOT DOXYGEN_FOUND)
+    message(FATAL_ERROR "Can't find doxygen, install it or disable ENABLE_DOCS")
+  endif ()
+  set(AOM_DOXYGEN_CONFIG_FILE "${AOM_ROOT}/libs.doxy_template")
+  set(AOM_DOXYGEN_SOURCES
+      "${AOM_ROOT}/keywords.dox"
+      "${AOM_ROOT}/mainpage.dox"
+      "${AOM_ROOT}/usage.dox")
+
+  if (CONFIG_AV1_DECODER)
+    set(AOM_DOXYGEN_SOURCES ${AOM_DOXYGEN_SOURCES} "${AOM_ROOT}/usage_dx.dox")
+  endif ()
+
+  if (CONFIG_AV1_ENCODER)
+    set(AOM_DOXYGEN_SOURCES ${AOM_DOXYGEN_SOURCES} "${AOM_ROOT}/usage_cx.dox")
+  endif ()
+
+  # TODO: Need a list of example source files. Cannot cheat here because it
+  # would technically force all example source files to have the same
+  # extension.
+
+  if (CONFIG_AV1_DECODER)
+  endif ()
+  if (CONFIG_AV1_ENCODER)
+  endif ()
+  add_custom_target(generate_docs)
 endif ()
 
 # Aomedia install rule.
