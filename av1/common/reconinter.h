@@ -467,6 +467,9 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
                                      const WarpTypesAllowed *warp_types,
                                      int p_col, int p_row, int ref,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
+#if CONFIG_MOTION_VAR
+                                     int mi_col_offset, int mi_row_offset,
+#endif  // CONFIG_MOTION_VAR
                                      MACROBLOCKD *xd);
 #endif  // CONFIG_EXT_INTER
 

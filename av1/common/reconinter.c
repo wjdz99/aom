@@ -709,8 +709,16 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
                                      const WarpTypesAllowed *warp_types,
                                      int p_col, int p_row, int ref,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
+#if CONFIG_MOTION_VAR
+                                     int mi_col_offset, int mi_row_offset,
+#endif  // CONFIG_MOTION_VAR
                                      MACROBLOCKD *xd) {
-  MODE_INFO *mi = xd->mi[0];
+#if CONFIG_MOTION_VAR
+  const MODE_INFO *mi = xd->mi[mi_col_offset + xd->mi_stride * mi_row_offset];
+#else
+  const MODE_INFO *mi = xd->mi[0];
+#endif  // CONFIG_MOTION_VAR
+
   const INTERINTER_COMPOUND_DATA comp_data = {
 #if CONFIG_WEDGE
     mi->mbmi.wedge_index,
@@ -1058,6 +1066,9 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
                 &warp_types, (mi_x >> pd->subsampling_x) + x,
                 (mi_y >> pd->subsampling_y) + y, ref,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
+#if CONFIG_MOTION_VAR
+                mi_col_offset, mi_row_offset,
+#endif  // CONFIG_MOTION_VAR
                 xd);
           else
 #endif  // CONFIG_EXT_INTER
@@ -1070,7 +1081,7 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
                 mi_col_offset, mi_row_offset,
-#endif
+#endif  // CONFIG_MOTION_VAR
                 xs, ys, xd);
         }
         ++col;
@@ -1188,6 +1199,9 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
             &warp_types, (mi_x >> pd->subsampling_x) + x,
             (mi_y >> pd->subsampling_y) + y, ref,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
+#if CONFIG_MOTION_VAR
+            mi_col_offset, mi_row_offset,
+#endif  // CONFIG_MOTION_VAR
             xd);
       else
 #endif  // CONFIG_EXT_INTER
@@ -1201,7 +1215,7 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
             mi_col_offset, mi_row_offset,
-#endif
+#endif  // CONFIG_MOTION_VAR
             subpel_params[ref].xs, subpel_params[ref].ys, xd);
     }
 
