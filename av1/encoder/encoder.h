@@ -372,7 +372,7 @@ typedef struct AV1_COMP {
 
   YV12_BUFFER_CONFIG *source;
   YV12_BUFFER_CONFIG *last_source;  // NULL for first frame and alt_ref frames
-  YV12_BUFFER_CONFIG *un_scaled_source;
+  YV12_BUFFER_CONFIG *unscaled_source;
   YV12_BUFFER_CONFIG scaled_source;
   YV12_BUFFER_CONFIG *unscaled_last_source;
   YV12_BUFFER_CONFIG scaled_last_source;
@@ -608,10 +608,6 @@ typedef struct AV1_COMP {
   int resize_avg_qp;
   int resize_buffer_underflow;
   int resize_count;
-
-#if CONFIG_FRAME_SUPERRES
-  int superres_pending;
-#endif  // CONFIG_FRAME_SUPERRES
 
   // VARIANCE_AQ segment map refresh
   int vaq_refresh;

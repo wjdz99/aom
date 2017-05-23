@@ -1231,26 +1231,46 @@ static void setup_rf_level_maxq(AV1_COMP *cpi) {
   }
 }
 
-void av1_calculate_next_scaled_size(const AV1_COMP *cpi,
-                                    int *scaled_frame_width,
-                                    int *scaled_frame_height) {
-  *scaled_frame_width =
-      cpi->oxcf.width * cpi->resize_next_scale_num / cpi->resize_next_scale_den;
-  *scaled_frame_height = cpi->oxcf.height * cpi->resize_next_scale_num /
-                         cpi->resize_next_scale_den;
-}
+void av1_calculate_next_scaled_size(const AV1_COMP *cpi, int *width,
+                                    int *height) {
+  const AV1EncoderConfig *oxcf = &cpi->oxcf;
+  const AV1_COMMON *cm = &cpi->common;
 
-#if CONFIG_FRAME_SUPERRES
-void av1_calculate_superres_size(const AV1_COMP *cpi, int *encoded_width,
-                                 int *encoded_height) {
-  *encoded_width = cpi->oxcf.scaled_frame_width *
-                   cpi->common.superres_scale_numerator /
-                   SUPERRES_SCALE_DENOMINATOR;
-  *encoded_height = cpi->oxcf.scaled_frame_height *
-                    cpi->common.superres_scale_numerator /
-                    SUPERRES_SCALE_DENOMINATOR;
+  // TODO(afergs): Get width from frame instead?
+  *width = oxcf->width;
+  *height = oxcf->height;
+
+  if (oxcf->resize_mode == RESIZE_FIXED) {
+    // TODO(afergs): Modify av1_resize_pending too? I don't think it was ever
+    //               set for fixed resizes before...
+    *width = oxcf->scaled_frame_width;
+    *height = oxcf->scaled_frame_height;
+  }
+
+  // TODO(afergs): Replace with call to av1_resize_pending? Could replace
+  //               scaled_size_set as well.
+  // TODO(afergs): Realistically, if resize_pending is true, then the other
+  //               conditions must already be satisfied.
+  //               Try this first:
+  //                 av1_resize_pending &&
+  //                 (DYNAMIC && (1 Pass CBR || 2 Pass VBR)
+  //                  STATIC  && FIRST_FRAME)
+  //               Really, av1_resize_pending should just reflect the above.
+  // TODO(afergs): Allow fixed resizing in AOM_CBR mode?
+  // 2 Pass VBR: Resize if fixed resize and first frame, or dynamic resize and
+  //             a resize is pending.
+  // 1 Pass CBR: Resize if dynamic resize and resize pending.
+  if ((oxcf->pass == 2 && oxcf->rc_mode == AOM_VBR &&
+       ((oxcf->resize_mode == RESIZE_FIXED && cm->current_video_frame == 0) ||
+        (oxcf->resize_mode == RESIZE_DYNAMIC && av1_resize_pending(cpi)))) ||
+      (oxcf->pass == 0 && oxcf->rc_mode == AOM_CBR &&
+       oxcf->resize_mode == RESIZE_DYNAMIC && av1_resize_pending(cpi))) {
+    *width = cpi->oxcf.width * cpi->resize_next_scale_num /
+             cpi->resize_next_scale_den;
+    *height = cpi->oxcf.height * cpi->resize_next_scale_num /
+              cpi->resize_next_scale_den;
+  }
 }
-#endif  // CONFIG_FRAME_SUPERRES
 
 void av1_init_second_pass(AV1_COMP *cpi) {
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
