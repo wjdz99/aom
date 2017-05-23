@@ -2070,21 +2070,6 @@ static void cal_nmvsadcosts(int *mvsadcost[2]) {
   } while (++i <= MV_MAX);
 }
 
-static void cal_nmvsadcosts_hp(int *mvsadcost[2]) {
-  int i = 1;
-
-  mvsadcost[0][0] = 0;
-  mvsadcost[1][0] = 0;
-
-  do {
-    double z = 256 * (2 * (log2f(8 * i) + .6));
-    mvsadcost[0][i] = (int)z;
-    mvsadcost[1][i] = (int)z;
-    mvsadcost[0][-i] = (int)z;
-    mvsadcost[1][-i] = (int)z;
-  } while (++i <= MV_MAX);
-}
-
 static INLINE void init_upsampled_ref_frame_bufs(AV1_COMP *cpi) {
   int i;
 
@@ -2245,7 +2230,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   cpi->td.mb.nmvsadcost_hp[0] = &cpi->nmvsadcosts_hp[0][MV_MAX];
   cpi->td.mb.nmvsadcost_hp[1] = &cpi->nmvsadcosts_hp[1][MV_MAX];
-  cal_nmvsadcosts_hp(cpi->td.mb.nmvsadcost_hp);
+  cal_nmvsadcosts(cpi->td.mb.nmvsadcost_hp);
 
 #ifdef OUTPUT_YUV_SKINMAP
   yuv_skinmap_file = fopen("skinmap.yuv", "ab");
