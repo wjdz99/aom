@@ -1256,14 +1256,6 @@ static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize) {
   return (bsize >= BLOCK_8X8);
 }
 
-static INLINE int is_motion_variation_allowed_compound(
-    const MB_MODE_INFO *mbmi) {
-  if (!has_second_ref(mbmi))
-    return 1;
-  else
-    return 0;
-}
-
 #if CONFIG_MOTION_VAR
 // input: log2 of length, 0(4), 1(8), ...
 static const int max_neighbor_obmc[6] = { 0, 1, 2, 3, 4, 4 };
@@ -1286,17 +1278,16 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
 #if CONFIG_EXT_INTER
   if (is_motion_variation_allowed_bsize(mbmi->sb_type) &&
-      is_inter_mode(mbmi->mode) && mbmi->ref_frame[1] != INTRA_FRAME &&
-      is_motion_variation_allowed_compound(mbmi)) {
+      is_inter_mode(mbmi->mode) && mbmi->ref_frame[1] != INTRA_FRAME) {
 #else
   if (is_motion_variation_allowed_bsize(mbmi->sb_type) &&
-      is_inter_mode(mbmi->mode) && is_motion_variation_allowed_compound(mbmi)) {
+      is_inter_mode(mbmi->mode)) {
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR
     if (!check_num_overlappable_neighbors(mbmi)) return SIMPLE_TRANSLATION;
 #endif
 #if CONFIG_WARPED_MOTION
-    if (!has_second_ref(mbmi) && mbmi->num_proj_ref[0] >= 1)
+    if (mbmi->num_proj_ref[0] >= 1)
       return WARPED_CAUSAL;
     else
 #endif  // CONFIG_WARPED_MOTION
