@@ -162,47 +162,31 @@ static int read_delta_lflevel(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
 #endif
 #endif
 
-static PREDICTION_MODE read_intra_mode_y(AV1_COMMON *cm, MACROBLOCKD *xd,
+static PREDICTION_MODE read_intra_mode_y(MACROBLOCKD *xd, FRAME_CONTEXT *ec_ctx,
                                          aom_reader *r, int size_group) {
-#if CONFIG_EC_ADAPT
-  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#elif CONFIG_DAALA_EC || CONFIG_ANS
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
-
   const PREDICTION_MODE y_mode =
 #if CONFIG_DAALA_EC || CONFIG_ANS
       read_intra_mode(r, ec_ctx->y_mode_cdf[size_group]);
 #else
-      read_intra_mode(r, cm->fc->y_mode_prob[size_group]);
+      read_intra_mode(r, ec_ctx->y_mode_prob[size_group]);
 #endif  // CONFIG_DAALA_EC || CONFIG_ANS
+
   FRAME_COUNTS *counts = xd->counts;
-#if CONFIG_EC_ADAPT
-  (void)cm;
-#endif
   if (counts) ++counts->y_mode[size_group][y_mode];
   return y_mode;
 }
 
-static PREDICTION_MODE read_intra_mode_uv(AV1_COMMON *cm, MACROBLOCKD *xd,
-                                          aom_reader *r,
+static PREDICTION_MODE read_intra_mode_uv(MACROBLOCKD *xd,
+                                          FRAME_CONTEXT *ec_ctx, aom_reader *r,
                                           PREDICTION_MODE y_mode) {
-#if CONFIG_EC_ADAPT
-  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#elif CONFIG_DAALA_EC || CONFIG_ANS
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
-
   const PREDICTION_MODE uv_mode =
 #if CONFIG_DAALA_EC || CONFIG_ANS
       read_intra_mode(r, ec_ctx->uv_mode_cdf[y_mode]);
 #else
-      read_intra_mode(r, cm->fc->uv_mode_prob[y_mode]);
+      read_intra_mode(r, ec_ctx->uv_mode_prob[y_mode]);
 #endif  // CONFIG_DAALA_EC || CONFIG_ANS
+
   FRAME_COUNTS *counts = xd->counts;
-#if CONFIG_EC_ADAPT
-  (void)cm;
-#endif
   if (counts) ++counts->uv_mode[y_mode][uv_mode];
   return uv_mode;
 }
@@ -1195,21 +1179,16 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 #if CONFIG_CB4X4
   if (is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                           xd->plane[1].subsampling_y)) {
-    mbmi->uv_mode = read_intra_mode_uv(cm, xd, r, mbmi->mode);
+    mbmi->uv_mode = read_intra_mode_uv(xd, ec_ctx, r, mbmi->mode);
 #else
-  mbmi->uv_mode = read_intra_mode_uv(cm, xd, r, mbmi->mode);
+  mbmi->uv_mode = read_intra_mode_uv(xd, ec_ctx, r, mbmi->mode);
 #endif
 
 #if CONFIG_CFL
     // TODO(ltrudeau) support PALETTE
     if (mbmi->uv_mode == DC_PRED) {
-      mbmi->cfl_alpha_idx = read_cfl_alphas(
-#if CONFIG_EC_ADAPT
-          xd->tile_ctx,
-#else
-          cm->fc,
-#endif  // CONFIG_EC_ADAPT
-          r, mbmi->skip, mbmi->cfl_alpha_signs);
+      mbmi->cfl_alpha_idx =
+          read_cfl_alphas(ec_ctx, r, mbmi->skip, mbmi->cfl_alpha_signs);
     }
 #endif  // CONFIG_CFL
 
@@ -1510,37 +1489,45 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
 
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#elif CONFIG_DAALA_EC || CONFIG_ANS
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+
 #if CONFIG_CB4X4
   (void)i;
-  mbmi->mode = read_intra_mode_y(cm, xd, r, size_group_lookup[bsize]);
+  mbmi->mode = read_intra_mode_y(xd, ec_ctx, r, size_group_lookup[bsize]);
 #else
   switch (bsize) {
     case BLOCK_4X4:
       for (i = 0; i < 4; ++i)
-        mi->bmi[i].as_mode = read_intra_mode_y(cm, xd, r, 0);
+        mi->bmi[i].as_mode = read_intra_mode_y(xd, ec_ctx, r, 0);
       mbmi->mode = mi->bmi[3].as_mode;
       break;
     case BLOCK_4X8:
-      mi->bmi[0].as_mode = mi->bmi[2].as_mode = read_intra_mode_y(cm, xd, r, 0);
+      mi->bmi[0].as_mode = mi->bmi[2].as_mode =
+          read_intra_mode_y(xd, ec_ctx, r, 0);
       mi->bmi[1].as_mode = mi->bmi[3].as_mode = mbmi->mode =
-          read_intra_mode_y(cm, xd, r, 0);
+          read_intra_mode_y(xd, ec_ctx, r, 0);
       break;
     case BLOCK_8X4:
-      mi->bmi[0].as_mode = mi->bmi[1].as_mode = read_intra_mode_y(cm, xd, r, 0);
+      mi->bmi[0].as_mode = mi->bmi[1].as_mode =
+          read_intra_mode_y(xd, ec_ctx, r, 0);
       mi->bmi[2].as_mode = mi->bmi[3].as_mode = mbmi->mode =
-          read_intra_mode_y(cm, xd, r, 0);
+          read_intra_mode_y(xd, ec_ctx, r, 0);
       break;
     default:
-      mbmi->mode = read_intra_mode_y(cm, xd, r, size_group_lookup[bsize]);
+      mbmi->mode = read_intra_mode_y(xd, ec_ctx, r, size_group_lookup[bsize]);
   }
 #endif
 
 #if CONFIG_CB4X4
   if (is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                           xd->plane[1].subsampling_y)) {
-    mbmi->uv_mode = read_intra_mode_uv(cm, xd, r, mbmi->mode);
+    mbmi->uv_mode = read_intra_mode_uv(xd, ec_ctx, r, mbmi->mode);
 #else
-  mbmi->uv_mode = read_intra_mode_uv(cm, xd, r, mbmi->mode);
+  mbmi->uv_mode = read_intra_mode_uv(xd, ec_ctx, r, mbmi->mode);
   (void)mi_row;
   (void)mi_col;
 #endif
@@ -1548,13 +1535,8 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
 #if CONFIG_CFL
     // TODO(ltrudeau) support PALETTE
     if (mbmi->uv_mode == DC_PRED) {
-      mbmi->cfl_alpha_idx = read_cfl_alphas(
-#if CONFIG_EC_ADAPT
-          xd->tile_ctx,
-#else
-          cm->fc,
-#endif  // CONFIG_EC_ADAPT
-          r, mbmi->skip, mbmi->cfl_alpha_signs);
+      mbmi->cfl_alpha_idx =
+          read_cfl_alphas(ec_ctx, r, mbmi->skip, mbmi->cfl_alpha_signs);
     }
 #endif  // CONFIG_CFL
 
