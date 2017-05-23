@@ -10638,7 +10638,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                                     MAX_ANGLE_DELTA + mbmi->angle_delta[0]);
       }
 #if CONFIG_CFL
-      if (mbmi->uv_mode != UV_DC_PRED && mbmi->uv_mode != UV_TM_PRED) {
+      if (mbmi->uv_mode != UV_DC_PRED && mbmi->uv_mode != UV_TM_PRED &&
+          mbmi->uv_mode != UV_CFL_PRED) {
 #else
       if (mbmi->uv_mode != DC_PRED && mbmi->uv_mode != TM_PRED) {
 #endif
