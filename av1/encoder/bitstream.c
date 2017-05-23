@@ -2294,7 +2294,6 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
 
 #if CONFIG_CFL
     if (mbmi->uv_mode == UV_CFL_PRED) {
-      printf("CfL!\n");
       write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
     }
 #endif
