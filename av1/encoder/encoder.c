@@ -2453,6 +2453,8 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   av1_loop_filter_init(cm);
 #if CONFIG_FRAME_SUPERRES
   cm->superres_scale_numerator = SUPERRES_SCALE_DENOMINATOR;
+  cm->superres_upscaled_width = oxcf->scaled_frame_width;
+  cm->superres_upscaled_height = oxcf->scaled_frame_height;
 #endif  // CONFIG_FRAME_SUPERRES
 #if CONFIG_LOOP_RESTORATION
   av1_loop_restoration_precal();
@@ -3747,35 +3749,6 @@ static void set_restoration_tilesize(int width, int height,
 }
 #endif  // CONFIG_LOOP_RESTORATION
 
-static void set_scaled_size(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
-  AV1EncoderConfig *const oxcf = &cpi->oxcf;
-
-  // TODO(afergs): Replace with call to av1_resize_pending? Could replace
-  //               scaled_size_set as well.
-  // TODO(afergs): Realistically, if resize_pending is true, then the other
-  //               conditions must already be satisfied.
-  //               Try this first:
-  //                 av1_resize_pending &&
-  //                 (DYNAMIC && (1 Pass CBR || 2 Pass VBR)
-  //                  STATIC  && FIRST_FRAME)
-  //               Really, av1_resize_pending should just reflect the above.
-  // TODO(afergs): Allow fixed resizing in AOM_CBR mode?
-  // 2 Pass VBR: Resize if fixed resize and first frame, or dynamic resize and
-  //             a resize is pending.
-  // 1 Pass CBR: Resize if dynamic resize and resize pending.
-  if ((oxcf->pass == 2 && oxcf->rc_mode == AOM_VBR &&
-       ((oxcf->resize_mode == RESIZE_FIXED && cm->current_video_frame == 0) ||
-        (oxcf->resize_mode == RESIZE_DYNAMIC && av1_resize_pending(cpi)))) ||
-      (oxcf->pass == 0 && oxcf->rc_mode == AOM_CBR &&
-       oxcf->resize_mode == RESIZE_DYNAMIC && av1_resize_pending(cpi))) {
-    // TODO(afergs): This feels hacky... Should it just set? Should
-    //               av1_set_next_scaled_size be a library function?
-    av1_calculate_next_scaled_size(cpi, &oxcf->scaled_frame_width,
-                                   &oxcf->scaled_frame_height);
-  }
-}
-
 static void set_frame_size(AV1_COMP *cpi, int width, int height) {
   int ref_frame;
   AV1_COMMON *const cm = &cpi->common;
@@ -3867,16 +3840,19 @@ static void set_frame_size(AV1_COMP *cpi, int width, int height) {
 }
 
 static void setup_frame_size(AV1_COMP *cpi) {
-  set_scaled_size(cpi);
-#if CONFIG_FRAME_SUPERRES
   int encode_width;
   int encode_height;
-  av1_calculate_superres_size(cpi, &encode_width, &encode_height);
-  set_frame_size(cpi, encode_width, encode_height);
-#else
-  set_frame_size(cpi, cpi->oxcf.scaled_frame_width,
-                 cpi->oxcf.scaled_frame_height);
+
+  av1_calculate_next_scaled_size(cpi, &encode_width, &encode_height);
+
+#if CONFIG_FRAME_SUPERRES
+  AV1_COMMON *cm = &cpi->common;
+  cm->superres_upscaled_width = encode_width;
+  cm->superres_upscaled_height = encode_height;
+  av1_calculate_superres_size(cm, &encode_width, &encode_height);
 #endif  // CONFIG_FRAME_SUPERRES
+
+  set_frame_size(cpi, encode_width, encode_height);
 }
 
 static void reset_use_upsampled_references(AV1_COMP *cpi) {
