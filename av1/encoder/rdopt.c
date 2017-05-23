@@ -5075,7 +5075,6 @@ static int check_best_zero_mv(
     const MV_REFERENCE_FRAME ref_frames[2], const BLOCK_SIZE bsize, int block,
     int mi_row, int mi_col) {
   int_mv zeromv[2] = { {.as_int = 0 } };
-  int comp_pred_mode = ref_frames[1] > INTRA_FRAME;
   (void)mi_row;
   (void)mi_col;
 #if CONFIG_GLOBAL_MOTION
@@ -5084,6 +5083,7 @@ static int check_best_zero_mv(
       || this_mode == ZERO_ZEROMV
 #endif  // CONFIG_EXT_INTER
       ) {
+    int comp_pred_mode = ref_frames[1] > INTRA_FRAME;
     for (int cur_frm = 0; cur_frm < 1 + comp_pred_mode; cur_frm++) {
       zeromv[cur_frm].as_int =
           gm_get_motion_vector(&cpi->common.global_motion[ref_frames[cur_frm]],
