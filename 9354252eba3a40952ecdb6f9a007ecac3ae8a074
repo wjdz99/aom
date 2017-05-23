@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5b1fc30_d2335090",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-05-23T21:29:04Z",
+      "side": 1,
+      "message": "I don\u0027t feel this is a good way to handle the situation. Should modify the hook functions instead of calling these functions here. In this test, may be better to directly declare the quantization related data in the test.",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 24
+      },
+      "revId": "9354252eba3a40952ecdb6f9a007ecac3ae8a074",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
