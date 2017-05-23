@@ -4860,17 +4860,31 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #if CONFIG_TEMPMV_SIGNALING
   if (cm->prev_frame) {
     cm->use_prev_frame_mvs &= !cm->error_resilient_mode &&
-                              cm->width == cm->prev_frame->buf.y_width &&
-                              cm->height == cm->prev_frame->buf.y_height &&
+#if CONFIG_FRAME_SUPERRES
+                              cm->width == cm->last_width &&
+                              cm->height == cm->last_height &&
+#else
+                              cm->width == cm->prev_frame->buf.y_crop_width &&
+                              cm->height == cm->prev_frame->buf.y_crop_height &&
+#endif  // CONFIG_FRAME_SUPERRES
                               !cm->intra_only && !cm->prev_frame->intra_only;
   } else {
     cm->use_prev_frame_mvs = 0;
   }
 #else
-  cm->use_prev_frame_mvs = !cm->error_resilient_mode && cm->prev_frame &&
-                           cm->width == cm->prev_frame->buf.y_crop_width &&
-                           cm->height == cm->prev_frame->buf.y_crop_height &&
-                           !cm->intra_only && cm->last_show_frame;
+  if (cm->prev_frame) {
+    cm->use_prev_frame_mvs = !cm->error_resilient_mode &&
+#if CONFIG_FRAME_SUPERRES
+                             cm->width == cm->last_width &&
+                             cm->height == cm->last_height &&
+#else
+                             cm->width == cm->prev_frame->buf.y_crop_width &&
+                             cm->height == cm->prev_frame->buf.y_crop_height &&
+#endif  // CONFIG_FRAME_SUPERRES
+                             !cm->intra_only && cm->last_show_frame;
+  } else {
+    cm->use_prev_frame_mvs = 0;
+  }
 #endif  // CONFIG_TEMPMV_SIGNALING
 
   // Special case: set prev_mi to NULL when the previous mode info
@@ -5512,6 +5526,12 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
   x->cfl_store_y = (dry_run == OUTPUT_ENABLED) ? 1 : 0;
 #endif
 
+  /*
+  if (cm->current_video_frame == 1 && cm->show_frame == 0 && dry_run ==
+  OUTPUT_ENABLED &&
+      mi_row == 32 && mi_col == 0)
+    printf("Debug\n");
+    */
   if (!is_inter) {
     int plane;
     mbmi->skip = 1;
