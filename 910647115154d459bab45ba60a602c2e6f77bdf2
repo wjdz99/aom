@@ -16,6 +16,24 @@
       "revId": "910647115154d459bab45ba60a602c2e6f77bdf2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "64d33eb4_d9cdc0f6",
+        "filename": "configure",
+        "patchSetId": 10
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-05-23T20:42:56Z",
+      "side": 1,
+      "message": "Isn\u0027t it risky?\n\nI mean, doing as you suggest will have the immediate effect of making Jenkins happy, although the tx64x64 and ext_partition experiments wouldn\u0027t actually be built anymore (as the configure script would decide to disable them in their dedicated Jenkins builds).\n\nMoreover, having a \"./configure --enable-something --enable-something-else\" return a zero exit code, although \"something\" and \"something-else\" are incompatible, is confusing at best.",
+      "parentUuid": "d59f1be0_3a37b6a5",
+      "revId": "910647115154d459bab45ba60a602c2e6f77bdf2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
