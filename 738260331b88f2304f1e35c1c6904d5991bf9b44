@@ -22,6 +22,30 @@
       "revId": "738260331b88f2304f1e35c1c6904d5991bf9b44",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a9924d5_598c5fc6",
+        "filename": "test/test.mk",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-05-23T23:41:49Z",
+      "side": 0,
+      "message": "So we just removes this useless comments.  av1_quantize_test.cc is still used in our unit test.",
+      "parentUuid": "4b85ca9d_15e6e431",
+      "range": {
+        "startLine": 163,
+        "startChar": 43,
+        "endLine": 163,
+        "endChar": 63
+      },
+      "revId": "738260331b88f2304f1e35c1c6904d5991bf9b44",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
