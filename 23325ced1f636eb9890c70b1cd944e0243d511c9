@@ -22,6 +22,30 @@
       "revId": "23325ced1f636eb9890c70b1cd944e0243d511c9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dab6705c_3e5fd259",
+        "filename": "build/make/version.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-05-23T16:30:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab7bff91_78847da1",
+      "range": {
+        "startLine": 37,
+        "startChar": 28,
+        "endLine": 37,
+        "endChar": 48
+      },
+      "revId": "23325ced1f636eb9890c70b1cd944e0243d511c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
