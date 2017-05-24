@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca98c322_9b45090e",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 988,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-05-24T18:15:09Z",
+      "side": 1,
+      "message": "My impression is that the prediction won\u0027t change if only mbmi-\u003emv is tweaked, since if mbmi.motion_mode is WARPED_CAUSAL, only the wm matrix stored in mbmi determines the prediction. So what the refinement currently does becomes finding the mv with the lowest mv rate, which seems like not aligned with the goal of rdo.\nSo I would recommend calling find_projection() here before av1_build_inter_predictors_sby().",
+      "range": {
+        "startLine": 988,
+        "startChar": 2,
+        "endLine": 988,
+        "endChar": 32
+      },
+      "revId": "3233adfd9af77a0108a00fd85fdde859d2d12a82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
