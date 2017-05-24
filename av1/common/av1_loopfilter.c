@@ -22,7 +22,7 @@
 
 #include "av1/common/seg_common.h"
 
-#define CONFIG_PARALLEL_DEBLOCKING_15TAPLUMAONLY 0
+#define PARALLEL_DEBLOCKING_15TAPLUMAONLY 1
 
 // 64 bit masks for left transform size. Each 1 represents a position where
 // we should apply a loop filter across the left border of an 8x8 block
@@ -1840,8 +1840,7 @@ void av1_filter_block_plane_ss11_hor(AV1_COMMON *const cm,
   dst->buf = dst0;
 }
 
-#if !(CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_EXT_PARTITION_TYPES || \
-      CONFIG_CB4X4)
+#if !(CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_EXT_PARTITION_TYPES)
 #if CONFIG_PARALLEL_DEBLOCKING
 typedef enum EDGE_DIR { VERT_EDGE = 0, HORZ_EDGE = 1, NUM_EDGE_DIRS } EDGE_DIR;
 static const uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES] = {
@@ -1993,10 +1992,17 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
   // not sure if changes are required.
   assert(0 && "Not yet updated");
 #endif  // CONFIG_EXT_PARTITION
+
   {
     const TX_SIZE ts =
         av1_get_transform_size(ppCurr[0], edgeDir, scaleHorz, scaleVert);
+#if CONFIG_EXT_DELTA_Q
+    const uint32_t currLevel =
+        get_filter_level(cm, &cm->lf_info, &ppCurr[0]->mbmi);
+#else
     const uint32_t currLevel = get_filter_level(&cm->lf_info, &ppCurr[0]->mbmi);
+#endif  // CONFIG_EXT_DELTA_Q
+
     const int currSkipped =
         ppCurr[0]->mbmi.skip && is_inter_block(&ppCurr[0]->mbmi);
     const uint32_t coord = (VERT_EDGE == edgeDir) ? (x) : (y);
@@ -2017,7 +2023,13 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
           const MODE_INFO *const pPrev = *(ppCurr - modeStep);
           const TX_SIZE pvTs =
               av1_get_transform_size(pPrev, edgeDir, scaleHorz, scaleVert);
+#if CONFIG_EXT_DELTA_Q
+          const uint32_t pvLvl =
+              get_filter_level(cm, &cm->lf_info, &pPrev->mbmi);
+#else
           const uint32_t pvLvl = get_filter_level(&cm->lf_info, &pPrev->mbmi);
+#endif  // CONFIG_EXT_DELTA_Q
+
           const int pvSkip = pPrev->mbmi.skip && is_inter_block(&pPrev->mbmi);
           const int32_t puEdge =
               (coord &
@@ -2029,7 +2041,7 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
           // if the current and the previous blocks are skipped,
           // deblock the edge if the edge belongs to a PU's edge only.
           if ((currLevel || pvLvl) && (!pvSkip || !currSkipped || puEdge)) {
-#if CONFIG_PARALLEL_DEBLOCKING_15TAP || CONFIG_PARALLEL_DEBLOCKING_15TAPLUMAONLY
+#if CONFIG_PARALLEL_DEBLOCKING_15TAP || PARALLEL_DEBLOCKING_15TAPLUMAONLY
             const TX_SIZE minTs = AOMMIN(ts, pvTs);
             if (TX_4X4 >= minTs) {
               pParams->filterLength = 4;
@@ -2037,7 +2049,7 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
               pParams->filterLength = 8;
             } else {
               pParams->filterLength = 16;
-#if CONFIG_PARALLEL_DEBLOCKING_15TAPLUMAONLY
+#if PARALLEL_DEBLOCKING_15TAPLUMAONLY
               // No wide filtering for chroma plane
               if (scaleHorz || scaleVert) {
                 pParams->filterLength = 8;
@@ -2047,7 +2059,7 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
 #else
             pParams->filterLength = (TX_4X4 >= AOMMIN(ts, pvTs)) ? (4) : (8);
 
-#endif  // CONFIG_PARALLEL_DEBLOCKING_15TAP
+#endif  // CONFIG_PARALLEL_DEBLOCKING_15TAP || PARALLEL_DEBLOCKING_15TAPLUMAONLY
 
             // update the level if the current block is skipped,
             // but the previous one is not
@@ -2055,10 +2067,14 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
           }
         }
       }
+
+#if !CONFIG_CB4X4
       // prepare internal edge parameters
       if (currLevel && !currSkipped) {
         pParams->filterLengthInternal = (TX_4X4 >= ts) ? (4) : (0);
       }
+#endif
+
       // prepare common parameters
       if (pParams->filterLength || pParams->filterLengthInternal) {
         const loop_filter_thresh *const limits = cm->lf_info.lfthr + level;
@@ -2076,15 +2092,21 @@ static void av1_filter_block_plane_vert(const AV1_COMMON *const cm,
                                         const ptrdiff_t modeStride,
                                         const uint32_t cuX,
                                         const uint32_t cuY) {
+  const int col_step = MI_SIZE >> MI_SIZE_LOG2;
+  const int row_step = MI_SIZE >> MI_SIZE_LOG2;
   const uint32_t scaleHorz = pPlane->subsampling_x;
   const uint32_t scaleVert = pPlane->subsampling_y;
   const uint32_t width = pPlane->dst.width;
   const uint32_t height = pPlane->dst.height;
   uint8_t *const pDst = pPlane->dst.buf;
   const int dstStride = pPlane->dst.stride;
-  for (int y = 0; y < (MAX_MIB_SIZE >> scaleVert); y += 1) {
+  for (int y = 0; y < (MAX_MIB_SIZE >> scaleVert); y += row_step) {
     uint8_t *p = pDst + y * MI_SIZE * dstStride;
-    for (int x = 0; x < (MAX_MIB_SIZE >> scaleHorz); x += 1) {
+    for (int x = 0; x < (MAX_MIB_SIZE >> scaleHorz); x += col_step) {
+      // inner loop always filter vertical edges in a MI block. If MI size
+      // is 8x8, it will filter the vertical edge aligned with a 8x8 block.
+      // If 4x4 trasnform is used, it will then filter the internal edge
+      //  aligned with a 4x4 block
       const MODE_INFO **const pCurr =
           ppModeInfo + (y << scaleVert) * modeStride + (x << scaleHorz);
       AV1_DEBLOCKING_PARAMETERS params;
@@ -2095,31 +2117,59 @@ static void av1_filter_block_plane_vert(const AV1_COMMON *const cm,
       switch (params.filterLength) {
         // apply 4-tap filtering
         case 4:
-          aom_lpf_vertical_4(p, dstStride, params.mblim, params.lim,
-                             params.hev_thr);
+#if CONFIG_HIGHBITDEPTH
+          if (cm->use_highbitdepth)
+            aom_highbd_lpf_vertical_4_c(CONVERT_TO_SHORTPTR(p), dstStride,
+                                        params.mblim, params.lim,
+                                        params.hev_thr, cm->bit_depth);
+          else
+#endif  // CONFIG_HIGHBITDEPTH
+            aom_lpf_vertical_4_c(p, dstStride, params.mblim, params.lim,
+                                 params.hev_thr);
           break;
         // apply 8-tap filtering
         case 8:
-          aom_lpf_vertical_8(p, dstStride, params.mblim, params.lim,
-                             params.hev_thr);
+#if CONFIG_HIGHBITDEPTH
+          if (cm->use_highbitdepth)
+            aom_highbd_lpf_vertical_8_c(CONVERT_TO_SHORTPTR(p), dstStride,
+                                        params.mblim, params.lim,
+                                        params.hev_thr, cm->bit_depth);
+          else
+#endif  // CONFIG_HIGHBITDEPTH
+            aom_lpf_vertical_8_c(p, dstStride, params.mblim, params.lim,
+                                 params.hev_thr);
           break;
-#if CONFIG_PARALLEL_DEBLOCKING_15TAP || CONFIG_PARALLEL_DEBLOCKING_15TAPLUMAONLY
+#if CONFIG_PARALLEL_DEBLOCKING_15TAP || PARALLEL_DEBLOCKING_15TAPLUMAONLY
         // apply 16-tap filtering
         case 16:
-          aom_lpf_vertical_16(p, dstStride, params.mblim, params.lim,
-                              params.hev_thr);
+#if CONFIG_HIGHBITDEPTH
+          if (cm->use_highbitdepth)
+            aom_highbd_lpf_vertical_16_c(CONVERT_TO_SHORTPTR(p), dstStride,
+                                         params.mblim, params.lim,
+                                         params.hev_thr, cm->bit_depth);
+          else
+#endif  // CONFIG_HIGHBITDEPTH
+            aom_lpf_vertical_16_c(p, dstStride, params.mblim, params.lim,
+                                  params.hev_thr);
           break;
-#endif  // CONFIG_PARALLEL_DEBLOCKING_15TAP
+#endif  // CONFIG_PARALLEL_DEBLOCKING_15TAP || PARALLEL_DEBLOCKING_15TAPLUMAONLY
         // no filtering
         default: break;
       }
       // process the internal edge
       if (params.filterLengthInternal) {
-        aom_lpf_vertical_4(p + 4, dstStride, params.mblim, params.lim,
-                           params.hev_thr);
+#if CONFIG_HIGHBITDEPTH
+        if (cm->use_highbitdepth)
+          aom_highbd_lpf_vertical_4_c(CONVERT_TO_SHORTPTR(p + 4), dstStride,
+                                      params.mblim, params.lim, params.hev_thr,
+                                      cm->bit_depth);
+        else
+#endif  // CONFIG_HIGHBITDEPTH
+          aom_lpf_vertical_4_c(p + 4, dstStride, params.mblim, params.lim,
+                               params.hev_thr);
       }
       // advance the destination pointer
-      p += 8;
+      p += MI_SIZE;
     }
   }
 }
@@ -2130,15 +2180,21 @@ static void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
                                         const ptrdiff_t modeStride,
                                         const uint32_t cuX,
                                         const uint32_t cuY) {
+  const int col_step = MI_SIZE >> MI_SIZE_LOG2;
+  const int row_step = MI_SIZE >> MI_SIZE_LOG2;
   const uint32_t scaleHorz = pPlane->subsampling_x;
   const uint32_t scaleVert = pPlane->subsampling_y;
   const uint32_t width = pPlane->dst.width;
   const uint32_t height = pPlane->dst.height;
   uint8_t *const pDst = pPlane->dst.buf;
   const int dstStride = pPlane->dst.stride;
-  for (int y = 0; y < (MAX_MIB_SIZE >> scaleVert); y += 1) {
+  for (int y = 0; y < (MAX_MIB_SIZE >> scaleVert); y += row_step) {
     uint8_t *p = pDst + y * MI_SIZE * dstStride;
-    for (int x = 0; x < (MAX_MIB_SIZE >> scaleHorz); x += 1) {
+    for (int x = 0; x < (MAX_MIB_SIZE >> scaleHorz); x += col_step) {
+      // inner loop always filter vertical edges in a MI block. If MI size
+      // is 8x8, it will first filter the vertical edge aligned with a 8x8
+      // block. If 4x4 trasnform is used, it will then filter the internal
+      // edge aligned with a 4x4 block
       const MODE_INFO **const pCurr =
           ppModeInfo + (y << scaleVert) * modeStride + (x << scaleHorz);
       AV1_DEBLOCKING_PARAMETERS params;
@@ -2149,31 +2205,59 @@ static void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
       switch (params.filterLength) {
         // apply 4-tap filtering
         case 4:
-          aom_lpf_horizontal_4(p, dstStride, params.mblim, params.lim,
-                               params.hev_thr);
+#if CONFIG_HIGHBITDEPTH
+          if (cm->use_highbitdepth)
+            aom_highbd_lpf_horizontal_4_c(CONVERT_TO_SHORTPTR(p), dstStride,
+                                          params.mblim, params.lim,
+                                          params.hev_thr, cm->bit_depth);
+          else
+#endif  // CONFIG_HIGHBITDEPTH
+            aom_lpf_horizontal_4_c(p, dstStride, params.mblim, params.lim,
+                                   params.hev_thr);
           break;
         // apply 8-tap filtering
         case 8:
-          aom_lpf_horizontal_8(p, dstStride, params.mblim, params.lim,
-                               params.hev_thr);
+#if CONFIG_HIGHBITDEPTH
+          if (cm->use_highbitdepth)
+            aom_highbd_lpf_horizontal_8_c(CONVERT_TO_SHORTPTR(p), dstStride,
+                                          params.mblim, params.lim,
+                                          params.hev_thr, cm->bit_depth);
+          else
+#endif  // CONFIG_HIGHBITDEPTH
+            aom_lpf_horizontal_8_c(p, dstStride, params.mblim, params.lim,
+                                   params.hev_thr);
           break;
-#if CONFIG_PARALLEL_DEBLOCKING_15TAP || CONFIG_PARALLEL_DEBLOCKING_15TAPLUMAONLY
+#if CONFIG_PARALLEL_DEBLOCKING_15TAP || PARALLEL_DEBLOCKING_15TAPLUMAONLY
         // apply 16-tap filtering
         case 16:
-          aom_lpf_horizontal_edge_16(p, dstStride, params.mblim, params.lim,
-                                     params.hev_thr);
+#if CONFIG_HIGHBITDEPTH
+          if (cm->use_highbitdepth)
+            aom_highbd_lpf_horizontal_edge_16_c(
+                CONVERT_TO_SHORTPTR(p), dstStride, params.mblim, params.lim,
+                params.hev_thr, cm->bit_depth);
+          else
+#endif  // CONFIG_HIGHBITDEPTH
+            aom_lpf_horizontal_edge_16_c(p, dstStride, params.mblim, params.lim,
+                                         params.hev_thr);
           break;
-#endif  // CONFIG_PARALLEL_DEBLOCKING_15TAP
+#endif  // CONFIG_PARALLEL_DEBLOCKING_15TAP || PARALLEL_DEBLOCKING_15TAPLUMAONLY
         // no filtering
         default: break;
       }
       // process the internal edge
       if (params.filterLengthInternal) {
-        aom_lpf_horizontal_4(p + 4 * dstStride, dstStride, params.mblim,
-                             params.lim, params.hev_thr);
+#if CONFIG_HIGHBITDEPTH
+        if (cm->use_highbitdepth)
+          aom_highbd_lpf_horizontal_4_c(CONVERT_TO_SHORTPTR(p + 4 * dstStride),
+                                        dstStride, params.mblim, params.lim,
+                                        params.hev_thr, cm->bit_depth);
+        else
+#endif  // CONFIG_HIGHBITDEPTH
+          aom_lpf_horizontal_4_c(p + 4 * dstStride, dstStride, params.mblim,
+                                 params.lim, params.hev_thr);
       }
       // advance the destination pointer
-      p += 8;
+      p += MI_SIZE;
     }
   }
 }
@@ -2183,8 +2267,7 @@ static void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
 void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
                           struct macroblockd_plane planes[MAX_MB_PLANE],
                           int start, int stop, int y_only) {
-#if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_EXT_PARTITION_TYPES || \
-    CONFIG_CB4X4
+#if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_EXT_PARTITION_TYPES
   const int num_planes = y_only ? 1 : MAX_MB_PLANE;
   int mi_row, mi_col;
 
@@ -2230,6 +2313,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(planes, cm->sb_size, frame_buffer, mi_row, mi_col);
+      // filter all vertical edges in every 64x64 super block
       for (int planeIdx = 0; planeIdx < num_planes; planeIdx += 1) {
         const int32_t scaleHorz = planes[planeIdx].subsampling_x;
         const int32_t scaleVert = planes[planeIdx].subsampling_y;
@@ -2244,6 +2328,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(planes, cm->sb_size, frame_buffer, mi_row, mi_col);
+      // filter all horizontal edges in every 64x64 super block
       for (int planeIdx = 0; planeIdx < num_planes; planeIdx += 1) {
         const int32_t scaleHorz = planes[planeIdx].subsampling_x;
         const int32_t scaleVert = planes[planeIdx].subsampling_y;
