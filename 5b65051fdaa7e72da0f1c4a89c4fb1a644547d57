@@ -22,6 +22,30 @@
       "revId": "5b65051fdaa7e72da0f1c4a89c4fb1a644547d57",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a0e87e6_8975310f",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-05-24T02:44:24Z",
+      "side": 1,
+      "message": "Yes, it\u0027s possible.  But we need to expose the pure virtual function Encoder::CodecInterface() as public.  Please review PS5.",
+      "parentUuid": "8c72b333_9fc4180c",
+      "range": {
+        "startLine": 101,
+        "startChar": 14,
+        "endLine": 101,
+        "endChar": 38
+      },
+      "revId": "5b65051fdaa7e72da0f1c4a89c4fb1a644547d57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
