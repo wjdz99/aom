@@ -4953,8 +4953,18 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #if CONFIG_EXT_INTRA
     }
 #endif  // CONFIG_EXT_INTRA
+
+#if CONFIG_EC_ADAPT
+    FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+    const int prob_num =
+        (mode == 0) ? AOM_ICDF(ec_ctx->uv_mode_cdf[mbmi->mode][mode])
+                    : AOM_ICDF(ec_ctx->uv_mode_cdf[mbmi->mode][mode]) -
+                          AOM_ICDF(ec_ctx->uv_mode_cdf[mbmi->mode][mode - 1]);
+    this_rate = av1_cost_zero(get_prob(prob_num, CDF_PROB_TOP));
+#else
     this_rate =
         tokenonly_rd_stats.rate + cpi->intra_uv_mode_cost[mbmi->mode][mode];
+#endif  // CONFIG_EC_ADAPT
 
 #if CONFIG_EXT_INTRA
     if (is_directional_mode) {
