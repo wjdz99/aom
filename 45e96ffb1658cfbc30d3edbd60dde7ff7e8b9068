@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5107e937_676b87c0",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4957,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-24T19:40:06Z",
+      "side": 1,
+      "message": "So it seems like this could be generalized to work without EC_ADAPT:\n\n#if CONFIG_DAALA_EC || CONFIG_ANS\n#if CONFIG_EC_ADAPT\n    FRAME_CONTEXT *ec_ctx \u003d xd-\u003etile_ctx;\n#else\n    FRAME_CONTEXT *ec_ctx \u003d cpi ...\n#endif\n\n...\n\n#endif",
+      "revId": "45e96ffb1658cfbc30d3edbd60dde7ff7e8b9068",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
