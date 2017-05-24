@@ -80,6 +80,8 @@ static INLINE int aom_daala_read(daala_reader *r, int prob) {
     }
     if ((ref_nsymbs != 2) || (ref_cdf[0] != (aom_cdf_prob)p) ||
         (ref_cdf[1] != 32767)) {
+      if (frame_idx == 3 && queue_r == 205846)
+        assert(0);
       fprintf(stderr,
               "\n *** [bit] cdf error, frame_idx_r %d cdf {%d, %d} ref_cdf {%d",
               frame_idx, p, 32767, ref_cdf[0]);

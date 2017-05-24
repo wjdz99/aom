@@ -2864,6 +2864,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
     assert(mbmi->segment_id_supertx < MAX_SEGMENTS);
 
     skip = write_skip(cm, xd, mbmi->segment_id_supertx, xd->mi[0], w);
+/*
 #if CONFIG_EXT_TX
     if (get_ext_tx_types(supertx_size, bsize, 1, cm->reduced_tx_set_used) > 1 &&
         !skip) {
@@ -2887,6 +2888,13 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
                       &ext_tx_encodings[mbmi->tx_type]);
     }
 #endif  // CONFIG_EXT_TX
+*/
+#if !CONFIG_TXK_SEL
+    BLOCK_SIZE backup_sb_type = xd->mi[0]->mbmi.sb_type;
+    xd->mi[0]->mbmi.sb_type = bsize;
+    av1_write_tx_type(cm, xd, 0, w);
+    xd->mi[0]->mbmi.sb_type = backup_sb_type;
+#endif
 
     if (!skip) {
       assert(*tok < tok_end);

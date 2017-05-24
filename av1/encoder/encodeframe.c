@@ -2001,6 +2001,7 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
         td->counts->supertx[partition_supertx_context_lookup[partition]]
                            [supertx_size][1]++;
         td->counts->supertx_size[supertx_size]++;
+/*
 #if CONFIG_EXT_TX
         if (get_ext_tx_types(supertx_size, bsize, 1, cm->reduced_tx_set_used) >
                 1 &&
@@ -2017,6 +2018,10 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
           ++td->counts->inter_ext_tx[supertx_size][xd->mi[0]->mbmi.tx_type];
         }
 #endif  // CONFIG_EXT_TX
+*/
+#if !CONFIG_TXK_SEL
+        av1_update_tx_type_count(cm, xd, bsize, supertx_size, td->counts);
+#endif
       }
 #if CONFIG_EXT_PARTITION_TYPES
       update_ext_partition_context(xd, mi_row, mi_col, subsize, bsize,

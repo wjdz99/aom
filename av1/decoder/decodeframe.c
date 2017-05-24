@@ -2398,6 +2398,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     if (skip) {
       av1_reset_skip_context(xd, mi_row, mi_col, bsize);
     } else {
+/*
 #if CONFIG_EXT_TX
       if (get_ext_tx_types(supertx_size, bsize, 1, cm->reduced_tx_set_used) >
           1) {
@@ -2417,6 +2418,13 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
         if (xd->counts) ++xd->counts->inter_ext_tx[supertx_size][txfm];
       }
 #endif  // CONFIG_EXT_TX
+*/
+      printf("hahaha: %d %d\n", xd->mi[0]->mbmi.sb_type, bsize);
+      BLOCK_SIZE backup_sb_type = xd->mi[0]->mbmi.sb_type;
+      xd->mi[0]->mbmi.sb_type = bsize;
+      assert(is_inter_block(&xd->mi[0]->mbmi));
+      av1_read_tx_type(cm, xd, 0, r);
+      xd->mi[0]->mbmi.sb_type = backup_sb_type;
     }
 
     av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
