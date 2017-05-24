@@ -4710,6 +4710,18 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
 }
 #endif  // CONFIG_PALETTE
 
+static int intra_uv_mode_cost(FRAME_CONTEXT *ec_ctx, PREDICTION_MODE y_mode,
+                              PREDICTION_MODE uv_mode) {
+  const int prob_num =
+      (uv_mode == 0) ? AOM_ICDF(ec_ctx->uv_mode_cdf[y_mode][uv_mode])
+                     : AOM_ICDF(ec_ctx->uv_mode_cdf[y_mode][uv_mode]) -
+                           AOM_ICDF(ec_ctx->uv_mode_cdf[y_mode][uv_mode - 1]);
+  //  return av1_cost_zero(get_prob(prob_num, CDF_PROB_TOP));
+  const int shift = CDF_PROB_BITS - 1 - get_msb(prob_num);
+  return av1_cost_zero(get_prob(prob_num << shift, CDF_PROB_TOP)) +
+         av1_cost_literal(shift);
+}
+
 #if CONFIG_FILTER_INTRA
 // Return 1 if an filter intra mode is selected; return 0 otherwise.
 static int rd_pick_filter_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
@@ -4732,6 +4744,12 @@ static int rd_pick_filter_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
   mbmi->palette_mode_info.palette_size[1] = 0;
 #endif  // CONFIG_PALETTE
 
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+  FRAME_CONTEXT *ec_ctx = cpi->common.fc;
+#endif  // CONFIG_EC_ADAPT
+
   for (mode = 0; mode < FILTER_INTRA_MODES; ++mode) {
     mbmi->filter_intra_mode_info.filter_intra_mode[1] = mode;
     if (!super_block_uvrd(cpi, x, &tokenonly_rd_stats, bsize, *best_rd))
@@ -4739,7 +4757,7 @@ static int rd_pick_filter_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     this_rate = tokenonly_rd_stats.rate +
                 av1_cost_bit(cpi->common.fc->filter_intra_probs[1], 1) +
-                cpi->intra_uv_mode_cost[mbmi->mode][mbmi->uv_mode] +
+                intra_uv_mode_cost(ec_ctx, mbmi->mode, mbmi->uv_mode) +
                 write_uniform_cost(FILTER_INTRA_MODES, mode);
     this_rd = RDCOST(x->rdmult, x->rddiv, this_rate, tokenonly_rd_stats.dist);
     if (this_rd < *best_rd) {
@@ -4874,6 +4892,12 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   int64_t best_rd = INT64_MAX, this_rd;
   int this_rate;
   RD_STATS tokenonly_rd_stats;
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+  FRAME_CONTEXT *ec_ctx = cpi->common.fc;
+#endif  // CONFIG_EC_ADAPT
+
 #if CONFIG_PVQ
   od_rollback_buffer buf;
   od_encode_checkpoint(&x->daala_enc, &buf);
@@ -4896,7 +4920,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #if CONFIG_EXT_INTRA
     mbmi->angle_delta[1] = 0;
     if (is_directional_mode) {
-      const int rate_overhead = cpi->intra_uv_mode_cost[mbmi->mode][mode] +
+      const int rate_overhead = intra_uv_mode_cost(ec_ctx, mbmi->mode, mode) +
                                 write_uniform_cost(2 * MAX_ANGLE_DELTA + 1, 0);
       if (!rd_pick_intra_angle_sbuv(cpi, x, bsize, rate_overhead, best_rd,
                                     &this_rate, &tokenonly_rd_stats))
@@ -4913,8 +4937,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
 #endif  // CONFIG_EXT_INTRA
     this_rate =
-        tokenonly_rd_stats.rate + cpi->intra_uv_mode_cost[mbmi->mode][mode];
-
+        tokenonly_rd_stats.rate + intra_uv_mode_cost(ec_ctx, mbmi->mode, mode);
 #if CONFIG_EXT_INTRA
     if (is_directional_mode) {
       this_rate += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
@@ -4951,7 +4974,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   if (cpi->common.allow_screen_content_tools && mbmi->sb_type >= BLOCK_8X8) {
     best_palette_color_map = x->palette_buffer->best_palette_color_map;
     rd_pick_palette_intra_sbuv(cpi, x,
-                               cpi->intra_uv_mode_cost[mbmi->mode][DC_PRED],
+                               intra_uv_mode_cost(ec_ctx, mbmi->mode, DC_PRED),
                                best_palette_color_map, &best_mbmi, &best_rd,
                                rate, rate_tokenonly, distortion, skippable);
   }
@@ -8520,6 +8543,12 @@ static void pick_filter_intra_interframe(
   int64_t distortion_uv, model_rd = INT64_MAX;
   TX_SIZE uv_tx;
 
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+  FRAME_CONTEXT *ec_ctx = cm.fc;
+#endif  // CONFIG_EC_ADAPT
+
   for (i = 0; i < MAX_MODES; ++i)
     if (av1_mode_order[i].mode == DC_PRED &&
         av1_mode_order[i].ref_frame[0] == INTRA_FRAME)
@@ -8576,9 +8605,8 @@ static void pick_filter_intra_interframe(
     mbmi->filter_intra_mode_info.filter_intra_mode[1] =
         filter_intra_mode_info_uv[uv_tx].filter_intra_mode[1];
   }
-
   rate2 = rate_y + intra_mode_cost[mbmi->mode] + rate_uv +
-          cpi->intra_uv_mode_cost[mbmi->mode][mbmi->uv_mode];
+          intra_uv_mode_cost(ec_ctx, mbmi->mode, mbmi->uv_mode);
 #if CONFIG_PALETTE
   if (cpi->common.allow_screen_content_tools && mbmi->mode == DC_PRED &&
       bsize >= BLOCK_8X8)
@@ -9357,13 +9385,19 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       }
 #endif  // CONFIG_FILTER_INTRA
 
+#if CONFIG_EC_ADAPT
+      FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+      FRAME_CONTEXT *ec_ctx = cpi->common.fc;
+#endif  // CONFIG_EC_ADAPT
 #if CONFIG_CB4X4
       rate2 = rate_y + intra_mode_cost[mbmi->mode];
       if (!x->skip_chroma_rd)
-        rate2 += rate_uv + cpi->intra_uv_mode_cost[mbmi->mode][mbmi->uv_mode];
+        rate2 +=
+            rate_uv + intra_uv_mode_cost(ec_ctx, mbmi->mode, mbmi->uv_mode);
 #else
       rate2 = rate_y + intra_mode_cost[mbmi->mode] + rate_uv +
-              cpi->intra_uv_mode_cost[mbmi->mode][mbmi->uv_mode];
+              intra_uv_mode_cost(ec_ctx, mbmi->mode, mbmi->uv_mode);
 #endif  // CONFIG_CB4X4
 
 #if CONFIG_PALETTE
