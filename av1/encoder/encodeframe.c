@@ -2178,6 +2178,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #if CONFIG_SUPERTX
             !supertx_enabled &&
 #endif
+            cm->allow_interintra_compound &&
             is_interintra_allowed(mbmi)) {
           const int bsize_group = size_group_lookup[bsize];
           if (mbmi->ref_frame[1] == INTRA_FRAME) {
@@ -5416,6 +5417,19 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #endif
 }
 
+#if CONFIG_EXT_INTER
+static void make_consistent_compound_tools(AV1_COMMON *cm) {
+#if CONFIG_INTERINTRA
+  if (frame_is_intra_only(cm) || cm->reference_mode == COMPOUND_REFERENCE)
+    cm->allow_interintra_compound = 0;
+#endif  // CONFIG_INTERINTRA
+#if CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
+  if (frame_is_intra_only(cm) || cm->reference_mode == SINGLE_REFERENCE)
+    cm->allow_masked_compound = 0;
+#endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
+}
+#endif  // CONFIG_EXT_INTER
+
 void av1_encode_frame(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
 #if CONFIG_EXT_TX
@@ -5503,6 +5517,9 @@ void av1_encode_frame(AV1_COMP *cpi) {
     cm->interp_filter = SWITCHABLE;
 #endif
 
+#if CONFIG_EXT_INTER
+    make_consistent_compound_tools(cm);
+#endif  // CONFIG_EXT_INTER
     encode_frame_internal(cpi);
 
     for (i = 0; i < REFERENCE_MODES; ++i)
@@ -5703,6 +5720,9 @@ void av1_encode_frame(AV1_COMP *cpi) {
     }
 #endif
   } else {
+#if CONFIG_EXT_INTER
+    make_consistent_compound_tools(cm);
+#endif  // CONFIG_EXT_INTER
     encode_frame_internal(cpi);
   }
 }

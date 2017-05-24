@@ -7812,6 +7812,7 @@ static int64_t pick_interinter_wedge(const AV1_COMP *const cpi,
   int wedge_sign = 0;
 
   assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));
+  assert(cpi->common.allow_masked_compound);
 
   if (cpi->sf.fast_wedge_sign_estimate) {
     wedge_sign = estimate_wedge_sign(cpi, x, bsize, p0, bw, p1, bw);
@@ -7925,6 +7926,7 @@ static int64_t pick_interintra_wedge(const AV1_COMP *const cpi,
   int wedge_index = -1;
 
   assert(is_interintra_wedge_used(bsize));
+  assert(cpi->common.allow_interintra_compound);
 
   rd = pick_wedge_fixed_sign(cpi, x, bsize, p0, p1, 0, &wedge_index);
 
@@ -8362,6 +8364,11 @@ static int64_t motion_mode_rd(
 #if CONFIG_WARPED_MOTION
   aom_clear_system_state();
   mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
+  /*
+  if (cm->current_video_frame == 1 && cm->show_frame == 0 &&
+      mi_row == 12 && mi_col == 0 && mbmi->sb_type == BLOCK_8X8)
+    printf("Hello %d\n", mbmi->num_proj_ref[0]);
+    */
 #if CONFIG_EXT_INTER
   best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
 #endif  // CONFIG_EXT_INTER
@@ -8933,7 +8940,8 @@ static int64_t handle_inter_mode(
     uint8_t *preds1[1] = { pred1 };
     int strides[1] = { bw };
     int tmp_rate_mv;
-    int masked_compound_used = is_any_masked_compound_used(bsize);
+    int masked_compound_used =
+        is_any_masked_compound_used(bsize) && cm->allow_masked_compound;
     COMPOUND_TYPE cur_type;
 
     best_mv[0].as_int = cur_mv[0].as_int;
@@ -8955,6 +8963,7 @@ static int64_t handle_inter_mode(
     }
 
     for (cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES; cur_type++) {
+      if (cur_type != COMPOUND_AVERAGE && !masked_compound_used) break;
       if (!is_interinter_compound_used(cur_type, bsize)) break;
       tmp_rate_mv = rate_mv;
       best_rd_cur = INT64_MAX;
@@ -9067,7 +9076,7 @@ static int64_t handle_inter_mode(
   }
 
 #if CONFIG_INTERINTRA
-  if (is_comp_interintra_pred) {
+  if (is_comp_interintra_pred && cm->allow_interintra_compound) {
     INTERINTRA_MODE best_interintra_mode = II_DC_PRED;
     int64_t best_interintra_rd = INT64_MAX;
     int rmode, rate_sum;
@@ -9216,7 +9225,7 @@ static int64_t handle_inter_mode(
             av1_cost_literal(get_interintra_wedge_bits(bsize));
       }
     }
-  } else if (is_interintra_allowed(mbmi)) {
+  } else if (is_interintra_allowed(mbmi) && cm->allow_interintra_compound) {
     *args->compmode_interintra_cost =
         av1_cost_bit(cm->fc->interintra_prob[size_group_lookup[bsize]], 0);
   }

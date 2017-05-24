@@ -51,14 +51,14 @@ static INLINE int aom_daala_read(daala_reader *r, int prob) {
   int p = ((prob << 15) + 256 - prob) >> 8;
 #endif
 #if CONFIG_BITSTREAM_DEBUG
-/*{
+{
   const int queue_r = bitstream_queue_get_read();
   const int frame_idx = bitstream_queue_get_frame_read();
-  if (frame_idx == 0 && queue_r == 0) {
+  if (frame_idx == 3 && queue_r == 59489) {
     fprintf(stderr, "\n *** bitstream queue at frame_idx_r %d queue_r %d\n",
             frame_idx, queue_r);
   }
-}*/
+}
 #endif
 
   bit = od_ec_decode_bool_q15(&r->ec, p);
