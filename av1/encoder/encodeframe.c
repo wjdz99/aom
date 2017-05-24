@@ -5431,7 +5431,7 @@ void av1_encode_frame(AV1_COMP *cpi) {
   // side behavior is where the ALT ref buffer has opposite sign bias to
   // the other two.
   if (!frame_is_intra_only(cm)) {
-#if !CONFIG_LOWDELAY_COMPOUND
+#if !CONFIG_ONE_SIDED_COMPOUND
     if ((cm->ref_frame_sign_bias[ALTREF_FRAME] ==
          cm->ref_frame_sign_bias[GOLDEN_FRAME]) ||
         (cm->ref_frame_sign_bias[ALTREF_FRAME] ==
@@ -5452,7 +5452,7 @@ void av1_encode_frame(AV1_COMP *cpi) {
     cm->comp_var_ref[0] = LAST_FRAME;
     cm->comp_var_ref[1] = GOLDEN_FRAME;
 #endif                         // CONFIG_EXT_REFS
-#if !CONFIG_LOWDELAY_COMPOUND  // Normative in encoder
+#if !CONFIG_ONE_SIDED_COMPOUND  // Normative in encoder
     }
 #endif
   } else {
