@@ -558,6 +558,16 @@ post_process_cmdline() {
       soft_enable accounting
       soft_enable inspection
     fi
+    if enabled parallel_deblocking_15tap && ! enabled parallel_deblocking; then
+      log_echo "parallel_deblocking_15tap dependes on parallel_deblocking, so"
+      log_echo "enabling parallel_deblocking"
+      soft_enable parallel_deblocking
+    fi
+    if enabled parallel_deblocking && enabled var_tx; then
+      log_echo "parallel_deblocking not compatible with var_tx, so"
+      log_echo "disabling var_tx"
+      disable_feature var_tx
+    fi
 }
 
 process_targets() {
