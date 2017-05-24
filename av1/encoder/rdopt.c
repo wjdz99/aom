@@ -7686,6 +7686,11 @@ static int interinter_compound_motion_search(const AV1_COMP *const cpi,
     mbmi->interinter_compound_type
   };
   if (this_mode == NEW_NEWMV) {
+//sarahparker temporary, do not do search for new new, just experimenting with the others
+#if CONFIG_COMPOUND_SEGMENT
+    if (mbmi->interinter_compound_type == COMPOUND_SEG)
+      return INT32_MAX;
+#endif
     do_masked_motion_search_indexed(cpi, x, &compound_data, bsize, mi_row,
                                     mi_col, tmp_mv, rate_mvs, 2);
     tmp_rate_mv = rate_mvs[0] + rate_mvs[1];

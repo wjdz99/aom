@@ -217,8 +217,12 @@ static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
 }
 
 static INLINE int use_masked_motion_search(COMPOUND_TYPE type) {
-#if CONFIG_WEDGE
+#if CONFIG_WEDGE && !CONFIG_COMPOUND_SEGMENT
   return (type == COMPOUND_WEDGE);
+#elif CONFIG_COMPOUND_SEGMENT && !CONFIG_WEDGE
+  return (type == COMPOUND_SEG);
+#elif CONFIG_COMPOUND_SEGMENT && CONFIG_WEDGE
+  return (type == COMPOUND_SEG || type == COMPOUND_WEDGE);
 #else
   (void)type;
   return 0;
