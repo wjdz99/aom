@@ -109,6 +109,8 @@ static int mv_err_cost(const MV *mv, const MV *ref, const int *mvjcost,
 static int mvsad_err_cost(const MACROBLOCK *x, const MV *mv, const MV *ref,
                           int sad_per_bit) {
   const MV diff = { (mv->row - ref->row) * 8, (mv->col - ref->col) * 8 };
+  assert(x->nmvjointsadcost == x->nmvjointcost);
+  assert(x->mvsadcost == x->mvcost);
   return ROUND_POWER_OF_TWO(
       (unsigned)mv_cost(&diff, x->nmvjointsadcost, x->mvsadcost) * sad_per_bit,
       AV1_PROB_COST_SHIFT);
