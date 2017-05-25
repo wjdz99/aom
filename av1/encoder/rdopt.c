@@ -1610,7 +1610,7 @@ CALCULATE_RD : {}
   rd2 = RDCOST(x->rdmult, x->rddiv, 0, this_rd_stats.sse);
 
   // TODO(jingning): temporarily enabled only for luma component
-  rd = AOMMIN(rd1, rd2);
+  rd = (x->plane[plane].eobs[block] > 0) ? rd1 : rd2;
 
 #if CONFIG_DAALA_DIST
   if (plane == 0 &&
