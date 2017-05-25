@@ -826,7 +826,8 @@ static int main_loop(int argc, const char **argv_) {
       ++frame_out;
       got_data = 1;
     }
-
+//DiChen
+printf("frame_out=%d\n", frame_out);
     aom_usec_timer_mark(&timer);
     dx_time += (unsigned int)aom_usec_timer_elapsed(&timer);
 
