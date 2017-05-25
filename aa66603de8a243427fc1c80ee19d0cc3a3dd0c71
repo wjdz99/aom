@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8218fbc_cf47f9ce",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4101,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2017-05-25T16:14:23Z",
+      "side": 1,
+      "message": "Couldnt this just be an if then else?\neg.\n\nif (ref_buf-\u003eidx \u003d\u003d INVALID_IDX) {\n  ref_buf-\u003eis_valid \u003d 0;\n} else {\n    MV_REFERENCE_FRAME ref;\n    ref_buf-\u003eis_valid \u003d 1;\n    for (ref \u003d LAST_FRAME; ref \u003c ref_frame; ++ref) {\n      RefBuffer *const buf \u003d \u0026cm-\u003eframe_refs[ref - LAST_FRAME];\n      if (buf-\u003eis_valid \u0026\u0026 buf-\u003eidx \u003d\u003d ref_buf-\u003eidx) {\n        if (ref_frame !\u003d ALTREF_FRAME || ref \u003d\u003d LAST_FRAME) {\n          ref_buf-\u003eis_valid \u003d 0;\n          break;\n        } else {\n          buf-\u003eis_valid \u003d 0;\n        }\n      }\n    }\n}",
+      "range": {
+        "startLine": 4083,
+        "startChar": 1,
+        "endLine": 4101,
+        "endChar": 3
+      },
+      "revId": "aa66603de8a243427fc1c80ee19d0cc3a3dd0c71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d58fb60b_b4c99e54",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4109,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2017-05-25T16:14:23Z",
+      "side": 1,
+      "message": "I assume this test /debug code will go before submit?",
+      "range": {
+        "startLine": 4103,
+        "startChar": 0,
+        "endLine": 4109,
+        "endChar": 62
+      },
+      "revId": "aa66603de8a243427fc1c80ee19d0cc3a3dd0c71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b3ca84f_ade0efe4",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1357,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2017-05-25T16:14:23Z",
+      "side": 1,
+      "message": "This makes me a little uncomfortable as it seems to rely on the specific values of each of  GOLDEN_FRAM, LAST_FRAME etc and their values relative to one another ?",
+      "range": {
+        "startLine": 1357,
+        "startChar": 26,
+        "endLine": 1357,
+        "endChar": 42
+      },
+      "revId": "aa66603de8a243427fc1c80ee19d0cc3a3dd0c71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e0c3305_710c61df",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1464,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2017-05-25T16:14:23Z",
+      "side": 1,
+      "message": "There seems a lot of code here some of which is repetitive. For example This seems to be the same test as line 1357 above all be it in a different order. \n\nFor example      (cm-\u003eframe_refs[LAST3_FRAME - 1].is_valid ||\n                           cm-\u003eframe_refs[GOLDEN_FRAME - 1].is_valid) seems a common test that is used multiple times. Perhaps You could use a macro for this with a name that describes the decision node.",
+      "range": {
+        "startLine": 1461,
+        "startChar": 0,
+        "endLine": 1464,
+        "endChar": 56
+      },
+      "revId": "aa66603de8a243427fc1c80ee19d0cc3a3dd0c71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acf70448_fa4b7ddc",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1315,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2017-05-25T16:14:23Z",
+      "side": 1,
+      "message": "See comments in the decode case regarding repeat tests and possible use of descriptive macros.",
+      "range": {
+        "startLine": 1314,
+        "startChar": 10,
+        "endLine": 1315,
+        "endChar": 52
+      },
+      "revId": "aa66603de8a243427fc1c80ee19d0cc3a3dd0c71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
