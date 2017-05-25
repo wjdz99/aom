@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "469279d1_570302e8",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-05-25T09:18:02Z",
+      "side": 1,
+      "message": "I\u0027ve reproduced this issue with patch set 1, and patch set 2 fixes it on my end. Please can you retest with the new patch set?",
+      "parentUuid": "1517a831_f66ed239",
+      "revId": "3ba40431b4622670291a42158ac9ac8bb61d3c24",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d982aef2_b47962f3",
         "filename": "av1/encoder/encodemb.c",
         "patchSetId": 1
@@ -51,6 +69,24 @@
       "revId": "3ba40431b4622670291a42158ac9ac8bb61d3c24",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9da479c_4089b21a",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-05-25T09:18:02Z",
+      "side": 1,
+      "message": "Thanks for pointing that out - yes, we should be using dqc_a and x_a here. Fixed in patch set 2.",
+      "parentUuid": "d982aef2_b47962f3",
+      "revId": "3ba40431b4622670291a42158ac9ac8bb61d3c24",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
