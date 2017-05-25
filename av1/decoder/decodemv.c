@@ -1260,21 +1260,46 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
       const int idx = cm->ref_frame_sign_bias[cm->comp_fixed_ref];
 #endif  // CONFIG_EXT_REFS
 #endif
-      const int ctx = av1_get_pred_context_comp_ref_p(cm, xd);
 
+      const int ctx = av1_get_pred_context_comp_ref_p(cm, xd);
+#if CONFIG_VAR_REFS
+      int bit;
+      if ((LAST_IS_VALID(cm) || LAST2_IS_VALID(cm)) &&
+          (LAST3_IS_VALID(cm) || GOLDEN_IS_VALID(cm)))
+        bit = aom_read(r, fc->comp_ref_prob[ctx][0], ACCT_STR);
+      else
+        bit = (LAST3_IS_VALID(cm) || GOLDEN_IS_VALID(cm));
+#else   // !CONFIG_VAR_REFS
       const int bit = aom_read(r, fc->comp_ref_prob[ctx][0], ACCT_STR);
+#endif  // CONFIG_VAR_REFS
       if (counts) ++counts->comp_ref[ctx][0][bit];
 
 #if CONFIG_EXT_REFS
       // Decode forward references.
       if (!bit) {
         const int ctx1 = av1_get_pred_context_comp_ref_p1(cm, xd);
+#if CONFIG_VAR_REFS
+        int bit1;
+        if (LAST_IS_VALID(cm) && LAST2_IS_VALID(cm))
+          bit1 = aom_read(r, fc->comp_ref_prob[ctx1][1], ACCT_STR);
+        else
+          bit1 = LAST_IS_VALID(cm);
+#else   // !CONFIG_VAR_REFS
         const int bit1 = aom_read(r, fc->comp_ref_prob[ctx1][1], ACCT_STR);
+#endif  // CONFIG_VAR_REFS
         if (counts) ++counts->comp_ref[ctx1][1][bit1];
         ref_frame[!idx] = cm->comp_fwd_ref[bit1 ? 0 : 1];
       } else {
         const int ctx2 = av1_get_pred_context_comp_ref_p2(cm, xd);
+#if CONFIG_VAR_REFS
+        int bit2;
+        if (LAST3_IS_VALID(cm) && GOLDEN_IS_VALID(cm))
+          bit2 = aom_read(r, fc->comp_ref_prob[ctx2][2], ACCT_STR);
+        else
+          bit2 = GOLDEN_IS_VALID(cm);
+#else   // !CONFIG_VAR_REFS
         const int bit2 = aom_read(r, fc->comp_ref_prob[ctx2][2], ACCT_STR);
+#endif  // CONFIG_VAR_REFS
         if (counts) ++counts->comp_ref[ctx2][2][bit2];
         ref_frame[!idx] = cm->comp_fwd_ref[bit2 ? 3 : 2];
       }
@@ -1282,43 +1307,94 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
       // Decode backward references.
       {
         const int ctx_bwd = av1_get_pred_context_comp_bwdref_p(cm, xd);
+#if CONFIG_VAR_REFS
+        int bit_bwd;
+        if (BWDREF_IS_VALID(cm) && ALTREF_IS_VALID(cm))
+          bit_bwd = aom_read(r, fc->comp_bwdref_prob[ctx_bwd][0], ACCT_STR);
+        else
+          bit_bwd = ALTREF_IS_VALID(cm);
+#else   // !CONFIG_VAR_REFS
         const int bit_bwd =
             aom_read(r, fc->comp_bwdref_prob[ctx_bwd][0], ACCT_STR);
+#endif  // CONFIG_VAR_REFS
         if (counts) ++counts->comp_bwdref[ctx_bwd][0][bit_bwd];
         ref_frame[idx] = cm->comp_bwd_ref[bit_bwd];
       }
-#else
+#else   // !CONFIG_EXT_REFS
       ref_frame[!idx] = cm->comp_var_ref[bit];
       ref_frame[idx] = cm->comp_fixed_ref;
 #endif  // CONFIG_EXT_REFS
     } else if (mode == SINGLE_REFERENCE) {
 #if CONFIG_EXT_REFS
       const int ctx0 = av1_get_pred_context_single_ref_p1(xd);
+#if CONFIG_VAR_REFS
+      int bit0;
+      if ((LAST_IS_VALID(cm) || LAST2_IS_VALID(cm) || LAST3_IS_VALID(cm) ||
+           GOLDEN_IS_VALID(cm)) &&
+          (BWDREF_IS_VALID(cm) || ALTREF_IS_VALID(cm)))
+        bit0 = aom_read(r, fc->single_ref_prob[ctx0][0], ACCT_STR);
+      else
+        bit0 = (BWDREF_IS_VALID(cm) || ALTREF_IS_VALID(cm));
+#else   // !CONFIG_VAR_REFS
       const int bit0 = aom_read(r, fc->single_ref_prob[ctx0][0], ACCT_STR);
+#endif  // CONFIG_VAR_REFS
       if (counts) ++counts->single_ref[ctx0][0][bit0];
 
       if (bit0) {
         const int ctx1 = av1_get_pred_context_single_ref_p2(xd);
+#if CONFIG_VAR_REFS
+        int bit1;
+        if (BWDREF_IS_VALID(cm) && ALTREF_IS_VALID(cm))
+          bit1 = aom_read(r, fc->single_ref_prob[ctx1][1], ACCT_STR);
+        else
+          bit1 = ALTREF_IS_VALID(cm);
+#else   // !CONFIG_VAR_REFS
         const int bit1 = aom_read(r, fc->single_ref_prob[ctx1][1], ACCT_STR);
+#endif  // CONFIG_VAR_REFS
         if (counts) ++counts->single_ref[ctx1][1][bit1];
         ref_frame[0] = bit1 ? ALTREF_FRAME : BWDREF_FRAME;
       } else {
         const int ctx2 = av1_get_pred_context_single_ref_p3(xd);
+#if CONFIG_VAR_REFS
+        int bit2;
+        if ((LAST_IS_VALID(cm) || LAST2_IS_VALID(cm)) &&
+            (LAST3_IS_VALID(cm) || GOLDEN_IS_VALID(cm)))
+          bit2 = aom_read(r, fc->single_ref_prob[ctx2][2], ACCT_STR);
+        else
+          bit2 = (LAST3_IS_VALID(cm) || GOLDEN_IS_VALID(cm));
+#else   // !CONFIG_VAR_REFS
         const int bit2 = aom_read(r, fc->single_ref_prob[ctx2][2], ACCT_STR);
+#endif  // CONFIG_VAR_REFS
         if (counts) ++counts->single_ref[ctx2][2][bit2];
         if (bit2) {
           const int ctx4 = av1_get_pred_context_single_ref_p5(xd);
+#if CONFIG_VAR_REFS
+          int bit4;
+          if (LAST3_IS_VALID(cm) && GOLDEN_IS_VALID(cm))
+            bit4 = aom_read(r, fc->single_ref_prob[ctx4][4], ACCT_STR);
+          else
+            bit4 = GOLDEN_IS_VALID(cm);
+#else   // !CONFIG_VAR_REFS
           const int bit4 = aom_read(r, fc->single_ref_prob[ctx4][4], ACCT_STR);
+#endif  // CONFIG_VAR_REFS
           if (counts) ++counts->single_ref[ctx4][4][bit4];
           ref_frame[0] = bit4 ? GOLDEN_FRAME : LAST3_FRAME;
         } else {
           const int ctx3 = av1_get_pred_context_single_ref_p4(xd);
+#if CONFIG_VAR_REFS
+          int bit3;
+          if (LAST_IS_VALID(cm) && LAST2_IS_VALID(cm))
+            bit3 = aom_read(r, fc->single_ref_prob[ctx3][3], ACCT_STR);
+          else
+            bit3 = LAST2_IS_VALID(cm);
+#else   // !CONFIG_VAR_REFS
           const int bit3 = aom_read(r, fc->single_ref_prob[ctx3][3], ACCT_STR);
+#endif  // CONFIG_VAR_REFS
           if (counts) ++counts->single_ref[ctx3][3][bit3];
           ref_frame[0] = bit3 ? LAST2_FRAME : LAST_FRAME;
         }
       }
-#else
+#else   // !CONFIG_EXT_REFS
       const int ctx0 = av1_get_pred_context_single_ref_p1(xd);
       const int bit0 = aom_read(r, fc->single_ref_prob[ctx0][0], ACCT_STR);
       if (counts) ++counts->single_ref[ctx0][0][bit0];
