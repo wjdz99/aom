@@ -210,6 +210,7 @@ void av1_warp_affine_ssse3(const int32_t *mat, const uint8_t *ref, int width,
                            int16_t delta) {
   __m128i tmp[15];
   int i, j, k;
+  // const int bd = 8;
 
   /* Note: For this code to work, the left/right frame borders need to be
      extended by at least 13 pixels each. By the time we get here, other
@@ -271,6 +272,9 @@ void av1_warp_affine_ssse3(const int32_t *mat, const uint8_t *ref, int width,
           else if (iy > height - 1)
             iy = height - 1;
           tmp[k + 7] = _mm_set1_epi16(
+              // (1 << (bd + WARPEDPIXEL_FILTER_BITS - HORSHEAR_REDUCE_PREC_BITS
+              // -
+              //        1)) +
               ref[iy * stride] *
               (1 << (WARPEDPIXEL_FILTER_BITS - HORSHEAR_REDUCE_PREC_BITS)));
         }
@@ -282,6 +286,9 @@ void av1_warp_affine_ssse3(const int32_t *mat, const uint8_t *ref, int width,
           else if (iy > height - 1)
             iy = height - 1;
           tmp[k + 7] = _mm_set1_epi16(
+              // (1 << (bd + WARPEDPIXEL_FILTER_BITS - HORSHEAR_REDUCE_PREC_BITS
+              // -
+              //        1)) +
               ref[iy * stride + (width - 1)] *
               (1 << (WARPEDPIXEL_FILTER_BITS - HORSHEAR_REDUCE_PREC_BITS)));
         }
@@ -364,6 +371,9 @@ void av1_warp_affine_ssse3(const int32_t *mat, const uint8_t *ref, int width,
               _mm_srli_si128(src_odd, 4), _mm_srli_si128(src_even, 6));
           const __m128i res_57 = _mm_maddubs_epi16(src_57, coeff_57);
 
+          // const __m128i round_const =
+          //     _mm_set1_epi16((1 << (bd + WARPEDPIXEL_FILTER_BITS - 1)) +
+          //                    ((1 << HORSHEAR_REDUCE_PREC_BITS) >> 1));
           const __m128i round_const =
               _mm_set1_epi16((1 << HORSHEAR_REDUCE_PREC_BITS) >> 1);
 
@@ -470,8 +480,9 @@ void av1_warp_affine_ssse3(const int32_t *mat, const uint8_t *ref, int width,
         const __m128i res_hi = _mm_unpackhi_epi32(res_even, res_odd);
 
         // Round and pack into 8 bits
-        const __m128i round_const =
-            _mm_set1_epi32((1 << VERSHEAR_REDUCE_PREC_BITS) >> 1);
+        const __m128i round_const = _mm_set1_epi32(
+            // -(1 << (bd + VERSHEAR_REDUCE_PREC_BITS - 1)) +
+            ((1 << VERSHEAR_REDUCE_PREC_BITS) >> 1));
 
         const __m128i res_lo_round = _mm_srai_epi32(
             _mm_add_epi32(res_lo, round_const), VERSHEAR_REDUCE_PREC_BITS);
