@@ -1308,46 +1308,112 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #if CONFIG_EXT_REFS
       const int bit = (mbmi->ref_frame[0] == GOLDEN_FRAME ||
                        mbmi->ref_frame[0] == LAST3_FRAME);
-      const int bit_bwd = mbmi->ref_frame[1] == ALTREF_FRAME;
-#else  // CONFIG_EXT_REFS
-      const int bit = mbmi->ref_frame[0] == GOLDEN_FRAME;
-#endif  // CONFIG_EXT_REFS
+#if CONFIG_VAR_REFS
+      // TODO(zoeliu): To move following checkups to the frame header level
+      // and save the results for the block-level coding.
+      if ((cm->frame_refs[GOLDEN_FRAME - 1].is_valid ||
+           cm->frame_refs[LAST3_FRAME - 1].is_valid) &&
+          (cm->frame_refs[LAST2_FRAME - 1].is_valid ||
+           cm->frame_refs[LAST_FRAME - 1].is_valid))
+#endif  // CONFIG_VAR_REFS
+        aom_write(w, bit, av1_get_pred_prob_comp_ref_p(cm, xd));
 
-      aom_write(w, bit, av1_get_pred_prob_comp_ref_p(cm, xd));
-
-#if CONFIG_EXT_REFS
       if (!bit) {
-        const int bit1 = mbmi->ref_frame[0] == LAST_FRAME;
-        aom_write(w, bit1, av1_get_pred_prob_comp_ref_p1(cm, xd));
+#if CONFIG_VAR_REFS
+        if (cm->frame_refs[LAST_FRAME - 1].is_valid &&
+            cm->frame_refs[LAST2_FRAME - 1].is_valid) {
+#endif  // CONFIG_VAR_REFS
+          const int bit1 = mbmi->ref_frame[0] == LAST_FRAME;
+          aom_write(w, bit1, av1_get_pred_prob_comp_ref_p1(cm, xd));
+#if CONFIG_VAR_REFS
+        }
+#endif  // CONFIG_VAR_REFS
       } else {
-        const int bit2 = mbmi->ref_frame[0] == GOLDEN_FRAME;
-        aom_write(w, bit2, av1_get_pred_prob_comp_ref_p2(cm, xd));
+#if CONFIG_VAR_REFS
+        if (cm->frame_refs[GOLDEN_FRAME - 1].is_valid &&
+            cm->frame_refs[LAST3_FRAME - 1].is_valid) {
+#endif  // CONFIG_VAR_REFS
+          const int bit2 = mbmi->ref_frame[0] == GOLDEN_FRAME;
+          aom_write(w, bit2, av1_get_pred_prob_comp_ref_p2(cm, xd));
+#if CONFIG_VAR_REFS
+        }
+#endif  // CONFIG_VAR_REFS
       }
-      aom_write(w, bit_bwd, av1_get_pred_prob_comp_bwdref_p(cm, xd));
+
+#if CONFIG_VAR_REFS
+      if (cm->frame_refs[BWDREF_FRAME - 1].is_valid &&
+          cm->frame_refs[ALTREF_FRAME - 1].is_valid) {
+#endif  // CONFIG_VAR_REFS
+        const int bit_bwd = mbmi->ref_frame[1] == ALTREF_FRAME;
+        aom_write(w, bit_bwd, av1_get_pred_prob_comp_bwdref_p(cm, xd));
+#if CONFIG_VAR_REFS
+      }
+#endif  // CONFIG_VAR_REFS
+
+#else   // !CONFIG_EXT_REFS
+      const int bit = mbmi->ref_frame[0] == GOLDEN_FRAME;
+      aom_write(w, bit, av1_get_pred_prob_comp_ref_p(cm, xd));
 #endif  // CONFIG_EXT_REFS
     } else {
 #if CONFIG_EXT_REFS
       const int bit0 = (mbmi->ref_frame[0] == ALTREF_FRAME ||
                         mbmi->ref_frame[0] == BWDREF_FRAME);
-      aom_write(w, bit0, av1_get_pred_prob_single_ref_p1(cm, xd));
+#if CONFIG_VAR_REFS
+      // TODO(zoeliu): To move following checkups to the frame header level
+      // and save the results for the block-level coding.
+      if ((cm->frame_refs[ALTREF_FRAME - 1].is_valid ||
+           cm->frame_refs[BWDREF_FRAME - 1].is_valid) &&
+          (cm->frame_refs[GOLDEN_FRAME - 1].is_valid ||
+           cm->frame_refs[LAST3_FRAME - 1].is_valid ||
+           cm->frame_refs[LAST2_FRAME - 1].is_valid ||
+           cm->frame_refs[LAST_FRAME - 1].is_valid))
+#endif  // CONFIG_VAR_REFS
+        aom_write(w, bit0, av1_get_pred_prob_single_ref_p1(cm, xd));
 
       if (bit0) {
-        const int bit1 = mbmi->ref_frame[0] == ALTREF_FRAME;
-        aom_write(w, bit1, av1_get_pred_prob_single_ref_p2(cm, xd));
+#if CONFIG_VAR_REFS
+        if (cm->frame_refs[ALTREF_FRAME - 1].is_valid &&
+            cm->frame_refs[BWDREF_FRAME - 1].is_valid) {
+#endif  // CONFIG_VAR_REFS
+          const int bit1 = mbmi->ref_frame[0] == ALTREF_FRAME;
+          aom_write(w, bit1, av1_get_pred_prob_single_ref_p2(cm, xd));
+#if CONFIG_VAR_REFS
+        }
+#endif  // CONFIG_VAR_REFS
       } else {
         const int bit2 = (mbmi->ref_frame[0] == LAST3_FRAME ||
                           mbmi->ref_frame[0] == GOLDEN_FRAME);
-        aom_write(w, bit2, av1_get_pred_prob_single_ref_p3(cm, xd));
+#if CONFIG_VAR_REFS
+        if ((cm->frame_refs[LAST_FRAME - 1].is_valid ||
+             cm->frame_refs[LAST2_FRAME - 1].is_valid) &&
+            (cm->frame_refs[LAST3_FRAME - 1].is_valid ||
+             cm->frame_refs[GOLDEN_FRAME - 1].is_valid))
+#endif  // CONFIG_VAR_REFS
+          aom_write(w, bit2, av1_get_pred_prob_single_ref_p3(cm, xd));
 
         if (!bit2) {
-          const int bit3 = mbmi->ref_frame[0] != LAST_FRAME;
-          aom_write(w, bit3, av1_get_pred_prob_single_ref_p4(cm, xd));
+#if CONFIG_VAR_REFS
+          if (cm->frame_refs[LAST_FRAME - 1].is_valid &&
+              cm->frame_refs[LAST2_FRAME - 1].is_valid) {
+#endif  // CONFIG_VAR_REFS
+            const int bit3 = mbmi->ref_frame[0] != LAST_FRAME;
+            aom_write(w, bit3, av1_get_pred_prob_single_ref_p4(cm, xd));
+#if CONFIG_VAR_REFS
+          }
+#endif  // CONFIG_VAR_REFS
         } else {
-          const int bit4 = mbmi->ref_frame[0] != LAST3_FRAME;
-          aom_write(w, bit4, av1_get_pred_prob_single_ref_p5(cm, xd));
+#if CONFIG_VAR_REFS
+          if (cm->frame_refs[LAST3_FRAME - 1].is_valid &&
+              cm->frame_refs[GOLDEN_FRAME - 1].is_valid) {
+#endif  // CONFIG_VAR_REFS
+            const int bit4 = mbmi->ref_frame[0] != LAST3_FRAME;
+            aom_write(w, bit4, av1_get_pred_prob_single_ref_p5(cm, xd));
+#if CONFIG_VAR_REFS
+          }
+#endif  // CONFIG_VAR_REFS
         }
       }
-#else   // CONFIG_EXT_REFS
+#else   // !CONFIG_EXT_REFS
       const int bit0 = mbmi->ref_frame[0] != LAST_FRAME;
       aom_write(w, bit0, av1_get_pred_prob_single_ref_p1(cm, xd));
 
@@ -4423,6 +4489,45 @@ void write_sequence_header(SequenceHeader *seq_params) {
 }
 #endif
 
+#if CONFIG_VAR_REFS
+static void enc_check_valid_ref_frames(AV1_COMP *const cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  MV_REFERENCE_FRAME ref_frame;
+  // TODO(zoeliu): To handle ALTREF_FRAME the same way as do with other
+  //               reference frames. Current encoder invalid ALTREF when ALTREF
+  //               is the same as LAST, but invalid all the other references
+  //               when they are the same as ALTREF.
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    int ref_buf_idx = get_ref_frame_buf_idx(cpi, ref_frame);
+    RefBuffer *const ref_buf = &cm->frame_refs[ref_frame - LAST_FRAME];
+
+    ref_buf->is_valid = (ref_buf_idx != INVALID_IDX);
+    if (!ref_buf->is_valid) continue;
+
+    MV_REFERENCE_FRAME ref;
+    for (ref = LAST_FRAME; ref < ref_frame; ++ref) {
+      int buf_idx = get_ref_frame_buf_idx(cpi, ref);
+      RefBuffer *const buf = &cm->frame_refs[ref - LAST_FRAME];
+      if (buf->is_valid && buf_idx == ref_buf_idx) {
+        if (ref_frame != ALTREF_FRAME || ref == LAST_FRAME)
+          ref_buf->is_valid = 0;
+        else
+          buf->is_valid = 0;
+        if (!ref_buf->is_valid) break;
+      }
+    }
+  }
+
+  /*
+  printf("Frame=%d, show_frame=%d, show_existing_frame=%d:\n",
+         cm->current_video_frame, cm->show_frame, cm->show_existing_frame);
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame)
+    printf("ref_idx[%d]=%d, ref_is_valid[%d]=%d\n", ref_frame,
+           get_ref_frame_buf_idx(cpi, ref_frame), ref_frame,
+           cm->frame_refs[ref_frame - LAST_FRAME].is_valid);*/
+}
+#endif  // CONFIG_VAR_REFS
+
 static void write_uncompressed_header(AV1_COMP *cpi,
                                       struct aom_write_bit_buffer *wb) {
   AV1_COMMON *const cm = &cpi->common;
@@ -4581,6 +4686,10 @@ static void write_uncompressed_header(AV1_COMP *cpi,
         }
 #endif
       }
+
+#if CONFIG_VAR_REFS
+      enc_check_valid_ref_frames(cpi);
+#endif  // CONFIG_VAR_REFS
 
 #if CONFIG_FRAME_SIZE
       if (cm->error_resilient_mode == 0) {
