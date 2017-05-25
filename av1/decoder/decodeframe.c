@@ -4071,6 +4071,42 @@ void read_sequence_header(SequenceHeader *seq_params) {
 }
 #endif
 
+#if CONFIG_VAR_REFS
+static void check_valid_ref_frames(AV1_COMMON *cm) {
+  MV_REFERENCE_FRAME ref_frame;
+  // TODO(zoeliu): To handle ALTREF_FRAME separately.
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    RefBuffer *const ref_buf = &cm->frame_refs[ref_frame - LAST_FRAME];
+    ref_buf->is_valid = 1;
+
+    if (ref_buf->idx == INVALID_IDX) {
+      ref_buf->is_valid = 0;
+      continue;
+    }
+
+    MV_REFERENCE_FRAME ref;
+    for (ref = LAST_FRAME; ref < ref_frame; ++ref) {
+      RefBuffer *const buf = &cm->frame_refs[ref - LAST_FRAME];
+      if (buf->is_valid && buf->idx == ref_buf->idx) {
+        if (ref_frame != ALTREF_FRAME || ref == LAST_FRAME)
+          ref_buf->is_valid = 0;
+        else
+          buf->is_valid = 0;
+        if (!ref_buf->is_valid) break;
+      }
+    }
+  }
+
+  /*
+  printf("Frame=%d, show_frame=%d, show_existing_frame=%d:\n",
+         cm->current_video_frame, cm->show_frame, cm->show_existing_frame);
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame)
+    printf("ref_idx[%d]=%d, ref_is_valid[%d]=%d\n", ref_frame,
+           cm->frame_refs[ref_frame - LAST_FRAME].idx, ref_frame,
+           cm->frame_refs[ref_frame - LAST_FRAME].is_valid);*/
+}
+#endif  // CONFIG_VAR_REFS
+
 static size_t read_uncompressed_header(AV1Decoder *pbi,
                                        struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
@@ -4202,6 +4238,9 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
     for (i = 0; i < INTER_REFS_PER_FRAME; ++i) {
       cm->frame_refs[i].idx = INVALID_IDX;
       cm->frame_refs[i].buf = NULL;
+#if CONFIG_VAR_REFS
+      cm->frame_refs[i].is_valid = 0;
+#endif  // CONFIG_VAR_REFS
     }
 
     setup_frame_size(cm, rb);
@@ -4296,6 +4335,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
         }
 #endif
       }
+
+#if CONFIG_VAR_REFS
+      check_valid_ref_frames(cm);
+#endif  // CONFIG_VAR_REFS
 
 #if CONFIG_FRAME_SIZE
       if (cm->error_resilient_mode == 0) {
