@@ -42,7 +42,7 @@ enum {
 #endif  // CONFIG_ALT_INTRA
                  (1 << UV_TM_PRED) | (1 << UV_CFL_PRED),
 #endif  // CONFIG_CFL
-  INTRA_DC = (1 << UV_DC_PRED),
+  INTRA_DC = (1 << DC_PRED),
 #if CONFIG_CFL
   UV_INTRA_DC_CFL = (1 << UV_DC_PRED) | (1 << UV_CFL_PRED),
 #endif  // CONFIG_CFL
