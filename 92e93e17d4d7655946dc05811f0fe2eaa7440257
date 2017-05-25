@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "38d6eeeb_0d2a42eb",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-25T17:15:25Z",
+      "side": 1,
+      "message": "Done.  I moved these outside of the #ifdef.  I\u0027ll submit a follow on patch that removes the decrypt_cb and decrypt_state parameters.",
+      "parentUuid": "aef79cd7_24c872c3",
+      "revId": "92e93e17d4d7655946dc05811f0fe2eaa7440257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "899df0be_8e248232",
         "filename": "aom_dsp/prob.c",
         "patchSetId": 12
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-25T05:49:18Z",
       "side": 1,
       "message": "This table was only ever used by the dkbool interface, so you can delete it, also.",
+      "revId": "92e93e17d4d7655946dc05811f0fe2eaa7440257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "869a9fcb_abb26dcb",
+        "filename": "aom_dsp/prob.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-25T17:15:25Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "899df0be_8e248232",
       "revId": "92e93e17d4d7655946dc05811f0fe2eaa7440257",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "a77bbed8_dea56950",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-25T17:15:25Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "6851e0df_490d8410",
+      "revId": "92e93e17d4d7655946dc05811f0fe2eaa7440257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87d22cf8_0b6b441f",
         "filename": "configure",
         "patchSetId": 12
@@ -64,6 +118,24 @@
       "writtenOn": "2017-05-25T05:49:18Z",
       "side": 1,
       "message": "That\u0027s not what the old code here was doing. I think this whole block can just be deleted?",
+      "revId": "92e93e17d4d7655946dc05811f0fe2eaa7440257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ded77ee1_fee46cf9",
+        "filename": "configure",
+        "patchSetId": 12
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-25T17:15:25Z",
+      "side": 1,
+      "message": "Yep, you are right.",
+      "parentUuid": "87d22cf8_0b6b441f",
       "revId": "92e93e17d4d7655946dc05811f0fe2eaa7440257",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
