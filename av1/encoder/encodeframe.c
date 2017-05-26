@@ -5209,7 +5209,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #endif  // CONFIG_HIGHBITDEPTH
             ref_buf[frame]->y_buffer, ref_buf[frame]->y_stride,
             cpi->source->y_buffer, 0, 0, cpi->source->y_width,
-            cpi->source->y_height, cpi->source->y_stride);
+            cpi->source->y_height, cpi->source->y_stride, INT64_MAX);
 
         if (ref_frame_error == 0) continue;
 
@@ -5244,7 +5244,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                   ref_buf[frame]->y_buffer, ref_buf[frame]->y_width,
                   ref_buf[frame]->y_height, ref_buf[frame]->y_stride,
                   cpi->source->y_buffer, cpi->source->y_width,
-                  cpi->source->y_height, cpi->source->y_stride, 3);
+                  cpi->source->y_height, cpi->source->y_stride, 3,
+                  best_warp_error);
               if (warp_error < best_warp_error) {
                 best_warp_error = warp_error;
                 // Save the wm_params modified by refine_integerized_param()
