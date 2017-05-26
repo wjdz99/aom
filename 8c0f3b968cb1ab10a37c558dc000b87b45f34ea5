@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31c1f760_6de24e47",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 10
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-26T11:47:59Z",
+      "side": 1,
+      "message": "could become autodetect",
+      "revId": "8c0f3b968cb1ab10a37c558dc000b87b45f34ea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38c01923_9b77a3bb",
+        "filename": "docs.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-05-26T11:47:59Z",
+      "side": 1,
+      "message": "trailing whitespace",
+      "revId": "8c0f3b968cb1ab10a37c558dc000b87b45f34ea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
