@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a88fd1ca_9de19e88",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-26T16:00:37Z",
+      "side": 0,
+      "message": "This can be moved inside the condition below\n\nelse if (sub_y \u003d\u003d 1 \u0026\u0026 sub_x \u003d\u003d 1)",
+      "revId": "e289ac8bb97080cc0d3c4bbb0536a3947634be12",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2e286f7_8ec2a5f3",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-26T16:00:37Z",
+      "side": 0,
+      "message": "This is initialized below, so you don\u0027t need \u003d 0.",
+      "revId": "e289ac8bb97080cc0d3c4bbb0536a3947634be12",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec7afbcf_2f8fb08f",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-26T16:00:37Z",
+      "side": 0,
+      "message": "Same with these two variables.",
+      "revId": "e289ac8bb97080cc0d3c4bbb0536a3947634be12",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1192beb1_26fd7822",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-05-26T16:00:37Z",
+      "side": 0,
+      "message": "Did you want to carry this comment over?",
+      "revId": "e289ac8bb97080cc0d3c4bbb0536a3947634be12",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
