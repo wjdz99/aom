@@ -1122,12 +1122,13 @@ static void highbd_warp_plane(WarpedMotionParams *wm, const uint8_t *const ref8,
 static int64_t highbd_frame_error(const uint16_t *const ref, int stride,
                                   const uint16_t *const dst, int p_col,
                                   int p_row, int p_width, int p_height,
-                                  int p_stride, int bd) {
+                                  int p_stride, int bd, int64_t best_error) {
   int64_t sum_error = 0;
   for (int i = 0; i < p_height; ++i) {
     for (int j = 0; j < p_width; ++j) {
       sum_error += highbd_error_measure(
           dst[j + i * p_stride] - ref[(j + p_col) + (i + p_row) * stride], bd);
+      if (sum_error > best_error) return sum_error;
     }
   }
   return sum_error;
@@ -1137,7 +1138,7 @@ static int64_t highbd_warp_error(
     WarpedMotionParams *wm, const uint8_t *const ref8, int width, int height,
     int stride, const uint8_t *const dst8, int p_col, int p_row, int p_width,
     int p_height, int p_stride, int subsampling_x, int subsampling_y,
-    int x_scale, int y_scale, int bd) {
+    int x_scale, int y_scale, int bd, int64_t best_error) {
   int64_t gm_sumerr = 0;
   uint16_t *tmp = aom_malloc(p_width * p_height * sizeof(*tmp));
   if (!tmp) return INT64_MAX;
@@ -1146,8 +1147,9 @@ static int64_t highbd_warp_error(
                     p_col, p_row, p_width, p_height, p_width, subsampling_x,
                     subsampling_y, x_scale, y_scale, bd, 0);
 
-  gm_sumerr = highbd_frame_error(tmp, p_width, CONVERT_TO_SHORTPTR(dst8), p_col,
-                                 p_row, p_width, p_height, p_stride, bd);
+  gm_sumerr =
+      highbd_frame_error(tmp, p_width, CONVERT_TO_SHORTPTR(dst8), p_col, p_row,
+                         p_width, p_height, p_stride, bd, best_error);
 
   aom_free(tmp);
   return gm_sumerr;
@@ -1385,12 +1387,14 @@ static void warp_plane(WarpedMotionParams *wm, const uint8_t *const ref,
 
 static int64_t frame_error(const uint8_t *const ref, int stride,
                            const uint8_t *const dst, int p_col, int p_row,
-                           int p_width, int p_height, int p_stride) {
+                           int p_width, int p_height, int p_stride,
+                           int64_t best_error) {
   int64_t sum_error = 0;
   for (int i = 0; i < p_height; ++i) {
     for (int j = 0; j < p_width; ++j) {
       sum_error += (int64_t)error_measure(
           dst[j + i * p_stride] - ref[(j + p_col) + (i + p_row) * stride]);
+      if (sum_error > best_error) return sum_error;
     }
   }
   return sum_error;
@@ -1401,7 +1405,7 @@ static int64_t warp_error(WarpedMotionParams *wm, const uint8_t *const ref,
                           const uint8_t *const dst, int p_col, int p_row,
                           int p_width, int p_height, int p_stride,
                           int subsampling_x, int subsampling_y, int x_scale,
-                          int y_scale) {
+                          int y_scale, int64_t best_error) {
   int64_t gm_sumerr = 0;
   uint8_t *tmp = aom_malloc(p_width * p_height);
   if (!tmp) return INT64_MAX;
@@ -1410,8 +1414,8 @@ static int64_t warp_error(WarpedMotionParams *wm, const uint8_t *const ref,
              p_height, p_width, subsampling_x, subsampling_y, x_scale, y_scale,
              0);
 
-  gm_sumerr =
-      frame_error(tmp, p_width, dst, p_col, p_row, p_width, p_height, p_stride);
+  gm_sumerr = frame_error(tmp, p_width, dst, p_col, p_row, p_width, p_height,
+                          p_stride, best_error);
 
   aom_free(tmp);
   return gm_sumerr;
@@ -1422,16 +1426,16 @@ int64_t av1_frame_error(
     int use_hbd, int bd,
 #endif  // CONFIG_HIGHBITDEPTH
     const uint8_t *ref, int stride, uint8_t *dst, int p_col, int p_row,
-    int p_width, int p_height, int p_stride) {
+    int p_width, int p_height, int p_stride, int64_t best_error) {
 #if CONFIG_HIGHBITDEPTH
   if (use_hbd) {
     return highbd_frame_error(CONVERT_TO_SHORTPTR(ref), stride,
                               CONVERT_TO_SHORTPTR(dst), p_col, p_row, p_width,
-                              p_height, p_stride, bd);
+                              p_height, p_stride, bd, best_error);
   }
 #endif  // CONFIG_HIGHBITDEPTH
   return frame_error(ref, stride, dst, p_col, p_row, p_width, p_height,
-                     p_stride);
+                     p_stride, best_error);
 }
 
 int64_t av1_warp_error(WarpedMotionParams *wm,
@@ -1441,18 +1445,19 @@ int64_t av1_warp_error(WarpedMotionParams *wm,
                        const uint8_t *ref, int width, int height, int stride,
                        uint8_t *dst, int p_col, int p_row, int p_width,
                        int p_height, int p_stride, int subsampling_x,
-                       int subsampling_y, int x_scale, int y_scale) {
+                       int subsampling_y, int x_scale, int y_scale,
+                       int64_t best_error) {
   if (wm->wmtype <= AFFINE)
     if (!get_shear_params(wm)) return 1;
 #if CONFIG_HIGHBITDEPTH
   if (use_hbd)
     return highbd_warp_error(wm, ref, width, height, stride, dst, p_col, p_row,
                              p_width, p_height, p_stride, subsampling_x,
-                             subsampling_y, x_scale, y_scale, bd);
+                             subsampling_y, x_scale, y_scale, bd, best_error);
 #endif  // CONFIG_HIGHBITDEPTH
   return warp_error(wm, ref, width, height, stride, dst, p_col, p_row, p_width,
                     p_height, p_stride, subsampling_x, subsampling_y, x_scale,
-                    y_scale);
+                    y_scale, best_error);
 }
 
 void av1_warp_plane(WarpedMotionParams *wm,
