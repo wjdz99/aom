@@ -330,3 +330,24 @@ int av1_is_intra_filter_switchable(int angle) {
 }
 #endif  // CONFIG_INTRA_INTERP
 #endif  // CONFIG_EXT_INTRA
+
+#if CONFIG_EXPT
+void av1_block_clamp(uint8_t *data, int stride, int width, int height,
+                     int min_v, int max_v) {
+  if (max_v <= 0 || (min_v == 0 && max_v == 255)) {
+    //printf("mark\n");
+    return;
+  }
+  for (int r = 0; r < height; ++r) {
+    for (int c = 0; c < width; ++c) {
+#if 0
+      if (data[r * stride + c] > max_v || data[r * stride + c] < min_v) {
+        // printf("block %d %d\n", mi_row, mi_col);
+         printf("%3d %3d %3d\n", data[r * stride + c], min_v, max_v);
+      }
+#endif
+      data[r * stride + c] = clamp(data[r * stride + c], min_v, max_v);
+    }
+  }
+}
+#endif

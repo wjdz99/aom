@@ -1964,6 +1964,12 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
   }
 #endif  // CONFIG_COEF_INTERLEAVE
 
+#if CONFIG_EXPT
+  av1_block_clamp(xd->plane[0].dst.buf, xd->plane[0].dst.stride,
+                  xd->plane[0].width, xd->plane[0].height, cm->min_val,
+                  cm->max_val);
+#endif
+
   int reader_corrupted_flag = aom_reader_has_error(r);
   aom_merge_corrupted_flag(&xd->corrupted, reader_corrupted_flag);
 }
@@ -4103,6 +4109,53 @@ static void read_compound_tools(AV1_COMMON *cm,
 }
 #endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXPT
+static int read_min_max_delta(struct aom_read_bit_buffer *rb) {
+  int diff;
+#if 1
+  if (!aom_rb_read_bit(rb)) {
+    diff = aom_rb_read_bit(rb);
+  } else {
+    if (!aom_rb_read_bit(rb)) {
+      diff = 2 + aom_rb_read_literal(rb, 2);
+    } else {
+      const int diff_bits = 1 + aom_rb_read_literal(rb, 3);
+      diff = 6 + aom_rb_read_literal(rb, diff_bits);
+    }
+  }
+#else
+  if (aom_rb_read_bit(rb)) {
+    diff = aom_rb_read_literal(rb, 2);
+  } else {
+    const int diff_bits = 1 + aom_rb_read_literal(rb, 3);
+    diff = 4 + aom_rb_read_literal(rb, diff_bits);
+  }
+#endif
+  if (aom_rb_read_bit(rb)) diff = -diff;
+  return diff;
+}
+
+static void read_frame_min_max(AV1_COMMON *const cm,
+                               struct aom_read_bit_buffer *rb) {
+#if CONFIG_EXPT
+// aom_rb_read_bit(rb);
+  if (frame_is_intra_only(cm)) {
+    cm->min_val = aom_rb_read_literal(rb, cm->bit_depth);
+    cm->max_val = aom_rb_read_literal(rb, cm->bit_depth);
+  } else {
+    cm->min_val = cm->last_min_val + read_min_max_delta(rb);
+    cm->max_val = cm->last_max_val + read_min_max_delta(rb);
+    // printf("dec frame %d, min_diff %d, last_min_val %d\n",
+    //     cm->current_video_frame, min_diff, cm->last_min_val);
+  }
+  cm->last_min_val = cm->min_val;
+  cm->last_max_val = cm->max_val;
+  //printf("dec frame %d min is %d, max is %d\n", cm->current_video_frame,
+    //     cm->min_val, cm->max_val);
+#endif
+}
+#endif
+
 static size_t read_uncompressed_header(AV1Decoder *pbi,
                                        struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
@@ -4223,6 +4276,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
     }
   }
 #endif
+
   if (cm->frame_type == KEY_FRAME) {
     if (!av1_read_sync_code(rb))
       aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
@@ -4517,6 +4571,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #if CONFIG_EXT_TX
   cm->reduced_tx_set_used = aom_rb_read_bit(rb);
 #endif  // CONFIG_EXT_TX
+
+#if CONFIG_EXPT
+  read_frame_min_max(cm, rb);
+#endif
 
   read_tile_info(pbi, rb);
   sz = aom_rb_read_literal(rb, 16);

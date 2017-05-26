@@ -4938,6 +4938,10 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   if (cm->is_reference_frame)
 #endif  // CONFIG_EXT_REFS
     cm->prev_frame = cm->cur_frame;
+#if CONFIG_EXPT
+  cm->last_min_val = cm->min_val;
+  cm->last_max_val = cm->max_val;
+#endif
 #if CONFIG_EC_ADAPT
   aom_free(tile_ctxs);
   aom_free(cdf_ptrs);

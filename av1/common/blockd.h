@@ -38,6 +38,8 @@
 extern "C" {
 #endif
 
+#define CONFIG_EXPT 1
+
 #if (CONFIG_CHROMA_SUB8X8 || CONFIG_CHROMA_2X2)
 #define SUB8X8_COMP_REF 0
 #else
@@ -683,6 +685,11 @@ typedef struct macroblockd {
 
 #if CONFIG_CFL
   CFL_CTX *cfl;
+#endif
+
+#if CONFIG_EXPT
+  int min_v;
+  int max_v;
 #endif
 } MACROBLOCKD;
 
@@ -1409,6 +1416,11 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
 static INLINE PLANE_TYPE get_plane_type(int plane) {
   return (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
 }
+
+#if CONFIG_EXPT
+void av1_block_clamp(uint8_t *data, int stride, int width, int height,
+                     int min_v, int max_v);
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"

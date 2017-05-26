@@ -4681,6 +4681,35 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   av1_zero(rdc->coef_counts);
   av1_zero(rdc->comp_pred_diff);
 
+#if CONFIG_EXPT
+  {
+    YV12_BUFFER_CONFIG *source = cpi->source;
+    uint8_t *y_buffer = source->y_buffer;
+    int min_v = INT_MAX;
+    int max_v = 0;
+    for (int r = 0; r < source->y_height; ++r) {
+      for (int c = 0; c < source->y_width; ++c) {
+        int temp = y_buffer[r * source->y_stride + c];
+        if (temp < min_v) min_v = temp;
+        if (temp > max_v) max_v = temp;
+      }
+    }
+    //printf("min is %d, max is %d, %d\n", min_v, max_v, (1 << cm->bit_depth));
+    /*
+    const int limit = (1 << EXPT_BITS) - 1;
+    if (min_v < EXPT_THRESH) {
+      min_v = 0;
+    } else {
+      if (min_v > (1 << EXPT_BITS))
+    }
+    if (max_v > (1 << cm->bit_depth) - 1 - EXPT_THRESH)
+      max_v = (1 << cm->bit_depth);
+      */
+    cm->min_val = min_v;
+    cm->max_val = max_v;
+  }
+#endif
+
 #if CONFIG_GLOBAL_MOTION
   av1_zero(rdc->global_motion_used);
   av1_zero(cpi->gmparams_cost);
@@ -5592,6 +5621,12 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     daala_dist_set_sub8x8_dst(x, x->decoded_8x8, bsize, block_size_wide[bsize],
                               block_size_high[bsize], mi_row, mi_col);
   }
+#endif
+
+#if CONFIG_EXPT
+  av1_block_clamp(xd->plane[0].dst.buf, xd->plane[0].dst.stride,
+                  xd->plane[0].width, xd->plane[0].height, cm->min_val,
+                  cm->max_val);
 #endif
 
   if (!dry_run) {

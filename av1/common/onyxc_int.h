@@ -434,6 +434,12 @@ typedef struct AV1Common {
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
   int ans_window_size_log2;
 #endif
+#if CONFIG_EXPT
+  int last_min_val;
+  int last_max_val;
+  int min_val;
+  int max_val;
+#endif
 } AV1_COMMON;
 
 #if CONFIG_REFERENCE_BUFFER

@@ -4252,6 +4252,57 @@ static void write_compound_tools(const AV1_COMMON *cm,
 }
 #endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXPT
+static void write_min_max_delta(int val, int last_val,
+                                struct aom_write_bit_buffer *wb) {
+  int diff = abs(val - last_val);
+  const int sign = val < last_val;
+#if 1
+  if (diff <= 1) {  // diff = 0 or 1
+    aom_wb_write_bit(wb, 0);
+    aom_wb_write_bit(wb, diff);
+  } else {
+    aom_wb_write_bit(wb, 1);
+    if (diff <= 5) {  // 2 <= diff <= 5
+      aom_wb_write_bit(wb, 0);
+      aom_wb_write_literal(wb, diff - 2, 2);
+    } else {  // 6 <= diff
+      aom_wb_write_bit(wb, 1);
+      diff -= 6;
+      const int diff_bits = av1_ceil_log2(diff + 1);
+      aom_wb_write_literal(wb, diff_bits - 1, 3);
+      aom_wb_write_literal(wb, diff, diff_bits);
+    }
+  }
+#else
+  aom_wb_write_bit(wb, diff < 4);
+  if (diff < 4) {
+    aom_wb_write_literal(wb, diff, 2);
+  } else {
+    diff -= 4;
+    const int diff_bits = av1_ceil_log2(diff + 1);
+    aom_wb_write_literal(wb, diff_bits - 1, 3);
+    aom_wb_write_literal(wb, diff, diff_bits);
+  }
+#endif
+  aom_wb_write_bit(wb, sign);
+}
+
+static void write_frame_min_max(const AV1_COMMON *const cm,
+                                struct aom_write_bit_buffer *wb) {
+// printf("enc frame %d min is %d, max is %d\n",
+//     cm->current_video_frame, cm->min_val, cm->max_val);
+// aom_wb_write_bit(wb, 1);
+  if (frame_is_intra_only(cm)) {
+    aom_wb_write_literal(wb, cm->min_val, cm->bit_depth);
+    aom_wb_write_literal(wb, cm->max_val, cm->bit_depth);
+  } else {
+    write_min_max_delta(cm->min_val, cm->last_min_val, wb);
+    write_min_max_delta(cm->max_val, cm->last_max_val, wb);
+  }
+}
+#endif
+
 static void write_uncompressed_header(AV1_COMP *cpi,
                                       struct aom_write_bit_buffer *wb) {
   AV1_COMMON *const cm = &cpi->common;
@@ -4513,6 +4564,10 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 #if CONFIG_EXT_TX
   aom_wb_write_bit(wb, cm->reduced_tx_set_used);
 #endif  // CONFIG_EXT_TX
+
+#if CONFIG_EXPT
+  write_frame_min_max(cm, wb);
+#endif
 
   write_tile_info(cm, wb);
 }

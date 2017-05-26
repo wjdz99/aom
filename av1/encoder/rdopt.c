@@ -1500,6 +1500,19 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
                   coeff_ctx, AV1_XFORM_QUANT_FP);
   av1_optimize_b(cm, x, plane, block, plane_bsize, tx_size, a, l);
 
+#if CONFIG_EXPT
+  if (plane == 0) {
+    const struct macroblockd_plane *const pd = &x->e_mbd.plane[plane];
+    const int dst_stride = pd->dst.stride;
+    const int tx1d_width = tx_size_wide[tx_size];
+    const int tx1d_height = tx_size_high[tx_size];
+    uint8_t *dst =
+        &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
+    av1_block_clamp(dst, dst_stride, tx1d_width, tx1d_height, cm->min_val,
+                    cm->max_val);
+  }
+#endif
+
   if (!is_inter_block(mbmi)) {
     struct macroblock_plane *const p = &x->plane[plane];
     av1_inverse_transform_block_facade(xd, plane, block, blk_row, blk_col,
