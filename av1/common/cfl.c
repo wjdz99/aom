@@ -120,6 +120,52 @@ static inline void copy_block(uint8_t *dst, int dst_stride, const uint8_t *src,
   }
 }
 
+static inline void copy_block_420(uint8_t *dst, int dst_stride,
+                                  const uint8_t *src, int src_stride, int width,
+                                  int height) {
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      int t = i << 1;
+      int b = t + src_stride;
+      dst[i] = OD_SHR_ROUND(src[t] + src[t + 1]         // Top row
+                                + src[b] + src[b + 1],  // Bottom row
+                            2);
+    }
+    dst += dst_stride;
+    src += src_stride << 1;
+  }
+}
+
+static inline void pad_block_col(uint8_t *block, int block_stride, int width,
+                                 int height, int diff_width) {
+  block += width - diff_width;
+  for (int j = 0; j < height; j++) {
+    memset(block, block[-1], diff_width);
+    block += block_stride;
+  }
+}
+
+static inline void pad_block_row(uint8_t *block, int block_stride, int width,
+                                 int height, int diff_height) {
+  block += (height - diff_height) * block_stride;
+  for (int j = 0; j < diff_height; j++) {
+    memcpy(block, block - block_stride, width);
+    block += block_stride;
+  }
+}
+
+static inline double block_average(uint8_t *block, int block_stride, int width,
+                                   int height) {
+  int sum = 0;
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      sum += block[i];
+    }
+    block += block_stride;
+  }
+  return sum / (double)(width * height);
+}
+
 void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
                int col, TX_SIZE tx_size) {
   const int tx_width = tx_size_wide[tx_size];
@@ -163,20 +209,7 @@ double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
     copy_block(output, output_stride, y_pix, MAX_SB_SIZE, width, height);
   } else if (sub_y == 1 && sub_x == 1) {
     y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << (off_log2 + sub_y)];
-    for (int j = 0; j < height; j++) {
-      for (int i = 0; i < width; i++) {
-        int top_left = (pred_row_offset + i) << sub_y;
-        int bot_left = top_left + MAX_SB_SIZE;
-        // In 4:2:0, average pixels in 2x2 grid
-        output[output_row_offset + i] = OD_SHR_ROUND(
-            y_pix[top_left] + y_pix[top_left + 1]        // Top row
-                + y_pix[bot_left] + y_pix[bot_left + 1]  // Bottom row
-            ,
-            2);
-      }
-      pred_row_offset += MAX_SB_SIZE;
-      output_row_offset += output_stride;
-    }
+    copy_block_420(output, output_stride, y_pix, MAX_SB_SIZE, width, height);
   } else {
     assert(0);  // Unsupported chroma subsampling
   }
@@ -195,36 +228,12 @@ double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
   const int diff_height = uv_height - (cfl->y_height >> sub_y);
 
   if (diff_width > 0) {
-    int last_pixel;
-    int output_row_offset = width - diff_width;
-
-    for (int j = 0; j < height; j++) {
-      last_pixel = output_row_offset - 1;
-      for (int i = 0; i < diff_width; i++) {
-        output[output_row_offset + i] = output[last_pixel];
-      }
-      output_row_offset += output_stride;
-    }
+    pad_block_col(output, output_stride, width, height, diff_width);
   }
 
   if (diff_height > 0) {
-    int output_row_offset = (height - diff_height) * output_stride;
-    const int last_row_offset = output_row_offset - output_stride;
-    for (int j = 0; j < diff_height; j++) {
-      for (int i = 0; i < width; i++) {
-        output[output_row_offset + i] = output[last_row_offset + i];
-      }
-      output_row_offset += output_stride;
-    }
+    pad_block_row(output, output_stride, width, height, diff_height);
   }
 
-  int avg = 0;
-  int output_row_offset = 0;
-  for (int j = 0; j < height; j++) {
-    for (int i = 0; i < width; i++) {
-      avg += output[output_row_offset + i];
-    }
-    output_row_offset += output_stride;
-  }
-  return avg / (double)(width * height);
+  return block_average(output, output_stride, width, height);
 }
