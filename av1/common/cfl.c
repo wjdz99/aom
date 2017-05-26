@@ -26,6 +26,38 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
   cfl->subsampling_y = cm->subsampling_y;
 }
 
+static inline void sum_above_row(const uint8_t *blk_u, int blk_u_stride,
+                                 const uint8_t *blk_v, int blk_v_stride,
+                                 int width, int *out_sum_u, int *out_sum_v) {
+  int sum_u = *out_sum_u;
+  int sum_v = *out_sum_v;
+  blk_u -= blk_u_stride;
+  blk_v -= blk_v_stride;
+  for (int i = 0; i < width; i++) {
+    sum_u += blk_u[i];
+    sum_v += blk_v[i];
+  }
+  *out_sum_u += sum_u;
+  *out_sum_v += sum_v;
+}
+
+static inline void sum_prev_col(const uint8_t *blk_u, int blk_u_stride,
+                                const uint8_t *blk_v, int blk_v_stride,
+                                int height, int *out_sum_u, int *out_sum_v) {
+  int sum_u = *out_sum_u;
+  int sum_v = *out_sum_v;
+  blk_u--;
+  blk_v--;
+  for (int i = 0; i < height; i++) {
+    sum_u += blk_u[0];
+    sum_v += blk_v[0];
+    blk_u += blk_u_stride;
+    blk_v += blk_v_stride;
+  }
+  *out_sum_u = sum_u;
+  *out_sum_v = sum_v;
+}
+
 // CfL computes its own block-level DC_PRED. This is required to compute both
 // alpha_cb and alpha_cr before the prediction are computed.
 void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
@@ -66,11 +98,8 @@ void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
 #else
   if (xd->up_available && xd->mb_to_right_edge >= 0) {
 #endif
-    // TODO(ltrudeau) replace this with DC_PRED assembly
-    for (int i = 0; i < block_width; i++) {
-      sum_u += dst_u[-dst_u_stride + i];
-      sum_v += dst_v[-dst_v_stride + i];
-    }
+    sum_above_row(dst_u, dst_u_stride, dst_v, dst_v_stride, block_width, &sum_u,
+                  &sum_v);
   } else {
     sum_u = block_width * 127;
     sum_v = block_width * 127;
@@ -81,10 +110,8 @@ void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
 #else
   if (xd->left_available && xd->mb_to_bottom_edge >= 0) {
 #endif
-    for (int i = 0; i < block_height; i++) {
-      sum_u += dst_u[i * dst_u_stride - 1];
-      sum_v += dst_v[i * dst_v_stride - 1];
-    }
+    sum_prev_col(dst_u, dst_u_stride, dst_v, dst_v_stride, block_height, &sum_u,
+                 &sum_v);
   } else {
     sum_u += block_height * 129;
     sum_v += block_height * 129;
