@@ -111,6 +111,15 @@ void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
   }
 }
 
+static inline void copy_block(uint8_t *dst, int dst_stride, const uint8_t *src,
+                              int src_stride, int width, int height) {
+  for (int j = 0; j < height; j++) {
+    memcpy(dst, src, width);
+    dst += dst_stride;
+    src += src_stride;
+  }
+}
+
 void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
                int col, TX_SIZE tx_size) {
   const int tx_width = tx_size_wide[tx_size];
@@ -124,13 +133,7 @@ void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
   assert(MAX_SB_SIZE * (row + tx_height - 1) + col + tx_width - 1 <
          MAX_SB_SQUARE);
 
-  for (int j = 0; j < tx_height; j++) {
-    for (int i = 0; i < tx_width; i++) {
-      y_pix[i] = input[i];
-    }
-    y_pix += MAX_SB_SIZE;
-    input += input_stride;
-  }
+  copy_block(y_pix, MAX_SB_SIZE, input, input_stride, tx_width, tx_height);
 
   // Store the surface of the pixel buffer that was written to, this way we
   // can manage chroma overrun (e.g. when the chroma surfaces goes beyond the
@@ -153,20 +156,11 @@ double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
 
   const uint8_t *y_pix;
 
-  int pred_row_offset = 0;
-  int output_row_offset = 0;
-
   // TODO(ltrudeau) add support for 4:2:2
   if (sub_y == 0 && sub_x == 0) {
     y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << off_log2];
-    for (int j = 0; j < height; j++) {
-      for (int i = 0; i < width; i++) {
-        // In 4:4:4, pixels match 1 to 1
-        output[output_row_offset + i] = y_pix[pred_row_offset + i];
-      }
-      pred_row_offset += MAX_SB_SIZE;
-      output_row_offset += output_stride;
-    }
+    // For 4:4:4, match pixels 1 to 1
+    copy_block(output, output_stride, y_pix, MAX_SB_SIZE, width, height);
   } else if (sub_y == 1 && sub_x == 1) {
     y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << (off_log2 + sub_y)];
     for (int j = 0; j < height; j++) {
@@ -202,7 +196,7 @@ double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
 
   if (diff_width > 0) {
     int last_pixel;
-    output_row_offset = width - diff_width;
+    int output_row_offset = width - diff_width;
 
     for (int j = 0; j < height; j++) {
       last_pixel = output_row_offset - 1;
@@ -214,7 +208,7 @@ double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
   }
 
   if (diff_height > 0) {
-    output_row_offset = (height - diff_height) * output_stride;
+    int output_row_offset = (height - diff_height) * output_stride;
     const int last_row_offset = output_row_offset - output_stride;
     for (int j = 0; j < diff_height; j++) {
       for (int i = 0; i < width; i++) {
@@ -225,7 +219,7 @@ double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
   }
 
   int avg = 0;
-  output_row_offset = 0;
+  int output_row_offset = 0;
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       avg += output[output_row_offset + i];
