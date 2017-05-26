@@ -706,6 +706,18 @@ static void predict_and_reconstruct_intra_block(
     cfl_store(xd->cfl, dst, pd->dst.stride, row, col, tx_size);
   }
 #endif
+#if CONFIG_EXPT1
+  if (plane == 0) {
+    struct macroblockd_plane *const pd = &xd->plane[plane];
+    const int dst_stride = pd->dst.stride;
+    uint8_t *dst =
+        &pd->dst.buf[(row * dst_stride + col) << tx_size_wide_log2[0]];
+    const int tx1d_width = tx_size_wide[tx_size];
+    const int tx1d_height = tx_size_high[tx_size];
+    av1_block_clamp(dst, dst_stride, tx1d_width, tx1d_height, cm->min_v,
+                    cm->max_v);
+  }
+#endif
 }
 
 #if CONFIG_VAR_TX && !CONFIG_COEF_INTERLEAVE
@@ -1914,6 +1926,12 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
     }
 #endif  // CONFIG_MOTION_VAR
 
+#if CONFIG_EXPT1
+    av1_block_clamp(xd->plane[0].dst.buf, xd->plane[0].dst.stride,
+                    block_size_wide[bsize], block_size_high[bsize], cm->min_v,
+                    cm->max_v);
+#endif
+
     // Reconstruction
     if (!mbmi->skip) {
       int eobtotal = 0;
@@ -1961,8 +1979,27 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 #endif
       }
     }
+#if CONFIG_EXPT1
+    struct macroblockd_plane *const pd = &xd->plane[0];
+    av1_block_clamp(pd->dst.buf, pd->dst.stride, block_size_wide[bsize],
+                    block_size_high[bsize], cm->min_v, cm->max_v);
+#endif
   }
 #endif  // CONFIG_COEF_INTERLEAVE
+
+#if CONFIG_EXPT
+  av1_block_clamp(xd->plane[0].dst.buf, xd->plane[0].dst.stride,
+                  xd->plane[0].width, xd->plane[0].height, cm->min_val,
+                  cm->max_val);
+
+#if EXPT_U
+  //BLOCK_SIZE uv_bsize = scale_chroma_bsize(bsize, xd->plane[1].subsampling_x,
+    //                                       xd->plane[1].subsampling_y);
+  av1_block_clamp(xd->plane[1].dst.buf, xd->plane[1].dst.stride,
+                  xd->plane[1].width, xd->plane[1].height,
+                  cm->u_min_val, cm->u_max_val);
+#endif
+#endif
 
   int reader_corrupted_flag = aom_reader_has_error(r);
   aom_merge_corrupted_flag(&xd->corrupted, reader_corrupted_flag);
@@ -3602,6 +3639,10 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     for (tile_col = tile_cols_start; tile_col < tile_cols_end; ++tile_col) {
       const int col = inv_col_order ? tile_cols - 1 - tile_col : tile_col;
       TileData *const td = pbi->tile_data + tile_cols * row + col;
+#if CONFIG_EXPT1
+      td->xd.min_v = cm->min_val;
+      td->xd.max_v = cm->max_val;
+#endif
 #if CONFIG_ACCOUNTING
       if (pbi->acct_enabled) {
         td->bit_reader.accounting->last_tell_frac =
@@ -4079,6 +4120,63 @@ static void read_compound_tools(AV1_COMMON *cm,
 }
 #endif  // CONFIG_EXT_INTER
 
+#if CONFIG_EXPT
+static int read_min_max_delta(struct aom_read_bit_buffer *rb) {
+  int diff;
+#if 1
+  if (!aom_rb_read_bit(rb)) {
+    diff = aom_rb_read_bit(rb);
+  } else {
+    if (!aom_rb_read_bit(rb)) {
+      diff = 2 + aom_rb_read_literal(rb, 2);
+    } else {
+      const int diff_bits = 1 + aom_rb_read_literal(rb, 3);
+      diff = 6 + aom_rb_read_literal(rb, diff_bits);
+    }
+  }
+#else
+  if (aom_rb_read_bit(rb)) {
+    diff = aom_rb_read_literal(rb, 2);
+  } else {
+    const int diff_bits = 1 + aom_rb_read_literal(rb, 3);
+    diff = 4 + aom_rb_read_literal(rb, diff_bits);
+  }
+#endif
+  if (aom_rb_read_bit(rb)) diff = -diff;
+  return diff;
+}
+
+static void read_frame_min_max(AV1_COMMON *const cm,
+                               struct aom_read_bit_buffer *rb) {
+#if CONFIG_EXPT
+// aom_rb_read_bit(rb);
+  if (frame_is_intra_only(cm)) {
+    cm->min_val = aom_rb_read_literal(rb, cm->bit_depth);
+    cm->max_val = aom_rb_read_literal(rb, cm->bit_depth);
+#if EXPT_U
+    cm->u_min_val = aom_rb_read_literal(rb, cm->bit_depth);
+    cm->u_max_val = aom_rb_read_literal(rb, cm->bit_depth);
+#endif
+  } else {
+    cm->min_val = cm->last_min_val + read_min_max_delta(rb);
+    cm->max_val = cm->last_max_val + read_min_max_delta(rb);
+    // printf("dec frame %d, min_diff %d, last_min_val %d\n",
+    //     cm->current_video_frame, min_diff, cm->last_min_val);
+#if EXPT_U
+    cm->u_min_val = cm->last_u_min_val + read_min_max_delta(rb);
+    cm->u_max_val = cm->last_u_max_val + read_min_max_delta(rb);
+#endif
+  }
+  cm->last_min_val = cm->min_val;
+  cm->last_max_val = cm->max_val;
+  cm->last_u_min_val = cm->u_min_val;
+  cm->last_u_max_val = cm->u_max_val;
+  //printf("dec frame %d min is %d, max is %d\n", cm->current_video_frame,
+    //     cm->min_val, cm->max_val);
+#endif
+}
+#endif
+
 static size_t read_uncompressed_header(AV1Decoder *pbi,
                                        struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
@@ -4199,6 +4297,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
     }
   }
 #endif
+
   if (cm->frame_type == KEY_FRAME) {
     if (!av1_read_sync_code(rb))
       aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
@@ -4496,6 +4595,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #if CONFIG_EXT_TX
   cm->reduced_tx_set_used = aom_rb_read_bit(rb);
 #endif  // CONFIG_EXT_TX
+
+#if CONFIG_EXPT
+  read_frame_min_max(cm, rb);
+#endif
 
   read_tile_info(pbi, rb);
   sz = aom_rb_read_literal(rb, 16);

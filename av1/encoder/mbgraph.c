@@ -147,6 +147,10 @@ static int find_best_16x16_intra(AV1_COMP *cpi, PREDICTION_MODE *pbest_mode) {
     unsigned int err;
 
     xd->mi[0]->mbmi.mode = mode;
+#if CONFIG_EXPT1
+    xd->min_v = 0;
+    xd->max_v = (1 << cpi->common.bit_depth) - 1;
+#endif
     av1_predict_intra_block(xd, 16, 16, BLOCK_16X16, mode, x->plane[0].src.buf,
                             x->plane[0].src.stride, xd->plane[0].dst.buf,
                             xd->plane[0].dst.stride, 0, 0, 0);

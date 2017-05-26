@@ -1224,6 +1224,20 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
     }
 #endif  // CONFIG_CONVOLVE_ROUND
   }
+
+#if CONFIG_EXPT
+  if (plane == 0) {
+    av1_block_clamp(pd->dst.buf + pd->dst.stride * y + x, pd->dst.stride, bw,
+                    bh, cm->min_val, cm->max_val);
+  }
+
+#if EXPT_U
+  if (plane == 1) {
+    av1_block_clamp(pd->dst.buf + pd->dst.stride * y + x, pd->dst.stride, bw,
+                    bh, cm->u_min_val, cm->u_max_val);
+  }
+#endif
+#endif
 }
 
 void av1_build_inter_predictor_sub8x8(const AV1_COMMON *cm, MACROBLOCKD *xd,

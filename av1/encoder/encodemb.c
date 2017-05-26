@@ -1748,6 +1748,24 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #endif  // CONFIG_PVQ
   av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst, dst_stride,
                               *eob);
+
+#if CONFIG_EXPT1
+  if (plane == 0) {
+    const int tx1d_width = tx_size_wide[tx_size];
+    const int tx1d_height = tx_size_high[tx_size];
+    av1_block_clamp(dst, dst_stride, tx1d_width, tx1d_height, cm->min_v,
+                    cm->max_v);
+  }
+#endif
+
+#if CONFIG_EXPT1
+  if (plane == 0) {
+    av1_block_clamp(xd->plane[0].dst.buf, xd->plane[0].dst.stride,
+                    block_size_wide[bsize], block_size_high[bsize], cm->min_v,
+                    cm->max_v);
+  }
+#endif
+
 #if !CONFIG_PVQ
   if (*eob) *(args->skip) = 0;
 #else

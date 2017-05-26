@@ -4054,6 +4054,11 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
   const int leaf_nodes = 64;
 #endif  // CONFIG_EXT_PARTITION
 
+#if CONFIG_EXPT1
+  xd->min_v = cm->min_val;
+  xd->max_v = cm->max_val;
+#endif
+
   // Initialize the left context for the new SB row
   av1_zero_left_context(xd);
 
@@ -4608,6 +4613,48 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   av1_zero(*td->counts);
   av1_zero(rdc->coef_counts);
   av1_zero(rdc->comp_pred_diff);
+
+#if CONFIG_EXPT
+  {
+    YV12_BUFFER_CONFIG *source = cpi->source;
+    uint8_t *y_buffer = source->y_buffer;
+    int min_v = INT_MAX;
+    int max_v = 0;
+    for (int r = 0; r < source->y_height; ++r) {
+      for (int c = 0; c < source->y_width; ++c) {
+        int temp = y_buffer[r * source->y_stride + c];
+        if (temp < min_v) min_v = temp;
+        if (temp > max_v) max_v = temp;
+      }
+    }
+    //printf("min is %d, max is %d, %d\n", min_v, max_v, (1 << cm->bit_depth));
+    /*
+    const int limit = (1 << EXPT_BITS) - 1;
+    if (min_v < EXPT_THRESH) {
+      min_v = 0;
+    } else {
+      if (min_v > (1 << EXPT_BITS))
+    }
+    if (max_v > (1 << cm->bit_depth) - 1 - EXPT_THRESH)
+      max_v = (1 << cm->bit_depth);
+      */
+    cm->min_val = min_v;
+    cm->max_val = max_v;
+
+    min_v = INT_MAX;
+    max_v = 0;
+    for (int r = 0; r < source->uv_height; ++r) {
+      for (int c = 0; c < source->uv_width; ++c) {
+        int temp = source->u_buffer[r * source->uv_stride + c];
+        if (temp < min_v) min_v = temp;
+        if (temp > max_v) max_v = temp;
+      }
+    }
+    //printf("min is %d, max is %d, %d\n", min_v, max_v, (1 << cm->bit_depth));
+    cm->u_min_val = min_v;
+    cm->u_max_val = max_v;
+  }
+#endif
 
 #if CONFIG_GLOBAL_MOTION
   av1_zero(rdc->global_motion_used);
@@ -5506,6 +5553,20 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
 #endif  // CONFIG_LV_MAP
 #endif
   }
+
+#if CONFIG_EXPT
+  av1_block_clamp(xd->plane[0].dst.buf, xd->plane[0].dst.stride,
+                  xd->plane[0].width, xd->plane[0].height, cm->min_val,
+                  cm->max_val);
+
+#if EXPT_U
+  //BLOCK_SIZE uv_bsize = scale_chroma_bsize(bsize, xd->plane[1].subsampling_x,
+    //                                       xd->plane[1].subsampling_y);
+  av1_block_clamp(xd->plane[1].dst.buf, xd->plane[1].dst.stride,
+                  xd->plane[1].width, xd->plane[1].height,
+                  cm->u_min_val, cm->u_max_val);
+#endif
+#endif
 
   if (!dry_run) {
 #if CONFIG_VAR_TX

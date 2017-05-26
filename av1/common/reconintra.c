@@ -2671,6 +2671,13 @@ void av1_predict_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
 #endif  // (CONFIG_RECT_TX && (CONFIG_VAR_TX || CONFIG_EXT_TX)) ||
         // (CONFIG_EXT_INTER)
   }
+#if CONFIG_EXPT1
+  //printf("%d %d\n", xd->min_v, xd->max_v);
+  if (plane == 0 && xd->max_v > 0) {
+    av1_block_clamp(dst, dst_stride, block_width, block_height, xd->min_v,
+                    xd->max_v);
+  }
+#endif
 }
 
 void av1_init_intra_predictors(void) {
