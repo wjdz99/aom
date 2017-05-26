@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "dda0ad9e_74e40281",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-05-26T20:50:40Z",
+      "side": 1,
+      "message": "Yes, I just keep plane parameter to match that of av1_foreach_transformed_block_in_plane() but following your suggestion.",
+      "parentUuid": "15931d59_ee5484dd",
+      "revId": "eb4284466703c131b369384123c3888541bcbea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70b8c0cf_c5bf5fd0",
         "filename": "av1/common/blockd.c",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-26T18:34:12Z",
       "side": 1,
       "message": "As you may know, I\u0027m trying to move the TX_2X2 transform size behind the chroma_2x2 flag in \u003chttps://aomedia-review.googlesource.com/#/c/11826/\u003e, since cb4x4 does not actually need it. I could add this special case to that patch, but you can also write this as\n\nif ((r \u0026 tx_size_high_unit[TX_4X4]) \u0026\u0026 (c \u0026 tx_size_wide_unit[TX_4X4])) {\n  mi_visit(plane, i, r - tx_size_high_unit[TX_4X4], c - tx_size_wide_unit[TX_4X4], plane_bsize, tx_size, arg);\n\nand it will work both with and without cb4x4 (and later both with and without chroma_2x2).\n\nAlso, if tx_size is TX_4X8 or TX_8X4, only one of the two conditions above will be true, instead of both of them, or did I misunderstand something?",
+      "revId": "eb4284466703c131b369384123c3888541bcbea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "048ecc16_d107d9b4",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-05-26T20:50:40Z",
+      "side": 1,
+      "message": "Yes, using tx_size_high_unit[TX_4X4] certainly helps making it better codes.\nFor rectangular sub8x8 tx sizes, only one of two conditions is met and this is correct behavior since the idea of checking \"if ((r \u0026 2) \u0026\u0026 (c \u0026 2))\" is to check whether \"//... each 8x8 block is done\" and if any dimension (of x and y) is 8 pixels then it will make the \"( \u0026 2)\" term always true.\nFor ex, if 8x4 tx, then txw_unit \u003d 4 and txh_unit \u003d 2 and\n\u0027c\u0027 is inctremented by 4, which makes (c \u0026 2) always true.",
+      "parentUuid": "70b8c0cf_c5bf5fd0",
       "revId": "eb4284466703c131b369384123c3888541bcbea5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "9c0cdcc0_5aa39365",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-05-26T20:50:40Z",
+      "side": 1,
+      "message": "Yes, apparently we can get the maximum # of 4x4 tx blocks in a superblock and use it. FYI, rate_4x4[] is only used for luma blocks by daala-dist, so I could think we can exclude TX_2X2 case, but in order to keep using the block indexing defined by all kinds of enum[], which include TX_2X2, rate_4x4[] should large enough to cover it.",
+      "parentUuid": "8518efaa_7f18c345",
+      "revId": "eb4284466703c131b369384123c3888541bcbea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f954101c_08f56cf6",
         "filename": "av1/encoder/block.h",
         "patchSetId": 5
@@ -64,6 +118,47 @@
       "writtenOn": "2017-05-26T18:34:12Z",
       "side": 1,
       "message": "Is it okay for this to be a uint8_t? Or will that break for high bit-depth (which is now the default)?",
+      "revId": "eb4284466703c131b369384123c3888541bcbea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "059c6c9c_4d65a2fc",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-05-26T20:50:40Z",
+      "side": 1,
+      "message": "Okay for 8bit input only. At present, most of daala-dist codes is not supporting HBD and the HBD support for daala-dist will be submitted as separate patch.",
+      "parentUuid": "f954101c_08f56cf6",
+      "revId": "eb4284466703c131b369384123c3888541bcbea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c3ea8c24_9c290203",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1640,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-05-26T20:50:40Z",
+      "side": 1,
+      "message": "While this function is only called for plane \u003d\u003d 0,\nthe reason why I keep \u0027plane\u0027 parameter is to use\nthe existing \u0027foreach_transformed_block_visitor\u0027 type\nfor block_8x8_rd_txfm_daala_dist(), which is passed for\n \u0027mi_visit\u0027 parameter in function:\n\"void av1_foreach_8x8_transformed_block_in_plane(\n    const MACROBLOCKD *const xd, BLOCK_SIZE bsize,\n    foreach_transformed_block_visitor visit,\n    foreach_transformed_block_visitor mi_visit, void *arg) {\".",
+      "range": {
+        "startLine": 1640,
+        "startChar": 74,
+        "endLine": 1640,
+        "endChar": 75
+      },
       "revId": "eb4284466703c131b369384123c3888541bcbea5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
