@@ -131,14 +131,11 @@ typedef enum {
 
 typedef char PARTITION_CONTEXT;
 #define PARTITION_PLOFFSET 4  // number of probability models per block size
-#define PARTITION_BLOCK_SIZES (4 + CONFIG_EXT_PARTITION)
-#define PARTITION_CONTEXTS_PRIMARY (PARTITION_BLOCK_SIZES * PARTITION_PLOFFSET)
-#if CONFIG_UNPOISON_PARTITION_CTX
-#define PARTITION_CONTEXTS \
-  (PARTITION_CONTEXTS_PRIMARY + 2 * PARTITION_BLOCK_SIZES)
+#if CONFIG_EXT_PARTITION
+#define PARTITION_CONTEXTS (5 * PARTITION_PLOFFSET)
 #else
-#define PARTITION_CONTEXTS PARTITION_CONTEXTS_PRIMARY
-#endif
+#define PARTITION_CONTEXTS (4 * PARTITION_PLOFFSET)
+#endif  // CONFIG_EXT_PARTITION
 
 // block transform size
 typedef enum ATTRIBUTE_PACKED {
@@ -225,23 +222,8 @@ typedef enum {
   TX_TYPES,
 } TX_TYPE;
 
-typedef enum {
-  TILE_LEFT_BOUNDARY = 1,
-  TILE_RIGHT_BOUNDARY = 2,
-  TILE_ABOVE_BOUNDARY = 4,
-  TILE_BOTTOM_BOUNDARY = 8,
-  FRAME_LEFT_BOUNDARY = 16,
-  FRAME_RIGHT_BOUNDARY = 32,
-  FRAME_ABOVE_BOUNDARY = 64,
-  FRAME_BOTTOM_BOUNDARY = 128,
-} BOUNDARY_TYPE;
-
 #if CONFIG_EXT_TX
-#if CONFIG_CB4X4
-#define EXT_TX_SIZES 5  // number of sizes that use extended transforms
-#else
 #define EXT_TX_SIZES 4       // number of sizes that use extended transforms
-#endif                       // CONFIG_CB4X4
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER
 #define EXT_TX_SETS_INTRA 3  // Sets of transform selections for INTRA
 #else
@@ -295,6 +277,16 @@ typedef enum {
 } PALETTE_COLOR;
 #endif  // CONFIG_PALETTE
 
+#ifdef CONFIG_CLPF
+#define CLPF_NOFLAG -1
+typedef enum {
+  CLPF_NOSIZE = 0,
+  CLPF_32X32 = 1,
+  CLPF_64X64 = 2,
+  CLPF_128X128 = 3
+} CLPF_BLOCK_SIZE;
+#endif
+
 typedef enum ATTRIBUTE_PACKED {
   DC_PRED,    // Average of above and left pixels
   V_PRED,     // Vertical
@@ -307,6 +299,10 @@ typedef enum ATTRIBUTE_PACKED {
   D63_PRED,   // Directional 63  deg = round(arctan(2/1) * 180/pi)
 #if CONFIG_ALT_INTRA
   SMOOTH_PRED,  // Combination of horizontal and vertical interpolation
+  LEAST_PRED,  // Combination of horizontal and vertical interpolation
+  WCALIC_PRED,  // Combination of horizontal and vertical interpolation
+  ISLE_PRED,  // Combination of horizontal and vertical interpolation
+  PRDCT_PRED,  // Combination of horizontal and vertical interpolation
 #endif          // CONFIG_ALT_INTRA
   TM_PRED,      // True-motion
   NEARESTMV,
@@ -314,6 +310,7 @@ typedef enum ATTRIBUTE_PACKED {
   ZEROMV,
   NEWMV,
 #if CONFIG_EXT_INTER
+  NEWFROMNEARMV,
   NEAREST_NEARESTMV,
   NEAREST_NEARMV,
   NEAR_NEARESTMV,
@@ -388,7 +385,11 @@ typedef enum {
 #define DIRECTIONAL_MODES (INTRA_MODES - 2)
 #endif  // CONFIG_EXT_INTRA
 
+#if CONFIG_EXT_INTER
+#define INTER_MODES (1 + NEWFROMNEARMV - NEARESTMV)
+#else
 #define INTER_MODES (1 + NEWMV - NEARESTMV)
+#endif  // CONFIG_EXT_INTER
 
 #if CONFIG_EXT_INTER
 #define INTER_COMPOUND_MODES (1 + NEW_NEWMV - NEAREST_NEARESTMV)
@@ -420,7 +421,7 @@ typedef enum {
 #define INTER_MODE_CONTEXTS 7
 #if CONFIG_DELTA_Q
 #define DELTA_Q_SMALL 3
-#define DELTA_Q_PROBS (DELTA_Q_SMALL)
+#define DELTA_Q_CONTEXTS (DELTA_Q_SMALL)
 #define DEFAULT_DELTA_Q_RES 4
 #endif
 
@@ -445,7 +446,7 @@ typedef enum {
 typedef uint8_t TXFM_CONTEXT;
 #endif
 
-#define NONE_FRAME -1
+#define NONE -1
 #define INTRA_FRAME 0
 #define LAST_FRAME 1
 
@@ -493,15 +494,11 @@ typedef enum {
   RESTORE_NONE = 0,
   RESTORE_WIENER = 1,
   RESTORE_SGRPROJ = 2,
-  RESTORE_SWITCHABLE,
+  RESTORE_DOMAINTXFMRF = 3,
+  RESTORE_SWITCHABLE = 4,
   RESTORE_SWITCHABLE_TYPES = RESTORE_SWITCHABLE,
   RESTORE_TYPES,
 } RestorationType;
-#if CONFIG_FRAME_SUPERRES
-#define SUPERRES_SCALE_DENOMINATOR 16
-#define SUPERRES_SCALE_BITS 3
-#define SUPERRES_SCALE_NUMERATOR_MIN 8
-#endif  // CONFIG_FRAME_SUPERRES
 #endif  // CONFIG_LOOP_RESTORATION
 #ifdef __cplusplus
 }  // extern "C"

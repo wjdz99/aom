@@ -23,7 +23,7 @@ enum {
               (1 << D135_PRED) | (1 << D117_PRED) | (1 << D153_PRED) |
               (1 << D207_PRED) | (1 << D63_PRED) |
 #if CONFIG_ALT_INTRA
-              (1 << SMOOTH_PRED) |
+              (1 << SMOOTH_PRED) | (1 << LEAST_PRED) | (1 << WCALIC_PRED) | (1 << ISLE_PRED) | (1 << PRDCT_PRED) |
 #endif  // CONFIG_ALT_INTRA
               (1 << TM_PRED),
   INTRA_DC = (1 << DC_PRED),
@@ -36,14 +36,15 @@ enum {
 #if CONFIG_EXT_INTER
 enum {
   INTER_ALL = (1 << NEARESTMV) | (1 << NEARMV) | (1 << ZEROMV) | (1 << NEWMV) |
-              (1 << NEAREST_NEARESTMV) | (1 << NEAR_NEARMV) |
-              (1 << NEAREST_NEARMV) | (1 << NEAR_NEARESTMV) | (1 << NEW_NEWMV) |
-              (1 << NEAREST_NEWMV) | (1 << NEAR_NEWMV) | (1 << NEW_NEARMV) |
-              (1 << NEW_NEARESTMV) | (1 << ZERO_ZEROMV),
+              (1 << NEWFROMNEARMV) | (1 << NEAREST_NEARESTMV) |
+              (1 << NEAR_NEARMV) | (1 << NEAREST_NEARMV) |
+              (1 << NEAR_NEARESTMV) | (1 << NEW_NEWMV) | (1 << NEAREST_NEWMV) |
+              (1 << NEAR_NEWMV) | (1 << NEW_NEARMV) | (1 << NEW_NEARESTMV) |
+              (1 << ZERO_ZEROMV),
   INTER_NEAREST = (1 << NEARESTMV) | (1 << NEAREST_NEARESTMV) |
                   (1 << NEAREST_NEARMV) | (1 << NEAR_NEARESTMV) |
                   (1 << NEW_NEARESTMV) | (1 << NEAREST_NEWMV),
-  INTER_NEAREST_NEW = (1 << NEARESTMV) | (1 << NEWMV) |
+  INTER_NEAREST_NEW = (1 << NEARESTMV) | (1 << NEWMV) | (1 << NEWFROMNEARMV) |
                       (1 << NEAREST_NEARESTMV) | (1 << NEW_NEWMV) |
                       (1 << NEAR_NEARESTMV) | (1 << NEAREST_NEARMV) |
                       (1 << NEW_NEARESTMV) | (1 << NEAREST_NEWMV) |
@@ -53,12 +54,12 @@ enum {
                        (1 << NEAREST_NEARMV) | (1 << NEAR_NEARESTMV) |
                        (1 << NEAREST_NEWMV) | (1 << NEW_NEARESTMV),
   INTER_NEAREST_NEW_ZERO =
-      (1 << NEARESTMV) | (1 << ZEROMV) | (1 << NEWMV) |
+      (1 << NEARESTMV) | (1 << ZEROMV) | (1 << NEWMV) | (1 << NEWFROMNEARMV) |
       (1 << NEAREST_NEARESTMV) | (1 << ZERO_ZEROMV) | (1 << NEW_NEWMV) |
       (1 << NEAREST_NEARMV) | (1 << NEAR_NEARESTMV) | (1 << NEW_NEARESTMV) |
       (1 << NEAREST_NEWMV) | (1 << NEW_NEARMV) | (1 << NEAR_NEWMV),
   INTER_NEAREST_NEAR_NEW =
-      (1 << NEARESTMV) | (1 << NEARMV) | (1 << NEWMV) |
+      (1 << NEARESTMV) | (1 << NEARMV) | (1 << NEWMV) | (1 << NEWFROMNEARMV) |
       (1 << NEAREST_NEARESTMV) | (1 << NEW_NEWMV) | (1 << NEAREST_NEARMV) |
       (1 << NEAR_NEARESTMV) | (1 << NEW_NEARESTMV) | (1 << NEAREST_NEWMV) |
       (1 << NEW_NEARMV) | (1 << NEAR_NEWMV) | (1 << NEAR_NEARMV),
@@ -291,6 +292,10 @@ typedef struct SPEED_FEATURES {
   // between options like full rd, largest for prediction size, largest
   // for intra and model coefs for the rest.
   TX_SIZE_SEARCH_METHOD tx_size_search_method;
+
+  // Low precision 32x32 fdct keeps everything in 16 bits and thus is less
+  // precise but significantly faster than the non lp version.
+  int use_lp32x32fdct;
 
   // After looking at the first set of modes (set by index here), skip
   // checking modes for reference frames that don't match the reference frame
