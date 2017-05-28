@@ -1822,46 +1822,57 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 }
 
 #if CONFIG_CFL
-static int cfl_alpha_dist(const uint8_t *y_pix, int y_stride, double y_avg,
-                          const uint8_t *src, int src_stride, int blk_width,
-                          int blk_height, double dc_pred, double alpha,
-                          int *dist_neg_out) {
-  const double dc_pred_bias = dc_pred + 0.5;
+static inline int dc_pred_dist(const uint8_t *blk, int blk_stride,
+                               int dc_pred_bias, int width, int height) {
   int dist = 0;
-  int diff;
-
-  if (alpha == 0.0) {
-    const int dc_pred_i = (int)dc_pred_bias;
-    for (int j = 0; j < blk_height; j++) {
-      for (int i = 0; i < blk_width; i++) {
-        diff = src[i] - dc_pred_i;
-        dist += diff * diff;
-      }
-      src += src_stride;
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      int diff = blk[i] - dc_pred_bias;
+      dist += diff * diff;
     }
-
-    if (dist_neg_out) *dist_neg_out = dist;
-
-    return dist;
+    blk += blk_stride;
   }
+  return dist;
+}
 
+static inline int cfl_pred_dist(const uint8_t *blk, int blk_stride,
+                                const uint8_t *y_pix, int y_stride,
+                                double dc_pred_bias, double alpha, double y_avg,
+                                int width, int height, int *dist_neg_out) {
   int dist_neg = 0;
-  for (int j = 0; j < blk_height; j++) {
-    for (int i = 0; i < blk_width; i++) {
+  int dist = 0;
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
       const double scaled_luma = alpha * (y_pix[i] - y_avg);
-      const int uv = src[i];
-      diff = uv - (int)(scaled_luma + dc_pred_bias);
+      const int uv = blk[i];
+      int diff = uv - (int)(scaled_luma + dc_pred_bias);
       dist += diff * diff;
       diff = uv + (int)(scaled_luma - dc_pred_bias);
       dist_neg += diff * diff;
     }
     y_pix += y_stride;
-    src += src_stride;
+    blk += blk_stride;
   }
 
   if (dist_neg_out) *dist_neg_out = dist_neg;
-
   return dist;
+}
+
+static int cfl_alpha_dist(const uint8_t *y_pix, int y_stride, double y_avg,
+                          const uint8_t *src, int src_stride, int blk_width,
+                          int blk_height, double dc_pred, double alpha,
+                          int *dist_neg_out) {
+  const double dc_pred_bias = dc_pred + 0.5;
+
+  if (alpha == 0.0) {
+    int dist =
+        dc_pred_dist(src, src_stride, (int)dc_pred_bias, blk_width, blk_height);
+    if (dist_neg_out) *dist_neg_out = dist;
+    return dist;
+  }
+
+  return cfl_pred_dist(src, src_stride, y_pix, y_stride, dc_pred_bias, alpha,
+                       y_avg, blk_width, blk_height, dist_neg_out);
 }
 
 static int cfl_compute_alpha_ind(MACROBLOCK *const x, const CFL_CTX *const cfl,
