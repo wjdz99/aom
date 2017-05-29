@@ -1816,19 +1816,17 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
         // if SKIP is chosen at the block level, and ind != 0, we must change
         // the prediction
         if (mbmi->cfl_alpha_idx != 0) {
-          const struct macroblockd_plane *const pd_cb = &xd->plane[AOM_PLANE_U];
-          uint8_t *const dst_cb = pd_cb->dst.buf;
-          const int dst_stride_cb = pd_cb->dst.stride;
-          uint8_t *const dst_cr = pd->dst.buf;
-          const int dst_stride_cr = pd->dst.stride;
-          for (int j = 0; j < block_height; j++) {
-            for (int i = 0; i < block_width; i++) {
-              dst_cb[dst_stride_cb * j + i] =
-                  (uint8_t)(xd->cfl->dc_pred[CFL_PRED_U] + 0.5);
-              dst_cr[dst_stride_cr * j + i] =
-                  (uint8_t)(xd->cfl->dc_pred[CFL_PRED_V] + 0.5);
-            }
-          }
+          const struct macroblockd_plane *const pd_u = &xd->plane[AOM_PLANE_U];
+          uint8_t *const dst_u = pd_u->dst.buf;
+          const int dst_stride_u = pd_u->dst.stride;
+          uint8_t *const dst_v = pd->dst.buf;
+          const int dst_stride_v = pd->dst.stride;
+
+          copy_value_to_block(dst_u, dst_stride_u, xd->cfl->dc_pred[CFL_PRED_U],
+                              block_width, block_height);
+          copy_value_to_block(dst_v, dst_stride_v, xd->cfl->dc_pred[CFL_PRED_V],
+                              block_width, block_height);
+
           mbmi->cfl_alpha_idx = 0;
           mbmi->cfl_alpha_signs[CFL_PRED_U] = CFL_SIGN_POS;
           mbmi->cfl_alpha_signs[CFL_PRED_V] = CFL_SIGN_POS;

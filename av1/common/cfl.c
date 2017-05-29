@@ -121,6 +121,18 @@ void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
   xd->cfl->dc_pred[CFL_PRED_V] = sum_v / num_pel;
 }
 
+static inline void apply_cfl_to_block(uint8_t *dst, int dst_stride,
+                                      double dc_pred, double alpha,
+                                      double y_avg, int width, int height) {
+  const double y_avg_dc_pred = -(alpha * y_avg) + dc_pred + 0.5;
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      dst[i] = (uint8_t)(alpha * dst[i] + y_avg_dc_pred);
+    }
+    dst += dst_stride;
+  }
+}
+
 // Predict the current transform block using CfL.
 void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
                        int row, int col, TX_SIZE tx_size, double dc_pred,
@@ -128,13 +140,12 @@ void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
   const int width = tx_size_wide[tx_size];
   const int height = tx_size_high[tx_size];
 
-  const double y_avg = cfl_load(cfl, dst, dst_stride, row, col, width, height);
-
-  for (int j = 0; j < height; j++) {
-    for (int i = 0; i < width; i++) {
-      dst[i] = (uint8_t)(alpha * (dst[i] - y_avg) + dc_pred + 0.5);
-    }
-    dst += dst_stride;
+  if (alpha == 0.0) {
+    copy_value_to_block(dst, dst_stride, dc_pred, width, height);
+  } else {
+    const double y_avg =
+        cfl_load(cfl, dst, dst_stride, row, col, width, height);
+    apply_cfl_to_block(dst, dst_stride, dc_pred, alpha, y_avg, width, height);
   }
 }
 
