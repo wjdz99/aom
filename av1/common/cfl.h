@@ -26,8 +26,12 @@ typedef struct AV1Common AV1_COMMON;
 typedef struct macroblockd MACROBLOCKD;
 
 typedef struct {
-  // Pixel buffer containing the luma pixels used as prediction for chroma
+// Pixel buffer containing the luma pixels used as prediction for chroma
+#if CONFIG_HIGHBITDEPTH
+  uint16_t y_pix[MAX_SB_SQUARE];
+#else
   uint8_t y_pix[MAX_SB_SQUARE];
+#endif
 
   // Height and width of the luma prediction block currently in the pixel buffer
   int y_height, y_width;
@@ -45,6 +49,10 @@ typedef struct {
   // the last one, so you can check for skips.
   // TODO(any) Is there a better way to do this?
   int num_tx_blk[CFL_PRED_PLANES];
+
+#if CONFIG_HIGHBITDEPTH
+  int is_hbd;
+#endif
 } CFL_CTX;
 
 static const double cfl_alpha_mags[CFL_MAGS_SIZE] = {
@@ -75,9 +83,14 @@ static INLINE double cfl_idx_to_alpha(int alpha_idx, CFL_SIGN_TYPE alpha_sign,
   }
 }
 
-void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
-                       int row, int col, TX_SIZE tx_size, double dc_pred,
-                       double alpha);
+#if CONFIG_HIGHBITDEPTH
+void cfl_predict_block_16bit(const CFL_CTX *cfl, uint16_t *dst, int dst_stride,
+                             int row, int col, TX_SIZE tx_size, double dc_pred,
+                             double alpha);
+#endif
+void cfl_predict_block_8bit(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
+                            int row, int col, TX_SIZE tx_size, double dc_pred,
+                            double alpha);
 
 void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
                int col, TX_SIZE tx_size);
@@ -85,8 +98,23 @@ void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
 double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
                 int col, int width, int height);
 
-static inline void copy_value_to_block(uint8_t *dst, int dst_stride,
-                                       double dc_pred, int width, int height) {
+#if CONFIG_HIGHBITDEPTH
+static inline void copy_value_to_block_16bit(uint16_t *dst, int dst_stride,
+                                             double dc_pred, int width,
+                                             int height) {
+  const uint16_t dc_pred_bias = (uint16_t)(dc_pred + 0.5);
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      dst[i] = dc_pred_bias;
+    }
+    dst += dst_stride;
+  }
+}
+#endif  // CONFIG_HIGHBITDEPTH
+
+static inline void copy_value_to_block_8bit(uint8_t *dst, int dst_stride,
+                                            double dc_pred, int width,
+                                            int height) {
   const uint8_t dc_pred_bias = (uint8_t)(dc_pred + 0.5);
   for (int j = 0; j < height; j++) {
     memset(dst, dc_pred_bias, width);

@@ -1817,15 +1817,39 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
         // the prediction
         if (mbmi->cfl_alpha_idx != 0) {
           const struct macroblockd_plane *const pd_u = &xd->plane[AOM_PLANE_U];
-          uint8_t *const dst_u = pd_u->dst.buf;
           const int dst_stride_u = pd_u->dst.stride;
-          uint8_t *const dst_v = pd->dst.buf;
           const int dst_stride_v = pd->dst.stride;
 
-          copy_value_to_block(dst_u, dst_stride_u, xd->cfl->dc_pred[CFL_PRED_U],
-                              block_width, block_height);
-          copy_value_to_block(dst_v, dst_stride_v, xd->cfl->dc_pred[CFL_PRED_V],
-                              block_width, block_height);
+#if CONFIG_HIGHBITDEPTH
+          if (xd->cfl->is_hbd) {
+            uint16_t *const dst_u = CONVERT_TO_SHORTPTR(pd_u->dst.buf);
+            uint16_t *const dst_v = CONVERT_TO_SHORTPTR(pd->dst.buf);
+            copy_value_to_block_16bit(dst_u, dst_stride_u,
+                                      xd->cfl->dc_pred[CFL_PRED_U], block_width,
+                                      block_height);
+            copy_value_to_block_16bit(dst_v, dst_stride_v,
+                                      xd->cfl->dc_pred[CFL_PRED_V], block_width,
+                                      block_height);
+          } else {
+            uint8_t *const dst_u = pd_u->dst.buf;
+            uint8_t *const dst_v = pd->dst.buf;
+            copy_value_to_block_8bit(dst_u, dst_stride_u,
+                                     xd->cfl->dc_pred[CFL_PRED_U], block_width,
+                                     block_height);
+            copy_value_to_block_8bit(dst_v, dst_stride_v,
+                                     xd->cfl->dc_pred[CFL_PRED_V], block_width,
+                                     block_height);
+          }
+#else
+          uint8_t *const dst_u = pd_u->dst.buf;
+          uint8_t *const dst_v = pd->dst.buf;
+          copy_value_to_block_8bit(dst_u, dst_stride_u,
+                                   xd->cfl->dc_pred[CFL_PRED_U], block_width,
+                                   block_height);
+          copy_value_to_block_8bit(dst_v, dst_stride_v,
+                                   xd->cfl->dc_pred[CFL_PRED_V], block_width,
+                                   block_height);
+#endif
 
           mbmi->cfl_alpha_idx = 0;
           mbmi->cfl_alpha_signs[CFL_PRED_U] = CFL_SIGN_POS;
@@ -1838,8 +1862,23 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 }
 
 #if CONFIG_CFL
-static inline int dc_pred_dist(const uint8_t *blk, int blk_stride,
-                               int dc_pred_bias, int width, int height) {
+#if CONFIG_HIGHBITDEPTH
+static inline int dc_pred_dist_16bit(const uint16_t *blk, int blk_stride,
+                                     int dc_pred_bias, int width, int height) {
+  int dist = 0;
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      int diff = blk[i] - dc_pred_bias;
+      dist += diff * diff;
+    }
+    blk += blk_stride;
+  }
+  return dist;
+}
+#endif  // CONFIG_HIGHBITDEPTH
+
+static inline int dc_pred_dist_8bit(const uint8_t *blk, int blk_stride,
+                                    int dc_pred_bias, int width, int height) {
   int dist = 0;
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
@@ -1851,10 +1890,37 @@ static inline int dc_pred_dist(const uint8_t *blk, int blk_stride,
   return dist;
 }
 
-static inline int cfl_pred_dist(const uint8_t *blk, int blk_stride,
-                                const uint8_t *y_pix, int y_stride,
-                                double dc_pred_bias, double alpha, double y_avg,
-                                int width, int height, int *dist_neg_out) {
+#if CONFIG_HIGHBITDEPTH
+static inline int cfl_pred_dist_16bit(const uint16_t *blk, int blk_stride,
+                                      const uint16_t *y_pix, int y_stride,
+                                      double dc_pred_bias, double alpha,
+                                      double y_avg, int width, int height,
+                                      int *dist_neg_out) {
+  int dist_neg = 0;
+  int dist = 0;
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      const double scaled_luma = alpha * (y_pix[i] - y_avg);
+      const int uv = blk[i];
+      int diff = uv - (int)(scaled_luma + dc_pred_bias);
+      dist += diff * diff;
+      diff = uv + (int)(scaled_luma - dc_pred_bias);
+      dist_neg += diff * diff;
+    }
+    y_pix += y_stride;
+    blk += blk_stride;
+  }
+
+  if (dist_neg_out) *dist_neg_out = dist_neg;
+  return dist;
+}
+#endif  // CONFIG_HIGHBITDEPTH
+
+static inline int cfl_pred_dist_8bit(const uint8_t *blk, int blk_stride,
+                                     const uint8_t *y_pix, int y_stride,
+                                     double dc_pred_bias, double alpha,
+                                     double y_avg, int width, int height,
+                                     int *dist_neg_out) {
   int dist_neg = 0;
   int dist = 0;
   for (int j = 0; j < height; j++) {
@@ -1877,18 +1943,39 @@ static inline int cfl_pred_dist(const uint8_t *blk, int blk_stride,
 static int cfl_alpha_dist(const uint8_t *y_pix, int y_stride, double y_avg,
                           const uint8_t *src, int src_stride, int blk_width,
                           int blk_height, double dc_pred, double alpha,
+#if CONFIG_HIGHBITDEPTH
+                          int is_hbd,
+#endif  // CONFIG_HIGHBITDEPTH
                           int *dist_neg_out) {
   const double dc_pred_bias = dc_pred + 0.5;
 
   if (alpha == 0.0) {
+#if CONFIG_HIGHBITDEPTH
     int dist =
-        dc_pred_dist(src, src_stride, (int)dc_pred_bias, blk_width, blk_height);
+        (is_hbd) ? dc_pred_dist_16bit(CONVERT_TO_SHORTPTR(src), src_stride,
+                                      (int)dc_pred_bias, blk_width, blk_height)
+                 : dc_pred_dist_8bit(src, src_stride, (int)dc_pred_bias,
+                                     blk_width, blk_height);
+#else
+    int dist =
+        dc_pred_dist_8bit(src, src_stride, dc_pred_bias, blk_width, blk_height);
+#endif  // CONFIG_HIGHBITDEPTH
     if (dist_neg_out) *dist_neg_out = dist;
     return dist;
   }
 
-  return cfl_pred_dist(src, src_stride, y_pix, y_stride, dc_pred_bias, alpha,
-                       y_avg, blk_width, blk_height, dist_neg_out);
+#if CONFIG_HIGHBITDEPTH
+  return (is_hbd) ? cfl_pred_dist_16bit(CONVERT_TO_SHORTPTR(src), src_stride,
+                                        CONVERT_TO_SHORTPTR(y_pix), y_stride,
+                                        dc_pred_bias, alpha, y_avg, blk_width,
+                                        blk_height, dist_neg_out)
+                  : cfl_pred_dist_8bit(src, src_stride, y_pix, y_stride,
+                                       dc_pred_bias, alpha, y_avg, blk_width,
+                                       blk_height, dist_neg_out);
+#else
+  return cfl_pred_dist_8bit(src, src_stride, y_pix, y_stride, dc_pred_bias,
+                            alpha, y_avg, blk_width, blk_height, dist_neg_out);
+#endif
 }
 
 static int cfl_compute_alpha_ind(MACROBLOCK *const x, const CFL_CTX *const cfl,
@@ -1905,28 +1992,36 @@ static int cfl_compute_alpha_ind(MACROBLOCK *const x, const CFL_CTX *const cfl,
   const double dc_pred_u = cfl->dc_pred[CFL_PRED_U];
   const double dc_pred_v = cfl->dc_pred[CFL_PRED_V];
 
-  // Temporary pixel buffer used to store the CfL prediction when we compute the
-  // alpha index.
+// Temporary pixel buffer used to store the CfL prediction when we compute the
+// alpha index.
+#if CONFIG_HIGHBITDEPTH
+  uint16_t tmp_pix_16bit[MAX_SB_SQUARE];
+  uint8_t *tmp_pix = (cfl->is_hbd) ? CONVERT_TO_BYTEPTR(tmp_pix_16bit)
+                                   : (uint8_t *)tmp_pix_16bit;
+#else
   uint8_t tmp_pix[MAX_SB_SQUARE];
+#endif
   // Load CfL Prediction over the entire block
   const double y_avg =
       cfl_load(cfl, tmp_pix, MAX_SB_SIZE, 0, 0, block_width, block_height);
 
   int sse[CFL_PRED_PLANES][CFL_MAGS_SIZE];
-  sse[CFL_PRED_U][0] =
-      cfl_alpha_dist(tmp_pix, MAX_SB_SIZE, y_avg, src_u, src_stride_u,
-                     block_width, block_height, dc_pred_u, 0, NULL);
-  sse[CFL_PRED_V][0] =
-      cfl_alpha_dist(tmp_pix, MAX_SB_SIZE, y_avg, src_v, src_stride_v,
-                     block_width, block_height, dc_pred_v, 0, NULL);
+  sse[CFL_PRED_U][0] = cfl_alpha_dist(tmp_pix, MAX_SB_SIZE, y_avg, src_u,
+                                      src_stride_u, block_width, block_height,
+                                      dc_pred_u, 0, cfl->is_hbd, NULL);
+  sse[CFL_PRED_V][0] = cfl_alpha_dist(tmp_pix, MAX_SB_SIZE, y_avg, src_v,
+                                      src_stride_v, block_width, block_height,
+                                      dc_pred_v, 0, cfl->is_hbd, NULL);
   for (int m = 1; m < CFL_MAGS_SIZE; m += 2) {
     assert(cfl_alpha_mags[m + 1] == -cfl_alpha_mags[m]);
-    sse[CFL_PRED_U][m] = cfl_alpha_dist(
-        tmp_pix, MAX_SB_SIZE, y_avg, src_u, src_stride_u, block_width,
-        block_height, dc_pred_u, cfl_alpha_mags[m], &sse[CFL_PRED_U][m + 1]);
-    sse[CFL_PRED_V][m] = cfl_alpha_dist(
-        tmp_pix, MAX_SB_SIZE, y_avg, src_v, src_stride_v, block_width,
-        block_height, dc_pred_v, cfl_alpha_mags[m], &sse[CFL_PRED_V][m + 1]);
+    sse[CFL_PRED_U][m] =
+        cfl_alpha_dist(tmp_pix, MAX_SB_SIZE, y_avg, src_u, src_stride_u,
+                       block_width, block_height, dc_pred_u, cfl_alpha_mags[m],
+                       cfl->is_hbd, &sse[CFL_PRED_U][m + 1]);
+    sse[CFL_PRED_V][m] =
+        cfl_alpha_dist(tmp_pix, MAX_SB_SIZE, y_avg, src_v, src_stride_v,
+                       block_width, block_height, dc_pred_v, cfl_alpha_mags[m],
+                       cfl->is_hbd, &sse[CFL_PRED_V][m + 1]);
   }
 
   int dist;
