@@ -13,6 +13,7 @@
 #define AV1_COMMON_CFL_H_
 
 #include <assert.h>
+#include <string.h>
 
 #include "av1/common/enums.h"
 
@@ -83,4 +84,13 @@ void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
 
 double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
                 int col, int width, int height);
+
+static inline void copy_value_to_block(uint8_t *dst, int dst_stride,
+                                       double dc_pred, int width, int height) {
+  const uint8_t dc_pred_bias = (uint8_t)(dc_pred + 0.5);
+  for (int j = 0; j < height; j++) {
+    memset(dst, dc_pred_bias, width);
+    dst += dst_stride;
+  }
+}
 #endif  // AV1_COMMON_CFL_H_
