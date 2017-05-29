@@ -2151,8 +2151,15 @@ static void build_intra_predictors_high(
 
   // predict
   if (mode == DC_PRED) {
-    dc_pred_high[n_left_px > 0][n_top_px > 0][tx_size](
-        dst, dst_stride, above_row, left_col, xd->bd);
+#if CONFIG_CFL
+    // CFL predict its own DC_PRED for Chromatic planes
+    if (plane == AOM_PLANE_Y) {
+#endif
+      dc_pred_high[n_left_px > 0][n_top_px > 0][tx_size](
+          dst, dst_stride, above_row, left_col, xd->bd);
+#if CONFIG_CFL
+    }
+#endif
   } else {
     pred_high[mode][tx_size](dst, dst_stride, above_row, left_col, xd->bd);
   }
@@ -2535,11 +2542,27 @@ void av1_predict_intra_block_facade(MACROBLOCKD *xd, int plane, int block_idx,
       cfl_dc_pred(xd, get_plane_block_size(block_idx, pd), tx_size);
     }
 
-    cfl_predict_block(
-        xd->cfl, dst, pd->dst.stride, blk_row, blk_col, tx_size,
+#if CONFIG_HIGHBITDEPTH
+    if (xd->cfl->is_hbd) {
+      cfl_predict_block_16bit(
+          xd->cfl, CONVERT_TO_SHORTPTR(dst), dst_stride, blk_row, blk_col,
+          tx_size, xd->cfl->dc_pred[plane - 1],
+          cfl_idx_to_alpha(mbmi->cfl_alpha_idx,
+                           mbmi->cfl_alpha_signs[plane - 1], plane - 1));
+    } else {
+      cfl_predict_block_8bit(
+          xd->cfl, dst, dst_stride, blk_row, blk_col, tx_size,
+          xd->cfl->dc_pred[plane - 1],
+          cfl_idx_to_alpha(mbmi->cfl_alpha_idx,
+                           mbmi->cfl_alpha_signs[plane - 1], plane - 1));
+    }
+#else
+    cfl_predict_block_8bit(
+        xd->cfl, dst, dst_stride, blk_row, blk_col, tx_size,
         xd->cfl->dc_pred[plane - 1],
         cfl_idx_to_alpha(mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs[plane - 1],
                          plane - 1));
+#endif
   }
 #endif
 }
