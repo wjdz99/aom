@@ -1424,7 +1424,11 @@ static void write_filter_intra_mode_info(const AV1_COMMON *const cm,
   (void)mi_col;
 #endif  // CONFIG_CB4X4
 
+#if CONFIG_CFL
+  if (mbmi->uv_mode == UV_DC_PRED
+#else
   if (mbmi->uv_mode == DC_PRED
+#endif
 #if CONFIG_PALETTE
       && mbmi->palette_mode_info.palette_size[1] == 0
 #endif  // CONFIG_PALETTE
@@ -1466,7 +1470,11 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
 #endif  // CONFIG_INTRA_INTERP
   }
 
+#if CONFIG_CFL
+  if (av1_is_directional_mode(get_pred_mode(mbmi->uv_mode), bsize)) {
+#else
   if (av1_is_directional_mode(mbmi->uv_mode, bsize)) {
+#endif  // CONFIG_CFL
     write_uniform(w, 2 * MAX_ANGLE_DELTA + 1,
                   MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
   }
@@ -1684,7 +1692,11 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
   }
 
+#if CONFIG_CFL
+  if (mbmi->uv_mode == UV_DC_PRED) {
+#else
   if (mbmi->uv_mode == DC_PRED) {
+#endif  // CONFIG_CFL
     const int n = pmi->palette_size[1];
     const int palette_uv_mode_ctx = (pmi->palette_size[0] > 0);
     aom_write(w, n > 0, av1_default_palette_uv_mode_prob[palette_uv_mode_ctx]);
@@ -1806,9 +1818,18 @@ static void write_intra_mode(FRAME_CONTEXT *frame_ctx, BLOCK_SIZE bsize,
 }
 
 static void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
-                                PREDICTION_MODE uv_mode, PREDICTION_MODE y_mode,
-                                aom_writer *w) {
-  aom_write_symbol(w, av1_intra_mode_ind[uv_mode],
+#if CONFIG_CFL
+                                UV_PREDICTION_MODE uv_mode,
+#else
+                                PREDICTION_MODE uv_mode,
+#endif  // CONFIG_CFL
+                                PREDICTION_MODE y_mode, aom_writer *w) {
+  aom_write_symbol(w,
+#if CONFIG_CFL
+                   av1_intra_mode_ind[get_pred_mode(uv_mode)],
+#else
+                   av1_intra_mode_ind[uv_mode],
+#endif  // CONFIG_CFL
                    frame_ctx->uv_mode_cdf[y_mode], INTRA_MODES);
 }
 
@@ -1980,7 +2001,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_CB4X4
 
 #if CONFIG_CFL
-      if (mbmi->uv_mode == DC_PRED) {
+      if (mbmi->uv_mode == UV_DC_PRED) {
         write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
       }
 #endif
@@ -2340,7 +2361,12 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
     aom_write(w, use_intrabc, ec_ctx->intrabc_prob);
     if (use_intrabc) {
       assert(mbmi->mode == DC_PRED);
+#if CONFIG_CFL
+      assert(mbmi->uv_mode == UV_DC_PRED);
+#else
       assert(mbmi->uv_mode == DC_PRED);
+#endif  // CONFIG_CFL
+
       if (enable_tx_size && !mbmi->skip) write_selected_tx_size(cm, xd, w);
       int_mv dv_ref = mbmi_ext->ref_mvs[INTRA_FRAME][0];
       av1_encode_dv(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
@@ -2382,7 +2408,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
 #endif  // CONFIG_CB4X4
 
 #if CONFIG_CFL
-    if (mbmi->uv_mode == DC_PRED) {
+    if (mbmi->uv_mode == UV_DC_PRED) {
       write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
     }
 #endif
@@ -2593,7 +2619,8 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
 #if CONFIG_DUAL_FILTER
     // has_subpel_mv_component needs the ref frame buffers set up to look
     // up if they are scaled. has_subpel_mv_component is in turn needed by
-    // write_switchable_interp_filter, which is called by pack_inter_mode_mvs.
+    // write_switchable_interp_filter, which is called by
+    // pack_inter_mode_mvs.
     set_ref_ptrs(cm, xd, m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
     if (!has_second_ref(&m->mbmi) && is_inter_singleref_comp_mode(m->mbmi.mode))
@@ -3277,7 +3304,8 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
     }
   }
 #if CONFIG_PVQ
-  // Check that the number of PVQ blocks encoded and written to the bitstream
+  // Check that the number of PVQ blocks encoded and written to the
+  // bitstream
   // are the same
   assert(cpi->td.mb.pvq_q->curr_pos == cpi->td.mb.pvq_q->last_pos);
   // Reset curr_pos in case we repack the bitstream
@@ -3974,9 +4002,11 @@ static int get_refresh_mask(AV1_COMP *cpi) {
 
 #if CONFIG_EXT_REFS
   // NOTE(zoeliu): When LAST_FRAME is to get refreshed, the decoder will be
-  // notified to get LAST3_FRAME refreshed and then the virtual indexes for all
+  // notified to get LAST3_FRAME refreshed and then the virtual indexes for
+  // all
   // the 3 LAST reference frames will be updated accordingly, i.e.:
-  // (1) The original virtual index for LAST3_FRAME will become the new virtual
+  // (1) The original virtual index for LAST3_FRAME will become the new
+  // virtual
   //     index for LAST_FRAME; and
   // (2) The original virtual indexes for LAST_FRAME and LAST2_FRAME will be
   //     shifted and become the new virtual indexes for LAST2_FRAME and
@@ -3994,14 +4024,18 @@ static int get_refresh_mask(AV1_COMP *cpi) {
 #endif  // CONFIG_EXT_REFS
 
   if (av1_preserve_existing_gf(cpi)) {
-    // We have decided to preserve the previously existing golden frame as our
-    // new ARF frame. However, in the short term we leave it in the GF slot and,
+    // We have decided to preserve the previously existing golden frame as
+    // our
+    // new ARF frame. However, in the short term we leave it in the GF slot
+    // and,
     // if we're updating the GF with the current decoded frame, we save it
     // instead to the ARF slot.
     // Later, in the function av1_encoder.c:av1_update_reference_frames() we
-    // will swap gld_fb_idx and alt_fb_idx to achieve our objective. We do it
+    // will swap gld_fb_idx and alt_fb_idx to achieve our objective. We do
+    // it
     // there so that it can be done outside of the recode loop.
-    // Note: This is highly specific to the use of ARF as a forward reference,
+    // Note: This is highly specific to the use of ARF as a forward
+    // reference,
     // and this needs to be generalized as other uses are implemented
     // (like RTC/temporal scalability).
     return refresh_mask | (cpi->refresh_golden_frame << cpi->alt_fb_idx);
@@ -4182,14 +4216,16 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
 #endif
       buf->size = tile_size;
 
-      // Record the maximum tile size we see, so we can compact headers later.
+      // Record the maximum tile size we see, so we can compact headers
+      // later.
       *max_tile_size = AOMMAX(*max_tile_size, tile_size);
 
       if (have_tiles) {
         // tile header: size of this tile, or copy offset
         uint32_t tile_header = tile_size;
 
-        // If the tile_encoding_mode is 1 (i.e. TILE_VR), check if this tile is
+        // If the tile_encoding_mode is 1 (i.e. TILE_VR), check if this tile
+        // is
         // a copy tile.
         // Very low chances to have copy tiles on the key frames, so don't
         // search on key frames to reduce unnecessary search.
@@ -4214,7 +4250,8 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
       uint32_t col_size = total_size - col_offset - 4;
       mem_put_le32(dst + col_offset, col_size);
 
-      // If it is not final packing, record the maximum tile column size we see,
+      // If it is not final packing, record the maximum tile column size we
+      // see,
       // otherwise, check if the tile size is out of the range.
       *max_tile_col_size = AOMMAX(*max_tile_col_size, col_size);
     }
@@ -4682,7 +4719,8 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 
 #if CONFIG_EXT_REFS
       if (!cpi->refresh_frame_mask) {
-        // NOTE: "cpi->refresh_frame_mask == 0" indicates that the coded frame
+        // NOTE: "cpi->refresh_frame_mask == 0" indicates that the coded
+        // frame
         //       will not be used as a reference
         cm->is_reference_frame = 0;
       }
@@ -4898,8 +4936,10 @@ static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
     /*
     printf("Frame %d/%d: Enc Ref %d (used %d): %d %d %d %d\n",
            cm->current_video_frame, cm->show_frame, frame,
-           cpi->global_motion_used[frame], cm->global_motion[frame].wmmat[0],
-           cm->global_motion[frame].wmmat[1], cm->global_motion[frame].wmmat[2],
+           cpi->global_motion_used[frame],
+    cm->global_motion[frame].wmmat[0],
+           cm->global_motion[frame].wmmat[1],
+    cm->global_motion[frame].wmmat[2],
            cm->global_motion[frame].wmmat[3]);
            */
   }
@@ -4971,7 +5011,13 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 
   for (i = 0; i < INTRA_MODES; ++i) {
     prob_diff_update(av1_intra_mode_tree, fc->uv_mode_prob[i],
-                     counts->uv_mode[i], INTRA_MODES, probwt, header_bc);
+                     counts->uv_mode[i],
+#if CONFIG_CFL
+                     UV_INTRA_MODES,
+#else
+                     INTRA_MODES,
+#endif
+                     probwt, header_bc);
   }
 
 #if CONFIG_EXT_PARTITION_TYPES
