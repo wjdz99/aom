@@ -1246,7 +1246,11 @@ static void write_filter_intra_mode_info(const AV1_COMMON *const cm,
     return;
 #endif
 
+#if CONFIG_CFL
+  if (mbmi->uv_mode == UV_DC_PRED
+#else
   if (mbmi->uv_mode == DC_PRED
+#endif
 #if CONFIG_PALETTE
       && mbmi->palette_mode_info.palette_size[1] == 0
 #endif  // CONFIG_PALETTE
@@ -1288,7 +1292,11 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
 #endif  // CONFIG_INTRA_INTERP
   }
 
+#if CONFIG_CFL
+  if (av1_is_directional_mode(get_pred_mode(mbmi->uv_mode), bsize)) {
+#else
   if (av1_is_directional_mode(mbmi->uv_mode, bsize)) {
+#endif  // CONFIG_CFL
     write_uniform(w, 2 * MAX_ANGLE_DELTA + 1,
                   MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
   }
@@ -1506,7 +1514,11 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
   }
 
+#if CONFIG_CFL
+  if (mbmi->uv_mode == UV_DC_PRED) {
+#else
   if (mbmi->uv_mode == DC_PRED) {
+#endif  // CONFIG_CFL
     const int n = pmi->palette_size[1];
     const int palette_uv_mode_ctx = (pmi->palette_size[0] > 0);
     aom_write(w, n > 0, av1_default_palette_uv_mode_prob[palette_uv_mode_ctx]);
@@ -1628,9 +1640,18 @@ static void write_intra_mode(FRAME_CONTEXT *frame_ctx, BLOCK_SIZE bsize,
 }
 
 static void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
-                                PREDICTION_MODE uv_mode, PREDICTION_MODE y_mode,
-                                aom_writer *w) {
-  aom_write_symbol(w, av1_intra_mode_ind[uv_mode],
+#if CONFIG_CFL
+                                UV_PREDICTION_MODE uv_mode,
+#else
+                                PREDICTION_MODE uv_mode,
+#endif  // CONFIG_CFL
+                                PREDICTION_MODE y_mode, aom_writer *w) {
+  aom_write_symbol(w,
+#if CONFIG_CFL
+                   av1_intra_mode_ind[get_pred_mode(uv_mode)],
+#else
+                   av1_intra_mode_ind[uv_mode],
+#endif  // CONFIG_CFL
                    frame_ctx->uv_mode_cdf[y_mode], INTRA_MODES);
 }
 
@@ -1809,7 +1830,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_CB4X4
 
 #if CONFIG_CFL
-      if (mbmi->uv_mode == DC_PRED) {
+      if (mbmi->uv_mode == UV_DC_PRED) {
         write_cfl_alphas(ec_ctx, mbmi->skip, mbmi->cfl_alpha_idx,
                          mbmi->cfl_alpha_signs, w);
       }
@@ -2125,7 +2146,11 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
     aom_write(w, use_intrabc, INTRABC_PROB);
     if (use_intrabc) {
       assert(mbmi->mode == DC_PRED);
+#if CONFIG_CFL
+      assert(mbmi->uv_mode == UV_DC_PRED);
+#else
       assert(mbmi->uv_mode == DC_PRED);
+#endif  // CONFIG_CFL
       int_mv dv_ref = mbmi_ext->ref_mvs[INTRA_FRAME][0];
       av1_encode_dv(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
 #if CONFIG_EXT_TX && !CONFIG_TXK_SEL
@@ -2165,7 +2190,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
 #endif  // CONFIG_CB4X4
 
 #if CONFIG_CFL
-    if (mbmi->uv_mode == DC_PRED) {
+    if (mbmi->uv_mode == UV_DC_PRED) {
       write_cfl_alphas(ec_ctx, mbmi->skip, mbmi->cfl_alpha_idx,
                        mbmi->cfl_alpha_signs, w);
     }
@@ -4660,7 +4685,13 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 
   for (i = 0; i < INTRA_MODES; ++i) {
     prob_diff_update(av1_intra_mode_tree, fc->uv_mode_prob[i],
-                     counts->uv_mode[i], INTRA_MODES, probwt, header_bc);
+                     counts->uv_mode[i],
+#if CONFIG_CFL
+                     UV_INTRA_MODES,
+#else
+                     INTRA_MODES,
+#endif
+                     probwt, header_bc);
   }
 
 #if CONFIG_EXT_PARTITION_TYPES
