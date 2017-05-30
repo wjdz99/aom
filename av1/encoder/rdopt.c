@@ -4199,6 +4199,8 @@ static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     av1_init_rd_stats(&pn_rd_stats);
 
     av1_get_entropy_contexts(bsize, 0, pd, ctxa, ctxl);
+    tx_above[0] = xd->above_txfm_context[0];
+    tx_left[0] = xd->left_txfm_context[0];
     memcpy(tx_above, xd->above_txfm_context,
            sizeof(TXFM_CONTEXT) * (mi_width >> 1));
     memcpy(tx_left, xd->left_txfm_context,
