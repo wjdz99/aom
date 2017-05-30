@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54f358c8_a12e392f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-30T21:24:48Z",
+      "side": 1,
+      "message": "You can refer to https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d568",
+      "revId": "e9fbd064100157d7763e70665899ccafcfe7c5b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "999b6884_fe546552",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4991,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-05-30T21:24:48Z",
+      "side": 1,
+      "message": "We should have a similar function for init_sby_mode() as well I think.\n\nThat way \"palette_size[0] \u003d 0;\" initialization in multiple functions (like rd_pick_intra_sby_mode, rd_pick_intra_sub_8x8_y_mode, rd_pick_filter_intra_sby etc) can be moved to a single location.",
+      "revId": "e9fbd064100157d7763e70665899ccafcfe7c5b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
