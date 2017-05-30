@@ -507,9 +507,6 @@ static void save_coding_context(AV1_COMP *cpi) {
     av1_copy(cc->nmv_costs_hp, cpi->nmv_costs_hp);
   }
 
-  av1_copy(cc->nmvcosts, cpi->nmvcosts);
-  av1_copy(cc->nmvcosts_hp, cpi->nmvcosts_hp);
-
   av1_copy(cc->last_ref_lf_deltas, cm->lf.last_ref_deltas);
   av1_copy(cc->last_mode_lf_deltas, cm->lf.last_mode_deltas);
 
@@ -528,9 +525,6 @@ static void restore_coding_context(AV1_COMP *cpi) {
     av1_copy(cpi->nmv_costs, cc->nmv_costs);
     av1_copy(cpi->nmv_costs_hp, cc->nmv_costs_hp);
   }
-
-  av1_copy(cpi->nmvcosts, cc->nmvcosts);
-  av1_copy(cpi->nmvcosts_hp, cc->nmvcosts_hp);
 
   av1_copy(cm->lf.last_ref_deltas, cc->last_ref_lf_deltas);
   av1_copy(cm->lf.last_mode_deltas, cc->last_mode_lf_deltas);
@@ -2152,8 +2146,6 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
     memset(cpi->nmv_costs_hp, 0, sizeof(cpi->nmv_costs_hp));
   }
 
-  memset(cpi->nmvcosts, 0, sizeof(cpi->nmvcosts));
-  memset(cpi->nmvcosts_hp, 0, sizeof(cpi->nmvcosts_hp));
   memset(cpi->nmvsadcosts, 0, sizeof(cpi->nmvsadcosts));
   memset(cpi->nmvsadcosts_hp, 0, sizeof(cpi->nmvsadcosts_hp));
 

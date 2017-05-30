@@ -54,9 +54,6 @@ extern "C" {
 
 typedef struct {
   int nmvjointcost[MV_JOINTS];
-  int nmvcosts[2][MV_VALS];
-  int nmvcosts_hp[2][MV_VALS];
-
   int nmv_vec_cost[NMV_CONTEXTS][MV_JOINTS];
   int nmv_costs[NMV_CONTEXTS][2][MV_VALS];
   int nmv_costs_hp[NMV_CONTEXTS][2][MV_VALS];
@@ -432,8 +429,6 @@ typedef struct AV1_COMP {
   int nmv_costs[NMV_CONTEXTS][2][MV_VALS];
   int nmv_costs_hp[NMV_CONTEXTS][2][MV_VALS];
 
-  int nmvcosts[2][MV_VALS];
-  int nmvcosts_hp[2][MV_VALS];
   int nmvsadcosts[2][MV_VALS];
   int nmvsadcosts_hp[2][MV_VALS];
 
