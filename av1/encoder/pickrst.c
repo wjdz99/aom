@@ -410,11 +410,11 @@ static int count_sgrproj_bits(SgrprojInfo *sgrproj_info,
                               SgrprojInfo *ref_sgrproj_info) {
   int bits = SGRPROJ_PARAMS_BITS;
   bits += aom_count_primitive_refsubexpfin(
-      SGRPROJ_PRJ_MAX0 - SGRPROJ_PRJ_MIN0 + 1, SGRPROJ_PRJ_SUBEXP_K,
+      SGRPROJ_PRJ_MAX0 - SGRPROJ_PRJ_MIN0 + 1, SGRPROJ_PRJ_SUBEXP_K0,
       ref_sgrproj_info->xqd[0] - SGRPROJ_PRJ_MIN0,
       sgrproj_info->xqd[0] - SGRPROJ_PRJ_MIN0);
   bits += aom_count_primitive_refsubexpfin(
-      SGRPROJ_PRJ_MAX1 - SGRPROJ_PRJ_MIN1 + 1, SGRPROJ_PRJ_SUBEXP_K,
+      SGRPROJ_PRJ_MAX1 - SGRPROJ_PRJ_MIN1 + 1, SGRPROJ_PRJ_SUBEXP_K1,
       ref_sgrproj_info->xqd[1] - SGRPROJ_PRJ_MIN1,
       sgrproj_info->xqd[1] - SGRPROJ_PRJ_MIN1);
   return bits;
@@ -1298,11 +1298,11 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
              nt * sizeof(restore_types[best_restore][0]));
     }
   }
-  /*
   printf("Frame %d/%d restore types: %d %d %d\n", cm->current_video_frame,
          cm->show_frame, cm->rst_info[0].frame_restoration_type,
          cm->rst_info[1].frame_restoration_type,
          cm->rst_info[2].frame_restoration_type);
+  /*
   printf("Frame %d/%d frame_restore_type %d : %f %f %f %f\n",
          cm->current_video_frame, cm->show_frame,
          cm->rst_info[0].frame_restoration_type, cost_restore[0],

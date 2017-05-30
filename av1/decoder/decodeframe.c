@@ -2860,12 +2860,12 @@ static void read_sgrproj_filter(SgrprojInfo *sgrproj_info,
   sgrproj_info->ep = aom_read_literal(rb, SGRPROJ_PARAMS_BITS, ACCT_STR);
   sgrproj_info->xqd[0] =
       aom_read_primitive_refsubexpfin(
-          rb, SGRPROJ_PRJ_MAX0 - SGRPROJ_PRJ_MIN0 + 1, SGRPROJ_PRJ_SUBEXP_K,
+          rb, SGRPROJ_PRJ_MAX0 - SGRPROJ_PRJ_MIN0 + 1, SGRPROJ_PRJ_SUBEXP_K0,
           ref_sgrproj_info->xqd[0] - SGRPROJ_PRJ_MIN0, ACCT_STR) +
       SGRPROJ_PRJ_MIN0;
   sgrproj_info->xqd[1] =
       aom_read_primitive_refsubexpfin(
-          rb, SGRPROJ_PRJ_MAX1 - SGRPROJ_PRJ_MIN1 + 1, SGRPROJ_PRJ_SUBEXP_K,
+          rb, SGRPROJ_PRJ_MAX1 - SGRPROJ_PRJ_MIN1 + 1, SGRPROJ_PRJ_SUBEXP_K1,
           ref_sgrproj_info->xqd[1] - SGRPROJ_PRJ_MIN1, ACCT_STR) +
       SGRPROJ_PRJ_MIN1;
   memcpy(ref_sgrproj_info, sgrproj_info, sizeof(*sgrproj_info));

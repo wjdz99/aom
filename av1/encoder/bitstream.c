@@ -3599,11 +3599,11 @@ static void write_sgrproj_filter(SgrprojInfo *sgrproj_info,
                                  aom_writer *wb) {
   aom_write_literal(wb, sgrproj_info->ep, SGRPROJ_PARAMS_BITS);
   aom_write_primitive_refsubexpfin(wb, SGRPROJ_PRJ_MAX0 - SGRPROJ_PRJ_MIN0 + 1,
-                                   SGRPROJ_PRJ_SUBEXP_K,
+                                   SGRPROJ_PRJ_SUBEXP_K0,
                                    ref_sgrproj_info->xqd[0] - SGRPROJ_PRJ_MIN0,
                                    sgrproj_info->xqd[0] - SGRPROJ_PRJ_MIN0);
   aom_write_primitive_refsubexpfin(wb, SGRPROJ_PRJ_MAX1 - SGRPROJ_PRJ_MIN1 + 1,
-                                   SGRPROJ_PRJ_SUBEXP_K,
+                                   SGRPROJ_PRJ_SUBEXP_K1,
                                    ref_sgrproj_info->xqd[1] - SGRPROJ_PRJ_MIN1,
                                    sgrproj_info->xqd[1] - SGRPROJ_PRJ_MIN1);
   memcpy(ref_sgrproj_info, sgrproj_info, sizeof(*sgrproj_info));
