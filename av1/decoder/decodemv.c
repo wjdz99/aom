@@ -147,9 +147,13 @@ static PREDICTION_MODE read_intra_mode_y(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
   return y_mode;
 }
 
-static PREDICTION_MODE read_intra_mode_uv(FRAME_CONTEXT *ec_ctx,
-                                          MACROBLOCKD *xd, aom_reader *r,
-                                          PREDICTION_MODE y_mode) {
+#if CONFIG_CFL
+static UV_PREDICTION_MODE read_intra_mode_uv(
+#else
+static PREDICTION_MODE read_intra_mode_uv(
+#endif
+    FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd, aom_reader *r,
+    PREDICTION_MODE y_mode) {
   const PREDICTION_MODE uv_mode =
       read_intra_mode(r, ec_ctx->uv_mode_cdf[y_mode]);
   FRAME_COUNTS *counts = xd->counts;
@@ -722,7 +726,11 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     }
   }
 
+#if CONFIG_CFL
+  if (mbmi->uv_mode == UV_DC_PRED) {
+#else
   if (mbmi->uv_mode == DC_PRED) {
+#endif  // CONFIG_CFL
     const int palette_uv_mode_ctx = (pmi->palette_size[0] > 0);
     if (aom_read(r, av1_default_palette_uv_mode_prob[palette_uv_mode_ctx],
                  ACCT_STR)) {
@@ -784,7 +792,11 @@ static void read_filter_intra_mode_info(AV1_COMMON *const cm,
     return;
 #endif
 
+#if CONFIG_CFL
+  if (mbmi->uv_mode == UV_DC_PRED
+#else
   if (mbmi->uv_mode == DC_PRED
+#endif  // CONFIG_CFL
 #if CONFIG_PALETTE
       && mbmi->palette_mode_info.palette_size[1] == 0
 #endif  // CONFIG_PALETTE
@@ -837,7 +849,11 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #endif  // CONFIG_INTRA_INTERP
   }
 
+#if CONFIG_CFL
+  if (av1_is_directional_mode(get_pred_mode(mbmi->uv_mode), bsize)) {
+#else
   if (av1_is_directional_mode(mbmi->uv_mode, bsize)) {
+#endif  // CONFIG_CFL
     mbmi->angle_delta[1] =
         read_uniform(r, 2 * MAX_ANGLE_DELTA + 1) - MAX_ANGLE_DELTA;
   }
@@ -1016,7 +1032,11 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   if (bsize >= BLOCK_8X8 && cm->allow_screen_content_tools) {
     mbmi->use_intrabc = aom_read(r, INTRABC_PROB, ACCT_STR);
     if (mbmi->use_intrabc) {
+#if CONFIG_CFL
+      mbmi->mode = mbmi->uv_mode = UV_DC_PRED;
+#else
       mbmi->mode = mbmi->uv_mode = DC_PRED;
+#endif  // CONFIG_CFL
 #if CONFIG_DUAL_FILTER
       for (int idx = 0; idx < 4; ++idx) mbmi->interp_filter[idx] = BILINEAR;
 #else
@@ -1103,7 +1123,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 
 #if CONFIG_CFL
     // TODO(ltrudeau) support PALETTE
-    if (mbmi->uv_mode == DC_PRED) {
+    if (mbmi->uv_mode == UV_DC_PRED) {
       mbmi->cfl_alpha_idx =
           read_cfl_alphas(ec_ctx, r, mbmi->skip, mbmi->cfl_alpha_signs);
     }
@@ -1426,7 +1446,7 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
 
 #if CONFIG_CFL
     // TODO(ltrudeau) support PALETTE
-    if (mbmi->uv_mode == DC_PRED) {
+    if (mbmi->uv_mode == UV_DC_PRED) {
       mbmi->cfl_alpha_idx = read_cfl_alphas(
 #if CONFIG_EC_ADAPT
           xd->tile_ctx,
