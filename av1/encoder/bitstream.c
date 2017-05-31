@@ -1499,6 +1499,11 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
   }
 }
 
+static INLINE void write_mb_self_guided_filter(const MB_MODE_INFO *const mbmi,
+                                               aom_writer *w) {
+  write_uniform(w, 1, mbmi->use_self_guided_filter);
+}
+
 #if CONFIG_PALETTE
 #if CONFIG_PALETTE_DELTA_ENCODING
 // Transmit color values with delta encoding. Write the first value as
@@ -2039,6 +2044,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
 #if !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION && !CONFIG_GLOBAL_MOTION
     write_mb_interp_filter(cpi, xd, w);
+    write_mb_self_guided_filter(mbmi, w);
 #endif  // !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION
 
     if (bsize < BLOCK_8X8 && !unify_bsize) {
@@ -2233,6 +2239,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
     write_mb_interp_filter(cpi, xd, w);
+    write_mb_self_guided_filter(mbmi, w);
 #endif  // CONFIG_DUAL_FILTE || CONFIG_WARPED_MOTION
   }
 

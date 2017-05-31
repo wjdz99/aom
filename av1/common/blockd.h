@@ -392,6 +392,8 @@ typedef struct MB_MODE_INFO {
 #else
   InterpFilter interp_filter;
 #endif
+  // If true, self-guided filter is applied after interpolation filter.
+  int use_self_guided_filter;
   MV_REFERENCE_FRAME ref_frame[2];
   TX_TYPE tx_type;
 #if CONFIG_TXK_SEL
