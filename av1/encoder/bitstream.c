@@ -1333,8 +1333,10 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
   if (bsize < BLOCK_8X8) return;
 
   if (av1_is_directional_mode(mbmi->mode, bsize)) {
-    write_uniform(w, 2 * MAX_ANGLE_DELTA + 1,
-                  MAX_ANGLE_DELTA + mbmi->angle_delta[0]);
+    if (av1_use_angle_delta(bsize)) {
+      write_uniform(w, 2 * MAX_ANGLE_DELTA + 1,
+                    MAX_ANGLE_DELTA + mbmi->angle_delta[0]);
+    }
 #if CONFIG_INTRA_INTERP
     p_angle = mode_to_angle_map[mbmi->mode] + mbmi->angle_delta[0] * ANGLE_STEP;
     if (av1_is_intra_filter_switchable(p_angle)) {
@@ -1345,7 +1347,8 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
 #endif  // CONFIG_INTRA_INTERP
   }
 
-  if (av1_is_directional_mode(mbmi->uv_mode, bsize)) {
+  if (av1_is_directional_mode(mbmi->uv_mode, bsize) &&
+      av1_use_angle_delta(bsize)) {
     write_uniform(w, 2 * MAX_ANGLE_DELTA + 1,
                   MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
   }
