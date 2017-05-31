@@ -801,14 +801,42 @@ static int count_wiener_bits(WienerInfo *wiener_info,
   return bits;
 }
 
+static int validate_filter(InterpKernel fi) {
+  // Calculate the totals of the positive and negative coefficients separately.
+  int sum_pos = 0, sum_neg = 0;
+  for (int j = 0; j < WIENER_HALFWIN; ++j) {
+    if (fi[j] < 0)
+      sum_neg += 2 * fi[j];
+    else
+      sum_pos += 2 * fi[j];
+  }
+  sum_pos += (fi[WIENER_HALFWIN] + WIENER_FILT_STEP);
+  const int offset = 1 << (8 + WIENER_FILT_PREC_BITS - 1);
+
+  if (255 * sum_pos + offset >= (1 << (8 + WIENER_FILT_PREC_BITS + 1))) {
+    return 0;
+  } else if (255 * sum_neg + offset < 0) {
+    return 0;
+  }
+
+  return 1;
+}
+
 #define USE_WIENER_REFINEMENT_SEARCH 1
 static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
                                         AV1_COMP *cpi, RestorationInfo *rsi,
                                         int start_step, int plane, int tile_idx,
                                         int partial_frame,
                                         YV12_BUFFER_CONFIG *dst_frame) {
-  int64_t err = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
-                                     tile_idx, 0, 0, dst_frame);
+  int64_t err;
+
+  if (validate_filter(rsi[plane].wiener_info[tile_idx].hfilter) &&
+      validate_filter(rsi[plane].wiener_info[tile_idx].vfilter)) {
+    err = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
+                               tile_idx, 0, 0, dst_frame);
+  } else {
+    err = INT64_MAX - 1;
+  }
 #if USE_WIENER_REFINEMENT_SEARCH
   int64_t err2;
   int tap_min[] = { WIENER_FILT_TAP0_MINV, WIENER_FILT_TAP1_MINV,
@@ -824,8 +852,13 @@ static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
           rsi[plane].wiener_info[tile_idx].hfilter[p] -= s;
           rsi[plane].wiener_info[tile_idx].hfilter[WIENER_WIN - p - 1] -= s;
           rsi[plane].wiener_info[tile_idx].hfilter[WIENER_HALFWIN] += 2 * s;
-          err2 = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
-                                      tile_idx, 0, 0, dst_frame);
+          if (validate_filter(rsi[plane].wiener_info[tile_idx].hfilter)) {
+            err2 =
+                try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
+                                     tile_idx, 0, 0, dst_frame);
+          } else {
+            err2 = err + 1;
+          }
           if (err2 > err) {
             rsi[plane].wiener_info[tile_idx].hfilter[p] += s;
             rsi[plane].wiener_info[tile_idx].hfilter[WIENER_WIN - p - 1] += s;
@@ -845,8 +878,13 @@ static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
           rsi[plane].wiener_info[tile_idx].hfilter[p] += s;
           rsi[plane].wiener_info[tile_idx].hfilter[WIENER_WIN - p - 1] += s;
           rsi[plane].wiener_info[tile_idx].hfilter[WIENER_HALFWIN] -= 2 * s;
-          err2 = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
-                                      tile_idx, 0, 0, dst_frame);
+          if (validate_filter(rsi[plane].wiener_info[tile_idx].hfilter)) {
+            err2 =
+                try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
+                                     tile_idx, 0, 0, dst_frame);
+          } else {
+            err2 = err + 1;
+          }
           if (err2 > err) {
             rsi[plane].wiener_info[tile_idx].hfilter[p] -= s;
             rsi[plane].wiener_info[tile_idx].hfilter[WIENER_WIN - p - 1] -= s;
@@ -867,8 +905,13 @@ static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
           rsi[plane].wiener_info[tile_idx].vfilter[p] -= s;
           rsi[plane].wiener_info[tile_idx].vfilter[WIENER_WIN - p - 1] -= s;
           rsi[plane].wiener_info[tile_idx].vfilter[WIENER_HALFWIN] += 2 * s;
-          err2 = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
-                                      tile_idx, 0, 0, dst_frame);
+          if (validate_filter(rsi[plane].wiener_info[tile_idx].vfilter)) {
+            err2 =
+                try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
+                                     tile_idx, 0, 0, dst_frame);
+          } else {
+            err2 = err + 1;
+          }
           if (err2 > err) {
             rsi[plane].wiener_info[tile_idx].vfilter[p] += s;
             rsi[plane].wiener_info[tile_idx].vfilter[WIENER_WIN - p - 1] += s;
@@ -888,8 +931,13 @@ static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
           rsi[plane].wiener_info[tile_idx].vfilter[p] += s;
           rsi[plane].wiener_info[tile_idx].vfilter[WIENER_WIN - p - 1] += s;
           rsi[plane].wiener_info[tile_idx].vfilter[WIENER_HALFWIN] -= 2 * s;
-          err2 = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
-                                      tile_idx, 0, 0, dst_frame);
+          if (validate_filter(rsi[plane].wiener_info[tile_idx].vfilter)) {
+            err2 =
+                try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
+                                     tile_idx, 0, 0, dst_frame);
+          } else {
+            err2 = err + 1;
+          }
           if (err2 > err) {
             rsi[plane].wiener_info[tile_idx].vfilter[p] -= s;
             rsi[plane].wiener_info[tile_idx].vfilter[WIENER_WIN - p - 1] -= s;
@@ -1016,9 +1064,28 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     }
     aom_clear_system_state();
 
+    int16_t *fi = rsi[plane].wiener_info[tile_idx].vfilter;
+    if (!validate_filter(fi)) {
+      printf(
+          "Considering a filter which can cause overflow: vfilter = {%d, %d, "
+          "%d, %d, %d, %d, %d}\n",
+          fi[0], fi[1], fi[2], fi[3], fi[4], fi[5], fi[6]);
+    }
+    fi = rsi[plane].wiener_info[tile_idx].hfilter;
+    if (!validate_filter(fi)) {
+      printf(
+          "Considering a filter which can cause overflow: hfilter = {%d, %d, "
+          "%d, %d, %d, %d, %d}\n",
+          fi[0], fi[1], fi[2], fi[3], fi[4], fi[5], fi[6]);
+    }
+
     rsi[plane].restoration_type[tile_idx] = RESTORE_WIENER;
     err = finer_tile_search_wiener(src, cpi, rsi, 4, plane, tile_idx,
                                    partial_frame, dst_frame);
+    if (err >= INT64_MAX - 1) {
+      type[tile_idx] = RESTORE_NONE;
+      continue;
+    }
     bits =
         count_wiener_bits(&rsi[plane].wiener_info[tile_idx], &ref_wiener_info)
         << AV1_PROB_COST_SHIFT;
