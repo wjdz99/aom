@@ -273,6 +273,144 @@ static int64_t finer_search_pixel_proj_error(
   return err;
 }
 
+static int64_t get_pixel_proj_error2(uint8_t *src8, uint8_t *src82, int width,
+                                     int height, int src_stride, uint8_t *dat8,
+                                     uint8_t *dat82, int dat_stride,
+                                     int bit_depth, int32_t *flt1,
+                                     int32_t *flt12, int flt1_stride,
+                                     int32_t *flt2, int32_t *flt22,
+                                     int flt2_stride, int *xqd) {
+  int i, j;
+  int64_t err = 0;
+  int xq[2];
+  decode_xq(xqd, xq);
+  if (bit_depth == 8) {
+    const uint8_t *src = src8;
+    const uint8_t *dat = dat8;
+    for (i = 0; i < height; ++i) {
+      for (j = 0; j < width; ++j) {
+        const int32_t u =
+            (int32_t)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
+        const int32_t f1 = (int32_t)flt1[i * flt1_stride + j] - u;
+        const int32_t f2 = (int32_t)flt2[i * flt2_stride + j] - u;
+        const int32_t v = xq[0] * f1 + xq[1] * f2 + (u << SGRPROJ_PRJ_BITS);
+        const int32_t e =
+            ROUND_POWER_OF_TWO(v, SGRPROJ_RST_BITS + SGRPROJ_PRJ_BITS) -
+            src[i * src_stride + j];
+        err += e * e;
+      }
+    }
+  } else {
+    const uint16_t *src = CONVERT_TO_SHORTPTR(src8);
+    const uint16_t *dat = CONVERT_TO_SHORTPTR(dat8);
+    for (i = 0; i < height; ++i) {
+      for (j = 0; j < width; ++j) {
+        const int32_t u =
+            (int32_t)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
+        const int32_t f1 = (int32_t)flt1[i * flt1_stride + j] - u;
+        const int32_t f2 = (int32_t)flt2[i * flt2_stride + j] - u;
+        const int32_t v = xq[0] * f1 + xq[1] * f2 + (u << SGRPROJ_PRJ_BITS);
+        const int32_t e =
+            ROUND_POWER_OF_TWO(v, SGRPROJ_RST_BITS + SGRPROJ_PRJ_BITS) -
+            src[i * src_stride + j];
+        err += e * e;
+      }
+    }
+  }
+  if (bit_depth == 8) {
+    const uint8_t *src = src82;
+    const uint8_t *dat = dat82;
+    for (i = 0; i < height; ++i) {
+      for (j = 0; j < width; ++j) {
+        const int32_t u =
+            (int32_t)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
+        const int32_t f1 = (int32_t)flt12[i * flt1_stride + j] - u;
+        const int32_t f2 = (int32_t)flt22[i * flt2_stride + j] - u;
+        const int32_t v = xq[0] * f1 + xq[1] * f2 + (u << SGRPROJ_PRJ_BITS);
+        const int32_t e =
+            ROUND_POWER_OF_TWO(v, SGRPROJ_RST_BITS + SGRPROJ_PRJ_BITS) -
+            src[i * src_stride + j];
+        err += e * e;
+      }
+    }
+  } else {
+    const uint16_t *src = CONVERT_TO_SHORTPTR(src82);
+    const uint16_t *dat = CONVERT_TO_SHORTPTR(dat82);
+    for (i = 0; i < height; ++i) {
+      for (j = 0; j < width; ++j) {
+        const int32_t u =
+            (int32_t)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
+        const int32_t f1 = (int32_t)flt12[i * flt1_stride + j] - u;
+        const int32_t f2 = (int32_t)flt22[i * flt2_stride + j] - u;
+        const int32_t v = xq[0] * f1 + xq[1] * f2 + (u << SGRPROJ_PRJ_BITS);
+        const int32_t e =
+            ROUND_POWER_OF_TWO(v, SGRPROJ_RST_BITS + SGRPROJ_PRJ_BITS) -
+            src[i * src_stride + j];
+        err += e * e;
+      }
+    }
+  }
+  return err;
+}
+
+static int64_t finer_search_pixel_proj_error2(
+    uint8_t *src8, uint8_t *src82, int width, int height, int src_stride,
+    uint8_t *dat8, uint8_t *dat82, int dat_stride, int bit_depth, int32_t *flt1,
+    int32_t *flt12, int flt1_stride, int32_t *flt2, int32_t *flt22,
+    int flt2_stride, int start_step, int *xqd) {
+  int64_t err = get_pixel_proj_error2(
+      src8, src82, width, height, src_stride, dat8, dat82, dat_stride,
+      bit_depth, flt1, flt12, flt1_stride, flt2, flt22, flt2_stride, xqd);
+  (void)start_step;
+#if USE_SGRPROJ_REFINEMENT_SEARCH
+  int64_t err2;
+  int tap_min[] = { SGRPROJ_PRJ_MIN0, SGRPROJ_PRJ_MIN1 };
+  int tap_max[] = { SGRPROJ_PRJ_MAX0, SGRPROJ_PRJ_MAX1 };
+  for (int s = start_step; s >= 1; s >>= 1) {
+    for (int p = 0; p < 2; ++p) {
+      int skip = 0;
+      do {
+        if (xqd[p] - s >= tap_min[p]) {
+          xqd[p] -= s;
+          err2 = get_pixel_proj_error2(src8, src82, width, height, src_stride,
+                                       dat8, dat82, dat_stride, bit_depth, flt1,
+                                       flt12, flt1_stride, flt2, flt22,
+                                       flt2_stride, xqd);
+          if (err2 > err) {
+            xqd[p] += s;
+          } else {
+            err = err2;
+            skip = 1;
+            // At the highest step size continue moving in the same direction
+            if (s == start_step) continue;
+          }
+        }
+        break;
+      } while (1);
+      if (skip) break;
+      do {
+        if (xqd[p] + s <= tap_max[p]) {
+          xqd[p] += s;
+          err2 = get_pixel_proj_error2(src8, src82, width, height, src_stride,
+                                       dat8, dat82, dat_stride, bit_depth, flt1,
+                                       flt12, flt1_stride, flt2, flt22,
+                                       flt2_stride, xqd);
+          if (err2 > err) {
+            xqd[p] -= s;
+          } else {
+            err = err2;
+            // At the highest step size continue moving in the same direction
+            if (s == start_step) continue;
+          }
+        }
+        break;
+      } while (1);
+    }
+  }
+#endif  // USE_SGRPROJ_REFINEMENT_SEARCH
+  return err;
+}
+
 static void get_proj_subspace(uint8_t *src8, int width, int height,
                               int src_stride, uint8_t *dat8, int dat_stride,
                               int bit_depth, int32_t *flt1, int flt1_stride,
@@ -316,6 +454,108 @@ static void get_proj_subspace(uint8_t *src8, int width, int height,
             (double)(src[i * src_stride + j] << SGRPROJ_RST_BITS) - u;
         const double f1 = (double)flt1[i * flt1_stride + j] - u;
         const double f2 = (double)flt2[i * flt2_stride + j] - u;
+        H[0][0] += f1 * f1;
+        H[1][1] += f2 * f2;
+        H[0][1] += f1 * f2;
+        C[0] += f1 * s;
+        C[1] += f2 * s;
+      }
+    }
+  }
+  H[0][0] /= size;
+  H[0][1] /= size;
+  H[1][1] /= size;
+  H[1][0] = H[0][1];
+  C[0] /= size;
+  C[1] /= size;
+  Det = (H[0][0] * H[1][1] - H[0][1] * H[1][0]);
+  if (Det < 1e-8) return;  // ill-posed, return default values
+  x[0] = (H[1][1] * C[0] - H[0][1] * C[1]) / Det;
+  x[1] = (H[0][0] * C[1] - H[1][0] * C[0]) / Det;
+  xq[0] = (int)rint(x[0] * (1 << SGRPROJ_PRJ_BITS));
+  xq[1] = (int)rint(x[1] * (1 << SGRPROJ_PRJ_BITS));
+}
+
+static void get_proj_subspace2(uint8_t *src8, uint8_t *src82, int width,
+                               int height, int src_stride, uint8_t *dat8,
+                               uint8_t *dat82, int dat_stride, int bit_depth,
+                               int32_t *flt1, int32_t *flt12, int flt1_stride,
+                               int32_t *flt2, int32_t *flt22, int flt2_stride,
+                               int *xq) {
+  int i, j;
+  double H[2][2] = { { 0, 0 }, { 0, 0 } };
+  double C[2] = { 0, 0 };
+  double Det;
+  double x[2];
+  const int size = width * height;
+
+  aom_clear_system_state();
+
+  // Default
+  xq[0] = 0;
+  xq[1] = 0;
+  if (bit_depth == 8) {
+    const uint8_t *src = src8;
+    const uint8_t *dat = dat8;
+    for (i = 0; i < height; ++i) {
+      for (j = 0; j < width; ++j) {
+        const double u = (double)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
+        const double s =
+            (double)(src[i * src_stride + j] << SGRPROJ_RST_BITS) - u;
+        const double f1 = (double)flt1[i * flt1_stride + j] - u;
+        const double f2 = (double)flt2[i * flt2_stride + j] - u;
+        H[0][0] += f1 * f1;
+        H[1][1] += f2 * f2;
+        H[0][1] += f1 * f2;
+        C[0] += f1 * s;
+        C[1] += f2 * s;
+      }
+    }
+  } else {
+    const uint16_t *src = CONVERT_TO_SHORTPTR(src8);
+    const uint16_t *dat = CONVERT_TO_SHORTPTR(dat8);
+    for (i = 0; i < height; ++i) {
+      for (j = 0; j < width; ++j) {
+        const double u = (double)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
+        const double s =
+            (double)(src[i * src_stride + j] << SGRPROJ_RST_BITS) - u;
+        const double f1 = (double)flt1[i * flt1_stride + j] - u;
+        const double f2 = (double)flt2[i * flt2_stride + j] - u;
+        H[0][0] += f1 * f1;
+        H[1][1] += f2 * f2;
+        H[0][1] += f1 * f2;
+        C[0] += f1 * s;
+        C[1] += f2 * s;
+      }
+    }
+  }
+  if (bit_depth == 8) {
+    const uint8_t *src = src82;
+    const uint8_t *dat = dat82;
+    for (i = 0; i < height; ++i) {
+      for (j = 0; j < width; ++j) {
+        const double u = (double)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
+        const double s =
+            (double)(src[i * src_stride + j] << SGRPROJ_RST_BITS) - u;
+        const double f1 = (double)flt12[i * flt1_stride + j] - u;
+        const double f2 = (double)flt22[i * flt2_stride + j] - u;
+        H[0][0] += f1 * f1;
+        H[1][1] += f2 * f2;
+        H[0][1] += f1 * f2;
+        C[0] += f1 * s;
+        C[1] += f2 * s;
+      }
+    }
+  } else {
+    const uint16_t *src = CONVERT_TO_SHORTPTR(src82);
+    const uint16_t *dat = CONVERT_TO_SHORTPTR(dat82);
+    for (i = 0; i < height; ++i) {
+      for (j = 0; j < width; ++j) {
+        const double u = (double)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
+        const double s =
+            (double)(src[i * src_stride + j] << SGRPROJ_RST_BITS) - u;
+        const double f1 = (double)flt12[i * flt1_stride + j] - u;
+        const double f2 = (double)flt22[i * flt2_stride + j] - u;
         H[0][0] += f1 * f1;
         H[1][1] += f2 * f2;
         H[0][1] += f1 * f2;
@@ -406,6 +646,102 @@ static void search_selfguided_restoration(uint8_t *dat8, int width, int height,
   xqd[1] = bestxqd[1];
 }
 
+static void search_selfguided_restoration2(uint8_t *dat8, uint8_t *dat82,
+                                           int width, int height,
+                                           int dat_stride, uint8_t *src8,
+                                           uint8_t *src82, int src_stride,
+                                           int bit_depth, int *eps, int *xqd,
+                                           int32_t *rstbuf) {
+  int32_t *flt1 = rstbuf;
+  int32_t *flt2 = flt1 + RESTORATION_TILEPELS_MAX;
+  int32_t *tmpbuf2 = flt2 + RESTORATION_TILEPELS_MAX;
+  int ep, bestep = 0;
+  int64_t err, besterr = -1;
+  int exqd[2], bestxqd[2] = { 0, 0 };
+  int32_t *flt12 =
+      (int32_t *)aom_malloc(2 * RESTORATION_TILEPELS_MAX * sizeof(*flt12));
+  int32_t *flt22 = flt12 + RESTORATION_TILEPELS_MAX;
+
+  for (ep = 0; ep < SGRPROJ_PARAMS; ep++) {
+    int exq[2];
+#if CONFIG_HIGHBITDEPTH
+    if (bit_depth > 8) {
+      uint16_t *dat = CONVERT_TO_SHORTPTR(dat8);
+#if USE_HIGHPASS_IN_SGRPROJ
+      av1_highpass_filter_highbd(dat, width, height, dat_stride, flt1, width,
+                                 sgr_params[ep].corner, sgr_params[ep].edge);
+#else
+      av1_selfguided_restoration_highbd(dat, width, height, dat_stride, flt1,
+                                        width, bit_depth, sgr_params[ep].r1,
+                                        sgr_params[ep].e1, tmpbuf2);
+#endif  // USE_HIGHPASS_IN_SGRPROJ
+      av1_selfguided_restoration_highbd(dat, width, height, dat_stride, flt2,
+                                        width, bit_depth, sgr_params[ep].r2,
+                                        sgr_params[ep].e2, tmpbuf2);
+    } else {
+#endif  // CONFIG_HIGHBITDEPTH
+#if USE_HIGHPASS_IN_SGRPROJ
+      av1_highpass_filter(dat8, width, height, dat_stride, flt1, width,
+                          sgr_params[ep].corner, sgr_params[ep].edge);
+#else
+    av1_selfguided_restoration(dat8, width, height, dat_stride, flt1, width,
+                               sgr_params[ep].r1, sgr_params[ep].e1, tmpbuf2);
+#endif  // USE_HIGHPASS_IN_SGRPROJ
+      av1_selfguided_restoration(dat8, width, height, dat_stride, flt2, width,
+                                 sgr_params[ep].r2, sgr_params[ep].e2, tmpbuf2);
+#if CONFIG_HIGHBITDEPTH
+    }
+#endif  // CONFIG_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH
+    if (bit_depth > 8) {
+      uint16_t *dat = CONVERT_TO_SHORTPTR(dat82);
+#if USE_HIGHPASS_IN_SGRPROJ
+      av1_highpass_filter_highbd(dat, width, height, dat_stride, flt12, width,
+                                 sgr_params[ep].corner, sgr_params[ep].edge);
+#else
+      av1_selfguided_restoration_highbd(dat, width, height, dat_stride, flt12,
+                                        width, bit_depth, sgr_params[ep].r1,
+                                        sgr_params[ep].e1, tmpbuf2);
+#endif  // USE_HIGHPASS_IN_SGRPROJ
+      av1_selfguided_restoration_highbd(dat, width, height, dat_stride, flt22,
+                                        width, bit_depth, sgr_params[ep].r2,
+                                        sgr_params[ep].e2, tmpbuf2);
+    } else {
+#endif  // CONFIG_HIGHBITDEPTH
+#if USE_HIGHPASS_IN_SGRPROJ
+      av1_highpass_filter(dat82, width, height, dat_stride, flt12, width,
+                          sgr_params[ep].corner, sgr_params[ep].edge);
+#else
+    av1_selfguided_restoration(dat82, width, height, dat_stride, flt12, width,
+                               sgr_params[ep].r1, sgr_params[ep].e1, tmpbuf2);
+#endif  // USE_HIGHPASS_IN_SGRPROJ
+      av1_selfguided_restoration(dat82, width, height, dat_stride, flt22, width,
+                                 sgr_params[ep].r2, sgr_params[ep].e2, tmpbuf2);
+#if CONFIG_HIGHBITDEPTH
+    }
+#endif  // CONFIG_HIGHBITDEPTH
+    aom_clear_system_state();
+    get_proj_subspace2(src8, src82, width, height, src_stride, dat8, dat82,
+                       dat_stride, bit_depth, flt1, flt12, width, flt2, flt22,
+                       width, exq);
+    aom_clear_system_state();
+    encode_xq(exq, exqd);
+    err = finer_search_pixel_proj_error2(
+        src8, src82, width, height, src_stride, dat8, dat82, dat_stride,
+        bit_depth, flt1, flt12, width, flt2, flt22, width, 2, exqd);
+    if (besterr == -1 || err < besterr) {
+      bestep = ep;
+      besterr = err;
+      bestxqd[0] = exqd[0];
+      bestxqd[1] = exqd[1];
+    }
+  }
+  *eps = bestep;
+  xqd[0] = bestxqd[0];
+  xqd[1] = bestxqd[1];
+  aom_free(flt12);
+}
+
 static int count_sgrproj_bits(SgrprojInfo *sgrproj_info,
                               SgrprojInfo *ref_sgrproj_info) {
   int bits = SGRPROJ_PARAMS_BITS;
@@ -425,8 +761,13 @@ static double search_sgrproj(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                              RestorationInfo *info, RestorationType *type,
                              double *best_tile_cost,
                              YV12_BUFFER_CONFIG *dst_frame) {
-  SgrprojInfo *sgrproj_info = info->sgrproj_info;
-  double err, cost_norestore, cost_sgrproj;
+  const int cplane = (plane > AOM_PLANE_V ? AOM_PLANE_U : plane);
+  const int comp_plane = (plane > AOM_PLANE_V ? 6 : 1 << plane);
+  SgrprojInfo *sgrproj_info = info[cplane].sgrproj_info;
+  SgrprojInfo *sgrproj_info2 =
+      plane > AOM_PLANE_V ? info[cplane + 1].sgrproj_info : NULL;
+  double cost_norestore, cost_sgrproj;
+  int64_t err;
   int bits;
   MACROBLOCK *x = &cpi->td.mb;
   AV1_COMMON *const cm = &cpi->common;
@@ -436,6 +777,7 @@ static double search_sgrproj(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   int h_start, h_end, v_start, v_end;
   int width, height, src_stride, dgd_stride;
   uint8_t *dgd_buffer, *src_buffer;
+  uint8_t *dgd_buffer2, *src_buffer2;
   if (plane == AOM_PLANE_Y) {
     width = src->y_crop_width;
     height = src->y_crop_height;
@@ -443,30 +785,47 @@ static double search_sgrproj(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     src_stride = src->y_stride;
     dgd_buffer = dgd->y_buffer;
     dgd_stride = dgd->y_stride;
+    src_buffer2 = dgd_buffer2 = NULL;
     assert(width == dgd->y_crop_width);
     assert(height == dgd->y_crop_height);
     assert(width == src->y_crop_width);
     assert(height == src->y_crop_height);
-  } else {
+  } else if (plane == AOM_PLANE_U || plane == AOM_PLANE_V) {
     width = src->uv_crop_width;
     height = src->uv_crop_height;
     src_stride = src->uv_stride;
     dgd_stride = dgd->uv_stride;
     src_buffer = plane == AOM_PLANE_U ? src->u_buffer : src->v_buffer;
     dgd_buffer = plane == AOM_PLANE_U ? dgd->u_buffer : dgd->v_buffer;
+    src_buffer2 = dgd_buffer2 = NULL;
+    assert(width == dgd->uv_crop_width);
+    assert(height == dgd->uv_crop_height);
+  } else {
+    width = src->uv_crop_width;
+    height = src->uv_crop_height;
+    src_stride = src->uv_stride;
+    dgd_stride = dgd->uv_stride;
+    src_buffer = src->u_buffer;
+    dgd_buffer = dgd->u_buffer;
+    src_buffer2 = src->v_buffer;
+    dgd_buffer2 = dgd->v_buffer;
     assert(width == dgd->uv_crop_width);
     assert(height == dgd->uv_crop_height);
   }
-  const int ntiles =
-      av1_get_rest_ntiles(width, height, cm->rst_info[0].restoration_tilesize,
-                          &tile_width, &tile_height, &nhtiles, &nvtiles);
+  const int ntiles = av1_get_rest_ntiles(
+      width, height, cm->rst_info[cplane].restoration_tilesize, &tile_width,
+      &tile_height, &nhtiles, &nvtiles);
   SgrprojInfo ref_sgrproj_info;
   set_default_sgrproj(&ref_sgrproj_info);
 
-  rsi[plane].frame_restoration_type = RESTORE_SGRPROJ;
-
+  rsi[cplane].frame_restoration_type = RESTORE_SGRPROJ;
   for (tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
-    rsi[plane].restoration_type[tile_idx] = RESTORE_NONE;
+    rsi[cplane].restoration_type[tile_idx] = RESTORE_NONE;
+  }
+  if (plane > AOM_PLANE_V) {
+    rsi[cplane + 1].frame_restoration_type = RESTORE_SGRPROJ;
+    for (tile_idx = 0; tile_idx < ntiles; ++tile_idx)
+      rsi[cplane + 1].restoration_type[tile_idx] = RESTORE_NONE;
   }
   // Compute best Sgrproj filters for each tile
   for (tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
@@ -475,26 +834,51 @@ static double search_sgrproj(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                              &v_start, &v_end);
     err = sse_restoration_tile(src, cm->frame_to_show, cm, h_start,
                                h_end - h_start, v_start, v_end - v_start,
-                               (1 << plane));
+                               comp_plane);
     // #bits when a tile is not restored
     bits = av1_cost_bit(RESTORE_NONE_SGRPROJ_PROB, 0);
     cost_norestore = RDCOST_DBL(x->rdmult, (bits >> 4), err);
     best_tile_cost[tile_idx] = DBL_MAX;
-    search_selfguided_restoration(
-        dgd_buffer + v_start * dgd_stride + h_start, h_end - h_start,
-        v_end - v_start, dgd_stride,
-        src_buffer + v_start * src_stride + h_start, src_stride,
+    if (plane > AOM_PLANE_V) {
+      search_selfguided_restoration2(
+          dgd_buffer + v_start * dgd_stride + h_start,
+          dgd_buffer2 + v_start * dgd_stride + h_start, h_end - h_start,
+          v_end - v_start, dgd_stride,
+          src_buffer + v_start * src_stride + h_start,
+          src_buffer2 + v_start * src_stride + h_start, src_stride,
 #if CONFIG_HIGHBITDEPTH
-        cm->bit_depth,
+          cm->bit_depth,
 #else
-        8,
+          8,
 #endif  // CONFIG_HIGHBITDEPTH
-        &rsi[plane].sgrproj_info[tile_idx].ep,
-        rsi[plane].sgrproj_info[tile_idx].xqd, cm->rst_internal.tmpbuf);
-    rsi[plane].restoration_type[tile_idx] = RESTORE_SGRPROJ;
-    err = try_restoration_tile(src, cpi, rsi, (1 << plane), partial_frame,
+          &rsi[cplane].sgrproj_info[tile_idx].ep,
+          rsi[cplane].sgrproj_info[tile_idx].xqd, cm->rst_internal.tmpbuf);
+      memcpy(&rsi[cplane + 1].sgrproj_info[tile_idx],
+             &rsi[cplane].sgrproj_info[tile_idx],
+             sizeof(rsi[cplane].sgrproj_info[tile_idx]));
+    } else {
+      search_selfguided_restoration(
+          dgd_buffer + v_start * dgd_stride + h_start, h_end - h_start,
+          v_end - v_start, dgd_stride,
+          src_buffer + v_start * src_stride + h_start, src_stride,
+#if CONFIG_HIGHBITDEPTH
+          cm->bit_depth,
+#else
+          8,
+#endif  // CONFIG_HIGHBITDEPTH
+          &rsi[cplane].sgrproj_info[tile_idx].ep,
+          rsi[cplane].sgrproj_info[tile_idx].xqd, cm->rst_internal.tmpbuf);
+    }
+    rsi[cplane].restoration_type[tile_idx] = RESTORE_SGRPROJ;
+    if (plane > AOM_PLANE_V) {
+      rsi[cplane + 1].restoration_type[tile_idx] = RESTORE_SGRPROJ;
+      memcpy(&rsi[cplane + 1].sgrproj_info[tile_idx],
+             &rsi[cplane].sgrproj_info[tile_idx],
+             sizeof(rsi[cplane].sgrproj_info[tile_idx]));
+    }
+    err = try_restoration_tile(src, cpi, rsi, comp_plane, partial_frame,
                                tile_idx, 0, 0, dst_frame);
-    bits = count_sgrproj_bits(&rsi[plane].sgrproj_info[tile_idx],
+    bits = count_sgrproj_bits(&rsi[cplane].sgrproj_info[tile_idx],
                               &ref_sgrproj_info)
            << AV1_PROB_COST_SHIFT;
     bits += av1_cost_bit(RESTORE_NONE_SGRPROJ_PROB, 1);
@@ -503,33 +887,45 @@ static double search_sgrproj(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
       type[tile_idx] = RESTORE_NONE;
     } else {
       type[tile_idx] = RESTORE_SGRPROJ;
-      memcpy(&sgrproj_info[tile_idx], &rsi[plane].sgrproj_info[tile_idx],
+      memcpy(&sgrproj_info[tile_idx], &rsi[cplane].sgrproj_info[tile_idx],
              sizeof(sgrproj_info[tile_idx]));
+      if (plane > AOM_PLANE_V)
+        memcpy(&sgrproj_info2[tile_idx], &rsi[cplane].sgrproj_info[tile_idx],
+               sizeof(sgrproj_info2[tile_idx]));
+
       memcpy(&ref_sgrproj_info, &sgrproj_info[tile_idx],
              sizeof(ref_sgrproj_info));
       best_tile_cost[tile_idx] = err;
     }
-    rsi[plane].restoration_type[tile_idx] = RESTORE_NONE;
+    rsi[cplane].restoration_type[tile_idx] = RESTORE_NONE;
+    if (plane > AOM_PLANE_V)
+      rsi[cplane + 1].restoration_type[tile_idx] = RESTORE_NONE;
   }
   // Cost for Sgrproj filtering
   set_default_sgrproj(&ref_sgrproj_info);
-  bits = frame_level_restore_bits[rsi[plane].frame_restoration_type]
+  bits = frame_level_restore_bits[rsi[cplane].frame_restoration_type]
          << AV1_PROB_COST_SHIFT;
+  if (plane > AOM_PLANE_V) bits *= 2;
   for (tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
     bits +=
         av1_cost_bit(RESTORE_NONE_SGRPROJ_PROB, type[tile_idx] != RESTORE_NONE);
-    memcpy(&rsi[plane].sgrproj_info[tile_idx], &sgrproj_info[tile_idx],
+    memcpy(&rsi[cplane].sgrproj_info[tile_idx], &sgrproj_info[tile_idx],
            sizeof(sgrproj_info[tile_idx]));
+    if (plane > AOM_PLANE_V)
+      memcpy(&rsi[cplane + 1].sgrproj_info[tile_idx], &sgrproj_info2[tile_idx],
+             sizeof(sgrproj_info2[tile_idx]));
     if (type[tile_idx] == RESTORE_SGRPROJ) {
-      bits += count_sgrproj_bits(&rsi[plane].sgrproj_info[tile_idx],
+      bits += count_sgrproj_bits(&rsi[cplane].sgrproj_info[tile_idx],
                                  &ref_sgrproj_info)
               << AV1_PROB_COST_SHIFT;
-      memcpy(&ref_sgrproj_info, &rsi[plane].sgrproj_info[tile_idx],
+      memcpy(&ref_sgrproj_info, &rsi[cplane].sgrproj_info[tile_idx],
              sizeof(ref_sgrproj_info));
     }
-    rsi[plane].restoration_type[tile_idx] = type[tile_idx];
+    rsi[cplane].restoration_type[tile_idx] = type[tile_idx];
+    if (plane > AOM_PLANE_V)
+      rsi[cplane + 1].restoration_type[tile_idx] = type[tile_idx];
   }
-  err = try_restoration_frame(src, cpi, rsi, (1 << plane), partial_frame,
+  err = try_restoration_frame(src, cpi, rsi, comp_plane, partial_frame,
                               dst_frame);
   cost_sgrproj = RDCOST_DBL(x->rdmult, (bits >> 4), err);
 
@@ -550,14 +946,16 @@ static double find_average(uint8_t *src, int h_start, int h_end, int v_start,
 
 static void compute_stats(uint8_t *dgd, uint8_t *src, int h_start, int h_end,
                           int v_start, int v_end, int dgd_stride,
-                          int src_stride, double *M, double *H) {
+                          int src_stride, int reset, double *M, double *H) {
   int i, j, k, l;
   double Y[WIENER_WIN2];
   const double avg =
       find_average(dgd, h_start, h_end, v_start, v_end, dgd_stride);
 
-  memset(M, 0, sizeof(*M) * WIENER_WIN2);
-  memset(H, 0, sizeof(*H) * WIENER_WIN2 * WIENER_WIN2);
+  if (reset) {
+    memset(M, 0, sizeof(*M) * WIENER_WIN2);
+    memset(H, 0, sizeof(*H) * WIENER_WIN2 * WIENER_WIN2);
+  }
   for (i = v_start; i < v_end; i++) {
     for (j = h_start; j < h_end; j++) {
       const double X = (double)src[i * src_stride + j] - avg;
@@ -602,8 +1000,8 @@ static double find_average_highbd(uint16_t *src, int h_start, int h_end,
 
 static void compute_stats_highbd(uint8_t *dgd8, uint8_t *src8, int h_start,
                                  int h_end, int v_start, int v_end,
-                                 int dgd_stride, int src_stride, double *M,
-                                 double *H) {
+                                 int dgd_stride, int src_stride, int reset,
+                                 double *M, double *H) {
   int i, j, k, l;
   double Y[WIENER_WIN2];
   uint16_t *src = CONVERT_TO_SHORTPTR(src8);
@@ -611,8 +1009,10 @@ static void compute_stats_highbd(uint8_t *dgd8, uint8_t *src8, int h_start,
   const double avg =
       find_average_highbd(dgd, h_start, h_end, v_start, v_end, dgd_stride);
 
-  memset(M, 0, sizeof(*M) * WIENER_WIN2);
-  memset(H, 0, sizeof(*H) * WIENER_WIN2 * WIENER_WIN2);
+  if (reset) {
+    memset(M, 0, sizeof(*M) * WIENER_WIN2);
+    memset(H, 0, sizeof(*H) * WIENER_WIN2 * WIENER_WIN2);
+  }
   for (i = v_start; i < v_end; i++) {
     for (j = h_start; j < h_end; j++) {
       const double X = (double)src[i * src_stride + j] - avg;
@@ -859,35 +1259,65 @@ static int count_wiener_bits(WienerInfo *wiener_info,
 }
 
 #define USE_WIENER_REFINEMENT_SEARCH 1
+
+static void step_hfilter(RestorationInfo *rsi, int plane, int tile_idx, int p,
+                         int s) {
+  if (plane > AOM_PLANE_V) {
+    rsi[AOM_PLANE_U].wiener_info[tile_idx].hfilter[p] += s;
+    rsi[AOM_PLANE_U].wiener_info[tile_idx].hfilter[WIENER_WIN - p - 1] += s;
+    rsi[AOM_PLANE_U].wiener_info[tile_idx].hfilter[WIENER_HALFWIN] -= 2 * s;
+    rsi[AOM_PLANE_V].wiener_info[tile_idx].hfilter[p] += s;
+    rsi[AOM_PLANE_V].wiener_info[tile_idx].hfilter[WIENER_WIN - p - 1] += s;
+    rsi[AOM_PLANE_V].wiener_info[tile_idx].hfilter[WIENER_HALFWIN] -= 2 * s;
+  } else {
+    rsi[plane].wiener_info[tile_idx].hfilter[p] += s;
+    rsi[plane].wiener_info[tile_idx].hfilter[WIENER_WIN - p - 1] += s;
+    rsi[plane].wiener_info[tile_idx].hfilter[WIENER_HALFWIN] -= 2 * s;
+  }
+}
+
+static void step_vfilter(RestorationInfo *rsi, int plane, int tile_idx, int p,
+                         int s) {
+  if (plane > AOM_PLANE_V) {
+    rsi[AOM_PLANE_U].wiener_info[tile_idx].vfilter[p] += s;
+    rsi[AOM_PLANE_U].wiener_info[tile_idx].vfilter[WIENER_WIN - p - 1] += s;
+    rsi[AOM_PLANE_U].wiener_info[tile_idx].vfilter[WIENER_HALFWIN] -= 2 * s;
+    rsi[AOM_PLANE_V].wiener_info[tile_idx].vfilter[p] += s;
+    rsi[AOM_PLANE_V].wiener_info[tile_idx].vfilter[WIENER_WIN - p - 1] += s;
+    rsi[AOM_PLANE_V].wiener_info[tile_idx].vfilter[WIENER_HALFWIN] -= 2 * s;
+  } else {
+    rsi[plane].wiener_info[tile_idx].vfilter[p] += s;
+    rsi[plane].wiener_info[tile_idx].vfilter[WIENER_WIN - p - 1] += s;
+    rsi[plane].wiener_info[tile_idx].vfilter[WIENER_HALFWIN] -= 2 * s;
+  }
+}
+
 static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
                                         AV1_COMP *cpi, RestorationInfo *rsi,
                                         int start_step, int plane, int tile_idx,
                                         int partial_frame,
                                         YV12_BUFFER_CONFIG *dst_frame) {
-  int64_t err = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
+  const int cplane = (plane > AOM_PLANE_V ? AOM_PLANE_U : plane);
+  const int comp_plane = plane > AOM_PLANE_V ? plane << 1 : 1 << plane;
+  int64_t err = try_restoration_tile(src, cpi, rsi, comp_plane, partial_frame,
                                      tile_idx, 0, 0, dst_frame);
-  (void)start_step;
 #if USE_WIENER_REFINEMENT_SEARCH
   int64_t err2;
   int tap_min[] = { WIENER_FILT_TAP0_MINV, WIENER_FILT_TAP1_MINV,
                     WIENER_FILT_TAP2_MINV };
   int tap_max[] = { WIENER_FILT_TAP0_MAXV, WIENER_FILT_TAP1_MAXV,
                     WIENER_FILT_TAP2_MAXV };
-  // printf("err  pre = %"PRId64"\n", err);
+  // printf("err[%d]  pre = %"PRId64"\n", plane, err);
   for (int s = start_step; s >= 1; s >>= 1) {
     for (int p = 0; p < WIENER_HALFWIN; ++p) {
       int skip = 0;
       do {
-        if (rsi[plane].wiener_info[tile_idx].hfilter[p] - s >= tap_min[p]) {
-          rsi[plane].wiener_info[tile_idx].hfilter[p] -= s;
-          rsi[plane].wiener_info[tile_idx].hfilter[WIENER_WIN - p - 1] -= s;
-          rsi[plane].wiener_info[tile_idx].hfilter[WIENER_HALFWIN] += 2 * s;
-          err2 = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
+        if (rsi[cplane].wiener_info[tile_idx].hfilter[p] - s >= tap_min[p]) {
+          step_hfilter(rsi, plane, tile_idx, p, -s);
+          err2 = try_restoration_tile(src, cpi, rsi, comp_plane, partial_frame,
                                       tile_idx, 0, 0, dst_frame);
           if (err2 > err) {
-            rsi[plane].wiener_info[tile_idx].hfilter[p] += s;
-            rsi[plane].wiener_info[tile_idx].hfilter[WIENER_WIN - p - 1] += s;
-            rsi[plane].wiener_info[tile_idx].hfilter[WIENER_HALFWIN] -= 2 * s;
+            step_hfilter(rsi, plane, tile_idx, p, s);
           } else {
             err = err2;
             skip = 1;
@@ -899,16 +1329,12 @@ static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
       } while (1);
       if (skip) break;
       do {
-        if (rsi[plane].wiener_info[tile_idx].hfilter[p] + s <= tap_max[p]) {
-          rsi[plane].wiener_info[tile_idx].hfilter[p] += s;
-          rsi[plane].wiener_info[tile_idx].hfilter[WIENER_WIN - p - 1] += s;
-          rsi[plane].wiener_info[tile_idx].hfilter[WIENER_HALFWIN] -= 2 * s;
-          err2 = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
+        if (rsi[cplane].wiener_info[tile_idx].hfilter[p] + s <= tap_max[p]) {
+          step_hfilter(rsi, plane, tile_idx, p, s);
+          err2 = try_restoration_tile(src, cpi, rsi, comp_plane, partial_frame,
                                       tile_idx, 0, 0, dst_frame);
           if (err2 > err) {
-            rsi[plane].wiener_info[tile_idx].hfilter[p] -= s;
-            rsi[plane].wiener_info[tile_idx].hfilter[WIENER_WIN - p - 1] -= s;
-            rsi[plane].wiener_info[tile_idx].hfilter[WIENER_HALFWIN] += 2 * s;
+            step_hfilter(rsi, plane, tile_idx, p, -s);
           } else {
             err = err2;
             // At the highest step size continue moving in the same direction
@@ -921,16 +1347,12 @@ static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
     for (int p = 0; p < WIENER_HALFWIN; ++p) {
       int skip = 0;
       do {
-        if (rsi[plane].wiener_info[tile_idx].vfilter[p] - s >= tap_min[p]) {
-          rsi[plane].wiener_info[tile_idx].vfilter[p] -= s;
-          rsi[plane].wiener_info[tile_idx].vfilter[WIENER_WIN - p - 1] -= s;
-          rsi[plane].wiener_info[tile_idx].vfilter[WIENER_HALFWIN] += 2 * s;
-          err2 = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
+        if (rsi[cplane].wiener_info[tile_idx].vfilter[p] - s >= tap_min[p]) {
+          step_vfilter(rsi, plane, tile_idx, p, -s);
+          err2 = try_restoration_tile(src, cpi, rsi, comp_plane, partial_frame,
                                       tile_idx, 0, 0, dst_frame);
           if (err2 > err) {
-            rsi[plane].wiener_info[tile_idx].vfilter[p] += s;
-            rsi[plane].wiener_info[tile_idx].vfilter[WIENER_WIN - p - 1] += s;
-            rsi[plane].wiener_info[tile_idx].vfilter[WIENER_HALFWIN] -= 2 * s;
+            step_vfilter(rsi, plane, tile_idx, p, s);
           } else {
             err = err2;
             skip = 1;
@@ -942,16 +1364,12 @@ static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
       } while (1);
       if (skip) break;
       do {
-        if (rsi[plane].wiener_info[tile_idx].vfilter[p] + s <= tap_max[p]) {
-          rsi[plane].wiener_info[tile_idx].vfilter[p] += s;
-          rsi[plane].wiener_info[tile_idx].vfilter[WIENER_WIN - p - 1] += s;
-          rsi[plane].wiener_info[tile_idx].vfilter[WIENER_HALFWIN] -= 2 * s;
-          err2 = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
+        if (rsi[cplane].wiener_info[tile_idx].vfilter[p] + s <= tap_max[p]) {
+          step_vfilter(rsi, plane, tile_idx, p, s);
+          err2 = try_restoration_tile(src, cpi, rsi, comp_plane, partial_frame,
                                       tile_idx, 0, 0, dst_frame);
           if (err2 > err) {
-            rsi[plane].wiener_info[tile_idx].vfilter[p] -= s;
-            rsi[plane].wiener_info[tile_idx].vfilter[WIENER_WIN - p - 1] -= s;
-            rsi[plane].wiener_info[tile_idx].vfilter[WIENER_HALFWIN] += 2 * s;
+            step_vfilter(rsi, plane, tile_idx, p, -s);
           } else {
             err = err2;
             // At the highest step size continue moving in the same direction
@@ -962,7 +1380,7 @@ static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
       } while (1);
     }
   }
-// printf("err post = %"PRId64"\n", err);
+// printf("err[%d] post = %"PRId64"\n", plane, err);
 #endif  // USE_WIENER_REFINEMENT_SEARCH
   return err;
 }
@@ -971,7 +1389,11 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                             int partial_frame, int plane, RestorationInfo *info,
                             RestorationType *type, double *best_tile_cost,
                             YV12_BUFFER_CONFIG *dst_frame) {
-  WienerInfo *wiener_info = info->wiener_info;
+  const int cplane = (plane > AOM_PLANE_V ? AOM_PLANE_U : plane);
+  const int comp_plane = (plane > AOM_PLANE_V ? 6 : 1 << plane);
+  WienerInfo *wiener_info = info[cplane].wiener_info;
+  WienerInfo *wiener_info2 =
+      plane > AOM_PLANE_V ? info[cplane + 1].wiener_info : NULL;
   AV1_COMMON *const cm = &cpi->common;
   RestorationInfo *rsi = cpi->rst_search;
   int64_t err;
@@ -984,6 +1406,7 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   const YV12_BUFFER_CONFIG *dgd = cm->frame_to_show;
   int width, height, src_stride, dgd_stride;
   uint8_t *dgd_buffer, *src_buffer;
+  uint8_t *dgd_buffer2, *src_buffer2;
   if (plane == AOM_PLANE_Y) {
     width = src->y_crop_width;
     height = src->y_crop_height;
@@ -991,17 +1414,30 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     src_stride = src->y_stride;
     dgd_buffer = dgd->y_buffer;
     dgd_stride = dgd->y_stride;
+    src_buffer2 = dgd_buffer2 = NULL;
     assert(width == dgd->y_crop_width);
     assert(height == dgd->y_crop_height);
     assert(width == src->y_crop_width);
     assert(height == src->y_crop_height);
-  } else {
+  } else if (plane == AOM_PLANE_U || plane == AOM_PLANE_V) {
     width = src->uv_crop_width;
     height = src->uv_crop_height;
     src_stride = src->uv_stride;
     dgd_stride = dgd->uv_stride;
     src_buffer = plane == AOM_PLANE_U ? src->u_buffer : src->v_buffer;
     dgd_buffer = plane == AOM_PLANE_U ? dgd->u_buffer : dgd->v_buffer;
+    src_buffer2 = dgd_buffer2 = NULL;
+    assert(width == dgd->uv_crop_width);
+    assert(height == dgd->uv_crop_height);
+  } else {
+    width = src->uv_crop_width;
+    height = src->uv_crop_height;
+    src_stride = src->uv_stride;
+    dgd_stride = dgd->uv_stride;
+    src_buffer = src->u_buffer;
+    dgd_buffer = dgd->u_buffer;
+    src_buffer2 = src->v_buffer;
+    dgd_buffer2 = dgd->v_buffer;
     assert(width == dgd->uv_crop_width);
     assert(height == dgd->uv_crop_height);
   }
@@ -1009,15 +1445,18 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   int tile_idx, tile_width, tile_height, nhtiles, nvtiles;
   int h_start, h_end, v_start, v_end;
   const int ntiles = av1_get_rest_ntiles(
-      width, height, cm->rst_info[plane].restoration_tilesize, &tile_width,
+      width, height, cm->rst_info[cplane].restoration_tilesize, &tile_width,
       &tile_height, &nhtiles, &nvtiles);
   WienerInfo ref_wiener_info;
   set_default_wiener(&ref_wiener_info);
 
-  rsi[plane].frame_restoration_type = RESTORE_WIENER;
-
-  for (tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
-    rsi[plane].restoration_type[tile_idx] = RESTORE_NONE;
+  rsi[cplane].frame_restoration_type = RESTORE_WIENER;
+  for (tile_idx = 0; tile_idx < ntiles; ++tile_idx)
+    rsi[cplane].restoration_type[tile_idx] = RESTORE_NONE;
+  if (plane > AOM_PLANE_V) {
+    rsi[cplane + 1].frame_restoration_type = RESTORE_WIENER;
+    for (tile_idx = 0; tile_idx < ntiles; ++tile_idx)
+      rsi[cplane + 1].restoration_type[tile_idx] = RESTORE_NONE;
   }
 
 // Construct a (WIENER_HALFWIN)-pixel border around the frame
@@ -1029,6 +1468,16 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
 #endif
     extend_frame(dgd_buffer, width, height, dgd_stride);
 
+  if (dgd_buffer2) {
+#if CONFIG_HIGHBITDEPTH
+    if (cm->use_highbitdepth)
+      extend_frame_highbd(CONVERT_TO_SHORTPTR(dgd_buffer2), width, height,
+                          dgd_stride);
+    else
+#endif
+      extend_frame(dgd_buffer2, width, height, dgd_stride);
+  }
+
   // Compute best Wiener filters for each tile
   for (tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
     av1_get_rest_tile_limits(tile_idx, 0, 0, nhtiles, nvtiles, tile_width,
@@ -1036,7 +1485,7 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                              &v_start, &v_end);
     err = sse_restoration_tile(src, cm->frame_to_show, cm, h_start,
                                h_end - h_start, v_start, v_end - v_start,
-                               (1 << plane));
+                               comp_plane);
     // #bits when a tile is not restored
     bits = av1_cost_bit(RESTORE_NONE_WIENER_PROB, 0);
     cost_norestore = RDCOST_DBL(x->rdmult, (bits >> 4), err);
@@ -1048,11 +1497,22 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
 #if CONFIG_HIGHBITDEPTH
     if (cm->use_highbitdepth)
       compute_stats_highbd(dgd_buffer, src_buffer, h_start, h_end, v_start,
-                           v_end, dgd_stride, src_stride, M, H);
+                           v_end, dgd_stride, src_stride, 1, M, H);
     else
 #endif  // CONFIG_HIGHBITDEPTH
       compute_stats(dgd_buffer, src_buffer, h_start, h_end, v_start, v_end,
-                    dgd_stride, src_stride, M, H);
+                    dgd_stride, src_stride, 1, M, H);
+
+    if (dgd_buffer2) {
+#if CONFIG_HIGHBITDEPTH
+      if (cm->use_highbitdepth)
+        compute_stats_highbd(dgd_buffer2, src_buffer2, h_start, h_end, v_start,
+                             v_end, dgd_stride, src_stride, 0, M, H);
+      else
+#endif  // CONFIG_HIGHBITDEPTH
+        compute_stats(dgd_buffer2, src_buffer2, h_start, h_end, v_start, v_end,
+                      dgd_stride, src_stride, 0, M, H);
+    }
 
     type[tile_idx] = RESTORE_WIENER;
 
@@ -1060,25 +1520,31 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
       type[tile_idx] = RESTORE_NONE;
       continue;
     }
-    quantize_sym_filter(vfilterd, rsi[plane].wiener_info[tile_idx].vfilter);
-    quantize_sym_filter(hfilterd, rsi[plane].wiener_info[tile_idx].hfilter);
-
+    quantize_sym_filter(vfilterd, rsi[cplane].wiener_info[tile_idx].vfilter);
+    quantize_sym_filter(hfilterd, rsi[cplane].wiener_info[tile_idx].hfilter);
     // Filter score computes the value of the function x'*A*x - x'*b for the
     // learned filter and compares it against identity filer. If there is no
     // reduction in the function, the filter is reverted back to identity
-    score = compute_score(M, H, rsi[plane].wiener_info[tile_idx].vfilter,
-                          rsi[plane].wiener_info[tile_idx].hfilter);
+    score = compute_score(M, H, rsi[cplane].wiener_info[tile_idx].vfilter,
+                          rsi[cplane].wiener_info[tile_idx].hfilter);
+
     if (score > 0.0) {
       type[tile_idx] = RESTORE_NONE;
       continue;
     }
     aom_clear_system_state();
 
-    rsi[plane].restoration_type[tile_idx] = RESTORE_WIENER;
+    rsi[cplane].restoration_type[tile_idx] = RESTORE_WIENER;
+    if (plane > AOM_PLANE_V) {
+      memcpy(&rsi[cplane + 1].wiener_info[tile_idx],
+             &rsi[cplane].wiener_info[tile_idx],
+             sizeof(rsi[cplane].wiener_info[tile_idx]));
+      rsi[cplane + 1].restoration_type[tile_idx] = RESTORE_WIENER;
+    }
     err = finer_tile_search_wiener(src, cpi, rsi, 4, plane, tile_idx,
                                    partial_frame, dst_frame);
     bits =
-        count_wiener_bits(&rsi[plane].wiener_info[tile_idx], &ref_wiener_info)
+        count_wiener_bits(&rsi[cplane].wiener_info[tile_idx], &ref_wiener_info)
         << AV1_PROB_COST_SHIFT;
     bits += av1_cost_bit(RESTORE_NONE_WIENER_PROB, 1);
     cost_wiener = RDCOST_DBL(x->rdmult, (bits >> 4), err);
@@ -1086,33 +1552,45 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
       type[tile_idx] = RESTORE_NONE;
     } else {
       type[tile_idx] = RESTORE_WIENER;
-      memcpy(&wiener_info[tile_idx], &rsi[plane].wiener_info[tile_idx],
+      memcpy(&wiener_info[tile_idx], &rsi[cplane].wiener_info[tile_idx],
              sizeof(wiener_info[tile_idx]));
-      memcpy(&ref_wiener_info, &rsi[plane].wiener_info[tile_idx],
+      if (plane > AOM_PLANE_V)
+        memcpy(&wiener_info2[tile_idx], &rsi[cplane + 1].wiener_info[tile_idx],
+               sizeof(wiener_info[tile_idx]));
+      memcpy(&ref_wiener_info, &rsi[cplane].wiener_info[tile_idx],
              sizeof(ref_wiener_info));
       best_tile_cost[tile_idx] = err;
     }
-    rsi[plane].restoration_type[tile_idx] = RESTORE_NONE;
+    rsi[cplane].restoration_type[tile_idx] = RESTORE_NONE;
+    if (plane > AOM_PLANE_V) {
+      rsi[cplane + 1].restoration_type[tile_idx] = RESTORE_NONE;
+    }
   }
   // Cost for Wiener filtering
   set_default_wiener(&ref_wiener_info);
-  bits = frame_level_restore_bits[rsi[plane].frame_restoration_type]
+  bits = frame_level_restore_bits[rsi[cplane].frame_restoration_type]
          << AV1_PROB_COST_SHIFT;
+  if (plane > AOM_PLANE_V) bits *= 2;
   for (tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
     bits +=
         av1_cost_bit(RESTORE_NONE_WIENER_PROB, type[tile_idx] != RESTORE_NONE);
-    memcpy(&rsi[plane].wiener_info[tile_idx], &wiener_info[tile_idx],
+    memcpy(&rsi[cplane].wiener_info[tile_idx], &wiener_info[tile_idx],
            sizeof(wiener_info[tile_idx]));
+    rsi[cplane].restoration_type[tile_idx] = type[tile_idx];
+    if (plane > AOM_PLANE_V) {
+      memcpy(&rsi[cplane + 1].wiener_info[tile_idx], &wiener_info2[tile_idx],
+             sizeof(wiener_info2[tile_idx]));
+      rsi[cplane + 1].restoration_type[tile_idx] = type[tile_idx];
+    }
     if (type[tile_idx] == RESTORE_WIENER) {
-      bits +=
-          count_wiener_bits(&rsi[plane].wiener_info[tile_idx], &ref_wiener_info)
-          << AV1_PROB_COST_SHIFT;
-      memcpy(&ref_wiener_info, &rsi[plane].wiener_info[tile_idx],
+      bits += count_wiener_bits(&rsi[cplane].wiener_info[tile_idx],
+                                &ref_wiener_info)
+              << AV1_PROB_COST_SHIFT;
+      memcpy(&ref_wiener_info, &rsi[cplane].wiener_info[tile_idx],
              sizeof(ref_wiener_info));
     }
-    rsi[plane].restoration_type[tile_idx] = type[tile_idx];
   }
-  err = try_restoration_frame(src, cpi, rsi, 1 << plane, partial_frame,
+  err = try_restoration_frame(src, cpi, rsi, comp_plane, partial_frame,
                               dst_frame);
   cost_wiener = RDCOST_DBL(x->rdmult, (bits >> 4), err);
 
@@ -1124,6 +1602,9 @@ static double search_norestore(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
                                RestorationInfo *info, RestorationType *type,
                                double *best_tile_cost,
                                YV12_BUFFER_CONFIG *dst_frame) {
+  const int cplane = (plane > AOM_PLANE_V ? AOM_PLANE_U : plane);
+  const int comp_plane = (plane > AOM_PLANE_V ? 6 : 1 << plane);
+  RestorationInfo *rsi = &info[cplane];
   int64_t err;
   double cost_norestore;
   int bits;
@@ -1140,26 +1621,26 @@ static double search_norestore(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     height = src->uv_crop_height;
   }
   const int ntiles = av1_get_rest_ntiles(
-      width, height, cm->rst_info[plane].restoration_tilesize, &tile_width,
+      width, height, cm->rst_info[cplane].restoration_tilesize, &tile_width,
       &tile_height, &nhtiles, &nvtiles);
-  (void)info;
   (void)dst_frame;
   (void)partial_frame;
 
-  info->frame_restoration_type = RESTORE_NONE;
+  rsi->frame_restoration_type = RESTORE_NONE;
   for (tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
     av1_get_rest_tile_limits(tile_idx, 0, 0, nhtiles, nvtiles, tile_width,
                              tile_height, width, height, 0, 0, &h_start, &h_end,
                              &v_start, &v_end);
     err = sse_restoration_tile(src, cm->frame_to_show, cm, h_start,
                                h_end - h_start, v_start, v_end - v_start,
-                               1 << plane);
+                               comp_plane);
     type[tile_idx] = RESTORE_NONE;
     best_tile_cost[tile_idx] = err;
   }
   // RD cost associated with no restoration
-  err = sse_restoration_frame(cm, src, cm->frame_to_show, (1 << plane));
+  err = sse_restoration_frame(cm, src, cm->frame_to_show, comp_plane);
   bits = frame_level_restore_bits[RESTORE_NONE] << AV1_PROB_COST_SHIFT;
+  if (plane > AOM_PLANE_V) bits *= 2;
   cost_norestore = RDCOST_DBL(x->rdmult, (bits >> 4), err);
   return cost_norestore;
 }
@@ -1167,7 +1648,9 @@ static double search_norestore(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
 static double search_switchable_restoration(
     const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi, int partial_frame, int plane,
     RestorationType *const restore_types[RESTORE_SWITCHABLE_TYPES],
-    double *const tile_cost[RESTORE_SWITCHABLE_TYPES], RestorationInfo *rsi) {
+    double *const tile_cost[RESTORE_SWITCHABLE_TYPES], RestorationInfo *info) {
+  const int cplane = (plane > AOM_PLANE_V ? AOM_PLANE_U : plane);
+  RestorationInfo *rsi = &info[cplane];
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *x = &cpi->td.mb;
   double cost_switchable = 0;
@@ -1182,8 +1665,8 @@ static double search_switchable_restoration(
     height = src->uv_crop_height;
   }
   const int ntiles = av1_get_rest_ntiles(
-      width, height, cm->rst_info[plane].restoration_tilesize, NULL, NULL, NULL,
-      NULL);
+      width, height, cm->rst_info[cplane].restoration_tilesize, NULL, NULL,
+      NULL, NULL);
   SgrprojInfo ref_sgrproj_info;
   set_default_sgrproj(&ref_sgrproj_info);
   WienerInfo ref_wiener_info;
@@ -1191,6 +1674,8 @@ static double search_switchable_restoration(
   (void)partial_frame;
 
   rsi->frame_restoration_type = RESTORE_SWITCHABLE;
+  if (plane > AOM_PLANE_V)
+    rsi[cplane + 1].frame_restoration_type = RESTORE_SWITCHABLE;
   bits = frame_level_restore_bits[rsi->frame_restoration_type]
          << AV1_PROB_COST_SHIFT;
   cost_switchable = RDCOST_DBL(x->rdmult, bits >> 4, 0);
@@ -1199,6 +1684,8 @@ static double search_switchable_restoration(
         RDCOST_DBL(x->rdmult, (x->switchable_restore_cost[RESTORE_NONE] >> 4),
                    tile_cost[RESTORE_NONE][tile_idx]);
     rsi->restoration_type[tile_idx] = RESTORE_NONE;
+    if (plane > AOM_PLANE_V)
+      rsi[cplane + 1].restoration_type[tile_idx] = RESTORE_NONE;
     for (r = 1; r < RESTORE_SWITCHABLE_TYPES; r++) {
       if (force_restore_type != 0)
         if (r != force_restore_type) continue;
@@ -1217,6 +1704,7 @@ static double search_switchable_restoration(
 
       if (cost < best_cost) {
         rsi->restoration_type[tile_idx] = r;
+        if (plane > AOM_PLANE_V) rsi[cplane + 1].restoration_type[tile_idx] = r;
         best_cost = cost;
       }
     }
@@ -1243,8 +1731,8 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   double cost_restore[RESTORE_TYPES];
   double *tile_cost[RESTORE_SWITCHABLE_TYPES];
   RestorationType *restore_types[RESTORE_SWITCHABLE_TYPES];
-  double best_cost_restore;
-  RestorationType r, best_restore;
+  double best_cost_restore[MAX_MB_PLANE + 1];
+  RestorationType r, best_restore[MAX_MB_PLANE + 1];
   const int ywidth = src->y_crop_width;
   const int yheight = src->y_crop_height;
   const int uvwidth = src->uv_crop_width;
@@ -1264,40 +1752,86 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
         (RestorationType *)aom_malloc(sizeof(*restore_types[0]) * ntiles_y);
   }
 
-  for (int plane = AOM_PLANE_Y; plane <= AOM_PLANE_V; ++plane) {
+  for (int plane = AOM_PLANE_Y; plane <= AOM_PLANE_V + 1; ++plane) {
     for (r = 0; r < RESTORE_SWITCHABLE_TYPES; ++r) {
       cost_restore[r] = DBL_MAX;
       if (force_restore_type != 0)
         if (r != RESTORE_NONE && r != force_restore_type) continue;
-      cost_restore[r] =
-          search_restore_fun[r](src, cpi, method == LPF_PICK_FROM_SUBIMAGE,
-                                plane, &cm->rst_info[plane], restore_types[r],
-                                tile_cost[r], &cpi->trial_frame_rst);
+      cost_restore[r] = search_restore_fun[r](
+          src, cpi, method == LPF_PICK_FROM_SUBIMAGE, plane,
+          (plane < 3 ? cm->rst_info : cpi->rst_uv), restore_types[r],
+          tile_cost[r], &cpi->trial_frame_rst);
     }
     if (plane == AOM_PLANE_Y)
       cost_restore[RESTORE_SWITCHABLE] = search_switchable_restoration(
           src, cpi, method == LPF_PICK_FROM_SUBIMAGE, plane, restore_types,
-          tile_cost, &cm->rst_info[plane]);
+          tile_cost, (plane < 3 ? cm->rst_info : cpi->rst_uv));
     else
       cost_restore[RESTORE_SWITCHABLE] = DBL_MAX;
-    best_cost_restore = DBL_MAX;
-    best_restore = 0;
+    best_cost_restore[plane] = DBL_MAX;
+    best_restore[plane] = 0;
     for (r = 0; r < RESTORE_TYPES; ++r) {
       if (force_restore_type != 0)
         if (r != RESTORE_NONE && r != force_restore_type) continue;
-      if (cost_restore[r] < best_cost_restore) {
-        best_restore = r;
-        best_cost_restore = cost_restore[r];
+      if (cost_restore[r] < best_cost_restore[plane]) {
+        best_restore[plane] = r;
+        best_cost_restore[plane] = cost_restore[r];
       }
     }
-    cm->rst_info[plane].frame_restoration_type = best_restore;
-    if (force_restore_type != 0)
-      assert(best_restore == force_restore_type ||
-             best_restore == RESTORE_NONE);
-    if (best_restore != RESTORE_SWITCHABLE) {
-      const int nt = (plane == AOM_PLANE_Y ? ntiles_y : ntiles_uv);
-      memcpy(cm->rst_info[plane].restoration_type, restore_types[best_restore],
-             nt * sizeof(restore_types[best_restore][0]));
+    if (plane > AOM_PLANE_V) {
+      RestorationInfo *rsi = &cm->rst_info[AOM_PLANE_U];
+      RestorationInfo *rsi2 = &cm->rst_info[AOM_PLANE_V];
+      if (best_cost_restore[plane] <
+          best_cost_restore[AOM_PLANE_U] + best_cost_restore[AOM_PLANE_V]) {
+        rsi->frame_restoration_type = best_restore[plane];
+        rsi2->frame_restoration_type = best_restore[plane];
+        if (force_restore_type != 0)
+          assert(best_restore[plane] == force_restore_type ||
+                 best_restore[plane] == RESTORE_NONE);
+        if (best_restore[plane] != RESTORE_SWITCHABLE) {
+          // Copy restore types
+          memcpy(rsi->restoration_type, restore_types[best_restore[plane]],
+                 ntiles_uv * sizeof(*restore_types[best_restore[plane]]));
+          memcpy(rsi2->restoration_type, restore_types[best_restore[plane]],
+                 ntiles_uv * sizeof(*restore_types[best_restore[plane]]));
+        } else {
+          memcpy(
+              rsi->restoration_type, cpi->rst_uv[AOM_PLANE_U].restoration_type,
+              ntiles_uv * sizeof(*cm->rst_info[AOM_PLANE_U].restoration_type));
+          memcpy(
+              rsi2->restoration_type, cpi->rst_uv[AOM_PLANE_U].restoration_type,
+              ntiles_uv * sizeof(*cm->rst_info[AOM_PLANE_V].restoration_type));
+        }
+        for (int i = 0; i < ntiles_uv; ++i) {
+          if (rsi->restoration_type[i] == RESTORE_WIENER) {
+            memcpy(&rsi->wiener_info[i],
+                   &cpi->rst_uv[AOM_PLANE_U].wiener_info[i],
+                   sizeof(rsi->wiener_info[i]));
+            memcpy(&rsi2->wiener_info[i],
+                   &cpi->rst_uv[AOM_PLANE_U].wiener_info[i],
+                   sizeof(rsi2->wiener_info[i]));
+          } else if (rsi->restoration_type[i] == RESTORE_SGRPROJ) {
+            memcpy(&rsi->sgrproj_info[i],
+                   &cpi->rst_uv[AOM_PLANE_U].sgrproj_info[i],
+                   sizeof(rsi->sgrproj_info[i]));
+            memcpy(&rsi2->sgrproj_info[i],
+                   &cpi->rst_uv[AOM_PLANE_U].sgrproj_info[i],
+                   sizeof(rsi2->sgrproj_info[i]));
+          }
+        }
+        assert(is_restoration_same(ntiles_uv, rsi, rsi2));
+      }
+    } else {
+      cm->rst_info[plane].frame_restoration_type = best_restore[plane];
+      if (force_restore_type != 0)
+        assert(best_restore[plane] == force_restore_type ||
+               best_restore[plane] == RESTORE_NONE);
+      if (best_restore[plane] != RESTORE_SWITCHABLE) {
+        const int nt = (plane == AOM_PLANE_Y ? ntiles_y : ntiles_uv);
+        memcpy(cm->rst_info[plane].restoration_type,
+               restore_types[best_restore[plane]],
+               nt * sizeof(restore_types[best_restore[plane]][0]));
+      }
     }
   }
   /*
@@ -1306,7 +1840,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
          cm->rst_info[1].frame_restoration_type,
          cm->rst_info[2].frame_restoration_type);
   printf("Frame %d/%d frame_restore_type %d : %f %f %f %f\n",
-         cm->current_video_frame, cm->show_frame,
+    u    cm->current_video_frame, cm->show_frame,
          cm->rst_info[0].frame_restoration_type, cost_restore[0],
          cost_restore[1], cost_restore[2], cost_restore[3]);
          */

@@ -3229,7 +3229,7 @@ static void encode_restoration_mode(AV1_COMMON *cm,
       break;
     default: assert(0);
   }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+  for (p = AOM_PLANE_U; p < MAX_MB_PLANE; ++p) {
     rsi = &cm->rst_info[p];
     switch (rsi->frame_restoration_type) {
       case RESTORE_NONE: aom_wb_write_bit(wb, 0); break;
@@ -3243,6 +3243,31 @@ static void encode_restoration_mode(AV1_COMMON *cm,
         break;
       default: assert(0);
     }
+  }
+  cm->rst_joint_uv = 0;
+  if (cm->rst_info[AOM_PLANE_U].frame_restoration_type ==
+          cm->rst_info[AOM_PLANE_V].frame_restoration_type &&
+      cm->rst_info[AOM_PLANE_U].frame_restoration_type != RESTORE_NONE) {
+    cm->rst_joint_uv = is_restoration_same(
+        av1_get_rest_ntiles(ROUND_POWER_OF_TWO(
+#if CONFIG_FRAME_SUPERRES
+                                cm->superres_upscaled_width,
+#else
+                                cm->width,
+#endif  // CONFIG_FRAME_SUPERRES
+                                cm->subsampling_x),
+                            ROUND_POWER_OF_TWO(
+#if CONFIG_FRAME_SUPERRES
+                                cm->superres_upscaled_height,
+#else
+                                cm->height,
+#endif  // CONFIG_FRAME_SUPERRES
+                                cm->subsampling_y),
+                            cm->rst_info[1].restoration_tilesize, NULL, NULL,
+                            NULL, NULL),
+        &cm->rst_info[AOM_PLANE_V], &cm->rst_info[AOM_PLANE_U]);
+
+    aom_wb_write_bit(wb, cm->rst_joint_uv);
   }
   if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
       cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
@@ -3332,6 +3357,8 @@ static void encode_restoration(AV1_COMMON *cm, aom_writer *wb) {
   const int width = cm->width;
   const int height = cm->height;
 #endif  // CONFIG_FRAME_SUPERRES
+  const int uvwidth = ROUND_POWER_OF_TWO(width, cm->subsampling_x);
+  const int uvheight = ROUND_POWER_OF_TWO(height, cm->subsampling_y);
   const int ntiles =
       av1_get_rest_ntiles(width, height, cm->rst_info[0].restoration_tilesize,
                           NULL, NULL, NULL, NULL);
@@ -3340,9 +3367,8 @@ static void encode_restoration(AV1_COMMON *cm, aom_writer *wb) {
   set_default_wiener(&ref_wiener_info);
   set_default_sgrproj(&ref_sgrproj_info);
   const int ntiles_uv = av1_get_rest_ntiles(
-      ROUND_POWER_OF_TWO(width, cm->subsampling_x),
-      ROUND_POWER_OF_TWO(height, cm->subsampling_y),
-      cm->rst_info[1].restoration_tilesize, NULL, NULL, NULL, NULL);
+      uvwidth, uvheight, cm->rst_info[1].restoration_tilesize, NULL, NULL, NULL,
+      NULL);
   RestorationInfo *rsi = &cm->rst_info[0];
   if (rsi->frame_restoration_type != RESTORE_NONE) {
     if (rsi->frame_restoration_type == RESTORE_SWITCHABLE) {
@@ -3375,15 +3401,22 @@ static void encode_restoration(AV1_COMMON *cm, aom_writer *wb) {
       }
     }
   }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+  for (p = AOM_PLANE_U; p < MAX_MB_PLANE; ++p) {
+    rsi = &cm->rst_info[p];
+    if (p == AOM_PLANE_V) {
+      if (rsi->frame_restoration_type != RESTORE_NONE) {
+        if (cm->rst_joint_uv) break;
+      }
+    }
     set_default_wiener(&ref_wiener_info);
     set_default_sgrproj(&ref_sgrproj_info);
-    rsi = &cm->rst_info[p];
     if (rsi->frame_restoration_type == RESTORE_WIENER) {
       for (i = 0; i < ntiles_uv; ++i) {
         if (ntiles_uv > 1)
           aom_write(wb, rsi->restoration_type[i] != RESTORE_NONE,
                     RESTORE_NONE_WIENER_PROB);
+        else
+          assert(rsi->restoration_type[i] == RESTORE_WIENER);
         if (rsi->restoration_type[i] != RESTORE_NONE) {
           write_wiener_filter(&rsi->wiener_info[i], &ref_wiener_info, wb);
         }
@@ -3393,6 +3426,8 @@ static void encode_restoration(AV1_COMMON *cm, aom_writer *wb) {
         if (ntiles_uv > 1)
           aom_write(wb, rsi->restoration_type[i] != RESTORE_NONE,
                     RESTORE_NONE_SGRPROJ_PROB);
+        else
+          assert(rsi->restoration_type[i] == RESTORE_SGRPROJ);
         if (rsi->restoration_type[i] != RESTORE_NONE) {
           write_sgrproj_filter(&rsi->sgrproj_info[i], &ref_sgrproj_info, wb);
         }
