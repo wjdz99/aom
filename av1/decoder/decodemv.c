@@ -745,8 +745,9 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     if (left_mi)
       palette_y_mode_ctx +=
           (left_mi->mbmi.palette_mode_info.palette_size[0] > 0);
-    if (aom_read(r, av1_default_palette_y_mode_prob[bsize - BLOCK_8X8]
-                                                   [palette_y_mode_ctx],
+    if (aom_read(r,
+                 av1_default_palette_y_mode_prob[bsize - BLOCK_8X8]
+                                                [palette_y_mode_ctx],
                  ACCT_STR)) {
       pmi->palette_size[0] =
           aom_read_tree(r, av1_palette_size_tree,
@@ -808,7 +809,7 @@ static void read_filter_intra_mode_info(AV1_COMMON *const cm,
 #if CONFIG_PALETTE
       && mbmi->palette_mode_info.palette_size[0] == 0
 #endif  // CONFIG_PALETTE
-      ) {
+  ) {
     filter_intra_mode_info->use_filter_intra_mode[0] =
         aom_read(r, cm->fc->filter_intra_probs[0], ACCT_STR);
     if (filter_intra_mode_info->use_filter_intra_mode[0]) {
@@ -835,7 +836,7 @@ static void read_filter_intra_mode_info(AV1_COMMON *const cm,
 #if CONFIG_PALETTE
       && mbmi->palette_mode_info.palette_size[1] == 0
 #endif  // CONFIG_PALETTE
-      ) {
+  ) {
     filter_intra_mode_info->use_filter_intra_mode[1] =
         aom_read(r, cm->fc->filter_intra_probs[1], ACCT_STR);
     if (filter_intra_mode_info->use_filter_intra_mode[1]) {
@@ -866,7 +867,11 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #endif  // CONFIG_INTRA_INTERP
 
   (void)cm;
-  if (bsize < BLOCK_8X8) return;
+
+  mbmi->angle_delta[0] = 0;
+  mbmi->angle_delta[1] = 0;
+
+  if (!av1_use_angle_delta(bsize)) return;
 
   if (av1_is_directional_mode(mbmi->mode, bsize)) {
     mbmi->angle_delta[0] =
@@ -1160,6 +1165,9 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 #endif  // CONFIG_CFL
 
 #if CONFIG_CB4X4
+  } else {
+    // Avoid decoding angle_info if there is is no chroma prediction
+    mbmi->uv_mode = DC_PRED;
   }
 #endif
 
@@ -2078,7 +2086,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
           mbmi->mode == SR_NEW_NEWMV ||
 #endif  // CONFIG_COMPOUND_SINGLEREF
           have_nearmv_in_inter_mode(mbmi->mode))
-#else  // !CONFIG_EXT_INTER
+#else   // !CONFIG_EXT_INTER
       if (mbmi->mode == NEARMV || mbmi->mode == NEWMV)
 #endif  // CONFIG_EXT_INTER
         read_drl_idx(ec_ctx, xd, mbmi, r);
@@ -2135,7 +2143,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                  || mbmi->mode == SR_NEAREST_NEARMV
 // || mbmi->mode == SR_NEAREST_NEWMV
 #endif  // CONFIG_COMPOUND_SINGLEREF
-                 ) {
+      ) {
         nearestmv[0] = xd->ref_mv_stack[ref_frame_type][0].this_mv;
         lower_mv_precision(&nearestmv[0].as_mv, allow_hp);
       } else if (mbmi->mode == NEW_NEARESTMV) {
@@ -2449,7 +2457,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       && mbmi->motion_mode == SIMPLE_TRANSLATION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-      ) {
+  ) {
     if (is_any_masked_compound_used(bsize)) {
 #if CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
       if (cm->allow_masked_compound) {
