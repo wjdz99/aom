@@ -1510,8 +1510,12 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
 }
 #endif  // CONFIG_EXT_INTRA
 
-static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
-                                   aom_writer *w) {
+static void write_mb_sgr_filter(const MB_MODE_INFO *const mbmi, aom_writer *w) {
+  write_uniform(w, 2, mbmi->use_self_guided_filter);
+}
+
+static void write_mb_interp_and_sgr_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
+                                           aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
 #if CONFIG_EC_ADAPT
@@ -1531,6 +1535,9 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
                                        ? EIGHTTAP_REGULAR
                                        : cm->interp_filter));
 #endif  // CONFIG_DUAL_FILTER
+    if (mbmi->use_self_guided_filter != 0) {
+      assert(0);
+    }
     return;
   }
   if (cm->interp_filter == SWITCHABLE) {
@@ -1550,13 +1557,12 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
       }
     }
 #else
-    {
-      const int ctx = av1_get_pred_context_switchable_interp(xd);
-      aom_write_symbol(w, av1_switchable_interp_ind[mbmi->interp_filter],
-                       ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS);
-      ++cpi->interp_filter_selected[0][mbmi->interp_filter];
-    }
+    const int ctx = av1_get_pred_context_switchable_interp(xd);
+    aom_write_symbol(w, av1_switchable_interp_ind[mbmi->interp_filter],
+                     ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS);
+    ++cpi->interp_filter_selected[0][mbmi->interp_filter];
 #endif  // CONFIG_DUAL_FILTER
+    write_mb_sgr_filter(mbmi, w);
   }
 }
 
@@ -2094,7 +2100,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     }
 
 #if !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION && !CONFIG_GLOBAL_MOTION
-    write_mb_interp_filter(cpi, xd, w);
+    write_mb_interp_and_sgr_filter(cpi, xd, w);
 #endif  // !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION
 
     if (bsize < BLOCK_8X8 && !unify_bsize) {
@@ -2311,7 +2317,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
-    write_mb_interp_filter(cpi, xd, w);
+    write_mb_interp_and_sgr_filter(cpi, xd, w);
 #endif  // CONFIG_DUAL_FILTE || CONFIG_WARPED_MOTION
   }
 

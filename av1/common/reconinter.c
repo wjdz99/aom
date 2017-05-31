@@ -11,9 +11,10 @@
 
 #include <assert.h>
 
-#include "./aom_scale_rtcd.h"
-#include "./aom_dsp_rtcd.h"
 #include "./aom_config.h"
+#include "./aom_dsp_rtcd.h"
+#include "./aom_scale_rtcd.h"
+#include "./av1_rtcd.h"
 
 #include "aom/aom_integer.h"
 #include "aom_dsp/blend.h"
@@ -21,6 +22,7 @@
 #include "av1/common/blockd.h"
 #include "av1/common/reconinter.h"
 #include "av1/common/reconintra.h"
+#include "av1/common/restoration.h"
 #if CONFIG_MOTION_VAR
 #include "av1/common/onyxc_int.h"
 #endif  // CONFIG_MOTION_VAR
@@ -1453,6 +1455,77 @@ void av1_build_inter_predictors_sbuv(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_INTER && CONFIG_INTERINTRA
 }
 
+// TODO(now): Hack; later avoid using this intermediate buffer + alloc.
+static void selfguided_restoration_8bit(uint8_t *dgd, int width, int height,
+                                        int stride, int bit_depth, int r,
+                                        int eps, int32_t *const tmpbuf) {
+  // Filter into intermediate buffer.
+  int32_t *const interm_dst =
+      (int32_t *)aom_memalign(16, width * height * sizeof(*interm_dst));
+#if CONFIG_HIGHBITDEPTH
+  uint16_t *dgd16 = CONVERT_TO_SHORTPTR(dgd);
+  if (bit_depth > 8) {
+    av1_selfguided_restoration_highbd(dgd16, width, height, stride, interm_dst,
+                                      width, bit_depth, r, eps, tmpbuf);
+  } else {
+    assert(bit_depth == 8);
+#endif  // CONFIG_HIGHBITDEPTH
+    av1_selfguided_restoration(dgd, width, height, stride, interm_dst, width, r,
+                               eps, tmpbuf);
+#if CONFIG_HIGHBITDEPTH
+  }
+#endif  // CONFIG_HIGHBITDEPTH
+
+  // Copy intermediate buffer back to 'dgd', by removing precision bits.
+  for (int row = 0; row < height; ++row) {
+    for (int col = 0; col < width; ++col) {
+      const int dgd_offset = row * stride + col;
+      const int interm_dst_offset = row * width + col;
+// TODO(now): Maybe an assert is enough and clip_pixel() is not
+// needed.
+#if CONFIG_HIGHBITDEPTH
+      if (bit_depth > 8)
+        dgd16[dgd_offset] = clip_pixel_highbd(
+            ROUND_POWER_OF_TWO(interm_dst[interm_dst_offset], SGRPROJ_RST_BITS),
+            bit_depth);
+      else
+#endif  // CONFIG_HIGHBITDEPTH
+        dgd[dgd_offset] = clip_pixel(ROUND_POWER_OF_TWO(
+            interm_dst[interm_dst_offset], SGRPROJ_RST_BITS));
+    }
+  }
+  // Clear intermediate buffer.
+  aom_free(interm_dst);
+}
+
+static void maybe_apply_self_guided_filter(MACROBLOCKD *xd) {
+  if (!xd->mi[0]->mbmi.use_self_guided_filter) {
+    return;
+  }
+  // TODO(now): Allocate just once.
+  int32_t *const tmpbuf = (int32_t *)aom_memalign(16, RESTORATION_TMPBUF_SIZE);
+  // Note: av1_loop_restoration_precal() should already be called before this.
+  // This is already done in encoder.c and decoder.c
+  for (int i = 0; i < MAX_MB_PLANE; i++) {
+    const MACROBLOCKD_PLANE *const pd = &xd->plane[i];
+    const int bw = pd->width;
+    const int bh = pd->height;
+    const int eps = 40;  // TODO(now): Tune
+    const int r = 2;     // TODO(now): Tune
+    memset(tmpbuf, 0, RESTORATION_TMPBUF_SIZE);
+
+#if CONFIG_HIGHBITDEPTH
+    const int bit_depth = xd->bd;
+#else
+    const int bit_depth = 8;
+#endif  // CONFIG_HIGHBITDEPTH
+    selfguided_restoration_8bit(pd->dst.buf, bw, bh, pd->dst.stride, bit_depth,
+                                r, eps, tmpbuf);
+  }
+  // TODO(now): Deallocate just once.
+  aom_free(tmpbuf);
+}
+
 // TODO(afergs): Check if ctx can be made constant
 void av1_build_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                    int mi_row, int mi_col, BUFFER_SET *ctx,
@@ -1475,6 +1548,7 @@ void av1_build_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #else
   (void)ctx;
 #endif  // CONFIG_EXT_INTER && CONFIG_INTERINTRA
+  maybe_apply_self_guided_filter(xd);
 }
 
 void av1_setup_dst_planes(struct macroblockd_plane planes[MAX_MB_PLANE],

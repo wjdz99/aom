@@ -1593,10 +1593,14 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 }
 
-static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
-                                         MACROBLOCKD *const xd,
-                                         MB_MODE_INFO *const mbmi,
-                                         aom_reader *r) {
+static INLINE void read_mb_sgr_filter(MB_MODE_INFO *const mbmi, aom_reader *r) {
+  mbmi->use_self_guided_filter = read_uniform(r, 2);
+}
+
+static INLINE void read_mb_interp_and_sgr_filter(AV1_COMMON *const cm,
+                                                 MACROBLOCKD *const xd,
+                                                 MB_MODE_INFO *const mbmi,
+                                                 aom_reader *r) {
   FRAME_COUNTS *counts = xd->counts;
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -1605,7 +1609,7 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
 #endif
 
   if (!av1_is_interp_needed(xd)) {
-    set_default_interp_filters(mbmi, cm->interp_filter);
+    set_default_interp_and_sgr_filters(mbmi, cm->interp_filter);
     return;
   }
 
@@ -1614,6 +1618,7 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
     int dir;
 
     for (dir = 0; dir < 4; ++dir) mbmi->interp_filter[dir] = cm->interp_filter;
+    mbmi->use_self_guided_filter = 0;
   } else {
     int dir;
 
@@ -1636,10 +1641,12 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
     // (2, 3) -> (vertical, horizontal) filter types for the second ref frame.
     mbmi->interp_filter[2] = mbmi->interp_filter[0];
     mbmi->interp_filter[3] = mbmi->interp_filter[1];
+    read_mb_sgr_filter(mbmi, r);
   }
 #else   // CONFIG_DUAL_FILTER
   if (cm->interp_filter != SWITCHABLE) {
     mbmi->interp_filter = cm->interp_filter;
+    mbmi->use_self_guided_filter = 0;
   } else {
     const int ctx = av1_get_pred_context_switchable_interp(xd);
     mbmi->interp_filter =
@@ -1647,6 +1654,7 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
             r, ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
             ACCT_STR)];
     if (counts) ++counts->switchable_interp[ctx][mbmi->interp_filter];
+    read_mb_sgr_filter(mbmi, r);
   }
 #endif  // CONFIG_DUAL_FILTER
 }
@@ -2376,7 +2384,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   }
 
 #if !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION && !CONFIG_GLOBAL_MOTION
-  read_mb_interp_filter(cm, xd, mbmi, r);
+  read_mb_interp_and_sgr_filter(cm, xd, mbmi, r);
 #endif  // !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION
 
   if (bsize < BLOCK_8X8 && !unify_bsize) {
@@ -2691,7 +2699,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
-  read_mb_interp_filter(cm, xd, mbmi, r);
+  read_mb_interp_and_sgr_filter(cm, xd, mbmi, r);
 #endif  // CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION
 
 #if DEC_MISMATCH_DEBUG

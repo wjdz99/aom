@@ -935,7 +935,8 @@ int av1_get_switchable_rate(const AV1_COMP *cpi, const MACROBLOCKD *xd) {
             cpi->switchable_interp_costs[ctx][mbmi->interp_filter[dir]];
       }
     }
-    return SWITCHABLE_INTERP_RATE_FACTOR * inter_filter_cost;
+    const int use_sgf_bit_cost = 1;  // TODO(now): Adapt?
+    return SWITCHABLE_INTERP_RATE_FACTOR * inter_filter_cost + use_sgf_bit_cost;
   } else {
     return 0;
   }
@@ -946,8 +947,10 @@ int av1_get_switchable_rate(const AV1_COMP *cpi, const MACROBLOCKD *xd) {
   if (cm->interp_filter == SWITCHABLE) {
     const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
     const int ctx = av1_get_pred_context_switchable_interp(xd);
+    const int use_sgf_bit_cost = 1;  // TODO(now): Adapt?
     return SWITCHABLE_INTERP_RATE_FACTOR *
-           cpi->switchable_interp_costs[ctx][mbmi->interp_filter];
+               cpi->switchable_interp_costs[ctx][mbmi->interp_filter] +
+           use_sgf_bit_cost;
   }
   return 0;
 }
