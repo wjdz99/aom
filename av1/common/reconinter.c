@@ -11,9 +11,10 @@
 
 #include <assert.h>
 
-#include "./aom_scale_rtcd.h"
-#include "./aom_dsp_rtcd.h"
 #include "./aom_config.h"
+#include "./aom_dsp_rtcd.h"
+#include "./aom_scale_rtcd.h"
+#include "./av1_rtcd.h"
 
 #include "aom/aom_integer.h"
 #include "aom_dsp/blend.h"
@@ -21,6 +22,7 @@
 #include "av1/common/blockd.h"
 #include "av1/common/reconinter.h"
 #include "av1/common/reconintra.h"
+#include "av1/common/restoration.h"
 #if CONFIG_MOTION_VAR
 #include "av1/common/onyxc_int.h"
 #endif  // CONFIG_MOTION_VAR
@@ -1405,6 +1407,50 @@ void av1_build_inter_predictors_sbuv(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_INTER && CONFIG_INTERINTRA
 }
 
+// TODO(now): Hack; later avoid using this intermediate buffer + alloc.
+static void selfguided_restoration_8bit(uint8_t *dgd, int width, int height,
+                                        int stride, int r, int eps,
+                                        int32_t *const tmpbuf) {
+  // Filter into intermediate buffer.
+  int32_t *const interm_dst =
+      (int32_t *)aom_memalign(16, width * height * sizeof(*interm_dst));
+  av1_selfguided_restoration(dgd, width, height, stride, interm_dst, width, r,
+                             eps, tmpbuf);
+  // Copy intermediate buffer back to 'dgd', by removing precision bits.
+  for (int row = 0; row < height; ++row) {
+    for (int col = 0; col < width; ++col) {
+      const int dgd_offset = row * stride + col;
+      const int interm_dst_offset = row * width + col;
+      dgd[dgd_offset] = (uint8_t)(
+          ROUND_POWER_OF_TWO(interm_dst[interm_dst_offset], SGRPROJ_SGR_BITS));
+    }
+  }
+  // Clear intermediate buffer.
+  aom_free(interm_dst);
+}
+
+static void maybe_apply_self_guided_filter(MACROBLOCKD *xd, BLOCK_SIZE bsize) {
+  if (!xd->mi[0]->mbmi.use_self_guided_filter) {
+    return;
+  }
+  // TODO(now): Allocate just once.
+  int32_t *const tmpbuf = (int32_t *)aom_memalign(16, RESTORATION_TMPBUF_SIZE);
+  // TODO(now): Call just once in a common place.
+  av1_loop_restoration_precal();
+  for (int i = 0; i < MAX_MB_PLANE; i++) {
+    const int bw = block_size_wide[bsize];
+    const int bh = block_size_high[bsize];
+    const int eps = 40;  // TODO(now): Tune
+    const int r = 2;     // TODO(now): Tune
+    memset(tmpbuf, 0, RESTORATION_TMPBUF_SIZE);
+    // TODO(now): Use HBD version when needed.
+    selfguided_restoration_8bit(xd->plane[i].dst.buf, bw, bh,
+                                xd->plane[i].dst.stride, r, eps, tmpbuf);
+  }
+  // TODO(now): Deallocate just once.
+  aom_free(tmpbuf);
+}
+
 // TODO(afergs): Check if ctx can be made constant
 void av1_build_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                    int mi_row, int mi_col, BUFFER_SET *ctx,
@@ -1427,6 +1473,7 @@ void av1_build_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #else
   (void)ctx;
 #endif  // CONFIG_EXT_INTER && CONFIG_INTERINTRA
+  maybe_apply_self_guided_filter(xd, bsize);
 }
 
 void av1_setup_dst_planes(struct macroblockd_plane planes[MAX_MB_PLANE],

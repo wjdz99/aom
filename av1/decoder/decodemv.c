@@ -1457,7 +1457,7 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
 #endif
 
   if (!av1_is_interp_needed(xd)) {
-    set_default_interp_filters(mbmi, cm->interp_filter);
+    set_default_interp_and_sgr_filters(mbmi, cm->interp_filter);
     return;
   }
 
@@ -1501,6 +1501,11 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
     if (counts) ++counts->switchable_interp[ctx][mbmi->interp_filter];
   }
 #endif  // CONFIG_DUAL_FILTER
+}
+
+static INLINE void read_mb_self_guided_filter(MB_MODE_INFO *const mbmi,
+                                              aom_reader *r) {
+  mbmi->use_self_guided_filter = read_uniform(r, 1);
 }
 
 static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
@@ -2147,6 +2152,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
 #if !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION && !CONFIG_GLOBAL_MOTION
   read_mb_interp_filter(cm, xd, mbmi, r);
+  read_mb_self_guided_filter(mbmi, r);
 #endif  // !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION
 
   if (bsize < BLOCK_8X8 && !unify_bsize) {
@@ -2443,6 +2449,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
   read_mb_interp_filter(cm, xd, mbmi, r);
+  read_mb_self_guided_filter(mbmi, r);
 #endif  // CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION
 
 #if CONFIG_EXT_INTER

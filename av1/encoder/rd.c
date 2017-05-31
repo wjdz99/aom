@@ -920,7 +920,8 @@ int av1_get_switchable_rate(const AV1_COMP *cpi, const MACROBLOCKD *xd) {
             cpi->switchable_interp_costs[ctx][mbmi->interp_filter[dir]];
       }
     }
-    return SWITCHABLE_INTERP_RATE_FACTOR * inter_filter_cost;
+    const int use_sgf_bit_cost = 1;  // TODO(now): Adapt?
+    return SWITCHABLE_INTERP_RATE_FACTOR * inter_filter_cost + use_sgf_bit_cost;
   } else {
     return 0;
   }

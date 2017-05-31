@@ -7274,7 +7274,7 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
   return 0;
 }
 
-int64_t interpolation_filter_search(
+int64_t interpolation_and_sgr_filter_search(
     MACROBLOCK *const x, const AV1_COMP *const cpi, BLOCK_SIZE bsize,
     int mi_row, int mi_col, const BUFFER_SET *const tmp_dst,
     BUFFER_SET *const orig_dst,
@@ -7303,7 +7303,7 @@ int64_t interpolation_filter_search(
     assign_filter = cm->interp_filter;
   }
 
-  set_default_interp_filters(mbmi, assign_filter);
+  set_default_interp_and_sgr_filters(mbmi, assign_filter);
 
   *switchable_rate = av1_get_switchable_rate(cpi, xd);
   av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
@@ -7326,42 +7326,52 @@ int64_t interpolation_filter_search(
 #else
       InterpFilter best_filter = mbmi->interp_filter;
 #endif  // CONFIG_DUAL_FILTER
+      int best_use_sgf = mbmi->use_self_guided_filter;
       restore_dst_buf(xd, *tmp_dst);
-      // EIGHTTAP_REGULAR mode is calculated beforehand
-      for (i = 1; i < filter_set_size; ++i) {
-        int tmp_skip_sb = 0;
-        int64_t tmp_skip_sse = INT64_MAX;
-        int tmp_rs;
-        int64_t tmp_rd;
+      for (i = 0; i < filter_set_size; ++i) {
+        // TODO(now): Only for >= 8x8?
+        // TODO(now): Should be a separate search instead of a joint one.
+        for (int use_sgf = 0; use_sgf <= 1; ++use_sgf) {
+          if (i == EIGHTTAP_REGULAR && use_sgf == 0) {
+            continue;  // calculated beforehand
+          }
+          int tmp_skip_sb = 0;
+          int64_t tmp_skip_sse = INT64_MAX;
+          int tmp_rs;
+          int64_t tmp_rd;
 #if CONFIG_DUAL_FILTER
-        mbmi->interp_filter[0] = filter_sets[i][0];
-        mbmi->interp_filter[1] = filter_sets[i][1];
-        mbmi->interp_filter[2] = filter_sets[i][0];
-        mbmi->interp_filter[3] = filter_sets[i][1];
+          mbmi->interp_filter[0] = filter_sets[i][0];
+          mbmi->interp_filter[1] = filter_sets[i][1];
+          mbmi->interp_filter[2] = filter_sets[i][0];
+          mbmi->interp_filter[3] = filter_sets[i][1];
 #else
-        mbmi->interp_filter = (InterpFilter)i;
+          mbmi->interp_filter = (InterpFilter)i;
 #endif  // CONFIG_DUAL_FILTER
-        tmp_rs = av1_get_switchable_rate(cpi, xd);
-        av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
-        model_rd_for_sb(cpi, bsize, x, xd, 0, MAX_MB_PLANE - 1, &tmp_rate,
-                        &tmp_dist, &tmp_skip_sb, &tmp_skip_sse);
-        tmp_rd = RDCOST(x->rdmult, x->rddiv, tmp_rs + tmp_rate, tmp_dist);
+          mbmi->use_self_guided_filter = use_sgf;
+          tmp_rs = av1_get_switchable_rate(cpi, xd);
+          av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst,
+                                        bsize);
+          model_rd_for_sb(cpi, bsize, x, xd, 0, MAX_MB_PLANE - 1, &tmp_rate,
+                          &tmp_dist, &tmp_skip_sb, &tmp_skip_sse);
+          tmp_rd = RDCOST(x->rdmult, x->rddiv, tmp_rs + tmp_rate, tmp_dist);
 
-        if (tmp_rd < *rd) {
-          *rd = tmp_rd;
-          *switchable_rate = av1_get_switchable_rate(cpi, xd);
+          if (tmp_rd < *rd) {
+            *rd = tmp_rd;
+            *switchable_rate = av1_get_switchable_rate(cpi, xd);
 #if CONFIG_DUAL_FILTER
-          av1_copy(best_filter, mbmi->interp_filter);
+            av1_copy(best_filter, mbmi->interp_filter);
 #else
-          best_filter = mbmi->interp_filter;
+            best_filter = mbmi->interp_filter;
 #endif  // CONFIG_DUAL_FILTER
-          *skip_txfm_sb = tmp_skip_sb;
-          *skip_sse_sb = tmp_skip_sse;
-          best_in_temp = !best_in_temp;
-          if (best_in_temp) {
-            restore_dst_buf(xd, *orig_dst);
-          } else {
-            restore_dst_buf(xd, *tmp_dst);
+            best_use_sgf = mbmi->use_self_guided_filter;
+            *skip_txfm_sb = tmp_skip_sb;
+            *skip_sse_sb = tmp_skip_sse;
+            best_in_temp = !best_in_temp;
+            if (best_in_temp) {
+              restore_dst_buf(xd, *orig_dst);
+            } else {
+              restore_dst_buf(xd, *tmp_dst);
+            }
           }
         }
       }
@@ -7375,6 +7385,7 @@ int64_t interpolation_filter_search(
 #else
       mbmi->interp_filter = best_filter;
 #endif  // CONFIG_DUAL_FILTER
+      mbmi->use_self_guided_filter = best_use_sgf;
     } else {
 #if CONFIG_DUAL_FILTER
       for (i = 0; i < 4; ++i)
@@ -7382,9 +7393,9 @@ int64_t interpolation_filter_search(
 #else
       assert(mbmi->interp_filter == EIGHTTAP_REGULAR);
 #endif  // CONFIG_DUAL_FILTER
+      assert(!mbmi->use_self_guided_filter);
     }
   }
-
   return 0;
 }
 
@@ -8099,7 +8110,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       )
     return INT64_MAX;
 
-  int64_t ret_val = interpolation_filter_search(
+  int64_t ret_val = interpolation_and_sgr_filter_search(
       x, cpi, bsize, mi_row, mi_col, &tmp_dst, &orig_dst, args->single_filter,
       &rd, &rs, &skip_txfm_sb, &skip_sse_sb);
   if (ret_val != 0) return ret_val;
@@ -9672,7 +9683,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         // Evaluate all sub-pel filters irrespective of whether we can use
         // them for this frame.
 
-    set_default_interp_filters(mbmi, cm->interp_filter);
+    set_default_interp_and_sgr_filters(mbmi, cm->interp_filter);
 
     mbmi->mv[0].as_int = mbmi->mv[1].as_int = 0;
     mbmi->motion_mode = SIMPLE_TRANSLATION;
@@ -11084,7 +11095,7 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   }
 #endif
 
-  set_default_interp_filters(mbmi, cm->interp_filter);
+  set_default_interp_and_sgr_filters(mbmi, cm->interp_filter);
 
   if (cm->interp_filter != SWITCHABLE) {
     best_filter = cm->interp_filter;
