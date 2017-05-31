@@ -822,11 +822,14 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #endif  // CONFIG_INTRA_INTERP
 
   (void)cm;
-  if (bsize < BLOCK_8X8) return;
+  if (!av1_use_angle_delta(bsize)) return;
 
   if (av1_is_directional_mode(mbmi->mode, bsize)) {
-    mbmi->angle_delta[0] =
-        read_uniform(r, 2 * MAX_ANGLE_DELTA + 1) - MAX_ANGLE_DELTA;
+    mbmi->angle_delta[0] = 0;
+    if (av1_use_angle_delta(bsize)) {
+      mbmi->angle_delta[0] =
+          read_uniform(r, 2 * MAX_ANGLE_DELTA + 1) - MAX_ANGLE_DELTA;
+    }
 #if CONFIG_INTRA_INTERP
     p_angle = mode_to_angle_map[mbmi->mode] + mbmi->angle_delta[0] * ANGLE_STEP;
     if (av1_is_intra_filter_switchable(p_angle)) {
@@ -841,8 +844,11 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 
   if (av1_is_directional_mode(mbmi->uv_mode, bsize)) {
-    mbmi->angle_delta[1] =
-        read_uniform(r, 2 * MAX_ANGLE_DELTA + 1) - MAX_ANGLE_DELTA;
+    mbmi->angle_delta[1] = 0;
+    if (av1_use_angle_delta(bsize)) {
+      mbmi->angle_delta[1] =
+          read_uniform(r, 2 * MAX_ANGLE_DELTA + 1) - MAX_ANGLE_DELTA;
+    }
   }
 }
 #endif  // CONFIG_EXT_INTRA
