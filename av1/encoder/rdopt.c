@@ -1514,7 +1514,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   const int coeff_ctx = combine_entropy_contexts(*a, *l);
   av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                   coeff_ctx, AV1_XFORM_QUANT_FP);
-  av1_optimize_b(cm, x, plane, block, tx_size, coeff_ctx);
+  av1_optimize_b(cm, x, plane, block, plane_bsize, tx_size, a, l);
 
   if (!is_inter_block(mbmi)) {
     struct macroblock_plane *const p = &x->plane[plane];
@@ -2832,7 +2832,8 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 #if !CONFIG_PVQ
             av1_xform_quant(cm, x, 0, block, row + idy, col + idx, BLOCK_8X8,
                             tx_size, coeff_ctx, AV1_XFORM_QUANT_FP);
-            av1_optimize_b(cm, x, 0, block, tx_size, coeff_ctx);
+            av1_optimize_b(cm, x, 0, block, BLOCK_8X8, tx_size, tempa + idx,
+                           templ + idy);
             ratey += av1_cost_coeffs(cpi, x, 0, block, tx_size, scan_order,
                                      tempa + idx, templ + idy,
                                      cpi->sf.use_fast_coef_costing);
@@ -2991,7 +2992,8 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 #endif  // CONFIG_CB4X4
                         BLOCK_8X8, tx_size, coeff_ctx, xform_quant);
 
-        av1_optimize_b(cm, x, 0, block, tx_size, coeff_ctx);
+        av1_optimize_b(cm, x, 0, block, BLOCK_8X8, tx_size, tempa + idx,
+                       templ + idy);
 
         ratey +=
             av1_cost_coeffs(cpi, x, 0, block, tx_size, scan_order, tempa + idx,
@@ -3942,7 +3944,7 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
   av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                   coeff_ctx, AV1_XFORM_QUANT_FP);
 
-  av1_optimize_b(cm, x, plane, block, tx_size, coeff_ctx);
+  av1_optimize_b(cm, x, plane, block, plane_bsize, tx_size, a, l);
 
 // TODO(any): Use av1_dist_block to compute distortion
 #if CONFIG_HIGHBITDEPTH
@@ -5297,30 +5299,31 @@ static int64_t encode_inter_mb_segment_sub8x8(
       const int block = av1_raster_order_to_block_index(tx_size, k);
       assert(IMPLIES(tx_size == TX_4X8 || tx_size == TX_8X4,
                      idx == 0 && idy == 0));
-      coeff_ctx = combine_entropy_contexts(*(ta + (k & 1)), *(tl + (k >> 1)));
+      ENTROPY_CONTEXT *a = ta + (k & 1);
+      ENTROPY_CONTEXT *l = tl + (k >> 1);
+      coeff_ctx = combine_entropy_contexts(*a, *l);
       av1_xform_quant(cm, x, 0, block, idy + (i >> 1), idx + (i & 0x01),
                       BLOCK_8X8, tx_size, coeff_ctx, AV1_XFORM_QUANT_FP);
-      av1_optimize_b(cm, x, 0, block, tx_size, coeff_ctx);
+      av1_optimize_b(cm, x, 0, block, BLOCK_8X8, tx_size, a, l);
       av1_dist_block(cpi, x, 0, BLOCK_8X8, block, idy + (i >> 1),
                      idx + (i & 0x1), tx_size, &dist, &ssz,
                      OUTPUT_HAS_PREDICTED_PIXELS);
       thisdistortion += dist;
       thissse += ssz;
 #if !CONFIG_PVQ
-      thisrate +=
-          av1_cost_coeffs(cpi, x, 0, block, tx_size, scan_order, (ta + (k & 1)),
-                          (tl + (k >> 1)), cpi->sf.use_fast_coef_costing);
-      *(ta + (k & 1)) = !(p->eobs[block] == 0);
-      *(tl + (k >> 1)) = !(p->eobs[block] == 0);
+      thisrate += av1_cost_coeffs(cpi, x, 0, block, tx_size, scan_order, a, l,
+                                  cpi->sf.use_fast_coef_costing);
+      *a = !(p->eobs[block] == 0);
+      *l = !(p->eobs[block] == 0);
 #else
       thisrate += x->rate;
 #endif  // !CONFIG_PVQ
 #if CONFIG_EXT_TX
       if (tx_size == TX_8X4) {
-        *(ta + (k & 1) + 1) = *(ta + (k & 1));
+        *(a + 1) = *a;
       }
       if (tx_size == TX_4X8) {
-        *(tl + (k >> 1) + 1) = *(tl + (k >> 1));
+        *(l + 1) = *l;
       }
 #endif  // CONFIG_EXT_TX
       rd1 = RDCOST(x->rdmult, x->rddiv, thisrate, thisdistortion);
@@ -6607,6 +6610,8 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
         for (idy_ = 0; idy_ < txb_height; idy_++) {
           for (idx_ = 0; idx_ < txb_width; idx_++) {
             int coeff_ctx = 0;
+            const ENTROPY_CONTEXT a = 0;
+            const ENTROPY_CONTEXT l = 0;
             const tran_low_t *dqcoeff;
             uint16_t eob;
             const PLANE_TYPE plane_type = PLANE_TYPE_Y;
@@ -6619,7 +6624,7 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
             dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
             av1_xform_quant(cm, x, 0, block, idy + idy_, idx + idx_, BLOCK_8X8,
                             tx_size, coeff_ctx, AV1_XFORM_QUANT_FP);
-            av1_optimize_b(cm, x, 0, block, tx_size, coeff_ctx);
+            av1_optimize_b(cm, x, 0, block, BLOCK_8X8, tx_size, &a, &l);
 
             eob = p->eobs[block];
             av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size,
