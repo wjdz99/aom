@@ -22,6 +22,30 @@
       "revId": "56b57eb006d0521bf16ae52e840918cd69dcedb9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5812e723_afec5aad",
+        "filename": "av1/common/txb_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-05-31T23:48:55Z",
+      "side": 1,
+      "message": "You are right. For simplicity, I am using the multiplication all over the code related to optimize_txb.\nWill submit a CL to replace the multiplications to shift.",
+      "parentUuid": "8a9367f4_381e9dc4",
+      "range": {
+        "startLine": 80,
+        "startChar": 28,
+        "endLine": 80,
+        "endChar": 36
+      },
+      "revId": "56b57eb006d0521bf16ae52e840918cd69dcedb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
