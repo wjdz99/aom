@@ -2588,7 +2588,8 @@ static void decode_restoration_mode(AV1_COMMON *cm,
     rsi->frame_restoration_type =
         aom_rb_read_bit(rb) ? RESTORE_SWITCHABLE : RESTORE_NONE;
   }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+#if USE_JOINT_CHROMA_RESTORATION
+  for (p = AOM_PLANE_U; p < AOM_PLANE_V; ++p) {
     rsi = &cm->rst_info[p];
     if (aom_rb_read_bit(rb)) {
       rsi->frame_restoration_type =
@@ -2597,6 +2598,19 @@ static void decode_restoration_mode(AV1_COMMON *cm,
       rsi->frame_restoration_type = RESTORE_NONE;
     }
   }
+  cm->rst_info[2].frame_restoration_type =
+      cm->rst_info[1].frame_restoration_type;
+#else
+  for (p = AOM_PLANE_U; p < MAX_MB_PLANE; ++p) {
+    rsi = &cm->rst_info[p];
+    if (aom_rb_read_bit(rb)) {
+      rsi->frame_restoration_type =
+          aom_rb_read_bit(rb) ? RESTORE_SGRPROJ : RESTORE_WIENER;
+    } else {
+      rsi->frame_restoration_type = RESTORE_NONE;
+    }
+  }
+#endif  // USE_JOINT_CHROMA_RESTORATION
 
   cm->rst_info[0].restoration_tilesize = RESTORATION_TILESIZE_MAX;
   cm->rst_info[1].restoration_tilesize = RESTORATION_TILESIZE_MAX;
@@ -2726,7 +2740,50 @@ static void decode_restoration(AV1_COMMON *cm, aom_reader *rb) {
       }
     }
   }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+#if USE_JOINT_CHROMA_RESTORATION
+  {
+    p = AOM_PLANE_U;
+    set_default_wiener(&ref_wiener_info);
+    set_default_sgrproj(&ref_sgrproj_info);
+    rsi = &cm->rst_info[p];
+    rsi2 = &cm->rst_info[p + 1];
+    if (rsi->frame_restoration_type == RESTORE_WIENER) {
+      for (i = 0; i < ntiles_uv; ++i) {
+        if (ntiles_uv > 1)
+          rsi->restoration_type[i] =
+              aom_read(rb, RESTORE_NONE_WIENER_PROB, ACCT_STR) ? RESTORE_WIENER
+                                                               : RESTORE_NONE;
+        else
+          rsi->restoration_type[i] = RESTORE_WIENER;
+        rsi2->restoration_type[i] = rsi->restoration_type[i];
+        if (rsi->restoration_type[i] == RESTORE_WIENER) {
+          read_wiener_filter(&rsi->wiener_info[i], &ref_wiener_info, rb);
+          memcpy(&rsi2->wiener_info[i], &rsi->wiener_info[i],
+                 sizeof(rsi->wiener_info[i]));
+        }
+      }
+    } else if (rsi->frame_restoration_type == RESTORE_SGRPROJ) {
+      for (i = 0; i < ntiles_uv; ++i) {
+        if (ntiles_uv > 1)
+          rsi->restoration_type[i] =
+              aom_read(rb, RESTORE_NONE_SGRPROJ_PROB, ACCT_STR)
+                  ? RESTORE_SGRPROJ
+                  : RESTORE_NONE;
+        else
+          rsi->restoration_type[i] = RESTORE_SGRPROJ;
+        rsi2->restoration_type[i] = rsi->restoration_type[i];
+        if (rsi->restoration_type[i] == RESTORE_SGRPROJ) {
+          read_sgrproj_filter(&rsi->sgrproj_info[i], &ref_sgrproj_info, rb);
+          memcpy(&rsi2->sgrproj_info[i], &rsi->sgrproj_info[i],
+                 sizeof(rsi->sgrproj_info[i]));
+        }
+      }
+    } else if (rsi->frame_restoration_type != RESTORE_NONE) {
+      assert(0);
+    }
+  }
+#else
+  for (p = AOM_PLANE_U; p < MAX_MB_PLANE; ++p) {
     set_default_wiener(&ref_wiener_info);
     set_default_sgrproj(&ref_sgrproj_info);
     rsi = &cm->rst_info[p];
@@ -2759,6 +2816,7 @@ static void decode_restoration(AV1_COMMON *cm, aom_reader *rb) {
       assert(0);
     }
   }
+#endif  // USE_JOINT_CHROMA_RESTORATION
 }
 #endif  // CONFIG_LOOP_RESTORATION
 

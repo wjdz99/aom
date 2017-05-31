@@ -3230,7 +3230,8 @@ static void encode_restoration_mode(AV1_COMMON *cm,
       break;
     default: assert(0);
   }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+#if USE_JOINT_CHROMA_RESTORATION
+  for (p = AOM_PLANE_U; p < AOM_PLANE_V; ++p) {
     rsi = &cm->rst_info[p];
     switch (rsi->frame_restoration_type) {
       case RESTORE_NONE: aom_wb_write_bit(wb, 0); break;
@@ -3245,6 +3246,25 @@ static void encode_restoration_mode(AV1_COMMON *cm,
       default: assert(0);
     }
   }
+  assert(cm->rst_info[2].frame_restoration_type ==
+         cm->rst_info[1].frame_restoration_type);
+#else
+  for (p = AOM_PLANE_U; p < MAX_MB_PLANE; ++p) {
+    rsi = &cm->rst_info[p];
+    switch (rsi->frame_restoration_type) {
+      case RESTORE_NONE: aom_wb_write_bit(wb, 0); break;
+      case RESTORE_WIENER:
+        aom_wb_write_bit(wb, 1);
+        aom_wb_write_bit(wb, 0);
+        break;
+      case RESTORE_SGRPROJ:
+        aom_wb_write_bit(wb, 1);
+        aom_wb_write_bit(wb, 1);
+        break;
+      default: assert(0);
+    }
+  }
+#endif  // USE_JOINT_CHROMA_RESTORATION
   if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
       cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
       cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
