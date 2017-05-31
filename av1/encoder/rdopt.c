@@ -2392,7 +2392,8 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   model_rd_for_sb(cpi, bsize, x, xd, 0, 0, &this_rd_stats.rate,
                   &this_rd_stats.dist, &this_rd_stats.skip, &temp_sse);
 #if CONFIG_EXT_INTRA
-  if (av1_is_directional_mode(mbmi->mode, bsize)) {
+  if (av1_is_directional_mode(mbmi->mode, bsize) &&
+      av1_use_angle_delta(bsize)) {
     mode_cost += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
                                     MAX_ANGLE_DELTA + mbmi->angle_delta[0]);
   }
@@ -3500,8 +3501,8 @@ static void angle_estimation(const uint8_t *src, int src_stride, int rows,
                              uint8_t *directional_mode_skip_mask) {
   memset(directional_mode_skip_mask, 0,
          INTRA_MODES * sizeof(*directional_mode_skip_mask));
-  // Sub-8x8 blocks do not use extra directions.
-  if (bsize < BLOCK_8X8) return;
+  // Check if angle_delta is used
+  if (!av1_use_angle_delta(bsize)) return;
   uint64_t hist[DIRECTIONAL_MODES];
   memset(hist, 0, DIRECTIONAL_MODES * sizeof(hist[0]));
   src += src_stride;
@@ -3555,8 +3556,8 @@ static void highbd_angle_estimation(const uint8_t *src8, int src_stride,
                                     uint8_t *directional_mode_skip_mask) {
   memset(directional_mode_skip_mask, 0,
          INTRA_MODES * sizeof(*directional_mode_skip_mask));
-  // Sub-8x8 blocks do not use extra directions.
-  if (bsize < BLOCK_8X8) return;
+  // Check if angle_delta is used
+  if (!av1_use_angle_delta(bsize)) return;
   uint16_t *src = CONVERT_TO_SHORTPTR(src8);
   uint64_t hist[DIRECTIONAL_MODES];
   memset(hist, 0, DIRECTIONAL_MODES * sizeof(hist[0]));
@@ -3712,7 +3713,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #if CONFIG_EXT_INTRA
     is_directional_mode = av1_is_directional_mode(mbmi->mode, bsize);
     if (is_directional_mode && directional_mode_skip_mask[mbmi->mode]) continue;
-    if (is_directional_mode) {
+    if (is_directional_mode && av1_use_angle_delta(bsize)) {
       this_rd_stats.rate = INT_MAX;
       rd_pick_intra_angle_sby(cpi, x, &this_rate, &this_rd_stats, bsize,
                               bmode_costs[mbmi->mode], best_rd, &best_model_rd);
@@ -3758,8 +3759,10 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         this_rate +=
             cpi->intra_filter_cost[intra_filter_ctx][mbmi->intra_filter];
 #endif  // CONFIG_INTRA_INTERP
-      this_rate += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
-                                      MAX_ANGLE_DELTA + mbmi->angle_delta[0]);
+      if (av1_use_angle_delta(bsize)) {
+        this_rate += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
+                                        MAX_ANGLE_DELTA + mbmi->angle_delta[0]);
+      }
     }
 #endif  // CONFIG_EXT_INTRA
     this_rd = RDCOST(x->rdmult, x->rddiv, this_rate, this_distortion);
@@ -4900,7 +4903,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     mbmi->uv_mode = mode;
 #if CONFIG_EXT_INTRA
     mbmi->angle_delta[1] = 0;
-    if (is_directional_mode) {
+    if (is_directional_mode && av1_use_angle_delta(mbmi->sb_type)) {
       const int rate_overhead = cpi->intra_uv_mode_cost[mbmi->mode][mode] +
                                 write_uniform_cost(2 * MAX_ANGLE_DELTA + 1, 0);
       if (!rd_pick_intra_angle_sbuv(cpi, x, bsize, rate_overhead, best_rd,
@@ -4921,7 +4924,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         tokenonly_rd_stats.rate + cpi->intra_uv_mode_cost[mbmi->mode][mode];
 
 #if CONFIG_EXT_INTRA
-    if (is_directional_mode) {
+    if (is_directional_mode && av1_use_angle_delta(mbmi->sb_type)) {
       this_rate += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
                                       MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
     }
@@ -8999,7 +9002,8 @@ static void pick_filter_intra_interframe(
   rate2 += write_uniform_cost(
       FILTER_INTRA_MODES, mbmi->filter_intra_mode_info.filter_intra_mode[0]);
 #if CONFIG_EXT_INTRA
-  if (av1_is_directional_mode(mbmi->uv_mode, bsize)) {
+  if (av1_is_directional_mode(mbmi->uv_mode, bsize) &&
+      av1_use_angle_delta(bsize)) {
     rate2 += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
                                 MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
   }
@@ -9705,7 +9709,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       struct macroblockd_plane *const pd = &xd->plane[1];
 #if CONFIG_EXT_INTRA
       is_directional_mode = av1_is_directional_mode(mbmi->mode, bsize);
-      if (is_directional_mode) {
+      if (is_directional_mode && av1_use_angle_delta(bsize)) {
         int rate_dummy;
         int64_t model_rd = INT64_MAX;
         if (!angle_stats_ready) {
@@ -9818,12 +9822,15 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         if (av1_is_intra_filter_switchable(p_angle))
           rate2 += cpi->intra_filter_cost[intra_filter_ctx][mbmi->intra_filter];
 #endif  // CONFIG_INTRA_INTERP
-        rate2 += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
-                                    MAX_ANGLE_DELTA + mbmi->angle_delta[0]);
+        if (av1_use_angle_delta(bsize)) {
+          rate2 += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
+                                      MAX_ANGLE_DELTA + mbmi->angle_delta[0]);
+        }
       }
-      if (mbmi->uv_mode != DC_PRED && mbmi->uv_mode != TM_PRED) {
-        rate2 += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
-                                    MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
+      if (av1_is_directional_mode(mbmi->uv_mode, bsize) &&
+          av1_use_angle_delta(bsize)) {
+          rate2 += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
+                                      MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
       }
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
