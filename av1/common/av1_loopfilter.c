@@ -1434,12 +1434,15 @@ static void get_filter_level_and_masks_non420(
 #endif
 
 #if CONFIG_VAR_TX
-    TX_SIZE tx_size_r = AOMMIN(tx_size, cm->above_txfm_context[mi_col + c]);
+    TX_SIZE tx_size_r = AOMMIN(
+        tx_size, cm->above_txfm_context[(mi_col + c) << TX_UNIT_WIDE_LOG2]);
     TX_SIZE tx_size_c =
-        AOMMIN(tx_size, cm->left_txfm_context[(mi_row + r) & MAX_MIB_MASK]);
+        AOMMIN(tx_size, cm->left_txfm_context[((mi_row + r) & MAX_MIB_MASK)
+                                              << TX_UNIT_HIGH_LOG2]);
 
-    cm->above_txfm_context[mi_col + c] = tx_size;
-    cm->left_txfm_context[(mi_row + r) & MAX_MIB_MASK] = tx_size;
+    cm->above_txfm_context[(mi_col + c) << TX_UNIT_WIDE_LOG2] = tx_size;
+    cm->left_txfm_context[((mi_row + r) & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2] =
+        tx_size;
 #else
     TX_SIZE tx_size_c = txsize_horz_map[tx_size];
     TX_SIZE tx_size_r = txsize_vert_map[tx_size];
