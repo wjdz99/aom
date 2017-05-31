@@ -1440,9 +1440,13 @@ static void get_filter_level_and_masks_non420(
         AOMMIN(tx_size, cm->left_txfm_context[((mi_row + r) & MAX_MIB_MASK)
                                               << TX_UNIT_HIGH_LOG2]);
 
-    cm->above_txfm_context[(mi_col + c) << TX_UNIT_WIDE_LOG2] = tx_size;
-    cm->left_txfm_context[((mi_row + r) & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2] =
-        tx_size;
+    if (plane->plane_type == PLANE_TYPE_Y) {
+      memset(cm->above_txfm_context + ((mi_col + c) << TX_UNIT_WIDE_LOG2),
+             tx_size, mi_size_wide[sb_type] << TX_UNIT_WIDE_LOG2);
+      memset(cm->left_txfm_context +
+                 (((mi_row + r) & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2),
+             tx_size, mi_size_high[sb_type] << TX_UNIT_HIGH_LOG2);
+    }
 #else
     TX_SIZE tx_size_c = txsize_horz_map[tx_size];
     TX_SIZE tx_size_r = txsize_vert_map[tx_size];
