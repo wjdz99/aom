@@ -7273,7 +7273,6 @@ static void compound_single_motion_search(
   }
 
   struct buf_2d orig_yv12;
-  int bestsme = INT_MAX;
   int sadpb = x->sadperbit16;
   MV *const best_mv = &x->best_mv.as_mv;
   int search_range = 3;
@@ -7358,10 +7357,7 @@ static void compound_single_motion_search(
   // Restore the pointer to the first (possibly scaled) prediction buffer.
   if (ref_idx) pd->pre[0] = orig_yv12;
 
-  if (bestsme < last_besterr) {
-    *this_mv = *best_mv;
-    last_besterr = bestsme;
-  }
+  if (bestsme < INT_MAX) *this_mv = *best_mv;
 
   *rate_mv = 0;
 
@@ -7487,7 +7483,7 @@ static int estimate_wedge_sign(const AV1_COMP *cpi, const MACROBLOCK *x,
   const int f_index = bsize - BLOCK_8X8;
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
-  uint32_t esq[2][4], var;
+  uint32_t esq[2][4];
   int64_t tl, br;
 
 #if CONFIG_HIGHBITDEPTH
@@ -7497,23 +7493,22 @@ static int estimate_wedge_sign(const AV1_COMP *cpi, const MACROBLOCK *x,
   }
 #endif  // CONFIG_HIGHBITDEPTH
 
-  var = cpi->fn_ptr[f_index].vf(src, src_stride, pred0, stride0, &esq[0][0]);
-  var = cpi->fn_ptr[f_index].vf(src + bw / 2, src_stride, pred0 + bw / 2,
+  cpi->fn_ptr[f_index].vf(src, src_stride, pred0, stride0, &esq[0][0]);
+  cpi->fn_ptr[f_index].vf(src + bw / 2, src_stride, pred0 + bw / 2,
                                 stride0, &esq[0][1]);
-  var = cpi->fn_ptr[f_index].vf(src + bh / 2 * src_stride, src_stride,
+  cpi->fn_ptr[f_index].vf(src + bh / 2 * src_stride, src_stride,
                                 pred0 + bh / 2 * stride0, stride0, &esq[0][2]);
-  var = cpi->fn_ptr[f_index].vf(src + bh / 2 * src_stride + bw / 2, src_stride,
+  cpi->fn_ptr[f_index].vf(src + bh / 2 * src_stride + bw / 2, src_stride,
                                 pred0 + bh / 2 * stride0 + bw / 2, stride0,
                                 &esq[0][3]);
-  var = cpi->fn_ptr[f_index].vf(src, src_stride, pred1, stride1, &esq[1][0]);
-  var = cpi->fn_ptr[f_index].vf(src + bw / 2, src_stride, pred1 + bw / 2,
+  cpi->fn_ptr[f_index].vf(src, src_stride, pred1, stride1, &esq[1][0]);
+  cpi->fn_ptr[f_index].vf(src + bw / 2, src_stride, pred1 + bw / 2,
                                 stride1, &esq[1][1]);
-  var = cpi->fn_ptr[f_index].vf(src + bh / 2 * src_stride, src_stride,
+  cpi->fn_ptr[f_index].vf(src + bh / 2 * src_stride, src_stride,
                                 pred1 + bh / 2 * stride1, stride0, &esq[1][2]);
-  var = cpi->fn_ptr[f_index].vf(src + bh / 2 * src_stride + bw / 2, src_stride,
+  cpi->fn_ptr[f_index].vf(src + bh / 2 * src_stride + bw / 2, src_stride,
                                 pred1 + bh / 2 * stride1 + bw / 2, stride0,
                                 &esq[1][3]);
-  (void)var;
 
   tl = (int64_t)(esq[0][0] + esq[0][1] + esq[0][2]) -
        (int64_t)(esq[1][0] + esq[1][1] + esq[1][2]);
@@ -9085,7 +9080,8 @@ static int64_t handle_inter_mode(
       av1_combine_interintra(xd, bsize, 0, tmp_buf, bw, intrapred, bw);
       model_rd_for_sb(cpi, bsize, x, xd, 0, 0, &rate_sum, &dist_sum,
                       &tmp_skip_txfm_sb, &tmp_skip_sse_sb);
-      rd = RDCOST(x->rdmult, x->rddiv, rs + tmp_rate_mv + rate_sum, dist_sum);
+      rd = RDCOST(x->rdmult, x->rddiv, rs + tmp_rate_mv + rate_sum + rmode,
+    		  dist_sum);
       if (rd < best_interintra_rd) {
         best_interintra_rd = rd;
         best_interintra_mode = mbmi->interintra_mode;
@@ -9116,7 +9112,7 @@ static int64_t handle_inter_mode(
       if (rd != INT64_MAX)
         rd = RDCOST(x->rdmult, x->rddiv, rmode + rate_mv + rwedge + rate_sum,
                     dist_sum);
-      best_interintra_rd_nowedge = rd;
+      best_interintra_rd_nowedge = best_interintra_rd;
 
       // Disable wedge search if source variance is small
       if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh) {
@@ -9168,18 +9164,15 @@ static int64_t handle_inter_mode(
         best_interintra_rd_wedge = rd;
         if (best_interintra_rd_wedge < best_interintra_rd_nowedge) {
           mbmi->use_wedge_interintra = 1;
-          best_interintra_rd = best_interintra_rd_wedge;
           mbmi->mv[0].as_int = tmp_mv.as_int;
           rd_stats->rate += tmp_rate_mv - rate_mv;
           rate_mv = tmp_rate_mv;
         } else {
           mbmi->use_wedge_interintra = 0;
-          best_interintra_rd = best_interintra_rd_nowedge;
           mbmi->mv[0].as_int = cur_mv[0].as_int;
         }
       } else {
         mbmi->use_wedge_interintra = 0;
-        best_interintra_rd = best_interintra_rd_nowedge;
       }
     }
 #endif  // CONFIG_WEDGE
