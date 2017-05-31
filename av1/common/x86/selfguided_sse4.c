@@ -666,6 +666,17 @@ static void selfguided_restoration_3_h(int32_t *A, int32_t *B, int width,
 void av1_selfguided_restoration_sse4_1(uint8_t *dgd, int width, int height,
                                        int stride, int32_t *dst, int dst_stride,
                                        int r, int eps, int32_t *tmpbuf) {
+  // Don't filter tiles with dimensions < 5 on any axis
+  if ((width < 5) || (height < 5)) {
+    // We just copy 'dgd' to 'dst', without any filtering.
+    for (int row = 0; row < height; ++row) {
+      for (int col = 0; col < width; ++col) {
+        dst[row * dst_stride + col] = dgd[row * stride + col];
+      }
+    }
+    return;
+  }
+
   int32_t *A = tmpbuf;
   int32_t *B = A + SGRPROJ_OUTBUF_SIZE;
   int i, j;
@@ -673,9 +684,6 @@ void av1_selfguided_restoration_sse4_1(uint8_t *dgd, int width, int height,
   // leading to a significant speed improvement.
   // We also align the stride to a multiple of 16 bytes for efficiency.
   int buf_stride = ((width + 3) & ~3) + 16;
-
-  // Don't filter tiles with dimensions < 5 on any axis
-  if ((width < 5) || (height < 5)) return;
 
   if (r == 1) {
     selfguided_restoration_1_v(dgd, width, height, stride, A, B, buf_stride);
