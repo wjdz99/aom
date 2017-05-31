@@ -539,8 +539,7 @@ static INLINE int get_golomb_cost(int abs_qc) {
   }
 }
 
-// TODO(angiebird): add static once this function is called
-void gen_txb_cache(TxbCache *txb_cache, TxbInfo *txb_info) {
+static void gen_txb_cache(TxbCache *txb_cache, TxbInfo *txb_info) {
   const int16_t *scan = txb_info->scan_order->scan;
   gen_nz_count_arr(txb_cache->nz_count_arr, txb_info->qcoeff, txb_info->stride,
                    txb_info->eob, txb_info->scan_order);
@@ -753,10 +752,9 @@ static int try_neighbor_level_down_nz(int coeff_idx, int nb_coeff_idx,
   }
 }
 
-// TODO(angiebird): add static to this function once it's called
-int try_self_level_down(tran_low_t *low_coeff, int coeff_idx,
-                        const TxbCache *txb_cache, const TxbProbs *txb_probs,
-                        TxbInfo *txb_info) {
+static int try_self_level_down(tran_low_t *low_coeff, int coeff_idx,
+                               const TxbCache *txb_cache,
+                               const TxbProbs *txb_probs, TxbInfo *txb_info) {
   const tran_low_t qc = txb_info->qcoeff[coeff_idx];
   if (qc == 0) {
     *low_coeff = 0;
@@ -826,10 +824,9 @@ static INLINE int check_br_neighbor(tran_low_t qc) {
   return abs(qc) > BR_MAG_OFFSET;
 }
 
-// TODO(angiebird): add static to this function once it's called
-int try_level_down(int coeff_idx, const TxbCache *txb_cache,
-                   const TxbProbs *txb_probs, TxbInfo *txb_info,
-                   int (*cost_map)[COST_MAP_SIZE]) {
+static int try_level_down(int coeff_idx, const TxbCache *txb_cache,
+                          const TxbProbs *txb_probs, TxbInfo *txb_info,
+                          int (*cost_map)[COST_MAP_SIZE]) {
   if (cost_map) {
     for (int i = 0; i < COST_MAP_SIZE; ++i) av1_zero(cost_map[i]);
   }
@@ -944,9 +941,9 @@ static INLINE void set_eob(TxbInfo *txb_info, int eob) {
   txb_info->seg_eob = AOMMIN(eob, tx_size_2d[txb_info->tx_size] - 1);
 }
 
-// TODO(angiebird): add static to this function once it's called
-int try_change_eob(int *new_eob, int coeff_idx, const TxbCache *txb_cache,
-                   const TxbProbs *txb_probs, TxbInfo *txb_info) {
+static int try_change_eob(int *new_eob, int coeff_idx,
+                          const TxbCache *txb_cache, const TxbProbs *txb_probs,
+                          TxbInfo *txb_info) {
   assert(txb_info->eob > 0);
   const tran_low_t qc = txb_info->qcoeff[coeff_idx];
   const int abs_qc = abs(qc);
