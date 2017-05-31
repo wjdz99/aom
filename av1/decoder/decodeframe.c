@@ -2772,8 +2772,14 @@ static void decode_restoration_mode(AV1_COMMON *cm,
     rsi->frame_restoration_type =
         aom_rb_read_bit(rb) ? RESTORE_SWITCHABLE : RESTORE_NONE;
   }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+  for (p = AOM_PLANE_U; p < MAX_MB_PLANE; ++p) {
     rsi = &cm->rst_info[p];
+#if USE_JOINT_CHROMA_RESTORATION
+    if (p == AOM_PLANE_V) {
+      rsi->frame_restoration_type = cm->rst_info[1].frame_restoration_type;
+      break;
+    }
+#endif  // USE_JOINT_CHROMA_RESTORATION
     if (aom_rb_read_bit(rb)) {
       rsi->frame_restoration_type =
           aom_rb_read_bit(rb) ? RESTORE_SGRPROJ : RESTORE_WIENER;
@@ -2924,10 +2930,26 @@ static void decode_restoration(AV1_COMMON *cm, aom_reader *rb) {
       }
     }
   }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+  for (p = AOM_PLANE_U; p < MAX_MB_PLANE; ++p) {
+    rsi = &cm->rst_info[p];
+#if USE_JOINT_CHROMA_RESTORATION
+    if (p == AOM_PLANE_V) {
+      RestorationInfo *rsi2 = &cm->rst_info[p - 1];
+      for (i = 0; i < ntiles_uv; ++i) {
+        rsi->restoration_type[i] = rsi2->restoration_type[i];
+        if (rsi->restoration_type[i] == RESTORE_WIENER) {
+          memcpy(&rsi->wiener_info[i], &rsi2->wiener_info[i],
+                 sizeof(rsi->wiener_info[i]));
+        } else if (rsi->restoration_type[i] == RESTORE_SGRPROJ) {
+          memcpy(&rsi->sgrproj_info[i], &rsi2->sgrproj_info[i],
+                 sizeof(rsi->sgrproj_info[i]));
+        }
+      }
+      break;
+    }
+#endif  // USE_JOINT_CHROMA_RESTORATION
     set_default_wiener(&ref_wiener_info);
     set_default_sgrproj(&ref_sgrproj_info);
-    rsi = &cm->rst_info[p];
     if (rsi->frame_restoration_type == RESTORE_WIENER) {
       for (i = 0; i < ntiles_uv; ++i) {
         if (ntiles_uv > 1)
