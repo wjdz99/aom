@@ -855,6 +855,27 @@ static int count_wiener_bits(int wiener_win, WienerInfo *wiener_info,
   return bits;
 }
 
+static int validate_filter(InterpKernel fi) {
+  // Calculate the totals of the positive and negative coefficients separately.
+  int sum_pos = 0, sum_neg = 0;
+  for (int j = 0; j < WIENER_HALFWIN; ++j) {
+    if (fi[j] < 0)
+      sum_neg += 2 * fi[j];
+    else
+      sum_pos += 2 * fi[j];
+  }
+  sum_pos += (fi[WIENER_HALFWIN] + WIENER_FILT_STEP);
+  const int offset = 1 << (8 + WIENER_FILT_PREC_BITS - 1);
+
+  if (255 * sum_pos + offset >= (1 << (8 + WIENER_FILT_PREC_BITS + 1))) {
+    return 0;
+  } else if (255 * sum_neg + offset < 0) {
+    return 0;
+  }
+
+  return 1;
+}
+
 #define USE_WIENER_REFINEMENT_SEARCH 1
 static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
                                         const RestorationTileLimits *limits,
@@ -862,7 +883,14 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
                                         RestorationUnitInfo *rui,
                                         int wiener_win) {
   const int plane_off = (WIENER_WIN - wiener_win) >> 1;
-  int64_t err = try_restoration_tile(rsc, limits, tile, rui);
+
+  int64_t err;
+  if (validate_filter(rui->wiener_info.hfilter) &&
+      validate_filter(rui->wiener_info.vfilter)) {
+    err = try_restoration_tile(rsc, limits, tile, rui);
+  } else {
+    err = INT64_MAX - 1;
+  }
 #if USE_WIENER_REFINEMENT_SEARCH
   int64_t err2;
   int tap_min[] = { WIENER_FILT_TAP0_MINV, WIENER_FILT_TAP1_MINV,
@@ -882,7 +910,11 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
           plane_wiener->hfilter[p] -= s;
           plane_wiener->hfilter[WIENER_WIN - p - 1] -= s;
           plane_wiener->hfilter[WIENER_HALFWIN] += 2 * s;
-          err2 = try_restoration_tile(rsc, limits, tile, rui);
+          if (validate_filter(plane_wiener->hfilter)) {
+            err2 = try_restoration_tile(rsc, limits, tile, rui);
+          } else {
+            err2 = err + 1;
+          }
           if (err2 > err) {
             plane_wiener->hfilter[p] += s;
             plane_wiener->hfilter[WIENER_WIN - p - 1] += s;
@@ -902,7 +934,11 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
           plane_wiener->hfilter[p] += s;
           plane_wiener->hfilter[WIENER_WIN - p - 1] += s;
           plane_wiener->hfilter[WIENER_HALFWIN] -= 2 * s;
-          err2 = try_restoration_tile(rsc, limits, tile, rui);
+          if (validate_filter(plane_wiener->hfilter)) {
+            err2 = try_restoration_tile(rsc, limits, tile, rui);
+          } else {
+            err2 = err + 1;
+          }
           if (err2 > err) {
             plane_wiener->hfilter[p] -= s;
             plane_wiener->hfilter[WIENER_WIN - p - 1] -= s;
@@ -923,7 +959,11 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
           plane_wiener->vfilter[p] -= s;
           plane_wiener->vfilter[WIENER_WIN - p - 1] -= s;
           plane_wiener->vfilter[WIENER_HALFWIN] += 2 * s;
-          err2 = try_restoration_tile(rsc, limits, tile, rui);
+          if (validate_filter(plane_wiener->vfilter)) {
+            err2 = try_restoration_tile(rsc, limits, tile, rui);
+          } else {
+            err2 = err + 1;
+          }
           if (err2 > err) {
             plane_wiener->vfilter[p] += s;
             plane_wiener->vfilter[WIENER_WIN - p - 1] += s;
@@ -943,7 +983,11 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
           plane_wiener->vfilter[p] += s;
           plane_wiener->vfilter[WIENER_WIN - p - 1] += s;
           plane_wiener->vfilter[WIENER_HALFWIN] -= 2 * s;
-          err2 = try_restoration_tile(rsc, limits, tile, rui);
+          if (validate_filter(plane_wiener->vfilter)) {
+            err2 = try_restoration_tile(rsc, limits, tile, rui);
+          } else {
+            err2 = err + 1;
+          }
           if (err2 > err) {
             plane_wiener->vfilter[p] -= s;
             plane_wiener->vfilter[WIENER_WIN - p - 1] -= s;
@@ -1017,6 +1061,21 @@ static void search_wiener(const RestorationTileLimits *limits,
 
   aom_clear_system_state();
 
+  int16_t *fi = rui.wiener_info.vfilter;
+  if (!validate_filter(fi)) {
+    printf(
+        "Considering a filter which can cause overflow: vfilter = {%d, %d, "
+        "%d, %d, %d, %d, %d}\n",
+        fi[0], fi[1], fi[2], fi[3], fi[4], fi[5], fi[6]);
+  }
+  fi = rui.wiener_info.hfilter;
+  if (!validate_filter(fi)) {
+    printf(
+        "Considering a filter which can cause overflow: hfilter = {%d, %d, "
+        "%d, %d, %d, %d, %d}\n",
+        fi[0], fi[1], fi[2], fi[3], fi[4], fi[5], fi[6]);
+  }
+
   rusi->sse[RESTORE_WIENER] =
       finer_tile_search_wiener(rsc, limits, tile_rect, &rui, wiener_win);
   rusi->wiener = rui.wiener_info;
@@ -1037,6 +1096,10 @@ static void search_wiener(const RestorationTileLimits *limits,
       RDCOST_DBL(x->rdmult, bits_none >> 4, rusi->sse[RESTORE_NONE]);
   double cost_wiener =
       RDCOST_DBL(x->rdmult, bits_wiener >> 4, rusi->sse[RESTORE_WIENER]);
+
+  if (rusi->sse[RESTORE_WIENER] >= INT64_MAX - 1) {
+    cost_wiener = cost_none + 1;
+  }
 
   RestorationType rtype =
       (cost_wiener < cost_none) ? RESTORE_WIENER : RESTORE_NONE;
