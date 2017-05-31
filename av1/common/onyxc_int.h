@@ -386,7 +386,8 @@ typedef struct AV1Common {
   ENTROPY_CONTEXT *above_context[MAX_MB_PLANE];
 #if CONFIG_VAR_TX
   TXFM_CONTEXT *above_txfm_context;
-  TXFM_CONTEXT left_txfm_context[2 * MAX_MIB_SIZE];
+  TXFM_CONTEXT *top_txfm_context[MAX_MB_PLANE];
+  TXFM_CONTEXT left_txfm_context[MAX_MB_PLANE][2 * MAX_MIB_SIZE];
 #endif
   int above_context_alloc_cols;
 
