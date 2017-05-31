@@ -217,6 +217,64 @@ static int64_t get_pixel_proj_error(uint8_t *src8, int width, int height,
   return err;
 }
 
+#define USE_SGRPROJ_REFINEMENT_SEARCH 1
+static int64_t finer_search_pixel_proj_error(
+    uint8_t *src8, int width, int height, int src_stride, uint8_t *dat8,
+    int dat_stride, int bit_depth, int32_t *flt1, int flt1_stride,
+    int32_t *flt2, int flt2_stride, int start_step, int *xqd) {
+  int64_t err = get_pixel_proj_error(src8, width, height, src_stride, dat8,
+                                     dat_stride, bit_depth, flt1, flt1_stride,
+                                     flt2, flt2_stride, xqd);
+  printf("err  pre = %" PRId64 "\n", err);
+  (void)start_step;
+#if USE_SGRPROJ_REFINEMENT_SEARCH
+  int64_t err2;
+  int tap_min[] = { SGRPROJ_PRJ_MIN0, SGRPROJ_PRJ_MIN1 };
+  int tap_max[] = { SGRPROJ_PRJ_MAX0, SGRPROJ_PRJ_MAX1 };
+  for (int s = start_step; s >= 1; s >>= 1) {
+    for (int p = 0; p < 2; ++p) {
+      int skip = 0;
+      do {
+        if (xqd[p] - s >= tap_min[p]) {
+          xqd[p] -= s;
+          err2 = get_pixel_proj_error(src8, width, height, src_stride, dat8,
+                                      dat_stride, bit_depth, flt1, flt1_stride,
+                                      flt2, flt2_stride, xqd);
+          if (err2 > err) {
+            xqd[p] += s;
+          } else {
+            err = err2;
+            skip = 1;
+            // At the highest step size continue moving in the same direction
+            if (s == start_step) continue;
+          }
+        }
+        break;
+      } while (1);
+      if (skip) break;
+      do {
+        if (xqd[p] + s <= tap_max[p]) {
+          xqd[p] += s;
+          err2 = get_pixel_proj_error(src8, width, height, src_stride, dat8,
+                                      dat_stride, bit_depth, flt1, flt1_stride,
+                                      flt2, flt2_stride, xqd);
+          if (err2 > err) {
+            xqd[p] -= s;
+          } else {
+            err = err2;
+            // At the highest step size continue moving in the same direction
+            if (s == start_step) continue;
+          }
+        }
+        break;
+      } while (1);
+    }
+  }
+#endif  // USE_SGRPROJ_REFINEMENT_SEARCH
+  printf("err post = %" PRId64 "\n", err);
+  return err;
+}
+
 static void get_proj_subspace(uint8_t *src8, int width, int height,
                               int src_stride, uint8_t *dat8, int dat_stride,
                               int bit_depth, int32_t *flt1, int flt1_stride,
@@ -335,9 +393,9 @@ static void search_selfguided_restoration(uint8_t *dat8, int width, int height,
                       bit_depth, flt1, width, flt2, width, exq);
     aom_clear_system_state();
     encode_xq(exq, exqd);
-    err =
-        get_pixel_proj_error(src8, width, height, src_stride, dat8, dat_stride,
-                             bit_depth, flt1, width, flt2, width, exqd);
+    err = finer_search_pixel_proj_error(src8, width, height, src_stride, dat8,
+                                        dat_stride, bit_depth, flt1, width,
+                                        flt2, width, 2, exqd);
     if (besterr == -1 || err < besterr) {
       bestep = ep;
       besterr = err;
@@ -809,6 +867,7 @@ static int64_t finer_tile_search_wiener(const YV12_BUFFER_CONFIG *src,
                                         YV12_BUFFER_CONFIG *dst_frame) {
   int64_t err = try_restoration_tile(src, cpi, rsi, 1 << plane, partial_frame,
                                      tile_idx, 0, 0, dst_frame);
+  (void)start_step;
 #if USE_WIENER_REFINEMENT_SEARCH
   int64_t err2;
   int tap_min[] = { WIENER_FILT_TAP0_MINV, WIENER_FILT_TAP1_MINV,
