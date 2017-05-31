@@ -205,6 +205,29 @@ static INLINE int av1_get_rest_ntiles(int width, int height, int tilesize,
   return (nhtiles_ * nvtiles_);
 }
 
+static INLINE int is_restoration_same(int ntiles, const RestorationInfo *rsi1,
+                                      const RestorationInfo *rsi2) {
+  if (rsi1->frame_restoration_type == RESTORE_NONE &&
+      rsi2->frame_restoration_type == RESTORE_NONE)
+    return 1;
+  if (rsi1->restoration_tilesize != rsi2->restoration_tilesize) return 0;
+  if (memcmp(rsi1->restoration_type, rsi2->restoration_type,
+             ntiles * sizeof(*rsi1->restoration_type)))
+    return 0;
+  for (int tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
+    if (rsi1->restoration_type[tile_idx] == RESTORE_SGRPROJ) {
+      if (memcmp(&rsi1->sgrproj_info[tile_idx], &rsi2->sgrproj_info[tile_idx],
+                 sizeof(rsi1->sgrproj_info[tile_idx])))
+        return 0;
+    } else if (rsi1->restoration_type[tile_idx] == RESTORE_WIENER) {
+      if (memcmp(&rsi1->wiener_info[tile_idx], &rsi2->wiener_info[tile_idx],
+                 sizeof(rsi1->wiener_info[tile_idx])))
+        return 0;
+    }
+  }
+  return 1;
+}
+
 static INLINE void av1_get_rest_tile_limits(
     int tile_idx, int subtile_idx, int subtile_bits, int nhtiles, int nvtiles,
     int tile_width, int tile_height, int im_width, int im_height, int clamp_h,

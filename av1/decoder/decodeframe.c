@@ -2792,7 +2792,7 @@ static void decode_restoration_mode(AV1_COMMON *cm,
     rsi->frame_restoration_type =
         aom_rb_read_bit(rb) ? RESTORE_SWITCHABLE : RESTORE_NONE;
   }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+  for (p = AOM_PLANE_U; p < MAX_MB_PLANE; ++p) {
     rsi = &cm->rst_info[p];
     if (aom_rb_read_bit(rb)) {
       rsi->frame_restoration_type =
@@ -2801,6 +2801,11 @@ static void decode_restoration_mode(AV1_COMMON *cm,
       rsi->frame_restoration_type = RESTORE_NONE;
     }
   }
+  cm->rst_joint_uv = 0;
+  if (cm->rst_info[1].frame_restoration_type ==
+          cm->rst_info[2].frame_restoration_type &&
+      cm->rst_info[1].frame_restoration_type != RESTORE_NONE)
+    cm->rst_joint_uv = aom_rb_read_bit(rb);
 
   cm->rst_info[0].restoration_tilesize = RESTORATION_TILESIZE_MAX;
   cm->rst_info[1].restoration_tilesize = RESTORATION_TILESIZE_MAX;
@@ -2900,6 +2905,8 @@ static void decode_restoration(AV1_COMMON *cm, aom_reader *rb) {
   const int width = cm->width;
   const int height = cm->height;
 #endif  // CONFIG_FRAME_SUPERRES
+  const int uvwidth = ROUND_POWER_OF_TWO(width, cm->subsampling_x);
+  const int uvheight = ROUND_POWER_OF_TWO(height, cm->subsampling_y);
   SgrprojInfo ref_sgrproj_info;
   WienerInfo ref_wiener_info;
   set_default_wiener(&ref_wiener_info);
@@ -2908,9 +2915,8 @@ static void decode_restoration(AV1_COMMON *cm, aom_reader *rb) {
       av1_get_rest_ntiles(width, height, cm->rst_info[0].restoration_tilesize,
                           NULL, NULL, NULL, NULL);
   const int ntiles_uv = av1_get_rest_ntiles(
-      ROUND_POWER_OF_TWO(width, cm->subsampling_x),
-      ROUND_POWER_OF_TWO(height, cm->subsampling_y),
-      cm->rst_info[1].restoration_tilesize, NULL, NULL, NULL, NULL);
+      uvwidth, uvheight, cm->rst_info[1].restoration_tilesize, NULL, NULL, NULL,
+      NULL);
   RestorationInfo *rsi = &cm->rst_info[0];
   if (rsi->frame_restoration_type != RESTORE_NONE) {
     if (rsi->frame_restoration_type == RESTORE_SWITCHABLE) {
@@ -2944,10 +2950,28 @@ static void decode_restoration(AV1_COMMON *cm, aom_reader *rb) {
       }
     }
   }
-  for (p = 1; p < MAX_MB_PLANE; ++p) {
+  for (p = AOM_PLANE_U; p < MAX_MB_PLANE; ++p) {
+    rsi = &cm->rst_info[p];
+    if (p == AOM_PLANE_V) {
+      if (rsi->frame_restoration_type != RESTORE_NONE) {
+        if (cm->rst_joint_uv) {
+          RestorationInfo *rsi2 = &cm->rst_info[AOM_PLANE_U];
+          for (i = 0; i < ntiles_uv; ++i) {
+            rsi->restoration_type[i] = rsi2->restoration_type[i];
+            if (rsi->restoration_type[i] == RESTORE_WIENER) {
+              memcpy(&rsi->wiener_info[i], &rsi2->wiener_info[i],
+                     sizeof(rsi->wiener_info[i]));
+            } else if (rsi->restoration_type[i] == RESTORE_SGRPROJ) {
+              memcpy(&rsi->sgrproj_info[i], &rsi2->sgrproj_info[i],
+                     sizeof(rsi->sgrproj_info[i]));
+            }
+          }
+          break;
+        }
+      }
+    }
     set_default_wiener(&ref_wiener_info);
     set_default_sgrproj(&ref_sgrproj_info);
-    rsi = &cm->rst_info[p];
     if (rsi->frame_restoration_type == RESTORE_WIENER) {
       for (i = 0; i < ntiles_uv; ++i) {
         if (ntiles_uv > 1)

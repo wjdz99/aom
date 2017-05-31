@@ -328,6 +328,7 @@ typedef struct AV1Common {
 #if CONFIG_LOOP_RESTORATION
   RestorationInfo rst_info[MAX_MB_PLANE];
   RestorationInternal rst_internal;
+  int rst_joint_uv;
 #endif  // CONFIG_LOOP_RESTORATION
 
   // Flag signaling how frame contexts should be updated at the end of

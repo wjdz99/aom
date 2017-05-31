@@ -48,6 +48,7 @@
 #include "av1/encoder/mbgraph.h"
 #include "av1/encoder/picklpf.h"
 #if CONFIG_LOOP_RESTORATION
+#include "av1/common/restoration.h"
 #include "av1/encoder/pickrst.h"
 #endif  // CONFIG_LOOP_RESTORATION
 #include "av1/encoder/ratectrl.h"
@@ -512,8 +513,10 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   aom_free(cpi->extra_rstbuf);
   {
     int i;
-    for (i = 0; i < MAX_MB_PLANE; ++i)
+    for (i = 0; i < MAX_MB_PLANE; ++i) {
       av1_free_restoration_struct(&cpi->rst_search[i]);
+      av1_free_restoration_struct(&cpi->rst_uv[i]);
+    }
   }
 #endif  // CONFIG_LOOP_RESTORATION
   aom_free_frame_buffer(&cpi->scaled_source);
@@ -4042,6 +4045,14 @@ static void set_frame_size(AV1_COMP *cpi, int width, int height) {
     cpi->rst_search[i].restoration_tilesize =
         cm->rst_info[i].restoration_tilesize;
     av1_alloc_restoration_struct(cm, &cpi->rst_search[i],
+#if CONFIG_FRAME_SUPERRES
+                                 cm->superres_upscaled_width,
+                                 cm->superres_upscaled_height);
+#else
+                                 cm->width, cm->height);
+#endif  // CONFIG_FRAME_SUPERRES
+    cpi->rst_uv[i].restoration_tilesize = cm->rst_info[i].restoration_tilesize;
+    av1_alloc_restoration_struct(cm, &cpi->rst_uv[i],
 #if CONFIG_FRAME_SUPERRES
                                  cm->superres_upscaled_width,
                                  cm->superres_upscaled_height);
