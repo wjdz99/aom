@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a9367f4_381e9dc4",
+        "filename": "av1/common/txb_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-05-31T23:35:16Z",
+      "side": 1,
+      "message": "would this multiplication make the overall encoder slower given that this function gets called a lot?\n\nits value is always a power of 2, maybe latest compiler would automatically get it via shift?",
+      "range": {
+        "startLine": 80,
+        "startChar": 28,
+        "endLine": 80,
+        "endChar": 36
+      },
+      "revId": "56b57eb006d0521bf16ae52e840918cd69dcedb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
