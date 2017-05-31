@@ -847,7 +847,11 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #endif  // CONFIG_INTRA_INTERP
 
   (void)cm;
-  if (bsize < BLOCK_8X8) return;
+
+  mbmi->angle_delta[0] = 0;
+  mbmi->angle_delta[1] = 0;
+
+  if (!av1_use_angle_delta(bsize)) return;
 
   if (av1_is_directional_mode(mbmi->mode, bsize)) {
     mbmi->angle_delta[0] =
