@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a73058a_e6f2e4e9",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-05-31T22:38:04Z",
+      "side": 1,
+      "message": "Yes, that is valid point.",
+      "parentUuid": "a583ad57_058ed677",
+      "revId": "42de475c703df1dd677ee2d795d7e42b84dcdef9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c689fbef_b202cc08",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-31T22:15:35Z",
       "side": 1,
       "message": "so chroma is always weighted in as MSE?",
+      "revId": "42de475c703df1dd677ee2d795d7e42b84dcdef9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79ca6b61_1ed811ca",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 4175,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-05-31T22:38:04Z",
+      "side": 1,
+      "message": "I think, by \u0027weighted\u0027 you mean the D term in rd_cost \u003d D + lambda * R (while R is only weighted in fact). So, Yes if that was the case.\nOtherwise, the distortion (like sum_rdc.dist) used in calculating final rd_cost (i.e. like sum_rdc.rdcost below) is using both luma and chroma and daala_dist is replacing the luma distortion only and keep chroma distortion part in sum_rdc.dist.",
+      "parentUuid": "c689fbef_b202cc08",
       "revId": "42de475c703df1dd677ee2d795d7e42b84dcdef9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
