@@ -24,6 +24,9 @@ extern "C" {
 #define CLIP(x, lo, hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
 #define RINT(x) ((x) < 0 ? (int)((x)-0.5) : (int)((x) + 0.5))
 
+// Whether to use joint chroma restoration or separate
+#define USE_JOINT_CHROMA_RESTORATION 1
+
 #define RESTORATION_TILESIZE_MAX 256
 #define RESTORATION_TILEPELS_MAX \
   (RESTORATION_TILESIZE_MAX * RESTORATION_TILESIZE_MAX * 9 / 4)
