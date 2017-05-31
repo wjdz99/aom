@@ -1363,7 +1363,7 @@ typedef struct {
 // the non420 case).
 // Note: 'row_masks_ptr' and/or 'col_masks_ptr' can be passed NULL.
 static void get_filter_level_and_masks_non420(
-    AV1_COMMON *const cm, const struct macroblockd_plane *const plane,
+    AV1_COMMON *const cm, const struct macroblockd_plane *const plane, int pl,
     MODE_INFO **mib, int mi_row, int mi_col, int idx_r, uint8_t *const lfl_r,
     unsigned int *const mask_4x4_int_r_ptr,
     unsigned int *const mask_4x4_int_c_ptr, FilterMasks *const row_masks_ptr,
@@ -1435,14 +1435,19 @@ static void get_filter_level_and_masks_non420(
 
 #if CONFIG_VAR_TX
     TX_SIZE tx_size_r = AOMMIN(
-        tx_size, cm->above_txfm_context[(mi_col + c) << TX_UNIT_WIDE_LOG2]);
+        tx_size, cm->top_txfm_context[pl][(mi_col + c) << TX_UNIT_WIDE_LOG2]);
     TX_SIZE tx_size_c =
-        AOMMIN(tx_size, cm->left_txfm_context[((mi_row + r) & MAX_MIB_MASK)
-                                              << TX_UNIT_HIGH_LOG2]);
-
-    cm->above_txfm_context[(mi_col + c) << TX_UNIT_WIDE_LOG2] = tx_size;
-    cm->left_txfm_context[((mi_row + r) & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2] =
-        tx_size;
+        AOMMIN(tx_size, cm->left_txfm_context[pl][((mi_row + r) & MAX_MIB_MASK)
+                                                  << TX_UNIT_HIGH_LOG2]);
+    memset(cm->top_txfm_context[pl] + ((mi_col + c) << TX_UNIT_WIDE_LOG2),
+           tx_size,
+           AOMMAX(tx_size_wide_unit[tx_size],
+                  mi_size_wide[BLOCK_8X8] << (TX_UNIT_WIDE_LOG2 + ss_x)));
+    memset(cm->left_txfm_context[pl] +
+               (((mi_row + r) & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2),
+           tx_size,
+           AOMMAX(tx_size_high_unit[tx_size],
+                  mi_size_high[BLOCK_8X8] << (TX_UNIT_HIGH_LOG2 + ss_y)));
 #else
     TX_SIZE tx_size_c = txsize_horz_map[tx_size];
     TX_SIZE tx_size_r = txsize_vert_map[tx_size];
@@ -1530,8 +1535,8 @@ static void get_filter_level_and_masks_non420(
 
 void av1_filter_block_plane_non420_ver(AV1_COMMON *const cm,
                                        struct macroblockd_plane *plane,
-                                       MODE_INFO **mib, int mi_row,
-                                       int mi_col) {
+                                       MODE_INFO **mib, int mi_row, int mi_col,
+                                       int pl) {
   const int ss_y = plane->subsampling_y;
   const int row_step = mi_size_high[BLOCK_8X8] << ss_y;
   struct buf_2d *const dst = &plane->dst;
@@ -1544,7 +1549,7 @@ void av1_filter_block_plane_non420_ver(AV1_COMMON *const cm,
     unsigned int mask_4x4_int;
     FilterMasks col_masks;
     const int r = idx_r >> mi_height_log2_lookup[BLOCK_8X8];
-    get_filter_level_and_masks_non420(cm, plane, mib, mi_row, mi_col, idx_r,
+    get_filter_level_and_masks_non420(cm, plane, pl, mib, mi_row, mi_col, idx_r,
                                       &lfl[r][0], NULL, &mask_4x4_int, NULL,
                                       &col_masks);
 
@@ -1579,8 +1584,8 @@ void av1_filter_block_plane_non420_ver(AV1_COMMON *const cm,
 
 void av1_filter_block_plane_non420_hor(AV1_COMMON *const cm,
                                        struct macroblockd_plane *plane,
-                                       MODE_INFO **mib, int mi_row,
-                                       int mi_col) {
+                                       MODE_INFO **mib, int mi_row, int mi_col,
+                                       int pl) {
   const int ss_y = plane->subsampling_y;
   const int row_step = mi_size_high[BLOCK_8X8] << ss_y;
   struct buf_2d *const dst = &plane->dst;
@@ -1592,7 +1597,7 @@ void av1_filter_block_plane_non420_hor(AV1_COMMON *const cm,
   for (idx_r = 0; idx_r < cm->mib_size && mi_row + idx_r < cm->mi_rows;
        idx_r += row_step) {
     const int r = idx_r >> mi_height_log2_lookup[BLOCK_8X8];
-    get_filter_level_and_masks_non420(cm, plane, mib, mi_row, mi_col, idx_r,
+    get_filter_level_and_masks_non420(cm, plane, pl, mib, mi_row, mi_col, idx_r,
                                       &lfl[r][0], mask_4x4_int + r, NULL,
                                       row_masks_array + r, NULL);
   }
@@ -2192,12 +2197,15 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   int mi_row, mi_col;
 
 #if CONFIG_VAR_TX
-  memset(cm->above_txfm_context, TX_SIZES, cm->mi_cols << TX_UNIT_WIDE_LOG2);
+  for (int i = 0; i < MAX_MB_PLANE; ++i)
+    memset(cm->top_txfm_context[i], TX_SIZES, cm->mi_cols << TX_UNIT_WIDE_LOG2);
 #endif  // CONFIG_VAR_TX
   for (mi_row = start; mi_row < stop; mi_row += cm->mib_size) {
     MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
 #if CONFIG_VAR_TX
-    memset(cm->left_txfm_context, TX_SIZES, MAX_MIB_SIZE << TX_UNIT_WIDE_LOG2);
+    for (int i = 0; i < MAX_MB_PLANE; ++i)
+      memset(cm->left_txfm_context[i], TX_SIZES, MAX_MIB_SIZE
+                                                     << TX_UNIT_WIDE_LOG2);
 #endif  // CONFIG_VAR_TX
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += cm->mib_size) {
       int plane;
@@ -2206,9 +2214,9 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
 
       for (plane = 0; plane < num_planes; ++plane) {
         av1_filter_block_plane_non420_ver(cm, &planes[plane], mi + mi_col,
-                                          mi_row, mi_col);
+                                          mi_row, mi_col, plane);
         av1_filter_block_plane_non420_hor(cm, &planes[plane], mi + mi_col,
-                                          mi_row, mi_col);
+                                          mi_row, mi_col, plane);
       }
     }
   }

@@ -113,7 +113,7 @@ static INLINE void loop_filter_block_plane_ver(
         break;
       case LF_PATH_SLOW:
         av1_filter_block_plane_non420_ver(cm, &planes[plane], mi, mi_row,
-                                          mi_col);
+                                          mi_col, plane);
         break;
     }
   }
@@ -135,7 +135,7 @@ static INLINE void loop_filter_block_plane_hor(
         break;
       case LF_PATH_SLOW:
         av1_filter_block_plane_non420_hor(cm, &planes[plane], mi, mi_row,
-                                          mi_col);
+                                          mi_col, plane);
         break;
     }
   }
