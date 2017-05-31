@@ -740,7 +740,7 @@ static INLINE int has_subpel_mv_component(const MODE_INFO *const mi,
 #endif
 }
 
-static INLINE void set_default_interp_filters(
+static INLINE void set_default_interp_and_sgr_filters(
     MB_MODE_INFO *const mbmi, InterpFilter frame_interp_filter) {
 #if CONFIG_DUAL_FILTER
   int dir;
@@ -752,6 +752,7 @@ static INLINE void set_default_interp_filters(
   mbmi->interp_filter = frame_interp_filter == SWITCHABLE ? EIGHTTAP_REGULAR
                                                           : frame_interp_filter;
 #endif  // CONFIG_DUAL_FILTER
+  mbmi->use_self_guided_filter = 0;
 }
 
 static INLINE int av1_is_interp_needed(const MACROBLOCKD *const xd) {
