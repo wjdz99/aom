@@ -392,6 +392,11 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       cm->use_prev_frame_mvs
           ? cm->prev_frame->mvs + mi_row * cm->mi_cols + mi_col
           : NULL;
+
+//      cm->use_prev_frame_mvs ?
+//      cm->buffer_pool->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx].mvs +
+//      mi_row * cm->mi_cols + mi_col :
+//      NULL;
 #endif
 
   const int bs = AOMMAX(xd->n8_w, xd->n8_h);

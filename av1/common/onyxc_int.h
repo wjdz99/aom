@@ -105,8 +105,13 @@ typedef struct {
 } MV_REF;
 
 typedef struct {
+  int_mv ref_mv[INTER_REFS_PER_FRAME];
+} TPL_MV_REF;
+
+typedef struct {
   int ref_count;
   MV_REF *mvs;
+  TPL_MV_REF *tpl_mvs;
   int mi_rows;
   int mi_cols;
 #if CONFIG_GLOBAL_MOTION

@@ -3355,7 +3355,8 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
 static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, int buffer_idx) {
   RefCntBuffer *const new_fb_ptr = &cm->buffer_pool->frame_bufs[buffer_idx];
-  if (new_fb_ptr->mvs == NULL || new_fb_ptr->mi_rows < cm->mi_rows ||
+  if (new_fb_ptr->mvs == NULL || new_fb_ptr->tpl_mvs == NULL ||
+      new_fb_ptr->mi_rows < cm->mi_rows ||
       new_fb_ptr->mi_cols < cm->mi_cols) {
     aom_free(new_fb_ptr->mvs);
     CHECK_MEM_ERROR(cm, new_fb_ptr->mvs,
@@ -3363,6 +3364,10 @@ static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, int buffer_idx) {
                                          sizeof(*new_fb_ptr->mvs)));
     new_fb_ptr->mi_rows = cm->mi_rows;
     new_fb_ptr->mi_cols = cm->mi_cols;
+    aom_free(new_fb_ptr->tpl_mvs);
+    CHECK_MEM_ERROR(cm, new_fb_ptr->tpl_mvs,
+                    (TPL_MV_REF *)aom_calloc(cm->mi_rows * cm->mi_cols,
+                                             sizeof(*new_fb_ptr->tpl_mvs)));
   }
 }
 

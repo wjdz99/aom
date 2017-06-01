@@ -2905,6 +2905,11 @@ static void resize_mv_buffer(AV1_COMMON *cm) {
   CHECK_MEM_ERROR(cm, cm->cur_frame->mvs,
                   (MV_REF *)aom_calloc(cm->mi_rows * cm->mi_cols,
                                        sizeof(*cm->cur_frame->mvs)));
+
+  aom_free(cm->cur_frame->tpl_mvs);
+  CHECK_MEM_ERROR(cm, cm->cur_frame->tpl_mvs,
+                  (TPL_MV_REF *)aom_calloc(cm->mi_rows * cm->mi_cols,
+                                       sizeof(*cm->cur_frame->tpl_mvs)));
 }
 
 static void resize_context_buffers(AV1_COMMON *cm, int width, int height) {
@@ -2933,7 +2938,8 @@ static void resize_context_buffers(AV1_COMMON *cm, int width, int height) {
     cm->width = width;
     cm->height = height;
   }
-  if (cm->cur_frame->mvs == NULL || cm->mi_rows > cm->cur_frame->mi_rows ||
+  if (cm->cur_frame->mvs == NULL || cm->cur_frame->tpl_mvs == NULL ||
+      cm->mi_rows > cm->cur_frame->mi_rows ||
       cm->mi_cols > cm->cur_frame->mi_cols) {
     resize_mv_buffer(cm);
   }
