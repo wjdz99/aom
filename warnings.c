@@ -22,8 +22,7 @@
 #include "./aomenc.h"
 
 static const char quantizer_warning_string[] =
-    "Bad quantizer values. Quantizer values should not be equal, and should "
-    "differ by at least 8.";
+    "Bad quantizer values. min-q should be lower than max-q. ";
 
 struct WarningListNode {
   const char *warning_string;
@@ -71,7 +70,7 @@ static int continue_prompt(int num_warnings) {
 static void check_quantizer(int min_q, int max_q,
                             struct WarningList *warning_list) {
   const int lossless = min_q == 0 && max_q == 0;
-  if (!lossless && (min_q == max_q || abs(max_q - min_q) < 8))
+  if (!lossless && (min_q > max_q))
     add_warning(quantizer_warning_string, warning_list);
 }
 
