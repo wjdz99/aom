@@ -1356,8 +1356,8 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   } else {
     const BLOCK_SIZE tx_bsize = txsize_to_bsize[tx_size];
 #if !CONFIG_PVQ || CONFIG_DAALA_DIST
-    const int bsw = block_size_wide[tx_bsize];
-    const int bsh = block_size_high[tx_bsize];
+    const int txh = tx_size_high[tx_size];
+    const int txw = tx_size_wide[tx_size];
 #endif
     const int src_stride = x->plane[plane].src.stride;
     const int dst_stride = xd->plane[plane].dst.stride;
@@ -1375,7 +1375,7 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     assert(tx_size_wide_log2[0] == tx_size_high_log2[0]);
 
 #if CONFIG_DAALA_DIST
-    if (plane == 0 && bsw >= 8 && bsh >= 8) {
+    if (plane == 0 && txw >= 8 && txh >= 8) {
       if (output_status == OUTPUT_HAS_DECODED_PIXELS) {
         const int pred_stride = block_size_wide[plane_bsize];
         const int pred_idx = (blk_row * pred_stride + blk_col)
@@ -1384,13 +1384,13 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
         int i, j;
         DECLARE_ALIGNED(16, uint8_t, pred8[MAX_TX_SQUARE]);
 
-        for (j = 0; j < bsh; j++)
-          for (i = 0; i < bsw; i++)
-            pred8[j * bsw + i] = pred[j * pred_stride + i];
-        *out_sse = av1_daala_dist(src, src_stride, pred8, bsw, bsw, bsh, qm,
+        for (j = 0; j < txh; j++)
+          for (i = 0; i < txw; i++)
+            pred8[j * txw + i] = pred[j * pred_stride + i];
+        *out_sse = av1_daala_dist(src, src_stride, pred8, txw, txw, txh, qm,
                                   use_activity_masking, x->qindex);
       } else {
-        *out_sse = av1_daala_dist(src, src_stride, dst, dst_stride, bsw, bsh,
+        *out_sse = av1_daala_dist(src, src_stride, dst, dst_stride, txw, txh,
                                   qm, use_activity_masking, x->qindex);
       }
     } else
@@ -1412,8 +1412,8 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (eob) {
       if (output_status == OUTPUT_HAS_DECODED_PIXELS) {
 #if CONFIG_DAALA_DIST
-        if (plane == 0 && bsw >= 8 && bsh >= 8)
-          *out_dist = av1_daala_dist(src, src_stride, dst, dst_stride, bsw, bsh,
+        if (plane == 0 && txw >= 8 && txh >= 8)
+          *out_dist = av1_daala_dist(src, src_stride, dst, dst_stride, txw, txh,
                                      qm, use_activity_masking, x->qindex);
         else
 #endif  // CONFIG_DAALA_DIST
@@ -1437,11 +1437,11 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 #if CONFIG_HIGHBITDEPTH
         if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
           aom_highbd_convolve_copy(dst, dst_stride, recon, MAX_TX_SIZE, NULL, 0,
-                                   NULL, 0, bsw, bsh, xd->bd);
+                                   NULL, 0, txw, txh, xd->bd);
         } else {
 #endif  // CONFIG_HIGHBITDEPTH
           aom_convolve_copy(dst, dst_stride, recon, MAX_TX_SIZE, NULL, 0, NULL,
-                            0, bsw, bsh);
+                            0, txw, txh);
 #if CONFIG_HIGHBITDEPTH
         }
 #endif  // CONFIG_HIGHBITDEPTH
@@ -1456,9 +1456,9 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                     MAX_TX_SIZE, eob);
 
 #if CONFIG_DAALA_DIST
-        if (plane == 0 && bsw >= 8 && bsh >= 8) {
-          *out_dist = av1_daala_dist(src, src_stride, recon, MAX_TX_SIZE, bsw,
-                                     bsh, qm, use_activity_masking, x->qindex);
+        if (plane == 0 && txw >= 8 && txh >= 8) {
+          *out_dist = av1_daala_dist(src, src_stride, recon, MAX_TX_SIZE, txw,
+                                     txh, qm, use_activity_masking, x->qindex);
         } else {
           if (plane == 0) {
             // Save decoded pixels for inter block in pd->pred to avoid
@@ -1470,8 +1470,8 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
             int16_t *pred = &pd->pred[pred_idx];
             int i, j;
 
-            for (j = 0; j < bsh; j++)
-              for (i = 0; i < bsw; i++)
+            for (j = 0; j < txh; j++)
+              for (i = 0; i < txw; i++)
                 pred[j * pred_stride + i] = recon[j * MAX_TX_SIZE + i];
           }
 #endif  // CONFIG_DAALA_DIST
@@ -3950,7 +3950,10 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
   int bw = block_size_wide[txm_bsize];
   int txb_h = tx_size_high_unit[tx_size];
   int txb_w = tx_size_wide_unit[tx_size];
-
+#if CONFIG_DAALA_DIST
+  int txh = tx_size_high[tx_size];
+  int txw = tx_size_wide[tx_size];
+#endif
   int src_stride = p->src.stride;
   uint8_t *src =
       &p->src.buf[(blk_row * src_stride + blk_col) << tx_size_wide_log2[0]];
@@ -4004,9 +4007,9 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
 #endif  // CONFIG_HIGHBITDEPTH
 
 #if CONFIG_DAALA_DIST
-  if (plane == 0 && bw >= 8 && bh >= 8) {
+  if (plane == 0 && txw >= 8 && txh >= 8) {
     int use_activity_masking = 0;
-    tmp = av1_daala_dist(src, src_stride, dst, pd->dst.stride, bw, bh, 1,
+    tmp = av1_daala_dist(src, src_stride, dst, pd->dst.stride, txw, txh, 1,
                          use_activity_masking, x->qindex);
   } else
 #endif  // CONFIG_DAALA_DIST
@@ -4039,10 +4042,10 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
                               MAX_TX_SIZE, eob);
   if (eob > 0) {
 #if CONFIG_DAALA_DIST
-    if (plane == 0 && bw >= 8 && bh >= 8) {
+    if (plane == 0 && txw >= 8 && txh >= 8) {
       int use_activity_masking = 0;
-      tmp = av1_daala_dist(src, src_stride, rec_buffer, MAX_TX_SIZE, bw, bh, 1,
-                           use_activity_masking, x->qindex);
+      tmp = av1_daala_dist(src, src_stride, rec_buffer, MAX_TX_SIZE, txw, txh,
+                           1, use_activity_masking, x->qindex);
     } else {
       if (plane == 0) {
         // Save sub8x8 luma decoded pixels
@@ -4055,8 +4058,8 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
         int i, j;
 
         // TODO(yushin): HBD support
-        for (j = 0; j < bh; j++)
-          for (i = 0; i < bw; i++)
+        for (j = 0; j < txh; j++)
+          for (i = 0; i < txw; i++)
             decoded[j * pred_stride + i] = rec_buffer[j * MAX_TX_SIZE + i];
       }
 #endif  // CONFIG_DAALA_DIST
