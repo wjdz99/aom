@@ -632,9 +632,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
     p[i].txb_entropy_ctx = ctx->txb_entropy_ctx[i];
 #endif  // CONFIG_LV_MAP
   }
-#if CONFIG_PALETTE
   for (i = 0; i < 2; ++i) pd[i].color_index_map = ctx->color_index_map[i];
-#endif  // CONFIG_PALETTE
 
   // Restore the coding context of the MB to that that was in place
   // when the mode was picked for it
@@ -1367,9 +1365,7 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 #endif
   }
 
-#if CONFIG_PALETTE
   for (i = 0; i < 2; ++i) pd[i].color_index_map = ctx->color_index_map[i];
-#endif  // CONFIG_PALETTE
 
   ctx->skippable = 0;
 
@@ -5262,11 +5258,7 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
       ++counts->y_mode[size_group_lookup[bsize]][y_mode];
     }
 #if CONFIG_FILTER_INTRA
-    if (mbmi->mode == DC_PRED
-#if CONFIG_PALETTE
-        && mbmi->palette_mode_info.palette_size[0] == 0
-#endif  // CONFIG_PALETTE
-        ) {
+    if (mbmi->mode == DC_PRED && mbmi->palette_mode_info.palette_size[0] == 0) {
       const int use_filter_intra_mode =
           mbmi->filter_intra_mode_info.use_filter_intra_mode[0];
       ++counts->filter_intra[0][use_filter_intra_mode];
@@ -5277,10 +5269,7 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
         is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                             xd->plane[1].subsampling_y)
 #endif
-#if CONFIG_PALETTE
-        && mbmi->palette_mode_info.palette_size[1] == 0
-#endif  // CONFIG_PALETTE
-        ) {
+        && mbmi->palette_mode_info.palette_size[1] == 0) {
       const int use_filter_intra_mode =
           mbmi->filter_intra_mode_info.use_filter_intra_mode[1];
       ++counts->filter_intra[1][use_filter_intra_mode];
@@ -5523,7 +5512,6 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       sum_intra_stats(td->counts, xd, mi, xd->above_mi, xd->left_mi,
                       frame_is_intra_only(cm), mi_row, mi_col);
     }
-#if CONFIG_PALETTE
     if (bsize >= BLOCK_8X8 && !dry_run) {
       for (plane = 0; plane <= 1; ++plane) {
         if (mbmi->palette_mode_info.palette_size[plane] > 0) {
@@ -5535,7 +5523,6 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
         }
       }
     }
-#endif  // CONFIG_PALETTE
 #if CONFIG_VAR_TX
     mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
 #endif
