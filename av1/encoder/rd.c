@@ -81,7 +81,6 @@ static void fill_mode_costs(AV1_COMP *cpi) {
     av1_cost_tokens(cpi->switchable_interp_costs[i],
                     fc->switchable_interp_prob[i], av1_switchable_interp_tree);
 
-#if CONFIG_PALETTE
   for (i = 0; i < PALETTE_BLOCK_SIZES; ++i) {
     av1_cost_tokens(cpi->palette_y_size_cost[i],
                     av1_default_palette_y_size_prob[i], av1_palette_size_tree);
@@ -99,7 +98,6 @@ static void fill_mode_costs(AV1_COMP *cpi) {
                       av1_palette_color_index_tree[i]);
     }
   }
-#endif  // CONFIG_PALETTE
 
   for (i = 0; i < MAX_TX_DEPTH; ++i)
     for (j = 0; j < TX_SIZE_CONTEXTS; ++j)
