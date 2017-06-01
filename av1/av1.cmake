@@ -363,12 +363,10 @@ if (CONFIG_LV_MAP)
       "${AOM_ROOT}/av1/encoder/encodetxb.h")
 endif ()
 
-if (CONFIG_PALETTE)
   set(AOM_AV1_ENCODER_SOURCES
       ${AOM_AV1_ENCODER_SOURCES}
       "${AOM_ROOT}/av1/encoder/palette.c"
       "${AOM_ROOT}/av1/encoder/palette.h")
-endif ()
 
 if (CONFIG_CFL)
   set(AOM_AV1_COMMON_SOURCES
