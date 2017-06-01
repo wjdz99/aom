@@ -51,9 +51,7 @@
 #endif
 #include "av1/encoder/hybrid_fwd_txfm.h"
 #include "av1/encoder/mcomp.h"
-#if CONFIG_PALETTE
 #include "av1/encoder/palette.h"
-#endif  // CONFIG_PALETTE
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
@@ -400,7 +398,6 @@ static const REF_DEFINITION av1_ref_order[MAX_REFS] = {
   { { INTRA_FRAME, NONE_FRAME } },
 };
 
-#if CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
 static INLINE int write_uniform_cost(int n, int v) {
   const int l = get_unsigned_bits(n);
   const int m = (1 << l) - n;
@@ -410,7 +407,6 @@ static INLINE int write_uniform_cost(int n, int v) {
   else
     return l * av1_cost_bit(128, 0);
 }
-#endif  // CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
 
 // constants for prune 1 and prune 2 decision boundaries
 #define FAST_EXT_TX_CORR_MID 0.0
@@ -2418,7 +2414,6 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   return this_rd;
 }
 
-#if CONFIG_PALETTE
 // Extends 'color_map' array from 'orig_width x orig_height' to 'new_width x
 // new_height'. Extra rows and columns are filled in by copying last valid
 // row/column.
@@ -2653,7 +2648,6 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   *mbmi = *best_mbmi;
   return rate_overhead;
 }
-#endif  // CONFIG_PALETTE
 
 static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
     const AV1_COMP *const cpi, MACROBLOCK *x, int row, int col,
@@ -2726,9 +2720,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
 
   xd->mi[0]->mbmi.tx_size = tx_size;
 
-#if CONFIG_PALETTE
   xd->mi[0]->mbmi.palette_mode_info.palette_size[0] = 0;
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
@@ -3247,9 +3239,7 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   av1_zero(filter_intra_mode_info);
   mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 1;
   mbmi->mode = DC_PRED;
-#if CONFIG_PALETTE
   mbmi->palette_mode_info.palette_size[0] = 0;
-#endif  // CONFIG_PALETTE
 
   for (mode = 0; mode < FILTER_INTRA_MODES; ++mode) {
     int this_rate;
@@ -3637,7 +3627,6 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   uint16_t filter_intra_mode_skip_mask = (1 << FILTER_INTRA_MODES) - 1;
 #endif  // CONFIG_FILTER_INTRA
   const int *bmode_costs;
-#if CONFIG_PALETTE
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
   uint8_t *best_palette_color_map =
       cpi->common.allow_screen_content_tools
@@ -3646,7 +3635,6 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   int palette_y_mode_ctx = 0;
   const int try_palette =
       cpi->common.allow_screen_content_tools && bsize >= BLOCK_8X8;
-#endif  // CONFIG_PALETTE
   const MODE_INFO *above_mi = xd->above_mi;
   const MODE_INFO *left_mi = xd->left_mi;
   const PREDICTION_MODE A = av1_above_block_mode(mic, above_mi, 0);
@@ -3674,14 +3662,12 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #if CONFIG_FILTER_INTRA
   mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
 #endif  // CONFIG_FILTER_INTRA
-#if CONFIG_PALETTE
   pmi->palette_size[0] = 0;
   if (above_mi)
     palette_y_mode_ctx +=
         (above_mi->mbmi.palette_mode_info.palette_size[0] > 0);
   if (left_mi)
     palette_y_mode_ctx += (left_mi->mbmi.palette_mode_info.palette_size[0] > 0);
-#endif  // CONFIG_PALETTE
 
   if (cpi->sf.tx_type_search.fast_intra_tx_type_search)
     x->use_default_intra_tx_type = 1;
@@ -3739,14 +3725,12 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       // not the tokenonly rate.
       this_rate_tokenonly -= tx_size_cost(cpi, x, bsize, mbmi->tx_size);
     }
-#if CONFIG_PALETTE
     if (try_palette && mbmi->mode == DC_PRED) {
       this_rate +=
           av1_cost_bit(av1_default_palette_y_mode_prob[bsize - BLOCK_8X8]
                                                       [palette_y_mode_ctx],
                        0);
     }
-#endif  // CONFIG_PALETTE
 #if CONFIG_FILTER_INTRA
     if (mbmi->mode == DC_PRED)
       this_rate += av1_cost_bit(cpi->common.fc->filter_intra_probs[0], 0);
@@ -3801,14 +3785,12 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   x->cfl_store_y = 0;
 #endif
 
-#if CONFIG_PALETTE
   if (try_palette) {
     rd_pick_palette_intra_sby(cpi, x, bsize, palette_y_mode_ctx,
                               bmode_costs[DC_PRED], &best_mbmi,
                               best_palette_color_map, &best_rd, &best_model_rd,
                               rate, rate_tokenonly, distortion, skippable);
   }
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_FILTER_INTRA
   if (beat_best_rd) {
@@ -4523,7 +4505,6 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
 }
 #endif  // CONFIG_VAR_TX
 
-#if CONFIG_PALETTE
 static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
                                        int dc_mode_cost,
                                        uint8_t *best_palette_color_map,
@@ -4714,7 +4695,6 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
            rows * cols * sizeof(best_palette_color_map[0]));
   }
 }
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_FILTER_INTRA
 // Return 1 if an filter intra mode is selected; return 0 otherwise.
@@ -4734,9 +4714,7 @@ static int rd_pick_filter_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
   av1_zero(filter_intra_mode_info);
   mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 1;
   mbmi->uv_mode = DC_PRED;
-#if CONFIG_PALETTE
   mbmi->palette_mode_info.palette_size[1] = 0;
-#endif  // CONFIG_PALETTE
 
   for (mode = 0; mode < FILTER_INTRA_MODES; ++mode) {
     mbmi->filter_intra_mode_info.filter_intra_mode[1] = mode;
@@ -4860,9 +4838,7 @@ static int rd_pick_intra_angle_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
 
 static void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
   mbmi->uv_mode = DC_PRED;
-#if CONFIG_PALETTE
   mbmi->palette_mode_info.palette_size[1] = 0;
-#endif  // CONFIG_PALETTE
 #if CONFIG_FILTER_INTRA
   mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
 #endif  // CONFIG_FILTER_INTRA
@@ -4884,10 +4860,8 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   od_rollback_buffer buf;
   od_encode_checkpoint(&x->daala_enc, &buf);
 #endif  // CONFIG_PVQ
-#if CONFIG_PALETTE
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
   uint8_t *best_palette_color_map = NULL;
-#endif  // CONFIG_PALETTE
 
   for (mode = DC_PRED; mode <= TM_PRED; ++mode) {
 #if CONFIG_EXT_INTRA
@@ -4931,12 +4905,10 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (mbmi->sb_type >= BLOCK_8X8 && mode == DC_PRED)
       this_rate += av1_cost_bit(cpi->common.fc->filter_intra_probs[1], 0);
 #endif  // CONFIG_FILTER_INTRA
-#if CONFIG_PALETTE
     if (cpi->common.allow_screen_content_tools && mbmi->sb_type >= BLOCK_8X8 &&
         mode == DC_PRED)
       this_rate += av1_cost_bit(
           av1_default_palette_uv_mode_prob[pmi->palette_size[0] > 0], 0);
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_PVQ
     od_encode_rollback(&x->daala_enc, &buf);
@@ -4953,7 +4925,6 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
-#if CONFIG_PALETTE
   if (cpi->common.allow_screen_content_tools && mbmi->sb_type >= BLOCK_8X8) {
     best_palette_color_map = x->palette_buffer->best_palette_color_map;
     rd_pick_palette_intra_sbuv(cpi, x,
@@ -4961,7 +4932,6 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                best_palette_color_map, &best_mbmi, &best_rd,
                                rate, rate_tokenonly, distortion, skippable);
   }
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_FILTER_INTRA
   if (mbmi->sb_type >= BLOCK_8X8) {
@@ -9368,9 +9338,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     if (mv_check_bounds(&x->mv_limits, &dv)) continue;
     if (!is_dv_valid(dv, tile, mi_row, mi_col, bsize)) continue;
 
-#if CONFIG_PALETTE
     memset(&mbmi->palette_mode_info, 0, sizeof(mbmi->palette_mode_info));
-#endif
     mbmi->use_intrabc = 1;
     mbmi->mode = DC_PRED;
     mbmi->uv_mode = DC_PRED;
@@ -9586,7 +9554,6 @@ int av1_active_edge_sb(const AV1_COMP *cpi, int mi_row, int mi_col) {
          av1_active_v_edge(cpi, mi_col, cpi->common.mib_size);
 }
 
-#if CONFIG_PALETTE
 static void restore_uv_color_map(const AV1_COMP *const cpi, MACROBLOCK *x) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
@@ -9635,7 +9602,6 @@ static void restore_uv_color_map(const AV1_COMP *const cpi, MACROBLOCK *x) {
   extend_palette_color_map(color_map, cols, rows, plane_block_width,
                            plane_block_height);
 }
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_FILTER_INTRA
 static void pick_filter_intra_interframe(
@@ -9646,12 +9612,10 @@ static void pick_filter_intra_interframe(
 #if CONFIG_EXT_INTRA
     int8_t *uv_angle_delta,
 #endif  // CONFIG_EXT_INTRA
-#if CONFIG_PALETTE
-    PALETTE_MODE_INFO *pmi_uv, int palette_ctx,
-#endif  // CONFIG_PALETTE
-    int skip_mask, unsigned int *ref_costs_single, int64_t *best_rd,
-    int64_t *best_intra_rd, PREDICTION_MODE *best_intra_mode,
-    int *best_mode_index, int *best_skip2, int *best_mode_skippable,
+    PALETTE_MODE_INFO *pmi_uv, int palette_ctx, int skip_mask,
+    unsigned int *ref_costs_single, int64_t *best_rd, int64_t *best_intra_rd,
+    PREDICTION_MODE *best_intra_mode, int *best_mode_index, int *best_skip2,
+    int *best_mode_skippable,
 #if CONFIG_SUPERTX
     int *returnrate_nocoef,
 #endif  // CONFIG_SUPERTX
@@ -9659,9 +9623,7 @@ static void pick_filter_intra_interframe(
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-#if CONFIG_PALETTE
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
-#endif  // CONFIG_PALETTE
   int rate2 = 0, rate_y = INT_MAX, skippable = 0, rate_uv, rate_dummy, i;
   int dc_mode_index;
   const int *const intra_mode_cost = cpi->mbmode_cost[size_group_lookup[bsize]];
@@ -9695,9 +9657,7 @@ static void pick_filter_intra_interframe(
     choose_intra_uv_mode(cpi, x, ctx, bsize, uv_tx, &rate_uv_intra[uv_tx],
                          &rate_uv_tokenonly[uv_tx], &dist_uv[uv_tx],
                          &skip_uv[uv_tx], &mode_uv[uv_tx]);
-#if CONFIG_PALETTE
     if (cm->allow_screen_content_tools) pmi_uv[uv_tx] = *pmi;
-#endif  // CONFIG_PALETTE
     filter_intra_mode_info_uv[uv_tx] = mbmi->filter_intra_mode_info;
 #if CONFIG_EXT_INTRA
     uv_angle_delta[uv_tx] = mbmi->angle_delta[1];
@@ -9708,14 +9668,12 @@ static void pick_filter_intra_interframe(
   distortion_uv = dist_uv[uv_tx];
   skippable = skippable && skip_uv[uv_tx];
   mbmi->uv_mode = mode_uv[uv_tx];
-#if CONFIG_PALETTE
   if (cm->allow_screen_content_tools) {
     pmi->palette_size[1] = pmi_uv[uv_tx].palette_size[1];
     memcpy(pmi->palette_colors + PALETTE_MAX_SIZE,
            pmi_uv[uv_tx].palette_colors + PALETTE_MAX_SIZE,
            2 * PALETTE_MAX_SIZE * sizeof(pmi->palette_colors[0]));
   }
-#endif  // CONFIG_PALETTE
 #if CONFIG_EXT_INTRA
   mbmi->angle_delta[1] = uv_angle_delta[uv_tx];
 #endif  // CONFIG_EXT_INTRA
@@ -9728,12 +9686,10 @@ static void pick_filter_intra_interframe(
 
   rate2 = rate_y + intra_mode_cost[mbmi->mode] + rate_uv +
           cpi->intra_uv_mode_cost[mbmi->mode][mbmi->uv_mode];
-#if CONFIG_PALETTE
   if (cpi->common.allow_screen_content_tools && mbmi->mode == DC_PRED &&
       bsize >= BLOCK_8X8)
     rate2 += av1_cost_bit(
         av1_default_palette_y_mode_prob[bsize - BLOCK_8X8][palette_ctx], 0);
-#endif  // CONFIG_PALETTE
 
   if (!xd->lossless[mbmi->segment_id]) {
     // super_block_yrd above includes the cost of the tx_size in the
@@ -9829,11 +9785,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   const SPEED_FEATURES *const sf = &cpi->sf;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-#if CONFIG_PALETTE
   const int try_palette =
       cpi->common.allow_screen_content_tools && bsize >= BLOCK_8X8;
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
-#endif  // CONFIG_PALETTE
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const struct segmentation *const seg = &cm->seg;
   PREDICTION_MODE this_mode;
@@ -9879,9 +9833,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   int64_t dist_uvs[TX_SIZES_ALL];
   int skip_uvs[TX_SIZES_ALL];
   PREDICTION_MODE mode_uv[TX_SIZES_ALL];
-#if CONFIG_PALETTE
   PALETTE_MODE_INFO pmi_uv[TX_SIZES_ALL];
-#endif  // CONFIG_PALETTE
 #if CONFIG_EXT_INTRA
   int8_t uv_angle_delta[TX_SIZES_ALL];
   int is_directional_mode, angle_stats_ready = 0;
@@ -9928,15 +9880,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     { { 0 } },
   };
 
-#if CONFIG_PALETTE || CONFIG_EXT_INTRA
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
-#endif  // CONFIG_PALETTE || CONFIG_EXT_INTRA
-#if CONFIG_PALETTE
   int palette_ctx = 0;
   const MODE_INFO *above_mi = xd->above_mi;
   const MODE_INFO *left_mi = xd->left_mi;
-#endif  // CONFIG_PALETTE
 #if CONFIG_MOTION_VAR
 #if CONFIG_HIGHBITDEPTH
   DECLARE_ALIGNED(16, uint8_t, tmp_buf1[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
@@ -9978,7 +9926,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
   av1_zero(best_mbmode);
 
-#if CONFIG_PALETTE
   av1_zero(pmi_uv);
   if (try_palette) {
     if (above_mi)
@@ -9986,7 +9933,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     if (left_mi)
       palette_ctx += (left_mi->mbmi.palette_mode_info.palette_size[0] > 0);
   }
-#endif  // CONFIG_PALETTE
 
   estimate_ref_frame_costs(cm, xd, segment_id, ref_costs_single, ref_costs_comp,
                            &comp_mode_p);
@@ -10395,10 +10341,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     mbmi->uv_mode = DC_PRED;
     mbmi->ref_frame[0] = ref_frame;
     mbmi->ref_frame[1] = second_ref_frame;
-#if CONFIG_PALETTE
     pmi->palette_size[0] = 0;
     pmi->palette_size[1] = 0;
-#endif  // CONFIG_PALETTE
 #if CONFIG_FILTER_INTRA
     mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
     mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
@@ -10474,9 +10418,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         choose_intra_uv_mode(cpi, x, ctx, bsize, uv_tx, &rate_uv_intra[uv_tx],
                              &rate_uv_tokenonly[uv_tx], &dist_uvs[uv_tx],
                              &skip_uvs[uv_tx], &mode_uv[uv_tx]);
-#if CONFIG_PALETTE
         if (try_palette) pmi_uv[uv_tx] = *pmi;
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_EXT_INTRA
         uv_angle_delta[uv_tx] = mbmi->angle_delta[1];
@@ -10490,14 +10432,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       distortion_uv = dist_uvs[uv_tx];
       skippable = skippable && skip_uvs[uv_tx];
       mbmi->uv_mode = mode_uv[uv_tx];
-#if CONFIG_PALETTE
       if (try_palette) {
         pmi->palette_size[1] = pmi_uv[uv_tx].palette_size[1];
         memcpy(pmi->palette_colors + PALETTE_MAX_SIZE,
                pmi_uv[uv_tx].palette_colors + PALETTE_MAX_SIZE,
                2 * PALETTE_MAX_SIZE * sizeof(pmi->palette_colors[0]));
       }
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_EXT_INTRA
       mbmi->angle_delta[1] = uv_angle_delta[uv_tx];
@@ -10520,12 +10460,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
               cpi->intra_uv_mode_cost[mbmi->mode][mbmi->uv_mode];
 #endif  // CONFIG_CB4X4
 
-#if CONFIG_PALETTE
       if (try_palette && mbmi->mode == DC_PRED) {
         rate2 += av1_cost_bit(
             av1_default_palette_y_mode_prob[bsize - BLOCK_8X8][palette_ctx], 0);
       }
-#endif  // CONFIG_PALETTE
 
       if (!xd->lossless[mbmi->segment_id] && bsize >= BLOCK_8X8) {
         // super_block_yrd above includes the cost of the tx_size in the
@@ -11173,7 +11111,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     }
   }
 
-#if CONFIG_PALETTE
   // Only try palette mode when the best mode so far is an intra mode.
   if (try_palette && !is_inter_mode(best_mbmode.mode)) {
     int rate2 = 0;
@@ -11269,15 +11206,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     }
   }
 PALETTE_EXIT:
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_FILTER_INTRA
   // TODO(huisu): filter-intra is turned off in lossless mode for now to
   // avoid a unit test failure
-  if (!xd->lossless[mbmi->segment_id] &&
-#if CONFIG_PALETTE
-      pmi->palette_size[0] == 0 &&
-#endif  // CONFIG_PALETTE
+  if (!xd->lossless[mbmi->segment_id] && pmi->palette_size[0] == 0 &&
       !dc_skipped && best_mode_index >= 0 &&
       best_intra_rd < (best_rd + (best_rd >> 3))) {
     pick_filter_intra_interframe(
@@ -11286,11 +11219,8 @@ PALETTE_EXIT:
 #if CONFIG_EXT_INTRA
         uv_angle_delta,
 #endif  // CONFIG_EXT_INTRA
-#if CONFIG_PALETTE
-        pmi_uv, palette_ctx,
-#endif  // CONFIG_PALETTE
-        0, ref_costs_single, &best_rd, &best_intra_rd, &best_intra_mode,
-        &best_mode_index, &best_skip2, &best_mode_skippable,
+        pmi_uv, palette_ctx, 0, ref_costs_single, &best_rd, &best_intra_rd,
+        &best_intra_mode, &best_mode_index, &best_skip2, &best_mode_skippable,
 #if CONFIG_SUPERTX
         returnrate_nocoef,
 #endif  // CONFIG_SUPERTX
@@ -11557,11 +11487,9 @@ PALETTE_EXIT:
   store_coding_context(x, ctx, best_mode_index, best_pred_diff,
                        best_mode_skippable);
 
-#if CONFIG_PALETTE
   if (cm->allow_screen_content_tools && pmi->palette_size[1] > 0) {
     restore_uv_color_map(cpi, x);
   }
-#endif  // CONFIG_PALETTE
 }
 
 void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
@@ -11598,10 +11526,8 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
 
   assert(segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP));
 
-#if CONFIG_PALETTE
   mbmi->palette_mode_info.palette_size[0] = 0;
   mbmi->palette_mode_info.palette_size[1] = 0;
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_FILTER_INTRA
   mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
@@ -11830,10 +11756,8 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
     frame_mv[ZEROMV][ref_frame].as_int = 0;
   }
 
-#if CONFIG_PALETTE
   mbmi->palette_mode_info.palette_size[0] = 0;
   mbmi->palette_mode_info.palette_size[1] = 0;
-#endif  // CONFIG_PALETTE
 
   for (ref_index = 0; ref_index < MAX_REFS; ++ref_index) {
     int mode_excluded = 0;

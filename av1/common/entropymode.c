@@ -1374,8 +1374,6 @@ static const aom_prob default_comp_inter_mode_p[COMP_INTER_MODE_CONTEXTS] = {
 };
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
-#if CONFIG_PALETTE
-
 // Tree to code palette size (number of colors in a palette) and the
 // corresponding probabilities for Y and UV planes.
 const aom_tree_index av1_palette_size_tree[TREE_SIZE(PALETTE_SIZES)] = {
@@ -1606,8 +1604,6 @@ static const int palette_color_index_context_lookup[MAX_COLOR_CONTEXT_HASH +
                                                     1] = { -1, -1, 0, -1, -1,
                                                            4,  3,  2, 1 };
 
-#endif  // CONFIG_PALETTE
-
 // The transform size is coded as an offset to the smallest transform
 // block size.
 const aom_tree_index av1_tx_size_tree[MAX_TX_DEPTH][TREE_SIZE(TX_SIZES)] = {
@@ -1673,7 +1669,6 @@ static const aom_prob
     };
 #endif  // CONFIG_LOOP_RESTORATION
 
-#if CONFIG_PALETTE
 #define NUM_PALETTE_NEIGHBORS 3  // left, top-left and top.
 int av1_get_palette_color_index_context(const uint8_t *color_map, int stride,
                                         int r, int c, int palette_size,
@@ -1757,8 +1752,6 @@ int av1_get_palette_color_index_context(const uint8_t *color_map, int stride,
 }
 #undef NUM_PALETTE_NEIGHBORS
 #undef MAX_COLOR_CONTEXT_HASH
-
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_VAR_TX
 static const aom_prob default_txfm_partition_probs[TXFM_PARTITION_CONTEXTS] = {

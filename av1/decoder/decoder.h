@@ -56,9 +56,7 @@ typedef struct TileData {
 #if CONFIG_EC_ADAPT
   DECLARE_ALIGNED(16, FRAME_CONTEXT, tctx);
 #endif
-#if CONFIG_PALETTE
   DECLARE_ALIGNED(16, uint8_t, color_index_map[2][MAX_SB_SQUARE]);
-#endif  // CONFIG_PALETTE
 } TileData;
 
 typedef struct TileWorkerData {
@@ -78,9 +76,7 @@ typedef struct TileWorkerData {
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT tctx;
 #endif
-#if CONFIG_PALETTE
   DECLARE_ALIGNED(16, uint8_t, color_index_map[2][MAX_SB_SQUARE]);
-#endif  // CONFIG_PALETTE
   struct aom_internal_error_info error_info;
 } TileWorkerData;
 

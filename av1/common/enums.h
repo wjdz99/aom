@@ -293,7 +293,6 @@ typedef enum { CFL_PRED_U = 0, CFL_PRED_V = 1, CFL_PRED_PLANES } CFL_PRED_TYPE;
 typedef enum { CFL_SIGN_NEG = 0, CFL_SIGN_POS = 1, CFL_SIGNS } CFL_SIGN_TYPE;
 #endif
 
-#if CONFIG_PALETTE
 typedef enum {
   TWO_COLORS,
   THREE_COLORS,
@@ -316,7 +315,6 @@ typedef enum {
   PALETTE_COLOR_EIGHT,
   PALETTE_COLORS
 } PALETTE_COLOR;
-#endif  // CONFIG_PALETTE
 
 typedef enum ATTRIBUTE_PACKED {
   DC_PRED,    // Average of above and left pixels
