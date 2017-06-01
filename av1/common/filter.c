@@ -51,7 +51,7 @@ DECLARE_ALIGNED(16, static const int16_t,
 #if CONFIG_DUAL_FILTER
 DECLARE_ALIGNED(256, static const InterpKernel,
                 sub_pel_filters_8[SUBPEL_SHIFTS]) = {
-#if CONFIG_FILTER_7BIT
+#if CONFIG_FILTER_7BITsdf
   { 0, 0, 0, 128, 0, 0, 0, 0 },      { 0, 2, -6, 126, 8, -2, 0, 0 },
   { 0, 2, -10, 122, 18, -4, 0, 0 },  { 0, 2, -12, 116, 28, -8, 2, 0 },
   { 0, 2, -14, 110, 38, -10, 2, 0 }, { 0, 2, -14, 102, 48, -12, 2, 0 },
