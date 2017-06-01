@@ -22,6 +22,30 @@
       "revId": "5ba966998a65c7703789d0993e3d12f151ddac65",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a13be81_82003d4f",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-06-01T05:19:06Z",
+      "side": 1,
+      "message": "agreed, that\u0027s more straightforward.",
+      "parentUuid": "6aeba430_66331015",
+      "range": {
+        "startLine": 589,
+        "startChar": 1,
+        "endLine": 591,
+        "endChar": 28
+      },
+      "revId": "5ba966998a65c7703789d0993e3d12f151ddac65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
