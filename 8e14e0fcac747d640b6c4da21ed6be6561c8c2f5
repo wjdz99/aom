@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3adea33c_2d56c9c7",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 50
+      },
+      "lineNbr": 1998,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-01T00:03:45Z",
+      "side": 1,
+      "message": "Hi, sorry I just realized that I forgot to response your email regarding this function. Here if you want to use ref1, then we need to set mbmi-\u003emv[0].as_int \u003d mbmi-\u003emv[1].as_int because when it is a singleref mode, build_inter_predictors will use mbmi-\u003emv[0]",
+      "range": {
+        "startLine": 1996,
+        "startChar": 4,
+        "endLine": 1998,
+        "endChar": 44
+      },
+      "revId": "8e14e0fcac747d640b6c4da21ed6be6561c8c2f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
