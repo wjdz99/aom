@@ -318,7 +318,6 @@ static INLINE void add_token(TOKENEXTRA **t,
 }
 #endif  // !CONFIG_PVQ || CONFIG_VAR_TX
 
-#if CONFIG_PALETTE
 void av1_tokenize_palette_sb(const AV1_COMP *cpi,
                              const struct ThreadData *const td, int plane,
                              TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
@@ -365,7 +364,6 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
   }
   if (rate) *rate += this_rate;
 }
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_PVQ
 static void add_pvq_block(AV1_COMMON *const cm, MACROBLOCK *const x,

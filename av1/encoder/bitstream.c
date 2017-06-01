@@ -51,9 +51,9 @@
 #include "av1/encoder/cost.h"
 #include "av1/encoder/encodemv.h"
 #include "av1/encoder/mcomp.h"
-#if CONFIG_PALETTE && CONFIG_PALETTE_DELTA_ENCODING
+#if CONFIG_PALETTE_DELTA_ENCODING
 #include "av1/encoder/palette.h"
-#endif  // CONFIG_PALETTE && CONFIG_PALETTE_DELTA_ENCODING
+#endif  // CONFIG_PALETTE_DELTA_ENCODING
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/subexp.h"
 #include "av1/encoder/tokenize.h"
@@ -71,13 +71,10 @@ static const struct av1_token
       { 54, 6 }, { 55, 6 }, { 0, 1 },  { 7, 3 }
     };
 #endif  // CONFIG_EXT_INTER
-#if CONFIG_PALETTE
 static struct av1_token palette_size_encodings[PALETTE_SIZES];
 static struct av1_token palette_color_index_encodings[PALETTE_SIZES]
                                                      [PALETTE_COLORS];
-#endif  // CONFIG_PALETTE
 
-#if CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
 static INLINE void write_uniform(aom_writer *w, int n, int v) {
   const int l = get_unsigned_bits(n);
   const int m = (1 << l) - n;
@@ -89,7 +86,6 @@ static INLINE void write_uniform(aom_writer *w, int n, int v) {
     aom_write_literal(w, (v - m) & 1, 1);
   }
 }
-#endif  // CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
 
 #if CONFIG_EXT_TX
 static struct av1_token ext_tx_inter_encodings[EXT_TX_SETS_INTER][TX_TYPES];
@@ -129,9 +125,7 @@ static int remux_tiles(const AV1_COMMON *const cm, uint8_t *dst,
                        int *const tile_col_size_bytes);
 
 void av1_encode_token_init(void) {
-#if CONFIG_EXT_TX || CONFIG_PALETTE
   int s;
-#endif  // CONFIG_EXT_TX || CONFIG_PALETTE
 #if CONFIG_EXT_TX
   for (s = 1; s < EXT_TX_SETS_INTER; ++s) {
     av1_tokens_from_tree(ext_tx_inter_encodings[s], av1_ext_tx_inter_tree[s]);
@@ -146,13 +140,11 @@ void av1_encode_token_init(void) {
   av1_tokens_from_tree(switchable_interp_encodings, av1_switchable_interp_tree);
   av1_tokens_from_tree(partition_encodings, av1_partition_tree);
 
-#if CONFIG_PALETTE
   av1_tokens_from_tree(palette_size_encodings, av1_palette_size_tree);
   for (s = 0; s < PALETTE_SIZES; ++s) {
     av1_tokens_from_tree(palette_color_index_encodings[s],
                          av1_palette_color_index_tree[s]);
   }
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
   av1_tokens_from_tree(intra_filter_encodings, av1_intra_filter_tree);
@@ -766,7 +758,6 @@ static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
 }
 #endif  // CONFIG_EXT_TX
 #endif  // !CONFIG_EC_ADAPT
-#if CONFIG_PALETTE
 static void pack_palette_tokens(aom_writer *w, const TOKENEXTRA **tp, int n,
                                 int num) {
   int i;
@@ -781,7 +772,6 @@ static void pack_palette_tokens(aom_writer *w, const TOKENEXTRA **tp, int n,
 
   *tp = p;
 }
-#endif  // CONFIG_PALETTE
 
 #if !CONFIG_PVQ
 #if CONFIG_SUPERTX
@@ -1225,11 +1215,7 @@ static void write_filter_intra_mode_info(const AV1_COMMON *const cm,
                                          const MB_MODE_INFO *const mbmi,
                                          int mi_row, int mi_col,
                                          aom_writer *w) {
-  if (mbmi->mode == DC_PRED
-#if CONFIG_PALETTE
-      && mbmi->palette_mode_info.palette_size[0] == 0
-#endif  // CONFIG_PALETTE
-      ) {
+  if (mbmi->mode == DC_PRED && mbmi->palette_mode_info.palette_size[0] == 0) {
     aom_write(w, mbmi->filter_intra_mode_info.use_filter_intra_mode[0],
               cm->fc->filter_intra_probs[0]);
     if (mbmi->filter_intra_mode_info.use_filter_intra_mode[0]) {
@@ -1250,11 +1236,8 @@ static void write_filter_intra_mode_info(const AV1_COMMON *const cm,
   (void)mi_col;
 #endif  // CONFIG_CB4X4
 
-  if (mbmi->uv_mode == DC_PRED
-#if CONFIG_PALETTE
-      && mbmi->palette_mode_info.palette_size[1] == 0
-#endif  // CONFIG_PALETTE
-      ) {
+  if (mbmi->uv_mode == DC_PRED &&
+      mbmi->palette_mode_info.palette_size[1] == 0) {
     aom_write(w, mbmi->filter_intra_mode_info.use_filter_intra_mode[1],
               cm->fc->filter_intra_probs[1]);
     if (mbmi->filter_intra_mode_info.use_filter_intra_mode[1]) {
@@ -1349,7 +1332,6 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
   }
 }
 
-#if CONFIG_PALETTE
 #if CONFIG_PALETTE_DELTA_ENCODING
 // Transmit color values with delta encoding. Write the first value as
 // literal, and the deltas between each value and the previous one. "min_val" is
@@ -1536,7 +1518,6 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
   }
 }
-#endif  // CONFIG_PALETTE
 
 void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 #if CONFIG_SUPERTX
@@ -1826,10 +1807,8 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #if CONFIG_EXT_INTRA
     write_intra_angle_info(xd, ec_ctx, w);
 #endif  // CONFIG_EXT_INTRA
-#if CONFIG_PALETTE
     if (bsize >= BLOCK_8X8 && cm->allow_screen_content_tools)
       write_palette_mode_info(cm, xd, mi, w);
-#endif  // CONFIG_PALETTE
 #if CONFIG_FILTER_INTRA
     if (bsize >= BLOCK_8X8 || unify_bsize)
       write_filter_intra_mode_info(cm, xd, mbmi, mi_row, mi_col, w);
@@ -2181,10 +2160,8 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
 #if CONFIG_EXT_INTRA
   write_intra_angle_info(xd, ec_ctx, w);
 #endif  // CONFIG_EXT_INTRA
-#if CONFIG_PALETTE
   if (bsize >= BLOCK_8X8 && cm->allow_screen_content_tools)
     write_palette_mode_info(cm, xd, mi, w);
-#endif  // CONFIG_PALETTE
 #if CONFIG_FILTER_INTRA
   if (bsize >= BLOCK_8X8 || unify_bsize)
     write_filter_intra_mode_info(cm, xd, mbmi, mi_row, mi_col, w);
@@ -2358,7 +2335,6 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_DEPENDENT_HORZTILES
                  cm->mi_rows, cm->mi_cols);
 
-#if CONFIG_PALETTE
   for (plane = 0; plane <= 1; ++plane) {
     const uint8_t palette_size_plane =
         mbmi->palette_mode_info.palette_size[plane];
@@ -2375,7 +2351,6 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
       assert(*tok < tok_end + mbmi->skip);
     }
   }
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_COEF_INTERLEAVE
   if (!mbmi->skip) {
@@ -4330,14 +4305,10 @@ static void write_uncompressed_header(AV1_COMP *cpi,
     assert(cpi->common.ans_window_size_log2 < 24);
     aom_wb_write_literal(wb, cpi->common.ans_window_size_log2 - 8, 4);
 #endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
-#if CONFIG_PALETTE || CONFIG_INTRABC
     aom_wb_write_bit(wb, cm->allow_screen_content_tools);
-#endif  // CONFIG_PALETTE || CONFIG_INTRABC
   } else {
     if (!cm->show_frame) aom_wb_write_bit(wb, cm->intra_only);
-#if CONFIG_PALETTE || CONFIG_INTRABC
     if (cm->intra_only) aom_wb_write_bit(wb, cm->allow_screen_content_tools);
-#endif  // CONFIG_PALETTE || CONFIG_INTRABC
     if (!cm->error_resilient_mode) {
       if (cm->intra_only) {
         aom_wb_write_bit(wb,

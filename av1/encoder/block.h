@@ -91,12 +91,10 @@ typedef struct {
   int row_max;
 } MvLimits;
 
-#if CONFIG_PALETTE
 typedef struct {
   uint8_t best_palette_color_map[MAX_SB_SQUARE];
   float kmeans_data_buf[2 * MAX_SB_SQUARE];
 } PALETTE_BUFFER;
-#endif  // CONFIG_PALETTE
 
 typedef struct macroblock MACROBLOCK;
 struct macroblock {
@@ -151,9 +149,7 @@ struct macroblock {
   uint8_t *left_pred_buf;
 #endif  // CONFIG_MOTION_VAR
 
-#if CONFIG_PALETTE
   PALETTE_BUFFER *palette_buffer;
-#endif  // CONFIG_PALETTE
 
   // These define limits to motion vector components to prevent them
   // from extending outside the UMV borders
