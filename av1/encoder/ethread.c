@@ -132,6 +132,29 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
     if (thread_data->td != &cpi->td) {
       thread_data->td->mb = cpi->td.mb;
       thread_data->td->rd_counts = cpi->td.rd_counts;
+#if CONFIG_MOTION_VAR
+#if CONFIG_HIGHBITDEPTH
+      int buf_scaler = 2;
+#else
+      int buf_scaler = 1;
+#endif
+      CHECK_MEM_ERROR(cm, thread_data->td->mb.above_pred_buf,
+                      (uint8_t *)aom_memalign(
+                          16, buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
+                                  sizeof(*cpi->td.mb.above_pred_buf)));
+      CHECK_MEM_ERROR(cm, thread_data->td->mb.left_pred_buf,
+                      (uint8_t *)aom_memalign(
+                          16, buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
+                                  sizeof(*cpi->td.mb.left_pred_buf)));
+
+      CHECK_MEM_ERROR(cm, thread_data->td->mb.wsrc_buf,
+                      (int32_t *)aom_memalign(
+                          16, MAX_SB_SQUARE * sizeof(*cpi->td.mb.wsrc_buf)));
+
+      CHECK_MEM_ERROR(cm, thread_data->td->mb.mask_buf,
+                      (int32_t *)aom_memalign(
+                          16, MAX_SB_SQUARE * sizeof(*cpi->td.mb.mask_buf)));
+#endif
     }
     if (thread_data->td->counts != &cpi->common.counts) {
       memcpy(thread_data->td->counts, &cpi->common.counts,
