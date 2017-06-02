@@ -133,7 +133,7 @@ static INLINE unsigned int get_token_bit_costs(
 }
 
 #if !CONFIG_LV_MAP
-#define USE_GREEDY_OPTIMIZE_B 0
+#define USE_GREEDY_OPTIMIZE_B 1
 
 #if USE_GREEDY_OPTIMIZE_B
 
