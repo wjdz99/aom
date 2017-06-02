@@ -2909,7 +2909,7 @@ static void resize_mv_buffer(AV1_COMMON *cm) {
 
   aom_free(cm->cur_frame->tpl_mvs);
   CHECK_MEM_ERROR(cm, cm->cur_frame->tpl_mvs,
-                  (TPL_MV_REF *)aom_calloc(cm->mi_rows * cm->mi_cols,
+                  (TPL_MV_REF *)aom_calloc((cm->mi_rows + 16) * cm->mi_stride,
                                        sizeof(*cm->cur_frame->tpl_mvs)));
 }
 
@@ -5105,7 +5105,7 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
                            (cm->last_frame_type != KEY_FRAME);
 #endif  // CONFIG_TEMPMV_SIGNALING
 
-  cm->cur_frame->frame_offset = cm->frame_offset;
+  av1_setup_frame_buf_refs(cm);
   av1_setup_motion_field(cm);
 
   av1_setup_block_planes(xd, cm->subsampling_x, cm->subsampling_y);

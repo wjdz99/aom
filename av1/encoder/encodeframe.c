@@ -4821,7 +4821,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   } else {
     cm->frame_offset = cm->current_video_frame;
   }
-  cm->cur_frame->frame_offset = cm->frame_offset;
+  av1_setup_frame_buf_refs(cm);
 
   {
     struct aom_usec_timer emr_timer;

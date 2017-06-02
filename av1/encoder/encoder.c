@@ -3366,7 +3366,7 @@ static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, int buffer_idx) {
     new_fb_ptr->mi_cols = cm->mi_cols;
     aom_free(new_fb_ptr->tpl_mvs);
     CHECK_MEM_ERROR(cm, new_fb_ptr->tpl_mvs,
-                    (TPL_MV_REF *)aom_calloc(cm->mi_rows * cm->mi_cols,
+                    (TPL_MV_REF *)aom_calloc((cm->mi_rows + 16) * cm->mi_stride,
                                              sizeof(*new_fb_ptr->tpl_mvs)));
   }
 }

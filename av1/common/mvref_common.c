@@ -995,21 +995,130 @@ void av1_append_sub8x8_mvs_for_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 }
 
+void av1_setup_frame_buf_refs(AV1_COMMON *cm) {
+  cm->cur_frame->cur_frame_offset = cm->frame_offset;
+
+  int alt_buf_idx = cm->frame_refs[ALTREF_FRAME - LAST_FRAME].idx;
+  int lst_buf_idx = cm->frame_refs[LAST_FRAME - LAST_FRAME].idx;
+  int gld_buf_idx = cm->frame_refs[GOLDEN_FRAME - LAST_FRAME].idx;
+
+  if (alt_buf_idx >= 0)
+    cm->cur_frame->alt_frame_offset =
+        cm->buffer_pool->frame_bufs[alt_buf_idx].cur_frame_offset;
+
+  if (lst_buf_idx >= 0)
+    cm->cur_frame->lst_frame_offset =
+        cm->buffer_pool->frame_bufs[lst_buf_idx].cur_frame_offset;
+
+  if (gld_buf_idx >= 0)
+    cm->cur_frame->gld_frame_offset =
+        cm->buffer_pool->frame_bufs[gld_buf_idx].cur_frame_offset;
+}
+
 void av1_setup_motion_field(AV1_COMMON *cm) {
-  int cur_frame_index = cm->cur_frame->frame_offset;
+  int cur_frame_index = cm->cur_frame->cur_frame_offset;
+  int lst_frame_index = 0, alt_frame_index = 0, gld_frame_index = 0;
+  TPL_MV_REF *tpl_mvs_base = cm->cur_frame->tpl_mvs;
+
   for (int ref_frame = 0; ref_frame < INTER_REFS_PER_FRAME; ++ref_frame) {
-    for (int idx = 0; idx < cm->mi_rows * cm->mi_cols; ++idx)
-      cm->cur_frame->tpl_mvs[idx].mfmv[ref_frame].as_int = INVALID_MV;
+    int size = (cm->mi_rows + 16) * cm->mi_stride;
+    for (int idx = 0; idx < size; ++idx)
+      tpl_mvs_base[idx].mfmv[ref_frame].as_int = INVALID_MV;
   }
+
+  int alt_buf_idx = cm->frame_refs[ALTREF_FRAME - LAST_FRAME].idx;
+  int lst_buf_idx = cm->frame_refs[LAST_FRAME - LAST_FRAME].idx;
+  int gld_buf_idx = cm->frame_refs[GOLDEN_FRAME - LAST_FRAME].idx;
+
+  if (alt_buf_idx >= 0)
+    alt_frame_index = cm->buffer_pool->frame_bufs[alt_buf_idx].cur_frame_offset;
+
+  if (lst_buf_idx >= 0)
+    lst_frame_index = cm->buffer_pool->frame_bufs[lst_buf_idx].cur_frame_offset;
+
+  if (gld_buf_idx >= 0)
+    gld_frame_index = cm->buffer_pool->frame_bufs[gld_buf_idx].cur_frame_offset;
 
   // =======================
   // Process ARF frame
   // =======================
-  int frame_buf_idx = cm->frame_refs[ALTREF_FRAME - LAST_FRAME].idx;
+  if (alt_buf_idx >= 0) {
+    MV_REF *mv_ref_base = cm->buffer_pool->frame_bufs[alt_buf_idx].mvs;
+    const int lst_frame_idx =
+        cm->buffer_pool->frame_bufs[alt_buf_idx].lst_frame_offset;
+    const int gld_frame_idx =
+        cm->buffer_pool->frame_bufs[alt_buf_idx].gld_frame_offset;
 
-  if (frame_buf_idx >= 0) {
-    MV_REF *mv_ref_base = cm->buffer_pool->frame_bufs[frame_buf_idx].mvs;
-    int alt_frame_index = cm->buffer_pool->frame_bufs[frame_buf_idx].frame_offset;
+    int lst_offset = AOMMAX(1, alt_frame_index - lst_frame_idx);
+    int gld_offset = AOMMAX(1, alt_frame_index - gld_frame_idx);
+    int cur_offset = alt_frame_index - cur_frame_index;
+
+    for (int blk_row = 0; blk_row < cm->mi_rows; ++blk_row) {
+      for (int blk_col = 0; blk_col < cm->mi_cols; ++blk_col) {
+        MV_REF *mv_ref = &mv_ref_base[blk_row * cm->mi_cols + blk_col];
+        MV fwd_mv = mv_ref->mv[0].as_mv;
+        MV bck_mv = mv_ref->mv[1].as_mv;
+        MV_REFERENCE_FRAME ref_frame[2] = {
+            mv_ref->ref_frame[0], mv_ref->ref_frame[1]
+        };
+        if (ref_frame[0] == LAST_FRAME) {
+          int16_t mv_y = (int16_t)(fwd_mv.row * (double)cur_offset / lst_offset);
+          int16_t mv_x = (int16_t)(fwd_mv.col * (double)cur_offset / lst_offset);
+
+          int mi_r = blk_row + (mv_y >> (3 + MI_SIZE_LOG2));
+          int mi_c = blk_col + (mv_x >> (3 + MI_SIZE_LOG2));
+          int_mv this_mv;
+          this_mv.as_mv.row = -mv_y;
+          this_mv.as_mv.col = -mv_x;
+
+          mi_r = AOMMIN(mi_r, cm->mi_rows);
+          mi_r = AOMMAX(mi_r, 0);
+          mi_c = AOMMIN(mi_c, cm->mi_cols);
+          mi_c = AOMMAX(mi_c, 0);
+
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME].as_int =
+              this_mv.as_int;
+        }
+
+        if (ref_frame[0] == GOLDEN_FRAME) {
+          int16_t mv_y = (int16_t)(fwd_mv.row * (double)cur_offset / gld_offset);
+          int16_t mv_x = (int16_t)(fwd_mv.col * (double)cur_offset / gld_offset);
+
+          int mi_r = blk_row + (mv_y >> (3 + MI_SIZE_LOG2));
+          int mi_c = blk_col + (mv_x >> (3 + MI_SIZE_LOG2));
+          int_mv this_mv;
+          this_mv.as_mv.row = -mv_y;
+          this_mv.as_mv.col = -mv_x;
+
+          mi_r = AOMMIN(mi_r, cm->mi_rows);
+          mi_r = AOMMAX(mi_r, 0);
+          mi_c = AOMMIN(mi_c, cm->mi_cols);
+          mi_c = AOMMAX(mi_c, 0);
+
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME].as_int =
+              this_mv.as_int;
+        }
+
+      }
+    }
+  }
+
+  // ======================
+  // Process last frame
+  // ======================
+  if (lst_buf_idx >= 0) {
+    MV_REF *mv_ref_base = cm->buffer_pool->frame_bufs[lst_buf_idx].mvs;
+    const int lst_frame_idx =
+        cm->buffer_pool->frame_bufs[lst_buf_idx].lst_frame_offset;
+    const int alt_frame_idx =
+        cm->buffer_pool->frame_bufs[lst_buf_idx].alt_frame_offset;
+    const int gld_frame_idx =
+        cm->buffer_pool->frame_bufs[lst_buf_idx].gld_frame_offset;
+
+    int alt_offset = AOMMAX(1, alt_frame_idx - lst_frame_idx);
+    int lst_offset = AOMMAX(1, lst_frame_index - lst_frame_idx);
+    int gld_offset = AOMMAX(1, lst_frame_index - gld_frame_idx);
+    int cur_offset = cur_frame_index - lst_frame_index;
 
     for (int blk_row = 0; blk_row < cm->mi_rows; ++blk_row) {
       for (int blk_col = 0; blk_col < cm->mi_cols; ++blk_col) {
@@ -1027,14 +1136,11 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
   }
 
   // ======================
-  // Process Last frame
+  // Process golden frame
   // ======================
-  frame_buf_idx = cm->frame_refs[LAST_FRAME - LAST_FRAME].idx;
-
-  if (frame_buf_idx >= 0) {
+  if (gld_buf_idx >= 0) {
     MV_REF *mv_ref_base =
-        cm->buffer_pool->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx].mvs;
-    int lst_frame_index = cm->buffer_pool->frame_bufs[frame_buf_idx].frame_offset;
+        cm->buffer_pool->frame_bufs[gld_buf_idx].mvs;
 
     for (int blk_row = 0; blk_row < cm->mi_rows; ++blk_row) {
       for (int blk_col = 0; blk_col < cm->mi_cols; ++blk_col) {
@@ -1050,11 +1156,6 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
       }
     }
   }
-
-  //      cm->use_prev_frame_mvs ?
-  //      cm->buffer_pool->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx].mvs +
-  //      mi_row * cm->mi_cols + mi_col :
-  //      NULL;
 }
 
 #if CONFIG_WARPED_MOTION
