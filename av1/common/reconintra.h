@@ -44,28 +44,13 @@ void av1_predict_intra_block(const MACROBLOCKD *xd, int bw, int bh,
 #if CONFIG_EXT_INTER && CONFIG_INTERINTRA
 // Mapping of interintra to intra mode for use in the intra component
 static const PREDICTION_MODE interintra_to_intra_mode[INTERINTRA_MODES] = {
-  DC_PRED, V_PRED, H_PRED,
-#if CONFIG_ALT_INTRA
-  SMOOTH_PRED
-#else
-  TM_PRED
-#endif
+  DC_PRED, V_PRED, H_PRED, SMOOTH_PRED
 };
 
 // Mapping of intra mode to the interintra mode
 static const INTERINTRA_MODE intra_to_interintra_mode[INTRA_MODES] = {
-  II_DC_PRED,     II_V_PRED,     II_H_PRED, II_V_PRED,
-#if CONFIG_ALT_INTRA
-  II_SMOOTH_PRED,
-#else
-  II_TM_PRED,
-#endif
-  II_V_PRED,      II_H_PRED,     II_H_PRED, II_V_PRED,
-#if CONFIG_ALT_INTRA
-  II_SMOOTH_PRED, II_SMOOTH_PRED
-#else
-  II_TM_PRED
-#endif
+  II_DC_PRED, II_V_PRED, II_H_PRED, II_V_PRED,      II_SMOOTH_PRED, II_V_PRED,
+  II_H_PRED,  II_H_PRED, II_V_PRED, II_SMOOTH_PRED, II_SMOOTH_PRED
 };
 #endif  // CONFIG_EXT_INTER && CONFIG_INTERINTRA
 
@@ -76,13 +61,10 @@ static const INTERINTRA_MODE intra_to_interintra_mode[INTRA_MODES] = {
 #if CONFIG_EXT_INTRA
 static INLINE int av1_is_directional_mode(PREDICTION_MODE mode,
                                           BLOCK_SIZE bsize) {
-  return mode != DC_PRED && mode != TM_PRED &&
-#if CONFIG_ALT_INTRA
-         mode != SMOOTH_PRED &&
+  return mode != DC_PRED && mode != TM_PRED && mode != SMOOTH_PRED &&
 #if CONFIG_SMOOTH_HV
          mode != SMOOTH_V_PRED && mode != SMOOTH_H_PRED &&
 #endif  // CONFIG_SMOOTH_HV
-#endif  // CONFIG_ALT_INTRA
          bsize >= BLOCK_8X8;
 }
 #endif  // CONFIG_EXT_INTRA
