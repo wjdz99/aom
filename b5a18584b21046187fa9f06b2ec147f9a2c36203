@@ -22,6 +22,30 @@
       "revId": "b5a18584b21046187fa9f06b2ec147f9a2c36203",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2f4fe70_f5bcdc6c",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1038,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-06-02T01:24:19Z",
+      "side": 1,
+      "message": "Yup, we do.\nThe optimization code avoid to re-calculate the coefficient cost but calculate the cost difference directly.\nThe later one is at least 4-time faster than the former one, but it\u0027s harder to implement.\nTo test the correctness, I also write a former version as a reference.\nOnce we get feedback from hardware guys, we could make modification with proper testing.",
+      "parentUuid": "35c0062a_aeab7605",
+      "range": {
+        "startLine": 1038,
+        "startChar": 12,
+        "endLine": 1038,
+        "endChar": 27
+      },
+      "revId": "b5a18584b21046187fa9f06b2ec147f9a2c36203",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
