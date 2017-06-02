@@ -4813,6 +4813,16 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   av1_zero(x->blk_skip_drl);
 #endif
 
+  if (cm->show_frame == 0) {
+    int arf_offset =
+        AOMMIN(15,
+               cpi->twopass.gf_group.arf_src_offset[cpi->twopass.gf_group.index]);
+    cm->frame_offset = cm->current_video_frame + arf_offset;
+  } else {
+    cm->frame_offset = cm->current_video_frame;
+  }
+  cm->cur_frame->frame_offset = cm->frame_offset;
+
   {
     struct aom_usec_timer emr_timer;
     aom_usec_timer_start(&emr_timer);

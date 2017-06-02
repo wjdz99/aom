@@ -995,6 +995,68 @@ void av1_append_sub8x8_mvs_for_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 }
 
+void av1_setup_motion_field(AV1_COMMON *cm) {
+  int cur_frame_index = cm->cur_frame->frame_offset;
+  for (int ref_frame = 0; ref_frame < INTER_REFS_PER_FRAME; ++ref_frame) {
+    for (int idx = 0; idx < cm->mi_rows * cm->mi_cols; ++idx)
+      cm->cur_frame->tpl_mvs[idx].mfmv[ref_frame].as_int = INVALID_MV;
+  }
+
+  // =======================
+  // Process ARF frame
+  // =======================
+  int frame_buf_idx = cm->frame_refs[ALTREF_FRAME - LAST_FRAME].idx;
+
+  if (frame_buf_idx >= 0) {
+    MV_REF *mv_ref_base = cm->buffer_pool->frame_bufs[frame_buf_idx].mvs;
+    int alt_frame_index = cm->buffer_pool->frame_bufs[frame_buf_idx].frame_offset;
+
+    for (int blk_row = 0; blk_row < cm->mi_rows; ++blk_row) {
+      for (int blk_col = 0; blk_col < cm->mi_cols; ++blk_col) {
+        MV_REF *mv_ref = &mv_ref_base[blk_row * cm->mi_cols + blk_col];
+        MV fwd_mv = mv_ref->mv[0].as_mv;
+        MV bck_mv = mv_ref->mv[1].as_mv;
+        MV_REFERENCE_FRAME ref_frame[2] = {
+            mv_ref->ref_frame[0], mv_ref->ref_frame[1]
+        };
+        if (ref_frame[0] == LAST_FRAME) {
+
+        }
+      }
+    }
+  }
+
+  // ======================
+  // Process Last frame
+  // ======================
+  frame_buf_idx = cm->frame_refs[LAST_FRAME - LAST_FRAME].idx;
+
+  if (frame_buf_idx >= 0) {
+    MV_REF *mv_ref_base =
+        cm->buffer_pool->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx].mvs;
+    int lst_frame_index = cm->buffer_pool->frame_bufs[frame_buf_idx].frame_offset;
+
+    for (int blk_row = 0; blk_row < cm->mi_rows; ++blk_row) {
+      for (int blk_col = 0; blk_col < cm->mi_cols; ++blk_col) {
+        MV_REF *mv_ref = &mv_ref_base[blk_row * cm->mi_cols + blk_col];
+        MV fwd_mv = mv_ref->mv[0].as_mv;
+        MV bck_mv = mv_ref->mv[1].as_mv;
+        MV_REFERENCE_FRAME ref_frame[2] = {
+            mv_ref->ref_frame[0], mv_ref->ref_frame[1]
+        };
+        if (ref_frame[0] == LAST_FRAME) {
+
+        }
+      }
+    }
+  }
+
+  //      cm->use_prev_frame_mvs ?
+  //      cm->buffer_pool->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx].mvs +
+  //      mi_row * cm->mi_cols + mi_col :
+  //      NULL;
+}
+
 #if CONFIG_WARPED_MOTION
 void calc_projection_samples(MB_MODE_INFO *const mbmi, int x, int y,
                              int *pts_inref) {

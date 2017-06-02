@@ -105,11 +105,12 @@ typedef struct {
 } MV_REF;
 
 typedef struct {
-  int_mv ref_mv[INTER_REFS_PER_FRAME];
+  int_mv mfmv[INTER_REFS_PER_FRAME];
 } TPL_MV_REF;
 
 typedef struct {
   int ref_count;
+  int frame_offset;
   MV_REF *mvs;
   TPL_MV_REF *tpl_mvs;
   int mi_rows;
@@ -345,6 +346,7 @@ typedef struct AV1Common {
   FRAME_COUNTS counts;
 
   unsigned int current_video_frame;
+  unsigned int frame_offset;
   BITSTREAM_PROFILE profile;
 
   // AOM_BITS_8 in profile 0 or 1, AOM_BITS_10 or AOM_BITS_12 in profile 2 or 3.

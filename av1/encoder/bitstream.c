@@ -4423,6 +4423,13 @@ static void write_uncompressed_header(AV1_COMP *cpi,
     }
   }
 
+  if (cm->show_frame == 0) {
+    int arf_offset =
+        AOMMIN(15,
+               cpi->twopass.gf_group.arf_src_offset[cpi->twopass.gf_group.index]);
+    aom_wb_write_literal(wb, arf_offset, 4);
+  }
+
 #if CONFIG_REFERENCE_BUFFER
   cm->refresh_mask = cm->frame_type == KEY_FRAME ? 0xFF : get_refresh_mask(cpi);
 #endif
