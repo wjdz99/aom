@@ -2906,7 +2906,6 @@ static void combine_interintra(INTERINTRA_MODE mode, int use_wedge_interintra,
       }
       break;
 
-#if CONFIG_ALT_INTRA
     case II_SMOOTH_PRED:
       for (i = 0; i < bh; ++i) {
         for (j = 0; j < bw; ++j) {
@@ -2917,11 +2916,7 @@ static void combine_interintra(INTERINTRA_MODE mode, int use_wedge_interintra,
         }
       }
       break;
-#endif
 
-#if !CONFIG_ALT_INTRA
-    case II_TM_PRED:
-#endif
     case II_DC_PRED:
     default:
       for (i = 0; i < bh; ++i) {
@@ -2985,7 +2980,6 @@ static void combine_interintra_highbd(
       }
       break;
 
-#if CONFIG_ALT_INTRA
     case II_SMOOTH_PRED:
       for (i = 0; i < bh; ++i) {
         for (j = 0; j < bw; ++j) {
@@ -2996,11 +2990,7 @@ static void combine_interintra_highbd(
         }
       }
       break;
-#endif
 
-#if !CONFIG_ALT_INTRA
-    case II_TM_PRED:
-#endif
     case II_DC_PRED:
     default:
       for (i = 0; i < bh; ++i) {

@@ -359,13 +359,11 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
 
   { TM_PRED, { INTRA_FRAME, NONE_FRAME } },
 
-#if CONFIG_ALT_INTRA
   { SMOOTH_PRED, { INTRA_FRAME, NONE_FRAME } },
 #if CONFIG_SMOOTH_HV
   { SMOOTH_V_PRED, { INTRA_FRAME, NONE_FRAME } },
   { SMOOTH_H_PRED, { INTRA_FRAME, NONE_FRAME } },
 #endif  // CONFIG_SMOOTH_HV
-#endif  // CONFIG_ALT_INTRA
 
 #if CONFIG_EXT_INTER
   { NEAR_NEARMV, { LAST_FRAME, ALTREF_FRAME } },
@@ -4140,9 +4138,7 @@ static const uint8_t gradient_to_angle_bin[2][7][16] = {
 /* clang-format off */
 static const uint8_t mode_to_angle_bin[INTRA_MODES] = {
   0, 2, 6, 0, 4, 3, 5, 7, 1, 0,
-#if CONFIG_ALT_INTRA
   0,
-#endif  // CONFIG_ALT_INTRA
 };
 /* clang-format on */
 
