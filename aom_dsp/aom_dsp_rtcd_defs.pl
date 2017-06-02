@@ -54,14 +54,9 @@ foreach $w (@tx_dims) {
   }
 }
 
-@pred_names = qw/dc dc_top dc_left dc_128 v h d207e d63e d45e d117 d135 d153/;
-if (aom_config("CONFIG_ALT_INTRA") eq "yes") {
-  push @pred_names, qw/paeth smooth/;
-  if (aom_config("CONFIG_SMOOTH_HV") eq "yes") {
-    push @pred_names, qw/smooth_v smooth_h/;
-  }
-} else {
-  push @pred_names, 'tm';
+@pred_names = qw/dc dc_top dc_left dc_128 v h d207e d63e d45e d117 d135 d153 paeth smooth/;
+if (aom_config("CONFIG_SMOOTH_HV") eq "yes") {
+  push @pred_names, qw/smooth_v smooth_h/;
 }
 
 #
@@ -85,9 +80,6 @@ specialize qw/aom_h_predictor_4x4 neon dspr2 msa sse2/;
 specialize qw/aom_d135_predictor_4x4 neon/;
 specialize qw/aom_d153_predictor_4x4 ssse3/;
 specialize qw/aom_v_predictor_4x4 neon msa sse2/;
-if (aom_config("CONFIG_ALT_INTRA") eq "") {
-  specialize qw/aom_tm_predictor_4x4 neon dspr2 msa sse2/;
-}  # CONFIG_ALT_INTRA
 specialize qw/aom_dc_predictor_4x4 dspr2 msa neon sse2/;
 specialize qw/aom_dc_top_predictor_4x4 msa neon sse2/;
 specialize qw/aom_dc_left_predictor_4x4 msa neon sse2/;
@@ -95,9 +87,6 @@ specialize qw/aom_dc_128_predictor_4x4 msa neon sse2/;
 specialize qw/aom_h_predictor_8x8 neon dspr2 msa sse2/;
 specialize qw/aom_d153_predictor_8x8 ssse3/;
 specialize qw/aom_v_predictor_8x8 neon msa sse2/;
-if (aom_config("CONFIG_ALT_INTRA") eq "") {
-  specialize qw/aom_tm_predictor_8x8 neon dspr2 msa sse2/;
-}  # CONFIG_ALT_INTRA
 specialize qw/aom_dc_predictor_8x8 dspr2 neon msa sse2/;
 specialize qw/aom_dc_top_predictor_8x8 neon msa sse2/;
 specialize qw/aom_dc_left_predictor_8x8 neon msa sse2/;
@@ -105,9 +94,6 @@ specialize qw/aom_dc_128_predictor_8x8 neon msa sse2/;
 specialize qw/aom_h_predictor_16x16 neon dspr2 msa sse2/;
 specialize qw/aom_d153_predictor_16x16 ssse3/;
 specialize qw/aom_v_predictor_16x16 neon msa sse2/;
-if (aom_config("CONFIG_ALT_INTRA") eq "") {
-  specialize qw/aom_tm_predictor_16x16 neon msa sse2/;
-}  # CONFIG_ALT_INTRA
 specialize qw/aom_dc_predictor_16x16 dspr2 neon msa sse2/;
 specialize qw/aom_dc_top_predictor_16x16 neon msa sse2/;
 specialize qw/aom_dc_left_predictor_16x16 neon msa sse2/;
@@ -115,9 +101,6 @@ specialize qw/aom_dc_128_predictor_16x16 neon msa sse2/;
 specialize qw/aom_h_predictor_32x32 neon msa sse2/;
 specialize qw/aom_d153_predictor_32x32 ssse3/;
 specialize qw/aom_v_predictor_32x32 neon msa sse2/;
-if (aom_config("CONFIG_ALT_INTRA") eq "") {
-  specialize qw/aom_tm_predictor_32x32 neon msa sse2/;
-}  # CONFIG_ALT_INTRA
 specialize qw/aom_dc_predictor_32x32 msa neon sse2/;
 specialize qw/aom_dc_top_predictor_32x32 msa neon sse2/;
 specialize qw/aom_dc_left_predictor_32x32 msa neon sse2/;
@@ -125,24 +108,12 @@ specialize qw/aom_dc_128_predictor_32x32 msa neon sse2/;
 
 if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
   specialize qw/aom_highbd_v_predictor_4x4 sse2/;
-  if (aom_config("CONFIG_ALT_INTRA") eq "") {
-    specialize qw/aom_highbd_tm_predictor_4x4 sse2/;
-  }  # CONFIG_ALT_INTRA
   specialize qw/aom_highbd_dc_predictor_4x4 sse2/;
   specialize qw/aom_highbd_v_predictor_8x8 sse2/;
-  if (aom_config("CONFIG_ALT_INTRA") eq "") {
-    specialize qw/aom_highbd_tm_predictor_8x8 sse2/;
-  }  # CONFIG_ALT_INTRA
   specialize qw/aom_highbd_dc_predictor_8x8 sse2/;;
   specialize qw/aom_highbd_v_predictor_16x16 sse2/;
-  if (aom_config("CONFIG_ALT_INTRA") eq "") {
-    specialize qw/aom_highbd_tm_predictor_16x16 sse2/;
-  }  # CONFIG_ALT_INTRA
   specialize qw/aom_highbd_dc_predictor_16x16 sse2/;
   specialize qw/aom_highbd_v_predictor_32x32 sse2/;
-  if (aom_config("CONFIG_ALT_INTRA") eq "") {
-    specialize qw/aom_highbd_tm_predictor_32x32 sse2/;
-  }  # CONFIG_ALT_INTRA
   specialize qw/aom_highbd_dc_predictor_32x32 sse2/;
 }  # CONFIG_HIGHBITDEPTH
 
