@@ -685,6 +685,9 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
         THR_D63_PRED /*D63_PRED*/,
 #if CONFIG_ALT_INTRA
         THR_SMOOTH, /*SMOOTH_PRED*/
+        THR_LEAST, /*LEAST_PRED*/
+	THR_ISLE, /*ISLE_PRED*/
+	THR_PRDCT, /*PRDCT_PRED*/
 #if CONFIG_SMOOTH_HV
         THR_SMOOTH_V, /*SMOOTH_V_PRED*/
         THR_SMOOTH_H, /*SMOOTH_H_PRED*/
