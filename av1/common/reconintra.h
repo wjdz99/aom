@@ -78,7 +78,7 @@ static INLINE int av1_is_directional_mode(PREDICTION_MODE mode,
                                           BLOCK_SIZE bsize) {
   return mode != DC_PRED && mode != TM_PRED &&
 #if CONFIG_ALT_INTRA
-         mode != SMOOTH_PRED &&
+         mode != SMOOTH_PRED && mode != LEAST_PRED && mode != ISLE_PRED && mode != PRDCT_PRED &&
 #if CONFIG_SMOOTH_HV
          mode != SMOOTH_V_PRED && mode != SMOOTH_H_PRED &&
 #endif  // CONFIG_SMOOTH_HV
