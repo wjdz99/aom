@@ -53,6 +53,9 @@ static const int mode_2_counter[] = {
   9,  // D63_PRED
 #if CONFIG_ALT_INTRA
   9,  // SMOOTH_PRED
+  9,  // LEAST_PRED
+  9,  // ISLE_PRED
+  9,  // PRDCT_PRED
 #if CONFIG_SMOOTH_HV
   9,    // SMOOTH_V_PRED
   9,    // SMOOTH_H_PRED

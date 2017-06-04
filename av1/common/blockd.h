@@ -141,6 +141,9 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,  // D63_PRED
 #if CONFIG_ALT_INTRA
     MB_MODE_COUNT,  // SMOOTH_PRED
+    MB_MODE_COUNT,  // LEAST_PRED
+    MB_MODE_COUNT,  // ISLE_PRED
+    MB_MODE_COUNT,  // PRDCT_PRED
 #if CONFIG_SMOOTH_HV
     MB_MODE_COUNT,  // SMOOTH_V_PRED
     MB_MODE_COUNT,  // SMOOTH_H_PRED
@@ -185,6 +188,9 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,  // D63_PRED
 #if CONFIG_ALT_INTRA
     MB_MODE_COUNT,  // SMOOTH_PRED
+    MB_MODE_COUNT,  // LEAST_PRED
+    MB_MODE_COUNT,  // ISLE_PRED
+    MB_MODE_COUNT,  // PRDCT_PRED
 #if CONFIG_SMOOTH_HV
     MB_MODE_COUNT,  // SMOOTH_V_PRED
     MB_MODE_COUNT,  // SMOOTH_H_PRED
@@ -706,6 +712,9 @@ static const TX_TYPE intra_mode_to_tx_type_context[INTRA_MODES] = {
   ADST_DCT,   // D63
 #if CONFIG_ALT_INTRA
   ADST_ADST,  // SMOOTH
+  DCT_DCT,  // LEAST
+  DCT_DCT,  // ISLE
+  DCT_DCT,  // PRDCT
 #if CONFIG_SMOOTH_HV
   ADST_DCT,   // SMOOTH_V
   DCT_ADST,   // SMOOTH_H
@@ -979,7 +988,7 @@ extern const int16_t dr_intra_derivative[90];
 static const uint8_t mode_to_angle_map[] = {
   0, 90, 180, 45, 135, 111, 157, 203, 67, 0,
 #if CONFIG_ALT_INTRA
-  0,
+  0, 0, 0, 0,
 #if CONFIG_SMOOTH_HV
   0, 0,
 #endif  // CONFIG_SMOOTH_HV

@@ -47,7 +47,10 @@ static const uint8_t extend_modes[INTRA_MODES] = {
   NEED_LEFT | NEED_BOTTOMLEFT,              // D207
   NEED_ABOVE | NEED_ABOVERIGHT,             // D63
 #if CONFIG_ALT_INTRA
-  NEED_LEFT | NEED_ABOVE,  // SMOOTH
+  NEED_LEFT | NEED_ABOVE,  		    // SMOOTH
+  NEED_LEFT | NEED_ABOVE,                   // LEAST
+  NEED_LEFT | NEED_ABOVE | NEED_ABOVELEFT,  // ISLE
+  NEED_LEFT | NEED_ABOVE,                   // PRDCT
 #if CONFIG_SMOOTH_HV
   NEED_LEFT | NEED_ABOVE,                   // SMOOTH_V
   NEED_LEFT | NEED_ABOVE,                   // SMOOTH_H
@@ -603,6 +606,9 @@ static void av1_init_intra_predictors_internal(void) {
 #if CONFIG_ALT_INTRA
   INIT_ALL_SIZES(pred[TM_PRED], paeth);
   INIT_ALL_SIZES(pred[SMOOTH_PRED], smooth);
+  INIT_ALL_SIZES(pred[LEAST_PRED], least);
+  INIT_ALL_SIZES(pred[ISLE_PRED], isle);
+  INIT_ALL_SIZES(pred[PRDCT_PRED], prdct);
 #if CONFIG_SMOOTH_HV
   INIT_ALL_SIZES(pred[SMOOTH_V_PRED], smooth_v);
   INIT_ALL_SIZES(pred[SMOOTH_H_PRED], smooth_h);
@@ -629,6 +635,9 @@ static void av1_init_intra_predictors_internal(void) {
 #if CONFIG_ALT_INTRA
   INIT_ALL_SIZES(pred_high[TM_PRED], highbd_paeth);
   INIT_ALL_SIZES(pred_high[SMOOTH_PRED], highbd_smooth);
+  INIT_ALL_SIZES(pred_high[LEAST_PRED], highbd_least);
+  INIT_ALL_SIZES(pred_high[ISLE_PRED], highbd_isle);
+  INIT_ALL_SIZES(pred_high[ISLE_PRED], highbd_prdct);
 #if CONFIG_SMOOTH_HV
   INIT_ALL_SIZES(pred_high[SMOOTH_V_PRED], highbd_smooth_v);
   INIT_ALL_SIZES(pred_high[SMOOTH_H_PRED], highbd_smooth_h);

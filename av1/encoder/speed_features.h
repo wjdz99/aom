@@ -23,7 +23,7 @@ enum {
               (1 << D135_PRED) | (1 << D117_PRED) | (1 << D153_PRED) |
               (1 << D207_PRED) | (1 << D63_PRED) |
 #if CONFIG_ALT_INTRA
-              (1 << SMOOTH_PRED) |
+              (1 << SMOOTH_PRED) | (1 << LEAST_PRED) | (1 << ISLE_PRED) | (1 << PRDCT_PRED) |
 #if CONFIG_SMOOTH_HV
               (1 << SMOOTH_V_PRED) | (1 << SMOOTH_H_PRED) |
 #endif  // CONFIG_SMOOTH_HV

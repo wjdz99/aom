@@ -330,6 +330,9 @@ typedef enum ATTRIBUTE_PACKED {
   D63_PRED,   // Directional 63  deg = round(arctan(2/1) * 180/pi)
 #if CONFIG_ALT_INTRA
   SMOOTH_PRED,  // Combination of horizontal and vertical interpolation
+  LEAST_PRED,  // Combination of horizontal and vertical interpolation
+  ISLE_PRED,  // Combination of horizontal and vertical interpolation
+  PRDCT_PRED,  // Combination of horizontal and vertical interpolation
 #if CONFIG_SMOOTH_HV
   SMOOTH_V_PRED,  // Vertical interpolation
   SMOOTH_H_PRED,  // Horizontal interpolation
