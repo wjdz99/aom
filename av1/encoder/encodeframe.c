@@ -3444,6 +3444,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
   }
 
+#if CONFIG_SPEED_REFS
+  // if (cpi->sb_scanning_pass_idx == 0) goto SB_FIRST_PASS_DONE;
+  if (cpi->sb_scanning_pass_idx == 0) return;
+#endif  // CONFIG_SPEED_REFS
+
   // store estimated motion vector
   if (cpi->sf.adaptive_motion_search) store_pred_mv(x, ctx_none);
 
@@ -4258,12 +4263,29 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
         rd_auto_partition_range(cpi, tile_info, xd, mi_row, mi_col,
                                 &x->min_partition_size, &x->max_partition_size);
       }
+#if CONFIG_SPEED_REFS
+      if (mi_row == 0 && mi_col == 0)
+        printf("\nFrame=%d, (mi_row,mi_col)=(%d,%d), sb_size=%d\n",
+               cm->current_video_frame, mi_row, mi_col, cm->sb_size);
+      int sb_pass_idx;
+      // NOTE: Two scanning passes for the current superblock
+      for (sb_pass_idx = 0; sb_pass_idx < 2; ++sb_pass_idx) {
+        cpi->sb_scanning_pass_idx = sb_pass_idx;
+        rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, cm->sb_size,
+                          &dummy_rdc,
+#if CONFIG_SUPERTX
+                          &dummy_rate_nocoef,
+#endif  // CONFIG_SUPERTX
+                          INT64_MAX, pc_root);
+      }
+#else  // !CONFIG_SPEED_REFS
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, cm->sb_size,
                         &dummy_rdc,
 #if CONFIG_SUPERTX
                         &dummy_rate_nocoef,
 #endif  // CONFIG_SUPERTX
                         INT64_MAX, pc_root);
+#endif  // CONFIG_SPEED_REFS
     }
   }
 }
