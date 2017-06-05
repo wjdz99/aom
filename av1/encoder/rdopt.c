@@ -8850,7 +8850,19 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   *returnrate_nocoef = INT_MAX;
 #endif  // CONFIG_SUPERTX
 
+#if CONFIG_SPEED_REFS
+  memset(x->mbmi_ext->ref_mvs, 0, sizeof(x->mbmi_ext->ref_mvs));
+#endif  // CONFIG_SPEED_REFS
+
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+
+#if 0  // CONFIG_SPEED_REFS
+    if (ref_frame == LAST_FRAME && cm->current_video_frame == 1 && bsize == 4 &&
+        cpi->sb_scanning_pass_idx == 1 && mi_row == 22 && mi_col == 10) {
+      printf("\nTake a look at the mode context ...\n\n");
+    }
+#endif  // CONFIG_SPEED_REFS
+
     x->pred_mv_sad[ref_frame] = INT_MAX;
     x->mbmi_ext->mode_context[ref_frame] = 0;
 #if CONFIG_EXT_INTER
