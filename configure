@@ -324,8 +324,7 @@ EXPERIMENT_LIST="
     rect_intra_pred
     lgt
     sbl_symbol
-    ncobmc_adapt_weight
-    bgsprite
+    frame_context_signaling
 "
 CONFIG_LIST="
     dependency_tracking
