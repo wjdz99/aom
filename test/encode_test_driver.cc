@@ -201,6 +201,13 @@ void EncoderTest::MismatchHook(const aom_image_t *img_enc,
                            &mismatch_plane, &mismatch_pix_enc,
                            &mismatch_pix_dec));
 
+  if (img_enc->fmt != img_dec->fmt) {
+    GTEST_FAIL() << "Encode/Decode format mismatch:" << std::endl
+                 << "          fmt enc/dec: " << img_enc->fmt << "/"
+                 << img_dec->fmt << std::endl;
+    return;
+  }
+
   GTEST_FAIL() << "Encode/Decode mismatch found:" << std::endl
                << "  pixel value enc/dec: " << mismatch_pix_enc << "/"
                << mismatch_pix_dec << std::endl
