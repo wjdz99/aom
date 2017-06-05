@@ -2297,30 +2297,92 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
     // write_switchable_interp_filter, which is called by pack_inter_mode_mvs.
     set_ref_ptrs(cm, xd, m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
 #endif  // CONFIG_DUAL_FILTER
-#if 0
+
+#if CONFIG_SPEED_REFS
+#define SPEED_REFS_DEBUG 1
+#else   // !CONFIG_SPEED_REFS
+#define SPEED_REFS_DEBUG 0
+#endif  // CONFIG_SPEED_REFS
+
+#if SPEED_REFS_DEBUG
     // NOTE(zoeliu): For debug
-    if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
-      const PREDICTION_MODE mode = m->mbmi.mode;
-      const int segment_id = m->mbmi.segment_id;
-      const BLOCK_SIZE bsize = m->mbmi.sb_type;
+    if (is_inter_block(&m->mbmi)) {
+#define FRAME_TO_CHECK 1
+      if (cm->current_video_frame == FRAME_TO_CHECK  /* &&
+          (  // (cm->reference_mode != SINGLE_REFERENCE && cm->show_frame == 0) ||
+           cm->show_frame == 1)*/
+          )
+      {
+        const MB_MODE_INFO *const mbmi = &m->mbmi;
+        const BLOCK_SIZE bsize = mbmi->sb_type;
 
-      // For sub8x8, simply dump out the first sub8x8 block info
-      const PREDICTION_MODE b_mode =
-          (bsize < BLOCK_8X8) ? m->bmi[0].as_mode : -1;
-      const int mv_x = (bsize < BLOCK_8X8) ?
-          m->bmi[0].as_mv[0].as_mv.row : m->mbmi.mv[0].as_mv.row;
-      const int mv_y = (bsize < BLOCK_8X8) ?
-          m->bmi[0].as_mv[0].as_mv.col : m->mbmi.mv[0].as_mv.col;
+        int_mv mv[2] = { { 0 } };
+        int is_comp_ref = has_second_ref(&m->mbmi);
+        int ref;
 
-      printf("Before pack_inter_mode_mvs(): "
-             "Frame=%d, (mi_row,mi_col)=(%d,%d), "
-             "mode=%d, segment_id=%d, bsize=%d, b_mode=%d, "
-             "mv[0]=(%d, %d), ref[0]=%d, ref[1]=%d\n",
-             cm->current_video_frame, mi_row, mi_col,
-             mode, segment_id, bsize, b_mode, mv_x, mv_y,
-             m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
+        for (ref = 0; ref < 1 + is_comp_ref; ++ref)
+          mv[ref].as_mv = m->mbmi.mv[ref].as_mv;
+
+        int interp_ctx[2] = { -1 };
+        int interp_filter[2] = { cm->interp_filter };
+        if (cm->interp_filter == SWITCHABLE) {
+          int dir;
+          for (dir = 0; dir < 2; ++dir) {
+            if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
+                (mbmi->ref_frame[1] > INTRA_FRAME &&
+                 has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
+              interp_ctx[dir] = av1_get_pred_context_switchable_interp(xd, dir);
+              interp_filter[dir] = mbmi->interp_filter[dir];
+            } else {
+              interp_filter[dir] = EIGHTTAP_REGULAR;
+            }
+          }
+        }
+
+#if CONFIG_DELTA_Q || CONFIG_EC_ADAPT
+        MACROBLOCK *const x = &cpi->td.mb;
+#else
+        const MACROBLOCK *x = &cpi->td.mb;
+#endif
+        const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+        const int16_t mode_ctx =
+            av1_mode_context_analyzer(mbmi_ext->mode_context,
+                                      mbmi->ref_frame, bsize, -1);
+        const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
+        int16_t zeromv_ctx = -1;
+        int16_t refmv_ctx = -1;
+        if (mbmi->mode != NEWMV) {
+          zeromv_ctx = (mode_ctx >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
+          if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) {
+            assert(mbmi->mode == ZEROMV);
+          }
+          if (mbmi->mode != ZEROMV) {
+            refmv_ctx = (mode_ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
+            if (mode_ctx & (1 << SKIP_NEARESTMV_OFFSET)) refmv_ctx = 6;
+            if (mode_ctx & (1 << SKIP_NEARMV_OFFSET)) refmv_ctx = 7;
+            if (mode_ctx & (1 << SKIP_NEARESTMV_SUB8X8_OFFSET)) refmv_ctx = 8;
+          }
+        }
+
+        int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+        printf(
+            "=== ENCODER ===: "
+            "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
+            "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
+            "ref[1]=%d, motion_mode=%d, inter_mode_ctx=%d, mode_ctx=%d, "
+            "interp_ctx=(%d,%d),  interp_filter=(%d,%d), newmv_ctx=%d, "
+            "zeromv_ctx=%d, refmv_ctx=%d\n",
+            cm->current_video_frame, mi_row, mi_col, mbmi->mode, bsize,
+            cm->show_frame, mv[0].as_mv.row, mv[0].as_mv.col, mv[1].as_mv.row,
+            mv[1].as_mv.col, mbmi->ref_frame[0], mbmi->ref_frame[1],
+            mbmi->motion_mode, mbmi_ext->mode_context[ref_frame_type], mode_ctx,
+            interp_ctx[0], interp_ctx[1], interp_filter[0], interp_filter[1],
+            newmv_ctx, zeromv_ctx, refmv_ctx);
+      }
     }
-#endif  // 0
+#endif  // SPEED_REFS_DEBUG
+#undef SPEED_REFS_DEBUG
+
     pack_inter_mode_mvs(cpi, mi_row, mi_col,
 #if CONFIG_SUPERTX
                         supertx_enabled,

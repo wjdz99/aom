@@ -3341,6 +3341,17 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 #endif
 
+#if CONFIG_SPEED_REFS
+  if (cpi->sb_scanning_pass_idx == 0) {
+    // NOTE: For the 1st pass of scanning, check all the subblocks of equal size
+    //       only.
+    partition_none_allowed = (bsize == MIN_SPEED_REFS_BLKSIZE);
+    partition_horz_allowed = 0;
+    partition_vert_allowed = 0;
+    do_square_split = (bsize > MIN_SPEED_REFS_BLKSIZE);
+  }
+#endif  // CONFIG_SPEED_REFS
+
   // PARTITION_NONE
   if (partition_none_allowed) {
     rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
@@ -4062,6 +4073,10 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
+#if CONFIG_SPEED_REFS
+  if (cpi->sb_scanning_pass_idx == 0 && bsize == cm->sb_size) return;
+#endif  // CONFIG_SPEED_REFS
+
   // TODO(jbb): This code added so that we avoid static analysis
   // warning related to the fact that best_rd isn't used after this
   // point.  This code should be refactored so that the duplicate
@@ -4258,12 +4273,36 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
         rd_auto_partition_range(cpi, tile_info, xd, mi_row, mi_col,
                                 &x->min_partition_size, &x->max_partition_size);
       }
+#if CONFIG_SPEED_REFS
+      if (mi_row == 0 && mi_col == 0)
+        printf("\nFrame=%d, (mi_row,mi_col)=(%d,%d), sb_size=%d\n",
+               cm->current_video_frame, mi_row, mi_col, cm->sb_size);
+      int sb_pass_idx;
+      // NOTE: Two scanning passes for the current superblock
+      for (sb_pass_idx = 0; sb_pass_idx < 2; ++sb_pass_idx) {
+        cpi->sb_scanning_pass_idx = sb_pass_idx;
+//        if (mi_row == 0 && mi_col == 0) {
+        	printf("%d %d %d td=%p mi[0]=%p td->mb.e_mbd=%p\n",cm->current_video_frame, mi_row, mi_col, td, td->mb.e_mbd.mi[0]);
+//        }
+        rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, cm->sb_size,
+                          &dummy_rdc,
+#if CONFIG_SUPERTX
+                          &dummy_rate_nocoef,
+#endif  // CONFIG_SUPERTX
+                          INT64_MAX, pc_root);
+        if (sb_pass_idx == 0) {
+          av1_zero(x->pred_mv);
+          pc_root->index = 0;
+        }
+      }
+#else  // !CONFIG_SPEED_REFS
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, cm->sb_size,
                         &dummy_rdc,
 #if CONFIG_SUPERTX
                         &dummy_rate_nocoef,
 #endif  // CONFIG_SUPERTX
                         INT64_MAX, pc_root);
+#endif  // CONFIG_SPEED_REFS
     }
   }
 }
