@@ -318,6 +318,7 @@ EXPERIMENT_LIST="
     one_sided_compound
     smooth_hv
     var_refs
+    frame_context_signaling
 "
 CONFIG_LIST="
     dependency_tracking
