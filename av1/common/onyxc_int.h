@@ -533,7 +533,6 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif
 #if CONFIG_CFL
     xd->cfl = cfl;
-    cfl_init(cfl, cm);
 #endif
     xd->above_context[i] = cm->above_context[i];
     if (xd->plane[i].plane_type == PLANE_TYPE_Y) {
@@ -562,6 +561,9 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
   xd->above_seg_context = cm->above_seg_context;
 #if CONFIG_VAR_TX
   xd->above_txfm_context = cm->above_txfm_context;
+#endif
+#if CONFIG_CFL
+  cfl_init(cfl, cm);
 #endif
   xd->mi_stride = cm->mi_stride;
   xd->error_info = &cm->error;
