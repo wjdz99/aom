@@ -292,6 +292,10 @@ static void setup_frame(AV1_COMP *cpi) {
   if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
     av1_setup_past_independence(cm);
   } else {
+#if CONFIG_FRAME_CONTEXT_SIGNALING
+// Just use frame context from first signaled reference frame.
+// This will always be LAST_FRAME for now.
+#else
 #if CONFIG_EXT_REFS
     const GF_GROUP *gf_group = &cpi->twopass.gf_group;
     if (gf_group->rf_level[gf_group->index] == GF_ARF_LOW)
@@ -311,6 +315,7 @@ static void setup_frame(AV1_COMP *cpi) {
 #endif  // CONFIG_EXT_REFS
     else
       cm->frame_context_idx = REGULAR_FRAME;
+#endif  // CONFIG_FRAME_CONTEXT_SIGNALING
   }
 
   if (cm->frame_type == KEY_FRAME) {
@@ -318,7 +323,11 @@ static void setup_frame(AV1_COMP *cpi) {
     cpi->refresh_alt_ref_frame = 1;
     av1_zero(cpi->interp_filter_selected);
   } else {
+#if CONFIG_FRAME_CONTEXT_SIGNALING
+    *cm->fc = cm->frame_contexts[cm->frame_refs[0].idx];
+#else
     *cm->fc = cm->frame_contexts[cm->frame_context_idx];
+#endif  // CONFIG_FRAME_CONTEXT_SIGNALING
     av1_zero(cpi->interp_filter_selected[0]);
   }
 #if CONFIG_EXT_REFS
@@ -329,7 +338,16 @@ static void setup_frame(AV1_COMP *cpi) {
   }
 #endif
 #endif
+#if CONFIG_FRAME_CONTEXT_SIGNALING
+  if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+    // cm->fc has already been cleared by setup_past_independence()
+    cm->pre_fc = cm->fc;
+  } else {
+    cm->pre_fc = &cm->frame_contexts[cm->frame_refs[0].idx];
+  }
+#else
   cm->pre_fc = &cm->frame_contexts[cm->frame_context_idx];
+#endif  // CONFIG_FRAME_CONTEXT_SIGNALING
 
   cpi->vaq_refresh = 0;
 
@@ -5624,9 +5642,13 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     Pass0Encode(cpi, size, dest, 0, frame_flags);
   }
 #endif
-
+#if CONFIG_FRAME_CONTEXT_SIGNALING
+  // TODO(tdaede): Check if this condition is really needed.
+  if (!cm->error_resilient_mode) cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
+#else
   if (!cm->error_resilient_mode)
     cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
+#endif  // CONFIG_FRAME_CONTEXT_SIGNALING
 
   // No frame encoded, or frame was dropped, release scaled references.
   if ((*size == 0) && (frame_is_intra_only(cm) == 0)) {
