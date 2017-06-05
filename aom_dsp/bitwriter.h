@@ -14,11 +14,17 @@
 
 #include <assert.h>
 #include "./aom_config.h"
+#if CONFIG_EC_ADAPT && !(CONFIG_DAALA_EC || CONFIG_ANS)
+#error \
+    "CONFIG_EC_ADAPT is enabled without either CONFIG_DAALA_EC of CONFIG_ANS."
+#endif
 
 #if CONFIG_ANS
 #include "aom_dsp/buf_ans.h"
-#else
+#elif CONFIG_DAALA_EC
 #include "aom_dsp/daalaboolwriter.h"
+#else
+#include "aom_dsp/dkboolwriter.h"
 #endif
 #include "aom_dsp/prob.h"
 
@@ -33,8 +39,10 @@ extern "C" {
 
 #if CONFIG_ANS
 typedef struct BufAnsCoder aom_writer;
-#else
+#elif CONFIG_DAALA_EC
 typedef struct daala_writer aom_writer;
+#else
+typedef struct aom_dk_writer aom_writer;
 #endif
 
 typedef struct TOKEN_STATS {
@@ -65,8 +73,10 @@ static INLINE void aom_start_encode(aom_writer *bc, uint8_t *buffer) {
   (void)bc;
   (void)buffer;
   assert(0 && "buf_ans requires a more complicated startup procedure");
-#else
+#elif CONFIG_DAALA_EC
   aom_daala_start_encode(bc, buffer);
+#else
+  aom_dk_start_encode(bc, buffer);
 #endif
 }
 
@@ -74,16 +84,20 @@ static INLINE void aom_stop_encode(aom_writer *bc) {
 #if CONFIG_ANS
   (void)bc;
   assert(0 && "buf_ans requires a more complicated shutdown procedure");
-#else
+#elif CONFIG_DAALA_EC
   aom_daala_stop_encode(bc);
+#else
+  aom_dk_stop_encode(bc);
 #endif
 }
 
 static INLINE void aom_write(aom_writer *br, int bit, int probability) {
 #if CONFIG_ANS
   buf_rabs_write(br, bit, probability);
-#else
+#elif CONFIG_DAALA_EC
   aom_daala_write(br, bit, probability);
+#else
+  aom_dk_write(br, bit, probability);
 #endif
 }
 
@@ -100,7 +114,7 @@ static INLINE void aom_write_record(aom_writer *br, int bit, int probability,
 static INLINE void aom_write_bit(aom_writer *w, int bit) {
 #if CONFIG_ANS
   buf_rabs_write_bit(w, bit);
-#elif CONFIG_RAWBITS
+#elif CONFIG_DAALA_EC && CONFIG_RAWBITS
   // Note this uses raw bits and is not the same as aom_daala_write(r, 128);
   aom_daala_write_bit(w, bit);
 #else
@@ -124,6 +138,28 @@ static INLINE void aom_write_literal(aom_writer *w, int data, int bits) {
   for (bit = bits - 1; bit >= 0; bit--) aom_write_bit(w, 1 & (data >> bit));
 }
 
+static INLINE void aom_write_tree_as_bits(aom_writer *w,
+                                          const aom_tree_index *tr,
+                                          const aom_prob *probs, int bits,
+                                          int len, aom_tree_index i) {
+  do {
+    const int bit = (bits >> --len) & 1;
+    aom_write(w, bit, probs[i >> 1]);
+    i = tr[i + bit];
+  } while (len);
+}
+
+static INLINE void aom_write_tree_as_bits_record(
+    aom_writer *w, const aom_tree_index *tr, const aom_prob *probs, int bits,
+    int len, aom_tree_index i, TOKEN_STATS *token_stats) {
+  do {
+    const int bit = (bits >> --len) & 1;
+    aom_write_record(w, bit, probs[i >> 1], token_stats);
+    i = tr[i + bit];
+  } while (len);
+}
+
+#if CONFIG_DAALA_EC || CONFIG_ANS
 static INLINE void aom_write_cdf(aom_writer *w, int symb,
                                  const aom_cdf_prob *cdf, int nsymbs) {
 #if CONFIG_ANS
@@ -184,10 +220,16 @@ static INLINE void aom_write_tree_as_cdf(aom_writer *w,
   } while (len);
 }
 
+#endif  // CONFIG_DAALA_EC || CONFIG_ANS
+
 static INLINE void aom_write_tree(aom_writer *w, const aom_tree_index *tree,
                                   const aom_prob *probs, int bits, int len,
                                   aom_tree_index i) {
+#if CONFIG_DAALA_EC || CONFIG_ANS
   aom_write_tree_as_cdf(w, tree, probs, bits, len, i);
+#else
+  aom_write_tree_as_bits(w, tree, probs, bits, len, i);
+#endif
 }
 
 static INLINE void aom_write_tree_record(aom_writer *w,
@@ -195,8 +237,12 @@ static INLINE void aom_write_tree_record(aom_writer *w,
                                          const aom_prob *probs, int bits,
                                          int len, aom_tree_index i,
                                          TOKEN_STATS *token_stats) {
+#if CONFIG_DAALA_EC || CONFIG_ANS
   (void)token_stats;
   aom_write_tree_as_cdf(w, tree, probs, bits, len, i);
+#else
+  aom_write_tree_as_bits_record(w, tree, probs, bits, len, i, token_stats);
+#endif
 }
 
 #ifdef __cplusplus

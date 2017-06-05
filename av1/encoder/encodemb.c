@@ -128,8 +128,12 @@ static const int plane_rd_mult[REF_TYPES][PLANE_TYPES] = {
 static INLINE unsigned int get_token_bit_costs(
     unsigned int token_costs[2][COEFF_CONTEXTS][ENTROPY_TOKENS], int skip_eob,
     int ctx, int token) {
+#if CONFIG_DAALA_EC || CONFIG_ANS
   (void)skip_eob;
   return token_costs[token == ZERO_TOKEN || token == EOB_TOKEN][ctx][token];
+#else
+  return token_costs[skip_eob][ctx][token];
+#endif  // CONFIG_DAALA_EC || CONFIG_ANS
 }
 
 #if !CONFIG_LV_MAP
@@ -2070,10 +2074,10 @@ PVQ_SKIP_TYPE av1_pvq_encode_helper(MACROBLOCK *x, tran_low_t *const coeff,
 
   *eob = 0;
 
-#if !CONFIG_ANS
+#if CONFIG_DAALA_EC
   tell = od_ec_enc_tell_frac(&daala_enc->w.ec);
 #else
-#error "CONFIG_PVQ currently requires !CONFIG_ANS."
+#error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
 #endif
 
   // Change coefficient ordering for pvq encoding.
@@ -2142,11 +2146,11 @@ PVQ_SKIP_TYPE av1_pvq_encode_helper(MACROBLOCK *x, tran_low_t *const coeff,
 
   *eob = tx_blk_size * tx_blk_size;
 
-#if !CONFIG_ANS
+#if CONFIG_DAALA_EC
   *rate = (od_ec_enc_tell_frac(&daala_enc->w.ec) - tell)
           << (AV1_PROB_COST_SHIFT - OD_BITRES);
 #else
-#error "CONFIG_PVQ currently requires !CONFIG_ANS."
+#error "CONFIG_PVQ currently requires CONFIG_DAALA_EC."
 #endif
   assert(*rate >= 0);
 

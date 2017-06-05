@@ -50,6 +50,7 @@ static void initialize_dec(void) {
     av1_init_wedge_masks();
 #endif  // CONFIG_EXT_INTER
     init_done = 1;
+#if CONFIG_DAALA_EC || CONFIG_ANS
     av1_indices_from_tree(av1_intra_mode_ind, av1_intra_mode_inv,
                           av1_intra_mode_tree);
     av1_indices_from_tree(av1_switchable_interp_ind, av1_switchable_interp_inv,
@@ -64,6 +65,7 @@ static void initialize_dec(void) {
                             av1_ext_tx_inter_tree[s]);
 #else
     av1_indices_from_tree(av1_ext_tx_ind, av1_ext_tx_inv, av1_ext_tx_tree);
+#endif
 #endif
   }
 }
