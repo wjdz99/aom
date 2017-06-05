@@ -27,11 +27,14 @@ ifeq ($(CONFIG_ANS),yes)
 DSP_SRCS-yes += answriter.h
 DSP_SRCS-yes += buf_ans.h
 DSP_SRCS-yes += buf_ans.c
-else
+else ifeq ($(CONFIG_DAALA_EC),yes)
 DSP_SRCS-yes += entenc.c
 DSP_SRCS-yes += entenc.h
 DSP_SRCS-yes += daalaboolwriter.c
 DSP_SRCS-yes += daalaboolwriter.h
+else
+DSP_SRCS-yes += dkboolwriter.h
+DSP_SRCS-yes += dkboolwriter.c
 endif
 DSP_SRCS-yes += bitwriter.h
 DSP_SRCS-yes += bitwriter_buffer.c
@@ -49,11 +52,14 @@ endif
 ifeq ($(CONFIG_AV1_DECODER),yes)
 ifeq ($(CONFIG_ANS),yes)
 DSP_SRCS-yes += ansreader.h
-else
+else ifeq ($(CONFIG_DAALA_EC),yes)
 DSP_SRCS-yes += entdec.c
 DSP_SRCS-yes += entdec.h
 DSP_SRCS-yes += daalaboolreader.c
 DSP_SRCS-yes += daalaboolreader.h
+else
+DSP_SRCS-yes += dkboolreader.h
+DSP_SRCS-yes += dkboolreader.c
 endif
 DSP_SRCS-yes += bitreader.h
 DSP_SRCS-yes += bitreader_buffer.c
@@ -65,7 +71,7 @@ endif
 # intra predictions
 DSP_SRCS-yes += intrapred.c
 
-ifneq ($(CONFIG_ANS),yes)
+ifeq ($(CONFIG_DAALA_EC),yes)
 DSP_SRCS-yes += entcode.c
 DSP_SRCS-yes += entcode.h
 endif

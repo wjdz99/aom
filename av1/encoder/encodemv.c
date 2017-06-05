@@ -45,8 +45,13 @@ static void encode_mv_component(aom_writer *w, int comp, nmv_component *mvcomp,
   // Sign
   aom_write(w, sign, mvcomp->sign);
 
-  // Class
+// Class
+#if CONFIG_DAALA_EC || CONFIG_ANS
   aom_write_symbol(w, mv_class, mvcomp->class_cdf, MV_CLASSES);
+#else
+  av1_write_token(w, av1_mv_class_tree, mvcomp->classes,
+                  &mv_class_encodings[mv_class]);
+#endif
 
   // Integer bits
   if (mv_class == MV_CLASS_0) {
@@ -57,14 +62,20 @@ static void encode_mv_component(aom_writer *w, int comp, nmv_component *mvcomp,
     for (i = 0; i < n; ++i) aom_write(w, (d >> i) & 1, mvcomp->bits[i]);
   }
 
-// Fractional bits
+  // Fractional bits
 #if CONFIG_INTRABC
   if (precision > MV_SUBPEL_NONE)
 #endif  // CONFIG_INTRABC
   {
-    aom_write_symbol(w, fr, mv_class == MV_CLASS_0 ? mvcomp->class0_fp_cdf[d]
-                                                   : mvcomp->fp_cdf,
-                     MV_FP_SIZE);
+#if CONFIG_DAALA_EC || CONFIG_ANS
+    aom_write_symbol(
+        w, fr, mv_class == MV_CLASS_0 ? mvcomp->class0_fp_cdf[d] : mvcomp->fp_cdf,
+        MV_FP_SIZE);
+#else
+    av1_write_token(w, av1_mv_fp_tree,
+                    mv_class == MV_CLASS_0 ? mvcomp->class0_fp[d] : mvcomp->fp,
+                    &mv_fp_encodings[fr]);
+#endif
   }
 
   // High precision bit
@@ -217,7 +228,11 @@ void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
                    nmv_context *mvctx, int usehp) {
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
   const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
+#if CONFIG_DAALA_EC || CONFIG_ANS
   aom_write_symbol(w, j, mvctx->joint_cdf, MV_JOINTS);
+#else
+  av1_write_token(w, av1_mv_joint_tree, mvctx->joints, &mv_joint_encodings[j]);
+#endif  // CONFIG_DAALA_EC || CONFIG_ANS
   if (mv_joint_vertical(j))
     encode_mv_component(w, diff.row, &mvctx->comps[0], usehp);
 
@@ -238,7 +253,11 @@ void av1_encode_dv(aom_writer *w, const MV *mv, const MV *ref,
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
   const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
 
+#if CONFIG_DAALA_EC || CONFIG_ANS
   aom_write_symbol(w, j, mvctx->joint_cdf, MV_JOINTS);
+#else
+  av1_write_token(w, av1_mv_joint_tree, mvctx->joints, &mv_joint_encodings[j]);
+#endif  // CONFIG_DAALA_EC || CONFIG_ANS
   if (mv_joint_vertical(j))
     encode_mv_component(w, diff.row, &mvctx->comps[0], MV_SUBPEL_NONE);
 
