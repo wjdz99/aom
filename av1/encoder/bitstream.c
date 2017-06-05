@@ -2297,30 +2297,6 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
     // write_switchable_interp_filter, which is called by pack_inter_mode_mvs.
     set_ref_ptrs(cm, xd, m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
 #endif  // CONFIG_DUAL_FILTER
-#if 0
-    // NOTE(zoeliu): For debug
-    if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
-      const PREDICTION_MODE mode = m->mbmi.mode;
-      const int segment_id = m->mbmi.segment_id;
-      const BLOCK_SIZE bsize = m->mbmi.sb_type;
-
-      // For sub8x8, simply dump out the first sub8x8 block info
-      const PREDICTION_MODE b_mode =
-          (bsize < BLOCK_8X8) ? m->bmi[0].as_mode : -1;
-      const int mv_x = (bsize < BLOCK_8X8) ?
-          m->bmi[0].as_mv[0].as_mv.row : m->mbmi.mv[0].as_mv.row;
-      const int mv_y = (bsize < BLOCK_8X8) ?
-          m->bmi[0].as_mv[0].as_mv.col : m->mbmi.mv[0].as_mv.col;
-
-      printf("Before pack_inter_mode_mvs(): "
-             "Frame=%d, (mi_row,mi_col)=(%d,%d), "
-             "mode=%d, segment_id=%d, bsize=%d, b_mode=%d, "
-             "mv[0]=(%d, %d), ref[0]=%d, ref[1]=%d\n",
-             cm->current_video_frame, mi_row, mi_col,
-             mode, segment_id, bsize, b_mode, mv_x, mv_y,
-             m->mbmi.ref_frame[0], m->mbmi.ref_frame[1]);
-    }
-#endif  // 0
     pack_inter_mode_mvs(cpi, mi_row, mi_col,
 #if CONFIG_SUPERTX
                         supertx_enabled,
