@@ -2478,16 +2478,61 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_COMPOUND_SINGLEREF
             mv[1].as_int = 0;
         }
+        int interp_ctx[2] = { -1 };
+        int interp_filter[2] = { cm->interp_filter };
+        if (cm->interp_filter == SWITCHABLE) {
+          int dir;
+          for (dir = 0; dir < 2; ++dir) {
+            if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
+                (mbmi->ref_frame[1] > INTRA_FRAME &&
+                 has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
+              interp_ctx[dir] = av1_get_pred_context_switchable_interp(xd, dir);
+              interp_filter[dir] = mbmi->interp_filter[dir];
+            } else {
+              interp_filter[dir] = EIGHTTAP_REGULAR;
+            }
+          }
+        }
 
+#if CONFIG_DELTA_Q || CONFIG_EC_ADAPT
+        MACROBLOCK *const x = &cpi->td.mb;
+#else
+        const MACROBLOCK *x = &cpi->td.mb;
+#endif
+        const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+        const int16_t mode_ctx =
+            av1_mode_context_analyzer(mbmi_ext->mode_context,
+                                      mbmi->ref_frame, bsize, -1);
+        const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
+        int16_t zeromv_ctx = -1;
+        int16_t refmv_ctx = -1;
+        if (mbmi->mode != NEWMV) {
+          zeromv_ctx = (mode_ctx >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
+          if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) {
+            assert(mbmi->mode == ZEROMV);
+          }
+          if (mbmi->mode != ZEROMV) {
+            refmv_ctx = (mode_ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
+            if (mode_ctx & (1 << SKIP_NEARESTMV_OFFSET)) refmv_ctx = 6;
+            if (mode_ctx & (1 << SKIP_NEARMV_OFFSET)) refmv_ctx = 7;
+            if (mode_ctx & (1 << SKIP_NEARESTMV_SUB8X8_OFFSET)) refmv_ctx = 8;
+          }
+        }
+
+        int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
         printf(
             "=== ENCODER ===: "
             "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
             "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
-            "ref[1]=%d, motion_mode=%d\n",
+            "ref[1]=%d, motion_mode=%d, inter_mode_ctx=%d, mode_ctx=%d, "
+            "interp_ctx=(%d,%d),  interp_filter=(%d,%d), newmv_ctx=%d, "
+            "zeromv_ctx=%d, refmv_ctx=%d\n",
             cm->current_video_frame, mi_row, mi_col, mbmi->mode, bsize,
             cm->show_frame, mv[0].as_mv.row, mv[0].as_mv.col, mv[1].as_mv.row,
             mv[1].as_mv.col, mbmi->ref_frame[0], mbmi->ref_frame[1],
-            mbmi->motion_mode);
+            mbmi->motion_mode, mbmi_ext->mode_context[ref_frame_type], mode_ctx,
+            interp_ctx[0], interp_ctx[1], interp_filter[0], interp_filter[1],
+            newmv_ctx, zeromv_ctx, refmv_ctx);
       }
     }
 #endif  // COMPOUND_SINGLEREF_DEBUG
