@@ -320,6 +320,7 @@ EXPERIMENT_LIST="
     var_refs
     rect_intra_pred
     sbl_symbol
+    frame_context_signaling
 "
 CONFIG_LIST="
     dependency_tracking
