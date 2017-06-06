@@ -519,6 +519,383 @@ void aom_lpf_vertical_16_dual_c(uint8_t *s, int p, const uint8_t *blimit,
   mb_lpf_vertical_edge_w(s, p, blimit, limit, thresh, 16);
 }
 
+#if CONFIG_ASYMMETRIC_LPF
+static INLINE void filter4x8(int8_t mask, uint8_t thresh, int8_t flat,
+                             uint8_t *op1, uint8_t *op0, uint8_t *oq0,
+                             uint8_t *oq1, uint8_t *oq2, uint8_t *oq3) {
+  if (flat && mask) {
+    const uint8_t p1 = *op1, p0 = *op0;
+    uint8_t q0 = *oq0, q1 = *oq1, q2 = *oq2, q3 = *oq3;
+
+    // apply 7-tap filter on the right side
+    *oq0 = ROUND_POWER_OF_TWO(p1 + p1 + p0 + 2 * q0 + q1 + q2 + q3, 3);
+    *oq1 = ROUND_POWER_OF_TWO(p1 + p0 + q0 + 2 * q1 + q2 + q3 + q3, 3);
+    *oq2 = ROUND_POWER_OF_TWO(p0 + q0 + q1 + 2 * q2 + q3 + q3 + q3, 3);
+
+    // apply 4-tap filter on the left side
+    filter4(mask, thresh, op1, op0, &q0, &q1);
+  } else {
+    filter4(mask, thresh, op1, op0, oq0, oq1);
+  }
+}
+
+static INLINE void filter4x16(int8_t mask, uint8_t thresh, int8_t flat,
+                              int8_t flat2, uint8_t *op1, uint8_t *op0,
+                              uint8_t *oq0, uint8_t *oq1, uint8_t *oq2,
+                              uint8_t *oq3, uint8_t *oq4, uint8_t *oq5,
+                              uint8_t *oq6, uint8_t *oq7) {
+  if (flat2 && flat && mask) {
+    const uint8_t p1 = *op1, p0 = *op0;
+    uint8_t q0 = *oq0, q1 = *oq1, q2 = *oq2, q3 = *oq3, q4 = *oq4, q5 = *oq5,
+            q6 = *oq6, q7 = *oq7;
+
+    // apply 15-tap filter on the right side
+    *oq0 = ROUND_POWER_OF_TWO(p1 + p1 + p1 + p1 + p1 + p1 + p0 + q0 * 2 + q1 +
+                                  q2 + q3 + q4 + q5 + q6 + q7,
+                              4);
+    *oq1 = ROUND_POWER_OF_TWO(p1 + p1 + p1 + p1 + p1 + p0 + q0 + q1 * 2 + q2 +
+                                  q3 + q4 + q5 + q6 + q7 * 2,
+                              4);
+    *oq2 = ROUND_POWER_OF_TWO(
+        p1 + p1 + p1 + p1 + p0 + q0 + q1 + q2 * 2 + q3 + q4 + q5 + q6 + q7 * 3,
+        4);
+    *oq3 = ROUND_POWER_OF_TWO(
+        p1 + p1 + p1 + p0 + q0 + q1 + q2 + q3 * 2 + q4 + q5 + q6 + q7 * 4, 4);
+    *oq4 = ROUND_POWER_OF_TWO(
+        p1 + p1 + p0 + q0 + q1 + q2 + q3 + q4 * 2 + q5 + q6 + q7 * 5, 4);
+    *oq5 = ROUND_POWER_OF_TWO(
+        p1 + p0 + q0 + q1 + q2 + q3 + q4 + q5 * 2 + q6 + q7 * 6, 4);
+    *oq6 = ROUND_POWER_OF_TWO(
+        p0 + q0 + q1 + q2 + q3 + q4 + q5 + q6 * 2 + q7 * 7, 4);
+
+    // apply 4-tap filter on the left side
+    filter4(mask, thresh, op1, op0, &q0, &q1);
+  } else if (flat && mask) {
+    filter4x8(mask, thresh, flat, op1, op0, oq0, oq1, oq2, oq3);
+  } else {
+    filter4(mask, thresh, op1, op0, oq0, oq1);
+  }
+}
+
+static INLINE void filter8x4(int8_t mask, uint8_t thresh, int8_t flat,
+                             uint8_t *op3, uint8_t *op2, uint8_t *op1,
+                             uint8_t *op0, uint8_t *oq0, uint8_t *oq1) {
+  if (flat && mask) {
+    uint8_t p3 = *op3, p2 = *op2, p1 = *op1, p0 = *op0;
+    const uint8_t q0 = *oq0, q1 = *oq1;
+
+    // apply 7-tap filter on the left side
+    *op2 = ROUND_POWER_OF_TWO(p3 + p3 + p3 + 2 * p2 + p1 + p0 + q0, 3);
+    *op1 = ROUND_POWER_OF_TWO(p3 + p3 + p2 + 2 * p1 + p0 + q0 + q1, 3);
+    *op0 = ROUND_POWER_OF_TWO(p3 + p2 + p1 + 2 * p0 + q0 + q1 + q1, 3);
+
+    // apply 4-tap filter on the right side
+    filter4(mask, thresh, &p1, &p0, oq0, oq1);
+  } else {
+    filter4(mask, thresh, op1, op0, oq0, oq1);
+  }
+}
+
+static INLINE void filter8x8(int8_t mask, uint8_t thresh, int8_t flat_left,
+                             int8_t flat_right, uint8_t *op3, uint8_t *op2,
+                             uint8_t *op1, uint8_t *op0, uint8_t *oq0,
+                             uint8_t *oq1, uint8_t *oq2, uint8_t *oq3) {
+  if (mask) {
+    if (flat_left && flat_right) {
+      // 8x8
+      filter8(mask, thresh, flat_left & flat_right, op3, op2, op1, op0, oq0,
+              oq1, oq2, oq3);
+    } else if (flat_left) {
+      // 8x4
+      filter8x4(mask, thresh, flat_left, op3, op2, op1, op0, oq0, oq1);
+    } else if (flat_right) {
+      // 4x8
+      filter4x8(mask, thresh, flat_right, op1, op0, oq0, oq1, oq2, oq3);
+    } else {
+      // 4x4
+      filter4(mask, thresh, op1, op0, oq0, oq1);
+    }
+  } else {
+    filter4(mask, thresh, op1, op0, oq0, oq1);
+  }
+}
+
+static INLINE void filter8x16(int8_t mask, uint8_t thresh, int8_t flat,
+                              int8_t flat2, uint8_t *op3, uint8_t *op2,
+                              uint8_t *op1, uint8_t *op0, uint8_t *oq0,
+                              uint8_t *oq1, uint8_t *oq2, uint8_t *oq3,
+                              uint8_t *oq4, uint8_t *oq5, uint8_t *oq6,
+                              uint8_t *oq7) {
+  if (flat2 && flat && mask) {
+    const uint8_t p3 = *op3, p2 = *op2, p1 = *op1, p0 = *op0;
+
+    uint8_t q0 = *oq0, q1 = *oq1, q2 = *oq2, q3 = *oq3, q4 = *oq4, q5 = *oq5,
+            q6 = *oq6, q7 = *oq7;
+
+    // apply 15-tap filter on the right side
+    *oq0 = ROUND_POWER_OF_TWO(p3 + p3 + p3 + p3 + p2 + p1 + p0 + q0 * 2 + q1 +
+                                  q2 + q3 + q4 + q5 + q6 + q7,
+                              4);
+    *oq1 = ROUND_POWER_OF_TWO(p3 + p3 + p3 + p2 + p1 + p0 + q0 + q1 * 2 + q2 +
+                                  q3 + q4 + q5 + q6 + q7 * 2,
+                              4);
+    *oq2 = ROUND_POWER_OF_TWO(
+        p3 + p3 + p2 + p1 + p0 + q0 + q1 + q2 * 2 + q3 + q4 + q5 + q6 + q7 * 3,
+        4);
+    *oq3 = ROUND_POWER_OF_TWO(
+        p3 + p2 + p1 + p0 + q0 + q1 + q2 + q3 * 2 + q4 + q5 + q6 + q7 * 4, 4);
+    *oq4 = ROUND_POWER_OF_TWO(
+        p2 + p1 + p0 + q0 + q1 + q2 + q3 + q4 * 2 + q5 + q6 + q7 * 5, 4);
+    *oq5 = ROUND_POWER_OF_TWO(
+        p1 + p0 + q0 + q1 + q2 + q3 + q4 + q5 * 2 + q6 + q7 * 6, 4);
+    *oq6 = ROUND_POWER_OF_TWO(
+        p0 + q0 + q1 + q2 + q3 + q4 + q5 + q6 * 2 + q7 * 7, 4);
+
+    // apply 7-tap filter on the left side
+    filter8(mask, thresh, flat, op3, op2, op1, op0, &q0, &q1, &q2, &q3);
+  } else {
+    filter8(mask, thresh, flat, op3, op2, op1, op0, oq0, oq1, oq2, oq3);
+  }
+}
+
+static INLINE void filter16x4(int8_t mask, uint8_t thresh, int8_t flat,
+                              int8_t flat2, uint8_t *op7, uint8_t *op6,
+                              uint8_t *op5, uint8_t *op4, uint8_t *op3,
+                              uint8_t *op2, uint8_t *op1, uint8_t *op0,
+                              uint8_t *oq0, uint8_t *oq1) {
+  if (flat2 && flat && mask) {
+    uint8_t p7 = *op7, p6 = *op6, p5 = *op5, p4 = *op4, p3 = *op3, p2 = *op2,
+            p1 = *op1, p0 = *op0;
+    const uint8_t q0 = *oq0, q1 = *oq1;
+
+    // apply 15-tap filter on the left side
+    *op6 = ROUND_POWER_OF_TWO(
+        p7 * 7 + p6 * 2 + p5 + p4 + p3 + p2 + p1 + p0 + q0, 4);
+    *op5 = ROUND_POWER_OF_TWO(
+        p7 * 6 + p6 + p5 * 2 + p4 + p3 + p2 + p1 + p0 + q0 + q1, 4);
+    *op4 = ROUND_POWER_OF_TWO(
+        p7 * 5 + p6 + p5 + p4 * 2 + p3 + p2 + p1 + p0 + q0 + q1 + q1, 4);
+    *op3 = ROUND_POWER_OF_TWO(
+        p7 * 4 + p6 + p5 + p4 + p3 * 2 + p2 + p1 + p0 + q0 + q1 + q1 + q1, 4);
+    *op2 = ROUND_POWER_OF_TWO(
+        p7 * 3 + p6 + p5 + p4 + p3 + p2 * 2 + p1 + p0 + q0 + q1 + q1 + q1 + q1,
+        4);
+    *op1 = ROUND_POWER_OF_TWO(p7 * 2 + p6 + p5 + p4 + p3 + p2 + p1 * 2 + p0 +
+                                  q0 + q1 + q1 + q1 + q1 + q1,
+                              4);
+    *op0 = ROUND_POWER_OF_TWO(p7 + p6 + p5 + p4 + p3 + p2 + p1 + p0 * 2 + q0 +
+                                  q1 + q1 + q1 + q1 + q1 + q1,
+                              4);
+
+    // apply 4-tap filter on the right side
+    filter4(mask, thresh, &p1, &p0, oq0, oq1);
+  } else if (flat && mask) {
+    filter8x4(mask, thresh, flat, op3, op2, op1, op0, oq0, oq1);
+  } else {
+    filter4(mask, thresh, op1, op0, oq0, oq1);
+  }
+}
+
+static INLINE void filter16x8(int8_t mask, uint8_t thresh, int8_t flat,
+                              int8_t flat2, uint8_t *op7, uint8_t *op6,
+                              uint8_t *op5, uint8_t *op4, uint8_t *op3,
+                              uint8_t *op2, uint8_t *op1, uint8_t *op0,
+                              uint8_t *oq0, uint8_t *oq1, uint8_t *oq2,
+                              uint8_t *oq3) {
+  if (flat2 && flat && mask) {
+    uint8_t p7 = *op7, p6 = *op6, p5 = *op5, p4 = *op4, p3 = *op3, p2 = *op2,
+            p1 = *op1, p0 = *op0;
+
+    const uint8_t q0 = *oq0, q1 = *oq1, q2 = *oq2, q3 = *oq3;
+
+    // apply 15-tap filter on the left side
+    *op6 = ROUND_POWER_OF_TWO(
+        p7 * 7 + p6 * 2 + p5 + p4 + p3 + p2 + p1 + p0 + q0, 4);
+    *op5 = ROUND_POWER_OF_TWO(
+        p7 * 6 + p6 + p5 * 2 + p4 + p3 + p2 + p1 + p0 + q0 + q1, 4);
+    *op4 = ROUND_POWER_OF_TWO(
+        p7 * 5 + p6 + p5 + p4 * 2 + p3 + p2 + p1 + p0 + q0 + q1 + q2, 4);
+    *op3 = ROUND_POWER_OF_TWO(
+        p7 * 4 + p6 + p5 + p4 + p3 * 2 + p2 + p1 + p0 + q0 + q1 + q2 + q3, 4);
+    *op2 = ROUND_POWER_OF_TWO(
+        p7 * 3 + p6 + p5 + p4 + p3 + p2 * 2 + p1 + p0 + q0 + q1 + q2 + q3 + q3,
+        4);
+    *op1 = ROUND_POWER_OF_TWO(p7 * 2 + p6 + p5 + p4 + p3 + p2 + p1 * 2 + p0 +
+                                  q0 + q1 + q2 + q3 + q3 + q3,
+                              4);
+    *op0 = ROUND_POWER_OF_TWO(p7 + p6 + p5 + p4 + p3 + p2 + p1 + p0 * 2 + q0 +
+                                  q1 + q2 + q3 + q3 + q3 + q3,
+                              4);
+
+    // apply 7-tap filter on the right side
+    filter8(mask, thresh, flat, &p3, &p2, &p1, &p0, oq0, oq1, oq2, oq3);
+  } else {
+    filter8(mask, thresh, flat, op3, op2, op1, op0, oq0, oq1, oq2, oq3);
+  }
+}
+
+static INLINE void filter16x16(int8_t mask, uint8_t thresh, int8_t flat_left,
+                               int8_t flat_right, int8_t flat_left2,
+                               int8_t flat_right2, uint8_t *op7, uint8_t *op6,
+                               uint8_t *op5, uint8_t *op4, uint8_t *op3,
+                               uint8_t *op2, uint8_t *op1, uint8_t *op0,
+                               uint8_t *oq0, uint8_t *oq1, uint8_t *oq2,
+                               uint8_t *oq3, uint8_t *oq4, uint8_t *oq5,
+                               uint8_t *oq6, uint8_t *oq7) {
+  if (mask) {
+    if (flat_left && flat_left2 && flat_right && flat_right2) {
+      // 16x16
+      filter16(mask, thresh, flat_left & flat_right, flat_left2 & flat_right2,
+               op7, op6, op5, op4, op3, op2, op1, op0, oq0, oq1, oq2, oq3, oq4,
+               oq5, oq6, oq7);
+    } else if (flat_left && flat_right && flat_left2) {
+      // 16x8
+      filter16x8(mask, thresh, flat_left & flat_right, flat_left2 & flat_right2,
+                 op7, op6, op5, op4, op3, op2, op1, op0, oq0, oq1, oq2, oq3);
+    } else if (flat_left && flat_right && flat_right2) {
+      // 8x16
+      filter8x16(mask, thresh, flat_left & flat_right, flat_left2 & flat_right2,
+                 op3, op2, op1, op0, oq0, oq1, oq2, oq3, oq4, oq5, oq6, oq7);
+    } else if (flat_left && flat_right) {
+      // 8x8
+      filter8x8(mask, thresh, flat_left, flat_right, op3, op2, op1, op0, oq0,
+                oq1, oq2, oq3);
+    } else if (flat_left) {
+      // 8x4
+      filter8x4(mask, thresh, flat_left, op3, op2, op1, op0, oq0, oq1);
+    } else if (flat_right) {
+      // 4x8
+      filter4x8(mask, thresh, flat_right, op1, op0, oq0, oq1, oq2, oq3);
+    } else {
+      // 4x4
+      filter4(mask, thresh, op1, op0, oq0, oq1);
+    }
+  } else {
+    filter4(mask, thresh, op1, op0, oq0, oq1);
+  }
+}
+
+void aom_lpf_vertical_4x8_c(uint8_t *s, int pitch, const uint8_t *blimit,
+                            const uint8_t *limit, const uint8_t *thresh) {
+  int i;
+
+  for (i = 0; i < 8; ++i) {
+    const uint8_t p3 = s[-4], p2 = s[-3], p1 = s[-2], p0 = s[-1];
+    const uint8_t q0 = s[0], q1 = s[1], q2 = s[2], q3 = s[3];
+    const int8_t mask =
+        filter_mask(*limit, *blimit, p3, p2, p1, p0, q0, q1, q2, q3);
+    const uint8_t flat_thr = 1;
+    const int8_t flat = flat_mask4(flat_thr, p1, p1, p1, p0, q0, q1, q2, q3);
+    filter4x8(mask, *thresh, flat, s - 2, s - 1, s, s + 1, s + 2, s + 3);
+    s += pitch;
+  }
+}
+
+void aom_lpf_vertical_4x16_c(uint8_t *s, int pitch, const uint8_t *blimit,
+                             const uint8_t *limit, const uint8_t *thresh) {
+  int i;
+
+  for (i = 0; i < 8; ++i) {
+    const uint8_t p3 = s[-4], p2 = s[-3], p1 = s[-2], p0 = s[-1];
+    const uint8_t q0 = s[0], q1 = s[1], q2 = s[2], q3 = s[3], q4 = s[4],
+                  q5 = s[5], q6 = s[6], q7 = s[7];
+    const int8_t mask =
+        filter_mask(*limit, *blimit, p3, p2, p1, p0, q0, q1, q2, q3);
+    const uint8_t flat_thr = 1;
+    const int8_t flat = flat_mask4(flat_thr, p1, p1, p1, p0, q0, q1, q2, q3);
+    const int8_t flat2 =
+        flat_mask5(flat_thr, p1, p1, p1, p1, p0, q0, q4, q5, q6, q7);
+
+    filter4x16(mask, *thresh, flat, flat2, s - 2, s - 1, s, s + 1, s + 2, s + 3,
+               s + 4, s + 5, s + 6, s + 7);
+
+    s += pitch;
+  }
+}
+
+void aom_lpf_vertical_8x4_c(uint8_t *s, int pitch, const uint8_t *blimit,
+                            const uint8_t *limit, const uint8_t *thresh) {
+  int i;
+
+  for (i = 0; i < 8; ++i) {
+    const uint8_t p3 = s[-4], p2 = s[-3], p1 = s[-2], p0 = s[-1];
+    const uint8_t q0 = s[0], q1 = s[1], q2 = s[2], q3 = s[3];
+    const int8_t mask =
+        filter_mask(*limit, *blimit, p3, p2, p1, p0, q0, q1, q2, q3);
+    const uint8_t flat_thr = 1;
+    const int8_t flat = flat_mask4(flat_thr, p3, p2, p1, p0, q0, q1, q1, q1);
+    filter8x4(mask, *thresh, flat, s - 4, s - 3, s - 2, s - 1, s, s + 1);
+    s += pitch;
+  }
+}
+
+void aom_lpf_vertical_8x16_c(uint8_t *s, int pitch, const uint8_t *blimit,
+                             const uint8_t *limit, const uint8_t *thresh) {
+  int i;
+
+  for (i = 0; i < 8; ++i) {
+    const uint8_t p3 = s[-4], p2 = s[-3], p1 = s[-2], p0 = s[-1];
+    const uint8_t q0 = s[0], q1 = s[1], q2 = s[2], q3 = s[3], q4 = s[4],
+                  q5 = s[5], q6 = s[6], q7 = s[7];
+    const int8_t mask =
+        filter_mask(*limit, *blimit, p3, p2, p1, p0, q0, q1, q2, q3);
+    const uint8_t flat_thr = 1;
+    const int8_t flat = flat_mask4(flat_thr, p3, p2, p1, p0, q0, q1, q2, q3);
+    const int8_t flat2 =
+        flat_mask5(flat_thr, p3, p3, p3, p3, p0, q0, q4, q5, q6, q7);
+
+    filter8x16(mask, *thresh, flat, flat2, s - 4, s - 3, s - 2, s - 1, s, s + 1,
+               s + 2, s + 3, s + 4, s + 5, s + 6, s + 7);
+
+    s += pitch;
+  }
+}
+
+void aom_lpf_vertical_16x4_c(uint8_t *s, int pitch, const uint8_t *blimit,
+                             const uint8_t *limit, const uint8_t *thresh) {
+  int i;
+
+  for (i = 0; i < 8; ++i) {
+    const uint8_t p7 = s[-8], p6 = s[-7], p5 = s[-6], p4 = s[-5], p3 = s[-4],
+                  p2 = s[-3], p1 = s[-2], p0 = s[-1];
+    const uint8_t q0 = s[0], q1 = s[1], q2 = s[2], q3 = s[3];
+    const int8_t mask =
+        filter_mask(*limit, *blimit, p3, p2, p1, p0, q0, q1, q2, q3);
+    const uint8_t flat_thr = 1;
+    const int8_t flat = flat_mask4(flat_thr, p3, p2, p1, p0, q0, q1, q1, q1);
+    const int8_t flat2 =
+        flat_mask5(flat_thr, p7, p6, p5, p4, p0, q0, q1, q1, q1, q1);
+
+    filter16x4(mask, *thresh, flat, flat2, s - 8, s - 7, s - 6, s - 5, s - 4,
+               s - 3, s - 2, s - 1, s, s + 1);
+
+    s += pitch;
+  }
+}
+
+void aom_lpf_vertical_16x8_c(uint8_t *s, int pitch, const uint8_t *blimit,
+                             const uint8_t *limit, const uint8_t *thresh) {
+  int i;
+
+  for (i = 0; i < 8; ++i) {
+    const uint8_t p7 = s[-8], p6 = s[-7], p5 = s[-6], p4 = s[-5], p3 = s[-4],
+                  p2 = s[-3], p1 = s[-2], p0 = s[-1];
+    const uint8_t q0 = s[0], q1 = s[1], q2 = s[2], q3 = s[3];
+    const int8_t mask =
+        filter_mask(*limit, *blimit, p3, p2, p1, p0, q0, q1, q2, q3);
+    const uint8_t flat_thr = 1;
+    const int8_t flat = flat_mask4(flat_thr, p3, p2, p1, p0, q0, q1, q2, q3);
+    const int8_t flat2 =
+        flat_mask5(flat_thr, p7, p6, p5, p4, p0, q0, q3, q3, q3, q3);
+
+    filter16x8(mask, *thresh, flat, flat2, s - 8, s - 7, s - 6, s - 5, s - 4,
+               s - 3, s - 2, s - 1, s, s + 1, s + 2, s + 3);
+
+    s += pitch;
+  }
+}
+#endif  // CONFIG_ASYMMETRIC_LPF
+
 #if CONFIG_HIGHBITDEPTH
 #if CONFIG_PARALLEL_DEBLOCKING
 // Should we apply any filter at all: 11111111 yes, 00000000 no ?

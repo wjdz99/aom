@@ -1334,17 +1334,17 @@ static void filter_selectively_vert_asymmetric(uint8_t *s, int pitch,
       } else if (masks.m4x4 & 1) {
         aom_lpf_vertical_4(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
       } else if (masks.m4x8 & 1) {
-        // apply vertical 4x8 filtering
+        aom_lpf_vertical_4x8_c(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
       } else if (masks.m4x16 & 1) {
-        // apply vertical 4x16 filtering
+        aom_lpf_vertical_4x16_c(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
       } else if (masks.m8x4 & 1) {
-        // apply vertical 8x4 filtering
+        aom_lpf_vertical_8x4_c(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
       } else if (masks.m8x16 & 1) {
-        // apply vertical 8x16 filtering
+        aom_lpf_vertical_8x16_c(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
       } else if (masks.m16x4 & 1) {
-        // apply vertical 16x4 filtering
+        aom_lpf_vertical_16x4_c(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
       } else if (masks.m16x8 & 1) {
-        // apply vertical 16x8 filtering
+        aom_lpf_vertical_16x8_c(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
       }
     }
 
