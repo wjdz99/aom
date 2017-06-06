@@ -1943,15 +1943,13 @@ void av1_hbd_dpcm_inv_txfm_add_4_c(const tran_low_t *input, int stride,
                                    TX_TYPE_1D tx_type, int bd, uint16_t *dest,
                                    int dir) {
   assert(tx_type < TX_TYPES_1D);
-  static const TxfmFunc IHT[] = { av1_idct4_new,
-                                  av1_iadst4_new,
-                                  av1_iadst4_new,
+  static const TxfmFunc IHT[] = { av1_idct4_new, av1_iadst4_new, av1_iadst4_new,
                                   av1_iidentity4_c };
   // In order { horizontal, vertical }
   static const TXFM_1D_CFG *inv_txfm_cfg_ls[TX_TYPES_1D][2] = {
-    { &inv_txfm_1d_row_cfg_dct_4, &inv_txfm_1d_col_cfg_dct_4 } ,
-    { &inv_txfm_1d_row_cfg_adst_4, &inv_txfm_1d_col_cfg_adst_4 } ,
-    { &inv_txfm_1d_row_cfg_adst_4, &inv_txfm_1d_col_cfg_adst_4 } ,
+    { &inv_txfm_1d_row_cfg_dct_4, &inv_txfm_1d_col_cfg_dct_4 },
+    { &inv_txfm_1d_row_cfg_adst_4, &inv_txfm_1d_col_cfg_adst_4 },
+    { &inv_txfm_1d_row_cfg_adst_4, &inv_txfm_1d_col_cfg_adst_4 },
     { &inv_txfm_1d_cfg_identity_4, &inv_txfm_1d_cfg_identity_4 }
   };
 
@@ -1971,15 +1969,13 @@ void av1_hbd_dpcm_inv_txfm_add_8_c(const tran_low_t *input, int stride,
                                    TX_TYPE_1D tx_type, int bd, uint16_t *dest,
                                    int dir) {
   assert(tx_type < TX_TYPES_1D);
-  static const TxfmFunc IHT[] = { av1_idct4_new,
-                                  av1_iadst4_new,
-                                  av1_iadst4_new,
+  static const TxfmFunc IHT[] = { av1_idct4_new, av1_iadst4_new, av1_iadst4_new,
                                   av1_iidentity4_c };
   // In order { horizontal, vertical }
   static const TXFM_1D_CFG *inv_txfm_cfg_ls[TX_TYPES_1D][2] = {
-    { &inv_txfm_1d_row_cfg_dct_8, &inv_txfm_1d_col_cfg_dct_8 } ,
-    { &inv_txfm_1d_row_cfg_adst_8, &inv_txfm_1d_col_cfg_adst_8 } ,
-    { &inv_txfm_1d_row_cfg_adst_8, &inv_txfm_1d_col_cfg_adst_8 } ,
+    { &inv_txfm_1d_row_cfg_dct_8, &inv_txfm_1d_col_cfg_dct_8 },
+    { &inv_txfm_1d_row_cfg_adst_8, &inv_txfm_1d_col_cfg_adst_8 },
+    { &inv_txfm_1d_row_cfg_adst_8, &inv_txfm_1d_col_cfg_adst_8 },
     { &inv_txfm_1d_cfg_identity_8, &inv_txfm_1d_cfg_identity_8 }
   };
 
@@ -1995,18 +1991,16 @@ void av1_hbd_dpcm_inv_txfm_add_8_c(const tran_low_t *input, int stride,
 }
 
 void av1_hbd_dpcm_inv_txfm_add_16_c(const tran_low_t *input, int stride,
-                                    TX_TYPE_1D tx_type, int bd,
-                                    uint16_t *dest, int dir) {
+                                    TX_TYPE_1D tx_type, int bd, uint16_t *dest,
+                                    int dir) {
   assert(tx_type < TX_TYPES_1D);
-  static const TxfmFunc IHT[] = { av1_idct4_new,
-                                  av1_iadst4_new,
-                                  av1_iadst4_new,
+  static const TxfmFunc IHT[] = { av1_idct4_new, av1_iadst4_new, av1_iadst4_new,
                                   av1_iidentity4_c };
   // In order { horizontal, vertical }
   static const TXFM_1D_CFG *inv_txfm_cfg_ls[TX_TYPES_1D][2] = {
-    { &inv_txfm_1d_row_cfg_dct_16, &inv_txfm_1d_col_cfg_dct_16 } ,
-    { &inv_txfm_1d_row_cfg_adst_16, &inv_txfm_1d_col_cfg_adst_16 } ,
-    { &inv_txfm_1d_row_cfg_adst_16, &inv_txfm_1d_col_cfg_adst_16 } ,
+    { &inv_txfm_1d_row_cfg_dct_16, &inv_txfm_1d_col_cfg_dct_16 },
+    { &inv_txfm_1d_row_cfg_adst_16, &inv_txfm_1d_col_cfg_adst_16 },
+    { &inv_txfm_1d_row_cfg_adst_16, &inv_txfm_1d_col_cfg_adst_16 },
     { &inv_txfm_1d_cfg_identity_16, &inv_txfm_1d_cfg_identity_16 }
   };
 
@@ -2023,18 +2017,16 @@ void av1_hbd_dpcm_inv_txfm_add_16_c(const tran_low_t *input, int stride,
 }
 
 void av1_hbd_dpcm_inv_txfm_add_32_c(const tran_low_t *input, int stride,
-                                    TX_TYPE_1D tx_type, int bd,
-                                    uint16_t *dest, int dir) {
+                                    TX_TYPE_1D tx_type, int bd, uint16_t *dest,
+                                    int dir) {
   assert(tx_type < TX_TYPES_1D);
-  static const TxfmFunc IHT[] = { av1_idct4_new,
-                                  av1_iadst4_new,
-                                  av1_iadst4_new,
+  static const TxfmFunc IHT[] = { av1_idct4_new, av1_iadst4_new, av1_iadst4_new,
                                   av1_iidentity4_c };
   // In order { horizontal, vertical }
   static const TXFM_1D_CFG *inv_txfm_cfg_ls[TX_TYPES_1D][2] = {
-    { &inv_txfm_1d_row_cfg_dct_32, &inv_txfm_1d_col_cfg_dct_32 } ,
-    { &inv_txfm_1d_row_cfg_adst_32, &inv_txfm_1d_col_cfg_adst_32 } ,
-    { &inv_txfm_1d_row_cfg_adst_32, &inv_txfm_1d_col_cfg_adst_32 } ,
+    { &inv_txfm_1d_row_cfg_dct_32, &inv_txfm_1d_col_cfg_dct_32 },
+    { &inv_txfm_1d_row_cfg_adst_32, &inv_txfm_1d_col_cfg_adst_32 },
+    { &inv_txfm_1d_row_cfg_adst_32, &inv_txfm_1d_col_cfg_adst_32 },
     { &inv_txfm_1d_cfg_identity_32, &inv_txfm_1d_cfg_identity_32 }
   };
 

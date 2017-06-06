@@ -101,11 +101,14 @@ void av1_hbd_dpcm_inv_txfm_add_4_c(const tran_low_t *input, int stride,
                                    TX_TYPE_1D tx_type, int bd, uint16_t *dest,
                                    int dir);
 void av1_hbd_dpcm_inv_txfm_add_8_c(const tran_low_t *input, int stride,
-                                   TX_TYPE_1D tx_type, int bd, uint16_t *dest, int dir);
+                                   TX_TYPE_1D tx_type, int bd, uint16_t *dest,
+                                   int dir);
 void av1_hbd_dpcm_inv_txfm_add_16_c(const tran_low_t *input, int stride,
-                                    TX_TYPE_1D tx_type, int bd, uint16_t *dest, int dir);
+                                    TX_TYPE_1D tx_type, int bd, uint16_t *dest,
+                                    int dir);
 void av1_hbd_dpcm_inv_txfm_add_32_c(const tran_low_t *input, int stride,
-                                    TX_TYPE_1D tx_type, int bd, uint16_t *dest, int dir);
+                                    TX_TYPE_1D tx_type, int bd, uint16_t *dest,
+                                    int dir);
 typedef void (*hbd_dpcm_inv_txfm_add_func)(const tran_low_t *input, int stride,
                                            TX_TYPE_1D tx_type, int bd,
                                            uint16_t *dest, int dir);

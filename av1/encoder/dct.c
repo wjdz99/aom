@@ -2209,7 +2209,7 @@ void av1_dpcm_ft32_c(const int16_t *input, int stride, TX_TYPE_1D tx_type,
 
 #if CONFIG_HIGHBITDEPTH
 void av1_hbd_dpcm_ft4_c(const int16_t *input, int stride, TX_TYPE_1D tx_type,
-                    tran_low_t *output, int dir) {
+                        tran_low_t *output, int dir) {
   (void)dir;
   assert(tx_type < TX_TYPES_1D);
   static const transform_1d FHT[] = { fdct4, fadst4, fadst4, fidtx4 };
@@ -2221,7 +2221,7 @@ void av1_hbd_dpcm_ft4_c(const int16_t *input, int stride, TX_TYPE_1D tx_type,
 }
 
 void av1_hbd_dpcm_ft8_c(const int16_t *input, int stride, TX_TYPE_1D tx_type,
-                    tran_low_t *output, int dir) {
+                        tran_low_t *output, int dir) {
   (void)dir;
   assert(tx_type < TX_TYPES_1D);
   static const transform_1d FHT[] = { fdct8, fadst8, fadst8, fidtx8 };
@@ -2232,7 +2232,7 @@ void av1_hbd_dpcm_ft8_c(const int16_t *input, int stride, TX_TYPE_1D tx_type,
 }
 
 void av1_hbd_dpcm_ft16_c(const int16_t *input, int stride, TX_TYPE_1D tx_type,
-                     tran_low_t *output, int dir) {
+                         tran_low_t *output, int dir) {
   (void)dir;
   assert(tx_type < TX_TYPES_1D);
   static const transform_1d FHT[] = { fdct16, fadst16, fadst16, fidtx16 };
@@ -2244,7 +2244,7 @@ void av1_hbd_dpcm_ft16_c(const int16_t *input, int stride, TX_TYPE_1D tx_type,
 }
 
 void av1_hbd_dpcm_ft32_c(const int16_t *input, int stride, TX_TYPE_1D tx_type,
-                     tran_low_t *output, int dir) {
+                         tran_low_t *output, int dir) {
   (void)dir;
   assert(tx_type < TX_TYPES_1D);
   static const transform_1d FHT[] = { fdct32, fhalfright32, fhalfright32,
