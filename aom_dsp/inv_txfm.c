@@ -1375,7 +1375,8 @@ void aom_highbd_iwht4x4_1_add_c(const tran_low_t *in, uint8_t *dest8,
   }
 }
 
-void aom_highbd_idct4_c(const tran_low_t *input, tran_low_t *output, int bd) {
+DEPRECATED void aom_highbd_idct4_c(const tran_low_t *input, tran_low_t *output,
+                                   int bd) {
   tran_low_t step[4];
   tran_high_t temp1, temp2;
   (void)bd;
@@ -1442,7 +1443,8 @@ void aom_highbd_idct4x4_1_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 
-void aom_highbd_idct8_c(const tran_low_t *input, tran_low_t *output, int bd) {
+DEPRECATED void aom_highbd_idct8_c(const tran_low_t *input, tran_low_t *output,
+                                   int bd) {
   tran_low_t step1[8], step2[8];
   tran_high_t temp1, temp2;
   // stage 1
@@ -1487,7 +1489,8 @@ void aom_highbd_idct8_c(const tran_low_t *input, tran_low_t *output, int bd) {
   output[7] = HIGHBD_WRAPLOW(step1[0] - step1[7], bd);
 }
 
-void aom_highbd_iadst4_c(const tran_low_t *input, tran_low_t *output, int bd) {
+DEPRECATED void aom_highbd_iadst4_c(const tran_low_t *input, tran_low_t *output,
+                                    int bd) {
   tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;
 
   tran_low_t x0 = input[0];
@@ -1525,7 +1528,8 @@ void aom_highbd_iadst4_c(const tran_low_t *input, tran_low_t *output, int bd) {
   output[3] = HIGHBD_WRAPLOW(dct_const_round_shift(s0 + s1 - s3), bd);
 }
 
-void aom_highbd_iadst8_c(const tran_low_t *input, tran_low_t *output, int bd) {
+DEPRECATED void aom_highbd_iadst8_c(const tran_low_t *input, tran_low_t *output,
+                                    int bd) {
   tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;
 
   tran_low_t x0 = input[7];
@@ -1602,7 +1606,8 @@ void aom_highbd_iadst8_c(const tran_low_t *input, tran_low_t *output, int bd) {
   output[7] = HIGHBD_WRAPLOW(-x1, bd);
 }
 
-void aom_highbd_idct16_c(const tran_low_t *input, tran_low_t *output, int bd) {
+DEPRECATED void aom_highbd_idct16_c(const tran_low_t *input, tran_low_t *output,
+                                    int bd) {
   tran_low_t step1[16], step2[16];
   tran_high_t temp1, temp2;
   (void)bd;
@@ -1768,7 +1773,8 @@ void aom_highbd_idct16_c(const tran_low_t *input, tran_low_t *output, int bd) {
   output[15] = HIGHBD_WRAPLOW(step2[0] - step2[15], bd);
 }
 
-void aom_highbd_iadst16_c(const tran_low_t *input, tran_low_t *output, int bd) {
+DEPRECATED void aom_highbd_iadst16_c(const tran_low_t *input,
+                                     tran_low_t *output, int bd) {
   tran_high_t s0, s1, s2, s3, s4, s5, s6, s7, s8;
   tran_high_t s9, s10, s11, s12, s13, s14, s15;
 
@@ -1938,7 +1944,8 @@ void aom_highbd_iadst16_c(const tran_low_t *input, tran_low_t *output, int bd) {
   output[15] = HIGHBD_WRAPLOW(-x1, bd);
 }
 
-void aom_highbd_idct32_c(const tran_low_t *input, tran_low_t *output, int bd) {
+DEPRECATED void aom_highbd_idct32_c(const tran_low_t *input, tran_low_t *output,
+                                    int bd) {
   tran_low_t step1[32], step2[32];
   tran_high_t temp1, temp2;
   (void)bd;
