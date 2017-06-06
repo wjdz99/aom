@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b5fba905_bb2a2a46",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 59
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-06-06T17:11:28Z",
+      "side": 1,
+      "message": "Thanks for the good suggestion. Will do.",
+      "parentUuid": "78ba4777_a4622dd8",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 36
+      },
+      "revId": "ffc8c9138a8dae2bc3e71a7f01e1211daa4a3e5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "31dc3361_2c6d10e8",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 59
@@ -36,6 +60,30 @@
       "writtenOn": "2017-06-06T16:27:35Z",
       "side": 1,
       "message": "I\u0027m unsure what this block (and the corresponding one in rdopt.c) should be doing when compound-singleref is enabled.\n\nCurrently this always sets is_global[0] \u003d is_global[1] \u003d 0, because is_global_mv_block() doesn\u0027t check for SR_ZERO_NEWMV. I think(?) the correct behaviour is that, when the mode is SR_ZERO_NEWMV (and the other checks in is_global_mv_block() pass), is_global[0] should be set to 1 and is_global[0] to 0, to indicate that we should use the global motion model for the first component but not the second. Does that seem reasonable?",
+      "range": {
+        "startLine": 922,
+        "startChar": 0,
+        "endLine": 930,
+        "endChar": 56
+      },
+      "revId": "ffc8c9138a8dae2bc3e71a7f01e1211daa4a3e5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6467262d_877ccbaa",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 59
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-06-06T17:11:28Z",
+      "side": 1,
+      "message": "Yes, a good suggestion. Will do.",
+      "parentUuid": "31dc3361_2c6d10e8",
       "range": {
         "startLine": 922,
         "startChar": 0,
@@ -82,6 +130,30 @@
       "writtenOn": "2017-06-06T16:27:35Z",
       "side": 1,
       "message": "This and the block below are correct - the idea is to avoid overlapping NEAREST_NEWMV modes (which use ref_mv_idx \u003d 0) and NEAR_NEWMV modes (which therefore need ref_mv_idx \u003e 0, but which still set mbmi-\u003eref_mv_idx\u003d0,1,2 for some reason). It is admittedly a bit of a hack.",
+      "range": {
+        "startLine": 11129,
+        "startChar": 0,
+        "endLine": 11130,
+        "endChar": 64
+      },
+      "revId": "ffc8c9138a8dae2bc3e71a7f01e1211daa4a3e5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0164a841_12c9829f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 59
+      },
+      "lineNbr": 11130,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-06-06T17:11:28Z",
+      "side": 1,
+      "message": "Thanks for checking. Currently it does not seem SR_NEAREST_NEWMV and SR_NEAR_NEWMV help at all on top of the other three modes.",
+      "parentUuid": "30895677_2d763d26",
       "range": {
         "startLine": 11129,
         "startChar": 0,
