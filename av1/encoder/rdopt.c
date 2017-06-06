@@ -10721,6 +10721,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     ref_frame = av1_mode_order[mode_index].ref_frame[0];
     second_ref_frame = av1_mode_order[mode_index].ref_frame[1];
     mbmi->ref_mv_idx = 0;
+    if (is_inter_singleref_comp_mode(this_mode) && bsize < BLOCK_8X8) continue;
 
 #if CONFIG_EXT_INTER
 
