@@ -387,7 +387,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
         }
 #if CONFIG_HIGHBITDEPTH
         if (cm->use_highbitdepth) {
-          cdef_filter_sb(
+          cdef_filter_fb(
               NULL,
               &CONVERT_TO_SHORTPTR(
                   xd->plane[pli]
@@ -400,7 +400,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
               sec_strength, pri_damping, sec_damping, coeff_shift);
         } else {
 #endif
-          cdef_filter_sb(
+          cdef_filter_fb(
               &xd->plane[pli]
                    .dst.buf[xd->plane[pli].dst.stride *
                                 (fb_mib_size * fbr << mi_high_l2[pli]) +
