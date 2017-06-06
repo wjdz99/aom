@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a2b1d2a5_0214e944",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4101,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-06-06T20:30:43Z",
+      "side": 1,
+      "message": "Thanks for the great suggestion! Done.\n\nBtw, the above code on the encoder side has been moved to the file of encoder/encoder.c, and the buffer duplicate status will then be checked right after the reference frame buffer is updated. This is needed as the bit cost calculation for the encoding of reference frames needs to have this check result ready inside the RD loop, before the bitstream is being packed.",
+      "parentUuid": "c8218fbc_cf47f9ce",
+      "range": {
+        "startLine": 4083,
+        "startChar": 1,
+        "endLine": 4101,
+        "endChar": 3
+      },
+      "revId": "aa66603de8a243427fc1c80ee19d0cc3a3dd0c71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d58fb60b_b4c99e54",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-25T16:14:23Z",
       "side": 1,
       "message": "I assume this test /debug code will go before submit?",
+      "range": {
+        "startLine": 4103,
+        "startChar": 0,
+        "endLine": 4109,
+        "endChar": 62
+      },
+      "revId": "aa66603de8a243427fc1c80ee19d0cc3a3dd0c71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01cece45_0e1974c7",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4109,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-06-06T20:30:43Z",
+      "side": 1,
+      "message": "Yes.",
+      "parentUuid": "d58fb60b_b4c99e54",
       "range": {
         "startLine": 4103,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "44108c7f_0335bd59",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1357,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-06-06T20:30:43Z",
+      "side": 1,
+      "message": "Yes, since currently we do still name the six references as LAST, LAST2, LAST3, GOLDEN, BWDREF, and ALTREF, even though they should just have referred to as 0 through 5. All the reference frames are encoded using the binary tree structure, and we do need to check their individual valid status to determine whether a bit is needed to be signaled.\n\nFor instance, one bit will signal whether a single reference frame is forward (i.e. one of LAST, LAST2, LAST3, or GOLDEN) or backward (i.e. one of BWDREF or ALTREF). Then we need to check whether there is some forward reference is valid as well as there is some backward reference is valid.\n\nIf there is no backward reference frame is valid at all, for example, then this bit is no longer needed to be written into the bitstream, as both the encoder and the decoder will figure out that this bit should be \"0\" which signals the reference is forward not backward.",
+      "parentUuid": "7b3ca84f_ade0efe4",
+      "range": {
+        "startLine": 1357,
+        "startChar": 26,
+        "endLine": 1357,
+        "endChar": 42
+      },
+      "revId": "aa66603de8a243427fc1c80ee19d0cc3a3dd0c71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6e0c3305_710c61df",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 3
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "73cbef39_bc51dbc8",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1464,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-06-06T20:30:43Z",
+      "side": 1,
+      "message": "Thanks for the suggestion! Macros have been defined and code has been polished.",
+      "parentUuid": "6e0c3305_710c61df",
+      "range": {
+        "startLine": 1461,
+        "startChar": 0,
+        "endLine": 1464,
+        "endChar": 56
+      },
+      "revId": "aa66603de8a243427fc1c80ee19d0cc3a3dd0c71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "acf70448_fa4b7ddc",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 3
@@ -105,6 +201,30 @@
       "writtenOn": "2017-05-25T16:14:23Z",
       "side": 1,
       "message": "See comments in the decode case regarding repeat tests and possible use of descriptive macros.",
+      "range": {
+        "startLine": 1314,
+        "startChar": 10,
+        "endLine": 1315,
+        "endChar": 52
+      },
+      "revId": "aa66603de8a243427fc1c80ee19d0cc3a3dd0c71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d8c048e_0ec70274",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1315,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-06-06T20:30:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "acf70448_fa4b7ddc",
       "range": {
         "startLine": 1314,
         "startChar": 10,
