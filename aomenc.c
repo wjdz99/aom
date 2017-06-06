@@ -712,6 +712,10 @@ static void parse_global_config(struct AvxEncoderConfig *global, char **argv) {
   for (argi = argj = argv; (*argj = *argi); argi += arg.argv_step) {
     arg.argv_step = 1;
 
+    if (arg_match(&arg, &mtu_size, argi)) {
+      extern int cdef;
+      cdef = arg_parse_uint(&arg);
+    } else
     if (arg_match(&arg, &codecarg, argi)) {
       global->codec = get_aom_encoder_by_name(arg.val);
       if (!global->codec)
@@ -897,7 +901,6 @@ static struct stream_state *new_stream(struct AvxEncoderConfig *global,
   stream->next = NULL;
   return stream;
 }
-
 static int parse_stream_params(struct AvxEncoderConfig *global,
                                struct stream_state *stream, char **argv) {
   char **argi, **argj;

@@ -19,7 +19,114 @@
 #include "av1/common/reconinter.h"
 #include "av1/encoder/encoder.h"
 
-#define TOTAL_STRENGTHS (CDEF_PRI_STRENGTHS * CDEF_SEC_STRENGTHS)
+#define TOTAL_STRENGTHS (4 * CDEF_SEC_STRENGTHS)
+
+//static int conv[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+static int conv[][4] = {
+{ 0, 1, 2, 6 },
+{ 0, 1, 2, 9 },
+{ 0, 1, 2, 12 },
+{ 0, 1, 2, 15 },
+{ 0, 1, 2, 18 },
+{ 0, 1, 2, 21 },
+{ 0, 1, 2, 24 },
+{ 0, 1, 2, 27 },
+{ 0, 1, 5, 12 },
+{ 0, 1, 5, 15 },
+{ 0, 1, 5, 18 },
+{ 0, 1, 5, 21 },
+{ 0, 1, 5, 24 },
+{ 0, 1, 5, 27 },
+{ 0, 1, 8, 18 },
+{ 0, 1, 8, 21 },
+{ 0, 1, 8, 24 },
+{ 0, 1, 8, 27 },
+{ 0, 1, 11, 24 },
+{ 0, 1, 11, 27 },
+{ 0, 2, 3, 7 },
+{ 0, 2, 3, 10 },
+{ 0, 2, 3, 13 },
+{ 0, 2, 3, 16 },
+{ 0, 2, 3, 19 },
+{ 0, 2, 3, 22 },
+{ 0, 2, 3, 25 },
+{ 0, 2, 3, 28 },
+{ 0, 2, 6, 13 },
+{ 0, 2, 6, 16 },
+{ 0, 2, 6, 19 },
+{ 0, 2, 6, 22 },
+{ 0, 2, 6, 25 },
+{ 0, 2, 6, 28 },
+{ 0, 2, 9, 19 },
+{ 0, 2, 9, 22 },
+{ 0, 2, 9, 25 },
+{ 0, 2, 9, 28 },
+{ 0, 2, 12, 25 },
+{ 0, 2, 12, 28 },
+{ 0, 3, 4, 8 },
+{ 0, 3, 4, 11 },
+{ 0, 3, 4, 14 },
+{ 0, 3, 4, 17 },
+{ 0, 3, 4, 20 },
+{ 0, 3, 4, 23 },
+{ 0, 3, 4, 26 },
+{ 0, 3, 4, 29 },
+{ 0, 3, 7, 14 },
+{ 0, 3, 7, 17 },
+{ 0, 3, 7, 20 },
+{ 0, 3, 7, 23 },
+{ 0, 3, 7, 26 },
+{ 0, 3, 7, 29 },
+{ 0, 3, 10, 20 },
+{ 0, 3, 10, 23 },
+{ 0, 3, 10, 26 },
+{ 0, 3, 10, 29 },
+{ 0, 3, 13, 26 },
+{ 0, 3, 13, 29 },
+{ 0, 4, 8, 15 },
+{ 0, 4, 8, 18 },
+{ 0, 4, 8, 21 },
+{ 0, 4, 8, 24 },
+{ 0, 4, 8, 27 },
+{ 0, 4, 11, 21 },
+{ 0, 4, 11, 24 },
+{ 0, 4, 11, 27 },
+{ 0, 4, 14, 27 },
+{ 0, 5, 9, 16 },
+{ 0, 5, 9, 19 },
+{ 0, 5, 9, 22 },
+{ 0, 5, 9, 25 },
+{ 0, 5, 9, 28 },
+{ 0, 5, 12, 22 },
+{ 0, 5, 12, 25 },
+{ 0, 5, 12, 28 },
+{ 0, 5, 15, 28 },
+{ 0, 6, 10, 17 },
+{ 0, 6, 10, 20 },
+{ 0, 6, 10, 23 },
+{ 0, 6, 10, 26 },
+{ 0, 6, 10, 29 },
+{ 0, 6, 13, 23 },
+{ 0, 6, 13, 26 },
+{ 0, 6, 13, 29 },
+{ 0, 6, 16, 29 },
+{ 0, 7, 14, 24 },
+{ 0, 7, 14, 27 },
+{ 0, 8, 15, 25 },
+{ 0, 8, 15, 28 },
+{ 0, 9, 16, 26 },
+{ 0, 9, 16, 29 }
+};
+
+int cdef = 0;
+
+static int shortlist(unsigned int i) {
+  return conv[cdef][i];
+}
+
+static int shortlist_full(unsigned int i) {
+  return conv[cdef][i / CDEF_SEC_STRENGTHS] * CDEF_SEC_STRENGTHS + (i % CDEF_SEC_STRENGTHS);
+}
 
 /* Search for the best strength to add as an option, knowing we
    already selected nb_strengths options. */
@@ -389,7 +496,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
           int threshold;
           uint64_t curr_mse;
           int sec_strength;
-          threshold = gi / CDEF_SEC_STRENGTHS;
+          threshold = shortlist(gi / CDEF_SEC_STRENGTHS);
           if (pli > 0 && !chroma_cdef) threshold = 0;
           /* We avoid filtering the pixels for which some of the pixels to
              average
@@ -406,7 +513,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
                        src[pli], (fbr * fb_mib_size << mi_high_l2[pli]) - yoff,
                        (fbc * fb_mib_size << mi_wide_l2[pli]) - xoff,
                        stride[pli], ysize, xsize);
-          cdef_filter_sb(NULL, tmp_dst, CDEF_BSTRIDE, in, xdec[pli], ydec[pli],
+          cdef_filter_fb(NULL, tmp_dst, CDEF_BSTRIDE, in, xdec[pli], ydec[pli],
                          dir, &dirinit, var, pli, dlist, cdef_count, threshold,
                          sec_strength + (sec_strength == 3), pri_damping,
                          sec_damping, coeff_shift);
@@ -472,6 +579,11 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
     }
     selected_strength[i] = best_gi;
     cm->mi_grid_visible[sb_index[i]]->mbmi.cdef_strength = best_gi;
+  }
+
+  for (int j = 0; j < nb_strengths; j++) {
+    cm->cdef_strengths[j] = shortlist_full(cm->cdef_strengths[j]);
+    cm->cdef_uv_strengths[j] = shortlist_full(cm->cdef_uv_strengths[j]);
   }
   cm->cdef_pri_damping = pri_damping;
   cm->cdef_sec_damping = sec_damping;
