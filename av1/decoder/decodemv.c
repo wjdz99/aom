@@ -2034,42 +2034,44 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                    nearestmv, nearmv, mi_row, mi_col, is_compound, allow_hp, r);
 
 
-    if (mbmi->mode == NEWMV) {
-      int dist_org = 0;
-      int dist_tpl = 0, best_tpl = INT_MAX >> 1;
-      int_mv tpl_mv;
-
-      dist_org += abs(mbmi->mv[0].as_mv.row - ref_mv[0].as_mv.row);
-      dist_org += abs(mbmi->mv[0].as_mv.col - ref_mv[0].as_mv.col);
-
-      for (int row = 0; row < mi_size_high[bsize]; ++row) {
-        for (int col = 0; col < mi_size_wide[bsize]; ++col) {
-          int mi_offset = (mi_row + row) * cm->mi_stride + (mi_col + col);
-          int_mv this_mv =
-              cm->cur_frame->tpl_mvs[mi_offset].mfmv[mbmi->ref_frame[0] - LAST_FRAME];
-
-          if (this_mv.as_int == INVALID_MV) continue;
-
-          dist_tpl = 0;
-          dist_tpl += abs(mbmi->mv[0].as_mv.row - this_mv.as_mv.row);
-          dist_tpl += abs(mbmi->mv[0].as_mv.col - this_mv.as_mv.col);
-
-          if (dist_tpl < best_tpl) {
-            best_tpl = dist_tpl;
-            tpl_mv.as_int = this_mv.as_int;
-          }
-        }
-      }
-
-      if (best_tpl + 16 < dist_org) {
-        fprintf(stderr, "\n mv = (%d, %d)\n", mbmi->mv[0].as_mv.row,
-                mbmi->mv[0].as_mv.col);
-        fprintf(stderr, "ref_mv = (%d, %d)\n", ref_mv[0].as_mv.row,
-                ref_mv[0].as_mv.col);
-        fprintf(stderr, "tpl_mv = (%d, %d)\n", tpl_mv.as_mv.row,
-                tpl_mv.as_mv.col);
-      }
-    }
+//    if (mbmi->mode == NEWMV && !is_compound) {
+//      int dist_org = 0;
+//      int dist_tpl = 0, best_tpl = INT_MAX >> 1;
+//      int_mv tpl_mv;
+//
+//      dist_org += abs(mbmi->mv[0].as_mv.row - ref_mv[0].as_mv.row);
+//      dist_org += abs(mbmi->mv[0].as_mv.col - ref_mv[0].as_mv.col);
+//
+//      for (int row = 0; row < mi_size_high[bsize]; ++row) {
+//        for (int col = 0; col < mi_size_wide[bsize]; ++col) {
+//          int mi_offset = (mi_row + row) * cm->mi_stride + (mi_col + col);
+//          int_mv this_mv =
+//              cm->cur_frame->tpl_mvs[mi_offset].mfmv[mbmi->ref_frame[0] - LAST_FRAME];
+//
+//          if (this_mv.as_int == INVALID_MV) continue;
+//
+//          dist_tpl = 0;
+//          dist_tpl += abs(mbmi->mv[0].as_mv.row - this_mv.as_mv.row);
+//          dist_tpl += abs(mbmi->mv[0].as_mv.col - this_mv.as_mv.col);
+//
+//          if (dist_tpl < best_tpl) {
+//            best_tpl = dist_tpl;
+//            tpl_mv.as_int = this_mv.as_int;
+//          }
+//        }
+//      }
+//
+//      if (best_tpl + 16 < dist_org) {
+//        fprintf(stderr, "\n mv = (%d, %d)\n", mbmi->mv[0].as_mv.row,
+//                mbmi->mv[0].as_mv.col);
+//        fprintf(stderr, "ref_mv = (%d, %d)\n", ref_mv[0].as_mv.row,
+//                ref_mv[0].as_mv.col);
+//        fprintf(stderr, "tpl_mv = (%d, %d)\n", tpl_mv.as_mv.row,
+//                tpl_mv.as_mv.col);
+//        fprintf(stderr, "ref_frame = %d, ref mv stack size = %d\n",
+//                mbmi->ref_frame[0], xd->ref_mv_count[mbmi->ref_frame[0]]);
+//      }
+//    }
 
     aom_merge_corrupted_flag(&xd->corrupted, mv_corrupted_flag);
   }
