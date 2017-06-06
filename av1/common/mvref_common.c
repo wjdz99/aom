@@ -346,33 +346,76 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm,
   if (!is_inside(&xd->tile, mi_col, mi_row, cm->mi_rows, cm, &mi_pos))
     return coll_blk_count;
 
-  if (prev_frame_mvs->mfmv[ref_frame - LAST_FRAME].as_int != INVALID_MV) {
-    int_mv this_refmv = prev_frame_mvs->mfmv[ref_frame - LAST_FRAME];
-    lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
+  MV_REFERENCE_FRAME rf[2];
+  av1_set_ref_frame(rf, ref_frame);
 
-    if (abs(this_refmv.as_mv.row) >= 16 || abs(this_refmv.as_mv.col) >= 16)
-      mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
+  if (rf[1] == NONE_FRAME) {
+    if (prev_frame_mvs->mfmv[ref_frame - LAST_FRAME].as_int != INVALID_MV) {
+      int_mv this_refmv = prev_frame_mvs->mfmv[ref_frame - LAST_FRAME];
+      lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
 
-    for (idx = 0; idx < *refmv_count; ++idx)
-      if (abs(this_refmv.as_mv.row - ref_mv_stack[idx].this_mv.as_mv.row) < 4 &&
-          abs(this_refmv.as_mv.col - ref_mv_stack[idx].this_mv.as_mv.col) < 4)
-        break;
+      if (abs(this_refmv.as_mv.row) >= 16 || abs(this_refmv.as_mv.col) >= 16)
+        mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
 
-//    for (idx = 0; idx < *refmv_count; ++idx)
-//      if (this_refmv.as_int == ref_mv_stack[idx].this_mv.as_int) break;
+      for (idx = 0; idx < *refmv_count; ++idx)
+        if (abs(this_refmv.as_mv.row - ref_mv_stack[idx].this_mv.as_mv.row) < 4 &&
+            abs(this_refmv.as_mv.col - ref_mv_stack[idx].this_mv.as_mv.col) < 4)
+          break;
 
-    if (idx < *refmv_count) ref_mv_stack[idx].weight += 2 * weight_unit;
+  //    for (idx = 0; idx < *refmv_count; ++idx)
+  //      if (this_refmv.as_int == ref_mv_stack[idx].this_mv.as_int) break;
 
-    if (idx == *refmv_count && *refmv_count < MAX_REF_MV_STACK_SIZE) {
-      ref_mv_stack[idx].this_mv.as_int = this_refmv.as_int;
-      // TODO(jingning): Hard coded context number. Need to make it better
-      // sense.
-      ref_mv_stack[idx].pred_diff[0] = 1;
-      ref_mv_stack[idx].weight = 2 * weight_unit;
-      ++(*refmv_count);
+      if (idx < *refmv_count) ref_mv_stack[idx].weight += 2 * weight_unit;
+
+      if (idx == *refmv_count && *refmv_count < MAX_REF_MV_STACK_SIZE) {
+        ref_mv_stack[idx].this_mv.as_int = this_refmv.as_int;
+        // TODO(jingning): Hard coded context number. Need to make it better
+        // sense.
+        ref_mv_stack[idx].pred_diff[0] = 1;
+        ref_mv_stack[idx].weight = 2 * weight_unit;
+        ++(*refmv_count);
+      }
+
+      ++coll_blk_count;
     }
+  } else {
+    // Process compound inter mode
+    if (prev_frame_mvs->mfmv[rf[0] - LAST_FRAME].as_int != INVALID_MV &&
+        prev_frame_mvs->mfmv[rf[1] - LAST_FRAME].as_int != INVALID_MV) {
+      int_mv this_refmv = prev_frame_mvs->mfmv[rf[0] - LAST_FRAME];
+      int_mv comp_refmv = prev_frame_mvs->mfmv[rf[1] - LAST_FRAME];
+      lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
+      lower_mv_precision(&comp_refmv.as_mv, cm->allow_high_precision_mv);
 
-    ++coll_blk_count;
+      if (abs(this_refmv.as_mv.row) >= 16 || abs(this_refmv.as_mv.col) >= 16 ||
+          abs(comp_refmv.as_mv.row) >= 16 || abs(comp_refmv.as_mv.col) >= 16)
+        mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
+
+      for (idx = 0; idx < *refmv_count; ++idx)
+        if (abs(this_refmv.as_mv.row - ref_mv_stack[idx].this_mv.as_mv.row) < 4 &&
+            abs(this_refmv.as_mv.col - ref_mv_stack[idx].this_mv.as_mv.col) < 4 &&
+            abs(comp_refmv.as_mv.row - ref_mv_stack[idx].comp_mv.as_mv.row) < 4 &&
+            abs(comp_refmv.as_mv.col - ref_mv_stack[idx].comp_mv.as_mv.col) < 4)
+          break;
+
+  //    for (idx = 0; idx < *refmv_count; ++idx)
+  //      if (this_refmv.as_int == ref_mv_stack[idx].this_mv.as_int) break;
+
+      if (idx < *refmv_count) ref_mv_stack[idx].weight += 2 * weight_unit;
+
+      if (idx == *refmv_count && *refmv_count < MAX_REF_MV_STACK_SIZE) {
+        ref_mv_stack[idx].this_mv.as_int = this_refmv.as_int;
+        ref_mv_stack[idx].comp_mv.as_int = comp_refmv.as_int;
+        // TODO(jingning): Hard coded context number. Need to make it better
+        // sense.
+        ref_mv_stack[idx].pred_diff[0] = 1;
+        ref_mv_stack[idx].pred_diff[1] = 1;
+        ref_mv_stack[idx].weight = 2 * weight_unit;
+        ++(*refmv_count);
+      }
+
+      ++coll_blk_count;
+    }
   }
 
   return coll_blk_count;
@@ -478,7 +521,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   for (idx = 0; idx < nearest_refmv_count; ++idx)
     ref_mv_stack[idx].weight += REF_CAT_LEVEL;
 
-  if (rf[1] == NONE_FRAME) {
+  {
     int blk_row, blk_col;
     int coll_blk_count = 0;
 #if CONFIG_CB4X4
@@ -513,8 +556,6 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 //    }
 
     if (coll_blk_count == 0) mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
-  } else {
-    mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
   }
 
 //#if CONFIG_TEMPMV_SIGNALING
@@ -975,13 +1016,13 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
        zero, so sets the ALL_ZERO flag.
      * This leads to an encode/decode mismatch.
   */
-  if (*ref_mv_count >= 2) {
-    for (idx = 0; idx < AOMMIN(3, *ref_mv_count); ++idx) {
-      if (ref_mv_stack[idx].this_mv.as_int != zeromv[0].as_int) all_zero = 0;
-      if (ref_frame > ALTREF_FRAME)
-        if (ref_mv_stack[idx].comp_mv.as_int != zeromv[1].as_int) all_zero = 0;
-    }
-  } else if (ref_frame <= ALTREF_FRAME) {
+  for (idx = 0; idx < AOMMIN(3, *ref_mv_count); ++idx) {
+    if (ref_mv_stack[idx].this_mv.as_int != zeromv[0].as_int) all_zero = 0;
+    if (ref_frame > ALTREF_FRAME)
+      if (ref_mv_stack[idx].comp_mv.as_int != zeromv[1].as_int) all_zero = 0;
+  }
+
+  if (*ref_mv_count < 2 && ref_frame <= ALTREF_FRAME) {
     for (idx = 0; idx < MAX_MV_REF_CANDIDATES; ++idx)
       if (mv_ref_list[idx].as_int != zeromv[0].as_int) all_zero = 0;
   }
