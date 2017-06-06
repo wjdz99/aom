@@ -16,6 +16,8 @@
 #include "aom/aom_integer.h"
 #include "aom_dsp/aom_dsp_common.h"
 
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -1488,6 +1490,24 @@ static const struct {
 #endif  // CONFIG_EXT_PARTITION
 };
 /* clang-format on */
+
+static int write_seg_info(const uint8_t *src, int src_stride,
+                          const uint8_t *p1, int p1_stride,
+                          const uint8_t *p2, int p2_stride,
+                          int w, int h, BLOCK_SIZE sb_type, FILE *fp, uint8_t seg_type) {
+  (void)sb_type;
+  fwrite(&seg_type, 1, sizeof(seg_type), fp);
+  for (int i = 0; i < h; ++i)
+    fwrite(src + i * src_stride, w, sizeof(*src), fp);
+
+  for (int i = 0; i < h; ++i)
+    fwrite(p1 + i * p1_stride, w, sizeof(*p1), fp);
+
+  for (int i = 0; i < h; ++i)
+    fwrite(p2 + i * p2_stride, w, sizeof(*p2), fp);
+
+  return 1;
+}
 
 #if CONFIG_SUPERTX
 static const TX_SIZE uvsupertx_size_lookup[TX_SIZES][2][2] = {

@@ -5560,6 +5560,29 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
                            &xd->block_refs[ref]->sf);
     }
+
+    if (!dry_run && mbmi->interinter_compound_type > COMPOUND_AVERAGE
+        && (bsize == BLOCK_32X32 || bsize == BLOCK_16X16 || bsize == BLOCK_8X8)) {
+      const int bwidth = block_size_wide[bsize];
+      const int bheight = block_size_high[bsize];
+      int strides[1] = { bwidth };
+      uint8_t pred0[2 * MAX_SB_SQUARE];
+      uint8_t pred1[2 * MAX_SB_SQUARE];
+      uint8_t *preds0[1] = { pred0 };
+      uint8_t *preds1[1] = { pred1 };
+      int which_seg = bsize == BLOCK_8X8 ? 0 : (bsize == BLOCK_16X16 ? 1 : 2);
+
+      // get inter predictors to use for masked compound modes
+      av1_build_inter_predictors_for_planes_single_buf(
+          xd, bsize, 0, 0, mi_row, mi_col, 0, preds0, strides);
+      av1_build_inter_predictors_for_planes_single_buf(
+          xd, bsize, 0, 0, mi_row, mi_col, 1, preds1, strides);
+
+      write_seg_info(x->plane[0].src.buf, x->plane[0].src.stride, pred0,
+                     bwidth, pred1, bwidth, bwidth, bheight, bsize, cpi->seg_fp[which_seg],
+                     (uint8_t) mbmi->interinter_compound_type);
+    }
+
     av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, NULL, block_size);
 
     av1_build_inter_predictors_sbuv(cm, xd, mi_row, mi_col, NULL, block_size);

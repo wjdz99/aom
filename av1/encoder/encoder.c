@@ -959,6 +959,33 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
   cpi->oxcf = *oxcf;
   cpi->framerate = oxcf->init_framerate;
 
+  if (cpi->seg_fp[0]) {
+    fclose(cpi->seg_fp[0]);
+    printf("File closed 0.\n");
+  }
+  cpi->seg_fp[0] =
+    fopen("/usr/local/google/home/sarahparker/matlab_visualize_seg/data/comp8x8.dat", "wb");
+  if (cpi->seg_fp[0] != NULL)
+    printf("File opened 0.\n");
+
+  if (cpi->seg_fp[1]) {
+    fclose(cpi->seg_fp[1]);
+    printf("File closed 0.\n");
+  }
+  cpi->seg_fp[1] =
+    fopen("/usr/local/google/home/sarahparker/matlab_visualize_seg/data/comp16x16.dat", "wb");
+  if (cpi->seg_fp[1] != NULL)
+    printf("File opened 0.\n");
+
+  if (cpi->seg_fp[2]) {
+    fclose(cpi->seg_fp[2]);
+    printf("File closed 0.\n");
+  }
+  cpi->seg_fp[2] =
+    fopen("/usr/local/google/home/sarahparker/matlab_visualize_seg/data/comp32x32.dat", "wb");
+  if (cpi->seg_fp[2] != NULL)
+    printf("File opened 0.\n");
+
   cm->profile = oxcf->profile;
   cm->bit_depth = oxcf->bit_depth;
 #if CONFIG_HIGHBITDEPTH

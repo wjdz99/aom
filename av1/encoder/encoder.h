@@ -640,6 +640,7 @@ typedef struct AV1_COMP {
 #if CONFIG_LV_MAP
   tran_low_t *tcoeff_buf[MAX_MB_PLANE];
 #endif
+  FILE *seg_fp[3];
 } AV1_COMP;
 
 void av1_initialize_enc(void);

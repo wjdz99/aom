@@ -7847,6 +7847,7 @@ static int64_t handle_inter_mode(
       mbmi->mv[0].as_int = cur_mv[0].as_int;
       mbmi->mv[1].as_int = cur_mv[1].as_int;
     }
+
 #if CONFIG_WEDGE
     mbmi->wedge_index = best_compound_data.wedge_index;
     mbmi->wedge_sign = best_compound_data.wedge_sign;
