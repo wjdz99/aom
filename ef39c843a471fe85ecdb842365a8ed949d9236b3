@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e7fac23c_7c80f796",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-06-06T17:14:39Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "1b26638c_ea8f681f",
+      "revId": "ef39c843a471fe85ecdb842365a8ed949d9236b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "00bbaa2d_9a342b44",
         "filename": "test/quantize_func_test.cc",
         "patchSetId": 12
@@ -30,6 +48,30 @@
       "writtenOn": "2017-05-31T15:32:43Z",
       "side": 1,
       "message": "here and elsewhere, variables are lowercase + \u0027_\u0027\n\nhttps://google.github.io/styleguide/cppguide.html#Variable_Names",
+      "range": {
+        "startLine": 84,
+        "startChar": 24,
+        "endLine": 84,
+        "endChar": 30
+      },
+      "revId": "ef39c843a471fe85ecdb842365a8ed949d9236b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ccd37aa_c4b9b6ba",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-06-06T17:14:39Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "00bbaa2d_9a342b44",
       "range": {
         "startLine": 84,
         "startChar": 24,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "666cf68a_cf4c8ee5",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-06-06T17:14:39Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "7f18bf50_d6c5094f",
+      "revId": "ef39c843a471fe85ecdb842365a8ed949d9236b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a54d5799_6aacc821",
         "filename": "test/quantize_func_test.cc",
         "patchSetId": 12
@@ -70,6 +130,24 @@
       "writtenOn": "2017-05-31T15:32:43Z",
       "side": 1,
       "message": "if this or the next fail, but none of the other checks in the loop this won\u0027t break and may cause a bit of unnecessary output; you can ASSERT_NO_FATAL_FAILURE if that\u0027s true",
+      "revId": "ef39c843a471fe85ecdb842365a8ed949d9236b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d75dceb7_c856c1f7",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-06-06T17:14:39Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "a54d5799_6aacc821",
       "revId": "ef39c843a471fe85ecdb842365a8ed949d9236b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -99,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "d2d5b31e_7de81c7f",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-06-06T17:14:39Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "b0cb80bd_9d1fc1b2",
+      "range": {
+        "startLine": 138,
+        "startChar": 6,
+        "endLine": 138,
+        "endChar": 17
+      },
+      "revId": "ef39c843a471fe85ecdb842365a8ed949d9236b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "49107945_a4a4033c",
         "filename": "test/quantize_func_test.cc",
         "patchSetId": 12
@@ -110,6 +212,24 @@
       "writtenOn": "2017-05-31T15:32:43Z",
       "side": 1,
       "message": "another way to write this without the default parameter would be to overload the function as there isn\u0027t a lot of shared code\n\nhttps://google.github.io/styleguide/cppguide.html#Default_Arguments",
+      "revId": "ef39c843a471fe85ecdb842365a8ed949d9236b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2c71224_27874700",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-06-06T17:14:39Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "49107945_a4a4033c",
       "revId": "ef39c843a471fe85ecdb842365a8ed949d9236b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -156,6 +276,24 @@
     },
     {
       "key": {
+        "uuid": "139efeb0_1ec2c835",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-06-06T17:14:39Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "2b470adc_d3db4e80",
+      "revId": "ef39c843a471fe85ecdb842365a8ed949d9236b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "274c208c_1ceb3738",
         "filename": "test/quantize_func_test.cc",
         "patchSetId": 12
@@ -167,6 +305,24 @@
       "writtenOn": "2017-05-31T15:32:43Z",
       "side": 1,
       "message": "better would be to put this in a DISABLED_ group to allow people to test without rebuilding and to avoid this code falling out of sync should the function be changed or deleted.",
+      "revId": "ef39c843a471fe85ecdb842365a8ed949d9236b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7df91e44_5f7c05e1",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-06-06T17:14:39Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "274c208c_1ceb3738",
       "revId": "ef39c843a471fe85ecdb842365a8ed949d9236b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
