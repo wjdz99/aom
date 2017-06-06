@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b080619_2c5585a7",
+        "filename": "build/make/configure.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-06-06T16:42:02Z",
+      "side": 1,
+      "message": "Configure should test for this and turn it on when required (via soft_enable pic). Turning it on for x86 assembly on all targets when the problem exists only on newish ubuntu and debian is a bit heavy handed, no? \n\nThe work around of using --enable-pic still seems preferable vs always turning it on unconditionally for only certain types of object files.",
+      "range": {
+        "startLine": 1263,
+        "startChar": 12,
+        "endLine": 1263,
+        "endChar": 29
+      },
+      "revId": "ae64615dcc5d1d2386392df94f0ecf5e1d1b1bf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
