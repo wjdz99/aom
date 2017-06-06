@@ -2121,28 +2121,29 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
       bsize >= BLOCK_8X8 &&
 #endif
       !xd->lossless[mbmi->segment_id])
-    write_selected_tx_size(cm, xd, w);
 
 #if CONFIG_INTRABC
-  if (bsize >= BLOCK_8X8 && cm->allow_screen_content_tools) {
-    int use_intrabc = is_intrabc_block(mbmi);
-    aom_write(w, use_intrabc, ec_ctx->intrabc_prob);
-    if (use_intrabc) {
-      assert(mbmi->mode == DC_PRED);
-      assert(mbmi->uv_mode == DC_PRED);
-      int_mv dv_ref = mbmi_ext->ref_mvs[INTRA_FRAME][0];
-      av1_encode_dv(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
+    if (bsize >= BLOCK_8X8 && cm->allow_screen_content_tools) {
+      int use_intrabc = is_intrabc_block(mbmi);
+      aom_write(w, use_intrabc, ec_ctx->intrabc_prob);
+      if (use_intrabc) {
+        assert(mbmi->mode == DC_PRED);
+        assert(mbmi->uv_mode == DC_PRED);
+        if (!mbmi->skip) write_selected_tx_size(cm, xd, w);
+        int_mv dv_ref = mbmi_ext->ref_mvs[INTRA_FRAME][0];
+        av1_encode_dv(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
 #if CONFIG_EXT_TX && !CONFIG_TXK_SEL
-      av1_write_tx_type(cm, xd,
+        av1_write_tx_type(cm, xd,
 #if CONFIG_SUPERTX
-                        0,
+                          0,
 #endif
-                        w);
+                          w);
 #endif  // CONFIG_EXT_TX && !CONFIG_TXK_SEL
-      return;
+        return;
+      }
     }
-  }
 #endif  // CONFIG_INTRABC
+  write_selected_tx_size(cm, xd, w);
 
   if (bsize >= BLOCK_8X8 || unify_bsize) {
     write_intra_mode_kf(cm, ec_ctx, mi, above_mi, left_mi, 0, mbmi->mode, w);
