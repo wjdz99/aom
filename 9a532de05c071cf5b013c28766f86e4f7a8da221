@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b980ff2_aaf86a79",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-06T18:50:34Z",
+      "side": 1,
+      "message": "or maybe rename this to FillCoeffRandom() since that\u0027s a bit closer to what it does. you could then drop the \u0027Generic\u0027 from the other one.",
+      "range": {
+        "startLine": 146,
+        "startChar": 16,
+        "endLine": 146,
+        "endChar": 23
+      },
+      "revId": "9a532de05c071cf5b013c28766f86e4f7a8da221",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
