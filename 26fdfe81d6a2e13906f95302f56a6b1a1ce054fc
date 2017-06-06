@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "250a8554_c8b1b9ed",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 8232,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-06-06T19:23:07Z",
+      "side": 1,
+      "message": "Why remove the cost of transmitting \"DC_PRED\"?",
+      "range": {
+        "startLine": 8232,
+        "startChar": 14,
+        "endLine": 8232,
+        "endChar": 64
+      },
+      "revId": "26fdfe81d6a2e13906f95302f56a6b1a1ce054fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
