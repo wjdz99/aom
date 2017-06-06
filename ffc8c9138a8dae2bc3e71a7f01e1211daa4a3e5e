@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78ba4777_a4622dd8",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 59
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-06-06T16:27:35Z",
+      "side": 1,
+      "message": "This condition comes up quite often - might be worth making a function for it?\n(eg, replace this block by assert(is_any_comp_pred_mode(mode)) or something like that)",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 36
+      },
+      "revId": "ffc8c9138a8dae2bc3e71a7f01e1211daa4a3e5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31dc3361_2c6d10e8",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 59
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-06-06T16:27:35Z",
+      "side": 1,
+      "message": "I\u0027m unsure what this block (and the corresponding one in rdopt.c) should be doing when compound-singleref is enabled.\n\nCurrently this always sets is_global[0] \u003d is_global[1] \u003d 0, because is_global_mv_block() doesn\u0027t check for SR_ZERO_NEWMV. I think(?) the correct behaviour is that, when the mode is SR_ZERO_NEWMV (and the other checks in is_global_mv_block() pass), is_global[0] should be set to 1 and is_global[0] to 0, to indicate that we should use the global motion model for the first component but not the second. Does that seem reasonable?",
+      "range": {
+        "startLine": 922,
+        "startChar": 0,
+        "endLine": 930,
+        "endChar": 56
+      },
+      "revId": "ffc8c9138a8dae2bc3e71a7f01e1211daa4a3e5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0380bdfb_a4c36f37",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 59
+      },
+      "lineNbr": 5623,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-06-06T16:27:35Z",
+      "side": 1,
+      "message": "Same comment as in reconinter.c",
+      "range": {
+        "startLine": 5610,
+        "startChar": 0,
+        "endLine": 5623,
+        "endChar": 56
+      },
+      "revId": "ffc8c9138a8dae2bc3e71a7f01e1211daa4a3e5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30895677_2d763d26",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 59
+      },
+      "lineNbr": 11130,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-06-06T16:27:35Z",
+      "side": 1,
+      "message": "This and the block below are correct - the idea is to avoid overlapping NEAREST_NEWMV modes (which use ref_mv_idx \u003d 0) and NEAR_NEWMV modes (which therefore need ref_mv_idx \u003e 0, but which still set mbmi-\u003eref_mv_idx\u003d0,1,2 for some reason). It is admittedly a bit of a hack.",
+      "range": {
+        "startLine": 11129,
+        "startChar": 0,
+        "endLine": 11130,
+        "endChar": 64
+      },
+      "revId": "ffc8c9138a8dae2bc3e71a7f01e1211daa4a3e5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
