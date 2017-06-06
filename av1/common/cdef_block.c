@@ -220,7 +220,7 @@ static INLINE int od_adjust_strength(int strength, int32_t var) {
   return var ? (strength * (4 + i) + 8) >> 4 : 0;
 }
 
-void cdef_filter_sb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
+void cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
                     int xdec, int ydec, int dir[CDEF_NBLOCKS][CDEF_NBLOCKS],
                     int *dirinit, int var[CDEF_NBLOCKS][CDEF_NBLOCKS], int pli,
                     cdef_list *list, int cdef_count, int level,
