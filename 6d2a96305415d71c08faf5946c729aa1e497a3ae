@@ -46,6 +46,30 @@
       "revId": "6d2a96305415d71c08faf5946c729aa1e497a3ae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e4f29f5_6f483c25",
+        "filename": "aom_dsp/loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-06-07T21:25:46Z",
+      "side": 1,
+      "message": "But all of them are defined as uint8_t, which can make the summation part out of 8 bits, before the right shift happens (?)",
+      "parentUuid": "8fa1a0dc_f8e26b25",
+      "range": {
+        "startLine": 560,
+        "startChar": 8,
+        "endLine": 560,
+        "endChar": 78
+      },
+      "revId": "6d2a96305415d71c08faf5946c729aa1e497a3ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
