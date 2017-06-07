@@ -94,6 +94,30 @@
       "revId": "6d2a96305415d71c08faf5946c729aa1e497a3ae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36ba3807_fb49913b",
+        "filename": "aom_dsp/loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-07T22:10:40Z",
+      "side": 1,
+      "message": "\u003e In C, when uint8_t numbers are computed, the compiler will automatically promote uint8_t to int for calculation. For example, for a_n+1 \u003d ROUND_POWER_OF_TWO(a_1+a_2+...+a_n, b), where a_i is type uint8_t, as long as summation is in the range of int, and shift back value is in the range of uint8_t, It is fine.\n\u003e \n\u003e Or we can compare with existing code, in function filter16. Similar calculation is in the code base. Here I just borrow the equation from that function.\n\nuint8 will implicitly be promoted to int in the calculation (see integer promotions)\n\nhttp://en.cppreference.com/w/c/language/conversion\n\nif you want to be explicit a cast is fine or it might be better to store these in an int temporary.",
+      "parentUuid": "ca77ceb6_03acc3ce",
+      "range": {
+        "startLine": 560,
+        "startChar": 8,
+        "endLine": 560,
+        "endChar": 78
+      },
+      "revId": "6d2a96305415d71c08faf5946c729aa1e497a3ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
