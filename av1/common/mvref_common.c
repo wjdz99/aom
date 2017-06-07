@@ -1145,7 +1145,7 @@ void av1_setup_frame_buf_refs(AV1_COMMON *cm) {
 
 void av1_setup_motion_field(AV1_COMMON *cm) {
   int cur_frame_index = cm->cur_frame->cur_frame_offset;
-  int lst_frame_index = 0, alt_frame_index = 0;
+  int lst_frame_index = 0, alt_frame_index = 0, gld_frame_index = 0;
   TPL_MV_REF *tpl_mvs_base = cm->cur_frame->tpl_mvs;
 
   for (int ref_frame = 0; ref_frame < INTER_REFS_PER_FRAME; ++ref_frame) {
@@ -1156,6 +1156,7 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
 
   int alt_buf_idx = cm->frame_refs[ALTREF_FRAME - LAST_FRAME].idx;
   int lst_buf_idx = cm->frame_refs[LAST_FRAME - LAST_FRAME].idx;
+  int gld_buf_idx = cm->frame_refs[GOLDEN_FRAME - LAST_FRAME].idx;
 
   if (alt_buf_idx >= 0)
     alt_frame_index = cm->buffer_pool->frame_bufs[alt_buf_idx].cur_frame_offset;
@@ -1163,10 +1164,13 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
   if (lst_buf_idx >= 0)
     lst_frame_index = cm->buffer_pool->frame_bufs[lst_buf_idx].cur_frame_offset;
 
+  if (gld_buf_idx >= 0)
+    gld_frame_index = cm->buffer_pool->frame_bufs[gld_buf_idx].cur_frame_offset;
+
   // =======================
   // Process ARF frame
   // =======================
-  if (alt_buf_idx >= 0) {
+  if (alt_buf_idx >= 0 && cm->show_frame) {
     MV_REF *mv_ref_base = cm->buffer_pool->frame_bufs[alt_buf_idx].mvs;
     const int lst_frame_idx =
         cm->buffer_pool->frame_bufs[alt_buf_idx].lst_frame_offset;
@@ -1175,7 +1179,7 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
 
     int lst_offset = AOMMAX(1, alt_frame_index - lst_frame_idx);
     int gld_offset = AOMMAX(1, alt_frame_index - gld_frame_idx);
-    int cur_offset = alt_frame_index - cur_frame_index;
+    int cur_to_alt = alt_frame_index - cur_frame_index;
     int cur_to_lst = cur_frame_index - lst_frame_index;
 
     for (int blk_row = 0; blk_row < cm->mi_rows; ++blk_row) {
@@ -1186,8 +1190,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
             mv_ref->ref_frame[0], mv_ref->ref_frame[1]
         };
         if (ref_frame[0] == LAST_FRAME) {
-          int16_t mv_y = (int16_t)(fwd_mv.row * (double)cur_offset / lst_offset);
-          int16_t mv_x = (int16_t)(fwd_mv.col * (double)cur_offset / lst_offset);
+          int16_t mv_y = (int16_t)(fwd_mv.row * (double)cur_to_alt / lst_offset);
+          int16_t mv_x = (int16_t)(fwd_mv.col * (double)cur_to_alt / lst_offset);
 
           int mi_r = blk_row + (mv_y >> (3 + MI_SIZE_LOG2));
           int mi_c = blk_col + (mv_x >> (3 + MI_SIZE_LOG2));
@@ -1217,8 +1221,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
         }
 
         if (ref_frame[0] == GOLDEN_FRAME) {
-          int16_t mv_y = (int16_t)(fwd_mv.row * (double)cur_offset / gld_offset);
-          int16_t mv_x = (int16_t)(fwd_mv.col * (double)cur_offset / gld_offset);
+          int16_t mv_y = (int16_t)(fwd_mv.row * (double)cur_to_alt / gld_offset);
+          int16_t mv_x = (int16_t)(fwd_mv.col * (double)cur_to_alt / gld_offset);
 
           int mi_r = blk_row + (mv_y >> (3 + MI_SIZE_LOG2));
           int mi_c = blk_col + (mv_x >> (3 + MI_SIZE_LOG2));
@@ -1266,6 +1270,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
     int lst_offset = AOMMAX(1, lst_frame_index - lst_frame_idx);
     int gld_offset = AOMMAX(1, lst_frame_index - gld_frame_idx);
     int cur_to_lst = cur_frame_index - lst_frame_index;
+    int cur_to_alt = alt_frame_index - cur_frame_index;
+    int cur_to_gld = cur_frame_index - gld_frame_index;
 
     for (int blk_row = 0; blk_row < cm->mi_rows; ++blk_row) {
       for (int blk_col = 0; blk_col < cm->mi_cols; ++blk_col) {
@@ -1308,8 +1314,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           int_mv this_mv;
 
           // Reverse motion vectors towards ARF frame
-          this_mv.as_mv.row = mv_y + fwd_mv.row;
-          this_mv.as_mv.col = mv_x + fwd_mv.col;
+          this_mv.as_mv.row = (int16_t)(fwd_mv.row * (double)cur_to_gld / gld_offset);
+          this_mv.as_mv.col = (int16_t)(fwd_mv.col * (double)cur_to_gld / gld_offset);
 
           mi_r = AOMMIN(mi_r, cm->mi_rows);
           mi_r = AOMMAX(mi_r, 0);
@@ -1324,12 +1330,12 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           int16_t mv_y = (int16_t)(fwd_mv.row * (double)cur_to_lst / alt_offset);
           int16_t mv_x = (int16_t)(fwd_mv.col * (double)cur_to_lst / alt_offset);
 
-          int mi_r = blk_row - (mv_y >> (3 + MI_SIZE_LOG2));
-          int mi_c = blk_col - (mv_x >> (3 + MI_SIZE_LOG2));
+          int mi_r = blk_row + (mv_y >> (3 + MI_SIZE_LOG2));
+          int mi_c = blk_col + (mv_x >> (3 + MI_SIZE_LOG2));
           int_mv this_mv;
 
-          this_mv.as_mv.row = fwd_mv.row - mv_y;
-          this_mv.as_mv.col = fwd_mv.col - mv_x;
+          this_mv.as_mv.row = (int16_t)(fwd_mv.row * (double)cur_to_alt / alt_offset);
+          this_mv.as_mv.col = (int16_t)(fwd_mv.col * (double)cur_to_alt / alt_offset);
 
           mi_r = AOMMIN(mi_r, cm->mi_rows);
           mi_r = AOMMAX(mi_r, 0);
@@ -1344,12 +1350,12 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           int16_t mv_y = (int16_t)(bck_mv.row * (double)cur_to_lst / alt_offset);
           int16_t mv_x = (int16_t)(bck_mv.col * (double)cur_to_lst / alt_offset);
 
-          int mi_r = blk_row - (mv_y >> (3 + MI_SIZE_LOG2));
-          int mi_c = blk_col - (mv_x >> (3 + MI_SIZE_LOG2));
+          int mi_r = blk_row + (mv_y >> (3 + MI_SIZE_LOG2));
+          int mi_c = blk_col + (mv_x >> (3 + MI_SIZE_LOG2));
           int_mv this_mv;
 
-          this_mv.as_mv.row = bck_mv.row - mv_y;
-          this_mv.as_mv.col = bck_mv.col - mv_x;
+          this_mv.as_mv.row = (int16_t)(bck_mv.row * (double)cur_to_alt / alt_offset);
+          this_mv.as_mv.col = (int16_t)(bck_mv.col * (double)cur_to_alt / alt_offset);
 
           mi_r = AOMMIN(mi_r, cm->mi_rows);
           mi_r = AOMMAX(mi_r, 0);
