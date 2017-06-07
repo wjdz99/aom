@@ -1697,7 +1697,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
           uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
           int idx;
 
-          for (idx = 0; idx < 2; ++idx) {
+          for (idx = 0; idx < (MAX_DRL_STACK_SIZE - 2); ++idx) {
             if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
               uint8_t drl_ctx =
                   av1_drl_ctx(mbmi_ext->ref_mv_stack[ref_frame_type], idx);
@@ -1716,7 +1716,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
           uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
           int idx;
 
-          for (idx = 1; idx < 3; ++idx) {
+          for (idx = 1; idx < (MAX_DRL_STACK_SIZE - 1); ++idx) {
             if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
               uint8_t drl_ctx =
                   av1_drl_ctx(mbmi_ext->ref_mv_stack[ref_frame_type], idx);

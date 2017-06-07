@@ -10695,7 +10695,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         int idx_offset = (mbmi->mode == NEARMV) ? 1 : 0;
 #endif  // CONFIG_EXT_INTER
         int ref_set =
-            AOMMIN(2, mbmi_ext->ref_mv_count[ref_frame_type] - 1 - idx_offset);
+            AOMMIN((MAX_DRL_STACK_SIZE - 2),
+                   mbmi_ext->ref_mv_count[ref_frame_type] - 1 - idx_offset);
 
         uint8_t drl_ctx =
             av1_drl_ctx(mbmi_ext->ref_mv_stack[ref_frame_type], idx_offset);

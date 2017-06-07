@@ -249,7 +249,7 @@ static void read_drl_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
   if (mbmi->mode == NEWMV) {
 #endif
     int idx;
-    for (idx = 0; idx < 2; ++idx) {
+    for (idx = 0; idx < (MAX_DRL_STACK_SIZE - 2); ++idx) {
       if (xd->ref_mv_count[ref_frame_type] > idx + 1) {
         uint8_t drl_ctx = av1_drl_ctx(xd->ref_mv_stack[ref_frame_type], idx);
         aom_prob drl_prob = cm->fc->drl_prob[drl_ctx];
@@ -269,7 +269,7 @@ static void read_drl_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
     // Offset the NEARESTMV mode.
     // TODO(jingning): Unify the two syntax decoding loops after the NEARESTMV
     // mode is factored in.
-    for (idx = 1; idx < 3; ++idx) {
+    for (idx = 1; idx < (MAX_DRL_STACK_SIZE - 1); ++idx) {
       if (xd->ref_mv_count[ref_frame_type] > idx + 1) {
         uint8_t drl_ctx = av1_drl_ctx(xd->ref_mv_stack[ref_frame_type], idx);
         aom_prob drl_prob = cm->fc->drl_prob[drl_ctx];
