@@ -1,0 +1,175 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73822c83_e39d9f13",
+        "filename": "av1/common/av1_fwd_txfm2d.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-08T01:23:22Z",
+      "side": 1,
+      "message": "though not strictly necessary, it can help readability to group the condition in ()s in ?: statements",
+      "range": {
+        "startLine": 55,
+        "startChar": 6,
+        "endLine": 55,
+        "endChar": 35
+      },
+      "revId": "2b5cdb1cf87c933331a16cc0221455d0a8c255e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d58a36ab_86d34707",
+        "filename": "av1/common/av1_fwd_txfm2d.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-08T01:23:22Z",
+      "side": 1,
+      "message": "this change is consistent, but these can all be const",
+      "revId": "2b5cdb1cf87c933331a16cc0221455d0a8c255e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "873feba9_1a8fd7df",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1461,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-08T01:23:22Z",
+      "side": 1,
+      "message": "this annotation is usually used at the end of a group without a break. with empty groups it isn\u0027t necessary",
+      "revId": "2b5cdb1cf87c933331a16cc0221455d0a8c255e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a76fb529_038d22d0",
+        "filename": "av1/common/x86/av1_fwd_txfm2d_sse4.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-08T01:23:22Z",
+      "side": 1,
+      "message": "alternatively or in addition you could assert the condition as code tends to move around or call sites change",
+      "revId": "2b5cdb1cf87c933331a16cc0221455d0a8c255e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d3bf01c_b7479e7c",
+        "filename": "av1/common/x86/av1_txfm1d_sse4.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-08T01:23:22Z",
+      "side": 1,
+      "message": "represented, but unrelated cosmetics should be left out to the extent possible",
+      "range": {
+        "startLine": 65,
+        "startChar": 26,
+        "endLine": 65,
+        "endChar": 35
+      },
+      "revId": "2b5cdb1cf87c933331a16cc0221455d0a8c255e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "314af449_c0c98d32",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2153,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-08T01:23:22Z",
+      "side": 1,
+      "message": "these two look like they\u0027re unused, should they be a part of this cleanup?",
+      "revId": "2b5cdb1cf87c933331a16cc0221455d0a8c255e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f74ca9dc_3b58f3c0",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2219,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-08T01:23:22Z",
+      "side": 1,
+      "message": "this is a pre-existing condition, but typically global constants are kCamelCase\n\nhttps://google.github.io/styleguide/cppguide.html#Constant_Names",
+      "range": {
+        "startLine": 2219,
+        "startChar": 70,
+        "endLine": 2219,
+        "endChar": 75
+      },
+      "revId": "2b5cdb1cf87c933331a16cc0221455d0a8c255e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38632bc1_1317481e",
+        "filename": "test/dct16x16_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 632,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-08T01:23:22Z",
+      "side": 1,
+      "message": "these could go in the #else, inv_txfm_ref already is. I\u0027m surprised this didn\u0027t generate a warning for a dead store",
+      "revId": "2b5cdb1cf87c933331a16cc0221455d0a8c255e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b961d521_99767e8a",
+        "filename": "test/fdct4x4_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-08T01:23:22Z",
+      "side": 1,
+      "message": "when disabling tests it\u0027s good to file a bug and leave a link to it in a comment",
+      "revId": "2b5cdb1cf87c933331a16cc0221455d0a8c255e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
