@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2feb4e85_ece9d707",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-06-08T15:53:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d4f27e5f_15cd9ea2",
+      "revId": "bcb964d9d1e74f755803ce0f6edb724d6df1294a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce6f0417_67528be3",
         "filename": "test/tools_common.sh",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-08T05:38:28Z",
       "side": 1,
       "message": "you can combine these with -e or do something like s/\"\\(.*\\)\";/\\1/\nyou can anchor that with $ if \"; is the last thing at the end of the line",
+      "revId": "bcb964d9d1e74f755803ce0f6edb724d6df1294a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "513d3857_df95c36c",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-06-08T15:53:51Z",
+      "side": 1,
+      "message": "just used -e",
+      "parentUuid": "ce6f0417_67528be3",
       "revId": "bcb964d9d1e74f755803ce0f6edb724d6df1294a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -50,6 +86,24 @@
       "revId": "bcb964d9d1e74f755803ce0f6edb724d6df1294a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "942336cd_8c86f75f",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-06-08T15:53:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40e9ee1d_6ff1e41e",
+      "revId": "bcb964d9d1e74f755803ce0f6edb724d6df1294a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
