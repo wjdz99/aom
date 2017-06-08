@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "41a1eee5_1f530411",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1568,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-06-08T00:35:21Z",
+      "side": 0,
+      "message": "You are right. So, I have applied the alternate fix you just stated.",
+      "parentUuid": "5ee7daae_f1b19f98",
+      "revId": "185575a7713722588063e439471aa46df6f63c84",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da1ffc3e_08384077",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-08T00:23:15Z",
       "side": 0,
       "message": "So, I think you\u0027ve removed all of the code which accesses rate_4x4, right? Can we delete that struct element entirely?",
+      "revId": "185575a7713722588063e439471aa46df6f63c84",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3cd90933_d19088ee",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1672,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-06-08T00:35:21Z",
+      "side": 0,
+      "message": "YEAP- now the struct has gone. I am one of the people who disliked this struct having tricky indexing.\nI though I deleted in the 1st patch but kept it to check whether it used by daala-dist for var-tx.",
+      "parentUuid": "da1ffc3e_08384077",
       "revId": "185575a7713722588063e439471aa46df6f63c84",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
