@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "109ead75_60de7e81",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1258,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2017-06-08T09:33:20Z",
+      "side": 1,
+      "message": "OK. So the macros here and elsewhere do reduce the code volume a little and thus help  make things a bit more readable but this was not quite what I was getting at.\n\nThe code here, in rdopt and on the decoder side is looking to establish the need to explicitly code (or not) nodes in a tree structure.\n\nThere are 5 branch nodes in the tree and 6 leaves. In regards to these tests of branch nodes certain pairs of leaf nodes are always combined and are repeated multiple times. There are in fact 6 paired leaf tests as follows which could be macros (rather than using macros for single leaves):-\n\n(L || L2), (L \u0026\u0026 L2), (L3 || G), (L3 \u0026\u0026 G), (BWD || ALT), (BWD \u0026\u0026 ALT).\n\nSo the need to explicitly code the top node is defined by:\n\n// Test need to explicitly code top branch node in tree\n(L_OR_L2 || L3_OR_G) || BWD_OR_ALT\n\nThe need to explicitly code the branch node separating the leaf pairs L,L2 and L3,G is expressed by the test:\n\n// Test need to explicitly code (L,L2) vs (L3,G) branch node in tree\nL_OR_L2 \u0026\u0026 L3_OR_G\n\netc etc\n\nI guess the reason I might prefer use of macros for leaf pairs rather than leaf nodes (other than even greater compactness) really comes down to wanting the tree structure and meaning of the tests to be more immediately and obviously visible in the code. Actually the addition of comments indicating the meaning of each test as in the above examples would also be fine in this regard.\n\nSorry to be a pedant, it is just that I obviously come at this already knowing the likely structure and what you are trying to achieve but still I went a bit cross eyed trying to confirm in my mind what each test meant.",
+      "range": {
+        "startLine": 1170,
+        "startChar": 0,
+        "endLine": 1258,
+        "endChar": 27
+      },
+      "revId": "bfe6e6a7ce9c1de55a43b5bcaa3b32f8bf2620bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
