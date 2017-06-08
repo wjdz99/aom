@@ -56,13 +56,6 @@ static int32_t get_16x16_sum(const int16_t *input, int stride) {
   return (int32_t)_mm_extract_epi32(v0, 0);
 }
 
-void aom_fdct16x16_1_avx2(const int16_t *input, tran_low_t *output,
-                          int stride) {
-  int32_t dc = get_16x16_sum(input, stride);
-  output[0] = (tran_low_t)(dc >> 1);
-  _mm256_zeroupper();
-}
-
 static INLINE void load_buffer_16x16(const int16_t *input, int stride,
                                      int flipud, int fliplr, __m256i *in) {
   if (!flipud) {
@@ -1081,22 +1074,6 @@ void av1_fht16x16_avx2(const int16_t *input, tran_low_t *output, int stride,
   }
   mm256_transpose_16x16(in, in);
   write_buffer_16x16(in, output);
-  _mm256_zeroupper();
-}
-
-void aom_fdct32x32_1_avx2(const int16_t *input, tran_low_t *output,
-                          int stride) {
-  // left and upper corner
-  int32_t sum = get_16x16_sum(input, stride);
-  // right and upper corner
-  sum += get_16x16_sum(input + 16, stride);
-  // left and lower corner
-  sum += get_16x16_sum(input + (stride << 4), stride);
-  // right and lower corner
-  sum += get_16x16_sum(input + (stride << 4) + 16, stride);
-
-  sum >>= 3;
-  output[0] = (tran_low_t)sum;
   _mm256_zeroupper();
 }
 
