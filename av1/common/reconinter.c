@@ -983,11 +983,13 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
         MB_MODE_INFO *this_mbmi = &xd->mi[row * xd->mi_stride + col]->mbmi;
         is_compound = has_second_ref(this_mbmi);
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+        if (is_compound) assert(!is_inter_singleref_comp_mode(mi->mbmi.mode));
+        /*
         is_comp_mode_pred =
-            is_compound || is_inter_singleref_comp_mode(mi->mbmi.mode);
+            is_compound || is_inter_singleref_comp_mode(mi->mbmi.mode);*/
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
-#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#if 0  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
         for (ref = 0; ref < 1 + is_comp_mode_pred; ++ref) {
 #else
         for (ref = 0; ref < 1 + is_compound; ++ref) {

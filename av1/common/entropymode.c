@@ -1040,13 +1040,13 @@ static const aom_prob default_inter_singleref_comp_mode_probs
     };*/
 static const aom_prob default_inter_singleref_comp_mode_probs
     [INTER_MODE_CONTEXTS][INTER_SINGLEREF_COMP_MODES - 1] = {
-      { 2, 173, 68 },   // 0 = both zero mv
-      { 7, 145, 160 },  // 1 = 1 zero + 1 predicted
-      { 7, 166, 126 },  // 2 = two predicted mvs
-      { 7, 94, 132 },   // 3 = 1 pred/zero, 1 new
-      { 8, 64, 64 },    // 4 = two new mvs
-      { 17, 81, 52 },   // 5 = one intra neighbour
-      { 25, 29, 50 },   // 6 = two intra neighbours
+      { 173 },  // 0 = both zero mv
+      { 145 },  // 1 = 1 zero + 1 predicted
+      { 166 },  // 2 = two predicted mvs
+      { 94 },   // 3 = 1 pred/zero, 1 new
+      { 64 },   // 4 = two new mvs
+      { 81 },   // 5 = one intra neighbour
+      { 29 },   // 6 = two intra neighbours
     };
 #endif  // CONFIG_COMPOUND_SINGLEREF
 
@@ -1306,9 +1306,7 @@ const aom_tree_index av1_inter_singleref_comp_mode_tree
 
 const aom_tree_index av1_inter_singleref_comp_mode_tree
     [TREE_SIZE(INTER_SINGLEREF_COMP_MODES)] = {
-  -INTER_SINGLEREF_COMP_OFFSET(SR_ZERO_NEWMV), 2,
-  -INTER_SINGLEREF_COMP_OFFSET(SR_NEAREST_NEARMV), 4,
-  -INTER_SINGLEREF_COMP_OFFSET(SR_NEAR_NEWMV),
+  -INTER_SINGLEREF_COMP_OFFSET(SR_NEAREST_NEARMV),
       -INTER_SINGLEREF_COMP_OFFSET(SR_NEW_NEWMV)
 };
 #endif  // CONFIG_COMPOUND_SINGLEREF

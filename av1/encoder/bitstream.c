@@ -2048,7 +2048,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
                       allow_hp);
 #if CONFIG_COMPOUND_SINGLEREF
       } else if (  //  mode == SR_NEAREST_NEWMV ||
-          mode == SR_NEAR_NEWMV || mode == SR_ZERO_NEWMV ||
+          // mode == SR_NEAR_NEWMV || mode == SR_ZERO_NEWMV ||
           mode == SR_NEW_NEWMV) {
         int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
         int nmv_ctx =

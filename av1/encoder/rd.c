@@ -1005,7 +1005,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_SR_NEAREST_NEWB] += 1200;
 #endif  // CONFIG_EXT_REFS
   rd->thresh_mult[THR_SR_NEAREST_NEWA] += 1200;
-  rd->thresh_mult[THR_SR_NEAREST_NEWG] += 1200;*/
+  rd->thresh_mult[THR_SR_NEAREST_NEWG] += 1200;
 
   rd->thresh_mult[THR_SR_NEAR_NEWMV] += 1500;
 #if CONFIG_EXT_REFS
@@ -1023,7 +1023,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_SR_ZERO_NEWB] += 2000;
 #endif  // CONFIG_EXT_REFS
   rd->thresh_mult[THR_SR_ZERO_NEWA] += 2000;
-  rd->thresh_mult[THR_SR_ZERO_NEWG] += 2000;
+  rd->thresh_mult[THR_SR_ZERO_NEWG] += 2000;*/
 
   rd->thresh_mult[THR_SR_NEW_NEWMV] += 1700;
 #if CONFIG_EXT_REFS

@@ -204,7 +204,7 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { SR_NEAREST_NEWMV, { BWDREF_FRAME, NONE_FRAME } },
 #endif  // CONFIG_EXT_REFS
   { SR_NEAREST_NEWMV, { GOLDEN_FRAME, NONE_FRAME } },
-  { SR_NEAREST_NEWMV, { ALTREF_FRAME, NONE_FRAME } },*/
+  { SR_NEAREST_NEWMV, { ALTREF_FRAME, NONE_FRAME } },
 
   { SR_NEAR_NEWMV, { LAST_FRAME, NONE_FRAME } },
 #if CONFIG_EXT_REFS
@@ -222,7 +222,7 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { SR_ZERO_NEWMV, { BWDREF_FRAME, NONE_FRAME } },
 #endif  // CONFIG_EXT_REFS
   { SR_ZERO_NEWMV, { GOLDEN_FRAME, NONE_FRAME } },
-  { SR_ZERO_NEWMV, { ALTREF_FRAME, NONE_FRAME } },
+  { SR_ZERO_NEWMV, { ALTREF_FRAME, NONE_FRAME } },*/
 
   { SR_NEW_NEWMV, { LAST_FRAME, NONE_FRAME } },
 #if CONFIG_EXT_REFS
@@ -8257,7 +8257,7 @@ static int interinter_compound_motion_search(
   } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV
 #if CONFIG_COMPOUND_SINGLEREF
              // || this_mode == SR_NEAREST_NEWMV
-             || this_mode == SR_NEAR_NEWMV || this_mode == SR_ZERO_NEWMV
+// || this_mode == SR_NEAR_NEWMV || this_mode == SR_ZERO_NEWMV
 #endif  // CONFIG_COMPOUND_SINGLEREF
              ) {
     do_masked_motion_search_indexed(cpi, x, cur_mv, &compound_data, bsize,
@@ -8478,11 +8478,12 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
         joint_motion_search(cpi, x, bsize, frame_mv, frame_comp_mv, mi_row,
                             mi_col, NULL, NULL, 0, rate_mv, 0);
       } else {
-        assert(  // this_mode == SR_NEAREST_NEWMV ||
+        assert(0);
+        /*assert(  // this_mode == SR_NEAREST_NEWMV ||
             this_mode == SR_NEAR_NEWMV || this_mode == SR_ZERO_NEWMV);
         compound_single_motion_search_interinter(cpi, x, bsize, frame_mv,
                                                  frame_comp_mv, mi_row, mi_col,
-                                                 NULL, 0, rate_mv, 0, 1);
+                                                 NULL, 0, rate_mv, 0, 1);*/
       }
     } else {
       *rate_mv = 0;
@@ -9217,7 +9218,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     int ref_mv_idx = mbmi->ref_mv_idx + 1;
     if (this_mode == NEAR_NEWMV ||
 #if CONFIG_COMPOUND_SINGLEREF
-        this_mode == SR_NEAR_NEWMV ||
+// this_mode == SR_NEAR_NEWMV ||
 #endif  // CONFIG_COMPOUND_SINGLEREF
         this_mode == NEAR_NEARMV) {
       cur_mv[0] = mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv;
@@ -11128,7 +11129,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           // Special case: SR_NEAR_NEWMV mode use
           // 1 + mbmi->ref_mv_idx (like NEARMV) instead of
           // mbmi->ref_mv_idx (like NEWMV)
-          if (mbmi->mode == SR_NEAR_NEWMV) ref_mv_idx = 1;
+          // if (mbmi->mode == SR_NEAR_NEWMV) ref_mv_idx = 1;
 
           if (compound_ref0_mode(mbmi->mode) == NEWMV ||
               compound_ref1_mode(mbmi->mode) == NEWMV) {
@@ -11301,7 +11302,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
             // Special case: SR_NEAR_NEWMV mode use
             // 1 + mbmi->ref_mv_idx (like NEARMV) instead of
             // mbmi->ref_mv_idx (like NEWMV)
-            if (mbmi->mode == SR_NEAR_NEWMV) ref_mv_idx = 1 + mbmi->ref_mv_idx;
+            // if (mbmi->mode == SR_NEAR_NEWMV) ref_mv_idx = 1 +
+            // mbmi->ref_mv_idx;
 
             // TODO(zoeliu): For the mode of SR_NEAREST_NEWMV, as it only runs
             //               the "if", not the "else if",

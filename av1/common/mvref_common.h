@@ -67,8 +67,8 @@ static const int mode_2_counter[] = {
 #if CONFIG_COMPOUND_SINGLEREF
   0,    // SR_NEAREST_NEARMV
         //  1,    // SR_NEAREST_NEWMV
-  1,    // SR_NEAR_NEWMV
-  3,    // SR_ZERO_NEWMV
+        //  1,    // SR_NEAR_NEWMV
+        //  3,    // SR_ZERO_NEWMV
   1,    // SR_NEW_NEWMV
 #endif  // CONFIG_COMPOUND_SINGLEREF
   0,    // NEAREST_NEARESTMV

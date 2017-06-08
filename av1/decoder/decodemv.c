@@ -1594,7 +1594,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       read_mv(r, &mv[1].as_mv, &ref_mv[0].as_mv, nmvc, mv_counts, allow_hp);
       ret = ret && is_mv_valid(&mv[1].as_mv);
       break;
-    }*/
+    }
     case SR_NEAR_NEWMV: {
       assert(!is_compound);
       mv[0].as_int = near_mv[0].as_int;
@@ -1631,7 +1631,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       read_mv(r, &mv[1].as_mv, &ref_mv[0].as_mv, nmvc, mv_counts, allow_hp);
       ret = ret && is_mv_valid(&mv[1].as_mv);
       break;
-    }
+    }*/
     case SR_NEW_NEWMV: {
       assert(!is_compound);
 
@@ -2172,7 +2172,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       int ref_mv_idx = mbmi->ref_mv_idx;
       // Special case: SR_NEAR_NEWMV use 1 + mbmi->ref_mv_idx (like NEARMV)
       //               instead of mbmi->ref_mv_idx (like NEWMV)
-      if (mbmi->mode == SR_NEAR_NEWMV) ref_mv_idx = 1 + mbmi->ref_mv_idx;
+      // if (mbmi->mode == SR_NEAR_NEWMV) ref_mv_idx = 1 + mbmi->ref_mv_idx;
 
       if (compound_ref0_mode(mbmi->mode) == NEWMV ||
           compound_ref1_mode(mbmi->mode) == NEWMV) {

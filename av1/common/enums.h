@@ -345,8 +345,8 @@ typedef enum ATTRIBUTE_PACKED {
   // Single ref compound modes
   SR_NEAREST_NEARMV,
   // SR_NEAREST_NEWMV,
-  SR_NEAR_NEWMV,
-  SR_ZERO_NEWMV,
+  // SR_NEAR_NEWMV,
+  // SR_ZERO_NEWMV,
   SR_NEW_NEWMV,
 #endif  // CONFIG_COMPOUND_SINGLEREF
   // Compound ref compound modes

@@ -287,7 +287,8 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
 #if CONFIG_COMPOUND_SINGLEREF
   } else {
     assert(  // mode == SR_NEAREST_NEWMV ||
-        mode == SR_NEAR_NEWMV || mode == SR_ZERO_NEWMV || mode == SR_NEW_NEWMV);
+        /* mode == SR_NEAR_NEWMV || mode == SR_ZERO_NEWMV ||*/ mode ==
+        SR_NEW_NEWMV);
     const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0].as_mv;
     int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
     int nmv_ctx =

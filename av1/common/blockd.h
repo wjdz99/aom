@@ -157,8 +157,8 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
 #if CONFIG_COMPOUND_SINGLEREF
     NEARESTMV,  // SR_NEAREST_NEARMV
     // NEARESTMV,  // SR_NEAREST_NEWMV
-    NEARMV,     // SR_NEAR_NEWMV
-    ZEROMV,     // SR_ZERO_NEWMV
+    // NEARMV,     // SR_NEAR_NEWMV
+    // ZEROMV,     // SR_ZERO_NEWMV
     NEWMV,      // SR_NEW_NEWMV
 #endif          // CONFIG_COMPOUND_SINGLEREF
     NEARESTMV,  // NEAREST_NEARESTMV
@@ -205,8 +205,8 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
 #if CONFIG_COMPOUND_SINGLEREF
     NEARMV,  // SR_NEAREST_NEARMV
     // NEWMV,      // SR_NEAREST_NEWMV
-    NEWMV,      // SR_NEAR_NEWMV
-    NEWMV,      // SR_ZERO_NEWMV
+    // NEWMV,      // SR_NEAR_NEWMV
+    // NEWMV,      // SR_ZERO_NEWMV
     NEWMV,      // SR_NEW_NEWMV
 #endif          // CONFIG_COMPOUND_SINGLEREF
     NEARESTMV,  // NEAREST_NEARESTMV
@@ -230,7 +230,7 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
 static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEARMV || mode == NEAR_NEARMV || mode == NEAR_NEWMV ||
 #if CONFIG_COMPOUND_SINGLEREF
-          mode == SR_NEAREST_NEARMV || mode == SR_NEAR_NEWMV ||
+          mode == SR_NEAREST_NEARMV ||  // mode == SR_NEAR_NEWMV ||
 #endif  // CONFIG_COMPOUND_SINGLEREF
           mode == NEW_NEARMV);
 }
@@ -238,8 +238,8 @@ static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAREST_NEWMV ||
 #if CONFIG_COMPOUND_SINGLEREF
-          /* mode == SR_NEAREST_NEWMV || */ mode == SR_NEAR_NEWMV ||
-          mode == SR_ZERO_NEWMV || mode == SR_NEW_NEWMV ||
+          // mode == SR_NEAREST_NEWMV || mode == SR_NEAR_NEWMV ||
+          /* mode == SR_ZERO_NEWMV || */ mode == SR_NEW_NEWMV ||
 #endif  // CONFIG_COMPOUND_SINGLEREF
           mode == NEW_NEARESTMV || mode == NEAR_NEWMV || mode == NEW_NEARMV);
 }

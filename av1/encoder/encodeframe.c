@@ -542,7 +542,7 @@ static void set_ref_and_pred_mvs(MACROBLOCK *const x, int_mv *const mi_pred_mv,
   } else if (is_inter_singleref_comp_mode(mbmi->mode)) {
     // Special case: SR_NEAR_NEWMV uses 1 + mbmi->ref_mv_idx
     // (like NEARMV) instead
-    if (mbmi->mode == SR_NEAR_NEWMV) ref_mv_idx += 1;
+    // if (mbmi->mode == SR_NEAR_NEWMV) ref_mv_idx += 1;
 
     if (compound_ref0_mode(mbmi->mode) == NEWMV ||
         compound_ref1_mode(mbmi->mode) == NEWMV) {
