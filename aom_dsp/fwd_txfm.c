@@ -758,15 +758,6 @@ void aom_fdct32x32_rd_c(const int16_t *input, tran_low_t *out, int stride) {
   }
 }
 
-void aom_fdct32x32_1_c(const int16_t *input, tran_low_t *output, int stride) {
-  int r, c;
-  int sum = 0;
-  for (r = 0; r < 32; ++r)
-    for (c = 0; c < 32; ++c) sum += input[r * stride + c];
-
-  output[0] = (tran_low_t)(sum >> 3);
-}
-
 #if CONFIG_HIGHBITDEPTH
 void aom_highbd_fdct4x4_c(const int16_t *input, tran_low_t *output,
                           int stride) {
@@ -796,14 +787,9 @@ void aom_highbd_fdct16x16_1_c(const int16_t *input, tran_low_t *output,
 void aom_highbd_fdct32x32_c(const int16_t *input, tran_low_t *out, int stride) {
   aom_fdct32x32_c(input, out, stride);
 }
-
 void aom_highbd_fdct32x32_rd_c(const int16_t *input, tran_low_t *out,
                                int stride) {
   aom_fdct32x32_rd_c(input, out, stride);
 }
 
-void aom_highbd_fdct32x32_1_c(const int16_t *input, tran_low_t *out,
-                              int stride) {
-  aom_fdct32x32_1_c(input, out, stride);
-}
 #endif  // CONFIG_HIGHBITDEPTH

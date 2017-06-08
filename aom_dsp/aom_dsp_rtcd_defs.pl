@@ -379,7 +379,6 @@ if ((aom_config("CONFIG_AV1_ENCODER") eq "yes") || (aom_config("CONFIG_PVQ") eq 
     add_proto qw/void aom_highbd_fdct32x32_rd/, "const int16_t *input, tran_low_t *output, int stride";
     specialize qw/aom_highbd_fdct32x32_rd sse2/;
 
-    add_proto qw/void aom_highbd_fdct32x32_1/, "const int16_t *input, tran_low_t *output, int stride";
   } else {
     add_proto qw/void aom_fdct4x4/, "const int16_t *input, tran_low_t *output, int stride";
     specialize qw/aom_fdct4x4 sse2 msa/;
