@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36f399a6_f6701909",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-08T00:28:29Z",
+      "side": 1,
+      "message": "I think you should say, rather, \"all tx blocks are\". Saying after \"each\" makes it sound like you encode one tx block, apply daala-dist to the whole partition, encode a second tx block, re-apply daala-dist to the whole partition, etc.",
+      "range": {
+        "startLine": 10,
+        "startChar": 60,
+        "endLine": 10,
+        "endChar": 76
+      },
+      "revId": "d2ad958737488580ea958fe3e1a1c3e344223602",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
