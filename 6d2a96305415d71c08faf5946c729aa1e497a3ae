@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "13b61774_3f77f205",
+        "filename": "aom_dsp/loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-06-08T04:52:13Z",
+      "side": 1,
+      "message": "This function applies the filter to a row line. Should it process 8 row lines?",
+      "range": {
+        "startLine": 523,
+        "startChar": 19,
+        "endLine": 523,
+        "endChar": 28
+      },
+      "revId": "6d2a96305415d71c08faf5946c729aa1e497a3ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bd2905ed_550c72d5",
         "filename": "aom_dsp/loopfilter.c",
         "patchSetId": 1
@@ -118,6 +141,30 @@
       "revId": "6d2a96305415d71c08faf5946c729aa1e497a3ae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c9df945_ad2dc1bc",
+        "filename": "aom_dsp/loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-06-08T04:52:13Z",
+      "side": 1,
+      "message": "Ok. Thanks both for the clarification.",
+      "parentUuid": "36ba3807_fb49913b",
+      "range": {
+        "startLine": 560,
+        "startChar": 8,
+        "endLine": 560,
+        "endChar": 78
+      },
+      "revId": "6d2a96305415d71c08faf5946c729aa1e497a3ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
