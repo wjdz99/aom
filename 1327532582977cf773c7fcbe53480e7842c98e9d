@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f193cb0a_67f18f9b",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-06-08T05:13:24Z",
+      "side": 1,
+      "message": "I reduced the number to as few as possible still hardly no loss.  I then tried 50 different combinations and picked a set which gave a gain (compared to 32 values) for both ll4 and hl4 (2-3 sets of the 50 tried gave gains), but after a rebase only ll4 gave a gain and hl4 gave a small loss), so there is a noise range here.  The effect on ll0 and hl0 is similar, but I\u0027ve kept the cpu-used\u003d0 case unchanged.",
+      "parentUuid": "f9ba23ec_2bd913ed",
+      "range": {
+        "startLine": 26,
+        "startChar": 52,
+        "endLine": 26,
+        "endChar": 53
+      },
+      "revId": "1327532582977cf773c7fcbe53480e7842c98e9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c65939e5_81f01208",
         "filename": "av1/encoder/pickcdef.c",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-06-07T21:48:48Z",
       "side": 1,
       "message": "You probably want to reduce the 4* here for the \"fast\" case. It\u0027s possible even 0 (i.e. no loop) might work. In any case, there\u0027s going to be a tradeoff with total_strengths.",
+      "range": {
+        "startLine": 128,
+        "startChar": 18,
+        "endLine": 128,
+        "endChar": 19
+      },
+      "revId": "1327532582977cf773c7fcbe53480e7842c98e9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0385700b_410086e7",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-06-08T05:13:24Z",
+      "side": 1,
+      "message": "You\u0027re probably right and I\u0027ll see how low I can go.  I tried to reduce this number first (before changing the number of strengths) and it made little impact (not so much on speed either), but I didn\u0027t try both.",
+      "parentUuid": "c65939e5_81f01208",
       "range": {
         "startLine": 128,
         "startChar": 18,
