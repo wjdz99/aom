@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "05842443_db74e2ca",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-08T22:24:57Z",
+      "side": 1,
+      "message": "As per offline discussion, this is actually the function we ought to use since the decoder should use a smaller 96-pixel border. Extending into the entire border fixes a mismatch we were getting, but it is not the real solution.\n\nThe problem looks like it\u0027s caused by a smaller ref frame getting upscaled, causing MV\u0027s reach past the 96-pixel border.\n\nAnyhow, I won\u0027t submit with this commented but I\u0027d like to get it working with the proper function before submission. The below is needed to make it work for now.",
+      "parentUuid": "ef8b6c0f_69d32158",
+      "range": {
+        "startLine": 449,
+        "startChar": 7,
+        "endLine": 449,
+        "endChar": 37
+      },
+      "revId": "6381719ba2edcffd2cbb7e6f530350a2caa72dda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d26814fd_d18637eb",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 24
@@ -36,6 +60,30 @@
       "writtenOn": "2017-06-08T20:34:23Z",
       "side": 1,
       "message": "should be a commented block?",
+      "range": {
+        "startLine": 3811,
+        "startChar": 0,
+        "endLine": 3821,
+        "endChar": 3
+      },
+      "revId": "6381719ba2edcffd2cbb7e6f530350a2caa72dda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbc17205_2b322274",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3821,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-08T22:24:57Z",
+      "side": 1,
+      "message": "Probably, but the intention is to remove it before submission anyways.",
+      "parentUuid": "d26814fd_d18637eb",
       "range": {
         "startLine": 3811,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "763e63b2_3414536c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3890,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-08T22:24:57Z",
+      "side": 1,
+      "message": "This is not for debugging. If resizing and superres happen at the same time, we skip the resized resolution when going down to the encode resolution. This code was meant to get the source and last_source to the resize/upscaled superres resolution in this case, but it appeared that it wasn\u0027t needed so it was commented out. It will be removed before submission if we can get this patch working without it.",
+      "parentUuid": "3b16402d_d7816ce6",
+      "range": {
+        "startLine": 3856,
+        "startChar": 4,
+        "endLine": 3890,
+        "endChar": 6
+      },
+      "revId": "6381719ba2edcffd2cbb7e6f530350a2caa72dda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "caf6fcce_d7dc0414",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 24
@@ -82,6 +154,30 @@
       "writtenOn": "2017-06-08T20:34:23Z",
       "side": 1,
       "message": "and this?",
+      "range": {
+        "startLine": 3983,
+        "startChar": 0,
+        "endLine": 4000,
+        "endChar": 4
+      },
+      "revId": "6381719ba2edcffd2cbb7e6f530350a2caa72dda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acbf2a43_459fa7df",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 4000,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-08T22:24:57Z",
+      "side": 1,
+      "message": "Fast resizing has been removed, I\u0027m guessing for debugging. It only worked when the scale was 1/2 in 1-pass CBR encoding anyways.",
+      "parentUuid": "caf6fcce_d7dc0414",
       "range": {
         "startLine": 3983,
         "startChar": 0,
