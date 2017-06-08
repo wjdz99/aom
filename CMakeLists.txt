@@ -393,6 +393,11 @@ if ("${CMAKE_GENERATOR}" MATCHES "Makefiles$" )
                         RUNTIME_OUTPUT_DIRECTORY "${AOM_CONFIG_DIR}/examples")
 endif ()
 
+if (BUILD_SHARED_LIBS)
+  include("${AOM_ROOT}/build/cmake/shared_lib_util.cmake")
+  setup_exports_target()
+endif ()
+
 # Aomedia documentation rule.
 if (ENABLE_DOCS)
   include(FindDoxygen)
