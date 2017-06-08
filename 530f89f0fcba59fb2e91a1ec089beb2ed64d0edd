@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "eb212ed4_d6a46bfd",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1579,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-08T00:23:15Z",
+      "side": 1,
+      "message": "I believe the current convention is that only extern functions are given the av1_ prefix.",
+      "range": {
+        "startLine": 1579,
+        "startChar": 12,
+        "endLine": 1579,
+        "endChar": 16
+      },
+      "revId": "530f89f0fcba59fb2e91a1ec089beb2ed64d0edd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4061ba93_1e170b6f",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
