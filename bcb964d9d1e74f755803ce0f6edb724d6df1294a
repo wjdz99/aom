@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4f27e5f_15cd9ea2",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-08T05:38:28Z",
+      "side": 1,
+      "message": "you can do /cfg/ {print $NF; exit} to drop the grep",
+      "revId": "bcb964d9d1e74f755803ce0f6edb724d6df1294a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce6f0417_67528be3",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-08T05:38:28Z",
+      "side": 1,
+      "message": "you can combine these with -e or do something like s/\"\\(.*\\)\";/\\1/\nyou can anchor that with $ if \"; is the last thing at the end of the line",
+      "revId": "bcb964d9d1e74f755803ce0f6edb724d6df1294a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40e9ee1d_6ff1e41e",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-08T05:38:28Z",
+      "side": 1,
+      "message": "same thing here with the match instead of grep",
+      "revId": "bcb964d9d1e74f755803ce0f6edb724d6df1294a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
