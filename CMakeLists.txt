@@ -186,6 +186,10 @@ add_library(aom_rtcd OBJECT ${AOM_RTCD_SOURCES})
 add_library(aom_encoder_stats OBJECT ${AOM_ENCODER_STATS_SOURCES})
 add_library(aom ${AOM_SOURCES} $<TARGET_OBJECTS:aom_rtcd>)
 
+if ("${AOM_TARGET_SYSTEM}" MATCHES "MSYS\|Windows")
+  set_target_properties(aom PROPERTIES OUTPUT_NAME "libaom")
+endif ()
+
 # List of object and static library targets.
 set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_encoder_stats aom_mem
     aom_scale aom)
@@ -391,6 +395,11 @@ if ("${CMAKE_GENERATOR}" MATCHES "Makefiles$" )
   file(MAKE_DIRECTORY "${AOM_CONFIG_DIR}/examples")
   set_target_properties(${AOM_EXAMPLE_TARGETS} PROPERTIES
                         RUNTIME_OUTPUT_DIRECTORY "${AOM_CONFIG_DIR}/examples")
+endif ()
+
+if (BUILD_SHARED_LIBS)
+  include("${AOM_ROOT}/build/cmake/shared_lib_util.cmake")
+  setup_exports_target()
 endif ()
 
 # Aomedia documentation rule.
