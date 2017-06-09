@@ -249,6 +249,11 @@ if (CONFIG_UNIT_TESTS)
   include_directories(
     "${AOM_ROOT}/third_party/googletest/src/googletest/src"
     "${AOM_ROOT}/third_party/googletest/src/googletest/include")
+
+  if (BUILD_SHARED_LIBS AND APPLE)
+    # Silence an RPATH warning.
+    set(CMAKE_MACOSX_RPATH 1)
+  endif ()
   add_subdirectory("${AOM_ROOT}/third_party/googletest/src/googletest"
                    EXCLUDE_FROM_ALL)
 

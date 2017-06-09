@@ -23,6 +23,9 @@ option(ENABLE_NASM "Use nasm instead of yasm for x86 assembly." OFF)
 option(ENABLE_IDE_TEST_HOSTING
        "Enables running tests within IDEs like Visual Studio and Xcode." OFF)
 
+# $BUILD_SHARED_LIBS is a CMake built-in-- it's listed here for visibility.
+option(BUILD_SHARED_LIBS "CMake should generate a shared library build." OFF)
+
 project(AOM C CXX)
 
 set(AOM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -185,6 +188,10 @@ add_rtcd_build_step("${AOM_ROOT}/av1/common/av1_rtcd_defs.pl"
 add_library(aom_rtcd OBJECT ${AOM_RTCD_SOURCES})
 add_library(aom_encoder_stats OBJECT ${AOM_ENCODER_STATS_SOURCES})
 add_library(aom ${AOM_SOURCES} $<TARGET_OBJECTS:aom_rtcd>)
+
+if ("${AOM_TARGET_SYSTEM}" MATCHES "MSYS\|Windows")
+  set_target_properties(aom PROPERTIES OUTPUT_NAME "libaom")
+endif ()
 
 # List of object and static library targets.
 set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_encoder_stats aom_mem
@@ -391,6 +398,11 @@ if ("${CMAKE_GENERATOR}" MATCHES "Makefiles$" )
   file(MAKE_DIRECTORY "${AOM_CONFIG_DIR}/examples")
   set_target_properties(${AOM_EXAMPLE_TARGETS} PROPERTIES
                         RUNTIME_OUTPUT_DIRECTORY "${AOM_CONFIG_DIR}/examples")
+endif ()
+
+if (BUILD_SHARED_LIBS)
+  include("${AOM_ROOT}/build/cmake/exports.cmake")
+  setup_exports_target()
 endif ()
 
 # Aomedia documentation rule.
