@@ -135,7 +135,6 @@ void av1_free_context_buffers(AV1_COMMON *cm) {
 
 int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
   int new_mi_size;
-
   av1_set_mb_mi(cm, width, height);
   new_mi_size = cm->mi_stride * calc_mi_size(cm->mi_rows);
   if (cm->mi_alloc_size < new_mi_size) {
