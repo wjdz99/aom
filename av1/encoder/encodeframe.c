@@ -4194,6 +4194,17 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 }
 
+#if CONFIG_SPEED_REFS
+static void restore_mi(const AV1_COMP *const cpi, int mi_row, int mi_col) {
+  const AV1_COMMON *cm = &cpi->common;
+  MODE_INFO *mi = cm->mi;
+  for (int i = mi_row; i < mi_row + mi_size_wide[cm->sb_size]; i++) {
+    memset(mi + i * cm->mi_stride + mi_col, 0,
+           mi_size_wide[cm->sb_size] * sizeof (*mi));
+  }
+}
+#endif //CONFIG_SPEED_REFS
+
 static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
                              TileDataEnc *tile_data, int mi_row,
                              TOKENEXTRA **tp) {
@@ -4345,15 +4356,18 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       //       is only targeted to collect stats.
       for (int sb_pass_idx = 0; sb_pass_idx < 2; ++sb_pass_idx) {
         cpi->sb_scanning_pass_idx = sb_pass_idx;
+        if (frame_is_intra_only(cm)) cpi->sb_scanning_pass_idx = 2;
         rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, cm->sb_size,
                           &dummy_rdc,
 #if CONFIG_SUPERTX
                           &dummy_rate_nocoef,
 #endif  // CONFIG_SUPERTX
                           INT64_MAX, pc_root);
+        if (frame_is_intra_only(cm)) break;
         if (sb_pass_idx == 0) {
           av1_zero(x->pred_mv);
           pc_root->index = 0;
+          restore_mi(cpi, x, mi_row, mi_col);
         }
       }
 #else  // !CONFIG_SPEED_REFS
