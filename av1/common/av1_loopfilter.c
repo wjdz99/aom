@@ -1441,12 +1441,16 @@ static void get_filter_level_and_masks_non420(
 
     const int tx_wide =
         AOMMIN(tx_size_wide[tx_size],
-               tx_size_wide[cm->top_txfm_context[pl][(mi_col + idx_c)
-                                                     << TX_UNIT_WIDE_LOG2]]);
+               tx_size_wide[cm->left_txfm_context[pl][(mi_col + idx_c)
+                                                      << TX_UNIT_WIDE_LOG2]]);
+
     const int tx_high = AOMMIN(
         tx_size_high[tx_size],
-        tx_size_high[cm->left_txfm_context[pl][((mi_row + idx_r) & MAX_MIB_MASK)
-                                               << TX_UNIT_HIGH_LOG2]]);
+        tx_size_high[cm->top_txfm_context[pl][((mi_row + idx_r) & MAX_MIB_MASK)
+                                              << TX_UNIT_HIGH_LOG2]]);
+
+    const int tx_wide_cur = tx_size_wide[tx_size];
+    const int tx_high_cur = tx_size_high[tx_size];
 
     tx_size_c = get_sqr_tx_size(tx_wide);
     tx_size_r = get_sqr_tx_size(tx_high);
@@ -1494,8 +1498,13 @@ static void get_filter_level_and_masks_non420(
           col_masks.m4x4 |= col_mask;
       }
 
+#if CONFIG_VAR_TX
+      if (!skip_this && tx_wide_cur < 8 && !skip_border_4x4_c &&
+          (c_step & tx_size_mask) == 0)
+#else
       if (!skip_this && tx_size_c < TX_8X8 && !skip_border_4x4_c &&
           (c_step & tx_size_mask) == 0)
+#endif  // CONFIG_VAR_TX
         mask_4x4_int_c |= col_mask;
     }
 
@@ -1530,8 +1539,13 @@ static void get_filter_level_and_masks_non420(
           row_masks.m4x4 |= col_mask;
       }
 
+#if CONFIG_VAR_TX
+      if (!skip_this && tx_high_cur < 8 && !skip_border_4x4_c &&
+          (c_step & tx_size_mask) == 0)
+#else
       if (!skip_this && tx_size_r < TX_8X8 && !skip_border_4x4_r &&
           ((r >> ss_y) & tx_size_mask) == 0)
+#endif  // CONFIG_VAR_TX
         mask_4x4_int_r |= col_mask;
     }
   }
