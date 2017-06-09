@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "c9266337_fb4bc3d7",
+        "filename": "README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-06-09T15:11:53Z",
+      "side": 1,
+      "message": "fixed this",
+      "range": {
+        "startLine": 18,
+        "startChar": 20,
+        "endLine": 18,
+        "endChar": 26
+      },
+      "revId": "8abf59d09af51688e5c3fe4b50ab227b0d969891",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4e341dae_9acd465b",
         "filename": "README.md",
         "patchSetId": 7
@@ -25,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "7f3c7f50_4ca07d7c",
+        "filename": "README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-06-09T15:11:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e341dae_9acd465b",
+      "range": {
+        "startLine": 38,
+        "startChar": 14,
+        "endLine": 38,
+        "endChar": 20
+      },
+      "revId": "8abf59d09af51688e5c3fe4b50ab227b0d969891",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba35ce3c_a09f0d19",
         "filename": "README.md",
         "patchSetId": 7
@@ -42,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "dbb01606_8570befa",
+        "filename": "README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-06-09T15:11:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba35ce3c_a09f0d19",
+      "revId": "8abf59d09af51688e5c3fe4b50ab227b0d969891",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "85682c6c_b8bd6130",
         "filename": "README.md",
         "patchSetId": 7
@@ -53,6 +118,30 @@
       "writtenOn": "2017-06-09T08:56:51Z",
       "side": 1,
       "message": "I think you\u0027re consistent with your oxford comma anyway",
+      "range": {
+        "startLine": 156,
+        "startChar": 42,
+        "endLine": 156,
+        "endChar": 43
+      },
+      "revId": "8abf59d09af51688e5c3fe4b50ab227b0d969891",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b77c6e6_60b061ee",
+        "filename": "README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-06-09T15:11:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "85682c6c_b8bd6130",
       "range": {
         "startLine": 156,
         "startChar": 42,
