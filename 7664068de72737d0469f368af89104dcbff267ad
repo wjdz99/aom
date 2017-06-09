@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "b7e74f49_93cc9255",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-06-09T17:24:14Z",
+      "side": 1,
+      "message": "Oh I didn\u0027t notice that we have a offset at horizontal direction as well.\nThank you for the explanation.",
+      "parentUuid": "d8d90c07_fc2a434b",
+      "range": {
+        "startLine": 304,
+        "startChar": 27,
+        "endLine": 304,
+        "endChar": 73
+      },
+      "revId": "7664068de72737d0469f368af89104dcbff267ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "654908f4_ec0e1146",
         "filename": "av1/common/convolve.c",
         "patchSetId": 3
