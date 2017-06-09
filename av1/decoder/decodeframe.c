@@ -5035,6 +5035,13 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
   first_partition_size = read_uncompressed_header(
       pbi, init_read_bit_buffer(pbi, &rb, data, data_end, clear_data));
 
+#if CONFIG_EXT_REFS || CONFIG_TEMPMV_SIGNALING
+  // Reassign the LAST_FRAME buffer to cm->prev_frame.
+  cm->prev_frame = last_fb_ref_buf->idx != INVALID_IDX
+                       ? &cm->buffer_pool->frame_bufs[last_fb_ref_buf->idx]
+                       : NULL;
+#endif  // CONFIG_EXT_REFS || CONFIG_TEMPMV_SIGNALING
+
 #if CONFIG_EXT_TILE
   // If cm->tile_encoding_mode == TILE_NORMAL, the independent decoding of a
   // single tile or a section of a frame is not allowed.
@@ -5084,25 +5091,6 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
                        "Truncated packet or corrupt header length");
 
   cm->setup_mi(cm);
-
-#if CONFIG_EXT_REFS || CONFIG_TEMPMV_SIGNALING
-  // NOTE(zoeliu): As cm->prev_frame can take neither a frame of
-  //               show_exisiting_frame=1, nor can it take a frame not used as
-  //               a reference, it is probable that by the time it is being
-  //               referred to, the frame buffer it originally points to may
-  //               already get expired and have been reassigned to the current
-  //               newly coded frame. Hence, we need to check whether this is
-  //               the case, and if yes, we have 2 choices:
-  //               (1) Simply disable the use of previous frame mvs; or
-  //               (2) Have cm->prev_frame point to one reference frame buffer,
-  //                   e.g. LAST_FRAME.
-  if (!dec_is_ref_frame_buf(pbi, cm->prev_frame)) {
-    // Reassign the LAST_FRAME buffer to cm->prev_frame.
-    cm->prev_frame = last_fb_ref_buf->idx != INVALID_IDX
-                         ? &cm->buffer_pool->frame_bufs[last_fb_ref_buf->idx]
-                         : NULL;
-  }
-#endif  // CONFIG_EXT_REFS || CONFIG_TEMPMV_SIGNALING
 
 #if CONFIG_TEMPMV_SIGNALING
   if (cm->use_prev_frame_mvs) {
