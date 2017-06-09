@@ -3335,41 +3335,12 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   if (cm->use_adapt_scan == 0) av1_init_scan_order(cm);
 #endif  // CONFIG_ADAPT_SCAN
 
-  // NOTE(zoeliu): As cm->prev_frame can take neither a frame of
-  //               show_exisiting_frame=1, nor can it take a frame not used as
-  //               a reference, it is probable that by the time it is being
-  //               referred to, the frame buffer it originally points to may
-  //               already get expired and have been reassigned to the current
-  //               newly coded frame. Hence, we need to check whether this is
-  //               the case, and if yes, we have 2 choices:
-  //               (1) Simply disable the use of previous frame mvs; or
-  //               (2) Have cm->prev_frame point to one reference frame buffer,
-  //                   e.g. LAST_FRAME.
-  if (!dec_is_ref_frame_buf(pbi, cm->prev_frame)) {
-    // Reassign the LAST_FRAME buffer to cm->prev_frame.
-    cm->prev_frame =
-        cm->frame_refs[LAST_FRAME - LAST_FRAME].idx != INVALID_IDX
-            ? &cm->buffer_pool
-                   ->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx]
-            : NULL;
-  }
-
 #if CONFIG_TEMPMV_SIGNALING
-  if (cm->use_prev_frame_mvs && !frame_can_use_prev_frame_mvs(cm)) {
-    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                       "Frame wrongly requests previous frame MVs");
-  }
-#else
-  cm->use_prev_frame_mvs = !cm->error_resilient_mode && cm->prev_frame &&
-#if CONFIG_FRAME_SUPERRES
-                           cm->width == cm->last_width &&
-                           cm->height == cm->last_height &&
-#else
-                           cm->width == cm->prev_frame->buf.y_crop_width &&
-                           cm->height == cm->prev_frame->buf.y_crop_height &&
-#endif  // CONFIG_FRAME_SUPERRES
-                           !cm->last_intra_only && cm->last_show_frame &&
-                           (cm->last_frame_type != KEY_FRAME);
+  // Reassign the LAST_FRAME buffer to cm->prev_frame.
+  int last_frame_idx = cm->frame_refs[LAST_FRAME - LAST_FRAME].idx;
+  cm->prev_frame = last_frame_idx != INVALID_IDX
+                       ? &cm->buffer_pool->frame_bufs[last_frame_idx]
+                       : NULL;
 #endif  // CONFIG_TEMPMV_SIGNALING
 
   if (!frame_is_intra_only(cm)) read_global_motion(cm, rb);
@@ -3635,7 +3606,6 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
   uint8_t clear_data[MAX_AV1_HEADER_SIZE];
   size_t first_partition_size;
   YV12_BUFFER_CONFIG *new_fb;
-  RefBuffer *last_fb_ref_buf = &cm->frame_refs[LAST_FRAME - LAST_FRAME];
 
 #if CONFIG_ADAPT_SCAN
   av1_deliver_eob_threshold(cm, xd);
@@ -3694,51 +3664,6 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
                          "Truncated packet or corrupt header length");
 
   cm->setup_mi(cm);
-
-  // NOTE(zoeliu): As cm->prev_frame can take neither a frame of
-  //               show_exisiting_frame=1, nor can it take a frame not used as
-  //               a reference, it is probable that by the time it is being
-  //               referred to, the frame buffer it originally points to may
-  //               already get expired and have been reassigned to the current
-  //               newly coded frame. Hence, we need to check whether this is
-  //               the case, and if yes, we have 2 choices:
-  //               (1) Simply disable the use of previous frame mvs; or
-  //               (2) Have cm->prev_frame point to one reference frame buffer,
-  //                   e.g. LAST_FRAME.
-  if (!dec_is_ref_frame_buf(pbi, cm->prev_frame)) {
-    // Reassign the LAST_FRAME buffer to cm->prev_frame.
-    cm->prev_frame = last_fb_ref_buf->idx != INVALID_IDX
-                         ? &cm->buffer_pool->frame_bufs[last_fb_ref_buf->idx]
-                         : NULL;
-  }
-
-#if CONFIG_TEMPMV_SIGNALING
-  if (cm->use_prev_frame_mvs && !frame_can_use_prev_frame_mvs(cm)) {
-    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                       "Frame wrongly requests previous frame MVs");
-  }
-#else
-  cm->use_prev_frame_mvs = !cm->error_resilient_mode && cm->prev_frame &&
-#if CONFIG_FRAME_SUPERRES
-                           cm->width == cm->last_width &&
-                           cm->height == cm->last_height &&
-#else
-                           cm->width == cm->prev_frame->buf.y_crop_width &&
-                           cm->height == cm->prev_frame->buf.y_crop_height &&
-#endif  // CONFIG_FRAME_SUPERRES
-                           !cm->last_intra_only && cm->last_show_frame &&
-                           (cm->last_frame_type != KEY_FRAME);
-#endif  // CONFIG_TEMPMV_SIGNALING
-
-#if CONFIG_EXT_SKIP
-  av1_setup_skip_mode_allowed(cm);
-#if 0
-  printf("\nDECODER: Frame=%d, frame_offset=%d, show_frame=%d, "
-         "is_skip_mode_allowed=%d, ref_frame_idx=(%d,%d)\n",
-         cm->current_video_frame, cm->frame_offset, cm->show_frame,
-         cm->is_skip_mode_allowed, cm->ref_frame_idx_0, cm->ref_frame_idx_1);
-#endif  // 0
-#endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_MFMV
   av1_setup_motion_field(cm);
