@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e341dae_9acd465b",
+        "filename": "README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-09T08:56:51Z",
+      "side": 1,
+      "message": "options",
+      "range": {
+        "startLine": 38,
+        "startChar": 14,
+        "endLine": 38,
+        "endChar": 20
+      },
+      "revId": "8abf59d09af51688e5c3fe4b50ab227b0d969891",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba35ce3c_a09f0d19",
+        "filename": "README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-09T08:56:51Z",
+      "side": 1,
+      "message": "could indent 2 more",
+      "revId": "8abf59d09af51688e5c3fe4b50ab227b0d969891",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85682c6c_b8bd6130",
+        "filename": "README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-09T08:56:51Z",
+      "side": 1,
+      "message": "I think you\u0027re consistent with your oxford comma anyway",
+      "range": {
+        "startLine": 156,
+        "startChar": 42,
+        "endLine": 156,
+        "endChar": 43
+      },
+      "revId": "8abf59d09af51688e5c3fe4b50ab227b0d969891",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
