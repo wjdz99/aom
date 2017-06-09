@@ -5202,9 +5202,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   MACROBLOCKD *const xd = &x->e_mbd;
   RD_COUNTS *const rdc = &cpi->td.rd_counts;
   int i;
-#if CONFIG_TEMPMV_SIGNALING || CONFIG_EXT_REFS
-  const int last_fb_buf_idx = get_ref_frame_buf_idx(cpi, LAST_FRAME);
-#endif  // CONFIG_TEMPMV_SIGNALING || CONFIG_EXT_REFS
 
 #if CONFIG_ADAPT_SCAN
   av1_deliver_eob_threshold(cm, xd);
@@ -5310,6 +5307,32 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
   alloc_ncobmc_pred_buffer(xd);
 #endif
+
+#if CONFIG_EXT_REFS || CONFIG_TEMPMV_SIGNALING
+  // Reassign the LAST_FRAME buffer to cm->prev_frame.
+  int last_frame_idx = cm->frame_refs[LAST_FRAME - LAST_FRAME].idx;
+  cm->prev_frame = last_frame_idx != INVALID_IDX
+                       ? &cm->buffer_pool->frame_bufs[last_frame_idx]
+                       : NULL;
+#endif  // CONFIG_EXT_REFS || CONFIG_TEMPMV_SIGNALING
+
+#if CONFIG_TEMPMV_SIGNALING
+  cm->use_prev_frame_mvs &= frame_can_use_prev_frame_mvs(cm);
+#else
+  if (cm->prev_frame) {
+    cm->use_prev_frame_mvs = !cm->error_resilient_mode &&
+#if CONFIG_FRAME_SUPERRES
+                             cm->width == cm->last_width &&
+                             cm->height == cm->last_height &&
+#else
+                             cm->width == cm->prev_frame->buf.y_crop_width &&
+                             cm->height == cm->prev_frame->buf.y_crop_height &&
+#endif  // CONFIG_FRAME_SUPERRES
+                             !cm->intra_only && cm->last_show_frame;
+  } else {
+    cm->use_prev_frame_mvs = 0;
+  }
+#endif  // CONFIG_TEMPMV_SIGNALING
 
 #if CONFIG_GLOBAL_MOTION
   av1_zero(rdc->global_motion_used);
@@ -5469,43 +5492,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   av1_initialize_rd_consts(cpi);
   av1_initialize_me_consts(cpi, x, cm->base_qindex);
   init_encode_frame_mb_context(cpi);
-
-#if CONFIG_EXT_REFS || CONFIG_TEMPMV_SIGNALING
-  // NOTE(zoeliu): As cm->prev_frame can take neither a frame of
-  //               show_exisiting_frame=1, nor can it take a frame not used as
-  //               a reference, it is probable that by the time it is being
-  //               referred to, the frame buffer it originally points to may
-  //               already get expired and have been reassigned to the current
-  //               newly coded frame. Hence, we need to check whether this is
-  //               the case, and if yes, we have 2 choices:
-  //               (1) Simply disable the use of previous frame mvs; or
-  //               (2) Have cm->prev_frame point to one reference frame buffer,
-  //                   e.g. LAST_FRAME.
-  if (!enc_is_ref_frame_buf(cpi, cm->prev_frame)) {
-    // Reassign the LAST_FRAME buffer to cm->prev_frame.
-    cm->prev_frame = last_fb_buf_idx != INVALID_IDX
-                         ? &cm->buffer_pool->frame_bufs[last_fb_buf_idx]
-                         : NULL;
-  }
-#endif  // CONFIG_EXT_REFS || CONFIG_TEMPMV_SIGNALING
-
-#if CONFIG_TEMPMV_SIGNALING
-  cm->use_prev_frame_mvs &= frame_can_use_prev_frame_mvs(cm);
-#else
-  if (cm->prev_frame) {
-    cm->use_prev_frame_mvs = !cm->error_resilient_mode &&
-#if CONFIG_FRAME_SUPERRES
-                             cm->width == cm->last_width &&
-                             cm->height == cm->last_height &&
-#else
-                             cm->width == cm->prev_frame->buf.y_crop_width &&
-                             cm->height == cm->prev_frame->buf.y_crop_height &&
-#endif  // CONFIG_FRAME_SUPERRES
-                             !cm->intra_only && cm->last_show_frame;
-  } else {
-    cm->use_prev_frame_mvs = 0;
-  }
-#endif  // CONFIG_TEMPMV_SIGNALING
 
   // Special case: set prev_mi to NULL when the previous mode info
   // context cannot be used.
