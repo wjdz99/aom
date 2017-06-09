@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d8d90c07_fc2a434b",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-06-09T15:44:06Z",
+      "side": 1,
+      "message": "We subtract two values to compensate for the two offsets we applied earlier (one in the horizontal filter, one in the vertical filter).\n\nI\u0027ve taken a pattern of making the _c versions of functions match the intended hardware, where we want \u0027sum\u0027 to be an unsigned type of a particular width. The SIMD versions can avoid the offsets entirely and get the same results - I\u0027ve done that in the vectorization patch for av1_convolve_2d, and will apply the same changes to the warp filter/loop-restoration filter in future patches.",
+      "parentUuid": "b238fdde_7ff8e369",
+      "range": {
+        "startLine": 304,
+        "startChar": 27,
+        "endLine": 304,
+        "endChar": 73
+      },
+      "revId": "7664068de72737d0469f368af89104dcbff267ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "654908f4_ec0e1146",
         "filename": "av1/common/convolve.c",
         "patchSetId": 3
