@@ -648,7 +648,6 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
 #if CONFIG_PALETTE
   for (i = 0; i < 2; ++i) pd[i].color_index_map = ctx->color_index_map[i];
 #endif  // CONFIG_PALETTE
-
   // Restore the coding context of the MB to that that was in place
   // when the mode was picked for it
   for (y = 0; y < mi_height; y++)
@@ -4177,6 +4176,23 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 }
 
+#if CONFIG_SPEED_REFS
+static void restore_mi(const AV1_COMP *const cpi, int mi_row, int mi_col) {
+  const AV1_COMMON *cm = &cpi->common;
+  int x_idx, y;
+  for (y = 0; y < mi_size_high[cm->sb_size]; y++)
+    for (x_idx = 0; x_idx < mi_size_wide[cm->sb_size]; x_idx++)
+      if (mi_col + x_idx < cm->mi_cols && mi_row + y < cm->mi_rows) {
+        memset(cm->mi_grid_visible + (mi_row + y) * cm->mi_stride +
+                   (mi_col + x_idx),
+               0, sizeof(*cm->mi_grid_visible));
+        memset(
+            cpi->mbmi_ext_base + (mi_row + y) * cm->mi_cols + (mi_col + x_idx),
+            0, sizeof(*(cpi->mbmi_ext_base)));
+      }
+}
+#endif  // CONFIG_SPEED_REFS
+
 static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
                              TileDataEnc *tile_data, int mi_row,
                              TOKENEXTRA **tp) {
@@ -4326,19 +4342,46 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
 #if CONFIG_SPEED_REFS
       // NOTE: Two scanning passes for the current superblock - the first pass
       //       is only targeted to collect stats.
+      int m_search_count_backup = 0;
+      MB_MODE_INFO_EXT *mbmi_ext_backup;
+      MODE_INFO *mi_backup;
+      CHECK_MEM_ERROR(
+          cm, mbmi_ext_backup,
+          aom_calloc(cm->mi_rows * cm->mi_cols, sizeof(*mbmi_ext_backup)));
+      CHECK_MEM_ERROR(
+          cm, mi_backup,
+          aom_calloc((cm->mi_rows + 1) * cm->mi_stride, sizeof(*mi_backup)));
+#define SPEED_REFS_DEBUG 1
+#if SPEED_REFS_DEBUG
+      if (mi_row == 0 && mi_col == 0)
+        printf("Frame=%d (%d,%d) show_frame=%d\n", cm->current_video_frame,
+               mi_row, mi_col, cm->show_frame);
+#endif  // SPEED_REFS_DEBUG
       for (int sb_pass_idx = 0; sb_pass_idx < 2; ++sb_pass_idx) {
         cpi->sb_scanning_pass_idx = sb_pass_idx;
+        if (frame_is_intra_only(cm) && sb_pass_idx == 0) continue;
+        if (sb_pass_idx == 0) {
+          m_search_count_backup =
+              *(x->m_search_count_ptr);  // updated in handle_newmv()
+        }
         rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, cm->sb_size,
                           &dummy_rdc,
 #if CONFIG_SUPERTX
                           &dummy_rate_nocoef,
 #endif  // CONFIG_SUPERTX
                           INT64_MAX, pc_root);
+        if (frame_is_intra_only(cm)) break;
         if (sb_pass_idx == 0) {
           av1_zero(x->pred_mv);
           pc_root->index = 0;
+          restore_mi(cpi, mi_row, mi_col);
+          *(x->m_search_count_ptr) = m_search_count_backup;
         }
       }
+      aom_free(mbmi_ext_backup);
+      mbmi_ext_backup = NULL;
+      aom_free(mi_backup);
+      mi_backup = NULL;
 #else  // !CONFIG_SPEED_REFS
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, cm->sb_size,
                         &dummy_rdc,

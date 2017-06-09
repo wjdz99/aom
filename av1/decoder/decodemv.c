@@ -33,7 +33,7 @@
 
 #define ACCT_STR __func__
 
-#define COMPOUND_SINGLEREF_DEBUG 0
+#define COMPOUND_SINGLEREF_DEBUG 1
 
 #if CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
 static INLINE int read_uniform(aom_reader *r, int n) {
@@ -2482,38 +2482,64 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   read_mb_interp_filter(cm, xd, mbmi, r);
 #endif  // CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION
 
-#if CONFIG_EXT_INTER
-#if COMPOUND_SINGLEREF_DEBUG
+#if CONFIG_SPEED_REFS
+#define SPEED_REFS_DEBUG 0
+#if SPEED_REFS_DEBUG
 // NOTE(zoeliu): For debug
 #define FRAME_TO_CHECK 1
-  if (cm->current_video_frame == FRAME_TO_CHECK &&
-      ((cm->reference_mode != SINGLE_REFERENCE && cm->show_frame == 0) ||
-       cm->show_frame == 1)) {
-    const PREDICTION_MODE mode = mbmi->mode;
+  if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 0) {
+    int_mv mv[2] = { { 0 } };
+    for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref)
+      mv[ref].as_mv = mbmi->mv[ref].as_mv;
 
-    int_mv mv[2];
-#if CONFIG_COMPOUND_SINGLEREF
-    int is_comp_pred =
-        has_second_ref(mbmi) || is_inter_singleref_comp_mode(mbmi->mode);
-#else
-    int is_comp_pred = has_second_ref(mbmi);
-#endif  // CONFIG_COMPOUND_SINGLEREF
+    int interp_ctx[2] = { -1 };
+    int interp_filter[2] = { cm->interp_filter };
+    if (cm->interp_filter == SWITCHABLE) {
+      int dir;
+      for (dir = 0; dir < 2; ++dir) {
+        if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
+            (mbmi->ref_frame[1] > INTRA_FRAME &&
+             has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
+          interp_ctx[dir] = av1_get_pred_context_switchable_interp(xd, dir);
+          interp_filter[dir] = mbmi->interp_filter[dir];
+        } else {
+          interp_filter[dir] = EIGHTTAP_REGULAR;
+        }
+      }
+    }
 
-    mv[0].as_int = mbmi->mv[0].as_int;
-    mv[1].as_int = is_comp_pred ? mbmi->mv[1].as_int : 0;
+    const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
+    int16_t zeromv_ctx = -1;
+    int16_t refmv_ctx = -1;
+    if (mbmi->mode != NEWMV) {
+      if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) assert(mbmi->mode == ZEROMV);
+      zeromv_ctx = (mode_ctx >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
+      if (mbmi->mode != ZEROMV) {
+        refmv_ctx = (mode_ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
+        if (mode_ctx & (1 << SKIP_NEARESTMV_OFFSET)) refmv_ctx = 6;
+        if (mode_ctx & (1 << SKIP_NEARMV_OFFSET)) refmv_ctx = 7;
+        if (mode_ctx & (1 << SKIP_NEARESTMV_SUB8X8_OFFSET)) refmv_ctx = 8;
+      }
+    }
 
+    int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
     printf(
         "=== DECODER ===: "
         "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
-        "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, ref[1]=%d, "
-        "motion_mode=%d\n",
-        cm->current_video_frame, mi_row, mi_col, mode, bsize, cm->show_frame,
-        mv[0].as_mv.row, mv[0].as_mv.col, mv[1].as_mv.row, mv[1].as_mv.col,
-        mbmi->ref_frame[0], mbmi->ref_frame[1], mbmi->motion_mode);
+        "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
+        "ref[1]=%d, motion_mode=%d, inter_mode_ctx=%d, mode_ctx=%d, "
+        "interp_ctx=(%d,%d), interp_filter=(%d,%d), newmv_ctx=%d, "
+        "zeromv_ctx=%d, refmv_ctx=%d\n",
+        cm->current_video_frame, mi_row, mi_col, mbmi->mode, bsize,
+        cm->show_frame, mv[0].as_mv.row, mv[0].as_mv.col, mv[1].as_mv.row,
+        mv[1].as_mv.col, mbmi->ref_frame[0], mbmi->ref_frame[1],
+        mbmi->motion_mode, inter_mode_ctx[ref_frame_type], mode_ctx,
+        interp_ctx[0], interp_ctx[1], interp_filter[0], interp_filter[1],
+        newmv_ctx, zeromv_ctx, refmv_ctx);
   }
-#endif  // COMPOUND_SINGLEREF_DEBUG
-#undef COMPOUND_SINGLEREF_DEBUG
-#endif  // CONFIG_EXT_INTER
+#endif  // SPEED_REFS_DEBUG
+#undef SPEED_REFS_DEBUG
+#endif  // CONFIG_SPEED_REFS
 }
 
 static void read_inter_frame_mode_info(AV1Decoder *const pbi,
