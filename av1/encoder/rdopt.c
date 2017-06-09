@@ -2217,6 +2217,7 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     for (tx_type = tx_start; tx_type < tx_end; ++tx_type) {
       RD_STATS this_rd_stats;
       if (skip_txfm_search(cpi, x, bs, tx_type, n)) continue;
+      av1_init_rd_stats(&this_rd_stats);
       rd = txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs, tx_type, n);
 #if CONFIG_PVQ
       od_encode_rollback(&x->daala_enc, &buf);
@@ -9429,6 +9430,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       {
         RD_STATS rd_stats, rd_stats_y, rd_stats_uv;
         av1_init_rd_stats(&rd_stats);
+#if CONFIG_DAALA_DIST && CONFIG_CB4X4
+        if (bsize < BLOCK_8X8) av1_init_rd_stats(&rd_stats_y);
+#endif
         rd_stats.rate = rate2;
 
         // Point to variables that are maintained between loop iterations
@@ -9448,7 +9452,14 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         rate_y = rd_stats_y.rate;
         rate_uv = rd_stats_uv.rate;
 #if CONFIG_DAALA_DIST && CONFIG_CB4X4
-        if (bsize < BLOCK_8X8) distortion2_y = rd_stats_y.dist;
+        if (bsize < BLOCK_8X8) {
+          if (rd_stats_y.rate != INT_MAX) {
+            assert(rd_stats_y.sse < INT64_MAX);
+            assert(rd_stats_y.dist < INT64_MAX);
+          }
+          total_sse_y = rd_stats_y.sse;
+          distortion2_y = rd_stats_y.dist;
+        }
 #endif
       }
 
@@ -9516,6 +9527,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           RD_STATS tmp_rd_stats, tmp_rd_stats_y, tmp_rd_stats_uv;
 
           av1_invalid_rd_stats(&tmp_rd_stats);
+
           x->skip = 0;
 
           mbmi->ref_mv_idx = 1 + ref_idx;
@@ -9586,7 +9598,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
             frame_mv[NEARMV][ref_frame] = cur_mv;
             av1_init_rd_stats(&tmp_rd_stats);
-
+#if CONFIG_DAALA_DIST && CONFIG_CB4X4
+            if (bsize < BLOCK_8X8) av1_init_rd_stats(&tmp_rd_stats_y);
+#endif
             // Point to variables that are not maintained between iterations
             args.single_newmv = dummy_single_newmv;
 #if CONFIG_EXT_INTER
@@ -9661,6 +9675,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
             backup_skip = x->skip;
 #if CONFIG_DAALA_DIST && CONFIG_CB4X4
             if (bsize < BLOCK_8X8) {
+              if (tmp_rd_stats_y.rate != INT_MAX) {
+                assert(tmp_rd_stats_y.sse < INT64_MAX);
+                assert(tmp_rd_stats_y.dist < INT64_MAX);
+              }
               total_sse_y = tmp_rd_stats_y.sse;
               distortion2_y = tmp_rd_stats_y.dist;
             }
@@ -9739,7 +9757,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           rate_y = 0;
           rate_uv = 0;
 #if CONFIG_DAALA_DIST && CONFIG_CB4X4
-          if (bsize < BLOCK_8X8) distortion2_y = total_sse_y;
+          if (bsize < BLOCK_8X8) {
+            assert(total_sse_y < INT64_MAX);
+            distortion2_y = total_sse_y;
+          }
 #endif
         }
       } else {
@@ -9759,6 +9780,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       }
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     }
+
+#if CONFIG_DAALA_DIST && CONFIG_CB4X4
+    if ((bsize < BLOCK_8X8) && (rate2 != INT_MAX)) {
+      assert(distortion2_y < INT64_MAX);
+    }
+#endif
 
     if (ref_frame == INTRA_FRAME) {
       // Keep record of best intra rd
@@ -9831,7 +9858,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                                             this_skip2 || skippable);
         best_rate_uv = rate_uv;
 #if CONFIG_DAALA_DIST && CONFIG_CB4X4
-        if (bsize < BLOCK_8X8) rd_cost->dist_y = distortion2_y;
+        if (bsize < BLOCK_8X8) {
+          assert(distortion2_y < INT64_MAX);
+          rd_cost->dist_y = distortion2_y;
+        }
 #endif
 #if CONFIG_VAR_TX
         for (i = 0; i < MAX_MB_PLANE; ++i)
@@ -9840,7 +9870,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_VAR_TX
       }
     }
-
+#if CONFIG_DAALA_DIST && CONFIG_CB4X4
+    if ((bsize < BLOCK_8X8) && (rd_cost->rate != INT_MAX)) {
+      assert(rd_cost->dist_y < INT64_MAX);
+    }
+#endif
     /* keep record of best compound/single-only prediction */
     if (!disable_skip && ref_frame != INTRA_FRAME) {
       int64_t single_rd, hybrid_rd, single_rate, hybrid_rate;
@@ -9960,14 +9994,24 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       rd_cost->rate +=
           (rd_stats_y.rate + rd_stats_uv.rate - best_rate_y - best_rate_uv);
       rd_cost->dist = rd_stats_y.dist + rd_stats_uv.dist;
-#if CONFIG_DAALA_DIST && CONFIG_CB4X4
-      if (bsize < BLOCK_8X8) rd_cost->dist_y = rd_stats_y.dist;
-#endif
       rd_cost->rdcost =
           RDCOST(x->rdmult, x->rddiv, rd_cost->rate, rd_cost->dist);
       best_skip2 = skip_blk;
+#if CONFIG_DAALA_DIST && CONFIG_CB4X4
+      if (bsize < BLOCK_8X8) {
+        assert(rd_cost->rate != INT_MAX);
+        assert(rd_cost->dist_y < INT64_MAX);
+        rd_cost->dist_y = rd_stats_y.dist;
+      }
+#endif
     }
   }
+
+#if CONFIG_DAALA_DIST && CONFIG_CB4X4
+  if ((bsize < BLOCK_8X8) && (rd_cost->rate != INT_MAX)) {
+    assert(rd_cost->dist_y < INT64_MAX);
+  }
+#endif
 
 #if CONFIG_PALETTE
   // Only try palette mode when the best mode so far is an intra mode.
@@ -10505,6 +10549,9 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   av1_zero(best_pred_diff);
 
   store_coding_context(x, ctx, THR_ZEROMV, best_pred_diff, 0);
+  if (rd_cost->rate != INT_MAX) {
+    assert(rd_cost->dist_y < INT64_MAX);
+  }
 }
 
 #if CONFIG_MOTION_VAR
