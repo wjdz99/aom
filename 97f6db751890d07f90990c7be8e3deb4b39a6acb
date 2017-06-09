@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "962df842_ee246be6",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 9434,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-06-09T23:58:38Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be unconditional?",
+      "revId": "97f6db751890d07f90990c7be8e3deb4b39a6acb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
