@@ -88,6 +88,8 @@ typedef enum {
 // GLOBAL_TRANS_TYPES 7 - up to full homography
 #define GLOBAL_TRANS_TYPES 4
 
+#define GLOBAL_TYPE_BITS (get_msb(2 * GLOBAL_TRANS_TYPES - 3))
+
 typedef struct {
 #if CONFIG_GLOBAL_MOTION
   int global_warp_allowed;
