@@ -5785,7 +5785,12 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   // NOTE: Shall not refer to any frame not used as reference.
   if (cm->is_reference_frame) {
 #endif  // CONFIG_EXT_REFS
-    cm->prev_frame = cm->cur_frame;
+#if CONFIG_EXT_REFS || CONFIG_TEMPMV_SIGNALING
+// NOTE: cm->prev_frame is always set in this case to
+// the first reference in the reference list.
+#else
+  cm->prev_frame = cm->cur_frame;
+#endif
     // keep track of the last coded dimensions
     cm->last_width = cm->width;
     cm->last_height = cm->height;
