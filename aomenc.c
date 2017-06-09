@@ -1042,14 +1042,6 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
   return eos_mark_found;
 }
 
-#define FOREACH_STREAM(func)                                \
-  do {                                                      \
-    struct stream_state *stream;                            \
-    for (stream = streams; stream; stream = stream->next) { \
-      func;                                                 \
-    }                                                       \
-  } while (0)
-
 static void validate_stream_config(const struct stream_state *stream,
                                    const struct AvxEncoderConfig *global) {
   const struct stream_state *streami;
@@ -1688,27 +1680,23 @@ int main(int argc, const char **argv_) {
     case YV12: input.fmt = AOM_IMG_FMT_YV12; break;
   }
 
-  {
-    /* Now parse each stream's parameters. Using a local scope here
-     * due to the use of 'stream' as loop variable in FOREACH_STREAM
-     * loops
-     */
-    struct stream_state *stream = NULL;
+  struct stream_state *stream = NULL;
 
-    do {
-      stream = new_stream(&global, stream);
-      stream_cnt++;
-      if (!streams) streams = stream;
-    } while (parse_stream_params(&global, stream, argv));
-  }
+  do {
+    stream = new_stream(&global, stream);
+    stream_cnt++;
+    if (!streams) streams = stream;
+  } while (parse_stream_params(&global, stream, argv));
 
   /* Check for unrecognized options */
   for (argi = argv; *argi; argi++)
     if (argi[0][0] == '-' && argi[0][1])
       die("Error: Unrecognized option %s\n", *argi);
 
-  FOREACH_STREAM(check_encoder_config(global.disable_warning_prompt, &global,
-                                      &stream->config.cfg););
+  for (struct stream_state *stream = streams; stream; stream = stream->next) {
+    check_encoder_config(global.disable_warning_prompt, &global,
+                         &stream->config.cfg);
+  }
 
   /* Handle non-option arguments */
   input.filename = argv[0];
@@ -1730,13 +1718,13 @@ int main(int argc, const char **argv_) {
      * the data from the first stream's configuration.
      */
     if (!input.width || !input.height) {
-      FOREACH_STREAM({
+      for (struct stream_state *stream = streams; stream; stream = stream->next) {
         if (stream->config.cfg.g_w && stream->config.cfg.g_h) {
           input.width = stream->config.cfg.g_w;
           input.height = stream->config.cfg.g_h;
           break;
         }
-      });
+      };
     }
 
     /* Update stream configurations from the input file's parameters */
@@ -1751,20 +1739,19 @@ int main(int argc, const char **argv_) {
      * to be the same as the codec bit-depth.
      */
     if (!input.bit_depth) {
-      FOREACH_STREAM({
+      for (struct stream_state *stream = streams; stream; stream = stream->next) {
         if (stream->config.cfg.g_input_bit_depth)
           input.bit_depth = stream->config.cfg.g_input_bit_depth;
         else
           input.bit_depth = stream->config.cfg.g_input_bit_depth =
               (int)stream->config.cfg.g_bit_depth;
-      });
+      }
       if (input.bit_depth > 8) input.fmt |= AOM_IMG_FMT_HIGHBITDEPTH;
     } else {
-      FOREACH_STREAM(
-          { stream->config.cfg.g_input_bit_depth = input.bit_depth; });
+      for (struct stream_state *stream = streams; stream; stream = stream->next) { stream->config.cfg.g_input_bit_depth = input.bit_depth; }
     }
 
-    FOREACH_STREAM({
+    for (struct stream_state *stream = streams; stream; stream = stream->next) {
       if (input.fmt != AOM_IMG_FMT_I420 && input.fmt != AOM_IMG_FMT_I42016) {
         /* Automatically upgrade if input is non-4:2:0 but a 4:2:0 profile
            was selected. */
@@ -1809,31 +1796,32 @@ int main(int argc, const char **argv_) {
                 "match input format.\n",
                 stream->config.cfg.g_profile);
       }
-    });
+    }
 
-    FOREACH_STREAM(set_stream_dimensions(stream, input.width, input.height));
-    FOREACH_STREAM(validate_stream_config(stream, &global));
+    for (struct stream_state *stream = streams; stream; stream = stream->next) { set_stream_dimensions(stream, input.width, input.height); }
+    for (struct stream_state *stream = streams; stream; stream = stream->next) { validate_stream_config(stream, &global); }
 
     /* Ensure that --passes and --pass are consistent. If --pass is set and
      * --passes=2, ensure --fpf was set.
      */
-    if (global.pass && global.passes == 2)
-      FOREACH_STREAM({
+    if (global.pass && global.passes == 2) {
+      for (struct stream_state *stream = streams; stream; stream = stream->next) {
         if (!stream->config.stats_fn)
           die("Stream %d: Must specify --fpf when --pass=%d"
               " and --passes=2\n",
               stream->index, global.pass);
-      });
+      }
+    }
 
 #if !CONFIG_WEBM_IO
-    FOREACH_STREAM({
+    for (struct stream_state *stream = streams; stream; stream = stream->next) {
       if (stream->config.write_webm) {
         stream->config.write_webm = 0;
         warn(
             "aomenc was compiled without WebM container support."
             "Producing IVF output");
       }
-    });
+    }
 #endif
 
     /* Use the frame rate from the file only if none was specified
@@ -1842,31 +1830,37 @@ int main(int argc, const char **argv_) {
     if (!global.have_framerate) {
       global.framerate.num = input.framerate.numerator;
       global.framerate.den = input.framerate.denominator;
-      FOREACH_STREAM(stream->config.cfg.g_timebase.den = global.framerate.num;
-                     stream->config.cfg.g_timebase.num = global.framerate.den);
+      for (struct stream_state *stream = streams; stream; stream = stream->next) {
+        stream->config.cfg.g_timebase.den = global.framerate.num;
+        stream->config.cfg.g_timebase.num = global.framerate.den;
+      }
     }
 
     /* Show configuration */
-    if (global.verbose && pass == 0)
-      FOREACH_STREAM(show_stream_config(stream, &global, &input));
+    if (global.verbose && pass == 0) {
+      for (struct stream_state *stream = streams; stream; stream = stream->next) { show_stream_config(stream, &global, &input); }
+    }
 
     if (pass == (global.pass ? global.pass - 1 : 0)) {
       if (input.file_type == FILE_TYPE_Y4M)
         /*The Y4M reader does its own allocation.
           Just initialize this here to avoid problems if we never read any
-           frames.*/
+          frames.*/
         memset(&raw, 0, sizeof(raw));
       else
         aom_img_alloc(&raw, input.fmt, input.width, input.height, 32);
 
-      FOREACH_STREAM(stream->rate_hist = init_rate_histogram(
-                         &stream->config.cfg, &global.framerate));
+      for (struct stream_state *stream = streams; stream; stream = stream->next) {
+        stream->rate_hist =
+            init_rate_histogram(&stream->config.cfg, &global.framerate);
+      }
     }
 
-    FOREACH_STREAM(setup_pass(stream, &global, pass));
-    FOREACH_STREAM(
-        open_output_file(stream, &global, &input.pixel_aspect_ratio));
-    FOREACH_STREAM(initialize_encoder(stream, &global));
+    for (struct stream_state *stream = streams; stream; stream = stream->next) { setup_pass(stream, &global, pass); }
+    for (struct stream_state *stream = streams; stream; stream = stream->next) {
+      open_output_file(stream, &global, &input.pixel_aspect_ratio);
+    }
+    for (struct stream_state *stream = streams; stream; stream = stream->next) { initialize_encoder(stream, &global); }
 
 #if CONFIG_HIGHBITDEPTH
     if (strcmp(global.codec->name, "av1") == 0 ||
@@ -1874,7 +1868,7 @@ int main(int argc, const char **argv_) {
       // Check to see if at least one stream uses 16 bit internal.
       // Currently assume that the bit_depths for all streams using
       // highbitdepth are the same.
-      FOREACH_STREAM({
+      for (struct stream_state *stream = streams; stream; stream = stream->next) {
         if (stream->config.use_16bit_internal) {
           use_16bit_internal = 1;
         }
@@ -1884,7 +1878,7 @@ int main(int argc, const char **argv_) {
           input_shift = (int)stream->config.cfg.g_bit_depth -
                         stream->config.cfg.g_input_bit_depth;
         }
-      });
+      };
     }
 #endif
 
@@ -1942,31 +1936,33 @@ int main(int argc, const char **argv_) {
         aom_usec_timer_start(&timer);
         if (use_16bit_internal) {
           assert(frame_to_encode->fmt & AOM_IMG_FMT_HIGHBITDEPTH);
-          FOREACH_STREAM({
+          for (struct stream_state *stream = streams; stream; stream = stream->next) {
             if (stream->config.use_16bit_internal)
               encode_frame(stream, &global,
                            frame_avail ? frame_to_encode : NULL, frames_in);
             else
               assert(0);
-          });
+          };
         } else {
           assert((frame_to_encode->fmt & AOM_IMG_FMT_HIGHBITDEPTH) == 0);
-          FOREACH_STREAM(encode_frame(stream, &global,
-                                      frame_avail ? frame_to_encode : NULL,
-                                      frames_in));
+          for (struct stream_state *stream = streams; stream; stream = stream->next) {
+            encode_frame(stream, &global, frame_avail ? frame_to_encode : NULL,
+                         frames_in);
+          }
         }
 #else
         aom_usec_timer_start(&timer);
-        FOREACH_STREAM(encode_frame(stream, &global, frame_avail ? &raw : NULL,
-                                    frames_in));
+        for (struct stream_state *stream = streams; stream; stream = stream->next) {
+          encode_frame(stream, &global, frame_avail ? &raw : NULL, frames_in);
+        }
 #endif
         aom_usec_timer_mark(&timer);
         cx_time += aom_usec_timer_elapsed(&timer);
 
-        FOREACH_STREAM(update_quantizer_histogram(stream));
+        for (struct stream_state *stream = streams; stream; stream = stream->next) { update_quantizer_histogram(stream); }
 
         got_data = 0;
-        FOREACH_STREAM(get_cx_data(stream, &global, &got_data));
+        for (struct stream_state *stream = streams; stream; stream = stream->next) { get_cx_data(stream, &global, &got_data); }
 
         if (!got_data && input.length && streams != NULL &&
             !streams->frames_out) {
@@ -1995,8 +1991,11 @@ int main(int argc, const char **argv_) {
           estimated_time_left = average_rate ? remaining / average_rate : -1;
         }
 
-        if (got_data && global.test_decode != TEST_DECODE_OFF)
-          FOREACH_STREAM(test_decode(stream, global.test_decode, global.codec));
+        if (got_data && global.test_decode != TEST_DECODE_OFF) {
+          for (struct stream_state *stream = streams; stream; stream = stream->next) {
+            test_decode(stream, global.test_decode, global.codec);
+          }
+        }
       }
 
       fflush(stdout);
@@ -2006,68 +2005,78 @@ int main(int argc, const char **argv_) {
     if (stream_cnt > 1) fprintf(stderr, "\n");
 
     if (!global.quiet) {
-      FOREACH_STREAM(fprintf(
-          stderr, "\rPass %d/%d frame %4d/%-4d %7" PRId64 "B %7" PRId64
-                  "b/f %7" PRId64 "b/s"
-                  " %7" PRId64 " %s (%.2f fps)\033[K\n",
-          pass + 1, global.passes, frames_in, stream->frames_out,
-          (int64_t)stream->nbytes,
-          seen_frames ? (int64_t)(stream->nbytes * 8 / seen_frames) : 0,
-          seen_frames
-              ? (int64_t)stream->nbytes * 8 * (int64_t)global.framerate.num /
-                    global.framerate.den / seen_frames
-              : 0,
-          stream->cx_time > 9999999 ? stream->cx_time / 1000 : stream->cx_time,
-          stream->cx_time > 9999999 ? "ms" : "us",
-          usec_to_fps(stream->cx_time, seen_frames)));
+      for (struct stream_state *stream = streams; stream; stream = stream->next) {
+        fprintf(stderr, "\rPass %d/%d frame %4d/%-4d %7" PRId64 "B %7" PRId64
+                        "b/f %7" PRId64
+                        "b/s"
+                        " %7" PRId64 " %s (%.2f fps)\033[K\n",
+                pass + 1, global.passes, frames_in, stream->frames_out,
+                (int64_t)stream->nbytes,
+                seen_frames ? (int64_t)(stream->nbytes * 8 / seen_frames) : 0,
+                seen_frames
+                    ? (int64_t)stream->nbytes * 8 *
+                          (int64_t)global.framerate.num / global.framerate.den /
+                          seen_frames
+                    : 0,
+                stream->cx_time > 9999999 ? stream->cx_time / 1000
+                                          : stream->cx_time,
+                stream->cx_time > 9999999 ? "ms" : "us",
+                usec_to_fps(stream->cx_time, seen_frames));
+      }
     }
 
     if (global.show_psnr) {
       if (global.codec->fourcc == AV1_FOURCC) {
-        FOREACH_STREAM(
-            show_psnr(stream, (1 << stream->config.cfg.g_input_bit_depth) - 1));
+        for (struct stream_state *stream = streams; stream; stream = stream->next) {
+          show_psnr(stream, (1 << stream->config.cfg.g_input_bit_depth) - 1);
+        }
       } else {
-        FOREACH_STREAM(show_psnr(stream, 255.0));
+        for (struct stream_state *stream = streams; stream; stream = stream->next) { show_psnr(stream, 255.0); }
       }
     }
 
-    FOREACH_STREAM(aom_codec_destroy(&stream->encoder));
+    for (struct stream_state *stream = streams; stream; stream = stream->next) { aom_codec_destroy(&stream->encoder); }
 
     if (global.test_decode != TEST_DECODE_OFF) {
-      FOREACH_STREAM(aom_codec_destroy(&stream->decoder));
+      for (struct stream_state *stream = streams; stream; stream = stream->next) { aom_codec_destroy(&stream->decoder); }
     }
 
     close_input_file(&input);
 
     if (global.test_decode == TEST_DECODE_FATAL) {
-      FOREACH_STREAM(res |= stream->mismatch_seen);
+      for (struct stream_state *stream = streams; stream; stream = stream->next) { res |= stream->mismatch_seen; }
     }
-    FOREACH_STREAM(close_output_file(stream, global.codec->fourcc));
+    for (struct stream_state *stream = streams; stream; stream = stream->next) { close_output_file(stream, global.codec->fourcc); }
 
-    FOREACH_STREAM(stats_close(&stream->stats, global.passes - 1));
+    for (struct stream_state *stream = streams; stream; stream = stream->next) { stats_close(&stream->stats, global.passes - 1); }
 
 #if CONFIG_FP_MB_STATS
-    FOREACH_STREAM(stats_close(&stream->fpmb_stats, global.passes - 1));
+    for (struct stream_state *stream = streams; stream; stream = stream->next) { stats_close(&stream->fpmb_stats, global.passes - 1); }
 #endif
 
     if (global.pass) break;
   }
 
-  if (global.show_q_hist_buckets)
-    FOREACH_STREAM(
-        show_q_histogram(stream->counts, global.show_q_hist_buckets));
+  if (global.show_q_hist_buckets) {
+    for (struct stream_state *stream = streams; stream; stream = stream->next) {
+      show_q_histogram(stream->counts, global.show_q_hist_buckets);
+    }
+  }
 
-  if (global.show_rate_hist_buckets)
-    FOREACH_STREAM(show_rate_histogram(stream->rate_hist, &stream->config.cfg,
-                                       global.show_rate_hist_buckets));
-  FOREACH_STREAM(destroy_rate_histogram(stream->rate_hist));
+  if (global.show_rate_hist_buckets) {
+    for (struct stream_state *stream = streams; stream; stream = stream->next) {
+      show_rate_histogram(stream->rate_hist, &stream->config.cfg,
+                          global.show_rate_hist_buckets);
+    }
+  }
+  for (struct stream_state *stream = streams; stream; stream = stream->next) { destroy_rate_histogram(stream->rate_hist); }
 
 #if CONFIG_INTERNAL_STATS
   /* TODO(jkoleszar): This doesn't belong in this executable. Do it for now,
    * to match some existing utilities.
    */
-  if (!(global.pass == 1 && global.passes == 2))
-    FOREACH_STREAM({
+  if (!(global.pass == 1 && global.passes == 2)) {
+    for (struct stream_state *stream = streams; stream; stream = stream->next) {
       FILE *f = fopen("opsnr.stt", "a");
       if (stream->mismatch_seen) {
         fprintf(f, "First mismatch occurred in frame %d\n",
@@ -2076,7 +2085,8 @@ int main(int argc, const char **argv_) {
         fprintf(f, "No mismatch detected in recon buffers\n");
       }
       fclose(f);
-    });
+    }
+  }
 #endif
 
 #if CONFIG_HIGHBITDEPTH
