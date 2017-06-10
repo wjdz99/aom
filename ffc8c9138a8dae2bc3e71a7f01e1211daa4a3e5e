@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "cedcb049_0d39eacc",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 59
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-06-10T10:25:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78ba4777_a4622dd8",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 36
+      },
+      "revId": "ffc8c9138a8dae2bc3e71a7f01e1211daa4a3e5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "31dc3361_2c6d10e8",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 59
@@ -119,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "4b859c25_ad1cbdd2",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 59
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-06-10T10:25:24Z",
+      "side": 1,
+      "message": "Acknowledged. Thanks for the suggestion.",
+      "parentUuid": "c96aed25_b641fa20",
+      "range": {
+        "startLine": 342,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 1
+      },
+      "revId": "ffc8c9138a8dae2bc3e71a7f01e1211daa4a3e5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "83d7c947_791cb72e",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 59
@@ -130,6 +178,30 @@
       "writtenOn": "2017-06-07T16:53:47Z",
       "side": 1,
       "message": "I wonder if it might be worth basing the two NEWMVs on different ref-mvs? Eg, base the first mv on the nearestmv and the second mv on the nearmv. That might help in cases where we have two significantly different motions going on.",
+      "range": {
+        "startLine": 1647,
+        "startChar": 1,
+        "endLine": 1647,
+        "endChar": 78
+      },
+      "revId": "ffc8c9138a8dae2bc3e71a7f01e1211daa4a3e5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e6b754e_024996f9",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 59
+      },
+      "lineNbr": 1647,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-06-10T10:25:24Z",
+      "side": 1,
+      "message": "A valuable suggestion. Currently, we have problem in getting nearestmv and nearmv used together with the newmv mode though - Neither the use of SR_NEAREST_NEWMV or SR_NEAR_NEWMV seems help on the coding efficiency.",
+      "parentUuid": "83d7c947_791cb72e",
       "range": {
         "startLine": 1647,
         "startChar": 1,
@@ -176,6 +248,30 @@
       "writtenOn": "2017-06-07T16:53:47Z",
       "side": 1,
       "message": "This can be removed, because we\u0027re in a #if !CONFIG_EXT_INTER block here",
+      "range": {
+        "startLine": 8454,
+        "startChar": 0,
+        "endLine": 8456,
+        "endChar": 56
+      },
+      "revId": "ffc8c9138a8dae2bc3e71a7f01e1211daa4a3e5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cfe6d4b_2f50a3e8",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 59
+      },
+      "lineNbr": 8456,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-06-10T10:25:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1aa1eebf_1b5b3d1a",
       "range": {
         "startLine": 8454,
         "startChar": 0,
