@@ -16,6 +16,24 @@
       "revId": "9a91816cb57812e577333a2f6f35db88ba6f1c1d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "025ce5de_090ba306",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2017-06-10T17:11:37Z",
+      "side": 1,
+      "message": "yes. exactly. as I explained in the description. cm-\u003emi_grid_visible is a buffer of pointer to pointer (MODE_INFO**). for each MI, the pointer actually doesn\u0027t point to the exact MI structure in the allocated buffer. it points to the top left MI structure of the coded block. for example, if a block is coded as 8x8 and MI block size is 4x4, if you get the MODE_INFO* from cm-\u003emi_grid_visible, you will see all MODE_INFO pointers for all 4 4x4 block point to the top left MI structure address. However, before actual encoding, we wouldn\u0027t know the partition decision and structure, so the tile boundary information is updated for every mi structure in the actual allocated buffer, which is pointed by cm-\u003emi. so here I just changed to use cm-\u003emi as the start address to find the actual MI structure for every block and get the boundary information. I did a simple test and validated it works and generate exact the same bit stream as before.",
+      "parentUuid": "3a8904d0_31ae6588",
+      "revId": "9a91816cb57812e577333a2f6f35db88ba6f1c1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
