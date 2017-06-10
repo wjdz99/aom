@@ -16,6 +16,24 @@
       "revId": "97f6db751890d07f90990c7be8e3deb4b39a6acb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab632cc4_5f43c4f5",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 9434,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-06-10T03:57:24Z",
+      "side": 1,
+      "message": "All these luma rd distortion is required for sub8x8 partitions (because daala-dist can be applied to 8x8 or larger w/o any hassles of putting sub8x8 partition together back), so all added code in this patch runs basically for sub8x8 partition.",
+      "parentUuid": "962df842_ee246be6",
+      "revId": "97f6db751890d07f90990c7be8e3deb4b39a6acb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
