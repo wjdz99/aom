@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a8904d0_31ae6588",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-10T07:12:34Z",
+      "side": 1,
+      "message": "Last time I checked, the bottom and right boundaries were incorrectly set, which is why this code is using only above and left.",
+      "revId": "9a91816cb57812e577333a2f6f35db88ba6f1c1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
