@@ -1565,8 +1565,9 @@ void av1_filter_block_plane_non420_ver(AV1_COMMON *const cm,
     // Disable filtering on the leftmost column or tile boundary
     unsigned int border_mask = ~(mi_col == 0);
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
+    MODE_INFO *const mi = cm->mi + (mi_row + idx_r) * cm->mi_stride + mi_col;
     if (av1_disable_loopfilter_on_tile_boundary(cm) &&
-        ((mib[0]->mbmi.boundary_info & TILE_LEFT_BOUNDARY) != 0)) {
+        ((mi->mbmi.boundary_info & TILE_LEFT_BOUNDARY) != 0)) {
       border_mask = 0xfffffffe;
     }
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
@@ -1617,7 +1618,7 @@ void av1_filter_block_plane_non420_hor(AV1_COMMON *const cm,
 
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
     // Disable filtering on the abovemost row or tile boundary
-    const MODE_INFO *mi = cm->mi + (mi_row + r) * cm->mi_stride;
+    const MODE_INFO *mi = cm->mi + (mi_row + idx_r) * cm->mi_stride + mi_col;
     if ((av1_disable_loopfilter_on_tile_boundary(cm) &&
          (mi->mbmi.boundary_info & TILE_ABOVE_BOUNDARY)) ||
         (mi_row + idx_r == 0)) {
@@ -2008,7 +2009,8 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
   // not sure if changes are required.
   assert(0 && "Not yet updated");
 #endif  // CONFIG_EXT_PARTITION
-
+  const int mi_row = y / MI_SIZE;
+  const int mi_col = x / MI_SIZE;
   {
     const TX_SIZE ts =
         av1_get_transform_size(ppCurr[0], edgeDir, scaleHorz, scaleVert);
@@ -2026,11 +2028,12 @@ static void set_lpf_parameters(AV1_DEBLOCKING_PARAMETERS *const pParams,
     // prepare outer edge parameters. deblock the edge if it's an edge of a TU
     if (coord) {
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
+      MODE_INFO *const mi = cm->mi + mi_row * cm->mi_stride + mi_col;
       if (!av1_disable_loopfilter_on_tile_boundary(cm) ||
           ((VERT_EDGE == edgeDir) &&
-           (0 == (ppCurr[0]->mbmi.boundary_info & TILE_LEFT_BOUNDARY))) ||
+           (0 == (mi->mbmi.boundary_info & TILE_LEFT_BOUNDARY))) ||
           ((HORZ_EDGE == edgeDir) &&
-           (0 == (ppCurr[0]->mbmi.boundary_info & TILE_ABOVE_BOUNDARY))))
+           (0 == (mi->mbmi.boundary_info & TILE_ABOVE_BOUNDARY))))
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
       {
         const int32_t tuEdge =
