@@ -76,7 +76,7 @@ static const INTERINTRA_MODE intra_to_interintra_mode[INTRA_MODES] = {
 #if CONFIG_EXT_INTRA
 static INLINE int av1_is_directional_mode(PREDICTION_MODE mode,
                                           BLOCK_SIZE bsize) {
-#if CONFIG_INTRA_EDGE_UP
+#if CONFIG_INTRA_EDGE_UPSAMPLE
   (void)bsize;
   return mode >= V_PRED && mode <= D63_PRED;
 #else
@@ -86,7 +86,7 @@ static INLINE int av1_is_directional_mode(PREDICTION_MODE mode,
 
 static INLINE int av1_use_angle_delta(BLOCK_SIZE bsize) {
   (void)bsize;
-#if CONFIG_INTRA_EDGE_UP
+#if CONFIG_INTRA_EDGE_UPSAMPLE
   return bsize >= BLOCK_8X8;
 #else
   return 1;
