@@ -249,6 +249,11 @@ if (CONFIG_UNIT_TESTS)
   include_directories(
     "${AOM_ROOT}/third_party/googletest/src/googletest/src"
     "${AOM_ROOT}/third_party/googletest/src/googletest/include")
+
+  if (BUILD_SHARED_LIBS AND APPLE)
+    # Silence an RPATH warning.
+    set(CMAKE_MACOSX_RPATH 1)
+  endif ()
   add_subdirectory("${AOM_ROOT}/third_party/googletest/src/googletest"
                    EXCLUDE_FROM_ALL)
 
@@ -262,27 +267,28 @@ endif ()
 # Setup the targets for CONFIG_UNIT_TESTS. The libaom and app util targets must
 # exist before this function is called.
 function (setup_aom_test_targets)
-  add_library(test_aom_common OBJECT ${AOM_UNIT_TEST_COMMON_SOURCES})
+  add_library(test_aom_common STATIC ${AOM_UNIT_TEST_COMMON_SOURCES})
 
   if (CONFIG_AV1_DECODER)
-    add_library(test_aom_decoder OBJECT ${AOM_UNIT_TEST_DECODER_SOURCES})
+    add_library(test_aom_decoder STATIC ${AOM_UNIT_TEST_DECODER_SOURCES})
   endif ()
 
   if (CONFIG_AV1_ENCODER)
-    add_library(test_aom_encoder OBJECT ${AOM_UNIT_TEST_ENCODER_SOURCES})
+    add_library(test_aom_encoder STATIC ${AOM_UNIT_TEST_ENCODER_SOURCES})
   endif ()
 
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} test_aom_common test_aom_decoder
       test_aom_encoder PARENT_SCOPE)
 
   add_executable(test_libaom ${AOM_UNIT_TEST_WRAPPER_SOURCES}
-                 $<TARGET_OBJECTS:aom_common_app_util>
-                 $<TARGET_OBJECTS:test_aom_common>)
+                 ${AOM_RTCD_SOURCES} ${AOM_SOURCES})
+  set(AOM_APP_TARGETS ${AOM_APP_TARGETS} test_libaom PARENT_SCOPE)
+  target_link_libraries(test_libaom ${AOM_LIB_LINK_TYPE}
+                        aom_common_app_util test_aom_common)
 
   if (CONFIG_AV1_DECODER)
-    target_sources(test_libaom PUBLIC
-                   $<TARGET_OBJECTS:aom_decoder_app_util>
-                   $<TARGET_OBJECTS:test_aom_decoder>)
+    target_link_libraries(test_libaom ${AOM_LIB_LINK_TYPE} aom_decoder_app_util
+                          test_aom_decoder)
 
     if (CONFIG_DECODE_PERF_TESTS AND CONFIG_WEBM_IO)
       target_sources(test_libaom PUBLIC ${AOM_DECODE_PERF_TEST_SOURCES})
@@ -290,28 +296,27 @@ function (setup_aom_test_targets)
   endif ()
 
   if (CONFIG_AV1_ENCODER)
-    target_sources(test_libaom PUBLIC
-                   $<TARGET_OBJECTS:test_aom_encoder>
-                   $<TARGET_OBJECTS:aom_encoder_app_util>)
+    target_link_libraries(test_libaom ${AOM_LIB_LINK_TYPE} aom_encoder_app_util
+                          test_aom_encoder)
 
     if (CONFIG_ENCODE_PERF_TESTS)
       target_sources(test_libaom PUBLIC ${AOM_ENCODE_PERF_TEST_SOURCES})
     endif ()
 
     add_executable(test_intra_pred_speed
-                   ${AOM_TEST_INTRA_PRED_SPEED_SOURCES}
-                   $<TARGET_OBJECTS:aom_common_app_util>)
-    target_link_libraries(test_intra_pred_speed ${AOM_LIB_LINK_TYPE} aom gtest)
+                   ${AOM_TEST_INTRA_PRED_SPEED_SOURCES})
+    set(AOM_APP_TARGETS ${AOM_APP_TARGETS} test_intra_pred_speed PARENT_SCOPE)
+    target_link_libraries(test_intra_pred_speed ${AOM_LIB_LINK_TYPE} aom
+                          aom_common_app_util gtest)
   endif ()
 
   target_link_libraries(test_libaom ${AOM_LIB_LINK_TYPE} aom gtest)
 
   if (CONFIG_LIBYUV)
-    target_sources(test_libaom PUBLIC $<TARGET_OBJECTS:yuv>)
+    target_link_libraries(test_libaom ${AOM_LIB_LINK_TYPE} yuv)
   endif ()
   if (CONFIG_WEBM_IO)
-    target_sources(test_libaom PUBLIC ${AOM_UNIT_TEST_WEBM_SOURCES}
-                   $<TARGET_OBJECTS:webm>)
+    target_link_libraries(test_libaom ${AOM_LIB_LINK_TYPE} webm)
   endif ()
   if (HAVE_SSE2)
     add_intrinsics_source_to_target("-msse2" "test_libaom"
