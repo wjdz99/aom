@@ -2451,40 +2451,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   read_mb_interp_filter(cm, xd, mbmi, r);
 #endif  // CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION
 
-<<<<<<< HEAD
-#if CONFIG_EXT_INTER
-#if COMPOUND_SINGLEREF_DEBUG
-// NOTE(zoeliu): For debug
-#define FRAME_TO_CHECK 1
-  if (cm->current_video_frame == FRAME_TO_CHECK &&
-      ((cm->reference_mode != SINGLE_REFERENCE && cm->show_frame == 0) ||
-       cm->show_frame == 1)) {
-    const PREDICTION_MODE mode = mbmi->mode;
-
-    int_mv mv[2];
-#if CONFIG_COMPOUND_SINGLEREF
-    int is_comp_pred =
-        has_second_ref(mbmi) || is_inter_singleref_comp_mode(mbmi->mode);
-#else
-    int is_comp_pred = has_second_ref(mbmi);
-#endif  // CONFIG_COMPOUND_SINGLEREF
-
-    mv[0].as_int = mbmi->mv[0].as_int;
-    mv[1].as_int = is_comp_pred ? mbmi->mv[1].as_int : 0;
-
-    printf(
-        "=== DECODER ===: "
-        "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
-        "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, ref[1]=%d, "
-        "motion_mode=%d\n",
-        cm->current_video_frame, mi_row, mi_col, mode, bsize, cm->show_frame,
-        mv[0].as_mv.row, mv[0].as_mv.col, mv[1].as_mv.row, mv[1].as_mv.col,
-        mbmi->ref_frame[0], mbmi->ref_frame[1], mbmi->motion_mode);
-  }
-#endif  // COMPOUND_SINGLEREF_DEBUG
-#undef COMPOUND_SINGLEREF_DEBUG
-#endif  // CONFIG_EXT_INTER
-=======
 #if CONFIG_SPEED_REFS
 #define SPEED_REFS_DEBUG 1
 #else   // !CONFIG_SPEED_REFS
@@ -2553,7 +2519,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
 #endif  // SPEED_REFS_DEBUG
 #undef SPEED_REFS_DEBUG
->>>>>>> Add the new coding tool "speed_refs"
 }
 
 static void read_inter_frame_mode_info(AV1Decoder *const pbi,

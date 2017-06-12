@@ -43,8 +43,8 @@ static INLINE void aom_daala_write(daala_writer *w, int bit, int prob) {
 #endif
 #if CONFIG_BITSTREAM_DEBUG
   aom_cdf_prob cdf[2] = { (aom_cdf_prob)p, 32767 };
-  int queue_r = 331377;
-  int frame_idx_r = 2;
+  int queue_r = 0;
+  int frame_idx_r = 0;
   int queue_w = bitstream_queue_get_write();
   int frame_idx_w = bitstream_queue_get_frame_write();
   if (frame_idx_w == frame_idx_r && queue_w == queue_r) {
@@ -66,8 +66,8 @@ static INLINE void aom_daala_write_bit(daala_writer *w, int bit) {
 static INLINE void daala_write_symbol(daala_writer *w, int symb,
                                       const aom_cdf_prob *cdf, int nsymbs) {
 #if CONFIG_BITSTREAM_DEBUG
-  int queue_r = 331377;
-  int frame_idx_r = 2;
+  int queue_r = 0;
+  int frame_idx_r = 0;
   int queue_w = bitstream_queue_get_write();
   int frame_idx_w = bitstream_queue_get_frame_write();
   if (frame_idx_w == frame_idx_r && queue_w == queue_r) {
