@@ -492,11 +492,7 @@ static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   } else {
     const int skip = mi->mbmi.skip;
 #if CONFIG_NEW_MULTISYMBOL
-#if CONFIG_EC_ADAPT
     FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-    FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
     const int ctx = av1_get_skip_context(xd);
     aom_write_symbol(w, skip, ec_ctx->skip_cdfs[ctx], 2);
 #else
@@ -510,11 +506,7 @@ static void write_is_inter(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                            int segment_id, aom_writer *w, const int is_inter) {
   if (!segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
 #if CONFIG_NEW_MULTISYMBOL
-#if CONFIG_EC_ADAPT
     FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-    FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
     const int ctx = av1_get_intra_inter_context(xd);
     aom_write_symbol(w, is_inter, ec_ctx->intra_inter_cdf[ctx], 2);
 #else
