@@ -160,6 +160,29 @@
       "revId": "57571ae1c77e908472e5c2901adb2794e627b610",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8458ea38_51a5c3df",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 66
+      },
+      "lineNbr": 1692,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-12T20:01:11Z",
+      "side": 1,
+      "message": "is_inter_any_comp_mode()",
+      "range": {
+        "startLine": 1691,
+        "startChar": 13,
+        "endLine": 1692,
+        "endChar": 53
+      },
+      "revId": "57571ae1c77e908472e5c2901adb2794e627b610",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
