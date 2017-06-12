@@ -32,7 +32,7 @@ typedef struct {
   int y_height, y_width;
 
   // Average of the luma reconstructed values over the entire prediction unit
-  double y_avg;
+  double y_averages[MAX_NUM_TXB];
 
   // Chroma subsampling
   int subsampling_x, subsampling_y;
@@ -64,7 +64,8 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm);
 
 void cfl_dc_pred(MACROBLOCKD *xd, int width, int height);
 
-double cfl_compute_average(uint8_t *y_pix, int y_stride, int height, int width);
+void cfl_compute_averages(const uint8_t *y_pix, int y_stride, int width,
+                          int height, TX_SIZE tx_size, double *averages_out);
 
 static INLINE double cfl_idx_to_alpha(int alpha_idx, CFL_SIGN_TYPE alpha_sign,
                                       CFL_PRED_TYPE pred_type) {

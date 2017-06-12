@@ -2540,15 +2540,9 @@ void av1_predict_intra_block_facade(MACROBLOCKD *xd, int plane, int block_idx,
       const int height = max_block_high(xd, plane_bsize, plane)
                          << tx_size_high_log2[0];
 
-      // Temporary pixel buffer used to store the CfL prediction when we compute
-      // the average over the reconstructed and downsampled luma pixels
-      uint8_t tmp_pix[MAX_SB_SQUARE];
-
       // Compute the block-level DC_PRED for both chromatic planes. DC_PRED
       // replaces beta in the linear model.
       cfl_dc_pred(xd, width, height);
-      cfl_load(cfl, tmp_pix, MAX_SB_SIZE, 0, 0, width, height);
-      cfl->y_avg = cfl_compute_average(tmp_pix, MAX_SB_SIZE, width, height);
     }
 
     cfl_predict_block(
