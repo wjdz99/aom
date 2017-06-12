@@ -289,6 +289,7 @@ EXPERIMENT_LIST="
     chroma_sub8x8
     frame_size
     delta_q
+    daala_dct4
     ext_delta_q
     adapt_scan
     filter_7bit
@@ -535,6 +536,10 @@ post_process_cmdline() {
     if enabled ec_smallmul && enabled ans; then
       log_echo "ec_smallmul requires not ans, so disabling ec_smallmul"
       disable_feature ec_smallmul
+    fi
+    if enabled daala_dct4; then
+      enable_feature dct_only
+      disable_feature mmx
     fi
     if enabled ext_tile; then
       log_echo "ext_tile not compatible with reference_buffer, so"
