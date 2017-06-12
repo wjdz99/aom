@@ -441,20 +441,20 @@ endif ()
 # Setup AV1 common/decoder/encoder targets. The libaom target must exist before
 # this function is called.
 function (setup_av1_targets)
-  add_library(aom_av1_common OBJECT ${AOM_AV1_COMMON_SOURCES})
+  add_library(aom_av1_common STATIC ${AOM_AV1_COMMON_SOURCES})
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_av1_common)
-  target_sources(aom PUBLIC $<TARGET_OBJECTS:aom_av1_common>)
+  target_link_libraries(aom ${AOM_LIB_LINK_TYPE} aom_av1_common)
 
   if (CONFIG_AV1_DECODER)
-    add_library(aom_av1_decoder OBJECT ${AOM_AV1_DECODER_SOURCES})
+    add_library(aom_av1_decoder STATIC ${AOM_AV1_DECODER_SOURCES})
     set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_av1_decoder)
-    target_sources(aom PUBLIC $<TARGET_OBJECTS:aom_av1_decoder>)
+    target_link_libraries(aom ${AOM_LIB_LINK_TYPE} aom_av1_decoder)
   endif ()
 
   if (CONFIG_AV1_ENCODER)
-    add_library(aom_av1_encoder OBJECT ${AOM_AV1_ENCODER_SOURCES})
+    add_library(aom_av1_encoder STATIC ${AOM_AV1_ENCODER_SOURCES})
     set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_av1_encoder)
-    target_sources(aom PUBLIC $<TARGET_OBJECTS:aom_av1_encoder>)
+    target_link_libraries(aom ${AOM_LIB_LINK_TYPE} aom_av1_encoder)
   endif ()
 
   if (HAVE_SSE2)

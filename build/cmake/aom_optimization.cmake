@@ -35,7 +35,7 @@ endfunction ()
 # libraries do not have this limitation.
 function (add_intrinsics_object_library flag opt_name target_to_update sources)
   set(target_name ${target_to_update}_${opt_name}_intrinsics)
-  add_library(${target_name} OBJECT ${${sources}})
+  add_library(${target_name} STATIC ${${sources}})
 
   if (MSVC)
     get_msvc_intrinsic_flag(${flag} "flag")
@@ -45,7 +45,9 @@ function (add_intrinsics_object_library flag opt_name target_to_update sources)
     target_compile_options(${target_name} PUBLIC ${flag})
   endif ()
 
-  target_sources(aom PUBLIC $<TARGET_OBJECTS:${target_name}>)
+  #target_sources(aom PUBLIC $<TARGET_OBJECTS:${target_name}>)
+  target_link_libraries(aom ${AOM_LIB_LINK_TYPE} ${target_name})
+
 
   # Add the new lib target to the global list of aom library targets.
   list(APPEND AOM_LIB_TARGETS ${target_name})
