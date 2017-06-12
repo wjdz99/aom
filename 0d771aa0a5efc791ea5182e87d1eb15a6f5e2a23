@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3b1d1e30_4b5c0654",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1442,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-06-12T17:47:55Z",
+      "side": 1,
+      "message": "Done. Please see the new patch.",
+      "parentUuid": "d7fcf7f2_ce9ecaa5",
+      "range": {
+        "startLine": 1442,
+        "startChar": 14,
+        "endLine": 1442,
+        "endChar": 16
+      },
+      "revId": "0d771aa0a5efc791ea5182e87d1eb15a6f5e2a23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a83c805e_5526d9ad",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2017-06-12T17:05:58Z",
       "side": 1,
       "message": "here is little bit confusing. is tx_high the minimum of the height between two tx_size of the current block and the above block?",
+      "range": {
+        "startLine": 1447,
+        "startChar": 14,
+        "endLine": 1447,
+        "endChar": 16
+      },
+      "revId": "0d771aa0a5efc791ea5182e87d1eb15a6f5e2a23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "659ba1d8_aed33db2",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1447,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-06-12T17:47:55Z",
+      "side": 1,
+      "message": "It means the filter length for a horizontal edge, whose filtering direction is vertical. So we take the min height of top and bot blocks. Please see the new naming.",
+      "parentUuid": "a83c805e_5526d9ad",
       "range": {
         "startLine": 1447,
         "startChar": 14,
