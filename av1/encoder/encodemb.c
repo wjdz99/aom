@@ -1494,7 +1494,8 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 }
 
 #if CONFIG_CFL
-static int cfl_alpha_dist(const uint8_t *y_pix, int y_stride, double y_avg,
+static int cfl_alpha_dist(const uint8_t *y_pix, int y_stride,
+                          const double y_averages[MAX_NUM_TXB],
                           const uint8_t *src, int src_stride, int width,
                           int height, TX_SIZE tx_size, double dc_pred,
                           double alpha, int *dist_neg_out) {
@@ -1520,17 +1521,21 @@ static int cfl_alpha_dist(const uint8_t *y_pix, int y_stride, double y_avg,
   int dist_neg = 0;
   const int tx_height = tx_size_high[tx_size];
   const int tx_width = tx_size_wide[tx_size];
+  const int y_block_row_off = y_stride * tx_height;
+  const int src_block_row_off = src_stride * tx_height;
   const uint8_t *t_y_pix;
   const uint8_t *t_src;
+  int a = 0;
   for (int b_j = 0; b_j < height; b_j += tx_height) {
     const int h = b_j + tx_height;
     for (int b_i = 0; b_i < width; b_i += tx_width) {
       const int w = b_i + tx_width;
+      const double tx_avg = y_averages[a++];
       t_y_pix = y_pix;
       t_src = src;
       for (int t_j = b_j; t_j < h; t_j++) {
         for (int t_i = b_i; t_i < w; t_i++) {
-          const double scaled_luma = alpha * (t_y_pix[t_i] - y_avg);
+          const double scaled_luma = alpha * (t_y_pix[t_i] - tx_avg);
           const int uv = t_src[t_i];
           diff = uv - (int)(scaled_luma + dc_pred_bias);
           dist += diff * diff;
@@ -1541,8 +1546,8 @@ static int cfl_alpha_dist(const uint8_t *y_pix, int y_stride, double y_avg,
         t_src += src_stride;
       }
     }
-    y_pix += y_stride * tx_height;
-    src += src_stride * tx_height;
+    y_pix += y_block_row_off;
+    src += src_block_row_off;
   }
 
   if (dist_neg_out) *dist_neg_out = dist_neg;
@@ -1562,23 +1567,23 @@ static int cfl_compute_alpha_ind(MACROBLOCK *const x, const CFL_CTX *const cfl,
   const int src_stride_v = p_v->src.stride;
   const double dc_pred_u = cfl->dc_pred[CFL_PRED_U];
   const double dc_pred_v = cfl->dc_pred[CFL_PRED_V];
-  const double y_avg = cfl->y_avg;
+  const double *y_averages = cfl->y_averages;
 
   int sse[CFL_PRED_PLANES][CFL_MAGS_SIZE];
   sse[CFL_PRED_U][0] =
-      cfl_alpha_dist(y_pix, MAX_SB_SIZE, y_avg, src_u, src_stride_u, width,
+      cfl_alpha_dist(y_pix, MAX_SB_SIZE, y_averages, src_u, src_stride_u, width,
                      height, tx_size, dc_pred_u, 0, NULL);
   sse[CFL_PRED_V][0] =
-      cfl_alpha_dist(y_pix, MAX_SB_SIZE, y_avg, src_v, src_stride_v, width,
+      cfl_alpha_dist(y_pix, MAX_SB_SIZE, y_averages, src_v, src_stride_v, width,
                      height, tx_size, dc_pred_v, 0, NULL);
   for (int m = 1; m < CFL_MAGS_SIZE; m += 2) {
     assert(cfl_alpha_mags[m + 1] == -cfl_alpha_mags[m]);
     sse[CFL_PRED_U][m] = cfl_alpha_dist(
-        y_pix, MAX_SB_SIZE, y_avg, src_u, src_stride_u, width, height, tx_size,
-        dc_pred_u, cfl_alpha_mags[m], &sse[CFL_PRED_U][m + 1]);
+        y_pix, MAX_SB_SIZE, y_averages, src_u, src_stride_u, width, height,
+        tx_size, dc_pred_u, cfl_alpha_mags[m], &sse[CFL_PRED_U][m + 1]);
     sse[CFL_PRED_V][m] = cfl_alpha_dist(
-        y_pix, MAX_SB_SIZE, y_avg, src_v, src_stride_v, width, height, tx_size,
-        dc_pred_v, cfl_alpha_mags[m], &sse[CFL_PRED_V][m + 1]);
+        y_pix, MAX_SB_SIZE, y_averages, src_v, src_stride_v, width, height,
+        tx_size, dc_pred_v, cfl_alpha_mags[m], &sse[CFL_PRED_V][m + 1]);
   }
 
   int dist;
@@ -1649,6 +1654,9 @@ void av1_predict_intra_block_encoder_facade(MACROBLOCK *x,
       const int height =
           max_intra_block_height(xd, plane_bsize, AOM_PLANE_U, tx_size);
 
+      // Temporary pixel buffer used to store the CfL prediction when we compute
+      // the average over the reconstructed and downsampled luma pixels
+      // TODO(ltrudeau) Convert to uint16 when adding HBD support
       uint8_t tmp_pix[MAX_SB_SQUARE];
       CFL_CTX *const cfl = xd->cfl;
 
@@ -1656,7 +1664,8 @@ void av1_predict_intra_block_encoder_facade(MACROBLOCK *x,
       cfl_dc_pred(xd, width, height);
       // Load CfL Prediction over the entire block
       cfl_load(cfl, tmp_pix, MAX_SB_SIZE, 0, 0, width, height);
-      cfl->y_avg = cfl_compute_average(tmp_pix, MAX_SB_SIZE, width, height);
+      cfl_compute_averages(tmp_pix, MAX_SB_SIZE, width, height, tx_size,
+                           cfl->y_averages);
       mbmi->cfl_alpha_idx = cfl_compute_alpha_ind(
           x, cfl, width, height, tx_size, tmp_pix, mbmi->cfl_alpha_signs);
     }
