@@ -337,6 +337,9 @@ void av1_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 #endif
   };
   const int n = 4;
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
   const int n2 = 8;
 
   int i, j;
@@ -404,6 +407,9 @@ void av1_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   // inverse transform row vectors and transpose
   for (i = 0; i < n4; ++i) {
     IHT_4x16[tx_type].rows(input, outtmp);
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
     for (j = 0; j < n; ++j) tmp[j][i] = outtmp[j];
     input += n;
   }
@@ -461,6 +467,9 @@ void av1_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n4; ++j) tmp[j][i] = outtmp[j];
     input += n4;
   }
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
 
   // inverse transform column vectors
   for (i = 0; i < n4; ++i) IHT_16x4[tx_type].cols(tmp[i], out[i]);
@@ -518,6 +527,9 @@ void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 
   // inverse transform column vectors
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
   for (i = 0; i < n; ++i) {
     IHT_8x16[tx_type].cols(tmp[i], out[i]);
   }
@@ -572,6 +584,9 @@ void av1_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n2; ++j)
       tmp[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
     input += n2;
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
   }
 
   // inverse transform column vectors
@@ -626,6 +641,9 @@ void av1_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   // inverse transform row vectors and transpose
   for (i = 0; i < n4; ++i) {
     IHT_8x32[tx_type].rows(input, outtmp);
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
     for (j = 0; j < n; ++j) tmp[j][i] = outtmp[j];
     input += n;
   }
@@ -683,6 +701,9 @@ void av1_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n4; ++j) tmp[j][i] = outtmp[j];
     input += n4;
   }
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
 
   // inverse transform column vectors
   for (i = 0; i < n4; ++i) IHT_32x8[tx_type].cols(tmp[i], out[i]);
@@ -740,6 +761,9 @@ void av1_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   }
 
   // inverse transform column vectors
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
   for (i = 0; i < n; ++i) {
     IHT_16x32[tx_type].cols(tmp[i], out[i]);
   }
@@ -794,6 +818,9 @@ void av1_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n2; ++j)
       tmp[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
     input += n2;
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
   }
 
   // inverse transform column vectors
@@ -848,6 +875,9 @@ void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   for (i = 0; i < 8; ++i) {
     IHT_8[tx_type].rows(input, out[i]);
     input += 8;
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
   }
 
   // transpose
@@ -905,6 +935,9 @@ void av1_iht16x16_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   tran_low_t *outp = &out[0][0];
   int outstride = 16;
 
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
   // inverse transform row vectors
   for (i = 0; i < 16; ++i) {
     IHT_16[tx_type].rows(input, out[i]);
@@ -962,6 +995,9 @@ void av1_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   int i, j;
   tran_low_t tmp[32][32];
   tran_low_t out[32][32];
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
   tran_low_t *outp = &out[0][0];
   int outstride = 32;
 
@@ -1025,6 +1061,9 @@ void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   tran_low_t out[64][64];
   tran_low_t *outp = &out[0][0];
   int outstride = 64;
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
 
   // inverse transform row vectors
   for (i = 0; i < 64; ++i) {
@@ -1089,6 +1128,9 @@ static void idct8x8_add(const tran_low_t *input, uint8_t *dest, int stride,
 #if CONFIG_ADAPT_SCAN
   const int16_t half = param->eob_threshold[0];
 #else
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
   const int16_t half = 12;
 #endif
 
@@ -1150,6 +1192,9 @@ static void idct32x32_add(const tran_low_t *input, uint8_t *dest, int stride,
 
 #if CONFIG_TX64X64
 static void idct64x64_add(const tran_low_t *input, uint8_t *dest, int stride,
+#if CONFIG_DCT_ONLY
+  assert(tx_type == DCT_DCT);
+#endif
                           const INV_TXFM_PARAM *param) {
   (void)param;
   av1_iht64x64_4096_add(input, dest, stride, DCT_DCT);
