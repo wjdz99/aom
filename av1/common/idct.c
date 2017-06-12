@@ -198,6 +198,10 @@ static void highbd_inv_idtx_add_c(const tran_low_t *input, uint8_t *dest8,
 
 void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                          int tx_type) {
+  if (tx_type == DCT_DCT) {
+    aom_idct4x4_16_add(input, dest, stride);
+    return;
+  }
   static const transform_2d IHT_4[] = {
     { aom_idct4_c, aom_idct4_c },    // DCT_DCT  = 0
     { aom_iadst4_c, aom_idct4_c },   // ADST_DCT = 1
@@ -1064,7 +1068,7 @@ void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_idct4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
                      int eob) {
   if (eob > 1)
-    aom_idct4x4_16_add(input, dest, stride);
+    av1_iht4x4_16_add(input, dest, stride, DCT_DCT);
   else
     aom_idct4x4_1_add(input, dest, stride);
 }
