@@ -5690,20 +5690,25 @@ void av1_average_tile_inter_cdfs(AV1_COMMON *cm, FRAME_CONTEXT *fc,
 
   aom_cdf_prob *fc_cdf_ptr;
 
-  // FIXME: comp_inter_cdf not defined
+// FIXME: comp_inter_cdf not defined
 
-  // FIXME: comp_ref_cdf and comp_bwd_ref not defined
+// FIXME: comp_ref_cdf and comp_bwd_ref not defined
 
-  // FIXME: single_ref_cdf not defined
+// FIXME: single_ref_cdf not defined
 
-  // FIXME: cdfs not defined for newmv_mode, zeromv_mode, drl_mode, new2mv_mode
+#if CONFIG_NEW_MULTISYMBOL
+  AVERAGE_TILE_CDFS(newmv_cdf)
+  AVERAGE_TILE_CDFS(zeromv_cdf)
+  AVERAGE_TILE_CDFS(refmv_cdf)
+  AVERAGE_TILE_CDFS(drl_cdf)
+#endif
 
-  // FIXME: cdfs not defined for motion_mode_prob, obmc_prob
+// FIXME: cdfs not defined for motion_mode_prob, obmc_prob
 
-  // FIXME: cdfs not defined for super_tx
+// FIXME: cdfs not defined for super_tx
 
-  // FIXME: CONFIG_EXT_INTER cdfs not defined for inter_compound_mode,
-  // interintra_mode etc
+// FIXME: CONFIG_EXT_INTER cdfs not defined for inter_compound_mode,
+// interintra_mode etc
 
   AVERAGE_TILE_CDFS(y_mode_cdf)
 
