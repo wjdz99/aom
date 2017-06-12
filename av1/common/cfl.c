@@ -87,16 +87,30 @@ void cfl_dc_pred(MACROBLOCKD *xd, int width, int height) {
   xd->cfl->dc_pred[CFL_PRED_V] = sum_v / num_pel;
 }
 
-double cfl_compute_average(uint8_t *y_pix, int y_stride, int width,
-                           int height) {
-  int sum = 0;
-  for (int j = 0; j < height; j++) {
-    for (int i = 0; i < width; i++) {
-      sum += y_pix[i];
+void cfl_compute_averages(const uint8_t *y_pix, int y_stride, int width,
+                          int height, TX_SIZE tx_size, double *averages_out) {
+  const int tx_height = tx_size_high[tx_size];
+  const int tx_width = tx_size_wide[tx_size];
+  const double num_pel = tx_width * tx_height;
+  const uint8_t *t_y_pix;
+  int a = 0;
+
+  for (int b_j = 0; b_j < height; b_j += tx_height) {
+    for (int b_i = 0; b_i < width; b_i += tx_width) {
+      int sum = 0;
+      t_y_pix = y_pix;
+      for (int t_j = 0; t_j < tx_height; t_j++) {
+        for (int t_i = b_i; t_i < b_i + tx_width; t_i++) {
+          sum += t_y_pix[t_i];
+        }
+        t_y_pix += y_stride;
+      }
+      averages_out[a++] = sum / num_pel;
     }
-    y_pix += y_stride;
+    y_pix += y_stride * tx_height;
   }
-  return sum / (double)(width * height);
+
+  assert(a <= MAX_NUM_TXB);
 }
 
 // Predict the current transform block using CfL.
@@ -105,13 +119,23 @@ void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
                        double alpha) {
   const int width = tx_size_wide[tx_size];
   const int height = tx_size_high[tx_size];
-  const double y_avg = cfl->y_avg;
 
   cfl_load(cfl, dst, dst_stride, row, col, width, height);
 
+  // TODO(ltrudeau) look into using compute_averages
+  int sum = 0;
+  const uint8_t *dst_sum = dst;
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
-      dst[i] = (uint8_t)(alpha * (dst[i] - y_avg) + dc_pred + 0.5);
+      sum += dst_sum[i];
+    }
+    dst_sum += dst_stride;
+  }
+  const double avg = sum / (double)(width * height);
+
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      dst[i] = (uint8_t)(alpha * (dst[i] - avg) + dc_pred + 0.5);
     }
     dst += dst_stride;
   }
@@ -166,6 +190,7 @@ void cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
   int output_row_offset = 0;
   int top_left, bot_left;
 
+  // TODO(ltrudeau) should be faster to downsample when we store the values
   // TODO(ltrudeau) add support for 4:2:2
   if (sub_y == 0 && sub_x == 0) {
     y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << tx_off_log2];
