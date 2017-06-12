@@ -242,8 +242,8 @@ uint64_t compute_cdef_dist(uint16_t *dst, int dstride, uint16_t *src,
       by = dlist[bi].by;
       bx = dlist[bi].bx;
       if (pli == 0) {
-        sum += dist_8x8_16bit(&dst[(by << 3) * dstride + (bx << 3)], dstride,
-                              &src[bi << (3 + 3)], 8, coeff_shift);
+        sum += mse_8x8_16bit(&dst[(by << 3) * dstride + (bx << 3)], dstride,
+                             &src[bi << (3 + 3)], 8/*, coeff_shift*/);
       } else {
         sum += mse_8x8_16bit(&dst[(by << 3) * dstride + (bx << 3)], dstride,
                              &src[bi << (3 + 3)], 8);
