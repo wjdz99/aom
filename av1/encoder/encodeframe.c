@@ -4121,6 +4121,23 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
+
+#if CONFIG_SPEED_REFS
+
+  if (cpi->sb_scanning_pass_idx == 0) {
+    if (bsize == MIN_SPEED_REFS_BLKSIZE) {
+      if (is_inter_block(&xd->mi[0]->mbmi)) {
+        int ref[2];
+        ref[0] = xd->mi[0]->mbmi.ref_frame[0];
+        ref[1] = xd->mi[0]->mbmi.ref_frame[1];
+        ref[1] = (ref[1] == NONE_FRAME ? ref[1] + 1 : ref[1]);
+        ++(td->sb_scanning_counts[ref[0]][ref[1]]);
+      }
+	  }
+  }
+#endif  // CONFIG_SPEED_REFS
+
+
 #if CONFIG_SPEED_REFS
   if (cpi->sb_scanning_pass_idx == 0 && bsize == cm->sb_size) return;
 #endif  // CONFIG_SPEED_REFS
@@ -4182,20 +4199,49 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 }
 
 #if CONFIG_SPEED_REFS
-  void restore_mi (const AV1_COMP *const cpi, MACROBLOCK *const x, int mi_row, int mi_col) {
+  void restore_mi (const AV1_COMP *const cpi, int mi_row, int mi_col) {
   	const AV1_COMMON *cm = &cpi->common;
   	MODE_INFO *mi = cm->mi;
-  	MODE_INFO **mi_grid_visible = cm->mi_grid_visible;
-  	int i;
-  	for (i = mi_row; i < mi_row + mi_size_wide[cm->sb_size]; i++) {
-//  		printf("\n i=%d ", i);
-  		memset (mi + i * cm->mi_stride + mi_col, 0, mi_size_wide[cm->sb_size] * sizeof (*mi));
-//  		printf("restore mi[0] ");
-//  		memset (cpi->mbmi_ext_base + i * cm->mi_cols + mi_col, 0, mi_size_wide[cm->sb_size] * sizeof (*(cpi->mbmi_ext_base)));
-//  		printf("restore mbmi_ext");
-  	}
-//  	printf("\n");
+  	int x_idx, y;
+    for (y = 0; y < mi_size_high[cm->sb_size]; y++)
+      for (x_idx = 0; x_idx < mi_size_wide[cm->sb_size]; x_idx++)
+        if (mi_col + x_idx < cm->mi_cols &&
+            mi_row + y < cm->mi_rows) {
+        	memset ( mi + (mi_row + y) * cm->mi_stride + (mi_col + x_idx), 0, sizeof (*mi) );
+        	memset ( cpi->mbmi_ext_base + (mi_row + y) * cm->mi_cols + (mi_col + x_idx), 0, sizeof(*(cpi->mbmi_ext_base)));
+        }
   }
+#endif //CONFIG_SPEED_REFS
+
+#if CONFIG_SPEED_REFS
+void sort_scanning_pass (int sb_scanning_counts[TOTAL_REFS_PER_FRAME][TOTAL_REFS_PER_FRAME], RefCandidate *ref_candi, int num_candi) {
+	// TODO(chendixi): Use fast sorting algorithm
+	int max;
+	int i, m, n, max_m, max_n;
+	for (i = 0; i < num_candi; i++) {
+		max = 0;
+		max_m = 0;
+		max_n = 0;
+		for (m = 0; m < TOTAL_REFS_PER_FRAME; m++) {
+			for (n = 0; n < TOTAL_REFS_PER_FRAME; n++) {
+				if (sb_scanning_counts[m][n] != 0 && sb_scanning_counts[m][n] > max) {
+					max = sb_scanning_counts[m][n];
+					max_m = m;
+					max_n = n;
+				}
+			}
+		}
+		if (max != 0){
+			ref_candi[i].counts = max;
+			ref_candi[i].ref[0] = max_m;
+			ref_candi[i].ref[1] = (max_n == 0)? NONE_FRAME: max_n;
+			sb_scanning_counts[max_m][max_n] = 0;
+		}
+		else {
+			break;
+		}
+	}
+}
 #endif //CONFIG_SPEED_REFS
 
 static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
@@ -4345,28 +4391,28 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
                                 &x->min_partition_size, &x->max_partition_size);
       }
 #if CONFIG_SPEED_REFS
-      if (mi_row == 0 && mi_col == 0)
-        printf("\nFrame=%d, (mi_row,mi_col)=(%d,%d), sb_size=%d\n",
-               cm->current_video_frame, mi_row, mi_col, cm->sb_size);
       int sb_pass_idx;
+      int m_search_count_backup;
       // NOTE: Two scanning passes for the current superblock
       for (sb_pass_idx = 0; sb_pass_idx < 2; ++sb_pass_idx) {
         cpi->sb_scanning_pass_idx = sb_pass_idx;
-        if (frame_is_intra_only(cm)) cpi->sb_scanning_pass_idx = 2;
-//        if (mi_row == 0 && mi_col == 0) {
-//        	printf("%d %d %d td=%p mi[0]=%p td->mb.e_mbd=%p\n",cm->current_video_frame, mi_row, mi_col, td, td->mb.e_mbd.mi[0]);
-//        }
+        if (frame_is_intra_only(cm) && sb_pass_idx == 0) continue;
+        if (sb_pass_idx == 0) {
+        	memset(td->sb_scanning_counts, 0, sizeof (td->sb_scanning_counts));
+    		m_search_count_backup =	*(x->m_search_count_ptr); //updated in handle_newmv()
+        }
         rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, cm->sb_size,
                           &dummy_rdc,
 #if CONFIG_SUPERTX
                           &dummy_rate_nocoef,
 #endif  // CONFIG_SUPERTX
                           INT64_MAX, pc_root);
-        if (frame_is_intra_only(cm)) break;
         if (sb_pass_idx == 0) {
+    	  sort_scanning_pass (td->sb_scanning_counts, cpi->ref_candi, NUM_REF_CANDI);
           av1_zero(x->pred_mv);
           pc_root->index = 0;
-          restore_mi(cpi, x, mi_row, mi_col);
+          restore_mi(cpi, mi_row, mi_col);
+          *(x->m_search_count_ptr) = m_search_count_backup;
         }
       }
 #else  // !CONFIG_SPEED_REFS

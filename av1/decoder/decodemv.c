@@ -2486,7 +2486,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_EXT_INTER
 =======
 #if CONFIG_SPEED_REFS
-#define SPEED_REFS_DEBUG 1
+#define SPEED_REFS_DEBUG 0
 #else   // !CONFIG_SPEED_REFS
 #define SPEED_REFS_DEBUG 0
 #endif  // CONFIG_SPEED_REFS

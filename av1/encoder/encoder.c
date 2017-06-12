@@ -336,6 +336,20 @@ static void setup_frame(AV1_COMP *cpi) {
   set_sb_size(cm, select_sb_size(cpi));
 }
 
+#if CONFIG_SPEED_REFS
+/*
+static void setup_first_scan (AV1_COMMON *cm, int mi_size) {
+	cm->first_scan = aom_calloc(mi_size, sizeof(*cm->first_scan));
+	if (!cm->first_scan) return 1;
+	memset(cm->first_scan, 0, cm->mi_cols * cm->mi_rows * sizeof(*cm->first_scan));
+}
+
+static void free_first_scan (AV1_COMMON *cm) {
+	aom_free(cm->first_scan);
+	cm->first_scan = NULL;
+}*/
+#endif
+
 static void av1_enc_setup_mi(AV1_COMMON *cm) {
   int i;
   cm->mi = cm->mip + cm->mi_stride + 1;

@@ -2521,7 +2521,15 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
 
         int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
         printf(
-            "=== ENCODER ===: "
+                "%d %d %d %d mode=%d, "
+        		"show_frame=%d, ref[0]=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), "
+        		"ref[1]=%d mv[0]=(%d,%d), mv[1]=(%d,%d)\n",
+                cm->current_video_frame, mi_row, mi_col, bsize, mbmi->mode,
+                cm->show_frame, mbmi->ref_frame[0], mv[0].as_mv.row, mv[0].as_mv.col,
+				mbmi->ref_frame[1], mv[1].as_mv.row,
+                mv[1].as_mv.col);
+
+        	            "=== ENCODER ===: "
             "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
             "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
             "ref[1]=%d, motion_mode=%d, inter_mode_ctx=%d, mode_ctx=%d, "

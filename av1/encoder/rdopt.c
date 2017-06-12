@@ -9581,6 +9581,23 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       }
     }
 
+#if CONFIG_SPEED_REFS
+    int ref_candi_count;
+    if (cpi->sb_scanning_pass_idx == 1) {
+		for (ref_candi_count = 0; ref_candi_count < NUM_REF_CANDI; ref_candi_count++) {
+			if ((ref_frame == cpi->ref_candi[ref_candi_count].ref[0]) && (second_ref_frame == cpi->ref_candi[ref_candi_count].ref[1])) {
+				break;
+			}
+		}
+		if (ref_candi_count == NUM_REF_CANDI) {
+	    	continue;
+		}
+    }
+    if (cpi->sb_scanning_pass_idx == 0) {
+    	if (this_mode == NEWMV) continue;
+    }
+
+#endif //CONFIG_SPEED_REFS
     if ((ref_frame_skip_mask[0] & (1 << ref_frame)) &&
         (ref_frame_skip_mask[1] & (1 << AOMMAX(0, second_ref_frame))))
       continue;

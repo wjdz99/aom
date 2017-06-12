@@ -55,6 +55,7 @@ extern "C" {
 
 #if CONFIG_SPEED_REFS
 #define MIN_SPEED_REFS_BLKSIZE BLOCK_16X16
+#define NUM_REF_CANDI 3
 #endif  // CONFIG_SPEED_REFS
 
 typedef struct {
@@ -336,6 +337,9 @@ typedef struct ThreadData {
 #if CONFIG_PALETTE
   PALETTE_BUFFER *palette_buffer;
 #endif  // CONFIG_PALETTE
+#if CONFIG_SPEED_REFS
+  int sb_scanning_counts[TOTAL_REFS_PER_FRAME][TOTAL_REFS_PER_FRAME];
+#endif
 } ThreadData;
 
 struct EncWorkerData;
@@ -364,6 +368,13 @@ typedef struct TileBufferEnc {
   uint8_t *data;
   size_t size;
 } TileBufferEnc;
+
+#if CONFIG_SPEED_REFS
+typedef struct RefCandidate {
+	int counts;
+	MV_REFERENCE_FRAME ref[2];
+} RefCandidate;
+#endif //  CONFIG_SPEED_REFS
 
 typedef struct AV1_COMP {
   QUANTS quants;
@@ -644,6 +655,7 @@ typedef struct AV1_COMP {
 
 #if CONFIG_SPEED_REFS
   int sb_scanning_pass_idx;
+  struct RefCandidate ref_candi[NUM_REF_CANDI];
 #endif  // CONFIG_SPEED_REFS
 } AV1_COMP;
 
