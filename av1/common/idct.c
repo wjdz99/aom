@@ -198,10 +198,12 @@ static void highbd_inv_idtx_add_c(const tran_low_t *input, uint8_t *dest8,
 
 void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                          int tx_type) {
+#if !CONFIG_DAALA_DCT4
   if (tx_type == DCT_DCT) {
     aom_idct4x4_16_add(input, dest, stride);
     return;
   }
+#endif
   static const transform_2d IHT_4[] = {
     { aom_idct4_c, aom_idct4_c },    // DCT_DCT  = 0
     { aom_iadst4_c, aom_idct4_c },   // ADST_DCT = 1
@@ -231,7 +233,13 @@ void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors
   for (i = 0; i < 4; ++i) {
+#if CONFIG_DAALA_DCT4 && CONFIG_DCT_ONLY
+    tran_low_t temp_in[4];
+    for (j = 0; j < 4; j++) temp_in[j] = input[j] << 1;
+    IHT_4[tx_type].rows(temp_in, out[i]);
+#else
     IHT_4[tx_type].rows(input, out[i]);
+#endif
     input += 4;
   }
 
@@ -256,7 +264,11 @@ void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < 4; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_DCT4 && CONFIG_DCT_ONLY
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#else
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#endif
     }
   }
 }
@@ -412,7 +424,7 @@ void av1_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   for (i = 0; i < n4; ++i) {
     IHT_4x16[tx_type].rows(input, outtmp);
 #if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
+    assert(tx_type == DCT_DCT);
 #endif
     for (j = 0; j < n; ++j) tmp[j][i] = outtmp[j];
     input += n;
@@ -530,7 +542,7 @@ void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     input += n;
   }
 
-  // inverse transform column vectors
+// inverse transform column vectors
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -589,7 +601,7 @@ void av1_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
       tmp[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
     input += n2;
 #if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
+    assert(tx_type == DCT_DCT);
 #endif
   }
 
@@ -646,7 +658,7 @@ void av1_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   for (i = 0; i < n4; ++i) {
     IHT_8x32[tx_type].rows(input, outtmp);
 #if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
+    assert(tx_type == DCT_DCT);
 #endif
     for (j = 0; j < n; ++j) tmp[j][i] = outtmp[j];
     input += n;
@@ -764,7 +776,7 @@ void av1_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     input += n;
   }
 
-  // inverse transform column vectors
+// inverse transform column vectors
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -823,7 +835,7 @@ void av1_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
       tmp[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
     input += n2;
 #if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
+    assert(tx_type == DCT_DCT);
 #endif
   }
 
@@ -880,7 +892,7 @@ void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     IHT_8[tx_type].rows(input, out[i]);
     input += 8;
 #if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
+    assert(tx_type == DCT_DCT);
 #endif
   }
 
@@ -1197,7 +1209,7 @@ static void idct32x32_add(const tran_low_t *input, uint8_t *dest, int stride,
 #if CONFIG_TX64X64
 static void idct64x64_add(const tran_low_t *input, uint8_t *dest, int stride,
 #if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
+                          assert(tx_type == DCT_DCT);
 #endif
                           const INV_TXFM_PARAM *param) {
   (void)param;
@@ -1243,7 +1255,11 @@ static void inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest, int stride,
   }
 
   switch (tx_type) {
+#if !CONFIG_DAALA_DCT4
     case DCT_DCT: av1_idct4x4_add(input, dest, stride, eob); break;
+#else
+    case DCT_DCT:
+#endif
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST: av1_iht4x4_16_add(input, dest, stride, tx_type); break;
