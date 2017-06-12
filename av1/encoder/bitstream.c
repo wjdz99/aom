@@ -2500,9 +2500,8 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
         const MACROBLOCK *x = &cpi->td.mb;
 #endif
         const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
-        const int16_t mode_ctx =
-            av1_mode_context_analyzer(mbmi_ext->mode_context,
-                                      mbmi->ref_frame, bsize, -1);
+        const int16_t mode_ctx = av1_mode_context_analyzer(
+            mbmi_ext->mode_context, mbmi->ref_frame, bsize, -1);
         const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
         int16_t zeromv_ctx = -1;
         int16_t refmv_ctx = -1;
