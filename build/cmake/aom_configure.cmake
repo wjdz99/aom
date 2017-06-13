@@ -37,6 +37,13 @@ include("${AOM_ROOT}/build/cmake/aom_optimization.cmake")
 include("${AOM_ROOT}/build/cmake/compiler_flags.cmake")
 include("${AOM_ROOT}/build/cmake/compiler_tests.cmake")
 
+if (BUILD_SHARED_LIBS)
+  set(CONFIG_PIC 1)
+  set(CONFIG_SHARED 1)
+  set(AOM_AS_FLAGS ${AOM_AS_FLAGS} -DPIC)
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif ()
+
 # Build a list of all configurable variables.
 get_cmake_property(cmake_cache_vars CACHE_VARIABLES)
 foreach (var ${cmake_cache_vars})

@@ -45,6 +45,7 @@ function (add_intrinsics_object_library flag opt_name target_to_update sources)
     target_compile_options(${target_name} PUBLIC ${flag})
   endif ()
 
+  target_sources(aom INTERFACE $<TARGET_OBJECTS:${target_name}>)
   target_sources(aom PUBLIC $<TARGET_OBJECTS:${target_name}>)
 
   # Add the new lib target to the global list of aom library targets.

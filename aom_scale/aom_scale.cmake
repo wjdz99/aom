@@ -26,6 +26,7 @@ set(AOM_SCALE_INTRIN_DSPR2
 # target must exist before this function is called.
 function (setup_aom_scale_targets)
   add_library(aom_scale OBJECT ${AOM_SCALE_SOURCES})
+  target_sources(aom INTERFACE $<TARGET_OBJECTS:aom_scale>)
   target_sources(aom PUBLIC $<TARGET_OBJECTS:aom_scale>)
 
   if (HAVE_DSPR2)
