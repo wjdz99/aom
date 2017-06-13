@@ -1197,13 +1197,24 @@ static void inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest, int stride,
     case DCT_DCT: av1_idct4x4_add(input, dest, stride, eob); break;
     case ADST_DCT:
     case DCT_ADST:
-    case ADST_ADST: av1_iht4x4_16_add(input, dest, stride, tx_type); break;
+    case ADST_ADST:
+#if CONFIG_LGT
+      // LGT only exists in C verson
+      av1_iht4x4_16_add_c(input, dest, stride, tx_type); break;
+#else
+      av1_iht4x4_16_add(input, dest, stride, tx_type); break;
+#endif
 #if CONFIG_EXT_TX
     case FLIPADST_DCT:
     case DCT_FLIPADST:
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
-    case FLIPADST_ADST: av1_iht4x4_16_add(input, dest, stride, tx_type); break;
+    case FLIPADST_ADST:
+#if CONFIG_LGT
+      av1_iht4x4_16_add_c(input, dest, stride, tx_type); break;
+#else
+      av1_iht4x4_16_add(input, dest, stride, tx_type); break;
+#endif
     case V_DCT:
     case H_DCT:
     case V_ADST:
@@ -1222,7 +1233,11 @@ static void inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest, int stride,
 static void inv_txfm_add_4x8(const tran_low_t *input, uint8_t *dest, int stride,
                              int eob, TX_TYPE tx_type) {
   (void)eob;
+#if CONFIG_LGT
+  av1_iht4x8_32_add_c(input, dest, stride, tx_type);
+#else
   av1_iht4x8_32_add(input, dest, stride, tx_type);
+#endif
 }
 
 static void inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest, int stride,
@@ -1236,38 +1251,62 @@ static void inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest, int stride,
 static void inv_txfm_add_4x16(const tran_low_t *input, uint8_t *dest,
                               int stride, int eob, TX_TYPE tx_type) {
   (void)eob;
+#if CONFIG_LGT
+  av1_iht4x16_64_add_c(input, dest, stride, tx_type);
+#else
   av1_iht4x16_64_add(input, dest, stride, tx_type);
+#endif
 }
 
 static void inv_txfm_add_16x4(const tran_low_t *input, uint8_t *dest,
                               int stride, int eob, TX_TYPE tx_type) {
   (void)eob;
+#if CONFIG_LGT
+  av1_iht16x4_64_add_c(input, dest, stride, tx_type);
+#else
   av1_iht16x4_64_add(input, dest, stride, tx_type);
+#endif
 }
 
 static void inv_txfm_add_8x32(const tran_low_t *input, uint8_t *dest,
                               int stride, int eob, TX_TYPE tx_type) {
   (void)eob;
+#if CONFIG_LGT
+  av1_iht8x32_256_add_c(input, dest, stride, tx_type);
+#else
   av1_iht8x32_256_add(input, dest, stride, tx_type);
+#endif
 }
 
 static void inv_txfm_add_32x8(const tran_low_t *input, uint8_t *dest,
                               int stride, int eob, TX_TYPE tx_type) {
   (void)eob;
+#if CONFIG_LGT
+  av1_iht32x8_256_add_c(input, dest, stride, tx_type);
+#else
   av1_iht32x8_256_add(input, dest, stride, tx_type);
+#endif
 }
 #endif
 
 static void inv_txfm_add_8x16(const tran_low_t *input, uint8_t *dest,
                               int stride, int eob, TX_TYPE tx_type) {
   (void)eob;
+#if CONFIG_LGT
+  av1_iht8x16_128_add_c(input, dest, stride, tx_type);
+#else
   av1_iht8x16_128_add(input, dest, stride, tx_type);
+#endif
 }
 
 static void inv_txfm_add_16x8(const tran_low_t *input, uint8_t *dest,
                               int stride, int eob, TX_TYPE tx_type) {
   (void)eob;
+#if CONFIG_LGT
+  av1_iht16x8_128_add_c(input, dest, stride, tx_type);
+#else
   av1_iht16x8_128_add(input, dest, stride, tx_type);
+#endif
 }
 
 static void inv_txfm_add_16x32(const tran_low_t *input, uint8_t *dest,
@@ -1289,13 +1328,23 @@ static void inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest, int stride,
     case DCT_DCT: idct8x8_add(input, dest, stride, param); break;
     case ADST_DCT:
     case DCT_ADST:
-    case ADST_ADST: av1_iht8x8_64_add(input, dest, stride, tx_type); break;
+    case ADST_ADST:
+#if CONFIG_LGT
+      av1_iht8x8_64_add_c(input, dest, stride, tx_type); break;
+#else
+      av1_iht8x8_64_add(input, dest, stride, tx_type); break;
+#endif
 #if CONFIG_EXT_TX
     case FLIPADST_DCT:
     case DCT_FLIPADST:
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
-    case FLIPADST_ADST: av1_iht8x8_64_add(input, dest, stride, tx_type); break;
+    case FLIPADST_ADST:
+#if CONFIG_LGT
+      av1_iht8x8_64_add_c(input, dest, stride, tx_type); break;
+#else
+      av1_iht8x8_64_add(input, dest, stride, tx_type); break;
+#endif
     case V_DCT:
     case H_DCT:
     case V_ADST:
@@ -1458,8 +1507,13 @@ void av1_highbd_inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest,
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
+#if CONFIG_LGT
+      av1_inv_txfm2d_add_4x4_c(input, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                               bd);
+#else
       av1_inv_txfm2d_add_4x4(input, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
                              bd);
+#endif
       break;
 #if CONFIG_EXT_TX
     case FLIPADST_DCT:
@@ -1467,8 +1521,13 @@ void av1_highbd_inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest,
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
     case FLIPADST_ADST:
+#if CONFIG_LGT
+      av1_inv_txfm2d_add_4x4_c(input, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                               bd);
+#else
       av1_inv_txfm2d_add_4x4(input, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
                              bd);
+#endif
       break;
     // use the c version for anything including identity for now
     case V_DCT:
@@ -1541,8 +1600,13 @@ static void highbd_inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest,
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
+#if CONFIG_LGT
+      av1_inv_txfm2d_add_8x8_c(input, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                             bd);
+#else
       av1_inv_txfm2d_add_8x8(input, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
                              bd);
+#endif
       break;
 #if CONFIG_EXT_TX
     case FLIPADST_DCT:
@@ -1550,8 +1614,13 @@ static void highbd_inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest,
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
     case FLIPADST_ADST:
+#if CONFIG_LGT
+      av1_inv_txfm2d_add_8x8_c(input, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                             bd);
+#else
       av1_inv_txfm2d_add_8x8(input, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
                              bd);
+#endif
       break;
     // use the c version for anything including identity for now
     case V_DCT:
