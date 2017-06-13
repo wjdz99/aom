@@ -66,20 +66,21 @@ static void fill_mode_costs(AV1_COMP *cpi) {
 
   for (i = 0; i < INTRA_MODES; ++i)
     for (j = 0; j < INTRA_MODES; ++j)
-      av1_cost_tokens(cpi->y_mode_costs[i][j], av1_kf_y_mode_prob[i][j],
-                      av1_intra_mode_tree);
+      av1_cost_tokens_from_cdf(cpi->y_mode_costs[i][j], av1_kf_y_mode_cdf[i][j],
+                               av1_intra_mode_inv);
 
   for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
-    av1_cost_tokens(cpi->mbmode_cost[i], fc->y_mode_prob[i],
-                    av1_intra_mode_tree);
+    av1_cost_tokens_from_cdf(cpi->mbmode_cost[i], fc->y_mode_cdf[i],
+                             av1_intra_mode_inv);
 
   for (i = 0; i < INTRA_MODES; ++i)
-    av1_cost_tokens(cpi->intra_uv_mode_cost[i], fc->uv_mode_prob[i],
-                    av1_intra_mode_tree);
+    av1_cost_tokens_from_cdf(cpi->intra_uv_mode_cost[i], fc->uv_mode_cdf[i],
+                             av1_intra_mode_inv);
 
   for (i = 0; i < SWITCHABLE_FILTER_CONTEXTS; ++i)
-    av1_cost_tokens(cpi->switchable_interp_costs[i],
-                    fc->switchable_interp_prob[i], av1_switchable_interp_tree);
+    av1_cost_tokens_from_cdf(cpi->switchable_interp_costs[i],
+                             fc->switchable_interp_cdf[i],
+                             av1_switchable_interp_inv);
 
 #if CONFIG_PALETTE
   for (i = 0; i < PALETTE_BLOCK_SIZES; ++i) {
@@ -101,45 +102,50 @@ static void fill_mode_costs(AV1_COMP *cpi) {
   }
 #endif  // CONFIG_PALETTE
 
+  int inv_depth_map[MAX_TX_DEPTH];
+  for (int depth = 0; depth < MAX_TX_DEPTH; ++depth)
+    inv_depth_map[depth] = depth_to_tx_size(depth);
+
   for (i = 0; i < MAX_TX_DEPTH; ++i)
     for (j = 0; j < TX_SIZE_CONTEXTS; ++j)
-      av1_cost_tokens(cpi->tx_size_cost[i][j], fc->tx_size_probs[i][j],
-                      av1_tx_size_tree[i]);
+      av1_cost_tokens_from_cdf(cpi->tx_size_cost[i][j], fc->tx_size_cdf[i][j],
+                               inv_depth_map);
 
 #if CONFIG_EXT_TX
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
     int s;
     for (s = 1; s < EXT_TX_SETS_INTER; ++s) {
       if (use_inter_ext_tx_for_txsize[s][i]) {
-        av1_cost_tokens(cpi->inter_tx_type_costs[s][i],
-                        fc->inter_ext_tx_prob[s][i], av1_ext_tx_inter_tree[s]);
+        av1_cost_tokens_from_cdf(cpi->inter_tx_type_costs[s][i],
+                                 fc->inter_ext_tx_cdf[s][i],
+                                 av1_ext_tx_inter_inv[s]);
       }
     }
     for (s = 1; s < EXT_TX_SETS_INTRA; ++s) {
       if (use_intra_ext_tx_for_txsize[s][i]) {
         for (j = 0; j < INTRA_MODES; ++j)
-          av1_cost_tokens(cpi->intra_tx_type_costs[s][i][j],
-                          fc->intra_ext_tx_prob[s][i][j],
-                          av1_ext_tx_intra_tree[s]);
+          av1_cost_tokens_from_cdf(cpi->intra_tx_type_costs[s][i][j],
+                                   fc->intra_ext_tx_cdf[s][i][j],
+                                   av1_ext_tx_intra_inv[s]);
       }
     }
   }
 #else
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
     for (j = 0; j < TX_TYPES; ++j)
-      av1_cost_tokens(cpi->intra_tx_type_costs[i][j],
-                      fc->intra_ext_tx_prob[i][j], av1_ext_tx_tree);
+      av1_cost_tokens_from_cdf(cpi->intra_tx_type_costs[i][j],
+                               fc->intra_ext_tx_cdf[i][j], av1_ext_tx_inv);
   }
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-    av1_cost_tokens(cpi->inter_tx_type_costs[i], fc->inter_ext_tx_prob[i],
-                    av1_ext_tx_tree);
+    av1_cost_tokens_from_cdf(cpi->inter_tx_type_costs[i],
+                             fc->inter_ext_tx_cdf[i], av1_ext_tx_inv);
   }
 #endif  // CONFIG_EXT_TX
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
   for (i = 0; i < INTRA_FILTERS + 1; ++i)
-    av1_cost_tokens(cpi->intra_filter_cost[i], fc->intra_filter_probs[i],
-                    av1_intra_filter_tree);
+    av1_cost_tokens_from_cdf(cpi->intra_filter_cost[i], fc->intra_filter_cdf[i],
+                             NULL);
 #endif  // CONFIG_INTRA_INTERP
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_LOOP_RESTORATION
@@ -382,16 +388,13 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 
     if (cm->frame_type == KEY_FRAME) {
 #if CONFIG_EXT_PARTITION_TYPES
-      for (i = 0; i < PARTITION_PLOFFSET; ++i)
-        av1_cost_tokens(cpi->partition_cost[i], cm->fc->partition_prob[i],
-                        av1_partition_tree);
-      for (; i < PARTITION_CONTEXTS_PRIMARY; ++i)
-        av1_cost_tokens(cpi->partition_cost[i], cm->fc->partition_prob[i],
-                        av1_ext_partition_tree);
+      for (i = 0; i < PARTITION_CONTEXTS_PRIMARY; ++i)
+        av1_cost_tokens_from_cdf(cpi->partition_cost[i],
+                                 cm->fc->partition_cdf[i], NULL);
 #else
       for (i = 0; i < PARTITION_CONTEXTS_PRIMARY; ++i)
-        av1_cost_tokens(cpi->partition_cost[i], cm->fc->partition_prob[i],
-                        av1_partition_tree);
+        av1_cost_tokens_from_cdf(cpi->partition_cost[i],
+                                 cm->fc->partition_cdf[i], NULL);
 #endif  // CONFIG_EXT_PARTITION_TYPES
 #if CONFIG_UNPOISON_PARTITION_CTX
       for (; i < PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES; ++i) {
