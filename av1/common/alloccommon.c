@@ -93,11 +93,21 @@ void av1_free_ref_frame_buffers(BufferPool *pool) {
 // Assumes cm->rst_info[p].restoration_tilesize is already initialized
 void av1_alloc_restoration_buffers(AV1_COMMON *cm) {
   int p;
-  av1_alloc_restoration_struct(cm, &cm->rst_info[0], cm->width, cm->height);
+  int width, height;
+
+#if CONFIG_FRAME_SUPERRES
+  width = cm->superres_upscaled_width;
+  height = cm->superres_upscaled_height;
+#else
+  width = cm->width;
+  height = cm->height;
+#endif  // CONFIG_FRAME_SUPERRES
+
+  av1_alloc_restoration_struct(cm, &cm->rst_info[0], width, height);
   for (p = 1; p < MAX_MB_PLANE; ++p)
-    av1_alloc_restoration_struct(
-        cm, &cm->rst_info[p], ROUND_POWER_OF_TWO(cm->width, cm->subsampling_x),
-        ROUND_POWER_OF_TWO(cm->height, cm->subsampling_y));
+    av1_alloc_restoration_struct(cm, &cm->rst_info[p],
+                                 ROUND_POWER_OF_TWO(width, cm->subsampling_x),
+                                 ROUND_POWER_OF_TWO(height, cm->subsampling_y));
   aom_free(cm->rst_internal.tmpbuf);
   CHECK_MEM_ERROR(cm, cm->rst_internal.tmpbuf,
                   (int32_t *)aom_memalign(16, RESTORATION_TMPBUF_SIZE));
