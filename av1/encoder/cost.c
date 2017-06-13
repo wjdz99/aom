@@ -59,6 +59,24 @@ void av1_cost_tokens(int *costs, const aom_prob *probs, aom_tree tree) {
   cost(costs, tree, probs, 0, 0);
 }
 
+void av1_cost_tokens_from_cdf(int *costs, const aom_cdf_prob *cdf,
+                              const int *inv_map) {
+  int i;
+  aom_cdf_prob prev_cdf = 0;
+  for (i = 0;; ++i) {
+    const aom_cdf_prob p15 = AOM_ICDF(cdf[i]) - prev_cdf;
+    prev_cdf = AOM_ICDF(cdf[i]);
+
+    if (inv_map)
+      costs[inv_map[i]] = av1_cost_symbol(p15);
+    else
+      costs[i] = av1_cost_symbol(p15);
+
+    // Stop once we reach the end of the CDF
+    if (cdf[i] == AOM_ICDF(CDF_PROB_TOP)) break;
+  }
+}
+
 void av1_cost_tokens_skip(int *costs, const aom_prob *probs, aom_tree tree) {
   assert(tree[0] <= 0 && tree[1] > 0);
 
