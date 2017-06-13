@@ -31,6 +31,9 @@ typedef struct {
   // Height and width of the luma prediction block currently in the pixel buffer
   int y_height, y_width;
 
+  // Average of the luma reconstructed values over the entire prediction unit
+  double y_avg;
+
   // Chroma subsampling
   int subsampling_x, subsampling_y;
 
@@ -61,6 +64,9 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm);
 
 void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize);
 
+double cfl_compute_average(uint8_t *y_pix, int y_stride,
+                           BLOCK_SIZE plane_bsize);
+
 static INLINE double cfl_idx_to_alpha(int alpha_idx, CFL_SIGN_TYPE alpha_sign,
                                       CFL_PRED_TYPE pred_type) {
   const int mag_idx = cfl_alpha_codes[alpha_idx][pred_type];
@@ -81,6 +87,6 @@ void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
 void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
                int col, TX_SIZE tx_size);
 
-double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
-                int col, int width, int height);
+void cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
+              int col, int width, int height);
 #endif  // AV1_COMMON_CFL_H_

@@ -2526,22 +2526,32 @@ void av1_predict_intra_block_facade(MACROBLOCKD *xd, int plane, int block_idx,
                           mode, dst, dst_stride, dst, dst_stride, blk_col,
                           blk_row, plane);
 #if CONFIG_CFL
+  CFL_CTX *const cfl = xd->cfl;
   if (plane != AOM_PLANE_Y && mbmi->uv_mode == DC_PRED) {
     if (plane == AOM_PLANE_U && blk_col == 0 && blk_row == 0) {
-// Compute the block-level DC_PRED for both chromatic planes. DC_PRED replaces
-// beta in the linear model.
 #if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
       const BLOCK_SIZE plane_bsize =
           AOMMAX(BLOCK_4X4, get_plane_block_size(mbmi->sb_type, pd));
 #else
       const BLOCK_SIZE plane_bsize = get_plane_block_size(mbmi->sb_type, pd);
 #endif
+      const int block_width = block_size_wide[plane_bsize];
+      const int block_height = block_size_high[plane_bsize];
+
+      // Temporary pixel buffer used to store the CfL prediction when we compute
+      // the average over the reconstructed and downsampled luma pixels
+      uint8_t tmp_pix[MAX_SB_SQUARE];
+
+      // Compute the block-level DC_PRED for both chromatic planes. DC_PRED
+      // replaces beta in the linear model.
       cfl_dc_pred(xd, plane_bsize);
+      cfl_load(cfl, tmp_pix, MAX_SB_SIZE, 0, 0, block_width, block_height);
+      cfl->y_avg = cfl_compute_average(tmp_pix, MAX_SB_SIZE, plane_bsize);
     }
 
     cfl_predict_block(
-        xd->cfl, dst, pd->dst.stride, blk_row, blk_col, tx_size,
-        xd->cfl->dc_pred[plane - 1],
+        cfl, dst, pd->dst.stride, blk_row, blk_col, tx_size,
+        cfl->dc_pred[plane - 1],
         cfl_idx_to_alpha(mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs[plane - 1],
                          plane - 1));
   }
