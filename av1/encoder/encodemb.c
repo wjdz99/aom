@@ -1554,17 +1554,15 @@ static int cfl_compute_alpha_ind(MACROBLOCK *const x, const CFL_CTX *const cfl,
 static inline void cfl_update_costs(CFL_CTX *cfl, FRAME_CONTEXT *ec_ctx) {
   assert(ec_ctx->cfl_alpha_cdf[CFL_ALPHABET_SIZE - 1] ==
          AOM_ICDF(CDF_PROB_TOP));
-  const int prob_den = CDF_PROB_TOP;
-
-  int prob_num = AOM_ICDF(ec_ctx->cfl_alpha_cdf[0]);
-  cfl->costs[0] = av1_cost_zero(get_prob(prob_num, prob_den));
+  int p15 = AOM_ICDF(ec_ctx->cfl_alpha_cdf[0]);
+  cfl->costs[0] = av1_cost_symbol(p15);
 
   for (int c = 1; c < CFL_ALPHABET_SIZE; c++) {
     int sign_bit_cost = (cfl_alpha_codes[c][CFL_PRED_U] != 0) +
                         (cfl_alpha_codes[c][CFL_PRED_V] != 0);
-    prob_num = AOM_ICDF(ec_ctx->cfl_alpha_cdf[c]) -
+    p15 = AOM_ICDF(ec_ctx->cfl_alpha_cdf[c]) -
                AOM_ICDF(ec_ctx->cfl_alpha_cdf[c - 1]);
-    cfl->costs[c] = av1_cost_zero(get_prob(prob_num, prob_den)) +
+    cfl->costs[c] = av1_cost_symbol(p15) +
                     av1_cost_literal(sign_bit_cost);
   }
 }
