@@ -23,6 +23,9 @@ option(ENABLE_NASM "Use nasm instead of yasm for x86 assembly." OFF)
 option(ENABLE_IDE_TEST_HOSTING
        "Enables running tests within IDEs like Visual Studio and Xcode." OFF)
 
+# $BUILD_SHARED_LIBS is a CMake built-in-- it's listed here for visibility.
+option(BUILD_SHARED_LIBS "CMake should generate a shared library build." OFF)
+
 project(AOM C CXX)
 
 set(AOM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -182,9 +185,14 @@ add_rtcd_build_step("${AOM_ROOT}/av1/common/av1_rtcd_defs.pl"
                     "${AOM_ROOT}/av1/common/av1_rtcd.c"
                     "av1_rtcd")
 
-add_library(aom_rtcd OBJECT ${AOM_RTCD_SOURCES})
-add_library(aom_encoder_stats OBJECT ${AOM_ENCODER_STATS_SOURCES})
-add_library(aom ${AOM_SOURCES} $<TARGET_OBJECTS:aom_rtcd>)
+add_library(aom_rtcd STATIC ${AOM_RTCD_SOURCES})
+add_library(aom_encoder_stats STATIC ${AOM_ENCODER_STATS_SOURCES})
+add_library(aom ${AOM_SOURCES})
+target_link_libraries(aom ${AOM_LIB_LINK_TYPE} aom_rtcd)
+
+if ("${AOM_TARGET_SYSTEM}" MATCHES "MSYS\|Windows")
+  set_target_properties(aom PROPERTIES OUTPUT_NAME "libaom")
+endif ()
 
 # List of object and static library targets.
 set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_encoder_stats aom_mem
@@ -208,43 +216,36 @@ endforeach ()
 #
 # Application and application support targets.
 #
-add_library(aom_common_app_util OBJECT ${AOM_COMMON_APP_UTIL_SOURCES})
+add_library(aom_common_app_util STATIC ${AOM_COMMON_APP_UTIL_SOURCES})
 
 
 if (CONFIG_AV1_DECODER)
-  add_library(aom_decoder_app_util OBJECT ${AOM_DECODER_APP_UTIL_SOURCES})
-  add_executable(aomdec
-               "${AOM_ROOT}/aomdec.c"
-               $<TARGET_OBJECTS:aom_common_app_util>
-               $<TARGET_OBJECTS:aom_decoder_app_util>)
+  add_library(aom_decoder_app_util STATIC ${AOM_DECODER_APP_UTIL_SOURCES})
+  add_executable(aomdec "${AOM_ROOT}/aomdec.c")
+  target_link_libraries(aomdec ${AOM_LIB_LINK_TYPE} aom_common_app_util
+    aom_decoder_app_util)
 
   if (CONFIG_ANALYZER)
-    add_executable(analyzer
-                   "${AOM_ROOT}/examples/analyzer.cc"
-                   $<TARGET_OBJECTS:aom_common_app_util>
-                   $<TARGET_OBJECTS:aom_decoder_app_util>)
-    target_link_libraries(analyzer ${AOM_LIB_LINK_TYPE} ${wxWidgets_LIBRARIES})
+    add_executable(analyzer "${AOM_ROOT}/examples/analyzer.cc")
+    target_link_libraries(analyzer ${AOM_LIB_LINK_TYPE} ${wxWidgets_LIBRARIES}
+                          aom_common_app_util aom_decoder_app_util)
     set(AOM_APP_TARGETS ${AOM_APP_TARGETS} analyzer)
   endif ()
 
-  add_executable(decode_to_md5
-                 "${AOM_ROOT}/examples/decode_to_md5.c"
-                 $<TARGET_OBJECTS:aom_common_app_util>
-                 $<TARGET_OBJECTS:aom_decoder_app_util>)
-  add_executable(decode_with_drops
-                 "${AOM_ROOT}/examples/decode_with_drops.c"
-                 $<TARGET_OBJECTS:aom_common_app_util>
-                 $<TARGET_OBJECTS:aom_decoder_app_util>)
-  add_executable(simple_decoder
-                 "${AOM_ROOT}/examples/simple_decoder.c"
-                 $<TARGET_OBJECTS:aom_common_app_util>
-                 $<TARGET_OBJECTS:aom_decoder_app_util>)
+  add_executable(decode_to_md5 "${AOM_ROOT}/examples/decode_to_md5.c")
+  target_link_libraries(decode_to_md5 ${AOM_LIB_LINK_TYPE}
+                        aom_common_app_util aom_decoder_app_util)
+  add_executable(decode_with_drops "${AOM_ROOT}/examples/decode_with_drops.c")
+  target_link_libraries(decode_with_drops ${AOM_LIB_LINK_TYPE}
+                        aom_common_app_util aom_decoder_app_util)
+  add_executable(simple_decoder "${AOM_ROOT}/examples/simple_decoder.c")
+  target_link_libraries(simple_decoder ${AOM_LIB_LINK_TYPE}
+                        aom_common_app_util aom_decoder_app_util)
 
   if (CONFIG_INSPECTION)
-    add_executable(inspect
-                   "${AOM_ROOT}/examples/inspect.c"
-                   $<TARGET_OBJECTS:aom_common_app_util>
-                   $<TARGET_OBJECTS:aom_decoder_app_util>)
+    add_executable(inspect "${AOM_ROOT}/examples/inspect.c")
+    target_link_libraries(inspect ${AOM_LIB_LINK_TYPE} aom_common_app_util
+                          aom_decoder_app_util)
     set(AOM_DECODER_EXAMPLE_TARGETS ${AOM_DECODER_EXAMPLE_TARGETS} inspect)
 
     if (EMSCRIPTEN)
@@ -269,28 +270,24 @@ endif ()
 
 
 if (CONFIG_AV1_ENCODER)
-  add_library(aom_encoder_app_util OBJECT ${AOM_ENCODER_APP_UTIL_SOURCES})
-  add_executable(aomenc
-                 "${AOM_ROOT}/aomenc.c"
-                 $<TARGET_OBJECTS:aom_common_app_util>
-                 $<TARGET_OBJECTS:aom_encoder_app_util>
-                 $<TARGET_OBJECTS:aom_encoder_stats>)
-  add_executable(lossless_encoder
-                 "${AOM_ROOT}/examples/lossless_encoder.c"
-                 $<TARGET_OBJECTS:aom_common_app_util>
-                 $<TARGET_OBJECTS:aom_encoder_app_util>)
-  add_executable(set_maps
-                 "${AOM_ROOT}/examples/set_maps.c"
-                 $<TARGET_OBJECTS:aom_common_app_util>
-                 $<TARGET_OBJECTS:aom_encoder_app_util>)
-  add_executable(simple_encoder
-                 "${AOM_ROOT}/examples/simple_encoder.c"
-                 $<TARGET_OBJECTS:aom_common_app_util>
-                 $<TARGET_OBJECTS:aom_encoder_app_util>)
+  add_library(aom_encoder_app_util STATIC ${AOM_ENCODER_APP_UTIL_SOURCES})
+  add_executable(aomenc "${AOM_ROOT}/aomenc.c")
+  target_link_libraries(aomenc ${AOM_LIB_LINK_TYPE}
+                        aom_common_app_util aom_encoder_app_util
+                        aom_encoder_stats)
+  add_executable(lossless_encoder "${AOM_ROOT}/examples/lossless_encoder.c")
+  target_link_libraries(lossless_encoder ${AOM_LIB_LINK_TYPE}
+                        aom_common_app_util aom_encoder_app_util)
+  add_executable(set_maps "${AOM_ROOT}/examples/set_maps.c")
+  target_link_libraries(set_maps ${AOM_LIB_LINK_TYPE}
+                        aom_common_app_util aom_encoder_app_util)
+  add_executable(simple_encoder "${AOM_ROOT}/examples/simple_encoder.c")
+  target_link_libraries(simple_encoder ${AOM_LIB_LINK_TYPE}
+                        aom_common_app_util aom_encoder_app_util)
   add_executable(twopass_encoder
-                 "${AOM_ROOT}/examples/twopass_encoder.c"
-                 $<TARGET_OBJECTS:aom_common_app_util>
-                 $<TARGET_OBJECTS:aom_encoder_app_util>)
+                 "${AOM_ROOT}/examples/twopass_encoder.c")
+  target_link_libraries(twopass_encoder ${AOM_LIB_LINK_TYPE} aom_common_app_util
+                        aom_encoder_app_util)
 
   # Add encoder apps and examples to target lists.
   set(AOM_ENCODER_EXAMPLE_TARGETS
@@ -305,10 +302,9 @@ set(AOM_EXAMPLE_TARGETS
     ${AOM_DECODER_EXAMPLE_TARGETS} ${AOM_ENCODER_EXAMPLE_TARGETS})
 
 if (CONFIG_AV1_DECODER AND CONFIG_AV1_ENCODER)
-  add_executable(aom_cx_set_ref
-                 "${AOM_ROOT}/examples/aom_cx_set_ref.c"
-                 $<TARGET_OBJECTS:aom_common_app_util>
-                 $<TARGET_OBJECTS:aom_encoder_app_util>)
+  add_executable(aom_cx_set_ref "${AOM_ROOT}/examples/aom_cx_set_ref.c")
+  target_link_libraries(aom_cx_set_ref ${AOM_LIB_LINK_TYPE}
+                        aom_common_app_util aom_encoder_app_util)
   set(AOM_EXAMPLE_TARGETS ${AOM_EXAMPLE_TARGETS} aom_cx_set_ref)
   set(AOM_APP_TARGETS ${AOM_APP_TARGETS} aom_cx_set_ref)
 endif ()
@@ -391,6 +387,11 @@ if ("${CMAKE_GENERATOR}" MATCHES "Makefiles$" )
   file(MAKE_DIRECTORY "${AOM_CONFIG_DIR}/examples")
   set_target_properties(${AOM_EXAMPLE_TARGETS} PROPERTIES
                         RUNTIME_OUTPUT_DIRECTORY "${AOM_CONFIG_DIR}/examples")
+endif ()
+
+if (BUILD_SHARED_LIBS)
+  include("${AOM_ROOT}/build/cmake/exports.cmake")
+  setup_exports_target()
 endif ()
 
 # Aomedia documentation rule.
