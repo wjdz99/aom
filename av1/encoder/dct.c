@@ -727,9 +727,36 @@ static void fdct32(const tran_low_t *input, tran_low_t *output) {
 
 #ifndef AV1_DCT_GTEST
 
+// (kslu)
+#if CONFIG_LGT
+static void flgt4(const tran_low_t *input, tran_low_t *output) {
+
+  if(!(input[0] | input[1] | input[2] | input[3])) {
+    output[0] = output[1] = output[2] = output[3] = 0;
+    return;
+  }
+
+  tran_high_t const (*lgtx4_basis)[4];
+  lgtx4_basis = lgtbasis4;
+
+  tran_high_t s[4] = { 0 };
+  for(int i = 0; i < 4; ++i)
+    for(int j = 0; j < 4; ++j)
+      s[j] += lgtx4_basis[j][i] * input[i];
+
+  for(int i = 0; i < 4; ++i)
+    output[i] = (tran_low_t)fdct_round_shift(s[i]);
+
+}
+#endif  // CONFIG_LGT
+
 static void fadst4(const tran_low_t *input, tran_low_t *output) {
+
+#if CONFIG_LGT
+  flgt4(input, output);
+#else
   tran_high_t x0, x1, x2, x3;
-  tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;
+  tran_high_t s0, s1, s2, s3, s4;
 
   x0 = input[0];
   x1 = input[1];
@@ -741,33 +768,63 @@ static void fadst4(const tran_low_t *input, tran_low_t *output) {
     return;
   }
 
-  s0 = sinpi_1_9 * x0;
-  s1 = sinpi_4_9 * x0;
-  s2 = sinpi_2_9 * x1;
-  s3 = sinpi_1_9 * x1;
-  s4 = sinpi_3_9 * x2;
-  s5 = sinpi_4_9 * x3;
-  s6 = sinpi_2_9 * x3;
-  s7 = x0 + x1 - x3;
+  tran_high_t x4;
+  s0 = -x0 + x1;
+  s1 = x2;
+  s2 = x3 + x1;
+  s3 = x0 + x3;
+  s4 = x0 - x3 + x1;
 
-  x0 = s0 + s2 + s5;
-  x1 = sinpi_3_9 * s7;
-  x2 = s1 - s3 + s6;
-  x3 = s4;
+  x0 = sinpi_4_9 * s0;
+  x1 = sinpi_3_9 * s1;
+  x2 = sinpi_2_9 * s2;
+  x3 = sinpi_1_9 * s3;
+  x4 = sinpi_3_9 * s4;
 
-  s0 = x0 + x3;
-  s1 = x1;
-  s2 = x2 - x3;
-  s3 = x2 - x0 + x3;
+  s0 = x1 + x2 + x3;
+  s1 = x4;
+  s2 = -x0 - x1 + x2;
+  s3 = -x0 + x1 - x3;
+  // the above is the same as the previous version with 8 multiplications
 
   // 1-D transform scaling factor is sqrt(2).
   output[0] = (tran_low_t)fdct_round_shift(s0);
   output[1] = (tran_low_t)fdct_round_shift(s1);
   output[2] = (tran_low_t)fdct_round_shift(s2);
   output[3] = (tran_low_t)fdct_round_shift(s3);
+#endif  // CONFIG_LGT
+
 }
 
+#if CONFIG_LGT
+static void flgt8(const tran_low_t *input, tran_low_t *output) {
+
+  if(!(input[0] | input[1] | input[2] | input[3] | input[4]
+       | input[5] | input[6] | input[7])) {
+    output[0] = output[1] = output[2] = output[3] = output[4]
+        = output[5] = output[6] = output[7] = 0;
+    return;
+  }
+
+  tran_high_t const (*lgtx8_basis)[8];
+  lgtx8_basis = lgtbasis8;
+
+  tran_high_t s[8] = { 0 };
+  for(int i = 0; i < 8; ++i)
+    for(int j = 0; j < 8; ++j)
+      s[j] += lgtx8_basis[j][i] * input[i];
+
+  for(int i = 0; i < 8; ++i)
+    output[i] = (tran_low_t)fdct_round_shift(s[i]);
+
+}
+#endif // CONFIG_LGT
+
 static void fadst8(const tran_low_t *input, tran_low_t *output) {
+
+#if CONFIG_LGT
+  flgt8(input, output);
+#else
   tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;
 
   tran_high_t x0 = input[7];
@@ -836,6 +893,8 @@ static void fadst8(const tran_low_t *input, tran_low_t *output) {
   output[5] = (tran_low_t)-x7;
   output[6] = (tran_low_t)x5;
   output[7] = (tran_low_t)-x1;
+#endif  // CONFIG_LGT
+
 }
 
 static void fadst16(const tran_low_t *input, tran_low_t *output) {
