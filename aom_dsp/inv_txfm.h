@@ -53,6 +53,11 @@ static INLINE tran_high_t check_range(tran_high_t input, int bd) {
 #define WRAPLOW(x) ((int32_t)check_range(x, 8))
 #define HIGHBD_WRAPLOW(x, bd) ((int32_t)check_range((x), bd))
 
+#if CONFIG_LGT
+void aom_ilgt4_c(const tran_low_t *input, tran_low_t *output);
+void aom_ilgt8_c(const tran_low_t *input, tran_low_t *output);
+#endif  // CONFIG_LGT
+
 void aom_idct4_c(const tran_low_t *input, tran_low_t *output);
 void aom_idct8_c(const tran_low_t *input, tran_low_t *output);
 void aom_idct16_c(const tran_low_t *input, tran_low_t *output);
@@ -62,6 +67,10 @@ void aom_iadst8_c(const tran_low_t *input, tran_low_t *output);
 void aom_iadst16_c(const tran_low_t *input, tran_low_t *output);
 
 #if CONFIG_HIGHBITDEPTH
+#if CONFIG_LGT
+void aom_highbd_ilgt4_c(const tran_low_t *input, tran_low_t *output, int bd);
+void aom_highbd_ilgt8_c(const tran_low_t *input, tran_low_t *output, int bd);
+#endif  // CONFIG_LGT
 void aom_highbd_idct4_c(const tran_low_t *input, tran_low_t *output, int bd);
 void aom_highbd_idct8_c(const tran_low_t *input, tran_low_t *output, int bd);
 void aom_highbd_idct16_c(const tran_low_t *input, tran_low_t *output, int bd);
