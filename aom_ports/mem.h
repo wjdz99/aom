@@ -62,4 +62,9 @@
 #define CONVERT_TO_BYTEPTR(x) ((uint8_t *)(((uintptr_t)(x)) >> 1))
 #endif  // CONFIG_HIGHBITDEPTH
 
+#if CONFIG_CFL
+#define ROUND_UP_POWER_OF_TWO(value, n) \
+  (((value + (1 << (n)) - 1) >> (n)) << (n))
+#endif  // CONFIG_CFL
+
 #endif  // AOM_PORTS_MEM_H_
