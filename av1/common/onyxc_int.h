@@ -893,6 +893,34 @@ static INLINE int max_block_high(const MACROBLOCKD *xd, BLOCK_SIZE bsize,
   return max_blocks_high >> tx_size_wide_log2[0];
 }
 
+#if CONFIG_CFL
+static INLINE int max_chroma_block_width(const MACROBLOCKD *xd,
+                                         BLOCK_SIZE bsize, TX_SIZE tx_size) {
+  const int num_mbs = xd->mb_to_right_edge;
+  const int max_blocks_wide =
+      (num_mbs < 0)
+          ? block_size_wide[bsize] + (num_mbs >> (3 + xd->cfl->subsampling_x))
+          : block_size_wide[bsize];
+  const int width = tx_size_wide_log2[tx_size];
+
+  // Round up width to a multiple of the transform block width.
+  return ((max_blocks_wide + (1 << width) - 1) >> width) << width;
+}
+
+static INLINE int max_chroma_block_height(const MACROBLOCKD *xd,
+                                          BLOCK_SIZE bsize, TX_SIZE tx_size) {
+  const int num_mbs = xd->mb_to_bottom_edge;
+  const int max_blocks_high =
+      (num_mbs < 0)
+          ? block_size_high[bsize] + (num_mbs >> (3 + xd->cfl->subsampling_y))
+          : block_size_high[bsize];
+  const int height = tx_size_high_log2[tx_size];
+
+  // Round up height to a multiple of the transform block height.
+  return ((max_blocks_high + (1 << height) - 1) >> height) << height;
+}
+#endif  // CONFIG_CFL
+
 static INLINE void av1_zero_above_context(AV1_COMMON *const cm,
                                           int mi_col_start, int mi_col_end) {
   const int width = mi_col_end - mi_col_start;
