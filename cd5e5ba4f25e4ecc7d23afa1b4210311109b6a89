@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e75dbdb_16b8c4d2",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 5054,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-06-13T22:34:19Z",
+      "side": 1,
+      "message": "Please use the REGULAR_FRAME enum.",
+      "revId": "cd5e5ba4f25e4ecc7d23afa1b4210311109b6a89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7ad8093_2108c1f4",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-06-13T22:34:19Z",
+      "side": 1,
+      "message": "Shouldn\u0027t frame_context_idx be declared as a FRAME_CONTEXT_INDEX enum?",
+      "revId": "cd5e5ba4f25e4ecc7d23afa1b4210311109b6a89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec095ed7_4df18274",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-06-13T22:34:19Z",
+      "side": 1,
+      "message": "When CONFIG_FRAME_CONTEXT_SIGNALING is enabled frame_context_idx 0 is used, however LAST_FRAME is #define\u0027d as 1.  Is this comment wrong?",
+      "revId": "cd5e5ba4f25e4ecc7d23afa1b4210311109b6a89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3df0206_1a858744",
+        "filename": "configure",
+        "patchSetId": 8
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-06-13T22:34:19Z",
+      "side": 1,
+      "message": "This experiment is called FRAME_CONTEXT_SIGNALING but it appears to be removing the signaling.  Should it be called something else?",
+      "revId": "cd5e5ba4f25e4ecc7d23afa1b4210311109b6a89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
