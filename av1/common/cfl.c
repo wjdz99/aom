@@ -91,14 +91,31 @@ void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize) {
   xd->cfl->dc_pred[CFL_PRED_V] = sum_v / num_pel;
 }
 
+double cfl_compute_average(uint8_t *y_pix, int y_stride,
+                           BLOCK_SIZE plane_bsize) {
+  assert(plane_bsize != BLOCK_INVALID);
+  const int width = block_size_wide[plane_bsize];
+  const int height = block_size_high[plane_bsize];
+
+  int sum = 0;
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      sum += y_pix[i];
+    }
+    y_pix += y_stride;
+  }
+  return sum / (double)(width * height);
+}
+
 // Predict the current transform block using CfL.
 void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
                        int row, int col, TX_SIZE tx_size, double dc_pred,
                        double alpha) {
   const int width = tx_size_wide[tx_size];
   const int height = tx_size_high[tx_size];
+  const double y_avg = cfl->y_avg;
 
-  const double y_avg = cfl_load(cfl, dst, dst_stride, row, col, width, height);
+  cfl_load(cfl, dst, dst_stride, row, col, width, height);
 
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
@@ -142,8 +159,8 @@ void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
 }
 
 // Load from the CfL pixel buffer into output
-double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
-                int col, int width, int height) {
+void cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
+              int col, int width, int height) {
   const int sub_x = cfl->subsampling_x;
   const int sub_y = cfl->subsampling_y;
   const int tx_off_log2 = tx_size_wide_log2[0];
@@ -226,14 +243,4 @@ double cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
       output_row_offset += output_stride;
     }
   }
-
-  int avg = 0;
-  output_row_offset = 0;
-  for (int j = 0; j < height; j++) {
-    for (int i = 0; i < width; i++) {
-      avg += output[output_row_offset + i];
-    }
-    output_row_offset += output_stride;
-  }
-  return avg / (double)(width * height);
 }
