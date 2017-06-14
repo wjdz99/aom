@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a187fec_4d8d7e09",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1570,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-14T18:57:04Z",
+      "side": 1,
+      "message": "rc_superres_mode is an unsigned int right now - should that be changed to reflect the enum?",
+      "range": {
+        "startLine": 1570,
+        "startChar": 8,
+        "endLine": 1570,
+        "endChar": 21
+      },
+      "revId": "f00bd7009139b8c9a8c6b55c7a704d3b64eef2bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48cb8411_2e31a610",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2453,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-14T18:57:04Z",
+      "side": 1,
+      "message": "Why not initialize to the provided numerator?",
+      "range": {
+        "startLine": 2453,
+        "startChar": 33,
+        "endLine": 2453,
+        "endChar": 59
+      },
+      "revId": "f00bd7009139b8c9a8c6b55c7a704d3b64eef2bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
