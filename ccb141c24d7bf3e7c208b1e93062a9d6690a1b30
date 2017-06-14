@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86626729_aa5294a6",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3968,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-14T03:01:12Z",
+      "side": 1,
+      "message": "Did you maybe want AOMMIN(txb_w, max_blocks_wide - blk_col) \u003c\u003c tx_size_wide_log2[0] and AOMMI(txb_h, max_blocks_high - blk_row) \u003c\u003c tx_size_wide_log2[0] instead of bw and bh here?",
+      "revId": "ccb141c24d7bf3e7c208b1e93062a9d6690a1b30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed0251a1_76f6b2f7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 4003,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-14T03:01:12Z",
+      "side": 1,
+      "message": "And also here.",
+      "revId": "ccb141c24d7bf3e7c208b1e93062a9d6690a1b30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
