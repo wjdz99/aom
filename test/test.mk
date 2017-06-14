@@ -151,10 +151,12 @@ LIBAOM_TEST_SRCS-$(HAVE_NEON)          += simd_neon_test.cc
 LIBAOM_TEST_SRCS-yes                   += intrapred_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_INTRABC)     += intrabc_test.cc
 #LIBAOM_TEST_SRCS-$(CONFIG_AV1_DECODER) += av1_thread_test.cc
+ifneq (yes, yes)
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += dct16x16_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += dct32x32_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += fdct4x4_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += fdct8x8_test.cc
+endif
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += hadamard_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += minmax_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += variance_test.cc
@@ -171,6 +173,7 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += block_error_test.cc
 
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_inv_txfm_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_dct_test.cc
+ifneq (yes, yes)
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_fht4x4_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_fht8x8_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_fht16x16_test.cc
@@ -185,6 +188,7 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_fht8x16_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_fht16x8_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_fht16x32_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_fht32x16_test.cc
+endif
 endif
 
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += sum_squares_test.cc
