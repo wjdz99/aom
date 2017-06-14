@@ -26,7 +26,19 @@
 extern "C" {
 #endif
 
-typedef struct INV_TXFM_PARAM {
+
+typedef struct fwd_txfm_param {
+  TX_TYPE tx_type;
+  TX_SIZE tx_size;
+  int lossless;
+  int bd;
+#if CONFIG_LGT
+  int is_inter;
+#endif
+} FWD_TXFM_PARAM;
+
+
+typedef struct inv_txfm_param {
 #if CONFIG_ADAPT_SCAN
   const int16_t *eob_threshold;
 #endif
@@ -35,6 +47,9 @@ typedef struct INV_TXFM_PARAM {
   int eob;
   int lossless;
   int bd;
+#if CONFIG_LGT
+  int is_inter;
+#endif
 } INV_TXFM_PARAM;
 
 typedef void (*transform_1d)(const tran_low_t *, tran_low_t *);
@@ -71,12 +86,11 @@ void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
 void av1_highbd_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
                             int eob, int bd);
 void av1_highbd_inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest,
-                                 int stride, int eob, int bd, TX_TYPE tx_type,
-                                 int lossless);
+                                 int stride, const INV_TXFM_PARAM *param);
 void av1_highbd_inv_txfm_add_4x8(const tran_low_t *input, uint8_t *dest,
-                                 int stride, int eob, int bd, TX_TYPE tx_type);
+                                 int stride, const INV_TXFM_PARAM *param);
 void av1_highbd_inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest,
-                                 int stride, int eob, int bd, TX_TYPE tx_type);
+                                 int stride, const INV_TXFM_PARAM *param);
 void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                              INV_TXFM_PARAM *inv_txfm_param);
 
