@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1f44a47_32de8f90",
+        "filename": "aomenc.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-06-14T19:35:09Z",
+      "side": 1,
+      "message": "why not call it superres-allowed to make it consistent with resize-allowed?",
+      "range": {
+        "startLine": 291,
+        "startChar": 69,
+        "endLine": 291,
+        "endChar": 0
+      },
+      "revId": "dac6cab072156ddc54dcc156e6f09aee7310f71d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "119a7bb9_12df9a1a",
+        "filename": "aomenc.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-06-14T19:35:09Z",
+      "side": 1,
+      "message": "\u0026superres_numerator ?",
+      "range": {
+        "startLine": 317,
+        "startChar": 53,
+        "endLine": 317,
+        "endChar": 0
+      },
+      "revId": "dac6cab072156ddc54dcc156e6f09aee7310f71d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
