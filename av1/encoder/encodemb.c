@@ -469,7 +469,6 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
   assert((mb->qindex == 0) ^ (xd->lossless[xd->mi[0]->mbmi.segment_id] == 0));
   if (eob == 0) return eob;
   if (xd->lossless[xd->mi[0]->mbmi.segment_id]) return eob;
-
 #if CONFIG_PVQ
   (void)cm;
   (void)tx_size;
@@ -662,6 +661,9 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   fwd_txfm_param.tx_type = tx_type;
   fwd_txfm_param.tx_size = tx_size;
   fwd_txfm_param.lossless = xd->lossless[mbmi->segment_id];
+#if CONFIG_LGT
+  fwd_txfm_param.is_inter = is_inter_block(&xd->mi[0]->mbmi);
+#endif
 
 #if !CONFIG_PVQ
 #if CONFIG_HIGHBITDEPTH
