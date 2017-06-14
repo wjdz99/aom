@@ -515,6 +515,9 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
     fwd_txfm_param.tx_type = tx_type;
     fwd_txfm_param.tx_size = tx_size;
     fwd_txfm_param.lossless = xd->lossless[seg_id];
+#if CONFIG_LGT
+    fwd_txfm_param.is_inter = is_inter_block(mbmi);
+#endif
 
 #if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
