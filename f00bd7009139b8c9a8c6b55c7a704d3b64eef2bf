@@ -69,6 +69,30 @@
       "revId": "f00bd7009139b8c9a8c6b55c7a704d3b64eef2bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02fb158c_85e83733",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2453,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-14T20:57:15Z",
+      "side": 1,
+      "message": "Ok, makes sense.",
+      "parentUuid": "f710f67f_80f40ad6",
+      "range": {
+        "startLine": 2453,
+        "startChar": 33,
+        "endLine": 2453,
+        "endChar": 59
+      },
+      "revId": "f00bd7009139b8c9a8c6b55c7a704d3b64eef2bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
