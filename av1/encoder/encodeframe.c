@@ -39,7 +39,7 @@
 #include "av1/encoder/aq_complexity.h"
 #include "av1/encoder/aq_cyclicrefresh.h"
 #include "av1/encoder/aq_variance.h"
-#if CONFIG_SUPERTX
+#if CONFIG_SUPERTX || CONFIG_SBL_SYMBOL
 #include "av1/encoder/cost.h"
 #endif
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
@@ -4122,7 +4122,24 @@ static void compare_with_sbl_mi0(const AV1_COMMON *const cm, int mi_row,
   MB_MODE_INFO *mbmi0 = &(mi0->mbmi);
 
   if (m == mi0) {
-    prepare_mi0_for_sbl_coding(mi0);
+    prepare_mi0_for_sbl_coding(cm, mi0);
+
+    if (!cm->use_sbl_coding.interintra)
+      p->interintra = 0;
+    if (!cm->use_sbl_coding.skip)
+      p->skip = 0;
+    if (!cm->use_sbl_coding.tx_type || mi0->mbmi.tx_type != DCT_DCT)
+      p->tx_type = 0;
+    if (!cm->use_sbl_coding.tx_depth)
+      p->tx_depth = 0;
+    if (!cm->use_sbl_coding.comp_refs)
+      p->comp_refs = 0;
+    if (!cm->use_sbl_coding.interp_filters)
+      p->interp_filters = 0;
+    if (!cm->use_sbl_coding.motion_mode)
+      p->motion_mode = 0;
+    if (!cm->use_sbl_coding.ref_frames)
+      p->ref_frames = 0;
     return;
   }
 
@@ -4134,12 +4151,12 @@ static void compare_with_sbl_mi0(const AV1_COMMON *const cm, int mi_row,
     if (mbmi->skip != mbmi0->skip)
       p->skip = 0;
 
-  if (p->tx_type)
+  if (p->tx_type && !mbmi->skip)
     if (mbmi->tx_type != mbmi0->tx_type)
       p->tx_type = 0;
 
   if (p->tx_depth) {
-    int symbol0 = mbmi0->tx_size == max_txsize_rect_lookup[mbmi0->sb_type];
+    int symbol0 = mbmi0->tx_size == max_txsize_rect_lookup[mbmi0->sb_type] || mbmi0->skip;
     int symbol = mbmi->tx_size == max_txsize_rect_lookup[mbmi->sb_type];
 
     if (symbol0 != 1 || symbol != symbol0)
@@ -4161,6 +4178,11 @@ static void compare_with_sbl_mi0(const AV1_COMMON *const cm, int mi_row,
     if (mbmi->ref_frame[0] != mbmi0->ref_frame[0] ||
         mbmi->ref_frame[1] != mbmi0->ref_frame[1])
       p->ref_frames = 0;
+
+  if (p->interp_filters && is_inter_block(mbmi))
+    if (mbmi->interp_filter[0] != mbmi0->interp_filter[0] ||
+        mbmi->interp_filter[1] != mbmi0->interp_filter[1])
+      p->interp_filters = 0;
 
   return;
 }
@@ -4192,6 +4214,85 @@ static void search_sbl_symbols(const AV1_COMMON *const cm, int mi_row,
       search_sbl_symbols(cm, mi_row, mi_col + hbs, subsize, mi0, p);
       search_sbl_symbols(cm, mi_row + hbs, mi_col, subsize, mi0, p);
       search_sbl_symbols(cm, mi_row + hbs, mi_col + hbs, subsize, mi0, p);
+      break;
+    default: assert(0);
+  }
+  return;
+}
+
+static void compute_per_symbol_rate_b(AV1_COMP *cpi, const TileInfo const* tile,
+                                      MACROBLOCK *const x, int mi_row,
+                                      int mi_col, RATE_STATS *rate) {
+  const AV1_COMMON *const cm = &(cpi->common);
+  MODE_INFO **m_array = cm->mi_grid_visible + (mi_row * cm->mi_stride + mi_col);
+  MODE_INFO *m = m_array[0];
+  MB_MODE_INFO *mbmi = &(m->mbmi);
+
+  set_offsets(cpi, tile, x, mi_row, mi_col, mbmi->sb_type);
+  assert(mbmi == &(x->e_mbd.mi[0]->mbmi));
+  const MACROBLOCKD *const xd = &(x->e_mbd);
+
+#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+  if (motion_mode_allowed(
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+          0, xd->global_motion,
+#endif
+          m) > SIMPLE_TRANSLATION) {
+    rate->motion_mode += cpi->motion_mode_cost[mbmi->sb_type][mbmi->motion_mode];
+    //printf("haha1\n");
+  }
+#endif
+
+  rate->skip += av1_cost_bit(av1_get_skip_prob(cm, xd), mbmi->skip);
+
+  if (!mbmi->skip && !xd->lossless[mbmi->segment_id]) {
+    rate->tx_type += av1_tx_type_cost(cpi, xd, mbmi->sb_type, 0, mbmi->tx_size,
+        mbmi->tx_type);
+    rate->tx_size += tx_size_cost(cpi, x, mbmi->sb_type, mbmi->tx_size);
+    //if (rate->tx_type != 0 || rate->tx_size != 0)
+    //printf("haha2\n");
+  }
+
+  rate->interintra += av1_cost_bit(av1_get_intra_inter_prob(cm, xd), is_inter_block(mbmi));
+
+  rate->comp_refs += av1_cost_bit(av1_get_reference_mode_prob(cm, xd), has_second_ref(mbmi));
+
+  if (av1_is_interp_needed(xd)) {
+    rate->interp_filters += av1_get_switchable_rate(cpi, xd);
+  }
+}
+
+static void compute_per_symbol_rate_sb(AV1_COMP *cpi,
+                                       const TileInfo const* tile,
+                                       MACROBLOCK *const x, int mi_row,
+                                       int mi_col, BLOCK_SIZE bsize,
+                                       RATE_STATS *rate) {
+  const AV1_COMMON *const cm = &(cpi->common);
+  PARTITION_TYPE partition = get_partition(cm, mi_row, mi_col, bsize);
+  const int hbs = mi_size_wide[bsize] / 2;
+  const BLOCK_SIZE subsize = get_subsize(bsize, partition);
+
+  if (bsize == cm->sb_size) av1_init_rate_stats(rate);
+  if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
+
+  switch(partition) {
+    case PARTITION_NONE:
+      compute_per_symbol_rate_b(cpi, tile, x, mi_row, mi_col, rate); break;
+    case PARTITION_HORZ:
+      compute_per_symbol_rate_b(cpi, tile, x, mi_row, mi_col, rate);
+      if (mi_row + hbs < cm->mi_rows)
+        compute_per_symbol_rate_b(cpi, tile, x, mi_row + hbs, mi_col, rate);
+      break;
+    case PARTITION_VERT:
+      compute_per_symbol_rate_b(cpi, tile, x, mi_row, mi_col, rate);
+      if (mi_col + hbs < cm->mi_cols)
+        compute_per_symbol_rate_b(cpi, tile, x, mi_row, mi_col + hbs, rate);
+      break;
+    case PARTITION_SPLIT:
+      compute_per_symbol_rate_sb(cpi, tile, x, mi_row, mi_col, subsize, rate);
+      compute_per_symbol_rate_sb(cpi, tile, x, mi_row, mi_col + hbs, subsize, rate);
+      compute_per_symbol_rate_sb(cpi, tile, x, mi_row + hbs, mi_col, subsize, rate);
+      compute_per_symbol_rate_sb(cpi, tile, x, mi_row + hbs, mi_col + hbs, subsize, rate);
       break;
     default: assert(0);
   }
@@ -4353,20 +4454,47 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
                         INT64_MAX, pc_root);
     }
 #if CONFIG_SBL_SYMBOL
-    if (sb_level_symbol_coding_eligible(cm, mi_row, mi_col) && !frame_is_intra_only(cm)) {
+    if (sb_level_symbol_coding_eligible(cm, mi_row, mi_col)) {
       xd->mi = cm->mi_grid_visible + (mi_row * cm->mi_stride + mi_col);
       MODE_INFO *mi0 = xd->mi[0];
       get_sbi(cpi, mi_row, mi_col)->mi0 = mi0;
       SBL_SYMBOL_FLAGS *sbl_symbol_flags =
           &(get_sbi(cpi, mi_row, mi_col)->sbl_flags);
+      RATE_STATS rate;
 
       set_all1_sbl_symbol_flags(sbl_symbol_flags);
       search_sbl_symbols(cm, mi_row, mi_col, cm->sb_size, mi0,
                          sbl_symbol_flags);
+      compute_per_symbol_rate_sb(cpi, tile_info, x, mi_row, mi_col, cm->sb_size,
+                                 &rate);
+      //printf("haha %d ", rate.skip);
+      //printf("haha %d ", rate.tx_size);
+//      printf("haha %d \n", rate.tx_type);
       if (!frame_is_intra_only(cm)) {
-/*        printf("%d %d %d: ", mi_row, mi_col,
+        printf("%d %d %d: ", mi_row, mi_col,
                get_partition(cm, mi_row, mi_col, cm->sb_size));
-        print_sbl_symbol_flags(sbl_symbol_flags);*/
+        print_sbl_symbol_flags(sbl_symbol_flags);
+        if (sbl_symbol_flags->interintra)
+          printf("%d ", rate.interintra);
+        else printf("NA ");
+        if (sbl_symbol_flags->comp_refs)
+          printf("%d ", rate.comp_refs);
+        else printf("NA ");
+        if (sbl_symbol_flags->interp_filters)
+          printf("%d ", rate.interp_filters);
+        else printf("NA ");
+        if (sbl_symbol_flags->motion_mode)
+          printf("%d ", rate.motion_mode);
+        else printf("NA ");
+        if (sbl_symbol_flags->skip)
+          printf("%d ", rate.skip);
+        else printf("NA ");
+        if (sbl_symbol_flags->tx_depth)
+          printf("%d ", rate.tx_size);
+        else printf("NA ");
+        if (sbl_symbol_flags->tx_type)
+          printf("%d \n", rate.tx_type);
+        else printf("NA\n");
       }
     }
 #endif
@@ -5122,6 +5250,11 @@ void av1_encode_frame(AV1_COMP *cpi) {
 #if CONFIG_EXT_INTER
     make_consistent_compound_tools(cm);
 #endif  // CONFIG_EXT_INTER
+
+#if CONFIG_SBL_SYMBOL
+    set_frame_sbl_coding_feature(cm);
+#endif
+
     encode_frame_internal(cpi);
 
     for (i = 0; i < REFERENCE_MODES; ++i)

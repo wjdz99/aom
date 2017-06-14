@@ -904,6 +904,11 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
       if (inter_block) {
         if (eset > 0) {
+#if CONFIG_SBL_SYMBOL
+          if (xd->sbi->sbl_flags.tx_type)
+            *tx_type = DCT_DCT;
+          else
+#endif
           *tx_type = av1_ext_tx_inter_inv[eset][aom_read_symbol(
               r, ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
               ext_tx_cnt_inter[eset], ACCT_STR)];
@@ -911,6 +916,11 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         }
       } else if (ALLOW_INTRA_EXT_TX) {
         if (eset > 0) {
+#if CONFIG_SBL_SYMBOL
+          if (xd->sbi->sbl_flags.tx_type)
+            *tx_type = DCT_DCT;
+          else
+#endif
           *tx_type = av1_ext_tx_intra_inv[eset][aom_read_symbol(
               r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
               ext_tx_cnt_intra[eset], ACCT_STR)];
@@ -934,11 +944,21 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       FRAME_COUNTS *counts = xd->counts;
 
       if (inter_block) {
+#if CONFIG_SBL_SYMBOL
+        if (xd->sbi->sbl_flags.tx_type)
+          *tx_type = DCT_DCT;
+        else
+#endif
         *tx_type = av1_ext_tx_inv[aom_read_symbol(
             r, ec_ctx->inter_ext_tx_cdf[tx_size], TX_TYPES, ACCT_STR)];
         if (counts) ++counts->inter_ext_tx[tx_size][*tx_type];
       } else {
         const TX_TYPE tx_type_nom = intra_mode_to_tx_type_context[mbmi->mode];
+#if CONFIG_SBL_SYMBOL
+        if (xd->sbi->sbl_flags.tx_type)
+          *tx_type = DCT_DCT;
+        else
+#endif
         *tx_type = av1_ext_tx_inv[aom_read_symbol(
             r, ec_ctx->intra_ext_tx_cdf[tx_size][tx_type_nom], TX_TYPES,
             ACCT_STR)];

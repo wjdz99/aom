@@ -1629,6 +1629,13 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
   TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
 #endif
 
+#if CONFIG_SBL_SYMBOL
+  if (xd->sbi->sbl_flags.tx_type) {
+    mbmi->tx_type = DCT_DCT;
+    return;
+  }
+#endif
+
   if (!FIXED_TX_TYPE) {
 #if CONFIG_EXT_TX
     const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
@@ -2829,10 +2836,17 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
     xd->sbi = get_sbi(cpi, mi_row, mi_col);
     SBL_SYMBOL_FLAGS *p = &(xd->sbi->sbl_flags);
 
-    if (sb_level_symbol_coding_eligible(cm, mi_row, mi_col) && !frame_is_intra_only(cm)) {
+    if (sb_level_symbol_coding_eligible(cm, mi_row, mi_col)) {
       // encode the flags
-      aom_write(w, p->motion_mode, 128);
-      //printf("enc %d %d %d\n", mi_row, mi_col, p->motion_mode);
+      if (cm->use_sbl_coding.motion_mode)
+        aom_write(w, p->motion_mode, 128);
+      if (cm->use_sbl_coding.skip)
+        aom_write(w, p->skip, 128);
+      if (cm->use_sbl_coding.tx_type)
+        aom_write(w, p->tx_type, 128);
+      if (cm->use_sbl_coding.tx_depth)
+        aom_write(w, p->tx_depth, 128);
+      //printf("enc %d %d %d\n", mi_row, mi_col, p->tx_type);
     } else {
       set_all0_sbl_symbol_flags(p);
     }

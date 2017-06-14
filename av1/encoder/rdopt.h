@@ -26,6 +26,35 @@ struct AV1_COMP;
 struct macroblock;
 struct RD_STATS;
 
+#if CONFIG_SBL_SYMBOL
+typedef struct RATE_STATS {
+  int interintra;
+  int motion_mode;
+  int tx_type;
+  int tx_size;
+  int skip;
+  int comp_refs;
+  int interp_filters;
+} RATE_STATS;
+
+static INLINE void av1_init_rate_stats(RATE_STATS *rate_stats) {
+  rate_stats->interintra = 0;
+  rate_stats->motion_mode = 0;
+  rate_stats->tx_type = 0;
+  rate_stats->tx_size = 0;
+  rate_stats->skip = 0;
+  rate_stats->comp_refs = 0;
+  rate_stats->interp_filters = 0;
+}
+
+int av1_tx_type_cost(const AV1_COMP *cpi, const MACROBLOCKD *xd,
+                     BLOCK_SIZE bsize, int plane, TX_SIZE tx_size,
+                     TX_TYPE tx_type);
+
+int tx_size_cost(const AV1_COMP *const cpi, const MACROBLOCK *const x,
+                 BLOCK_SIZE bsize, TX_SIZE tx_size);
+#endif
+
 #if CONFIG_RD_DEBUG
 static INLINE void av1_update_txb_coeff_cost(RD_STATS *rd_stats, int plane,
                                              TX_SIZE tx_size, int blk_row,

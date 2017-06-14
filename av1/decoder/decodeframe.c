@@ -1776,8 +1776,8 @@ static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   av1_read_mode_info(pbi, xd, mi_row, mi_col, r, x_mis, y_mis);
 #endif  // CONFIG_SUPERTX
 #if CONFIG_SBL_SYMBOL
-  if (xd->mi[0] == xd->sbi->mi0 && !frame_is_intra_only(cm))
-    prepare_mi0_for_sbl_coding(xd->sbi->mi0);
+  if (xd->mi[0] == xd->sbi->mi0)
+    prepare_mi0_for_sbl_coding(cm, xd->sbi->mi0);
 #endif
 
   if (bsize >= BLOCK_8X8 && (cm->subsampling_x || cm->subsampling_y)) {
@@ -2333,8 +2333,15 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 
     set_all0_sbl_symbol_flags(p);
 
-    if (sb_level_symbol_coding_eligible_partition(partition) && !frame_is_intra_only(cm)) {
-      p->motion_mode = aom_read(r, 128, ACCT_STR);
+    if (sb_level_symbol_coding_eligible_partition(partition)) {
+      if (cm->use_sbl_coding.motion_mode)
+        p->motion_mode = aom_read(r, 128, ACCT_STR);
+      if (cm->use_sbl_coding.skip)
+        p->skip = aom_read(r, 128, ACCT_STR);
+      if (cm->use_sbl_coding.tx_type)
+        p->tx_type = aom_read(r, 128, ACCT_STR);
+      if (cm->use_sbl_coding.tx_depth)
+        p->tx_depth = aom_read(r, 128, ACCT_STR);
       //printf("dec %d %d %d\n", mi_row, mi_col, p->motion_mode);
     }
   }
@@ -4715,6 +4722,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #if CONFIG_EXT_TX
   cm->reduced_tx_set_used = aom_rb_read_bit(rb);
 #endif  // CONFIG_EXT_TX
+
+#if CONFIG_SBL_SYMBOL
+  set_frame_sbl_coding_feature(cm);
+#endif
 
   read_tile_info(pbi, rb);
   sz = aom_rb_read_literal(rb, 16);

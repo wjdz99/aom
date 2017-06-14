@@ -150,6 +150,19 @@ typedef struct BufferPool {
   InternalFrameBufferList int_frame_buffers;
 } BufferPool;
 
+#if CONFIG_SBL_SYMBOL
+typedef struct USE_SBL_CODING {
+  uint8_t interintra;
+  uint8_t skip;
+  uint8_t tx_type;
+  uint8_t tx_depth;
+  uint8_t comp_refs;
+  uint8_t interp_filters;
+  uint8_t motion_mode;
+  uint8_t ref_frames;
+} USE_SBL_CODING;
+#endif
+
 typedef struct AV1Common {
   struct aom_internal_error_info error;
   aom_color_space_t color_space;
@@ -338,6 +351,10 @@ typedef struct AV1Common {
   FRAME_CONTEXT *pre_fc;          // Context referenced in this frame
   unsigned int frame_context_idx; /* Context to use/update */
   FRAME_COUNTS counts;
+
+#if CONFIG_SBL_SYMBOL
+  USE_SBL_CODING use_sbl_coding;
+#endif
 
   unsigned int current_video_frame;
   BITSTREAM_PROFILE profile;
@@ -1051,11 +1068,13 @@ static INLINE void set_sb_size(AV1_COMMON *const cm, BLOCK_SIZE sb_size) {
 }
 
 #if CONFIG_SBL_SYMBOL
-static INLINE void prepare_mi0_for_sbl_coding(MODE_INFO *mi) {
+static INLINE void prepare_mi0_for_sbl_coding(const AV1_COMMON *const cm, MODE_INFO *mi) {
   MB_MODE_INFO *mbmi = &(mi->mbmi);
 
+  (void)cm;
   if (mbmi->skip) {
-    mbmi->tx_size = max_txsize_rect_lookup[mbmi->sb_type];
+    //mbmi->tx_size =
+      //  tx_size_from_tx_mode(mbmi->sb_type, cm->tx_mode, is_inter_block(mbmi));
     mbmi->tx_type = DCT_DCT;
   }
 
@@ -1064,7 +1083,7 @@ static INLINE void prepare_mi0_for_sbl_coding(MODE_INFO *mi) {
 }
 
 static INLINE void print_sbl_symbol_flags(SBL_SYMBOL_FLAGS *p) {
-  printf("%d %d %d %d %d %d %d %d\n",
+  printf("%d %d %d %d %d %d %d %d: ",
          p->interintra, p->skip, p->tx_type, p->tx_depth, p->comp_refs,
          0, p->motion_mode, p->ref_frames);
 }
@@ -1077,6 +1096,28 @@ static INLINE int sb_level_symbol_coding_eligible(const AV1_COMMON *const cm,
                                                   int mi_row, int mi_col) {
   return sb_level_symbol_coding_eligible_partition(
              get_partition(cm, mi_row, mi_col, cm->sb_size));
+}
+
+static INLINE void set_frame_sbl_coding_feature(AV1_COMMON *const cm) {
+  if (!frame_is_intra_only(cm)) {
+    cm->use_sbl_coding.interintra = 1;
+    cm->use_sbl_coding.skip = 1;
+    cm->use_sbl_coding.tx_type = 1;
+    cm->use_sbl_coding.tx_depth = 1;
+    cm->use_sbl_coding.comp_refs = 1;
+    cm->use_sbl_coding.interp_filters = 1;
+    cm->use_sbl_coding.motion_mode = 1;
+    cm->use_sbl_coding.ref_frames = 0;
+  } else {
+    cm->use_sbl_coding.interintra = 0;
+    cm->use_sbl_coding.skip = 1;
+    cm->use_sbl_coding.tx_type = 1;
+    cm->use_sbl_coding.tx_depth = 1;
+    cm->use_sbl_coding.comp_refs = 0;
+    cm->use_sbl_coding.interp_filters = 0;
+    cm->use_sbl_coding.motion_mode = 0;
+    cm->use_sbl_coding.ref_frames = 0;
+  }
 }
 #endif
 

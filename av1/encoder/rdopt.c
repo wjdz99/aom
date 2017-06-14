@@ -1717,8 +1717,8 @@ void av1_txfm_rd_in_plane_supertx(MACROBLOCK *x, const AV1_COMP *cpi, int *rate,
 }
 #endif  // CONFIG_SUPERTX
 
-static int tx_size_cost(const AV1_COMP *const cpi, const MACROBLOCK *const x,
-                        BLOCK_SIZE bsize, TX_SIZE tx_size) {
+int tx_size_cost(const AV1_COMP *const cpi, const MACROBLOCK *const x,
+                 BLOCK_SIZE bsize, TX_SIZE tx_size) {
   const AV1_COMMON *const cm = &cpi->common;
   const MACROBLOCKD *const xd = &x->e_mbd;
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;

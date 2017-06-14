@@ -1006,7 +1006,7 @@ static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
   if (bsize < BLOCK_8X8)
     return AOMMIN(max_txsize_lookup[bsize], largest_tx_size);
 #endif
-  if (txsize_sqr_map[max_rect_tx_size] <= largest_tx_size)
+  if (txsize_sqr_up_map[max_rect_tx_size] <= largest_tx_size)
     return max_rect_tx_size;
   else
     return largest_tx_size;
