@@ -308,7 +308,7 @@ static void setup_frame(AV1_COMP *cpi) {
 #if CONFIG_EXT_REFS
     else if (cpi->refresh_bwd_ref_frame)
       cm->frame_context_idx = BRF_FRAME;
-#endif  // CONFIG_EXT_REFS
+#endif  // CONFIG_EXT_REFSs
     else
       cm->frame_context_idx = REGULAR_FRAME;
   }
@@ -335,6 +335,24 @@ static void setup_frame(AV1_COMP *cpi) {
 
   set_sb_size(cm, select_sb_size(cpi));
 }
+
+#if CONFIG_SBL_SYMBOL
+static void av1_enc_alloc_sbi(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  const int aligned_width = ALIGN_POWER_OF_TWO(cm->width, MAX_SB_SIZE_LOG2);
+  const int aligned_height = ALIGN_POWER_OF_TWO(cm->height, MAX_SB_SIZE_LOG2);
+
+  cpi->sbi_stride = aligned_width >> MAX_SB_SIZE_LOG2;
+  int num_sbi = cpi->sbi_stride * (aligned_height >> MAX_SB_SIZE_LOG2);
+
+  cpi->sbip = aom_calloc(num_sbi, sizeof(*cpi->sbip));
+}
+
+static void av1_enc_free_sbi(AV1_COMP *cpi) {
+  aom_free(cpi->sbip);
+  cpi->sbip = NULL;
+}
+#endif
 
 static void av1_enc_setup_mi(AV1_COMMON *cm) {
   int i;
@@ -495,6 +513,10 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   cpi->tile_tok[0][0] = 0;
 
   av1_free_pc_tree(&cpi->td);
+
+#if CONFIG_SBL_SYMBOL
+  av1_enc_free_sbi(cpi);
+#endif
 
 #if CONFIG_PALETTE
   if (cpi->common.allow_screen_content_tools)
@@ -806,6 +828,10 @@ void av1_alloc_compressor_data(AV1_COMP *cpi) {
   }
 
   av1_setup_pc_tree(&cpi->common, &cpi->td);
+
+#if CONFIG_SBL_SYMBOL
+  av1_enc_alloc_sbi(cpi);
+#endif
 }
 
 void av1_new_framerate(AV1_COMP *cpi, double framerate) {

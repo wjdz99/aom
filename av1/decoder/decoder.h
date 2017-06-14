@@ -97,6 +97,10 @@ typedef struct AV1Decoder {
 
   DECLARE_ALIGNED(16, AV1_COMMON, common);
 
+#if CONFIG_SBL_SYMBOL
+  SB_INFO sbi;
+#endif
+
   int ready_for_new_data;
 
   int refresh_frame_flags;

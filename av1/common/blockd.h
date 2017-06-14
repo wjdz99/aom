@@ -457,6 +457,46 @@ typedef struct MODE_INFO {
   b_mode_info bmi[4];
 } MODE_INFO;
 
+#if CONFIG_SBL_SYMBOL
+typedef struct SBL_SYMBOL_FLAGS {
+  uint8_t interintra;
+  uint8_t skip;
+  uint8_t tx_type;
+  uint8_t tx_depth;
+  uint8_t comp_refs;
+  uint8_t interp_filters;
+  uint8_t motion_mode;
+  uint8_t ref_frames;
+} SBL_SYMBOL_FLAGS;
+
+typedef struct SB_INFO {
+  MODE_INFO *mi0;
+  SBL_SYMBOL_FLAGS sbl_flags;
+} SB_INFO;
+
+static INLINE void set_all1_sbl_symbol_flags(SBL_SYMBOL_FLAGS *p) {
+  p->interintra = 1;
+  p->skip = 1;
+  p->tx_type = 1;
+  p->tx_depth = 1;
+  p->comp_refs = 1;
+  p->interp_filters = 1;
+  p->motion_mode = 1;
+  p->ref_frames = 1;
+}
+
+static INLINE void set_all0_sbl_symbol_flags(SBL_SYMBOL_FLAGS *p) {
+  p->interintra = 0;
+  p->skip = 0;
+  p->tx_type = 0;
+  p->tx_depth = 0;
+  p->comp_refs = 0;
+  p->interp_filters = 0;
+  p->motion_mode = 0;
+  p->ref_frames = 0;
+}
+#endif
+
 #if CONFIG_INTRABC
 static INLINE int is_intrabc_block(const MB_MODE_INFO *mbmi) {
   return mbmi->use_intrabc;
@@ -585,6 +625,10 @@ typedef struct macroblockd {
 
   FRAME_COUNTS *counts;
   TileInfo tile;
+
+#if CONFIG_SBL_SYMBOL
+  struct SB_INFO *sbi;
+#endif  // CONFIG_SBL_SYMBOL
 
   int mi_stride;
 

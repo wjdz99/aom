@@ -1775,6 +1775,10 @@ static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #endif
   av1_read_mode_info(pbi, xd, mi_row, mi_col, r, x_mis, y_mis);
 #endif  // CONFIG_SUPERTX
+#if CONFIG_SBL_SYMBOL
+  if (xd->mi[0] == xd->sbi->mi0 && !frame_is_intra_only(cm))
+    prepare_mi0_for_sbl_coding(xd->sbi->mi0);
+#endif
 
   if (bsize >= BLOCK_8X8 && (cm->subsampling_x || cm->subsampling_y)) {
     const BLOCK_SIZE uv_subsize =
@@ -2317,6 +2321,25 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   assert(partition < PARTITION_TYPES);
   assert(subsize < BLOCK_SIZES);
 #endif
+
+#if CONFIG_SBL_SYMBOL
+  if (bsize == cm->sb_size) {
+    const int offset = mi_row * cm->mi_stride + mi_col;
+    xd->mi = cm->mi_grid_visible + offset;
+    xd->mi[0] = &cm->mi[offset];
+    xd->sbi = &(pbi->sbi);
+    xd->sbi->mi0 = xd->mi[0];
+    SBL_SYMBOL_FLAGS *p = &(xd->sbi->sbl_flags);
+
+    set_all0_sbl_symbol_flags(p);
+
+    if (sb_level_symbol_coding_eligible_partition(partition) && !frame_is_intra_only(cm)) {
+      p->motion_mode = aom_read(r, 128, ACCT_STR);
+      //printf("dec %d %d %d\n", mi_row, mi_col, p->motion_mode);
+    }
+  }
+#endif
+
 #if CONFIG_SUPERTX
   if (!frame_is_intra_only(cm) && partition != PARTITION_NONE &&
       bsize <= MAX_SUPERTX_BLOCK_SIZE && !supertx_enabled && !xd->lossless[0]) {

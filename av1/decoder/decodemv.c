@@ -300,11 +300,21 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (last_motion_mode_allowed == SIMPLE_TRANSLATION) return SIMPLE_TRANSLATION;
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
   if (last_motion_mode_allowed == OBMC_CAUSAL) {
+#if CONFIG_SBL_SYMBOL
+    if (xd->sbi->sbl_flags.motion_mode && mi != xd->sbi->mi0)
+      motion_mode = xd->sbi->mi0->mbmi.motion_mode;
+    else
+#endif
     motion_mode = aom_read(r, cm->fc->obmc_prob[mbmi->sb_type], ACCT_STR);
     if (counts) ++counts->obmc[mbmi->sb_type][motion_mode];
     return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);
   } else {
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_SBL_SYMBOL
+    if (xd->sbi->sbl_flags.motion_mode && mi != xd->sbi->mi0)
+      motion_mode = xd->sbi->mi0->mbmi.motion_mode;
+    else
+#endif
     motion_mode =
         aom_read_tree(r, av1_motion_mode_tree,
                       cm->fc->motion_mode_prob[mbmi->sb_type], ACCT_STR);

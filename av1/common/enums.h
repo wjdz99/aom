@@ -52,6 +52,10 @@ extern "C" {
 // Mask to extract MI offset within max MIB
 #define MAX_MIB_MASK (MAX_MIB_SIZE - 1)
 
+#if CONFIG_SBL_SYMBOL
+#define SB_IN_MI_SHIFT (MAX_SB_SIZE_LOG2 - MI_SIZE_LOG2)
+#endif
+
 // Maximum number of tile rows and tile columns
 #if CONFIG_EXT_TILE
 #define TILE_NORMAL 0

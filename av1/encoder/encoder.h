@@ -427,6 +427,11 @@ typedef struct AV1_COMP {
   // Ambient reconstruction err target for force key frames
   int64_t ambient_err;
 
+#if CONFIG_SBL_SYMBOL
+  SB_INFO *sbip;
+  int sbi_stride;
+#endif
+
   RD_OPT rd;
 
   CODING_CONTEXT coding_context;
@@ -849,6 +854,13 @@ static INLINE void av1_resize_step(struct AV1_COMP *cpi) {
   cpi->resize_scale_num = cpi->resize_next_scale_num;
   cpi->resize_scale_den = cpi->resize_next_scale_den;
 }
+
+#if CONFIG_SBL_SYMBOL
+static INLINE SB_INFO *get_sbi(AV1_COMP *cpi, int mi_row, int mi_col) {
+  return cpi->sbip + (mi_row >> SB_IN_MI_SHIFT) * cpi->sbi_stride +
+      (mi_col >> SB_IN_MI_SHIFT);
+}
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"

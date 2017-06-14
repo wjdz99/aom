@@ -1050,6 +1050,36 @@ static INLINE void set_sb_size(AV1_COMMON *const cm, BLOCK_SIZE sb_size) {
 #endif
 }
 
+#if CONFIG_SBL_SYMBOL
+static INLINE void prepare_mi0_for_sbl_coding(MODE_INFO *mi) {
+  MB_MODE_INFO *mbmi = &(mi->mbmi);
+
+  if (mbmi->skip) {
+    mbmi->tx_size = max_txsize_rect_lookup[mbmi->sb_type];
+    mbmi->tx_type = DCT_DCT;
+  }
+
+  if (!is_inter_block(mbmi))
+    mbmi->motion_mode = SIMPLE_TRANSLATION;
+}
+
+static INLINE void print_sbl_symbol_flags(SBL_SYMBOL_FLAGS *p) {
+  printf("%d %d %d %d %d %d %d %d\n",
+         p->interintra, p->skip, p->tx_type, p->tx_depth, p->comp_refs,
+         0, p->motion_mode, p->ref_frames);
+}
+
+static INLINE int sb_level_symbol_coding_eligible_partition(PARTITION_TYPE p) {
+  return p != PARTITION_NONE;
+}
+
+static INLINE int sb_level_symbol_coding_eligible(const AV1_COMMON *const cm,
+                                                  int mi_row, int mi_col) {
+  return sb_level_symbol_coding_eligible_partition(
+             get_partition(cm, mi_row, mi_col, cm->sb_size));
+}
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

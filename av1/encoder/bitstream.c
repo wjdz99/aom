@@ -504,7 +504,11 @@ static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 }
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-static void write_motion_mode(const AV1_COMMON *cm, const MODE_INFO *mi,
+static void write_motion_mode(const AV1_COMMON *cm,
+#if CONFIG_SBL_SYMBOL
+                              const MACROBLOCKD *xd,
+#endif
+                              const MODE_INFO *mi,
                               aom_writer *w) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
   MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
@@ -514,6 +518,10 @@ static void write_motion_mode(const AV1_COMMON *cm, const MODE_INFO *mi,
       mi);
 
   if (last_motion_mode_allowed == SIMPLE_TRANSLATION) return;
+#if CONFIG_SBL_SYMBOL
+  if (xd->sbi->sbl_flags.motion_mode == 1 && mi != xd->sbi->mi0)
+    return;
+#endif
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
   if (last_motion_mode_allowed == OBMC_CAUSAL) {
     aom_write(w, mbmi->motion_mode == OBMC_CAUSAL,
@@ -2058,7 +2066,11 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #if CONFIG_EXT_INTER
       if (mbmi->ref_frame[1] != INTRA_FRAME)
 #endif  // CONFIG_EXT_INTER
-        write_motion_mode(cm, mi, w);
+        write_motion_mode(cm,
+#if CONFIG_SBL_SYMBOL
+                          xd,
+#endif
+                          mi, w);
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_EXT_INTER
@@ -2811,6 +2823,22 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
   write_partition(cm, xd, hbs, mi_row, mi_col, partition, bsize, w);
+
+#if CONFIG_SBL_SYMBOL
+  if (bsize == cm->sb_size) {
+    xd->sbi = get_sbi(cpi, mi_row, mi_col);
+    SBL_SYMBOL_FLAGS *p = &(xd->sbi->sbl_flags);
+
+    if (sb_level_symbol_coding_eligible(cm, mi_row, mi_col) && !frame_is_intra_only(cm)) {
+      // encode the flags
+      aom_write(w, p->motion_mode, 128);
+      //printf("enc %d %d %d\n", mi_row, mi_col, p->motion_mode);
+    } else {
+      set_all0_sbl_symbol_flags(p);
+    }
+  }
+#endif
+
 #if CONFIG_SUPERTX
   mbmi = &cm->mi_grid_visible[mi_offset]->mbmi;
   xd->mi = cm->mi_grid_visible + mi_offset;

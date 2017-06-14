@@ -4112,6 +4112,93 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 }
 
+#if CONFIG_SBL_SYMBOL
+static void compare_with_sbl_mi0(const AV1_COMMON *const cm, int mi_row,
+                                 int mi_col, MODE_INFO *mi0,
+                                 SBL_SYMBOL_FLAGS *p) {
+  MODE_INFO **m_array = cm->mi_grid_visible + (mi_row * cm->mi_stride + mi_col);
+  MODE_INFO *m = m_array[0];
+  MB_MODE_INFO *mbmi = &(m->mbmi);
+  MB_MODE_INFO *mbmi0 = &(mi0->mbmi);
+
+  if (m == mi0) {
+    prepare_mi0_for_sbl_coding(mi0);
+    return;
+  }
+
+  if (p->interintra)
+    if (is_inter_block(mbmi) != is_inter_block(mbmi0))
+      p->interintra = 0;
+
+  if (p->skip)
+    if (mbmi->skip != mbmi0->skip)
+      p->skip = 0;
+
+  if (p->tx_type)
+    if (mbmi->tx_type != mbmi0->tx_type)
+      p->tx_type = 0;
+
+  if (p->tx_depth) {
+    int symbol0 = mbmi0->tx_size == max_txsize_rect_lookup[mbmi0->sb_type];
+    int symbol = mbmi->tx_size == max_txsize_rect_lookup[mbmi->sb_type];
+
+    if (symbol0 != 1 || symbol != symbol0)
+      p->tx_depth = 0;
+  }
+
+  if (p->comp_refs && cm->reference_mode == REFERENCE_MODE_SELECT) {
+    if (has_second_ref(mbmi) != has_second_ref(mbmi0))
+      p->comp_refs = 0;
+  } else {
+    p->comp_refs = 0;
+  }
+
+  if (p->motion_mode)
+    if (mbmi->motion_mode != mbmi0->motion_mode)
+      p->motion_mode = 0;
+
+  if (p->ref_frames)
+    if (mbmi->ref_frame[0] != mbmi0->ref_frame[0] ||
+        mbmi->ref_frame[1] != mbmi0->ref_frame[1])
+      p->ref_frames = 0;
+
+  return;
+}
+
+static void search_sbl_symbols(const AV1_COMMON *const cm, int mi_row,
+                               int mi_col, BLOCK_SIZE bsize, MODE_INFO *mi0,
+                               SBL_SYMBOL_FLAGS *p) {
+  PARTITION_TYPE partition = get_partition(cm, mi_row, mi_col, bsize);
+  const int hbs = mi_size_wide[bsize] / 2;
+  const BLOCK_SIZE subsize = get_subsize(bsize, partition);
+
+  if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
+
+  switch(partition) {
+    case PARTITION_NONE:
+      compare_with_sbl_mi0(cm, mi_row, mi_col, mi0, p); break;
+    case PARTITION_HORZ:
+      compare_with_sbl_mi0(cm, mi_row, mi_col, mi0, p);
+      if (mi_row + hbs < cm->mi_rows)
+        compare_with_sbl_mi0(cm, mi_row + hbs, mi_col, mi0, p);
+      break;
+    case PARTITION_VERT:
+      compare_with_sbl_mi0(cm, mi_row, mi_col, mi0, p);
+      if (mi_col + hbs < cm->mi_cols)
+        compare_with_sbl_mi0(cm, mi_row, mi_col + hbs, mi0, p);
+      break;
+    case PARTITION_SPLIT:
+      search_sbl_symbols(cm, mi_row, mi_col, subsize, mi0, p);
+      search_sbl_symbols(cm, mi_row, mi_col + hbs, subsize, mi0, p);
+      search_sbl_symbols(cm, mi_row + hbs, mi_col, subsize, mi0, p);
+      search_sbl_symbols(cm, mi_row + hbs, mi_col + hbs, subsize, mi0, p);
+      break;
+    default: assert(0);
+  }
+  return;
+}
+#endif
+
 static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
                              TileDataEnc *tile_data, int mi_row,
                              TOKENEXTRA **tp) {
@@ -4265,6 +4352,24 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
 #endif  // CONFIG_SUPERTX
                         INT64_MAX, pc_root);
     }
+#if CONFIG_SBL_SYMBOL
+    if (sb_level_symbol_coding_eligible(cm, mi_row, mi_col) && !frame_is_intra_only(cm)) {
+      xd->mi = cm->mi_grid_visible + (mi_row * cm->mi_stride + mi_col);
+      MODE_INFO *mi0 = xd->mi[0];
+      get_sbi(cpi, mi_row, mi_col)->mi0 = mi0;
+      SBL_SYMBOL_FLAGS *sbl_symbol_flags =
+          &(get_sbi(cpi, mi_row, mi_col)->sbl_flags);
+
+      set_all1_sbl_symbol_flags(sbl_symbol_flags);
+      search_sbl_symbols(cm, mi_row, mi_col, cm->sb_size, mi0,
+                         sbl_symbol_flags);
+      if (!frame_is_intra_only(cm)) {
+/*        printf("%d %d %d: ", mi_row, mi_col,
+               get_partition(cm, mi_row, mi_col, cm->sb_size));
+        print_sbl_symbol_flags(sbl_symbol_flags);*/
+      }
+    }
+#endif
   }
 }
 
