@@ -54,8 +54,10 @@ static INLINE tran_high_t check_range(tran_high_t input, int bd) {
 #define HIGHBD_WRAPLOW(x, bd) ((int32_t)check_range((x), bd))
 
 #if CONFIG_LGT
-void aom_ilgt4_c(const tran_low_t *input, tran_low_t *output);
-void aom_ilgt8_c(const tran_low_t *input, tran_low_t *output);
+void ilgt4_inter(const tran_low_t *input, tran_low_t *output);
+void ilgt4_intra(const tran_low_t *input, tran_low_t *output);
+void ilgt8_inter(const tran_low_t *input, tran_low_t *output);
+void ilgt8_intra(const tran_low_t *input, tran_low_t *output);
 #endif
 
 void aom_idct4_c(const tran_low_t *input, tran_low_t *output);
