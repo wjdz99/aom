@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5aee4e25_03dfad96",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-14T01:02:07Z",
+      "side": 1,
+      "message": "Is it OK to include the config here?",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 25
+      },
+      "revId": "ad8a57fbd06d7398839d5fcbb6a87e6764eee977",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d73ea18c_72b24b1d",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-14T01:02:07Z",
+      "side": 1,
+      "message": "Due to this being a macro, it yields some ugly output on an error:\n\"rc_superres_numerator out of range [SUPERRES_SCALE_DENOMINATOR / 2..SUPERRES_SCALE_DENOMINATOR]\"\nIf I rewrote this in C instead, the output would be nicer but it would be inconsistent with the other checks. What should I do here?",
+      "range": {
+        "startLine": 260,
+        "startChar": 2,
+        "endLine": 261,
+        "endChar": 42
+      },
+      "revId": "ad8a57fbd06d7398839d5fcbb6a87e6764eee977",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
