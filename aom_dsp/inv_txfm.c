@@ -247,6 +247,76 @@ void aom_idct8x8_1_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
   }
 }
 
+#if CONFIG_LGT
+void ilgt4_inter(const tran_low_t *input, tran_low_t *output) {
+  if (!(input[0] | input[1] | input[2] | input[3])) {
+    output[0] = output[1] = output[2] = output[3] = 0;
+    return;
+  }
+
+  tran_high_t const(*lgtx4_basis)[4];
+  lgtx4_basis = lgtbasis4_inter;
+
+  tran_high_t s[4] = { 0 };
+  for (int i = 0; i < 4; ++i)
+    for (int j = 0; j < 4; ++j) s[j] += lgtx4_basis[i][j] * input[i];
+
+  for (int i = 0; i < 4; ++i) output[i] = WRAPLOW(dct_const_round_shift(s[i]));
+}
+
+void ilgt4_intra(const tran_low_t *input, tran_low_t *output) {
+  if (!(input[0] | input[1] | input[2] | input[3])) {
+    output[0] = output[1] = output[2] = output[3] = 0;
+    return;
+  }
+
+  tran_high_t const(*lgtx4_basis)[4];
+  lgtx4_basis = lgtbasis4_intra;
+
+  tran_high_t s[4] = { 0 };
+  for (int i = 0; i < 4; ++i)
+    for (int j = 0; j < 4; ++j) s[j] += lgtx4_basis[i][j] * input[i];
+
+  for (int i = 0; i < 4; ++i) output[i] = WRAPLOW(dct_const_round_shift(s[i]));
+}
+
+void ilgt8_inter(const tran_low_t *input, tran_low_t *output) {
+  if (!(input[0] | input[1] | input[2] | input[3] | input[4] | input[5] |
+        input[6] | input[7])) {
+    output[0] = output[1] = output[2] = output[3] = output[4] = output[5] =
+        output[6] = output[7] = 0;
+    return;
+  }
+
+  tran_high_t const(*lgtx8_basis)[8];
+  lgtx8_basis = lgtbasis8_inter;
+
+  tran_high_t s[8] = { 0 };
+  for (int i = 0; i < 8; ++i)
+    for (int j = 0; j < 8; ++j) s[j] += lgtx8_basis[i][j] * input[i];
+
+  for (int i = 0; i < 8; ++i) output[i] = WRAPLOW(dct_const_round_shift(s[i]));
+}
+
+void ilgt8_intra(const tran_low_t *input, tran_low_t *output) {
+  if (!(input[0] | input[1] | input[2] | input[3] | input[4] | input[5] |
+        input[6] | input[7])) {
+    output[0] = output[1] = output[2] = output[3] = output[4] = output[5] =
+        output[6] = output[7] = 0;
+    return;
+  }
+
+  tran_high_t const(*lgtx8_basis)[8];
+  lgtx8_basis = lgtbasis8_intra;
+
+  tran_high_t s[8] = { 0 };
+  for (int i = 0; i < 8; ++i)
+    for (int j = 0; j < 8; ++j) s[j] += lgtx8_basis[i][j] * input[i];
+
+  for (int i = 0; i < 8; ++i) output[i] = WRAPLOW(dct_const_round_shift(s[i]));
+}
+#endif  // CONFIG_LGT
+
 void aom_iadst4_c(const tran_low_t *input, tran_low_t *output) {
   tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;
 
