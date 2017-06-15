@@ -2350,6 +2350,8 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   BLOCK_SIZE subsize;
 #if CONFIG_EXT_PARTITION_TYPES
   BLOCK_SIZE bsize2 = get_subsize(bsize, PARTITION_SPLIT);
+  const int quarter_step = num_8x8_wh / 4;
+  int i;
 #endif
   const int has_rows = (mi_row + hbs) < cm->mi_rows;
   const int has_cols = (mi_col + hbs) < cm->mi_cols;
@@ -2370,7 +2372,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 
 #if CONFIG_PVQ
   assert(partition < PARTITION_TYPES);
-  assert(subsize < BLOCK_SIZES);
+  assert(subsize < BLOCK_SIZES_ALL);
 #endif
 #if CONFIG_SUPERTX
   if (!frame_is_intra_only(cm) && partition != PARTITION_NONE &&
@@ -2544,7 +2546,25 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #endif
                      mi_row + hbs, mi_col + hbs, r, partition, bsize2);
         break;
+      case PARTITION_HORZ_4:
+        for (i = 0; i < 4; ++i)
+          decode_block(pbi, xd,
+#if CONFIG_SUPERTX
+                       supertx_enabled,
 #endif
+                       mi_row + i * quarter_step, mi_col, r, partition,
+                       subsize);
+        break;
+      case PARTITION_VERT_4:
+        for (i = 0; i < 4; ++i)
+          decode_block(pbi, xd,
+#if CONFIG_SUPERTX
+                       supertx_enabled,
+#endif
+                       mi_row, mi_col + i * quarter_step, r, partition,
+                       subsize);
+        break;
+#endif  // CONFIG_EXT_PARTITION_TYPES
       default: assert(0 && "Invalid partition type");
     }
   }
@@ -5093,6 +5113,11 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     read_inter_singleref_comp_mode_probs(fc, &r);
 #endif  // CONFIG_COMPOUND_SINGLEREF
 
+    int block_sizes_to_update = BLOCK_SIZES;
+#if CONFIG_EXT_PARTITION_TYPES
+    block_sizes_to_update = BLOCK_SIZES_ALL;
+#endif
+
 #if CONFIG_INTERINTRA
     if (cm->reference_mode != COMPOUND_REFERENCE &&
         cm->allow_interintra_compound) {
@@ -5106,7 +5131,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
           av1_diff_update_prob(&r, &fc->interintra_mode_prob[i][j], ACCT_STR);
       }
 #if CONFIG_WEDGE
-      for (i = 0; i < BLOCK_SIZES; i++) {
+      for (i = 0; i < block_sizes_to_update; i++) {
         if (is_interintra_allowed_bsize(i) && is_interintra_wedge_used(i)) {
           av1_diff_update_prob(&r, &fc->wedge_interintra_prob[i], ACCT_STR);
         }
@@ -5120,7 +5145,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 #else   // !CONFIG_COMPOUND_SINGLEREF
     if (cm->reference_mode != SINGLE_REFERENCE && cm->allow_masked_compound) {
 #endif  // CONFIG_COMPOUND_SINGLEREF
-      for (i = 0; i < BLOCK_SIZES; i++) {
+      for (i = 0; i < block_sizes_to_update; i++) {
         if (is_any_masked_compound_used(i)) {
           for (j = 0; j < COMPOUND_TYPES - 1; j++) {
             av1_diff_update_prob(&r, &fc->compound_type_prob[i][j], ACCT_STR);
@@ -5132,7 +5157,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-    for (i = BLOCK_8X8; i < BLOCK_SIZES; ++i) {
+    for (i = BLOCK_8X8; i < block_sizes_to_update; ++i) {
       for (j = 0; j < MOTION_MODES - 1; ++j)
         av1_diff_update_prob(&r, &fc->motion_mode_prob[i][j], ACCT_STR);
     }
