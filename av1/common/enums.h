@@ -117,7 +117,7 @@ typedef enum ATTRIBUTE_PACKED {
   BLOCK_SIZES_ALL,
   BLOCK_SIZES = BLOCK_4X16,
   BLOCK_INVALID = 255,
-  BLOCK_LARGEST = (BLOCK_SIZES - 1)
+  BLOCK_LARGEST = (BLOCK_4X16 - 1)
 } BLOCK_SIZE;
 
 typedef enum {
@@ -130,6 +130,8 @@ typedef enum {
   PARTITION_HORZ_B,  // HORZ split and the right partition is split again
   PARTITION_VERT_A,  // VERT split and the top partition is split again
   PARTITION_VERT_B,  // VERT split and the bottom partition is split again
+  PARTITION_HORZ_4,  // 4:1 horizontal partition
+  PARTITION_VERT_4,  // 4:1 vertical partition
   EXT_PARTITION_TYPES,
 #endif  // CONFIG_EXT_PARTITION_TYPES
   PARTITION_TYPES = PARTITION_SPLIT + 1,

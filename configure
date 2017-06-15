@@ -554,6 +554,18 @@ post_process_cmdline() {
       log_echo "disabling tile_groups"
       disable_feature tile_groups
     fi
+    if enabled ext_partition_types; then
+      log_echo "disabling experiments which are incompatible with ext_partition_types"
+      # TODO(david.barker): Reduce this list
+      disable_feature ext_inter
+      disable_feature wedge
+      disable_feature compound_segment
+      disable_feature interintra
+      disable_feature warped_motion
+      disable_feature motion_var
+      disable_feature fp_mb_stats
+      disable_feature supertx
+    fi
     # Enable accounting and inspection when building the analyzer
     if enabled analyzer; then
       soft_enable accounting
