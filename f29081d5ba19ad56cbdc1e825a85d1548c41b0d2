@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ffee6645_48cfd5a5",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-15T04:38:00Z",
+      "side": 1,
+      "message": "This was removed at the suggestion of Urvang@ - are you sure you want to bring it back? Please see the comments on this file for patch set 4 for the details.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 25
+      },
+      "revId": "f29081d5ba19ad56cbdc1e825a85d1548c41b0d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edf3b7fc_937be530",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-15T04:38:00Z",
+      "side": 1,
+      "message": "Same as above.",
+      "range": {
+        "startLine": 407,
+        "startChar": 0,
+        "endLine": 407,
+        "endChar": 25
+      },
+      "revId": "f29081d5ba19ad56cbdc1e825a85d1548c41b0d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
