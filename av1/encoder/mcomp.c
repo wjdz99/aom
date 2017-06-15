@@ -2542,10 +2542,40 @@ static int is_exhaustive_allowed(const AV1_COMP *const cpi, MACROBLOCK *x) {
          (*x->ex_search_count_ptr <= max_ex) && !cpi->rc.is_src_frame_alt_ref;
 }
 
+#if CONFIG_HASH_ME
+void add_to_sort_table(block_hash blockHashes[5], int costs[5], int* existing, int maxSize, block_hash currBlock, int currCost) {
+  if (*existing < maxSize) {
+    blockHashes[*existing] = currBlock;
+    costs[*existing] = currCost;
+    (*existing)++;
+  }
+  else {
+    int maxCost = 0;
+    int maxCostIdx = 0;
+    int i;
+    for (i = 0; i < maxSize; i++) {
+      if (costs[i] > maxCost) {
+        maxCost = costs[i];
+        maxCostIdx = i;
+      }
+    }
+
+    if (currCost < maxCost) {
+      blockHashes[maxCostIdx] = currBlock;
+      costs[maxCostIdx] = currCost;
+    }
+  }
+}
+#endif
+
 int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                           MV *mvp_full, int step_param, int error_per_bit,
                           int *cost_list, const MV *ref_mv, int var_max,
-                          int rd) {
+                          int rd
+#if CONFIG_HASH_ME
+                          , int xPos, int yPos
+#endif
+) {
   const SPEED_FEATURES *const sf = &cpi->sf;
   const SEARCH_METHODS method = sf->mv.search_method;
   const aom_variance_fn_ptr_t *fn_ptr = &cpi->fn_ptr[bsize];
@@ -2616,6 +2646,80 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
 
   if (method != NSTEP && rd && var < var_max)
     var = av1_get_mvpred_var(x, &x->best_mv.as_mv, ref_mv, fn_ptr, 1);
+
+#if CONFIG_HASH_ME
+  do {
+    if (!cpi->common.allow_screen_content_tools)
+    {
+      break;
+    }
+    //already single ME
+    //get block size and original buffer of current block
+    const int block_height = block_size_high[bsize];
+    const int block_width = block_size_wide[bsize];
+    if (block_height == block_width && xPos >= 0 && yPos >= 0) {
+      if (block_width == 8 || block_width == 16 || block_width == 32 || block_width == 64) {
+        uint8_t *what = x->plane[0].src.buf;
+        const int what_stride = x->plane[0].src.stride;
+        block_hash blockHashes[5];
+        int costs[5];
+        int existing = 0;
+        int i;
+        uint32_t hash_value1, hash_value2;
+        block_hash currBlockHash;
+        MV bestHashMV;
+        int bestHashCost = INT_MAX;
+
+        //for the hashMap
+        hash_table *ref_frame_Hash = get_ref_frame_hash_map(cpi, x->e_mbd.mi[0]->mbmi.ref_frame[0]);
+
+        get_block_hash_value(what, what_stride, block_width, block_height, &hash_value1, &hash_value2);
+
+        currBlockHash.x = xPos;
+        currBlockHash.y = yPos;
+        currBlockHash.hash_value2 = hash_value2;
+
+        int count = hash_table_count(ref_frame_Hash, hash_value1);
+        if (count == 0) {
+          break;
+        }
+
+        Iterator iterator = hash_get_first_iterator(ref_frame_Hash, hash_value1);
+        for (i = 0; i < count; i++, iterator_increment(&iterator)) {
+          block_hash refBlockHash = *(block_hash*)(iterator_get(&iterator));
+          if (hash_value2 == refBlockHash.hash_value2) {
+            int refCost = abs(refBlockHash.x - xPos) + abs(refBlockHash.y - yPos);
+            add_to_sort_table(blockHashes, costs, &existing, 5, refBlockHash, refCost);
+          }
+        }
+
+        if (existing == 0) {
+          break;
+        }
+       
+        for (i = 0; i < existing; i++) {
+          MV hashMV;
+          hashMV.col = blockHashes[i].x - xPos;
+          hashMV.row = blockHashes[i].y - yPos;
+          if (!is_mv_in(&x->mv_limits, &hashMV)) {
+            continue;
+          }
+          int currHashCost = av1_get_mvpred_var(x, &hashMV, ref_mv, fn_ptr, 1);
+          if (currHashCost < bestHashCost) {
+            bestHashCost = currHashCost;
+            bestHashMV = hashMV;
+          }
+        }
+
+        if (bestHashCost < var) {
+          x->second_best_mv = x->best_mv;
+          x->best_mv.as_mv = bestHashMV;
+          var = bestHashCost;
+        }
+      }
+    }
+  } while (0);
+#endif
 
   return var;
 }

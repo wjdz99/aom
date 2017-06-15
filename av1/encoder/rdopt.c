@@ -5982,7 +5982,11 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_MOTION_VAR
       bestsme = av1_full_pixel_search(cpi, x, bsize, &mvp_full, step_param,
                                       sadpb, cond_cost_list(cpi, cost_list),
-                                      &ref_mv, INT_MAX, 1);
+                                      &ref_mv, INT_MAX, 1
+#if CONFIG_HASH_ME
+                                      , (MI_SIZE * mi_col), (MI_SIZE * mi_row)
+#endif
+      );
 #if CONFIG_MOTION_VAR
       break;
     case OBMC_CAUSAL:
@@ -8598,7 +8602,11 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     int cost_list[5];
     int bestsme = av1_full_pixel_search(cpi, x, bsize, &mvp_full, step_param,
                                         sadpb, cond_cost_list(cpi, cost_list),
-                                        &dv_ref.as_mv, INT_MAX, 1);
+                                        &dv_ref.as_mv, INT_MAX, 1
+#if CONFIG_HASH_ME
+                                        , -1, -1
+#endif
+    );
 
     x->mv_limits = tmp_mv_limits;
     if (bestsme == INT_MAX) continue;
