@@ -193,17 +193,17 @@ typedef struct frame_contexts {
   aom_prob inter_singleref_comp_mode_probs[INTER_MODE_CONTEXTS]
                                           [INTER_SINGLEREF_COMP_MODES - 1];
 #endif  // CONFIG_COMPOUND_SINGLEREF
-  aom_prob compound_type_prob[BLOCK_SIZES][COMPOUND_TYPES - 1];
+  aom_prob compound_type_prob[BLOCK_SIZES_ALL][COMPOUND_TYPES - 1];
 #if CONFIG_INTERINTRA
   aom_prob interintra_prob[BLOCK_SIZE_GROUPS];
   aom_prob interintra_mode_prob[BLOCK_SIZE_GROUPS][INTERINTRA_MODES - 1];
-  aom_prob wedge_interintra_prob[BLOCK_SIZES];
+  aom_prob wedge_interintra_prob[BLOCK_SIZES_ALL];
 #endif  // CONFIG_INTERINTRA
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-  aom_prob motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1];
+  aom_prob motion_mode_prob[BLOCK_SIZES_ALL][MOTION_MODES - 1];
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
-  aom_prob obmc_prob[BLOCK_SIZES];
+  aom_prob obmc_prob[BLOCK_SIZES_ALL];
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   aom_prob intra_inter_prob[INTRA_INTER_CONTEXTS];
@@ -364,14 +364,14 @@ typedef struct FRAME_COUNTS {
 #if CONFIG_INTERINTRA
   unsigned int interintra[BLOCK_SIZE_GROUPS][2];
   unsigned int interintra_mode[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
-  unsigned int wedge_interintra[BLOCK_SIZES][2];
+  unsigned int wedge_interintra[BLOCK_SIZES_ALL][2];
 #endif  // CONFIG_INTERINTRA
-  unsigned int compound_interinter[BLOCK_SIZES][COMPOUND_TYPES];
+  unsigned int compound_interinter[BLOCK_SIZES_ALL][COMPOUND_TYPES];
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-  unsigned int motion_mode[BLOCK_SIZES][MOTION_MODES];
+  unsigned int motion_mode[BLOCK_SIZES_ALL][MOTION_MODES];
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
-  unsigned int obmc[BLOCK_SIZES][2];
+  unsigned int obmc[BLOCK_SIZES_ALL][2];
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   unsigned int intra_inter[INTRA_INTER_CONTEXTS][2];
