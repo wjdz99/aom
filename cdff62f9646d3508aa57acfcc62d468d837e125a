@@ -16,6 +16,24 @@
       "revId": "cdff62f9646d3508aa57acfcc62d468d837e125a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "536cd1ca_95b1bee4",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2541,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-15T15:00:10Z",
+      "side": 1,
+      "message": "Should it not be rounded down? Considering the nested loops that iterate over transform blocks ( https://aomedia.googlesource.com/aom/+/7f40d569f7416db3c90698b0c519dc8130807042/av1/common/blockd.c#150 ), if we round down, the average, and dc_pred will be computed over the same surface as the one covered by the transform blocks.",
+      "parentUuid": "42c86445_9f712981",
+      "revId": "cdff62f9646d3508aa57acfcc62d468d837e125a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
