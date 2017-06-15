@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b503ef97_51e076f8",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-15T19:35:43Z",
+      "side": 1,
+      "message": "(1) I\u0027d reserve \u0027CONFIG_\u0027 prefix for experiments we can enable through configure, and use something like \"DISABLE_TRELLISQ_FOR_TXFM_SEARCH\"\n(2) You want this to be 0 I believe.\n(3) A short note on when it\u0027s disabling trellis optimization exactly would be nice.",
+      "revId": "210cfbe562fa8a89b6485b8403c5abcb5a5c7d52",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb0eb689_75227fa3",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1562,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-15T19:35:43Z",
+      "side": 1,
+      "message": "// CONFIG_NO_TRELLISQ",
+      "revId": "210cfbe562fa8a89b6485b8403c5abcb5a5c7d52",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ae0e130_6f0f90a5",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2844,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-15T19:35:43Z",
+      "side": 1,
+      "message": "// CONFIG_NO_TRELLISQ",
+      "range": {
+        "startLine": 2844,
+        "startChar": 6,
+        "endLine": 2844,
+        "endChar": 0
+      },
+      "revId": "210cfbe562fa8a89b6485b8403c5abcb5a5c7d52",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
