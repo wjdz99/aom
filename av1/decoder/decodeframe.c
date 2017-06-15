@@ -5373,14 +5373,16 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
 
 #if CONFIG_TEMPMV_SIGNALING
   if (cm->use_prev_frame_mvs) {
-    assert(!cm->error_resilient_mode && cm->prev_frame &&
 #if CONFIG_FRAME_SUPERRES
+    assert(!cm->error_resilient_mode && cm->prev_frame &&
            cm->width == cm->last_width && cm->height == cm->last_height &&
+           !cm->prev_frame->intra_only);
 #else
+    assert(!cm->error_resilient_mode && cm->prev_frame &&
            cm->width == last_fb_ref_buf->buf->y_crop_width &&
            cm->height == last_fb_ref_buf->buf->y_crop_height &&
-#endif  // CONFIG_FRAME_SUPERRES
            !cm->prev_frame->intra_only);
+#endif  // CONFIG_FRAME_SUPERRES
   }
 #else
   cm->use_prev_frame_mvs = !cm->error_resilient_mode && cm->prev_frame &&
