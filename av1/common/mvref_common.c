@@ -525,12 +525,12 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     int blk_row, blk_col;
     int coll_blk_count = 0;
 
-//    int tpl_sample_pos[5][2] = { { -1, xd->n8_w },
-//                                 { 0, xd->n8_w },
-//                                 { xd->n8_h, xd->n8_w },
-//                                 { xd->n8_h, 0 },
-//                                 { xd->n8_h, -1 } };
-//    int i;
+    int tpl_sample_pos[5][2] = { { -1, xd->n8_w },
+                                 { 0, xd->n8_w },
+                                 { xd->n8_h, xd->n8_w },
+                                 { xd->n8_h, 0 },
+                                 { xd->n8_h, -1 } };
+    int i;
 
     for (blk_row = 0; blk_row < xd->n8_h; ++blk_row) {
       for (blk_col = 0; blk_col < xd->n8_w; ++blk_col) {
@@ -540,13 +540,13 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
     }
 
-//    for (i = 0; i < 5; ++i) {
-//      blk_row = tpl_sample_pos[i][0];
-//      blk_col = tpl_sample_pos[i][1];
-//      coll_blk_count += add_tpl_ref_mv(cm, prev_frame_mvs_base, xd, mi_row,
-//                                       mi_col, ref_frame, blk_row, blk_col,
-//                                       refmv_count, ref_mv_stack, mode_context);
-//    }
+    for (i = 0; i < 5; ++i) {
+      blk_row = tpl_sample_pos[i][0];
+      blk_col = tpl_sample_pos[i][1];
+      coll_blk_count += add_tpl_ref_mv(cm, prev_frame_mvs_base, xd, mi_row,
+                                       mi_col, ref_frame, blk_row, blk_col,
+                                       refmv_count, ref_mv_stack, mode_context);
+    }
 
     if (coll_blk_count == 0) mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
   }
@@ -1167,10 +1167,12 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
   if (gld_buf_idx >= 0)
     gld_frame_index = cm->buffer_pool->frame_bufs[gld_buf_idx].cur_frame_offset;
 
+  if (alt_frame_index < cur_frame_index) return;
+
   // =======================
   // Process ARF frame
   // =======================
-  if (alt_buf_idx >= 0 && cm->show_frame) {
+  if (alt_buf_idx >= 0) {
     MV_REF *mv_ref_base = cm->buffer_pool->frame_bufs[alt_buf_idx].mvs;
     const int lst_frame_idx =
         cm->buffer_pool->frame_bufs[alt_buf_idx].lst_frame_offset;
