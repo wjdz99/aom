@@ -33,7 +33,8 @@ endfunction ()
 # Note: the libaom target is always updated because OBJECT libraries have rules
 # that disallow the direct addition of .o files to them as dependencies. Static
 # libraries do not have this limitation.
-function (add_intrinsics_object_library flag opt_name target_to_update sources)
+function (add_intrinsics_object_library flag opt_name target_to_update sources
+          dependent_target)
   set(target_name ${target_to_update}_${opt_name}_intrinsics)
   add_library(${target_name} OBJECT ${${sources}})
 
@@ -45,7 +46,7 @@ function (add_intrinsics_object_library flag opt_name target_to_update sources)
     target_compile_options(${target_name} PUBLIC ${flag})
   endif ()
 
-  target_sources(aom PUBLIC $<TARGET_OBJECTS:${target_name}>)
+  target_sources(${dependent_target} PRIVATE $<TARGET_OBJECTS:${target_name}>)
 
   # Add the new lib target to the global list of aom library targets.
   list(APPEND AOM_LIB_TARGETS ${target_name})
@@ -55,7 +56,7 @@ endfunction ()
 # Adds sources in list named by $sources to $target and adds $flag to the
 # compile flags for each source file.
 function (add_intrinsics_source_to_target flag target sources)
-  target_sources(${target} PUBLIC ${${sources}})
+  target_sources(${target} PRIVATE ${${sources}})
   if (MSVC)
     get_msvc_intrinsic_flag(${flag} "flag")
   endif ()
@@ -141,9 +142,9 @@ function (add_asm_library lib_name asm_sources dependent_target)
        "// Generated file. DO NOT EDIT!\n"
        "// ${lib_name} needs C file to force link language, ignore me.\n"
        "void ${lib_name}_dummy_function(void) {}\n")
-  target_sources(${lib_name} PUBLIC ${dummy_c_file})
+  target_sources(${lib_name} PRIVATE ${dummy_c_file})
 
-  target_link_libraries(${dependent_target} ${AOM_LIB_LINK_TYPE} ${lib_name})
+  target_link_libraries(${dependent_target} PRIVATE ${lib_name})
 
   # Add the new lib target to the global list of aom library targets.
   list(APPEND AOM_LIB_TARGETS ${lib_name})
