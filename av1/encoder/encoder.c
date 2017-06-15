@@ -2450,7 +2450,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   av1_loop_filter_init(cm);
 #if CONFIG_FRAME_SUPERRES
-  cm->superres_scale_numerator = SUPERRES_SCALE_DENOMINATOR;
+  cm->superres_scale_numerator = SCALE_DENOMINATOR;
   cm->superres_upscaled_width = oxcf->width;
   cm->superres_upscaled_height = oxcf->height;
 #endif  // CONFIG_FRAME_SUPERRES
@@ -3842,7 +3842,7 @@ static void setup_frame_size(AV1_COMP *cpi) {
 
   uint8_t resize_num = av1_calculate_next_resize_scale(cpi);
   av1_calculate_scaled_size(&encode_width, &encode_height, resize_num,
-                            RESIZE_SCALE_DENOMINATOR);
+                            SCALE_DENOMINATOR);
 
 #if CONFIG_FRAME_SUPERRES
   AV1_COMMON *cm = &cpi->common;
@@ -3851,8 +3851,7 @@ static void setup_frame_size(AV1_COMP *cpi) {
   cm->superres_scale_numerator =
       av1_calculate_next_superres_scale(cpi, encode_width, encode_width);
   av1_calculate_scaled_size(&encode_width, &encode_height,
-                            cm->superres_scale_numerator,
-                            SUPERRES_SCALE_DENOMINATOR);
+                            cm->superres_scale_numerator, SCALE_DENOMINATOR);
   printf("superres numerator: %02d ", cm->superres_scale_numerator);
 #endif  // CONFIG_FRAME_SUPERRES
   printf("Final encode size: %dx%d\n", encode_width, encode_height);
