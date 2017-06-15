@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "092861be_a559a232",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2017-06-15T09:18:14Z",
+      "side": 1,
+      "message": "Why do you declare the static luts inside the static inline function?",
+      "revId": "b0f28596e823e9414fa5b650698e6bddd79cc0d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "62d51fb7_c788e366",
         "filename": "av1/common/entropymode.c",
         "patchSetId": 24
@@ -13,6 +30,29 @@
       "writtenOn": "2017-06-13T21:56:55Z",
       "side": 1,
       "message": "Just double checking: do you need any default CDFs for these?",
+      "revId": "b0f28596e823e9414fa5b650698e6bddd79cc0d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dce8a256_afe415b9",
+        "filename": "av1/common/mvref_common.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2017-06-15T09:18:14Z",
+      "side": 1,
+      "message": "It is not immediately obvious to me what this is doing ?",
+      "range": {
+        "startLine": 265,
+        "startChar": 0,
+        "endLine": 274,
+        "endChar": 5
+      },
       "revId": "b0f28596e823e9414fa5b650698e6bddd79cc0d7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
