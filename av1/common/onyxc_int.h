@@ -802,6 +802,7 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
                                                 PARTITION_TYPE partition) {
   if (bsize >= BLOCK_8X8) {
     const int hbs = mi_size_wide[bsize] / 2;
+    const int quarter_step = mi_size_wide[bsize] / 4;
     BLOCK_SIZE bsize2 = get_subsize(bsize, PARTITION_SPLIT);
     switch (partition) {
       case PARTITION_SPLIT:
@@ -827,6 +828,15 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
         update_partition_context(xd, mi_row, mi_col, subsize, subsize);
         update_partition_context(xd, mi_row, mi_col + hbs, bsize2, subsize);
         break;
+      case PARTITION_HORZ_4:
+        for (int i = 0; i < 4; ++i)
+          update_partition_context(xd, mi_row + i * quarter_step, mi_col,
+                                   subsize, bsize);
+        break;
+        for (int i = 0; i < 4; ++i)
+          update_partition_context(xd, mi_row, mi_col + i * quarter_step,
+                                   subsize, bsize);
+      case PARTITION_VERT_4: break;
       default: assert(0 && "Invalid partition type");
     }
   }
@@ -1018,9 +1028,13 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
 #if !CONFIG_EXT_PARTITION_TYPES
     return partition;
 #else
+    // TODO(david.barker): Clean up this code
     const int hbs = mi_size_wide[bsize] / 2;
 
     assert(cm->mi_grid_visible[offset] == &cm->mi[offset]);
+
+    if (partition == PARTITION_HORZ_4 || partition == PARTITION_VERT_4)
+      return partition;
 
     if (partition != PARTITION_NONE && bsize > BLOCK_8X8 &&
         mi_row + hbs < cm->mi_rows && mi_col + hbs < cm->mi_cols) {
