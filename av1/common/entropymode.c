@@ -894,46 +894,46 @@ static const aom_prob default_uv_probs[INTRA_MODES][INTRA_MODES - 1] = {
 static const aom_prob
     default_partition_probs[PARTITION_CONTEXTS][EXT_PARTITION_TYPES - 1] = {
       // 8x8 -> 4x4
-      { 199, 122, 141, 128, 128, 128, 128 },  // a/l both not split
-      { 147, 63, 159, 128, 128, 128, 128 },   // a split, l not split
-      { 148, 133, 118, 128, 128, 128, 128 },  // l split, a not split
-      { 121, 104, 114, 128, 128, 128, 128 },  // a/l both split
+      { 199, 122, 141, 128, 128, 128, 255, 128, 255 },  // a/l both not split
+      { 147, 63, 159, 128, 128, 128, 255, 128, 255 },   // a split, l not split
+      { 148, 133, 118, 128, 128, 128, 255, 128, 255 },  // l split, a not split
+      { 121, 104, 114, 128, 128, 128, 255, 128, 255 },  // a/l both split
       // 16x16 -> 8x8
-      { 174, 73, 87, 128, 128, 128, 128 },  // a/l both not split
-      { 92, 41, 83, 128, 128, 128, 128 },   // a split, l not split
-      { 82, 99, 50, 128, 128, 128, 128 },   // l split, a not split
-      { 53, 39, 39, 128, 128, 128, 128 },   // a/l both split
+      { 174, 73, 87, 128, 128, 128, 255, 128, 255 },  // a/l both not split
+      { 92, 41, 83, 128, 128, 128, 255, 128, 255 },   // a split, l not split
+      { 82, 99, 50, 128, 128, 128, 255, 128, 255 },   // l split, a not split
+      { 53, 39, 39, 128, 128, 128, 255, 128, 255 },   // a/l both split
       // 32x32 -> 16x16
-      { 177, 58, 59, 128, 128, 128, 128 },  // a/l both not split
-      { 68, 26, 63, 128, 128, 128, 128 },   // a split, l not split
-      { 52, 79, 25, 128, 128, 128, 128 },   // l split, a not split
-      { 17, 14, 12, 128, 128, 128, 128 },   // a/l both split
+      { 177, 58, 59, 128, 128, 85, 128, 85, 128 },  // a/l both not split
+      { 68, 26, 63, 128, 128, 85, 128, 85, 128 },   // a split, l not split
+      { 52, 79, 25, 128, 128, 85, 128, 85, 128 },   // l split, a not split
+      { 17, 14, 12, 128, 128, 85, 128, 85, 128 },   // a/l both split
       // 64x64 -> 32x32
-      { 222, 34, 30, 128, 128, 128, 128 },  // a/l both not split
-      { 72, 16, 44, 128, 128, 128, 128 },   // a split, l not split
-      { 58, 32, 12, 128, 128, 128, 128 },   // l split, a not split
-      { 10, 7, 6, 128, 128, 128, 128 },     // a/l both split
+      { 222, 34, 30, 128, 128, 128, 255, 128, 255 },  // a/l both not split
+      { 72, 16, 44, 128, 128, 128, 255, 128, 255 },   // a split, l not split
+      { 58, 32, 12, 128, 128, 128, 255, 128, 255 },   // l split, a not split
+      { 10, 7, 6, 128, 128, 128, 255, 128, 255 },     // a/l both split
 #if CONFIG_EXT_PARTITION
       // 128x128 -> 64x64
-      { 222, 34, 30, 128, 128, 128, 128 },  // a/l both not split
-      { 72, 16, 44, 128, 128, 128, 128 },   // a split, l not split
-      { 58, 32, 12, 128, 128, 128, 128 },   // l split, a not split
-      { 10, 7, 6, 128, 128, 128, 128 },     // a/l both split
+      { 222, 34, 30, 128, 128, 128, 255, 128, 255 },  // a/l both not split
+      { 72, 16, 44, 128, 128, 128, 255, 128, 255 },   // a split, l not split
+      { 58, 32, 12, 128, 128, 128, 255, 128, 255 },   // l split, a not split
+      { 10, 7, 6, 128, 128, 128, 255, 128, 255 },     // a/l both split
 #endif                                      // CONFIG_EXT_PARTITION
 #if CONFIG_UNPOISON_PARTITION_CTX
-      { 0, 0, 141, 0, 0, 0, 0 },  // 8x8 -> 4x4
-      { 0, 0, 87, 0, 0, 0, 0 },   // 16x16 -> 8x8
-      { 0, 0, 59, 0, 0, 0, 0 },   // 32x32 -> 16x16
-      { 0, 0, 30, 0, 0, 0, 0 },   // 64x64 -> 32x32
+      { 0, 0, 141, 0, 0, 0, 0, 0, 0 },  // 8x8 -> 4x4
+      { 0, 0, 87, 0, 0, 0, 0, 0, 0 },   // 16x16 -> 8x8
+      { 0, 0, 59, 0, 0, 0, 0, 0, 0 },   // 32x32 -> 16x16
+      { 0, 0, 30, 0, 0, 0, 0, 0, 0 },   // 64x64 -> 32x32
 #if CONFIG_EXT_PARTITION
-      { 0, 0, 30, 0, 0, 0, 0 },   // 128x128 -> 64x64
+      { 0, 0, 30, 0, 0, 0, 0, 0, 0 },  // 128x128 -> 64x64
 #endif                            // CONFIG_EXT_PARTITION
-      { 0, 122, 0, 0, 0, 0, 0 },  // 8x8 -> 4x4
-      { 0, 73, 0, 0, 0, 0, 0 },   // 16x16 -> 8x8
-      { 0, 58, 0, 0, 0, 0, 0 },   // 32x32 -> 16x16
-      { 0, 34, 0, 0, 0, 0, 0 },   // 64x64 -> 32x32
+      { 0, 122, 0, 0, 0, 0, 0, 0, 0 },  // 8x8 -> 4x4
+      { 0, 73, 0, 0, 0, 0, 0, 0, 0 },   // 16x16 -> 8x8
+      { 0, 58, 0, 0, 0, 0, 0, 0, 0 },   // 32x32 -> 16x16
+      { 0, 34, 0, 0, 0, 0, 0, 0, 0 },   // 64x64 -> 32x32
 #if CONFIG_EXT_PARTITION
-      { 0, 34, 0, 0, 0, 0, 0 },  // 128x128 -> 64x64
+      { 0, 34, 0, 0, 0, 0, 0, 0, 0 },  // 128x128 -> 64x64
 #endif                           // CONFIG_EXT_PARTITION
 #endif                           // CONFIG_UNPOISON_PARTITION_CTX
     };
@@ -1329,9 +1329,13 @@ const aom_tree_index av1_ext_partition_tree[TREE_SIZE(EXT_PARTITION_TYPES)] = {
   6, 4,
   8, -PARTITION_SPLIT,
   -PARTITION_HORZ, 10,
-  -PARTITION_VERT, 12,
-  -PARTITION_HORZ_A, -PARTITION_HORZ_B,
-  -PARTITION_VERT_A, -PARTITION_VERT_B
+  -PARTITION_VERT, 14,
+
+  -PARTITION_HORZ_A, 12,
+  -PARTITION_HORZ_B, -PARTITION_HORZ_4,
+
+  -PARTITION_VERT_A, 16,
+  -PARTITION_VERT_B, -PARTITION_VERT_4
 };
 /* clang-format on */
 #endif  // CONFIG_EXT_PARTITION_TYPES
@@ -2517,46 +2521,66 @@ static const aom_cdf_prob
     default_partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(EXT_PARTITION_TYPES)] = {
       // 8x8 -> 4x4 only supports the four legacy partition types
       { AOM_ICDF(25472), AOM_ICDF(28949), AOM_ICDF(31052), AOM_ICDF(32768), 0,
-        0, 0, 0, 0 },
+        0, 0, 0, 0, 0, 0 },
       { AOM_ICDF(18816), AOM_ICDF(22250), AOM_ICDF(28783), AOM_ICDF(32768), 0,
-        0, 0, 0, 0 },
+        0, 0, 0, 0, 0, 0 },
       { AOM_ICDF(18944), AOM_ICDF(26126), AOM_ICDF(29188), AOM_ICDF(32768), 0,
-        0, 0, 0, 0 },
+        0, 0, 0, 0, 0, 0 },
       { AOM_ICDF(15488), AOM_ICDF(22508), AOM_ICDF(27077), AOM_ICDF(32768), 0,
-        0, 0, 0, 0 },
+        0, 0, 0, 0, 0, 0 },
+      // 16x16 -> 8x8
       { AOM_ICDF(22272), AOM_ICDF(23768), AOM_ICDF(25043), AOM_ICDF(29996),
-        AOM_ICDF(30744), AOM_ICDF(31493), AOM_ICDF(32130), AOM_ICDF(32768), 0 },
+        AOM_ICDF(30744), AOM_ICDF(31493), AOM_ICDF(32130), AOM_ICDF(32768), 0,
+        0, 0 },
       { AOM_ICDF(11776), AOM_ICDF(13457), AOM_ICDF(16315), AOM_ICDF(28229),
-        AOM_ICDF(29069), AOM_ICDF(29910), AOM_ICDF(31339), AOM_ICDF(32768), 0 },
+        AOM_ICDF(29069), AOM_ICDF(29910), AOM_ICDF(31339), AOM_ICDF(32768), 0,
+        0, 0 },
       { AOM_ICDF(10496), AOM_ICDF(14802), AOM_ICDF(16136), AOM_ICDF(27127),
-        AOM_ICDF(29280), AOM_ICDF(31434), AOM_ICDF(32101), AOM_ICDF(32768), 0 },
+        AOM_ICDF(29280), AOM_ICDF(31434), AOM_ICDF(32101), AOM_ICDF(32768), 0,
+        0, 0 },
       { AOM_ICDF(6784), AOM_ICDF(8763), AOM_ICDF(10440), AOM_ICDF(29110),
-        AOM_ICDF(30100), AOM_ICDF(31090), AOM_ICDF(31929), AOM_ICDF(32768), 0 },
+        AOM_ICDF(30100), AOM_ICDF(31090), AOM_ICDF(31929), AOM_ICDF(32768), 0,
+        0, 0 },
+      // 32x32 -> 16x16
       { AOM_ICDF(22656), AOM_ICDF(23801), AOM_ICDF(24702), AOM_ICDF(30721),
-        AOM_ICDF(31294), AOM_ICDF(31867), AOM_ICDF(32317), AOM_ICDF(32768), 0 },
+        AOM_ICDF(31103), AOM_ICDF(31485), AOM_ICDF(31785), AOM_ICDF(32085),
+        AOM_ICDF(32467), AOM_ICDF(32768), 0 },
       { AOM_ICDF(8704), AOM_ICDF(9926), AOM_ICDF(12586), AOM_ICDF(28885),
-        AOM_ICDF(29496), AOM_ICDF(30107), AOM_ICDF(31437), AOM_ICDF(32768), 0 },
+        AOM_ICDF(29292), AOM_ICDF(29699), AOM_ICDF(30586), AOM_ICDF(31473),
+        AOM_ICDF(31881), AOM_ICDF(32768), 0 },
       { AOM_ICDF(6656), AOM_ICDF(10685), AOM_ICDF(11566), AOM_ICDF(27857),
-        AOM_ICDF(29871), AOM_ICDF(31886), AOM_ICDF(32327), AOM_ICDF(32768), 0 },
+        AOM_ICDF(29200), AOM_ICDF(30543), AOM_ICDF(30837), AOM_ICDF(31131),
+        AOM_ICDF(32474), AOM_ICDF(32768), 0 },
       { AOM_ICDF(2176), AOM_ICDF(3012), AOM_ICDF(3690), AOM_ICDF(31253),
-        AOM_ICDF(31671), AOM_ICDF(32090), AOM_ICDF(32429), AOM_ICDF(32768), 0 },
+        AOM_ICDF(31532), AOM_ICDF(31811), AOM_ICDF(32037), AOM_ICDF(32263),
+        AOM_ICDF(32542), AOM_ICDF(32768), 0 },
+      // 64x64 -> 32x32
       { AOM_ICDF(28416), AOM_ICDF(28705), AOM_ICDF(28926), AOM_ICDF(32258),
-        AOM_ICDF(32402), AOM_ICDF(32547), AOM_ICDF(32657), AOM_ICDF(32768), 0 },
+        AOM_ICDF(32402), AOM_ICDF(32547), AOM_ICDF(32657), AOM_ICDF(32768), 0,
+        0, 0 },
       { AOM_ICDF(9216), AOM_ICDF(9952), AOM_ICDF(11849), AOM_ICDF(30134),
-        AOM_ICDF(30502), AOM_ICDF(30870), AOM_ICDF(31819), AOM_ICDF(32768), 0 },
+        AOM_ICDF(30502), AOM_ICDF(30870), AOM_ICDF(31819), AOM_ICDF(32768), 0,
+        0, 0 },
       { AOM_ICDF(7424), AOM_ICDF(9008), AOM_ICDF(9528), AOM_ICDF(30664),
-        AOM_ICDF(31456), AOM_ICDF(32248), AOM_ICDF(32508), AOM_ICDF(32768), 0 },
+        AOM_ICDF(31456), AOM_ICDF(32248), AOM_ICDF(32508), AOM_ICDF(32768), 0,
+        0, 0 },
       { AOM_ICDF(1280), AOM_ICDF(1710), AOM_ICDF(2069), AOM_ICDF(31978),
-        AOM_ICDF(32193), AOM_ICDF(32409), AOM_ICDF(32588), AOM_ICDF(32768), 0 },
+        AOM_ICDF(32193), AOM_ICDF(32409), AOM_ICDF(32588), AOM_ICDF(32768), 0,
+        0, 0 },
 #if CONFIG_EXT_PARTITION
+      // 128x128 -> 64x64
       { AOM_ICDF(28416), AOM_ICDF(28705), AOM_ICDF(28926), AOM_ICDF(32258),
-        AOM_ICDF(32402), AOM_ICDF(32547), AOM_ICDF(32657), AOM_ICDF(32768), 0 },
+        AOM_ICDF(32402), AOM_ICDF(32547), AOM_ICDF(32548), AOM_ICDF(32768), 0,
+        0, 0 },
       { AOM_ICDF(9216), AOM_ICDF(9952), AOM_ICDF(11849), AOM_ICDF(30134),
-        AOM_ICDF(30502), AOM_ICDF(30870), AOM_ICDF(31819), AOM_ICDF(32768), 0 },
+        AOM_ICDF(30502), AOM_ICDF(30870), AOM_ICDF(30871), AOM_ICDF(32768), 0,
+        0, 0 },
       { AOM_ICDF(7424), AOM_ICDF(9008), AOM_ICDF(9528), AOM_ICDF(30664),
-        AOM_ICDF(31456), AOM_ICDF(32248), AOM_ICDF(32508), AOM_ICDF(32768), 0 },
+        AOM_ICDF(31456), AOM_ICDF(32248), AOM_ICDF(32249), AOM_ICDF(32768), 0,
+        0, 0 },
       { AOM_ICDF(1280), AOM_ICDF(1710), AOM_ICDF(2069), AOM_ICDF(31978),
-        AOM_ICDF(32193), AOM_ICDF(32409), AOM_ICDF(32588), AOM_ICDF(32768), 0 },
+        AOM_ICDF(32193), AOM_ICDF(32409), AOM_ICDF(32410), AOM_ICDF(32768), 0,
+        0, 0 },
 #endif
     };
 #else
@@ -4592,7 +4616,7 @@ void av1_set_mode_cdfs(struct AV1Common *cm) {
   // TODO(aconverse): Generate this dynamically. The assumptions that
   // av1_indices_from_tree() makes don't hold for this tree.
   static const uint8_t av1_ext_partition_index_map[EXT_PARTITION_TYPES] = {
-    0, 1, 4, 7, 2, 3, 5, 6,
+    0, 1, 5, 9, 2, 3, 6, 7, 4, 8
   };
   for (; i < PARTITION_CONTEXTS; ++i) {
     av1_tree_to_cdf(av1_ext_partition_tree, fc->partition_prob[i],
