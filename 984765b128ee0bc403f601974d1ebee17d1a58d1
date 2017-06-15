@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59ad08b1_edd70528",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5385,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-15T21:32:12Z",
+      "side": 1,
+      "message": "Please add \"  // CONFIG_FRAME_SUPERRES\".",
+      "range": {
+        "startLine": 5385,
+        "startChar": 1,
+        "endLine": 5385,
+        "endChar": 6
+      },
+      "revId": "984765b128ee0bc403f601974d1ebee17d1a58d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95e7cf21_bdeb77bb",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 6269,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-06-15T21:32:12Z",
+      "side": 1,
+      "message": "Please add \"  // CONFIG_COMPOUND_SINGLEREF\".",
+      "range": {
+        "startLine": 6269,
+        "startChar": 4,
+        "endLine": 6269,
+        "endChar": 5
+      },
+      "revId": "984765b128ee0bc403f601974d1ebee17d1a58d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
