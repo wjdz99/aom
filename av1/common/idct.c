@@ -36,8 +36,13 @@ int av1_get_tx_scale(const TX_SIZE tx_size) {
 #if CONFIG_EXT_TX
 static void iidtx4_c(const tran_low_t *input, tran_low_t *output) {
   int i;
-  for (i = 0; i < 4; ++i)
+  for (i = 0; i < 4; ++i) {
+#if CONFIG_DAALA_DCT4
+    output[i] = input[i];
+#else
     output[i] = (tran_low_t)dct_const_round_shift(input[i] * Sqrt2);
+#endif
+  }
 }
 
 static void iidtx8_c(const tran_low_t *input, tran_low_t *output) {
@@ -198,10 +203,12 @@ static void highbd_inv_idtx_add_c(const tran_low_t *input, uint8_t *dest8,
 
 void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                          int tx_type) {
+#if !CONFIG_DAALA_DCT4
   if (tx_type == DCT_DCT) {
     aom_idct4x4_16_add(input, dest, stride);
     return;
   }
+#endif
   static const transform_2d IHT_4[] = {
     { aom_idct4_c, aom_idct4_c },    // DCT_DCT  = 0
     { aom_iadst4_c, aom_idct4_c },   // ADST_DCT = 1
@@ -235,7 +242,13 @@ void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors
   for (i = 0; i < 4; ++i) {
+#if CONFIG_DAALA_DCT4 && CONFIG_DCT_ONLY
+    tran_low_t temp_in[4];
+    for (j = 0; j < 4; j++) temp_in[j] = input[j] << 1;
+    IHT_4[tx_type].rows(temp_in, out[i]);
+#else
     IHT_4[tx_type].rows(input, out[i]);
+#endif
     input += 4;
   }
 
@@ -260,7 +273,11 @@ void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < 4; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_DCT4 && CONFIG_DCT_ONLY
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#else
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#endif
     }
   }
 }
@@ -1244,7 +1261,11 @@ static void inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest, int stride,
   }
 
   switch (tx_type) {
+#if !CONFIG_DAALA_DCT4
     case DCT_DCT: av1_idct4x4_add(input, dest, stride, eob); break;
+#else
+    case DCT_DCT:
+#endif
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
