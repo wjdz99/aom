@@ -50,14 +50,16 @@
 // certain modes are assumed to be based on 8x8 blocks.
 // This table is used to correct for block size.
 // The factors here are << 2 (2 = x0.5, 32 = x8 etc).
-static const uint8_t rd_thresh_block_size_factor[BLOCK_SIZES] = {
+ // The factors here are << 2 (2 = x0.5, 32 = x8 etc).
+static const uint8_t rd_thresh_block_size_factor[BLOCK_SIZES_ALL] = {
 #if CONFIG_CB4X4
   2,  2,  2,
 #endif
-  2,  3,  3, 4, 6, 6, 8, 12, 12, 16, 24, 24, 32,
+  2,  3,  3,  4, 6, 6, 8, 12, 12, 16, 24, 24, 32,
 #if CONFIG_EXT_PARTITION
-  48, 48, 64
+  48, 48, 64,
 #endif  // CONFIG_EXT_PARTITION
+  4,  4,  8,  8
 };
 
 static void fill_mode_costs(AV1_COMP *cpi) {
@@ -302,7 +304,7 @@ static void set_block_thresholds(const AV1_COMMON *cm, RD_OPT *rd) {
               0, MAXQ);
     const int q = compute_rd_thresh_factor(qindex, cm->bit_depth);
 
-    for (bsize = 0; bsize < BLOCK_SIZES; ++bsize) {
+    for (bsize = 0; bsize < BLOCK_SIZES_ALL; ++bsize) {
       // Threshold here seems unnecessarily harsh but fine given actual
       // range of values used for cpi->sf.thresh_mult[].
       const int t = q * rd_thresh_block_size_factor[bsize];
