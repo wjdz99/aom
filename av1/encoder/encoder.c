@@ -3862,8 +3862,8 @@ static void setup_frame_size(AV1_COMP *cpi) {
                             cm->superres_scale_numerator,
                             SUPERRES_SCALE_DENOMINATOR);
   printf("superres numerator: %02d ", cm->superres_scale_numerator);
-#endif  // CONFIG_FRAME_SUPERRES
   printf("Final encode size: %dx%d\n", encode_width, encode_height);
+#endif  // CONFIG_FRAME_SUPERRES
 
   set_frame_size(cpi, encode_width, encode_height);
 }
