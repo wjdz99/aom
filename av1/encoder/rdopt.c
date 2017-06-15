@@ -1772,8 +1772,12 @@ static int tx_size_cost(const AV1_COMP *const cpi, const MACROBLOCK *const x,
   const MACROBLOCKD *const xd = &x->e_mbd;
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
 
-  const int tx_select =
-      cm->tx_mode == TX_MODE_SELECT && mbmi->sb_type >= BLOCK_8X8;
+  const int tx_select = cm->tx_mode == TX_MODE_SELECT &&
+#if CONFIG_EXT_PARTITION_TYPES
+                        mbmi->sb_type != BLOCK_4X16 &&
+                        mbmi->sb_type != BLOCK_16X4 &&
+#endif
+                        mbmi->sb_type >= BLOCK_8X8;
 
   if (tx_select) {
     const int is_inter = is_inter_block(mbmi);
@@ -9505,6 +9509,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     ref_frame = av1_mode_order[mode_index].ref_frame[0];
     second_ref_frame = av1_mode_order[mode_index].ref_frame[1];
     mbmi->ref_mv_idx = 0;
+
+    if (bsize >= BLOCK_SIZES && bsize < BLOCK_SIZES_ALL) {
+      // For 4:1 partitions, skip intra modes.
+      // TODO(david.barker): Change this once we support 4:1
+      // intra predictors
+      if (this_mode < INTRA_MODES) continue;
+    }
 
 #if CONFIG_EXT_INTER
     if (ref_frame > INTRA_FRAME && second_ref_frame == INTRA_FRAME) {
