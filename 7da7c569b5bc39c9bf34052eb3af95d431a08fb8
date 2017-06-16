@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddf6bffd_97e98b30",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-06-16T20:49:40Z",
+      "side": 1,
+      "message": "I\u0027d suggest swapping the order of these two issues.",
+      "revId": "7da7c569b5bc39c9bf34052eb3af95d431a08fb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6e33c236_cb30de79",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-06-16T20:49:40Z",
+      "side": 1,
+      "message": "I think this could be much clearer - say something like \"reimplements the use_upsampled_references by computing the subpixel samples on the fly. This implementation not only corrects the border handling, but also faster, while maintaining the same quality\".\n\nBecause \"use_upsampled_refs\" is so unclear, maybe it\u0027s actually good to rename it?",
+      "revId": "7da7c569b5bc39c9bf34052eb3af95d431a08fb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
