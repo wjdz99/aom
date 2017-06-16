@@ -1751,7 +1751,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   if (!supertx_enabled)
 #endif  // CONFIG_SUPERTX
     if (!segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME))
-      aom_write(w, is_inter, av1_get_intra_inter_prob(cm, xd));
+      aom_write(w, is_inter, av1_get_intra_inter_prob(cm, xd, mi_row, mi_col));
 
   if (cm->tx_mode == TX_MODE_SELECT &&
 #if CONFIG_CB4X4 && (CONFIG_VAR_TX || CONFIG_RECT_TX)

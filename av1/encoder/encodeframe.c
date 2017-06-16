@@ -1545,7 +1545,8 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #if CONFIG_SUPERTX
       if (!supertx_enabled)
 #endif
-        counts->intra_inter[av1_get_intra_inter_context(xd)][inter_block]++;
+        counts->intra_inter[av1_get_intra_inter_context(cm, xd, mi_row, mi_col)]
+                            [inter_block]++;
       // If the segment reference feature is enabled we have only a single
       // reference frame allowed for the segment so exclude it from
       // the reference frame counts used to work out probabilities.

@@ -202,21 +202,37 @@ int av1_get_palette_cache(const MODE_INFO *above_mi, const MODE_INFO *left_mi,
 // 1 - intra/inter, inter/intra
 // 2 - intra/--, --/intra
 // 3 - intra/intra
-int av1_get_intra_inter_context(const MACROBLOCKD *xd) {
+int av1_get_intra_inter_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                                int mi_row, int mi_col) {
   const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
   const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
   const int has_above = xd->up_available;
   const int has_left = xd->left_available;
+  int ctx = 0;
 
   if (has_above && has_left) {  // both edges available
     const int above_intra = !is_inter_block(above_mbmi);
     const int left_intra = !is_inter_block(left_mbmi);
-    return left_intra && above_intra ? 3 : left_intra || above_intra;
+    ctx = left_intra && above_intra ? 3 : left_intra || above_intra;
   } else if (has_above || has_left) {  // one edge available
-    return 2 * !is_inter_block(has_above ? above_mbmi : left_mbmi);
+    ctx = 2 * !is_inter_block(has_above ? above_mbmi : left_mbmi);
   } else {
-    return 0;
+    ctx = 0;
   }
+
+  int has_mfmv = 0;
+  const TPL_MV_REF *mfmvs = cm->cur_frame->tpl_mvs;
+  for (int idy = 0; idy < xd->n8_h; ++idy) {
+    for (int idx = 0; idx < xd->n8_w; ++idx) {
+      int offset = AOMMIN(cm->mi_rows, mi_row + idy) * cm->mi_stride;
+      offset += AOMMIN(cm->mi_cols, mi_col + idx);
+      if (mfmvs[offset].mfmv[LAST_FRAME - LAST_FRAME][0].as_int != INVALID_MV ||
+          mfmvs[offset].mfmv[ALTREF_FRAME - LAST_FRAME][0].as_int != INVALID_MV)
+        has_mfmv = 1;
+    }
+  }
+
+  return ctx + has_mfmv * 4;
 }
 
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF

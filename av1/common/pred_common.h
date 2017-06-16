@@ -88,11 +88,13 @@ int av1_get_palette_cache(const MODE_INFO *above_mi, const MODE_INFO *left_mi,
                           int plane, uint16_t *cache);
 #endif  // CONFIG_PALETTE && CONFIG_PALETTE_DELTA_ENCODING
 
-int av1_get_intra_inter_context(const MACROBLOCKD *xd);
+int av1_get_intra_inter_context(const AV1_COMMON *cm,
+                                const MACROBLOCKD *xd, int mi_row, int mi_col);
 
 static INLINE aom_prob av1_get_intra_inter_prob(const AV1_COMMON *cm,
-                                                const MACROBLOCKD *xd) {
-  return cm->fc->intra_inter_prob[av1_get_intra_inter_context(xd)];
+                                                const MACROBLOCKD *xd,
+                                                int mi_row, int mi_col) {
+  return cm->fc->intra_inter_prob[av1_get_intra_inter_context(cm, xd, mi_row, mi_col)];
 }
 
 int av1_get_reference_mode_context(const AV1_COMMON *cm, const MACROBLOCKD *xd);

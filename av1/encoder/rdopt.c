@@ -6680,7 +6680,9 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
 }
 
 static void estimate_ref_frame_costs(const AV1_COMMON *cm,
-                                     const MACROBLOCKD *xd, int segment_id,
+                                     const MACROBLOCKD *xd,
+                                     int mi_row, int mi_col,
+                                     int segment_id,
                                      unsigned int *ref_costs_single,
                                      unsigned int *ref_costs_comp,
                                      aom_prob *comp_mode_p) {
@@ -6692,7 +6694,7 @@ static void estimate_ref_frame_costs(const AV1_COMMON *cm,
     memset(ref_costs_comp, 0, TOTAL_REFS_PER_FRAME * sizeof(*ref_costs_comp));
     *comp_mode_p = 128;
   } else {
-    aom_prob intra_inter_p = av1_get_intra_inter_prob(cm, xd);
+    aom_prob intra_inter_p = av1_get_intra_inter_prob(cm, xd, mi_row, mi_col);
     aom_prob comp_inter_p = 128;
 
     if (cm->reference_mode == REFERENCE_MODE_SELECT) {
@@ -9988,7 +9990,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   }
 #endif  // CONFIG_PALETTE
 
-  estimate_ref_frame_costs(cm, xd, segment_id, ref_costs_single, ref_costs_comp,
+  estimate_ref_frame_costs(cm, xd, mi_row, mi_col, segment_id, ref_costs_single,
+                           ref_costs_comp,
                            &comp_mode_p);
 
   for (i = 0; i < REFERENCE_MODES; ++i) best_pred_rd[i] = INT64_MAX;
@@ -11588,7 +11591,7 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   (void)mi_row;
   (void)mi_col;
 
-  estimate_ref_frame_costs(cm, xd, segment_id, ref_costs_single, ref_costs_comp,
+  estimate_ref_frame_costs(cm, xd, mi_row, mi_col, segment_id, ref_costs_single, ref_costs_comp,
                            &comp_mode_p);
 
   for (i = 0; i < TOTAL_REFS_PER_FRAME; ++i) x->pred_sse[i] = INT_MAX;
@@ -11802,7 +11805,8 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
       seg_mvs[i][j].as_int = INVALID_MV;
   }
 
-  estimate_ref_frame_costs(cm, xd, segment_id, ref_costs_single, ref_costs_comp,
+  estimate_ref_frame_costs(cm, xd, mi_row, mi_col, segment_id, ref_costs_single,
+                           ref_costs_comp,
                            &comp_mode_p);
 
   for (i = 0; i < REFERENCE_MODES; ++i) best_pred_rd[i] = INT64_MAX;

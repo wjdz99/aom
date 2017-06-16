@@ -1329,7 +1329,8 @@ const aom_tree_index av1_ext_partition_tree[TREE_SIZE(EXT_PARTITION_TYPES)] = {
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
 static const aom_prob default_intra_inter_p[INTRA_INTER_CONTEXTS] = {
-  9, 102, 187, 225
+  9, 102, 187, 225,
+  9, 102, 187, 225,
 };
 
 static const aom_prob default_comp_inter_p[COMP_INTER_CONTEXTS] = {

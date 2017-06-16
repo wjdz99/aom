@@ -1659,11 +1659,12 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 
 static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                               int mi_row, int mi_col,
                                int segment_id, aom_reader *r) {
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
     return get_segdata(&cm->seg, segment_id, SEG_LVL_REF_FRAME) != INTRA_FRAME;
   } else {
-    const int ctx = av1_get_intra_inter_context(xd);
+    const int ctx = av1_get_intra_inter_context(cm, xd, mi_row, mi_col);
     const int is_inter = aom_read(r, cm->fc->intra_inter_prob[ctx], ACCT_STR);
     FRAME_COUNTS *counts = xd->counts;
     if (counts) ++counts->intra_inter[ctx][is_inter];
@@ -2237,7 +2238,8 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 #if CONFIG_SUPERTX
   if (!supertx_enabled) {
 #endif  // CONFIG_SUPERTX
-    inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
+    inter_block = read_is_inter_block(cm, xd, mi_row, mi_col,
+                                      mbmi->segment_id, r);
 
 #if CONFIG_VAR_TX
     xd->above_txfm_context =
