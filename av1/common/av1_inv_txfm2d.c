@@ -358,6 +358,7 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
     } else if (rect_type2_shift) {
       av1_round_shift_array(buf_ptr, txfm_size_col, -rect_type2_shift);
     }
+    clamp_buf(buf_ptr, txfm_size_col, bd + 8);
     input += txfm_size_col;
     buf_ptr += txfm_size_col;
   }
@@ -379,6 +380,7 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
       }
     }
     av1_round_shift_array(temp_out, txfm_size_row, -shift1);
+    clamp_buf(temp_out, txfm_size_col, 16);
     if (cfg->ud_flip == 0) {
       for (r = 0; r < txfm_size_row; ++r) {
         output[r * stride + c] =
