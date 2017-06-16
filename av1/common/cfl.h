@@ -47,6 +47,8 @@ typedef struct {
   // the last one, so you can check for skips.
   // TODO(any) Is there a better way to do this?
   int num_tx_blk[CFL_PRED_PLANES];
+
+  int mi_row, mi_col;
 } CFL_CTX;
 
 static const double cfl_alpha_mags[CFL_MAGS_SIZE] = {
@@ -84,7 +86,7 @@ void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
                        double alpha);
 
 void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
-               int col, TX_SIZE tx_size);
+               int col, TX_SIZE tx_size, BLOCK_SIZE bsize);
 
 void cfl_load(const CFL_CTX *cfl, uint8_t *output, int output_stride, int row,
               int col, int width, int height);

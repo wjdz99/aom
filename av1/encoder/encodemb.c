@@ -1442,7 +1442,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_CFL
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   if (plane == AOM_PLANE_Y && x->cfl_store_y) {
-    cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_size);
+    cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_size, plane_bsize);
   }
 
   if (mbmi->uv_mode == DC_PRED) {
