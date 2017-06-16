@@ -1346,7 +1346,7 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   x->pvq_coded = 0;
 #endif
 #if CONFIG_CFL
-  // Don't store luma during RDO (we will store the best mode later).
+  // Don't store luma during RDO. Only store luma when best luma is known
   x->cfl_store_y = 0;
 #endif
 
