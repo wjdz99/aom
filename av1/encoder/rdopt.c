@@ -1641,7 +1641,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
     const int dst_stride = pd->dst.stride;
     uint8_t *dst =
         &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
-    cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_size);
+    cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_size, plane_bsize);
   }
 #endif
 #if CONFIG_DPCM_INTRA

@@ -118,10 +118,15 @@ void cfl_predict_block(const CFL_CTX *cfl, uint8_t *dst, int dst_stride,
 }
 
 void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
-               int col, TX_SIZE tx_size) {
+               int col, TX_SIZE tx_size, BLOCK_SIZE bsize) {
   const int tx_width = tx_size_wide[tx_size];
   const int tx_height = tx_size_high[tx_size];
   const int tx_off_log2 = tx_size_wide_log2[0];
+
+  if (bsize < BLOCK_8X8) {
+    if (cfl->mi_row & 1) row++;
+    if (cfl->mi_col & 1) col++;
+  }
 
   // Store the input into the CfL pixel buffer
   uint8_t *y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << tx_off_log2];
