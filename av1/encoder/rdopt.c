@@ -3692,11 +3692,19 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     int this_rate, this_rate_tokenonly, s;
     int64_t this_distortion, this_rd, this_model_rd;
     if (mode_idx == FINAL_MODE_SEARCH) {
+#if CONFIG_CFL
+      x->cfl_store_y = 1;
+      mbmi->mode = best_mbmi.mode;
+#else
       if (x->use_default_intra_tx_type == 0) break;
       mbmi->mode = best_mbmi.mode;
       x->use_default_intra_tx_type = 0;
+#endif  // CONFIG_CFL
     } else {
       mbmi->mode = mode_idx;
+#if CONFIG_CFL
+      x->cfl_store_y = 0;
+#endif  // CONFIG_CFL
     }
 #if CONFIG_PVQ
     od_encode_rollback(&x->daala_enc, &pre_buf);
@@ -3788,16 +3796,6 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #if CONFIG_PVQ
   od_encode_rollback(&x->daala_enc, &post_buf);
 #endif  // CONFIG_PVQ
-
-#if CONFIG_CFL
-  // Perform one extra txfm_rd_in_plane() call, this time with the best value so
-  // we can store reconstructed luma values
-  RD_STATS this_rd_stats;
-  x->cfl_store_y = 1;
-  txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, 0, bsize,
-                   mic->mbmi.tx_size, cpi->sf.use_fast_coef_costing);
-  x->cfl_store_y = 0;
-#endif
 
 #if CONFIG_PALETTE
   if (try_palette) {
