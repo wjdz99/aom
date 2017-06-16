@@ -31,6 +31,9 @@
 #include "av1/encoder/aq_cyclicrefresh.h"
 #include "av1/encoder/aq_variance.h"
 #include "av1/encoder/bitstream.h"
+#if CONFIG_BGSPRITE
+#include "av1/encoder/bgsprite.h"
+#endif
 #if CONFIG_ANS
 #include "aom_dsp/buf_ans.h"
 #endif
@@ -5484,8 +5487,12 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       cpi->alt_ref_source = source;
 
       if (oxcf->arnr_max_frames > 0) {
-        // Produce the filtered ARF frame.
+// Produce the filtered ARF frame.
+#if CONFIG_BGSPRITE
+        av1_background_sprite(cpi, arf_src_index);
+#else
         av1_temporal_filter(cpi, arf_src_index);
+#endif  // CONFIG_BGSPRITE
         aom_extend_frame_borders(&cpi->alt_ref_buffer);
         force_src_buffer = &cpi->alt_ref_buffer;
       }
