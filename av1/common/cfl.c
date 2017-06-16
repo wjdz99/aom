@@ -114,7 +114,7 @@ void cfl_load(CFL_CTX *cfl, int row, int col, int width, int height) {
 
 // CfL computes its own block-level DC_PRED. This is required to compute both
 // alpha_cb and alpha_cr before the prediction are computed.
-void cfl_dc_pred(MACROBLOCKD *xd) {
+void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize) {
   const struct macroblockd_plane *const pd_u = &xd->plane[AOM_PLANE_U];
   const struct macroblockd_plane *const pd_v = &xd->plane[AOM_PLANE_V];
 
@@ -125,8 +125,11 @@ void cfl_dc_pred(MACROBLOCKD *xd) {
   const int dst_v_stride = pd_v->dst.stride;
 
   CFL_CTX *const cfl = xd->cfl;
-  const int width = cfl->uv_width;
-  const int height = cfl->uv_height;
+
+  const int width = max_block_wide(xd, plane_bsize, AOM_PLANE_U)
+                    << tx_size_wide_log2[0];
+  const int height = max_block_high(xd, plane_bsize, AOM_PLANE_U)
+                     << tx_size_high_log2[0];
   // Number of pixel on the top and left borders.
   const double num_pel = width + height;
 
@@ -172,6 +175,8 @@ void cfl_dc_pred(MACROBLOCKD *xd) {
     sum_v += height * 129;
   }
 
+  // TODO(ltrudeau) Because of max_block_wide and max_block_height, numpel will
+  // not be a power of two. So these divisions will have to use a lookup table.
   cfl->dc_pred[CFL_PRED_U] = sum_u / num_pel;
   cfl->dc_pred[CFL_PRED_V] = sum_v / num_pel;
 }
@@ -240,17 +245,78 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
 }
 
 void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
-               int col, TX_SIZE tx_size) {
+               int col, TX_SIZE tx_size, BLOCK_SIZE bsize) {
   const int tx_width = tx_size_wide[tx_size];
   const int tx_height = tx_size_high[tx_size];
   const int tx_off_log2 = tx_size_wide_log2[0];
 
-  // Store the input into the CfL pixel buffer
-  uint8_t *y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << tx_off_log2];
+#if CONFIG_CHROMA_SUB8X8
+  if (bsize < BLOCK_8X8) {
+    // For chroma_sub8x8, the CfL prediction for prediction blocks smaller than
+    // 8X8 uses non chroma reference reconstructed luma pixels. To do so, we
+    // combine the 4X4 non chroma reference into the CfL pixel buffers based on
+    // their row and column index.
 
-  // Check that we remain inside the pixel buffer.
+    // The following code is adapted from the is_chroma_reference() function.
+
+    // Not the block width, but the prediction block partitioning width
+    const int bw = mi_size_wide[bsize];
+    // Not the block height, but the Prediction block partitioning height
+    const int bh = mi_size_high[bsize];
+
+    if ((cfl->mi_row &
+         0x01)        // Increment the row index for odd indexed 4X4 blocks
+        && (bw == 4)  // But not for 8X4 blocks
+        && cfl->subsampling_y)  // And only when chroma is subsampled
+    {
+      assert(row == 0);
+      row++;
+    }
+
+    if ((cfl->mi_col &
+         0x01)        // Increment the col index for odd indexed 4X4 blocks
+        && (bh == 4)  // But not for 4X8 blocks
+        && cfl->subsampling_x)  // And only when chroma is subsampled
+    {
+      assert(col == 0);
+      col++;
+    }
+  }
+#endif
+
+  // Invalidate current parameters
+  cfl->are_parameters_computed = 0;
+
+  // Store the surface of the pixel buffer that was written to, this way we
+  // can manage chroma overrun (e.g. when the chroma surfaces goes beyond the
+  // frame boundary)
+  // Pixel buffer must be filled up to the current row and col
+  const int step = tx_width / tx_size_wide[0];
+  if (col == 0 && row == 0) {
+    cfl->y_width = tx_width;
+    cfl->y_height = tx_height;
+    // Current position is moved to next block
+    cfl->y_pos = step;
+  } else {
+    const int stride = block_size_wide[bsize] / tx_width;
+
+    // We assume that the blocks are visited in raster scan order. As such,
+    // the row and col should match the current position.
+    assert(cfl->y_pos == row * stride + col);
+
+    cfl->y_width = OD_MAXI((col << tx_off_log2) + tx_width, cfl->y_width);
+    cfl->y_height = OD_MAXI((row << tx_off_log2) + tx_height, cfl->y_height);
+    // Current position is moved to next block
+    cfl->y_pos += step;
+  }
+
+  // Check that we will remain inside the pixel buffer.
+  // TODO(ltrudeau) This is broken, fix it.
   assert(MAX_SB_SIZE * (row + tx_height - 1) + col + tx_width - 1 <
          MAX_SB_SQUARE);
+
+  // Store the input into the CfL pixel buffer
+  uint8_t *y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << tx_off_log2];
 
   // TODO(ltrudeau) Speedup possible by moving the downsampling to cfl_store
   for (int j = 0; j < tx_height; j++) {
@@ -260,20 +326,6 @@ void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
     y_pix += MAX_SB_SIZE;
     input += input_stride;
   }
-
-  // Store the surface of the pixel buffer that was written to, this way we
-  // can manage chroma overrun (e.g. when the chroma surfaces goes beyond the
-  // frame boundary)
-  if (col == 0 && row == 0) {
-    cfl->y_width = tx_width;
-    cfl->y_height = tx_height;
-  } else {
-    cfl->y_width = OD_MAXI((col << tx_off_log2) + tx_width, cfl->y_width);
-    cfl->y_height = OD_MAXI((row << tx_off_log2) + tx_height, cfl->y_height);
-  }
-
-  // Invalidate current parameters
-  cfl->are_parameters_computed = 0;
 }
 
 void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
@@ -297,7 +349,7 @@ void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
 
   // Compute block-level DC_PRED for both chromatic planes.
   // DC_PRED replaces beta in the linear model.
-  cfl_dc_pred(xd);
+  cfl_dc_pred(xd, plane_bsize);
   // Compute block-level average on reconstructed luma input.
   cfl_compute_average(cfl);
   cfl->are_parameters_computed = 1;
