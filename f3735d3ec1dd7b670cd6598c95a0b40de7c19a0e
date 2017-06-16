@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "939abac2_ac749e8b",
+        "filename": "test/test.cmake",
+        "patchSetId": 14
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-16T03:12:52Z",
+      "side": 1,
+      "message": "indent is off",
+      "revId": "f3735d3ec1dd7b670cd6598c95a0b40de7c19a0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
