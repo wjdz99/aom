@@ -80,6 +80,10 @@ static INLINE int clamp(int value, int low, int high) {
   return value < low ? low : (value > high ? high : value);
 }
 
+static INLINE int clamp_64(int64_t value, int low, int high) {
+  return value < low ? low : (value > high ? high : (int)value);
+}
+
 static INLINE double fclamp(double value, double low, double high) {
   return value < low ? low : (value > high ? high : value);
 }
