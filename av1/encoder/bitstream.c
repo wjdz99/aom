@@ -495,12 +495,13 @@ static void update_inter_compound_mode_probs(AV1_COMMON *cm, int probwt,
 #endif  // CONFIG_EXT_INTER
 
 static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                      int segment_id, const MODE_INFO *mi, aom_writer *w) {
+                      int segment_id, const MODE_INFO *mi, aom_writer *w,
+                      int mi_row, int mi_col) {
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
     return 1;
   } else {
     const int skip = mi->mbmi.skip;
-    aom_write(w, skip, av1_get_skip_prob(cm, xd));
+    aom_write(w, skip, av1_get_skip_prob(cm, xd, mi_row, mi_col));
     return skip;
   }
 }
@@ -1717,13 +1718,20 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   }
 
 #if CONFIG_SUPERTX
+  if (!supertx_enabled)
+#endif  // CONFIG_SUPERTX
+    if (!segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME))
+      aom_write(w, is_inter, av1_get_intra_inter_prob(cm, xd, mi_row, mi_col));
+
+#if CONFIG_SUPERTX
   if (supertx_enabled)
     skip = mbmi->skip;
   else
     skip = write_skip(cm, xd, segment_id, mi, w);
 #else
-  skip = write_skip(cm, xd, segment_id, mi, w);
+  skip = write_skip(cm, xd, segment_id, mi, w, mi_row, mi_col);
 #endif  // CONFIG_SUPERTX
+
 #if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
     int super_block_upper_left =
@@ -1746,12 +1754,6 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     }
   }
 #endif
-
-#if CONFIG_SUPERTX
-  if (!supertx_enabled)
-#endif  // CONFIG_SUPERTX
-    if (!segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME))
-      aom_write(w, is_inter, av1_get_intra_inter_prob(cm, xd, mi_row, mi_col));
 
   if (cm->tx_mode == TX_MODE_SELECT &&
 #if CONFIG_CB4X4 && (CONFIG_VAR_TX || CONFIG_RECT_TX)
@@ -2085,7 +2087,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
   if (seg->update_map) write_segment_id(w, seg, segp, mbmi->segment_id);
 
 #if CONFIG_DELTA_Q
-  const int skip = write_skip(cm, xd, mbmi->segment_id, mi, w);
+  const int skip = write_skip(cm, xd, mbmi->segment_id, mi, w, mi_row, mi_col);
   if (cm->delta_q_present_flag) {
     int super_block_upper_left =
         ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);

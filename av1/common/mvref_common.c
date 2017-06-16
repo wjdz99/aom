@@ -1157,6 +1157,7 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
     for (int idx = 0; idx < size; ++idx) {
       for (int i = 0; i < MFMV_STACK_SIZE; ++i)
         tpl_mvs_base[idx].mfmv[ref_frame][i].as_int = INVALID_MV;
+      tpl_mvs_base[idx].skip[ref_frame] = 2;
     }
   }
 
@@ -1229,6 +1230,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           }
           tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[LAST_FRAME - LAST_FRAME][idx].as_int =
               this_mv.as_int;
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].skip[LAST_FRAME - LAST_FRAME] =
+              mv_ref->skip;
         }
 
         // Derive  motion vectors toward golden reference frame.
@@ -1257,6 +1260,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
 
           tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[GOLDEN_FRAME - LAST_FRAME][idx].as_int =
               this_mv.as_int;
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].skip[GOLDEN_FRAME - LAST_FRAME] =
+              mv_ref->skip;
         }
 
         if (ref_frame[0] == ALTREF_FRAME) {
@@ -1282,6 +1287,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           }
           tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int =
               this_mv.as_int;
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].skip[ALTREF_FRAME - LAST_FRAME] =
+              mv_ref->skip;
         }
 
         if (ref_frame[1] == ALTREF_FRAME) {
@@ -1307,6 +1314,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           }
           tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int =
               this_mv.as_int;
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].skip[ALTREF_FRAME - LAST_FRAME] =
+              mv_ref->skip;
         }
       }
     }
@@ -1357,8 +1366,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
                 mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int == INVALID_MV)
               break;
           }
-          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].
-          mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int = this_mv.as_int;
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int =
+              this_mv.as_int;
 
           // Project the motion vector onto last reference frame
           mv_y = (int16_t)(fwd_mv.row * (double)cur_to_lst / lst_offset);

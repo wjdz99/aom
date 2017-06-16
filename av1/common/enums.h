@@ -433,7 +433,7 @@ typedef enum {
 #define INTER_COMPOUND_MODES (1 + NEW_NEWMV - NEAREST_NEARESTMV)
 #endif  // CONFIG_EXT_INTER
 
-#define SKIP_CONTEXTS 3
+#define SKIP_CONTEXTS 9
 
 #define NMV_CONTEXTS 3
 

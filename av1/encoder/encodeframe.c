@@ -749,6 +749,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
       mv->ref_frame[1] = mi->mbmi.ref_frame[1];
       mv->mv[0].as_int = mi->mbmi.mv[0].as_int;
       mv->mv[1].as_int = mi->mbmi.mv[1].as_int;
+      mv->skip = mi->mbmi.skip;
     }
   }
 }
@@ -1503,6 +1504,21 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const int unify_bsize = CONFIG_CB4X4;
+
+
+  const int bw = mi_size_wide[mi->mbmi.sb_type];
+  const int bh = mi_size_high[mi->mbmi.sb_type];
+  const int x_mis = AOMMIN(bw, cm->mi_cols - mi_col);
+  const int y_mis = AOMMIN(bh, cm->mi_rows - mi_row);
+  MV_REF *const frame_mvs = cm->cur_frame->mvs + mi_row * cm->mi_cols + mi_col;
+
+  for (int h = 0; h < y_mis; ++h) {
+    MV_REF *const frame_mv = frame_mvs + h * cm->mi_cols;
+    for (int w = 0; w < x_mis; ++w) {
+      MV_REF *const mv = frame_mv + w;
+      mv->skip = mi->mbmi.skip;
+    }
+  }
 
 #if CONFIG_DELTA_Q
   // delta quant applies to both intra and inter

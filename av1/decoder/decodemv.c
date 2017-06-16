@@ -583,11 +583,11 @@ static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 }
 
 static int read_skip(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
-                     aom_reader *r) {
+                     aom_reader *r, int mi_row, int mi_col) {
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
     return 1;
   } else {
-    const int ctx = av1_get_skip_context(xd);
+    const int ctx = av1_get_skip_context(cm, xd, mi_row, mi_col);
     const int skip = aom_read(r, cm->fc->skip_probs[ctx], ACCT_STR);
     FRAME_COUNTS *counts = xd->counts;
     if (counts) ++counts->skip[ctx][skip];
@@ -989,7 +989,11 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 #endif
 
   mbmi->segment_id = read_intra_segment_id(cm, xd, mi_offset, x_mis, y_mis, r);
-  mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
+
+  mbmi->ref_frame[0] = INTRA_FRAME;
+  mbmi->ref_frame[1] = NONE_FRAME;
+
+  mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r, mi_row, mi_col);
 
 #if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
@@ -1011,8 +1015,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   }
 #endif
 
-  mbmi->ref_frame[0] = INTRA_FRAME;
-  mbmi->ref_frame[1] = NONE_FRAME;
+
   mbmi->tx_size = read_tx_size(cm, xd, 0, 1, r);
 
 #if CONFIG_INTRABC
@@ -2213,7 +2216,17 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 #if CONFIG_SUPERTX
   if (!supertx_enabled)
 #endif  // CONFIG_SUPERTX
-    mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
+
+#if CONFIG_SUPERTX
+  if (!supertx_enabled) {
+#endif  // CONFIG_SUPERTX
+    inter_block = read_is_inter_block(cm, xd, mi_row, mi_col,
+                                      mbmi->segment_id, r);
+
+    if (inter_block) mbmi->ref_frame[0] = LAST_FRAME;
+    else mbmi->ref_frame[0] = INTRA_FRAME;
+
+    mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r, mi_row, mi_col);
 
 #if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
@@ -2234,12 +2247,6 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 #endif
   }
 #endif
-
-#if CONFIG_SUPERTX
-  if (!supertx_enabled) {
-#endif  // CONFIG_SUPERTX
-    inter_block = read_is_inter_block(cm, xd, mi_row, mi_col,
-                                      mbmi->segment_id, r);
 
 #if CONFIG_VAR_TX
     xd->above_txfm_context =
@@ -2342,6 +2349,7 @@ void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd,
         MV_REF *const mv = frame_mv + w;
         mv->ref_frame[0] = NONE_FRAME;
         mv->ref_frame[1] = NONE_FRAME;
+        mv->skip = 0;
       }
     }
   } else {
@@ -2360,6 +2368,7 @@ void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd,
         mv->mv[1].as_int = mi->mbmi.mv[1].as_int;
         mv->pred_mv[0].as_int = mi->mbmi.pred_mv[0].as_int;
         mv->pred_mv[1].as_int = mi->mbmi.pred_mv[1].as_int;
+        mv->skip = mi->mbmi.skip;
       }
     }
   }

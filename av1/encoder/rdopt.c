@@ -1844,7 +1844,9 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   int64_t rd = INT64_MAX;
-  aom_prob skip_prob = av1_get_skip_prob(cm, xd);
+  const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+  const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+  aom_prob skip_prob = av1_get_skip_prob(cm, xd, mi_row, mi_col);
   int s0, s1;
   const int is_inter = is_inter_block(mbmi);
   const int tx_select =
@@ -1960,7 +1962,9 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   TX_TYPE tx_type, best_tx_type = DCT_DCT;
   int64_t this_rd, best_rd = INT64_MAX;
-  aom_prob skip_prob = av1_get_skip_prob(cm, xd);
+  const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+  const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+  aom_prob skip_prob = av1_get_skip_prob(cm, xd, mi_row, mi_col);
   int s0 = av1_cost_bit(skip_prob, 0);
   int s1 = av1_cost_bit(skip_prob, 1);
   const int is_inter = is_inter_block(mbmi);
@@ -4234,7 +4238,9 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const int is_inter = is_inter_block(mbmi);
-  aom_prob skip_prob = av1_get_skip_prob(cm, xd);
+  const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+  const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+  aom_prob skip_prob = av1_get_skip_prob(cm, xd, mi_row, mi_col);
   int s0 = av1_cost_bit(skip_prob, 0);
   int s1 = av1_cost_bit(skip_prob, 1);
   int64_t rd;
@@ -8552,7 +8558,7 @@ static int64_t motion_mode_rd(
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       mbmi->skip = 0;
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-      rd_stats->rate += av1_cost_bit(av1_get_skip_prob(cm, xd), 1);
+      rd_stats->rate += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
 
       rd_stats->dist = *skip_sse_sb;
       rd_stats->sse = *skip_sse_sb;
@@ -9490,13 +9496,16 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
                             &uv_skip, AOMMAX(BLOCK_8X8, bsize), max_uv_tx_size);
 #endif  // CONFIG_CB4X4
 
+    const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+    const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+
     if (y_skip && uv_skip) {
       rd_cost->rate = rate_y + rate_uv - rate_y_tokenonly - rate_uv_tokenonly +
-                      av1_cost_bit(av1_get_skip_prob(cm, xd), 1);
+                      av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
       rd_cost->dist = dist_y + dist_uv;
     } else {
       rd_cost->rate =
-          rate_y + rate_uv + av1_cost_bit(av1_get_skip_prob(cm, xd), 0);
+          rate_y + rate_uv + av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0);
       rd_cost->dist = dist_y + dist_uv;
     }
     rd_cost->rdcost = RDCOST(x->rdmult, x->rddiv, rd_cost->rate, rd_cost->dist);
@@ -9867,8 +9876,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   int64_t best_pred_diff[REFERENCE_MODES];
   int64_t best_pred_rd[REFERENCE_MODES];
   MB_MODE_INFO best_mbmode;
-  int rate_skip0 = av1_cost_bit(av1_get_skip_prob(cm, xd), 0);
-  int rate_skip1 = av1_cost_bit(av1_get_skip_prob(cm, xd), 1);
+  int rate_skip0 = av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0);
+  int rate_skip1 = av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
   int best_mode_skippable = 0;
   int midx, best_mode_index = -1;
   unsigned int ref_costs_single[TOTAL_REFS_PER_FRAME];
@@ -10715,12 +10724,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
               RDCOST(x->rdmult, x->rddiv, 0, total_sse))
             tmp_ref_rd =
                 RDCOST(x->rdmult, x->rddiv,
-                       rate2 + av1_cost_bit(av1_get_skip_prob(cm, xd), 0),
+                       rate2 + av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0),
                        distortion2);
           else
             tmp_ref_rd =
                 RDCOST(x->rdmult, x->rddiv,
-                       rate2 + av1_cost_bit(av1_get_skip_prob(cm, xd), 1) -
+                       rate2 + av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1) -
                            rate_y - rate_uv,
                        total_sse);
         }
@@ -10857,13 +10866,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
               tmp_alt_rd =
                   RDCOST(x->rdmult, x->rddiv,
                          tmp_rd_stats.rate +
-                             av1_cost_bit(av1_get_skip_prob(cm, xd), 0),
+                             av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0),
                          tmp_rd_stats.dist);
             else
               tmp_alt_rd =
                   RDCOST(x->rdmult, x->rddiv,
                          tmp_rd_stats.rate +
-                             av1_cost_bit(av1_get_skip_prob(cm, xd), 1) -
+                             av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1) -
                              tmp_rd_stats_y.rate - tmp_rd_stats_uv.rate,
                          tmp_rd_stats.sse);
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -10938,16 +10947,16 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         rate_y = 0;
         rate_uv = 0;
         // Cost the skip mb case
-        rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd), 1);
+        rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
       } else if (ref_frame != INTRA_FRAME && !xd->lossless[mbmi->segment_id]) {
         if (RDCOST(x->rdmult, x->rddiv, rate_y + rate_uv + rate_skip0,
                    distortion2) <
             RDCOST(x->rdmult, x->rddiv, rate_skip1, total_sse)) {
           // Add in the cost of the no skip flag.
-          rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd), 0);
+          rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0);
         } else {
           // FIXME(rbultje) make this work for splitmv also
-          rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd), 1);
+          rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
           distortion2 = total_sse;
           assert(total_sse >= 0);
           rate2 -= (rate_y + rate_uv);
@@ -10957,7 +10966,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         }
       } else {
         // Add in the cost of the no skip flag.
-        rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd), 0);
+        rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0);
       }
 
       // Calculate the final RD estimate for this mode.
@@ -11040,7 +11049,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         best_mbmode = *mbmi;
         best_skip2 = this_skip2;
         best_mode_skippable = skippable;
-        best_rate_y = rate_y + av1_cost_bit(av1_get_skip_prob(cm, xd),
+        best_rate_y = rate_y + av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col),
                                             this_skip2 || skippable);
         best_rate_uv = rate_uv;
 
@@ -11140,13 +11149,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                (rd_stats_y.dist + rd_stats_uv.dist)) >
         RDCOST(x->rdmult, x->rddiv, 0, (rd_stats_y.sse + rd_stats_uv.sse))) {
       skip_blk = 1;
-      rd_stats_y.rate = av1_cost_bit(av1_get_skip_prob(cm, xd), 1);
+      rd_stats_y.rate = av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
       rd_stats_uv.rate = 0;
       rd_stats_y.dist = rd_stats_y.sse;
       rd_stats_uv.dist = rd_stats_uv.sse;
     } else {
       skip_blk = 0;
-      rd_stats_y.rate += av1_cost_bit(av1_get_skip_prob(cm, xd), 0);
+      rd_stats_y.rate += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0);
     }
 
     if (RDCOST(x->rdmult, x->rddiv, best_rate_y + best_rate_uv, rd_cost->dist) >
@@ -11249,12 +11258,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_SUPERTX
       best_rate_nocoef = rate2;
 #endif  // CONFIG_SUPERTX
-      rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd), 1);
+      rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
     } else {
 #if CONFIG_SUPERTX
       best_rate_nocoef = rate2 - (rd_stats_y.rate + rate_uv_tokenonly[uv_tx]);
 #endif  // CONFIG_SUPERTX
-      rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd), 0);
+      rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0);
     }
     this_rd = RDCOST(x->rdmult, x->rddiv, rate2, distortion2);
     if (this_rd < best_rd) {
@@ -12321,10 +12330,10 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
         if (RDCOST(x->rdmult, x->rddiv, rate_y + rate_uv, distortion2) <
             RDCOST(x->rdmult, x->rddiv, 0, total_sse)) {
           // Add in the cost of the no skip flag.
-          rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd), 0);
+          rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0);
         } else {
           // FIXME(rbultje) make this work for splitmv also
-          rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd), 1);
+          rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
           distortion2 = total_sse;
           assert(total_sse >= 0);
           rate2 -= (rate_y + rate_uv);
@@ -12334,7 +12343,7 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
         }
       } else {
         // Add in the cost of the no skip flag.
-        rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd), 0);
+        rate2 += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0);
       }
 
       // Calculate the final RD estimate for this mode.

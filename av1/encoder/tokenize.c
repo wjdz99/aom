@@ -629,7 +629,7 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
 #else
   TOKENEXTRA *t_backup = *t;
 #endif
-  const int ctx = av1_get_skip_context(xd);
+  const int ctx = av1_get_skip_context(cm, xd, mi_row, mi_col);
   const int skip_inc =
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
   struct tokenize_b_args arg = { cpi, td, t, 0 };
@@ -707,7 +707,7 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  const int ctx = av1_get_skip_context(xd);
+  const int ctx = av1_get_skip_context(cm, xd, mi_row, mi_col);
   const int skip_inc =
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
   struct tokenize_b_args arg = { cpi, td, t, 0 };

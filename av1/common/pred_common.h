@@ -54,17 +54,54 @@ static INLINE aom_prob av1_get_pred_prob_seg_id(
   return segp->pred_probs[av1_get_pred_context_seg_id(xd)];
 }
 
-static INLINE int av1_get_skip_context(const MACROBLOCKD *xd) {
+static INLINE int av1_get_skip_context(const AV1_COMMON *cm,
+                                       const MACROBLOCKD *xd, int mi_row,
+                                       int mi_col) {
   const MODE_INFO *const above_mi = xd->above_mi;
   const MODE_INFO *const left_mi = xd->left_mi;
   const int above_skip = (above_mi != NULL) ? above_mi->mbmi.skip : 0;
   const int left_skip = (left_mi != NULL) ? left_mi->mbmi.skip : 0;
-  return above_skip + left_skip;
+
+  int ctx = above_skip + left_skip;
+
+//  return ctx;
+
+  int is_inter = is_inter_block(&xd->mi[0]->mbmi);
+
+  ctx += is_inter * 3;
+
+  int is_skip = 1;
+  int count = 0;
+
+  const TPL_MV_REF *mfmvs = cm->cur_frame->tpl_mvs;
+  for (int idy = 0; idy < xd->n8_h; ++idy) {
+    for (int idx = 0; idx < xd->n8_w; ++idx) {
+      int offset = AOMMIN(cm->mi_rows, mi_row + idy) * cm->mi_stride;
+      offset += AOMMIN(cm->mi_cols, mi_col + idx);
+      if (mfmvs[offset].mfmv[LAST_FRAME - LAST_FRAME][0].as_int != INVALID_MV) {
+        if (mfmvs[offset].skip[LAST_FRAME - LAST_FRAME] == 0)
+          is_skip = 0;
+        ++count;
+      }
+      if (mfmvs[offset].mfmv[ALTREF_FRAME - LAST_FRAME][0].as_int != INVALID_MV) {
+        if (mfmvs[offset].skip[ALTREF_FRAME - LAST_FRAME] == 0)
+          is_skip = 0;
+        ++count;
+      }
+    }
+  }
+
+  if (count == 0) is_skip = 0;
+
+  if (is_inter) ctx += is_skip * 3;
+
+  return ctx;
 }
 
 static INLINE aom_prob av1_get_skip_prob(const AV1_COMMON *cm,
-                                         const MACROBLOCKD *xd) {
-  return cm->fc->skip_probs[av1_get_skip_context(xd)];
+                                         const MACROBLOCKD *xd,
+                                         int mi_row, int mi_col) {
+  return cm->fc->skip_probs[av1_get_skip_context(cm, xd, mi_row, mi_col)];
 }
 
 #if CONFIG_DUAL_FILTER

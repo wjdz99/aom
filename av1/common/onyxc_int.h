@@ -102,12 +102,14 @@ typedef struct {
   int_mv mv[2];
   int_mv pred_mv[2];
   MV_REFERENCE_FRAME ref_frame[2];
+  uint8_t skip;
 } MV_REF;
 
 #define MFMV_STACK_SIZE 3
 
 typedef struct {
   int_mv mfmv[INTER_REFS_PER_FRAME][MFMV_STACK_SIZE];
+  uint8_t skip[INTER_REFS_PER_FRAME];
 } TPL_MV_REF;
 
 typedef struct {

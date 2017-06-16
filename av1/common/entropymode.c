@@ -1767,7 +1767,11 @@ static const aom_prob default_txfm_partition_probs[TXFM_PARTITION_CONTEXTS] = {
 };
 #endif
 
-static const aom_prob default_skip_probs[SKIP_CONTEXTS] = { 192, 128, 64 };
+static const aom_prob default_skip_probs[SKIP_CONTEXTS] = {
+    192, 128, 64,
+    192, 128, 64,
+    192, 128, 64,
+};
 
 #if CONFIG_DUAL_FILTER
 static const aom_prob default_switchable_interp_prob
