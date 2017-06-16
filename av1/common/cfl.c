@@ -114,7 +114,7 @@ void cfl_load(CFL_CTX *cfl, int row, int col, int width, int height) {
 
 // CfL computes its own block-level DC_PRED. This is required to compute both
 // alpha_cb and alpha_cr before the prediction are computed.
-void cfl_dc_pred(MACROBLOCKD *xd) {
+void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize) {
   const struct macroblockd_plane *const pd_u = &xd->plane[AOM_PLANE_U];
   const struct macroblockd_plane *const pd_v = &xd->plane[AOM_PLANE_V];
 
@@ -125,8 +125,11 @@ void cfl_dc_pred(MACROBLOCKD *xd) {
   const int dst_v_stride = pd_v->dst.stride;
 
   CFL_CTX *const cfl = xd->cfl;
-  const int width = cfl->uv_width;
-  const int height = cfl->uv_height;
+
+  const int width = max_block_wide(xd, plane_bsize, AOM_PLANE_U)
+                    << tx_size_wide_log2[0];
+  const int height = max_block_high(xd, plane_bsize, AOM_PLANE_U)
+                     << tx_size_high_log2[0];
   // Number of pixel on the top and left borders.
   const double num_pel = width + height;
 
@@ -172,6 +175,8 @@ void cfl_dc_pred(MACROBLOCKD *xd) {
     sum_v += height * 129;
   }
 
+  // TODO(ltrudeau) Because of max_block_wide and max_block_height, numpel will
+  // not be a power of two. So these divisions will have to use a lookup table.
   cfl->dc_pred[CFL_PRED_U] = sum_u / num_pel;
   cfl->dc_pred[CFL_PRED_V] = sum_v / num_pel;
 }
@@ -240,10 +245,15 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
 }
 
 void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
-               int col, TX_SIZE tx_size) {
+               int col, TX_SIZE tx_size, BLOCK_SIZE bsize) {
   const int tx_width = tx_size_wide[tx_size];
   const int tx_height = tx_size_high[tx_size];
   const int tx_off_log2 = tx_size_wide_log2[0];
+
+  if (bsize < BLOCK_8X8) {
+    if (cfl->mi_row & 1) row++;
+    if (cfl->mi_col & 1) col++;
+  }
 
   // Store the input into the CfL pixel buffer
   uint8_t *y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << tx_off_log2];
@@ -297,7 +307,7 @@ void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
 
   // Compute block-level DC_PRED for both chromatic planes.
   // DC_PRED replaces beta in the linear model.
-  cfl_dc_pred(xd);
+  cfl_dc_pred(xd, plane_bsize);
   // Compute block-level average on reconstructed luma input.
   cfl_compute_average(cfl);
   cfl->are_parameters_computed = 1;
