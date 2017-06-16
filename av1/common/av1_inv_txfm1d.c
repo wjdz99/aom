@@ -67,7 +67,15 @@ void range_check_func(int32_t stage, const int32_t *input, const int32_t *buf,
     (void)size;                                   \
     (void)bit;                                    \
   }
-#endif
+#endif  // CONFIG_COEFFICIENT_RANGE_CHECKING
+
+void clamp_buf(int32_t *buf, int32_t size, int8_t bit) {
+  const int64_t maxValue = (1LL << (bit - 1)) - 1;
+  const int64_t minValue = -(1LL << (bit - 1));
+
+  for (int i = 0; i < size; ++i)
+    buf[i] = (int32_t)clamp64(buf[i], minValue, maxValue);
+}
 
 // TODO(angiebird): Make 1-d txfm functions static
 void av1_idct4_new(const int32_t *input, int32_t *output, const int8_t *cos_bit,
