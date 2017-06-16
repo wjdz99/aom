@@ -16,6 +16,24 @@
       "revId": "b612d48a5e4a322ec3708c647bd9afc5f342752a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8a698511_b0b6ada4",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2095,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2017-06-16T18:27:51Z",
+      "side": 1,
+      "message": "here, x, y are always multiple of MI_SIZE, which is 4 in this case. but you are right if x, y is any arbitrary location. I changed it in the new revision.",
+      "parentUuid": "c29b70c6_4a4e88ab",
+      "revId": "b612d48a5e4a322ec3708c647bd9afc5f342752a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
