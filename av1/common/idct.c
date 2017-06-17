@@ -899,7 +899,13 @@ void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors
   for (i = 0; i < 8; ++i) {
+#if CONFIG_DAALA_DCT8
+    tran_low_t temp_in[8];
+    for (j = 0; j < 8; j++) temp_in[j] = input[j] << 1;
+    IHT_8[tx_type].rows(temp_in, out[i]);
+#else
     IHT_8[tx_type].rows(input, out[i]);
+#endif
     input += 8;
   }
 
@@ -924,7 +930,11 @@ void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < 8; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_DCT8
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 5));
+#endif
     }
   }
 }
@@ -1352,7 +1362,11 @@ static void inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest, int stride,
                              const INV_TXFM_PARAM *param) {
   const TX_TYPE tx_type = param->tx_type;
   switch (tx_type) {
+#if !CONFIG_DAALA_DCT8
     case DCT_DCT: idct8x8_add(input, dest, stride, param); break;
+#else
+    case DCT_DCT:
+#endif
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST: av1_iht8x8_64_add(input, dest, stride, tx_type); break;
