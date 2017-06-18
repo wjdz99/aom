@@ -64,12 +64,9 @@ static int read_delta_qindex(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
   const int read_delta_q_flag = (b_col == 0 && b_row == 0);
   int rem_bits, thr;
   int i, smallval;
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  /* TODO(negge): change function signature */
   (void)cm;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 
   if ((bsize != BLOCK_LARGEST || mbmi->skip == 0) && read_delta_q_flag) {
     abs = aom_read_symbol(r, ec_ctx->delta_q_cdf, DELTA_Q_PROBS + 1, ACCT_STR);
@@ -107,12 +104,9 @@ static int read_delta_lflevel(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
   const int read_delta_lf_flag = (b_col == 0 && b_row == 0);
   int rem_bits, thr;
   int i, smallval;
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  /* TODO(negge): change function signature */
   (void)cm;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 
   if ((bsize != BLOCK_64X64 || mbmi->skip == 0) && read_delta_lf_flag) {
     abs =
@@ -454,12 +448,9 @@ static TX_SIZE read_selected_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd,
                                      int tx_size_cat, aom_reader *r) {
   FRAME_COUNTS *counts = xd->counts;
   const int ctx = get_tx_size_context(xd);
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  /* TODO(negge): change function signature */
   (void)cm;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 
   const int depth = aom_read_symbol(r, ec_ctx->tx_size_cdf[tx_size_cat][ctx],
                                     tx_size_cat + 2, ACCT_STR);
@@ -856,11 +847,7 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
 #if CONFIG_INTRA_INTERP
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
-#else
-  FRAME_CONTEXT *const ec_ctx = cm->fc;
-#endif  // CONFIG_EC_ADAPT
   const int ctx = av1_get_pred_context_intra_interp(xd);
   int p_angle;
 #endif  // CONFIG_INTRA_INTERP
@@ -910,11 +897,7 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 #else
   const TX_SIZE tx_size = mbmi->tx_size;
 #endif
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 
 #if !CONFIG_TXK_SEL
   TX_TYPE *tx_type = &mbmi->tx_type;
@@ -999,12 +982,9 @@ static INLINE int is_mv_valid(const MV *mv);
 static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
                             const int_mv *ref_mv, int mi_row, int mi_col,
                             BLOCK_SIZE bsize, aom_reader *r) {
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  /* TODO(negge): change function signature */
   (void)cm;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
   FRAME_COUNTS *counts = xd->counts;
   nmv_context_counts *const dv_counts = counts ? &counts->dv : NULL;
   read_mv(r, &mv->as_mv, &ref_mv->as_mv, &ec_ctx->ndvc, dv_counts,
@@ -1031,11 +1011,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   // TODO(slavarnway): move x_mis, y_mis into xd ?????
   const int x_mis = AOMMIN(cm->mi_cols - mi_col, bw);
   const int y_mis = AOMMIN(cm->mi_rows - mi_row, bh);
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 
   mbmi->segment_id = read_intra_segment_id(cm, xd, mi_offset, x_mis, y_mis, r);
   mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
@@ -1539,11 +1515,7 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
                                          MB_MODE_INFO *const mbmi,
                                          aom_reader *r) {
   FRAME_COUNTS *counts = xd->counts;
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 
   if (!av1_is_interp_needed(xd)) {
     set_default_interp_filters(mbmi, cm->interp_filter);
@@ -1602,11 +1574,7 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
 
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 
 #if CONFIG_CB4X4
   (void)i;
@@ -1648,13 +1616,8 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
 #if CONFIG_CFL
     // TODO(ltrudeau) support PALETTE
     if (mbmi->uv_mode == DC_PRED) {
-      mbmi->cfl_alpha_idx = read_cfl_alphas(
-#if CONFIG_EC_ADAPT
-          xd->tile_ctx,
-#else
-          cm->fc,
-#endif  // CONFIG_EC_ADAPT
-          r, mbmi->skip, mbmi->cfl_alpha_signs);
+      mbmi->cfl_alpha_idx =
+          read_cfl_alphas(xd->tile_ctx, r, mbmi->skip, mbmi->cfl_alpha_signs);
     }
 #endif  // CONFIG_CFL
 
@@ -1693,11 +1656,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
                             aom_reader *r) {
   int i;
   int ret = 1;
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
   BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
 #if CONFIG_CB4X4
@@ -1961,11 +1920,7 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   } else {
     const int ctx = av1_get_intra_inter_context(xd);
 #if CONFIG_NEW_MULTISYMBOL
-#if CONFIG_EC_ADAPT
     FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-    FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
     const int is_inter =
         aom_read_symbol(r, ec_ctx->intra_inter_cdf[ctx], 2, ACCT_STR);
 #else
@@ -2086,11 +2041,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_WARPED_MOTION
   int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
 #endif  // CONFIG_WARPED_MOTION
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 
   assert(NELEMENTS(mode_2_counter) == MB_MODE_COUNT);
 

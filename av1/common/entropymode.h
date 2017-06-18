@@ -544,10 +544,6 @@ extern const aom_tree_index
 extern int av1_switchable_interp_ind[SWITCHABLE_FILTERS];
 extern int av1_switchable_interp_inv[SWITCHABLE_FILTERS];
 
-#if !CONFIG_EC_ADAPT
-void av1_set_mode_cdfs(struct AV1Common *cm);
-#endif
-
 void av1_setup_past_independence(struct AV1Common *cm);
 
 void av1_adapt_intra_frame_probs(struct AV1Common *cm);
