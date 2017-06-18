@@ -5590,7 +5590,6 @@ void av1_adapt_coef_probs(AV1_COMMON *cm) {
 #endif
 }
 
-#if CONFIG_EC_ADAPT
 static void av1_average_cdf(aom_cdf_prob *cdf_ptr[], aom_cdf_prob *fc_cdf_ptr,
                             int cdf_size, const int num_tiles) {
   int i;
@@ -5712,9 +5711,7 @@ void av1_average_tile_inter_cdfs(AV1_COMMON *cm, FRAME_CONTEXT *fc,
 #if CONFIG_EXT_INTER
   AVERAGE_TILE_CDFS(inter_compound_mode_cdf)
 
-#if CONFIG_EC_ADAPT
   AVERAGE_TILE_CDFS(compound_type_cdf)
-#endif  // CONFIG_EC_ADAPT
 
 #if CONFIG_INTERINTRA
 #if CONFIG_NEW_MULTISYMBOL
@@ -5800,4 +5797,3 @@ void av1_average_tile_pvq_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
   AVERAGE_TILE_CDFS(pvq_context.pvq.pvq_skip_dir_cdf)
 }
 #endif  // CONFIG_PVQ
-#endif  // CONFIG_EC_ADAPT
