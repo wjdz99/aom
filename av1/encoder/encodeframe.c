@@ -4631,10 +4631,8 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
 #endif
 #endif  // #if CONFIG_PVQ
 
-#if CONFIG_EC_ADAPT
   this_tile->tctx = *cm->fc;
   td->mb.e_mbd.tile_ctx = &this_tile->tctx;
-#endif  // #if CONFIG_EC_ADAPT
 
 #if CONFIG_CFL
   MACROBLOCKD *const xd = &td->mb.e_mbd;

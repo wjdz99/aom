@@ -1580,11 +1580,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   if (!is_inter_block(mbmi)) {
 #if CONFIG_CFL
 
-#if CONFIG_EC_ADAPT
     FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
-#else
-    FRAME_CONTEXT *const ec_ctx = cm->fc;
-#endif  // CONFIG_EC_ADAPT
 
     av1_predict_intra_block_encoder_facade(x, ec_ctx, plane, block, blk_col,
                                            blk_row, tx_size, plane_bsize);
@@ -2440,11 +2436,7 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       const struct macroblockd_plane *const pd = &xd->plane[0];
       const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
 
-#if CONFIG_EC_ADAPT
       FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
-#else
-      FRAME_CONTEXT *const ec_ctx = cpi->common.fc;
-#endif  // CONFIG_EC_ADAPT
 
       av1_predict_intra_block_encoder_facade(x, ec_ctx, 0, block, col, row,
                                              tx_size, plane_bsize);
@@ -8525,11 +8517,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 
   MACROBLOCKD *const xd = &x->e_mbd;
   const TileInfo *tile = &xd->tile;
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
-#else
-  FRAME_CONTEXT *const ec_ctx = cm->fc;
-#endif  // CONFIG_EC_ADAPT
   MODE_INFO *const mi = xd->mi[0];
   const int mi_row = -xd->mb_to_top_edge / (8 * MI_SIZE);
   const int mi_col = -xd->mb_to_left_edge / (8 * MI_SIZE);
