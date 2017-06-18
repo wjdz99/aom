@@ -347,8 +347,7 @@ static void encode_unsigned_max(struct aom_write_bit_buffer *wb, int data,
   aom_wb_write_literal(wb, data, get_unsigned_bits(max));
 }
 
-#if !CONFIG_EC_ADAPT || \
-    (CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION || CONFIG_EXT_INTER)
+#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION || CONFIG_EXT_INTER
 static void prob_diff_update(const aom_tree_index *tree,
                              aom_prob probs[/*n - 1*/],
                              const unsigned int counts[/*n - 1*/], int n,
@@ -365,7 +364,7 @@ static void prob_diff_update(const aom_tree_index *tree,
 }
 #endif
 
-#if CONFIG_EXT_INTER || !CONFIG_EC_ADAPT
+#if CONFIG_EXT_INTER
 static int prob_diff_update_savings(const aom_tree_index *tree,
                                     aom_prob probs[/*n - 1*/],
                                     const unsigned int counts[/*n - 1*/], int n,
@@ -383,7 +382,7 @@ static int prob_diff_update_savings(const aom_tree_index *tree,
   }
   return savings;
 }
-#endif  // CONFIG_EXT_INTER || !CONFIG_EC_ADAPT
+#endif  // CONFIG_EXT_INTER
 
 #if CONFIG_VAR_TX
 static void write_tx_size_vartx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
@@ -447,12 +446,9 @@ static void write_selected_tx_size(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                                    aom_writer *w) {
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  /* TODO(negge): change function signature */
   (void)cm;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 // For sub8x8 blocks the tx_size symbol does not need to be sent
 #if CONFIG_CB4X4 && (CONFIG_VAR_TX || CONFIG_EXT_TX) && CONFIG_RECT_TX
   if (bsize > BLOCK_4X4) {
@@ -620,13 +616,9 @@ static void write_delta_qindex(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   int abs = sign ? -delta_qindex : delta_qindex;
   int rem_bits, thr;
   int smallval = abs < DELTA_Q_SMALL ? 1 : 0;
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  /* TODO(negge): change function signature */
   (void)cm;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-  (void)xd;
-#endif
 
   aom_write_symbol(w, AOMMIN(abs, DELTA_Q_SMALL), ec_ctx->delta_q_cdf,
                    DELTA_Q_PROBS + 1);
@@ -642,25 +634,6 @@ static void write_delta_qindex(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
-#if !CONFIG_EC_ADAPT
-static void update_delta_q_probs(AV1_COMMON *cm, aom_writer *w,
-                                 FRAME_COUNTS *counts) {
-  int k;
-#if CONFIG_TILE_GROUPS
-  const int probwt = cm->num_tg;
-#else
-  const int probwt = 1;
-#endif
-#if CONFIG_EXT_DELTA_Q
-  if (!cm->delta_q_present_flag) return;
-#endif  // CONFIG_EXT_DELTA_Q
-  for (k = 0; k < DELTA_Q_PROBS; ++k) {
-    av1_cond_prob_diff_update(w, &cm->fc->delta_q_prob[k], counts->delta_q[k],
-                              probwt);
-  }
-}
-#endif  // CONFIG_EC_ADAPT
-
 #if CONFIG_EXT_DELTA_Q
 static void write_delta_lflevel(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                                 int delta_lflevel, aom_writer *w) {
@@ -668,13 +641,9 @@ static void write_delta_lflevel(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   int abs = sign ? -delta_lflevel : delta_lflevel;
   int rem_bits, thr;
   int smallval = abs < DELTA_LF_SMALL ? 1 : 0;
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  /* TODO(negge): change function signature */
   (void)cm;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-  (void)xd;
-#endif
 
   aom_write_symbol(w, AOMMIN(abs, DELTA_LF_SMALL), ec_ctx->delta_lf_cdf,
                    DELTA_LF_PROBS + 1);
@@ -690,22 +659,6 @@ static void write_delta_lflevel(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
-#if !CONFIG_EC_ADAPT
-static void update_delta_lf_probs(AV1_COMMON *cm, aom_writer *w,
-                                  FRAME_COUNTS *counts) {
-  int k;
-#if CONFIG_TILE_GROUPS
-  const int probwt = cm->num_tg;
-#else
-  const int probwt = 1;
-#endif
-  if (!cm->delta_lf_present_flag) return;
-  for (k = 0; k < DELTA_LF_PROBS; ++k) {
-    av1_cond_prob_diff_update(w, &cm->fc->delta_lf_prob[k], counts->delta_lf[k],
-                              probwt);
-  }
-}
-#endif  // CONFIG_EC_ADAPT
 #endif  // CONFIG_EXT_DELTA_Q
 #endif  // CONFIG_DELTA_Q
 
@@ -725,131 +678,6 @@ static void update_skip_probs(AV1_COMMON *cm, aom_writer *w,
 }
 #endif
 
-#if !CONFIG_EC_ADAPT
-static void update_switchable_interp_probs(AV1_COMMON *cm, aom_writer *w,
-                                           FRAME_COUNTS *counts) {
-  int j;
-  for (j = 0; j < SWITCHABLE_FILTER_CONTEXTS; ++j) {
-#if CONFIG_TILE_GROUPS
-    const int probwt = cm->num_tg;
-#else
-    const int probwt = 1;
-#endif
-    prob_diff_update(
-        av1_switchable_interp_tree, cm->fc->switchable_interp_prob[j],
-        counts->switchable_interp[j], SWITCHABLE_FILTERS, probwt, w);
-  }
-}
-#endif
-
-#if !CONFIG_EC_ADAPT
-#if CONFIG_EXT_TX
-static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
-  const int savings_thresh = av1_cost_one(GROUP_DIFF_UPDATE_PROB) -
-                             av1_cost_zero(GROUP_DIFF_UPDATE_PROB);
-  int i, j;
-  int s;
-#if CONFIG_TILE_GROUPS
-  const int probwt = cm->num_tg;
-#else
-  const int probwt = 1;
-#endif
-  for (s = 1; s < EXT_TX_SETS_INTER; ++s) {
-    int savings = 0;
-    int do_update = 0;
-    for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-      if (!use_inter_ext_tx_for_txsize[s][i]) continue;
-      savings += prob_diff_update_savings(
-          av1_ext_tx_inter_tree[s], cm->fc->inter_ext_tx_prob[s][i],
-          cm->counts.inter_ext_tx[s][i],
-          num_ext_tx_set[ext_tx_set_type_inter[s]], probwt);
-    }
-    do_update = savings > savings_thresh;
-    aom_write(w, do_update, GROUP_DIFF_UPDATE_PROB);
-    if (do_update) {
-      for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-        if (!use_inter_ext_tx_for_txsize[s][i]) continue;
-        prob_diff_update(av1_ext_tx_inter_tree[s],
-                         cm->fc->inter_ext_tx_prob[s][i],
-                         cm->counts.inter_ext_tx[s][i],
-                         num_ext_tx_set[ext_tx_set_type_inter[s]], probwt, w);
-      }
-    }
-  }
-
-  for (s = 1; s < EXT_TX_SETS_INTRA; ++s) {
-    int savings = 0;
-    int do_update = 0;
-    for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-      if (!use_intra_ext_tx_for_txsize[s][i]) continue;
-      for (j = 0; j < INTRA_MODES; ++j)
-        savings += prob_diff_update_savings(
-            av1_ext_tx_intra_tree[s], cm->fc->intra_ext_tx_prob[s][i][j],
-            cm->counts.intra_ext_tx[s][i][j],
-            num_ext_tx_set[ext_tx_set_type_intra[s]], probwt);
-    }
-    do_update = savings > savings_thresh;
-    aom_write(w, do_update, GROUP_DIFF_UPDATE_PROB);
-    if (do_update) {
-      for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-        if (!use_intra_ext_tx_for_txsize[s][i]) continue;
-        for (j = 0; j < INTRA_MODES; ++j)
-          prob_diff_update(av1_ext_tx_intra_tree[s],
-                           cm->fc->intra_ext_tx_prob[s][i][j],
-                           cm->counts.intra_ext_tx[s][i][j],
-                           num_ext_tx_set[ext_tx_set_type_intra[s]], probwt, w);
-      }
-    }
-  }
-}
-
-#else
-static void update_ext_tx_probs(AV1_COMMON *cm, aom_writer *w) {
-  const int savings_thresh = av1_cost_one(GROUP_DIFF_UPDATE_PROB) -
-                             av1_cost_zero(GROUP_DIFF_UPDATE_PROB);
-  int i, j;
-
-  int savings = 0;
-  int do_update = 0;
-#if CONFIG_TILE_GROUPS
-  const int probwt = cm->num_tg;
-#else
-  const int probwt = 1;
-#endif
-  for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-    for (j = 0; j < TX_TYPES; ++j)
-      savings += prob_diff_update_savings(
-          av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
-          cm->counts.intra_ext_tx[i][j], TX_TYPES, probwt);
-  }
-  do_update = savings > savings_thresh;
-  aom_write(w, do_update, GROUP_DIFF_UPDATE_PROB);
-  if (do_update) {
-    for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-      for (j = 0; j < TX_TYPES; ++j) {
-        prob_diff_update(av1_ext_tx_tree, cm->fc->intra_ext_tx_prob[i][j],
-                         cm->counts.intra_ext_tx[i][j], TX_TYPES, probwt, w);
-      }
-    }
-  }
-
-  savings = 0;
-  for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-    savings +=
-        prob_diff_update_savings(av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[i],
-                                 cm->counts.inter_ext_tx[i], TX_TYPES, probwt);
-  }
-  do_update = savings > savings_thresh;
-  aom_write(w, do_update, GROUP_DIFF_UPDATE_PROB);
-  if (do_update) {
-    for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-      prob_diff_update(av1_ext_tx_tree, cm->fc->inter_ext_tx_prob[i],
-                       cm->counts.inter_ext_tx[i], TX_TYPES, probwt, w);
-    }
-  }
-}
-#endif  // CONFIG_EXT_TX
-#endif  // !CONFIG_EC_ADAPT
 #if CONFIG_PALETTE
 static void pack_palette_tokens(aom_writer *w, const TOKENEXTRA **tp, int n,
                                 int num) {
@@ -1477,11 +1305,7 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
                                    aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 
   if (!av1_is_interp_needed(xd)) {
 #if CONFIG_DUAL_FILTER
@@ -1727,11 +1551,7 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 #else
   const TX_SIZE tx_size = mbmi->tx_size;
 #endif  // CONFIG_VAR_TX
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 
 #if !CONFIG_TXK_SEL
   TX_TYPE tx_type = mbmi->tx_type;
@@ -1840,18 +1660,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif
                                 aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
-#if CONFIG_DELTA_Q || CONFIG_EC_ADAPT
   MACROBLOCK *const x = &cpi->td.mb;
   MACROBLOCKD *const xd = &x->e_mbd;
-#else
-  const MACROBLOCK *x = &cpi->td.mb;
-  const MACROBLOCKD *xd = &x->e_mbd;
-#endif
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
   const MODE_INFO *mi = xd->mi[0];
 
   const struct segmentation *const seg = &cm->seg;
@@ -2288,11 +2099,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
   (void)mi_row;
   (void)mi_col;
 
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 
   if (seg->update_map) write_segment_id(w, seg, segp, mbmi->segment_id);
 
@@ -2508,11 +2315,7 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
         }
       }
 
-#if CONFIG_DELTA_Q || CONFIG_EC_ADAPT
       MACROBLOCK *const x = &cpi->td.mb;
-#else
-      const MACROBLOCK *x = &cpi->td.mb;
-#endif
       const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
       const int16_t mode_ctx = av1_mode_context_analyzer(
           mbmi_ext->mode_context, mbmi->ref_frame, bsize, -1);
@@ -2973,12 +2776,7 @@ static void write_partition(const AV1_COMMON *const cm,
   const aom_prob *const probs = cm->fc->partition_prob[ctx];
 #endif
 
-#if CONFIG_EC_ADAPT
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  (void)cm;
-#else
-  FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
 
   if (!is_partition_point) return;
 
@@ -3156,11 +2954,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
       const int eset =
           get_ext_tx_set(supertx_size, bsize, 1, cm->reduced_tx_set_used);
       if (eset > 0) {
-#if CONFIG_EC_ADAPT
         FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#else
-        FRAME_CONTEXT *ec_ctx = cm->fc;
-#endif
         aom_write_symbol(w, av1_ext_tx_inter_ind[eset][mbmi->tx_type],
                          ec_ctx->inter_ext_tx_cdf[eset][supertx_size],
                          ext_tx_cnt_inter[eset]);
@@ -3284,214 +3078,6 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
   cpi->td.mb.pvq_q->curr_pos = 0;
 #endif
 }
-
-#if !CONFIG_LV_MAP
-#if !CONFIG_PVQ && !CONFIG_EC_ADAPT
-static void build_tree_distribution(AV1_COMP *cpi, TX_SIZE tx_size,
-                                    av1_coeff_stats *coef_branch_ct,
-                                    av1_coeff_probs_model *coef_probs) {
-  av1_coeff_count *coef_counts = cpi->td.rd_counts.coef_counts[tx_size];
-  unsigned int(*eob_branch_ct)[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS] =
-      cpi->common.counts.eob_branch[tx_size];
-  int i, j, k, l, m;
-#if CONFIG_RECT_TX
-  assert(!is_rect_tx(tx_size));
-#endif  // CONFIG_RECT_TX
-
-  for (i = 0; i < PLANE_TYPES; ++i) {
-    for (j = 0; j < REF_TYPES; ++j) {
-      for (k = 0; k < COEF_BANDS; ++k) {
-        for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l) {
-          av1_tree_probs_from_distribution(av1_coef_tree,
-                                           coef_branch_ct[i][j][k][l],
-                                           coef_counts[i][j][k][l]);
-          coef_branch_ct[i][j][k][l][0][1] =
-              eob_branch_ct[i][j][k][l] - coef_branch_ct[i][j][k][l][0][0];
-          for (m = 0; m < UNCONSTRAINED_NODES; ++m)
-            coef_probs[i][j][k][l][m] =
-                get_binary_prob(coef_branch_ct[i][j][k][l][m][0],
-                                coef_branch_ct[i][j][k][l][m][1]);
-        }
-      }
-    }
-  }
-}
-
-#if !CONFIG_EC_ADAPT
-static void update_coef_probs_common(aom_writer *const bc, AV1_COMP *cpi,
-                                     TX_SIZE tx_size,
-                                     av1_coeff_stats *frame_branch_ct,
-                                     av1_coeff_probs_model *new_coef_probs) {
-  av1_coeff_probs_model *old_coef_probs = cpi->common.fc->coef_probs[tx_size];
-  const aom_prob upd = DIFF_UPDATE_PROB;
-#if CONFIG_EC_ADAPT
-  const int entropy_nodes_update = UNCONSTRAINED_NODES - 1;
-#else
-  const int entropy_nodes_update = UNCONSTRAINED_NODES;
-#endif
-  int i, j, k, l, t;
-  int stepsize = cpi->sf.coeff_prob_appx_step;
-#if CONFIG_TILE_GROUPS
-  const int probwt = cpi->common.num_tg;
-#else
-  const int probwt = 1;
-#endif
-#if CONFIG_RECT_TX
-  assert(!is_rect_tx(tx_size));
-#endif  // CONFIG_RECT_TX
-
-  switch (cpi->sf.use_fast_coef_updates) {
-    case TWO_LOOP: {
-      /* dry run to see if there is any update at all needed */
-      int savings = 0;
-      int update[2] = { 0, 0 };
-      for (i = 0; i < PLANE_TYPES; ++i) {
-        for (j = 0; j < REF_TYPES; ++j) {
-          for (k = 0; k < COEF_BANDS; ++k) {
-            for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l) {
-              for (t = 0; t < entropy_nodes_update; ++t) {
-                aom_prob newp = new_coef_probs[i][j][k][l][t];
-                const aom_prob oldp = old_coef_probs[i][j][k][l][t];
-                int s;
-                int u = 0;
-                if (t == PIVOT_NODE)
-                  s = av1_prob_diff_update_savings_search_model(
-                      frame_branch_ct[i][j][k][l][0], oldp, &newp, upd,
-                      stepsize, probwt);
-                else
-                  s = av1_prob_diff_update_savings_search(
-                      frame_branch_ct[i][j][k][l][t], oldp, &newp, upd, probwt);
-
-                if (s > 0 && newp != oldp) u = 1;
-                if (u)
-                  savings += s - (int)(av1_cost_zero(upd));
-                else
-                  savings -= (int)(av1_cost_zero(upd));
-                update[u]++;
-              }
-            }
-          }
-        }
-      }
-
-      /* Is coef updated at all */
-      if (update[1] == 0 || savings < 0) {
-        aom_write_bit(bc, 0);
-        return;
-      }
-      aom_write_bit(bc, 1);
-      for (i = 0; i < PLANE_TYPES; ++i) {
-        for (j = 0; j < REF_TYPES; ++j) {
-          for (k = 0; k < COEF_BANDS; ++k) {
-            for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l) {
-              // calc probs and branch cts for this frame only
-              for (t = 0; t < entropy_nodes_update; ++t) {
-                aom_prob newp = new_coef_probs[i][j][k][l][t];
-                aom_prob *oldp = old_coef_probs[i][j][k][l] + t;
-                int s;
-                int u = 0;
-                if (t == PIVOT_NODE)
-                  s = av1_prob_diff_update_savings_search_model(
-                      frame_branch_ct[i][j][k][l][0], *oldp, &newp, upd,
-                      stepsize, probwt);
-                else
-                  s = av1_prob_diff_update_savings_search(
-                      frame_branch_ct[i][j][k][l][t], *oldp, &newp, upd,
-                      probwt);
-                if (s > 0 && newp != *oldp) u = 1;
-                aom_write(bc, u, upd);
-                if (u) {
-                  /* send/use new probability */
-                  av1_write_prob_diff_update(bc, newp, *oldp);
-                  *oldp = newp;
-                }
-              }
-            }
-          }
-        }
-      }
-      return;
-    }
-
-    case ONE_LOOP_REDUCED: {
-      int updates = 0;
-      int noupdates_before_first = 0;
-      for (i = 0; i < PLANE_TYPES; ++i) {
-        for (j = 0; j < REF_TYPES; ++j) {
-          for (k = 0; k < COEF_BANDS; ++k) {
-            for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l) {
-              // calc probs and branch cts for this frame only
-              for (t = 0; t < entropy_nodes_update; ++t) {
-                aom_prob newp = new_coef_probs[i][j][k][l][t];
-                aom_prob *oldp = old_coef_probs[i][j][k][l] + t;
-                int s;
-                int u = 0;
-                if (t == PIVOT_NODE) {
-                  s = av1_prob_diff_update_savings_search_model(
-                      frame_branch_ct[i][j][k][l][0], *oldp, &newp, upd,
-                      stepsize, probwt);
-                } else {
-                  s = av1_prob_diff_update_savings_search(
-                      frame_branch_ct[i][j][k][l][t], *oldp, &newp, upd,
-                      probwt);
-                }
-
-                if (s > 0 && newp != *oldp) u = 1;
-                updates += u;
-                if (u == 0 && updates == 0) {
-                  noupdates_before_first++;
-                  continue;
-                }
-                if (u == 1 && updates == 1) {
-                  int v;
-                  // first update
-                  aom_write_bit(bc, 1);
-                  for (v = 0; v < noupdates_before_first; ++v)
-                    aom_write(bc, 0, upd);
-                }
-                aom_write(bc, u, upd);
-                if (u) {
-                  /* send/use new probability */
-                  av1_write_prob_diff_update(bc, newp, *oldp);
-                  *oldp = newp;
-                }
-              }
-            }
-          }
-        }
-      }
-      if (updates == 0) {
-        aom_write_bit(bc, 0);  // no updates
-      }
-      return;
-    }
-    default: assert(0);
-  }
-}
-#endif
-
-#if !CONFIG_EC_ADAPT
-static void update_coef_probs(AV1_COMP *cpi, aom_writer *w) {
-  const TX_MODE tx_mode = cpi->common.tx_mode;
-  const TX_SIZE max_tx_size = tx_mode_to_biggest_tx_size[tx_mode];
-  TX_SIZE tx_size;
-
-  for (tx_size = 0; tx_size <= max_tx_size; ++tx_size) {
-    av1_coeff_stats frame_branch_ct[PLANE_TYPES];
-    av1_coeff_probs_model frame_coef_probs[PLANE_TYPES];
-    if (cpi->td.counts->tx_size_totals[tx_size] <= 20 || CONFIG_RD_DEBUG ||
-        (tx_size >= TX_16X16 && cpi->sf.tx_size_search_method == USE_TX_8X8)) {
-      aom_write_bit(w, 0);
-    } else {
-      build_tree_distribution(cpi, tx_size, frame_branch_ct, frame_coef_probs);
-      update_coef_probs_common(w, cpi, tx_size, frame_branch_ct,
-                               frame_coef_probs);
-    }
-  }
-}
-#endif  // !CONFIG_EC_ADAPT
-#endif  // !CONFIG_EC_ADAPT
-#endif  // !CONFIG_LV_MAP
 
 #if CONFIG_LOOP_RESTORATION
 static void encode_restoration_mode(AV1_COMMON *cm,
@@ -3801,33 +3387,6 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 }
 
-#if !CONFIG_EC_ADAPT
-static void update_seg_probs(AV1_COMP *cpi, aom_writer *w) {
-  AV1_COMMON *cm = &cpi->common;
-#if CONFIG_TILE_GROUPS
-  const int probwt = cm->num_tg;
-#else
-  const int probwt = 1;
-#endif
-
-  if (!cm->seg.enabled || !cm->seg.update_map) return;
-
-  if (cm->seg.temporal_update) {
-    int i;
-
-    for (i = 0; i < PREDICTION_PROBS; i++)
-      av1_cond_prob_diff_update(w, &cm->fc->seg.pred_probs[i],
-                                cm->counts.seg.pred[i], probwt);
-
-    prob_diff_update(av1_segment_tree, cm->fc->seg.tree_probs,
-                     cm->counts.seg.tree_mispred, MAX_SEGMENTS, probwt, w);
-  } else {
-    prob_diff_update(av1_segment_tree, cm->fc->seg.tree_probs,
-                     cm->counts.seg.tree_total, MAX_SEGMENTS, probwt, w);
-  }
-}
-#endif
-
 static void write_tx_mode(AV1_COMMON *cm, MACROBLOCKD *xd, TX_MODE *mode,
                           struct aom_write_bit_buffer *wb) {
   int i, all_lossless = 1;
@@ -3857,24 +3416,6 @@ static void write_tx_mode(AV1_COMMON *cm, MACROBLOCKD *xd, TX_MODE *mode,
   if (*mode != TX_MODE_SELECT) aom_wb_write_literal(wb, *mode, 2);
 #endif  // CONFIG_TX64X64
 }
-
-#if !CONFIG_EC_ADAPT
-static void update_txfm_probs(AV1_COMMON *cm, aom_writer *w,
-                              FRAME_COUNTS *counts) {
-#if CONFIG_TILE_GROUPS
-  const int probwt = cm->num_tg;
-#else
-  const int probwt = 1;
-#endif
-  if (cm->tx_mode == TX_MODE_SELECT) {
-    int i, j;
-    for (i = 0; i < MAX_TX_DEPTH; ++i)
-      for (j = 0; j < TX_SIZE_CONTEXTS; ++j)
-        prob_diff_update(av1_tx_size_tree[i], cm->fc->tx_size_probs[i][j],
-                         counts->tx_size[i][j], i + 2, probwt, w);
-  }
-}
-#endif
 
 static void write_frame_interp_filter(InterpFilter filter,
                                       struct aom_write_bit_buffer *wb) {
@@ -4144,10 +3685,8 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
       const TOKENEXTRA *tok = tok_buffers[tile_row][tile_col];
       const TOKENEXTRA *tok_end = tok + cpi->tok_count[tile_row][tile_col];
       const int data_offset = have_tiles ? 4 : 0;
-#if CONFIG_EC_ADAPT
       const int tile_idx = tile_row * tile_cols + tile_col;
       TileDataEnc *this_tile = &cpi->tile_data[tile_idx];
-#endif
       av1_tile_set_row(&tile_info, cm, tile_row);
 
       buf->data = dst + total_size;
@@ -4155,11 +3694,9 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
       // Is CONFIG_EXT_TILE = 1, every tile in the row has a header,
       // even for the last one, unless no tiling is used at all.
       total_size += data_offset;
-#if CONFIG_EC_ADAPT
       // Initialise tile context from the frame context
       this_tile->tctx = *cm->fc;
       cpi->td.mb.e_mbd.tile_ctx = &this_tile->tctx;
-#endif
 #if CONFIG_PVQ
       cpi->td.mb.pvq_q = &this_tile->pvq_q;
       cpi->td.mb.daala_enc.state.adapt = &this_tile->tctx.pvq_context;
@@ -4262,9 +3799,7 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
     for (tile_col = 0; tile_col < tile_cols; tile_col++) {
       const int tile_idx = tile_row * tile_cols + tile_col;
       TileBufferEnc *const buf = &tile_buffers[tile_row][tile_col];
-#if CONFIG_PVQ || CONFIG_EC_ADAPT
       TileDataEnc *this_tile = &cpi->tile_data[tile_idx];
-#endif
       const TOKENEXTRA *tok = tok_buffers[tile_row][tile_col];
       const TOKENEXTRA *tok_end = tok + cpi->tok_count[tile_row][tile_col];
       const int is_last_col = (tile_col == tile_cols - 1);
@@ -4334,11 +3869,9 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
       // The last tile does not have a header.
       if (!is_last_tile) total_size += 4;
 
-#if CONFIG_EC_ADAPT
       // Initialise tile context from the frame context
       this_tile->tctx = *cm->fc;
       cpi->td.mb.e_mbd.tile_ctx = &this_tile->tctx;
-#endif
 #if CONFIG_PVQ
       cpi->td.mb.pvq_q = &this_tile->pvq_q;
       cpi->td.mb.daala_enc.state.adapt = &this_tile->tctx.pvq_context;
@@ -4935,9 +4468,6 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #if CONFIG_LOOP_RESTORATION
   encode_restoration(cm, header_bc);
 #endif  // CONFIG_LOOP_RESTORATION
-#if !CONFIG_EC_ADAPT
-  update_txfm_probs(cm, header_bc, counts);
-#endif
 #if CONFIG_EXT_TX && CONFIG_RECT_TX && CONFIG_RECT_TX_EXT
   if (cm->tx_mode == TX_MODE_SELECT)
     av1_cond_prob_diff_update(header_bc, &cm->fc->quarter_tx_size_prob,
@@ -4945,12 +4475,6 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX && CONFIG_RECT_TX_EXT
 #if CONFIG_LV_MAP
   av1_write_txb_probs(cpi, header_bc);
-#else
-#if !CONFIG_PVQ
-#if !CONFIG_EC_ADAPT
-  update_coef_probs(cpi, header_bc);
-#endif  // !CONFIG_EC_ADAPT
-#endif  // CONFIG_PVQ
 #endif  // CONFIG_LV_MAP
 
 #if CONFIG_VAR_TX
@@ -4960,73 +4484,11 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #if !CONFIG_NEW_MULTISYMBOL
   update_skip_probs(cm, header_bc, counts);
 #endif
-#if !CONFIG_EC_ADAPT && CONFIG_DELTA_Q
-  update_delta_q_probs(cm, header_bc, counts);
-#if CONFIG_EXT_DELTA_Q
-  update_delta_lf_probs(cm, header_bc, counts);
-#endif
-#endif
-#if !CONFIG_EC_ADAPT
-  update_seg_probs(cpi, header_bc);
-
-  for (i = 0; i < INTRA_MODES; ++i) {
-    prob_diff_update(av1_intra_mode_tree, fc->uv_mode_prob[i],
-                     counts->uv_mode[i], INTRA_MODES, probwt, header_bc);
-  }
-
-#if CONFIG_EXT_PARTITION_TYPES
-  for (i = 0; i < PARTITION_PLOFFSET; ++i)
-    prob_diff_update(av1_partition_tree, fc->partition_prob[i],
-                     counts->partition[i], PARTITION_TYPES, probwt, header_bc);
-  for (; i < PARTITION_CONTEXTS_PRIMARY; ++i)
-    prob_diff_update(av1_ext_partition_tree, fc->partition_prob[i],
-                     counts->partition[i], EXT_PARTITION_TYPES, probwt,
-                     header_bc);
-#else
-  for (i = 0; i < PARTITION_CONTEXTS_PRIMARY; ++i)
-    prob_diff_update(av1_partition_tree, fc->partition_prob[i],
-                     counts->partition[i], PARTITION_TYPES, probwt, header_bc);
-#endif  // CONFIG_EXT_PARTITION_TYPES
-#if CONFIG_UNPOISON_PARTITION_CTX
-  for (; i < PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES; ++i) {
-    unsigned int ct[2] = { counts->partition[i][PARTITION_VERT],
-                           counts->partition[i][PARTITION_SPLIT] };
-    assert(counts->partition[i][PARTITION_NONE] == 0);
-    assert(counts->partition[i][PARTITION_HORZ] == 0);
-    assert(fc->partition_prob[i][PARTITION_NONE] == 0);
-    assert(fc->partition_prob[i][PARTITION_HORZ] == 0);
-    av1_cond_prob_diff_update(header_bc, &fc->partition_prob[i][PARTITION_VERT],
-                              ct, probwt);
-  }
-  for (; i < PARTITION_CONTEXTS_PRIMARY + 2 * PARTITION_BLOCK_SIZES; ++i) {
-    unsigned int ct[2] = { counts->partition[i][PARTITION_HORZ],
-                           counts->partition[i][PARTITION_SPLIT] };
-    assert(counts->partition[i][PARTITION_NONE] == 0);
-    assert(counts->partition[i][PARTITION_VERT] == 0);
-    assert(fc->partition_prob[i][PARTITION_NONE] == 0);
-    assert(fc->partition_prob[i][PARTITION_VERT] == 0);
-    av1_cond_prob_diff_update(header_bc, &fc->partition_prob[i][PARTITION_HORZ],
-                              ct, probwt);
-  }
-#endif
-#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
-  for (i = 0; i < INTRA_FILTERS + 1; ++i)
-    prob_diff_update(av1_intra_filter_tree, fc->intra_filter_probs[i],
-                     counts->intra_filter[i], INTRA_FILTERS, probwt, header_bc);
-#endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
-#endif  // !CONFIG_EC_ADAPT
 
   if (frame_is_intra_only(cm)) {
     av1_copy(cm->kf_y_prob, av1_kf_y_mode_prob);
     av1_copy(cm->fc->kf_y_cdf, av1_kf_y_mode_cdf);
 
-#if !CONFIG_EC_ADAPT
-    for (i = 0; i < INTRA_MODES; ++i)
-      for (j = 0; j < INTRA_MODES; ++j)
-        prob_diff_update(av1_intra_mode_tree, cm->kf_y_prob[i][j],
-                         counts->kf_y_mode[i][j], INTRA_MODES, probwt,
-                         header_bc);
-#endif  // CONFIG_EC_ADAPT
 #if CONFIG_INTRABC
     if (cm->allow_screen_content_tools) {
       av1_cond_prob_diff_update(header_bc, &fc->intrabc_prob,
@@ -5085,10 +4547,6 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
       prob_diff_update(av1_motion_mode_tree, fc->motion_mode_prob[i],
                        counts->motion_mode[i], MOTION_MODES, probwt, header_bc);
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-#if !CONFIG_EC_ADAPT
-    if (cm->interp_filter == SWITCHABLE)
-      update_switchable_interp_probs(cm, header_bc, counts);
-#endif
 
 #if !CONFIG_NEW_MULTISYMBOL
     for (i = 0; i < INTRA_INTER_CONTEXTS; i++)
@@ -5151,17 +4609,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
                                 counts->comp_inter_mode[i], probwt);
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
-#if !CONFIG_EC_ADAPT
-    for (i = 0; i < BLOCK_SIZE_GROUPS; ++i) {
-      prob_diff_update(av1_intra_mode_tree, cm->fc->y_mode_prob[i],
-                       counts->y_mode[i], INTRA_MODES, probwt, header_bc);
-    }
-#endif
-
     av1_write_nmv_probs(cm, cm->allow_high_precision_mv, header_bc, counts->mv);
-#if !CONFIG_EC_ADAPT
-    update_ext_tx_probs(cm, header_bc);
-#endif
 #if CONFIG_SUPERTX
     if (!xd->lossless[0]) update_supertx_probs(cm, probwt, header_bc);
 #endif  // CONFIG_SUPERTX
@@ -5169,12 +4617,6 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     write_global_motion(cpi, header_bc);
 #endif  // CONFIG_GLOBAL_MOTION
   }
-#if !CONFIG_EC_ADAPT
-  av1_coef_head_cdfs(fc);
-  av1_coef_pareto_cdfs(fc);
-  for (i = 0; i < NMV_CONTEXTS; ++i) av1_set_mv_cdfs(&fc->nmvc[i]);
-  av1_set_mode_cdfs(cm);
-#endif  // !CONFIG_EC_ADAPT
 #if CONFIG_ANS
   aom_buf_ans_flush(header_bc);
   header_size = buf_ans_write_end(header_bc);

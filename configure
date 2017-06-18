@@ -297,7 +297,6 @@ EXPERIMENT_LIST="
     parallel_deblocking_15tap
     loopfiltering_across_tiles
     tile_groups
-    ec_adapt
     tempmv_signaling
     rd_debug
     reference_buffer
@@ -487,7 +486,6 @@ post_process_cmdline() {
     soft_enable global_motion
     soft_enable ext_tx
     soft_enable cdef
-    soft_enable ec_adapt
     soft_enable ext_intra
     soft_enable mv_compress
     soft_enable ext_refs
@@ -516,7 +514,6 @@ post_process_cmdline() {
     soft_enable tempmv_signaling
 
     # Fix up experiment dependencies
-    enabled pvq && enable_feature ec_adapt
     enabled pvq && disable_feature chroma_sub8x8
     enabled pvq && disable_feature cb4x4
     enabled pvq && disable_feature rect_tx
@@ -532,7 +529,6 @@ post_process_cmdline() {
     enabled dpcm_intra && enable_feature ext_tx
     enabled chroma_sub8x8 && enable_feature cb4x4
     enabled compound_singleref && enable_feature ext_inter
-    enabled new_multisymbol && enable_feature ec_adapt
 
     if ! enabled delta_q && enabled ext_delta_q; then
       log_echo "ext_delta_q requires delta_q, so disabling ext_delta_q"
