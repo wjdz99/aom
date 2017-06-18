@@ -302,7 +302,6 @@ EXPERIMENT_LIST="
     parallel_deblocking_15tap
     loopfiltering_across_tiles
     tile_groups
-    ec_adapt
     tempmv_signaling
     rd_debug
     reference_buffer
@@ -496,7 +495,6 @@ post_process_cmdline() {
     soft_enable global_motion
     soft_enable ext_tx
     soft_enable cdef
-    soft_enable ec_adapt
     soft_enable ext_intra
     soft_enable mv_compress
     soft_enable ext_refs
