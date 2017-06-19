@@ -1890,6 +1890,86 @@ static void save_context(const MACROBLOCK *x, RD_SEARCH_MACROBLOCK_CONTEXT *ctx,
 #endif
 }
 
+#if CONFIG_SPEED_REFS
+static void count_frame_type_b(const AV1_COMP *const cpi, ThreadData *td,
+                               const TileInfo *const tile, int mi_row,
+                               int mi_col, RUN_TYPE dry_run, BLOCK_SIZE bsize,
+                               PICK_MODE_CONTEXT *ctx) {
+  MACROBLOCK *const x = &td->mb;
+#if (CONFIG_MOTION_VAR && CONFIG_NCOBMC) | CONFIG_EXT_DELTA_Q
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi;
+#endif
+  set_offsets(cpi, tile, x, mi_row, mi_col, bsize);
+  update_state(cpi, td, ctx, mi_row, mi_col, bsize, dry_run);
+  mbmi = &xd->mi[0]->mbmi;
+  const uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+  td->ref_frame_type_counts[ref_frame_type] +=
+      mi_size_high[bsize] * mi_size_wide[bsize];
+}
+
+static void count_frame_type_sb(const AV1_COMP *const cpi, ThreadData *td,
+                                const TileInfo *const tile, int mi_row,
+                                int mi_col, RUN_TYPE dry_run, BLOCK_SIZE bsize,
+                                PC_TREE *pc_tree) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const int hbs = mi_size_wide[bsize] / 2;
+  const PARTITION_TYPE partition = pc_tree->partitioning;
+  const BLOCK_SIZE subsize = get_subsize(bsize, partition);
+#if CONFIG_EXT_PARTITION_TYPES
+  const BLOCK_SIZE bsize2 = get_subsize(bsize, PARTITION_SPLIT);
+#endif
+
+#if CONFIG_CB4X4
+  const int unify_bsize = 1;
+#else
+  const int unify_bsize = 0;
+  assert(bsize >= BLOCK_8X8);
+#endif
+
+  if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
+
+  switch (partition) {
+    case PARTITION_NONE:
+      count_frame_type_b(cpi, td, tile, mi_row, mi_col, dry_run, subsize,
+                         &pc_tree->none);
+      break;
+    case PARTITION_VERT:
+      count_frame_type_b(cpi, td, tile, mi_row, mi_col, dry_run, subsize,
+                         &pc_tree->vertical[0]);
+      if (mi_col + hbs < cm->mi_cols && (bsize > BLOCK_8X8 || unify_bsize)) {
+        count_frame_type_b(cpi, td, tile, mi_row, mi_col + hbs, dry_run,
+                           subsize, &pc_tree->vertical[1]);
+      }
+      break;
+    case PARTITION_HORZ:
+      count_frame_type_b(cpi, td, tile, mi_row, mi_col, dry_run, subsize,
+                         &pc_tree->horizontal[0]);
+      if (mi_row + hbs < cm->mi_rows && (bsize > BLOCK_8X8 || unify_bsize)) {
+        count_frame_type_b(cpi, td, tile, mi_row + hbs, mi_col, dry_run,
+                           subsize, &pc_tree->horizontal[1]);
+      }
+      break;
+    case PARTITION_SPLIT:
+      if (bsize == BLOCK_8X8 && !unify_bsize) {
+        count_frame_type_b(cpi, td, tile, mi_row, mi_col, dry_run, subsize,
+                           pc_tree->leaf_split[0]);
+      } else {
+        count_frame_type_sb(cpi, td, tile, mi_row, mi_col, dry_run, subsize,
+                            pc_tree->split[0]);
+        count_frame_type_sb(cpi, td, tile, mi_row, mi_col + hbs, dry_run,
+                            subsize, pc_tree->split[1]);
+        count_frame_type_sb(cpi, td, tile, mi_row + hbs, mi_col, dry_run,
+                            subsize, pc_tree->split[2]);
+        count_frame_type_sb(cpi, td, tile, mi_row + hbs, mi_col + hbs, dry_run,
+                            subsize, pc_tree->split[3]);
+      }
+      break;
+    default: assert(0 && "Invalid partition type."); break;
+  }
+}
+#endif  // COFIG_SPEED_REFS
+
 static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
                      ThreadData *td, TOKENEXTRA **tp, int mi_row, int mi_col,
                      RUN_TYPE dry_run, BLOCK_SIZE bsize,
@@ -1907,6 +1987,7 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
 #endif
 
   set_offsets(cpi, tile, x, mi_row, mi_col, bsize);
+
 #if CONFIG_EXT_PARTITION_TYPES
   x->e_mbd.mi[0]->mbmi.partition = partition;
 #endif
@@ -3384,7 +3465,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
 
 #if CONFIG_SPEED_REFS
-  if (cpi->sb_scanning_pass_idx == 0) {
+  if (cpi->sb_scanning_pass_idx == 0 && cpi->fast_first_scanning == 1) {
     // NOTE: For the 1st pass of scanning, check all the subblocks of equal size
     //       only.
     partition_none_allowed = (bsize == MIN_SPEED_REFS_BLKSIZE);
@@ -4116,7 +4197,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
 #if CONFIG_SPEED_REFS
   // First scanning is done.
-  if (cpi->sb_scanning_pass_idx == 0 && bsize == cm->sb_size) return;
+  if (cpi->sb_scanning_pass_idx == 0 && bsize == cm->sb_size) {
+    count_frame_type_sb(cpi, td, tile_info, mi_row, mi_col, DRY_RUN_NORMAL,
+                        bsize, pc_tree);
+    return;
+  }
 #endif  // CONFIG_SPEED_REFS
 
   // TODO(jbb): This code added so that we avoid static analysis
@@ -4188,6 +4273,33 @@ static void restore_mi(const AV1_COMP *const cpi, MACROBLOCK *const x,
         memset(xd->mi + y * cm->mi_stride + x_idx, 0, sizeof(*xd->mi));
         memset(x->mbmi_ext + y * cm->mi_cols + x_idx, 0, sizeof(*x->mbmi_ext));
       }
+}
+#endif  // CONFIG_SPEED_REFS
+
+#if CONFIG_SPEED_REFS
+static void sort_frame_type_counts(AV1_COMP *const cpi, ThreadData *td,
+                                   int ref_candi_num) {
+  // TODO(chendixi): Use fast sorting algorithm
+  int i, m, max, max_m;
+  int *ref_frame_type_counts = td->ref_frame_type_counts;
+
+  for (i = 0; i < ref_candi_num; i++) {
+    max = 0;
+    max_m = 0;
+    for (m = 1; m < MODE_CTX_REF_FRAMES; m++) {
+      if (ref_frame_type_counts[m] != 0 && ref_frame_type_counts[m] > max) {
+        max = ref_frame_type_counts[m];
+        max_m = m;
+      }
+    }
+    if (max != 0) {
+      cpi->ref_candi[i].counts = max;
+      cpi->ref_candi[i].rf = max_m;
+      ref_frame_type_counts[max_m] = 0;
+    } else {
+      break;
+    }
+  }
 }
 #endif  // CONFIG_SPEED_REFS
 
@@ -4341,6 +4453,11 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       // NOTE: Two scanning passes for the current superblock - the first pass
       //       is only targeted to collect stats.
       int m_search_count_backup = *(x->m_search_count_ptr);
+      cpi->fast_first_scanning = 0;
+      memset(td->ref_frame_type_counts, 0,
+             sizeof(*td->ref_frame_type_counts) * MODE_CTX_REF_FRAMES);
+      memset(cpi->ref_candi, 0, sizeof(*cpi->ref_candi) * MAX_REF_CANDI);
+
       for (int sb_pass_idx = 0; sb_pass_idx < 2; ++sb_pass_idx) {
         cpi->sb_scanning_pass_idx = sb_pass_idx;
         if (frame_is_intra_only(cm) && sb_pass_idx == 0) continue;
@@ -4352,6 +4469,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
 #endif  // CONFIG_SUPERTX
                           INT64_MAX, pc_root);
         if (sb_pass_idx == 0) {
+          sort_frame_type_counts(cpi, td, MAX_REF_CANDI);
           av1_zero(x->pred_mv);
           pc_root->index = 0;
           restore_mi(cpi, x, mi_row, mi_col);

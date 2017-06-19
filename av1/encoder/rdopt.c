@@ -9509,6 +9509,25 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       }
     }
 
+#if CONFIG_SPEED_REFS
+    int ref_candi_count;
+
+    if (cpi->sb_scanning_pass_idx == 1 && !frame_is_intra_only(cm) &&
+        (av1_ref_frame_type(av1_mode_order[mode_index].ref_frame) != 0)) {
+      for (ref_candi_count = 0; ref_candi_count < MAX_REF_CANDI;
+           ref_candi_count++) {
+        if (cpi->ref_candi[ref_candi_count].counts != 0 &&
+            av1_ref_frame_type(av1_mode_order[mode_index].ref_frame) ==
+                cpi->ref_candi[ref_candi_count].rf) {
+          break;
+        }
+      }
+      if (ref_candi_count == MAX_REF_CANDI) {
+        continue;
+      }
+    }
+#endif  // CONFIG_SPEED_REFS
+
     if ((ref_frame_skip_mask[0] & (1 << ref_frame)) &&
         (ref_frame_skip_mask[1] & (1 << AOMMAX(0, second_ref_frame))))
       continue;

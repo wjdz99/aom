@@ -55,6 +55,7 @@ extern "C" {
 
 #if CONFIG_SPEED_REFS
 #define MIN_SPEED_REFS_BLKSIZE BLOCK_16X16
+#define MAX_REF_CANDI 3
 #endif  // CONFIG_SPEED_REFS
 
 typedef struct {
@@ -333,6 +334,13 @@ typedef struct RD_COUNTS {
   int compound_ref_used_flag;
 } RD_COUNTS;
 
+#if CONFIG_SPEED_REFS
+typedef struct RefCandidate {
+  int counts;
+  int8_t rf;
+} RefCandidate;
+#endif  // CONFIG_SPEED_REFS
+
 typedef struct ThreadData {
   MACROBLOCK mb;
   RD_COUNTS rd_counts;
@@ -351,6 +359,9 @@ typedef struct ThreadData {
 #if CONFIG_PALETTE
   PALETTE_BUFFER *palette_buffer;
 #endif  // CONFIG_PALETTE
+#if CONFIG_SPEED_REFS
+  int ref_frame_type_counts[MODE_CTX_REF_FRAMES];
+#endif  // CONFIG_SPEED_REFS
 } ThreadData;
 
 struct EncWorkerData;
@@ -659,6 +670,8 @@ typedef struct AV1_COMP {
 
 #if CONFIG_SPEED_REFS
   int sb_scanning_pass_idx;
+  int fast_first_scanning;
+  RefCandidate ref_candi[MAX_REF_CANDI];
 #endif  // CONFIG_SPEED_REFS
 } AV1_COMP;
 
