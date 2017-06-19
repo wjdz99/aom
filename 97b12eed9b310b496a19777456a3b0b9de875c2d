@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "e2467384_d3824dd3",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-19T19:57:59Z",
+      "side": 1,
+      "message": "No, it\u0027s still a problem for DC prediction (this code), because that still has to be done at the prediction block level. Also, I was incorrect: this requires dividing by the sum of two values, so you\u0027ll need larger factors than 7. Though certainly no larger than 128 (but that\u0027d be a fairly big table).",
+      "parentUuid": "9bd1750e_9f02ce31",
+      "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "144e97f7_d626b526",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 13
