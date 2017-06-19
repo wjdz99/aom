@@ -1134,14 +1134,10 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
                        (cpi->multi_arf_allowed ? 8 : 2);
 #endif  // CONFIG_EXT_REFS
       if (data_sz < kMinCompressedSize) data_sz = kMinCompressedSize;
-      if (ctx->cx_data == NULL || ctx->cx_data_sz < data_sz) {
-        ctx->cx_data_sz = data_sz;
-        free(ctx->cx_data);
-        ctx->cx_data = (unsigned char *)malloc(ctx->cx_data_sz);
-        if (ctx->cx_data == NULL) {
-          return AOM_CODEC_MEM_ERROR;
-        }
-      }
+
+      ctx->cx_data_sz = data_sz;
+      ctx->cx_data = (unsigned char *)realloc(ctx->cx_data, data_sz);
+      if (ctx->cx_data == NULL) return AOM_CODEC_MEM_ERROR;
     }
   }
 
