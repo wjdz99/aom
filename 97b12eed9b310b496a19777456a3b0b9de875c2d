@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "86ac9966_e1eff0b5",
+        "filename": "aom_ports/mem.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-19T19:18:22Z",
+      "side": 1,
+      "message": "Yes ALIGN_POWER_OF_TWO() does the same.",
+      "parentUuid": "ed173a7f_6a5c5307",
+      "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c1256dce_c89e7274",
         "filename": "av1/common/cfl.c",
         "patchSetId": 13
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-19T18:28:29Z",
       "side": 1,
       "message": "As an aside, it seems like these divisions really might not be powers of two after this patch, since you can have a non-power-of-two number of transform blocks near the edge. This could be solved with a small lookup table. The worst case divisor is a power of 2 times two small factors, each 7 or less (which we can implement with multiplies using OD_DIVU). It\u0027s just a matter of plumbing the data through correctly so that that is easy to do. That\u0027s probably something we need to address before talking to the HW subgroup again.",
+      "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9bd1750e_9f02ce31",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-19T19:18:22Z",
+      "side": 1,
+      "message": "I don\u0027t think non-power-of-two number of transform is a problem if we move to transform block level averages (see https://aomedia-review.googlesource.com/c/13343/)",
+      "parentUuid": "c1256dce_c89e7274",
       "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "13ce9554_81fa5ec4",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 897,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-19T19:18:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "144e97f7_d626b526",
+      "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f382dec_6f683b65",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 13
@@ -64,6 +118,24 @@
       "writtenOn": "2017-06-19T18:28:29Z",
       "side": 1,
       "message": "bsize here should be plane_bsize, to make it clear that it has already been reduced by the subsampling factors.",
+      "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b200419a_93179180",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 898,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-19T19:18:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f382dec_6f683b65",
       "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "4bed1deb_abcd82c1",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-19T19:18:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f973ca8_92d9b165",
+      "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a4b372c_440a7a16",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 13
@@ -98,6 +188,24 @@
       "writtenOn": "2017-06-19T18:28:29Z",
       "side": 1,
       "message": "It\u0027s really confusing to me to see a variable named \"width\" when it is actually the log of the width. Maybe it\u0027s simpler if you just pass the table index to the macro directly, without storing it in a variable first?",
+      "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5271b498_932aae54",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 904,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-19T19:18:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a4b372c_440a7a16",
       "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "bd67a563_658bba8c",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-19T19:18:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6c6e2a9_294e1810",
+      "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3f2e74b2_d5f57459",
         "filename": "av1/common/reconintra.c",
         "patchSetId": 13
@@ -132,6 +258,24 @@
       "writtenOn": "2017-06-19T18:28:29Z",
       "side": 1,
       "message": "You should at least add a TODO comment here about HBD support.",
+      "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f10e0a06_ec2e1df2",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2543,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-19T19:18:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f2e74b2_d5f57459",
       "revId": "97b12eed9b310b496a19777456a3b0b9de875c2d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
