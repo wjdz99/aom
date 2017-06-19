@@ -1979,6 +1979,7 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi,
   }
 
   int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+  /*
   printf(
       "=== DECODER ===: "
       "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
@@ -1991,7 +1992,13 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi,
       mv[1].as_mv.col, mbmi->ref_frame[0], mbmi->ref_frame[1],
       mbmi->motion_mode, inter_mode_ctx[ref_frame_type], mode_ctx,
       interp_ctx[0], interp_ctx[1], interp_filter[0], interp_filter[1],
-      newmv_ctx, zeromv_ctx, refmv_ctx);
+      newmv_ctx, zeromv_ctx, refmv_ctx);*/
+  printf(
+      "=== DECODER ===: "
+      "Frame=%d, show_frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
+      "ref_frame_type=%d\n",
+      cm->current_video_frame, cm->show_frame, mi_row, mi_col, mbmi->mode,
+      mbmi->sb_type, ref_frame_type);
 }
 #endif  // DEC_MISMATCH_DEBUG
 
