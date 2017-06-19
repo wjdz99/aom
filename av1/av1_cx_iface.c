@@ -1112,10 +1112,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
                                       unsigned long deadline) {
   const size_t kMinCompressedSize = 8192;
   volatile aom_codec_err_t res = AOM_CODEC_OK;
-  volatile aom_enc_frame_flags_t flags = enc_flags;
   AV1_COMP *const cpi = ctx->cpi;
   const aom_rational_t *const timebase = &ctx->cfg.g_timebase;
-  size_t data_sz;
 
   if (cpi == NULL) return AOM_CODEC_INVALID_PARAM;
 
@@ -1125,14 +1123,15 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     // failure condition, encoder setup is done fully in init() currently.
     if (res == AOM_CODEC_OK) {
 #if CONFIG_EXT_REFS
-      data_sz = ALIGN_POWER_OF_TWO(ctx->cfg.g_w, 5) *
-                ALIGN_POWER_OF_TWO(ctx->cfg.g_h, 5) * get_image_bps(img);
+      size_t data_sz = ALIGN_POWER_OF_TWO(ctx->cfg.g_w, 5) *
+                       ALIGN_POWER_OF_TWO(ctx->cfg.g_h, 5) * get_image_bps(img);
 #else
       // There's no codec control for multiple alt-refs so check the encoder
       // instance for its status to determine the compressed data size.
-      data_sz = ALIGN_POWER_OF_TWO(ctx->cfg.g_w, 5) *
-                ALIGN_POWER_OF_TWO(ctx->cfg.g_h, 5) * get_image_bps(img) / 8 *
-                (cpi->multi_arf_allowed ? 8 : 2);
+      size_t data_sz = ALIGN_POWER_OF_TWO(ctx->cfg.g_w, 5) *
+                       ALIGN_POWER_OF_TWO(ctx->cfg.g_h, 5) *
+                       get_image_bps(img) / 8 *
+                       (cpi->multi_arf_allowed ? 8 : 2);
 #endif  // CONFIG_EXT_REFS
       if (data_sz < kMinCompressedSize) data_sz = kMinCompressedSize;
       if (ctx->cx_data == NULL || ctx->cx_data_sz < data_sz) {
@@ -1148,6 +1147,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
   pick_quickcompress_mode(ctx, deadline);
   aom_codec_pkt_list_init(&ctx->pkt_list);
+
+  volatile aom_enc_frame_flags_t flags = enc_flags;
 
   // Handle Flags
   if (((flags & AOM_EFLAG_NO_UPD_GF) && (flags & AOM_EFLAG_FORCE_GF)) ||
@@ -1176,18 +1177,15 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   }
 
   if (res == AOM_CODEC_OK) {
-    unsigned int lib_flags = 0;
-    YV12_BUFFER_CONFIG sd;
     int64_t dst_time_stamp = timebase_units_to_ticks(timebase, pts);
     int64_t dst_end_time_stamp =
         timebase_units_to_ticks(timebase, pts + duration);
-    size_t size, cx_data_sz;
-    unsigned char *cx_data;
 
     // Set up internal flags
     if (ctx->base.init_flags & AOM_CODEC_USE_PSNR) cpi->b_calculate_psnr = 1;
 
     if (img != NULL) {
+      YV12_BUFFER_CONFIG sd;
       res = image2yuvconfig(img, &sd);
 
       // Store the original flags in to the frame buffer. Will extract the
@@ -1199,8 +1197,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       ctx->next_frame_flags = 0;
     }
 
-    cx_data = ctx->cx_data;
-    cx_data_sz = ctx->cx_data_sz;
+    unsigned char *cx_data = ctx->cx_data;
+    size_t cx_data_sz = ctx->cx_data_sz;
 
     /* Any pending invisible frames? */
     if (ctx->pending_cx_data) {
@@ -1219,6 +1217,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       }
     }
 
+    size_t size;
+    unsigned int lib_flags = 0;
     while (cx_data_sz >= ctx->cx_data_sz / 2 &&
            -1 != av1_get_compressed_data(cpi, &lib_flags, &size, cx_data,
                                          &dst_time_stamp, &dst_end_time_stamp,
@@ -1230,8 +1230,6 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       }
 #endif
       if (size) {
-        aom_codec_cx_pkt_t pkt;
-
         // Pack invisible frames with the next visible frame
         if (!cpi->common.show_frame) {
           if (ctx->pending_cx_data == 0) ctx->pending_cx_data = cx_data;
@@ -1244,6 +1242,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         }
 
         // Add the frame packet to the list of returned packets.
+        aom_codec_cx_pkt_t pkt;
+
         pkt.kind = AOM_CODEC_CX_FRAME_PKT;
         pkt.data.frame.pts = ticks_to_timebase_units(timebase, dst_time_stamp);
         pkt.data.frame.duration = (unsigned long)ticks_to_timebase_units(
