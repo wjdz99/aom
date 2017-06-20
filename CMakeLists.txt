@@ -477,3 +477,7 @@ add_custom_target(dist
 if (ENABLE_DOCS)
   add_dependencies(dist docs)
 endif ()
+
+### Hacking together libaom static that doesn't have internal deps...
+get_target_property(aom_libs aom LINK_LIBRARIES)
+message("========aom_libs=\n${aom_libs}\n")
