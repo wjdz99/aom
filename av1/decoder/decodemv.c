@@ -2593,7 +2593,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_WEDGE
 #if CONFIG_COMPOUND_SEGMENT
         if (mbmi->interinter_compound_type == COMPOUND_SEG) {
-          mbmi->mask_type = aom_read_literal(r, MAX_SEG_MASK_BITS, ACCT_STR);
+          mbmi->mask_type = aom_read_literal(r, MAX_SEG_MASK_BITS, ACCT_STR) +
+            (aom_read_literal(r, MAX_SEG_MASK_BITS, ACCT_STR) << 1);
         }
 #endif  // CONFIG_COMPOUND_SEGMENT
       }

@@ -366,6 +366,31 @@ static void diffwtd_mask(uint8_t *mask, int which_inverse, int mask_base,
   }
 }
 
+static void hotspot_mask(uint8_t *mask, int which_inverse,
+                         const uint8_t *src0, int src0_stride,
+                         const uint8_t *src1, int src1_stride,
+                         BLOCK_SIZE sb_type, int h, int w) {
+  int i, j, m, val;
+  float p0, p1, sig, xc, yc;
+  int block_stride = block_size_wide[sb_type];
+  float amp = 16.0;
+  sig = 272.0;
+  xc = which_inverse ? 200.0 : 70.0;
+  yc = which_inverse ? 70.0 : 200.0;
+  for (i = 0; i < h; ++i) {
+    for (j = 0; j < w; ++j) {
+      p0 = (float)src0[i * src0_stride + j];
+      p1 = (float)src1[i * src1_stride + j];
+      val = (int)(amp * exp(-((p0 -xc)*(p0-xc) + (p1-yc)*(p1-yc))/(2 * sig * sig))) + 32;
+      m = clamp(val, 0, AOM_BLEND_A64_MAX_ALPHA);
+      mask[i * block_stride + j] = m;
+          //which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+    }
+  }
+
+
+}
+
 void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
                              const uint8_t *src0, int src0_stride,
                              const uint8_t *src1, int src1_stride,
@@ -378,6 +403,12 @@ void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
     case DIFFWTD_38_INV:
       diffwtd_mask(mask, 1, 38, src0, src0_stride, src1, src1_stride, sb_type,
                    h, w);
+      break;
+    case HOTSPOT:
+      hotspot_mask(mask, 0, src0, src0_stride, src1, src1_stride, sb_type, h, w);
+      break;
+    case HOTSPOT_INV:
+      hotspot_mask(mask, 1, src0, src0_stride, src1, src1_stride, sb_type, h, w);
       break;
     default: assert(0);
   }
@@ -402,6 +433,31 @@ static void diffwtd_mask_highbd(uint8_t *mask, int which_inverse, int mask_base,
   }
 }
 
+static void hotspot_mask_hbd(uint8_t *mask, int which_inverse,
+                         const uint8_t *src0, int src0_stride,
+                         const uint8_t *src1, int src1_stride,
+                         BLOCK_SIZE sb_type, int h, int w) {
+  int i, j, m, val;
+  float p0, p1, sig, xc, yc;
+  int block_stride = block_size_wide[sb_type];
+  float amp = 16.0;
+  sig = 272.0;
+  xc = which_inverse ? 200.0 : 70.0;
+  yc = which_inverse ? 70.0 : 200.0;
+  for (i = 0; i < h; ++i) {
+    for (j = 0; j < w; ++j) {
+      p0 = (float)src0[i * src0_stride + j];
+      p1 = (float)src1[i * src1_stride + j];
+      val = (int)(amp * exp(-((p0 -xc)*(p0-xc) + (p1-yc)*(p1-yc))/(2 * sig * sig))) + 32;
+      m = clamp(val, 0, AOM_BLEND_A64_MAX_ALPHA);
+      mask[i * block_stride + j] = m;
+          //which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+    }
+  }
+
+
+}
+
 void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
                                     const uint8_t *src0, int src0_stride,
                                     const uint8_t *src1, int src1_stride,
@@ -416,6 +472,12 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
       diffwtd_mask_highbd(mask, 1, 42, CONVERT_TO_SHORTPTR(src0), src0_stride,
                           CONVERT_TO_SHORTPTR(src1), src1_stride, sb_type, h, w,
                           bd);
+      break;
+    case HOTSPOT:
+      hotspot_mask_hbd(mask, 0, src0, src0_stride, src1, src1_stride, sb_type, h, w);
+      break;
+    case HOTSPOT_INV:
+      hotspot_mask_hbd(mask, 1, src0, src0_stride, src1, src1_stride, sb_type, h, w);
       break;
     default: assert(0);
   }
