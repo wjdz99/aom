@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1613f888_743613fb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-20T00:11:59Z",
+      "side": 1,
+      "message": "This last sentence is a bit confusing.\n\nI think what you really mean to say is, \"If the best luma intra mode already has worse RD performance than the best inter mode found so far (if any), then the entire chroma intra search is skipped, including the extra iteration.\"\n\nOtherwise \"intra did not improve the best RD\" makes it sound like \"intra\" included the chroma component, which made me worry that we were somehow doing a CfL search without saving luma properly (which doesn\u0027t make any sense).",
+      "revId": "98fe00057006bc7a9ebf37a9a04ac0f7500c2211",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
