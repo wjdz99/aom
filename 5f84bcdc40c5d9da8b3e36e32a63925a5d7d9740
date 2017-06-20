@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "faa1fad9_51e5ebf9",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 18
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-20T01:08:37Z",
+      "side": 1,
+      "message": "These lines seem like they\u0027re in the wrong place. Maybe even the wrong file. They certainly shouldn\u0027t be between the comment and the lines it\u0027s commenting on.",
+      "revId": "5f84bcdc40c5d9da8b3e36e32a63925a5d7d9740",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5cd59fce_ad94429b",
+        "filename": "av1/common/daala_tx.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-20T01:08:37Z",
+      "side": 1,
+      "message": "There should at least be a TODO here about porting over the Daala overflow checks.",
+      "revId": "5f84bcdc40c5d9da8b3e36e32a63925a5d7d9740",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ad1a97b_85e4bf16",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-20T01:08:37Z",
+      "side": 1,
+      "message": "Am I missing something, or are these two versions actually identical (except that the CONFIG_DAALA_DCT4 version will generate ubsan warnings about left-shifting negative values because C99 is stupid)?",
+      "revId": "5f84bcdc40c5d9da8b3e36e32a63925a5d7d9740",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
