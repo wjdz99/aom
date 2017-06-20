@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8714b00f_2ce09ab6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-20T17:02:26Z",
+      "side": 1,
+      "message": "Refer to this bug? http://crbug.com/aomedia/578",
+      "revId": "3032638514fc61bd571dff14cd4609ee16836696",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
