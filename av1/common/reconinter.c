@@ -421,6 +421,162 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
   }
 }
 #endif  // CONFIG_HIGHBITDEPTH
+#elif COMPOUND_SEGMENT_TYPE == 2
+// Fill a histogram with the pixels in src
+static void hist(const uint8_t *src, int stride,
+                 const uint8_t *comp, int comp_stride,int *histogram,
+                 int block_height, int block_width) {
+  int i, j;
+  for (i = 0; i < block_height; ++i, src += stride, comp += comp_stride) {
+    for (j = 0; j < block_width; ++j) {
+      if (fabs((int)src[j] - (int)comp[j]) > 0)
+        histogram[src[j]]++;
+    }
+  }
+}
+
+int pick_center(const int *hist, double *score) {
+  (void)score;
+  int max = 0;
+  int max_val = 0;
+  int i;
+  for (i = 0; i < 256; ++i) {
+    if (hist[i] > max) {
+      max = hist[i];
+      max_val = i;
+    }
+  }
+  return max_val;
+}
+
+static int pick_center2(const uint8_t *src0, int stride0,
+                        const uint8_t *src1, int stride1,
+                        int block_height, int block_width) {
+  int max = 0, max_val = 0, index = 0;
+  int hist[256];
+  memset(hist, 0, 256 * sizeof(*hist));
+  if (block_width == 8 && block_height == 8)
+    printf("here");
+  for (int i = 0; i < block_height; ++i, src0 += stride0, src1 += stride1) {
+    for (int j = 0; j < block_width; ++j) {
+      index = src0[j];
+      if (fabs((int)src0[j] - (int)src1[j]) > 0) {
+        hist[index]++;
+      }
+        if (hist[index] > max) {
+          max = hist[index];
+          max_val = index;
+        }
+    }
+  }
+/*
+  for (int i = 0; i < 256; ++i) {
+    if (hist[i] > max) {
+      max = hist[i];
+      max_val = i;
+    }
+  }
+*/
+  return max_val;
+}
+
+static void gaussian_mask(uint8_t *mask, int which_inverse,
+                         const uint8_t *src0, int src0_stride,
+                         const uint8_t *src1, int src1_stride,
+                         BLOCK_SIZE sb_type, int h, int w) {
+  int i, j, m, val;
+  float p0,p1;
+  double score;
+  int block_stride = block_size_wide[sb_type];
+//////////////////////
+  int histogram[256];
+  memset(histogram, 0, 256 * sizeof(*histogram));
+  hist(src0, src0_stride, src1, src1_stride, histogram, h, w);
+  int xc = pick_center(histogram, &score);
+  memset(histogram, 0, 256 * sizeof(*histogram));
+  hist(src1, src1_stride, src0, src0_stride, histogram, h, w);
+////////////////////////
+  int yc = pick_center(histogram, &score);
+//int xc2 = pick_center2(src0, src0_stride, src1, src1_stride, h, w);
+//int yc2 = pick_center2(src1, src1_stride, src0, src0_stride, h, w);
+//if (xc != xc2 || yc != yc2)
+//  printf("xc %d xc2 %d yc %d yc2 %d\n",xc, xc2, yc, yc2);
+  float amp = 16.0;
+  float sig = 272.0;
+  for (i = 0; i < h; ++i) {
+    for (j = 0; j < w; ++j) {
+      p0 = (float)src0[i * src0_stride + j];
+      p1 = (float)src1[i * src1_stride + j];
+      val = (int)(amp * exp(-((p0 -xc)*(p0-xc) + (p1-yc)*(p1-yc))/(2 * sig * sig))) + 32;
+      m = clamp(val, 0, AOM_BLEND_A64_MAX_ALPHA);
+      mask[i * block_stride + j] =
+          which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+    }
+  }
+}
+
+void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                             const uint8_t *src0, int src0_stride,
+                             const uint8_t *src1, int src1_stride,
+                             BLOCK_SIZE sb_type, int h, int w) {
+  switch (mask_type) {
+    case GAUSSIAN:
+      gaussian_mask(mask, 0, src0, src0_stride, src1, src1_stride, sb_type, h, w);
+      break;
+    case GAUSSIAN_INV:
+      gaussian_mask(mask, 1, src0, src0_stride, src1, src1_stride, sb_type, h, w);
+      break;
+    default: assert(0);
+  }
+}
+
+#if CONFIG_HIGHBITDEPTH
+static void gaussian_mask_hbd(uint8_t *mask, int which_inverse,
+                              const uint8_t *src0, int src0_stride,
+                              const uint8_t *src1, int src1_stride,
+                              BLOCK_SIZE sb_type, int h, int w) {
+  int i, j, m, val;
+  float p0,p1;
+  double score;
+  int block_stride = block_size_wide[sb_type];
+//////////////////////
+  int histogram[256];
+  memset(histogram, 0, 256 * sizeof(*histogram));
+  hist(src0, src0_stride, src1, src1_stride, histogram, h, w);
+  int xc = pick_center(histogram, &score);
+  memset(histogram, 0, 256 * sizeof(*histogram));
+  hist(src1, src1_stride, src0, src0_stride, histogram, h, w);
+////////////////////////
+  int yc = pick_center(histogram, &score);
+  float amp = 16.0;
+  float sig = 272.0;
+  for (i = 0; i < h; ++i) {
+    for (j = 0; j < w; ++j) {
+      p0 = (float)src0[i * src0_stride + j];
+      p1 = (float)src1[i * src1_stride + j];
+      val = (int)(amp * exp(-((p0 -xc)*(p0-xc) + (p1-yc)*(p1-yc))/(2 * sig * sig))) + 32;
+      m = clamp(val, 0, AOM_BLEND_A64_MAX_ALPHA);
+      mask[i * block_stride + j] =
+          which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+    }
+  }
+}
+
+void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                                    const uint8_t *src0, int src0_stride,
+                                    const uint8_t *src1, int src1_stride,
+                                    BLOCK_SIZE sb_type, int h, int w, int bd) {
+  switch (mask_type) {
+    case GAUSSIAN:
+      gaussian_mask_hbd(mask, 0, src0, src0_stride, src1, src1_stride, sb_type, h, w);
+      break;
+    case GAUSSIAN_INV:
+      gaussian_mask_hbd(mask, 1, src0, src0_stride, src1, src1_stride, sb_type, h, w);
+      break;
+    default: assert(0);
+  }
+}
+#endif  // CONFIG_HIGHBITDEPTH
 #endif  // COMPOUND_SEGMENT_TYPE
 #endif  // CONFIG_COMPOUND_SEGMENT
 

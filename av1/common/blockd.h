@@ -52,7 +52,7 @@ extern "C" {
 // Set COMPOUND_SEGMENT_TYPE to one of the three
 // 0: Uniform
 // 1: Difference weighted
-#define COMPOUND_SEGMENT_TYPE 1
+#define COMPOUND_SEGMENT_TYPE 2
 #define MAX_SEG_MASK_BITS 1
 
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
@@ -63,6 +63,9 @@ typedef enum {
 #elif COMPOUND_SEGMENT_TYPE == 1
   DIFFWTD_38 = 0,
   DIFFWTD_38_INV,
+#elif COMPOUND_SEGMENT_TYPE == 2
+  GAUSSIAN = 0,
+  GAUSSIAN_INV,
 #endif  // COMPOUND_SEGMENT_TYPE
   SEG_MASK_TYPES,
 } SEG_MASK_TYPE;
