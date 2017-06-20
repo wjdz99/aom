@@ -2247,7 +2247,8 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_WEDGE
 #if CONFIG_COMPOUND_SEGMENT
         if (mbmi->interinter_compound_type == COMPOUND_SEG) {
-          aom_write_literal(w, mbmi->mask_type, MAX_SEG_MASK_BITS);
+          aom_write_literal(w, mbmi->mask_type & 1, MAX_SEG_MASK_BITS);
+          aom_write_literal(w, mbmi->mask_type >> 1, MAX_SEG_MASK_BITS);
         }
 #endif  // CONFIG_COMPOUND_SEGMENT
       }

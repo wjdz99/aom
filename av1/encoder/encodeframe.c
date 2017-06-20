@@ -5692,6 +5692,10 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     int ref;
     const int is_compound = has_second_ref(mbmi);
 
+    if (!dry_run && is_compound && mbmi->interinter_compound_type == COMPOUND_SEG && (mbmi->mask_type == HOTSPOT || mbmi->mask_type == HOTSPOT_INV))
+      printf("hot\n");
+    else if (!dry_run && is_compound && mbmi->interinter_compound_type == COMPOUND_SEG && (mbmi->mask_type == DIFFWTD_38 || mbmi->mask_type == DIFFWTD_38_INV))
+      printf("diff\n");
     set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       YV12_BUFFER_CONFIG *cfg = get_ref_frame_buffer(cpi, mbmi->ref_frame[ref]);

@@ -5091,7 +5091,7 @@ static int get_interinter_compound_type_bits(BLOCK_SIZE bsize,
     case COMPOUND_WEDGE: return get_interinter_wedge_bits(bsize);
 #endif  // CONFIG_WEDGE
 #if CONFIG_COMPOUND_SEGMENT
-    case COMPOUND_SEG: return 1;
+    case COMPOUND_SEG: return 2;
 #endif  // CONFIG_COMPOUND_SEGMENT
     default: assert(0); return 0;
   }
