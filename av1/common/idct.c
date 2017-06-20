@@ -1063,10 +1063,8 @@ void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 // idct
 void av1_idct4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
                      int eob) {
-  if (eob > 1)
-    aom_idct4x4_16_add(input, dest, stride);
-  else
-    aom_idct4x4_1_add(input, dest, stride);
+  (void)eob;
+  aom_idct4x4_16_add(input, dest, stride);
 }
 
 void av1_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
@@ -1399,10 +1397,8 @@ static void inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
 // idct
 void av1_highbd_idct4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
                             int eob, int bd) {
-  if (eob > 1)
-    aom_highbd_idct4x4_16_add(input, dest, stride, bd);
-  else
-    aom_highbd_idct4x4_1_add(input, dest, stride, bd);
+  (void)eob;
+  aom_highbd_idct4x4_16_add(input, dest, stride, bd);
 }
 
 void av1_highbd_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
