@@ -54,7 +54,7 @@ static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
 }
 
 #if CONFIG_DELTA_Q
-static int read_delta_qindex(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
+static int read_delta_qindex(MACROBLOCKD *xd, aom_reader *r,
                              MB_MODE_INFO *const mbmi, int mi_col, int mi_row) {
   FRAME_COUNTS *counts = xd->counts;
   int sign, abs, reduced_delta_qindex = 0;
@@ -65,8 +65,6 @@ static int read_delta_qindex(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
   int rem_bits, thr;
   int i, smallval;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  /* TODO(negge): change function signature */
-  (void)cm;
 
   if ((bsize != BLOCK_LARGEST || mbmi->skip == 0) && read_delta_q_flag) {
     abs = aom_read_symbol(r, ec_ctx->delta_q_cdf, DELTA_Q_PROBS + 1, ACCT_STR);
@@ -93,7 +91,7 @@ static int read_delta_qindex(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
   return reduced_delta_qindex;
 }
 #if CONFIG_EXT_DELTA_Q
-static int read_delta_lflevel(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
+static int read_delta_lflevel(MACROBLOCKD *xd, aom_reader *r,
                               MB_MODE_INFO *const mbmi, int mi_col,
                               int mi_row) {
   FRAME_COUNTS *counts = xd->counts;
@@ -105,8 +103,6 @@ static int read_delta_lflevel(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
   int rem_bits, thr;
   int i, smallval;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  /* TODO(negge): change function signature */
-  (void)cm;
 
   if ((bsize != BLOCK_64X64 || mbmi->skip == 0) && read_delta_lf_flag) {
     abs =
@@ -438,13 +434,11 @@ static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 #endif
 
-static TX_SIZE read_selected_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd,
-                                     int tx_size_cat, aom_reader *r) {
+static TX_SIZE read_selected_tx_size(MACROBLOCKD *xd, int tx_size_cat,
+                                     aom_reader *r) {
   FRAME_COUNTS *counts = xd->counts;
   const int ctx = get_tx_size_context(xd);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  /* TODO(negge): change function signature */
-  (void)cm;
 
   const int depth = aom_read_symbol(r, ec_ctx->tx_size_cdf[tx_size_cat][ctx],
                                     tx_size_cat + 2, ACCT_STR);
@@ -469,8 +463,7 @@ static TX_SIZE read_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd, int is_inter,
     if ((!is_inter || allow_select_inter) && tx_mode == TX_MODE_SELECT) {
       const int32_t tx_size_cat = is_inter ? inter_tx_size_cat_lookup[bsize]
                                            : intra_tx_size_cat_lookup[bsize];
-      const TX_SIZE coded_tx_size =
-          read_selected_tx_size(cm, xd, tx_size_cat, r);
+      const TX_SIZE coded_tx_size = read_selected_tx_size(xd, tx_size_cat, r);
 #if CONFIG_RECT_TX && (CONFIG_EXT_TX || CONFIG_VAR_TX)
       if (coded_tx_size > max_txsize_lookup[bsize]) {
         assert(coded_tx_size == max_txsize_lookup[bsize] + 1);
@@ -973,12 +966,10 @@ static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
 
 static INLINE int is_mv_valid(const MV *mv);
 
-static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
-                            const int_mv *ref_mv, int mi_row, int mi_col,
-                            BLOCK_SIZE bsize, aom_reader *r) {
+static INLINE int assign_dv(MACROBLOCKD *xd, int_mv *mv, const int_mv *ref_mv,
+                            int mi_row, int mi_col, BLOCK_SIZE bsize,
+                            aom_reader *r) {
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  /* TODO(negge): change function signature */
-  (void)cm;
   FRAME_COUNTS *counts = xd->counts;
   nmv_context_counts *const dv_counts = counts ? &counts->dv : NULL;
   read_mv(r, &mv->as_mv, &ref_mv->as_mv, &ec_ctx->ndvc, dv_counts,
@@ -1014,7 +1005,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   if (cm->delta_q_present_flag) {
     xd->current_qindex =
         xd->prev_qindex +
-        read_delta_qindex(cm, xd, r, mbmi, mi_col, mi_row) * cm->delta_q_res;
+        read_delta_qindex(xd, r, mbmi, mi_col, mi_row) * cm->delta_q_res;
     /* Normative: Clamp to [1,MAXQ] to not interfere with lossless mode */
     xd->current_qindex = clamp(xd->current_qindex, 1, MAXQ);
     xd->prev_qindex = xd->current_qindex;
@@ -1022,8 +1013,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     if (cm->delta_lf_present_flag) {
       mbmi->current_delta_lf_from_base = xd->current_delta_lf_from_base =
           xd->prev_delta_lf_from_base +
-          read_delta_lflevel(cm, xd, r, mbmi, mi_col, mi_row) *
-              cm->delta_lf_res;
+          read_delta_lflevel(xd, r, mbmi, mi_col, mi_row) * cm->delta_lf_res;
       xd->prev_delta_lf_from_base = xd->current_delta_lf_from_base;
     }
 #endif
@@ -1062,7 +1052,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
       if (dv_ref.as_int == 0) av1_find_ref_dv(&dv_ref, mi_row, mi_col);
 
       xd->corrupted |=
-          !assign_dv(cm, xd, &mbmi->mv[0], &dv_ref, mi_row, mi_col, bsize, r);
+          !assign_dv(xd, &mbmi->mv[0], &dv_ref, mi_row, mi_col, bsize, r);
 #if CONFIG_VAR_TX
       // TODO(aconverse@google.com): Evaluate allowing VAR TX on intrabc blocks
       const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
@@ -2586,7 +2576,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   if (cm->delta_q_present_flag) {
     xd->current_qindex =
         xd->prev_qindex +
-        read_delta_qindex(cm, xd, r, mbmi, mi_col, mi_row) * cm->delta_q_res;
+        read_delta_qindex(xd, r, mbmi, mi_col, mi_row) * cm->delta_q_res;
     /* Normative: Clamp to [1,MAXQ] to not interfere with lossless mode */
     xd->current_qindex = clamp(xd->current_qindex, 1, MAXQ);
     xd->prev_qindex = xd->current_qindex;
@@ -2594,8 +2584,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
     if (cm->delta_lf_present_flag) {
       mbmi->current_delta_lf_from_base = xd->current_delta_lf_from_base =
           xd->prev_delta_lf_from_base +
-          read_delta_lflevel(cm, xd, r, mbmi, mi_col, mi_row) *
-              cm->delta_lf_res;
+          read_delta_lflevel(xd, r, mbmi, mi_col, mi_row) * cm->delta_lf_res;
       xd->prev_delta_lf_from_base = xd->current_delta_lf_from_base;
     }
 #endif

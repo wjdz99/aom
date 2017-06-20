@@ -447,8 +447,6 @@ static void write_selected_tx_size(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  /* TODO(negge): change function signature */
-  (void)cm;
 // For sub8x8 blocks the tx_size symbol does not need to be sent
 #if CONFIG_CB4X4 && (CONFIG_VAR_TX || CONFIG_EXT_TX) && CONFIG_RECT_TX
   if (bsize > BLOCK_4X4) {
@@ -472,6 +470,8 @@ static void write_selected_tx_size(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     if (is_quarter_tx_allowed(xd, mbmi, is_inter) && tx_size != coded_tx_size)
       aom_write(w, tx_size == quarter_txsize_lookup[bsize],
                 cm->fc->quarter_tx_size_prob);
+#else
+    (void)cm;
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX && CONFIG_RECT_TX_EXT
   }
 }
@@ -610,15 +610,13 @@ static void write_motion_mode(const AV1_COMMON *cm, const MODE_INFO *mi,
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_DELTA_Q
-static void write_delta_qindex(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                               int delta_qindex, aom_writer *w) {
+static void write_delta_qindex(const MACROBLOCKD *xd, int delta_qindex,
+                               aom_writer *w) {
   int sign = delta_qindex < 0;
   int abs = sign ? -delta_qindex : delta_qindex;
   int rem_bits, thr;
   int smallval = abs < DELTA_Q_SMALL ? 1 : 0;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  /* TODO(negge): change function signature */
-  (void)cm;
 
   aom_write_symbol(w, AOMMIN(abs, DELTA_Q_SMALL), ec_ctx->delta_q_cdf,
                    DELTA_Q_PROBS + 1);
@@ -635,15 +633,13 @@ static void write_delta_qindex(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 }
 
 #if CONFIG_EXT_DELTA_Q
-static void write_delta_lflevel(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                                int delta_lflevel, aom_writer *w) {
+static void write_delta_lflevel(const MACROBLOCKD *xd, int delta_lflevel,
+                                aom_writer *w) {
   int sign = delta_lflevel < 0;
   int abs = sign ? -delta_lflevel : delta_lflevel;
   int rem_bits, thr;
   int smallval = abs < DELTA_LF_SMALL ? 1 : 0;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  /* TODO(negge): change function signature */
-  (void)cm;
 
   aom_write_symbol(w, AOMMIN(abs, DELTA_LF_SMALL), ec_ctx->delta_lf_cdf,
                    DELTA_LF_PROBS + 1);
@@ -1711,14 +1707,14 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       assert(mbmi->current_q_index > 0);
       int reduced_delta_qindex =
           (mbmi->current_q_index - xd->prev_qindex) / cm->delta_q_res;
-      write_delta_qindex(cm, xd, reduced_delta_qindex, w);
+      write_delta_qindex(xd, reduced_delta_qindex, w);
       xd->prev_qindex = mbmi->current_q_index;
 #if CONFIG_EXT_DELTA_Q
       if (cm->delta_lf_present_flag) {
         int reduced_delta_lflevel =
             (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
             cm->delta_lf_res;
-        write_delta_lflevel(cm, xd, reduced_delta_lflevel, w);
+        write_delta_lflevel(xd, reduced_delta_lflevel, w);
         xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
       }
 #endif  // CONFIG_EXT_DELTA_Q
@@ -2112,14 +2108,14 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
       assert(mbmi->current_q_index > 0);
       int reduced_delta_qindex =
           (mbmi->current_q_index - xd->prev_qindex) / cm->delta_q_res;
-      write_delta_qindex(cm, xd, reduced_delta_qindex, w);
+      write_delta_qindex(xd, reduced_delta_qindex, w);
       xd->prev_qindex = mbmi->current_q_index;
 #if CONFIG_EXT_DELTA_Q
       if (cm->delta_lf_present_flag) {
         int reduced_delta_lflevel =
             (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
             cm->delta_lf_res;
-        write_delta_lflevel(cm, xd, reduced_delta_lflevel, w);
+        write_delta_lflevel(xd, reduced_delta_lflevel, w);
         xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
       }
 #endif  // CONFIG_EXT_DELTA_Q
