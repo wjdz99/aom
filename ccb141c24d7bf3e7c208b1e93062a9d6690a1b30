@@ -109,6 +109,24 @@
     },
     {
       "key": {
+        "uuid": "3c756bb9_880f240f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3968,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-20T22:46:53Z",
+      "side": 1,
+      "message": "Right. I think the simplest way to handle that is to keep using the full block size, and just set the difference to 0 outside the visible region (before applying the low-pass filter). MSE-daala-dist will need a slightly different solution since it does not use a difference buffer.",
+      "parentUuid": "3f76fc73_cfbc4bda",
+      "revId": "ccb141c24d7bf3e7c208b1e93062a9d6690a1b30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed0251a1_76f6b2f7",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 10
