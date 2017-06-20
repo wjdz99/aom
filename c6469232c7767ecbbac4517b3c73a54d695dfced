@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f809839b_17a179fe",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4748,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-20T16:50:06Z",
+      "side": 0,
+      "message": "Based on your description, why not change this to just:\n\"assert(!segment_quantizer_active);\"",
+      "revId": "c6469232c7767ecbbac4517b3c73a54d695dfced",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
