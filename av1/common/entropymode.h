@@ -84,6 +84,8 @@ typedef struct {
   const int16_t *neighbors;
 } SCAN_ORDER;
 
+typedef enum SCAN_TYPE { SCAN_TYPE_0, SCAN_TYPE_1, SCAN_TYPE_2 } SCAN_TYPE;
+
 struct seg_counts {
   unsigned int tree_total[MAX_SEGMENTS];
   unsigned int tree_mispred[MAX_SEGMENTS];

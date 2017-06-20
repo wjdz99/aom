@@ -398,6 +398,10 @@ typedef struct MB_MODE_INFO {
   TX_TYPE txk_type[MAX_SB_SQUARE / (TX_SIZE_W_MIN * TX_SIZE_H_MIN)];
 #endif
 
+#if CONFIG_ADAPT_SCAN_NEW
+  SCAN_TYPE scan_type[MAX_SB_SQUARE / (TX_SIZE_W_MIN * TX_SIZE_H_MIN)];
+#endif
+
 #if CONFIG_FILTER_INTRA
   FILTER_INTRA_MODE_INFO filter_intra_mode_info;
 #endif  // CONFIG_FILTER_INTRA
