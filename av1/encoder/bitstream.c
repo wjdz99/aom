@@ -442,13 +442,10 @@ static void update_txfm_partition_probs(AV1_COMMON *cm, aom_writer *w,
 }
 #endif
 
-static void write_selected_tx_size(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                                   aom_writer *w) {
+static void write_selected_tx_size(const MACROBLOCKD *xd, aom_writer *w) {
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  /* TODO(negge): change function signature */
-  (void)cm;
 // For sub8x8 blocks the tx_size symbol does not need to be sent
 #if CONFIG_CB4X4 && (CONFIG_VAR_TX || CONFIG_EXT_TX) && CONFIG_RECT_TX
   if (bsize > BLOCK_4X4) {
@@ -610,15 +607,13 @@ static void write_motion_mode(const AV1_COMMON *cm, const MODE_INFO *mi,
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_DELTA_Q
-static void write_delta_qindex(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                               int delta_qindex, aom_writer *w) {
+static void write_delta_qindex(const MACROBLOCKD *xd, int delta_qindex,
+                               aom_writer *w) {
   int sign = delta_qindex < 0;
   int abs = sign ? -delta_qindex : delta_qindex;
   int rem_bits, thr;
   int smallval = abs < DELTA_Q_SMALL ? 1 : 0;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  /* TODO(negge): change function signature */
-  (void)cm;
 
   aom_write_symbol(w, AOMMIN(abs, DELTA_Q_SMALL), ec_ctx->delta_q_cdf,
                    DELTA_Q_PROBS + 1);
@@ -635,15 +630,13 @@ static void write_delta_qindex(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 }
 
 #if CONFIG_EXT_DELTA_Q
-static void write_delta_lflevel(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                                int delta_lflevel, aom_writer *w) {
+static void write_delta_lflevel(const MACROBLOCKD *xd, int delta_lflevel,
+                                aom_writer *w) {
   int sign = delta_lflevel < 0;
   int abs = sign ? -delta_lflevel : delta_lflevel;
   int rem_bits, thr;
   int smallval = abs < DELTA_LF_SMALL ? 1 : 0;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  /* TODO(negge): change function signature */
-  (void)cm;
 
   aom_write_symbol(w, AOMMIN(abs, DELTA_LF_SMALL), ec_ctx->delta_lf_cdf,
                    DELTA_LF_PROBS + 1);
@@ -1717,14 +1710,14 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       assert(mbmi->current_q_index > 0);
       int reduced_delta_qindex =
           (mbmi->current_q_index - xd->prev_qindex) / cm->delta_q_res;
-      write_delta_qindex(cm, xd, reduced_delta_qindex, w);
+      write_delta_qindex(xd, reduced_delta_qindex, w);
       xd->prev_qindex = mbmi->current_q_index;
 #if CONFIG_EXT_DELTA_Q
       if (cm->delta_lf_present_flag) {
         int reduced_delta_lflevel =
             (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
             cm->delta_lf_res;
-        write_delta_lflevel(cm, xd, reduced_delta_lflevel, w);
+        write_delta_lflevel(xd, reduced_delta_lflevel, w);
         xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
       }
 #endif  // CONFIG_EXT_DELTA_Q
@@ -1765,12 +1758,12 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
                               idx, w);
     } else {
       set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
-      write_selected_tx_size(cm, xd, w);
+      write_selected_tx_size(xd, w);
     }
   } else {
     set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
 #else
-    write_selected_tx_size(cm, xd, w);
+    write_selected_tx_size(xd, w);
 #endif
   }
 
@@ -2119,14 +2112,14 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
       assert(mbmi->current_q_index > 0);
       int reduced_delta_qindex =
           (mbmi->current_q_index - xd->prev_qindex) / cm->delta_q_res;
-      write_delta_qindex(cm, xd, reduced_delta_qindex, w);
+      write_delta_qindex(xd, reduced_delta_qindex, w);
       xd->prev_qindex = mbmi->current_q_index;
 #if CONFIG_EXT_DELTA_Q
       if (cm->delta_lf_present_flag) {
         int reduced_delta_lflevel =
             (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
             cm->delta_lf_res;
-        write_delta_lflevel(cm, xd, reduced_delta_lflevel, w);
+        write_delta_lflevel(xd, reduced_delta_lflevel, w);
         xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
       }
 #endif  // CONFIG_EXT_DELTA_Q
@@ -2155,7 +2148,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
     if (use_intrabc) {
       assert(mbmi->mode == DC_PRED);
       assert(mbmi->uv_mode == DC_PRED);
-      if (enable_tx_size && !mbmi->skip) write_selected_tx_size(cm, xd, w);
+      if (enable_tx_size && !mbmi->skip) write_selected_tx_size(xd, w);
       int_mv dv_ref = mbmi_ext->ref_mvs[INTRA_FRAME][0];
       av1_encode_dv(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
 #if CONFIG_EXT_TX && !CONFIG_TXK_SEL
@@ -2169,7 +2162,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
     }
   }
 #endif  // CONFIG_INTRABC
-  if (enable_tx_size) write_selected_tx_size(cm, xd, w);
+  if (enable_tx_size) write_selected_tx_size(xd, w);
 
   if (bsize >= BLOCK_8X8 || unify_bsize) {
     write_intra_mode_kf(cm, ec_ctx, mi, above_mi, left_mi, 0, mbmi->mode, w);
