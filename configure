@@ -292,6 +292,7 @@ EXPERIMENT_LIST="
     delta_q
     ext_delta_q
     adapt_scan
+    adapt_scan_new
     filter_7bit
     parallel_deblocking
     parallel_deblocking_15tap
