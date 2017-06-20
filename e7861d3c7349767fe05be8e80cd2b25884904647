@@ -53,6 +53,29 @@
     },
     {
       "key": {
+        "uuid": "b4dc8834_2cb3f3e5",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-20T19:41:31Z",
+      "side": 1,
+      "message": "This block of code could be a moved to a function (as it\u0027s needed twice)",
+      "range": {
+        "startLine": 255,
+        "startChar": 2,
+        "endLine": 271,
+        "endChar": 0
+      },
+      "revId": "e7861d3c7349767fe05be8e80cd2b25884904647",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2314243d_aff9d9c1",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 4
