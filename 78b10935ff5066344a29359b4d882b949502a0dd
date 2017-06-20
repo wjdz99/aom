@@ -22,6 +22,30 @@
       "revId": "78b10935ff5066344a29359b4d882b949502a0dd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29f19bd4_3b818822",
+        "filename": "build/cmake/util.cmake",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-06-20T14:25:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1fc7b343_0e997396",
+      "range": {
+        "startLine": 12,
+        "startChar": 4,
+        "endLine": 12,
+        "endChar": 5
+      },
+      "revId": "78b10935ff5066344a29359b4d882b949502a0dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
