@@ -1916,6 +1916,28 @@ static const aom_prob default_switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS]
                                                     };
 #endif  // CONFIG_DUAL_FILTER
 
+#if CONFIG_ADAPT_SCAN_NEW
+const aom_tree_index av1_scan_type_tree[TREE_SIZE(SCAN_TYPES)] = {
+  -SCAN_TYPE_0, 2, -SCAN_TYPE_1, -SCAN_TYPE_2
+};
+
+static const aom_prob
+    default_scan_type_prob[TX_SIZES][TX_TYPES][SCAN_TYPES - 1] = {
+      {
+          { 128, 128 }, { 128, 128 }, { 128, 128 }, { 128, 128 },
+      },
+      {
+          { 128, 128 }, { 128, 128 }, { 128, 128 }, { 128, 128 },
+      },
+      {
+          { 128, 128 }, { 128, 128 }, { 128, 128 }, { 128, 128 },
+      },
+      {
+          { 128, 128 }, { 128, 128 }, { 128, 128 }, { 128, 128 },
+      },
+    };
+#endif  // CONFIG_ADAPT_SCAN_NEW
+
 #if CONFIG_EXT_TX
 /* clang-format off */
 const aom_tree_index av1_ext_tx_inter_tree[EXT_TX_SETS_INTER]
@@ -4581,6 +4603,11 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->uv_mode_prob, default_uv_probs);
   av1_copy(fc->y_mode_prob, default_if_y_probs);
   av1_copy(fc->switchable_interp_prob, default_switchable_interp_prob);
+
+#if CONFIG_ADAPT_SCAN_NEW
+  av1_copy(fc->scan_type_prob, default_scan_type_prob);
+#endif
+
   av1_copy(fc->partition_prob, default_partition_probs);
   av1_copy(fc->intra_inter_prob, default_intra_inter_p);
   av1_copy(fc->comp_inter_prob, default_comp_inter_p);

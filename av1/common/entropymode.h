@@ -84,7 +84,12 @@ typedef struct {
   const int16_t *neighbors;
 } SCAN_ORDER;
 
-typedef enum SCAN_TYPE { SCAN_TYPE_0, SCAN_TYPE_1, SCAN_TYPE_2 } SCAN_TYPE;
+typedef enum SCAN_TYPE {
+  SCAN_TYPE_0,
+  SCAN_TYPE_1,
+  SCAN_TYPE_2,
+  SCAN_TYPES
+} SCAN_TYPE;
 
 struct seg_counts {
   unsigned int tree_total[MAX_SEGMENTS];
@@ -106,6 +111,10 @@ typedef struct frame_contexts {
   aom_prob blockzero_probs[TX_SIZES][PLANE_TYPES][REF_TYPES][BLOCKZ_CONTEXTS];
   aom_prob switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS]
                                  [SWITCHABLE_FILTERS - 1];
+#if CONFIG_ADAPT_SCAN_NEW
+  aom_prob scan_type_prob[TX_SIZES][TX_TYPES][SCAN_TYPES - 1];
+#endif
+
 #if CONFIG_ADAPT_SCAN
 // TODO(angiebird): try aom_prob
 #if CONFIG_CHROMA_2X2
@@ -339,6 +348,10 @@ typedef struct FRAME_COUNTS {
                          [COEFF_CONTEXTS];
   unsigned int switchable_interp[SWITCHABLE_FILTER_CONTEXTS]
                                 [SWITCHABLE_FILTERS];
+#if CONFIG_ADAPT_SCAN_NEW
+  unsigned int scan_type[TX_SIZES][TX_TYPES][SCAN_TYPES];
+#endif  // CONFIG_ADAPT_SCAN_NEW
+
 #if CONFIG_ADAPT_SCAN
 #if CONFIG_CHROMA_2X2
   unsigned int non_zero_count_2x2[TX_TYPES][4];
