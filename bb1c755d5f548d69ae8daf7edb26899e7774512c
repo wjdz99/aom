@@ -16,6 +16,24 @@
       "revId": "bb1c755d5f548d69ae8daf7edb26899e7774512c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e980fffa_a0b130ee",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-06-21T15:38:16Z",
+      "side": 1,
+      "message": "https://cmake.org/Wiki/CMake/Language_Syntax#CMake_supports_boolean_variables.\n\nThe rules are at the above link, but yeah: ON \u003d\u003d 1, OFF \u003d\u003d 0. The problem comes in when the values are expanded into aom_config.h and the rtcd header files. ON and OFF are nonsense to the compiler without local #defines, and setting those is bound to collide with someone somewhere.",
+      "parentUuid": "4f063c08_fcd70595",
+      "revId": "bb1c755d5f548d69ae8daf7edb26899e7774512c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
