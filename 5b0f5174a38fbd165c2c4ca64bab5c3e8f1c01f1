@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10fdb13a_6eec0445",
+        "filename": "av1/encoder/cost.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-06-21T16:46:37Z",
+      "side": 1,
+      "message": "This can be replaced with:\n\n    const aom_cdf_prob p15 \u003d OD_ICDF(cdf[i]) - (i \u003e 0 ? OD_ICDF(cdf[i - 1]) : 0);\n\nwhich encapsulates the CONFIG_EC_SMALLMUL #define.",
+      "revId": "5b0f5174a38fbd165c2c4ca64bab5c3e8f1c01f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0de639db_9f8c492c",
+        "filename": "av1/encoder/cost.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-06-21T16:46:37Z",
+      "side": 1,
+      "message": "Eventually it would be nice to reorder all of the CDFs so that we do not need the ind/inv mappings, but this is a perfectly fine workaround for now.",
+      "revId": "5b0f5174a38fbd165c2c4ca64bab5c3e8f1c01f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0248e4ba_a4aae6c4",
+        "filename": "av1/encoder/cost.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-06-21T16:46:37Z",
+      "side": 1,
+      "message": "This can be replaced with:\n\n    if (cdf[i] \u003d\u003d OD_ICDF(0)) {\n\nwhich encapsulates the CONFIG_EC_SMALLMUL #define.",
+      "revId": "5b0f5174a38fbd165c2c4ca64bab5c3e8f1c01f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34e31207_da23f577",
+        "filename": "av1/encoder/cost.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-06-21T16:46:37Z",
+      "side": 1,
+      "message": "Can this happen?  If you are seeing this, it means two adjacent CDF values are the same which would mean that the probability of that symbol is 0 (which seems bad).\n\nMaybe replace this with assert(p15 \u003e 0 \u0026\u0026 p15 \u003c 32768)",
+      "revId": "5b0f5174a38fbd165c2c4ca64bab5c3e8f1c01f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
