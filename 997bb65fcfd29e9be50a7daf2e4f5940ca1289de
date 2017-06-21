@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9b71fd2_da251660",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-21T22:13:21Z",
+      "side": 1,
+      "message": "As an aside (not related to this patch in particular), I don\u0027t think this code is correct for the case where the current block overlaps the MI grid boundary (same for the height loop below). See the code in build_intra_predictors() that Joe Young pointed to on the mailing list two days ago, and in particular pay attention to the calculation of n_top_px.",
+      "revId": "997bb65fcfd29e9be50a7daf2e4f5940ca1289de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df43630b_f3f69291",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-21T22:13:21Z",
+      "side": 1,
+      "message": "I think this block needs to be wrapped in a !CONFIG_CHROMA_2X2. I also think you need some tests against subsampling_x and subsampling_y here: e.g., for 4:4:4, this will cause the upper-left luma block of a group of four 4x4 partitions to be used for _all_ of the chroma predictions, since the others will keep getting appended to the current buffer instead of overwriting the upper left.\n\nA comment explaining what is going on here might also be helpful. It took me a while to figure out.",
+      "revId": "997bb65fcfd29e9be50a7daf2e4f5940ca1289de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09091971_9a013a05",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-21T22:13:21Z",
+      "side": 1,
+      "message": "Is it possible to assert that diff_width and diff_height are non-negative? That would have caught the error I described above, where you continue to append luma blocks to the current storage in cfl_store() instead of starting over for sub-8x8 4:4:4 blocks (making the luma area larger than chroma).",
+      "revId": "997bb65fcfd29e9be50a7daf2e4f5940ca1289de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82654f74_97d36332",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-21T22:13:21Z",
+      "side": 1,
+      "message": "Note that since https://aomedia-review.googlesource.com/12308 landed the correct test is now just #if CONFIG_CHROMA_SUB8X8",
+      "revId": "997bb65fcfd29e9be50a7daf2e4f5940ca1289de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
