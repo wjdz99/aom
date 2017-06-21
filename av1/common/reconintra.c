@@ -2567,16 +2567,8 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
 
   // predict
   if (mode == DC_PRED) {
-#if CONFIG_CFL
-    // CFL predict its own DC_PRED for Chromatic planes
-    if (plane == AOM_PLANE_Y) {
-#endif
-      dc_pred[n_left_px > 0][n_top_px > 0][tx_size](dst, dst_stride, above_row,
-                                                    left_col);
-#if CONFIG_CFL
-    }
-#endif
-
+    dc_pred[n_left_px > 0][n_top_px > 0][tx_size](dst, dst_stride, above_row,
+                                                  left_col);
   } else {
     pred[mode][tx_size](dst, dst_stride, above_row, left_col);
   }
@@ -2707,19 +2699,9 @@ void av1_predict_intra_block_facade(MACROBLOCKD *xd, int plane, int block_idx,
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const int block_raster_idx =
       av1_block_index_to_raster_order(tx_size, block_idx);
-  const PREDICTION_MODE mode = (plane == 0)
-                                   ? get_y_mode(xd->mi[0], block_raster_idx)
-#if CONFIG_CFL
-                                   : get_pred_mode(mbmi->uv_mode);
-#else
-                                   : mbmi->uv_mode;
-#endif  // CONFIG_CFL
-  av1_predict_intra_block(xd, pd->width, pd->height, txsize_to_bsize[tx_size],
-                          mode, dst, dst_stride, dst, dst_stride, blk_col,
-                          blk_row, plane);
 #if CONFIG_CFL
   CFL_CTX *const cfl = xd->cfl;
-  if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_DC_PRED) {
+  if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED) {
     if (plane == AOM_PLANE_U && blk_col == 0 && blk_row == 0) {
 #if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
       const BLOCK_SIZE plane_bsize =
@@ -2749,7 +2731,20 @@ void av1_predict_intra_block_facade(MACROBLOCKD *xd, int plane, int block_idx,
         cfl->dc_pred[plane - 1],
         cfl_idx_to_alpha(mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs[plane - 1],
                          plane - 1));
+  } else {
+    const PREDICTION_MODE mode = (plane == 0)
+                                     ? get_y_mode(xd->mi[0], block_raster_idx)
+                                     : get_pred_mode(mbmi->uv_mode);
+    av1_predict_intra_block(xd, pd->width, pd->height, txsize_to_bsize[tx_size],
+                            mode, dst, dst_stride, dst, dst_stride, blk_col,
+                            blk_row, plane);
   }
+#else
+  const PREDICTION_MODE mode =
+      (plane == 0) ? get_y_mode(xd->mi[0], block_raster_idx) : mbmi->uv_mode;
+  av1_predict_intra_block(xd, pd->width, pd->height, txsize_to_bsize[tx_size],
+                          mode, dst, dst_stride, dst, dst_stride, blk_col,
+                          blk_row, plane);
 #endif
 }
 

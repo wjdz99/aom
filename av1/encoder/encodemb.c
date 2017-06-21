@@ -1589,7 +1589,7 @@ void av1_predict_intra_block_encoder_facade(MACROBLOCK *x,
                                             BLOCK_SIZE plane_bsize) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_DC_PRED) {
+  if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED) {
     if (blk_col == 0 && blk_row == 0 && plane == AOM_PLANE_U) {
       const int width =
           max_intra_block_width(xd, plane_bsize, AOM_PLANE_U, tx_size);
