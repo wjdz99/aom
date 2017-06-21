@@ -6045,7 +6045,7 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
 #if CONFIG_HASH_ME
     bestsme = av1_full_pixel_search(cpi, x, bsize, &mvp_full, step_param,
                                     sadpb, cond_cost_list(cpi, cost_list),
-                                    &ref_mv, INT_MAX, 1, 
+                                    &ref_mv, INT_MAX, 1,
                                     (MI_SIZE * mi_col), (MI_SIZE * mi_row));
 #else
     bestsme = av1_full_pixel_search(cpi, x, bsize, &mvp_full, step_param,
@@ -8619,7 +8619,6 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
         sadpb, cond_cost_list(cpi, cost_list),
         &dv_ref.as_mv, INT_MAX, 1);
 #endif
-    );
 
     x->mv_limits = tmp_mv_limits;
     if (bestsme == INT_MAX) continue;

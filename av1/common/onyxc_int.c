@@ -3,7 +3,7 @@
 
 #if CONFIG_HASH_ME
 void crc_calculator_light_init(crc_calculator_light* 
-                               p_crc_calculator_light, 
+                               p_crc_calculator_light,
                                uint32_t bits, uint32_t truncPoly) {
   p_crc_calculator_light->m_remainder = 0;
   p_crc_calculator_light->m_bits = bits;
@@ -12,31 +12,31 @@ void crc_calculator_light_init(crc_calculator_light*
   crc_calculator_light_init_table(p_crc_calculator_light);
 }
 
-void crc_calculator_light_process_data(crc_calculator_light* 
-                                       p_crc_calculator_light, 
+void crc_calculator_light_process_data(crc_calculator_light*
+                                       p_crc_calculator_light,
                                        uint8_t* pData, uint32_t dataLength) {
   for (uint32_t i = 0; i < dataLength; i++) {
-    uint8_t index = 
-        (p_crc_calculator_light->m_remainder >> 
+    uint8_t index =
+        (p_crc_calculator_light->m_remainder >>
         (p_crc_calculator_light->m_bits - 8)) ^ pData[i];
     p_crc_calculator_light->m_remainder <<= 8;
-    p_crc_calculator_light->m_remainder ^= 
+    p_crc_calculator_light->m_remainder ^=
         p_crc_calculator_light->m_table[index];
   }
 }
 
-void crc_calculator_light_reset(crc_calculator_light* 
+void crc_calculator_light_reset(crc_calculator_light*
                                 p_crc_calculator_light) {
   p_crc_calculator_light->m_remainder = 0;
 }
 
-uint32_t crc_calculator_light_get_crc(crc_calculator_light* 
+uint32_t crc_calculator_light_get_crc(crc_calculator_light*
                                       p_crc_calculator_light) {
-  return p_crc_calculator_light->m_remainder & 
+  return p_crc_calculator_light->m_remainder &
       p_crc_calculator_light->m_finalResultMask;
 }
 
-void crc_calculator_light_init_table(crc_calculator_light* 
+void crc_calculator_light_init_table(crc_calculator_light*
                                      p_crc_calculator_light) {
   const uint32_t highBit = 1 << (p_crc_calculator_light->m_bits - 1);
   const uint32_t ByteHighBit = 1 << (8 - 1);
@@ -109,12 +109,11 @@ void hash_table_clearAll(hash_table* p_hash_table) {
   }
 }
 
-void hash_table_add_to_table(hash_table* p_hash_table, 
-                             uint32_t hashValue, block_hash* blockHash)
-{
+void hash_table_add_to_table(hash_table* p_hash_table,
+                             uint32_t hashValue, block_hash* blockHash) {
   if (p_hash_table->p_lookup_table[hashValue] == NULL) {
     p_hash_table->p_lookup_table[hashValue] = malloc(sizeof(Vector));
-    vector_setup(p_hash_table->p_lookup_table[hashValue], 
+    vector_setup(p_hash_table->p_lookup_table[hashValue],
                  10, sizeof(block_hash));
     vector_push_back(p_hash_table->p_lookup_table[hashValue], blockHash);
   } else {
@@ -130,13 +129,13 @@ int32_t hash_table_count(hash_table* p_hash_table, uint32_t hashValue) {
   }
 }
 
-Iterator hash_get_first_iterator(hash_table* p_hash_table, 
+Iterator hash_get_first_iterator(hash_table* p_hash_table,
                                  uint32_t hashValue) {
   assert(hash_table_count(p_hash_table, hashValue) > 0);
   return vector_begin(p_hash_table->p_lookup_table[hashValue]);
 }
 
-int32_t has_exact_match(hash_table* p_hash_table, 
+int32_t has_exact_match(hash_table* p_hash_table,
                         uint32_t hashValue1, uint32_t hash_value2) {
   if (p_hash_table->p_lookup_table[hashValue1] == NULL) {
     return 0;
@@ -151,8 +150,8 @@ int32_t has_exact_match(hash_table* p_hash_table,
   return 0;
 }
 
-void generate_block_2x2_hash_value(YV12_BUFFER_CONFIG* picture, 
-                                   uint32_t* picBlockHash[2], 
+void generate_block_2x2_hash_value(YV12_BUFFER_CONFIG* picture,
+                                   uint32_t* picBlockHash[2],
                                    int8_t* picBlockSameInfo[3]) {
   const int width = 2;
   const int height = 2;
@@ -165,8 +164,8 @@ void generate_block_2x2_hash_value(YV12_BUFFER_CONFIG* picture,
   int pos = 0;
   for (int yPos = 0; yPos < yEnd; yPos++) {
     for (int xPos = 0; xPos < xEnd; xPos++) {
-      get_pixels_in_1D_char_array_by_block_2x2(picture->y_buffer + 
-                                               yPos * picture->y_stride + 
+      get_pixels_in_1D_char_array_by_block_2x2(picture->y_buffer +
+                                               yPos * picture->y_stride +
                                                xPos, picture->y_stride, p);
       picBlockSameInfo[0][pos] = is_block_2x2_row_same_value(p);
       picBlockSameInfo[1][pos] = is_block_2x2_col_same_value(p);
@@ -182,11 +181,11 @@ void generate_block_2x2_hash_value(YV12_BUFFER_CONFIG* picture,
   free(p);
 }
 
-void generate_block_hash_value(YV12_BUFFER_CONFIG* picture, 
-                               int width, int height, 
-                               uint32_t* srcPicBlockHash[2], 
+void generate_block_hash_value(YV12_BUFFER_CONFIG* picture,
+                               int width, int height,
+                               uint32_t* srcPicBlockHash[2],
                                uint32_t* dstPicBlockHash[2], 
-                               int8_t* srcPicBlockSameInfo[3], 
+                               int8_t* srcPicBlockSameInfo[3],
                                int8_t* dstPicBlockSameInfo[3]) {
   int picWidth = picture->y_crop_width;
   int xEnd = picture->y_crop_width - width + 1;
@@ -215,9 +214,9 @@ void generate_block_hash_value(YV12_BUFFER_CONFIG* picture,
       p[3] = srcPicBlockHash[1][pos + srcHeight*picWidth + srcWidth];
       dstPicBlockHash[1][pos] = get_crc_value2((uint8_t*)p, length);
 
-      dstPicBlockSameInfo[0][pos] = srcPicBlockSameInfo[0][pos] && 
-                                    srcPicBlockSameInfo[0][pos + quadWidth] && 
-                                    srcPicBlockSameInfo[0][pos + srcWidth] && 
+      dstPicBlockSameInfo[0][pos] = srcPicBlockSameInfo[0][pos] &&
+                                    srcPicBlockSameInfo[0][pos + quadWidth] &&
+                                    srcPicBlockSameInfo[0][pos + srcWidth] &&
                                     srcPicBlockSameInfo[0]
                                     [pos + srcHeight * picWidth] &&
                                     srcPicBlockSameInfo[0]
@@ -225,14 +224,14 @@ void generate_block_hash_value(YV12_BUFFER_CONFIG* picture,
                                     srcPicBlockSameInfo[0]
                                     [pos + srcHeight * picWidth + srcWidth];
 
-      dstPicBlockSameInfo[1][pos] = srcPicBlockSameInfo[1][pos] && 
-                                    srcPicBlockSameInfo[1][pos + srcWidth] && 
+      dstPicBlockSameInfo[1][pos] = srcPicBlockSameInfo[1][pos] &&
+                                    srcPicBlockSameInfo[1][pos + srcWidth] &&
                                     srcPicBlockSameInfo[1]
-                                    [pos + quadHeight*picWidth] && 
+                                    [pos + quadHeight*picWidth] &&
                                     srcPicBlockSameInfo[1]
-                                    [pos + quadHeight * picWidth + srcWidth] && 
+                                    [pos + quadHeight * picWidth + srcWidth] &&
                                     srcPicBlockSameInfo[1]
-                                    [pos + srcHeight * picWidth] && 
+                                    [pos + srcHeight * picWidth] &&
                                     srcPicBlockSameInfo[1]
                                     [pos + srcHeight * picWidth + srcWidth];
       pos++;
@@ -247,8 +246,8 @@ void generate_block_hash_value(YV12_BUFFER_CONFIG* picture,
     for (int yPos = 0; yPos < yEnd; yPos++) {
       for (int xPos = 0; xPos < xEnd; xPos++) {
         dstPicBlockSameInfo[2][pos] = (!dstPicBlockSameInfo[0][pos] &&
-                                       !dstPicBlockSameInfo[1][pos]) || 
-                                       (((xPos & widthMinus1) == 0) && 
+                                       !dstPicBlockSameInfo[1][pos]) ||
+                                       (((xPos & widthMinus1) == 0) &&
                                        ((yPos & heightMinus1) == 0));
         pos++;
       }
@@ -259,11 +258,11 @@ void generate_block_hash_value(YV12_BUFFER_CONFIG* picture,
   free(p);
 }
 
-void add_to_hash_map_by_row_with_precal_data(hash_table* p_hash_table, 
-                                             uint32_t* picHash[2], 
-                                             int8_t* picIsSame, 
-                                             int picWidth, 
-                                             int picHeight, 
+void add_to_hash_map_by_row_with_precal_data(hash_table* p_hash_table,
+                                             uint32_t* picHash[2],
+                                             int8_t* picIsSame,
+                                             int picWidth,
+                                             int picHeight,
                                              int width, int height) {
   int xEnd = picWidth - width + 1;
   int yEnd = picHeight - height + 1;
@@ -307,8 +306,8 @@ uint32_t get_crc_value2(uint8_t* p, int length) {
   return crc_calculator_light_get_crc(&m_crcCalculator2);
 }
 
-void get_pixels_in_1D_char_array_by_block_2x2(uint8_t* ySrc, 
-                                              int stride, 
+void get_pixels_in_1D_char_array_by_block_2x2(uint8_t* ySrc,
+                                              int stride,
                                               uint8_t* pPixelsIn1D) {
   uint8_t* pPel = ySrc;
   int index = 0;
@@ -336,8 +335,8 @@ int is_block_2x2_col_same_value(uint8_t* p) {
   return 1;
 }
 
-int hash_is_horizontal_perfect(YV12_BUFFER_CONFIG* picture, 
-                               int width, int height, 
+int hash_is_horizontal_perfect(YV12_BUFFER_CONFIG* picture,
+                               int width, int height,
                                int xStart, int yStart) {
   int stride = picture->y_stride;
   uint8_t* p = picture->y_buffer;
@@ -428,7 +427,7 @@ int get_block_hash_value(uint8_t* ySrc, int stride, int width, int height,
         toHash[2] = hashValueBuffer[0][srcIdx][srcPos + srcSubBlockInWidth];
         toHash[3] = hashValueBuffer[0][srcIdx][srcPos + srcSubBlockInWidth + 1];
 
-        hashValueBuffer[0][dstIdx][dstPos] = get_crc_value1((uint8_t*)toHash, 
+        hashValueBuffer[0][dstIdx][dstPos] = get_crc_value1((uint8_t*)toHash,
                                                             length);
 
         toHash[0] = hashValueBuffer[1][srcIdx][srcPos];
@@ -436,7 +435,7 @@ int get_block_hash_value(uint8_t* ySrc, int stride, int width, int height,
         toHash[2] = hashValueBuffer[1][srcIdx][srcPos + srcSubBlockInWidth];
         toHash[3] = hashValueBuffer[1][srcIdx]
                     [srcPos + srcSubBlockInWidth + 1];
-        hashValueBuffer[1][dstIdx][dstPos] = get_crc_value2((uint8_t*)toHash, 
+        hashValueBuffer[1][dstIdx][dstPos] = get_crc_value2((uint8_t*)toHash,
                                                             length);
         dstPos++;
       }

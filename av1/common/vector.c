@@ -26,7 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "vector.h"
+#include "av1/common/vector.h"
 
 int vector_setup(Vector* vector, size_t capacity, size_t element_size) {
     assert(vector != NULL);
@@ -303,12 +303,12 @@ bool vector_is_empty(const Vector* vector) {
 int vector_resize(Vector* vector, size_t new_size) {
     if (new_size <= vector->capacity * VECTOR_SHRINK_THRESHOLD) {
         vector->size = new_size;
-        if (_vector_reallocate(vector, new_size * VECTOR_GROWTH_FACTOR) 
+        if (_vector_reallocate(vector, new_size * VECTOR_GROWTH_FACTOR)
             == -1) {
             return VECTOR_ERROR;
         }
     } else if (new_size > vector->capacity) {
-        if (_vector_reallocate(vector, new_size * VECTOR_GROWTH_FACTOR) 
+        if (_vector_reallocate(vector, new_size * VECTOR_GROWTH_FACTOR)
             == -1) {
             return VECTOR_ERROR;
         }
@@ -377,14 +377,14 @@ int iterator_erase(Vector* vector, Iterator* iterator) {
 void iterator_increment(Iterator* iterator) {
     assert(iterator != NULL);
     // iterator->pointer += iterator->element_size;
-  iterator->pointer = (unsigned char*)iterator->pointer + 
+  iterator->pointer = (unsigned char*)iterator->pointer +
                        iterator->element_size;
 }
 
 void iterator_decrement(Iterator* iterator) {
     assert(iterator != NULL);
     // iterator->pointer -= iterator->element_size;
-  iterator->pointer = (unsigned char*)iterator->pointer - 
+  iterator->pointer = (unsigned char*)iterator->pointer -
                        iterator->element_size;
 }
 
@@ -475,15 +475,15 @@ int _vector_move_right(Vector* vector, size_t index) {
         offset + vector->element_size,
         right_capacity_in_bytes,
         offset,
-        elements_in_bytes
-    );
+        elements_in_bytes);
+
     /* clang-format on */
 
     return return_code == 0 ? VECTOR_SUCCESS : VECTOR_ERROR;
 
 #else
     // memmove(offset + vector->element_size, offset, elements_in_bytes);
-    memmove((unsigned char*)offset + vector->element_size, 
+    memmove((unsigned char*)offset + vector->element_size,
             offset, elements_in_bytes);
     return VECTOR_SUCCESS;
 #endif
@@ -500,12 +500,12 @@ void _vector_move_left(Vector* vector, size_t index) {
     right_elements_in_bytes = (vector->size - index - 1) * vector->element_size;
 
     // memmove(offset, offset + vector->element_size, right_elements_in_bytes);
-  memmove(offset, (unsigned char*)offset + vector->element_size, 
+  memmove(offset, (unsigned char*)offset + vector->element_size,
           right_elements_in_bytes);
 }
 
 int _vector_adjust_capacity(Vector* vector) {
-    return _vector_reallocate(vector, 
+    return _vector_reallocate(vector,
                               MAX(1, vector->size * VECTOR_GROWTH_FACTOR));
 }
 

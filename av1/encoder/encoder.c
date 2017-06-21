@@ -5579,16 +5579,16 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     }
 
     hash_table_create(&cm->cur_frame->hash_table);
-    generate_block_2x2_hash_value(cpi->source, 
+    generate_block_2x2_hash_value(cpi->source,
                                   uiBlockHashValues[0], bIsBlockSame[0]);
-    generate_block_hash_value(cpi->source, 4, 4, 
-                              uiBlockHashValues[0], uiBlockHashValues[1], 
+    generate_block_hash_value(cpi->source, 4, 4,
+                              uiBlockHashValues[0], uiBlockHashValues[1],
                               bIsBlockSame[0], bIsBlockSame[1]);
-    generate_block_hash_value(cpi->source, 8, 8, 
-                              uiBlockHashValues[1], uiBlockHashValues[0], 
+    generate_block_hash_value(cpi->source, 8, 8,
+                              uiBlockHashValues[1], uiBlockHashValues[0],
                               bIsBlockSame[1], bIsBlockSame[0]);
     add_to_hash_map_by_row_with_precal_data(&cm->cur_frame->hash_table,
-                                            uiBlockHashValues[0], 
+                                            uiBlockHashValues[0],
                                             bIsBlockSame[0][2],
                                             picWidth,
                                             picHeight, 8, 8);
