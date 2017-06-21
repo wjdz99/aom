@@ -529,11 +529,16 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     int blk_row, blk_col;
     int coll_blk_count = 0;
 
-    int tpl_sample_pos[5][2] = { { -1, xd->n8_w },
+    int tpl_sample_pos[9][2] = { { -1, xd->n8_w },
                                  { 0, xd->n8_w },
                                  { xd->n8_h, xd->n8_w },
                                  { xd->n8_h, 0 },
-                                 { xd->n8_h, -1 } };
+                                 { xd->n8_h, -1 },
+                                 { xd->n8_h, -2 },
+                                 { -2, xd->n8_w },
+                                 { xd->n8_h, 2 },
+                                 { 1, xd->n8_w + 2 },
+    };
     int i;
 
     for (blk_row = 0; blk_row < xd->n8_h; ++blk_row) {
@@ -544,15 +549,15 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
     }
 
-    for (i = 0; i < 5; ++i) {
+    if (coll_blk_count == 0) mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
+
+    for (i = 0; i < 9; ++i) {
       blk_row = tpl_sample_pos[i][0];
       blk_col = tpl_sample_pos[i][1];
       coll_blk_count += add_tpl_ref_mv(cm, prev_frame_mvs_base, xd, mi_row,
                                        mi_col, ref_frame, blk_row, blk_col,
                                        refmv_count, ref_mv_stack, mode_context);
     }
-
-    if (coll_blk_count == 0) mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
   }
 
 //#if CONFIG_TEMPMV_SIGNALING
