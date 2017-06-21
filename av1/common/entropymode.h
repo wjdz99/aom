@@ -92,7 +92,11 @@ struct seg_counts {
 
 typedef struct frame_contexts {
   aom_prob y_mode_prob[BLOCK_SIZE_GROUPS][INTRA_MODES - 1];
+#if CONFIG_CFL
+  aom_prob uv_mode_prob[INTRA_MODES][UV_INTRA_MODES - 1];
+#else
   aom_prob uv_mode_prob[INTRA_MODES][INTRA_MODES - 1];
+#endif
 #if CONFIG_EXT_PARTITION_TYPES
   aom_prob partition_prob[PARTITION_CONTEXTS][EXT_PARTITION_TYPES - 1];
 #else
@@ -302,7 +306,11 @@ typedef struct frame_contexts {
   aom_prob switchable_restore_prob[RESTORE_SWITCHABLE_TYPES - 1];
 #endif  // CONFIG_LOOP_RESTORATION
   aom_cdf_prob y_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(INTRA_MODES)];
+#if CONFIG_CFL
+  aom_cdf_prob uv_mode_cdf[INTRA_MODES][CDF_SIZE(UV_INTRA_MODES)];
+#else
   aom_cdf_prob uv_mode_cdf[INTRA_MODES][CDF_SIZE(INTRA_MODES)];
+#endif
 #if CONFIG_EXT_PARTITION_TYPES
   aom_cdf_prob partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(EXT_PARTITION_TYPES)];
 #else
@@ -357,7 +365,11 @@ typedef struct FRAME_COUNTS {
 #if !CONFIG_EC_ADAPT || CONFIG_ENTROPY_STATS
   unsigned int kf_y_mode[INTRA_MODES][INTRA_MODES][INTRA_MODES];
   unsigned int y_mode[BLOCK_SIZE_GROUPS][INTRA_MODES];
+#if CONFIG_CFL
+  unsigned int uv_mode[INTRA_MODES][UV_INTRA_MODES];
+#else
   unsigned int uv_mode[INTRA_MODES][INTRA_MODES];
+#endif  // CONFIG_CFL
 #endif  // !CONFIG_EC_ADAPT || CONFIG_ENTROPY_STATS
 #if CONFIG_EXT_PARTITION_TYPES
   unsigned int partition[PARTITION_CONTEXTS][EXT_PARTITION_TYPES];

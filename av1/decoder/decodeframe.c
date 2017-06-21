@@ -5080,7 +5080,11 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
   }
 
   for (j = 0; j < INTRA_MODES; j++) {
+#if CONFIG_CFL
+    for (i = 0; i < UV_INTRA_MODES - 1; ++i)
+#else
     for (i = 0; i < INTRA_MODES - 1; ++i)
+#endif
       av1_diff_update_prob(&r, &fc->uv_mode_prob[j][i], ACCT_STR);
   }
 

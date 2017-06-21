@@ -377,8 +377,12 @@ typedef struct MB_MODE_INFO {
 #endif                      // CONFIG_SUPERTX
   int8_t seg_id_predicted;  // valid only when temporal_update is enabled
 
-  // Only for INTRA blocks
+// Only for INTRA blocks
+#if CONFIG_CFL
+  UV_PREDICTION_MODE uv_mode;
+#else
   PREDICTION_MODE uv_mode;
+#endif  // CONFIG_CFL
 #if CONFIG_PALETTE
   PALETTE_MODE_INFO palette_mode_info;
 #endif  // CONFIG_PALETTE
@@ -497,6 +501,33 @@ static INLINE PREDICTION_MODE get_y_mode(const MODE_INFO *mi, int block) {
   return mi->mbmi.sb_type < BLOCK_8X8 ? mi->bmi[block].as_mode : mi->mbmi.mode;
 #endif
 }
+
+#if CONFIG_CFL
+static INLINE PREDICTION_MODE get_uv_mode(UV_PREDICTION_MODE mode) {
+  static PREDICTION_MODE uv2y[UV_INTRA_MODES] = {
+    DC_PRED,    // UV_DC_PRED
+    V_PRED,     // UV_V_PRED
+    H_PRED,     // UV_H_PRED
+    D45_PRED,   // UV_D45_PRED
+    D135_PRED,  // UV_D135_PRED
+    D117_PRED,  // UV_D117_PRED
+    D153_PRED,  // UV_D153_PRED
+    D207_PRED,  // UV_D207_PRED
+    D63_PRED,   // UV_D63_PRED
+#if CONFIG_ALT_INTRA
+    SMOOTH_PRED,  // UV_SMOOTH_PRED
+#if CONFIG_SMOOTH_HV
+    SMOOTH_V_PRED,  // UV_SMOOTH_V_PRED
+    SMOOTH_H_PRED,  // UV_SMOOTH_H_PRED
+#endif              // CONFIG_SMOOTH_HV
+#endif              // CONFIG_ALT_INTRA
+    TM_PRED,        // UV_TM_PRED
+  };
+  return uv2y[mode];
+}
+#else
+static INLINE PREDICTION_MODE get_uv_mode(PREDICTION_MODE mode) { return mode; }
+#endif  // CONFIG_CFL
 
 static INLINE int is_inter_block(const MB_MODE_INFO *mbmi) {
 #if CONFIG_INTRABC
@@ -1085,7 +1116,8 @@ static INLINE PREDICTION_MODE get_prediction_mode(const MODE_INFO *mi,
   if (is_inter_block(mbmi)) return mbmi->mode;
 
   int block_raster_idx = av1_block_index_to_raster_order(tx_size, block_idx);
-  return (plane == 0) ? get_y_mode(mi, block_raster_idx) : mbmi->uv_mode;
+  return (plane == PLANE_TYPE_Y) ? get_y_mode(mi, block_raster_idx)
+                                 : get_uv_mode(mbmi->uv_mode);
 }
 #endif
 
@@ -1100,7 +1132,7 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
 
   return intra_mode_to_tx_type_context[plane_type == PLANE_TYPE_Y
                                            ? get_y_mode(xd->mi[0], block_idx)
-                                           : mbmi->uv_mode];
+                                           : get_uv_mode(mbmi->uv_mode)];
 }
 
 static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
@@ -1148,8 +1180,8 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
   if (tx_size < TX_4X4)
     return DCT_DCT;
   else
-#endif
-    return intra_mode_to_tx_type_context[mbmi->uv_mode];
+#endif  // CONFIG_CHROMA_2X2
+    return intra_mode_to_tx_type_context[get_uv_mode(mbmi->uv_mode)];
 #else   // CONFIG_CB4X4
 
   // Sub8x8-Inter/Intra OR UV-Intra
@@ -1158,7 +1190,7 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
   else  // Sub8x8 Intra OR UV-Intra
     return intra_mode_to_tx_type_context[plane_type == PLANE_TYPE_Y
                                              ? get_y_mode(mi, block_raster_idx)
-                                             : mbmi->uv_mode];
+                                             : get_uv_mode(mbmi->uv_mode)];
 #endif  // CONFIG_CB4X4
 #else   // CONFIG_EXT_TX
   (void)block;
