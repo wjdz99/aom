@@ -4725,6 +4725,20 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
                                cm->tile_rows * cm->tile_cols);
     av1_average_tile_intra_cdfs(cpi->common.fc, tile_ctxs, cdf_ptrs,
                                 cm->tile_rows * cm->tile_cols);
+#if CONFIG_CFL
+    /*
+    for (int i = 0; i < INTRA_MODES; i++) {
+      for (int j = 0; j < UV_INTRA_MODES; j++) {
+        printf("%d, ", AOM_ICDF(tile_ctxs[0]->uv_mode_cdf[i][j]));
+      }
+      printf("\n ");
+    }
+    */
+    for (int i = 0; i < CFL_ALPHABET_SIZE; i++) {
+      printf("%d, ", AOM_ICDF(tile_ctxs[0]->cfl_alpha_cdf[i]));
+    }
+    printf("\n ");
+#endif  // CONFIG_CFL
 #if CONFIG_PVQ
     av1_average_tile_pvq_cdfs(cpi->common.fc, tile_ctxs,
                               cm->tile_rows * cm->tile_cols);
