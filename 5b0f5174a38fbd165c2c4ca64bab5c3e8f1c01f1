@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "278f9c36_f5e8a273",
+        "filename": "av1/encoder/cost.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-06-21T17:29:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10fdb13a_6eec0445",
+      "revId": "5b0f5174a38fbd165c2c4ca64bab5c3e8f1c01f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0de639db_9f8c492c",
         "filename": "av1/encoder/cost.c",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-21T16:46:37Z",
       "side": 1,
       "message": "Eventually it would be nice to reorder all of the CDFs so that we do not need the ind/inv mappings, but this is a perfectly fine workaround for now.",
+      "revId": "5b0f5174a38fbd165c2c4ca64bab5c3e8f1c01f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff6c30db_fdfd36d7",
+        "filename": "av1/encoder/cost.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-06-21T17:29:51Z",
+      "side": 1,
+      "message": "The mappings do provide a convenient way to make options impossible to encode even if they\u0027re at the start/in the middle of an enum. Otherwise you either have to assign a probability of 0 (and hope nothing breaks) or 1/2^15 (and waste a bit of space).\n\nThat said, if the entropy coder explicitly supported zero probabilities for this case, then we could remove the maps. Probably after this patch + the dead-code-removal patch which will land soon, so that we don\u0027t have to also deal with coding trees.",
+      "parentUuid": "0de639db_9f8c492c",
       "revId": "5b0f5174a38fbd165c2c4ca64bab5c3e8f1c01f1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "c153b1cf_eec5028b",
+        "filename": "av1/encoder/cost.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-06-21T17:29:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6dae3ae6_6d5885c0",
+      "revId": "5b0f5174a38fbd165c2c4ca64bab5c3e8f1c01f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "34e31207_da23f577",
         "filename": "av1/encoder/cost.h",
         "patchSetId": 4
@@ -82,6 +136,24 @@
       "writtenOn": "2017-06-21T16:46:37Z",
       "side": 1,
       "message": "Can this happen?  If you are seeing this, it means two adjacent CDF values are the same which would mean that the probability of that symbol is 0 (which seems bad).\n\nMaybe replace this with assert(p15 \u003e 0 \u0026\u0026 p15 \u003c 32768)",
+      "revId": "5b0f5174a38fbd165c2c4ca64bab5c3e8f1c01f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09215942_60612e83",
+        "filename": "av1/encoder/cost.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-06-21T17:29:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34e31207_da23f577",
       "revId": "5b0f5174a38fbd165c2c4ca64bab5c3e8f1c01f1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
