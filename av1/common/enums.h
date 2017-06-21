@@ -421,6 +421,7 @@ typedef enum ATTRIBUTE_PACKED {
 #endif               // CONFIG_SMOOTH_HV
 #endif               // CONFIG_ALT_INTRA
   UV_TM_PRED,        // True-motion
+  UV_CFL_PRED,       // Chroma-from-Luma
   UV_INTRA_MODES,
 } UV_PREDICTION_MODE;
 #endif  // CONFIG_CFL
