@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "6fa41b15_e60145a8",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-21T23:02:43Z",
+      "side": 1,
+      "message": "If either of the if\u0027s in here are triggered, it might also be a good idea to assert that a) row and/or col are 0 before being incremented, and b) y_width and/or y_height is equal to (col \u003c\u003c tx_off_log2) and/or (row \u003c\u003c tx_off_log2).\n\nThat will catch any changes to the codec that might cause you to append multiple transform blocks along one buffer dimension (which is almost surely an error) or to leave gaps in what is appended (which is certainly an error).",
+      "parentUuid": "df43630b_f3f69291",
+      "revId": "997bb65fcfd29e9be50a7daf2e4f5940ca1289de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09091971_9a013a05",
         "filename": "av1/common/cfl.c",
         "patchSetId": 3
