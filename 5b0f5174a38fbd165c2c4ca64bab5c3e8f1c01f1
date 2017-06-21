@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "6dae3ae6_6d5885c0",
+        "filename": "av1/encoder/cost.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-06-21T17:16:23Z",
+      "side": 1,
+      "message": "Apologies, this should use AOM_ICDF() instead of OD_ICDF() and should have also used the CDF_PROB_TOP constant, e.g.,\n\nif (cdf[i] \u003d\u003d AOM_ICDF(CDF_PROB_TOP)) break;\n\nFor clarity, it might be better to compute the p15 value in the same iterative manner done in av1/common/entropy.c:5342 build_tail_cdfs().  Maybe something like:\n\nint i;\naom_cdf_prob prev_cdf;\nprev_cdf \u003d 0;\nfor (i \u003d 0; ; i++) {\n  const aom_cdf_prob p15 \u003d AOM_ICDF(cdf[i]) - prev_cdf;\n  prev_cdf \u003d AOM_ICDF(cdf[i]);\n\n  if (inv_map) {\n    costs[inv_map[i]] \u003d av1_cost_symbol(p15);\n  }\n  else {\n    costs[i] \u003d av1_cost_symbol(p15);\n  }\n\n  if (cdf[i] \u003d\u003d AOM_ICDF(CDF_PROB_TOP)) {\n    break;\n  }\n}",
+      "parentUuid": "0248e4ba_a4aae6c4",
+      "revId": "5b0f5174a38fbd165c2c4ca64bab5c3e8f1c01f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "34e31207_da23f577",
         "filename": "av1/encoder/cost.h",
         "patchSetId": 4
