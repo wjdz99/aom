@@ -514,7 +514,11 @@ static const PREDICTION_MODE intra_rd_search_mode_order[INTRA_MODES] = {
 #if CONFIG_CFL
 static const UV_PREDICTION_MODE uv_intra_rd_search_mode_order[UV_INTRA_MODES] =
     {
-      UV_DC_PRED,       UV_H_PRED,        UV_V_PRED,
+      UV_DC_PRED,
+#if CONFIG_CFL
+      UV_CFL_PRED,
+#endif
+      UV_H_PRED,        UV_V_PRED,
 #if CONFIG_ALT_INTRA
       UV_SMOOTH_PRED,
 #endif  // CONFIG_ALT_INTRA
@@ -5381,7 +5385,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         tokenonly_rd_stats.rate + cpi->intra_uv_mode_cost[mbmi->mode][mode];
 
 #if CONFIG_CFL
-    if (mode == UV_DC_PRED) {
+    if (mode == UV_CFL_PRED) {
       this_rate += xd->cfl->costs[mbmi->cfl_alpha_idx];
     }
 #endif
