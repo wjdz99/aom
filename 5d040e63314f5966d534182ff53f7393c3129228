@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "c288813d_efd503c7",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-06-21T00:23:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e9ac6f16_ca084d64",
+      "range": {
+        "startLine": 176,
+        "startChar": 20,
+        "endLine": 176,
+        "endChar": 26
+      },
+      "revId": "5d040e63314f5966d534182ff53f7393c3129228",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bccc494a_ef9acbcf",
         "filename": "av1/encoder/bgsprite.c",
         "patchSetId": 3
@@ -132,6 +156,30 @@
       "side": 1,
       "message": "I meant \"(MAX_PARAMDIM - 1) * sizeof(**params)\".\nBut, on second thought, this is also OK, given the next statement.",
       "parentUuid": "bab6d9e6_72dcd971",
+      "range": {
+        "startLine": 178,
+        "startChar": 30,
+        "endLine": 178,
+        "endChar": 45
+      },
+      "revId": "5d040e63314f5966d534182ff53f7393c3129228",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53ea104d_c76cd646",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-06-21T00:23:36Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "70e2acc5_d8912dcd",
       "range": {
         "startLine": 178,
         "startChar": 30,
