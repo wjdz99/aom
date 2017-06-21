@@ -674,6 +674,76 @@ static double od_compute_dist(int qm, int activity_masking, od_coeff *x,
   return sum;
 }
 
+static double od_compute_dist_diff(int qm, int activity_masking, od_coeff *x,
+                                   od_coeff *e, int bsize_w, int bsize_h,
+                                   int qindex) {
+  int i;
+  double sum;
+  sum = 0;
+
+  assert(bsize_w >= 8 && bsize_h >= 8);
+
+  if (1 /*qm == OD_FLAT_QM*/) {
+    for (i = 0; i < bsize_w * bsize_h; i++) {
+      double tmp;
+      tmp = e[i];
+      sum += tmp * tmp;
+    }
+  } else {
+    int j;
+    DECLARE_ALIGNED(16, od_coeff, y[MAX_TX_SQUARE]);
+    DECLARE_ALIGNED(16, od_coeff, tmp[MAX_TX_SQUARE]);
+    DECLARE_ALIGNED(16, od_coeff, e_lp[MAX_TX_SQUARE]);
+    int mid = OD_DIST_LP_MID;
+    for (i = 0; i < bsize_h; i++) {
+      for (j = 0; j < bsize_w; j++) {
+        y[i * bsize_w + j] = x[i * bsize_w + j] - e[i * bsize_w + j];
+      }
+    }
+    for (i = 0; i < bsize_h; i++) {
+      tmp[i * bsize_w] = mid * e[i * bsize_w] + 2 * e[i * bsize_w + 1];
+      tmp[i * bsize_w + bsize_w - 1] =
+          mid * e[i * bsize_w + bsize_w - 1] + 2 * e[i * bsize_w + bsize_w - 2];
+      for (j = 1; j < bsize_w - 1; j++) {
+        tmp[i * bsize_w + j] = mid * e[i * bsize_w + j] +
+                               e[i * bsize_w + j - 1] + e[i * bsize_w + j + 1];
+      }
+    }
+    for (j = 0; j < bsize_w; j++) {
+      e_lp[j] = mid * tmp[j] + 2 * tmp[bsize_w + j];
+      e_lp[(bsize_h - 1) * bsize_w + j] =
+          mid * tmp[(bsize_h - 1) * bsize_w + j] +
+          2 * tmp[(bsize_h - 2) * bsize_w + j];
+    }
+    for (i = 1; i < bsize_h - 1; i++) {
+      for (j = 0; j < bsize_w; j++) {
+        e_lp[i * bsize_w + j] = mid * tmp[i * bsize_w + j] +
+                                tmp[(i - 1) * bsize_w + j] +
+                                tmp[(i + 1) * bsize_w + j];
+      }
+    }
+    for (i = 0; i < bsize_h; i += 8) {
+      for (j = 0; j < bsize_w; j += 8) {
+        sum += od_compute_dist_8x8(qm, activity_masking, &x[i * bsize_w + j],
+                                   &y[i * bsize_w + j], &e_lp[i * bsize_w + j],
+                                   bsize_w);
+      }
+    }
+    /* Scale according to linear regression against SSE, for 8x8 blocks. */
+    if (activity_masking) {
+      sum *= 2.2 + (1.7 - 2.2) * (qindex - 99) / (210 - 99) +
+             (qindex < 99 ? 2.5 * (qindex - 99) / 99 * (qindex - 99) / 99 : 0);
+    } else {
+      sum *= qindex >= 128
+                 ? 1.4 + (0.9 - 1.4) * (qindex - 128) / (209 - 128)
+                 : qindex <= 43
+                       ? 1.5 + (2.0 - 1.5) * (qindex - 43) / (16 - 43)
+                       : 1.5 + (1.4 - 1.5) * (qindex - 43) / (128 - 43);
+    }
+  }
+  return sum;
+}
+
 int64_t av1_daala_dist(const uint8_t *src, int src_stride, const uint8_t *dst,
                        int dst_stride, int bsw, int bsh, int qm,
                        int use_activity_masking, int qindex) {
@@ -692,6 +762,28 @@ int64_t av1_daala_dist(const uint8_t *src, int src_stride, const uint8_t *dst,
 
   d = (int64_t)od_compute_dist(qm, use_activity_masking, orig, rec, bsw, bsh,
                                qindex);
+  return d;
+}
+
+int64_t av1_daala_dist_diff(const uint8_t *src, int src_stride,
+                            const int16_t *diff, int dst_stride, int bsw,
+                            int bsh, int qm, int use_activity_masking,
+                            int qindex) {
+  int i, j;
+  int64_t d;
+  DECLARE_ALIGNED(16, od_coeff, orig[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(16, od_coeff, diff32[MAX_TX_SQUARE]);
+
+  assert(qm == OD_HVS_QM);
+
+  for (j = 0; j < bsh; j++)
+    for (i = 0; i < bsw; i++) orig[j * bsw + i] = src[j * src_stride + i];
+
+  for (j = 0; j < bsh; j++)
+    for (i = 0; i < bsw; i++) diff32[j * bsw + i] = diff[j * dst_stride + i];
+
+  d = (int64_t)od_compute_dist_diff(qm, use_activity_masking, orig, diff32, bsw,
+                                    bsh, qindex);
   return d;
 }
 #endif  // CONFIG_DAALA_DIST
