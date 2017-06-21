@@ -526,7 +526,7 @@ static const PREDICTION_MODE intra_rd_search_mode_order[INTRA_MODES] = {
 
 #if CONFIG_CFL
 static const UV_PREDICTION_MODE uv_rd_search_mode_order[UV_INTRA_MODES] = {
-  UV_DC_PRED,       UV_H_PRED,        UV_V_PRED,
+  UV_DC_PRED,       UV_CFL_PRED,      UV_H_PRED,    UV_V_PRED,
 #if CONFIG_ALT_INTRA
   UV_SMOOTH_PRED,
 #endif  // CONFIG_ALT_INTRA
@@ -534,8 +534,8 @@ static const UV_PREDICTION_MODE uv_rd_search_mode_order[UV_INTRA_MODES] = {
 #if CONFIG_ALT_INTRA && CONFIG_SMOOTH_HV
   UV_SMOOTH_V_PRED, UV_SMOOTH_H_PRED,
 #endif  // CONFIG_ALT_INTRA && CONFIG_SMOOTH_HV
-  UV_D135_PRED,     UV_D207_PRED,     UV_D153_PRED,
-  UV_D63_PRED,      UV_D117_PRED,     UV_D45_PRED,
+  UV_D135_PRED,     UV_D207_PRED,     UV_D153_PRED, UV_D63_PRED,
+  UV_D117_PRED,     UV_D45_PRED,
 };
 #else
 #define uv_rd_search_mode_order intra_rd_search_mode_order
@@ -5537,7 +5537,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     UV_PREDICTION_MODE mode = uv_rd_search_mode_order[mode_idx];
 #if CONFIG_EXT_INTRA
     const int is_directional_mode =
-        av1_is_directional_mode(mode, mbmi->sb_type);
+        av1_is_directional_mode(get_uv_mode(mode), mbmi->sb_type);
 #endif  // CONFIG_EXT_INTRA
     if (!(cpi->sf.intra_uv_mode_mask[txsize_sqr_up_map[max_tx_size]] &
           (1 << mode)))
@@ -5546,7 +5546,8 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     mbmi->uv_mode = mode;
 #if CONFIG_CFL
     int cfl_alpha_rate = 0;
-    if (mode == UV_DC_PRED) {
+    if (mode == UV_CFL_PRED) {
+      assert(!is_directional_mode);
       const TX_SIZE uv_tx_size = av1_get_uv_tx_size(mbmi, &xd->plane[1]);
       cfl_alpha_rate = cfl_rd_pick_alpha(x, uv_tx_size);
     }
@@ -5574,7 +5575,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         tokenonly_rd_stats.rate + cpi->intra_uv_mode_cost[mbmi->mode][mode];
 
 #if CONFIG_CFL
-    if (mode == UV_DC_PRED) {
+    if (mode == UV_CFL_PRED) {
       this_rate += cfl_alpha_rate;
     }
 #endif
