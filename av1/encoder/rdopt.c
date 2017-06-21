@@ -511,6 +511,22 @@ static const PREDICTION_MODE intra_rd_search_mode_order[INTRA_MODES] = {
   D135_PRED,     D207_PRED,     D153_PRED, D63_PRED, D117_PRED, D45_PRED,
 };
 
+#if CONFIG_CFL
+static const UV_PREDICTION_MODE uv_intra_rd_search_mode_order[UV_INTRA_MODES] =
+    {
+      UV_DC_PRED,       UV_H_PRED,        UV_V_PRED,
+#if CONFIG_ALT_INTRA
+      UV_SMOOTH_PRED,
+#endif  // CONFIG_ALT_INTRA
+      UV_TM_PRED,
+#if CONFIG_ALT_INTRA && CONFIG_SMOOTH_HV
+      UV_SMOOTH_V_PRED, UV_SMOOTH_H_PRED,
+#endif  // CONFIG_ALT_INTRA && CONFIG_SMOOTH_HV
+      UV_D135_PRED,     UV_D207_PRED,     UV_D153_PRED,
+      UV_D63_PRED,      UV_D117_PRED,     UV_D45_PRED,
+    };
+#endif  // CONFIG_CFL
+
 #if CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
 static INLINE int write_uniform_cost(int n, int v) {
   const int l = get_unsigned_bits(n);
@@ -1788,7 +1804,12 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
     const int block_raster_idx =
         av1_block_index_to_raster_order(tx_size, block);
     const PREDICTION_MODE mode =
-        (plane == 0) ? get_y_mode(xd->mi[0], block_raster_idx) : mbmi->uv_mode;
+        (plane == 0) ? get_y_mode(xd->mi[0], block_raster_idx) :
+#if CONFIG_CFL
+                     get_pred_mode(mbmi->uv_mode);
+#else
+                     mbmi->uv_mode;
+#endif  // CONFIG_CFL
     TX_TYPE tx_type = get_tx_type((plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV,
                                   xd, block, tx_size);
     if (av1_use_dpcm_intra(plane, mode, tx_type, mbmi)) {
@@ -4964,7 +4985,11 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
                            &plane_block_height, &rows, &cols);
   if (rows * cols > PALETTE_MAX_BLOCK_SIZE) return;
 
+#if CONFIG_CFL
+  mbmi->uv_mode = UV_DC_PRED;
+#else
   mbmi->uv_mode = DC_PRED;
+#endif  // CONFIG_CFL
 #if CONFIG_FILTER_INTRA
   mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
 #endif  // CONFIG_FILTER_INTRA
@@ -5148,7 +5173,11 @@ static int rd_pick_filter_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   av1_zero(filter_intra_mode_info);
   mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 1;
+#if CONFIG_CFL
+  mbmi->uv_mode = UV_DC_PRED;
+#else
   mbmi->uv_mode = DC_PRED;
+#endif  // CONFIG_CFL
 #if CONFIG_PALETTE
   mbmi->palette_mode_info.palette_size[1] = 0;
 #endif  // CONFIG_PALETTE
@@ -5175,7 +5204,11 @@ static int rd_pick_filter_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   if (filter_intra_selected_flag) {
+#if CONFIG_CFL
+    mbmi->uv_mode = UV_DC_PRED;
+#else
     mbmi->uv_mode = DC_PRED;
+#endif  // CONFIG_CFL
     mbmi->filter_intra_mode_info.use_filter_intra_mode[1] =
         filter_intra_mode_info.use_filter_intra_mode[1];
     mbmi->filter_intra_mode_info.filter_intra_mode[1] =
@@ -5274,7 +5307,11 @@ static int rd_pick_intra_angle_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_EXT_INTRA
 
 static void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
+#if CONFIG_CFL
+  mbmi->uv_mode = UV_DC_PRED;
+#else
   mbmi->uv_mode = DC_PRED;
+#endif  // CONFIG_CFL
 #if CONFIG_PALETTE
   mbmi->palette_mode_info.palette_size[1] = 0;
 #endif  // CONFIG_PALETTE
@@ -5300,10 +5337,18 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
 #endif  // CONFIG_PALETTE
 
+#if CONFIG_CFL
+  for (int mode_idx = 0; mode_idx < UV_INTRA_MODES; ++mode_idx) {
+#else
   for (int mode_idx = 0; mode_idx < INTRA_MODES; ++mode_idx) {
+#endif  // CONFIG_CFL
     int this_rate;
     RD_STATS tokenonly_rd_stats;
+#if CONFIG_CFL
+    UV_PREDICTION_MODE mode = uv_intra_rd_search_mode_order[mode_idx];
+#else
     PREDICTION_MODE mode = intra_rd_search_mode_order[mode_idx];
+#endif  // CONFIG_CFL
 #if CONFIG_EXT_INTRA
     const int is_directional_mode =
         av1_is_directional_mode(mode, mbmi->sb_type);
@@ -5336,7 +5381,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         tokenonly_rd_stats.rate + cpi->intra_uv_mode_cost[mbmi->mode][mode];
 
 #if CONFIG_CFL
-    if (mode == DC_PRED) {
+    if (mode == UV_DC_PRED) {
       this_rate += xd->cfl->costs[mbmi->cfl_alpha_idx];
     }
 #endif
@@ -5352,7 +5397,11 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_FILTER_INTRA
 #if CONFIG_PALETTE
     if (cpi->common.allow_screen_content_tools && mbmi->sb_type >= BLOCK_8X8 &&
+#if CONFIG_CFL
+        mode == UV_DC_PRED)
+#else
         mode == DC_PRED)
+#endif  // CONFIG_CFL
       this_rate += av1_cost_bit(
           av1_default_palette_uv_mode_prob[pmi->palette_size[0] > 0], 0);
 #endif  // CONFIG_PALETTE
@@ -5376,7 +5425,11 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   if (cpi->common.allow_screen_content_tools && mbmi->sb_type >= BLOCK_8X8) {
     uint8_t *best_palette_color_map = x->palette_buffer->best_palette_color_map;
     rd_pick_palette_intra_sbuv(cpi, x,
+#if CONFIG_CFL
+                               cpi->intra_uv_mode_cost[mbmi->mode][UV_DC_PRED],
+#else
                                cpi->intra_uv_mode_cost[mbmi->mode][DC_PRED],
+#endif  // CONFIG_CFL
                                best_palette_color_map, &best_mbmi, &best_rd,
                                rate, rate_tokenonly, distortion, skippable);
   }
@@ -5400,7 +5453,12 @@ static void choose_intra_uv_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
                                  PICK_MODE_CONTEXT *ctx, BLOCK_SIZE bsize,
                                  TX_SIZE max_tx_size, int *rate_uv,
                                  int *rate_uv_tokenonly, int64_t *dist_uv,
-                                 int *skip_uv, PREDICTION_MODE *mode_uv) {
+                                 int *skip_uv,
+#if CONFIG_CFL
+                                 UV_PREDICTION_MODE *mode_uv) {
+#else
+                                 PREDICTION_MODE *mode_uv) {
+#endif  // CONFIG_CFL
   // Use an estimated rd for uv_intra based on DC_PRED if the
   // appropriate speed flag is set.
   (void)ctx;
@@ -5415,7 +5473,11 @@ static void choose_intra_uv_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
     *rate_uv_tokenonly = 0;
     *dist_uv = 0;
     *skip_uv = 1;
+#if CONFIG_CFL
+    *mode_uv = UV_DC_PRED;
+#else
     *mode_uv = DC_PRED;
+#endif  // CONFIG_CFL
     return;
   }
   BLOCK_SIZE bs = scale_chroma_bsize(bsize, x->e_mbd.plane[1].subsampling_x,
@@ -5547,7 +5609,8 @@ static INLINE int mv_check_bounds(const MvLimits *mv_limits, const MV *mv) {
 }
 
 // Check if NEARESTMV/NEARMV/ZEROMV is the cheapest way encode zero motion.
-// TODO(aconverse): Find out if this is still productive then clean up or remove
+// TODO(aconverse): Find out if this is still productive then clean up or
+// remove
 static int check_best_zero_mv(
     const AV1_COMP *const cpi, const int16_t mode_context[TOTAL_REFS_PER_FRAME],
 #if CONFIG_EXT_INTER
@@ -5743,7 +5806,8 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   if (!has_second_ref(mbmi)) {
     assert(is_inter_singleref_comp_mode(mbmi->mode));
-    // NOTE: For single ref comp mode, set up the 2nd set of ref_mv/pre_planes
+    // NOTE: For single ref comp mode, set up the 2nd set of
+    // ref_mv/pre_planes
     //       all from the 1st reference frame, i.e. refs[0].
     ref_mv[1] = x->mbmi_ext->ref_mvs[refs[0]][0];
     if (scaled_ref_frame[0]) {
@@ -5947,8 +6011,10 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
     if (!has_second_ref(mbmi)) {
-      // NOTE: For single ref comp mode, i.e. !has_second_ref(mbmi) is true, the
-      //       first mv is stored in frame_mv[] and the second mv is stored in
+      // NOTE: For single ref comp mode, i.e. !has_second_ref(mbmi) is true,
+      // the
+      //       first mv is stored in frame_mv[] and the second mv is stored
+      //       in
       //       frame_comp_mv[].
       if (compound_ref0_mode(mbmi->mode) == NEWMV)  // SR_NEW_NEWMV
         *rate_mv += av1_mv_bit_cost(&frame_mv[refs[0]].as_mv,
@@ -6047,7 +6113,8 @@ static void estimate_ref_frame_costs(
 
 #if CONFIG_EXT_REFS
 #if CONFIG_VAR_REFS
-      // Test need to explicitly code (L,L2,L3,G) vs (BWD,ALT) branch node in
+      // Test need to explicitly code (L,L2,L3,G) vs (BWD,ALT) branch node
+      // in
       // tree
       if ((L_OR_L2(cm) || L3_OR_G(cm)) && BWD_OR_ALT(cm)) {
 #endif  // CONFIG_VAR_REFS
@@ -6299,11 +6366,13 @@ static void setup_buffer_inter(
 
   assert(yv12 != NULL);
 
-  // TODO(jkoleszar): Is the UV buffer ever used here? If so, need to make this
+  // TODO(jkoleszar): Is the UV buffer ever used here? If so, need to make
+  // this
   // use the UV scaling factors.
   av1_setup_pred_block(xd, yv12_mb[ref_frame], yv12, mi_row, mi_col, sf, sf);
 
-  // Gets an initial list of candidate vectors from neighbours and orders them
+  // Gets an initial list of candidate vectors from neighbours and orders
+  // them
   av1_find_mv_refs(cm, xd, mi, ref_frame, &mbmi_ext->ref_mv_count[ref_frame],
                    mbmi_ext->ref_mv_stack[ref_frame],
 #if CONFIG_EXT_INTER
@@ -6916,10 +6985,13 @@ static void do_masked_motion_search_indexed(
 #endif  // CONFIG_EXT_INTER
 
 // In some situations we want to discount tha pparent cost of a new motion
-// vector. Where there is a subtle motion field and especially where there is
-// low spatial complexity then it can be hard to cover the cost of a new motion
+// vector. Where there is a subtle motion field and especially where there
+// is
+// low spatial complexity then it can be hard to cover the cost of a new
+// motion
 // vector in a single block, even if that motion vector reduces distortion.
-// However, once established that vector may be usable through the nearest and
+// However, once established that vector may be usable through the nearest
+// and
 // near mv modes to reduce distortion in subsequent blocks and also improve
 // visual quality.
 static int discount_newmv_test(const AV1_COMP *const cpi, int this_mode,
@@ -7406,7 +7478,8 @@ static int interinter_compound_motion_search(
     mbmi->interinter_compound_type
   };
 #if CONFIG_COMPOUND_SINGLEREF
-  // NOTE: Mode is needed to identify the compound mode prediction, regardless
+  // NOTE: Mode is needed to identify the compound mode prediction,
+  // regardless
   //       of comp refs or single ref.
   mbmi->mode = this_mode;
 #endif  // CONFIG_COMPOUND_SINGLEREF
@@ -8109,7 +8182,8 @@ static int64_t motion_mode_rd(
       // record transform block coefficient cost
       // TODO(angiebird): So far rd_debug tool only detects discrepancy of
       // coefficient cost. Therefore, it is fine to copy rd_stats into mbmi
-      // here because we already collect the coefficient cost. Move this part to
+      // here because we already collect the coefficient cost. Move this
+      // part to
       // other place when we need to compare non-coefficient cost.
       mbmi->rd_stats = *rd_stats;
 #endif  // CONFIG_RD_DEBUG
@@ -8499,11 +8573,13 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   // We don't include the cost of the second reference here, because there
-  // are only three options: Last/Golden, ARF/Last or Golden/ARF, or in other
+  // are only three options: Last/Golden, ARF/Last or Golden/ARF, or in
+  // other
   // words if you present them in that order, the second one is always known
   // if the first is known.
   //
-  // Under some circumstances we discount the cost of new mv mode to encourage
+  // Under some circumstances we discount the cost of new mv mode to
+  // encourage
   // initiation of a motion field.
   if (discount_newmv_test(cpi, this_mode, frame_mv[refs[0]], mode_mv,
                           refs[0])) {
@@ -8578,8 +8654,10 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_COMPOUND_SEGMENT
 
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
-    // TODO(zoeliu): To further check whether the following setups are needed.
-    // Single ref compound mode: Prepare the 2nd ref frame predictor the same as
+    // TODO(zoeliu): To further check whether the following setups are
+    // needed.
+    // Single ref compound mode: Prepare the 2nd ref frame predictor the
+    // same as
     // the 1st one.
     if (!is_comp_pred && is_singleref_comp_mode) {
       xd->block_refs[1] = xd->block_refs[0];
@@ -9000,7 +9078,8 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
       case IBC_MOTION_LEFT:
         x->mv_limits.col_min = (tile->mi_col_start - mi_col) * MI_SIZE;
         x->mv_limits.col_max = (sb_col * MAX_MIB_SIZE - mi_col) * MI_SIZE - w;
-        // TODO(aconverse@google.com): Minimize the overlap between above and
+        // TODO(aconverse@google.com): Minimize the overlap between above
+        // and
         // left areas.
         x->mv_limits.row_min = (tile->mi_row_start - mi_row) * MI_SIZE;
         int bottom_coded_mi_edge =
@@ -9043,7 +9122,11 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 #endif
     mbmi->use_intrabc = 1;
     mbmi->mode = DC_PRED;
+#if CONFIG_CFL
+    mbmi->uv_mode = UV_DC_PRED;
+#else
     mbmi->uv_mode = DC_PRED;
+#endif  // CONFIG_CFL
     mbmi->mv[0].as_mv = dv;
 #if CONFIG_DUAL_FILTER
     for (int idx = 0; idx < 4; ++idx) mbmi->interp_filter[idx] = BILINEAR;
@@ -9071,7 +9154,8 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 #endif
 
 #if CONFIG_VAR_TX
-    // TODO(aconverse@google.com): Evaluate allowing VAR TX on intrabc blocks
+    // TODO(aconverse@google.com): Evaluate allowing VAR TX on intrabc
+    // blocks
     const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
     const int height = block_size_high[bsize] >> tx_size_high_log2[0];
     int idx, idy;
@@ -9147,7 +9231,8 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 
   if (intra_yrd < best_rd) {
 #if CONFIG_CFL
-    // Perform one extra txfm_rd_in_plane() call, this time with the best value
+    // Perform one extra txfm_rd_in_plane() call, this time with the best
+    // value
     // so we can store reconstructed luma values
     RD_STATS this_rd_stats;
 
@@ -9335,7 +9420,12 @@ static void pick_filter_intra_interframe(
     const AV1_COMP *cpi, MACROBLOCK *x, PICK_MODE_CONTEXT *ctx,
     BLOCK_SIZE bsize, int mi_row, int mi_col, int *rate_uv_intra,
     int *rate_uv_tokenonly, int64_t *dist_uv, int *skip_uv,
-    PREDICTION_MODE *mode_uv, FILTER_INTRA_MODE_INFO *filter_intra_mode_info_uv,
+#if CONFIG_CFL
+    UV_PREDICTION_MODE *mode_uv,
+#else
+    PREDICTION_MODE *mode_uv,
+#endif  // CONFIG_CFL
+    FILTER_INTRA_MODE_INFO *filter_intra_mode_info_uv,
 #if CONFIG_EXT_INTRA
     int8_t *uv_angle_delta,
 #endif  // CONFIG_EXT_INTRA
@@ -9372,7 +9462,11 @@ static void pick_filter_intra_interframe(
   // TODO(huisu): use skip_mask for further speedup.
   (void)skip_mask;
   mbmi->mode = DC_PRED;
+#if CONFIG_CFL
+  mbmi->uv_mode = UV_DC_PRED;
+#else
   mbmi->uv_mode = DC_PRED;
+#endif  // CONFIG_CFL
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
   if (!rd_pick_filter_intra_sby(cpi, x, &rate_dummy, &rate_y, &distortion_y,
@@ -9579,7 +9673,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   int rate_uv_intra[TX_SIZES_ALL], rate_uv_tokenonly[TX_SIZES_ALL];
   int64_t dist_uvs[TX_SIZES_ALL];
   int skip_uvs[TX_SIZES_ALL];
+#if CONFIG_CFL
+  UV_PREDICTION_MODE mode_uv[TX_SIZES_ALL];
+#else
   PREDICTION_MODE mode_uv[TX_SIZES_ALL];
+#endif
 #if CONFIG_PALETTE
   PALETTE_MODE_INFO pmi_uv[TX_SIZES_ALL];
 #endif  // CONFIG_PALETTE
@@ -9842,7 +9940,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_EXT_REFS
                                (1 << GOLDEN_FRAME);
       ref_frame_skip_mask[1] = SECOND_REF_FRAME_MASK;
-      // TODO(zoeliu): To further explore whether following needs to be done for
+      // TODO(zoeliu): To further explore whether following needs to be done
+      // for
       //               BWDREF_FRAME as well.
       mode_skip_mask[ALTREF_FRAME] = ~INTER_NEAREST_NEAR_ZERO;
 #if CONFIG_GLOBAL_MOTION
@@ -10086,7 +10185,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       // Skip compound inter modes if ARF is not available.
       if (!(cpi->ref_frame_flags & flag_list[second_ref_frame])) continue;
 
-      // Do not allow compound prediction if the segment level reference frame
+      // Do not allow compound prediction if the segment level reference
+      // frame
       // feature is in use as in this case there can only be one reference.
       if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME)) continue;
 
@@ -10106,7 +10206,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           continue;
 
       if (this_mode != DC_PRED) {
-        // Disable intra modes other than DC_PRED for blocks with low variance
+        // Disable intra modes other than DC_PRED for blocks with low
+        // variance
         // Threshold for intra skipping based on source variance
         // TODO(debargha): Specialize the threshold for super block sizes
         const unsigned int skip_intra_var_thresh = 64;
@@ -10142,7 +10243,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     }
 
     mbmi->mode = this_mode;
+#if CONFIG_CFL
+    mbmi->uv_mode = UV_DC_PRED;
+#else
     mbmi->uv_mode = DC_PRED;
+#endif  // CONFIG_CFL
     mbmi->ref_frame[0] = ref_frame;
     mbmi->ref_frame[1] = second_ref_frame;
 #if CONFIG_PALETTE
@@ -10153,8 +10258,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
     mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
 #endif  // CONFIG_FILTER_INTRA
-        // Evaluate all sub-pel filters irrespective of whether we can use
-        // them for this frame.
+    // Evaluate all sub-pel filters irrespective of whether we can use
+    // them for this frame.
 
     set_default_interp_filters(mbmi, cm->interp_filter);
 
@@ -10324,7 +10429,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
               mbmi->filter_intra_mode_info.filter_intra_mode[0]);
         }
       }
+#if CONFIG_CFL
+      if (mbmi->uv_mode == UV_DC_PRED) {
+#else
       if (mbmi->uv_mode == DC_PRED) {
+#endif
         rate2 +=
             av1_cost_bit(cpi->common.fc->filter_intra_probs[1],
                          mbmi->filter_intra_mode_info.use_filter_intra_mode[1]);
@@ -10438,10 +10547,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         av1_init_rd_stats(&rd_stats);
 #if CONFIG_DAALA_DIST && CONFIG_CB4X4
         // While av1 master uses rd_stats_y.rate through out the codebase,
-        // which is set when handle_inter_moden is called, the daala-dist code
+        // which is set when handle_inter_moden is called, the daala-dist
+        // code
         // in rd_pick_partition() for cb4x4 and sub8x8 blocks need to know
         // .dist_y which comes from rd_stats_y.dist and rd_stats_y.sse.
-        // The problem is rd_stats_y.dist and rd_stats_y.sse are sometimes not
+        // The problem is rd_stats_y.dist and rd_stats_y.sse are sometimes
+        // not
         // initialized when rd_stats.skip = 1,
         // then instead rd_stats.dist and rd_stats.sse have the
         // combined luma and chroma dist and sse.
@@ -10601,7 +10712,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
             // mbmi->ref_mv_idx (like NEWMV)
             if (mbmi->mode == SR_NEAR_NEWMV) ref_mv_idx = 1 + mbmi->ref_mv_idx;
 
-            // TODO(zoeliu): For the mode of SR_NEAREST_NEWMV, as it only runs
+            // TODO(zoeliu): For the mode of SR_NEAREST_NEWMV, as it only
+            // runs
             //               the "if", not the "else if",
             //               mbmi_ext->ref_mvs[mbmi->ref_frame[0]] takes the
             //               value for "NEWMV", instead of "NEARESTMV".
@@ -11111,7 +11223,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     MB_MODE_INFO best_mbmi_palette = best_mbmode;
 
     mbmi->mode = DC_PRED;
+#if CONFIG_CFL
+    mbmi->uv_mode = UV_DC_PRED;
+#else
     mbmi->uv_mode = DC_PRED;
+#endif  // CONFIG_CFL
     mbmi->ref_frame[0] = INTRA_FRAME;
     mbmi->ref_frame[1] = NONE_FRAME;
     rate_overhead_palette = rd_pick_palette_intra_sby(
@@ -11543,7 +11659,11 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
 #endif  // CONFIG_FILTER_INTRA
   mbmi->mode = ZEROMV;
   mbmi->motion_mode = SIMPLE_TRANSLATION;
+#if CONFIG_CFL
+  mbmi->uv_mode = UV_DC_PRED;
+#else
   mbmi->uv_mode = DC_PRED;
+#endif  // CONFIG_CFL
   mbmi->ref_frame[0] = LAST_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
 #if CONFIG_GLOBAL_MOTION

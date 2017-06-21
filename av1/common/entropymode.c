@@ -2636,7 +2636,7 @@ static const aom_cdf_prob
         AOM_ICDF(29907), AOM_ICDF(30600), AOM_ICDF(31515), AOM_ICDF(32049),
         AOM_ICDF(32768), 0 },
     };
-#else   // !CONFIG_SMOOTH_HV
+#else  // !CONFIG_SMOOTH_HV
 static const aom_cdf_prob
     default_if_y_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(INTRA_MODES)] = {
       { AOM_ICDF(11264), AOM_ICDF(12608), AOM_ICDF(16309), AOM_ICDF(21086),
@@ -2652,9 +2652,12 @@ static const aom_cdf_prob
         AOM_ICDF(23833), AOM_ICDF(24188), AOM_ICDF(24724), AOM_ICDF(25415),
         AOM_ICDF(25817), AOM_ICDF(26876), AOM_ICDF(32768), 0 },
     };
-
 static const aom_cdf_prob
+#if CONFIG_CFL
+    default_uv_mode_cdf[INTRA_MODES][CDF_SIZE(UV_INTRA_MODES)] = {
+#else
     default_uv_mode_cdf[INTRA_MODES][CDF_SIZE(INTRA_MODES)] = {
+#endif
       { AOM_ICDF(25472), AOM_ICDF(25558), AOM_ICDF(27783), AOM_ICDF(30779),
         AOM_ICDF(30988), AOM_ICDF(31269), AOM_ICDF(31492), AOM_ICDF(31741),
         AOM_ICDF(32014), AOM_ICDF(32420), AOM_ICDF(32768), 0 },
