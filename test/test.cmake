@@ -327,13 +327,16 @@ endif ()
 # exist before this function is called.
 function (setup_aom_test_targets)
   add_library(test_aom_common OBJECT ${AOM_UNIT_TEST_COMMON_SOURCES})
+  list(APPEND AOM_LIB_TARGETS test_aom_common)
 
   if (CONFIG_AV1_DECODER)
     add_library(test_aom_decoder OBJECT ${AOM_UNIT_TEST_DECODER_SOURCES})
+    list(APPEND AOM_LIB_TARGETS test_aom_decoder)
   endif ()
 
   if (CONFIG_AV1_ENCODER)
     add_library(test_aom_encoder OBJECT ${AOM_UNIT_TEST_ENCODER_SOURCES})
+    list(APPEND AOM_LIB_TARGETS test_aom_encoder)
   endif ()
 
   add_executable(test_libaom ${AOM_UNIT_TEST_WRAPPER_SOURCES}
@@ -458,6 +461,8 @@ function (setup_aom_test_targets)
   endforeach ()
   add_custom_target(runtests)
   add_dependencies(runtests ${test_targets})
+
+  set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} PARENT_SCOPE)
 endfunction ()
 
 endif ()  # AOM_TEST_TEST_CMAKE_
