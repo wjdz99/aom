@@ -707,7 +707,11 @@ static void predict_and_reconstruct_intra_block(
           av1_block_index_to_raster_order(tx_size, block_idx);
       const PREDICTION_MODE mode = (plane == 0)
                                        ? get_y_mode(xd->mi[0], block_raster_idx)
+#if CONFIG_CFL
+                                       : get_pred_mode(mbmi->uv_mode);
+#else
                                        : mbmi->uv_mode;
+#endif
       if (av1_use_dpcm_intra(plane, mode, tx_type, mbmi)) {
         inverse_transform_block_dpcm(xd, plane, mode, tx_size, tx_type, dst,
                                      pd->dst.stride, max_scan_line);
@@ -5046,7 +5050,11 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
   }
 
   for (j = 0; j < INTRA_MODES; j++) {
+#if CONFIG_CFL
+    for (i = 0; i < UV_INTRA_MODES - 1; ++i)
+#else
     for (i = 0; i < INTRA_MODES - 1; ++i)
+#endif
       av1_diff_update_prob(&r, &fc->uv_mode_prob[j][i], ACCT_STR);
   }
 

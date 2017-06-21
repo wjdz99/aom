@@ -1382,7 +1382,12 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const PREDICTION_MODE mode =
-      (plane == 0) ? get_y_mode(xd->mi[0], block_raster_idx) : mbmi->uv_mode;
+      (plane == 0) ? get_y_mode(xd->mi[0], block_raster_idx) :
+#if CONFIG_CFL
+                   get_pred_mode(mbmi->uv_mode);
+#else
+                   mbmi->uv_mode;
+#endif  // CONFIG_CFL
   if (av1_use_dpcm_intra(plane, mode, tx_type, mbmi)) {
     av1_encode_block_intra_dpcm(cm, x, mode, plane, block, blk_row, blk_col,
                                 plane_bsize, tx_size, tx_type, args->ta,
@@ -1596,7 +1601,7 @@ void av1_predict_intra_block_encoder_facade(MACROBLOCK *x,
                                             int blk_row, TX_SIZE tx_size) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  if (plane != AOM_PLANE_Y && mbmi->uv_mode == DC_PRED) {
+  if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_DC_PRED) {
     if (blk_col == 0 && blk_row == 0 && plane == AOM_PLANE_U) {
       cfl_compute_alpha_ind(x, ec_ctx, tx_size);
     }
