@@ -323,6 +323,7 @@ EXPERIMENT_LIST="
     rect_intra_pred
     lgt
     sbl_symbol
+    hash_me
 "
 CONFIG_LIST="
     dependency_tracking
