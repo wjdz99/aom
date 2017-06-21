@@ -163,7 +163,12 @@ static PREDICTION_MODE read_intra_mode_uv(
     FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd, aom_reader *r,
     PREDICTION_MODE y_mode) {
   const PREDICTION_MODE uv_mode =
+#if CONFIG_CFL
+      aom_read_symbol(r, ec_ctx->uv_mode_cdf[y_mode], UV_INTRA_MODES, ACCT_STR);
+#else
       read_intra_mode(r, ec_ctx->uv_mode_cdf[y_mode]);
+#endif  // CONFIG_CFL
+
 #if !CONFIG_EC_ADAPT || CONFIG_ENTROPY_STATS
   FRAME_COUNTS *counts = xd->counts;
   if (counts) ++counts->uv_mode[y_mode][uv_mode];
@@ -188,7 +193,7 @@ static int read_cfl_alphas(FRAME_CONTEXT *const ec_ctx, aom_reader *r,
   signs_out[CFL_PRED_V] = cfl_alpha_codes[ind][CFL_PRED_V]
                               ? aom_read_bit(r, "cfl:sign")
                               : CFL_SIGN_POS;
-
+  //  printf("CFL_PRED ind %d\n", ind);
   return ind;
 }
 #endif
@@ -1224,7 +1229,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 
 #if CONFIG_CFL
     // TODO(ltrudeau) support PALETTE
-    if (mbmi->uv_mode == UV_DC_PRED) {
+    if (mbmi->uv_mode == UV_CFL_PRED) {
       mbmi->cfl_alpha_idx = read_cfl_alphas(ec_ctx, r, mbmi->cfl_alpha_signs);
     }
 #endif  // CONFIG_CFL
@@ -1719,7 +1724,7 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
 
 #if CONFIG_CFL
     // TODO(ltrudeau) support PALETTE
-    if (mbmi->uv_mode == UV_DC_PRED) {
+    if (mbmi->uv_mode == UV_CFL_PRED) {
       mbmi->cfl_alpha_idx = read_cfl_alphas(
 #if CONFIG_EC_ADAPT
           xd->tile_ctx,
