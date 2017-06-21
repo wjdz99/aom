@@ -1413,12 +1413,12 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 }
 
 #if CONFIG_CFL
-static int cfl_alpha_dist(const uint8_t *y_pix, int y_stride,
-                          const int y_averages_q3[MAX_NUM_TXB],
-                          const uint8_t *src, int src_stride, int width,
-                          int height, TX_SIZE tx_size, int dc_pred,
-                          int alpha_q3, int *dist_neg_out) {
-  int dist = 0;
+static int64_t cfl_alpha_dist(const uint8_t *y_pix, int y_stride,
+                              const int y_averages_q3[MAX_NUM_TXB],
+                              const uint8_t *src, int src_stride, int width,
+                              int height, TX_SIZE tx_size, int dc_pred,
+                              int alpha_q3, int64_t *dist_neg_out) {
+  int64_t dist = 0;
   int diff;
 
   if (alpha_q3 == 0) {
@@ -1435,7 +1435,7 @@ static int cfl_alpha_dist(const uint8_t *y_pix, int y_stride,
     return dist;
   }
 
-  int dist_neg = 0;
+  int64_t dist_neg = 0;
   const int tx_height = tx_size_high[tx_size];
   const int tx_width = tx_size_wide[tx_size];
   const int y_block_row_off = y_stride * tx_height;
@@ -1521,7 +1521,7 @@ static void cfl_compute_alpha_ind(MACROBLOCK *const x, FRAME_CONTEXT *ec_ctx,
 
   cfl_update_costs(cfl, ec_ctx);
 
-  int sse[CFL_PRED_PLANES][CFL_MAGS_SIZE];
+  int64_t sse[CFL_PRED_PLANES][CFL_MAGS_SIZE];
   sse[CFL_PRED_U][0] =
       cfl_alpha_dist(y_pix, MAX_SB_SIZE, y_averages_q3, src_u, src_stride_u,
                      width, height, tx_size, dc_pred_u, 0, NULL);
@@ -1539,7 +1539,7 @@ static void cfl_compute_alpha_ind(MACROBLOCK *const x, FRAME_CONTEXT *ec_ctx,
         tx_size, dc_pred_v, cfl_alpha_mags_q3[m], &sse[CFL_PRED_V][m + 1]);
   }
 
-  int dist;
+  int64_t dist;
   int64_t cost;
   int64_t best_cost;
 
@@ -1581,7 +1581,7 @@ void av1_predict_intra_block_encoder_facade(MACROBLOCK *x,
                                             int blk_row, TX_SIZE tx_size) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_DC_PRED) {
+  if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED) {
     if (blk_col == 0 && blk_row == 0 && plane == AOM_PLANE_U) {
       cfl_compute_alpha_ind(x, ec_ctx, tx_size);
     }

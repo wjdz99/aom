@@ -93,7 +93,7 @@ struct seg_counts {
 typedef struct frame_contexts {
   aom_prob y_mode_prob[BLOCK_SIZE_GROUPS][INTRA_MODES - 1];
 #if CONFIG_CFL
-  aom_prob uv_mode_prob[INTRA_MODES][UV_INTRA_MODES - 1];
+  aom_prob uv_mode_prob[INTRA_MODES][UV_INTRA_MODES];
 #else
   aom_prob uv_mode_prob[INTRA_MODES][INTRA_MODES - 1];
 #endif
