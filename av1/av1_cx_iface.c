@@ -1196,23 +1196,6 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     unsigned char *cx_data = ctx->cx_data;
     size_t cx_data_sz = ctx->cx_data_sz;
 
-    /* Any pending invisible frames? */
-    if (ctx->pending_cx_data) {
-      memmove(cx_data, ctx->pending_cx_data, ctx->pending_cx_data_sz);
-      ctx->pending_cx_data = cx_data;
-      cx_data += ctx->pending_cx_data_sz;
-      cx_data_sz -= ctx->pending_cx_data_sz;
-
-      /* TODO: this is a minimal check, the underlying codec doesn't respect
-       * the buffer size anyway.
-       */
-      if (cx_data_sz < ctx->cx_data_sz / 2) {
-        aom_internal_error(&cpi->common.error, AOM_CODEC_ERROR,
-                           "Compressed data buffer too small");
-        return AOM_CODEC_ERROR;
-      }
-    }
-
     size_t frame_size;
     unsigned int lib_flags = 0;
     while (cx_data_sz >= ctx->cx_data_sz / 2 &&
