@@ -1039,10 +1039,8 @@ static int write_superframe_index(aom_codec_alg_priv_t *ctx) {
   marker |= mag << 3;
 
   // Write the index
-  const int index_sz = 2 + (mag + 1) * (ctx->pending_frame_count - 1);
-  assert(ctx->pending_cx_data_sz + index_sz < ctx->cx_data_sz);
-
-  uint8_t *x = ctx->pending_cx_data + ctx->pending_cx_data_sz;
+  uint8_t buffer[256];
+  uint8_t *x = buffer;
 #ifdef TEST_SUPPLEMENTAL_SUPERFRAME_DATA
   uint8_t marker_test = 0xc0;
   int mag_test = 2;     // 1 - 4
@@ -1054,7 +1052,6 @@ static int write_superframe_index(aom_codec_alg_priv_t *ctx) {
   for (int i = 0; i < mag_test * frames_test; ++i)
     *x++ = 0;  // fill up with arbitrary data
   *x++ = marker_test;
-  ctx->pending_cx_data_sz += index_sz_test;
   printf("Added supplemental superframe data\n");
 #endif
 
@@ -1068,10 +1065,12 @@ static int write_superframe_index(aom_codec_alg_priv_t *ctx) {
     }
   }
   *x++ = marker;
+
+  const size_t index_sz = x - buffer;
+  assert(ctx->pending_cx_data_sz + index_sz < ctx->cx_data_sz);
+  memcpy(ctx->pending_cx_data + ctx->pending_cx_data_sz, buffer, index_sz);
   ctx->pending_cx_data_sz += index_sz;
-#ifdef TEST_SUPPLEMENTAL_SUPERFRAME_DATA
-  index_sz += index_sz_test;
-#endif
+
   return index_sz;
 }
 
