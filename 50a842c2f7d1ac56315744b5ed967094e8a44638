@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cca9bb00_da39b93a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1043,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-06-21T20:08:18Z",
+      "side": 1,
+      "message": "Could the previous if condition ever be hit during normal operation? If so, switching this to an assert means that you could write past the buffer on a release build. Unfortunately there seems to be no way to return an error from this function - either add one, or next best thing is both the assert() and the if.",
+      "revId": "50a842c2f7d1ac56315744b5ed967094e8a44638",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
