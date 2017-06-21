@@ -9352,7 +9352,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                               args.left_pred_stride[0]);
   }
 #endif  // CONFIG_MOTION_VAR
-
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     if (!(cpi->ref_frame_flags & flag_list[ref_frame])) {
 // Skip checking missing references in both single and compound reference
@@ -9594,20 +9593,18 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
 #if CONFIG_SPEED_REFS
     int ref_candi_count;
-
-    if (cpi->sb_scanning_pass_idx == 1 && !frame_is_intra_only(cm) &&
-        (av1_ref_frame_type(av1_mode_order[mode_index].ref_frame) != 0)) {
-      for (ref_candi_count = 0; ref_candi_count < MAX_REF_CANDI;
+    uint8_t fast_scan_mask = 0;
+    if (cpi->sb_scanning_pass_idx == 1 && !frame_is_intra_only(cm)) {
+      for (ref_candi_count = 0; ref_candi_count < cpi->ref_candi_total;
            ref_candi_count++) {
-        if (cpi->ref_candi[ref_candi_count].counts != 0 &&
-            av1_ref_frame_type(av1_mode_order[mode_index].ref_frame) ==
-                cpi->ref_candi[ref_candi_count].rf) {
-          break;
-        }
+        if (cpi->ref_candi[ref_candi_count].counts != 0)
+          fast_scan_mask |= 1 << (cpi->ref_candi[ref_candi_count].rf);
       }
-      if (ref_candi_count == MAX_REF_CANDI) {
+      fast_scan_mask |= 1 << INTRA_FRAME;
+      fast_scan_mask = ~fast_scan_mask;
+      if ((fast_scan_mask & (1 << ref_frame)) ||
+          (fast_scan_mask & (1 << AOMMAX(0, second_ref_frame))))
         continue;
-      }
     }
 #endif  // CONFIG_SPEED_REFS
 
