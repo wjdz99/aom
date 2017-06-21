@@ -85,8 +85,13 @@ static void fill_mode_costs(AV1_COMP *cpi) {
 
   for (i = 0; i < INTRA_MODES; ++i)
 #if CONFIG_EC_ADAPT
+#if CONFIG_CFL
+    av1_cost_tokens_from_cdf(cpi->intra_uv_mode_cost[i], fc->uv_mode_cdf[i],
+                             NULL);
+#else
     av1_cost_tokens_from_cdf(cpi->intra_uv_mode_cost[i], fc->uv_mode_cdf[i],
                              av1_intra_mode_inv);
+#endif  // CONFIG_CFL
 #else
     av1_cost_tokens(cpi->intra_uv_mode_cost[i], fc->uv_mode_prob[i],
                     av1_intra_mode_tree);
