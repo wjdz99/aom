@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9befa29_629e4d10",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2737,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-21T23:29:28Z",
+      "side": 1,
+      "message": "I don\u0027t understand the purpose of this line. This is only executed for the U plane, right? Are we somehow always calling av1_predict_intra_block_facade() exactly twice for every intra block in every plane?\n\nIn general, it seems like a better strategy for flag management would be to always clear the flag in cfl_store() and always set it at the end of cfl_compute_averages().",
+      "revId": "cb465900a85d4bdcb50e6c4dc64540f22755e3de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e98e0d8_e2d000d2",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-21T23:29:28Z",
+      "side": 1,
+      "message": "These comments appear to have been added for code you deleted.",
+      "revId": "cb465900a85d4bdcb50e6c4dc64540f22755e3de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
