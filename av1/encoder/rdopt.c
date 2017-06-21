@@ -514,7 +514,7 @@ static const PREDICTION_MODE intra_rd_search_mode_order[INTRA_MODES] = {
 #if CONFIG_CFL
 static const UV_PREDICTION_MODE uv_intra_rd_search_mode_order[UV_INTRA_MODES] =
     {
-      UV_DC_PRED,       UV_H_PRED,        UV_V_PRED,
+      UV_DC_PRED,       UV_CFL_PRED,      UV_H_PRED,    UV_V_PRED,
 #if CONFIG_ALT_INTRA
       UV_SMOOTH_PRED,
 #endif  // CONFIG_ALT_INTRA
@@ -522,8 +522,8 @@ static const UV_PREDICTION_MODE uv_intra_rd_search_mode_order[UV_INTRA_MODES] =
 #if CONFIG_ALT_INTRA && CONFIG_SMOOTH_HV
       UV_SMOOTH_V_PRED, UV_SMOOTH_H_PRED,
 #endif  // CONFIG_ALT_INTRA && CONFIG_SMOOTH_HV
-      UV_D135_PRED,     UV_D207_PRED,     UV_D153_PRED,
-      UV_D63_PRED,      UV_D117_PRED,     UV_D45_PRED,
+      UV_D135_PRED,     UV_D207_PRED,     UV_D153_PRED, UV_D63_PRED,
+      UV_D117_PRED,     UV_D45_PRED,
     };
 #endif  // CONFIG_CFL
 
@@ -5338,21 +5338,27 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_PALETTE
 
 #if CONFIG_CFL
-  for (int mode_idx = 0; mode_idx < UV_INTRA_MODES; ++mode_idx) {
+  const int num_uv_modes = UV_INTRA_MODES;
 #else
-  for (int mode_idx = 0; mode_idx < INTRA_MODES; ++mode_idx) {
+  const int num_uv_modes = INTRA_MODES;
 #endif  // CONFIG_CFL
+
+  for (int mode_idx = 0; mode_idx < num_uv_modes; ++mode_idx) {
     int this_rate;
     RD_STATS tokenonly_rd_stats;
 #if CONFIG_CFL
     UV_PREDICTION_MODE mode = uv_intra_rd_search_mode_order[mode_idx];
+#if CONFIG_EXT_INTRA
+    const int is_directional_mode =
+        av1_is_directional_mode(get_pred_mode(mode), mbmi->sb_type);
+#endif  // CONFIG_EXT_INTRA
 #else
     PREDICTION_MODE mode = intra_rd_search_mode_order[mode_idx];
-#endif  // CONFIG_CFL
 #if CONFIG_EXT_INTRA
     const int is_directional_mode =
         av1_is_directional_mode(mode, mbmi->sb_type);
 #endif  // CONFIG_EXT_INTRA
+#endif  // CONFIG_CFL
     if (!(cpi->sf.intra_uv_mode_mask[txsize_sqr_up_map[max_tx_size]] &
           (1 << mode)))
       continue;
@@ -5381,7 +5387,8 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         tokenonly_rd_stats.rate + cpi->intra_uv_mode_cost[mbmi->mode][mode];
 
 #if CONFIG_CFL
-    if (mode == UV_DC_PRED) {
+    if (mode == UV_CFL_PRED) {
+      assert(!is_directional_mode);
       this_rate += xd->cfl->costs[mbmi->cfl_alpha_idx];
     }
 #endif
