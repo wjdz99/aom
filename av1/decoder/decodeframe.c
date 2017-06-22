@@ -2265,7 +2265,7 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
   FRAME_COUNTS *const counts = ctx < PARTITION_CONTEXTS ? xd->counts : NULL;
 #else
   const int ctx = partition_plane_context(xd, mi_row, mi_col, bsize);
-  const aom_prob *const probs = cm->fc->partition_prob[ctx];
+//  const aom_prob *const probs = cm->fc->partition_prob[ctx];
   FRAME_COUNTS *const counts = xd->counts;
 #endif
   PARTITION_TYPE p;
@@ -2290,12 +2290,31 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
     p = (PARTITION_TYPE)aom_read_symbol(r, partition_cdf, PARTITION_TYPES,
                                         ACCT_STR);
 #endif  // CONFIG_EXT_PARTITION_TYPES
-  else if (!has_rows && has_cols)
-    p = aom_read(r, probs[1], ACCT_STR) ? PARTITION_SPLIT : PARTITION_HORZ;
-  else if (has_rows && !has_cols)
-    p = aom_read(r, probs[2], ACCT_STR) ? PARTITION_SPLIT : PARTITION_VERT;
-  else
+  else if (!has_rows && has_cols) {
+    aom_cdf_prob right_e_cdf[2];
+    aom_cdf_prob c0 = AOM_ICDF(partition_cdf[0]);
+    aom_cdf_prob c1 = AOM_ICDF(partition_cdf[1]);
+    right_e_cdf[0] = AOM_ICDF(((c1 - c0) << 15) / (32768U - c0));
+    right_e_cdf[1] = 0U;
+    p = aom_read_cdf(r, right_e_cdf, 2, ACCT_STR) ?
+        PARTITION_SPLIT : PARTITION_HORZ;
+#if CONFIG_EC_ADAPT
+    update_cdf(partition_cdf, p, PARTITION_TYPES);
+#endif
+  } else if (has_rows && !has_cols) {
+    aom_cdf_prob bottom_e_cdf[2];
+    aom_cdf_prob c1 = AOM_ICDF(partition_cdf[1]);
+    aom_cdf_prob c2 = AOM_ICDF(partition_cdf[2]);
+    bottom_e_cdf[0] = AOM_ICDF(((c2 - c1) << 15) / (32768U - c1));
+    bottom_e_cdf[1] = 0U;
+    p = aom_read_cdf(r, bottom_e_cdf, 2, ACCT_STR) ?
+        PARTITION_SPLIT : PARTITION_VERT;
+#if CONFIG_EC_ADAPT
+    update_cdf(partition_cdf, p, PARTITION_TYPES);
+#endif
+  } else {
     p = PARTITION_SPLIT;
+  }
 
   if (counts) ++counts->partition[ctx][p];
 
