@@ -105,7 +105,7 @@ typedef struct {
   uint8_t skip;
 } MV_REF;
 
-#define MFMV_STACK_SIZE 3
+#define MFMV_STACK_SIZE INTER_REFS_PER_FRAME
 
 typedef struct {
   int_mv mfmv[INTER_REFS_PER_FRAME][MFMV_STACK_SIZE];

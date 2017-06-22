@@ -1208,7 +1208,6 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
         MV_REFERENCE_FRAME ref_frame[2] = {
             mv_ref->ref_frame[0], mv_ref->ref_frame[1]
         };
-        int idx;
 
         // Derive  motion vectors toward last reference frame.
         if (ref_frame[0] == LAST_FRAME) {
@@ -1228,12 +1227,7 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           mi_c = AOMMIN(mi_c, cm->mi_cols);
           mi_c = AOMMAX(mi_c, 0);
 
-          for (idx = 0; idx < MFMV_STACK_SIZE - 1; ++idx) {
-            if (tpl_mvs_base[mi_r * cm->mi_stride + mi_c].
-                mfmv[LAST_FRAME - LAST_FRAME][idx].as_int == INVALID_MV)
-              break;
-          }
-          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[LAST_FRAME - LAST_FRAME][idx].as_int =
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[LAST_FRAME - LAST_FRAME][0].as_int =
               this_mv.as_int;
           tpl_mvs_base[mi_r * cm->mi_stride + mi_c].skip[LAST_FRAME - LAST_FRAME] =
               mv_ref->skip;
@@ -1257,13 +1251,7 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           mi_c = AOMMIN(mi_c, cm->mi_cols);
           mi_c = AOMMAX(mi_c, 0);
 
-          for (idx = 0; idx < MFMV_STACK_SIZE - 1; ++idx) {
-            if (tpl_mvs_base[mi_r * cm->mi_stride + mi_c].
-                mfmv[GOLDEN_FRAME - LAST_FRAME][idx].as_int == INVALID_MV)
-              break;
-          }
-
-          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[GOLDEN_FRAME - LAST_FRAME][idx].as_int =
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[GOLDEN_FRAME - LAST_FRAME][0].as_int =
               this_mv.as_int;
           tpl_mvs_base[mi_r * cm->mi_stride + mi_c].skip[GOLDEN_FRAME - LAST_FRAME] =
               mv_ref->skip;
@@ -1285,12 +1273,7 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           mi_c = AOMMIN(mi_c, cm->mi_cols);
           mi_c = AOMMAX(mi_c, 0);
 
-          for (idx = 0; idx < MFMV_STACK_SIZE - 1; ++idx) {
-            if (tpl_mvs_base[mi_r * cm->mi_stride + mi_c].
-                mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int == INVALID_MV)
-              break;
-          }
-          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int =
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME][0].as_int =
               this_mv.as_int;
           tpl_mvs_base[mi_r * cm->mi_stride + mi_c].skip[ALTREF_FRAME - LAST_FRAME] =
               mv_ref->skip;
@@ -1312,12 +1295,7 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           mi_c = AOMMIN(mi_c, cm->mi_cols);
           mi_c = AOMMAX(mi_c, 0);
 
-          for (idx = 0; idx < MFMV_STACK_SIZE - 1; ++idx) {
-            if (tpl_mvs_base[mi_r * cm->mi_stride + mi_c].
-                mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int == INVALID_MV)
-              break;
-          }
-          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int =
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME][0].as_int =
               this_mv.as_int;
           tpl_mvs_base[mi_r * cm->mi_stride + mi_c].skip[ALTREF_FRAME - LAST_FRAME] =
               mv_ref->skip;
@@ -1345,7 +1323,6 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
       for (int blk_col = 0; blk_col < cm->mi_cols; ++blk_col) {
         MV_REF *mv_ref = &mv_ref_base[blk_row * cm->mi_cols + blk_col];
         MV fwd_mv = mv_ref->mv[0].as_mv;
-        int idx;
         MV_REFERENCE_FRAME ref_frame[2] = {
             mv_ref->ref_frame[0], mv_ref->ref_frame[1]
         };
@@ -1366,12 +1343,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           mi_c = AOMMIN(mi_c, cm->mi_cols);
           mi_c = AOMMAX(mi_c, 0);
 
-          for (idx = 0; idx < MFMV_STACK_SIZE - 1; ++idx) {
-            if (tpl_mvs_base[mi_r * cm->mi_stride + mi_c].
-                mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int == INVALID_MV)
-              break;
-          }
-          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int =
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME]
+                                                         [ALTREF_FRAME - LAST_FRAME].as_int =
               this_mv.as_int;
 
           // Project the motion vector onto last reference frame
@@ -1381,12 +1354,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           this_mv.as_mv.row = mv_y;
           this_mv.as_mv.col = mv_x;
 
-          for (idx = 0; idx < MFMV_STACK_SIZE - 1; ++idx) {
-            if (tpl_mvs_base[mi_r * cm->mi_stride + mi_c].
-                mfmv[LAST_FRAME - LAST_FRAME][idx].as_int == INVALID_MV)
-              break;
-          }
-          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[LAST_FRAME - LAST_FRAME][idx].as_int =
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[LAST_FRAME - LAST_FRAME]
+                                                         [ALTREF_FRAME - LAST_FRAME].as_int =
               this_mv.as_int;
         }
 
@@ -1407,13 +1376,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           mi_c = AOMMIN(mi_c, cm->mi_cols);
           mi_c = AOMMAX(mi_c, 0);
 
-
-          for (idx = 0; idx < MFMV_STACK_SIZE - 1; ++idx) {
-            if (tpl_mvs_base[mi_r * cm->mi_stride + mi_c].
-                mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int == INVALID_MV)
-              break;
-          }
-          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME][idx].as_int =
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[ALTREF_FRAME - LAST_FRAME]
+                                                         [ALTREF_FRAME - LAST_FRAME].as_int =
               this_mv.as_int;
 
           // Project the motion vector onto last reference frame
@@ -1423,12 +1387,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
           this_mv.as_mv.row = mv_y;
           this_mv.as_mv.col = mv_x;
 
-          for (idx = 0; idx < MFMV_STACK_SIZE - 1; ++idx) {
-            if (tpl_mvs_base[mi_r * cm->mi_stride + mi_c].
-                mfmv[LAST_FRAME - LAST_FRAME][idx].as_int == INVALID_MV)
-              break;
-          }
-          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[LAST_FRAME - LAST_FRAME][idx].as_int =
+          tpl_mvs_base[mi_r * cm->mi_stride + mi_c].mfmv[LAST_FRAME - LAST_FRAME]
+                                                         [ALTREF_FRAME - LAST_FRAME].as_int =
               this_mv.as_int;
         }
       }
