@@ -148,7 +148,11 @@ set(AOM_AV1_ENCODER_SOURCES
     "${AOM_ROOT}/av1/encoder/tokenize.c"
     "${AOM_ROOT}/av1/encoder/tokenize.h"
     "${AOM_ROOT}/av1/encoder/treewriter.c"
-    "${AOM_ROOT}/av1/encoder/treewriter.h")
+    "${AOM_ROOT}/av1/encoder/treewriter.h"
+    "${AOM_ROOT}/av1/encoder/hash_motion.h"
+    "${AOM_ROOT}/av1/encoder/hash_motion.c"
+    "${AOM_ROOT}/third_party/vector/vector.h"
+    "${AOM_ROOT}/third_party/vector/vector.c")
 
 set(AOM_AV1_COMMON_INTRIN_SSE2
     "${AOM_ROOT}/av1/common/x86/idct_intrin_sse2.c")
