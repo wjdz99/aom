@@ -2587,9 +2587,10 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
         const int eset =
             get_ext_tx_set(supertx_size, bsize, 1, cm->reduced_tx_set_used);
         if (eset > 0) {
-          txfm = aom_read_tree(r, av1_ext_tx_inter_tree[eset],
-                               cm->fc->inter_ext_tx_prob[eset][supertx_size],
-                               ACCT_STR);
+          const int packed_sym =
+              aom_read_symbol(r, cm->fc->inter_ext_tx_cdf[eset][supertx_size],
+                              ext_tx_cnt_inter[eset], ACCT_STR);
+          txfm = av1_ext_tx_inter_inv[eset][packed_sym];
           if (xd->counts) ++xd->counts->inter_ext_tx[eset][supertx_size][txfm];
         }
       }
