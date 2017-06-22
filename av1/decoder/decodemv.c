@@ -330,6 +330,29 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 }
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+static NCOBMC_WEIGHT_MODE read_ncobmc_adapt_weight_mode(AV1_COMMON *cm,
+                                                        MACROBLOCKD *xd,
+                                                        MODE_INFO *mi,
+                                                        aom_reader *r) {
+  MB_MODE_INFO *mbmi = &mi->mbmi;
+  FRAME_COUNTS *counts = xd->counts;
+  int motion_mode = mbmi->motion_mode;
+  ADAPT_OVERLAP_BLOCK ao_block = adapt_overlap_block_lookup[mbmi->sb_type];
+  int intrpl_mode;
+
+  if (intrpl_mode_allowed(mbmi->sb_type) == NO_OVERLAP ||
+      ao_block == ADAPT_OVERLAP_BLOCK_INVALID)
+    return NO_OVERLAP;
+
+  intrpl_mode =
+      aom_read_tree(r, av1_intrpl_mode_tree,
+                    cm->fc->intrpl_mode_prob[motion_mode][ao_block], ACCT_STR);
+  if (counts) ++counts->intrpl_mode[motion_mode][ao_block][intrpl_mode];
+  return (NCOBMC_WEIGHT_MODE)intrpl_mode;
+}
+#endif
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_EXT_INTER
@@ -2545,6 +2568,16 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     if (mbmi->ref_frame[1] != INTRA_FRAME)
 #endif  // CONFIG_EXT_INTER
       mbmi->motion_mode = read_motion_mode(cm, xd, mi, r);
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+    mbmi->intrpl_mode[0] = read_ncobmc_adapt_weight_mode(cm, xd, mi, r);
+    if (mi_size_wide[bsize] == mi_size_wide[bsize]) {
+      mbmi->intrpl_mode[1] = NO_OVERLAP;
+    } else {
+      mbmi->intrpl_mode[1] = read_ncobmc_adapt_weight_mode(cm, xd, mi, r);
+    }
+#endif
+
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
     if (is_singleref_comp_mode) assert(mbmi->motion_mode == SIMPLE_TRANSLATION);
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
