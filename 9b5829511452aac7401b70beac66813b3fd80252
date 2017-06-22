@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b41744d9_a6fa3908",
+        "filename": "configure",
+        "patchSetId": 3
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-22T23:19:42Z",
+      "side": 1,
+      "message": "Could you make the config more self-explainable? Like obmc_adapt_weight, or ncobmc_adapt_weight, whichever applicable.\nBTW, regarding the jenkins failure, CHECK_MISSING means a new config flag is added to the codebase but not added to the list that Jenkins will test compiling, you can ask jzern@, he will manually add it. And better to have a separate patch just for adding the experimental flag.",
+      "range": {
+        "startLine": 326,
+        "startChar": 4,
+        "endLine": 326,
+        "endChar": 14
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "315e033d_74cf7260",
+        "filename": "configure",
+        "patchSetId": 3
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-22T23:19:42Z",
+      "side": 1,
+      "message": "In case this experiment cannot even compile successfully with warped_motion, you can specify here \"enabled *** \u0026\u0026 disable_feature warped_motion\" to resolve conflicts or dependency, and maybe add \"enable_feature motion_var\" as well if it only works on top of it",
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
