@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "662adaf0_cc075d14",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2737,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-22T18:36:45Z",
+      "side": 1,
+      "message": "On the encoder side, the parameters are computed twice. First time is when computing the CfL parameters. Second time is when performing the CfL prediction.\n\nI agree with the flag management strategy. I rewrote all this code in https://aomedia-review.googlesource.com/c/14007/\n\nThis should make CfL easier to understand",
+      "parentUuid": "a9befa29_629e4d10",
+      "revId": "cb465900a85d4bdcb50e6c4dc64540f22755e3de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e98e0d8_e2d000d2",
         "filename": "av1/encoder/encodemb.c",
         "patchSetId": 19
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-21T23:29:28Z",
       "side": 1,
       "message": "These comments appear to have been added for code you deleted.",
+      "revId": "cb465900a85d4bdcb50e6c4dc64540f22755e3de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d468219f_f364b4dd",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-22T18:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e98e0d8_e2d000d2",
       "revId": "cb465900a85d4bdcb50e6c4dc64540f22755e3de",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
