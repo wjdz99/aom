@@ -1928,9 +1928,16 @@ static void count_frame_type_b(const AV1_COMP *const cpi, ThreadData *td,
   set_offsets(cpi, tile, x, mi_row, mi_col, bsize);
   update_state(cpi, td, ctx, mi_row, mi_col, bsize, dry_run);
   mbmi = &xd->mi[0]->mbmi;
-  const uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
-  td->ref_frame_type_counts[ref_frame_type] +=
-      mi_size_high[bsize] * mi_size_wide[bsize];
+  const int is_comp_pred = has_second_ref(mbmi);
+  if (!is_comp_pred) {
+    td->ref_frame_counts[mbmi->ref_frame[0]] +=
+        mi_size_high[bsize] * mi_size_wide[bsize];
+  } else {
+    for (int i = 0; i < 2; i++) {
+      td->ref_frame_counts[mbmi->ref_frame[i]] +=
+          1 / 2 * mi_size_high[bsize] * mi_size_wide[bsize];
+    }
+  }
 }
 
 static void count_frame_type_sb(const AV1_COMP *const cpi, ThreadData *td,
@@ -4305,25 +4312,32 @@ static void restore_mi(const AV1_COMP *const cpi, MACROBLOCK *const x,
 static void sort_frame_type_counts(AV1_COMP *const cpi, ThreadData *td,
                                    int ref_candi_num) {
   // TODO(chendixi): Use fast sorting algorithm
-  int i, m, max, max_m;
-  int *ref_frame_type_counts = td->ref_frame_type_counts;
-  for (i = 0; i < ref_candi_num; i++) {
+  int i, j, m, max, max_m;
+  int *ref_frame_counts = td->ref_frame_counts;
+  i = 0;
+  j = 0;
+  while (i < ref_candi_num) {
     max = 0;
     max_m = 0;
-    for (m = 1; m < MODE_CTX_REF_FRAMES; m++) {
-      if (ref_frame_type_counts[m] != 0 && ref_frame_type_counts[m] > max) {
-        max = ref_frame_type_counts[m];
+    for (m = 1; m < TOTAL_REFS_PER_FRAME; m++) {
+      if (ref_frame_counts[m] != 0 && ref_frame_counts[m] > max) {
+        max = ref_frame_counts[m];
         max_m = m;
       }
     }
+    // find one ref candidate
     if (max != 0) {
-      cpi->ref_candi[i].counts = max;
-      cpi->ref_candi[i].rf = max_m;
-      ref_frame_type_counts[max_m] = 0;
+      // find one distinct ref candidate counts
+      if (i == 0 || (i > 0 && cpi->ref_candi[i - 1].counts != max)) i++;
+      cpi->ref_candi[j].counts = max;
+      cpi->ref_candi[j].rf = max_m;
+      ref_frame_counts[max_m] = 0;
+      j++;
     } else {
       break;
     }
   }
+  cpi->ref_candi_total = j;
 }
 #endif  // CONFIG_SPEED_REFS
 
@@ -4477,9 +4491,9 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       // NOTE: Two scanning passes for the current superblock - the first pass
       //       is only targeted to collect stats.
       int m_search_count_backup = *(x->m_search_count_ptr);
-      cpi->fast_first_scanning = 0;
-      memset(td->ref_frame_type_counts, 0,
-             sizeof(*td->ref_frame_type_counts) * MODE_CTX_REF_FRAMES);
+      cpi->fast_first_scanning = 1;
+      memset(td->ref_frame_counts, 0,
+             sizeof(*td->ref_frame_counts) * TOTAL_REFS_PER_FRAME);
       memset(cpi->ref_candi, 0, sizeof(*cpi->ref_candi) * MAX_REF_CANDI);
       for (int sb_pass_idx = 0; sb_pass_idx < 2; ++sb_pass_idx) {
         cpi->sb_scanning_pass_idx = sb_pass_idx;
