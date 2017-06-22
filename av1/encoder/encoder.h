@@ -55,7 +55,7 @@ extern "C" {
 
 #if CONFIG_SPEED_REFS
 #define MIN_SPEED_REFS_BLKSIZE BLOCK_16X16
-#define MAX_REF_CANDI 3
+#define MAX_REF_CANDI 2
 #endif  // CONFIG_SPEED_REFS
 
 typedef struct {
@@ -360,7 +360,7 @@ typedef struct ThreadData {
   PALETTE_BUFFER *palette_buffer;
 #endif  // CONFIG_PALETTE
 #if CONFIG_SPEED_REFS
-  int ref_frame_type_counts[MODE_CTX_REF_FRAMES];
+  int ref_frame_counts[TOTAL_REFS_PER_FRAME];
 #endif  // CONFIG_SPEED_REFS
 } ThreadData;
 
@@ -664,7 +664,8 @@ typedef struct AV1_COMP {
 #if CONFIG_SPEED_REFS
   int sb_scanning_pass_idx;
   int fast_first_scanning;
-  RefCandidate ref_candi[MAX_REF_CANDI];
+  RefCandidate ref_candi[TOTAL_REFS_PER_FRAME];
+  int ref_candi_total;
 #endif  // CONFIG_SPEED_REFS
 } AV1_COMP;
 
