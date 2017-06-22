@@ -284,52 +284,80 @@ static BLOCK_SIZE select_sb_size(const AV1_COMP *const cpi) {
 #endif  //  CONFIG_EXT_PARTITION
 }
 
-#ifdef CONFIG_COLLECT_REF_FRAME_STATS
+#if CONFIG_ENTROPY_STATS
+#if CONFIG_EXT_REFS && CONFIG_EXT_COMP_REFS
 static void collect_ref_frame_stats() {
-  AV1_COMMON *const cm = &cpi->common;
-  ThreadData *td = &cpi->td;
-  FRAME_COUNTS *const counts = td->counts;
+  int frame_ctx_idx;
   int i, j;
 
-  printf(" %d,", cm->frame_context_idx);
+  /*
+  // regular inter frame
+  REGULAR_FRAME = 0,
+  // alternate reference frame
+  ARF_FRAME = 1,
+  // overlay frame
+  OVERLAY_FRAME = 2,
+  // golden frame
+  GLD_FRAME = 3,
+  // backward reference frame
+  BRF_FRAME = 4,
+  // extra alternate reference frame
+  EXT_ARF_FRAME = 5
+  */
+  for (frame_ctx_idx = 0; frame_ctx_idx <= 5; ++frame_ctx_idx) {
+    FRAME_COUNTS *const counts = &aggregate_fc_per_type[frame_ctx_idx];
 
-  for (i = 0; i < COMP_INTER_CONTEXTS; ++i) {
-    // 0: single ref i.e. !has_second_ref(mbmi)
-    // 1: comp ref i.e. has_second_ref(mbmi)
-    printf(" %u,", counts->comp_inter[i][0]);
-  }
+    printf(" %d,", frame_ctx_idx);
 
-  for (i = 0; i < COMP_REF_TYPE_CONTEXTS; ++i) {
-    // 0: UNIDIR_COMP_REFERENCE
-    // 1: BIDIR_COMP_REFERENCE
-    printf(" %u,", counts->comp_ref_type[i][0]);
-  }
+    for (i = 0; i < COMP_INTER_CONTEXTS; ++i) {
+      // 0: single ref i.e. !has_second_ref(mbmi)
+      printf(" %u,", counts->comp_inter[i][0]);
+      // 1: comp ref i.e. has_second_ref(mbmi)
+      printf(" %u,", counts->comp_inter[i][1]);
+    }
 
-  // {LAST, LAST2}, {LAST, GOLDEN}, and {BWDREF, ALTREF}
-  for (i = 0; i < UNI_COMP_REF_CONTEXTS; ++i) {
-    for (j = 0; j < (UNIDIR_COMP_REFS - 1); ++j)
-      printf(" %u,", counts->uni_comp_ref[i][j][0]);
-  }
+    for (i = 0; i < COMP_REF_TYPE_CONTEXTS; ++i) {
+      // 0: UNIDIR_COMP_REFERENCE
+      printf(" %u,", counts->comp_ref_type[i][0]);
+      // 1: BIDIR_COMP_REFERENCE
+      printf(" %u,", counts->comp_ref_type[i][1]);
+    }
 
-  // Single ref stats
-  for (i = 0; i < REF_CONTEXTS; ++i) {
-    for (j = 0; j < (SINGLE_REFS - 1); ++j)
-      printf(" %u,", counts->single_ref[i][j][0]);
-  }
+    // {LAST, LAST2}, {LAST, GOLDEN}, and {BWDREF, ALTREF}
+    for (j = 0; j < (UNIDIR_COMP_REFS - 1); ++j) {
+      for (i = 0; i < UNI_COMP_REF_CONTEXTS; ++i) {
+        printf(" %u,", counts->uni_comp_ref[i][j][0]);
+        printf(" %u,", counts->uni_comp_ref[i][j][1]);
+      }
+    }
 
-  // Comp ref stats
-  for (i = 0; i < REF_CONTEXTS; ++i) {
-    for (j = 0; j < (FWD_REFS - 1); ++j)
-      printf(" %u,", counts->comp_ref[i][j][0]);
-  }
-  for (i = 0; i < REF_CONTEXTS; ++i) {
-    for (j = 0; j < (BWD_REFS - 1); ++j)
-      printf(" %u,", counts->comp_bwdref[i][j][0]);
-  }
+    // Single ref stats
+    for (j = 0; j < (SINGLE_REFS - 1); ++j) {
+      for (i = 0; i < REF_CONTEXTS; ++i) {
+        printf(" %u,", counts->single_ref[i][j][0]);
+        printf(" %u,", counts->single_ref[i][j][1]);
+      }
+    }
 
-  printf("\n");
+    // Comp ref stats
+    for (j = 0; j < (FWD_REFS - 1); ++j) {
+      for (i = 0; i < REF_CONTEXTS; ++i) {
+        printf(" %u,", counts->comp_ref[i][j][0]);
+        printf(" %u,", counts->comp_ref[i][j][1]);
+      }
+    }
+    for (j = 0; j < (BWD_REFS - 1); ++j) {
+      for (i = 0; i < REF_CONTEXTS; ++i) {
+        printf(" %u,", counts->comp_bwdref[i][j][0]);
+        printf(" %u,", counts->comp_bwdref[i][j][1]);
+      }
+    }
+
+    printf("\n");
+  }
 }
-#endif  // CONFIG_COLLECT_REF_FRAME_STATS
+#endif  // CONFIG_EXT_REFS && CONFIG_EXT_COMP_REFS
+#endif  // CONFIG_ENTROPY_STATS
 
 static void setup_frame(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
@@ -2530,6 +2558,10 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       fwrite(aggregate_fc_per_type, sizeof(aggregate_fc_per_type[0]),
              FRAME_CONTEXTS, f);
       fclose(f);
+#if CONFIG_EXT_REFS && CONFIG_EXT_COMP_REFS
+      // Specifically collect the stats for the reference frame encoding
+      collect_ref_frame_stats();
+#endif  // CONFIG_EXT_REFS && CONFIG_EXT_COMP_REFS
     }
 #endif  // CONFIG_ENTROPY_STATS
 #if CONFIG_INTERNAL_STATS
@@ -4389,7 +4421,7 @@ static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
   return mask;
 }
 
-#define DUMP_RECON_FRAMES 0
+#define DUMP_RECON_FRAMES 1
 
 #if DUMP_RECON_FRAMES == 1
 // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
@@ -4419,11 +4451,12 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
   }
   printf(
       "\nFrame=%5d, encode_update_type[%5d]=%1d, show_existing_frame=%d, "
-      "y_stride=%4d, uv_stride=%4d, width=%4d, height=%4d\n",
+      "reference_mode=%d, frame_context_idx=%d, y_stride=%4d, uv_stride=%4d, "
+      "width=%4d, height=%4d\n",
       cm->current_video_frame, cpi->twopass.gf_group.index,
       cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index],
-      cm->show_existing_frame, recon_buf->y_stride, recon_buf->uv_stride,
-      cm->width, cm->height);
+      cm->show_existing_frame, cm->reference_mode, cm->frame_context_idx,
+      recon_buf->y_stride, recon_buf->uv_stride, cm->width, cm->height);
 
   // --- Y ---
   for (h = 0; h < cm->height; ++h) {
