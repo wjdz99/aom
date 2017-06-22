@@ -7871,6 +7871,11 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   int skip_txfm_sb = 0;
   int64_t skip_sse_sb = INT64_MAX;
   int16_t mode_ctx;
+#if CONFIG_ADA_INTRPL && CONFIG_MOTION_VAR && !CONFIG_WARPED_MOTION
+  // dummy fillers
+  mbmi->intrpl_mode[0] = NON_INTRPL;
+  mbmi->intrpl_mode[1] = NON_INTRPL;
+#endif
 
 #if CONFIG_EXT_INTER
 #if CONFIG_INTERINTRA
