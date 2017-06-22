@@ -330,6 +330,26 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 }
+
+#if CONFIG_ADA_INTRPL && !CONFIG_WARPED_MOTION
+static INTRPL_MODE read_intrpl_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
+                                    MODE_INFO *mi, aom_reader *r) {
+  MB_MODE_INFO *mbmi = &mi->mbmi;
+  FRAME_COUNTS *counts = xd->counts;
+  int motion_mode = mbmi->motion_mode;
+  int intrpl_block =
+      AOMMIN(mi_size_wide[mbmi->sb_type], mi_size_high[mbmi->sb_type]);
+  int intrpl_mode;
+
+  if (intrpl_mode_allowed(mbmi->sb_type) == NON_INTRPL) return NON_INTRPL;
+
+  intrpl_mode = aom_read_tree(
+      r, av1_intrpl_mode_tree,
+      cm->fc->intrpl_mode_prob[motion_mode][intrpl_block], ACCT_STR);
+  if (counts) ++counts->intrpl_mode[motion_mode][mbmi->sb_type][intrpl_mode];
+  return (INTRPL_MODE)intrpl_mode;
+}
+#endif
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_EXT_INTER
@@ -2545,6 +2565,17 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     if (mbmi->ref_frame[1] != INTRA_FRAME)
 #endif  // CONFIG_EXT_INTER
       mbmi->motion_mode = read_motion_mode(cm, xd, mi, r);
+
+#if CONFIG_ADA_INTRPL && !CONFIG_WARPED_MOTION
+    if (mi_size_wide[bsize] == mi_size_wide[bsize]) {
+      mbmi->intrpl_mode[0] = read_intrpl_mode(cm, xd, mi, r);
+      mbmi->intrpl_mode[1] = NON_INTRPL;
+    } else {
+      mbmi->intrpl_mode[0] = read_intrpl_mode(cm, xd, mi, r);
+      mbmi->intrpl_mode[1] = read_intrpl_mode(cm, xd, mi, r);
+    }
+#endif
+
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
     if (is_singleref_comp_mode) assert(mbmi->motion_mode == SIMPLE_TRANSLATION);
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
