@@ -22,6 +22,30 @@
       "revId": "4e2c4dc093f86c7d948a5da03176ebba723e5b22",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01475580_3bd6ccfc",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 902,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-06-22T15:51:48Z",
+      "side": 1,
+      "message": "For high bit depth, each coefficient uses four bytes. AVX2 register can contain eight coefficients, which is 32 bytes. So AVX2 is able to process every eight coefficients. The unique txfm smaller than eight is 2x2.",
+      "parentUuid": "fcf0e587_46c362da",
+      "range": {
+        "startLine": 902,
+        "startChar": 26,
+        "endLine": 902,
+        "endChar": 32
+      },
+      "revId": "4e2c4dc093f86c7d948a5da03176ebba723e5b22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
