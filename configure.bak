@@ -25,7 +25,6 @@ Advanced options:
   ${toggle_analyzer}              analyzer
   ${toggle_docs}                  documentation
   ${toggle_unit_tests}            unit tests
-  ${toggle_tools}                 tools
   ${toggle_decode_perf_tests}     build decoder perf tests with unit tests
   ${toggle_encode_perf_tests}     build encoder perf tests with unit tests
   --cpu=CPU                       tune for the specified CPU (ARM: cortex-a8, X86: sse3)
@@ -147,7 +146,7 @@ all_platforms="${all_platforms} generic-gnu"
 
 # all_targets is a list of all targets that can be configured
 # note that these should be in dependency order for now.
-all_targets="libs examples docs tools"
+all_targets="libs examples docs"
 
 # all targets available are enabled, by default.
 for t in ${all_targets}; do
@@ -324,9 +323,12 @@ EXPERIMENT_LIST="
     rect_intra_pred
     lgt
     sbl_symbol
+<<<<<<< HEAD
     ncobmc_adapt_weight
     bgsprite
+=======
     hash_me
+>>>>>>> hash based motion estimation for screen data
 "
 CONFIG_LIST="
     dependency_tracking
@@ -401,7 +403,6 @@ CMDLINE_SELECT="
     examples
     analyzer
     docs
-    tools
     libc
     as
     size_limit
@@ -512,6 +513,9 @@ post_process_cmdline() {
 
     # Backwards/jenkins compatibility with --enable-aom-highbitdepth
     enabled aom_highbitdepth && enable_feature highbitdepth
+
+    # Enable low-bitdepth pixel pipeline by default
+    soft_enable lowbitdepth
 
     soft_enable palette
     soft_enable alt_intra
@@ -636,7 +640,7 @@ EOF
     #
     # Write makefiles for all enabled targets
     #
-    for tgt in libs examples docs tools solution; do
+    for tgt in libs examples docs solution; do
         tgt_fn="$tgt-$toolchain.mk"
 
         if enabled $tgt; then
