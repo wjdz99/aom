@@ -1153,6 +1153,31 @@ static const aom_prob default_motion_mode_prob[BLOCK_SIZES][MOTION_MODES - 1] =
 #endif  // CONFIG_EXT_PARTITION
     };
 
+#if CONFIG_ADA_INTRPL
+const aom_tree_index av1_intrpl_mode_tree[TREE_SIZE(MAX_INTRPL_MODES)] = {
+  -NON_INTRPL, 2,  -IPM_1, 4,  -IPM_2, 6,  -IPM_3, 8,
+  -IPM_4,      10, -IPM_5, 12, -IPM_6, 14, -IPM_7, -IPM_8
+};
+
+// TODO(weitinglin): find default prob
+static const aom_prob
+    default_intrpl_mode_prob[MOTION_MODES][INTRPL_BLOCKS][MAX_INTRPL_MODES -
+                                                          1] = {
+      {
+          { 23, 37, 37, 38, 65, 71, 81, 86 },   // 8x8
+          { 28, 32, 37, 43, 51, 64, 85, 128 },  // 16X16 equal prob
+          { 86, 22, 32, 25, 10, 40, 97, 65 },   // 32X32
+          { 28, 32, 37, 43, 51, 64, 85, 128 }   // 64X64 equal prob
+      },
+      {
+          { 23, 37, 37, 38, 65, 71, 81, 86 },   // 8x8
+          { 28, 32, 37, 43, 51, 64, 85, 128 },  // 16X16 equal prob
+          { 86, 22, 32, 25, 10, 40, 97, 65 },   // 32X32
+          { 28, 32, 37, 43, 51, 64, 85, 128 }   // 64X64 equal prob
+      }
+    };
+#endif
+
 #elif !CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 
 const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
@@ -4625,6 +4650,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   av1_copy(fc->motion_mode_prob, default_motion_mode_prob);
+#if CONFIG_MOTION_VAR && !CONFIG_WARPED_MOTION && CONFIG_ADA_INTRPL
+  av1_copy(fc->intrpl_mode_prob, default_intrpl_mode_prob);
+#endif
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
   av1_copy(fc->obmc_prob, default_obmc_prob);
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
@@ -4870,6 +4898,13 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
   for (i = BLOCK_8X8; i < BLOCK_SIZES; ++i)
     aom_tree_merge_probs(av1_motion_mode_tree, pre_fc->motion_mode_prob[i],
                          counts->motion_mode[i], fc->motion_mode_prob[i]);
+#if CONFIG_ADA_INTRPL && !CONFIG_WARPED_MOTION
+  for (i = 0; i < MOTION_MODES; ++i)
+    for (j = 0; j < INTRPL_BLOCKS; ++j)
+      aom_tree_merge_probs(av1_intrpl_mode_tree, pre_fc->intrpl_mode_prob[i][j],
+                           counts->intrpl_mode[i][j],
+                           fc->intrpl_mode_prob[i][j]);
+#endif
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
   for (i = BLOCK_8X8; i < BLOCK_SIZES; ++i)
     fc->obmc_prob[i] =
