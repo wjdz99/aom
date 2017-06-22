@@ -262,7 +262,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
            uv_sec_strength == 0) ||
           (cdef_count = sb_compute_cdef_list(
                cm, fbr * fb_mib_size, fbc * fb_mib_size, dlist,
-               (level & 1) || (uv_level & 1))) == 0) {
+               0/*(level & 1) || (uv_level & 1)*/)) == 0) {
         cdef_left = 0;
         continue;
       }
