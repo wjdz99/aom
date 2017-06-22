@@ -2950,6 +2950,12 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif
 }
 
+#if CONFIG_EC_SMALLMUL
+#define ICDF(x) (32768U - (x))
+#else
+#define ICDF(x) (x)
+#endif
+
 static void write_partition(const AV1_COMMON *const cm,
                             const MACROBLOCKD *const xd, int hbs, int mi_row,
                             int mi_col, PARTITION_TYPE p, BLOCK_SIZE bsize,
@@ -2967,8 +2973,8 @@ static void write_partition(const AV1_COMMON *const cm,
 #if CONFIG_UNPOISON_PARTITION_CTX
   const aom_prob *const probs =
       ctx < PARTITION_CONTEXTS ? cm->fc->partition_prob[ctx] : NULL;
-#else
-  const aom_prob *const probs = cm->fc->partition_prob[ctx];
+//#else
+//  const aom_prob *const probs = cm->fc->partition_prob[ctx];
 #endif
 
 #if CONFIG_EC_ADAPT
@@ -2991,10 +2997,26 @@ static void write_partition(const AV1_COMMON *const cm,
 #endif  // CONFIG_EXT_PARTITION_TYPES
   } else if (!has_rows && has_cols) {
     assert(p == PARTITION_SPLIT || p == PARTITION_HORZ);
-    aom_write(w, p == PARTITION_SPLIT, probs[1]);
+    aom_cdf_prob right_e_cdf[2];
+    aom_cdf_prob c0 = AOM_ICDF(ec_ctx->partition_cdf[ctx][0]);
+    aom_cdf_prob c1 = AOM_ICDF(ec_ctx->partition_cdf[ctx][1]);
+    right_e_cdf[0] = AOM_ICDF(((c1 - c0) << 15) / (32768U - c0));
+    right_e_cdf[1] = 0U;
+    aom_write_cdf(w, p == PARTITION_SPLIT, right_e_cdf, 2);
+#if CONFIG_EC_ADAPT
+    update_cdf(ec_ctx->partition_cdf[ctx], p, PARTITION_TYPES);
+#endif
   } else if (has_rows && !has_cols) {
     assert(p == PARTITION_SPLIT || p == PARTITION_VERT);
-    aom_write(w, p == PARTITION_SPLIT, probs[2]);
+    aom_cdf_prob bottom_e_cdf[2];
+    aom_cdf_prob c1 = AOM_ICDF(ec_ctx->partition_cdf[ctx][1]);
+    aom_cdf_prob c2 = AOM_ICDF(ec_ctx->partition_cdf[ctx][2]);
+    bottom_e_cdf[0] = AOM_ICDF(((c2 - c1) << 15) / (32768U - c1));
+    bottom_e_cdf[1] = 0U;
+    aom_write_cdf(w, p == PARTITION_SPLIT, bottom_e_cdf, 2);
+#if CONFIG_EC_ADAPT
+    update_cdf(ec_ctx->partition_cdf[ctx], p, PARTITION_TYPES);
+#endif
   } else {
     assert(p == PARTITION_SPLIT);
   }
