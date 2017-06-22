@@ -1717,7 +1717,8 @@ void av1_warp_plane(WarpedMotionParams *wm,
 #if CONFIG_WARPED_MOTION
 #define LEAST_SQUARES_ORDER 2
 
-#define LS_MV_MAX 256  // max mv in 1/8-pel
+#define LS_MV_MAX_BITS 8                 // max mv in 1/8-pel
+#define LS_MV_MAX (1 << LS_MV_MAX_BITS)  // max mv in 1/8-pel
 #define LS_STEP 2
 
 // Assuming LS_MV_MAX is < MAX_SB_SIZE * 8,
@@ -1747,6 +1748,31 @@ void av1_warp_plane(WarpedMotionParams *wm,
 #define LS_PRODUCT2(a, b) \
   (((a) * (b)*4 + ((a) + (b)) * 2 * LS_STEP + LS_STEP * LS_STEP * 2) >> 2)
 
+static int32_t get_mult_shift_ndiag(int64_t Px, int16_t iDet, int shift) {
+  if (shift > 16) {
+    Px = ROUND_POWER_OF_TWO_SIGNED_64(Px, shift - 16);
+    shift = 16;
+  }
+  int32_t Px32 = (int32_t)clamp64(Px, INT32_MIN, INT32_MAX);
+  int64_t v = Px32 * (int64_t)iDet;
+  return (int32_t)clamp(ROUND_POWER_OF_TWO_SIGNED_64(v, shift),
+                        -WARPEDMODEL_NONDIAGAFFINE_CLAMP + 1,
+                        WARPEDMODEL_NONDIAGAFFINE_CLAMP - 1);
+}
+
+static int32_t get_mult_shift_diag(int64_t Px, int16_t iDet, int shift) {
+  if (shift > 16) {
+    Px = ROUND_POWER_OF_TWO_SIGNED_64(Px, shift - 16);
+    shift = 16;
+  }
+  int32_t Px32 = (int32_t)clamp64(Px, INT32_MIN, INT32_MAX);
+  int64_t v = Px32 * (int64_t)iDet;
+  return (int32_t)clamp(
+      ROUND_POWER_OF_TWO_SIGNED_64(v, shift),
+      (1 << WARPEDMODEL_PREC_BITS) - WARPEDMODEL_NONDIAGAFFINE_CLAMP + 1,
+      (1 << WARPEDMODEL_PREC_BITS) + WARPEDMODEL_NONDIAGAFFINE_CLAMP - 1);
+}
+
 static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
                            int mvy, int mvx, WarpedMotionParams *wm, int mi_row,
                            int mi_col) {
@@ -1757,8 +1783,10 @@ static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
 
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
-  const int suy = (mi_row * MI_SIZE + AOMMAX(bh, MI_SIZE) / 2 - 1) * 8;
-  const int sux = (mi_col * MI_SIZE + AOMMAX(bw, MI_SIZE) / 2 - 1) * 8;
+  const int isuy = (mi_row * MI_SIZE + AOMMAX(bh, MI_SIZE) / 2 - 1);
+  const int isux = (mi_col * MI_SIZE + AOMMAX(bw, MI_SIZE) / 2 - 1);
+  const int suy = isuy * 8;
+  const int sux = isux * 8;
   const int duy = suy + mvy;
   const int dux = sux + mvx;
 
@@ -1845,38 +1873,29 @@ static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
     shift = 0;
   }
 
-  int64_t v;
-  v = Px[0] * (int64_t)iDet;
-  wm->wmmat[2] = (int32_t)(ROUND_POWER_OF_TWO_SIGNED_64(v, shift));
-  v = Px[1] * (int64_t)iDet;
-  wm->wmmat[3] = (int32_t)(ROUND_POWER_OF_TWO_SIGNED_64(v, shift));
-  v = ((int64_t)dux * (1 << WARPEDMODEL_PREC_BITS)) -
-      (int64_t)sux * wm->wmmat[2] - (int64_t)suy * wm->wmmat[3];
-  wm->wmmat[0] = (int32_t)(ROUND_POWER_OF_TWO_SIGNED(v, 3));
+  wm->wmmat[2] = get_mult_shift_diag(Px[0], iDet, shift);
+  wm->wmmat[3] = get_mult_shift_ndiag(Px[1], iDet, shift);
+  wm->wmmat[4] = get_mult_shift_ndiag(Py[0], iDet, shift);
+  wm->wmmat[5] = get_mult_shift_diag(Py[1], iDet, shift);
 
-  v = Py[0] * (int64_t)iDet;
-  wm->wmmat[4] = (int32_t)(ROUND_POWER_OF_TWO_SIGNED_64(v, shift));
-  v = Py[1] * (int64_t)iDet;
-  wm->wmmat[5] = (int32_t)(ROUND_POWER_OF_TWO_SIGNED_64(v, shift));
-  v = ((int64_t)duy * (1 << WARPEDMODEL_PREC_BITS)) -
-      (int64_t)sux * wm->wmmat[4] - (int64_t)suy * wm->wmmat[5];
-  wm->wmmat[1] = (int32_t)(ROUND_POWER_OF_TWO_SIGNED(v, 3));
+  // Note: In the vx, vy expressions below, the max value of both the
+  // terms are each (2^16 - 1) * (2^14 - 1). Therefore, the overall max
+  // value is less than 2^31 - 1.
+  // Likewise, the min value is  greater than -(2^31 - 1). So the value
+  // safely fits in 32 bits clamping.
+  int32_t vx = isux * (wm->wmmat[2] - (1 << WARPEDMODEL_PREC_BITS)) -
+               isuy * wm->wmmat[3];
+  int32_t vy = isux * wm->wmmat[4] -
+               isuy * (wm->wmmat[5] - (1 << WARPEDMODEL_PREC_BITS));
+
+  // The addtion below will need a few bits than 32.
+  wm->wmmat[0] = clamp64(mvx * (1 << (WARPEDMODEL_PREC_BITS - 3)) - (int64_t)vx,
+                         -WARPEDMODEL_TRANS_CLAMP, WARPEDMODEL_TRANS_CLAMP - 1);
+  wm->wmmat[1] = clamp64(mvy * (1 << (WARPEDMODEL_PREC_BITS - 3)) - (int64_t)vy,
+                         -WARPEDMODEL_TRANS_CLAMP, WARPEDMODEL_TRANS_CLAMP - 1);
 
   wm->wmmat[6] = wm->wmmat[7] = 0;
 
-  // Clamp values
-  wm->wmmat[0] = clamp(wm->wmmat[0], -WARPEDMODEL_TRANS_CLAMP,
-                       WARPEDMODEL_TRANS_CLAMP - 1);
-  wm->wmmat[1] = clamp(wm->wmmat[1], -WARPEDMODEL_TRANS_CLAMP,
-                       WARPEDMODEL_TRANS_CLAMP - 1);
-  wm->wmmat[2] = clamp(wm->wmmat[2], -WARPEDMODEL_DIAGAFFINE_CLAMP,
-                       WARPEDMODEL_DIAGAFFINE_CLAMP - 1);
-  wm->wmmat[5] = clamp(wm->wmmat[5], -WARPEDMODEL_DIAGAFFINE_CLAMP,
-                       WARPEDMODEL_DIAGAFFINE_CLAMP - 1);
-  wm->wmmat[3] = clamp(wm->wmmat[3], -WARPEDMODEL_NONDIAGAFFINE_CLAMP,
-                       WARPEDMODEL_NONDIAGAFFINE_CLAMP - 1);
-  wm->wmmat[4] = clamp(wm->wmmat[4], -WARPEDMODEL_NONDIAGAFFINE_CLAMP,
-                       WARPEDMODEL_NONDIAGAFFINE_CLAMP - 1);
   return 0;
 }
 
