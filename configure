@@ -263,6 +263,7 @@ EXPERIMENT_LIST="
     compound_segment
     ext_refs
     speed_refs
+    flex_refs
     global_motion
     new_quant
     supertx
