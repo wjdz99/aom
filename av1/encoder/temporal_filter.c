@@ -627,7 +627,7 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
     strength = 0;
     frames_to_blur = 1;
   }
-#endif
+#endif  // CONFIG_EXT_REFS
 
 #if CONFIG_EXT_REFS
   if (strength == 0 && frames_to_blur == 1) {
