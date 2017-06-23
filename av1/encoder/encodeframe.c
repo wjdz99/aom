@@ -4985,19 +4985,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #endif  // CONFIG_EXT_REFS || CONFIG_TEMPMV_SIGNALING
 
 #if CONFIG_TEMPMV_SIGNALING
-  if (cm->prev_frame) {
-    cm->use_prev_frame_mvs &=
-        !cm->error_resilient_mode &&
-#if CONFIG_FRAME_SUPERRES
-        cm->width == cm->last_width && cm->height == cm->last_height &&
-#else
-        cm->width == cm->prev_frame->buf.y_crop_width &&
-        cm->height == cm->prev_frame->buf.y_crop_height &&
-#endif  // CONFIG_FRAME_SUPERRES
-        !cm->intra_only && !cm->prev_frame->intra_only && cm->last_show_frame;
-  } else {
-    cm->use_prev_frame_mvs = 0;
-  }
+  cm->use_prev_frame_mvs &=
+      (cm->prev_frame != NULL) && !cm->error_resilient_mode &&
+      !cm->intra_only && !cm->prev_frame->intra_only && cm->last_show_frame &&
+      cm->width == cm->prev_frame->width &&
+      cm->height == cm->prev_frame->height;
 #else
   if (cm->prev_frame) {
     cm->use_prev_frame_mvs = !cm->error_resilient_mode &&
