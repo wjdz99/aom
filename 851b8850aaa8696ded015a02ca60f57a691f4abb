@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "49e8aae1_23d8c41f",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-06-23T23:40:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "956ed021_1da2522a",
+      "revId": "851b8850aaa8696ded015a02ca60f57a691f4abb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6eba181_6208f825",
         "filename": "av1/encoder/bgsprite.c",
         "patchSetId": 8
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "f20e9c45_3c0e30af",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-06-23T23:40:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6eba181_6208f825",
+      "range": {
+        "startLine": 126,
+        "startChar": 0,
+        "endLine": 141,
+        "endChar": 3
+      },
+      "revId": "851b8850aaa8696ded015a02ca60f57a691f4abb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ab2963f_01da2feb",
         "filename": "av1/encoder/bgsprite.c",
         "patchSetId": 8
@@ -62,6 +104,30 @@
       "revId": "851b8850aaa8696ded015a02ca60f57a691f4abb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7c2e5cf_b9dc6b93",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-06-23T23:40:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ab2963f_01da2feb",
+      "range": {
+        "startLine": 340,
+        "startChar": 62,
+        "endLine": 341,
+        "endChar": 37
+      },
+      "revId": "851b8850aaa8696ded015a02ca60f57a691f4abb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
