@@ -441,6 +441,9 @@ typedef struct AV1Common {
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
   int ans_window_size_log2;
 #endif
+#if CONFIG_FLEX_REFS
+  int frame_loc;
+#endif  // CONFIG_FLEX_REFS
 } AV1_COMMON;
 
 #if CONFIG_REFERENCE_BUFFER

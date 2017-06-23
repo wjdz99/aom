@@ -1268,6 +1268,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   }
 
   cpi->common.error.setjmp = 0;
+
   return res;
 }
 

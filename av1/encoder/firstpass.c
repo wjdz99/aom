@@ -624,7 +624,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
         ((cm->mb_rows - 1 - mb_row) * 16) + BORDER_MV_PIXELS_B16;
 
     for (mb_col = 0; mb_col < cm->mb_cols; ++mb_col) {
-      int this_error;
+      int this_error = 0;
       const int use_dc_pred = (mb_col || mb_row) && (!mb_col || !mb_row);
       const BLOCK_SIZE bsize = get_bsize(cm, mb_row, mb_col);
       double log_intra;
@@ -1652,9 +1652,13 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
   // (3) The bi-predictive group interval is strictly smaller than the
   //     golden group interval.
   const int is_bipred_enabled =
+#if CONFIG_FLEX_REFS
+      cpi->bipred_allowed &&
+#endif
       rc->source_alt_ref_pending && rc->bipred_group_interval &&
       rc->bipred_group_interval <=
           (rc->baseline_gf_interval - rc->source_alt_ref_pending);
+
   int bipred_group_end = 0;
   int bipred_frame_index = 0;
 
@@ -1680,7 +1684,6 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
 #if !CONFIG_EXT_REFS
   get_arf_buffer_indices(arf_buffer_indices);
 #endif  // !CONFIG_EXT_REFS
-
   // For key frames the frame target rate is already set and it
   // is also the golden frame.
   if (!key_frame) {
@@ -1714,7 +1717,6 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
   if (rc->source_alt_ref_pending || !key_frame) total_group_bits -= gf_arf_bits;
 
   frame_index++;
-
 #if CONFIG_EXT_REFS
   bipred_frame_index++;
 #endif  // CONFIG_EXT_REFS
@@ -1759,6 +1761,14 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
     subgroup_interval[cpi->num_extra_arfs] = arf_pos[cpi->num_extra_arfs] -
                                              frame_index -
                                              (cpi->num_extra_arfs == 0 ? 1 : 2);
+/*    printf("num_extra_arfs=%d ext_arf_interval=%d ", cpi->num_extra_arfs,
+   ext_arf_interval);
+    printf("ARF's position: arf_pos[0] = %d ", arf_pos[0]);
+    for (i = 0; i < cpi->num_extra_arfs; ++i) {
+      printf("ARF's position: arf_pos[%d] = %d ", i + 1, arf_pos[i + 1] );
+    }
+    printf("\n");*/
+
 #endif  // CONFIG_EXT_REFS
 
     ++frame_index;
@@ -2085,6 +2095,11 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     }
   }
 
+#if CONFIG_FLEX_REFS
+  double sum_sr_coded_error = 0;
+  double sum_mv_in_out = 0;
+#endif  // CONFIG_FLEX_REFS
+
   i = 0;
   while (i < rc->static_scene_max_gf_interval && i < rc->frames_to_key) {
     ++i;
@@ -2108,6 +2123,14 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     accumulate_frame_motion_stats(
         &next_frame, &this_frame_mv_in_out, &mv_in_out_accumulator,
         &abs_mv_in_out_accumulator, &mv_ratio_accumulator);
+#if CONFIG_FLEX_REFS
+    sum_sr_coded_error *= i - 1;
+    sum_sr_coded_error += next_frame.sr_coded_error;
+    sum_sr_coded_error /= i;
+    sum_mv_in_out *= i - 1;
+    sum_mv_in_out += next_frame.mv_in_out_count * next_frame.pcnt_motion;
+    sum_mv_in_out /= i;
+#endif  // CONFIG_FLEX_REFS
 
     // Accumulate the effect of prediction quality decay.
     if (!flash_detected) {
@@ -2125,6 +2148,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
       if (detect_transition_to_still(cpi, i, 5, loop_decay_rate,
                                      last_loop_decay_rate)) {
         allow_alt_ref = 0;
+        //        printf("i=%d detect_transition_to_still break\n", i);
         break;
       }
     }
@@ -2182,10 +2206,36 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
 
+#if CONFIG_GF_GROUPS
+  (cpi->gf_group_interval_counts[rc->baseline_gf_interval])++;
+//  printf("counts[%d] = %d\n", rc->baseline_gf_interval,
+//  cpi->gf_group_interval_counts[rc->baseline_gf_interval]);
+#endif  // CONFIG_GF_GROUPS
+
 #if CONFIG_EXT_REFS
+#if CONFIG_FLEX_REFS
+  const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE) ? cpi->initial_mbs
+                                                             : cpi->common.MBs;
+  // Disable extra alter refs and backward ref for "still" gf group and
+  // "zoom-out" gf group
+  int disable_bipred_extarf;
+  disable_bipred_extarf =
+      (zero_motion_accumulator > 0.9 && decay_accumulator > 0.99 &&
+       sum_sr_coded_error / num_mbs < 14) ||
+      (sum_mv_in_out > 0.4 && sum_sr_coded_error / num_mbs < 50);
+  cpi->extra_arf_allowed = cpi->bipred_allowed = disable_bipred_extarf ? 0 : 1;
+
+  if (!cpi->extra_arf_allowed) {
+    cpi->num_extra_arfs = 0;
+  } else {
+    cpi->num_extra_arfs = get_number_of_extra_arfs(rc->baseline_gf_interval,
+                                                   rc->source_alt_ref_pending);
+  }
+#else
   // Compute how many extra alt_refs we can have
   cpi->num_extra_arfs = get_number_of_extra_arfs(rc->baseline_gf_interval,
                                                  rc->source_alt_ref_pending);
+#endif  // CONFIG_FLEX_REFS
   // Currently at maximum two extra ARFs' are allowed
   assert(cpi->num_extra_arfs <= MAX_EXT_ARFS);
 #endif  // CONFIG_EXT_REFS

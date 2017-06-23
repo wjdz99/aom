@@ -2605,7 +2605,6 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
     // NOTE(zoeliu): For debug
     enc_dump_logs(cpi, mi_row, mi_col);
 #endif  // ENC_MISMATCH_DEBUG
-
     pack_inter_mode_mvs(cpi, mi_row, mi_col,
 #if CONFIG_SUPERTX
                         supertx_enabled,
