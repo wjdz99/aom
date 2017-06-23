@@ -1105,7 +1105,6 @@ static int write_superframe_index(aom_codec_alg_priv_t *ctx) {
       this_sz >>= 8;
     }
   }
-  *x++ = marker;
 
   const size_t index_sz = x - buffer;
   assert(index_sz < MAX_INDEX_SIZE);
