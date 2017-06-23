@@ -4572,6 +4572,9 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #if CONFIG_TEMPMV_SIGNALING
     if (cm->intra_only || cm->error_resilient_mode) cm->use_prev_frame_mvs = 0;
 #endif
+#if CONFIG_NO_FRAME_CONTEXT_SIGNALING
+// The only way to reset all frame contexts is with a keyframe.
+#else
     if (cm->error_resilient_mode) {
       cm->reset_frame_context = RESET_FRAME_CONTEXT_ALL;
     } else {
@@ -4589,6 +4592,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
                                         : RESET_FRAME_CONTEXT_CURRENT;
       }
     }
+#endif
 
     if (cm->intra_only) {
       if (!av1_read_sync_code(rb))
@@ -5504,9 +5508,7 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
 
 // Non frame parallel update frame context here.
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
-  // TODO(tdaede): Figure out of this condition is required.
-  if (!cm->error_resilient_mode && !context_updated)
-    cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
+  if (!context_updated) cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
 #else
   if (!cm->error_resilient_mode && !context_updated)
     cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
