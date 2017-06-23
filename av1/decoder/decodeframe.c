@@ -745,8 +745,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   aom_reader *r, MB_MODE_INFO *const mbmi,
                                   int plane, BLOCK_SIZE plane_bsize,
                                   int blk_row, int blk_col, int block,
-                                  TX_SIZE tx_size,
-                                  int *eob_total) {
+                                  TX_SIZE tx_size, int *eob_total) {
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
@@ -770,7 +769,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
     // tx_type will be read out in av1_read_coeffs_txb_facade
     TX_TYPE tx_type = get_tx_type(plane_type, xd, block, plane_tx_size);
 #else   // CONFIG_LV_MAP
-    TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx, plane_tx_size);
+    TX_TYPE tx_type = get_tx_type(plane_type, xd, block, plane_tx_size);
     const SCAN_ORDER *sc = get_scan(cm, plane_tx_size, tx_type, 1);
     int16_t max_scan_line = 0;
     const int eob = av1_decode_block_tokens(
