@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b08d8110_b605d431",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-23T18:32:28Z",
+      "side": 1,
+      "message": "\u003e _mm_set_epi32 instead, to agree with the code\n\nnice catch. I added _mm_cvtsi32_si128 as well.",
+      "parentUuid": "504549e4_c68f34f1",
+      "range": {
+        "startLine": 7,
+        "startChar": 23,
+        "endLine": 7,
+        "endChar": 37
+      },
+      "revId": "3b706d38237c4e08fd3eab1493e7f195dbe656da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a9537609_017683d1",
         "filename": "av1/common/x86/selfguided_sse4.c",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "3b706d38237c4e08fd3eab1493e7f195dbe656da",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38101711_ee619d87",
+        "filename": "av1/common/x86/selfguided_sse4.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-23T18:32:28Z",
+      "side": 1,
+      "message": "\u003e You could alternatively use _mm_cvtsi32_si128 here, that might make it a little clearer\n\ngood point. done",
+      "parentUuid": "a9537609_017683d1",
+      "range": {
+        "startLine": 19,
+        "startChar": 22,
+        "endLine": 19,
+        "endChar": 65
+      },
+      "revId": "3b706d38237c4e08fd3eab1493e7f195dbe656da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
