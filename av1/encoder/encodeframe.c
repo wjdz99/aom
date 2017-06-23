@@ -1711,6 +1711,23 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
         if (motion_allowed > SIMPLE_TRANSLATION)
           counts->motion_mode[mbmi->sb_type][mbmi->motion_mode]++;
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && !CONFIG_WARPED_MOTION
+        if (intrpl_mode_allowed(mbmi->sb_type)) {
+          int intrpl_block =
+              AOMMIN(mi_size_wide[mbmi->sb_type], mi_size_high[mbmi->sb_type]);
+          if (mi_size_wide[mbmi->sb_type] == mi_size_high[mbmi->sb_type]) {
+            ++counts->intrpl_mode[mbmi->motion_mode][intrpl_block]
+                                 [mbmi->intrpl_mode[0]];
+          } else {
+            ++counts->intrpl_mode[mbmi->motion_mode][intrpl_block]
+                                 [mbmi->intrpl_mode[0]];
+            ++counts->intrpl_mode[mbmi->motion_mode][intrpl_block]
+                                 [mbmi->intrpl_mode[1]];
+          }
+        }
+#endif
+
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_EXT_INTER
