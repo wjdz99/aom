@@ -94,7 +94,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
   if (eob == 0) return;
 #if CONFIG_TXK_SEL
-  av1_write_tx_type(cm, xd, block, plane, w);
+  av1_write_tx_type(cm, xd, block, plane, get_min_tx_size(tx_size), w);
 #endif
 
   nz_map = cm->fc->nz_map[txs_ctx][plane_type];
@@ -1606,7 +1606,8 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   }
 
 #if CONFIG_TXK_SEL
-  av1_update_tx_type_count(cm, xd, block, plane, mbmi->sb_type, tx_size,
+  av1_update_tx_type_count(cm, xd, block, plane, mbmi->sb_type,
+                           get_min_tx_size(tx_size),
                            td->counts);
 #endif
 
@@ -1893,9 +1894,12 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     }
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
+
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    coeff_ctx, AV1_XFORM_QUANT_FP);
-    av1_optimize_b(cm, x, plane, block, plane_bsize, tx_size, a, l);
+                    coeff_ctx, AV1_XFORM_QUANT_B);
+//    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+//                    coeff_ctx, AV1_XFORM_QUANT_FP);
+//    av1_optimize_b(cm, x, plane, block, plane_bsize, tx_size, a, l);
     av1_dist_block(cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size,
                    &this_rd_stats.dist, &this_rd_stats.sse,
                    OUTPUT_HAS_PREDICTED_PIXELS);
@@ -1916,9 +1920,13 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   if (plane == 0) mbmi->txk_type[block] = best_tx_type;
   // TODO(angiebird): Instead of re-call av1_xform_quant and av1_optimize_b,
   // copy the best result in the above tx_type search for loop
+
   av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                  coeff_ctx, AV1_XFORM_QUANT_FP);
-  av1_optimize_b(cm, x, plane, block, plane_bsize, tx_size, a, l);
+                  coeff_ctx, AV1_XFORM_QUANT_B);
+
+//  av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+//                  coeff_ctx, AV1_XFORM_QUANT_FP);
+//  av1_optimize_b(cm, x, plane, block, plane_bsize, tx_size, a, l);
   if (!is_inter_block(mbmi)) {
     // intra mode needs decoded result such that the next transform block
     // can use it for prediction.
