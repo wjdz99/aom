@@ -1689,6 +1689,9 @@ uint8_t av1_calculate_next_resize_scale(const AV1_COMP *cpi) {
       break;
     default: assert(0);
   }
+
+  printf("RS_NUM: %d ", new_num);
+
   return new_num;
 }
 
@@ -1720,6 +1723,8 @@ uint8_t av1_calculate_next_superres_scale(const AV1_COMP *cpi, int width,
   av1_calculate_scaled_size(&width, &height, new_num);
   if (width * 2 < oxcf->width || height * 2 < oxcf->height)
     new_num = SCALE_DENOMINATOR;
+
+  printf("SR_NUM: %d ", new_num);
 
   return new_num;
 }
