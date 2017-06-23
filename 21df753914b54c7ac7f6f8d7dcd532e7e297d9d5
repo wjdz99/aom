@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2967bdaa_551746a8",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1762,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T17:20:31Z",
+      "side": 1,
+      "message": "Is eset always not EXT_TX_SET_DCTONLY? looks like intra 32x32 will only support DCTDCT",
+      "range": {
+        "startLine": 1762,
+        "startChar": 6,
+        "endLine": 1762,
+        "endChar": 23
+      },
+      "revId": "21df753914b54c7ac7f6f8d7dcd532e7e297d9d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
