@@ -1112,7 +1112,6 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   const aom_rational_t *const timebase = &ctx->cfg.g_timebase;
 
   if (cpi == NULL) return AOM_CODEC_INVALID_PARAM;
-
   if (img != NULL) {
     res = validate_img(ctx, img);
     // TODO(jzern) the checks related to cpi's validity should be treated as a

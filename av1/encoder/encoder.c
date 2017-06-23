@@ -77,6 +77,8 @@ FRAME_COUNTS aggregate_fc;
 FRAME_COUNTS aggregate_fc_per_type[FRAME_CONTEXTS];
 #endif  // CONFIG_ENTROPY_STATS
 
+#define GF_GROUP_DEBUG 0
+
 #define AM_SEGMENT_ID_INACTIVE 7
 #define AM_SEGMENT_ID_ACTIVE 0
 
@@ -4751,7 +4753,8 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
 #if DUMP_RECON_FRAMES == 1
   // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
-  if (cm->show_frame) dump_filtered_recon_frames(cpi);
+  // if (cm->show_frame)
+  dump_filtered_recon_frames(cpi);
 #endif  // DUMP_RECON_FRAMES
 
   if (cm->seg.update_map) update_reference_segmentation_map(cpi);
@@ -5357,6 +5360,22 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     // We need to update the gf_group for show_existing overlay frame
     if (cpi->rc.is_src_frame_alt_ref) av1_rc_get_second_pass_params(cpi);
 
+#if CONFIG_FLEX_REFS
+#ifdef GF_GROUP_DEBUG
+    GF_GROUP *gf_group = &cpi->twopass.gf_group;
+    int frame_loc = (int)ceil((double)source->ts_start * 30 / 10000000LL);
+    int gf_index = gf_group->index;
+    if (gf_index == 0) printf("\n");
+    printf(
+        "Frame=%-4d show_existing=%d frame_loc=%-4d gf_group.index=%-4d "
+        "update_type=%-4d rf_level=%-4d "
+        "bit_allocation=%d\n",
+        cm->current_video_frame, cm->show_existing_frame, frame_loc, gf_index,
+        gf_group->update_type[gf_index], gf_group->rf_level[gf_index],
+        gf_group->bit_allocation[gf_index]);
+#endif  // GF_GROUP_DEBUG
+#endif
+
     Pass2Encode(cpi, size, dest, frame_flags);
 
     if (cpi->b_calculate_psnr) generate_psnr_packet(cpi);
@@ -5458,7 +5477,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     *time_stamp = source->ts_start;
     *time_end = source->ts_end;
     *frame_flags = (source->flags & AOM_EFLAG_FORCE_KF) ? FRAMEFLAGS_KEY : 0;
-
   } else {
     *size = 0;
     if (flush && oxcf->pass == 1 && !cpi->twopass.first_pass_done) {
@@ -5564,6 +5582,23 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     cpi->td.mb.e_mbd.lossless[0] = is_lossless_requested(oxcf);
     av1_first_pass(cpi, source);
   } else if (oxcf->pass == 2) {
+
+#if CONFIG_FLEX_REFS
+#ifdef GF_GROUP_DEBUG
+    GF_GROUP *gf_group = &cpi->twopass.gf_group;
+    int gf_index = gf_group->index;
+    int frame_loc = (int)ceil((double)source->ts_start * 30 / 10000000LL);
+    if (gf_index == 0) printf("\n");
+    printf(
+        "Frame=%-4d show_existing=%d frame_loc=%-4d gf_group.index=%-4d "
+        "update_type=%-4d rf_level=%-4d "
+        "bit_allocation=%d\n",
+        cm->current_video_frame, cm->show_existing_frame, frame_loc, gf_index,
+        gf_group->update_type[gf_index], gf_group->rf_level[gf_index],
+        gf_group->bit_allocation[gf_index]);
+#endif
+#endif  // CONFIG_FLEX_REFS
+
     Pass2Encode(cpi, size, dest, frame_flags);
   } else {
     // One pass encode

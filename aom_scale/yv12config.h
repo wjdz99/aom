@@ -79,6 +79,9 @@ typedef struct yv12_buffer_config {
 
   int corrupted;
   int flags;
+#if CONFIG_FLEX_REFS
+  int frame_loc;
+#endif
 } YV12_BUFFER_CONFIG;
 
 #define YV12_FLAG_HIGHBITDEPTH 8
