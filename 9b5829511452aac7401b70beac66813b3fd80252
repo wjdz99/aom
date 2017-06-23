@@ -2,6 +2,305 @@
   "comments": [
     {
       "key": {
+        "uuid": "23bf5119_21854e38",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "maybe use NCOBMC_WEIGHT_MODE?",
+      "range": {
+        "startLine": 439,
+        "startChar": 2,
+        "endLine": 439,
+        "endChar": 13
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f148dfb_3dbe83d2",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1368,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "BLOCK_SIZE",
+      "range": {
+        "startLine": 1368,
+        "startChar": 46,
+        "endLine": 1368,
+        "endChar": 49
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7c5189e_14ca9545",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1370,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "NO_OVERLAP maybe?",
+      "range": {
+        "startLine": 1370,
+        "startChar": 11,
+        "endLine": 1370,
+        "endChar": 21
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c3ce0b3_253e18c5",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1171,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "why we need it for motion_mode \u003d SIMIPLE_TRANSLATION?\nIf not, a 2-d prob table will be enough",
+      "range": {
+        "startLine": 1166,
+        "startChar": 0,
+        "endLine": 1171,
+        "endChar": 8
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31b4b151_097a6246",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "ADAPT_OVERLAP_BLOCK_8X8 maybe?",
+      "range": {
+        "startLine": 416,
+        "startChar": 2,
+        "endLine": 416,
+        "endChar": 12
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d085350_11e13223",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5127,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "since your previous patch will handle the conflict, should be fine if removing !CONFIG_WARPED_MOTION",
+      "range": {
+        "startLine": 5127,
+        "startChar": 46,
+        "endLine": 5127,
+        "endChar": 67
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55f30af7_728b88c3",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5129,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "The code has no problem at all. I highlight it here just let you know that just from this year C99 is supported for av1 now, now we can declare variables in the middle to make them closer to where they are used.",
+      "range": {
+        "startLine": 5129,
+        "startChar": 6,
+        "endLine": 5129,
+        "endChar": 12
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72e2dec2_d7176856",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "Not the size group you created?",
+      "range": {
+        "startLine": 349,
+        "startChar": 49,
+        "endLine": 349,
+        "endChar": 62
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b843545a_6fc2f86b",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "Better to have a explicit function, let\u0027s say map anyone \u003e\u003d8x8 and \u003c 16x8 to some group. Since when cb4x4 is on, mi size is 4.",
+      "range": {
+        "startLine": 624,
+        "startChar": 39,
+        "endLine": 626,
+        "endChar": 71
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e322a08_f2c44992",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "maybe merge them, and code the second half when the block is not square",
+      "range": {
+        "startLine": 629,
+        "startChar": 0,
+        "endLine": 636,
+        "endChar": 66
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b4121bb_76383823",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2247,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "write_ncobmc_adapt_weight_mode() will be more self-explainable\nsame for decoder side",
+      "range": {
+        "startLine": 2247,
+        "startChar": 4,
+        "endLine": 2247,
+        "endChar": 21
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "859d744c_6906905f",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1718,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "same comment as for the last file",
+      "range": {
+        "startLine": 1717,
+        "startChar": 10,
+        "endLine": 1718,
+        "endChar": 79
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94d19d89_30b371cf",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1727,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-23T21:58:36Z",
+      "side": 1,
+      "message": "same comment as before",
+      "range": {
+        "startLine": 1719,
+        "startChar": 0,
+        "endLine": 1727,
+        "endChar": 11
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b41744d9_a6fa3908",
         "filename": "configure",
         "patchSetId": 3
