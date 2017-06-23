@@ -496,8 +496,6 @@ int av1_get_raw_frame(AV1Decoder *pbi, YV12_BUFFER_CONFIG *sd) {
   int ret = -1;
   if (pbi->ready_for_new_data == 1) return ret;
 
-  pbi->ready_for_new_data = 1;
-
   /* no raw frame to show!!! */
   if (!cm->show_frame) return ret;
 
