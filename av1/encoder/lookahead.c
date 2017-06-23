@@ -102,7 +102,6 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
   int subsampling_x = src->subsampling_x;
   int subsampling_y = src->subsampling_y;
   int larger_dimensions, new_dimensions;
-
   if (ctx->sz + 1 + MAX_PRE_FRAMES > ctx->max_sz) return 1;
   ctx->sz++;
   buf = pop(ctx, &ctx->write_idx);
@@ -191,7 +190,6 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
 struct lookahead_entry *av1_lookahead_pop(struct lookahead_ctx *ctx,
                                           int drain) {
   struct lookahead_entry *buf = NULL;
-
   if (ctx && ctx->sz && (drain || ctx->sz == ctx->max_sz - MAX_PRE_FRAMES)) {
     buf = pop(ctx, &ctx->read_idx);
     ctx->sz--;
@@ -218,7 +216,6 @@ struct lookahead_entry *av1_lookahead_peek(struct lookahead_ctx *ctx,
       buf = ctx->buf + index;
     }
   }
-
   return buf;
 }
 
