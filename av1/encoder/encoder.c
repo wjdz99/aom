@@ -77,6 +77,11 @@ FRAME_COUNTS aggregate_fc;
 FRAME_COUNTS aggregate_fc_per_type[FRAME_CONTEXTS];
 #endif  // CONFIG_ENTROPY_STATS
 
+#define GF_GROUP_DEBUG 1
+#if GF_GROUP_DEBUG
+#include "aom_dsp/psnr.h"
+#endif  // GF_GROUP_DEBUG
+
 #define AM_SEGMENT_ID_INACTIVE 7
 #define AM_SEGMENT_ID_ACTIVE 0
 
@@ -2532,6 +2537,16 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       fclose(f);
     }
 #endif  // CONFIG_ENTROPY_STATS
+#if CONFIG_GF_GROUPS
+    // To collect the stats for each frame
+    if (cpi->oxcf.pass == 2) {
+      fprintf(stderr, "Writing counts.stt\n");
+      FILE *f = fopen("gf_group_interval_counts.stt", "wb");
+      fwrite(cpi->gf_group_interval_counts,
+             sizeof(*(cpi->gf_group_interval_counts)), MAX_GF_INTERVAL, f);
+      fclose(f);
+    }
+#endif  // CONFIG_GF_GROUPS
 #if CONFIG_INTERNAL_STATS
     aom_clear_system_state();
 
@@ -5357,6 +5372,20 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     // We need to update the gf_group for show_existing overlay frame
     if (cpi->rc.is_src_frame_alt_ref) av1_rc_get_second_pass_params(cpi);
 
+#if GF_GROUP_DEBUG
+    GF_GROUP *gf_group = &cpi->twopass.gf_group;
+    int frame_loc = (int)ceil((double)source->ts_start * 30 / 10000000LL);
+    int gf_index = gf_group->index;
+    if (gf_index == 0) printf("\n");
+    printf(
+        "Frame=%-4d show_existing=%d frame_loc=%-4d gf_group.index=%-4d "
+        "update_type=%-4d rf_level=%-4d "
+        "bit_allocation=%d\n",
+        cm->current_video_frame, cm->show_existing_frame, frame_loc, gf_index,
+        gf_group->update_type[gf_index], gf_group->rf_level[gf_index],
+        gf_group->bit_allocation[gf_index]);
+#endif  // GF_GROUP_DEBUG
+
     Pass2Encode(cpi, size, dest, frame_flags);
 
     if (cpi->b_calculate_psnr) generate_psnr_packet(cpi);
@@ -5458,7 +5487,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     *time_stamp = source->ts_start;
     *time_end = source->ts_end;
     *frame_flags = (source->flags & AOM_EFLAG_FORCE_KF) ? FRAMEFLAGS_KEY : 0;
-
   } else {
     *size = 0;
     if (flush && oxcf->pass == 1 && !cpi->twopass.first_pass_done) {
@@ -5542,6 +5570,12 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     cpi->common.current_frame_id = -1;
   }
 #endif
+#if GF_GROUP_DEBUG
+  int64_t total_bytes = 0;
+  int64_t total_sse = 0;
+  int64_t total_samples = 0;
+  double ovrpsnr = 0;
+#endif  // GF_GROUP_DEBUG
 
 #if CONFIG_XIPHRC
   if (oxcf->pass == 1) {
@@ -5564,6 +5598,26 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     cpi->td.mb.e_mbd.lossless[0] = is_lossless_requested(oxcf);
     av1_first_pass(cpi, source);
   } else if (oxcf->pass == 2) {
+
+#if GF_GROUP_DEBUG
+    GF_GROUP *gf_group = &cpi->twopass.gf_group;
+    int gf_index = gf_group->index;
+    int frame_loc = (int)ceil((double)source->ts_start * 30 / 10000000LL);
+    if (gf_index == 0) printf("\n");
+    printf(
+        "Frame=%-4d show_existing=%d frame_loc=%-4d gf_group.index=%-4d "
+        "update_type=%-4d rf_level=%-4d "
+        "bit_allocation=%d\n",
+        cm->current_video_frame, cm->show_existing_frame, frame_loc, gf_index,
+        gf_group->update_type[gf_index], gf_group->rf_level[gf_index],
+        gf_group->bit_allocation[gf_index]);
+
+    if (cpi->twopass.gf_group.index == 0) {
+      total_bytes = 0;
+      total_sse = 0;
+      total_samples = 0;
+    }
+#endif
     Pass2Encode(cpi, size, dest, frame_flags);
   } else {
     // One pass encode
@@ -5588,6 +5642,23 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   if (cpi->b_calculate_psnr && oxcf->pass != 1 && cm->show_frame)
     generate_psnr_packet(cpi);
+
+#if GF_GROUP_DEBUG
+  total_bytes += *size;
+  if (oxcf->pass == 2 && cpi->b_calculate_psnr && oxcf->pass != 1 &&
+      cm->show_frame) {
+    const struct aom_codec_pkt_list *list = cpi->output_pkt_list;
+    int cnt = list->cnt - 1;
+    printf("PSNR Total=%-4f Y=%-4f U=%-4f V=%-4f ",
+           list->pkts[cnt].data.psnr.psnr[0], list->pkts[cnt].data.psnr.psnr[1],
+           list->pkts[cnt].data.psnr.psnr[2],
+           list->pkts[cnt].data.psnr.psnr[3]);
+    total_sse += list->pkts[cnt].data.psnr.sse[0];
+    total_samples += list->pkts[cnt].data.psnr.samples[0];
+    ovrpsnr = aom_sse_to_psnr((double)total_samples, 255.0, (double)total_sse);
+    printf("gf_group_bytes=%-4lu gf_group_PSNR=%-4f \n", total_bytes, ovrpsnr);
+  }
+#endif  // GF_GROUP_DEBUG
 
 #if CONFIG_INTERNAL_STATS
   if (oxcf->pass != 1) {
