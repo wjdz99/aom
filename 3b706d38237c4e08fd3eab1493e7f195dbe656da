@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "504549e4_c68f34f1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-06-23T15:29:07Z",
+      "side": 1,
+      "message": "_mm_set_epi32 instead, to agree with the code",
+      "range": {
+        "startLine": 7,
+        "startChar": 23,
+        "endLine": 7,
+        "endChar": 37
+      },
+      "revId": "3b706d38237c4e08fd3eab1493e7f195dbe656da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9537609_017683d1",
+        "filename": "av1/common/x86/selfguided_sse4.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-06-23T15:29:07Z",
+      "side": 1,
+      "message": "You could alternatively use _mm_cvtsi32_si128 here, that might make it a little clearer",
+      "range": {
+        "startLine": 19,
+        "startChar": 22,
+        "endLine": 19,
+        "endChar": 65
+      },
+      "revId": "3b706d38237c4e08fd3eab1493e7f195dbe656da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
