@@ -52,6 +52,13 @@ typedef struct {
 #define MIN_EXT_ARF_INTERVAL 4
 #endif  // CONFIG_EXT_REFS
 
+#if CONFIG_FLEX_REFS
+#define MIN_ZERO_MOTION 0.95
+#define MAX_SR_CODED_ERROR 40
+#define MAX_RAW_ERR_VAR 2000
+#define MIN_MV_IN_OUT 0.4
+#endif  // CONFIG_FLEX_REFS
+
 #define VLOW_MOTION_THRESHOLD 950
 
 typedef struct {
@@ -77,6 +84,9 @@ typedef struct {
   double new_mv_count;
   double duration;
   double count;
+#if CONFIG_FLEX_REFS
+  double raw_error_var;
+#endif  // CONFIG_FLEX_REFS
 } FIRSTPASS_STATS;
 
 typedef enum {
