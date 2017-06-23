@@ -2115,6 +2115,7 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi,
   MB_MODE_INFO *const mbmi = &mi->mbmi;
   for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref)
     mv[ref].as_mv = mbmi->mv[ref].as_mv;
+  }
 
   int interp_ctx[2] = { -1 };
   int interp_filter[2] = { cm->interp_filter };

@@ -5590,7 +5590,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     *time_stamp = source->ts_start;
     *time_end = source->ts_end;
     *frame_flags = (source->flags & AOM_EFLAG_FORCE_KF) ? FRAMEFLAGS_KEY : 0;
-
   } else {
     *size = 0;
     if (flush && oxcf->pass == 1 && !cpi->twopass.first_pass_done) {
