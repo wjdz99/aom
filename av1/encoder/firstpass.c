@@ -1654,7 +1654,12 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
   const int is_bipred_enabled =
       rc->source_alt_ref_pending && rc->bipred_group_interval &&
       rc->bipred_group_interval <=
-          (rc->baseline_gf_interval - rc->source_alt_ref_pending);
+          (rc->baseline_gf_interval - rc->source_alt_ref_pending)
+#if CONFIG_FLEX_REFS
+      && cpi->bipred_allowed
+#endif
+      ;
+
   int bipred_group_end = 0;
   int bipred_frame_index = 0;
 
@@ -2183,9 +2188,20 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
 
 #if CONFIG_EXT_REFS
+#if CONFIG_FLEX_REFS
+  cpi->extra_arf_allowed = 0;
+  cpi->bipred_allowed = 0;
+  if (!cpi->extra_arf_allowed) {
+    cpi->num_extra_arfs = 0;
+  } else {
+    cpi->num_extra_arfs = get_number_of_extra_arfs(rc->baseline_gf_interval,
+                                                   rc->source_alt_ref_pending);
+  }
+#else
   // Compute how many extra alt_refs we can have
   cpi->num_extra_arfs = get_number_of_extra_arfs(rc->baseline_gf_interval,
                                                  rc->source_alt_ref_pending);
+#endif  // CONFIG_FLEX_REFS
   // Currently at maximum two extra ARFs' are allowed
   assert(cpi->num_extra_arfs <= MAX_EXT_ARFS);
 #endif  // CONFIG_EXT_REFS
