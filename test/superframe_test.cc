@@ -64,9 +64,8 @@ class SuperframeTest
     const uint8_t marker = buffer[0];
     const int frames = (marker & 0x7) + 1;
     const int mag = ((marker >> 3) & 3) + 1;
-    const unsigned int index_sz = 2 + mag * (frames - 1);
-    if ((marker & 0xe0) == 0xc0 && pkt->data.frame.sz >= index_sz &&
-        buffer[index_sz - 1] == marker) {
+    const unsigned int index_sz = 1 + mag * (frames - 1);
+    if ((marker & 0xe0) == 0xc0 && pkt->data.frame.sz >= index_sz) {
       // frame is a superframe. strip off the index.
       modified_buf_.resize(pkt->data.frame.sz - index_sz);
       memcpy(&modified_buf_[0], (uint8_t *)pkt->data.frame.buf + index_sz,
