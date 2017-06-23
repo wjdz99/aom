@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b36979e5_c793f8e7",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1170,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-23T20:41:20Z",
+      "side": 1,
+      "message": "\"const RestorationType *\", as it\u0027s input-only I believe.\nAlso, input param should go before output param \u0027rsi\u0027.",
+      "range": {
+        "startLine": 1170,
+        "startChar": 4,
+        "endLine": 1170,
+        "endChar": 19
+      },
+      "revId": "5a79b78ff0ad044b43d96307ec956d21dabec062",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0377042_50e7c0fb",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1207,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-23T20:41:20Z",
+      "side": 1,
+      "message": "Was there any quality impact due to this change?",
+      "revId": "5a79b78ff0ad044b43d96307ec956d21dabec062",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
