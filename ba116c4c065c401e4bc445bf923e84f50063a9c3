@@ -16,6 +16,24 @@
       "revId": "ba116c4c065c401e4bc445bf923e84f50063a9c3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dee18871_3d716166",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2605,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-06-23T08:37:42Z",
+      "side": 1,
+      "message": "I see. Sorry, I didn\u0027t understand what you meant. But shouldn\u0027t that be a separate patch? I intended this patch to be \"make things consistent\". I assumed that you\u0027d restricted b1bedf5 to the EXT_TX case on purpose.\n\nOr have I misunderstood you again?",
+      "parentUuid": "2d5e0772_227b7c7c",
+      "revId": "ba116c4c065c401e4bc445bf923e84f50063a9c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
