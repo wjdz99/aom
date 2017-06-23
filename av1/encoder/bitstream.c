@@ -4684,6 +4684,7 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 #if CONFIG_PALETTE || CONFIG_INTRABC
     if (cm->intra_only) aom_wb_write_bit(wb, cm->allow_screen_content_tools);
 #endif  // CONFIG_PALETTE || CONFIG_INTRABC
+#if !CONFIG_FRAME_CONTEXT_SIGNALING
     if (!cm->error_resilient_mode) {
       if (cm->intra_only) {
         aom_wb_write_bit(wb,
@@ -4696,7 +4697,7 @@ static void write_uncompressed_header(AV1_COMP *cpi,
                            cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL);
       }
     }
-
+#endif
 #if CONFIG_EXT_REFS
     cpi->refresh_frame_mask = get_refresh_mask(cpi);
 #endif  // CONFIG_EXT_REFS
