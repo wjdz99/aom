@@ -5124,6 +5124,15 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     }
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR && !CONFIG_WARPED_MOTION
+    for (i = 0; i < MOTION_MODES; ++i) {
+      int k;
+      for (j = 0; j < INTRPL_BLOCKS; ++j)
+        for (k = 0; k < MAX_INTRPL_MODES - 1; ++k)
+          av1_diff_update_prob(&r, &fc->intrpl_mode_prob[i][j][k], ACCT_STR);
+    }
+#endif
+
 #if !CONFIG_EC_ADAPT
     if (cm->interp_filter == SWITCHABLE) read_switchable_interp_probs(fc, &r);
 #endif
@@ -5213,6 +5222,10 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
   assert(!memcmp(cm->counts.motion_mode, zero_counts.motion_mode,
                  sizeof(cm->counts.motion_mode)));
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR && !CONFIG_WARPED_MOTION
+  assert(!memcmp(cm->counts.intrpl_mode, zero_counts.intrpl_mode,
+                 sizeof(cm->counts.intrpl_mode)));
+#endif
   assert(!memcmp(cm->counts.intra_inter, zero_counts.intra_inter,
                  sizeof(cm->counts.intra_inter)));
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF

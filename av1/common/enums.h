@@ -193,6 +193,22 @@ typedef enum ATTRIBUTE_PACKED {
 
 #define MAX_NUM_TXB (1 << (MAX_SB_SIZE_LOG2 - MIN_TX_SIZE_LOG2))
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR && !CONFIG_WARPED_MOTION
+typedef enum ATTRIBUTE_PACKED {
+  NON_INTRPL,
+  IPM_1,
+  IPM_2,
+  IPM_3,
+  IPM_4,
+  IPM_5,
+  IPM_6,
+  IPM_7,
+  IPM_8,
+  MAX_INTRPL_MODES
+} INTRPL_MODE;
+// #define MAX_INTRPL_MODES 9
+#endif
+
 // frame transform mode
 typedef enum {
   ONLY_4X4 = 0,     // only 4x4 transform used
@@ -394,6 +410,16 @@ typedef enum {
 #endif            // CONFIG_WARPED_MOTION
   MOTION_MODES
 } MOTION_MODE;
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_NCOBMC
+typedef enum {
+  INTRPL_8X8,
+  INTRPL_16X16,
+  INTRPL_32X32,
+  INTRPL_64X64,
+  INTRPL_BLOCKS
+} INTRPL_BLOCK;
+#endif
 
 #if CONFIG_EXT_INTER
 #if CONFIG_INTERINTRA

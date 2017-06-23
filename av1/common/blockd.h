@@ -432,6 +432,12 @@ typedef struct MB_MODE_INFO {
   MOTION_MODE motion_mode;
 #if CONFIG_MOTION_VAR
   int overlappable_neighbors[2];
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && !CONFIG_WARPED_MOTION
+  // In current implementation, interpolation mode only defined for squared
+  // blocks. A rectangular block is divided into two squared blocks and each
+  // squared block has an interpolation mode.
+  INTRPL_MODE intrpl_mode[2];
+#endif
 #endif  // CONFIG_MOTION_VAR
   int_mv mv[2];
   int_mv pred_mv[2];
@@ -734,6 +740,12 @@ typedef struct macroblockd {
 
 #if CONFIG_CFL
   CFL_CTX *cfl;
+#endif
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  uint8_t *intrp_pred_buf[MAX_MB_PLANE];
+  int intrp_pred_buf_stride[MAX_MB_PLANE];
+  SB_MI_BD sb_mi_bd;
 #endif
 } MACROBLOCKD;
 
@@ -1357,6 +1369,15 @@ static INLINE MOTION_MODE motion_mode_allowed(
     return SIMPLE_TRANSLATION;
   }
 }
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR && !CONFIG_WARPED_MOTION
+static INLINE INTRPL_MODE intrpl_mode_allowed(int block) {
+  if (block < BLOCK_8X8)
+    return NON_INTRPL;
+  else
+    return MAX_INTRPL_MODES;
+}
+#endif
 
 static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
