@@ -623,11 +623,18 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
 //                   case it is more beneficial to use non-zero strength
 //                   filtering.
 #if CONFIG_EXT_REFS
-  if (gf_group->rf_level[gf_group->index] == GF_ARF_LOW) {
+  assert(gf_group->update_type[gf_group->index] == ARF_UPDATE);
+  if (
+#if CONFIG_GF_GROUPS
+      // Turn off temporal filtering when the altref is positioned within the
+      // cutoff range
+      distance <= ARF_FILTER_CUTOFF ||
+#endif
+      gf_group->rf_level[gf_group->index] == GF_ARF_LOW) {
     strength = 0;
     frames_to_blur = 1;
   }
-#endif
+#endif  // CONFIG_EXT_REFS
 
 #if CONFIG_EXT_REFS
   if (strength == 0 && frames_to_blur == 1) {
