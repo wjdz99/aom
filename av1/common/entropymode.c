@@ -5425,7 +5425,6 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
 
   // To force update of the sharpness
   lf->last_sharpness_level = -1;
-
   av1_default_coef_probs(cm);
   init_mode_probs(cm->fc);
   av1_init_mv_probs(cm);
@@ -5438,6 +5437,12 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
   av1_convolve_init(cm);
   cm->fc->initialized = 1;
 
+#if CONFIG_NO_FRAME_CONTEXT_SIGNALING
+  if (cm->frame_type == KEY_FRAME) {
+    // Reset all frame contexts, as all reference frames will be lost.
+    for (i = 0; i < FRAME_CONTEXTS; ++i) cm->frame_contexts[i] = *cm->fc;
+  }
+#else
   if (cm->frame_type == KEY_FRAME || cm->error_resilient_mode ||
       cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL) {
     // Reset all frame contexts.
@@ -5451,6 +5456,7 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
     cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
   }
+#endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
 
   // prev_mip will only be allocated in encoder.
   if (frame_is_intra_only(cm) && cm->prev_mip && !cm->frame_parallel_decode)

@@ -348,6 +348,7 @@ static void setup_frame(AV1_COMP *cpi) {
     // cm->fc has already been cleared by setup_past_independence()
     cm->pre_fc = cm->fc;
   } else {
+    *cm->fc = cm->frame_contexts[cm->frame_refs[0].idx];
     cm->pre_fc = &cm->frame_contexts[cm->frame_refs[0].idx];
   }
 #else
@@ -1999,7 +2000,9 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
       (oxcf->error_resilient_mode || oxcf->frame_parallel_decoding_mode)
           ? REFRESH_FRAME_CONTEXT_FORWARD
           : REFRESH_FRAME_CONTEXT_BACKWARD;
+#if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   cm->reset_frame_context = RESET_FRAME_CONTEXT_NONE;
+#endif
 
 #if CONFIG_PALETTE
   cm->allow_screen_content_tools = (cpi->oxcf.content == AOM_CONTENT_SCREEN);
@@ -4558,6 +4561,7 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
     cm->error_resilient_mode = oxcf->error_resilient_mode;
 
+#if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
     // By default, encoder assumes decoder can use prev_mi.
     if (cm->error_resilient_mode) {
       cm->reset_frame_context = RESET_FRAME_CONTEXT_NONE;
@@ -4566,6 +4570,7 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       // Only reset the current context.
       cm->reset_frame_context = RESET_FRAME_CONTEXT_CURRENT;
     }
+#endif
   }
 #if CONFIG_TILE_GROUPS
   if (cpi->oxcf.mtu == 0) {
@@ -5281,8 +5286,10 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   else
     cpi->multi_arf_allowed = 0;
 
-  // Normal defaults
+// Normal defaults
+#if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   cm->reset_frame_context = RESET_FRAME_CONTEXT_NONE;
+#endif
   cm->refresh_frame_context =
       (oxcf->error_resilient_mode || oxcf->frame_parallel_decoding_mode)
           ? REFRESH_FRAME_CONTEXT_FORWARD
@@ -5551,8 +5558,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   }
 #endif
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
-  // TODO(tdaede): Check if this condition is really needed.
-  if (!cm->error_resilient_mode) cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
+  cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
 #else
   if (!cm->error_resilient_mode)
     cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
