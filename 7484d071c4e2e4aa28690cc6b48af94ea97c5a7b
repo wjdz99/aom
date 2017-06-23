@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4acd748_bcf4b692",
+        "filename": "aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-23T21:07:14Z",
+      "side": 1,
+      "message": "This lines looks same as the one above. Intentional?",
+      "revId": "7484d071c4e2e4aa28690cc6b48af94ea97c5a7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4525fde_0e3dbf53",
+        "filename": "aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-23T21:07:14Z",
+      "side": 1,
+      "message": "\"resize_kf_numberator\" missing here?",
+      "revId": "7484d071c4e2e4aa28690cc6b48af94ea97c5a7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
