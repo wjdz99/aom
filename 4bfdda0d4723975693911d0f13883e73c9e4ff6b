@@ -16,6 +16,24 @@
       "revId": "4bfdda0d4723975693911d0f13883e73c9e4ff6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d43d0e75_468d3014",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-06-24T06:56:30Z",
+      "side": 1,
+      "message": "Thanks James.\n\nA revert of a \"fix warning\" commit, whose reason is \"fix build\", benefits from some extra clarification. However, I should have say \"locally invalid\" instead of \"can\u0027t be right\".\nYishin, Yue: please let me apologize if it sounded offensive.",
+      "parentUuid": "1fb59f45_bec9c4d4",
+      "revId": "4bfdda0d4723975693911d0f13883e73c9e4ff6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
