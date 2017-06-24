@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fb59f45_bec9c4d4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-24T06:37:34Z",
+      "side": 1,
+      "message": "be careful with the tone here. the patch with its original base built, but it seems on auto rebase during submit this became an issue.",
+      "revId": "4bfdda0d4723975693911d0f13883e73c9e4ff6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
