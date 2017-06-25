@@ -214,6 +214,12 @@ aom_cx_set_ref.DESCRIPTION          = AV1 set encoder reference frame
 endif
 endif
 
+ifeq ($(CONFIG_ENTROPY_STATS),yes)
+UTILS-$(CONFIG_AV1_ENCODER)    += aom_entropy_optimizer.c
+aom_entropy_optimizer.SRCS  += av1/common/entropymode.h
+aom_entropy_optimizer.SRCS  += av1/common/entropymode.c
+endif
+
 # Handle extra library flags depending on codec configuration
 
 # We should not link to math library (libm) on RVCT
