@@ -1389,26 +1389,84 @@ static const aom_cdf_prob default_comp_inter_cdf[COMP_INTER_CONTEXTS][CDF_SIZE(
 
 #if CONFIG_EXT_COMP_REFS
 static const aom_prob default_comp_ref_type_p[COMP_REF_TYPE_CONTEXTS] = {
+#if 0
   30, 75, 120, 170, 230
+#else
+  8, 20, 74, 87, 192,
+#endif  // 0
 };
 
-static const aom_prob
-    default_uni_comp_ref_p[UNI_COMP_REF_CONTEXTS][UNIDIR_COMP_REFS - 1] = {
+static const aom_prob default_uni_comp_ref_p[UNI_COMP_REF_CONTEXTS]
+                                            [UNIDIR_COMP_REFS - 1] = {
+#if 0
       { 30, 20 }, { 75, 70 }, { 130, 130 }, { 165, 165 }, { 215, 220 }
-    };
+#else
+                                              {
+                                                  22, 26,
+                                              },
+                                              {
+                                                  47, 41,
+                                              },
+                                              {
+                                                  199, 116,
+                                              },
+                                              {
+                                                  250, 179,
+                                              },
+                                              {
+                                                  255, 219,
+                                              },
+#endif  // 0
+                                            };
 #endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_EXT_REFS
 static const aom_prob default_comp_ref_p[REF_CONTEXTS][FWD_REFS - 1] = {
-  // TODO(zoeliu): To adjust the initial prob values.
+// TODO(zoeliu): To adjust the initial prob values.
+#if 0
   { 33, 16, 16 },
   { 77, 74, 74 },
   { 142, 142, 142 },
   { 172, 170, 170 },
   { 238, 247, 247 }
+#else
+  {
+      22, 8, 6,
+  },
+  {
+      66, 22, 21,
+  },
+  {
+      125, 59, 44,
+  },
+  {
+      190, 127, 157,
+  },
+  {
+      237, 144, 152,
+  },
+#endif  // 0
 };
 static const aom_prob default_comp_bwdref_p[REF_CONTEXTS][BWD_REFS - 1] = {
+#if 0
   { 16 }, { 74 }, { 142 }, { 170 }, { 247 }
+#else
+  {
+      8,
+  },
+  {
+      60,
+  },
+  {
+      29,
+  },
+  {
+      230,
+  },
+  {
+      219,
+  },
+#endif  // 0
 };
 #else
 static const aom_prob default_comp_ref_p[REF_CONTEXTS][COMP_REFS - 1] = {
@@ -1418,12 +1476,30 @@ static const aom_prob default_comp_ref_p[REF_CONTEXTS][COMP_REFS - 1] = {
 
 static const aom_prob default_single_ref_p[REF_CONTEXTS][SINGLE_REFS - 1] = {
 #if CONFIG_EXT_REFS
+#if 0
   { 33, 16, 16, 16, 16 },
   { 77, 74, 74, 74, 74 },
   { 142, 142, 142, 142, 142 },
   { 172, 170, 170, 170, 170 },
   { 238, 247, 247, 247, 247 }
 #else
+  {
+      32, 2, 26, 44, 11,
+  },
+  {
+      59, 21, 57, 101, 46,
+  },
+  {
+      151, 72, 121, 170, 76,
+  },
+  {
+      128, 181, 183, 209, 124,
+  },
+  {
+      235, 251, 228, 246, 214,
+  },
+#endif  // 0
+#else   // !CONFIG_EXT_REFS
   { 33, 16 }, { 77, 74 }, { 142, 142 }, { 172, 170 }, { 238, 247 }
 #endif  // CONFIG_EXT_REFS
 };
