@@ -1323,8 +1323,19 @@ static REFERENCE_MODE read_comp_reference_type(AV1_COMMON *cm,
                                                aom_reader *r) {
   const int ctx = av1_get_comp_reference_type_context(cm, xd);
 #if USE_UNI_COMP_REFS
-  const COMP_REFERENCE_TYPE comp_ref_type = (COMP_REFERENCE_TYPE)aom_read(
-      r, cm->fc->comp_ref_type_prob[ctx], ACCT_STR);
+  COMP_REFERENCE_TYPE comp_ref_type;
+#if CONFIG_VAR_REFS
+  if ((L_OR_L2(cm) || L3_OR_G(cm)) && BWD_OR_ALT(cm))
+    if (L_AND_L2(cm) || L_AND_G(cm) || BWD_AND_ALT(cm))
+#endif  // CONFIG_VAR_REFS
+      comp_ref_type = (COMP_REFERENCE_TYPE)aom_read(
+          r, cm->fc->comp_ref_type_prob[ctx], ACCT_STR);
+#if CONFIG_VAR_REFS
+    else
+      comp_ref_type = BIDIR_COMP_REFERENCE;
+  else
+    comp_ref_type = UNIDIR_COMP_REFERENCE;
+#endif  // CONFIG_VAR_REFS
 #else   // !USE_UNI_COMP_REFS
   // TODO(zoeliu): Temporarily turn off uni-directional comp refs
   const COMP_REFERENCE_TYPE comp_ref_type = BIDIR_COMP_REFERENCE;
@@ -1363,7 +1374,15 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
       if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
         const int ctx = av1_get_pred_context_uni_comp_ref_p(cm, xd);
-        const int bit = aom_read(r, fc->uni_comp_ref_prob[ctx][0], ACCT_STR);
+        int bit;
+#if CONFIG_VAR_REFS
+        if ((L_AND_L2(cm) || L_AND_G(cm)) && BWD_AND_ALT(cm))
+#endif  // CONFIG_VAR_REFS
+          bit = aom_read(r, fc->uni_comp_ref_prob[ctx][0], ACCT_STR);
+#if CONFIG_VAR_REFS
+        else
+          bit = BWD_AND_ALT(cm);
+#endif  // CONFIG_VAR_REFS
         if (counts) ++counts->uni_comp_ref[ctx][0][bit];
 
         if (bit) {
@@ -1371,8 +1390,15 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
           ref_frame[1] = ALTREF_FRAME;
         } else {
           const int ctx1 = av1_get_pred_context_uni_comp_ref_p1(cm, xd);
-          const int bit1 =
-              aom_read(r, fc->uni_comp_ref_prob[ctx1][1], ACCT_STR);
+          int bit1;
+#if CONFIG_VAR_REFS
+          if (L_AND_L2(cm) && L_AND_G(cm))
+#endif  // CONFIG_VAR_REFS
+            bit1 = aom_read(r, fc->uni_comp_ref_prob[ctx1][1], ACCT_STR);
+#if CONFIG_VAR_REFS
+          else
+            bit1 = L_AND_G(cm);
+#endif  // CONFIG_VAR_REFS
           if (counts) ++counts->uni_comp_ref[ctx1][1][bit1];
 
           if (bit1) {
@@ -1386,6 +1412,8 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
         return;
       }
+
+      assert(comp_ref_type == BIDIR_COMP_REFERENCE);
 #endif  // CONFIG_EXT_COMP_REFS
 
 // Normative in decoder (for low delay)
@@ -2024,12 +2052,12 @@ static void fpm_sync(void *const data, int mi_row) {
 
 #if DEC_MISMATCH_DEBUG
 static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi,
-                          MACROBLOCKD *const xd, int mi_row, int mi_col) {
+                          MACROBLOCKD *const xd, int mi_row, int mi_col,
+                          int16_t inter_mode_ctx[MODE_CTX_REF_FRAMES],
+                          int16_t mode_ctx) {
   int_mv mv[2] = { { 0 } };
   int ref;
   MB_MODE_INFO *const mbmi = &mi->mbmi;
-  int16_t inter_mode_ctx[MODE_CTX_REF_FRAMES];
-  int16_t mode_ctx = 0;
   for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref)
     mv[ref].as_mv = mbmi->mv[ref].as_mv;
 
@@ -2064,19 +2092,22 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi,
   }
 
   int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
-  printf(
-      "=== DECODER ===: "
-      "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
-      "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
-      "ref[1]=%d, motion_mode=%d, inter_mode_ctx=%d, mode_ctx=%d, "
-      "interp_ctx=(%d,%d), interp_filter=(%d,%d), newmv_ctx=%d, "
-      "zeromv_ctx=%d, refmv_ctx=%d\n",
-      cm->current_video_frame, mi_row, mi_col, mbmi->mode, mbmi->sb_type,
-      cm->show_frame, mv[0].as_mv.row, mv[0].as_mv.col, mv[1].as_mv.row,
-      mv[1].as_mv.col, mbmi->ref_frame[0], mbmi->ref_frame[1],
-      mbmi->motion_mode, inter_mode_ctx[ref_frame_type], mode_ctx,
-      interp_ctx[0], interp_ctx[1], interp_filter[0], interp_filter[1],
-      newmv_ctx, zeromv_ctx, refmv_ctx);
+#define FRAME_TO_CHECK 5
+  if (cm->current_video_frame == FRAME_TO_CHECK /* && cm->show_frame == 1*/) {
+    printf(
+        "=== DECODER ===: "
+        "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
+        "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
+        "ref[1]=%d, motion_mode=%d, inter_mode_ctx=%d, mode_ctx=%d, "
+        "interp_ctx=(%d,%d), interp_filter=(%d,%d), newmv_ctx=%d, "
+        "zeromv_ctx=%d, refmv_ctx=%d\n",
+        cm->current_video_frame, mi_row, mi_col, mbmi->mode, mbmi->sb_type,
+        cm->show_frame, mv[0].as_mv.row, mv[0].as_mv.col, mv[1].as_mv.row,
+        mv[1].as_mv.col, mbmi->ref_frame[0], mbmi->ref_frame[1],
+        mbmi->motion_mode, inter_mode_ctx[ref_frame_type], mode_ctx,
+        interp_ctx[0], interp_ctx[1], interp_filter[0], interp_filter[1],
+        newmv_ctx, zeromv_ctx, refmv_ctx);
+  }
 }
 #endif  // DEC_MISMATCH_DEBUG
 
@@ -2640,7 +2671,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
 #if DEC_MISMATCH_DEBUG
   // NOTE(zoeliu): For debug
-  dec_dump_logs(cm, mi, xd, mi_row, mi_col);
+  dec_dump_logs(cm, mi, xd, mi_row, mi_col, inter_mode_ctx, mode_ctx);
 #endif  // DEC_MISMATCH_DEBUG
 }
 
