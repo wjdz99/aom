@@ -1,0 +1,228 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ae44187_cb0950e8",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-26T17:36:57Z",
+      "side": 1,
+      "message": "Make the naming consistent, NCOBMC_WEIGHT_MODE ncobmc_weight_mode[2];",
+      "range": {
+        "startLine": 439,
+        "startChar": 21,
+        "endLine": 439,
+        "endChar": 32
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82b6f2d2_b14b74f3",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1368,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-26T17:36:57Z",
+      "side": 1,
+      "message": "ncobmc_mode_allowed() maybe?",
+      "range": {
+        "startLine": 1368,
+        "startChar": 33,
+        "endLine": 1368,
+        "endChar": 52
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa096ca0_0396aae0",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1372,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-26T17:36:57Z",
+      "side": 1,
+      "message": "although it doesn\u0027t matter as long as it is \u003e NO_OVERLAP, but conceptually it should be MAX*** -1 as in the previous patch",
+      "range": {
+        "startLine": 1372,
+        "startChar": 11,
+        "endLine": 1372,
+        "endChar": 27
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd35465f_a6c4fc3b",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-26T17:36:57Z",
+      "side": 1,
+      "message": "ncobmc_weight_mode_prob",
+      "range": {
+        "startLine": 213,
+        "startChar": 11,
+        "endLine": 213,
+        "endChar": 27
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce0b56a5_a73391a3",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-26T17:36:57Z",
+      "side": 1,
+      "message": "ncobmc_weight_mode,\nBTW, do we need the first dimension [MOTION_MODES], as those modes are only applicable when motion_mode is obmc.",
+      "range": {
+        "startLine": 398,
+        "startChar": 15,
+        "endLine": 398,
+        "endChar": 26
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41ca0cff_4b3a82ba",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-26T17:36:57Z",
+      "side": 1,
+      "message": "MAX_NCOBMC_WEIGHT_MODES maybe?",
+      "range": {
+        "startLine": 207,
+        "startChar": 2,
+        "endLine": 207,
+        "endChar": 18
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a629d8c_f819f311",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-26T17:36:57Z",
+      "side": 1,
+      "message": "read_ncobmc_weight_mode() would be good enough",
+      "range": {
+        "startLine": 335,
+        "startChar": 38,
+        "endLine": 335,
+        "endChar": 43
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88cfe724_5af5a573",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2577,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-26T17:36:57Z",
+      "side": 1,
+      "message": "make the naming consistent, for example,\nmbmi-\u003encobmc_weight_mode[i] \u003d read_ncobmc_weight_mode();",
+      "range": {
+        "startLine": 2577,
+        "startChar": 12,
+        "endLine": 2577,
+        "endChar": 23
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "417cec71_98835362",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1715,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-26T17:36:57Z",
+      "side": 1,
+      "message": "can be removed",
+      "range": {
+        "startLine": 1715,
+        "startChar": 30,
+        "endLine": 1715,
+        "endChar": 55
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9df88666_4ece00f1",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1716,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-26T17:36:57Z",
+      "side": 1,
+      "message": "... \u003e NO_OVERLAP",
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
