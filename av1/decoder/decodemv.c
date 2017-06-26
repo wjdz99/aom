@@ -1323,8 +1323,15 @@ static REFERENCE_MODE read_comp_reference_type(AV1_COMMON *cm,
                                                aom_reader *r) {
   const int ctx = av1_get_comp_reference_type_context(cm, xd);
 #if USE_UNI_COMP_REFS
-  const COMP_REFERENCE_TYPE comp_ref_type = (COMP_REFERENCE_TYPE)aom_read(
-      r, cm->fc->comp_ref_type_prob[ctx], ACCT_STR);
+  COMP_REFERENCE_TYPE comp_ref_type;
+  if ((L_OR_L2(cm) || L3_OR_G(cm)) && BWD_OR_ALT(cm))
+    if (L_AND_L2(cm) || L_AND_G(cm) || BWD_AND_ALT(cm))
+      comp_ref_type = (COMP_REFERENCE_TYPE)aom_read(
+          r, cm->fc->comp_ref_type_prob[ctx], ACCT_STR);
+    else
+      comp_ref_type = BIDIR_COMP_REFERENCE;
+  else
+    comp_ref_type = UNIDIR_COMP_REFERENCE;
 #else   // !USE_UNI_COMP_REFS
   // TODO(zoeliu): Temporarily turn off uni-directional comp refs
   const COMP_REFERENCE_TYPE comp_ref_type = BIDIR_COMP_REFERENCE;
@@ -1363,7 +1370,11 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
       if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
         const int ctx = av1_get_pred_context_uni_comp_ref_p(cm, xd);
-        const int bit = aom_read(r, fc->uni_comp_ref_prob[ctx][0], ACCT_STR);
+        int bit;
+        if ((L_AND_L2(cm) || L_AND_G(cm)) && BWD_AND_ALT(cm))
+          bit = aom_read(r, fc->uni_comp_ref_prob[ctx][0], ACCT_STR);
+        else
+          bit = BWD_AND_ALT(cm);
         if (counts) ++counts->uni_comp_ref[ctx][0][bit];
 
         if (bit) {
@@ -1371,8 +1382,11 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
           ref_frame[1] = ALTREF_FRAME;
         } else {
           const int ctx1 = av1_get_pred_context_uni_comp_ref_p1(cm, xd);
-          const int bit1 =
-              aom_read(r, fc->uni_comp_ref_prob[ctx1][1], ACCT_STR);
+          int bit1;
+          if (L_AND_L2(cm) && L_AND_G(cm))
+            bit1 = aom_read(r, fc->uni_comp_ref_prob[ctx1][1], ACCT_STR);
+          else
+            bit1 = L_AND_G(cm);
           if (counts) ++counts->uni_comp_ref[ctx1][1][bit1];
 
           if (bit1) {
@@ -1386,6 +1400,8 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
         return;
       }
+
+      assert(comp_ref_type == BIDIR_COMP_REFERENCE);
 #endif  // CONFIG_EXT_COMP_REFS
 
 // Normative in decoder (for low delay)

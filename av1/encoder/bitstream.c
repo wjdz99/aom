@@ -1288,9 +1288,14 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       const COMP_REFERENCE_TYPE comp_ref_type = has_uni_comp_refs(mbmi)
                                                     ? UNIDIR_COMP_REFERENCE
                                                     : BIDIR_COMP_REFERENCE;
-
 #if USE_UNI_COMP_REFS
-      aom_write(w, comp_ref_type, av1_get_comp_reference_type_prob(cm, xd));
+      if ((L_OR_L2(cm) || L3_OR_G(cm)) && BWD_OR_ALT(cm))
+        if (L_AND_L2(cm) || L_AND_G(cm) || BWD_AND_ALT(cm))
+          aom_write(w, comp_ref_type, av1_get_comp_reference_type_prob(cm, xd));
+        else
+          assert(comp_ref_type == BIDIR_COMP_REFERENCE);
+      else
+        assert(comp_ref_type == UNIDIR_COMP_REFERENCE);
 #else   // !USE_UNI_COMP_REFS
       // NOTE: uni-directional comp refs disabled
       assert(comp_ref_type == BIDIR_COMP_REFERENCE);
@@ -1298,14 +1303,23 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
       if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
         const int bit = mbmi->ref_frame[0] == BWDREF_FRAME;
-        aom_write(w, bit, av1_get_pred_prob_uni_comp_ref_p(cm, xd));
+        if ((L_AND_L2(cm) || L_AND_G(cm)) && BWD_AND_ALT(cm))
+          aom_write(w, bit, av1_get_pred_prob_uni_comp_ref_p(cm, xd));
+
         if (!bit) {
-          const int bit1 = mbmi->ref_frame[1] == GOLDEN_FRAME;
-          aom_write(w, bit1, av1_get_pred_prob_uni_comp_ref_p1(cm, xd));
+          assert(mbmi->ref_frame[0] == LAST_FRAME);
+          if (L_AND_L2(cm) && L_AND_G(cm)) {
+            const int bit1 = mbmi->ref_frame[1] == GOLDEN_FRAME;
+            aom_write(w, bit1, av1_get_pred_prob_uni_comp_ref_p1(cm, xd));
+          }
+        } else {
+          assert(mbmi->ref_frame[1] == ALTREF_FRAME);
         }
 
         return;
       }
+
+      assert(comp_ref_type == BIDIR_COMP_REFERENCE);
 #endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_EXT_REFS
