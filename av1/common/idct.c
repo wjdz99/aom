@@ -1456,7 +1456,6 @@ static void inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
 }
 #endif  // CONFIG_TX64X64
 
-#if CONFIG_HIGHBITDEPTH
 // idct
 void av1_highbd_idct4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
                             int eob, int bd) {
@@ -1746,7 +1745,6 @@ static void highbd_inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
   }
 }
 #endif  // CONFIG_TX64X64
-#endif  // CONFIG_HIGHBITDEPTH
 
 void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                       INV_TXFM_PARAM *param) {
@@ -1804,6 +1802,12 @@ static void init_inv_txfm_param(const MACROBLOCKD *xd, TX_SIZE tx_size,
 #endif
 }
 
+typedef void (*InvTxfmFunc)(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
+                            INV_TXFM_PARAM *param);
+
+static InvTxfmFunc inv_txfm_func[2] = { av1_inv_txfm_add,
+                                        av1_highbd_inv_txfm_add };
+
 void av1_inverse_transform_block(const MACROBLOCKD *xd,
                                  const tran_low_t *dqcoeff, TX_TYPE tx_type,
                                  TX_SIZE tx_size, uint8_t *dst, int stride,
@@ -1830,15 +1834,8 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
   INV_TXFM_PARAM inv_txfm_param;
   init_inv_txfm_param(xd, tx_size, tx_type, eob, &inv_txfm_param);
 
-#if CONFIG_HIGHBITDEPTH
-  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-    av1_highbd_inv_txfm_add(dqcoeff, dst, stride, &inv_txfm_param);
-  } else {
-#endif  // CONFIG_HIGHBITDEPTH
-    av1_inv_txfm_add(dqcoeff, dst, stride, &inv_txfm_param);
-#if CONFIG_HIGHBITDEPTH
-  }
-#endif  // CONFIG_HIGHBITDEPTH
+  const int is_hbd = get_func_index(xd);
+  inv_txfm_func[is_hbd](dqcoeff, dst, stride, &inv_txfm_param);
 }
 
 void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
@@ -1855,7 +1852,6 @@ void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
                               eob);
 }
 
-#if CONFIG_HIGHBITDEPTH
 void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                              INV_TXFM_PARAM *inv_txfm_param) {
   const TX_TYPE tx_type = inv_txfm_param->tx_type;
@@ -1912,7 +1908,6 @@ void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
     default: assert(0 && "Invalid transform size"); break;
   }
 }
-#endif  // CONFIG_HIGHBITDEPTH
 
 #if CONFIG_DPCM_INTRA
 void av1_dpcm_inv_txfm_add_4_c(const tran_low_t *input, int stride,
