@@ -263,6 +263,9 @@ int av1_get_inter_mode_context(const MACROBLOCKD *xd) {
 #define IS_BACKWARD_REF_FRAME(ref_frame) ((ref_frame) == cm->comp_fixed_ref)
 #endif  // CONFIG_EXT_REFS
 
+#define CHECK_GOLDEN_OR_LAST3(ref_frame) \
+  (((ref_frame) == GOLDEN_FRAME) || ((ref_frame) == LAST3_FRAME))
+
 int av1_get_reference_mode_context(const AV1_COMMON *cm,
                                    const MACROBLOCKD *xd) {
   int ctx;
@@ -313,15 +316,14 @@ int av1_get_reference_mode_context(const AV1_COMMON *cm,
 #if CONFIG_EXT_COMP_REFS
 #define CHECK_BWDREF_OR_ALTREF(ref_frame) \
   ((ref_frame) == BWDREF_FRAME || (ref_frame) == ALTREF_FRAME)
-int av1_get_comp_reference_type_context(const AV1_COMMON *cm,
-                                        const MACROBLOCKD *xd) {
+// TODO(zoeliu): To try on the design of 3 contexts, instead of 5:
+//               COMP_REF_TYPE_CONTEXTS = 3
+int av1_get_comp_reference_type_context(const MACROBLOCKD *xd) {
   int pred_context;
   const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
   const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
   const int above_in_image = xd->up_available;
   const int left_in_image = xd->left_available;
-
-  (void)cm;
 
   if (above_in_image && left_in_image) {  // both edges available
     const int above_intra = !is_inter_block(above_mbmi);
@@ -386,6 +388,87 @@ int av1_get_comp_reference_type_context(const AV1_COMMON *cm,
   assert(pred_context >= 0 && pred_context < COMP_REF_TYPE_CONTEXTS);
   return pred_context;
 }
+
+#if 1
+void av1_find_ref_frame_counts(MACROBLOCKD *xd) {
+  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+  const int above_in_image = xd->up_available;
+  const int left_in_image = xd->left_available;
+
+  memset(xd->ref_frame_counts, 0, sizeof(xd->ref_frame_counts));
+
+  if (above_in_image) {
+    assert(above_mbmi->ref_frame[0] >= INTRA_FRAME &&
+           above_mbmi->ref_frame[0] <= ALTREF_FRAME);
+    xd->ref_frame_counts[above_mbmi->ref_frame[0]]++;
+    if (has_second_ref(above_mbmi))
+      xd->ref_frame_counts[above_mbmi->ref_frame[1]]++;
+  }
+
+  if (left_in_image) {
+    assert(left_mbmi->ref_frame[0] >= INTRA_FRAME &&
+           left_mbmi->ref_frame[0] <= ALTREF_FRAME);
+    xd->ref_frame_counts[left_mbmi->ref_frame[0]]++;
+    if (has_second_ref(left_mbmi))
+      xd->ref_frame_counts[left_mbmi->ref_frame[1]]++;
+  }
+}
+
+// Returns a context number for the given MB prediction signal
+// Signal the uni-directional compound reference frame pair as either
+// (BWDREF, ALTREF), or (LAST, LAST2) / (LAST, LAST3) / (LAST, GOLDEN),
+// conditioning on the pair is known as uni-directional.
+int av1_get_pred_context_uni_comp_ref_p(const MACROBLOCKD *xd) {
+  // Count of forward references (L, L2, L3, or G)
+  const int frf_count =
+      xd->ref_frame_counts[LAST_FRAME] + xd->ref_frame_counts[LAST2_FRAME] +
+      xd->ref_frame_counts[LAST3_FRAME] + xd->ref_frame_counts[GOLDEN_FRAME];
+  // Count of backward references (B or A)
+  const int brf_count =
+      xd->ref_frame_counts[BWDREF_FRAME] + xd->ref_frame_counts[ALTREF_FRAME];
+
+  const int pred_context =
+      (frf_count == brf_count) ? 1 : ((frf_count < brf_count) ? 0 : 2);
+  assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
+  return pred_context;
+}
+
+// Returns a context number for the given MB prediction signal
+// Signal the uni-directional compound reference frame pair as
+// either (LAST, LAST2), or (LAST, LAST3) / (LAST, GOLDEN),
+// conditioning on the pair is known as one of the above three.
+int av1_get_pred_context_uni_comp_ref_p1(const MACROBLOCKD *xd) {
+  // Count of LAST2
+  const int last2_count = xd->ref_frame_counts[LAST2_FRAME];
+  // Count of LAST3 or GOLDEN
+  const int last3_or_gld_count =
+      xd->ref_frame_counts[LAST3_FRAME] + xd->ref_frame_counts[GOLDEN_FRAME];
+
+  const int pred_context = (last2_count == last3_or_gld_count)
+                               ? 1
+                               : ((last2_count < last3_or_gld_count) ? 0 : 2);
+  assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
+  return pred_context;
+}
+
+// Returns a context number for the given MB prediction signal
+// Signal the uni-directional compound reference frame pair as
+// either (LAST, LAST3) or (LAST, GOLDEN),
+// conditioning on the pair is known as one of the above two.
+int av1_get_pred_context_uni_comp_ref_p2(const MACROBLOCKD *xd) {
+  // Count of LAST3
+  const int last3_count = xd->ref_frame_counts[LAST3_FRAME];
+  // Count of GOLDEN
+  const int gld_count = xd->ref_frame_counts[GOLDEN_FRAME];
+  const int pred_context =
+      (last3_count == gld_count) ? 1 : ((last3_count < gld_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
+  return pred_context;
+}
+
+#else  // 0
 
 // Returns a context number for the given MB prediction signal
 // Signal the uni-directional compound reference frame pair as
@@ -582,6 +665,7 @@ int av1_get_pred_context_uni_comp_ref_p1(const AV1_COMMON *cm,
   assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
   return pred_context;
 }
+#endif  // 0
 #endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_EXT_REFS
@@ -591,9 +675,6 @@ int av1_get_pred_context_uni_comp_ref_p1(const AV1_COMMON *cm,
 
 #define CHECK_LAST_OR_LAST2(ref_frame) \
   ((ref_frame == LAST_FRAME) || (ref_frame == LAST2_FRAME))
-
-#define CHECK_GOLDEN_OR_LAST3(ref_frame) \
-  ((ref_frame == GOLDEN_FRAME) || (ref_frame == LAST3_FRAME))
 
 // Returns a context number for the given MB prediction signal
 // Signal the first reference frame for a compound mode be either
