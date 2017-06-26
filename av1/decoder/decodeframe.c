@@ -4291,6 +4291,41 @@ static void check_valid_ref_frames(AV1_COMMON *cm) {
       ref_buf->is_valid = 0;
     }
   }
+
+#if VAR_REFS_DEBUG
+  printf("check_valid_ref_frames(): Frame=%d, show_frame=%d\n",
+         cm->current_video_frame, cm->show_frame);
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame)
+#if CONFIG_VAR_REFS
+    printf("Ref[%d](map_idx,buf_idx)=(x,%d), is_valid=%d\n", ref_frame,
+           cm->frame_refs[ref_frame - LAST_FRAME].idx,
+           cm->frame_refs[ref_frame - LAST_FRAME].is_valid);
+#else   // !CONFIG_VAR_REFS
+    printf("Ref[%d](map_idx,buf_idx)=(x,%d), is_valid=-1\n", ref_frame,
+           cm->frame_refs[ref_frame - LAST_FRAME].idx);
+#endif  // CONFIG_VAR_REFS
+  printf("\n");
+
+  RefBuffer *const bwd_ref_buf = &cm->frame_refs[BWDREF_FRAME - LAST_FRAME];
+  if (bwd_ref_buf->idx != INVALID_IDX) {
+    int bwd_is_frfs[GOLDEN_FRAME - LAST_FRAME + 1];
+    int bwd_is_frf = 0;
+    for (ref_frame = LAST_FRAME; ref_frame <= GOLDEN_FRAME; ++ref_frame) {
+      RefBuffer *const buf = &cm->frame_refs[ref_frame - LAST_FRAME];
+      bwd_is_frfs[ref_frame - LAST_FRAME] =
+          (bwd_ref_buf->idx == buf->idx) ? 1 : 0;
+      bwd_is_frf |= bwd_is_frfs[ref_frame - LAST_FRAME];
+    }
+    printf(
+        "***BWD is valid: bwd_is_frf=%d, bwd_is_last=%d, bwd_is_last2=%d, "
+        "bwd_is_last3=%d, bwd_is_gld=%d\n",
+        bwd_is_frf, bwd_is_frfs[0], bwd_is_frfs[1], bwd_is_frfs[2],
+        bwd_is_frfs[3]);
+  } else {
+    printf("***BWD is invalid\n");
+  }
+  printf("\n");
+#endif  // VAR_REFS_DEBUG
 }
 #endif  // CONFIG_VAR_REFS
 
@@ -4497,6 +4532,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
       }
 #endif  // CONFIG_EXT_REFS
 
+#if VAR_REFS_DEBUG
+      printf("\n\nread_uncompressed_header(): Frame=%d, show_frame=%d\n",
+             cm->current_video_frame, cm->show_frame);
+#endif  // VAR_REFS_DEBUG
       for (i = 0; i < INTER_REFS_PER_FRAME; ++i) {
         const int ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
         const int idx = cm->ref_frame_map[ref];
@@ -4519,9 +4558,26 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
               cm->valid_for_referencing[ref] == 0)
             aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                                "Reference buffer frame ID mismatch");
+
+#if VAR_REFS_DEBUG
+#if CONFIG_VAR_REFS
+          printf(
+              "Ref[%d](map_idx,buf_idx)=(%d,%d), is_valid=%d, sign_bias=%d\n",
+              i + LAST_FRAME, ref, idx, ref_frame->is_valid,
+              cm->ref_frame_sign_bias[LAST_FRAME + i]);
+#else
+          printf(
+              "Ref[%d](map_idx,buf_idx)=(%d,%d), is_valid=-1, sign_bias=%d\n",
+              i + LAST_FRAME, ref, idx,
+              cm->ref_frame_sign_bias[LAST_FRAME + i]);
+#endif  // CONFIG_VAR_REFS
+#endif  // VAR_REFS_DEBUG
         }
 #endif
       }
+#if VAR_REFS_DEBUG
+      printf("\n");
+#endif  // VAR_REFS_DEBUG
 
 #if CONFIG_VAR_REFS
       check_valid_ref_frames(cm);
