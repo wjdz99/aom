@@ -1396,6 +1396,7 @@ static const aom_cdf_prob
 static const aom_prob default_comp_inter_p[COMP_INTER_CONTEXTS] = {
   239, 183, 119, 96, 41
 };
+
 #if CONFIG_NEW_MULTISYMBOL
 static const aom_cdf_prob default_comp_inter_cdf[COMP_INTER_CONTEXTS][CDF_SIZE(
     2)] = { { AOM_ICDF(239 * 128), AOM_ICDF(32768), 0 },
@@ -1407,26 +1408,88 @@ static const aom_cdf_prob default_comp_inter_cdf[COMP_INTER_CONTEXTS][CDF_SIZE(
 
 #if CONFIG_EXT_COMP_REFS
 static const aom_prob default_comp_ref_type_p[COMP_REF_TYPE_CONTEXTS] = {
+#if 1
   30, 75, 120, 170, 230
+#else
+  // stats collected from lowres
+  8, 20, 74, 87, 192,
+#endif  // 0
 };
 
 static const aom_prob
     default_uni_comp_ref_p[UNI_COMP_REF_CONTEXTS][UNIDIR_COMP_REFS - 1] = {
+#if 1
       { 30, 20 }, { 75, 70 }, { 130, 130 }, { 165, 165 }, { 215, 220 }
+#else
+      // stats collected from lowres
+      {
+          22, 26,
+      },
+      {
+          47, 41,
+      },
+      {
+          199, 116,
+      },
+      {
+          250, 179,
+      },
+      {
+          255, 219,
+      },
+#endif  // 0
     };
 #endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_EXT_REFS
 static const aom_prob default_comp_ref_p[REF_CONTEXTS][FWD_REFS - 1] = {
-  // TODO(zoeliu): To adjust the initial prob values.
+// TODO(zoeliu): To adjust the initial prob values.
+#if 1
   { 33, 16, 16 },
   { 77, 74, 74 },
   { 142, 142, 142 },
   { 172, 170, 170 },
   { 238, 247, 247 }
+#else
+  // stats collected from lowres
+  {
+      22, 8, 6,
+  },
+  {
+      66, 22, 21,
+  },
+  {
+      125, 59, 44,
+  },
+  {
+      190, 127, 157,
+  },
+  {
+      237, 144, 152,
+  },
+#endif  // 0
 };
 static const aom_prob default_comp_bwdref_p[REF_CONTEXTS][BWD_REFS - 1] = {
+#if 1
   { 16 }, { 74 }, { 142 }, { 170 }, { 247 }
+#else
+  // stats collected from lowres
+  {
+      8,
+  },
+  {
+      60,
+  },
+  {
+      29,
+  },
+  {
+      230,
+  },
+  {
+      219,
+  },
+#endif  // 0
 };
 #if CONFIG_NEW_MULTISYMBOL
 static const aom_cdf_prob
@@ -1475,15 +1538,529 @@ static const aom_cdf_prob
 
 static const aom_prob default_single_ref_p[REF_CONTEXTS][SINGLE_REFS - 1] = {
 #if CONFIG_EXT_REFS
+#if 1
   { 33, 16, 16, 16, 16 },
   { 77, 74, 74, 74, 74 },
   { 142, 142, 142, 142, 142 },
   { 172, 170, 170, 170, 170 },
   { 238, 247, 247, 247, 247 }
 #else
+  // stats collected from lowres
+  {
+      32, 2, 26, 44, 11,
+  },
+  {
+      59, 21, 57, 101, 46,
+  },
+  {
+      151, 72, 121, 170, 76,
+  },
+  {
+      128, 181, 183, 209, 124,
+  },
+  {
+      235, 251, 228, 246, 214,
+  },
+#endif  // 0
+#else   // !CONFIG_EXT_REFS
   { 33, 16 }, { 77, 74 }, { 142, 142 }, { 172, 170 }, { 238, 247 }
 #endif  // CONFIG_EXT_REFS
 };
+
+#if CONFIG_EXT_COMP_REFS
+// REGULAR_FRAME = 0: regular inter frame
+static const aom_prob default_comp_inter_p0[COMP_INTER_CONTEXTS] = {
+  182, 163, 94, 81, 24,
+};
+
+static const aom_prob default_comp_ref_type_p0[COMP_REF_TYPE_CONTEXTS] = {
+  7, 15, 65, 44, 164,
+};
+
+static const aom_prob default_uni_comp_ref_p0[UNI_COMP_REF_CONTEXTS]
+                                             [UNIDIR_COMP_REFS - 1] = {
+                                               {
+                                                   15, 20,
+                                               },
+                                               {
+                                                   33, 33,
+                                               },
+                                               {
+                                                   167, 137,
+                                               },
+                                               {
+                                                   241, 210,
+                                               },
+                                               {
+                                                   253, 235,
+                                               },
+                                             };
+
+static const aom_prob default_single_ref_p0[REF_CONTEXTS][SINGLE_REFS - 1] = {
+  {
+      33, 4, 20, 38, 10,
+  },
+  {
+      56, 39, 55, 99, 40,
+  },
+  {
+      136, 140, 145, 187, 69,
+  },
+  {
+      128, 225, 220, 236, 159,
+  },
+  {
+      221, 252, 246, 251, 237,
+  },
+};
+
+static const aom_prob default_comp_ref_p0[REF_CONTEXTS][FWD_REFS - 1] = {
+  {
+      20, 5, 4,
+  },
+  {
+      63, 13, 12,
+  },
+  {
+      139, 49, 34,
+  },
+  {
+      215, 115, 165,
+  },
+  {
+      245, 127, 149,
+  },
+};
+
+static const aom_prob default_comp_bwdref_p0[REF_CONTEXTS][BWD_REFS - 1] = {
+  {
+      14,
+  },
+  {
+      96,
+  },
+  {
+      56,
+  },
+  {
+      242,
+  },
+  {
+      238,
+  },
+};
+
+// ARF_FRAME = 1: alternate reference frame
+static const aom_prob default_comp_inter_p1[COMP_INTER_CONTEXTS] = {
+  214, 183, 145, 119, 65,
+};
+
+static const aom_prob default_comp_ref_type_p1[COMP_REF_TYPE_CONTEXTS] = {
+  29, 50, 114, 181, 227,
+};
+
+static const aom_prob default_uni_comp_ref_p1[UNI_COMP_REF_CONTEXTS]
+                                             [UNIDIR_COMP_REFS - 1] = {
+                                               {
+                                                   255, 34,
+                                               },
+                                               {
+                                                   255, 48,
+                                               },
+                                               {
+                                                   255, 99,
+                                               },
+                                               {
+                                                   255, 148,
+                                               },
+                                               {
+                                                   255, 186,
+                                               },
+                                             };
+
+static const aom_prob default_single_ref_p1[REF_CONTEXTS][SINGLE_REFS - 1] = {
+  {
+      70, 1, 29, 42, 12,
+  },
+  {
+      107, 1, 59, 85, 47,
+  },
+  {
+      205, 1, 114, 158, 81,
+  },
+  {
+      128, 1, 116, 162, 104,
+  },
+  {
+      248, 128, 212, 241, 202,
+  },
+};
+
+static const aom_prob default_comp_ref_p1[REF_CONTEXTS][FWD_REFS - 1] = {
+  {
+      35, 51, 18,
+  },
+  {
+      70, 83, 45,
+  },
+  {
+      100, 117, 64,
+  },
+  {
+      137, 167, 133,
+  },
+  {
+      168, 184, 143,
+  },
+};
+
+static const aom_prob default_comp_bwdref_p1[REF_CONTEXTS][BWD_REFS - 1] = {
+  {
+      1,
+  },
+  {
+      1,
+  },
+  {
+      1,
+  },
+  {
+      1,
+  },
+  {
+      1,
+  },
+};
+
+// OVERLAY_FRAME = 2: overlay frame
+static const aom_prob default_comp_inter_p2[COMP_INTER_CONTEXTS] = {
+  128, 128, 128, 128, 128,
+};
+
+static const aom_prob default_comp_ref_type_p2[COMP_REF_TYPE_CONTEXTS] = {
+  128, 128, 128, 128, 128,
+};
+
+static const aom_prob default_uni_comp_ref_p2[UNI_COMP_REF_CONTEXTS]
+                                             [UNIDIR_COMP_REFS - 1] = {
+                                               {
+                                                   128, 128,
+                                               },
+                                               {
+                                                   128, 128,
+                                               },
+                                               {
+                                                   128, 128,
+                                               },
+                                               {
+                                                   128, 128,
+                                               },
+                                               {
+                                                   128, 128,
+                                               },
+                                             };
+
+static const aom_prob default_single_ref_p2[REF_CONTEXTS][SINGLE_REFS - 1] = {
+  {
+      3, 1, 16, 19, 30,
+  },
+  {
+      128, 128, 128, 128, 128,
+  },
+  {
+      47, 1, 136, 190, 214,
+  },
+  {
+      128, 1, 196, 213, 183,
+  },
+  {
+      185, 128, 248, 249, 252,
+  },
+};
+
+static const aom_prob default_comp_ref_p2[REF_CONTEXTS][FWD_REFS - 1] = {
+  {
+      128, 128, 128,
+  },
+  {
+      128, 128, 128,
+  },
+  {
+      128, 128, 128,
+  },
+  {
+      128, 128, 128,
+  },
+  {
+      128, 128, 128,
+  },
+};
+
+static const aom_prob default_comp_bwdref_p2[REF_CONTEXTS][BWD_REFS - 1] = {
+  {
+      128,
+  },
+  {
+      128,
+  },
+  {
+      128,
+  },
+  {
+      128,
+  },
+  {
+      128,
+  },
+};
+
+// GLD_FRAME = 3: golden frame
+static const aom_prob default_comp_inter_p3[COMP_INTER_CONTEXTS] = {
+  232, 189, 138, 112, 52,
+};
+
+static const aom_prob default_comp_ref_type_p3[COMP_REF_TYPE_CONTEXTS] = {
+  40, 78, 157, 204, 246,
+};
+
+static const aom_prob default_uni_comp_ref_p3[UNI_COMP_REF_CONTEXTS]
+                                             [UNIDIR_COMP_REFS - 1] = {
+                                               {
+                                                   255, 21,
+                                               },
+                                               {
+                                                   255, 37,
+                                               },
+                                               {
+                                                   255, 90,
+                                               },
+                                               {
+                                                   255, 155,
+                                               },
+                                               {
+                                                   255, 191,
+                                               },
+                                             };
+
+static const aom_prob default_single_ref_p3[REF_CONTEXTS][SINGLE_REFS - 1] = {
+  {
+      87, 1, 15, 50, 4,
+  },
+  {
+      116, 1, 53, 95, 32,
+  },
+  {
+      231, 1, 122, 191, 44,
+  },
+  {
+      128, 1, 149, 206, 91,
+  },
+  {
+      253, 128, 243, 252, 219,
+  },
+};
+
+static const aom_prob default_comp_ref_p3[REF_CONTEXTS][FWD_REFS - 1] = {
+  {
+      23, 13, 5,
+  },
+  {
+      82, 36, 22,
+  },
+  {
+      138, 66, 54,
+  },
+  {
+      199, 123, 106,
+  },
+  {
+      224, 165, 144,
+  },
+};
+
+static const aom_prob default_comp_bwdref_p3[REF_CONTEXTS][BWD_REFS - 1] = {
+  {
+      1,
+  },
+  {
+      1,
+  },
+  {
+      1,
+  },
+  {
+      1,
+  },
+  {
+      1,
+  },
+};
+
+// BRF_FRAME = 4: backward reference frame
+static const aom_prob default_comp_inter_p4[COMP_INTER_CONTEXTS] = {
+  128, 128, 128, 128, 128,
+};
+
+static const aom_prob default_comp_ref_type_p4[COMP_REF_TYPE_CONTEXTS] = {
+  128, 128, 128, 128, 128,
+};
+
+static const aom_prob default_uni_comp_ref_p4[UNI_COMP_REF_CONTEXTS]
+                                             [UNIDIR_COMP_REFS - 1] = {
+                                               {
+                                                   128, 128,
+                                               },
+                                               {
+                                                   128, 128,
+                                               },
+                                               {
+                                                   128, 128,
+                                               },
+                                               {
+                                                   128, 128,
+                                               },
+                                               {
+                                                   128, 128,
+                                               },
+                                             };
+
+static const aom_prob default_single_ref_p4[REF_CONTEXTS][SINGLE_REFS - 1] = {
+  {
+      128, 128, 128, 128, 128,
+  },
+  {
+      128, 128, 128, 128, 128,
+  },
+  {
+      128, 128, 128, 128, 128,
+  },
+  {
+      128, 128, 128, 128, 128,
+  },
+  {
+      128, 128, 128, 128, 128,
+  },
+};
+
+static const aom_prob default_comp_ref_p4[REF_CONTEXTS][FWD_REFS - 1] = {
+  {
+      128, 128, 128,
+  },
+  {
+      128, 128, 128,
+  },
+  {
+      128, 128, 128,
+  },
+  {
+      128, 128, 128,
+  },
+  {
+      128, 128, 128,
+  },
+};
+
+static const aom_prob default_comp_bwdref_p4[REF_CONTEXTS][BWD_REFS - 1] = {
+  {
+      128,
+  },
+  {
+      128,
+  },
+  {
+      128,
+  },
+  {
+      128,
+  },
+  {
+      128,
+  },
+};
+
+// EXT_ARF_FRAME = 5: extra alternate reference frame
+static const aom_prob default_comp_inter_p5[COMP_INTER_CONTEXTS] = {
+  197, 179, 111, 106, 36,
+};
+
+static const aom_prob default_comp_ref_type_p5[COMP_REF_TYPE_CONTEXTS] = {
+  9, 20, 71, 60, 180,
+};
+
+static const aom_prob default_uni_comp_ref_p5[UNI_COMP_REF_CONTEXTS]
+                                             [UNIDIR_COMP_REFS - 1] = {
+                                               {
+                                                   30, 24,
+                                               },
+                                               {
+                                                   58, 35,
+                                               },
+                                               {
+                                                   221, 116,
+                                               },
+                                               {
+                                                   251, 189,
+                                               },
+                                               {
+                                                   255, 218,
+                                               },
+                                             };
+
+static const aom_prob default_single_ref_p5[REF_CONTEXTS][SINGLE_REFS - 1] = {
+  {
+      32, 1, 24, 49, 11,
+  },
+  {
+      55, 17, 57, 112, 47,
+  },
+  {
+      143, 48, 120, 171, 73,
+  },
+  {
+      128, 142, 175, 210, 131,
+  },
+  {
+      228, 250, 228, 244, 220,
+  },
+};
+
+static const aom_prob default_comp_ref_p5[REF_CONTEXTS][FWD_REFS - 1] = {
+  {
+      23, 15, 7,
+  },
+  {
+      67, 32, 22,
+  },
+  {
+      115, 67, 47,
+  },
+  {
+      174, 133, 157,
+  },
+  {
+      222, 151, 155,
+  },
+};
+
+static const aom_prob default_comp_bwdref_p5[REF_CONTEXTS][BWD_REFS - 1] = {
+  {
+      4,
+  },
+  {
+      33,
+  },
+  {
+      18,
+  },
+  {
+      198,
+  },
+  {
+      191,
+  },
+};
+#endif  // CONFIG_EXT_COMP_REFS
+
 #if CONFIG_NEW_MULTISYMBOL
 static const aom_cdf_prob
     default_single_ref_cdf[REF_CONTEXTS][SINGLE_REFS - 1][CDF_SIZE(2)] = {
@@ -4629,6 +5206,71 @@ const aom_cdf_prob
 #endif  // CONFIG_ALT_INTRA
     };
 
+#if CONFIG_EXT_COMP_REFS
+static void init_ref_frame_probs(FRAME_CONTEXT *fc, int frame_context_idx) {
+#if CONFIG_NEW_MULTISYMBOL
+// TODO(zoeliu): To handle multisymbol initializations
+#endif
+  switch (frame_context_idx) {
+    case 0:
+      av1_copy(fc->comp_inter_prob, default_comp_inter_p0);
+      av1_copy(fc->comp_ref_type_prob, default_comp_ref_type_p0);
+      av1_copy(fc->uni_comp_ref_prob, default_uni_comp_ref_p0);
+      av1_copy(fc->comp_ref_prob, default_comp_ref_p0);
+      av1_copy(fc->comp_bwdref_prob, default_comp_bwdref_p0);
+      av1_copy(fc->single_ref_prob, default_single_ref_p0);
+      break;
+    case 1:
+      av1_copy(fc->comp_inter_prob, default_comp_inter_p1);
+      av1_copy(fc->comp_ref_type_prob, default_comp_ref_type_p1);
+      av1_copy(fc->uni_comp_ref_prob, default_uni_comp_ref_p1);
+      av1_copy(fc->comp_ref_prob, default_comp_ref_p1);
+      av1_copy(fc->comp_bwdref_prob, default_comp_bwdref_p1);
+      av1_copy(fc->single_ref_prob, default_single_ref_p1);
+      break;
+    case 2:
+      av1_copy(fc->comp_inter_prob, default_comp_inter_p2);
+      av1_copy(fc->comp_ref_type_prob, default_comp_ref_type_p2);
+      av1_copy(fc->uni_comp_ref_prob, default_uni_comp_ref_p2);
+      av1_copy(fc->comp_ref_prob, default_comp_ref_p2);
+      av1_copy(fc->comp_bwdref_prob, default_comp_bwdref_p2);
+      av1_copy(fc->single_ref_prob, default_single_ref_p2);
+      break;
+    case 3:
+      av1_copy(fc->comp_inter_prob, default_comp_inter_p3);
+      av1_copy(fc->comp_ref_type_prob, default_comp_ref_type_p3);
+      av1_copy(fc->uni_comp_ref_prob, default_uni_comp_ref_p3);
+      av1_copy(fc->comp_ref_prob, default_comp_ref_p3);
+      av1_copy(fc->comp_bwdref_prob, default_comp_bwdref_p3);
+      av1_copy(fc->single_ref_prob, default_single_ref_p3);
+      break;
+    case 4:
+      // TODO(zoeliu):
+      // To investigate why no stats were collected for frame_context_idx == 4;
+      /*
+      av1_copy(fc->comp_inter_prob, default_comp_inter_p4);
+      av1_copy(fc->comp_ref_type_prob, default_comp_ref_type_p4);
+      av1_copy(fc->uni_comp_ref_prob, default_uni_comp_ref_p4);
+      av1_copy(fc->comp_ref_prob, default_comp_ref_p4);
+      av1_copy(fc->comp_bwdref_prob, default_comp_bwdref_p4);
+      av1_copy(fc->single_ref_prob, default_single_ref_p4);
+      */
+      break;
+    case 5:
+      av1_copy(fc->comp_inter_prob, default_comp_inter_p5);
+      av1_copy(fc->comp_ref_type_prob, default_comp_ref_type_p5);
+      av1_copy(fc->uni_comp_ref_prob, default_uni_comp_ref_p5);
+      av1_copy(fc->comp_ref_prob, default_comp_ref_p5);
+      av1_copy(fc->comp_bwdref_prob, default_comp_bwdref_p5);
+      av1_copy(fc->single_ref_prob, default_single_ref_p5);
+      break;
+    case 6:
+    case 7: break;
+    default: assert(0); break;
+  }
+}
+#endif  // CONFIG_EXT_COMP_REFS
+
 static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->uv_mode_prob, default_uv_probs);
   av1_copy(fc->y_mode_prob, default_if_y_probs);
@@ -5212,7 +5854,15 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
   if (cm->frame_type == KEY_FRAME || cm->error_resilient_mode ||
       cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL) {
     // Reset all frame contexts.
-    for (i = 0; i < FRAME_CONTEXTS; ++i) cm->frame_contexts[i] = *cm->fc;
+    for (i = 0; i < FRAME_CONTEXTS; ++i) {
+      cm->frame_contexts[i] = *cm->fc;
+#if CONFIG_EXT_COMP_REFS
+      init_ref_frame_probs(&cm->frame_contexts[i], i);
+#endif  // CONFIG_EXT_COMP_REFS
+    }
+#if CONFIG_EXT_COMP_REFS
+    *cm->fc = cm->frame_contexts[0];
+#endif  // CONFIG_EXT_COMP_REFS
   } else if (cm->reset_frame_context == RESET_FRAME_CONTEXT_CURRENT) {
     // Reset only the frame context specified in the frame header.
     cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
