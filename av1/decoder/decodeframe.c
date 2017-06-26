@@ -4388,6 +4388,16 @@ static void check_valid_ref_frames(AV1_COMMON *cm) {
       ref_buf->is_valid = 0;
     }
   }
+
+#if 0
+  printf("check_valid_ref_frames(): Frame=%d, show_frame=%d\n",
+         cm->current_video_frame, cm->show_frame);
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame)
+    printf("Ref[%d](map_idx,buf_idx)=(x,%d), is_valid=%d\n", ref_frame,
+           cm->frame_refs[ref_frame - LAST_FRAME].idx,
+           cm->frame_refs[ref_frame - LAST_FRAME].is_valid);
+  printf("\n");
+#endif  // 0
 }
 #endif  // CONFIG_VAR_REFS
 
@@ -4594,6 +4604,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
       }
 #endif  // CONFIG_EXT_REFS
 
+#if 0
+      printf("\n\nread_uncompressed_header(): Frame=%d, show_frame=%d\n",
+             cm->current_video_frame, cm->show_frame);
+#endif  // 0
       for (i = 0; i < INTER_REFS_PER_FRAME; ++i) {
         const int ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
         const int idx = cm->ref_frame_map[ref];
@@ -4616,9 +4630,22 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
               cm->valid_for_referencing[ref] == 0)
             aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                                "Reference buffer frame ID mismatch");
+
+#if 0
+#if CONFIG_VAR_REFS
+          printf("Ref[%d](map_idx,buf_idx)=(%d,%d), is_valid=%d\n",
+                 i + LAST_FRAME, ref, idx, ref_frame->is_valid);
+#else
+          printf("Ref[%d](map_idx,buf_idx)=(%d,%d), is_valid=-1\n",
+                 i + LAST_FRAME, ref, idx);
+#endif  // CONFIG_VAR_REFS
+#endif  // 0
         }
 #endif
       }
+#if 0
+      printf("\n");
+#endif  // 0
 
 #if CONFIG_VAR_REFS
       check_valid_ref_frames(cm);

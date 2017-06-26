@@ -3111,6 +3111,17 @@ static void enc_check_valid_ref_frames(AV1_COMP *const cpi) {
       ref_buf->is_valid = 0;
     }
   }
+
+#if 0
+  printf("enc_check_valid_ref_frames(): Frame=%d, show_frame=%d\n",
+         cm->current_video_frame, cm->show_frame);
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame)
+    printf("Ref[%d](map_idx,buf_idx)=(%d,%d), is_valid=%d\n", ref_frame,
+           get_ref_frame_map_idx(cpi, ref_frame),
+           get_ref_frame_buf_idx(cpi, ref_frame),
+           cm->frame_refs[ref_frame - LAST_FRAME].is_valid);
+  printf("\n");
+#endif  // 0
 }
 #endif  // CONFIG_VAR_REFS
 
@@ -4226,6 +4237,12 @@ static int get_ref_frame_flags(const AV1_COMP *cpi) {
       map[cpi->lst_fb_idxes[2]] == map[cpi->lst_fb_idxes[1]];
   const int gld_is_last2 = map[cpi->gld_fb_idx] == map[cpi->lst_fb_idxes[1]];
   const int gld_is_last3 = map[cpi->gld_fb_idx] == map[cpi->lst_fb_idxes[2]];
+
+  // ********* For debug
+  const int bwd_is_last = map[cpi->bwd_fb_idx] == map[cpi->lst_fb_idxes[0]];
+  const int bwd_is_last2 = map[cpi->bwd_fb_idx] == map[cpi->lst_fb_idxes[1]];
+  const int bwd_is_last3 = map[cpi->bwd_fb_idx] == map[cpi->lst_fb_idxes[2]];
+  const int bwd_is_gld = map[cpi->bwd_fb_idx] == map[cpi->gld_fb_idx];
 #else
   const int bwd_is_last = map[cpi->bwd_fb_idx] == map[cpi->lst_fb_idxes[0]];
   const int alt_is_last = map[cpi->alt_fb_idx] == map[cpi->lst_fb_idxes[0]];
@@ -4271,12 +4288,31 @@ static int get_ref_frame_flags(const AV1_COMP *cpi) {
 
   if (last3_is_last || last3_is_last2 || last3_is_alt) flags &= ~AOM_LAST3_FLAG;
 
-#if CONFIG_EXT_COMP_REFS
-  if (gld_is_last2) flags &= ~AOM_GOLD_FLAG;
-  if (gld_is_last3) flags &= ~AOM_LAST3_FLAG;
-#else
   if (gld_is_last2 || gld_is_last3) flags &= ~AOM_GOLD_FLAG;
-#endif  // CONFIG_EXT_COMP_REFS
+
+#if 0
+  if (bwd_is_last || bwd_is_last2 || bwd_is_last3 || bwd_is_gld)
+    printf(
+        "\n*******bwd_is_last=%d, bwd_is_last2=%d, bwd_is_last3=%d, "
+        "bwd_is_gld=%d\n",
+        bwd_is_last, bwd_is_last2, bwd_is_last3, bwd_is_gld);
+  const AV1_COMMON *const cm = &cpi->common;
+  printf("get_ref_frame_flags(): Frame=%d, show_frame=%d\n",
+         cm->current_video_frame, cm->show_frame);
+  MV_REFERENCE_FRAME ref_frame;
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame)
+#if CONFIG_VAR_REFS
+    printf("Ref[%d](map_idx,buf_idx)=(%d,%d), is_valid=%d\n", ref_frame,
+           get_ref_frame_map_idx(cpi, ref_frame),
+           get_ref_frame_buf_idx(cpi, ref_frame),
+           cm->frame_refs[ref_frame - LAST_FRAME].is_valid);
+#else
+    printf("Ref[%d](map_idx,buf_idx)=(%d,%d), is_valid=-1\n", ref_frame,
+           get_ref_frame_map_idx(cpi, ref_frame),
+           get_ref_frame_buf_idx(cpi, ref_frame));
+#endif  // CONFIG_VAR_REFS
+  printf("\n");
+#endif  // 0
 
 #if CONFIG_ONE_SIDED_COMPOUND  // Changes LL & HL bitstream
   /* Allow biprediction between two identical frames (e.g. bwd_is_last = 1) */
@@ -4422,11 +4458,12 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
   }
   printf(
       "\nFrame=%5d, encode_update_type[%5d]=%1d, show_existing_frame=%d, "
-      "y_stride=%4d, uv_stride=%4d, width=%4d, height=%4d\n",
+      "y_stride=%4d, uv_stride=%4d, cm->width=%4d, cm->height=%4d, "
+      "y_crop_width=%4d, y_crop_height=%4d\n",
       cm->current_video_frame, cpi->twopass.gf_group.index,
       cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index],
       cm->show_existing_frame, recon_buf->y_stride, recon_buf->uv_stride,
-      cm->width, cm->height);
+      cm->width, cm->height, recon_buf->y_crop_width, recon_buf->y_crop_height);
 
   // --- Y ---
   for (h = 0; h < cm->height; ++h) {
