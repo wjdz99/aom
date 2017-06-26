@@ -1327,8 +1327,13 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     // FIXME(rbultje) I'm pretty sure this breaks segmentation ref frame coding
     if (mode == COMPOUND_REFERENCE) {
 #if CONFIG_EXT_COMP_REFS
-      const COMP_REFERENCE_TYPE comp_ref_type =
-          read_comp_reference_type(cm, xd, r);
+      COMP_REFERENCE_TYPE comp_ref_type;
+      if ((L_OR_L2(cm) || L3_OR_G(cm)) && BWD_OR_ALT(cm)) {
+        if (LAST_IS_VALID(cm) + LAST2_IS_VALID(cm) + LAST3_IS_VALID(cm) + 
+        comp_ref_type = read_comp_reference_type(cm, xd, r);
+      } else {
+        comp_ref_type = UNIDIR_COMP_REFERENCE;
+      }
 
 #if !USE_UNI_COMP_REFS
       // TODO(zoeliu): Temporarily turn off uni-directional comp refs

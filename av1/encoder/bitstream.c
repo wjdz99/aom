@@ -1265,7 +1265,8 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                                                     : BIDIR_COMP_REFERENCE;
 
 #if USE_UNI_COMP_REFS
-      aom_write(w, comp_ref_type, av1_get_comp_reference_type_prob(cm, xd));
+      if ((L_OR_L2(cm) || L3_OR_G(cm)) && BWD_OR_ALT(cm))
+        aom_write(w, comp_ref_type, av1_get_comp_reference_type_prob(cm, xd));
 #else   // !USE_UNI_COMP_REFS
       // NOTE: uni-directional comp refs disabled
       assert(comp_ref_type == BIDIR_COMP_REFERENCE);
