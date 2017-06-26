@@ -67,11 +67,13 @@ static struct av1_token intra_mode_encodings[INTRA_MODES];
 static struct av1_token switchable_interp_encodings[SWITCHABLE_FILTERS];
 static struct av1_token partition_encodings[PARTITION_TYPES];
 #if CONFIG_EXT_INTER
+#if !CONFIG_EC_ADAPT
 static const struct av1_token
     inter_compound_mode_encodings[INTER_COMPOUND_MODES] = {
       { 2, 2 },  { 12, 4 }, { 52, 6 }, { 53, 6 },
       { 54, 6 }, { 55, 6 }, { 0, 1 },  { 7, 3 }
     };
+#endif
 #if CONFIG_COMPOUND_SINGLEREF
 static struct av1_token
     inter_singleref_comp_mode_encodings[INTER_SINGLEREF_COMP_MODES];
@@ -322,15 +324,23 @@ static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const MB_MODE_INFO *mbmi,
 }
 
 #if CONFIG_EXT_INTER
-static void write_inter_compound_mode(AV1_COMMON *cm, aom_writer *w,
-                                      PREDICTION_MODE mode,
+static void write_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
+                                      aom_writer *w, PREDICTION_MODE mode,
                                       const int16_t mode_ctx) {
+  assert(is_inter_compound_mode(mode));
+#if CONFIG_EC_ADAPT
+  (void)cm;
+  aom_write_symbol(w, INTER_COMPOUND_OFFSET(mode),
+                   xd->tile_ctx->inter_compound_mode_cdf[mode_ctx],
+                   INTER_COMPOUND_MODES);
+#else
+  (void)xd;
   const aom_prob *const inter_compound_probs =
       cm->fc->inter_compound_mode_probs[mode_ctx];
 
-  assert(is_inter_compound_mode(mode));
   av1_write_token(w, av1_inter_compound_mode_tree, inter_compound_probs,
                   &inter_compound_mode_encodings[INTER_COMPOUND_OFFSET(mode)]);
+#endif
 }
 
 #if CONFIG_COMPOUND_SINGLEREF
@@ -371,7 +381,7 @@ static void prob_diff_update(const aom_tree_index *tree,
 }
 #endif
 
-#if CONFIG_EXT_INTER || !CONFIG_EC_ADAPT
+#if !CONFIG_EC_ADAPT || CONFIG_COMPOUND_SINGLEREF
 static int prob_diff_update_savings(const aom_tree_index *tree,
                                     aom_prob probs[/*n - 1*/],
                                     const unsigned int counts[/*n - 1*/], int n,
@@ -389,7 +399,7 @@ static int prob_diff_update_savings(const aom_tree_index *tree,
   }
   return savings;
 }
-#endif  // CONFIG_EXT_INTER || !CONFIG_EC_ADAPT
+#endif  // !CONFIG_EC_ADAPT || CONFIG_COMPOUND_SINGLEREF
 
 #if CONFIG_VAR_TX
 static void write_tx_size_vartx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
@@ -511,6 +521,7 @@ static void update_inter_mode_probs(AV1_COMMON *cm, aom_writer *w,
 #endif
 
 #if CONFIG_EXT_INTER
+#if !CONFIG_EC_ADAPT
 static void update_inter_compound_mode_probs(AV1_COMMON *cm, int probwt,
                                              aom_writer *w) {
   const int savings_thresh = av1_cost_one(GROUP_DIFF_UPDATE_PROB) -
@@ -533,6 +544,7 @@ static void update_inter_compound_mode_probs(AV1_COMMON *cm, int probwt,
     }
   }
 }
+#endif
 
 #if CONFIG_COMPOUND_SINGLEREF
 static void update_inter_singleref_comp_mode_probs(AV1_COMMON *cm, int probwt,
@@ -2057,7 +2069,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       if (bsize >= BLOCK_8X8 || unify_bsize) {
 #if CONFIG_EXT_INTER
         if (is_inter_compound_mode(mode))
-          write_inter_compound_mode(cm, w, mode, mode_ctx);
+          write_inter_compound_mode(cm, xd, w, mode, mode_ctx);
 #if CONFIG_COMPOUND_SINGLEREF
         else if (is_inter_singleref_comp_mode(mode))
           write_inter_singleref_comp_mode(cm, w, mode, mode_ctx);
@@ -2104,7 +2116,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
                                                  mbmi->ref_frame, bsize, j);
 #if CONFIG_EXT_INTER
           if (is_inter_compound_mode(b_mode))
-            write_inter_compound_mode(cm, w, b_mode, mode_ctx);
+            write_inter_compound_mode(cm, xd, w, b_mode, mode_ctx);
           else if (is_inter_singleref_mode(b_mode))
 #endif  // CONFIG_EXT_INTER
             write_inter_mode(w, b_mode, ec_ctx, mode_ctx);
@@ -5087,7 +5099,9 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     update_inter_mode_probs(cm, header_bc, counts);
 #endif
 #if CONFIG_EXT_INTER
+#if !CONFIG_EC_ADAPT
     update_inter_compound_mode_probs(cm, probwt, header_bc);
+#endif
 #if CONFIG_COMPOUND_SINGLEREF
     update_inter_singleref_comp_mode_probs(cm, probwt, header_bc);
 #endif  // CONFIG_COMPOUND_SINGLEREF
