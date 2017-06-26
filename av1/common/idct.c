@@ -1804,6 +1804,12 @@ static void init_inv_txfm_param(const MACROBLOCKD *xd, TX_SIZE tx_size,
 #endif
 }
 
+typedef void (*InvTxfmFunc)(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
+                            INV_TXFM_PARAM *param);
+
+static InvTxfmFunc inv_txfm_func[2] = { av1_inv_txfm_add,
+                                        av1_highbd_inv_txfm_add };
+
 void av1_inverse_transform_block(const MACROBLOCKD *xd,
                                  const tran_low_t *dqcoeff, TX_TYPE tx_type,
                                  TX_SIZE tx_size, uint8_t *dst, int stride,
@@ -1830,15 +1836,8 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
   INV_TXFM_PARAM inv_txfm_param;
   init_inv_txfm_param(xd, tx_size, tx_type, eob, &inv_txfm_param);
 
-#if CONFIG_HIGHBITDEPTH
-  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-    av1_highbd_inv_txfm_add(dqcoeff, dst, stride, &inv_txfm_param);
-  } else {
-#endif  // CONFIG_HIGHBITDEPTH
-    av1_inv_txfm_add(dqcoeff, dst, stride, &inv_txfm_param);
-#if CONFIG_HIGHBITDEPTH
-  }
-#endif  // CONFIG_HIGHBITDEPTH
+  const int is_hbd = get_func_index(xd);
+  inv_txfm_func[is_hbd](dqcoeff, dst, stride, &inv_txfm_param);
 }
 
 void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
