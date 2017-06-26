@@ -1442,8 +1442,13 @@ static const aom_cdf_prob
 #endif
 
 static const aom_prob default_comp_inter_p[COMP_INTER_CONTEXTS] = {
+#if !CONFIG_EXT_COMP_REFS
   239, 183, 119, 96, 41
+#else   // CONFIG_EXT_COMP_REFS
+  206, 182, 117, 104, 32
+#endif  // !CONFIG_EXT_COMP_REFS
 };
+
 #if CONFIG_NEW_MULTISYMBOL
 static const aom_cdf_prob default_comp_inter_cdf[COMP_INTER_CONTEXTS][CDF_SIZE(
     2)] = { { AOM_ICDF(239 * 128), AOM_ICDF(32768), 0 },
@@ -1455,27 +1460,72 @@ static const aom_cdf_prob default_comp_inter_cdf[COMP_INTER_CONTEXTS][CDF_SIZE(
 
 #if CONFIG_EXT_COMP_REFS
 static const aom_prob default_comp_ref_type_p[COMP_REF_TYPE_CONTEXTS] = {
-  30, 75, 120, 170, 230
+  8, 20, 78, 91, 194
 };
 
-static const aom_prob
-    default_uni_comp_ref_p[UNI_COMP_REF_CONTEXTS][UNIDIR_COMP_REFS - 1] = {
-      { 30, 20 }, { 75, 70 }, { 130, 130 }, { 165, 165 }, { 215, 220 }
-    };
+static const aom_prob default_uni_comp_ref_p[UNI_COMP_REF_CONTEXTS]
+                                            [UNIDIR_COMP_REFS - 1] = {
+                                              {
+                                                  88, 30, 28,
+                                              },
+                                              {
+                                                  218, 97, 105,
+                                              },
+                                              {
+                                                  254, 180, 196,
+                                              },
+                                            };
 #endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_EXT_REFS
 static const aom_prob default_comp_ref_p[REF_CONTEXTS][FWD_REFS - 1] = {
-  // TODO(zoeliu): To adjust the initial prob values.
+// TODO(zoeliu): To adjust the initial prob values.
+#if !CONFIG_EXT_COMP_REFS
   { 33, 16, 16 },
   { 77, 74, 74 },
   { 142, 142, 142 },
   { 172, 170, 170 },
   { 238, 247, 247 }
+#else   // CONFIG_EXT_COMP_REFS
+  {
+      21, 7, 5,
+  },
+  {
+      68, 20, 16,
+  },
+  {
+      128, 56, 36,
+  },
+  {
+      197, 111, 139,
+  },
+  {
+      238, 131, 136,
+  },
+#endif  // !CONFIG_EXT_COMP_REFS
 };
 static const aom_prob default_comp_bwdref_p[REF_CONTEXTS][BWD_REFS - 1] = {
+#if !CONFIG_EXT_COMP_REFS
   { 16 }, { 74 }, { 142 }, { 170 }, { 247 }
+#else   // CONFIG_EXT_COMP_REFS
+  {
+      7,
+  },
+  {
+      56,
+  },
+  {
+      29,
+  },
+  {
+      230,
+  },
+  {
+      220,
+  },
+#endif  // CONFIG_EXT_COMP_REFS
 };
+
 #if CONFIG_NEW_MULTISYMBOL
 static const aom_cdf_prob
     default_comp_ref_cdf[REF_CONTEXTS][FWD_REFS - 1][CDF_SIZE(2)] = {
@@ -1505,7 +1555,7 @@ static const aom_cdf_prob
       { { AOM_ICDF(247 * 128), AOM_ICDF(32768), 0 } }
     };
 #endif  // CONFIG_NEW_MULTISYMBOL
-#else
+#else   // !CONFIG_EXT_REFS
 static const aom_prob default_comp_ref_p[REF_CONTEXTS][COMP_REFS - 1] = {
   { 50 }, { 126 }, { 123 }, { 221 }, { 226 }
 };
@@ -1523,15 +1573,34 @@ static const aom_cdf_prob
 
 static const aom_prob default_single_ref_p[REF_CONTEXTS][SINGLE_REFS - 1] = {
 #if CONFIG_EXT_REFS
+#if !CONFIG_EXT_COMP_REFS
   { 33, 16, 16, 16, 16 },
   { 77, 74, 74, 74, 74 },
   { 142, 142, 142, 142, 142 },
   { 172, 170, 170, 170, 170 },
   { 238, 247, 247, 247, 247 }
-#else
+#else   // CONFIG_EXT_COMP_REFS
+  {
+      36, 2, 28, 58, 9,
+  },
+  {
+      64, 22, 60, 122, 40,
+  },
+  {
+      153, 69, 126, 179, 71,
+  },
+  {
+      128, 174, 189, 216, 101,
+  },
+  {
+      233, 252, 228, 246, 200,
+  },
+#endif  // !CONFIG_EXT_COMP_REFS
+#else   // !CONFIG_EXT_REFS
   { 33, 16 }, { 77, 74 }, { 142, 142 }, { 172, 170 }, { 238, 247 }
 #endif  // CONFIG_EXT_REFS
 };
+
 #if CONFIG_NEW_MULTISYMBOL
 static const aom_cdf_prob
     default_single_ref_cdf[REF_CONTEXTS][SINGLE_REFS - 1][CDF_SIZE(2)] = {

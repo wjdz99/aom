@@ -266,6 +266,7 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
 
 #if CONFIG_EXT_COMP_REFS
   { NEAREST_NEARESTMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEAREST_NEARESTMV, { LAST_FRAME, LAST3_FRAME } },
   { NEAREST_NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
   { NEAREST_NEARESTMV, { BWDREF_FRAME, ALTREF_FRAME } },
 #endif  // CONFIG_EXT_COMP_REFS
@@ -287,6 +288,7 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
 
 #if CONFIG_EXT_COMP_REFS
   { NEARESTMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEARESTMV, { LAST_FRAME, LAST3_FRAME } },
   { NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
   { NEARESTMV, { BWDREF_FRAME, ALTREF_FRAME } },
 #endif  // CONFIG_EXT_COMP_REFS
@@ -380,6 +382,14 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { NEW_NEWMV, { LAST_FRAME, LAST2_FRAME } },
   { ZERO_ZEROMV, { LAST_FRAME, LAST2_FRAME } },
 
+  { NEAR_NEARMV, { LAST_FRAME, LAST3_FRAME } },
+  { NEW_NEARESTMV, { LAST_FRAME, LAST3_FRAME } },
+  { NEAREST_NEWMV, { LAST_FRAME, LAST3_FRAME } },
+  { NEW_NEARMV, { LAST_FRAME, LAST3_FRAME } },
+  { NEAR_NEWMV, { LAST_FRAME, LAST3_FRAME } },
+  { NEW_NEWMV, { LAST_FRAME, LAST3_FRAME } },
+  { ZERO_ZEROMV, { LAST_FRAME, LAST3_FRAME } },
+
   { NEAR_NEARMV, { LAST_FRAME, GOLDEN_FRAME } },
   { NEW_NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
   { NEAREST_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
@@ -424,6 +434,8 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
 #if CONFIG_EXT_COMP_REFS
   { NEARMV, { LAST_FRAME, LAST2_FRAME } },
   { NEWMV, { LAST_FRAME, LAST2_FRAME } },
+  { NEARMV, { LAST_FRAME, LAST3_FRAME } },
+  { NEWMV, { LAST_FRAME, LAST3_FRAME } },
   { NEARMV, { LAST_FRAME, GOLDEN_FRAME } },
   { NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
   { NEARMV, { BWDREF_FRAME, ALTREF_FRAME } },
@@ -446,6 +458,7 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
 
 #if CONFIG_EXT_COMP_REFS
   { ZEROMV, { LAST_FRAME, LAST2_FRAME } },
+  { ZEROMV, { LAST_FRAME, LAST3_FRAME } },
   { ZEROMV, { LAST_FRAME, GOLDEN_FRAME } },
   { ZEROMV, { BWDREF_FRAME, ALTREF_FRAME } },
 #endif  // CONFIG_EXT_COMP_REFS
@@ -6016,62 +6029,26 @@ static void estimate_ref_frame_costs(
                       ref_costs_single[ALTREF_FRAME] = base_cost;
 
 #if CONFIG_EXT_REFS
-#if CONFIG_VAR_REFS
-      // Test need to explicitly code (L,L2,L3,G) vs (BWD,ALT) branch node in
-      // tree
-      if ((L_OR_L2(cm) || L3_OR_G(cm)) && BWD_OR_ALT(cm)) {
-#endif  // CONFIG_VAR_REFS
-        ref_costs_single[LAST_FRAME] += av1_cost_bit(ref_single_p1, 0);
-        ref_costs_single[LAST2_FRAME] += av1_cost_bit(ref_single_p1, 0);
-        ref_costs_single[LAST3_FRAME] += av1_cost_bit(ref_single_p1, 0);
-        ref_costs_single[GOLDEN_FRAME] += av1_cost_bit(ref_single_p1, 0);
-        ref_costs_single[BWDREF_FRAME] += av1_cost_bit(ref_single_p1, 1);
-        ref_costs_single[ALTREF_FRAME] += av1_cost_bit(ref_single_p1, 1);
-#if CONFIG_VAR_REFS
-      }
-#endif  // CONFIG_VAR_REFS
+      ref_costs_single[LAST_FRAME] += av1_cost_bit(ref_single_p1, 0);
+      ref_costs_single[LAST2_FRAME] += av1_cost_bit(ref_single_p1, 0);
+      ref_costs_single[LAST3_FRAME] += av1_cost_bit(ref_single_p1, 0);
+      ref_costs_single[GOLDEN_FRAME] += av1_cost_bit(ref_single_p1, 0);
+      ref_costs_single[BWDREF_FRAME] += av1_cost_bit(ref_single_p1, 1);
+      ref_costs_single[ALTREF_FRAME] += av1_cost_bit(ref_single_p1, 1);
 
-#if CONFIG_VAR_REFS
-      // Test need to explicitly code (L,L2) vs (L3,G) branch node in tree
-      if (L_OR_L2(cm) && L3_OR_G(cm)) {
-#endif  // CONFIG_VAR_REFS
-        ref_costs_single[LAST_FRAME] += av1_cost_bit(ref_single_p3, 0);
-        ref_costs_single[LAST2_FRAME] += av1_cost_bit(ref_single_p3, 0);
-        ref_costs_single[LAST3_FRAME] += av1_cost_bit(ref_single_p3, 1);
-        ref_costs_single[GOLDEN_FRAME] += av1_cost_bit(ref_single_p3, 1);
-#if CONFIG_VAR_REFS
-      }
-#endif  // CONFIG_VAR_REFS
+      ref_costs_single[LAST_FRAME] += av1_cost_bit(ref_single_p3, 0);
+      ref_costs_single[LAST2_FRAME] += av1_cost_bit(ref_single_p3, 0);
+      ref_costs_single[LAST3_FRAME] += av1_cost_bit(ref_single_p3, 1);
+      ref_costs_single[GOLDEN_FRAME] += av1_cost_bit(ref_single_p3, 1);
 
-#if CONFIG_VAR_REFS
-      // Test need to explicitly code (BWD) vs (ALT) branch node in tree
-      if (BWD_AND_ALT(cm)) {
-#endif  // CONFIG_VAR_REFS
-        ref_costs_single[BWDREF_FRAME] += av1_cost_bit(ref_single_p2, 0);
-        ref_costs_single[ALTREF_FRAME] += av1_cost_bit(ref_single_p2, 1);
-#if CONFIG_VAR_REFS
-      }
-#endif  // CONFIG_VAR_REFS
+      ref_costs_single[BWDREF_FRAME] += av1_cost_bit(ref_single_p2, 0);
+      ref_costs_single[ALTREF_FRAME] += av1_cost_bit(ref_single_p2, 1);
 
-#if CONFIG_VAR_REFS
-      // Test need to explicitly code (L) vs (L2) branch node in tree
-      if (L_AND_L2(cm)) {
-#endif  // CONFIG_VAR_REFS
-        ref_costs_single[LAST_FRAME] += av1_cost_bit(ref_single_p4, 0);
-        ref_costs_single[LAST2_FRAME] += av1_cost_bit(ref_single_p4, 1);
-#if CONFIG_VAR_REFS
-      }
-#endif  // CONFIG_VAR_REFS
+      ref_costs_single[LAST_FRAME] += av1_cost_bit(ref_single_p4, 0);
+      ref_costs_single[LAST2_FRAME] += av1_cost_bit(ref_single_p4, 1);
 
-#if CONFIG_VAR_REFS
-      // Test need to explicitly code (L3) vs (G) branch node in tree
-      if (L3_AND_G(cm)) {
-#endif  // CONFIG_VAR_REFS
-        ref_costs_single[LAST3_FRAME] += av1_cost_bit(ref_single_p5, 0);
-        ref_costs_single[GOLDEN_FRAME] += av1_cost_bit(ref_single_p5, 1);
-#if CONFIG_VAR_REFS
-      }
-#endif  // CONFIG_VAR_REFS
+      ref_costs_single[LAST3_FRAME] += av1_cost_bit(ref_single_p5, 0);
+      ref_costs_single[GOLDEN_FRAME] += av1_cost_bit(ref_single_p5, 1);
 #else   // !CONFIG_EXT_REFS
       ref_costs_single[LAST_FRAME] += av1_cost_bit(ref_single_p1, 0);
       ref_costs_single[GOLDEN_FRAME] += av1_cost_bit(ref_single_p1, 1);
@@ -6138,13 +6115,19 @@ static void estimate_ref_frame_costs(
 
       aom_prob uni_comp_ref_p = av1_get_pred_prob_uni_comp_ref_p(cm, xd);
       aom_prob uni_comp_ref_p1 = av1_get_pred_prob_uni_comp_ref_p1(cm, xd);
+      aom_prob uni_comp_ref_p2 = av1_get_pred_prob_uni_comp_ref_p2(cm, xd);
 
       ref_costs_comp[LAST_FRAME][LAST2_FRAME] =
           base_cost + av1_cost_bit(comp_ref_type_p, 0) +
           av1_cost_bit(uni_comp_ref_p, 0) + av1_cost_bit(uni_comp_ref_p1, 0);
+      ref_costs_comp[LAST_FRAME][LAST3_FRAME] =
+          base_cost + av1_cost_bit(comp_ref_type_p, 0) +
+          av1_cost_bit(uni_comp_ref_p, 0) + av1_cost_bit(uni_comp_ref_p1, 1) +
+          av1_cost_bit(uni_comp_ref_p2, 0);
       ref_costs_comp[LAST_FRAME][GOLDEN_FRAME] =
           base_cost + av1_cost_bit(comp_ref_type_p, 0) +
-          av1_cost_bit(uni_comp_ref_p, 0) + av1_cost_bit(uni_comp_ref_p1, 1);
+          av1_cost_bit(uni_comp_ref_p, 0) + av1_cost_bit(uni_comp_ref_p1, 1) +
+          av1_cost_bit(uni_comp_ref_p2, 1);
 
       ref_costs_comp[BWDREF_FRAME][ALTREF_FRAME] =
           base_cost + av1_cost_bit(comp_ref_type_p, 0) +
@@ -6163,49 +6146,21 @@ static void estimate_ref_frame_costs(
 #endif  // CONFIG_EXT_REFS
 
 #if CONFIG_EXT_REFS
-#if CONFIG_VAR_REFS
-      // Test need to explicitly code (L,L2) vs (L3,G) branch node in tree
-      if (L_OR_L2(cm) && L3_OR_G(cm)) {
-#endif  // CONFIG_VAR_REFS
-        ref_costs_comp[LAST_FRAME] += av1_cost_bit(ref_comp_p, 0);
-        ref_costs_comp[LAST2_FRAME] += av1_cost_bit(ref_comp_p, 0);
-        ref_costs_comp[LAST3_FRAME] += av1_cost_bit(ref_comp_p, 1);
-        ref_costs_comp[GOLDEN_FRAME] += av1_cost_bit(ref_comp_p, 1);
-#if CONFIG_VAR_REFS
-      }
-#endif  // CONFIG_VAR_REFS
+      ref_costs_comp[LAST_FRAME] += av1_cost_bit(ref_comp_p, 0);
+      ref_costs_comp[LAST2_FRAME] += av1_cost_bit(ref_comp_p, 0);
+      ref_costs_comp[LAST3_FRAME] += av1_cost_bit(ref_comp_p, 1);
+      ref_costs_comp[GOLDEN_FRAME] += av1_cost_bit(ref_comp_p, 1);
 
-#if CONFIG_VAR_REFS
-      // Test need to explicitly code (L) vs (L2) branch node in tree
-      if (L_AND_L2(cm)) {
-#endif  // CONFIG_VAR_REFS
-        ref_costs_comp[LAST_FRAME] += av1_cost_bit(ref_comp_p1, 1);
-        ref_costs_comp[LAST2_FRAME] += av1_cost_bit(ref_comp_p1, 0);
-#if CONFIG_VAR_REFS
-      }
-#endif  // CONFIG_VAR_REFS
+      ref_costs_comp[LAST_FRAME] += av1_cost_bit(ref_comp_p1, 1);
+      ref_costs_comp[LAST2_FRAME] += av1_cost_bit(ref_comp_p1, 0);
 
-#if CONFIG_VAR_REFS
-      // Test need to explicitly code (L3) vs (G) branch node in tree
-      if (L3_AND_G(cm)) {
-#endif  // CONFIG_VAR_REFS
-        ref_costs_comp[LAST3_FRAME] += av1_cost_bit(ref_comp_p2, 0);
-        ref_costs_comp[GOLDEN_FRAME] += av1_cost_bit(ref_comp_p2, 1);
-#if CONFIG_VAR_REFS
-      }
-#endif  // CONFIG_VAR_REFS
+      ref_costs_comp[LAST3_FRAME] += av1_cost_bit(ref_comp_p2, 0);
+      ref_costs_comp[GOLDEN_FRAME] += av1_cost_bit(ref_comp_p2, 1);
 
-// NOTE(zoeliu): BWDREF and ALTREF each add an extra cost by coding 1
-//               more bit.
-#if CONFIG_VAR_REFS
-      // Test need to explicitly code (BWD) vs (ALT) branch node in tree
-      if (BWD_AND_ALT(cm)) {
-#endif  // CONFIG_VAR_REFS
-        ref_costs_comp[BWDREF_FRAME] += av1_cost_bit(bwdref_comp_p, 0);
-        ref_costs_comp[ALTREF_FRAME] += av1_cost_bit(bwdref_comp_p, 1);
-#if CONFIG_VAR_REFS
-      }
-#endif  // CONFIG_VAR_REFS
+      // NOTE(zoeliu): BWDREF and ALTREF each add an extra cost by coding 1
+      //               more bit.
+      ref_costs_comp[BWDREF_FRAME] += av1_cost_bit(bwdref_comp_p, 0);
+      ref_costs_comp[ALTREF_FRAME] += av1_cost_bit(bwdref_comp_p, 1);
 #else   // !CONFIG_EXT_REFS
       ref_costs_comp[LAST_FRAME] += av1_cost_bit(ref_comp_p, 0);
       ref_costs_comp[GOLDEN_FRAME] += av1_cost_bit(ref_comp_p, 1);
@@ -6219,6 +6174,7 @@ static void estimate_ref_frame_costs(
         ref_costs_comp[ref0][ALTREF_FRAME] = 512;
       }
       ref_costs_comp[LAST_FRAME][LAST2_FRAME] = 512;
+      ref_costs_comp[LAST_FRAME][LAST3_FRAME] = 512;
       ref_costs_comp[LAST_FRAME][GOLDEN_FRAME] = 512;
       ref_costs_comp[BWDREF_FRAME][ALTREF_FRAME] = 512;
 #else  // !CONFIG_EXT_COMP_REFS
@@ -9640,6 +9596,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   }
 #endif  // CONFIG_PALETTE
 
+#if CONFIG_EXT_COMP_REFS
+  av1_find_ref_frame_counts(xd);
+#endif  // CONFIG_EXT_COMP_REFS
   estimate_ref_frame_costs(cm, xd, segment_id, ref_costs_single, ref_costs_comp,
                            &comp_mode_p);
 
@@ -11479,6 +11438,9 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   (void)mi_row;
   (void)mi_col;
 
+#if CONFIG_EXT_COMP_REFS
+  av1_find_ref_frame_counts(xd);
+#endif  // CONFIG_EXT_COMP_REFS
   estimate_ref_frame_costs(cm, xd, segment_id, ref_costs_single, ref_costs_comp,
                            &comp_mode_p);
 
