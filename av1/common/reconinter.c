@@ -864,8 +864,8 @@ void av1_build_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
   const MV mv_q4 = { is_q4 ? src_mv->row : src_mv->row * 2,
                      is_q4 ? src_mv->col : src_mv->col * 2 };
   MV32 mv = av1_scale_mv(&mv_q4, x, y, sf);
-  const int subpel_x = mv.col & SUBPEL_MASK;
-  const int subpel_y = mv.row & SUBPEL_MASK;
+  const int subpel_x = mv.col & SUBPEL_MASK;  // TODO(afergs): High precision
+  const int subpel_y = mv.row & SUBPEL_MASK;  //               if has_scale
 
   src += (mv.row >> SUBPEL_BITS) * src_stride + (mv.col >> SUBPEL_BITS);
 

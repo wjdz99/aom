@@ -20,8 +20,12 @@ extern "C" {
 
 #define FILTER_BITS 7
 
+#define SCALING_EXT_BITS 6
+
 #define SUBPEL_BITS 4
 #define SUBPEL_MASK ((1 << SUBPEL_BITS) - 1)
+#define SUBPEL_EXT_BITS (SUBPEL_BITS + SCALING_EXT_BITS)
+#define SUBPEL_EXT_MASK ((1 << SUBPEL_EXT_BITS) - 1)
 #define SUBPEL_SHIFTS (1 << SUBPEL_BITS)
 #define SUBPEL_TAPS 8
 
