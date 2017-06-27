@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e925429_4a4133e9",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-06-27T19:16:20Z",
+      "side": 1,
+      "message": "I would suggest moving these code to a new file, e.g. hash_motion.h. Functions should be declared as static if possible; otherwise add an \"av1_\" prefix to the function name. Also, adding some brief comments for the structures and functions can make the code much easier for other people to understand.",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 6
+      },
+      "revId": "035396efc44374f02772217eba3d159c58fbaee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
