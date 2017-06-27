@@ -985,11 +985,8 @@ void av1_encode_sb_supertx(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
 
   for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
     const struct macroblockd_plane *const pd = &xd->plane[plane];
-#if CONFIG_VAR_TX
-    const TX_SIZE tx_size = TX_4X4;
-#else
     const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
-#endif
+
     av1_subtract_plane(x, bsize, plane);
     av1_get_entropy_contexts(bsize, tx_size, pd, ctx.ta[plane], ctx.tl[plane]);
     arg.ta = ctx.ta[plane];
