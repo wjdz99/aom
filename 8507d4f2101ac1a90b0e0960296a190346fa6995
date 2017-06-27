@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd9826a2_44167dcd",
+        "filename": "aom_dsp/aom_convolve.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-06-27T21:58:33Z",
+      "side": 1,
+      "message": "(x_q4 \u0026 SCALE_SUBPEL_MASK) \u003e\u003e SCALE_EXTRA_BITS\n\nhere and elsewhere below",
+      "revId": "8507d4f2101ac1a90b0e0960296a190346fa6995",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
