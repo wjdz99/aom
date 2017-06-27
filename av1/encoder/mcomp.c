@@ -1630,7 +1630,7 @@ static int fast_dia_search(MACROBLOCK *x, MV *ref_mv, int search_param,
 
 // Exhuastive motion search around a given centre position with a given
 // step size.
-static int exhuastive_mesh_search(MACROBLOCK *x, MV *ref_mv, MV *best_mv,
+static int exhuastive_mesh_search(MACROBLOCK *x, const MV *ref_mv, MV *best_mv,
                                   int range, int step, int sad_per_bit,
                                   const aom_variance_fn_ptr_t *fn_ptr,
                                   const MV *center_mv) {
@@ -2186,6 +2186,22 @@ static int full_pixel_exhaustive(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
   return bestsme;
 }
+
+#if CONFIG_INTRABC
+int av1_full_pixel_exhaustive_nonrecursive(const AV1_COMP *const cpi,
+                                           MACROBLOCK *x, BLOCK_SIZE bsize,
+                                           int sadpb, const MV *ref_mv) {
+  const int step = 1;
+  const int range = 256;
+  const MV f_ref_mv = { ref_mv->row >> 3, ref_mv->col >> 3 };
+  MV best_mv = f_ref_mv;
+  int bestsme = exhuastive_mesh_search(x, &f_ref_mv, &best_mv, range, step,
+                                       sadpb, &cpi->fn_ptr[bsize], &best_mv);
+  x->best_mv.as_mv = best_mv;
+
+  return bestsme;
+}
+#endif  // CONFIG_INTRABC
 
 int av1_full_search_sad_c(const MACROBLOCK *x, const MV *ref_mv,
                           int sad_per_bit, int distance,

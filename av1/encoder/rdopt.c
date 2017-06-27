@@ -8853,6 +8853,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 }
 
 #if CONFIG_INTRABC
+#define FULL_MESH 1
+
 static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
                                        RD_STATS *rd_cost, BLOCK_SIZE bsize,
                                        int64_t best_rd) {
@@ -8922,9 +8924,11 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
       case IBC_MOTION_LEFT:
         x->mv_limits.col_min = (tile->mi_col_start - mi_col) * MI_SIZE;
         x->mv_limits.col_max = (sb_col * MAX_MIB_SIZE - mi_col) * MI_SIZE - w;
-        // TODO(aconverse@google.com): Minimize the overlap between above and
-        // left areas.
+#if FULL_MESH
+        x->mv_limits.row_min = (sb_row * MAX_MIB_SIZE - mi_row) * MI_SIZE - h;
+#else
         x->mv_limits.row_min = (tile->mi_row_start - mi_row) * MI_SIZE;
+#endif
         int bottom_coded_mi_edge =
             AOMMIN((sb_row + 1) * MAX_MIB_SIZE, tile->mi_row_end);
         x->mv_limits.row_max = (bottom_coded_mi_edge - mi_row) * MI_SIZE - h;
@@ -8943,15 +8947,20 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
       continue;
     }
 
-    int step_param = cpi->mv_step_param;
+    int sadpb = x->sadperbit16;
     MV mvp_full = dv_ref.as_mv;
     mvp_full.col >>= 3;
     mvp_full.row >>= 3;
-    int sadpb = x->sadperbit16;
+#if FULL_MESH
+    int bestsme = av1_full_pixel_exhaustive_nonrecursive(cpi, x, bsize, sadpb,
+                                                         &dv_ref.as_mv);
+#else
+    int step_param = cpi->mv_step_param;
     int cost_list[5];
     int bestsme = av1_full_pixel_search(cpi, x, bsize, &mvp_full, step_param,
                                         sadpb, cond_cost_list(cpi, cost_list),
                                         &dv_ref.as_mv, INT_MAX, 1);
+#endif
 
     x->mv_limits = tmp_mv_limits;
     if (bestsme == INT_MAX) continue;

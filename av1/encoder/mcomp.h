@@ -162,4 +162,10 @@ unsigned int av1_refine_warped_mv(const struct AV1_COMP *cpi,
                                   int *pts_inref);
 #endif  // CONFIG_WARPED_MOTION
 
+#if CONFIG_INTRABC
+int av1_full_pixel_exhaustive_nonrecursive(const struct AV1_COMP *const cpi,
+                                           MACROBLOCK *x, BLOCK_SIZE bsize,
+                                           int sadpb, const MV *ref_mv);
+#endif
+
 #endif  // AV1_ENCODER_MCOMP_H_
