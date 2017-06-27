@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "17585e01_a1fa4686",
+        "filename": "tools.mk",
+        "patchSetId": 16
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T01:07:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cce48d93_2577e26f",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2a946643_dabccaf3",
         "filename": "tools.mk",
         "patchSetId": 16
@@ -39,6 +63,24 @@
       "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6ffaa27_1af50deb",
+        "filename": "tools.mk",
+        "patchSetId": 16
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T01:07:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a946643_dabccaf3",
+      "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "22b22aa2_8969efa7",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T01:07:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2571d8a9_7fb24fab",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d1da97f2_f244e0c8",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 16
@@ -79,6 +145,24 @@
       "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c72280d9_8ea20d32",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T01:07:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1da97f2_f244e0c8",
+      "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "394e91b1_b85aa6c8",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T01:07:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "200dd482_9275511f",
+      "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c0b3e150_ffaf9fd1",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 16
@@ -116,6 +218,24 @@
     },
     {
       "key": {
+        "uuid": "f9e12cc2_7906014c",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T01:07:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c0b3e150_ffaf9fd1",
+      "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2fad782e_52f78bb6",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 16
@@ -127,6 +247,24 @@
       "writtenOn": "2017-06-26T20:23:48Z",
       "side": 1,
       "message": "this could just be a parameter like the others I think; that or logged to the console given a command line options",
+      "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28d829e6_2e15819f",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T01:07:06Z",
+      "side": 1,
+      "message": "Need a bit more work, will have a separate patch. Thanks for the suggestion!",
+      "parentUuid": "2fad782e_52f78bb6",
       "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -150,6 +288,24 @@
     },
     {
       "key": {
+        "uuid": "056c4c3a_ebfcf320",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T01:07:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ec577dd_142b142a",
+      "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0159a6b0_34b1898b",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 16
@@ -161,6 +317,24 @@
       "writtenOn": "2017-06-26T20:23:48Z",
       "side": 1,
       "message": "prefer #if 0 around these blocks",
+      "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25b812b1_d403c5ab",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T01:07:06Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "0159a6b0_34b1898b",
       "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -181,6 +355,24 @@
       "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73727f70_d2b3875c",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T01:07:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be890f85_29b5dec8",
+      "revId": "40b583f3f3dfd983911f2d272ce390336820ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
