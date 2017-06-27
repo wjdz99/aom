@@ -1017,6 +1017,9 @@ static void write_segment_id(aom_writer *w, const struct segmentation *seg,
 
 // This function encodes the reference frame
 static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+#if CONFIG_SUPERTX && SUPERTX_NO_COMPOUND
+                             int supertx_enabled,
+#endif
                              aom_writer *w) {
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const int is_compound = has_second_ref(mbmi);
@@ -1035,8 +1038,12 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #if !SUB8X8_COMP_REF
       if (mbmi->sb_type != BLOCK_4X4)
 #endif
+#if CONFIG_SUPERTX && SUPERTX_NO_COMPOUND
+        if (!supertx_enabled)
+#endif
 #if CONFIG_NEW_MULTISYMBOL
-        aom_write_symbol(w, is_compound, av1_get_reference_mode_cdf(cm, xd), 2);
+          aom_write_symbol(w, is_compound, av1_get_reference_mode_cdf(cm, xd),
+                           2);
 #else
       aom_write(w, is_compound, av1_get_reference_mode_prob(cm, xd));
 #endif
@@ -1870,7 +1877,11 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_FILTER_INTRA
   } else {
     int16_t mode_ctx;
-    write_ref_frames(cm, xd, w);
+    write_ref_frames(cm, xd,
+#if CONFIG_SUPERTX && SUPERTX_NO_COMPOUND
+                     supertx_enabled,
+#endif
+                     w);
 
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
     if (!segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME)) {
@@ -2937,7 +2948,14 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
-  write_partition(cm, xd, hbs, mi_row, mi_col, partition, bsize, w);
+#if CONFIG_SUPERTX && SUPERTX_NO_DEEP_SPLIT
+  if (!supertx_enabled)
+#endif
+    write_partition(cm, xd, hbs, mi_row, mi_col, partition, bsize, w);
+#if CONFIG_SUPERTX && SUPERTX_NO_DEEP_SPLIT
+  else
+    assert(partition == PARTITION_NONE);
+#endif
 #if CONFIG_SUPERTX
   mbmi = &cm->mi_grid_visible[mi_offset]->mbmi;
   xd->mi = cm->mi_grid_visible + mi_offset;
@@ -2948,8 +2966,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 #endif  // CONFIG_DEPENDENT_HORZTILES
                  cm->mi_rows, cm->mi_cols);
   if (!supertx_enabled && !frame_is_intra_only(cm) &&
-      partition != PARTITION_NONE && bsize <= MAX_SUPERTX_BLOCK_SIZE &&
-      !xd->lossless[0]) {
+      supertx_allowed(bsize, partition) && !xd->lossless[0]) {
     aom_prob prob;
     supertx_size = max_txsize_lookup[bsize];
     prob = cm->fc->supertx_prob[partition_supertx_context_lookup[partition]]
@@ -3104,6 +3121,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 
         TOKEN_STATS token_stats;
         token_stats.cost = 0;
+        init_token_stats(&token_stats);
         for (row = 0; row < max_blocks_high; row += stepr)
           for (col = 0; col < max_blocks_wide; col += stepc)
             pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx, &token_stats);

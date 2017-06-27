@@ -11661,6 +11661,31 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         *returnrate_nocoef -= x->motion_mode_cost[bsize][mbmi->motion_mode];
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+#if CONFIG_EXT_INTER && CONFIG_INTERINTRA
+        if (is_interintra_allowed(mbmi)) {
+          *returnrate_nocoef -=
+              av1_cost_bit(cm->fc->interintra_prob[size_group_lookup[bsize]],
+                           mbmi->ref_frame[1] == INTRA_FRAME);
+          if (mbmi->ref_frame[1] == INTRA_FRAME) {
+            *returnrate_nocoef -=
+                x->interintra_mode_cost[size_group_lookup[bsize]]
+                                       [mbmi->interintra_mode];
+            if (is_interintra_wedge_used(bsize)) {
+              *returnrate_nocoef -=
+                  av1_cost_bit(cm->fc->wedge_interintra_prob[bsize],
+                               mbmi->use_wedge_interintra);
+              if (mbmi->use_wedge_interintra) {
+                *returnrate_nocoef -=
+                    av1_cost_literal(get_interintra_wedge_bits(bsize));
+              }
+            }
+          }
+        }
+#endif  // CONFIG_EXT_INTER && CONFIG_INTERINTRA
+#if SUPERTX_NO_COMPOUND
+        if (cm->reference_mode == REFERENCE_MODE_SELECT)
+          *returnrate_nocoef -= compmode_cost;
+#endif
 #endif  // CONFIG_SUPERTX
         rd_cost->dist = distortion2;
         rd_cost->rdcost = this_rd;
