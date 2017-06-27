@@ -85,7 +85,11 @@ static void predict_superblock(const AV1_COMP *const cpi, ThreadData *td,
                                int mi_row_ori, int mi_col_ori,
 #endif  // CONFIG_EXT_INTER
                                int mi_row_pred, int mi_col_pred, int plane,
-                               BLOCK_SIZE bsize_pred, int b_sub8x8, int block);
+                               BLOCK_SIZE bsize_pred, int b_sub8x8,
+#if CONFIG_CHROMA_SUB8X8
+                               int is_ext,
+#endif
+                               int block);
 static int check_supertx_sb(BLOCK_SIZE bsize, TX_SIZE supertx_size,
                             PC_TREE *pc_tree);
 static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
@@ -407,13 +411,16 @@ static void set_offsets_extend(const AV1_COMP *const cpi, ThreadData *td,
   assert(!(mi_col_pred & (mi_width - mi_size_wide[BLOCK_8X8])) &&
          !(mi_row_pred & (mi_height - mi_size_high[BLOCK_8X8])));
 #endif
-  set_mi_row_col(xd, tile, mi_row_pred, mi_height, mi_col_pred, mi_width,
+  set_mi_row_col(xd, tile, mi_row_ori, mi_height, mi_col_ori, mi_width,
 #if CONFIG_DEPENDENT_HORZTILES
                  cm->dependent_horz_tiles,
 #endif  // CONFIG_DEPENDENT_HORZTILES
                  cm->mi_rows, cm->mi_cols);
-  xd->up_available = (mi_row_ori > tile->mi_row_start);
-  xd->left_available = (mi_col_ori > tile->mi_col_start);
+  xd->mb_to_top_edge = -((mi_row_pred * MI_SIZE) * 8);
+  xd->mb_to_bottom_edge =
+      ((cm->mi_rows - mi_height - mi_row_pred) * MI_SIZE) * 8;
+  xd->mb_to_left_edge = -((mi_col_pred * MI_SIZE) * 8);
+  xd->mb_to_right_edge = ((cm->mi_cols - mi_width - mi_col_pred) * MI_SIZE) * 8;
 
   // R/D setup.
   x->rdmult = cpi->rd.RDMULT;
@@ -855,18 +862,17 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
 
   if (!is_inter_block(mbmi) || mbmi->skip)
     mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
-#endif  // CONFIG_VAR_TX
 
-#if CONFIG_VAR_TX
   {
     const TX_SIZE mtx = mbmi->tx_size;
-    const int num_4x4_blocks_wide = tx_size_wide_unit[mtx] >> 1;
-    const int num_4x4_blocks_high = tx_size_high_unit[mtx] >> 1;
+
+    const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
+    const int height = block_size_high[bsize] >> tx_size_high_log2[0];
     int idy, idx;
     mbmi->inter_tx_size[0][0] = mtx;
-    for (idy = 0; idy < num_4x4_blocks_high; ++idy)
-      for (idx = 0; idx < num_4x4_blocks_wide; ++idx)
-        mbmi->inter_tx_size[idy][idx] = mtx;
+    for (idy = 0; idy < height; ++idy)
+      for (idx = 0; idx < width; ++idx)
+        mbmi->inter_tx_size[idy >> 1][idx >> 1] = mtx;
   }
 #endif  // CONFIG_VAR_TX
   // Turn motion variation off for supertx
@@ -3605,7 +3611,6 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       if (supertx_allowed && sum_rdc.rdcost < INT64_MAX) {
         TX_SIZE supertx_size = max_txsize_lookup[bsize];
         const PARTITION_TYPE best_partition = pc_tree->partitioning;
-
         pc_tree->partitioning = PARTITION_SPLIT;
 
         sum_rdc.rate += av1_cost_bit(
@@ -6080,7 +6085,11 @@ static void predict_superblock(const AV1_COMP *const cpi, ThreadData *td,
                                int mi_row_ori, int mi_col_ori,
 #endif  // CONFIG_EXT_INTER
                                int mi_row_pred, int mi_col_pred, int plane,
-                               BLOCK_SIZE bsize_pred, int b_sub8x8, int block) {
+                               BLOCK_SIZE bsize_pred, int b_sub8x8,
+#if CONFIG_CHROMA_SUB8X8
+                               int is_ext,
+#endif
+                               int block) {
   // Used in supertx
   // (mi_row_ori, mi_col_ori): location for mv
   // (mi_row_pred, mi_col_pred, bsize_pred): region to predict
@@ -6117,6 +6126,9 @@ static void predict_superblock(const AV1_COMP *const cpi, ThreadData *td,
                                         mi_row_ori, mi_col_ori,
 #endif  // CONFIG_EXT_INTER
                                         mi_row_pred, mi_col_pred, plane,
+#if CONFIG_CHROMA_SUB8X8
+                                        is_ext,
+#endif
                                         bsize_pred);
   else
     av1_build_inter_predictor_sb_sub8x8_extend(cm, xd,
@@ -6124,6 +6136,9 @@ static void predict_superblock(const AV1_COMP *const cpi, ThreadData *td,
                                                mi_row_ori, mi_col_ori,
 #endif  // CONFIG_EXT_INTER
                                                mi_row_pred, mi_col_pred, plane,
+#if CONFIG_CHROMA_SUB8X8
+                                               is_ext,
+#endif
                                                bsize_pred, block);
 }
 
@@ -6133,7 +6148,7 @@ static void predict_b_extend(const AV1_COMP *const cpi, ThreadData *td,
                              int mi_col_pred, int mi_row_top, int mi_col_top,
                              int plane, uint8_t *dst_buf, int dst_stride,
                              BLOCK_SIZE bsize_top, BLOCK_SIZE bsize_pred,
-                             RUN_TYPE dry_run, int b_sub8x8) {
+                             RUN_TYPE dry_run, int b_sub8x8, int is_ext) {
   // Used in supertx
   // (mi_row_ori, mi_col_ori): location for mv
   // (mi_row_pred, mi_col_pred, bsize_pred): region to predict
@@ -6158,22 +6173,49 @@ static void predict_b_extend(const AV1_COMP *const cpi, ThreadData *td,
 
   set_offsets_extend(cpi, td, tile, mi_row_pred, mi_col_pred, mi_row_ori,
                      mi_col_ori, bsize_pred);
-  xd->plane[plane].dst.stride = dst_stride;
-  xd->plane[plane].dst.buf =
-      dst_buf + (r >> xd->plane[plane].subsampling_y) * dst_stride +
-      (c >> xd->plane[plane].subsampling_x);
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  pd->dst.stride = dst_stride;
+  pd->dst.buf = dst_buf + (r >> xd->plane[plane].subsampling_y) * dst_stride +
+                (c >> xd->plane[plane].subsampling_x);
+#if CONFIG_CHROMA_SUB8X8
+  if (!is_ext && need_handle_chroma_sub8x8(bsize_pred, pd->subsampling_x,
+                                           pd->subsampling_y)) {
+    // Offset the buffer pointer
+    int mi_row_offset = 0;
+    int mi_col_offset = 0;
+
+    if (pd->subsampling_y && (mi_row_ori & 0x01)) mi_row_offset = -1;
+    if (pd->subsampling_x && (mi_col_ori & 0x01)) mi_col_offset = -1;
+
+    pd->dst.buf +=
+        ((MI_SIZE * mi_col_offset) >> pd->subsampling_x) +
+        ((MI_SIZE * mi_row_offset * pd->dst.stride) >> pd->subsampling_y);
+  }
+#endif
 
   predict_superblock(cpi, td,
 #if CONFIG_EXT_INTER
                      mi_row_ori, mi_col_ori,
 #endif  // CONFIG_EXT_INTER
                      mi_row_pred, mi_col_pred, plane, bsize_pred, b_sub8x8,
+#if CONFIG_CHROMA_SUB8X8
+                     is_ext,
+#endif
                      block);
 
-  if (!dry_run && (plane == 0) && (block == 0 || !b_sub8x8))
-    update_stats(&cpi->common, td, mi_row_pred, mi_col_pred, 1);
+  if (!dry_run && !is_ext && (plane == 0) && (block == 0 || !b_sub8x8))
+    update_stats(&cpi->common, td, mi_row_ori, mi_col_ori, 1);
 }
 
+// dir: extended region
+//   0: bottom
+//   1: above
+//   2: left
+//   3: right
+//   4: bottom-left
+//   5: above-left
+//   6: bottom-right
+//   7: above-right
 static void extend_dir(const AV1_COMP *const cpi, ThreadData *td,
                        const TileInfo *const tile, int block, BLOCK_SIZE bsize,
                        BLOCK_SIZE top_bsize, int mi_row_ori, int mi_col_ori,
@@ -6181,93 +6223,72 @@ static void extend_dir(const AV1_COMP *const cpi, ThreadData *td,
                        int plane, uint8_t *dst_buf, int dst_stride, int dir) {
   // dir: 0-lower, 1-upper, 2-left, 3-right
   //      4-lowerleft, 5-upperleft, 6-lowerright, 7-upperright
-  MACROBLOCKD *xd = &td->mb.e_mbd;
   const int mi_width = mi_size_wide[bsize];
   const int mi_height = mi_size_high[bsize];
-  int xss = xd->plane[1].subsampling_x;
-  int yss = xd->plane[1].subsampling_y;
-#if CONFIG_CB4X4
-  const int unify_bsize = 1;
-#else
-  const int unify_bsize = 0;
-#endif
-  int b_sub8x8 = (bsize < BLOCK_8X8) && !unify_bsize ? 1 : 0;
   int wide_unit, high_unit;
   int i, j;
-  int ext_offset = 0;
-
-  BLOCK_SIZE extend_bsize;
+  int mi_width_ext;
+  int mi_height_ext;
+  BLOCK_SIZE ext_bsize_unit;
   int mi_row_pred, mi_col_pred;
 
-  if (dir == 0 || dir == 1) {  // lower and upper
-    extend_bsize =
-        (mi_width == mi_size_wide[BLOCK_8X8] || bsize < BLOCK_8X8 || xss < yss)
-            ? BLOCK_8X8
-            : BLOCK_16X8;
-
 #if CONFIG_CB4X4
-    if (bsize < BLOCK_8X8) {
-      extend_bsize = BLOCK_4X4;
-      ext_offset = mi_size_wide[BLOCK_8X8];
-    }
+  if (bsize < BLOCK_8X8)
+    ext_bsize_unit = BLOCK_4X4;
+  else
 #endif
-    wide_unit = mi_size_wide[extend_bsize];
-    high_unit = mi_size_high[extend_bsize];
+    ext_bsize_unit = BLOCK_8X8;
+  wide_unit = mi_size_wide[ext_bsize_unit];
+  high_unit = mi_size_high[ext_bsize_unit];
 
-    mi_row_pred = mi_row + ((dir == 0) ? mi_height : -(mi_height + ext_offset));
+  if (dir == 0 || dir == 1) {  // lower and upper
+    mi_width_ext = mi_width;
+    mi_height_ext = bsize < BLOCK_8X8 ? mi_size_high[BLOCK_8X8] : mi_height;
+    wide_unit = mi_size_wide[ext_bsize_unit];
+    high_unit = mi_size_high[ext_bsize_unit];
+
+    mi_row_pred = mi_row + ((dir == 0) ? mi_height : -(mi_height_ext));
     mi_col_pred = mi_col;
 
-    for (j = 0; j < mi_height + ext_offset; j += high_unit)
-      for (i = 0; i < mi_width + ext_offset; i += wide_unit)
+    for (j = 0; j < mi_height_ext; j += high_unit)
+      for (i = 0; i < mi_width_ext; i += wide_unit)
         predict_b_extend(cpi, td, tile, block, mi_row_ori, mi_col_ori,
                          mi_row_pred + j, mi_col_pred + i, mi_row_top,
                          mi_col_top, plane, dst_buf, dst_stride, top_bsize,
-                         extend_bsize, 1, b_sub8x8);
+                         ext_bsize_unit, 1, 0, 1);
   } else if (dir == 2 || dir == 3) {  // left and right
-    extend_bsize =
-        (mi_height == mi_size_high[BLOCK_8X8] || bsize < BLOCK_8X8 || yss < xss)
-            ? BLOCK_8X8
-            : BLOCK_8X16;
-#if CONFIG_CB4X4
-    if (bsize < BLOCK_8X8) {
-      extend_bsize = BLOCK_4X4;
-      ext_offset = mi_size_wide[BLOCK_8X8];
-    }
-#endif
-    wide_unit = mi_size_wide[extend_bsize];
-    high_unit = mi_size_high[extend_bsize];
+    mi_width_ext = bsize < BLOCK_8X8 ? mi_size_wide[BLOCK_8X8] : mi_width;
+    mi_height_ext = mi_height;
+    wide_unit = mi_size_wide[ext_bsize_unit];
+    high_unit = mi_size_high[ext_bsize_unit];
 
     mi_row_pred = mi_row;
-    mi_col_pred = mi_col + ((dir == 3) ? mi_width : -(mi_width + ext_offset));
+    mi_col_pred = mi_col + ((dir == 3) ? mi_width : -(mi_width_ext));
 
-    for (j = 0; j < mi_height + ext_offset; j += high_unit)
-      for (i = 0; i < mi_width + ext_offset; i += wide_unit)
+    for (j = 0; j < mi_height_ext; j += high_unit)
+      for (i = 0; i < mi_width_ext; i += wide_unit)
         predict_b_extend(cpi, td, tile, block, mi_row_ori, mi_col_ori,
                          mi_row_pred + j, mi_col_pred + i, mi_row_top,
                          mi_col_top, plane, dst_buf, dst_stride, top_bsize,
-                         extend_bsize, 1, b_sub8x8);
+                         ext_bsize_unit, 1, 0, 1);
   } else {
-    extend_bsize = BLOCK_8X8;
-#if CONFIG_CB4X4
-    if (bsize < BLOCK_8X8) {
-      extend_bsize = BLOCK_4X4;
-      ext_offset = mi_size_wide[BLOCK_8X8];
-    }
-#endif
-    wide_unit = mi_size_wide[extend_bsize];
-    high_unit = mi_size_high[extend_bsize];
+    mi_width_ext = AOMMAX(AOMMAX(mi_width, mi_height), mi_size_wide[BLOCK_8X8]);
+    mi_height_ext =
+        AOMMAX(AOMMAX(mi_width, mi_height), mi_size_high[BLOCK_8X8]);
+    wide_unit = mi_size_wide[ext_bsize_unit];
+    high_unit = mi_size_high[ext_bsize_unit];
 
-    mi_row_pred = mi_row + ((dir == 4 || dir == 6) ? mi_height
-                                                   : -(mi_height + ext_offset));
+    mi_row_pred =
+        mi_row + ((dir == 4 || dir == 6) ? mi_height : -(mi_height_ext));
     mi_col_pred =
-        mi_col + ((dir == 6 || dir == 7) ? mi_width : -(mi_width + ext_offset));
+        mi_col + ((dir == 6 || dir == 7) ? mi_width : -(mi_width_ext));
 
-    for (j = 0; j < mi_height + ext_offset; j += high_unit)
-      for (i = 0; i < mi_width + ext_offset; i += wide_unit)
+    for (j = 0; j < mi_height_ext; j += high_unit)
+      for (i = 0; i < mi_width_ext; i += wide_unit)
         predict_b_extend(cpi, td, tile, block, mi_row_ori, mi_col_ori,
                          mi_row_pred + j, mi_col_pred + i, mi_row_top,
                          mi_col_top, plane, dst_buf, dst_stride, top_bsize,
-                         extend_bsize, 1, b_sub8x8);
+                         ext_bsize_unit, 1, 0, 1);
   }
 }
 
@@ -6378,7 +6399,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
       for (i = 0; i < MAX_MB_PLANE; ++i) {
         predict_b_extend(cpi, td, tile, 0, mi_row, mi_col, mi_row, mi_col,
                          mi_row_top, mi_col_top, i, dst_buf[i], dst_stride[i],
-                         top_bsize, bsize, dry_run, 0);
+                         top_bsize, bsize, dry_run, 0, 0);
         extend_all(cpi, td, tile, 0, bsize, top_bsize, mi_row, mi_col, mi_row,
                    mi_col, mi_row_top, mi_col_top, i, dst_buf[i],
                    dst_stride[i]);
@@ -6390,7 +6411,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
           // First half
           predict_b_extend(cpi, td, tile, 0, mi_row, mi_col, mi_row, mi_col,
                            mi_row_top, mi_col_top, i, dst_buf[i], dst_stride[i],
-                           top_bsize, BLOCK_8X8, dry_run, 1);
+                           top_bsize, BLOCK_8X8, dry_run, 1, 0);
           if (bsize < top_bsize)
             extend_all(cpi, td, tile, 0, subsize, top_bsize, mi_row, mi_col,
                        mi_row, mi_col, mi_row_top, mi_col_top, i, dst_buf[i],
@@ -6399,7 +6420,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
           // Second half
           predict_b_extend(cpi, td, tile, 2, mi_row, mi_col, mi_row, mi_col,
                            mi_row_top, mi_col_top, i, dst_buf1[i],
-                           dst_stride1[i], top_bsize, BLOCK_8X8, dry_run, 1);
+                           dst_stride1[i], top_bsize, BLOCK_8X8, dry_run, 1, 0);
           if (bsize < top_bsize)
             extend_all(cpi, td, tile, 2, subsize, top_bsize, mi_row, mi_col,
                        mi_row, mi_col, mi_row_top, mi_col_top, i, dst_buf1[i],
@@ -6415,7 +6436,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
             0);
       } else {
         for (i = 0; i < MAX_MB_PLANE; ++i) {
-#if CONFIG_CB4X4
+#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
           const struct macroblockd_plane *pd = &xd->plane[i];
           int handle_chroma_sub8x8 = need_handle_chroma_sub8x8(
               subsize, pd->subsampling_x, pd->subsampling_y);
@@ -6423,20 +6444,41 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
           if (handle_chroma_sub8x8) {
             int mode_offset_row = CONFIG_CHROMA_SUB8X8 ? hbs : 0;
 
+            // chroma of the whole 8x8 will be handled at one time here
             predict_b_extend(cpi, td, tile, 0, mi_row + mode_offset_row, mi_col,
-                             mi_row, mi_col, mi_row_top, mi_col_top, i,
-                             dst_buf[i], dst_stride[i], top_bsize, bsize,
-                             dry_run, 0);
+                             mi_row + mode_offset_row, mi_col, mi_row_top,
+                             mi_col_top, i, dst_buf[i], dst_stride[i],
+                             top_bsize, subsize, dry_run, 0, 0);
+#if CONFIG_CHROMA_SUB8X8
+            // No inner blending, cannot extend in all directions
+            if (bsize < top_bsize) {
+              for (int dir = 0; dir < 8; ++dir) {
+                if (dir == 0 || dir == 4 || dir == 6) continue;
+                extend_dir(cpi, td, tile, 0, subsize, top_bsize, mi_row, mi_col,
+                           mi_row, mi_col, mi_row_top, mi_col_top, i,
+                           dst_buf[i], dst_stride[i], dir);
+              }
+              if (mi_row + hbs < cm->mi_rows) {
+                for (int dir = 0; dir < 8; ++dir) {
+                  if (dir == 1 || dir == 7 || dir == 5) continue;
+                  extend_dir(cpi, td, tile, 0, subsize, top_bsize, mi_row + hbs,
+                             mi_col, mi_row + hbs, mi_col, mi_row_top,
+                             mi_col_top, i, dst_buf[i], dst_stride[i], dir);
+                }
+              }
+            }
+#else
             if (bsize < top_bsize)
               extend_all(cpi, td, tile, 0, bsize, top_bsize,
                          mi_row + mode_offset_row, mi_col, mi_row, mi_col,
                          mi_row_top, mi_col_top, i, dst_buf[i], dst_stride[i]);
+#endif
           } else {
 #endif
             // First half
             predict_b_extend(cpi, td, tile, 0, mi_row, mi_col, mi_row, mi_col,
                              mi_row_top, mi_col_top, i, dst_buf[i],
-                             dst_stride[i], top_bsize, subsize, dry_run, 0);
+                             dst_stride[i], top_bsize, subsize, dry_run, 0, 0);
             if (bsize < top_bsize)
               extend_all(cpi, td, tile, 0, subsize, top_bsize, mi_row, mi_col,
                          mi_row, mi_col, mi_row_top, mi_col_top, i, dst_buf[i],
@@ -6453,7 +6495,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
               predict_b_extend(cpi, td, tile, 0, mi_row + hbs, mi_col,
                                mi_row + hbs, mi_col, mi_row_top, mi_col_top, i,
                                dst_buf1[i], dst_stride1[i], top_bsize, subsize,
-                               dry_run, 0);
+                               dry_run, 0, 0);
               if (bsize < top_bsize)
                 extend_all(cpi, td, tile, 0, subsize, top_bsize, mi_row + hbs,
                            mi_col, mi_row + hbs, mi_col, mi_row_top, mi_col_top,
@@ -6470,7 +6512,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
                   mi_row, mi_col, mi_row_top, mi_col_top, bsize, top_bsize,
                   PARTITION_HORZ, i);
             }
-#if CONFIG_CB4X4
+#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
           }
 #endif
         }
@@ -6482,7 +6524,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
           // First half
           predict_b_extend(cpi, td, tile, 0, mi_row, mi_col, mi_row, mi_col,
                            mi_row_top, mi_col_top, i, dst_buf[i], dst_stride[i],
-                           top_bsize, BLOCK_8X8, dry_run, 1);
+                           top_bsize, BLOCK_8X8, dry_run, 1, 0);
           if (bsize < top_bsize)
             extend_all(cpi, td, tile, 0, subsize, top_bsize, mi_row, mi_col,
                        mi_row, mi_col, mi_row_top, mi_col_top, i, dst_buf[i],
@@ -6491,7 +6533,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
           // Second half
           predict_b_extend(cpi, td, tile, 1, mi_row, mi_col, mi_row, mi_col,
                            mi_row_top, mi_col_top, i, dst_buf1[i],
-                           dst_stride1[i], top_bsize, BLOCK_8X8, dry_run, 1);
+                           dst_stride1[i], top_bsize, BLOCK_8X8, dry_run, 1, 0);
           if (bsize < top_bsize)
             extend_all(cpi, td, tile, 1, subsize, top_bsize, mi_row, mi_col,
                        mi_row, mi_col, mi_row_top, mi_col_top, i, dst_buf1[i],
@@ -6507,7 +6549,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
             0);
       } else {
         for (i = 0; i < MAX_MB_PLANE; ++i) {
-#if CONFIG_CB4X4
+#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
           const struct macroblockd_plane *pd = &xd->plane[i];
           int handle_chroma_sub8x8 = need_handle_chroma_sub8x8(
               subsize, pd->subsampling_x, pd->subsampling_y);
@@ -6516,18 +6558,37 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
             int mode_offset_col = CONFIG_CHROMA_SUB8X8 ? hbs : 0;
 
             predict_b_extend(cpi, td, tile, 0, mi_row, mi_col + mode_offset_col,
-                             mi_row, mi_col, mi_row_top, mi_col_top, i,
-                             dst_buf[i], dst_stride[i], top_bsize, bsize,
-                             dry_run, 0);
+                             mi_row, mi_col + mode_offset_col, mi_row_top,
+                             mi_col_top, i, dst_buf[i], dst_stride[i],
+                             top_bsize, subsize, dry_run, 0, 0);
+#if CONFIG_CHROMA_SUB8X8
+            if (bsize < top_bsize) {
+              for (int dir = 0; dir < 8; ++dir) {
+                if (dir == 3 || dir == 6 || dir == 7) continue;
+                extend_dir(cpi, td, tile, 0, subsize, top_bsize, mi_row, mi_col,
+                           mi_row, mi_col, mi_row_top, mi_col_top, i,
+                           dst_buf[i], dst_stride[i], dir);
+              }
+              if (mi_col + hbs < cm->mi_cols) {
+                for (int dir = 0; dir < 8; ++dir) {
+                  if (dir == 2 || dir == 4 || dir == 5) continue;
+                  extend_dir(cpi, td, tile, 0, subsize, top_bsize, mi_row,
+                             mi_col + hbs, mi_row, mi_col + hbs, mi_row_top,
+                             mi_col_top, i, dst_buf[i], dst_stride[i], dir);
+                }
+              }
+            }
+#else
             if (bsize < top_bsize)
               extend_all(cpi, td, tile, 0, bsize, top_bsize, mi_row,
                          mi_col + mode_offset_col, mi_row, mi_col, mi_row_top,
                          mi_col_top, i, dst_buf[i], dst_stride[i]);
+#endif
           } else {
 #endif
             predict_b_extend(cpi, td, tile, 0, mi_row, mi_col, mi_row, mi_col,
                              mi_row_top, mi_col_top, i, dst_buf[i],
-                             dst_stride[i], top_bsize, subsize, dry_run, 0);
+                             dst_stride[i], top_bsize, subsize, dry_run, 0, 0);
             if (bsize < top_bsize)
               extend_all(cpi, td, tile, 0, subsize, top_bsize, mi_row, mi_col,
                          mi_row, mi_col, mi_row_top, mi_col_top, i, dst_buf[i],
@@ -6543,7 +6604,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
               predict_b_extend(cpi, td, tile, 0, mi_row, mi_col + hbs, mi_row,
                                mi_col + hbs, mi_row_top, mi_col_top, i,
                                dst_buf1[i], dst_stride1[i], top_bsize, subsize,
-                               dry_run, 0);
+                               dry_run, 0, 0);
               if (bsize < top_bsize)
                 extend_all(cpi, td, tile, 0, subsize, top_bsize, mi_row,
                            mi_col + hbs, mi_row, mi_col + hbs, mi_row_top,
@@ -6561,7 +6622,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
                   mi_row, mi_col, mi_row_top, mi_col_top, bsize, top_bsize,
                   PARTITION_VERT, i);
             }
-#if CONFIG_CB4X4
+#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
           }
 #endif
         }
@@ -6572,16 +6633,16 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
         for (i = 0; i < MAX_MB_PLANE; i++) {
           predict_b_extend(cpi, td, tile, 0, mi_row, mi_col, mi_row, mi_col,
                            mi_row_top, mi_col_top, i, dst_buf[i], dst_stride[i],
-                           top_bsize, BLOCK_8X8, dry_run, 1);
+                           top_bsize, BLOCK_8X8, dry_run, 1, 0);
           predict_b_extend(cpi, td, tile, 1, mi_row, mi_col, mi_row, mi_col,
                            mi_row_top, mi_col_top, i, dst_buf1[i],
-                           dst_stride1[i], top_bsize, BLOCK_8X8, dry_run, 1);
+                           dst_stride1[i], top_bsize, BLOCK_8X8, dry_run, 1, 0);
           predict_b_extend(cpi, td, tile, 2, mi_row, mi_col, mi_row, mi_col,
                            mi_row_top, mi_col_top, i, dst_buf2[i],
-                           dst_stride2[i], top_bsize, BLOCK_8X8, dry_run, 1);
+                           dst_stride2[i], top_bsize, BLOCK_8X8, dry_run, 1, 0);
           predict_b_extend(cpi, td, tile, 3, mi_row, mi_col, mi_row, mi_col,
                            mi_row_top, mi_col_top, i, dst_buf3[i],
-                           dst_stride3[i], top_bsize, BLOCK_8X8, dry_run, 1);
+                           dst_stride3[i], top_bsize, BLOCK_8X8, dry_run, 1, 0);
 
           if (bsize < top_bsize) {
             extend_all(cpi, td, tile, 0, subsize, top_bsize, mi_row, mi_col,
@@ -6598,7 +6659,7 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
                        dst_stride3[i]);
           }
         }
-#if CONFIG_CB4X4
+#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
       } else if (bsize == BLOCK_8X8) {
         for (i = 0; i < MAX_MB_PLANE; i++) {
           const struct macroblockd_plane *pd = &xd->plane[i];
@@ -6612,33 +6673,78 @@ static void predict_sb_complex(const AV1_COMP *const cpi, ThreadData *td,
                 CONFIG_CHROMA_SUB8X8 && mi_col + hbs < cm->mi_cols ? hbs : 0;
 
             predict_b_extend(cpi, td, tile, 0, mi_row + mode_offset_row,
-                             mi_col + mode_offset_col, mi_row, mi_col,
-                             mi_row_top, mi_col_top, i, dst_buf[i],
-                             dst_stride[i], top_bsize, BLOCK_8X8, dry_run, 0);
+                             mi_col + mode_offset_col, mi_row + mode_offset_row,
+                             mi_col + mode_offset_col, mi_row_top, mi_col_top,
+                             i, dst_buf[i], dst_stride[i], top_bsize, subsize,
+                             dry_run, 0, 0);
+
+#if CONFIG_CHROMA_SUB8X8
+            if (bsize < top_bsize) {
+              int dir;
+
+              for (dir = 0; dir < 8; ++dir) {
+                if (dir == 1 || dir == 2 || dir == 5) {
+                  extend_dir(cpi, td, tile, 0, subsize, top_bsize, mi_row,
+                             mi_col, mi_row, mi_col, mi_row_top, mi_col_top, i,
+                             dst_buf[i], dst_stride[i], dir);
+                }
+              }
+
+              if (mi_row < cm->mi_rows && mi_col + hbs < cm->mi_cols) {
+                for (dir = 0; dir < 8; ++dir) {
+                  if (dir == 1 || dir == 3 || dir == 7) {
+                    extend_dir(cpi, td, tile, 0, subsize, top_bsize, mi_row,
+                               mi_col + hbs, mi_row, mi_col + hbs, mi_row_top,
+                               mi_col_top, i, dst_buf[i], dst_stride[i], dir);
+                  }
+                }
+              }
+
+              if (mi_row + hbs < cm->mi_rows && mi_col < cm->mi_cols) {
+                for (dir = 0; dir < 8; ++dir) {
+                  if (dir == 0 || dir == 2 || dir == 4) {
+                    extend_dir(cpi, td, tile, 0, subsize, top_bsize,
+                               mi_row + hbs, mi_col, mi_row + hbs, mi_col,
+                               mi_row_top, mi_col_top, i, dst_buf[i],
+                               dst_stride[i], dir);
+                  }
+                }
+              }
+
+              if (mi_row + hbs < cm->mi_rows && mi_col + hbs < cm->mi_cols) {
+                for (dir = 0; dir < 8; ++dir) {
+                  if (dir == 0 || dir == 3 || dir == 6) {
+                    extend_dir(cpi, td, tile, 0, subsize, top_bsize,
+                               mi_row + hbs, mi_col + hbs, mi_row + hbs,
+                               mi_col + hbs, mi_row_top, mi_col_top, i,
+                               dst_buf[i], dst_stride[i], dir);
+                  }
+                }
+              }
+            }
+#else
             if (bsize < top_bsize)
-              extend_all(cpi, td, tile, 0, BLOCK_8X8, top_bsize,
-                         mi_row + mode_offset_row, mi_col + mode_offset_col,
+              extend_all(cpi, td, tile, 0, BLOCK_8X8, top_bsize, mi_row, mi_col,
                          mi_row, mi_col, mi_row_top, mi_col_top, i, dst_buf[i],
                          dst_stride[i]);
+#endif
           } else {
             predict_b_extend(cpi, td, tile, 0, mi_row, mi_col, mi_row, mi_col,
                              mi_row_top, mi_col_top, i, dst_buf[i],
-                             dst_stride[i], top_bsize, subsize, dry_run, 0);
+                             dst_stride[i], top_bsize, bsize, dry_run, 0, 0);
             if (mi_row < cm->mi_rows && mi_col + hbs < cm->mi_cols)
               predict_b_extend(cpi, td, tile, 0, mi_row, mi_col + hbs, mi_row,
-                               mi_col + hbs, mi_row_top, mi_col_top, i,
-                               dst_buf1[i], dst_stride1[i], top_bsize, subsize,
-                               dry_run, 0);
+                               mi_col, mi_row_top, mi_col_top, i, dst_buf1[i],
+                               dst_stride1[i], top_bsize, bsize, dry_run, 0, 0);
             if (mi_row + hbs < cm->mi_rows && mi_col < cm->mi_cols)
-              predict_b_extend(cpi, td, tile, 0, mi_row + hbs, mi_col,
-                               mi_row + hbs, mi_col, mi_row_top, mi_col_top, i,
-                               dst_buf2[i], dst_stride2[i], top_bsize, subsize,
-                               dry_run, 0);
+              predict_b_extend(cpi, td, tile, 0, mi_row + hbs, mi_col, mi_row,
+                               mi_col, mi_row_top, mi_col_top, i, dst_buf2[i],
+                               dst_stride2[i], top_bsize, bsize, dry_run, 0, 0);
             if (mi_row + hbs < cm->mi_rows && mi_col + hbs < cm->mi_cols)
               predict_b_extend(cpi, td, tile, 0, mi_row + hbs, mi_col + hbs,
-                               mi_row + hbs, mi_col + hbs, mi_row_top,
-                               mi_col_top, i, dst_buf3[i], dst_stride3[i],
-                               top_bsize, subsize, dry_run, 0);
+                               mi_row, mi_col, mi_row_top, mi_col_top, i,
+                               dst_buf3[i], dst_stride3[i], top_bsize, bsize,
+                               dry_run, 0, 0);
 
             if (bsize < top_bsize) {
               extend_all(cpi, td, tile, 0, subsize, top_bsize, mi_row, mi_col,
