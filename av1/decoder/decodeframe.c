@@ -873,14 +873,15 @@ static MB_MODE_INFO *set_offsets_extend(AV1_COMMON *const cm,
   const int offset = mi_row_ori * cm->mi_stride + mi_col_ori;
   xd->mi = cm->mi_grid_visible + offset;
   xd->mi[0] = cm->mi + offset;
-  set_mi_row_col(xd, tile, mi_row_pred, bh, mi_col_pred, bw,
+  set_mi_row_col(xd, tile, mi_row_ori, bh, mi_col_ori, bw,
 #if CONFIG_DEPENDENT_HORZTILES
                  cm->dependent_horz_tiles,
 #endif  // CONFIG_DEPENDENT_HORZTILES
                  cm->mi_rows, cm->mi_cols);
-
-  xd->up_available = (mi_row_ori > tile->mi_row_start);
-  xd->left_available = (mi_col_ori > tile->mi_col_start);
+  xd->mb_to_top_edge = -((mi_row_pred * MI_SIZE) * 8);
+  xd->mb_to_bottom_edge = ((cm->mi_rows - bh - mi_row_pred) * MI_SIZE) * 8;
+  xd->mb_to_left_edge = -((mi_col_pred * MI_SIZE) * 8);
+  xd->mb_to_right_edge = ((cm->mi_cols - bw - mi_col_pred) * MI_SIZE) * 8;
 
   set_plane_n4(xd, bw, bh);
 
@@ -1013,27 +1014,58 @@ static void dec_predict_b_extend(
     set_ref(cm, xd, 1, mi_row_pred, mi_col_pred);
   if (!bextend) mbmi->tx_size = max_txsize_lookup[bsize_top];
 
-  xd->plane[plane].dst.stride = dst_stride;
-  xd->plane[plane].dst.buf =
-      dst_buf + (r >> xd->plane[plane].subsampling_y) * dst_stride +
-      (c >> xd->plane[plane].subsampling_x);
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  pd->dst.stride = dst_stride;
+  pd->dst.buf = dst_buf + (r >> xd->plane[plane].subsampling_y) * dst_stride +
+                (c >> xd->plane[plane].subsampling_x);
+#if CONFIG_CHROMA_SUB8X8
+  if (!bextend && need_handle_chroma_sub8x8(bsize_pred, pd->subsampling_x,
+                                            pd->subsampling_y)) {
+    // Offset the buffer pointer
+    int mi_row_offset = 0;
+    int mi_col_offset = 0;
+
+    assert(bsize_pred < BLOCK_8X8);
+    if (pd->subsampling_y && (mi_row_ori & 0x01)) mi_row_offset = -1;
+    if (pd->subsampling_x && (mi_col_ori & 0x01)) mi_col_offset = -1;
+
+    pd->dst.buf +=
+        ((MI_SIZE * mi_col_offset) >> pd->subsampling_x) +
+        ((MI_SIZE * mi_row_offset * pd->dst.stride) >> pd->subsampling_y);
+  }
+#endif
 
   if (!b_sub8x8)
     av1_build_inter_predictor_sb_extend(&pbi->common, xd,
-#if CONFIG_EXT_INTER
+#if CONFIG_WEDGE
                                         mi_row_ori, mi_col_ori,
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_WEDGE
                                         mi_row_pred, mi_col_pred, plane,
+#if CONFIG_CHROMA_SUB8X8
+                                        bextend,
+#endif
                                         bsize_pred);
   else
     av1_build_inter_predictor_sb_sub8x8_extend(&pbi->common, xd,
-#if CONFIG_EXT_INTER
+#if CONFIG_WEDGE
                                                mi_row_ori, mi_col_ori,
-#endif  // CONFIG_EXT_INTER
+#endif  // CONFIG_WEDGE
                                                mi_row_pred, mi_col_pred, plane,
+#if CONFIG_CHROMA_SUB8X8
+                                               bextend,
+#endif
                                                bsize_pred, block);
 }
 
+// dir: extended region
+//   0: bottom
+//   1: above
+//   2: left
+//   3: right
+//   4: bottom-left
+//   5: above-left
+//   6: bottom-right
+//   7: above-right
 static void dec_extend_dir(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                            const TileInfo *const tile, int block,
                            BLOCK_SIZE bsize, BLOCK_SIZE top_bsize,
@@ -1045,91 +1077,61 @@ static void dec_extend_dir(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   //      4-lowerleft, 5-upperleft, 6-lowerright, 7-upperright
   const int mi_width = mi_size_wide[bsize];
   const int mi_height = mi_size_high[bsize];
-  int xss = xd->plane[1].subsampling_x;
-  int yss = xd->plane[1].subsampling_y;
-#if CONFIG_CB4X4
-  const int unify_bsize = 1;
-#else
-  const int unify_bsize = 0;
-#endif
-  int b_sub8x8 = (bsize < BLOCK_8X8) && !unify_bsize ? 1 : 0;
-  BLOCK_SIZE extend_bsize;
-  int mi_row_pred, mi_col_pred;
-
   int wide_unit, high_unit;
   int i, j;
-  int ext_offset = 0;
+  int mi_width_ext;
+  int mi_height_ext;
+  BLOCK_SIZE ext_bsize_unit;
+  int mi_row_pred, mi_col_pred;
 
-  if (dir == 0 || dir == 1) {
-    extend_bsize =
-        (mi_width == mi_size_wide[BLOCK_8X8] || bsize < BLOCK_8X8 || xss < yss)
-            ? BLOCK_8X8
-            : BLOCK_16X8;
 #if CONFIG_CB4X4
-    if (bsize < BLOCK_8X8) {
-      extend_bsize = BLOCK_4X4;
-      ext_offset = mi_size_wide[BLOCK_8X8];
-    }
+  if (bsize < BLOCK_8X8)
+    ext_bsize_unit = BLOCK_4X4;
+  else
 #endif
+    ext_bsize_unit = BLOCK_8X8;
+  wide_unit = mi_size_wide[ext_bsize_unit];
+  high_unit = mi_size_high[ext_bsize_unit];
 
-    wide_unit = mi_size_wide[extend_bsize];
-    high_unit = mi_size_high[extend_bsize];
-
-    mi_row_pred = mi_row + ((dir == 0) ? mi_height : -(mi_height + ext_offset));
+  if (dir == 0 || dir == 1) {  // lower and upper
+    mi_width_ext = mi_width;
+    mi_height_ext = bsize < BLOCK_8X8 ? mi_size_high[BLOCK_8X8] : mi_height;
+    mi_row_pred = mi_row + ((dir == 0) ? mi_height : -(mi_height_ext));
     mi_col_pred = mi_col;
 
-    for (j = 0; j < mi_height + ext_offset; j += high_unit)
-      for (i = 0; i < mi_width + ext_offset; i += wide_unit)
+    for (j = 0; j < mi_height_ext; j += high_unit)
+      for (i = 0; i < mi_width_ext; i += wide_unit)
         dec_predict_b_extend(pbi, xd, tile, block, mi_row_ori, mi_col_ori,
                              mi_row_pred + j, mi_col_pred + i, mi_row_top,
                              mi_col_top, plane, dst_buf, dst_stride, top_bsize,
-                             extend_bsize, b_sub8x8, 1);
-  } else if (dir == 2 || dir == 3) {
-    extend_bsize =
-        (mi_height == mi_size_high[BLOCK_8X8] || bsize < BLOCK_8X8 || yss < xss)
-            ? BLOCK_8X8
-            : BLOCK_8X16;
-#if CONFIG_CB4X4
-    if (bsize < BLOCK_8X8) {
-      extend_bsize = BLOCK_4X4;
-      ext_offset = mi_size_wide[BLOCK_8X8];
-    }
-#endif
-
-    wide_unit = mi_size_wide[extend_bsize];
-    high_unit = mi_size_high[extend_bsize];
-
+                             ext_bsize_unit, 0, 1);
+  } else if (dir == 2 || dir == 3) {  // left and right
+    mi_width_ext = bsize < BLOCK_8X8 ? mi_size_wide[BLOCK_8X8] : mi_width;
+    mi_height_ext = mi_height;
     mi_row_pred = mi_row;
-    mi_col_pred = mi_col + ((dir == 3) ? mi_width : -(mi_width + ext_offset));
+    mi_col_pred = mi_col + ((dir == 3) ? mi_width : -(mi_width_ext));
 
-    for (j = 0; j < mi_height + ext_offset; j += high_unit)
-      for (i = 0; i < mi_width + ext_offset; i += wide_unit)
+    for (j = 0; j < mi_height_ext; j += high_unit)
+      for (i = 0; i < mi_width_ext; i += wide_unit)
         dec_predict_b_extend(pbi, xd, tile, block, mi_row_ori, mi_col_ori,
                              mi_row_pred + j, mi_col_pred + i, mi_row_top,
                              mi_col_top, plane, dst_buf, dst_stride, top_bsize,
-                             extend_bsize, b_sub8x8, 1);
+                             ext_bsize_unit, 0, 1);
   } else {
-    extend_bsize = BLOCK_8X8;
-#if CONFIG_CB4X4
-    if (bsize < BLOCK_8X8) {
-      extend_bsize = BLOCK_4X4;
-      ext_offset = mi_size_wide[BLOCK_8X8];
-    }
-#endif
-    wide_unit = mi_size_wide[extend_bsize];
-    high_unit = mi_size_high[extend_bsize];
-
-    mi_row_pred = mi_row + ((dir == 4 || dir == 6) ? mi_height
-                                                   : -(mi_height + ext_offset));
+    mi_width_ext = AOMMAX(AOMMAX(mi_width, mi_height), mi_size_wide[BLOCK_8X8]);
+    mi_height_ext =
+        AOMMAX(AOMMAX(mi_width, mi_height), mi_size_high[BLOCK_8X8]);
+    mi_row_pred =
+        mi_row + ((dir == 4 || dir == 6) ? mi_height : -(mi_height_ext));
     mi_col_pred =
-        mi_col + ((dir == 6 || dir == 7) ? mi_width : -(mi_width + ext_offset));
+        mi_col + ((dir == 6 || dir == 7) ? mi_width : -(mi_width_ext));
 
-    for (j = 0; j < mi_height + ext_offset; j += high_unit)
-      for (i = 0; i < mi_width + ext_offset; i += wide_unit)
+    for (j = 0; j < mi_height_ext; j += high_unit)
+      for (i = 0; i < mi_width_ext; i += wide_unit)
         dec_predict_b_extend(pbi, xd, tile, block, mi_row_ori, mi_col_ori,
                              mi_row_pred + j, mi_col_pred + i, mi_row_top,
                              mi_col_top, plane, dst_buf, dst_stride, top_bsize,
-                             extend_bsize, b_sub8x8, 1);
+                             ext_bsize_unit, 0, 1);
   }
 }
 
@@ -1255,7 +1257,7 @@ static void dec_predict_sb_complex(AV1Decoder *const pbi, MACROBLOCKD *const xd,
             0);
       } else {
         for (i = 0; i < MAX_MB_PLANE; i++) {
-#if CONFIG_CB4X4
+#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
           const struct macroblockd_plane *pd = &xd->plane[i];
           int handle_chroma_sub8x8 = need_handle_chroma_sub8x8(
               subsize, pd->subsampling_x, pd->subsampling_y);
@@ -1264,14 +1266,34 @@ static void dec_predict_sb_complex(AV1Decoder *const pbi, MACROBLOCKD *const xd,
             int mode_offset_row = CONFIG_CHROMA_SUB8X8 ? hbs : 0;
 
             dec_predict_b_extend(pbi, xd, tile, 0, mi_row + mode_offset_row,
-                                 mi_col, mi_row, mi_col, mi_row_top, mi_col_top,
-                                 i, dst_buf[i], dst_stride[i], top_bsize, bsize,
-                                 0, 0);
+                                 mi_col, mi_row + mode_offset_row, mi_col,
+                                 mi_row_top, mi_col_top, i, dst_buf[i],
+                                 dst_stride[i], top_bsize, subsize, 0, 0);
+#if CONFIG_CHROMA_SUB8X8
+            if (bsize < top_bsize) {
+              for (int dir = 0; dir < 8; ++dir) {
+                if (dir == 0 || dir == 4 || dir == 6) continue;
+                dec_extend_dir(pbi, xd, tile, 0, subsize, top_bsize, mi_row,
+                               mi_col, mi_row, mi_col, mi_row_top, mi_col_top,
+                               i, dst_buf[i], dst_stride[i], dir);
+              }
+              if (mi_row + hbs < cm->mi_rows) {
+                for (int dir = 0; dir < 8; ++dir) {
+                  if (dir == 1 || dir == 7 || dir == 5) continue;
+                  dec_extend_dir(pbi, xd, tile, 0, subsize, top_bsize,
+                                 mi_row + hbs, mi_col, mi_row + hbs, mi_col,
+                                 mi_row_top, mi_col_top, i, dst_buf[i],
+                                 dst_stride[i], dir);
+                }
+              }
+            }
+#else
             if (bsize < top_bsize)
               dec_extend_all(pbi, xd, tile, 0, bsize, top_bsize,
                              mi_row + mode_offset_row, mi_col, mi_row, mi_col,
                              mi_row_top, mi_col_top, i, dst_buf[i],
                              dst_stride[i]);
+#endif
           } else {
 #endif
             // First half
@@ -1312,7 +1334,7 @@ static void dec_predict_sb_complex(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                   mi_row, mi_col, mi_row_top, mi_col_top, bsize, top_bsize,
                   PARTITION_HORZ, i);
             }
-#if CONFIG_CB4X4
+#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
           }
 #endif
         }
@@ -1349,24 +1371,43 @@ static void dec_predict_sb_complex(AV1Decoder *const pbi, MACROBLOCKD *const xd,
             0);
       } else {
         for (i = 0; i < MAX_MB_PLANE; i++) {
-#if CONFIG_CB4X4
+#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
           const struct macroblockd_plane *pd = &xd->plane[i];
           int handle_chroma_sub8x8 = need_handle_chroma_sub8x8(
               subsize, pd->subsampling_x, pd->subsampling_y);
 
           if (handle_chroma_sub8x8) {
             int mode_offset_col = CONFIG_CHROMA_SUB8X8 ? hbs : 0;
-            assert(i > 0 && bsize == BLOCK_8X8);
 
-            dec_predict_b_extend(pbi, xd, tile, 0, mi_row,
-                                 mi_col + mode_offset_col, mi_row, mi_col,
-                                 mi_row_top, mi_col_top, i, dst_buf[i],
-                                 dst_stride[i], top_bsize, bsize, 0, 0);
+            dec_predict_b_extend(
+                pbi, xd, tile, 0, mi_row, mi_col + mode_offset_col, mi_row,
+                mi_col + mode_offset_col, mi_row_top, mi_col_top, i, dst_buf[i],
+                dst_stride[i], top_bsize, subsize, 0, 0);
+#if CONFIG_CHROMA_SUB8X8
+            if (bsize < top_bsize) {
+              for (int dir = 0; dir < 8; ++dir) {
+                if (dir == 3 || dir == 6 || dir == 7) continue;
+                dec_extend_dir(pbi, xd, tile, 0, subsize, top_bsize, mi_row,
+                               mi_col, mi_row, mi_col, mi_row_top, mi_col_top,
+                               i, dst_buf[i], dst_stride[i], dir);
+              }
+
+              if (mi_col + hbs < cm->mi_cols) {
+                for (int dir = 0; dir < 8; ++dir) {
+                  if (dir == 2 || dir == 4 || dir == 5) continue;
+                  dec_extend_dir(pbi, xd, tile, 0, subsize, top_bsize, mi_row,
+                                 mi_col + hbs, mi_row, mi_col + hbs, mi_row_top,
+                                 mi_col_top, i, dst_buf[i], dst_stride[i], dir);
+                }
+              }
+            }
+#else
             if (bsize < top_bsize)
               dec_extend_all(pbi, xd, tile, 0, bsize, top_bsize, mi_row,
                              mi_col + mode_offset_col, mi_row, mi_col,
                              mi_row_top, mi_col_top, i, dst_buf[i],
                              dst_stride[i]);
+#endif
           } else {
 #endif
             // First half
@@ -1405,7 +1446,7 @@ static void dec_predict_sb_complex(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                   mi_row, mi_col, mi_row_top, mi_col_top, bsize, top_bsize,
                   PARTITION_VERT, i);
             }
-#if CONFIG_CB4X4
+#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
           }
 #endif
         }
@@ -1441,7 +1482,7 @@ static void dec_predict_sb_complex(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                            dst_buf3[i], dst_stride3[i]);
           }
         }
-#if CONFIG_CB4X4
+#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
       } else if (bsize == BLOCK_8X8) {
         for (i = 0; i < MAX_MB_PLANE; i++) {
           const struct macroblockd_plane *pd = &xd->plane[i];
@@ -1454,34 +1495,82 @@ static void dec_predict_sb_complex(AV1Decoder *const pbi, MACROBLOCKD *const xd,
             int mode_offset_col =
                 CONFIG_CHROMA_SUB8X8 && mi_col + hbs < cm->mi_cols ? hbs : 0;
 
-            dec_predict_b_extend(pbi, xd, tile, 0, mi_row + mode_offset_row,
-                                 mi_col + mode_offset_col, mi_row, mi_col,
-                                 mi_row_top, mi_col_top, i, dst_buf[i],
-                                 dst_stride[i], top_bsize, BLOCK_8X8, 0, 0);
+            dec_predict_b_extend(
+                pbi, xd, tile, 0, mi_row + mode_offset_row,
+                mi_col + mode_offset_col, mi_row + mode_offset_row,
+                mi_col + mode_offset_col, mi_row_top, mi_col_top, i, dst_buf[i],
+                dst_stride[i], top_bsize, subsize, 0, 0);
+
+#if CONFIG_CHROMA_SUB8X8
+            if (bsize < top_bsize) {
+              int dir;
+
+              for (dir = 0; dir < 8; ++dir) {
+                if (dir == 1 || dir == 2 || dir == 5) {
+                  dec_extend_dir(pbi, xd, tile, 0, subsize, top_bsize, mi_row,
+                                 mi_col, mi_row, mi_col, mi_row_top, mi_col_top,
+                                 i, dst_buf[i], dst_stride[i], dir);
+                }
+              }
+
+              if (mi_row < cm->mi_rows && mi_col + hbs < cm->mi_cols) {
+                for (dir = 0; dir < 8; ++dir) {
+                  if (dir == 1 || dir == 3 || dir == 7) {
+                    dec_extend_dir(pbi, xd, tile, 0, subsize, top_bsize, mi_row,
+                                   mi_col + hbs, mi_row, mi_col + hbs,
+                                   mi_row_top, mi_col_top, i, dst_buf[i],
+                                   dst_stride[i], dir);
+                  }
+                }
+              }
+
+              if (mi_row + hbs < cm->mi_rows && mi_col < cm->mi_cols) {
+                for (dir = 0; dir < 8; ++dir) {
+                  if (dir == 0 || dir == 2 || dir == 4) {
+                    dec_extend_dir(pbi, xd, tile, 0, subsize, top_bsize,
+                                   mi_row + hbs, mi_col, mi_row + hbs, mi_col,
+                                   mi_row_top, mi_col_top, i, dst_buf[i],
+                                   dst_stride[i], dir);
+                  }
+                }
+              }
+
+              if (mi_row + hbs < cm->mi_rows && mi_col + hbs < cm->mi_cols) {
+                for (dir = 0; dir < 8; ++dir) {
+                  if (dir == 0 || dir == 3 || dir == 6) {
+                    dec_extend_dir(pbi, xd, tile, 0, subsize, top_bsize,
+                                   mi_row + hbs, mi_col + hbs, mi_row + hbs,
+                                   mi_col + hbs, mi_row_top, mi_col_top, i,
+                                   dst_buf[i], dst_stride[i], dir);
+                  }
+                }
+              }
+            }
+#else
             if (bsize < top_bsize)
-              dec_extend_all(pbi, xd, tile, 0, BLOCK_8X8, top_bsize,
-                             mi_row + mode_offset_row, mi_col + mode_offset_col,
-                             mi_row, mi_col, mi_row_top, mi_col_top, i,
+              dec_extend_all(pbi, xd, tile, 0, BLOCK_8X8, top_bsize, mi_row,
+                             mi_col, mi_row, mi_col, mi_row_top, mi_col_top, i,
                              dst_buf[i], dst_stride[i]);
+#endif
           } else {
             dec_predict_b_extend(pbi, xd, tile, 0, mi_row, mi_col, mi_row,
                                  mi_col, mi_row_top, mi_col_top, i, dst_buf[i],
-                                 dst_stride[i], top_bsize, subsize, 0, 0);
+                                 dst_stride[i], top_bsize, bsize, 0, 0);
             if (mi_row < cm->mi_rows && mi_col + hbs < cm->mi_cols)
               dec_predict_b_extend(pbi, xd, tile, 0, mi_row, mi_col + hbs,
-                                   mi_row, mi_col + hbs, mi_row_top, mi_col_top,
-                                   i, dst_buf1[i], dst_stride1[i], top_bsize,
-                                   subsize, 0, 0);
+                                   mi_row, mi_col, mi_row_top, mi_col_top, i,
+                                   dst_buf1[i], dst_stride1[i], top_bsize,
+                                   bsize, 0, 0);
             if (mi_row + hbs < cm->mi_rows && mi_col < cm->mi_cols)
               dec_predict_b_extend(pbi, xd, tile, 0, mi_row + hbs, mi_col,
-                                   mi_row + hbs, mi_col, mi_row_top, mi_col_top,
-                                   i, dst_buf2[i], dst_stride2[i], top_bsize,
-                                   subsize, 0, 0);
+                                   mi_row, mi_col, mi_row_top, mi_col_top, i,
+                                   dst_buf2[i], dst_stride2[i], top_bsize,
+                                   bsize, 0, 0);
             if (mi_row + hbs < cm->mi_rows && mi_col + hbs < cm->mi_cols)
               dec_predict_b_extend(pbi, xd, tile, 0, mi_row + hbs, mi_col + hbs,
-                                   mi_row + hbs, mi_col + hbs, mi_row_top,
-                                   mi_col_top, i, dst_buf3[i], dst_stride3[i],
-                                   top_bsize, subsize, 0, 0);
+                                   mi_row, mi_col, mi_row_top, mi_col_top, i,
+                                   dst_buf3[i], dst_stride3[i], top_bsize,
+                                   bsize, 0, 0);
 
             if (bsize < top_bsize) {
               dec_extend_all(pbi, xd, tile, 0, subsize, top_bsize, mi_row,
@@ -2359,23 +2448,30 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   int skip = 0;
   TX_SIZE supertx_size = max_txsize_lookup[bsize];
   const TileInfo *const tile = &xd->tile;
-  int txfm = DCT_DCT;
+  TX_TYPE txfm = DCT_DCT;
 #endif  // CONFIG_SUPERTX
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
-  partition = (bsize < BLOCK_8X8) ? PARTITION_NONE
-                                  : read_partition(cm, xd, mi_row, mi_col, r,
-                                                   has_rows, has_cols, bsize);
-  subsize = subsize_lookup[partition][bsize];  // get_subsize(bsize, partition);
+#if CONFIG_SUPERTX && SUPERTX_NO_DEEP_SPLIT
+  if (!supertx_enabled)
+#endif
+    partition = (bsize < BLOCK_8X8) ? PARTITION_NONE
+                                    : read_partition(cm, xd, mi_row, mi_col, r,
+                                                     has_rows, has_cols, bsize);
+#if CONFIG_SUPERTX && SUPERTX_NO_DEEP_SPLIT
+  else
+    partition = PARTITION_NONE;
+#endif
+  subsize = subsize_lookup[partition][bsize];
 
 #if CONFIG_PVQ
   assert(partition < PARTITION_TYPES);
   assert(subsize < BLOCK_SIZES_ALL);
 #endif
 #if CONFIG_SUPERTX
-  if (!frame_is_intra_only(cm) && partition != PARTITION_NONE &&
-      bsize <= MAX_SUPERTX_BLOCK_SIZE && !supertx_enabled && !xd->lossless[0]) {
+  if (!frame_is_intra_only(cm) && !supertx_enabled &&
+      supertx_allowed(bsize, partition) && !xd->lossless[0]) {
     const int supertx_context = partition_supertx_context_lookup[partition];
     supertx_enabled = aom_read(
         r, cm->fc->supertx_prob[supertx_context][supertx_size], ACCT_STR);
@@ -2611,6 +2707,16 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                    cm->mi_rows, cm->mi_cols);
     set_skip_context(xd, mi_row, mi_col);
     skip = read_skip(cm, xd, xd->mi[0]->mbmi.segment_id_supertx, r);
+
+    av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
+                         mi_col);
+    for (i = 0; i < MAX_MB_PLANE; i++) {
+      dst_buf[i] = xd->plane[i].dst.buf;
+      dst_stride[i] = xd->plane[i].dst.stride;
+    }
+    dec_predict_sb_complex(pbi, xd, tile, mi_row, mi_col, mi_row, mi_col, bsize,
+                           bsize, dst_buf, dst_stride);
+
     if (skip) {
       av1_reset_skip_context(xd, mi_row, mi_col, bsize);
     } else {
@@ -2635,18 +2741,6 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
         if (xd->counts) ++xd->counts->inter_ext_tx[supertx_size][txfm];
       }
 #endif  // CONFIG_EXT_TX
-    }
-
-    av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
-                         mi_col);
-    for (i = 0; i < MAX_MB_PLANE; i++) {
-      dst_buf[i] = xd->plane[i].dst.buf;
-      dst_stride[i] = xd->plane[i].dst.stride;
-    }
-    dec_predict_sb_complex(pbi, xd, tile, mi_row, mi_col, mi_row, mi_col, bsize,
-                           bsize, dst_buf, dst_stride);
-
-    if (!skip) {
       int eobtotal = 0;
       MB_MODE_INFO *mbmi;
       set_offsets_topblock(cm, xd, tile, bsize, mi_row, mi_col);
