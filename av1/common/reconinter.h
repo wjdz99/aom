@@ -34,6 +34,12 @@ extern "C" {
 
 static INLINE int has_scale(int xs, int ys) { return xs != 16 || ys != 16; }
 
+#define SCALING_EXT_BITS 6
+
+static INLINE int has_ext_scale(int xs, int ys) {
+  return xs != 16 << SCALING_EXT_BITS || ys != 16 << SCALING_EXT_BITS;
+}
+
 static INLINE void inter_predictor(const uint8_t *src, int src_stride,
                                    uint8_t *dst, int dst_stride, int subpel_x,
                                    int subpel_y, const struct scale_factors *sf,
@@ -61,38 +67,45 @@ static INLINE void inter_predictor(const uint8_t *src, int src_stride,
 
   assert(conv_params->do_average == 0 || conv_params->do_average == 1);
   assert(sf);
-  if (has_scale(xs, ys)) {
-    av1_convolve_c(src, src_stride, dst, dst_stride, w, h, interp_filter,
-                   subpel_x, xs, subpel_y, ys, conv_params);
-  } else if (conv_params->round == CONVOLVE_OPT_NO_ROUND) {
-#if CONFIG_CONVOLVE_ROUND
-    av1_convolve_2d_facade(src, src_stride, dst, dst_stride, w, h,
-#if CONFIG_DUAL_FILTER
-                           interp_filter,
-#else   // CONFIG_DUAL_FILTER
-                           &interp_filter,
-#endif  // CONFIG_DUAL_FILTER
-                           subpel_x, xs, subpel_y, ys, conv_params);
-    conv_params->do_post_rounding = 1;
-#else
-    assert(0);
-#endif  // CONFIG_CONVOLVE_ROUND
+  if (has_ext_scale(xs, ys)) {
+    av1_convolve_scale(src, src_stride, dst, dst_stride, w, h, interp_filter,
+                       subpel_x, xs, subpel_y, ys, conv_params);
   } else {
-    assert(conv_params->round == CONVOLVE_OPT_ROUND);
-    if (w <= 2 || h <= 2) {
-      av1_convolve_c(src, src_stride, dst, dst_stride, w, h, interp_filter,
-                     subpel_x, xs, subpel_y, ys, conv_params);
-    } else if (interp_filter_params_x.taps == SUBPEL_TAPS &&
-               interp_filter_params_y.taps == SUBPEL_TAPS) {
-      const int16_t *kernel_x =
-          av1_get_interp_filter_subpel_kernel(interp_filter_params_x, subpel_x);
-      const int16_t *kernel_y =
-          av1_get_interp_filter_subpel_kernel(interp_filter_params_y, subpel_y);
-      sf->predict[subpel_x != 0][subpel_y != 0][conv_params->do_average](
-          src, src_stride, dst, dst_stride, kernel_x, xs, kernel_y, ys, w, h);
+    // Reduce precision of subpel_x, xs, subpel_y, ys
+    subpel_x <<= SCALING_EXT_BITS;
+    subpel_y <<= SCALING_EXT_BITS;
+    xs <<= SCALING_EXT_BITS;
+    ys <<= SCALING_EXT_BITS;
+    if (conv_params->round == CONVOLVE_OPT_NO_ROUND) {
+#if CONFIG_CONVOLVE_ROUND
+      av1_convolve_2d_facade(src, src_stride, dst, dst_stride, w, h,
+#if CONFIG_DUAL_FILTER
+                             interp_filter,
+#else   // CONFIG_DUAL_FILTER
+                             &interp_filter,
+#endif  // CONFIG_DUAL_FILTER
+                             subpel_x, xs, subpel_y, ys, conv_params);
+      conv_params->do_post_rounding = 1;
+#else
+      assert(0);
+#endif  // CONFIG_CONVOLVE_ROUND
     } else {
-      av1_convolve(src, src_stride, dst, dst_stride, w, h, interp_filter,
-                   subpel_x, xs, subpel_y, ys, conv_params);
+      assert(conv_params->round == CONVOLVE_OPT_ROUND);
+      if (w <= 2 || h <= 2) {
+        av1_convolve_c(src, src_stride, dst, dst_stride, w, h, interp_filter,
+                       subpel_x, xs, subpel_y, ys, conv_params);
+      } else if (interp_filter_params_x.taps == SUBPEL_TAPS &&
+                 interp_filter_params_y.taps == SUBPEL_TAPS) {
+        const int16_t *kernel_x = av1_get_interp_filter_subpel_kernel(
+            interp_filter_params_x, subpel_x);
+        const int16_t *kernel_y = av1_get_interp_filter_subpel_kernel(
+            interp_filter_params_y, subpel_y);
+        sf->predict[subpel_x != 0][subpel_y != 0][conv_params->do_average](
+            src, src_stride, dst, dst_stride, kernel_x, xs, kernel_y, ys, w, h);
+      } else {
+        av1_convolve(src, src_stride, dst, dst_stride, w, h, interp_filter,
+                     subpel_x, xs, subpel_y, ys, conv_params);
+      }
     }
   }
 }
