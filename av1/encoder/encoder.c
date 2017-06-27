@@ -2935,6 +2935,7 @@ static void scale_and_extend_frame(const YV12_BUFFER_CONFIG *src,
                                &kernel[(y_q4 & 0xf) * taps], 16 * src_h / dst_h,
                                16 >> ss_x, 16 >> ss_y, bd);
         } else {
+          // TODO(afergs): fix
           aom_scaled_2d(src_ptr, src_stride, dst_ptr, dst_stride,
                         &kernel[(x_q4 & 0xf) * taps], 16 * src_w / dst_w,
                         &kernel[(y_q4 & 0xf) * taps], 16 * src_h / dst_h,

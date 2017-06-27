@@ -298,6 +298,7 @@ void aom_scaled_vert_c(const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst,
                        filter_y, y_step_q4, w, h);
 }
 
+// TODO(afergs): Make high precision version that works with scaling
 void aom_scaled_2d_c(const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst,
                      ptrdiff_t dst_stride, const int16_t *filter_x,
                      int x_step_q4, const int16_t *filter_y, int y_step_q4,
@@ -332,6 +333,7 @@ void aom_scaled_avg_2d_c(const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst,
                       filter_y, y_step_q4, w, h);
 }
 
+// TODO(afergs): Make sure this works too
 #if CONFIG_LOOP_RESTORATION
 static void convolve_add_src_horiz(const uint8_t *src, ptrdiff_t src_stride,
                                    uint8_t *dst, ptrdiff_t dst_stride,
@@ -569,6 +571,7 @@ void aom_convolve8_add_src_hip_c(const uint8_t *src, ptrdiff_t src_stride,
 }
 #endif  // CONFIG_LOOP_RESTORATION
 
+// TODO(afergs): Make sure this works too
 #if CONFIG_HIGHBITDEPTH
 static void highbd_convolve_horiz(const uint8_t *src8, ptrdiff_t src_stride,
                                   uint8_t *dst8, ptrdiff_t dst_stride,
