@@ -187,12 +187,12 @@ static void aom_filter_block1d16_h8_avx2(
     src_ptr += src_stride;
 
     // save 16 bytes
-    _mm_store_si128((__m128i *)output_ptr,
-                    _mm256_castsi256_si128(srcRegFilt32b1_1));
+    _mm_storeu_si128((__m128i *)output_ptr,
+                     _mm256_castsi256_si128(srcRegFilt32b1_1));
 
     // save the next 16 bits
-    _mm_store_si128((__m128i *)(output_ptr + output_pitch),
-                    _mm256_extractf128_si256(srcRegFilt32b1_1, 1));
+    _mm_storeu_si128((__m128i *)(output_ptr + output_pitch),
+                     _mm256_extractf128_si256(srcRegFilt32b1_1, 1));
     output_ptr += dst_stride;
   }
 
@@ -437,11 +437,11 @@ static void aom_filter_block1d16_v8_avx2(
     src_ptr += src_stride;
 
     // save 16 bytes
-    _mm_store_si128((__m128i *)output_ptr, _mm256_castsi256_si128(srcReg32b1));
+    _mm_storeu_si128((__m128i *)output_ptr, _mm256_castsi256_si128(srcReg32b1));
 
     // save the next 16 bits
-    _mm_store_si128((__m128i *)(output_ptr + out_pitch),
-                    _mm256_extractf128_si256(srcReg32b1, 1));
+    _mm_storeu_si128((__m128i *)(output_ptr + out_pitch),
+                     _mm256_extractf128_si256(srcReg32b1, 1));
 
     output_ptr += dst_stride;
 

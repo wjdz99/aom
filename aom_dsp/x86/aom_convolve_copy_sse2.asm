@@ -218,10 +218,10 @@ cglobal convolve_%1, 4, 7, 4+AUX_XMM_REGS, src, src_stride, \
   pavg                    m2, [dstq+32]
   pavg                    m3, [dstq+48]
 %endif
-  mova             [dstq   ], m0
-  mova             [dstq+16], m1
-  mova             [dstq+32], m2
-  mova             [dstq+48], m3
+  movu             [dstq   ], m0
+  movu             [dstq+16], m1
+  movu             [dstq+32], m2
+  movu             [dstq+48], m3
   add                   dstq, dst_strideq
   sub                    r4d, 1
   jnz .loop64
@@ -241,10 +241,10 @@ cglobal convolve_%1, 4, 7, 4+AUX_XMM_REGS, src, src_stride, \
   pavg                    m2, [dstq+dst_strideq]
   pavg                    m3, [dstq+dst_strideq+16]
 %endif
-  mova [dstq               ], m0
-  mova [dstq            +16], m1
-  mova [dstq+dst_strideq   ], m2
-  mova [dstq+dst_strideq+16], m3
+  movu [dstq               ], m0
+  movu [dstq            +16], m1
+  movu [dstq+dst_strideq   ], m2
+  movu [dstq+dst_strideq+16], m3
   lea                   dstq, [dstq+dst_strideq*2]
   sub                    r4d, 2
   jnz .loop32
@@ -266,10 +266,10 @@ cglobal convolve_%1, 4, 7, 4+AUX_XMM_REGS, src, src_stride, \
   pavg                    m2, [dstq+dst_strideq*2]
   pavg                    m3, [dstq+r6q]
 %endif
-  mova  [dstq              ], m0
-  mova  [dstq+dst_strideq  ], m1
-  mova  [dstq+dst_strideq*2], m2
-  mova  [dstq+r6q          ], m3
+  movu  [dstq              ], m0
+  movu  [dstq+dst_strideq  ], m1
+  movu  [dstq+dst_strideq*2], m2
+  movu  [dstq+r6q          ], m3
   lea                   dstq, [dstq+dst_strideq*4]
   sub                    r4d, 4
   jnz .loop16
