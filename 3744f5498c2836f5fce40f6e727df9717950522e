@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9fe0595e_183e756a",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1164,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-06-27T21:41:54Z",
+      "side": 1,
+      "message": "When you find the default probabilities, first please convert this to a CDF (otherwise you\u0027ll eventually have to convert it anyway). There\u0027s a guide on the mailing list on how to do this. (it looks like this symbol should nicely fit into a single CDF).",
+      "revId": "3744f5498c2836f5fce40f6e727df9717950522e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
