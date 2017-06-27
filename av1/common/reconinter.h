@@ -299,6 +299,9 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                             int wedge_offset_x, int wedge_offset_y,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
+#if CONFIG_SUPERTX && CONFIG_CHROMA_SUB8X8
+                            int is_supertx_ext,
+#endif
                             int mi_x, int mi_y);
 
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
@@ -593,14 +596,20 @@ void av1_build_inter_predictor_sb_sub8x8_extend(const AV1_COMMON *cm,
                                                 int mi_row_ori, int mi_col_ori,
 #endif  // CONFIG_EXT_INTER
                                                 int mi_row, int mi_col,
-                                                int plane, BLOCK_SIZE bsize,
-                                                int block);
+                                                int plane,
+#if CONFIG_CHROMA_SUB8X8
+                                                int is_ext,
+#endif
+                                                BLOCK_SIZE bsize, int block);
 
 void av1_build_inter_predictor_sb_extend(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_EXT_INTER
                                          int mi_row_ori, int mi_col_ori,
 #endif  // CONFIG_EXT_INTER
                                          int mi_row, int mi_col, int plane,
+#if CONFIG_CHROMA_SUB8X8
+                                         int is_ext,
+#endif
                                          BLOCK_SIZE bsize);
 struct macroblockd_plane;
 void av1_build_masked_inter_predictor_complex(

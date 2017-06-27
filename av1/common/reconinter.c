@@ -1052,6 +1052,9 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                             int wedge_offset_x, int wedge_offset_y,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
+#if CONFIG_SUPERTX && CONFIG_CHROMA_SUB8X8
+                            int is_supertx_ext,
+#endif
                             int mi_x, int mi_y) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
 #if CONFIG_MOTION_VAR
@@ -1096,6 +1099,9 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
   int sub8x8_inter = bsize < BLOCK_8X8 && (ss_x || ss_y);
   const int row_start = (block_size_high[bsize] == 4) && ss_y ? -1 : 0;
   const int col_start = (block_size_wide[bsize] == 4) && ss_x ? -1 : 0;
+#if CONFIG_SUPERTX
+  if (is_supertx_ext) sub8x8_inter = 0;
+#endif
 
 #if CONFIG_MOTION_VAR
   if (!build_for_obmc && sub8x8_inter)
@@ -1543,6 +1549,9 @@ static void build_inter_predictors_for_planes(const AV1_COMMON *cm,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                                  0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
+#if CONFIG_SUPERTX && CONFIG_CHROMA_SUB8X8
+                                 0,
+#endif
                                  mi_x, mi_y);
     } else {
       build_inter_predictors(cm, xd, plane,
@@ -1553,6 +1562,9 @@ static void build_inter_predictors_for_planes(const AV1_COMMON *cm,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
+#if CONFIG_SUPERTX && CONFIG_CHROMA_SUB8X8
+                             0,
+#endif
                              mi_x, mi_y);
     }
   }
@@ -1784,8 +1796,11 @@ void av1_build_inter_predictor_sb_sub8x8_extend(const AV1_COMMON *cm,
                                                 int mi_row_ori, int mi_col_ori,
 #endif  // CONFIG_EXT_INTER
                                                 int mi_row, int mi_col,
-                                                int plane, BLOCK_SIZE bsize,
-                                                int block) {
+                                                int plane,
+#if CONFIG_CHROMA_SUB8X8
+                                                int is_ext,
+#endif
+                                                BLOCK_SIZE bsize, int block) {
   // Prediction function used in supertx:
   // Use the mv at current block (which is less than 8x8)
   // to get prediction of a block located at (mi_row, mi_col) at size of bsize
@@ -1817,6 +1832,9 @@ void av1_build_inter_predictor_sb_sub8x8_extend(const AV1_COMMON *cm,
 #if CONFIG_EXT_INTER
                          wedge_offset_x, wedge_offset_y,
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_SUPERTX && CONFIG_CHROMA_SUB8X8
+                         is_ext,
+#endif
                          mi_x, mi_y);
 }
 
@@ -1825,6 +1843,9 @@ void av1_build_inter_predictor_sb_extend(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                          int mi_row_ori, int mi_col_ori,
 #endif  // CONFIG_EXT_INTER
                                          int mi_row, int mi_col, int plane,
+#if CONFIG_CHROMA_SUB8X8
+                                         int is_ext,
+#endif
                                          BLOCK_SIZE bsize) {
   const int mi_x = mi_col * MI_SIZE;
   const int mi_y = mi_row * MI_SIZE;
@@ -1844,6 +1865,9 @@ void av1_build_inter_predictor_sb_extend(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_EXT_INTER
                          wedge_offset_x, wedge_offset_y,
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_SUPERTX && CONFIG_CHROMA_SUB8X8
+                         is_ext,
+#endif
                          mi_x, mi_y);
 }
 #endif  // CONFIG_SUPERTX
@@ -2264,6 +2288,9 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
+#if CONFIG_SUPERTX && CONFIG_CHROMA_SUB8X8
+                             0,
+#endif
                              mi_x, mi_y);
     }
     *above_mbmi = backup_mbmi;
@@ -2366,6 +2393,9 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
+#if CONFIG_SUPERTX && CONFIG_CHROMA_SUB8X8
+                             0,
+#endif
                              mi_x, mi_y);
     }
     *left_mbmi = backup_mbmi;
@@ -2511,6 +2541,9 @@ void av1_build_prediction_by_bottom_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                 0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
+#if CONFIG_SUPERTX && CONFIG_CHROMA_SUB8X8
+                0,
+#endif
                 mi_x, mi_y);
           }
       } else {
@@ -2520,6 +2553,9 @@ void av1_build_prediction_by_bottom_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
             0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
+#if CONFIG_SUPERTX && CONFIG_CHROMA_SUB8X8
+            0,
+#endif
             mi_x, mi_y);
       }
     }
@@ -2619,6 +2655,9 @@ void av1_build_prediction_by_right_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                                    0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
+#if CONFIG_SUPERTX && CONFIG_CHROMA_SUB8X8
+                                   0,
+#endif
                                    mi_x, mi_y);
           }
       } else {
@@ -2628,6 +2667,9 @@ void av1_build_prediction_by_right_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                                0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
+#if CONFIG_SUPERTX && CONFIG_CHROMA_SUB8X8
+                               0,
+#endif
                                mi_x, mi_y);
       }
     }

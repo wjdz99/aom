@@ -2959,7 +2959,14 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
-  write_partition(cm, xd, hbs, mi_row, mi_col, partition, bsize, w);
+#if CONFIG_SUPERTX && SUPERTX_NO_DEEP_SPLIT
+  if (!supertx_enabled)
+#endif
+    write_partition(cm, xd, hbs, mi_row, mi_col, partition, bsize, w);
+#if CONFIG_SUPERTX && SUPERTX_NO_DEEP_SPLIT
+  else
+    assert(partition == PARTITION_NONE);
+#endif
 #if CONFIG_SUPERTX
   mbmi = &cm->mi_grid_visible[mi_offset]->mbmi;
   xd->mi = cm->mi_grid_visible + mi_offset;

@@ -2910,18 +2910,19 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   mbmi->tx_size = read_tx_size(cm, xd, inter_block, !mbmi->skip, r);
 #endif  // CONFIG_VAR_TX
 #if CONFIG_SUPERTX
-  }
 #if CONFIG_VAR_TX
-  else if (inter_block) {
-    const int width = num_4x4_blocks_wide_lookup[bsize];
-    const int height = num_4x4_blocks_high_lookup[bsize];
-    int idx, idy;
-    xd->mi[0]->mbmi.tx_size = xd->supertx_size;
-    for (idy = 0; idy < height; ++idy)
-      for (idx = 0; idx < width; ++idx)
-        xd->mi[0]->mbmi.inter_tx_size[idy >> 1][idx >> 1] = xd->supertx_size;
-  }
+  } else {
+    if (inter_block) {
+      const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
+      const int height = block_size_high[bsize] >> tx_size_high_log2[0];
+      int idx, idy;
+      mbmi->tx_size = xd->supertx_size;
+      for (idy = 0; idy < height; ++idy)
+        for (idx = 0; idx < width; ++idx)
+          mbmi->inter_tx_size[idy >> 1][idx >> 1] = xd->supertx_size;
+    }
 #endif  // CONFIG_VAR_TX
+  }
 #endif  // CONFIG_SUPERTX
 
   if (inter_block)
