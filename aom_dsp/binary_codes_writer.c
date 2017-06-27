@@ -38,7 +38,7 @@ static uint16_t recenter_finite_nonneg(uint16_t n, uint16_t r, uint16_t v) {
 // 2 * 2^mag_bits + 1, symmetric around 0, where one bit is used to
 // indicate 0 or non-zero, mag_bits bits are used to indicate magnitide
 // and 1 more bit for the sign if non-zero.
-void aom_write_primitive_symmetric(aom_writer *w, int16_t v,
+void aom_write_primitive_symmetric(struct aom_write_bit_buffer *w, int16_t v,
                                    unsigned int abs_bits) {
   if (v == 0) {
     aom_write_bit(w, 0);
@@ -56,7 +56,7 @@ int aom_count_primitive_symmetric(int16_t v, unsigned int abs_bits) {
 }
 
 // Encodes a value v in [0, n-1] quasi-uniformly
-void aom_write_primitive_quniform(aom_writer *w, uint16_t n, uint16_t v) {
+void aom_write_primitive_quniform(struct aom_write_bit_buffer *w, uint16_t n, uint16_t v) {
   if (n <= 1) return;
   const int l = get_msb(n - 1) + 1;
   const int m = (1 << l) - n;
@@ -78,7 +78,7 @@ int aom_count_primitive_quniform(uint16_t n, uint16_t v) {
 // Encodes a value v in [0, n-1] based on a reference ref also in [0, n-1]
 // The closest p values of v from ref are coded using a p-ary quasi-unoform
 // short code while the remaining n-p values are coded with a longer code.
-void aom_write_primitive_refbilevel(aom_writer *w, uint16_t n, uint16_t p,
+void aom_write_primitive_refbilevel(struct aom_write_bit_buffer *w, uint16_t n, uint16_t p,
                                     uint16_t ref, uint16_t v) {
   if (n <= 1) return;
   assert(p > 0 && p <= n);
@@ -131,7 +131,7 @@ int aom_count_primitive_refbilevel(uint16_t n, uint16_t p, uint16_t ref,
 }
 
 // Finite subexponential code that codes a symbol v in [0, n-1] with parameter k
-void aom_write_primitive_subexpfin(aom_writer *w, uint16_t n, uint16_t k,
+void aom_write_primitive_subexpfin(struct aom_write_bit_buffer *w, uint16_t n, uint16_t k,
                                    uint16_t v) {
   int i = 0;
   int mk = 0;
@@ -183,12 +183,12 @@ int aom_count_primitive_subexpfin(uint16_t n, uint16_t k, uint16_t v) {
 // Finite subexponential code that codes a symbol v in [0, n-1] with parameter k
 // based on a reference ref also in [0, n-1].
 // Recenters symbol around r first and then uses a finite subexponential code.
-void aom_write_primitive_refsubexpfin(aom_writer *w, uint16_t n, uint16_t k,
+void aom_write_primitive_refsubexpfin(struct aom_write_bit_buffer *w, uint16_t n, uint16_t k,
                                       int16_t ref, int16_t v) {
   aom_write_primitive_subexpfin(w, n, k, recenter_finite_nonneg(n, ref, v));
 }
 
-void aom_write_signed_primitive_refsubexpfin(aom_writer *w, uint16_t n,
+void aom_write_signed_primitive_refsubexpfin(struct aom_write_bit_buffer *w, uint16_t n,
                                              uint16_t k, uint16_t ref,
                                              uint16_t v) {
   ref += n - 1;
