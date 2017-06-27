@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "68094a95_9bc13914",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "done, will submit all the updates on the other patch",
+      "parentUuid": "23bf5119_21854e38",
+      "range": {
+        "startLine": 439,
+        "startChar": 2,
+        "endLine": 439,
+        "endChar": 13
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6f148dfb_3dbe83d2",
         "filename": "av1/common/blockd.h",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-06-23T21:58:36Z",
       "side": 1,
       "message": "BLOCK_SIZE",
+      "range": {
+        "startLine": 1368,
+        "startChar": 46,
+        "endLine": 1368,
+        "endChar": 49
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd50eb68_4065602b",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1368,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "6f148dfb_3dbe83d2",
       "range": {
         "startLine": 1368,
         "startChar": 46,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "e65f126f_e1d6249a",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1370,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "a7c5189e_14ca9545",
+      "range": {
+        "startLine": 1370,
+        "startChar": 11,
+        "endLine": 1370,
+        "endChar": 21
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2c3ce0b3_253e18c5",
         "filename": "av1/common/entropymode.c",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2017-06-23T21:58:36Z",
       "side": 1,
       "message": "why we need it for motion_mode \u003d SIMIPLE_TRANSLATION?\nIf not, a 2-d prob table will be enough",
+      "range": {
+        "startLine": 1166,
+        "startChar": 0,
+        "endLine": 1171,
+        "endChar": 8
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3aa19c09_a66b5b70",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1171,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "In the rd_opt stage, a block can be either marked as SIMPLE_TRANSLATION or OBMC. I was thinking still applying adaptive interpolation on SIMPLE_TRANSLATION and do not change the flag of the block as the flag determined in the rd loop might provide us some information that can differentiate the behavior of kernel usages.",
+      "parentUuid": "2c3ce0b3_253e18c5",
       "range": {
         "startLine": 1166,
         "startChar": 0,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "0e23ef30_b18394e1",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31b4b151_097a6246",
+      "range": {
+        "startLine": 416,
+        "startChar": 2,
+        "endLine": 416,
+        "endChar": 12
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7d085350_11e13223",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 3
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "476c0dc3_a85577f8",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5127,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d085350_11e13223",
+      "range": {
+        "startLine": 5127,
+        "startChar": 46,
+        "endLine": 5127,
+        "endChar": 67
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "55f30af7_728b88c3",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 3
@@ -151,6 +295,30 @@
       "writtenOn": "2017-06-23T21:58:36Z",
       "side": 1,
       "message": "The code has no problem at all. I highlight it here just let you know that just from this year C99 is supported for av1 now, now we can declare variables in the middle to make them closer to where they are used.",
+      "range": {
+        "startLine": 5129,
+        "startChar": 6,
+        "endLine": 5129,
+        "endChar": 12
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "582d56d2_4ba317d3",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5129,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "awesome!",
+      "parentUuid": "55f30af7_728b88c3",
       "range": {
         "startLine": 5129,
         "startChar": 6,
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "c76b5803_1bb79d84",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Thanks for catching this bug!",
+      "parentUuid": "72e2dec2_d7176856",
+      "range": {
+        "startLine": 349,
+        "startChar": 49,
+        "endLine": 349,
+        "endChar": 62
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b843545a_6fc2f86b",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 3
@@ -197,6 +389,30 @@
       "writtenOn": "2017-06-23T21:58:36Z",
       "side": 1,
       "message": "Better to have a explicit function, let\u0027s say map anyone \u003e\u003d8x8 and \u003c 16x8 to some group. Since when cb4x4 is on, mi size is 4.",
+      "range": {
+        "startLine": 624,
+        "startChar": 39,
+        "endLine": 626,
+        "endChar": 71
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37d8b571_b626ab35",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Thanks! I thought mi size is always 8x8. I created a lookup-table to search for the intrpl block.",
+      "parentUuid": "b843545a_6fc2f86b",
       "range": {
         "startLine": 624,
         "startChar": 39,
@@ -232,6 +448,30 @@
     },
     {
       "key": {
+        "uuid": "24ff34a0_feba3ab5",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e322a08_f2c44992",
+      "range": {
+        "startLine": 629,
+        "startChar": 0,
+        "endLine": 636,
+        "endChar": 66
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b4121bb_76383823",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 3
@@ -252,6 +492,30 @@
       "revId": "9b5829511452aac7401b70beac66813b3fd80252",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cfc07f3_2db7538c",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2247,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b4121bb_76383823",
+      "range": {
+        "startLine": 2247,
+        "startChar": 4,
+        "endLine": 2247,
+        "endChar": 21
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -278,6 +542,30 @@
     },
     {
       "key": {
+        "uuid": "06c9993f_d7e8de4a",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1718,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "859d744c_6906905f",
+      "range": {
+        "startLine": 1717,
+        "startChar": 10,
+        "endLine": 1718,
+        "endChar": 79
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94d19d89_30b371cf",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 3
@@ -298,6 +586,30 @@
       "revId": "9b5829511452aac7401b70beac66813b3fd80252",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d40ec928_fc4e0b8b",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1727,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94d19d89_30b371cf",
+      "range": {
+        "startLine": 1719,
+        "startChar": 0,
+        "endLine": 1727,
+        "endChar": 11
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -324,6 +636,30 @@
     },
     {
       "key": {
+        "uuid": "92b08ee0_ab8ef668",
+        "filename": "configure",
+        "patchSetId": 3
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "done. It is submitted as another patch.",
+      "parentUuid": "b41744d9_a6fa3908",
+      "range": {
+        "startLine": 326,
+        "startChar": 4,
+        "endLine": 326,
+        "endChar": 14
+      },
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "315e033d_74cf7260",
         "filename": "configure",
         "patchSetId": 3
@@ -335,6 +671,24 @@
       "writtenOn": "2017-06-22T23:19:42Z",
       "side": 1,
       "message": "In case this experiment cannot even compile successfully with warped_motion, you can specify here \"enabled *** \u0026\u0026 disable_feature warped_motion\" to resolve conflicts or dependency, and maybe add \"enable_feature motion_var\" as well if it only works on top of it",
+      "revId": "9b5829511452aac7401b70beac66813b3fd80252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c81c3a1d_683ea81c",
+        "filename": "configure",
+        "patchSetId": 3
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "done. It is submitted as another patch.",
+      "parentUuid": "315e033d_74cf7260",
       "revId": "9b5829511452aac7401b70beac66813b3fd80252",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true

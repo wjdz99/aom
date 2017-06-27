@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ff20300e_9735ebfd",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "NCOBMC_WIEIGHT_MODE is a little bit too long, changed the name to NCOBMC_MODE.",
+      "parentUuid": "0ae44187_cb0950e8",
+      "range": {
+        "startLine": 439,
+        "startChar": 21,
+        "endLine": 439,
+        "endChar": 32
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82b6f2d2_b14b74f3",
         "filename": "av1/common/blockd.h",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c91cc0f4_59aacb08",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1368,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "82b6f2d2_b14b74f3",
+      "range": {
+        "startLine": 1368,
+        "startChar": 33,
+        "endLine": 1368,
+        "endChar": 52
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "2023b3db_2e0d5933",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1372,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa096ca0_0396aae0",
+      "range": {
+        "startLine": 1372,
+        "startChar": 11,
+        "endLine": 1372,
+        "endChar": 27
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd35465f_a6c4fc3b",
         "filename": "av1/common/entropymode.h",
         "patchSetId": 5
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "5f8c549f_11c49f34",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd35465f_a6c4fc3b",
+      "range": {
+        "startLine": 213,
+        "startChar": 11,
+        "endLine": 213,
+        "endChar": 27
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce0b56a5_a73391a3",
         "filename": "av1/common/entropymode.h",
         "patchSetId": 5
@@ -105,6 +201,30 @@
       "writtenOn": "2017-06-26T17:36:57Z",
       "side": 1,
       "message": "ncobmc_weight_mode,\nBTW, do we need the first dimension [MOTION_MODES], as those modes are only applicable when motion_mode is obmc.",
+      "range": {
+        "startLine": 398,
+        "startChar": 15,
+        "endLine": 398,
+        "endChar": 26
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46a0ebf5_f3252283",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "In the rd_opt stage, a block can be either marked as SIMPLE_TRANSLATION or OBMC. I was thinking still applying adaptive interpolation on SIMPLE_TRANSLATION and do not change the flag of the block as the flag determined in the rd loop might provide us some information that can differentiate the behavior of kernel usages.",
+      "parentUuid": "ce0b56a5_a73391a3",
       "range": {
         "startLine": 398,
         "startChar": 15,
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "0b6f9860_9c398922",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41ca0cff_4b3a82ba",
+      "range": {
+        "startLine": 207,
+        "startChar": 2,
+        "endLine": 207,
+        "endChar": 18
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a629d8c_f819f311",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 5
@@ -160,6 +304,30 @@
       "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77bda98f_fa6da139",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a629d8c_f819f311",
+      "range": {
+        "startLine": 335,
+        "startChar": 38,
+        "endLine": 335,
+        "endChar": 43
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "c4a82849_0629f98e",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2577,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88cfe724_5af5a573",
+      "range": {
+        "startLine": 2577,
+        "startChar": 12,
+        "endLine": 2577,
+        "endChar": 23
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "417cec71_98835362",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 5
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "15bdf6f8_03d82e3c",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1715,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "417cec71_98835362",
+      "range": {
+        "startLine": 1715,
+        "startChar": 30,
+        "endLine": 1715,
+        "endChar": 55
+      },
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9df88666_4ece00f1",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 5
@@ -223,6 +439,24 @@
       "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9aae5f4_2f25b365",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1716,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-06-27T00:20:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9df88666_4ece00f1",
+      "revId": "970573bbdd13349f4c1a4419c846d21d40455693",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
