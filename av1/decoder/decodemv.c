@@ -1324,9 +1324,15 @@ static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
 
 static REFERENCE_MODE read_block_reference_mode(AV1_COMMON *cm,
                                                 const MACROBLOCKD *xd,
+#if CONFIG_SUPERTX && SUPERTX_NO_COMPOUND
+                                                int supertx_enabled,
+#endif
                                                 aom_reader *r) {
 #if !SUB8X8_COMP_REF
   if (xd->mi[0]->mbmi.sb_type == BLOCK_4X4) return SINGLE_REFERENCE;
+#endif
+#if CONFIG_SUPERTX && SUPERTX_NO_COMPOUND
+  if (supertx_enabled) return SINGLE_REFERENCE;
 #endif
   if (cm->reference_mode == REFERENCE_MODE_SELECT) {
     const int ctx = av1_get_reference_mode_context(cm, xd);
@@ -1385,6 +1391,9 @@ static REFERENCE_MODE read_comp_reference_type(AV1_COMMON *cm,
 // Read the referncence frame
 static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             aom_reader *r, int segment_id,
+#if CONFIG_SUPERTX && SUPERTX_NO_COMPOUND
+                            int supertx_enabled,
+#endif
                             MV_REFERENCE_FRAME ref_frame[2]) {
 #if CONFIG_EXT_COMP_REFS
   FRAME_CONTEXT *const fc = cm->fc;
@@ -1396,7 +1405,11 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                                    SEG_LVL_REF_FRAME);
     ref_frame[1] = NONE_FRAME;
   } else {
-    const REFERENCE_MODE mode = read_block_reference_mode(cm, xd, r);
+    const REFERENCE_MODE mode = read_block_reference_mode(cm, xd,
+#if CONFIG_SUPERTX && SUPERTX_NO_COMPOUND
+        supertx_enabled,
+#endif
+        r);
     // FIXME(rbultje) I'm pretty sure this breaks segmentation ref frame coding
     if (mode == COMPOUND_REFERENCE) {
 #if CONFIG_EXT_COMP_REFS
@@ -2248,7 +2261,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   memset(ref_mvs, 0, sizeof(ref_mvs));
 
-  read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
+  read_ref_frames(cm, xd, r, mbmi->segment_id,
+#if CONFIG_SUPERTX && SUPERTX_NO_COMPOUND
+      supertx_enabled,
+#endif
+      mbmi->ref_frame);
   is_compound = has_second_ref(mbmi);
 
 #if CONFIG_EXT_COMP_REFS
@@ -2910,18 +2927,19 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   mbmi->tx_size = read_tx_size(cm, xd, inter_block, !mbmi->skip, r);
 #endif  // CONFIG_VAR_TX
 #if CONFIG_SUPERTX
-  }
 #if CONFIG_VAR_TX
-  else if (inter_block) {
-    const int width = num_4x4_blocks_wide_lookup[bsize];
-    const int height = num_4x4_blocks_high_lookup[bsize];
-    int idx, idy;
-    xd->mi[0]->mbmi.tx_size = xd->supertx_size;
-    for (idy = 0; idy < height; ++idy)
-      for (idx = 0; idx < width; ++idx)
-        xd->mi[0]->mbmi.inter_tx_size[idy >> 1][idx >> 1] = xd->supertx_size;
-  }
+  } else {
+    if (inter_block) {
+      const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
+      const int height = block_size_high[bsize] >> tx_size_high_log2[0];
+      int idx, idy;
+      mbmi->tx_size = xd->supertx_size;
+      for (idy = 0; idy < height; ++idy)
+        for (idx = 0; idx < width; ++idx)
+          mbmi->inter_tx_size[idy >> 1][idx >> 1] = xd->supertx_size;
+    }
 #endif  // CONFIG_VAR_TX
+  }
 #endif  // CONFIG_SUPERTX
 
   if (inter_block)

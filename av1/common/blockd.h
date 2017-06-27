@@ -831,10 +831,20 @@ static const TX_TYPE intra_mode_to_tx_type_context[INTRA_MODES] = {
 };
 
 #if CONFIG_SUPERTX
+#define SUPERTX_NO_DEEP_SPLIT 1
+#define SUPERTX_NO_COMPOUND 0
+
 static INLINE int supertx_enabled(const MB_MODE_INFO *mbmi) {
   TX_SIZE max_tx_size = txsize_sqr_map[mbmi->tx_size];
   return tx_size_wide[max_tx_size] >
          AOMMIN(block_size_wide[mbmi->sb_type], block_size_high[mbmi->sb_type]);
+}
+
+static INLINE int supertx_allowed(BLOCK_SIZE bsize, PARTITION_TYPE p) {
+  return p != PARTITION_NONE && bsize >= BLOCK_8X8 && bsize <= BLOCK_32X32
+      //&& !(bsize == BLOCK_32X32 && p == PARTITION_SPLIT)
+      //&& !(bsize == BLOCK_16X16 && p == PARTITION_SPLIT)
+      ;
 }
 #endif  // CONFIG_SUPERTX
 
