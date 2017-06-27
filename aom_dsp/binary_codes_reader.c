@@ -33,7 +33,7 @@ static uint16_t inv_recenter_finite_nonneg(uint16_t n, uint16_t r, uint16_t v) {
   }
 }
 
-int16_t aom_read_primitive_symmetric_(aom_reader *r,
+int16_t aom_read_primitive_symmetric_(struct aom_read_bit_buffer *r,
                                       unsigned int mag_bits ACCT_STR_PARAM) {
   if (aom_read_bit(r, ACCT_STR_NAME)) {
     int s = aom_read_bit(r, ACCT_STR_NAME);
@@ -44,7 +44,7 @@ int16_t aom_read_primitive_symmetric_(aom_reader *r,
   }
 }
 
-uint16_t aom_read_primitive_quniform_(aom_reader *r,
+uint16_t aom_read_primitive_quniform_(struct aom_read_bit_buffer *r,
                                       uint16_t n ACCT_STR_PARAM) {
   if (n <= 1) return 0;
   const int l = get_msb(n - 1) + 1;
@@ -53,7 +53,7 @@ uint16_t aom_read_primitive_quniform_(aom_reader *r,
   return v < m ? v : (v << 1) - m + aom_read_bit(r, ACCT_STR_NAME);
 }
 
-uint16_t aom_read_primitive_refbilevel_(aom_reader *r, uint16_t n, uint16_t p,
+uint16_t aom_read_primitive_refbilevel_(struct aom_read_bit_buffer *r, uint16_t n, uint16_t p,
                                         uint16_t ref ACCT_STR_PARAM) {
   if (n <= 1) return 0;
   assert(p > 0 && p <= n);
@@ -77,7 +77,7 @@ uint16_t aom_read_primitive_refbilevel_(aom_reader *r, uint16_t n, uint16_t p,
 
 // Decode finite subexponential code that for a symbol v in [0, n-1] with
 // parameter k
-uint16_t aom_read_primitive_subexpfin_(aom_reader *r, uint16_t n,
+uint16_t aom_read_primitive_subexpfin_(struct aom_read_bit_buffer *r, uint16_t n,
                                        uint16_t k ACCT_STR_PARAM) {
   int i = 0;
   int mk = 0;
@@ -104,7 +104,7 @@ uint16_t aom_read_primitive_subexpfin_(aom_reader *r, uint16_t n,
 // Decode finite subexponential code that for a symbol v in [0, n-1] with
 // parameter k
 // based on a reference ref also in [0, n-1].
-uint16_t aom_read_primitive_refsubexpfin_(aom_reader *r, uint16_t n, uint16_t k,
+uint16_t aom_read_primitive_refsubexpfin_(struct aom_read_bit_buffer *r, uint16_t n, uint16_t k,
                                           uint16_t ref ACCT_STR_PARAM) {
   return inv_recenter_finite_nonneg(
       n, ref, aom_read_primitive_subexpfin(r, n, k, ACCT_STR_NAME));
@@ -112,7 +112,7 @@ uint16_t aom_read_primitive_refsubexpfin_(aom_reader *r, uint16_t n, uint16_t k,
 
 // Decode finite subexponential code that for a symbol v in [-(n-1), n-1] with
 // parameter k based on a reference ref also in [-(n-1), n-1].
-int16_t aom_read_signed_primitive_refsubexpfin_(aom_reader *r, uint16_t n,
+int16_t aom_read_signed_primitive_refsubexpfin_(struct aom_read_bit_buffer *r, uint16_t n,
                                                 uint16_t k,
                                                 int16_t ref ACCT_STR_PARAM) {
   ref += n - 1;
