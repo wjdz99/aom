@@ -1039,6 +1039,8 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
             orig_pos_x += mv.col * (1 << (1 - ssx));
             int pos_y = sf->scale_value_y(orig_pos_y, sf);
             int pos_x = sf->scale_value_x(orig_pos_x, sf);
+            pos_x += (1 << (SCALE_EXTRA_BITS - 1));
+            pos_y += (1 << (SCALE_EXTRA_BITS - 1));
 
             const int top = -((AOM_INTERP_EXTEND + bh) << SCALE_SUBPEL_BITS);
             const int bottom = (pre_buf->height + AOM_INTERP_EXTEND)
@@ -1160,6 +1162,8 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
         orig_pos_x += mv.col * (1 << (1 - ssx));
         int pos_y = sf->scale_value_y(orig_pos_y, sf);
         int pos_x = sf->scale_value_x(orig_pos_x, sf);
+        pos_x += (1 << (SCALE_EXTRA_BITS - 1));
+        pos_y += (1 << (SCALE_EXTRA_BITS - 1));
 
         // Clamp against the reference frame borders, with enough extension
         // that we don't force the reference block to be partially onscreen.
@@ -3014,6 +3018,8 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
     orig_pos_x += mv.col * (1 << (1 - ssx));
     int pos_y = sf->scale_value_y(orig_pos_y, sf);
     int pos_x = sf->scale_value_x(orig_pos_x, sf);
+    pos_x += (1 << (SCALE_EXTRA_BITS - 1));
+    pos_y += (1 << (SCALE_EXTRA_BITS - 1));
 
     const int top = -((AOM_INTERP_EXTEND + bh) << SCALE_SUBPEL_BITS);
     const int bottom = (pre_buf->height + AOM_INTERP_EXTEND)
