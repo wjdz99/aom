@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "9b24f510_b6c35134",
+        "filename": "av1/common/onyxc_int.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-06-27T19:55:20Z",
+      "side": 1,
+      "message": "This content almost certainly belongs in the encoder, and in a hash/crc specific file",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 18
+      },
+      "revId": "035396efc44374f02772217eba3d159c58fbaee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a73abe0_8d468809",
+        "filename": "av1/common/onyxc_int.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-06-27T19:55:20Z",
+      "side": 1,
+      "message": "prefer aom_malloc / aom_free",
+      "range": {
+        "startLine": 93,
+        "startChar": 17,
+        "endLine": 93,
+        "endChar": 23
+      },
+      "revId": "035396efc44374f02772217eba3d159c58fbaee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7b31419_cd7153ab",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-06-27T19:55:20Z",
+      "side": 1,
+      "message": "we don\u0027t use m_ prefixes in this codebase",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 29
+      },
+      "revId": "035396efc44374f02772217eba3d159c58fbaee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4e925429_4a4133e9",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 1
@@ -22,6 +91,190 @@
       "revId": "035396efc44374f02772217eba3d159c58fbaee6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c74e0a16_d1f61115",
+        "filename": "av1/common/vector.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-06-27T19:55:20Z",
+      "side": 1,
+      "message": "This probably belongs in third_party/",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 2
+      },
+      "revId": "035396efc44374f02772217eba3d159c58fbaee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c109f30_75b6eab3",
+        "filename": "av1/common/vector.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-06-27T19:55:20Z",
+      "side": 1,
+      "message": "probably belongs in third_party/",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 2
+      },
+      "revId": "035396efc44374f02772217eba3d159c58fbaee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "78c1debe_bb5e4c44",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5590,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-06-27T19:55:20Z",
+      "side": 1,
+      "message": "Should be aom_malloc and wrapped in CHECK_MEM_ERROR",
+      "range": {
+        "startLine": 5590,
+        "startChar": 12,
+        "endLine": 5590,
+        "endChar": 18
+      },
+      "revId": "035396efc44374f02772217eba3d159c58fbaee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5489b842_5a70f787",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5594,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-06-27T19:55:20Z",
+      "side": 1,
+      "message": "Is this going to break with high_bit_depth?",
+      "range": {
+        "startLine": 5594,
+        "startChar": 43,
+        "endLine": 5594,
+        "endChar": 49
+      },
+      "revId": "035396efc44374f02772217eba3d159c58fbaee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f162302f_8e56b603",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2541,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-06-27T19:55:20Z",
+      "side": 1,
+      "message": "static or av1_",
+      "range": {
+        "startLine": 2541,
+        "startChar": 0,
+        "endLine": 2541,
+        "endChar": 22
+      },
+      "revId": "035396efc44374f02772217eba3d159c58fbaee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c04e7e4_7c6ad61f",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2542,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-06-27T19:55:20Z",
+      "side": 1,
+      "message": "The style in this file is under_scores, not camelCase",
+      "range": {
+        "startLine": 2541,
+        "startChar": 23,
+        "endLine": 2542,
+        "endChar": 70
+      },
+      "revId": "035396efc44374f02772217eba3d159c58fbaee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61f80194_915183a7",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2571,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-06-27T19:55:20Z",
+      "side": 1,
+      "message": "Theses should match the style of their neighbors",
+      "range": {
+        "startLine": 2571,
+        "startChar": 30,
+        "endLine": 2571,
+        "endChar": 44
+      },
+      "revId": "035396efc44374f02772217eba3d159c58fbaee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0e4fe98_9ff14eba",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 6049,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-06-27T19:55:20Z",
+      "side": 1,
+      "message": "The if can be limited to just these parameters or even keep them in the signature for both forks",
+      "range": {
+        "startLine": 6048,
+        "startChar": 59,
+        "endLine": 6049,
+        "endChar": 57
+      },
+      "revId": "035396efc44374f02772217eba3d159c58fbaee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
