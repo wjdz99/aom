@@ -1,0 +1,215 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee8abf67_4dc716ce",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 20
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-27T01:49:03Z",
+      "side": 1,
+      "message": "some of this description could appear at the top of the file too",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "976aff26_81674097",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-27T01:49:03Z",
+      "side": 1,
+      "message": "this should be static and have a TOOD based on your other comment",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c38e8f1_b49a8125",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-27T01:49:03Z",
+      "side": 1,
+      "message": "does this need to be **?\n\n+ you can drop _recursive and make this an action, parse_stats or so. _recursive is an implementation detail",
+      "range": {
+        "startLine": 36,
+        "startChar": 35,
+        "endLine": 36,
+        "endChar": 58
+      },
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fe34a22_a5c033a0",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-27T01:49:03Z",
+      "side": 1,
+      "message": "you\u0027ll leak file descriptors at least here, this should return an error to allow for cleanup",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c093028f_ad5e3bea",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-27T01:49:03Z",
+      "side": 1,
+      "message": "this can be const",
+      "range": {
+        "startLine": 45,
+        "startChar": 11,
+        "endLine": 45,
+        "endChar": 22
+      },
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38613f67_a1fc33ef",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-27T01:49:03Z",
+      "side": 1,
+      "message": "sizeof(*probs)",
+      "range": {
+        "startLine": 47,
+        "startChar": 33,
+        "endLine": 47,
+        "endChar": 49
+      },
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4273db3_f8658632",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-27T01:49:03Z",
+      "side": 1,
+      "message": "failed",
+      "range": {
+        "startLine": 50,
+        "startChar": 45,
+        "endLine": 50,
+        "endChar": 50
+      },
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "515607e9_7d8a45a9",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-27T01:49:03Z",
+      "side": 1,
+      "message": "loop variables should be scoped to the loop, here and elsewhere",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11a0fe66_7b76e82f",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-27T01:49:03Z",
+      "side": 1,
+      "message": "prefer {}s on multi-line if()s",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7e8c707_b7def2a9",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-27T01:49:03Z",
+      "side": 1,
+      "message": "we\u0027re compiling with c99 now, you can move this to its first use",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7edc35c1_69496132",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-27T01:49:03Z",
+      "side": 1,
+      "message": "0 / EXIT_SUCCESS is common for runs without error",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
