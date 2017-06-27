@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "866d5ea8_5e64e9d3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 20
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T18:17:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee8abf67_4dc716ce",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "976aff26_81674097",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 20
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "7eb98942_a1aff575",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T18:17:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "976aff26_81674097",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4c38e8f1_b49a8125",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 20
@@ -47,6 +83,30 @@
       "writtenOn": "2017-06-27T01:49:03Z",
       "side": 1,
       "message": "does this need to be **?\n\n+ you can drop _recursive and make this an action, parse_stats or so. _recursive is an implementation detail",
+      "range": {
+        "startLine": 36,
+        "startChar": 35,
+        "endLine": 36,
+        "endChar": 58
+      },
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "015c1185_c70a6149",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T18:17:11Z",
+      "side": 1,
+      "message": "1. The pointer of the counts to be used is moving, I\u0027d like to move it every time something has been parsed instead of maintaining some logic in the recursive function to update the pointer at next use, so use double pointer.\n2. Renamed the function as parse_stats()",
+      "parentUuid": "4c38e8f1_b49a8125",
       "range": {
         "startLine": 36,
         "startChar": 35,
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "cbcee4a2_9b852968",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T18:17:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0fe34a22_a5c033a0",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c093028f_ad5e3bea",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 20
@@ -96,6 +174,30 @@
       "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb735614_d089c20c",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T18:17:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c093028f_ad5e3bea",
+      "range": {
+        "startLine": 45,
+        "startChar": 11,
+        "endLine": 45,
+        "endChar": 22
+      },
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -122,6 +224,30 @@
     },
     {
       "key": {
+        "uuid": "8e06a599_48cf4f23",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T18:17:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38613f67_a1fc33ef",
+      "range": {
+        "startLine": 47,
+        "startChar": 33,
+        "endLine": 47,
+        "endChar": 49
+      },
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b4273db3_f8658632",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 20
@@ -145,6 +271,30 @@
     },
     {
       "key": {
+        "uuid": "cf0dfa77_39f9b3f0",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T18:17:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4273db3_f8658632",
+      "range": {
+        "startLine": 50,
+        "startChar": 45,
+        "endLine": 50,
+        "endChar": 50
+      },
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "515607e9_7d8a45a9",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 20
@@ -159,6 +309,24 @@
       "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdd11e8d_b7983458",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T18:17:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "515607e9_7d8a45a9",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -179,6 +347,24 @@
     },
     {
       "key": {
+        "uuid": "53e8ce99_1552cb0e",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T18:17:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11a0fe66_7b76e82f",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b7e8c707_b7def2a9",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 20
@@ -196,6 +382,24 @@
     },
     {
       "key": {
+        "uuid": "619481bb_01b7bc04",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T18:17:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7e8c707_b7def2a9",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7edc35c1_69496132",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 20
@@ -210,6 +414,24 @@
       "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14dc97f0_7ceaba51",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-27T18:17:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7edc35c1_69496132",
+      "revId": "549d802573b2d5a69c616c220e58b944df31f44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
