@@ -2500,7 +2500,7 @@ static const aom_prob
 #if CONFIG_TX64X64
       { 1, 160, 160, 170, 180 }, { 1, 200, 200, 210, 220 },
 #else
-      { 1, 160, 160, 170 }, { 1, 200, 200, 210 },
+      { 1, 192, 192, 192 }, { 1, 200, 200, 210 },
 #endif  // CONFIG_TX64X64
 #endif  // CONFIG_CHROMA_2X2
     };
