@@ -240,13 +240,42 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
 }
 
 void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
-               int col, TX_SIZE tx_size) {
+               int col, TX_SIZE tx_size, BLOCK_SIZE bsize) {
   const int tx_width = tx_size_wide[tx_size];
   const int tx_height = tx_size_high[tx_size];
   const int tx_off_log2 = tx_size_wide_log2[0];
 
   // Store the input into the CfL pixel buffer
   uint8_t *y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << tx_off_log2];
+
+  // Store the surface of the pixel buffer that was written to, this way we
+  // can manage chroma overrun (e.g. when the chroma surfaces goes beyond the
+  // frame boundary)
+  // Pixel buffer must be filled up to the current row and col
+  const int step = tx_width / tx_size_wide[0];
+  if (col == 0 && row == 0) {
+    cfl->y_width = tx_width;
+    cfl->y_height = tx_height;
+    // Current position is moved to next block
+    cfl->y_pos = step;
+  } else {
+#if CONFIG_DEBUG
+    const int stride = block_size_wide[bsize] / tx_width;
+
+    // We assume that the blocks are visited in raster scan order. As such,
+    // the row and col should match the current position.
+    assert(cfl->y_pos == row * stride + col);
+#endif
+
+    cfl->y_width = OD_MAXI((col << tx_off_log2) + tx_width, cfl->y_width);
+    cfl->y_height = OD_MAXI((row << tx_off_log2) + tx_height, cfl->y_height);
+
+    // Current position is moved to next block
+    cfl->y_pos += step;
+  }
+
+  // Invalidate current parameters
+  cfl->are_parameters_computed = 0;
 
   // Check that we remain inside the pixel buffer.
   assert(MAX_SB_SIZE * (row + tx_height - 1) + col + tx_width - 1 <
@@ -260,20 +289,6 @@ void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
     y_pix += MAX_SB_SIZE;
     input += input_stride;
   }
-
-  // Store the surface of the pixel buffer that was written to, this way we
-  // can manage chroma overrun (e.g. when the chroma surfaces goes beyond the
-  // frame boundary)
-  if (col == 0 && row == 0) {
-    cfl->y_width = tx_width;
-    cfl->y_height = tx_height;
-  } else {
-    cfl->y_width = OD_MAXI((col << tx_off_log2) + tx_width, cfl->y_width);
-    cfl->y_height = OD_MAXI((row << tx_off_log2) + tx_height, cfl->y_height);
-  }
-
-  // Invalidate current parameters
-  cfl->are_parameters_computed = 0;
 }
 
 void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
