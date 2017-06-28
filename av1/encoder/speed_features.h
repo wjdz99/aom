@@ -187,10 +187,17 @@ typedef enum {
 #endif
 } TX_TYPE_PRUNE_MODE;
 
+typedef enum {
+  TRELLIS_FULL_SEARCH,
+  TRELLIS_THRESH_SEARCH,
+  TRELLIS_DISABLE_SEARCH
+} TRELLIS_OPT_SEARCH_TYPES;
+
 typedef struct {
   TX_TYPE_PRUNE_MODE prune_mode;
   int fast_intra_tx_type_search;
   int fast_inter_tx_type_search;
+  TRELLIS_OPT_SEARCH_TYPES trellis_opt_type;
 } TX_TYPE_SEARCH;
 
 typedef enum {
