@@ -7832,7 +7832,9 @@ static int64_t motion_mode_rd(
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_WARPED_MOTION
-  int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
+  int pts0[SAMPLES_ARRAY_SIZE], pts_inref0[SAMPLES_ARRAY_SIZE];
+  int pts_mv0[SAMPLES_ARRAY_SIZE];
+  int total_samples;
 #endif  // CONFIG_WARPED_MOTION
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -7842,7 +7844,9 @@ static int64_t motion_mode_rd(
   if (cm->interp_filter == SWITCHABLE) rd_stats->rate += rs;
 #if CONFIG_WARPED_MOTION
   aom_clear_system_state();
-  mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
+  mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0,
+                                      pts_mv0);
+  total_samples = mbmi->num_proj_ref[0];
 #if CONFIG_EXT_INTER
   best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
 #endif  // CONFIG_EXT_INTER
@@ -7935,6 +7939,8 @@ static int64_t motion_mode_rd(
 
 #if CONFIG_WARPED_MOTION
     if (mbmi->motion_mode == WARPED_CAUSAL) {
+      int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
+
 #if CONFIG_EXT_INTER
       *mbmi = *best_bmc_mbmi;
       mbmi->motion_mode = WARPED_CAUSAL;
@@ -7950,6 +7956,17 @@ static int64_t motion_mode_rd(
                                                             : cm->interp_filter;
 #endif  // CONFIG_DUAL_FILTER
 
+      memcpy(pts, pts0, total_samples * 2 * sizeof(*pts0));
+      memcpy(pts_inref, pts_inref0, total_samples * 2 * sizeof(*pts_inref0));
+      // Rank the samples by motion vector difference
+      if (mbmi->num_proj_ref[0] > 1) {
+        mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts,
+                                            pts_inref, mbmi->num_proj_ref[0]);
+#if CONFIG_EXT_INTER
+        best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
+#endif  // CONFIG_EXT_INTER
+      }
+
       if (!find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
                            mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
                            &mbmi->wm_params[0], mi_row, mi_col)) {
@@ -7958,9 +7975,11 @@ static int64_t motion_mode_rd(
           int tmp_rate_mv = 0;
           const int_mv mv0 = mbmi->mv[0];
           WarpedMotionParams wm_params0 = mbmi->wm_params[0];
+          int num_proj_ref0 = mbmi->num_proj_ref[0];
 
           // Refine MV in a small range.
-          av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts, pts_inref);
+          av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts0, pts_inref0,
+                               pts_mv0, total_samples);
 
           // Keep the refined MV and WM parameters.
           if (mv0.as_int != mbmi->mv[0].as_int) {
@@ -7981,6 +8000,7 @@ static int64_t motion_mode_rd(
               tmp_rate_mv = AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
             }
 #if CONFIG_EXT_INTER
+            best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
             tmp_rate2 = rate2_bmc_nocoeff - rate_mv_bmc + tmp_rate_mv;
 #else
             tmp_rate2 = rate2_nocoeff - rate_mv + tmp_rate_mv;
@@ -7995,6 +8015,7 @@ static int64_t motion_mode_rd(
             // Restore the old MV and WM parameters.
             mbmi->mv[0] = mv0;
             mbmi->wm_params[0] = wm_params0;
+            mbmi->num_proj_ref[0] = num_proj_ref0;
           }
         }
 
@@ -11551,7 +11572,13 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
 #if CONFIG_WARPED_MOTION
   if (is_motion_variation_allowed_bsize(bsize) && !has_second_ref(mbmi)) {
     int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
-    mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
+    int pts_mv[SAMPLES_ARRAY_SIZE];
+    mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref,
+                                        pts_mv);
+    // Rank the samples by motion vector difference
+    if (mbmi->num_proj_ref[0] > 1)
+      mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
+                                          pts_inref, mbmi->num_proj_ref[0]);
   }
 #endif
 
