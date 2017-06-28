@@ -42,6 +42,15 @@
 #include "av1/common/cfl.h"
 #endif
 
+// Setting this to 1 will disable trellis optimization within the
+// transform search. Trellis optimization will still be applied
+// in the final encode.
+#define DISABLE_TRELLISQ_SEARCH 0
+// Only do trellis optimization within the transform search if
+// there are enough non-zero coefficients.
+// DISABLE_TRELLISQ_SEARCH will take precendence if it is set to 1.
+#define OPT_B_THRESHOLD 1
+
 // Check if one needs to use c version subtraction.
 static int check_subtract_block_size(int w, int h) { return w < 4 || h < 4; }
 
@@ -459,6 +468,37 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
   return final_eob;
 }
 #endif  // !CONFIG_LV_MAP
+
+int do_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
+                  BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
+#if DISABLE_TRELLISQ_SEARCH
+  return 0;
+#endif
+#if !OPT_B_THRESHOLD
+  return 1;
+#endif
+  MACROBLOCKD *const xd = &mb->e_mbd;
+  struct macroblock_plane *const p = &mb->plane[plane];
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  const PLANE_TYPE plane_type = pd->plane_type;
+  const int eob = p->eobs[block];
+  tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
+  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  const SCAN_ORDER *const scan_order =
+      get_scan(cm, tx_size, tx_type, &xd->mi[0]->mbmi);
+  const int16_t *const scan = scan_order->scan;
+  const int bw = block_size_wide[plane_bsize];
+  const int bh = block_size_high[plane_bsize];
+  const int zero_coeff_thresh = (int)((bw * bh) * 0.20);
+  int zero_coeff_count = 0;
+  for (int i = 0; i < eob; i++) {
+    const int rc = scan[i];
+    int coeff = qcoeff[rc];
+    if (!coeff) zero_coeff_count++;
+    if (zero_coeff_count > zero_coeff_thresh) return 0;
+  }
+  return 1;
+}
 
 int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
                    BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
