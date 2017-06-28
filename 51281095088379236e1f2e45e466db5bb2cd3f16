@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d7299da_e5329c1d",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1508,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-28T16:41:23Z",
+      "side": 1,
+      "message": "It may be more clear to use void* instead of tran_low_t* here.",
+      "range": {
+        "startLine": 1508,
+        "startChar": 39,
+        "endLine": 1508,
+        "endChar": 51
+      },
+      "revId": "51281095088379236e1f2e45e466db5bb2cd3f16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
