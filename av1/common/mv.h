@@ -154,6 +154,11 @@ static INLINE void set_default_warp_params(WarpedMotionParams *wm) {
 //
 // XX_MIN, XX_MAX are also computed to avoid repeated computation
 
+// 0 corresponds to horizontal, 1 corresponds to vertical
+#define FRAME_SPLIT_TYPE 0
+#define FRAME_SPLIT_MARGIN 5
+// temporary, 0 correspons to fist side, 1 corresponds to second
+#define FRAME_SPLIT_SIDE 0
 #define SUBEXPFIN_K 3
 #define GM_TRANS_PREC_BITS 6
 #define GM_ABS_TRANS_BITS 12
@@ -184,6 +189,20 @@ static INLINE void set_default_warp_params(WarpedMotionParams *wm) {
 
 // Use global motion parameters for sub8x8 blocks
 #define GLOBAL_SUB8X8_USED 0
+
+static INLINE int get_split_width(int width_old) {
+  // vertical split
+  if (FRAME_SPLIT_TYPE) return (width_old >> 1) + FRAME_SPLIT_MARGIN;
+  // horizontal split
+  return width_old;
+}
+
+static INLINE int get_split_height(int height_old) {
+  // vertical split
+  if (FRAME_SPLIT_TYPE) return height_old;
+  // horizontal split
+  return (height_old >> 1) + FRAME_SPLIT_MARGIN;
+}
 
 static INLINE int block_center_x(int mi_col, BLOCK_SIZE bs) {
   const int bw = block_size_wide[bs];

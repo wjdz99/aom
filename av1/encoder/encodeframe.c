@@ -4889,6 +4889,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0
     };
     int num_refs_using_gm = 0;
+    const int frm_split_width = get_split_width(cpi->source->y_width);
+    const int frm_split_height = get_split_height(cpi->source->y_height);
 
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
       ref_buf[frame] = get_ref_frame_buffer(cpi, frame);
@@ -4903,13 +4905,33 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       } else if (ref_buf[frame] &&
                  do_gm_search_logic(&cpi->sf, num_refs_using_gm, frame)) {
         TransformationType model;
+
+        const int ref_split_width = get_split_width(ref_buf[frame]->y_width);
+        const int ref_split_height = get_split_height(ref_buf[frame]->y_height);
+        int frm_offset_width = 0;
+        int frm_offset_height = 0;
+        int ref_offset_width = 0;
+        int ref_offset_height = 0;
+
+        if (FRAME_SPLIT_SIDE) {
+           frm_offset_width = cpi->source->y_width - frm_split_width;
+           frm_offset_height = cpi->source->y_height - frm_split_height;
+           ref_offset_width = ref_buf[frame]->y_width - ref_split_width;
+           ref_offset_height = ref_buf[frame]->y_height - ref_split_height;
+        }
+
         const int64_t ref_frame_error = av1_frame_error(
 #if CONFIG_HIGHBITDEPTH
-            xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
+          xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
 #endif  // CONFIG_HIGHBITDEPTH
-            ref_buf[frame]->y_buffer, ref_buf[frame]->y_stride,
-            cpi->source->y_buffer, cpi->source->y_width, cpi->source->y_height,
-            cpi->source->y_stride);
+          ref_buf[frame]->y_buffer +
+          (ref_offset_width + ref_offset_height * ref_buf[frame]->y_stride),
+          ref_buf[frame]->y_stride,
+          cpi->source->y_buffer + (frm_offset_width + frm_offset_height *
+          cpi->source->y_stride), frm_split_width, frm_split_height,
+          cpi->source->y_stride);
+
+
 
         if (ref_frame_error == 0) continue;
 
@@ -4941,10 +4963,12 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #if CONFIG_HIGHBITDEPTH
                   xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
 #endif  // CONFIG_HIGHBITDEPTH
-                  ref_buf[frame]->y_buffer, ref_buf[frame]->y_width,
-                  ref_buf[frame]->y_height, ref_buf[frame]->y_stride,
-                  cpi->source->y_buffer, cpi->source->y_width,
-                  cpi->source->y_height, cpi->source->y_stride, 5,
+                  ref_buf[frame]->y_buffer +
+                  (ref_offset_width + ref_offset_height * ref_buf[frame]->y_stride),
+                  ref_split_width, ref_split_height, ref_buf[frame]->y_stride,
+                  cpi->source->y_buffer +
+                  (frm_offset_width + frm_offset_height * cpi->source->y_stride),
+                  frm_split_width, frm_split_height, cpi->source->y_stride, 5,
                   best_warp_error);
               if (warp_error < best_warp_error) {
                 best_warp_error = warp_error;

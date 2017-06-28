@@ -285,13 +285,37 @@ int compute_global_motion_feature_based(
       ref_buffer = ref->y_buffer_8bit = downconvert_frame(ref, bit_depth);
   }
 #endif
+  const int frm_split_width = get_split_width(frm->y_width);
+  const int frm_split_height = get_split_height(frm->y_height);
+  const int ref_split_width = get_split_width(ref->y_width);
+  const int ref_split_height = get_split_height(ref->y_height);
+  if (FRAME_SPLIT_SIDE) {
+    // compute interest points in images using FAST features
+    const int frm_offset_width = frm->y_width - frm_split_width;
+    const int frm_offset_height = frm->y_height - frm_split_height;
+    const int ref_offset_width = ref->y_width - ref_split_width;
+    const int ref_offset_height = ref->y_height - ref_split_height;
+    num_frm_corners =
+      fast_corner_detect(frm_buffer + (frm_offset_width +
+                         frm_offset_height * frm->y_stride),
+                         frm_split_width, frm_split_height, frm->y_stride,
+                         frm_corners, MAX_CORNERS);
+    num_ref_corners =
+      fast_corner_detect(ref_buffer + (ref_offset_width +
+                         ref_offset_height * ref->y_stride),
+                         ref_split_width, ref_split_height,
+                         ref->y_stride, ref_corners, MAX_CORNERS);
 
-  // compute interest points in images using FAST features
-  num_frm_corners = fast_corner_detect(frm_buffer, frm->y_width, frm->y_height,
-                                       frm->y_stride, frm_corners, MAX_CORNERS);
-  num_ref_corners = fast_corner_detect(ref_buffer, ref->y_width, ref->y_height,
-                                       ref->y_stride, ref_corners, MAX_CORNERS);
 
+  } else {
+    // compute interest points in images using FAST features
+    num_frm_corners = fast_corner_detect(frm_buffer, frm_split_width,
+                                         frm_split_height, frm->y_stride,
+                                         frm_corners, MAX_CORNERS);
+    num_ref_corners = fast_corner_detect(ref_buffer, ref_split_width,
+                                         ref_split_height, ref->y_stride,
+                                         ref_corners, MAX_CORNERS);
+  }
   // find correspondences between the two images
   correspondences =
       (int *)malloc(num_frm_corners * 4 * sizeof(*correspondences));
