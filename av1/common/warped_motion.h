@@ -28,7 +28,10 @@
 #if CONFIG_WARPED_MOTION
 #define LEAST_SQUARES_SAMPLES_MAX_BITS 3
 #define LEAST_SQUARES_SAMPLES_MAX (1 << LEAST_SQUARES_SAMPLES_MAX_BITS)
-#define SAMPLES_ARRAY_SIZE (LEAST_SQUARES_SAMPLES_MAX * 2)
+// #define SAMPLES_ARRAY_SIZE (LEAST_SQUARES_SAMPLES_MAX * 2)
+// Search half bsize on the top and half bsize on the left, 1 upper-left block,
+// 1 upper-right block.
+#define SAMPLES_ARRAY_SIZE ((MAX_MIB_SIZE * MAX_MIB_SIZE + 2) * 2)
 
 #define DEFAULT_WMTYPE AFFINE
 #endif  // CONFIG_WARPED_MOTION

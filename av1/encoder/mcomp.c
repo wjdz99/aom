@@ -989,7 +989,8 @@ unsigned int av1_compute_motion_cost(const AV1_COMP *cpi, MACROBLOCK *const x,
 // Refine MV in a small range
 unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
                                   BLOCK_SIZE bsize, int mi_row, int mi_col,
-                                  int *pts, int *pts_inref) {
+                                  int *pts0, int *pts_inref0, int *pts_mv0,
+                                  int total_samples) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MODE_INFO *mi = xd->mi[0];
@@ -1002,6 +1003,7 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
   int16_t *tr = &mbmi->mv[0].as_mv.row;
   int16_t *tc = &mbmi->mv[0].as_mv.col;
   WarpedMotionParams best_wm_params = mbmi->wm_params[0];
+  int best_num_proj_ref = mbmi->num_proj_ref[0];
   unsigned int bestmse;
   int minc, maxc, minr, maxr;
   const int start = cm->allow_high_precision_mv ? 0 : 4;
@@ -1028,6 +1030,14 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
 
       if (*tc >= minc && *tc <= maxc && *tr >= minr && *tr <= maxr) {
         MV this_mv = { *tr, *tc };
+        int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
+
+        memcpy(pts, pts0, total_samples * 2 * sizeof(*pts0));
+        memcpy(pts_inref, pts_inref0, total_samples * 2 * sizeof(*pts_inref0));
+        if (total_samples > 1)
+          mbmi->num_proj_ref[0] =
+              sortSamples(pts_mv0, &this_mv, pts, pts_inref, total_samples);
+
         if (!find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize, *tr,
                              *tc, &mbmi->wm_params[0], mi_row, mi_col)) {
           thismse =
@@ -1036,6 +1046,7 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
           if (thismse < bestmse) {
             best_idx = idx;
             best_wm_params = mbmi->wm_params[0];
+            best_num_proj_ref = mbmi->num_proj_ref[0];
             bestmse = thismse;
           }
         }
@@ -1053,6 +1064,7 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
   *tr = br;
   *tc = bc;
   mbmi->wm_params[0] = best_wm_params;
+  mbmi->num_proj_ref[0] = best_num_proj_ref;
 
   return bestmse;
 }
