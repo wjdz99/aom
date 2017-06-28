@@ -379,6 +379,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->cb_partition_search = 0;
   sf->alt_ref_search_fp = 0;
   sf->partition_search_type = SEARCH_PARTITION;
+  sf->tx_type_search.trellis_opt_type = TRELLIS_THRESH_SEARCH;
   sf->tx_type_search.prune_mode = NO_PRUNE;
   sf->tx_type_search.fast_intra_tx_type_search = 0;
   sf->tx_type_search.fast_inter_tx_type_search = 0;
