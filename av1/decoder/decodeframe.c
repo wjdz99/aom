@@ -729,11 +729,17 @@ static void predict_and_reconstruct_intra_block(
 #endif
   }
 #if CONFIG_CFL
+  struct macroblockd_plane *const pd = &xd->plane[plane];
   if (plane == AOM_PLANE_Y) {
-    struct macroblockd_plane *const pd = &xd->plane[plane];
+#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
+    const BLOCK_SIZE plane_bsize =
+        AOMMAX(BLOCK_4X4, get_plane_block_size(mbmi->sb_type, pd));
+#else
+    const BLOCK_SIZE plane_bsize = get_plane_block_size(mbmi->sb_type, pd);
+#endif
     uint8_t *dst =
         &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
-    cfl_store(xd->cfl, dst, pd->dst.stride, row, col, tx_size);
+    cfl_store(xd->cfl, dst, pd->dst.stride, row, col, tx_size, plane_bsize);
   }
 #endif
 }
