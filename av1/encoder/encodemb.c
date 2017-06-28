@@ -42,6 +42,15 @@
 #include "av1/common/cfl.h"
 #endif
 
+// Setting this to 1 will disable trellis optimization within the
+// transform search. Trellis optimization will still be applied
+// in the final encode.
+#define DISABLE_TRELLISQ_SEARCH 0
+// Only do trellis optimization within the transform search if
+// there are enough non-zero coefficients.
+// DISABLE_TRELLISQ_SEARCH will take precendence if it is set to 1.
+#define OPT_B_THRESHOLD 1
+
 // Check if one needs to use c version subtraction.
 static int check_subtract_block_size(int w, int h) { return w < 4 || h < 4; }
 
