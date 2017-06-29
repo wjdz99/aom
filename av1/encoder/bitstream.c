@@ -4801,7 +4801,9 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 
   encode_loopfilter(cm, wb);
 #if CONFIG_CDEF
-  encode_cdef(cm, wb);
+  if (!xd->lossless[0]) {
+    encode_cdef(cm, wb);
+  }
 #endif
 #if CONFIG_LOOP_RESTORATION
   encode_restoration_mode(cm, wb);
