@@ -325,6 +325,7 @@ EXPERIMENT_LIST="
     sbl_symbol
     ncobmc_adapt_weight
     bgsprite
+    var_tx_fixed_tx_mode
 "
 CONFIG_LIST="
     dependency_tracking
