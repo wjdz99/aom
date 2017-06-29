@@ -16,6 +16,10 @@
 extern "C" {
 #endif
 
+#if CONFIG_GF_GROUPS
+#define ARF_FILTER_CUTOFF 8
+#endif  // CONFIG_GF_GROUPS
+
 void av1_temporal_filter(AV1_COMP *cpi, int distance);
 
 #ifdef __cplusplus
