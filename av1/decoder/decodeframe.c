@@ -146,23 +146,12 @@ static int decode_unsigned_max(struct aom_read_bit_buffer *rb, int max) {
 
 static TX_MODE read_tx_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
                             struct aom_read_bit_buffer *rb) {
-  int i, all_lossless = 1;
 #if CONFIG_TX64X64
   TX_MODE tx_mode;
 #endif
+  const int lossless = all_lossless(cm, xd);
 
-  if (cm->seg.enabled) {
-    for (i = 0; i < MAX_SEGMENTS; ++i) {
-      if (!xd->lossless[i]) {
-        all_lossless = 0;
-        break;
-      }
-    }
-  } else {
-    all_lossless = xd->lossless[0];
-  }
-
-  if (all_lossless) return ONLY_4X4;
+  if (lossless) return ONLY_4X4;
 #if CONFIG_TX64X64
   tx_mode = aom_rb_read_bit(rb) ? TX_MODE_SELECT : aom_rb_read_literal(rb, 2);
   if (tx_mode == ALLOW_32X32) tx_mode += aom_rb_read_bit(rb);
@@ -2674,7 +2663,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 
 #if CONFIG_CDEF
   if (bsize == cm->sb_size) {
-    if (!sb_all_skip(cm, mi_row, mi_col)) {
+    if (!sb_all_skip(cm, mi_row, mi_col) && !all_lossless(cm, xd)) {
       cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
           aom_read_literal(r, cm->cdef_bits, ACCT_STR);
     } else {
@@ -4726,9 +4715,6 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #endif  // CONFIG_EXT_PARTITION
 
   setup_loopfilter(cm, rb);
-#if CONFIG_CDEF
-  setup_cdef(cm, rb);
-#endif
 #if CONFIG_LOOP_RESTORATION
   decode_restoration_mode(cm, rb);
 #endif  // CONFIG_LOOP_RESTORATION
@@ -4789,7 +4775,11 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
                       cm->uv_dc_delta_q == 0 && cm->uv_ac_delta_q == 0;
     xd->qindex[i] = qindex;
   }
-
+#if CONFIG_CDEF
+  if (!all_lossless(cm, xd)) {
+    setup_cdef(cm, rb);
+  }
+#endif
   setup_segmentation_dequant(cm);
   cm->tx_mode = read_tx_mode(cm, xd, rb);
   cm->reference_mode = read_frame_reference_mode(cm, rb);
@@ -5524,7 +5514,7 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
   }
 
 #if CONFIG_CDEF
-  if (!cm->skip_loop_filter) {
+  if (!cm->skip_loop_filter && !all_lossless(cm, xd)) {
     av1_cdef_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
   }
 #endif  // CONFIG_CDEF

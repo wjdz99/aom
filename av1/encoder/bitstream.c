@@ -3249,7 +3249,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 
 #if CONFIG_CDEF
   if (bsize == cm->sb_size && !sb_all_skip(cm, mi_row, mi_col) &&
-      cm->cdef_bits != 0) {
+      cm->cdef_bits != 0 && !all_lossless(cm, xd)) {
     aom_write_literal(w, cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]
                              ->mbmi.cdef_strength,
                       cm->cdef_bits);
@@ -3876,19 +3876,8 @@ static void update_seg_probs(AV1_COMP *cpi, aom_writer *w) {
 
 static void write_tx_mode(AV1_COMMON *cm, MACROBLOCKD *xd, TX_MODE *mode,
                           struct aom_write_bit_buffer *wb) {
-  int i, all_lossless = 1;
-
-  if (cm->seg.enabled) {
-    for (i = 0; i < MAX_SEGMENTS; ++i) {
-      if (!xd->lossless[i]) {
-        all_lossless = 0;
-        break;
-      }
-    }
-  } else {
-    all_lossless = xd->lossless[0];
-  }
-  if (all_lossless) {
+  const int lossless = all_lossless(cm, xd);
+  if (lossless) {
     *mode = ONLY_4X4;
     return;
   }
@@ -4800,9 +4789,6 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 #endif  // CONFIG_EXT_PARTITION
 
   encode_loopfilter(cm, wb);
-#if CONFIG_CDEF
-  encode_cdef(cm, wb);
-#endif
 #if CONFIG_LOOP_RESTORATION
   encode_restoration_mode(cm, wb);
 #endif  // CONFIG_LOOP_RESTORATION
@@ -4838,7 +4824,11 @@ static void write_uncompressed_header(AV1_COMP *cpi,
     }
   }
 #endif
-
+#if CONFIG_CDEF
+  if (!all_lossless(cm, xd)) {
+    encode_cdef(cm, wb);
+  }
+#endif
   write_tx_mode(cm, xd, &cm->tx_mode, wb);
 
   if (cpi->allow_comp_inter_inter) {
