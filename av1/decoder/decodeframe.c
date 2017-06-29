@@ -2673,13 +2673,15 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
 #if CONFIG_CDEF
-  if (bsize == cm->sb_size) {
-    if (!sb_all_skip(cm, mi_row, mi_col)) {
-      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
+  if (!xd->lossless[0]) {
+    if (bsize == cm->sb_size) {
+      if (!sb_all_skip(cm, mi_row, mi_col)) {
+        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
           aom_read_literal(r, cm->cdef_bits, ACCT_STR);
-    } else {
-      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
+      } else {
+        cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
           -1;
+      }
     }
   }
 #endif  // CONFIG_CDEF
