@@ -4467,11 +4467,12 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   struct segmentation *const seg = &cm->seg;
   TX_SIZE t;
 #if CONFIG_EC_ADAPT
-  FRAME_CONTEXT **tile_ctxs = aom_malloc(cm->tile_rows * cm->tile_cols *
-                                         sizeof(&cpi->tile_data[0].tctx));
+  FRAME_CONTEXT *fc = &cpi->tile_data[0].tctx;
+  FRAME_CONTEXT **tile_ctxs =
+      aom_malloc(cm->tile_rows * cm->tile_cols * sizeof(fc));
   aom_cdf_prob **cdf_ptrs =
       aom_malloc(cm->tile_rows * cm->tile_cols *
-                 sizeof(&cpi->tile_data[0].tctx.partition_cdf[0][0]));
+                 sizeof(fc->adapted_cdfs.partition_cdf[0][0]));
 #endif
 #if CONFIG_XIPHRC
   int frame_type;

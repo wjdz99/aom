@@ -144,7 +144,7 @@ static int read_delta_lflevel(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
 static PREDICTION_MODE read_intra_mode_y(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
                                          aom_reader *r, int size_group) {
   const PREDICTION_MODE y_mode =
-      read_intra_mode(r, ec_ctx->y_mode_cdf[size_group]);
+      read_intra_mode(r, ec_ctx->adapted_cdfs.y_mode_cdf[size_group]);
   FRAME_COUNTS *counts = xd->counts;
   if (counts) ++counts->y_mode[size_group][y_mode];
   return y_mode;
@@ -154,7 +154,7 @@ static PREDICTION_MODE read_intra_mode_uv(FRAME_CONTEXT *ec_ctx,
                                           MACROBLOCKD *xd, aom_reader *r,
                                           PREDICTION_MODE y_mode) {
   const PREDICTION_MODE uv_mode =
-      read_intra_mode(r, ec_ctx->uv_mode_cdf[y_mode]);
+      read_intra_mode(r, ec_ctx->adapted_cdfs.uv_mode_cdf[y_mode]);
   FRAME_COUNTS *counts = xd->counts;
   if (counts) ++counts->uv_mode[y_mode][uv_mode];
   return uv_mode;
@@ -478,8 +478,9 @@ static TX_SIZE read_selected_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd,
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
 
-  const int depth = aom_read_symbol(r, ec_ctx->tx_size_cdf[tx_size_cat][ctx],
-                                    tx_size_cat + 2, ACCT_STR);
+  const int depth =
+      aom_read_symbol(r, ec_ctx->adapted_cdfs.tx_size_cdf[tx_size_cat][ctx],
+                      tx_size_cat + 2, ACCT_STR);
   const TX_SIZE tx_size = depth_to_tx_size(depth);
 #if CONFIG_RECT_TX
   assert(!is_rect_tx(tx_size));
@@ -896,8 +897,9 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     p_angle = mode_to_angle_map[mbmi->mode] + mbmi->angle_delta[0] * ANGLE_STEP;
     if (av1_is_intra_filter_switchable(p_angle)) {
       FRAME_COUNTS *counts = xd->counts;
-      mbmi->intra_filter = aom_read_symbol(r, ec_ctx->intra_filter_cdf[ctx],
-                                           INTRA_FILTERS, ACCT_STR);
+      mbmi->intra_filter =
+          aom_read_symbol(r, ec_ctx->adapted_cdfs.intra_filter_cdf[ctx],
+                          INTRA_FILTERS, ACCT_STR);
       if (counts) ++counts->intra_filter[ctx][mbmi->intra_filter];
     } else {
       mbmi->intra_filter = INTRA_FILTER_LINEAR;
@@ -963,16 +965,21 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       FRAME_COUNTS *counts = xd->counts;
 
       if (inter_block) {
-        *tx_type = av1_ext_tx_inter_inv[eset][aom_read_symbol(
-            r, ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
-            ext_tx_cnt_inter[eset], ACCT_STR)];
-        if (counts) ++counts->inter_ext_tx[eset][square_tx_size][*tx_type];
+        if (eset > 0) {
+          *tx_type = av1_ext_tx_inter_inv[eset][aom_read_symbol(
+              r, ec_ctx->adapted_cdfs.inter_ext_tx_cdf[eset][square_tx_size],
+              ext_tx_cnt_inter[eset], ACCT_STR)];
+          if (counts) ++counts->inter_ext_tx[eset][square_tx_size][*tx_type];
+        }
       } else if (ALLOW_INTRA_EXT_TX) {
-        *tx_type = av1_ext_tx_intra_inv[eset][aom_read_symbol(
-            r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
-            ext_tx_cnt_intra[eset], ACCT_STR)];
-        if (counts)
-          ++counts->intra_ext_tx[eset][square_tx_size][mbmi->mode][*tx_type];
+        if (eset > 0) {
+          *tx_type = av1_ext_tx_intra_inv[eset][aom_read_symbol(
+              r, ec_ctx->adapted_cdfs
+                     .intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
+              ext_tx_cnt_intra[eset], ACCT_STR)];
+          if (counts)
+            ++counts->intra_ext_tx[eset][square_tx_size][mbmi->mode][*tx_type];
+        }
       }
     } else {
       *tx_type = DCT_DCT;
@@ -991,13 +998,14 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
       if (inter_block) {
         *tx_type = av1_ext_tx_inv[aom_read_symbol(
-            r, ec_ctx->inter_ext_tx_cdf[tx_size], TX_TYPES, ACCT_STR)];
+            r, ec_ctx->adapted_cdfs.inter_ext_tx_cdf[tx_size], TX_TYPES,
+            ACCT_STR)];
         if (counts) ++counts->inter_ext_tx[tx_size][*tx_type];
       } else {
         const TX_TYPE tx_type_nom = intra_mode_to_tx_type_context[mbmi->mode];
         *tx_type = av1_ext_tx_inv[aom_read_symbol(
-            r, ec_ctx->intra_ext_tx_cdf[tx_size][tx_type_nom], TX_TYPES,
-            ACCT_STR)];
+            r, ec_ctx->adapted_cdfs.intra_ext_tx_cdf[tx_size][tx_type_nom],
+            TX_TYPES, ACCT_STR)];
         if (counts) ++counts->intra_ext_tx[tx_size][tx_type_nom][*tx_type];
       }
     } else {
@@ -1590,8 +1598,8 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
            has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
         mbmi->interp_filter[dir] =
             (InterpFilter)av1_switchable_interp_inv[aom_read_symbol(
-                r, ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
-                ACCT_STR)];
+                r, ec_ctx->adapted_cdfs.switchable_interp_cdf[ctx],
+                SWITCHABLE_FILTERS, ACCT_STR)];
         if (counts) ++counts->switchable_interp[ctx][mbmi->interp_filter[dir]];
       }
     }
@@ -1608,8 +1616,8 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
     const int ctx = av1_get_pred_context_switchable_interp(xd);
     mbmi->interp_filter =
         (InterpFilter)av1_switchable_interp_inv[aom_read_symbol(
-            r, ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
-            ACCT_STR)];
+            r, ec_ctx->adapted_cdfs.switchable_interp_cdf[ctx],
+            SWITCHABLE_FILTERS, ACCT_STR)];
     if (counts) ++counts->switchable_interp[ctx][mbmi->interp_filter];
   }
 #endif  // CONFIG_DUAL_FILTER
