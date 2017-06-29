@@ -60,105 +60,6 @@ static const uint8_t rd_thresh_block_size_factor[BLOCK_SIZES] = {
 #endif  // CONFIG_EXT_PARTITION
 };
 
-static void fill_mode_costs(AV1_COMP *cpi) {
-  const FRAME_CONTEXT *const fc = cpi->common.fc;
-  int i, j;
-
-  for (i = 0; i < INTRA_MODES; ++i)
-    for (j = 0; j < INTRA_MODES; ++j)
-      av1_cost_tokens_from_cdf(cpi->y_mode_costs[i][j], av1_kf_y_mode_cdf[i][j],
-                               av1_intra_mode_inv);
-
-  for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
-    av1_cost_tokens_from_cdf(cpi->mbmode_cost[i], fc->y_mode_cdf[i],
-                             av1_intra_mode_inv);
-
-  for (i = 0; i < INTRA_MODES; ++i)
-    av1_cost_tokens_from_cdf(cpi->intra_uv_mode_cost[i], fc->uv_mode_cdf[i],
-                             av1_intra_mode_inv);
-
-  for (i = 0; i < SWITCHABLE_FILTER_CONTEXTS; ++i)
-    av1_cost_tokens_from_cdf(cpi->switchable_interp_costs[i],
-                             fc->switchable_interp_cdf[i],
-                             av1_switchable_interp_inv);
-
-#if CONFIG_PALETTE
-  for (i = 0; i < PALETTE_BLOCK_SIZES; ++i) {
-    av1_cost_tokens(cpi->palette_y_size_cost[i],
-                    av1_default_palette_y_size_prob[i], av1_palette_size_tree);
-    av1_cost_tokens(cpi->palette_uv_size_cost[i],
-                    av1_default_palette_uv_size_prob[i], av1_palette_size_tree);
-  }
-
-  for (i = 0; i < PALETTE_SIZES; ++i) {
-    for (j = 0; j < PALETTE_COLOR_INDEX_CONTEXTS; ++j) {
-      av1_cost_tokens(cpi->palette_y_color_cost[i][j],
-                      av1_default_palette_y_color_index_prob[i][j],
-                      av1_palette_color_index_tree[i]);
-      av1_cost_tokens(cpi->palette_uv_color_cost[i][j],
-                      av1_default_palette_uv_color_index_prob[i][j],
-                      av1_palette_color_index_tree[i]);
-    }
-  }
-#endif  // CONFIG_PALETTE
-
-  int inv_depth_map[MAX_TX_DEPTH + 1];
-  for (int depth = 0; depth < MAX_TX_DEPTH + 1; ++depth)
-    inv_depth_map[depth] = depth_to_tx_size(depth);
-
-  for (i = 0; i < MAX_TX_DEPTH; ++i)
-    for (j = 0; j < TX_SIZE_CONTEXTS; ++j)
-      av1_cost_tokens_from_cdf(cpi->tx_size_cost[i][j], fc->tx_size_cdf[i][j],
-                               inv_depth_map);
-
-#if CONFIG_EXT_TX
-  for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-    int s;
-    for (s = 1; s < EXT_TX_SETS_INTER; ++s) {
-      if (use_inter_ext_tx_for_txsize[s][i]) {
-        av1_cost_tokens_from_cdf(cpi->inter_tx_type_costs[s][i],
-                                 fc->inter_ext_tx_cdf[s][i],
-                                 av1_ext_tx_inter_inv[s]);
-      }
-    }
-    for (s = 1; s < EXT_TX_SETS_INTRA; ++s) {
-      if (use_intra_ext_tx_for_txsize[s][i]) {
-        for (j = 0; j < INTRA_MODES; ++j)
-          av1_cost_tokens_from_cdf(cpi->intra_tx_type_costs[s][i][j],
-                                   fc->intra_ext_tx_cdf[s][i][j],
-                                   av1_ext_tx_intra_inv[s]);
-      }
-    }
-  }
-#else
-  for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-    for (j = 0; j < TX_TYPES; ++j)
-      av1_cost_tokens_from_cdf(cpi->intra_tx_type_costs[i][j],
-                               fc->intra_ext_tx_cdf[i][j], av1_ext_tx_inv);
-  }
-  for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-    av1_cost_tokens_from_cdf(cpi->inter_tx_type_costs[i],
-                             fc->inter_ext_tx_cdf[i], av1_ext_tx_inv);
-  }
-#endif  // CONFIG_EXT_TX
-#if CONFIG_EXT_INTRA
-#if CONFIG_INTRA_INTERP
-  for (i = 0; i < INTRA_FILTERS + 1; ++i)
-    av1_cost_tokens_from_cdf(cpi->intra_filter_cost[i], fc->intra_filter_cdf[i],
-                             NULL);
-#endif  // CONFIG_INTRA_INTERP
-#endif  // CONFIG_EXT_INTRA
-#if CONFIG_LOOP_RESTORATION
-  av1_cost_tokens(cpi->switchable_restore_cost, fc->switchable_restore_prob,
-                  av1_switchable_restore_tree);
-#endif  // CONFIG_LOOP_RESTORATION
-#if CONFIG_GLOBAL_MOTION
-  for (i = 0; i < TRANS_TYPES; ++i)
-    cpi->gmtype_cost[i] = (1 + (i > 0 ? GLOBAL_TYPE_BITS : 0))
-                          << AV1_PROB_COST_SHIFT;
-#endif  // CONFIG_GLOBAL_MOTION
-}
-
 void av1_fill_token_costs(av1_coeff_cost *c,
                           av1_coeff_probs_model (*p)[PLANE_TYPES]) {
   int i, j, k, l;
@@ -390,11 +291,11 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 #if CONFIG_EXT_PARTITION_TYPES
       for (i = 0; i < PARTITION_CONTEXTS_PRIMARY; ++i)
         av1_cost_tokens_from_cdf(cpi->partition_cost[i],
-                                 cm->fc->partition_cdf[i], NULL);
+                                 cm->fc->adapted_cdfs.partition_cdf[i], NULL);
 #else
       for (i = 0; i < PARTITION_CONTEXTS_PRIMARY; ++i)
         av1_cost_tokens_from_cdf(cpi->partition_cost[i],
-                                 cm->fc->partition_cdf[i], NULL);
+                                 cm->fc->adapted_cdfs.partition_cdf[i], NULL);
 #endif  // CONFIG_EXT_PARTITION_TYPES
 #if CONFIG_UNPOISON_PARTITION_CTX
       for (; i < PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES; ++i) {
@@ -420,7 +321,7 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 #endif  // CONFIG_UNPOISON_PARTITION_CTX
     }
 
-    fill_mode_costs(cpi);
+    av1_update_rd_mode_costs(cpi, cpi->common.fc);
 
     if (!frame_is_intra_only(cm)) {
       for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i) {
@@ -474,6 +375,108 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     }
   }
+}
+
+void av1_update_rd_mode_costs(AV1_COMP *cpi, const FRAME_CONTEXT *const fc) {
+  int i, j;
+  for (i = 0; i < INTRA_MODES; ++i)
+    for (j = 0; j < INTRA_MODES; ++j)
+      av1_cost_tokens_from_cdf(cpi->y_mode_costs[i][j], av1_kf_y_mode_cdf[i][j],
+                               av1_intra_mode_inv);
+
+  for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
+    av1_cost_tokens_from_cdf(cpi->mbmode_cost[i],
+                             fc->adapted_cdfs.y_mode_cdf[i],
+                             av1_intra_mode_inv);
+
+  for (i = 0; i < INTRA_MODES; ++i)
+    av1_cost_tokens_from_cdf(cpi->intra_uv_mode_cost[i],
+                             fc->adapted_cdfs.uv_mode_cdf[i],
+                             av1_intra_mode_inv);
+
+  for (i = 0; i < SWITCHABLE_FILTER_CONTEXTS; ++i)
+    av1_cost_tokens_from_cdf(cpi->switchable_interp_costs[i],
+                             fc->adapted_cdfs.switchable_interp_cdf[i],
+                             av1_switchable_interp_inv);
+
+#if CONFIG_PALETTE
+  for (i = 0; i < PALETTE_BLOCK_SIZES; ++i) {
+    av1_cost_tokens(cpi->palette_y_size_cost[i],
+                    av1_default_palette_y_size_prob[i], av1_palette_size_tree);
+    av1_cost_tokens(cpi->palette_uv_size_cost[i],
+                    av1_default_palette_uv_size_prob[i], av1_palette_size_tree);
+  }
+
+  for (i = 0; i < PALETTE_SIZES; ++i) {
+    for (j = 0; j < PALETTE_COLOR_INDEX_CONTEXTS; ++j) {
+      av1_cost_tokens(cpi->palette_y_color_cost[i][j],
+                      av1_default_palette_y_color_index_prob[i][j],
+                      av1_palette_color_index_tree[i]);
+      av1_cost_tokens(cpi->palette_uv_color_cost[i][j],
+                      av1_default_palette_uv_color_index_prob[i][j],
+                      av1_palette_color_index_tree[i]);
+    }
+  }
+#endif  // CONFIG_PALETTE
+
+  int inv_depth_map[MAX_TX_DEPTH + 1];
+  for (int depth = 0; depth < MAX_TX_DEPTH + 1; ++depth)
+    inv_depth_map[depth] = depth_to_tx_size(depth);
+
+  for (i = 0; i < MAX_TX_DEPTH; ++i)
+    for (j = 0; j < TX_SIZE_CONTEXTS; ++j)
+      av1_cost_tokens_from_cdf(cpi->tx_size_cost[i][j],
+                               fc->adapted_cdfs.tx_size_cdf[i][j],
+                               inv_depth_map);
+
+#if CONFIG_EXT_TX
+  for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
+    int s;
+    for (s = 1; s < EXT_TX_SETS_INTER; ++s) {
+      if (use_inter_ext_tx_for_txsize[s][i]) {
+        av1_cost_tokens_from_cdf(cpi->inter_tx_type_costs[s][i],
+                                 fc->adapted_cdfs.inter_ext_tx_cdf[s][i],
+                                 av1_ext_tx_inter_inv[s]);
+      }
+    }
+    for (s = 1; s < EXT_TX_SETS_INTRA; ++s) {
+      if (use_intra_ext_tx_for_txsize[s][i]) {
+        for (j = 0; j < INTRA_MODES; ++j)
+          av1_cost_tokens_from_cdf(cpi->intra_tx_type_costs[s][i][j],
+                                   fc->adapted_cdfs.intra_ext_tx_cdf[s][i][j],
+                                   av1_ext_tx_intra_inv[s]);
+      }
+    }
+  }
+#else
+  for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
+    for (j = 0; j < TX_TYPES; ++j)
+      av1_cost_tokens_from_cdf(cpi->intra_tx_type_costs[i][j],
+                               fc->adapted_cdfs.intra_ext_tx_cdf[i][j],
+                               av1_ext_tx_inv);
+  }
+  for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
+    av1_cost_tokens_from_cdf(cpi->inter_tx_type_costs[i],
+                             fc->adapted_cdfs.inter_ext_tx_cdf[i],
+                             av1_ext_tx_inv);
+  }
+#endif  // CONFIG_EXT_TX
+#if CONFIG_EXT_INTRA
+#if CONFIG_INTRA_INTERP
+  for (i = 0; i < INTRA_FILTERS + 1; ++i)
+    av1_cost_tokens_from_cdf(cpi->intra_filter_cost[i],
+                             fc->adapted_cdfs.intra_filter_cdf[i], NULL);
+#endif  // CONFIG_INTRA_INTERP
+#endif  // CONFIG_EXT_INTRA
+#if CONFIG_LOOP_RESTORATION
+  av1_cost_tokens(cpi->switchable_restore_cost, fc->switchable_restore_prob,
+                  av1_switchable_restore_tree);
+#endif  // CONFIG_LOOP_RESTORATION
+#if CONFIG_GLOBAL_MOTION
+  for (i = 0; i < TRANS_TYPES; ++i)
+    cpi->gmtype_cost[i] = (1 + (i > 0 ? GLOBAL_TYPE_BITS : 0))
+                          << AV1_PROB_COST_SHIFT;
+#endif  // CONFIG_GLOBAL_MOTION
 }
 
 static void model_rd_norm(int xsq_q10, int *r_q10, int *d_q10) {

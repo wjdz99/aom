@@ -5618,6 +5618,13 @@ static void av1_average_cdf(aom_cdf_prob *cdf_ptr[], aom_cdf_prob *fc_cdf_ptr,
   cdf_size = (int)sizeof(fc->cname) / sizeof(aom_cdf_prob); \
   av1_average_cdf(cdf_ptr, fc_cdf_ptr, cdf_size, num_tiles);
 
+#define AVERAGE_ADAPTED_TILE_CDFS(cname)                                 \
+  for (i = 0; i < num_tiles; ++i)                                        \
+    cdf_ptr[i] = (aom_cdf_prob *)&ec_ctxs[i]->adapted_cdfs.cname;        \
+  fc_cdf_ptr = (aom_cdf_prob *)&fc->adapted_cdfs.cname;                  \
+  cdf_size = (int)sizeof(fc->adapted_cdfs.cname) / sizeof(aom_cdf_prob); \
+  av1_average_cdf(cdf_ptr, fc_cdf_ptr, cdf_size, num_tiles);
+
 void av1_average_tile_coef_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
                                 aom_cdf_prob *cdf_ptr[], int num_tiles) {
   int i, cdf_size;
@@ -5652,7 +5659,7 @@ void av1_average_tile_intra_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
 
   aom_cdf_prob *fc_cdf_ptr;
 
-  AVERAGE_TILE_CDFS(tx_size_cdf);
+  AVERAGE_ADAPTED_TILE_CDFS(tx_size_cdf);
 
 #if CONFIG_VAR_TX
 // FIXME: txfm_partition probs
@@ -5660,13 +5667,13 @@ void av1_average_tile_intra_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
 
   // FIXME: skip probs
 
-  AVERAGE_TILE_CDFS(intra_ext_tx_cdf)
-  AVERAGE_TILE_CDFS(inter_ext_tx_cdf);
+  AVERAGE_ADAPTED_TILE_CDFS(intra_ext_tx_cdf)
+  AVERAGE_ADAPTED_TILE_CDFS(inter_ext_tx_cdf);
 
   AVERAGE_TILE_CDFS(seg.tree_cdf)
-  AVERAGE_TILE_CDFS(uv_mode_cdf)
+  AVERAGE_ADAPTED_TILE_CDFS(uv_mode_cdf)
 
-  AVERAGE_TILE_CDFS(partition_cdf)
+  AVERAGE_ADAPTED_TILE_CDFS(partition_cdf)
 
 #if CONFIG_DELTA_Q
   AVERAGE_TILE_CDFS(delta_q_cdf)
@@ -5675,7 +5682,7 @@ void av1_average_tile_intra_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
 #endif
 #endif
 #if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
-  AVERAGE_TILE_CDFS(intra_filter_cdf)
+  AVERAGE_ADAPTED_TILE_CDFS(intra_filter_cdf)
 #endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 
 #if CONFIG_NEW_MULTISYMBOL
@@ -5713,10 +5720,10 @@ void av1_average_tile_inter_cdfs(AV1_COMMON *cm, FRAME_CONTEXT *fc,
   // FIXME: CONFIG_EXT_INTER cdfs not defined for inter_compound_mode,
   // interintra_mode etc
 
-  AVERAGE_TILE_CDFS(y_mode_cdf)
+  AVERAGE_ADAPTED_TILE_CDFS(y_mode_cdf)
 
   if (cm->interp_filter == SWITCHABLE) {
-    AVERAGE_TILE_CDFS(switchable_interp_cdf)
+    AVERAGE_ADAPTED_TILE_CDFS(switchable_interp_cdf)
   }
 #if CONFIG_NEW_MULTISYMBOL
   AVERAGE_TILE_CDFS(intra_inter_cdf)

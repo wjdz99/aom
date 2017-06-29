@@ -90,6 +90,35 @@ struct seg_counts {
   unsigned int pred[PREDICTION_PROBS][2];
 };
 
+// The CDFs that should be stored in a frame context which are updated
+// as part of the final encode in encodeframe.c. These need
+// snapshotting and restoring in the encoder.
+typedef struct adapted_cdfs {
+#if CONFIG_EXT_PARTITION_TYPES
+  aom_cdf_prob partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(EXT_PARTITION_TYPES)];
+#else
+  aom_cdf_prob partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(PARTITION_TYPES)];
+#endif
+#if CONFIG_EXT_TX
+  aom_cdf_prob intra_ext_tx_cdf[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
+                               [CDF_SIZE(TX_TYPES)];
+  aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SETS_INTER][EXT_TX_SIZES]
+                               [CDF_SIZE(TX_TYPES)];
+#else
+  aom_cdf_prob intra_ext_tx_cdf[EXT_TX_SIZES][TX_TYPES][CDF_SIZE(TX_TYPES)];
+  aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SIZES][CDF_SIZE(TX_TYPES)];
+#endif  // CONFIG_EXT_TX
+#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
+  aom_cdf_prob intra_filter_cdf[INTRA_FILTERS + 1][CDF_SIZE(INTRA_FILTERS)];
+#endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
+  aom_cdf_prob switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS]
+                                    [CDF_SIZE(SWITCHABLE_FILTERS)];
+  aom_cdf_prob tx_size_cdf[MAX_TX_DEPTH][TX_SIZE_CONTEXTS]
+                          [CDF_SIZE(MAX_TX_DEPTH + 1)];
+  aom_cdf_prob uv_mode_cdf[INTRA_MODES][CDF_SIZE(INTRA_MODES)];
+  aom_cdf_prob y_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(INTRA_MODES)];
+} ADAPTED_CDFS;
+
 typedef struct frame_contexts {
   aom_prob y_mode_prob[BLOCK_SIZE_GROUPS][INTRA_MODES - 1];
   aom_prob uv_mode_prob[INTRA_MODES][INTRA_MODES - 1];
@@ -286,38 +315,16 @@ typedef struct frame_contexts {
 #if CONFIG_LOOP_RESTORATION
   aom_prob switchable_restore_prob[RESTORE_SWITCHABLE_TYPES - 1];
 #endif  // CONFIG_LOOP_RESTORATION
-  aom_cdf_prob y_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(INTRA_MODES)];
-  aom_cdf_prob uv_mode_cdf[INTRA_MODES][CDF_SIZE(INTRA_MODES)];
-#if CONFIG_EXT_PARTITION_TYPES
-  aom_cdf_prob partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(EXT_PARTITION_TYPES)];
-#else
-  aom_cdf_prob partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(PARTITION_TYPES)];
-#endif
-  aom_cdf_prob switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS]
-                                    [CDF_SIZE(SWITCHABLE_FILTERS)];
+  ADAPTED_CDFS adapted_cdfs;
   /* Keep track of kf_y_cdf here, as this makes handling
      multiple copies for adaptation in tiles easier */
   aom_cdf_prob kf_y_cdf[INTRA_MODES][INTRA_MODES][CDF_SIZE(INTRA_MODES)];
-  aom_cdf_prob tx_size_cdf[MAX_TX_DEPTH][TX_SIZE_CONTEXTS]
-                          [CDF_SIZE(MAX_TX_DEPTH + 1)];
 #if CONFIG_DELTA_Q
   aom_cdf_prob delta_q_cdf[CDF_SIZE(DELTA_Q_PROBS + 1)];
 #if CONFIG_EXT_DELTA_Q
   aom_cdf_prob delta_lf_cdf[CDF_SIZE(DELTA_LF_PROBS + 1)];
 #endif
 #endif  // CONFIG_DELTA_Q
-#if CONFIG_EXT_TX
-  aom_cdf_prob intra_ext_tx_cdf[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
-                               [CDF_SIZE(TX_TYPES)];
-  aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SETS_INTER][EXT_TX_SIZES]
-                               [CDF_SIZE(TX_TYPES)];
-#else
-  aom_cdf_prob intra_ext_tx_cdf[EXT_TX_SIZES][TX_TYPES][CDF_SIZE(TX_TYPES)];
-  aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SIZES][CDF_SIZE(TX_TYPES)];
-#endif  // CONFIG_EXT_TX
-#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
-  aom_cdf_prob intra_filter_cdf[INTRA_FILTERS + 1][CDF_SIZE(INTRA_FILTERS)];
-#endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 #if CONFIG_DELTA_Q
   aom_prob delta_q_prob[DELTA_Q_PROBS];
 #if CONFIG_EXT_DELTA_Q
