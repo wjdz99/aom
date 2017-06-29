@@ -4422,6 +4422,17 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
       cpi->td.mb.pvq_q = NULL;
 #endif
 
+#if CONFIG_CDF_ADAPT_CHECKING
+#if CONFIG_EC_ADAPT
+      FRAME_CONTEXT *ec_ctx = this_tile->tctx;
+#else
+      FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+      av1_check_cdf_adapt(&cpi->post_encode_cdfs[tile_row][tile_col],
+                          &ec_ctx->adapted_cdfs,
+                          cm->interp_filter == SWITCHABLE);
+#endif
+
       assert(tile_size > 0);
 
 #if CONFIG_TILE_GROUPS

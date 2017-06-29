@@ -49,6 +49,7 @@ Advanced options:
   ${toggle_coefficient_range_checking}
                                   enable decoder to check if intermediate
                                   transform coefficients are in valid range
+  ${toggle_cdf_adapt_checking}    check that the encoder adapts CDFs correctly when for costing
   ${toggle_runtime_cpu_detect}    runtime cpu detection
   ${toggle_shared}                shared library support
   ${toggle_static}                static library support
@@ -370,6 +371,7 @@ CONFIG_LIST="
     decode_perf_tests
     encode_perf_tests
     coefficient_range_checking
+    cdf_adapt_checking
     lowbitdepth
     highbitdepth
     experimental
@@ -429,6 +431,7 @@ CMDLINE_SELECT="
     decode_perf_tests
     encode_perf_tests
     coefficient_range_checking
+    cdf_adapt_checking
     lowbitdepth
     aom_highbitdepth
     highbitdepth

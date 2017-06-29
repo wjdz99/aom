@@ -4785,6 +4785,11 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
     encode_rd_sb_row(cpi, td, this_tile, mi_row, &tok);
   }
 
+#if CONFIG_CDF_ADAPT_CHECKING
+  // If we're checking the CDFs, take a copy of what we ended up with.
+  cpi->post_encode_cdfs[tile_row][tile_col] = ec_ctx->adapted_cdfs;
+#endif
+
   // Roll-back adapted_cdfs to its original state
   ec_ctx->adapted_cdfs = cdfs_snapshot;
 
