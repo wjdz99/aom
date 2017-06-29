@@ -220,4 +220,13 @@ function (append_exe_linker_flag flag)
   endif ()
 endfunction ()
 
+function (append_link_flag_to_target)
+  # cmake_parse_arguments abuse here
+  get_target_property(target_link_flags ${target} LINK_FLAGS)
+  if (target_link_flags)
+  else ()
+  endif ()
+  
+endfunction ()
+
 endif ()  # AOM_BUILD_CMAKE_COMPILER_FLAGS_CMAKE_

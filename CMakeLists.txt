@@ -253,14 +253,31 @@ if (CONFIG_AV1_DECODER)
 
     if (EMSCRIPTEN)
       add_preproc_definition(_POSIX_SOURCE)
-      add_compiler_flag_if_supported("-s TOTAL_MEMORY=134217728")
-      add_compiler_flag_if_supported("-s MODULARIZE=1")
-      add_compiler_flag_if_supported("-s EXPORT_NAME=\"\'DecoderModule\'\"")
-      add_compiler_flag_if_supported("--memory-init-file 0")
+      #add_compiler_flag_if_supported("-s TOTAL_MEMORY=134217728")
+      #add_compiler_flag_if_supported("-s MODULARIZE=1")
+      #add_compiler_flag_if_supported("-s EXPORT_NAME=\"\'DecoderModule\'\"")
+      #add_compiler_flag_if_supported("--memory-init-file 0")
+
+      get_target_property(inspect_link_flags inspect LINK_FLAGS)
+      if (inspect_link_flags)
+        set(inspect_link_flags
+            "${inspect_link_flags} -s TOTAL_MEMORY=134217728")
+      else ()
+        set(inspect_link_flags "-s TOTAL_MEMORY=134217728")
+      endif ()
+      set(inspect_link_flags "${inspect_link_flags} -s MODULARIZE=1")
+      set(inspect_link_flags
+          "${inspect_link_flags} -s EXPORT_NAME=\"'DecoderModule'\"")
+      set(inspect_link_flags "${inspect_link_flags} --memory-init-file 0")
+
+      message("inspect_link_flags=${inspect_link_flags}")
+
+      set_target_properties(inspect PROPERTIES LINK_FLAGS ${inspect_link_flags})
       if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
         # Default to -O3 when no build type specified.
-        add_compiler_flag_if_supported("-O3")
+        target_compile_options(inspect PUBLIC -O3)
       endif ()
+
       em_link_post_js(inspect "${AOM_ROOT}/tools/inspect-post.js")
     endif ()
   endif ()
