@@ -599,6 +599,12 @@ int av1_get_palette_color_index_context(const uint8_t *color_map, int stride,
                                         uint8_t *color_order, int *color_idx);
 #endif  // CONFIG_PALETTE
 
+#if CONFIG_CDF_ADAPT_CHECKING
+void av1_check_cdf_adapt (const ADAPTED_CDFS *post_enc,
+                          const ADAPTED_CDFS *post_write,
+                          int check_switchable_interp);
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
