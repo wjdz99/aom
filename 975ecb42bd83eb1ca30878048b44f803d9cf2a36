@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3bbcd22d_40609db6",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-29T00:47:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40de7d91_76d490b0",
+      "revId": "975ecb42bd83eb1ca30878048b44f803d9cf2a36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "359bdf08_d724d827",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 24
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "0a0c52e5_295e94e4",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-29T00:47:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "359bdf08_d724d827",
+      "revId": "975ecb42bd83eb1ca30878048b44f803d9cf2a36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8f00042_9e4c3e5f",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 24
@@ -50,6 +86,24 @@
       "revId": "975ecb42bd83eb1ca30878048b44f803d9cf2a36",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c35fa537_a11b7f46",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-29T00:47:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8f00042_9e4c3e5f",
+      "revId": "975ecb42bd83eb1ca30878048b44f803d9cf2a36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "13e672de_bf221a85",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-29T00:47:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9babef0e_bd44205d",
+      "range": {
+        "startLine": 145,
+        "startChar": 32,
+        "endLine": 145,
+        "endChar": 37
+      },
+      "revId": "975ecb42bd83eb1ca30878048b44f803d9cf2a36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "083427aa_34971a19",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 24
@@ -90,6 +168,24 @@
       "revId": "975ecb42bd83eb1ca30878048b44f803d9cf2a36",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f0c5179_158d67e9",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-06-29T00:47:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "083427aa_34971a19",
+      "revId": "975ecb42bd83eb1ca30878048b44f803d9cf2a36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
