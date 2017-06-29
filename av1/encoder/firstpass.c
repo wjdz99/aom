@@ -2708,6 +2708,10 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
       break;
 
     case LAST_BIPRED_UPDATE:
+#if CONFIG_GF_GROUPS
+// TODO(zoeliu): To try on the use of last_bipred as a reference frame
+// cpi->refresh_last_frame = 1;
+#endif  // CONFIG_GF_GROUPS
       cpi->refresh_last_frame = 0;
       cpi->refresh_golden_frame = 0;
       cpi->refresh_bwd_ref_frame = 0;

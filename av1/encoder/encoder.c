@@ -5278,6 +5278,22 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 #endif  // CONFIG_EXT_REFS
   cpi->refresh_alt_ref_frame = 0;
 
+#if CONFIG_GF_GROUPS
+#define GF_GROUPS_DEBUG 0
+#if GF_GROUPS_DEBUG
+  if (oxcf->pass == 2) {
+    const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
+    printf(
+        "Frame=%d, show_frame=%d, show_existing_frame=%d, gf_index=%d, "
+        "gf_update_type=%d, gf_arf_update_idx=%d, gf_is_arf_filter_off=%d\n",
+        cm->current_video_frame, cm->show_frame, cm->show_existing_frame,
+        gf_group->index, gf_group->update_type[gf_group->index],
+        gf_group->arf_update_idx[gf_group->index],
+        cpi->is_arf_filter_off[gf_group->arf_update_idx[gf_group->index]]);
+  }
+#endif  // GF_GROUPS_DEBUG
+#endif  // CONFIG_GF_GROUPS
+
 #if CONFIG_EXT_REFS && !CONFIG_XIPHRC
   if (oxcf->pass == 2 && cm->show_existing_frame) {
     // Manage the source buffer and flush out the source frame that has been
