@@ -4755,6 +4755,15 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #if DUMP_RECON_FRAMES == 1
   // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
   if (cm->show_frame) dump_filtered_recon_frames(cpi);
+
+  // To dump out the altref reconstruction frame
+  // May follow up what was done in dump_filtered_recon_frames() to dump out the
+  // YUV version of the altref
+  if (cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index] ==
+          ARF_UPDATE &&
+      cpi->twopass.gf_group.rf_level[cpi->twopass.gf_group.index] ==
+          GF_ARF_STD) {
+  }
 #endif  // DUMP_RECON_FRAMES
 
   if (cm->seg.update_map) update_reference_segmentation_map(cpi);
