@@ -199,6 +199,22 @@ static INLINE void aom_write_tree_record(aom_writer *w,
   aom_write_tree_as_cdf(w, tree, probs, bits, len, i);
 }
 
+static INLINE void av1_write_golomb(aom_writer *w, unsigned int level) {
+  int x = level + 1;
+  int i = x;
+  int length = 0;
+
+  while (i) {
+    i >>= 1;
+    ++length;
+  }
+  assert(length > 0);
+
+  for (i = 0; i < length - 1; ++i) aom_write_bit(w, 0);
+
+  for (i = length - 1; i >= 0; --i) aom_write_bit(w, (x >> i) & 0x01);
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
