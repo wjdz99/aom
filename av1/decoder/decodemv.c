@@ -1290,12 +1290,25 @@ static int read_mv_component(aom_reader *r, nmv_component *mvcomp,
                              int use_subpel,
 #endif  // CONFIG_INTRABC
                              int usehp) {
-  int mag, d, fr, hp;
+  int mag, fr, d = 0;
+#if CONFIG_NEW_MULTISYMBOL
+  (void)usehp;
+  const int sign = aom_read_bit(r, ACCT_STR);
+#else
+  int hp;
   const int sign = aom_read(r, mvcomp->sign, ACCT_STR);
+#endif
+
   const int mv_class =
       aom_read_symbol(r, mvcomp->class_cdf, MV_CLASSES, ACCT_STR);
   const int class0 = mv_class == MV_CLASS_0;
-
+#if CONFIG_NEW_MULTISYMBOL
+  const int class1 = mv_class == MV_CLASS_1;
+  mag = mv_class << 3;
+  if (mv_class == MV_CLASS_10) {
+    d = read_golomb(r);
+  }
+#else
   // Integer part
   if (class0) {
     d = aom_read(r, mvcomp->class0[0], ACCT_STR);
@@ -1308,26 +1321,41 @@ static int read_mv_component(aom_reader *r, nmv_component *mvcomp,
     for (i = 0; i < n; ++i) d |= aom_read(r, mvcomp->bits[i], ACCT_STR) << i;
     mag = CLASS0_SIZE << (mv_class + 2);
   }
+#endif
 
 #if CONFIG_INTRABC
   if (use_subpel) {
 #endif  // CONFIG_INTRABC
         // Fractional part
-    fr = aom_read_symbol(r, class0 ? mvcomp->class0_fp_cdf[d] : mvcomp->fp_cdf,
-                         MV_FP_SIZE, ACCT_STR);
+#if CONFIG_NEW_MULTISYMBOL
+    fr = aom_read_symbol(
+        r, class0 ? mvcomp->class0_fp_cdf
+                  : (class1 ? mvcomp->class1_fp_cdf : mvcomp->fp_cdf),
+        MV_FULL_FP_SIZE, ACCT_STR);
+#else
+  fr = aom_read_symbol(r, class0 ? mvcomp->class0_fp_cdf[d] : mvcomp->fp_cdf,
+                       MV_FP_SIZE, ACCT_STR);
 
-    // High precision part (if hp is not used, the default value of the hp is 1)
-    hp = usehp ? aom_read(r, class0 ? mvcomp->class0_hp : mvcomp->hp, ACCT_STR)
-               : 1;
+  // High precision part (if hp is not used, the default value of the hp is 1)
+  hp = usehp ? aom_read(r, class0 ? mvcomp->class0_hp : mvcomp->hp, ACCT_STR)
+             : 1;
+#endif
 #if CONFIG_INTRABC
   } else {
+#if CONFIG_NEW_MULTISYMBOL
+    fr = 7;
+#else
     fr = 3;
     hp = 1;
+#endif
   }
 #endif  // CONFIG_INTRABC
 
-  // Result
+#if !CONFIG_NEW_MULTISYMBOL
   mag += ((d << 3) | (fr << 1) | hp) + 1;
+#else
+  mag += ((d << 3) | fr) + 1;
+#endif
   return sign ? -mag : mag;
 }
 

@@ -229,6 +229,26 @@ static INLINE int aom_read_tree_(aom_reader *r, const aom_tree_index *tree,
   return ret;
 }
 
+static INLINE int read_golomb(aom_reader *r) {
+  int x = 1;
+  int length = 0;
+  int i = 0;
+
+  while (!i && length < 32) {
+    i = aom_read_bit(r, ACCT_STR);
+    ++length;
+  }
+  assert(length < 32);
+
+  for (i = 0; i < length - 1; ++i) {
+    x <<= 1;
+    x += aom_read_bit(r, ACCT_STR);
+  }
+
+  return x - 1;
+}
+
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
