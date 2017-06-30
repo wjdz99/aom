@@ -375,6 +375,9 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   // Assign a MV array to the frame buffer.
   cm->cur_frame = &pool->frame_bufs[cm->new_fb_idx];
 
+  cm->cur_frame->width = cm->width;
+  cm->cur_frame->height = cm->height;
+
   pbi->hold_ref_buf = 0;
   if (cm->frame_parallel_decode) {
     AVxWorker *const worker = pbi->frame_worker_owner;
