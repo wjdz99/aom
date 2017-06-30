@@ -115,6 +115,20 @@ demonstrates generating an Xcode project:
 
     $ cmake path/to/aom -G Xcode
 
+### Emscripten builds
+
+RAW STEPS
+1. Download emsdk-portable
+2. Add tools to env:
+    $ . path/to/emsdk-portable/emsdk_env.sh
+3. Install and activate known good toolchain:
+    $ emsdk install sdk-tag-1.37.12-64bit && emsdk activate sdk-tag-1.37.12-64bit
+4. Update env:
+    $ . path/to/emsdk-portable/emsdk_env.sh
+5. Download the analyzer from https://people.xiph.org/~mbebenita/analyzer/
+6. Configure the build
+    $ cmake path/to/aom -DENABLE_CCACHE=1 -DAOM_TARGET_CPU=generic \
+        -DCMAKE_TOOLCHAIN_FILE=path/to/emsdk-portable/.../Emscripten.cmake
 
 ## Testing the AV1 codec
 

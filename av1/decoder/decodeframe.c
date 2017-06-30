@@ -5367,6 +5367,8 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
 
   first_partition_size = read_uncompressed_header(
       pbi, init_read_bit_buffer(pbi, &rb, data, data_end, clear_data));
+  fprintf(stderr, "av1_decode_frame: first_partition_size=%zu\n",
+          first_partition_size);
 
 #if CONFIG_EXT_TILE
   // If cm->tile_encoding_mode == TILE_NORMAL, the independent decoding of a

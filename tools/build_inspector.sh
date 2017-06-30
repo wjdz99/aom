@@ -39,7 +39,8 @@ if [ ! -d ".inspect" ]; then
 fi
 
 cd .inspect
-emmake make -j 8
+#emmake make -j 8
+emmake make V=1 &> HATE.TXT
 cp examples/inspect inspect.bc
 emcc -O3 inspect.bc -o inspect.js \
   -s TOTAL_MEMORY=134217728 \

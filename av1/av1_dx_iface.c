@@ -611,6 +611,8 @@ static aom_codec_err_t decoder_decode(aom_codec_alg_priv_t *ctx,
   uint32_t frame_sizes[8];
   int frame_count;
 
+  fprintf(stderr, "av1_dx_iface decoder_decode: data_sz=%u\n", data_sz);
+
   if (data == NULL && data_sz == 0) {
     ctx->flushed = 1;
     return AOM_CODEC_OK;

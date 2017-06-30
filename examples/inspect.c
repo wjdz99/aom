@@ -562,6 +562,7 @@ int open_file(char *file) {
   if (file == NULL) {
     // The JS analyzer puts the .ivf file at this location.
     file = "/tmp/input.ivf";
+    //file = "/Users/tomfinegan/_werk/aom/tools/o.ivf";
   }
   reader = aom_video_reader_open(file);
   if (!reader) die("Failed to open %s for reading.", file);
@@ -584,6 +585,7 @@ int read_frame() {
   aom_codec_iter_t iter = NULL;
   size_t frame_size = 0;
   const unsigned char *frame = aom_video_reader_get_frame(reader, &frame_size);
+  fprintf(stderr, "read_frame: frame_size=%zu\n", frame_size);
   if (aom_codec_decode(&codec, frame, (unsigned int)frame_size, NULL, 0) !=
       AOM_CODEC_OK) {
     die_codec(&codec, "Failed to decode frame.");
@@ -686,6 +688,7 @@ void usage_exit(void) {
 
 EMSCRIPTEN_KEEPALIVE
 int main(int argc, char **argv) {
+  fprintf(stderr, "main() SAYS HI!\n");
   exec_name = argv[0];
   parse_args(argv);
   if (argc >= 2) {
