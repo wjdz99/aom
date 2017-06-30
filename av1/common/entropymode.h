@@ -337,9 +337,11 @@ typedef struct frame_contexts {
 typedef struct FRAME_COUNTS {
   // Note: This structure should only contain 'unsigned int' fields, or
   // aggregates built solely from 'unsigned int' fields/elements
+#if !CONFIG_EC_ADAPT
   unsigned int kf_y_mode[INTRA_MODES][INTRA_MODES][INTRA_MODES];
   unsigned int y_mode[BLOCK_SIZE_GROUPS][INTRA_MODES];
   unsigned int uv_mode[INTRA_MODES][INTRA_MODES];
+#endif
 #if CONFIG_EXT_PARTITION_TYPES
   unsigned int partition[PARTITION_CONTEXTS][EXT_PARTITION_TYPES];
 #else
@@ -497,9 +499,14 @@ extern const aom_prob av1_default_palette_uv_color_index_prob
     [PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS][PALETTE_COLORS - 1];
 #endif  // CONFIG_PALETTE
 
+#if !CONFIG_EC_ADAPT
 extern const aom_tree_index av1_intra_mode_tree[TREE_SIZE(INTRA_MODES)];
 extern int av1_intra_mode_ind[INTRA_MODES];
 extern int av1_intra_mode_inv[INTRA_MODES];
+#else
+extern const int av1_intra_mode_ind[INTRA_MODES];
+extern const int av1_intra_mode_inv[INTRA_MODES];
+#endif
 #if CONFIG_EXT_TX
 extern int av1_ext_tx_intra_ind[EXT_TX_SETS_INTRA][TX_TYPES];
 extern int av1_ext_tx_intra_inv[EXT_TX_SETS_INTRA][TX_TYPES];
