@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "090237e2_51198e71",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-30T00:56:18Z",
+      "side": 1,
+      "message": "Agreed, see https://aomedia-review.googlesource.com/c/14125/",
+      "parentUuid": "a9b71fd2_da251660",
+      "revId": "997bb65fcfd29e9be50a7daf2e4f5940ca1289de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df43630b_f3f69291",
         "filename": "av1/common/cfl.c",
         "patchSetId": 3
@@ -54,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "7de2c3e0_a6172630",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-30T00:56:18Z",
+      "side": 1,
+      "message": "Wrapped in CHROMA_SUB8X8\n\nAdded some comments\n\nAdded assert that col and row are 0 \n\nAs for the asserts for y_width and x_width see https://aomedia-review.googlesource.com/c/14281/",
+      "parentUuid": "6fa41b15_e60145a8",
+      "revId": "997bb65fcfd29e9be50a7daf2e4f5940ca1289de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09091971_9a013a05",
         "filename": "av1/common/cfl.c",
         "patchSetId": 3
@@ -65,6 +101,24 @@
       "writtenOn": "2017-06-21T22:13:21Z",
       "side": 1,
       "message": "Is it possible to assert that diff_width and diff_height are non-negative? That would have caught the error I described above, where you continue to append luma blocks to the current storage in cfl_store() instead of starting over for sub-8x8 4:4:4 blocks (making the luma area larger than chroma).",
+      "revId": "997bb65fcfd29e9be50a7daf2e4f5940ca1289de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2af51d03_7db9d113",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-06-30T00:56:18Z",
+      "side": 1,
+      "message": "For asserts that check if luma is greater than chroma see https://aomedia-review.googlesource.com/c/14445/",
+      "parentUuid": "09091971_9a013a05",
       "revId": "997bb65fcfd29e9be50a7daf2e4f5940ca1289de",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
