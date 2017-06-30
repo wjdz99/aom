@@ -1334,6 +1334,15 @@ static INLINE int check_num_overlappable_neighbors(const MB_MODE_INFO *mbmi) {
 }
 #endif
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
+static INLINE NCOBMC_MODE ncobmc_mode_allowed(BLOCK_SIZE bsize) {
+  if (bsize < BLOCK_8X8 || bsize > BLOCK_64X64)
+    return NO_OVERLAP;
+  else
+    return (NCOBMC_MODE)(MAX_NCOBMC_MODES - 1);
+}
+#endif
+
 static INLINE MOTION_MODE motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
     int block, const WarpedMotionParams *gm_params,
@@ -1361,6 +1370,11 @@ static INLINE MOTION_MODE motion_mode_allowed(
     else
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+        if (ncobmc_mode_allowed(mbmi->sb_type))
+      return NCOBMC_ADAPT_WEIGHT;
+    else
+#endif
       return OBMC_CAUSAL;
 #else
     return SIMPLE_TRANSLATION;
@@ -1369,15 +1383,6 @@ static INLINE MOTION_MODE motion_mode_allowed(
     return SIMPLE_TRANSLATION;
   }
 }
-
-#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
-static INLINE NCOBMC_MODE ncobmc_mode_allowed(BLOCK_SIZE block) {
-  if (block < BLOCK_8X8 || block > BLOCK_64X64)
-    return NO_OVERLAP;
-  else
-    return (NCOBMC_MODE)(MAX_NCOBMC_MODES - 1);
-}
-#endif
 
 static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
