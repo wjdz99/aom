@@ -7839,6 +7839,14 @@ static int64_t motion_mode_rd(
       0, xd->global_motion,
 #endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
       mi);
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  // We cannot estimate the rd cost for the motion mode NCOBMC_ADAPT_WEIGHT
+  // right now since it requires mvs from all neighboring blocks. We will
+  // check if this mode is beneficial after all the mv's in the current
+  // superblock are selected.
+  if (last_motion_mode_allowed == NCOBMC_ADAPT_WEIGHT)
+    last_motion_mode_allowed = OBMC_CAUSAL;
+#endif
   base_mbmi = *mbmi;
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
