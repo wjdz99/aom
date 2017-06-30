@@ -198,8 +198,10 @@ void av1_encode_token_init(void) {
 #else
   av1_indices_from_tree(av1_ext_tx_ind, av1_ext_tx_inv, av1_ext_tx_tree);
 #endif
+#if !CONFIG_EC_ADAPT
   av1_indices_from_tree(av1_intra_mode_ind, av1_intra_mode_inv,
                         av1_intra_mode_tree);
+#endif
 }
 
 static void write_intra_mode_kf(const AV1_COMMON *cm, FRAME_CONTEXT *frame_ctx,
@@ -5060,7 +5062,9 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #endif  // !CONFIG_EC_ADAPT
 
   if (frame_is_intra_only(cm)) {
+#if !CONFIG_EC_ADAPT
     av1_copy(cm->kf_y_prob, av1_kf_y_mode_prob);
+#endif
     av1_copy(cm->fc->kf_y_cdf, av1_kf_y_mode_cdf);
 
 #if !CONFIG_EC_ADAPT
