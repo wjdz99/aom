@@ -3385,6 +3385,9 @@ void av1_scale_references(AV1_COMP *cpi) {
         }
         if (new_fb == INVALID_IDX) return;
         new_fb_ptr = &pool->frame_bufs[new_fb];
+        new_fb_ptr->width = cm->width;
+        new_fb_ptr->height = cm->height;
+
         if (force_scaling || new_fb_ptr->buf.y_crop_width != cm->width ||
             new_fb_ptr->buf.y_crop_height != cm->height) {
           if (aom_realloc_frame_buffer(
@@ -3409,6 +3412,9 @@ void av1_scale_references(AV1_COMP *cpi) {
         }
         if (new_fb == INVALID_IDX) return;
         new_fb_ptr = &pool->frame_bufs[new_fb];
+        new_fb_ptr->width = cm->width;
+        new_fb_ptr->height = cm->height;
+
         if (force_scaling || new_fb_ptr->buf.y_crop_width != cm->width ||
             new_fb_ptr->buf.y_crop_height != cm->height) {
           if (aom_realloc_frame_buffer(&new_fb_ptr->buf, cm->width, cm->height,
@@ -5351,6 +5357,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
     if (cm->new_fb_idx == INVALID_IDX) return -1;
 
+    pool->frame_bufs[cm->new_fb_idx].width = cm->width;
+    pool->frame_bufs[cm->new_fb_idx].height = cm->height;
+
     // Clear down mmx registers
     aom_clear_system_state();
 
@@ -5503,6 +5512,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   if (cm->new_fb_idx == INVALID_IDX) return -1;
 
   cm->cur_frame = &pool->frame_bufs[cm->new_fb_idx];
+  cm->cur_frame->width = cm->width;
+  cm->cur_frame->height = cm->height;
 
 #if CONFIG_EXT_REFS
   if (oxcf->pass == 2) {

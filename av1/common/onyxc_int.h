@@ -109,6 +109,10 @@ typedef struct {
   MV_REF *mvs;
   int mi_rows;
   int mi_cols;
+  // Width and height give the size of the buffer (before any upscaling, unlike
+  // the sizes that can be derived from the buf structure)
+  int width;
+  int height;
 #if CONFIG_GLOBAL_MOTION
   WarpedMotionParams global_motion[TOTAL_REFS_PER_FRAME];
 #endif  // CONFIG_GLOBAL_MOTION
