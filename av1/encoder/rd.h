@@ -535,7 +535,13 @@ struct macroblock;
 
 int av1_compute_rd_mult(const struct AV1_COMP *cpi, int qindex);
 
+// Initialise all costs in cpi for RD code, based on stored
+// probabilities and CDFs.
 void av1_initialize_rd_consts(struct AV1_COMP *cpi);
+
+// Update costs in cpi based on the CDFs stored in fc.
+void av1_update_rd_mode_costs(struct AV1_COMP *cpi,
+                              const FRAME_CONTEXT *const fc);
 
 void av1_initialize_me_consts(const struct AV1_COMP *cpi, MACROBLOCK *x,
                               int qindex);
