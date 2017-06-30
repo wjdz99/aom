@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e7835e6_f21d6624",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-30T20:26:16Z",
+      "side": 1,
+      "message": "s/height/high/, s/numpel/num_pel/",
+      "range": {
+        "startLine": 180,
+        "startChar": 60,
+        "endLine": 180,
+        "endChar": 66
+      },
+      "revId": "6a94c8ca195e366725c1936b36611d75df9fe6e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3114917e_4f252125",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-30T20:26:16Z",
+      "side": 1,
+      "message": "Wouldn\u0027t just assert((row \u003c\u003c tx_off_log2) + tx_height \u003c\u003d MAX_SB_SIZE \u0026\u0026 (col \u003c\u003c tx_off_log2) + tx_width \u003c\u003d MAX_SB_SIZE) work?",
+      "revId": "6a94c8ca195e366725c1936b36611d75df9fe6e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33ae0fd9_7c663413",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1429,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-06-30T20:26:16Z",
+      "side": 1,
+      "message": "Just calling this here isn\u0027t enough, because we also need to store sub-8x8 inter blocks when the bottom-right block is intra predicted (and the corresponding decoder changes, too). It seems like we at least need a TODO somewhere to record that this is still broken before this patch can land.",
+      "revId": "6a94c8ca195e366725c1936b36611d75df9fe6e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
