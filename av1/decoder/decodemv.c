@@ -145,8 +145,13 @@ static PREDICTION_MODE read_intra_mode_y(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
                                          aom_reader *r, int size_group) {
   const PREDICTION_MODE y_mode =
       read_intra_mode(r, ec_ctx->y_mode_cdf[size_group]);
+#if CONFIG_EC_ADAPT
+  /* TODO(negge): remove this parameter */
+  (void)xd;
+#else
   FRAME_COUNTS *counts = xd->counts;
   if (counts) ++counts->y_mode[size_group][y_mode];
+#endif
   return y_mode;
 }
 
@@ -155,8 +160,13 @@ static PREDICTION_MODE read_intra_mode_uv(FRAME_CONTEXT *ec_ctx,
                                           PREDICTION_MODE y_mode) {
   const PREDICTION_MODE uv_mode =
       read_intra_mode(r, ec_ctx->uv_mode_cdf[y_mode]);
+#if CONFIG_EC_ADAPT
+  /* TODO(negge): remove this parameter */
+  (void)xd;
+#else
   FRAME_COUNTS *counts = xd->counts;
   if (counts) ++counts->uv_mode[y_mode][uv_mode];
+#endif
   return uv_mode;
 }
 
