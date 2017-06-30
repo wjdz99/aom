@@ -4749,21 +4749,22 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_LOOP_RESTORATION
   av1_copy(fc->switchable_restore_prob, default_switchable_restore_prob);
 #endif  // CONFIG_LOOP_RESTORATION
-  av1_copy(fc->y_mode_cdf, default_if_y_mode_cdf);
-  av1_copy(fc->uv_mode_cdf, default_uv_mode_cdf);
-  av1_copy(fc->switchable_interp_cdf, default_switchable_interp_cdf);
-  av1_copy(fc->partition_cdf, default_partition_cdf);
-  av1_copy(fc->intra_ext_tx_cdf, default_intra_ext_tx_cdf);
-  av1_copy(fc->inter_ext_tx_cdf, default_inter_ext_tx_cdf);
+  av1_copy(fc->adapted_cdfs.partition_cdf, default_partition_cdf);
+  av1_copy(fc->adapted_cdfs.intra_ext_tx_cdf, default_intra_ext_tx_cdf);
+  av1_copy(fc->adapted_cdfs.inter_ext_tx_cdf, default_inter_ext_tx_cdf);
+#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
+  av1_copy(fc->adapted_cdfs.intra_filter_cdf, default_intra_filter_cdf);
+#endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
+  av1_copy(fc->adapted_cdfs.switchable_interp_cdf,
+           default_switchable_interp_cdf);
+  av1_copy(fc->adapted_cdfs.tx_size_cdf, default_tx_size_cdf);
+  av1_copy(fc->adapted_cdfs.uv_mode_cdf, default_uv_mode_cdf);
+  av1_copy(fc->adapted_cdfs.y_mode_cdf, default_if_y_mode_cdf);
 #if CONFIG_NEW_MULTISYMBOL
   av1_copy(fc->skip_cdfs, default_skip_cdfs);
   av1_copy(fc->intra_inter_cdf, default_intra_inter_cdf);
 #endif
-#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
-  av1_copy(fc->intra_filter_cdf, default_intra_filter_cdf);
-#endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
   av1_copy(fc->seg.tree_cdf, default_seg_tree_cdf);
-  av1_copy(fc->tx_size_cdf, default_tx_size_cdf);
 #if CONFIG_DELTA_Q
   av1_copy(fc->delta_q_prob, default_delta_q_probs);
   av1_copy(fc->delta_q_cdf, default_delta_q_cdf);
@@ -4794,11 +4795,11 @@ void av1_set_mode_cdfs(struct AV1Common *cm) {
 
   for (i = 0; i < INTRA_MODES; ++i)
     av1_tree_to_cdf(av1_intra_mode_tree, fc->uv_mode_prob[i],
-                    fc->uv_mode_cdf[i]);
+                    fc->adapted_cdfs.uv_mode_cdf[i]);
 #if CONFIG_EXT_PARTITION_TYPES
   for (i = 0; i < PARTITION_PLOFFSET; ++i)
     av1_tree_to_cdf(av1_partition_tree, fc->partition_prob[i],
-                    fc->partition_cdf[i]);
+                    fc->adapted_cdfs.partition_cdf[i]);
   // Logical index (enum value) to inorder index (tree_to_cdf order)
   aom_cdf_prob inorder_partition_cdf[CDF_SIZE(EXT_PARTITION_TYPES)] = {};
   // TODO(aconverse): Generate this dynamically. The assumptions that
@@ -4817,14 +4818,14 @@ void av1_set_mode_cdfs(struct AV1Common *cm) {
           (inorder_idx > 0 ? AOM_ICDF(inorder_partition_cdf[inorder_idx - 1])
                            : 0);
       cum_prob += prob;
-      fc->partition_cdf[i][j] = AOM_ICDF(cum_prob);
+      fc->adapted_cdfs.partition_cdf[i][j] = AOM_ICDF(cum_prob);
     }
     assert(cum_prob == CDF_PROB_TOP);
   }
 #else
   for (i = 0; i < PARTITION_CONTEXTS; ++i)
     av1_tree_to_cdf(av1_partition_tree, fc->partition_prob[i],
-                    fc->partition_cdf[i]);
+                    fc->adapted_cdfs.partition_cdf[i]);
 #endif
 
   for (i = 0; i < INTRA_MODES; ++i)
@@ -4834,10 +4835,11 @@ void av1_set_mode_cdfs(struct AV1Common *cm) {
 
   for (j = 0; j < SWITCHABLE_FILTER_CONTEXTS; ++j)
     av1_tree_to_cdf(av1_switchable_interp_tree, fc->switchable_interp_prob[j],
-                    fc->switchable_interp_cdf[j]);
+                    fc->adapted_cdfs.switchable_interp_cdf[j]);
 
   for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
-    av1_tree_to_cdf(av1_intra_mode_tree, fc->y_mode_prob[i], fc->y_mode_cdf[i]);
+    av1_tree_to_cdf(av1_intra_mode_tree, fc->y_mode_prob[i],
+                    fc->adapted_cdfs.y_mode_cdf[i]);
 
 #if CONFIG_EXT_TX
   int s;
@@ -4846,32 +4848,32 @@ void av1_set_mode_cdfs(struct AV1Common *cm) {
       for (j = 0; j < INTRA_MODES; ++j)
         av1_tree_to_cdf(av1_ext_tx_intra_tree[s],
                         fc->intra_ext_tx_prob[s][i][j],
-                        fc->intra_ext_tx_cdf[s][i][j]);
+                        fc->adapted_cdfs.intra_ext_tx_cdf[s][i][j]);
 
   for (s = 0; s < EXT_TX_SETS_INTER; ++s)
     for (i = TX_4X4; i < EXT_TX_SIZES; ++i)
       av1_tree_to_cdf(av1_ext_tx_inter_tree[s], fc->inter_ext_tx_prob[s][i],
-                      fc->inter_ext_tx_cdf[s][i]);
+                      fc->adapted_cdfs.inter_ext_tx_cdf[s][i]);
 #else
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i)
     for (j = 0; j < TX_TYPES; ++j)
       av1_tree_to_cdf(av1_ext_tx_tree, fc->intra_ext_tx_prob[i][j],
-                      fc->intra_ext_tx_cdf[i][j]);
+                      fc->adapted_cdfs.intra_ext_tx_cdf[i][j]);
 
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i)
     av1_tree_to_cdf(av1_ext_tx_tree, fc->inter_ext_tx_prob[i],
-                    fc->inter_ext_tx_cdf[i]);
+                    fc->adapted_cdfs.inter_ext_tx_cdf[i]);
 #endif
   for (i = 0; i < MAX_TX_DEPTH; i++) {
     for (j = 0; j < TX_SIZE_CONTEXTS; j++) {
       av1_tree_to_cdf(av1_tx_size_tree[i], fc->tx_size_probs[i][j],
-                      fc->tx_size_cdf[i][j]);
+                      fc->adapted_cdfs.tx_size_cdf[i][j]);
     }
   }
 #if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
   for (i = 0; i < INTRA_FILTERS + 1; ++i) {
     av1_tree_to_cdf(av1_intra_filter_tree, fc->intra_filter_probs[i],
-                    fc->intra_filter_cdf[i]);
+                    fc->adapted_cdfs.intra_filter_cdf[i]);
   }
 #endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 }

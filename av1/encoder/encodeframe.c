@@ -465,7 +465,8 @@ static void reset_intmv_filter_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
 static void update_filter_type_count(FRAME_COUNTS *counts,
                                      const MACROBLOCKD *xd,
-                                     const MB_MODE_INFO *mbmi) {
+                                     const MB_MODE_INFO *mbmi,
+                                     FRAME_CONTEXT *const fc) {
   int dir;
   for (dir = 0; dir < 2; ++dir) {
     if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
@@ -473,6 +474,9 @@ static void update_filter_type_count(FRAME_COUNTS *counts,
          has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
       const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
       ++counts->switchable_interp[ctx][mbmi->interp_filter[dir]];
+      update_cdf(fc->adapted_cdfs.switchable_interp_cdf[ctx],
+                 av1_switchable_interp_ind[mbmi->interp_filter[dir]],
+                 SWITCHABLE_FILTERS);
     }
   }
 }
@@ -739,11 +743,19 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
           && !is_nontrans_global_motion(xd)
 #endif  // CONFIG_GLOBAL_MOTION
               ) {
+#if CONFIG_EC_ADAPT
+        FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+        FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
 #if CONFIG_DUAL_FILTER
-        update_filter_type_count(td->counts, xd, mbmi);
+        update_filter_type_count(td->counts, xd, mbmi, ec_ctx);
 #else
         const int switchable_ctx = av1_get_pred_context_switchable_interp(xd);
         ++td->counts->switchable_interp[switchable_ctx][mbmi->interp_filter];
+        update_cdf(ec_ctx->adapted_cdfs.switchable_interp_cdf[switchable_ctx],
+                   av1_switchable_interp_ind[mbmi->interp_filter],
+                   SWITCHABLE_FILTERS);
 #endif
       }
     }
@@ -898,11 +910,19 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
         && !is_nontrans_global_motion(xd)
 #endif  // CONFIG_GLOBAL_MOTION
             ) {
+#if CONFIG_EC_ADAPT
+      FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+      FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
 #if CONFIG_DUAL_FILTER
-      update_filter_type_count(td->counts, xd, mbmi);
+      update_filter_type_count(td->counts, xd, mbmi, ec_ctx);
 #else
       const int pred_ctx = av1_get_pred_context_switchable_interp(xd);
       ++td->counts->switchable_interp[pred_ctx][mbmi->interp_filter];
+      update_cdf(ec_ctx->adapted_cdfs.switchable_interp_cdf[pred_ctx],
+                 av1_switchable_interp_ind[mbmi->interp_filter],
+                 SWITCHABLE_FILTERS);
 #endif
     }
 
@@ -2029,7 +2049,26 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
   if (cpi->sb_scanning_pass_idx == 0) assert(dry_run == DRY_RUN_NORMAL);
 #endif  // CONFIG_SPEED_REFS
 
-  if (!dry_run && ctx >= 0) td->counts->partition[ctx][partition]++;
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+
+  if (!dry_run && ctx >= 0) {
+    td->counts->partition[ctx][partition]++;
+
+    const int has_rows = (mi_row + hbs) < cm->mi_rows;
+    const int has_cols = (mi_col + hbs) < cm->mi_cols;
+    if (has_rows && has_cols) {
+      unsigned cdf_len = PARTITION_TYPES;
+#if CONFIG_EXT_PARTITION_TYPES
+      if (bsize > BLOCK_8X8) cdf_len = EXT_PARTITION_TYPES;
+#endif
+
+      update_cdf(ec_ctx->adapted_cdfs.partition_cdf[ctx], partition, cdf_len);
+    }
+  }
 
 #if CONFIG_SUPERTX
   if (!frame_is_intra_only(cm) && bsize <= MAX_SUPERTX_BLOCK_SIZE &&
@@ -2085,6 +2124,8 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
         td->counts->supertx[partition_supertx_context_lookup[partition]]
                            [supertx_size][1]++;
         td->counts->supertx_size[supertx_size]++;
+
+        const TX_TYPE tx_type = xd->mi[0]->mbmi.tx_type;
 #if CONFIG_EXT_TX
         if (get_ext_tx_types(supertx_size, bsize, 1, cm->reduced_tx_set_used) >
                 1 &&
@@ -2092,13 +2133,17 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
           const int eset =
               get_ext_tx_set(supertx_size, bsize, 1, cm->reduced_tx_set_used);
           if (eset > 0) {
-            ++td->counts
-                  ->inter_ext_tx[eset][supertx_size][xd->mi[0]->mbmi.tx_type];
+            ++td->counts->inter_ext_tx[eset][supertx_size][tx_type];
+            update_cdf(
+                ec_ctx->adapted_cdfs.inter_ext_tx_cdf[eset][supertx_size],
+                av1_ext_tx_inter_ind[eset][tx_type], ext_tx_cnt_inter[eset]);
           }
         }
 #else
         if (supertx_size < TX_32X32 && !xd->mi[0]->mbmi.skip) {
-          ++td->counts->inter_ext_tx[supertx_size][xd->mi[0]->mbmi.tx_type];
+          ++td->counts->inter_ext_tx[supertx_size][tx_type];
+          update_cdf(ec_ctx->adapted_cdfs.inter_ext_tx_cdf[supertx_size],
+                     tx_type, TX_TYPES);
         }
 #endif  // CONFIG_EXT_TX
       }
@@ -4305,6 +4350,12 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
 #endif
 #endif
 
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+
   // Code each SB in the row
   for (mi_col = tile_info->mi_col_start; mi_col < tile_info->mi_col_end;
        mi_col += cm->mib_size) {
@@ -4317,6 +4368,10 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
 #endif  // CONFIG_SUPERTX
     int i;
     int seg_skip = 0;
+
+    // If this isn't the first SB in the row, the mode costs in cpi
+    // might be out of date. Update them before we do anything else.
+    if (mi_col > tile_info->mi_col_start) av1_update_rd_mode_costs(cpi, ec_ctx);
 
     const int idx_str = cm->mi_stride * mi_row + mi_col;
     MODE_INFO **mi = cm->mi_grid_visible + idx_str;
@@ -4697,8 +4752,10 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   td->mb.e_mbd.tile_ctx = &this_tile->tctx;
 #endif  // #if CONFIG_EC_ADAPT
 
-#if CONFIG_CFL
+#if CONFIG_EC_ADAPT || CONFIG_CFL
   MACROBLOCKD *const xd = &td->mb.e_mbd;
+#endif
+#if CONFIG_CFL
   xd->cfl = &this_tile->cfl;
   cfl_init(xd->cfl, cm);
 #endif
@@ -4707,10 +4764,34 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   td->mb.daala_enc.state.adapt = &this_tile->tctx.pvq_context;
 #endif  // CONFIG_PVQ
 
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
+
+  // While iterating over the top-level SBs in the tile (inside
+  // encode_rd_sb_row), we'll update ec_ctx->adapted_cdfs to stay
+  // roughly in sync with what the decoder's probabilities will be
+  // when it reads the tile. We need to roll these changes back when
+  // we're done (because we'll update all the probabilities a second
+  // time when writing the frame out to the bitstream), so we save a
+  // snapshot here.
+  ADAPTED_CDFS cdfs_snapshot = ec_ctx->adapted_cdfs;
+
   for (mi_row = tile_info->mi_row_start; mi_row < tile_info->mi_row_end;
        mi_row += cm->mib_size) {
+    // The loop in encode_rd_sb_row updates mode costs except on the
+    // first time round (since they might not need updating
+    // yet). Similarly, this code only needs to update them from the
+    // second iteration onwards.
+    if (mi_row > tile_info->mi_row_start) av1_update_rd_mode_costs(cpi, ec_ctx);
+
     encode_rd_sb_row(cpi, td, this_tile, mi_row, &tok);
   }
+
+  // Roll-back adapted_cdfs to its original state
+  ec_ctx->adapted_cdfs = cdfs_snapshot;
 
   cpi->tok_count[tile_row][tile_col] =
       (unsigned int)(tok - cpi->tile_tok[tile_row][tile_col]);
@@ -5435,7 +5516,8 @@ void av1_encode_frame(AV1_COMP *cpi) {
 static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
                             const MODE_INFO *mi, const MODE_INFO *above_mi,
                             const MODE_INFO *left_mi, const int intraonly,
-                            const int mi_row, const int mi_col) {
+                            const int mi_row, const int mi_col,
+                            FRAME_CONTEXT *const fc) {
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const PREDICTION_MODE y_mode = mbmi->mode;
   const PREDICTION_MODE uv_mode = mbmi->uv_mode;
@@ -5456,6 +5538,8 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
           ++counts->kf_y_mode[a][l][bmode];
         } else {
           ++counts->y_mode[0][bmode];
+          update_cdf(fc->adapted_cdfs.y_mode_cdf[0], av1_intra_mode_ind[bmode],
+                     INTRA_MODES);
         }
       }
   } else {
@@ -5465,6 +5549,8 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
       ++counts->kf_y_mode[above][left][y_mode];
     } else {
       ++counts->y_mode[size_group_lookup[bsize]][y_mode];
+      update_cdf(fc->adapted_cdfs.y_mode_cdf[size_group_lookup[bsize]],
+                 av1_intra_mode_ind[y_mode], INTRA_MODES);
     }
 #if CONFIG_FILTER_INTRA
     if (mbmi->mode == DC_PRED
@@ -5496,10 +5582,13 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
       const int intra_filter_ctx = av1_get_pred_context_intra_interp(xd);
       const int p_angle =
           mode_to_angle_map[mbmi->mode] + mbmi->angle_delta[0] * ANGLE_STEP;
-      if (av1_is_intra_filter_switchable(p_angle))
+      if (av1_is_intra_filter_switchable(p_angle)) {
         ++counts->intra_filter[intra_filter_ctx][mbmi->intra_filter];
+        update_cdf(fc->adapted_cdfs.intra_filter_cdf[intra_filter_ctx],
+                   mbmi->intra_filter, INTRA_FILTERS);
+      }
     }
-#endif  // CONFIG_INTRA_INTERP && CONFIG_INTRA_INTERP
+#endif
   }
 
 #if CONFIG_CB4X4
@@ -5512,6 +5601,8 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
   (void)xd;
 #endif
   ++counts->uv_mode[y_mode][uv_mode];
+  update_cdf(fc->adapted_cdfs.uv_mode_cdf[y_mode], av1_intra_mode_ind[uv_mode],
+             INTRA_MODES);
 }
 
 #if CONFIG_VAR_TX
@@ -5657,6 +5748,12 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
   if (plane > 0) return;
   TX_TYPE tx_type = get_tx_type(PLANE_TYPE_Y, xd, block, tx_size);
 #endif
+
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
 #if CONFIG_EXT_TX
   if (get_ext_tx_types(tx_size, bsize, is_inter, cm->reduced_tx_set_used) > 1 &&
       cm->base_qindex > 0 && !mbmi->skip &&
@@ -5664,11 +5761,16 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
     const int eset =
         get_ext_tx_set(tx_size, bsize, is_inter, cm->reduced_tx_set_used);
     if (eset > 0) {
+      const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
       if (is_inter) {
-        ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]][tx_type];
+        ++counts->inter_ext_tx[eset][square_tx_size][tx_type];
+        update_cdf(ec_ctx->adapted_cdfs.inter_ext_tx_cdf[eset][tx_size],
+                   av1_ext_tx_inter_ind[eset][tx_type], ext_tx_cnt_inter[eset]);
       } else {
-        ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
-                              [tx_type];
+        ++counts->intra_ext_tx[eset][square_tx_size][mbmi->mode][tx_type];
+        update_cdf(ec_ctx->adapted_cdfs
+                       .intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
+                   av1_ext_tx_intra_ind[eset][tx_type], ext_tx_cnt_intra[eset]);
       }
     }
   }
@@ -5681,9 +5783,16 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
     if (is_inter) {
       ++counts->inter_ext_tx[tx_size][tx_type];
+      update_cdf(ec_ctx->adapted_cdfs.inter_ext_tx_cdf[tx_size], tx_type,
+                 TX_TYPES);
     } else {
       ++counts->intra_ext_tx[tx_size][intra_mode_to_tx_type_context[mbmi->mode]]
                             [tx_type];
+      update_cdf(
+          ec_ctx->adapted_cdfs
+              .intra_ext_tx_cdf[tx_size]
+                               [intra_mode_to_tx_type_context[mbmi->mode]],
+          av1_ext_tx_ind[tx_type], TX_TYPES);
     }
   }
 #endif  // CONFIG_EXT_TX
@@ -5709,6 +5818,11 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
 #else
   const BLOCK_SIZE block_size = AOMMAX(bsize, BLOCK_8X8);
 #endif
+#if CONFIG_EC_ADAPT
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#else
+  FRAME_CONTEXT *ec_ctx = cm->fc;
+#endif
 
 #if CONFIG_PVQ
   x->pvq_speed = 0;
@@ -5727,7 +5841,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     }
     if (!dry_run) {
       sum_intra_stats(td->counts, xd, mi, xd->above_mi, xd->left_mi,
-                      frame_is_intra_only(cm), mi_row, mi_col);
+                      frame_is_intra_only(cm), mi_row, mi_col, ec_ctx);
     }
 #if CONFIG_PALETTE
     if (bsize >= BLOCK_8X8 && !dry_run) {
@@ -5838,6 +5952,8 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
         const TX_SIZE coded_tx_size = txsize_sqr_up_map[tx_size];
         const int depth = tx_size_to_depth(coded_tx_size);
         ++td->counts->tx_size[tx_size_cat][tx_size_ctx][depth];
+        update_cdf(ec_ctx->adapted_cdfs.tx_size_cdf[tx_size_cat][tx_size_ctx],
+                   depth, tx_size_cat + 2);
         if (tx_size != max_txsize_rect_lookup[bsize]) ++x->txb_split_count;
       }
 #else
@@ -5848,6 +5964,8 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       const int depth = tx_size_to_depth(coded_tx_size);
 
       ++td->counts->tx_size[tx_size_cat][tx_size_ctx][depth];
+      update_cdf(ec_ctx->adapted_cdfs.tx_size_cdf[tx_size_cat][tx_size_ctx],
+                 depth, tx_size_cat + 2);
 #endif
 #if CONFIG_EXT_TX && CONFIG_RECT_TX && CONFIG_RECT_TX_EXT
       if (is_quarter_tx_allowed(xd, mbmi, is_inter) &&
