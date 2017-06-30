@@ -628,6 +628,14 @@ typedef struct AV1_COMP {
 
   TileBufferEnc tile_buffers[MAX_TILE_ROWS][MAX_TILE_COLS];
 
+#if CONFIG_CDF_ADAPT_CHECKING
+  // Snapshots taken of adapted_cdfs just after we've finished
+  // encoding the each tile. Once we get to writing out the bitstream,
+  // we'll compare these with the CDFs we end up with to check things
+  // haven't got out of sync.
+  ADAPTED_CDFS post_encode_cdfs[MAX_TILE_ROWS][MAX_TILE_COLS];
+#endif
+
   int resize_state;
   int resize_avg_qp;
   int resize_buffer_underflow;

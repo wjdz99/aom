@@ -49,6 +49,7 @@ Advanced options:
   ${toggle_coefficient_range_checking}
                                   enable decoder to check if intermediate
                                   transform coefficients are in valid range
+  ${toggle_cdf_adapt_checking}    check that the encoder adapts CDFs correctly when for costing
   ${toggle_runtime_cpu_detect}    runtime cpu detection
   ${toggle_shared}                shared library support
   ${toggle_static}                static library support
@@ -374,6 +375,7 @@ CONFIG_LIST="
     decode_perf_tests
     encode_perf_tests
     coefficient_range_checking
+    cdf_adapt_checking
     lowbitdepth
     highbitdepth
     experimental
@@ -433,6 +435,7 @@ CMDLINE_SELECT="
     decode_perf_tests
     encode_perf_tests
     coefficient_range_checking
+    cdf_adapt_checking
     lowbitdepth
     aom_highbitdepth
     highbitdepth
@@ -542,6 +545,7 @@ post_process_cmdline() {
     enabled warped_motion && disable_feature ncobmc_adapt_weight
     enabled ncobmc_adapt_weight && enable_feature motion_var
     enabled bgsprite && enable_feature global_motion
+    enabled cdf_adapt_checking && enable_feature ec_adapt
 
     if ! enabled delta_q && enabled ext_delta_q; then
       log_echo "ext_delta_q requires delta_q, so disabling ext_delta_q"

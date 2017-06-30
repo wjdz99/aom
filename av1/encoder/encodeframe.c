@@ -4770,6 +4770,11 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
     encode_rd_sb_row(cpi, td, this_tile, mi_row, &tok);
   }
 
+#if CONFIG_CDF_ADAPT_CHECKING
+  // If we're checking the CDFs, take a copy of what we ended up with.
+  cpi->post_encode_cdfs[tile_row][tile_col] = this_tile->tctx.adapted_cdfs;
+#endif
+
   cpi->tok_count[tile_row][tile_col] =
       (unsigned int)(tok - cpi->tile_tok[tile_row][tile_col]);
   assert(cpi->tok_count[tile_row][tile_col] <= allocated_tokens(*tile_info));

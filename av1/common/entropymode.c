@@ -5250,3 +5250,72 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
 
   cm->frame_context_idx = 0;
 }
+
+#if CONFIG_CDF_ADAPT_CHECKING
+static void dump_cdf(const aom_cdf_prob *cdf, size_t len) {
+  fprintf(stderr, "    ");
+  for (size_t i = 0; i < len; ++i)
+    fprintf(stderr, "%c %04x", (i ? ',' : '{'), (unsigned)cdf[i]);
+  fprintf(stderr, " }\n");
+}
+
+static int compare_flat_cdfs(const char *cdf_name, const aom_cdf_prob *cdf0,
+                             const aom_cdf_prob *cdf1, size_t cdf_len,
+                             size_t total_len, int have_printed_hdr_msg) {
+  size_t total_size = total_len * sizeof(aom_cdf_prob);
+  if (0 == memcmp(cdf0, cdf1, total_size)) return have_printed_hdr_msg;
+
+  if (!have_printed_hdr_msg)
+    fprintf(stderr, "CDF mismatch between encoder and bitstream states\n");
+
+  fprintf(stderr, " CDF %s doesn't match\n", cdf_name);
+  size_t n_cdfs = total_len / cdf_len;
+  for (size_t cdf_idx = 0; cdf_idx < n_cdfs; ++cdf_idx) {
+    const aom_cdf_prob *cdfi0 = cdf0 + cdf_idx * cdf_len;
+    const aom_cdf_prob *cdfi1 = cdf1 + cdf_idx * cdf_len;
+
+    if (0 == memcmp(cdfi0, cdfi1, cdf_len * sizeof(aom_cdf_prob))) continue;
+
+    fprintf(stderr, "  Mismatch at CDF @ flattened idx %02zu:\n", cdf_idx);
+    dump_cdf(cdfi0, cdf_len);
+    dump_cdf(cdfi1, cdf_len);
+  }
+  return 1;
+}
+
+#define COMPARE_CDFS(ac0, ac1, field, n, have_hdr)                   \
+  compare_flat_cdfs(#field, (const aom_cdf_prob *)(ac0)->field,      \
+                    (const aom_cdf_prob *)(ac1)->field, CDF_SIZE(n), \
+                    sizeof(ac0->field) / sizeof(aom_cdf_prob), have_hdr)
+
+void av1_check_cdf_adapt(const ADAPTED_CDFS *post_enc,
+                         const ADAPTED_CDFS *post_write,
+                         int check_switchable_interp) {
+  const ADAPTED_CDFS *ac0 = post_enc;
+  const ADAPTED_CDFS *ac1 = post_write;
+
+  if (0 == memcmp(ac0, ac1, sizeof(ADAPTED_CDFS))) return;
+
+  int have_hdr = 0;
+
+#if CONFIG_EXT_PARTITION_TYPES
+  const size_t npartition_types = EXT_PARTITION_TYPES;
+#else
+  const size_t npartition_types = PARTITION_TYPES;
+#endif
+  have_hdr = COMPARE_CDFS(ac0, ac1, partition_cdf, npartition_types, have_hdr);
+  have_hdr = COMPARE_CDFS(ac0, ac1, intra_ext_tx_cdf, TX_TYPES, have_hdr);
+  have_hdr = COMPARE_CDFS(ac0, ac1, inter_ext_tx_cdf, TX_TYPES, have_hdr);
+#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
+  have_hdr = COMPARE_CDFS(ac0, ac1, intra_filter_cdf, INTRA_FILTERS, have_hdr);
+#endif
+  if (check_switchable_interp)
+    have_hdr = COMPARE_CDFS(ac0, ac1, switchable_interp_cdf, SWITCHABLE_FILTERS,
+                            have_hdr);
+  have_hdr = COMPARE_CDFS(ac0, ac1, tx_size_cdf, MAX_TX_DEPTH + 1, have_hdr);
+  have_hdr = COMPARE_CDFS(ac0, ac1, uv_mode_cdf, INTRA_MODES, have_hdr);
+  have_hdr = COMPARE_CDFS(ac0, ac1, y_mode_cdf, INTRA_MODES, have_hdr);
+
+  if (have_hdr) exit(1);
+}
+#endif  // CONFIG_CDF_ADAPT_CHECKING
