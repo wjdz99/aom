@@ -53,7 +53,6 @@ set(AOM_AV1_COMMON_SOURCES
     "${AOM_ROOT}/av1/common/odintrin.c"
     "${AOM_ROOT}/av1/common/odintrin.h"
     "${AOM_ROOT}/av1/common/onyxc_int.h"
-    "${AOM_ROOT}/av1/common/onyxc_int.c"
     "${AOM_ROOT}/av1/common/pred_common.c"
     "${AOM_ROOT}/av1/common/pred_common.h"
     "${AOM_ROOT}/av1/common/quant_common.c"
@@ -73,9 +72,7 @@ set(AOM_AV1_COMMON_SOURCES
     "${AOM_ROOT}/av1/common/thread_common.c"
     "${AOM_ROOT}/av1/common/thread_common.h"
     "${AOM_ROOT}/av1/common/tile_common.c"
-    "${AOM_ROOT}/av1/common/tile_common.h"
-    "${AOM_ROOT}/av1/common/vector.h"
-    "${AOM_ROOT}/av1/common/vector.c")
+    "${AOM_ROOT}/av1/common/tile_common.h")
 
 set(AOM_AV1_DECODER_SOURCES
     "${AOM_ROOT}/av1/av1_dx_iface.c"
@@ -151,7 +148,11 @@ set(AOM_AV1_ENCODER_SOURCES
     "${AOM_ROOT}/av1/encoder/tokenize.c"
     "${AOM_ROOT}/av1/encoder/tokenize.h"
     "${AOM_ROOT}/av1/encoder/treewriter.c"
-    "${AOM_ROOT}/av1/encoder/treewriter.h")
+    "${AOM_ROOT}/av1/encoder/treewriter.h"
+    "${AOM_ROOT}/av1/encoder/hash_motion.h"
+    "${AOM_ROOT}/av1/encoder/hash_motion.c"
+    "${AOM_ROOT}/third_party/vector/vector.h"
+    "${AOM_ROOT}/third_party/vector/vector.c")
 
 set(AOM_AV1_COMMON_INTRIN_SSE2
     "${AOM_ROOT}/av1/common/x86/idct_intrin_sse2.c")

@@ -73,6 +73,9 @@
 #if CONFIG_BITSTREAM_DEBUG
 #include "aom_util/debug_util.h"
 #endif  // CONFIG_BITSTREAM_DEBUG
+#if CONFIG_HASH_ME
+#include "av1/encoder/hash_motion.h"
+#endif
 
 #if CONFIG_ENTROPY_STATS
 FRAME_COUNTS aggregate_fc;
@@ -4962,7 +4965,7 @@ static void init_ref_frame_bufs(AV1_COMMON *cm) {
   }
 #if CONFIG_HASH_ME
   for (i = 0; i < FRAME_BUFFERS; ++i) {
-    hash_table_init(&pool->frame_bufs[i].hash_table);
+    av1_hash_table_init(&pool->frame_bufs[i].hash_table);
   }
 #endif
 }
@@ -5588,61 +5591,62 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 #if CONFIG_HASH_ME
   if (oxcf->pass != 1 && cpi->common.allow_screen_content_tools) {
     // add to hash table
-    int picWidth = cpi->source->y_crop_width;
-    int picHeight = cpi->source->y_crop_height;
-    uint32_t *uiBlockHashValues[2][2];
-    int8_t *bIsBlockSame[2][3];
+    int pic_width = cpi->source->y_crop_width;
+    int pic_height = cpi->source->y_crop_height;
+    uint32_t *block_hash_values[2][2];
+    int8_t *is_block_same[2][3];
     int k, j;
 
     for (k = 0; k < 2; k++) {
       for (j = 0; j < 2; j++) {
-        uiBlockHashValues[k][j] =
-            malloc(sizeof(uint32_t) * picWidth * picHeight);
+        CHECK_MEM_ERROR(cm, block_hash_values[k][j],
+                        aom_malloc(sizeof(uint32_t) * pic_width * pic_height));
       }
 
       for (j = 0; j < 3; j++) {
-        bIsBlockSame[k][j] = malloc(sizeof(int8_t) * picWidth * picHeight);
+        CHECK_MEM_ERROR(cm, is_block_same[k][j],
+                        aom_malloc(sizeof(int8_t) * pic_width * pic_height));
       }
     }
 
-    hash_table_create(&cm->cur_frame->hash_table);
-    generate_block_2x2_hash_value(cpi->source, uiBlockHashValues[0],
-                                  bIsBlockSame[0]);
-    generate_block_hash_value(cpi->source, 4, 4, uiBlockHashValues[0],
-                              uiBlockHashValues[1], bIsBlockSame[0],
-                              bIsBlockSame[1]);
-    generate_block_hash_value(cpi->source, 8, 8, uiBlockHashValues[1],
-                              uiBlockHashValues[0], bIsBlockSame[1],
-                              bIsBlockSame[0]);
-    add_to_hash_map_by_row_with_precal_data(
-        &cm->cur_frame->hash_table, uiBlockHashValues[0], bIsBlockSame[0][2],
-        picWidth, picHeight, 8, 8);
-    generate_block_hash_value(cpi->source, 16, 16, uiBlockHashValues[0],
-                              uiBlockHashValues[1], bIsBlockSame[0],
-                              bIsBlockSame[1]);
-    add_to_hash_map_by_row_with_precal_data(
-        &cm->cur_frame->hash_table, uiBlockHashValues[1], bIsBlockSame[1][2],
-        picWidth, picHeight, 16, 16);
-    generate_block_hash_value(cpi->source, 32, 32, uiBlockHashValues[1],
-                              uiBlockHashValues[0], bIsBlockSame[1],
-                              bIsBlockSame[0]);
-    add_to_hash_map_by_row_with_precal_data(
-        &cm->cur_frame->hash_table, uiBlockHashValues[0], bIsBlockSame[0][2],
-        picWidth, picHeight, 32, 32);
-    generate_block_hash_value(cpi->source, 64, 64, uiBlockHashValues[0],
-                              uiBlockHashValues[1], bIsBlockSame[0],
-                              bIsBlockSame[1]);
-    add_to_hash_map_by_row_with_precal_data(
-        &cm->cur_frame->hash_table, uiBlockHashValues[1], bIsBlockSame[1][2],
-        picWidth, picHeight, 64, 64);
+    av1_hash_table_create(&cm->cur_frame->hash_table);
+    av1_generate_block_2x2_hash_value(cpi->source, block_hash_values[0],
+                                      is_block_same[0]);
+    av1_generate_block_hash_value(cpi->source, 4, block_hash_values[0],
+                                  block_hash_values[1], is_block_same[0],
+                                  is_block_same[1]);
+    av1_generate_block_hash_value(cpi->source, 8, block_hash_values[1],
+                                  block_hash_values[0], is_block_same[1],
+                                  is_block_same[0]);
+    av1_add_to_hash_map_by_row_with_precal_data(
+        &cm->cur_frame->hash_table, block_hash_values[0], is_block_same[0][2],
+        pic_width, pic_height, 8);
+    av1_generate_block_hash_value(cpi->source, 16, block_hash_values[0],
+                                  block_hash_values[1], is_block_same[0],
+                                  is_block_same[1]);
+    av1_add_to_hash_map_by_row_with_precal_data(
+        &cm->cur_frame->hash_table, block_hash_values[1], is_block_same[1][2],
+        pic_width, pic_height, 16);
+    av1_generate_block_hash_value(cpi->source, 32, block_hash_values[1],
+                                  block_hash_values[0], is_block_same[1],
+                                  is_block_same[0]);
+    av1_add_to_hash_map_by_row_with_precal_data(
+        &cm->cur_frame->hash_table, block_hash_values[0], is_block_same[0][2],
+        pic_width, pic_height, 32);
+    av1_generate_block_hash_value(cpi->source, 64, block_hash_values[0],
+                                  block_hash_values[1], is_block_same[0],
+                                  is_block_same[1]);
+    av1_add_to_hash_map_by_row_with_precal_data(
+        &cm->cur_frame->hash_table, block_hash_values[1], is_block_same[1][2],
+        pic_width, pic_height, 64);
 
     for (k = 0; k < 2; k++) {
       for (j = 0; j < 2; j++) {
-        free(uiBlockHashValues[k][j]);
+        aom_free(block_hash_values[k][j]);
       }
 
       for (j = 0; j < 3; j++) {
-        free(bIsBlockSame[k][j]);
+        aom_free(is_block_same[k][j]);
       }
     }
   }
