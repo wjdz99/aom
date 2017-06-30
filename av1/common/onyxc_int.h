@@ -39,7 +39,7 @@
 #include "av1/common/cfl.h"
 #endif
 #if CONFIG_HASH_ME
-#include "av1/common/vector.h"
+#include "av1/encoder/hash_motion.h"
 #endif
 #ifdef __cplusplus
 extern "C" {
@@ -106,74 +106,6 @@ typedef struct {
   int_mv pred_mv[2];
   MV_REFERENCE_FRAME ref_frame[2];
 } MV_REF;
-
-#if CONFIG_HASH_ME
-typedef struct _block_hash {
-  int16_t x;
-  int16_t y;
-  uint32_t hash_value2;
-} block_hash;
-
-typedef struct _crc_calculator_light {
-  uint32_t m_remainder;
-  uint32_t m_truncPoly;
-  uint32_t m_bits;
-  uint32_t m_table[256];
-  uint32_t m_finalResultMask;
-} crc_calculator_light;
-
-void crc_calculator_light_init(crc_calculator_light *p_crc_calculator_light,
-                               uint32_t bits, uint32_t truncPoly);
-void crc_calculator_light_destroy(crc_calculator_light *p_crc_calculator_light);
-void crc_calculator_light_process_data(
-    crc_calculator_light *p_crc_calculator_light, uint8_t *pData,
-    uint32_t dataLength);
-void crc_calculator_light_reset(crc_calculator_light *p_crc_calculator_light);
-uint32_t crc_calculator_light_get_crc(
-    crc_calculator_light *p_crc_calculator_light);
-void crc_calculator_light_init_table(
-    crc_calculator_light *p_crc_calculator_light);
-
-typedef struct _hash_table { Vector **p_lookup_table; } hash_table;
-
-void hash_table_init(hash_table *p_hash_table);
-void hash_table_destroy(hash_table *p_hash_table);
-void hash_table_create(hash_table *p_hash_table);
-void hash_table_clearAll(hash_table *p_hash_table);
-void hash_table_add_to_table(hash_table *p_hash_table, uint32_t hashValue,
-                             block_hash *blockHash);
-int32_t hash_table_count(hash_table *p_hash_table, uint32_t hashValue);
-Iterator hash_get_first_iterator(hash_table *p_hash_table, uint32_t hashValue);
-int32_t has_exact_match(hash_table *p_hash_table, uint32_t hashValue1,
-                        uint32_t hash_value2);
-void generate_block_2x2_hash_value(YV12_BUFFER_CONFIG *picture,
-                                   uint32_t *picBlockHash[2],
-                                   int8_t *picBlockSameInfo[3]);
-void generate_block_hash_value(YV12_BUFFER_CONFIG *picture, int width,
-                               int height, uint32_t *srcPicBlockHash[2],
-                               uint32_t *dstPicBlockHash[2],
-                               int8_t *srcPicBlockSameInfo[3],
-                               int8_t *dstPicBlockSameInfo[3]);
-void add_to_hash_map_by_row_with_precal_data(hash_table *p_hash_table,
-                                             uint32_t *picHash[2],
-                                             int8_t *picIsSame, int picWidth,
-                                             int picHeight, int width,
-                                             int height);
-
-uint32_t get_crc_value1(uint8_t *p, int length);
-uint32_t get_crc_value2(uint8_t *p, int length);
-void get_pixels_in_1D_char_array_by_block_2x2(uint8_t *ySrc, int stride,
-                                              uint8_t *pPixelsIn1D);
-int is_block_2x2_row_same_value(uint8_t *p);
-int is_block_2x2_col_same_value(uint8_t *p);
-int hash_is_horizontal_perfect(YV12_BUFFER_CONFIG *picture, int width,
-                               int height, int xStart, int yStart);
-int hash_is_vertical_perfect(YV12_BUFFER_CONFIG *picture, int width, int height,
-                             int xStart, int yStart);
-int get_block_hash_value(uint8_t *ySrc, int stride, int width, int height,
-                         uint32_t *hashValue1, uint32_t *hash_value2);
-void hash_init_block_size_to_index();
-#endif
 
 typedef struct {
   int ref_count;

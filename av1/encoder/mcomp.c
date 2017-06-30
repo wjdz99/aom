@@ -2538,39 +2538,43 @@ static int is_exhaustive_allowed(const AV1_COMP *const cpi, MACROBLOCK *x) {
 }
 
 #if CONFIG_HASH_ME
-void add_to_sort_table(block_hash blockHashes[5], int costs[5], int *existing,
-                       int maxSize, block_hash currBlock, int currCost) {
-  if (*existing < maxSize) {
-    blockHashes[*existing] = currBlock;
-    costs[*existing] = currCost;
+#define MAX_TABLE_SIZE 5
+static void add_to_sort_table(block_hash block_hashes[5], int costs[5],
+                              int *existing, int max_size,
+                              block_hash curr_block, int curr_cost) {
+  if (*existing < max_size) {
+    block_hashes[*existing] = curr_block;
+    costs[*existing] = curr_cost;
     (*existing)++;
   } else {
-    int maxCost = 0;
-    int maxCostIdx = 0;
-    int i;
-    for (i = 0; i < maxSize; i++) {
-      if (costs[i] > maxCost) {
-        maxCost = costs[i];
-        maxCostIdx = i;
+    int max_cost = 0;
+    int max_cost_idx = 0;
+    for (int i = 0; i < max_size; i++) {
+      if (costs[i] > max_cost) {
+        max_cost = costs[i];
+        max_cost_idx = i;
       }
     }
 
-    if (currCost < maxCost) {
-      blockHashes[maxCostIdx] = currBlock;
-      costs[maxCostIdx] = currCost;
+    if (curr_cost < max_cost) {
+      block_hashes[max_cost_idx] = curr_block;
+      costs[max_cost_idx] = curr_cost;
     }
   }
 }
 #endif
 
+#if CONFIG_HASH_ME
 int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                           MV *mvp_full, int step_param, int error_per_bit,
-                          int *cost_list, const MV *ref_mv, int var_max, int rd
-#if CONFIG_HASH_ME
-                          ,
-                          int xPos, int yPos
+                          int *cost_list, const MV *ref_mv, int var_max, int rd,
+                          int x_pos, int y_pos) {
+#else
+int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
+                          MV *mvp_full, int step_param, int error_per_bit,
+                          int *cost_list, const MV *ref_mv, int var_max,
+                          int rd) {
 #endif
-                          ) {
   const SPEED_FEATURES *const sf = &cpi->sf;
   const SEARCH_METHODS method = sf->mv.search_method;
   const aom_variance_fn_ptr_t *fn_ptr = &cpi->fn_ptr[bsize];
@@ -2651,40 +2655,40 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     // get block size and original buffer of current block
     const int block_height = block_size_high[bsize];
     const int block_width = block_size_wide[bsize];
-    if (block_height == block_width && xPos >= 0 && yPos >= 0) {
+    if (block_height == block_width && x_pos >= 0 && y_pos >= 0) {
       if (block_width == 8 || block_width == 16 || block_width == 32 ||
           block_width == 64) {
         uint8_t *what = x->plane[0].src.buf;
         const int what_stride = x->plane[0].src.stride;
-        block_hash blockHashes[5];
-        int costs[5];
+        block_hash block_hashes[MAX_TABLE_SIZE];
+        int costs[MAX_TABLE_SIZE];
         int existing = 0;
         int i;
         uint32_t hash_value1, hash_value2;
-        MV bestHashMV;
-        int bestHashCost = INT_MAX;
+        MV best_hash_mv;
+        int best_hash_cost = INT_MAX;
 
         // for the hashMap
-        hash_table *ref_frame_Hash =
+        hash_table *ref_frame_hash =
             get_ref_frame_hash_map(cpi, x->e_mbd.mi[0]->mbmi.ref_frame[0]);
 
-        get_block_hash_value(what, what_stride, block_width, block_height,
-                             &hash_value1, &hash_value2);
+        av1_get_block_hash_value(what, what_stride, block_width, &hash_value1,
+                                 &hash_value2);
 
-        int count = hash_table_count(ref_frame_Hash, hash_value1);
+        int count = av1_hash_table_count(ref_frame_hash, hash_value1);
         if (count == 0) {
           break;
         }
 
         Iterator iterator =
-            hash_get_first_iterator(ref_frame_Hash, hash_value1);
+            av1_hash_get_first_iterator(ref_frame_hash, hash_value1);
         for (i = 0; i < count; i++, iterator_increment(&iterator)) {
-          block_hash refBlockHash = *(block_hash *)(iterator_get(&iterator));
-          if (hash_value2 == refBlockHash.hash_value2) {
+          block_hash ref_block_hash = *(block_hash *)(iterator_get(&iterator));
+          if (hash_value2 == ref_block_hash.hash_value2) {
             int refCost =
-                abs(refBlockHash.x - xPos) + abs(refBlockHash.y - yPos);
-            add_to_sort_table(blockHashes, costs, &existing, 5, refBlockHash,
-                              refCost);
+                abs(ref_block_hash.x - x_pos) + abs(ref_block_hash.y - y_pos);
+            add_to_sort_table(block_hashes, costs, &existing, MAX_TABLE_SIZE,
+                              ref_block_hash, refCost);
           }
         }
 
@@ -2693,23 +2697,23 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
         }
 
         for (i = 0; i < existing; i++) {
-          MV hashMV;
-          hashMV.col = blockHashes[i].x - xPos;
-          hashMV.row = blockHashes[i].y - yPos;
-          if (!is_mv_in(&x->mv_limits, &hashMV)) {
+          MV hash_mv;
+          hash_mv.col = block_hashes[i].x - x_pos;
+          hash_mv.row = block_hashes[i].y - y_pos;
+          if (!is_mv_in(&x->mv_limits, &hash_mv)) {
             continue;
           }
-          int currHashCost = av1_get_mvpred_var(x, &hashMV, ref_mv, fn_ptr, 1);
-          if (currHashCost < bestHashCost) {
-            bestHashCost = currHashCost;
-            bestHashMV = hashMV;
+          int currHashCost = av1_get_mvpred_var(x, &hash_mv, ref_mv, fn_ptr, 1);
+          if (currHashCost < best_hash_cost) {
+            best_hash_cost = currHashCost;
+            best_hash_mv = hash_mv;
           }
         }
 
-        if (bestHashCost < var) {
+        if (best_hash_cost < var) {
           x->second_best_mv = x->best_mv;
-          x->best_mv.as_mv = bestHashMV;
-          var = bestHashCost;
+          x->best_mv.as_mv = best_hash_mv;
+          var = best_hash_cost;
         }
       }
     }

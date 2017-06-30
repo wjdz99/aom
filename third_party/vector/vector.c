@@ -26,7 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "av1/common/vector.h"
+#include "third_party/vector/vector.h"
 
 int vector_setup(Vector *vector, size_t capacity, size_t element_size) {
   assert(vector != NULL);
