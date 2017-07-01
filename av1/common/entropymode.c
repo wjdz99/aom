@@ -5120,6 +5120,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_FILTER_INTRA
   av1_copy(fc->filter_intra_probs, default_filter_intra_probs);
 #endif  // CONFIG_FILTER_INTRA
+#if CONFIG_LGT
+  fc->lgt_prob = LGT_PROB_DEFAULT;
+#endif
   av1_copy(fc->inter_ext_tx_prob, default_inter_ext_tx_prob);
   av1_copy(fc->intra_ext_tx_prob, default_intra_ext_tx_prob);
 #if CONFIG_LOOP_RESTORATION
@@ -5359,6 +5362,7 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
         av1_mode_mv_merge_probs(pre_fc->skip_probs[i], counts->skip[i]);
 
 #if CONFIG_EXT_TX
+#if CONFIG_LGT
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
     int s;
     for (s = 1; s < EXT_TX_SETS_INTER; ++s) {
@@ -5377,6 +5381,7 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
       }
     }
   }
+#endif  // CONFIG_LGT
 #else
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
     for (j = 0; j < TX_TYPES; ++j) {

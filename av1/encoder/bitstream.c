@@ -1653,14 +1653,23 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
                          ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
                          ext_tx_cnt_inter[eset]);
       } else if (ALLOW_INTRA_EXT_TX) {
-        assert(ext_tx_used_intra[eset][tx_type]);
-        aom_write_symbol(
-            w, av1_ext_tx_intra_ind[eset][tx_type],
-            ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
-            ext_tx_cnt_intra[eset]);
+#if CONFIG_LGT
+        if (is_lgt_allowed(mbmi->mode, square_tx_size))
+          aom_write(w, mbmi->use_lgt, ec_ctx->lgt_prob);
+        if (!mbmi->use_lgt) {
+          // only signal tx_type when lgt is not allowed or not selected
+#endif  // CONFIG_LGT
+          assert(ext_tx_used_intra[eset][tx_type]);
+          aom_write_symbol(
+              w, av1_ext_tx_intra_ind[eset][tx_type],
+              ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
+              ext_tx_cnt_intra[eset]);
+#if CONFIG_LGT
+        }
+#endif  // CONFIG_LGT
       }
     }
-#else
+#else  // CONFIG_EXT_TX
     if (tx_size < TX_32X32 &&
         ((!cm->seg.enabled && cm->base_qindex > 0) ||
          (cm->seg.enabled && xd->qindex[mbmi->segment_id] > 0)) &&
