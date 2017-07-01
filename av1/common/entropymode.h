@@ -76,6 +76,10 @@ extern "C" {
 #define INTRABC_PROB_DEFAULT 192
 #endif  // CONFIG_INTRABC
 
+#if CONFIG_LGT
+#define LGT_PROB_DEFAULT 32
+#endif  // CONFIG_LGT
+
 struct AV1Common;
 
 typedef struct {
@@ -351,6 +355,9 @@ typedef struct frame_contexts {
   aom_cdf_prob intra_ext_tx_cdf[EXT_TX_SIZES][TX_TYPES][CDF_SIZE(TX_TYPES)];
   aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SIZES][CDF_SIZE(TX_TYPES)];
 #endif  // CONFIG_EXT_TX
+#if CONFIG_LGT
+  aom_prob lgt_prob;
+#endif  // CONFIG_LGT
 #if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
   aom_cdf_prob intra_filter_cdf[INTRA_FILTERS + 1][CDF_SIZE(INTRA_FILTERS)];
 #endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
@@ -480,6 +487,9 @@ typedef struct FRAME_COUNTS {
   unsigned int intrabc[2];
   nmv_context_counts dv;
 #endif
+#if CONFIG_LGT
+  unsigned int lgt[2];
+#endif  // CONFIG_LGT
 #if CONFIG_DELTA_Q
   unsigned int delta_q[DELTA_Q_PROBS][2];
 #if CONFIG_EXT_DELTA_Q

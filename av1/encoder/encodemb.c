@@ -637,7 +637,9 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #if CONFIG_LGT
   txfm_param.is_inter = is_inter_block(mbmi);
   txfm_param.mode = get_prediction_mode(xd->mi[0], plane, tx_size, block);
-#endif
+  txfm_param.use_lgt = mbmi->use_lgt;
+  if (mbmi->use_lgt) assert(is_lgt_allowed(mbmi->mode, tx_size));
+#endif  // CONFIG_LGT
 
 #if !CONFIG_PVQ
   txfm_param.bd = xd->bd;

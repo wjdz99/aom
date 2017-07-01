@@ -397,6 +397,9 @@ typedef struct MB_MODE_INFO {
 #if CONFIG_TXK_SEL
   TX_TYPE txk_type[MAX_SB_SQUARE / (TX_SIZE_W_MIN * TX_SIZE_H_MIN)];
 #endif
+#if CONFIG_LGT
+  int use_lgt;
+#endif
 
 #if CONFIG_FILTER_INTRA
   FILTER_INTRA_MODE_INFO filter_intra_mode_info;
@@ -1047,6 +1050,64 @@ static INLINE int get_ext_tx_types(TX_SIZE tx_size, BLOCK_SIZE bs, int is_inter,
   return num_ext_tx_set[set_type];
 }
 
+#if CONFIG_LGT
+// TX_TYPE to TX_TYPE_1D
+static INLINE TX_TYPE_1D get_1d_tx_type(TX_TYPE tx_type, int is_col) {
+  assert(is_col == 0 || is_col == 1);
+  /* clang-format off */
+  TX_TYPE_1D tx1d_arr[TX_TYPES][2] = {
+    { DCT_1D, DCT_1D },            // DCT_DCT
+    { DCT_1D, ADST_1D },           // ADST_DCT
+    { ADST_1D, DCT_1D },           // DCT_ADST
+    { ADST_1D, ADST_1D },          // ADST_ADST
+#if CONFIG_EXT_TX
+    { DCT_1D, FLIPADST_1D },       // FLIPADST_DCT
+    { FLIPADST_1D, DCT_1D },       // DCT_FLIPADST
+    { FLIPADST_1D, FLIPADST_1D },  // FLIPADST_FLIPADST
+    { FLIPADST_1D, ADST_1D },      // ADST_FLIPADST
+    { ADST_1D, FLIPADST_1D },      // FLIPADST_ADST
+    { IDTX_1D, IDTX_1D },          // IDTX
+    { IDTX_1D, DCT_1D },           // V_DCT
+    { DCT_1D, IDTX_1D },           // H_DCT
+    { IDTX_1D, ADST_1D },          // V_ADST
+    { ADST_1D, IDTX_1D },          // H_ADST
+    { IDTX_1D, FLIPADST_1D },      // V_FLIPADST
+    { FLIPADST_1D, IDTX_1D },      // H_FLIPADST
+#endif
+  };
+  /* clang-format on */
+  return tx1d_arr[tx_type][is_col];
+}
+
+static INLINE int is_lgt_allowed(PREDICTION_MODE mode, TX_SIZE tx_size) {
+  switch (mode) {
+    case DC_PRED: return 0;
+    case TM_PRED:
+#if CONFIG_ALT_INTRA
+    case SMOOTH_PRED:
+#endif
+      return tx_size_wide[tx_size] <= 8 || tx_size_high[tx_size] <= 8;
+    case D45_PRED:
+    case D63_PRED:
+    case V_PRED:
+    case D117_PRED:
+#if CONFIG_SMOOTH_HV
+    case SMOOTH_V_PRED:
+#endif
+      return tx_size_wide[tx_size] <= 8;
+    case D135_PRED:
+    case D153_PRED:
+    case H_PRED:
+    case D207_PRED:
+#if CONFIG_SMOOTH_HV
+    case SMOOTH_H_PRED:
+#endif
+      return tx_size_high[tx_size] <= 8;
+    default: return 0;
+  }
+}
+#endif  // CONFIG_LGT
+
 #if CONFIG_RECT_TX
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
   static const char LUT[BLOCK_SIZES_ALL] = {
@@ -1282,6 +1343,14 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
     return DCT_DCT;
   }
 #endif  // CONFIG_MRC_TX
+#if CONFIG_LGT
+  if (mbmi->use_lgt) {
+    // assert(is_lgt_allowed(mbmi->mode, tx_size));
+    if (plane_type != PLANE_TYPE_Y || !is_lgt_allowed(mbmi->mode, tx_size))
+      xd->mi[0]->mbmi.use_lgt = 0;
+    return DCT_DCT;
+  }
+#endif
   if (xd->lossless[mbmi->segment_id] || txsize_sqr_map[tx_size] > TX_32X32 ||
       (txsize_sqr_map[tx_size] >= TX_32X32 && !is_inter_block(mbmi)))
     return DCT_DCT;

@@ -700,6 +700,10 @@ typedef enum {
 } FILTER_DEGREE;
 #endif  // CONFIG_LPF_DIRECT
 
+#if CONFIG_LGT
+#define LGT_SENDBOTH 0
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
