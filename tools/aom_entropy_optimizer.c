@@ -797,6 +797,15 @@ int main(int argc, const char **argv) {
       "static const aom_cdf_prob default_filter_intra_cdf[2][CDF_SIZE(2)]");
 #endif
 
+/* lgt experiment */
+#if CONFIG_LGT
+  cts_each_dim[0] = 2;
+  optimize_entropy_table(&fc.lgt[0], probsfile, 1, cts_each_dim, NULL, 1,
+                         "LGT_PROB_DEFAULT");
+  optimize_cdf_table(&fc.lgt[0], probsfile, 1, cts_each_dim,
+                     "static const aom_cdf_prob default_lgt_cdf[CDF_SIZE(2)]");
+#endif
+
   fclose(statsfile);
   fclose(logfile);
   fclose(probsfile);
