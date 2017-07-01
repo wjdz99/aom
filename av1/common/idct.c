@@ -209,6 +209,15 @@ void ilgt4(const tran_low_t *input, tran_low_t *output,
     return;
   }
 
+  // For DCT/ADST, use butterfly implementations
+  if (lgtmtx == &lgt4_000[0][0]) {
+    aom_idct4_c(input, output);
+    return;
+  } else if (lgtmtx == &lgt4_100[0][0]) {
+    aom_iadst4_c(input, output);
+    return;
+  }
+
   // evaluate s[j] = sum of all lgtmtx[i][j]*input[i] over i=1,...,4
   tran_high_t s[4] = { 0 };
   for (int i = 0; i < 4; ++i)
@@ -219,6 +228,15 @@ void ilgt4(const tran_low_t *input, tran_low_t *output,
 
 void ilgt8(const tran_low_t *input, tran_low_t *output,
            const tran_high_t *lgtmtx) {
+  // For DCT/ADST, use butterfly implementations
+  if (lgtmtx == &lgt8_000[0][0]) {
+    aom_idct8_c(input, output);
+    return;
+  } else if (lgtmtx == &lgt8_200[0][0]) {
+    aom_iadst8_c(input, output);
+    return;
+  }
+
   // evaluate s[j] = sum of all lgtmtx[i][j]*input[i] over i=1,...,8
   tran_high_t s[8] = { 0 };
   for (int i = 0; i < 8; ++i)
@@ -227,25 +245,295 @@ void ilgt8(const tran_low_t *input, tran_low_t *output,
   for (int i = 0; i < 8; ++i) output[i] = WRAPLOW(dct_const_round_shift(s[i]));
 }
 
-// The get_inv_lgt functions return 1 if LGT is chosen to apply, and 0 otherwise
-int get_inv_lgt4(transform_1d tx_orig, const TxfmParam *txfm_param,
-                 const tran_high_t *lgtmtx[], int ntx) {
-  // inter/intra split
-  if (tx_orig == &aom_iadst4_c) {
-    for (int i = 0; i < ntx; ++i)
-      lgtmtx[i] = txfm_param->is_inter ? &lgt4_170[0][0] : &lgt4_140[0][0];
+int get_discontinuity(uint8_t *dst, int stride, int n, int is_left) {
+  int arr[8];  // top row or left column
+  if (is_left)
+    for (int i = 0; i < n; ++i) arr[i] = dst[i * stride - 1];
+  else
+    for (int i = 0; i < n; ++i) arr[i] = dst[-stride + i];
+
+  int max_dif = 0, idx_max_dif = -1;
+  for (int i = 1; i < n; ++i) {
+    if (abs(arr[i] - arr[i - 1]) > max_dif) {
+      max_dif = abs(arr[i] - arr[i - 1]);
+      idx_max_dif = i;
+    }
+  }
+
+  if (max_dif < LGT_THR) return -1;
+  return idx_max_dif;
+}
+
+// TX_TYPE to TX_TYPE_1D
+TX_TYPE_1D get_1d_tx_type(TX_TYPE tx_type, int is_col) {
+  TX_TYPE_1D tx_col_arr[TX_TYPES] = {
+    DCT_1D,
+    ADST_1D,
+    DCT_1D,
+    ADST_1D,
+#if CONFIG_EXT_TX
+    FLIPADST_1D,
+    DCT_1D,
+    FLIPADST_1D,
+    ADST_1D,
+    FLIPADST_1D,
+    IDTX_1D,
+    DCT_1D,
+    IDTX_1D,
+    ADST_1D,
+    IDTX_1D,
+    FLIPADST_1D,
+    IDTX_1D,
+#endif
+  };
+  TX_TYPE_1D tx_row_arr[TX_TYPES] = {
+    DCT_1D,
+    DCT_1D,
+    ADST_1D,
+    ADST_1D,
+#if CONFIG_EXT_TX
+    DCT_1D,
+    FLIPADST_1D,
+    FLIPADST_1D,
+    FLIPADST_1D,
+    ADST_1D,
+    IDTX_1D,
+    IDTX_1D,
+    DCT_1D,
+    IDTX_1D,
+    ADST_1D,
+    IDTX_1D,
+    FLIPADST_1D,
+#endif
+  };
+  return is_col ? tx_col_arr[tx_type] : tx_row_arr[tx_type];
+}
+
+// The get_lgt_from_pred functions return 1 if LGT is chosen to apply, and
+// 0 otherwise
+int get_lgt4_from_pred(const TxfmParam *txfm_param, int is_col,
+                       const tran_high_t *lgtmtx[], int ntx) {
+  // only replace ADST
+  if (get_1d_tx_type(txfm_param->tx_type, is_col) != ADST_1D) return 0;
+
+  // just change to lgt4_170 for inter
+  if (txfm_param->is_inter) {
+#if LGT_FOR_INTER
+    for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_170[0][0];
     return 1;
+#else
+    return 0;
+#endif
+  }
+#if LGT_INTER_ONLY
+  return 0;
+#endif
+
+#if LGT_FIXED_INTRA
+  for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_140[0][0];
+  return 1;
+#endif
+
+  PREDICTION_MODE mode = txfm_param->mode;
+  int stride = txfm_param->stride;
+  uint8_t *dst = txfm_param->dst;
+  int bp = get_discontinuity(dst, stride, 4, is_col);  // break point
+
+  if (bp == -1)
+    return 0;
+  else
+    assert(bp < 4 && bp > 0);
+
+  // lgt4mtx_arr[k][i] corresponds to a line graph with a weak weight
+  // in the i-th edge. When k is larger, this weak weight is larger.
+  // lgt4_000 is equivalent to lgt4_100w1/w2/w3, whose weight are all 1.
+  const tran_high_t *lgt4mtx_arr[LGT_WEIGHT_TYPES][3] = {
+    { &lgt4_000w1[0][0], &lgt4_000w2[0][0], &lgt4_000w3[0][0] },
+    // { &lgt4_050w1[0][0], &lgt4_050w2[0][0], &lgt4_050w3[0][0] },
+    { &lgt4_000[0][0], &lgt4_000[0][0], &lgt4_000[0][0] }
+  };
+
+  // initialize to DCT, and then change later if needed
+  for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_000[0][0];
+
+  // For prediction mostly from the top row (D45, D63, V, D117), we change
+  // the row transform. For prediction mostly from the left column (D135,
+  // D153, H, D207), we change the column transform
+  if (!is_col) {
+    // row transform => use the top boundary for associated modes
+    if (mode == V_PRED) {
+      for (int i = 0; i < ntx; ++i)
+        lgtmtx[i] = lgt4mtx_arr[get_weight_idx(i, ntx)][bp - 1];
+      return 1;
+    }
+#if LGT_USE_DIRECTIONAL
+    // Here, ntx can be 4,8,16, so the elements are assigned using for loops to
+    // make sure the indices are valid.
+    else if (mode == D45_PRED) {
+      // if (bp == 1) return 1;
+      // if (bp == 2)
+      //   lgtmtx[0] = lgt4mtx_arr[0]
+      // if (bp == 3)
+      //   lgtmtx[0,1] = lgt4mtx_arr[1,0]
+      for (int i = 0; i < ntx && i < bp - 1; ++i)
+        lgtmtx[i] = lgt4mtx_arr[get_weight_idx(i, ntx)][bp - 2 - i];
+      return 1;
+    } else if (mode == D63_PRED) {
+      // lgtmtx[0,1,...,ntx-1] =
+      //   lgt4mtx_arr[][bp-1,bp-2,bp-2,bp-3,bp-3,...,0,0] for each valid index
+      for (int i = 0; 2 * i < ntx && i < bp; ++i)  // odd indices
+        lgtmtx[2 * i] = lgt4mtx_arr[get_weight_idx(i, ntx)][bp - 1 - i];
+      for (int i = 0; 2 * i + 1 < ntx && i < bp - 1; ++i)  // even indices
+        lgtmtx[2 * i + 1] = lgt4mtx_arr[get_weight_idx(i, ntx)][bp - 2 - i];
+      return 1;
+    } else if (mode == D117_PRED) {
+      // if (bp == 1)
+      //   lgtmtx[0,1,...,ntx-1] = lgt4mtx_arr[0,1,1,2,2] if valid
+      // if (bp == 2)
+      //   lgtmtx[0,1,2] = lgt4mtx_arr[1,2,2]
+      // if (bp == 3)
+      //   lgtmtx[0] = lgt4mtx_arr[2]
+      for (int i = 0; 2 * i < ntx && i + bp < 4; ++i)
+        lgtmtx[2 * i] = lgt4mtx_arr[get_weight_idx(i, ntx)][bp - 1 + i];
+      for (int i = 0; 2 * i + 1 < ntx && i + bp < 3; ++i)
+        lgtmtx[2 * i + 1] = lgt4mtx_arr[get_weight_idx(i, ntx)][bp + i];
+      return 1;
+    }
+#endif
+  } else {  // is_col
+    // column transform => use the left boundary for associated modes
+    if (mode == H_PRED) {
+      for (int i = 0; i < ntx; ++i)
+        lgtmtx[i] = lgt4mtx_arr[get_weight_idx(i, ntx)][bp - 1];
+      return 1;
+    }
+#if LGT_USE_DIRECTIONAL
+    else if (mode == D135_PRED) {
+      // if (bp == 1)
+      //   lgtmtx[0,1] = lgt4mtx_arr[1,2]
+      // if (bp == 2)
+      //   lgtmtx[0] = lgt4mtx_arr[2]
+      // if (bp == 3) return 1
+      for (int i = 0; i < ntx && i + bp < 3; ++i)
+        lgtmtx[i] = lgt4mtx_arr[get_weight_idx(i, ntx)][i + bp];
+      return 1;
+    } else if (mode == D153_PRED) {
+      // same as D117_PRED by symmetry
+      for (int i = 0; 2 * i < ntx && i + bp < 4; ++i)
+        lgtmtx[2 * i] = lgt4mtx_arr[get_weight_idx(i, ntx)][bp - 1 + i];
+      for (int i = 0; 2 * i + 1 < ntx && i + bp < 3; ++i)
+        lgtmtx[2 * i + 1] = lgt4mtx_arr[get_weight_idx(i, ntx)][bp + i];
+      return 1;
+    } else if (mode == D207_PRED) {
+      // same as D63_PRED by symmetry
+      for (int i = 0; 2 * i < ntx && i < bp; ++i)
+        lgtmtx[2 * i] = lgt4mtx_arr[get_weight_idx(i, ntx)][bp - 1 - i];
+      for (int i = 0; 2 * i + 1 < ntx && i < bp - 1; ++i)
+        lgtmtx[2 * i + 1] = lgt4mtx_arr[get_weight_idx(i, ntx)][bp - 2 - i];
+      return 1;
+    }
+#endif
   }
   return 0;
 }
 
-int get_inv_lgt8(transform_1d tx_orig, const TxfmParam *txfm_param,
-                 const tran_high_t *lgtmtx[], int ntx) {
-  // inter/intra split
-  if (tx_orig == &aom_iadst8_c) {
-    for (int i = 0; i < ntx; ++i)
-      lgtmtx[i] = txfm_param->is_inter ? &lgt8_170[0][0] : &lgt8_150[0][0];
+int get_lgt8_from_pred(const TxfmParam *txfm_param, int is_col,
+                       const tran_high_t *lgtmtx[], int ntx) {
+  // only replace ADST
+  if (get_1d_tx_type(txfm_param->tx_type, is_col) != ADST_1D) return 0;
+
+  // just change to lgt4_170 for inter
+  if (txfm_param->is_inter) {
+#if LGT_FOR_INTER
+    for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_170[0][0];
     return 1;
+#else
+    return 0;
+#endif
+  }
+#if LGT_INTER_ONLY
+  return 0;
+#endif
+
+#if LGT_FIXED_INTRA
+  for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_150[0][0];
+  return 1;
+#endif
+
+  PREDICTION_MODE mode = txfm_param->mode;
+  int stride = txfm_param->stride;
+  uint8_t *dst = txfm_param->dst;
+  int bp = get_discontinuity(dst, stride, 8, is_col);
+
+  if (bp == -1)
+    return 0;
+  else
+    assert(bp < 8 && bp > 0);
+
+  const tran_high_t *lgt8mtx_arr[LGT_WEIGHT_TYPES][7] = {
+    { &lgt8_000w1[0][0], &lgt8_000w2[0][0], &lgt8_000w3[0][0],
+      &lgt8_000w4[0][0], &lgt8_000w5[0][0], &lgt8_000w6[0][0],
+      &lgt8_000w7[0][0] },
+    // { &lgt8_050w1[0][0], &lgt8_050w2[0][0], &lgt8_050w3[0][0],
+    //   &lgt8_050w4[0][0], &lgt8_050w5[0][0], &lgt8_050w6[0][0],
+    //   &lgt8_050w7[0][0] },
+    { &lgt8_000[0][0], &lgt8_000[0][0], &lgt8_000[0][0], &lgt8_000[0][0],
+      &lgt8_000[0][0], &lgt8_000[0][0], &lgt8_000[0][0] }
+  };
+
+  // initialize to DCT, and then change later if needed
+  for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_000[0][0];
+
+  if (!is_col) {
+    if (mode == V_PRED) {
+      for (int i = 0; i < ntx; ++i)
+        lgtmtx[i] = lgt8mtx_arr[get_weight_idx(i, ntx)][bp - 1];
+      return 1;
+    }
+#if LGT_USE_DIRECTIONAL
+    else if (mode == D45_PRED) {
+      for (int i = 0; i < ntx && i < bp - 1; ++i)
+        lgtmtx[i] = lgt8mtx_arr[get_weight_idx(i, ntx)][bp - 2 - i];
+      return 1;
+    } else if (mode == D63_PRED) {
+      for (int i = 0; 2 * i < ntx && i < bp; ++i)
+        lgtmtx[2 * i] = lgt8mtx_arr[get_weight_idx(i, ntx)][bp - 1 - i];
+      for (int i = 0; 2 * i + 1 < ntx && i < bp - 1; ++i)
+        lgtmtx[2 * i + 1] = lgt8mtx_arr[get_weight_idx(i, ntx)][bp - 2 - i];
+      return 1;
+    } else if (mode == D117_PRED) {
+      for (int i = 0; 2 * i < ntx && i + bp < 8; ++i)
+        lgtmtx[2 * i] = lgt8mtx_arr[get_weight_idx(i, ntx)][bp - 1 + i];
+      for (int i = 0; 2 * i + 1 < ntx && i + bp < 7; ++i)
+        lgtmtx[2 * i + 1] = lgt8mtx_arr[get_weight_idx(i, ntx)][bp + i];
+      return 1;
+    }
+#endif
+  } else {  // is_col
+    if (mode == H_PRED) {
+      for (int i = 0; i < ntx; ++i)
+        lgtmtx[i] = lgt8mtx_arr[get_weight_idx(i, ntx)][bp - 1];
+      return 1;
+    }
+#if LGT_USE_DIRECTIONAL
+    else if (mode == D135_PRED) {
+      for (int i = 0; i < ntx && i + bp < 7; ++i)
+        lgtmtx[i] = lgt8mtx_arr[get_weight_idx(i, ntx)][i + bp];
+      return 1;
+    } else if (mode == D153_PRED) {
+      for (int i = 0; 2 * i < ntx && i + bp < 8; ++i)
+        lgtmtx[2 * i] = lgt8mtx_arr[get_weight_idx(i, ntx)][bp - 1 + i];
+      for (int i = 0; 2 * i + 1 < ntx && i + bp < 7; ++i)
+        lgtmtx[2 * i + 1] = lgt8mtx_arr[get_weight_idx(i, ntx)][bp + i];
+      return 1;
+    } else if (mode == D207_PRED) {
+      for (int i = 0; 2 * i < ntx && i < bp; ++i)
+        lgtmtx[2 * i] = lgt8mtx_arr[get_weight_idx(i, ntx)][bp - 1 - i];
+      for (int i = 0; 2 * i + 1 < ntx && i < bp - 1; ++i)
+        lgtmtx[2 * i + 1] = lgt8mtx_arr[get_weight_idx(i, ntx)][bp - 2 - i];
+      return 1;
+    }
+#endif
   }
   return 0;
 }
@@ -294,10 +582,8 @@ void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[4];
   const tran_high_t *lgtmtx_row[4];
-  int use_lgt_col =
-      get_inv_lgt4(IHT_4[tx_type].cols, txfm_param, lgtmtx_col, 4);
-  int use_lgt_row =
-      get_inv_lgt4(IHT_4[tx_type].rows, txfm_param, lgtmtx_row, 4);
+  int use_lgt_col = get_lgt4_from_pred(txfm_param, 1, lgtmtx_col, 4);
+  int use_lgt_row = get_lgt4_from_pred(txfm_param, 0, lgtmtx_row, 4);
 #endif
 
   // inverse transform row vectors
@@ -389,10 +675,8 @@ void av1_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[4];
   const tran_high_t *lgtmtx_row[8];
-  int use_lgt_col =
-      get_inv_lgt8(IHT_4x8[tx_type].cols, txfm_param, lgtmtx_col, 4);
-  int use_lgt_row =
-      get_inv_lgt4(IHT_4x8[tx_type].rows, txfm_param, lgtmtx_row, 8);
+  int use_lgt_col = get_lgt8_from_pred(txfm_param, 1, lgtmtx_col, 4);
+  int use_lgt_row = get_lgt4_from_pred(txfm_param, 0, lgtmtx_row, 8);
 #endif
 
   // inverse transform row vectors and transpose
@@ -470,10 +754,8 @@ void av1_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[8];
   const tran_high_t *lgtmtx_row[4];
-  int use_lgt_col =
-      get_inv_lgt4(IHT_8x4[tx_type].cols, txfm_param, lgtmtx_col, 8);
-  int use_lgt_row =
-      get_inv_lgt8(IHT_8x4[tx_type].rows, txfm_param, lgtmtx_row, 4);
+  int use_lgt_col = get_lgt4_from_pred(txfm_param, 1, lgtmtx_col, 8);
+  int use_lgt_row = get_lgt8_from_pred(txfm_param, 0, lgtmtx_row, 4);
 #endif
 
   // inverse transform row vectors and transpose
@@ -549,8 +831,7 @@ void av1_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_row[16];
-  int use_lgt_row =
-      get_inv_lgt4(IHT_4x16[tx_type].rows, txfm_param, lgtmtx_row, 16);
+  int use_lgt_row = get_lgt4_from_pred(txfm_param, 0, lgtmtx_row, 16);
 #endif
 
   // inverse transform row vectors and transpose
@@ -621,8 +902,7 @@ void av1_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[16];
-  int use_lgt_col =
-      get_inv_lgt4(IHT_16x4[tx_type].cols, txfm_param, lgtmtx_col, 16);
+  int use_lgt_col = get_lgt4_from_pred(txfm_param, 1, lgtmtx_col, 16);
 #endif
 
   // inverse transform row vectors and transpose
@@ -692,8 +972,7 @@ void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_row[16];
-  int use_lgt_row =
-      get_inv_lgt8(IHT_8x16[tx_type].rows, txfm_param, lgtmtx_row, 16);
+  int use_lgt_row = get_lgt8_from_pred(txfm_param, 0, lgtmtx_row, 16);
 #endif
 
   // inverse transform row vectors and transpose
@@ -765,8 +1044,7 @@ void av1_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[16];
-  int use_lgt_col =
-      get_inv_lgt8(IHT_16x8[tx_type].cols, txfm_param, lgtmtx_col, 16);
+  int use_lgt_col = get_lgt8_from_pred(txfm_param, 1, lgtmtx_col, 16);
 #endif
 
   // inverse transform row vectors and transpose
@@ -837,8 +1115,7 @@ void av1_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_row[32];
-  int use_lgt_row =
-      get_inv_lgt8(IHT_8x32[tx_type].rows, txfm_param, lgtmtx_row, 32);
+  int use_lgt_row = get_lgt8_from_pred(txfm_param, 0, lgtmtx_row, 32);
 #endif
 
   // inverse transform row vectors and transpose
@@ -909,8 +1186,7 @@ void av1_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[32];
-  int use_lgt_col =
-      get_inv_lgt4(IHT_32x8[tx_type].cols, txfm_param, lgtmtx_col, 32);
+  int use_lgt_col = get_lgt4_from_pred(txfm_param, 1, lgtmtx_col, 32);
 #endif
 
   // inverse transform row vectors and transpose
@@ -1098,10 +1374,8 @@ void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[8];
   const tran_high_t *lgtmtx_row[8];
-  int use_lgt_col =
-      get_inv_lgt8(IHT_8[tx_type].cols, txfm_param, lgtmtx_col, 8);
-  int use_lgt_row =
-      get_inv_lgt8(IHT_8[tx_type].rows, txfm_param, lgtmtx_row, 8);
+  int use_lgt_col = get_lgt8_from_pred(txfm_param, 1, lgtmtx_col, 8);
+  int use_lgt_row = get_lgt8_from_pred(txfm_param, 0, lgtmtx_row, 8);
 #endif
 
   // inverse transform row vectors
