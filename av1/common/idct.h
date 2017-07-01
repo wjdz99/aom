@@ -33,6 +33,16 @@ typedef struct {
   transform_1d cols, rows;  // vertical and horizontal
 } transform_2d;
 
+#if CONFIG_LGT
+void get_discontinuity(int arr[], int n, int *max_dif, int *idx_max_dif);
+void get_lgt4_from_pred(const TxfmParam *txfm_param, int is_col,
+                        const tran_high_t *lgtmtx[], int ntx);
+void get_lgt8_from_pred(const TxfmParam *txfm_param, int is_col,
+                        const tran_high_t *lgtmtx[], int ntx);
+void get_lgt16up_from_pred(const TxfmParam *txfm_param, int is_col,
+                           const tran_high_t *lgtmtx[], int ntx);
+#endif  // CONFIG_LGT
+
 #if CONFIG_HIGHBITDEPTH
 typedef void (*highbd_transform_1d)(const tran_low_t *, tran_low_t *, int bd);
 

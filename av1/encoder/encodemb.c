@@ -637,7 +637,10 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #if CONFIG_LGT
   txfm_param.is_inter = is_inter_block(mbmi);
   txfm_param.mode = get_prediction_mode(xd->mi[0], plane, tx_size, block);
-#endif
+  txfm_param.use_lgt = mbmi->use_lgt;
+  if (mbmi->use_lgt)
+    assert(is_lgt_allowed(mbmi->mode, tx_size));
+#endif  // CONFIG_LGT
 
 #if !CONFIG_PVQ
   txfm_param.bd = xd->bd;
@@ -734,6 +737,10 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   if (x->blk_skip[plane][blk_row * bw + blk_col] == 0) {
 #else
   {
+#endif
+#if CONFIG_LGT
+    if (xd->mi[0]->mbmi.use_lgt)
+      assert(is_lgt_allowed(xd->mi[0]->mbmi.mode, tx_size));
 #endif
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     ctx, AV1_XFORM_QUANT_FP);
@@ -856,6 +863,10 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
   dst = &pd->dst
              .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
 
+#if CONFIG_LGT
+  if (xd->mi[0]->mbmi.use_lgt)
+    assert(is_lgt_allowed(xd->mi[0]->mbmi.mode, tx_size));
+#endif
   av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                   ctx, AV1_XFORM_QUANT_B);
 #if !CONFIG_PVQ
@@ -1412,6 +1423,9 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   const ENTROPY_CONTEXT *a = &args->ta[blk_col];
   const ENTROPY_CONTEXT *l = &args->tl[blk_row];
   int ctx = combine_entropy_contexts(*a, *l);
+#if CONFIG_LGT
+  if (xd->mi[0]->mbmi.use_lgt) assert(is_lgt_allowed(mode, tx_size));
+#endif
   if (args->enable_optimize_b) {
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     ctx, AV1_XFORM_QUANT_FP);
