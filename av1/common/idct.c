@@ -222,32 +222,142 @@ void ilgt8(const tran_low_t *input, tran_low_t *output,
   for (int i = 0; i < 8; ++i) output[i] = WRAPLOW(dct_const_round_shift(s[i]));
 }
 
-int get_inv_lgt4(transform_1d tx_orig, const INV_TXFM_PARAM *inv_txfm_param,
-                 int iscol, const tran_high_t *lgtmtx[], int ntx) {
-  int use_lgt = 1;
-  (void)iscol;
+int get_discontinuity(uint8_t *dst, int stride, int n, int is_top) {
+  int arr[8];  // top row or left column
+  if (is_top)
+    for (int i = 0; i < n; ++i) arr[i] = dst[-stride + i];
+  else
+    for (int i = 0; i < n; ++i) arr[i] = dst[i * stride - 1];
 
-  // inter/intra split
-  if (tx_orig == &aom_iadst4_c) {
-    for (int i = 0; i < ntx; ++i)
-      lgtmtx[i] = inv_txfm_param->is_inter ? &lgt4_170[0][0] : &lgt4_140[0][0];
+  int max_dif = 0, idx_max_dif = -1;
+  for (int i = 1; i < n; ++i) {
+    if (abs(arr[i] - arr[i - 1]) > max_dif) {
+      max_dif = abs(arr[i] - arr[i - 1]);
+      idx_max_dif = i;
+    }
+  }
+
+  if (max_dif < LGT_THR) return -1;
+  return idx_max_dif;
+}
+
+int get_inv_lgt4(transform_1d tx_orig, const INV_TXFM_PARAM *inv_txfm_param,
+                 int is_col, const tran_high_t *lgtmtx[], int ntx) {
+  int use_lgt = 1;
+  PREDICTION_MODE mode = inv_txfm_param->mode;
+  int stride = inv_txfm_param->stride;
+  uint8_t *dst = inv_txfm_param->dst;
+
+  // "eturn 0" means that the original transform will be applied
+  if (tx_orig != &aom_idct4_c) return 0;
+  if (inv_txfm_param->is_inter)
+    return 0;
+
+  int top_discont, left_discont;
+  if (mode == V_PRED && !is_col) {
+    top_discont = get_discontinuity(dst, stride, 4, 1);
+    switch (top_discont) {
+      case -1: return 0;
+      case 1:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_020w1[0][0];
+        break;
+      case 2:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_020w2[0][0];
+        break;
+      case 3:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_020w3[0][0];
+        break;
+      default: assert(0); break;
+    }
+  } else if (mode == H_PRED && is_col) {
+    left_discont = get_discontinuity(dst, stride, 4, 0);
+    switch (left_discont) {
+      case -1: return 0;
+      case 1:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_020w1[0][0];
+        break;
+      case 2:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_020w2[0][0];
+        break;
+      case 3:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_020w3[0][0];
+        break;
+      default: assert(0); break;
+    }
   } else {
-    use_lgt = 0;
+    return 0;
   }
   return use_lgt;
 }
 
 int get_inv_lgt8(transform_1d tx_orig, const INV_TXFM_PARAM *inv_txfm_param,
-                 int iscol, const tran_high_t *lgtmtx[], int ntx) {
+                 int is_col, const tran_high_t *lgtmtx[], int ntx) {
   int use_lgt = 1;
-  (void)iscol;
+  PREDICTION_MODE mode = inv_txfm_param->mode;
+  int stride = inv_txfm_param->stride;
+  uint8_t *dst = inv_txfm_param->dst;
 
-  // inter/intra split
-  if (tx_orig == &aom_iadst8_c) {
-    for (int i = 0; i < ntx; ++i)
-      lgtmtx[i] = inv_txfm_param->is_inter ? &lgt8_170[0][0] : &lgt8_150[0][0];
+  if (tx_orig != &aom_idct8_c) return 0;
+  if (inv_txfm_param->is_inter)
+    return 0;
+
+  int top_discont, left_discont;
+  if (mode == V_PRED && !is_col) {
+    top_discont = get_discontinuity(dst, stride, 8, 1);
+    switch (top_discont) {
+      case -1: return 0;
+      case 1:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w1[0][0];
+        break;
+      case 2:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w2[0][0];
+        break;
+      case 3:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w3[0][0];
+        break;
+      case 4:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w4[0][0];
+        break;
+      case 5:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w5[0][0];
+        break;
+      case 6:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w6[0][0];
+        break;
+      case 7:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w7[0][0];
+        break;
+      default: assert(0); break;
+    }
+  } else if (mode == H_PRED && is_col) {
+    left_discont = get_discontinuity(dst, stride, 8, 0);
+    switch (left_discont) {
+      case -1: return 0;
+      case 1:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w1[0][0];
+        break;
+      case 2:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w2[0][0];
+        break;
+      case 3:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w3[0][0];
+        break;
+      case 4:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w4[0][0];
+        break;
+      case 5:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w5[0][0];
+        break;
+      case 6:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w6[0][0];
+        break;
+      case 7:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w7[0][0];
+        break;
+      default: assert(0); break;
+    }
   } else {
-    use_lgt = 0;
+    return 0;
   }
   return use_lgt;
 }

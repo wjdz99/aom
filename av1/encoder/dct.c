@@ -1048,31 +1048,124 @@ static void flgt8(const tran_low_t *input, tran_low_t *output,
 }
 
 int get_fwd_lgt4(transform_1d tx_orig, FWD_TXFM_PARAM *fwd_txfm_param,
-                 int iscol, const tran_high_t *lgtmtx[], int ntx) {
+                 int is_col, const tran_high_t *lgtmtx[], int ntx) {
   int use_lgt = 1;
-  (void)iscol;
+  PREDICTION_MODE mode = fwd_txfm_param->mode;
+  int stride = fwd_txfm_param->stride;
+  uint8_t *dst = fwd_txfm_param->dst;
 
-  // inter/intra split
-  if (tx_orig == &fadst4) {
-    for (int i = 0; i < ntx; ++i)
-      lgtmtx[i] = fwd_txfm_param->is_inter ? &lgt4_170[0][0] : &lgt4_140[0][0];
+  if (tx_orig != &fdct4) return 0;
+  if (fwd_txfm_param->is_inter)
+    return 0;
+
+  int top_discont, left_discont;
+  if (mode == V_PRED && !is_col) {
+    top_discont = get_discontinuity(dst, stride, 4, 1);
+    switch (top_discont) {
+      case -1: return 0;
+      case 1:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_020w1[0][0];
+        break;
+      case 2:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_020w2[0][0];
+        break;
+      case 3:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_020w3[0][0];
+        break;
+      default: assert(0); break;
+    }
+  } else if (mode == H_PRED && is_col) {
+    left_discont = get_discontinuity(dst, stride, 4, 0);
+    switch (left_discont) {
+      case -1:
+        return 0;
+      case 1:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_020w1[0][0];
+        break;
+      case 2:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_020w2[0][0];
+        break;
+      case 3:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt4_020w3[0][0];
+        break;
+      default: assert(0); break;
+    }
   } else {
-    use_lgt = 0;
+    return 0;
   }
   return use_lgt;
 }
 
 int get_fwd_lgt8(transform_1d tx_orig, FWD_TXFM_PARAM *fwd_txfm_param,
-                 int iscol, const tran_high_t *lgtmtx[], int ntx) {
+                 int is_col, const tran_high_t *lgtmtx[], int ntx) {
   int use_lgt = 1;
-  (void)iscol;
+  PREDICTION_MODE mode = fwd_txfm_param->mode;
+  int stride = fwd_txfm_param->stride;
+  uint8_t *dst = fwd_txfm_param->dst;
 
-  // inter/intra split
-  if (tx_orig == &fadst8) {
-    for (int i = 0; i < ntx; ++i)
-      lgtmtx[i] = fwd_txfm_param->is_inter ? &lgt8_170[0][0] : &lgt8_150[0][0];
+  if (tx_orig != &fdct8) return 0;
+  if (fwd_txfm_param->is_inter)
+    return 0;
+
+  int top_discont, left_discont;
+  if (mode == V_PRED && !is_col) {
+    top_discont = get_discontinuity(dst, stride, 8, 1);
+    switch (top_discont) {
+      case -1: return 0;
+      case 1:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w1[0][0];
+        break;
+      case 2:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w2[0][0];
+        break;
+      case 3:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w3[0][0];
+        break;
+      case 4:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w4[0][0];
+        break;
+      case 5:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w5[0][0];
+        break;
+      case 6:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w6[0][0];
+        break;
+      case 7:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w7[0][0];
+        break;
+      default:
+        assert(0); break;
+    }
+  } else if (mode == H_PRED && is_col) {
+    left_discont = get_discontinuity(dst, stride, 8, 0);
+    switch (left_discont) {
+      case -1: return 0;
+      case 1:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w1[0][0];
+        break;
+      case 2:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w2[0][0];
+        break;
+      case 3:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w3[0][0];
+        break;
+      case 4:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w4[0][0];
+        break;
+      case 5:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w5[0][0];
+        break;
+      case 6:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w6[0][0];
+        break;
+      case 7:
+        for (int i = 0; i < ntx; ++i) lgtmtx[i] = &lgt8_020w7[0][0];
+        break;
+      default:
+        assert(0); break;
+    }
   } else {
-    use_lgt = 0;
+    return 0;
   }
   return use_lgt;
 }
