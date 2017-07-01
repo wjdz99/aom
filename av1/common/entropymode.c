@@ -1960,8 +1960,14 @@ const aom_tree_index av1_ext_tx_intra_tree[EXT_TX_SETS_INTRA]
     -DCT_DCT, 4,
     6, 8,
     -V_DCT, -H_DCT,
+#if CONFIG_LGT
+    10, 12,
+    -ADST_ADST, -LGT2D,
+    -ADST_DCT, -DCT_ADST,
+#else  // CONFIG_LGT
     -ADST_ADST, 10,
     -ADST_DCT, -DCT_ADST,
+#endif  // CONFIG_LGT
   }, {
     -IDTX, 2,
     -DCT_DCT, 4,
@@ -2121,6 +2127,91 @@ static const aom_prob
                                        { 0 },
                                    },
                                },
+#if CONFIG_LGT
+                               {
+#if CONFIG_CHROMA_2X2
+                                   {
+                                       { 0 },
+                                   },
+#endif
+                                   {
+                                       { 8, 224, 32, 128, 64, 128, 128 },
+                                       { 10, 32, 32, 128, 16, 192, 128 },
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                       { 9, 200, 32, 128, 64, 128, 128 },
+                                       { 8, 8, 32, 128, 224, 128, 128 },
+                                       { 10, 32, 32, 128, 16, 192, 128 },
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                       { 10, 23, 32, 128, 80, 176, 128 },
+                                       { 10, 23, 32, 128, 80, 176, 128 },
+#if CONFIG_ALT_INTRA
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+#if CONFIG_SMOOTH_HV
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+#endif  //  CONFIG_SMOOTH_HV
+#endif  // CONFIG_ALT_INTRA
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                   },
+                                   {
+                                       { 8, 224, 32, 128, 64, 128, 128 },
+                                       { 10, 32, 32, 128, 16, 192, 128 },
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                       { 9, 200, 32, 128, 64, 128, 128 },
+                                       { 8, 8, 32, 128, 224, 128, 128 },
+                                       { 10, 32, 32, 128, 16, 192, 128 },
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                       { 10, 23, 32, 128, 80, 176, 128 },
+                                       { 10, 23, 32, 128, 80, 176, 128 },
+#if CONFIG_ALT_INTRA
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+#if CONFIG_SMOOTH_HV
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+#endif  //  CONFIG_SMOOTH_HV
+#endif  // CONFIG_ALT_INTRA
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                   },
+                                   {
+                                       { 8, 224, 32, 128, 64, 128, 128 },
+                                       { 10, 32, 32, 128, 16, 192, 128 },
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                       { 9, 200, 32, 128, 64, 128, 128 },
+                                       { 8, 8, 32, 128, 224, 128, 128 },
+                                       { 10, 32, 32, 128, 16, 192, 128 },
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                       { 10, 23, 32, 128, 80, 176, 128 },
+                                       { 10, 23, 32, 128, 80, 176, 128 },
+#if CONFIG_ALT_INTRA
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+#if CONFIG_SMOOTH_HV
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+#endif  //  CONFIG_SMOOTH_HV
+#endif  // CONFIG_ALT_INTRA
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                   },
+                                   {
+                                       { 8, 224, 32, 128, 64, 128, 128 },
+                                       { 10, 32, 32, 128, 16, 192, 128 },
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                       { 9, 200, 32, 128, 64, 128, 128 },
+                                       { 8, 8, 32, 128, 224, 128, 128 },
+                                       { 10, 32, 32, 128, 16, 192, 128 },
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                       { 10, 23, 32, 128, 80, 176, 128 },
+                                       { 10, 23, 32, 128, 80, 176, 128 },
+#if CONFIG_ALT_INTRA
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+#if CONFIG_SMOOTH_HV
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+#endif  //  CONFIG_SMOOTH_HV
+#endif  // CONFIG_ALT_INTRA
+                                       { 10, 32, 32, 128, 16, 64, 128 },
+                                   },
+                               },
+#else  // CONFIG_LGT
                                {
 #if CONFIG_CHROMA_2X2
                                    {
@@ -2204,6 +2295,7 @@ static const aom_prob
                                        { 10, 32, 32, 128, 16, 64 },
                                    },
                                },
+#endif  // CONFIG_LGT
                                {
 #if CONFIG_CHROMA_2X2
                                    {
@@ -2956,6 +3048,191 @@ static const aom_cdf_prob default_intra_ext_tx_cdf
               { 0 },
           },
       },
+#if CONFIG_LGT
+      // TODO(kslu) Refine the CDFs
+      {
+          {
+              { AOM_ICDF(1024), AOM_ICDF(28800), AOM_ICDF(29048),
+                AOM_ICDF(29296), AOM_ICDF(30164), AOM_ICDF(31466),
+                AOM_ICDF(32560), AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(27118), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1152), AOM_ICDF(25852), AOM_ICDF(26284),
+                AOM_ICDF(26717), AOM_ICDF(28230), AOM_ICDF(30499),
+                AOM_ICDF(32560), AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1024), AOM_ICDF(2016), AOM_ICDF(3938), AOM_ICDF(5860),
+                AOM_ICDF(29404), AOM_ICDF(31086), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(27118), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(4109), AOM_ICDF(5900), AOM_ICDF(7691),
+                AOM_ICDF(15528), AOM_ICDF(27380), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(4109), AOM_ICDF(5900), AOM_ICDF(7691),
+                AOM_ICDF(15528), AOM_ICDF(27380), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+#if CONFIG_ALT_INTRA
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+#if CONFIG_SMOOTH_HV
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+#endif  // CONFIG_SMOOTH_HV
+#endif  // CONFIG_ALT_INTRA
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+          },
+          {
+              { AOM_ICDF(1024), AOM_ICDF(28800), AOM_ICDF(29048),
+                AOM_ICDF(29296), AOM_ICDF(30164), AOM_ICDF(31466),
+                AOM_ICDF(32560), AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(27118), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1152), AOM_ICDF(25852), AOM_ICDF(26284),
+                AOM_ICDF(26717), AOM_ICDF(28230), AOM_ICDF(30499),
+                AOM_ICDF(32560), AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1024), AOM_ICDF(2016), AOM_ICDF(3938), AOM_ICDF(5860),
+                AOM_ICDF(29404), AOM_ICDF(31086), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(27118), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(4109), AOM_ICDF(5900), AOM_ICDF(7691),
+                AOM_ICDF(15528), AOM_ICDF(27380), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(4109), AOM_ICDF(5900), AOM_ICDF(7691),
+                AOM_ICDF(15528), AOM_ICDF(27380), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+#if CONFIG_ALT_INTRA
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+#if CONFIG_SMOOTH_HV
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+#endif  // CONFIG_SMOOTH_HV
+#endif  // CONFIG_ALT_INTRA
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+          },
+          {
+              { AOM_ICDF(1024), AOM_ICDF(28800), AOM_ICDF(29048),
+                AOM_ICDF(29296), AOM_ICDF(30164), AOM_ICDF(31466),
+                AOM_ICDF(32560), AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(27118), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1152), AOM_ICDF(25852), AOM_ICDF(26284),
+                AOM_ICDF(26717), AOM_ICDF(28230), AOM_ICDF(30499),
+                AOM_ICDF(32560), AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1024), AOM_ICDF(2016), AOM_ICDF(3938), AOM_ICDF(5860),
+                AOM_ICDF(29404), AOM_ICDF(31086), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(27118), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(4109), AOM_ICDF(5900), AOM_ICDF(7691),
+                AOM_ICDF(15528), AOM_ICDF(27380), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(4109), AOM_ICDF(5900), AOM_ICDF(7691),
+                AOM_ICDF(15528), AOM_ICDF(27380), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+#if CONFIG_ALT_INTRA
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+#if CONFIG_SMOOTH_HV
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+#endif  // CONFIG_SMOOTH_HV
+#endif  // CONFIG_ALT_INTRA
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+          },
+          {
+              { AOM_ICDF(1024), AOM_ICDF(28800), AOM_ICDF(29048),
+                AOM_ICDF(29296), AOM_ICDF(30164), AOM_ICDF(31466),
+                AOM_ICDF(32560), AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(27118), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1152), AOM_ICDF(25852), AOM_ICDF(26284),
+                AOM_ICDF(26717), AOM_ICDF(28230), AOM_ICDF(30499),
+                AOM_ICDF(32560), AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1024), AOM_ICDF(2016), AOM_ICDF(3938), AOM_ICDF(5860),
+                AOM_ICDF(29404), AOM_ICDF(31086), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(27118), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(4109), AOM_ICDF(5900), AOM_ICDF(7691),
+                AOM_ICDF(15528), AOM_ICDF(27380), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(4109), AOM_ICDF(5900), AOM_ICDF(7691),
+                AOM_ICDF(15528), AOM_ICDF(27380), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+#if CONFIG_ALT_INTRA
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+#if CONFIG_SMOOTH_HV
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+#endif  // CONFIG_SMOOTH_HV
+#endif  // CONFIG_ALT_INTRA
+              { AOM_ICDF(1280), AOM_ICDF(5216), AOM_ICDF(6938), AOM_ICDF(8660),
+                AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32560),
+                AOM_ICDF(32768), 0 },
+          },
+      },
+#else  // CONFIG_LGT
       {
           {
               { AOM_ICDF(1024), AOM_ICDF(28800), AOM_ICDF(29048),
@@ -3094,6 +3371,7 @@ static const aom_cdf_prob default_intra_ext_tx_cdf
                 AOM_ICDF(10167), AOM_ICDF(15817), AOM_ICDF(32768), 0 },
           },
       },
+#endif  // CONFIG_LGT
       {
           {
               { AOM_ICDF(1024), AOM_ICDF(28800), AOM_ICDF(29792),
