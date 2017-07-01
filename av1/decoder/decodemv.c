@@ -1012,16 +1012,31 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
             ext_tx_cnt_inter[eset], ACCT_STR)];
         if (counts) ++counts->inter_ext_tx[eset][square_tx_size][*tx_type];
       } else if (ALLOW_INTRA_EXT_TX) {
-        *tx_type = av1_ext_tx_intra_inv[eset][aom_read_symbol(
-            r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
-            ext_tx_cnt_intra[eset], ACCT_STR)];
-        if (counts)
-          ++counts->intra_ext_tx[eset][square_tx_size][mbmi->mode][*tx_type];
+#if CONFIG_LGT
+        if (is_lgt_allowed(mbmi->mode, square_tx_size)) {
+          mbmi->use_lgt = aom_read(r, ec_ctx->lgt_prob, ACCT_STR);
+          ++counts->lgt[mbmi->use_lgt];
+        } else {
+          mbmi->use_lgt = 0;
+        }
+        // only signal tx_type when lgt is not allowed or not selected
+        if (!mbmi->use_lgt) {
+#endif  // CONFIG_LGT
+          *tx_type = av1_ext_tx_intra_inv[eset][aom_read_symbol(
+              r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
+              ext_tx_cnt_intra[eset], ACCT_STR)];
+          if (counts)
+            ++counts->intra_ext_tx[eset][square_tx_size][mbmi->mode][*tx_type];
+#if CONFIG_LGT
+        } else {
+          *tx_type = DCT_DCT;  // assign a dummy tx_type
+        }
+#endif  // CONFIG_LGT
       }
     } else {
       *tx_type = DCT_DCT;
     }
-#else
+#else  // CONFIG_EXT_TX
 
     if (tx_size < TX_32X32 &&
         ((!cm->seg.enabled && cm->base_qindex > 0) ||

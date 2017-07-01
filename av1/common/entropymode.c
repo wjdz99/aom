@@ -5120,6 +5120,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_FILTER_INTRA
   av1_copy(fc->filter_intra_probs, default_filter_intra_probs);
 #endif  // CONFIG_FILTER_INTRA
+#if CONFIG_LGT
+  fc->lgt_prob = LGT_PROB_DEFAULT;
+#endif
   av1_copy(fc->inter_ext_tx_prob, default_inter_ext_tx_prob);
   av1_copy(fc->intra_ext_tx_prob, default_intra_ext_tx_prob);
 #if CONFIG_LOOP_RESTORATION

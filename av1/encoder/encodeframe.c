@@ -5935,20 +5935,29 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
       av1_get_tx_type(PLANE_TYPE_Y, xd, blk_row, blk_col, block, tx_size);
 #endif
 #if CONFIG_EXT_TX
-  if (get_ext_tx_types(tx_size, bsize, is_inter, cm->reduced_tx_set_used) > 1 &&
-      cm->base_qindex > 0 && !mbmi->skip &&
-      !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
-    const int eset =
-        get_ext_tx_set(tx_size, bsize, is_inter, cm->reduced_tx_set_used);
-    if (eset > 0) {
-      if (is_inter) {
-        ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]][tx_type];
-      } else {
-        ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
-                              [tx_type];
+#if CONFIG_LGT
+  if (is_lgt_allowed(mbmi->mode, tx_size))
+    ++counts->lgt[mbmi->use_lgt];
+  if (!mbmi->use_lgt) {
+#endif  // CONFIG_LGT
+    if (get_ext_tx_types(tx_size, bsize, is_inter, cm->reduced_tx_set_used) >
+            1 &&
+        cm->base_qindex > 0 && !mbmi->skip &&
+        !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
+      const int eset =
+          get_ext_tx_set(tx_size, bsize, is_inter, cm->reduced_tx_set_used);
+      if (eset > 0) {
+        if (is_inter) {
+          ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]][tx_type];
+        } else {
+          ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
+                                [tx_type];
+        }
       }
     }
+#if CONFIG_LGT
   }
+#endif
 #else
   (void)bsize;
   if (tx_size < TX_32X32 &&
