@@ -4334,8 +4334,16 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
+#if CONFIG_LV_MAP
+  TX_SIZE txs_ctx = get_txsize_context(tx_size);
+  TXB_CTX txb_ctx;
+  get_txb_ctx(plane_bsize, tx_size, plane, pta, ptl, &txb_ctx);
+  zero_blk_rate =
+      av1_cost_bit(xd->fc->txb_skip[txs_ctx][txb_ctx.txb_skip_ctx], 1);
+#else
   zero_blk_rate = x->token_costs[tx_size_ctx][pd->plane_type][1][0][0]
                                 [coeff_ctx][EOB_TOKEN];
+#endif
 
   if (cpi->common.tx_mode == TX_MODE_SELECT || tx_size == TX_4X4) {
     inter_tx_size[0][0] = tx_size;
