@@ -1195,9 +1195,9 @@ static double search_switchable_restoration(
          << AV1_PROB_COST_SHIFT;
   cost_switchable = RDCOST_DBL(x->rdmult, bits >> 4, 0);
   for (tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
-    double best_cost =
-        RDCOST_DBL(x->rdmult, (cpi->switchable_restore_cost[RESTORE_NONE] >> 4),
-                   tile_cost[RESTORE_NONE][tile_idx]);
+    double best_cost = RDCOST_DBL(
+        x->rdmult, (cpi->rd_costs.switchable_restore[RESTORE_NONE] >> 4),
+        tile_cost[RESTORE_NONE][tile_idx]);
     rsi->restoration_type[tile_idx] = RESTORE_NONE;
     for (r = 1; r < RESTORE_SWITCHABLE_TYPES; r++) {
       if (force_restore_type != 0)
@@ -1211,7 +1211,7 @@ static double search_switchable_restoration(
         tilebits +=
             count_sgrproj_bits(&rsi->sgrproj_info[tile_idx], &ref_sgrproj_info);
       tilebits <<= AV1_PROB_COST_SHIFT;
-      tilebits += cpi->switchable_restore_cost[r];
+      tilebits += cpi->rd_costs.switchable_restore[r];
       double cost =
           RDCOST_DBL(x->rdmult, tilebits >> 4, tile_cost[r][tile_idx]);
 
