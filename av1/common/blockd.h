@@ -704,6 +704,7 @@ typedef struct macroblockd {
 #endif
 #if CONFIG_EC_ADAPT
   FRAME_CONTEXT *tile_ctx;
+  struct rd_costs *rd_costs;
 #endif
   /* Bit depth: 8, 10, 12 */
   int bd;

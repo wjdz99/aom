@@ -470,7 +470,8 @@ static void write_selected_tx_size(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     assert(IMPLIES(is_rect_tx(tx_size), is_rect_tx_allowed(xd, mbmi)));
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
 
-    aom_write_symbol(w, depth, ec_ctx->tx_size_cdf[tx_size_cat][tx_size_ctx],
+    aom_write_symbol(w, depth,
+                     ec_ctx->adapted_cdfs.tx_size_cdf[tx_size_cat][tx_size_ctx],
                      tx_size_cat + 2);
 #if CONFIG_EXT_TX && CONFIG_RECT_TX && CONFIG_RECT_TX_EXT
     if (is_quarter_tx_allowed(xd, mbmi, is_inter) && tx_size != coded_tx_size)
@@ -1479,7 +1480,7 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
     p_angle = mode_to_angle_map[mbmi->mode] + mbmi->angle_delta[0] * ANGLE_STEP;
     if (av1_is_intra_filter_switchable(p_angle)) {
       aom_write_symbol(w, mbmi->intra_filter,
-                       ec_ctx->intra_filter_cdf[intra_filter_ctx],
+                       ec_ctx->adapted_cdfs.intra_filter_cdf[intra_filter_ctx],
                        INTRA_FILTERS);
     }
 #endif  // CONFIG_INTRA_INTERP
@@ -1524,7 +1525,7 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
            has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
         const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
         aom_write_symbol(w, av1_switchable_interp_ind[mbmi->interp_filter[dir]],
-                         ec_ctx->switchable_interp_cdf[ctx],
+                         ec_ctx->adapted_cdfs.switchable_interp_cdf[ctx],
                          SWITCHABLE_FILTERS);
         ++cpi->interp_filter_selected[0][mbmi->interp_filter[dir]];
       } else {
@@ -1535,7 +1536,8 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
     {
       const int ctx = av1_get_pred_context_switchable_interp(xd);
       aom_write_symbol(w, av1_switchable_interp_ind[mbmi->interp_filter],
-                       ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS);
+                       ec_ctx->adapted_cdfs.switchable_interp_cdf[ctx],
+                       SWITCHABLE_FILTERS);
       ++cpi->interp_filter_selected[0][mbmi->interp_filter];
     }
 #endif  // CONFIG_DUAL_FILTER
@@ -1783,14 +1785,16 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
       assert(eset > 0);
       if (is_inter) {
         assert(ext_tx_used_inter[eset][tx_type]);
-        aom_write_symbol(w, av1_ext_tx_inter_ind[eset][tx_type],
-                         ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
-                         ext_tx_cnt_inter[eset]);
+        aom_write_symbol(
+            w, av1_ext_tx_inter_ind[eset][tx_type],
+            ec_ctx->adapted_cdfs.inter_ext_tx_cdf[eset][square_tx_size],
+            ext_tx_cnt_inter[eset]);
       } else if (ALLOW_INTRA_EXT_TX) {
         assert(ext_tx_used_intra[eset][tx_type]);
         aom_write_symbol(
             w, av1_ext_tx_intra_ind[eset][tx_type],
-            ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
+            ec_ctx->adapted_cdfs
+                .intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
             ext_tx_cnt_intra[eset]);
       }
     }
@@ -1805,12 +1809,14 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
         !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
       if (is_inter) {
         aom_write_symbol(w, av1_ext_tx_ind[tx_type],
-                         ec_ctx->inter_ext_tx_cdf[tx_size], TX_TYPES);
+                         ec_ctx->adapted_cdfs.inter_ext_tx_cdf[tx_size],
+                         TX_TYPES);
       } else {
         aom_write_symbol(
             w, av1_ext_tx_ind[tx_type],
-            ec_ctx->intra_ext_tx_cdf[tx_size]
-                                    [intra_mode_to_tx_type_context[mbmi->mode]],
+            ec_ctx->adapted_cdfs
+                .intra_ext_tx_cdf[tx_size]
+                                 [intra_mode_to_tx_type_context[mbmi->mode]],
             TX_TYPES);
       }
     }
@@ -1821,7 +1827,7 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 static void write_intra_mode(FRAME_CONTEXT *frame_ctx, BLOCK_SIZE bsize,
                              PREDICTION_MODE mode, aom_writer *w) {
   aom_write_symbol(w, av1_intra_mode_ind[mode],
-                   frame_ctx->y_mode_cdf[size_group_lookup[bsize]],
+                   frame_ctx->adapted_cdfs.y_mode_cdf[size_group_lookup[bsize]],
                    INTRA_MODES);
 }
 
@@ -1829,7 +1835,7 @@ static void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
                                 PREDICTION_MODE uv_mode, PREDICTION_MODE y_mode,
                                 aom_writer *w) {
   aom_write_symbol(w, av1_intra_mode_ind[uv_mode],
-                   frame_ctx->uv_mode_cdf[y_mode], INTRA_MODES);
+                   frame_ctx->adapted_cdfs.uv_mode_cdf[y_mode], INTRA_MODES);
 }
 
 #if CONFIG_CFL
@@ -3007,11 +3013,14 @@ static void write_partition(const AV1_COMMON *const cm,
   if (has_rows && has_cols) {
 #if CONFIG_EXT_PARTITION_TYPES
     if (bsize <= BLOCK_8X8)
-      aom_write_symbol(w, p, ec_ctx->partition_cdf[ctx], PARTITION_TYPES);
+      aom_write_symbol(w, p, ec_ctx->adapted_cdfs.partition_cdf[ctx],
+                       PARTITION_TYPES);
     else
-      aom_write_symbol(w, p, ec_ctx->partition_cdf[ctx], EXT_PARTITION_TYPES);
+      aom_write_symbol(w, p, ec_ctx->adapted_cdfs.partition_cdf[ctx],
+                       EXT_PARTITION_TYPES);
 #else
-    aom_write_symbol(w, p, ec_ctx->partition_cdf[ctx], PARTITION_TYPES);
+    aom_write_symbol(w, p, ec_ctx->adapted_cdfs.partition_cdf[ctx],
+                     PARTITION_TYPES);
 #endif  // CONFIG_EXT_PARTITION_TYPES
   } else if (!has_rows && has_cols) {
     assert(p == PARTITION_SPLIT || p == PARTITION_HORZ);
@@ -3185,9 +3194,10 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
       const int eset =
           get_ext_tx_set(supertx_size, bsize, 1, cm->reduced_tx_set_used);
       if (eset > 0) {
-        aom_write_symbol(w, av1_ext_tx_inter_ind[eset][mbmi->tx_type],
-                         ec_ctx->inter_ext_tx_cdf[eset][supertx_size],
-                         ext_tx_cnt_inter[eset]);
+        aom_write_symbol(
+            w, av1_ext_tx_inter_ind[eset][mbmi->tx_type],
+            ec_ctx->adapted_cdfs.inter_ext_tx_cdf[eset][supertx_size],
+            ext_tx_cnt_inter[eset]);
       }
     }
 #else
