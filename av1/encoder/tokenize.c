@@ -354,8 +354,8 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
           color_map, plane_block_width, i, j, n, color_order, &color_new_idx);
       assert(color_new_idx >= 0 && color_new_idx < n);
       if (dry_run == DRY_RUN_COSTCOEFFS)
-        this_rate += cpi->palette_y_color_cost[n - PALETTE_MIN_SIZE][color_ctx]
-                                              [color_new_idx];
+        this_rate += cpi->rd_costs.palette_y_color[n - PALETTE_MIN_SIZE]
+                                                  [color_ctx][color_new_idx];
       (*t)->token = color_new_idx;
       (*t)->context_tree = probs[n - PALETTE_MIN_SIZE][color_ctx];
       (*t)->skip_eob_node = 0;
