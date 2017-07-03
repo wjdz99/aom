@@ -304,6 +304,42 @@ static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {
   return cfg->best_allowed_q == 0 && cfg->worst_allowed_q == 0;
 }
 
+// The set of costs used by the rd phase of the encoder that get
+// updated by av1_update_rd_mode_costs. Since this runs once per
+// top-level SB to stay in sync with changing costs in a tile, we need
+// to keep one of these per thread context.
+typedef struct rd_costs {
+  int y_mode[INTRA_MODES][INTRA_MODES][INTRA_MODES];
+  int mb_mode[BLOCK_SIZE_GROUPS][INTRA_MODES];
+  int intra_uv_mode[INTRA_MODES][INTRA_MODES];
+  int switchable_interp[SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS];
+  int tx_size[TX_SIZES - 1][TX_SIZE_CONTEXTS][TX_SIZES];
+#if CONFIG_PALETTE
+  int palette_y_size[PALETTE_BLOCK_SIZES][PALETTE_SIZES];
+  int palette_uv_size[PALETTE_BLOCK_SIZES][PALETTE_SIZES];
+  int palette_y_color[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
+                     [PALETTE_COLORS];
+  int palette_uv_color[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
+                      [PALETTE_COLORS];
+#endif  // CONFIG_PALETTE
+#if CONFIG_EXT_TX
+  int inter_tx_type[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES];
+  int intra_tx_type[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES][TX_TYPES];
+#else
+  int intra_tx_type[EXT_TX_SIZES][TX_TYPES][TX_TYPES];
+  int inter_tx_type[EXT_TX_SIZES][TX_TYPES];
+#endif  // CONFIG_EXT_TX
+#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
+  int intra_filter[INTRA_FILTERS + 1][INTRA_FILTERS];
+#endif
+#if CONFIG_LOOP_RESTORATION
+  int switchable_restore[RESTORE_SWITCHABLE_TYPES];
+#endif  // CONFIG_LOOP_RESTORATION
+#if CONFIG_GLOBAL_MOTION
+  int gmtype[TRANS_TYPES];
+#endif
+} RD_COSTS;
+
 // TODO(jingning) All spatially adaptive variables should go to TileDataEnc.
 typedef struct TileDataEnc {
   TileInfo tile_info;
@@ -319,6 +355,7 @@ typedef struct TileDataEnc {
 #endif
 #if CONFIG_EC_ADAPT
   DECLARE_ALIGNED(16, FRAME_CONTEXT, tctx);
+  DECLARE_ALIGNED(16, RD_COSTS, rd_costs);
 #endif
 } TileDataEnc;
 
@@ -541,7 +578,8 @@ typedef struct AV1_COMP {
 
   search_site_config ss_cfg;
 
-  int mbmode_cost[BLOCK_SIZE_GROUPS][INTRA_MODES];
+  RD_COSTS rd_costs;
+
   int newmv_mode_cost[NEWMV_MODE_CONTEXTS][2];
   int zeromv_mode_cost[ZEROMV_MODE_CONTEXTS][2];
   int refmv_mode_cost[REFMV_MODE_CONTEXTS][2];
@@ -565,9 +603,6 @@ typedef struct AV1_COMP {
   int motion_mode_cost1[BLOCK_SIZES][2];
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-  int intra_uv_mode_cost[INTRA_MODES][INTRA_MODES];
-  int y_mode_costs[INTRA_MODES][INTRA_MODES][INTRA_MODES];
-  int switchable_interp_costs[SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS];
 #if CONFIG_EXT_PARTITION_TYPES
   int partition_cost[PARTITION_CONTEXTS + CONFIG_UNPOISON_PARTITION_CTX]
                     [EXT_PARTITION_TYPES];
@@ -575,33 +610,7 @@ typedef struct AV1_COMP {
   int partition_cost[PARTITION_CONTEXTS + CONFIG_UNPOISON_PARTITION_CTX]
                     [PARTITION_TYPES];
 #endif
-#if CONFIG_PALETTE
-  int palette_y_size_cost[PALETTE_BLOCK_SIZES][PALETTE_SIZES];
-  int palette_uv_size_cost[PALETTE_BLOCK_SIZES][PALETTE_SIZES];
-  int palette_y_color_cost[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
-                          [PALETTE_COLORS];
-  int palette_uv_color_cost[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
-                           [PALETTE_COLORS];
-#endif  // CONFIG_PALETTE
-  int tx_size_cost[TX_SIZES - 1][TX_SIZE_CONTEXTS][TX_SIZES];
-#if CONFIG_EXT_TX
-  int inter_tx_type_costs[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES];
-  int intra_tx_type_costs[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
-                         [TX_TYPES];
-#else
-  int intra_tx_type_costs[EXT_TX_SIZES][TX_TYPES][TX_TYPES];
-  int inter_tx_type_costs[EXT_TX_SIZES][TX_TYPES];
-#endif  // CONFIG_EXT_TX
-#if CONFIG_EXT_INTRA
-#if CONFIG_INTRA_INTERP
-  int intra_filter_cost[INTRA_FILTERS + 1][INTRA_FILTERS];
-#endif  // CONFIG_INTRA_INTERP
-#endif  // CONFIG_EXT_INTRA
-#if CONFIG_LOOP_RESTORATION
-  int switchable_restore_cost[RESTORE_SWITCHABLE_TYPES];
-#endif  // CONFIG_LOOP_RESTORATION
 #if CONFIG_GLOBAL_MOTION
-  int gmtype_cost[TRANS_TYPES];
   int gmparams_cost[TOTAL_REFS_PER_FRAME];
 #endif  // CONFIG_GLOBAL_MOTION
 
