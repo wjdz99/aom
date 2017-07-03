@@ -2294,7 +2294,8 @@ static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
   FRAME_CONTEXT *ec_ctx = cm->fc;
 #endif
 
-  aom_cdf_prob *partition_cdf = (ctx >= 0) ? ec_ctx->partition_cdf[ctx] : NULL;
+  aom_cdf_prob *partition_cdf =
+      (ctx >= 0) ? ec_ctx->adapted_cdfs.partition_cdf[ctx] : NULL;
 
   if (has_rows && has_cols)
 #if CONFIG_EXT_PARTITION_TYPES
@@ -2610,9 +2611,9 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
         const int eset =
             get_ext_tx_set(supertx_size, bsize, 1, cm->reduced_tx_set_used);
         if (eset > 0) {
-          const int packed_sym =
-              aom_read_symbol(r, ec_ctx->inter_ext_tx_cdf[eset][supertx_size],
-                              ext_tx_cnt_inter[eset], ACCT_STR);
+          const int packed_sym = aom_read_symbol(
+              r, ec_ctx->adapted_cdfs.inter_ext_tx_cdf[eset][supertx_size],
+              ext_tx_cnt_inter[eset], ACCT_STR);
           txfm = av1_ext_tx_inter_inv[eset][packed_sym];
           if (xd->counts) ++xd->counts->inter_ext_tx[eset][supertx_size][txfm];
         }
@@ -5546,9 +5547,9 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_EC_ADAPT
       FRAME_CONTEXT **tile_ctxs = aom_malloc(cm->tile_rows * cm->tile_cols *
                                              sizeof(&pbi->tile_data[0].tctx));
-      aom_cdf_prob **cdf_ptrs =
-          aom_malloc(cm->tile_rows * cm->tile_cols *
-                     sizeof(&pbi->tile_data[0].tctx.partition_cdf[0][0]));
+      aom_cdf_prob **cdf_ptrs = aom_malloc(
+          cm->tile_rows * cm->tile_cols *
+          sizeof(&pbi->tile_data[0].tctx.adapted_cdfs.partition_cdf[0][0]));
       make_update_tile_list_dec(pbi, cm->tile_rows, cm->tile_cols, tile_ctxs);
 #endif
       av1_adapt_coef_probs(cm);
