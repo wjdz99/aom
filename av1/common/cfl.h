@@ -53,8 +53,10 @@ typedef struct {
   // Chroma subsampling
   int subsampling_x, subsampling_y;
 
-  // CfL Performs its own block level DC_PRED for each chromatic plane
-  double dc_pred[CFL_PRED_PLANES];
+  // Block level DC_PRED for each chromatic plane
+  // Fixed point dc_pred is Q12.7:
+  //   * Worst case division is 1/128
+  int dc_pred_q7[CFL_PRED_PLANES];
 
   // The rate associated with each alpha codeword
   int costs[CFL_ALPHABET_SIZE];
