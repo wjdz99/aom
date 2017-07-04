@@ -1469,9 +1469,16 @@ static int cfl_alpha_dist(const uint8_t *y_pix, int y_stride,
         for (int t_i = b_i; t_i < w; t_i++) {
           const double scaled_luma = alpha * (t_y_pix[t_i] - y_average);
           const int uv = t_src[t_i];
-          diff = uv - (int)(scaled_luma + dc_pred_bias);
+
+          // TODO(ltrudeau) call clip_pixel_highbd when HBD is enabled.
+          const uint8_t pred = clip_pixel((int)(scaled_luma + dc_pred_bias));
+          diff = uv - pred;
           dist += diff * diff;
-          diff = uv + (int)(scaled_luma - dc_pred_bias);
+
+          // TODO(ltrudeau) call clip_pixel_highbd when HBD is enabled.
+          const uint8_t pred_neg =
+              clip_pixel((int)(-scaled_luma + dc_pred_bias));
+          diff = uv - pred_neg;
           dist_neg += diff * diff;
         }
         t_y_pix += y_stride;
