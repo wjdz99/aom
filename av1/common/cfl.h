@@ -53,8 +53,10 @@ typedef struct {
   // Chroma subsampling
   int subsampling_x, subsampling_y;
 
-  // CfL Performs its own block level DC_PRED for each chromatic plane
-  double dc_pred[CFL_PRED_PLANES];
+  // Block level DC_PRED for each chromatic plane
+  // Fixed point dc_pred is Q12.7:
+  //   * Worst case division is 1/128
+  int dc_pred_q7[CFL_PRED_PLANES];
 
   // The rate associated with each alpha codeword
   int costs[CFL_ALPHABET_SIZE];
@@ -72,6 +74,14 @@ static const int cfl_alpha_codes[CFL_ALPHABET_SIZE][CFL_PRED_PLANES] = {
   { 5, 5 }, { 0, 1 }, { 5, 3 }, { 5, 0 }, { 3, 5 }, { 1, 3 },
   { 0, 3 }, { 5, 1 }, { 1, 5 }, { 0, 5 }
 };
+
+static INLINE int get_scaled_luma_q13(int alpha_q3, int y_pix, int avg_q10) {
+  const int scaled_luma_q13 = alpha_q3 * ((y_pix << 10) - avg_q10);
+  // All parameters are in the right Q value.
+  assert(scaled_luma_q13 ==
+         (alpha_q3 / 8.0) * (y_pix - (avg_q10 / 1024.0)) * (1 << 13));
+  return scaled_luma_q13;
+}
 
 void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm);
 
