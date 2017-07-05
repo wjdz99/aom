@@ -91,7 +91,7 @@ FRAME_COUNTS aggregate_fc_per_type[FRAME_CONTEXTS];
                                        // mv. Choose a very high value for
                                        // now so that HIGH_PRECISION is always
                                        // chosen.
-// #define OUTPUT_YUV_REC
+#define OUTPUT_YUV_REC
 #ifdef OUTPUT_YUV_DENOISED
 FILE *yuv_denoised_file = NULL;
 #endif
@@ -111,6 +111,10 @@ FILE *keyfile;
 
 #if CONFIG_CFL
 CFL_CTX NULL_CFL;
+#endif
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#define NCOBMC_KERNEL "./NCOBMC_KERNEL/kernels.txt"
 #endif
 
 #if CONFIG_INTERNAL_STATS
@@ -2142,6 +2146,22 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cm->free_mi = av1_enc_free_mi;
   cm->setup_mi = av1_enc_setup_mi;
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  FILE *f_kernels = fopen(NCOBMC_KERNEL, "r");
+  read_ncobmc_kernels(cm, BLOCK_64X64, f_kernels);
+  read_ncobmc_kernels(cm, BLOCK_32X32, f_kernels);
+  read_ncobmc_kernels(cm, BLOCK_16X16, f_kernels);
+  read_ncobmc_kernels(cm, BLOCK_8X8, f_kernels);
+  fclose(f_kernels);
+
+  FILE *f_check = fopen("./NCOBMC_KERNEL/check.txt", "w");
+  print_kernels_to_file(cm, BLOCK_64X64, f_check);
+  print_kernels_to_file(cm, BLOCK_32X32, f_check);
+  print_kernels_to_file(cm, BLOCK_16X16, f_check);
+  print_kernels_to_file(cm, BLOCK_8X8, f_check);
+  fclose(f_check);
+#endif
+
   CHECK_MEM_ERROR(cm, cm->fc,
                   (FRAME_CONTEXT *)aom_memalign(32, sizeof(*cm->fc)));
   CHECK_MEM_ERROR(cm, cm->frame_contexts,
@@ -2263,7 +2283,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   yuv_skinmap_file = fopen("skinmap.yuv", "ab");
 #endif
 #ifdef OUTPUT_YUV_REC
-  yuv_rec_file = fopen("rec.yuv", "wb");
+  yuv_rec_file = fopen("./tmp/rec.yuv", "wb");
 #endif
 
 #if 0
@@ -4729,6 +4749,10 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   // Pick the loop filter level for the frame.
   loopfilter_frame(cpi, cm);
 
+#ifdef OUTPUT_YUV_REC
+  aom_write_one_yuv_frame(cm, cm->frame_to_show);
+#endif
+
   // Build the bitstream
   av1_pack_bitstream(cpi, dest, size);
 
@@ -5742,3 +5766,39 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
     av1_update_entropy(cpi, 0);
   }
 }
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+void print_kernels_to_file(AV1_COMMON *cm, BLOCK_SIZE bsize, FILE *fid) {
+  const ADAPT_OVERLAP_BLOCK ao_block = adapt_overlap_block_lookup[bsize];
+  const int width = (num_4x4_blocks_wide_lookup[bsize] << 2);
+  const int height = (num_4x4_blocks_high_lookup[bsize] << 2);
+  int mode, r, c, pos;
+  double tmp, sc = 1e5;
+
+  for (mode = 0; mode <= MAX_NCOBMC_MODES; ++mode) {
+    for (pos = 0; pos < 4; ++pos) {
+      for (r = 0; r < width; ++r) {
+        for (c = 0; c < height; ++c) {
+          switch (pos) {
+            case 0:
+              tmp = cm->ncobmc_kernels[ao_block][mode].KERNEL_TL[r][c];
+              break;
+            case 1:
+              tmp = cm->ncobmc_kernels[ao_block][mode].KERNEL_TR[r][c];
+              break;
+            case 2:
+              tmp = cm->ncobmc_kernels[ao_block][mode].KERNEL_BL[r][c];
+              break;
+            case 3:
+              tmp = cm->ncobmc_kernels[ao_block][mode].KERNEL_BR[r][c];
+              break;
+            default: assert(0 && "not valid pos");
+          }
+          fprintf(fid, "%d ", (int)round(tmp * sc));
+        }
+      }
+      fprintf(fid, "\n");
+    }
+  }
+}
+#endif

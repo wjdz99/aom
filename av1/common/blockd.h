@@ -110,6 +110,22 @@ typedef struct PVQ_QUEUE {
 } PVQ_QUEUE;
 #endif
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+typedef struct superblock_mi_boundaries {
+  int mi_row_begin;
+  int mi_col_begin;
+  int mi_row_end;
+  int mi_col_end;
+} SB_MI_BD;
+
+typedef struct {
+  double KERNEL_TL[MAX_SB_SIZE][MAX_SB_SIZE];
+  double KERNEL_TR[MAX_SB_SIZE][MAX_SB_SIZE];
+  double KERNEL_BL[MAX_SB_SIZE][MAX_SB_SIZE];
+  double KERNEL_BR[MAX_SB_SIZE][MAX_SB_SIZE];
+} NCOBMC_KERNELS;
+#endif
+
 typedef struct {
   uint8_t *plane[MAX_MB_PLANE];
   int stride[MAX_MB_PLANE];
@@ -742,6 +758,12 @@ typedef struct macroblockd {
 #if CONFIG_CFL
   CFL_CTX *cfl;
 #endif
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  uint8_t *ncobmc_pred_buf[MAX_MB_PLANE];
+  int ncobmc_pred_buf_stride[MAX_MB_PLANE];
+  SB_MI_BD sb_mi_bd;
+#endif
 } MACROBLOCKD;
 
 static INLINE int get_bitdepth_data_path_index(const MACROBLOCKD *xd) {
@@ -1362,12 +1384,16 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
       return OBMC_CAUSAL;
+#if CONFIG_WARPED_MOTION
+  }
+#endif
 #else
     return SIMPLE_TRANSLATION;
 #endif  // CONFIG_MOTION_VAR
-  } else {
-    return SIMPLE_TRANSLATION;
-  }
+}
+else {
+  return SIMPLE_TRANSLATION;
+}
 }
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
