@@ -11961,4 +11961,156 @@ void av1_check_ncobmc_rd(const struct AV1_COMP *cpi, struct macroblock *x,
   }
 }
 #endif  // CONFIG_NCOBMC
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+// debugging
+// #define DEBUG_GET_ORI_PRED
+#ifdef DEBUG_GET_ORI_PRED
+void get_original_pred_mi(const AV1_COMP *const cpi, const AV1_COMMON *cm,
+                          MACROBLOCKD *xd, int mi_row, int mi_col, int bsize,
+                          uint8_t *dst_buf[MAX_MB_PLANE],
+                          int dst_stride[MAX_MB_PLANE]) {
+  MB_MODE_INFO *this_mbmi = &xd->mi[0]->mbmi;
+  int size = mi_size_wide[bsize] << MI_SIZE_LOG2;
+  int j, ref;
+  const int is_compound = has_second_ref(this_mbmi);
+
+  set_ref_ptrs(cm, xd, this_mbmi->ref_frame[0], this_mbmi->ref_frame[1]);
+
+  /*
+    // set destination plane
+    for (j = 0; j < MAX_MB_PLANE; ++j) {
+      struct macroblockd_plane *const pd = &xd->plane[j];
+      setup_pred_plane_pxl(&pd->dst, dst_buf[j], MAX_SB_SIZE, MAX_SB_SIZE,
+                           dst_stride[j], 0, 0, NULL, pd->subsampling_x,
+                           pd->subsampling_y);
+    }
+  */
+  for (ref = 0; ref < 1 + is_compound; ++ref) {
+    YV12_BUFFER_CONFIG *cfg =
+        get_ref_frame_buffer(cpi, this_mbmi->ref_frame[ref]);
+#if CONFIG_INTRABC
+    assert(IMPLIES(!is_intrabc_block(mbmi), cfg));
+#else
+    assert(cfg != NULL);
+#endif  // !CONFIG_INTRABC
+    av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
+                         &xd->block_refs[ref]->sf);
+  }
+
+  av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, NULL, bsize);
+  av1_build_inter_predictors_sbuv(cm, xd, mi_row, mi_col, NULL, bsize);
+
+  for (j = 0; j < MAX_MB_PLANE; ++j)
+    get_pred_from_dst(xd, mi_row, mi_col, bsize, j);
+}
+#endif
+
+// Similar to av1_setup_src_planes but in pixel precision instead of mi
+void av1_setup_src_planes_pxl(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
+                              int pxl_row, int pxl_col) {
+  uint8_t *const buffers[3] = { src->y_buffer, src->u_buffer, src->v_buffer };
+  const int widths[3] = { src->y_crop_width, src->uv_crop_width,
+                          src->uv_crop_width };
+  const int heights[3] = { src->y_crop_height, src->uv_crop_height,
+                           src->uv_crop_height };
+  const int strides[3] = { src->y_stride, src->uv_stride, src->uv_stride };
+  int i;
+
+  // Set current frame pointer.
+  x->e_mbd.cur_buf = src;
+
+  for (i = 0; i < MAX_MB_PLANE; ++i) {
+    setup_pred_plane_pxl(&x->plane[i].src, buffers[i], widths[i], heights[i],
+                         strides[i], pxl_row, pxl_col, NULL,
+                         x->e_mbd.plane[i].subsampling_x,
+                         x->e_mbd.plane[i].subsampling_y);
+  }
+}
+
+int64_t get_ncobmc_intrpl_pred_error(MACROBLOCKD *xd, int pxl_row, int pxl_col,
+                                     BLOCK_SIZE bsize, int plane,
+                                     struct buf_2d *src) {
+  const int wide = mi_size_wide[bsize] * MI_SIZE >> 1;
+  const int high = mi_size_high[bsize] * MI_SIZE >> 1;
+  const int ss_x = xd->plane[plane].subsampling_x;
+  const int ss_y = xd->plane[plane].subsampling_y;
+  int row_offset = (pxl_row - xd->sb_mi_bd.mi_row_begin * MI_SIZE) >> ss_y;
+  int col_offset = (pxl_col - xd->sb_mi_bd.mi_col_begin * MI_SIZE) >> ss_x;
+  int dst_stride = xd->ncobmc_pred_buf_stride[plane];
+  int dst_offset = row_offset * dst_stride + col_offset;
+  int src_stride = src->stride;
+
+  int r, c;
+  int64_t tmp, error = 0;
+
+  for (r = 0; r < (high >> ss_y); ++r) {
+    for (c = 0; c < (wide >> ss_x); ++c) {
+      tmp = xd->ncobmc_pred_buf[plane][r * dst_stride + c + dst_offset] -
+            src->buf[r * src_stride + c];
+      error += tmp * tmp;
+    }
+  }
+  return error;
+}
+
+int get_ncobmc_mode_qd(const AV1_COMP *const cpi, MACROBLOCK *const x,
+                       MACROBLOCKD *xd, int mi_row, int mi_col, int bsize,
+                       int xd_mi_offset, int block) {
+  const AV1_COMMON *const cm = &cpi->common;
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_0[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_1[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_2[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_3[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  uint8_t *pred_buf[4][MAX_MB_PLANE];
+  int pred_stride[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
+
+  const int intrpl_size = mi_size_wide[bsize] << MI_SIZE_LOG2;
+
+  // target block in pxl
+  int pxl_row = (mi_row << MI_SIZE_LOG2) + (block / 2) * (intrpl_size >> 1);
+  int pxl_col = (mi_col << MI_SIZE_LOG2) + (block % 2) * (intrpl_size >> 1);
+  int64_t error, best_error = INT64_MAX;
+  int same_src_mi = 0;
+  int plane, tmp_mode, best_mode = 0;
+
+  ASSIGN_ALIGNED_PTRS(pred_buf[0], tmp_buf_0, MAX_SB_SQUARE);
+  ASSIGN_ALIGNED_PTRS(pred_buf[1], tmp_buf_1, MAX_SB_SQUARE);
+  ASSIGN_ALIGNED_PTRS(pred_buf[2], tmp_buf_2, MAX_SB_SQUARE);
+  ASSIGN_ALIGNED_PTRS(pred_buf[3], tmp_buf_3, MAX_SB_SQUARE);
+
+  // Set up source buffers.
+  av1_setup_src_planes_pxl(x, cpi->source, pxl_row, pxl_col);
+  same_src_mi = av1_get_conner_preds(cm, xd, bsize, mi_row, mi_col, block,
+                                     xd_mi_offset, pred_buf, pred_stride);
+
+  if (same_src_mi) {
+    best_mode = 0;
+  } else {
+    for (tmp_mode = 0; tmp_mode < MAX_NCOBMC_MODES; ++tmp_mode) {
+      error = 0;
+      for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+        build_ncobmc_intrpl_pred_qd(cm, xd, plane, pxl_row, pxl_col, block,
+                                    bsize, pred_buf, pred_stride, tmp_mode);
+        error += get_ncobmc_intrpl_pred_error(xd, pxl_row, pxl_col, bsize,
+                                              plane, &x->plane[plane].src);
+      }
+      if (error < best_error) {
+        best_mode = tmp_mode;
+        best_error = error;
+      }
+    }
+  }
+#ifdef BEST_MODE_0
+  best_mode = 0;
+#endif
+
+  for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    build_ncobmc_intrpl_pred_qd(cm, xd, plane, pxl_row, pxl_col, block, bsize,
+                                pred_buf, pred_stride, best_mode);
+  }
+
+  return best_mode;
+}
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #endif  // CONFIG_MOTION_VAR

@@ -1264,7 +1264,59 @@ static void set_mode_info_sb(const AV1_COMP *const cpi, ThreadData *td,
     default: assert(0 && "Invalid partition type."); break;
   }
 }
-#endif
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+static void av1_get_ncobmc_mode_rd(const AV1_COMP *const cpi,
+                                   MACROBLOCK *const x, MACROBLOCKD *const xd,
+                                   int bsize, const int mi_row,
+                                   const int mi_col, int mode[4]) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const int mi_width = mi_size_wide[bsize];
+  const int mi_height = mi_size_high[bsize];
+  int xd_mi_offset, block;
+
+  assert(bsize >= BLOCK_8X8);
+  // set mi[0] to the top-left corner
+  set_mode_info_offsets(cpi, x, xd, xd->sb_mi_bd.mi_row_begin,
+                        xd->sb_mi_bd.mi_col_begin);
+  xd_mi_offset = (mi_row - xd->sb_mi_bd.mi_row_begin) * xd->mi_stride +
+                 (mi_col - xd->sb_mi_bd.mi_col_begin);
+
+  reset_xd_boundary(xd, mi_row, mi_height, mi_col, mi_width, cm->mi_rows,
+                    cm->mi_cols);
+
+  for (block = 0; block < 4; ++block) {
+    mode[block] = get_ncobmc_mode_qd(cpi, x, xd, mi_row, mi_col, bsize,
+                                     xd_mi_offset, block);
+  }
+}
+
+static void get_ncobmc_intrpl_pred(const AV1_COMP *const cpi, ThreadData *td,
+                                   // const TileInfo *const tile,
+                                   int mi_row, int mi_col, BLOCK_SIZE bsize) {
+  MACROBLOCK *const x = &td->mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const int mi_width = mi_size_wide[bsize];
+  const int mi_height = mi_size_high[bsize];
+  const int hbs = AOMMAX(mi_size_wide[bsize] / 2, mi_size_high[bsize] / 2);
+  const BLOCK_SIZE sqr_blk = bsize_2_sqr_bsize[bsize];
+  int mode[4];
+  if (mi_width > mi_height) {
+    // horizontal partition
+    av1_get_ncobmc_mode_rd(cpi, x, xd, sqr_blk, mi_row, mi_col, mode);
+    av1_get_ncobmc_mode_rd(cpi, x, xd, sqr_blk, mi_row, mi_col + hbs, mode);
+  } else if (mi_height > mi_width) {
+    // vertical partition
+    av1_get_ncobmc_mode_rd(cpi, x, xd, sqr_blk, mi_row, mi_col, mode);
+    av1_get_ncobmc_mode_rd(cpi, x, xd, sqr_blk, mi_row + hbs, mi_col, mode);
+  } else {
+    av1_get_ncobmc_mode_rd(cpi, x, xd, sqr_blk, mi_row, mi_col, mode);
+  }
+  av1_setup_src_planes(x, cpi->source, mi_row, mi_col);
+}
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
+
+#endif  // CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
 
 void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
                           int mi_row, int mi_col) {
@@ -1960,7 +2012,8 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
 #endif
                      PICK_MODE_CONTEXT *ctx, int *rate) {
   MACROBLOCK *const x = &td->mb;
-#if (CONFIG_MOTION_VAR && CONFIG_NCOBMC) | CONFIG_EXT_DELTA_Q
+#if (CONFIG_MOTION_VAR && CONFIG_NCOBMC) | CONFIG_EXT_DELTA_Q | \
+    CONFIG_NCOBMC_ADAPT_WEIGHT
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi;
 #if CONFIG_MOTION_VAR && CONFIG_NCOBMC
@@ -1973,18 +2026,43 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
   x->e_mbd.mi[0]->mbmi.partition = partition;
 #endif
   update_state(cpi, td, ctx, mi_row, mi_col, bsize, dry_run);
-#if CONFIG_MOTION_VAR && CONFIG_NCOBMC
+#if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
   mbmi = &xd->mi[0]->mbmi;
+#endif
+
+#if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+#if CONFIG_NCOBMC
   const MOTION_MODE motion_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
       0, xd->global_motion,
 #endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
       xd->mi[0]);
+#elif CONFIG_NCOBMC_ADAPT_WEIGHT
+  const MOTION_MODE motion_allowed =
+      motion_mode_allowed_wrapper(0,
+#if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                  block, gm_params,
+#endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+                                  xd->mi[0]);
+#endif
+#endif  // CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+
+#if CONFIG_MOTION_VAR && CONFIG_NCOBMC
   check_ncobmc = is_inter_block(mbmi) && motion_allowed >= OBMC_CAUSAL;
   if (!dry_run && check_ncobmc) {
     av1_check_ncobmc_rd(cpi, x, mi_row, mi_col);
     av1_setup_dst_planes(x->e_mbd.plane, bsize,
                          get_frame_new_buffer(&cpi->common), mi_row, mi_col);
+  }
+#endif
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  if (dry_run == OUTPUT_ENABLED && motion_allowed == NCOBMC_ADAPT_WEIGHT) {
+    get_ncobmc_intrpl_pred(cpi, td, mi_row, mi_col, bsize);
+    // reset mi and dst plane
+    set_mode_info_offsets(cpi, x, xd, mi_row, mi_col);
+    av1_setup_dst_planes(x->e_mbd.plane, bsize,
+                         get_frame_new_buffer(&cpi->common), mi_row, mi_col);
+    mbmi->motion_mode = NCOBMC_ADAPT_WEIGHT;
   }
 #endif
   encode_superblock(cpi, td, tp, dry_run, mi_row, mi_col, bsize, rate);
@@ -4241,8 +4319,18 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   if (best_rdc.rate < INT_MAX && best_rdc.dist < INT64_MAX &&
       pc_tree->index != 3) {
     if (bsize == cm->sb_size) {
-#if CONFIG_MOTION_VAR && CONFIG_NCOBMC
+#if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
       set_mode_info_sb(cpi, td, tile_info, tp, mi_row, mi_col, bsize, pc_tree);
+#endif
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+      set_sb_mi_boundaries(cm, xd, mi_row, mi_col);
+/*
+if (!frame_is_intra_only(&cpi->common)) {
+  fprintf(stdout, "[%d %d] [%d %d]\n", xd->sb_mi_bd.mi_row_begin,
+          xd->sb_mi_bd.mi_row_end, xd->sb_mi_bd.mi_col_begin,
+          xd->sb_mi_bd.mi_col_end);
+}
+*/
 #endif
       encode_sb(cpi, td, tile_info, tp, mi_row, mi_col, OUTPUT_ENABLED, bsize,
                 pc_tree, NULL);
@@ -4882,6 +4970,10 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   av1_zero(rdc->coef_counts);
   av1_zero(rdc->comp_pred_diff);
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  alloc_ncobmc_pred_buffer(xd);
+#endif
+
 #if CONFIG_GLOBAL_MOTION
   av1_zero(rdc->global_motion_used);
   av1_zero(cpi->gmparams_cost);
@@ -5121,6 +5213,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     aom_usec_timer_mark(&emr_timer);
     cpi->time_encode_sb_row += aom_usec_timer_elapsed(&emr_timer);
   }
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  free_ncobmc_pred_buffer(xd);
+#endif
 
 #if 0
   // Keep record of the total distortion this time around for future use
@@ -5807,6 +5902,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
 
     av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, NULL, block_size);
     av1_build_inter_predictors_sbuv(cm, xd, mi_row, mi_col, NULL, block_size);
+
 #if CONFIG_MOTION_VAR
     if (mbmi->motion_mode == OBMC_CAUSAL) {
 #if CONFIG_NCOBMC
@@ -5817,6 +5913,21 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
         av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
     }
 #endif  // CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+    // change the condition to
+    // mbmi->motion_mode == NCOBMC
+    else if (mbmi->motion_mode == NCOBMC_ADAPT_WEIGHT &&
+             dry_run == OUTPUT_ENABLED) {
+      int p;
+      for (p = 0; p < MAX_MB_PLANE; ++p) {
+        get_pred_from_intrpl_buf(xd, mi_row, mi_col, block_size, p);
+      }
+    }
+#endif
+
+#ifdef SKIP_TX
+    x->skip = 1;
+#endif
 
     av1_encode_sb((AV1_COMMON *)cm, x, block_size, mi_row, mi_col);
 #if CONFIG_VAR_TX
