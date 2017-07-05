@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24044e92_7a70f301",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 5528,
+      "author": {
+        "id": 6810
+      },
+      "writtenOn": "2017-07-05T18:34:38Z",
+      "side": 1,
+      "message": "Any reason you can\u0027t use cm-\u003eall_lossless here?",
+      "range": {
+        "startLine": 5528,
+        "startChar": 32,
+        "endLine": 5528,
+        "endChar": 44
+      },
+      "revId": "68671b3f6a6d0e019c250a588e158b063c7c70b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6cffe340_78dd53eb",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3778,
+      "author": {
+        "id": 6810
+      },
+      "writtenOn": "2017-07-05T18:34:38Z",
+      "side": 1,
+      "message": "why change the indent?",
+      "range": {
+        "startLine": 3778,
+        "startChar": 3,
+        "endLine": 3778,
+        "endChar": 18
+      },
+      "revId": "68671b3f6a6d0e019c250a588e158b063c7c70b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
