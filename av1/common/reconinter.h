@@ -874,6 +874,11 @@ void av1_build_wedge_inter_predictor_from_buf(
   p[1] = a + s;                      \
   p[2] = a + 2 * s;
 
+#define ASSIGN_ALIGNED_PTRS_HBD(p, a, s, l) \
+  p[0] = CONVERT_TO_BYTEPTR(a);             \
+  p[1] = CONVERT_TO_BYTEPTR(a + s * l);     \
+  p[2] = CONVERT_TO_BYTEPTR(a + 2 * s * l);
+
 void alloc_ncobmc_pred_buffer(MACROBLOCKD *const xd);
 void free_ncobmc_pred_buffer(MACROBLOCKD *const xd);
 void set_sb_mi_boundaries(const AV1_COMMON *const cm, MACROBLOCKD *const xd,

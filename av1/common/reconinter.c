@@ -3377,6 +3377,12 @@ void build_ncobmc_intrpl_pred_qd(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   // scaling factors for ncobmc kernels
   const double sc = 1e5;
 
+#if CONFIG_HIGHBITDEPTH
+  const int is_hbd = (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ? 1 : 0;
+#else
+  const int is_hbd = 0;
+#endif  // CONFIG_HIGHBITDEPTH
+
   int r, c, k_r_offset, k_c_offset, k_r, k_c;
   double tmp;
   // kernel offset for each quadrant
@@ -3386,9 +3392,10 @@ void build_ncobmc_intrpl_pred_qd(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   for (r = 0; r < (high >> ss_x); ++r) {
     for (c = 0; c < (wide >> ss_y); ++c) {
       int pos = r * s + c;
-      int buf_loc = r * dst_stride + c + dst_offset;
+      // int buf_loc = r * dst_stride + c + dst_offset;
       int q_tmp;
       uint8_t val;
+
       // TODO(weitinglin): find out the optimal sub-sampling patterns for
       //                    chroma
       k_r = (r << ss_y) + ss_y + k_r_offset;
@@ -3396,20 +3403,30 @@ void build_ncobmc_intrpl_pred_qd(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       if (ss_y && k_r >= high) k_r -= 1;
       if (ss_x && k_c >= wide) k_c -= 1;
 
-      tmp = round(knls->KERNEL_TL[k_r][k_c] * sc * preds[0][p][pos]) +
-            round(knls->KERNEL_TR[k_r][k_c] * sc * preds[1][p][pos]) +
-            round(knls->KERNEL_BL[k_r][k_c] * sc * preds[2][p][pos]) +
-            round(knls->KERNEL_BR[k_r][k_c] * sc * preds[3][p][pos]);
+      if (!is_hbd) {
+        uint8_t *tmp_p[4];
+        int i;
+        for (i = 0; i < 4; ++i) tmp_p[i] = preds[i][p];
+
+        tmp = round(knls->KERNEL_TL[k_r][k_c] * sc * tmp_p[0][pos]) +
+              round(knls->KERNEL_TR[k_r][k_c] * sc * tmp_p[1][pos]) +
+              round(knls->KERNEL_BL[k_r][k_c] * sc * tmp_p[2][pos]) +
+              round(knls->KERNEL_BR[k_r][k_c] * sc * tmp_p[3][pos]);
+
+      } else {
+        uint16_t *tmp_p[4];
+        int i;
+        for (i = 0; i < 4; ++i) tmp_p[i] = CONVERT_TO_SHORTPTR(preds[i][p]);
+
+        tmp = round(knls->KERNEL_TL[k_r][k_c] * sc * tmp_p[0][pos]) +
+              round(knls->KERNEL_TR[k_r][k_c] * sc * tmp_p[1][pos]) +
+              round(knls->KERNEL_BL[k_r][k_c] * sc * tmp_p[2][pos]) +
+              round(knls->KERNEL_BR[k_r][k_c] * sc * tmp_p[3][pos]);
+      }
+
       q_tmp = (int)round(tmp / sc);
       val = q_tmp < 0 ? 0 : (q_tmp > 255 ? 255 : q_tmp);
 
-      if (!(buf_loc >= 0 && buf_loc < MAX_SB_SQUARE)) {
-        fprintf(stdout, "[%d %d] [%d %d]: ", pxl_row, pxl_col,
-                xd->sb_mi_bd.mi_row_begin, xd->sb_mi_bd.mi_col_begin);
-        fprintf(stdout, "[%d %d %d %d] %d\n", r, c, dst_stride, dst_offset,
-                buf_loc);
-      }
-      assert(buf_loc >= 0 && buf_loc < MAX_SB_SQUARE);
       xd->ncobmc_pred_buf[p][r * dst_stride + c + dst_offset] = val;
     }
   }
