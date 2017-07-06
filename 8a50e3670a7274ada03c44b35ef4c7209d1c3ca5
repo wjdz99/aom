@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "720d75af_eef0c2ff",
+        "filename": "av1/common/cfl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-06T01:36:05Z",
+      "side": 1,
+      "message": "I think the real reason to use Q3 is because for 12-bit input, that\u0027s the most that will fit in a signed 16-bit integer. Technically you could use up to Q7 for 8-bit input and still fit, but given the low impact of this change, that doesn\u0027t seem to be necessary.",
+      "revId": "8a50e3670a7274ada03c44b35ef4c7209d1c3ca5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
