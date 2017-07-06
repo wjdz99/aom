@@ -1595,6 +1595,7 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 #if CONFIG_SUPERTX
                        const int supertx_enabled,
 #endif
+                       int blk_row, int blk_col,
 #if CONFIG_TXK_SEL
                        int block, int plane, TX_SIZE tx_size,
 #endif
@@ -1616,7 +1617,7 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
   // Only y plane's tx_type is transmitted
   if (plane > 0) return;
   PLANE_TYPE plane_type = get_plane_type(plane);
-  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  TX_TYPE tx_type = get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
 #endif
 
   if (!FIXED_TX_TYPE) {

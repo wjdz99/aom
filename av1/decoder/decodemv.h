@@ -36,6 +36,7 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 #if CONFIG_SUPERTX
                       int supertx_enabled,
 #endif
+                      int blk_row, int blk_col,
 #if CONFIG_TXK_SEL
                       int block, int plane, TX_SIZE tx_size,
 #endif
