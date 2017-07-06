@@ -53,7 +53,8 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
                      int blk_row, int blk_col, BLOCK_SIZE plane_bsize,
                      TX_SIZE tx_size, int ctx, AV1_XFORM_QUANT xform_quant_idx);
 
-int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int block,
+int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
+                   int blk_row, int blk_col, int block,
                    BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
                    const ENTROPY_CONTEXT *a, const ENTROPY_CONTEXT *l);
 

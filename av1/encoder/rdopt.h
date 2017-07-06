@@ -71,6 +71,7 @@ int64_t av1_daala_dist(const MACROBLOCKD *xd, const uint8_t *src,
 
 #if !CONFIG_PVQ || CONFIG_VAR_TX
 int av1_cost_coeffs(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
+                    int blk_row, int blk_col,
                     int block, TX_SIZE tx_size, const SCAN_ORDER *scan_order,
                     const ENTROPY_CONTEXT *a, const ENTROPY_CONTEXT *l,
                     int use_fast_coef_costing);
