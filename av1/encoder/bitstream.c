@@ -4525,12 +4525,6 @@ static void write_frame_size_with_refs(AV1_COMP *cpi,
   if (!found) write_frame_size(cm, wb);
 }
 
-static void write_sync_code(struct aom_write_bit_buffer *wb) {
-  aom_wb_write_literal(wb, AV1_SYNC_CODE_0, 8);
-  aom_wb_write_literal(wb, AV1_SYNC_CODE_1, 8);
-  aom_wb_write_literal(wb, AV1_SYNC_CODE_2, 8);
-}
-
 static void write_profile(BITSTREAM_PROFILE profile,
                           struct aom_write_bit_buffer *wb) {
   switch (profile) {
@@ -4676,7 +4670,6 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 #endif
 
   if (cm->frame_type == KEY_FRAME) {
-    write_sync_code(wb);
     write_bitdepth_colorspace_sampling(cm, wb);
     write_frame_size(cm, wb);
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
@@ -4710,7 +4703,6 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 #endif  // CONFIG_EXT_REFS
 
     if (cm->intra_only) {
-      write_sync_code(wb);
       write_bitdepth_colorspace_sampling(cm, wb);
 
 #if CONFIG_EXT_REFS

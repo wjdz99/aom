@@ -4500,10 +4500,6 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   }
 #endif
   if (cm->frame_type == KEY_FRAME) {
-    if (!av1_read_sync_code(rb))
-      aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                         "Invalid frame sync code");
-
     read_bitdepth_colorspace_sampling(cm, rb, pbi->allow_lowbitdepth);
     pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1;
 
@@ -4556,10 +4552,6 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
     }
 
     if (cm->intra_only) {
-      if (!av1_read_sync_code(rb))
-        aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                           "Invalid frame sync code");
-
       read_bitdepth_colorspace_sampling(cm, rb, pbi->allow_lowbitdepth);
 
       pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
@@ -5311,12 +5303,6 @@ static struct aom_read_bit_buffer *init_read_bit_buffer(
 }
 
 //------------------------------------------------------------------------------
-
-int av1_read_sync_code(struct aom_read_bit_buffer *const rb) {
-  return aom_rb_read_literal(rb, 8) == AV1_SYNC_CODE_0 &&
-         aom_rb_read_literal(rb, 8) == AV1_SYNC_CODE_1 &&
-         aom_rb_read_literal(rb, 8) == AV1_SYNC_CODE_2;
-}
 
 void av1_read_frame_size(struct aom_read_bit_buffer *rb, int *width,
                          int *height) {
