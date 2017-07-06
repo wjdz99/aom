@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d10c6fa1_e1526d46",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1193,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-07-06T18:44:53Z",
+      "side": 1,
+      "message": "The declaration is wrong here.  It should be:\n\nstatic const aom_cdf_prob\n    default_compound_type_cdf[BLOCK_SIZES][CDF_SIZE(COMPOUND_TYPES)] \u003d {\n\nlike the other declarations.  In fact, this code will fail to build if you run:\n\n./configure --enable-experimental --disable-wedge",
+      "revId": "39be2a799bb42482ab8c62b03c4a108bd1eb8b6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e577c527_53685e07",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1221,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-07-06T18:44:53Z",
+      "side": 1,
+      "message": "Is this missing the CDF values for this const static array?  What happens when built with:\n\n./configure --enable-experimental --disable-compound-segment --disable-wedge",
+      "revId": "39be2a799bb42482ab8c62b03c4a108bd1eb8b6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc9fab40_d205fef1",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 4868,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-07-06T18:44:53Z",
+      "side": 1,
+      "message": "Even when EC_ADAPT is on, the costs are coming from the 8-bit compound_type_prob[] array, but the symbols are coded wit the  adapted probabilities.  Is there a risk of these getting out of sync?\n\nShould we update the costs using this adapted CDF in fill_mode_costs() av1/encoder/rd.c:63?",
+      "revId": "39be2a799bb42482ab8c62b03c4a108bd1eb8b6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
