@@ -499,6 +499,26 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
 #endif  // CONFIG_EXT_INTER
 };
 
+static const PREDICTION_MODE intra_rd_search_mode_order[INTRA_MODES] = {
+  DC_PRED,
+  TM_PRED,
+#if CONFIG_ALT_INTRA
+  SMOOTH_PRED,
+#if CONFIG_SMOOTH_HV
+  SMOOTH_V_PRED,
+  SMOOTH_H_PRED,
+#endif  // CONFIG_SMOOTH_HV
+#endif  // CONFIG_ALT_INTRA
+  H_PRED,
+  V_PRED,
+  D135_PRED,
+  D207_PRED,
+  D153_PRED,
+  D63_PRED,
+  D117_PRED,
+  D45_PRED,
+};
+
 #if CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
 static INLINE int write_uniform_cost(int n, int v) {
   const int l = get_unsigned_bits(n);
@@ -3985,7 +4005,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       mbmi->mode = best_mbmi.mode;
       x->use_default_intra_tx_type = 0;
     } else {
-      mbmi->mode = mode_idx;
+      assert(mode_idx < INTRA_MODES);
+      mbmi->mode = intra_rd_search_mode_order[mode_idx];
     }
 #if CONFIG_PVQ
     od_encode_rollback(&x->daala_enc, &pre_buf);
@@ -5278,8 +5299,8 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   assert(!is_inter_block(mbmi));
   MB_MODE_INFO best_mbmi = *mbmi;
-  PREDICTION_MODE mode;
   int64_t best_rd = INT64_MAX, this_rd;
+  int mode_idx;
   int this_rate;
   RD_STATS tokenonly_rd_stats;
 #if CONFIG_PVQ
@@ -5291,7 +5312,8 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   uint8_t *best_palette_color_map = NULL;
 #endif  // CONFIG_PALETTE
 
-  for (mode = DC_PRED; mode <= TM_PRED; ++mode) {
+  for (mode_idx = DC_PRED; mode_idx < INTRA_MODES; ++mode_idx) {
+    PREDICTION_MODE mode = intra_rd_search_mode_order[mode_idx];
 #if CONFIG_EXT_INTRA
     const int is_directional_mode =
         av1_is_directional_mode(mode, mbmi->sb_type);
