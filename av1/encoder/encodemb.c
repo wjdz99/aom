@@ -508,7 +508,8 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   struct macroblockd_plane *const pd = &xd->plane[plane];
 #endif
   PLANE_TYPE plane_type = get_plane_type(plane);
-  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  TX_TYPE tx_type =
+      get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
 
 #if CONFIG_AOM_QM || CONFIG_NEW_QUANT
   const int is_inter = is_inter_block(mbmi);
@@ -753,7 +754,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
   if (x->pvq_skip[plane]) return;
 #endif
-  TX_TYPE tx_type = get_tx_type(pd->plane_type, xd, block, tx_size);
+  TX_TYPE tx_type =
+      get_tx_type(pd->plane_type, xd, blk_row, blk_col, block, tx_size);
 #if CONFIG_LGT
   PREDICTION_MODE mode = get_prediction_mode(xd->mi[0], plane, tx_size, block);
   av1_inverse_transform_block(xd, dqcoeff, mode, tx_type, tx_size, dst,
@@ -1346,7 +1348,8 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   PLANE_TYPE plane_type = get_plane_type(plane);
-  const TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  const TX_TYPE tx_type =
+      get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
   uint16_t *eob = &p->eobs[block];
   const int dst_stride = pd->dst.stride;
   uint8_t *dst =
