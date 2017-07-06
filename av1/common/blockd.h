@@ -1106,10 +1106,13 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
 }
 
 static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
-                                  int block, TX_SIZE tx_size) {
+                                  int blk_row, int blk_col, int block,
+                                  TX_SIZE tx_size) {
   const MODE_INFO *const mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
 
+  (void)blk_row;
+  (void)blk_col;
 #if CONFIG_INTRABC && (!CONFIG_EXT_TX || CONFIG_TXK_SEL)
   // TODO(aconverse@google.com): Handle INTRABC + EXT_TX + TXK_SEL
   if (is_intrabc_block(mbmi)) return DCT_DCT;
@@ -1172,12 +1175,19 @@ static INLINE TX_TYPE get_tx_type(PLANE_TYPE plane_type, const MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_TX
 #else   // !CONFIG_TXK_SEL
   (void)tx_size;
+  (void)block;
+  (void)blk_row;
+  (void)blk_col;
   TX_TYPE tx_type;
-  if (plane_type != PLANE_TYPE_Y || xd->lossless[mbmi->segment_id] ||
-      txsize_sqr_map[tx_size] >= TX_32X32) {
+  if (xd->lossless[mbmi->segment_id] || txsize_sqr_map[tx_size] >= TX_32X32) {
     tx_type = DCT_DCT;
   } else {
-    tx_type = mbmi->txk_type[block];
+    if (plane_type == PLANE_TYPE_Y)
+      tx_type = mbmi->txk_type[(blk_row << 4) + blk_col];
+    else if (is_inter_block(mbmi))
+      tx_type = mbmi->txk_type[(blk_row << 5) + (blk_col << 1)];
+    else
+      tx_type = intra_mode_to_tx_type_context[mbmi->uv_mode];
   }
   assert(tx_type >= DCT_DCT && tx_type < TX_TYPES);
   return tx_type;

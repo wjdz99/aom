@@ -125,7 +125,8 @@ static INLINE unsigned int get_token_bit_costs(
 #if !CONFIG_LV_MAP
 
 static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
-                             int block, TX_SIZE tx_size, int ctx) {
+                             int blk_row, int blk_col, int block,
+                             TX_SIZE tx_size, int ctx) {
   MACROBLOCKD *const xd = &mb->e_mbd;
   struct macroblock_plane *const p = &mb->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -138,7 +139,8 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
   const PLANE_TYPE plane_type = pd->plane_type;
   const int16_t *const dequant_ptr = pd->dequant;
   const uint8_t *const band_translate = get_band_translate(tx_size);
-  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  TX_TYPE tx_type =
+      get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
   const SCAN_ORDER *const scan_order =
       get_scan(cm, tx_size, tx_type, &xd->mi[0]->mbmi);
   const int16_t *const scan = scan_order->scan;
@@ -430,10 +432,10 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
 }
 #endif  // !CONFIG_LV_MAP
 
-int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
-                   int blk_row, int blk_col, int block,
-                   BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
-                   const ENTROPY_CONTEXT *a, const ENTROPY_CONTEXT *l) {
+int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int blk_row,
+                   int blk_col, int block, BLOCK_SIZE plane_bsize,
+                   TX_SIZE tx_size, const ENTROPY_CONTEXT *a,
+                   const ENTROPY_CONTEXT *l) {
   MACROBLOCKD *const xd = &mb->e_mbd;
   struct macroblock_plane *const p = &mb->plane[plane];
   const int eob = p->eobs[block];
@@ -456,11 +458,13 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
 #else
   int ctx = combine_entropy_contexts(*a, *l);
 #endif  // CONFIG_VAR_TX
-  return optimize_b_greedy(cm, mb, plane, block, tx_size, ctx);
+  return optimize_b_greedy(cm, mb, plane, blk_row, blk_col, block, tx_size,
+                           ctx);
 #else   // !CONFIG_LV_MAP
   TXB_CTX txb_ctx;
   get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
-  return av1_optimize_txb(cm, mb, plane, blk_row, blk_col, block, tx_size, &txb_ctx);
+  return av1_optimize_txb(cm, mb, plane, blk_row, blk_col, block, tx_size,
+                          &txb_ctx);
 #endif  // !CONFIG_LV_MAP
 }
 
@@ -505,7 +509,8 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   struct macroblockd_plane *const pd = &xd->plane[plane];
 #endif
   PLANE_TYPE plane_type = get_plane_type(plane);
-  TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  TX_TYPE tx_type =
+      get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
 
 #if CONFIG_AOM_QM || CONFIG_NEW_QUANT
   const int is_inter = is_inter_block(mbmi);
@@ -736,7 +741,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #endif
 
 #if !CONFIG_PVQ
-  av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size, a, l);
+  av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size, a,
+                 l);
 
   av1_set_txb_context(x, plane, block, tx_size, a, l);
 
@@ -749,7 +755,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
   if (x->pvq_skip[plane]) return;
 #endif
-  TX_TYPE tx_type = get_tx_type(pd->plane_type, xd, block, tx_size);
+  TX_TYPE tx_type =
+      get_tx_type(pd->plane_type, xd, blk_row, blk_col, block, tx_size);
 #if CONFIG_LGT
   PREDICTION_MODE mode = get_prediction_mode(xd->mi[0], plane, tx_size, block);
   av1_inverse_transform_block(xd, dqcoeff, mode, tx_type, tx_size, dst,
@@ -1342,7 +1349,8 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   PLANE_TYPE plane_type = get_plane_type(plane);
-  const TX_TYPE tx_type = get_tx_type(plane_type, xd, block, tx_size);
+  const TX_TYPE tx_type =
+      get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
   uint16_t *eob = &p->eobs[block];
   const int dst_stride = pd->dst.stride;
   uint8_t *dst =
@@ -1393,7 +1401,8 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   if (args->enable_optimize_b) {
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     ctx, AV1_XFORM_QUANT_FP);
-    av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size, a, l);
+    av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size,
+                   a, l);
   } else {
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     ctx, AV1_XFORM_QUANT_B);
