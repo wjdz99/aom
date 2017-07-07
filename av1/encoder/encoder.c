@@ -2917,13 +2917,15 @@ static int recode_loop_test_global_motion(AV1_COMP *cpi) {
   RD_COUNTS *const rdc = &cpi->td.rd_counts;
   AV1_COMMON *const cm = &cpi->common;
   for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
-    if (cm->global_motion[i].wmtype != IDENTITY &&
-        rdc->global_motion_used[i] * GM_RECODE_LOOP_NUM4X4_FACTOR <
-            cpi->gmparams_cost[i]) {
-      set_default_warp_params(&cm->global_motion[i]);
-      cpi->gmparams_cost[i] = 0;
-      recode = 1;
-      recode |= (rdc->global_motion_used[i] > 0);
+    for (int j = 0; j <= MAX+GLOBAL_MODELS; ++ j) {
+      if (cm->global_motion[i][j].wmtype != IDENTITY &&
+          rdc->global_motion_used[i][j] * GM_RECODE_LOOP_NUM4X4_FACTOR <
+              cpi->gmparams_cost[i][j]) {
+        set_default_warp_params(&cm->global_motion[i][j]);
+        cpi->gmparams_cost[i][j] = 0;
+        recode = 1;
+        recode |= (rdc->global_motion_used[i][j] > 0);
+      }
     }
   }
   return recode;
@@ -3551,7 +3553,9 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
 #if CONFIG_GLOBAL_MOTION
   int i;
   for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
-    set_default_warp_params(&cpi->common.global_motion[i]);
+    for (int j = 0; j < MAX_GLOBAL_MODELS; ++j) {
+      set_default_warp_params(&cpi->common.global_motion[i][j]);
+    }
   }
   cpi->global_motion_search_done = 0;
 #endif  // CONFIG_GLOBAL_MOTION

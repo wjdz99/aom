@@ -417,14 +417,16 @@ static INLINE void av1_make_inter_predictor(
   const int do_warp = allow_warp(
       mi, warp_types,
 #if CONFIG_GLOBAL_MOTION
+  int *motion_model = mi->mbmi.motion_model_used;
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
       // TODO(zoeliu): To further check the single
       // ref comp mode to work together with
       //               global motion.
-      has_second_ref(&mi->mbmi) ? &xd->global_motion[mi->mbmi.ref_frame[ref]]
-                                : &xd->global_motion[mi->mbmi.ref_frame[0]],
+      has_second_ref(&mi->mbmi) ?
+        &xd->global_motion[mi->mbmi.ref_frame[ref]][motion_model[ref]] :
+        &xd->global_motion[mi->mbmi.ref_frame[0]][motion_model[ref]],
 #else   // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
-      &xd->global_motion[mi->mbmi.ref_frame[ref]],
+      &xd->global_motion[mi->mbmi.ref_frame[ref]][motion_model[ref]],
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_MOTION_VAR

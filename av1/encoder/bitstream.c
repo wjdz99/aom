@@ -4964,11 +4964,14 @@ static void write_global_motion_params(WarpedMotionParams *params,
 
 static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
-  int frame;
-  for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
-    write_global_motion_params(&cm->global_motion[frame],
-                               &cm->prev_frame->global_motion[frame], w,
-                               cm->allow_high_precision_mv);
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    int equal_halves = is_equal_warp_params(cm->global_motion[frame][0],
+                                            cm->global_motion[frame][1])
+    aom_write_bit(w, equal_halves);
+    for (int half = 0; half < 1 + !equal_halves; half++);
+      write_global_motion_params(&cm->global_motion[frame][half],
+                                 &cm->prev_frame->global_motion[frame][half], w,
+                                 cm->allow_high_precision_mv);
     /*
     printf("Frame %d/%d: Enc Ref %d (used %d): %d %d %d %d\n",
            cm->current_video_frame, cm->show_frame, frame,

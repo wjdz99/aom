@@ -5548,6 +5548,9 @@ static int check_best_zero_mv(
 #if CONFIG_EXT_INTER
     const int16_t compound_mode_context[TOTAL_REFS_PER_FRAME],
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_GLOBAL_MOTION
+    const int *model_used,
+#endif  // CONFIG_GLOBAL_MOTION
     int_mv frame_mv[MB_MODE_COUNT][TOTAL_REFS_PER_FRAME], int this_mode,
     const MV_REFERENCE_FRAME ref_frames[2], const BLOCK_SIZE bsize, int block,
     int mi_row, int mi_col) {
@@ -5565,7 +5568,8 @@ static int check_best_zero_mv(
       ) {
     for (int cur_frm = 0; cur_frm < 1 + comp_pred_mode; cur_frm++) {
       zeromv[cur_frm].as_int =
-          gm_get_motion_vector(&cpi->common.global_motion[ref_frames[cur_frm]],
+          gm_get_motion_vector(&cpi->common.global_motion[ref_frames[cur_frm]]
+                                                         [model_used[cur_frm]],
                                cpi->common.allow_high_precision_mv, bsize,
                                mi_col, mi_row, block)
               .as_int;
@@ -5674,13 +5678,14 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   const int p_row = ((mi_row * MI_SIZE) >> pd->subsampling_y) + 4 * ir;
 #if CONFIG_GLOBAL_MOTION
   int is_global[2];
+  int *motion_models = xd->mi[0]->mbmi.motion_models_used;
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
 #else
   for (ref = 0; ref < 2; ++ref) {
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
     WarpedMotionParams *const wm =
-        &xd->global_motion[xd->mi[0]->mbmi.ref_frame[ref]];
+        &xd->global_motion[xd->mi[0]->mbmi.ref_frame[ref]][motion_models[ref]];
     is_global[ref] = is_global_mv_block(xd->mi[0], block, wm->wmtype);
   }
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
@@ -6588,7 +6593,8 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
   const int p_col = ((mi_col * MI_SIZE) >> pd->subsampling_x) + 4 * ic;
   const int p_row = ((mi_row * MI_SIZE) >> pd->subsampling_y) + 4 * ir;
 #if CONFIG_GLOBAL_MOTION
-  WarpedMotionParams *const wm = &xd->global_motion[other_ref];
+  int motion_model = mbmi->motion_model_used[other_ref];
+  WarpedMotionParams *const wm = &xd->global_motion[other_ref][motion_model];
   int is_global = is_global_mv_block(xd->mi[0], block, wm->wmtype);
 #endif  // CONFIG_GLOBAL_MOTION
 #else
@@ -10131,6 +10137,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_EXT_INTER
                               mbmi_ext->compound_mode_context,
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_GLOBAL_MOTION
+                              mbmi->motion_model_used,
+#endif  // CONFIG_GLOBAL_MOTION
                               frame_mv, this_mode, ref_frames, bsize, -1,
                               mi_row, mi_col))
         continue;

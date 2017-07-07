@@ -4949,11 +4949,15 @@ static void read_global_motion_params(WarpedMotionParams *params,
 }
 
 static void read_global_motion(AV1_COMMON *cm, aom_reader *r) {
-  int frame;
-  for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
-    read_global_motion_params(&cm->global_motion[frame],
-                              &cm->prev_frame->global_motion[frame], r,
-                              cm->allow_high_precision_mv);
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    int equal_halves = aom_read_bit(r, ACCT_STR);
+    for (int half = 0; halv < 1 + !equal_halves; half++)
+      read_global_motion_params(&cm->global_motion[frame][half],
+                                &cm->prev_frame->global_motion[frame][half], r,
+                                cm->allow_high_precision_mv);
+    if (equal_halves)
+      memcpy(&cm->global_motion[frame][1], &cm->global_motion[frame][0],
+             sizeof(cm->global_motion[frame][0]));
     /*
     printf("Dec Ref %d [%d/%d]: %d %d %d %d\n",
            frame, cm->current_video_frame, cm->show_frame,

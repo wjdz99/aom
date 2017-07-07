@@ -387,6 +387,13 @@ typedef struct MB_MODE_INFO {
 #endif  // CONFIG_INTRABC
 
 // Only for INTER blocks
+#if CONFIG_GLOBAL_MOTION
+  // indicates which motion model is used if multiple motion
+  // models are allowed per reference. This is a list of 2
+  // to handle compound modes
+  int motion_model_used[2];
+#endif  // CONFIG_GLOBAL_MOTION
+
 #if CONFIG_DUAL_FILTER
   InterpFilter interp_filter[4];
 #else
@@ -1341,7 +1348,8 @@ static INLINE MOTION_MODE motion_mode_allowed(
     const MODE_INFO *mi) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
-  const TransformationType gm_type = gm_params[mbmi->ref_frame[0]].wmtype;
+  const TransformationType gm_type =
+    gm_params[mbmi->ref_frame[0]][mbmi->motion_model_used[0].wmtype;
   if (is_global_mv_block(mi, block, gm_type)) return SIMPLE_TRANSLATION;
 #endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
 #if CONFIG_EXT_INTER
@@ -1499,7 +1507,9 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
 
   // Now check if all global motion is non translational
   for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
-    if (xd->global_motion[mbmi->ref_frame[ref]].wmtype <= TRANSLATION) return 0;
+    int model_used = mbmi->motion_model_used[ref];
+    if (xd->global_motion[mbmi->ref_frame[ref]][model_used].wmtype
+        <= TRANSLATION) return 0;
   }
   return 1;
 }
