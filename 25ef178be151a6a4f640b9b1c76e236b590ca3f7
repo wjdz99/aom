@@ -22,6 +22,29 @@
       "revId": "25ef178be151a6a4f640b9b1c76e236b590ca3f7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13e867b7_cca247c7",
+        "filename": "av1/common/idct.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-07-07T17:11:31Z",
+      "side": 1,
+      "message": "This shares several parameters with INV_TXFM_PARAM, is there any reason this does not also take in that struct?",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 42
+      },
+      "revId": "25ef178be151a6a4f640b9b1c76e236b590ca3f7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
