@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca1c581d_e09097ff",
+        "filename": "test/transform_test_base.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-07-07T18:27:37Z",
+      "side": 1,
+      "message": "Delete commented out code",
+      "range": {
+        "startLine": 343,
+        "startChar": 2,
+        "endLine": 343,
+        "endChar": 18
+      },
+      "revId": "93ed585301d526dd3daf9ae7266cc13ef4c3d1a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
