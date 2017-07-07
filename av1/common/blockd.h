@@ -1341,7 +1341,7 @@ static INLINE MOTION_MODE motion_mode_allowed(
     const MODE_INFO *mi) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
-  const TransformationType gm_type = gm_params[mbmi->ref_frame[0]].wmtype;
+  const TransformationType gm_type = gm_params[mbmi->ref_frame[0]][0].wmtype;
   if (is_global_mv_block(mi, block, gm_type)) return SIMPLE_TRANSLATION;
 #endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
 #if CONFIG_EXT_INTER
