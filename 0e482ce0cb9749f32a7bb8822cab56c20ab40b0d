@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0d32161a_6c79205a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 25
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2017-07-07T23:51:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78f53ff7_f904c204",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 7
+      },
+      "revId": "0e482ce0cb9749f32a7bb8822cab56c20ab40b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e738b0c_6c9d1318",
         "filename": "/COMMIT_MSG",
         "patchSetId": 25
@@ -65,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "9d3e7fef_93e618ec",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2017-07-07T23:51:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4269b07f_57dc6b79",
+      "range": {
+        "startLine": 227,
+        "startChar": 0,
+        "endLine": 252,
+        "endChar": 17
+      },
+      "revId": "0e482ce0cb9749f32a7bb8822cab56c20ab40b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "500c7cdd_70359776",
         "filename": "av1/encoder/dct.c",
         "patchSetId": 25
@@ -76,6 +124,30 @@
       "writtenOn": "2017-07-07T18:27:37Z",
       "side": 1,
       "message": "Why is this argument included if it is not used?",
+      "range": {
+        "startLine": 1053,
+        "startChar": 2,
+        "endLine": 1053,
+        "endChar": 14
+      },
+      "revId": "0e482ce0cb9749f32a7bb8822cab56c20ab40b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4483206f_7d0a0650",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 1053,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2017-07-07T23:51:24Z",
+      "side": 1,
+      "message": "This is for a later change. I have removed it for this patch, and will add it back in the next patch.",
+      "parentUuid": "500c7cdd_70359776",
       "range": {
         "startLine": 1053,
         "startChar": 2,
