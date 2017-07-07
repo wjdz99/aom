@@ -5324,6 +5324,11 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     this_rate =
         tokenonly_rd_stats.rate + cpi->intra_uv_mode_cost[mbmi->mode][mode];
 
+#if CONFIG_CFL
+    if (mode == DC_PRED) {
+      this_rate += xd->cfl->costs[mbmi->cfl_alpha_idx];
+    }
+#endif
 #if CONFIG_EXT_INTRA
     if (is_directional_mode && av1_use_angle_delta(mbmi->sb_type)) {
       this_rate += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
