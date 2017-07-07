@@ -4829,11 +4829,7 @@ static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     ENTROPY_CONTEXT *tl = left_ctx + blk_row;
     av1_tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block,
                       plane_bsize, ta, tl, rd_stats);
-
-    for (i = 0; i < tx_size_wide_unit[tx_size]; ++i)
-      ta[i] = !(p->eobs[block] == 0);
-    for (i = 0; i < tx_size_high_unit[tx_size]; ++i)
-      tl[i] = !(p->eobs[block] == 0);
+    av1_set_txb_context(x, plane, block, tx_size, ta, tl);
   } else {
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
     const int bsl = tx_size_wide_unit[sub_txs];
