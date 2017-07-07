@@ -118,8 +118,10 @@ int main(int argc, char **argv) {
     die_codec(&codec, "Failed to use lossless mode");
 
   // Encode frames.
-  while (aom_img_read(&raw, infile)) {
+  int i = 0;
+  while (aom_img_read(&raw, infile) && i < 10) {
     encode_frame(&codec, &raw, frame_count++, 0, writer);
+    ++i;
   }
 
   // Flush encoder.
