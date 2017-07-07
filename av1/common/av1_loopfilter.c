@@ -627,62 +627,17 @@ static void filter_selectively_horiz(
                                     lfi->hev_thr);
         }
       } else if (mask_8x8 & 1) {
-        if ((mask_8x8 & 3) == 3) {
-          // Next block's thresholds.
-          const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + 1);
+        aom_lpf_horizontal_8(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
 
-          aom_lpf_horizontal_8_dual(s, pitch, lfi->mblim, lfi->lim,
-                                    lfi->hev_thr, lfin->mblim, lfin->lim,
-                                    lfin->hev_thr);
-
-          if ((mask_4x4_int & 3) == 3) {
-            aom_lpf_horizontal_4_dual(s + 4 * pitch, pitch, lfi->mblim,
-                                      lfi->lim, lfi->hev_thr, lfin->mblim,
-                                      lfin->lim, lfin->hev_thr);
-          } else {
-            if (mask_4x4_int & 1)
-              aom_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim, lfi->lim,
-                                   lfi->hev_thr);
-            else if (mask_4x4_int & 2)
-              aom_lpf_horizontal_4(s + 8 + 4 * pitch, pitch, lfin->mblim,
-                                   lfin->lim, lfin->hev_thr);
-          }
-          count = 2;
-        } else {
-          aom_lpf_horizontal_8(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
-
-          if (mask_4x4_int & 1)
-            aom_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim, lfi->lim,
-                                 lfi->hev_thr);
-        }
+        if (mask_4x4_int & 1)
+          aom_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim, lfi->lim,
+                               lfi->hev_thr);
       } else if (mask_4x4 & 1) {
-        if ((mask_4x4 & 3) == 3) {
-          // Next block's thresholds.
-          const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + 1);
+        aom_lpf_horizontal_4(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
 
-          aom_lpf_horizontal_4_dual(s, pitch, lfi->mblim, lfi->lim,
-                                    lfi->hev_thr, lfin->mblim, lfin->lim,
-                                    lfin->hev_thr);
-          if ((mask_4x4_int & 3) == 3) {
-            aom_lpf_horizontal_4_dual(s + 4 * pitch, pitch, lfi->mblim,
-                                      lfi->lim, lfi->hev_thr, lfin->mblim,
-                                      lfin->lim, lfin->hev_thr);
-          } else {
-            if (mask_4x4_int & 1)
-              aom_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim, lfi->lim,
-                                   lfi->hev_thr);
-            else if (mask_4x4_int & 2)
-              aom_lpf_horizontal_4(s + 8 + 4 * pitch, pitch, lfin->mblim,
-                                   lfin->lim, lfin->hev_thr);
-          }
-          count = 2;
-        } else {
-          aom_lpf_horizontal_4(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
-
-          if (mask_4x4_int & 1)
-            aom_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim, lfi->lim,
-                                 lfi->hev_thr);
-        }
+        if (mask_4x4_int & 1)
+          aom_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim, lfi->lim,
+                               lfi->hev_thr);
       } else if (mask_4x4_int & 1) {
         aom_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim, lfi->lim,
                              lfi->hev_thr);
@@ -721,67 +676,20 @@ static void highbd_filter_selectively_horiz(
                                            lfi->hev_thr, bd);
         }
       } else if (mask_8x8 & 1) {
-        if ((mask_8x8 & 3) == 3) {
-          // Next block's thresholds.
-          const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + 1);
+        aom_highbd_lpf_horizontal_8(s, pitch, lfi->mblim, lfi->lim,
+                                    lfi->hev_thr, bd);
 
-          aom_highbd_lpf_horizontal_8_dual(s, pitch, lfi->mblim, lfi->lim,
-                                           lfi->hev_thr, lfin->mblim, lfin->lim,
-                                           lfin->hev_thr, bd);
-
-          if ((mask_4x4_int & 3) == 3) {
-            aom_highbd_lpf_horizontal_4_dual(
-                s + 4 * pitch, pitch, lfi->mblim, lfi->lim, lfi->hev_thr,
-                lfin->mblim, lfin->lim, lfin->hev_thr, bd);
-          } else {
-            if (mask_4x4_int & 1) {
-              aom_highbd_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim,
-                                          lfi->lim, lfi->hev_thr, bd);
-            } else if (mask_4x4_int & 2) {
-              aom_highbd_lpf_horizontal_4(s + 8 + 4 * pitch, pitch, lfin->mblim,
-                                          lfin->lim, lfin->hev_thr, bd);
-            }
-          }
-          count = 2;
-        } else {
-          aom_highbd_lpf_horizontal_8(s, pitch, lfi->mblim, lfi->lim,
-                                      lfi->hev_thr, bd);
-
-          if (mask_4x4_int & 1) {
-            aom_highbd_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim,
-                                        lfi->lim, lfi->hev_thr, bd);
-          }
+        if (mask_4x4_int & 1) {
+          aom_highbd_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim,
+                                      lfi->lim, lfi->hev_thr, bd);
         }
       } else if (mask_4x4 & 1) {
-        if ((mask_4x4 & 3) == 3) {
-          // Next block's thresholds.
-          const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + 1);
+        aom_highbd_lpf_horizontal_4(s, pitch, lfi->mblim, lfi->lim,
+                                    lfi->hev_thr, bd);
 
-          aom_highbd_lpf_horizontal_4_dual(s, pitch, lfi->mblim, lfi->lim,
-                                           lfi->hev_thr, lfin->mblim, lfin->lim,
-                                           lfin->hev_thr, bd);
-          if ((mask_4x4_int & 3) == 3) {
-            aom_highbd_lpf_horizontal_4_dual(
-                s + 4 * pitch, pitch, lfi->mblim, lfi->lim, lfi->hev_thr,
-                lfin->mblim, lfin->lim, lfin->hev_thr, bd);
-          } else {
-            if (mask_4x4_int & 1) {
-              aom_highbd_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim,
-                                          lfi->lim, lfi->hev_thr, bd);
-            } else if (mask_4x4_int & 2) {
-              aom_highbd_lpf_horizontal_4(s + 8 + 4 * pitch, pitch, lfin->mblim,
-                                          lfin->lim, lfin->hev_thr, bd);
-            }
-          }
-          count = 2;
-        } else {
-          aom_highbd_lpf_horizontal_4(s, pitch, lfi->mblim, lfi->lim,
-                                      lfi->hev_thr, bd);
-
-          if (mask_4x4_int & 1) {
-            aom_highbd_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim,
-                                        lfi->lim, lfi->hev_thr, bd);
-          }
+        if (mask_4x4_int & 1) {
+          aom_highbd_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim,
+                                      lfi->lim, lfi->hev_thr, bd);
         }
       } else if (mask_4x4_int & 1) {
         aom_highbd_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim, lfi->lim,
