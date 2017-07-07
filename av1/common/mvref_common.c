@@ -842,16 +842,19 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #if CONFIG_GLOBAL_MOTION
   if (!CONFIG_INTRABC || ref_frame != INTRA_FRAME) {
     av1_set_ref_frame(rf, ref_frame);
-    zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[rf[0]],
-                                            cm->allow_high_precision_mv, bsize,
-                                            mi_col, mi_row, 0)
+    int *motion_model = mi->mbmi.motion_model_used;
+    zeromv[0].as_int =
+      gm_get_motion_vector(&cm->global_motion[rf[0]][motion_model[0]],
+                           cm->allow_high_precision_mv, bsize,
+                           mi_col, mi_row, 0)
                            .as_int;
-    zeromv[1].as_int = (rf[1] != NONE_FRAME)
-                           ? gm_get_motion_vector(&cm->global_motion[rf[1]],
-                                                  cm->allow_high_precision_mv,
-                                                  bsize, mi_col, mi_row, 0)
-                                 .as_int
-                           : 0;
+    zeromv[1].as_int =
+      (rf[1] != NONE_FRAME)
+        ? gm_get_motion_vector(&cm->global_motion[rf[1]][motion_model[1]],
+                               cm->allow_high_precision_mv,
+                               bsize, mi_col, mi_row, 0)
+              .as_int
+        : 0;
   } else {
     zeromv[0].as_int = zeromv[1].as_int = 0;
   }
@@ -929,10 +932,12 @@ void av1_append_sub8x8_mvs_for_idx(const AV1_COMMON *cm, MACROBLOCKD *xd,
   assert(MAX_MV_REF_CANDIDATES == 2);
 
 #if CONFIG_GLOBAL_MOTION
-  zeromv.as_int = gm_get_motion_vector(&cm->global_motion[rf[0]],
-                                       cm->allow_high_precision_mv,
-                                       mi->mbmi.sb_type, mi_col, mi_row, block)
-                      .as_int;
+  int *motion_model = mi->mbmi.motion_model_used;
+  zeromv.as_int =
+    gm_get_motion_vector(&cm->global_motion[rf[0]][motion_model[0]],
+                         cm->allow_high_precision_mv,
+                         mi->mbmi.sb_type, mi_col, mi_row, block)
+      .as_int;
 #else
   zeromv.as_int = 0;
 #endif

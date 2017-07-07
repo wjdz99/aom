@@ -123,6 +123,12 @@ static INLINE void set_default_warp_params(WarpedMotionParams *wm) {
   memcpy(wm->wmmat, default_wm_mat, sizeof(wm->wmmat));
   wm->wmtype = IDENTITY;
 }
+
+static INLINE int is_equal_warp_params(WarpedMotionParams *wm1,
+                                       WarpedMotionParams *wm2) {
+  return (wm1->alpha == wm2->alpha && wm1->beta == wm2->beta &&
+          wm1->gamma == wm2->gamma && wm1->delta == wm2->delta);
+}
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
 #if CONFIG_GLOBAL_MOTION
@@ -154,6 +160,7 @@ static INLINE void set_default_warp_params(WarpedMotionParams *wm) {
 //
 // XX_MIN, XX_MAX are also computed to avoid repeated computation
 
+#define MAX_GLOBAL_MODELS 2
 #define SUBEXPFIN_K 3
 #define GM_TRANS_PREC_BITS 6
 #define GM_ABS_TRANS_BITS 12

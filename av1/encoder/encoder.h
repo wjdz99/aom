@@ -326,8 +326,8 @@ typedef struct RD_COUNTS {
   av1_coeff_count coef_counts[TX_SIZES][PLANE_TYPES];
   int64_t comp_pred_diff[REFERENCE_MODES];
 #if CONFIG_GLOBAL_MOTION
-  // Stores number of 4x4 blocks using global motion per reference frame.
-  int global_motion_used[TOTAL_REFS_PER_FRAME];
+  // Stores number of 4x4 blocks using global motion per model
+  int global_motion_used[TOTAL_REFS_PER_FRAME][MAX_GLOBAL_MODELS];
 #endif  // CONFIG_GLOBAL_MOTION
   int single_ref_used_flag;
   int compound_ref_used_flag;

@@ -916,7 +916,8 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #if CONFIG_GLOBAL_MOTION
   int is_global[2] = { 0, 0 };
   for (ref = 0; ref < 1 + is_compound; ++ref) {
-    WarpedMotionParams *const wm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
+    WarpedMotionParams *const wm =
+      &xd->global_motion[mi->mbmi.ref_frame[ref]][mi->mbmi.motion_model_used[ref]];
     is_global[ref] = is_global_mv_block(mi, block, wm->wmtype);
   }
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
@@ -1295,7 +1296,9 @@ void av1_build_inter_predictor_sub8x8(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_GLOBAL_MOTION
   int is_global[2];
   for (ref = 0; ref < 1 + is_compound; ++ref) {
-    WarpedMotionParams *const wm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
+    WarpedMotionParams *const wm =
+      &xd->global_motion[mi->mbmi.ref_frame[ref]]
+                        [mi->mbmi.motion_model_used[ref]];
     is_global[ref] = is_global_mv_block(mi, i, wm->wmtype);
   }
 #endif  // CONFIG_GLOBAL_MOTION
@@ -2981,12 +2984,15 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
   WarpTypesAllowed warp_types;
 #if CONFIG_GLOBAL_MOTION
+  int *motion_model = mi->mbmi.motion_model_used;
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   WarpedMotionParams *const wm =
-      mi->mbmi.ref_frame[ref] > 0 ? &xd->global_motion[mi->mbmi.ref_frame[ref]]
-                                  : &xd->global_motion[mi->mbmi.ref_frame[0]];
+      mi->mbmi.ref_frame[ref] > 0 ?
+      &xd->global_motion[mi->mbmi.ref_frame[ref]][motion_model[ref] :
+      &xd->global_motion[mi->mbmi.ref_frame[0]][motion_model[0]];
 #else   // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
-  WarpedMotionParams *const wm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
+  WarpedMotionParams *const wm =
+    &xd->global_motion[mi->mbmi.ref_frame[ref]][motion_model[ref]];
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   warp_types.global_warp_allowed = is_global_mv_block(mi, block, wm->wmtype);
 #endif  // CONFIG_GLOBAL_MOTION
