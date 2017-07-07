@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "218a01b1_ea3ae978",
+        "filename": "test/encode_test_driver.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-07-07T10:04:45Z",
+      "side": 1,
+      "message": "With this change, CONFIG_LOWBITDEPTH\u003d0 will force the decoder to use the HBD coding path.\n\nHowever, the encoder would still use the LBD coding path ; because the coding path decision hinges on the input frame buffer format, and here, the input is 8-bit YUV (to force the encoder to use the HBD coding path you need to convert the input buffers, as aomenc does).\n\nLBD/HBD paths currently give different results, so this unit test would raise encode/decode mismatches when \"./configure --disable-lowbitdepth\".",
+      "revId": "6ffbcb809321cb9074a442a79f67a85c66bf4511",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
