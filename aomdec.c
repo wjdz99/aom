@@ -730,7 +730,7 @@ static int main_loop(int argc, const char **argv_) {
 
   if (!quiet) fprintf(stderr, "%s\n", decoder.name);
 
-#if CONFIG_AV1_DECODER && CONFIG_EXT_TILE
+#if CONFIG_AV1_DECODER
   if (aom_codec_control(&decoder, AV1_SET_DECODE_TILE_ROW, tile_row)) {
     fprintf(stderr, "Failed to set decode_tile_row: %s\n",
             aom_codec_error(&decoder));
@@ -919,7 +919,7 @@ static int main_loop(int argc, const char **argv_) {
       }
 #endif
 
-#if CONFIG_EXT_TILE
+#if CONFIG_EXT_TILE  // why this is needed???
       aom_input_ctx.width = img->d_w;
       aom_input_ctx.height = img->d_h;
 #endif  // CONFIG_EXT_TILE
