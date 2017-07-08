@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d092252c_c0d58535",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 5448,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-08T00:52:30Z",
+      "side": 1,
+      "message": "I don\u0027t think you\u0027re guaranteed that cm-\u003eframe_refs[0].idx is \u003e\u003d 0. Specifically, in read_uncompressed_header(), on an intra_only frame that is not a keyframe, if pbi-\u003eneeds_resync is non-zero, we\u0027ll clear ref_frame_map to -1\u0027s, and set pbi-\u003eneeds_resync to zero. At the end of the frame, we\u0027ll only store the current frame index in the ref_frame_map[] entries marked by refresh_frame_flags. For an intra_only frame that is not a keyframe, those are read from the bitstream (also in read_uncompressed_header()). Then, if the next frame is an inter frame, we\u0027ll read a reference frame number ref from the bitstream, and set cm-\u003eframe_refs[0].idx to ref_frame_map[ref]. I don\u0027t see anything that prevents that from being -1.\n\nThat said, I\u0027m not sure what the correct behavior is here, or if the pbi-\u003eneeds_resync handling is even normative. We could just error out, but it\u0027s possible that the right thing to do is not to pretend that an intra_only frame that is not a keyframe marks an acceptable resync point.",
+      "revId": "9ccf5fda09fc079240ddb9601ed126ba06246c5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1412a170_666277f5",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-08T00:52:30Z",
+      "side": 1,
+      "message": "In general I think these are easier to read if the code order is #if CONFIG_\u003cFOO\u003e ... #else ... #endif, than #if !CONFIG_\u003cFOO\u003e.",
+      "revId": "9ccf5fda09fc079240ddb9601ed126ba06246c5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cdc35026_6b3dcf4b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 4744,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-08T00:52:30Z",
+      "side": 1,
+      "message": "This should be conditional on the experiment.",
+      "revId": "9ccf5fda09fc079240ddb9601ed126ba06246c5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48f1625b_4752f532",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 5487,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-08T00:52:30Z",
+      "side": 1,
+      "message": "You\u0027re not clearing all of the frame contexts when frame_is_intra_only(cm) and the frame is not a keyframe. So I don\u0027t think you can unconditionally use frame_contexts[0] here.",
+      "revId": "9ccf5fda09fc079240ddb9601ed126ba06246c5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed35c0a8_15dab903",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 5488,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-08T00:52:30Z",
+      "side": 1,
+      "message": "I\u0027m not sure of the exact purpose of pre_fc, but guessing from the name here, it looks like it is meant to point to the state of the frame context before whatever updates are made in the current frame. That\u0027s what the original code did and the code in the other branch does, but in this branch you\u0027re pointing to the same context you\u0027re using for the current frame.\n\nIf that\u0027s safe, it probably at least deserves a comment why.",
+      "revId": "9ccf5fda09fc079240ddb9601ed126ba06246c5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "243841a1_51e20850",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-08T00:52:30Z",
+      "side": 1,
+      "message": "See previous comments.",
+      "revId": "9ccf5fda09fc079240ddb9601ed126ba06246c5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "afd09ed7_12c6cc1d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3994,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-08T00:52:30Z",
+      "side": 1,
+      "message": "This should be conditional on the experiment.",
+      "revId": "9ccf5fda09fc079240ddb9601ed126ba06246c5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
