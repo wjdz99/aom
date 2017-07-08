@@ -46,8 +46,7 @@ void av1_tile_init(TileInfo *tile, const AV1_COMMON *cm, int row, int col) {
 #endif
 }
 
-#if !CONFIG_EXT_TILE
-
+// Used in non-large_scale_tile_coding.
 #if CONFIG_EXT_PARTITION
 #define MIN_TILE_WIDTH_MAX_SB 2
 #define MAX_TILE_WIDTH_MAX_SB 32
@@ -68,6 +67,7 @@ static int get_max_log2_tile_cols(int max_sb_cols) {
   return max_log2 - 1;
 }
 
+// Used in non-large_scale_tile_coding.
 void av1_get_tile_n_bits(int mi_cols, int *min_log2_tile_cols,
                          int *max_log2_tile_cols) {
   const int max_sb_cols =
@@ -76,7 +76,6 @@ void av1_get_tile_n_bits(int mi_cols, int *min_log2_tile_cols,
   *max_log2_tile_cols = get_max_log2_tile_cols(max_sb_cols);
   assert(*min_log2_tile_cols <= *max_log2_tile_cols);
 }
-#endif  // !CONFIG_EXT_TILE
 
 void av1_update_boundary_info(const struct AV1Common *cm,
                               const TileInfo *const tile_info, int mi_row,
