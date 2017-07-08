@@ -563,11 +563,6 @@ post_process_cmdline() {
       log_echo "disabling reference_buffer"
       disable_feature reference_buffer
     fi
-    if enabled ext_tile; then
-      log_echo "ext_tile not compatible with tile_groups, so"
-      log_echo "disabling tile_groups"
-      disable_feature tile_groups
-    fi
     # Enable accounting and inspection when building the analyzer
     if enabled analyzer; then
       soft_enable accounting
