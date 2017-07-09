@@ -250,8 +250,21 @@ void av1_convolve_2d(const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst,
       for (k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_vert[(y - fo_vert + k) * im_stride + x];
       }
-      dst[y * dst_stride + x] +=
-          ROUND_POWER_OF_TWO_SIGNED(sum, conv_params->round_1);
+
+      if (conv_params->bck_offset == -1) {
+        dst[y * dst_stride + x] +=
+            ROUND_POWER_OF_TWO_SIGNED(sum, conv_params->round_1);
+      } else {
+        dst[y * dst_stride + x] +=
+            (conv_params->ref == 0) ?
+            ROUND_POWER_OF_TWO_SIGNED(sum, conv_params->round_1) * 2 * conv_params->fwd_offset :
+            ROUND_POWER_OF_TWO_SIGNED(sum, conv_params->round_1) * 2 * conv_params->bck_offset;
+
+        if (conv_params->ref == 1)
+          dst[y * dst_stride + x] = (int32_t)(0.5 + dst[y * dst_stride + x] /
+                                              (double)(conv_params->fwd_offset +
+                                                       conv_params->bck_offset));
+      }
     }
   }
 }

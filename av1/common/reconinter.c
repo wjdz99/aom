@@ -1012,6 +1012,8 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
           int xs, ys, subpel_x, subpel_y;
           const int is_scaled = av1_is_scaled(sf);
           ConvolveParams conv_params = get_conv_params(ref, plane);
+          conv_params.bck_offset = -1;
+          conv_params.fwd_offset = -1;
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
           WarpTypesAllowed warp_types;
 #if CONFIG_GLOBAL_MOTION
@@ -1152,6 +1154,29 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #if CONFIG_CONVOLVE_ROUND
     ConvolveParams conv_params =
         get_conv_params_no_round(ref, plane, tmp_dst, MAX_SB_SIZE);
+
+    if (is_compound) {
+      int bck_idx = cm->frame_refs[mi->mbmi.ref_frame[0] - LAST_FRAME].idx;
+      int fwd_idx = cm->frame_refs[mi->mbmi.ref_frame[1] - LAST_FRAME].idx;
+      int bck_frame_index = 0, fwd_frame_index = 0;
+      int cur_frame_index = cm->cur_frame->cur_frame_offset;
+
+      if (bck_idx >= 0)
+        bck_frame_index = cm->buffer_pool->frame_bufs[bck_idx].cur_frame_offset;
+
+      if (fwd_idx >= 0)
+        fwd_frame_index = cm->buffer_pool->frame_bufs[fwd_idx].cur_frame_offset;
+
+      conv_params.bck_offset =
+          abs(cur_frame_index - bck_frame_index);
+      conv_params.fwd_offset =
+          abs(fwd_frame_index - cur_frame_index);
+    } else {
+      conv_params.bck_offset = -1;
+      conv_params.fwd_offset = -1;
+    }
+
+
 #else
     ConvolveParams conv_params = get_conv_params(ref, plane);
 #endif  // CONFIG_CONVOLVE_ROUND
