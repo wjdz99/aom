@@ -84,7 +84,16 @@ const aom_tree_index av1_intra_mode_tree[TREE_SIZE(INTRA_MODES)] = {
   -D153_PRED, -D207_PRED  /* 8 = D153_NODE */
 };
 #endif  // CONFIG_ALT_INTRA
-#endif
+
+#if CONFIG_DUAL_FILTER && USE_EXTRA_FILTER
+const aom_tree_index av1_switchable_interp_tree[TREE_SIZE(SWITCHABLE_FILTERS)] =
+    { -EIGHTTAP_REGULAR, 2, 4, -MULTITAP_SHARP, -EIGHTTAP_SMOOTH,
+      -EIGHTTAP_SMOOTH2 };
+#else
+const aom_tree_index av1_switchable_interp_tree[TREE_SIZE(SWITCHABLE_FILTERS)] =
+    { -EIGHTTAP_REGULAR, 2, -EIGHTTAP_SMOOTH, -MULTITAP_SHARP };
+#endif  // CONFIG_DUAL_FILTER
+#endif  // CONFIG_EC_ADAPT
 
 #define SPACES_PER_TAB 2
 

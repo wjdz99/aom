@@ -549,8 +549,10 @@ extern const aom_tree_index av1_partition_tree[TREE_SIZE(PARTITION_TYPES)];
 extern const aom_tree_index
     av1_ext_partition_tree[TREE_SIZE(EXT_PARTITION_TYPES)];
 #endif
+#if !CONFIG_EC_ADAPT
 extern const aom_tree_index
     av1_switchable_interp_tree[TREE_SIZE(SWITCHABLE_FILTERS)];
+#endif
 #if CONFIG_PALETTE
 extern const aom_tree_index av1_palette_size_tree[TREE_SIZE(PALETTE_SIZES)];
 extern const aom_tree_index
@@ -582,8 +584,13 @@ extern const aom_tree_index av1_ncobmc_mode_tree[TREE_SIZE(MAX_NCOBMC_MODES)];
 extern const aom_tree_index
     av1_switchable_restore_tree[TREE_SIZE(RESTORE_SWITCHABLE_TYPES)];
 #endif  // CONFIG_LOOP_RESTORATION
+#if !CONFIG_EC_ADAPT
 extern int av1_switchable_interp_ind[SWITCHABLE_FILTERS];
 extern int av1_switchable_interp_inv[SWITCHABLE_FILTERS];
+#else
+extern const int av1_switchable_interp_ind[SWITCHABLE_FILTERS];
+extern const int av1_switchable_interp_inv[SWITCHABLE_FILTERS];
+#endif
 
 #if !CONFIG_EC_ADAPT
 void av1_set_mode_cdfs(struct AV1Common *cm);
