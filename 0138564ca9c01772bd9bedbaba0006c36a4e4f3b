@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90659030_6016b303",
+        "filename": "aom_dsp/x86/highbd_subpel_variance_impl_sse2.asm",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-10T22:30:13Z",
+      "side": 1,
+      "message": "you\u0027d want raxd with x86inc or movq if all 64-bits are really wanted. I\u0027d have to check the c return",
+      "revId": "0138564ca9c01772bd9bedbaba0006c36a4e4f3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
