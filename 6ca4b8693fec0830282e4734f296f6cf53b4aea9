@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "995b8414_113e9763",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1469,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-10T22:28:39Z",
+      "side": 1,
+      "message": "remove this comma and do clang-format, then the code will look better",
+      "range": {
+        "startLine": 1469,
+        "startChar": 60,
+        "endLine": 1469,
+        "endChar": 61
+      },
+      "revId": "6ca4b8693fec0830282e4734f296f6cf53b4aea9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "232f6b23_aaa5b515",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1491,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-10T22:28:39Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 1491,
+        "startChar": 14,
+        "endLine": 1491,
+        "endChar": 15
+      },
+      "revId": "6ca4b8693fec0830282e4734f296f6cf53b4aea9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c60d292_f42d2d67",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1512,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-10T22:28:39Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 1512,
+        "startChar": 7,
+        "endLine": 1512,
+        "endChar": 8
+      },
+      "revId": "6ca4b8693fec0830282e4734f296f6cf53b4aea9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5e940b5_ab70b1f7",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1584,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-10T22:28:39Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 1584,
+        "startChar": 22,
+        "endLine": 1584,
+        "endChar": 23
+      },
+      "revId": "6ca4b8693fec0830282e4734f296f6cf53b4aea9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
