@@ -71,6 +71,29 @@
     },
     {
       "key": {
+        "uuid": "074a4a91_e491fcf3",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1556,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-10T22:34:18Z",
+      "side": 1,
+      "message": "maybe add cdfs for the case that EXT_COMP_REFS is on?",
+      "range": {
+        "startLine": 1530,
+        "startChar": 0,
+        "endLine": 1556,
+        "endChar": 6
+      },
+      "revId": "6ca4b8693fec0830282e4734f296f6cf53b4aea9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a5e940b5_ab70b1f7",
         "filename": "av1/common/entropymode.c",
         "patchSetId": 15
@@ -82,6 +105,30 @@
       "writtenOn": "2017-07-10T22:28:39Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 1584,
+        "startChar": 22,
+        "endLine": 1584,
+        "endChar": 23
+      },
+      "revId": "6ca4b8693fec0830282e4734f296f6cf53b4aea9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0a9d56d_5cf3a623",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1584,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-10T22:34:18Z",
+      "side": 1,
+      "message": "and cdfs",
+      "parentUuid": "a5e940b5_ab70b1f7",
       "range": {
         "startLine": 1584,
         "startChar": 22,
