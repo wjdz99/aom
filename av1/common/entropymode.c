@@ -2141,6 +2141,7 @@ static const aom_cdf_prob default_skip_cdfs[SKIP_CONTEXTS][CDF_SIZE(2)] = {
 };
 #endif
 
+#if !CONFIG_EC_ADAPT
 #if CONFIG_DUAL_FILTER
 #if USE_EXTRA_FILTER
 static const aom_prob default_switchable_interp_prob
@@ -2171,6 +2172,7 @@ static const aom_prob default_switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS]
                                                       { 149, 144 },
                                                     };
 #endif  // CONFIG_DUAL_FILTER
+#endif  // !CONFIG_EC_ADAPT
 
 #if CONFIG_EXT_TX
 /* clang-format off */
@@ -5034,9 +5036,11 @@ void av1_set_mode_cdfs(struct AV1Common *cm) {
                       cm->fc->kf_y_cdf[i][j]);
 #endif
 
+#if !CONFIG_EC_ADAPT
   for (j = 0; j < SWITCHABLE_FILTER_CONTEXTS; ++j)
     av1_tree_to_cdf(av1_switchable_interp_tree, fc->switchable_interp_prob[j],
                     fc->switchable_interp_cdf[j]);
+#endif
 
 #if !CONFIG_EC_ADAPT
   for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)

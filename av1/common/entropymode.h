@@ -102,8 +102,10 @@ typedef struct frame_contexts {
   coeff_cdf_model coef_tail_cdfs[TX_SIZES][PLANE_TYPES];
   coeff_cdf_model coef_head_cdfs[TX_SIZES][PLANE_TYPES];
   aom_prob blockzero_probs[TX_SIZES][PLANE_TYPES][REF_TYPES][BLOCKZ_CONTEXTS];
+#if !CONFIG_EC_ADAPT
   aom_prob switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS]
                                  [SWITCHABLE_FILTERS - 1];
+#endif
 #if CONFIG_ADAPT_SCAN
 // TODO(angiebird): try aom_prob
 #if CONFIG_CHROMA_2X2
