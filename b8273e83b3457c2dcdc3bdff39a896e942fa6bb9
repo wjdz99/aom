@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "181fbb13_04807cb3",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1481,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-10T17:26:55Z",
+      "side": 1,
+      "message": "You don\u0027t need to special case the first iteration.\n\nMake a variable\n  aom_cdf_prob prev_cdf \u003d 0;\n\nThen in each iteration of the loop\n  prob \u003d AOM_ICDF(ec_ctx-\u003ecfl_alpha_cdf[c]) - prev_cdf;\n  prev_cdf \u003d AOM_ICDF(ec_ctx-\u003ecfl_alpha_cdf[c]);\n\nSee, e.g., build_tail_cdfs() in av1/common/entropy.c for an example of this idiom.\n\ncfl_alpha_codes[0] is {0, 0}, so the literal cost will be 0 for c \u003d\u003d 0, so that part doesn\u0027t need any special casing, either.",
+      "revId": "b8273e83b3457c2dcdc3bdff39a896e942fa6bb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
