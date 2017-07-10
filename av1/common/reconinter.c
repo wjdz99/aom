@@ -1171,6 +1171,41 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
           abs(cur_frame_index - bck_frame_index);
       conv_params.fwd_offset =
           abs(fwd_frame_index - cur_frame_index);
+
+      int fwd = abs(fwd_frame_index - cur_frame_index);
+      int bck = abs(cur_frame_index - bck_frame_index);
+
+      if (fwd > bck) {
+        double ratio = (bck != 0) ? fwd / bck : 5.0;
+        if (ratio < 1.5) {
+          conv_params.fwd_offset = 1;
+          conv_params.bck_offset = 1;
+        } else if (ratio < 2.5) {
+          conv_params.fwd_offset = 2;
+          conv_params.bck_offset = 1;
+        } else if (ratio < 3.5) {
+          conv_params.fwd_offset = 3;
+          conv_params.bck_offset = 1;
+        } else {
+          conv_params.fwd_offset = 4;
+          conv_params.bck_offset = 1;
+        }
+      } else {
+        double ratio = (fwd != 0) ? bck / fwd : 5.0;
+        if (ratio < 1.5) {
+          conv_params.fwd_offset = 1;
+          conv_params.bck_offset = 1;
+        } else if (ratio < 2.5) {
+          conv_params.fwd_offset = 1;
+          conv_params.bck_offset = 2;
+        } else if (ratio < 3.5) {
+          conv_params.fwd_offset = 1;
+          conv_params.bck_offset = 3;
+        } else {
+          conv_params.fwd_offset = 1;
+          conv_params.bck_offset = 4;
+        }
+      }
     } else {
       conv_params.bck_offset = -1;
       conv_params.fwd_offset = -1;

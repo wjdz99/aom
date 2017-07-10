@@ -5677,11 +5677,75 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 //        abs(fwd_frame_index - cur_frame_index);
 
     if (id == 0) {
-      second_pred[4096] = abs(fwd_frame_index - cur_frame_index);
-      second_pred[4097] = abs(cur_frame_index - bck_frame_index);
+      int fwd = abs(fwd_frame_index - cur_frame_index);
+      int bck = abs(cur_frame_index - bck_frame_index);
+
+      if (fwd > bck) {
+        double ratio = (bck != 0) ? fwd / bck : 5.0;
+        if (ratio < 1.5) {
+          second_pred[4096] = 1;
+          second_pred[4097] = 1;
+        } else if (ratio < 2.5) {
+          second_pred[4096] = 2;
+          second_pred[4097] = 1;
+        } else if (ratio < 3.5) {
+          second_pred[4096] = 3;
+          second_pred[4097] = 1;
+        } else {
+          second_pred[4096] = 4;
+          second_pred[4097] = 1;
+        }
+      } else {
+        double ratio = (fwd != 0) ? bck / fwd : 5.0;
+        if (ratio < 1.5) {
+          second_pred[4096] = 1;
+          second_pred[4097] = 1;
+        } else if (ratio < 2.5) {
+          second_pred[4096] = 1;
+          second_pred[4097] = 2;
+        } else if (ratio < 3.5) {
+          second_pred[4096] = 1;
+          second_pred[4097] = 3;
+        } else {
+          second_pred[4096] = 1;
+          second_pred[4097] = 4;
+        }
+      }
     } else {
-      second_pred[4096] = abs(cur_frame_index - bck_frame_index);
-      second_pred[4097] = abs(fwd_frame_index - cur_frame_index);
+      int fwd = abs(fwd_frame_index - cur_frame_index);
+      int bck = abs(cur_frame_index - bck_frame_index);
+
+      if (fwd > bck) {
+        double ratio = (bck != 0) ? fwd / bck : 5.0;
+        if (ratio < 1.5) {
+          second_pred[4097] = 1;
+          second_pred[4096] = 1;
+        } else if (ratio < 2.5) {
+          second_pred[4097] = 2;
+          second_pred[4096] = 1;
+        } else if (ratio < 3.5) {
+          second_pred[4097] = 3;
+          second_pred[4096] = 1;
+        } else {
+          second_pred[4097] = 4;
+          second_pred[4096] = 1;
+        }
+      } else {
+        double ratio = (fwd != 0) ? bck / fwd : 5.0;
+        if (ratio < 1.5) {
+          second_pred[4097] = 1;
+          second_pred[4096] = 1;
+        } else if (ratio < 2.5) {
+          second_pred[4097] = 1;
+          second_pred[4096] = 2;
+        } else if (ratio < 3.5) {
+          second_pred[4097] = 1;
+          second_pred[4096] = 3;
+        } else {
+          second_pred[4097] = 1;
+          second_pred[4096] = 4;
+        }
+      }
     }
 
     // Do compound motion search on the current reference frame.
