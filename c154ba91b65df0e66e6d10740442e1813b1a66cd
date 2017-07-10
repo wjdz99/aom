@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd16ff7d_423a4a80",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-07-10T22:09:22Z",
+      "side": 1,
+      "message": "I see that we need to pass the coefficients through un-scaled when the identity transform is used and DAALA_DCT4 is enabled.  However, this patch explicitly forces DCT_ONLY on when DAALA_DCT4 is enabled.  I just wanted to confirm that this code is not actually called with this patch.",
+      "revId": "c154ba91b65df0e66e6d10740442e1813b1a66cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8399e3b2_e0710ec1",
+        "filename": "configure",
+        "patchSetId": 23
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-07-10T22:09:22Z",
+      "side": 1,
+      "message": "You should also update the cmake build system to enforce this rule when building with cmake as this build system will one day be \"deprecated\".  See this patch for an example of how to do this:\n\nhttps://aomedia-review.googlesource.com/#/c/14440/",
+      "revId": "c154ba91b65df0e66e6d10740442e1813b1a66cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
