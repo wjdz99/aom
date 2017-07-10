@@ -257,11 +257,18 @@ MSE(8, 8)
 void aom_comp_avg_pred_c(uint8_t *comp_pred, const uint8_t *pred, int width,
                          int height, const uint8_t *ref, int ref_stride) {
   int i, j;
+  int bck_offset = pred[4096];
+  int fwd_offset = pred[4097];
+  double sum = bck_offset + fwd_offset;
 
   for (i = 0; i < height; ++i) {
     for (j = 0; j < width; ++j) {
-      const int tmp = pred[j] + ref[j];
-      comp_pred[j] = ROUND_POWER_OF_TWO(tmp, 1);
+//      const int tmp = pred[j] + ref[j];
+//      comp_pred[j] = ROUND_POWER_OF_TWO(tmp, 1);
+      int tmp = pred[j] * fwd_offset + ref[j] * bck_offset;
+      tmp = (int)(0.5 + tmp / sum);
+      if (tmp > 255) tmp = 255;
+      comp_pred[j] = (uint8_t)tmp;
     }
     comp_pred += width;
     pred += width;
@@ -289,11 +296,19 @@ void aom_comp_avg_upsampled_pred_c(uint8_t *comp_pred, const uint8_t *pred,
                                    int ref_stride) {
   int i, j;
   int stride = ref_stride << 3;
+  int bck_offset = pred[4096];
+  int fwd_offset = pred[4097];
+  double sum = bck_offset + fwd_offset;
 
   for (i = 0; i < height; i++) {
     for (j = 0; j < width; j++) {
-      const int tmp = ref[(j << 3)] + pred[j];
-      comp_pred[j] = ROUND_POWER_OF_TWO(tmp, 1);
+//      const int tmp = ref[(j << 3)] + pred[j];
+//      comp_pred[j] = ROUND_POWER_OF_TWO(tmp, 1);
+
+      int tmp = pred[j] * fwd_offset + ref[(j << 3)] * bck_offset;
+      tmp = (int)(0.5 + tmp / sum);
+      if (tmp > 255) tmp = 255;
+      comp_pred[j] = (uint8_t)tmp;
     }
     comp_pred += width;
     pred += width;

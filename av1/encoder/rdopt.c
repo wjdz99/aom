@@ -5558,7 +5558,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
 // Prediction buffer from second frame.
 #if CONFIG_HIGHBITDEPTH
-  DECLARE_ALIGNED(16, uint16_t, second_pred_alloc_16[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint16_t, second_pred_alloc_16[MAX_SB_SQUARE + 2]);
   uint8_t *second_pred;
 #else
   DECLARE_ALIGNED(16, uint8_t, second_pred[MAX_SB_SQUARE]);
@@ -5659,6 +5659,30 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 #if CONFIG_HIGHBITDEPTH
     }
 #endif  // CONFIG_HIGHBITDEPTH
+
+    int bck_idx = cm->frame_refs[mbmi->ref_frame[0] - LAST_FRAME].idx;
+    int fwd_idx = cm->frame_refs[mbmi->ref_frame[1] - LAST_FRAME].idx;
+    int bck_frame_index = 0, fwd_frame_index = 0;
+    int cur_frame_index = cm->cur_frame->cur_frame_offset;
+
+    if (bck_idx >= 0)
+      bck_frame_index = cm->buffer_pool->frame_bufs[bck_idx].cur_frame_offset;
+
+    if (fwd_idx >= 0)
+      fwd_frame_index = cm->buffer_pool->frame_bufs[fwd_idx].cur_frame_offset;
+
+//    conv_params.bck_offset =
+//        abs(cur_frame_index - bck_frame_index);
+//    conv_params.fwd_offset =
+//        abs(fwd_frame_index - cur_frame_index);
+
+    if (id == 0) {
+      second_pred[4096] = abs(fwd_frame_index - cur_frame_index);
+      second_pred[4097] = abs(cur_frame_index - bck_frame_index);
+    } else {
+      second_pred[4096] = abs(cur_frame_index - bck_frame_index);
+      second_pred[4097] = abs(fwd_frame_index - cur_frame_index);
+    }
 
     // Do compound motion search on the current reference frame.
     if (id) xd->plane[plane].pre[0] = ref_yv12[id];

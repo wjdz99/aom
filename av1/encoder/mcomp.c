@@ -742,7 +742,7 @@ static int upsampled_pref_error(const MACROBLOCKD *xd,
                                      mask_stride, invert_mask);
       else
 #endif
-        aom_comp_avg_upsampled_pred(pred, second_pred, w, h, y, y_stride);
+        aom_comp_avg_upsampled_pred_c(pred, second_pred, w, h, y, y_stride);
     } else {
       aom_upsampled_pred(pred, w, h, y, y_stride);
     }
