@@ -1048,23 +1048,23 @@ static void flgt8(const tran_low_t *input, tran_low_t *output,
 }
 
 // The get_fwd_lgt functions return 1 if LGT is chosen to apply, and 0 otherwise
-int get_fwd_lgt4(transform_1d tx_orig, FWD_TXFM_PARAM *fwd_txfm_param,
+int get_fwd_lgt4(transform_1d tx_orig, TXFM_PARAM *txfm_param,
                  const tran_high_t *lgtmtx[], int ntx) {
   // inter/intra split
   if (tx_orig == &fadst4) {
     for (int i = 0; i < ntx; ++i)
-      lgtmtx[i] = fwd_txfm_param->is_inter ? &lgt4_170[0][0] : &lgt4_140[0][0];
+      lgtmtx[i] = txfm_param->is_inter ? &lgt4_170[0][0] : &lgt4_140[0][0];
     return 1;
   }
   return 0;
 }
 
-int get_fwd_lgt8(transform_1d tx_orig, FWD_TXFM_PARAM *fwd_txfm_param,
+int get_fwd_lgt8(transform_1d tx_orig, TXFM_PARAM *txfm_param,
                  const tran_high_t *lgtmtx[], int ntx) {
   // inter/intra split
   if (tx_orig == &fadst8) {
     for (int i = 0; i < ntx; ++i)
-      lgtmtx[i] = fwd_txfm_param->is_inter ? &lgt8_170[0][0] : &lgt8_150[0][0];
+      lgtmtx[i] = txfm_param->is_inter ? &lgt8_170[0][0] : &lgt8_150[0][0];
     return 1;
   }
   return 0;
@@ -1194,8 +1194,8 @@ static void maybe_flip_input(const int16_t **src, int *src_stride, int l, int w,
 #endif  // CONFIG_EXT_TX
 
 void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
-                  FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                  TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1237,8 +1237,8 @@ void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
     // different rows/columns, indicated by the pointers to 2D arrays
     const tran_high_t *lgtmtx_col[4];
     const tran_high_t *lgtmtx_row[4];
-    int use_lgt_col = get_fwd_lgt4(ht.cols, fwd_txfm_param, lgtmtx_col, 4);
-    int use_lgt_row = get_fwd_lgt4(ht.rows, fwd_txfm_param, lgtmtx_row, 4);
+    int use_lgt_col = get_fwd_lgt4(ht.cols, txfm_param, lgtmtx_col, 4);
+    int use_lgt_row = get_fwd_lgt4(ht.rows, txfm_param, lgtmtx_row, 4);
 #endif
 
     // Columns
@@ -1269,8 +1269,8 @@ void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
 }
 
 void av1_fht4x8_c(const int16_t *input, tran_low_t *output, int stride,
-                  FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                  TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1308,8 +1308,8 @@ void av1_fht4x8_c(const int16_t *input, tran_low_t *output, int stride,
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[4];
   const tran_high_t *lgtmtx_row[8];
-  int use_lgt_col = get_fwd_lgt8(ht.cols, fwd_txfm_param, lgtmtx_col, 4);
-  int use_lgt_row = get_fwd_lgt4(ht.rows, fwd_txfm_param, lgtmtx_row, 8);
+  int use_lgt_col = get_fwd_lgt8(ht.cols, txfm_param, lgtmtx_col, 4);
+  int use_lgt_row = get_fwd_lgt4(ht.rows, txfm_param, lgtmtx_row, 8);
 #endif
 
   // Rows
@@ -1342,8 +1342,8 @@ void av1_fht4x8_c(const int16_t *input, tran_low_t *output, int stride,
 }
 
 void av1_fht8x4_c(const int16_t *input, tran_low_t *output, int stride,
-                  FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                  TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1381,8 +1381,8 @@ void av1_fht8x4_c(const int16_t *input, tran_low_t *output, int stride,
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[8];
   const tran_high_t *lgtmtx_row[4];
-  int use_lgt_col = get_fwd_lgt4(ht.cols, fwd_txfm_param, lgtmtx_col, 8);
-  int use_lgt_row = get_fwd_lgt8(ht.rows, fwd_txfm_param, lgtmtx_row, 4);
+  int use_lgt_col = get_fwd_lgt4(ht.cols, txfm_param, lgtmtx_col, 8);
+  int use_lgt_row = get_fwd_lgt8(ht.rows, txfm_param, lgtmtx_row, 4);
 #endif
 
   // Columns
@@ -1415,8 +1415,8 @@ void av1_fht8x4_c(const int16_t *input, tran_low_t *output, int stride,
 }
 
 void av1_fht4x16_c(const int16_t *input, tran_low_t *output, int stride,
-                   FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                   TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1453,7 +1453,7 @@ void av1_fht4x16_c(const int16_t *input, tran_low_t *output, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_row[16];
-  int use_lgt_row = get_fwd_lgt4(ht.rows, fwd_txfm_param, lgtmtx_row, 16);
+  int use_lgt_row = get_fwd_lgt4(ht.rows, txfm_param, lgtmtx_row, 16);
 #endif
 
   // Rows
@@ -1479,8 +1479,8 @@ void av1_fht4x16_c(const int16_t *input, tran_low_t *output, int stride,
 }
 
 void av1_fht16x4_c(const int16_t *input, tran_low_t *output, int stride,
-                   FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                   TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1517,7 +1517,7 @@ void av1_fht16x4_c(const int16_t *input, tran_low_t *output, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[16];
-  int use_lgt_col = get_fwd_lgt4(ht.cols, fwd_txfm_param, lgtmtx_col, 16);
+  int use_lgt_col = get_fwd_lgt4(ht.cols, txfm_param, lgtmtx_col, 16);
 #endif
 
   // Columns
@@ -1543,8 +1543,8 @@ void av1_fht16x4_c(const int16_t *input, tran_low_t *output, int stride,
 }
 
 void av1_fht8x16_c(const int16_t *input, tran_low_t *output, int stride,
-                   FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                   TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1581,7 +1581,7 @@ void av1_fht8x16_c(const int16_t *input, tran_low_t *output, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_row[16];
-  int use_lgt_row = get_fwd_lgt8(ht.rows, fwd_txfm_param, lgtmtx_row, 16);
+  int use_lgt_row = get_fwd_lgt8(ht.rows, txfm_param, lgtmtx_row, 16);
 #endif
 
   // Rows
@@ -1609,8 +1609,8 @@ void av1_fht8x16_c(const int16_t *input, tran_low_t *output, int stride,
 }
 
 void av1_fht16x8_c(const int16_t *input, tran_low_t *output, int stride,
-                   FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                   TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1647,7 +1647,7 @@ void av1_fht16x8_c(const int16_t *input, tran_low_t *output, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[16];
-  int use_lgt_col = get_fwd_lgt8(ht.cols, fwd_txfm_param, lgtmtx_col, 16);
+  int use_lgt_col = get_fwd_lgt8(ht.cols, txfm_param, lgtmtx_col, 16);
 #endif
 
   // Columns
@@ -1675,8 +1675,8 @@ void av1_fht16x8_c(const int16_t *input, tran_low_t *output, int stride,
 }
 
 void av1_fht8x32_c(const int16_t *input, tran_low_t *output, int stride,
-                   FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                   TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1713,7 +1713,7 @@ void av1_fht8x32_c(const int16_t *input, tran_low_t *output, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_row[32];
-  int use_lgt_row = get_fwd_lgt8(ht.rows, fwd_txfm_param, lgtmtx_row, 32);
+  int use_lgt_row = get_fwd_lgt8(ht.rows, txfm_param, lgtmtx_row, 32);
 #endif
 
   // Rows
@@ -1739,8 +1739,8 @@ void av1_fht8x32_c(const int16_t *input, tran_low_t *output, int stride,
 }
 
 void av1_fht32x8_c(const int16_t *input, tran_low_t *output, int stride,
-                   FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                   TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1777,7 +1777,7 @@ void av1_fht32x8_c(const int16_t *input, tran_low_t *output, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[32];
-  int use_lgt_col = get_fwd_lgt8(ht.cols, fwd_txfm_param, lgtmtx_col, 32);
+  int use_lgt_col = get_fwd_lgt8(ht.cols, txfm_param, lgtmtx_col, 32);
 #endif
 
   // Columns
@@ -1803,8 +1803,8 @@ void av1_fht32x8_c(const int16_t *input, tran_low_t *output, int stride,
 }
 
 void av1_fht16x32_c(const int16_t *input, tran_low_t *output, int stride,
-                    FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                    TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1859,8 +1859,8 @@ void av1_fht16x32_c(const int16_t *input, tran_low_t *output, int stride,
 }
 
 void av1_fht32x16_c(const int16_t *input, tran_low_t *output, int stride,
-                    FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                    TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -2040,8 +2040,8 @@ void av1_fdct8x8_quant_c(const int16_t *input, int stride,
 }
 
 void av1_fht8x8_c(const int16_t *input, tran_low_t *output, int stride,
-                  FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                  TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -2081,8 +2081,8 @@ void av1_fht8x8_c(const int16_t *input, tran_low_t *output, int stride,
 #if CONFIG_LGT
     const tran_high_t *lgtmtx_col[8];
     const tran_high_t *lgtmtx_row[8];
-    int use_lgt_col = get_fwd_lgt8(ht.cols, fwd_txfm_param, lgtmtx_col, 8);
-    int use_lgt_row = get_fwd_lgt8(ht.rows, fwd_txfm_param, lgtmtx_row, 8);
+    int use_lgt_col = get_fwd_lgt8(ht.cols, txfm_param, lgtmtx_col, 8);
+    int use_lgt_row = get_fwd_lgt8(ht.rows, txfm_param, lgtmtx_row, 8);
 #endif
 
     // Columns
@@ -2169,8 +2169,8 @@ void av1_fwht4x4_c(const int16_t *input, tran_low_t *output, int stride) {
 }
 
 void av1_fht16x16_c(const int16_t *input, tran_low_t *output, int stride,
-                    FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                    TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -2226,8 +2226,8 @@ void av1_highbd_fwht4x4_c(const int16_t *input, tran_low_t *output,
 }
 
 void av1_fht32x32_c(const int16_t *input, tran_low_t *output, int stride,
-                    FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                    TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -2318,8 +2318,8 @@ static void fdct64_row(const tran_low_t *input, tran_low_t *output) {
 }
 
 void av1_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
-                    FWD_TXFM_PARAM *fwd_txfm_param) {
-  int tx_type = fwd_txfm_param->tx_type;
+                    TXFM_PARAM *txfm_param) {
+  int tx_type = txfm_param->tx_type;
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
