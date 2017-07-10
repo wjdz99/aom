@@ -416,7 +416,7 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
     int xdec = pd->subsampling_x;
     int seg_id = mbmi->segment_id;
     int16_t *quant;
-    FWD_TXFM_PARAM fwd_txfm_param;
+    TXFM_PARAM txfm_param;
     // ToDo(yaowu): correct this with optimal number from decoding process.
     const int max_scan_line = tx_size_2d[tx_size];
 #if CONFIG_HIGHBITDEPTH
@@ -434,22 +434,22 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
     }
 #endif
 
-    fwd_txfm_param.tx_type = tx_type;
-    fwd_txfm_param.tx_size = tx_size;
-    fwd_txfm_param.lossless = xd->lossless[seg_id];
+    txfm_param.tx_type = tx_type;
+    txfm_param.tx_size = tx_size;
+    txfm_param.lossless = xd->lossless[seg_id];
 #if CONFIG_LGT
-    fwd_txfm_param.is_inter = is_inter_block(mbmi);
-    fwd_txfm_param.dst = dst;
-    fwd_txfm_param.mode = get_prediction_mode(xd->mi[0], plane, tx_size, block);
+    txfm_param.is_inter = is_inter_block(mbmi);
+    txfm_param.dst = dst;
+    txfm_param.mode = get_prediction_mode(xd->mi[0], plane, tx_size, block);
 #endif
 
 #if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-      fwd_txfm_param.bd = xd->bd;
-      av1_highbd_fwd_txfm(pred, pvq_ref_coeff, diff_stride, &fwd_txfm_param);
+      txfm_param.bd = xd->bd;
+      av1_highbd_fwd_txfm(pred, pvq_ref_coeff, diff_stride, &txfm_param);
     } else {
 #endif  // CONFIG_HIGHBITDEPTH
-      av1_fwd_txfm(pred, pvq_ref_coeff, diff_stride, &fwd_txfm_param);
+      av1_fwd_txfm(pred, pvq_ref_coeff, diff_stride, &txfm_param);
 #if CONFIG_HIGHBITDEPTH
     }
 #endif  // CONFIG_HIGHBITDEPTH
@@ -461,7 +461,7 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
     inverse_transform_block(xd, plane,
 #if CONFIG_LGT
-                            fwd_txfm_param.mode,
+                            txfm_param.mode,
 #endif
                             tx_type, tx_size, dst, pd->dst.stride,
                             max_scan_line, eob);
