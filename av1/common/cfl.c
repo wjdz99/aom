@@ -201,6 +201,9 @@ static void cfl_compute_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
 
   cfl_load(cfl, 0, 0, width, height);
 
+  // Are the reconstructed luma pixels flat
+  int is_flat = 1;
+  const int first_val = *y_pix;
   int a = 0;
   for (int b_j = 0; b_j < height; b_j += tx_height) {
     for (int b_i = 0; b_i < width; b_i += tx_width) {
@@ -209,6 +212,7 @@ static void cfl_compute_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
       for (int t_j = 0; t_j < tx_height; t_j++) {
         for (int t_i = b_i; t_i < b_i + tx_width; t_i++) {
           sum += t_y_pix[t_i];
+          is_flat = is_flat && (t_y_pix[t_i] == first_val);
         }
         t_y_pix += MAX_SB_SIZE;
       }
@@ -221,6 +225,16 @@ static void cfl_compute_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
     }
     assert(a % stride == 0);
     y_pix += block_row_stride;
+  }
+
+  if (is_flat) {
+    // When the block is flat, CfL turns into DC_PRED. To avoid this, the
+    // average is changed such that, subtracting the reconstructed luma pixel
+    // value from it will allow the smallest code to offset the chroma DC_PRED
+    // by +/- 1.
+    for (int i = 0; i < MAX_NUM_TXB; i++) {
+      averages_q3[i] = AOMMAX(0, first_val - SMALLEST_ALPHA_EQUALS_ONE);
+    }
   }
 
   cfl->y_averages_stride = stride;
