@@ -5233,12 +5233,14 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
                          counts->y_mode[i], fc->y_mode_prob[i]);
 #endif
 
+#if !CONFIG_EC_ADAPT
   if (cm->interp_filter == SWITCHABLE) {
     for (i = 0; i < SWITCHABLE_FILTER_CONTEXTS; i++)
       aom_tree_merge_probs(
           av1_switchable_interp_tree, pre_fc->switchable_interp_prob[i],
           counts->switchable_interp[i], fc->switchable_interp_prob[i]);
   }
+#endif  // !CONFIG_EC_ADAPT
 }
 
 void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {

@@ -93,8 +93,14 @@ static void fill_mode_costs(AV1_COMP *cpi) {
 #endif
 
   for (i = 0; i < SWITCHABLE_FILTER_CONTEXTS; ++i)
+#if CONFIG_EC_ADAPT
+    av1_cost_tokens_from_cdf(cpi->switchable_interp_costs[i],
+                             fc->switchable_interp_cdf[i],
+                             av1_switchable_interp_inv);
+#else
     av1_cost_tokens(cpi->switchable_interp_costs[i],
                     fc->switchable_interp_prob[i], av1_switchable_interp_tree);
+#endif
 
 #if CONFIG_PALETTE
   for (i = 0; i < PALETTE_BLOCK_SIZES; ++i) {
