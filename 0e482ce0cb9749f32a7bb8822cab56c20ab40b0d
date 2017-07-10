@@ -66,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "f7fd0a49_53708acc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 25
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2017-07-10T17:46:06Z",
+      "side": 1,
+      "message": "Added to the commit message.",
+      "parentUuid": "0e738b0c_6c9d1318",
+      "revId": "0e482ce0cb9749f32a7bb8822cab56c20ab40b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4269b07f_57dc6b79",
         "filename": "av1/common/idct.c",
         "patchSetId": 25
@@ -160,6 +178,30 @@
     },
     {
       "key": {
+        "uuid": "7b7612ca_18613fcb",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 1053,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2017-07-10T17:46:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4483206f_7d0a0650",
+      "range": {
+        "startLine": 1053,
+        "startChar": 2,
+        "endLine": 1053,
+        "endChar": 14
+      },
+      "revId": "0e482ce0cb9749f32a7bb8822cab56c20ab40b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe4e4265_297b8abb",
         "filename": "av1/encoder/dct.c",
         "patchSetId": 25
@@ -171,6 +213,30 @@
       "writtenOn": "2017-07-07T18:27:37Z",
       "side": 1,
       "message": "maybe cleaner if you do: \n\nif (tx_orig \u003d\u003d \u0026fadst4) {\n  for (int i \u003d 0; i \u003c ntx; ++i)\n    lgtmtx[i] \u003d ...\n  return 1;\n}\n  return 0;",
+      "range": {
+        "startLine": 1055,
+        "startChar": 0,
+        "endLine": 1061,
+        "endChar": 3
+      },
+      "revId": "0e482ce0cb9749f32a7bb8822cab56c20ab40b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c7e1fed_b8f0456a",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2017-07-10T17:46:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe4e4265_297b8abb",
       "range": {
         "startLine": 1055,
         "startChar": 0,
@@ -206,6 +272,30 @@
     },
     {
       "key": {
+        "uuid": "ab3aaa89_82c17027",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 1068,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2017-07-10T17:46:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1300a700_51e33564",
+      "range": {
+        "startLine": 1068,
+        "startChar": 2,
+        "endLine": 1068,
+        "endChar": 14
+      },
+      "revId": "0e482ce0cb9749f32a7bb8822cab56c20ab40b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8e24eee_b8b11c01",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 25
@@ -217,6 +307,30 @@
       "writtenOn": "2017-07-07T18:27:37Z",
       "side": 1,
       "message": "I\u0027ve seen this repeated at least 4 times, maybe it can be refactored into an INLINE function somewhere?",
+      "range": {
+        "startLine": 4273,
+        "startChar": 0,
+        "endLine": 4282,
+        "endChar": 3
+      },
+      "revId": "0e482ce0cb9749f32a7bb8822cab56c20ab40b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b87227d7_6a113140",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 4282,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2017-07-10T17:46:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8e24eee_b8b11c01",
       "range": {
         "startLine": 4273,
         "startChar": 0,
