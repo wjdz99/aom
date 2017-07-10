@@ -63,7 +63,13 @@ typedef struct {
   int costs[CFL_ALPHABET_SIZE];
 
   int mi_row, mi_col;
+
 } CFL_CTX;
+
+// Scaling factor so that smallest alpha equals 1.
+// This is used for flat blocks, so that smallest code will have a +/- 1 effect
+// on chroma DC_PRED.
+#define SMALLEST_ALPHA_EQUALS_ONE (1 << 3)
 
 static const int cfl_alpha_mags_q3[CFL_MAGS_SIZE] = { 0, 1, -1, 2, -2, 4, -4 };
 
