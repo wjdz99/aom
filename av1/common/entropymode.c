@@ -4837,8 +4837,8 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if !CONFIG_EC_ADAPT
   av1_copy(fc->uv_mode_prob, default_uv_probs);
   av1_copy(fc->y_mode_prob, default_if_y_probs);
-#endif
   av1_copy(fc->switchable_interp_prob, default_switchable_interp_prob);
+#endif
   av1_copy(fc->partition_prob, default_partition_probs);
   av1_copy(fc->intra_inter_prob, default_intra_inter_p);
   av1_copy(fc->comp_inter_prob, default_comp_inter_p);
@@ -4976,8 +4976,10 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
 }
 
+#if !CONFIG_EC_ADAPT
 int av1_switchable_interp_ind[SWITCHABLE_FILTERS];
 int av1_switchable_interp_inv[SWITCHABLE_FILTERS];
+#endif
 
 #if !CONFIG_EC_ADAPT
 void av1_set_mode_cdfs(struct AV1Common *cm) {
@@ -5079,6 +5081,15 @@ void av1_set_mode_cdfs(struct AV1Common *cm) {
 }
 #endif  // !CONFIG_EC_ADAPT
 
+#if CONFIG_EC_ADAPT
+#if CONFIG_DUAL_FILTER && USE_EXTRA_FILTER
+const int av1_switchable_interp_ind[SWITCHABLE_FILTERS] = { 0, 1, 3, 2 };
+const int av1_switchable_interp_inv[SWITCHABLE_FILTERS] = { 0, 1, 3, 2 };
+#else
+const int av1_switchable_interp_ind[SWITCHABLE_FILTERS] = { 0, 1, 2 };
+const int av1_switchable_interp_inv[SWITCHABLE_FILTERS] = { 0, 1, 2 };
+#endif  // CONFIG_DUAL_FILTER && USE_EXTRA_FILTER
+#else   // CONFIG_EC_ADAPT
 #if CONFIG_DUAL_FILTER && USE_EXTRA_FILTER
 const aom_tree_index av1_switchable_interp_tree[TREE_SIZE(SWITCHABLE_FILTERS)] =
     {
@@ -5089,6 +5100,7 @@ const aom_tree_index av1_switchable_interp_tree[TREE_SIZE(SWITCHABLE_FILTERS)] =
 const aom_tree_index av1_switchable_interp_tree[TREE_SIZE(SWITCHABLE_FILTERS)] =
     { -EIGHTTAP_REGULAR, 2, -EIGHTTAP_SMOOTH, -MULTITAP_SHARP };
 #endif  // CONFIG_DUAL_FILTER
+#endif  // CONFIG_EC_ADAPT
 
 void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
   int i, j;

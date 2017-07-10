@@ -182,11 +182,13 @@ void av1_encode_token_init(void) {
                        av1_switchable_restore_tree);
 #endif  // CONFIG_LOOP_RESTORATION
 
+#if !CONFIG_EC_ADAPT
   /* This hack is necessary when CONFIG_DUAL_FILTER is enabled because the five
       SWITCHABLE_FILTERS are not consecutive, e.g., 0, 1, 2, 3, 4, when doing
       an in-order traversal of the av1_switchable_interp_tree structure. */
   av1_indices_from_tree(av1_switchable_interp_ind, av1_switchable_interp_inv,
                         av1_switchable_interp_tree);
+#endif  // !CONFIG_EC_ADAPT
 /* This hack is necessary because the four TX_TYPES are not consecutive,
     e.g., 0, 1, 2, 3, when doing an in-order traversal of the av1_ext_tx_tree
     structure. */
