@@ -138,6 +138,75 @@
       "revId": "6ca4b8693fec0830282e4734f296f6cf53b4aea9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64e21688_30c531a8",
+        "filename": "av1/common/pred_common.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-11T18:06:54Z",
+      "side": 1,
+      "message": "never used?",
+      "range": {
+        "startLine": 429,
+        "startChar": 0,
+        "endLine": 429,
+        "endChar": 5
+      },
+      "revId": "6ca4b8693fec0830282e4734f296f6cf53b4aea9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "843a79c5_3a33789c",
+        "filename": "av1/common/pred_common.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-11T18:06:54Z",
+      "side": 1,
+      "message": "will it never be used?",
+      "range": {
+        "startLine": 495,
+        "startChar": 0,
+        "endLine": 495,
+        "endChar": 5
+      },
+      "revId": "6ca4b8693fec0830282e4734f296f6cf53b4aea9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95344819_5cd435c2",
+        "filename": "av1/common/pred_common.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-11T18:06:54Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 565,
+        "startChar": 0,
+        "endLine": 565,
+        "endChar": 5
+      },
+      "revId": "6ca4b8693fec0830282e4734f296f6cf53b4aea9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
