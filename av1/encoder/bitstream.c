@@ -1066,8 +1066,12 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
   int max_blocks_wide;
   int max_blocks_high;
   int step = (1 << tx_size);
+#if CONFIG_CB4X4
+  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+#else
   const BLOCK_SIZE plane_bsize =
       get_plane_block_size(AOMMAX(bsize, BLOCK_8X8), pd);
+#endif
 
   adapt = x->daala_enc.state.adapt;
 
@@ -4441,7 +4445,9 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
       aom_start_encode(&mode_bc, dst + total_size);
       write_modes(cpi, &tile_info, &mode_bc, &tok, tok_end);
 #if !CONFIG_LV_MAP
+#if !CONFIG_PVQ
       assert(tok == tok_end);
+#endif  // !CONFIG_PVQ
 #endif  // !CONFIG_LV_MAP
       aom_stop_encode(&mode_bc);
       tile_size = mode_bc.pos;
