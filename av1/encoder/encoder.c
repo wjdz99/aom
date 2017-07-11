@@ -5403,7 +5403,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 // Produce the filtered ARF frame.
 #if CONFIG_BGSPRITE
         int bgsprite_ret = av1_background_sprite(cpi, arf_src_index);
-        if (bgsprite_ret != EXIT_SUCCESS) {
+        if (bgsprite_ret != 0) {
           av1_temporal_filter(cpi, arf_src_index);
         }
 #else
