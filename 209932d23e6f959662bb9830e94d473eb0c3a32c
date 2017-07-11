@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7c658420_7f548612",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1180,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-07-11T18:47:48Z",
+      "side": 1,
+      "message": "I added to the rectangular transforms, but even that is inactive at the moment as we force square for now.  I think the change is ~ transparent outside dct.c and idct.c (and the analagous highbd equivalents)",
+      "parentUuid": "14d4826b_535f63f1",
+      "revId": "209932d23e6f959662bb9830e94d473eb0c3a32c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce6e5086_34598067",
         "filename": "configure",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-07-10T21:49:57Z",
       "side": 1,
       "message": "Can you update the cmake build system to also have this experiment by adding the following line to build/cmake/aom_config_defaults.cmake\n\nset(CONFIG_DCT_ONLY 0 CACHE NUMBER \"Internal flag.\")",
+      "revId": "209932d23e6f959662bb9830e94d473eb0c3a32c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ec79c63_826d1cac",
+        "filename": "configure",
+        "patchSetId": 8
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-07-11T18:47:48Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "ce6e5086_34598067",
       "revId": "209932d23e6f959662bb9830e94d473eb0c3a32c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
