@@ -349,6 +349,7 @@ typedef struct MB_MODE_INFO {
 #endif
   int8_t skip;
   int8_t segment_id;
+  int8_t compound_idx;
 #if CONFIG_SUPERTX
   // Minimum of all segment IDs under the current supertx block.
   int8_t segment_id_supertx;

@@ -1773,6 +1773,11 @@ static const aom_prob default_skip_probs[SKIP_CONTEXTS] = {
     192, 128, 64,
 };
 
+static const aom_prob default_compound_idx_probs[COMP_INDEX_CONTEXTS] = {
+    192, 128, 64,
+    192, 128, 64,
+};
+
 #if CONFIG_DUAL_FILTER
 static const aom_prob default_switchable_interp_prob
     [SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS - 1] = {
@@ -4475,6 +4480,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->txfm_partition_prob, default_txfm_partition_probs);
 #endif
   av1_copy(fc->skip_probs, default_skip_probs);
+
+  av1_copy(fc->compound_index_probs, default_compound_idx_probs);
+
   av1_copy(fc->newmv_prob, default_newmv_prob);
   av1_copy(fc->zeromv_prob, default_zeromv_prob);
   av1_copy(fc->refmv_prob, default_refmv_prob);
@@ -4816,6 +4824,17 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
   for (i = 0; i < SKIP_CONTEXTS; ++i)
     fc->skip_probs[i] =
         av1_mode_mv_merge_probs(pre_fc->skip_probs[i], counts->skip[i]);
+
+//  fprintf(stderr, "\n");
+  for (i = 0; i < COMP_INDEX_CONTEXTS; ++i) {
+    fc->compound_index_probs[i] =
+        av1_mode_mv_merge_probs(pre_fc->compound_index_probs[i],
+                                counts->compound_index[i]);
+
+//    fprintf(stderr, "prob %d, count (%d, %d)\n",
+//            fc->compound_index_probs[i],
+//            counts->compound_index[i][0], counts->compound_index[i][1]);
+  }
 
 #if CONFIG_EXT_TX
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {

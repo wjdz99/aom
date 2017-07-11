@@ -5528,7 +5528,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     mbmi->interp_filter[3],
   };
 #else
-  const InterpFilter interp_filter = mbmi->interp_filter;
+  const InterpFilter interp_filter = EIGHTTAP_REGULAR; // mbmi->interp_filter;
 #endif  // CONFIG_DUAL_FILTER
   struct scale_factors sf;
   struct macroblockd_plane *const pd = &xd->plane[0];
@@ -5685,30 +5685,62 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
         if (ratio < 1.5) {
           second_pred[4096] = 1;
           second_pred[4097] = 1;
+          if (mbmi->compound_idx) {
+            second_pred[4096] = 3;
+            second_pred[4097] = 2;
+          }
         } else if (ratio < 2.5) {
           second_pred[4096] = 2;
           second_pred[4097] = 1;
+          if (mbmi->compound_idx) {
+            second_pred[4096] = 1;
+            second_pred[4097] = 1;
+          }
         } else if (ratio < 3.5) {
           second_pred[4096] = 3;
           second_pred[4097] = 1;
+          if (mbmi->compound_idx) {
+            second_pred[4096] = 2;
+            second_pred[4097] = 1;
+          }
         } else {
           second_pred[4096] = 4;
           second_pred[4097] = 1;
+          if (mbmi->compound_idx) {
+            second_pred[4096] = 3;
+            second_pred[4097] = 1;
+          }
         }
       } else {
         double ratio = (fwd != 0) ? bck / fwd : 5.0;
         if (ratio < 1.5) {
           second_pred[4096] = 1;
           second_pred[4097] = 1;
+          if (mbmi->compound_idx) {
+            second_pred[4096] = 2;
+            second_pred[4097] = 3;
+          }
         } else if (ratio < 2.5) {
           second_pred[4096] = 1;
           second_pred[4097] = 2;
+          if (mbmi->compound_idx) {
+            second_pred[4096] = 1;
+            second_pred[4097] = 1;
+          }
         } else if (ratio < 3.5) {
           second_pred[4096] = 1;
           second_pred[4097] = 3;
+          if (mbmi->compound_idx) {
+            second_pred[4096] = 1;
+            second_pred[4097] = 2;
+          }
         } else {
           second_pred[4096] = 1;
           second_pred[4097] = 4;
+          if (mbmi->compound_idx) {
+            second_pred[4096] = 1;
+            second_pred[4097] = 3;
+          }
         }
       }
     } else {
@@ -5720,30 +5752,62 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
         if (ratio < 1.5) {
           second_pred[4097] = 1;
           second_pred[4096] = 1;
+          if (mbmi->compound_idx) {
+            second_pred[4097] = 3;
+            second_pred[4096] = 2;
+          }
         } else if (ratio < 2.5) {
           second_pred[4097] = 2;
           second_pred[4096] = 1;
+          if (mbmi->compound_idx) {
+            second_pred[4097] = 1;
+            second_pred[4096] = 1;
+          }
         } else if (ratio < 3.5) {
           second_pred[4097] = 3;
           second_pred[4096] = 1;
+          if (mbmi->compound_idx) {
+            second_pred[4097] = 2;
+            second_pred[4096] = 1;
+          }
         } else {
           second_pred[4097] = 4;
           second_pred[4096] = 1;
+          if (mbmi->compound_idx) {
+            second_pred[4097] = 3;
+            second_pred[4096] = 1;
+          }
         }
       } else {
         double ratio = (fwd != 0) ? bck / fwd : 5.0;
         if (ratio < 1.5) {
           second_pred[4097] = 1;
           second_pred[4096] = 1;
+          if (mbmi->compound_idx) {
+            second_pred[4097] = 2;
+            second_pred[4096] = 3;
+          }
         } else if (ratio < 2.5) {
           second_pred[4097] = 1;
           second_pred[4096] = 2;
+          if (mbmi->compound_idx) {
+            second_pred[4097] = 1;
+            second_pred[4096] = 1;
+          }
         } else if (ratio < 3.5) {
           second_pred[4097] = 1;
           second_pred[4096] = 3;
+          if (mbmi->compound_idx) {
+            second_pred[4097] = 1;
+            second_pred[4096] = 2;
+          }
         } else {
           second_pred[4097] = 1;
           second_pred[4096] = 4;
+          if (mbmi->compound_idx) {
+            second_pred[4097] = 1;
+            second_pred[4096] = 3;
+          }
         }
       }
     }
@@ -8844,6 +8908,12 @@ static int64_t handle_inter_mode(
     mbmi->mv[i].as_int = cur_mv[i].as_int;
   }
 
+  if (is_comp_pred) {
+    const int comp_index_ctx = get_comp_index_context(cm, xd);
+    rd_stats->rate += av1_cost_bit(cm->fc->compound_index_probs[comp_index_ctx],
+                                   mbmi->compound_idx);
+  }
+
 #if CONFIG_EXT_INTER
   if (this_mode == NEAREST_NEARESTMV)
 #else
@@ -10747,10 +10817,28 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_EXT_INTER
       }
 #endif  // CONFIG_EXT_INTER
-      {
+      int cum_rate = rate2;
+      MB_MODE_INFO backup_mbmi = *mbmi;
+
+      int_mv backup_frame_mv[MB_MODE_COUNT][TOTAL_REFS_PER_FRAME];
+      int_mv backup_single_newmv[TOTAL_REFS_PER_FRAME];
+
+      memcpy(backup_frame_mv, frame_mv, sizeof(frame_mv));
+      memcpy(backup_single_newmv, single_newmv, sizeof(single_newmv));
+
+      InterpFilter backup_inter_filter = mbmi->interp_filter;
+
+      for (int comp_idx = 0; comp_idx < 1 + has_second_ref(mbmi); ++comp_idx) {
         RD_STATS rd_stats, rd_stats_y, rd_stats_uv;
         av1_init_rd_stats(&rd_stats);
-        rd_stats.rate = rate2;
+        rd_stats.rate = cum_rate;
+
+        memcpy(frame_mv, backup_frame_mv, sizeof(frame_mv));
+        memcpy(single_newmv, backup_single_newmv, sizeof(single_newmv));
+
+        mbmi->interp_filter = backup_inter_filter;
+
+        int dummy_disable_skip = 0;
 
         // Point to variables that are maintained between loop iterations
         args.single_newmv = single_newmv;
@@ -10758,17 +10846,43 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         args.single_newmv_rate = single_newmv_rate;
         args.modelled_rd = modelled_rd;
 #endif  // CONFIG_EXT_INTER
-        this_rd = handle_inter_mode(cpi, x, bsize, &rd_stats, &rd_stats_y,
-                                    &rd_stats_uv, &disable_skip, frame_mv,
-                                    mi_row, mi_col, &args, best_rd);
+        mbmi->compound_idx = comp_idx;
 
-        rate2 = rd_stats.rate;
-        skippable = rd_stats.skip;
-        distortion2 = rd_stats.dist;
-        total_sse = rd_stats.sse;
-        rate_y = rd_stats_y.rate;
-        rate_uv = rd_stats_uv.rate;
+        int64_t tmp_rd =
+            handle_inter_mode(cpi, x, bsize, &rd_stats, &rd_stats_y,
+                              &rd_stats_uv, &dummy_disable_skip, frame_mv,
+                              mi_row, mi_col, &args, best_rd);
+
+        if (tmp_rd < INT64_MAX) {
+          if (RDCOST(x->rdmult, x->rddiv, rd_stats.rate, rd_stats.dist) <
+              RDCOST(x->rdmult, x->rddiv, 0, rd_stats.sse))
+            tmp_rd =
+                RDCOST(x->rdmult, x->rddiv,
+                       rd_stats.rate +
+                       av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0),
+                       distortion2);
+          else
+            tmp_rd =
+                RDCOST(x->rdmult, x->rddiv,
+                       rd_stats.rate +
+                       av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1) -
+                       rd_stats_y.rate - rd_stats_uv.rate,
+                       rd_stats.sse);
+        }
+
+        if (tmp_rd < this_rd) {
+          this_rd = tmp_rd;
+          rate2 = rd_stats.rate;
+          skippable = rd_stats.skip;
+          distortion2 = rd_stats.dist;
+          total_sse = rd_stats.sse;
+          rate_y = rd_stats_y.rate;
+          rate_uv = rd_stats_uv.rate;
+          disable_skip = dummy_disable_skip;
+          backup_mbmi = *mbmi;
+        }
       }
+      *mbmi = backup_mbmi;
 
 // TODO(jingning): This needs some refactoring to improve code quality
 // and reduce redundant steps.
@@ -10783,7 +10897,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           (mbmi->mode == NEWMV && mbmi_ext->ref_mv_count[ref_frame_type] > 1)) {
 #endif
         int_mv backup_mv = frame_mv[NEARMV][ref_frame];
-        MB_MODE_INFO backup_mbmi = *mbmi;
+        backup_mbmi = *mbmi;
         int backup_skip = x->skip;
         int64_t tmp_ref_rd = this_rd;
         int ref_idx;
@@ -10827,7 +10941,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                  sizeof(uint8_t) * ctx->num_4x4_blk);
 #endif  // CONFIG_VAR_TX
 
-        for (ref_idx = 0; ref_idx < ref_set; ++ref_idx) {
+        for (int sidx = 0; sidx < ref_set * (1 + has_second_ref(mbmi)); ++sidx) {
+          ref_idx = sidx;
+
+          if (has_second_ref(mbmi)) ref_idx /= 2;
+
           int64_t tmp_alt_rd = INT64_MAX;
           int dummy_disable_skip = 0;
           int ref;
@@ -10839,6 +10957,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
           mbmi->ref_mv_idx = 1 + ref_idx;
 
+          mbmi->compound_idx = sidx % 2;
 #if CONFIG_EXT_INTER
           if (comp_pred) {
             int ref_mv_idx = mbmi->ref_mv_idx;

@@ -741,6 +741,11 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
     rdc->comp_pred_diff[REFERENCE_MODE_SELECT] += ctx->hybrid_pred_diff;
   }
 
+  if (has_second_ref(&mi->mbmi)) {
+    const int comp_index_ctx = get_comp_index_context(cm, xd);
+    ++td->counts->compound_index[comp_index_ctx][mbmi->compound_idx];
+  }
+
   for (h = 0; h < y_mis; ++h) {
     MV_REF *const frame_mv = frame_mvs + h * cm->mi_cols;
     for (w = 0; w < x_mis; ++w) {

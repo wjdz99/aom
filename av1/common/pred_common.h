@@ -54,6 +54,46 @@ static INLINE aom_prob av1_get_pred_prob_seg_id(
   return segp->pred_probs[av1_get_pred_context_seg_id(xd)];
 }
 
+static INLINE int get_comp_index_context(const AV1_COMMON *cm,
+                                         const MACROBLOCKD *xd) {
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  int bck_idx = cm->frame_refs[mbmi->ref_frame[0] - LAST_FRAME].idx;
+  int fwd_idx = cm->frame_refs[mbmi->ref_frame[1] - LAST_FRAME].idx;
+  int bck_frame_index = 0, fwd_frame_index = 0;
+  int cur_frame_index = cm->cur_frame->cur_frame_offset;
+  if (bck_idx >= 0)
+    bck_frame_index = cm->buffer_pool->frame_bufs[bck_idx].cur_frame_offset;
+
+  if (fwd_idx >= 0)
+    fwd_frame_index = cm->buffer_pool->frame_bufs[fwd_idx].cur_frame_offset;
+  int fwd = abs(fwd_frame_index - cur_frame_index);
+  int bck = abs(cur_frame_index - bck_frame_index);
+
+  const MODE_INFO *const above_mi = xd->above_mi;
+  const MODE_INFO *const left_mi = xd->left_mi;
+
+  int above_ctx = 0, left_ctx = 0;
+  int offset = (fwd > bck) ? 0 : 1;
+
+  if (above_mi) {
+    const MB_MODE_INFO *above_mbmi = &above_mi->mbmi;
+    if (has_second_ref(above_mbmi))
+      above_ctx = above_mbmi->compound_idx;
+    else if (above_mbmi->ref_frame[0] == ALTREF_FRAME)
+      above_ctx = 1;
+  }
+
+  if (left_mi) {
+    const MB_MODE_INFO *left_mbmi = &left_mi->mbmi;
+    if (has_second_ref(left_mbmi))
+      left_ctx = left_mbmi->compound_idx;
+    else if (left_mbmi->ref_frame[0] == ALTREF_FRAME)
+      left_ctx = 1;
+  }
+
+  return above_ctx + left_ctx + 3 * offset;
+}
+
 static INLINE int av1_get_skip_context(const AV1_COMMON *cm,
                                        const MACROBLOCKD *xd, int mi_row,
                                        int mi_col) {

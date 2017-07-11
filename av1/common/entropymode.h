@@ -227,6 +227,7 @@ typedef struct frame_contexts {
   aom_prob txfm_partition_prob[TXFM_PARTITION_CONTEXTS];
 #endif
   aom_prob skip_probs[SKIP_CONTEXTS];
+  aom_prob compound_index_probs[COMP_INDEX_CONTEXTS];
   nmv_context nmvc[NMV_CONTEXTS];
 #if CONFIG_INTRABC
   nmv_context ndvc;
@@ -403,6 +404,9 @@ typedef struct FRAME_COUNTS {
   unsigned int txfm_partition[TXFM_PARTITION_CONTEXTS][2];
 #endif
   unsigned int skip[SKIP_CONTEXTS][2];
+
+  unsigned int compound_index[COMP_INDEX_CONTEXTS][2];
+
   nmv_context_counts mv[NMV_CONTEXTS];
 #if CONFIG_INTRABC
   nmv_context_counts dv;

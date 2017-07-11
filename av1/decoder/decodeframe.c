@@ -4727,6 +4727,9 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
   for (k = 0; k < SKIP_CONTEXTS; ++k)
     av1_diff_update_prob(&r, &fc->skip_probs[k], ACCT_STR);
 
+  for (k = 0; k < COMP_INDEX_CONTEXTS; ++k)
+    av1_diff_update_prob(&r, &fc->compound_index_probs[k], ACCT_STR);
+
 #if CONFIG_DELTA_Q && !CONFIG_EC_ADAPT
 #if CONFIG_EXT_DELTA_Q
   if (cm->delta_q_present_flag) {
