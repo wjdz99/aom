@@ -55,10 +55,8 @@ struct av1_extracfg {
   unsigned int qm_min;
   unsigned int qm_max;
 #endif
-#if CONFIG_TILE_GROUPS
   unsigned int num_tg;
   unsigned int mtu_size;
-#endif
 #if CONFIG_TEMPMV_SIGNALING
   unsigned int disable_tempmv;
 #endif
@@ -126,10 +124,8 @@ static struct av1_extracfg default_extra_cfg = {
   DEFAULT_QM_FIRST,  // qm_min
   DEFAULT_QM_LAST,   // qm_max
 #endif
-#if CONFIG_TILE_GROUPS
   1,  // max number of tile groups
   0,  // mtu_size
-#endif
 #if CONFIG_TEMPMV_SIGNALING
   0,  // disable temporal mv prediction
 #endif
@@ -481,10 +477,8 @@ static aom_codec_err_t set_encoder_config(
   oxcf->qm_maxlevel = extra_cfg->qm_max;
 #endif
 
-#if CONFIG_TILE_GROUPS
   oxcf->num_tile_groups = extra_cfg->num_tg;
   oxcf->mtu = extra_cfg->mtu_size;
-#endif
 
 #if CONFIG_TEMPMV_SIGNALING
   oxcf->disable_tempmv = extra_cfg->disable_tempmv;
@@ -849,7 +843,6 @@ static aom_codec_err_t ctrl_set_qm_max(aom_codec_alg_priv_t *ctx,
 }
 #endif
 
-#if CONFIG_TILE_GROUPS
 static aom_codec_err_t ctrl_set_num_tg(aom_codec_alg_priv_t *ctx,
                                        va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -862,7 +855,6 @@ static aom_codec_err_t ctrl_set_mtu(aom_codec_alg_priv_t *ctx, va_list args) {
   extra_cfg.mtu_size = CAST(AV1E_SET_MTU, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
-#endif
 #if CONFIG_TEMPMV_SIGNALING
 static aom_codec_err_t ctrl_set_disable_tempmv(aom_codec_alg_priv_t *ctx,
                                                va_list args) {
@@ -1525,10 +1517,8 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_QM_MIN, ctrl_set_qm_min },
   { AV1E_SET_QM_MAX, ctrl_set_qm_max },
 #endif
-#if CONFIG_TILE_GROUPS
   { AV1E_SET_NUM_TG, ctrl_set_num_tg },
   { AV1E_SET_MTU, ctrl_set_mtu },
-#endif
 #if CONFIG_TEMPMV_SIGNALING
   { AV1E_SET_DISABLE_TEMPMV, ctrl_set_disable_tempmv },
 #endif

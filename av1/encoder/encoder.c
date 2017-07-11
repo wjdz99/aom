@@ -829,7 +829,7 @@ void av1_new_framerate(AV1_COMP *cpi, double framerate) {
 
 static void set_tile_info(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
-#if CONFIG_TILE_GROUPS && CONFIG_DEPENDENT_HORZTILES
+#if CONFIG_DEPENDENT_HORZTILES
   int tile_row, tile_col, num_tiles_in_tg;
   int tg_row_start, tg_col_start;
 #endif
@@ -893,7 +893,6 @@ static void set_tile_info(AV1_COMP *cpi) {
 #else
   if (cm->log2_tile_rows == 0) cm->dependent_horz_tiles = 0;
 #endif
-#if CONFIG_TILE_GROUPS
   if (cpi->oxcf.mtu == 0) {
     cm->num_tg = cpi->oxcf.num_tile_groups;
   } else {
@@ -915,7 +914,6 @@ static void set_tile_info(AV1_COMP *cpi) {
       cm->tile_group_start_col[tile_row][tile_col] = tg_col_start;
     }
   }
-#endif
 #endif
 
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
@@ -4546,7 +4544,6 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       cm->reset_frame_context = RESET_FRAME_CONTEXT_CURRENT;
     }
   }
-#if CONFIG_TILE_GROUPS
   if (cpi->oxcf.mtu == 0) {
     cm->num_tg = cpi->oxcf.num_tile_groups;
   } else {
@@ -4554,7 +4551,6 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     // updates
     cm->num_tg = DEFAULT_MAX_NUM_TG;
   }
-#endif
 
 #if CONFIG_EXT_TILE
   cm->tile_encoding_mode = cpi->oxcf.tile_encoding_mode;
