@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8afcc55_264525f8",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1069,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-11T18:58:54Z",
+      "side": 1,
+      "message": "Not sure, but I think it should be\n\n#if CONFIG_CHROMA_SUB8X8\n  const BLOCK_SIZE plane_bsize \u003d\n      AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));\n#else\n  const BLOCK_SIZE plane_bsize \u003d get_plane_block_size(bsize, pd);\n#endif",
+      "revId": "e83f2c8454a36da700beb7a7d37bb4eef7ab4af9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
