@@ -16,6 +16,24 @@
       "revId": "0138564ca9c01772bd9bedbaba0006c36a4e4f3b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ec81320_5c9a95f1",
+        "filename": "aom_dsp/x86/highbd_subpel_variance_impl_sse2.asm",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-07-11T01:45:55Z",
+      "side": 1,
+      "message": "looks like uint32_t from aom_dsp_rtcd.h. The aom_highbd_[0-9]._sub_pixel_avg_variance and aom_highbd_[0-9]._sub_pixel_variance are all uint32_t. So movd/eax is the right way to go here, no?",
+      "parentUuid": "90659030_6016b303",
+      "revId": "0138564ca9c01772bd9bedbaba0006c36a4e4f3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
