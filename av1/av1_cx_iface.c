@@ -194,6 +194,7 @@ static aom_codec_err_t update_error_state(
 #undef ERROR
 #define ERROR(str)                  \
   do {                              \
+    printf("ERROR: %s\n", str);     \
     ctx->base.err_detail = str;     \
     return AOM_CODEC_INVALID_PARAM; \
   } while (0)
