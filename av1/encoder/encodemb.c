@@ -573,6 +573,8 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   (void)scan_order;
   (void)qcoeff;
 
+  assert(tx_size >= TX_4X4);
+
   if (x->pvq_coded) {
     assert(block < MAX_PVQ_BLOCKS_IN_SB);
     pvq_info = &x->pvq[block][plane];
