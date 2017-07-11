@@ -5662,6 +5662,10 @@ void av1_average_tile_intra_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
 #endif
   AVERAGE_TILE_CDFS(uv_mode_cdf)
 
+#if CONFIG_CFL
+  AVERAGE_TILE_CDFS(cfl_alpha_cdf)
+#endif
+
   AVERAGE_TILE_CDFS(partition_cdf)
 
 #if CONFIG_DELTA_Q
