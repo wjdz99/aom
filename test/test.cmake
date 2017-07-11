@@ -38,6 +38,7 @@ set(AOM_UNIT_TEST_COMMON_SOURCES
 if (NOT BUILD_SHARED_LIBS)
   set(AOM_UNIT_TEST_COMMON_SOURCES
       ${AOM_UNIT_TEST_COMMON_SOURCES}
+      "${AOM_ROOT}/test/convolve_round_test.cc"
       "${AOM_ROOT}/test/convolve_test.cc"
       "${AOM_ROOT}/test/simd_impl.h")
 
