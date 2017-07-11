@@ -7889,6 +7889,9 @@ static int64_t motion_mode_rd(
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
       0, xd->global_motion,
 #endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+#if CONFIG_WARPED_MOTION
+      xd,
+#endif
       mi);
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
   base_mbmi = *mbmi;
@@ -10907,12 +10910,18 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         *returnrate_nocoef -= av1_cost_bit(av1_get_intra_inter_prob(cm, xd),
                                            mbmi->ref_frame[0] != INTRA_FRAME);
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION
+        set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+#endif
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
         MODE_INFO *const mi = xd->mi[0];
         const MOTION_MODE motion_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
             0, xd->global_motion,
 #endif  // CONFIG_GLOBAL_MOTION && SEPARATE_GLOBAL_MOTION
+#if CONFIG_WARPED_MOTION
+            xd,
+#endif
             mi);
         if (motion_allowed == WARPED_CAUSAL)
           *returnrate_nocoef -= cpi->motion_mode_cost[bsize][mbmi->motion_mode];
@@ -11448,6 +11457,9 @@ PALETTE_EXIT:
 #if SEPARATE_GLOBAL_MOTION
         0, xd->global_motion,
 #endif  // SEPARATE_GLOBAL_MOTION
+#if CONFIG_WARPED_MOTION
+        xd,
+#endif
         xd->mi[0]);
     if (mbmi->motion_mode > last_motion_mode_allowed)
       mbmi->motion_mode = last_motion_mode_allowed;
