@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12f9fbea_c0c2e28f",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1091,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-11T01:32:10Z",
+      "side": 1,
+      "message": "AOMMIN(bs, mi_size_high[mbmi-\u003esb_type])",
+      "range": {
+        "startLine": 1091,
+        "startChar": 26,
+        "endLine": 1091,
+        "endChar": 53
+      },
+      "revId": "67aa75927220b56a0815b4c9bf938718e557ba9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08a7dbbe_84064ac2",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-11T01:32:10Z",
+      "side": 1,
+      "message": "AOMMIN(xd-\u003en8_w, mbmi-\u003esb_type)",
+      "range": {
+        "startLine": 1092,
+        "startChar": 28,
+        "endLine": 1092,
+        "endChar": 55
+      },
+      "revId": "67aa75927220b56a0815b4c9bf938718e557ba9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a98e68b2_b8f967d4",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1099,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-11T01:32:10Z",
+      "side": 1,
+      "message": "The previous code assume the bottom left corner of the neighbor is adjacent to current block, or the neighbor is even bigger. In this patch, probably it should be\n-AOMMAX(bh, MI_SIZE) / 2 - 1 - n * MI_SIZE\n\nAnd also it reminds me that the previous implementation does not locate the center of neighbors that is bigger than current block correctly (for example, current block is an 8x8 block located in top-right quad of a 16x16, the above neighbor is 16x16, then the center of it is located at 8 rows up and 0 col left). And for top-left and top-right mi, it is possible that it has already been counted in first two for loops. I don\u0027t have a instant idea of how to locate those centers, we can think about it.",
+      "range": {
+        "startLine": 1099,
+        "startChar": 28,
+        "endLine": 1099,
+        "endChar": 56
+      },
+      "revId": "67aa75927220b56a0815b4c9bf938718e557ba9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c73dd2a8_cb210455",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1142,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-11T01:32:10Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 1141,
+        "startChar": 0,
+        "endLine": 1142,
+        "endChar": 61
+      },
+      "revId": "67aa75927220b56a0815b4c9bf938718e557ba9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4ed328e_0348ed53",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1150,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-11T01:32:10Z",
+      "side": 1,
+      "message": "-AOMMAX(bw, MI_SIZE) / 2 - 1 - n * MI_SIZE",
+      "range": {
+        "startLine": 1150,
+        "startChar": 28,
+        "endLine": 1150,
+        "endChar": 56
+      },
+      "revId": "67aa75927220b56a0815b4c9bf938718e557ba9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
