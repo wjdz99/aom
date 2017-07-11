@@ -688,7 +688,6 @@ static const aom_cdf_prob
     };
 #endif  // CONFIG_NEW_MULTISYMBOL
 
-#endif  // CONFIG_INTERINTRA
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
