@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bbd28685_a77b5675",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-07-11T22:54:56Z",
+      "side": 1,
+      "message": "Maybe we need to do this too, just like temporal filter:\n\n#if CONFIG_EXT_REFS\n  if (strength \u003d\u003d 0 \u0026\u0026 frames_to_blur \u003d\u003d 1) {\n    cpi-\u003eis_arf_filter_off[gf_group-\u003earf_update_idx[gf_group-\u003eindex]] \u003d 1;\n  } else {\n    cpi-\u003eis_arf_filter_off[gf_group-\u003earf_update_idx[gf_group-\u003eindex]] \u003d 0;\n  }\n#endif",
+      "revId": "e1596c865be8c0550e8497ad03f91a54aa34a86e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e3fcb34_d30b9be2",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-07-11T22:54:56Z",
+      "side": 1,
+      "message": "should be same as \u0027distance\u0027.",
+      "range": {
+        "startLine": 472,
+        "startChar": 61,
+        "endLine": 472,
+        "endChar": 69
+      },
+      "revId": "e1596c865be8c0550e8497ad03f91a54aa34a86e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
