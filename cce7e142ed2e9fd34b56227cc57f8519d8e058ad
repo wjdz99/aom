@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ea3e9f7_6eb9d0f8",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-11T21:19:35Z",
+      "side": 1,
+      "message": "tx_size \u003c TX_4X4 can only occur in CONFIG_CHROMA_2X2\n\nI\u0027m getting a warning here: \nerror: comparison is always true due to limited range of data type [-Werror\u003dtype-limits]",
+      "revId": "cce7e142ed2e9fd34b56227cc57f8519d8e058ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71658e99_804816bf",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-11T21:19:35Z",
+      "side": 1,
+      "message": "tx_size \u003c TX_4X4 can only occur in CONFIG_CHROMA_2X2\n\nI\u0027m getting a warning here: \nerror: comparison is always true due to limited range of data type [-Werror\u003dtype-limits]",
+      "revId": "cce7e142ed2e9fd34b56227cc57f8519d8e058ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
