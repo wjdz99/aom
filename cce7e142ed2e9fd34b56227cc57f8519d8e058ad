@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "8a36fd7d_7520914d",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-11T22:42:13Z",
+      "side": 1,
+      "message": "This is what I use:\n\ngcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.4)\n\nCFLAGS\u003d\u0027-Wall -Wextra -Werror \u0027 ../configure",
+      "parentUuid": "79878634_4be5089d",
+      "revId": "cce7e142ed2e9fd34b56227cc57f8519d8e058ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71658e99_804816bf",
         "filename": "av1/encoder/encodemb.c",
         "patchSetId": 6
