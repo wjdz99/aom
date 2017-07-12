@@ -5700,14 +5700,14 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
           second_pred[4096] = 3;
           second_pred[4097] = 1;
           if (mbmi->compound_idx) {
-            second_pred[4096] = 2;
+            second_pred[4096] = 1;
             second_pred[4097] = 1;
           }
         } else {
           second_pred[4096] = 4;
           second_pred[4097] = 1;
           if (mbmi->compound_idx) {
-            second_pred[4096] = 3;
+            second_pred[4096] = 1;
             second_pred[4097] = 1;
           }
         }
@@ -5732,14 +5732,14 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
           second_pred[4097] = 3;
           if (mbmi->compound_idx) {
             second_pred[4096] = 1;
-            second_pred[4097] = 2;
+            second_pred[4097] = 1;
           }
         } else {
           second_pred[4096] = 1;
           second_pred[4097] = 4;
           if (mbmi->compound_idx) {
             second_pred[4096] = 1;
-            second_pred[4097] = 3;
+            second_pred[4097] = 1;
           }
         }
       }
@@ -5767,14 +5767,14 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
           second_pred[4097] = 3;
           second_pred[4096] = 1;
           if (mbmi->compound_idx) {
-            second_pred[4097] = 2;
+            second_pred[4097] = 1;
             second_pred[4096] = 1;
           }
         } else {
           second_pred[4097] = 4;
           second_pred[4096] = 1;
           if (mbmi->compound_idx) {
-            second_pred[4097] = 3;
+            second_pred[4097] = 1;
             second_pred[4096] = 1;
           }
         }
@@ -5799,14 +5799,14 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
           second_pred[4096] = 3;
           if (mbmi->compound_idx) {
             second_pred[4097] = 1;
-            second_pred[4096] = 2;
+            second_pred[4096] = 1;
           }
         } else {
           second_pred[4097] = 1;
           second_pred[4096] = 4;
           if (mbmi->compound_idx) {
             second_pred[4097] = 1;
-            second_pred[4096] = 3;
+            second_pred[4096] = 1;
           }
         }
       }
