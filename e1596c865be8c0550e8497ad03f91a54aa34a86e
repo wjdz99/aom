@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "78f7fc40_245a19c5",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-07-12T18:28:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbd28685_a77b5675",
+      "revId": "e1596c865be8c0550e8497ad03f91a54aa34a86e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e3fcb34_d30b9be2",
         "filename": "av1/encoder/bgsprite.c",
         "patchSetId": 3
@@ -30,6 +48,30 @@
       "writtenOn": "2017-07-11T22:54:56Z",
       "side": 1,
       "message": "should be same as \u0027distance\u0027.",
+      "range": {
+        "startLine": 472,
+        "startChar": 61,
+        "endLine": 472,
+        "endChar": 69
+      },
+      "revId": "e1596c865be8c0550e8497ad03f91a54aa34a86e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bab655f4_f51d1ebb",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-07-12T18:28:33Z",
+      "side": 1,
+      "message": "Changed position to make it just run through stitching to resample image into ARF buffer.",
+      "parentUuid": "8e3fcb34_d30b9be2",
       "range": {
         "startLine": 472,
         "startChar": 61,
