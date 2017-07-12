@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ecc2c190_56616f9d",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T22:18:30Z",
+      "side": 1,
+      "message": "From such altref positions when (rf_level \u003d\u003d GF_ARF_LOW): As no stitched bg sprite image will be generated, neither is temporal filtering needed, it may be straightforward to move this portion of code up ahead to the start of the function, and return 0 directly:\n\n#if CONFIG_EXT_REFS\n  const GF_GROUP *const gf_group \u003d \u0026cpi-\u003etwopass.gf_group;\n  if (gf_group-\u003erf_level[gf_group-\u003eindex] \u003d\u003d GF_ARF_LOW) {\n    cpi-\u003eis_arf_filter_off[gf_group-\u003earf_update_idx[gf_group-\u003eindex]] \u003d 1;\n    cpi-\u003ealt_ref_buffer \u003d av1_lookahead_peek(cpi-\u003elookahead, distance)-\u003eimg;\n    return 0;\n  }\n  cpi-\u003eis_arf_filter_off[gf_group-\u003earf_update_idx[gf_group-\u003eindex]] \u003d 0;\n#endif  // CONFIG_EXT_REFS",
+      "revId": "5ce4128b56970bb4d3c153ced79008c8bde6ab7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16291849_a6c6fac2",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5407,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T22:18:30Z",
+      "side": 1,
+      "message": "To avoid code duplication, it may be written as follows:\n\n#if CONFIG_BGSPRITE\n        int bgsprite_ret \u003d av1_background_sprite(cpi, arf_src_index);\n        if (bgsprite_ret !\u003d 0)  // (Some comment could be added here like \u0027bgsprite image not generated ...\u0027)\n#endif  // CONFIG_BGSPRITE\n          av1_temporal_filter(cpi, arf_src_index);",
+      "revId": "5ce4128b56970bb4d3c153ced79008c8bde6ab7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
