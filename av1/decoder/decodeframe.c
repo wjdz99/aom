@@ -638,7 +638,7 @@ static void predict_and_reconstruct_intra_block(
     // tx_type will be read out in av1_read_coeffs_txb_facade
     TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx, tx_size);
 #else   // CONFIG_LV_MAP
-    TX_TYPE tx_type = get_tx_type(plane_type, xd, block_idx, tx_size);
+    const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, block_idx, tx_size);
     const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, mbmi);
     int16_t max_scan_line = 0;
     const int eob =
@@ -720,7 +720,8 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
     // tx_type will be read out in av1_read_coeffs_txb_facade
     TX_TYPE tx_type = get_tx_type(plane_type, xd, block, plane_tx_size);
 #else   // CONFIG_LV_MAP
-    TX_TYPE tx_type = get_tx_type(plane_type, xd, block, plane_tx_size);
+    const TX_TYPE tx_type =
+        av1_get_tx_type(plane_type, xd, block, plane_tx_size);
     const SCAN_ORDER *sc = get_scan(cm, plane_tx_size, tx_type, mbmi);
     int16_t max_scan_line = 0;
     const int eob = av1_decode_block_tokens(
