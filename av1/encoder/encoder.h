@@ -651,6 +651,10 @@ typedef struct AV1_COMP {
 #if CONFIG_SPEED_REFS
   int sb_scanning_pass_idx;
 #endif  // CONFIG_SPEED_REFS
+
+#if CONFIG_GF_STATS
+  uint16_t gf_group_interval_counts[MAX_GF_INTERVAL + 1];
+#endif  // CONFIG_GF_STATS
 } AV1_COMP;
 
 void av1_initialize_enc(void);
