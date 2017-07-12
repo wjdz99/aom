@@ -3112,19 +3112,6 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
 // TODO(zoeliu): Do we need to copy cpi->interp_filter_selected[0] over to
 // cpi->interp_filter_selected[GOLDEN_FRAME]?
 #if CONFIG_EXT_REFS
-  } else if (cpi->rc.is_last_bipred_frame) {
-    // Refresh the LAST_FRAME with the BWDREF_FRAME and retire the LAST3_FRAME
-    // by updating the virtual indices. Note that the frame BWDREF_FRAME points
-    // to now should be retired, and it should not be used before refreshed.
-    int tmp = cpi->lst_fb_idxes[LAST_REF_FRAMES - 1];
-
-    shift_last_ref_frames(cpi);
-    cpi->lst_fb_idxes[0] = cpi->bwd_fb_idx;
-    cpi->bwd_fb_idx = tmp;
-
-    memcpy(cpi->interp_filter_selected[LAST_FRAME],
-           cpi->interp_filter_selected[BWDREF_FRAME],
-           sizeof(cpi->interp_filter_selected[BWDREF_FRAME]));
   } else if (cpi->rc.is_src_frame_ext_arf && cm->show_existing_frame) {
     // Deal with the special case for showing existing internal ALTREF_FRAME
     // Refresh the LAST_FRAME with the ALTREF_FRAME and retire the LAST3_FRAME
@@ -3264,11 +3251,34 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
       cpi->lst_fb_idxes[0] = tmp;
 
       assert(cm->show_existing_frame == 0);
-      // NOTE: Currently only LF_UPDATE and INTNL_OVERLAY_UPDATE frames are to
-      //       refresh the LAST_FRAME.
+#if 0
+      const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
+      assert(gf_group->update_type[gf_group->index] == LF_UPDATE ||
+             gf_group->update_type[gf_group->index] == LAST_BIPRED_UPDATE ||
+             gf_group->update_type[gf_group->index] == BIPRED_UPDATE ||
+             gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE);
+      (void)gf_group;
+#endif  // 0
       memcpy(cpi->interp_filter_selected[LAST_FRAME],
              cpi->interp_filter_selected[0],
              sizeof(cpi->interp_filter_selected[0]));
+
+      if (cpi->rc.is_last_bipred_frame) {
+        // Refresh the LAST_FRAME with the BWDREF_FRAME and retire the
+        // LAST3_FRAME
+        // by updating the virtual indices. Note that the frame BWDREF_FRAME
+        // points
+        // to now should be retired, and it should not be used before refreshed.
+        tmp = cpi->lst_fb_idxes[LAST_REF_FRAMES - 1];
+
+        shift_last_ref_frames(cpi);
+        cpi->lst_fb_idxes[0] = cpi->bwd_fb_idx;
+        cpi->bwd_fb_idx = tmp;
+
+        memcpy(cpi->interp_filter_selected[LAST_FRAME],
+               cpi->interp_filter_selected[BWDREF_FRAME],
+               sizeof(cpi->interp_filter_selected[BWDREF_FRAME]));
+      }
     }
 #else
     ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->lst_fb_idx],
