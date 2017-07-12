@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "172752c7_bb92b31a",
+        "filename": "test/av1_inv_txfm1d_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-12T17:52:23Z",
+      "side": 1,
+      "message": "there appear to be 3 defines of this in the tests and one in aom_dsp now. c++ style casts are preferred here for the most part (static_cast). one could use ASSERT_* too.",
+      "revId": "199cbfde88712ae23901a5206aaa05e68b07628b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
