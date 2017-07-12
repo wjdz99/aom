@@ -182,9 +182,15 @@ static INLINE int get_number_of_extra_arfs(int interval, int arf_pending) {
   if (arf_pending && MAX_EXT_ARFS > 0)
     return interval >= MIN_EXT_ARF_INTERVAL * (MAX_EXT_ARFS + 1)
                ? MAX_EXT_ARFS
+#if CONFIG_GF_STRUCTURE
+               // add an ext-ARF for gf group of interval 6 and 7
+               : interval >= (MIN_EXT_ARF_INTERVAL - 1) * MAX_EXT_ARFS
+#else
                : interval >= MIN_EXT_ARF_INTERVAL * MAX_EXT_ARFS
+#endif  // GF_STRUCTURE
                      ? MAX_EXT_ARFS - 1
                      : 0;
+
   else
     return 0;
 }
