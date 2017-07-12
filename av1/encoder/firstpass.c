@@ -2182,10 +2182,23 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
 
+#if 1
+  // NOTE(zoeliu): For debug
+  rc->baseline_gf_interval = 7;
+#endif  // 0
+
 #if CONFIG_EXT_REFS
   // Compute how many extra alt_refs we can have
   cpi->num_extra_arfs = get_number_of_extra_arfs(rc->baseline_gf_interval,
                                                  rc->source_alt_ref_pending);
+#if CONFIG_GF_GROUPS
+  if (rc->baseline_gf_interval == 7) {
+    assert(cpi->num_extra_arfs == 0);
+    // last_bipred | BRF | last_bipred | BRF | LF | LF | ARF ===>
+    // last_bipred | BRF | LF | ARF | LF | LF | ARF
+    cpi->num_extra_arfs = 1;
+  }
+#endif  // CONFIG_GF_GROUPS
   // Currently at maximum two extra ARFs' are allowed
   assert(cpi->num_extra_arfs <= MAX_EXT_ARFS);
 #endif  // CONFIG_EXT_REFS
