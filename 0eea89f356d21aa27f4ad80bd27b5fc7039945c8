@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec11096f_bdc0bc4f",
+        "filename": "configure",
+        "patchSetId": 4
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-07-12T22:23:28Z",
+      "side": 0,
+      "message": "if this is removed from this list, it won\u0027t compile with parallel_deblocking_15tap.",
+      "range": {
+        "startLine": 302,
+        "startChar": 4,
+        "endLine": 302,
+        "endChar": 29
+      },
+      "revId": "0eea89f356d21aa27f4ad80bd27b5fc7039945c8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
