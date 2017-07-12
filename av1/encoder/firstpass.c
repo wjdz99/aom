@@ -2182,6 +2182,10 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
 
+#if CONFIG_GF_STRUCTURE
+  (cpi->gf_group_interval_counts[rc->baseline_gf_interval])++;
+#endif  // CONFIG_GF_STRUCTURE
+
 #if CONFIG_EXT_REFS
   // Compute how many extra alt_refs we can have
   cpi->num_extra_arfs = get_number_of_extra_arfs(rc->baseline_gf_interval,

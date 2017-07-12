@@ -117,6 +117,8 @@ CFL_CTX NULL_CFL;
 typedef enum { Y, U, V, ALL } STAT_TYPE;
 #endif  // CONFIG_INTERNAL_STATS
 
+#define GF_INTERVAL_STATS 0
+
 static INLINE void Scale2Ratio(AOM_SCALING mode, int *hr, int *hs) {
   switch (mode) {
     case NORMAL:
@@ -2488,6 +2490,16 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       fclose(f);
     }
 #endif  // CONFIG_ENTROPY_STATS
+#if GF_INTERVAL_STATS
+    // To collect the stats for each frame
+    if (cpi->oxcf.pass == 2) {
+      fprintf(stderr, "Writing gf_counts.stt\n");
+      FILE *f = fopen("gf_counts.stt", "wb");
+      fwrite(cpi->gf_group_interval_counts,
+             sizeof(*(cpi->gf_group_interval_counts)), MAX_GF_INTERVAL + 1, f);
+      fclose(f);
+    }
+#endif  // GF_INTERVAL_STATS
 #if CONFIG_INTERNAL_STATS
     aom_clear_system_state();
 
