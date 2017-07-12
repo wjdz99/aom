@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3508d923_b6c1e338",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T22:38:27Z",
+      "side": 1,
+      "message": "May start a new paragraph and elaborate a little more of the work, for instance:\n\nThis CL is to collect the distribution stats of various GF group interval lengths. The collected stats are summarized in the following shared spreadsheet:\n[shared link added]",
+      "revId": "dbb30f271a07239dacd13ad17d53751ef1da9d1e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d261db1_8453c757",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2493,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T22:38:27Z",
+      "side": 1,
+      "message": "Suggested to use CONFIG_GF_STATS",
+      "revId": "dbb30f271a07239dacd13ad17d53751ef1da9d1e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e783093_fcff31ad",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2494,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T22:38:27Z",
+      "side": 1,
+      "message": "May add some valuable comments here, for instance:\n\n// To collect counts/distribution stats of various GF group interval lengths.",
+      "revId": "dbb30f271a07239dacd13ad17d53751ef1da9d1e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbac1634_09510b5c",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T22:38:27Z",
+      "side": 1,
+      "message": "Suggested to use CONFIG_GF_STATS",
+      "revId": "dbb30f271a07239dacd13ad17d53751ef1da9d1e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e7ce811_d9fa6a2c",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2185,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T22:38:27Z",
+      "side": 1,
+      "message": "Suggested to use CONFIG_GF_STATS",
+      "revId": "dbb30f271a07239dacd13ad17d53751ef1da9d1e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8966066_6ed1f4af",
+        "filename": "configure",
+        "patchSetId": 1
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T22:38:27Z",
+      "side": 1,
+      "message": "Suggested to change the experiment name to \u0027gf_stats\u0027",
+      "revId": "dbb30f271a07239dacd13ad17d53751ef1da9d1e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
