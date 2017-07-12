@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29a634e0_8a42d663",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2004,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T15:14:40Z",
+      "side": 1,
+      "message": "If you do a rebase, you should be able to get this part of code change from the base.",
+      "revId": "df36ea47760e004222a88ecad9d7c57e5431cc45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b6a4373_b4a9cc9a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T15:14:40Z",
+      "side": 1,
+      "message": "When the code is submitted, setups such as \"GF_GROUP_DEBUG\u0027 should be set to 0 by default.",
+      "revId": "df36ea47760e004222a88ecad9d7c57e5431cc45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de750bfd_442da137",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2543,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T15:14:40Z",
+      "side": 1,
+      "message": "It is a different file name that is here being written to. Change the stderr output accordingly.",
+      "revId": "df36ea47760e004222a88ecad9d7c57e5431cc45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5bf395a_d1d6b156",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2544,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T15:14:40Z",
+      "side": 1,
+      "message": "A shorter file name is preferred.",
+      "revId": "df36ea47760e004222a88ecad9d7c57e5431cc45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4196dfe_b9bda240",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5377,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T15:14:40Z",
+      "side": 1,
+      "message": "const int suggested",
+      "revId": "df36ea47760e004222a88ecad9d7c57e5431cc45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be439e64_6f9e1608",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5378,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T15:14:40Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "df36ea47760e004222a88ecad9d7c57e5431cc45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3829be76_4e74de92",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5648,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T15:14:40Z",
+      "side": 1,
+      "message": "Remove the redundant checking \u0027oxcf-\u003epass !\u003d 1\u0027",
+      "revId": "df36ea47760e004222a88ecad9d7c57e5431cc45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2588dd7_111e7660",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T15:14:40Z",
+      "side": 1,
+      "message": "Prefer to replace the variable name from \u0027bipred_allowed\u0027 to something like \u0027bwd_ref_allowed\u0027. Bipred is generally allowed due to the use of the distant alt ref.",
+      "revId": "df36ea47760e004222a88ecad9d7c57e5431cc45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c755983b_94e92364",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2221,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T15:14:40Z",
+      "side": 1,
+      "message": "For this part of code, it could be rewritten as follows to avoid the duplicate code:\n\n#if CONFIG_FLEX_REFS\n  // ...\n  if (!cpi-\u003eextra_arf_allowed)\n    cpi-\u003enum_extra_arfs \u003d 0;\n  else\n#endif  // CONFIG_FLEX_REFS\n    // Compute how many extra alt_refs we can have\n    cpi-\u003enum_extra_arfs \u003d get_number_of_extra_arfs(rc-\u003ebaseline_gf_interval,\n                                                   rc-\u003esource_alt_ref_pending);",
+      "revId": "df36ea47760e004222a88ecad9d7c57e5431cc45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ace15766_9e9a41f2",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T15:14:40Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "df36ea47760e004222a88ecad9d7c57e5431cc45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb4b268c_2fb6dcf7",
+        "filename": "av1/encoder/temporal_filter.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T15:14:40Z",
+      "side": 1,
+      "message": "Please separate this to a different patch - in fact, a patch is already submitted:\n\nhttps://aomedia-review.googlesource.com/c/14381/",
+      "revId": "df36ea47760e004222a88ecad9d7c57e5431cc45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ceacd553_d02694b0",
+        "filename": "configure",
+        "patchSetId": 6
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-12T15:14:40Z",
+      "side": 1,
+      "message": "For two coding tools, it better separates them to two CLs.",
+      "revId": "df36ea47760e004222a88ecad9d7c57e5431cc45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
