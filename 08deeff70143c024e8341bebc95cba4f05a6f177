@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39bbba92_945f24a4",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-07-12T18:31:39Z",
+      "side": 1,
+      "message": "\"1 || \" looks like a left-over from experiment/debugging.",
+      "range": {
+        "startLine": 486,
+        "startChar": 6,
+        "endLine": 486,
+        "endChar": 11
+      },
+      "revId": "08deeff70143c024e8341bebc95cba4f05a6f177",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
