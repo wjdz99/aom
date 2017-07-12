@@ -2724,6 +2724,17 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       fclose(f);
     }
 #endif  // CONFIG_ENTROPY_STATS
+#if CONFIG_GF_STATS
+    // To collect counts/distribution stats of GF group interval lengths of the
+    // entire sequence
+    if (cpi->oxcf.pass == 2) {
+      fprintf(stderr, "Writing gf_counts.stt\n");
+      FILE *f = fopen("gf_counts.stt", "wb");
+      fwrite(cpi->gf_group_interval_counts,
+             sizeof(*(cpi->gf_group_interval_counts)), MAX_GF_INTERVAL + 1, f);
+      fclose(f);
+    }
+#endif  // CONFIG_GF_STATS
 #if CONFIG_INTERNAL_STATS
     aom_clear_system_state();
 

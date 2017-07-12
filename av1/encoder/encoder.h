@@ -660,6 +660,9 @@ typedef struct AV1_COMP {
   // screen content or not.
   int auto_tune_content;
 #endif  // CONFIG_PALETTE || CONFIG_INTRABC
+#if CONFIG_GF_STATS
+  uint16_t gf_group_interval_counts[MAX_GF_INTERVAL + 1];
+#endif  // CONFIG_GF_STATS
 } AV1_COMP;
 
 void av1_initialize_enc(void);
