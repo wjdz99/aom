@@ -740,7 +740,21 @@ static const aom_prob
       { 1, 32, 36, 43, 51, 64, 85, 128 },  // 32X32
       { 1, 32, 36, 43, 51, 64, 85, 128 }   // 64X64
     };
-#endif
+static const aom_cdf_prob
+    default_ncobmc_mode_cdf[ADAPT_OVERLAP_BLOCKS][CDF_SIZE(MAX_NCOBMC_MODES)] =
+        { { AOM_ICDF(127), AOM_ICDF(4207), AOM_ICDF(8287), AOM_ICDF(12367),
+            AOM_ICDF(16447), AOM_ICDF(20527), AOM_ICDF(24607), AOM_ICDF(28687),
+            AOM_ICDF(32768), 0 },
+          { AOM_ICDF(127), AOM_ICDF(4207), AOM_ICDF(8287), AOM_ICDF(12367),
+            AOM_ICDF(16447), AOM_ICDF(20527), AOM_ICDF(24607), AOM_ICDF(28687),
+            AOM_ICDF(32768), 0 },
+          { AOM_ICDF(127), AOM_ICDF(4207), AOM_ICDF(8287), AOM_ICDF(12367),
+            AOM_ICDF(16447), AOM_ICDF(20527), AOM_ICDF(24607), AOM_ICDF(28687),
+            AOM_ICDF(32768), 0 },
+          { AOM_ICDF(127), AOM_ICDF(4207), AOM_ICDF(8287), AOM_ICDF(12367),
+            AOM_ICDF(16447), AOM_ICDF(20527), AOM_ICDF(24607), AOM_ICDF(28687),
+            AOM_ICDF(32768), 0 } };
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 
 // Change this section appropriately once warped motion is supported
 #if CONFIG_MOTION_VAR && !CONFIG_WARPED_MOTION
@@ -4866,10 +4880,11 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   av1_copy(fc->motion_mode_prob, default_motion_mode_prob);
+  av1_copy(fc->motion_mode_cdf, default_motion_mode_cdf);
 #if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
   av1_copy(fc->ncobmc_mode_prob, default_ncobmc_mode_prob);
+  av1_copy(fc->ncobmc_mode_cdf, default_ncobmc_mode_cdf);
 #endif
-  av1_copy(fc->motion_mode_cdf, default_motion_mode_cdf);
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
   av1_copy(fc->obmc_prob, default_obmc_prob);
 #if CONFIG_NEW_MULTISYMBOL
