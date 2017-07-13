@@ -5083,7 +5083,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   av1_zero(rdc->comp_pred_diff);
 
 #if CONFIG_PALETTE
-  if (cpi->auto_tune_content && frame_is_intra_only(cm)) {
+  if (frame_is_intra_only(cm)) {
     cm->allow_screen_content_tools = is_screen_content(
         cpi->source->y_buffer,
 #if CONFIG_HIGHBITDEPTH
