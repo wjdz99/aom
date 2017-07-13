@@ -22,6 +22,30 @@
       "revId": "a92c879a4c87a8f24028887248758cb553b532ca",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e051df3_3f0db2ee",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1215,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-07-13T17:11:28Z",
+      "side": 1,
+      "message": "This reset probably has been covered?\n\nhttps://aomedia-review.googlesource.com/c/15161/",
+      "parentUuid": "7bae2aee_830d3a89",
+      "range": {
+        "startLine": 1215,
+        "startChar": 8,
+        "endLine": 1215,
+        "endChar": 31
+      },
+      "revId": "a92c879a4c87a8f24028887248758cb553b532ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
