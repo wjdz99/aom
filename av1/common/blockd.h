@@ -46,6 +46,11 @@ extern "C" {
 
 #define MAX_MB_PLANE 3
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+// #define TRAINING_WEIGHTS
+// #define NCOBMC_NO_RECT
+#endif
+
 #if CONFIG_EXT_INTER
 
 #if CONFIG_COMPOUND_SEGMENT
@@ -108,6 +113,22 @@ typedef struct PVQ_QUEUE {
   int buf_len;    // allocated buffer length
   int last_pos;   // last written position of PVQ_INFO in a tile
 } PVQ_QUEUE;
+#endif
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+typedef struct superblock_mi_boundaries {
+  int mi_row_begin;
+  int mi_col_begin;
+  int mi_row_end;
+  int mi_col_end;
+} SB_MI_BD;
+
+typedef struct {
+  int KERNEL_TL[MAX_SB_SIZE][MAX_SB_SIZE];
+  int KERNEL_TR[MAX_SB_SIZE][MAX_SB_SIZE];
+  int KERNEL_BL[MAX_SB_SIZE][MAX_SB_SIZE];
+  int KERNEL_BR[MAX_SB_SIZE][MAX_SB_SIZE];
+} NCOBMC_KERNELS;
 #endif
 
 typedef struct {
@@ -433,12 +454,16 @@ typedef struct MB_MODE_INFO {
 #if CONFIG_MOTION_VAR
   int overlappable_neighbors[2];
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
-  // Applying different weighting kernels in ncobmc
-  // In current implementation, interpolation modes only defined for squared
-  // blocks. A rectangular block is divided into two squared blocks and each
-  // squared block has an interpolation mode.
+// Applying different weighting kernels in ncobmc
+// In current implementation, interpolation modes only defined for squared
+// blocks. A rectangular block is divided into two squared blocks and each
+// squared block has an interpolation mode.
+#ifdef TRAINING_WEIGHTS
+  NCOBMC_MODE ncobmc_mode[2][4];
+#else
   NCOBMC_MODE ncobmc_mode[2];
-#endif
+#endif  // TRAINING_WEIGHTS
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #endif  // CONFIG_MOTION_VAR
   int_mv mv[2];
   int_mv pred_mv[2];
@@ -739,6 +764,12 @@ typedef struct macroblockd {
 
 #if CONFIG_CFL
   CFL_CTX *cfl;
+#endif
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  uint8_t *ncobmc_pred_buf[MAX_MB_PLANE];
+  int ncobmc_pred_buf_stride[MAX_MB_PLANE];
+  SB_MI_BD sb_mi_bd;
 #endif
 } MACROBLOCKD;
 
@@ -1400,7 +1431,11 @@ static INLINE MOTION_MODE motion_mode_allowed(
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
 static INLINE NCOBMC_MODE ncobmc_mode_allowed_bsize(BLOCK_SIZE bsize) {
-  if (bsize < BLOCK_8X8 || bsize > BLOCK_64X64)
+  if (bsize < BLOCK_8X8 || bsize > BLOCK_32X32
+#ifdef NCOBMC_NO_RECT
+      || mi_size_wide[bsize] != mi_size_high[bsize]
+#endif
+      )
     return NO_OVERLAP;
   else
     return (NCOBMC_MODE)(MAX_NCOBMC_MODES - 1);
@@ -1425,7 +1460,8 @@ motion_mode_allowed_wrapper(int for_mv_search,
 #endif
       mi);
   int ncobmc_mode_allowed =
-      ncobmc_mode_allowed_bsize(mbmi->sb_type) && is_inter_mode(mbmi->mode);
+      (ncobmc_mode_allowed_bsize(mbmi->sb_type) > NO_OVERLAP) &&
+      is_inter_mode(mbmi->mode) && is_motion_variation_allowed_compound(mbmi);
   if (for_mv_search)
     return motion_mode_for_mv_search;
   else
