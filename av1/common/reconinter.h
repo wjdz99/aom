@@ -28,6 +28,29 @@
 #define WARP_GM_NEIGHBORS_WITH_OBMC 0
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+// #define READ_FROM_FILE
+#ifdef READ_FROM_FILE
+#define NCOBMC_KERNEL "./NCOBMC_KERNEL/kernels-2-14.txt"
+#endif
+// #define SKIP_TX
+// #define BEST_MODE_0
+// #define CHECK_PATCHES
+#define CHECK_MODES
+#define CHECK_KERNELS
+#define DUMP_TRAINING_DATA
+
+#ifdef DUMP_TRAINING_DATA
+#define DATA_NAME "./tmp/training_data.txt"
+FILE *tr_data;
+#endif
+
+#ifdef CHECK_MODES
+#define ENCODER_MODES "./tmp/encoder_modes.txt"
+#define DECODER_MODES "./tmp/decoder_modes.txt"
+#endif
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -296,6 +319,9 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #if CONFIG_MOTION_VAR
                             int mi_col_offset, int mi_row_offset,
 #endif  // CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+                            int build_for_ncobmc,
+#endif
                             int block, int bw, int bh, int x, int y, int w,
                             int h,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -678,6 +704,22 @@ static INLINE void setup_pred_plane(struct buf_2d *dst, BLOCK_SIZE bsize,
   dst->stride = stride;
 }
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+static INLINE void setup_pred_plane_pxl(struct buf_2d *dst, uint8_t *src,
+                                        int width, int height, int stride,
+                                        int pxl_row, int pxl_col,
+                                        const struct scale_factors *scale,
+                                        int subsampling_x, int subsampling_y) {
+  const int x = pxl_col >> subsampling_x;
+  const int y = pxl_row >> subsampling_y;
+  dst->buf = src + scaled_buffer_offset(x, y, stride, scale);
+  dst->buf0 = src;
+  dst->width = width;
+  dst->height = height;
+  dst->stride = stride;
+}
+#endif
+
 void av1_setup_dst_planes(struct macroblockd_plane planes[MAX_MB_PLANE],
                           BLOCK_SIZE bsize, const YV12_BUFFER_CONFIG *src,
                           int mi_row, int mi_col);
@@ -875,6 +917,53 @@ void av1_build_wedge_inter_predictor_from_buf(
     uint8_t *ext_dst0[3], int ext_dst_stride0[3], uint8_t *ext_dst1[3],
     int ext_dst_stride1[3]);
 #endif  // CONFIG_EXT_INTER
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#define ASSIGN_ALIGNED_PTRS(p, a, s) \
+  p[0] = a;                          \
+  p[1] = a + s;                      \
+  p[2] = a + 2 * s;
+
+#define ASSIGN_ALIGNED_PTRS_HBD(p, a, s, l) \
+  p[0] = CONVERT_TO_BYTEPTR(a);             \
+  p[1] = CONVERT_TO_BYTEPTR(a + s * l);     \
+  p[2] = CONVERT_TO_BYTEPTR(a + 2 * s * l);
+
+void alloc_ncobmc_pred_buffer(MACROBLOCKD *const xd);
+void free_ncobmc_pred_buffer(MACROBLOCKD *const xd);
+void set_sb_mi_boundaries(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                          const int mi_row, const int mi_col);
+void reset_xd_boundary(MACROBLOCKD *xd, int mi_row, int bh, int mi_col, int bw,
+                       int mi_rows, int mi_cols);
+
+void read_ncobmc_kernels(AV1_COMMON *cm, BLOCK_SIZE bsize, FILE *fid);
+
+void get_pred_from_intrpl_buf(MACROBLOCKD *xd, int mi_row, int mi_col,
+                              BLOCK_SIZE bsize, int plane);
+
+void build_ncobmc_intrpl_pred_qd(const AV1_COMMON *const cm, MACROBLOCKD *xd,
+                                 int p, int pxl_row, int pxl_col, int block,
+                                 BLOCK_SIZE bsize,
+                                 uint8_t *preds[][MAX_MB_PLANE],
+                                 int ps[MAX_MB_PLANE],  // pred buffer strides
+                                 int mode);
+
+int av1_get_conner_preds(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
+                         int mi_row, int mi_col, int block, int mi_offset,
+                         uint8_t *dst_buf[][MAX_MB_PLANE],
+                         int dst_stride[MAX_MB_PLANE]);
+#endif
+
+void build_ncobmc_intrpl_pred(const AV1_COMMON *const cm, MACROBLOCKD *xd,
+                              int p, int pxl_row, int pxl_col, BLOCK_SIZE bsize,
+                              uint8_t *preds[][MAX_MB_PLANE],
+                              int ps[MAX_MB_PLANE],  // pred buffer strides
+                              int mode);
+
+int av1_get_ext_blk_preds(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
+                          int mi_row, int mi_col, int mi_offset,
+                          uint8_t *dst_buf[][MAX_MB_PLANE],
+                          int dst_stride[MAX_MB_PLANE]);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -598,13 +598,62 @@ static void write_ncobmc_mode(const AV1_COMMON *cm, const MODE_INFO *mi,
   ADAPT_OVERLAP_BLOCK ao_block = adapt_overlap_block_lookup[mbmi->sb_type];
   if (mbmi->motion_mode != NCOBMC_ADAPT_WEIGHT) return;
 
+#ifndef TRAINING_WEIGHTS
   av1_write_token(w, av1_ncobmc_mode_tree, cm->fc->ncobmc_mode_prob[ao_block],
                   &ncobmc_mode_encodings[mbmi->ncobmc_mode[0]]);
-
+#ifdef CHECK_MODES
+  {
+    FILE *fid = fopen(ENCODER_MODES, "a");
+    fprintf(fid, "[0]: %d\n", mbmi->ncobmc_mode[0]);
+    fclose(fid);
+  }
+#endif
   if (mi_size_wide[mbmi->sb_type] != mi_size_high[mbmi->sb_type]) {
     av1_write_token(w, av1_ncobmc_mode_tree, cm->fc->ncobmc_mode_prob[ao_block],
                     &ncobmc_mode_encodings[mbmi->ncobmc_mode[1]]);
+#ifdef CHECK_MODES
+    {
+      FILE *fid = fopen(ENCODER_MODES, "a");
+      fprintf(fid, "[1]: %d\n", mbmi->ncobmc_mode[0]);
+      fclose(fid);
+    }
+#endif
   }
+#else
+  int block;
+  for (block = 0; block < 4; ++block)
+    av1_write_token(w, av1_ncobmc_mode_tree, cm->fc->ncobmc_mode_prob[ao_block],
+                    &ncobmc_mode_encodings[mbmi->ncobmc_mode[0][block]]);
+
+#ifdef CHECK_MODES
+  {
+    FILE *fid = fopen(ENCODER_MODES, "a");
+    fprintf(fid, "[0]: ");
+    for (block = 0; block < 4; ++block)
+      fprintf(fid, "%d ", mbmi->ncobmc_mode[0][block]);
+    fprintf(fid, "\n");
+    fclose(fid);
+  }
+#endif
+
+  if (mi_size_wide[mbmi->sb_type] != mi_size_high[mbmi->sb_type]) {
+    for (block = 0; block < 4; ++block)
+      av1_write_token(w, av1_ncobmc_mode_tree,
+                      cm->fc->ncobmc_mode_prob[ao_block],
+                      &ncobmc_mode_encodings[mbmi->ncobmc_mode[1][block]]);
+
+#ifdef CHECK_MODES
+    {
+      FILE *fid = fopen(ENCODER_MODES, "a");
+      fprintf(fid, "[1]: ");
+      for (block = 0; block < 4; ++block)
+        fprintf(fid, "%d ", mbmi->ncobmc_mode[1][block]);
+      fprintf(fid, "\n");
+      fclose(fid);
+    }
+#endif
+  }
+#endif
 }
 #endif
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION

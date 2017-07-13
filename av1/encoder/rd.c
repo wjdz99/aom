@@ -473,7 +473,16 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
         av1_cost_tokens((int *)cpi->ncobmc_mode_cost[i],
                         cm->fc->ncobmc_mode_prob[i], av1_ncobmc_mode_tree);
       }
-#endif
+/*
+for (i = 0; i < ADAPT_OVERLAP_BLOCKS; ++i) {
+  fprintf(stdout, "[%d]: ", i);
+  for (int j = 0; j < MAX_NCOBMC_MODES; ++j) {
+    fprintf(stdout, "%d ", cpi->ncobmc_mode_cost[i][j]);
+  }
+  fprintf(stdout, "\n");
+}
+*/
+#endif  // CONFIG_MOTION_VAR && CONFIG_NCOBMC_ADAPT_WEIGHT
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     }
   }
