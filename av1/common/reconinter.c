@@ -1175,6 +1175,13 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
       int fwd = abs(fwd_frame_index - cur_frame_index);
       int bck = abs(cur_frame_index - bck_frame_index);
 
+//      if (mi_x == 0 && mi_y == 0) {
+//        fprintf(stderr, "frame index = %d\n", cm->current_video_frame);
+//        fprintf(stderr, "fwd_frame_index = %d\n", fwd_frame_index);
+//        fprintf(stderr, "bck_frame_index = %d\n", bck_frame_index);
+//        fprintf(stderr, "cur_frame_index = %d\n\n", cur_frame_index);
+//      }
+
       if (fwd > bck) {
         double ratio = (bck != 0) ? fwd / bck : 5.0;
         if (ratio < 1.5) {
