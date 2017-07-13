@@ -1212,7 +1212,9 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 
 #if CONFIG_CONVOLVE_ROUND
     ConvolveParams conv_params =
-        get_conv_params_no_round(ref, ref, plane, tmp_dst, MAX_SB_SIZE);
+        is_masked_compound_type(mi->mbmi.interinter_compound_type)
+            ? get_conv_params(ref, ref, plane)
+            : get_conv_params_no_round(ref, ref, plane, tmp_dst, MAX_SB_SIZE);
 #else
     ConvolveParams conv_params = get_conv_params(ref, ref, plane);
 #endif  // CONFIG_CONVOLVE_ROUND
