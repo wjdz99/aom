@@ -34,6 +34,24 @@
       "revId": "199cbfde88712ae23901a5206aaa05e68b07628b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d76e960a_dcc3be78",
+        "filename": "test/av1_inv_txfm1d_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-13T17:44:55Z",
+      "side": 1,
+      "message": "\u003e IIUC ASSERT_* macros come from gtest and are meant to be used for checking the test results.\n\u003e This assertion checks for an error in the test code itself (under-sized array).\n\u003e When possible, I think it\u0027s better to have different error messages for errors coming from the test code and errors coming from the production code.\n\nthe scope of this check is within the test framework. it might be better to report the error than abort and avoid covering the rest of the tests in a nightly run.",
+      "parentUuid": "2785f68f_d96deaf4",
+      "revId": "199cbfde88712ae23901a5206aaa05e68b07628b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
