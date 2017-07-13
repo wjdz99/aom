@@ -354,12 +354,18 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
 static void read_ncobmc_mode(AV1_COMMON *cm, MACROBLOCKD *xd, MODE_INFO *mi,
-                             NCOBMC_MODE ncobmc_mode[2], aom_reader *r) {
+#ifndef TRAINING_WEIGHTS
+                             NCOBMC_MODE ncobmc_mode[2],
+#else
+                             NCOBMC_MODE ncobmc_mode[][4],
+#endif
+                             aom_reader *r) {
   MB_MODE_INFO *mbmi = &mi->mbmi;
   FRAME_COUNTS *counts = xd->counts;
   ADAPT_OVERLAP_BLOCK ao_block = adapt_overlap_block_lookup[mbmi->sb_type];
   if (mbmi->motion_mode != NCOBMC_ADAPT_WEIGHT) return;
 
+#ifndef TRAINING_WEIGHTS
   ncobmc_mode[0] = aom_read_tree(r, av1_ncobmc_mode_tree,
                                  cm->fc->ncobmc_mode_prob[ao_block], ACCT_STR);
   if (counts) ++counts->ncobmc_mode[ao_block][ncobmc_mode[0]];
@@ -369,6 +375,23 @@ static void read_ncobmc_mode(AV1_COMMON *cm, MACROBLOCKD *xd, MODE_INFO *mi,
         r, av1_ncobmc_mode_tree, cm->fc->ncobmc_mode_prob[ao_block], ACCT_STR);
     if (counts) ++counts->ncobmc_mode[ao_block][ncobmc_mode[1]];
   }
+#else
+  int i;
+  for (i = 0; i < 4; ++i) {
+    ncobmc_mode[0][i] = aom_read_tree(
+        r, av1_ncobmc_mode_tree, cm->fc->ncobmc_mode_prob[ao_block], ACCT_STR);
+    if (counts) ++counts->ncobmc_mode[ao_block][ncobmc_mode[0][i]];
+  }
+
+  if (mi_size_wide[mbmi->sb_type] != mi_size_high[mbmi->sb_type]) {
+    for (i = 0; i < 4; ++i) {
+      ncobmc_mode[1][i] =
+          aom_read_tree(r, av1_ncobmc_mode_tree,
+                        cm->fc->ncobmc_mode_prob[ao_block], ACCT_STR);
+      if (counts) ++counts->ncobmc_mode[ao_block][ncobmc_mode[1][i]];
+    }
+  }
+#endif
 }
 #endif
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION

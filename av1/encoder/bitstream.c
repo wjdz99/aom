@@ -598,13 +598,25 @@ static void write_ncobmc_mode(const AV1_COMMON *cm, const MODE_INFO *mi,
   ADAPT_OVERLAP_BLOCK ao_block = adapt_overlap_block_lookup[mbmi->sb_type];
   if (mbmi->motion_mode != NCOBMC_ADAPT_WEIGHT) return;
 
+#ifndef TRAINING_WEIGHTS
   av1_write_token(w, av1_ncobmc_mode_tree, cm->fc->ncobmc_mode_prob[ao_block],
                   &ncobmc_mode_encodings[mbmi->ncobmc_mode[0]]);
-
   if (mi_size_wide[mbmi->sb_type] != mi_size_high[mbmi->sb_type]) {
     av1_write_token(w, av1_ncobmc_mode_tree, cm->fc->ncobmc_mode_prob[ao_block],
                     &ncobmc_mode_encodings[mbmi->ncobmc_mode[1]]);
   }
+#else
+  int block;
+  for (block = 0; block < 4; ++block)
+    av1_write_token(w, av1_ncobmc_mode_tree, cm->fc->ncobmc_mode_prob[ao_block],
+                    &ncobmc_mode_encodings[mbmi->ncobmc_mode[0][block]]);
+  if (mi_size_wide[mbmi->sb_type] != mi_size_high[mbmi->sb_type]) {
+    for (block = 0; block < 4; ++block)
+      av1_write_token(w, av1_ncobmc_mode_tree,
+                      cm->fc->ncobmc_mode_prob[ao_block],
+                      &ncobmc_mode_encodings[mbmi->ncobmc_mode[1][block]]);
+  }
+#endif
 }
 #endif
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
