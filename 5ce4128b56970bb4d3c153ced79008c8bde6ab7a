@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9503dfb6_9ebc8a27",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-07-13T22:23:57Z",
+      "side": 1,
+      "message": "Many tests fail if you directly put the lookahead into the alt-ref buffer, because the format of the alt-ref buffer isn\u0027t always the same as the lookahead peek.\n\nBy setting the frames_fwd and frames_bwd to 0 it skips any motion estimation and just resamples the lookahead into the alt-ref buffer in the stitch_images function.\n\nI believe the temporal filter does something similar (settings strength \u003d 0 and number of frames to stitch \u003d 0).",
+      "parentUuid": "ecc2c190_56616f9d",
+      "revId": "5ce4128b56970bb4d3c153ced79008c8bde6ab7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "16291849_a6c6fac2",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 6
@@ -33,6 +51,24 @@
       "revId": "5ce4128b56970bb4d3c153ced79008c8bde6ab7a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc82477b_aa9fe612",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5407,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-07-13T22:23:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16291849_a6c6fac2",
+      "revId": "5ce4128b56970bb4d3c153ced79008c8bde6ab7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
