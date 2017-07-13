@@ -1205,6 +1205,42 @@ const SubpelVarianceParams kArrayHBDSubpelVariance_sse2[] = {
   SubpelVarianceParams(3, 2, &aom_highbd_8_sub_pixel_variance8x4_sse2, 8)
 };
 
+TEST(HBDUpsampledPredTest, SSE2) {
+  uint16_t ref[128*128];
+  ACMRandom rnd_;
+  uint16_t out_c[64*64];
+  uint16_t out_asm[64*64];
+  for (int subpel_x_q3 = 0; subpel_x_q3 < 8; subpel_x_q3++) {
+    for (int subpel_y_q3 = 0; subpel_y_q3 < 8; subpel_y_q3++) {
+      for (int width_log2 = 2; width_log2 < 7; width_log2++) {
+        for (int height_log2 = 6; height_log2 < 7; height_log2++) {
+          int width = 1<<width_log2;
+          int height = 1<<height_log2;
+          for (int y = 0; y < 128; y++) {
+            for (int x = 0; x < 128; x++) {
+              ref[y*width+x] = rnd_.Rand16();
+            }
+          }
+          uint8_t* ref8 = CONVERT_TO_BYTEPTR(&ref[128*32+32]);
+          aom_highbd_upsampled_pred_c(out_c, width, height,
+                                      subpel_x_q3, subpel_y_q3,
+                                      ref8, 64, 10);
+          aom_highbd_upsampled_pred_sse2(out_asm, width, height,
+                                         subpel_x_q3, subpel_y_q3,
+                                         ref8, 64, 10);
+          int errors = 0;
+          for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+              errors += out_c[y*width+x] != out_asm[y*width+x];
+              //EXPECT_EQ(out_c[y*width+x],out_asm[y*width+x]) << "x: " << x << " y: " << y << " width: " << width << " height: " << height;
+            }
+          }
+          EXPECT_EQ(0, errors) << "subpel_x_q3: " << subpel_x_q3 << "subpel_y_q3: " << subpel_y_q3 <<" width: " << width << " height: " << height;
+        }
+      }
+    }
+  }
+}
 INSTANTIATE_TEST_CASE_P(SSE2, AvxHBDSubpelVarianceTest,
                         ::testing::ValuesIn(kArrayHBDSubpelVariance_sse2));
 
