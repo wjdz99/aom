@@ -855,6 +855,10 @@ static INLINE int av1_frame_unscaled(const AV1_COMMON *cm) {
 #endif  // CONFIG_FRAME_SUPERRES
 }
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+void print_kernels_to_file(AV1_COMMON *cm, BLOCK_SIZE bsize, FILE *fid);
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

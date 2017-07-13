@@ -1781,7 +1781,15 @@ static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #endif
   av1_read_mode_info(pbi, xd, mi_row, mi_col, r, x_mis, y_mis);
 #endif  // CONFIG_SUPERTX
-
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  {
+    const int mis = cm->mi_stride;
+    int x, y;
+    for (y = 0; y < y_mis; ++y) {
+      for (x = 0; x < x_mis; ++x) xd->mi[x + y * mis] = xd->mi[0];
+    }
+  }
+#endif
   if (bsize >= BLOCK_8X8 && (cm->subsampling_x || cm->subsampling_y)) {
     const BLOCK_SIZE uv_subsize =
         ss_size_lookup[bsize][cm->subsampling_x][cm->subsampling_y];
@@ -1797,6 +1805,146 @@ static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   int reader_corrupted_flag = aom_reader_has_error(r);
   aom_merge_corrupted_flag(&xd->corrupted, reader_corrupted_flag);
 }
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+static void set_mode_info_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                                  int mi_row, int mi_col) {
+  const int offset = mi_row * cm->mi_stride + mi_col;
+  xd->mi = cm->mi_grid_visible + offset;
+  xd->mi[0] = &cm->mi[offset];
+}
+
+static void get_ncobmc_recon(AV1_COMMON *const cm, MACROBLOCKD *xd, int mi_row,
+                             int mi_col, int bsize,
+#ifdef TRAINING_WEIGHTS
+                             int block,
+#endif
+                             int xd_mi_offset, int mode) {
+#if CONFIG_HIGHBITDEPTH
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_0[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_1[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_2[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_3[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+#else
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_0[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_1[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_2[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_3[MAX_MB_PLANE * MAX_SB_SQUARE]);
+#endif
+  uint8_t *pred_buf[4][MAX_MB_PLANE];
+  int pred_stride[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
+// target block in pxl
+#ifdef TRAINING_WEIGHTS
+  const int intrpl_size = mi_size_wide[bsize] << MI_SIZE_LOG2;
+  int pxl_row = (mi_row << MI_SIZE_LOG2) + (block / 2) * (intrpl_size >> 1);
+  int pxl_col = (mi_col << MI_SIZE_LOG2) + (block % 2) * (intrpl_size >> 1);
+#else
+  int pxl_row = mi_row << MI_SIZE_LOG2;
+  int pxl_col = mi_col << MI_SIZE_LOG2;
+#endif
+  int plane, same_src_mi;
+#if CONFIG_HIGHBITDEPTH
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    int len = sizeof(uint16_t);
+    ASSIGN_ALIGNED_PTRS_HBD(pred_buf[0], tmp_buf_0, MAX_SB_SQUARE, len);
+    ASSIGN_ALIGNED_PTRS_HBD(pred_buf[1], tmp_buf_0, MAX_SB_SQUARE, len);
+    ASSIGN_ALIGNED_PTRS_HBD(pred_buf[2], tmp_buf_0, MAX_SB_SQUARE, len);
+    ASSIGN_ALIGNED_PTRS_HBD(pred_buf[3], tmp_buf_0, MAX_SB_SQUARE, len);
+  } else {
+#endif  // CONFIG_HIGHBITDEPTH
+    ASSIGN_ALIGNED_PTRS(pred_buf[0], tmp_buf_0, MAX_SB_SQUARE);
+    ASSIGN_ALIGNED_PTRS(pred_buf[1], tmp_buf_1, MAX_SB_SQUARE);
+    ASSIGN_ALIGNED_PTRS(pred_buf[2], tmp_buf_2, MAX_SB_SQUARE);
+    ASSIGN_ALIGNED_PTRS(pred_buf[3], tmp_buf_3, MAX_SB_SQUARE);
+#if CONFIG_HIGHBITDEPTH
+  }
+#endif
+#ifdef TRAINING_WEIGHTS
+  same_src_mi = av1_get_conner_preds(cm, xd, bsize, mi_row, mi_col, block,
+                                     xd_mi_offset, pred_buf, pred_stride);
+  for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    build_ncobmc_intrpl_pred_qd(cm, xd, plane, pxl_row, pxl_col, block, bsize,
+                                pred_buf, pred_stride, mode);
+  }
+#else
+  same_src_mi = av1_get_ext_blk_preds(cm, xd, bsize, mi_row, mi_col,
+                                      xd_mi_offset, pred_buf, pred_stride);
+  for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    build_ncobmc_intrpl_pred(cm, xd, plane, pxl_row, pxl_col, bsize, pred_buf,
+                             pred_stride, mode);
+  }
+#endif
+}
+
+static void av1_get_ncobmc_recon(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                                 int bsize, const int mi_row, const int mi_col,
+#ifdef TRAINING_WEIGHTS
+                                 const NCOBMC_MODE modes[4]
+#else
+                                 const NCOBMC_MODE modes
+#endif
+                                 ) {
+  const int mi_width = mi_size_wide[bsize];
+  const int mi_height = mi_size_high[bsize];
+  int xd_mi_offset;
+#ifdef TRAINING_WEIGHTS
+  int block;
+#endif
+
+  assert(bsize >= BLOCK_8X8);
+  // set mi[0] to the top-left corner
+  set_mode_info_offsets(cm, xd, xd->sb_mi_bd.mi_row_begin,
+                        xd->sb_mi_bd.mi_col_begin);
+  xd_mi_offset = (mi_row - xd->sb_mi_bd.mi_row_begin) * xd->mi_stride +
+                 (mi_col - xd->sb_mi_bd.mi_col_begin);
+
+  reset_xd_boundary(xd, mi_row, mi_height, mi_col, mi_width, cm->mi_rows,
+                    cm->mi_cols);
+#ifdef TRAINING_WEIGHTS
+  for (block = 0; block < 4; ++block) {
+    get_ncobmc_recon(cm, xd, mi_row, mi_col, bsize, block, xd_mi_offset,
+                     modes[block]);
+  }
+#else
+  get_ncobmc_recon(cm, xd, mi_row, mi_col, bsize, xd_mi_offset, modes);
+#endif
+#ifdef CHECK_MODES_
+  {
+    FILE *fid = fopen(DECODER_MODES, "a");
+    fprintf(fid, "[%d %d]: ", mi_row, mi_col);
+    for (block = 0; block < 4; ++block) fprintf(fid, "%d ", modes[block]);
+    fprintf(fid, "\n");
+  }
+#endif
+}
+
+static void recon_ncobmc_intrpl_pred(AV1_COMMON *const cm,
+                                     MACROBLOCKD *const xd, int mi_row,
+                                     int mi_col, BLOCK_SIZE bsize) {
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  const int mi_width = mi_size_wide[bsize];
+  const int mi_height = mi_size_high[bsize];
+  const int hbs = AOMMAX(mi_size_wide[bsize] / 2, mi_size_high[bsize] / 2);
+  const BLOCK_SIZE sqr_blk = bsize_2_sqr_bsize[bsize];
+  if (mi_width > mi_height) {
+    // horizontal partition
+    av1_get_ncobmc_recon(cm, xd, sqr_blk, mi_row, mi_col, mbmi->ncobmc_mode[0]);
+    av1_get_ncobmc_recon(cm, xd, sqr_blk, mi_row, mi_col + hbs,
+                         mbmi->ncobmc_mode[1]);
+  } else if (mi_height > mi_width) {
+    // vertical partition
+    av1_get_ncobmc_recon(cm, xd, sqr_blk, mi_row, mi_col, mbmi->ncobmc_mode[0]);
+    av1_get_ncobmc_recon(cm, xd, sqr_blk, mi_row + hbs, mi_col,
+                         mbmi->ncobmc_mode[1]);
+  } else {
+    av1_get_ncobmc_recon(cm, xd, sqr_blk, mi_row, mi_col, mbmi->ncobmc_mode[0]);
+  }
+  // restore dst buffer and mode info
+  av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
+                       mi_col);
+  set_mode_info_offsets(cm, xd, mi_row, mi_col);
+}
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 
 static void decode_token_and_recon_block(AV1Decoder *const pbi,
                                          MACROBLOCKD *const xd, int mi_row,
@@ -2059,7 +2207,15 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 #endif
     }
 #endif  // CONFIG_MOTION_VAR
-
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+    if (mbmi->motion_mode == NCOBMC_ADAPT_WEIGHT) {
+      int plane;
+      recon_ncobmc_intrpl_pred(cm, xd, mi_row, mi_col, bsize);
+      for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+        get_pred_from_intrpl_buf(xd, mi_row, mi_col, bsize, plane);
+      }
+    }
+#endif
     // Reconstruction
     if (!mbmi->skip) {
       int eobtotal = 0;
@@ -3805,6 +3961,10 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
         for (mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->mib_size) {
           av1_update_boundary_info(cm, &tile_info, mi_row, mi_col);
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+          alloc_ncobmc_pred_buffer(&td->xd);
+          set_sb_mi_boundaries(cm, &td->xd, mi_row, mi_col);
+#endif
           decode_partition(pbi, &td->xd,
 #if CONFIG_SUPERTX
                            0,
@@ -3814,6 +3974,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #if (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT) && CONFIG_MOTION_VAR
           detoken_and_recon_sb(pbi, &td->xd, mi_row, mi_col, &td->bit_reader,
                                cm->sb_size);
+#endif
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+          free_ncobmc_pred_buffer(&td->xd);
 #endif
         }
         aom_merge_corrupted_flag(&pbi->mb.corrupted, td->xd.corrupted);
