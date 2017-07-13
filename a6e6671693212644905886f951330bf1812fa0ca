@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "396d56c5_ffbb66cf",
+        "filename": "configure",
+        "patchSetId": 2
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-13T05:40:04Z",
+      "side": 1,
+      "message": "Please do a rebase as gf_group is already in the current AV1 baseline.",
+      "revId": "a6e6671693212644905886f951330bf1812fa0ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
