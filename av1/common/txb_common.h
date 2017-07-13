@@ -438,4 +438,6 @@ static INLINE void get_txb_ctx(BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
 
 void av1_adapt_txb_probs(AV1_COMMON *cm, unsigned int count_sat,
                          unsigned int update_factor);
+
+void av1_dump_frame_count(AV1_COMMON *cm);
 #endif  // AV1_COMMON_TXB_COMMON_H_

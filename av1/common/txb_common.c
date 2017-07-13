@@ -147,3 +147,52 @@ void av1_adapt_txb_probs(AV1_COMMON *cm, unsigned int count_sat,
             counts->coeff_lps[tx_size][plane][ctx], count_sat, update_factor);
   }
 }
+
+void av1_dump_frame_count(AV1_COMMON *cm) {
+  const FRAME_COUNTS *counts = &cm->counts;
+  TX_SIZE tx_size;
+  int plane, ctx, level;
+  printf("\n- fidx %d type %d show %d\n", cm->current_video_frame,
+         cm->frame_type, cm->show_frame);
+  printf("\n=\n");
+  for (tx_size = 0; tx_size < TX_SIZES; ++tx_size)
+    for (ctx = 0; ctx < TXB_SKIP_CONTEXTS; ++ctx)
+      printf("%d %d,", counts->txb_skip[tx_size][ctx][0],
+             counts->txb_skip[tx_size][ctx][1]);
+
+  printf("\n=\n");
+  for (plane = 0; plane < PLANE_TYPES; ++plane)
+    for (ctx = 0; ctx < DC_SIGN_CONTEXTS; ++ctx)
+      printf("%d %d,", counts->dc_sign[plane][ctx][0],
+             counts->dc_sign[plane][ctx][1]);
+
+  printf("\n=\n");
+  for (tx_size = 0; tx_size < TX_SIZES; ++tx_size)
+    for (plane = 0; plane < PLANE_TYPES; ++plane)
+      for (level = 0; level < NUM_BASE_LEVELS; ++level)
+        for (ctx = 0; ctx < COEFF_BASE_CONTEXTS; ++ctx)
+          printf("%d %d,", counts->coeff_base[tx_size][plane][level][ctx][0],
+                 counts->coeff_base[tx_size][plane][level][ctx][1]);
+
+  printf("\n=\n");
+  for (tx_size = 0; tx_size < TX_SIZES; ++tx_size)
+    for (plane = 0; plane < PLANE_TYPES; ++plane)
+      for (ctx = 0; ctx < SIG_COEF_CONTEXTS; ++ctx)
+        printf("%d %d,", counts->nz_map[tx_size][plane][ctx][0],
+               counts->nz_map[tx_size][plane][ctx][1]);
+
+  printf("\n=\n");
+  for (tx_size = 0; tx_size < TX_SIZES; ++tx_size)
+    for (plane = 0; plane < PLANE_TYPES; ++plane)
+      for (ctx = 0; ctx < EOB_COEF_CONTEXTS; ++ctx)
+        printf("%d %d,", counts->eob_flag[tx_size][plane][ctx][0],
+               counts->eob_flag[tx_size][plane][ctx][1]);
+
+  printf("\n=\n");
+  for (tx_size = 0; tx_size < TX_SIZES; ++tx_size)
+    for (plane = 0; plane < PLANE_TYPES; ++plane)
+      for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx)
+        printf("%d %d,", counts->coeff_lps[tx_size][plane][ctx][0],
+               counts->coeff_lps[tx_size][plane][ctx][1]);
+  printf("\n");
+}

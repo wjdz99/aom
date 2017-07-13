@@ -5324,6 +5324,9 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
           aom_malloc(cm->tile_rows * cm->tile_cols *
                      sizeof(&pbi->tile_data[0].tctx.partition_cdf[0][0]));
       make_update_tile_list_dec(pbi, cm->tile_rows, cm->tile_cols, tile_ctxs);
+#if CONFIG_LV_MAP
+      av1_dump_frame_count(cm);
+#endif
       av1_adapt_coef_probs(cm);
       av1_adapt_intra_frame_probs(cm);
       av1_average_tile_coef_cdfs(pbi->common.fc, tile_ctxs, cdf_ptrs,
