@@ -75,64 +75,72 @@ void av1_get_tile_n_bits(int mi_cols, int *min_log2_tile_cols,
   assert(*min_log2_tile_cols <= *max_log2_tile_cols);
 }
 
-void av1_update_boundary_info(const struct AV1Common *cm,
-                              const TileInfo *const tile_info, int mi_row,
-                              int mi_col) {
-  int row, col;
-  for (row = mi_row; ((row < (mi_row + cm->mib_size)) && (row < cm->mi_rows));
-       row++)
-    for (col = mi_col; ((col < (mi_col + cm->mib_size)) && (col < cm->mi_cols));
-         col++) {
-      MODE_INFO *const mi = cm->mi + row * cm->mi_stride + col;
-      mi->mbmi.boundary_info = 0;
+static INLINE void set_one_boundary(MODE_INFO *start, MODE_INFO *end, int step,
+                                    int boundary) {
+  while (start < end) {
+    start->mbmi.boundary_info |= boundary;
+    start += step;
+  }
+}
 
-      // If horizontal dependent tile is enabled, then the horizontal
-      // tile boundary is not treated as real tile boundary for loop
-      // filtering, only the horizontal tile group boundary is treated
-      // as tile boundary.
-      // Otherwise, tile group boundary is treated the same as tile boundary.
-      // Loop filtering operation is done based on the
-      // loopfilter_across_tiles_enabled flag for both tile boundary and tile
-      // group boundary.
-      // the tile boundary flag is updated only when
-      // loopfilter_across_tiles_enabled value is 0.
+void av1_setup_frame_boundary_info(const AV1_COMMON *const cm) {
+  MODE_INFO *mi = cm->mi;
+  MODE_INFO *mi_end = mi + cm->mi_cols;
+  set_one_boundary(mi, mi_end, 1, FRAME_ABOVE_BOUNDARY | TILE_ABOVE_BOUNDARY);
 
-      int lpf_across_tiles_enabled = 1;
+  mi = cm->mi;
+  mi_end = mi + cm->mi_stride * cm->mi_rows;
+  set_one_boundary(mi, mi_end, cm->mi_stride,
+                   FRAME_LEFT_BOUNDARY | TILE_LEFT_BOUNDARY);
 
+  mi = cm->mi + cm->mi_stride * (cm->mi_rows - 1);
+  mi_end = mi + cm->mi_cols;
+  set_one_boundary(mi, mi_end, 1, FRAME_BOTTOM_BOUNDARY | TILE_BOTTOM_BOUNDARY);
+
+  mi = cm->mi + cm->mi_cols - 1;
+  mi_end = mi + cm->mi_stride * cm->mi_rows;
+  set_one_boundary(mi, mi_end, cm->mi_stride,
+                   FRAME_RIGHT_BOUNDARY | TILE_RIGHT_BOUNDARY);
+}
+
+void av1_setup_across_tile_boundary_info(const AV1_COMMON *const cm,
+                                         const TileInfo *const tile_info) {
+  int lpf_across_tiles_enabled = 1;
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-      lpf_across_tiles_enabled = cm->loop_filter_across_tiles_enabled;
+  lpf_across_tiles_enabled = cm->loop_filter_across_tiles_enabled;
 #endif
+  if ((cm->tile_cols * cm->tile_rows > 1) && (!lpf_across_tiles_enabled)) {
+    const int mi_row = tile_info->mi_row_start;
+    const int mi_col = tile_info->mi_col_start;
+    MODE_INFO *const mi = cm->mi + mi_row * cm->mi_stride + mi_col;
+    MODE_INFO *mi_start = 0;
+    MODE_INFO *mi_end = 0;
 
-      if ((cm->tile_cols * cm->tile_rows > 1) && (!lpf_across_tiles_enabled)) {
 #if CONFIG_DEPENDENT_HORZTILES
 #if CONFIG_TILE_GROUPS
-        if (row == tile_info->mi_row_start &&
-            (!cm->dependent_horz_tiles || tile_info->tg_horz_boundary))
+    if (!cm->dependent_horz_tiles || tile_info->tg_horz_boundary)
 #else
-        if (row == tile_info->mi_row_start && !cm->dependent_horz_tiles)
+    if (!cm->dependent_horz_tiles)
 #endif  // CONFIG_TILE_GROUPS
-#else
-        if (row == tile_info->mi_row_start)
 #endif  // CONFIG_DEPENDENT_HORZTILES
-
-          mi->mbmi.boundary_info |= TILE_ABOVE_BOUNDARY;
-        if (col == tile_info->mi_col_start)
-          mi->mbmi.boundary_info |= TILE_LEFT_BOUNDARY;
-        if ((row + 1) >= tile_info->mi_row_end)
-          mi->mbmi.boundary_info |= TILE_BOTTOM_BOUNDARY;
-        if ((col + 1) >= tile_info->mi_col_end)
-          mi->mbmi.boundary_info |= TILE_RIGHT_BOUNDARY;
-      }
-      // Frame boundary is treated as tile boundary
-      if (row == 0)
-        mi->mbmi.boundary_info |= FRAME_ABOVE_BOUNDARY | TILE_ABOVE_BOUNDARY;
-      if (col == 0)
-        mi->mbmi.boundary_info |= FRAME_LEFT_BOUNDARY | TILE_LEFT_BOUNDARY;
-      if ((row + 1) >= cm->mi_rows)
-        mi->mbmi.boundary_info |= FRAME_BOTTOM_BOUNDARY | TILE_BOTTOM_BOUNDARY;
-      if ((col + 1) >= cm->mi_cols)
-        mi->mbmi.boundary_info |= FRAME_RIGHT_BOUNDARY | TILE_RIGHT_BOUNDARY;
+    {
+      mi_start = mi;
+      mi_end = mi_start + tile_info->mi_col_end;
+      set_one_boundary(mi_start, mi_end, 1, TILE_ABOVE_BOUNDARY);
     }
+
+    mi_start = mi;
+    mi_end = mi_start + cm->mi_stride * tile_info->mi_row_end;
+    set_one_boundary(mi_start, mi_end, cm->mi_stride, TILE_LEFT_BOUNDARY);
+
+    mi_start = mi + (tile_info->mi_row_end - 1) * cm->mi_stride;
+    mi_end = mi_start + tile_info->mi_col_end;
+    set_one_boundary(mi_start, mi_end, 1, TILE_BOTTOM_BOUNDARY);
+
+    mi_start = mi + tile_info->mi_col_end - 1;
+    mi_end = mi_start + cm->mi_stride * tile_info->mi_row_end;
+    set_one_boundary(mi_start, mi_end, cm->mi_stride, TILE_RIGHT_BOUNDARY);
+  }
 }
 
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
