@@ -4515,8 +4515,6 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     MODE_INFO **mi = cm->mi_grid_visible + idx_str;
     PC_TREE *const pc_root = td->pc_root[cm->mib_size_log2 - MIN_MIB_SIZE_LOG2];
 
-    av1_update_boundary_info(cm, tile_info, mi_row, mi_col);
-
     if (sf->adaptive_pred_interp_filter) {
       for (i = 0; i < leaf_nodes; ++i)
         td->leaf_tree[i].pred_interp_filter = SWITCHABLE;
@@ -4786,6 +4784,8 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   const TileInfo *const tile_info = &this_tile->tile_info;
   TOKENEXTRA *tok = cpi->tile_tok[tile_row][tile_col];
   int mi_row;
+
+  av1_setup_across_tile_boundary_info(cm, tile_info);
 
 #if CONFIG_DEPENDENT_HORZTILES
 #if CONFIG_TILE_GROUPS
@@ -5323,6 +5323,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                        &cpi->twopass.this_frame_mb_stats);
     }
 #endif
+
+    av1_setup_frame_boundary_info(cm);
 
     // If allowed, encoding tiles in parallel with one thread handling one tile.
     // TODO(geza.lore): The multi-threaded encoder is not safe with more than
