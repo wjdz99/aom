@@ -5683,8 +5683,8 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
       if (fwd > bck) {
         double ratio = (bck != 0) ? fwd / bck : 5.0;
         if (ratio < 1.5) {
-          second_pred[4096] = 1;
-          second_pred[4097] = 1;
+          second_pred[4096] = 2;
+          second_pred[4097] = 3;
           if (mbmi->compound_idx) {
             second_pred[4096] = 3;
             second_pred[4097] = 2;
@@ -5714,8 +5714,8 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
       } else {
         double ratio = (fwd != 0) ? bck / fwd : 5.0;
         if (ratio < 1.5) {
-          second_pred[4096] = 1;
-          second_pred[4097] = 1;
+          second_pred[4096] = 3;
+          second_pred[4097] = 2;
           if (mbmi->compound_idx) {
             second_pred[4096] = 2;
             second_pred[4097] = 3;
@@ -5750,8 +5750,8 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
       if (fwd > bck) {
         double ratio = (bck != 0) ? fwd / bck : 5.0;
         if (ratio < 1.5) {
-          second_pred[4097] = 1;
-          second_pred[4096] = 1;
+          second_pred[4097] = 2;
+          second_pred[4096] = 3;
           if (mbmi->compound_idx) {
             second_pred[4097] = 3;
             second_pred[4096] = 2;
@@ -5781,8 +5781,8 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
       } else {
         double ratio = (fwd != 0) ? bck / fwd : 5.0;
         if (ratio < 1.5) {
-          second_pred[4097] = 1;
-          second_pred[4096] = 1;
+          second_pred[4097] = 3;
+          second_pred[4096] = 2;
           if (mbmi->compound_idx) {
             second_pred[4097] = 2;
             second_pred[4096] = 3;

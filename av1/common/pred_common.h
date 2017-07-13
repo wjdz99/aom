@@ -75,6 +75,11 @@ static INLINE int get_comp_index_context(const AV1_COMMON *cm,
   int above_ctx = 0, left_ctx = 0;
   int offset = (fwd > bck) ? 0 : 1;
 
+  if (fwd < (bck >> 1) + bck &&
+      bck < (fwd >> 1) + fwd) {
+    offset = 2;
+  }
+
   if (above_mi) {
     const MB_MODE_INFO *above_mbmi = &above_mi->mbmi;
     if (has_second_ref(above_mbmi))

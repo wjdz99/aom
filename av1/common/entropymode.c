@@ -1776,6 +1776,7 @@ static const aom_prob default_skip_probs[SKIP_CONTEXTS] = {
 static const aom_prob default_compound_idx_probs[COMP_INDEX_CONTEXTS] = {
     192, 128, 64,
     192, 128, 64,
+    192, 128, 64,
 };
 
 #if CONFIG_DUAL_FILTER

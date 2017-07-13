@@ -4969,12 +4969,12 @@ void av1_encode_frame(AV1_COMP *cpi) {
 #else
     if (is_alt_ref || !cpi->allow_comp_inter_inter)
       cm->reference_mode = SINGLE_REFERENCE;
-    else if (mode_thrs[COMPOUND_REFERENCE] > mode_thrs[SINGLE_REFERENCE] &&
-             mode_thrs[COMPOUND_REFERENCE] > mode_thrs[REFERENCE_MODE_SELECT] &&
-             check_dual_ref_flags(cpi) && cpi->static_mb_pct == 100)
-      cm->reference_mode = COMPOUND_REFERENCE;
-    else if (mode_thrs[SINGLE_REFERENCE] > mode_thrs[REFERENCE_MODE_SELECT])
-      cm->reference_mode = SINGLE_REFERENCE;
+//    else if (mode_thrs[COMPOUND_REFERENCE] > mode_thrs[SINGLE_REFERENCE] &&
+//             mode_thrs[COMPOUND_REFERENCE] > mode_thrs[REFERENCE_MODE_SELECT] &&
+//             check_dual_ref_flags(cpi) && cpi->static_mb_pct == 100)
+//      cm->reference_mode = COMPOUND_REFERENCE;
+//    else if (mode_thrs[SINGLE_REFERENCE] > mode_thrs[REFERENCE_MODE_SELECT])
+//      cm->reference_mode = SINGLE_REFERENCE;
     else
       cm->reference_mode = REFERENCE_MODE_SELECT;
 #endif  // CONFIG_REF_ADAPT

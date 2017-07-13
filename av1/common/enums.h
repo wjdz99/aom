@@ -435,7 +435,7 @@ typedef enum {
 
 #define SKIP_CONTEXTS 9
 
-#define COMP_INDEX_CONTEXTS 6
+#define COMP_INDEX_CONTEXTS 9
 
 #define NMV_CONTEXTS 3
 

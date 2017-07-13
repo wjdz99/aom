@@ -1185,8 +1185,8 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
       if (fwd > bck) {
         double ratio = (bck != 0) ? fwd / bck : 5.0;
         if (ratio < 1.5) {
-          conv_params.fwd_offset = 1;
-          conv_params.bck_offset = 1;
+          conv_params.fwd_offset = 2;
+          conv_params.bck_offset = 3;
           if (mi->mbmi.compound_idx) {
             conv_params.fwd_offset = 3;
             conv_params.bck_offset = 2;
@@ -1216,8 +1216,8 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
       } else {
         double ratio = (fwd != 0) ? bck / fwd : 5.0;
         if (ratio < 1.5) {
-          conv_params.fwd_offset = 1;
-          conv_params.bck_offset = 1;
+          conv_params.fwd_offset = 3;
+          conv_params.bck_offset = 2;
           if (mi->mbmi.compound_idx) {
             conv_params.fwd_offset = 2;
             conv_params.bck_offset = 3;
