@@ -10,6 +10,7 @@
  */
 
 #include <assert.h>
+#include <stdio.h>
 
 #include "./aom_scale_rtcd.h"
 #include "./aom_dsp_rtcd.h"
@@ -905,6 +906,9 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 #if CONFIG_MOTION_VAR
                             int mi_col_offset, int mi_row_offset,
 #endif  // CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+                            int build_for_ncobmc,
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
                             int block, int bw, int bh, int x, int y, int w,
                             int h,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -942,9 +946,14 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
   (void)block;
   (void)cm;
 #endif
-
+// TODO(weitinglin): ncobmc_adapt_weight needs to use this flag even offsets
+//                   are zero
 #if CONFIG_MOTION_VAR && (CONFIG_CHROMA_SUB8X8 || !CONFIG_CB4X4)
-  const int build_for_obmc = !(mi_col_offset == 0 && mi_row_offset == 0);
+  const int build_for_obmc =
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+      build_for_ncobmc ||
+#endif
+      !(mi_col_offset == 0 && mi_row_offset == 0);
 #endif  // CONFIG_MOTION_VAR && (CONFIG_CHROMA_SUB8X8 || !CONFIG_CB4X4)
 
 #if CONFIG_CHROMA_SUB8X8
@@ -1343,6 +1352,9 @@ static void build_inter_predictors_for_planes(const AV1_COMMON *cm,
 #if CONFIG_MOTION_VAR
                                  0, 0,
 #endif  // CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+                                 0,
+#endif
                                  y * 2 + x, bw, bh, 4 * x, 4 * y, pw, ph,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                                  0, 0,
@@ -1353,6 +1365,9 @@ static void build_inter_predictors_for_planes(const AV1_COMMON *cm,
 #if CONFIG_MOTION_VAR
                              0, 0,
 #endif  // CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+                             0,
+#endif
                              0, bw, bh, 0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
@@ -1449,6 +1464,30 @@ void av1_setup_pre_planes(MACROBLOCKD *xd, int idx,
     }
   }
 }
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+void av1_setup_pre_planes_pxl(MACROBLOCKD *xd, int idx,
+                              const YV12_BUFFER_CONFIG *src, int pxl_row,
+                              int pxl_col, const struct scale_factors *sf) {
+  if (src != NULL) {
+    int i;
+    uint8_t *const buffers[MAX_MB_PLANE] = { src->y_buffer, src->u_buffer,
+                                             src->v_buffer };
+    const int widths[MAX_MB_PLANE] = { src->y_crop_width, src->uv_crop_width,
+                                       src->uv_crop_width };
+    const int heights[MAX_MB_PLANE] = { src->y_crop_height, src->uv_crop_height,
+                                        src->uv_crop_height };
+    const int strides[MAX_MB_PLANE] = { src->y_stride, src->uv_stride,
+                                        src->uv_stride };
+    for (i = 0; i < MAX_MB_PLANE; ++i) {
+      struct macroblockd_plane *const pd = &xd->plane[i];
+      setup_pred_plane_pxl(&pd->pre[idx], buffers[i], widths[i], heights[i],
+                           strides[i], pxl_row, pxl_col, sf, pd->subsampling_x,
+                           pd->subsampling_y);
+    }
+  }
+}
+#endif
 
 #if CONFIG_SUPERTX
 #if CONFIG_CB4X4
@@ -2061,8 +2100,11 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                   4);
 
       if (skip_u4x4_pred_in_obmc(bsize, pd, 0)) continue;
-      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
-                             0, 0, bw, bh,
+      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset,
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+                             0,
+#endif
+                             0, bw, bh, 0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -2158,8 +2200,11 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
       bh = (mi_step << MI_SIZE_LOG2) >> pd->subsampling_y;
 
       if (skip_u4x4_pred_in_obmc(bsize, pd, 1)) continue;
-      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
-                             0, 0, bw, bh,
+      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset,
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+                             0,
+#endif
+                             0, bw, bh, 0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -2603,6 +2648,31 @@ void av1_build_ncobmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                        mi_col);
 }
 #endif  // CONFIG_NCOBMC
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+void reset_xd_boundary(MACROBLOCKD *xd, int mi_row, int bh, int mi_col, int bw,
+                       int mi_rows, int mi_cols) {
+  xd->mb_to_top_edge = -((mi_row * MI_SIZE) * 8);
+  xd->mb_to_bottom_edge = ((mi_rows - bh - mi_row) * MI_SIZE) * 8;
+  xd->mb_to_left_edge = -((mi_col * MI_SIZE) * 8);
+  xd->mb_to_right_edge = ((mi_cols - bw - mi_col) * MI_SIZE) * 8;
+}
+void set_sb_mi_boundaries(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                          const int mi_row, const int mi_col) {
+  const BLOCK_SIZE sb = cm->sb_size;
+  const int num_mi_w = mi_size_wide[sb];
+  const int num_mi_h = mi_size_high[sb];
+
+  xd->sb_mi_bd.mi_col_begin = mi_col;
+  xd->sb_mi_bd.mi_row_begin = mi_row;
+  // points to the last mi
+  xd->sb_mi_bd.mi_col_end =
+      mi_col + num_mi_w > cm->mi_cols ? cm->mi_cols - 1 : mi_col + num_mi_w - 1;
+  xd->sb_mi_bd.mi_row_end =
+      mi_row + num_mi_h > cm->mi_rows ? cm->mi_rows - 1 : mi_row + num_mi_h - 1;
+}
+#endif
+
 #endif  // CONFIG_MOTION_VAR
 
 #if CONFIG_EXT_INTER
@@ -3154,3 +3224,450 @@ void av1_build_wedge_inter_predictor_from_buf(
   }
 }
 #endif  // CONFIG_EXT_INTER
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+
+#define LINE_BUF_SIZE 200000
+void read_ncobmc_kernels(AV1_COMMON *cm, BLOCK_SIZE bsize, FILE *fid) {
+  const ADAPT_OVERLAP_BLOCK ao_block = adapt_overlap_block_lookup[bsize];
+  char line[LINE_BUF_SIZE];
+  char *endptr;
+  int mode, pos, r, c;
+  const int mk_width = (num_4x4_blocks_wide_lookup[bsize] << 2);
+  const int mk_height = (num_4x4_blocks_high_lookup[bsize] << 2);
+
+  assert(ao_block <= ADAPT_OVERLAP_BLOCK_64X64);
+
+  for (mode = 0; mode < MAX_NCOBMC_MODES + 1; ++mode) {
+    for (pos = 0; pos < 4; pos++) {
+      fgets(line, LINE_BUF_SIZE, fid);
+      char *s = line;
+
+      for (r = 0; r < mk_height; ++r) {
+        for (c = 0; c < mk_width; ++c) {
+          int val = strtol(s, &endptr, 10);
+          // double val = ((double)tmp) / 1e5;
+          switch (pos) {
+            case 0:
+              cm->ncobmc_kernels[ao_block][mode].KERNEL_TL[r][c] = val;
+              break;
+            case 1:
+              cm->ncobmc_kernels[ao_block][mode].KERNEL_TR[r][c] = val;
+              break;
+            case 2:
+              cm->ncobmc_kernels[ao_block][mode].KERNEL_BL[r][c] = val;
+              break;
+            case 3:
+              cm->ncobmc_kernels[ao_block][mode].KERNEL_BR[r][c] = val;
+              break;
+            default: assert(0 && "invalid kernel position"); break;
+          }
+          s = endptr++;  // skip the space
+        }
+      }
+    }
+  }
+}
+
+void alloc_ncobmc_pred_buffer(MACROBLOCKD *const xd) {
+  int i;
+  // allocate interpolated prediction buffer
+  for (i = 0; i < MAX_MB_PLANE; ++i) {
+    xd->ncobmc_pred_buf[i] = (uint8_t *)malloc(sizeof(uint8_t) * MAX_SB_SQUARE);
+    av1_zero_array(xd->ncobmc_pred_buf[i], MAX_SB_SQUARE);
+    xd->ncobmc_pred_buf_stride[i] = MAX_SB_SIZE;
+  }
+}
+
+void free_ncobmc_pred_buffer(MACROBLOCKD *const xd) {
+  int i;
+  for (i = 0; i < MAX_MB_PLANE; ++i) free(xd->ncobmc_pred_buf[i]);
+}
+
+void get_pred_from_intrpl_buf(MACROBLOCKD *xd, int mi_row, int mi_col,
+                              BLOCK_SIZE bsize, int plane) {
+  uint8_t *dst = xd->plane[plane].dst.buf;
+  int ds = xd->plane[plane].dst.stride;
+  int ss_x = xd->plane[plane].subsampling_x;
+  int ss_y = xd->plane[plane].subsampling_y;
+
+  const int ip_wide = mi_size_wide[bsize] * MI_SIZE >> ss_x;
+  const int ip_high = mi_size_high[bsize] * MI_SIZE >> ss_y;
+  // relative coordinates of this MI in the superblock
+  int row_rlt = (mi_row - xd->sb_mi_bd.mi_row_begin) * MI_SIZE >> ss_y;
+  int col_rlt = (mi_col - xd->sb_mi_bd.mi_col_begin) * MI_SIZE >> ss_x;
+  int s = xd->ncobmc_pred_buf_stride[plane];
+  int r, c;
+
+  for (r = 0; r < ip_high; ++r) {
+    for (c = 0; c < ip_wide; ++c) {
+      dst[r * ds + c] =
+          xd->ncobmc_pred_buf[plane][(r + row_rlt) * s + c + col_rlt];
+    }
+  }
+}
+
+// Used in training phase
+// Build interpolated prediction for each quadrant in a block
+// Side information is quadruple in this experiment
+void build_ncobmc_intrpl_pred_qd(const AV1_COMMON *const cm, MACROBLOCKD *xd,
+                                 int p, int pxl_row, int pxl_col, int block,
+                                 BLOCK_SIZE bsize,
+                                 uint8_t *preds[][MAX_MB_PLANE],
+                                 int ps[MAX_MB_PLANE],  // pred buffer strides
+                                 int mode) {
+  const ADAPT_OVERLAP_BLOCK ao_block = adapt_overlap_block_lookup[bsize];
+  const NCOBMC_KERNELS *const knls = &cm->ncobmc_kernels[ao_block][mode];
+  const int wide = mi_size_wide[bsize] * MI_SIZE / 2;
+  const int high = mi_size_high[bsize] * MI_SIZE / 2;
+  const int s = ps[p];
+  const int ss_x = xd->plane[p].subsampling_x;
+  const int ss_y = xd->plane[p].subsampling_y;
+  int row_offset = (pxl_row - xd->sb_mi_bd.mi_row_begin * MI_SIZE) >> ss_y;
+  int col_offset = (pxl_col - xd->sb_mi_bd.mi_col_begin * MI_SIZE) >> ss_x;
+  int dst_stride = xd->ncobmc_pred_buf_stride[p];
+  int dst_offset = row_offset * dst_stride + col_offset;
+
+  // scaling factors for ncobmc kernels
+  const int sc_log = 14;
+
+#if CONFIG_HIGHBITDEPTH
+  const int is_hbd = (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ? 1 : 0;
+#else
+  const int is_hbd = 0;
+#endif  // CONFIG_HIGHBITDEPTH
+
+  int r, c, k_r_offset, k_c_offset, k_r, k_c;
+  int64_t tmp;
+  // kernel offset for each quadrant
+  k_r_offset = (1 - block / 2) * high;
+  k_c_offset = (1 - block % 2) * wide;
+
+  for (r = 0; r < (high >> ss_x); ++r) {
+    for (c = 0; c < (wide >> ss_y); ++c) {
+      int pos = r * s + c;
+      // int buf_loc = r * dst_stride + c + dst_offset;
+      int q_tmp;
+      uint8_t val;
+
+      // TODO(weitinglin): find out the optimal sub-sampling patterns for
+      //                    chroma
+      k_r = (r << ss_y) + ss_y + k_r_offset;
+      k_c = (c << ss_x) + ss_x + k_c_offset;
+      if (ss_y && k_r >= high) k_r -= 1;
+      if (ss_x && k_c >= wide) k_c -= 1;
+
+      if (!is_hbd) {
+        uint8_t *tmp_p[4];
+        int i;
+        for (i = 0; i < 4; ++i) tmp_p[i] = preds[i][p];
+
+        tmp = (int64_t)knls->KERNEL_TL[k_r][k_c] * tmp_p[0][pos] +
+              (int64_t)knls->KERNEL_TR[k_r][k_c] * tmp_p[1][pos] +
+              (int64_t)knls->KERNEL_BL[k_r][k_c] * tmp_p[2][pos] +
+              (int64_t)knls->KERNEL_BR[k_r][k_c] * tmp_p[3][pos];
+
+      } else {
+        uint16_t *tmp_p[4];
+        int i;
+        for (i = 0; i < 4; ++i) tmp_p[i] = CONVERT_TO_SHORTPTR(preds[i][p]);
+
+        tmp = (int64_t)knls->KERNEL_TL[k_r][k_c] * tmp_p[0][pos] +
+              (int64_t)knls->KERNEL_TR[k_r][k_c] * tmp_p[1][pos] +
+              (int64_t)knls->KERNEL_BL[k_r][k_c] * tmp_p[2][pos] +
+              (int64_t)knls->KERNEL_BR[k_r][k_c] * tmp_p[3][pos];
+      }
+
+      q_tmp = (int)((tmp >> sc_log) + ((tmp >> (sc_log - 1)) & 1));
+      val = q_tmp < 0 ? 0 : (q_tmp > 255 ? 255 : q_tmp);
+
+      xd->ncobmc_pred_buf[p][r * dst_stride + c + dst_offset] = val;
+    }
+  }
+}
+// #define GET_ORI_PRED
+// Get the four predictions for a quadrant of the current block
+int av1_get_conner_preds(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
+                         int mi_row, int mi_col, int block, int mi_offset,
+                         uint8_t *dst_buf[][MAX_MB_PLANE],
+                         int dst_stride[MAX_MB_PLANE]) {
+  MACROBLOCKD backup_xd = *xd;
+  // mi[0] most point to the top-left most mi in a superblock
+  // mi_offset points to the mi at [mi_row, mi_col]
+  MODE_INFO *mi_addr = xd->mi[mi_offset];
+  const int intrpl_size = mi_size_wide[bsize] << (MI_SIZE_LOG2 - 1);
+  // if either one is true, ncobmc mode is skipped
+  int same_src_mi = 1;
+  int has_intra_neighbor = 0;
+#ifdef GET_ORI_PRED
+  const int mi_row_sft = 0;
+  const int mi_col_sft = 0;
+  // location of the four mi sources
+  int mi_row_offset[4] = { 0, 0, 0, 0 };
+  int mi_col_offset[4] = { 0, 0, 0, 0 };
+#else
+  // shift mi such that it points to the top-left mi
+  const int mi_row_sft = -(1 - block / 2) * mi_size_high[bsize];
+  const int mi_col_sft = -(1 - block % 2) * mi_size_wide[bsize];
+  // location of the four mi sources
+  int mi_row_offset[4] = { 0, 0, mi_size_high[bsize], mi_size_high[bsize] };
+  int mi_col_offset[4] = { 0, mi_size_wide[bsize], 0, mi_size_wide[bsize] };
+#endif
+  int mi_x, mi_y, bh, bw;
+  int i, j, ref;
+
+  mi_x = (mi_col << MI_SIZE_LOG2) + (block % 2) * intrpl_size;
+  mi_y = (mi_row << MI_SIZE_LOG2) + (block / 2) * intrpl_size;
+
+  // build predictions to the corresponding buffers
+  for (i = 0; i < 4; ++i) {
+    int this_mi_row = mi_row_sft + mi_row_offset[i];
+    int this_mi_col = mi_col_sft + mi_col_offset[i];
+    MODE_INFO *this_mi;
+    MB_MODE_INFO *this_mbmi;
+
+    // check if the target mi is within the superblock boundary
+    if (this_mi_row + mi_row < 0 ||
+        this_mi_row + mi_row > xd->sb_mi_bd.mi_row_end)
+      this_mi_row = 0;
+    if (this_mi_col + mi_col < 0 ||
+        this_mi_col + mi_col > xd->sb_mi_bd.mi_col_end)
+      this_mi_col = 0;
+
+    this_mi = xd->mi[this_mi_row * xd->mi_stride + this_mi_col + mi_offset];
+    this_mbmi = &this_mi->mbmi;
+
+    // TODO(weitinglin): deal with intra neighbors
+    if (!is_inter_block(this_mbmi)) {
+      this_mi_row = 0;
+      this_mi_col = 0;
+      this_mi = xd->mi[this_mi_row * xd->mi_stride + this_mi_col + mi_offset];
+      this_mbmi = &this_mi->mbmi;
+      has_intra_neighbor = 1;
+    }
+
+    same_src_mi &= (this_mi == mi_addr);
+
+    for (j = 0; j < MAX_MB_PLANE; ++j) {
+      struct macroblockd_plane *const pd = &xd->plane[j];
+      setup_pred_plane_pxl(&pd->dst, dst_buf[i][j], MAX_SB_SIZE, MAX_SB_SIZE,
+                           dst_stride[j], 0, 0, NULL, pd->subsampling_x,
+                           pd->subsampling_y);
+    }
+
+    for (ref = 0; ref < 1 + has_second_ref(this_mbmi); ++ref) {
+      const MV_REFERENCE_FRAME frame = this_mbmi->ref_frame[ref];
+      const RefBuffer *const ref_buf = &cm->frame_refs[frame - LAST_FRAME];
+      xd->block_refs[ref] = ref_buf;
+
+      if (!av1_is_valid_scale(&ref_buf->sf))
+        aom_internal_error(xd->error_info, AOM_CODEC_UNSUP_BITSTREAM,
+                           "Reference frame has invalid dimensions");
+
+      av1_setup_pre_planes_pxl(xd, ref, ref_buf->buf, mi_y, mi_x, &ref_buf->sf);
+    }
+
+    for (j = 0; j < MAX_MB_PLANE; ++j) {
+      const struct macroblockd_plane *pd = &xd->plane[j];
+      bh = intrpl_size >> pd->subsampling_y;
+      bw = intrpl_size >> pd->subsampling_x;
+      build_inter_predictors(cm, xd, j, this_mi_col + mi_offset, this_mi_row, 1,
+                             0, bw, bh, 0, 0, bw, bh,
+#if CONFIG_SUPERTX && CONFIG_EXT_INTER
+                             0, 0,
+#endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
+                             mi_x, mi_y);
+    }
+  }
+  *xd = backup_xd;
+  return same_src_mi || has_intra_neighbor;
+}
+
+void build_ncobmc_intrpl_pred(const AV1_COMMON *const cm, MACROBLOCKD *xd,
+                              int p, int pxl_row, int pxl_col, BLOCK_SIZE bsize,
+                              uint8_t *preds[][MAX_MB_PLANE],
+                              int ps[MAX_MB_PLANE],  // pred buffer strides
+                              int mode) {
+  const ADAPT_OVERLAP_BLOCK ao_block = adapt_overlap_block_lookup[bsize];
+  const NCOBMC_KERNELS *const knls = &cm->ncobmc_kernels[ao_block][mode];
+  const int wide = mi_size_wide[bsize] * MI_SIZE;
+  const int high = mi_size_high[bsize] * MI_SIZE;
+  const int s = ps[p];
+  const int ss_x = xd->plane[p].subsampling_x;
+  const int ss_y = xd->plane[p].subsampling_y;
+  int row_offset = (pxl_row - xd->sb_mi_bd.mi_row_begin * MI_SIZE) >> ss_y;
+  int col_offset = (pxl_col - xd->sb_mi_bd.mi_col_begin * MI_SIZE) >> ss_x;
+  int dst_stride = xd->ncobmc_pred_buf_stride[p];
+  int dst_offset = row_offset * dst_stride + col_offset;
+
+  // scaling factors for ncobmc kernels
+  const int sc_log = 14;
+
+#if CONFIG_HIGHBITDEPTH
+  const int is_hbd = (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ? 1 : 0;
+#else
+  const int is_hbd = 0;
+#endif  // CONFIG_HIGHBITDEPTH
+
+  int r, c, k_r, k_c;
+  int64_t tmp;
+
+  for (r = 0; r < (high >> ss_x); ++r) {
+    for (c = 0; c < (wide >> ss_y); ++c) {
+      int pos = r * s + c;
+      // int buf_loc = r * dst_stride + c + dst_offset;
+      int q_tmp;
+      uint8_t val;
+
+      // TODO(weitinglin): find out the optimal sub-sampling patterns for
+      //                    chroma
+      k_r = (r << ss_y) + ss_y;
+      k_c = (c << ss_x) + ss_x;
+      if (ss_y && k_r >= high) k_r -= 1;
+      if (ss_x && k_c >= wide) k_c -= 1;
+
+      if (!is_hbd) {
+        uint8_t *tmp_p[4];
+        int i;
+        for (i = 0; i < 4; ++i) tmp_p[i] = preds[i][p];
+
+        tmp = (int64_t)knls->KERNEL_TL[k_r][k_c] * tmp_p[0][pos] +
+              (int64_t)knls->KERNEL_TR[k_r][k_c] * tmp_p[1][pos] +
+              (int64_t)knls->KERNEL_BL[k_r][k_c] * tmp_p[2][pos] +
+              (int64_t)knls->KERNEL_BR[k_r][k_c] * tmp_p[3][pos];
+      } else {
+        uint16_t *tmp_p[4];
+        int i;
+        for (i = 0; i < 4; ++i) tmp_p[i] = CONVERT_TO_SHORTPTR(preds[i][p]);
+
+        tmp = (int64_t)knls->KERNEL_TL[k_r][k_c] * tmp_p[0][pos] +
+              (int64_t)knls->KERNEL_TR[k_r][k_c] * tmp_p[1][pos] +
+              (int64_t)knls->KERNEL_BL[k_r][k_c] * tmp_p[2][pos] +
+              (int64_t)knls->KERNEL_BR[k_r][k_c] * tmp_p[3][pos];
+      }
+
+      q_tmp = (int)((tmp >> sc_log) + ((tmp >> (sc_log - 1)) & 1));
+      val = q_tmp < 0 ? 0 : (q_tmp > 255 ? 255 : q_tmp);
+
+      xd->ncobmc_pred_buf[p][r * dst_stride + c + dst_offset] = val;
+    }
+  }
+}
+// #define GET_ORI_PRED
+int av1_get_quadrant_preds(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
+                           int mi_row, int mi_col, int block, int mi_offset,
+                           int buffer_map[4], uint8_t *dst_buf[][MAX_MB_PLANE],
+                           int dst_stride[MAX_MB_PLANE]) {
+  MACROBLOCKD backup_xd = *xd;
+  // mi[0] most point to the top-left most mi in a superblock
+  // mi_offset points to the mi at [mi_row, mi_col]
+  MODE_INFO *mi_addr = xd->mi[mi_offset];
+  const int intrpl_size = mi_size_wide[bsize] << (MI_SIZE_LOG2 - 1);
+  // if either one is true, ncobmc mode is skipped
+  int same_src_mi = 1;
+  int has_intra_neighbor = 0;
+#ifdef GET_ORI_PRED
+  const int mi_row_sft = 0;
+  const int mi_col_sft = 0;
+  // location of the four mi sources
+  int mi_row_offset[4] = { 0, 0, 0, 0 };
+  int mi_col_offset[4] = { 0, 0, 0, 0 };
+#else
+  // shift mi such that it points to the top-left mi
+  const int mi_row_sft = -(1 - block / 2) * mi_size_high[bsize];
+  const int mi_col_sft = -(1 - block % 2) * mi_size_wide[bsize];
+
+  // location of the four mi sources
+  int mi_row_offset[4] = { 0, 0, mi_size_high[bsize], mi_size_high[bsize] };
+  int mi_col_offset[4] = { 0, mi_size_wide[bsize], 0, mi_size_wide[bsize] };
+#endif
+  int mi_x, mi_y, bh, bw;
+  int i, j, ref;
+
+  mi_x = (mi_col << MI_SIZE_LOG2) + (block % 2) * intrpl_size;
+  mi_y = (mi_row << MI_SIZE_LOG2) + (block / 2) * intrpl_size;
+
+  // build predictions to the corresponding buffers
+  for (i = 0; i < 4; ++i) {
+    int this_mi_row = mi_row_sft + mi_row_offset[i];
+    int this_mi_col = mi_col_sft + mi_col_offset[i];
+    MODE_INFO *this_mi;
+    MB_MODE_INFO *this_mbmi;
+    // buffer holding the prediction from this mi
+    int pred_buf_idx = buffer_map[i];
+
+    // check if the target mi is within the superblock boundary
+    if (this_mi_row + mi_row < 0 ||
+        this_mi_row + mi_row > xd->sb_mi_bd.mi_row_end)
+      this_mi_row = 0;
+    if (this_mi_col + mi_col < 0 ||
+        this_mi_col + mi_col > xd->sb_mi_bd.mi_col_end)
+      this_mi_col = 0;
+
+    this_mi = xd->mi[this_mi_row * xd->mi_stride + this_mi_col + mi_offset];
+    this_mbmi = &this_mi->mbmi;
+
+    // TODO(weitinglin): deal with intra neighbors
+    if (!is_inter_block(this_mbmi)) {
+      this_mi_row = 0;
+      this_mi_col = 0;
+      this_mi = xd->mi[this_mi_row * xd->mi_stride + this_mi_col + mi_offset];
+      this_mbmi = &this_mi->mbmi;
+      has_intra_neighbor = 1;
+    }
+
+    same_src_mi &= (this_mi == mi_addr);
+
+    for (j = 0; j < MAX_MB_PLANE; ++j) {
+      struct macroblockd_plane *const pd = &xd->plane[j];
+      // have offset terms to stitch predictions
+      setup_pred_plane_pxl(&pd->dst, dst_buf[pred_buf_idx][j], MAX_SB_SIZE,
+                           MAX_SB_SIZE, dst_stride[j],
+                           (block / 2) * intrpl_size, (block % 2) * intrpl_size,
+                           NULL, pd->subsampling_x, pd->subsampling_y);
+    }
+
+    for (ref = 0; ref < 1 + has_second_ref(this_mbmi); ++ref) {
+      const MV_REFERENCE_FRAME frame = this_mbmi->ref_frame[ref];
+      const RefBuffer *const ref_buf = &cm->frame_refs[frame - LAST_FRAME];
+      xd->block_refs[ref] = ref_buf;
+
+      if (!av1_is_valid_scale(&ref_buf->sf))
+        aom_internal_error(xd->error_info, AOM_CODEC_UNSUP_BITSTREAM,
+                           "Reference frame has invalid dimensions");
+
+      av1_setup_pre_planes_pxl(xd, ref, ref_buf->buf, mi_y, mi_x, &ref_buf->sf);
+    }
+
+    for (j = 0; j < MAX_MB_PLANE; ++j) {
+      const struct macroblockd_plane *pd = &xd->plane[j];
+      bh = intrpl_size >> pd->subsampling_y;
+      bw = intrpl_size >> pd->subsampling_x;
+      build_inter_predictors(cm, xd, j, this_mi_col + mi_offset, this_mi_row, 1,
+                             0, bw, bh, 0, 0, bw, bh,
+#if CONFIG_SUPERTX && CONFIG_EXT_INTER
+                             0, 0,
+#endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
+                             mi_x, mi_y);
+    }
+  }
+  *xd = backup_xd;
+  return same_src_mi || has_intra_neighbor;
+}
+
+// get the stitched extra prediction for this block
+int av1_get_ext_blk_preds(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
+                          int mi_row, int mi_col, int mi_offset,
+                          uint8_t *dst_buf[][MAX_MB_PLANE],
+                          int dst_stride[MAX_MB_PLANE]) {
+  // the map from mis to its corresponding buffer
+  static int buffer_map[4][4] = {
+    { 0, 1, 2, 3 }, { 1, 0, 3, 2 }, { 2, 3, 0, 1 }, { 3, 2, 1, 0 }
+  };
+  int block, has_same_src_mi = 1;
+  for (block = 0; block < 4; ++block)
+    has_same_src_mi &=
+        av1_get_quadrant_preds(cm, xd, bsize, mi_row, mi_col, block, mi_offset,
+                               buffer_map[block], dst_buf, dst_stride);
+  return has_same_src_mi;
+}
+#endif
