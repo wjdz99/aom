@@ -1092,6 +1092,64 @@ INSTANTIATE_TEST_CASE_P(
         SubpelAvgVarianceParams(2, 3, &aom_sub_pixel_avg_variance4x8_sse2, 0),
         SubpelAvgVarianceParams(2, 2, &aom_sub_pixel_avg_variance4x4_sse2, 0)));
 
+int check_upsampled_pred_sse2(int width, int height, int subpel_x_q3,
+                              int subpel_y_q3, uint8_t *ref) {
+  uint8_t out_c[64 * 64];
+  uint8_t out_asm[64 * 64];
+  uint8_t *ref8 = &ref[128 * 32 + 32];
+  aom_upsampled_pred_c(out_c, width, height, subpel_x_q3, subpel_y_q3, ref8,
+                       64);
+  aom_upsampled_pred_sse2(out_asm, width, height, subpel_x_q3, subpel_y_q3,
+                          ref8, 64);
+  int errors = 0;
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      errors += out_c[y * width + x] != out_asm[y * width + x];
+    }
+  }
+  return errors;
+}
+
+TEST(UpsampledPredTest, SSE2) {
+  uint8_t ref[128 * 128];
+  ACMRandom rnd_;
+  for (int subpel_x_q3 = 0; subpel_x_q3 < 8; subpel_x_q3++) {
+    for (int subpel_y_q3 = 0; subpel_y_q3 < 8; subpel_y_q3++) {
+      for (int width_log2 = 2; width_log2 < 7; width_log2++) {
+        for (int height_log2 = 2; height_log2 < 7; height_log2++) {
+          int errors = 0;
+          int width = 1 << width_log2;
+          int height = 1 << height_log2;
+          for (int y = 0; y < 128; y++) {
+            for (int x = 0; x < 128; x++) {
+              ref[y * width + x] = rnd_.Rand8();
+            }
+          }
+          errors += check_upsampled_pred_sse2(width, height, subpel_x_q3,
+                                              subpel_y_q3, ref);
+          for (int y = 0; y < 128; y++) {
+            for (int x = 0; x < 128; x++) {
+              ref[y * width + x] = 0xFF;
+            }
+          }
+          errors += check_upsampled_pred_sse2(width, height, subpel_x_q3,
+                                              subpel_y_q3, ref);
+          for (int y = 0; y < 128; y++) {
+            for (int x = 0; x < 128; x++) {
+              ref[y * width + x] = 0;
+            }
+          }
+          errors += check_upsampled_pred_sse2(width, height, subpel_x_q3,
+                                              subpel_y_q3, ref);
+          EXPECT_EQ(0, errors) << "subpel_x_q3: " << subpel_x_q3
+                               << "subpel_y_q3: " << subpel_y_q3
+                               << " width: " << width << " height: " << height;
+        }
+      }
+    }
+  }
+}
+
 #if HAVE_SSE4_1 && CONFIG_HIGHBITDEPTH
 INSTANTIATE_TEST_CASE_P(
     SSE4_1, AvxSubpelVarianceTest,
@@ -1204,6 +1262,67 @@ const SubpelVarianceParams kArrayHBDSubpelVariance_sse2[] = {
   SubpelVarianceParams(3, 3, &aom_highbd_8_sub_pixel_variance8x8_sse2, 8),
   SubpelVarianceParams(3, 2, &aom_highbd_8_sub_pixel_variance8x4_sse2, 8)
 };
+
+int check_hbd_upsampled_pred_sse2(int width, int height, int subpel_x_q3,
+                                  int subpel_y_q3, uint16_t *ref, int bd) {
+  uint16_t out_c[64 * 64];
+  uint16_t out_asm[64 * 64];
+  uint8_t *ref8 = CONVERT_TO_BYTEPTR(&ref[128 * 32 + 32]);
+  aom_highbd_upsampled_pred_c(out_c, width, height, subpel_x_q3, subpel_y_q3,
+                              ref8, 64, 10);
+  aom_highbd_upsampled_pred_sse2(out_asm, width, height, subpel_x_q3,
+                                 subpel_y_q3, ref8, 64, 10);
+  int errors = 0;
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      errors += out_c[y * width + x] != out_asm[y * width + x];
+    }
+  }
+  return errors;
+}
+
+TEST(HBDUpsampledPredTest, SSE2) {
+  uint16_t ref[128 * 128];
+  ACMRandom rnd_;
+  for (int subpel_x_q3 = 0; subpel_x_q3 < 8; subpel_x_q3++) {
+    for (int subpel_y_q3 = 0; subpel_y_q3 < 8; subpel_y_q3++) {
+      for (int width_log2 = 2; width_log2 < 7; width_log2++) {
+        for (int height_log2 = 2; height_log2 < 7; height_log2++) {
+          for (int bd = 10; bd <= 12; bd += 2) {
+            int errors = 0;
+            int width = 1 << width_log2;
+            int height = 1 << height_log2;
+            for (int y = 0; y < 128; y++) {
+              for (int x = 0; x < 128; x++) {
+                ref[y * width + x] = rnd_.Rand16() & ((1 << bd) - 1);
+              }
+            }
+            errors += check_hbd_upsampled_pred_sse2(width, height, subpel_x_q3,
+                                                    subpel_y_q3, ref, bd);
+            for (int y = 0; y < 128; y++) {
+              for (int x = 0; x < 128; x++) {
+                ref[y * width + x] = (1 << bd) - 1;
+              }
+            }
+            errors += check_hbd_upsampled_pred_sse2(width, height, subpel_x_q3,
+                                                    subpel_y_q3, ref, bd);
+            for (int y = 0; y < 128; y++) {
+              for (int x = 0; x < 128; x++) {
+                ref[y * width + x] = 0;
+              }
+            }
+            errors += check_hbd_upsampled_pred_sse2(width, height, subpel_x_q3,
+                                                    subpel_y_q3, ref, bd);
+            EXPECT_EQ(0, errors)
+                << "subpel_x_q3: " << subpel_x_q3
+                << "subpel_y_q3: " << subpel_y_q3 << " width: " << width
+                << " height: " << height;
+          }
+        }
+      }
+    }
+  }
+}
 
 INSTANTIATE_TEST_CASE_P(SSE2, AvxHBDSubpelVarianceTest,
                         ::testing::ValuesIn(kArrayHBDSubpelVariance_sse2));
