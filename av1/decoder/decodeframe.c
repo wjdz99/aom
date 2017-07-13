@@ -305,7 +305,7 @@ static int get_block_idx(const MACROBLOCKD *xd, int plane, int row, int col) {
       get_plane_block_size(AOMMAX(BLOCK_8X8, bsize), pd);
 #endif
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
-  const TX_SIZE tx_size = get_tx_size(plane, xd);
+  const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
   const uint8_t txh_unit = tx_size_high_unit[tx_size];
   return row * max_blocks_wide + col * txh_unit;
 }
@@ -1987,7 +1987,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 #endif  // CONFIG_PALETTE
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
       const struct macroblockd_plane *const pd = &xd->plane[plane];
-      const TX_SIZE tx_size = get_tx_size(plane, xd);
+      const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
       const int stepr = tx_size_high_unit[tx_size];
       const int stepc = tx_size_wide_unit[tx_size];
 #if CONFIG_CHROMA_SUB8X8

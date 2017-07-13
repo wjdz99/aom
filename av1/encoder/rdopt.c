@@ -4193,7 +4193,7 @@ static int super_block_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x,
                             int64_t ref_best_rd) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  const TX_SIZE uv_tx_size = get_uv_tx_size(mbmi, &xd->plane[1]);
+  const TX_SIZE uv_tx_size = av1_get_uv_tx_size(mbmi, &xd->plane[1]);
   int plane;
   int is_cost_valid = 1;
   av1_init_rd_stats(rd_stats);

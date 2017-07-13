@@ -1625,7 +1625,7 @@ void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
 
   if (enable_optimize_b) {
     const struct macroblockd_plane *const pd = &xd->plane[plane];
-    const TX_SIZE tx_size = get_tx_size(plane, xd);
+    const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
     av1_get_entropy_contexts(bsize, tx_size, pd, ta, tl);
   }
   av1_foreach_transformed_block_in_plane(
