@@ -2182,6 +2182,11 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
 
+#if 0
+  // NOTE(zoeliu): For debug
+  rc->baseline_gf_interval = 6;
+#endif
+
 #if CONFIG_EXT_REFS
   // Compute how many extra alt_refs we can have
   cpi->num_extra_arfs = get_number_of_extra_arfs(rc->baseline_gf_interval,
@@ -2194,6 +2199,11 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
 #if CONFIG_EXT_REFS
   rc->bipred_group_interval = BFG_INTERVAL;
+#if CONFIG_GF_GROUPS
+  // last_bipred | BRF | last_bipred | BRF | LF | ARF ==>
+  // bipred last_bipred | BRF | LF | LF | ARF
+  if (rc->baseline_gf_interval == 6) rc->bipred_group_interval += 1;
+#endif  // CONFIG_GF_GROUPS
   // The minimum bi-predictive frame group interval is 2.
   if (rc->bipred_group_interval < 2) rc->bipred_group_interval = 0;
 #endif  // CONFIG_EXT_REFS

@@ -5707,13 +5707,12 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   if (oxcf->pass == 2) {
 #if CONFIG_XIPHRC
     if (od_enc_rc_2pass_in(&cpi->od_rc) < 0) return -1;
-  }
 #else
     av1_rc_get_second_pass_params(cpi);
   } else if (oxcf->pass == 1) {
     setup_frame_size(cpi);
-  }
 #endif
+  }
 
   if (cpi->oxcf.pass != 0 || frame_is_intra_only(cm) == 1) {
     for (i = 0; i < TOTAL_REFS_PER_FRAME; ++i)
