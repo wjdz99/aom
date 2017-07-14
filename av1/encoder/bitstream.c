@@ -641,10 +641,11 @@ static void update_skip_probs(AV1_COMMON *cm, aom_writer *w,
 #if CONFIG_PALETTE
 static void pack_palette_tokens(aom_writer *w, const TOKENEXTRA **tp, int n,
                                 int num) {
-  int i;
   const TOKENEXTRA *p = *tp;
-
-  for (i = 0; i < num; ++i) {
+  write_uniform(w, n, p->token);  // The first color index.
+  ++p;
+  --num;
+  for (int i = 0; i < num; ++i) {
 #if CONFIG_NEW_MULTISYMBOL
     aom_write_symbol(w, p->token, p->palette_cdf, n);
 #else
@@ -654,7 +655,6 @@ static void pack_palette_tokens(aom_writer *w, const TOKENEXTRA **tp, int n,
 #endif
     ++p;
   }
-
   *tp = p;
 }
 #endif  // CONFIG_PALETTE
@@ -1518,7 +1518,6 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         aom_write_literal(w, pmi->palette_colors[i], cm->bit_depth);
       }
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
-      write_uniform(w, n, pmi->palette_first_color_idx[0]);
     }
   }
 
@@ -1550,7 +1549,6 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                           cm->bit_depth);
       }
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
-      write_uniform(w, n, pmi->palette_first_color_idx[1]);
     }
   }
 }
@@ -2499,7 +2497,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
       av1_get_block_dimensions(mbmi->sb_type, plane, xd, NULL, NULL, &rows,
                                &cols);
       assert(*tok < tok_end);
-      pack_palette_tokens(w, tok, palette_size_plane, rows * cols - 1);
+      pack_palette_tokens(w, tok, palette_size_plane, rows * cols);
       assert(*tok < tok_end + mbmi->skip);
     }
   }

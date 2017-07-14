@@ -35,19 +35,6 @@
 
 #define DEC_MISMATCH_DEBUG 0
 
-#if CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
-static INLINE int read_uniform(aom_reader *r, int n) {
-  const int l = get_unsigned_bits(n);
-  const int m = (1 << l) - n;
-  const int v = aom_read_literal(r, l - 1, ACCT_STR);
-  assert(l != 0);
-  if (v < m)
-    return v;
-  else
-    return (v << 1) - m + aom_read_literal(r, 1, ACCT_STR);
-}
-#endif  // CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
-
 static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
   return (PREDICTION_MODE)
       av1_intra_mode_inv[aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR)];
@@ -826,12 +813,9 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #if CONFIG_PALETTE_DELTA_ENCODING
       read_palette_colors_y(xd, cm->bit_depth, pmi, r);
 #else
-      int i;
-      for (i = 0; i < n; ++i)
+      for (int i = 0; i < n; ++i)
         pmi->palette_colors[i] = aom_read_literal(r, cm->bit_depth, ACCT_STR);
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
-      xd->plane[0].color_index_map[0] = read_uniform(r, n);
-      assert(xd->plane[0].color_index_map[0] < n);
     }
   }
 
@@ -855,16 +839,13 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #if CONFIG_PALETTE_DELTA_ENCODING
       read_palette_colors_uv(xd, cm->bit_depth, pmi, r);
 #else
-      int i;
-      for (i = 0; i < n; ++i) {
+      for (int i = 0; i < n; ++i) {
         pmi->palette_colors[PALETTE_MAX_SIZE + i] =
             aom_read_literal(r, cm->bit_depth, ACCT_STR);
         pmi->palette_colors[2 * PALETTE_MAX_SIZE + i] =
             aom_read_literal(r, cm->bit_depth, ACCT_STR);
       }
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
-      xd->plane[1].color_index_map[0] = read_uniform(r, n);
-      assert(xd->plane[1].color_index_map[0] < n);
     }
   }
 }
@@ -889,7 +870,7 @@ static void read_filter_intra_mode_info(AV1_COMMON *const cm,
         aom_read(r, cm->fc->filter_intra_probs[0], ACCT_STR);
     if (filter_intra_mode_info->use_filter_intra_mode[0]) {
       filter_intra_mode_info->filter_intra_mode[0] =
-          read_uniform(r, FILTER_INTRA_MODES);
+          av1_read_uniform(r, FILTER_INTRA_MODES);
     }
     if (counts) {
       ++counts
@@ -916,7 +897,7 @@ static void read_filter_intra_mode_info(AV1_COMMON *const cm,
         aom_read(r, cm->fc->filter_intra_probs[1], ACCT_STR);
     if (filter_intra_mode_info->use_filter_intra_mode[1]) {
       filter_intra_mode_info->filter_intra_mode[1] =
-          read_uniform(r, FILTER_INTRA_MODES);
+          av1_read_uniform(r, FILTER_INTRA_MODES);
     }
     if (counts) {
       ++counts
@@ -946,7 +927,7 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   if (av1_is_directional_mode(mbmi->mode, bsize)) {
     mbmi->angle_delta[0] =
-        read_uniform(r, 2 * MAX_ANGLE_DELTA + 1) - MAX_ANGLE_DELTA;
+        av1_read_uniform(r, 2 * MAX_ANGLE_DELTA + 1) - MAX_ANGLE_DELTA;
 #if CONFIG_INTRA_INTERP
     p_angle = mode_to_angle_map[mbmi->mode] + mbmi->angle_delta[0] * ANGLE_STEP;
     if (av1_is_intra_filter_switchable(p_angle)) {
@@ -962,7 +943,7 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   if (av1_is_directional_mode(mbmi->uv_mode, bsize)) {
     mbmi->angle_delta[1] =
-        read_uniform(r, 2 * MAX_ANGLE_DELTA + 1) - MAX_ANGLE_DELTA;
+        av1_read_uniform(r, 2 * MAX_ANGLE_DELTA + 1) - MAX_ANGLE_DELTA;
   }
 }
 #endif  // CONFIG_EXT_INTRA
