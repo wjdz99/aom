@@ -299,7 +299,7 @@ typedef struct {
   uint16_t palette_colors[3 * PALETTE_MAX_SIZE];
   // Only used by encoder to store the color index of the top left pixel.
   // TODO(huisu): move this to encoder
-  uint8_t palette_first_color_idx[2];
+  //uint8_t palette_first_color_idx[2];
 } PALETTE_MODE_INFO;
 #endif  // CONFIG_PALETTE
 
