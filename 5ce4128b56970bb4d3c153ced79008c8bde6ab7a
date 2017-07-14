@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "17c4646d_313560d2",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-14T03:47:37Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9503dfb6_9ebc8a27",
+      "revId": "5ce4128b56970bb4d3c153ced79008c8bde6ab7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "16291849_a6c6fac2",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 6
