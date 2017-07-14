@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d48e22e5_b1595ef2",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1053,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-14T17:45:02Z",
+      "side": 1,
+      "message": "Sorry for not leaving the comments at one time. I was thinking about it yesterday, is it an insertion sort? I guess once if(pts_mvd[j] \u003e pts_mvd[i]) is hit, we can use break to terminate the second for loop for(j \u003d 0; j \u003c i; ++j)?\nAnd thanks for taking the comments and update the patch!",
+      "range": {
+        "startLine": 1031,
+        "startChar": 0,
+        "endLine": 1053,
+        "endChar": 7
+      },
+      "revId": "3bca5f7065d7f0ad2bf2ce2ed294f4bb214a3c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
