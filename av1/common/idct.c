@@ -69,7 +69,13 @@ static void iidtx16_c(const tran_low_t *input, tran_low_t *output) {
 
 static void iidtx32_c(const tran_low_t *input, tran_low_t *output) {
   int i;
-  for (i = 0; i < 32; ++i) output[i] = input[i] * 4;
+  for (i = 0; i < 32; ++i) {
+#if CONFIG_DAALA_DCT32
+    output[i] = input[i];
+#else
+    output[i] = input[i] * 4;
+#endif
+  }
 }
 
 #if CONFIG_TX64X64
@@ -82,6 +88,19 @@ static void iidtx64_c(const tran_low_t *input, tran_low_t *output) {
 #endif  // CONFIG_EXT_TX
 
 // For use in lieu of ADST
+#if CONFIG_DAALA_DCT32
+static void ihalfright32_c(const tran_low_t *input, tran_low_t *output) {
+  int i;
+  tran_low_t inputhalf[16];
+  for (i = 0; i < 16; ++i) {
+    inputhalf[i] = input[i];
+  }
+  for (i = 0; i < 16; ++i) {
+    output[i] = input[16 + i];
+  }
+  aom_idct16_c(inputhalf, output + 16);
+}
+#else
 static void ihalfright32_c(const tran_low_t *input, tran_low_t *output) {
   int i;
   tran_low_t inputhalf[16];
@@ -95,6 +114,7 @@ static void ihalfright32_c(const tran_low_t *input, tran_low_t *output) {
   aom_idct16_c(inputhalf, output + 16);
   // Note overall scaling factor is 4 times orthogonal
 }
+#endif
 
 #if CONFIG_TX64X64
 static void idct64_col_c(const tran_low_t *input, tran_low_t *output) {
@@ -1260,7 +1280,13 @@ void av1_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors
   for (i = 0; i < 32; ++i) {
+#if CONFIG_DAALA_DCT32
+    tran_low_t temp_in[32];
+    for (j = 0; j < 32; j++) temp_in[j] = input[j] << 1;
+    IHT_32[tx_type].rows(temp_in, out[i]);
+#else
     IHT_32[tx_type].rows(input, out[i]);
+#endif
     input += 32;
   }
 
@@ -1281,7 +1307,11 @@ void av1_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < 32; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_DCT32
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 3));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 6));
+#endif
     }
   }
 }
@@ -1424,6 +1454,7 @@ static void idct16x16_add(const tran_low_t *input, uint8_t *dest, int stride,
 }
 #endif
 
+#if !CONFIG_DAALA_DCT32
 static void idct32x32_add(const tran_low_t *input, uint8_t *dest, int stride,
                           const INV_TXFM_PARAM *param) {
 #if CONFIG_ADAPT_SCAN
@@ -1446,6 +1477,7 @@ static void idct32x32_add(const tran_low_t *input, uint8_t *dest, int stride,
   else
     aom_idct32x32_1024_add(input, dest, stride);
 }
+#endif
 
 #if CONFIG_TX64X64
 static void idct64x64_add(const tran_low_t *input, uint8_t *dest, int stride,
@@ -1702,7 +1734,11 @@ static void inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest,
                                int stride, const INV_TXFM_PARAM *param) {
   const TX_TYPE tx_type = param->tx_type;
   switch (tx_type) {
+#if !CONFIG_DAALA_DCT32
     case DCT_DCT: idct32x32_add(input, dest, stride, param); break;
+#else
+    case DCT_DCT:
+#endif
 #if CONFIG_EXT_TX
     case ADST_DCT:
     case DCT_ADST:
