@@ -546,19 +546,31 @@ static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
-static void write_ncobmc_mode(const AV1_COMMON *cm, const MODE_INFO *mi,
+static void write_ncobmc_mode(MACROBLOCKD *xd, const MODE_INFO *mi,
                               aom_writer *w) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
   ADAPT_OVERLAP_BLOCK ao_block = adapt_overlap_block_lookup[mbmi->sb_type];
   if (mbmi->motion_mode != NCOBMC_ADAPT_WEIGHT) return;
 
-  av1_write_token(w, av1_ncobmc_mode_tree, cm->fc->ncobmc_mode_prob[ao_block],
-                  &ncobmc_mode_encodings[mbmi->ncobmc_mode[0]]);
-
+#ifndef TRAINING_WEIGHTS
+  aom_write_symbol(w, mbmi->ncobmc_mode[0],
+                   xd->tile_ctx->ncobmc_mode_cdf[ao_block], MAX_NCOBMC_MODES);
   if (mi_size_wide[mbmi->sb_type] != mi_size_high[mbmi->sb_type]) {
-    av1_write_token(w, av1_ncobmc_mode_tree, cm->fc->ncobmc_mode_prob[ao_block],
-                    &ncobmc_mode_encodings[mbmi->ncobmc_mode[1]]);
+    aom_write_symbol(w, mbmi->ncobmc_mode[1],
+                     xd->tile_ctx->ncobmc_mode_cdf[ao_block], MAX_NCOBMC_MODES);
   }
+#else
+  int block;
+  for (block = 0; block < 4; ++block)
+    aom_write_symbol(w, mbmi->ncobmc_mode[0][block],
+                     xd->tile_ctx->ncobmc_mode_cdf[ao_block], MAX_NCOBMC_MODES);
+  if (mi_size_wide[mbmi->sb_type] != mi_size_high[mbmi->sb_type]) {
+    for (block = 0; block < 4; ++block)
+      aom_write_symbol(w, mbmi->ncobmc_mode[1][block],
+                       xd->tile_ctx->ncobmc_mode_cdf[ao_block],
+                       MAX_NCOBMC_MODES);
+  }
+#endif
 }
 #endif
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -2052,7 +2064,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_EXT_INTER
         write_motion_mode(cm, xd, mi, w);
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
-    write_ncobmc_mode(cm, mi, w);
+    write_ncobmc_mode(xd, mi, w);
 #endif
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
@@ -2501,7 +2513,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
     const struct macroblockd_plane *const pd_y = &xd->plane[0];
     const struct macroblockd_plane *const pd_c = &xd->plane[1];
     const TX_SIZE tx_log2_y = mbmi->tx_size;
-    const TX_SIZE tx_log2_c = get_uv_tx_size(mbmi, pd_c);
+    const TX_SIZE tx_log2_c = av1_get_uv_tx_size(mbmi, pd_c);
     const int tx_sz_y = (1 << tx_log2_y);
     const int tx_sz_c = (1 << tx_log2_c);
 
@@ -2639,7 +2651,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #if CONFIG_LV_MAP
         av1_write_coeffs_mb(cm, x, w, plane);
 #else
-        TX_SIZE tx = get_tx_size(plane, xd);
+        const TX_SIZE tx = av1_get_tx_size(plane, xd);
         const int bkw = tx_size_wide_unit[tx];
         const int bkh = tx_size_high_unit[tx];
         for (row = 0; row < num_4x4_h; row += bkh) {
@@ -2654,7 +2666,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_LV_MAP
       }
 #else
-      TX_SIZE tx = get_tx_size(plane, xd);
+      const TX_SIZE tx = av1_get_tx_size(plane, xd);
       TOKEN_STATS token_stats;
 #if !CONFIG_PVQ
       init_token_stats(&token_stats);
@@ -3032,7 +3044,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
         const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
 
         int row, col;
-        TX_SIZE tx = get_tx_size(plane, xd);
+        const TX_SIZE tx = av1_get_tx_size(plane, xd);
         BLOCK_SIZE txb_size = txsize_to_bsize[tx];
 
         const int stepr = tx_size_high_unit[txb_size];
