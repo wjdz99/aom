@@ -1,0 +1,372 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6856d7e7_1e231ed1",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "These should be under the CONFIG_HASH_ME flag like other experiments, e.g. line 236.",
+      "range": {
+        "startLine": 152,
+        "startChar": 4,
+        "endLine": 155,
+        "endChar": 46
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dddc1267_9fb5e8b7",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "These lines can be removed.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 72
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3604397_d2dff72f",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 11
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5d239ba_68825158",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "These declarations are not needed if you define them before using them.",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 52
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b442f912_848aac1f",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 114,
+        "startChar": 2,
+        "endLine": 114,
+        "endChar": 5
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6267f18_70f8a077",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 125,
+        "startChar": 2,
+        "endLine": 125,
+        "endChar": 5
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2006ca59_898c4b1d",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 183,
+        "startChar": 2,
+        "endLine": 186,
+        "endChar": 25
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "138c87c6_cb653ff9",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "No need for dynamic allocation. uint8_t p[4];",
+      "range": {
+        "startLine": 187,
+        "startChar": 2,
+        "endLine": 188,
+        "endChar": 40
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20823de7_0a5daa1b",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "const uint32_t * and const int8_t *.",
+      "range": {
+        "startLine": 278,
+        "startChar": 49,
+        "endLine": 279,
+        "endChar": 69
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d41dac27_b4122c0f",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 282,
+        "startChar": 2,
+        "endLine": 283,
+        "endChar": 42
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78c897a9_2d85744e",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "These two lines can be combined.",
+      "range": {
+        "startLine": 356,
+        "startChar": 2,
+        "endLine": 357,
+        "endChar": 34
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "964fdff9_a906a638",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "These two lines can be combined.",
+      "range": {
+        "startLine": 374,
+        "startChar": 2,
+        "endLine": 375,
+        "endChar": 36
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce226336_c2297328",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "Tiny arrays can probably be moved to inside av1_get_block_hash_value().",
+      "range": {
+        "startLine": 390,
+        "startChar": 0,
+        "endLine": 391,
+        "endChar": 27
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7fd0437_12389544",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "May be void since it always return 1.",
+      "range": {
+        "startLine": 396,
+        "startChar": 0,
+        "endLine": 396,
+        "endChar": 3
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f12bb0ac_f651fc22",
+        "filename": "av1/encoder/hash_motion.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "The config flags in this file are probably unnecessary. Similarly for hash_motion.c.",
+      "range": {
+        "startLine": 18,
+        "startChar": 4,
+        "endLine": 18,
+        "endChar": 18
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40a78cd3_1c8c25dc",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2541,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-07-18T00:57:08Z",
+      "side": 1,
+      "message": "This name may be too general. MAX_HASH_MV_TABLE_SIZE is a better choice.",
+      "range": {
+        "startLine": 2541,
+        "startChar": 8,
+        "endLine": 2541,
+        "endChar": 22
+      },
+      "revId": "96b3d606e69591d905b5e1cab6e000e245bd6389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
