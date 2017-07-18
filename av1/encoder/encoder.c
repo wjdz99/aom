@@ -2203,11 +2203,13 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     // Automatically decide if screen content tools should be enabled.
     cpi->auto_tune_content = (cpi->oxcf.content == AOM_CONTENT_DEFAULT);
   }
-  if (x->palette_buffer == 0) {
+#endif  // CONFIG_PALETTE || CONFIG_INTRABC
+#if CONFIG_PALETTE
+  if (x->palette_buffer == NULL) {
     CHECK_MEM_ERROR(cm, x->palette_buffer,
                     aom_memalign(16, sizeof(*x->palette_buffer)));
   }
-#endif  // CONFIG_PALETTE || CONFIG_INTRABC
+#endif  // CONFIG_PALETTE
 #if CONFIG_EXT_INTER
   set_compound_tools(cm);
 #endif  // CONFIG_EXT_INTER
