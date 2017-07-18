@@ -121,7 +121,9 @@ static const uint64_t left_prediction_mask[BLOCK_SIZES_ALL] = {
   0x0000000000000101ULL,  // BLOCK_4X16,
   0x0000000000000001ULL,  // BLOCK_16X4,
   0x0000000001010101ULL,  // BLOCK_8X32,
-  0x0000000000000001ULL,  // BLOCK_32X8
+  0x0000000000000001ULL,  // BLOCK_32X8,
+  0x0101010101010101ULL,  // BLOCK_16X64,
+  0x0000000000000101ULL,  // BLOCK_64X16
 };
 
 // 64 bit mask to shift and set for each prediction size.
@@ -147,7 +149,9 @@ static const uint64_t above_prediction_mask[BLOCK_SIZES_ALL] = {
   0x0000000000000001ULL,  // BLOCK_4X16,
   0x0000000000000003ULL,  // BLOCK_16X4,
   0x0000000000000001ULL,  // BLOCK_8X32,
-  0x000000000000000fULL,  // BLOCK_32X8
+  0x000000000000000fULL,  // BLOCK_32X8,
+  0x0000000000000003ULL,  // BLOCK_16X64,
+  0x00000000000000ffULL,  // BLOCK_64X16
 };
 // 64 bit mask to shift and set for each prediction size. A bit is set for
 // each 8x8 block that would be in the top left most block of the given block
@@ -174,7 +178,9 @@ static const uint64_t size_mask[BLOCK_SIZES_ALL] = {
   0x0000000000000101ULL,  // BLOCK_4X16,
   0x0000000000000003ULL,  // BLOCK_16X4,
   0x0000000001010101ULL,  // BLOCK_8X32,
-  0x000000000000000fULL,  // BLOCK_32X8
+  0x000000000000000fULL,  // BLOCK_32X8,
+  0x0303030303030303ULL,  // BLOCK_16X64,
+  0x000000000000ffffULL,  // BLOCK_64X16
 };
 
 // These are used for masking the left and above 32x32 borders.
@@ -231,7 +237,9 @@ static const uint16_t left_prediction_mask_uv[BLOCK_SIZES_ALL] = {
   0x0001,  // BLOCK_4X16,
   0x0001,  // BLOCK_16X4,
   0x0011,  // BLOCK_8X32,
-  0x0001,  // BLOCK_32X8
+  0x0001,  // BLOCK_32X8,
+  0x1111,  // BLOCK_16X64,
+  0x0001,  // BLOCK_64X16,
 };
 
 // 16 bit above mask to shift and set for uv each prediction size.
@@ -257,7 +265,9 @@ static const uint16_t above_prediction_mask_uv[BLOCK_SIZES_ALL] = {
   0x0001,  // BLOCK_4X16,
   0x0001,  // BLOCK_16X4,
   0x0001,  // BLOCK_8X32,
-  0x0003,  // BLOCK_32X8
+  0x0003,  // BLOCK_32X8,
+  0x0001,  // BLOCK_16X64,
+  0x000f,  // BLOCK_64X16
 };
 
 // 64 bit mask to shift and set for each uv prediction size
@@ -283,7 +293,9 @@ static const uint16_t size_mask_uv[BLOCK_SIZES_ALL] = {
   0x0001,  // BLOCK_4X16,
   0x0001,  // BLOCK_16X4,
   0x0011,  // BLOCK_8X32,
-  0x0003,  // BLOCK_32X8
+  0x0003,  // BLOCK_32X8,
+  0x1111,  // BLOCK_16X64,
+  0x000f,  // BLOCK_64X16
 };
 static const uint16_t left_border_uv = 0x1111;
 static const uint16_t above_border_uv = 0x000f;
@@ -1946,7 +1958,9 @@ static const uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES_ALL] = {
       4 - 1,    // BLOCK_4X16,
       16 - 1,   // BLOCK_16X4,
       8 - 1,    // BLOCK_8X32,
-      32 - 1    // BLOCK_32X8
+      32 - 1,   // BLOCK_32X8,
+      16 - 1,   // BLOCK_16X64,
+      64 - 1    // BLOCK_64X16
   },
   // mask for horizontal edges filtering
   {
@@ -1976,7 +1990,9 @@ static const uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES_ALL] = {
       16 - 1,   // BLOCK_4X16,
       4 - 1,    // BLOCK_16X4,
       32 - 1,   // BLOCK_8X32,
-      8 - 1     // BLOCK_32X8
+      8 - 1,    // BLOCK_32X8,
+      64 - 1,   // BLOCK_16X64,
+      16 - 1    // BLOCK_64X16
   },
 };
 
