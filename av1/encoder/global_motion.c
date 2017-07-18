@@ -308,14 +308,19 @@ int compute_global_motion_feature_based(
 
   // Set num_inliers = 0 for motions with too few inliers so they are ignored.
   for (i = 0; i < num_motions; ++i) {
-    if (num_inliers_by_motion[i] < MIN_INLIER_PROB * num_correspondences) {
-      num_inliers_by_motion[i] = 0;
+    for (int j = 0; j < GLOBAL_REGION_TYPES; ++j) {
+      if (num_inliers_by_motion[i * GLOBAL_REGION_TYPES + j] <
+          MIN_INLIER_PROB * num_correspondences) {
+        num_inliers_by_motion[i * GLOBAL_REGION_TYPES + j] = 0;
+      }
     }
   }
 
   // Return true if any one of the motions has inliers.
   for (i = 0; i < num_motions; ++i) {
-    if (num_inliers_by_motion[i] > 0) return 1;
+    for (int j = 0; j < GLOBAL_REGION_TYPES; ++j) {
+      if (num_inliers_by_motion[i * GLOBAL_REGION_TYPES + j] > 0) return 1;
+    }
   }
   return 0;
 }
