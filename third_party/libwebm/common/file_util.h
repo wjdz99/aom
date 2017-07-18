@@ -39,3 +39,4 @@ class TempFileDeleter {
 }  // namespace libwebm
 
 #endif  // LIBWEBM_COMMON_FILE_UTIL_H_
+
