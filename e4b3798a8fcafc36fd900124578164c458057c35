@@ -22,6 +22,30 @@
       "revId": "e4b3798a8fcafc36fd900124578164c458057c35",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "517a12a0_6fad65f6",
+        "filename": "test/superframe_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-07-18T07:29:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6c5dd1c5_32bc347e",
+      "range": {
+        "startLine": 75,
+        "startChar": 37,
+        "endLine": 75,
+        "endChar": 57
+      },
+      "revId": "e4b3798a8fcafc36fd900124578164c458057c35",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
