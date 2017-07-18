@@ -1046,6 +1046,8 @@ static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
     0,  // BLOCK_16X4
     0,  // BLOCK_8X32
     0,  // BLOCK_32X8
+    0,  // BLOCK_16X64
+    0,  // BLOCK_64X16
   };
 
   return LUT[bsize];
@@ -1087,6 +1089,8 @@ static INLINE int is_quarter_tx_allowed_bsize(BLOCK_SIZE bsize) {
     0,  // BLOCK_16X4
     0,  // BLOCK_8X32
     0,  // BLOCK_32X8
+    0,  // BLOCK_16X64
+    0,  // BLOCK_64X16
   };
 
   return LUT_QTTX[bsize];
