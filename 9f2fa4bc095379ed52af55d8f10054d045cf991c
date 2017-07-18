@@ -1,0 +1,180 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cada3a2_da7751cb",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2118,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-18T23:04:20Z",
+      "side": 1,
+      "message": "Remove the extra right curly \u0027}\u0027",
+      "revId": "9f2fa4bc095379ed52af55d8f10054d045cf991c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93e469d6_f1bf2d0a",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 980,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-18T23:04:20Z",
+      "side": 1,
+      "message": "It is preferable to use \u0027raw_motion_err_list[raw_motion_err_counts++] \u003d ...;\u0027, which also combines the two lines of code into one.",
+      "revId": "9f2fa4bc095379ed52af55d8f10054d045cf991c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f28f0d82_658390bb",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1008,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-18T23:04:20Z",
+      "side": 1,
+      "message": "It is preferable to use variable name of \u0027raw_err_avg\u0027 here.",
+      "range": {
+        "startLine": 1008,
+        "startChar": 10,
+        "endLine": 1008,
+        "endChar": 22
+      },
+      "revId": "9f2fa4bc095379ed52af55d8f10054d045cf991c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3b93e6f_fd623075",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-18T23:04:20Z",
+      "side": 1,
+      "message": "May add some rounding here.",
+      "revId": "9f2fa4bc095379ed52af55d8f10054d045cf991c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07c9d31a_e1d1901a",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1018,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-18T23:04:20Z",
+      "side": 1,
+      "message": "May add some around for \u0027raw_err_var / raw_motion_err_counts\u0027\n\nAlso, may move this portion of code to a separate function.",
+      "revId": "9f2fa4bc095379ed52af55d8f10054d045cf991c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6286a653_ee2fc877",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2151,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-18T23:04:20Z",
+      "side": 1,
+      "message": "\u0027sum_sr_coded_error\u0027 does not seem an accurate name to manifest the meaning of the variable. It is a \u0027mean\u0027 rather than a \u0027sum\u0027 frame wise.\n\nFurther, I do not see the need to obtain the per-frame value in a rolling basis, through the \u0027*(i-1)\u0027 and \u0027/\u003di\u0027. We could just accumulate the per-frame values and obtain the average in the end.",
+      "revId": "9f2fa4bc095379ed52af55d8f10054d045cf991c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b4a2e7d_3eef451e",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2159,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-18T23:04:20Z",
+      "side": 1,
+      "message": "A separate variable can be used to count the non-zero number.",
+      "revId": "9f2fa4bc095379ed52af55d8f10054d045cf991c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb7b8398_432c7847",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2244,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-18T23:04:20Z",
+      "side": 1,
+      "message": "Please add more comments on each of the criteria listed here.",
+      "revId": "9f2fa4bc095379ed52af55d8f10054d045cf991c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4fe2b50_afa88dbb",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2247,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-18T23:04:20Z",
+      "side": 1,
+      "message": "Out of an offline discussion with Di, it is suggested to have this patch focus on the stillness detection completely and exclude the examination on the zoom-in/zoom-out motions.",
+      "revId": "9f2fa4bc095379ed52af55d8f10054d045cf991c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb24371b_0043cf55",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-18T23:04:20Z",
+      "side": 1,
+      "message": "May add some comments for this new metric variable",
+      "revId": "9f2fa4bc095379ed52af55d8f10054d045cf991c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}

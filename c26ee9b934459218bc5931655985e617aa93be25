@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc2be5a3_abd5807a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 5593,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-18T23:04:20Z",
+      "side": 0,
+      "message": "No need to remove this space line",
+      "revId": "c26ee9b934459218bc5931655985e617aa93be25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
