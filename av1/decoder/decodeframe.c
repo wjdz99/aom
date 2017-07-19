@@ -4798,7 +4798,12 @@ static void read_global_motion_params(WarpedMotionParams *params,
                                       WarpedMotionParams *ref_params,
                                       aom_reader *r, int allow_hp) {
   TransformationType type = aom_read_bit(r, ACCT_STR);
-  if (type != IDENTITY) type += aom_read_literal(r, GLOBAL_TYPE_BITS, ACCT_STR);
+  if (type != IDENTITY) {
+    type += aom_read_literal(r, GLOBAL_TYPE_BITS, ACCT_STR);
+    GlobalWarpRegion warp_region = aom_read_bit(r, ACCT_STR);
+    if (warp_region != FULL)
+      warp_region += aom_read_literal(r, GLOBAL_REGION_BITS, ACCT_STR);
+  }
   int trans_bits;
   int trans_dec_factor;
   int trans_prec_diff;
