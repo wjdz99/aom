@@ -88,6 +88,18 @@ typedef enum {
 // number of bits needed to cover the remaining possibilities
 #define GLOBAL_TYPE_BITS (get_msb(2 * GLOBAL_TRANS_TYPES - 3))
 #endif  // GLOBAL_TRANS_TYPES > 4
+#define ALLOW_GM_REGION 1
+
+typedef enum {
+  FULL,
+#if ALLOW_GM_REGION
+  LEFT,
+  RIGHT,
+  TOP,
+  BOTTOM,
+#endif  // ALLOW_GM_REGION
+  GLOBAL_REGION_TYPES,
+} GlobalWarpRegion;
 
 typedef struct {
   int global_warp_allowed;
@@ -107,6 +119,7 @@ typedef struct {
   int32_t wmmat[8];
   int16_t alpha, beta, gamma, delta;
   int8_t invalid;
+  GlobalWarpRegion gm_warp_region;
 } WarpedMotionParams;
 
 /* clang-format off */
@@ -116,6 +129,7 @@ static const WarpedMotionParams default_warp_params = {
     0 },
   0, 0, 0, 0,
   0,
+  FULL
 };
 /* clang-format on */
 
@@ -186,6 +200,27 @@ static INLINE int block_center_x(int mi_col, BLOCK_SIZE bs) {
 static INLINE int block_center_y(int mi_row, BLOCK_SIZE bs) {
   const int bh = block_size_high[bs];
   return mi_row * MI_SIZE + bh / 2 - 1;
+}
+
+static INLINE int coor_within_region(int x, int y, int width, int height,
+                                     GlobalWarpRegion region) {
+  switch (region) {
+    case FULL: return 1;
+#if ALLOW_GM_REGION
+    case LEFT: return (x < (width >> 1));
+    case RIGHT: return (x > (width >> 1));
+    case TOP: return (y < (height >> 1));
+    case BOTTOM: return (y > (height >> 1));
+#endif  // ALLOW_GM_REGION
+    default: assert(0 && "Invalid warp region type"); return 0;
+  }
+}
+
+static INLINE int mi_block_within_region(int mi_col, int mi_row, int width,
+                                         int height, GlobalWarpRegion region) {
+  int x = mi_col * MI_SIZE;
+  int y = mi_row * MI_SIZE;
+  return coor_within_region(x, y, width, height, region);
 }
 
 static INLINE int convert_to_trans_prec(int allow_hp, int coor) {

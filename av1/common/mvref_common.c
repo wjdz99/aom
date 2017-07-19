@@ -53,6 +53,7 @@ static uint8_t add_ref_mv_candidate(
     CANDIDATE_MV *ref_mv_stack, const int use_hp, int len, int block,
 #if USE_CUR_GM_REFMV
     int_mv *gm_mv_candidates, const WarpedMotionParams *gm_params,
+    const int *frm_widths, const int *frm_heights,
 #endif  // USE_CUR_GM_REFMV
     int col, int weight,
 #if CONFIG_AMVR
@@ -113,7 +114,11 @@ static uint8_t add_ref_mv_candidate(
         } else {
 #endif  // CONFIG_EXT_WARPED_MOTION
 #if USE_CUR_GM_REFMV
-          if (is_global_mv_block(candidate_mi, block, gm_params[rf[0]].wmtype))
+          if (is_global_mv_block(candidate_mi, block,
+                                 gm_params[rf[0]].wmtype) &&
+              mi_block_within_region(mi_col, mi_row, frm_widths[ref],
+                                     frm_heights[ref],
+                                     gm_params[rf[0]].gm_warp_region))
             this_refmv = gm_mv_candidates[0];
           else
 #endif  // USE_CUR_GM_REFMV
@@ -151,7 +156,11 @@ static uint8_t add_ref_mv_candidate(
 
       for (ref = 0; ref < 2; ++ref) {
 #if USE_CUR_GM_REFMV
-        if (is_global_mv_block(candidate_mi, block, gm_params[rf[ref]].wmtype))
+        if (is_global_mv_block(candidate_mi, block,
+                               gm_params[rf[ref]].wmtype) &&
+            mi_block_within_region(mi_col, mi_row, frm_widths[ref],
+                                   frm_heights[ref],
+                                   gm_params[rf[ref]].gm_warp_region))
           this_refmv[ref] = gm_mv_candidates[ref];
         else
 #endif  // USE_CUR_GM_REFMV
@@ -199,6 +208,11 @@ static uint8_t scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const int end_mi = AOMMIN(xd->n8_w, cm->mi_cols - mi_col);
   const int n8_w_8 = mi_size_wide[BLOCK_8X8];
   const int n8_w_16 = mi_size_wide[BLOCK_16X16];
+#if USE_CUR_GM_REFMV
+  const struct macroblockd_plane *const pd = &xd->plane[0];
+  const int frm_widths[2] = { pd->pre[0].width, pd->pre[0].width };
+  const int frm_heights[2] = { pd->pre[0].height, pd->pre[0].height };
+#endif  // USE_CUR_GM_REFMV
   int i;
   uint8_t newmv_count = 0;
   int col_offset = 0;
@@ -237,7 +251,7 @@ static uint8_t scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         candidate_mi, candidate, rf, refmv_count, ref_mv_stack,
         cm->allow_high_precision_mv, len, block,
 #if USE_CUR_GM_REFMV
-        gm_mv_candidates, cm->global_motion,
+        gm_mv_candidates, cm->global_motion, frm_widths, frm_heights,
 #endif  // USE_CUR_GM_REFMV
         col_offset + i, weight, cm->cur_frame_force_integer_mv,
         xd->mi[0]->mbmi.sb_type, mi_row, mi_col, xd->plane[0].subsampling_x,
@@ -247,7 +261,7 @@ static uint8_t scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         candidate_mi, candidate, rf, refmv_count, ref_mv_stack,
         cm->allow_high_precision_mv, len, block,
 #if USE_CUR_GM_REFMV
-        gm_mv_candidates, cm->global_motion,
+        gm_mv_candidates, cm->global_motion, frm_widths, frm_heights,
 #endif  // USE_CUR_GM_REFMV
         col_offset + i, weight, xd->mi[0]->mbmi.sb_type, mi_row, mi_col,
         xd->plane[0].subsampling_x, xd->plane[0].subsampling_y);
@@ -270,6 +284,11 @@ static uint8_t scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const int end_mi = AOMMIN(xd->n8_h, cm->mi_rows - mi_row);
   const int n8_h_8 = mi_size_high[BLOCK_8X8];
   const int n8_h_16 = mi_size_high[BLOCK_16X16];
+#if USE_CUR_GM_REFMV
+  const struct macroblockd_plane *const pd = &xd->plane[0];
+  const int frm_widths[2] = { pd->pre[0].width, pd->pre[0].width };
+  const int frm_heights[2] = { pd->pre[0].height, pd->pre[0].height };
+#endif  // USE_CUR_GM_REFMV
   int i;
   uint8_t newmv_count = 0;
   int row_offset = 0;
@@ -307,7 +326,7 @@ static uint8_t scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         candidate_mi, candidate, rf, refmv_count, ref_mv_stack,
         cm->allow_high_precision_mv, len, block,
 #if USE_CUR_GM_REFMV
-        gm_mv_candidates, cm->global_motion,
+        gm_mv_candidates, cm->global_motion, frm_widths, frm_heights,
 #endif  // USE_CUR_GM_REFMV
         col_offset, weight, cm->cur_frame_force_integer_mv,
         xd->mi[0]->mbmi.sb_type, mi_row, mi_col, xd->plane[0].subsampling_x,
@@ -317,7 +336,7 @@ static uint8_t scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         candidate_mi, candidate, rf, refmv_count, ref_mv_stack,
         cm->allow_high_precision_mv, len, block,
 #if USE_CUR_GM_REFMV
-        gm_mv_candidates, cm->global_motion,
+        gm_mv_candidates, cm->global_motion, frm_widths, frm_heights,
 #endif  // USE_CUR_GM_REFMV
         col_offset, weight, xd->mi[0]->mbmi.sb_type, mi_row, mi_col,
         xd->plane[0].subsampling_x, xd->plane[0].subsampling_y);
@@ -339,6 +358,11 @@ static uint8_t scan_blk_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const TileInfo *const tile = &xd->tile;
   POSITION mi_pos;
   uint8_t newmv_count = 0;
+#if USE_CUR_GM_REFMV
+  const struct macroblockd_plane *const pd = &xd->plane[0];
+  const int frm_widths[2] = { pd->pre[0].width, pd->pre[0].width };
+  const int frm_heights[2] = { pd->pre[0].height, pd->pre[0].height };
+#endif  // USE_CUR_GM_REFMV
 
   mi_pos.row = row_offset;
   mi_pos.col = col_offset;
@@ -354,7 +378,7 @@ static uint8_t scan_blk_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         candidate_mi, candidate, rf, refmv_count, ref_mv_stack,
         cm->allow_high_precision_mv, len, block,
 #if USE_CUR_GM_REFMV
-        gm_mv_candidates, cm->global_motion,
+        gm_mv_candidates, cm->global_motion, frm_widths, frm_heights,
 #endif  // USE_CUR_GM_REFMV
         mi_pos.col, 2, cm->cur_frame_force_integer_mv, xd->mi[0]->mbmi.sb_type,
         mi_row, mi_col, xd->plane[0].subsampling_x, xd->plane[0].subsampling_y);
@@ -363,7 +387,7 @@ static uint8_t scan_blk_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         candidate_mi, candidate, rf, refmv_count, ref_mv_stack,
         cm->allow_high_precision_mv, len, block,
 #if USE_CUR_GM_REFMV
-        gm_mv_candidates, cm->global_motion,
+        gm_mv_candidates, cm->global_motion, frm_widths, frm_heights,
 #endif  // USE_CUR_GM_REFMV
         mi_pos.col, 2, xd->mi[0]->mbmi.sb_type, mi_row, mi_col,
         xd->plane[0].subsampling_x, xd->plane[0].subsampling_y);
