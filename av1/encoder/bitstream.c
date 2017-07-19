@@ -4423,6 +4423,7 @@ static void write_global_motion_params(const WarpedMotionParams *params,
                                        struct aom_write_bit_buffer *wb,
                                        int allow_hp) {
   TransformationType type = params->wmtype;
+  GlobalWarpRegion warp_region = params->gm_warp_region;
   int trans_bits;
   int trans_prec_diff;
 
@@ -4434,6 +4435,9 @@ static void write_global_motion_params(const WarpedMotionParams *params,
     aom_wb_write_bit(wb, type == ROTZOOM);
     if (type != ROTZOOM) aom_wb_write_bit(wb, type == TRANSLATION);
 #endif  // GLOBAL_TRANS_TYPES > 4
+    aom_wb_write_bit(wb, warp_region != FULL);
+    if (warp_region != FULL)
+      aom_wb_write_literal(wb, warp_region - 1, GLOBAL_REGION_BITS);
   }
 
   switch (type) {
