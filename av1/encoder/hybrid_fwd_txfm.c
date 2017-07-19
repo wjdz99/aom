@@ -136,7 +136,7 @@ static void fwd_txfm_64x64(const int16_t *src_diff, tran_low_t *coeff,
 }
 #endif  // CONFIG_TX64X64
 
-#if CONFIG_EXT_TX && CONFIG_RECT_TX && CONFIG_RECT_TX_EXT
+#if CONFIG_RECT_TX_EXT && (CONFIG_EXT_TX || CONFIG_VAR_TX)
 static void fwd_txfm_16x4(const int16_t *src_diff, tran_low_t *coeff,
                           int diff_stride, FWD_TXFM_PARAM *fwd_txfm_param) {
 #if CONFIG_LGT
@@ -172,7 +172,7 @@ static void fwd_txfm_8x32(const int16_t *src_diff, tran_low_t *coeff,
   av1_fht8x32(src_diff, coeff, diff_stride, fwd_txfm_param);
 #endif
 }
-#endif  // CONFIG_EXT_TX && CONFIG_RECT_TX && CONFIG_RECT_TX_EXT
+#endif
 
 #if CONFIG_CHROMA_2X2
 static void highbd_fwd_txfm_2x2(const int16_t *src_diff, tran_low_t *coeff,
@@ -498,7 +498,7 @@ void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
       fwd_txfm_2x2(src_diff, coeff, diff_stride, fwd_txfm_param);
       break;
 #endif
-#if CONFIG_EXT_TX && CONFIG_RECT_TX && CONFIG_RECT_TX_EXT
+#if CONFIG_RECT_TX_EXT && (CONFIG_EXT_TX || CONFIG_VAR_TX)
     case TX_4X16:
       fwd_txfm_4x16(src_diff, coeff, diff_stride, fwd_txfm_param);
       break;
@@ -511,7 +511,7 @@ void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
     case TX_32X8:
       fwd_txfm_32x8(src_diff, coeff, diff_stride, fwd_txfm_param);
       break;
-#endif  // CONFIG_EXT_TX && CONFIG_RECT_TX && CONFIG_RECT_TX_EXT
+#endif
     default: assert(0); break;
   }
 }
