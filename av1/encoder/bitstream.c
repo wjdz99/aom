@@ -4437,10 +4437,25 @@ static void write_global_motion_params(WarpedMotionParams *params,
                                        WarpedMotionParams *ref_params,
                                        aom_writer *w, int allow_hp) {
   TransformationType type = params->wmtype;
+  GlobalWarpRegion warp_region = params->gm_warp_region;
+/*
+    if (warp_region == FULL) printf("FULL\n");
+    if (warp_region == LEFT) printf("LEFT\n");
+    if (warp_region == RIGHT) printf("RIGHT\n");
+    if (warp_region == TOP) printf("UP\n");
+    if (warp_region == BOTTOM) printf("DOWN\n");
+*/
+
   int trans_bits;
   int trans_prec_diff;
   aom_write_bit(w, type != IDENTITY);
-  if (type != IDENTITY) aom_write_literal(w, type - 1, GLOBAL_TYPE_BITS);
+  if (type != IDENTITY) {
+    aom_write_literal(w, type - 1, GLOBAL_TYPE_BITS);
+    aom_write_bit(w, warp_region != FULL);
+    if (warp_region != FULL) {
+      aom_write_literal(w, warp_region - 1, GLOBAL_REGION_BITS);
+    }
+  }
 
   switch (type) {
     case HOMOGRAPHY:
@@ -4507,24 +4522,35 @@ static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
   int frame;
   YV12_BUFFER_CONFIG *ref_buf;
+  int all_identity = 1;
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
-    ref_buf = get_ref_frame_buffer(cpi, frame);
-    if (cpi->source->y_crop_width == ref_buf->y_crop_width &&
-        cpi->source->y_crop_height == ref_buf->y_crop_height) {
-      write_global_motion_params(&cm->global_motion[frame],
-                                 &cm->prev_frame->global_motion[frame], w,
-                                 cm->allow_high_precision_mv);
-    } else {
-      assert(cm->global_motion[frame].wmtype == IDENTITY &&
-             "Invalid warp type for frames of different resolutions");
+    if (cm->global_motion[frame].wmtype != IDENTITY) {
+      all_identity = 0;
+      break;
     }
-    /*
-    printf("Frame %d/%d: Enc Ref %d (used %d): %d %d %d %d\n",
-           cm->current_video_frame, cm->show_frame, frame,
-           cpi->global_motion_used[frame], cm->global_motion[frame].wmmat[0],
-           cm->global_motion[frame].wmmat[1], cm->global_motion[frame].wmmat[2],
-           cm->global_motion[frame].wmmat[3]);
-           */
+  }
+  aom_write_bit(w, all_identity);
+
+  if (!all_identity) {
+    for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+      ref_buf = get_ref_frame_buffer(cpi, frame);
+      if (cpi->source->y_crop_width == ref_buf->y_crop_width &&
+          cpi->source->y_crop_height == ref_buf->y_crop_height) {
+        write_global_motion_params(&cm->global_motion[frame],
+                                   &cm->prev_frame->global_motion[frame], w,
+                                   cm->allow_high_precision_mv);
+      } else {
+        assert(cm->global_motion[frame].wmtype == IDENTITY &&
+               "Invalid warp type for frames of different resolutions");
+      }
+      /*
+      printf("Frame %d/%d: Enc Ref %d (used %d): %d %d %d %d\n",
+             cm->current_video_frame, cm->show_frame, frame,
+             cpi->global_motion_used[frame], cm->global_motion[frame].wmmat[0],
+             cm->global_motion[frame].wmmat[1], cm->global_motion[frame].wmmat[2],
+             cm->global_motion[frame].wmmat[3]);
+             */
+    }
   }
 }
 #endif
