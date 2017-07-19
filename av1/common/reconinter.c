@@ -122,6 +122,7 @@ static INLINE void av1_make_inter_predictor(
   const MODE_INFO *mi = xd->mi[0];
   (void)mi;
 #endif  // CONFIG_MOTION_VAR
+  int in_region = 1;
 
 // Make sure the selected motion mode is valid for this configuration
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -132,7 +133,7 @@ static INLINE void av1_make_inter_predictor(
                            mi);
 #endif  // CONFIG MOTION_VAR || CONFIG_WARPED_MOTION
 
-  WarpedMotionParams final_warp_params;
+  WarpedMotionParams final_warp_params = default_warp_params;
   const int do_warp =
       (w >= 8 && h >= 8 &&
        allow_warp(mi, warp_types,
@@ -150,13 +151,16 @@ static INLINE void av1_make_inter_predictor(
                   build_for_obmc,
 #endif  // CONFIG_MOTION_VAR
                   &final_warp_params));
-  if (do_warp
+  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const struct buf_2d *const pre_buf = &pd->pre[ref];
+  in_region = coor_block_within_region(p_col, p_row, mi->mbmi.sb_type,
+                                       pre_buf->width, pre_buf->height,
+                                       final_warp_params.gm_warp_region);
+  if (do_warp && in_region
 #if CONFIG_AMVR
       && xd->cur_frame_force_integer_mv == 0
 #endif
       ) {
-    const struct macroblockd_plane *const pd = &xd->plane[plane];
-    const struct buf_2d *const pre_buf = &pd->pre[ref];
     av1_warp_plane(&final_warp_params,
 #if CONFIG_HIGHBITDEPTH
                    xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
