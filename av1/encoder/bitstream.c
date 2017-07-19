@@ -369,7 +369,12 @@ static void write_tx_size_vartx(const AV1_COMMON *cm, MACROBLOCKD *xd,
     return;
   }
 
+#if CONFIG_RECT_TX_EXT
+  if (tx_size == mbmi->inter_tx_size[tx_row][tx_col] ||
+      mbmi->tx_size == quarter_txsize_lookup[mbmi->sb_type]) {
+#else
   if (tx_size == mbmi->inter_tx_size[tx_row][tx_col]) {
+#endif
 #if CONFIG_NEW_MULTISYMBOL
     aom_write_symbol(w, 0, ec_ctx->txfm_partition_cdf[ctx], 2);
 #else
@@ -378,6 +383,7 @@ static void write_tx_size_vartx(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
     txfm_partition_update(xd->above_txfm_context + blk_col,
                           xd->left_txfm_context + blk_row, tx_size, tx_size);
+    // TODO(yuec): set correct txfm partition update for qttx
   } else {
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
     const int bsl = tx_size_wide_unit[sub_txs];
@@ -1770,10 +1776,20 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
       const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
       int idx, idy;
+
       for (idy = 0; idy < height; idy += bh)
         for (idx = 0; idx < width; idx += bw)
           write_tx_size_vartx(cm, xd, mbmi, max_tx_size, height != width, idy,
                               idx, w);
+#if CONFIG_RECT_TX_EXT
+      if (is_quarter_tx_allowed(xd, mbmi, is_inter_block(mbmi)) &&
+          quarter_txsize_lookup[bsize] != max_tx_size &&
+          (mbmi->tx_size == quarter_txsize_lookup[bsize] ||
+           mbmi->tx_size == max_tx_size)) {
+        aom_write(w, mbmi->tx_size != max_tx_size,
+                  cm->fc->quarter_tx_size_prob);
+      }
+#endif
     } else {
       set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
       write_selected_tx_size(cm, xd, w);

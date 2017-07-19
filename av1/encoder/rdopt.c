@@ -4385,6 +4385,23 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   TX_TYPE best_tx_type = TX_TYPES;
   int txk_idx = block;
 #endif
+#if CONFIG_RECT_TX_EXT
+  TX_SIZE quarter_txsize = quarter_txsize_lookup[mbmi->sb_type];
+  int check_qttx = is_quarter_tx_allowed(xd, mbmi, is_inter_block(mbmi)) &&
+                   tx_size == max_txsize_rect_lookup[mbmi->sb_type] &&
+                   quarter_txsize != tx_size;
+  int is_qttx_picked = 0;
+  int eobs_qttx[2] = {0, 0};
+  int skip_qttx[2] = {0, 0};
+  int block_offset_qttx = check_qttx ? tx_size_wide_unit[quarter_txsize] *
+                                           tx_size_high_unit[quarter_txsize]
+                                     : 0;
+  int blk_row_offset, blk_col_offset;
+  int is_wide_qttx =
+      tx_size_wide_unit[quarter_txsize] > tx_size_high_unit[quarter_txsize];
+  blk_row_offset = is_wide_qttx ? tx_size_high_unit[quarter_txsize] : 0;
+  blk_col_offset = is_wide_qttx ? 0 : tx_size_wide_unit[quarter_txsize];
+#endif
 
   av1_init_rd_stats(&sum_rd_stats);
 
@@ -4406,7 +4423,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   zero_blk_rate =
       av1_cost_bit(xd->fc->txb_skip[txs_ctx][txb_ctx.txb_skip_ctx], 1);
 #else
-  const int tx_size_ctx = txsize_sqr_map[tx_size];
+  int tx_size_ctx = txsize_sqr_map[tx_size];
   int coeff_ctx = get_entropy_context(tx_size, pta, ptl);
   zero_blk_rate = x->token_costs[tx_size_ctx][pd->plane_type][1][0][0]
                                 [coeff_ctx][EOB_TOKEN];
@@ -4449,6 +4466,12 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH)
       rd_stats->rate +=
           av1_cost_bit(cpi->common.fc->txfm_partition_prob[ctx], 0);
+#if CONFIG_RECT_TX_EXT
+    if (check_qttx) {
+      assert(blk_row == 0 && blk_col == 0);
+      rd_stats->rate += av1_cost_bit(cpi->common.fc->quarter_tx_size_prob, 0);
+    }
+#endif
     this_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
 #if CONFIG_LV_MAP
     tmp_eob = p->txb_entropy_ctx[block];
@@ -4458,6 +4481,99 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
 #if CONFIG_TXK_SEL
     best_tx_type = mbmi->txk_type[txk_idx];
+#endif
+
+#if CONFIG_RECT_TX_EXT
+    if (check_qttx) {
+      assert(blk_row == 0 && blk_col == 0 && block == 0 && plane == 0);
+
+      RD_STATS rd_stats_tmp, rd_stats_qttx;
+      int64_t rd_qttx;
+
+      av1_tx_block_rd_b(cpi, x, quarter_txsize, 0, 0, plane, 0, plane_bsize,
+                        pta, ptl, &rd_stats_qttx);
+
+      tx_size_ctx = txsize_sqr_map[quarter_txsize];
+      coeff_ctx = get_entropy_context(quarter_txsize, pta, ptl);
+      zero_blk_rate = x->token_costs[tx_size_ctx][pd->plane_type][1][0][0]
+                                    [coeff_ctx][EOB_TOKEN];
+      if ((RDCOST(x->rdmult, rd_stats_qttx.rate, rd_stats_qttx.dist) >=
+               RDCOST(x->rdmult, zero_blk_rate, rd_stats_qttx.sse) ||
+           rd_stats_qttx.skip == 1) &&
+          !xd->lossless[mbmi->segment_id]) {
+#if CONFIG_RD_DEBUG
+        av1_update_txb_coeff_cost(&rd_stats_qttx, plane, quarter_txsize, 0, 0,
+                                  zero_blk_rate - rd_stats_qttx.rate);
+#endif  // CONFIG_RD_DEBUG
+        rd_stats_qttx.rate = zero_blk_rate;
+        rd_stats_qttx.dist = rd_stats_qttx.sse;
+        rd_stats_qttx.skip = 1;
+        x->blk_skip[plane][blk_row * bw + blk_col] = 1;
+        skip_qttx[0] = 1;
+        p->eobs[block] = 0;
+      } else {
+        x->blk_skip[plane][blk_row * bw + blk_col] = 0;
+        skip_qttx[0] = 0;
+        rd_stats->skip = 0;
+      }
+
+      // Second tx block
+      av1_tx_block_rd_b(cpi, x, quarter_txsize, blk_row_offset, blk_col_offset,
+                        plane, block_offset_qttx, plane_bsize, pta, ptl,
+                        &rd_stats_tmp);
+
+      av1_set_txb_context(x, plane, 0, quarter_txsize, pta, ptl);
+      coeff_ctx = get_entropy_context(quarter_txsize, pta + blk_col_offset,
+                                      ptl + blk_row_offset);
+      zero_blk_rate = x->token_costs[tx_size_ctx][pd->plane_type][1][0][0]
+                                    [coeff_ctx][EOB_TOKEN];
+      if ((RDCOST(x->rdmult, rd_stats_tmp.rate, rd_stats_tmp.dist) >=
+               RDCOST(x->rdmult, zero_blk_rate, rd_stats_tmp.sse) ||
+           rd_stats_tmp.skip == 1) &&
+          !xd->lossless[mbmi->segment_id]) {
+#if CONFIG_RD_DEBUG
+        av1_update_txb_coeff_cost(&rd_stats_tmp, plane, quarter_txsize, 0, 0,
+                                  zero_blk_rate - rd_stats_tmp.rate);
+#endif  // CONFIG_RD_DEBUG
+        rd_stats_tmp.rate = zero_blk_rate;
+        rd_stats_tmp.dist = rd_stats_tmp.sse;
+        rd_stats_tmp.skip = 1;
+        x->blk_skip[plane][blk_row_offset * bw + blk_col_offset] = 1;
+        skip_qttx[1] = 1;
+        p->eobs[block_offset_qttx] = 0;
+      } else {
+        x->blk_skip[plane][blk_row_offset * bw + blk_col_offset] = 0;
+        skip_qttx[1] = 0;
+        rd_stats_tmp.skip = 0;
+      }
+
+      av1_merge_rd_stats(&rd_stats_qttx, &rd_stats_tmp);
+
+      if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH) {
+        rd_stats_qttx.rate +=
+            av1_cost_bit(cpi->common.fc->txfm_partition_prob[ctx], 0);
+      }
+      rd_stats_qttx.rate +=
+          av1_cost_bit(cpi->common.fc->quarter_tx_size_prob, 1);
+      rd_qttx = RDCOST(x->rdmult, rd_stats_qttx.rate, rd_stats_qttx.dist);
+#if CONFIG_LV_MAP
+      eobs_qttx[0] = p->txb_entropy_ctx[0];
+      eobs_qttx[1] = p->txb_entropy_ctx[block_offset_qttx];
+#else
+      eobs_qttx[0] = p->eobs[0];
+      eobs_qttx[1] = p->eobs[block_offset_qttx];
+#endif
+      if (rd_qttx < this_rd) {
+        is_qttx_picked = 1;
+        this_rd = rd_qttx;
+        rd_stats->rate = rd_stats_qttx.rate;
+        rd_stats->dist = rd_stats_qttx.dist;
+        rd_stats->sse = rd_stats_qttx.sse;
+        rd_stats->skip = rd_stats_qttx.skip;
+        rd_stats->rdcost = rd_stats_qttx.rdcost;
+      }
+      av1_get_entropy_contexts(plane_bsize, 0, pd, ta, tl);
+    }
 #endif
   }
 
@@ -4600,27 +4716,61 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
   if (this_rd < sum_rd) {
     int idx, idy;
+#if CONFIG_RECT_TX_EXT
+    TX_SIZE tx_size_selected = is_qttx_picked ? quarter_txsize : tx_size;
+#else
+    TX_SIZE tx_size_selected = tx_size;
+#endif
 
+#if CONFIG_RECT_TX_EXT
+    if (is_qttx_picked) {
+      assert(block == 0);
+#if CONFIG_LV_MAP
+      p->txb_entropy_ctx[0] = eobs_qttx[0];
+      p->txb_entropy_ctx[block_offset_qttx] = eobs_qttx[1];
+#else
+      p->eobs[0] = eobs_qttx[0];
+      p->eobs[block_offset_qttx] = eobs_qttx[1];
+#endif
+    } else {
+#endif
 #if CONFIG_LV_MAP
     p->txb_entropy_ctx[block] = tmp_eob;
 #else
     p->eobs[block] = tmp_eob;
 #endif
+#if CONFIG_RECT_TX_EXT
+    }
+#endif
 
-    av1_set_txb_context(x, plane, block, tx_size, pta, ptl);
+    av1_set_txb_context(x, plane, block, tx_size_selected, pta, ptl);
+#if CONFIG_RECT_TX_EXT
+    if (is_qttx_picked)
+      av1_set_txb_context(x, plane, block_offset_qttx, tx_size_selected,
+                          pta + blk_col_offset, ptl + blk_row_offset);
+#endif
 
     txfm_partition_update(tx_above + blk_col, tx_left + blk_row, tx_size,
                           tx_size);
-    inter_tx_size[0][0] = tx_size;
+    inter_tx_size[0][0] = tx_size_selected;
     for (idy = 0; idy < tx_size_high_unit[tx_size] / 2; ++idy)
       for (idx = 0; idx < tx_size_wide_unit[tx_size] / 2; ++idx)
-        inter_tx_size[idy][idx] = tx_size;
-    mbmi->tx_size = tx_size;
+        inter_tx_size[idy][idx] = tx_size_selected;
+    mbmi->tx_size = tx_size_selected;
 #if CONFIG_TXK_SEL
     mbmi->txk_type[txk_idx] = best_tx_type;
 #endif
     if (this_rd == INT64_MAX) *is_cost_valid = 0;
-    x->blk_skip[plane][blk_row * bw + blk_col] = rd_stats->skip;
+#if CONFIG_RECT_TX_EXT
+    if (is_qttx_picked) {
+      x->blk_skip[plane][0] = skip_qttx[0];
+      x->blk_skip[plane][blk_row_offset * bw + blk_col_offset] = skip_qttx[1];
+    } else {
+#endif
+      x->blk_skip[plane][blk_row * bw + blk_col] = rd_stats->skip;
+#if CONFIG_RECT_TX_EXT
+    }
+#endif
   } else {
     *rd_stats = sum_rd_stats;
     if (sum_rd == INT64_MAX) *is_cost_valid = 0;

@@ -6091,13 +6091,14 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
 
       ++td->counts->tx_size[tx_size_cat][tx_size_ctx][depth];
 #endif
-#if CONFIG_EXT_TX && CONFIG_RECT_TX && CONFIG_RECT_TX_EXT
+#if CONFIG_RECT_TX_EXT
       if (is_quarter_tx_allowed(xd, mbmi, is_inter) &&
-          mbmi->tx_size != txsize_sqr_up_map[mbmi->tx_size]) {
+          txsize_sqr_up_map[mbmi->tx_size] >=
+              max_txsize_lookup[mbmi->sb_type]) {
         ++td->counts->quarter_tx_size[mbmi->tx_size ==
                                       quarter_txsize_lookup[mbmi->sb_type]];
       }
-#endif  // CONFIG_EXT_TX && CONFIG_RECT_TX && CONFIG_RECT_TX_EXT
+#endif  // CONFIG_RECT_TX_EXT
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
       assert(IMPLIES(is_rect_tx(tx_size), is_rect_tx_allowed(xd, mbmi)));
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX

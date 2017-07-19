@@ -724,17 +724,33 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                             pd->dst.stride, max_scan_line, eob);
     *eob_total += eob;
   } else {
+#if CONFIG_RECT_TX_EXT
+    int is_qttx = plane_tx_size == quarter_txsize_lookup[plane_bsize];
+    const TX_SIZE sub_txs = is_qttx ? plane_tx_size : sub_tx_size_map[tx_size];
+    if (is_qttx) assert(blk_row == 0 && blk_col == 0 && block == 0);
+#else
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
+    assert(sub_txs < tx_size);
+#endif
     const int bsl = tx_size_wide_unit[sub_txs];
     int sub_step = tx_size_wide_unit[sub_txs] * tx_size_high_unit[sub_txs];
-    assert(sub_txs < tx_size);
     int i;
 
     assert(bsl > 0);
 
     for (i = 0; i < 4; ++i) {
+#if CONFIG_RECT_TX_EXT
+      int is_wide_tx = tx_size_wide_unit[sub_txs] > tx_size_high_unit[sub_txs];
+      const int offsetr =
+          is_qttx ? (is_wide_tx ? i * tx_size_high_unit[sub_txs] : 0)
+                  : blk_row + ((i >> 1) * bsl);
+      const int offsetc =
+          is_qttx ? (is_wide_tx ? 0 : i * tx_size_wide_unit[sub_txs])
+                  : blk_col + (i & 0x01) * bsl;
+#else
       const int offsetr = blk_row + (i >> 1) * bsl;
       const int offsetc = blk_col + (i & 0x01) * bsl;
+#endif
 
       if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
 
