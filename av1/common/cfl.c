@@ -243,14 +243,14 @@ static void cfl_compute_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
 
 static INLINE int cfl_idx_to_alpha(int alpha_idx, CFL_SIGN_TYPE alpha_sign,
                                    CFL_PRED_TYPE pred_type) {
-  const int mag_idx = cfl_alpha_codes[alpha_idx][pred_type];
-  const int abs_alpha_q3 = cfl_alpha_mags_q3[mag_idx];
-  if (alpha_sign == CFL_SIGN_POS) {
-    return abs_alpha_q3;
+  const int abs_alpha_q4 =
+      (pred_type == CFL_PRED_U) ? CFL_IDX_U(alpha_idx) : CFL_IDX_V(alpha_idx);
+  if (alpha_sign == CFL_SIGN_ZERO) {
+    return 0;
+  } else if (alpha_sign == CFL_SIGN_POS) {
+    return abs_alpha_q4 + 1;
   } else {
-    assert(abs_alpha_q3 != 0);
-    assert(cfl_alpha_mags_q3[mag_idx + 1] == -abs_alpha_q3);
-    return -abs_alpha_q3;
+    return -abs_alpha_q4 - 1;
   }
 }
 
@@ -269,7 +269,7 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
   const uint8_t *y_pix = cfl->y_down_pix;
 
   const int dc_pred = cfl->dc_pred[plane - 1];
-  const int alpha_q3 = cfl_idx_to_alpha(
+  const int alpha_q4 = cfl_idx_to_alpha(
       mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs[plane - 1], plane - 1);
 
   const int avg_row =
@@ -284,7 +284,7 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
     for (int i = 0; i < width; i++) {
       // TODO(ltrudeau) add support for HBD.
       dst[i] =
-          clip_pixel(get_scaled_luma_q0(alpha_q3, y_pix[i], avg_q3) + dc_pred);
+          clip_pixel(get_scaled_luma_q0(alpha_q4, y_pix[i], avg_q3) + dc_pred);
     }
     dst += dst_stride;
     y_pix += MAX_SB_SIZE;
