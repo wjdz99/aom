@@ -168,19 +168,44 @@ static UV_PREDICTION_MODE read_intra_mode_uv(FRAME_CONTEXT *ec_ctx,
 }
 
 #if CONFIG_CFL
+#if 0
+static INLINE int cfl_idx_to_alpha(int alpha_idx, CFL_SIGN_TYPE alpha_sign,
+                                   CFL_PRED_TYPE pred_type) {
+  const int abs_alpha_q4 = (pred_type == CFL_PRED_U) ? (alpha_idx >> 4) : (alpha_idx & 15);
+  if (alpha_sign == CFL_SIGN_ZERO) {
+    return 0;
+  } else if (alpha_sign == CFL_SIGN_POS) {
+    return abs_alpha_q4 + 1;
+  } else {
+    return -abs_alpha_q4 - 1;
+  }
+}
+#endif
+
 static int read_cfl_alphas(FRAME_CONTEXT *const ec_ctx, aom_reader *r,
                            CFL_SIGN_TYPE signs_out[CFL_PRED_PLANES]) {
-  const int ind =
-      aom_read_symbol(r, ec_ctx->cfl_alpha_cdf, CFL_ALPHABET_SIZE, "cfl:alpha");
-  // Signs are only coded for nonzero values
-  // sign == 0 implies negative alpha
-  // sign == 1 implies positive alpha
-  signs_out[CFL_PRED_U] = cfl_alpha_codes[ind][CFL_PRED_U]
-                              ? aom_read_bit(r, "cfl:sign")
-                              : CFL_SIGN_POS;
-  signs_out[CFL_PRED_V] = cfl_alpha_codes[ind][CFL_PRED_V]
-                              ? aom_read_bit(r, "cfl:sign")
-                              : CFL_SIGN_POS;
+  const int js =
+      aom_read_symbol(r, ec_ctx->cfl_sign_cdf, CFL_JOINT_SIGNS, "cfl:signs");
+  const int sign_u = signs_out[CFL_PRED_U] = CFL_SIGN_U(js);
+  assert(sign_u == (js + 1) / CFL_SIGNS);
+  const int sign_v = signs_out[CFL_PRED_V] = CFL_SIGN_V(js);
+  assert(sign_v == (js + 1) % CFL_SIGNS);
+
+  int ind = 0;
+  // Magnitudes are only coded for nonzero values
+  if (sign_u != CFL_SIGN_ZERO)
+    ind += aom_read_symbol(r, ec_ctx->cfl_alpha_cdf[js][CFL_PRED_U],
+                           UV_ALPHABET_SIZE, "cfl:alpha_u")
+           << 4;
+  if (sign_v != CFL_SIGN_ZERO)
+    ind += aom_read_symbol(r, ec_ctx->cfl_alpha_cdf[js][CFL_PRED_V],
+                           UV_ALPHABET_SIZE, "cfl:alpha_v");
+
+#if 0
+  int a_u = cfl_idx_to_alpha(ind, sign_u, CFL_PRED_U);
+  int a_v = cfl_idx_to_alpha(ind, sign_v, CFL_PRED_V);
+  printf("%d %d\n", a_u, a_v);
+#endif
   return ind;
 }
 #endif
