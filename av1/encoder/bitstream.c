@@ -1652,23 +1652,27 @@ static void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
 }
 
 #if CONFIG_CFL
-static void write_cfl_alphas(FRAME_CONTEXT *const frame_ctx, int ind,
+static void write_cfl_alphas(FRAME_CONTEXT *const frame_ctx, int idx,
                              const CFL_SIGN_TYPE signs[CFL_SIGNS],
                              aom_writer *w) {
+#if CONFIG_DEBUG
   // Check for uninitialized signs
-  if (cfl_alpha_codes[ind][CFL_PRED_U] == 0)
-    assert(signs[CFL_PRED_U] == CFL_SIGN_POS);
-  if (cfl_alpha_codes[ind][CFL_PRED_V] == 0)
-    assert(signs[CFL_PRED_V] == CFL_SIGN_POS);
+  if (signs[CFL_PRED_U] == CFL_SIGN_ZERO) assert(CFL_IDX_U(idx) == 0);
+  if (signs[CFL_PRED_V] == CFL_SIGN_ZERO) assert(CFL_IDX_V(idx) == 0);
+#endif  // CONFIG_DEBUG
 
-  // Write a symbol representing a combination of alpha Cb and alpha Cr.
-  aom_write_symbol(w, ind, frame_ctx->cfl_alpha_cdf, CFL_ALPHABET_SIZE);
+  const int joint_sign = get_joint_sign(signs[CFL_PRED_U], signs[CFL_PRED_V]);
+  aom_write_symbol(w, joint_sign, frame_ctx->cfl_sign_cdf, CFL_JOINT_SIGNS);
 
-  // Signs are only signaled for nonzero codes.
-  if (cfl_alpha_codes[ind][CFL_PRED_U] != 0)
-    aom_write_bit(w, signs[CFL_PRED_U]);
-  if (cfl_alpha_codes[ind][CFL_PRED_V] != 0)
-    aom_write_bit(w, signs[CFL_PRED_V]);
+  // Magnitudes are only signaled for nonzero codes.
+  if (signs[CFL_PRED_U] != CFL_SIGN_ZERO)
+    aom_write_symbol(w, CFL_IDX_U(idx),
+                     frame_ctx->cfl_alpha_cdf[joint_sign][CFL_PRED_U],
+                     UV_ALPHABET_SIZE);
+  if (signs[CFL_PRED_V] != CFL_SIGN_ZERO)
+    aom_write_symbol(w, CFL_IDX_V(idx),
+                     frame_ctx->cfl_alpha_cdf[joint_sign][CFL_PRED_V],
+                     UV_ALPHABET_SIZE);
 }
 #endif
 
