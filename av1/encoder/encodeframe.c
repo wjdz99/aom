@@ -484,7 +484,7 @@ static void update_filter_type_count(FRAME_COUNTS *counts,
 #if CONFIG_GLOBAL_MOTION
 static void update_global_motion_used(PREDICTION_MODE mode, BLOCK_SIZE bsize,
                                       const MB_MODE_INFO *mbmi,
-                                      RD_COUNTS *rdc) {
+                                      RD_COUNTS *rdc, int *within_region) {
   if (mode == ZEROMV
 #if CONFIG_EXT_INTER
       || mode == ZERO_ZEROMV
@@ -494,7 +494,8 @@ static void update_global_motion_used(PREDICTION_MODE mode, BLOCK_SIZE bsize,
         num_4x4_blocks_wide_lookup[bsize] * num_4x4_blocks_high_lookup[bsize];
     int ref;
     for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
-      rdc->global_motion_used[mbmi->ref_frame[ref]] += num_4x4s;
+      if (within_region[mbmi->ref_frame[ref]])
+        rdc->global_motion_used[mbmi->ref_frame[ref]] += num_4x4s;
     }
   }
 }
@@ -601,6 +602,16 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
   const int unify_bsize = CONFIG_CB4X4;
 
   int8_t rf_type;
+
+#if CONFIG_GLOBAL_MOTION
+  int within_region[TOTAL_REFS_PER_FRAME];
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    within_region[frame] =
+      mi_block_within_region(mi_col, mi_row, bsize, cpi->source->y_crop_width,
+                             cpi->source->y_crop_height,
+                             cm->global_motion[frame].gm_warp_region);
+  }
+#endif  // CONFIG_GLOBAL_MOTION
 
 #if !CONFIG_SUPERTX
   assert(mi->mbmi.sb_type == bsize);
@@ -722,7 +733,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
       if (bsize >= BLOCK_8X8) {
         // TODO(sarahparker): global motion stats need to be handled per-tile
         // to be compatible with tile-based threading.
-        update_global_motion_used(mbmi->mode, bsize, mbmi, rdc);
+        update_global_motion_used(mbmi->mode, bsize, mbmi, rdc, within_region);
       } else {
         const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
         const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
@@ -730,7 +741,8 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
         for (idy = 0; idy < 2; idy += num_4x4_h) {
           for (idx = 0; idx < 2; idx += num_4x4_w) {
             const int j = idy * 2 + idx;
-            update_global_motion_used(mi->bmi[j].as_mode, bsize, mbmi, rdc);
+            update_global_motion_used(mi->bmi[j].as_mode, bsize, mbmi, rdc,
+                                      within_region);
           }
         }
       }
@@ -800,6 +812,16 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
   *x->mbmi_ext = ctx->mbmi_ext;
   assert(is_inter_block(mbmi));
   assert(mbmi->tx_size == ctx->mic.mbmi.tx_size);
+
+#if CONFIG_GLOBAL_MOTION
+  int within_region[TOTAL_REFS_PER_FRAME];
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    within_region[frame] =
+      mi_block_within_region(mi_col, mi_row, bsize, cpi->source->y_crop_width,
+                             cpi->source->y_crop_height,
+                             cm->global_motion[frame].gm_warp_region);
+  }
+#endif  // CONFIG_GLOBAL_MOTION
 
 #if CONFIG_DUAL_FILTER
   reset_intmv_filter_type(cm, xd, mbmi);
@@ -882,7 +904,7 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
       if (bsize >= BLOCK_8X8) {
         // TODO(sarahparker): global motion stats need to be handled per-tile
         // to be compatible with tile-based threading.
-        update_global_motion_used(mbmi->mode, bsize, mbmi, rdc);
+        update_global_motion_used(mbmi->mode, bsize, mbmi, rdc, within_region);
       } else {
         const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
         const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
@@ -890,7 +912,8 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
         for (idy = 0; idy < 2; idy += num_4x4_h) {
           for (idx = 0; idx < 2; idx += num_4x4_w) {
             const int j = idy * 2 + idx;
-            update_global_motion_used(mi->bmi[j].as_mode, bsize, mbmi, rdc);
+            update_global_motion_used(mi->bmi[j].as_mode, bsize, mbmi, rdc,
+                                      within_region);
           }
         }
       }
@@ -4944,7 +4967,8 @@ static int input_fpmb_stats(FIRSTPASS_MB_STATS *firstpass_mb_stats,
 static int gm_get_params_cost(WarpedMotionParams *gm,
                               WarpedMotionParams *ref_gm, int allow_hp) {
   assert(gm->wmtype < GLOBAL_TRANS_TYPES);
-  int params_cost = 0;
+  if (gm->wmtype == IDENTITY ) return 0;
+  int params_cost = gm->gm_warp_region > FULL ? GLOBAL_REGION_BITS + 1 : 1;
   int trans_bits, trans_prec_diff;
   switch (gm->wmtype) {
     case HOMOGRAPHY:
@@ -5102,9 +5126,10 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       !cpi->global_motion_search_done) {
     YV12_BUFFER_CONFIG *ref_buf[TOTAL_REFS_PER_FRAME];
     int frame;
-    double params_by_motion[RANSAC_NUM_MOTIONS * (MAX_PARAMDIM - 1)];
+    double params_by_motion[GLOBAL_REGION_TYPES * RANSAC_NUM_MOTIONS *
+                            (MAX_PARAMDIM - 1)];
     const double *params_this_motion;
-    int inliers_by_motion[RANSAC_NUM_MOTIONS];
+    int inliers_by_motion[RANSAC_NUM_MOTIONS * GLOBAL_REGION_TYPES];
     WarpedMotionParams tmp_wm_params;
     static const double kIdentityParams[MAX_PARAMDIM - 1] = {
       0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0
@@ -5140,7 +5165,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
         for (model = ROTZOOM; model < GLOBAL_TRANS_TYPES_ENC; ++model) {
           int64_t best_warp_error = INT64_MAX;
           // Initially set all params to identity.
-          for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
+          for (i = 0; i < RANSAC_NUM_MOTIONS * GLOBAL_REGION_TYPES; ++i) {
             memcpy(params_by_motion + (MAX_PARAMDIM - 1) * i, kIdentityParams,
                    (MAX_PARAMDIM - 1) * sizeof(*params_by_motion));
           }
@@ -5153,56 +5178,61 @@ static void encode_frame_internal(AV1_COMP *cpi) {
               inliers_by_motion, params_by_motion, RANSAC_NUM_MOTIONS);
 
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
-            if (inliers_by_motion[i] == 0) continue;
+            for (GlobalWarpRegion j = 0; j < GLOBAL_REGION_TYPES; ++j) {
+              int param_index = i * GLOBAL_REGION_TYPES + j;
+              if (inliers_by_motion[param_index] == 0) continue;
 
-            params_this_motion = params_by_motion + (MAX_PARAMDIM - 1) * i;
-            convert_model_to_params(params_this_motion, &tmp_wm_params);
+              params_this_motion =
+                params_by_motion + (MAX_PARAMDIM - 1) * param_index;
+              convert_model_to_params(params_this_motion, &tmp_wm_params);
+              tmp_wm_params.gm_warp_region = j;
 
-            if (tmp_wm_params.wmtype != IDENTITY) {
-              const int64_t warp_error = refine_integerized_param(
-                  &tmp_wm_params, tmp_wm_params.wmtype,
-#if CONFIG_HIGHBITDEPTH
-                  xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
-#endif  // CONFIG_HIGHBITDEPTH
-                  ref_buf[frame]->y_buffer, ref_buf[frame]->y_width,
-                  ref_buf[frame]->y_height, ref_buf[frame]->y_stride,
-                  cpi->source->y_buffer, cpi->source->y_width,
-                  cpi->source->y_height, cpi->source->y_stride, 5,
-                  best_warp_error);
-              if (warp_error < best_warp_error) {
-                best_warp_error = warp_error;
-                // Save the wm_params modified by refine_integerized_param()
-                // rather than motion index to avoid rerunning refine() below.
-                memcpy(&(cm->global_motion[frame]), &tmp_wm_params,
-                       sizeof(WarpedMotionParams));
+              if (tmp_wm_params.wmtype != IDENTITY) {
+                const int64_t warp_error = refine_integerized_param(
+                    &tmp_wm_params, tmp_wm_params.wmtype,
+  #if CONFIG_HIGHBITDEPTH
+                    xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
+  #endif  // CONFIG_HIGHBITDEPTH
+                    ref_buf[frame]->y_buffer, ref_buf[frame]->y_width,
+                    ref_buf[frame]->y_height, ref_buf[frame]->y_stride,
+                    cpi->source->y_buffer, cpi->source->y_width,
+                    cpi->source->y_height, cpi->source->y_stride, 5,
+                    best_warp_error);
+                if (warp_error < best_warp_error) {
+                  best_warp_error = warp_error;
+                  // Save the wm_params modified by refine_integerized_param()
+                  // rather than motion index to avoid rerunning refine() below.
+                  memcpy(&(cm->global_motion[frame]), &tmp_wm_params,
+                         sizeof(WarpedMotionParams));
+                }
               }
             }
-          }
-          if (cm->global_motion[frame].wmtype <= AFFINE)
-            if (!get_shear_params(&cm->global_motion[frame]))
+            if (cm->global_motion[frame].wmtype <= AFFINE)
+              if (!get_shear_params(&cm->global_motion[frame]))
+                set_default_warp_params(&cm->global_motion[frame]);
+
+            if (cm->global_motion[frame].wmtype == TRANSLATION) {
+              cm->global_motion[frame].wmmat[0] =
+                  convert_to_trans_prec(cm->allow_high_precision_mv,
+                                        cm->global_motion[frame].wmmat[0]) *
+                  GM_TRANS_ONLY_DECODE_FACTOR;
+              cm->global_motion[frame].wmmat[1] =
+                  convert_to_trans_prec(cm->allow_high_precision_mv,
+                                        cm->global_motion[frame].wmmat[1]) *
+                  GM_TRANS_ONLY_DECODE_FACTOR;
+            }
+
+            // If the best error advantage found doesn't meet the threshold for
+            // this motion type, revert to IDENTITY.
+            if (!is_enough_erroradvantage(
+                    (double)best_warp_error / ref_frame_error,
+                    gm_get_params_cost(&cm->global_motion[frame],
+                                       &cm->prev_frame->global_motion[frame],
+                                       cm->allow_high_precision_mv))) {
               set_default_warp_params(&cm->global_motion[frame]);
-
-          if (cm->global_motion[frame].wmtype == TRANSLATION) {
-            cm->global_motion[frame].wmmat[0] =
-                convert_to_trans_prec(cm->allow_high_precision_mv,
-                                      cm->global_motion[frame].wmmat[0]) *
-                GM_TRANS_ONLY_DECODE_FACTOR;
-            cm->global_motion[frame].wmmat[1] =
-                convert_to_trans_prec(cm->allow_high_precision_mv,
-                                      cm->global_motion[frame].wmmat[1]) *
-                GM_TRANS_ONLY_DECODE_FACTOR;
+            }
+            if (cm->global_motion[frame].wmtype != IDENTITY) break;
           }
-
-          // If the best error advantage found doesn't meet the threshold for
-          // this motion type, revert to IDENTITY.
-          if (!is_enough_erroradvantage(
-                  (double)best_warp_error / ref_frame_error,
-                  gm_get_params_cost(&cm->global_motion[frame],
-                                     &cm->prev_frame->global_motion[frame],
-                                     cm->allow_high_precision_mv))) {
-            set_default_warp_params(&cm->global_motion[frame]);
-          }
-          if (cm->global_motion[frame].wmtype != IDENTITY) break;
         }
         aom_clear_system_state();
       }
