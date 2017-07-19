@@ -93,6 +93,22 @@ typedef enum {
 // number of bits needed to cover the remaining possibilities
 #define GLOBAL_TYPE_BITS (get_msb(2 * GLOBAL_TRANS_TYPES - 3))
 
+#if CONFIG_GLOBAL_MOTION
+typedef enum {
+  FULL = 0,
+  LEFT = 1,
+  RIGHT = 2,
+  TOP = 3,
+  BOTTOM = 4,
+  GLOBAL_REGION_TYPES = 5,
+} GlobalWarpRegion;
+
+// First bit indicates whether using full frame or not
+// GLOBAL_REGION_BITS=ceiling(log2(GLOBAL_REGION_TYPES-1)) is the
+// number of bits needed to cover the remaining possibilities
+#define GLOBAL_REGION_BITS (get_msb(2 * GLOBAL_REGION_TYPES - 3))
+#endif  // CONFIG_GLOBAL_MOTION
+
 typedef struct {
 #if CONFIG_GLOBAL_MOTION
   int global_warp_allowed;
@@ -114,6 +130,9 @@ typedef struct {
   TransformationType wmtype;
   int32_t wmmat[8];
   int16_t alpha, beta, gamma, delta;
+#if CONFIG_GLOBAL_MOTION
+  GlobalWarpRegion gm_warp_region;
+#endif  // CONFIG_GLOBAL_MOTION
 } WarpedMotionParams;
 
 static INLINE void set_default_warp_params(WarpedMotionParams *wm) {
@@ -123,6 +142,9 @@ static INLINE void set_default_warp_params(WarpedMotionParams *wm) {
   memset(wm, 0, sizeof(*wm));
   memcpy(wm->wmmat, default_wm_mat, sizeof(wm->wmmat));
   wm->wmtype = IDENTITY;
+#if CONFIG_GLOBAL_MOTION
+  wm->gm_warp_region = FULL;
+#endif  // CONFIG_GLOBAL_MOTION
 }
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
@@ -194,6 +216,39 @@ static INLINE int block_center_x(int mi_col, BLOCK_SIZE bs) {
 static INLINE int block_center_y(int mi_row, BLOCK_SIZE bs) {
   const int bh = block_size_high[bs];
   return mi_row * MI_SIZE + bh / 2 - 1;
+}
+
+static INLINE int coor_within_region(int x, int y, int width, int height,
+                                     GlobalWarpRegion region) {
+  switch (region) {
+    case FULL: return 1;
+    case LEFT: return (x < (width >> 1);
+    case RIGHT: return (x > (width >> 1));
+    case TOP: return (y < (height >> 1));
+    case BOTTOM: return (y > (height >> 1));
+    default: assert(0 && "Invalid warp region type"); return 0;
+
+  }
+}
+
+static INLINE int mi_block_within_region(int mi_col, int mi_row,
+                                         BLOCK_SIZE bsize,
+                                         int width, int height,
+                                         GlobalWarpRegion region) {
+  int x = block_center_x(mi_col, bsize);
+  int y = block_center_y(mi_row, bsize);
+  return coor_within_region(x, y, width, height, region);
+}
+
+static INLINE int coor_block_within_region(int p_col, int p_row,
+                                           BLOCK_SIZE bsize,
+                                           int width, int height,
+                                           GlobalWarpRegion region) {
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  int x = p_col + (bw >> 1) - 1;
+  int y = p_row + (bh >> 1) - 1;
+  return coor_within_region(x, y, width, height, region);
 }
 
 static INLINE int convert_to_trans_prec(int allow_hp, int coor) {
