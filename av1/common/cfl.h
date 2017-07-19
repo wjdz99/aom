@@ -60,7 +60,7 @@ typedef struct {
   int dc_pred[CFL_PRED_PLANES];
 
   // The rate associated with each alpha codeword
-  int costs[CFL_ALPHABET_SIZE];
+  int costs[CFL_JOINT_SIGNS][CFL_PRED_PLANES][UV_ALPHABET_SIZE];
 
   int mi_row, mi_col;
 } CFL_CTX;
@@ -68,19 +68,21 @@ typedef struct {
 // Scaling factor so that smallest alpha equals 1.
 // This is used for flat blocks, so that smallest code will have a +/- 1 effect
 // on chroma DC_PRED.
-#define SMALLEST_ALPHA_EQUALS_ONE (1 << 3)
+#define SMALLEST_ALPHA_EQUALS_ONE (1 << 4)
 
-static const int cfl_alpha_mags_q3[CFL_MAGS_SIZE] = { 0, 1, -1, 2, -2, 4, -4 };
-
-static const int cfl_alpha_codes[CFL_ALPHABET_SIZE][CFL_PRED_PLANES] = {
-  // barrbrain's simple 1D quant ordered by subset 3 likelihood
-  { 1, 1 }, { 3, 0 }, { 3, 3 }, { 1, 0 }, { 3, 1 },
-  { 5, 5 }, { 0, 1 }, { 5, 3 }, { 5, 0 }, { 3, 5 },
-  { 1, 3 }, { 0, 3 }, { 5, 1 }, { 1, 5 }, { 0, 5 }
+static const int cfl_alpha_mags_q4[CFL_MAGS_SIZE] = {
+  0, 1,  -1, 2,   -2, 3,   -3, 4,   -4, 5,   -5, 6,   -6, 7,   -7, 8,  -8,
+  9, -9, 10, -10, 11, -11, 12, -12, 13, -13, 14, -14, 15, -15, 16, -16
 };
 
-static INLINE int get_scaled_luma_q0(int alpha_q3, int y_pix, int avg_q3) {
-  return (alpha_q3 * ((y_pix << 3) - avg_q3) + 32) >> 6;
+static INLINE int get_scaled_luma_q0(int alpha_q4, int y_pix, int avg_q3) {
+  return (alpha_q4 * ((y_pix << 3) - avg_q3) + 64) >> 7;
+}
+
+static INLINE int get_joint_sign(CFL_SIGN_TYPE sign_u, CFL_SIGN_TYPE sign_v) {
+  // 0,0 is invalid
+  assert(sign_u != CFL_SIGN_ZERO || sign_v != CFL_SIGN_ZERO);
+  return sign_u * CFL_SIGNS + sign_v - 1;
 }
 
 void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm);
