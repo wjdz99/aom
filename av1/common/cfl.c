@@ -229,14 +229,14 @@ static void cfl_compute_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
 
 static INLINE int cfl_idx_to_alpha(int alpha_idx, CFL_SIGN_TYPE alpha_sign,
                                    CFL_PRED_TYPE pred_type) {
-  const int mag_idx = cfl_alpha_codes[alpha_idx][pred_type];
-  const int abs_alpha_q3 = cfl_alpha_mags_q3[mag_idx];
-  if (alpha_sign == CFL_SIGN_POS) {
-    return abs_alpha_q3;
+  const int abs_alpha_q3 =
+      (pred_type == CFL_PRED_U) ? CFL_IDX_U(alpha_idx) : CFL_IDX_V(alpha_idx);
+  if (alpha_sign == CFL_SIGN_ZERO) {
+    return 0;
+  } else if (alpha_sign == CFL_SIGN_POS) {
+    return abs_alpha_q3 + 1;
   } else {
-    assert(abs_alpha_q3 != 0);
-    assert(cfl_alpha_mags_q3[mag_idx + 1] == -abs_alpha_q3);
-    return -abs_alpha_q3;
+    return -abs_alpha_q3 - 1;
   }
 }
 
