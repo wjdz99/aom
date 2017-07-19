@@ -3727,6 +3727,9 @@ static void write_global_motion_params(const WarpedMotionParams *params,
                                        struct aom_write_bit_buffer *wb,
                                        int allow_hp) {
   const TransformationType type = params->wmtype;
+  const GlobalWarpRegion warp_region = params->gm_warp_region;
+  int trans_bits;
+  int trans_prec_diff;
 
   aom_wb_write_bit(wb, type != IDENTITY);
   if (type != IDENTITY) {
@@ -3736,6 +3739,17 @@ static void write_global_motion_params(const WarpedMotionParams *params,
     aom_wb_write_bit(wb, type == ROTZOOM);
     if (type != ROTZOOM) aom_wb_write_bit(wb, type == TRANSLATION);
 #endif  // GLOBAL_TRANS_TYPES > 4
+#if ALLOW_GM_REGION
+    aom_wb_write_bit(wb, warp_region != FULL);
+    if (warp_region != FULL) {
+      int horz_split = warp_region == TOP || warp_region == BOTTOM;
+      aom_wb_write_bit(wb, horz_split);
+      if (horz_split)
+        aom_wb_write_bit(wb, warp_region == TOP);
+      else
+        aom_wb_write_bit(wb, warp_region == LEFT);
+    }
+#endif  // ALLOW_GM_REGION
   }
 
   if (type >= ROTZOOM) {
