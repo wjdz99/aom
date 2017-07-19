@@ -3609,7 +3609,12 @@ static int input_fpmb_stats(FIRSTPASS_MB_STATS *firstpass_mb_stats,
 static int gm_get_params_cost(const WarpedMotionParams *gm,
                               const WarpedMotionParams *ref_gm, int allow_hp) {
   assert(gm->wmtype < GLOBAL_TRANS_TYPES);
-  int params_cost = 0;
+  if (gm->wmtype == IDENTITY ) return 0;
+  // We need 1 bit to signal whether or not to use the parameters for the full
+  // frame. If we are not using FULL, we need 2 more bits: 1 to indicate a
+  // horizontally vs vertically split region and 1 to indicate which half of
+  // region is to use the global parameters.
+  int params_cost = gm->gm_warp_region > FULL ? 3 : 1;
   int trans_bits, trans_prec_diff;
   switch (gm->wmtype) {
     case AFFINE:
@@ -3815,9 +3820,10 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       !cpi->global_motion_search_done) {
     YV12_BUFFER_CONFIG *ref_buf[TOTAL_REFS_PER_FRAME];
     int frame;
-    double params_by_motion[RANSAC_NUM_MOTIONS * (MAX_PARAMDIM - 1)];
+    double params_by_motion[GLOBAL_REGION_TYPES * RANSAC_NUM_MOTIONS *
+                            (MAX_PARAMDIM - 1)];
     const double *params_this_motion;
-    int inliers_by_motion[RANSAC_NUM_MOTIONS];
+    int inliers_by_motion[RANSAC_NUM_MOTIONS * GLOBAL_REGION_TYPES];
     WarpedMotionParams tmp_wm_params;
     static const double kIdentityParams[MAX_PARAMDIM - 1] = {
       0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0
@@ -3857,7 +3863,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
         for (model = ROTZOOM; model < GLOBAL_TRANS_TYPES_ENC; ++model) {
           int64_t best_warp_error = INT64_MAX;
           // Initially set all params to identity.
-          for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
+          for (i = 0; i < RANSAC_NUM_MOTIONS * GLOBAL_REGION_TYPES; ++i) {
             memcpy(params_by_motion + (MAX_PARAMDIM - 1) * i, kIdentityParams,
                    (MAX_PARAMDIM - 1) * sizeof(*params_by_motion));
           }
@@ -3870,28 +3876,33 @@ static void encode_frame_internal(AV1_COMP *cpi) {
               inliers_by_motion, params_by_motion, RANSAC_NUM_MOTIONS);
 
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
-            if (inliers_by_motion[i] == 0) continue;
+            for (GlobalWarpRegion j = 0; j < GLOBAL_REGION_TYPES; ++j) {
+              int param_index = i * GLOBAL_REGION_TYPES + j;
+              if (inliers_by_motion[param_index] == 0) continue;
 
-            params_this_motion = params_by_motion + (MAX_PARAMDIM - 1) * i;
-            convert_model_to_params(params_this_motion, &tmp_wm_params);
+              params_this_motion =
+                params_by_motion + (MAX_PARAMDIM - 1) * param_index;
+              convert_model_to_params(params_this_motion, &tmp_wm_params);
+              tmp_wm_params.gm_warp_region = j;
 
-            if (tmp_wm_params.wmtype != IDENTITY) {
-              const int64_t warp_error = refine_integerized_param(
-                  &tmp_wm_params, tmp_wm_params.wmtype,
-#if CONFIG_HIGHBITDEPTH
-                  xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
-#endif  // CONFIG_HIGHBITDEPTH
-                  ref_buf[frame]->y_buffer, ref_buf[frame]->y_width,
-                  ref_buf[frame]->y_height, ref_buf[frame]->y_stride,
-                  cpi->source->y_buffer, cpi->source->y_width,
-                  cpi->source->y_height, cpi->source->y_stride, 5,
-                  best_warp_error);
-              if (warp_error < best_warp_error) {
-                best_warp_error = warp_error;
-                // Save the wm_params modified by refine_integerized_param()
-                // rather than motion index to avoid rerunning refine() below.
-                memcpy(&(cm->global_motion[frame]), &tmp_wm_params,
-                       sizeof(WarpedMotionParams));
+              if (tmp_wm_params.wmtype != IDENTITY) {
+                const int64_t warp_error = refine_integerized_param(
+                    &tmp_wm_params, tmp_wm_params.wmtype,
+  #if CONFIG_HIGHBITDEPTH
+                    xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
+  #endif  // CONFIG_HIGHBITDEPTH
+                    ref_buf[frame]->y_buffer, ref_buf[frame]->y_width,
+                    ref_buf[frame]->y_height, ref_buf[frame]->y_stride,
+                    cpi->source->y_buffer, cpi->source->y_width,
+                    cpi->source->y_height, cpi->source->y_stride, 5,
+                    best_warp_error);
+                if (warp_error < best_warp_error) {
+                  best_warp_error = warp_error;
+                  // Save the wm_params modified by refine_integerized_param()
+                  // rather than motion index to avoid rerunning refine() below.
+                  memcpy(&(cm->global_motion[frame]), &tmp_wm_params,
+                         sizeof(WarpedMotionParams));
+                }
               }
             }
           }
