@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf13e3df_c0a6f45d",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-07-19T15:43:20Z",
+      "side": 1,
+      "message": "Why do you think x2 would resolve the bug reported in aomedia:647?\n\nI am suspecting that the bug was not actually triggered by this allocation. The current allocation setup gives each 16x16 block (256 + 17) token per plane. There shouldn\u0027t be anymore token used by a 16x16 block.",
+      "range": {
+        "startLine": 764,
+        "startChar": 48,
+        "endLine": 764,
+        "endChar": 51
+      },
+      "revId": "92e8429a02b2b84dbaa6f6c6a5fb0245acb3ff0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
