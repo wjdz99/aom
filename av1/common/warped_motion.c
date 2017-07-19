@@ -1650,6 +1650,22 @@ static int64_t warp_error(WarpedMotionParams *wm, const uint8_t *const ref,
                  WARP_ERROR_BLOCK, subsampling_x, subsampling_y, x_scale,
                  y_scale, &conv_params);
 
+  /*
+      //TODO(sarahparker) pass in copy rather than warped if
+        warp_w = AOMMIN(error_bsize_w, p_col + p_width - j);
+        warp_h = AOMMIN(error_bsize_h, p_row + p_height - i);
+         if (is_within_region(j + (warp_w >> 1), i + (warp_h >> 1),
+                           width, height, wm->gm_warp_region))
+        warp_plane(wm, ref, width, height, stride, tmp, j, i, warp_w, warp_h,
+                   WARP_ERROR_BLOCK, subsampling_x, subsampling_y, x_scale,
+                   y_scale, &conv_params);
+        gm_sumerr += frame_error(tmp, WARP_ERROR_BLOCK, dst + j + i * p_stride,
+                                 warp_w, warp_h, p_stride);
+         else
+      gm_sumerr += frame_error(ref + j + i * stride, WARP_ERROR_BLOCK, dst + j + i * p_stride,
+                               warp_w, warp_h, p_stride);
+
+*/
       gm_sumerr += frame_error(tmp, WARP_ERROR_BLOCK, dst + j + i * p_stride,
                                warp_w, warp_h, p_stride);
       if (gm_sumerr > best_error) return gm_sumerr;

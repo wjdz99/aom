@@ -208,6 +208,19 @@ static INLINE void set_default_warp_params(WarpedMotionParams *wm) {
 // Use global motion parameters for sub8x8 blocks
 #define GLOBAL_SUB8X8_USED 0
 
+static INLINE int is_within_region(int x, int y, int width, int height,
+                                   GlobalWarpRegion region) {
+  switch (region) {
+    case FULL: return 1;
+    case LEFT: return (x < (width >> 1);
+    case RIGHT: return (x > (width >> 1));
+    case TOP: return (y < (height >> 1));
+    case BOTTOM: return (y > (height >> 1));
+    default: assert(0 && "Invalid warp region type"); return 0;
+
+  }
+}
+
 static INLINE int block_center_x(int mi_col, BLOCK_SIZE bs) {
   const int bw = block_size_wide[bs];
   return mi_col * MI_SIZE + bw / 2 - 1;

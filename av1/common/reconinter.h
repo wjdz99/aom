@@ -428,6 +428,7 @@ static INLINE void av1_make_inter_predictor(
   const MODE_INFO *mi = xd->mi[0];
   (void)mi;
 #endif  // CONFIG_MOTION_VAR
+  int in_region = 1;
 
 // Make sure the selected motion mode is valid for this configuration
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -460,7 +461,13 @@ static INLINE void av1_make_inter_predictor(
       mi_col_offset, mi_row_offset,
 #endif  // CONFIG_MOTION_VAR
       &final_warp_params);
-  if (do_warp) {
+#if CONFIG_GLOBAL_MOTION
+  int center_x = block_center_x(p_col, mi->mbmi.sb_type);
+  int center_y = block_center_y(p_row, mi->mbmi.sb_type);
+  in_region =
+    is_within_region(center_x, center_y, w, h, final_warp_params.gm_warp_region);
+#endif  // CONFIG_GLOBAL_MOTION
+  if (do_warp && in_region) {
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     const struct buf_2d *const pre_buf = &pd->pre[ref];
     av1_warp_plane(&final_warp_params,

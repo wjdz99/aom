@@ -4944,7 +4944,7 @@ static int input_fpmb_stats(FIRSTPASS_MB_STATS *firstpass_mb_stats,
 static int gm_get_params_cost(WarpedMotionParams *gm,
                               WarpedMotionParams *ref_gm, int allow_hp) {
   assert(gm->wmtype < GLOBAL_TRANS_TYPES);
-  int params_cost = 0;
+  int params_cost = gm->gm_warp_region > FULL ? GLOBAL_REGION_BITS : 0;
   int trans_bits, trans_prec_diff;
   switch (gm->wmtype) {
     case HOMOGRAPHY:
