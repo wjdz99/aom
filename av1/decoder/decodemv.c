@@ -534,16 +534,22 @@ static TX_SIZE read_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd, int is_inter,
 #if CONFIG_RECT_TX && (CONFIG_EXT_TX || CONFIG_VAR_TX)
       if (coded_tx_size > max_txsize_lookup[bsize]) {
         assert(coded_tx_size == max_txsize_lookup[bsize] + 1);
-#if CONFIG_EXT_TX && CONFIG_RECT_TX_EXT
+#if CONFIG_RECT_TX_EXT
         if (is_quarter_tx_allowed(xd, &xd->mi[0]->mbmi, is_inter)) {
-          int quarter_tx = aom_read(r, cm->fc->quarter_tx_size_prob, ACCT_STR);
-          FRAME_COUNTS *counts = xd->counts;
+          int quarter_tx;
 
-          if (counts) ++counts->quarter_tx_size[quarter_tx];
+          if (quarter_txsize_lookup[bsize] != max_txsize_lookup[bsize]) {
+            quarter_tx = aom_read(r, cm->fc->quarter_tx_size_prob, ACCT_STR);
+            FRAME_COUNTS *counts = xd->counts;
+
+            if (counts) ++counts->quarter_tx_size[quarter_tx];
+          } else {
+            quarter_tx = 1;
+          }
           return quarter_tx ? quarter_txsize_lookup[bsize]
                             : max_txsize_rect_lookup[bsize];
         }
-#endif  // CONFIG_EXT_TX && CONFIG_RECT_TX_EXT
+#endif  // CONFIG_RECT_TX_EXT
 
         return max_txsize_rect_lookup[bsize];
       }
@@ -1004,11 +1010,17 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       assert(eset != 0);
       FRAME_COUNTS *counts = xd->counts;
 
+      // printf("%d %d %d\n", inter_block, mbmi->tx_size, square_tx_size);
+
       if (inter_block) {
+        // printf("decpre %d %d %d %d\n", eset, square_tx_size, mbmi->tx_size,
+        //     mbmi->sb_type);
         *tx_type = av1_ext_tx_inter_inv[eset][aom_read_symbol(
             r, ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
             ext_tx_cnt_inter[eset], ACCT_STR)];
         if (counts) ++counts->inter_ext_tx[eset][square_tx_size][*tx_type];
+
+        // printf("dec %d %d %d\n", eset, square_tx_size, *tx_type);
       } else if (ALLOW_INTRA_EXT_TX) {
         *tx_type = av1_ext_tx_intra_inv[eset][aom_read_symbol(
             r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
@@ -2809,6 +2821,26 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
         for (idx = 0; idx < width; idx += bw)
           read_tx_size_vartx(cm, xd, mbmi, xd->counts, max_tx_size,
                              height != width, idy, idx, r);
+#if CONFIG_RECT_TX_EXT
+      if (is_quarter_tx_allowed(xd, mbmi, inter_block) &&
+          mbmi->tx_size == max_tx_size) {
+        int quarter_tx;
+
+        if (quarter_txsize_lookup[bsize] != max_tx_size) {
+          quarter_tx = aom_read(r, cm->fc->quarter_tx_size_prob, ACCT_STR);
+          if (xd->counts) ++xd->counts->quarter_tx_size[quarter_tx];
+        } else {
+          quarter_tx = 1;
+        }
+        if (quarter_tx) {
+          mbmi->tx_size = quarter_txsize_lookup[bsize];
+          for (idy = 0; idy < tx_size_high_unit[max_tx_size] / 2; ++idy)
+            for (idx = 0; idx < tx_size_wide_unit[max_tx_size] / 2; ++idx)
+              mbmi->inter_tx_size[idy][idx] = mbmi->tx_size;
+          mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
+        }
+      }
+#endif
     } else {
       mbmi->tx_size = read_tx_size(cm, xd, inter_block, !mbmi->skip, r);
 
