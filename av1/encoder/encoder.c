@@ -3089,6 +3089,7 @@ void aom_write_one_yuv_frame(AV1_COMMON *cm, YV12_BUFFER_CONFIG *s) {
 
 #if CONFIG_GLOBAL_MOTION
 #define GM_RECODE_LOOP_NUM4X4_FACTOR 192
+#define GM_RECODE_LOOP_NUM4X4_REGION_FACTOR 350
 static int recode_loop_test_global_motion(AV1_COMP *cpi) {
   int i;
   int recode = 0;
@@ -3096,7 +3097,7 @@ static int recode_loop_test_global_motion(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
     if (cm->global_motion[i].wmtype != IDENTITY &&
-        rdc->global_motion_used[i] * GM_RECODE_LOOP_NUM4X4_FACTOR <
+        rdc->global_motion_used[i] * ((cm->global_motion[i].gm_warp_region == FULL) ? GM_RECODE_LOOP_NUM4X4_FACTOR : GM_RECODE_LOOP_NUM4X4_REGION_FACTOR) <
             cpi->gmparams_cost[i]) {
       set_default_warp_params(&cm->global_motion[i]);
       cpi->gmparams_cost[i] = 0;
