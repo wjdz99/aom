@@ -4798,12 +4798,19 @@ static void read_global_motion_params(WarpedMotionParams *params,
                                       WarpedMotionParams *ref_params,
                                       aom_reader *r, int allow_hp) {
   TransformationType type = aom_read_bit(r, ACCT_STR);
-  if (type != IDENTITY) type += aom_read_literal(r, GLOBAL_TYPE_BITS, ACCT_STR);
+  GlobalWarpRegion warp_region = FULL;
+  if (type != IDENTITY) {
+    type += aom_read_literal(r, GLOBAL_TYPE_BITS, ACCT_STR);
+    warp_region = aom_read_bit(r, ACCT_STR);
+    if (warp_region != FULL)
+      warp_region += aom_read_literal(r, GLOBAL_REGION_BITS, ACCT_STR);
+  }
   int trans_bits;
   int trans_dec_factor;
   int trans_prec_diff;
   set_default_warp_params(params);
   params->wmtype = type;
+  params->gm_warp_region = warp_region;
   switch (type) {
     case HOMOGRAPHY:
     case HORTRAPEZOID:
@@ -4893,14 +4900,14 @@ static void read_global_motion(AV1_COMMON *cm, aom_reader *r) {
     } else {
       set_default_warp_params(&cm->global_motion[frame]);
     }
-    /*
-    printf("Dec Ref %d [%d/%d]: %d %d %d %d\n",
+/*
+    printf("Dec Ref %d [%d/%d]: %d %d %d %d REGION: %d\n",
            frame, cm->current_video_frame, cm->show_frame,
            cm->global_motion[frame].wmmat[0],
            cm->global_motion[frame].wmmat[1],
            cm->global_motion[frame].wmmat[2],
-           cm->global_motion[frame].wmmat[3]);
-           */
+           cm->global_motion[frame].wmmat[3], cm->global_motion[frame].);
+*/
   }
   memcpy(cm->cur_frame->global_motion, cm->global_motion,
          TOTAL_REFS_PER_FRAME * sizeof(WarpedMotionParams));
