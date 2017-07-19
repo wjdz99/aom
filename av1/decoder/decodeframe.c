@@ -2793,6 +2793,7 @@ static int read_global_motion_params(WarpedMotionParams *params,
                                      struct aom_read_bit_buffer *rb,
                                      int allow_hp) {
   TransformationType type = aom_rb_read_bit(rb);
+  GlobalWarpRegion warp_region = FULL;
   if (type != IDENTITY) {
 #if GLOBAL_TRANS_TYPES > 4
     type += aom_rb_read_literal(rb, GLOBAL_TYPE_BITS);
@@ -2802,6 +2803,12 @@ static int read_global_motion_params(WarpedMotionParams *params,
     else
       type = aom_rb_read_bit(rb) ? TRANSLATION : AFFINE;
 #endif  // GLOBAL_TRANS_TYPES > 4
+    if (aom_rb_read_bit(rb)) {
+      if (aom_rb_read_bit(rb))
+        warp_region = aom_rb_read_bit(rb) ? TOP : BOTTOM;
+      else
+        warp_region = aom_rb_read_bit(rb) ? LEFT : RIGHT;
+    }
   }
 
   int trans_bits;
@@ -2809,6 +2816,7 @@ static int read_global_motion_params(WarpedMotionParams *params,
   int trans_prec_diff;
   *params = default_warp_params;
   params->wmtype = type;
+  params->gm_warp_region = warp_region;
   switch (type) {
     case AFFINE:
     case ROTZOOM:
