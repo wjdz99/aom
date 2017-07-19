@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3c87916e_cbda220c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-07-19T23:29:44Z",
+      "side": 1,
+      "message": "Excellent question!\nI think you mean master w/o this experiment by \u0027default MSE path\u0027.\nYes, that has been long been tested but it is not identical because the sub8x8 tx blocks in partition \u003e\u003d 8x8 are handled differently by design.\nThe dist-8x8 cannot know/track \u0027skip rd_cost\u0027 and \u0027nonskip rd_cost\u0027 of each sub8x8 tx block, while master does choose smaller rd_cost between those two for each sub8x8 tx block, then sum those up to obtain total rd_cost of a partition.\n\nThis point has been well discussed with Tim as well.\n\nThe regression by this change is:\n(on awcy, 3 frames, high delay mode, objective-1-fast)\nref_3f@2017-07-19T17:01:02.402Z -\u003e test_dist_8x8_uint16_3f@2017-07-19T17:00:36.350Z\n\n  PSNR | PSNR Cb | PSNR Cr | PSNR HVS |   SSIM | MS SSIM | CIEDE 2000\n0.0376 |  0.0729 |  0.4321 |   0.0251 | 0.0825 |  0.0682 |     0.1394\n\n\nFor 1 frame only:\nref_1f@2017-07-19T15:15:26.130Z -\u003e test_dist_8x8_int16_1f@2017-07-19T15:14:17.245Z\n\n   PSNR | PSNR Cb | PSNR Cr | PSNR HVS | SSIM | MS SSIM | CIEDE 2000\n-0.0579 |  0.0162 |  0.0987 |  -0.0476 |  N/A | -0.0548 |        N/A",
+      "parentUuid": "5a8af243_3c56330a",
+      "revId": "4293650c2089e9b3b65b59e500da38bea9d136b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "34f3dc75_cb539327",
         "filename": "configure",
         "patchSetId": 12
