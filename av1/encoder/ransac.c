@@ -656,12 +656,36 @@ static void clear_motion(RANSAC_MOTION *motion, int num_points) {
          sizeof(*motion->inlier_indices * num_points));
 }
 
+static int get_region_points(double *corners1, double *corners2,
+                             double *region_corners1, double *region_corners2,
+                             int frm_width, int frm_height,
+                             int n_points, GlobalWarpRegion region) {
+  int n_points_region = 0;
+  if (region == FULL) {
+    memcpy(region_corners1, corners1, 2 * n_points * sizeof(*corners1));
+    memcpy(region_corners2, corners2, 2 * n_points * sizeof(*corners2));
+    return n_points;
+  }
+  for (int i = 0; i < n_points; ++i) {
+    if (coor_within_region(corners1[i * 2], corners1[i * 2 + 1],
+        frm_width, frm_height, region)) {
+      region_corners1[n_points_region * 2] = corners1[i * 2];
+      region_corners1[n_points_region * 2 + 1] = corners1[i * 2 + 1];
+      region_corners2[n_points_region * 2] = corners2[i * 2];
+      region_corners2[n_points_region * 2 + 1] = corners2[i * 2 + 1];
+      n_points_region++;
+    }
+  }
+  return n_points_region;
+}
+
 static int ransac(const int *matched_points, int npoints,
                   int *num_inliers_by_motion, double *params_by_motion,
                   int num_desired_motions, const int minpts,
                   IsDegenerateFunc is_degenerate,
                   FindTransformationFunc find_transformation,
-                  ProjectPointsDoubleFunc projectpoints) {
+                  ProjectPointsDoubleFunc projectpoints,
+                  int frm_width, int frm_height) {
   static const double PROBABILITY_REQUIRED = 0.9;
   static const double EPS = 1e-12;
 
@@ -675,6 +699,7 @@ static int ransac(const int *matched_points, int npoints,
 
   double *points1, *points2;
   double *corners1, *corners2;
+  double *region_corners1, *region_corners2;
   double *image1_coord;
 
   // Store information for the num_desired_motions best transformations found
@@ -700,6 +725,8 @@ static int ransac(const int *matched_points, int npoints,
   points2 = (double *)aom_malloc(sizeof(*points2) * npoints * 2);
   corners1 = (double *)aom_malloc(sizeof(*corners1) * npoints * 2);
   corners2 = (double *)aom_malloc(sizeof(*corners2) * npoints * 2);
+  region_corners1 = (double *)aom_malloc(sizeof(*corners1) * npoints * 2);
+  region_corners2 = (double *)aom_malloc(sizeof(*corners2) * npoints * 2);
   image1_coord = (double *)aom_malloc(sizeof(*image1_coord) * npoints * 2);
 
   motions =
@@ -730,109 +757,115 @@ static int ransac(const int *matched_points, int npoints,
     *(cnp2++) = *(matched_points++);
   }
 
-  while (N > trial_count) {
-    double sum_distance = 0.0;
-    double sum_distance_squared = 0.0;
+  for (int region = 0; region < GLOBAL_REGION_TYPES; ++region) {
+    int npoints_region = get_region_points(corners1, corners2, region_corners1,
+                                           region_corners2, frm_width, frm_height,
+                                           npoints, region);
+    while (N > trial_count) {
+      double sum_distance = 0.0;
+      double sum_distance_squared = 0.0;
 
-    clear_motion(&current_motion, npoints);
+      clear_motion(&current_motion, npoints);
 
-    int degenerate = 1;
-    int num_degenerate_iter = 0;
+      int degenerate = 1;
+      int num_degenerate_iter = 0;
 
-    while (degenerate) {
-      num_degenerate_iter++;
-      if (!get_rand_indices(npoints, minpts, indices, &seed)) {
-        ret_val = 1;
-        goto finish_ransac;
-      }
-
-      copy_points_at_indices(points1, corners1, indices, minpts);
-      copy_points_at_indices(points2, corners2, indices, minpts);
-
-      degenerate = is_degenerate(points1);
-      if (num_degenerate_iter > MAX_DEGENERATE_ITER) {
-        ret_val = 1;
-        goto finish_ransac;
-      }
-    }
-
-    if (find_transformation(minpts, points1, points2, params_this_motion)) {
-      trial_count++;
-      continue;
-    }
-
-    projectpoints(params_this_motion, corners1, image1_coord, npoints, 2, 2);
-
-    for (i = 0; i < npoints; ++i) {
-      double dx = image1_coord[i * 2] - corners2[i * 2];
-      double dy = image1_coord[i * 2 + 1] - corners2[i * 2 + 1];
-      double distance = sqrt(dx * dx + dy * dy);
-
-      if (distance < INLIER_THRESHOLD) {
-        current_motion.inlier_indices[current_motion.num_inliers++] = i;
-        sum_distance += distance;
-        sum_distance_squared += distance * distance;
-      }
-    }
-
-    if (current_motion.num_inliers >= worst_kept_motion->num_inliers &&
-        current_motion.num_inliers > 1) {
-      int temp;
-      double fracinliers, pNoOutliers, mean_distance, dtemp;
-      mean_distance = sum_distance / ((double)current_motion.num_inliers);
-      current_motion.variance =
-          sum_distance_squared / ((double)current_motion.num_inliers - 1.0) -
-          mean_distance * mean_distance * ((double)current_motion.num_inliers) /
-              ((double)current_motion.num_inliers - 1.0);
-      if (is_better_motion(&current_motion, worst_kept_motion)) {
-        // This motion is better than the worst currently kept motion. Remember
-        // the inlier points and variance. The parameters for each kept motion
-        // will be recomputed later using only the inliers.
-        worst_kept_motion->num_inliers = current_motion.num_inliers;
-        worst_kept_motion->variance = current_motion.variance;
-        memcpy(worst_kept_motion->inlier_indices, current_motion.inlier_indices,
-               sizeof(*current_motion.inlier_indices) * npoints);
-
-        assert(npoints > 0);
-        fracinliers = (double)current_motion.num_inliers / (double)npoints;
-        pNoOutliers = 1 - pow(fracinliers, minpts);
-        pNoOutliers = fmax(EPS, pNoOutliers);
-        pNoOutliers = fmin(1 - EPS, pNoOutliers);
-        dtemp = log(1.0 - PROBABILITY_REQUIRED) / log(pNoOutliers);
-        temp = (dtemp > (double)INT32_MAX)
-                   ? INT32_MAX
-                   : dtemp < (double)INT32_MIN ? INT32_MIN : (int)dtemp;
-
-        if (temp > 0 && temp < N) {
-          N = AOMMAX(temp, MIN_TRIALS);
+      while (degenerate) {
+        num_degenerate_iter++;
+        if (!get_rand_indices(npoints_region, minpts, indices, &seed)) {
+          ret_val = 1;
+          goto finish_ransac;
         }
 
-        // Determine the new worst kept motion and its num_inliers and variance.
-        for (i = 0; i < num_desired_motions; ++i) {
-          if (is_better_motion(worst_kept_motion, &motions[i])) {
-            worst_kept_motion = &motions[i];
+        copy_points_at_indices(points1, region_corners1, indices, minpts);
+        copy_points_at_indices(points2, region_corners2, indices, minpts);
+
+        degenerate = is_degenerate(points1);
+        if (num_degenerate_iter > MAX_DEGENERATE_ITER) {
+          ret_val = 1;
+          goto finish_ransac;
+        }
+      }
+
+      if (find_transformation(minpts, points1, points2, params_this_motion)) {
+        trial_count++;
+        continue;
+      }
+
+      projectpoints(params_this_motion, region_corners1, image1_coord,
+                    npoints_region, 2, 2);
+
+      for (i = 0; i < npoints_region; ++i) {
+        double dx = image1_coord[i * 2] - region_corners2[i * 2];
+        double dy = image1_coord[i * 2 + 1] - region_corners2[i * 2 + 1];
+        double distance = sqrt(dx * dx + dy * dy);
+
+        if (distance < INLIER_THRESHOLD) {
+          current_motion.inlier_indices[current_motion.num_inliers++] = i;
+          sum_distance += distance;
+          sum_distance_squared += distance * distance;
+        }
+      }
+
+      if (current_motion.num_inliers >= worst_kept_motion->num_inliers &&
+          current_motion.num_inliers > 1) {
+        int temp;
+        double fracinliers, pNoOutliers, mean_distance, dtemp;
+        mean_distance = sum_distance / ((double)current_motion.num_inliers);
+        current_motion.variance =
+            sum_distance_squared / ((double)current_motion.num_inliers - 1.0) -
+            mean_distance * mean_distance * ((double)current_motion.num_inliers) /
+                ((double)current_motion.num_inliers - 1.0);
+        if (is_better_motion(&current_motion, worst_kept_motion)) {
+          // This motion is better than the worst currently kept motion. Remember
+          // the inlier points and variance. The parameters for each kept motion
+          // will be recomputed later using only the inliers.
+          worst_kept_motion->num_inliers = current_motion.num_inliers;
+          worst_kept_motion->variance = current_motion.variance;
+          memcpy(worst_kept_motion->inlier_indices, current_motion.inlier_indices,
+                 sizeof(*current_motion.inlier_indices) * npoints);
+
+          assert(npoints > 0);
+          fracinliers = (double)current_motion.num_inliers / (double)npoints_region;
+          pNoOutliers = 1 - pow(fracinliers, minpts);
+          pNoOutliers = fmax(EPS, pNoOutliers);
+          pNoOutliers = fmin(1 - EPS, pNoOutliers);
+          dtemp = log(1.0 - PROBABILITY_REQUIRED) / log(pNoOutliers);
+          temp = (dtemp > (double)INT32_MAX)
+                     ? INT32_MAX
+                     : dtemp < (double)INT32_MIN ? INT32_MIN : (int)dtemp;
+
+          if (temp > 0 && temp < N) {
+            N = AOMMAX(temp, MIN_TRIALS);
+          }
+
+          // Determine the new worst kept motion and its num_inliers and variance.
+          for (i = 0; i < num_desired_motions; ++i) {
+            if (is_better_motion(worst_kept_motion, &motions[i])) {
+              worst_kept_motion = &motions[i];
+            }
           }
         }
       }
+      trial_count++;
     }
-    trial_count++;
-  }
+    // Sort the motions for the current region, best first.
+    qsort(motions, num_desired_motions, sizeof(RANSAC_MOTION), compare_motions);
 
-  // Sort the motions, best first.
-  qsort(motions, num_desired_motions, sizeof(RANSAC_MOTION), compare_motions);
+    // Recompute the motions using only the inliers.
+    for (i = 0; i < num_desired_motions; ++i) {
+      int param_index = i * GLOBAL_REGION_TYPES + region;
+      if (motions[i].num_inliers >= minpts) {
+        copy_points_at_indices(points1, region_corners1, motions[i].inlier_indices,
+                               motions[i].num_inliers);
+        copy_points_at_indices(points2, region_corners2, motions[i].inlier_indices,
+                               motions[i].num_inliers);
 
-  // Recompute the motions using only the inliers.
-  for (i = 0; i < num_desired_motions; ++i) {
-    if (motions[i].num_inliers >= minpts) {
-      copy_points_at_indices(points1, corners1, motions[i].inlier_indices,
-                             motions[i].num_inliers);
-      copy_points_at_indices(points2, corners2, motions[i].inlier_indices,
-                             motions[i].num_inliers);
-
-      find_transformation(motions[i].num_inliers, points1, points2,
-                          params_by_motion + (MAX_PARAMDIM - 1) * i);
+        find_transformation(motions[i].num_inliers, points1, points2,
+                            params_by_motion + (MAX_PARAMDIM - 1) * param_index);
+      }
+      num_inliers_by_motion[param_index] = motions[i].num_inliers;
     }
-    num_inliers_by_motion[i] = motions[i].num_inliers;
   }
 
 finish_ransac:
@@ -840,6 +873,8 @@ finish_ransac:
   aom_free(points2);
   aom_free(corners1);
   aom_free(corners2);
+  aom_free(region_corners1);
+  aom_free(region_corners2);
   aom_free(image1_coord);
   aom_free(current_motion.inlier_indices);
   for (i = 0; i < num_desired_motions; ++i) {
@@ -872,50 +907,53 @@ static int is_degenerate_homography(double *p) {
 
 int ransac_translation(int *matched_points, int npoints,
                        int *num_inliers_by_motion, double *params_by_motion,
-                       int num_desired_motions) {
+                       int num_desired_motions, int frm_width, int frm_height) {
   return ransac(matched_points, npoints, num_inliers_by_motion,
                 params_by_motion, num_desired_motions, 3,
                 is_degenerate_translation, find_translation,
-                project_points_double_translation);
+                project_points_double_translation, frm_width, frm_height);
 }
 
 int ransac_rotzoom(int *matched_points, int npoints, int *num_inliers_by_motion,
-                   double *params_by_motion, int num_desired_motions) {
+                   double *params_by_motion, int num_desired_motions, int frm_width, int frm_height) {
   return ransac(matched_points, npoints, num_inliers_by_motion,
                 params_by_motion, num_desired_motions, 3, is_degenerate_affine,
-                find_rotzoom, project_points_double_rotzoom);
+                find_rotzoom, project_points_double_rotzoom, frm_width, frm_height);
 }
 
 int ransac_affine(int *matched_points, int npoints, int *num_inliers_by_motion,
-                  double *params_by_motion, int num_desired_motions) {
+                  double *params_by_motion, int num_desired_motions,
+                  int frm_width, int frm_height) {
   return ransac(matched_points, npoints, num_inliers_by_motion,
                 params_by_motion, num_desired_motions, 3, is_degenerate_affine,
-                find_affine, project_points_double_affine);
+                find_affine, project_points_double_affine, frm_width, frm_height);
 }
 
 int ransac_homography(int *matched_points, int npoints,
                       int *num_inliers_by_motion, double *params_by_motion,
-                      int num_desired_motions) {
+                      int num_desired_motions, int frm_width, int frm_height) {
   return ransac(matched_points, npoints, num_inliers_by_motion,
                 params_by_motion, num_desired_motions, 4,
                 is_degenerate_homography, find_homography,
-                project_points_double_homography);
+                project_points_double_homography, frm_width, frm_height);
 }
 
 int ransac_hortrapezoid(int *matched_points, int npoints,
                         int *num_inliers_by_motion, double *params_by_motion,
-                        int num_desired_motions) {
+                        int num_desired_motions, int frm_width,
+                        int frm_height) {
   return ransac(matched_points, npoints, num_inliers_by_motion,
                 params_by_motion, num_desired_motions, 4,
                 is_degenerate_homography, find_hortrapezoid,
-                project_points_double_hortrapezoid);
+                project_points_double_hortrapezoid, frm_width, frm_height);
 }
 
 int ransac_vertrapezoid(int *matched_points, int npoints,
                         int *num_inliers_by_motion, double *params_by_motion,
-                        int num_desired_motions) {
+                        int num_desired_motions, int frm_width,
+                        int frm_height) {
   return ransac(matched_points, npoints, num_inliers_by_motion,
                 params_by_motion, num_desired_motions, 4,
                 is_degenerate_homography, find_vertrapezoid,
-                project_points_double_vertrapezoid);
+                project_points_double_vertrapezoid, frm_width, frm_height);
 }
