@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a8af243_3c56330a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-07-19T23:09:35Z",
+      "side": 1,
+      "message": "Did you verify that you get identical results in the default MSE path?",
+      "revId": "4293650c2089e9b3b65b59e500da38bea9d136b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34f3dc75_cb539327",
+        "filename": "configure",
+        "patchSetId": 12
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-07-19T23:09:35Z",
+      "side": 1,
+      "message": "Please update the cmake files as well. See:\n\nhttps://aomedia-review.googlesource.com/#/c/13020/15/build/cmake/aom_config_defaults.cmake",
+      "revId": "4293650c2089e9b3b65b59e500da38bea9d136b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
