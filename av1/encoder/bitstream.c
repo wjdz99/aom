@@ -4437,10 +4437,16 @@ static void write_global_motion_params(WarpedMotionParams *params,
                                        WarpedMotionParams *ref_params,
                                        aom_writer *w, int allow_hp) {
   TransformationType type = params->wmtype;
+  GlobalWarpRegion warp_region = params->gm_warp_region;
   int trans_bits;
   int trans_prec_diff;
   aom_write_bit(w, type != IDENTITY);
-  if (type != IDENTITY) aom_write_literal(w, type - 1, GLOBAL_TYPE_BITS);
+  if (type != IDENTITY) {
+    aom_write_literal(w, type - 1, GLOBAL_TYPE_BITS);
+    aom_write_bit(w, warp_region != FULL);
+    if (warp_region != FULL)
+      aom_write_literal(w, warp_region - 1, GLOBAL_REGION_BITS);
+  }
 
   switch (type) {
     case HOMOGRAPHY:
