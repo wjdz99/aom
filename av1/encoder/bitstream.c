@@ -4435,12 +4435,29 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 #if CONFIG_GLOBAL_MOTION
 static void write_global_motion_params(WarpedMotionParams *params,
                                        WarpedMotionParams *ref_params,
-                                       aom_writer *w, int allow_hp) {
+                                       aom_writer *w, int allow_hp, int all_full) {
   TransformationType type = params->wmtype;
+  GlobalWarpRegion warp_region = params->gm_warp_region;
+/*
+    if (warp_region == FULL) printf("FULL\n");
+    if (warp_region == LEFT) printf("LEFT\n");
+    if (warp_region == RIGHT) printf("RIGHT\n");
+    if (warp_region == TOP) printf("UP\n");
+    if (warp_region == BOTTOM) printf("DOWN\n");
+*/
+
   int trans_bits;
   int trans_prec_diff;
   aom_write_bit(w, type != IDENTITY);
-  if (type != IDENTITY) aom_write_literal(w, type - 1, GLOBAL_TYPE_BITS);
+  if (type != IDENTITY) {
+    aom_write_literal(w, type - 1, GLOBAL_TYPE_BITS);
+    if (!all_full) {
+      aom_write_bit(w, warp_region != FULL);
+      if (warp_region != FULL) {
+        aom_write_literal(w, warp_region - 1, GLOBAL_REGION_BITS);
+      }
+    }
+  }
 
   switch (type) {
     case HOMOGRAPHY:
@@ -4507,13 +4524,22 @@ static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
   int frame;
   YV12_BUFFER_CONFIG *ref_buf;
+  int all_full = 1;
+  for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    if (cm->global_motion[frame].gm_warp_region != FULL) {
+      all_full = 0;
+      break;
+    }
+  }
+  aom_write_bit(w, all_full);
+
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
     ref_buf = get_ref_frame_buffer(cpi, frame);
     if (cpi->source->y_crop_width == ref_buf->y_crop_width &&
         cpi->source->y_crop_height == ref_buf->y_crop_height) {
       write_global_motion_params(&cm->global_motion[frame],
                                  &cm->prev_frame->global_motion[frame], w,
-                                 cm->allow_high_precision_mv);
+                                 cm->allow_high_precision_mv, all_full);
     } else {
       assert(cm->global_motion[frame].wmtype == IDENTITY &&
              "Invalid warp type for frames of different resolutions");
