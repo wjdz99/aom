@@ -65,6 +65,13 @@ typedef struct {
   int mi_row, mi_col;
 } CFL_CTX;
 
+// CFL Prediction Function Behavior
+typedef enum ATTRIBUTE_PACKED {
+  CFL_PRED_NOT_BUILT,  // alpha == 0, the prediction will not be built and
+                       // av1_predict_intra_block must be called.
+  CFL_PRED_BUILT,      // alpha != 0, the prediction was built
+} CFL_PRED_BEHAVIOR;
+
 // Scaling factor so that smallest alpha equals 1.
 // This is used for flat blocks, so that smallest code will have a +/- 1 effect
 // on chroma DC_PRED.
@@ -85,8 +92,9 @@ static INLINE int get_scaled_luma_q0(int alpha_q3, int y_pix, int avg_q3) {
 
 void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm);
 
-void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
-                       int row, int col, TX_SIZE tx_size, int plane);
+CFL_PRED_BEHAVIOR cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst,
+                                    int dst_stride, int row, int col,
+                                    TX_SIZE tx_size, int plane);
 
 void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
                int col, TX_SIZE tx_size, BLOCK_SIZE bsize);

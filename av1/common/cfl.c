@@ -254,40 +254,49 @@ static INLINE int cfl_idx_to_alpha(int alpha_idx, CFL_SIGN_TYPE alpha_sign,
   }
 }
 
-// Predict the current transform block using CfL.
-void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
-                       int row, int col, TX_SIZE tx_size, int plane) {
+// Predict the current transform block using CfL only if alpha != 0, otherwise
+// av1_predict_intra_block must be called. In other words, when alpha == 0, the
+// standard DC_PRED is performed.
+CFL_PRED_BEHAVIOR cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst,
+                                    int dst_stride, int row, int col,
+                                    TX_SIZE tx_size, int plane) {
   CFL_CTX *const cfl = xd->cfl;
-  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
 
   // CfL parameters must be computed before prediction can be done.
   assert(cfl->are_parameters_computed == 1);
 
-  const int width = tx_size_wide[tx_size];
-  const int height = tx_size_high[tx_size];
-  // TODO(ltrudeau) Convert to uint16 to support HBD
-  const uint8_t *y_pix = cfl->y_down_pix;
-
-  const int dc_pred = cfl->dc_pred[plane - 1];
   const int alpha_q3 = cfl_idx_to_alpha(
       mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs[plane - 1], plane - 1);
 
-  const int avg_row =
-      (row << tx_size_wide_log2[0]) >> tx_size_wide_log2[tx_size];
-  const int avg_col =
-      (col << tx_size_high_log2[0]) >> tx_size_high_log2[tx_size];
-  const int avg_q3 =
-      cfl->y_averages_q3[cfl->y_averages_stride * avg_row + avg_col];
+  if (alpha_q3 != 0) {
+    const int width = tx_size_wide[tx_size];
+    const int height = tx_size_high[tx_size];
+    // TODO(ltrudeau) Convert to uint16 to support HBD
+    const uint8_t *y_pix = cfl->y_down_pix;
 
-  cfl_load(cfl, row, col, width, height);
-  for (int j = 0; j < height; j++) {
-    for (int i = 0; i < width; i++) {
-      // TODO(ltrudeau) add support for HBD.
-      dst[i] =
-          clip_pixel(get_scaled_luma_q0(alpha_q3, y_pix[i], avg_q3) + dc_pred);
+    const int dc_pred = cfl->dc_pred[plane - 1];
+
+    const int avg_row =
+        (row << tx_size_wide_log2[0]) >> tx_size_wide_log2[tx_size];
+    const int avg_col =
+        (col << tx_size_high_log2[0]) >> tx_size_high_log2[tx_size];
+    const int avg_q3 =
+        cfl->y_averages_q3[cfl->y_averages_stride * avg_row + avg_col];
+
+    cfl_load(cfl, row, col, width, height);
+    for (int j = 0; j < height; j++) {
+      for (int i = 0; i < width; i++) {
+        // TODO(ltrudeau) add support for HBD.
+        dst[i] = clip_pixel(get_scaled_luma_q0(alpha_q3, y_pix[i], avg_q3) +
+                            dc_pred);
+      }
+      dst += dst_stride;
+      y_pix += MAX_SB_SIZE;
     }
-    dst += dst_stride;
-    y_pix += MAX_SB_SIZE;
+    return CFL_PRED_BUILT;
+  } else {
+    return CFL_PRED_NOT_BUILT;
   }
 }
 
@@ -308,9 +317,11 @@ void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
     const int bw = block_size_wide[bsize];
     const int bh = block_size_high[bsize];
 
-    // For chroma_sub8x8, the CfL prediction for prediction blocks smaller than
+    // For chroma_sub8x8, the CfL prediction for prediction blocks smaller
+    // than
     // 8X8 uses non chroma reference reconstructed luma pixels. To do so, we
-    // combine the 4X4 non chroma reference into the CfL pixel buffers based on
+    // combine the 4X4 non chroma reference into the CfL pixel buffers based
+    // on
     // their row and column index.
 
     // The following code is adapted from the is_chroma_reference() function.
