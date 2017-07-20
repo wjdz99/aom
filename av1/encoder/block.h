@@ -65,6 +65,12 @@ typedef struct macroblock_plane {
 typedef unsigned int av1_coeff_cost[PLANE_TYPES][REF_TYPES][COEF_BANDS][2]
                                    [COEFF_CONTEXTS][ENTROPY_TOKENS];
 
+#if CDF_COST
+typedef unsigned int av1_coeff_cdf_cost[PLANE_TYPES][REF_TYPES][COEF_BANDS]
+                                       [COEFF_CONTEXTS]
+                                       [AOMMAX(TAIL_TOKENS, HEAD_TOKENS + 1)];
+#endif
+
 typedef struct {
   int_mv ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES];
   int16_t mode_context[MODE_CTX_REF_FRAMES];
@@ -171,6 +177,11 @@ struct macroblock {
 
   // note that token_costs is the cost when eob node is skipped
   av1_coeff_cost token_costs[TX_SIZES];
+
+#if CDF_COST
+  av1_coeff_cdf_cost head_token_costs[TX_SIZES];
+  av1_coeff_cdf_cost tail_token_costs[TX_SIZES];
+#endif
 
   int optimize;
 

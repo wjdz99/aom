@@ -173,6 +173,47 @@ void av1_fill_token_costs(av1_coeff_cost *c,
           }
 }
 
+#if CDF_COST
+void av1_fill_cdf_token_costs(av1_coeff_cdf_cost *cost,
+                              coeff_cdf_model (*cdf)[PLANE_TYPES]) {
+  for (int tx = 0; tx < TX_SIZES; ++tx) {
+    for (int pt = 0; pt < PLANE_TYPES; ++pt) {
+      for (int rt = 0; rt < REF_TYPES; ++rt) {
+        for (int band = 0; band < COEF_BANDS; ++band) {
+          for (int ctx = 0; ctx < BAND_COEFF_CONTEXTS(band); ++ctx) {
+#if 1
+            av1_cost_tokens_from_cdf(cost[tx][pt][rt][band][ctx],
+                                     cdf[tx][pt][rt][band][ctx], NULL);
+#else
+            int pre_cdf = 0;
+            for (int node = 0; node < TAIL_TOKENS; ++node) {
+              const int cur_cdf = AOM_ICDF(cdf[tx][pt][rt][band][ctx][node]);
+              const int prob = (cur_cdf - pre_cdf) >> 7;
+              pre_cdf = cur_cdf;
+              cost[tx][pt][rt][band][ctx][node] =
+                  av1_prob_cost[AOMMIN(prob, 255)];
+              //printf("(%6d %6d) ", prob, cost[tx][pt][rt][band][ctx][node]);
+            }
+            //printf("\n");
+#endif
+#if 0
+            unsigned int temp_cost[TAIL_TOKENS];
+            av1_zero(temp_cost);
+            av1_cost_tokens_from_cdf(temp_cost, cdf[tx][pt][rt][band][ctx],
+                                     NULL);
+            for (int node = 0; node < TAIL_TOKENS; ++node) {
+              printf("(%6d %6d) ", cost[tx][pt][rt][band][ctx][node], temp_cost[node]);
+            }
+            printf("\n");
+#endif
+          }
+        }
+      }
+    }
+  }
+}
+#endif
+
 // Values are now correlated to quantizer.
 static int sad_per_bit16lut_8[QINDEX_RANGE];
 static int sad_per_bit4lut_8[QINDEX_RANGE];
@@ -380,6 +421,10 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 
   if (cpi->oxcf.pass != 1) {
     av1_fill_token_costs(x->token_costs, cm->fc->coef_probs);
+#if CDF_COST
+    av1_fill_cdf_token_costs(x->head_token_costs, cm->fc->coef_head_cdfs);
+    av1_fill_cdf_token_costs(x->tail_token_costs, cm->fc->coef_tail_cdfs);
+#endif
 
     if (cm->frame_type == KEY_FRAME) {
 #if CONFIG_EXT_PARTITION_TYPES

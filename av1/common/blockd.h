@@ -38,6 +38,8 @@
 extern "C" {
 #endif
 
+#define CDF_COST 1
+
 #if (CONFIG_CHROMA_SUB8X8 || CONFIG_CHROMA_2X2)
 #define SUB8X8_COMP_REF 0
 #else
