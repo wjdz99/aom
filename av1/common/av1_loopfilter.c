@@ -3038,7 +3038,16 @@ static void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
 void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
                           struct macroblockd_plane planes[MAX_MB_PLANE],
                           int start, int stop, int y_only) {
+#if CONFIG_UV_LVL
+  // y_only no longer has its original meaning.
+  // Here it means which plane to filter
+  // when y_only = {0, 1, 2}, it means we are searching for filter level for
+  // Y/U/V plane individually.
+  const int plane_start = y_only;
+  const int plane_end = plane_start + 1;
+#else
   const int num_planes = y_only ? 1 : MAX_MB_PLANE;
+#endif  // CONFIG_UV_LVL
   int mi_row, mi_col;
 
 #if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_EXT_PARTITION_TYPES || \
@@ -3061,7 +3070,11 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
 
       av1_setup_dst_planes(planes, cm->sb_size, frame_buffer, mi_row, mi_col);
 
+#if CONFIG_UV_LVL
+      for (plane = plane_start; plane < plane_end; ++plane) {
+#else
       for (plane = 0; plane < num_planes; ++plane) {
+#endif  // CONFIG_UV_LVL
         av1_filter_block_plane_non420_ver(cm, &planes[plane], mi + mi_col,
                                           mi_row, mi_col, plane);
         av1_filter_block_plane_non420_hor(cm, &planes[plane], mi + mi_col,
