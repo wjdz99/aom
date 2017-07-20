@@ -579,9 +579,6 @@ void av1_update_rd_thresh_fact(const AV1_COMMON *const cm,
                                int (*fact)[MAX_MODES], int rd_thresh, int bsize,
                                int best_mode_index);
 
-void av1_fill_token_costs(av1_coeff_cost *c,
-                          av1_coeff_probs_model (*p)[PLANE_TYPES]);
-
 static INLINE int rd_less_than_thresh(int64_t best_rd, int thresh,
                                       int thresh_fact) {
   return best_rd < ((int64_t)thresh * thresh_fact >> 5) || thresh == INT_MAX;
@@ -604,6 +601,10 @@ void av1_setup_pred_block(const MACROBLOCKD *xd,
 
 int av1_get_intra_cost_penalty(int qindex, int qdelta,
                                aom_bit_depth_t bit_depth);
+
+int av1_get_coeff_token_cost(int token, int eob_val, int is_first,
+                             const aom_cdf_prob *head_cdf,
+                             const aom_cdf_prob *tail_cdf);
 
 #ifdef __cplusplus
 }  // extern "C"
