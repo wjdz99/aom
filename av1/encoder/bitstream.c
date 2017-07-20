@@ -4137,9 +4137,13 @@ static void write_bitdepth_colorspace_sampling(
 }
 
 #if CONFIG_REFERENCE_BUFFER
-void write_sequence_header(SequenceHeader *seq_params) {
+void write_sequence_header(AV1_COMMON *const cm, SequenceHeader *seq_params) {
   /* Placeholder for actually writing to the bitstream */
-  seq_params->frame_id_numbers_present_flag = FRAME_ID_NUMBERS_PRESENT_FLAG;
+  seq_params->frame_id_numbers_present_flag =
+#if CONFIG_EXT_TILE
+      cm->large_scale_tile ? 0 :
+#endif  // CONFIG_EXT_TILE
+      FRAME_ID_NUMBERS_PRESENT_FLAG;
   seq_params->frame_id_length_minus7 = FRAME_ID_LENGTH_MINUS7;
   seq_params->delta_frame_id_length_minus2 = DELTA_FRAME_ID_LENGTH_MINUS2;
 }
@@ -4178,12 +4182,16 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 
 #if CONFIG_REFERENCE_BUFFER
   /* TODO: Move outside frame loop or inside key-frame branch */
-  write_sequence_header(&cpi->seq_params);
+  write_sequence_header(cm, &cpi->seq_params);
 #endif
 
   aom_wb_write_literal(wb, AOM_FRAME_MARKER, 2);
 
   write_profile(cm->profile, wb);
+
+#if CONFIG_EXT_TILE
+  aom_wb_write_literal(wb, cm->large_scale_tile, 1);
+#endif  // CONFIG_EXT_TILE
 
 #if CONFIG_EXT_REFS
   // NOTE: By default all coded frames to be used as a reference
