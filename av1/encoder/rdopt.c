@@ -9401,25 +9401,24 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 
   if (intra_yrd < best_rd) {
 #if CONFIG_CFL
-    // Perform one extra txfm_rd_in_plane() call, this time with the best value
-    // so we can store reconstructed luma values
-    RD_STATS this_rd_stats;
-
 #if CONFIG_CB4X4
     // Don't store the luma value if no chroma is associated.
-    // Don't worry, we will store this reconstructed luma in the following
-    // encode dry-run the chroma plane will never know.
+    // Don't worry, cfl_store will be called in encode_superblock()
+    // before it returns here to evaluate the block with a chroma reference.
     x->cfl_store_y = !x->skip_chroma_rd;
 #else
     x->cfl_store_y = 1;
-#endif
-
-    txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, AOM_PLANE_Y,
-                     mbmi->sb_type, mbmi->tx_size,
-                     cpi->sf.use_fast_coef_costing);
-
-    x->cfl_store_y = 0;
-#endif
+#endif  // CONFIG_CB4X4
+    if (x->cfl_store_y) {
+      // Perform one extra txfm_rd_in_plane() call, this time with the best
+      // value so cfl_store() can store reconstructed luma values
+      RD_STATS this_rd_stats;
+      txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, AOM_PLANE_Y,
+                       mbmi->sb_type, mbmi->tx_size,
+                       cpi->sf.use_fast_coef_costing);
+      x->cfl_store_y = 0;
+    }
+#endif  // CONFIG_CFL
     max_uv_tx_size = uv_txsize_lookup[bsize][mbmi->tx_size][pd[1].subsampling_x]
                                      [pd[1].subsampling_y];
     init_sbuv_mode(mbmi);
@@ -10484,6 +10483,18 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       uv_tx = uv_txsize_lookup[bsize][mbmi->tx_size][pd->subsampling_x]
                               [pd->subsampling_y];
       if (rate_uv_intra[uv_tx] == INT_MAX) {
+#if CONFIG_CFL
+        x->cfl_store_y = 1;
+        // Perform one extra txfm_rd_in_plane() call, this time with the best
+        // value so cfl_store() can store reconstructed luma values
+        RD_STATS this_rd_stats;
+        txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, AOM_PLANE_Y,
+                         mbmi->sb_type, mbmi->tx_size,
+                         cpi->sf.use_fast_coef_costing);
+        x->cfl_store_y = 0;
+// TODO(ltrudeau) Should choose_intra_uv_mode() check for if
+// (!x->skip_chroma_rd) as in av1_rd_pick_intra_mode_sb()?
+#endif  // CONFIG_CFL
         choose_intra_uv_mode(cpi, x, ctx, bsize, uv_tx, &rate_uv_intra[uv_tx],
                              &rate_uv_tokenonly[uv_tx], &dist_uvs[uv_tx],
                              &skip_uvs[uv_tx], &mode_uv[uv_tx]);
@@ -11386,6 +11397,16 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     uv_tx = uv_txsize_lookup[bsize][mbmi->tx_size][xd->plane[1].subsampling_x]
                             [xd->plane[1].subsampling_y];
     if (rate_uv_intra[uv_tx] == INT_MAX) {
+#if CONFIG_CFL
+      x->cfl_store_y = 1;
+      // Perform one extra txfm_rd_in_plane() call, this time with the best
+      // value so cfl_store() can store reconstructed luma values
+      RD_STATS this_rd_stats;
+      txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, AOM_PLANE_Y,
+                       mbmi->sb_type, mbmi->tx_size,
+                       cpi->sf.use_fast_coef_costing);
+      x->cfl_store_y = 0;
+#endif  // CONFIG_CFL
       choose_intra_uv_mode(cpi, x, ctx, bsize, uv_tx, &rate_uv_intra[uv_tx],
                            &rate_uv_tokenonly[uv_tx], &dist_uvs[uv_tx],
                            &skip_uvs[uv_tx], &mode_uv[uv_tx]);
