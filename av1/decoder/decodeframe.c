@@ -657,7 +657,7 @@ static void predict_and_reconstruct_intra_block(
     av1_pvq_decode_helper2(cm, xd, mbmi, plane, row, col, tx_size, tx_type);
 #endif  // !CONFIG_PVQ
   }
-#if CONFIG_CFL
+#if CONFIG_CFL && CONFIG_COEF_INTERLEAVE
   if (plane == AOM_PLANE_Y) {
     struct macroblockd_plane *const pd = &xd->plane[plane];
 #if CONFIG_CHROMA_SUB8X8
@@ -665,14 +665,10 @@ static void predict_and_reconstruct_intra_block(
         AOMMAX(BLOCK_4X4, get_plane_block_size(mbmi->sb_type, pd));
 #else
     const BLOCK_SIZE plane_bsize = get_plane_block_size(mbmi->sb_type, pd);
-#endif
-    uint8_t *dst =
-        &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
-    // TODO (ltrudeau) Store sub-8x8 inter blocks when bottom right block is
-    // intra predicted.
-    cfl_store(xd->cfl, dst, pd->dst.stride, row, col, tx_size, plane_bsize);
+#endif  // CHROMA_SUB8X8
+    cfl_store_tx(xd, row, col, tx_size, plane_bsize);
   }
-#endif
+#endif  // CONFIG_CFL && CONFIG_COEF_INTERLEAVE
 }
 
 #if CONFIG_VAR_TX && !CONFIG_COEF_INTERLEAVE
@@ -2031,6 +2027,11 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
                                                   blk_row, blk_col, tx_size);
         }
       }
+#if CONFIG_CFL
+      if (plane == AOM_PLANE_Y) {
+        cfl_store_block(xd, mbmi->sb_type);
+      }
+#endif  // CONFIG_CFL
     }
   } else {
     int ref;
@@ -2151,6 +2152,22 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 #endif
       }
     }
+#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8
+    // REWRITE THIS AND TALK ABOUT THE AWESOMENESS OF INTRA BLOCK ALSO PASSING
+    // HERE
+    // For CHROMA_SUB8X8, sub8x8 blocks that have both luma and chroma
+    // components are known as chroma reference blocks. Otherwise, the sub8x8
+    // blocks only have a luma component. This is problematic for CfL, as chroma
+    // reference block predictions require the reconstructed pixel values of
+    // luma-only sub8x8 blocks. Some of these luma-only sub8x8 can be inter
+    // blocks. As such, we need to store the reconstructed pixel values of
+    // sub8x8 luma-only inter blocks.
+    CFL_CTX *const cfl = xd->cfl;
+    if (!is_chroma_reference(mi_row, mi_col, bsize, cfl->subsampling_x,
+                             cfl->subsampling_y)) {
+      cfl_store_block(xd, mbmi->sb_type);
+    }
+#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8
   }
 #endif  // CONFIG_COEF_INTERLEAVE
 
