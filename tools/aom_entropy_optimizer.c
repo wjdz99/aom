@@ -207,6 +207,8 @@ static void optimize_entropy_table(aom_count_type *counts,
   assert(!flatten_last_dim || cts_each_dim[dim_of_cts - 1] == 2);
 
   fprintf(probsfile, "%s = {\n", prefix);
+  // Tags for the counts in log file
+  fprintf(logfile, "%s\n", prefix);
   if (parse_stats(&ct_ptr, probsfile, 1, dim_of_cts, cts_each_dim, tree,
                   flatten_last_dim)) {
     fprintf(probsfile, "Optimizer failed!\n");
@@ -532,6 +534,16 @@ int main(int argc, const char **argv) {
 /* Transform type */
 #if CONFIG_EXT_TX
 // TODO(yuec): different trees are used depending on selected ext tx set
+  cts_each_dim[0] = EXT_TX_SETS_INTER;
+  cts_each_dim[1] = EXT_TX_SIZES;
+  cts_each_dim[2] = TX_TYPES;
+  // TODO(yuec): Place holder only, different trees are used depending on
+  // selected ext tx set, so it not right. The counts can be printed out
+  // correctly to aom_entropy_optimizer_parsed_counts.log.
+  optimize_entropy_table(&(fc.inter_ext_tx[0][0][0]), probsfile, 3, cts_each_dim,
+      av1_ext_tx_inter_tree[1], 0,
+      "static const aom_prob default_inter_ext_tx_prob"
+      "[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES - 1]");
 #else
   // TODO(yuec): intra_ext_tx use different trees depending on the context
   cts_each_dim[0] = EXT_TX_SIZES;
