@@ -729,23 +729,34 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
   if (p->eobs[block]) *(args->skip) = 0;
 
-  if (p->eobs[block] == 0) return;
+  if (p->eobs[block] != 0) {
 #else
   (void)ctx;
   if (!x->pvq_skip[plane]) *(args->skip) = 0;
 
-  if (x->pvq_skip[plane]) return;
+  if (!x->pvq_skip[plane]) {
 #endif
-  TX_TYPE tx_type =
-      av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col, block, tx_size);
+    TX_TYPE tx_type =
+        av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col, block, tx_size);
 #if CONFIG_LGT
-  PREDICTION_MODE mode = get_prediction_mode(xd->mi[0], plane, tx_size, block);
-  av1_inverse_transform_block(xd, dqcoeff, mode, tx_type, tx_size, dst,
-                              pd->dst.stride, p->eobs[block]);
+    PREDICTION_MODE mode =
+        get_prediction_mode(xd->mi[0], plane, tx_size, block);
+    av1_inverse_transform_block(xd, dqcoeff, mode, tx_type, tx_size, dst,
+                                pd->dst.stride, p->eobs[block]);
 #else
-  av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst,
-                              pd->dst.stride, p->eobs[block]);
+    av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst,
+                                pd->dst.stride, p->eobs[block]);
 #endif
+  }
+
+#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  // The reconstructed luma pixels of luma-only sub8x8 inter blocks must be
+  // stored in case the chroma reference sub8x8 block is CFL_PRED.
+  if (plane == AOM_PLANE_Y && is_inter_block(mbmi) && plane_bsize < BLOCK_8X8) {
+    cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
+  }
+#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8
 }
 
 #if CONFIG_VAR_TX
@@ -1417,9 +1428,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #endif
 #if CONFIG_CFL
   if (plane == AOM_PLANE_Y && x->cfl_store_y) {
-    // TODO (ltrudeau) Store sub-8x8 inter blocks when bottom right block is
-    // intra predicted.
-    cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_size, plane_bsize);
+    cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
   }
 #endif
 }
