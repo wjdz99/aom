@@ -154,25 +154,6 @@ static void fill_mode_costs(AV1_COMP *cpi) {
 #endif  // CONFIG_GLOBAL_MOTION
 }
 
-void av1_fill_token_costs(av1_coeff_cost *c,
-                          av1_coeff_probs_model (*p)[PLANE_TYPES]) {
-  int i, j, k, l;
-  TX_SIZE t;
-  for (t = 0; t < TX_SIZES; ++t)
-    for (i = 0; i < PLANE_TYPES; ++i)
-      for (j = 0; j < REF_TYPES; ++j)
-        for (k = 0; k < COEF_BANDS; ++k)
-          for (l = 0; l < BAND_COEFF_CONTEXTS(k); ++l) {
-            aom_prob probs[ENTROPY_NODES];
-            av1_model_to_full_probs(p[t][i][j][k][l], probs);
-            av1_cost_tokens((int *)c[t][i][j][k][0][l], probs, av1_coef_tree);
-            av1_cost_tokens_skip((int *)c[t][i][j][k][1][l], probs,
-                                 av1_coef_tree);
-            assert(c[t][i][j][k][0][l][EOB_TOKEN] ==
-                   c[t][i][j][k][1][l][EOB_TOKEN]);
-          }
-}
-
 // Values are now correlated to quantizer.
 static int sad_per_bit16lut_8[QINDEX_RANGE];
 static int sad_per_bit4lut_8[QINDEX_RANGE];
@@ -379,8 +360,6 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 #endif
 
   if (cpi->oxcf.pass != 1) {
-    av1_fill_token_costs(x->token_costs, cm->fc->coef_probs);
-
     if (cm->frame_type == KEY_FRAME) {
 #if CONFIG_EXT_PARTITION_TYPES
       for (i = 0; i < PARTITION_PLOFFSET; ++i)
@@ -1377,4 +1356,27 @@ int av1_get_intra_cost_penalty(int qindex, int qdelta,
 #else
   return 20 * q;
 #endif  // CONFIG_HIGHBITDEPTH
+}
+
+int av1_get_coeff_token_cost(int token, int eob_val, int is_first,
+                             const aom_cdf_prob *head_cdf,
+                             const aom_cdf_prob *tail_cdf) {
+  if (eob_val == LAST_EOB) return av1_cost_zero(128);
+  if (token == 0 && eob_val == 1) return 0;
+  if (token == BLOCK_Z_TOKEN) {
+    return av1_cost_symbol(AOM_ICDF(head_cdf[0]));
+  } else {
+    const int comb_symb = 2 * AOMMIN(token, TWO_TOKEN) - eob_val + is_first;
+    aom_cdf_prob p15;
+    p15 = AOM_ICDF(head_cdf[comb_symb]) -
+          (comb_symb == 0 ? 0 : AOM_ICDF(head_cdf[comb_symb - 1]));
+    int cost = av1_cost_symbol(p15);
+    if (token > ONE_TOKEN) {
+      int symb = token - TWO_TOKEN;
+      p15 = AOM_ICDF(tail_cdf[symb]) -
+            (symb == 0 ? 0 : AOM_ICDF(tail_cdf[symb - 1]));
+      cost += av1_cost_symbol(p15);
+    }
+    return cost;
+  }
 }
