@@ -1950,15 +1950,18 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   }
 #if CONFIG_CFL
   if (plane == AOM_PLANE_Y && x->cfl_store_y) {
+#if CONFIG_CHROMA_SUB8X8
+    assert(!is_inter_block(mbmi) || plane_bsize < BLOCK_8X8);
+#else
+    assert(!is_inter_block(mbmi));
+#endif  // CONFIG_CHROMA_SUB8X8
     struct macroblockd_plane *const pd = &xd->plane[plane];
     const int dst_stride = pd->dst.stride;
     uint8_t *dst =
         &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
-    // TODO (ltrudeau) Store sub-8x8 inter blocks when bottom right block is
-    // intra predicted.
     cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_size, plane_bsize);
   }
-#endif
+#endif  // CONFIG_CFL
 #if CONFIG_DPCM_INTRA
 CALCULATE_RD : {}
 #endif  // CONFIG_DPCM_INTRA
@@ -9615,25 +9618,24 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 
   if (intra_yrd < best_rd) {
 #if CONFIG_CFL
-    // Perform one extra txfm_rd_in_plane() call, this time with the best value
-    // so we can store reconstructed luma values
-    RD_STATS this_rd_stats;
-
 #if CONFIG_CB4X4
     // Don't store the luma value if no chroma is associated.
-    // Don't worry, we will store this reconstructed luma in the following
-    // encode dry-run the chroma plane will never know.
+    // Don't worry, cfl_store will be called in encode_superblock()
+    // before it returns here to evaluate the block with a chroma reference.
     x->cfl_store_y = !x->skip_chroma_rd;
 #else
     x->cfl_store_y = 1;
-#endif
-
-    txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, AOM_PLANE_Y,
-                     mbmi->sb_type, mbmi->tx_size,
-                     cpi->sf.use_fast_coef_costing);
-
-    x->cfl_store_y = 0;
-#endif
+#endif  // CONFIG_CB4X4
+    if (x->cfl_store_y) {
+      // Perform one extra txfm_rd_in_plane() call, this time with the best
+      // value so cfl_store() can store reconstructed luma values
+      RD_STATS this_rd_stats;
+      txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, AOM_PLANE_Y,
+                       mbmi->sb_type, mbmi->tx_size,
+                       cpi->sf.use_fast_coef_costing);
+      x->cfl_store_y = 0;
+    }
+#endif  // CONFIG_CFL
     max_uv_tx_size = uv_txsize_lookup[bsize][mbmi->tx_size][pd[1].subsampling_x]
                                      [pd[1].subsampling_y];
     init_sbuv_mode(mbmi);
@@ -10699,6 +10701,25 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       uv_tx = uv_txsize_lookup[bsize][mbmi->tx_size][pd->subsampling_x]
                               [pd->subsampling_y];
       if (rate_uv_intra[uv_tx] == INT_MAX) {
+#if CONFIG_CFL
+#if CONFIG_CB4X4
+        // Don't store the luma value if no chroma is associated.
+        // Don't worry, cfl_store will be called in encode_superblock()
+        // before it returns here to evaluate the block with a chroma reference.
+        x->cfl_store_y = !x->skip_chroma_rd;
+#else
+        x->cfl_store_y = 1;
+#endif  // CONFIG_CB4X4
+        if (x->cfl_store_y) {
+          // Perform one extra txfm_rd_in_plane() call, this time with the best
+          // value so cfl_store() can store reconstructed luma values
+          RD_STATS this_rd_stats;
+          txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, AOM_PLANE_Y,
+                           mbmi->sb_type, mbmi->tx_size,
+                           cpi->sf.use_fast_coef_costing);
+          x->cfl_store_y = 0;
+        }
+#endif  // CONFIG_CFL
         choose_intra_uv_mode(cpi, x, ctx, bsize, uv_tx, &rate_uv_intra[uv_tx],
                              &rate_uv_tokenonly[uv_tx], &dist_uvs[uv_tx],
                              &skip_uvs[uv_tx], &mode_uv[uv_tx]);
@@ -11874,6 +11895,23 @@ PALETTE_EXIT:
       }
     }
   }
+
+#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8
+  *mbmi = best_mbmode;
+  CFL_CTX *const cfl = xd->cfl;
+  if (is_inter_block(mbmi) &&
+      !is_chroma_reference(mi_row, mi_col, bsize, cfl->subsampling_x,
+                           cfl->subsampling_y)) {
+    x->cfl_store_y = 1;
+    // Perform one extra txfm_rd_in_plane() call, this time with the best
+    // value so cfl_store() can store reconstructed luma values
+    RD_STATS this_rd_stats;
+    txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, AOM_PLANE_Y,
+                     mbmi->sb_type, mbmi->tx_size,
+                     cpi->sf.use_fast_coef_costing);
+    x->cfl_store_y = 0;
+  }
+#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8
 
   if (best_mode_index < 0 || best_rd >= best_rd_so_far) {
     rd_cost->rate = INT_MAX;

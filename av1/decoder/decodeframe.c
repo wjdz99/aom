@@ -668,8 +668,6 @@ static void predict_and_reconstruct_intra_block(
 #endif
     uint8_t *dst =
         &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
-    // TODO (ltrudeau) Store sub-8x8 inter blocks when bottom right block is
-    // intra predicted.
     cfl_store(xd->cfl, dst, pd->dst.stride, row, col, tx_size, plane_bsize);
   }
 #endif
@@ -2151,6 +2149,23 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 #endif
       }
     }
+#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8
+    // For CHROMA_SUB8X8, sub8x8 blocks that have both luma and chroma
+    // components are known as chroma reference blocks. Otherwise, the sub8x8
+    // blocks only have a luma component. This is problematic for CfL, as chroma
+    // reference block predictions require the reconstructed pixel values of
+    // luma-only sub8x8 blocks. Some of these luma-only sub8x8 can be inter
+    // blocks. As such, we need to store the reconstructed pixel values of
+    // sub8x8 luma-only inter blocks.
+    CFL_CTX *const cfl = xd->cfl;
+    if (is_inter_block(mbmi) &&
+        !is_chroma_reference(mi_row, mi_col, bsize, cfl->subsampling_x,
+                             cfl->subsampling_y)) {
+      const struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
+      cfl_store(cfl, pd->dst.buf, pd->dst.stride, 0, 0, mbmi->tx_size,
+                mbmi->sb_type);
+    }
+#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8
   }
 #endif  // CONFIG_COEF_INTERLEAVE
 

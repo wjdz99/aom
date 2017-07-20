@@ -6169,6 +6169,23 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     set_txfm_ctxs(tx_size, xd->n8_w, xd->n8_h, (mbmi->skip || seg_skip), xd);
   }
 #endif  // CONFIG_VAR_TX
+#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8
+  // For CHROMA_SUB8X8, sub8x8 blocks that have both luma and chroma
+  // components are known as chroma reference blocks. Otherwise, the sub8x8
+  // blocks only have a luma component. This is problematic for CfL, as chroma
+  // reference block predictions require the reconstructed pixel values of
+  // luma-only sub8x8 blocks. Some of these luma-only sub8x8 can be inter
+  // blocks. As such, we need to store the reconstructed pixel values of
+  // sub8x8 luma-only inter blocks.
+  CFL_CTX *const cfl = xd->cfl;
+  if (is_inter_block(mbmi) &&
+      !is_chroma_reference(mi_row, mi_col, bsize, cfl->subsampling_x,
+                           cfl->subsampling_y)) {
+    const struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
+    cfl_store(cfl, pd->dst.buf, pd->dst.stride, 0, 0, mbmi->tx_size,
+              mbmi->sb_type);
+  }
+#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8
 }
 
 #if CONFIG_SUPERTX
