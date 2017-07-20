@@ -407,8 +407,13 @@ typedef struct AV1Common {
   int mib_size;        // Size of the superblock in units of MI blocks
   int mib_size_log2;   // Log 2 of above.
 #if CONFIG_CDEF
+#if CONFIG_CDEF_SINGLEPASS
+  int cdef_pri_damping;
+  int cdef_sec_damping;
+#else
   int cdef_dering_damping;
   int cdef_clpf_damping;
+#endif
   int nb_cdef_strengths;
   int cdef_strengths[CDEF_MAX_STRENGTHS];
   int cdef_uv_strengths[CDEF_MAX_STRENGTHS];
