@@ -22,6 +22,30 @@
       "revId": "3e07e10e4764aef2e248b9ea1e1ed76bcb7f6abe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e43285d_4646688b",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-07-20T19:39:52Z",
+      "side": 1,
+      "message": "The 1/4 block sizes (e.g. 8x32) are added behind 64x64 in the definition. That would probably make AOMMIN(64x64, 32x8) \u003d 32x8.",
+      "parentUuid": "d20cfaa9_ef4811bb",
+      "range": {
+        "startLine": 532,
+        "startChar": 2,
+        "endLine": 532,
+        "endChar": 69
+      },
+      "revId": "3e07e10e4764aef2e248b9ea1e1ed76bcb7f6abe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
