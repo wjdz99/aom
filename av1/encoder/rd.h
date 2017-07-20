@@ -582,6 +582,11 @@ void av1_update_rd_thresh_fact(const AV1_COMMON *const cm,
 void av1_fill_token_costs(av1_coeff_cost *c,
                           av1_coeff_probs_model (*p)[PLANE_TYPES]);
 
+#if CDF_COST
+void av1_fill_cdf_token_costs(av1_coeff_cdf_cost *c,
+                              coeff_cdf_model (*p)[PLANE_TYPES]);
+#endif
+
 static INLINE int rd_less_than_thresh(int64_t best_rd, int thresh,
                                       int thresh_fact) {
   return best_rd < ((int64_t)thresh * thresh_fact >> 5) || thresh == INT_MAX;

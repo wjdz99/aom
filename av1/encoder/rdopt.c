@@ -1392,6 +1392,21 @@ static int64_t av1_block_error2_c(const tran_low_t *coeff,
  * 16th coefficient in a 4x4 block or the 64th coefficient in a 8x8 block,
  * were non-zero). */
 #if !CONFIG_LV_MAP
+#if CDF_COST
+static unsigned int coeff_token_cost_from_cdf(
+    int16_t token, int eob_val, int is_first,
+    const unsigned int *head_cost_table, const unsigned int *tail_cost_table) {
+  if (eob_val == LAST_EOB) {
+    return av1_cost_zero(128);
+  } else {
+    const int comb_symb = 2 * AOMMIN(token, TWO_TOKEN) - eob_val + is_first;
+    unsigned int cost = head_cost_table[comb_symb];
+    if (token > ONE_TOKEN) cost += tail_cost_table[token - TWO_TOKEN];
+    return cost;
+  }
+}
+#endif
+
 static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
                        int block, TX_SIZE tx_size, const SCAN_ORDER *scan_order,
                        const ENTROPY_CONTEXT *a, const ENTROPY_CONTEXT *l,
@@ -1405,16 +1420,27 @@ static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
   const int eob = p->eobs[block];
   const tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
   const int tx_size_ctx = txsize_sqr_map[tx_size];
-  unsigned int(*token_costs)[2][COEFF_CONTEXTS][ENTROPY_TOKENS] =
-      x->token_costs[tx_size_ctx][type][is_inter_block(mbmi)];
   uint8_t token_cache[MAX_TX_SQUARE];
   int pt = combine_entropy_contexts(*a, *l);
   int c, cost;
   const int16_t *scan = scan_order->scan;
   const int16_t *nb = scan_order->neighbors;
   const int ref = is_inter_block(mbmi);
+#if CDF_COST
+  unsigned int(
+      *head_token_costs)[COEFF_CONTEXTS][AOMMAX(TAIL_TOKENS, HEAD_TOKENS + 1)] =
+      x->head_token_costs[tx_size_ctx][type][ref];
+  unsigned int(
+      *tail_token_costs)[COEFF_CONTEXTS][AOMMAX(TAIL_TOKENS, HEAD_TOKENS + 1)] =
+      x->tail_token_costs[tx_size_ctx][type][ref];
+  const int seg_eob = get_tx_eob(&cm->seg, mbmi->segment_id, tx_size);
+  int eob_val;
+#else
+  unsigned int(*token_costs)[2][COEFF_CONTEXTS][ENTROPY_TOKENS] =
+      x->token_costs[tx_size_ctx][type][is_inter_block(mbmi)];
   aom_prob *blockz_probs =
       cm->fc->blockzero_probs[txsize_sqr_map[tx_size]][type][ref];
+#endif
 
 #if CONFIG_HIGHBITDEPTH
   const int cat6_bits = av1_get_cat6_extrabits_size(tx_size, xd->bd);
@@ -1430,7 +1456,11 @@ static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
 
   if (eob == 0) {
     // single eob token
+#if CDF_COST
+    cost = (*head_token_costs)[pt][0];
+#else
     cost = av1_cost_bit(blockz_probs[pt], 0);
+#endif
   } else {
     if (use_fast_coef_costing) {
       int band_left = *band_count++;
@@ -1439,10 +1469,21 @@ static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
       int v = qcoeff[0];
       int16_t prev_t;
       cost = av1_get_token_cost(v, &prev_t, cat6_bits);
+#if CDF_COST
+      eob_val = (eob == 1) ? EARLY_EOB : NO_EOB;
+      cost += coeff_token_cost_from_cdf(
+          prev_t, eob_val, 1, (*head_token_costs)[pt], (*tail_token_costs)[pt]);
+#else
       cost += (*token_costs)[!prev_t][pt][prev_t];
+#endif
 
       token_cache[0] = av1_pt_energy_class[prev_t];
+#if CDF_COST
+      ++head_token_costs;
+      ++tail_token_costs;
+#else
       ++token_costs;
+#endif
 
       // ac tokens
       for (c = 1; c < eob; c++) {
@@ -1451,17 +1492,30 @@ static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
 
         v = qcoeff[rc];
         cost += av1_get_token_cost(v, &t, cat6_bits);
+#if CDF_COST
+        eob_val =
+            (c + 1 == eob) ? (c + 1 == seg_eob ? LAST_EOB : EARLY_EOB) : NO_EOB;
+        cost += coeff_token_cost_from_cdf(t, eob_val, 0,
+                                          (*head_token_costs)[!prev_t],
+                                          (*tail_token_costs)[!prev_t]);
+#else
         cost += (*token_costs)[!t][!prev_t][t];
+#endif
         prev_t = t;
         if (!--band_left) {
           band_left = *band_count++;
+#if CDF_COST
+          ++head_token_costs;
+          ++tail_token_costs;
+#else
           ++token_costs;
+#endif
         }
       }
-
+#if !CDF_COST
       // eob token
       cost += (*token_costs)[0][!prev_t][EOB_TOKEN];
-
+#endif
     } else {  // !use_fast_coef_costing
       int band_left = *band_count++;
 
@@ -1469,10 +1523,21 @@ static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
       int v = qcoeff[0];
       int16_t tok;
       cost = av1_get_token_cost(v, &tok, cat6_bits);
+#if CDF_COST
+      eob_val = (eob == 1) ? EARLY_EOB : NO_EOB;
+      cost += coeff_token_cost_from_cdf(
+          tok, eob_val, 1, (*head_token_costs)[pt], (*tail_token_costs)[pt]);
+#else
       cost += (*token_costs)[!tok][pt][tok];
+#endif
 
       token_cache[0] = av1_pt_energy_class[tok];
+#if CDF_COST
+      ++head_token_costs;
+      ++tail_token_costs;
+#else
       ++token_costs;
+#endif
 
       // ac tokens
       for (c = 1; c < eob; c++) {
@@ -1481,17 +1546,30 @@ static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
         v = qcoeff[rc];
         cost += av1_get_token_cost(v, &tok, cat6_bits);
         pt = get_coef_context(nb, token_cache, c);
+#if CDF_COST
+        eob_val =
+            (c + 1 == eob) ? (c + 1 == seg_eob ? LAST_EOB : EARLY_EOB) : NO_EOB;
+        cost += coeff_token_cost_from_cdf(
+            tok, eob_val, 0, (*head_token_costs)[pt], (*tail_token_costs)[pt]);
+#else
         cost += (*token_costs)[!tok][pt][tok];
+#endif
         token_cache[rc] = av1_pt_energy_class[tok];
         if (!--band_left) {
           band_left = *band_count++;
+#if CDF_COST
+          ++head_token_costs;
+          ++tail_token_costs;
+#else
           ++token_costs;
+#endif
         }
       }
-
+#if !CDF_COST
       // eob token
       pt = get_coef_context(nb, token_cache, c);
       cost += (*token_costs)[0][pt][EOB_TOKEN];
+#endif
     }
   }
 
@@ -4452,8 +4530,13 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 #else
   const int tx_size_ctx = txsize_sqr_map[tx_size];
   int coeff_ctx = get_entropy_context(tx_size, pta, ptl);
+#if CDF_COST
+  zero_blk_rate =
+      x->head_token_costs[tx_size_ctx][pd->plane_type][1][0][coeff_ctx][0];
+#else
   zero_blk_rate = x->token_costs[tx_size_ctx][pd->plane_type][1][0][0]
                                 [coeff_ctx][EOB_TOKEN];
+#endif
 #endif
 
   if (cpi->common.tx_mode == TX_MODE_SELECT || tx_size == TX_4X4) {
