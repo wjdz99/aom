@@ -1,0 +1,242 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50f41652_d500e4de",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 15
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "Please capitalize the first word in the comment - \u0027Disable\u0027 here.",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d82e40bf_a597b6cc",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "Suggested to have returned value defined as a \u0027double\u0027, as finally it would be assigned to a double variable, and the use of \u0027double\u0027 should also keep the higher precision.",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61622427_c777fcbc",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "Suggested to have raw_err_avg defined as a \u0027double\u0027.",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f99e20e_84daacb2",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "Suggested to have raw_err_stdev defined as a \u0027double\u0027.",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bff86fee_fb754f5e",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "\u0027else\u0027 may not be needed.",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31b47004_51e968de",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "Suggested to use \u0027double\u0027",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bfa678a_ff163741",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a92dccf7_889341bf",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1035,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "Here it can use a \u0027const\u0027:\n\nconst double raw_err_stdev \u003d\n      raw_motion_error_stdev(raw_motion_err_list, raw_motion_err_counts);",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a48c775_6d4cff10",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1091,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "If raw_err_stdev is defined as \u0027double\u0027, not casting is needed any more.",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43a020d4_b872c5e6",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2249,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "It may be needed to have a sanity check on \u0027i \u003d\u003d 0\u0027",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1c3c0db_d01ee6a6",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2250,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "Similar that it may be needed to have a sanity check on \u0027non_zero_stdev_count \u003d\u003d 0\u0027",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd0c5700_689b2c4d",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2260,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "May directly use \u0027const\u0027 here:\n\nconst int disable_bwd_extarf \u003d ...;",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0507d1c2_5946c142",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2261,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "May need to have a sanity check on \u0027num_mbs \u003d\u003d 0\u0027 in advance, or put an assert as follows before this statement:\n\nassert(num_mbs \u003e 0);",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21ccc529_4adc0ceb",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "This space line does not seem needed.",
+      "revId": "ddda80bb5b8a5b9d7a91c8db41e2ba66b07fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}

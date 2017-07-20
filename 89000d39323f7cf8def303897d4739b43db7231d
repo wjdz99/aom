@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "831ea0b0_3aa8216d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 14
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "Capitalize \u0027Disable\u0027\n\nMay put more comments into this commit message, e.g. to add the RD performance change results.",
+      "revId": "89000d39323f7cf8def303897d4739b43db7231d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b636bee5_9262f83f",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "No need to put an \u0027else\" here:\n\nif (raw_motion_err_counts \u003d\u003d 0) return 0;\n\n// Following is the \u0027else\u0027 part:\n...",
+      "revId": "89000d39323f7cf8def303897d4739b43db7231d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e32924d_43916596",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "One index variable might be enough, e.g. \u0027i\u0027",
+      "revId": "89000d39323f7cf8def303897d4739b43db7231d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "370561b8_04fcf00e",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "raw_err_avg may use \u0027double\u0027 type?",
+      "revId": "89000d39323f7cf8def303897d4739b43db7231d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f24bff6_211fe99b",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 1032,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "Does raw_err_stdev need \u0027int64_t\u0027?",
+      "revId": "89000d39323f7cf8def303897d4739b43db7231d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fa89595_80e7fdc3",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-20T16:51:16Z",
+      "side": 1,
+      "message": "May put the comment above the declaration to result a nicer format.",
+      "revId": "89000d39323f7cf8def303897d4739b43db7231d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
