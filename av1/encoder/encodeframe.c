@@ -6204,6 +6204,16 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     set_txfm_ctxs(tx_size, xd->n8_w, xd->n8_h, (mbmi->skip || seg_skip), xd);
   }
 #endif  // CONFIG_VAR_TX
+#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8
+  // Store the reconstructed pixel values of sub8x8 luma-only intra and inter
+  // blocks
+  CFL_CTX *const cfl = xd->cfl;
+  if (is_inter_block(mbmi) &&
+      !is_chroma_reference(mi_row, mi_col, bsize, cfl->subsampling_x,
+                           cfl->subsampling_y)) {
+    cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
+  }
+#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8
 }
 
 #if CONFIG_SUPERTX
