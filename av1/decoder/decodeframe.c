@@ -3861,7 +3861,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 // when Parallel deblocking is enabled, deblocking should not
 // be interleaved with decoding. Instead, deblocking should be done
 // after the entire frame is decoded.
-#if !CONFIG_VAR_TX && !CONFIG_PARALLEL_DEBLOCKING && !CONFIG_CB4X4
+#if !CONFIG_VAR_TX && !CONFIG_PARALLEL_DEBLOCKING
     // Loopfilter one tile row.
     // Note: If out-of-order tile decoding is used(for example, inv_row_order
     // = 1), the loopfiltering has be done after all tile rows are decoded.
@@ -3894,7 +3894,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       av1_frameworker_broadcast(pbi->cur_buf, mi_row << cm->mib_size_log2);
   }
 
-#if CONFIG_VAR_TX || CONFIG_CB4X4
+#if CONFIG_VAR_TX
   // Loopfilter the whole frame.
   av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
                         cm->lf.filter_level, 0, 0);
