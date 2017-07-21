@@ -578,7 +578,7 @@ void av1_quantize_fp_facade(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
 #if CONFIG_AOM_QM
   const qm_val_t *qm_ptr = qparam->qmatrix;
   const qm_val_t *iqm_ptr = qparam->iqmatrix;
-  if (1 /*qm_ptr != NULL || iqm_ptr != NULL*/) {
+  if (qm_ptr != NULL && iqm_ptr != NULL) {
     quantize_fp_helper_c(coeff_ptr, n_coeffs, skip_block, p->zbin, p->round_fp,
                          p->quant_fp, p->quant_shift, qcoeff_ptr, dqcoeff_ptr,
                          pd->dequant, eob_ptr, sc->scan, sc->iscan, qm_ptr,
@@ -617,7 +617,6 @@ void av1_quantize_fp_facade(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
 #endif  // CONFIG_TX64X64
     default: assert(0);
   }
-#endif
 #if CONFIG_AOM_QM
   }
 #endif
@@ -633,8 +632,7 @@ void av1_quantize_b_facade(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
 #if CONFIG_AOM_QM
   const qm_val_t *qm_ptr = qparam->qmatrix;
   const qm_val_t *iqm_ptr = qparam->iqmatrix;
-  if (1 /*qm_ptr != NULL && iqm_ptr != NULL*/) {
-    // TODO set these pointers to NULL for flat matrices to use SIMD
+  if (qm_ptr != NULL && iqm_ptr != NULL) {
     quantize_b_helper_c(coeff_ptr, n_coeffs, skip_block, p->zbin, p->round,
                         p->quant, p->quant_shift, qcoeff_ptr, dqcoeff_ptr,
                         pd->dequant, eob_ptr, sc->scan, sc->iscan, qm_ptr,
@@ -849,8 +847,7 @@ void av1_highbd_quantize_fp_facade(const tran_low_t *coeff_ptr,
 #if CONFIG_AOM_QM
   const qm_val_t *qm_ptr = qparam->qmatrix;
   const qm_val_t *iqm_ptr = qparam->iqmatrix;
-  if (1 /*qm_ptr != NULL && iqm_ptr != NULL*/) {
-    // TODO set these pointers to NULL for flat matrices to use SIMD
+  if (qm_ptr != NULL && iqm_ptr != NULL) {
     highbd_quantize_fp_helper_c(
         coeff_ptr, n_coeffs, skip_block, p->zbin, p->round_fp, p->quant_fp,
         p->quant_shift, qcoeff_ptr, dqcoeff_ptr, pd->dequant, eob_ptr, sc->scan,
@@ -890,8 +887,7 @@ void av1_highbd_quantize_b_facade(const tran_low_t *coeff_ptr,
 #if CONFIG_AOM_QM
   const qm_val_t *qm_ptr = qparam->qmatrix;
   const qm_val_t *iqm_ptr = qparam->iqmatrix;
-  if (1 /*qm_ptr != NULL && iqm_ptr != NULL*/) {
-    // TODO set these pointers to NULL for flat matrices to use SIMD
+  if (qm_ptr != NULL && iqm_ptr != NULL) {
     highbd_quantize_b_helper_c(coeff_ptr, n_coeffs, skip_block, p->zbin,
                                p->round, p->quant, p->quant_shift, qcoeff_ptr,
                                dqcoeff_ptr, pd->dequant, eob_ptr, sc->scan,
