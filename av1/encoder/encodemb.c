@@ -239,9 +239,12 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
       int dx;
 
 #if CONFIG_AOM_QM
-      int iwt = iqmatrix[rc];
+      int iwt;
       dqv = dequant_ptr[rc != 0];
-      dqv = ((iwt * (int)dqv) + (1 << (AOM_QM_BITS - 1))) >> AOM_QM_BITS;
+      if (iqmatrix != NULL) {
+        iwt = iqmatrix[rc];
+        dqv = ((iwt * (int)dqv) + (1 << (AOM_QM_BITS - 1))) >> AOM_QM_BITS;
+      }
 #else
       dqv = dequant_ptr[rc != 0];
 #endif
