@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c8a297b3_d6ad0bba",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-21T20:37:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46d6824d_a7bfb649",
+      "revId": "8c67caceaf202d8369e63a34f32cdece4cf41f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95b2f4a0_d3b9f15d",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 2
@@ -65,6 +83,54 @@
     },
     {
       "key": {
+        "uuid": "2c5f6e63_6d455298",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-21T20:37:14Z",
+      "side": 1,
+      "message": "Thanks for pointing me to the reference! Done.",
+      "parentUuid": "44a914bf_79b8eeed",
+      "range": {
+        "startLine": 218,
+        "startChar": 7,
+        "endLine": 218,
+        "endChar": 13
+      },
+      "revId": "8c67caceaf202d8369e63a34f32cdece4cf41f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c282758_0d11c18b",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-21T20:37:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95b2f4a0_d3b9f15d",
+      "range": {
+        "startLine": 218,
+        "startChar": 18,
+        "endLine": 218,
+        "endChar": 30
+      },
+      "revId": "8c67caceaf202d8369e63a34f32cdece4cf41f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "62af9edb_4b36c8ad",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 2
@@ -76,6 +142,30 @@
       "writtenOn": "2017-07-21T19:41:53Z",
       "side": 1,
       "message": "\"fprintf(stderr, ..\"?",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 304,
+        "endChar": 46
+      },
+      "revId": "8c67caceaf202d8369e63a34f32cdece4cf41f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2e6cf26_86a2eb80",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-21T20:37:14Z",
+      "side": 1,
+      "message": "The reason is since the prefix has been printed to prob file anyway, when user check it, they can know optimizer for which symbol is problematic.",
+      "parentUuid": "62af9edb_4b36c8ad",
       "range": {
         "startLine": 304,
         "startChar": 0,
@@ -102,6 +192,24 @@
       "revId": "8c67caceaf202d8369e63a34f32cdece4cf41f86",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc306270_2c6b97d6",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-07-21T20:37:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca7a676b_b44e41ab",
+      "revId": "8c67caceaf202d8369e63a34f32cdece4cf41f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
