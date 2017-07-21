@@ -816,25 +816,25 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
                            xs, ys, xd);
 #if CONFIG_COMPOUND_SEGMENT
   if (!plane && comp_data.interinter_compound_type == COMPOUND_SEG) {
-    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-      build_compound_seg_mask_highbd(comp_data.seg_mask, comp_data.mask_type,
-                                     dst, dst_stride, tmp_dst, MAX_SB_SIZE,
-                                     mi->mbmi.sb_type, h, w, xd->bd);
-    } else {
 #if CONFIG_CONVOLVE_ROUND
-      if (conv_params->round == CONVOLVE_OPT_NO_ROUND) {
-        build_compound_seg_mask_d32(
-            comp_data.seg_mask, comp_data.mask_type, org_dst, org_dst_stride,
-            tmp_dst2, tmp_dst2_stride, mi->mbmi.sb_type, h, w, conv_params);
-      } else {
+    if (conv_params->round == CONVOLVE_OPT_NO_ROUND) {
+      build_compound_seg_mask_d32(
+          comp_data.seg_mask, comp_data.mask_type, org_dst, org_dst_stride,
+          tmp_dst2, tmp_dst2_stride, mi->mbmi.sb_type, h, w, conv_params);
+    } else {
 #endif  // CONFIG_CONVOLVE_ROUND
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+        build_compound_seg_mask_highbd(comp_data.seg_mask, comp_data.mask_type,
+                                       dst, dst_stride, tmp_dst, MAX_SB_SIZE,
+                                       mi->mbmi.sb_type, h, w, xd->bd);
+      } else {
         build_compound_seg_mask(comp_data.seg_mask, comp_data.mask_type, dst,
                                 dst_stride, tmp_dst, MAX_SB_SIZE,
                                 mi->mbmi.sb_type, h, w);
-#if CONFIG_CONVOLVE_ROUND
       }
-#endif
+#if CONFIG_CONVOLVE_ROUND
     }
+#endif
   }
 #endif  // CONFIG_COMPOUND_SEGMENT
 
@@ -848,28 +848,35 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
         dst, dst_stride, dst, dst_stride, tmp_dst, MAX_SB_SIZE, &comp_data,
         mi->mbmi.sb_type, wedge_offset_x, wedge_offset_y, h, w);
 #else
-  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-    build_masked_compound_highbd(dst, dst_stride, dst, dst_stride, tmp_dst,
-                                 MAX_SB_SIZE, &comp_data, mi->mbmi.sb_type, h,
-                                 w, xd->bd);
-  } else {
 #if CONFIG_CONVOLVE_ROUND
-    if (conv_params->round == CONVOLVE_OPT_NO_ROUND) {
-      build_masked_compound_no_round(org_dst, org_dst_stride, org_dst,
-                                     org_dst_stride, tmp_dst2, tmp_dst2_stride,
-                                     &comp_data, mi->mbmi.sb_type, h, w);
+  if (conv_params->round == CONVOLVE_OPT_NO_ROUND) {
+    build_masked_compound_no_round(org_dst, org_dst_stride, org_dst,
+                                   org_dst_stride, tmp_dst2, tmp_dst2_stride,
+                                   &comp_data, mi->mbmi.sb_type, h, w);
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      av1_highbd_convolve_rounding(
+          org_dst, org_dst_stride, dst, dst_stride, w, h,
+          FILTER_BITS * 2 - conv_params->round_0 - conv_params->round_1,
+          xd->bd);
+    } else {
       av1_convolve_rounding(
           org_dst, org_dst_stride, dst, dst_stride, w, h,
           FILTER_BITS * 2 - conv_params->round_0 - conv_params->round_1);
-      conv_params->do_post_rounding = 0;
-    } else {
+    }
+    conv_params->do_post_rounding = 0;
+  } else {
 #endif  // CONFIG_CONVOLVE_ROUND
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      build_masked_compound_highbd(dst, dst_stride, dst, dst_stride, tmp_dst,
+                                   MAX_SB_SIZE, &comp_data, mi->mbmi.sb_type, h,
+                                   w, xd->bd);
+    } else {
       build_masked_compound(dst, dst_stride, dst, dst_stride, tmp_dst,
                             MAX_SB_SIZE, &comp_data, mi->mbmi.sb_type, h, w);
-#if CONFIG_CONVOLVE_ROUND
     }
-#endif  // CONFIG_CONVOLVE_ROUND
+#if CONFIG_CONVOLVE_ROUND
   }
+#endif  // CONFIG_CONVOLVE_ROUND
 #endif  // CONFIG_SUPERTX
 
 #else  // CONFIG_HIGHBITDEPTH
@@ -1376,15 +1383,8 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
       conv_params.do_average = ref;
 #if CONFIG_EXT_INTER
       if (is_masked_compound_type(mi->mbmi.interinter_compound_type)) {
-#if CONFIG_HIGHBITDEPTH
-        // TODO(angiebird): integrate convolve_round and compound_segment in
-        // highbitdepth mode
-        if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
-          conv_params = get_conv_params(ref, 0, plane);
-        else
-#endif
-          // masked compound type has its own average mechanism
-          conv_params.do_average = 0;
+        // masked compound type has its own average mechanism
+        conv_params.do_average = 0;
       }
 
       if (ref && is_masked_compound_type(mi->mbmi.interinter_compound_type))
