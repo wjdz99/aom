@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba12b7f6_93d58df6",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1139,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-07-21T20:36:05Z",
+      "side": 1,
+      "message": "Not sure whether it would be more legible if \u0027768\u0027 is written as \u00276 * 128\u0027.",
+      "revId": "2699393ae2c73ffd67673d3508c59a743ba7ef07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
