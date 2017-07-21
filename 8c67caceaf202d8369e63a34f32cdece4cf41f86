@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46d6824d_a7bfb649",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-07-21T19:41:53Z",
+      "side": 1,
+      "message": "You can update this comment to mention CDFs also",
+      "revId": "8c67caceaf202d8369e63a34f32cdece4cf41f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95b2f4a0_d3b9f15d",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-07-21T19:41:53Z",
+      "side": 1,
+      "message": "I\u0027d call this function \u0027counts_to_cdf\u0027 maybe",
+      "range": {
+        "startLine": 218,
+        "startChar": 18,
+        "endLine": 218,
+        "endChar": 30
+      },
+      "revId": "8c67caceaf202d8369e63a34f32cdece4cf41f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44a914bf_79b8eeed",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-07-21T19:41:53Z",
+      "side": 1,
+      "message": "A function with for loops shouldn\u0027t be inline:\nhttps://google.github.io/styleguide/cppguide.html#Inline_Functions",
+      "range": {
+        "startLine": 218,
+        "startChar": 7,
+        "endLine": 218,
+        "endChar": 13
+      },
+      "revId": "8c67caceaf202d8369e63a34f32cdece4cf41f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62af9edb_4b36c8ad",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-07-21T19:41:53Z",
+      "side": 1,
+      "message": "\"fprintf(stderr, ..\"?",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 304,
+        "endChar": 46
+      },
+      "revId": "8c67caceaf202d8369e63a34f32cdece4cf41f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca7a676b_b44e41ab",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-07-21T19:41:53Z",
+      "side": 1,
+      "message": "You don\u0027t need these brackets I believe.",
+      "revId": "8c67caceaf202d8369e63a34f32cdece4cf41f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
