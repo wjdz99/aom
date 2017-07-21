@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f5f99735_a1d3ba5e",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-07-21T21:57:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2c500c7_58d8fac4",
+      "range": {
+        "startLine": 245,
+        "startChar": 11,
+        "endLine": 245,
+        "endChar": 33
+      },
+      "revId": "f4457ac57e70c307a56ddbf302dbbc25c61c00b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa6b2b02_c4d1f039",
         "filename": "av1/encoder/bgsprite.c",
         "patchSetId": 2
@@ -39,6 +63,24 @@
       "revId": "f4457ac57e70c307a56ddbf302dbbc25c61c00b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62428a2e_5e6a7918",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-07-21T21:57:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa6b2b02_c4d1f039",
+      "revId": "f4457ac57e70c307a56ddbf302dbbc25c61c00b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "ac6d91c1_bf50d70d",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-07-21T21:57:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e859f10a_2096c7cf",
+      "range": {
+        "startLine": 368,
+        "startChar": 14,
+        "endLine": 368,
+        "endChar": 33
+      },
+      "revId": "f4457ac57e70c307a56ddbf302dbbc25c61c00b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab25eee8_d1ddef15",
         "filename": "av1/encoder/bgsprite.c",
         "patchSetId": 2
@@ -79,6 +145,24 @@
       "revId": "f4457ac57e70c307a56ddbf302dbbc25c61c00b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a10e5273_2eaa24fb",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-07-21T21:57:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab25eee8_d1ddef15",
+      "revId": "f4457ac57e70c307a56ddbf302dbbc25c61c00b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "f581bf02_18d278dd",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-07-21T21:57:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c1f9dc46_656b8506",
+      "range": {
+        "startLine": 449,
+        "startChar": 8,
+        "endLine": 449,
+        "endChar": 16
+      },
+      "revId": "f4457ac57e70c307a56ddbf302dbbc25c61c00b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed55e720_c971ef64",
         "filename": "av1/encoder/bgsprite.c",
         "patchSetId": 2
@@ -128,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "9a716045_bebd2dc6",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-07-21T21:57:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed55e720_c971ef64",
+      "range": {
+        "startLine": 488,
+        "startChar": 11,
+        "endLine": 488,
+        "endChar": 33
+      },
+      "revId": "f4457ac57e70c307a56ddbf302dbbc25c61c00b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "27649916_e09c0739",
         "filename": "av1/encoder/bgsprite.c",
         "patchSetId": 2
@@ -139,6 +271,24 @@
       "writtenOn": "2017-07-20T22:12:47Z",
       "side": 1,
       "message": "Do you need this declaration?",
+      "revId": "f4457ac57e70c307a56ddbf302dbbc25c61c00b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3107393_d350741b",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 733,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-07-21T21:57:23Z",
+      "side": 1,
+      "message": "Done, changed to include header file for temporal_filter",
+      "parentUuid": "27649916_e09c0739",
       "revId": "f4457ac57e70c307a56ddbf302dbbc25c61c00b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -165,6 +315,30 @@
       "revId": "f4457ac57e70c307a56ddbf302dbbc25c61c00b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e8f8a50_2ac20b33",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5535,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-07-21T21:57:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49d355a8_89dbdfb4",
+      "range": {
+        "startLine": 5535,
+        "startChar": 30,
+        "endLine": 5535,
+        "endChar": 31
+      },
+      "revId": "f4457ac57e70c307a56ddbf302dbbc25c61c00b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
