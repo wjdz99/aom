@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5eb4a394_1c488ae1",
+        "filename": "examples/inspect.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-07-21T20:29:24Z",
+      "side": 1,
+      "message": "So, it skips non characters. I see that this function is \ncurrently used for config data only,\n  buf +\u003d put_str_with_escape(buf, aom_codec_build_config());",
+      "revId": "f0a49058dbacf02918ea0d0c2abd2a96c06da0bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
