@@ -251,8 +251,16 @@ if (CONFIG_DAALA_DCT4)
    endif()
 endif()
 
+if (CONFIG_DAALA_DCT64)
+  if (NOT CONFIG_TX64X64)
+     message(WARNING
+       "--- Enabled CONFIG_TX64X64, needed for CONFIG_DAALA_DCT64.")
+     set(CONFIG_TX64X64 1)
+   endif()
+endif()
+
 if (CONFIG_DAALA_DCT4 OR CONFIG_DAALA_DCT8 OR CONFIG_DAALA_DCT16 OR
-    CONFIG_DAALA_DCT32)
+    CONFIG_DAALA_DCT32 OR CONFIG_DAALA_DCT64)
   if (HAVE_MMX)
      message(WARNING
        "--- Disabled HAVE_MMX, incompatible with CONFIG_DAALA_DCTx.")
