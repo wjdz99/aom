@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55acc3a4_e88d3483",
+        "filename": "av1/common/cfl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "This would avoid errors with -1, and add compile-time and run-time  verification\n\nstatic INLINE int get_joint_sign(CFL_SIGN_TYPE sign_u, CFL_SIGN_TYPE sign_v) {\n#if CONFIG_DEBUG\n  // 0,0 is invalid\n  assert(sign_u !\u003d CFL_SIGN_ZERO || sign_v !\u003d CFL_SIGN_ZERO);\n#endif  // CONFIG_DEBUG\n  return sign_u * CFL_SIGNS + sign_v - 1;\n}",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c562de1a_6175e1ae",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "To remove some magic numbers how about:\n#define UV_ALPHABET_SIZE_LOG2 4\n#define UV_ALPHABET_SIZE (1 \u003c\u003c UV_ALPHABET_SIZE_LOG2)",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df0d40e6_9d1ab059",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "#define CFL_IDX_U(idx) (idx \u003e\u003e UV_ALPHABET_SIZE_LOG2)",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c78be27a_8de45ebc",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "#define CFL_IDX_V(idx) (idx \u0026 (UV_ALPHABET_SIZE - 1))",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a31fed45_9f9cdb87",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "// CFL_SIGN_ZERO,CFL_SIGN_ZERO is invalid",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "376cc617_6a12066c",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "\u003c\u003c UV_ALPHABET_SIZE_LOG2;",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1df7b27_f69afa7f",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1668,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "assert(CFL_IDX_U(idx) \u003d\u003d 0)",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54afcccb_f6f6be7d",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1669,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "assert(CFL_IDX_V(idx) \u003d\u003d 0)",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da73eabc_87bdfd4a",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1671,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "Moved into get_joint_sign() for more verification",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a4b4cca_7a2434c3",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5414,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "const int joint_sign \u003d get_joint_sign(sign_u, sign_v);",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0480e88c_728a8197",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5497,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "const int joint_sign \u003d get_joint_sign(sign_u, sign_v);",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec40aff7_1d1f713c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5501,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "assert(sign_u !\u003d CFL_SIGN_ZERO || sign_v !\u003d CFL_SIGN_ZERO);",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5a83604_6693ea8f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5511,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-24T16:04:36Z",
+      "side": 1,
+      "message": "ind \u003d (u \u003c\u003c UV_ALPHABET_SIZE_LOG2) + v;\nis more consistent with read_cfl_alphas()",
+      "revId": "3c6c1bae56d0f0a2d62bafc5e71247f92cc04e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
