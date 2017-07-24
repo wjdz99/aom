@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "634be532_c93fc184",
+        "filename": "aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 994,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-24T20:26:02Z",
+      "side": 1,
+      "message": "This will get confused by a \".ivf\" somewhere else in the filename. I know in a bunch of places AWCY does not bother to remove old extensions from the base file name when adding new ones (producing, e.g., foo.ivf.y4m), so it would not be too surprising to find a foo.ivf.y4m.ivf some day (which would pass your first check but fail the second, when it should pass both).\n\nA better idiom for this is something like\n\n  size_t out_fn_len \u003d strlen(config-\u003eout_fn);\n  if (out_fn_len \u003e\u003d 4 \u0026\u0026 strcmp(config-\u003eout_fn + out_fn_len - 4, \".ivf\") \u003d\u003d 0) {",
+      "revId": "02e71872305f7313bb230ba9aa7c4c71d0227d6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
