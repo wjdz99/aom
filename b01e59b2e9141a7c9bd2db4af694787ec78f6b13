@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a87189b_a15f9dc6",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1303,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-24T18:46:23Z",
+      "side": 1,
+      "message": "I assume clang-format is responsible for the messed-up indentation here.",
+      "revId": "b01e59b2e9141a7c9bd2db4af694787ec78f6b13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
