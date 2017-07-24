@@ -2670,12 +2670,27 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 
 #if CONFIG_CDEF
   if (bsize == cm->sb_size) {
-    if (!sb_all_skip(cm, mi_row, mi_col) && !cm->all_lossless) {
-      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
-          aom_read_literal(r, cm->cdef_bits, ACCT_STR);
-    } else {
-      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
-          -1;
+    int width_64x64_unit = block_size_wide[cm->sb_size] >> 6;
+    int height_64x64_unit = block_size_high[cm->sb_size] >> 6;
+    int w, h;
+    for (h = 0;
+         (h < height_64x64_unit) && (mi_row + h * MI_SIZE_64X64 < cm->mi_rows);
+         ++h) {
+      for (w = 0;
+           (w < width_64x64_unit) && (mi_col + w * MI_SIZE_64X64 < cm->mi_cols);
+           ++w) {
+        if (!cm->all_lossless &&
+            !sb_all_skip(cm, mi_row + h * MI_SIZE_64X64,
+                         mi_col + w * MI_SIZE_64X64))
+          cm->mi_grid_visible[(mi_row + h * MI_SIZE_64X64) * cm->mi_stride +
+                              (mi_col + w * MI_SIZE_64X64)]
+              ->mbmi.cdef_strength =
+              aom_read_literal(r, cm->cdef_bits, ACCT_STR);
+        else
+          cm->mi_grid_visible[(mi_row + h * MI_SIZE_64X64) * cm->mi_stride +
+                              (mi_col + w * MI_SIZE_64X64)]
+              ->mbmi.cdef_strength = -1;
+      }
     }
   }
 #endif  // CONFIG_CDEF
