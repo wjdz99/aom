@@ -1766,6 +1766,9 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
   MB_MODE_INFO *const mbmi = &mi->mbmi;
   const BLOCK_SIZE bsize = mi->mbmi.sb_type;
   int i;
+#if !CONFIG_EXT_INTRA && !CONFIG_PALETTE && !CONFIG_FILTER_INTRA
+  (void)cm;
+#endif
 
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
