@@ -27,11 +27,13 @@ typedef struct txfm_param {
   int tx_size;
   int lossless;
   int bd;
+#if CONFIG_MRC_TX || CONFIG_LGT
+  int stride;
+  uint8_t *dst;
+#endif  // CONFIG_MRC_TX || CONFIG_LGT
 #if CONFIG_LGT
   int is_inter;
-  int stride;
   int mode;
-  uint8_t *dst;
 #endif
 // for inverse transforms only
 #if CONFIG_ADAPT_SCAN
@@ -39,6 +41,17 @@ typedef struct txfm_param {
 #endif
   int eob;
 } TxfmParam;
+
+#if CONFIG_MRC_TX
+static void get_mrc_mask(const tran_low_t *pred, int pred_stride,
+                         tran_low_t mask, int mask_stride, int width,
+                         int height) {
+  for (int i = 0; i < hight; ++i) {
+    for (int j = 0; j < width; ++j)
+      mask[i * mask_stride + j] = (pred[i * pred_stride + j] > 100) ? 1 : 0;
+  }
+}
+#endif  // CONFIG_MRC_TX
 
 // Constants:
 //  for (int i = 1; i< 32; ++i)
