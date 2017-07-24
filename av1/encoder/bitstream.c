@@ -3098,11 +3098,26 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
 #if CONFIG_CDEF
-  if (bsize == cm->sb_size && !sb_all_skip(cm, mi_row, mi_col) &&
-      cm->cdef_bits != 0 && !cm->all_lossless) {
-    aom_write_literal(w, cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]
-                             ->mbmi.cdef_strength,
-                      cm->cdef_bits);
+  if (bsize == cm->sb_size && cm->cdef_bits != 0 && !cm->all_lossless) {
+    int width_64x64_unit = block_size_wide[cm->sb_size] >> 6;
+    int height_64x64_unit = block_size_high[cm->sb_size] >> 6;
+    int width, height;
+    for (height = 0; (height < height_64x64_unit) &&
+                     (mi_row + height * MI_SIZE_64X64 < cm->mi_rows);
+         ++height) {
+      for (width = 0; (width < width_64x64_unit) &&
+                      (mi_col + width * MI_SIZE_64X64 < cm->mi_cols);
+           ++width) {
+        if (!sb_all_skip(cm, mi_row + height * MI_SIZE_64X64,
+                         mi_col + width * MI_SIZE_64X64))
+          aom_write_literal(
+              w, cm->mi_grid_visible[(mi_row + height * MI_SIZE_64X64) *
+                                         cm->mi_stride +
+                                     (mi_col + width * MI_SIZE_64X64)]
+                     ->mbmi.cdef_strength,
+              cm->cdef_bits);
+      }
+    }
   }
 #endif
 }
