@@ -1480,7 +1480,8 @@ static void get_masked_residual32_inv(const tran_low_t *input, uint8_t *dest,
 static void imrc32x32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                             const TxfmParam *param) {
   // placeholder mrc tx function
-  tran_low_t masked_input[32 * 32];
+  tran_low_t mask[32 * 32];
+  get_mrc_mask(param->dst, param->dst_stride, mask, 32, 32, 32);
   get_masked_residual32_inv(input, dest, masked_input);
   idct32x32_add(input, dest, stride, param);
 }
