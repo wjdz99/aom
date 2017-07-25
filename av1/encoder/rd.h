@@ -612,6 +612,9 @@ void av1_setup_pred_block(const MACROBLOCKD *xd,
 int av1_get_intra_cost_penalty(int qindex, int qdelta,
                                aom_bit_depth_t bit_depth);
 
+void av1_fill_token_costs_from_cdf(av1_coeff_cost *cost,
+                                   coeff_cdf_model (*cdf)[PLANE_TYPES]);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
