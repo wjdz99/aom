@@ -25,6 +25,9 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
   cfl->subsampling_x = cm->subsampling_x;
   cfl->subsampling_y = cm->subsampling_y;
   cfl->are_parameters_computed = 0;
+#if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+  memset(cfl->sub8x8_val, 0, sizeof(uint8_t) * 4);
+#endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 }
 
 // Load from the CfL pixel buffer into output
@@ -313,6 +316,19 @@ void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
       assert(col == 0);
       col++;
     }
+#if CONFIG_DEBUG
+    if (tx_size == TX_4X4) {
+      cfl->sub8x8_val[row * 2 + col] = 1;
+    } else if (tx_size == TX_4X8) {
+      assert(row == 0);
+      cfl->sub8x8_val[0 + col] = 1;
+      cfl->sub8x8_val[2 + col] = 1;
+    } else if (tx_size == TX_8X4) {
+      assert(col == 0);
+      cfl->sub8x8_val[row * 2 + 0] = 1;
+      cfl->sub8x8_val[row * 2 + 1] = 1;
+    }
+#endif  // CONFIG_DEBUG
   }
 #else
   (void)bsize;
@@ -359,6 +375,15 @@ void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
 #if CONFIG_CHROMA_SUB8X8
   const BLOCK_SIZE plane_bsize = AOMMAX(
       BLOCK_4X4, get_plane_block_size(mbmi->sb_type, &xd->plane[AOM_PLANE_U]));
+#if CONFIG_DEBUG
+  if (mbmi->sb_type < BLOCK_8X8) {
+    assert(cfl->sub8x8_val[0] == 1);
+    assert(cfl->sub8x8_val[1] == 1);
+    assert(cfl->sub8x8_val[2] == 1);
+    assert(cfl->sub8x8_val[3] == 1);
+    memset(cfl->sub8x8_val, 0, sizeof(uint8_t) * 4);
+  }
+#endif  // CONFIG_DEBUG
 #else
   const BLOCK_SIZE plane_bsize =
       get_plane_block_size(mbmi->sb_type, &xd->plane[AOM_PLANE_U]);
