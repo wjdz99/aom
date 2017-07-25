@@ -63,6 +63,13 @@ typedef struct {
   int costs[CFL_JOINT_SIGNS][CFL_PRED_PLANES][CFL_ALPHABET_SIZE];
 
   int mi_row, mi_col;
+
+#if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+  // The prediction used for sub8x8 blocks originates from multiple luma blocks,
+  // this array is used to validate that cfl_store() is called at least once for
+  // each luma block
+  uint8_t sub8x8_val[4];
+#endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 } CFL_CTX;
 
 static INLINE int get_scaled_luma_q0(int alpha_q3, int y_pix, int avg_q3) {
