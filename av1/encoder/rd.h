@@ -606,6 +606,9 @@ int av1_get_coeff_token_cost(int token, int eob_val, int is_first,
                              const int *head_cost_table,
                              const int *tail_cost_table);
 
+void av1_fill_token_costs_from_cdf(av1_coeff_cost *cost,
+                                   coeff_cdf_model (*cdf)[PLANE_TYPES]);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

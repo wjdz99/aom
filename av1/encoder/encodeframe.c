@@ -4486,6 +4486,11 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
 #endif
 #endif
 
+  av1_fill_token_costs_from_cdf(x->token_head_costs,
+                                x->e_mbd.tile_ctx->coef_head_cdfs);
+  av1_fill_token_costs_from_cdf(x->token_tail_costs,
+                                x->e_mbd.tile_ctx->coef_tail_cdfs);
+
   // Code each SB in the row
   for (mi_col = tile_info->mi_col_start; mi_col < tile_info->mi_col_end;
        mi_col += cm->mib_size) {
