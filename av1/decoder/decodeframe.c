@@ -742,6 +742,17 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
       block += sub_step;
     }
   }
+#if CONFIG_CFL
+/*
+if (plane == AOM_PLANE_Y && plane_bsize < BLOCK_8X8) {
+  uint8_t *dst =
+      &pd->dst
+           .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
+  cfl_store(xd->cfl, dst, pd->dst.stride, blk_row, blk_col, tx_size,
+            plane_bsize);
+}
+*/
+#endif
 }
 #endif  // CONFIG_VAR_TX
 
@@ -796,6 +807,17 @@ static int reconstruct_inter_block(AV1_COMMON *cm, MACROBLOCKD *const xd,
   eob = av1_pvq_decode_helper2(cm, xd, &xd->mi[0]->mbmi, plane, row, col,
                                tx_size, tx_type);
 #endif
+#if CONFIG_CFL
+  if (plane == AOM_PLANE_Y && mbmi->sb_type < BLOCK_8X8) {
+#if CONFIG_CHROMA_SUB8X8
+    const BLOCK_SIZE plane_bsize =
+        AOMMAX(BLOCK_4X4, get_plane_block_size(mbmi->sb_type, pd));
+#else
+    const BLOCK_SIZE plane_bsize = get_plane_block_size(mbmi->sb_type, pd);
+#endif  // CONFIG_CHROMA_SUB8X8
+    cfl_store(xd->cfl, dst, pd->dst.stride, row, col, tx_size, plane_bsize);
+  }
+#endif  // CONFIG_CFL
   return eob;
 }
 #endif  // !CONFIG_VAR_TX || CONFIG_SUPER_TX

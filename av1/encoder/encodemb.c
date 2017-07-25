@@ -703,15 +703,15 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
-  uint8_t *dst;
+  const int dst_stride = pd->dst.stride;
+  uint8_t *const dst =
+      &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
 #if !CONFIG_PVQ
   ENTROPY_CONTEXT *a, *l;
 #endif
 #if CONFIG_VAR_TX
   int bw = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
 #endif
-  dst = &pd->dst
-             .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
 
 #if !CONFIG_PVQ
   a = &args->ta[blk_col];
@@ -762,10 +762,17 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_LGT
   PREDICTION_MODE mode = get_prediction_mode(xd->mi[0], plane, tx_size, block);
   av1_inverse_transform_block(xd, dqcoeff, mode, tx_type, tx_size, dst,
-                              pd->dst.stride, p->eobs[block]);
+                              dst_stride, p->eobs[block]);
 #else
-  av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst,
-                              pd->dst.stride, p->eobs[block]);
+  av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst, dst_stride,
+                              p->eobs[block]);
+#endif
+#if CONFIG_CFL
+  if (plane == AOM_PLANE_Y && x->cfl_store_y) {
+    // TODO (ltrudeau) Store sub-8x8 inter blocks when bottom right block is
+    // intra predicted.
+    cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_size, plane_bsize);
+  }
 #endif
 }
 
