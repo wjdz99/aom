@@ -69,6 +69,24 @@
       "revId": "188616ef33f15dfb944635d616f8e1fda372973f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74f438e9_6b511f9a",
+        "filename": "configure",
+        "patchSetId": 33
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-25T23:49:26Z",
+      "side": 1,
+      "message": "Yes, but obviously in a separate patch (Tom didn\u0027t do this part for us).",
+      "parentUuid": "06cd893f_3af2b782",
+      "revId": "188616ef33f15dfb944635d616f8e1fda372973f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
