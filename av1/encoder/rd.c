@@ -324,8 +324,8 @@ void av1_set_mvcost(MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame, int ref,
   x->nmvjointcost = x->nmv_vec_cost[nmv_ctx];
 }
 
-void fill_token_costs_from_cdf(av1_coeff_cost *cost,
-                               coeff_cdf_model (*cdf)[PLANE_TYPES]) {
+void av1_fill_token_costs_from_cdf(av1_coeff_cost *cost,
+                                   coeff_cdf_model (*cdf)[PLANE_TYPES]) {
   for (int tx = 0; tx < TX_SIZES; ++tx) {
     for (int pt = 0; pt < PLANE_TYPES; ++pt) {
       for (int rt = 0; rt < REF_TYPES; ++rt) {
@@ -376,9 +376,6 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 #endif
 
   if (cpi->oxcf.pass != 1) {
-    fill_token_costs_from_cdf(x->token_head_costs, cm->fc->coef_head_cdfs);
-    fill_token_costs_from_cdf(x->token_tail_costs, cm->fc->coef_tail_cdfs);
-
     if (cm->frame_type == KEY_FRAME) {
 #if CONFIG_EXT_PARTITION_TYPES
       for (i = 0; i < PARTITION_PLOFFSET; ++i)
