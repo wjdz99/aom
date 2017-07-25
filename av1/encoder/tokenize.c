@@ -329,7 +329,7 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const uint8_t *const color_map = xd->plane[plane].color_index_map;
   const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
-#if CONFIG_NEW_MULTISYMBOL
+#if CONFIG_NEW_MULTISYMBOL || 1
   aom_cdf_prob(
       *palette_cdf)[PALETTE_COLOR_INDEX_CONTEXTS][CDF_SIZE(PALETTE_COLORS)] =
       plane ? xd->tile_ctx->palette_uv_color_index_cdf
@@ -347,7 +347,7 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
 
   // The first color index does not use context or entropy.
   (*t)->token = color_map[0];
-#if CONFIG_NEW_MULTISYMBOL
+#if CONFIG_NEW_MULTISYMBOL || 1
   (*t)->palette_cdf = NULL;
 #else
   (*t)->context_tree = NULL;
@@ -376,7 +376,7 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
                                               [color_new_idx];
       }
       (*t)->token = color_new_idx;
-#if CONFIG_NEW_MULTISYMBOL
+#if CONFIG_NEW_MULTISYMBOL || 1
       (*t)->palette_cdf = palette_cdf[n - PALETTE_MIN_SIZE][color_ctx];
 #else
       (*t)->context_tree = probs[n - PALETTE_MIN_SIZE][color_ctx];
