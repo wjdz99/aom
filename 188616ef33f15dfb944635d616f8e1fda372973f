@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "219fff74_abbd6ad1",
+        "filename": "configure",
+        "patchSetId": 33
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-07-25T04:13:33Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "2b055856_3babfef1",
+      "revId": "188616ef33f15dfb944635d616f8e1fda372973f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "434c6a70_d8db4115",
         "filename": "configure",
         "patchSetId": 33
@@ -30,6 +48,24 @@
       "writtenOn": "2017-07-25T00:55:42Z",
       "side": 1,
       "message": "This also needs to be handled in build/cmake/aom_configure.cmake. Look for CONFIG_VAR_TX_NO_TX_MODE for an example of how to do something vaguely similar.",
+      "revId": "188616ef33f15dfb944635d616f8e1fda372973f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06cd893f_3af2b782",
+        "filename": "configure",
+        "patchSetId": 33
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-07-25T04:13:33Z",
+      "side": 1,
+      "message": "Done.  Should this be patched for the 4-point as well?",
+      "parentUuid": "434c6a70_d8db4115",
       "revId": "188616ef33f15dfb944635d616f8e1fda372973f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
