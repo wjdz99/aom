@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ebaf2ba_5f02631f",
+        "filename": "test/coding_path_sync.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-26T18:58:44Z",
+      "side": 1,
+      "message": "we try to follow google style rules for c++ for naming, ordering of members in classes/structs and when to use the two. This should be ReadFrame() for instance.\n\nhttps://google.github.io/styleguide/cppguide.html",
+      "range": {
+        "startLine": 51,
+        "startChar": 28,
+        "endLine": 51,
+        "endChar": 37
+      },
+      "revId": "14cb860f664a0858b18018f18e10ee4e91aa3931",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e6a1164_9857f8d8",
+        "filename": "test/coding_path_sync.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-26T18:58:44Z",
+      "side": 1,
+      "message": "this can simply be named DISABLED_CodingPathSync",
+      "revId": "14cb860f664a0858b18018f18e10ee4e91aa3931",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
