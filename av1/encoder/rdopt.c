@@ -9640,7 +9640,18 @@ static void pick_filter_intra_interframe(
 
   uv_tx = uv_txsize_lookup[bsize][mbmi->tx_size][xd->plane[1].subsampling_x]
                           [xd->plane[1].subsampling_y];
-  if (rate_uv_intra[uv_tx] == INT_MAX) {
+
+  int choose_intra_uv = rate_uv_intra[uv_tx] == INT_MAX;
+#if CONFIG_CHROMA_SUB8X8
+#if CONFIG_DEBUG
+  assert(x->skip_chroma_rd ==
+         !is_chroma_reference(mi_row, mi_col, bsize,
+                              xd->plane[plane].subsampling_x,
+                              xd->plane[plane].subsampling_y));
+#endif  // CONFIG_DEBUG
+  choose_intra_uv *= !x->skip_chroma_rd;
+#endif  // CONFIG_CHROMA_SUB8X8
+  if (choose_intra_uv) {
     choose_intra_uv_mode(cpi, x, ctx, bsize, uv_tx, &rate_uv_intra[uv_tx],
                          &rate_uv_tokenonly[uv_tx], &dist_uv[uv_tx],
                          &skip_uv[uv_tx], &mode_uv[uv_tx]);
@@ -10485,7 +10496,17 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
       uv_tx = uv_txsize_lookup[bsize][mbmi->tx_size][pd->subsampling_x]
                               [pd->subsampling_y];
-      if (rate_uv_intra[uv_tx] == INT_MAX) {
+      int choose_intra_uv = rate_uv_intra[uv_tx] == INT_MAX;
+#if CONFIG_CHROMA_SUB8X8
+#if CONFIG_DEBUG
+      assert(x->skip_chroma_rd ==
+             !is_chroma_reference(mi_row, mi_col, bsize,
+                                  xd->plane[1].subsampling_x,
+                                  xd->plane[1].subsampling_y));
+#endif  // CONFIG_DEBUG
+      choose_intra_uv *= !x->skip_chroma_rd;
+#endif  // CONFIG_CHROMA_SUB8X8
+      if (choose_intra_uv) {
         choose_intra_uv_mode(cpi, x, ctx, bsize, uv_tx, &rate_uv_intra[uv_tx],
                              &rate_uv_tokenonly[uv_tx], &dist_uvs[uv_tx],
                              &skip_uvs[uv_tx], &mode_uv[uv_tx]);
@@ -11389,7 +11410,18 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     if (rd_stats_y.rate == INT_MAX) goto PALETTE_EXIT;
     uv_tx = uv_txsize_lookup[bsize][mbmi->tx_size][xd->plane[1].subsampling_x]
                             [xd->plane[1].subsampling_y];
-    if (rate_uv_intra[uv_tx] == INT_MAX) {
+
+    int choose_intra_uv = rate_uv_intra[uv_tx] == INT_MAX;
+#if CONFIG_CHROMA_SUB8X8
+#if CONFIG_DEBUG
+    assert(x->skip_chroma_rd ==
+           !is_chroma_reference(mi_row, mi_col, bsize,
+                                xd->plane[1].subsampling_x,
+                                xd->plane[1].subsampling_y));
+#endif  // CONFIG_DEBUG
+    choose_intra_uv *= !x->skip_chroma_rd;
+#endif  // CONFIG_CHROMA_SUB8X8
+    if (choose_intra_uv) {
       choose_intra_uv_mode(cpi, x, ctx, bsize, uv_tx, &rate_uv_intra[uv_tx],
                            &rate_uv_tokenonly[uv_tx], &dist_uvs[uv_tx],
                            &skip_uvs[uv_tx], &mode_uv[uv_tx]);
@@ -11401,6 +11433,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       filter_intra_mode_info_uv[uv_tx] = mbmi->filter_intra_mode_info;
 #endif  // CONFIG_FILTER_INTRA
     }
+
     mbmi->uv_mode = mode_uv[uv_tx];
     pmi->palette_size[1] = pmi_uv[uv_tx].palette_size[1];
     if (pmi->palette_size[1] > 0) {
