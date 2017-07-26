@@ -1759,14 +1759,20 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
           {
-            if (motion_allowed == WARPED_CAUSAL)
+            if (motion_allowed == WARPED_CAUSAL) {
               counts->motion_mode[mbmi->sb_type][mbmi->motion_mode]++;
-            else if (motion_allowed == OBMC_CAUSAL)
+              update_cdf(xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
+                         mbmi->motion_mode, MOTION_MODES);
+            } else if (motion_allowed == OBMC_CAUSAL) {
               counts->obmc[mbmi->sb_type][mbmi->motion_mode == OBMC_CAUSAL]++;
+            }
           }
 #else
-        if (motion_allowed > SIMPLE_TRANSLATION)
+        if (motion_allowed > SIMPLE_TRANSLATION) {
           counts->motion_mode[mbmi->sb_type][mbmi->motion_mode]++;
+          update_cdf(xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
+                     mbmi->motion_mode, MOTION_MODES);
+        }
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
@@ -4877,6 +4883,13 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   for (mi_row = tile_info->mi_row_start; mi_row < tile_info->mi_row_end;
        mi_row += cm->mib_size) {
     encode_rd_sb_row(cpi, td, this_tile, mi_row, &tok);
+
+    // TODO(yuec) Suboptimal fix. Need to implement per-block update inside
+    // the function above
+    for (int i = BLOCK_8X8; i < BLOCK_SIZES; i++) {
+      av1_cost_tokens_from_cdf(cpi->motion_mode_cost[i],
+                               td->mb.e_mbd.tile_ctx->motion_mode_cdf[i], NULL);
+    }
   }
 
   cpi->tok_count[tile_row][tile_col] =
