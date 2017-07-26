@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2c8fecf8_765d25e8",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-07-26T15:21:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e97c101_d54c73ba",
+      "revId": "dad3ec99d7a28438339f43ed110927c9999ef7da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e4c44a55_c84524de",
         "filename": "av1/common/cfl.c",
         "patchSetId": 14
@@ -33,6 +51,24 @@
       "revId": "dad3ec99d7a28438339f43ed110927c9999ef7da",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c342552f_a12a74a2",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-07-26T15:21:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4c44a55_c84524de",
+      "revId": "dad3ec99d7a28438339f43ed110927c9999ef7da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "31aeae91_426123c5",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-07-26T15:21:44Z",
+      "side": 1,
+      "message": "Removed these asserts which simply document the macros.",
+      "parentUuid": "8379d2f3_60a9a8be",
+      "revId": "dad3ec99d7a28438339f43ed110927c9999ef7da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c36d8ace_101c28ad",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 14
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "4843a63a_3f49a888",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-07-26T15:21:44Z",
+      "side": 1,
+      "message": "Simplified the CFL_SIGN_V.",
+      "parentUuid": "c36d8ace_101c28ad",
+      "revId": "dad3ec99d7a28438339f43ed110927c9999ef7da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "448280dc_1e2d3e48",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 14
@@ -84,6 +156,24 @@
       "revId": "dad3ec99d7a28438339f43ed110927c9999ef7da",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac607ac6_503a778b",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-07-26T15:21:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "448280dc_1e2d3e48",
+      "revId": "dad3ec99d7a28438339f43ed110927c9999ef7da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
